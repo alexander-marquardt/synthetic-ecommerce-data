@@ -158,7 +158,9 @@ def format_length_best(inches: float, style: LengthStyle) -> str:
         "decimal": ("decimal",),
     }[style.shape]
     for shape in order:
-        places = 4 if style.system == "in" else 2
+        # Keep the caller's precision when the shape they asked for is the one
+        # being tried; only a fallback shape needs a default number of places.
+        places = style.places if shape == style.shape else (4 if style.system == "in" else 2)
         candidate = LengthStyle(style.system, style.suffix, shape, places=places)
         try:
             return format_length(inches, candidate)

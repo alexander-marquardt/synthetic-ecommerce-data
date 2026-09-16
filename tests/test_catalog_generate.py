@@ -1,0 +1,227 @@
+"""The generator's contract: shape, determinism, and the measured rates.
+
+The rate assertions carry deliberately wide bounds. These are sampled
+quantities, and several of them are *clustered* -- a line-constant attribute
+such as Helix Angle carries its defect to every SKU under that line, so the
+per-record rate swings with how big the unlucky lines happened to be. A tight
+bound on a clustered rate is a flaky test, not a strict one. What the bounds
+are tight enough to catch is the failure that matters: a rate that has gone to
+zero, or to one, because the mechanism stopped working.
+"""
+
+from __future__ import annotations
+
+import pytest
+
+from synthetic_industrial_products.catalog import taxonomy
+from synthetic_industrial_products.catalog.config import SMALL, GeneratorConfig
+from synthetic_industrial_products.catalog.generate import generate
+from synthetic_industrial_products.catalog.measure import measure
+from synthetic_industrial_products.catalog.vocab import (
+    MEASUREMENT_SYSTEM_NAMES,
+    STANDARDS_NAME,
+    VOCAB,
+)
+
+
+@pytest.fixture(scope="module")
+def config():
+    return GeneratorConfig(lines=200, seed=99)
+
+
+@pytest.fixture(scope="module")
+def catalog(config):
+    return generate(config)
+
+
+@pytest.fixture(scope="module")
+def stats(catalog, config):
+    return measure(catalog, config)
+
+
+def test_the_same_seed_produces_the_same_catalog():
+    left = generate(SMALL)
+    right = generate(SMALL)
+    assert [line.product_id for line in left.lines] == [line.product_id for line in right.lines]
+    assert [c.sku for _, c in left.all_skus()] == [c.sku for _, c in right.all_skus()]
+    assert [c.title for _, c in left.all_skus()] == [c.title for _, c in right.all_skus()]
+
+
+def test_a_different_seed_produces_a_different_catalog():
+    left = generate(SMALL)
+    right = generate(SMALL.with_(seed=SMALL.seed + 1))
+    assert [c.sku for _, c in left.all_skus()] != [c.sku for _, c in right.all_skus()]
+
+
+def test_the_catalog_is_the_size_it_was_asked_for(stats):
+    assert stats["lines"] == pytest.approx(200, abs=12)
+    assert 1200 <= stats["skus"] <= 4000
+
+
+def test_every_product_type_is_represented(stats):
+    assert set(stats["lines_by_type"]) == set(VOCAB)
+    for type_key, count in stats["lines_by_type"].items():
+        assert count > 0, type_key
+
+
+def test_every_sku_code_is_unique(catalog):
+    codes = [child.sku for _, child in catalog.all_skus()]
+    assert len(codes) == len(set(codes))
+
+
+def test_a_child_never_redefines_a_name_its_line_already_carries(catalog):
+    """The flat shape concatenates parent and child attributes.
+
+    If a child could redefine a name the line already publishes, that
+    concatenation would emit the same attribute twice with two values and
+    every consumer would have to guess which one wins.
+    """
+    for line in catalog.lines:
+        line_names = line.attribute_names()
+        for child in line.children:
+            overlap = line_names & child.attribute_names()
+            assert not overlap, f"{line.product_id}/{child.sku} redefines {overlap}"
+
+
+def test_every_line_carries_line_constant_attributes_and_every_child_varies(catalog):
+    for line in catalog.lines:
+        assert line.attributes, line.product_id
+        assert line.children
+        for child in line.children:
+            assert child.attributes, child.sku
+
+
+def test_the_category_tree_is_used_and_is_three_or_four_deep(catalog):
+    depths = {len(line.category) for line in catalog.lines}
+    assert depths <= {3, 4}
+    assert depths == taxonomy.tree_depths()
+
+
+def test_the_multivalued_attribute_exists_and_really_is_multivalued(stats):
+    """Without this shape the reverse_nested case cannot be demonstrated."""
+    assert stats["standards_present"] > 0
+    assert stats["standards_multivalued"] > 0
+    assert stats["multivalued_attribute_names"].get(STANDARDS_NAME, 0) > 0
+    # More values than records carrying the attribute: that difference IS the
+    # over-count a naive nested aggregation reports.
+    assert stats["standards_total_values"] > stats["standards_present"]
+
+
+def test_the_multivalued_attribute_spans_product_types(catalog):
+    types_with = {
+        line.type_key
+        for line in catalog.lines
+        if any(a.name == STANDARDS_NAME for a in line.attributes)
+    }
+    assert len(types_with) >= 6, types_with
+
+
+def test_attribute_names_are_disjoint_across_unrelated_types_in_the_output(stats):
+    """The vocabularies are disjoint by construction; check the OUTPUT is too."""
+    screw = set(stats["attribute_names_by_type"]["screw_socket_head"])
+    hammer = set(stats["attribute_names_by_type"]["hammer_ball_pein"])
+    # The measurement-system attribute is shared on purpose -- it is the one
+    # idea every family describes, under three different names. Everything
+    # else a threaded fastener and a striking tool publish is disjoint.
+    allowed = {"Item", STANDARDS_NAME, *(name for name, _ in MEASUREMENT_SYSTEM_NAMES)}
+    assert screw & hammer <= allowed
+
+
+def test_the_measurement_system_attribute_appears_under_more_than_one_spelling(stats):
+    names = stats["measurement_system_names"]
+    assert len(names) >= 2, names
+    assert "Dimension Type" in names
+
+
+def test_both_the_role_ambiguity_cases_occur(stats):
+    """Shank equal to cutting diameter, and shank different: both, at rate."""
+    row = next(c for c in stats["comparisons"] if c.name == "shank == cutting diameter")
+    assert row.denominator > 200
+    assert 0.55 <= row.achieved <= 0.75, row
+    assert row.numerator < row.denominator, "some tools must have differing diameters"
+
+
+@pytest.mark.parametrize(
+    "metric,low,high",
+    [
+        ("length of cut > overall length", 0.03, 0.16),
+        ("angle attribute carries a length unit", 0.005, 0.14),
+        ("declared system contradicts value units", 0.005, 0.08),
+        ("unit mixing within one record", 0.005, 0.05),
+        ("title dimension token unlabelled", 0.38, 0.55),
+        ("title dimension token is not the primary dimension", 0.10, 0.25),
+        ("title label truncated", 0.005, 0.07),
+        ("image reference missing", 0.06, 0.16),
+        ("image sku diverges from product sku", 0.66, 0.80),
+    ],
+)
+def test_each_measured_rate_is_reproduced(stats, metric, low, high):
+    row = next(c for c in stats["comparisons"] if c.name == metric)
+    assert row.denominator > 0, f"{metric} has an empty denominator"
+    assert low <= row.achieved <= high, row
+
+
+def test_attributes_per_record_is_close_to_the_measured_mean(stats):
+    row = next(c for c in stats["comparisons"] if c.name == "attributes per record (mean)")
+    assert 11.5 <= row.achieved <= 14.5, row
+
+
+def test_turning_the_defect_rate_off_produces_a_clean_catalog():
+    """The control case: a catalog with no internal contradictions at all.
+
+    It is not what a real catalog looks like, which is the point -- the knob
+    exists so a consumer can tell which of their results depend on the noise.
+    """
+    config = GeneratorConfig(lines=120, seed=5, defect_scale=0.0)
+    stats = measure(generate(config), config)
+    for name in (
+        "length of cut > overall length",
+        "angle attribute carries a length unit",
+        "declared system contradicts value units",
+        "unit mixing within one record",
+    ):
+        row = next(c for c in stats["comparisons"] if c.name == name)
+        assert row.numerator == 0, row
+
+
+def test_the_sparsity_knob_moves_the_attribute_count():
+    ragged = GeneratorConfig(lines=120, seed=5, sparsity_scale=0.3)
+    full = GeneratorConfig(lines=120, seed=5, sparsity_scale=1.0)
+
+    def mean_attrs(config):
+        stats = measure(generate(config), config)
+        return next(
+            c for c in stats["comparisons"] if c.name == "attributes per record (mean)"
+        ).achieved
+
+    assert mean_attrs(ragged) < mean_attrs(full) - 1.0
+
+
+def test_the_line_and_sku_count_knobs_move_the_catalog_size():
+    small = measure(generate(GeneratorConfig(lines=50, seed=3)))
+    large = measure(generate(GeneratorConfig(lines=150, seed=3)))
+    assert large["lines"] > small["lines"] * 2
+    assert large["skus"] > small["skus"] * 2
+
+    narrow = measure(generate(GeneratorConfig(lines=60, seed=3, skus_per_line=(2, 3))))
+    wide = measure(generate(GeneratorConfig(lines=60, seed=3, skus_per_line=(15, 20))))
+    assert wide["skus"] > narrow["skus"] * 2
+
+
+def test_every_child_has_a_title_and_a_price(catalog):
+    for _, child in catalog.all_skus():
+        assert child.title
+        assert child.price_usd > 0
+        assert child.stock >= 0
+
+
+def test_fasteners_carry_their_standard_as_provenance_and_tools_do_not(catalog):
+    for line in catalog.lines:
+        if line.type_key in ("screw_socket_head", "screw_flat_head", "bolt_hex", "washer_flat"):
+            assert any(token in line.dimension_provenance for token in ("ISO", "ASME", "DIN")), (
+                f"{line.product_id}: {line.dimension_provenance!r}"
+            )
+        if line.type_key.startswith("end_mill"):
+            assert "generated" in line.dimension_provenance
+            assert "ISO" not in line.dimension_provenance
+            assert "ASME" not in line.dimension_provenance
