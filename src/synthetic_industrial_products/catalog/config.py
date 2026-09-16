@@ -27,7 +27,12 @@ class GeneratorConfig:
     #: Roughly how many parent product lines to emit in total. The actual
     #: count lands within a line or two of this; lines are apportioned across
     #: product types by ``type_weights``.
-    lines: int = 400
+    #:
+    #: 500 lines yields about 4,500 SKUs. A line cannot offer more SKUs than
+    #: its series has members -- there are nine imperial shank sizes and eight
+    #: ball pein head weights -- so the SKU count is driven by the line count
+    #: far more than by ``skus_per_line``.
+    lines: int = 500
 
     #: SKUs per line, sampled uniformly from this inclusive range. 400 lines
     #: at a mean of 12 gives about 4,800 children.

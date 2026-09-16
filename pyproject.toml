@@ -11,6 +11,7 @@ dependencies = [
 
 [project.scripts]
 sip-render = "synthetic_industrial_products.cli:main"
+sip-generate = "synthetic_industrial_products.catalog.cli:main"
 
 [dependency-groups]
 dev = [
