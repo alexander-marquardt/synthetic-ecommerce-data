@@ -1,0 +1,534 @@
+"""Dimensioned cap-screw drawing, derived entirely from a product record.
+
+What is drawn and what is not
+-----------------------------
+Everything in the drawing comes out of the record's own attributes. Two
+consequences are worth stating, because the alternative in both cases would be
+to put a number in the picture that the record does not contain:
+
+* The countersink angle is **computed** from ``Head Dia.``, ``Head Height`` and
+  the thread's major diameter, not taken from a standard's table. For the
+  reference record that arithmetic lands on an 82 degree included angle, which
+  is what the inch flat-head standard specifies -- a check on the attributes,
+  not a value borrowed from elsewhere.
+* The **depth** of a socket drive is not derivable from any published
+  attribute, so it is not drawn. The socket appears as the opening it makes in
+  the head's top face (side view) and as its true across-flats shape (end
+  view). Drawing a recess to some invented depth would be the one line in the
+  picture that the data could not defend.
+"""
+
+from __future__ import annotations
+
+import math
+from dataclasses import dataclass
+from pathlib import Path
+
+from matplotlib.patches import Circle, Polygon, Rectangle
+
+from ..dimensions import Length, Thread, parse_length, parse_thread
+from . import canvas as cv
+from .profiles import CARD, Profile
+
+FILL_V = 0.78
+FILL_H = 0.42
+
+#: Gap between the elevation and the end view above it, in head diameters.
+END_VIEW_GAP = 0.30
+
+#: Head styles this renderer can build from ``Head Dia.`` and ``Head Height``
+#: alone. ``countersunk`` heads sink into the work, so the published length is
+#: measured over the head; every other style is measured under it.
+COUNTERSUNK = {"flat", "flat head", "countersunk", "flat countersunk"}
+CYLINDRICAL = {"socket", "socket cap", "cylindrical", "cheese", "socket head", "hex"}
+
+
+class UnsupportedHeadError(ValueError):
+    """The head style is not one this renderer can derive from the attributes."""
+
+
+class MissingAttributeError(KeyError):
+    """The record does not carry an attribute the drawing needs."""
+
+
+@dataclass(frozen=True)
+class FastenerGeometry:
+    thread: Thread
+    length: Length
+    thread_length: Length
+    head_dia: Length
+    head_height: Length
+    head_style: str
+    drive_type: str
+    drive_size: Length | None
+
+    @property
+    def countersunk(self) -> bool:
+        return self.head_style.strip().lower() in COUNTERSUNK
+
+    @property
+    def total_height(self) -> float:
+        """Tip to top of head. Countersunk length is measured over the head."""
+        if self.countersunk:
+            return self.length.inches
+        return self.length.inches + self.head_height.inches
+
+    @property
+    def shank_length(self) -> float:
+        return self.total_height - self.head_height.inches
+
+    @property
+    def threaded_length(self) -> float:
+        """Thread run, clamped to the shank the head leaves behind.
+
+        A fully threaded countersunk screw publishes a thread length equal to
+        its nominal length, which is longer than the shank because the length
+        is measured over the head. Clamping draws the thread running right up
+        under the head, which is what such a screw is.
+        """
+        return min(self.thread_length.inches, self.shank_length)
+
+    @property
+    def countersink_included_angle(self) -> float:
+        """Included angle of the countersink, in degrees, from the dimensions."""
+        if not self.countersunk:
+            raise UnsupportedHeadError(
+                f"head style {self.head_style!r} is not countersunk; it has no cone angle"
+            )
+        half_rise = (self.head_dia.inches - self.thread.major.inches) / 2
+        return 2 * math.degrees(math.atan2(half_rise, self.head_height.inches))
+
+    @property
+    def max_width(self) -> float:
+        return max(self.head_dia.inches, self.thread.major.inches)
+
+
+def _require(record: dict, key: str) -> str:
+    try:
+        return record[key]
+    except KeyError as exc:
+        raise MissingAttributeError(
+            f"record {record.get('sku', '?')!r} has no {key!r}; the drawing needs it"
+        ) from exc
+
+
+def geometry_from_record(record: dict) -> FastenerGeometry:
+    head_style = str(_require(record, "Screw Head Type")).strip()
+    key = head_style.lower()
+    if key not in COUNTERSUNK and key not in CYLINDRICAL:
+        raise UnsupportedHeadError(
+            f"head style {head_style!r} cannot be built from Head Dia. and Head Height "
+            "alone; its profile is not implied by any attribute on the record"
+        )
+    drive_size_raw = record.get("Drive Size")
+    return FastenerGeometry(
+        thread=parse_thread(_require(record, "Dia./Thread Size")),
+        length=parse_length(_require(record, "Length")),
+        thread_length=parse_length(_require(record, "Thread Length")),
+        head_dia=parse_length(_require(record, "Head Dia.")),
+        head_height=parse_length(_require(record, "Head Height")),
+        head_style=head_style,
+        drive_type=str(record.get("Drive Type", "")).strip(),
+        drive_size=parse_length(drive_size_raw) if drive_size_raw else None,
+    )
+
+
+def _head_outline(geom: FastenerGeometry, y_tip: float) -> list[tuple[float, float]]:
+    top = y_tip + geom.total_height
+    seat = top - geom.head_height.inches
+    r_head = geom.head_dia.inches / 2
+    r_shank = geom.thread.major.inches / 2
+    if geom.countersunk:
+        return [(-r_head, top), (-r_shank, seat), (r_shank, seat), (r_head, top)]
+    return [(-r_head, seat), (-r_head, top), (r_head, top), (r_head, seat)]
+
+
+def _draw_thread(ax, geom: FastenerGeometry, y_tip: float) -> None:
+    """A 60-degree thread form at the pitch the designation states."""
+    r_major = geom.thread.major.inches / 2
+    r_minor = geom.thread.minor_in / 2
+    pitch = geom.thread.pitch_in
+    top = y_tip + geom.threaded_length
+
+    for x_sign, phase in ((-1, 0.0), (1, 0.5)):
+        xs: list[float] = []
+        ys: list[float] = []
+        y = y_tip - pitch
+        while y < top + pitch:
+            xs.extend([x_sign * r_minor, x_sign * r_major])
+            ys.extend([y + phase * pitch, y + (phase + 0.5) * pitch])
+            y += pitch
+        clip = Rectangle(
+            (-r_major * 1.02, y_tip),
+            r_major * 2.04,
+            geom.threaded_length,
+            transform=ax.transData,
+        )
+        line = ax.plot(
+            xs, ys, color=cv.INK, lw=cv.LW_BODY * 0.55, zorder=4, solid_joinstyle="miter"
+        )[0]
+        line.set_clip_path(clip)
+
+
+def _draw_body(ax, geom: FastenerGeometry, y_tip: float) -> None:
+    r_shank = geom.thread.major.inches / 2
+    r_minor = geom.thread.minor_in / 2
+
+    ax.add_patch(
+        Rectangle(
+            (-r_shank, y_tip),
+            r_shank * 2,
+            geom.shank_length,
+            fc=cv.SHANK_FILL,
+            ec="none",
+            zorder=1,
+        )
+    )
+    # Thread roots, then the outline of the unthreaded run, then the form.
+    for sign in (-1, 1):
+        ax.plot(
+            [sign * r_minor, sign * r_minor],
+            [y_tip, y_tip + geom.threaded_length],
+            color=cv.MUTED,
+            lw=cv.LW_HIDDEN,
+            zorder=3,
+        )
+        ax.plot(
+            [sign * r_shank, sign * r_shank],
+            [y_tip + geom.threaded_length, y_tip + geom.shank_length],
+            color=cv.INK,
+            lw=cv.LW_BODY,
+            zorder=3,
+        )
+    ax.plot(
+        [-r_shank, r_shank],
+        [y_tip, y_tip],
+        color=cv.INK,
+        lw=cv.LW_BODY,
+        zorder=3,
+    )
+    _draw_thread(ax, geom, y_tip)
+
+    ax.add_patch(
+        Polygon(
+            _head_outline(geom, y_tip),
+            closed=False,
+            fill=True,
+            fc=cv.BODY_FILL,
+            ec=cv.INK,
+            lw=cv.LW_BODY,
+            joinstyle="miter",
+            zorder=5,
+        )
+    )
+
+    # Top face, interrupted by the drive opening. The socket's depth is not a
+    # published attribute, so only its mouth is drawn.
+    top = y_tip + geom.total_height
+    r_head = geom.head_dia.inches / 2
+    mouth = drive_mouth_width(geom)
+    half_drive = (mouth / 2) if mouth else 0.0
+    if half_drive > 0:
+        for sign in (-1, 1):
+            ax.plot(
+                [sign * r_head, sign * half_drive],
+                [top, top],
+                color=cv.INK,
+                lw=cv.LW_BODY,
+                zorder=6,
+            )
+    else:
+        ax.plot([-r_head, r_head], [top, top], color=cv.INK, lw=cv.LW_BODY, zorder=6)
+
+
+def drive_outline(geom: FastenerGeometry, centre: tuple[float, float] = (0.0, 0.0)):
+    """The drive recess as seen along the axis, or ``None`` if not determined.
+
+    A single across-size determines a hex socket, a square socket and a slot.
+    It does not determine a Torx or a cross recess -- those are lobed shapes
+    whose profile no attribute on the record carries -- so for those the drawing
+    shows no recess rather than a plausible-looking wrong one.
+    """
+    if geom.drive_size is None:
+        return None
+    cx, cy = centre
+    across = geom.drive_size.inches
+    kind = geom.drive_type.lower()
+    if "hex" in kind:
+        r = (across / 2) / math.cos(math.radians(30))
+        return [
+            (
+                cx + r * math.cos(math.radians(30 + 60 * k)),
+                cy + r * math.sin(math.radians(30 + 60 * k)),
+            )
+            for k in range(6)
+        ]
+    if "square" in kind:
+        h = across / 2
+        return [(cx - h, cy - h), (cx - h, cy + h), (cx + h, cy + h), (cx + h, cy - h)]
+    if "slot" in kind:
+        h = across / 2
+        r = geom.head_dia.inches / 2
+        return [(cx - r, cy - h), (cx - r, cy + h), (cx + r, cy + h), (cx + r, cy - h)]
+    return None
+
+
+def drive_mouth_width(geom: FastenerGeometry) -> float | None:
+    """Width of the opening the drive makes in the head's top face, or ``None``.
+
+    ``None`` means the same thing it means for :func:`drive_outline`: the record
+    does not determine the shape, so the top face is drawn unbroken.
+    """
+    if drive_outline(geom) is None:
+        return None
+    assert geom.drive_size is not None
+    return geom.drive_size.inches
+
+
+def _draw_end_view(ax, geom: FastenerGeometry, centre: tuple[float, float] = (0.0, 0.0)) -> None:
+    """The head seen along the axis: head diameter, and the drive's true shape."""
+    cx, cy = centre
+    r_head = geom.head_dia.inches / 2
+    ax.add_patch(Circle((cx, cy), r_head, fc=cv.BODY_FILL, ec=cv.INK, lw=cv.LW_BODY, zorder=3))
+    ax.add_patch(
+        Circle(
+            (cx, cy),
+            geom.thread.major.inches / 2,
+            fill=False,
+            ec=cv.MUTED,
+            lw=cv.LW_HIDDEN,
+            ls=(0, (5, 4)),
+            zorder=4,
+        )
+    )
+    outline = drive_outline(geom, centre)
+    if outline is not None:
+        ax.add_patch(
+            Polygon(
+                outline,
+                closed=True,
+                fc=cv.SHANK_FILL,
+                ec=cv.INK,
+                lw=cv.LW_BODY * 0.8,
+                zorder=5,
+            )
+        )
+
+
+def _frame_height(fig, rect, geom: FastenerGeometry) -> float:
+    box_ratio = cv.frame_width(fig, rect, 1.0)
+    return max(geom.total_height / FILL_V, (geom.max_width / FILL_H) / box_ratio)
+
+
+def _card_content_height(geom: FastenerGeometry) -> float:
+    """Elevation plus the end view stacked above it, with the gap between."""
+    return geom.total_height + END_VIEW_GAP * geom.head_dia.inches + geom.head_dia.inches
+
+
+def _render_card(record: dict, geom: FastenerGeometry, profile: Profile):
+    fig = cv.new_figure(profile)
+    rect = (0.0, 0.0, 1.0, 1.0)
+    content_h = _card_content_height(geom)
+    box_ratio = cv.frame_width(fig, rect, 1.0)
+    frame_h = max(content_h / FILL_V, (geom.max_width / FILL_H) / box_ratio)
+    ax = cv.frame_axes(fig, rect, frame_h)
+    frame_w = cv.frame_width(fig, rect, frame_h)
+
+    # A screw is squat where an end mill is long, so the portrait card has
+    # vertical room the elevation does not need. It goes to the end view, which
+    # is the only place the drive type is visible as a shape.
+    y_tip = -content_h / 2
+    _draw_body(ax, geom, y_tip)
+
+    ax_end_centre = (
+        y_tip + geom.total_height + END_VIEW_GAP * geom.head_dia.inches + geom.head_dia.inches / 2
+    )
+    _draw_end_view(ax, geom, centre=(0.0, ax_end_centre))
+
+    overhang = frame_w * 0.05
+    gap = frame_w * 0.035
+    cv.diameter_callout(
+        ax,
+        y_tip + geom.threaded_length * 0.45,
+        geom.thread.major.inches,
+        geom.thread.designation,
+        "thread",
+        side=1,
+        overhang=overhang,
+        gap=gap,
+    )
+    x_len = -frame_w * 0.28
+    cv.length_dimension(
+        ax, x_len, y_tip, y_tip + geom.total_height, geom.length.display(), fontsize=cv.FS_CALLOUT
+    )
+    cv.witness(ax, x_len, -geom.thread.major.inches / 2, y_tip)
+    cv.witness(ax, x_len, -geom.head_dia.inches / 2, y_tip + geom.total_height)
+    ax.text(
+        x_len - frame_w * 0.075,
+        y_tip + geom.total_height / 2,
+        "length",
+        rotation=90,
+        ha="center",
+        va="center",
+        color=cv.MUTED,
+        fontsize=cv.FS_SUBLABEL,
+    )
+    ax.text(
+        0,
+        -frame_h * 0.47,
+        str(record.get("sku", "")),
+        ha="center",
+        va="bottom",
+        color=cv.MUTED,
+        fontsize=cv.FS_FOOT,
+    )
+    return fig, ax
+
+
+def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
+    fig = cv.new_figure(profile)
+    rect = (0.04, 0.05, 0.50, 0.82)
+    frame_h = _frame_height(fig, rect, geom)
+    ax = cv.frame_axes(fig, rect, frame_h)
+    frame_w = cv.frame_width(fig, rect, frame_h)
+
+    y_tip = -geom.total_height / 2
+    _draw_body(ax, geom, y_tip)
+
+    overhang = frame_w * 0.04
+    gap = frame_w * 0.03
+    top = y_tip + geom.total_height
+
+    x_len = -frame_w * 0.40
+    cv.length_dimension(ax, x_len, y_tip, top, geom.length.display())
+    cv.witness(ax, x_len, -geom.head_dia.inches / 2, top)
+    cv.witness(ax, x_len, -geom.thread.major.inches / 2, y_tip)
+    ax.text(
+        x_len - frame_w * 0.055,
+        y_tip + geom.total_height / 2,
+        "length",
+        rotation=90,
+        ha="center",
+        va="center",
+        color=cv.MUTED,
+        fontsize=cv.FS_SUBLABEL,
+    )
+
+    x_thr = -frame_w * 0.25
+    cv.length_dimension(
+        ax, x_thr, y_tip, y_tip + geom.threaded_length, geom.thread_length.display()
+    )
+    cv.witness(ax, x_thr, -geom.thread.major.inches / 2, y_tip + geom.threaded_length)
+    ax.text(
+        x_thr - frame_w * 0.055,
+        y_tip + geom.threaded_length / 2,
+        "thread length",
+        rotation=90,
+        ha="center",
+        va="center",
+        color=cv.MUTED,
+        fontsize=cv.FS_SUBLABEL,
+    )
+
+    cv.diameter_callout(
+        ax,
+        y_tip + geom.threaded_length * 0.5,
+        geom.thread.major.inches,
+        geom.thread.designation,
+        "thread",
+        side=1,
+        overhang=overhang,
+        gap=gap,
+    )
+    cv.diameter_callout(
+        ax,
+        top + frame_h * 0.06,
+        geom.head_dia.inches,
+        f"Ø{geom.head_dia.display()}",
+        "head dia.",
+        side=1,
+        overhang=overhang,
+        gap=gap,
+    )
+
+    end_rect = (0.62, 0.55, 0.30, 0.30)
+    ax_end = cv.frame_axes(fig, end_rect, geom.head_dia.inches * 2.0)
+    _draw_end_view(ax_end, geom)
+    label = f"end view · {geom.drive_type.lower()}" if geom.drive_type else "end view"
+    if geom.drive_size:
+        label += f" {geom.drive_size.display()}"
+    ax_end.text(
+        0,
+        -geom.head_dia.inches * 0.85,
+        label,
+        ha="center",
+        va="top",
+        color=cv.MUTED,
+        fontsize=cv.FS_SUBLABEL,
+    )
+
+    fig.text(
+        0.04,
+        0.955,
+        str(record.get("Screw Style") or record.get("Item") or "Cap Screw"),
+        fontsize=cv.FS_TITLE,
+        fontweight="bold",
+        color=cv.INK,
+    )
+    fig.text(0.04, 0.925, str(record.get("sku", "")), fontsize=cv.FS_SPEC, color=cv.MUTED)
+
+    specs = [
+        ("Dia./Thread Size", geom.thread.designation),
+        ("Length", geom.length.display()),
+        ("Thread Length", geom.thread_length.display()),
+        ("Head Dia.", geom.head_dia.display()),
+        ("Head Height", geom.head_height.display()),
+        ("Drive Type", geom.drive_type),
+        ("Drive Size", geom.drive_size.display() if geom.drive_size else ""),
+    ]
+    y = 0.44
+    for name, value in specs:
+        if not value:
+            continue
+        fig.text(0.62, y, name, fontsize=cv.FS_SPEC, color=cv.MUTED)
+        fig.text(
+            0.955, y, str(value), fontsize=cv.FS_SPEC, color=cv.INK, fontweight="bold", ha="right"
+        )
+        y -= 0.042
+    if geom.countersunk:
+        fig.text(0.62, y - 0.012, "countersink (derived)", fontsize=cv.FS_SPEC, color=cv.MUTED)
+        fig.text(
+            0.955,
+            y - 0.012,
+            f"{geom.countersink_included_angle:.0f}° incl.",
+            fontsize=cv.FS_SPEC,
+            color=cv.DIM,
+            fontweight="bold",
+            ha="right",
+        )
+    fig.text(
+        0.04,
+        0.018,
+        "drawn from this record's attribute values",
+        fontsize=cv.FS_FOOT,
+        color=cv.MUTED,
+        style="italic",
+    )
+    return fig, ax
+
+
+def build(record: dict, profile: Profile = CARD):
+    """Build the figure without writing it: ``(figure, elevation axes, geometry)``.
+
+    Exposed so a caller -- a test, or an embedder -- can measure the drawing in
+    the figure's own coordinates instead of guessing at pixels.
+    """
+    geom = geometry_from_record(record)
+    builder = _render_detail if profile.verbose else _render_card
+    fig, ax = builder(record, geom, profile)
+    return fig, ax, geom
+
+
+def render(record: dict, path: str | Path, profile: Profile = CARD) -> Path:
+    fig, _, _ = build(record, profile)
+    return cv.save(fig, path, profile)
