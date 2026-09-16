@@ -53,6 +53,12 @@ FIXTURES: dict[str, Record] = {
         "Finish": "AlTiN",
         "System of Measurement": "Inch",
     },
+    # 35AM34's two diameters are the observed ones. Its length of cut and
+    # overall length were NOT observed -- the reference page carried only the
+    # diameters -- and are supplied here so the metric path has something to
+    # draw. They follow the standard metric series for a 3.5 mm cutter on a
+    # 6 mm shank. Anything measured off this record's lengths is measuring the
+    # fill-in, not the reference.
     "35AM34": {
         "sku": "35AM34",
         "Item": "Carbide End Mill",
