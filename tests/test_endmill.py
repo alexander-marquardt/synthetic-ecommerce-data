@@ -16,7 +16,7 @@ from helpers import (
 from synthetic_industrial_products.dimensions import DimensionParseError
 from synthetic_industrial_products.records import FIXTURES
 from synthetic_industrial_products.render import CARD, DETAIL, endmill
-from synthetic_industrial_products.render.canvas import DIM, FLUTE
+from synthetic_industrial_products.render.canvas import DIM, FLUTE, INK
 
 REC = FIXTURES["4LU10"]
 
@@ -166,3 +166,65 @@ def test_each_diameter_arrow_spans_the_diameter_it_measures(sku):
     milling_arrow = runs[shoulder_row:].max()
     expected = (geom.shank_d.inches - geom.cut_d.inches) * pixels_per_inch(ax)
     assert shank_arrow - milling_arrow == pytest.approx(expected, abs=3.0)
+
+
+@pytest.mark.parametrize("helix", ["30 Degrees", "45 Degrees"])
+def test_the_flute_slope_is_the_helix_angle(helix):
+    """Each flute line leans by tan(helix) across the cutting diameter.
+
+    Flute lines drawn at some other angle would still move when the record
+    moved, so only measuring the angle itself pins it.
+    """
+    record = {**REC, "Helix Angle": helix}
+    fig, ax, geom = endmill.build(record, CARD)
+    flutes = [line for line in ax.lines if line.get_color() == FLUTE]
+    assert flutes, "no flute lines drawn"
+    for line in flutes:
+        xs, ys = line.get_data()
+        run, rise = xs[1] - xs[0], ys[1] - ys[0]
+        assert run / rise == pytest.approx(math.tan(math.radians(geom.helix_deg)))
+
+
+@pytest.mark.parametrize("sku", ["4LU10", "438D34", "33TN24", "35AM34"])
+def test_the_tool_is_scaled_from_its_own_length(sku):
+    """The silhouette fills the same share of the card whatever the tool measures.
+
+    A frame sized from anything other than this tool -- a constant, or another
+    record's length -- still produces a drawing that changes when the data
+    changes, and would pass every other test here while drawing a 6" tool off
+    the bottom of the card.
+    """
+    from synthetic_industrial_products.render.endmill import FILL_V
+
+    fig, _ax, _geom = endmill.build(FIXTURES[sku], CARD)
+    image = figure_pixels(fig)
+    rows = np.nonzero(colour_mask(image, INK, tol=0.15).any(axis=1))[0]
+    assert rows.size
+    assert (rows.max() - rows.min()) / image.shape[0] == pytest.approx(FILL_V, abs=0.02)
+
+
+@pytest.mark.parametrize("sku", ["4LU10", "438D34", "33TN24", "35AM34"])
+def test_the_silhouette_is_drawn_to_the_published_diameters(sku):
+    """The body itself measures what the callouts say, not just the arrows.
+
+    A silhouette drawn at some other width still moves when the record moves,
+    so the byte comparisons would not notice -- and the drawing would be
+    showing a tool whose proportions contradict its own dimension labels.
+    """
+    from synthetic_industrial_products.render.canvas import LW_BODY
+
+    fig, ax, geom = endmill.build(FIXTURES[sku], CARD)
+    image = figure_pixels(fig)
+    black = colour_mask(image, INK, tol=0.15)
+    scale = pixels_per_inch(ax)
+    stroke = LW_BODY * CARD.dpi / 72  # the outline straddles the edge
+    y_tip = -geom.oal.inches / 2
+
+    for y, diameter in (
+        (y_tip + geom.loc.inches * 0.33, geom.cut_d.inches),
+        (y_tip + geom.loc.inches + (geom.oal.inches - geom.loc.inches) * 0.5, geom.shank_d.inches),
+    ):
+        columns = np.nonzero(black[int(rows_from_top(fig, ax, y))])[0]
+        assert columns.size, "no silhouette on this row"
+        measured = columns.max() - columns.min() + 1
+        assert measured == pytest.approx(diameter * scale + stroke, abs=2.0)

@@ -72,10 +72,12 @@ def test_an_unknown_sku_is_an_error_not_an_empty_run(tmp_path):
     assert not list(tmp_path.glob("*.png"))
 
 
-def test_png_dimensions_reads_the_header(tmp_path, png_size):
-    main(["sku", "4LU10", "--profile", "detail", "--out", str(tmp_path)])
-    path = tmp_path / "4LU10_detail.png"
-    assert png_dimensions(path) == png_size(path) == (1400, 1400)
+def test_png_dimensions_reads_the_header_width_first(tmp_path, png_size):
+    # Measured on the card, which is not square: on the square detail image a
+    # helper that returned height first would agree with one that did not.
+    main(["sku", "4LU10", "--profile", "card", "--out", str(tmp_path)])
+    path = tmp_path / "4LU10_card.png"
+    assert png_dimensions(path) == png_size(path) == (600, 880)
 
 
 def test_png_dimensions_rejects_a_file_that_is_not_a_png(tmp_path):

@@ -133,3 +133,16 @@ def test_the_thread_form_comes_from_the_designation(tmp_path):
         {**REC, "Dia./Thread Size": "#10-24"}, tmp_path / "coarse.png", CARD
     ).read_bytes()
     assert fine_png != coarse_png
+
+
+def test_the_screw_is_scaled_from_its_own_head_diameter():
+    """A squat part fills the card's width; the frame follows the part, not a constant."""
+    from helpers import colour_mask, figure_pixels
+    from synthetic_industrial_products.render.canvas import INK
+    from synthetic_industrial_products.render.fastener import FILL_H
+
+    fig, _ax, _geom = fastener.build(REC, CARD)
+    image = figure_pixels(fig)
+    columns = np.nonzero(colour_mask(image, INK, tol=0.15).any(axis=0))[0]
+    assert columns.size
+    assert (columns.max() - columns.min()) / image.shape[1] == pytest.approx(FILL_H, abs=0.02)
