@@ -1,0 +1,27 @@
+# ---------------------------------------------------------------------------
+# Reference corpus — NEVER commit.
+#
+# Archived third-party catalog pages are analysis input only. Statistical
+# properties derived from them (distributions, co-occurrence, naming grammar)
+# are facts about how the industry models this data and DO ship. The captured
+# pages themselves are someone else's compilation and do NOT.
+#
+# If you find yourself wanting to commit something under one of these paths,
+# the answer is to derive a statistic from it and commit that instead.
+# ---------------------------------------------------------------------------
+raw/
+corpus/
+reference/
+*.warc
+*.warc.gz
+captures/
+
+# Rendered output can be large and is reproducible from the generator.
+out/
+dist/
+
+__pycache__/
+*.py[cod]
+.venv/
+.v/
+.DS_Store
