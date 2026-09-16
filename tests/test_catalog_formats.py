@@ -127,6 +127,20 @@ def test_the_fallback_never_rounds():
     assert parse_length(text).inches == pytest.approx(0.021, abs=1e-9)
 
 
+def test_the_fallback_keeps_the_precision_it_was_asked_for():
+    """A value asked for at two decimals must not silently gain two more.
+
+    ``format_length_best`` tries a sequence of shapes, and an early version
+    reset the precision on every attempt -- including the one the caller
+    actually asked for. The visible symptom was a defect value published as
+    "6.2121 in" where the generator had asked for "6.21 in", which reads as a
+    suspiciously precise measurement rather than as a formatting bug.
+    """
+    assert format_length_best(6.21, LengthStyle("in", " in", "decimal", places=2)) == "6.21 in"
+    assert format_length_best(0.375, LengthStyle("mm", "mm", "decimal", places=1)) == "9.5mm"
+    assert format_length_best(0.021, LengthStyle("in", '"', "decimal", places=4)) == '0.0210"'
+
+
 def test_a_whole_number_is_not_published_as_a_vulgar_fraction():
     with pytest.raises(UnpublishableMagnitude):
         format_length(1.0, LengthStyle("in", '"', "fraction"))

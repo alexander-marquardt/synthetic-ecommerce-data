@@ -36,3 +36,10 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# The mutation table holds verbatim fragments of source that must match the
+# files they patch byte for byte. Wrapping them to satisfy the line limit
+# would stop them matching, and the harness would report "mutation did not
+# apply" for rules it is supposed to be testing.
+"scripts/mutation_check.py" = ["E501"]

@@ -14,7 +14,7 @@ import pytest
 
 from synthetic_industrial_products.catalog import noncopy
 from synthetic_industrial_products.catalog.config import SMALL, GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate
+from synthetic_industrial_products.catalog.generate import Generator, generate
 from synthetic_industrial_products.catalog.model import Attribute
 from synthetic_industrial_products.records import FIXTURES
 
@@ -122,6 +122,39 @@ def test_the_audit_reports_verbatim_dimension_tuple_reuse(catalog):
         f"{len(hits)} of {audit['n_skus_checked']} generated tools reproduce an "
         "observed dimension tuple verbatim"
     )
+
+
+def test_the_sku_guard_rejects_a_reference_code_when_one_is_proposed():
+    """Drive the guard directly rather than waiting for a chance collision.
+
+    A catalog run proposes a few thousand SKU codes out of a space of about
+    4.7 million, against 332 reference codes, so the expected number of
+    collisions in any one run is well under one. Asserting "no collisions
+    occurred" therefore passes whether the guard exists or not -- measured:
+    deleting the guard reds nothing. This feeds the generator a code that IS a
+    reference SKU and checks it is refused.
+    """
+    generator = Generator(SMALL)
+
+    # 33TN24 is a real archived SKU, and decomposes into exactly the parts
+    # _new_sku assembles: lead 33, letters T and N, tail 24.
+    assert "33TN24" in noncopy.REFERENCE_SKUS
+
+    class ScriptedRandom:
+        def __init__(self):
+            self.ints = [33, 24, 50, 77]
+            self.letters = ["T", "N", "A", "B"]
+
+        def randint(self, _low, _high):
+            return self.ints.pop(0)
+
+        def choice(self, _seq):
+            return self.letters.pop(0)
+
+    generator.rng = ScriptedRandom()
+    code = generator._new_sku()
+    assert code == "50AB77", code
+    assert code not in noncopy.REFERENCE_SKUS
 
 
 def test_a_small_catalog_is_still_clean():

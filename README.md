@@ -31,15 +31,164 @@ changed.
 That distinction is enforced, not asserted: no generated record may match a
 reference record on its full attribute tuple, and the test suite checks it.
 
-Dimension values follow published ANSI/ISO tooling series, which are standards
-rather than any retailer's property.
+The check compares **hashes** of reference attribute tuples, not the tuples.
+The corpus still ships nowhere; a hash cannot be read back into a record, but
+it is enough to prove the property. The comparison is over the *full* tuple
+rather than field by field, and that matters: a generated `#10-32` flat head
+cap screw publishes `Head Dia. = 0.411 in`, and so does every real one, because
+that is what `ASME B18.3.2` says a `#10` flat head is. Agreeing with a standard
+is not copying. Reproducing a compilation is, and a compilation is what a full
+attribute tuple describes.
+
+### Where the dimensions come from
+
+Two different answers, and the catalog says which is which on every product
+line:
+
+| | |
+|---|---|
+| **Fasteners** | dimensions are **standards-derived**. Each line carries the standard designation its dimensions came from — `ASME B18.3`, `ISO 4762`, `ISO 10642`, `ISO 4014`, `ISO 4017`, `DIN 933`, `ISO 7089`. |
+| **Cutting tools** | dimensions are **generated** from the conventional series. No open dimensional source for end mills exists, so nothing here claims a standard, and the provenance field says so in words. |
+
+That asymmetry is deliberate. A cap screw's head is fixed by a published
+standard and a catalog that disagrees with it is wrong; an end mill's length of
+cut is a manufacturer's choice within a conventional range.
+
+Fastener dimensions were extracted from open sources rather than transcribed by
+hand:
+
+* **[FreeCAD FastenersWB](https://github.com/shaise/FreeCAD_FastenersWB)**
+  (GPL-2.0-or-later) — the primary source for every standard used.
+* **[BOLTS](https://github.com/boltsparts/boltsparts)** (fastener collections,
+  LGPL-2.1+) — corroboration only, and the sole source for DIN 912, which
+  FastenersWB does not carry. It was deliberately **not** consulted for
+  ISO 10642 (it conflates that standard with DIN 7991) nor for washer inner
+  diameter or thickness (it is wrong at M10 and at M42 and above), and
+  `profile_hollow.blt` was never opened, since it transcribes a paid EN
+  standard.
+* **Unified Thread Standard** fine-series pitches (`#10-32` and its siblings)
+  appear in no open dimensional dataset; the handful used are transcribed from
+  Wikipedia's Unified Thread Standard table (CC BY-SA 4.0). The standard itself
+  is ASME B1.1, and each entry is really its own designation — `#10-32` states
+  32 threads per inch in the name.
+
+`src/synthetic_industrial_products/data/fastener_standards.json` is that
+extraction, unmodified, and carries its own provenance block naming each
+repository, its licence and the commit it was read at. Only the sizes this
+catalog offers were taken; the upstream compilations are not redistributed.
+Values the sources do not carry are recorded as absent rather than filled in —
+there is no `#10` hex bolt here, because ASME B18.2.1 hex head screws begin at
+1/4".
 
 ## What ships, and what does not
 
 | | |
 |---|---|
-| **Ships** | the generator, derived statistics, the synthetic catalog, rendered images |
-| **Never ships** | the reference corpus of captured pages (see `.gitignore`) |
+| **Ships** | the generator, the extracted standards tables, hashes of the reference tuples, the synthetic catalog |
+| **Never ships** | the reference corpus of captured pages, and the rendered images — both reproducible, see `.gitignore` |
+
+## Generating a catalog
+
+```sh
+uv sync
+uv run sip-generate build --out out/catalog
+uv run sip-generate report                      # the measured-vs-target table only
+```
+
+Everything is parameterised, because the point of the catalog is to be dialled
+until something breaks:
+
+```sh
+uv run sip-generate build --lines 900 --skus 6 24    # more, wider product lines
+uv run sip-generate build --sparsity 0.4             # raggeder attribute coverage
+uv run sip-generate build --defects 0.0              # a catalog with no contradictions
+uv run sip-generate build --seed 7                   # a different catalog
+```
+
+The generator is deterministic: one seed produces one catalog, byte for byte.
+
+### The data model
+
+**A parent is one manufacturer's product line. Its children are the individual
+purchasable SKUs.**
+
+```
+parent    Corvane K663 -- High Speed Steel Square End Mill
+          line-CONSTANT attributes: brand, series, material, coating,
+          flute count, end type, helix angle
+children  the SKUs, varying: milling diameter, length of cut, overall
+          length, shank diameter, price, stock
+```
+
+Attributes are nested key-value at **both** levels, in **one** array rather
+than separate keyword and numeric arrays:
+
+```json
+{"name": "Milling Dia.", "value": "3/8\"", "value_num": 0.375}
+```
+
+A dimension needs both representations on the same entry — a shopper filters on
+the published text and ranges over the number — and splitting them into two
+arrays loses the fact that they are one attribute. `value_num` is **parsed back
+out of** `value` rather than carried beside it, so the two can never disagree:
+`3/8"` has no exact two-decimal millimetre spelling, and a number computed from
+the original magnitude would quietly differ from the string actually published.
+An attribute that is not a measurement omits `value_num` entirely rather than
+carrying a null, and so does a measurement whose value is deliberately
+malformed — a record publishing `Helix Angle = 42"` has no angle to put there.
+
+Lines are never grouped across brands. Two manufacturers' tools at the same
+nominal geometry are different products.
+
+### Two shapes, one catalog
+
+`sip-generate build` writes both serialisations from the same generated
+objects, so any difference between what they return is a property of the shape
+and not of the data.
+
+| file | shape |
+|---|---|
+| `nested.jsonl` | parent + nested SKUs + nested key-value attributes. The target shape: the only one in which "how many *products* have this value" is answerable, via `reverse_nested`. |
+| `flat.jsonl` | one document per SKU, attributes denormalised. Loadable today. Its attribute array is a plain `object`, so `name` and `value` become two independent multi-valued fields and the correlation between them is lost. |
+| `render.jsonl` | the same SKUs in the shape `sip-render batch` already reads |
+| `stats.json` | what was generated, measured against the statistics it reproduces |
+
+The flat shape also carries a sanitised `facets` object, because `Milling Dia.`
+cannot be an Elasticsearch field name — the trailing dot makes it an invalid
+path. The three spellings of the measurement-system attribute deliberately
+sanitise to three different keys rather than being folded into one: folding
+them here would hide the problem a field map exists to solve.
+
+## Verification
+
+```sh
+python scripts/verify_elasticsearch.py --host http://127.0.0.1:9201
+```
+
+Loads both shapes into a local test cluster, proves the properties below, and
+deletes its indices. **Every number Elasticsearch returns is compared against
+one computed independently in Python from the same in-memory objects** — an
+aggregation that agrees with itself proves nothing, since a wrong query can
+return a self-consistent wrong answer.
+
+* a nested key-value facet count equals what clicking that facet returns
+* the multi-valued attribute over-reports without `reverse_nested` and is
+  correct with it, with a single-valued attribute as the control
+* facet discovery scoped to one product type returns exactly that type's
+  attribute names
+* a numeric range on the shared `value_num`, scoped by attribute name, is
+  correct — and widens when the name filter is dropped
+* a full-text query for a dimension token returns products whose **shank**
+  carries that value, and the structured attribute filter excludes them
+* the flat shape over-matches the same name+value filter, and the nested shape
+  does not
+
+```sh
+python scripts/mutation_check.py
+```
+
+Breaks the code each new test guards, in both directions where a property has
+two, and reports any mutation that reds nothing as a zero.
 
 ## Images
 
@@ -57,6 +206,26 @@ uv run sip-render fixtures --out out              # every bundled reference reco
 uv run sip-render sku 4LU10 --profile card --out out
 uv run sip-render batch records.jsonl --out out   # one JSON record per line
 ```
+
+For a whole generated catalog, which needs per-record error handling:
+
+```sh
+python scripts/render_catalog.py out/catalog/render.jsonl --out out/images
+```
+
+**Some of the catalog cannot be drawn, and that is the renderer working.** It
+refuses a record whose dimensions are missing or contradict each other rather
+than defaulting a value, so the share it refuses tracks the sparsity and defect
+rates the catalog reproduces. A run that drew 100% of this catalog would mean
+the renderer had started inventing numbers. On the default 500-line catalog,
+2,834 of 4,480 SKUs carry attributes a renderer recognises at all (a hammer
+carries none), and of those 2,417 are drawn and 417 refused:
+
+| refusal | count | why |
+|---|---|---|
+| `MissingAttributeError` | 227 | the record does not publish a dimension the drawing needs — `Helix Angle` is present on 88% of end mills, because it is present on 88% of real ones |
+| `DimensionParseError` | 116 | the published value carries no unit, and a bare number is ambiguous |
+| `ImpossibleGeometryError` | 74 | length of cut longer than the tool, the largest measured defect class |
 
 Two profiles, both sized from where the image is displayed:
 
@@ -104,3 +273,32 @@ smoothing them away: inconsistent unit formatting within a single record,
 ragged attribute coverage, and occasional internally impossible dimensions.
 A catalog where every field is populated and every value is well-formed does
 not look like a real one, and does not exercise a search engine like one.
+
+Each rate is measured, and each defect class is reproduced against **its own
+denominator** — the records that actually carry the attribute pair it needs,
+which is how the source statistics measure them. `sip-generate report` prints
+the achieved figures beside their targets, so the claim is checkable rather
+than asserted.
+
+| property | target | achieved |
+|---|---|---|
+| shank diameter == cutting diameter | 0.6489 | 0.6579 |
+| length of cut > overall length | 0.0829 | 0.0779 |
+| an angle attribute carrying a length unit | 0.0469 | 0.0535 |
+| declared measurement system contradicts the value's units | 0.0323 | 0.0291 |
+| unit mixing within one record | 0.0222 | 0.0181 |
+| title dimension token carries no label | 0.4667 | 0.4622 |
+| title dimension token is not the primary dimension | 0.1714 | 0.1669 |
+| title label truncated at the length cap | 0.0323 | 0.0301 |
+| image reference missing | 0.1089 | 0.1116 |
+| image SKU differs from product SKU | 0.7353 | 0.7275 |
+| attributes per record (mean) | 13.12 | 12.89 |
+
+Two notes on reading that table honestly. The angle defect is **clustered**:
+the attribute is line-constant, so one bad row reaches every SKU under that
+line — which is how these arrive in a real catalog, and is visible in the
+source corpus too, where the same wrong value repeats across a whole series.
+Its per-record rate therefore swings much more between seeds than the others.
+And attributes per record sits about 2% below its target because the reference
+mean is over a different mixture of product families than this catalog
+contains; the per-family shape is reproduced, the mixture is not the same one.
