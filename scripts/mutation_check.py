@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import shlex
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -51,8 +52,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "put a diameter callout on a generic drawing",
         "render/generic.py",
-        "    _bar(ax, half, body_bottom, cut_top)",
-        '    _bar(ax, half, body_bottom, cut_top)\n    cv.diameter_callout(\n        ax, -0.2, half * 2, "Ø1/4\\"", "milling", side=1, overhang=0.02, gap=0.02\n    )',
+        "    _bar(ax, half, body_bottom, cut_top, mark)",
+        '    _bar(ax, half, body_bottom, cut_top, mark)\n    cv.diameter_callout(\n        ax, -0.2, half * 2, "Ø1/4\\"", "milling", side=1, overhang=0.02, gap=0.02\n    )',
         "tests/test_generic.py",
         "A",
         "a generic drawing carries no dimension",
@@ -70,8 +71,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "print the SKU on the generic image, as the old fallback did",
         "render/generic.py",
-        '    """Write the generic drawing this record\'s product shows."""\n    return render(image_id_for_record(record), path, profile)',
-        '    """Write the generic drawing this record\'s product shows."""\n    fig, ax = build(image_id_for_record(record), profile)\n    ax.text(0, BOTTOM - 0.04, str(record.get("sku", "")), ha="center", color=cv.MUTED)\n    return cv.save(fig, path, profile)',
+        "    return render(drawing_for_record(record), path, profile)",
+        '    fig, ax = build(drawing_for_record(record), profile)\n    ax.text(0, BOTTOM - 0.04, str(record.get("sku", "")), ha="center", color=cv.MUTED)\n    return cv.save(fig, path, profile)',
         "tests/test_generic.py",
         "A",
         "the generic image is the same file whatever the record says",
@@ -208,12 +209,128 @@ MUTATIONS: list[Mutation] = [
         "B",
         "a dimension is refused, never defaulted",
     ),
+    # ---- the marking is a function of the RECORD, never of the identity ---
+    #
+    # These are the checks the issue exists for. The defect class is an
+    # attribute published on every record and read by nothing -- which a
+    # mutation harness structurally cannot find, since an unread input has no
+    # code to mutate. What CAN be planted is the other half: a channel that
+    # reads its attribute, validates it, and then draws something else. Every
+    # A-direction mutation below is that shape.
+    Mutation(
+        "validate the brand's colour and then draw in plain black",
+        "render/marking.py",
+        '    ink = _lookup(BRAND_INK, str(brand).strip(), "outline-colour", ("brand",))',
+        '    _lookup(BRAND_INK, str(brand).strip(), "outline-colour", ("brand",))\n    ink = "#1b1b1b"',
+        "tests/test_line_drawings.py -k brand_is_readable",
+        "A",
+        "the outline colour is the brand, and reads back as the brand",
+    ),
+    Mutation(
+        "make reading a colour back resolve to whichever brand comes first",
+        "render/marking.py",
+        "    for brand, colour in BRAND_INK.items():\n        if colour.lower() == lowered:\n            return brand",
+        "    for brand, colour in BRAND_INK.items():\n        if lowered or colour.lower() == lowered:\n            return brand",
+        "tests/test_marking.py -k brand",
+        "B",
+        "the outline colour is the brand, and reads back as the brand",
+    ),
+    Mutation(
+        "put two brands close enough that one fades through the other",
+        "render/marking.py",
+        '    "Redmoor": "#e07b10",',
+        '    "Redmoor": "#a04000",',
+        'tests/test_marking.py tests/test_line_drawings.py -k "blend or brand_is_readable"',
+        "",
+        "no brand's colour can be mistaken for another's on the page",
+    ),
+    Mutation(
+        "validate the coating and then leave the part unfilled",
+        "render/marking.py",
+        '        tint = _lookup(FINISH_TINT, found[1], "fill-tint", FINISH_ATTRIBUTES)',
+        '        _lookup(FINISH_TINT, found[1], "fill-tint", FINISH_ATTRIBUTES)\n        tint = None',
+        "tests/test_line_drawings.py -k coating",
+        "A",
+        "the fill is the coating the record publishes",
+    ),
+    Mutation(
+        "give every material the same section hatch",
+        "render/marking.py",
+        '        hatch = _lookup(MATERIAL_HATCH, found[1], "section-hatch", MATERIAL_ATTRIBUTES)',
+        '        _lookup(MATERIAL_HATCH, found[1], "section-hatch", MATERIAL_ATTRIBUTES)\n        hatch = "/"',
+        "tests/test_line_drawings.py -k material",
+        "A",
+        "the section hatch is the material the record publishes",
+    ),
+    Mutation(
+        "draw four flutes whatever the record says",
+        "render/generic.py",
+        "        step = (y1 - y0) / mark.flutes\n        starts = [y0 + step * (k + 0.5) - rise / 2 for k in range(mark.flutes)]",
+        "        step = (y1 - y0) / 4\n        starts = [y0 + step * (k + 0.5) - rise / 2 for k in range(4)]",
+        "tests/test_line_drawings.py -k flute",
+        "A",
+        "the flutes drawn are the flutes published",
+    ),
+    Mutation(
+        "invent a flute count for a record that publishes none",
+        "render/marking.py",
+        "    flutes = None\n    found = _first_published(pairs, (FLUTES_ATTRIBUTE,))",
+        "    flutes = 4\n    found = _first_published(pairs, (FLUTES_ATTRIBUTE,))",
+        "tests/test_line_drawings.py -k flute",
+        "B",
+        "the flutes drawn are the flutes published",
+    ),
+    Mutation(
+        "lean every flute right-handed and print the direction underneath",
+        "render/generic.py",
+        "    hand = mark.lean\n    style = {} if mark.flutes is not None else {\"ls\": (0, (6, 4))}",
+        "    hand = 1\n    style = {} if mark.flutes is not None else {\"ls\": (0, (6, 4))}",
+        "tests/test_line_drawings.py -k left_hand",
+        "",
+        "a left-hand tool is drawn leaning the other way",
+    ),
+    Mutation(
+        "give the drawing a property derived from the product id",
+        "render/generic.py",
+        '    mark = marking_for_line(line["brand"], line["attributes"])',
+        '    mark = marking_for_line(line["brand"], line["attributes"])\n    mark = replace(mark, flutes=2 + len(line["product_id"]) % 3)',
+        "tests/test_line_drawings.py -k not_a_function_of_the_product_id",
+        "A",
+        "the drawing is a function of the record and of nothing else",
+    ),
+    Mutation(
+        "let a SKU's dimensions reach the drawing its whole line shares",
+        "render/generic.py",
+        '    record = {entry["name"]: entry["value"] for entry in line["attributes"]}',
+        '    record = {entry["name"]: entry["value"] for entry in line["attributes"]}\n    mark_rows = [e for v in line.get("variants", []) for e in v["attributes"]]\n    line = {**line, "attributes": [*line["attributes"], *mark_rows]}',
+        "tests/test_line_drawings.py -k no_sku_of_the_line",
+        "B",
+        "the drawing is a function of the record and of nothing else",
+    ),
+    Mutation(
+        "truncate the stamp so a long record is only partly shown",
+        "render/marking.py",
+        '        text = " · ".join(value for _, value in self.rows)',
+        '        text = " · ".join(value for _, value in self.rows[:4])',
+        "tests/test_line_drawings.py -k stamp_sets_every_published",
+        "",
+        "the stamp is the whole record's line-scope half",
+    ),
+    Mutation(
+        "build the signature from the attributes common to a type, not each line's own",
+        "render/marking.py",
+        "    pairs = attribute_pairs(attributes)\n\n    ink = _lookup",
+        '    pairs = tuple(p for p in attribute_pairs(attributes) if p[0] in {"Item", "Standards"})\n\n    ink = _lookup',
+        "tests/test_line_drawings.py -k exactly_three",
+        "",
+        "497 of the 500 lines get a drawing of their own",
+    ),
     # ---- every product and variant carries an image, both directions ------
     Mutation(
         "leave a product line without an image",
         "catalog/generate.py",
-        "            image_id=image_id_for(type_key),\n        )",
-        '            image_id="",\n        )',
+        "            image_id=image_id,\n            drawing=drawing_for(type_key),\n        )",
+        '            image_id="",\n            drawing=drawing_for(type_key),\n        )',
         "tests/test_catalog_generate.py tests/test_catalog_emit.py",
         "A",
         "every product and every variant carries an image that resolves",
@@ -700,8 +817,10 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "blank one card image url in the committed catalog",
         "flat.jsonl",
-        'ice_usd": 8.23, "stock": 18, "image_id": "end_mill_square", "image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/card.png"',
-        'ice_usd": 8.23, "stock": 18, "image_id": "end_mill_square", "image_url": ""',
+        'ice_usd": 8.23, "stock": 18, "image_id": "end_mill_square/OST-K663-0001", '
+        '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png"',
+        'ice_usd": 8.23, "stock": 18, "image_id": "end_mill_square/OST-K663-0001", '
+        '"image_url": ""',
         "tests/test_catalog_golden.py::test_every_flat_document_carries_an_image_url",
         "A",
         "every document carries a NON-EMPTY image url at both profiles",
@@ -710,8 +829,11 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop the detail image url from one committed nested variant",
         "nested.jsonl",
-        '"price_usd": 8.23, "stock": 18, "image_id": "end_mill_square", "image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/card.png", "image_detail_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/detail.png"',
-        '"price_usd": 8.23, "stock": 18, "image_id": "end_mill_square", "image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/card.png"',
+        '"price_usd": 8.23, "stock": 18, "image_id": "end_mill_square/OST-K663-0001", '
+        '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png", '
+        '"image_detail_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/detail.png"',
+        '"price_usd": 8.23, "stock": 18, "image_id": "end_mill_square/OST-K663-0001", '
+        '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png"',
         "tests/test_catalog_golden.py::test_every_nested_line_and_variant_carries_an_image_url",
         "B",
         "every document carries a NON-EMPTY image url at both profiles",
@@ -770,13 +892,34 @@ def _drop_bytecode() -> None:
             pyc.unlink()
 
 
+class AmbiguousSelector(ValueError):
+    """A selector carries two ``-k`` filters, so pytest silently uses one.
+
+    ``a.py -k one b.py -k two`` looks like "these two filters, one per file"
+    and is really "the second filter, applied to both" -- which ran a file
+    with a filter that matched nothing in it and reported the mutation as not
+    caught. Found by a mutation that came back green for the wrong reason, so
+    the shape is refused rather than documented.
+    """
+
+
 def run(selector: str) -> bool:
     """True when the selector is GREEN."""
+    # ``shlex`` rather than ``str.split``: a filter is written
+    # ``-k "x or y"`` and splitting on whitespace hands pytest four arguments,
+    # one of which is a stray quote. That fails the run for a reason that has
+    # nothing to do with the mutation, and reports as "not caught".
+    argv = shlex.split(selector)
+    if argv.count("-k") > 1:
+        raise AmbiguousSelector(
+            f"{selector!r} has two -k filters; pytest keeps the last one. Write "
+            'one filter: `a.py b.py -k "x or y"`.'
+        )
     _drop_bytecode()
     env = dict(os.environ)
     env["PYTHONDONTWRITEBYTECODE"] = "1"
     result = subprocess.run(
-        [sys.executable, "-m", "pytest", "-x", "-q", "--no-header", *selector.split()],
+        [sys.executable, "-m", "pytest", "-x", "-q", "--no-header", *argv],
         cwd=REPO,
         capture_output=True,
         text=True,

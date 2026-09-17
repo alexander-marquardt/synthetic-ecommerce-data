@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
+import io
 import math
 from pathlib import Path
 
 import matplotlib
 
 matplotlib.use("Agg")
+
+#: Section hatching is line work, drawn at the weight of a thin line. Set here
+#: rather than per-patch because matplotlib takes it from the rcParams at draw
+#: time, so a per-figure override would be read after the figure was built.
+matplotlib.rcParams["hatch.linewidth"] = 0.5
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg  # noqa: E402
 from matplotlib.figure import Figure  # noqa: E402
@@ -18,6 +24,9 @@ INK = "#1b1b1b"
 DIM = "#b03a2e"
 FLUTE = "#5d6d7e"
 MUTED = "#8b98a5"
+#: Section hatching, lighter than the outline it sits inside: the hatch
+#: describes what the part is made of and must not bury the part.
+HATCH = "#aab4be"
 SHANK_FILL = "#eef1f3"
 BODY_FILL = "#fbfcfd"
 PAPER = "white"
@@ -222,19 +231,34 @@ def extension_line(ax, x, y_from, y_to):
     )
 
 
-def save(fig: Figure, path: str | Path, profile: Profile) -> Path:
-    """Write the PNG at exactly the profile's pixel size, byte-deterministically.
+def to_bytes(fig: Figure, profile: Profile) -> bytes:
+    """The PNG the figure makes, at exactly the profile's pixel size.
 
     ``bbox_inches="tight"`` is deliberately not used: it crops to the ink and
     so returns whatever size the labels happened to need, which is not a size
-    the card can rely on.
+    the card can rely on. The software metadata is suppressed so the same
+    figure makes the same bytes on any machine -- which is what lets a caller
+    compare two drawings by comparing two files.
     """
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    buffer = io.BytesIO()
     fig.savefig(
-        path,
+        buffer,
+        format="png",
         dpi=profile.dpi,
         facecolor=PAPER,
         metadata={"Software": None},
     )
+    return buffer.getvalue()
+
+
+def save(fig: Figure, path: str | Path, profile: Profile) -> Path:
+    """Write the PNG at exactly the profile's pixel size, byte-deterministically.
+
+    The bytes come from :func:`to_bytes` rather than from a second call to
+    ``savefig``: a caller comparing rendered files and a caller comparing
+    rendered buffers must be comparing the same thing.
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(to_bytes(fig, profile))
     return path

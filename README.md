@@ -85,7 +85,7 @@ there is no `#10` hex bolt here, because ASME B18.2.1 hex head screws begin at
 | | |
 |---|---|
 | **Ships** | the generator, the extracted standards tables, hashes of the reference tuples, and the built catalog itself — checked in at `golden-catalog/`, see [The built catalog is committed](#the-built-catalog-is-committed-in-golden-catalog) |
-| **Never ships** | the reference corpus of captured pages, and the rendered images — both reproducible, see `.gitignore`. The images are ten PNGs and about 925 KiB, so hosting them is a copy, not a build |
+| **Never ships** | the reference corpus of captured pages, and the rendered images — both reproducible, see `.gitignore`. The images are about a thousand PNGs and 15 MiB published, so hosting them is a copy, not a build |
 
 ## Generating a catalog
 
@@ -150,8 +150,8 @@ and not of the data.
 |---|---|
 | `nested.jsonl` | parent + nested SKUs + nested key-value attributes. The target shape: the only one in which "how many *products* have this value" is answerable, via `reverse_nested`. |
 | `flat.jsonl` | one document per SKU, attributes denormalised. Loadable today. Its attribute array is a plain `object`, so `name` and `value` become two independent multi-valued fields and the correlation between them is lost. |
-| `render.jsonl` | the same SKUs in the shape `sip-render batch` already reads, for the per-record dimensioned renderer. The catalog's cards do not use it: every product and variant carries an `image_id` naming one of the ten generic drawings. |
-| `images.jsonl` | one row per image — ten rows — with its product type, its path under the image base URL at both profiles, and how many products point at it |
+| `render.jsonl` | the same SKUs in the shape `sip-render batch` already reads, for the per-record dimensioned renderer. The catalog's cards do not use it: every product and variant carries an `image_id` naming its own product line's drawing. |
+| `images.jsonl` | one row per image — one per product line — with its product type, the shape it is drawn as, its path under the image base URL at both profiles, and how many products point at it |
 | `stats.json` | what was generated, measured against the statistics it reproduces |
 
 The flat shape also carries a sanitised `facets` object, because `Milling Dia.`
@@ -167,20 +167,20 @@ them here would hide the problem a field map exists to solve.
 
 | file | |
 |---|---|
-| `flat.jsonl` | 11 MB — 4,624 SKU documents |
-| `nested.jsonl` | 3.7 MB — 500 product lines, nested variants and key-value attributes |
+| `flat.jsonl` | 11.4 MB — 4,624 SKU documents |
+| `nested.jsonl` | 3.9 MB — 500 product lines, nested variants and key-value attributes |
 | `render.jsonl` | 1.8 MB — the same 4,624 SKUs for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
-| `images.jsonl` | the ten drawings, and how many products point at each |
+| `images.jsonl` | the 500 drawings — one per product line — and how many products point at each |
 | `stats.json` | the measured defect rates, and the config that produced them |
 
-16.7 MiB in the working tree. **Plain NDJSON — deliberately not gzipped and
+17.4 MiB in the working tree. **Plain NDJSON — deliberately not gzipped and
 not git-LFS.** The whole reason to commit generated output is that a change to
 the generator shows up as a readable diff in review, and both of those hide it.
-The cost is small: the seven blobs occupy **741 KiB in the pack** (measured
+The cost is small: the seven blobs occupy **770 KiB in the pack** (measured
 with `git cat-file --batch-check='%(objectsize:disk)'` after a `git gc`), a
 23× saving, because records drawn from one naming grammar share most of their
-bytes. `flat.jsonl` alone is 11.2 MiB stored in 500 KiB.
+bytes. `flat.jsonl` alone is 11.4 MiB stored in 512 KiB.
 
 It also means the catalog is inspectable, and citable, without installing the
 generator: a reviewer reading a PR, or anyone asking what a record actually
@@ -368,55 +368,111 @@ that was validated but not drawn, and a control whose mutation text no longer
 matched the code it was supposed to break. All three are fixed rather than
 removed; a mutation that reds nothing is the point of running them.
 
+**The harness cannot find the defect the line drawings exist to prevent, and
+that is why the tests do not rely on it.** An attribute published on every
+record and read by nothing has no code path to plant a defect in, which is how
+`End Mill Style` drew 473 ball nose mills square through 39 mutations with no
+zeros. What the harness *can* plant is the other half — a channel that reads
+its attribute, validates it, and then draws something else — so every marking
+mutation is that shape, and the coverage question is answered from the data
+side instead, in `tests/test_line_drawings.py`.
+
+Two of the harness's own defects surfaced while the marking mutations were
+added, both of which manufacture a false "not caught": a selector's `-k` filter
+was split on whitespace, so `-k "x or y"` reached pytest as three arguments and
+a stray quote; and a selector naming two files with a `-k` each silently kept
+only the last filter, running one file with a filter that matched nothing in
+it. The selector is parsed with `shlex` now, and the two-filter shape raises.
+
 ## Images
 
-**Every product and every variant has an image, and there are ten images.**
-One generic drawing per product type and style stands behind all 4,600-odd
-products, which is not a cheap approximation of what a catalog does — it is
-what a catalog does. A category listing of four end mills from one
-manufacturer's series at 1/2, 3/8, 1/4 and 1/8 inch shows the same photograph
-four times, and 73.5% of the archived reference records point at an image whose
-id is not the product's own. A distributor does not photograph every length of
-the same screw.
+**Every product and every variant has an image, and there is one image per
+product line** — about 500 of them, each shared by that line's 4 to 20 SKUs.
+That is not a cheap approximation of what a catalog does; it is what a catalog
+does. A category listing of four end mills from one manufacturer's series at
+1/2, 3/8, 1/4 and 1/8 inch shows the same photograph four times, and 73.5% of
+the archived reference records point at an image whose id is not the product's
+own. A distributor does not photograph every length of the same screw.
 
-| image | behind |
-|---|---|
-| `end_mill_square` | 796 variants |
-| `screw_socket_head` | 765 |
-| `drill_jobber` | 654 |
-| `bolt_hex` | 524 |
-| `end_mill_ball` | 471 |
-| `screw_flat_head` | 444 |
-| `tap_spiral_point` | 354 |
-| `washer_flat` | 250 |
-| `hammer_ball_pein` | 188 |
-| `abrasive_flap_disc` | 178 |
+Per-SKU images would undercut the variant-grouping story the nested shape
+exists to demonstrate, where N SKUs are *one* product. Ten images — one per
+product type, which is what this replaced — went too far the other way: an
+Osterlund K663 HSS AlTiN mill and a competitor's carbide TiCN mill rendered
+identically.
 
-Each asserts exactly one thing — *this product is a ball nose end mill*, *this
-product is a flat washer* — which is true of every record of that type from the
-product type alone. **None of them carries a dimension, a callout or a number.**
-The dimensions are on the record and render beside the image; a drawing that
-restated one would be a second source that could disagree with the first. So a
-generic image cannot contradict the record it appears against: there is no
-numeric claim in it to contradict with, which gets the honesty property
-structurally rather than by anyone remembering to check.
+| behind one drawing | lines | variants |
+|---|---|---|
+| `end_mill_square` | 100 | 796 |
+| `screw_socket_head` | 65 | 765 |
+| `end_mill_ball` | 60 | 471 |
+| `drill_jobber` | 60 | 654 |
+| `bolt_hex` | 50 | 524 |
+| `tap_spiral_point` | 40 | 354 |
+| `screw_flat_head` | 40 | 444 |
+| `abrasive_flap_disc` | 30 | 178 |
+| `washer_flat` | 30 | 250 |
+| `hammer_ball_pein` | 25 | 188 |
 
-None carries a SKU either. One image stands behind hundreds of products, and a
-SKU printed on it would be wrong for all but one of them — a true-looking claim
-about the wrong product, which is worse than no label.
+### The drawing is the record, drawn
+
+There are still only **ten shapes**. What differs between two lines of one type
+is the *marking*, and **every visual channel is a function of a published
+attribute** — never of the product id, the SKU or the series.
+
+| channel | driven by | why this pairing |
+|---|---|---|
+| outline colour | `brand` | what colour does in real catalogs; ten hues stay legible, and the map is invertible so the brand reads back off the page |
+| fill tint | the coating/finish attribute, under any of its four spellings | physically true — TiAlN is violet-grey, TiN gold, black oxide dark, bright steel silver |
+| section hatch | the material attribute, under any of its six spellings | engineering drawings already denote material by hatch |
+| flutes drawn | `Number of Flutes` | not styling: a 3-flute tap genuinely differs from a 2-flute, and the count is what a reader counts |
+| flute and thread hand | the direction attribute, under any of its three spellings | a left-hand tool is a different product |
+| specification stamp | **every** published attribute, verbatim | a spec-sheet convention, and the record's own text |
+
+**Rotation and tilt were considered and rejected.** They map to no product
+property, so they would add variance that asserts nothing — and a reader who
+sees two mills drawn differently concludes the difference is real. Driven by
+the record, that conclusion is correct.
+
+The stamp is what carries the *ragged tail*. The attribute sets are ragged by
+design — one line publishes `Tap Material`, another `Tap Finish`, another
+neither — and an encoding built from the attributes common to a product type
+collapses to almost nothing: measured, it manufactures about 226 false
+collisions. Five geometric channels are also simply finite; brand, finish,
+material, flutes and standards alone leave 27 of the 500 lines colliding. The
+stamp closes that gap with the record's own text.
+
+**497 of 500 lines get a drawing of their own.** The three that do not are all
+flat washers, which are genuinely almost nothing but dimensions, and they
+publish identical attribute sets — so drawing them alike is the correct answer,
+not a failure of the encoding. `tests/test_line_drawings.py` asserts that
+number exactly, in both directions: lines that draw alike publish alike, and
+lines that publish alike draw alike.
+
+### What no drawing carries
+
+**No dimension, no callout, no number read off a size, and no SKU.** Every
+channel reads a `line`-scope attribute, constant over the whole line. A line's
+SKUs span a median 5.5x range of sizes, so a drawing that stated a size would
+be wrong for most of the line it stands behind. The sizes are on the record and
+render beside the image, where they are the record's own values — so a drawing
+here cannot contradict the record it appears against, structurally rather than
+by anyone remembering to check.
 
 ```sh
 uv sync
-uv run sip-render generics --out out              # the ten, both profiles
+uv run sip-render generics --out out              # the ten SHAPES, unmarked
 python scripts/render_catalog.py out/catalog --out out/images
 ```
 
-Twenty files — ten drawings at two profiles — and 925 KiB for the whole
-catalog. `scripts/render_catalog.py` also audits the result in both directions:
-every product and variant must reference an image that exists, and every image
-written must be referenced by something. The first failing is a broken image on
-a demo page and the second is dead weight in the repository that hosts them;
-neither shows up in a count of files.
+A thousand files — 500 drawings at two profiles — and about 15 MiB published
+after compression (median 6.9 KiB a card, 24.3 KiB a detail sheet).
+`scripts/render_catalog.py` also audits the result in three directions: every
+product and variant must reference a file that exists **and is not empty**,
+every file written must be referenced by something, and the number of lines
+that share a drawing is reported per product type. The first failing is a
+broken image on a demo page, the second is dead weight in the repository that
+hosts them, and the third is variety quietly disappearing; none shows up in a
+count of files.
 
 ### The per-record dimensioned drawings
 
@@ -471,33 +527,36 @@ anyone looking for the hammer renderer will find it.
 ### Where the images are published, and how a record points at one
 
 `sip-generate build` writes `images.jsonl` — one row per image, with its
-product type and the URLs it is served from at both profiles — and every record
-in `flat.jsonl` and `nested.jsonl` carries `image_url` beside `image_id`:
+product type, the shape it is drawn as and the URLs it is served from at both
+profiles — and every record in `flat.jsonl` and `nested.jsonl` carries
+`image_url` beside `image_id`:
 
 ```json
 {"sku": "60EX58", "product_type": "end_mill_square",
- "image_id": "end_mill_square",
- "image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/card.png",
- "image_detail_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/detail.png"}
+ "image_id": "end_mill_square/OST-K663-0001",
+ "image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png",
+ "image_detail_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/detail.png"}
 ```
 
 `--image-base-url` moves the host.
 
-**One directory per product type, one file per profile inside it.** The
-directory is the category: the published tree is an index of product types, and
-under each the images available for it. `emit.image_path()` is the only place
-that shape is decided, and it derives the directory from the product type the
-drawing is *of* rather than from the image id, so a drawing no product type
-claims — or one that two claim — raises instead of being filed under a guessed
-category that would silently move later.
+**One directory per product type, one per product line inside it, one file per
+profile inside that.** The product type is the category: the published tree is
+an index of types, and under each one the lines it holds. The image id already
+reads `<product type>/<product id>`, so `emit.image_path()` appends the profile
+and validates — it does not look the directory up. A second table mapping ids
+to directories is exactly how a record's URL and the manifest's path would come
+to disagree, which is the defect `images.jsonl` exists to prevent. An id that
+is not of that shape, or whose first segment is not a product type, raises
+instead of being filed under a guessed category that would silently move later.
 
 **The URL is built from the image id, never from the product's own SKU.** The
-two are never the same — a family shares one drawing — so a URL assembled from
-`sku` is a dead link for every product in the catalog, and dead in a way that
-spot-checking a handful of records will not reveal because every record looks
-equally plausible. An image id naming a drawing that does not exist raises
-rather than publishing a URL that cannot be fetched: a bare id does not claim
-to resolve, and a URL does.
+two are never the same — a whole line shares one drawing — so a URL assembled
+from `sku` is a dead link for every product in the catalog, and dead in a way
+that spot-checking a handful of records will not reveal because every record
+looks equally plausible. An image id naming no product line raises rather than
+publishing a URL that cannot be fetched: a bare id does not claim to resolve,
+and a URL does.
 
 `images.jsonl` exists so that whatever hosts the files reads the paths off the
 generator's own output instead of re-deriving them with a second copy of the

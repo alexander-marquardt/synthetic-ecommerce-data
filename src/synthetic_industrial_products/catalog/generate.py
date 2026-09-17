@@ -52,7 +52,7 @@ from .naming import (
     build_title,
     truncate_label,
 )
-from .taxonomy import image_id_for
+from .taxonomy import drawing_for, image_id_for
 from .vocab import (
     MEASUREMENT_SYSTEM_NAMES,
     MEASUREMENT_SYSTEM_PRESENCE,
@@ -993,6 +993,12 @@ class Generator:
         if standards_attr is not None:
             line_attrs = [*line_attrs, standards_attr]
 
+        # The product id is built before the SKUs, because a SKU's image id is
+        # its LINE's: one drawing stands behind the line, and every SKU under
+        # it points at that one rather than at a drawing of its own.
+        product_id = f"{draft.brand.split()[0].upper()[:3]}-{draft.series}-{index:04d}"
+        image_id = image_id_for(type_key, product_id)
+
         children: list[Sku] = []
         for child in draft.children:
             attrs = self._apply_sparsity(type_key, list(child.attrs), "sku")
@@ -1015,7 +1021,7 @@ class Generator:
                     stock=rng.choices(
                         (0, rng.randint(1, 40), rng.randint(40, 900)), weights=(0.08, 0.42, 0.5)
                     )[0],
-                    image_id=image_id_for(type_key),
+                    image_id=image_id,
                 )
             )
             self._bump("skus")
@@ -1023,7 +1029,6 @@ class Generator:
         if not children:
             return None
 
-        product_id = f"{draft.brand.split()[0].upper()[:3]}-{draft.series}-{index:04d}"
         parent_title = f"{draft.brand} {draft.series} -- {draft.item}"
         return ProductLine(
             product_id=product_id,
@@ -1035,7 +1040,8 @@ class Generator:
             attributes=tuple(line_attrs),
             children=tuple(children),
             dimension_provenance=draft.provenance,
-            image_id=image_id_for(type_key),
+            image_id=image_id,
+            drawing=drawing_for(type_key),
         )
 
     def generate(self) -> Catalog:
