@@ -13,8 +13,8 @@
 ``render.jsonl``
     the same SKUs in the shape ``sip-render batch`` already reads, for the
     per-record dimensioned renderer. The catalog's own cards do not use it:
-    every product and variant carries an ``image_id`` naming one of the ten
-    generic drawings, which ``sip-render generics`` writes.
+    every product and variant carries an ``image_id`` naming its own product
+    line's drawing, which ``scripts/render_catalog.py`` writes.
 ``images.jsonl``
     one row per distinct image: its product type, its path under the image base
     URL at both profiles, and how many products and variants point at it
@@ -42,19 +42,29 @@ from .measure import measure
 
 
 def _check_images(catalog, referenced: set[str]) -> list[str]:
-    """Every product and variant has an image, and every image id is one of the ten.
+    """Every product and variant has an image, and every image is one line's own.
 
     Both directions, because each one fails differently and silently. A
-    reference to an id nothing draws is a broken image on a demo page; a
-    product with no reference is a blank card. Neither shows up in a record
-    count, so neither is caught by anything else in the build.
-    """
-    from ..render.generic import IMAGE_IDS  # noqa: PLC0415
+    reference to an id no line owns is a broken image on a demo page; a product
+    with no reference is a blank card. Neither shows up in a record count, so
+    neither is caught by anything else in the build.
 
+    The count is checked too. One drawing per product line is the decision this
+    catalog is built on -- per-SKU images would undercut the variant grouping
+    the nested shape exists to demonstrate -- so a run that produced one image
+    per SKU, or went back to one per type, would still pass every other check
+    here while publishing a catalog that means something different.
+    """
     problems: list[str] = []
-    unknown = sorted(referenced - set(IMAGE_IDS))
+    owned = {line.image_id for line in catalog.lines}
+    unknown = sorted(referenced - owned)
     if unknown:
-        problems.append(f"{len(unknown)} referenced image ids have no drawing: {unknown[:5]}")
+        problems.append(f"{len(unknown)} referenced image ids name no product line: {unknown[:5]}")
+    if len(owned) != len(catalog.lines):
+        problems.append(
+            f"{len(catalog.lines)} product lines share {len(owned)} image ids; "
+            "one line, one drawing"
+        )
     lineless = [line.product_id for line in catalog.lines if not line.image_id]
     if lineless:
         problems.append(f"{len(lineless)} product lines carry no image: {lineless[:5]}")
@@ -176,8 +186,8 @@ def main(argv: list[str] | None = None) -> int:
     flat = emit.write_jsonl(emit.iter_flat(catalog, base_url), out / "flat.jsonl")
     images = emit.write_jsonl(emit.iter_image_manifest(catalog, base_url), out / "images.jsonl")
 
-    # Every product and every variant points at one of the ten generic
-    # drawings, so the catalog needs ten images however big it is. Both
+    # Every product and every variant points at its own line's drawing, so the
+    # catalog needs one image per line however many SKUs hang off it. Both
     # directions are asserted before the catalog is written.
     referenced = emit.referenced_image_ids(catalog)
     problems = _check_images(catalog, referenced)
@@ -217,13 +227,10 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"{out}/nested.jsonl  {nested} parent documents")
     print(f"{out}/flat.jsonl    {flat} sku documents")
-    print(
-        f"{out}/render.jsonl  {render} records for the per-record dimensioned renderer"
-    )
+    print(f"{out}/render.jsonl  {render} records for the per-record dimensioned renderer")
     print(
         f"                     {len(catalog.lines)} product lines and {flat} variants all carry "
-        f"an image, drawn from {len(referenced)} generic images: "
-        f"{', '.join(sorted(referenced))}"
+        f"an image; {len(referenced)} distinct drawings, one per line"
     )
     print(f"{out}/images.jsonl  {images} distinct images, published under {base_url}")
     print(f"{out}/stats.json    measured against target")

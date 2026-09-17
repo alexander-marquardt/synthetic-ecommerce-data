@@ -1,6 +1,6 @@
 """Render product drawings from the command line.
 
-sip-render generics --out out                     the ten catalog images
+sip-render generics --out out                     the ten product-type drawings
 sip-render fixtures --out out
 sip-render sku 4LU10 42SR26 --profile card --out out
 sip-render batch records.jsonl --out out
@@ -198,7 +198,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="sip-render", description=__doc__, parents=[common])
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser(
-        "generics", help="render the ten generic catalog images", parents=[common]
+        "generics", help="render the ten product-type drawings", parents=[common]
     )
     sub.add_parser("fixtures", help="render every bundled reference record", parents=[common])
     one = sub.add_parser("sku", help="render bundled records by sku", parents=[common])
@@ -221,7 +221,7 @@ def main(argv: list[str] | None = None) -> int:
         for path in written:
             width, height = png_dimensions(path)
             print(f"{path}  {width}x{height}  {path.stat().st_size:,} bytes")
-        print(f"\n{len(written)} generic images, carrying no dimension between them")
+        print(f"\n{len(written)} product-type drawings, carrying no dimension between them")
         return 0
 
     if args.command == "fixtures":

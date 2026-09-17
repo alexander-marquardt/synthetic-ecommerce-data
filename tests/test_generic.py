@@ -176,7 +176,7 @@ def _two_records(type_key: str) -> tuple[dict, dict]:
     return first, second
 
 
-@pytest.mark.parametrize("type_key", sorted(taxonomy.IMAGE_ID))
+@pytest.mark.parametrize("type_key", sorted(taxonomy.DRAWING))
 def test_the_image_does_not_depend_on_any_record(type_key, tmp_path):
     """The structural proof that no number from a record can be on the page.
 
@@ -185,9 +185,9 @@ def test_the_image_does_not_depend_on_any_record(type_key, tmp_path):
     material -- and the two image files are compared byte for byte.
     """
     first, second = _two_records(type_key)
-    expected = taxonomy.IMAGE_ID[type_key]
-    assert generic.image_id_for_record(first) == expected
-    assert generic.image_id_for_record(second) == expected
+    expected = taxonomy.DRAWING[type_key]
+    assert generic.drawing_for_record(first) == expected
+    assert generic.drawing_for_record(second) == expected
     a = generic.render_record(first, tmp_path / "a.png", CARD).read_bytes()
     b = generic.render_record(second, tmp_path / "b.png", CARD).read_bytes()
     assert a == b
@@ -195,7 +195,7 @@ def test_the_image_does_not_depend_on_any_record(type_key, tmp_path):
 
 def test_those_two_records_really_do_differ():
     """The control: a comparison of two identical inputs proves nothing."""
-    for type_key in taxonomy.IMAGE_ID:
+    for type_key in taxonomy.DRAWING:
         first, second = _two_records(type_key)
         differing = [k for k in first if k != "sku" and first[k] != second[k]]
         assert len(differing) >= 6, (type_key, differing)
@@ -237,8 +237,8 @@ def test_a_square_end_mill_and_a_ball_nose_are_not_the_same_picture(tmp_path):
 
 def test_there_are_exactly_ten_and_the_catalog_uses_all_of_them():
     assert len(generic.IMAGE_IDS) == 10
-    assert set(taxonomy.IMAGE_ID.values()) == set(generic.IMAGE_IDS)
-    assert set(taxonomy.IMAGE_ID) == set(taxonomy.LEAVES)
+    assert set(taxonomy.DRAWING.values()) == set(generic.IMAGE_IDS)
+    assert set(taxonomy.DRAWING) == set(taxonomy.LEAVES)
 
 
 @pytest.mark.parametrize("image_id", generic.IMAGE_IDS)
@@ -260,7 +260,7 @@ def test_the_image_is_not_blank_and_has_not_run_away(image_id, profile):
 
 def test_a_style_the_drawings_do_not_cover_is_refused_not_approximated():
     with pytest.raises(generic.UnsupportedFeatureError):
-        generic.image_id_for_record({"sku": "A", "Milling Dia.": "x", "End Mill Style": "Corner"})
+        generic.drawing_for_record({"sku": "A", "Milling Dia.": "x", "End Mill Style": "Corner"})
 
 
 def test_an_end_mill_that_does_not_say_which_end_it_has_gets_no_generic_either():
@@ -272,4 +272,4 @@ def test_an_end_mill_that_does_not_say_which_end_it_has_gets_no_generic_either()
     certain.
     """
     with pytest.raises(generic.MissingAttributeError):
-        generic.image_id_for_record({"sku": "A", "Milling Dia.": '1/4"'})
+        generic.drawing_for_record({"sku": "A", "Milling Dia.": '1/4"'})

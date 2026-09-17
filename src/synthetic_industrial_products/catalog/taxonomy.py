@@ -71,16 +71,21 @@ def ancestors(path: CategoryPath) -> tuple[CategoryPath, ...]:
     return tuple(path[: n + 1] for n in range(len(path)))
 
 
-#: Which of the ten generic drawings a product type's products show.
+#: Which of the ten shapes a product type's products are drawn as.
 #:
 #: Written out rather than derived, even though every pair is currently an
 #: identity. The two sides mean different things -- the left is a catalog
 #: product type, the right is a drawing in :mod:`..render.generic` -- and a
 #: product type that gained a second style, or two types that turned out to be
-#: the same drawing, would show up here as a pair that no longer matches
-#: instead of as nothing at all. ``tests/test_generic.py`` asserts that the
-#: right-hand side is exactly the set of drawings that exist.
-IMAGE_ID: dict[str, str] = {
+#: the same shape, would show up here as a pair that no longer matches instead
+#: of as nothing at all. ``tests/test_generic.py`` asserts that the right-hand
+#: side is exactly the set of drawings that exist.
+#:
+#: This does NOT decide where an image is published. Images are one per product
+#: LINE, and a line's image id carries its own product type, so the published
+#: directory is the line's rather than something inferred from the shape it
+#: shares with four hundred others.
+DRAWING: dict[str, str] = {
     "end_mill_square": "end_mill_square",
     "end_mill_ball": "end_mill_ball",
     "drill_jobber": "drill_jobber",
@@ -94,52 +99,54 @@ IMAGE_ID: dict[str, str] = {
 }
 
 
-def image_id_for(type_key: str) -> str:
-    """The generic drawing every product of ``type_key`` shows."""
-    return IMAGE_ID[type_key]
+class ImageIdError(Exception):
+    """An image id is not ``<product type>/<product id>``.
 
-
-class ImageCategoryError(Exception):
-    """A drawing's category -- the product type it is a drawing OF -- is undecidable.
-
-    Raised rather than guessed. The category is a directory in a published
-    URL, so a guess that later changed its mind would move every image in that
-    category and break every link to it, silently and long after the change
-    that caused it.
+    Raised rather than patched up. The id is a directory in a published URL:
+    an id repaired here would move every image under it and break every link to
+    it, silently and long after the change that caused it.
     """
+
+
+def drawing_for(type_key: str) -> str:
+    """Which of the ten shapes a product of ``type_key`` is drawn as."""
+    return DRAWING[type_key]
+
+
+def image_id_for(type_key: str, product_id: str) -> str:
+    """One product line's image id: ``end_mill_square/OST-K663-0001``.
+
+    The product type is IN the id, and so is the line. That is what makes the
+    id enough on its own to say where the drawing is published -- see
+    :func:`..emit.image_path`, which does nothing but append the profile. A
+    second table mapping ids to directories is exactly how a record's URL and
+    the manifest's path would come to disagree, which is the defect
+    ``images.jsonl`` exists to prevent.
+    """
+    if type_key not in DRAWING:
+        raise ImageIdError(
+            f"{type_key!r} is not a product type, so no image can be published under it"
+        )
+    if not product_id or "/" in product_id:
+        raise ImageIdError(
+            f"{product_id!r} cannot be a product id in an image id: it is empty "
+            "or it carries the separator"
+        )
+    return f"{type_key}/{product_id}"
 
 
 def product_type_for_image(image_id: str) -> str:
-    """The product type a drawing is OF -- the category it is published under.
+    """The product type an image is published under -- the first segment of its id.
 
-    The inverse of :data:`IMAGE_ID`, derived rather than written out a second
-    time: a second copy is exactly how a record's URL and the manifest's path
-    would come to disagree, which is the defect ``images.jsonl`` exists to
-    prevent.
-
-    The type a drawing is OF is not always the type of a product showing it.
-    A family shares one drawing, and nothing stops a product type from showing
-    another type's drawing; the directory in the URL names what the reader is
-    looking at, not what they clicked from.
-
-    Raises when several product types claim one drawing. Every pair in
-    ``IMAGE_ID`` is an identity today, but the mapping is deliberately
-    many-to-one capable, and resolving a tie by sort order would let an
-    unrelated product type added later silently move a published category.
-    Which type a shared drawing is filed under is a decision to be written
-    down, not inferred.
+    Read off the id rather than looked up, because the id was built from the
+    line's own product type. A malformed id raises: a guess here would file a
+    drawing under a category nothing else agrees with.
     """
-    claimants = sorted(key for key, drawn in IMAGE_ID.items() if drawn == image_id)
-    if not claimants:
-        raise ImageCategoryError(
-            f"no product type draws {image_id!r}, so it has no category to be "
-            "published under. Either the drawing is unused or taxonomy.IMAGE_ID "
-            "is missing the type that shows it."
+    type_key, _, product_id = image_id.partition("/")
+    if not product_id or "/" in product_id or type_key not in DRAWING:
+        raise ImageIdError(
+            f"{image_id!r} is not an image id. One reads "
+            "<product type>/<product id>, and the product type must be one of "
+            f"{sorted(DRAWING)}."
         )
-    if len(claimants) > 1:
-        raise ImageCategoryError(
-            f"{len(claimants)} product types share the drawing {image_id!r} "
-            f"({claimants}), so which one names its directory is not derivable. "
-            "Record the choice explicitly before publishing it."
-        )
-    return claimants[0]
+    return type_key
