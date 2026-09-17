@@ -159,6 +159,117 @@ path. The three spellings of the measurement-system attribute deliberately
 sanitise to three different keys rather than being folded into one: folding
 them here would hide the problem a field map exists to solve.
 
+## Serving it with PRISM
+
+`src/prism_synthetic_industrial/` is a PRISM customization that serves the
+**flat** shape. The package name is fixed by PRISM's loader, which globs
+`src/prism_*/data/customization.yaml` and requires exactly one match.
+
+Flat, not nested, because the Engine cannot emit nested facet queries today.
+That is also what makes this the demo's "before" half: the shopper sees one
+product row per SKU.
+
+```sh
+# 1. build the catalog and regenerate the field map from it
+uv run sip-generate build --out out/catalog
+
+# 2. load the flat shape into a LOCAL TEST cluster
+python scripts/load_prism_catalog.py --host http://127.0.0.1:9201
+
+# 3. from a PRISM checkout, with this repo installed (`uv pip install -e <here>`)
+PRISM_CUSTOMIZATION_PATH=<this repo> PRISM_RUNTIME_MODE=dev \
+  PRISM_ELASTICSEARCH_URL=http://127.0.0.1:9201 \
+  uv run prism-engine validate-customization
+```
+
+### The field map is derived, never written
+
+The catalog publishes **76 distinct attribute names** across 10 product types.
+A hand-maintained list of 76 declarations drifts from the generator the first
+time either side moves, and it drifts *silently*: a field map naming an
+attribute the catalog no longer publishes does not raise, it just stops
+faceting, and "no product has that value" looks exactly like "the field map is
+wrong".
+
+So `data/field_weights/synthetic_industrial_flat.yaml` is **generated** from
+the emitted documents, as a step of `sip-generate build`, and
+`tests/test_prism_field_map_drift.py` fails if the committed file and a fresh
+derivation disagree. Editing either side alone reds it; both directions are
+planted in `scripts/mutation_check.py`.
+
+### Which attributes become facets
+
+Not all 76. Three measured gates, applied to the emitted documents:
+
+| gate | rule | why |
+|---|---|---|
+| **discriminating** | at least 2 distinct values | a facet with one value cannot narrow anything — it is a control that does nothing |
+| **characteristic** | present on ≥50% of the documents of the product types that publish it *at all* | the denominator is per-attribute: an attribute carried by one of ten types can never exceed ~10% of the catalog, yet may be the primary facet for its own category |
+| **not an identifier** | a **terms** attribute carries ≤25 distinct values | `Thread Size` publishes 19 values over 1,576 documents and is the first thing a shopper filters on; `List Number` publishes 126 and is a part reference nobody browses. Numeric attributes are exempt — a range control's cost does not grow with cardinality |
+
+An attribute is **numeric** (a range facet over `facets_num.*`) when ≥50% of
+the documents publishing it carry a parsed `value_num`, and **terms**
+otherwise. The catalog deliberately emits values that do not parse, so the
+test is a majority rather than "all".
+
+Attributes that fail a gate are still **declared**, with `facet: false` — they
+stay searchable and stay available as filter and policy targets, they are just
+not offered as sidebar controls.
+
+What that yields, measured:
+
+| | |
+|---|---|
+| attributes declared | 76 |
+| offered as facets | 56 (26 numeric ranges, 30 terms) |
+| declared, not faceted | 20 |
+| **fields in the field map** | **92** |
+| **leaf fields in the Elasticsearch index** | **125** |
+| facets in a category's sidebar | 8–14 |
+
+The per-category figure is above the five-to-eight a real sidebar carries.
+That is honest rather than tuned: fasteners genuinely publish four dimension
+ranges (head diameter, head height, length, thread length) beside material,
+finish and grade. Trimming to eight would mean dropping a control a shopper
+uses, and PRISM has no authorable "top N" — terms facets always aggregate at
+1000 and truncation is reported, not configured.
+
+### Proving PRISM actually serves it
+
+A field map that validates is not a served catalog.
+
+```sh
+python scripts/verify_prism_serves.py --studio http://127.0.0.1:8477
+```
+
+Every number PRISM reports is compared against one computed independently in
+Python from the same in-memory catalog objects — the same discipline
+`verify_elasticsearch.py` uses, and for the same reason: an aggregation that
+agrees with itself proves nothing.
+
+* a search returns products, and every id is a SKU the generator produced
+* a terms facet's counts equal the generated counts
+* a numeric range facet on a dimension carries the catalog's true min and max,
+  and a range filter returns exactly the matching documents
+* **every sampled facet count equals what clicking it returns** — a count that
+  does not match its click is a blocking defect, not a note
+* all 10 product types return their own documents, in the generated count
+* the demo case: `3/8" end mill` returns products whose **shank** carries that
+  value, and adding the structured `milling_dia` filter excludes them
+
+### What the flat shape costs
+
+The flat shape's `attributes` array is a plain object, so `name` and `value`
+become two independent multi-valued fields. Filtering it for
+*name = Shank Dia. AND value = 3/8"* matches **114** documents; only **65**
+actually publish a 3/8" shank. The other 49 carry a 3/8" belonging to a
+different attribute.
+
+That is why the field map facets the sanitised per-attribute `facets.*` /
+`facets_num.*` keys, where the pairing cannot come apart, rather than the
+`attributes` array. It is also the measurement that argues for the nested
+shape: `reverse_nested` answers "how many *products*", and flat cannot.
+
 ## Verification
 
 ```sh
