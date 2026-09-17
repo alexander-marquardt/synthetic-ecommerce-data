@@ -660,6 +660,93 @@ MUTATIONS: list[Mutation] = [
         "",
         "no attribute silently redefines a structural field",
     ),
+    # ---- the committed catalog is what the generator writes --------------
+    #
+    # Two ROOTS, because the golden test has two independent halves and each
+    # one has to be proven from its own side. Mutating the GENERATOR proves
+    # the sha256 comparison notices a build that moved; mutating the COMMITTED
+    # DATA proves the headline invariants notice a corrupted regeneration on
+    # their own, without the hashes' help -- which is the whole reason they
+    # are asserted against the committed bytes rather than the fresh build.
+    Mutation(
+        "move the image host without regenerating the catalog",
+        "catalog/emit.py",
+        'DEFAULT_IMAGE_BASE_URL = "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial"',
+        'DEFAULT_IMAGE_BASE_URL = "https://example.invalid/moved/images/industrial"',
+        "tests/test_catalog_golden.py::test_committed_file_matches_a_fresh_build",
+        "A",
+        "the committed catalog is byte-identical to a fresh build",
+    ),
+    Mutation(
+        "emit an eighth file the build does not commit",
+        "catalog/cli.py",
+        '    (out / "mapping.flat.json").write_text(',
+        '    (out / "mapping.extra.json").write_text("{}\\n", encoding="utf-8")\n'
+        '    (out / "mapping.flat.json").write_text(',
+        "tests/test_catalog_golden.py::test_golden_directory_holds_exactly_the_build_output",
+        "B",
+        "the committed catalog is byte-identical to a fresh build",
+    ),
+    Mutation(
+        "change the default seed and leave the catalog on the old one",
+        "catalog/config.py",
+        "    seed: int = 20260917",
+        "    seed: int = 20260918",
+        "tests/test_catalog_golden.py::test_stats_reports_the_catalog_that_was_committed",
+        "",
+        "the committed catalog is the DEFAULT configuration",
+    ),
+    # ---- the headline invariants, mutated in the COMMITTED DATA ----------
+    Mutation(
+        "blank one card image url in the committed catalog",
+        "flat.jsonl",
+        'ice_usd": 8.23, "stock": 18, "image_id": "end_mill_square", "image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/card.png"',
+        'ice_usd": 8.23, "stock": 18, "image_id": "end_mill_square", "image_url": ""',
+        "tests/test_catalog_golden.py::test_every_flat_document_carries_an_image_url",
+        "A",
+        "every document carries a NON-EMPTY image url at both profiles",
+        root="golden-catalog",
+    ),
+    Mutation(
+        "drop the detail image url from one committed nested variant",
+        "nested.jsonl",
+        '"price_usd": 8.23, "stock": 18, "image_id": "end_mill_square", "image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/card.png", "image_detail_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/detail.png"',
+        '"price_usd": 8.23, "stock": 18, "image_id": "end_mill_square", "image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/card.png"',
+        "tests/test_catalog_golden.py::test_every_nested_line_and_variant_carries_an_image_url",
+        "B",
+        "every document carries a NON-EMPTY image url at both profiles",
+        root="golden-catalog",
+    ),
+    Mutation(
+        "duplicate a sku in the committed flat catalog",
+        "flat.jsonl",
+        '{"sku": "60EX58", "product_id": "OST-K663-0001"',
+        '{"sku": "98WF97", "product_id": "OST-K663-0001"',
+        "tests/test_catalog_golden.py::test_flat_holds_one_document_per_sku",
+        "",
+        "flat.jsonl is 4,624 documents and 4,624 distinct skus",
+        root="golden-catalog",
+    ),
+    Mutation(
+        "point one committed document at a product line that does not exist",
+        "flat.jsonl",
+        '{"sku": "60EX58", "product_id": "OST-K663-0001"',
+        '{"sku": "60EX58", "product_id": "OST-K663-9999"',
+        "tests/test_catalog_golden.py::test_flat_covers_exactly_the_product_lines",
+        "",
+        "the catalog spans exactly 500 product lines",
+        root="golden-catalog",
+    ),
+    Mutation(
+        "publish a variant_count that disagrees with its own variants array",
+        "nested.jsonl",
+        '"variant_count": 8, "variants": [{"sku": "60EX58", "title": "High Speed Steel Sq',
+        '"variant_count": 9, "variants": [{"sku": "60EX58", "title": "High Speed Steel Sq',
+        "tests/test_catalog_golden.py::test_nested_lines_account_for_every_sku",
+        "",
+        "the nested lines account for every sku",
+        root="golden-catalog",
+    ),
 ]
 
 

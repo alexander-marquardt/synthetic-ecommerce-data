@@ -1,0 +1,98 @@
+{
+ "mappings": {
+  "dynamic": false,
+  "dynamic_templates": [
+   {
+    "facet_values": {
+     "path_match": "facets.*",
+     "mapping": {
+      "type": "keyword"
+     }
+    }
+   },
+   {
+    "facet_numbers": {
+     "path_match": "facets_num.*",
+     "mapping": {
+      "type": "double"
+     }
+    }
+   }
+  ],
+  "properties": {
+   "sku": {
+    "type": "keyword"
+   },
+   "product_id": {
+    "type": "keyword"
+   },
+   "product_type": {
+    "type": "keyword"
+   },
+   "title": {
+    "type": "text"
+   },
+   "parent_title": {
+    "type": "text"
+   },
+   "brand": {
+    "type": "keyword"
+   },
+   "series": {
+    "type": "keyword"
+   },
+   "category_path": {
+    "type": "keyword"
+   },
+   "category_leaf": {
+    "type": "keyword"
+   },
+   "dimension_provenance": {
+    "type": "keyword"
+   },
+   "price_usd": {
+    "type": "double"
+   },
+   "stock": {
+    "type": "integer"
+   },
+   "image_id": {
+    "type": "keyword"
+   },
+   "image_url": {
+    "type": "keyword"
+   },
+   "image_detail_url": {
+    "type": "keyword"
+   },
+   "attribute_names": {
+    "type": "keyword"
+   },
+   "attributes": {
+    "type": "object",
+    "properties": {
+     "name": {
+      "type": "keyword"
+     },
+     "value": {
+      "type": "keyword"
+     },
+     "value_num": {
+      "type": "double"
+     }
+    }
+   },
+   "facets": {
+    "type": "object",
+    "dynamic": true
+   },
+   "facets_num": {
+    "type": "object",
+    "dynamic": true
+   },
+   "text": {
+    "type": "text"
+   }
+  }
+ }
+}
