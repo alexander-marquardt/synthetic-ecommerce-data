@@ -4,7 +4,7 @@
     sip-generate report --lines 400
     sip-generate build --lines 600 --skus 6 24 --sparsity 0.6 --defects 2.0
 
-``build`` writes four files:
+``build`` writes five files:
 
 ``nested.jsonl``
     parent documents with nested SKUs and nested key-value attributes
@@ -12,8 +12,16 @@
     one document per SKU with the line's attributes denormalised onto it
 ``render.jsonl``
     the same SKUs in the shape ``sip-render batch`` already reads
+``images.jsonl``
+    one row per distinct image reference: its product type, its path under the
+    image base URL, and how many SKUs point at it
 ``stats.json``
     what was generated, measured against the statistics it reproduces
+
+Records carry ``image_urls`` alongside ``image_skus``. The URL is built from
+the image REFERENCE and never from the product's own SKU: the two differ for
+roughly three records in four, so building it from the SKU produces a dead
+link at that rate. ``--image-base-url`` moves the host.
 """
 
 from __future__ import annotations
@@ -117,6 +125,15 @@ def main(argv: list[str] | None = None) -> int:
         type=float,
         help="multiplier on every defect rate (1.0 = measured, 0.0 = a clean catalog)",
     )
+    parser.add_argument(
+        "--image-base-url",
+        default=emit.DEFAULT_IMAGE_BASE_URL,
+        help=(
+            "where the card drawings are published; records carry "
+            "<base>/<product_type>/<image_ref>.png "
+            f"(default: {emit.DEFAULT_IMAGE_BASE_URL})"
+        ),
+    )
     args = parser.parse_args(argv)
 
     config = _config_from(args)
@@ -128,8 +145,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     out = args.out
-    nested = emit.write_jsonl(emit.iter_nested(catalog), out / "nested.jsonl")
-    flat = emit.write_jsonl(emit.iter_flat(catalog), out / "flat.jsonl")
+    base_url = args.image_base_url
+    nested = emit.write_jsonl(emit.iter_nested(catalog, base_url), out / "nested.jsonl")
+    flat = emit.write_jsonl(emit.iter_flat(catalog, base_url), out / "flat.jsonl")
+    images = emit.write_jsonl(emit.iter_image_manifest(catalog, base_url), out / "images.jsonl")
     # Only the records the renderer can dispatch on. It picks a renderer from
     # the attribute NAMES a record carries, and a hammer carries none it knows
     # -- writing those into the batch file would make `sip-render batch` fail
@@ -177,6 +196,7 @@ def main(argv: list[str] | None = None) -> int:
         f"{out}/render.jsonl  {render} of {flat} records the renderer can dispatch on "
         f"({flat - render} carry no attribute it recognises)"
     )
+    print(f"{out}/images.jsonl  {images} distinct images, published under {base_url}")
     print(f"{out}/stats.json    measured against target")
     print(field_map)
     print()

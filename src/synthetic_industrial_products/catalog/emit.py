@@ -38,6 +38,121 @@ from .model import Attribute, Catalog, ProductLine, Sku
 
 _NON_WORD = re.compile(r"[^a-z0-9]+")
 
+#: Where the rendered card images are published: one directory per product
+#: type, one PNG per image reference, named for the reference.
+#:
+#: This is a real host, not a placeholder -- a record that carries a URL a
+#: reader cannot fetch is worse than one that carries a bare reference, because
+#: the bare reference does not claim to resolve.
+DEFAULT_IMAGE_BASE_URL = "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial"
+
+
+class UnresolvedImageError(Exception):
+    """An image reference belongs to no product type, so no URL can be built.
+
+    Raised rather than skipped. Skipping would publish a catalog that is
+    quietly missing images for reasons no reader could reconstruct, and the
+    reference pool is drawn from the catalog's own SKUs, so this cannot fire
+    on a catalog this generator built. It fires if the reference SHAPE changes
+    without :func:`image_index` being taught the new shape.
+    """
+
+
+def _owning_type(reference: str, by_sku: dict[str, str], types: frozenset[str]) -> str:
+    """The product type whose drawing this reference names.
+
+    An image reference is NOT the referring product's SKU three times in four
+    -- reuse crosses brands and it crosses product types, so a hex bolt can
+    reference an end mill's drawing. The directory a drawing lives in is a
+    property of what is DRAWN, so it is resolved from the reference and never
+    from the referring product.
+
+    Three shapes resolve, in order:
+
+    ``98WF97``
+        a bare SKU: the drawing is of that product.
+    ``437W02_AS01``
+        a SKU with an asset suffix, for a product carrying more than one.
+    ``end_mill_square_ball_nose``
+        a GENERIC drawing, named for what it depicts rather than for any one
+        product, because a family shares one image rather than having one
+        each. Matched on the longest product-type prefix, so the style suffix
+        can be whatever the renderer calls it without this needing to know.
+
+    Anything else raises rather than being skipped: skipping would publish a
+    catalog quietly missing images for reasons no reader could reconstruct.
+    """
+    if reference in by_sku:
+        return by_sku[reference]
+    base = reference.split("_", 1)[0]
+    if base in by_sku:
+        return by_sku[base]
+    for type_key in sorted(types, key=len, reverse=True):
+        if reference == type_key or reference.startswith(f"{type_key}_"):
+            return type_key
+    raise UnresolvedImageError(
+        f"image reference {reference!r} is neither a SKU in this catalog nor "
+        "named for one of its product types, so the directory its drawing "
+        "belongs to cannot be determined"
+    )
+
+
+def image_index(catalog: Catalog) -> dict[str, str]:
+    """Every image reference in the catalog, mapped to its product type.
+
+    Built once over the whole catalog rather than per line, because a line's
+    references reach outside it.
+    """
+    by_sku = {child.sku: line.type_key for line in catalog.lines for child in line.children}
+    types = frozenset(line.type_key for line in catalog.lines)
+    # NOTE: variant references only. If product LINES gain their own image
+    # references, add them here too, or a line-level reference will carry no
+    # URL while a variant's does.
+    return {
+        reference: _owning_type(reference, by_sku, types)
+        for line in catalog.lines
+        for child in line.children
+        for reference in child.image_skus
+    }
+
+
+def image_path(reference: str, index: dict[str, str]) -> str:
+    """``end_mill_square/98WF97.png`` -- the path under the image base URL."""
+    return f"{index[reference]}/{reference}.png"
+
+
+def image_urls(references: tuple[str, ...], index: dict[str, str], base_url: str) -> list[str]:
+    return [f"{base_url.rstrip('/')}/{image_path(reference, index)}" for reference in references]
+
+
+def iter_image_manifest(
+    catalog: Catalog, base_url: str = DEFAULT_IMAGE_BASE_URL
+) -> Iterator[dict[str, Any]]:
+    """One row per DISTINCT image reference: what it is, and where it is hosted.
+
+    The catalog references an image once per SKU that points at it, which is
+    many times over; whatever hosts the images needs each file once. Emitting
+    the manifest here means the host reads the product type off this file
+    instead of re-deriving it from the catalog with a second copy of the
+    reuse rule -- and a second copy is how the two disagree later.
+    """
+    index = image_index(catalog)
+    referenced_by: dict[str, int] = {}
+    for line in catalog.lines:
+        for child in line.children:
+            for reference in child.image_skus:
+                referenced_by[reference] = referenced_by.get(reference, 0) + 1
+    base = base_url.rstrip("/")
+    for reference in sorted(referenced_by):
+        path = image_path(reference, index)
+        yield {
+            "image_ref": reference,
+            "product_type": index[reference],
+            "path": path,
+            "url": f"{base}/{path}",
+            "referenced_by": referenced_by[reference],
+        }
+
 
 def sanitize(name: str) -> str:
     """``Milling Dia.`` -> ``milling_dia``: a usable field name.
@@ -72,7 +187,13 @@ def _searchable_text(line: ProductLine, child: Sku, attributes: tuple[Attribute,
     return " ".join(part for part in parts if part)
 
 
-def nested_document(catalog: Catalog, line: ProductLine) -> dict[str, Any]:
+def nested_document(
+    catalog: Catalog,
+    line: ProductLine,
+    index: dict[str, str] | None = None,
+    base_url: str = DEFAULT_IMAGE_BASE_URL,
+) -> dict[str, Any]:
+    index = image_index(catalog) if index is None else index
     return {
         "product_id": line.product_id,
         "product_type": line.type_key,
@@ -92,6 +213,7 @@ def nested_document(catalog: Catalog, line: ProductLine) -> dict[str, Any]:
                 "price_usd": child.price_usd,
                 "stock": child.stock,
                 "image_skus": list(child.image_skus),
+                "image_urls": image_urls(child.image_skus, index, base_url),
                 "attributes": _attribute_entries(child.attributes),
             }
             for child in line.children
@@ -99,7 +221,13 @@ def nested_document(catalog: Catalog, line: ProductLine) -> dict[str, Any]:
     }
 
 
-def flat_documents(catalog: Catalog, line: ProductLine) -> Iterator[dict[str, Any]]:
+def flat_documents(
+    catalog: Catalog,
+    line: ProductLine,
+    index: dict[str, str] | None = None,
+    base_url: str = DEFAULT_IMAGE_BASE_URL,
+) -> Iterator[dict[str, Any]]:
+    index = image_index(catalog) if index is None else index
     for child in line.children:
         merged = catalog.merged_attributes(line, child)
         facets: dict[str, list[str]] = {}
@@ -124,6 +252,7 @@ def flat_documents(catalog: Catalog, line: ProductLine) -> Iterator[dict[str, An
             "price_usd": child.price_usd,
             "stock": child.stock,
             "image_skus": list(child.image_skus),
+            "image_urls": image_urls(child.image_skus, index, base_url),
             "attributes": _attribute_entries(merged),
             "attribute_names": sorted({a.name for a in merged}),
             "facets": facets,
@@ -132,14 +261,18 @@ def flat_documents(catalog: Catalog, line: ProductLine) -> Iterator[dict[str, An
         }
 
 
-def iter_nested(catalog: Catalog) -> Iterator[dict[str, Any]]:
+def iter_nested(
+    catalog: Catalog, base_url: str = DEFAULT_IMAGE_BASE_URL
+) -> Iterator[dict[str, Any]]:
+    index = image_index(catalog)
     for line in catalog.lines:
-        yield nested_document(catalog, line)
+        yield nested_document(catalog, line, index, base_url)
 
 
-def iter_flat(catalog: Catalog) -> Iterator[dict[str, Any]]:
+def iter_flat(catalog: Catalog, base_url: str = DEFAULT_IMAGE_BASE_URL) -> Iterator[dict[str, Any]]:
+    index = image_index(catalog)
     for line in catalog.lines:
-        yield from flat_documents(catalog, line)
+        yield from flat_documents(catalog, line, index, base_url)
 
 
 def write_jsonl(rows: Iterator[dict[str, Any]], path: Path) -> int:
@@ -184,6 +317,7 @@ NESTED_MAPPING: dict[str, Any] = {
                     "price_usd": {"type": "double"},
                     "stock": {"type": "integer"},
                     "image_skus": {"type": "keyword"},
+                    "image_urls": {"type": "keyword"},
                     "attributes": {
                         "type": "nested",
                         "properties": {
@@ -230,6 +364,7 @@ FLAT_MAPPING: dict[str, Any] = {
             "price_usd": {"type": "double"},
             "stock": {"type": "integer"},
             "image_skus": {"type": "keyword"},
+            "image_urls": {"type": "keyword"},
             "attribute_names": {"type": "keyword"},
             "attributes": {
                 "type": "object",

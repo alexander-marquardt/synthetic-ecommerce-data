@@ -338,6 +338,35 @@ carries none), and of those 2,417 are drawn and 417 refused:
 | `DimensionParseError` | 116 | the published value carries no unit, and a bare number is ambiguous |
 | `ImpossibleGeometryError` | 74 | length of cut longer than the tool, the largest measured defect class |
 
+### Where the images are published, and how a record points at one
+
+`sip-generate build` writes `images.jsonl` — one row per distinct image, with
+the product type it belongs to and the URL it is served from — and every record
+in `flat.jsonl` and `nested.jsonl` carries `image_urls` beside `image_skus`:
+
+```json
+{"sku": "89HR78", "product_type": "end_mill_square",
+ "image_skus": ["98WF97"],
+ "image_urls": ["https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/98WF97.png"]}
+```
+
+`--image-base-url` moves the host. The card profile is the one published; the
+detail renders are not hosted.
+
+**The URL is built from the image reference, never from the product's own
+SKU.** Those differ for roughly three records in four — the catalog reproduces
+a measured rate of image reuse — so a URL assembled from `sku` is a dead link
+at that rate, and dead in a way that spot-checking a handful of records will
+not reveal. Reuse also crosses product types: a hex bolt can reference an end
+mill's drawing, so the directory in the URL is the type of the **drawn**
+product, resolved once over the whole catalog in `emit.image_index`. A
+reference that resolves to no product type raises rather than publishing a URL
+that cannot be fetched.
+
+`images.jsonl` exists so that whatever hosts the files reads the product type
+off the generator's own output instead of re-deriving it with a second copy of
+the reuse rule.
+
 Two profiles, both sized from where the image is displayed:
 
 | profile | pixels | why |

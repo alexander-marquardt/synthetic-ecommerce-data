@@ -149,3 +149,113 @@ def test_write_jsonl_round_trips(tmp_path):
     lines = path.read_text(encoding="utf-8").strip().splitlines()
     assert len(lines) == count == CATALOG.sku_count
     assert json.loads(lines[0])["sku"]
+
+
+# -- image URLs ---------------------------------------------------------------
+#
+# The trap these guard is one fact: an image reference is not the referring
+# product's SKU, and it is not even the referring product's TYPE. A URL built
+# from either is dead, and dead at a rate high enough that spot-checking a
+# handful of records would not find it.
+
+
+def test_image_url_is_built_from_the_reference_not_the_product_sku():
+    diverging = [
+        doc
+        for doc in emit.iter_flat(CATALOG)
+        if doc["image_skus"] and doc["sku"] not in doc["image_skus"]
+    ]
+    assert diverging, "the catalog models image reuse; without it this proves nothing"
+    for doc in diverging:
+        for reference, url in zip(doc["image_skus"], doc["image_urls"], strict=True):
+            assert url.endswith(f"/{reference}.png")
+            assert not url.endswith(f"/{doc['sku']}.png")
+
+
+def test_image_url_directory_is_the_drawn_types_not_the_referring_products():
+    by_sku = {child.sku: line.type_key for line in CATALOG.lines for child in line.children}
+    crossed = 0
+    for doc in emit.iter_flat(CATALOG):
+        for reference, url in zip(doc["image_skus"], doc["image_urls"], strict=True):
+            owner = by_sku[reference]
+            assert f"/{owner}/{reference}.png" in url
+            if owner != doc["product_type"]:
+                crossed += 1
+    assert crossed, "image reuse crosses product types; without a case this proves nothing"
+
+
+def test_every_reference_has_exactly_one_url_and_the_base_is_configurable():
+    for doc in emit.iter_flat(CATALOG, "https://example.invalid/i/"):
+        assert len(doc["image_urls"]) == len(doc["image_skus"])
+        for url in doc["image_urls"]:
+            assert url.startswith("https://example.invalid/i/")
+            assert "//i//" not in url, "a trailing slash on the base must not double up"
+
+
+def test_the_manifest_lists_each_image_once_and_accounts_for_every_reference():
+    rows = list(emit.iter_image_manifest(CATALOG))
+    refs = [row["image_ref"] for row in rows]
+    assert len(refs) == len(set(refs)), "one row per image file, not per reference"
+
+    referenced = [
+        reference
+        for line in CATALOG.lines
+        for child in line.children
+        for reference in child.image_skus
+    ]
+    assert set(refs) == set(referenced)
+    assert sum(row["referenced_by"] for row in rows) == len(referenced)
+    assert any(row["referenced_by"] > 1 for row in rows), "reuse means shared files"
+
+
+def test_the_manifest_path_is_the_url_tail():
+    for row in emit.iter_image_manifest(CATALOG, "https://example.invalid/i"):
+        assert row["url"] == f"https://example.invalid/i/{row['path']}"
+        assert row["path"] == f"{row['product_type']}/{row['image_ref']}.png"
+
+
+def test_the_manifest_and_the_records_agree_on_every_url():
+    hosted = {row["url"] for row in emit.iter_image_manifest(CATALOG)}
+    wanted = {url for doc in emit.iter_flat(CATALOG) for url in doc["image_urls"]}
+    assert wanted == hosted, "a record URL with no manifest row is a dead link"
+
+
+def test_the_nested_shape_carries_the_same_urls_as_the_flat_one():
+    flat = {doc["sku"]: doc["image_urls"] for doc in emit.iter_flat(CATALOG)}
+    for doc in emit.iter_nested(CATALOG):
+        for variant in doc["variants"]:
+            assert variant["image_urls"] == flat[variant["sku"]]
+
+
+def test_an_asset_suffixed_reference_resolves_to_the_skus_type():
+    sku, type_key = next(
+        (child.sku, line.type_key) for line in CATALOG.lines for child in line.children
+    )
+    assert emit._owning_type(f"{sku}_AS01", {sku: type_key}, frozenset()) == type_key
+
+
+def test_a_generic_reference_resolves_by_its_product_type_prefix():
+    """A drawing shared by a family is named for what it draws, not for a SKU."""
+    types = frozenset(line.type_key for line in CATALOG.lines)
+    assert types, "the catalog publishes product types"
+    for type_key in types:
+        assert emit._owning_type(type_key, {}, types) == type_key
+        assert emit._owning_type(f"{type_key}_ball_nose", {}, types) == type_key
+
+
+def test_a_generic_reference_takes_the_LONGEST_matching_product_type():
+    """``end_mill`` is a prefix of ``end_mill_square``; the longer one wins.
+
+    Matching the shorter one would file every square end mill's drawing under
+    a directory for a different product type, and every URL built from it
+    would be dead.
+    """
+    types = frozenset({"end_mill", "end_mill_square"})
+    assert emit._owning_type("end_mill_square_ball_nose", {}, types) == "end_mill_square"
+
+
+def test_an_unresolvable_reference_is_refused_rather_than_published_dead():
+    import pytest
+
+    with pytest.raises(emit.UnresolvedImageError):
+        emit._owning_type("NOT-A-SKU", {}, frozenset({"end_mill_square"}))
