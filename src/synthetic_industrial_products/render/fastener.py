@@ -28,7 +28,27 @@ from matplotlib.patches import Circle, Polygon, Rectangle
 
 from ..dimensions import Length, Thread, parse_length, parse_thread
 from . import canvas as cv
+from . import forms
+from .attrs import (
+    MissingAttributeError,
+    UnsupportedFeatureError,
+    provenance_note,
+    require,
+    spec_table,
+)
 from .profiles import CARD, Profile
+
+#: Re-exported for the same reason as in :mod:`.endmill`.
+__all__ = [
+    "FastenerGeometry",
+    "MissingAttributeError",
+    "UnsupportedHeadError",
+    "build",
+    "drive_mouth_width",
+    "drive_outline",
+    "geometry_from_record",
+    "render",
+]
 
 FILL_V = 0.78
 FILL_H = 0.42
@@ -43,12 +63,8 @@ COUNTERSUNK = {"flat", "flat head", "countersunk", "flat countersunk"}
 CYLINDRICAL = {"socket", "socket cap", "cylindrical", "cheese", "socket head", "hex"}
 
 
-class UnsupportedHeadError(ValueError):
+class UnsupportedHeadError(UnsupportedFeatureError):
     """The head style is not one this renderer can derive from the attributes."""
-
-
-class MissingAttributeError(KeyError):
-    """The record does not carry an attribute the drawing needs."""
 
 
 @dataclass(frozen=True)
@@ -103,17 +119,8 @@ class FastenerGeometry:
         return max(self.head_dia.inches, self.thread.major.inches)
 
 
-def _require(record: dict, key: str) -> str:
-    try:
-        return record[key]
-    except KeyError as exc:
-        raise MissingAttributeError(
-            f"record {record.get('sku', '?')!r} has no {key!r}; the drawing needs it"
-        ) from exc
-
-
 def geometry_from_record(record: dict) -> FastenerGeometry:
-    head_style = str(_require(record, "Screw Head Type")).strip()
+    head_style = str(require(record, "Screw Head Type")).strip()
     key = head_style.lower()
     if key not in COUNTERSUNK and key not in CYLINDRICAL:
         raise UnsupportedHeadError(
@@ -122,11 +129,11 @@ def geometry_from_record(record: dict) -> FastenerGeometry:
         )
     drive_size_raw = record.get("Drive Size")
     return FastenerGeometry(
-        thread=parse_thread(_require(record, "Dia./Thread Size")),
-        length=parse_length(_require(record, "Length")),
-        thread_length=parse_length(_require(record, "Thread Length")),
-        head_dia=parse_length(_require(record, "Head Dia.")),
-        head_height=parse_length(_require(record, "Head Height")),
+        thread=parse_thread(require(record, "Dia./Thread Size")),
+        length=parse_length(require(record, "Length")),
+        thread_length=parse_length(require(record, "Thread Length")),
+        head_dia=parse_length(require(record, "Head Dia.")),
+        head_height=parse_length(require(record, "Head Height")),
         head_style=head_style,
         drive_type=str(record.get("Drive Type", "")).strip(),
         drive_size=parse_length(drive_size_raw) if drive_size_raw else None,
@@ -143,36 +150,8 @@ def _head_outline(geom: FastenerGeometry, y_tip: float) -> list[tuple[float, flo
     return [(-r_head, seat), (-r_head, top), (r_head, top), (r_head, seat)]
 
 
-def _draw_thread(ax, geom: FastenerGeometry, y_tip: float) -> None:
-    """A 60-degree thread form at the pitch the designation states."""
-    r_major = geom.thread.major.inches / 2
-    r_minor = geom.thread.minor_in / 2
-    pitch = geom.thread.pitch_in
-    top = y_tip + geom.threaded_length
-
-    for x_sign, phase in ((-1, 0.0), (1, 0.5)):
-        xs: list[float] = []
-        ys: list[float] = []
-        y = y_tip - pitch
-        while y < top + pitch:
-            xs.extend([x_sign * r_minor, x_sign * r_major])
-            ys.extend([y + phase * pitch, y + (phase + 0.5) * pitch])
-            y += pitch
-        clip = Rectangle(
-            (-r_major * 1.02, y_tip),
-            r_major * 2.04,
-            geom.threaded_length,
-            transform=ax.transData,
-        )
-        line = ax.plot(
-            xs, ys, color=cv.INK, lw=cv.LW_BODY * 0.55, zorder=4, solid_joinstyle="miter"
-        )[0]
-        line.set_clip_path(clip)
-
-
 def _draw_body(ax, geom: FastenerGeometry, y_tip: float) -> None:
     r_shank = geom.thread.major.inches / 2
-    r_minor = geom.thread.minor_in / 2
 
     ax.add_patch(
         Rectangle(
@@ -185,14 +164,8 @@ def _draw_body(ax, geom: FastenerGeometry, y_tip: float) -> None:
         )
     )
     # Thread roots, then the outline of the unthreaded run, then the form.
+    forms.thread_roots(ax, minor_in=geom.thread.minor_in, y_from=y_tip, length=geom.threaded_length)
     for sign in (-1, 1):
-        ax.plot(
-            [sign * r_minor, sign * r_minor],
-            [y_tip, y_tip + geom.threaded_length],
-            color=cv.MUTED,
-            lw=cv.LW_HIDDEN,
-            zorder=3,
-        )
         ax.plot(
             [sign * r_shank, sign * r_shank],
             [y_tip + geom.threaded_length, y_tip + geom.shank_length],
@@ -207,7 +180,14 @@ def _draw_body(ax, geom: FastenerGeometry, y_tip: float) -> None:
         lw=cv.LW_BODY,
         zorder=3,
     )
-    _draw_thread(ax, geom, y_tip)
+    forms.draw_thread(
+        ax,
+        major_in=geom.thread.major.inches,
+        minor_in=geom.thread.minor_in,
+        pitch_in=geom.thread.pitch_in,
+        y_from=y_tip,
+        length=geom.threaded_length,
+    )
 
     ax.add_patch(
         Polygon(
@@ -478,6 +458,7 @@ def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
     fig.text(0.04, 0.925, str(record.get("sku", "")), fontsize=cv.FS_SPEC, color=cv.MUTED)
 
     specs = [
+        ("Item", record.get("Item", "")),
         ("Dia./Thread Size", geom.thread.designation),
         ("Length", geom.length.display()),
         ("Thread Length", geom.thread_length.display()),
@@ -485,16 +466,17 @@ def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
         ("Head Height", geom.head_height.display()),
         ("Drive Type", geom.drive_type),
         ("Drive Size", geom.drive_size.display() if geom.drive_size else ""),
+        ("Fastener Material", record.get("Fastener Material", "")),
+        ("Fastener Finish", record.get("Fastener Finish", "")),
+        ("Grade", record.get("Grade", "")),
+        ("Thread Type", record.get("Thread Type", "")),
+        ("Thread Direction", record.get("Thread Direction", "")),
+        ("Rockwell Hardness", record.get("Rockwell Hardness", "")),
+        ("Meets/Exceeds", record.get("Meets/Exceeds", "")),
+        ("Width Across Flats", record.get("Width Across Flats", "")),
+        ("Bolt Style", record.get("Bolt Style", "")),
     ]
-    y = 0.44
-    for name, value in specs:
-        if not value:
-            continue
-        fig.text(0.62, y, name, fontsize=cv.FS_SPEC, color=cv.MUTED)
-        fig.text(
-            0.955, y, str(value), fontsize=cv.FS_SPEC, color=cv.INK, fontweight="bold", ha="right"
-        )
-        y -= 0.042
+    y = spec_table(fig, specs)
     if geom.countersunk:
         fig.text(0.62, y - 0.012, "countersink (derived)", fontsize=cv.FS_SPEC, color=cv.MUTED)
         fig.text(
@@ -506,14 +488,7 @@ def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
             fontweight="bold",
             ha="right",
         )
-    fig.text(
-        0.04,
-        0.018,
-        "drawn from this record's attribute values",
-        fontsize=cv.FS_FOOT,
-        color=cv.MUTED,
-        style="italic",
-    )
+    provenance_note(fig)
     return fig, ax
 
 
