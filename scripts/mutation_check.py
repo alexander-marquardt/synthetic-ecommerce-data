@@ -30,7 +30,7 @@ SRC = REPO / "src" / "synthetic_industrial_products"
 @dataclass(frozen=True)
 class Mutation:
     name: str
-    #: Path relative to the package root.
+    #: Path relative to ``root``.
     file: str
     old: str
     new: str
@@ -39,6 +39,11 @@ class Mutation:
     #: "A" and "B" label the two directions of one property.
     direction: str = ""
     property_name: str = ""
+    #: Path relative to the REPO root that ``file`` hangs off. Defaults to the
+    #: generator package; the PRISM customization is a second package, and the
+    #: committed field map has to be mutable from here too -- a drift test that
+    #: is only ever proven from the DERIVATION side is not proven at all.
+    root: str = "src/synthetic_industrial_products"
 
 
 MUTATIONS: list[Mutation] = [
@@ -364,6 +369,98 @@ MUTATIONS: list[Mutation] = [
         "",
         "attribute values are reachable by full text",
     ),
+    # ---- PRISM field map: the committed artifact vs the derivation -------
+    # This property has two sides and BOTH must red. A drift test proven only
+    # from the derivation side would still pass if someone hand-edited the
+    # committed YAML, which is the likelier mistake of the two.
+    Mutation(
+        "hand-edit the committed field map's source (the artifact side)",
+        "data/field_weights/synthetic_industrial_flat.yaml",
+        "    source: facets.abrasive_material\n",
+        "    source: facets.abrasive_materials\n",
+        "tests/test_prism_field_map_drift.py",
+        "A",
+        "the committed field map matches a fresh derivation",
+        root="src/prism_synthetic_industrial",
+    ),
+    Mutation(
+        "move the facet presence floor (the derivation side)",
+        "prism/derive.py",
+        "MIN_PRESENCE = 0.5",
+        "MIN_PRESENCE = 0.6",
+        "tests/test_prism_field_map_drift.py",
+        "B",
+        "the committed field map matches a fresh derivation",
+    ),
+    # ---- PRISM field map: numeric vs terms classification ----------------
+    Mutation(
+        "demand near-total numeric coverage, so dimensions become terms facets",
+        "prism/derive.py",
+        "NUMERIC_SHARE = 0.5",
+        "NUMERIC_SHARE = 0.99",
+        "tests/test_prism_field_map_drift.py",
+        "A",
+        "an attribute's facet TYPE is derived from its parsed values",
+    ),
+    Mutation(
+        "accept any numeric value at all, so text attributes become ranges",
+        "prism/derive.py",
+        "NUMERIC_SHARE = 0.5",
+        "NUMERIC_SHARE = 0.0",
+        "tests/test_prism_field_map_drift.py",
+        "B",
+        "an attribute's facet TYPE is derived from its parsed values",
+    ),
+    # ---- PRISM field map: the terms-vs-identifier cap --------------------
+    Mutation(
+        "raise the terms cap so identifiers become facets",
+        "prism/derive.py",
+        "MAX_TERMS_CARDINALITY = 25",
+        "MAX_TERMS_CARDINALITY = 500",
+        "tests/test_prism_field_map_drift.py",
+        "A",
+        "a high-cardinality terms attribute is an identifier, not a facet",
+    ),
+    Mutation(
+        "lower the terms cap so real facets are dropped",
+        "prism/derive.py",
+        "MAX_TERMS_CARDINALITY = 25",
+        "MAX_TERMS_CARDINALITY = 3",
+        "tests/test_prism_field_map_drift.py",
+        "B",
+        "a high-cardinality terms attribute is an identifier, not a facet",
+    ),
+    # ---- filter_routing.hard must carry every numeric facet -------------
+    Mutation(
+        "drop a numeric facet from filter_routing.hard (its slider disappears)",
+        "data/customization.yaml",
+        "    - arbor_hole_size\n",
+        "",
+        "tests/test_prism_field_map_drift.py",
+        "A",
+        "every derived numeric facet is routed as a range axis",
+        root="src/prism_synthetic_industrial",
+    ),
+    Mutation(
+        "route a name the catalog does not derive as a numeric facet",
+        "data/customization.yaml",
+        "    - arbor_hole_size\n",
+        "    - arbor_hole_size\n    - not_a_catalog_attribute\n",
+        "tests/test_prism_field_map_drift.py",
+        "B",
+        "every derived numeric facet is routed as a range axis",
+        root="src/prism_synthetic_industrial",
+    ),
+    # ---- the structural-collision guard ---------------------------------
+    Mutation(
+        "let a catalog attribute claim a structural field name",
+        "prism/field_map.py",
+        '        "attribute_names",\n        "fulltext",',
+        '        "attribute_names",\n        "fulltext",\n        "item",',
+        "tests/test_prism_field_map_drift.py",
+        "",
+        "no attribute silently redefines a structural field",
+    ),
 ]
 
 
@@ -428,7 +525,7 @@ def main(argv: list[str] | None = None) -> int:
 
     rows: list[tuple[Mutation, bool, str]] = []
     for mutation in mutations:
-        path = SRC / mutation.file
+        path = REPO / mutation.root / mutation.file
         original = path.read_text(encoding="utf-8")
         if mutation.old not in original:
             rows.append((mutation, False, "MUTATION DID NOT APPLY"))
