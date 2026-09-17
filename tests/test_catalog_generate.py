@@ -250,11 +250,11 @@ def test_every_image_reference_names_one_of_the_catalogs_own_product_lines(catal
 def test_every_product_line_has_an_image_of_its_own(catalog):
     """One drawing per line -- not one per type, and not one per SKU.
 
-    The count is the assertion. One per type is what this replaced: 4,624 SKUs
-    behind ten pictures, where an Osterlund HSS AlTiN mill and a competitor's
-    carbide TiCN mill rendered identically. One per SKU would undercut the
-    variant grouping the nested shape exists to demonstrate, where N SKUs are
-    ONE product. Either mistake leaves every other check here green.
+    The count is the assertion. One per type is what this replaced: the whole
+    catalog behind ten pictures, where an Osterlund HSS AlTiN mill and a
+    competitor's carbide TiCN mill rendered identically. One per SKU would
+    undercut the variant grouping the nested shape exists to demonstrate, where
+    N SKUs are ONE product. Either mistake leaves every other check here green.
     """
     ids = [line.image_id for line in catalog.lines]
     assert len(set(ids)) == len(catalog.lines) > 1
