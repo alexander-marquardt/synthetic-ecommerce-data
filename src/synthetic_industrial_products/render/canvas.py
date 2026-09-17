@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 
 import matplotlib
@@ -28,6 +29,11 @@ FS_SUBLABEL = 8.5
 FS_TITLE = 12.0
 FS_SPEC = 9.0
 FS_FOOT = 7.0
+
+#: Dimensions are drawn over the subject, never under it. A round subject has
+#: its dimension lines inside its own outline, and a callout that lost a
+#: z-order fight with the part it measures is a callout nobody can read.
+Z_DIM = 8
 
 LW_BODY = 2.4
 LW_DIM = 1.2
@@ -68,20 +74,65 @@ def frame_width(fig: Figure, rect: tuple[float, float, float, float], frame_heig
     return frame_height * (rect[2] * fig_w) / (rect[3] * fig_h)
 
 
-def diameter_callout(ax, y, diameter, label, sub, side, overhang, gap, fontsize=FS_CALLOUT):
-    """A double-headed arrow across a diameter, labelled off to one side.
-
-    ``side`` is -1 to put the label left of the subject, +1 to put it right.
-    """
+def _diameter_arrow(ax, y, diameter, overhang, zorder=None):
+    """The dimension line across a diameter, with a tick at each extreme."""
     x0, x1 = -diameter / 2, diameter / 2
+    extra = {} if zorder is None else {"zorder": zorder}
     ax.annotate(
         "",
         xy=(x0 - overhang, y),
         xytext=(x1 + overhang, y),
         arrowprops=dict(arrowstyle="<->", color=DIM, lw=LW_DIM, shrinkA=0, shrinkB=0),
+        **extra,
     )
     for x in (x0, x1):
-        ax.plot([x, x], [y - overhang * 0.6, y + overhang * 0.6], color=DIM, lw=LW_DIM * 0.7)
+        ax.plot(
+            [x, x], [y - overhang * 0.6, y + overhang * 0.6], color=DIM, lw=LW_DIM * 0.7, **extra
+        )
+    return x0, x1
+
+
+def centred_diameter_callout(ax, y, diameter, label, sub, overhang, lift, fontsize=FS_CALLOUT):
+    """A diameter dimension with the value centred on its own line.
+
+    This is the ISO placement -- value above the dimension line, centred on it
+    -- and it is what a round subject needs. A side-placed label on a disc has
+    to clear the disc before it starts, so on a 150-pixel-wide card the two
+    labels a washer needs run off both edges; centred, they cannot, whatever
+    the value's length. Both texts sit on a paper-coloured box so they stay
+    legible where they cross the subject.
+    """
+    _diameter_arrow(ax, y, diameter, overhang, zorder=Z_DIM)
+    ax.text(
+        0,
+        y + lift,
+        label,
+        ha="center",
+        va="bottom",
+        color=DIM,
+        fontsize=fontsize,
+        fontweight="bold",
+        zorder=Z_DIM,
+    )
+    if sub:
+        ax.text(
+            0,
+            y - lift * 0.7,
+            sub,
+            ha="center",
+            va="top",
+            color=MUTED,
+            fontsize=FS_SUBLABEL,
+            zorder=Z_DIM,
+        )
+
+
+def diameter_callout(ax, y, diameter, label, sub, side, overhang, gap, fontsize=FS_CALLOUT):
+    """A double-headed arrow across a diameter, labelled off to one side.
+
+    ``side`` is -1 to put the label left of the subject, +1 to put it right.
+    """
+    x0, x1 = _diameter_arrow(ax, y, diameter, overhang)
     text_x = (x1 + overhang + gap) if side > 0 else (x0 - overhang - gap)
     ha = "left" if side > 0 else "right"
     ax.text(text_x, y, label, ha=ha, va="center", color=DIM, fontsize=fontsize, fontweight="bold")
@@ -121,8 +172,54 @@ def length_dimension(ax, x, y0, y1, label, fontsize=FS_SPEC):
     )
 
 
+def included_angle_callout(ax, apex, half_angle_deg, radius, label, drop, fontsize=FS_SPEC):
+    """An angular dimension on the cone meeting at ``apex``, opening upwards.
+
+    The arc is struck inside the cone, where it can only be read against the
+    two flanks it spans; the value is set below the apex, which on a tool drawn
+    tip-down is the one place near the point with nothing else in it. The
+    leader ties the two together so the number is not left floating.
+    """
+    x0, y0 = apex
+    start, end = 90.0 - half_angle_deg, 90.0 + half_angle_deg
+    steps = 48
+    xs = [
+        x0 + radius * math.cos(math.radians(start + (end - start) * k / steps))
+        for k in range(steps + 1)
+    ]
+    ys = [
+        y0 + radius * math.sin(math.radians(start + (end - start) * k / steps))
+        for k in range(steps + 1)
+    ]
+    ax.plot(xs, ys, color=DIM, lw=LW_DIM, zorder=7)
+    ax.plot([x0, x0], [y0, y0 - drop * 0.8], color=DIM, lw=LW_DIM * 0.7, zorder=7)
+    ax.text(
+        x0,
+        y0 - drop,
+        label,
+        ha="center",
+        va="top",
+        color=DIM,
+        fontsize=fontsize,
+        fontweight="bold",
+    )
+
+
 def witness(ax, x_from, x_to, y):
     ax.plot([x_from, x_to], [y, y], color=DIM, lw=LW_DIM * 0.6, ls=(0, (4, 3)), alpha=0.8)
+
+
+def extension_line(ax, x, y_from, y_to):
+    """A vertical extension line, carrying a feature out to its dimension line."""
+    ax.plot(
+        [x, x],
+        [y_from, y_to],
+        color=DIM,
+        lw=LW_DIM * 0.6,
+        ls=(0, (4, 3)),
+        alpha=0.8,
+        zorder=Z_DIM,
+    )
 
 
 def save(fig: Figure, path: str | Path, profile: Profile) -> Path:

@@ -139,16 +139,38 @@ def parse_count(value: str) -> int:
     return count
 
 
-def parse_angle_degrees(value: str) -> float:
-    """Read ``30 Degrees`` / ``30`` / ``30 deg`` as a number of degrees."""
+def _angle_magnitude(value: str) -> float:
+    """The number of degrees in an angle attribute, with no range applied."""
     text = str(value).strip().lower()
     text = re.sub(r"\s*(degrees|degree|deg\.?|°)$", "", text).strip()
     m = _DECIMAL.match(text)
     if m is None:
         raise DimensionParseError(f"{value!r} is not an angle in degrees")
-    angle = float(m.group("dec"))
+    return float(m.group("dec"))
+
+
+def parse_angle_degrees(value: str) -> float:
+    """Read ``30 Degrees`` / ``30`` / ``30 deg`` as a number of degrees."""
+    angle = _angle_magnitude(value)
     if not 0 <= angle < 90:
         raise DimensionParseError(f"{value!r} is not a usable helix angle")
+    return angle
+
+
+def parse_included_angle_degrees(value: str) -> float:
+    """Read an included angle: a drill point's ``118 Degrees`` or ``135 Degrees``.
+
+    Deliberately a separate function from :func:`parse_angle_degrees` rather
+    than a widened range on it. A helix angle is measured from the axis and is
+    under 90 degrees; an included angle spans both flanks and is routinely over
+    100. One function admitting the union of the two ranges would stop
+    rejecting a helix angle published as an included one -- and this catalog
+    publishes angle attributes carrying the wrong thing at a measured rate, so
+    that rejection is load-bearing.
+    """
+    angle = _angle_magnitude(value)
+    if not 0 < angle < 180:
+        raise DimensionParseError(f"{value!r} is not a usable included angle")
     return angle
 
 
