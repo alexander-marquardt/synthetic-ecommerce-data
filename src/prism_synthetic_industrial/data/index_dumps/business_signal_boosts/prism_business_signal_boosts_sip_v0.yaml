@@ -1,0 +1,58 @@
+# ---------------------------------------------------------------------------
+# PRISM versioned config  (config_type: business_signal_boosts)
+# ---------------------------------------------------------------------------
+#
+# NOT read at runtime. The engine reads this config from the pushed
+# Elasticsearch index it is bound to ('business_signal_boosts_index'), NEVER from this
+# file. Editing this file changes nothing until you PUSH it into a
+# versioned index (below).
+#
+# To APPLY this file, push it create-only into a new immutable index:
+#   uv run prism-engine config push /tmp/sipwork/bsb.yaml
+#
+# This file was GENERATED from the engine builtins (no source index). It was produced by:
+#   uv run prism-engine config dump --type business_signal_boosts --builtins -o /tmp/sipwork/bsb.yaml
+#
+# To MIGRATE to a new schema version (PUSH-FIRST — full runbook inline):
+#   PUSH-FIRST: the new index must already exist, stamped by the NEW
+#   code, BEFORE any serving engine rolls onto it. The naive 'roll the
+#   code first, push later' order WEDGES the pool: an image-based deploy
+#   cannot express 'new code available but not serving' (the tag IS the
+#   roll), so new-code pods boot against the old index, hit the
+#   fingerprint mismatch, and CrashLoopBackOff.
+#   1. Build the new-code image, but do NOT roll it into the serving pool
+#      yet (it pins the new schema fingerprint; the pool stays on the old
+#      image, bound to the current index, serving normally).
+#   2. From the NEW image (a one-off job/CLI, NOT the serving pods), dump
+#      the current index, rename to _v<N+1>, edit, and push create-only
+#      (refused if the version exists — versions are immutable), all while
+#      the pool still serves the old version. The push MUST run on the new
+#      code: only it stamps the new fingerprint the new pool will require.
+#        uv run prism-engine config dump --type business_signal_boosts --index <current_index> \
+#          -o config/business_signal_boosts_<deployment>_v<N+1>.yaml
+#        uv run prism-engine config push config/business_signal_boosts_<deployment>_v<N+1>.yaml
+#   3. Roll the image AND repoint the binding together, in one rollout:
+#        business_signal_boosts_index: business_signal_boosts_<deployment>_v<N+1>
+#      Each new pod comes up new-code-and-new-index bound and serves;
+#      mid-roll the pool is a safe old/new mix. Rolling-restart the pool
+#      completes the roll.
+#   The OLD index stays as the rollback target — roll the image AND the
+#   binding back together (they move as a pair; new code cannot serve the
+#   old-shape index). Full reasoning + rollback: docs/36-config-consistency.md
+#
+# WARNING (--overwrite):
+#   Overwriting a BOUND index with `config push --overwrite` changes live config for EVERY engine in the pool immediately: it mutates the index every engine reads, the overwrite bumps the #827 marker, the poller fires, and all engines reload — no deploy, no version bump. It sidesteps version immutability, and because the version NAME is unchanged the drift UI and the pins will not show that anything changed (the backup snapshot is the only trace). For a MULTI-doc type (policies) the in-place content swap is not atomic — a search racing the swap can briefly see a partially-populated set (an accepted, documented hazard; the window is narrowed but not fully closed). Prefer a NEW version + rolling restart (rollback by repointing the binding to the old index); use --overwrite deliberately.
+#
+# Full documentation: docs/36-config-consistency.md (Creating a business_signal_boosts config)
+# ---------------------------------------------------------------------------
+business_signal_enabled: {}
+business_signal_filter_weights: {}
+business_signal_tuning:
+  margin:
+    boost_at_max: 1.0
+    max_value: 200.0
+  popularity:
+    boost_at_max: 1.0
+    max_value: 10000.0
+purchase_boost_half_life_days: 60
+purchase_max_additional_boost: 1.0

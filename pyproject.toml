@@ -16,6 +16,7 @@ sip-generate = "synthetic_industrial_products.catalog.cli:main"
 [dependency-groups]
 dev = [
     "pytest>=8.0",
+    "pyyaml>=6.0.3",
     "ruff>=0.6",
 ]
 
@@ -24,7 +25,16 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/synthetic_industrial_products"]
+# Two packages ship from this repo. ``synthetic_industrial_products`` is the
+# generator; ``prism_synthetic_industrial`` is the PRISM customization, whose
+# directory name is fixed by PRISM's loader -- it globs
+# ``src/prism_*/data/customization.yaml`` and requires exactly one match.
+packages = ["src/synthetic_industrial_products", "src/prism_synthetic_industrial"]
+
+# The customization is nothing but data files, and a wheel that drops them
+# installs a package PRISM cannot read.
+[tool.hatch.build.targets.wheel.force-include]
+"src/prism_synthetic_industrial/data" = "prism_synthetic_industrial/data"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

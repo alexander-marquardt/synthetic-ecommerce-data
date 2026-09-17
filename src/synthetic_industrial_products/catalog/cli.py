@@ -71,6 +71,35 @@ def _serialisable(stats: dict) -> dict:
     return out
 
 
+def _write_field_map(catalog, config: GeneratorConfig) -> str:
+    """Regenerate the committed PRISM field map from the catalog just built.
+
+    Only for the DEFAULT generator configuration. ``sip-generate build
+    --lines 900`` describes a different catalog, and letting it overwrite the
+    committed field map would replace an artifact the drift test checks with
+    one derived from a catalog nobody ships -- the test would then pass
+    against the wrong thing, which is worse than failing.
+    """
+    from ..prism.field_map import render  # noqa: PLC0415
+
+    target = (
+        Path(__file__).resolve().parents[2]
+        / "prism_synthetic_industrial"
+        / "data"
+        / "field_weights"
+        / "synthetic_industrial_flat.yaml"
+    )
+    if config != GeneratorConfig():
+        return (
+            f"{target.name}  NOT rewritten -- the generator config is not the "
+            "default, and the committed field map describes the default catalog"
+        )
+    if not target.parent.exists():
+        return f"{target}  NOT rewritten -- the customization package is not present"
+    target.write_text(render(emit.iter_flat(catalog)), encoding="utf-8")
+    return f"{target}  field map regenerated from this catalog"
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="sip-generate", description=__doc__)
     parser.add_argument("command", choices=("build", "report"))
@@ -140,6 +169,8 @@ def main(argv: list[str] | None = None) -> int:
         json.dumps(emit.FLAT_MAPPING, indent=1) + "\n", encoding="utf-8"
     )
 
+    field_map = _write_field_map(catalog, config)
+
     print(f"{out}/nested.jsonl  {nested} parent documents")
     print(f"{out}/flat.jsonl    {flat} sku documents")
     print(
@@ -147,6 +178,7 @@ def main(argv: list[str] | None = None) -> int:
         f"({flat - render} carry no attribute it recognises)"
     )
     print(f"{out}/stats.json    measured against target")
+    print(field_map)
     print()
     _print_report(stats)
     return 0

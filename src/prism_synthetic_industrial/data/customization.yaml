@@ -1,0 +1,120 @@
+# =============================================================================
+# Deployment config -- synthetic industrial catalog
+# =============================================================================
+#
+# PRISM auto-discovers this file at boot: point ``PRISM_CUSTOMIZATION_PATH`` at
+# this repo's root and the Engine globs ``src/prism_*/data/customization.yaml``
+# inside it, requiring exactly one match. That is why the package directory is
+# ``src/prism_synthetic_industrial/`` and not something more descriptive.
+#
+# DIRECT-INDEX MODE
+# -----------------------------------------------------------------------------
+# PRISM queries an index this repo builds and loads itself:
+#
+#     python scripts/load_prism_catalog.py --host http://127.0.0.1:9201
+#
+# There is no PRISM ingest pipeline and no ``load-data`` sidecar. The field map
+# translates PRISM's canonical names onto the field names
+# ``emit.flat_documents`` already writes.
+#
+# THE FLAT SHAPE, AND WHAT IT COSTS
+# -----------------------------------------------------------------------------
+# This customization serves the FLAT shape -- one document per SKU, with the
+# product line's attributes denormalised onto every child. That is the shape
+# PRISM can serve today.
+#
+# The catalog also emits a NESTED shape, and it is the better one: it is the
+# only shape in which "how many PRODUCTS carry this value" is answerable, and
+# the only one in which two attributes of the same entry stay correlated. The
+# Engine cannot emit nested facet queries yet, so the nested index is loaded by
+# ``scripts/verify_elasticsearch.py`` for comparison and is NOT served here.
+#
+# The correlation loss is real and is visible in this deployment: in the flat
+# shape ``attributes`` is a plain object, so a filter for
+# *name = Shank Dia. AND value = 3/8"* matches any document carrying a shank
+# diameter anywhere and a 3/8" anywhere. That is why the field map facets the
+# sanitised ``facets.*`` / ``facets_num.*`` keys, where each attribute has its
+# own field and the pairing cannot come apart, rather than the ``attributes``
+# array.
+# =============================================================================
+
+# BOOT-REQUIRED index bindings. The Engine refuses to start without them --
+# it serves business-signal boosts and merchandiser defaults only from a bound,
+# PUSHED index and never auto-creates one. Seeded from the Engine's built-in
+# envelopes:
+#
+#     prism-engine config dump --type business_signal_boosts --builtins -o <f>
+#     prism-engine config push <f>
+#
+# The YAML each was pushed from is kept under ``data/index_dumps/``.
+#
+# NOTE ON THE NAMES. Every other index this repo creates on a test cluster is
+# named ``test-<date>-*``. These two cannot be: the Engine REFUSES any name
+# without the type prefix --
+#
+#   Error: index name 'test-2026-09-17-sip-business-signal-boosts-v0' must
+#   carry the 'prism_business_signal_boosts' prefix for config type
+#   'business_signal_boosts' (so type-enumeration finds it)
+#
+# so they carry the required prefix with an ``_sip_`` infix that keeps them
+# distinct from any other deployment's config indices on the same cluster.
+business_signal_boosts_index: prism_business_signal_boosts_sip_v0
+merchandiser_settings_index: prism_merchandiser_settings_sip_v0
+
+# REQUIRED. ``builtin`` uses the Engine's bundled query templates. Nothing in
+# this catalog needs a custom fallback tier ladder yet.
+search_config: builtin
+
+# RANGE AXES. A numeric facet only renders as a shopper range selector if its
+# name is routed HARD -- without this the Engine warns
+# "Numeric facet field is not in filter_routing.hard — the shopper price-range
+# selector will not render for it" once per numeric facet, and the sidebar
+# shows nothing for any dimension.
+#
+# This list is the 26 attributes the field map derives as numeric facets, plus
+# ``price``. It is NOT hand-maintained: ``tests/test_prism_field_map_drift.py``
+# asserts it equals a fresh derivation, so adding a numeric attribute to the
+# catalog without routing it here is a red test rather than a missing slider.
+#
+# Every name here must resolve as a range axis or BOTH Engine and Studio
+# refuse to boot (#7114), which is why the list is generated rather than typed.
+filter_routing:
+  hard:
+    - price
+    - arbor_hole_size
+    - decimal_equivalent
+    - disc_dia
+    - drill_size
+    - drive_size
+    - face_dia
+    - flute_length
+    - grit
+    - handle_length
+    - head_dia
+    - head_height
+    - head_weight
+    - helix_angle
+    - inside_dia
+    - length
+    - length_of_cut
+    - max_rpm
+    - milling_dia
+    - number_of_flutes
+    - outside_dia
+    - overall_length
+    - point_angle
+    - shank_dia
+    - thickness
+    - thread_length
+    - width_across_flats
+
+# One persona over one index. With exactly one persona declared the Engine
+# treats it as the implicit default, so ``default_persona`` is omitted rather
+# than stated redundantly.
+personas:
+  Industrial:
+    # Test-cluster naming is deliberate: this catalog is synthetic and its
+    # index is only ever loaded into a local test cluster. The same name is
+    # used by ``scripts/verify_elasticsearch.py``.
+    index: test-2026-09-17-sip-flat
+    field_map: field_weights/synthetic_industrial_flat.yaml
