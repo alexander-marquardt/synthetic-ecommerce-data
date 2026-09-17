@@ -1,0 +1,107 @@
+{
+ "method": "Shape classification of dimension value strings. A value may carry several shape tags (e.g. 1-1/2\" is both mixed_fraction_hyphen and trailing_double_quote). unit_mixing_within_one_record = the record uses imperial in one dimension field and metric in another.",
+ "shape_tags_explained": {
+  "trailing_double_quote": "ends with the inch double-prime, e.g. 3/8\"",
+  "trailing_in": "ends with the token in or in., e.g. 7/32 in",
+  "trailing_mm": "ends with mm, e.g. 12.70 mm",
+  "bare_fraction": "starts with a vulgar fraction, e.g. 3/8",
+  "mixed_fraction_hyphen": "whole-and-fraction joined by a hyphen, e.g. 1-1/2",
+  "decimal": "decimal magnitude",
+  "integer": "bare integer, no separator",
+  "unitless": "no unit token anywhere in the string",
+  "MIXED_UNITS_IN_ONE_VALUE": "a single value string names two unit systems"
+ },
+ "by_attribute_concept": {
+  "milling_dia": {
+   "bare_fraction": 93,
+   "trailing_double_quote": 79,
+   "trailing_in": 35,
+   "trailing_mm": 17,
+   "decimal": 16,
+   "mixed_fraction_hyphen": 9,
+   "integer": 4
+  },
+  "length_of_cut": {
+   "trailing_double_quote": 127,
+   "bare_fraction": 68,
+   "trailing_in": 40,
+   "mixed_fraction_hyphen": 38,
+   "decimal": 20,
+   "integer": 20,
+   "trailing_mm": 18
+  },
+  "overall_length": {
+   "trailing_double_quote": 183,
+   "mixed_fraction_hyphen": 125,
+   "decimal": 47,
+   "trailing_in": 40,
+   "trailing_mm": 27,
+   "integer": 22,
+   "bare_fraction": 7,
+   "unitless": 6
+  },
+  "shank_dia": {
+   "bare_fraction": 141,
+   "trailing_double_quote": 140,
+   "trailing_in": 41,
+   "decimal": 38,
+   "trailing_mm": 25,
+   "mixed_fraction_hyphen": 10,
+   "integer": 4
+  }
+ },
+ "by_markup_era": {
+  "2015": {
+   "trailing_double_quote": 514,
+   "bare_fraction": 225,
+   "mixed_fraction_hyphen": 159,
+   "decimal": 118,
+   "trailing_mm": 78,
+   "trailing_in": 7,
+   "unitless": 3,
+   "integer": 1
+  },
+  "2020": {
+   "trailing_in": 135,
+   "bare_fraction": 81,
+   "integer": 44,
+   "trailing_double_quote": 15,
+   "mixed_fraction_hyphen": 15,
+   "trailing_mm": 8,
+   "decimal": 1
+  },
+  "2026": {
+   "trailing_in": 14,
+   "mixed_fraction_hyphen": 8,
+   "integer": 5,
+   "bare_fraction": 3,
+   "unitless": 3,
+   "decimal": 2,
+   "trailing_mm": 1
+  }
+ },
+ "unit_mixing_within_one_record": {
+  "n": 11,
+  "rate_over_all_records": 0.0222,
+  "examples": [
+   {
+    "sku": "22D977",
+    "markup_era": "2015",
+    "values": {
+     "length_of_cut": "0.0080\"",
+     "overall_length": "2.2440\"",
+     "shank_dia": "6mm"
+    }
+   },
+   {
+    "sku": "22E381",
+    "markup_era": "2015",
+    "values": {
+     "length_of_cut": "1.1420\"",
+     "overall_length": "3.6220\"",
+     "shank_dia": "18.00mm"
+    }
+   }
+  ]
+ }
+}

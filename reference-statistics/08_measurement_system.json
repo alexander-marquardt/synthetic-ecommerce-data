@@ -1,0 +1,99 @@
+{
+ "method": "Distribution of the VERBATIM value of the measurement-system attribute, plus a cross-tab against the unit system actually detected in that record's dimension values.",
+ "source_attribute_names_verbatim": {
+  "Dimension Type": 141,
+  "Measurement System": 49,
+  "System of Measurement": 22
+ },
+ "n_records_with_attribute": 212,
+ "n_records_total": 496,
+ "presence_rate": 0.4274,
+ "values": [
+  {
+   "verbatim": "Fractional Inch",
+   "count": 151
+  },
+  {
+   "verbatim": "Metric",
+   "count": 35
+  },
+  {
+   "verbatim": "Inch",
+   "count": 19
+  },
+  {
+   "verbatim": "Decimal Inch",
+   "count": 5
+  },
+  {
+   "verbatim": "Wire Size",
+   "count": 1
+  },
+  {
+   "verbatim": "Wire",
+   "count": 1
+  }
+ ],
+ "crosstab_declared_vs_observed_units": [
+  {
+   "declared_verbatim": "Fractional Inch",
+   "units_in_dimension_values": "imperial",
+   "count": 147
+  },
+  {
+   "declared_verbatim": "Metric",
+   "units_in_dimension_values": "metric",
+   "count": 17
+  },
+  {
+   "declared_verbatim": "Inch",
+   "units_in_dimension_values": "none",
+   "count": 15
+  },
+  {
+   "declared_verbatim": "Metric",
+   "units_in_dimension_values": "imperial+metric",
+   "count": 7
+  },
+  {
+   "declared_verbatim": "Metric",
+   "units_in_dimension_values": "imperial",
+   "count": 6
+  },
+  {
+   "declared_verbatim": "Metric",
+   "units_in_dimension_values": "none",
+   "count": 5
+  },
+  {
+   "declared_verbatim": "Inch",
+   "units_in_dimension_values": "imperial",
+   "count": 4
+  },
+  {
+   "declared_verbatim": "Fractional Inch",
+   "units_in_dimension_values": "none",
+   "count": 4
+  },
+  {
+   "declared_verbatim": "Decimal Inch",
+   "units_in_dimension_values": "imperial+metric",
+   "count": 3
+  },
+  {
+   "declared_verbatim": "Decimal Inch",
+   "units_in_dimension_values": "imperial",
+   "count": 2
+  },
+  {
+   "declared_verbatim": "Wire Size",
+   "units_in_dimension_values": "imperial",
+   "count": 1
+  },
+  {
+   "declared_verbatim": "Wire",
+   "units_in_dimension_values": "imperial",
+   "count": 1
+  }
+ ]
+}

@@ -1,0 +1,145 @@
+{
+ "method": "Over records carrying BOTH a milling diameter and a shank diameter, compare the two after normalising each to inches. \"Equal\" means within 1e-4 in, so 1/2\" == 0.5000 in == 12.7 mm all count as equal. Records where either value could not be parsed to a magnitude are excluded from the rate and reported separately.",
+ "verbatim_names_grouped": {
+  "milling_dia": [
+   "Milling Dia.",
+   "Milling Diameter"
+  ],
+  "shank_dia": [
+   "Shank Dia.",
+   "Shank Size",
+   "Shank Diameter"
+  ]
+ },
+ "n_records_with_milling_dia": 131,
+ "n_records_with_both_attributes": 131,
+ "n_excluded_unparsable": 0,
+ "n_compared": 131,
+ "n_equal": 85,
+ "n_differ": 46,
+ "rate_equal": 0.6489,
+ "rate_differ": 0.3511,
+ "note_for_generator": "This rate sets how often the attribute-role ambiguity case (two different attributes carrying the same magnitude) appears in the catalog.",
+ "shank_over_milling_ratio_when_differing": [
+  {
+   "ratio": 0.833,
+   "count": 7
+  },
+  {
+   "ratio": 2.0,
+   "count": 6
+  },
+  {
+   "ratio": 1.333,
+   "count": 4
+  },
+  {
+   "ratio": 1.5,
+   "count": 3
+  },
+  {
+   "ratio": 1.2,
+   "count": 3
+  },
+  {
+   "ratio": 1.143,
+   "count": 3
+  },
+  {
+   "ratio": 3.0,
+   "count": 2
+  },
+  {
+   "ratio": 2.667,
+   "count": 2
+  },
+  {
+   "ratio": 0.75,
+   "count": 2
+  },
+  {
+   "ratio": 5.952,
+   "count": 1
+  },
+  {
+   "ratio": 4.615,
+   "count": 1
+  },
+  {
+   "ratio": 1.026,
+   "count": 1
+  },
+  {
+   "ratio": 1.905,
+   "count": 1
+  },
+  {
+   "ratio": 0.6,
+   "count": 1
+  },
+  {
+   "ratio": 1.587,
+   "count": 1
+  },
+  {
+   "ratio": 1.191,
+   "count": 1
+  },
+  {
+   "ratio": 4.0,
+   "count": 1
+  },
+  {
+   "ratio": 1.27,
+   "count": 1
+  },
+  {
+   "ratio": 1.058,
+   "count": 1
+  },
+  {
+   "ratio": 1.155,
+   "count": 1
+  },
+  {
+   "ratio": 1.111,
+   "count": 1
+  },
+  {
+   "ratio": 0.429,
+   "count": 1
+  },
+  {
+   "ratio": 0.375,
+   "count": 1
+  }
+ ],
+ "examples_equal": [
+  {
+   "sku": "29VX64",
+   "milling_dia": "1\"",
+   "shank_dia": "1\"",
+   "verbatim_strings_identical": true
+  },
+  {
+   "sku": "23Z904",
+   "milling_dia": "5/16\"",
+   "shank_dia": "5/16\"",
+   "verbatim_strings_identical": true
+  }
+ ],
+ "examples_differ": [
+  {
+   "sku": "412U19",
+   "milling_dia": "0.0210\"",
+   "shank_dia": "0.125\"",
+   "shank_over_milling": 5.9524
+  },
+  {
+   "sku": "33TM56",
+   "milling_dia": "1/4\"",
+   "shank_dia": "3/8\"",
+   "shank_over_milling": 1.5
+  }
+ ]
+}

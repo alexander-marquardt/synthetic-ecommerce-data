@@ -1,0 +1,88 @@
+{
+ "priority": "5 of 7",
+ "method": "Internal-consistency checks after normalising every dimension to inches. Each class is reported with its OWN denominator -- the number of records actually carrying the attribute pair that class tests -- because a rate over the whole corpus would be meaningless for a pair most records do not have. A record can trip several classes. These are REAL defects in the source catalog and are meant to be REPRODUCED by the generator, not smoothed away.",
+ "n_records_in_corpus": 496,
+ "n_records_with_at_least_one_checkable_pair": 206,
+ "n_records_with_at_least_one_defect": 30,
+ "classes": {
+  "length_of_cut_exceeds_overall_length": {
+   "n": 15,
+   "denominator_records_carrying_the_pair": 181,
+   "rate_within_denominator": 0.0829,
+   "note": "",
+   "cases": [
+    {
+     "sku": "33TP75",
+     "values_verbatim": {
+      "Length of Cut": "3 in",
+      "Overall Length": "2-1/2\""
+     },
+     "markup_era": "2020"
+    },
+    {
+     "sku": "33TP77",
+     "values_verbatim": {
+      "Length of Cut": "3 in",
+      "Overall Length": "2-1/2\""
+     },
+     "markup_era": "2020"
+    }
+   ]
+  },
+  "angle_attribute_carries_a_length_unit": {
+   "n": 9,
+   "denominator_records_carrying_the_pair": 192,
+   "rate_within_denominator": 0.0469,
+   "note": "an angular attribute whose value carries a LENGTH unit, e.g. Helix Angle = 42\" -- a unit-type error, not a magnitude error",
+   "cases": [
+    {
+     "sku": "29VX64",
+     "values_verbatim": {
+      "Helix Angle": "42\""
+     }
+    },
+    {
+     "sku": "29VX92",
+     "values_verbatim": {
+      "Helix Angle": "42\""
+     }
+    }
+   ]
+  },
+  "declared_measurement_system_contradicts_value_units": {
+   "n": 6,
+   "denominator_records_carrying_the_pair": 186,
+   "rate_within_denominator": 0.0323,
+   "note": "",
+   "cases": [
+    {
+     "sku": "414R96",
+     "declared_verbatim": {
+      "Measurement System": "Metric"
+     },
+     "units_observed_in_values": [
+      "imperial"
+     ],
+     "values_verbatim": {
+      "Flute Length": "0.0300 in",
+      "Overall Length": "1 1/2 in",
+      "Shank Dia.": "1/8 in"
+     }
+    },
+    {
+     "sku": "29FL19",
+     "declared_verbatim": {
+      "Dimension Type": "Metric"
+     },
+     "units_observed_in_values": [
+      "imperial"
+     ],
+     "values_verbatim": {
+      "Flute Length": "0.59\"",
+      "Overall Length": "1.97\""
+     }
+    }
+   ]
+  }
+ }
+}

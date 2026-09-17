@@ -1,0 +1,148 @@
+{
+ "generated_utc": "2026-09-16T21:43:12Z",
+ "what_this_is": "Derived statistical properties of archived Grainger product pages, for driving a synthetic catalog generator. The raw corpus under raw/ is analysis input only and ships nowhere.",
+ "collection_constraints_observed": {
+  "source": "web.archive.org ONLY -- no request was sent to grainger.com, mcmaster.com or mscdirect.com",
+  "user_agent": "prism-demo-research/1.0 (Elastic; alexander.marquardt@elastic.co)",
+  "concurrency": "serial, single process, 3-5s jittered between requests, escalating backoff on 429/5xx",
+  "capture_eras_used": "2015 and 2020 slug captures, and 2026 bare-SKU captures",
+  "capture_era_excluded": "2024 -- enumeration used from=2015&to=2021 and from=2025, so 2024 captures were never requested. 2024 slug captures are soft-404s served at HTTP 200.",
+  "validation": "every page validated on CONTENT (spec table present, not-found markers absent), never on HTTP status"
+ },
+ "request_accounting": {
+  "total_http_requests": 742,
+  "status_codes": {
+   "200": 739,
+   "404": 3
+  },
+  "enumeration_requests": 52,
+  "requests_by_phase": {
+   "enumeration_slug_2015_2021": 52,
+   "fetch_slug_era": 395,
+   "enumerate_and_fetch_2026_broad": 110,
+   "enumerate_and_fetch_2026_cutting_tool_targeted": 120,
+   "image_sample_verification": 6
+  },
+  "aborted_early": false
+ },
+ "corpus": {
+  "skus_enumerated_2015_2021": 9632,
+  "skus_enumerated_is_a_FLOOR_not_a_total": "GRAINGER-APPROVED and DAYTON returned exactly the 4000-row request limit, so their URL counts are truncated. Every enumeration count here is a floor.",
+  "pages_attempted_slug_era": 420,
+  "pages_parsed_slug_era": 413,
+  "pages_attempted_2026_era": 150,
+  "pages_parsed_2026_era": 83,
+  "total_records_analysed": 496,
+  "discarded_total": 74,
+  "discard_reasons": {
+   "notfound_page_at_200": 18,
+   "no_spec_table": 56
+  },
+  "discard_verification": {
+   "notfound_page_at_200": "Pages served HTTP 200 whose CONTENT is a not-found page. Detected on content markers, never on status. 18 such pages were discarded.",
+   "no_spec_table": "VERIFIED, not assumed: every one of the 54 no_spec_table discards in the 2026 era was re-opened from the saved HTML and checked. All 54 carry \"techSpecs\":null AND \"techSpecsTable\":{...,\"specs\":[]} -- the spec array is genuinely empty in the archived page. ZERO of them had a populated techSpecsTable.specs that the parser had missed. So these are absent data, not a parser limitation.",
+   "residual_parser_risk": "The 2026 parser reads the \"techSpecs\" array. A second container, techSpecsTable.specs, exists in the same pages and was checked across all discards and found empty every time; it is NOT read by the parser, so a future capture that populates only that container would be silently missed."
+  }
+ },
+ "headline_numbers": {
+  "P1_title_grammar": {
+   "n_titles": 496,
+   "delimiter_convention": {
+    "comma": 437,
+    "comma_followed_by_space": 0,
+    "none_single_segment": 59,
+    "comma_no_space": 0
+   },
+   "n_distinct_field_order_templates": 60,
+   "n_abbreviations_resolved_by_evidence": 138,
+   "n_value_side_abbreviation_tokens": 20,
+   "label_truncation_rate": 0.0323,
+   "token_vs_assumed_attribute": {
+    "n_title_dimension_tokens_examined": 105,
+    "n_tokens_unlabelled": 49,
+    "rate_tokens_unlabelled": 0.4667,
+    "n_tokens_equal_to_milling_dia": 87,
+    "n_tokens_not_equal_to_milling_dia": 18,
+    "rate_token_not_milling_dia": 0.1714,
+    "classes": [
+     {
+      "class": "other_length",
+      "n": 7,
+      "share": 0.3889
+     },
+     {
+      "class": "length_of_cut",
+      "n": 5,
+      "share": 0.2778
+     },
+     {
+      "class": "neck",
+      "n": 4,
+      "share": 0.2222
+     },
+     {
+      "class": "flute",
+      "n": 2,
+      "share": 0.1111
+     }
+    ]
+   }
+  },
+  "P2_shank_equals_milling_dia": {
+   "n_records_with_both_attributes": 131,
+   "n_compared": 131,
+   "n_equal": 85,
+   "n_differ": 46,
+   "rate_equal": 0.6489,
+   "rate_differ": 0.3511
+  },
+  "P3_joint_combinations": {
+   "n_records": 131,
+   "n_records_with_all_four": 127,
+   "n_distinct_complete_tuples": 103,
+   "n_distinct_tuples_any_completeness": 107
+  },
+  "P4_attribute_sparsity": {
+   "n_distinct_attribute_names": 585,
+   "attrs_per_record_mean": 13.12
+  },
+  "P5_defects": {
+   "n_records_in_corpus": 496,
+   "n_records_with_at_least_one_checkable_pair": 206,
+   "n_records_with_at_least_one_defect": 30
+  },
+  "P6_value_format": {
+   "unit_mixing_within_one_record": 11,
+   "unit_mixing_rate": 0.0222
+  },
+  "measurement_system_presence_rate": 0.4274,
+  "image_sku_divergence_rate": 0.7353,
+  "P5_defects_by_class": {
+   "length_of_cut_exceeds_overall_length": {
+    "n": 15,
+    "denominator": 181,
+    "rate": 0.0829
+   },
+   "angle_attribute_carries_a_length_unit": {
+    "n": 9,
+    "denominator": 192,
+    "rate": 0.0469
+   },
+   "declared_measurement_system_contradicts_value_units": {
+    "n": 6,
+    "denominator": 186,
+    "rate": 0.0323
+   }
+  }
+ },
+ "priority_order_per_maintainer_reweighting": [
+  "1  P1_title_grammar.json  (incl. title_token_vs_assumed_attribute -- highest value)",
+  "2  04_shank_dia_vs_milling_dia.json",
+  "3  02_joint_combinations.json",
+  "4  06_attribute_sparsity.json",
+  "5  09_defect_rate.json",
+  "6  07_value_format_variation.json",
+  "7  P7_stocked_series_subset.json",
+  "DEMOTED  DEMOTED_milling_dia_frequency.json -- dimensional series is a published standard"
+ ]
+}

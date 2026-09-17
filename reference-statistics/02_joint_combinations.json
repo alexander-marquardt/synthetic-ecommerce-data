@@ -1,0 +1,2187 @@
+{
+ "method": "Observed joint tuples of (Milling Dia., Length of Cut, Overall Length, Shank Dia.) as VERBATIM strings, over records carrying a milling diameter. A generator MUST sample whole tuples from this table; sampling the four fields independently produces geometrically impossible tools.",
+ "tuple_order": [
+  "Milling Dia.",
+  "Length of Cut",
+  "Overall Length",
+  "Shank Dia."
+ ],
+ "verbatim_names_grouped": {
+  "milling_dia": [
+   "Milling Dia.",
+   "Milling Diameter"
+  ],
+  "length_of_cut": [
+   "Length of Cut",
+   "Flute Length"
+  ],
+  "overall_length": [
+   "Overall Length"
+  ],
+  "shank_dia": [
+   "Shank Dia.",
+   "Shank Size",
+   "Shank Diameter"
+  ]
+ },
+ "n_records": 131,
+ "n_distinct_tuples_any_completeness": 107,
+ "n_records_with_all_four": 127,
+ "n_distinct_complete_tuples": 103,
+ "completeness_pattern_counts": {
+  "milling_dia|length_of_cut|overall_length|shank_dia": 127,
+  "milling_dia|length_of_cut|shank_dia": 4
+ },
+ "complete_tuples": [
+  {
+   "milling_dia": "1/4\"",
+   "length_of_cut": "3/4\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4\"",
+   "count": 4,
+   "example_skus": [
+    "23Z911",
+    "1Z500",
+    "2TXG9",
+    "2NGR9"
+   ]
+  },
+  {
+   "milling_dia": "1\"",
+   "length_of_cut": "1-1/2\"",
+   "overall_length": "4\"",
+   "shank_dia": "1\"",
+   "count": 4,
+   "example_skus": [
+    "14R942",
+    "14T265",
+    "1Z601",
+    "2TXE9"
+   ]
+  },
+  {
+   "milling_dia": "1/4 in",
+   "length_of_cut": "3 in",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4 in",
+   "count": 4,
+   "example_skus": [
+    "33TP75",
+    "33TP77",
+    "16F493",
+    "16F497"
+   ]
+  },
+  {
+   "milling_dia": "1/8\"",
+   "length_of_cut": "1/2\"",
+   "overall_length": "1-1/2\"",
+   "shank_dia": "1/8\"",
+   "count": 3,
+   "example_skus": [
+    "1Z451",
+    "2TXF4",
+    "2TXN2"
+   ]
+  },
+  {
+   "milling_dia": "3/8\"",
+   "length_of_cut": "1\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "3/8\"",
+   "count": 3,
+   "example_skus": [
+    "33TP60",
+    "33TM75",
+    "2TXH4"
+   ]
+  },
+  {
+   "milling_dia": "3/16 in",
+   "length_of_cut": "3 in",
+   "overall_length": "2 in",
+   "shank_dia": "3/16 in",
+   "count": 3,
+   "example_skus": [
+    "16F469",
+    "16F471",
+    "16F473"
+   ]
+  },
+  {
+   "milling_dia": "3/8\"",
+   "length_of_cut": "3/4\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "3/8\"",
+   "count": 2,
+   "example_skus": [
+    "2MKD2",
+    "2NFH4"
+   ]
+  },
+  {
+   "milling_dia": "1/8 in",
+   "length_of_cut": "1/2 in",
+   "overall_length": "1-1/2\"",
+   "shank_dia": "1/8 in",
+   "count": 2,
+   "example_skus": [
+    "33TP71",
+    "33TP72"
+   ]
+  },
+  {
+   "milling_dia": "1-1/2\"",
+   "length_of_cut": "8\"",
+   "overall_length": "10-1/2\"",
+   "shank_dia": "1-1/4\"",
+   "count": 2,
+   "example_skus": [
+    "33TM59",
+    "2PTX5"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1-1/4\"",
+   "overall_length": "3-1/4\"",
+   "shank_dia": "1/2\"",
+   "count": 2,
+   "example_skus": [
+    "2PTN2",
+    "2TWY9"
+   ]
+  },
+  {
+   "milling_dia": "5/16\"",
+   "length_of_cut": "13/16\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "5/16\"",
+   "count": 2,
+   "example_skus": [
+    "1Z520",
+    "1Z524"
+   ]
+  },
+  {
+   "milling_dia": "5/32 in",
+   "length_of_cut": "9/16 in",
+   "overall_length": "2 in",
+   "shank_dia": "3/16 in",
+   "count": 2,
+   "example_skus": [
+    "16F457",
+    "16F459"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1/2\"",
+   "overall_length": "3\"",
+   "shank_dia": "1/2\"",
+   "count": 2,
+   "example_skus": [
+    "32PL96",
+    "32PL98"
+   ]
+  },
+  {
+   "milling_dia": "7/32 in",
+   "length_of_cut": "3 in",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4 in",
+   "count": 2,
+   "example_skus": [
+    "16F481",
+    "16F485"
+   ]
+  },
+  {
+   "milling_dia": "3/8\"",
+   "length_of_cut": "7/8\"",
+   "overall_length": "3\"",
+   "shank_dia": "3/8\"",
+   "count": 2,
+   "example_skus": [
+    "32PM14",
+    "32PM15"
+   ]
+  },
+  {
+   "milling_dia": "1\"",
+   "length_of_cut": "3\"",
+   "overall_length": "5-1/2\"",
+   "shank_dia": "1\"",
+   "count": 1,
+   "example_skus": [
+    "29VX64"
+   ]
+  },
+  {
+   "milling_dia": "5/16\"",
+   "length_of_cut": "1/2\"",
+   "overall_length": "2\"",
+   "shank_dia": "5/16\"",
+   "count": 1,
+   "example_skus": [
+    "23Z904"
+   ]
+  },
+  {
+   "milling_dia": "0.0210\"",
+   "length_of_cut": "0.0320\"",
+   "overall_length": "1.500\"",
+   "shank_dia": "0.125\"",
+   "count": 1,
+   "example_skus": [
+    "412U19"
+   ]
+  },
+  {
+   "milling_dia": "1/4\"",
+   "length_of_cut": "1-1/4\"",
+   "overall_length": "3-1/16\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "33TM56"
+   ]
+  },
+  {
+   "milling_dia": "3/8\"",
+   "length_of_cut": "7/8\"",
+   "overall_length": "2-5/8\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "2PMY4"
+   ]
+  },
+  {
+   "milling_dia": "3/8 in",
+   "length_of_cut": "3 in",
+   "overall_length": "4 in",
+   "shank_dia": "3/8 in",
+   "count": 1,
+   "example_skus": [
+    "41AW55"
+   ]
+  },
+  {
+   "milling_dia": "1/8\"",
+   "length_of_cut": "9/32\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4\"",
+   "count": 1,
+   "example_skus": [
+    "32PL49"
+   ]
+  },
+  {
+   "milling_dia": "1-1/2\"",
+   "length_of_cut": "2\"",
+   "overall_length": "4-1/2\"",
+   "shank_dia": "1-1/4\"",
+   "count": 1,
+   "example_skus": [
+    "29VX92"
+   ]
+  },
+  {
+   "milling_dia": "0.65mm",
+   "length_of_cut": "1.95mm",
+   "overall_length": "38.00mm",
+   "shank_dia": "3.00mm",
+   "count": 1,
+   "example_skus": [
+    "412V93"
+   ]
+  },
+  {
+   "milling_dia": "1/8\"",
+   "length_of_cut": "3/8\"",
+   "overall_length": "3-1/16\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "33TM57"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1\"",
+   "overall_length": "6\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "14G184"
+   ]
+  },
+  {
+   "milling_dia": "3/8\"",
+   "length_of_cut": "1-3/8\"",
+   "overall_length": "3-1/8\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "2MKD3"
+   ]
+  },
+  {
+   "milling_dia": "4.50mm",
+   "length_of_cut": "11.00mm",
+   "overall_length": "45.00mm",
+   "shank_dia": "6.00mm",
+   "count": 1,
+   "example_skus": [
+    "2TWH5"
+   ]
+  },
+  {
+   "milling_dia": "3/16\"",
+   "length_of_cut": "13/32\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4\"",
+   "count": 1,
+   "example_skus": [
+    "32PL50"
+   ]
+  },
+  {
+   "milling_dia": "2\"",
+   "length_of_cut": "2\"",
+   "overall_length": "5-3/4\"",
+   "shank_dia": "2\"",
+   "count": 1,
+   "example_skus": [
+    "29VY01"
+   ]
+  },
+  {
+   "milling_dia": "7.80mm",
+   "length_of_cut": "19.00mm",
+   "overall_length": "60.00mm",
+   "shank_dia": "8.00mm",
+   "count": 1,
+   "example_skus": [
+    "2TWH8"
+   ]
+  },
+  {
+   "milling_dia": "3/32\"",
+   "length_of_cut": "7/32\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4\"",
+   "count": 1,
+   "example_skus": [
+    "32PL51"
+   ]
+  },
+  {
+   "milling_dia": "1\"",
+   "length_of_cut": "1-7/8\"",
+   "overall_length": "4-1/8\"",
+   "shank_dia": "3/4\"",
+   "count": 1,
+   "example_skus": [
+    "2MZP6"
+   ]
+  },
+  {
+   "milling_dia": "5.00mm",
+   "length_of_cut": "1/2\"",
+   "overall_length": "3-1/4\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "33TM61"
+   ]
+  },
+  {
+   "milling_dia": "5/8\"",
+   "length_of_cut": "2-1/2\"",
+   "overall_length": "4-5/8\"",
+   "shank_dia": "5/8\"",
+   "count": 1,
+   "example_skus": [
+    "2PTP3"
+   ]
+  },
+  {
+   "milling_dia": "8.00mm",
+   "length_of_cut": "19.00mm",
+   "overall_length": "60.00mm",
+   "shank_dia": "8.00mm",
+   "count": 1,
+   "example_skus": [
+    "2TWJ1"
+   ]
+  },
+  {
+   "milling_dia": "3/4\"",
+   "length_of_cut": "1-37/64\"",
+   "overall_length": "4\"",
+   "shank_dia": "3/4\"",
+   "count": 1,
+   "example_skus": [
+    "32PL52"
+   ]
+  },
+  {
+   "milling_dia": "1-1/4\"",
+   "length_of_cut": "2\"",
+   "overall_length": "4-1/4\"",
+   "shank_dia": "3/4\"",
+   "count": 1,
+   "example_skus": [
+    "2NAC3"
+   ]
+  },
+  {
+   "milling_dia": "6.00mm",
+   "length_of_cut": "1/2\"",
+   "overall_length": "3-3/8\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "33TM62"
+   ]
+  },
+  {
+   "milling_dia": "3/4\"",
+   "length_of_cut": "1-5/8\"",
+   "overall_length": "3-3/4\"",
+   "shank_dia": "5/8\"",
+   "count": 1,
+   "example_skus": [
+    "2PTP6"
+   ]
+  },
+  {
+   "milling_dia": "16.00mm",
+   "length_of_cut": "32.00mm",
+   "overall_length": "100.00mm",
+   "shank_dia": "16.00mm",
+   "count": 1,
+   "example_skus": [
+    "2TWJ5"
+   ]
+  },
+  {
+   "milling_dia": "1/8 in",
+   "length_of_cut": "1 in",
+   "overall_length": "3 in",
+   "shank_dia": "1/8 in",
+   "count": 1,
+   "example_skus": [
+    "41CE16"
+   ]
+  },
+  {
+   "milling_dia": "7/64\"",
+   "length_of_cut": "7/64\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/8\"",
+   "count": 1,
+   "example_skus": [
+    "32PL92"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1/2\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "2NAN8"
+   ]
+  },
+  {
+   "milling_dia": "8.00mm",
+   "length_of_cut": "9/16\"",
+   "overall_length": "3-1/2\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "33TM63"
+   ]
+  },
+  {
+   "milling_dia": "3/4\"",
+   "length_of_cut": "1-1/2\"",
+   "overall_length": "3-3/4\"",
+   "shank_dia": "3/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTP9"
+   ]
+  },
+  {
+   "milling_dia": "1.00mm",
+   "length_of_cut": "1.50mm",
+   "overall_length": "45.00mm",
+   "shank_dia": "4.00mm",
+   "count": 1,
+   "example_skus": [
+    "2TWK7"
+   ]
+  },
+  {
+   "milling_dia": "1/8 in",
+   "length_of_cut": "3 in",
+   "overall_length": "1-1/2\"",
+   "shank_dia": "1/8 in",
+   "count": 1,
+   "example_skus": [
+    "41CF96"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1/2\"",
+   "overall_length": "5\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "32PL93"
+   ]
+  },
+  {
+   "milling_dia": "3/8 in",
+   "length_of_cut": "1 in",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "3/8 in",
+   "count": 1,
+   "example_skus": [
+    "33TP79"
+   ]
+  },
+  {
+   "milling_dia": "1/4\"",
+   "length_of_cut": "1/2\"",
+   "overall_length": "2-7/16\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "2NFD5"
+   ]
+  },
+  {
+   "milling_dia": "10.00mm",
+   "length_of_cut": "13/16\"",
+   "overall_length": "4-1/8\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "33TM64"
+   ]
+  },
+  {
+   "milling_dia": "3/4\"",
+   "length_of_cut": "2-1/2\"",
+   "overall_length": "4-3/4\"",
+   "shank_dia": "3/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTR3"
+   ]
+  },
+  {
+   "milling_dia": "1.50mm",
+   "length_of_cut": "2.30mm",
+   "overall_length": "45.00mm",
+   "shank_dia": "4.00mm",
+   "count": 1,
+   "example_skus": [
+    "2TWL1"
+   ]
+  },
+  {
+   "milling_dia": "1/4\"",
+   "length_of_cut": "1/4\"",
+   "overall_length": "3\"",
+   "shank_dia": "1/4\"",
+   "count": 1,
+   "example_skus": [
+    "32PL94"
+   ]
+  },
+  {
+   "milling_dia": "1/2 in",
+   "length_of_cut": "1 in",
+   "overall_length": "3 in",
+   "shank_dia": "1/2 in",
+   "count": 1,
+   "example_skus": [
+    "33TP80"
+   ]
+  },
+  {
+   "milling_dia": "5/16\"",
+   "length_of_cut": "9/16\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "2NFD6"
+   ]
+  },
+  {
+   "milling_dia": "12.00mm",
+   "length_of_cut": "13/16\"",
+   "overall_length": "4-1/8\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "33TM65"
+   ]
+  },
+  {
+   "milling_dia": "3/4\"",
+   "length_of_cut": "3\"",
+   "overall_length": "5-1/4\"",
+   "shank_dia": "3/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTR4"
+   ]
+  },
+  {
+   "milling_dia": "3.00mm",
+   "length_of_cut": "4.50mm",
+   "overall_length": "80.00mm",
+   "shank_dia": "6.00mm",
+   "count": 1,
+   "example_skus": [
+    "2TWN3"
+   ]
+  },
+  {
+   "milling_dia": "3/8\"",
+   "length_of_cut": "3/8\"",
+   "overall_length": "3-1/2\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "32PL95"
+   ]
+  },
+  {
+   "milling_dia": "1/2 in",
+   "length_of_cut": "1/64 in",
+   "overall_length": "4 in",
+   "shank_dia": "1/2 in",
+   "count": 1,
+   "example_skus": [
+    "287NX1"
+   ]
+  },
+  {
+   "milling_dia": "5/8 in",
+   "length_of_cut": "1 1/4 in",
+   "overall_length": "3-1/2\"",
+   "shank_dia": "5/8 in",
+   "count": 1,
+   "example_skus": [
+    "33TP82"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1\"",
+   "overall_length": "3-1/4\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "2NFD9"
+   ]
+  },
+  {
+   "milling_dia": "11.00mm",
+   "length_of_cut": "1\"",
+   "overall_length": "4-1/8\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "33TM67"
+   ]
+  },
+  {
+   "milling_dia": "1\"",
+   "length_of_cut": "1-1/8\"",
+   "overall_length": "3-5/8\"",
+   "shank_dia": "1\"",
+   "count": 1,
+   "example_skus": [
+    "2PTU2"
+   ]
+  },
+  {
+   "milling_dia": "3/4 in",
+   "length_of_cut": "1 1/2 in",
+   "overall_length": "4 in",
+   "shank_dia": "3/4 in",
+   "count": 1,
+   "example_skus": [
+    "33TP83"
+   ]
+  },
+  {
+   "milling_dia": "3/16\"",
+   "length_of_cut": "3/16\"",
+   "overall_length": "3\"",
+   "shank_dia": "3/16\"",
+   "count": 1,
+   "example_skus": [
+    "33TM70"
+   ]
+  },
+  {
+   "milling_dia": "1-1/4\"",
+   "length_of_cut": "4\"",
+   "overall_length": "6-1/2\"",
+   "shank_dia": "1-1/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTW1"
+   ]
+  },
+  {
+   "milling_dia": "1/4\"",
+   "length_of_cut": "5/8\"",
+   "overall_length": "3-3/8\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "2TXC1"
+   ]
+  },
+  {
+   "milling_dia": "1/4\"",
+   "length_of_cut": "1/4\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4\"",
+   "count": 1,
+   "example_skus": [
+    "32PL97"
+   ]
+  },
+  {
+   "milling_dia": "3/4 in",
+   "length_of_cut": "1/32 in",
+   "overall_length": "5 in",
+   "shank_dia": "3/4 in",
+   "count": 1,
+   "example_skus": [
+    "287NX3"
+   ]
+  },
+  {
+   "milling_dia": "3/16 in",
+   "length_of_cut": "1 1/8 in",
+   "overall_length": "3 in",
+   "shank_dia": "3/16 in",
+   "count": 1,
+   "example_skus": [
+    "33TP86"
+   ]
+  },
+  {
+   "milling_dia": "5/16\"",
+   "length_of_cut": "5/16\"",
+   "overall_length": "3\"",
+   "shank_dia": "5/16\"",
+   "count": 1,
+   "example_skus": [
+    "33TM72"
+   ]
+  },
+  {
+   "milling_dia": "1-1/2\"",
+   "length_of_cut": "3\"",
+   "overall_length": "5-1/2\"",
+   "shank_dia": "1-1/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTX1"
+   ]
+  },
+  {
+   "milling_dia": "1 in",
+   "length_of_cut": "1 1/8 in",
+   "overall_length": "3 in",
+   "shank_dia": "1 in",
+   "count": 1,
+   "example_skus": [
+    "33TP94"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1-1/4\"",
+   "overall_length": "1/2\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "2NFG4"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1/2\"",
+   "overall_length": "4\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "33TM74"
+   ]
+  },
+  {
+   "milling_dia": "1-1/2\"",
+   "length_of_cut": "4\"",
+   "overall_length": "6-1/2\"",
+   "shank_dia": "1-1/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTX2"
+   ]
+  },
+  {
+   "milling_dia": "3/16\"",
+   "length_of_cut": "3/16\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4\"",
+   "count": 1,
+   "example_skus": [
+    "32PM02"
+   ]
+  },
+  {
+   "milling_dia": "3/4 in",
+   "length_of_cut": "1 5/8 in",
+   "overall_length": "4 in",
+   "shank_dia": "3/4 in",
+   "count": 1,
+   "example_skus": [
+    "287RR5"
+   ]
+  },
+  {
+   "milling_dia": "1/8 in",
+   "length_of_cut": "3 in",
+   "overall_length": "2-3/8\"",
+   "shank_dia": "1/8 in",
+   "count": 1,
+   "example_skus": [
+    "33TR15"
+   ]
+  },
+  {
+   "milling_dia": "1-1/2\"",
+   "length_of_cut": "5\"",
+   "overall_length": "7-1/2\"",
+   "shank_dia": "1-1/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTX3"
+   ]
+  },
+  {
+   "milling_dia": "1/8\"",
+   "length_of_cut": "1/2\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4\"",
+   "count": 1,
+   "example_skus": [
+    "32PM10"
+   ]
+  },
+  {
+   "milling_dia": "1/16\"",
+   "length_of_cut": "3/16\"",
+   "overall_length": "1-1/2\"",
+   "shank_dia": "1/8\"",
+   "count": 1,
+   "example_skus": [
+    "2NGK8"
+   ]
+  },
+  {
+   "milling_dia": "1/4 in",
+   "length_of_cut": "1/2 in",
+   "overall_length": "3-1/2\"",
+   "shank_dia": "1/4 in",
+   "count": 1,
+   "example_skus": [
+    "33TR18"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1\"",
+   "overall_length": "4-1/8\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "31C339"
+   ]
+  },
+  {
+   "milling_dia": "1/4\"",
+   "length_of_cut": "3/8\"",
+   "overall_length": "3\"",
+   "shank_dia": "1/4\"",
+   "count": 1,
+   "example_skus": [
+    "33TM81"
+   ]
+  },
+  {
+   "milling_dia": "3/32\"",
+   "length_of_cut": "3/8\"",
+   "overall_length": "1-1/2\"",
+   "shank_dia": "1/8\"",
+   "count": 1,
+   "example_skus": [
+    "2NGK9"
+   ]
+  },
+  {
+   "milling_dia": "8 mm",
+   "length_of_cut": "14 mm",
+   "overall_length": "100 mm",
+   "shank_dia": "8 mm",
+   "count": 1,
+   "example_skus": [
+    "33TR28"
+   ]
+  },
+  {
+   "milling_dia": "1/8\"",
+   "length_of_cut": "3/8\"",
+   "overall_length": "2-5/16\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "31C367"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1\"",
+   "overall_length": "3\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "33TM84"
+   ]
+  },
+  {
+   "milling_dia": "9/32 in",
+   "length_of_cut": "3 in",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "5/16 in",
+   "count": 1,
+   "example_skus": [
+    "16F504"
+   ]
+  },
+  {
+   "milling_dia": "1-3/4\"",
+   "length_of_cut": "1-1/8\"",
+   "overall_length": "3-3/8\"",
+   "shank_dia": "3/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTX6"
+   ]
+  },
+  {
+   "milling_dia": "12 mm",
+   "length_of_cut": "22 mm",
+   "overall_length": "110 mm",
+   "shank_dia": "12 mm",
+   "count": 1,
+   "example_skus": [
+    "33TR29"
+   ]
+  },
+  {
+   "milling_dia": "3/16\"",
+   "length_of_cut": "1-1/4\"",
+   "overall_length": "3-1/16\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "31C373"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "5/8\"",
+   "overall_length": "4\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "33TM86"
+   ]
+  },
+  {
+   "milling_dia": "5/16 in",
+   "length_of_cut": "13/16 in",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "5/16 in",
+   "count": 1,
+   "example_skus": [
+    "16F506"
+   ]
+  },
+  {
+   "milling_dia": "2\"",
+   "length_of_cut": "1-1/8\"",
+   "overall_length": "3-3/8\"",
+   "shank_dia": "3/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTY4"
+   ]
+  },
+  {
+   "milling_dia": "1/16 in",
+   "length_of_cut": "3 in",
+   "overall_length": "1 1/2 in",
+   "shank_dia": "1/8 in",
+   "count": 1,
+   "example_skus": [
+    "2TXR3"
+   ]
+  },
+  {
+   "milling_dia": "0.63mm",
+   "length_of_cut": "1.26mm",
+   "overall_length": "3.62mm",
+   "shank_dia": "0.63mm",
+   "count": 1,
+   "example_skus": [
+    "32PM33"
+   ]
+  },
+  {
+   "milling_dia": "1/2 in",
+   "length_of_cut": "1 in",
+   "overall_length": "2 11/16 in",
+   "shank_dia": "3/8 in",
+   "count": 1,
+   "example_skus": [
+    "31C722"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "2\"",
+   "overall_length": "4\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "31C728"
+   ]
+  }
+ ],
+ "all_tuples_including_partial": [
+  {
+   "milling_dia": "1/4\"",
+   "length_of_cut": "3/4\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4\"",
+   "count": 4,
+   "example_skus": [
+    "23Z911",
+    "1Z500",
+    "2TXG9",
+    "2NGR9"
+   ]
+  },
+  {
+   "milling_dia": "1\"",
+   "length_of_cut": "1-1/2\"",
+   "overall_length": "4\"",
+   "shank_dia": "1\"",
+   "count": 4,
+   "example_skus": [
+    "14R942",
+    "14T265",
+    "1Z601",
+    "2TXE9"
+   ]
+  },
+  {
+   "milling_dia": "1/4 in",
+   "length_of_cut": "3 in",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4 in",
+   "count": 4,
+   "example_skus": [
+    "33TP75",
+    "33TP77",
+    "16F493",
+    "16F497"
+   ]
+  },
+  {
+   "milling_dia": "1/8\"",
+   "length_of_cut": "1/2\"",
+   "overall_length": "1-1/2\"",
+   "shank_dia": "1/8\"",
+   "count": 3,
+   "example_skus": [
+    "1Z451",
+    "2TXF4",
+    "2TXN2"
+   ]
+  },
+  {
+   "milling_dia": "3/8\"",
+   "length_of_cut": "1\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "3/8\"",
+   "count": 3,
+   "example_skus": [
+    "33TP60",
+    "33TM75",
+    "2TXH4"
+   ]
+  },
+  {
+   "milling_dia": "3/16 in",
+   "length_of_cut": "3 in",
+   "overall_length": "2 in",
+   "shank_dia": "3/16 in",
+   "count": 3,
+   "example_skus": [
+    "16F469",
+    "16F471",
+    "16F473"
+   ]
+  },
+  {
+   "milling_dia": "3/8\"",
+   "length_of_cut": "3/4\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "3/8\"",
+   "count": 2,
+   "example_skus": [
+    "2MKD2",
+    "2NFH4"
+   ]
+  },
+  {
+   "milling_dia": "1/8 in",
+   "length_of_cut": "1/2 in",
+   "overall_length": "1-1/2\"",
+   "shank_dia": "1/8 in",
+   "count": 2,
+   "example_skus": [
+    "33TP71",
+    "33TP72"
+   ]
+  },
+  {
+   "milling_dia": "1-1/2\"",
+   "length_of_cut": "8\"",
+   "overall_length": "10-1/2\"",
+   "shank_dia": "1-1/4\"",
+   "count": 2,
+   "example_skus": [
+    "33TM59",
+    "2PTX5"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1-1/4\"",
+   "overall_length": "3-1/4\"",
+   "shank_dia": "1/2\"",
+   "count": 2,
+   "example_skus": [
+    "2PTN2",
+    "2TWY9"
+   ]
+  },
+  {
+   "milling_dia": "5/16\"",
+   "length_of_cut": "13/16\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "5/16\"",
+   "count": 2,
+   "example_skus": [
+    "1Z520",
+    "1Z524"
+   ]
+  },
+  {
+   "milling_dia": "5/32 in",
+   "length_of_cut": "9/16 in",
+   "overall_length": "2 in",
+   "shank_dia": "3/16 in",
+   "count": 2,
+   "example_skus": [
+    "16F457",
+    "16F459"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1/2\"",
+   "overall_length": "3\"",
+   "shank_dia": "1/2\"",
+   "count": 2,
+   "example_skus": [
+    "32PL96",
+    "32PL98"
+   ]
+  },
+  {
+   "milling_dia": "7/32 in",
+   "length_of_cut": "3 in",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4 in",
+   "count": 2,
+   "example_skus": [
+    "16F481",
+    "16F485"
+   ]
+  },
+  {
+   "milling_dia": "3/8\"",
+   "length_of_cut": "7/8\"",
+   "overall_length": "3\"",
+   "shank_dia": "3/8\"",
+   "count": 2,
+   "example_skus": [
+    "32PM14",
+    "32PM15"
+   ]
+  },
+  {
+   "milling_dia": "1\"",
+   "length_of_cut": "3\"",
+   "overall_length": "5-1/2\"",
+   "shank_dia": "1\"",
+   "count": 1,
+   "example_skus": [
+    "29VX64"
+   ]
+  },
+  {
+   "milling_dia": "5/16\"",
+   "length_of_cut": "1/2\"",
+   "overall_length": "2\"",
+   "shank_dia": "5/16\"",
+   "count": 1,
+   "example_skus": [
+    "23Z904"
+   ]
+  },
+  {
+   "milling_dia": "0.0210\"",
+   "length_of_cut": "0.0320\"",
+   "overall_length": "1.500\"",
+   "shank_dia": "0.125\"",
+   "count": 1,
+   "example_skus": [
+    "412U19"
+   ]
+  },
+  {
+   "milling_dia": "1/4\"",
+   "length_of_cut": "1-1/4\"",
+   "overall_length": "3-1/16\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "33TM56"
+   ]
+  },
+  {
+   "milling_dia": "3/8\"",
+   "length_of_cut": "7/8\"",
+   "overall_length": "2-5/8\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "2PMY4"
+   ]
+  },
+  {
+   "milling_dia": "3/8 in",
+   "length_of_cut": "3 in",
+   "overall_length": "4 in",
+   "shank_dia": "3/8 in",
+   "count": 1,
+   "example_skus": [
+    "41AW55"
+   ]
+  },
+  {
+   "milling_dia": "1/8\"",
+   "length_of_cut": "9/32\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4\"",
+   "count": 1,
+   "example_skus": [
+    "32PL49"
+   ]
+  },
+  {
+   "milling_dia": "1-1/2\"",
+   "length_of_cut": "2\"",
+   "overall_length": "4-1/2\"",
+   "shank_dia": "1-1/4\"",
+   "count": 1,
+   "example_skus": [
+    "29VX92"
+   ]
+  },
+  {
+   "milling_dia": "0.65mm",
+   "length_of_cut": "1.95mm",
+   "overall_length": "38.00mm",
+   "shank_dia": "3.00mm",
+   "count": 1,
+   "example_skus": [
+    "412V93"
+   ]
+  },
+  {
+   "milling_dia": "1/8\"",
+   "length_of_cut": "3/8\"",
+   "overall_length": "3-1/16\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "33TM57"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1\"",
+   "overall_length": "6\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "14G184"
+   ]
+  },
+  {
+   "milling_dia": "3/8\"",
+   "length_of_cut": "1-3/8\"",
+   "overall_length": "3-1/8\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "2MKD3"
+   ]
+  },
+  {
+   "milling_dia": "4.50mm",
+   "length_of_cut": "11.00mm",
+   "overall_length": "45.00mm",
+   "shank_dia": "6.00mm",
+   "count": 1,
+   "example_skus": [
+    "2TWH5"
+   ]
+  },
+  {
+   "milling_dia": "3/16\"",
+   "length_of_cut": "13/32\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4\"",
+   "count": 1,
+   "example_skus": [
+    "32PL50"
+   ]
+  },
+  {
+   "milling_dia": "2\"",
+   "length_of_cut": "2\"",
+   "overall_length": "5-3/4\"",
+   "shank_dia": "2\"",
+   "count": 1,
+   "example_skus": [
+    "29VY01"
+   ]
+  },
+  {
+   "milling_dia": "7.80mm",
+   "length_of_cut": "19.00mm",
+   "overall_length": "60.00mm",
+   "shank_dia": "8.00mm",
+   "count": 1,
+   "example_skus": [
+    "2TWH8"
+   ]
+  },
+  {
+   "milling_dia": "3/32\"",
+   "length_of_cut": "7/32\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4\"",
+   "count": 1,
+   "example_skus": [
+    "32PL51"
+   ]
+  },
+  {
+   "milling_dia": "1\"",
+   "length_of_cut": "1-7/8\"",
+   "overall_length": "4-1/8\"",
+   "shank_dia": "3/4\"",
+   "count": 1,
+   "example_skus": [
+    "2MZP6"
+   ]
+  },
+  {
+   "milling_dia": "5.00mm",
+   "length_of_cut": "1/2\"",
+   "overall_length": "3-1/4\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "33TM61"
+   ]
+  },
+  {
+   "milling_dia": "5/8\"",
+   "length_of_cut": "2-1/2\"",
+   "overall_length": "4-5/8\"",
+   "shank_dia": "5/8\"",
+   "count": 1,
+   "example_skus": [
+    "2PTP3"
+   ]
+  },
+  {
+   "milling_dia": "8.00mm",
+   "length_of_cut": "19.00mm",
+   "overall_length": "60.00mm",
+   "shank_dia": "8.00mm",
+   "count": 1,
+   "example_skus": [
+    "2TWJ1"
+   ]
+  },
+  {
+   "milling_dia": "3/4\"",
+   "length_of_cut": "1-37/64\"",
+   "overall_length": "4\"",
+   "shank_dia": "3/4\"",
+   "count": 1,
+   "example_skus": [
+    "32PL52"
+   ]
+  },
+  {
+   "milling_dia": "1-1/4\"",
+   "length_of_cut": "2\"",
+   "overall_length": "4-1/4\"",
+   "shank_dia": "3/4\"",
+   "count": 1,
+   "example_skus": [
+    "2NAC3"
+   ]
+  },
+  {
+   "milling_dia": "6.00mm",
+   "length_of_cut": "1/2\"",
+   "overall_length": "3-3/8\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "33TM62"
+   ]
+  },
+  {
+   "milling_dia": "3/4\"",
+   "length_of_cut": "1-5/8\"",
+   "overall_length": "3-3/4\"",
+   "shank_dia": "5/8\"",
+   "count": 1,
+   "example_skus": [
+    "2PTP6"
+   ]
+  },
+  {
+   "milling_dia": "16.00mm",
+   "length_of_cut": "32.00mm",
+   "overall_length": "100.00mm",
+   "shank_dia": "16.00mm",
+   "count": 1,
+   "example_skus": [
+    "2TWJ5"
+   ]
+  },
+  {
+   "milling_dia": "1/8 in",
+   "length_of_cut": "1 in",
+   "overall_length": "3 in",
+   "shank_dia": "1/8 in",
+   "count": 1,
+   "example_skus": [
+    "41CE16"
+   ]
+  },
+  {
+   "milling_dia": "7/64\"",
+   "length_of_cut": "7/64\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/8\"",
+   "count": 1,
+   "example_skus": [
+    "32PL92"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1/2\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "2NAN8"
+   ]
+  },
+  {
+   "milling_dia": "8.00mm",
+   "length_of_cut": "9/16\"",
+   "overall_length": "3-1/2\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "33TM63"
+   ]
+  },
+  {
+   "milling_dia": "3/4\"",
+   "length_of_cut": "1-1/2\"",
+   "overall_length": "3-3/4\"",
+   "shank_dia": "3/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTP9"
+   ]
+  },
+  {
+   "milling_dia": "1.00mm",
+   "length_of_cut": "1.50mm",
+   "overall_length": "45.00mm",
+   "shank_dia": "4.00mm",
+   "count": 1,
+   "example_skus": [
+    "2TWK7"
+   ]
+  },
+  {
+   "milling_dia": "1/8 in",
+   "length_of_cut": "3 in",
+   "overall_length": "1-1/2\"",
+   "shank_dia": "1/8 in",
+   "count": 1,
+   "example_skus": [
+    "41CF96"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1/2\"",
+   "overall_length": "5\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "32PL93"
+   ]
+  },
+  {
+   "milling_dia": "1/4 in",
+   "length_of_cut": "1/64 in",
+   "overall_length": null,
+   "shank_dia": "1/4 in",
+   "count": 1,
+   "example_skus": [
+    "287NW9"
+   ]
+  },
+  {
+   "milling_dia": "3/8 in",
+   "length_of_cut": "1 in",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "3/8 in",
+   "count": 1,
+   "example_skus": [
+    "33TP79"
+   ]
+  },
+  {
+   "milling_dia": "1/4\"",
+   "length_of_cut": "1/2\"",
+   "overall_length": "2-7/16\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "2NFD5"
+   ]
+  },
+  {
+   "milling_dia": "10.00mm",
+   "length_of_cut": "13/16\"",
+   "overall_length": "4-1/8\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "33TM64"
+   ]
+  },
+  {
+   "milling_dia": "3/4\"",
+   "length_of_cut": "2-1/2\"",
+   "overall_length": "4-3/4\"",
+   "shank_dia": "3/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTR3"
+   ]
+  },
+  {
+   "milling_dia": "1.50mm",
+   "length_of_cut": "2.30mm",
+   "overall_length": "45.00mm",
+   "shank_dia": "4.00mm",
+   "count": 1,
+   "example_skus": [
+    "2TWL1"
+   ]
+  },
+  {
+   "milling_dia": "1/4\"",
+   "length_of_cut": "1/4\"",
+   "overall_length": "3\"",
+   "shank_dia": "1/4\"",
+   "count": 1,
+   "example_skus": [
+    "32PL94"
+   ]
+  },
+  {
+   "milling_dia": "3/8 in",
+   "length_of_cut": "1/64 in",
+   "overall_length": null,
+   "shank_dia": "3/8 in",
+   "count": 1,
+   "example_skus": [
+    "287NX0"
+   ]
+  },
+  {
+   "milling_dia": "1/2 in",
+   "length_of_cut": "1 in",
+   "overall_length": "3 in",
+   "shank_dia": "1/2 in",
+   "count": 1,
+   "example_skus": [
+    "33TP80"
+   ]
+  },
+  {
+   "milling_dia": "5/16\"",
+   "length_of_cut": "9/16\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "2NFD6"
+   ]
+  },
+  {
+   "milling_dia": "12.00mm",
+   "length_of_cut": "13/16\"",
+   "overall_length": "4-1/8\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "33TM65"
+   ]
+  },
+  {
+   "milling_dia": "3/4\"",
+   "length_of_cut": "3\"",
+   "overall_length": "5-1/4\"",
+   "shank_dia": "3/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTR4"
+   ]
+  },
+  {
+   "milling_dia": "3.00mm",
+   "length_of_cut": "4.50mm",
+   "overall_length": "80.00mm",
+   "shank_dia": "6.00mm",
+   "count": 1,
+   "example_skus": [
+    "2TWN3"
+   ]
+  },
+  {
+   "milling_dia": "3/8\"",
+   "length_of_cut": "3/8\"",
+   "overall_length": "3-1/2\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "32PL95"
+   ]
+  },
+  {
+   "milling_dia": "1/2 in",
+   "length_of_cut": "1/64 in",
+   "overall_length": "4 in",
+   "shank_dia": "1/2 in",
+   "count": 1,
+   "example_skus": [
+    "287NX1"
+   ]
+  },
+  {
+   "milling_dia": "5/8 in",
+   "length_of_cut": "1 1/4 in",
+   "overall_length": "3-1/2\"",
+   "shank_dia": "5/8 in",
+   "count": 1,
+   "example_skus": [
+    "33TP82"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1\"",
+   "overall_length": "3-1/4\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "2NFD9"
+   ]
+  },
+  {
+   "milling_dia": "11.00mm",
+   "length_of_cut": "1\"",
+   "overall_length": "4-1/8\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "33TM67"
+   ]
+  },
+  {
+   "milling_dia": "1\"",
+   "length_of_cut": "1-1/8\"",
+   "overall_length": "3-5/8\"",
+   "shank_dia": "1\"",
+   "count": 1,
+   "example_skus": [
+    "2PTU2"
+   ]
+  },
+  {
+   "milling_dia": "5/8 in",
+   "length_of_cut": "1/32 in",
+   "overall_length": null,
+   "shank_dia": "5/8 in",
+   "count": 1,
+   "example_skus": [
+    "287NX2"
+   ]
+  },
+  {
+   "milling_dia": "3/4 in",
+   "length_of_cut": "1 1/2 in",
+   "overall_length": "4 in",
+   "shank_dia": "3/4 in",
+   "count": 1,
+   "example_skus": [
+    "33TP83"
+   ]
+  },
+  {
+   "milling_dia": "3/16\"",
+   "length_of_cut": "3/16\"",
+   "overall_length": "3\"",
+   "shank_dia": "3/16\"",
+   "count": 1,
+   "example_skus": [
+    "33TM70"
+   ]
+  },
+  {
+   "milling_dia": "1-1/4\"",
+   "length_of_cut": "4\"",
+   "overall_length": "6-1/2\"",
+   "shank_dia": "1-1/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTW1"
+   ]
+  },
+  {
+   "milling_dia": "1/4\"",
+   "length_of_cut": "5/8\"",
+   "overall_length": "3-3/8\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "2TXC1"
+   ]
+  },
+  {
+   "milling_dia": "1/4\"",
+   "length_of_cut": "1/4\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4\"",
+   "count": 1,
+   "example_skus": [
+    "32PL97"
+   ]
+  },
+  {
+   "milling_dia": "3/4 in",
+   "length_of_cut": "1/32 in",
+   "overall_length": "5 in",
+   "shank_dia": "3/4 in",
+   "count": 1,
+   "example_skus": [
+    "287NX3"
+   ]
+  },
+  {
+   "milling_dia": "3/16 in",
+   "length_of_cut": "1 1/8 in",
+   "overall_length": "3 in",
+   "shank_dia": "3/16 in",
+   "count": 1,
+   "example_skus": [
+    "33TP86"
+   ]
+  },
+  {
+   "milling_dia": "5/16\"",
+   "length_of_cut": "5/16\"",
+   "overall_length": "3\"",
+   "shank_dia": "5/16\"",
+   "count": 1,
+   "example_skus": [
+    "33TM72"
+   ]
+  },
+  {
+   "milling_dia": "1-1/2\"",
+   "length_of_cut": "3\"",
+   "overall_length": "5-1/2\"",
+   "shank_dia": "1-1/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTX1"
+   ]
+  },
+  {
+   "milling_dia": "1 in",
+   "length_of_cut": "1/32 in",
+   "overall_length": null,
+   "shank_dia": "1 in",
+   "count": 1,
+   "example_skus": [
+    "287NX4"
+   ]
+  },
+  {
+   "milling_dia": "1 in",
+   "length_of_cut": "1 1/8 in",
+   "overall_length": "3 in",
+   "shank_dia": "1 in",
+   "count": 1,
+   "example_skus": [
+    "33TP94"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1-1/4\"",
+   "overall_length": "1/2\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "2NFG4"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1/2\"",
+   "overall_length": "4\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "33TM74"
+   ]
+  },
+  {
+   "milling_dia": "1-1/2\"",
+   "length_of_cut": "4\"",
+   "overall_length": "6-1/2\"",
+   "shank_dia": "1-1/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTX2"
+   ]
+  },
+  {
+   "milling_dia": "3/16\"",
+   "length_of_cut": "3/16\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4\"",
+   "count": 1,
+   "example_skus": [
+    "32PM02"
+   ]
+  },
+  {
+   "milling_dia": "3/4 in",
+   "length_of_cut": "1 5/8 in",
+   "overall_length": "4 in",
+   "shank_dia": "3/4 in",
+   "count": 1,
+   "example_skus": [
+    "287RR5"
+   ]
+  },
+  {
+   "milling_dia": "1/8 in",
+   "length_of_cut": "3 in",
+   "overall_length": "2-3/8\"",
+   "shank_dia": "1/8 in",
+   "count": 1,
+   "example_skus": [
+    "33TR15"
+   ]
+  },
+  {
+   "milling_dia": "1-1/2\"",
+   "length_of_cut": "5\"",
+   "overall_length": "7-1/2\"",
+   "shank_dia": "1-1/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTX3"
+   ]
+  },
+  {
+   "milling_dia": "1/8\"",
+   "length_of_cut": "1/2\"",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "1/4\"",
+   "count": 1,
+   "example_skus": [
+    "32PM10"
+   ]
+  },
+  {
+   "milling_dia": "1/16\"",
+   "length_of_cut": "3/16\"",
+   "overall_length": "1-1/2\"",
+   "shank_dia": "1/8\"",
+   "count": 1,
+   "example_skus": [
+    "2NGK8"
+   ]
+  },
+  {
+   "milling_dia": "1/4 in",
+   "length_of_cut": "1/2 in",
+   "overall_length": "3-1/2\"",
+   "shank_dia": "1/4 in",
+   "count": 1,
+   "example_skus": [
+    "33TR18"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1\"",
+   "overall_length": "4-1/8\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "31C339"
+   ]
+  },
+  {
+   "milling_dia": "1/4\"",
+   "length_of_cut": "3/8\"",
+   "overall_length": "3\"",
+   "shank_dia": "1/4\"",
+   "count": 1,
+   "example_skus": [
+    "33TM81"
+   ]
+  },
+  {
+   "milling_dia": "3/32\"",
+   "length_of_cut": "3/8\"",
+   "overall_length": "1-1/2\"",
+   "shank_dia": "1/8\"",
+   "count": 1,
+   "example_skus": [
+    "2NGK9"
+   ]
+  },
+  {
+   "milling_dia": "8 mm",
+   "length_of_cut": "14 mm",
+   "overall_length": "100 mm",
+   "shank_dia": "8 mm",
+   "count": 1,
+   "example_skus": [
+    "33TR28"
+   ]
+  },
+  {
+   "milling_dia": "1/8\"",
+   "length_of_cut": "3/8\"",
+   "overall_length": "2-5/16\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "31C367"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "1\"",
+   "overall_length": "3\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "33TM84"
+   ]
+  },
+  {
+   "milling_dia": "9/32 in",
+   "length_of_cut": "3 in",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "5/16 in",
+   "count": 1,
+   "example_skus": [
+    "16F504"
+   ]
+  },
+  {
+   "milling_dia": "1-3/4\"",
+   "length_of_cut": "1-1/8\"",
+   "overall_length": "3-3/8\"",
+   "shank_dia": "3/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTX6"
+   ]
+  },
+  {
+   "milling_dia": "12 mm",
+   "length_of_cut": "22 mm",
+   "overall_length": "110 mm",
+   "shank_dia": "12 mm",
+   "count": 1,
+   "example_skus": [
+    "33TR29"
+   ]
+  },
+  {
+   "milling_dia": "3/16\"",
+   "length_of_cut": "1-1/4\"",
+   "overall_length": "3-1/16\"",
+   "shank_dia": "3/8\"",
+   "count": 1,
+   "example_skus": [
+    "31C373"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "5/8\"",
+   "overall_length": "4\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "33TM86"
+   ]
+  },
+  {
+   "milling_dia": "5/16 in",
+   "length_of_cut": "13/16 in",
+   "overall_length": "2-1/2\"",
+   "shank_dia": "5/16 in",
+   "count": 1,
+   "example_skus": [
+    "16F506"
+   ]
+  },
+  {
+   "milling_dia": "2\"",
+   "length_of_cut": "1-1/8\"",
+   "overall_length": "3-3/8\"",
+   "shank_dia": "3/4\"",
+   "count": 1,
+   "example_skus": [
+    "2PTY4"
+   ]
+  },
+  {
+   "milling_dia": "1/16 in",
+   "length_of_cut": "3 in",
+   "overall_length": "1 1/2 in",
+   "shank_dia": "1/8 in",
+   "count": 1,
+   "example_skus": [
+    "2TXR3"
+   ]
+  },
+  {
+   "milling_dia": "0.63mm",
+   "length_of_cut": "1.26mm",
+   "overall_length": "3.62mm",
+   "shank_dia": "0.63mm",
+   "count": 1,
+   "example_skus": [
+    "32PM33"
+   ]
+  },
+  {
+   "milling_dia": "1/2 in",
+   "length_of_cut": "1 in",
+   "overall_length": "2 11/16 in",
+   "shank_dia": "3/8 in",
+   "count": 1,
+   "example_skus": [
+    "31C722"
+   ]
+  },
+  {
+   "milling_dia": "1/2\"",
+   "length_of_cut": "2\"",
+   "overall_length": "4\"",
+   "shank_dia": "1/2\"",
+   "count": 1,
+   "example_skus": [
+    "31C728"
+   ]
+  }
+ ]
+}
