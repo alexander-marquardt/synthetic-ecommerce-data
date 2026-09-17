@@ -961,6 +961,92 @@ MUTATIONS: list[Mutation] = [
         "A",
         "the new screw silhouettes are drawn to the proportions their standards give them",
     ),
+    # ---- the button head is a DOME, and not a bar, both directions -------
+    #
+    # The first metric here counted rows wider than the shank, which a dome's
+    # height does not drive monotonically. All four of these came back GREEN
+    # against it -- including the last, which is the whole shape -- and the
+    # measurement in test_generic.py was rewritten for them.
+    Mutation(
+        "draw the button head's dome as the plain rectangle a bar head has",
+        "render/generic.py",
+        "                dome_profile(head_half, head_h, seat),",
+        "                [(-head_half, seat), (-head_half, _HEAD_TOP), "
+        "(head_half, _HEAD_TOP), (head_half, seat)],",
+        'tests/test_generic.py -k "dome or head_measurement"',
+        "A",
+        "a button head is drawn as a dome and a socket head as a bar",
+    ),
+    Mutation(
+        "dome the socket head cap screw, so the shape no longer names the style",
+        "render/generic.py",
+        "    _bar(ax, head_half, seat, _HEAD_TOP, mark)\n    # The socket, drawn as the opening",
+        "    _hatched(\n        ax,\n        ax.add_patch(\n            Polygon(\n"
+        "                dome_profile(head_half, head_h, seat),\n                closed=True,\n"
+        "                fc=mark.tint or cv.BODY_FILL,\n                ec=mark.ink,\n"
+        "                lw=cv.LW_BODY,\n                zorder=5,\n            )\n        ),\n"
+        "        mark,\n    )\n    # The socket, drawn as the opening",
+        'tests/test_generic.py -k "dome or head_measurement"',
+        "B",
+        "a button head is drawn as a dome and a socket head as a bar",
+    ),
+    # ---- the button head is drawn LOWER than a socket head, both ways -----
+    Mutation(
+        "draw the button head taller than the socket head cap screw",
+        "render/generic.py",
+        "    head_half, head_h = 0.112, 0.056",
+        "    head_half, head_h = 0.112, 0.200",
+        'tests/test_generic.py -k "drawn_lower"',
+        "A",
+        "a button head is drawn lower than a socket head cap screw",
+    ),
+    Mutation(
+        "flatten the socket head cap screw to the button head's height",
+        "render/generic.py",
+        "    head_half, head_h = 0.105, 0.115",
+        "    head_half, head_h = 0.105, 0.056",
+        'tests/test_generic.py -k "drawn_lower"',
+        "B",
+        "a button head is drawn lower than a socket head cap screw",
+    ),
+    # ---- and WIDER than one, both ways -----------------------------------
+    Mutation(
+        "give the button head the socket head cap screw's own width",
+        "render/generic.py",
+        "    head_half, head_h = 0.112, 0.056",
+        "    head_half, head_h = 0.105, 0.056",
+        'tests/test_generic.py -k "drawn_wider"',
+        "A",
+        "a button head is drawn wider than a socket head cap screw",
+    ),
+    Mutation(
+        "widen the socket head cap screw past the button head",
+        "render/generic.py",
+        "    head_half, head_h = 0.105, 0.115",
+        "    head_half, head_h = 0.130, 0.115",
+        'tests/test_generic.py -k "drawn_wider"',
+        "B",
+        "a button head is drawn wider than a socket head cap screw",
+    ),
+    # ---- the dome arc is the cap the two numbers name, both directions ----
+    Mutation(
+        "take the rim angle with asin, which draws the minor arc on a tall dome",
+        "render/fastener.py",
+        "    half_angle = math.atan2(r_head, radius - rise)",
+        "    half_angle = math.asin(min(1.0, r_head / radius))",
+        'tests/test_fastener.py -k "dome"',
+        "A",
+        "the dome is the cap its chord and rise name, at any rise",
+    ),
+    Mutation(
+        "strike the dome about the chord's own half-width instead of the sphere",
+        "render/fastener.py",
+        "    radius = (r_head * r_head + rise * rise) / (2 * rise)",
+        "    radius = r_head",
+        'tests/test_fastener.py -k "dome"',
+        "B",
+        "the dome is the cap its chord and rise name, at any rise",
+    ),
     Mutation(
         "flatten the socket head cap screw to a low head's height",
         "render/generic.py",

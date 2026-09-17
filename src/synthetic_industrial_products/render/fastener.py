@@ -264,10 +264,20 @@ def dome_profile(r_head: float, rise: float, seat: float) -> list[tuple[float, f
     and they determine the cap completely: a sphere of radius
     ``(r^2 + h^2) / 2h`` is the only one through the head's rim and its crown.
     Nothing here is chosen to look right.
+
+    The rim angle is taken with ``atan2`` and not with ``asin(r / radius)``.
+    The two agree for every button head in any of these standards, because a
+    button head is a shallow cap and its rise is well under its radius -- and
+    they disagree exactly when it is not: a rise GREATER than the radius puts
+    the sphere's centre above the seat, and ``asin`` then returns the acute
+    angle, which draws the MINOR arc. That arc is a bulge whose ends are not
+    on the rim at all, so the drawing quietly stops being of the head the
+    record describes, and it gets SHORTER as the published head height grows.
+    Found by planting a taller dome and watching the drawing shrink.
     """
     radius = (r_head * r_head + rise * rise) / (2 * rise)
     centre = seat + rise - radius
-    half_angle = math.asin(min(1.0, r_head / radius))
+    half_angle = math.atan2(r_head, radius - rise)
     return [
         (
             radius * math.sin(-half_angle + 2 * half_angle * k / _DOME_STEPS),

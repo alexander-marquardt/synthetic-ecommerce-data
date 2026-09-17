@@ -422,3 +422,33 @@ def test_the_refusal_leaves_room_for_the_rounding_the_catalog_publishes():
         "a tolerance as wide as this screw's head height would accept a length "
         "under head that was really the length over it"
     )
+
+
+@pytest.mark.parametrize("rise", [0.02, 0.05, 0.127, 0.2055, 0.30, 0.50])
+def test_the_dome_is_the_cap_the_two_numbers_name_at_any_rise(rise):
+    """Its ends are on the rim and its crown is the published height -- always.
+
+    Not a hypothetical range. The arc is struck about the sphere through the
+    rim and the crown, and the rim angle has to be taken with ``atan2``: a rise
+    greater than that sphere's radius puts its centre above the seat, where
+    ``asin(r / radius)`` returns the acute angle and draws the MINOR arc
+    instead. That arc's ends are not on the rim, and it gets SHORTER as the
+    published head height grows -- so a button head published half again as
+    tall would have been drawn smaller. Every shipped button head is a shallow
+    cap where the two agree, which is why nothing measured it until a planted
+    taller dome came out shorter.
+    """
+    r_head = 0.2055
+    arc = np.array(fastener.dome_profile(r_head, rise, 0.0))
+    assert arc[0] == pytest.approx([-r_head, 0.0], abs=1e-9)
+    assert arc[-1] == pytest.approx([r_head, 0.0], abs=1e-9)
+    assert arc[:, 1].max() == pytest.approx(rise, abs=1e-9)
+
+
+def test_a_taller_published_head_is_a_taller_dome():
+    """The monotonicity the pixel tests rest on, asserted on the geometry."""
+    heights = [
+        max(point[1] for point in fastener.dome_profile(0.2055, rise, 0.0))
+        for rise in (0.05, 0.127, 0.30, 0.50)
+    ]
+    assert heights == sorted(heights) and len(set(heights)) == len(heights)
