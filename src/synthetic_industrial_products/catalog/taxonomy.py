@@ -51,6 +51,8 @@ LEAVES: dict[str, tuple[CategoryPath, ...]] = {
     "tap_spiral_point": (("Threading", "Taps", "Spiral Point Taps"),),
     "screw_socket_head": (("Fasteners", "Screws", "Socket Head Cap Screws"),),
     "screw_flat_head": (("Fasteners", "Screws", "Flat Head Socket Cap Screws"),),
+    "screw_button_head": (("Fasteners", "Screws", "Button Head Socket Cap Screws"),),
+    "screw_low_head": (("Fasteners", "Screws", "Low Head Socket Cap Screws"),),
     "bolt_hex": (("Fasteners", "Bolts", "Hex Head Bolts"),),
     "washer_flat": (("Fasteners", "Washers", "Flat Washers"),),
     "hammer_ball_pein": (("Hand Tools", "Striking Tools", "Ball Pein Hammers"),),
@@ -71,7 +73,7 @@ def ancestors(path: CategoryPath) -> tuple[CategoryPath, ...]:
     return tuple(path[: n + 1] for n in range(len(path)))
 
 
-#: Which of the ten shapes a product type's products are drawn as.
+#: Which of the twelve shapes a product type's products are drawn as.
 #:
 #: Written out rather than derived, even though every pair is currently an
 #: identity. The two sides mean different things -- the left is a catalog
@@ -92,6 +94,8 @@ DRAWING: dict[str, str] = {
     "tap_spiral_point": "tap_spiral_point",
     "screw_socket_head": "screw_socket_head",
     "screw_flat_head": "screw_flat_head",
+    "screw_button_head": "screw_button_head",
+    "screw_low_head": "screw_low_head",
     "bolt_hex": "bolt_hex",
     "washer_flat": "washer_flat",
     "hammer_ball_pein": "hammer_ball_pein",
@@ -109,7 +113,7 @@ class ImageIdError(Exception):
 
 
 def drawing_for(type_key: str) -> str:
-    """Which of the ten shapes a product of ``type_key`` is drawn as."""
+    """Which of the twelve shapes a product of ``type_key`` is drawn as."""
     return DRAWING[type_key]
 
 

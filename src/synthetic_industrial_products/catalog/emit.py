@@ -146,7 +146,7 @@ def iter_image_manifest(
     """One row per DISTINCT image: what it is, where it is hosted, who uses it.
 
     The catalog references an image once per product and once per variant that
-    points at it, which for ten drawings and four thousand products is many
+    points at it, which for twelve drawings and four thousand products is many
     thousands of times over; whatever hosts the files needs each one once.
     Emitting the manifest here means the host reads the paths off this file
     instead of re-deriving them from the catalog with a second copy of the

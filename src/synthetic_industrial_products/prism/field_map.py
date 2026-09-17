@@ -75,7 +75,7 @@ HEADER = """\
 #     it cannot narrow the result set, so it is a control that does nothing.
 #   * an attribute present on fewer than {min_presence:.0%} of the documents belonging to
 #     the product types that publish it AT ALL is NOT a facet. The denominator
-#     is per-attribute: an attribute carried by one of ten product types can
+#     is per-attribute: an attribute carried by one of twelve product types can
 #     never exceed ~10% of the catalog, yet may be the primary facet for its
 #     own category.
 #   * a TERMS attribute with more than {max_cardinality} distinct values is NOT a facet --

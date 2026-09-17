@@ -64,7 +64,7 @@ SMALL_LINES = list(emit.iter_nested(SMALL_CATALOG))
 SMALL_FLAT = list(emit.iter_flat(SMALL_CATALOG))
 
 #: The shipped catalog, whose collision count the issue states exactly. Built
-#: once: it is 500 lines and 4,624 SKUs.
+#: once: it is 500 lines and 4,696 SKUs.
 FULL_CATALOG = generate(GeneratorConfig())
 FULL_LINES = list(emit.iter_nested(FULL_CATALOG))
 
@@ -178,12 +178,20 @@ def _alternative(name: str, current: str) -> str:
         return "Left Hand" if current == "Right Hand" else "Right Hand"
     if name == FLUTES_ATTRIBUTE:
         return "3" if current.strip() != "3" else "4"
-    if name in generic.STYLE_VALUES:
-        # The style picks which of the ten SHAPES the line is drawn as, so an
-        # alternative has to be another style the drawings cover; anything else
-        # is refused, and a refusal would read as "the drawing depends on it"
-        # for a renderer that validated the value and then ignored it.
-        return next(v for v in generic.STYLE_VALUES[name] if v.lower() != current.strip().lower())
+    if name in generic.STYLE_DRAWINGS:
+        # The style picks which of the twelve SHAPES the line is drawn as, so
+        # an alternative has to be another style the drawings cover; anything
+        # else is refused, and a refusal would read as "the drawing depends on
+        # it" for a renderer that validated the value and then ignored it.
+        #
+        # It also has to be a style naming a DIFFERENT shape. Several spellings
+        # name one -- "button" and "button head" are the same picture -- and
+        # taking the next value along would compare a drawing with itself and
+        # be answered by the stamp, which is the one thing this suite exists
+        # not to let happen.
+        drawings = generic.STYLE_DRAWINGS[name]
+        mine = drawings[current.strip().lower()]
+        return next(v for v, drawing in sorted(drawings.items()) if drawing != mine)
     return f"{current} (a different value)"
 
 
@@ -461,6 +469,49 @@ def test_a_left_hand_tool_leans_the_other_way(type_key):
     assert _lean(colour_mask(left, cv.FLUTE)) == -1
 
 
+@pytest.mark.parametrize("attribute", sorted(generic.STYLE_VALUES))
+def test_two_styles_draw_alike_exactly_when_they_name_the_same_shape(attribute):
+    """The style channel, measured on the drawing region like the others.
+
+    ``Screw Head Type`` is the attribute whose last defect was exactly this:
+    ``Socket`` and ``Hex`` produced the same picture, and 524 hex bolts were
+    drawn with round heads while the value sat correctly in the stamp
+    underneath. So the claim is made about the DRAWING, in both directions --
+    two spellings of one shape draw alike, and two shapes do not -- and the
+    values come from ``generic.STYLE_DRAWINGS`` rather than a list here, so a
+    style added to the vocabulary is swept the day it appears.
+    """
+    line = next(
+        (
+            candidate
+            for type_key in sorted(BY_TYPE)
+            if (candidate := _publishing(type_key, (attribute,))) is not None
+        ),
+        None,
+    )
+    assert line is not None, f"no line publishes {attribute}, so this proves nothing"
+
+    regions: dict[str, list[tuple[str, np.ndarray]]] = {}
+    for value, drawing in sorted(generic.STYLE_DRAWINGS[attribute].items()):
+        regions.setdefault(drawing, []).append((value, _drawing(_with(line, attribute, value))))
+    assert len(regions) > 1, f"{attribute} names one shape; there is nothing to tell apart"
+
+    for drawing, drawn in regions.items():
+        first_value, first = drawn[0]
+        for value, region in drawn[1:]:
+            assert np.array_equal(first, region), (
+                f"{value!r} and {first_value!r} are both {drawing} and draw differently"
+            )
+    for drawing, drawn in regions.items():
+        for other, other_drawn in regions.items():
+            if other == drawing:
+                continue
+            assert not np.array_equal(drawn[0][1], other_drawn[0][1]), (
+                f"{drawn[0][0]!r} draws {drawing} and {other_drawn[0][0]!r} draws {other}, "
+                "and the two are the same picture"
+            )
+
+
 # --- the stamp is the whole record, and only the record -------------------
 
 
@@ -534,11 +585,11 @@ def _collision_groups(lines, profile):
 
 #: What the issue measured and what this must keep measuring. Stated as the
 #: number of lines that DO NOT get a drawing of their own, per product type.
-EXPECTED_COLLISIONS = {"washer_flat": 3}
+EXPECTED_COLLISIONS = {"washer_flat": 2}
 
 
 @pytest.mark.parametrize("profile", ["card", "detail"])
-def test_exactly_three_lines_share_a_drawing_and_all_of_them_are_washers(profile):
+def test_exactly_two_lines_do_not_get_a_drawing_of_their_own_and_both_are_washers(profile):
     """Asserted exactly, because a regression here reduces variety QUIETLY.
 
     An encoding that collapsed -- a channel dropped, a stamp truncated, a
@@ -547,9 +598,12 @@ def test_exactly_three_lines_share_a_drawing_and_all_of_them_are_washers(profile
     and still passes every other check in this suite. The only thing it moves
     is this number, and only if the number is pinned rather than bounded.
 
-    Three, all flat washers, because a flat washer is almost nothing but
+    Two, both flat washers, because a flat washer is almost nothing but
     dimensions: brand, material, finish, standards and washer type, and the
-    dimensions are on the SKUs where a shared drawing must not read them.
+    dimensions are on the SKUs where a shared drawing must not read them. They
+    fall in two PAIRS, so four lines share a drawing and two of the four get
+    one of their own -- which is what this number counts and what its name
+    says.
     """
     groups = _collision_groups(FULL_LINES, profile)
     collisions: dict[str, int] = {}
@@ -618,18 +672,23 @@ def test_the_channel_sweeps_skip_only_where_the_vocabulary_has_no_channel():
 def test_the_full_catalog_really_is_the_one_the_issue_measured():
     """Guards the two tests above: they are about a 500-line catalog, not any catalog."""
     assert len(FULL_LINES) == 500
-    assert FULL_CATALOG.sku_count == 4624
+    assert FULL_CATALOG.sku_count == 4696
     assert len({line["image_id"] for line in FULL_LINES}) == 500
 
 
-def test_the_type_drawings_behind_them_are_still_only_ten():
+def test_the_type_drawings_behind_them_are_still_only_twelve():
     """The shapes did not multiply; the markings did.
 
-    500 drawings of ten shapes is the decision. 500 SHAPES would be a
+    500 drawings of twelve shapes is the decision. 500 SHAPES would be a
     different repository, and one shape re-tinted 500 ways would be the
     hash-driven variety this encoding exists not to be.
+
+    Twelve rather than ten because the catalog gained two product types whose
+    heads are genuinely different shapes -- a button head's dome and a low
+    head's squat cylinder -- and a style that drew as another style's picture
+    is the ``Screw Head Type`` defect over again.
     """
-    assert len(generic.IMAGE_IDS) == 10
+    assert len(generic.IMAGE_IDS) == 12
     assert {line.drawing for line in FULL_CATALOG.lines} == set(generic.IMAGE_IDS)
 
 

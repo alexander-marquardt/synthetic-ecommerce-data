@@ -138,7 +138,7 @@ class ProductLine:
     #: This line's own drawing, as ``<product type>/<product id>``. The same
     #: one its variants show: a line's SKUs are one product in several sizes.
     image_id: str = ""
-    #: Which of the ten shapes the drawing is -- a square end mill, a flat
+    #: Which of the twelve shapes the drawing is -- a square end mill, a flat
     #: washer. Separate from ``image_id`` because they stopped being the same
     #: thing when images went per line: a hundred lines share one shape and
     #: have a hundred drawings of it, each marked with its own line's

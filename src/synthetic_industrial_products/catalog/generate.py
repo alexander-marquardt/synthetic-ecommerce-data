@@ -423,19 +423,50 @@ class Generator:
             draft.children.append(child)
         return draft
 
+    #: The four hex-socket screw lines, each with the standard its dimensions
+    #: come from in each system, the head style the drawing reads, and the
+    #: accessor that knows which columns of that standard's table are the head.
+    #:
+    #: Four rows rather than an ``if flat`` and a default: a button head and a
+    #: low head are different products with different published dimensions, and
+    #: a table says so where a boolean would have had to grow a second and a
+    #: third meaning.
+    _SOCKET_SCREW_LINES: dict[str, tuple[str, str, str, str]] = {
+        "screw_socket_head": ("ISO 4762", "ASME B18.3", "Socket", "Socket Head Cap Screw"),
+        "screw_flat_head": ("ISO 10642", "ASME B18.3.2", "Flat", "Socket Flat Head Cap Screw"),
+        "screw_button_head": (
+            "ISO 7380-1",
+            "ASME B18.3.3A",
+            "Button",
+            "Button Head Socket Cap Screw",
+        ),
+        "screw_low_head": (
+            "DIN 7984",
+            "ASME B18.3.1G",
+            "Low Socket",
+            "Low Head Socket Cap Screw",
+        ),
+    }
+
     def _build_socket_screw(self, type_key: str, category: tuple[str, ...]) -> LineDraft:
-        """Socket head or flat countersunk head cap screws, from the standards."""
+        """Hexagon socket cap screws -- socket, countersunk, button or low head.
+
+        All four come from extracted standards, and which one a line is built
+        to decides its head dimensions entirely: a button head's dome and a low
+        head's squat cylinder are that standard's own head diameter and head
+        height, not a socket head's scaled.
+        """
         rng = self.rng
         flat = type_key == "screw_flat_head"
         metric = rng.random() < 0.5
-        if flat:
-            standard = "ISO 10642" if metric else "ASME B18.3.2"
-            head_style = "Flat"
-            style_name = "Socket Flat Head Cap Screw"
-        else:
-            standard = "ISO 4762" if metric else "ASME B18.3"
-            head_style = "Socket"
-            style_name = "Socket Head Cap Screw"
+        metric_standard, inch_standard, head_style, style_name = self._SOCKET_SCREW_LINES[type_key]
+        standard = metric_standard if metric else inch_standard
+        head_of = {
+            "screw_socket_head": standards.socket_head,
+            "screw_flat_head": standards.flat_head,
+            "screw_button_head": standards.button_head,
+            "screw_low_head": standards.low_head,
+        }[type_key]
 
         brand = rng.choice(BRANDS)
         material = rng.choice(("Alloy Steel", "18-8 Stainless Steel", "Grade 12.9 Alloy Steel"))
@@ -465,9 +496,7 @@ class Generator:
         sizes = list(standards.available_sizes(standard))
         rng.shuffle(sizes)
         size = sizes[0]
-        head = (
-            standards.flat_head(standard, size) if flat else standards.socket_head(standard, size)
-        )
+        head = head_of(standard, size)
 
         lengths = list(standards.offered_lengths_in(standard, size))
         if not lengths:
@@ -482,18 +511,30 @@ class Generator:
             # Fully threaded below about 2x the head diameter, else a standard
             # thread length: 2D + 1/2" for inch practice.
             thread_len_in = min(length_in, 2 * head.major_dia_in + 0.5)
+            # A countersunk screw's nominal length is measured OVER its head,
+            # because the head sinks into the work; every other style's is
+            # measured under it. So the length under the head is the nominal
+            # length less a head height for the flat head line, and the nominal
+            # length itself for the other three -- which is why the attribute
+            # is worth publishing rather than inferring from Length.
+            under_head_in = length_in - head.head_height_in if flat else length_in
             child.primary = keyword_attribute("Dia./Thread Size", head.thread_designation)
             length_attr = self._length("Length", length_in, style)
+            thread_attr = self._length("Thread Length", thread_len_in, style)
             child.attrs = [
                 child.primary,
                 length_attr,
-                self._length("Thread Length", thread_len_in, style),
+                self._length("Length Under Head", under_head_in, style),
+                thread_attr,
                 self._length("Head Dia.", head.head_dia_in, style),
                 self._length("Head Height", head.head_height_in, style),
             ]
             if head.drive_size_in:
                 child.attrs.append(self._length("Drive Size", head.drive_size_in, style))
-            child.secondary = {"other_length": length_attr, "length_of_cut": child.attrs[2]}
+            # Named rather than indexed: the misleading-title-token classes
+            # have to keep naming the same two attributes when the list they
+            # are drawn from grows a third length.
+            child.secondary = {"other_length": length_attr, "length_of_cut": thread_attr}
             child.price_basis = length_in * 0.4 + head.major_dia_in * 2
             draft.children.append(child)
         return draft
@@ -545,17 +586,24 @@ class Generator:
             thread_len_in = min(length_in, 2 * head.major_dia_in + 0.25)
             child.primary = keyword_attribute("Dia./Thread Size", head.thread_designation)
             length_attr = self._length("Length", length_in, style)
+            thread_attr = self._length("Thread Length", thread_len_in, style)
             child.attrs = [
                 child.primary,
                 length_attr,
-                self._length("Thread Length", thread_len_in, style),
+                # A hex head does not sink into the work, so the bolt's length
+                # is already measured under the head and the two attributes
+                # state the same span. They are still two attributes: the
+                # shopper's "1-3/4 length under head" has to bind to one, and
+                # binding it to Thread Length would be silently wrong.
+                self._length("Length Under Head", length_in, style),
+                thread_attr,
                 self._length("Width Across Flats", head.width_across_flats_in, style),
                 self._length("Head Height", head.head_height_in, style),
                 # The renderer reads Head Dia. for a cylindrical head, and a
                 # hex head's side profile really is its width across flats.
                 self._length("Head Dia.", head.width_across_flats_in, style),
             ]
-            child.secondary = {"other_length": length_attr, "length_of_cut": child.attrs[2]}
+            child.secondary = {"other_length": length_attr, "length_of_cut": thread_attr}
             child.price_basis = length_in * 0.3 + head.major_dia_in * 1.5
             draft.children.append(child)
         return draft
@@ -692,6 +740,8 @@ class Generator:
         "tap_spiral_point": _build_tap,
         "screw_socket_head": _build_socket_screw,
         "screw_flat_head": _build_socket_screw,
+        "screw_button_head": _build_socket_screw,
+        "screw_low_head": _build_socket_screw,
         "bolt_hex": _build_hex_bolt,
         "washer_flat": _build_washer,
         "hammer_ball_pein": _build_hammer,

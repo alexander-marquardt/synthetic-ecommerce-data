@@ -11,6 +11,10 @@ to put a number in the picture that the record does not contain:
   reference record that arithmetic lands on an 82 degree included angle, which
   is what the inch flat-head standard specifies -- a check on the attributes,
   not a value borrowed from elsewhere.
+* A **button head's dome** is the spherical cap that ``Head Dia.`` and
+  ``Head Height`` describe -- the chord and the rise determine exactly one
+  sphere -- so it is computed the same way the countersink angle is, rather
+  than being a curve that looked about right.
 * The **depth** of a socket drive is not derivable from any published
   attribute, so it is not drawn. The socket appears as the opening it makes in
   the head's top face (side view) and as its true across-flats shape (end
@@ -30,6 +34,7 @@ from ..dimensions import Length, Thread, parse_length, parse_thread
 from . import canvas as cv
 from . import forms
 from .attrs import (
+    ImpossibleGeometryError,
     MissingAttributeError,
     UnsupportedFeatureError,
     provenance_note,
@@ -41,9 +46,11 @@ from .profiles import CARD, Profile
 #: Re-exported for the same reason as in :mod:`.endmill`.
 __all__ = [
     "FastenerGeometry",
+    "ImpossibleGeometryError",
     "MissingAttributeError",
     "UnsupportedHeadError",
     "build",
+    "dome_profile",
     "drive_mouth_width",
     "drive_outline",
     "geometry_from_record",
@@ -60,7 +67,32 @@ END_VIEW_GAP = 0.30
 #: alone. ``countersunk`` heads sink into the work, so the published length is
 #: measured over the head; every other style is measured under it.
 COUNTERSUNK = {"flat", "flat head", "countersunk", "flat countersunk"}
-CYLINDRICAL = {"socket", "socket cap", "cylindrical", "cheese", "socket head", "hex"}
+CYLINDRICAL = {
+    "socket",
+    "socket cap",
+    "cylindrical",
+    "cheese",
+    "socket head",
+    "hex",
+    # A low head socket cap screw is the same cylinder at about half the
+    # height. The difference between it and a full socket head is entirely in
+    # the two dimensions the record publishes, so it is drawn from those and
+    # needs no outline of its own: a head profile invented to make the two look
+    # different would be asserting something no attribute says, while these
+    # dimensions already draw the squat head DIN 7984 describes.
+    "low socket",
+    "low head",
+    "low socket head",
+}
+
+#: Head styles whose profile is a shallow DOME rather than a cylinder.
+#:
+#: A button head is not a socket head with different numbers -- it is a
+#: different shape, and the shape is implied by the two published dimensions:
+#: a spherical cap of chord ``Head Dia.`` and rise ``Head Height``. Drawing one
+#: as a cylinder is the ``Screw Head Type`` defect over again, where socket and
+#: hex produced the same picture and 524 hex bolts were drawn with round heads.
+DOMED = {"button", "button head", "dome", "domed"}
 
 #: Head styles whose end view is a HEXAGON and not a circle.
 #:
@@ -77,6 +109,18 @@ class UnsupportedHeadError(UnsupportedFeatureError):
     """The head style is not one this renderer can derive from the attributes."""
 
 
+#: How far a published ``Length Under Head`` may sit from the span the other
+#: dimensions leave under the head before the record is refused, in inches.
+#:
+#: Not a fudge factor for disagreement: the three lengths are published as
+#: strings and the shapes this catalog writes them in are exact -- a fraction
+#: is only used when the magnitude IS that fraction, a decimal carries four
+#: places in inches and two in millimetres. So the only spread a consistent
+#: record can show is that rounding, three orders of magnitude below this.
+#: Anything bigger is a record whose own numbers disagree.
+UNDER_HEAD_TOLERANCE_IN = 0.01
+
+
 @dataclass(frozen=True)
 class FastenerGeometry:
     thread: Thread
@@ -88,10 +132,18 @@ class FastenerGeometry:
     drive_type: str
     drive_size: Length | None
     width_across_flats: Length | None = None
+    #: ``Length Under Head`` when the record publishes it. A third length
+    #: beside ``Length`` and ``Thread Length``, and on a countersunk screw a
+    #: different span from either: the length is measured over that head.
+    length_under_head: Length | None = None
 
     @property
     def countersunk(self) -> bool:
         return self.head_style.strip().lower() in COUNTERSUNK
+
+    @property
+    def domed(self) -> bool:
+        return self.head_style.strip().lower() in DOMED
 
     @property
     def hex_headed(self) -> bool:
@@ -166,14 +218,15 @@ class FastenerGeometry:
 def geometry_from_record(record: dict) -> FastenerGeometry:
     head_style = str(require(record, "Screw Head Type")).strip()
     key = head_style.lower()
-    if key not in COUNTERSUNK and key not in CYLINDRICAL:
+    if key not in COUNTERSUNK and key not in CYLINDRICAL and key not in DOMED:
         raise UnsupportedHeadError(
             f"head style {head_style!r} cannot be built from Head Dia. and Head Height "
             "alone; its profile is not implied by any attribute on the record"
         )
     drive_size_raw = record.get("Drive Size")
     flats_raw = record.get("Width Across Flats")
-    return FastenerGeometry(
+    under_head_raw = record.get("Length Under Head")
+    geom = FastenerGeometry(
         thread=parse_thread(require(record, "Dia./Thread Size")),
         length=parse_length(require(record, "Length")),
         thread_length=parse_length(require(record, "Thread Length")),
@@ -183,7 +236,55 @@ def geometry_from_record(record: dict) -> FastenerGeometry:
         drive_type=str(record.get("Drive Type", "")).strip(),
         drive_size=parse_length(drive_size_raw) if drive_size_raw else None,
         width_across_flats=parse_length(flats_raw) if flats_raw else None,
+        length_under_head=parse_length(under_head_raw) if under_head_raw else None,
     )
+    if geom.length_under_head is not None:
+        drift = abs(geom.length_under_head.inches - geom.shank_length)
+        if drift > UNDER_HEAD_TOLERANCE_IN:
+            raise ImpossibleGeometryError(
+                f"record {record.get('sku', '?')!r} publishes Length Under Head "
+                f"{geom.length_under_head.display()} and a head that leaves "
+                f"{geom.shank_length:.4f} in under it -- the record's own lengths "
+                "disagree, and clamping either of them would draw a screw the "
+                "record says is a different one"
+            )
+    return geom
+
+
+#: Points the dome's arc is drawn with. Enough that the curve reads as a
+#: curve at the card's 600 px width and no more; the shape is the arc, not the
+#: sampling.
+_DOME_STEPS = 48
+
+
+def dome_profile(r_head: float, rise: float, seat: float) -> list[tuple[float, float]]:
+    """The arc of a spherical cap of chord ``2 * r_head`` and rise ``rise``.
+
+    Both numbers come off the record -- ``Head Dia.`` and ``Head Height`` --
+    and they determine the cap completely: a sphere of radius
+    ``(r^2 + h^2) / 2h`` is the only one through the head's rim and its crown.
+    Nothing here is chosen to look right.
+
+    The rim angle is taken with ``atan2`` and not with ``asin(r / radius)``.
+    The two agree for every button head in any of these standards, because a
+    button head is a shallow cap and its rise is well under its radius -- and
+    they disagree exactly when it is not: a rise GREATER than the radius puts
+    the sphere's centre above the seat, and ``asin`` then returns the acute
+    angle, which draws the MINOR arc. That arc is a bulge whose ends are not
+    on the rim at all, so the drawing quietly stops being of the head the
+    record describes, and it gets SHORTER as the published head height grows.
+    Found by planting a taller dome and watching the drawing shrink.
+    """
+    radius = (r_head * r_head + rise * rise) / (2 * rise)
+    centre = seat + rise - radius
+    half_angle = math.atan2(r_head, radius - rise)
+    return [
+        (
+            radius * math.sin(-half_angle + 2 * half_angle * k / _DOME_STEPS),
+            centre + radius * math.cos(-half_angle + 2 * half_angle * k / _DOME_STEPS),
+        )
+        for k in range(_DOME_STEPS + 1)
+    ]
 
 
 def _head_outline(geom: FastenerGeometry, y_tip: float) -> list[tuple[float, float]]:
@@ -193,6 +294,8 @@ def _head_outline(geom: FastenerGeometry, y_tip: float) -> list[tuple[float, flo
     r_shank = geom.thread.major.inches / 2
     if geom.countersunk:
         return [(-r_head, top), (-r_shank, seat), (r_shank, seat), (r_head, top)]
+    if geom.domed:
+        return dome_profile(r_head, geom.head_height.inches, seat)
     return [(-r_head, seat), (-r_head, top), (r_head, top), (r_head, seat)]
 
 
@@ -254,17 +357,21 @@ def _draw_body(ax, geom: FastenerGeometry, y_tip: float) -> None:
     r_head = geom.head_dia.inches / 2
     mouth = drive_mouth_width(geom)
     half_drive = (mouth / 2) if mouth else 0.0
-    if half_drive > 0:
-        for sign in (-1, 1):
-            ax.plot(
-                [sign * r_head, sign * half_drive],
-                [top, top],
-                color=cv.INK,
-                lw=cv.LW_BODY,
-                zorder=6,
-            )
-    else:
-        ax.plot([-r_head, r_head], [top, top], color=cv.INK, lw=cv.LW_BODY, zorder=6)
+    # A dome has no flat top face to draw across: its outline already runs from
+    # rim to crown, and a chord struck at the crown would be an edge the part
+    # does not have.
+    if not geom.domed:
+        if half_drive > 0:
+            for sign in (-1, 1):
+                ax.plot(
+                    [sign * r_head, sign * half_drive],
+                    [top, top],
+                    color=cv.INK,
+                    lw=cv.LW_BODY,
+                    zorder=6,
+                )
+        else:
+            ax.plot([-r_head, r_head], [top, top], color=cv.INK, lw=cv.LW_BODY, zorder=6)
 
     if geom.hex_headed:
         # The two edges between the three faces an across-flats view shows.
@@ -493,6 +600,29 @@ def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
         fontsize=cv.FS_SUBLABEL,
     )
 
+    if geom.length_under_head is not None:
+        # The whole shank, head excluded -- a different span from the published
+        # length on a countersunk screw, and the span a shopper's
+        # "5/16-18 x 3/4" names. Drawn on the right, where the two spans can be
+        # read against each other across the part: on a countersunk screw the
+        # left dimension runs a head height past this one, and on every other
+        # style they end together.
+        x_under = frame_w * 0.42
+        span = geom.length_under_head.inches
+        cv.length_dimension(ax, x_under, y_tip, y_tip + span, geom.length_under_head.display())
+        cv.witness(ax, x_under, geom.thread.major.inches / 2, y_tip)
+        cv.witness(ax, x_under, geom.head_dia.inches / 2, y_tip + span)
+        ax.text(
+            x_under + frame_w * 0.055,
+            y_tip + span / 2,
+            "length under head",
+            rotation=90,
+            ha="center",
+            va="center",
+            color=cv.MUTED,
+            fontsize=cv.FS_SUBLABEL,
+        )
+
     cv.diameter_callout(
         ax,
         y_tip + geom.threaded_length * 0.5,
@@ -546,6 +676,10 @@ def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
         ("Item", record.get("Item", "")),
         ("Dia./Thread Size", geom.thread.designation),
         ("Length", geom.length.display()),
+        (
+            "Length Under Head",
+            geom.length_under_head.display() if geom.length_under_head else "",
+        ),
         ("Thread Length", geom.thread_length.display()),
         ("Head Dia.", geom.head_dia.display()),
         ("Head Height", geom.head_height.display()),

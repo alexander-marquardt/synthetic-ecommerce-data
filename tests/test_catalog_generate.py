@@ -250,11 +250,11 @@ def test_every_image_reference_names_one_of_the_catalogs_own_product_lines(catal
 def test_every_product_line_has_an_image_of_its_own(catalog):
     """One drawing per line -- not one per type, and not one per SKU.
 
-    The count is the assertion. One per type is what this replaced: 4,624 SKUs
-    behind ten pictures, where an Osterlund HSS AlTiN mill and a competitor's
-    carbide TiCN mill rendered identically. One per SKU would undercut the
-    variant grouping the nested shape exists to demonstrate, where N SKUs are
-    ONE product. Either mistake leaves every other check here green.
+    The count is the assertion. One per type is what this replaced: the whole
+    catalog behind ten pictures, where an Osterlund HSS AlTiN mill and a
+    competitor's carbide TiCN mill rendered identically. One per SKU would
+    undercut the variant grouping the nested shape exists to demonstrate, where
+    N SKUs are ONE product. Either mistake leaves every other check here green.
     """
     ids = [line.image_id for line in catalog.lines]
     assert len(set(ids)) == len(catalog.lines) > 1
@@ -300,3 +300,151 @@ def test_the_two_measured_image_rates_are_recorded_even_though_neither_is_reprod
     """A deviation that is not written down is indistinguishable from a bug."""
     assert SMALL.measured_image_missing == 0.1089
     assert SMALL.measured_image_sku_diverges == 0.7353
+
+
+# --- the three lengths, and the four socket screw styles -------------------
+#
+# Issue #8: three of the customer's five screw examples had no correct answer
+# in the catalog -- not because ranking was wrong, but because the attribute or
+# the product did not exist. These are the checks that it does. They are about
+# the CATALOG rather than about a renderer, which is where the gap was.
+
+
+def _fastener_types() -> tuple[str, ...]:
+    """Every product type whose vocabulary carries the screw/bolt lengths.
+
+    Derived from the vocabulary rather than listed, so a style added to the
+    catalog is checked the day it appears rather than the day someone
+    remembers to add it here.
+    """
+    from synthetic_industrial_products.catalog.vocab import names_for
+
+    return tuple(
+        key for key in VOCAB if {"Length", "Length Under Head"} <= set(names_for(key))
+    )
+
+
+def test_every_screw_and_bolt_line_publishes_a_length_under_head(catalog):
+    """On every style, in both systems, unconditionally.
+
+    ``Length`` and ``Thread Length`` were both present before this and neither
+    is the measurement a shopper's "x 3/4" names: thread length is how much of
+    the shank is threaded, and a countersunk screw's length is measured over
+    its head. Binding the token to either would return confidently wrong
+    results rather than an empty set.
+    """
+    types = _fastener_types()
+    assert len(types) >= 5, types
+    seen_systems: dict[str, set[str]] = {}
+    for line, child in catalog.all_skus():
+        if line.type_key not in types:
+            continue
+        names = {a.name for a in child.attributes}
+        assert "Length Under Head" in names, f"{child.sku} ({line.type_key}) publishes {names}"
+        value = next(a.value for a in child.attributes if a.name == "Length Under Head")
+        seen_systems.setdefault(line.type_key, set()).add("mm" if "mm" in value else "in")
+    assert set(seen_systems) == set(types), sorted(set(types) - set(seen_systems))
+    assert {system for systems in seen_systems.values() for system in systems} == {"in", "mm"}
+
+
+def test_the_length_under_head_is_shorter_than_the_length_on_a_countersunk_screw(catalog):
+    """And equal to it on every other style, which is what makes it a real attribute.
+
+    A flat head sinks into the work, so its published length is measured over
+    the head; every other style's is measured under it. If the two attributes
+    agreed everywhere, one of them would be a second spelling of the other.
+    """
+    from synthetic_industrial_products.dimensions import DimensionParseError, parse_length
+
+    shorter = same = 0
+    for line, child in catalog.all_skus():
+        values = {a.name: a.value for a in child.attributes}
+        if "Length Under Head" not in values or "Length" not in values:
+            continue
+        try:
+            length = parse_length(values["Length"]).inches
+            under = parse_length(values["Length Under Head"]).inches
+        except DimensionParseError:
+            continue
+        if line.type_key == "screw_flat_head":
+            assert under < length, f"{child.sku}: {values}"
+            shorter += 1
+        else:
+            # Tolerant of the last published decimal, and of nothing else: the
+            # unit-mixing defect republishes one dimension of a record in the
+            # other system, so a 20 mm length can appear beside a 0.7874" one.
+            assert under == pytest.approx(length, abs=0.001), f"{child.sku}: {values}"
+            same += 1
+    assert shorter > 50 and same > 200, (shorter, same)
+
+
+def test_the_catalog_offers_all_four_socket_screw_styles(catalog):
+    """Button head and low head are products, not spellings.
+
+    Each is its own product type with its own category leaf, its own extracted
+    standard in each system and its own drawing -- because the head really is a
+    different shape, and a style drawn as another style's picture is the
+    ``Screw Head Type`` defect over again.
+    """
+    styles: dict[str, set[str]] = {}
+    standards: dict[str, set[str]] = {}
+    for line in catalog.lines:
+        if not line.type_key.startswith("screw_"):
+            continue
+        values = {a.name: a.value for a in line.attributes}
+        styles.setdefault(line.type_key, set()).add(values["Screw Head Type"])
+        standards.setdefault(line.type_key, set()).add(line.dimension_provenance)
+    assert styles == {
+        "screw_socket_head": {"Socket"},
+        "screw_flat_head": {"Flat"},
+        "screw_button_head": {"Button"},
+        "screw_low_head": {"Low Socket"},
+    }
+    assert standards["screw_button_head"] == {"ISO 7380-1", "ASME B18.3.3A"}
+    assert standards["screw_low_head"] == {"DIN 7984", "ASME B18.3.1G"}
+
+
+def test_a_button_head_and_a_low_head_have_the_head_their_standard_gives_them(catalog):
+    """Measured against the socket head cap screw of the same thread size.
+
+    Both are lower, and only the button head is wider -- which is what the
+    extracted tables say and is not what you would guess: DIN 7984's head
+    diameter EQUALS ISO 4762's at every metric size here, and ASME B18.3.1G's
+    is a few thousandths under ASME B18.3's, so a low head is a full head's
+    diameter at half its height. If the generator were scaling one head table
+    for all four styles, every one of these comparisons would come out equal.
+    """
+    from synthetic_industrial_products.dimensions import parse_length
+
+    heads: dict[tuple[str, str], tuple[float, float]] = {}
+    for line, child in catalog.all_skus():
+        values = {a.name: a.value for a in child.attributes}
+        size = values.get("Dia./Thread Size")
+        if size is None or "Head Dia." not in values or "Head Height" not in values:
+            continue
+        try:
+            dia = parse_length(values["Head Dia."]).inches
+            height = parse_length(values["Head Height"]).inches
+            heads.setdefault((line.type_key, size), (dia, height))
+        except Exception:  # a deliberately malformed value; another SKU will do
+            continue
+    shared = {
+        size
+        for key, size in heads
+        if key == "screw_socket_head"
+        and ("screw_low_head", size) in heads
+        or key == "screw_socket_head"
+        and ("screw_button_head", size) in heads
+    }
+    assert shared, "no thread size is offered by both a socket head and one of the new styles"
+    for size in shared:
+        full_dia, full_height = heads[("screw_socket_head", size)]
+        for style in ("screw_low_head", "screw_button_head"):
+            if (style, size) not in heads:
+                continue
+            dia, height = heads[(style, size)]
+            assert height < full_height, (style, size, height, full_height)
+            if style == "screw_button_head":
+                assert dia > full_dia, (style, size, dia, full_dia)
+            else:
+                assert dia <= full_dia + 1e-9, (style, size, dia, full_dia)

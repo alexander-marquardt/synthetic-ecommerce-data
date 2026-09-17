@@ -37,6 +37,10 @@
           "ISO 10642",
           "ASME B18.3",
           "ASME B18.3.2",
+          "ISO 7380-1",
+          "ASME B18.3.3A",
+          "DIN 7984",
+          "ASME B18.3.1G",
           "ISO 4014",
           "ISO 4017",
           "DIN 933",
@@ -74,6 +78,10 @@
       "ISO 10642": "FsData/iso10642def.csv (section ISO10642def)",
       "ASME B18.3": "FsData/asmeb18.3.1adef.csv (section ASMEB18.3.1Adef) - the workbench labels it 'UNC Hex socket head cap screws'",
       "ASME B18.3.2": "FsData/asmeb18.3.2def.csv (section ASMEB18.3.2def)",
+      "ISO 7380-1": "FsData/iso7380def.csv (section ISO7380-1def). ISO7380-2 is in the same file and is a DIFFERENT product (button head with a collar); it was not extracted.",
+      "ASME B18.3.3A": "FsData/asmeb18.3.3adef.csv (section ASMEB18.3.3Adef) = 'UNC Hex socket button head screws'. NOT asmeb18.3.4def.csv, which FastenersCmd.py labels 'UNC Hexagon socket head SHOULDER screws' despite the number looking like the next one along.",
+      "DIN 7984": "FsData/din7984def.csv (section DIN7984def). NOT din6912def.csv, which is the low head WITH a drilled recess and a different head height.",
+      "ASME B18.3.1G": "FsData/asmeb18.3.1gdef.csv (section ASMEB18.3.1Gdef) for the dimensions; its LENGTH RANGE table (ASMEB18.3.1Grange) is not in that file at all, it is in FsData/asmeb18.3.1adef.csv.",
       "ISO 4014": "FsData/iso4014head.csv (section ISO4014def) - note the filename says 'head', not 'def'",
       "ISO 4017": "FsData/iso4017head.csv (section ISO4017def)",
       "DIN 933": "FsData/din933def.csv (section DIN933def)",
@@ -83,7 +91,7 @@
       "ISO 262 (metric coarse thread pitches)": "FsData/iso262def.csv (section ISO262def)",
       "shared inch nominal-length list": "FsData/inch_fs_length.csv (sections ASMEB18.3.1Alength, ASMEB18.3.2length, ...)"
     },
-    "column_semantics_verified_against_code": "Column meanings were not guessed from names. They were confirmed against the workbench's own unpacking of each table: FsFunctions/FSmakeCylinderHeadScrew.py (ISO4762: dk_max=head dia, k=head height, s_mean feeds makeHexRecess so it is the socket A/F, t=socket depth), FsFunctions/FSmakeCountersunkHeadScrew.py (dk_theo/dk_mean/s_mean/t for ISO10642 and ASMEB18.3.2), and ScrewMaker.py GetAllLengths for the length tables.",
+    "column_semantics_verified_against_code": "Column meanings were not guessed from names. They were confirmed against the workbench's own unpacking of each table: FsFunctions/FSmakeCylinderHeadScrew.py (ISO4762: dk_max=head dia, k=head height, s_mean feeds makeHexRecess so it is the socket A/F, t=socket depth), FsFunctions/FSmakeCountersunkHeadScrew.py (dk_theo/dk_mean/s_mean/t for ISO10642 and ASMEB18.3.2), and ScrewMaker.py GetAllLengths for the length tables. The four socket-screw standards added for the button head and low head lines were read the same way: FsFunctions/FSmakeButtonHeadScrew.py unpacks ISO7380-1 as (P, b, a, da, dk, dk_mean, s_mean, t_min, r, k, e, w) and ASMEB18.3.3A as (P, b, da, dk, s_mean, t_min, r, k), so dk is the head diameter and k the head height in both; FsFunctions/FSmakeCylinderHeadScrew.py unpacks DIN7984 as (P, b, dk_max, da, ds_min, e, k, r, s_mean, t, v, dw) and ASMEB18.3.1G as (P, b, A, H, C_max, J, T, K, r) with dk_max=A, k=H, s_mean=J, t=T.",
     "verification_gate": {
       "requirement": "the '#10' row of asmeb18.3.2def.csv must give head diameter 0.41100 in and head height 0.12700 in",
       "raw_csv_row": "\"#10\",1.05833333333333,19.304,10.4394,9.779,3.2258,0.2413,3.175,2.2098",
@@ -693,6 +701,36 @@
           "all"
         ],
         "reason": "absent from the primary source, and the only available source (boltsparts) is excluded for washer ID and thickness."
+      },
+      {
+        "standard": "ISO 7380-1",
+        "sizes": [
+          "M20"
+        ],
+        "reason": "FsData/iso7380def.csv stops at M16 for ISO 7380-1. Recorded as present_in_source=false, not filled in from the M20 row of another button head table."
+      }
+    ],
+    "verification_gates_for_the_added_standards": [
+      {
+        "requirement": "ASME B18.3.3A '#10' button head must give head diameter 0.361 in and a 1/8 in hex socket",
+        "as_published_mm": {
+          "dk": 9.1694,
+          "s": 3.175
+        },
+        "result": "PASS - 9.1694 / 25.4 = 0.361000 and 3.175 / 25.4 = 0.125000 exactly"
+      },
+      {
+        "requirement": "ASME B18.3.1G '1/4in' low head must give head diameter 0.372 in, head height 0.124 in and a 1/8 in hex socket, READ AS INCHES",
+        "as_published_in": {
+          "A": 0.372,
+          "H": 0.124,
+          "J": 0.125
+        },
+        "result": "PASS - and it also fixes the unit question: the same three numbers read as millimetres would be a head 0.37 mm across, smaller than the thread it sits on"
+      },
+      {
+        "requirement": "every derived inch thread count must land on an exact UNC integer",
+        "result": "PASS - ASME B18.3.3A gives 32/32/24/20/18/16/13/11 from 25.4/P and ASME B18.3.1G gives the same eight from 1/P, which corroborates the two opposite unit readings"
       }
     ]
   },
@@ -1426,6 +1464,533 @@
         "source_file": "FsData/asmeb18.3.2def.csv",
         "source_row": "5/8in",
         "source_section": "ASMEB18.3.2def"
+      }
+    ]
+  },
+  "ISO 7380-1": {
+    "_meta": {
+      "title": "Hexagon socket button head screw (metric)",
+      "units": "mm",
+      "source_repo": "FreeCAD_FastenersWB",
+      "source_file": "FsData/iso7380def.csv",
+      "column_semantics": {
+        "head_diameter_mm": "CSV column dk (the maker reads dk, not dk_mean)",
+        "head_height_mm": "CSV column k",
+        "socket_across_flats_mm": "CSV column s_mean",
+        "socket_depth_min_mm": "CSV column t_min",
+        "thread_pitch_coarse_mm": "CSV column P"
+      }
+    },
+    "rows": [
+      {
+        "size": "M3",
+        "present_in_source": true,
+        "head_diameter_mm": 5.7,
+        "head_height_mm": 1.65,
+        "socket_across_flats_mm": 2.03,
+        "socket_depth_min_mm": 1.04,
+        "thread_pitch_coarse_mm": 0.5,
+        "source_file": "FsData/iso7380def.csv",
+        "source_row": "M3",
+        "source_section": "ISO7380-1def"
+      },
+      {
+        "size": "M4",
+        "present_in_source": true,
+        "head_diameter_mm": 7.6,
+        "head_height_mm": 2.2,
+        "socket_across_flats_mm": 2.54,
+        "socket_depth_min_mm": 1.3,
+        "thread_pitch_coarse_mm": 0.7,
+        "source_file": "FsData/iso7380def.csv",
+        "source_row": "M4",
+        "source_section": "ISO7380-1def"
+      },
+      {
+        "size": "M5",
+        "present_in_source": true,
+        "head_diameter_mm": 9.5,
+        "head_height_mm": 2.75,
+        "socket_across_flats_mm": 3.05,
+        "socket_depth_min_mm": 1.56,
+        "thread_pitch_coarse_mm": 0.8,
+        "source_file": "FsData/iso7380def.csv",
+        "source_row": "M5",
+        "source_section": "ISO7380-1def"
+      },
+      {
+        "size": "M6",
+        "present_in_source": true,
+        "head_diameter_mm": 10.5,
+        "head_height_mm": 3.3,
+        "socket_across_flats_mm": 4.05,
+        "socket_depth_min_mm": 2.08,
+        "thread_pitch_coarse_mm": 1.0,
+        "source_file": "FsData/iso7380def.csv",
+        "source_row": "M6",
+        "source_section": "ISO7380-1def"
+      },
+      {
+        "size": "M8",
+        "present_in_source": true,
+        "head_diameter_mm": 14.0,
+        "head_height_mm": 4.4,
+        "socket_across_flats_mm": 5.05,
+        "socket_depth_min_mm": 2.6,
+        "thread_pitch_coarse_mm": 1.25,
+        "source_file": "FsData/iso7380def.csv",
+        "source_row": "M8",
+        "source_section": "ISO7380-1def"
+      },
+      {
+        "size": "M10",
+        "present_in_source": true,
+        "head_diameter_mm": 17.5,
+        "head_height_mm": 5.5,
+        "socket_across_flats_mm": 6.05,
+        "socket_depth_min_mm": 3.12,
+        "thread_pitch_coarse_mm": 1.5,
+        "source_file": "FsData/iso7380def.csv",
+        "source_row": "M10",
+        "source_section": "ISO7380-1def"
+      },
+      {
+        "size": "M12",
+        "present_in_source": true,
+        "head_diameter_mm": 21.0,
+        "head_height_mm": 6.6,
+        "socket_across_flats_mm": 8.06,
+        "socket_depth_min_mm": 4.16,
+        "thread_pitch_coarse_mm": 1.75,
+        "source_file": "FsData/iso7380def.csv",
+        "source_row": "M12",
+        "source_section": "ISO7380-1def"
+      },
+      {
+        "size": "M16",
+        "present_in_source": true,
+        "head_diameter_mm": 28.0,
+        "head_height_mm": 8.8,
+        "socket_across_flats_mm": 10.06,
+        "socket_depth_min_mm": 5.2,
+        "thread_pitch_coarse_mm": 2.0,
+        "source_file": "FsData/iso7380def.csv",
+        "source_row": "M16",
+        "source_section": "ISO7380-1def"
+      },
+      {
+        "size": "M20",
+        "present_in_source": false,
+        "note": "ISO 7380-1 in FreeCAD_FastenersWB stops at M16; no M20 row"
+      }
+    ]
+  },
+  "ASME B18.3.3A": {
+    "_meta": {
+      "title": "Hexagon socket button head cap screw (inch) - ASMEB18.3.3A section of FastenersWB",
+      "units": "inches for the *_in fields; the CSV itself publishes MILLIMETRES",
+      "unit_warning": "asmeb18.3.3adef.csv stores every dimension in mm, like the other ASME B18.3 files. The *_in fields are value_mm / 25.4 (exact by definition); the raw mm values are preserved under as_published_in_csv_mm.",
+      "tpi_derivation": "threads_per_inch = 25.4 / P, where P is the CSV pitch column in mm",
+      "source_repo": "FreeCAD_FastenersWB",
+      "source_file": "FsData/asmeb18.3.3adef.csv",
+      "column_semantics": {
+        "head_diameter_in": "dk",
+        "head_height_in": "k",
+        "hex_socket_across_flats_in": "s",
+        "socket_depth_min_in": "t"
+      }
+    },
+    "rows": [
+      {
+        "size": "#6",
+        "present_in_source": true,
+        "head_diameter_in": 0.262,
+        "head_height_in": 0.0759,
+        "hex_socket_across_flats_in": 0.078125,
+        "socket_depth_min_in": 0.042969,
+        "threads_per_inch": 32.0,
+        "as_published_in_csv_mm": {
+          "dk": 6.6548,
+          "k": 1.92786,
+          "s": 1.984375,
+          "t": 1.09140625,
+          "P": 0.79375
+        },
+        "source_file": "FsData/asmeb18.3.3adef.csv",
+        "source_row": "#6",
+        "source_section": "ASMEB18.3.3Adef"
+      },
+      {
+        "size": "#8",
+        "present_in_source": true,
+        "head_diameter_in": 0.312,
+        "head_height_in": 0.0902,
+        "hex_socket_across_flats_in": 0.09375,
+        "socket_depth_min_in": 0.051562,
+        "threads_per_inch": 32.0,
+        "as_published_in_csv_mm": {
+          "dk": 7.9248,
+          "k": 2.29108,
+          "s": 2.38125,
+          "t": 1.3096875,
+          "P": 0.79375
+        },
+        "source_file": "FsData/asmeb18.3.3adef.csv",
+        "source_row": "#8",
+        "source_section": "ASMEB18.3.3Adef"
+      },
+      {
+        "size": "#10",
+        "present_in_source": true,
+        "head_diameter_in": 0.361,
+        "head_height_in": 0.1045,
+        "hex_socket_across_flats_in": 0.125,
+        "socket_depth_min_in": 0.06875,
+        "threads_per_inch": 24.0,
+        "as_published_in_csv_mm": {
+          "dk": 9.1694,
+          "k": 2.6543,
+          "s": 3.175,
+          "t": 1.74625,
+          "P": 1.05833333333333
+        },
+        "source_file": "FsData/asmeb18.3.3adef.csv",
+        "source_row": "#10",
+        "source_section": "ASMEB18.3.3Adef"
+      },
+      {
+        "size": "1/4",
+        "present_in_source": true,
+        "head_diameter_in": 0.437,
+        "head_height_in": 0.1375,
+        "hex_socket_across_flats_in": 0.15625,
+        "socket_depth_min_in": 0.085938,
+        "threads_per_inch": 20.0,
+        "as_published_in_csv_mm": {
+          "dk": 11.0998,
+          "k": 3.4925,
+          "s": 3.96875,
+          "t": 2.1828125,
+          "P": 1.27
+        },
+        "source_file": "FsData/asmeb18.3.3adef.csv",
+        "source_row": "1/4in",
+        "source_section": "ASMEB18.3.3Adef"
+      },
+      {
+        "size": "5/16",
+        "present_in_source": true,
+        "head_diameter_in": 0.547,
+        "head_height_in": 0.171875,
+        "hex_socket_across_flats_in": 0.1875,
+        "socket_depth_min_in": 0.103125,
+        "threads_per_inch": 18.0,
+        "as_published_in_csv_mm": {
+          "dk": 13.8938,
+          "k": 4.365625,
+          "s": 4.7625,
+          "t": 2.619375,
+          "P": 1.41111111111111
+        },
+        "source_file": "FsData/asmeb18.3.3adef.csv",
+        "source_row": "5/16in",
+        "source_section": "ASMEB18.3.3Adef"
+      },
+      {
+        "size": "3/8",
+        "present_in_source": true,
+        "head_diameter_in": 0.656,
+        "head_height_in": 0.20625,
+        "hex_socket_across_flats_in": 0.21875,
+        "socket_depth_min_in": 0.120313,
+        "threads_per_inch": 16.0,
+        "as_published_in_csv_mm": {
+          "dk": 16.6624,
+          "k": 5.23875,
+          "s": 5.55625,
+          "t": 3.0559375,
+          "P": 1.5875
+        },
+        "source_file": "FsData/asmeb18.3.3adef.csv",
+        "source_row": "3/8in",
+        "source_section": "ASMEB18.3.3Adef"
+      },
+      {
+        "size": "1/2",
+        "present_in_source": true,
+        "head_diameter_in": 0.875,
+        "head_height_in": 0.275,
+        "hex_socket_across_flats_in": 0.3125,
+        "socket_depth_min_in": 0.171875,
+        "threads_per_inch": 13.0,
+        "as_published_in_csv_mm": {
+          "dk": 22.225,
+          "k": 6.985,
+          "s": 7.9375,
+          "t": 4.365625,
+          "P": 1.95384615384615
+        },
+        "source_file": "FsData/asmeb18.3.3adef.csv",
+        "source_row": "1/2in",
+        "source_section": "ASMEB18.3.3Adef"
+      },
+      {
+        "size": "5/8",
+        "present_in_source": true,
+        "head_diameter_in": 1.0,
+        "head_height_in": 0.34375,
+        "hex_socket_across_flats_in": 0.375,
+        "socket_depth_min_in": 0.20625,
+        "threads_per_inch": 11.0,
+        "as_published_in_csv_mm": {
+          "dk": 25.4,
+          "k": 8.73125,
+          "s": 9.525,
+          "t": 5.23875,
+          "P": 2.30909090909091
+        },
+        "source_file": "FsData/asmeb18.3.3adef.csv",
+        "source_row": "5/8in",
+        "source_section": "ASMEB18.3.3Adef"
+      }
+    ]
+  },
+  "DIN 7984": {
+    "_meta": {
+      "title": "Hexagon socket head cap screw with low head (metric)",
+      "units": "mm",
+      "source_repo": "FreeCAD_FastenersWB",
+      "source_file": "FsData/din7984def.csv",
+      "column_semantics": {
+        "head_diameter_mm": "CSV column dk_max",
+        "head_height_mm": "CSV column k",
+        "socket_across_flats_mm": "CSV column s_mean",
+        "socket_depth_mm": "CSV column t",
+        "thread_pitch_coarse_mm": "CSV column P"
+      }
+    },
+    "rows": [
+      {
+        "size": "M3",
+        "present_in_source": true,
+        "head_diameter_mm": 5.5,
+        "head_height_mm": 2.0,
+        "socket_across_flats_mm": 2.0,
+        "socket_depth_mm": 1.5,
+        "thread_pitch_coarse_mm": 0.5,
+        "source_file": "FsData/din7984def.csv",
+        "source_row": "M3",
+        "source_section": "DIN7984def"
+      },
+      {
+        "size": "M4",
+        "present_in_source": true,
+        "head_diameter_mm": 7.0,
+        "head_height_mm": 2.8,
+        "socket_across_flats_mm": 2.5,
+        "socket_depth_mm": 2.3,
+        "thread_pitch_coarse_mm": 0.7,
+        "source_file": "FsData/din7984def.csv",
+        "source_row": "M4",
+        "source_section": "DIN7984def"
+      },
+      {
+        "size": "M5",
+        "present_in_source": true,
+        "head_diameter_mm": 8.5,
+        "head_height_mm": 3.5,
+        "socket_across_flats_mm": 3.0,
+        "socket_depth_mm": 2.7,
+        "thread_pitch_coarse_mm": 0.8,
+        "source_file": "FsData/din7984def.csv",
+        "source_row": "M5",
+        "source_section": "DIN7984def"
+      },
+      {
+        "size": "M6",
+        "present_in_source": true,
+        "head_diameter_mm": 10.0,
+        "head_height_mm": 4.0,
+        "socket_across_flats_mm": 4.0,
+        "socket_depth_mm": 3.0,
+        "thread_pitch_coarse_mm": 1.0,
+        "source_file": "FsData/din7984def.csv",
+        "source_row": "M6",
+        "source_section": "DIN7984def"
+      },
+      {
+        "size": "M8",
+        "present_in_source": true,
+        "head_diameter_mm": 13.0,
+        "head_height_mm": 5.0,
+        "socket_across_flats_mm": 5.0,
+        "socket_depth_mm": 3.8,
+        "thread_pitch_coarse_mm": 1.25,
+        "source_file": "FsData/din7984def.csv",
+        "source_row": "M8",
+        "source_section": "DIN7984def"
+      },
+      {
+        "size": "M10",
+        "present_in_source": true,
+        "head_diameter_mm": 16.0,
+        "head_height_mm": 6.0,
+        "socket_across_flats_mm": 7.0,
+        "socket_depth_mm": 4.5,
+        "thread_pitch_coarse_mm": 1.5,
+        "source_file": "FsData/din7984def.csv",
+        "source_row": "M10",
+        "source_section": "DIN7984def"
+      },
+      {
+        "size": "M12",
+        "present_in_source": true,
+        "head_diameter_mm": 18.0,
+        "head_height_mm": 7.0,
+        "socket_across_flats_mm": 8.0,
+        "socket_depth_mm": 5.0,
+        "thread_pitch_coarse_mm": 1.75,
+        "source_file": "FsData/din7984def.csv",
+        "source_row": "M12",
+        "source_section": "DIN7984def"
+      },
+      {
+        "size": "M16",
+        "present_in_source": true,
+        "head_diameter_mm": 24.0,
+        "head_height_mm": 9.0,
+        "socket_across_flats_mm": 12.0,
+        "socket_depth_mm": 5.5,
+        "thread_pitch_coarse_mm": 2.0,
+        "source_file": "FsData/din7984def.csv",
+        "source_row": "M16",
+        "source_section": "DIN7984def"
+      },
+      {
+        "size": "M20",
+        "present_in_source": true,
+        "head_diameter_mm": 30.0,
+        "head_height_mm": 11.0,
+        "socket_across_flats_mm": 14.0,
+        "socket_depth_mm": 7.5,
+        "thread_pitch_coarse_mm": 2.5,
+        "source_file": "FsData/din7984def.csv",
+        "source_row": "M20",
+        "source_section": "DIN7984def"
+      }
+    ]
+  },
+  "ASME B18.3.1G": {
+    "_meta": {
+      "title": "Hexagon socket head cap screw with low head (inch) - ASMEB18.3.1G section of FastenersWB",
+      "units": "inches - this file is one of the per-file exceptions: it stores INCHES, not millimetres",
+      "unit_warning": "FSmakeCylinderHeadScrew multiplies every ASMEB18.3.1G column by 25.4 before use, which is what establishes that the table is in inches. The values here are the CSV's own, unconverted.",
+      "tpi_derivation": "threads_per_inch = 1 / P, where P is the CSV pitch column in INCHES",
+      "source_repo": "FreeCAD_FastenersWB",
+      "source_file": "FsData/asmeb18.3.1gdef.csv",
+      "column_semantics": {
+        "head_diameter_in": "A",
+        "head_height_in": "H",
+        "hex_socket_across_flats_in": "J",
+        "socket_depth_in": "T"
+      }
+    },
+    "rows": [
+      {
+        "size": "#6",
+        "present_in_source": true,
+        "head_diameter_in": 0.2235,
+        "head_height_in": 0.069,
+        "hex_socket_across_flats_in": 0.062,
+        "socket_depth_in": 0.05,
+        "threads_per_inch": 32.0,
+        "source_file": "FsData/asmeb18.3.1gdef.csv",
+        "source_row": "#6",
+        "source_section": "ASMEB18.3.1Gdef"
+      },
+      {
+        "size": "#8",
+        "present_in_source": true,
+        "head_diameter_in": 0.2675,
+        "head_height_in": 0.082,
+        "hex_socket_across_flats_in": 0.078,
+        "socket_depth_in": 0.06,
+        "threads_per_inch": 32.0,
+        "source_file": "FsData/asmeb18.3.1gdef.csv",
+        "source_row": "#8",
+        "source_section": "ASMEB18.3.1Gdef"
+      },
+      {
+        "size": "#10",
+        "present_in_source": true,
+        "head_diameter_in": 0.3095,
+        "head_height_in": 0.095,
+        "hex_socket_across_flats_in": 0.094,
+        "socket_depth_in": 0.072,
+        "threads_per_inch": 24.0,
+        "source_file": "FsData/asmeb18.3.1gdef.csv",
+        "source_row": "#10",
+        "source_section": "ASMEB18.3.1Gdef"
+      },
+      {
+        "size": "1/4",
+        "present_in_source": true,
+        "head_diameter_in": 0.372,
+        "head_height_in": 0.124,
+        "hex_socket_across_flats_in": 0.125,
+        "socket_depth_in": 0.094,
+        "threads_per_inch": 20.0,
+        "source_file": "FsData/asmeb18.3.1gdef.csv",
+        "source_row": "1/4in",
+        "source_section": "ASMEB18.3.1Gdef"
+      },
+      {
+        "size": "5/16",
+        "present_in_source": true,
+        "head_diameter_in": 0.434,
+        "head_height_in": 0.155,
+        "hex_socket_across_flats_in": 0.156,
+        "socket_depth_in": 0.11,
+        "threads_per_inch": 18.0,
+        "source_file": "FsData/asmeb18.3.1gdef.csv",
+        "source_row": "5/16in",
+        "source_section": "ASMEB18.3.1Gdef"
+      },
+      {
+        "size": "3/8",
+        "present_in_source": true,
+        "head_diameter_in": 0.559,
+        "head_height_in": 0.187,
+        "hex_socket_across_flats_in": 0.188,
+        "socket_depth_in": 0.115,
+        "threads_per_inch": 16.0,
+        "source_file": "FsData/asmeb18.3.1gdef.csv",
+        "source_row": "3/8in",
+        "source_section": "ASMEB18.3.1Gdef"
+      },
+      {
+        "size": "1/2",
+        "present_in_source": true,
+        "head_diameter_in": 0.7465,
+        "head_height_in": 0.249,
+        "hex_socket_across_flats_in": 0.25,
+        "socket_depth_in": 0.151,
+        "threads_per_inch": 13.0,
+        "source_file": "FsData/asmeb18.3.1gdef.csv",
+        "source_row": "1/2in",
+        "source_section": "ASMEB18.3.1Gdef"
+      },
+      {
+        "size": "5/8",
+        "present_in_source": true,
+        "head_diameter_in": 0.871,
+        "head_height_in": 0.311,
+        "hex_socket_across_flats_in": 0.312,
+        "socket_depth_in": 0.25,
+        "threads_per_inch": 11.0,
+        "source_file": "FsData/asmeb18.3.1gdef.csv",
+        "source_row": "5/8in",
+        "source_section": "ASMEB18.3.1Gdef"
       }
     ]
   },

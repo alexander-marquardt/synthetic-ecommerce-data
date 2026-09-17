@@ -3,8 +3,11 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from helpers import colour_mask, figure_pixels, within_axes
+from synthetic_industrial_products.dimensions import parse_length
 from synthetic_industrial_products.records import FIXTURES
 from synthetic_industrial_products.render import CARD, DETAIL, fastener
+from synthetic_industrial_products.render import canvas as cv
 
 REC = FIXTURES["26LD37"]
 
@@ -55,11 +58,97 @@ def test_a_cylindrical_head_has_no_cone_angle():
 
 
 def test_a_head_style_whose_profile_is_not_implied_is_refused():
-    # A button head is a dome. Head diameter and head height do not give its
-    # radius, and inventing one would be the only line in the drawing that the
-    # record could not defend.
+    # A twelve-point head is a lobed shape. One head diameter does not give
+    # the across-flats it alternates with, and inventing one would be the only
+    # line in the drawing the record could not defend -- the same reason a
+    # Torx recess is left out rather than approximated.
     with pytest.raises(fastener.UnsupportedHeadError):
-        fastener.geometry_from_record({**REC, "Screw Head Type": "Button"})
+        fastener.geometry_from_record({**REC, "Screw Head Type": "Twelve Point"})
+
+
+def test_a_button_head_is_the_dome_its_two_published_dimensions_describe():
+    """A chord and a rise determine exactly one arc, so the dome is derived.
+
+    This test replaced one asserting the opposite -- that a button head could
+    not be built from ``Head Dia.`` and ``Head Height`` -- which was wrong:
+    the sphere through a head's rim and its crown is unique, and its radius is
+    ``(r**2 + h**2) / 2h``. Refusing the style meant a real fastener the
+    customer asks for by name had no drawing and, before that, no record.
+    """
+    geom = fastener.geometry_from_record({**REC, "Screw Head Type": "Button"})
+    assert geom.domed
+    assert not geom.countersunk and not geom.hex_headed
+
+    seat, rise = 0.0, geom.head_height.inches
+    r_head = geom.head_dia.inches / 2
+    arc = np.array(fastener.dome_profile(r_head, rise, seat))
+    # It passes through the rim at both ends and the crown in the middle.
+    assert arc[0] == pytest.approx([-r_head, seat], abs=1e-9)
+    assert arc[-1] == pytest.approx([r_head, seat], abs=1e-9)
+    assert arc[:, 1].max() == pytest.approx(seat + rise, abs=1e-9)
+    # And it is an arc rather than the chord: every interior point is above
+    # the seat, and the crown is the top.
+    assert (arc[1:-1, 1] > seat).all()
+    assert arc[len(arc) // 2][0] == pytest.approx(0.0, abs=1e-9)
+
+
+def test_a_button_heads_length_is_measured_under_its_head():
+    """It sits proud of the work, so it is not a countersunk length."""
+    geom = fastener.geometry_from_record({**REC, "Screw Head Type": "Button"})
+    assert geom.total_height == pytest.approx(0.5 + 0.127)
+    assert geom.length_seat == pytest.approx(0.5)
+
+
+def test_a_low_head_is_a_cylinder_drawn_to_its_own_two_dimensions():
+    """No head OUTLINE of its own, and that is the point.
+
+    A low head socket cap screw differs from a full socket head in its
+    published head height and (barely) its head diameter, so a drawing built
+    from those already shows the squat head DIN 7984 describes. A separate
+    silhouette invented to make the two look different would be asserting
+    something no attribute says.
+    """
+    low = fastener.geometry_from_record(
+        {**REC, "Screw Head Type": "Low Socket", "Head Height": "0.070 in"}
+    )
+    assert not low.domed and not low.countersunk and not low.hex_headed
+    full = fastener.geometry_from_record({**REC, "Screw Head Type": "Socket"})
+    assert low.total_height < full.total_height
+
+
+@pytest.mark.parametrize(
+    ("style", "extra"),
+    [
+        ("Socket", {}),
+        ("Flat", {}),
+        ("Button", {}),
+        ("Low Socket", {"Head Height": "0.070 in"}),
+        ("Hex", {"Width Across Flats": "0.500 in"}),
+    ],
+)
+def test_each_head_style_draws_its_own_picture(style, extra, tmp_path):
+    """Measured on the CARD, which carries no attribute table at all.
+
+    The card is the silhouette, the two callouts and the SKU -- so two cards
+    that differ differ in the drawing. That matters here because the style is
+    the attribute whose last defect was exactly this: ``Socket`` and ``Hex``
+    produced the same picture, and 524 hex bolts were drawn with round heads.
+    """
+    drawn = {}
+    for other, other_extra in (
+        ("Socket", {}),
+        ("Flat", {}),
+        ("Button", {}),
+        ("Low Socket", {"Head Height": "0.070 in"}),
+        ("Hex", {"Width Across Flats": "0.500 in"}),
+    ):
+        record = {**REC, "Screw Head Type": other, **other_extra}
+        drawn[other] = fastener.render(record, tmp_path / f"{other}.png", CARD).read_bytes()
+    mine = drawn.pop(style)
+    assert mine not in drawn.values(), (
+        f"a {style} head card is byte for byte another style's: "
+        f"{[k for k, v in drawn.items() if v == mine]}"
+    )
 
 
 def test_a_fully_threaded_countersunk_screw_threads_up_to_the_head():
@@ -218,3 +307,148 @@ def test_a_hex_head_falls_back_to_head_dia_when_across_flats_is_not_published():
     elevation is already drawn to."""
     geom = fastener.geometry_from_record({**REC, "Screw Head Type": "Hex"})
     assert geom.across_flats == pytest.approx(geom.head_dia.inches)
+
+
+# --- Length Under Head, which is a DRAWN dimension and not only a table row --
+#
+# The distinction matters and is the reason these tests measure the elevation
+# rather than the sheet. A value printed in the attribute table makes no claim
+# the drawing could contradict -- it is the record's own text, set beside the
+# record. A dimension LINE claims that this span of this picture is that value,
+# so it is the half that can go wrong silently, and the half issue #10 is about:
+# three channels there can be broken with the whole suite green because the
+# stamp answers for them.
+
+#: The record with the attribute added, which the bundled reference records
+#: predate. 1/2" over the head less a 0.127" head leaves 0.373" under it.
+REC_UNDER_HEAD = {**REC, "Length Under Head": "0.3730 in"}
+
+
+def _elevation_dimension_spans(record: dict, profile=DETAIL) -> list[float]:
+    """Every vertical dimension line on the elevation, in inches.
+
+    Read off the arrows actually added to the DRAWING's axes -- the same
+    artists that get rasterised -- rather than off the figure's text, which is
+    where the attribute table lives. A span measured in pixels instead cannot
+    be separated from the diameter callouts' labels, which are set in the same
+    colour and cross the same columns.
+    """
+    _fig, ax, _geom = fastener.build(record, profile)
+    spans = []
+    for text in ax.texts:
+        arrow = getattr(text, "arrow_patch", None)
+        if arrow is None:
+            continue
+        (x0, y0), (x1, y1) = text.xyann, text.xy
+        if abs(x0 - x1) < 1e-9:
+            spans.append(abs(y1 - y0))
+    return sorted(spans)
+
+
+def _dimension_ink(record: dict, profile=DETAIL) -> int:
+    """Pixels of the dimension colour inside the elevation's own axes box."""
+    fig, ax, _geom = fastener.build(record, profile)
+    image = figure_pixels(fig)
+    return int((colour_mask(image, cv.DIM, tol=0.10) & within_axes(fig, ax, image.shape[:2])).sum())
+
+
+def test_the_length_under_head_dimension_spans_the_value_the_record_publishes():
+    """Not the total height, not the length, not the thread run.
+
+    Those are the three spans already on the page and every one of them is
+    wrong for this label: on this countersunk screw the published length is a
+    head height longer, the total height is the same again, and the thread run
+    is whatever the record says it is.
+    """
+    published = parse_length(REC_UNDER_HEAD["Length Under Head"]).inches
+    spans = _elevation_dimension_spans(REC_UNDER_HEAD)
+    assert any(span == pytest.approx(published, abs=1e-6) for span in spans), spans
+
+    geom = fastener.geometry_from_record(REC_UNDER_HEAD)
+    assert published != pytest.approx(geom.total_height)
+    assert published != pytest.approx(geom.length.inches)
+
+
+def test_the_three_published_lengths_are_three_spans_on_the_elevation():
+    """A countersunk screw is where they come apart, so it is where it is checked."""
+    geom = fastener.geometry_from_record(REC_UNDER_HEAD)
+    assert geom.countersunk
+    assert geom.length_under_head is not None
+    assert _elevation_dimension_spans(REC_UNDER_HEAD) == pytest.approx(
+        sorted([geom.length.inches, geom.length_under_head.inches, geom.threaded_length])
+    )
+
+
+def test_a_record_that_does_not_publish_it_gets_no_such_dimension():
+    """Silence draws nothing rather than a span computed from the neighbours.
+
+    The drawing may only contain numbers the record contains, and the shank
+    the other attributes leave is not one the record published.
+    """
+    assert "Length Under Head" not in REC
+    assert fastener.geometry_from_record(REC).length_under_head is None
+    assert (
+        len(_elevation_dimension_spans(REC)) == len(_elevation_dimension_spans(REC_UNDER_HEAD)) - 1
+    )
+
+
+def test_the_dimension_is_inked_in_the_drawing_and_not_only_in_the_table():
+    """The control for the span test above: an arrow that draws nothing would pass it."""
+    assert _dimension_ink(REC_UNDER_HEAD) > _dimension_ink(REC) + 500
+
+
+@pytest.mark.parametrize("published", ["1/2 in", "0.2000 in"])
+def test_a_length_under_head_the_other_lengths_contradict_is_refused(published):
+    """Both directions: too long for the shank, and too short for it.
+
+    A record whose own numbers disagree is refused rather than drawn to one of
+    them, because a drawing that picked a winner would be a picture saying the
+    record is something it is not -- and the defect would then look corroborated.
+    """
+    with pytest.raises(fastener.ImpossibleGeometryError):
+        fastener.geometry_from_record({**REC, "Length Under Head": published})
+
+
+def test_the_refusal_leaves_room_for_the_rounding_the_catalog_publishes():
+    """A tolerance that refused consistent records would empty the catalog.
+
+    The published strings are exact to four decimal inches or two decimal
+    millimetres, so a consistent record's three lengths agree far inside the
+    tolerance -- and one unit out of that last place must not be a refusal.
+    """
+    fastener.geometry_from_record({**REC, "Length Under Head": "0.3731 in"})
+    fastener.geometry_from_record({**REC, "Length Under Head": "9.47 mm"})
+    assert fastener.UNDER_HEAD_TOLERANCE_IN < 0.127, (
+        "a tolerance as wide as this screw's head height would accept a length "
+        "under head that was really the length over it"
+    )
+
+
+@pytest.mark.parametrize("rise", [0.02, 0.05, 0.127, 0.2055, 0.30, 0.50])
+def test_the_dome_is_the_cap_the_two_numbers_name_at_any_rise(rise):
+    """Its ends are on the rim and its crown is the published height -- always.
+
+    Not a hypothetical range. The arc is struck about the sphere through the
+    rim and the crown, and the rim angle has to be taken with ``atan2``: a rise
+    greater than that sphere's radius puts its centre above the seat, where
+    ``asin(r / radius)`` returns the acute angle and draws the MINOR arc
+    instead. That arc's ends are not on the rim, and it gets SHORTER as the
+    published head height grows -- so a button head published half again as
+    tall would have been drawn smaller. Every shipped button head is a shallow
+    cap where the two agree, which is why nothing measured it until a planted
+    taller dome came out shorter.
+    """
+    r_head = 0.2055
+    arc = np.array(fastener.dome_profile(r_head, rise, 0.0))
+    assert arc[0] == pytest.approx([-r_head, 0.0], abs=1e-9)
+    assert arc[-1] == pytest.approx([r_head, 0.0], abs=1e-9)
+    assert arc[:, 1].max() == pytest.approx(rise, abs=1e-9)
+
+
+def test_a_taller_published_head_is_a_taller_dome():
+    """The monotonicity the pixel tests rest on, asserted on the geometry."""
+    heights = [
+        max(point[1] for point in fastener.dome_profile(0.2055, rise, 0.0))
+        for rise in (0.05, 0.127, 0.30, 0.50)
+    ]
+    assert heights == sorted(heights) and len(set(heights)) == len(heights)
