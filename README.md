@@ -84,7 +84,7 @@ there is no `#10` hex bolt here, because ASME B18.2.1 hex head screws begin at
 
 | | |
 |---|---|
-| **Ships** | the generator, the extracted standards tables, hashes of the reference tuples, the synthetic catalog |
+| **Ships** | the generator, the extracted standards tables, hashes of the reference tuples, and the built catalog itself — checked in at `golden-catalog/`, see [The built catalog is committed](#the-built-catalog-is-committed-in-golden-catalog) |
 | **Never ships** | the reference corpus of captured pages, and the rendered images — both reproducible, see `.gitignore`. The images are ten PNGs and about 925 KiB, so hosting them is a copy, not a build |
 
 ## Generating a catalog
@@ -159,6 +159,67 @@ cannot be an Elasticsearch field name — the trailing dot makes it an invalid
 path. The three spellings of the measurement-system attribute deliberately
 sanitise to three different keys rather than being folded into one: folding
 them here would hide the problem a field map exists to solve.
+
+## The built catalog is committed, in `golden-catalog/`
+
+`sip-generate build` is reproducible, but its output is checked in anyway, at
+`golden-catalog/`:
+
+| file | |
+|---|---|
+| `flat.jsonl` | 11 MB — 4,624 SKU documents |
+| `nested.jsonl` | 3.7 MB — 500 product lines, nested variants and key-value attributes |
+| `render.jsonl` | 1.8 MB — the same 4,624 SKUs for the per-record dimensioned renderer |
+| `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
+| `images.jsonl` | the ten drawings, and how many products point at each |
+| `stats.json` | the measured defect rates, and the config that produced them |
+
+16.7 MiB in the working tree. **Plain NDJSON — deliberately not gzipped and
+not git-LFS.** The whole reason to commit generated output is that a change to
+the generator shows up as a readable diff in review, and both of those hide it.
+The cost is small: the seven blobs occupy **741 KiB in the pack** (measured
+with `git cat-file --batch-check='%(objectsize:disk)'` after a `git gc`), a
+23× saving, because records drawn from one naming grammar share most of their
+bytes. `flat.jsonl` alone is 11.2 MiB stored in 500 KiB.
+
+It also means the catalog is inspectable, and citable, without installing the
+generator: a reviewer reading a PR, or anyone asking what a record actually
+looks like, opens a file rather than running a build.
+
+### Regenerating it
+
+```sh
+uv run sip-generate build --out golden-catalog
+```
+
+That is the whole command — the default configuration, the default seed. Then
+commit whatever changed, `src/prism_synthetic_industrial/data/field_weights/`
+included, since the same build regenerates the PRISM field map.
+
+**You are expected to run it in the same commit as any generator change that
+moves the output** — a new attribute, a changed distribution, a different image
+assignment, a renamed field, a new emitted file. `tests/test_catalog_golden.py`
+compares every committed file against a fresh build by sha256 and fails naming
+the file and the line counts, so the CI red tells you which one you forgot.
+
+Do **not** regenerate to make that test go green without reading the diff.
+Two different things turn it red, and only one of them is fixed by committing:
+
+* **you changed the generator** — expected; regenerate, commit, review the diff;
+* **the generator became nondeterministic** — a bug. One seed is supposed to
+  produce one catalog, byte for byte.
+
+Tell them apart by building twice into two fresh directories and diffing those
+against each other, with no edits in between. Clean means the first; any
+difference means the second, and the golden files must not be updated until it
+is found. The test's failure message says all of this too, with the commands.
+
+Alongside the hashes, the same test asserts the headline numbers directly
+against the committed files — 4,624 SKU documents over 500 distinct
+`product_id`, a non-empty `image_url` and `image_detail_url` on every product
+line, variant and flat document, and 500 nested lines whose variant counts sum
+to 4,624. Those hold independently of the generator, so a careless
+regenerate-and-commit from a broken build is still red.
 
 ## Serving it with PRISM
 
