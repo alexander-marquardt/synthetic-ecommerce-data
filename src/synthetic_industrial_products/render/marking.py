@@ -3,7 +3,7 @@
 One drawing per product line, and every difference between two drawings is a
 difference between two records
 --------------------------------------------------------------------------
-A catalog of 4,624 SKUs in 500 lines showing ten drawings renders an Osterlund
+A catalog of thousands of SKUs in 500 lines showing twelve drawings renders an Osterlund
 K663 HSS AlTiN mill and a competitor's carbide TiCN mill identically. The fix
 is not more shapes -- both of those really are square end mills, and the shape
 is right -- it is to draw each line's own *published* values.
@@ -316,7 +316,7 @@ class Marking:
 #: The marking for a drawing that is not of any one line: plain black line
 #: work, no fill, no hatch, no stamp.
 #:
-#: This is what ``sip-render generics`` draws -- the ten shapes as shapes,
+#: This is what ``sip-render generics`` draws -- the twelve shapes as shapes,
 #: which is a statement about a product TYPE and carries no line's values
 #: because it is not a drawing of a line. Every catalog image goes through
 #: :func:`marking_for_line` instead.

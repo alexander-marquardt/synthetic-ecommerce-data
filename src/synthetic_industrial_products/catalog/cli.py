@@ -196,7 +196,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"image audit FAILED: {problem}", file=sys.stderr)
         return 1
     # render.jsonl is every SKU in the shape the per-record DIMENSIONED
-    # renderer reads. The catalog's cards do not use it -- they use the ten --
+    # renderer reads. The catalog's cards do not use it -- they use the twelve --
     # but a detail view of a demo product does, so it still ships.
     render = emit.write_jsonl(emit.render_records(catalog), out / "render.jsonl")
 

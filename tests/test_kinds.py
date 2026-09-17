@@ -19,10 +19,13 @@ from synthetic_industrial_products.catalog.vocab import VOCAB, names_for
 from synthetic_industrial_products.records import BUNDLED
 from synthetic_industrial_products.render import DIMENSIONED, kinds
 
-#: Which drawing each catalog product type gets. Two pairs share one: a square
-#: and a ball nose end mill are one renderer, and so are a socket cap screw and
-#: a hex bolt -- the corpus shares those types' vocabularies because they are
-#: the same kind of thing.
+#: Which drawing each catalog product type gets. Several types share one: a
+#: square and a ball nose end mill are one renderer, and so are the four hex
+#: socket screw styles and the hex bolt -- the corpus shares those types'
+#: vocabularies because they are the same kind of thing. That is also why the
+#: kind cannot decide the SHAPE on its own: which of the five silhouettes a
+#: fastener record draws comes from ``Screw Head Type``, in
+#: ``generic.STYLE_DRAWINGS``.
 KIND_OF_TYPE: dict[str, str] = {
     "end_mill_square": kinds.END_MILL,
     "end_mill_ball": kinds.END_MILL,
@@ -30,6 +33,8 @@ KIND_OF_TYPE: dict[str, str] = {
     "tap_spiral_point": kinds.TAP,
     "screw_socket_head": kinds.FASTENER,
     "screw_flat_head": kinds.FASTENER,
+    "screw_button_head": kinds.FASTENER,
+    "screw_low_head": kinds.FASTENER,
     "bolt_hex": kinds.FASTENER,
     "washer_flat": kinds.WASHER,
     "hammer_ball_pein": kinds.HAMMER,

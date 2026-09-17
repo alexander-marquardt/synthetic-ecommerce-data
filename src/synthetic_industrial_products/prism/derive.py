@@ -1,8 +1,8 @@
 """Derive a PRISM field map from the generated catalog.
 
-The catalog publishes 76 distinct attribute names across 10 product types, and
+The catalog publishes 77 distinct attribute names across 12 product types, and
 a PRISM field map has to declare every one it wants searchable or faceted. A
-hand-maintained list of 76 declarations drifts from the generator the first
+hand-maintained list of 77 declarations drifts from the generator the first
 time the generator changes, and the drift is silent: a field map that names an
 attribute the catalog stopped publishing does not fail, it just stops
 faceting, and nothing downstream can tell that from "no product has that
@@ -35,7 +35,7 @@ NUMERIC_SHARE = 0.5
 
 #: An attribute must appear on this share of the documents belonging to the
 #: product types that publish it AT ALL. The denominator is per-attribute on
-#: purpose: an attribute carried by one of ten product types can never exceed
+#: purpose: an attribute carried by one of twelve product types can never exceed
 #: ~10% of the whole catalog, yet it may be the primary facet for its own
 #: category. Measured against the whole catalog every category-specific
 #: attribute would fail, and the sidebar for a washer would be empty.
@@ -43,8 +43,8 @@ MIN_PRESENCE = 0.5
 
 #: Cap on the number of distinct values a TERMS facet may carry. This
 #: separates a facet from an identifier: ``Thread Size`` publishes 19 distinct
-#: values over 1,576 documents and is the first thing a shopper filters on,
-#: while ``List Number`` publishes 126 over 1,093 and is a manufacturer's part
+#: values over 331 documents and is the first thing a shopper filters on,
+#: while ``List Number`` publishes 110 over 919 and is a manufacturer's part
 #: reference that no one browses. Numeric attributes are exempt -- a range
 #: facet's cost does not grow with the number of distinct values.
 MAX_TERMS_CARDINALITY = 25

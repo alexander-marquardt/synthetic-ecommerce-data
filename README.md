@@ -47,7 +47,7 @@ line:
 
 | | |
 |---|---|
-| **Fasteners** | dimensions are **standards-derived**. Each line carries the standard designation its dimensions came from — `ASME B18.3`, `ISO 4762`, `ISO 10642`, `ISO 4014`, `ISO 4017`, `DIN 933`, `ISO 7089`. |
+| **Fasteners** | dimensions are **standards-derived**. Each line carries the standard designation its dimensions came from — `ASME B18.3`, `ASME B18.3.2`, `ASME B18.3.3A`, `ASME B18.3.1G`, `ISO 4762`, `ISO 10642`, `ISO 7380-1`, `DIN 7984`, `ISO 4014`, `ISO 4017`, `DIN 933`, `ISO 7089`. |
 | **Cutting tools** | dimensions are **generated** from the conventional series. No open dimensional source for end mills exists, so nothing here claims a standard, and the provenance field says so in words. |
 
 That asymmetry is deliberate. A cap screw's head is fixed by a published
@@ -78,7 +78,41 @@ repository, its licence and the commit it was read at. Only the sizes this
 catalog offers were taken; the upstream compilations are not redistributed.
 Values the sources do not carry are recorded as absent rather than filled in —
 there is no `#10` hex bolt here, because ASME B18.2.1 hex head screws begin at
-1/4".
+1/4", and no `M20` button head, because ISO 7380-1 in the source stops at M16.
+
+### Four screw styles, and the three lengths each of them publishes
+
+A shopper's screw query is `<thread size> ( x ) <length> <screw type>` —
+`5/16-18 x 3/4 button head cap screw`, `1/4 x 3 1/4 cap screws`. Two things
+have to exist in the catalog for that to have a correct answer: the style, and
+the length it names.
+
+**The styles.** Four hexagon socket screw lines, each with its own standard in
+each system, its own category leaf and its own drawing:
+
+| line | metric | inch | head |
+|---|---|---|---|
+| `screw_socket_head` | `ISO 4762` | `ASME B18.3` | cylinder |
+| `screw_flat_head` | `ISO 10642` | `ASME B18.3.2` | countersunk cone |
+| `screw_button_head` | `ISO 7380-1` | `ASME B18.3.3A` | shallow dome |
+| `screw_low_head` | `DIN 7984` | `ASME B18.3.1G` | squat cylinder |
+
+**The length.** A screw publishes three of them and they are three different
+measurements:
+
+| attribute | what it measures |
+|---|---|
+| `Length` | the nominal length — measured **over** the head on a countersunk screw and under it on every other style |
+| `Length Under Head` | the whole shank, head excluded |
+| `Thread Length` | how much of that shank carries thread |
+
+`x 3/4` in the customer's pattern is the second of those. Binding it to
+`Thread Length` would return confidently wrong results — a 3/4" screw and a
+screw with 3/4" of thread on it are different products — and on a countersunk
+screw binding it to `Length` is wrong by a head height. So the attribute is
+published rather than approximated by a neighbour, and the drawing dimensions
+it: on a flat head socket cap screw the two length dimensions on the elevation
+visibly end a head height apart.
 
 ## What ships, and what does not
 
@@ -167,20 +201,20 @@ them here would hide the problem a field map exists to solve.
 
 | file | |
 |---|---|
-| `flat.jsonl` | 11.4 MB — 4,624 SKU documents |
-| `nested.jsonl` | 3.9 MB — 500 product lines, nested variants and key-value attributes |
-| `render.jsonl` | 1.8 MB — the same 4,624 SKUs for the per-record dimensioned renderer |
+| `flat.jsonl` | 12.7 MB — 4,696 SKU documents |
+| `nested.jsonl` | 4.4 MB — 500 product lines, nested variants and key-value attributes |
+| `render.jsonl` | 2.0 MB — the same 4,696 SKUs for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
 | `images.jsonl` | the 500 drawings — one per product line — and how many products point at each |
 | `stats.json` | the measured defect rates, and the config that produced them |
 
-17.4 MiB in the working tree. **Plain NDJSON — deliberately not gzipped and
+18.5 MiB in the working tree. **Plain NDJSON — deliberately not gzipped and
 not git-LFS.** The whole reason to commit generated output is that a change to
 the generator shows up as a readable diff in review, and both of those hide it.
-The cost is small: the seven blobs occupy **770 KiB in the pack** (measured
+The cost is small: the seven blobs occupy **906 KiB in the pack** (measured
 with `git cat-file --batch-check='%(objectsize:disk)'` after a `git gc`), a
-23× saving, because records drawn from one naming grammar share most of their
-bytes. `flat.jsonl` alone is 11.4 MiB stored in 512 KiB.
+21× saving, because records drawn from one naming grammar share most of their
+bytes. `flat.jsonl` alone is 12.1 MiB stored in 549 KiB.
 
 It also means the catalog is inspectable, and citable, without installing the
 generator: a reviewer reading a PR, or anyone asking what a record actually
@@ -215,10 +249,10 @@ difference means the second, and the golden files must not be updated until it
 is found. The test's failure message says all of this too, with the commands.
 
 Alongside the hashes, the same test asserts the headline numbers directly
-against the committed files — 4,624 SKU documents over 500 distinct
+against the committed files — 4,696 SKU documents over 500 distinct
 `product_id`, a non-empty `image_url` and `image_detail_url` on every product
 line, variant and flat document, and 500 nested lines whose variant counts sum
-to 4,624. Those hold independently of the generator, so a careless
+to 4,696. Those hold independently of the generator, so a careless
 regenerate-and-commit from a broken build is still red.
 
 ## Serving it with PRISM
@@ -246,8 +280,8 @@ PRISM_CUSTOMIZATION_PATH=<this repo> PRISM_RUNTIME_MODE=dev \
 
 ### The field map is derived, never written
 
-The catalog publishes **76 distinct attribute names** across 10 product types.
-A hand-maintained list of 76 declarations drifts from the generator the first
+The catalog publishes **77 distinct attribute names** across 12 product types.
+A hand-maintained list of 77 declarations drifts from the generator the first
 time either side moves, and it drifts *silently*: a field map naming an
 attribute the catalog no longer publishes does not raise, it just stops
 faceting, and "no product has that value" looks exactly like "the field map is
@@ -261,13 +295,13 @@ planted in `scripts/mutation_check.py`.
 
 ### Which attributes become facets
 
-Not all 76. Three measured gates, applied to the emitted documents:
+Not all 77. Three measured gates, applied to the emitted documents:
 
 | gate | rule | why |
 |---|---|---|
 | **discriminating** | at least 2 distinct values | a facet with one value cannot narrow anything — it is a control that does nothing |
-| **characteristic** | present on ≥50% of the documents of the product types that publish it *at all* | the denominator is per-attribute: an attribute carried by one of ten types can never exceed ~10% of the catalog, yet may be the primary facet for its own category |
-| **not an identifier** | a **terms** attribute carries ≤25 distinct values | `Thread Size` publishes 19 values over 1,576 documents and is the first thing a shopper filters on; `List Number` publishes 126 and is a part reference nobody browses. Numeric attributes are exempt — a range control's cost does not grow with cardinality |
+| **characteristic** | present on ≥50% of the documents of the product types that publish it *at all* | the denominator is per-attribute: an attribute carried by one of twelve types can never exceed ~10% of the catalog, yet may be the primary facet for its own category |
+| **not an identifier** | a **terms** attribute carries ≤25 distinct values | `Thread Size` publishes 19 values over 331 documents and is the first thing a shopper filters on; `List Number` publishes 110 and is a part reference nobody browses. Numeric attributes are exempt — a range control's cost does not grow with cardinality |
 
 An attribute is **numeric** (a range facet over `facets_num.*`) when ≥50% of
 the documents publishing it carry a parsed `value_num`, and **terms**
@@ -282,17 +316,17 @@ What that yields, measured:
 
 | | |
 |---|---|
-| attributes declared | 76 |
-| offered as facets | 56 (26 numeric ranges, 30 terms) |
-| declared, not faceted | 20 |
-| **fields in the field map** | **92** |
-| **leaf fields in the Elasticsearch index** | **125** |
-| facets in a category's sidebar | 8–14 |
+| attributes declared | 77 |
+| offered as facets | 58 (27 numeric ranges, 31 terms) |
+| declared, not faceted | 19 |
+| **fields in the field map** | **93** |
+| **leaf fields in the Elasticsearch index** | **126** — the 20 the mapping declares, plus one per distinct `facets.*` key (77) and `facets_num.*` key (29) the dynamic templates create |
+| facets in a category's sidebar | 8–15 |
 
 The per-category figure is above the five-to-eight a real sidebar carries.
-That is honest rather than tuned: fasteners genuinely publish four dimension
-ranges (head diameter, head height, length, thread length) beside material,
-finish and grade. Trimming to eight would mean dropping a control a shopper
+That is honest rather than tuned: a socket screw genuinely publishes five
+dimension ranges (head diameter, head height, length, length under head,
+thread length) beside material, finish and grade. Trimming to eight would mean dropping a control a shopper
 uses, and PRISM has no authorable "top N" — terms facets always aggregate at
 1000 and truncation is reported, not configured.
 
@@ -315,7 +349,7 @@ agrees with itself proves nothing.
   and a range filter returns exactly the matching documents
 * **every sampled facet count equals what clicking it returns** — a count that
   does not match its click is a blocking defect, not a note
-* all 10 product types return their own documents, in the generated count
+* all 12 product types return their own documents, in the generated count
 * the demo case: `3/8" end mill` returns products whose **shank** carries that
   value, and adding the structured `milling_dia` filter excludes them
 
@@ -323,8 +357,8 @@ agrees with itself proves nothing.
 
 The flat shape's `attributes` array is a plain object, so `name` and `value`
 become two independent multi-valued fields. Filtering it for
-*name = Shank Dia. AND value = 3/8"* matches **114** documents; only **65**
-actually publish a 3/8" shank. The other 49 carry a 3/8" belonging to a
+*name = Shank Dia. AND value = 3/8"* matches **87** documents; only **51**
+actually publish a 3/8" shank. The other 36 carry a 3/8" belonging to a
 different attribute.
 
 That is why the field map facets the sanitised per-attribute `facets.*` /
@@ -395,29 +429,40 @@ the archived reference records point at an image whose id is not the product's
 own. A distributor does not photograph every length of the same screw.
 
 Per-SKU images would undercut the variant-grouping story the nested shape
-exists to demonstrate, where N SKUs are *one* product. Ten images — one per
-product type, which is what this replaced — went too far the other way: an
+exists to demonstrate, where N SKUs are *one* product. One image per product
+type, which is what this replaced — ten of them then, twelve now — went too far
+the other way: an
 Osterlund K663 HSS AlTiN mill and a competitor's carbide TiCN mill rendered
 identically.
 
 | behind one drawing | lines | variants |
 |---|---|---|
-| `end_mill_square` | 100 | 796 |
-| `screw_socket_head` | 65 | 765 |
-| `end_mill_ball` | 60 | 471 |
-| `drill_jobber` | 60 | 654 |
-| `bolt_hex` | 50 | 524 |
-| `tap_spiral_point` | 40 | 354 |
-| `screw_flat_head` | 40 | 444 |
-| `abrasive_flap_disc` | 30 | 178 |
-| `washer_flat` | 30 | 250 |
-| `hammer_ball_pein` | 25 | 188 |
+| `end_mill_square` | 95 | 759 |
+| `screw_socket_head` | 60 | 693 |
+| `end_mill_ball` | 55 | 413 |
+| `drill_jobber` | 55 | 592 |
+| `bolt_hex` | 45 | 496 |
+| `tap_spiral_point` | 35 | 331 |
+| `screw_flat_head` | 35 | 390 |
+| `washer_flat` | 30 | 236 |
+| `screw_button_head` | 25 | 291 |
+| `abrasive_flap_disc` | 25 | 144 |
+| `screw_low_head` | 20 | 203 |
+| `hammer_ball_pein` | 20 | 148 |
 
 ### The drawing is the record, drawn
 
-There are still only **ten shapes**. What differs between two lines of one type
-is the *marking*, and **every visual channel is a function of a published
-attribute** — never of the product id, the SKU or the series.
+There are only **twelve shapes**, one per product type. What differs between
+two lines of one type is the *marking*, and **every visual channel is a
+function of a published attribute** — never of the product id, the SKU or the
+series.
+
+Twelve rather than ten because the catalog gained two screw styles whose heads
+really are different shapes: a button head is a dome and a low head socket cap
+screw is a squat cylinder, and neither is a socket head cap screw drawn
+smaller. A style that drew as another style's picture is the `Screw Head Type`
+defect over again — `Socket` and `Hex` once produced the same picture, and 524
+hex bolts were drawn with round heads.
 
 | channel | driven by | why this pairing |
 |---|---|---|
@@ -441,10 +486,10 @@ collisions. Five geometric channels are also simply finite; brand, finish,
 material, flutes and standards alone leave 27 of the 500 lines colliding. The
 stamp closes that gap with the record's own text.
 
-**497 of 500 lines get a drawing of their own.** The three that do not are all
-flat washers, which are genuinely almost nothing but dimensions, and they
-publish identical attribute sets — so drawing them alike is the correct answer,
-not a failure of the encoding. `tests/test_line_drawings.py` asserts that
+**498 of 500 lines get a drawing of their own.** The two that do not are flat
+washers — two pairs of lines, each pair publishing identical attribute sets —
+and a flat washer is genuinely almost nothing but dimensions, so drawing them
+alike is the correct answer, not a failure of the encoding. `tests/test_line_drawings.py` asserts that
 number exactly, in both directions: lines that draw alike publish alike, and
 lines that publish alike draw alike.
 
@@ -460,7 +505,7 @@ by anyone remembering to check.
 
 ```sh
 uv sync
-uv run sip-render generics --out out              # the ten SHAPES, unmarked
+uv run sip-render generics --out out              # the twelve SHAPES, unmarked
 python scripts/render_catalog.py out/catalog --out out/images
 ```
 
@@ -499,17 +544,19 @@ default 500-line catalog:
 
 | product type | variants | drawn to scale | |
 |---|---|---|---|
-| `washer_flat` | 250 | 100% | ISO 7089 publishes all three dimensions on every size |
-| `bolt_hex` | 524 | 99% | |
-| `screw_flat_head` | 444 | 98% | |
-| `screw_socket_head` | 765 | 98% | |
-| `abrasive_flap_disc` | 178 | 88% | `Disc Dia.` sometimes published without a unit |
-| `end_mill_square` | 796 | 57% | |
-| `end_mill_ball` | 471 | 56% | |
-| `tap_spiral_point` | 354 | 40% | |
-| `drill_jobber` | 654 | 23% | `Shank Dia.` is published on 46% of them |
-| `hammer_ball_pein` | 188 | 0% | see below |
-| **all** | **4,624** | **68%** | 956 missing an attribute, 190 unreadable, 167 self-contradictory, 188 hammers |
+| `washer_flat` | 236 | 100% | ISO 7089 publishes all three dimensions on every size |
+| `screw_low_head` | 203 | 99% | |
+| `bolt_hex` | 496 | 99% | |
+| `screw_flat_head` | 390 | 98% | |
+| `screw_socket_head` | 693 | 98% | |
+| `screw_button_head` | 291 | 97% | |
+| `abrasive_flap_disc` | 144 | 90% | `Disc Dia.` sometimes published without a unit |
+| `end_mill_ball` | 413 | 66% | |
+| `end_mill_square` | 759 | 59% | |
+| `tap_spiral_point` | 331 | 39% | |
+| `drill_jobber` | 592 | 24% | `Shank Dia.` is published on 43% of them |
+| `hammer_ball_pein` | 148 | 0% | see below |
+| **all** | **4,696** | **72%** | 844 missing an attribute, 168 unreadable, 140 self-contradictory, 148 hammers |
 
 A record the dimensioned renderer refuses falls back to its generic drawing, so
 a refusal costs the scale, never the image.
@@ -625,7 +672,10 @@ vocabulary rather than about eighteen hand-picked records.
 
 Seven attributes are declared: the measurement-system attribute under all three
 of its spellings, `Standards`, `List Number`, `End Mill Application` and
-`Material Grade - Machining`. A standard a product conforms to and a use it is
+`Material Grade - Machining`. `Length Under Head` is not among them: it is a
+dimension LINE on the elevation, spanning the shank the record says is under
+the head, and not only a row in the attribute table — a printed value makes no
+claim the drawing could contradict, and a span does. A standard a product conforms to and a use it is
 sold for are not shapes, and a drawing of the product has nothing to show for
 them.
 
@@ -661,26 +711,30 @@ than asserted.
 
 | property | target | achieved |
 |---|---|---|
-| shank diameter == cutting diameter | 0.6489 | 0.6888 |
-| length of cut > overall length | 0.0829 | 0.1011 |
-| an angle attribute carrying a length unit | 0.0469 | 0.0765 |
-| declared measurement system contradicts the value's units | 0.0323 | 0.0309 |
-| unit mixing within one record | 0.0222 | 0.0206 |
-| title dimension token carries no label | 0.4667 | 0.4712 |
-| title dimension token is not the primary dimension | 0.1714 | 0.1752 |
-| title label truncated at the length cap | 0.0323 | 0.0355 |
+| shank diameter == cutting diameter | 0.6489 | 0.6763 |
+| length of cut > overall length | 0.0829 | 0.0859 |
+| an angle attribute carrying a length unit | 0.0469 | 0.0397 |
+| declared measurement system contradicts the value's units | 0.0323 | 0.0275 |
+| unit mixing within one record | 0.0222 | 0.0245 |
+| title dimension token carries no label | 0.4667 | 0.4634 |
+| title dimension token is not the primary dimension | 0.1714 | 0.1772 |
+| title label truncated at the length cap | 0.0323 | 0.0309 |
 | image reference missing | 0.1089 | **0.0000, deliberately** |
 | image id is shared, not the product's own | 0.7353 | **1.0000, deliberately** |
-| attributes per record (mean) | 13.12 | 12.82 |
+| attributes per record (mean) | 13.12 | 13.4634 |
 
 Two notes on reading that table honestly. The angle defect is **clustered**:
 the attribute is line-constant, so one bad row reaches every SKU under that
 line — which is how these arrive in a real catalog, and is visible in the
 source corpus too, where the same wrong value repeats across a whole series.
 Its per-record rate therefore swings much more between seeds than the others.
-And attributes per record sits about 2% below its target because the reference
-mean is over a different mixture of product families than this catalog
-contains; the per-family shape is reproduced, the mixture is not the same one.
+And attributes per record sits about 2.6% above its target because the
+reference mean is over a different mixture of product families than this
+catalog contains; the per-family shape is reproduced, the mixture is not the
+same one. It moved across the target — it used to sit 2% below — when the four
+socket-screw lines gained `Length Under Head` and two of them became product
+types of their own, which is the mixture changing rather than any per-family
+rate doing so.
 
 The two image rows are **deliberate deviations, not misses**, and the target
 column shows what this catalog aims at rather than what the corpus measures —

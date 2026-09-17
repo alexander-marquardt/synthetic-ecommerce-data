@@ -1,4 +1,4 @@
-"""The ten product drawings, and the per-line marking that differentiates them.
+"""The twelve product drawings, and the per-line marking that differentiates them.
 
 Why generic
 -----------
@@ -13,13 +13,13 @@ catalog does.
 
 Two drawings live here, and they assert different things
 --------------------------------------------------------
-:func:`render` and :func:`render_record` draw **the type**. One of ten shapes,
+:func:`render` and :func:`render_record` draw **the type**. One of twelve shapes,
 asserting exactly one thing: *this product is a ball nose end mill*, *this
 product is a flat washer*. That is true of every record of that type from the
 product type alone, so the file is the same file whatever the record says --
 ``tests/test_generic.py`` asserts that byte for byte.
 
-:func:`render_line` draws **one product line**. Same ten shapes, re-styled from
+:func:`render_line` draws **one product line**. Same twelve shapes, re-styled from
 that line's own published attributes by :mod:`.marking`: the outline in the
 brand's colour, the fill in the coating's, the section hatched for the
 material, the flutes drawn at the published count and leaning the published
@@ -63,6 +63,7 @@ from matplotlib.patches import Circle, PathPatch, Polygon, Rectangle, Wedge
 
 from . import canvas as cv
 from .attrs import MissingAttributeError, UnsupportedFeatureError, require
+from .fastener import dome_profile
 from .kinds import DRILL, END_MILL, FASTENER, FLAP_DISC, HAMMER, TAP, WASHER, classify
 from .marking import NEUTRAL, Marking, marking_for_line
 from .profiles import CARD, Profile
@@ -121,7 +122,7 @@ _CARD_STAMP_ROOM = 4
 
 @dataclass(frozen=True)
 class GenericImage:
-    """One of the ten: its id, what it is called, and what draws it."""
+    """One of the twelve: its id, what it is called, and what draws it."""
 
     image_id: str
     label: str
@@ -314,7 +315,7 @@ def _end_view_flutes(ax, centre, radius, mark, zorder=6):
         )
 
 
-# --- the ten ---------------------------------------------------------------
+# --- the twelve ------------------------------------------------------------
 
 
 def _draw_end_mill(ax, mark: Marking, ball: bool) -> None:
@@ -538,6 +539,92 @@ def _draw_flat_head_screw(ax, mark: Marking) -> None:
     _hex_socket(ax, (0.0, _END_VIEW_CENTRE), _END_VIEW_R * 0.98, mark)
 
 
+def _draw_button_head_screw(ax, mark: Marking) -> None:
+    """A dome, not a cylinder.
+
+    The arc is struck by the same function the dimensioned renderer uses, from
+    a head diameter and a head height -- here the generic drawing's own
+    proportions rather than a record's, because this drawing stands for a
+    product type and carries no line's numbers. What it must not do is share a
+    silhouette with the socket head: a button head is a different product, and
+    a reader who cannot tell them apart is being shown the wrong one.
+    """
+    head_half, head_h = 0.112, 0.056
+    seat = _HEAD_TOP - head_h
+    shank_half = 0.062
+    _screw_body(ax, shank_half, seat, seat - 0.05, mark)
+    _hatched(
+        ax,
+        ax.add_patch(
+            Polygon(
+                dome_profile(head_half, head_h, seat),
+                closed=True,
+                fc=mark.tint or cv.BODY_FILL,
+                ec=mark.ink,
+                lw=cv.LW_BODY,
+                zorder=5,
+            )
+        ),
+        mark,
+    )
+    ax.add_patch(
+        Circle(
+            (0.0, _END_VIEW_CENTRE),
+            _END_VIEW_R,
+            fc=mark.tint or cv.BODY_FILL,
+            ec=mark.ink,
+            lw=cv.LW_BODY,
+            zorder=5,
+        )
+    )
+    # Also a smaller socket than a full socket head's: ISO 7380-1 M6 takes a
+    # 4 mm key where ISO 4762 M6 takes 5.
+    _hex_socket(ax, (0.0, _END_VIEW_CENTRE), _END_VIEW_R * 0.92, mark)
+
+
+def _draw_low_head_screw(ax, mark: Marking) -> None:
+    """The socket head cap screw's cylinder at about half the height.
+
+    Not wider: DIN 7984's head diameter equals ISO 4762's at every size this
+    catalog offers and ASME B18.3.1G's is a few thousandths under ASME B18.3's,
+    so the head half-width here is the socket head drawing's own. The height is
+    the whole difference between the two products, and it belongs in the
+    silhouette rather than in the marking -- a low head screw drawn to a full
+    head's proportions is a picture of the screw the customer did not order.
+    """
+    head_half, head_h = 0.105, 0.062
+    seat = _HEAD_TOP - head_h
+    _screw_body(ax, 0.062, seat, seat - 0.05, mark)
+    _bar(ax, head_half, seat, _HEAD_TOP, mark)
+    mouth = head_half * 0.52
+    ax.add_patch(
+        Rectangle(
+            (-mouth, _HEAD_TOP - head_h * 0.52),
+            mouth * 2,
+            head_h * 0.52,
+            fc=cv.SHANK_FILL,
+            ec=mark.ink,
+            lw=cv.LW_BODY * 0.8,
+            joinstyle="miter",
+            zorder=4,
+        )
+    )
+    ax.add_patch(
+        Circle(
+            (0.0, _END_VIEW_CENTRE),
+            _END_VIEW_R,
+            fc=mark.tint or cv.BODY_FILL,
+            ec=mark.ink,
+            lw=cv.LW_BODY,
+            zorder=5,
+        )
+    )
+    # A smaller socket than a full head's, because a shallower head holds one:
+    # DIN 7984 M6 takes a 4 mm key where ISO 4762 M6 takes 5, and ASME
+    # B18.3.1G's 1/4 in takes 1/8 where ASME B18.3's takes 3/16.
+    _hex_socket(ax, (0.0, _END_VIEW_CENTRE), _END_VIEW_R * 0.90, mark)
+
+
 def _draw_hex_bolt(ax, mark: Marking) -> None:
     across_half, head_h = 0.120, 0.090
     seat = _HEAD_TOP - head_h
@@ -752,7 +839,7 @@ def _draw_flap_disc(ax, mark: Marking) -> None:
     ax.add_patch(Circle((0.0, 0.0), r_arbor, fc=cv.PAPER, ec=mark.ink, lw=cv.LW_BODY, zorder=5))
 
 
-#: The ten, in the order the catalog's product types are declared. The id is
+#: The twelve, in the order the catalog's product types are declared. The id is
 #: the catalog's own product-type key, so a drawing reference says what the
 #: drawing is of and nothing has to be looked up to know.
 IMAGES: dict[str, GenericImage] = {
@@ -764,6 +851,10 @@ IMAGES: dict[str, GenericImage] = {
         GenericImage("tap_spiral_point", "Spiral Point Tap", _draw_tap),
         GenericImage("screw_socket_head", "Socket Head Cap Screw", _draw_socket_head_screw),
         GenericImage("screw_flat_head", "Flat Head Socket Cap Screw", _draw_flat_head_screw),
+        GenericImage(
+            "screw_button_head", "Button Head Socket Cap Screw", _draw_button_head_screw
+        ),
+        GenericImage("screw_low_head", "Low Head Socket Cap Screw", _draw_low_head_screw),
         GenericImage("bolt_hex", "Hex Head Bolt", _draw_hex_bolt),
         GenericImage("washer_flat", "Flat Washer", _draw_washer),
         GenericImage("hammer_ball_pein", "Ball Pein Hammer", _draw_hammer),
@@ -786,6 +877,12 @@ _BY_STYLE: dict[str, dict[str, str]] = {
         "flat head": "screw_flat_head",
         "countersunk": "screw_flat_head",
         "flat countersunk": "screw_flat_head",
+        "button": "screw_button_head",
+        "button head": "screw_button_head",
+        "dome": "screw_button_head",
+        "low socket": "screw_low_head",
+        "low head": "screw_low_head",
+        "low socket head": "screw_low_head",
         "hex": "bolt_hex",
     },
 }
@@ -806,18 +903,28 @@ _STYLE_ATTRIBUTE: dict[str, str] = {
 }
 
 
-#: The style values each style attribute may publish, by attribute name.
+#: Which drawing each publishable style value names, by the attribute that
+#: publishes it -- the table above, re-keyed from the kind to the attribute.
 #:
-#: Derived from the table above rather than written out a second time: a style
-#: added there is one a sweep over the vocabulary can try, without anyone
-#: remembering to add it here as well.
+#: Derived rather than written out a second time: a style added above is one a
+#: sweep over the vocabulary can try, without anyone remembering to add it
+#: here as well. It carries the DRAWING and not just the value because several
+#: spellings name one shape -- ``button`` and ``button head`` are the same
+#: picture -- and a sweep that wants a different picture has to be able to ask
+#: for one rather than taking the next value along and comparing two drawings
+#: that were never going to differ.
+STYLE_DRAWINGS: dict[str, dict[str, str]] = {
+    _STYLE_ATTRIBUTE[kind]: dict(values) for kind, values in _BY_STYLE.items()
+}
+
+#: The style values each style attribute may publish, by attribute name.
 STYLE_VALUES: dict[str, tuple[str, ...]] = {
-    _STYLE_ATTRIBUTE[kind]: tuple(sorted(values)) for kind, values in _BY_STYLE.items()
+    name: tuple(sorted(table)) for name, table in STYLE_DRAWINGS.items()
 }
 
 
 def drawing_for_record(record: dict) -> str:
-    """Which of the ten shapes this record's product is drawn as.
+    """Which of the twelve shapes this record's product is drawn as.
 
     Read off the attribute names, like everything else here. Two kinds need a
     style attribute as well, and it is required rather than defaulted: a square
@@ -839,7 +946,7 @@ def drawing_for_record(record: dict) -> str:
         ) from exc
 
 
-#: The name this had when the ten drawings were also the catalog's ten image
+#: The name this had when the drawings were also the catalog's image
 #: ids. They are no longer the same thing -- a catalog image id is now one per
 #: product line -- so the function that names a SHAPE is spelled
 #: :func:`drawing_for_record`, and this stays for callers that predate the split.
@@ -992,6 +1099,6 @@ def render_line(line: dict, path: str | Path, profile: Profile = CARD) -> Path:
 
 
 def render_all(out_dir: str | Path, profile: Profile = CARD) -> list[Path]:
-    """All ten type drawings, named by the drawing they are."""
+    """All twelve type drawings, named by the drawing they are."""
     out_dir = Path(out_dir)
     return [render(image_id, out_dir / f"{image_id}.png", profile) for image_id in IMAGE_IDS]

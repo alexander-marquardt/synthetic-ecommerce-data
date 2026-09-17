@@ -1,4 +1,4 @@
-"""The ten catalog images: what they are, and what they must not contain.
+"""The twelve catalog images: what they are, and what they must not contain.
 
 A generic drawing asserts one thing -- *this product is a ball nose end mill* --
 and nothing numeric. That is what makes it safe to put the same image behind
@@ -140,6 +140,7 @@ TWO_VALUES: dict[str, tuple[str, str]] = {
     "Face Dia.": ('0.68"', "40 mm"),
     "Handle Length": ('9"', "400 mm"),
     "Length": ('1/2"', "80 mm"),
+    "Length Under Head": ('3/8"', "70 mm"),
     "Head Dia.": ('0.411"', "18 mm"),
     "Head Height": ('0.127"', "12 mm"),
     "Drive Size": ('1/8"', "6 mm"),
@@ -147,12 +148,14 @@ TWO_VALUES: dict[str, tuple[str, str]] = {
     "Dia./Thread Size": ("#10-32", "M12x1.75"),
 }
 
-#: The style attribute that decides which of the ten a product type shows.
+#: The style attribute that decides which of the twelve a product type shows.
 STYLE_OF_TYPE: dict[str, dict[str, str]] = {
     "end_mill_square": {"End Mill Style": "Square"},
     "end_mill_ball": {"End Mill Style": "Ball Nose"},
     "screw_socket_head": {"Screw Head Type": "Socket"},
     "screw_flat_head": {"Screw Head Type": "Flat"},
+    "screw_button_head": {"Screw Head Type": "Button"},
+    "screw_low_head": {"Screw Head Type": "Low Socket"},
     "bolt_hex": {"Screw Head Type": "Hex"},
 }
 
@@ -213,7 +216,7 @@ def test_the_control_for_that_is_a_dimensioned_drawing_which_does_move(tmp_path)
     assert a != b
 
 
-def test_the_ten_are_ten_DIFFERENT_drawings(tmp_path):
+def test_the_twelve_are_twelve_DIFFERENT_drawings(tmp_path):
     """Two product types sharing one picture is a wrong picture for one of them.
 
     Nothing else here would notice: every other property of a generic drawing
@@ -235,8 +238,8 @@ def test_a_square_end_mill_and_a_ball_nose_are_not_the_same_picture(tmp_path):
     assert square != ball
 
 
-def test_there_are_exactly_ten_and_the_catalog_uses_all_of_them():
-    assert len(generic.IMAGE_IDS) == 10
+def test_there_are_exactly_twelve_and_the_catalog_uses_all_of_them():
+    assert len(generic.IMAGE_IDS) == 12
     assert set(taxonomy.DRAWING.values()) == set(generic.IMAGE_IDS)
     assert set(taxonomy.DRAWING) == set(taxonomy.LEAVES)
 
@@ -273,3 +276,115 @@ def test_an_end_mill_that_does_not_say_which_end_it_has_gets_no_generic_either()
     """
     with pytest.raises(generic.MissingAttributeError):
         generic.drawing_for_record({"sku": "A", "Milling Dia.": '1/4"'})
+
+
+
+# --- the two new screw silhouettes say what the standards say --------------
+#
+# A generic drawing is not to scale, but it is still a claim about a SHAPE, and
+# the shape of these two is the only thing that tells them from a socket head
+# cap screw.
+#
+# The first version of this measured the head by COUNTING rows wider than the
+# shank, which works for a bar and does not work for a dome: a dome's count is
+# not monotonic in its height, so a button head drawn TALLER than a socket head
+# scored fewer rows than one drawn shorter, and four separate defects -- a
+# taller dome, a socket head's exact proportions, a socket head's exact width,
+# and the dome replaced by a plain rectangle -- all passed the whole suite.
+# The metric below measures the head's actual vertical extent and its shape,
+# and each of those four now reds. Both halves of each name are enforced
+# separately, and the width comparisons carry a margin wider than the
+# antialiasing on a stroked arc: matched half-widths measured 191 against 190,
+# which a bare ``>`` accepts.
+
+
+def _elevation_head(image_id: str) -> tuple[int, int, float]:
+    """``(head height, head width, crown ratio)`` in pixels, off the drawing.
+
+    The head is the part of a screw's elevation wider than its shank, so it can
+    be found without knowing where the renderer put it: the SEAT is the lowest
+    row running wider than the shank does, and the head runs from there up to
+    the topmost inked row of the elevation.
+
+    ``crown ratio`` is how wide the head still is just below its top, against
+    its widest. A cylinder carries its full width to its top face and scores 1;
+    a dome has narrowed by then and scores well under it. That is the number
+    that tells a dome from a bar, and nothing else here does.
+    """
+    from helpers import rows_from_top
+
+    fig, ax = generic.build(image_id, CARD)
+    image = figure_pixels(fig)
+    ink = np.any(image < 0.6, axis=-1)[int(rows_from_top(fig, ax, 0.20)) :, :]
+    extents = np.array(
+        [
+            (cols.max() - cols.min()) if (cols := np.flatnonzero(row)).size else 0
+            for row in ink
+        ]
+    )
+    shank = float(np.median(extents[extents > 0]))
+    wider = np.flatnonzero(extents > shank * 1.4)
+    assert wider.size, f"{image_id} draws no head wider than its shank"
+    top = int(np.flatnonzero(extents > 0)[0])
+    seat = int(wider[-1])
+    height = seat - top + 1
+    width = int(extents[top : seat + 1].max())
+    just_below_the_top = top + max(1, int(0.12 * height))
+    return height, width, float(extents[just_below_the_top]) / width
+
+
+def test_the_head_measurement_tells_a_bar_from_a_dome():
+    """The control. Without it every comparison below could be measuring nothing.
+
+    Two of the three drawings compared here have cylindrical heads and one is a
+    dome, so the metric that is supposed to separate them is required to.
+    """
+    for bar in ("screw_socket_head", "screw_low_head"):
+        assert _elevation_head(bar)[2] > 0.9, f"{bar} has a flat top and did not score as one"
+    assert _elevation_head("screw_button_head")[2] < 0.6
+
+
+def test_a_button_head_is_drawn_as_a_dome_and_not_as_a_cylinder():
+    """The dome is the single feature that makes a button head a button head.
+
+    It is also a drawn channel on the published per-line drawing, so a dome
+    swapped for a rectangle is a picture contradicting the record on the one
+    thing the record's style attribute says.
+    """
+    _height, _width, crown = _elevation_head("screw_button_head")
+    assert crown < 0.6, f"the button head carries {crown:.0%} of its width to its top"
+
+
+def test_a_button_head_is_drawn_lower_than_a_socket_head_cap_screw():
+    """ISO 7380-1's head height is about half ISO 4762's, and ASME B18.3.3A's
+    about half ASME B18.3's."""
+    button, _w, _c = _elevation_head("screw_button_head")
+    full, _fw, _fc = _elevation_head("screw_socket_head")
+    assert button / full < 0.75, (button, full)
+
+
+def test_a_button_head_is_drawn_wider_than_a_socket_head_cap_screw():
+    """Which is the other half of what those two pairs of tables say.
+
+    The margin is in pixels rather than a bare inequality: a stroked arc and a
+    stroked bar of the same half-width measure a pixel apart, and a test that
+    accepted a pixel would accept a button head drawn to a socket head's width.
+    """
+    _h, button, _c = _elevation_head("screw_button_head")
+    _fh, full, _fc = _elevation_head("screw_socket_head")
+    assert button > full + 6, (button, full)
+
+
+def test_a_low_head_screw_is_drawn_lower_than_a_socket_head_cap_screw():
+    """And no wider, which is what the extracted tables say.
+
+    DIN 7984's head diameter equals ISO 4762's at every size this catalog
+    offers and ASME B18.3.1G's is under ASME B18.3's at every one, while the
+    head height is a half to two thirds of it. A low head drawn as tall as a
+    full head is a picture of the screw the customer did not order, and it is
+    the whole difference between the two drawings.
+    """
+    low, low_width, _c = _elevation_head("screw_low_head")
+    full, full_width, _fc = _elevation_head("screw_socket_head")
+    assert 0.4 < low / full < 0.8, (low, full)
+    assert low_width <= full_width + 2, (low_width, full_width)

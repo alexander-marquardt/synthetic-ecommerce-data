@@ -267,6 +267,84 @@ def flat_head(standard: str, size: str) -> FastenerHead:
     raise StandardsDataError(f"{standard!r} is not a flat head cap screw standard")
 
 
+def button_head(standard: str, size: str) -> FastenerHead:
+    """A hexagon socket button head screw -- ISO 7380-1 or ASME B18.3.3A.
+
+    A button head is a shallow dome, so its head diameter and head height
+    describe a different shape from the cylinder a socket head cap screw's do.
+    The two numbers are the ones the drawing needs -- the dome's chord and its
+    rise -- and nothing else about the dome is extracted, because nothing else
+    about it is published.
+    """
+    row = row_for(standard, size)
+    if standard == "ISO 7380-1":
+        return FastenerHead(
+            standard=standard,
+            size=size,
+            published_unit="mm",
+            head_dia_in=row["head_diameter_mm"] / MM_PER_INCH,
+            head_height_in=row["head_height_mm"] / MM_PER_INCH,
+            threads_per_inch=None,
+            pitch_mm=row["thread_pitch_coarse_mm"],
+            drive_size_in=row["socket_across_flats_mm"] / MM_PER_INCH,
+            major_dia_in=_metric_major_dia_in(size),
+        )
+    if standard == "ASME B18.3.3A":
+        return FastenerHead(
+            standard=standard,
+            size=size,
+            published_unit="in",
+            head_dia_in=row["head_diameter_in"],
+            head_height_in=row["head_height_in"],
+            threads_per_inch=row["threads_per_inch"],
+            pitch_mm=None,
+            drive_size_in=row["hex_socket_across_flats_in"],
+            major_dia_in=INCH_MAJOR_DIA[size],
+        )
+    raise StandardsDataError(f"{standard!r} is not a button head cap screw standard")
+
+
+def low_head(standard: str, size: str) -> FastenerHead:
+    """A low head socket cap screw -- DIN 7984 or ASME B18.3.1G.
+
+    The same cylindrical head as a socket head cap screw, and a different
+    product: the head is about half as tall, because the screw exists for
+    joints with no room for a full head. It is not wider for it -- DIN 7984's
+    head diameter equals ISO 4762's at every size here, and ASME B18.3.1G's is
+    a few thousandths under ASME B18.3's -- so what the two published numbers
+    describe is a full head's diameter at half its height. That difference is
+    entirely in those two numbers, which is why no separate head SHAPE is
+    derived for it: a drawing built from these dimensions is already the squat
+    head the standard describes.
+    """
+    row = row_for(standard, size)
+    if standard == "DIN 7984":
+        return FastenerHead(
+            standard=standard,
+            size=size,
+            published_unit="mm",
+            head_dia_in=row["head_diameter_mm"] / MM_PER_INCH,
+            head_height_in=row["head_height_mm"] / MM_PER_INCH,
+            threads_per_inch=None,
+            pitch_mm=row["thread_pitch_coarse_mm"],
+            drive_size_in=row["socket_across_flats_mm"] / MM_PER_INCH,
+            major_dia_in=_metric_major_dia_in(size),
+        )
+    if standard == "ASME B18.3.1G":
+        return FastenerHead(
+            standard=standard,
+            size=size,
+            published_unit="in",
+            head_dia_in=row["head_diameter_in"],
+            head_height_in=row["head_height_in"],
+            threads_per_inch=row["threads_per_inch"],
+            pitch_mm=None,
+            drive_size_in=row["hex_socket_across_flats_in"],
+            major_dia_in=INCH_MAJOR_DIA[size],
+        )
+    raise StandardsDataError(f"{standard!r} is not a low head cap screw standard")
+
+
 @dataclass(frozen=True)
 class HexBoltHead:
     standard: str

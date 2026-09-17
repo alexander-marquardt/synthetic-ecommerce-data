@@ -1,8 +1,8 @@
 """The committed PRISM field map must match what this catalog produces.
 
-The catalog publishes 76 distinct attribute names across 10 product types. A
+The catalog publishes 77 distinct attribute names across 12 product types. A
 field map is a declaration of every attribute PRISM should search, filter and
-facet, so a hand-maintained one is 76 statements that have to stay true of
+facet, so a hand-maintained one is 77 statements that have to stay true of
 generated data -- and it drifts the first time either side moves. The drift is
 silent in the direction that matters: a field map naming an attribute the
 catalog no longer publishes does not raise, it just stops faceting, and "no

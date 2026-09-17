@@ -1,11 +1,11 @@
 """Render product drawings from the command line.
 
-sip-render generics --out out                     the ten product-type drawings
+sip-render generics --out out                     the twelve product-type drawings
 sip-render fixtures --out out
 sip-render sku 4LU10 42SR26 --profile card --out out
 sip-render batch records.jsonl --out out
 
-``generics`` writes the ten drawings a generated catalog actually uses -- one
+``generics`` writes the twelve drawings a generated catalog actually uses -- one
 per product type and style, shared by every product of that type, and carrying
 no dimension at all.
 
@@ -198,7 +198,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="sip-render", description=__doc__, parents=[common])
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser(
-        "generics", help="render the ten product-type drawings", parents=[common]
+        "generics", help="render the twelve product-type drawings", parents=[common]
     )
     sub.add_parser("fixtures", help="render every bundled reference record", parents=[common])
     one = sub.add_parser("sku", help="render bundled records by sku", parents=[common])

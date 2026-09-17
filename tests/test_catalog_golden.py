@@ -4,13 +4,13 @@ The build output is committed so that a change to the generator shows up as a
 readable diff in review, and so that the catalog can be read without running
 anything. That is also why these files are plain NDJSON rather than a gzip or
 an LFS pointer, both of which would hide exactly the diff that is the point.
-16.7 MiB in the tree occupies 741 KiB in the pack.
+18.5 MiB in the tree occupies 906 KiB in the pack.
 
 Committed output rots the moment nobody checks it, so this is the gate. The
 generator is deterministic -- one seed, one catalog, byte for byte -- so the
 test is a straight regeneration into a temporary directory and a sha256 per
 file. The comparison is per FILE, and the failure names the file and the line
-counts, because a whole-file diff of an 11 MB NDJSON tells a reader nothing.
+counts, because a whole-file diff of a 12 MB NDJSON tells a reader nothing.
 
 Two very different things make this test red, and the failure message says so:
 an intentional generator change (regenerate and commit; expected, for instance,
@@ -54,7 +54,7 @@ GOLDEN_FILES = (
 )
 
 LINES = 500
-SKUS = 4624
+SKUS = 4696
 
 
 def _sha256(path: Path) -> str:
@@ -299,7 +299,7 @@ def test_the_two_shapes_describe_the_same_skus(
 
 
 def test_stats_reports_the_catalog_that_was_committed() -> None:
-    """``stats.json`` is what a reader trusts without opening 11 MB of NDJSON."""
+    """``stats.json`` is what a reader trusts without opening 12 MB of NDJSON."""
     stats = json.loads((GOLDEN_DIR / "stats.json").read_text(encoding="utf-8"))
     assert stats["lines"] == LINES
     assert stats["skus"] == SKUS

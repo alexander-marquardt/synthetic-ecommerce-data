@@ -182,10 +182,23 @@ _TAP = (
     _spec("Square Size", "sku", 0.46, kind="length"),
 )
 
-#: Socket head cap screws. The renderer reads Screw Head Type, Dia./Thread
-#: Size, Length, Thread Length, Head Dia. and Head Height, so those are
-#: unconditional here: a record that cannot be drawn is a record whose image
-#: would have to be faked.
+#: Socket head cap screws, in all four head styles the catalog carries. The
+#: renderer reads Screw Head Type, Dia./Thread Size, Length, Thread Length,
+#: Head Dia. and Head Height, so those are unconditional here: a record that
+#: cannot be drawn is a record whose image would have to be faked.
+#:
+#: ``Length Under Head`` is a THIRD length beside the other two, and the three
+#: are genuinely three measurements:
+#:
+#: * ``Length`` is the screw's nominal length, which a countersunk screw
+#:   measures OVER its head and every other style measures under it;
+#: * ``Thread Length`` is how much of the shank carries thread;
+#: * ``Length Under Head`` is the whole shank, head excluded.
+#:
+#: A shopper's ``5/16-18 x 3/4`` names the last of those. Binding it to
+#: ``Thread Length`` would return confidently wrong results, and on a
+#: countersunk screw binding it to ``Length`` is wrong by a head height -- so
+#: the attribute exists rather than being approximated by a neighbour.
 _SOCKET_SCREW = (
     _spec("Item", "line"),
     _spec("Screw Style", "line"),
@@ -199,6 +212,7 @@ _SOCKET_SCREW = (
     _spec("Meets/Exceeds", "line", 0.40),
     _spec("Dia./Thread Size", "sku"),
     _spec("Length", "sku", kind="length"),
+    _spec("Length Under Head", "sku", kind="length"),
     _spec("Thread Length", "sku", kind="length"),
     _spec("Head Dia.", "sku", kind="length"),
     _spec("Head Height", "sku", kind="length"),
@@ -219,6 +233,7 @@ _HEX_BOLT = (
     _spec("Thread Type", "line", 0.66),
     _spec("Dia./Thread Size", "sku"),
     _spec("Length", "sku", kind="length"),
+    _spec("Length Under Head", "sku", kind="length"),
     _spec("Thread Length", "sku", kind="length"),
     _spec("Width Across Flats", "sku", kind="length"),
     _spec("Head Height", "sku", kind="length"),
@@ -271,6 +286,8 @@ VOCAB: dict[str, tuple[AttrSpec, ...]] = {
     "tap_spiral_point": _TAP,
     "screw_socket_head": _SOCKET_SCREW,
     "screw_flat_head": _SOCKET_SCREW,
+    "screw_button_head": _SOCKET_SCREW,
+    "screw_low_head": _SOCKET_SCREW,
     "bolt_hex": _HEX_BOLT,
     "washer_flat": _WASHER,
     "hammer_ball_pein": _HAMMER,
@@ -285,6 +302,8 @@ STANDARDS_FAMILY: dict[str, str] = {
     "tap_spiral_point": "cutting_tool",
     "screw_socket_head": "fastener",
     "screw_flat_head": "fastener",
+    "screw_button_head": "fastener",
+    "screw_low_head": "fastener",
     "bolt_hex": "fastener",
     "washer_flat": "fastener",
     "hammer_ball_pein": "hand_tool",
@@ -305,6 +324,7 @@ SHARED_NAMES: frozenset[str] = frozenset(
         "Thread Type",
         "Thread Length",
         "Length",
+        "Length Under Head",
         "Dia./Thread Size",
         "Fastener Material",
         "Fastener Finish",
