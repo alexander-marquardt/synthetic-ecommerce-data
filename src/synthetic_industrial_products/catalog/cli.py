@@ -11,17 +11,20 @@
 ``flat.jsonl``
     one document per SKU with the line's attributes denormalised onto it
 ``render.jsonl``
-    the same SKUs in the shape ``sip-render batch`` already reads
+    the same SKUs in the shape ``sip-render batch`` already reads, for the
+    per-record dimensioned renderer. The catalog's own cards do not use it:
+    every product and variant carries an ``image_id`` naming one of the ten
+    generic drawings, which ``sip-render generics`` writes.
 ``images.jsonl``
-    one row per distinct image reference: its product type, its path under the
-    image base URL, and how many SKUs point at it
+    one row per distinct image: its product type, its path under the image base
+    URL at both profiles, and how many products and variants point at it
 ``stats.json``
     what was generated, measured against the statistics it reproduces
 
-Records carry ``image_urls`` alongside ``image_skus``. The URL is built from
-the image REFERENCE and never from the product's own SKU: the two differ for
-roughly three records in four, so building it from the SKU produces a dead
-link at that rate. ``--image-base-url`` moves the host.
+Records carry ``image_url`` and ``image_detail_url`` alongside ``image_id``.
+The URL is built from the image ID and never from the product's own SKU: a
+family shares one drawing, so a URL assembled from the SKU is a dead link for
+every product in the catalog. ``--image-base-url`` moves the host.
 """
 
 from __future__ import annotations
@@ -36,6 +39,29 @@ from . import emit, noncopy
 from .config import GeneratorConfig
 from .generate import generate
 from .measure import measure
+
+
+def _check_images(catalog, referenced: set[str]) -> list[str]:
+    """Every product and variant has an image, and every image id is one of the ten.
+
+    Both directions, because each one fails differently and silently. A
+    reference to an id nothing draws is a broken image on a demo page; a
+    product with no reference is a blank card. Neither shows up in a record
+    count, so neither is caught by anything else in the build.
+    """
+    from ..render.generic import IMAGE_IDS  # noqa: PLC0415
+
+    problems: list[str] = []
+    unknown = sorted(referenced - set(IMAGE_IDS))
+    if unknown:
+        problems.append(f"{len(unknown)} referenced image ids have no drawing: {unknown[:5]}")
+    lineless = [line.product_id for line in catalog.lines if not line.image_id]
+    if lineless:
+        problems.append(f"{len(lineless)} product lines carry no image: {lineless[:5]}")
+    childless = [child.sku for _, child in catalog.all_skus() if not child.image_id]
+    if childless:
+        problems.append(f"{len(childless)} variants carry no image: {childless[:5]}")
+    return problems
 
 
 def _config_from(args: argparse.Namespace) -> GeneratorConfig:
@@ -149,21 +175,20 @@ def main(argv: list[str] | None = None) -> int:
     nested = emit.write_jsonl(emit.iter_nested(catalog, base_url), out / "nested.jsonl")
     flat = emit.write_jsonl(emit.iter_flat(catalog, base_url), out / "flat.jsonl")
     images = emit.write_jsonl(emit.iter_image_manifest(catalog, base_url), out / "images.jsonl")
-    # Only the records the renderer can dispatch on. It picks a renderer from
-    # the attribute NAMES a record carries, and a hammer carries none it knows
-    # -- writing those into the batch file would make `sip-render batch` fail
-    # on the whole file rather than skip them.
-    from ..render import UnknownProductError, renderer_for  # noqa: PLC0415
 
-    def drawable():
-        for record in emit.render_records(catalog):
-            try:
-                renderer_for(record)
-            except UnknownProductError:
-                continue
-            yield record
-
-    render = emit.write_jsonl(drawable(), out / "render.jsonl")
+    # Every product and every variant points at one of the ten generic
+    # drawings, so the catalog needs ten images however big it is. Both
+    # directions are asserted before the catalog is written.
+    referenced = emit.referenced_image_ids(catalog)
+    problems = _check_images(catalog, referenced)
+    if problems:
+        for problem in problems:
+            print(f"image audit FAILED: {problem}", file=sys.stderr)
+        return 1
+    # render.jsonl is every SKU in the shape the per-record DIMENSIONED
+    # renderer reads. The catalog's cards do not use it -- they use the ten --
+    # but a detail view of a demo product does, so it still ships.
+    render = emit.write_jsonl(emit.render_records(catalog), out / "render.jsonl")
 
     audit = noncopy.audit(catalog)
     if audit["full_tuple_collisions"] or audit["sku_collisions"]:
@@ -193,8 +218,12 @@ def main(argv: list[str] | None = None) -> int:
     print(f"{out}/nested.jsonl  {nested} parent documents")
     print(f"{out}/flat.jsonl    {flat} sku documents")
     print(
-        f"{out}/render.jsonl  {render} of {flat} records the renderer can dispatch on "
-        f"({flat - render} carry no attribute it recognises)"
+        f"{out}/render.jsonl  {render} records for the per-record dimensioned renderer"
+    )
+    print(
+        f"                     {len(catalog.lines)} product lines and {flat} variants all carry "
+        f"an image, drawn from {len(referenced)} generic images: "
+        f"{', '.join(sorted(referenced))}"
     )
     print(f"{out}/images.jsonl  {images} distinct images, published under {base_url}")
     print(f"{out}/stats.json    measured against target")

@@ -38,119 +38,94 @@ from .model import Attribute, Catalog, ProductLine, Sku
 
 _NON_WORD = re.compile(r"[^a-z0-9]+")
 
-#: Where the rendered card images are published: one directory per product
-#: type, one PNG per image reference, named for the reference.
+#: Where the rendered images are published: one directory per profile, one PNG
+#: per generic drawing, named for the drawing.
 #:
 #: This is a real host, not a placeholder -- a record that carries a URL a
 #: reader cannot fetch is worse than one that carries a bare reference, because
 #: the bare reference does not claim to resolve.
 DEFAULT_IMAGE_BASE_URL = "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial"
 
+#: The profile a catalog card shows, and the one a detail view shows. Both are
+#: published, because the card's 600x880 is unreadable at 1400x1400's job and
+#: the reverse.
+CARD_PROFILE = "card"
+DETAIL_PROFILE = "detail"
+
 
 class UnresolvedImageError(Exception):
-    """An image reference belongs to no product type, so no URL can be built.
+    """An image id names no drawing, so no URL can be built for it.
 
-    Raised rather than skipped. Skipping would publish a catalog that is
-    quietly missing images for reasons no reader could reconstruct, and the
-    reference pool is drawn from the catalog's own SKUs, so this cannot fire
-    on a catalog this generator built. It fires if the reference SHAPE changes
-    without :func:`image_index` being taught the new shape.
+    Raised rather than skipped. Skipping would publish a catalog quietly
+    missing images for reasons no reader could reconstruct. It cannot fire on
+    a catalog this generator built -- every product's image id comes from
+    :func:`..taxonomy.image_id_for` -- so it fires when the set of drawings and
+    the set of product types have drifted apart.
     """
 
 
-def _owning_type(reference: str, by_sku: dict[str, str], types: frozenset[str]) -> str:
-    """The product type whose drawing this reference names.
+def image_path(image_id: str, profile: str = CARD_PROFILE) -> str:
+    """``card/end_mill_square.png`` -- the path under the image base URL.
 
-    An image reference is NOT the referring product's SKU three times in four
-    -- reuse crosses brands and it crosses product types, so a hex bolt can
-    reference an end mill's drawing. The directory a drawing lives in is a
-    property of what is DRAWN, so it is resolved from the reference and never
-    from the referring product.
-
-    Three shapes resolve, in order:
-
-    ``98WF97``
-        a bare SKU: the drawing is of that product.
-    ``437W02_AS01``
-        a SKU with an asset suffix, for a product carrying more than one.
-    ``end_mill_square_ball_nose``
-        a GENERIC drawing, named for what it depicts rather than for any one
-        product, because a family shares one image rather than having one
-        each. Matched on the longest product-type prefix, so the style suffix
-        can be whatever the renderer calls it without this needing to know.
-
-    Anything else raises rather than being skipped: skipping would publish a
-    catalog quietly missing images for reasons no reader could reconstruct.
+    One directory per PROFILE, not per product type. There is one drawing per
+    product type and style, so the id already says what the drawing is of and a
+    second directory named the same thing would say it twice.
     """
-    if reference in by_sku:
-        return by_sku[reference]
-    base = reference.split("_", 1)[0]
-    if base in by_sku:
-        return by_sku[base]
-    for type_key in sorted(types, key=len, reverse=True):
-        if reference == type_key or reference.startswith(f"{type_key}_"):
-            return type_key
-    raise UnresolvedImageError(
-        f"image reference {reference!r} is neither a SKU in this catalog nor "
-        "named for one of its product types, so the directory its drawing "
-        "belongs to cannot be determined"
-    )
+    return f"{profile}/{image_id}.png"
 
 
-def image_index(catalog: Catalog) -> dict[str, str]:
-    """Every image reference in the catalog, mapped to its product type.
+def image_url(image_id: str, base_url: str, profile: str = CARD_PROFILE) -> str:
+    return f"{base_url.rstrip('/')}/{image_path(image_id, profile)}"
 
-    Built once over the whole catalog rather than per line, because a line's
-    references reach outside it.
+
+def check_image_ids(catalog: Catalog) -> None:
+    """Every image id in the catalog names a drawing that exists.
+
+    Checked once over the whole catalog, before any URL is published. A URL
+    built for an id nothing draws is a dead link, and a dead link is worse than
+    a bare id: the bare id does not claim to resolve.
     """
-    by_sku = {child.sku: line.type_key for line in catalog.lines for child in line.children}
-    types = frozenset(line.type_key for line in catalog.lines)
-    # NOTE: variant references only. If product LINES gain their own image
-    # references, add them here too, or a line-level reference will carry no
-    # URL while a variant's does.
-    return {
-        reference: _owning_type(reference, by_sku, types)
-        for line in catalog.lines
-        for child in line.children
-        for reference in child.image_skus
-    }
+    from ..render.generic import IMAGE_IDS  # noqa: PLC0415
 
-
-def image_path(reference: str, index: dict[str, str]) -> str:
-    """``end_mill_square/98WF97.png`` -- the path under the image base URL."""
-    return f"{index[reference]}/{reference}.png"
-
-
-def image_urls(references: tuple[str, ...], index: dict[str, str], base_url: str) -> list[str]:
-    return [f"{base_url.rstrip('/')}/{image_path(reference, index)}" for reference in references]
+    drawings = set(IMAGE_IDS)
+    referenced = {line.image_id for line in catalog.lines}
+    referenced |= {child.image_id for _, child in catalog.all_skus()}
+    unknown = sorted(referenced - drawings)
+    if unknown:
+        raise UnresolvedImageError(
+            f"{len(unknown)} image id(s) name no drawing: {unknown}. Either the "
+            "renderer lost a drawing or taxonomy.IMAGE_ID gained a name it has no "
+            "drawing for."
+        )
 
 
 def iter_image_manifest(
     catalog: Catalog, base_url: str = DEFAULT_IMAGE_BASE_URL
 ) -> Iterator[dict[str, Any]]:
-    """One row per DISTINCT image reference: what it is, and where it is hosted.
+    """One row per DISTINCT image: what it is, where it is hosted, who uses it.
 
-    The catalog references an image once per SKU that points at it, which is
-    many times over; whatever hosts the images needs each file once. Emitting
-    the manifest here means the host reads the product type off this file
-    instead of re-deriving it from the catalog with a second copy of the
-    reuse rule -- and a second copy is how the two disagree later.
+    The catalog references an image once per product and once per variant that
+    points at it, which for ten drawings and four thousand products is many
+    thousands of times over; whatever hosts the files needs each one once.
+    Emitting the manifest here means the host reads the paths off this file
+    instead of re-deriving them from the catalog with a second copy of the
+    naming rule -- and a second copy is how the two come to disagree.
     """
-    index = image_index(catalog)
+    check_image_ids(catalog)
     referenced_by: dict[str, int] = {}
     for line in catalog.lines:
+        referenced_by[line.image_id] = referenced_by.get(line.image_id, 0) + 1
         for child in line.children:
-            for reference in child.image_skus:
-                referenced_by[reference] = referenced_by.get(reference, 0) + 1
-    base = base_url.rstrip("/")
-    for reference in sorted(referenced_by):
-        path = image_path(reference, index)
+            referenced_by[child.image_id] = referenced_by.get(child.image_id, 0) + 1
+    for image_id in sorted(referenced_by):
         yield {
-            "image_ref": reference,
-            "product_type": index[reference],
-            "path": path,
-            "url": f"{base}/{path}",
-            "referenced_by": referenced_by[reference],
+            "image_id": image_id,
+            "product_type": image_id,
+            "path": image_path(image_id, CARD_PROFILE),
+            "url": image_url(image_id, base_url, CARD_PROFILE),
+            "detail_path": image_path(image_id, DETAIL_PROFILE),
+            "detail_url": image_url(image_id, base_url, DETAIL_PROFILE),
+            "referenced_by": referenced_by[image_id],
         }
 
 
@@ -190,10 +165,8 @@ def _searchable_text(line: ProductLine, child: Sku, attributes: tuple[Attribute,
 def nested_document(
     catalog: Catalog,
     line: ProductLine,
-    index: dict[str, str] | None = None,
     base_url: str = DEFAULT_IMAGE_BASE_URL,
 ) -> dict[str, Any]:
-    index = image_index(catalog) if index is None else index
     return {
         "product_id": line.product_id,
         "product_type": line.type_key,
@@ -204,6 +177,9 @@ def nested_document(
         "category_leaf": line.category[-1],
         "category_depth": len(line.category),
         "dimension_provenance": line.dimension_provenance,
+        "image_id": line.image_id,
+        "image_url": image_url(line.image_id, base_url),
+        "image_detail_url": image_url(line.image_id, base_url, DETAIL_PROFILE),
         "attributes": _attribute_entries(line.attributes),
         "variant_count": len(line.children),
         "variants": [
@@ -212,8 +188,9 @@ def nested_document(
                 "title": child.title,
                 "price_usd": child.price_usd,
                 "stock": child.stock,
-                "image_skus": list(child.image_skus),
-                "image_urls": image_urls(child.image_skus, index, base_url),
+                "image_id": child.image_id,
+                "image_url": image_url(child.image_id, base_url),
+                "image_detail_url": image_url(child.image_id, base_url, DETAIL_PROFILE),
                 "attributes": _attribute_entries(child.attributes),
             }
             for child in line.children
@@ -224,10 +201,8 @@ def nested_document(
 def flat_documents(
     catalog: Catalog,
     line: ProductLine,
-    index: dict[str, str] | None = None,
     base_url: str = DEFAULT_IMAGE_BASE_URL,
 ) -> Iterator[dict[str, Any]]:
-    index = image_index(catalog) if index is None else index
     for child in line.children:
         merged = catalog.merged_attributes(line, child)
         facets: dict[str, list[str]] = {}
@@ -251,8 +226,9 @@ def flat_documents(
             "dimension_provenance": line.dimension_provenance,
             "price_usd": child.price_usd,
             "stock": child.stock,
-            "image_skus": list(child.image_skus),
-            "image_urls": image_urls(child.image_skus, index, base_url),
+            "image_id": child.image_id,
+            "image_url": image_url(child.image_id, base_url),
+            "image_detail_url": image_url(child.image_id, base_url, DETAIL_PROFILE),
             "attributes": _attribute_entries(merged),
             "attribute_names": sorted({a.name for a in merged}),
             "facets": facets,
@@ -264,15 +240,15 @@ def flat_documents(
 def iter_nested(
     catalog: Catalog, base_url: str = DEFAULT_IMAGE_BASE_URL
 ) -> Iterator[dict[str, Any]]:
-    index = image_index(catalog)
+    check_image_ids(catalog)
     for line in catalog.lines:
-        yield nested_document(catalog, line, index, base_url)
+        yield nested_document(catalog, line, base_url)
 
 
 def iter_flat(catalog: Catalog, base_url: str = DEFAULT_IMAGE_BASE_URL) -> Iterator[dict[str, Any]]:
-    index = image_index(catalog)
+    check_image_ids(catalog)
     for line in catalog.lines:
-        yield from flat_documents(catalog, line, index, base_url)
+        yield from flat_documents(catalog, line, base_url)
 
 
 def write_jsonl(rows: Iterator[dict[str, Any]], path: Path) -> int:
@@ -300,6 +276,9 @@ NESTED_MAPPING: dict[str, Any] = {
             "category_leaf": {"type": "keyword"},
             "category_depth": {"type": "integer"},
             "dimension_provenance": {"type": "keyword"},
+            "image_id": {"type": "keyword"},
+            "image_url": {"type": "keyword"},
+            "image_detail_url": {"type": "keyword"},
             "variant_count": {"type": "integer"},
             "attributes": {
                 "type": "nested",
@@ -316,8 +295,9 @@ NESTED_MAPPING: dict[str, Any] = {
                     "title": {"type": "text"},
                     "price_usd": {"type": "double"},
                     "stock": {"type": "integer"},
-                    "image_skus": {"type": "keyword"},
-                    "image_urls": {"type": "keyword"},
+                    "image_id": {"type": "keyword"},
+                    "image_url": {"type": "keyword"},
+                    "image_detail_url": {"type": "keyword"},
                     "attributes": {
                         "type": "nested",
                         "properties": {
@@ -363,8 +343,9 @@ FLAT_MAPPING: dict[str, Any] = {
             "dimension_provenance": {"type": "keyword"},
             "price_usd": {"type": "double"},
             "stock": {"type": "integer"},
-            "image_skus": {"type": "keyword"},
-            "image_urls": {"type": "keyword"},
+            "image_id": {"type": "keyword"},
+            "image_url": {"type": "keyword"},
+            "image_detail_url": {"type": "keyword"},
             "attribute_names": {"type": "keyword"},
             "attributes": {
                 "type": "object",
@@ -400,3 +381,15 @@ def render_records(catalog: Catalog) -> Iterator[dict[str, Any]]:
                 else:
                     record[attribute.name] = attribute.value
             yield record
+
+
+def referenced_image_ids(catalog: Catalog) -> set[str]:
+    """Every generic drawing anything in the catalog points at, lines included.
+
+    This is exactly the set of images the catalog needs to exist, and with one
+    drawing per product type and style it is ten of them standing behind every
+    product in the catalog -- which is what a distributor's own listing does.
+    """
+    referenced = {line.image_id for line in catalog.lines}
+    referenced.update(child.image_id for _, child in catalog.all_skus())
+    return referenced - {""}

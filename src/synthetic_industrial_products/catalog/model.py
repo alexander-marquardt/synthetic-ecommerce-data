@@ -103,9 +103,11 @@ class Sku:
     attributes: tuple[Attribute, ...]
     price_usd: float
     stock: int
-    #: Image references. Empty when the record carries no parseable image, and
-    #: frequently pointing at some other product's SKU -- both measured.
-    image_skus: tuple[str, ...] = ()
+    #: Which of the ten generic drawings this variant shows. Every variant
+    #: carries one, and it is shared with every other product of the same type
+    #: and style -- which is what a real catalog does, and why it is an image
+    #: ID rather than another product's SKU.
+    image_id: str = ""
 
     def attribute_names(self) -> frozenset[str]:
         return frozenset(a.name for a in self.attributes)
@@ -132,6 +134,10 @@ class ProductLine:
     #: Where this line's dimensions came from: a standard designation for a
     #: fastener, or a plain statement that they were generated for a tool.
     dimension_provenance: str = ""
+    #: Which of the ten generic drawings the family page shows. The same one
+    #: its variants show: the line and its variants are the same kind of
+    #: product, which is all the drawing asserts.
+    image_id: str = ""
 
     def attribute_names(self) -> frozenset[str]:
         return frozenset(a.name for a in self.attributes)

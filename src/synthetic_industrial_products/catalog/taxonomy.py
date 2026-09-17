@@ -69,3 +69,31 @@ def tree_depths() -> set[int]:
 def ancestors(path: CategoryPath) -> tuple[CategoryPath, ...]:
     """Every prefix of ``path``, shortest first, including ``path`` itself."""
     return tuple(path[: n + 1] for n in range(len(path)))
+
+
+#: Which of the ten generic drawings a product type's products show.
+#:
+#: Written out rather than derived, even though every pair is currently an
+#: identity. The two sides mean different things -- the left is a catalog
+#: product type, the right is a drawing in :mod:`..render.generic` -- and a
+#: product type that gained a second style, or two types that turned out to be
+#: the same drawing, would show up here as a pair that no longer matches
+#: instead of as nothing at all. ``tests/test_generic.py`` asserts that the
+#: right-hand side is exactly the set of drawings that exist.
+IMAGE_ID: dict[str, str] = {
+    "end_mill_square": "end_mill_square",
+    "end_mill_ball": "end_mill_ball",
+    "drill_jobber": "drill_jobber",
+    "tap_spiral_point": "tap_spiral_point",
+    "screw_socket_head": "screw_socket_head",
+    "screw_flat_head": "screw_flat_head",
+    "bolt_hex": "bolt_hex",
+    "washer_flat": "washer_flat",
+    "hammer_ball_pein": "hammer_ball_pein",
+    "abrasive_flap_disc": "abrasive_flap_disc",
+}
+
+
+def image_id_for(type_key: str) -> str:
+    """The generic drawing every product of ``type_key`` shows."""
+    return IMAGE_ID[type_key]

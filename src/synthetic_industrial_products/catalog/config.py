@@ -101,11 +101,26 @@ class GeneratorConfig:
     #: The cap the longest observed truncations land on.
     title_length_cap: int = 100
 
-    #: 10_image_sku_divergence.json: of 496 records, 54 carry no parseable
-    #: image reference and, of the 442 that do, 325 point at an image whose
-    #: SKU is not the product's own.
-    image_missing: float = 0.1089
-    image_sku_diverges: float = 0.7353
+    #: 10_image_sku_divergence.json measures two things about image
+    #: references, and **neither is reproduced**. Both deviations are recorded
+    #: here rather than hidden.
+    #:
+    #: 54 of 496 records carry no parseable image reference at all (0.1089).
+    #: Not reproduced: the catalog is used as a demo, and a product with no
+    #: image reads there as a broken page rather than as realism about supplier
+    #: data. Every product and every variant carries one.
+    #:
+    #: Of the 442 that do carry one, 325 point at an image whose id is not the
+    #: product's own (0.7353). Not reproduced *as a rate*, because the catalog
+    #: now goes further than the rate does: there is one generic drawing per
+    #: product type and style, so EVERY product points at an image that is not
+    #: its own and the reference is derivable from the product type. That is
+    #: what the measurement is evidence of -- a category listing of four end
+    #: mills from one series at four diameters shows the same photograph four
+    #: times -- rather than something the rate captures better than the
+    #: mechanism does.
+    measured_image_missing: float = 0.1089
+    measured_image_sku_diverges: float = 0.7353
 
     #: 06_attribute_sparsity.json: the whole-corpus mean is 13.12 attributes
     #: per record, but it is a mean over families that differ a lot

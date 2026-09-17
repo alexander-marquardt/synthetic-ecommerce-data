@@ -151,8 +151,6 @@ def test_both_the_role_ambiguity_cases_occur(stats):
         ("title dimension token unlabelled", 0.38, 0.55),
         ("title dimension token is not the primary dimension", 0.10, 0.25),
         ("title label truncated", 0.005, 0.07),
-        ("image reference missing", 0.06, 0.16),
-        ("image sku diverges from product sku", 0.66, 0.80),
     ],
 )
 def test_each_measured_rate_is_reproduced(stats, metric, low, high):
@@ -225,3 +223,64 @@ def test_fasteners_carry_their_standard_as_provenance_and_tools_do_not(catalog):
             assert "generated" in line.dimension_provenance
             assert "ISO" not in line.dimension_provenance
             assert "ASME" not in line.dimension_provenance
+
+
+def test_every_product_line_and_every_variant_carries_an_image(catalog):
+    """100% coverage, asserted on the catalog rather than on the render run.
+
+    The renderer can only draw what the catalog asks for, so the guarantee has
+    to start here: a variant with no reference is a blank card however many
+    images were rendered.
+    """
+    lineless = [line.product_id for line in catalog.lines if not line.image_id]
+    childless = [child.sku for _, child in catalog.all_skus() if not child.image_id]
+    assert lineless == []
+    assert childless == []
+
+
+def test_every_image_reference_is_one_of_the_ten_drawings(catalog):
+    """And the ten cover every product type, so nothing is left without one."""
+    from synthetic_industrial_products.render.generic import IMAGE_IDS
+
+    referenced = {line.image_id for line in catalog.lines}
+    referenced |= {child.image_id for _, child in catalog.all_skus()}
+    assert referenced <= set(IMAGE_IDS)
+    assert referenced == set(IMAGE_IDS), "a drawing nothing references is dead weight"
+
+
+def test_a_product_and_its_variants_show_the_same_image(catalog):
+    """A family shares one image: that is the measured behaviour being modelled.
+
+    A category listing of four end mills from one series at four diameters
+    shows the same photograph four times, and 73.5% of the archived reference
+    records point at an image whose id is not the product's own.
+    """
+    for line in catalog.lines:
+        assert line.image_id == taxonomy.image_id_for(line.type_key)
+        for child in line.children:
+            assert child.image_id == line.image_id
+
+
+def test_the_image_reference_is_decided_by_the_product_type_alone(catalog):
+    """Which is exactly what makes ten images enough for four thousand products."""
+    by_type: dict[str, set[str]] = {}
+    for line, child in catalog.all_skus():
+        by_type.setdefault(line.type_key, set()).add(child.image_id)
+    assert all(len(ids) == 1 for ids in by_type.values()), by_type
+
+
+def test_no_record_points_at_an_image_of_a_different_kind_of_product(catalog):
+    """The drawing has to be a drawing of the thing.
+
+    Reuse inside a product type is a family sharing one image. Reuse across
+    types would be a flat washer showing a picture of an end mill, which is not
+    image reuse but the wrong picture.
+    """
+    for line, child in catalog.all_skus():
+        assert child.image_id == taxonomy.IMAGE_ID[line.type_key]
+
+
+def test_the_two_measured_image_rates_are_recorded_even_though_neither_is_reproduced():
+    """A deviation that is not written down is indistinguishable from a bug."""
+    assert SMALL.measured_image_missing == 0.1089
+    assert SMALL.measured_image_sku_diverges == 0.7353
