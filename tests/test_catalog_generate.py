@@ -238,14 +238,27 @@ def test_every_product_line_and_every_variant_carries_an_image(catalog):
     assert childless == []
 
 
-def test_every_image_reference_is_one_of_the_ten_drawings(catalog):
-    """And the ten cover every product type, so nothing is left without one."""
-    from synthetic_industrial_products.render.generic import IMAGE_IDS
-
+def test_every_image_reference_names_one_of_the_catalogs_own_product_lines(catalog):
+    """Both directions: no dead reference, and no drawing nothing points at."""
+    owned = {line.image_id for line in catalog.lines}
     referenced = {line.image_id for line in catalog.lines}
     referenced |= {child.image_id for _, child in catalog.all_skus()}
-    assert referenced <= set(IMAGE_IDS)
-    assert referenced == set(IMAGE_IDS), "a drawing nothing references is dead weight"
+    assert referenced <= owned, "a reference no line owns is a dead link"
+    assert referenced == owned, "a drawing nothing references is dead weight"
+
+
+def test_every_product_line_has_an_image_of_its_own(catalog):
+    """One drawing per line -- not one per type, and not one per SKU.
+
+    The count is the assertion. One per type is what this replaced: 4,624 SKUs
+    behind ten pictures, where an Osterlund HSS AlTiN mill and a competitor's
+    carbide TiCN mill rendered identically. One per SKU would undercut the
+    variant grouping the nested shape exists to demonstrate, where N SKUs are
+    ONE product. Either mistake leaves every other check here green.
+    """
+    ids = [line.image_id for line in catalog.lines]
+    assert len(set(ids)) == len(catalog.lines) > 1
+    assert catalog.sku_count > len(ids), "a drawing per SKU is not a family sharing one"
 
 
 def test_a_product_and_its_variants_show_the_same_image(catalog):
@@ -256,28 +269,31 @@ def test_a_product_and_its_variants_show_the_same_image(catalog):
     records point at an image whose id is not the product's own.
     """
     for line in catalog.lines:
-        assert line.image_id == taxonomy.image_id_for(line.type_key)
+        assert line.image_id == taxonomy.image_id_for(line.type_key, line.product_id)
         for child in line.children:
             assert child.image_id == line.image_id
 
 
-def test_the_image_reference_is_decided_by_the_product_type_alone(catalog):
-    """Which is exactly what makes ten images enough for four thousand products."""
-    by_type: dict[str, set[str]] = {}
+def test_the_image_reference_is_decided_by_the_product_line_alone(catalog):
+    """Which is what makes 500 images enough for four thousand products."""
+    by_line: dict[str, set[str]] = {}
     for line, child in catalog.all_skus():
-        by_type.setdefault(line.type_key, set()).add(child.image_id)
-    assert all(len(ids) == 1 for ids in by_type.values()), by_type
+        by_line.setdefault(line.product_id, set()).add(child.image_id)
+    assert all(len(ids) == 1 for ids in by_line.values()), by_line
 
 
 def test_no_record_points_at_an_image_of_a_different_kind_of_product(catalog):
     """The drawing has to be a drawing of the thing.
 
-    Reuse inside a product type is a family sharing one image. Reuse across
+    Reuse inside a product line is a family sharing one image. Reuse across
     types would be a flat washer showing a picture of an end mill, which is not
-    image reuse but the wrong picture.
+    image reuse but the wrong picture -- and the product type is the first
+    segment of the image id, so this reads it back off the published id rather
+    than off the field it was built from.
     """
     for line, child in catalog.all_skus():
-        assert child.image_id == taxonomy.IMAGE_ID[line.type_key]
+        assert taxonomy.product_type_for_image(child.image_id) == line.type_key
+        assert line.drawing == taxonomy.DRAWING[line.type_key]
 
 
 def test_the_two_measured_image_rates_are_recorded_even_though_neither_is_reproduced():

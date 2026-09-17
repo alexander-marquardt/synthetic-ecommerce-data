@@ -169,7 +169,8 @@ def test_the_image_url_is_built_from_the_image_id_never_from_the_product_sku():
     for doc in docs:
         assert doc["image_id"], "every variant carries an image"
         category = product_type_for_image(doc["image_id"])
-        assert doc["image_url"].endswith(f"/{category}/card.png")
+        assert doc["image_url"].endswith(f"/{doc['image_id']}/card.png")
+        assert doc["image_id"].startswith(f"{category}/")
         assert doc["sku"] not in doc["image_url"]
 
 
@@ -183,19 +184,20 @@ def test_the_image_id_is_never_the_products_own_sku():
         assert doc["image_id"] != doc["sku"]
 
 
-def test_the_card_and_detail_urls_are_different_files_in_one_category_directory():
-    """The profile is the FILE; the product type is the directory holding both.
+def test_the_card_and_detail_urls_are_different_files_in_one_product_line_directory():
+    """The profile is the FILE; the product line is the directory holding both.
 
     The reverse -- a ``card/`` and a ``detail/`` directory each holding every
-    product type -- publishes a tree indexed by image size, so the category
-    index a reader browses would offer two entries named for the two profiles
-    and the product types would exist only as filenames.
+    drawing -- publishes a tree indexed by image size, so the category index a
+    reader browses would offer two entries named for the two profiles and the
+    product types would exist only as filenames.
     """
     for doc in emit.iter_flat(CATALOG):
         category = product_type_for_image(doc["image_id"])
         assert doc["image_url"] != doc["image_detail_url"]
-        assert doc["image_url"].endswith(f"/{category}/card.png")
-        assert doc["image_detail_url"].endswith(f"/{category}/detail.png")
+        assert doc["image_url"].endswith(f"/{doc['image_id']}/card.png")
+        assert doc["image_detail_url"].endswith(f"/{doc['image_id']}/detail.png")
+        assert f"/{category}/" in doc["image_url"], "the product type is still the top directory"
         assert "/card/" not in doc["image_url"], "profile is the file, not the directory"
         assert "/detail/" not in doc["image_detail_url"]
 
@@ -210,7 +212,7 @@ def test_a_product_line_carries_the_same_image_as_its_variants():
     """A family page and its variants show one drawing; that is what a family is."""
     for doc in emit.iter_nested(CATALOG):
         assert doc["image_id"]
-        assert doc["image_url"].endswith(f"/{product_type_for_image(doc['image_id'])}/card.png")
+        assert doc["image_url"].endswith(f"/{doc['image_id']}/card.png")
         for variant in doc["variants"]:
             assert variant["image_id"] == doc["image_id"]
 
@@ -234,81 +236,77 @@ def test_the_manifest_is_far_smaller_than_the_catalog():
     back without anyone noticing.
     """
     rows = list(emit.iter_image_manifest(CATALOG))
-    assert len(rows) == 10
-    # This fixture is a SMALL catalog; the shipped one is 4,600-odd variants
-    # behind the same ten files.
-    assert CATALOG.sku_count > 20 * len(rows)
+    assert len(rows) == len(CATALOG.lines)
+    # One row per product LINE, shared by that line's SKUs -- so the manifest
+    # is smaller than the catalog by the mean number of SKUs per line, and a
+    # manifest that had gone per-SKU would be the same size as the catalog.
+    assert CATALOG.sku_count > 3 * len(rows)
 
 
 def test_the_manifest_path_is_the_url_tail():
     for row in emit.iter_image_manifest(CATALOG, "https://example.invalid/i"):
         assert row["url"] == f"https://example.invalid/i/{row['path']}"
         assert row["detail_url"] == f"https://example.invalid/i/{row['detail_path']}"
-        assert row["path"] == f"{row['product_type']}/card.png"
-        assert row["detail_path"] == f"{row['product_type']}/detail.png"
+        assert row["path"] == f"{row['image_id']}/card.png"
+        assert row["detail_path"] == f"{row['image_id']}/detail.png"
+        assert row["path"].startswith(f"{row['product_type']}/")
 
 
-def test_the_manifest_product_type_is_the_category_directory_not_a_copy_of_the_image_id(
-    monkeypatch,
-):
-    """The row's ``product_type`` names the directory, and is DERIVED.
+def test_the_manifest_product_type_is_read_back_off_the_published_id():
+    """The row's ``product_type`` names the directory, and is DERIVED from the id.
 
-    It used to be emitted as a literal copy of ``image_id``. That reads as a
-    field and is really an assumption -- that the two can never differ -- and
-    the importer on the other side of this manifest is documented to trust the
-    product type as the type of the product DRAWN, which reuse is allowed to
-    make differ from the type of a product referencing it.
-
-    Every id equals its product type in the shipped taxonomy, so a copy and a
-    derivation agree on the real catalog and NO assertion over it can tell
-    them apart. This drives the two apart first: one product type is renamed,
-    keeping the drawing it points at, which is what a type gaining a
-    finer-grained key would look like. The drawing still exists, so nothing
-    else about the catalog changes.
+    It used to be emitted as a literal copy of a field. That reads as a field
+    and is really an assumption -- that the two can never differ -- and the
+    importer on the other side of this manifest is documented to trust the
+    product type as the type of the product DRAWN. Deriving it from the id the
+    URL is built from is what keeps the manifest's path and the record's URL
+    from being two independent copies of one naming rule.
     """
-    from synthetic_industrial_products.catalog import taxonomy
-
-    renamed = dict(taxonomy.IMAGE_ID)
-    del renamed["end_mill_square"]
-    renamed["end_mill_square_solid_carbide"] = "end_mill_square"
-    monkeypatch.setattr(taxonomy, "IMAGE_ID", renamed)
-
-    rows = {row["image_id"]: row for row in emit.iter_image_manifest(CATALOG)}
-    moved = rows["end_mill_square"]
-    assert moved["product_type"] == "end_mill_square_solid_carbide", (
-        "the directory is the product type the drawing is OF, not the image id"
-    )
-    assert moved["path"] == "end_mill_square_solid_carbide/card.png"
-    assert moved["detail_path"] == "end_mill_square_solid_carbide/detail.png"
-    assert not moved["url"].endswith("end_mill_square/card.png")
-
-    for row in rows.values():
+    for row in emit.iter_image_manifest(CATALOG):
         assert row["product_type"] == product_type_for_image(row["image_id"])
         assert row["path"].startswith(f"{row['product_type']}/")
         assert row["detail_path"].startswith(f"{row['product_type']}/")
+        assert row["image_id"] != row["product_type"], (
+            "an image id is one product LINE's, not its whole type's"
+        )
 
 
-def test_a_drawing_no_product_type_claims_has_no_category_and_raises(monkeypatch):
+def test_an_image_id_that_is_not_a_product_type_and_a_line_is_refused():
     """Rather than publishing it under a directory named by guesswork.
 
     The directory is part of a published URL. A drawing filed under a guessed
-    category, or under one that changed when an unrelated product type was
-    added, breaks every link to it long after the change that caused it.
+    category breaks every link to it long after the change that caused it, so
+    an id that does not carry its own category raises instead.
     """
     from synthetic_industrial_products.catalog import taxonomy
 
-    monkeypatch.setitem(taxonomy.IMAGE_ID, "end_mill_square", "some_other_drawing")
-    with pytest.raises(taxonomy.ImageCategoryError):
-        emit.image_path("end_mill_square")
+    for bad in ("end_mill_square", "", "/", "end_mill_square/", "a/b/c"):
+        with pytest.raises(taxonomy.ImageIdError):
+            emit.image_path(bad)
 
 
-def test_a_drawing_two_product_types_claim_is_ambiguous_and_raises(monkeypatch):
-    """Two claimants means the category is a decision, not a derivation."""
+def test_an_image_id_whose_first_segment_is_not_a_product_type_is_refused():
+    """A category nothing in the taxonomy claims is not a category."""
     from synthetic_industrial_products.catalog import taxonomy
 
-    monkeypatch.setitem(taxonomy.IMAGE_ID, "end_mill_ball", "end_mill_square")
-    with pytest.raises(taxonomy.ImageCategoryError):
-        emit.image_path("end_mill_square")
+    with pytest.raises(taxonomy.ImageIdError):
+        emit.image_path("not_a_product_type/SOME-LINE-0001")
+
+
+def test_two_lines_of_one_product_type_are_published_under_different_urls():
+    """The whole point of the change: two mills are no longer one picture.
+
+    Without this, every other assertion here stays green for a catalog that
+    went back to ten images -- the ids would be well-formed, the paths would
+    be the url tails, and each line would agree with its variants.
+    """
+    by_type: dict[str, set[str]] = {}
+    for doc in emit.iter_nested(CATALOG):
+        by_type.setdefault(doc["product_type"], set()).add(doc["image_url"])
+    shared = {key: urls for key, urls in by_type.items() if len(urls) < 2}
+    assert shared == {} or all(
+        sum(1 for d in emit.iter_nested(CATALOG) if d["product_type"] == key) == 1 for key in shared
+    ), f"product types publishing one URL for several lines: {sorted(shared)}"
 
 
 def test_the_manifest_and_the_records_agree_on_every_url():
@@ -326,10 +324,19 @@ def test_the_nested_shape_carries_the_same_urls_as_the_flat_one():
             assert variant["image_url"] == flat[variant["sku"]]
 
 
-def test_every_image_id_names_a_drawing_that_exists():
+def test_every_image_id_names_a_product_line_that_exists():
+    assert {row["image_id"] for row in emit.iter_image_manifest(CATALOG)} == {
+        line.image_id for line in CATALOG.lines
+    }
+
+
+def test_every_manifest_row_names_a_drawing_that_exists():
+    """The SHAPE, which is a different question from which line it is of."""
     from synthetic_industrial_products.render.generic import IMAGE_IDS
 
-    assert {row["image_id"] for row in emit.iter_image_manifest(CATALOG)} == set(IMAGE_IDS)
+    drawings = {row["drawing"] for row in emit.iter_image_manifest(CATALOG)}
+    assert drawings
+    assert drawings <= set(IMAGE_IDS)
 
 
 def test_an_image_id_with_no_drawing_is_refused_rather_than_published_dead():

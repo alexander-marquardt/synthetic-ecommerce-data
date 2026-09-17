@@ -35,12 +35,13 @@ from pathlib import Path
 from typing import Any
 
 from .model import Attribute, Catalog, ProductLine, Sku
-from .taxonomy import product_type_for_image
+from .taxonomy import ImageIdError, product_type_for_image
 
 _NON_WORD = re.compile(r"[^a-z0-9]+")
 
 #: Where the rendered images are published: one directory per product type,
-#: and inside it one PNG per profile.
+#: inside it one directory per product line, and inside that one PNG per
+#: profile.
 #:
 #: This is a real host, not a placeholder -- a record that carries a URL a
 #: reader cannot fetch is worse than one that carries a bare reference, because
@@ -55,35 +56,30 @@ DETAIL_PROFILE = "detail"
 
 
 class UnresolvedImageError(Exception):
-    """An image id names no drawing, so no URL can be built for it.
+    """A catalog image id names no product line, so no URL can be built for it.
 
     Raised rather than skipped. Skipping would publish a catalog quietly
-    missing images for reasons no reader could reconstruct. It cannot fire on
-    a catalog this generator built -- every product's image id comes from
-    :func:`..taxonomy.image_id_for` -- so it fires when the set of drawings and
-    the set of product types have drifted apart.
+    missing images for reasons no reader could reconstruct.
     """
 
 
 def image_path(image_id: str, profile: str = CARD_PROFILE) -> str:
-    """``end_mill_square/card.png`` -- the path under the image base URL.
+    """``end_mill_square/OST-K663-0001/card.png`` -- the path under the base URL.
 
-    One directory per PRODUCT TYPE, one file per profile inside it. The
-    directory is the category: a reader browsing the published tree gets an
-    index of product types, and under each one the images available for it.
-    Filing by profile instead would index the tree by *which size* an image
-    is, which is a property of the file rather than a thing anybody browses
-    for -- there would be two categories, ``card`` and ``detail``, and the
-    product type would appear only in a filename.
+    One directory per PRODUCT TYPE, one per PRODUCT LINE inside it, one file
+    per profile inside that. The type is the category a reader browsing the
+    published tree gets an index of; the line is what the drawing is OF.
+    Filing by profile instead would index the tree by *which size* an image is,
+    which is a property of the file rather than a thing anybody browses for.
 
-    The directory is derived from the product type the drawing is OF, via
-    :func:`..taxonomy.product_type_for_image`, and not from ``image_id``
-    itself. Every drawing's id currently equals its product type, so the two
-    agree today and nothing here depends on that: an id that stopped being a
-    type key would still be filed under a real category, and a drawing no type
-    claims raises rather than inventing one.
+    Nothing is looked up. The image id already reads
+    ``<product type>/<product id>`` -- :func:`..taxonomy.image_id_for` built it
+    that way -- so this appends the profile and validates, rather than keeping
+    a second table of where each id goes. A second table is exactly how a
+    record's URL and the manifest's path come to disagree.
     """
-    return f"{product_type_for_image(image_id)}/{profile}.png"
+    product_type_for_image(image_id)
+    return f"{image_id}/{profile}.png"
 
 
 def image_url(image_id: str, base_url: str, profile: str = CARD_PROFILE) -> str:
@@ -91,24 +87,57 @@ def image_url(image_id: str, base_url: str, profile: str = CARD_PROFILE) -> str:
 
 
 def check_image_ids(catalog: Catalog) -> None:
-    """Every image id in the catalog names a drawing that exists.
+    """Every image id in the catalog names one of its own product lines.
 
     Checked once over the whole catalog, before any URL is published. A URL
-    built for an id nothing draws is a dead link, and a dead link is worse than
+    built for an id no line owns is a dead link, and a dead link is worse than
     a bare id: the bare id does not claim to resolve.
+
+    Three separate things can be wrong and each is named separately, because
+    "some image is broken" is not a report anyone can act on:
+
+    * an id that is not ``<product type>/<product id>`` at all;
+    * a line whose id is not the id of that line -- which would publish one
+      line's drawing under another line's URL;
+    * a SKU pointing somewhere other than at its own line's drawing, which is
+      the variant-grouping story breaking in the one place nothing else looks.
     """
     from ..render.generic import IMAGE_IDS  # noqa: PLC0415
 
     drawings = set(IMAGE_IDS)
-    referenced = {line.image_id for line in catalog.lines}
-    referenced |= {child.image_id for _, child in catalog.all_skus()}
-    unknown = sorted(referenced - drawings)
-    if unknown:
-        raise UnresolvedImageError(
-            f"{len(unknown)} image id(s) name no drawing: {unknown}. Either the "
-            "renderer lost a drawing or taxonomy.IMAGE_ID gained a name it has no "
-            "drawing for."
+    malformed: list[str] = []
+    mismatched: list[str] = []
+    undrawn: list[str] = []
+    for line in catalog.lines:
+        try:
+            product_type_for_image(line.image_id)
+        except ImageIdError:
+            malformed.append(line.image_id)
+            continue
+        if line.image_id != f"{line.type_key}/{line.product_id}":
+            mismatched.append(f"{line.product_id} -> {line.image_id}")
+        if line.drawing not in drawings:
+            undrawn.append(f"{line.product_id} -> {line.drawing!r}")
+        for child in line.children:
+            if child.image_id != line.image_id:
+                mismatched.append(f"{child.sku} -> {child.image_id} (line {line.image_id})")
+    problems = []
+    if malformed:
+        problems.append(
+            f"{len(malformed)} image id(s) are not <type>/<product id>: {malformed[:5]}"
         )
+    if mismatched:
+        problems.append(
+            f"{len(mismatched)} image id(s) do not name their own line: {mismatched[:5]}"
+        )
+    if undrawn:
+        problems.append(
+            f"{len(undrawn)} line(s) name a shape no drawing exists for: {undrawn[:5]}. "
+            "Either the renderer lost a drawing or taxonomy.DRAWING gained a name "
+            "it has no drawing for."
+        )
+    if problems:
+        raise UnresolvedImageError("; ".join(problems))
 
 
 def iter_image_manifest(
@@ -125,14 +154,17 @@ def iter_image_manifest(
     """
     check_image_ids(catalog)
     referenced_by: dict[str, int] = {}
+    drawn_as: dict[str, str] = {}
     for line in catalog.lines:
         referenced_by[line.image_id] = referenced_by.get(line.image_id, 0) + 1
+        drawn_as[line.image_id] = line.drawing
         for child in line.children:
             referenced_by[child.image_id] = referenced_by.get(child.image_id, 0) + 1
     for image_id in sorted(referenced_by):
         yield {
             "image_id": image_id,
             "product_type": product_type_for_image(image_id),
+            "drawing": drawn_as[image_id],
             "path": image_path(image_id, CARD_PROFILE),
             "url": image_url(image_id, base_url, CARD_PROFILE),
             "detail_path": image_path(image_id, DETAIL_PROFILE),
@@ -396,11 +428,11 @@ def render_records(catalog: Catalog) -> Iterator[dict[str, Any]]:
 
 
 def referenced_image_ids(catalog: Catalog) -> set[str]:
-    """Every generic drawing anything in the catalog points at, lines included.
+    """Every image anything in the catalog points at, lines included.
 
-    This is exactly the set of images the catalog needs to exist, and with one
-    drawing per product type and style it is ten of them standing behind every
-    product in the catalog -- which is what a distributor's own listing does.
+    This is exactly the set of images the catalog needs to exist: one per
+    product LINE, shared by that line's SKUs -- which is what a distributor's
+    own listing does, several sizes of one end mill against one picture.
     """
     referenced = {line.image_id for line in catalog.lines}
     referenced.update(child.image_id for _, child in catalog.all_skus())

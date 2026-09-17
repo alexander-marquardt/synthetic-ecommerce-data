@@ -103,10 +103,11 @@ class Sku:
     attributes: tuple[Attribute, ...]
     price_usd: float
     stock: int
-    #: Which of the ten generic drawings this variant shows. Every variant
-    #: carries one, and it is shared with every other product of the same type
-    #: and style -- which is what a real catalog does, and why it is an image
-    #: ID rather than another product's SKU.
+    #: The drawing this variant shows, as ``<product type>/<product id>``.
+    #: It is its LINE's drawing, shared with every other SKU under that line --
+    #: which is what a real catalog does, and why it is an image ID rather than
+    #: this SKU's own. A line's SKUs differ only in size, and the drawing is
+    #: deliberately silent about size.
     image_id: str = ""
 
     def attribute_names(self) -> frozenset[str]:
@@ -134,10 +135,15 @@ class ProductLine:
     #: Where this line's dimensions came from: a standard designation for a
     #: fastener, or a plain statement that they were generated for a tool.
     dimension_provenance: str = ""
-    #: Which of the ten generic drawings the family page shows. The same one
-    #: its variants show: the line and its variants are the same kind of
-    #: product, which is all the drawing asserts.
+    #: This line's own drawing, as ``<product type>/<product id>``. The same
+    #: one its variants show: a line's SKUs are one product in several sizes.
     image_id: str = ""
+    #: Which of the ten shapes the drawing is -- a square end mill, a flat
+    #: washer. Separate from ``image_id`` because they stopped being the same
+    #: thing when images went per line: a hundred lines share one shape and
+    #: have a hundred drawings of it, each marked with its own line's
+    #: published attributes.
+    drawing: str = ""
 
     def attribute_names(self) -> frozenset[str]:
         return frozenset(a.name for a in self.attributes)
