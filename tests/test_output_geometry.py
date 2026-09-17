@@ -6,18 +6,18 @@ import numpy as np
 import pytest
 
 from helpers import colour_mask
-from synthetic_industrial_products.records import FIXTURES
+from synthetic_industrial_products.records import DRAWABLE
 from synthetic_industrial_products.render import CARD, DETAIL, render_record
 from synthetic_industrial_products.render.canvas import INK
 from synthetic_industrial_products.render.profiles import CARD_CSS, DETAIL_CSS, SCALE
 
-ALL_SKUS = sorted(FIXTURES)
+ALL_SKUS = sorted(DRAWABLE)
 
 
 @pytest.mark.parametrize("sku", ALL_SKUS)
 @pytest.mark.parametrize("profile", [CARD, DETAIL], ids=lambda p: p.name)
 def test_the_file_is_exactly_the_size_the_profile_promises(sku, profile, tmp_path, png_size):
-    path = render_record(FIXTURES[sku], tmp_path / f"{sku}.png", profile)
+    path = render_record(DRAWABLE[sku], tmp_path / f"{sku}.png", profile)
     assert png_size(path) == (profile.width_px, profile.height_px)
 
 
@@ -25,14 +25,14 @@ def test_the_file_is_exactly_the_size_the_profile_promises(sku, profile, tmp_pat
 def test_the_card_has_the_catalog_card_aspect_ratio(sku, tmp_path, png_size):
     # 150 x 220 is the box the card renders into; an image of any other ratio
     # gets letterboxed by object-fit: contain and stops filling the card.
-    width, height = png_size(render_record(FIXTURES[sku], tmp_path / f"{sku}.png", CARD))
+    width, height = png_size(render_record(DRAWABLE[sku], tmp_path / f"{sku}.png", CARD))
     assert width / height == pytest.approx(CARD_CSS[0] / CARD_CSS[1], abs=1e-12)
     assert (width, height) == (CARD_CSS[0] * SCALE, CARD_CSS[1] * SCALE)
 
 
 @pytest.mark.parametrize("sku", ALL_SKUS)
 def test_the_detail_image_is_square_like_its_box(sku, tmp_path, png_size):
-    width, height = png_size(render_record(FIXTURES[sku], tmp_path / f"{sku}.png", DETAIL))
+    width, height = png_size(render_record(DRAWABLE[sku], tmp_path / f"{sku}.png", DETAIL))
     assert width == height
     assert (width, height) == (DETAIL_CSS[0] * SCALE, DETAIL_CSS[1] * SCALE)
 
@@ -42,7 +42,7 @@ def test_the_detail_image_is_square_like_its_box(sku, tmp_path, png_size):
 def test_the_image_is_not_blank(sku, profile, tmp_path):
     import matplotlib.image as mpimg
 
-    path = render_record(FIXTURES[sku], tmp_path / f"{sku}.png", profile)
+    path = render_record(DRAWABLE[sku], tmp_path / f"{sku}.png", profile)
     image = mpimg.imread(path)[..., :3]
     inked = float(np.mean(np.any(image < 0.85, axis=-1)))
     # A drawing of nothing, and a drawing that has run away and filled the
@@ -61,7 +61,7 @@ def test_the_subject_is_centred_in_the_card(sku, tmp_path):
     """
     import matplotlib.image as mpimg
 
-    path = render_record(FIXTURES[sku], tmp_path / f"{sku}.png", CARD)
+    path = render_record(DRAWABLE[sku], tmp_path / f"{sku}.png", CARD)
     image = mpimg.imread(path)[..., :3]
     black = colour_mask(image, INK, tol=0.15)
     columns = np.nonzero(black.any(axis=0))[0]
