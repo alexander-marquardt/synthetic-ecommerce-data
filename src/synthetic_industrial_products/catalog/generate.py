@@ -52,6 +52,7 @@ from .naming import (
     build_title,
     truncate_label,
 )
+from .taxonomy import image_id_for
 from .vocab import (
     MEASUREMENT_SYSTEM_NAMES,
     MEASUREMENT_SYSTEM_PRESENCE,
@@ -124,7 +125,6 @@ class Generator:
         self.config = config or GeneratorConfig()
         self.rng = random.Random(self.config.seed)
         self._used_skus: set[str] = set()
-        self._image_pool: list[str] = []
         self.counters: dict[str, int] = {}
 
     # -- bookkeeping ----------------------------------------------------
@@ -953,29 +953,6 @@ class Generator:
             tight_delimiter_at=tight,
         )
 
-    def _image_reference(self, sku: str) -> tuple[str, ...]:
-        """Which image a SKU points at.
-
-        Measured: 54 of 496 records carry no parseable image reference at all,
-        and of those that do, 325 of 442 point at an image whose SKU is not the
-        product's own. Image reuse crosses brands, so the pool is global rather
-        than per line -- the image reference is NOT derivable from the SKU, and
-        anything downstream that assumes it is will be wrong three times in
-        four.
-        """
-        rng = self.rng
-        if rng.random() < self.config.image_missing:
-            self._bump("image_missing")
-            return ()
-        self._bump("image_present")
-        if self._image_pool and rng.random() < self.config.image_sku_diverges:
-            self._bump("image_diverges")
-            how_many = rng.choices((1, 2, 5), weights=(0.72, 0.18, 0.10), k=1)[0]
-            how_many = min(how_many, len(self._image_pool))
-            return tuple(sorted(rng.sample(self._image_pool, k=how_many)))
-        self._image_pool.append(sku)
-        return (sku,)
-
     # -- assembly ---------------------------------------------------------
 
     def _corrupt_angle(self, line_attrs: list[Attribute]) -> list[Attribute]:
@@ -1038,7 +1015,7 @@ class Generator:
                     stock=rng.choices(
                         (0, rng.randint(1, 40), rng.randint(40, 900)), weights=(0.08, 0.42, 0.5)
                     )[0],
-                    image_skus=self._image_reference(sku),
+                    image_id=image_id_for(type_key),
                 )
             )
             self._bump("skus")
@@ -1058,6 +1035,7 @@ class Generator:
             attributes=tuple(line_attrs),
             children=tuple(children),
             dimension_provenance=draft.provenance,
+            image_id=image_id_for(type_key),
         )
 
     def generate(self) -> Catalog:

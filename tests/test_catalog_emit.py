@@ -153,109 +153,122 @@ def test_write_jsonl_round_trips(tmp_path):
 
 # -- image URLs ---------------------------------------------------------------
 #
-# The trap these guard is one fact: an image reference is not the referring
-# product's SKU, and it is not even the referring product's TYPE. A URL built
-# from either is dead, and dead at a rate high enough that spot-checking a
-# handful of records would not find it.
+# The trap these guard is one fact: a product's image is NOT a drawing of that
+# product. A family shares one generic drawing, so a URL assembled from the
+# product's own SKU is dead for every record in the catalog -- and dead in a
+# way that spot-checking a handful of records will not reveal, because every
+# record looks equally plausible.
 
 
-def test_image_url_is_built_from_the_reference_not_the_product_sku():
-    diverging = [
-        doc
-        for doc in emit.iter_flat(CATALOG)
-        if doc["image_skus"] and doc["sku"] not in doc["image_skus"]
-    ]
-    assert diverging, "the catalog models image reuse; without it this proves nothing"
-    for doc in diverging:
-        for reference, url in zip(doc["image_skus"], doc["image_urls"], strict=True):
-            assert url.endswith(f"/{reference}.png")
-            assert not url.endswith(f"/{doc['sku']}.png")
+def test_the_image_url_is_built_from_the_image_id_never_from_the_product_sku():
+    docs = list(emit.iter_flat(CATALOG))
+    assert docs
+    for doc in docs:
+        assert doc["image_id"], "every variant carries an image"
+        assert doc["image_url"].endswith(f"/{doc['image_id']}.png")
+        assert doc["sku"] not in doc["image_url"]
 
 
-def test_image_url_directory_is_the_drawn_types_not_the_referring_products():
-    by_sku = {child.sku: line.type_key for line in CATALOG.lines for child in line.children}
-    crossed = 0
+def test_the_image_id_is_never_the_products_own_sku():
+    """Which is what makes building the URL from the SKU a dead link every time.
+
+    Without this the test above could pass on a catalog where the two agreed,
+    and would then be proving nothing about the rule it is named for.
+    """
     for doc in emit.iter_flat(CATALOG):
-        for reference, url in zip(doc["image_skus"], doc["image_urls"], strict=True):
-            owner = by_sku[reference]
-            assert f"/{owner}/{reference}.png" in url
-            if owner != doc["product_type"]:
-                crossed += 1
-    assert crossed, "image reuse crosses product types; without a case this proves nothing"
+        assert doc["image_id"] != doc["sku"]
 
 
-def test_every_reference_has_exactly_one_url_and_the_base_is_configurable():
+def test_the_card_and_detail_urls_are_different_files():
+    for doc in emit.iter_flat(CATALOG):
+        assert doc["image_url"] != doc["image_detail_url"]
+        assert "/card/" in doc["image_url"]
+        assert "/detail/" in doc["image_detail_url"]
+
+
+def test_the_base_url_is_configurable_and_a_trailing_slash_does_not_double_up():
     for doc in emit.iter_flat(CATALOG, "https://example.invalid/i/"):
-        assert len(doc["image_urls"]) == len(doc["image_skus"])
-        for url in doc["image_urls"]:
-            assert url.startswith("https://example.invalid/i/")
-            assert "//i//" not in url, "a trailing slash on the base must not double up"
+        assert doc["image_url"].startswith("https://example.invalid/i/")
+        assert "//i//" not in doc["image_url"]
+
+
+def test_a_product_line_carries_the_same_image_as_its_variants():
+    """A family page and its variants show one drawing; that is what a family is."""
+    for doc in emit.iter_nested(CATALOG):
+        assert doc["image_id"]
+        assert doc["image_url"].endswith(f"/{doc['image_id']}.png")
+        for variant in doc["variants"]:
+            assert variant["image_id"] == doc["image_id"]
 
 
 def test_the_manifest_lists_each_image_once_and_accounts_for_every_reference():
     rows = list(emit.iter_image_manifest(CATALOG))
-    refs = [row["image_ref"] for row in rows]
-    assert len(refs) == len(set(refs)), "one row per image file, not per reference"
+    ids = [row["image_id"] for row in rows]
+    assert len(ids) == len(set(ids)), "one row per image file, not per reference"
 
-    referenced = [
-        reference
-        for line in CATALOG.lines
-        for child in line.children
-        for reference in child.image_skus
-    ]
-    assert set(refs) == set(referenced)
+    referenced = [line.image_id for line in CATALOG.lines]
+    referenced += [child.image_id for _, child in CATALOG.all_skus()]
+    assert set(ids) == set(referenced)
     assert sum(row["referenced_by"] for row in rows) == len(referenced)
-    assert any(row["referenced_by"] > 1 for row in rows), "reuse means shared files"
+    assert all(row["referenced_by"] > 1 for row in rows), "ten drawings, thousands of products"
+
+
+def test_the_manifest_is_far_smaller_than_the_catalog():
+    """Ten files behind four thousand products is the point of the change.
+
+    A manifest that grew with the catalog would mean per-SKU images had come
+    back without anyone noticing.
+    """
+    rows = list(emit.iter_image_manifest(CATALOG))
+    assert len(rows) == 10
+    # This fixture is a SMALL catalog; the shipped one is 4,600-odd variants
+    # behind the same ten files.
+    assert CATALOG.sku_count > 20 * len(rows)
 
 
 def test_the_manifest_path_is_the_url_tail():
     for row in emit.iter_image_manifest(CATALOG, "https://example.invalid/i"):
         assert row["url"] == f"https://example.invalid/i/{row['path']}"
-        assert row["path"] == f"{row['product_type']}/{row['image_ref']}.png"
+        assert row["detail_url"] == f"https://example.invalid/i/{row['detail_path']}"
+        assert row["path"] == f"card/{row['image_id']}.png"
+        assert row["detail_path"] == f"detail/{row['image_id']}.png"
 
 
 def test_the_manifest_and_the_records_agree_on_every_url():
     hosted = {row["url"] for row in emit.iter_image_manifest(CATALOG)}
-    wanted = {url for doc in emit.iter_flat(CATALOG) for url in doc["image_urls"]}
+    hosted |= {row["detail_url"] for row in emit.iter_image_manifest(CATALOG)}
+    wanted = {doc["image_url"] for doc in emit.iter_flat(CATALOG)}
+    wanted |= {doc["image_detail_url"] for doc in emit.iter_flat(CATALOG)}
     assert wanted == hosted, "a record URL with no manifest row is a dead link"
 
 
 def test_the_nested_shape_carries_the_same_urls_as_the_flat_one():
-    flat = {doc["sku"]: doc["image_urls"] for doc in emit.iter_flat(CATALOG)}
+    flat = {doc["sku"]: doc["image_url"] for doc in emit.iter_flat(CATALOG)}
     for doc in emit.iter_nested(CATALOG):
         for variant in doc["variants"]:
-            assert variant["image_urls"] == flat[variant["sku"]]
+            assert variant["image_url"] == flat[variant["sku"]]
 
 
-def test_an_asset_suffixed_reference_resolves_to_the_skus_type():
-    sku, type_key = next(
-        (child.sku, line.type_key) for line in CATALOG.lines for child in line.children
-    )
-    assert emit._owning_type(f"{sku}_AS01", {sku: type_key}, frozenset()) == type_key
+def test_every_image_id_names_a_drawing_that_exists():
+    from synthetic_industrial_products.render.generic import IMAGE_IDS
+
+    assert {row["image_id"] for row in emit.iter_image_manifest(CATALOG)} == set(IMAGE_IDS)
 
 
-def test_a_generic_reference_resolves_by_its_product_type_prefix():
-    """A drawing shared by a family is named for what it draws, not for a SKU."""
-    types = frozenset(line.type_key for line in CATALOG.lines)
-    assert types, "the catalog publishes product types"
-    for type_key in types:
-        assert emit._owning_type(type_key, {}, types) == type_key
-        assert emit._owning_type(f"{type_key}_ball_nose", {}, types) == type_key
+def test_an_image_id_with_no_drawing_is_refused_rather_than_published_dead():
+    """A URL for a drawing nobody renders is worse than no URL at all.
 
-
-def test_a_generic_reference_takes_the_LONGEST_matching_product_type():
-    """``end_mill`` is a prefix of ``end_mill_square``; the longer one wins.
-
-    Matching the shorter one would file every square end mill's drawing under
-    a directory for a different product type, and every URL built from it
-    would be dead.
+    The bare id does not claim to resolve; the URL does.
     """
-    types = frozenset({"end_mill", "end_mill_square"})
-    assert emit._owning_type("end_mill_square_ball_nose", {}, types) == "end_mill_square"
+    import dataclasses
 
-
-def test_an_unresolvable_reference_is_refused_rather_than_published_dead():
     import pytest
 
+    line = CATALOG.lines[0]
+    broken = dataclasses.replace(
+        CATALOG, lines=(dataclasses.replace(line, image_id="no_such_drawing"),)
+    )
     with pytest.raises(emit.UnresolvedImageError):
-        emit._owning_type("NOT-A-SKU", {}, frozenset({"end_mill_square"}))
+        list(emit.iter_flat(broken))
+    with pytest.raises(emit.UnresolvedImageError):
+        list(emit.iter_image_manifest(broken))
