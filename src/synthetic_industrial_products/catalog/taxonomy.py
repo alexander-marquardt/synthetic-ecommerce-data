@@ -97,3 +97,49 @@ IMAGE_ID: dict[str, str] = {
 def image_id_for(type_key: str) -> str:
     """The generic drawing every product of ``type_key`` shows."""
     return IMAGE_ID[type_key]
+
+
+class ImageCategoryError(Exception):
+    """A drawing's category -- the product type it is a drawing OF -- is undecidable.
+
+    Raised rather than guessed. The category is a directory in a published
+    URL, so a guess that later changed its mind would move every image in that
+    category and break every link to it, silently and long after the change
+    that caused it.
+    """
+
+
+def product_type_for_image(image_id: str) -> str:
+    """The product type a drawing is OF -- the category it is published under.
+
+    The inverse of :data:`IMAGE_ID`, derived rather than written out a second
+    time: a second copy is exactly how a record's URL and the manifest's path
+    would come to disagree, which is the defect ``images.jsonl`` exists to
+    prevent.
+
+    The type a drawing is OF is not always the type of a product showing it.
+    A family shares one drawing, and nothing stops a product type from showing
+    another type's drawing; the directory in the URL names what the reader is
+    looking at, not what they clicked from.
+
+    Raises when several product types claim one drawing. Every pair in
+    ``IMAGE_ID`` is an identity today, but the mapping is deliberately
+    many-to-one capable, and resolving a tie by sort order would let an
+    unrelated product type added later silently move a published category.
+    Which type a shared drawing is filed under is a decision to be written
+    down, not inferred.
+    """
+    claimants = sorted(key for key, drawn in IMAGE_ID.items() if drawn == image_id)
+    if not claimants:
+        raise ImageCategoryError(
+            f"no product type draws {image_id!r}, so it has no category to be "
+            "published under. Either the drawing is unused or taxonomy.IMAGE_ID "
+            "is missing the type that shows it."
+        )
+    if len(claimants) > 1:
+        raise ImageCategoryError(
+            f"{len(claimants)} product types share the drawing {image_id!r} "
+            f"({claimants}), so which one names its directory is not derivable. "
+            "Record the choice explicitly before publishing it."
+        )
+    return claimants[0]

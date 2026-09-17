@@ -11,9 +11,12 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from synthetic_industrial_products.catalog import emit
 from synthetic_industrial_products.catalog.config import SMALL
 from synthetic_industrial_products.catalog.generate import generate
+from synthetic_industrial_products.catalog.taxonomy import product_type_for_image
 from synthetic_industrial_products.catalog.vocab import STANDARDS_NAME
 from synthetic_industrial_products.render import UnknownProductError, renderer_for
 
@@ -165,7 +168,8 @@ def test_the_image_url_is_built_from_the_image_id_never_from_the_product_sku():
     assert docs
     for doc in docs:
         assert doc["image_id"], "every variant carries an image"
-        assert doc["image_url"].endswith(f"/{doc['image_id']}.png")
+        category = product_type_for_image(doc["image_id"])
+        assert doc["image_url"].endswith(f"/{category}/card.png")
         assert doc["sku"] not in doc["image_url"]
 
 
@@ -179,11 +183,21 @@ def test_the_image_id_is_never_the_products_own_sku():
         assert doc["image_id"] != doc["sku"]
 
 
-def test_the_card_and_detail_urls_are_different_files():
+def test_the_card_and_detail_urls_are_different_files_in_one_category_directory():
+    """The profile is the FILE; the product type is the directory holding both.
+
+    The reverse -- a ``card/`` and a ``detail/`` directory each holding every
+    product type -- publishes a tree indexed by image size, so the category
+    index a reader browses would offer two entries named for the two profiles
+    and the product types would exist only as filenames.
+    """
     for doc in emit.iter_flat(CATALOG):
+        category = product_type_for_image(doc["image_id"])
         assert doc["image_url"] != doc["image_detail_url"]
-        assert "/card/" in doc["image_url"]
-        assert "/detail/" in doc["image_detail_url"]
+        assert doc["image_url"].endswith(f"/{category}/card.png")
+        assert doc["image_detail_url"].endswith(f"/{category}/detail.png")
+        assert "/card/" not in doc["image_url"], "profile is the file, not the directory"
+        assert "/detail/" not in doc["image_detail_url"]
 
 
 def test_the_base_url_is_configurable_and_a_trailing_slash_does_not_double_up():
@@ -196,7 +210,7 @@ def test_a_product_line_carries_the_same_image_as_its_variants():
     """A family page and its variants show one drawing; that is what a family is."""
     for doc in emit.iter_nested(CATALOG):
         assert doc["image_id"]
-        assert doc["image_url"].endswith(f"/{doc['image_id']}.png")
+        assert doc["image_url"].endswith(f"/{product_type_for_image(doc['image_id'])}/card.png")
         for variant in doc["variants"]:
             assert variant["image_id"] == doc["image_id"]
 
@@ -230,8 +244,71 @@ def test_the_manifest_path_is_the_url_tail():
     for row in emit.iter_image_manifest(CATALOG, "https://example.invalid/i"):
         assert row["url"] == f"https://example.invalid/i/{row['path']}"
         assert row["detail_url"] == f"https://example.invalid/i/{row['detail_path']}"
-        assert row["path"] == f"card/{row['image_id']}.png"
-        assert row["detail_path"] == f"detail/{row['image_id']}.png"
+        assert row["path"] == f"{row['product_type']}/card.png"
+        assert row["detail_path"] == f"{row['product_type']}/detail.png"
+
+
+def test_the_manifest_product_type_is_the_category_directory_not_a_copy_of_the_image_id(
+    monkeypatch,
+):
+    """The row's ``product_type`` names the directory, and is DERIVED.
+
+    It used to be emitted as a literal copy of ``image_id``. That reads as a
+    field and is really an assumption -- that the two can never differ -- and
+    the importer on the other side of this manifest is documented to trust the
+    product type as the type of the product DRAWN, which reuse is allowed to
+    make differ from the type of a product referencing it.
+
+    Every id equals its product type in the shipped taxonomy, so a copy and a
+    derivation agree on the real catalog and NO assertion over it can tell
+    them apart. This drives the two apart first: one product type is renamed,
+    keeping the drawing it points at, which is what a type gaining a
+    finer-grained key would look like. The drawing still exists, so nothing
+    else about the catalog changes.
+    """
+    from synthetic_industrial_products.catalog import taxonomy
+
+    renamed = dict(taxonomy.IMAGE_ID)
+    del renamed["end_mill_square"]
+    renamed["end_mill_square_solid_carbide"] = "end_mill_square"
+    monkeypatch.setattr(taxonomy, "IMAGE_ID", renamed)
+
+    rows = {row["image_id"]: row for row in emit.iter_image_manifest(CATALOG)}
+    moved = rows["end_mill_square"]
+    assert moved["product_type"] == "end_mill_square_solid_carbide", (
+        "the directory is the product type the drawing is OF, not the image id"
+    )
+    assert moved["path"] == "end_mill_square_solid_carbide/card.png"
+    assert moved["detail_path"] == "end_mill_square_solid_carbide/detail.png"
+    assert not moved["url"].endswith("end_mill_square/card.png")
+
+    for row in rows.values():
+        assert row["product_type"] == product_type_for_image(row["image_id"])
+        assert row["path"].startswith(f"{row['product_type']}/")
+        assert row["detail_path"].startswith(f"{row['product_type']}/")
+
+
+def test_a_drawing_no_product_type_claims_has_no_category_and_raises(monkeypatch):
+    """Rather than publishing it under a directory named by guesswork.
+
+    The directory is part of a published URL. A drawing filed under a guessed
+    category, or under one that changed when an unrelated product type was
+    added, breaks every link to it long after the change that caused it.
+    """
+    from synthetic_industrial_products.catalog import taxonomy
+
+    monkeypatch.setitem(taxonomy.IMAGE_ID, "end_mill_square", "some_other_drawing")
+    with pytest.raises(taxonomy.ImageCategoryError):
+        emit.image_path("end_mill_square")
+
+
+def test_a_drawing_two_product_types_claim_is_ambiguous_and_raises(monkeypatch):
+    """Two claimants means the category is a decision, not a derivation."""
+    from synthetic_industrial_products.catalog import taxonomy
+
+    monkeypatch.setitem(taxonomy.IMAGE_ID, "end_mill_ball", "end_mill_square")
+    with pytest.raises(taxonomy.ImageCategoryError):
+        emit.image_path("end_mill_square")
 
 
 def test_the_manifest_and_the_records_agree_on_every_url():
