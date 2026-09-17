@@ -35,11 +35,12 @@ from pathlib import Path
 from typing import Any
 
 from .model import Attribute, Catalog, ProductLine, Sku
+from .taxonomy import product_type_for_image
 
 _NON_WORD = re.compile(r"[^a-z0-9]+")
 
-#: Where the rendered images are published: one directory per profile, one PNG
-#: per generic drawing, named for the drawing.
+#: Where the rendered images are published: one directory per product type,
+#: and inside it one PNG per profile.
 #:
 #: This is a real host, not a placeholder -- a record that carries a URL a
 #: reader cannot fetch is worse than one that carries a bare reference, because
@@ -65,13 +66,24 @@ class UnresolvedImageError(Exception):
 
 
 def image_path(image_id: str, profile: str = CARD_PROFILE) -> str:
-    """``card/end_mill_square.png`` -- the path under the image base URL.
+    """``end_mill_square/card.png`` -- the path under the image base URL.
 
-    One directory per PROFILE, not per product type. There is one drawing per
-    product type and style, so the id already says what the drawing is of and a
-    second directory named the same thing would say it twice.
+    One directory per PRODUCT TYPE, one file per profile inside it. The
+    directory is the category: a reader browsing the published tree gets an
+    index of product types, and under each one the images available for it.
+    Filing by profile instead would index the tree by *which size* an image
+    is, which is a property of the file rather than a thing anybody browses
+    for -- there would be two categories, ``card`` and ``detail``, and the
+    product type would appear only in a filename.
+
+    The directory is derived from the product type the drawing is OF, via
+    :func:`..taxonomy.product_type_for_image`, and not from ``image_id``
+    itself. Every drawing's id currently equals its product type, so the two
+    agree today and nothing here depends on that: an id that stopped being a
+    type key would still be filed under a real category, and a drawing no type
+    claims raises rather than inventing one.
     """
-    return f"{profile}/{image_id}.png"
+    return f"{product_type_for_image(image_id)}/{profile}.png"
 
 
 def image_url(image_id: str, base_url: str, profile: str = CARD_PROFILE) -> str:
@@ -120,7 +132,7 @@ def iter_image_manifest(
     for image_id in sorted(referenced_by):
         yield {
             "image_id": image_id,
-            "product_type": image_id,
+            "product_type": product_type_for_image(image_id),
             "path": image_path(image_id, CARD_PROFILE),
             "url": image_url(image_id, base_url, CARD_PROFILE),
             "detail_path": image_path(image_id, DETAIL_PROFILE),

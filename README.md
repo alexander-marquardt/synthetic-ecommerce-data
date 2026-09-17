@@ -416,11 +416,19 @@ in `flat.jsonl` and `nested.jsonl` carries `image_url` beside `image_id`:
 ```json
 {"sku": "60EX58", "product_type": "end_mill_square",
  "image_id": "end_mill_square",
- "image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/card/end_mill_square.png",
- "image_detail_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/detail/end_mill_square.png"}
+ "image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/card.png",
+ "image_detail_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/detail.png"}
 ```
 
 `--image-base-url` moves the host.
+
+**One directory per product type, one file per profile inside it.** The
+directory is the category: the published tree is an index of product types, and
+under each the images available for it. `emit.image_path()` is the only place
+that shape is decided, and it derives the directory from the product type the
+drawing is *of* rather than from the image id, so a drawing no product type
+claims — or one that two claim — raises instead of being filed under a guessed
+category that would silently move later.
 
 **The URL is built from the image id, never from the product's own SKU.** The
 two are never the same — a family shares one drawing — so a URL assembled from
