@@ -364,7 +364,7 @@ def _draw_hex_bolt(ax) -> None:
     # what makes the head read as a hexagon rather than a cylinder.
     for sign in (-1, 1):
         ax.plot(
-            [sign * across_half * 0.33, sign * across_half * 0.33],
+            [sign * across_half / math.sqrt(3), sign * across_half / math.sqrt(3)],
             [seat, _HEAD_TOP],
             color=cv.INK,
             lw=cv.LW_BODY * 0.7,
