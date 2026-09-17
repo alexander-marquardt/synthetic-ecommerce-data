@@ -62,6 +62,16 @@ END_VIEW_GAP = 0.30
 COUNTERSUNK = {"flat", "flat head", "countersunk", "flat countersunk"}
 CYLINDRICAL = {"socket", "socket cap", "cylindrical", "cheese", "socket head", "hex"}
 
+#: Head styles whose end view is a HEXAGON and not a circle.
+#:
+#: The elevation of a hex head across its flats really is the same rectangle a
+#: cylindrical head gives, which is why both live in ``CYLINDRICAL``. The end
+#: view is not: it is six flats, and drawing a circle there puts a round head
+#: on 524 hex bolts. The attribute-coverage sweep caught that -- ``Screw Head
+#: Type`` moved nothing in the drawing of a socket screw, because socket and
+#: hex produced the same picture.
+HEX_HEADED = {"hex", "hex head", "hexagon"}
+
 
 class UnsupportedHeadError(UnsupportedFeatureError):
     """The head style is not one this renderer can derive from the attributes."""
@@ -77,10 +87,26 @@ class FastenerGeometry:
     head_style: str
     drive_type: str
     drive_size: Length | None
+    width_across_flats: Length | None = None
 
     @property
     def countersunk(self) -> bool:
         return self.head_style.strip().lower() in COUNTERSUNK
+
+    @property
+    def hex_headed(self) -> bool:
+        return self.head_style.strip().lower() in HEX_HEADED
+
+    @property
+    def across_flats(self) -> float:
+        """Width across the flats of a hex head, in inches.
+
+        ``Width Across Flats`` when the record publishes it -- it is the name
+        the corpus uses for a bolt -- and ``Head Dia.`` otherwise, which for a
+        hex head IS the across-flats dimension and is what the elevation is
+        already drawn to.
+        """
+        return (self.width_across_flats or self.head_dia).inches
 
     @property
     def total_height(self) -> float:
@@ -92,6 +118,24 @@ class FastenerGeometry:
     @property
     def shank_length(self) -> float:
         return self.total_height - self.head_height.inches
+
+    @property
+    def length_seat(self) -> float:
+        """Where the published ``Length`` stops, measured up from the tip.
+
+        A countersunk screw's length is measured OVER the head, because the
+        head sinks into the work; every other style's is measured UNDER it.
+        ``total_height`` has always known that, and the dimension LINE did not:
+        it ran tip to top on both, so a socket cap screw's drawing labelled a
+        span of length-plus-head-height with the length. In both cases the span
+        the label belongs against is simply the published length.
+        """
+        return self.length.inches
+
+    @property
+    def length_witness_radius(self) -> float:
+        """What the length dimension's upper witness line ties to."""
+        return (self.head_dia if self.countersunk else self.thread.major).inches / 2
 
     @property
     def threaded_length(self) -> float:
@@ -128,6 +172,7 @@ def geometry_from_record(record: dict) -> FastenerGeometry:
             "alone; its profile is not implied by any attribute on the record"
         )
     drive_size_raw = record.get("Drive Size")
+    flats_raw = record.get("Width Across Flats")
     return FastenerGeometry(
         thread=parse_thread(require(record, "Dia./Thread Size")),
         length=parse_length(require(record, "Length")),
@@ -137,6 +182,7 @@ def geometry_from_record(record: dict) -> FastenerGeometry:
         head_style=head_style,
         drive_type=str(record.get("Drive Type", "")).strip(),
         drive_size=parse_length(drive_size_raw) if drive_size_raw else None,
+        width_across_flats=parse_length(flats_raw) if flats_raw else None,
     )
 
 
@@ -220,6 +266,20 @@ def _draw_body(ax, geom: FastenerGeometry, y_tip: float) -> None:
     else:
         ax.plot([-r_head, r_head], [top, top], color=cv.INK, lw=cv.LW_BODY, zorder=6)
 
+    if geom.hex_headed:
+        # The two edges between the three faces an across-flats view shows.
+        for sign in (-1, 1):
+            # A hexagon seen across its flats shows three faces, and the two
+            # edges between them project to half a side length from the axis:
+            # s/2 = W/(2*sqrt(3)) = r/sqrt(3).
+            ax.plot(
+                [sign * r_head / math.sqrt(3), sign * r_head / math.sqrt(3)],
+                [top - geom.head_height.inches, top],
+                color=cv.INK,
+                lw=cv.LW_BODY * 0.7,
+                zorder=6,
+            )
+
 
 def drive_outline(geom: FastenerGeometry, centre: tuple[float, float] = (0.0, 0.0)):
     """The drive recess as seen along the axis, or ``None`` if not determined.
@@ -269,7 +329,30 @@ def _draw_end_view(ax, geom: FastenerGeometry, centre: tuple[float, float] = (0.
     """The head seen along the axis: head diameter, and the drive's true shape."""
     cx, cy = centre
     r_head = geom.head_dia.inches / 2
-    ax.add_patch(Circle((cx, cy), r_head, fc=cv.BODY_FILL, ec=cv.INK, lw=cv.LW_BODY, zorder=3))
+    if geom.hex_headed:
+        # Six flats, to the published across-flats dimension. A circle here
+        # would be a round head on a product the record calls hexagonal.
+        r_corner = (geom.across_flats / 2) / math.cos(math.radians(30))
+        ax.add_patch(
+            Polygon(
+                [
+                    (
+                        cx + r_corner * math.cos(math.radians(60 * k)),
+                        cy + r_corner * math.sin(math.radians(60 * k)),
+                    )
+                    for k in range(6)
+                ],
+                closed=True,
+                fc=cv.BODY_FILL,
+                ec=cv.INK,
+                lw=cv.LW_BODY,
+                zorder=3,
+            )
+        )
+    else:
+        ax.add_patch(
+            Circle((cx, cy), r_head, fc=cv.BODY_FILL, ec=cv.INK, lw=cv.LW_BODY, zorder=3)
+        )
     ax.add_patch(
         Circle(
             (cx, cy),
@@ -339,13 +422,13 @@ def _render_card(record: dict, geom: FastenerGeometry, profile: Profile):
     )
     x_len = -frame_w * 0.28
     cv.length_dimension(
-        ax, x_len, y_tip, y_tip + geom.total_height, geom.length.display(), fontsize=cv.FS_CALLOUT
+        ax, x_len, y_tip, y_tip + geom.length_seat, geom.length.display(), fontsize=cv.FS_CALLOUT
     )
     cv.witness(ax, x_len, -geom.thread.major.inches / 2, y_tip)
-    cv.witness(ax, x_len, -geom.head_dia.inches / 2, y_tip + geom.total_height)
+    cv.witness(ax, x_len, -geom.length_witness_radius, y_tip + geom.length_seat)
     ax.text(
         x_len - frame_w * 0.075,
-        y_tip + geom.total_height / 2,
+        y_tip + geom.length_seat / 2,
         "length",
         rotation=90,
         ha="center",
@@ -380,12 +463,12 @@ def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
     top = y_tip + geom.total_height
 
     x_len = -frame_w * 0.40
-    cv.length_dimension(ax, x_len, y_tip, top, geom.length.display())
-    cv.witness(ax, x_len, -geom.head_dia.inches / 2, top)
+    cv.length_dimension(ax, x_len, y_tip, y_tip + geom.length_seat, geom.length.display())
+    cv.witness(ax, x_len, -geom.length_witness_radius, y_tip + geom.length_seat)
     cv.witness(ax, x_len, -geom.thread.major.inches / 2, y_tip)
     ax.text(
         x_len - frame_w * 0.055,
-        y_tip + geom.total_height / 2,
+        y_tip + geom.length_seat / 2,
         "length",
         rotation=90,
         ha="center",
@@ -435,6 +518,8 @@ def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
     ax_end = cv.frame_axes(fig, end_rect, geom.head_dia.inches * 2.0)
     _draw_end_view(ax_end, geom)
     label = f"end view · {geom.drive_type.lower()}" if geom.drive_type else "end view"
+    if geom.hex_headed:
+        label = "end view · hex head"
     if geom.drive_size:
         label += f" {geom.drive_size.display()}"
     ax_end.text(

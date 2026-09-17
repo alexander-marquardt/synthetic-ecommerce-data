@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from synthetic_industrial_products.records import FIXTURES
-from synthetic_industrial_products.render import CARD, fastener
+from synthetic_industrial_products.render import CARD, DETAIL, fastener
 
 REC = FIXTURES["26LD37"]
 
@@ -146,3 +146,75 @@ def test_the_screw_is_scaled_from_its_own_head_diameter():
     columns = np.nonzero(colour_mask(image, INK, tol=0.15).any(axis=0))[0]
     assert columns.size
     assert (columns.max() - columns.min()) / image.shape[1] == pytest.approx(FILL_H, abs=0.02)
+
+
+def _end_view_head(record: dict) -> str:
+    """"hexagon" or "circle": what the head is drawn as in the end view."""
+    from matplotlib.patches import Circle, Polygon
+
+    fig, _ax, geom = fastener.build(record, DETAIL)
+    end_axes = fig.axes[1]
+    for patch in end_axes.patches:
+        if isinstance(patch, Polygon):
+            # The drive recess is a polygon too; the head is the big one.
+            corners = patch.get_xy()
+            width = corners[:, 0].max() - corners[:, 0].min()
+            if width > geom.across_flats * 0.9:
+                return "hexagon" if len(set(map(tuple, corners))) == 6 else "polygon"
+        if isinstance(patch, Circle) and patch.get_radius() == pytest.approx(
+            geom.head_dia.inches / 2
+        ):
+            return "circle"
+    return "nothing"
+
+
+def test_the_length_dimension_spans_the_published_length_and_not_more():
+    """A countersunk length is measured over the head; every other under it.
+
+    ``total_height`` had always known that and the dimension LINE had not: it
+    ran tip to top on both styles, so a socket cap screw's drawing put the
+    label "1/2 in" against a span of one half inch PLUS the head height. The
+    attribute-coverage sweep is what surfaced it, by way of Screw Head Type
+    moving nothing.
+    """
+    countersunk = fastener.geometry_from_record(REC)
+    assert countersunk.countersunk
+    assert countersunk.length_seat == pytest.approx(countersunk.total_height)
+
+    cylindrical = fastener.geometry_from_record({**REC, "Screw Head Type": "Socket"})
+    assert cylindrical.length_seat == pytest.approx(cylindrical.length.inches)
+    assert cylindrical.length_seat < cylindrical.total_height
+    assert cylindrical.total_height - cylindrical.length_seat == pytest.approx(
+        cylindrical.head_height.inches
+    )
+
+
+def test_a_hex_head_is_drawn_hexagonal_and_a_socket_head_round(tmp_path):
+    """The end view is the only place the two differ, and it is the place that
+    tells a shopper which spanner to reach for."""
+    hex_record = {**REC, "Screw Head Type": "Hex", "Width Across Flats": "0.500 in"}
+    assert fastener.geometry_from_record(hex_record).hex_headed
+    assert not fastener.geometry_from_record(REC).hex_headed
+    assert fastener.geometry_from_record(hex_record).across_flats == pytest.approx(0.5)
+
+    hexagonal = fastener.render(hex_record, tmp_path / "a.png", DETAIL).read_bytes()
+    round_head = fastener.render(
+        {**REC, "Screw Head Type": "Socket"}, tmp_path / "b.png", DETAIL
+    ).read_bytes()
+    assert hexagonal != round_head
+
+    # Measured on the SHAPE in the end view, not on the file. Two whole
+    # drawings differ for a dozen reasons -- the label under the end view says
+    # "hex head", the elevation gains its two face edges -- so comparing files
+    # would go on passing with a round head in the end view, which is the thing
+    # the shopper reads to know which spanner to reach for.
+    assert _end_view_head(hex_record) == "hexagon"
+    assert _end_view_head({**REC, "Screw Head Type": "Socket"}) == "circle"
+    assert _end_view_head(REC) == "circle"
+
+
+def test_a_hex_head_falls_back_to_head_dia_when_across_flats_is_not_published():
+    """Which for a hex head IS the across-flats dimension, and is what the
+    elevation is already drawn to."""
+    geom = fastener.geometry_from_record({**REC, "Screw Head Type": "Hex"})
+    assert geom.across_flats == pytest.approx(geom.head_dia.inches)

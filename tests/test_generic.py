@@ -213,6 +213,28 @@ def test_the_control_for_that_is_a_dimensioned_drawing_which_does_move(tmp_path)
     assert a != b
 
 
+def test_the_ten_are_ten_DIFFERENT_drawings(tmp_path):
+    """Two product types sharing one picture is a wrong picture for one of them.
+
+    Nothing else here would notice: every other property of a generic drawing
+    -- no callouts, no dependence on the record -- stays true of a drawing that
+    is simply the wrong shape, which is how a square end mill could come to be
+    drawn with a ball nose and stay green.
+    """
+    seen: dict[bytes, str] = {}
+    for image_id in generic.IMAGE_IDS:
+        data = generic.render(image_id, tmp_path / f"{image_id}.png", CARD).read_bytes()
+        assert data not in seen, f"{image_id} and {seen.get(data)} are the same drawing"
+        seen[data] = image_id
+
+
+def test_a_square_end_mill_and_a_ball_nose_are_not_the_same_picture(tmp_path):
+    """Named separately because it is the defect that prompted all of this."""
+    square = generic.render("end_mill_square", tmp_path / "s.png", CARD).read_bytes()
+    ball = generic.render("end_mill_ball", tmp_path / "b.png", CARD).read_bytes()
+    assert square != ball
+
+
 def test_there_are_exactly_ten_and_the_catalog_uses_all_of_them():
     assert len(generic.IMAGE_IDS) == 10
     assert set(taxonomy.IMAGE_ID.values()) == set(generic.IMAGE_IDS)

@@ -85,7 +85,7 @@ there is no `#10` hex bolt here, because ASME B18.2.1 hex head screws begin at
 | | |
 |---|---|
 | **Ships** | the generator, the extracted standards tables, hashes of the reference tuples, the synthetic catalog |
-| **Never ships** | the reference corpus of captured pages, and the rendered images — both reproducible, see `.gitignore` |
+| **Never ships** | the reference corpus of captured pages, and the rendered images — both reproducible, see `.gitignore`. The images are ten PNGs and about 925 KiB, so hosting them is a copy, not a build |
 
 ## Generating a catalog
 
@@ -150,7 +150,8 @@ and not of the data.
 |---|---|
 | `nested.jsonl` | parent + nested SKUs + nested key-value attributes. The target shape: the only one in which "how many *products* have this value" is answerable, via `reverse_nested`. |
 | `flat.jsonl` | one document per SKU, attributes denormalised. Loadable today. Its attribute array is a plain `object`, so `name` and `value` become two independent multi-valued fields and the correlation between them is lost. |
-| `render.jsonl` | the same SKUs in the shape `sip-render batch` already reads |
+| `render.jsonl` | the same SKUs in the shape `sip-render batch` already reads, for the per-record dimensioned renderer. The catalog's cards do not use it: every product and variant carries an `image_id` naming one of the ten generic drawings. |
+| `images.jsonl` | one row per image — ten rows — with its product type, its path under the image base URL at both profiles, and how many products point at it |
 | `stats.json` | what was generated, measured against the statistics it reproduces |
 
 The flat shape also carries a sanitised `facets` object, because `Milling Dia.`
@@ -299,73 +300,139 @@ python scripts/mutation_check.py
 ```
 
 Breaks the code each new test guards, in both directions where a property has
-two, and reports any mutation that reds nothing as a zero.
+two, and reports any mutation that reds nothing as a zero. Three of the image
+mutations came back green the first time they were run and each named a real
+gap — a generic drawing that could be swapped for another type's, an attribute
+that was validated but not drawn, and a control whose mutation text no longer
+matched the code it was supposed to break. All three are fixed rather than
+removed; a mutation that reds nothing is the point of running them.
 
 ## Images
 
-Product images are **dimensioned technical drawings rendered from each
-product's own attribute values**, not photographs and not model-generated
-imagery. A drawing derived from the data cannot contradict the data — and a
-dimensioned drawing shows the reader that cutting diameter and shank diameter
-are different measurements, which is the point the catalog exists to make.
+**Every product and every variant has an image, and there are ten images.**
+One generic drawing per product type and style stands behind all 4,600-odd
+products, which is not a cheap approximation of what a catalog does — it is
+what a catalog does. A category listing of four end mills from one
+manufacturer's series at 1/2, 3/8, 1/4 and 1/8 inch shows the same photograph
+four times, and 73.5% of the archived reference records point at an image whose
+id is not the product's own. A distributor does not photograph every length of
+the same screw.
 
-### Rendering
+| image | behind |
+|---|---|
+| `end_mill_square` | 796 variants |
+| `screw_socket_head` | 765 |
+| `drill_jobber` | 654 |
+| `bolt_hex` | 524 |
+| `end_mill_ball` | 471 |
+| `screw_flat_head` | 444 |
+| `tap_spiral_point` | 354 |
+| `washer_flat` | 250 |
+| `hammer_ball_pein` | 188 |
+| `abrasive_flap_disc` | 178 |
+
+Each asserts exactly one thing — *this product is a ball nose end mill*, *this
+product is a flat washer* — which is true of every record of that type from the
+product type alone. **None of them carries a dimension, a callout or a number.**
+The dimensions are on the record and render beside the image; a drawing that
+restated one would be a second source that could disagree with the first. So a
+generic image cannot contradict the record it appears against: there is no
+numeric claim in it to contradict with, which gets the honesty property
+structurally rather than by anyone remembering to check.
+
+None carries a SKU either. One image stands behind hundreds of products, and a
+SKU printed on it would be wrong for all but one of them — a true-looking claim
+about the wrong product, which is worse than no label.
 
 ```sh
 uv sync
-uv run sip-render fixtures --out out              # every bundled reference record
-uv run sip-render sku 4LU10 --profile card --out out
-uv run sip-render batch records.jsonl --out out   # one JSON record per line
+uv run sip-render generics --out out              # the ten, both profiles
+python scripts/render_catalog.py out/catalog --out out/images
 ```
 
-For a whole generated catalog, which needs per-record error handling:
+Twenty files — ten drawings at two profiles — and 925 KiB for the whole
+catalog. `scripts/render_catalog.py` also audits the result in both directions:
+every product and variant must reference an image that exists, and every image
+written must be referenced by something. The first failing is a broken image on
+a demo page and the second is dead weight in the repository that hosts them;
+neither shows up in a count of files.
+
+### The per-record dimensioned drawings
+
+A second renderer draws **one record to scale from that record's own attribute
+values**, with every dimension on the page restating a value the record
+publishes. It is not what the catalog's cards use — a dimensioned drawing per
+SKU is both more expensive and less faithful than a shared one — but it is the
+right thing for a detail view of a handful of demo products, where the point
+being made is that cutting diameter and shank diameter are different
+measurements.
 
 ```sh
-python scripts/render_catalog.py out/catalog/render.jsonl --out out/images
+uv run sip-render fixtures --out out              # every bundled record
+uv run sip-render sku 26VW40 --profile card --out out
+uv run sip-render batch out/catalog/render.jsonl --out out
 ```
 
-**Some of the catalog cannot be drawn, and that is the renderer working.** It
+**Some records cannot be drawn to scale, and that is the renderer working.** It
 refuses a record whose dimensions are missing or contradict each other rather
 than defaulting a value, so the share it refuses tracks the sparsity and defect
-rates the catalog reproduces. A run that drew 100% of this catalog would mean
-the renderer had started inventing numbers. On the default 500-line catalog,
-2,834 of 4,480 SKUs carry attributes a renderer recognises at all (a hammer
-carries none), and of those 2,417 are drawn and 417 refused:
+rates the catalog reproduces. A run that drew 100% of this catalog *to scale*
+would mean the renderer had started inventing numbers. Measured over the
+default 500-line catalog:
 
-| refusal | count | why |
-|---|---|---|
-| `MissingAttributeError` | 227 | the record does not publish a dimension the drawing needs — `Helix Angle` is present on 88% of end mills, because it is present on 88% of real ones |
-| `DimensionParseError` | 116 | the published value carries no unit, and a bare number is ambiguous |
-| `ImpossibleGeometryError` | 74 | length of cut longer than the tool, the largest measured defect class |
+| product type | variants | drawn to scale | |
+|---|---|---|---|
+| `washer_flat` | 250 | 100% | ISO 7089 publishes all three dimensions on every size |
+| `bolt_hex` | 524 | 99% | |
+| `screw_flat_head` | 444 | 98% | |
+| `screw_socket_head` | 765 | 98% | |
+| `abrasive_flap_disc` | 178 | 88% | `Disc Dia.` sometimes published without a unit |
+| `end_mill_square` | 796 | 57% | |
+| `end_mill_ball` | 471 | 56% | |
+| `tap_spiral_point` | 354 | 40% | |
+| `drill_jobber` | 654 | 23% | `Shank Dia.` is published on 46% of them |
+| `hammer_ball_pein` | 188 | 0% | see below |
+| **all** | **4,624** | **68%** | 956 missing an attribute, 190 unreadable, 167 self-contradictory, 188 hammers |
+
+A record the dimensioned renderer refuses falls back to its generic drawing, so
+a refusal costs the scale, never the image.
+
+**A ball pein hammer gets no dimensioned drawing at all, and that is the
+correct outcome rather than a gap.** A hammer record publishes a head weight,
+an overall length, a face diameter and a handle length. Every view of a hammer
+needs an extent none of those gives: the side elevation needs the head's length
+along its own axis, and the face view needs the width of the handle. Deriving a
+head length from the weight would mean assuming a shape and a density, which is
+a different thing from the countersink angle a cap screw's three published
+lengths determine by trigonometry. `render/hammer.py` says so at length, where
+anyone looking for the hammer renderer will find it.
 
 ### Where the images are published, and how a record points at one
 
-`sip-generate build` writes `images.jsonl` — one row per distinct image, with
-the product type it belongs to and the URL it is served from — and every record
-in `flat.jsonl` and `nested.jsonl` carries `image_urls` beside `image_skus`:
+`sip-generate build` writes `images.jsonl` — one row per image, with its
+product type and the URLs it is served from at both profiles — and every record
+in `flat.jsonl` and `nested.jsonl` carries `image_url` beside `image_id`:
 
 ```json
-{"sku": "89HR78", "product_type": "end_mill_square",
- "image_skus": ["98WF97"],
- "image_urls": ["https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/98WF97.png"]}
+{"sku": "60EX58", "product_type": "end_mill_square",
+ "image_id": "end_mill_square",
+ "image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/card/end_mill_square.png",
+ "image_detail_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/detail/end_mill_square.png"}
 ```
 
-`--image-base-url` moves the host. The card profile is the one published; the
-detail renders are not hosted.
+`--image-base-url` moves the host.
 
-**The URL is built from the image reference, never from the product's own
-SKU.** Those differ for roughly three records in four — the catalog reproduces
-a measured rate of image reuse — so a URL assembled from `sku` is a dead link
-at that rate, and dead in a way that spot-checking a handful of records will
-not reveal. Reuse also crosses product types: a hex bolt can reference an end
-mill's drawing, so the directory in the URL is the type of the **drawn**
-product, resolved once over the whole catalog in `emit.image_index`. A
-reference that resolves to no product type raises rather than publishing a URL
-that cannot be fetched.
+**The URL is built from the image id, never from the product's own SKU.** The
+two are never the same — a family shares one drawing — so a URL assembled from
+`sku` is a dead link for every product in the catalog, and dead in a way that
+spot-checking a handful of records will not reveal because every record looks
+equally plausible. An image id naming a drawing that does not exist raises
+rather than publishing a URL that cannot be fetched: a bare id does not claim
+to resolve, and a URL does.
 
-`images.jsonl` exists so that whatever hosts the files reads the product type
-off the generator's own output instead of re-deriving it with a second copy of
-the reuse rule.
+`images.jsonl` exists so that whatever hosts the files reads the paths off the
+generator's own output instead of re-deriving them with a second copy of the
+naming rule, which is how the two would come to disagree.
 
 Two profiles, both sized from where the image is displayed:
 
@@ -376,11 +443,7 @@ Two profiles, both sized from where the image is displayed:
 
 Tools are drawn standing up, shank above and cutting end below. That is how
 the industry draws them, and it is the only orientation in which a long thin
-tool fills a portrait card instead of floating in the middle of it. The card
-carries the silhouette and the two diameter callouts and nothing else — at
-150 CSS pixels wide there is room for one idea, and the two diameters are it.
-The detail profile adds full dimensioning, an end view, and the attribute
-table.
+tool fills a portrait card instead of floating in the middle of it.
 
 ### What the renderer will not do
 
@@ -390,14 +453,21 @@ The drawing may only contain numbers the record contains, so:
   because a defaulted dimension produces a drawing that disagrees with its own
   record and nothing downstream can tell.
 * A record whose dimensions contradict each other — a length of cut longer
-  than the tool — is **refused** rather than drawn.
+  than the tool — is **refused** rather than drawn. The defect stays in the
+  data; silently clamping it would draw a tool that exists and publish a record
+  saying otherwise, and the picture would then look like corroboration.
 * Geometry that no attribute implies is **left out**, not invented. The depth
   of a socket drive is not published, so the drawing shows the opening the
   socket makes in the head's top face and its true across-flats shape in the
   end view, and stops there. A Torx or cross recess is not drawn at all: one
-  across-size does not determine a lobed shape. A head style whose profile
-  does not follow from `Head Dia.` and `Head Height` — a button head's dome,
-  for instance — is refused.
+  across-size does not determine a lobed shape. A tap's drive square is not
+  drawn on the elevation, because neither its across-flats nor its length
+  follows from any attribute. A flap disc gets no edge view, because no record
+  publishes a thickness.
+* A **form the record leaves open** sends the record to its generic drawing
+  rather than to a guess. `End Mill Style` decides whether the cutting end is
+  square or a ball nose and is required; the four observed reference end mills
+  do not carry it and are therefore no longer drawn to scale.
 
 Some numbers that look like table lookups are not: the countersink angle of
 the reference cap screw is computed from its head diameter, head height and
@@ -405,6 +475,47 @@ thread size, and lands on 82°, which is what the inch flat-head standard
 specifies. The minor diameter of its thread comes from the 60° thread form and
 lands on the published 0.1517". Those agreements are checks on the attributes,
 not values borrowed from elsewhere.
+
+### Every attribute has to reach the drawing, or say why it cannot
+
+`End Mill Style` was published on every generated end mill and read by nothing,
+so all 486 ball nose mills were drawn with a square end — a picture
+contradicting its own record. The suite had 39 mutations and no zeros at the
+time, and could not have caught it: **mutation testing can only mutate code
+that exists**, and an attribute nobody consumes has no code path to plant a
+defect in.
+
+The check that finds that class of defect starts from the record instead. For
+every attribute a record publishes, changing it must change the rendered
+output — or the attribute must be named in `render/attrs.py`'s `NOT_DRAWN`
+with the reason a drawing cannot show it. Both directions are asserted: an
+attribute that is neither read nor declared fails, and an attribute declared
+not-drawn that *does* move the output fails too, so the declarations cannot go
+stale. The sweep runs over a generated catalog's richest record of each product
+type as well as over the bundled fixtures, which makes it a statement about the
+vocabulary rather than about eighteen hand-picked records.
+
+Seven attributes are declared: the measurement-system attribute under all three
+of its spellings, `Standards`, `List Number`, `End Mill Application` and
+`Material Grade - Machining`. A standard a product conforms to and a use it is
+sold for are not shapes, and a drawing of the product has nothing to show for
+them.
+
+One subtlety the mutation harness found rather than the design: changing an
+attribute to something unreadable and watching the renderer *refuse* is not
+proof that the drawing uses it, because a renderer that validates a value and
+then ignores it refuses just the same. So the check tries valid alternatives
+first and falls back to the refusal only when every value it has is refused.
+Tightening it that way immediately found a second instance of the same class:
+`Screw Head Type` moved nothing in a socket cap screw's drawing, because
+`Socket` and `Hex` produced the same picture — a hex head's *elevation* across
+the flats really is the rectangle a cylindrical head gives, but its end view is
+six flats, and 524 hex bolts were being drawn with a round head. Fixing that
+turned up a third defect a few lines away: the length dimension ran tip to top
+on every style, so a socket cap screw's drawing put the label `1/2 in` against
+a span of half an inch *plus the head height*. A countersunk length is measured
+over the head and every other style's is measured under it; `total_height` had
+always known that and the dimension line had not.
 
 ## Realism
 
@@ -422,17 +533,17 @@ than asserted.
 
 | property | target | achieved |
 |---|---|---|
-| shank diameter == cutting diameter | 0.6489 | 0.6579 |
-| length of cut > overall length | 0.0829 | 0.0779 |
-| an angle attribute carrying a length unit | 0.0469 | 0.0535 |
-| declared measurement system contradicts the value's units | 0.0323 | 0.0291 |
-| unit mixing within one record | 0.0222 | 0.0181 |
-| title dimension token carries no label | 0.4667 | 0.4622 |
-| title dimension token is not the primary dimension | 0.1714 | 0.1669 |
-| title label truncated at the length cap | 0.0323 | 0.0301 |
-| image reference missing | 0.1089 | 0.1116 |
-| image SKU differs from product SKU | 0.7353 | 0.7275 |
-| attributes per record (mean) | 13.12 | 12.89 |
+| shank diameter == cutting diameter | 0.6489 | 0.6888 |
+| length of cut > overall length | 0.0829 | 0.1011 |
+| an angle attribute carrying a length unit | 0.0469 | 0.0765 |
+| declared measurement system contradicts the value's units | 0.0323 | 0.0309 |
+| unit mixing within one record | 0.0222 | 0.0206 |
+| title dimension token carries no label | 0.4667 | 0.4712 |
+| title dimension token is not the primary dimension | 0.1714 | 0.1752 |
+| title label truncated at the length cap | 0.0323 | 0.0355 |
+| image reference missing | 0.1089 | **0.0000, deliberately** |
+| image id is shared, not the product's own | 0.7353 | **1.0000, deliberately** |
+| attributes per record (mean) | 13.12 | 12.82 |
 
 Two notes on reading that table honestly. The angle defect is **clustered**:
 the attribute is line-constant, so one bad row reaches every SKU under that
@@ -442,3 +553,17 @@ Its per-record rate therefore swings much more between seeds than the others.
 And attributes per record sits about 2% below its target because the reference
 mean is over a different mixture of product families than this catalog
 contains; the per-family shape is reproduced, the mixture is not the same one.
+
+The two image rows are **deliberate deviations, not misses**, and the target
+column shows what this catalog aims at rather than what the corpus measures —
+printing the corpus figure there would show a permanent, meaningless shortfall.
+The corpus measures 10.89% of records carrying no parseable image reference;
+this catalog gives every product and every variant one, because it is used as a
+demo and a product with no image reads there as a broken page rather than as
+realism about supplier data. The corpus measures 73.5% of references pointing
+at an image that is not the product's own; this catalog goes further than the
+rate, because one generic drawing per product type and style means *every*
+reference is shared. Both measured figures are kept in `GeneratorConfig` as
+`measured_image_missing` and `measured_image_sku_diverges`, and a test sets the
+missing-image rate back and checks the behaviour returns, so the deviation has
+not quietly become a limitation.

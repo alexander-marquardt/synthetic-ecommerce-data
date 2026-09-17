@@ -20,6 +20,12 @@ remembering to add it here.
 Both directions are asserted. An attribute that is neither consumed nor
 declared fails; an attribute declared not-drawn that DOES move the output fails
 too, because a declaration nobody checks is a comment.
+
+One subtlety, found by the mutation harness rather than by design: changing an
+attribute to something unreadable and watching the renderer REFUSE is not proof
+that the drawing uses it. A renderer that validates a value and then ignores it
+refuses just the same. So the check tries valid alternatives first and only
+falls back to the refusal when every value it has is refused.
 """
 
 from __future__ import annotations
@@ -30,11 +36,35 @@ from synthetic_industrial_products.records import DRAWABLE
 from synthetic_industrial_products.render import CARD, DETAIL, draw_record
 from synthetic_industrial_products.render.attrs import NOT_DRAWN, REFUSALS
 
-#: What an attribute is changed to. A value no renderer can read is
-#: deliberate: for an attribute the drawing needs, the render then REFUSES,
-#: and a refusal is as good a proof that the value reached the drawing as a
-#: change in the pixels is.
-MUTATED = "ZZZ-mutated"
+#: Values an attribute is changed to, in order, stopping at the first that
+#: moves the drawing.
+#:
+#: They are deliberately a mix of VALID alternatives rather than one
+#: unreadable sentinel. A sentinel alone is not enough: an attribute the
+#: renderer VALIDATES but never draws would refuse the sentinel, the refusal
+#: would read as "the drawing depends on it", and a renderer that parsed
+#: ``Cutting Direction`` and then ignored which hand it named would pass. The
+#: mutation harness found exactly that. So a valid alternative has to be tried
+#: too, and it has to actually render.
+ALTERNATIVES: tuple[str, ...] = (
+    "Left Hand",
+    "Right Hand",
+    "Double End",
+    "Ball Nose",
+    "Square",
+    '1/2"',
+    "7 mm",
+    "3",
+    "37 Degrees",
+    "#8-32",
+    "Hex",
+    "ZZZ-mutated",
+)
+
+#: The last of those reads as nothing at all. For an attribute the drawing
+#: genuinely needs, every alternative refuses -- and a renderer that refuses
+#: without it does depend on it.
+UNREADABLE = "ZZZ-mutated"
 
 
 def _bytes(record: dict, tmp_path, profile, name="x") -> bytes:
@@ -42,13 +72,24 @@ def _bytes(record: dict, tmp_path, profile, name="x") -> bytes:
 
 
 def _reaches_the_drawing(record: dict, attribute: str, tmp_path, profile) -> bool:
-    """True when changing ``attribute`` changes what comes out, or refuses it."""
+    """True when some valid change to ``attribute`` changes what comes out.
+
+    Falls back to "every value refuses", which is the other way an attribute
+    can be load-bearing: the drawing will not be produced without it.
+    """
     base = _bytes(record, tmp_path, profile, "a")
-    try:
-        moved = _bytes({**record, attribute: MUTATED}, tmp_path, profile, "b")
-    except REFUSALS:
-        return True
-    return base != moved
+    every_value_refused = True
+    for value in ALTERNATIVES:
+        if value == record[attribute]:
+            continue
+        try:
+            moved = _bytes({**record, attribute: value}, tmp_path, profile, "b")
+        except REFUSALS:
+            continue
+        every_value_refused = False
+        if moved != base:
+            return True
+    return every_value_refused
 
 
 @pytest.mark.parametrize("sku", sorted(DRAWABLE))
