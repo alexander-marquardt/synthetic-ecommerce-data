@@ -1,0 +1,10893 @@
+{
+ "method": "Per-record presence of each verbatim attribute name. A record \"has\" an attribute if the name appears in its spec table at all (empty values counted as present-but-empty are excluded: see empty_value_rate).",
+ "overall": {
+  "n_records": 496,
+  "attrs_per_record_mean": 13.12,
+  "attrs_per_record_hist": {
+   "1": 28,
+   "2": 9,
+   "3": 15,
+   "4": 11,
+   "5": 13,
+   "6": 7,
+   "7": 13,
+   "8": 26,
+   "9": 54,
+   "10": 10,
+   "11": 22,
+   "12": 31,
+   "13": 16,
+   "14": 13,
+   "15": 43,
+   "16": 30,
+   "17": 57,
+   "18": 27,
+   "19": 8,
+   "20": 4,
+   "21": 2,
+   "22": 8,
+   "23": 5,
+   "24": 18,
+   "25": 18,
+   "26": 2,
+   "27": 2,
+   "28": 1,
+   "29": 1,
+   "30": 1,
+   "156": 1
+  },
+  "presence": [
+   {
+    "name_verbatim": "Item",
+    "n": 412,
+    "rate": 0.8306
+   },
+   {
+    "name_verbatim": "Overall Length",
+    "n": 256,
+    "rate": 0.5161
+   },
+   {
+    "name_verbatim": "Finish",
+    "n": 220,
+    "rate": 0.4435
+   },
+   {
+    "name_verbatim": "Shank Dia.",
+    "n": 202,
+    "rate": 0.4073
+   },
+   {
+    "name_verbatim": "Cutting Direction",
+    "n": 198,
+    "rate": 0.3992
+   },
+   {
+    "name_verbatim": "Number of Flutes",
+    "n": 184,
+    "rate": 0.371
+   },
+   {
+    "name_verbatim": "Material",
+    "n": 160,
+    "rate": 0.3226
+   },
+   {
+    "name_verbatim": "Length of Cut",
+    "n": 158,
+    "rate": 0.3185
+   },
+   {
+    "name_verbatim": "Helix Angle",
+    "n": 156,
+    "rate": 0.3145
+   },
+   {
+    "name_verbatim": "List Number",
+    "n": 152,
+    "rate": 0.3065
+   },
+   {
+    "name_verbatim": "Dimension Type",
+    "n": 141,
+    "rate": 0.2843
+   },
+   {
+    "name_verbatim": "Grade",
+    "n": 137,
+    "rate": 0.2762
+   },
+   {
+    "name_verbatim": "End Mill Style",
+    "n": 132,
+    "rate": 0.2661
+   },
+   {
+    "name_verbatim": "Single End/Double End",
+    "n": 130,
+    "rate": 0.2621
+   },
+   {
+    "name_verbatim": "Milling Dia.",
+    "n": 129,
+    "rate": 0.2601
+   },
+   {
+    "name_verbatim": "Cutting Type",
+    "n": 117,
+    "rate": 0.2359
+   },
+   {
+    "name_verbatim": "Application",
+    "n": 77,
+    "rate": 0.1552
+   },
+   {
+    "name_verbatim": "Corner Radius",
+    "n": 76,
+    "rate": 0.1532
+   },
+   {
+    "name_verbatim": "End Mill Application",
+    "n": 67,
+    "rate": 0.1351
+   },
+   {
+    "name_verbatim": "Size",
+    "n": 62,
+    "rate": 0.125
+   },
+   {
+    "name_verbatim": "Type",
+    "n": 52,
+    "rate": 0.1048
+   },
+   {
+    "name_verbatim": "Thread Direction",
+    "n": 52,
+    "rate": 0.1048
+   },
+   {
+    "name_verbatim": "Material - Machining",
+    "n": 50,
+    "rate": 0.1008
+   },
+   {
+    "name_verbatim": "Thread Type",
+    "n": 50,
+    "rate": 0.1008
+   },
+   {
+    "name_verbatim": "Diameter",
+    "n": 49,
+    "rate": 0.0988
+   },
+   {
+    "name_verbatim": "Measurement System",
+    "n": 49,
+    "rate": 0.0988
+   },
+   {
+    "name_verbatim": "Neck Length",
+    "n": 48,
+    "rate": 0.0968
+   },
+   {
+    "name_verbatim": "Finish - Machining",
+    "n": 45,
+    "rate": 0.0907
+   },
+   {
+    "name_verbatim": "Primary Material Application ISO Code",
+    "n": 43,
+    "rate": 0.0867
+   },
+   {
+    "name_verbatim": "Primary Material Application",
+    "n": 43,
+    "rate": 0.0867
+   },
+   {
+    "name_verbatim": "Coolant Fed",
+    "n": 43,
+    "rate": 0.0867
+   },
+   {
+    "name_verbatim": "Standards",
+    "n": 43,
+    "rate": 0.0867
+   },
+   {
+    "name_verbatim": "End Mill Cutting Type",
+    "n": 41,
+    "rate": 0.0827
+   },
+   {
+    "name_verbatim": "Shank Type - Machining",
+    "n": 41,
+    "rate": 0.0827
+   },
+   {
+    "name_verbatim": "Material Grade - Machining",
+    "n": 37,
+    "rate": 0.0746
+   },
+   {
+    "name_verbatim": "Drilling Tool Configuration",
+    "n": 37,
+    "rate": 0.0746
+   },
+   {
+    "name_verbatim": "Package Quantity",
+    "n": 37,
+    "rate": 0.0746
+   },
+   {
+    "name_verbatim": "Miniature End Mill",
+    "n": 36,
+    "rate": 0.0726
+   },
+   {
+    "name_verbatim": "Chip-Breaker",
+    "n": 36,
+    "rate": 0.0726
+   },
+   {
+    "name_verbatim": "Pitch",
+    "n": 34,
+    "rate": 0.0685
+   },
+   {
+    "name_verbatim": "Color",
+    "n": 34,
+    "rate": 0.0685
+   },
+   {
+    "name_verbatim": "For Use With",
+    "n": 33,
+    "rate": 0.0665
+   },
+   {
+    "name_verbatim": "Decimal Equivalent",
+    "n": 33,
+    "rate": 0.0665
+   },
+   {
+    "name_verbatim": "Thread Length",
+    "n": 29,
+    "rate": 0.0585
+   },
+   {
+    "name_verbatim": "Includes",
+    "n": 29,
+    "rate": 0.0585
+   },
+   {
+    "name_verbatim": "Thread Size",
+    "n": 29,
+    "rate": 0.0585
+   },
+   {
+    "name_verbatim": "Flute Length",
+    "n": 27,
+    "rate": 0.0544
+   },
+   {
+    "name_verbatim": "End Style",
+    "n": 26,
+    "rate": 0.0524
+   },
+   {
+    "name_verbatim": "End",
+    "n": 26,
+    "rate": 0.0524
+   },
+   {
+    "name_verbatim": "Series",
+    "n": 25,
+    "rate": 0.0504
+   },
+   {
+    "name_verbatim": "Neck Dia.",
+    "n": 24,
+    "rate": 0.0484
+   },
+   {
+    "name_verbatim": "Number of Inserts Required",
+    "n": 24,
+    "rate": 0.0484
+   },
+   {
+    "name_verbatim": "Rockwell Hardness",
+    "n": 24,
+    "rate": 0.0484
+   },
+   {
+    "name_verbatim": "Point Type",
+    "n": 23,
+    "rate": 0.0464
+   },
+   {
+    "name_verbatim": "Meets/Exceeds",
+    "n": 23,
+    "rate": 0.0464
+   },
+   {
+    "name_verbatim": "Drive Type",
+    "n": 22,
+    "rate": 0.0444
+   },
+   {
+    "name_verbatim": "System of Measurement",
+    "n": 22,
+    "rate": 0.0444
+   },
+   {
+    "name_verbatim": "Overall Height",
+    "n": 19,
+    "rate": 0.0383
+   },
+   {
+    "name_verbatim": "Height",
+    "n": 19,
+    "rate": 0.0383
+   },
+   {
+    "name_verbatim": "Drive Size",
+    "n": 18,
+    "rate": 0.0363
+   },
+   {
+    "name_verbatim": "Overall Width",
+    "n": 18,
+    "rate": 0.0363
+   },
+   {
+    "name_verbatim": "Number of Pieces",
+    "n": 18,
+    "rate": 0.0363
+   },
+   {
+    "name_verbatim": "Point Angle",
+    "n": 18,
+    "rate": 0.0363
+   },
+   {
+    "name_verbatim": "Shank Dia. (In.)",
+    "n": 18,
+    "rate": 0.0363
+   },
+   {
+    "name_verbatim": "Overall Length (In.)",
+    "n": 18,
+    "rate": 0.0363
+   },
+   {
+    "name_verbatim": "Tap Style",
+    "n": 18,
+    "rate": 0.0363
+   },
+   {
+    "name_verbatim": "Container Capacity",
+    "n": 18,
+    "rate": 0.0363
+   },
+   {
+    "name_verbatim": "Overall Diameter",
+    "n": 18,
+    "rate": 0.0363
+   },
+   {
+    "name_verbatim": "Length",
+    "n": 17,
+    "rate": 0.0343
+   },
+   {
+    "name_verbatim": "Thickness (In.)",
+    "n": 17,
+    "rate": 0.0343
+   },
+   {
+    "name_verbatim": "Container Material",
+    "n": 17,
+    "rate": 0.0343
+   },
+   {
+    "name_verbatim": "Includes Ashtray",
+    "n": 17,
+    "rate": 0.0343
+   },
+   {
+    "name_verbatim": "Lid Type",
+    "n": 17,
+    "rate": 0.0343
+   },
+   {
+    "name_verbatim": "Container Shape",
+    "n": 17,
+    "rate": 0.0343
+   },
+   {
+    "name_verbatim": "Shank Type",
+    "n": 15,
+    "rate": 0.0302
+   },
+   {
+    "name_verbatim": "Container Type",
+    "n": 15,
+    "rate": 0.0302
+   },
+   {
+    "name_verbatim": "Shank Length",
+    "n": 15,
+    "rate": 0.0302
+   },
+   {
+    "name_verbatim": "Product Type",
+    "n": 15,
+    "rate": 0.0302
+   },
+   {
+    "name_verbatim": "Cast Iron (K) Compatibility",
+    "n": 14,
+    "rate": 0.0282
+   },
+   {
+    "name_verbatim": "Spiral Direction",
+    "n": 14,
+    "rate": 0.0282
+   },
+   {
+    "name_verbatim": "Dia./Thread Size",
+    "n": 14,
+    "rate": 0.0282
+   },
+   {
+    "name_verbatim": "Head Height",
+    "n": 14,
+    "rate": 0.0282
+   },
+   {
+    "name_verbatim": "Hex Size (In.)",
+    "n": 14,
+    "rate": 0.0282
+   },
+   {
+    "name_verbatim": "Head Type",
+    "n": 14,
+    "rate": 0.0282
+   },
+   {
+    "name_verbatim": "Inscribed Circle",
+    "n": 14,
+    "rate": 0.0282
+   },
+   {
+    "name_verbatim": "Coolant Through",
+    "n": 14,
+    "rate": 0.0282
+   },
+   {
+    "name_verbatim": "Insert Screw",
+    "n": 13,
+    "rate": 0.0262
+   },
+   {
+    "name_verbatim": "Left/Right Hand",
+    "n": 13,
+    "rate": 0.0262
+   },
+   {
+    "name_verbatim": "Pitch Diameter Limits",
+    "n": 13,
+    "rate": 0.0262
+   },
+   {
+    "name_verbatim": "Stainless (M) Compatibility",
+    "n": 12,
+    "rate": 0.0242
+   },
+   {
+    "name_verbatim": "Steel (P) Compatibility",
+    "n": 12,
+    "rate": 0.0242
+   },
+   {
+    "name_verbatim": "ANSI Number",
+    "n": 12,
+    "rate": 0.0242
+   },
+   {
+    "name_verbatim": "Head Dia.",
+    "n": 12,
+    "rate": 0.0242
+   },
+   {
+    "name_verbatim": "Drill Size",
+    "n": 12,
+    "rate": 0.0242
+   },
+   {
+    "name_verbatim": "Fits Brand",
+    "n": 12,
+    "rate": 0.0242
+   },
+   {
+    "name_verbatim": "Thread Style",
+    "n": 11,
+    "rate": 0.0222
+   },
+   {
+    "name_verbatim": "For Use With Mfr. Model Number",
+    "n": 10,
+    "rate": 0.0202
+   },
+   {
+    "name_verbatim": "Class",
+    "n": 10,
+    "rate": 0.0202
+   },
+   {
+    "name_verbatim": "Min. Tensile Strength (PSI)",
+    "n": 10,
+    "rate": 0.0202
+   },
+   {
+    "name_verbatim": "For Use With Grainger Item Number",
+    "n": 10,
+    "rate": 0.0202
+   },
+   {
+    "name_verbatim": "Nomenclature",
+    "n": 10,
+    "rate": 0.0202
+   },
+   {
+    "name_verbatim": "Cutting Length",
+    "n": 10,
+    "rate": 0.0202
+   },
+   {
+    "name_verbatim": "Cutting Edge Type",
+    "n": 10,
+    "rate": 0.0202
+   },
+   {
+    "name_verbatim": "Ratio",
+    "n": 10,
+    "rate": 0.0202
+   },
+   {
+    "name_verbatim": "Depth",
+    "n": 10,
+    "rate": 0.0202
+   },
+   {
+    "name_verbatim": "Voltage",
+    "n": 9,
+    "rate": 0.0181
+   },
+   {
+    "name_verbatim": "Container Size",
+    "n": 9,
+    "rate": 0.0181
+   },
+   {
+    "name_verbatim": "Temp. Range",
+    "n": 8,
+    "rate": 0.0161
+   },
+   {
+    "name_verbatim": "Thread Length (A)",
+    "n": 8,
+    "rate": 0.0161
+   },
+   {
+    "name_verbatim": "Thread Length Type",
+    "n": 8,
+    "rate": 0.0161
+   },
+   {
+    "name_verbatim": "Thread Length (B)",
+    "n": 8,
+    "rate": 0.0161
+   },
+   {
+    "name_verbatim": "Length under Head",
+    "n": 8,
+    "rate": 0.0161
+   },
+   {
+    "name_verbatim": "Hex Size",
+    "n": 8,
+    "rate": 0.0161
+   },
+   {
+    "name_verbatim": "Bore",
+    "n": 8,
+    "rate": 0.0161
+   },
+   {
+    "name_verbatim": "Housing Material",
+    "n": 8,
+    "rate": 0.0161
+   },
+   {
+    "name_verbatim": "Thread Dia.",
+    "n": 7,
+    "rate": 0.0141
+   },
+   {
+    "name_verbatim": "Min. Tensile Strength",
+    "n": 7,
+    "rate": 0.0141
+   },
+   {
+    "name_verbatim": "Inside Dia.",
+    "n": 7,
+    "rate": 0.0141
+   },
+   {
+    "name_verbatim": "Outside Dia.",
+    "n": 7,
+    "rate": 0.0141
+   },
+   {
+    "name_verbatim": "Head Style",
+    "n": 7,
+    "rate": 0.0141
+   },
+   {
+    "name_verbatim": "Thickness",
+    "n": 7,
+    "rate": 0.0141
+   },
+   {
+    "name_verbatim": "Cutting Depth (In.)",
+    "n": 7,
+    "rate": 0.0141
+   },
+   {
+    "name_verbatim": "ANSI Code",
+    "n": 7,
+    "rate": 0.0141
+   },
+   {
+    "name_verbatim": "Fragrance",
+    "n": 7,
+    "rate": 0.0141
+   },
+   {
+    "name_verbatim": "Light Technology",
+    "n": 7,
+    "rate": 0.0141
+   },
+   {
+    "name_verbatim": "Non Ferrous (N) Compatibility",
+    "n": 6,
+    "rate": 0.0121
+   },
+   {
+    "name_verbatim": "Fastener Finish",
+    "n": 6,
+    "rate": 0.0121
+   },
+   {
+    "name_verbatim": "Material Grade",
+    "n": 6,
+    "rate": 0.0121
+   },
+   {
+    "name_verbatim": "For Bolt Size",
+    "n": 6,
+    "rate": 0.0121
+   },
+   {
+    "name_verbatim": "Extractor Type",
+    "n": 6,
+    "rate": 0.0121
+   },
+   {
+    "name_verbatim": "For Bolt Thread Direction",
+    "n": 6,
+    "rate": 0.0121
+   },
+   {
+    "name_verbatim": "Screw Size",
+    "n": 6,
+    "rate": 0.0121
+   },
+   {
+    "name_verbatim": "Barrel Thread Depth",
+    "n": 6,
+    "rate": 0.0121
+   },
+   {
+    "name_verbatim": "Barrel Length",
+    "n": 6,
+    "rate": 0.0121
+   },
+   {
+    "name_verbatim": "Mounting Style",
+    "n": 6,
+    "rate": 0.0121
+   },
+   {
+    "name_verbatim": "Style",
+    "n": 6,
+    "rate": 0.0121
+   },
+   {
+    "name_verbatim": "Rake",
+    "n": 6,
+    "rate": 0.0121
+   },
+   {
+    "name_verbatim": "Shape",
+    "n": 6,
+    "rate": 0.0121
+   },
+   {
+    "name_verbatim": "NSF Rating",
+    "n": 6,
+    "rate": 0.0121
+   },
+   {
+    "name_verbatim": "Hardened (H) Compatibility",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Super Alloy (S) Compatibility",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Depth of Cut",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Insert Size",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Basic Material",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Fastener Thread Type",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Large End Dia.",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Width",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Drill Point (Deg.)",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Clamp",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Clamp Screw",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Flute Type",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Overall Depth",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "ISO Number",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Insert Style",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Number of Cutting Edges",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Inside Dia. Tolerance",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Outside Dia. Tolerance",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Color Family",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Primary Chemical",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Cleaner Form",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Ready to Use/Concentrated",
+    "n": 5,
+    "rate": 0.0101
+   },
+   {
+    "name_verbatim": "Features",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Fastener Thread Direction",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Tensile Strength",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Load Capacity",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Drill Bit Grouping",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Drill Bit Size",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Drill Bit Point Angle",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Hz",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Phase",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Flute Length (In.)",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Manufacturer Grade",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Clearance Angle",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Insert Holding Type",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Included Angle",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Lock Type",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Bushing Code",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Drill Bushing Wall Type",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Bushing Head Type",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Includes Lamp",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Socket Type",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Number of Lightheads",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Housing Color",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Fixture Wattage",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Scale Connection Ports",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Weighing Units",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Platform Material",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Readability",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Stabilization Time",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Linearity",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Weighing Surface Depth",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Repeatability",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Capacity",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Weighing Surface Width",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Display Type",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Application Modes",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Barrel Head Style",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Barrel Drive",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Barrel Diameter",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Properties",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Frame Leaf Height",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Frame Leaf Width",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Number of Holes per Leaf",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Frame Leaf Thickness",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Propeller Dia. (In.)",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Number of Blades",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Bore Dia. (In.)",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Pitch (Deg.)",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "Rotation",
+    "n": 4,
+    "rate": 0.0081
+   },
+   {
+    "name_verbatim": "End Mill Material",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Cutting Angle",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Coupling Size",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Cutting Dia.",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Key",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Bore Dia.",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Bolt Size",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Shank Material",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Tip Style Group",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Tip Size",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Tip Style",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Handle Material",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Tether Capable",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Nut Style",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Max. Fixture Thickness",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Ultimate Tension in 4000 PSI Concrete (Lb.)",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Anchor Length",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Min. Embedment",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Anchor Dia.",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Proof Load",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Head Width",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Temp. Range (F)",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Small End Dia.",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Included Angle (Deg.)",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Number of Teeth",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Shank Size",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Tooth Type",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Depth:Dia. Ratio",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Chuck Size",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Base Size",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Spindle Taper",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Capacity Cast Iron",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Swing",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Table Work Surface",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Amps AC",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Spindle to Table",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Capacity Steel",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Number of Speeds",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Spindle Travel",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Column Dia.",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Motor HP",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Quill Dia.",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Max. Spindle To Base",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Tap Finish",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Tap Chamfer",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Pitch Diameter Limit",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Tap Material",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Tap Dimension Type",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Tap Thread Size",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Tap Grouping",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Tap Thread Type",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Secondary Material Application ISO Code",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Secondary Material Application",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Cutting Application",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Insert Shape",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Sheet Size",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Measurement Type",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Tool Storage Type",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Sockets and Accessories Included In Set",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Number of Pieces Range",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Tool Families Included",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Filter Design",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Outside Diameter",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Compatible Vehicle Make",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Bulb Shape",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Meets Circle E Requirements",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Dimmable",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Bulb Base Type",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "CA Title 20 Compliant",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Shatter-Resistant",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Watts",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Color Temperature",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Vehicle Class",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Number of Holes",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Autoclavable",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Top Diameter",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Stopper Size",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Bottom Diameter",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Protection From",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Wire Diameter",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Resistance Properties",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Mesh Rating",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Mesh Size",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Screen Material",
+    "n": 3,
+    "rate": 0.006
+   },
+   {
+    "name_verbatim": "Milling Diameter",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Shank Shape",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Fastener Industry Standards",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Dimension D",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Dimension H",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Dimension J",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Bolt Hole Center-to-Center",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Mounted Bearing Item",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Dimension F",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Dimension L",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Bearing Insert Material",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Dynamic Load Capacity",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Dimension C",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Bearing Insert Type",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Static Load Capacity",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Bearing Housing Material Type",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Dimension E",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Shaft Locking Type",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Dimension B",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Driver Size",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Nut Height",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Width Across Flats",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Color/Finish",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Meets",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Point Dia.",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Point Material",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Sizes Included",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Fractional Size (In.)",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Tensile Strength (PSI)",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Grip Range",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Barrel Head Dia.",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Screw Material",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Barrel Head Height",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Barrel Dia.",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Cutting Capacity (In.)",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Pilot Dia. (In.)",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Body Dia. (In.)",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Cutter Dia.",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Shank",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Torx Wrench",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Dia. (In.)",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Drill Diameter Tolerance",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Maximum Drilling Depth",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Drill Bit Point Type",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Spindle Speed",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Table Slot Size",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Tilting Angle",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Fractional Size",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Hardness Scale",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Dia. Tolerance",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Length Tolerance",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Overall Length (mm)",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Flute Length (mm)",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Metric Size",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Size (In.)",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Shank Size (In.)",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Chuck Size (In.)",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Fits Hole Saw Dia. (In.)",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Pilot Drill",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Construction",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Thread Size (In.)",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Drilling Depth",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Number of Coolant Holes",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Depth x Dia. Ratio",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Max. Drilling Depth",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Flanged Shank",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Number of Inserts",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Max. Drill Dia.",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Drill Point",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Outside Dia. (In.)",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Hole Dia.",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Chamfer",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Reamer Application",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Chip-Breaker Style",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Chip-Breaker Code",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Coating Process",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Nose Radius",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Insert Thickness",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Relief Angle",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Drivers and Bits Included In Set",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Wrenches Included In Set",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Inside Diameter",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Color Rendering Index",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Light Appearance",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Fitting Style",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Fitting Shank Type",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Overall Pressure - Maximum",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Form",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Hygiene Properties",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "For Wire Size",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Insulation Material",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "For Conductor Material",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Maximum Operating Temperature",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Number of Ports",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Maximum Voltage",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Body Material",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Direct Burial Rated",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Manufacturer Part Number",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Inside Length",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Stackable",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "% Recycled Content",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Inside Width",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Mobility",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Volume Capacity",
+    "n": 2,
+    "rate": 0.004
+   },
+   {
+    "name_verbatim": "Screw Head Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Vented Hole Size",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Screw Style",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Drive",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Max. Temp.",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Tube Material",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Reinforcement",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Bend Radius",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Number of Sizes",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Workable Length",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Nut Standards",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Wing Span",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Toggle Bolt Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Anchor Thread Size",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Screw Length",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Usable Length",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Anchor Material",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Shoulder Dia.",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Shear Strength (PSI)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Shoulder Length",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Screw Head Dia.",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Shoulder Length Tolerance",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Yield Strength (PSI)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Machine Screw Head Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Thickness Tolerance",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Fits Bolt Sizes",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Cuts",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Blade Material",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Cutting Capacity",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Cutting Action",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Saw Dia.",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Max. Cutting Depth",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Replacement Pilot Drill No.",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Tooth Material",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Pilot Drill Size",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Face Width",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Arbor Hole",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Mounting Size",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Drill Point Length",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Drill Length Class",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Circuit Board Drill",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Web Thinning",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Web Construction",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Shank Dia. (mm)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Max. Depth",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Projection",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Wire Range",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Number of Wires",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Max. Voltage",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Decimal Size (In.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Chamfer (Deg.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Cutting Direction - Machining",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Reamer Size",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Size - Decimal",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Shank Width (In.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Shim",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Lock",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Lock Pin",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Shim Screw",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Through Hole Inside Dia.",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Seat Size",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Peripheral Insert Style",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Max. RPM",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "HP Rating @ 1200 RPM",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Accommodates",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Torque (In.-Lbs.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Width (In.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Height (In.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Max. Torque (In.-Lbs.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Serviceable Temp. Range (F)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Length (In.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Shaft Dia. Range (In.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "HP Rating @ 100 RPM",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "HP Rating @ 1800 RPM",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "HP Rating @ 3600 RPM",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Max. Angular Misalignment",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Max. Parallel Misalignment (In.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Coupling Weight (Lb.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Green Environmental Attribute",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Mounting Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Coating",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Insert Material",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Cutting Edge",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Concentricity Tolerance",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Hardness",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Bushing Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Large End Dia. (In.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "For Removing Studs, Bolts, Screws",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Taper Length (In.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Small End Dia. (In.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Drill Size (In.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Motor Bearings",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Motor Enclosure Design",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Body Dia.",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Motor Mounting Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Ins. Class",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Nameplate RPM",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "RPM Range",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Motor Thermal Protection",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "HP",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Full Load Amps",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Motor Design",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Velocity",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Motor Mounting Position",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Force",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Ambient Temperature",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Collet Series",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Fastener Length",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Fastener Thread Style",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Cap Screw Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Min. Thread Length",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Max. Operating Temp.",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Indicator",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Battery Life",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Audio Alarm",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Weight (Lbs.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Battery",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Exterior Length (In.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Scan Depth (In.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Exterior Width (In.)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Operating Frequency (Hz)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Standard Battery Series",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Standard Battery Size",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Battery Chemistry",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Standard Battery Pack Size",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Standard Battery Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Footplates",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Mounting",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "For Use with Series",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Toilet/Urinal Product Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Toilet/Urinal Product Group",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Brand",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Folded Width",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Ply",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Fold Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Number of Sheets",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Uses Dispenser",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Bore Depth",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Angle",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Teeth per Inch",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "For Fastener Sizes",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Pliers Included In Set",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Door Handle/Lock Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Shelf Adjustment Increments",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Load Capacity per Shelf",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Door Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Frame Assembled",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Base Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Cabinet Finish",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Cabinet Storage Components",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Door Handle Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Number of Shelves and Adjustability",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Cabinet Material",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Cabinet Height Range",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Duty Rating",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Number of Doors",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Lumens",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Gauge",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Penny Size",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Shank Diameter",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Head Diameter",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Flammability",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Base Anti-Seize Compound",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "USDA Certified Biobased Product",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Operating Temperature Range",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Primary Additives",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Odor",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "IP Rating",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Switch Action",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Contact Form",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Horsepower",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Number of Connections",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Mounting Hole Size (H x W)",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Electrical Connection Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "AC Contact Rating",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Number of Positions",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Switch Color",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Drain Product Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Drain Material",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Installation Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Absolute Filter Rating",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Compatible Grainger Part Number",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Compatible Manufacturer Model Number",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Compatible Product Type",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Finishing Features",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Compatible Materials",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Working Time Grade",
+    "n": 1,
+    "rate": 0.002
+   },
+   {
+    "name_verbatim": "Interior/Exterior",
+    "n": 1,
+    "rate": 0.002
+   }
+  ]
+ },
+ "by_markup_era": {
+  "2015": {
+   "n_records": 337,
+   "attrs_per_record_mean": 13.5,
+   "attrs_per_record_hist": {
+    "1": 9,
+    "2": 9,
+    "3": 15,
+    "4": 7,
+    "5": 4,
+    "6": 4,
+    "7": 8,
+    "8": 9,
+    "9": 25,
+    "10": 8,
+    "11": 12,
+    "12": 23,
+    "13": 12,
+    "14": 12,
+    "15": 42,
+    "16": 30,
+    "17": 53,
+    "18": 27,
+    "19": 7,
+    "20": 4,
+    "21": 2,
+    "22": 7,
+    "23": 1,
+    "24": 1,
+    "25": 1,
+    "26": 2,
+    "27": 2,
+    "156": 1
+   },
+   "presence": [
+    {
+     "name_verbatim": "Item",
+     "n": 336,
+     "rate": 0.997
+    },
+    {
+     "name_verbatim": "Finish",
+     "n": 201,
+     "rate": 0.5964
+    },
+    {
+     "name_verbatim": "Overall Length",
+     "n": 198,
+     "rate": 0.5875
+    },
+    {
+     "name_verbatim": "Shank Dia.",
+     "n": 162,
+     "rate": 0.4807
+    },
+    {
+     "name_verbatim": "Cutting Direction",
+     "n": 155,
+     "rate": 0.4599
+    },
+    {
+     "name_verbatim": "Number of Flutes",
+     "n": 144,
+     "rate": 0.4273
+    },
+    {
+     "name_verbatim": "Dimension Type",
+     "n": 141,
+     "rate": 0.4184
+    },
+    {
+     "name_verbatim": "Material",
+     "n": 137,
+     "rate": 0.4065
+    },
+    {
+     "name_verbatim": "Grade",
+     "n": 131,
+     "rate": 0.3887
+    },
+    {
+     "name_verbatim": "Length of Cut",
+     "n": 120,
+     "rate": 0.3561
+    },
+    {
+     "name_verbatim": "Helix Angle",
+     "n": 117,
+     "rate": 0.3472
+    },
+    {
+     "name_verbatim": "Cutting Type",
+     "n": 117,
+     "rate": 0.3472
+    },
+    {
+     "name_verbatim": "List Number",
+     "n": 115,
+     "rate": 0.3412
+    },
+    {
+     "name_verbatim": "End Mill Style",
+     "n": 94,
+     "rate": 0.2789
+    },
+    {
+     "name_verbatim": "Milling Dia.",
+     "n": 92,
+     "rate": 0.273
+    },
+    {
+     "name_verbatim": "Single End/Double End",
+     "n": 92,
+     "rate": 0.273
+    },
+    {
+     "name_verbatim": "Application",
+     "n": 76,
+     "rate": 0.2255
+    },
+    {
+     "name_verbatim": "Corner Radius",
+     "n": 71,
+     "rate": 0.2107
+    },
+    {
+     "name_verbatim": "Size",
+     "n": 55,
+     "rate": 0.1632
+    },
+    {
+     "name_verbatim": "Thread Direction",
+     "n": 52,
+     "rate": 0.1543
+    },
+    {
+     "name_verbatim": "Type",
+     "n": 51,
+     "rate": 0.1513
+    },
+    {
+     "name_verbatim": "Diameter",
+     "n": 49,
+     "rate": 0.1454
+    },
+    {
+     "name_verbatim": "Thread Type",
+     "n": 48,
+     "rate": 0.1424
+    },
+    {
+     "name_verbatim": "Pitch",
+     "n": 34,
+     "rate": 0.1009
+    },
+    {
+     "name_verbatim": "For Use With",
+     "n": 31,
+     "rate": 0.092
+    },
+    {
+     "name_verbatim": "Package Quantity",
+     "n": 31,
+     "rate": 0.092
+    },
+    {
+     "name_verbatim": "Standards",
+     "n": 30,
+     "rate": 0.089
+    },
+    {
+     "name_verbatim": "End Mill Application",
+     "n": 29,
+     "rate": 0.0861
+    },
+    {
+     "name_verbatim": "Neck Length",
+     "n": 29,
+     "rate": 0.0861
+    },
+    {
+     "name_verbatim": "Thread Length",
+     "n": 29,
+     "rate": 0.0861
+    },
+    {
+     "name_verbatim": "Decimal Equivalent",
+     "n": 27,
+     "rate": 0.0801
+    },
+    {
+     "name_verbatim": "End Style",
+     "n": 26,
+     "rate": 0.0772
+    },
+    {
+     "name_verbatim": "End",
+     "n": 26,
+     "rate": 0.0772
+    },
+    {
+     "name_verbatim": "Flute Length",
+     "n": 25,
+     "rate": 0.0742
+    },
+    {
+     "name_verbatim": "Number of Inserts Required",
+     "n": 24,
+     "rate": 0.0712
+    },
+    {
+     "name_verbatim": "Rockwell Hardness",
+     "n": 24,
+     "rate": 0.0712
+    },
+    {
+     "name_verbatim": "Neck Dia.",
+     "n": 22,
+     "rate": 0.0653
+    },
+    {
+     "name_verbatim": "Point Type",
+     "n": 22,
+     "rate": 0.0653
+    },
+    {
+     "name_verbatim": "Thread Size",
+     "n": 22,
+     "rate": 0.0653
+    },
+    {
+     "name_verbatim": "Includes",
+     "n": 21,
+     "rate": 0.0623
+    },
+    {
+     "name_verbatim": "Point Angle",
+     "n": 18,
+     "rate": 0.0534
+    },
+    {
+     "name_verbatim": "Shank Dia. (In.)",
+     "n": 18,
+     "rate": 0.0534
+    },
+    {
+     "name_verbatim": "Overall Length (In.)",
+     "n": 18,
+     "rate": 0.0534
+    },
+    {
+     "name_verbatim": "Tap Style",
+     "n": 18,
+     "rate": 0.0534
+    },
+    {
+     "name_verbatim": "Drive Type",
+     "n": 17,
+     "rate": 0.0504
+    },
+    {
+     "name_verbatim": "Thickness (In.)",
+     "n": 17,
+     "rate": 0.0504
+    },
+    {
+     "name_verbatim": "Meets/Exceeds",
+     "n": 17,
+     "rate": 0.0504
+    },
+    {
+     "name_verbatim": "Number of Pieces",
+     "n": 16,
+     "rate": 0.0475
+    },
+    {
+     "name_verbatim": "Series",
+     "n": 15,
+     "rate": 0.0445
+    },
+    {
+     "name_verbatim": "Shank Type",
+     "n": 14,
+     "rate": 0.0415
+    },
+    {
+     "name_verbatim": "Cast Iron (K) Compatibility",
+     "n": 14,
+     "rate": 0.0415
+    },
+    {
+     "name_verbatim": "Head Height",
+     "n": 14,
+     "rate": 0.0415
+    },
+    {
+     "name_verbatim": "Hex Size (In.)",
+     "n": 14,
+     "rate": 0.0415
+    },
+    {
+     "name_verbatim": "Shank Length",
+     "n": 14,
+     "rate": 0.0415
+    },
+    {
+     "name_verbatim": "Coolant Through",
+     "n": 14,
+     "rate": 0.0415
+    },
+    {
+     "name_verbatim": "Insert Screw",
+     "n": 13,
+     "rate": 0.0386
+    },
+    {
+     "name_verbatim": "Dia./Thread Size",
+     "n": 13,
+     "rate": 0.0386
+    },
+    {
+     "name_verbatim": "Head Type",
+     "n": 13,
+     "rate": 0.0386
+    },
+    {
+     "name_verbatim": "Left/Right Hand",
+     "n": 13,
+     "rate": 0.0386
+    },
+    {
+     "name_verbatim": "Pitch Diameter Limits",
+     "n": 13,
+     "rate": 0.0386
+    },
+    {
+     "name_verbatim": "Stainless (M) Compatibility",
+     "n": 12,
+     "rate": 0.0356
+    },
+    {
+     "name_verbatim": "Steel (P) Compatibility",
+     "n": 12,
+     "rate": 0.0356
+    },
+    {
+     "name_verbatim": "ANSI Number",
+     "n": 12,
+     "rate": 0.0356
+    },
+    {
+     "name_verbatim": "Drive Size",
+     "n": 12,
+     "rate": 0.0356
+    },
+    {
+     "name_verbatim": "Head Dia.",
+     "n": 12,
+     "rate": 0.0356
+    },
+    {
+     "name_verbatim": "System of Measurement",
+     "n": 11,
+     "rate": 0.0326
+    },
+    {
+     "name_verbatim": "Fits Brand",
+     "n": 11,
+     "rate": 0.0326
+    },
+    {
+     "name_verbatim": "Class",
+     "n": 10,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Min. Tensile Strength (PSI)",
+     "n": 10,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "For Use With Grainger Item Number",
+     "n": 10,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Nomenclature",
+     "n": 10,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Cutting Length",
+     "n": 10,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Cutting Edge Type",
+     "n": 10,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Inscribed Circle",
+     "n": 10,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Ratio",
+     "n": 10,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Thread Style",
+     "n": 9,
+     "rate": 0.0267
+    },
+    {
+     "name_verbatim": "Length",
+     "n": 9,
+     "rate": 0.0267
+    },
+    {
+     "name_verbatim": "For Use With Mfr. Model Number",
+     "n": 9,
+     "rate": 0.0267
+    },
+    {
+     "name_verbatim": "Temp. Range",
+     "n": 8,
+     "rate": 0.0237
+    },
+    {
+     "name_verbatim": "Thread Length (A)",
+     "n": 8,
+     "rate": 0.0237
+    },
+    {
+     "name_verbatim": "Thread Length Type",
+     "n": 8,
+     "rate": 0.0237
+    },
+    {
+     "name_verbatim": "Thread Length (B)",
+     "n": 8,
+     "rate": 0.0237
+    },
+    {
+     "name_verbatim": "Length under Head",
+     "n": 8,
+     "rate": 0.0237
+    },
+    {
+     "name_verbatim": "Bore",
+     "n": 8,
+     "rate": 0.0237
+    },
+    {
+     "name_verbatim": "Thread Dia.",
+     "n": 7,
+     "rate": 0.0208
+    },
+    {
+     "name_verbatim": "Min. Tensile Strength",
+     "n": 7,
+     "rate": 0.0208
+    },
+    {
+     "name_verbatim": "Cutting Depth (In.)",
+     "n": 7,
+     "rate": 0.0208
+    },
+    {
+     "name_verbatim": "Non Ferrous (N) Compatibility",
+     "n": 6,
+     "rate": 0.0178
+    },
+    {
+     "name_verbatim": "Style",
+     "n": 6,
+     "rate": 0.0178
+    },
+    {
+     "name_verbatim": "Hardened (H) Compatibility",
+     "n": 5,
+     "rate": 0.0148
+    },
+    {
+     "name_verbatim": "Super Alloy (S) Compatibility",
+     "n": 5,
+     "rate": 0.0148
+    },
+    {
+     "name_verbatim": "Insert Size",
+     "n": 5,
+     "rate": 0.0148
+    },
+    {
+     "name_verbatim": "Fastener Finish",
+     "n": 5,
+     "rate": 0.0148
+    },
+    {
+     "name_verbatim": "Material Grade",
+     "n": 5,
+     "rate": 0.0148
+    },
+    {
+     "name_verbatim": "Overall Height",
+     "n": 5,
+     "rate": 0.0148
+    },
+    {
+     "name_verbatim": "Overall Width",
+     "n": 5,
+     "rate": 0.0148
+    },
+    {
+     "name_verbatim": "Color",
+     "n": 5,
+     "rate": 0.0148
+    },
+    {
+     "name_verbatim": "Head Style",
+     "n": 5,
+     "rate": 0.0148
+    },
+    {
+     "name_verbatim": "Width",
+     "n": 5,
+     "rate": 0.0148
+    },
+    {
+     "name_verbatim": "Drill Point (Deg.)",
+     "n": 5,
+     "rate": 0.0148
+    },
+    {
+     "name_verbatim": "Clamp",
+     "n": 5,
+     "rate": 0.0148
+    },
+    {
+     "name_verbatim": "Clamp Screw",
+     "n": 5,
+     "rate": 0.0148
+    },
+    {
+     "name_verbatim": "Voltage",
+     "n": 5,
+     "rate": 0.0148
+    },
+    {
+     "name_verbatim": "Coolant Fed",
+     "n": 5,
+     "rate": 0.0148
+    },
+    {
+     "name_verbatim": "Spiral Direction",
+     "n": 5,
+     "rate": 0.0148
+    },
+    {
+     "name_verbatim": "Basic Material",
+     "n": 4,
+     "rate": 0.0119
+    },
+    {
+     "name_verbatim": "Fastener Thread Type",
+     "n": 4,
+     "rate": 0.0119
+    },
+    {
+     "name_verbatim": "Tensile Strength",
+     "n": 4,
+     "rate": 0.0119
+    },
+    {
+     "name_verbatim": "Hz",
+     "n": 4,
+     "rate": 0.0119
+    },
+    {
+     "name_verbatim": "Phase",
+     "n": 4,
+     "rate": 0.0119
+    },
+    {
+     "name_verbatim": "Flute Length (In.)",
+     "n": 4,
+     "rate": 0.0119
+    },
+    {
+     "name_verbatim": "ISO Number",
+     "n": 4,
+     "rate": 0.0119
+    },
+    {
+     "name_verbatim": "End Mill Cutting Type",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "End Mill Material",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Cutting Angle",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Depth of Cut",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Coupling Size",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Cutting Dia.",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Key",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Bore Dia.",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Bolt Size",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Inside Dia.",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Outside Dia.",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Shank Material",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Tip Style Group",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Tip Size",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Tip Style",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Handle Material",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Tether Capable",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Features",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Fastener Thread Direction",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Drill Size",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Max. Fixture Thickness",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Ultimate Tension in 4000 PSI Concrete (Lb.)",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Anchor Length",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Min. Embedment",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Anchor Dia.",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Proof Load",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Head Width",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Temp. Range (F)",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Thickness",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Large End Dia.",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Material - Machining",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Included Angle (Deg.)",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Number of Teeth",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Shank Size",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Tooth Type",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Chuck Size",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Base Size",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Overall Depth",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Spindle Taper",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Capacity Cast Iron",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Swing",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Table Work Surface",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Amps AC",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Spindle to Table",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Capacity Steel",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Number of Speeds",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Spindle Travel",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Column Dia.",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Motor HP",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Quill Dia.",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Max. Spindle To Base",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "ANSI Code",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Tap Finish",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Tap Chamfer",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Pitch Diameter Limit",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Tap Material",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Tap Dimension Type",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Tap Thread Size",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Tap Grouping",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Tap Thread Type",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Flute Type",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Rake",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Insert Shape",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Chip-Breaker",
+     "n": 3,
+     "rate": 0.0089
+    },
+    {
+     "name_verbatim": "Milling Diameter",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Shank Shape",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Fastener Industry Standards",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Dimension D",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Dimension H",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Dimension J",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Bolt Hole Center-to-Center",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Mounted Bearing Item",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Dimension F",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Dimension L",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Bearing Insert Material",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Dynamic Load Capacity",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Dimension C",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Bearing Insert Type",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Static Load Capacity",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Bearing Housing Material Type",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Dimension E",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Shaft Locking Type",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Dimension B",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Driver Size",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Nut Style",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Nut Height",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Color/Finish",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Meets",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Point Dia.",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Point Material",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Sizes Included",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Fractional Size (In.)",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Tensile Strength (PSI)",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Grip Range",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Barrel Head Dia.",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Barrel Thread Depth",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Screw Material",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Barrel Head Height",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Barrel Length",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Barrel Dia.",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Cutting Capacity (In.)",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Pilot Dia. (In.)",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Body Dia. (In.)",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Cutter Dia.",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Mounting Style",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Shank",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Torx Wrench",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Dia. (In.)",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Spindle Speed",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Table Slot Size",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Tilting Angle",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Fractional Size",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Hardness Scale",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Dia. Tolerance",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Length Tolerance",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Overall Length (mm)",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Flute Length (mm)",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Metric Size",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Size (In.)",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Shank Size (In.)",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Chuck Size (In.)",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Fits Hole Saw Dia. (In.)",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Pilot Drill",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Construction",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Thread Size (In.)",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Drilling Depth",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Drill Bit Grouping",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Depth:Dia. Ratio",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Drill Bit Point Angle",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Drill Bit Size",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Number of Coolant Holes",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Depth x Dia. Ratio",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Max. Drilling Depth",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Flanged Shank",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Shank Type - Machining",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Number of Inserts",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Max. Drill Dia.",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Drill Point",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Outside Dia. (In.)",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Hole Dia.",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Chamfer",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Reamer Application",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Finish - Machining",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Nose Radius",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Insert Thickness",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Relief Angle",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Height",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Depth",
+     "n": 2,
+     "rate": 0.0059
+    },
+    {
+     "name_verbatim": "Screw Head Type",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Vented Hole Size",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Screw Style",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Drive",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Max. Temp.",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Tube Material",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Reinforcement",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Bend Radius",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Number of Sizes",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Workable Length",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Nut Standards",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Width Across Flats",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Wing Span",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Toggle Bolt Type",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Anchor Thread Size",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Screw Length",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Usable Length",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Anchor Material",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Shoulder Dia.",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Shear Strength (PSI)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Shoulder Length",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Screw Head Dia.",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Shoulder Length Tolerance",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Yield Strength (PSI)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Machine Screw Head Type",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Thickness Tolerance",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Fits Bolt Sizes",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "For Bolt Size",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Extractor Type",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Container Type",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Small End Dia.",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "For Bolt Thread Direction",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Cuts",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Blade Material",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Cutting Capacity",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Cutting Action",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Saw Dia.",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Max. Cutting Depth",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Replacement Pilot Drill No.",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Tooth Material",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Pilot Drill Size",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Face Width",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Arbor Hole",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Mounting Size",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Shank Dia. (mm)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Max. Depth",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Projection",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Wire Range",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Number of Wires",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Max. Voltage",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Decimal Size (In.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Chamfer (Deg.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Cutting Direction - Machining",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Measurement System",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Reamer Size",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Size - Decimal",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Shank Width (In.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Shim",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Lock",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Lock Pin",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Shim Screw",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Insert Style",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Number of Cutting Edges",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Seat Size",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Peripheral Insert Style",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Secondary Material Application ISO Code",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Coating Process",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Manufacturer Grade",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Shape",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Primary Material Application ISO Code",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Secondary Material Application",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Primary Material Application",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Max. RPM",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "HP Rating @ 1200 RPM",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Accommodates",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Torque (In.-Lbs.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Width (In.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Height (In.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Max. Torque (In.-Lbs.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Serviceable Temp. Range (F)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Length (In.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Shaft Dia. Range (In.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "HP Rating @ 100 RPM",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "HP Rating @ 1800 RPM",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "HP Rating @ 3600 RPM",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Max. Angular Misalignment",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Max. Parallel Misalignment (In.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Coupling Weight (Lb.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Green Environmental Attribute",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Mounting Type",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Coating",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Insert Material",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Concentricity Tolerance",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Inside Dia. Tolerance",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Hardness",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Outside Dia. Tolerance",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Bushing Type",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Large End Dia. (In.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "For Removing Studs, Bolts, Screws",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Taper Length (In.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Small End Dia. (In.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Drill Size (In.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Motor Bearings",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Motor Enclosure Design",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Body Dia.",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Motor Mounting Type",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Ins. Class",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Nameplate RPM",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "RPM Range",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Motor Thermal Protection",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "HP",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Full Load Amps",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Motor Design",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Velocity",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Motor Mounting Position",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Force",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Ambient Temperature",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Fastener Length",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Fastener Thread Style",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Cap Screw Type",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Min. Thread Length",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Max. Operating Temp.",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Indicator",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Battery Life",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Audio Alarm",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Weight (Lbs.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Battery",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Exterior Length (In.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Scan Depth (In.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Exterior Width (In.)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Operating Frequency (Hz)",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Standard Battery Series",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Standard Battery Size",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Battery Chemistry",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Standard Battery Pack Size",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Standard Battery Type",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Load Capacity",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Footplates",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Mounting",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "For Use with Series",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Toilet/Urinal Product Type",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Toilet/Urinal Product Group",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Brand",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Sheet Size",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Folded Width",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Ply",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Fold Type",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Number of Sheets",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Uses Dispenser",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Bore Depth",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Angle",
+     "n": 1,
+     "rate": 0.003
+    },
+    {
+     "name_verbatim": "Teeth per Inch",
+     "n": 1,
+     "rate": 0.003
+    }
+   ]
+  },
+  "2020": {
+   "n_records": 76,
+   "attrs_per_record_mean": 16.11,
+   "attrs_per_record_hist": {
+    "1": 18,
+    "4": 1,
+    "6": 1,
+    "9": 3,
+    "11": 4,
+    "12": 3,
+    "13": 2,
+    "14": 1,
+    "15": 1,
+    "22": 1,
+    "23": 4,
+    "24": 17,
+    "25": 17,
+    "28": 1,
+    "29": 1,
+    "30": 1
+   },
+   "presence": [
+    {
+     "name_verbatim": "Item",
+     "n": 76,
+     "rate": 1.0
+    },
+    {
+     "name_verbatim": "Material - Machining",
+     "n": 47,
+     "rate": 0.6184
+    },
+    {
+     "name_verbatim": "Measurement System",
+     "n": 44,
+     "rate": 0.5789
+    },
+    {
+     "name_verbatim": "Cutting Direction",
+     "n": 43,
+     "rate": 0.5658
+    },
+    {
+     "name_verbatim": "Finish - Machining",
+     "n": 43,
+     "rate": 0.5658
+    },
+    {
+     "name_verbatim": "Primary Material Application ISO Code",
+     "n": 42,
+     "rate": 0.5526
+    },
+    {
+     "name_verbatim": "Primary Material Application",
+     "n": 42,
+     "rate": 0.5526
+    },
+    {
+     "name_verbatim": "Overall Length",
+     "n": 41,
+     "rate": 0.5395
+    },
+    {
+     "name_verbatim": "Shank Dia.",
+     "n": 40,
+     "rate": 0.5263
+    },
+    {
+     "name_verbatim": "Number of Flutes",
+     "n": 40,
+     "rate": 0.5263
+    },
+    {
+     "name_verbatim": "Shank Type - Machining",
+     "n": 39,
+     "rate": 0.5132
+    },
+    {
+     "name_verbatim": "Helix Angle",
+     "n": 39,
+     "rate": 0.5132
+    },
+    {
+     "name_verbatim": "End Mill Application",
+     "n": 38,
+     "rate": 0.5
+    },
+    {
+     "name_verbatim": "End Mill Cutting Type",
+     "n": 38,
+     "rate": 0.5
+    },
+    {
+     "name_verbatim": "Single End/Double End",
+     "n": 38,
+     "rate": 0.5
+    },
+    {
+     "name_verbatim": "End Mill Style",
+     "n": 38,
+     "rate": 0.5
+    },
+    {
+     "name_verbatim": "Length of Cut",
+     "n": 38,
+     "rate": 0.5
+    },
+    {
+     "name_verbatim": "Coolant Fed",
+     "n": 38,
+     "rate": 0.5
+    },
+    {
+     "name_verbatim": "Milling Dia.",
+     "n": 37,
+     "rate": 0.4868
+    },
+    {
+     "name_verbatim": "Material Grade - Machining",
+     "n": 37,
+     "rate": 0.4868
+    },
+    {
+     "name_verbatim": "List Number",
+     "n": 37,
+     "rate": 0.4868
+    },
+    {
+     "name_verbatim": "Drilling Tool Configuration",
+     "n": 37,
+     "rate": 0.4868
+    },
+    {
+     "name_verbatim": "Miniature End Mill",
+     "n": 36,
+     "rate": 0.4737
+    },
+    {
+     "name_verbatim": "Chip-Breaker",
+     "n": 33,
+     "rate": 0.4342
+    },
+    {
+     "name_verbatim": "Neck Length",
+     "n": 19,
+     "rate": 0.25
+    },
+    {
+     "name_verbatim": "Spiral Direction",
+     "n": 9,
+     "rate": 0.1184
+    },
+    {
+     "name_verbatim": "System of Measurement",
+     "n": 7,
+     "rate": 0.0921
+    },
+    {
+     "name_verbatim": "Size",
+     "n": 7,
+     "rate": 0.0921
+    },
+    {
+     "name_verbatim": "Length",
+     "n": 7,
+     "rate": 0.0921
+    },
+    {
+     "name_verbatim": "Finish",
+     "n": 6,
+     "rate": 0.0789
+    },
+    {
+     "name_verbatim": "Screw Size",
+     "n": 6,
+     "rate": 0.0789
+    },
+    {
+     "name_verbatim": "Material",
+     "n": 6,
+     "rate": 0.0789
+    },
+    {
+     "name_verbatim": "Hex Size",
+     "n": 6,
+     "rate": 0.0789
+    },
+    {
+     "name_verbatim": "Meets/Exceeds",
+     "n": 6,
+     "rate": 0.0789
+    },
+    {
+     "name_verbatim": "Package Quantity",
+     "n": 6,
+     "rate": 0.0789
+    },
+    {
+     "name_verbatim": "Grade",
+     "n": 6,
+     "rate": 0.0789
+    },
+    {
+     "name_verbatim": "Corner Radius",
+     "n": 5,
+     "rate": 0.0658
+    },
+    {
+     "name_verbatim": "For Bolt Size",
+     "n": 5,
+     "rate": 0.0658
+    },
+    {
+     "name_verbatim": "Extractor Type",
+     "n": 5,
+     "rate": 0.0658
+    },
+    {
+     "name_verbatim": "Drill Size",
+     "n": 5,
+     "rate": 0.0658
+    },
+    {
+     "name_verbatim": "For Bolt Thread Direction",
+     "n": 5,
+     "rate": 0.0658
+    },
+    {
+     "name_verbatim": "Drive Type",
+     "n": 5,
+     "rate": 0.0658
+    },
+    {
+     "name_verbatim": "Inscribed Circle",
+     "n": 4,
+     "rate": 0.0526
+    },
+    {
+     "name_verbatim": "Insert Style",
+     "n": 4,
+     "rate": 0.0526
+    },
+    {
+     "name_verbatim": "ANSI Code",
+     "n": 4,
+     "rate": 0.0526
+    },
+    {
+     "name_verbatim": "Number of Cutting Edges",
+     "n": 4,
+     "rate": 0.0526
+    },
+    {
+     "name_verbatim": "Thickness",
+     "n": 4,
+     "rate": 0.0526
+    },
+    {
+     "name_verbatim": "Clearance Angle",
+     "n": 4,
+     "rate": 0.0526
+    },
+    {
+     "name_verbatim": "Shape",
+     "n": 4,
+     "rate": 0.0526
+    },
+    {
+     "name_verbatim": "Insert Holding Type",
+     "n": 4,
+     "rate": 0.0526
+    },
+    {
+     "name_verbatim": "Included Angle",
+     "n": 4,
+     "rate": 0.0526
+    },
+    {
+     "name_verbatim": "Drive Size",
+     "n": 3,
+     "rate": 0.0395
+    },
+    {
+     "name_verbatim": "Standards",
+     "n": 3,
+     "rate": 0.0395
+    },
+    {
+     "name_verbatim": "Manufacturer Grade",
+     "n": 3,
+     "rate": 0.0395
+    },
+    {
+     "name_verbatim": "Cutting Application",
+     "n": 3,
+     "rate": 0.0395
+    },
+    {
+     "name_verbatim": "Rake",
+     "n": 3,
+     "rate": 0.0395
+    },
+    {
+     "name_verbatim": "Neck Dia.",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Container Type",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Small End Dia.",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Large End Dia.",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Number of Pieces",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Includes",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Thread Style",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Drill Diameter Tolerance",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Series",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Flute Type",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Decimal Equivalent",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Maximum Drilling Depth",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Drill Bit Point Type",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Drill Bit Grouping",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Flute Length",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Drill Bit Size",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Drill Bit Point Angle",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Chip-Breaker Style",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Chip-Breaker Code",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Secondary Material Application ISO Code",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Secondary Material Application",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Depth of Cut",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "For Use With",
+     "n": 2,
+     "rate": 0.0263
+    },
+    {
+     "name_verbatim": "Dia./Thread Size",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Load Capacity",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Fastener Thread Type",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Fastener Thread Direction",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Nut Style",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Fastener Finish",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Basic Material",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Width Across Flats",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Material Grade",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Drill Point Length",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Shank Length",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Drill Length Class",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Depth:Dia. Ratio",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Circuit Board Drill",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Web Thinning",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Web Construction",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Features",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Coating Process",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Through Hole Inside Dia.",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "ISO Number",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Cutting Edge",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Fits Brand",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "For Use With Mfr. Model Number",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Type",
+     "n": 1,
+     "rate": 0.0132
+    },
+    {
+     "name_verbatim": "Collet Series",
+     "n": 1,
+     "rate": 0.0132
+    }
+   ]
+  },
+  "2026": {
+   "n_records": 83,
+   "attrs_per_record_mean": 8.84,
+   "attrs_per_record_hist": {
+    "1": 1,
+    "4": 3,
+    "5": 9,
+    "6": 2,
+    "7": 5,
+    "8": 17,
+    "9": 26,
+    "10": 2,
+    "11": 6,
+    "12": 5,
+    "13": 2,
+    "17": 4,
+    "19": 1
+   },
+   "presence": [
+    {
+     "name_verbatim": "Color",
+     "n": 29,
+     "rate": 0.3494
+    },
+    {
+     "name_verbatim": "Container Capacity",
+     "n": 18,
+     "rate": 0.2169
+    },
+    {
+     "name_verbatim": "Overall Diameter",
+     "n": 18,
+     "rate": 0.2169
+    },
+    {
+     "name_verbatim": "Height",
+     "n": 17,
+     "rate": 0.2048
+    },
+    {
+     "name_verbatim": "Container Material",
+     "n": 17,
+     "rate": 0.2048
+    },
+    {
+     "name_verbatim": "Includes Ashtray",
+     "n": 17,
+     "rate": 0.2048
+    },
+    {
+     "name_verbatim": "Lid Type",
+     "n": 17,
+     "rate": 0.2048
+    },
+    {
+     "name_verbatim": "Container Shape",
+     "n": 17,
+     "rate": 0.2048
+    },
+    {
+     "name_verbatim": "Overall Length",
+     "n": 17,
+     "rate": 0.2048
+    },
+    {
+     "name_verbatim": "Material",
+     "n": 17,
+     "rate": 0.2048
+    },
+    {
+     "name_verbatim": "Product Type",
+     "n": 15,
+     "rate": 0.1807
+    },
+    {
+     "name_verbatim": "Overall Height",
+     "n": 14,
+     "rate": 0.1687
+    },
+    {
+     "name_verbatim": "Overall Width",
+     "n": 13,
+     "rate": 0.1566
+    },
+    {
+     "name_verbatim": "Finish",
+     "n": 13,
+     "rate": 0.1566
+    },
+    {
+     "name_verbatim": "Container Type",
+     "n": 12,
+     "rate": 0.1446
+    },
+    {
+     "name_verbatim": "Standards",
+     "n": 10,
+     "rate": 0.1205
+    },
+    {
+     "name_verbatim": "Container Size",
+     "n": 9,
+     "rate": 0.1084
+    },
+    {
+     "name_verbatim": "Depth",
+     "n": 8,
+     "rate": 0.0964
+    },
+    {
+     "name_verbatim": "Series",
+     "n": 8,
+     "rate": 0.0964
+    },
+    {
+     "name_verbatim": "Housing Material",
+     "n": 8,
+     "rate": 0.0964
+    },
+    {
+     "name_verbatim": "Fragrance",
+     "n": 7,
+     "rate": 0.0843
+    },
+    {
+     "name_verbatim": "Light Technology",
+     "n": 7,
+     "rate": 0.0843
+    },
+    {
+     "name_verbatim": "Thread Size",
+     "n": 7,
+     "rate": 0.0843
+    },
+    {
+     "name_verbatim": "NSF Rating",
+     "n": 6,
+     "rate": 0.0723
+    },
+    {
+     "name_verbatim": "Includes",
+     "n": 6,
+     "rate": 0.0723
+    },
+    {
+     "name_verbatim": "Color Family",
+     "n": 5,
+     "rate": 0.0602
+    },
+    {
+     "name_verbatim": "Primary Chemical",
+     "n": 5,
+     "rate": 0.0602
+    },
+    {
+     "name_verbatim": "Cleaner Form",
+     "n": 5,
+     "rate": 0.0602
+    },
+    {
+     "name_verbatim": "Ready to Use/Concentrated",
+     "n": 5,
+     "rate": 0.0602
+    },
+    {
+     "name_verbatim": "Lock Type",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Bushing Code",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Inside Dia.",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Drill Bushing Wall Type",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Drill Size",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Inside Dia. Tolerance",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Outside Dia. Tolerance",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Measurement System",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Decimal Equivalent",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Bushing Head Type",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Outside Dia.",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Includes Lamp",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Socket Type",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Number of Lightheads",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Housing Color",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Voltage",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Fixture Wattage",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Scale Connection Ports",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Weighing Units",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Platform Material",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Readability",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Stabilization Time",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Linearity",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Weighing Surface Depth",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Repeatability",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Capacity",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Weighing Surface Width",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Display Type",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Application Modes",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "System of Measurement",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Barrel Thread Depth",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Barrel Head Style",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Barrel Drive",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Barrel Length",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Barrel Diameter",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Properties",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Frame Leaf Height",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Frame Leaf Width",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Number of Holes per Leaf",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Mounting Style",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Frame Leaf Thickness",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Propeller Dia. (In.)",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Number of Blades",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Bore Dia. (In.)",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Pitch (Deg.)",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Rotation",
+     "n": 4,
+     "rate": 0.0482
+    },
+    {
+     "name_verbatim": "Measurement Type",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Tool Storage Type",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Sockets and Accessories Included In Set",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Drive Size",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Number of Pieces Range",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Tool Families Included",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Filter Design",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Outside Diameter",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Compatible Vehicle Make",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Bulb Shape",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Meets Circle E Requirements",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Dimmable",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Bulb Base Type",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "CA Title 20 Compliant",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Shatter-Resistant",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Watts",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Color Temperature",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Vehicle Class",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Number of Holes",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Autoclavable",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Top Diameter",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Stopper Size",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Bottom Diameter",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Protection From",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Wire Diameter",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Resistance Properties",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Mesh Rating",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Mesh Size",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Screen Material",
+     "n": 3,
+     "rate": 0.0361
+    },
+    {
+     "name_verbatim": "Drivers and Bits Included In Set",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Wrenches Included In Set",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Overall Depth",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Inside Diameter",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Color Rendering Index",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Light Appearance",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Fitting Style",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Fitting Shank Type",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Thread Type",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Overall Pressure - Maximum",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Form",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Hygiene Properties",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Head Style",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "For Wire Size",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Insulation Material",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "For Conductor Material",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Maximum Operating Temperature",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Hex Size",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Number of Ports",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Maximum Voltage",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Body Material",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Direct Burial Rated",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Manufacturer Part Number",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Sheet Size",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Inside Length",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Load Capacity",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Stackable",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "% Recycled Content",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Inside Width",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Mobility",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "Volume Capacity",
+     "n": 2,
+     "rate": 0.0241
+    },
+    {
+     "name_verbatim": "For Fastener Sizes",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Pliers Included In Set",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Door Handle/Lock Type",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Shelf Adjustment Increments",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Load Capacity per Shelf",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Door Type",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Frame Assembled",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Base Type",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Cabinet Finish",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Cabinet Storage Components",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Door Handle Type",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Number of Shelves and Adjustability",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Cabinet Material",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Cabinet Height Range",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Duty Rating",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Number of Doors",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Lumens",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Gauge",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Penny Size",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Application",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Shank Type",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Shank Diameter",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Head Diameter",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Head Type",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Point Type",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Length",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Flammability",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Base Anti-Seize Compound",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "USDA Certified Biobased Product",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Operating Temperature Range",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Primary Additives",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Odor",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "IP Rating",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Switch Action",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Contact Form",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Horsepower",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Number of Connections",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Mounting Hole Size (H x W)",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Electrical Connection Type",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "AC Contact Rating",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Number of Positions",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Switch Color",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Drain Product Type",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Drain Material",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Installation Type",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Shape",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Absolute Filter Rating",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Compatible Grainger Part Number",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Compatible Manufacturer Model Number",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Compatible Product Type",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Finishing Features",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Compatible Materials",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Working Time Grade",
+     "n": 1,
+     "rate": 0.012
+    },
+    {
+     "name_verbatim": "Interior/Exterior",
+     "n": 1,
+     "rate": 0.012
+    }
+   ]
+  }
+ },
+ "by_family": {
+  "cutter": {
+   "n_records": 34,
+   "attrs_per_record_mean": 10.21,
+   "attrs_per_record_hist": {
+    "2": 2,
+    "6": 1,
+    "7": 7,
+    "9": 1,
+    "10": 1,
+    "11": 9,
+    "12": 5,
+    "13": 3,
+    "14": 4,
+    "15": 1
+   },
+   "presence": [
+    {
+     "name_verbatim": "Item",
+     "n": 34,
+     "rate": 1.0
+    },
+    {
+     "name_verbatim": "Number of Inserts Required",
+     "n": 19,
+     "rate": 0.5588
+    },
+    {
+     "name_verbatim": "Diameter",
+     "n": 19,
+     "rate": 0.5588
+    },
+    {
+     "name_verbatim": "Shank Dia. (In.)",
+     "n": 17,
+     "rate": 0.5
+    },
+    {
+     "name_verbatim": "Material",
+     "n": 14,
+     "rate": 0.4118
+    },
+    {
+     "name_verbatim": "Overall Length (In.)",
+     "n": 12,
+     "rate": 0.3529
+    },
+    {
+     "name_verbatim": "Overall Length",
+     "n": 11,
+     "rate": 0.3235
+    },
+    {
+     "name_verbatim": "Insert Screw",
+     "n": 11,
+     "rate": 0.3235
+    },
+    {
+     "name_verbatim": "Left/Right Hand",
+     "n": 11,
+     "rate": 0.3235
+    },
+    {
+     "name_verbatim": "Application",
+     "n": 10,
+     "rate": 0.2941
+    },
+    {
+     "name_verbatim": "Nomenclature",
+     "n": 10,
+     "rate": 0.2941
+    },
+    {
+     "name_verbatim": "Cutting Length",
+     "n": 10,
+     "rate": 0.2941
+    },
+    {
+     "name_verbatim": "Cutting Edge Type",
+     "n": 10,
+     "rate": 0.2941
+    },
+    {
+     "name_verbatim": "Shank Length",
+     "n": 10,
+     "rate": 0.2941
+    },
+    {
+     "name_verbatim": "Cutting Direction",
+     "n": 9,
+     "rate": 0.2647
+    },
+    {
+     "name_verbatim": "Series",
+     "n": 9,
+     "rate": 0.2647
+    },
+    {
+     "name_verbatim": "ANSI Number",
+     "n": 9,
+     "rate": 0.2647
+    },
+    {
+     "name_verbatim": "Type",
+     "n": 8,
+     "rate": 0.2353
+    },
+    {
+     "name_verbatim": "Inscribed Circle",
+     "n": 8,
+     "rate": 0.2353
+    },
+    {
+     "name_verbatim": "For Use With",
+     "n": 8,
+     "rate": 0.2353
+    },
+    {
+     "name_verbatim": "Ratio",
+     "n": 8,
+     "rate": 0.2353
+    },
+    {
+     "name_verbatim": "Bore",
+     "n": 8,
+     "rate": 0.2353
+    },
+    {
+     "name_verbatim": "Number of Pieces",
+     "n": 7,
+     "rate": 0.2059
+    },
+    {
+     "name_verbatim": "Package Quantity",
+     "n": 7,
+     "rate": 0.2059
+    },
+    {
+     "name_verbatim": "Cutting Depth (In.)",
+     "n": 7,
+     "rate": 0.2059
+    },
+    {
+     "name_verbatim": "Includes",
+     "n": 5,
+     "rate": 0.1471
+    },
+    {
+     "name_verbatim": "Finish",
+     "n": 4,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Clamp",
+     "n": 4,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Clamp Screw",
+     "n": 4,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Included Angle (Deg.)",
+     "n": 3,
+     "rate": 0.0882
+    },
+    {
+     "name_verbatim": "Number of Teeth",
+     "n": 3,
+     "rate": 0.0882
+    },
+    {
+     "name_verbatim": "Cutting Capacity (In.)",
+     "n": 2,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Pilot Dia. (In.)",
+     "n": 2,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Body Dia. (In.)",
+     "n": 2,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Number of Flutes",
+     "n": 2,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Tooth Type",
+     "n": 2,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Cutter Dia.",
+     "n": 2,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Torx Wrench",
+     "n": 2,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Dia. (In.)",
+     "n": 2,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Cuts",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Blade Material",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Cutting Capacity",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Cutting Action",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Saw Dia.",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Max. Cutting Depth",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Replacement Pilot Drill No.",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Tooth Material",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Pilot Drill Size",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Shank Size",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Face Width",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Arbor Hole",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Cutting Angle",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Depth of Cut",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Cutting Dia.",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Mounting Size",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Mounting Style",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Key",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Pitch",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Insert Size",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Shank Dia.",
+     "n": 1,
+     "rate": 0.0294
+    },
+    {
+     "name_verbatim": "Shank",
+     "n": 1,
+     "rate": 0.0294
+    }
+   ]
+  },
+  "cutting_tool_prefix_targeted": {
+   "n_records": 63,
+   "attrs_per_record_mean": 9.0,
+   "attrs_per_record_hist": {
+    "1": 1,
+    "4": 3,
+    "5": 9,
+    "6": 1,
+    "7": 4,
+    "8": 9,
+    "9": 16,
+    "10": 2,
+    "11": 6,
+    "12": 5,
+    "13": 2,
+    "17": 4,
+    "19": 1
+   },
+   "presence": [
+    {
+     "name_verbatim": "Overall Length",
+     "n": 17,
+     "rate": 0.2698
+    },
+    {
+     "name_verbatim": "Material",
+     "n": 17,
+     "rate": 0.2698
+    },
+    {
+     "name_verbatim": "Product Type",
+     "n": 15,
+     "rate": 0.2381
+    },
+    {
+     "name_verbatim": "Overall Height",
+     "n": 14,
+     "rate": 0.2222
+    },
+    {
+     "name_verbatim": "Overall Width",
+     "n": 13,
+     "rate": 0.2063
+    },
+    {
+     "name_verbatim": "Finish",
+     "n": 13,
+     "rate": 0.2063
+    },
+    {
+     "name_verbatim": "Color",
+     "n": 13,
+     "rate": 0.2063
+    },
+    {
+     "name_verbatim": "Container Type",
+     "n": 12,
+     "rate": 0.1905
+    },
+    {
+     "name_verbatim": "Standards",
+     "n": 10,
+     "rate": 0.1587
+    },
+    {
+     "name_verbatim": "Container Size",
+     "n": 9,
+     "rate": 0.1429
+    },
+    {
+     "name_verbatim": "Series",
+     "n": 8,
+     "rate": 0.127
+    },
+    {
+     "name_verbatim": "Housing Material",
+     "n": 8,
+     "rate": 0.127
+    },
+    {
+     "name_verbatim": "Fragrance",
+     "n": 7,
+     "rate": 0.1111
+    },
+    {
+     "name_verbatim": "Light Technology",
+     "n": 7,
+     "rate": 0.1111
+    },
+    {
+     "name_verbatim": "Thread Size",
+     "n": 7,
+     "rate": 0.1111
+    },
+    {
+     "name_verbatim": "NSF Rating",
+     "n": 6,
+     "rate": 0.0952
+    },
+    {
+     "name_verbatim": "Includes",
+     "n": 6,
+     "rate": 0.0952
+    },
+    {
+     "name_verbatim": "Color Family",
+     "n": 5,
+     "rate": 0.0794
+    },
+    {
+     "name_verbatim": "Primary Chemical",
+     "n": 5,
+     "rate": 0.0794
+    },
+    {
+     "name_verbatim": "Cleaner Form",
+     "n": 5,
+     "rate": 0.0794
+    },
+    {
+     "name_verbatim": "Ready to Use/Concentrated",
+     "n": 5,
+     "rate": 0.0794
+    },
+    {
+     "name_verbatim": "Lock Type",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Bushing Code",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Inside Dia.",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Drill Bushing Wall Type",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Drill Size",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Inside Dia. Tolerance",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Outside Dia. Tolerance",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Measurement System",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Decimal Equivalent",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Bushing Head Type",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Outside Dia.",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Includes Lamp",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Socket Type",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Number of Lightheads",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Housing Color",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Voltage",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Fixture Wattage",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Scale Connection Ports",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Weighing Units",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Platform Material",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Readability",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Stabilization Time",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Linearity",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Weighing Surface Depth",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Repeatability",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Capacity",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Weighing Surface Width",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Display Type",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Application Modes",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "System of Measurement",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Barrel Thread Depth",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Barrel Head Style",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Barrel Drive",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Barrel Length",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Barrel Diameter",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Properties",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Frame Leaf Height",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Frame Leaf Width",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Number of Holes per Leaf",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Mounting Style",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Frame Leaf Thickness",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Propeller Dia. (In.)",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Number of Blades",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Bore Dia. (In.)",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Pitch (Deg.)",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Rotation",
+     "n": 4,
+     "rate": 0.0635
+    },
+    {
+     "name_verbatim": "Filter Design",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Outside Diameter",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Compatible Vehicle Make",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Bulb Shape",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Meets Circle E Requirements",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Dimmable",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Bulb Base Type",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "CA Title 20 Compliant",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Shatter-Resistant",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Watts",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Color Temperature",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Vehicle Class",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Number of Holes",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Autoclavable",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Top Diameter",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Stopper Size",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Bottom Diameter",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Protection From",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Wire Diameter",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Resistance Properties",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Mesh Rating",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Mesh Size",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Screen Material",
+     "n": 3,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Overall Depth",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Inside Diameter",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Color Rendering Index",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Light Appearance",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Fitting Style",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Fitting Shank Type",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Thread Type",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Overall Pressure - Maximum",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Form",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Hygiene Properties",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Head Style",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "For Wire Size",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Insulation Material",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "For Conductor Material",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Maximum Operating Temperature",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Hex Size",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Number of Ports",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Maximum Voltage",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Body Material",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Direct Burial Rated",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Manufacturer Part Number",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Sheet Size",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Inside Length",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Load Capacity",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Stackable",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "% Recycled Content",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Inside Width",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Mobility",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Volume Capacity",
+     "n": 2,
+     "rate": 0.0317
+    },
+    {
+     "name_verbatim": "Door Handle/Lock Type",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Shelf Adjustment Increments",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Load Capacity per Shelf",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Door Type",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Frame Assembled",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Base Type",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Cabinet Finish",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Cabinet Storage Components",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Door Handle Type",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Number of Shelves and Adjustability",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Cabinet Material",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Cabinet Height Range",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Duty Rating",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Number of Doors",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Lumens",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Gauge",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Penny Size",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Application",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Shank Type",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Shank Diameter",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Head Diameter",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Head Type",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Point Type",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Length",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Flammability",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Base Anti-Seize Compound",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "USDA Certified Biobased Product",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Operating Temperature Range",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Primary Additives",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Container Capacity",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Odor",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "IP Rating",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Switch Action",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Contact Form",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Horsepower",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Number of Connections",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Mounting Hole Size (H x W)",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Electrical Connection Type",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "AC Contact Rating",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Number of Positions",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Switch Color",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Drain Product Type",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Drain Material",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Installation Type",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Shape",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Overall Diameter",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Absolute Filter Rating",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Compatible Grainger Part Number",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Compatible Manufacturer Model Number",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Compatible Product Type",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Finishing Features",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Compatible Materials",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Working Time Grade",
+     "n": 1,
+     "rate": 0.0159
+    },
+    {
+     "name_verbatim": "Interior/Exterior",
+     "n": 1,
+     "rate": 0.0159
+    }
+   ]
+  },
+  "drill": {
+   "n_records": 42,
+   "attrs_per_record_mean": 13.43,
+   "attrs_per_record_hist": {
+    "1": 1,
+    "4": 2,
+    "5": 1,
+    "8": 2,
+    "9": 4,
+    "10": 2,
+    "11": 2,
+    "12": 7,
+    "13": 3,
+    "14": 4,
+    "15": 5,
+    "16": 1,
+    "17": 3,
+    "23": 1,
+    "27": 2,
+    "28": 1,
+    "30": 1
+   },
+   "presence": [
+    {
+     "name_verbatim": "Item",
+     "n": 42,
+     "rate": 1.0
+    },
+    {
+     "name_verbatim": "Material",
+     "n": 28,
+     "rate": 0.6667
+    },
+    {
+     "name_verbatim": "Overall Length",
+     "n": 27,
+     "rate": 0.6429
+    },
+    {
+     "name_verbatim": "Finish",
+     "n": 24,
+     "rate": 0.5714
+    },
+    {
+     "name_verbatim": "Decimal Equivalent",
+     "n": 23,
+     "rate": 0.5476
+    },
+    {
+     "name_verbatim": "Flute Length",
+     "n": 23,
+     "rate": 0.5476
+    },
+    {
+     "name_verbatim": "Cutting Direction",
+     "n": 20,
+     "rate": 0.4762
+    },
+    {
+     "name_verbatim": "Shank Dia.",
+     "n": 20,
+     "rate": 0.4762
+    },
+    {
+     "name_verbatim": "Dimension Type",
+     "n": 18,
+     "rate": 0.4286
+    },
+    {
+     "name_verbatim": "Point Type",
+     "n": 18,
+     "rate": 0.4286
+    },
+    {
+     "name_verbatim": "Size",
+     "n": 17,
+     "rate": 0.4048
+    },
+    {
+     "name_verbatim": "List Number",
+     "n": 17,
+     "rate": 0.4048
+    },
+    {
+     "name_verbatim": "Point Angle",
+     "n": 16,
+     "rate": 0.381
+    },
+    {
+     "name_verbatim": "Standards",
+     "n": 13,
+     "rate": 0.3095
+    },
+    {
+     "name_verbatim": "Coolant Through",
+     "n": 13,
+     "rate": 0.3095
+    },
+    {
+     "name_verbatim": "Application",
+     "n": 9,
+     "rate": 0.2143
+    },
+    {
+     "name_verbatim": "Grade",
+     "n": 9,
+     "rate": 0.2143
+    },
+    {
+     "name_verbatim": "Coolant Fed",
+     "n": 6,
+     "rate": 0.1429
+    },
+    {
+     "name_verbatim": "Shank Length",
+     "n": 5,
+     "rate": 0.119
+    },
+    {
+     "name_verbatim": "Spiral Direction",
+     "n": 4,
+     "rate": 0.0952
+    },
+    {
+     "name_verbatim": "Series",
+     "n": 4,
+     "rate": 0.0952
+    },
+    {
+     "name_verbatim": "Shank Type - Machining",
+     "n": 4,
+     "rate": 0.0952
+    },
+    {
+     "name_verbatim": "Drill Bit Grouping",
+     "n": 4,
+     "rate": 0.0952
+    },
+    {
+     "name_verbatim": "Drill Bit Size",
+     "n": 4,
+     "rate": 0.0952
+    },
+    {
+     "name_verbatim": "Drill Bit Point Angle",
+     "n": 4,
+     "rate": 0.0952
+    },
+    {
+     "name_verbatim": "Drill Point (Deg.)",
+     "n": 4,
+     "rate": 0.0952
+    },
+    {
+     "name_verbatim": "Depth:Dia. Ratio",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Number of Flutes",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Chuck Size",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Base Size",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Overall Depth",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Spindle Taper",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Capacity Cast Iron",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Swing",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Overall Height",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Table Work Surface",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Amps AC",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Spindle to Table",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Capacity Steel",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Includes",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Number of Speeds",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Spindle Travel",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Column Dia.",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Hz",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Overall Width",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Motor HP",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Phase",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Quill Dia.",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Voltage",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Max. Spindle To Base",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Overall Length (In.)",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Number of Pieces",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Flute Length (In.)",
+     "n": 3,
+     "rate": 0.0714
+    },
+    {
+     "name_verbatim": "Drill Diameter Tolerance",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Flute Type",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Finish - Machining",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Measurement System",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Material Grade - Machining",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Maximum Drilling Depth",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Drill Bit Point Type",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Primary Material Application ISO Code",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Primary Material Application",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Material - Machining",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Spindle Speed",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Drive Type",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Table Slot Size",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Tilting Angle",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Fractional Size",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Hardness Scale",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Dia. Tolerance",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Length Tolerance",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Length",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Overall Length (mm)",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Flute Length (mm)",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Metric Size",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Type",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Size (In.)",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Left/Right Hand",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "For Use With",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Shank Size (In.)",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Shank Type",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Chuck Size (In.)",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Fits Hole Saw Dia. (In.)",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Pilot Drill",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Construction",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Thread Size (In.)",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Diameter",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Drilling Depth",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Number of Inserts Required",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Ratio",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Number of Coolant Holes",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Depth x Dia. Ratio",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Max. Drilling Depth",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Flanged Shank",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "ISO Number",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "ANSI Code",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Number of Inserts",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Max. Drill Dia.",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Drill Point",
+     "n": 2,
+     "rate": 0.0476
+    },
+    {
+     "name_verbatim": "Drill Point Length",
+     "n": 1,
+     "rate": 0.0238
+    },
+    {
+     "name_verbatim": "Drill Length Class",
+     "n": 1,
+     "rate": 0.0238
+    },
+    {
+     "name_verbatim": "Helix Angle",
+     "n": 1,
+     "rate": 0.0238
+    },
+    {
+     "name_verbatim": "Package Quantity",
+     "n": 1,
+     "rate": 0.0238
+    },
+    {
+     "name_verbatim": "Circuit Board Drill",
+     "n": 1,
+     "rate": 0.0238
+    },
+    {
+     "name_verbatim": "Web Thinning",
+     "n": 1,
+     "rate": 0.0238
+    },
+    {
+     "name_verbatim": "Web Construction",
+     "n": 1,
+     "rate": 0.0238
+    },
+    {
+     "name_verbatim": "Shank Dia. (mm)",
+     "n": 1,
+     "rate": 0.0238
+    },
+    {
+     "name_verbatim": "Tap Style",
+     "n": 1,
+     "rate": 0.0238
+    },
+    {
+     "name_verbatim": "Thread Length",
+     "n": 1,
+     "rate": 0.0238
+    },
+    {
+     "name_verbatim": "Thread Direction",
+     "n": 1,
+     "rate": 0.0238
+    },
+    {
+     "name_verbatim": "Thread Type",
+     "n": 1,
+     "rate": 0.0238
+    },
+    {
+     "name_verbatim": "Pitch",
+     "n": 1,
+     "rate": 0.0238
+    },
+    {
+     "name_verbatim": "Pitch Diameter Limits",
+     "n": 1,
+     "rate": 0.0238
+    },
+    {
+     "name_verbatim": "Sizes Included",
+     "n": 1,
+     "rate": 0.0238
+    }
+   ]
+  },
+  "end_mill": {
+   "n_records": 176,
+   "attrs_per_record_mean": 16.98,
+   "attrs_per_record_hist": {
+    "1": 16,
+    "13": 1,
+    "14": 1,
+    "15": 19,
+    "16": 27,
+    "17": 43,
+    "18": 24,
+    "19": 3,
+    "21": 1,
+    "22": 4,
+    "23": 4,
+    "24": 18,
+    "25": 15
+   },
+   "presence": [
+    {
+     "name_verbatim": "Item",
+     "n": 176,
+     "rate": 1.0
+    },
+    {
+     "name_verbatim": "Shank Dia.",
+     "n": 160,
+     "rate": 0.9091
+    },
+    {
+     "name_verbatim": "Cutting Direction",
+     "n": 159,
+     "rate": 0.9034
+    },
+    {
+     "name_verbatim": "Length of Cut",
+     "n": 158,
+     "rate": 0.8977
+    },
+    {
+     "name_verbatim": "Number of Flutes",
+     "n": 158,
+     "rate": 0.8977
+    },
+    {
+     "name_verbatim": "Overall Length",
+     "n": 156,
+     "rate": 0.8864
+    },
+    {
+     "name_verbatim": "Helix Angle",
+     "n": 155,
+     "rate": 0.8807
+    },
+    {
+     "name_verbatim": "End Mill Style",
+     "n": 132,
+     "rate": 0.75
+    },
+    {
+     "name_verbatim": "Single End/Double End",
+     "n": 130,
+     "rate": 0.7386
+    },
+    {
+     "name_verbatim": "Milling Dia.",
+     "n": 129,
+     "rate": 0.733
+    },
+    {
+     "name_verbatim": "List Number",
+     "n": 122,
+     "rate": 0.6932
+    },
+    {
+     "name_verbatim": "Dimension Type",
+     "n": 120,
+     "rate": 0.6818
+    },
+    {
+     "name_verbatim": "Finish",
+     "n": 119,
+     "rate": 0.6761
+    },
+    {
+     "name_verbatim": "Cutting Type",
+     "n": 117,
+     "rate": 0.6648
+    },
+    {
+     "name_verbatim": "Grade",
+     "n": 117,
+     "rate": 0.6648
+    },
+    {
+     "name_verbatim": "Corner Radius",
+     "n": 71,
+     "rate": 0.4034
+    },
+    {
+     "name_verbatim": "End Mill Application",
+     "n": 67,
+     "rate": 0.3807
+    },
+    {
+     "name_verbatim": "Neck Length",
+     "n": 48,
+     "rate": 0.2727
+    },
+    {
+     "name_verbatim": "End Mill Cutting Type",
+     "n": 41,
+     "rate": 0.233
+    },
+    {
+     "name_verbatim": "Finish - Machining",
+     "n": 37,
+     "rate": 0.2102
+    },
+    {
+     "name_verbatim": "Measurement System",
+     "n": 37,
+     "rate": 0.2102
+    },
+    {
+     "name_verbatim": "Shank Type - Machining",
+     "n": 37,
+     "rate": 0.2102
+    },
+    {
+     "name_verbatim": "Primary Material Application ISO Code",
+     "n": 37,
+     "rate": 0.2102
+    },
+    {
+     "name_verbatim": "Primary Material Application",
+     "n": 37,
+     "rate": 0.2102
+    },
+    {
+     "name_verbatim": "Material - Machining",
+     "n": 37,
+     "rate": 0.2102
+    },
+    {
+     "name_verbatim": "Drilling Tool Configuration",
+     "n": 37,
+     "rate": 0.2102
+    },
+    {
+     "name_verbatim": "Miniature End Mill",
+     "n": 36,
+     "rate": 0.2045
+    },
+    {
+     "name_verbatim": "Coolant Fed",
+     "n": 36,
+     "rate": 0.2045
+    },
+    {
+     "name_verbatim": "Material Grade - Machining",
+     "n": 35,
+     "rate": 0.1989
+    },
+    {
+     "name_verbatim": "Application",
+     "n": 30,
+     "rate": 0.1705
+    },
+    {
+     "name_verbatim": "Chip-Breaker",
+     "n": 29,
+     "rate": 0.1648
+    },
+    {
+     "name_verbatim": "Diameter",
+     "n": 26,
+     "rate": 0.1477
+    },
+    {
+     "name_verbatim": "End Style",
+     "n": 26,
+     "rate": 0.1477
+    },
+    {
+     "name_verbatim": "End",
+     "n": 26,
+     "rate": 0.1477
+    },
+    {
+     "name_verbatim": "Neck Dia.",
+     "n": 24,
+     "rate": 0.1364
+    },
+    {
+     "name_verbatim": "Type",
+     "n": 23,
+     "rate": 0.1307
+    },
+    {
+     "name_verbatim": "Material",
+     "n": 15,
+     "rate": 0.0852
+    },
+    {
+     "name_verbatim": "Cast Iron (K) Compatibility",
+     "n": 13,
+     "rate": 0.0739
+    },
+    {
+     "name_verbatim": "Stainless (M) Compatibility",
+     "n": 11,
+     "rate": 0.0625
+    },
+    {
+     "name_verbatim": "Steel (P) Compatibility",
+     "n": 11,
+     "rate": 0.0625
+    },
+    {
+     "name_verbatim": "Spiral Direction",
+     "n": 7,
+     "rate": 0.0398
+    },
+    {
+     "name_verbatim": "Non Ferrous (N) Compatibility",
+     "n": 5,
+     "rate": 0.0284
+    },
+    {
+     "name_verbatim": "Hardened (H) Compatibility",
+     "n": 4,
+     "rate": 0.0227
+    },
+    {
+     "name_verbatim": "Super Alloy (S) Compatibility",
+     "n": 4,
+     "rate": 0.0227
+    },
+    {
+     "name_verbatim": "End Mill Material",
+     "n": 3,
+     "rate": 0.017
+    },
+    {
+     "name_verbatim": "Shank Type",
+     "n": 2,
+     "rate": 0.0114
+    },
+    {
+     "name_verbatim": "Milling Diameter",
+     "n": 2,
+     "rate": 0.0114
+    },
+    {
+     "name_verbatim": "Cutting Angle",
+     "n": 2,
+     "rate": 0.0114
+    },
+    {
+     "name_verbatim": "Depth of Cut",
+     "n": 2,
+     "rate": 0.0114
+    },
+    {
+     "name_verbatim": "Series",
+     "n": 2,
+     "rate": 0.0114
+    },
+    {
+     "name_verbatim": "Shank Shape",
+     "n": 2,
+     "rate": 0.0114
+    },
+    {
+     "name_verbatim": "For Use With",
+     "n": 2,
+     "rate": 0.0114
+    },
+    {
+     "name_verbatim": "Coupling Size",
+     "n": 2,
+     "rate": 0.0114
+    },
+    {
+     "name_verbatim": "Insert Screw",
+     "n": 2,
+     "rate": 0.0114
+    },
+    {
+     "name_verbatim": "Number of Inserts Required",
+     "n": 2,
+     "rate": 0.0114
+    },
+    {
+     "name_verbatim": "Cutting Dia.",
+     "n": 2,
+     "rate": 0.0114
+    },
+    {
+     "name_verbatim": "Key",
+     "n": 2,
+     "rate": 0.0114
+    },
+    {
+     "name_verbatim": "ANSI Number",
+     "n": 2,
+     "rate": 0.0114
+    },
+    {
+     "name_verbatim": "Pitch",
+     "n": 2,
+     "rate": 0.0114
+    },
+    {
+     "name_verbatim": "Insert Size",
+     "n": 2,
+     "rate": 0.0114
+    }
+   ]
+  },
+  "fastener": {
+   "n_records": 101,
+   "attrs_per_record_mean": 9.87,
+   "attrs_per_record_hist": {
+    "1": 6,
+    "2": 7,
+    "3": 13,
+    "4": 3,
+    "5": 2,
+    "6": 1,
+    "7": 1,
+    "8": 2,
+    "9": 19,
+    "10": 3,
+    "11": 4,
+    "12": 8,
+    "13": 6,
+    "15": 10,
+    "17": 5,
+    "19": 3,
+    "20": 4,
+    "22": 2,
+    "26": 2
+   },
+   "presence": [
+    {
+     "name_verbatim": "Item",
+     "n": 101,
+     "rate": 1.0
+    },
+    {
+     "name_verbatim": "Material",
+     "n": 54,
+     "rate": 0.5347
+    },
+    {
+     "name_verbatim": "Finish",
+     "n": 38,
+     "rate": 0.3762
+    },
+    {
+     "name_verbatim": "Thread Direction",
+     "n": 32,
+     "rate": 0.3168
+    },
+    {
+     "name_verbatim": "Thread Type",
+     "n": 31,
+     "rate": 0.3069
+    },
+    {
+     "name_verbatim": "Package Quantity",
+     "n": 28,
+     "rate": 0.2772
+    },
+    {
+     "name_verbatim": "Rockwell Hardness",
+     "n": 24,
+     "rate": 0.2376
+    },
+    {
+     "name_verbatim": "Size",
+     "n": 23,
+     "rate": 0.2277
+    },
+    {
+     "name_verbatim": "Meets/Exceeds",
+     "n": 23,
+     "rate": 0.2277
+    },
+    {
+     "name_verbatim": "Thread Size",
+     "n": 22,
+     "rate": 0.2178
+    },
+    {
+     "name_verbatim": "Drive Type",
+     "n": 20,
+     "rate": 0.198
+    },
+    {
+     "name_verbatim": "Overall Length",
+     "n": 20,
+     "rate": 0.198
+    },
+    {
+     "name_verbatim": "System of Measurement",
+     "n": 17,
+     "rate": 0.1683
+    },
+    {
+     "name_verbatim": "Application",
+     "n": 17,
+     "rate": 0.1683
+    },
+    {
+     "name_verbatim": "For Use With",
+     "n": 16,
+     "rate": 0.1584
+    },
+    {
+     "name_verbatim": "Drive Size",
+     "n": 15,
+     "rate": 0.1485
+    },
+    {
+     "name_verbatim": "Hex Size (In.)",
+     "n": 14,
+     "rate": 0.1386
+    },
+    {
+     "name_verbatim": "Thickness (In.)",
+     "n": 14,
+     "rate": 0.1386
+    },
+    {
+     "name_verbatim": "Pitch",
+     "n": 14,
+     "rate": 0.1386
+    },
+    {
+     "name_verbatim": "Dia./Thread Size",
+     "n": 13,
+     "rate": 0.1287
+    },
+    {
+     "name_verbatim": "Head Height",
+     "n": 13,
+     "rate": 0.1287
+    },
+    {
+     "name_verbatim": "Type",
+     "n": 13,
+     "rate": 0.1287
+    },
+    {
+     "name_verbatim": "Thread Length",
+     "n": 12,
+     "rate": 0.1188
+    },
+    {
+     "name_verbatim": "Length",
+     "n": 12,
+     "rate": 0.1188
+    },
+    {
+     "name_verbatim": "Head Dia.",
+     "n": 12,
+     "rate": 0.1188
+    },
+    {
+     "name_verbatim": "Includes",
+     "n": 12,
+     "rate": 0.1188
+    },
+    {
+     "name_verbatim": "Head Type",
+     "n": 12,
+     "rate": 0.1188
+    },
+    {
+     "name_verbatim": "Thread Style",
+     "n": 11,
+     "rate": 0.1089
+    },
+    {
+     "name_verbatim": "Class",
+     "n": 10,
+     "rate": 0.099
+    },
+    {
+     "name_verbatim": "Min. Tensile Strength (PSI)",
+     "n": 10,
+     "rate": 0.099
+    },
+    {
+     "name_verbatim": "Fits Brand",
+     "n": 8,
+     "rate": 0.0792
+    },
+    {
+     "name_verbatim": "Thread Length (A)",
+     "n": 8,
+     "rate": 0.0792
+    },
+    {
+     "name_verbatim": "Shank Type",
+     "n": 8,
+     "rate": 0.0792
+    },
+    {
+     "name_verbatim": "Thread Length Type",
+     "n": 8,
+     "rate": 0.0792
+    },
+    {
+     "name_verbatim": "Thread Length (B)",
+     "n": 8,
+     "rate": 0.0792
+    },
+    {
+     "name_verbatim": "Length under Head",
+     "n": 8,
+     "rate": 0.0792
+    },
+    {
+     "name_verbatim": "For Use With Grainger Item Number",
+     "n": 8,
+     "rate": 0.0792
+    },
+    {
+     "name_verbatim": "Grade",
+     "n": 8,
+     "rate": 0.0792
+    },
+    {
+     "name_verbatim": "Thread Dia.",
+     "n": 7,
+     "rate": 0.0693
+    },
+    {
+     "name_verbatim": "Min. Tensile Strength",
+     "n": 7,
+     "rate": 0.0693
+    },
+    {
+     "name_verbatim": "Drill Size",
+     "n": 7,
+     "rate": 0.0693
+    },
+    {
+     "name_verbatim": "For Use With Mfr. Model Number",
+     "n": 7,
+     "rate": 0.0693
+    },
+    {
+     "name_verbatim": "For Bolt Size",
+     "n": 6,
+     "rate": 0.0594
+    },
+    {
+     "name_verbatim": "Extractor Type",
+     "n": 6,
+     "rate": 0.0594
+    },
+    {
+     "name_verbatim": "For Bolt Thread Direction",
+     "n": 6,
+     "rate": 0.0594
+    },
+    {
+     "name_verbatim": "Material - Machining",
+     "n": 6,
+     "rate": 0.0594
+    },
+    {
+     "name_verbatim": "Temp. Range",
+     "n": 6,
+     "rate": 0.0594
+    },
+    {
+     "name_verbatim": "Screw Size",
+     "n": 6,
+     "rate": 0.0594
+    },
+    {
+     "name_verbatim": "Hex Size",
+     "n": 6,
+     "rate": 0.0594
+    },
+    {
+     "name_verbatim": "Fastener Finish",
+     "n": 5,
+     "rate": 0.0495
+    },
+    {
+     "name_verbatim": "Material Grade",
+     "n": 5,
+     "rate": 0.0495
+    },
+    {
+     "name_verbatim": "Number of Pieces",
+     "n": 5,
+     "rate": 0.0495
+    },
+    {
+     "name_verbatim": "Head Style",
+     "n": 5,
+     "rate": 0.0495
+    },
+    {
+     "name_verbatim": "Basic Material",
+     "n": 4,
+     "rate": 0.0396
+    },
+    {
+     "name_verbatim": "Fastener Thread Type",
+     "n": 4,
+     "rate": 0.0396
+    },
+    {
+     "name_verbatim": "Point Type",
+     "n": 4,
+     "rate": 0.0396
+    },
+    {
+     "name_verbatim": "Bolt Size",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Shank Material",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Tip Style Group",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Tip Size",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Tip Style",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Handle Material",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Tether Capable",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Features",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Fastener Thread Direction",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Nut Style",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Max. Fixture Thickness",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Ultimate Tension in 4000 PSI Concrete (Lb.)",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Anchor Length",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Min. Embedment",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Anchor Dia.",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Tensile Strength",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Temp. Range (F)",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Container Type",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Small End Dia.",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Large End Dia.",
+     "n": 3,
+     "rate": 0.0297
+    },
+    {
+     "name_verbatim": "Bore Dia.",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Series",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Dimension D",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Dimension H",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Dimension J",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Bolt Hole Center-to-Center",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Overall Height",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Mounted Bearing Item",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Dimension F",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Dimension L",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Bearing Insert Material",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Dynamic Load Capacity",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Dimension C",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Bearing Insert Type",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Static Load Capacity",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Bearing Housing Material Type",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Overall Width",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Dimension E",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Shaft Locking Type",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Dimension B",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Driver Size",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Inside Dia.",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Outside Dia.",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Nut Height",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Width Across Flats",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Color/Finish",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Proof Load",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Head Width",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Diameter",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Meets",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Point Dia.",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Decimal Equivalent",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Point Material",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Tensile Strength (PSI)",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Grip Range",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Barrel Head Dia.",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Barrel Thread Depth",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Screw Material",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Barrel Head Height",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Barrel Length",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Barrel Dia.",
+     "n": 2,
+     "rate": 0.0198
+    },
+    {
+     "name_verbatim": "Screw Head Type",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Vented Hole Size",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Screw Style",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Fastener Industry Standards",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Drive",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Max. Temp.",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Tube Material",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Reinforcement",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Color",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Bend Radius",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Number of Sizes",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Workable Length",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Nut Standards",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Wing Span",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Toggle Bolt Type",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Anchor Thread Size",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Screw Length",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Usable Length",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Anchor Material",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Shoulder Dia.",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Shear Strength (PSI)",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Shoulder Length",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Screw Head Dia.",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Shoulder Length Tolerance",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Yield Strength (PSI)",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Machine Screw Head Type",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Thickness Tolerance",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Thickness",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Fits Bolt Sizes",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Load Capacity",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Width",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Drill Point (Deg.)",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Sizes Included",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Fractional Size (In.)",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "Point Angle",
+     "n": 1,
+     "rate": 0.0099
+    },
+    {
+     "name_verbatim": "List Number",
+     "n": 1,
+     "rate": 0.0099
+    }
+   ]
+  },
+  "insert": {
+   "n_records": 17,
+   "attrs_per_record_mean": 12.59,
+   "attrs_per_record_hist": {
+    "1": 2,
+    "3": 1,
+    "4": 2,
+    "5": 1,
+    "6": 1,
+    "8": 2,
+    "13": 1,
+    "14": 1,
+    "21": 1,
+    "22": 1,
+    "25": 3,
+    "29": 1
+   },
+   "presence": [
+    {
+     "name_verbatim": "Item",
+     "n": 17,
+     "rate": 1.0
+    },
+    {
+     "name_verbatim": "Chip-Breaker",
+     "n": 7,
+     "rate": 0.4118
+    },
+    {
+     "name_verbatim": "Rake",
+     "n": 6,
+     "rate": 0.3529
+    },
+    {
+     "name_verbatim": "Inscribed Circle",
+     "n": 6,
+     "rate": 0.3529
+    },
+    {
+     "name_verbatim": "Cutting Direction",
+     "n": 5,
+     "rate": 0.2941
+    },
+    {
+     "name_verbatim": "Insert Style",
+     "n": 5,
+     "rate": 0.2941
+    },
+    {
+     "name_verbatim": "Corner Radius",
+     "n": 5,
+     "rate": 0.2941
+    },
+    {
+     "name_verbatim": "ANSI Code",
+     "n": 5,
+     "rate": 0.2941
+    },
+    {
+     "name_verbatim": "Number of Cutting Edges",
+     "n": 5,
+     "rate": 0.2941
+    },
+    {
+     "name_verbatim": "Finish - Machining",
+     "n": 5,
+     "rate": 0.2941
+    },
+    {
+     "name_verbatim": "Thickness",
+     "n": 5,
+     "rate": 0.2941
+    },
+    {
+     "name_verbatim": "Shape",
+     "n": 5,
+     "rate": 0.2941
+    },
+    {
+     "name_verbatim": "Style",
+     "n": 4,
+     "rate": 0.2353
+    },
+    {
+     "name_verbatim": "Measurement System",
+     "n": 4,
+     "rate": 0.2353
+    },
+    {
+     "name_verbatim": "Manufacturer Grade",
+     "n": 4,
+     "rate": 0.2353
+    },
+    {
+     "name_verbatim": "Clearance Angle",
+     "n": 4,
+     "rate": 0.2353
+    },
+    {
+     "name_verbatim": "Primary Material Application ISO Code",
+     "n": 4,
+     "rate": 0.2353
+    },
+    {
+     "name_verbatim": "Insert Holding Type",
+     "n": 4,
+     "rate": 0.2353
+    },
+    {
+     "name_verbatim": "Primary Material Application",
+     "n": 4,
+     "rate": 0.2353
+    },
+    {
+     "name_verbatim": "Material - Machining",
+     "n": 4,
+     "rate": 0.2353
+    },
+    {
+     "name_verbatim": "Included Angle",
+     "n": 4,
+     "rate": 0.2353
+    },
+    {
+     "name_verbatim": "Application",
+     "n": 4,
+     "rate": 0.2353
+    },
+    {
+     "name_verbatim": "Secondary Material Application ISO Code",
+     "n": 3,
+     "rate": 0.1765
+    },
+    {
+     "name_verbatim": "Secondary Material Application",
+     "n": 3,
+     "rate": 0.1765
+    },
+    {
+     "name_verbatim": "Cutting Application",
+     "n": 3,
+     "rate": 0.1765
+    },
+    {
+     "name_verbatim": "ISO Number",
+     "n": 3,
+     "rate": 0.1765
+    },
+    {
+     "name_verbatim": "Insert Shape",
+     "n": 3,
+     "rate": 0.1765
+    },
+    {
+     "name_verbatim": "For Use With Grainger Item Number",
+     "n": 2,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Fits Brand",
+     "n": 2,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "For Use With Mfr. Model Number",
+     "n": 2,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "For Use With",
+     "n": 2,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Type",
+     "n": 2,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Chip-Breaker Style",
+     "n": 2,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Chip-Breaker Code",
+     "n": 2,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Coating Process",
+     "n": 2,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Nose Radius",
+     "n": 2,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Insert Thickness",
+     "n": 2,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Depth of Cut",
+     "n": 2,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Material",
+     "n": 2,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Width",
+     "n": 2,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Insert Size",
+     "n": 2,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Relief Angle",
+     "n": 2,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Grade",
+     "n": 2,
+     "rate": 0.1176
+    },
+    {
+     "name_verbatim": "Clamp",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Shank Width (In.)",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Clamp Screw",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Overall Length (In.)",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Shim",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Lock",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Lock Pin",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Shim Screw",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Features",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Through Hole Inside Dia.",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Number of Inserts Required",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Shank Dia.",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Overall Length",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Hole Dia.",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Seat Size",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Peripheral Insert Style",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Max. RPM",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "HP Rating @ 1200 RPM",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Accommodates",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Coupling Size",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Torque (In.-Lbs.)",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Width (In.)",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Height (In.)",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Max. Torque (In.-Lbs.)",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Color",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Serviceable Temp. Range (F)",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Length (In.)",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Shaft Dia. Range (In.)",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "HP Rating @ 100 RPM",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "HP Rating @ 1800 RPM",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "HP Rating @ 3600 RPM",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Max. Angular Misalignment",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Max. Parallel Misalignment (In.)",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Coupling Weight (Lb.)",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Height",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Green Environmental Attribute",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Depth",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Includes",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Mounting Type",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Mounting Style",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Coating",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Stainless (M) Compatibility",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Hardened (H) Compatibility",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Super Alloy (S) Compatibility",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Insert Material",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Cast Iron (K) Compatibility",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Non Ferrous (N) Compatibility",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "ANSI Number",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Steel (P) Compatibility",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Cutting Edge",
+     "n": 1,
+     "rate": 0.0588
+    },
+    {
+     "name_verbatim": "Standards",
+     "n": 1,
+     "rate": 0.0588
+    }
+   ]
+  },
+  "other": {
+   "n_records": 15,
+   "attrs_per_record_mean": 20.53,
+   "attrs_per_record_hist": {
+    "4": 1,
+    "6": 2,
+    "8": 2,
+    "9": 2,
+    "10": 1,
+    "11": 1,
+    "12": 2,
+    "16": 1,
+    "19": 1,
+    "22": 1,
+    "156": 1
+   },
+   "presence": [
+    {
+     "name_verbatim": "Item",
+     "n": 14,
+     "rate": 0.9333
+    },
+    {
+     "name_verbatim": "Material",
+     "n": 9,
+     "rate": 0.6
+    },
+    {
+     "name_verbatim": "Finish",
+     "n": 4,
+     "rate": 0.2667
+    },
+    {
+     "name_verbatim": "Overall Length",
+     "n": 4,
+     "rate": 0.2667
+    },
+    {
+     "name_verbatim": "Size",
+     "n": 4,
+     "rate": 0.2667
+    },
+    {
+     "name_verbatim": "Type",
+     "n": 4,
+     "rate": 0.2667
+    },
+    {
+     "name_verbatim": "Standards",
+     "n": 4,
+     "rate": 0.2667
+    },
+    {
+     "name_verbatim": "Application",
+     "n": 3,
+     "rate": 0.2
+    },
+    {
+     "name_verbatim": "For Use With",
+     "n": 3,
+     "rate": 0.2
+    },
+    {
+     "name_verbatim": "Fits Brand",
+     "n": 2,
+     "rate": 0.1333
+    },
+    {
+     "name_verbatim": "Voltage",
+     "n": 2,
+     "rate": 0.1333
+    },
+    {
+     "name_verbatim": "Width",
+     "n": 2,
+     "rate": 0.1333
+    },
+    {
+     "name_verbatim": "Color",
+     "n": 2,
+     "rate": 0.1333
+    },
+    {
+     "name_verbatim": "Inside Dia.",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Concentricity Tolerance",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Drill Size",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Inside Dia. Tolerance",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Hardness",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Outside Dia. Tolerance",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Bushing Type",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Outside Dia.",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Large End Dia. (In.)",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "For Removing Studs, Bolts, Screws",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Taper Length (In.)",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Overall Length (In.)",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Small End Dia. (In.)",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Drill Size (In.)",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "For Use With Mfr. Model Number",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Motor Bearings",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Motor Enclosure Design",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Body Dia.",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Motor Mounting Type",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Ins. Class",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Nameplate RPM",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "RPM Range",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Includes",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Motor Thermal Protection",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "HP",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Full Load Amps",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Motor Design",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Velocity",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Hz",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Motor Mounting Position",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Phase",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Force",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Ambient Temperature",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Measurement System",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Collet Series",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Proof Load",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Fastener Finish",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Basic Material",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Fastener Length",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Fastener Thread Style",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "System of Measurement",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Cap Screw Type",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Fastener Thread Type",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Min. Thread Length",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Temp. Range",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Head Width",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Dia./Thread Size",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Head Type",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Head Height",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Material Grade",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Fastener Thread Direction",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Fastener Industry Standards",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Tensile Strength",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Max. Operating Temp.",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Indicator",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Battery Life",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Audio Alarm",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Weight (Lbs.)",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Battery",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Package Quantity",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Exterior Length (In.)",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Scan Depth (In.)",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Thickness (In.)",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Exterior Width (In.)",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Operating Frequency (Hz)",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Standard Battery Series",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Standard Battery Size",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Battery Chemistry",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Standard Battery Pack Size",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Standard Battery Type",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Flute Length",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Point Angle",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Coolant Through",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Decimal Equivalent",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Dimension Type",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Load Capacity",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Height",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Footplates",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Depth",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Mounting",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "For Use with Series",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Toilet/Urinal Product Type",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Toilet/Urinal Product Group",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Brand",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Thread Type",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Sheet Size",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Folded Width",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Ply",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Fold Type",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Number of Sheets",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Uses Dispenser",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Bore Dia.",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Cutting Direction",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Bore Depth",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Angle",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Shank Dia.",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Teeth per Inch",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Thickness",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Tooth Type",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Length",
+     "n": 1,
+     "rate": 0.0667
+    },
+    {
+     "name_verbatim": "Grade",
+     "n": 1,
+     "rate": 0.0667
+    }
+   ]
+  },
+  "tap_die": {
+   "n_records": 24,
+   "attrs_per_record_mean": 12.21,
+   "attrs_per_record_hist": {
+    "1": 2,
+    "3": 1,
+    "8": 1,
+    "9": 2,
+    "10": 1,
+    "12": 3,
+    "14": 3,
+    "15": 8,
+    "18": 3
+   },
+   "presence": [
+    {
+     "name_verbatim": "Item",
+     "n": 24,
+     "rate": 1.0
+    },
+    {
+     "name_verbatim": "Thread Direction",
+     "n": 19,
+     "rate": 0.7917
+    },
+    {
+     "name_verbatim": "Material",
+     "n": 18,
+     "rate": 0.75
+    },
+    {
+     "name_verbatim": "Shank Dia.",
+     "n": 18,
+     "rate": 0.75
+    },
+    {
+     "name_verbatim": "Tap Style",
+     "n": 17,
+     "rate": 0.7083
+    },
+    {
+     "name_verbatim": "Number of Flutes",
+     "n": 17,
+     "rate": 0.7083
+    },
+    {
+     "name_verbatim": "Overall Length",
+     "n": 17,
+     "rate": 0.7083
+    },
+    {
+     "name_verbatim": "Size",
+     "n": 16,
+     "rate": 0.6667
+    },
+    {
+     "name_verbatim": "Pitch",
+     "n": 16,
+     "rate": 0.6667
+    },
+    {
+     "name_verbatim": "Thread Length",
+     "n": 16,
+     "rate": 0.6667
+    },
+    {
+     "name_verbatim": "Finish",
+     "n": 15,
+     "rate": 0.625
+    },
+    {
+     "name_verbatim": "Standards",
+     "n": 15,
+     "rate": 0.625
+    },
+    {
+     "name_verbatim": "Thread Type",
+     "n": 15,
+     "rate": 0.625
+    },
+    {
+     "name_verbatim": "Pitch Diameter Limits",
+     "n": 12,
+     "rate": 0.5
+    },
+    {
+     "name_verbatim": "List Number",
+     "n": 11,
+     "rate": 0.4583
+    },
+    {
+     "name_verbatim": "Tap Finish",
+     "n": 3,
+     "rate": 0.125
+    },
+    {
+     "name_verbatim": "Tap Chamfer",
+     "n": 3,
+     "rate": 0.125
+    },
+    {
+     "name_verbatim": "Pitch Diameter Limit",
+     "n": 3,
+     "rate": 0.125
+    },
+    {
+     "name_verbatim": "Tap Material",
+     "n": 3,
+     "rate": 0.125
+    },
+    {
+     "name_verbatim": "Tap Dimension Type",
+     "n": 3,
+     "rate": 0.125
+    },
+    {
+     "name_verbatim": "Number of Pieces",
+     "n": 3,
+     "rate": 0.125
+    },
+    {
+     "name_verbatim": "Tap Thread Size",
+     "n": 3,
+     "rate": 0.125
+    },
+    {
+     "name_verbatim": "Tap Grouping",
+     "n": 3,
+     "rate": 0.125
+    },
+    {
+     "name_verbatim": "Tap Thread Type",
+     "n": 3,
+     "rate": 0.125
+    },
+    {
+     "name_verbatim": "Application",
+     "n": 2,
+     "rate": 0.0833
+    },
+    {
+     "name_verbatim": "Outside Dia. (In.)",
+     "n": 2,
+     "rate": 0.0833
+    },
+    {
+     "name_verbatim": "Thickness (In.)",
+     "n": 2,
+     "rate": 0.0833
+    },
+    {
+     "name_verbatim": "Cutting Direction",
+     "n": 2,
+     "rate": 0.0833
+    },
+    {
+     "name_verbatim": "Style",
+     "n": 2,
+     "rate": 0.0833
+    },
+    {
+     "name_verbatim": "Max. Depth",
+     "n": 1,
+     "rate": 0.0417
+    },
+    {
+     "name_verbatim": "Projection",
+     "n": 1,
+     "rate": 0.0417
+    },
+    {
+     "name_verbatim": "Hole Dia.",
+     "n": 1,
+     "rate": 0.0417
+    },
+    {
+     "name_verbatim": "Includes",
+     "n": 1,
+     "rate": 0.0417
+    },
+    {
+     "name_verbatim": "Wire Range",
+     "n": 1,
+     "rate": 0.0417
+    },
+    {
+     "name_verbatim": "Number of Wires",
+     "n": 1,
+     "rate": 0.0417
+    },
+    {
+     "name_verbatim": "Temp. Range",
+     "n": 1,
+     "rate": 0.0417
+    },
+    {
+     "name_verbatim": "Color",
+     "n": 1,
+     "rate": 0.0417
+    },
+    {
+     "name_verbatim": "Max. Voltage",
+     "n": 1,
+     "rate": 0.0417
+    },
+    {
+     "name_verbatim": "Length",
+     "n": 1,
+     "rate": 0.0417
+    }
+   ]
+  },
+  "unknown_bare_sku": {
+   "n_records": 20,
+   "attrs_per_record_mean": 8.35,
+   "attrs_per_record_hist": {
+    "6": 1,
+    "7": 1,
+    "8": 8,
+    "9": 10
+   },
+   "presence": [
+    {
+     "name_verbatim": "Height",
+     "n": 17,
+     "rate": 0.85
+    },
+    {
+     "name_verbatim": "Container Material",
+     "n": 17,
+     "rate": 0.85
+    },
+    {
+     "name_verbatim": "Includes Ashtray",
+     "n": 17,
+     "rate": 0.85
+    },
+    {
+     "name_verbatim": "Container Capacity",
+     "n": 17,
+     "rate": 0.85
+    },
+    {
+     "name_verbatim": "Lid Type",
+     "n": 17,
+     "rate": 0.85
+    },
+    {
+     "name_verbatim": "Container Shape",
+     "n": 17,
+     "rate": 0.85
+    },
+    {
+     "name_verbatim": "Overall Diameter",
+     "n": 17,
+     "rate": 0.85
+    },
+    {
+     "name_verbatim": "Color",
+     "n": 16,
+     "rate": 0.8
+    },
+    {
+     "name_verbatim": "Depth",
+     "n": 8,
+     "rate": 0.4
+    },
+    {
+     "name_verbatim": "Measurement Type",
+     "n": 3,
+     "rate": 0.15
+    },
+    {
+     "name_verbatim": "Tool Storage Type",
+     "n": 3,
+     "rate": 0.15
+    },
+    {
+     "name_verbatim": "Sockets and Accessories Included In Set",
+     "n": 3,
+     "rate": 0.15
+    },
+    {
+     "name_verbatim": "Drive Size",
+     "n": 3,
+     "rate": 0.15
+    },
+    {
+     "name_verbatim": "Number of Pieces Range",
+     "n": 3,
+     "rate": 0.15
+    },
+    {
+     "name_verbatim": "Tool Families Included",
+     "n": 3,
+     "rate": 0.15
+    },
+    {
+     "name_verbatim": "Drivers and Bits Included In Set",
+     "n": 2,
+     "rate": 0.1
+    },
+    {
+     "name_verbatim": "Wrenches Included In Set",
+     "n": 2,
+     "rate": 0.1
+    },
+    {
+     "name_verbatim": "For Fastener Sizes",
+     "n": 1,
+     "rate": 0.05
+    },
+    {
+     "name_verbatim": "Pliers Included In Set",
+     "n": 1,
+     "rate": 0.05
+    }
+   ]
+  }
+ },
+ "empty_value_rate": 0.0
+}

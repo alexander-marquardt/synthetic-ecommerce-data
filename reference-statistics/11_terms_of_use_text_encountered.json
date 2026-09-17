@@ -1,0 +1,70 @@
+{
+ "copyright": [
+  {
+   "text_verbatim": "© 1994 - 2015, W.W Grainger, Inc. All Rights Reserved.",
+   "n_pages": 34
+  },
+  {
+   "text_verbatim": "© 1994 - 2015, W.W. Grainger, Inc. All Rights Reserved.",
+   "n_pages": 21
+  },
+  {
+   "text_verbatim": "© 1994 - 2020, W.W. Grainger, Inc. All Rights Reserved.",
+   "n_pages": 10
+  },
+  {
+   "text_verbatim": "copyright\" data-automated-tag=\"footer-legal-copyright\"",
+   "n_pages": 9
+  },
+  {
+   "text_verbatim": "copyright\" data-automated-test=\"footer-legal-copyright\"",
+   "n_pages": 4
+  },
+  {
+   "text_verbatim": "© 1994 - 2021, W.W. Grainger, Inc. All Rights Reserved.",
+   "n_pages": 3
+  },
+  {
+   "text_verbatim": "© 1994 - 2019, W.W. Grainger, Inc. All Rights Reserved.",
+   "n_pages": 2
+  },
+  {
+   "text_verbatim": "© 1994 - 2017, W.W. Grainger, Inc. All Rights Reserved.",
+   "n_pages": 1
+  },
+  {
+   "text_verbatim": "© 1994 - 2018, W.W. Grainger, Inc. All Rights Reserved.",
+   "n_pages": 1
+  }
+ ],
+ "terms_of_use_link": [
+  {
+   "text_verbatim": "Terms of Access",
+   "n_pages": 72
+  },
+  {
+   "text_verbatim": "Terms of Sale",
+   "n_pages": 68
+  },
+  {
+   "text_verbatim": "Privacy Policy",
+   "n_pages": 68
+  },
+  {
+   "text_verbatim": "View Privacy Policy",
+   "n_pages": 49
+  },
+  {
+   "text_verbatim": "Legal Policy",
+   "n_pages": 49
+  }
+ ],
+ "all_rights": [
+  {
+   "text_verbatim": "All Rights Reserved.",
+   "n_pages": 72
+  }
+ ],
+ "_method": "Regex scan of 75 archived HTML captures already on disk. Text reported VERBATIM. No licensing judgement is made here -- this is a report of what the pages say.",
+ "_n_pages_scanned": 75
+}

@@ -1,0 +1,249 @@
+{
+ "priority": "7 of 7 -- nice-to-have per the re-weighting. The dimensional VALUES themselves come from published standards; this records only WHICH members of those series were actually observed in the catalog, and how often.",
+ "method": "Distinct verbatim Milling Dia. values observed, grouped by the unit system detected in the value string, with inch-normalised magnitude so a consumer can align them to the fractional / metric standard series.",
+ "n_records_with_milling_dia": 131,
+ "by_unit_system": {
+  "imperial": {
+   "n_records": 114,
+   "n_distinct_values": 30,
+   "values": [
+    {
+     "verbatim": "0.0210\"",
+     "count": 1,
+     "inches": 0.021
+    },
+    {
+     "verbatim": "1/16\"",
+     "count": 1,
+     "inches": 0.0625
+    },
+    {
+     "verbatim": "1/16 in",
+     "count": 1,
+     "inches": 0.0625
+    },
+    {
+     "verbatim": "3/32\"",
+     "count": 2,
+     "inches": 0.09375
+    },
+    {
+     "verbatim": "7/64\"",
+     "count": 1,
+     "inches": 0.10938
+    },
+    {
+     "verbatim": "1/8\"",
+     "count": 7,
+     "inches": 0.125
+    },
+    {
+     "verbatim": "1/8 in",
+     "count": 5,
+     "inches": 0.125
+    },
+    {
+     "verbatim": "5/32 in",
+     "count": 2,
+     "inches": 0.15625
+    },
+    {
+     "verbatim": "3/16\"",
+     "count": 4,
+     "inches": 0.1875
+    },
+    {
+     "verbatim": "3/16 in",
+     "count": 4,
+     "inches": 0.1875
+    },
+    {
+     "verbatim": "7/32 in",
+     "count": 2,
+     "inches": 0.21875
+    },
+    {
+     "verbatim": "1/4\"",
+     "count": 10,
+     "inches": 0.25
+    },
+    {
+     "verbatim": "1/4 in",
+     "count": 6,
+     "inches": 0.25
+    },
+    {
+     "verbatim": "9/32 in",
+     "count": 1,
+     "inches": 0.28125
+    },
+    {
+     "verbatim": "5/16\"",
+     "count": 5,
+     "inches": 0.3125
+    },
+    {
+     "verbatim": "5/16 in",
+     "count": 1,
+     "inches": 0.3125
+    },
+    {
+     "verbatim": "3/8\"",
+     "count": 10,
+     "inches": 0.375
+    },
+    {
+     "verbatim": "3/8 in",
+     "count": 3,
+     "inches": 0.375
+    },
+    {
+     "verbatim": "1/2\"",
+     "count": 14,
+     "inches": 0.5
+    },
+    {
+     "verbatim": "1/2 in",
+     "count": 3,
+     "inches": 0.5
+    },
+    {
+     "verbatim": "5/8\"",
+     "count": 1,
+     "inches": 0.625
+    },
+    {
+     "verbatim": "5/8 in",
+     "count": 2,
+     "inches": 0.625
+    },
+    {
+     "verbatim": "3/4\"",
+     "count": 5,
+     "inches": 0.75
+    },
+    {
+     "verbatim": "3/4 in",
+     "count": 3,
+     "inches": 0.75
+    },
+    {
+     "verbatim": "1\"",
+     "count": 7,
+     "inches": 1.0
+    },
+    {
+     "verbatim": "1 in",
+     "count": 2,
+     "inches": 1.0
+    },
+    {
+     "verbatim": "1-1/4\"",
+     "count": 2,
+     "inches": 1.25
+    },
+    {
+     "verbatim": "1-1/2\"",
+     "count": 6,
+     "inches": 1.5
+    },
+    {
+     "verbatim": "1-3/4\"",
+     "count": 1,
+     "inches": 1.75
+    },
+    {
+     "verbatim": "2\"",
+     "count": 2,
+     "inches": 2.0
+    }
+   ]
+  },
+  "metric": {
+   "n_records": 17,
+   "n_distinct_values": 16,
+   "values": [
+    {
+     "verbatim": "0.63mm",
+     "count": 1,
+     "inches": 0.0248
+    },
+    {
+     "verbatim": "0.65mm",
+     "count": 1,
+     "inches": 0.02559
+    },
+    {
+     "verbatim": "1.00mm",
+     "count": 1,
+     "inches": 0.03937
+    },
+    {
+     "verbatim": "1.50mm",
+     "count": 1,
+     "inches": 0.05906
+    },
+    {
+     "verbatim": "3.00mm",
+     "count": 1,
+     "inches": 0.11811
+    },
+    {
+     "verbatim": "4.50mm",
+     "count": 1,
+     "inches": 0.17717
+    },
+    {
+     "verbatim": "5.00mm",
+     "count": 1,
+     "inches": 0.19685
+    },
+    {
+     "verbatim": "6.00mm",
+     "count": 1,
+     "inches": 0.23622
+    },
+    {
+     "verbatim": "7.80mm",
+     "count": 1,
+     "inches": 0.30709
+    },
+    {
+     "verbatim": "8.00mm",
+     "count": 2,
+     "inches": 0.31496
+    },
+    {
+     "verbatim": "8 mm",
+     "count": 1,
+     "inches": 0.31496
+    },
+    {
+     "verbatim": "10.00mm",
+     "count": 1,
+     "inches": 0.3937
+    },
+    {
+     "verbatim": "11.00mm",
+     "count": 1,
+     "inches": 0.43307
+    },
+    {
+     "verbatim": "12.00mm",
+     "count": 1,
+     "inches": 0.47244
+    },
+    {
+     "verbatim": "12 mm",
+     "count": 1,
+     "inches": 0.47244
+    },
+    {
+     "verbatim": "16.00mm",
+     "count": 1,
+     "inches": 0.62992
+    }
+   ]
+  }
+ }
+}

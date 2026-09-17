@@ -1,0 +1,259 @@
+{
+ "method": "Image SKU parsed out of the static.grainger.com image path (the /Grainger/<SKU>_<variant> segment) and compared to the product SKU. Parsed from the already-fetched page HTML: NO bulk image download was performed.",
+ "n_records": 496,
+ "n_with_no_parseable_image_sku": 54,
+ "n_image_sku_matches_product_sku": 117,
+ "n_image_sku_diverges": 325,
+ "divergence_rate_over_records_with_images": 0.7353,
+ "examples_of_divergence": [
+  {
+   "product_sku": "29VX64",
+   "image_skus": [
+    "29VX35"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/29VX35_AS01?$mdmain$"
+  },
+  {
+   "product_sku": "23Z904",
+   "image_skus": [
+    "23Z902"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/23Z902_AW01?$mdmain$"
+  },
+  {
+   "product_sku": "412U19",
+   "image_skus": [
+    "412T66"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/412T66_AS01"
+  },
+  {
+   "product_sku": "14G061",
+   "image_skus": [
+    "14T265"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/14T265_AW01?$mdmain$"
+  },
+  {
+   "product_sku": "2MKD2",
+   "image_skus": [
+    "1MUC3",
+    "2F021",
+    "2F146",
+    "2MKC5",
+    "2NGG9",
+    "6Y646"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/1MUC3_AS01?$smthumb$"
+  },
+  {
+   "product_sku": "2PMY4",
+   "image_skus": [
+    "1MUC3",
+    "2F021",
+    "2F146",
+    "2PMX7",
+    "6Y646"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/1MUC3_AS01?$smthumb$"
+  },
+  {
+   "product_sku": "21TA26",
+   "image_skus": [
+    "21RZ99"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/21RZ99_AW01?$mdmain$"
+  },
+  {
+   "product_sku": "41AW55",
+   "image_skus": [
+    "41AV59"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/41AV59_AS01"
+  },
+  {
+   "product_sku": "32PL49",
+   "image_skus": [
+    "32PL46"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/32PL46_AS01?$mdmain$"
+  },
+  {
+   "product_sku": "1Z451",
+   "image_skus": [
+    "1Z551",
+    "2F021",
+    "2F146",
+    "4ZF07",
+    "6Y645"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/1Z551_AS01?$mdmain$"
+  },
+  {
+   "product_sku": "33TP60",
+   "image_skus": [
+    "33TP54"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/33TP54_AS01?$mdmain$"
+  },
+  {
+   "product_sku": "29VX92",
+   "image_skus": [
+    "29VX34"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/29VX34_AS01?$mdmain$"
+  },
+  {
+   "product_sku": "23Z911",
+   "image_skus": [
+    "23Z910"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/23Z910_AW01?$mdmain$"
+  },
+  {
+   "product_sku": "412V93",
+   "image_skus": [
+    "412V73"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/412V73_AS01"
+  },
+  {
+   "product_sku": "14G184",
+   "image_skus": [
+    "14G162"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/14G162_AW01?$mdmain$"
+  },
+  {
+   "product_sku": "2MKD3",
+   "image_skus": [
+    "1MUC3",
+    "2F021",
+    "2F146",
+    "2MKC5",
+    "6Y646"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/1MUC3_AS01?$smthumb$"
+  },
+  {
+   "product_sku": "4KNT6",
+   "image_skus": [
+    "4KNU2"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/4KNU2_AS01?$mdmain$"
+  },
+  {
+   "product_sku": "2TWH5",
+   "image_skus": [
+    "1MUC3",
+    "2F021",
+    "2F146",
+    "2TWG4",
+    "6Y646"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/1MUC3_AS01?$smthumb$"
+  },
+  {
+   "product_sku": "22D977",
+   "image_skus": [
+    "5FHT3"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/5FHT3_AL01?$mdmain$"
+  },
+  {
+   "product_sku": "32PL50",
+   "image_skus": [
+    "32PL46"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/32PL46_AS01?$mdmain$"
+  },
+  {
+   "product_sku": "1Z500",
+   "image_skus": [
+    "1Z551",
+    "2F021",
+    "2F146",
+    "4ZF07",
+    "6Y645"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/1Z551_AS01?$mdmain$"
+  },
+  {
+   "product_sku": "29VY01",
+   "image_skus": [
+    "29VX34"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/29VX34_AS01?$mdmain$"
+  },
+  {
+   "product_sku": "61NU34",
+   "image_skus": [
+    "61NU31"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/61NU31_AS01"
+  },
+  {
+   "product_sku": "14R942",
+   "image_skus": [
+    "14R926"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/14R926_AW01?$mdmain$"
+  },
+  {
+   "product_sku": "2PTN2",
+   "image_skus": [
+    "1MUC3",
+    "2F021",
+    "2F146",
+    "2MKC5",
+    "2NGG9",
+    "2PMY7",
+    "6Y646"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/1MUC3_AS01?$smthumb$"
+  },
+  {
+   "product_sku": "4KNU3",
+   "image_skus": [
+    "4KNU2"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/4KNU2_AS01?$mdmain$"
+  },
+  {
+   "product_sku": "2TWH8",
+   "image_skus": [
+    "1MUC3",
+    "2F021",
+    "2F146",
+    "2TWG4",
+    "6Y646"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/1MUC3_AS01?$smthumb$"
+  },
+  {
+   "product_sku": "22E381",
+   "image_skus": [
+    "5FHT3"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/5FHT3_AL01?$mdmain$"
+  },
+  {
+   "product_sku": "32PL51",
+   "image_skus": [
+    "32PL46"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/32PL46_AS01?$mdmain$"
+  },
+  {
+   "product_sku": "1Z520",
+   "image_skus": [
+    "1Z429",
+    "2F021",
+    "2F146",
+    "4ZF07",
+    "6Y645"
+   ],
+   "example_url": "static.grainger.com/rp/s/is/image/Grainger/1Z429_AS01?$mdmain$"
+  }
+ ]
+}

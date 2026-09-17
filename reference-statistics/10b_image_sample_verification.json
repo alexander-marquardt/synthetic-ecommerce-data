@@ -1,0 +1,61 @@
+{
+ "method": "A SMALL SAMPLE ONLY (6 requests), one per distinct SKU-prefix, fetched through web.archive.org to confirm the divergent image SKU resolves to a real image. No bulk image download was performed; the divergence RATE itself is computed from already-fetched page HTML in 10_image_sku_divergence.json.",
+ "n_divergent_records_available": 319,
+ "n_sampled": 6,
+ "results": [
+  {
+   "product_sku": "29VX64",
+   "image_sku": "29VX35",
+   "url": "static.grainger.com/rp/s/is/image/Grainger/29VX35_AS01?$mdmain$",
+   "timestamp": "20151026162639",
+   "fetched_status": 200,
+   "bytes": 63031,
+   "detected_type": "jpeg"
+  },
+  {
+   "product_sku": "23Z904",
+   "image_sku": "23Z902",
+   "url": "static.grainger.com/rp/s/is/image/Grainger/23Z902_AW01?$mdmain$",
+   "timestamp": "20150927231337",
+   "fetched_status": 404,
+   "bytes": 2105,
+   "detected_type": "not_an_image"
+  },
+  {
+   "product_sku": "412U19",
+   "image_sku": "412T66",
+   "url": "static.grainger.com/rp/s/is/image/Grainger/412T66_AS01",
+   "timestamp": "20191123023230",
+   "fetched_status": 404,
+   "bytes": 2103,
+   "detected_type": "not_an_image"
+  },
+  {
+   "product_sku": "14G061",
+   "image_sku": "14T265",
+   "url": "static.grainger.com/rp/s/is/image/Grainger/14T265_AW01?$mdmain$",
+   "timestamp": "20150219203247",
+   "fetched_status": 404,
+   "bytes": 2106,
+   "detected_type": "not_an_image"
+  },
+  {
+   "product_sku": "2MKD2",
+   "image_sku": "1MUC3",
+   "url": "static.grainger.com/rp/s/is/image/Grainger/1MUC3_AS01?$smthumb$",
+   "timestamp": "20150914204404",
+   "fetched_status": 200,
+   "bytes": 115465,
+   "detected_type": "jpeg"
+  },
+  {
+   "product_sku": "2PMY4",
+   "image_sku": "1MUC3",
+   "url": "static.grainger.com/rp/s/is/image/Grainger/1MUC3_AS01?$smthumb$",
+   "timestamp": "20150924212704",
+   "fetched_status": 200,
+   "bytes": 115465,
+   "detected_type": "jpeg"
+  }
+ ]
+}

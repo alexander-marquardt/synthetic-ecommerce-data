@@ -1,0 +1,738 @@
+{
+ "method": "Conditional distribution of the VERBATIM flute-count value given the VERBATIM Milling Dia. value, over records carrying both.",
+ "verbatim_names_grouped": {
+  "milling_dia": [
+   "Milling Dia.",
+   "Milling Diameter"
+  ],
+  "flutes": [
+   "Number of Flutes"
+  ]
+ },
+ "n_records_with_both": 131,
+ "marginal_flute_distribution": [
+  {
+   "flutes_verbatim": "4",
+   "count": 55
+  },
+  {
+   "flutes_verbatim": "2",
+   "count": 49
+  },
+  {
+   "flutes_verbatim": "6",
+   "count": 15
+  },
+  {
+   "flutes_verbatim": "3",
+   "count": 10
+  },
+  {
+   "flutes_verbatim": "5",
+   "count": 1
+  },
+  {
+   "flutes_verbatim": "8",
+   "count": 1
+  }
+ ],
+ "conditional": [
+  {
+   "milling_dia_verbatim": "1/2\"",
+   "inches": 0.5,
+   "n": 14,
+   "flutes": [
+    {
+     "verbatim": "4",
+     "count": 9,
+     "p": 0.643
+    },
+    {
+     "verbatim": "2",
+     "count": 5,
+     "p": 0.357
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "1/4\"",
+   "inches": 0.25,
+   "n": 10,
+   "flutes": [
+    {
+     "verbatim": "4",
+     "count": 6,
+     "p": 0.6
+    },
+    {
+     "verbatim": "2",
+     "count": 4,
+     "p": 0.4
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "3/8\"",
+   "inches": 0.375,
+   "n": 10,
+   "flutes": [
+    {
+     "verbatim": "4",
+     "count": 6,
+     "p": 0.6
+    },
+    {
+     "verbatim": "2",
+     "count": 2,
+     "p": 0.2
+    },
+    {
+     "verbatim": "6",
+     "count": 2,
+     "p": 0.2
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "1\"",
+   "inches": 1.0,
+   "n": 7,
+   "flutes": [
+    {
+     "verbatim": "3",
+     "count": 2,
+     "p": 0.286
+    },
+    {
+     "verbatim": "4",
+     "count": 2,
+     "p": 0.286
+    },
+    {
+     "verbatim": "2",
+     "count": 2,
+     "p": 0.286
+    },
+    {
+     "verbatim": "5",
+     "count": 1,
+     "p": 0.143
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "1/8\"",
+   "inches": 0.125,
+   "n": 7,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 4,
+     "p": 0.571
+    },
+    {
+     "verbatim": "4",
+     "count": 2,
+     "p": 0.286
+    },
+    {
+     "verbatim": "3",
+     "count": 1,
+     "p": 0.143
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "1-1/2\"",
+   "inches": 1.5,
+   "n": 6,
+   "flutes": [
+    {
+     "verbatim": "6",
+     "count": 4,
+     "p": 0.667
+    },
+    {
+     "verbatim": "3",
+     "count": 1,
+     "p": 0.167
+    },
+    {
+     "verbatim": "4",
+     "count": 1,
+     "p": 0.167
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "1/4 in",
+   "inches": 0.25,
+   "n": 6,
+   "flutes": [
+    {
+     "verbatim": "4",
+     "count": 4,
+     "p": 0.667
+    },
+    {
+     "verbatim": "6",
+     "count": 1,
+     "p": 0.167
+    },
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 0.167
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "5/16\"",
+   "inches": 0.3125,
+   "n": 5,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 3,
+     "p": 0.6
+    },
+    {
+     "verbatim": "4",
+     "count": 2,
+     "p": 0.4
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "1/8 in",
+   "inches": 0.125,
+   "n": 5,
+   "flutes": [
+    {
+     "verbatim": "4",
+     "count": 3,
+     "p": 0.6
+    },
+    {
+     "verbatim": "2",
+     "count": 2,
+     "p": 0.4
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "3/4\"",
+   "inches": 0.75,
+   "n": 5,
+   "flutes": [
+    {
+     "verbatim": "4",
+     "count": 4,
+     "p": 0.8
+    },
+    {
+     "verbatim": "3",
+     "count": 1,
+     "p": 0.2
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "3/16\"",
+   "inches": 0.1875,
+   "n": 4,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 3,
+     "p": 0.75
+    },
+    {
+     "verbatim": "3",
+     "count": 1,
+     "p": 0.25
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "3/16 in",
+   "inches": 0.1875,
+   "n": 4,
+   "flutes": [
+    {
+     "verbatim": "4",
+     "count": 2,
+     "p": 0.5
+    },
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 0.25
+    },
+    {
+     "verbatim": "3",
+     "count": 1,
+     "p": 0.25
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "3/8 in",
+   "inches": 0.375,
+   "n": 3,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 0.333
+    },
+    {
+     "verbatim": "4",
+     "count": 1,
+     "p": 0.333
+    },
+    {
+     "verbatim": "6",
+     "count": 1,
+     "p": 0.333
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "1/2 in",
+   "inches": 0.5,
+   "n": 3,
+   "flutes": [
+    {
+     "verbatim": "4",
+     "count": 2,
+     "p": 0.667
+    },
+    {
+     "verbatim": "6",
+     "count": 1,
+     "p": 0.333
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "3/4 in",
+   "inches": 0.75,
+   "n": 3,
+   "flutes": [
+    {
+     "verbatim": "4",
+     "count": 2,
+     "p": 0.667
+    },
+    {
+     "verbatim": "6",
+     "count": 1,
+     "p": 0.333
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "2\"",
+   "inches": 2.0,
+   "n": 2,
+   "flutes": [
+    {
+     "verbatim": "3",
+     "count": 1,
+     "p": 0.5
+    },
+    {
+     "verbatim": "8",
+     "count": 1,
+     "p": 0.5
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "3/32\"",
+   "inches": 0.09375,
+   "n": 2,
+   "flutes": [
+    {
+     "verbatim": "3",
+     "count": 1,
+     "p": 0.5
+    },
+    {
+     "verbatim": "4",
+     "count": 1,
+     "p": 0.5
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "8.00mm",
+   "inches": 0.31496,
+   "n": 2,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 2,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "1-1/4\"",
+   "inches": 1.25,
+   "n": 2,
+   "flutes": [
+    {
+     "verbatim": "6",
+     "count": 2,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "5/32 in",
+   "inches": 0.15625,
+   "n": 2,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 0.5
+    },
+    {
+     "verbatim": "3",
+     "count": 1,
+     "p": 0.5
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "5/8 in",
+   "inches": 0.625,
+   "n": 2,
+   "flutes": [
+    {
+     "verbatim": "4",
+     "count": 1,
+     "p": 0.5
+    },
+    {
+     "verbatim": "6",
+     "count": 1,
+     "p": 0.5
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "7/32 in",
+   "inches": 0.21875,
+   "n": 2,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 0.5
+    },
+    {
+     "verbatim": "4",
+     "count": 1,
+     "p": 0.5
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "1 in",
+   "inches": 1.0,
+   "n": 2,
+   "flutes": [
+    {
+     "verbatim": "6",
+     "count": 1,
+     "p": 0.5
+    },
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 0.5
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "0.0210\"",
+   "inches": 0.021,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "0.65mm",
+   "inches": 0.02559,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "4.50mm",
+   "inches": 0.17717,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "7.80mm",
+   "inches": 0.30709,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "5.00mm",
+   "inches": 0.19685,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "5/8\"",
+   "inches": 0.625,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "4",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "6.00mm",
+   "inches": 0.23622,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "16.00mm",
+   "inches": 0.62992,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "7/64\"",
+   "inches": 0.10938,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "1.00mm",
+   "inches": 0.03937,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "10.00mm",
+   "inches": 0.3937,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "1.50mm",
+   "inches": 0.05906,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "12.00mm",
+   "inches": 0.47244,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "3.00mm",
+   "inches": 0.11811,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "11.00mm",
+   "inches": 0.43307,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "4",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "1/16\"",
+   "inches": 0.0625,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "4",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "8 mm",
+   "inches": 0.31496,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "9/32 in",
+   "inches": 0.28125,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "4",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "1-3/4\"",
+   "inches": 1.75,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "6",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "12 mm",
+   "inches": 0.47244,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "5/16 in",
+   "inches": 0.3125,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "2",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "1/16 in",
+   "inches": 0.0625,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "4",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  },
+  {
+   "milling_dia_verbatim": "0.63mm",
+   "inches": 0.0248,
+   "n": 1,
+   "flutes": [
+    {
+     "verbatim": "4",
+     "count": 1,
+     "p": 1.0
+    }
+   ]
+  }
+ ]
+}
