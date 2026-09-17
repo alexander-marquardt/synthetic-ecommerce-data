@@ -15,6 +15,10 @@ sip-generate = "synthetic_industrial_products.catalog.cli:main"
 
 [dependency-groups]
 dev = [
+    # The build backend, so ``tests/test_wheel_builds.py`` can drive it
+    # directly instead of shelling out to an isolated build that would fetch
+    # it from the network on every run.
+    "hatchling>=1.25",
     "pytest>=8.0",
     "pyyaml>=6.0.3",
     "ruff>=0.6",
@@ -31,10 +35,22 @@ build-backend = "hatchling.build"
 # ``src/prism_*/data/customization.yaml`` and requires exactly one match.
 packages = ["src/synthetic_industrial_products", "src/prism_synthetic_industrial"]
 
-# The customization is nothing but data files, and a wheel that drops them
-# installs a package PRISM cannot read.
-[tool.hatch.build.targets.wheel.force-include]
-"src/prism_synthetic_industrial/data" = "prism_synthetic_industrial/data"
+# NO ``force-include`` for ``src/prism_synthetic_industrial/data``. The
+# customization is nothing but data files and a wheel that drops them installs
+# a package PRISM cannot read -- but the ``packages`` entry above already ships
+# that directory, because hatchling includes everything under a named package.
+# Declaring it a second time made hatchling add every file under it TWICE and
+# refuse the build outright:
+#
+#     ValueError: A second file is being added to the wheel archive at the
+#     same path: `prism_synthetic_industrial/data/customization.yaml`.
+#
+# Nothing here noticed for as long as this repo was only ever installed
+# editable (``uv sync``, ``uv pip install -e .``), which does not build a
+# wheel. The first consumer to depend on it as a pinned git requirement --
+# ``elastic/prism-mscdirect``, which serves this catalog -- could not install
+# it at all. ``tests/test_wheel_builds.py`` builds the wheel and reds on the
+# duplicate, so the editable path can no longer be the only one exercised.
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
