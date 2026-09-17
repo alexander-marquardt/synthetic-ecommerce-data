@@ -40,18 +40,25 @@ class GeneratorConfig:
 
     #: Relative share of lines per product type. Cutting tools dominate the
     #: reference corpus and dominate here.
+    #:
+    #: The shares sum to 1.0, and adding a product type means taking the room
+    #: for it from the others rather than appending to the list: ``lines`` is
+    #: apportioned by multiplying this through, so a table summing to 1.09
+    #: would quietly emit 545 lines where 500 were asked for.
     type_weights: dict[str, float] = field(
         default_factory=lambda: {
-            "end_mill_square": 0.20,
-            "end_mill_ball": 0.12,
-            "drill_jobber": 0.12,
-            "tap_spiral_point": 0.08,
-            "screw_socket_head": 0.13,
-            "screw_flat_head": 0.08,
-            "bolt_hex": 0.10,
+            "end_mill_square": 0.19,
+            "end_mill_ball": 0.11,
+            "drill_jobber": 0.11,
+            "tap_spiral_point": 0.07,
+            "screw_socket_head": 0.12,
+            "screw_flat_head": 0.07,
+            "screw_button_head": 0.05,
+            "screw_low_head": 0.04,
+            "bolt_hex": 0.09,
             "washer_flat": 0.06,
-            "hammer_ball_pein": 0.05,
-            "abrasive_flap_disc": 0.06,
+            "hammer_ball_pein": 0.04,
+            "abrasive_flap_disc": 0.05,
         }
     )
 

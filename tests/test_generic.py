@@ -1,4 +1,4 @@
-"""The ten catalog images: what they are, and what they must not contain.
+"""The twelve catalog images: what they are, and what they must not contain.
 
 A generic drawing asserts one thing -- *this product is a ball nose end mill* --
 and nothing numeric. That is what makes it safe to put the same image behind
@@ -140,6 +140,7 @@ TWO_VALUES: dict[str, tuple[str, str]] = {
     "Face Dia.": ('0.68"', "40 mm"),
     "Handle Length": ('9"', "400 mm"),
     "Length": ('1/2"', "80 mm"),
+    "Length Under Head": ('3/8"', "70 mm"),
     "Head Dia.": ('0.411"', "18 mm"),
     "Head Height": ('0.127"', "12 mm"),
     "Drive Size": ('1/8"', "6 mm"),
@@ -147,12 +148,14 @@ TWO_VALUES: dict[str, tuple[str, str]] = {
     "Dia./Thread Size": ("#10-32", "M12x1.75"),
 }
 
-#: The style attribute that decides which of the ten a product type shows.
+#: The style attribute that decides which of the twelve a product type shows.
 STYLE_OF_TYPE: dict[str, dict[str, str]] = {
     "end_mill_square": {"End Mill Style": "Square"},
     "end_mill_ball": {"End Mill Style": "Ball Nose"},
     "screw_socket_head": {"Screw Head Type": "Socket"},
     "screw_flat_head": {"Screw Head Type": "Flat"},
+    "screw_button_head": {"Screw Head Type": "Button"},
+    "screw_low_head": {"Screw Head Type": "Low Socket"},
     "bolt_hex": {"Screw Head Type": "Hex"},
 }
 
@@ -213,7 +216,7 @@ def test_the_control_for_that_is_a_dimensioned_drawing_which_does_move(tmp_path)
     assert a != b
 
 
-def test_the_ten_are_ten_DIFFERENT_drawings(tmp_path):
+def test_the_twelve_are_twelve_DIFFERENT_drawings(tmp_path):
     """Two product types sharing one picture is a wrong picture for one of them.
 
     Nothing else here would notice: every other property of a generic drawing
@@ -235,8 +238,8 @@ def test_a_square_end_mill_and_a_ball_nose_are_not_the_same_picture(tmp_path):
     assert square != ball
 
 
-def test_there_are_exactly_ten_and_the_catalog_uses_all_of_them():
-    assert len(generic.IMAGE_IDS) == 10
+def test_there_are_exactly_twelve_and_the_catalog_uses_all_of_them():
+    assert len(generic.IMAGE_IDS) == 12
     assert set(taxonomy.DRAWING.values()) == set(generic.IMAGE_IDS)
     assert set(taxonomy.DRAWING) == set(taxonomy.LEAVES)
 
@@ -273,3 +276,62 @@ def test_an_end_mill_that_does_not_say_which_end_it_has_gets_no_generic_either()
     """
     with pytest.raises(generic.MissingAttributeError):
         generic.drawing_for_record({"sku": "A", "Milling Dia.": '1/4"'})
+
+
+# --- the two new screw silhouettes say what the standards say --------------
+#
+# A generic drawing is not to scale, but it is still a claim about a SHAPE, and
+# the shape of these two is the only thing that tells them from a socket head
+# cap screw. Planting "give the low head drawing a full socket head's
+# proportions" came back GREEN against every other check here -- the two
+# drawings still differed, in the socket mouth and the end view -- which is the
+# `End Mill Style` shape again: a difference that exists is not the same as the
+# difference the record names.
+
+
+def _elevation_head(image_id: str) -> tuple[int, int]:
+    """Rows of the elevation wider than the shank, and the widest of them.
+
+    The head is the part of a screw's elevation wider than its shank, so it can
+    be measured without knowing where the renderer put it: cross the drawing
+    row by row below the end view and count the rows that run wider than the
+    shank does.
+    """
+    from helpers import rows_from_top
+
+    fig, ax = generic.build(image_id, CARD)
+    image = figure_pixels(fig)
+    ink = np.any(image < 0.6, axis=-1)[int(rows_from_top(fig, ax, 0.20)) :, :]
+    extents = np.array(
+        [
+            (cols.max() - cols.min()) if (cols := np.flatnonzero(row)).size else 0
+            for row in ink
+        ]
+    )
+    shank = float(np.median(extents[extents > 0]))
+    head = extents > shank * 1.4
+    assert head.any(), f"{image_id} draws no head wider than its shank"
+    return int(head.sum()), int(extents.max())
+
+
+def test_a_low_head_screw_is_drawn_lower_than_a_socket_head_cap_screw():
+    """And no wider, which is what the extracted tables say.
+
+    DIN 7984's head diameter equals ISO 4762's at every size this catalog
+    offers and ASME B18.3.1G's is a few thousandths under ASME B18.3's, while
+    the head height is a half to two thirds of it. A low head drawn as tall as
+    a full head is a picture of the screw the customer did not order, and it is
+    the whole difference between the two drawings.
+    """
+    low_rows, low_width = _elevation_head("screw_low_head")
+    full_rows, full_width = _elevation_head("screw_socket_head")
+    assert 0.4 < low_rows / full_rows < 0.8, (low_rows, full_rows)
+    assert low_width <= full_width
+
+
+def test_a_button_head_is_drawn_lower_and_wider_than_a_socket_head_cap_screw():
+    """Which is what ISO 7380-1 and ASME B18.3.3A say against ISO 4762 and ASME B18.3."""
+    button_rows, button_width = _elevation_head("screw_button_head")
+    full_rows, full_width = _elevation_head("screw_socket_head")
+    assert button_rows < full_rows
+    assert button_width > full_width

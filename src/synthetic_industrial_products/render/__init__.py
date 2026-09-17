@@ -17,8 +17,8 @@ A **generic drawing** asserts *this is a twist drill*. That is true from the
 product type alone -- from the attribute names the record publishes, which is
 what :mod:`.kinds` reads -- so it stays true of a record whose dimensions are
 missing, unreadable, or impossible. It is not drawn to scale and it carries no
-dimension callout of any kind. There are ten of them, one per product type and
-style, and they are what the catalog's cards actually show: see
+dimension callout of any kind. There are twelve of them, one per product type
+and style, and they are what the catalog's cards actually show: see
 :mod:`.generic`.
 
 :func:`render_record` tries the first and falls back to the second. The refusal

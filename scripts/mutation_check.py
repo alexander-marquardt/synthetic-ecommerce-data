@@ -321,9 +321,9 @@ MUTATIONS: list[Mutation] = [
         "render/marking.py",
         "    pairs = attribute_pairs(attributes)\n\n    ink = _lookup",
         '    pairs = tuple(p for p in attribute_pairs(attributes) if p[0] in {"Item", "Standards"})\n\n    ink = _lookup',
-        "tests/test_line_drawings.py -k exactly_three",
+        "tests/test_line_drawings.py -k exactly_two",
         "",
-        "497 of the 500 lines get a drawing of their own",
+        "498 of the 500 lines get a drawing of their own",
     ),
     # ---- every product and variant carries an image, both directions ------
     Mutation(
@@ -846,7 +846,7 @@ MUTATIONS: list[Mutation] = [
         '{"sku": "98WF97", "product_id": "OST-K663-0001"',
         "tests/test_catalog_golden.py::test_flat_holds_one_document_per_sku",
         "",
-        "flat.jsonl is 4,624 documents and 4,624 distinct skus",
+        "flat.jsonl is 4,696 documents and 4,696 distinct skus",
         root="golden-catalog",
     ),
     Mutation(
@@ -868,6 +868,126 @@ MUTATIONS: list[Mutation] = [
         "",
         "the nested lines account for every sku",
         root="golden-catalog",
+    ),
+    # ---- Length Under Head is DRAWN, both directions ---------------------
+    Mutation(
+        "draw the length-under-head dimension against the whole screw",
+        "render/fastener.py",
+        "        span = geom.length_under_head.inches",
+        "        span = geom.total_height",
+        'tests/test_fastener.py -k "length_under_head or three_published_lengths"',
+        "A",
+        "the length under head is a span on the drawing, to its published value",
+    ),
+    Mutation(
+        "print the value in the attribute table and draw no dimension for it",
+        "render/fastener.py",
+        "    if geom.length_under_head is not None:\n        # The whole shank",
+        "    if False:\n        # The whole shank",
+        'tests/test_fastener.py -k "length_under_head or three_published_lengths or inked_in_the_drawing"',
+        "B",
+        "the length under head is a span on the drawing, to its published value",
+    ),
+    # ---- a record whose lengths disagree is refused, both directions ------
+    Mutation(
+        "draw a screw whose published lengths contradict each other",
+        "render/fastener.py",
+        "        if drift > UNDER_HEAD_TOLERANCE_IN:",
+        "        if False:",
+        "tests/test_fastener.py -k contradict",
+        "A",
+        "a length under head the other lengths contradict is refused",
+    ),
+    Mutation(
+        "tighten the tolerance past the precision the catalog publishes at",
+        "render/fastener.py",
+        "UNDER_HEAD_TOLERANCE_IN = 0.01",
+        "UNDER_HEAD_TOLERANCE_IN = 0.0",
+        "tests/test_fastener.py -k rounding",
+        "B",
+        "a length under head the other lengths contradict is refused",
+    ),
+    # ---- the head style decides the SHAPE, both directions ---------------
+    Mutation(
+        "draw a button head as the cylinder a socket head cap screw has",
+        "render/fastener.py",
+        "    @property\n    def domed(self) -> bool:\n        return self.head_style.strip().lower() in DOMED",
+        "    @property\n    def domed(self) -> bool:\n        return False",
+        'tests/test_fastener.py -k "each_head_style or button_head"',
+        "A",
+        "each head style draws the shape its record names",
+    ),
+    Mutation(
+        "dome every head that is not countersunk, so socket and button agree again",
+        "render/fastener.py",
+        "    @property\n    def domed(self) -> bool:\n        return self.head_style.strip().lower() in DOMED",
+        "    @property\n    def domed(self) -> bool:\n        return not self.countersunk",
+        "tests/test_fastener.py -k each_head_style",
+        "B",
+        "each head style draws the shape its record names",
+    ),
+    # ---- and it decides which line drawing a LINE gets, both directions ---
+    Mutation(
+        "point the button head style at the socket head drawing",
+        "render/generic.py",
+        '        "button": "screw_button_head",',
+        '        "button": "screw_socket_head",',
+        'tests/test_line_drawings.py tests/test_generic.py -k "two_styles or image_does_not_depend"',
+        "A",
+        "a screw style names its own shape, and two shapes never draw alike",
+    ),
+    Mutation(
+        "draw the low head line with the socket head cap screw's own function",
+        "render/generic.py",
+        'GenericImage("screw_low_head", "Low Head Socket Cap Screw", _draw_low_head_screw),',
+        'GenericImage("screw_low_head", "Low Head Socket Cap Screw", _draw_socket_head_screw),',
+        'tests/test_line_drawings.py tests/test_generic.py -k "two_styles or DIFFERENT"',
+        "B",
+        "a screw style names its own shape, and two shapes never draw alike",
+    ),
+    # ---- the new silhouettes carry the proportions their standards give ---
+    #
+    # Planted first as "give the low head drawing a full socket head's
+    # proportions", which came back GREEN: the two drawings still differed, in
+    # the socket mouth and the end view, so every difference-based check passed
+    # while the one difference the record names -- the height of the head --
+    # had gone. The proportion tests in test_generic.py were written for this.
+    Mutation(
+        "give the low head drawing a full socket head's height",
+        "render/generic.py",
+        "    head_half, head_h = 0.105, 0.062",
+        "    head_half, head_h = 0.105, 0.115",
+        'tests/test_generic.py -k "drawn_lower or DIFFERENT"',
+        "A",
+        "the new screw silhouettes are drawn to the proportions their standards give them",
+    ),
+    Mutation(
+        "flatten the socket head cap screw to a low head's height",
+        "render/generic.py",
+        "    head_half, head_h = 0.105, 0.115",
+        "    head_half, head_h = 0.105, 0.062",
+        'tests/test_generic.py -k "drawn_lower or DIFFERENT"',
+        "B",
+        "the new screw silhouettes are drawn to the proportions their standards give them",
+    ),
+    # ---- the catalog publishes the attribute at all, both directions ------
+    Mutation(
+        "publish the length under head on the countersunk line only",
+        "catalog/generate.py",
+        '                self._length("Length Under Head", under_head_in, style),',
+        '                *([self._length("Length Under Head", under_head_in, style)] if flat else []),',
+        "tests/test_catalog_generate.py -k length_under_head",
+        "A",
+        "every screw and bolt line publishes a length under head",
+    ),
+    Mutation(
+        "measure the length under head over the head on every style",
+        "catalog/generate.py",
+        "            under_head_in = length_in - head.head_height_in if flat else length_in",
+        "            under_head_in = length_in",
+        "tests/test_catalog_generate.py -k shorter_than_the_length",
+        "B",
+        "every screw and bolt line publishes a length under head",
     ),
 ]
 

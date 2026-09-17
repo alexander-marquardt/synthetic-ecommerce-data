@@ -71,7 +71,7 @@ search_config: builtin
 # selector will not render for it" once per numeric facet, and the sidebar
 # shows nothing for any dimension.
 #
-# This list is the 26 attributes the field map derives as numeric facets, plus
+# This list is the 27 attributes the field map derives as numeric facets, plus
 # ``price``. It is NOT hand-maintained: ``tests/test_prism_field_map_drift.py``
 # asserts it equals a fresh derivation, so adding a numeric attribute to the
 # catalog without routing it here is a red test rather than a missing slider.
@@ -97,6 +97,7 @@ filter_routing:
     - inside_dia
     - length
     - length_of_cut
+    - length_under_head
     - max_rpm
     - milling_dia
     - number_of_flutes
