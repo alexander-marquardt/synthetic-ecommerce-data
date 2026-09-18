@@ -307,10 +307,20 @@ class Marking:
         and the caller sets it smaller, because a stamp that silently stopped
         part-way would be a drawing claiming to show a record it was showing
         half of.
+
+        ``break_on_hyphens=False`` because a published VALUE is a token and
+        not prose. ``textwrap`` defaults to breaking at an internal hyphen, so
+        ``Non-Coolant Through`` was set as ``Non-`` at the end of one line and
+        ``Coolant Through`` on the next -- and ``18-8 Stainless Steel``,
+        ``7/16-14`` and ``Roughing/Finishing`` are all the same shape. Read
+        back, the stamp then said ``Non- Coolant Through``, which is not a
+        value the record publishes.
         """
         del limit
         text = " · ".join(value for _, value in self.rows)
-        return tuple(textwrap.wrap(text, width=columns)) if text else ()
+        return (
+            tuple(textwrap.wrap(text, width=columns, break_on_hyphens=False)) if text else ()
+        )
 
 
 #: The marking for a drawing that is not of any one line: plain black line

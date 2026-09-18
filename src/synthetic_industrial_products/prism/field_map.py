@@ -35,6 +35,7 @@ STRUCTURAL_NAMES = frozenset(
         "product_id",
         "product_type",
         "title",
+        "description",
         "parent_title",
         "brand",
         "brand_search",
@@ -146,12 +147,21 @@ def _structural_fields() -> list[str]:
     searchable: true
     boost: 100
     studio: title
+  # The SKU's own copy, which names what separates it from its siblings. This
+  # is what renders under the title on a card, so it carries ``studio:
+  # description``; ``parent_title`` used to, and a line title is the same
+  # string on every SKU of the line -- six cards, six identical descriptions.
+  - name: description
+    type: text
+    source: description
+    searchable: true
+    boost: 55
+    studio: description
   - name: parent_title
     type: text
     source: parent_title
     searchable: true
     boost: 40
-    studio: description
   - name: fulltext
     type: text
     source: text

@@ -63,6 +63,9 @@
      "title": {
       "type": "text"
      },
+     "description": {
+      "type": "text"
+     },
      "price_usd": {
       "type": "double"
      },

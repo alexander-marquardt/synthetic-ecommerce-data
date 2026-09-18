@@ -26,7 +26,7 @@ The four acceptance criteria, and where each one is:
    attribute list taken from the records rather than written out;
 2. no two lines of a type render identically unless their attributes are
    identical -- :func:`test_the_lines_that_draw_alike_are_the_ones_that_publish_alike`
-   and :func:`test_exactly_three_lines_share_a_drawing_and_all_of_them_are_washers`;
+   and :func:`test_exactly_two_lines_do_not_get_a_drawing_of_their_own`;
 3. the encoding is reversible --
    :func:`test_the_brand_is_readable_off_the_rendered_drawing`;
 4. coverage stays 100%, asserted non-empty --
@@ -64,7 +64,7 @@ SMALL_LINES = list(emit.iter_nested(SMALL_CATALOG))
 SMALL_FLAT = list(emit.iter_flat(SMALL_CATALOG))
 
 #: The shipped catalog, whose collision count the issue states exactly. Built
-#: once: it is 500 lines and 4,696 SKUs.
+#: once: it is 500 lines and 4,662 SKUs.
 FULL_CATALOG = generate(GeneratorConfig())
 FULL_LINES = list(emit.iter_nested(FULL_CATALOG))
 
@@ -585,11 +585,11 @@ def _collision_groups(lines, profile):
 
 #: What the issue measured and what this must keep measuring. Stated as the
 #: number of lines that DO NOT get a drawing of their own, per product type.
-EXPECTED_COLLISIONS = {"washer_flat": 2}
+EXPECTED_COLLISIONS = {"abrasive_flap_disc": 1, "washer_flat": 1}
 
 
 @pytest.mark.parametrize("profile", ["card", "detail"])
-def test_exactly_two_lines_do_not_get_a_drawing_of_their_own_and_both_are_washers(profile):
+def test_exactly_two_lines_do_not_get_a_drawing_of_their_own(profile):
     """Asserted exactly, because a regression here reduces variety QUIETLY.
 
     An encoding that collapsed -- a channel dropped, a stamp truncated, a
@@ -598,12 +598,21 @@ def test_exactly_two_lines_do_not_get_a_drawing_of_their_own_and_both_are_washer
     and still passes every other check in this suite. The only thing it moves
     is this number, and only if the number is pinned rather than bounded.
 
-    Two, both flat washers, because a flat washer is almost nothing but
-    dimensions: brand, material, finish, standards and washer type, and the
-    dimensions are on the SKUs where a shared drawing must not read them. They
-    fall in two PAIRS, so four lines share a drawing and two of the four get
-    one of their own -- which is what this number counts and what its name
-    says.
+    Two PAIRS. ``BRA-W121-0437`` and ``BRA-W610-0455`` are Bracknell nylon
+    flat washers, which is almost nothing but dimensions -- brand, material,
+    finish and washer type, with every dimension on the SKUs where a shared
+    drawing must not read them. ``COR-FD604-0495`` and ``COR-FD714-0479`` are
+    Corvane conical aluminium-oxide flap discs, whose six line-scope values
+    coincide down to the same single standard. Both pairs are different
+    products, and every attribute they differ on is SKU-scope. The companion
+    test below is the half that says so: lines drawing alike have to publish
+    alike.
+
+    The number moves when the catalog is regenerated, because WHICH lines
+    happen to publish identically is a property of the draw rather than of the
+    encoding -- it has read two washers, then one hex bolt pair, and now these
+    two. It is re-measured each time rather than adjusted to fit, and what has
+    to stay true is that every pair it counts publishes identically.
     """
     groups = _collision_groups(FULL_LINES, profile)
     collisions: dict[str, int] = {}
@@ -616,9 +625,9 @@ def test_exactly_two_lines_do_not_get_a_drawing_of_their_own_and_both_are_washer
 def test_the_lines_that_draw_alike_are_the_ones_that_publish_alike(profile):
     """The other half of criterion 2, and the half a count cannot express.
 
-    The count could stay at three while the three moved somewhere else
-    entirely, which would be a different and worse catalog passing the test
-    above. So every line that shares a drawing must publish exactly the same
+    The count could stay where it is while the lines it counts moved somewhere
+    else entirely, which would be a different and worse catalog passing the
+    test above. So every line that shares a drawing must publish exactly the same
     brand and the same attributes -- and the converse, that lines publishing
     the same thing do share a drawing, is what makes the drawing a rendering
     of the record rather than a decoration on it.
@@ -672,7 +681,7 @@ def test_the_channel_sweeps_skip_only_where_the_vocabulary_has_no_channel():
 def test_the_full_catalog_really_is_the_one_the_issue_measured():
     """Guards the two tests above: they are about a 500-line catalog, not any catalog."""
     assert len(FULL_LINES) == 500
-    assert FULL_CATALOG.sku_count == 4696
+    assert FULL_CATALOG.sku_count == 4662
     assert len({line["image_id"] for line in FULL_LINES}) == 500
 
 

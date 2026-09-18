@@ -100,6 +100,10 @@ class Sku:
 
     sku: str
     title: str
+    #: The shopper-facing copy under the title. It names what separates this
+    #: SKU from its siblings -- see ``generate.Generator._build_description``
+    #: for the grammar and why the overlap with the title is deliberate.
+    description: str
     attributes: tuple[Attribute, ...]
     price_usd: float
     stock: int

@@ -48,7 +48,7 @@ line:
 | | |
 |---|---|
 | **Fasteners** | dimensions are **standards-derived**. Each line carries the standard designation its dimensions came from — `ASME B18.3`, `ASME B18.3.2`, `ASME B18.3.3A`, `ASME B18.3.1G`, `ISO 4762`, `ISO 10642`, `ISO 7380-1`, `DIN 7984`, `ISO 4014`, `ISO 4017`, `DIN 933`, `ISO 7089`. |
-| **Cutting tools** | dimensions are **generated** from the conventional series. No open dimensional source for end mills exists, so nothing here claims a standard, and the provenance field says so in words. |
+| **Cutting tools** | dimensions are **generated** from the conventional series. No open dimensional source for end mills exists, so nothing here claims a standard, and the provenance field says so in words. The metric series carries 11, 15 and 25 mm, which are ordinary stocked sizes and were missing — an artifact of how the list was first written, not a statement about the market. |
 
 That asymmetry is deliberate. A cap screw's head is fixed by a published
 standard and a catalog that disagrees with it is wrong; an end mill's length of
@@ -79,6 +79,17 @@ catalog offers were taken; the upstream compilations are not redistributed.
 Values the sources do not carry are recorded as absent rather than filled in —
 there is no `#10` hex bolt here, because ASME B18.2.1 hex head screws begin at
 1/4", and no `M20` button head, because ISO 7380-1 in the source stops at M16.
+
+The sizes taken are listed in the extraction's own `requested_sizes` block:
+`M3 M4 M5 M6 M8 M10 M12 M16 M20` and `#6 #8 #10 1/4 5/16 3/8 7/16 1/2 5/8`.
+**`7/16` was added after the customer's own parametric example turned out to
+name it** — `hex head cap screw: 7/16-14, 1-3/4" length under head, grade 8
+steel, zinc finish` — and every other component of that query already
+resolved. It is present in the source for all five inch standards, so nothing
+had to be invented: the pitch column gives 14 threads per inch exactly, which
+is what makes the designation `7/16-14`, and the offered lengths are the
+workbench's own list filtered to the per-size range, which includes
+`1 3/4in`.
 
 ### Four screw styles, and the three lengths each of them publishes
 
@@ -174,6 +185,72 @@ malformed — a record publishing `Helix Angle = 42"` has no angle to put there.
 Lines are never grouped across brands. Two manufacturers' tools at the same
 nominal geometry are different products.
 
+#### Three tiers say what makes a SKU different
+
+A shopper meets one product line as a screenful of near-identical cards, and
+what separates them has to be legible at three different depths. The source
+this catalog is modelled on does exactly this, and the three tiers carry
+deliberately overlapping content:
+
+| tier | job | content |
+|---|---|---|
+| `title` | tell them apart **at a glance** | the one main distinguishing attribute |
+| `description` | tell them apart **while scanning** | the distinguishing attributes, with context |
+| attribute block | tell them apart **precisely** | every published attribute |
+
+```
+sku          69PU63
+title        Vantage Edge Hex Head Bolt,7/16-14, 1" L, Grade 8
+description  Vantage Edge Hex Head Bolt,7/16-14, 1" L, Grade 8 - 1" Length
+             Under Head, 1" Thread Length, 5/8" Width Across Flats, 19/64"
+             Head Height, 5/8" Head Dia., Vantage Edge ASMEB18.2.1-32
+```
+
+**The description opens with the title verbatim and then continues after a
+` - `.** That repetition is the source's own convention rather than something
+to tidy away — a marketplace listing repeats its size in the title, in the
+variant selector and twice in the specification table, because each tier is
+read at a different moment.
+
+Two properties are asserted over the whole catalog, derived from the data
+rather than spot-checked:
+
+* **no two SKUs within a product line share a title, and none share a
+  description.** Measured before this existed: 176 of 500 lines published a
+  title two of their SKUs shared, over 1,214 SKUs, and *all* 500 published one
+  description for every SKU under them — the description was the line title,
+  which restates the brand, the series and the product type and says nothing
+  about the SKU;
+* **every title names a value that is that SKU's alone within its line**,
+  per attribute rather than per value, since the same string legitimately
+  appears on two SKUs in two different roles — and as a VALUE rather than as a
+  substring of one, because `…, 1/4-20, …` is not a statement that the screw
+  is 1/4" long.
+
+The second is the one that bites, and the two weaker ways of asking it both
+leak. Titles carry the brand about a third of the time and their labels in one
+of several abbreviations, so on the catalog this replaced, asking only that a
+line's titles differ as whole strings left **1,913** SKUs naming nothing of
+their own, and a bare substring test left **1,932** — 19 of those passing on a
+coincidence rather than on a value.
+
+The coincidence outlives a catalog that has otherwise been repaired, which is
+why the distinction is worth a rule rather than a remark: on the first pass at
+this work the whole-string and substring counts had both reached zero while the
+standalone-token count was still **10**. One of the ten was
+`Button Head Socket Cap Screw, 1/4-20, Alloy Steel`, credited with naming a
+`Length Under Head` of `1/4` — which is the first half of a thread designation
+and says nothing about how long the screw is. On the committed catalog all
+three counts are zero.
+
+Which attribute is "the" distinguishing one is **derived, not listed per
+product type**: it is the attribute published on every SKU of the line, with
+pairwise distinct values, whose magnitudes spread furthest. For an end mill
+that is the cutting diameter, which its titles already carried — so the
+end-mill titles are unchanged, which is the control for the whole rule. For a
+screw it is the length, and a screw's thread size is line-constant, which is
+why a title built around it read the same on every SKU of the line.
+
 ### Two shapes, one catalog
 
 `sip-generate build` writes both serialisations from the same generated
@@ -188,6 +265,10 @@ and not of the data.
 | `images.jsonl` | one row per image — one per product line — with its product type, the shape it is drawn as, its path under the image base URL at both profiles, and how many products point at it |
 | `stats.json` | what was generated, measured against the statistics it reproduces |
 
+Both shapes publish a SKU's own `description` beside its `title`. The line's
+title ships too, as `parent_title` — it is what a grouped card will be headed
+with — but it is no longer what renders under a SKU's title.
+
 The flat shape also carries a sanitised `facets` object, because `Milling Dia.`
 cannot be an Elasticsearch field name — the trailing dot makes it an invalid
 path. The three spellings of the measurement-system attribute deliberately
@@ -201,14 +282,14 @@ them here would hide the problem a field map exists to solve.
 
 | file | |
 |---|---|
-| `flat.jsonl` | 12.7 MB — 4,696 SKU documents |
-| `nested.jsonl` | 4.4 MB — 500 product lines, nested variants and key-value attributes |
-| `render.jsonl` | 2.0 MB — the same 4,696 SKUs for the per-record dimensioned renderer |
+| `flat.jsonl` | 13.6 MB — 4,662 SKU documents |
+| `nested.jsonl` | 5.3 MB — 500 product lines, nested variants and key-value attributes |
+| `render.jsonl` | 2.0 MB — the same 4,662 SKUs for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
 | `images.jsonl` | the 500 drawings — one per product line — and how many products point at each |
 | `stats.json` | the measured defect rates, and the config that produced them |
 
-18.5 MiB in the working tree. **Plain NDJSON — deliberately not gzipped and
+20.2 MiB in the working tree. **Plain NDJSON — deliberately not gzipped and
 not git-LFS.** The whole reason to commit generated output is that a change to
 the generator shows up as a readable diff in review, and both of those hide it.
 The cost is small: the seven blobs occupy **906 KiB in the pack** (measured
@@ -249,10 +330,10 @@ difference means the second, and the golden files must not be updated until it
 is found. The test's failure message says all of this too, with the commands.
 
 Alongside the hashes, the same test asserts the headline numbers directly
-against the committed files — 4,696 SKU documents over 500 distinct
+against the committed files — 4,662 SKU documents over 500 distinct
 `product_id`, a non-empty `image_url` and `image_detail_url` on every product
 line, variant and flat document, and 500 nested lines whose variant counts sum
-to 4,696. Those hold independently of the generator, so a careless
+to 4,662. Those hold independently of the generator, so a careless
 regenerate-and-commit from a broken build is still red.
 
 ## Serving it with PRISM
@@ -544,19 +625,19 @@ default 500-line catalog:
 
 | product type | variants | drawn to scale | |
 |---|---|---|---|
-| `washer_flat` | 236 | 100% | ISO 7089 publishes all three dimensions on every size |
-| `screw_low_head` | 203 | 99% | |
-| `bolt_hex` | 496 | 99% | |
-| `screw_flat_head` | 390 | 98% | |
-| `screw_socket_head` | 693 | 98% | |
-| `screw_button_head` | 291 | 97% | |
-| `abrasive_flap_disc` | 144 | 90% | `Disc Dia.` sometimes published without a unit |
-| `end_mill_ball` | 413 | 66% | |
-| `end_mill_square` | 759 | 59% | |
-| `tap_spiral_point` | 331 | 39% | |
-| `drill_jobber` | 592 | 24% | `Shank Dia.` is published on 43% of them |
-| `hammer_ball_pein` | 148 | 0% | see below |
-| **all** | **4,696** | **72%** | 844 missing an attribute, 168 unreadable, 140 self-contradictory, 148 hammers |
+| `washer_flat` | 240 | 100% | ISO 7089 publishes all three dimensions on every size |
+| `screw_button_head` | 270 | 100% | |
+| `screw_low_head` | 204 | 100% | |
+| `bolt_hex` | 424 | 98% | |
+| `screw_flat_head` | 379 | 98% | |
+| `screw_socket_head` | 671 | 97% | |
+| `abrasive_flap_disc` | 144 | 85% | `Disc Dia.` sometimes published without a unit |
+| `end_mill_ball` | 441 | 66% | |
+| `end_mill_square` | 786 | 64% | |
+| `tap_spiral_point` | 326 | 39% | |
+| `drill_jobber` | 627 | 22% | `Shank Dia.` is published on 43% of them |
+| `hammer_ball_pein` | 150 | 0% | see below |
+| **all** | **4,662** | **71%** | 840 missing an attribute, 181 unreadable, 160 self-contradictory, 150 hammers |
 
 A record the dimensioned renderer refuses falls back to its generic drawing, so
 a refusal costs the scale, never the image.
@@ -711,17 +792,17 @@ than asserted.
 
 | property | target | achieved |
 |---|---|---|
-| shank diameter == cutting diameter | 0.6489 | 0.6763 |
-| length of cut > overall length | 0.0829 | 0.0859 |
-| an angle attribute carrying a length unit | 0.0469 | 0.0397 |
-| declared measurement system contradicts the value's units | 0.0323 | 0.0275 |
-| unit mixing within one record | 0.0222 | 0.0245 |
-| title dimension token carries no label | 0.4667 | 0.4634 |
-| title dimension token is not the primary dimension | 0.1714 | 0.1772 |
-| title label truncated at the length cap | 0.0323 | 0.0309 |
+| shank diameter == cutting diameter | 0.6489 | 0.5946 |
+| length of cut > overall length | 0.0829 | 0.0742 |
+| an angle attribute carrying a length unit | 0.0469 | 0.0602 |
+| declared measurement system contradicts the value's units | 0.0323 | 0.0269 |
+| unit mixing within one record | 0.0222 | 0.0238 |
+| title dimension token carries no label | 0.4667 | 0.4796 |
+| title dimension token is not the primary dimension | 0.1714 | 0.1609 |
+| title label truncated at the length cap | 0.0323 | 0.0390 |
 | image reference missing | 0.1089 | **0.0000, deliberately** |
 | image id is shared, not the product's own | 0.7353 | **1.0000, deliberately** |
-| attributes per record (mean) | 13.12 | 13.4634 |
+| attributes per record (mean) | 13.12 | 13.5180 |
 
 Two notes on reading that table honestly. The angle defect is **clustered**:
 the attribute is line-constant, so one bad row reaches every SKU under that

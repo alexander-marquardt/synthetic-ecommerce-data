@@ -198,6 +198,15 @@ def _searchable_text(line: ProductLine, child: Sku, attributes: tuple[Attribute,
     a bare dimension token matching a product whose shank -- not whose cutting
     diameter -- carries that value, and that can only happen if the shank's
     value is searchable as text.
+
+    The DESCRIPTION is deliberately not in here, though it is searchable. It
+    is declared as a field of its own in the PRISM field map, and it opens
+    with the title verbatim and then restates values this function already
+    collects from the attributes -- so folding it in here would roughly double
+    the term frequency of every title token against the rest of the corpus,
+    which is a relevance change nothing in this repository measures. The only
+    tokens it would add that are not already here are attribute NAMES, and
+    those are published in ``attribute_names``.
     """
     parts = [child.title, line.brand, line.series, *line.category]
     for attribute in attributes:
@@ -230,6 +239,7 @@ def nested_document(
             {
                 "sku": child.sku,
                 "title": child.title,
+                "description": child.description,
                 "price_usd": child.price_usd,
                 "stock": child.stock,
                 "image_id": child.image_id,
@@ -262,6 +272,14 @@ def flat_documents(
             "product_id": line.product_id,
             "product_type": line.type_key,
             "title": child.title,
+            # The SKU's own copy, and the LINE's title beside it. They are two
+            # different things and the description used to be the second: a
+            # line title restates the brand, the series and the product type,
+            # which is why six SKUs of one line showed six identical
+            # descriptions. ``parent_title`` still ships -- it is what the
+            # grouped view will head a card with -- but it is no longer what a
+            # shopper reads under the title.
+            "description": child.description,
             "parent_title": line.title,
             "brand": line.brand,
             "series": line.series,
@@ -337,6 +355,7 @@ NESTED_MAPPING: dict[str, Any] = {
                 "properties": {
                     "sku": {"type": "keyword"},
                     "title": {"type": "text"},
+                    "description": {"type": "text"},
                     "price_usd": {"type": "double"},
                     "stock": {"type": "integer"},
                     "image_id": {"type": "keyword"},
@@ -379,6 +398,7 @@ FLAT_MAPPING: dict[str, Any] = {
             "product_id": {"type": "keyword"},
             "product_type": {"type": "keyword"},
             "title": {"type": "text"},
+            "description": {"type": "text"},
             "parent_title": {"type": "text"},
             "brand": {"type": "keyword"},
             "series": {"type": "keyword"},

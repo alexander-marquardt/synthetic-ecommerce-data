@@ -65,6 +65,18 @@ IMPERIAL_SHANKS: tuple[Fraction, ...] = (
 )
 
 #: Metric cutting diameters, in millimetres.
+#:
+#: 11, 15 and 25 are ordinary stocked sizes and were missing, which is an
+#: artifact of how this list was first written rather than a statement about
+#: the market: a catalog that offers 10 and 12 offers 11, and one that offers
+#: 20 offers 25. Their absence made three of the customer's twelve end-mill
+#: patterns unanswerable -- ``11 mm end mills``, ``15 mm ball end mills`` and
+#: ``25mm end mill``, the last of which is the demo's own headline case.
+#:
+#: 11 and 15 are deliberately NOT added to :data:`METRIC_SHANKS`. A shank has
+#: to fit a holder and the collet series really does stop at the round even
+#: sizes, so an 11 mm cutter is a reduced- or oversize-shank tool. 25 already
+#: is an offered shank, so a 25 mm cutter can be either.
 METRIC_CUTTING_DIAS: tuple[float, ...] = (
     1.0,
     1.5,
@@ -76,9 +88,12 @@ METRIC_CUTTING_DIAS: tuple[float, ...] = (
     6.0,
     8.0,
     10.0,
+    11.0,
     12.0,
+    15.0,
     16.0,
     20.0,
+    25.0,
 )
 
 #: Metric shank diameters, in millimetres. 3.175, 6.35 and 12.7 are 1/8", 1/4"
