@@ -817,9 +817,9 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "blank one card image url in the committed catalog",
         "flat.jsonl",
-        'ice_usd": 8.23, "stock": 18, "image_id": "end_mill_square/OST-K663-0001", '
+        'ice_usd": 13.44, "stock": 17, "image_id": "end_mill_square/OST-K663-0001", '
         '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png"',
-        'ice_usd": 8.23, "stock": 18, "image_id": "end_mill_square/OST-K663-0001", '
+        'ice_usd": 13.44, "stock": 17, "image_id": "end_mill_square/OST-K663-0001", '
         '"image_url": ""',
         "tests/test_catalog_golden.py::test_every_flat_document_carries_an_image_url",
         "A",
@@ -829,10 +829,10 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop the detail image url from one committed nested variant",
         "nested.jsonl",
-        '"price_usd": 8.23, "stock": 18, "image_id": "end_mill_square/OST-K663-0001", '
+        '"price_usd": 13.44, "stock": 17, "image_id": "end_mill_square/OST-K663-0001", '
         '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png", '
         '"image_detail_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/detail.png"',
-        '"price_usd": 8.23, "stock": 18, "image_id": "end_mill_square/OST-K663-0001", '
+        '"price_usd": 13.44, "stock": 17, "image_id": "end_mill_square/OST-K663-0001", '
         '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png"',
         "tests/test_catalog_golden.py::test_every_nested_line_and_variant_carries_an_image_url",
         "B",
@@ -842,8 +842,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "duplicate a sku in the committed flat catalog",
         "flat.jsonl",
-        '{"sku": "60EX58", "product_id": "OST-K663-0001"',
-        '{"sku": "98WF97", "product_id": "OST-K663-0001"',
+        '{"sku": "19XN98", "product_id": "OST-K663-0001"',
+        '{"sku": "80FY44", "product_id": "OST-K663-0001"',
         "tests/test_catalog_golden.py::test_flat_holds_one_document_per_sku",
         "",
         "flat.jsonl is 4,696 documents and 4,696 distinct skus",
@@ -852,8 +852,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "point one committed document at a product line that does not exist",
         "flat.jsonl",
-        '{"sku": "60EX58", "product_id": "OST-K663-0001"',
-        '{"sku": "60EX58", "product_id": "OST-K663-9999"',
+        '{"sku": "19XN98", "product_id": "OST-K663-0001"',
+        '{"sku": "19XN98", "product_id": "OST-K663-9999"',
         "tests/test_catalog_golden.py::test_flat_covers_exactly_the_product_lines",
         "",
         "the catalog spans exactly 500 product lines",
@@ -862,8 +862,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "publish a variant_count that disagrees with its own variants array",
         "nested.jsonl",
-        '"variant_count": 8, "variants": [{"sku": "60EX58", "title": "High Speed Steel Sq',
-        '"variant_count": 9, "variants": [{"sku": "60EX58", "title": "High Speed Steel Sq',
+        '"variant_count": 9, "variants": [{"sku": "19XN98", "title": "Osterlund High Sp',
+        '"variant_count": 10, "variants": [{"sku": "19XN98", "title": "Osterlund High Sp',
         "tests/test_catalog_golden.py::test_nested_lines_account_for_every_sku",
         "",
         "the nested lines account for every sku",
@@ -1134,22 +1134,48 @@ MUTATIONS: list[Mutation] = [
     ),
     # ---- the parametric query resolves, both directions -------------------
     Mutation(
-        "let the three hex bolt wheels turn in phase, so the triple aliases",
-        "catalog/generate.py",
-        "        phase = step + step // len(sizes)",
-        "        phase = step",
-        "tests/test_catalog_coverage.py",
-        "A",
-        "the customer's parametric query has an answer",
-    ),
-    Mutation(
         "take the zinc finish off the hex bolt rotation",
         "catalog/generate.py",
         'HEX_BOLT_FINISHES: tuple[str, ...] = ("Zinc Plated", "Plain", "Hot Dip Galvanized")',
         'HEX_BOLT_FINISHES: tuple[str, ...] = ("Plain", "Hot Dip Galvanized")',
         "tests/test_catalog_coverage.py",
+        "A",
+        "the customer's parametric query has an answer",
+    ),
+    Mutation(
+        "take Grade 8 off the inch grading rotation",
+        "catalog/generate.py",
+        'INCH_GRADES: tuple[str, ...] = ("Grade 5", "Grade 8")',
+        'INCH_GRADES: tuple[str, ...] = ("Grade 5",)',
+        "tests/test_catalog_coverage.py",
         "B",
         "the customer's parametric query has an answer",
+    ),
+    # ---- a size is not locked to one grading and one finish, both ways ----
+    #
+    # Direction A is the regression an adversarial review caught: the wrap
+    # step alone leaves the three METRIC standards -- nine lines each, nine
+    # sizes each -- replaying identical wheel positions, and 9 of the 15
+    # published sizes came out locked. The first version of the guard grouped
+    # by (standard, size), so every metric group held one line, was skipped,
+    # and the check ran only on the inch half that was not broken.
+    Mutation(
+        "let every hex bolt standard start its wheels at the same position",
+        "catalog/generate.py",
+        "        phase = step + step // len(sizes) + HEX_BOLT_PHASE.index(standard)",
+        "        phase = step + step // len(sizes)",
+        "tests/test_catalog_coverage.py -k locked",
+        "A",
+        "one thread size is not locked to one grading or one finish",
+    ),
+    Mutation(
+        "let the size, grading and finish wheels turn in step",
+        "catalog/generate.py",
+        "        phase = step + step // len(sizes) + HEX_BOLT_PHASE.index(standard)",
+        "        phase = step",
+        "tests/test_catalog_coverage.py -k locked",
+        "B",
+        "one thread size is not locked to one grading or one finish",
     ),
     # ---- the metric spelling the policy bridges, both directions ----------
     Mutation(
@@ -1226,6 +1252,25 @@ MUTATIONS: list[Mutation] = [
         "tests/test_catalog_titles.py",
         "B",
         "the description names what distinguishes the SKU",
+    ),
+    # ---- a title names a value, not a substring of one, both directions ---
+    Mutation(
+        "ask whether the title CONTAINS the value instead of states it",
+        "catalog/naming.py",
+        "    if not value:\n        return False\n    at = text.find(value)",
+        "    if not value:\n        return False\n    return value in text\n    at = text.find(value)",
+        "tests/test_catalog_titles.py",
+        "A",
+        "a title names a value as a value",
+    ),
+    Mutation(
+        "treat every title as already naming everything, so nothing is repaired",
+        "catalog/naming.py",
+        "    if not value:\n        return False\n    at = text.find(value)",
+        "    if not value:\n        return False\n    return True\n    at = text.find(value)",
+        "tests/test_catalog_titles.py",
+        "B",
+        "a title names a value as a value",
     ),
     # ---- a published value is a token, not prose, both directions ---------
     Mutation(

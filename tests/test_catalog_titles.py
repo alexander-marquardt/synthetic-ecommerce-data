@@ -43,12 +43,41 @@ from __future__ import annotations
 
 import collections
 import json
+import re
 from pathlib import Path
 
 import pytest
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
 REBUILD = "uv run sip-generate build --out golden-catalog"
+
+#: A character that could be part of the same value as the one either side of
+#: it -- digits, fraction and decimal marks, unit marks, letters.
+_CONTINUES = re.compile(r"""[0-9A-Za-z./\-"']""")
+
+
+def _states(text: str, value: str) -> bool:
+    """Whether ``text`` STATES ``value``, rather than merely containing it.
+
+    Deliberately a SECOND implementation of the generator's
+    ``naming.states_value`` rather than an import of it. The question "does
+    this title name this value" is the one the generator uses to decide
+    whether a title needs repairing and the one this file uses to decide
+    whether the repair worked; sharing the code would make the two agree by
+    construction, and a wrong answer would then be invisible from both sides.
+    That is not hypothetical -- both asked it with a bare ``in`` and both were
+    wrong about the same 10 SKUs, ``94PL94`` among them, whose title
+    ``Button Head Socket Cap Screw, 1/4-20, Alloy Steel`` was credited with
+    naming a ``Length Under Head`` of ``1/4``.
+    """
+    if not value:
+        return False
+    for match in re.finditer(re.escape(value), text):
+        before = text[match.start() - 1 : match.start()]
+        after = text[match.end() : match.end() + 1]
+        if not _CONTINUES.match(before) and not _CONTINUES.match(after):
+            return True
+    return False
 
 
 #: Every property here is asserted against TWO sources, and both are needed.
@@ -197,7 +226,7 @@ def test_the_description_says_something_the_title_did_not(
         unnamed = [
             entry["value"]
             for entry in variant_attributes[doc["sku"]]
-            if entry["value"] and entry["value"] not in doc["title"]
+            if entry["value"] and not _states(doc["title"], entry["value"])
         ]
         if unnamed and not any(value in tail for value in unnamed):
             thin.append(doc["sku"])
@@ -216,7 +245,9 @@ def test_every_title_names_a_value_that_is_this_skus_alone_in_its_line(
     that landed differently, a delimiter written tight on one of them -- and
     that would satisfy the duplicate check while telling the shopper nothing.
     What has to be true is that the title carries a VALUE this SKU publishes
-    and its siblings do not.
+    and its siblings do not, and that it carries it as a VALUE: a substring
+    test credits ``…, 1/4-20, …`` with naming a length of ``1/4``, which is
+    how 10 SKUs passed this while naming nothing of their own.
     """
     failures: list[tuple[str, str]] = []
     for product_id, docs in sorted(by_line.items()):
@@ -245,7 +276,7 @@ def test_every_title_names_a_value_that_is_this_skus_alone_in_its_line(
                     for other in docs
                 )
             }
-            if not any(own[name] in doc["title"] for name in identifying):
+            if not any(_states(doc["title"], own[name]) for name in identifying):
                 failures.append((product_id, doc["sku"]))
     assert failures == [], (
         f"{len(failures)} SKU title(s) name no attribute value that is theirs "

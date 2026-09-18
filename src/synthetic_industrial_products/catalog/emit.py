@@ -198,8 +198,17 @@ def _searchable_text(line: ProductLine, child: Sku, attributes: tuple[Attribute,
     a bare dimension token matching a product whose shank -- not whose cutting
     diameter -- carries that value, and that can only happen if the shank's
     value is searchable as text.
+
+    The DESCRIPTION is deliberately not in here, though it is searchable. It
+    is declared as a field of its own in the PRISM field map, and it opens
+    with the title verbatim and then restates values this function already
+    collects from the attributes -- so folding it in here would roughly double
+    the term frequency of every title token against the rest of the corpus,
+    which is a relevance change nothing in this repository measures. The only
+    tokens it would add that are not already here are attribute NAMES, and
+    those are published in ``attribute_names``.
     """
-    parts = [child.title, child.description, line.brand, line.series, *line.category]
+    parts = [child.title, line.brand, line.series, *line.category]
     for attribute in attributes:
         values = attribute.values or (attribute.value,)
         parts.extend(values)

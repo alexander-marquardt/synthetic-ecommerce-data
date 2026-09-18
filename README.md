@@ -199,12 +199,11 @@ deliberately overlapping content:
 | attribute block | tell them apart **precisely** | every published attribute |
 
 ```
-sku          19AZ31
-title        Kelbrook Hex Head Bolt, 7/16-14, 1-1/4" L, Grade 8
-description  Kelbrook Hex Head Bolt, 7/16-14, 1-1/4" L, Grade 8 - 1-1/4"
-             Length Under Head, 1-1/8" Thread Length, 5/8" Width Across
-             Flats, 19/64" Head Height, 5/8" Head Dia., Kelbrook
-             ASMEB18.2.1-58
+sku          69PU63
+title        Vantage Edge Hex Head Bolt,7/16-14, 1" L, Grade 8
+description  Vantage Edge Hex Head Bolt,7/16-14, 1" L, Grade 8 - 1" Length
+             Under Head, 1" Thread Length, 5/8" Width Across Flats, 19/64"
+             Head Height, 5/8" Head Dia., Vantage Edge ASMEB18.2.1-32
 ```
 
 **The description opens with the title verbatim and then continues after a
@@ -224,11 +223,14 @@ rather than spot-checked:
   about the SKU;
 * **every title names a value that is that SKU's alone within its line**,
   per attribute rather than per value, since the same string legitimately
-  appears on two SKUs in two different roles.
+  appears on two SKUs in two different roles — and as a VALUE rather than as a
+  substring of one, because `…, 1/4-20, …` is not a statement that the screw
+  is 1/4" long.
 
 The second is the one that bites. Titles carry the brand about a third of the
-time and their labels in one of several abbreviations, so string-equality
-alone passes for 705 SKUs whose titles tell a shopper nothing.
+time and their labels in one of several abbreviations, so equality between
+whole title strings leaves 1,913 SKUs whose titles tell a shopper nothing, and
+a bare substring test leaves 10 more that name only an accident.
 
 Which attribute is "the" distinguishing one is **derived, not listed per
 product type**: it is the attribute published on every SKU of the line, with
@@ -269,14 +271,14 @@ them here would hide the problem a field map exists to solve.
 
 | file | |
 |---|---|
-| `flat.jsonl` | 14.7 MB — 4,729 SKU documents |
-| `nested.jsonl` | 5.4 MB — 500 product lines, nested variants and key-value attributes |
-| `render.jsonl` | 2.0 MB — the same 4,729 SKUs for the per-record dimensioned renderer |
+| `flat.jsonl` | 13.6 MB — 4,662 SKU documents |
+| `nested.jsonl` | 5.3 MB — 500 product lines, nested variants and key-value attributes |
+| `render.jsonl` | 2.0 MB — the same 4,662 SKUs for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
 | `images.jsonl` | the 500 drawings — one per product line — and how many products point at each |
 | `stats.json` | the measured defect rates, and the config that produced them |
 
-21.3 MiB in the working tree. **Plain NDJSON — deliberately not gzipped and
+20.2 MiB in the working tree. **Plain NDJSON — deliberately not gzipped and
 not git-LFS.** The whole reason to commit generated output is that a change to
 the generator shows up as a readable diff in review, and both of those hide it.
 The cost is small: the seven blobs occupy **906 KiB in the pack** (measured
@@ -317,10 +319,10 @@ difference means the second, and the golden files must not be updated until it
 is found. The test's failure message says all of this too, with the commands.
 
 Alongside the hashes, the same test asserts the headline numbers directly
-against the committed files — 4,729 SKU documents over 500 distinct
+against the committed files — 4,662 SKU documents over 500 distinct
 `product_id`, a non-empty `image_url` and `image_detail_url` on every product
 line, variant and flat document, and 500 nested lines whose variant counts sum
-to 4,729. Those hold independently of the generator, so a careless
+to 4,662. Those hold independently of the generator, so a careless
 regenerate-and-commit from a broken build is still red.
 
 ## Serving it with PRISM
@@ -612,19 +614,19 @@ default 500-line catalog:
 
 | product type | variants | drawn to scale | |
 |---|---|---|---|
-| `washer_flat` | 232 | 100% | ISO 7089 publishes all three dimensions on every size |
-| `bolt_hex` | 447 | 98% | |
-| `screw_button_head` | 293 | 98% | |
-| `screw_low_head` | 185 | 98% | |
-| `screw_socket_head` | 708 | 97% | |
-| `screw_flat_head` | 403 | 96% | |
-| `abrasive_flap_disc` | 138 | 89% | `Disc Dia.` sometimes published without a unit |
+| `washer_flat` | 240 | 100% | ISO 7089 publishes all three dimensions on every size |
+| `screw_button_head` | 270 | 100% | |
+| `screw_low_head` | 204 | 100% | |
+| `bolt_hex` | 424 | 98% | |
+| `screw_flat_head` | 379 | 98% | |
+| `screw_socket_head` | 671 | 97% | |
+| `abrasive_flap_disc` | 144 | 85% | `Disc Dia.` sometimes published without a unit |
 | `end_mill_ball` | 441 | 66% | |
 | `end_mill_square` | 786 | 64% | |
 | `tap_spiral_point` | 326 | 39% | |
 | `drill_jobber` | 627 | 22% | `Shank Dia.` is published on 43% of them |
-| `hammer_ball_pein` | 143 | 0% | see below |
-| **all** | **4,729** | **72%** | 840 missing an attribute, 188 unreadable, 160 self-contradictory, 143 hammers |
+| `hammer_ball_pein` | 150 | 0% | see below |
+| **all** | **4,662** | **71%** | 840 missing an attribute, 181 unreadable, 160 self-contradictory, 150 hammers |
 
 A record the dimensioned renderer refuses falls back to its generic drawing, so
 a refusal costs the scale, never the image.
@@ -782,14 +784,14 @@ than asserted.
 | shank diameter == cutting diameter | 0.6489 | 0.5946 |
 | length of cut > overall length | 0.0829 | 0.0742 |
 | an angle attribute carrying a length unit | 0.0469 | 0.0602 |
-| declared measurement system contradicts the value's units | 0.0323 | 0.0315 |
-| unit mixing within one record | 0.0222 | 0.0242 |
-| title dimension token carries no label | 0.4667 | 0.4733 |
-| title dimension token is not the primary dimension | 0.1714 | 0.1766 |
-| title label truncated at the length cap | 0.0323 | 0.0366 |
+| declared measurement system contradicts the value's units | 0.0323 | 0.0269 |
+| unit mixing within one record | 0.0222 | 0.0238 |
+| title dimension token carries no label | 0.4667 | 0.4796 |
+| title dimension token is not the primary dimension | 0.1714 | 0.1609 |
+| title label truncated at the length cap | 0.0323 | 0.0390 |
 | image reference missing | 0.1089 | **0.0000, deliberately** |
 | image id is shared, not the product's own | 0.7353 | **1.0000, deliberately** |
-| attributes per record (mean) | 13.12 | 13.6424 |
+| attributes per record (mean) | 13.12 | 13.5180 |
 
 Two notes on reading that table honestly. The angle defect is **clustered**:
 the attribute is line-constant, so one bad row reaches every SKU under that

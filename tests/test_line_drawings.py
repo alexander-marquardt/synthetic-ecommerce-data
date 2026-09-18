@@ -26,7 +26,7 @@ The four acceptance criteria, and where each one is:
    attribute list taken from the records rather than written out;
 2. no two lines of a type render identically unless their attributes are
    identical -- :func:`test_the_lines_that_draw_alike_are_the_ones_that_publish_alike`
-   and :func:`test_exactly_one_line_does_not_get_a_drawing_of_its_own`;
+   and :func:`test_exactly_two_lines_do_not_get_a_drawing_of_their_own`;
 3. the encoding is reversible --
    :func:`test_the_brand_is_readable_off_the_rendered_drawing`;
 4. coverage stays 100%, asserted non-empty --
@@ -64,7 +64,7 @@ SMALL_LINES = list(emit.iter_nested(SMALL_CATALOG))
 SMALL_FLAT = list(emit.iter_flat(SMALL_CATALOG))
 
 #: The shipped catalog, whose collision count the issue states exactly. Built
-#: once: it is 500 lines and 4,729 SKUs.
+#: once: it is 500 lines and 4,662 SKUs.
 FULL_CATALOG = generate(GeneratorConfig())
 FULL_LINES = list(emit.iter_nested(FULL_CATALOG))
 
@@ -585,11 +585,11 @@ def _collision_groups(lines, profile):
 
 #: What the issue measured and what this must keep measuring. Stated as the
 #: number of lines that DO NOT get a drawing of their own, per product type.
-EXPECTED_COLLISIONS = {"bolt_hex": 1}
+EXPECTED_COLLISIONS = {"abrasive_flap_disc": 1, "washer_flat": 1}
 
 
 @pytest.mark.parametrize("profile", ["card", "detail"])
-def test_exactly_one_line_does_not_get_a_drawing_of_its_own(profile):
+def test_exactly_two_lines_do_not_get_a_drawing_of_their_own(profile):
     """Asserted exactly, because a regression here reduces variety QUIETLY.
 
     An encoding that collapsed -- a channel dropped, a stamp truncated, a
@@ -598,20 +598,21 @@ def test_exactly_one_line_does_not_get_a_drawing_of_its_own(profile):
     and still passes every other check in this suite. The only thing it moves
     is this number, and only if the number is pinned rather than bounded.
 
-    One PAIR, ``HAL-ASMEB18.2.1-12-0411`` and ``HAL-ASMEB18.2.1-38-0398``: two
-    Halstead Tool hex bolt lines that both lost ``Thread Type`` to sparsity
-    and are left publishing the same seven line-scope values. They are
-    different products -- one is built to a different thread size, with
-    different lengths -- but every attribute they differ on is SKU-scope, and
-    a LINE's drawing must not read those. The companion test below is the half
-    that says so: lines drawing alike have to publish alike.
+    Two PAIRS. ``BRA-W121-0437`` and ``BRA-W610-0455`` are Bracknell nylon
+    flat washers, which is almost nothing but dimensions -- brand, material,
+    finish and washer type, with every dimension on the SKUs where a shared
+    drawing must not read them. ``COR-FD604-0495`` and ``COR-FD714-0479`` are
+    Corvane conical aluminium-oxide flap discs, whose six line-scope values
+    coincide down to the same single standard. Both pairs are different
+    products, and every attribute they differ on is SKU-scope. The companion
+    test below is the half that says so: lines drawing alike have to publish
+    alike.
 
-    It was two flat washers before this change and is one hex bolt pair after,
-    which is a shift in WHICH lines happen to publish identically rather than
-    in the encoding: the catalog gained three cutting diameters, a fastener
-    size, rotations that guarantee both cover every line, and a per-SKU
-    description, and all of that moves which brand and which finish each later
-    line draws. The number is re-measured, not adjusted to fit.
+    The number moves when the catalog is regenerated, because WHICH lines
+    happen to publish identically is a property of the draw rather than of the
+    encoding -- it has read two washers, then one hex bolt pair, and now these
+    two. It is re-measured each time rather than adjusted to fit, and what has
+    to stay true is that every pair it counts publishes identically.
     """
     groups = _collision_groups(FULL_LINES, profile)
     collisions: dict[str, int] = {}
@@ -680,7 +681,7 @@ def test_the_channel_sweeps_skip_only_where_the_vocabulary_has_no_channel():
 def test_the_full_catalog_really_is_the_one_the_issue_measured():
     """Guards the two tests above: they are about a 500-line catalog, not any catalog."""
     assert len(FULL_LINES) == 500
-    assert FULL_CATALOG.sku_count == 4729
+    assert FULL_CATALOG.sku_count == 4662
     assert len({line["image_id"] for line in FULL_LINES}) == 500
 
 

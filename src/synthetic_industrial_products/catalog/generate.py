@@ -50,6 +50,7 @@ from .naming import (
     Title,
     abbreviate_value,
     build_title,
+    states_value,
     truncate_label,
 )
 from .taxonomy import drawing_for, image_id_for
@@ -101,6 +102,12 @@ HEX_BOLT_STANDARDS: tuple[str, ...] = (
     "ISO 4017",
     "DIN 933",
 )
+
+#: The distinct standards, in the order the cycle first reaches them. A
+#: standard's position here is the offset its grading and finish wheels START
+#: at, and that offset is what stops three standards from replaying identical
+#: wheel positions -- see :meth:`Generator._build_hex_bolt`.
+HEX_BOLT_PHASE: tuple[str, ...] = tuple(dict.fromkeys(HEX_BOLT_STANDARDS))
 
 #: Hex bolt finishes, as the sequence the finish rotates through. Zinc plated
 #: first: it is the common commercial finish on a hex cap screw.
@@ -673,7 +680,18 @@ class Generator:
         sizes = standards.available_sizes(standard)
         step = self._rotation_step(f"line:{type_key}:{standard}")
         size = sizes[step % len(sizes)]
-        phase = step + step // len(sizes)
+        # The extra step on a wrap is not enough on its own: each of the three
+        # METRIC standards gets nine lines and offers nine sizes, so the size
+        # wheel never wraps, the extra step never fires, and all three replay
+        # the SAME wheel positions. A shopper filtering to M8x1.25 -- the
+        # natural action, and the one this is about -- then meets one grading
+        # and one finish whichever standard's line they land on. Measured that
+        # way: 9 of the 15 published sizes locked, every metric one.
+        #
+        # So each standard also STARTS its grading and finish wheels at its own
+        # offset. The inch standard's offset is zero, which leaves that half of
+        # the catalog exactly as it was.
+        phase = step + step // len(sizes) + HEX_BOLT_PHASE.index(standard)
         head = standards.hex_bolt(standard, size)
         grades = INCH_GRADES if head.published_unit == "in" else METRIC_GRADES
         grade = grades[phase % len(grades)]
@@ -1245,7 +1263,7 @@ class Generator:
                     if position != index
                 )
             ]
-            if any(value in title.text for value in alone):
+            if any(states_value(title.text, value) for value in alone):
                 continue
             # No exemption for a title that already NAMES the identifying
             # attribute. It can name it and still be carrying a value the
@@ -1324,7 +1342,9 @@ class Generator:
                 details.append(", ".join(attribute.values))
             else:
                 details.append(f"{attribute.value} {attribute.name}")
-        details.extend(value for _, value in draft.descriptors if value not in title.text)
+        details.extend(
+            value for _, value in draft.descriptors if not states_value(title.text, value)
+        )
         details.append(f"{draft.brand} {draft.series}")
         return f"{title.text} - {', '.join(details)}"
 

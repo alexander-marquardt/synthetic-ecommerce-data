@@ -314,50 +314,56 @@ def test_the_customers_parametric_query_has_an_answer(flat_docs: list[dict]) -> 
 def test_one_thread_size_is_not_locked_to_one_grading_or_one_finish(
     flat_docs: list[dict], facet: str
 ) -> None:
-    """The aliasing the rotation's out-of-phase step exists to prevent.
+    """The aliasing the hex bolt rotation's phase offsets exist to prevent.
 
     A hex bolt line's size, grading and finish all turn on one line counter.
-    If the three wheels advance in step, their periods -- six sizes, two
+    When those wheels stay in step their periods -- six or nine sizes, two
     gradings, three finishes -- divide each other, and every line at one size
-    comes out with the SAME grading and the SAME finish. Measured that way:
+    comes out with the SAME grading and the SAME finish::
 
-        7/16-14  ['Grade 8']  ['Zinc Plated']
-        1/4-20   ['Grade 5']  ['Zinc Plated']
-        3/8-16   ['Grade 5']  ['Hot Dip Galvanized']
+        M6x1     ['Class 10.9']  ['Zinc Plated']
+        M8x1.25  ['Class 8.8']   ['Plain']
 
     one value each, on every line of that size. The catalog-wide counts stay
-    healthy -- all four gradings and all three finishes still have documents --
+    healthy -- all four gradings and all three finishes keep their documents --
     so nothing a global sweep asks would notice. What a shopper meets is two
-    facets that cannot narrow anything: filter to 7/16-14 and the Grade
-    control offers one value.
+    facets that cannot narrow anything: filter to one thread size and the
+    Grade control offers a single value.
 
-    Asserted where the lines are dense enough to say anything: a (standard,
-    size) carried by two or more lines has to publish more than one value.
+    **Grouped by PUBLISHED SIZE, not by (standard, size).** The first version
+    of this grouped by both and measured nothing worth measuring: each of the
+    three metric standards offers nine sizes and gets nine lines, so every
+    (standard, size) group held exactly one line and was skipped, and the
+    check ran on the six inch sizes -- the half that was not broken -- while
+    9 of 9 metric sizes were locked on both facets. A shopper filters by
+    thread size; ``dimension_provenance`` is faceted too, but narrowing by
+    size alone is the natural action and the one this is about.
     """
-    lines: dict[tuple[str, str], dict[str, set[str]]] = {}
+    lines: dict[str, dict[str, set[str]]] = {}
     for doc in flat_docs:
         if doc["product_type"] != HEX_BOLT_TYPE:
             continue
         sizes = doc["facets"].get("dia_thread_size", [])
         if not sizes:
             continue
-        key = (doc["dimension_provenance"], sizes[0])
-        lines.setdefault(key, {}).setdefault(doc["product_id"], set()).update(
+        lines.setdefault(sizes[0], {}).setdefault(doc["product_id"], set()).update(
             doc["facets"].get(facet, [])
         )
 
     checked = 0
-    locked: list[tuple[tuple[str, str], list[str]]] = []
-    for key, by_line in sorted(lines.items()):
-        if len(by_line) < 2:
+    locked: list[tuple[str, list[str]]] = []
+    for size, by_line in sorted(lines.items()):
+        publishing = [values for values in by_line.values() if values]
+        if len(publishing) < 2:
             continue
         checked += 1
-        values = sorted({value for published in by_line.values() for value in published})
+        values = sorted({value for published in publishing for value in published})
         if len(values) < 2:
-            locked.append((key, values))
-    assert checked > 0, (
-        f"no thread size is carried by two hex bolt lines, so this proves nothing "
-        f"about {facet}"
+            locked.append((size, values))
+    assert checked >= 15, (
+        f"only {checked} thread size(s) are carried by two hex bolt lines that "
+        f"both publish {facet}; the catalog offers fifteen and this proves "
+        f"little about the ones it skipped"
     )
     assert locked == [], (
         f"{len(locked)} of {checked} thread size(s) publish exactly one {facet} "

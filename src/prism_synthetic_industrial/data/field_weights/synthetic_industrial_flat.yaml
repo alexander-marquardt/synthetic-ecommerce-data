@@ -43,8 +43,8 @@
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
 #   attributes declared      77
-#   offered as facets        57  (27 numeric ranges, 30 terms)
-#   declared, not faceted    20
+#   offered as facets        56  (27 numeric ranges, 29 terms)
+#   declared, not faceted    21
 # =============================================================================
 
 field_map_version: 1
@@ -161,22 +161,22 @@ fields:
   # Derived from the emitted documents, in sanitised-key order. Every
   # entry's comment carries the measurement that placed it.
   # Abrasive Material -- 3 distinct values
-  #   present on 138 documents across 1 product type(s); 3 distinct values
+  #   present on 144 documents across 1 product type(s); 3 distinct values
   - name: abrasive_material
     type: terms
     source: facets.abrasive_material
-  # Arbor Hole Size -- numeric on 98% of 126 documents
-  #   present on 126 documents across 1 product type(s); 12 distinct values
+  # Arbor Hole Size -- numeric on 94% of 130 documents
+  #   present on 130 documents across 1 product type(s); 13 distinct values
   - name: arbor_hole_size
     type: numeric
     source: facets_num.arbor_hole_size
   # Backing Material -- 2 distinct values
-  #   present on 104 documents across 1 product type(s); 2 distinct values
+  #   present on 116 documents across 1 product type(s); 2 distinct values
   - name: backing_material
     type: terms
     source: facets.backing_material
   # Bolt Style -- single-valued: clicking it cannot narrow the result set
-  #   present on 447 documents across 1 product type(s); 1 distinct values
+  #   present on 424 documents across 1 product type(s); 1 distinct values
   - name: bolt_style
     type: terms
     source: facets.bolt_style
@@ -210,18 +210,18 @@ fields:
     type: numeric
     source: facets_num.decimal_equivalent
   # Dia./Thread Size -- 18 distinct values
-  #   present on 2036 documents across 5 product type(s); 18 distinct values
+  #   present on 1948 documents across 5 product type(s); 18 distinct values
   - name: dia_thread_size
     type: terms
     source: facets.dia_thread_size
-  # Dimension Type -- present on 28% of its product types' documents (floor 50%)
-  #   present on 1330 documents across 12 product type(s); 4 distinct values
+  # Dimension Type -- present on 27% of its product types' documents (floor 50%)
+  #   present on 1269 documents across 12 product type(s); 4 distinct values
   - name: dimension_type
     type: terms
     source: facets.dimension_type
     facet: false
-  # Disc Dia. -- numeric on 98% of 138 documents
-  #   present on 138 documents across 1 product type(s); 21 distinct values
+  # Disc Dia. -- numeric on 93% of 144 documents
+  #   present on 144 documents across 1 product type(s); 22 distinct values
   - name: disc_dia
     type: numeric
     source: facets_num.disc_dia
@@ -251,13 +251,13 @@ fields:
   - name: drill_size
     type: numeric
     source: facets_num.drill_size
-  # Drive Size -- numeric on 97% of 1366 documents
-  #   present on 1366 documents across 4 product type(s); 151 distinct values
+  # Drive Size -- numeric on 98% of 1309 documents
+  #   present on 1309 documents across 4 product type(s); 147 distinct values
   - name: drive_size
     type: numeric
     source: facets_num.drive_size
   # Drive Type -- single-valued: clicking it cannot narrow the result set
-  #   present on 1589 documents across 4 product type(s); 1 distinct values
+  #   present on 1524 documents across 4 product type(s); 1 distinct values
   - name: drive_type
     type: terms
     source: facets.drive_type
@@ -283,18 +283,18 @@ fields:
   - name: end_mill_style
     type: terms
     source: facets.end_mill_style
-  # Face Dia. -- numeric on 92% of 101 documents
-  #   present on 101 documents across 1 product type(s); 25 distinct values
+  # Face Dia. -- numeric on 95% of 120 documents
+  #   present on 120 documents across 1 product type(s); 24 distinct values
   - name: face_dia
     type: numeric
     source: facets_num.face_dia
   # Fastener Finish -- 4 distinct values
-  #   present on 1940 documents across 6 product type(s); 4 distinct values
+  #   present on 1833 documents across 6 product type(s); 4 distinct values
   - name: fastener_finish
     type: terms
     source: facets.fastener_finish
   # Fastener Material -- 5 distinct values
-  #   present on 2268 documents across 6 product type(s); 5 distinct values
+  #   present on 2188 documents across 6 product type(s); 5 distinct values
   - name: fastener_material
     type: terms
     source: facets.fastener_material
@@ -304,7 +304,7 @@ fields:
     type: terms
     source: facets.finish_machining
   # Flap Disc Shape -- 2 distinct values
-  #   present on 84 documents across 1 product type(s); 2 distinct values
+  #   present on 110 documents across 1 product type(s); 2 distinct values
   - name: flap_disc_shape
     type: terms
     source: facets.flap_disc_shape
@@ -314,54 +314,55 @@ fields:
     type: numeric
     source: facets_num.flute_length
   # Grade -- 4 distinct values
-  #   present on 447 documents across 1 product type(s); 4 distinct values
+  #   present on 424 documents across 1 product type(s); 4 distinct values
   - name: grade
     type: terms
     source: facets.grade
-  # Grit -- numeric on 100% of 138 documents
-  #   present on 138 documents across 1 product type(s); 6 distinct values
+  # Grit -- numeric on 100% of 144 documents
+  #   present on 144 documents across 1 product type(s); 6 distinct values
   - name: grit
     type: numeric
     source: facets_num.grit
   # Hammer Face Type -- single-valued: clicking it cannot narrow the result set
-  #   present on 72 documents across 1 product type(s); 1 distinct values
+  #   present on 101 documents across 1 product type(s); 1 distinct values
   - name: hammer_face_type
     type: terms
     source: facets.hammer_face_type
     facet: false
   # Hammer Head Material -- single-valued: clicking it cannot narrow the result set
-  #   present on 143 documents across 1 product type(s); 1 distinct values
+  #   present on 150 documents across 1 product type(s); 1 distinct values
   - name: hammer_head_material
     type: terms
     source: facets.hammer_head_material
     facet: false
-  # Handle Grip Material -- 3 distinct values
-  #   present on 90 documents across 1 product type(s); 3 distinct values
+  # Handle Grip Material -- present on 38% of its product types' documents (floor 50%)
+  #   present on 57 documents across 1 product type(s); 3 distinct values
   - name: handle_grip_material
     type: terms
     source: facets.handle_grip_material
-  # Handle Length -- numeric on 93% of 86 documents
-  #   present on 86 documents across 1 product type(s); 31 distinct values
+    facet: false
+  # Handle Length -- numeric on 96% of 95 documents
+  #   present on 95 documents across 1 product type(s); 33 distinct values
   - name: handle_length
     type: numeric
     source: facets_num.handle_length
   # Handle Material -- 3 distinct values
-  #   present on 143 documents across 1 product type(s); 3 distinct values
+  #   present on 150 documents across 1 product type(s); 3 distinct values
   - name: handle_material
     type: terms
     source: facets.handle_material
-  # Head Dia. -- numeric on 97% of 2036 documents
-  #   present on 2036 documents across 5 product type(s); 226 distinct values
+  # Head Dia. -- numeric on 98% of 1948 documents
+  #   present on 1948 documents across 5 product type(s); 218 distinct values
   - name: head_dia
     type: numeric
     source: facets_num.head_dia
-  # Head Height -- numeric on 97% of 2036 documents
-  #   present on 2036 documents across 5 product type(s); 250 distinct values
+  # Head Height -- numeric on 98% of 1948 documents
+  #   present on 1948 documents across 5 product type(s); 236 distinct values
   - name: head_height
     type: numeric
     source: facets_num.head_height
-  # Head Weight -- numeric on 100% of 143 documents
-  #   present on 143 documents across 1 product type(s); 10 distinct values
+  # Head Weight -- numeric on 100% of 150 documents
+  #   present on 150 documents across 1 product type(s); 8 distinct values
   - name: head_weight
     type: numeric
     source: facets_num.head_weight
@@ -370,18 +371,18 @@ fields:
   - name: helix_angle
     type: numeric
     source: facets_num.helix_angle
-  # Inside Dia. -- numeric on 100% of 232 documents
-  #   present on 232 documents across 1 product type(s); 25 distinct values
+  # Inside Dia. -- numeric on 100% of 240 documents
+  #   present on 240 documents across 1 product type(s); 25 distinct values
   - name: inside_dia
     type: numeric
     source: facets_num.inside_dia
   # Item -- 16 distinct values
-  #   present on 4729 documents across 12 product type(s); 16 distinct values
+  #   present on 4662 documents across 12 product type(s); 16 distinct values
   - name: item
     type: terms
     source: facets.item
-  # Length -- numeric on 97% of 2036 documents
-  #   present on 2036 documents across 5 product type(s); 251 distinct values
+  # Length -- numeric on 98% of 1948 documents
+  #   present on 1948 documents across 5 product type(s); 235 distinct values
   - name: length
     type: numeric
     source: facets_num.length
@@ -390,8 +391,8 @@ fields:
   - name: length_of_cut
     type: numeric
     source: facets_num.length_of_cut
-  # Length Under Head -- numeric on 97% of 2036 documents
-  #   present on 2036 documents across 5 product type(s); 570 distinct values
+  # Length Under Head -- numeric on 98% of 1948 documents
+  #   present on 1948 documents across 5 product type(s); 509 distinct values
   - name: length_under_head
     type: numeric
     source: facets_num.length_under_head
@@ -407,19 +408,19 @@ fields:
     type: terms
     source: facets.material_grade_machining
     facet: false
-  # Max. RPM -- numeric on 100% of 118 documents
-  #   present on 118 documents across 1 product type(s); 4 distinct values
+  # Max. RPM -- numeric on 100% of 113 documents
+  #   present on 113 documents across 1 product type(s); 4 distinct values
   - name: max_rpm
     type: numeric
     source: facets_num.max_rpm
   # Measurement System -- present on 11% of its product types' documents (floor 50%)
-  #   present on 504 documents across 12 product type(s); 4 distinct values
+  #   present on 492 documents across 12 product type(s); 4 distinct values
   - name: measurement_system
     type: terms
     source: facets.measurement_system
     facet: false
-  # Meets/Exceeds -- present on 47% of its product types' documents (floor 50%)
-  #   present on 745 documents across 4 product type(s); 8 distinct values
+  # Meets/Exceeds -- present on 45% of its product types' documents (floor 50%)
+  #   present on 687 documents across 4 product type(s); 8 distinct values
   - name: meets_exceeds
     type: terms
     source: facets.meets_exceeds
@@ -430,7 +431,7 @@ fields:
     type: numeric
     source: facets_num.milling_dia
   # Mounting Type -- single-valued: clicking it cannot narrow the result set
-  #   present on 68 documents across 1 product type(s); 1 distinct values
+  #   present on 85 documents across 1 product type(s); 1 distinct values
   - name: mounting_type
     type: terms
     source: facets.mounting_type
@@ -446,13 +447,13 @@ fields:
   - name: number_of_flutes
     type: numeric
     source: facets_num.number_of_flutes
-  # Outside Dia. -- numeric on 100% of 232 documents
-  #   present on 232 documents across 1 product type(s); 35 distinct values
+  # Outside Dia. -- numeric on 100% of 240 documents
+  #   present on 240 documents across 1 product type(s); 36 distinct values
   - name: outside_dia
     type: numeric
     source: facets_num.outside_dia
-  # Overall Length -- numeric on 97% of 2099 documents
-  #   present on 2099 documents across 5 product type(s); 364 distinct values
+  # Overall Length -- numeric on 97% of 2112 documents
+  #   present on 2112 documents across 5 product type(s); 367 distinct values
   - name: overall_length
     type: numeric
     source: facets_num.overall_length
@@ -467,17 +468,17 @@ fields:
     type: numeric
     source: facets_num.point_angle
   # Rockwell Hardness -- 3 distinct values
-  #   present on 883 documents across 4 product type(s); 3 distinct values
+  #   present on 787 documents across 4 product type(s); 3 distinct values
   - name: rockwell_hardness
     type: terms
     source: facets.rockwell_hardness
   # Screw Head Type -- 5 distinct values
-  #   present on 2036 documents across 5 product type(s); 5 distinct values
+  #   present on 1948 documents across 5 product type(s); 5 distinct values
   - name: screw_head_type
     type: terms
     source: facets.screw_head_type
   # Screw Style -- 4 distinct values
-  #   present on 1589 documents across 4 product type(s); 4 distinct values
+  #   present on 1524 documents across 4 product type(s); 4 distinct values
   - name: screw_style
     type: terms
     source: facets.screw_style
@@ -497,12 +498,12 @@ fields:
     type: terms
     source: facets.single_end_double_end
   # Standards -- 23 distinct values
-  #   present on 2531 documents across 12 product type(s); 23 distinct values
+  #   present on 2459 documents across 12 product type(s); 23 distinct values
   - name: standards
     type: terms
     source: facets.standards
-  # System of Measurement -- present on 3% of its product types' documents (floor 50%)
-  #   present on 163 documents across 12 product type(s); 4 distinct values
+  # System of Measurement -- present on 4% of its product types' documents (floor 50%)
+  #   present on 189 documents across 11 product type(s); 4 distinct values
   - name: system_of_measurement
     type: terms
     source: facets.system_of_measurement
@@ -523,19 +524,19 @@ fields:
     type: terms
     source: facets.tap_style
     facet: false
-  # Thickness -- numeric on 100% of 232 documents
-  #   present on 232 documents across 1 product type(s); 21 distinct values
+  # Thickness -- numeric on 100% of 240 documents
+  #   present on 240 documents across 1 product type(s); 20 distinct values
   - name: thickness
     type: numeric
     source: facets_num.thickness
   # Thread Direction -- single-valued: clicking it cannot narrow the result set
-  #   present on 1737 documents across 6 product type(s); 1 distinct values
+  #   present on 1586 documents across 6 product type(s); 1 distinct values
   - name: thread_direction
     type: terms
     source: facets.thread_direction
     facet: false
-  # Thread Length -- numeric on 97% of 2258 documents
-  #   present on 2258 documents across 6 product type(s); 373 distinct values
+  # Thread Length -- numeric on 98% of 2170 documents
+  #   present on 2170 documents across 6 product type(s); 377 distinct values
   - name: thread_length
     type: numeric
     source: facets_num.thread_length
@@ -545,23 +546,23 @@ fields:
     type: terms
     source: facets.thread_size
   # Thread Type -- 2 distinct values
-  #   present on 1594 documents across 6 product type(s); 2 distinct values
+  #   present on 1480 documents across 6 product type(s); 2 distinct values
   - name: thread_type
     type: terms
     source: facets.thread_type
   # Washer Size -- 9 distinct values
-  #   present on 232 documents across 1 product type(s); 9 distinct values
+  #   present on 240 documents across 1 product type(s); 9 distinct values
   - name: washer_size
     type: terms
     source: facets.washer_size
   # Washer Type -- single-valued: clicking it cannot narrow the result set
-  #   present on 232 documents across 1 product type(s); 1 distinct values
+  #   present on 240 documents across 1 product type(s); 1 distinct values
   - name: washer_type
     type: terms
     source: facets.washer_type
     facet: false
-  # Width Across Flats -- numeric on 98% of 447 documents
-  #   present on 447 documents across 1 product type(s); 71 distinct values
+  # Width Across Flats -- numeric on 98% of 424 documents
+  #   present on 424 documents across 1 product type(s); 76 distinct values
   - name: width_across_flats
     type: numeric
     source: facets_num.width_across_flats
