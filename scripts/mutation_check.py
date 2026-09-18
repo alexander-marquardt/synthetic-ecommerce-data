@@ -817,9 +817,9 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "blank one card image url in the committed catalog",
         "flat.jsonl",
-        'ice_usd": 8.23, "stock": 18, "image_id": "end_mill_square/OST-K663-0001", '
+        'ice_usd": 13.44, "stock": 17, "image_id": "end_mill_square/OST-K663-0001", '
         '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png"',
-        'ice_usd": 8.23, "stock": 18, "image_id": "end_mill_square/OST-K663-0001", '
+        'ice_usd": 13.44, "stock": 17, "image_id": "end_mill_square/OST-K663-0001", '
         '"image_url": ""',
         "tests/test_catalog_golden.py::test_every_flat_document_carries_an_image_url",
         "A",
@@ -829,10 +829,10 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop the detail image url from one committed nested variant",
         "nested.jsonl",
-        '"price_usd": 8.23, "stock": 18, "image_id": "end_mill_square/OST-K663-0001", '
+        '"price_usd": 13.44, "stock": 17, "image_id": "end_mill_square/OST-K663-0001", '
         '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png", '
         '"image_detail_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/detail.png"',
-        '"price_usd": 8.23, "stock": 18, "image_id": "end_mill_square/OST-K663-0001", '
+        '"price_usd": 13.44, "stock": 17, "image_id": "end_mill_square/OST-K663-0001", '
         '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png"',
         "tests/test_catalog_golden.py::test_every_nested_line_and_variant_carries_an_image_url",
         "B",
@@ -842,18 +842,18 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "duplicate a sku in the committed flat catalog",
         "flat.jsonl",
-        '{"sku": "60EX58", "product_id": "OST-K663-0001"',
-        '{"sku": "98WF97", "product_id": "OST-K663-0001"',
+        '{"sku": "19XN98", "product_id": "OST-K663-0001"',
+        '{"sku": "80FY44", "product_id": "OST-K663-0001"',
         "tests/test_catalog_golden.py::test_flat_holds_one_document_per_sku",
         "",
-        "flat.jsonl is 4,696 documents and 4,696 distinct skus",
+        "flat.jsonl is 4,662 documents and 4,662 distinct skus",
         root="golden-catalog",
     ),
     Mutation(
         "point one committed document at a product line that does not exist",
         "flat.jsonl",
-        '{"sku": "60EX58", "product_id": "OST-K663-0001"',
-        '{"sku": "60EX58", "product_id": "OST-K663-9999"',
+        '{"sku": "19XN98", "product_id": "OST-K663-0001"',
+        '{"sku": "19XN98", "product_id": "OST-K663-9999"',
         "tests/test_catalog_golden.py::test_flat_covers_exactly_the_product_lines",
         "",
         "the catalog spans exactly 500 product lines",
@@ -862,8 +862,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "publish a variant_count that disagrees with its own variants array",
         "nested.jsonl",
-        '"variant_count": 8, "variants": [{"sku": "60EX58", "title": "High Speed Steel Sq',
-        '"variant_count": 9, "variants": [{"sku": "60EX58", "title": "High Speed Steel Sq',
+        '"variant_count": 9, "variants": [{"sku": "19XN98", "title": "Osterlund High Sp',
+        '"variant_count": 10, "variants": [{"sku": "19XN98", "title": "Osterlund High Sp',
         "tests/test_catalog_golden.py::test_nested_lines_account_for_every_sku",
         "",
         "the nested lines account for every sku",
@@ -1074,6 +1074,222 @@ MUTATIONS: list[Mutation] = [
         "tests/test_catalog_generate.py -k shorter_than_the_length",
         "B",
         "every screw and bolt line publishes a length under head",
+    ),
+    # ---- the sizes the customer asks for exist, both directions ----------
+    Mutation(
+        "drop 25 mm back out of the metric cutting series",
+        "catalog/series.py",
+        "    15.0,\n    16.0,\n    20.0,\n    25.0,\n)",
+        "    15.0,\n    16.0,\n    20.0,\n)",
+        "tests/test_catalog_coverage.py",
+        "A",
+        "the cutting diameters the customer asks for exist",
+    ),
+    Mutation(
+        "freeze the coverage rotation, so which sizes exist is luck again",
+        "catalog/generate.py",
+        "        index = self._rotations.get(key, 0)\n        self._rotations[key] = index + 1\n        return index",
+        "        self._rotations[key] = self._rotations.get(key, 0) + 1\n        return 0",
+        "tests/test_catalog_coverage.py",
+        "B",
+        "the cutting diameters the customer asks for exist",
+    ),
+    # ---- 7/16 exists, and its lengths are the standard's, both ways -------
+    Mutation(
+        "record 7/16 as absent from the hex bolt standard",
+        "data/fastener_standards.json",
+        '"size": "7/16",\n        "present_in_source": true,\n        "width_across_flats_in": 0.625,',
+        '"size": "7/16",\n        "present_in_source": false,\n        "width_across_flats_in": 0.625,',
+        "tests/test_catalog_coverage.py",
+        "A",
+        "7/16-14 exists, in the standard's own offered lengths",
+    ),
+    Mutation(
+        "offer lengths the standard does not, by scaling the run",
+        "catalog/generate.py",
+        "        return ordered[start : start + count]",
+        "        return [value * 1.5 for value in ordered[start : start + count]]",
+        "tests/test_catalog_coverage.py",
+        "B",
+        "7/16-14 exists, in the standard's own offered lengths",
+    ),
+    # ---- a grading belongs to one measurement system, both directions ----
+    Mutation(
+        "grade every bolt on the inch scale, metric ones included",
+        "catalog/generate.py",
+        'grades = INCH_GRADES if head.published_unit == "in" else METRIC_GRADES',
+        "grades = INCH_GRADES",
+        "tests/test_catalog_coverage.py",
+        "A",
+        "a bolt never carries a grading from the other measurement system",
+    ),
+    Mutation(
+        "grade every bolt on the metric scale, inch ones included",
+        "catalog/generate.py",
+        'grades = INCH_GRADES if head.published_unit == "in" else METRIC_GRADES',
+        "grades = METRIC_GRADES",
+        "tests/test_catalog_coverage.py",
+        "B",
+        "a bolt never carries a grading from the other measurement system",
+    ),
+    # ---- the parametric query resolves, both directions -------------------
+    Mutation(
+        "take the zinc finish off the hex bolt rotation",
+        "catalog/generate.py",
+        'HEX_BOLT_FINISHES: tuple[str, ...] = ("Zinc Plated", "Plain", "Hot Dip Galvanized")',
+        'HEX_BOLT_FINISHES: tuple[str, ...] = ("Plain", "Hot Dip Galvanized")',
+        "tests/test_catalog_coverage.py",
+        "A",
+        "the customer's parametric query has an answer",
+    ),
+    Mutation(
+        "take Grade 8 off the inch grading rotation",
+        "catalog/generate.py",
+        'INCH_GRADES: tuple[str, ...] = ("Grade 5", "Grade 8")',
+        'INCH_GRADES: tuple[str, ...] = ("Grade 5",)',
+        "tests/test_catalog_coverage.py",
+        "B",
+        "the customer's parametric query has an answer",
+    ),
+    # ---- a size is not locked to one grading and one finish, both ways ----
+    #
+    # Direction A is the regression an adversarial review caught: the wrap
+    # step alone leaves the three METRIC standards -- nine lines each, nine
+    # sizes each -- replaying identical wheel positions, and 9 of the 15
+    # published sizes came out locked. The first version of the guard grouped
+    # by (standard, size), so every metric group held one line, was skipped,
+    # and the check ran only on the inch half that was not broken.
+    Mutation(
+        "let every hex bolt standard start its wheels at the same position",
+        "catalog/generate.py",
+        "        phase = step + step // len(sizes) + HEX_BOLT_PHASE.index(standard)",
+        "        phase = step + step // len(sizes)",
+        "tests/test_catalog_coverage.py -k locked",
+        "A",
+        "one thread size is not locked to one grading or one finish",
+    ),
+    Mutation(
+        "let the size, grading and finish wheels turn in step",
+        "catalog/generate.py",
+        "        phase = step + step // len(sizes) + HEX_BOLT_PHASE.index(standard)",
+        "        phase = step",
+        "tests/test_catalog_coverage.py -k locked",
+        "B",
+        "one thread size is not locked to one grading or one finish",
+    ),
+    # ---- the metric spelling the policy bridges, both directions ----------
+    Mutation(
+        "publish metric dimensions to no decimal places, so 25.00mm becomes 25mm",
+        "catalog/formats.py",
+        '    (LengthStyle("mm", "mm", "decimal", places=2), 0.55),',
+        '    (LengthStyle("mm", "mm", "integer"), 0.55),',
+        "tests/test_catalog_coverage.py",
+        "A",
+        "the catalog still spells a 25 mm cutting diameter 25.00mm",
+    ),
+    Mutation(
+        "publish metric dimensions to four places instead of two",
+        "catalog/formats.py",
+        '    (LengthStyle("mm", "mm", "decimal", places=2), 0.55),',
+        '    (LengthStyle("mm", "mm", "decimal", places=4), 0.55),',
+        "tests/test_catalog_coverage.py",
+        "B",
+        "the catalog still spells a 25 mm cutting diameter 25.00mm",
+    ),
+    # ---- every offered fastener size reaches a line, both directions ------
+    Mutation(
+        "toss a coin for a screw line's measurement system instead of alternating",
+        "catalog/generate.py",
+        '        metric = self._rotate(f"system:{type_key}", 2) == 0',
+        "        metric = rng.random() < 0.5",
+        "tests/test_catalog_coverage.py",
+        "A",
+        "every size a fastener standard offers reaches a document",
+    ),
+    Mutation(
+        "draw a screw line's size at random instead of rotating",
+        "catalog/generate.py",
+        '        size = sizes[self._rotate(f"size:{type_key}:{standard}", len(sizes))]',
+        "        size = rng.choice(sizes)",
+        "tests/test_catalog_coverage.py",
+        "B",
+        "every size a fastener standard offers reaches a document",
+    ),
+    # ---- no two SKUs of a line share a title, both directions -------------
+    Mutation(
+        "stop repairing the titles that tell a shopper nothing",
+        "catalog/generate.py",
+        "        if identifying is None or len(published) < 2:\n            return titles",
+        "        return titles",
+        "tests/test_catalog_titles.py",
+        "A",
+        "no two SKUs of one line share a title",
+    ),
+    Mutation(
+        "repair only exact duplicates, the way the first version did",
+        "catalog/generate.py",
+        "            alone = [\n                value\n                for name, value in mine.items()",
+        "            alone = [\n                value\n                for name, value in [*mine.items(), (None, title.text)]",
+        "tests/test_catalog_titles.py",
+        "B",
+        "no two SKUs of one line share a title",
+    ),
+    # ---- the description is a tier of its own, both directions ------------
+    Mutation(
+        "put the line title back in the description field",
+        "catalog/generate.py",
+        '        return f"{title.text} - {\', \'.join(details)}"',
+        '        return f"{draft.brand} {draft.series} -- {draft.item}"',
+        "tests/test_catalog_titles.py",
+        "A",
+        "the description names what distinguishes the SKU",
+    ),
+    Mutation(
+        "leave the SKU's own attributes out of the description",
+        "catalog/generate.py",
+        "        named = title.attribute_names()\n        details: list[str] = []",
+        "        named = {a.name for a in attributes}\n        details: list[str] = []",
+        "tests/test_catalog_titles.py",
+        "B",
+        "the description names what distinguishes the SKU",
+    ),
+    # ---- a title names a value, not a substring of one, both directions ---
+    Mutation(
+        "ask whether the title CONTAINS the value instead of states it",
+        "catalog/naming.py",
+        "    if not value:\n        return False\n    at = text.find(value)",
+        "    if not value:\n        return False\n    return value in text\n    at = text.find(value)",
+        "tests/test_catalog_titles.py",
+        "A",
+        "a title names a value as a value",
+    ),
+    Mutation(
+        "treat every title as already naming everything, so nothing is repaired",
+        "catalog/naming.py",
+        "    if not value:\n        return False\n    at = text.find(value)",
+        "    if not value:\n        return False\n    return True\n    at = text.find(value)",
+        "tests/test_catalog_titles.py",
+        "B",
+        "a title names a value as a value",
+    ),
+    # ---- a published value is a token, not prose, both directions ---------
+    Mutation(
+        "let the stamp break a published value at its hyphen",
+        "render/marking.py",
+        "            tuple(textwrap.wrap(text, width=columns, break_on_hyphens=False)) if text else ()",
+        "            tuple(textwrap.wrap(text, width=columns, break_on_hyphens=True)) if text else ()",
+        "tests/test_marking.py -k hyphen",
+        "A",
+        "the card stamp sets every published value and nothing else",
+    ),
+    Mutation(
+        "drop the last value off the card stamp",
+        "render/marking.py",
+        '        text = " \u00b7 ".join(value for _, value in self.rows)',
+        '        text = " \u00b7 ".join(value for _, value in self.rows[:-1])',
+        "tests/test_line_drawings.py -k stamp_sets_every_published_value",
+        "B",
+        "the card stamp sets every published value and nothing else",
     ),
 ]
 

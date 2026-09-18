@@ -20,6 +20,7 @@
         "1/4",
         "5/16",
         "3/8",
+        "7/16",
         "1/2",
         "5/8"
       ]
@@ -1241,6 +1242,25 @@
         "source_section": "ASMEB18.3.1Adef"
       },
       {
+        "size": "7/16",
+        "present_in_source": true,
+        "head_diameter_in": 0.656,
+        "head_height_in": 0.434,
+        "hex_socket_across_flats_in": 0.375,
+        "socket_depth_in": 0.213,
+        "threads_per_inch": 14.0,
+        "as_published_in_csv_mm": {
+          "dk_max": 16.6624,
+          "k": 11.0236,
+          "s_mean": 9.525,
+          "t": 5.4102,
+          "P": 1.81428571428571
+        },
+        "source_file": "FsData/asmeb18.3.1adef.csv",
+        "source_row": "7/16in",
+        "source_section": "ASMEB18.3.1Adef"
+      },
+      {
         "size": "1/2",
         "present_in_source": true,
         "head_diameter_in": 0.75,
@@ -1421,6 +1441,27 @@
         },
         "source_file": "FsData/asmeb18.3.2def.csv",
         "source_row": "3/8in",
+        "source_section": "ASMEB18.3.2def"
+      },
+      {
+        "size": "7/16",
+        "present_in_source": true,
+        "head_diameter_in": 0.844,
+        "head_diameter_actual_in": 0.8125,
+        "head_height_in": 0.234,
+        "hex_socket_across_flats_in": 0.25,
+        "socket_depth_in": 0.159,
+        "threads_per_inch": 14.0,
+        "as_published_in_csv_mm": {
+          "dk_theo": 21.4376,
+          "dk_mean": 20.6375,
+          "k": 5.9436,
+          "s": 6.35,
+          "t": 4.0386,
+          "P": 1.81428571428571
+        },
+        "source_file": "FsData/asmeb18.3.2def.csv",
+        "source_row": "7/16in",
         "source_section": "ASMEB18.3.2def"
       },
       {
@@ -1716,6 +1757,25 @@
         "source_section": "ASMEB18.3.3Adef"
       },
       {
+        "size": "7/16",
+        "present_in_source": true,
+        "head_diameter_in": 0.765,
+        "head_height_in": 0.240625,
+        "hex_socket_across_flats_in": 0.25,
+        "socket_depth_min_in": 0.1375,
+        "threads_per_inch": 14.0,
+        "as_published_in_csv_mm": {
+          "dk": 19.431,
+          "k": 6.111875,
+          "s": 6.35,
+          "t": 3.4925,
+          "P": 1.81428571428571
+        },
+        "source_file": "FsData/asmeb18.3.3adef.csv",
+        "source_row": "7/16in",
+        "source_section": "ASMEB18.3.3Adef"
+      },
+      {
         "size": "1/2",
         "present_in_source": true,
         "head_diameter_in": 0.875,
@@ -1966,6 +2026,18 @@
         "threads_per_inch": 16.0,
         "source_file": "FsData/asmeb18.3.1gdef.csv",
         "source_row": "3/8in",
+        "source_section": "ASMEB18.3.1Gdef"
+      },
+      {
+        "size": "7/16",
+        "present_in_source": true,
+        "head_diameter_in": 0.6215,
+        "head_height_in": 0.218,
+        "hex_socket_across_flats_in": 0.219,
+        "socket_depth_in": 0.135,
+        "threads_per_inch": 14.0,
+        "source_file": "FsData/asmeb18.3.1gdef.csv",
+        "source_row": "7/16in",
         "source_section": "ASMEB18.3.1Gdef"
       },
       {
@@ -2418,6 +2490,23 @@
         },
         "source_file": "FsData/asmeb18.2.1.6def.csv",
         "source_row": "3/8in",
+        "source_section": "ASMEB18.2.1.6def"
+      },
+      {
+        "size": "7/16",
+        "present_in_source": true,
+        "width_across_flats_in": 0.625,
+        "width_across_corners_in": 0.721688,
+        "head_height_in": 0.296875,
+        "threads_per_inch": 14.0,
+        "as_published_in_csv_mm": {
+          "s": 15.875,
+          "e": 18.3308710467706,
+          "k": 7.540625,
+          "P": 1.81428571428571
+        },
+        "source_file": "FsData/asmeb18.2.1.6def.csv",
+        "source_row": "7/16in",
         "source_section": "ASMEB18.2.1.6def"
       },
       {

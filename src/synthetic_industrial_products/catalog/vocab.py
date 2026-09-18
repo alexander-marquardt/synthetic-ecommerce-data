@@ -222,13 +222,28 @@ _SOCKET_SCREW = (
 #: Hex bolts. Shares Dia./Thread Size and Length with the socket screw -- they
 #: are both threaded fasteners and the corpus does share those -- but the head
 #: is described by width across flats, not a head diameter.
+#:
+#: ``Grade`` and ``Fastener Finish`` are unconditional HERE and optional on
+#: every other fastener, and the asymmetry is deliberate. The customer's
+#: parametric example is ``hex head cap screw: 7/16-14, 1-3/4" length under
+#: head, grade 8 steel, zinc finish`` -- four attribute-value pairs, two of
+#: them these -- and at 0.72 and 0.78 presence, drawn once per LINE, whether
+#: their own query had an answer was decided by a sparsity roll. Measured: the
+#: one line that carried the grade and the finish the query names lost the
+#: finish to that roll, and the query resolved to nothing.
+#:
+#: This is the precedent issue #8 set for ``Length Under Head``: an attribute a
+#: customer's query BINDS to is published rather than approximated by a
+#: neighbour or left to chance. It is also what the source does -- a
+#: distributor's hex cap screw listing states the grade and the finish on
+#: every row, because they are what the category is selected on.
 _HEX_BOLT = (
     _spec("Item", "line"),
     _spec("Bolt Style", "line"),
     _spec("Screw Head Type", "line"),
     _spec("Fastener Material", "line"),
-    _spec("Fastener Finish", "line", 0.78),
-    _spec("Grade", "line", 0.72),
+    _spec("Fastener Finish", "line"),
+    _spec("Grade", "line"),
     _spec("Thread Direction", "line", 0.60),
     _spec("Thread Type", "line", 0.66),
     _spec("Dia./Thread Size", "sku"),

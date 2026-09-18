@@ -135,11 +135,25 @@ class Title:
     segments: tuple[Segment, ...]
     text: str
     truncated: bool
+    #: Which delimiter was written tight (``3/8,4 FL``), if any. Kept so a
+    #: title can be REASSEMBLED with one more segment without re-rolling it
+    #: and without silently losing the tight comma.
+    tight_delimiter_at: int | None = None
 
     @property
     def segment_count(self) -> int:
         """Counting the ITEM, as the measured segment_count_distribution does."""
         return 1 + len(self.segments)
+
+    def attribute_names(self) -> frozenset[str]:
+        """Which attributes this title actually names.
+
+        Read off the segments rather than by parsing the assembled string: a
+        title is built from structured segments and re-reading the text would
+        be a second, worse answer to a question the object already knows.
+        The description uses it to avoid restating what the title just said.
+        """
+        return frozenset(segment.attribute for segment in self.segments if segment.attribute)
 
 
 def abbreviate_value(value: str) -> str:
@@ -150,6 +164,45 @@ def abbreviate_value(value: str) -> str:
 def label_is_prefix_of(label: str, attribute: str) -> bool:
     """Whether ``label`` is the truncation signature: a strict prefix."""
     return label != attribute and attribute.startswith(label)
+
+
+#: Characters that CONTINUE a value token. A catalog dimension is written out
+#: of digits, fraction and decimal marks, unit marks and letters, so a match
+#: with one of these on either side is a match found INSIDE a longer value
+#: rather than a statement of this one.
+_VALUE_CHARACTERS = frozenset(
+    "0123456789./-\"'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+)
+
+
+def states_value(text: str, value: str) -> bool:
+    """Whether ``text`` STATES ``value``, rather than merely containing it.
+
+    A bare ``value in text`` reads the title::
+
+        Button Head Socket Cap Screw, 1/4-20, Alloy Steel
+
+    as naming a ``Length Under Head`` of ``1/4``. It does not: the ``1/4`` it
+    contains is the first half of a thread designation, and the screw's length
+    appears nowhere. Measured, 10 of 4,729 SKUs satisfied "this title names a
+    value that is this SKU's alone" on exactly that accident -- and because
+    the repair and the test that checks it both asked the question with ``in``,
+    the repair declined to fire and the test declined to notice.
+
+    A match counts when neither neighbouring character could be part of the
+    same value. ``1/4`` in ``1/4-20`` is followed by ``-`` and does not count;
+    ``1/4`` in ``1/4 in L`` is followed by a space and does.
+    """
+    if not value:
+        return False
+    at = text.find(value)
+    while at != -1:
+        before = text[at - 1] if at else ""
+        after = text[at + len(value) : at + len(value) + 1]
+        if before not in _VALUE_CHARACTERS and after not in _VALUE_CHARACTERS:
+            return True
+        at = text.find(value, at + 1)
+    return False
 
 
 def build_title(
@@ -178,7 +231,13 @@ def build_title(
     if len(text) > cap:
         text = text[:cap].rstrip()
         truncated = True
-    return Title(item=item, segments=segments, text=text, truncated=truncated)
+    return Title(
+        item=item,
+        segments=segments,
+        text=text,
+        truncated=truncated,
+        tight_delimiter_at=tight_delimiter_at,
+    )
 
 
 def truncate_label(attribute: str, keep: int) -> str:
