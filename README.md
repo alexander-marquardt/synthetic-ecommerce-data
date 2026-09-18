@@ -227,10 +227,21 @@ rather than spot-checked:
   substring of one, because `…, 1/4-20, …` is not a statement that the screw
   is 1/4" long.
 
-The second is the one that bites. Titles carry the brand about a third of the
-time and their labels in one of several abbreviations, so equality between
-whole title strings leaves 1,913 SKUs whose titles tell a shopper nothing, and
-a bare substring test leaves 10 more that name only an accident.
+The second is the one that bites, and the two weaker ways of asking it both
+leak. Titles carry the brand about a third of the time and their labels in one
+of several abbreviations, so on the catalog this replaced, asking only that a
+line's titles differ as whole strings left **1,913** SKUs naming nothing of
+their own, and a bare substring test left **1,932** — 19 of those passing on a
+coincidence rather than on a value.
+
+The coincidence outlives a catalog that has otherwise been repaired, which is
+why the distinction is worth a rule rather than a remark: on the first pass at
+this work the whole-string and substring counts had both reached zero while the
+standalone-token count was still **10**. One of the ten was
+`Button Head Socket Cap Screw, 1/4-20, Alloy Steel`, credited with naming a
+`Length Under Head` of `1/4` — which is the first half of a thread designation
+and says nothing about how long the screw is. On the committed catalog all
+three counts are zero.
 
 Which attribute is "the" distinguishing one is **derived, not listed per
 product type**: it is the attribute published on every SKU of the line, with

@@ -846,7 +846,7 @@ MUTATIONS: list[Mutation] = [
         '{"sku": "80FY44", "product_id": "OST-K663-0001"',
         "tests/test_catalog_golden.py::test_flat_holds_one_document_per_sku",
         "",
-        "flat.jsonl is 4,696 documents and 4,696 distinct skus",
+        "flat.jsonl is 4,662 documents and 4,662 distinct skus",
         root="golden-catalog",
     ),
     Mutation(
