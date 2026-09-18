@@ -82,6 +82,37 @@ BRANDS: tuple[str, ...] = (
 
 _SKU_LETTERS = "ABCDEFGHJKLMNPRSTUVWXYZ"
 
+#: The cycle a hex bolt line's standard rotates through. ISO 4017 and DIN 933
+#: describe the same product and disagree on width across flats at M10 and
+#: M12, which is why both are here.
+#:
+#: The inch standard takes TWO of the five places. Three of the four standards
+#: are metric ones for very nearly the same product, so drawing uniformly made
+#: three hex-bolt lines in four metric, in a catalog modelled on a US
+#: industrial distributor whose hex cap screws are overwhelmingly inch. Two
+#: places rather than three, because the arithmetic is tight in the other
+#: direction: each metric standard offers NINE sizes and the type's 45 lines
+#: leave exactly nine per metric standard, which is what the size rotation
+#: needs to reach all of them.
+HEX_BOLT_STANDARDS: tuple[str, ...] = (
+    "ASME B18.2.1",
+    "ISO 4014",
+    "ASME B18.2.1",
+    "ISO 4017",
+    "DIN 933",
+)
+
+#: Hex bolt finishes, as the sequence the finish rotates through. Zinc plated
+#: first: it is the common commercial finish on a hex cap screw.
+HEX_BOLT_FINISHES: tuple[str, ...] = ("Zinc Plated", "Plain", "Hot Dip Galvanized")
+
+#: Bolt gradings, by the system the standard publishes in. SAE J429 grades
+#: describe inch fasteners and ISO property classes describe metric ones; the
+#: two are not interchangeable spellings of one idea and a line carries the
+#: one its standard uses.
+INCH_GRADES: tuple[str, ...] = ("Grade 5", "Grade 8")
+METRIC_GRADES: tuple[str, ...] = ("Class 8.8", "Class 10.9")
+
 
 def _weighted(rng: random.Random, table) -> object:
     """Pick from a ``((value, weight), ...)`` table."""
@@ -126,11 +157,46 @@ class Generator:
         self.rng = random.Random(self.config.seed)
         self._used_skus: set[str] = set()
         self.counters: dict[str, int] = {}
+        self._rotations: dict[str, int] = {}
 
     # -- bookkeeping ----------------------------------------------------
 
     def _bump(self, key: str, amount: int = 1) -> None:
         self.counters[key] = self.counters.get(key, 0) + amount
+
+    def _rotate(self, key: str, count: int) -> int:
+        """The next index of a deterministic rotation over ``count`` choices.
+
+        Used wherever a LINE makes ONE choice from a list the catalog claims
+        to offer -- a thread size out of a standard's sizes, a window over the
+        cutting-diameter series. Sampling those leaves coverage to luck, and
+        luck has already cost this catalog real products: 500 lines spread
+        over twelve product types draw a list of sixteen values so few times
+        that several values land on no line at all, and the miss is silent --
+        the catalog simply has no 15 mm end mill and nothing says so. Measured
+        before this: 11 mm, 15 mm and 25 mm cutting diameters each held ZERO
+        documents while their neighbours held eighty.
+
+        A rotation visits every value before it revisits any, so the offered
+        list and the catalog's contents cannot drift apart, and a test can
+        assert that every offered value reached a line.
+
+        Keys are nested where combinations matter: the grade rotation is keyed
+        per (standard, size), so the second line at one size gets the second
+        grade rather than a fresh draw that may repeat the first.
+        """
+        return self._rotation_step(key) % count if count else 0
+
+    def _rotation_step(self, key: str) -> int:
+        """How many times ``key``'s rotation has advanced, uncapped.
+
+        Exposed because some rotations run several wheels off ONE step -- see
+        :meth:`_build_hex_bolt`, where the size, the grade and the finish all
+        turn on the line counter and have to stay out of phase with each other.
+        """
+        index = self._rotations.get(key, 0)
+        self._rotations[key] = index + 1
+        return index
 
     def _new_sku(self) -> str:
         """A catalog-shaped SKU code, unique within the run.
@@ -169,6 +235,27 @@ class Generator:
 
     def _length(self, name: str, inches: float, style: LengthStyle) -> Attribute:
         return length_attribute(name, self._publish(inches, style))
+
+    def _offered_run(self, key: str, lengths: list[float], count: int) -> list[float]:
+        """A CONTIGUOUS run of a size's offered lengths, at a rotating offset.
+
+        A real line stocks a run -- 1", 1-1/4", 1-3/8", 1-1/2", 1-5/8", 1-3/4"
+        -- not a scatter. Shuffling the standard's 29 offered lengths and
+        keeping twelve produced lines reading 1", 1-3/8", 2-1/4", 3-1/4", 12",
+        which is not what a distributor offers and, worse, left the COMMON
+        lengths missing at random: the customer's own query names
+        ``1-3/4" length under head`` and whether any record carried it was a
+        coin toss.
+
+        The offset rotates per (standard, size), so the first line at a size
+        offers the shortest run -- where the common lengths are -- and later
+        lines walk up the list until the long end is covered too.
+        """
+        if count >= len(lengths):
+            return sorted(lengths)
+        ordered = sorted(lengths)
+        start = self._rotate(key, len(ordered) - count + 1)
+        return ordered[start : start + count]
 
     # -- type builders ---------------------------------------------------
 
@@ -257,15 +344,26 @@ class Generator:
             shank_set = {float(sh) for sh in series.IMPERIAL_SHANKS}
             matching = [d for d in series.IMPERIAL_CUTTING_DIAS if float(d) in shank_set]
             full = list(series.IMPERIAL_CUTTING_DIAS)
-        width = len(matching)
-        if shanks_match:
-            pool = list(matching)
-        else:
-            pool = list(full)
-            rng.shuffle(pool)
-            pool = pool[:width]
-        rng.shuffle(pool)
-        chosen = pool[:count] if count <= len(pool) else pool
+        # A ROTATING WINDOW over the series rather than a random subset of it.
+        # The cap has to stay (see above), but WHICH of the sixteen offered
+        # diameters a line gets must not be a lottery: the metric series is
+        # drawn only by the ~22% of end-mill lines that are metric, and a
+        # random subset left three ordinary sizes -- 11, 15 and 25 mm -- on no
+        # line at all. The window advances one place per line and is shared
+        # between the square and the ball-nose builder, so a size reaches BOTH
+        # styles rather than whichever type happened to draw it.
+        #
+        # The window is cut to the SKU count here rather than by truncating a
+        # shuffled pool afterwards. Truncating after the shuffle throws away a
+        # random part of the window, which is the lottery again by another
+        # route: measured that way, 15 mm came back to zero square end mills.
+        window = min(len(matching), count)
+        pool_of = matching if shanks_match else full
+        start = self._rotate(
+            f"cutting_dia:{system}:{'match' if shanks_match else 'any'}", len(pool_of)
+        )
+        chosen = [pool_of[(start + offset) % len(pool_of)] for offset in range(window)]
+        rng.shuffle(chosen)
 
         for dia in chosen:
             child = ChildDraft(system=system)
@@ -458,7 +556,12 @@ class Generator:
         """
         rng = self.rng
         flat = type_key == "screw_flat_head"
-        metric = rng.random() < 0.5
+        # Alternated rather than tossed. Both systems get half the lines
+        # either way in expectation, but a coin flip over the twenty lines of
+        # the low-head type gave eight metric and twelve inch, and the metric
+        # standard offers NINE sizes -- so M20 low head cap screws did not
+        # exist. Which sizes a catalog carries must not be decided by a coin.
+        metric = self._rotate(f"system:{type_key}", 2) == 0
         metric_standard, inch_standard, head_style, style_name = self._SOCKET_SCREW_LINES[type_key]
         standard = metric_standard if metric else inch_standard
         head_of = {
@@ -493,19 +596,18 @@ class Generator:
         ]
         draft.descriptors = [("Fastener Material", material)]
 
-        sizes = list(standards.available_sizes(standard))
-        rng.shuffle(sizes)
-        size = sizes[0]
+        sizes = standards.available_sizes(standard)
+        size = sizes[self._rotate(f"size:{type_key}:{standard}", len(sizes))]
         head = head_of(standard, size)
 
         lengths = list(standards.offered_lengths_in(standard, size))
         if not lengths:
             lengths = [0.25, 0.375, 0.5, 0.75, 1.0, 1.25, 1.5]
-        rng.shuffle(lengths)
         count = min(rng.randint(*self.config.skus_per_line), len(lengths))
+        offered = self._offered_run(f"lengths:{standard}:{size}", lengths, count)
         system = "mm" if head.published_unit == "mm" else "in"
 
-        for length_in in sorted(lengths[:count]):
+        for length_in in offered:
             style = self._style(system)
             child = ChildDraft(system=system)
             # Fully threaded below about 2x the head diameter, else a standard
@@ -544,9 +646,38 @@ class Generator:
         # ISO 4017 and DIN 933 describe the same product and disagree on width
         # across flats at M10 and M12. Which standard the line is built to is a
         # property of the line, so it is chosen here.
-        standard = rng.choice(("ISO 4014", "ISO 4017", "DIN 933", "ASME B18.2.1"))
+        standard = HEX_BOLT_STANDARDS[self._rotate("bolt_standard", len(HEX_BOLT_STANDARDS))]
         brand = rng.choice(BRANDS)
-        grade = rng.choice(("Grade 5", "Grade 8", "Class 8.8", "Class 10.9"))
+        # Three wheels off ONE line counter: the size, the grading and the
+        # finish. Those are three of the four attribute-value pairs the
+        # customer's parametric query names, and eleven lines per standard
+        # cannot cover thirty-six combinations -- so which combinations exist
+        # must not be luck. Sampling them left the catalog with no Grade 8,
+        # Zinc Plated 7/16-14 hex bolt at all, which is the customer's own
+        # example.
+        #
+        # The grade and finish wheels take ONE EXTRA STEP each time the size
+        # wheel wraps. Without it their periods (2 and 3) divide the size
+        # wheel's (6) and the triple ALIASES: every 7/16 line is the same
+        # grading and the same finish, so a shopper filtering to one size finds
+        # a single value in each of those two facets. Measured both ways --
+        # aliased, Class 10.9 and Hot Dip Galvanized fell to zero documents
+        # each; out of phase, consecutive lines at one size walk through the
+        # gradings and the finishes and every value keeps its documents.
+        #
+        # The size is also read before the line's attributes because the GRADE
+        # depends on it: an SAE J429 grade is an inch fastener's grading and an
+        # ISO property class is a metric one. Drawing from one pool of four
+        # published a "Class 10.9" 7/16-14 bolt, a designation that does not
+        # exist.
+        sizes = standards.available_sizes(standard)
+        step = self._rotation_step(f"line:{type_key}:{standard}")
+        size = sizes[step % len(sizes)]
+        phase = step + step // len(sizes)
+        head = standards.hex_bolt(standard, size)
+        grades = INCH_GRADES if head.published_unit == "in" else METRIC_GRADES
+        grade = grades[phase % len(grades)]
+        finish = HEX_BOLT_FINISHES[phase % len(HEX_BOLT_FINISHES)]
         item = "Hex Head Bolt"
         draft = LineDraft(
             item=item,
@@ -560,9 +691,7 @@ class Generator:
             keyword_attribute("Bolt Style", "Hex Head"),
             keyword_attribute("Screw Head Type", "Hex"),
             keyword_attribute("Fastener Material", rng.choice(("Steel", "18-8 Stainless Steel"))),
-            keyword_attribute(
-                "Fastener Finish", rng.choice(("Zinc Plated", "Plain", "Hot Dip Galvanized"))
-            ),
+            keyword_attribute("Fastener Finish", finish),
             keyword_attribute("Grade", grade),
             keyword_attribute("Thread Direction", "Right Hand"),
             keyword_attribute(
@@ -571,16 +700,12 @@ class Generator:
         ]
         draft.descriptors = [("Grade", grade)]
 
-        sizes = list(standards.available_sizes(standard))
-        rng.shuffle(sizes)
-        size = sizes[0]
-        head = standards.hex_bolt(standard, size)
         lengths = list(standards.offered_lengths_in(standard, size)) or [0.5, 0.75, 1.0, 1.5, 2.0]
-        rng.shuffle(lengths)
         count = min(rng.randint(*self.config.skus_per_line), len(lengths))
+        offered = self._offered_run(f"lengths:{standard}:{size}", lengths, count)
         system = "mm" if head.published_unit == "mm" else "in"
 
-        for length_in in sorted(lengths[:count]):
+        for length_in in offered:
             style = self._style(system)
             child = ChildDraft(system=system)
             thread_len_in = min(length_in, 2 * head.major_dia_in + 0.25)
@@ -1003,6 +1128,206 @@ class Generator:
             tight_delimiter_at=tight,
         )
 
+    def _identifying_attribute(self, published: list[list[Attribute]]) -> str | None:
+        """The ONE attribute that tells every SKU of a line apart, or None.
+
+        Derived from the line's own records, never listed per product type: a
+        hand-maintained per-type enumeration has gone stale in this repository
+        twice already, and the data answers the question exactly. An attribute
+        whose value is the same on every SKU distinguishes nothing -- a shopper
+        choosing between six alloy-steel screws is not choosing the material,
+        and ``Fastener Material: Alloy Steel`` belongs in the attribute block.
+
+        Two conditions, and both are needed for the answer to be USABLE in a
+        title. The attribute has to be on EVERY record (one carried by a fifth
+        of them cannot name the other four fifths), and its published values
+        have to be pairwise DISTINCT (a thread length that saturates at
+        2D + 1/2" varies across the line and is still the same string on ten
+        of twelve SKUs). An attribute failing either is not an identifier,
+        whatever its spread.
+
+        Among the ones that qualify, the widest RELATIVE variation wins, max
+        over min of the parsed magnitudes: a line's SKUs are one product in
+        several sizes, and the size that spreads furthest is the one being
+        chosen between. Ties keep the attribute the type builder published
+        first, so the answer never depends on dictionary ordering.
+
+        Measured against what the records PUBLISH -- after sparsity has
+        dropped what it drops and after the defect injection has rewritten
+        what it rewrites -- rather than against the drafts. An attribute
+        chosen off the drafts can be absent from the record by the time it is
+        emitted, and a title naming a value its own attribute block does not
+        carry is the defect this is here to remove, not a fix for it.
+        Measured: 52 titles named a draft value the record had since lost.
+        """
+        if len(published) < 2:
+            return None
+        values: dict[str, list[str]] = {}
+        numbers: dict[str, list[float]] = {}
+        order: list[str] = []
+        for attributes in published:
+            for attribute in attributes:
+                if attribute.name not in values:
+                    values[attribute.name] = []
+                    numbers[attribute.name] = []
+                    order.append(attribute.name)
+                values[attribute.name].append(attribute.value)
+                if attribute.value_num is not None:
+                    numbers[attribute.name].append(attribute.value_num)
+
+        best: str | None = None
+        best_spread = -1.0
+        for name in order:
+            seen = values[name]
+            if len(seen) != len(published) or len(set(seen)) != len(published):
+                continue
+            magnitudes = [value for value in numbers[name] if value > 0]
+            spread = max(magnitudes) / min(magnitudes) if len(magnitudes) > 1 else 0.0
+            if spread > best_spread + 1e-9:
+                best, best_spread = name, spread
+        return best
+
+    def _disambiguate_titles(
+        self,
+        titles: list[Title],
+        published: list[list[Attribute]],
+        identifying: str | None,
+    ) -> list[Title]:
+        """Give two SKUs of one line that share a title the thing that differs.
+
+        This is the defect a shopper meets on the first screen: six cards
+        reading ``Socket Head Cap Screw, M6x1, Alloy Steel`` at $2.10, $2.48,
+        $4.85, $8.00, $8.34 and $10.42, identical in every visible respect.
+        They are not duplicates -- they are 12, 16, 30 and 45 mm long -- and a
+        thread size is LINE-constant, so a title built around it says the same
+        thing on every SKU under the line. Measured before this: 176 of 500
+        lines published a title two of their SKUs shared, over 1,214 SKUs.
+
+        Repair rather than prevention, and deliberately so. The measured title
+        grammar contains two hazards worth more than tidiness -- a dimension
+        token with no label (46.7%) and a token that is NOT the primary
+        dimension (17.1%) -- and composing every title around the identifying
+        attribute would erase both. So the titles are composed as measured,
+        and only the ones that actually collide are given one more segment.
+        An end mill's title is untouched by this: its cutting diameter varies
+        down the line, so its titles were already distinct.
+
+        The segment goes in SECOND, right after the dimension token, so the
+        100-character cap can never be what removes it -- and the title is
+        reassembled from the segments it already had rather than rebuilt, so
+        no measured choice is re-rolled.
+
+        The trigger is NOT "two titles are the same string". That was the
+        first formulation and it is too weak by a factor of five: a title
+        carries the brand about a third of the time and a label in one of
+        several abbreviations, so ``Hex Head Bolt, 7/16-14, Grade 8`` and
+        ``Redmoor Hex Head Bolt, 7/16-14, Grade 8`` are different strings that
+        tell a shopper apart by the brand name of the line they are both in.
+        Measured, 705 SKUs passed a string-equality check while naming nothing
+        that was theirs. The trigger is the PROPERTY instead: a title has to
+        name a value this SKU publishes and its siblings do not.
+        """
+        if identifying is None or len(published) < 2:
+            return titles
+        by_name = [{a.name: a.value for a in attributes} for attributes in published]
+        for index, title in enumerate(titles):
+            mine = by_name[index]
+            # Per ATTRIBUTE, not per value: the same string legitimately
+            # appears on two SKUs of one line in two different roles -- a 3/8"
+            # that is one tool's cutting diameter and another's shank -- and
+            # that collision is what this catalog exists to exhibit.
+            alone = [
+                value
+                for name, value in mine.items()
+                if not any(
+                    other.get(name) == value
+                    for position, other in enumerate(by_name)
+                    if position != index
+                )
+            ]
+            if any(value in title.text for value in alone):
+                continue
+            # No exemption for a title that already NAMES the identifying
+            # attribute. It can name it and still be carrying a value the
+            # record no longer publishes: a title is composed before the
+            # defect injection, so a unit-mixing defect leaves a title reading
+            # ``3/8"`` on a record publishing ``9.52mm``, and a shopper
+            # scanning the card cannot tell that apart from a third size.
+            # Measured, 8 of 4,688. The published value goes in regardless,
+            # and the stale token stays where it was -- mixed units inside one
+            # record are a defect class this catalog carries on purpose, not
+            # one to quietly repair.
+            attribute = next((a for a in published[index] if a.name == identifying), None)
+            if attribute is not None:
+                segment = Segment(
+                    value=attribute.value,
+                    label=self._label_for(attribute.name),
+                    attribute=attribute.name,
+                )
+                at = min(1, len(title.segments))
+                segments = (*title.segments[:at], segment, *title.segments[at:])
+                tight = title.tight_delimiter_at
+                if tight is not None and tight >= at:
+                    tight += 1
+                titles[index] = build_title(
+                    title.item,
+                    segments,
+                    cap=self.config.title_length_cap,
+                    tight_delimiter_at=tight,
+                )
+                self._bump("title_disambiguated")
+        return titles
+
+    def _build_description(
+        self, draft: LineDraft, title: Title, attributes: list[Attribute]
+    ) -> str:
+        """The description, in the grammar the real rows use.
+
+            <title clause> - <the dimensions the title had no room for>,
+            <line descriptors>, <brand line>
+
+        Measured over the 24 real rows this catalog is modelled against, 24 of
+        24 compose exactly that way::
+
+            TITLE        Square End Mill: 3/4" Dia, 1-1/2" LOC
+            DESCRIPTION  Square End Mill: 3/4" Dia, 1-1/2" LOC - 4" OAL,
+                         3/4" Shank Dia, 40 deg Helix, AlTiN Finish, ...
+
+        Three properties are load-bearing, and none of them is an accident:
+
+        * **The title is the description's opening clause, verbatim.** The
+          overlap is the SOURCE's own convention rather than duplication to be
+          tidied away -- a marketplace listing repeats its size in the title,
+          in the variant selector and twice in the specification table,
+          because each tier is read at a different moment. Removing the
+          overlap would be improving away the thing being reproduced.
+        * **After the dash is what the title had no room for**: the attributes
+          this SKU actually publishes, with their units, so that a shopper
+          scanning six neighbouring cards can see what separates them without
+          opening any of them.
+        * **The brand line stays, at the end.** It is what the description
+          used to be in its entirety -- ``Marrow & Sons ISO4762-64 -- Socket
+          Head Cap Screw`` -- which restated the title, the brand and the
+          product type and said nothing at all about this SKU. It earns a
+          place; it does not earn the whole field.
+
+        Composed from the attributes the record PUBLISHES, after sparsity and
+        after defect injection, so the description and the attribute block
+        cannot disagree about a value.
+        """
+        named = title.attribute_names()
+        details: list[str] = []
+        for attribute in attributes:
+            if attribute.name in named:
+                continue
+            if attribute.values is not None:
+                details.append(", ".join(attribute.values))
+            else:
+                details.append(f"{attribute.value} {attribute.name}")
+        details.extend(value for _, value in draft.descriptors if value not in title.text)
+        details.append(f"{draft.brand} {draft.series}")
+        return f"{title.text} - {', '.join(details)}"
+
     # -- assembly ---------------------------------------------------------
 
     def _corrupt_angle(self, line_attrs: list[Attribute]) -> list[Attribute]:
@@ -1049,7 +1374,11 @@ class Generator:
         product_id = f"{draft.brand.split()[0].upper()[:3]}-{draft.series}-{index:04d}"
         image_id = image_id_for(type_key, product_id)
 
-        children: list[Sku] = []
+        # Composed first, for every SKU, because whether a title needs the
+        # thing that differs is a question about the LINE and cannot be
+        # answered one SKU at a time.
+        built: list[tuple[str, list[Attribute], float, int]] = []
+        titles: list[Title] = []
         for child in draft.children:
             attrs = self._apply_sparsity(type_key, list(child.attrs), "sku")
             if not attrs:
@@ -1060,24 +1389,35 @@ class Generator:
                 attrs = [*attrs, system_attr]
 
             sku = self._new_sku()
-            title = self._build_line_title(draft, child)
+            titles.append(self._build_line_title(draft, child))
             price = round(max(1.25, child.price_basis * rng.uniform(2.5, 9.0)), 2)
+            stock = rng.choices(
+                (0, rng.randint(1, 40), rng.randint(40, 900)), weights=(0.08, 0.42, 0.5)
+            )[0]
+            built.append((sku, attrs, price, stock))
+
+        if not built:
+            return None
+
+        published = [attrs for _, attrs, _, _ in built]
+        titles = self._disambiguate_titles(
+            titles, published, self._identifying_attribute(published)
+        )
+
+        children: list[Sku] = []
+        for (sku, attrs, price, stock), title in zip(built, titles, strict=True):
             children.append(
                 Sku(
                     sku=sku,
                     title=title.text,
+                    description=self._build_description(draft, title, attrs),
                     attributes=tuple(attrs),
                     price_usd=price,
-                    stock=rng.choices(
-                        (0, rng.randint(1, 40), rng.randint(40, 900)), weights=(0.08, 0.42, 0.5)
-                    )[0],
+                    stock=stock,
                     image_id=image_id,
                 )
             )
             self._bump("skus")
-
-        if not children:
-            return None
 
         parent_title = f"{draft.brand} {draft.series} -- {draft.item}"
         return ProductLine(

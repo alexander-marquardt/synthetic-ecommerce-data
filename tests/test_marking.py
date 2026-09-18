@@ -258,6 +258,69 @@ def test_the_marking_carries_every_published_value_including_repeats():
     ]
 
 
+def test_the_stamp_never_breaks_a_published_value_at_its_hyphen():
+    """A published value is a TOKEN, not prose.
+
+    ``textwrap`` defaults to breaking at an internal hyphen, so
+    ``Non-Coolant Through`` was set as ``Non-`` at the end of one stamp line
+    and ``Coolant Through`` on the next. Read back, the card then says
+    ``Non- Coolant Through`` -- a value no record publishes -- and the same
+    shape threatens ``18-8 Stainless Steel``, ``7/16-14`` and
+    ``Roughing/Finishing``.
+
+    Asserted here, on the wrapper, rather than left to the rendered stamp.
+    ``tests/test_line_drawings.py`` compares the card's text against the
+    record's values for the RICHEST line of each type, and whether that line
+    happens to carry a hyphenated value at a wrap boundary is an accident of
+    which line is richest: measured, planting the defect back reds nothing
+    there on the current catalog. A property that only holds by luck is not
+    guarded.
+    """
+    # The line that found this, value for value: a ball nose end mill whose
+    # stamp is long enough that the wrap point falls inside ``Non-Coolant``
+    # at several of the widths the card uses. A shorter fixture proves
+    # nothing -- textwrap only breaks a hyphenated word when the line is
+    # full, so a two-value stamp never reaches the hyphen at any sane width.
+    published = [
+        "End Mill",
+        "Ball Nose",
+        "Cobalt",
+        "TiAlN",
+        "4",
+        "35 deg",
+        "Right Hand",
+        "Single End",
+        "Center Cutting",
+        "Roughing/Finishing",
+        "High Performance",
+        "Non-Coolant Through",
+        "R908",
+        "DIN 338",
+        "DIN 6527",
+        "REACH",
+        "18-8 Stainless Steel",
+        "7/16-14",
+    ]
+    values = [
+        {"name": f"attribute {index}", "value": value} for index, value in enumerate(published)
+    ]
+    mark = marking_for_line("Ferrox", values)
+
+    # Every width from "the longest value just fits" upwards, so the wrap
+    # point sweeps across every hyphen in turn. Not narrower than that: a
+    # word longer than the column cannot be set without breaking somewhere,
+    # and the card sets this band at 58 columns.
+    longest = max(len(value) for value in published)
+    for columns in range(longest, 160):
+        wrapped = mark.stamp_lines(columns=columns)
+        assert wrapped, columns
+        rejoined = " ".join(" ".join(wrapped).split())
+        assert rejoined == " \u00b7 ".join(published), (
+            f"at width {columns} the stamp reads {rejoined!r}, which is not what "
+            f"the record publishes"
+        )
+
+
 def test_the_marking_is_frozen():
     """A drawing must not be able to acquire a property on the way through."""
     mark = marking_for_line("Ferrox", [])

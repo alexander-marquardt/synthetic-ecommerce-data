@@ -1010,7 +1010,8 @@ def _stamp_detail(fig, mark: Marking) -> None:
     y = 0.805
     for name, value in rows:
         fig.text(0.60, y, name, fontsize=size, color=cv.MUTED)
-        wrapped = textwrap.wrap(value, width=22) or [value]
+        # Not at an internal hyphen: a published value is a token, not prose.
+        wrapped = textwrap.wrap(value, width=22, break_on_hyphens=False) or [value]
         fig.text(0.97, y, wrapped[0], fontsize=size, color=cv.INK, fontweight="bold", ha="right")
         y -= step
         for extra in wrapped[1:]:

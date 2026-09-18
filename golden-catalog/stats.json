@@ -1,6 +1,6 @@
 {
  "lines": 500,
- "skus": 4696,
+ "skus": 4729,
  "lines_by_type": {
   "end_mill_square": 95,
   "end_mill_ball": 55,
@@ -16,18 +16,18 @@
   "abrasive_flap_disc": 25
  },
  "skus_by_type": {
-  "end_mill_square": 759,
-  "end_mill_ball": 413,
-  "drill_jobber": 592,
-  "tap_spiral_point": 331,
-  "screw_socket_head": 693,
-  "screw_flat_head": 390,
-  "screw_button_head": 291,
-  "screw_low_head": 203,
-  "bolt_hex": 496,
-  "washer_flat": 236,
-  "hammer_ball_pein": 148,
-  "abrasive_flap_disc": 144
+  "end_mill_square": 786,
+  "end_mill_ball": 441,
+  "drill_jobber": 627,
+  "tap_spiral_point": 326,
+  "screw_socket_head": 708,
+  "screw_flat_head": 403,
+  "screw_button_head": 293,
+  "screw_low_head": 185,
+  "bolt_hex": 447,
+  "washer_flat": 232,
+  "hammer_ball_pein": 143,
+  "abrasive_flap_disc": 138
  },
  "attribute_names_by_type": {
   "end_mill_square": [
@@ -276,70 +276,70 @@
    "System of Measurement"
   ]
  },
- "total_attribute_entries": 63224,
+ "total_attribute_entries": 64515,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
    "target": 0.6489,
-   "achieved": 0.6763157894736842,
-   "numerator": 771,
-   "denominator": 1140,
+   "achieved": 0.5946173254835997,
+   "numerator": 707,
+   "denominator": 1189,
    "note": "over records carrying both dimensions"
   },
   {
    "name": "length of cut > overall length",
    "target": 0.0829,
-   "achieved": 0.08586883029073698,
-   "numerator": 127,
-   "denominator": 1479,
+   "achieved": 0.07423857868020305,
+   "numerator": 117,
+   "denominator": 1576,
    "note": "over records carrying the pair"
   },
   {
    "name": "angle attribute carries a length unit",
    "target": 0.0469,
-   "achieved": 0.03973063973063973,
-   "numerator": 59,
-   "denominator": 1485,
+   "achieved": 0.06018808777429467,
+   "numerator": 96,
+   "denominator": 1595,
    "note": "over records carrying an angle"
   },
   {
    "name": "declared system contradicts value units",
    "target": 0.0323,
-   "achieved": 0.027522935779816515,
-   "numerator": 54,
-   "denominator": 1962,
+   "achieved": 0.031508264462809916,
+   "numerator": 61,
+   "denominator": 1936,
    "note": "over records carrying both"
   },
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.024539877300613498,
-   "numerator": 112,
-   "denominator": 4564,
+   "achieved": 0.024167210973220117,
+   "numerator": 111,
+   "denominator": 4593,
    "note": "over records with a readable dimension"
   },
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.46337308347529815,
-   "numerator": 2176,
-   "denominator": 4696,
+   "achieved": 0.47325015859589764,
+   "numerator": 2238,
+   "denominator": 4729,
    "note": "over title dimension tokens"
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.17717206132879046,
-   "numerator": 832,
-   "denominator": 4696,
+   "achieved": 0.17657009938676252,
+   "numerator": 835,
+   "denominator": 4729,
    "note": "over title dimension tokens"
   },
   {
    "name": "title label truncated",
    "target": 0.0323,
-   "achieved": 0.030877342419080068,
-   "numerator": 145,
-   "denominator": 4696,
+   "achieved": 0.036582787058574755,
+   "numerator": 173,
+   "denominator": 4729,
    "note": "over titles"
   },
   {
@@ -347,77 +347,81 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 4696,
+   "denominator": 4729,
    "note": "deliberate: the corpus measures 0.1089"
   },
   {
    "name": "image id is shared, not the product's own",
    "target": 1.0,
    "achieved": 1.0,
-   "numerator": 4696,
-   "denominator": 4696,
+   "numerator": 4729,
+   "denominator": 4729,
    "note": "deliberate: the corpus measures 0.7353"
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 13.463373083475298,
-   "numerator": 63224,
-   "denominator": 4696,
+   "achieved": 13.642419116092197,
+   "numerator": 64515,
+   "denominator": 4729,
    "note": "count, not a rate"
   }
  ],
  "measurement_system_names": {
-  "Dimension Type": 1268,
-  "System of Measurement": 233,
-  "Measurement System": 461
+  "Dimension Type": 1287,
+  "Measurement System": 491,
+  "System of Measurement": 158
  },
  "measurement_system_values": {
-  "Metric": 771,
-  "Fractional Inch": 1076,
-  "Inch": 89,
-  "Decimal Inch": 26
+  "Metric": 707,
+  "Fractional Inch": 1087,
+  "Inch": 109,
+  "Decimal Inch": 33
  },
  "unit_suffix_distribution": {
-  "mm": 8610,
-  "in": 11765
+  "mm": 7918,
+  "in": 12469
  },
- "standards_present": 2473,
- "standards_multivalued": 1401,
- "standards_total_values": 4378,
+ "standards_present": 2531,
+ "standards_multivalued": 1438,
+ "standards_total_values": 4385,
  "multivalued_attribute_names": {
-  "Standards": 1401
+  "Standards": 1438
  },
  "noncopy_audit": {
-  "n_skus_checked": 4696,
+  "n_skus_checked": 4729,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
-   "89DZ61",
-   "47DC20",
-   "61TT22",
-   "8FE92",
-   "66EB88",
-   "91YK50",
-   "86PT11",
-   "6BF31",
-   "88AB45",
-   "60MR19",
-   "42GT62",
-   "72JX45",
-   "96PW65",
-   "25VD58",
-   "65GU27",
-   "80SP15",
-   "32TJ83",
-   "7VY42",
-   "27WJ23",
-   "28UM45",
-   "29DS20",
-   "69XG90",
-   "84US63",
-   "54AP47",
-   "96VP23"
+   "17VP20",
+   "12KC84",
+   "92AT13",
+   "51HH55",
+   "64XM71",
+   "37SK67",
+   "15WF56",
+   "30UA61",
+   "14VS56",
+   "82RV59",
+   "62FU13",
+   "25NY28",
+   "52CG47",
+   "33WM11",
+   "74EC28",
+   "14AJ92",
+   "28UC18",
+   "66JM72",
+   "45UW48",
+   "62GL46",
+   "46AT90",
+   "5AC62",
+   "89NB59",
+   "78VK78",
+   "18DA71",
+   "82LS30",
+   "13GB52",
+   "93NJ70",
+   "27FC61"
   ],
   "n_reference_tuples": 147,
   "n_reference_skus": 332

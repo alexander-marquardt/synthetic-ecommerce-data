@@ -135,11 +135,27 @@ class Title:
     segments: tuple[Segment, ...]
     text: str
     truncated: bool
+    #: Which delimiter was written tight (``3/8,4 FL``), if any. Kept so a
+    #: title can be REASSEMBLED with one more segment without re-rolling it
+    #: and without silently losing the tight comma.
+    tight_delimiter_at: int | None = None
 
     @property
     def segment_count(self) -> int:
         """Counting the ITEM, as the measured segment_count_distribution does."""
         return 1 + len(self.segments)
+
+    def attribute_names(self) -> frozenset[str]:
+        """Which attributes this title actually names.
+
+        Read off the segments rather than by parsing the assembled string: a
+        title is built from structured segments and re-reading the text would
+        be a second, worse answer to a question the object already knows.
+        The description uses it to avoid restating what the title just said.
+        """
+        return frozenset(
+            segment.attribute for segment in self.segments if segment.attribute
+        )
 
 
 def abbreviate_value(value: str) -> str:
@@ -178,7 +194,13 @@ def build_title(
     if len(text) > cap:
         text = text[:cap].rstrip()
         truncated = True
-    return Title(item=item, segments=segments, text=text, truncated=truncated)
+    return Title(
+        item=item,
+        segments=segments,
+        text=text,
+        truncated=truncated,
+        tight_delimiter_at=tight_delimiter_at,
+    )
 
 
 def truncate_label(attribute: str, keep: int) -> str:
