@@ -20,6 +20,8 @@ from .derive import (
     MAX_TERMS_CARDINALITY,
     MIN_PRESENCE,
     NUMERIC_SHARE,
+    RANGE_DISPERSION,
+    RANGE_MIN_DOCS,
     Decision,
     decide,
     measure,
@@ -79,16 +81,33 @@ HEADER = """\
 #     is per-attribute: an attribute carried by one of twelve product types can
 #     never exceed ~10% of the catalog, yet may be the primary facet for its
 #     own category.
-#   * a TERMS attribute with more than {max_cardinality} distinct values is NOT a facet --
-#     that is an identifier, not something a shopper browses. Numeric
-#     attributes are exempt; a range control's cost does not grow with the
-#     number of distinct values.
+#   * an attribute over free-text values with more than {max_cardinality} distinct values is
+#     NOT a facet -- that is an identifier, not something a shopper browses.
+#     QUANTITATIVE attributes are exempt at any cardinality: a measured
+#     quantity is not a part number.
 #
-# An attribute is NUMERIC (a range facet over ``facets_num.*``) when {numeric_share:.0%} or
-# more of the documents publishing it carry a parsed ``value_num``, and TERMS
-# (over the published strings in ``facets.*``) otherwise. The catalog
-# deliberately emits values that do not parse, so the test is a majority
-# rather than "all".
+# WHICH CONTROL AN ATTRIBUTE GETS
+# -----------------------------------------------------------------------------
+# Two questions, answered separately (elastic/prism#9285):
+#
+#   * an attribute is QUANTITATIVE when {numeric_share:.0%} or more of the documents
+#     publishing it carry a parsed ``value_num``. The catalog deliberately
+#     emits values that do not parse, so the test is a majority rather than
+#     "all". This decides what is STORED -- the canonical number and its unit
+#     code -- and nothing else.
+#   * an attribute is offered as a RANGE (``facets_num.*``) only when its
+#     values are CONTINUOUS: at least {range_min_docs} documents, and at least
+#     {range_dispersion:.2f} distinct values per document. Below that the values
+#     REPEAT, which means they are a standard set -- hex key sizes, thread
+#     pitches -- and the honest control is a list of them (``facets.*``), not
+#     an interval a shopper can set to a size nobody manufactures.
+#
+# The threshold is a midpoint between two limits, not a tuned constant:
+# dispersion tends to 0 for a saturated ladder and to 1 when every measurement
+# is unique. Deriving it this way is what lets ONE rule serve two catalogs --
+# every dimensional attribute here is discrete, while a grocery catalog's
+# ``Salt (g/100g)`` is a genuine continuum and would be offered as a range by
+# the same code.
 #
 # Attributes that fail a gate are still DECLARED, with ``facet: false``. They
 # stay searchable and stay available as filter and rule targets -- they are
@@ -229,8 +248,12 @@ def _structural_fields() -> list[str]:
 
 def _attribute_entry(decision: Decision) -> str:
     stats = decision.stats
-    kind = "numeric" if stats.is_numeric else "terms"
-    source = f"facets_num.{stats.key}" if stats.is_numeric else f"facets.{stats.key}"
+    # The CONTROL follows continuity, not numeracy. A quantitative attribute
+    # whose values are a discrete standard set is a terms facet over the
+    # published strings -- which is why it reads ``facets.*`` and not
+    # ``facets_num.*``: the shopper picks a published size, not an interval.
+    kind = "numeric" if stats.is_continuous else "terms"
+    source = f"facets_num.{stats.key}" if stats.is_continuous else f"facets.{stats.key}"
     lines = [
         f"  # {stats.name} -- {decision.reason}",
         f"  #   present on {stats.present} documents across "
@@ -260,12 +283,14 @@ def render(rows: Iterable[dict[str, Any]]) -> str:
     header = HEADER.format(
         attribute_count=len(decided),
         facet_count=len(facets),
-        numeric_count=sum(1 for d in facets if d.stats.is_numeric),
-        terms_count=sum(1 for d in facets if not d.stats.is_numeric),
+        numeric_count=sum(1 for d in facets if d.stats.is_continuous),
+        terms_count=sum(1 for d in facets if not d.stats.is_continuous),
         excluded_count=len(decided) - len(facets),
         min_presence=MIN_PRESENCE,
         max_cardinality=MAX_TERMS_CARDINALITY,
         numeric_share=NUMERIC_SHARE,
+        range_dispersion=RANGE_DISPERSION,
+        range_min_docs=RANGE_MIN_DOCS,
     )
 
     parts = [header, "fields:\n"]

@@ -164,26 +164,34 @@ def test_the_sizes_the_customer_asks_for_exist_in_both_end_mill_styles(
     )
 
 
-def test_the_metric_spelling_the_policy_bridges_is_still_in_the_catalog(
+def test_a_25_mm_cutting_diameter_has_exactly_one_spelling(
     flat_docs: list[dict],
 ) -> None:
-    """``25.00mm``, against a shopper who types ``25mm``.
+    """``25mm``, and nothing else -- the shopper's own spelling.
 
-    The mismatch is the defect being DEMONSTRATED, not one to fix here: the
-    rewrite policy binding ``25mm`` to the cutting diameter is what the demo
-    shows working, and normalising the catalog's own spelling would delete the
-    thing it bridges. So the spelling is asserted rather than left to chance.
+    This test used to assert the OPPOSITE: that the catalog spelled this
+    diameter ``25.00mm`` while a shopper typed ``25mm``, on the reasoning that
+    the mismatch was the defect the rewrite policy demonstrated bridging. The
+    ruling on elastic/prism#9284 removed that premise. The spelling variation
+    was never the customer's -- their facet values carry one spelling per
+    value -- so it was a defect we invented and then built a bridge over.
+
+    What replaces it is stronger than the old assertion, because it counts
+    rather than looks up: **one** spelling, not "``25mm`` is among them". A
+    catalog that published both would satisfy an ``in`` check and still split
+    this size across two facet buckets.
     """
     spellings = {
         value
         for doc in flat_docs
+        if "milling_dia" in doc.get("facets_num", {})
+        and abs(doc["facets_num"]["milling_dia"] * MM_PER_INCH - 25.0) < MM_TOLERANCE
         for value in doc["facets"].get("milling_dia", [])
     }
-    assert "25.00mm" in spellings, (
-        "no document spells a 25 mm cutting diameter '25.00mm'. A shopper types "
-        "'25mm'; the gap between the two is what the rewrite policy exists to "
-        "bridge, and it cannot be demonstrated against a catalog that spells it "
-        "the shopper's way."
+    assert spellings == {"25mm"}, (
+        f"a 25 mm cutting diameter is published as {sorted(spellings)}. Exactly "
+        f"one spelling is the property: every extra spelling is an extra facet "
+        f"bucket for one size."
     )
 
 

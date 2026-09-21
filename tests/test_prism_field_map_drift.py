@@ -133,14 +133,21 @@ def test_no_attribute_silently_redefines_a_structural_field(flat_rows: list[dict
     )
 
 
-def test_filter_routing_hard_matches_the_derived_numeric_facets(flat_rows: list[dict]) -> None:
+def test_filter_routing_hard_matches_the_derived_range_facets(flat_rows: list[dict]) -> None:
     """``filter_routing.hard`` is the other place the derivation has to reach.
 
-    A numeric facet absent from ``filter_routing.hard`` renders no range
+    A RANGE facet absent from ``filter_routing.hard`` renders no range
     selector -- the Engine warns once per facet at boot and the sidebar simply
     has no control for that dimension. The list lives in ``customization.yaml``,
     which is hand-written, so this is the gate that keeps it honest: add a
-    numeric attribute to the catalog and forget to route it, and this reds.
+    range attribute to the catalog and forget to route it, and this reds.
+
+    The OTHER direction is worse than a warning and is why this must track
+    CONTINUITY rather than numeracy (elastic/prism#9285): a name here that no
+    longer resolves as a range axis makes both Engine and Studio REFUSE TO
+    BOOT (#7114). Every dimensional attribute became a discrete list, so the
+    routed set is now ``price`` alone -- and leaving the old 27 in place would
+    have been a boot failure rather than a missing slider.
 
     ``price`` is in the routed set but is not a catalog attribute -- it is a
     first-class column -- so it is excluded from the comparison rather than
@@ -157,7 +164,7 @@ def test_filter_routing_hard_matches_the_derived_numeric_facets(flat_rows: list[
     derived = {
         decision.stats.key
         for decision in (decide(s) for s in measure(flat_rows).values())
-        if decision.facet and decision.stats.is_numeric
+        if decision.facet and decision.stats.is_continuous
     }
 
     missing = sorted(derived - routed)

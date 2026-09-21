@@ -585,7 +585,7 @@ def _collision_groups(lines, profile):
 
 #: What the issue measured and what this must keep measuring. Stated as the
 #: number of lines that DO NOT get a drawing of their own, per product type.
-EXPECTED_COLLISIONS = {"abrasive_flap_disc": 1, "washer_flat": 1}
+EXPECTED_COLLISIONS = {"screw_socket_head": 1, "washer_flat": 2}
 
 
 @pytest.mark.parametrize("profile", ["card", "detail"])
@@ -598,13 +598,22 @@ def test_exactly_two_lines_do_not_get_a_drawing_of_their_own(profile):
     and still passes every other check in this suite. The only thing it moves
     is this number, and only if the number is pinned rather than bounded.
 
-    Two PAIRS. ``BRA-W121-0437`` and ``BRA-W610-0455`` are Bracknell nylon
-    flat washers, which is almost nothing but dimensions -- brand, material,
-    finish and washer type, with every dimension on the SKUs where a shared
-    drawing must not read them. ``COR-FD604-0495`` and ``COR-FD714-0479`` are
-    Corvane conical aluminium-oxide flap discs, whose six line-scope values
-    coincide down to the same single standard. Both pairs are different
-    products, and every attribute they differ on is SKU-scope. The companion
+    Three PAIRS, re-measured after the catalog was regenerated on canonical
+    values (elastic/prism#9284). ``VAN-W220-0438``/``VAN-W445-0426`` and
+    ``OST-W473-0454``/``OST-W525-0449`` are flat washers, which are almost
+    nothing but dimensions -- brand, material, finish and washer type, with
+    every dimension on the SKUs where a shared drawing must not read them.
+    ``COR-ASMEB18.3-60-0266``/``COR-ASMEB18.3-88-0282`` are Corvane socket
+    head cap screws to one standard whose line-scope values coincide. Every
+    pair is two different products, and every attribute they differ on is
+    SKU-scope.
+
+    The count rose from two to three, and the reason is the change itself
+    rather than drift: collapsing several spellings of one magnitude into one
+    makes two lines that were always the same product MORE likely to publish
+    the same line-scope strings. That is the canonicalisation working, and it
+    is why the companion test below -- lines drawing alike must publish alike
+    -- is the half that actually guards the encoding. The companion
     test below is the half that says so: lines drawing alike have to publish
     alike.
 
@@ -681,7 +690,7 @@ def test_the_channel_sweeps_skip_only_where_the_vocabulary_has_no_channel():
 def test_the_full_catalog_really_is_the_one_the_issue_measured():
     """Guards the two tests above: they are about a 500-line catalog, not any catalog."""
     assert len(FULL_LINES) == 500
-    assert FULL_CATALOG.sku_count == 4662
+    assert FULL_CATALOG.sku_count == 4689
     assert len({line["image_id"] for line in FULL_LINES}) == 500
 
 
