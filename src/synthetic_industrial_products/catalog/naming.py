@@ -217,11 +217,18 @@ def build_title(
     The cap is real -- a title has a budget and the reference corpus shows
     titles written to one. What changed with the ruling on elastic/prism#9284
     is WHERE the budget is taken from. This used to cut the assembled string
-    at the cap, which lands mid-word: measured on the default catalog, 97 of
-    4,688 titles ended ``...Solid Carbide, U`` or ``...SGL Sq En``. That is
+    at the cap, which lands mid-word: **67 of the default catalog's 4,689
+    titles** would end ``...Solid Carbide, U`` or ``...SGL Sq En``. That is
     the same defect class as the label truncation removed from the generator,
     arriving by a second door, and removing only the first would have left
-    2.07% of titles truncated while the change claimed none were.
+    1.4% of titles truncated while the change claimed none were.
+
+    THAT FIGURE IS RE-DERIVED, NOT REMEMBERED. It stood at "97 of 4,688" and
+    did not reproduce under any reading: 4,688 is the previous generation's
+    document count, and 97 is not the mid-word count of either generation.
+    ``tests/test_catalog_titles.py`` now reconstructs the old behaviour --
+    assembling every segment and slicing at the cap -- and counts the titles
+    that land inside a word, so the number above is measured on every run.
 
     So a title that does not fit sheds its LAST SEGMENT, and then the one
     before it, until it fits. Every segment that survives is whole, which is

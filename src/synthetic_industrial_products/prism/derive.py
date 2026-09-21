@@ -106,12 +106,23 @@ MAX_TERMS_CARDINALITY = 25
 #: a shopper can pick from.** Above it most documents carry a value nobody
 #: else does, and listing them offers one row per product.
 #:
-#: Measured on the industrial catalog (elastic/prism#9285) every dimensional
-#: attribute lands between 0.003 and 0.144 -- ``Drive Size`` 53 values over
-#: 1,309 documents is 0.04, ``Length Under Head``, the densest, is 0.144 -- so
-#: all of them are discrete, with a margin of 3.5x to the threshold. That
-#: agrees with the customer, whose facet list for this category contains no
-#: range control at all.
+#: MEASURED ON THE INDUSTRIAL CATALOG (elastic/prism#9285), and the figures
+#: live in :data:`MEASURED_DISPERSION` beside this rather than in this
+#: sentence, because a sentence went stale across one regeneration while every
+#: test stayed green. Every attribute this catalog FACETS lands between 0.0028
+#: and 0.1401 -- ``Drive Size``'s 51 values over 1,556 documents is 0.033, and
+#: ``Length Under Head``, the densest, is 0.1401 -- so all of them are
+#: discrete, with a margin of 3.5x to the threshold. That agrees with the
+#: customer, whose facet list for this category contains no range control at
+#: all.
+#:
+#: THE BAND IS OVER THE FACETED ONES, and saying so is the correction rather
+#: than the update. Two quantitative attributes are NOT faceted and one of
+#: them, ``Neck Length``, has a dispersion of exactly 1.0000 -- 39 distinct
+#: values over 39 documents, a perfect continuum. Dispersion does not make
+#: THAT one a list; :data:`RANGE_MIN_DOCS` does. A band quoted over all
+#: quantitative attributes runs to 1.0 and credits this threshold with an
+#: outcome the other one produced.
 #:
 #: **This rule is derived on purpose, and must not be reimplemented as
 #: "industrial uses keyword".** Grocery migrates onto the same machinery
@@ -127,9 +138,40 @@ RANGE_DISPERSION = 0.5
 #: ten rungs or ten thousand. Below this many documents the statistic is not
 #: evidence, so the answer is the conservative one -- a discrete control, which
 #: is always serviceable, where a range over an unknown distribution is not.
-#: Every attribute this catalog facets clears it (the smallest, ``Handle
-#: Length``, has 95).
+#: Every attribute this catalog FACETS clears it -- the smallest, ``Handle
+#: Length``, has 104 documents. What it actually decides here is the other
+#: side: ``Neck Length`` publishes 39 distinct values over 39 documents, a
+#: dispersion of exactly 1.0000, and this floor is the only reason it is not
+#: offered as a range. See :data:`MEASURED_DISPERSION`.
 RANGE_MIN_DOCS = 50
+
+#: What the rule above MEASURES on the catalog this package generates, as
+#: numbers rather than as a sentence.
+#:
+#: The prose here used to carry them inline and it drifted in four figures at
+#: once across one regeneration -- a band of "0.003 to 0.144" for one of
+#: 0.0028 to 0.1401, ``Drive Size`` at "53 values over 1,309 documents" for
+#: 51 over 1,556, and ``Handle Length`` at "95" for 104 -- while the whole
+#: suite stayed green, because nothing compared a docstring to a catalog.
+#:
+#: ``tests/test_facet_control_rule.py`` re-derives every entry here from the
+#: committed golden catalog, so the next regeneration has to restate them.
+MEASURED_DISPERSION: dict[str, Any] = {
+    # The band over the attributes that are actually FACETED.
+    "faceted_low": 0.0028,
+    "faceted_high": 0.1401,
+    "densest_faceted": "Length Under Head",
+    # The saturated ladder the rule exists to keep off a slider.
+    "drive_size_cardinality": 51,
+    "drive_size_present": 1556,
+    # The smallest faceted attribute, which is what clears RANGE_MIN_DOCS.
+    "smallest_faceted": "Handle Length",
+    "smallest_faceted_present": 104,
+    # The continuum RANGE_MIN_DOCS -- not dispersion -- keeps off a slider.
+    "min_docs_arm": "Neck Length",
+    "min_docs_arm_dispersion": 1.0,
+    "min_docs_arm_present": 39,
+}
 
 
 @dataclass(frozen=True)
