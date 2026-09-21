@@ -1019,9 +1019,7 @@ class Generator:
             spec.name for specs in VOCAB.values() for spec in specs if spec.kind == "length"
         }
         dimension_indexes = [
-            i
-            for i, a in enumerate(out)
-            if a.value_num is not None and a.name in length_names
+            i for i, a in enumerate(out) if a.value_num is not None and a.name in length_names
         ]
         if len(dimension_indexes) >= 2:
             self._bump("eligible_unit_mixing")
@@ -1264,7 +1262,11 @@ class Generator:
             # defect injection, so a unit-mixing defect leaves a title reading
             # ``3/8"`` on a record publishing ``9.52mm``, and a shopper
             # scanning the card cannot tell that apart from a third size.
-            # Measured, 8 of 4,688. The published value goes in regardless,
+            # Measured at 8 rows on the 4,688-document generation that
+            # preceded this catalog, and NOT re-derived here -- the
+            # denominator names the catalog the figure belongs to rather
+            # than being renumbered to this one's 4,689 on the assumption
+            # that the numerator held. The published value goes in regardless,
             # and the stale token stays where it was -- mixed units inside one
             # record are a defect class this catalog carries on purpose, not
             # one to quietly repair.

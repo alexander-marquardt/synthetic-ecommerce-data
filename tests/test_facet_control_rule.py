@@ -28,6 +28,7 @@ from synthetic_industrial_products.catalog.config import GeneratorConfig
 from synthetic_industrial_products.catalog.generate import generate
 from synthetic_industrial_products.prism.derive import (
     MAX_TERMS_CARDINALITY,
+    MEASURED_DISPERSION,
     MIN_PRESENCE,
     RANGE_DISPERSION,
     RANGE_MIN_DOCS,
@@ -178,13 +179,16 @@ def test_continuity_admits_a_continuum() -> None:
 
 
 def test_continuity_refuses_a_saturated_ladder() -> None:
-    """The industrial case, constructed to the issue's own figures.
+    """The industrial case, constructed to the catalog's own figures.
 
-    53 distinct drive sizes over 1,309 documents. Each value is carried by
-    about 25 products, which is what makes a list of them something a shopper
-    picks from.
+    51 distinct drive sizes over 1,556 documents -- each value carried by about
+    30 products, which is what makes a list of them something a shopper picks
+    from. Those two numbers are asserted against the real derivation by
+    ``test_drive_size_is_the_saturated_ladder_the_rule_names`` below, which is
+    what makes this construction an example rather than an invention; they read
+    53 / 1,309, one generation stale, until that test existed.
     """
-    drive = _stats(cardinality=53, present=1_309)
+    drive = _stats(cardinality=51, present=1_556)
     assert drive.dispersion < 0.05
     assert not drive.is_continuous
     assert drive.is_numeric, "still a quantity; only the control changed"
@@ -269,3 +273,104 @@ def test_changing_the_control_rule_changed_no_attributes_facet_status(
         "newly faceted": sorted(new_faceted - old_faceted),
         "no longer faceted": sorted(old_faceted - new_faceted),
     }
+
+
+# ---------------------------------------------------------------------------
+# The rule's PROSE, held to the catalog it describes
+# ---------------------------------------------------------------------------
+# ``derive.py`` argues for its thresholds from measured figures, and until this
+# block nothing compared those figures to a catalog. Across one regeneration
+# four of them drifted at once behind a fully green suite:
+#
+#     band over the dimensional attributes   0.003 - 0.144   0.0028 - 0.1401
+#     Drive Size                             53 / 1,309      51 / 1,556
+#     smallest faceted (Handle Length)       95              104
+#
+# and a fifth was wrong in a way no update would have fixed: the band was
+# quoted over "every dimensional attribute" when it is a band over the FACETED
+# ones. The widest quantitative dispersion in this catalog is 1.0000
+# (``Neck Length``, 39 distinct values over 39 documents -- a perfect
+# continuum), and what keeps THAT off a slider is ``RANGE_MIN_DOCS``, not
+# ``RANGE_DISPERSION``. A single band credits the wrong threshold.
+#
+# So the figures moved into ``MEASURED_DISPERSION`` and these tests re-derive
+# every one from the committed catalog.
+
+
+@pytest.fixture(scope="module")
+def decided(flat_rows: list[dict]) -> dict[str, tuple[AttributeStats, object]]:
+    stats = measure(flat_rows)
+    return {key: (value, decide(value)) for key, value in stats.items()}
+
+
+def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
+    """Non-vacuity control for the four tests below.
+
+    Every one of them looks a name up in the derivation, and an EMPTY
+    derivation would make the band tests raise rather than assert. Pinned
+    explicitly so a broken catalog reads as broken rather than as agreement.
+    """
+    quantitative = [s for s, _ in decided.values() if s.is_numeric]
+    faceted = [s for s, d in decided.values() if s.is_numeric and d.facet]
+    assert len(quantitative) == 29
+    assert len(faceted) == 27
+
+
+def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
+    """The band, over the attributes it is actually a band over."""
+    faceted = [s for s, d in decided.values() if s.is_numeric and d.facet]
+    low = min(s.dispersion for s in faceted)
+    high = max(s.dispersion for s in faceted)
+    assert round(low, 4) == MEASURED_DISPERSION["faceted_low"]
+    assert round(high, 4) == MEASURED_DISPERSION["faceted_high"]
+    densest = max(faceted, key=lambda s: s.dispersion)
+    assert densest.name == MEASURED_DISPERSION["densest_faceted"]
+    assert high < RANGE_DISPERSION, "the band must sit below the threshold"
+
+
+def test_the_widest_dispersion_is_decided_by_the_document_floor(decided) -> None:
+    """The arm the band does NOT cover, named with the threshold that decides it.
+
+    ``Neck Length`` is a perfect continuum and clears ``RANGE_DISPERSION`` with
+    room to spare. It is a discrete list anyway, because it publishes fewer
+    than ``RANGE_MIN_DOCS`` documents -- so crediting dispersion with that
+    outcome names the wrong gate.
+    """
+    quantitative = [s for s, _ in decided.values() if s.is_numeric]
+    widest = max(quantitative, key=lambda s: s.dispersion)
+    assert widest.name == MEASURED_DISPERSION["min_docs_arm"]
+    assert round(widest.dispersion, 4) == MEASURED_DISPERSION["min_docs_arm_dispersion"]
+    assert widest.present == MEASURED_DISPERSION["min_docs_arm_present"]
+    assert widest.dispersion > RANGE_DISPERSION, (
+        "dispersion alone would offer this as a RANGE, which is the whole "
+        "reason RANGE_MIN_DOCS exists and the reason it cannot be credited to "
+        "the dispersion threshold"
+    )
+    assert widest.present < RANGE_MIN_DOCS
+    assert not widest.is_continuous
+
+
+def test_drive_size_is_the_saturated_ladder_the_rule_names(decided) -> None:
+    """The example the rule argues from, read off the catalog.
+
+    ``test_continuity_refuses_a_saturated_ladder`` above CONSTRUCTS these
+    numbers to probe the threshold. This one asserts the catalog really
+    publishes them, which is what makes that construction an example rather
+    than an invention.
+    """
+    stats, decision = decided["drive_size"]
+    assert stats.cardinality == MEASURED_DISPERSION["drive_size_cardinality"]
+    assert stats.present == MEASURED_DISPERSION["drive_size_present"]
+    assert not stats.is_continuous
+    assert stats.is_numeric, "still a quantity; only the control changed"
+    assert decision.facet
+
+
+def test_the_smallest_faceted_attribute_clears_the_document_floor(decided) -> None:
+    """``RANGE_MIN_DOCS`` never decides a FACETED attribute here, and this is
+    the figure that says so."""
+    faceted = [s for s, d in decided.values() if s.is_numeric and d.facet]
+    smallest = min(faceted, key=lambda s: s.present)
+    assert smallest.name == MEASURED_DISPERSION["smallest_faceted"]
+    assert smallest.present == MEASURED_DISPERSION["smallest_faceted_present"]
+    assert smallest.present > RANGE_MIN_DOCS

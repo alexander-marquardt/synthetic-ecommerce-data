@@ -44,9 +44,12 @@ from __future__ import annotations
 import collections
 import json
 import re
+import string
 from pathlib import Path
 
 import pytest
+
+from synthetic_industrial_products.catalog.naming import DELIMITER, TIGHT_DELIMITER
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
 REBUILD = "uv run sip-generate build --out golden-catalog"
@@ -99,6 +102,7 @@ SOURCES = ("committed", "generated")
 @pytest.fixture(scope="module", params=SOURCES)
 def catalog(request) -> tuple[list[dict], list[dict]]:
     if request.param == "committed":
+
         def read(name: str) -> list[dict]:
             with (GOLDEN_DIR / name).open(encoding="utf-8") as handle:
                 return [json.loads(line) for line in handle]
@@ -148,9 +152,7 @@ def _duplicates(by_line: dict[str, list[dict]], field: str) -> list[tuple[str, s
     out: list[tuple[str, str, int]] = []
     for product_id, docs in sorted(by_line.items()):
         counts = collections.Counter(doc[field] for doc in docs)
-        out.extend(
-            (product_id, value, count) for value, count in counts.items() if count > 1
-        )
+        out.extend((product_id, value, count) for value, count in counts.items() if count > 1)
     return out
 
 
@@ -199,9 +201,7 @@ def test_the_description_opens_with_the_title_verbatim(flat_docs: list[dict]) ->
     uniqueness follow from the title's rather than being a second coincidence.
     """
     wrong = [
-        doc["sku"]
-        for doc in flat_docs
-        if not doc["description"].startswith(doc["title"] + " - ")
+        doc["sku"] for doc in flat_docs if not doc["description"].startswith(doc["title"] + " - ")
     ]
     assert wrong == [], (
         f"{len(wrong)} description(s) do not open with their own title followed by "
@@ -352,15 +352,34 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
     * the generator deliberately truncated a label at a measured 3.23% --
       removed by the ruling on elastic/prism#9284;
     * ``build_title`` cut the assembled string at the 100-character cap,
-      which lands mid-word. Measured on the default catalog BEFORE that was
-      changed: 97 of 4,688 titles, ending ``...Solid Carbide, U`` or
-      ``...SGL Sq En``. Removing only the first would have left those 97 in
-      place while the change reported that truncation was gone.
+      which lands mid-word. Reconstructed on this catalog by
+      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **67
+      of 4,689** titles, ending ``...Solid Carbide, U`` or ``...SGL Sq En``.
+      Removing only the first would have left those 67 in place while the
+      change reported that truncation was gone. (That figure read "97 of
+      4,688" and reproduced under no reading, which is why it is now
+      measured rather than quoted.)
 
     The assertion is therefore on the published text: a title may not end
     part-way through the final segment it publishes. The denominator is
     asserted first, because "no truncated titles" and "no titles" produce the
     same count.
+
+    THE DETECTOR USED TO COMPARE THE WHOLE TAIL, AND COULD NOT FIRE. It read
+    ``title.rsplit(",", 1)[-1]`` and asked whether THAT was a strict prefix of
+    a published attribute name -- which is the signature in the REFERENCE
+    corpus, where the tail is a bare label ("Dia./Thread Siz"). This
+    generator's segments are ``"<value> <label>"``, so the tail always carries
+    the value too and no attribute name ever starts with it. Measured: a
+    mutation truncating a label by one character left this test GREEN, and a
+    hand-built ``"... , 1/2\" Cutting Directio"`` went undetected while the
+    bare-label form was caught.
+
+    So the signature is now a SUFFIX of the tail: the label sits after the
+    value, and a truncated one is a trailing run of words that is a strict
+    prefix of a name the document publishes and is not itself a name it
+    publishes. That last clause is what keeps a correctly-published ``Length``
+    from reading as a truncation of ``Length of Cut``.
     """
     assert len(flat_docs) > 100, "too few documents for a zero to mean anything"
 
@@ -369,12 +388,13 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
         title = doc["title"]
         assert title == title.rstrip(), f"trailing whitespace from a cut: {title!r}"
         tail = title.rsplit(",", 1)[-1].strip()
-        # A tail that is a strict prefix of an attribute name this document
-        # publishes is the truncation signature the reference corpus shows --
-        # "Dia./Thread Siz" for "Dia./Thread Size", "Number of Flut" for
-        # "Number of Flutes".
-        for name in doc["attribute_names"]:
-            if tail and name.startswith(tail) and name != tail and len(tail) > 4:
+        published = set(doc["attribute_names"])
+        words = tail.split()
+        for start in range(len(words)):
+            candidate = " ".join(words[start:])
+            if len(candidate) <= 4 or candidate in published:
+                continue
+            if any(name.startswith(candidate) and name != candidate for name in published):
                 cut.append(title)
                 break
 
@@ -440,3 +460,64 @@ def test_an_over_long_title_sheds_a_whole_segment_rather_than_being_cut() -> Non
 
     tight = build_title(item, segments, cap=len(item) + 1)
     assert tight.text == item, "shedding stops at the item, which names the product"
+
+
+def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
+    """The counterfactual the segment rule exists to remove, MEASURED.
+
+    ``test_no_title_is_cut_mid_word`` asserts a zero, and a zero is only worth
+    something if the thing it counts was ever non-zero. This reconstructs the
+    PRE-#9284 behaviour on the catalog this package generates today -- assemble
+    every segment, slice at the cap -- and counts the titles that land inside a
+    word.
+
+    THE FIGURE THIS REPLACES DID NOT REPRODUCE. The docstrings carried "97 of
+    4,688"; 4,688 is the PREVIOUS generation's document count and 97 is not the
+    mid-word count of either generation. Reconstructed here it is 67 of 4,689,
+    and stating it as a test rather than as prose is what stops the next
+    regeneration inheriting a number nobody can re-derive.
+
+    The reconstruction spies on ``build_title`` rather than reimplementing the
+    grammar: the segments and the delimiters are the production ones, and only
+    the trimming rule is the old one.
+    """
+    from synthetic_industrial_products.catalog import generate as generate_module
+
+    real = generate_module.build_title
+    assembled: dict[str, tuple[str, int]] = {}
+
+    def spy(item, segments, *, cap=100, tight_delimiter_at=None):
+        pieces = [item]
+        for index, segment in enumerate(segments):
+            delimiter = TIGHT_DELIMITER if index == tight_delimiter_at else DELIMITER
+            pieces.append(delimiter + segment.text())
+        title = real(item, segments, cap=cap, tight_delimiter_at=tight_delimiter_at)
+        assembled.setdefault(title.text, ("".join(pieces), cap))
+        return title
+
+    generate_module.build_title = spy
+    try:
+        catalog = generate_module.generate()
+    finally:
+        generate_module.build_title = real
+
+    documents = [child for line in catalog.lines for child in line.children]
+    assert len(documents) == 4689
+    assert len(assembled) > 100, "the spy recorded nothing; the reconstruction is broken"
+
+    word = set(string.ascii_letters + string.digits + './"-')
+    over_cap = mid_word = 0
+    for document in documents:
+        full, cap = assembled[document.title]
+        if len(full) <= cap:
+            continue
+        over_cap += 1
+        if full[cap - 1] in word and full[cap] in word:
+            mid_word += 1
+
+    assert over_cap == 90, f"{over_cap} titles exceed the cap, not 90"
+    assert mid_word == 67, (
+        f"the cap cut would land inside a word on {mid_word} titles, not 67. "
+        "If the catalog moved, restate the figure in build_title's docstring "
+        "and in test_no_title_is_cut_mid_word with it."
+    )
