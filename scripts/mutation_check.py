@@ -785,23 +785,29 @@ MUTATIONS: list[Mutation] = [
     ),
     # ---- filter_routing.hard must carry every numeric facet -------------
     Mutation(
-        "drop a numeric facet from filter_routing.hard (its slider disappears)",
+        "drop the routed range axis, so price loses its slider",
         "data/customization.yaml",
-        "    - arbor_hole_size\n",
+        "    - price\n",
         "",
         "tests/test_prism_field_map_drift.py",
         "A",
-        "every derived numeric facet is routed as a range axis",
+        "every derived range facet is routed as a range axis",
         root="src/prism_synthetic_industrial",
     ),
     Mutation(
-        "route a name the catalog does not derive as a numeric facet",
+        # Direction B is the one that is a BOOT REFUSAL rather than a missing
+        # slider: a routed name that resolves to no range axis makes Engine and
+        # Studio refuse to start (elastic/prism#7114). Since #9285 turned every
+        # dimensional attribute into a discrete list, routing one of them is
+        # exactly that mistake -- so this plants a real former entry rather
+        # than an invented name.
+        "route a discrete list as though it were a range axis",
         "data/customization.yaml",
-        "    - arbor_hole_size\n",
-        "    - arbor_hole_size\n    - not_a_catalog_attribute\n",
+        "    - price\n",
+        "    - price\n    - drive_size\n",
         "tests/test_prism_field_map_drift.py",
         "B",
-        "every derived numeric facet is routed as a range axis",
+        "every derived range facet is routed as a range axis",
         root="src/prism_synthetic_industrial",
     ),
     # ---- the structural-collision guard ---------------------------------
