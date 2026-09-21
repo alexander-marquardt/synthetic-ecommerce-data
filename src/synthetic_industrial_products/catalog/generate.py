@@ -27,10 +27,9 @@ from fractions import Fraction
 from . import series, standards, taxonomy
 from .config import GeneratorConfig
 from .formats import (
-    IMPERIAL_STYLES,
-    METRIC_STYLES,
     LengthStyle,
     UnpublishableMagnitude,
+    canonical_style,
     format_angle,
     format_length_best,
 )
@@ -51,7 +50,6 @@ from .naming import (
     abbreviate_value,
     build_title,
     states_value,
-    truncate_label,
 )
 from .taxonomy import drawing_for, image_id_for
 from .vocab import (
@@ -228,10 +226,16 @@ class Generator:
     # -- shared value helpers -------------------------------------------
 
     def _style(self, system: str) -> LengthStyle:
-        table = IMPERIAL_STYLES if system == "in" else METRIC_STYLES
-        style = _weighted(self.rng, table)
-        assert isinstance(style, LengthStyle)
-        return style
+        """The spelling for *system* -- the SAME one every time.
+
+        This used to draw from a weighted table, which is what put ``18mm``,
+        ``18.00mm``, ``18 mm`` and ``18.00 mm`` in one column of one catalog
+        and fragmented every dimensional facet roughly threefold. The draw is
+        gone rather than narrowed: a distribution with one member is still a
+        distribution, and the next person to widen it would not be breaking a
+        rule that was written down. See :mod:`.formats`.
+        """
+        return canonical_style(system)
 
     def _publish(self, inches: float, style: LengthStyle) -> str:
         try:
@@ -985,11 +989,15 @@ class Generator:
                     # in the other unit would inject a second defect class
                     # (unit mixing) as a side effect, and the two rates are
                     # measured separately.
-                    style = (
-                        LengthStyle("in", " in", "decimal", places=2)
-                        if child.system == "in"
-                        else LengthStyle("mm", "mm", "decimal", places=2)
-                    )
+                    # The record's OWN system, in the catalog's ONE spelling
+                    # for it. This used to pick its own style -- " in" at two
+                    # decimals -- which published "2.25 in" beside the
+                    # "2-1/4"" every other row of the same column carried, and
+                    # split that size across two facet buckets. The DEFECT
+                    # here is the value (a cut longer than the tool); its
+                    # spelling was never part of it. Keep the bad value, drop
+                    # the bad spelling (elastic/prism#9284).
+                    style = canonical_style(child.system)
                     out[loc_index] = length_attribute(loc.name, self._publish(inflated, style))
                     self._bump("defect_loc_exceeds_oal")
 
@@ -1007,11 +1015,10 @@ class Generator:
             if rng.random() < cfg.scaled_defect(cfg.unit_mixing_within_record):
                 index = rng.choice(dimension_indexes)
                 other = "mm" if child.system == "in" else "in"
-                style = (
-                    LengthStyle("mm", "mm", "decimal", places=2)
-                    if other == "mm"
-                    else LengthStyle("in", '"', "decimal", places=4)
-                )
+                # The OTHER system, in that system's one canonical spelling.
+                # The defect is that this row is in the wrong unit for its
+                # record -- not that it is spelled unusually within that unit.
+                style = canonical_style(other)
                 attribute = out[index]
                 assert attribute.value_num is not None
                 out[index] = length_attribute(
@@ -1097,46 +1104,19 @@ class Generator:
             if end is not None:
                 segments.append(Segment(value=f"{abbreviate_value(end.value)} Sq End", label=None))
 
-        # A label cut off where the title hits its cap.
-        if segments and rng.random() < cfg.scaled_defect(cfg.title_label_truncation):
-            # The cut lands on the LAST LABELLED segment. Looking only at the
-            # final segment misses every title that ends in a bare descriptor,
-            # which is most of them, and drove the truncation rate an order of
-            # magnitude below its target.
-            # The measured signature is that the label is a strict prefix of
-            # the ATTRIBUTE NAME it resolved to -- "Milling Di" for
-            # "Milling Dia.", "Neck L" for "Neck Length". So the cut is taken
-            # from the full name, not from whatever abbreviation the segment
-            # happened to be carrying: cutting a two-character "FL" leaves
-            # nothing, and requiring a long enough abbreviation made most
-            # titles ineligible and halved the rate.
-            eligible = [
-                i
-                for i, seg in enumerate(segments)
-                if seg.attribute and seg.label is not None and len(seg.attribute) > 4
-            ]
-            if not eligible:
-                # The roll fired on a title carrying no label to cut. Rather
-                # than drop it -- which silently conditioned the 3.23% on
-                # "titles that happen to have a label", and delivered 2.2% --
-                # the segment that WOULD have carried a label gets one, and
-                # that is what the cap cuts through. A truncated title is by
-                # definition one where a label was present and got cut.
-                eligible = [
-                    i for i, seg in enumerate(segments) if seg.attribute and len(seg.attribute) > 4
-                ]
-            if eligible:
-                index = eligible[-1]
-                target = segments[index]
-                assert target.attribute is not None
-                keep = len(target.attribute) - rng.randint(1, 3)
-                segments[index] = Segment(
-                    value=target.value,
-                    label=truncate_label(target.attribute, keep),
-                    attribute=target.attribute,
-                    truncated=True,
-                )
-                self._bump("title_label_truncated")
+        # NO label is cut off here any more. This block used to fire at the
+        # measured 3.23% and publish titles ending "Dia./Thread Siz" or
+        # "Number of Flut". The customer's real titles carry none of it --
+        # measured 24/24 clean on the scraped sample -- so it was a defect
+        # class we invented, and it reads to a viewer as our rendering bug
+        # rather than as a fact about catalog data. Removed by the ruling on
+        # elastic/prism#9284, which is the same call already made for missing
+        # product images: reproduce the defects the demo is meant to EXPOSE,
+        # not the ones that merely make it look unfinished.
+        #
+        # ``truncate_label`` and ``Segment.truncated`` stay in naming.py: the
+        # honest-rendering property they exist for is now proven by a test
+        # fixture (elastic/prism#9288) rather than by shipped catalog data.
 
         tight = rng.randrange(len(segments)) if segments and rng.random() < 0.18 else None
         return build_title(

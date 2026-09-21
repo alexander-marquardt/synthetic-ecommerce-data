@@ -341,3 +341,102 @@ def test_the_description_is_derived_and_not_a_second_source_of_truth(
         f"{len(mismatched)} description fragment(s) state a value the record does "
         f"not publish: {mismatched[:5]}"
     )
+
+
+def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
+    """Every title ends on a whole segment, not half a label.
+
+    Two mechanisms used to cut a title and BOTH had to go, which is the point
+    of asserting on the finished string rather than on either of them:
+
+    * the generator deliberately truncated a label at a measured 3.23% --
+      removed by the ruling on elastic/prism#9284;
+    * ``build_title`` cut the assembled string at the 100-character cap,
+      which lands mid-word. Measured on the default catalog BEFORE that was
+      changed: 97 of 4,688 titles, ending ``...Solid Carbide, U`` or
+      ``...SGL Sq En``. Removing only the first would have left those 97 in
+      place while the change reported that truncation was gone.
+
+    The assertion is therefore on the published text: a title may not end
+    part-way through the final segment it publishes. The denominator is
+    asserted first, because "no truncated titles" and "no titles" produce the
+    same count.
+    """
+    assert len(flat_docs) > 100, "too few documents for a zero to mean anything"
+
+    cut: list[str] = []
+    for doc in flat_docs:
+        title = doc["title"]
+        assert title == title.rstrip(), f"trailing whitespace from a cut: {title!r}"
+        tail = title.rsplit(",", 1)[-1].strip()
+        # A tail that is a strict prefix of an attribute name this document
+        # publishes is the truncation signature the reference corpus shows --
+        # "Dia./Thread Siz" for "Dia./Thread Size", "Number of Flut" for
+        # "Number of Flutes".
+        for name in doc["attribute_names"]:
+            if tail and name.startswith(tail) and name != tail and len(tail) > 4:
+                cut.append(title)
+                break
+
+    assert cut == [], (
+        f"{len(cut)} of {len(flat_docs)} titles end part-way through a label, "
+        f"e.g. {cut[:3]}. A title that does not fit its cap must shed a whole "
+        f"segment, never half of one."
+    )
+
+
+def test_an_over_long_title_sheds_a_whole_segment_rather_than_being_cut() -> None:
+    """The structural form of the property above, asserted where it is decided.
+
+    The string test cannot see every cut: a title sliced at the cap often
+    lands mid-VALUE (``...Solid Carbide, U``) rather than mid-LABEL, and no
+    amount of prefix matching against attribute names finds that. Measured --
+    the string test alone left the "cut at the cap" mutation GREEN, which is
+    why both exist rather than one.
+
+    So this asserts the invariant itself, on the function that decides it: the
+    result is EXACTLY the item plus some whole-segment prefix, joined the way
+    the title joins them. A string cut at the cap is a slice of that and
+    matches no prefix.
+
+    Both directions are covered here: a title that fits keeps every segment,
+    and one that does not sheds from the end until it does. Without the first
+    assertion a ``build_title`` that dropped everything would also pass.
+    """
+    from synthetic_industrial_products.catalog.naming import (
+        DELIMITER,
+        Segment,
+        build_title,
+    )
+
+    item = "Solid Carbide Square End Mill"
+    segments = tuple(
+        Segment(value=f'{n}/16"', label="Milling Dia.", attribute="Milling Dia.")
+        for n in range(1, 12)
+    )
+
+    def prefixes() -> list[str]:
+        out = []
+        for keep in range(len(segments) + 1):
+            pieces = [item] + [DELIMITER + seg.text() for seg in segments[:keep]]
+            out.append("".join(pieces))
+        return out
+
+    whole = prefixes()
+
+    roomy = build_title(item, segments, cap=10_000)
+    assert roomy.text == whole[-1], "a title that fits must keep every segment"
+    assert not roomy.truncated
+
+    for cap in (40, 60, 80, 100, 140):
+        title = build_title(item, segments, cap=cap)
+        assert title.text in whole, (
+            f"at cap {cap} the title {title.text!r} is not a whole-segment "
+            f"prefix of what it was assembled from -- it was cut"
+        )
+        assert len(title.text) <= cap or title.text == item, (
+            f"at cap {cap} the title is {len(title.text)} characters"
+        )
+
+    tight = build_title(item, segments, cap=len(item) + 1)
+    assert tight.text == item, "shedding stops at the item, which names the product"

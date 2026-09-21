@@ -13,10 +13,11 @@ import math
 import pytest
 
 from synthetic_industrial_products.catalog.formats import (
-    IMPERIAL_STYLES,
-    METRIC_STYLES,
+    IMPERIAL_CANONICAL,
+    METRIC_CANONICAL,
     LengthStyle,
     UnpublishableMagnitude,
+    canonical_style,
     format_angle,
     format_length,
     format_length_best,
@@ -66,25 +67,26 @@ def _tolerance_inches(text: str, style: LengthStyle) -> float:
 
 
 @pytest.mark.parametrize("inches", SERIES_INCHES)
-@pytest.mark.parametrize("style,_weight", IMPERIAL_STYLES)
-def test_every_imperial_style_round_trips(inches: float, style: LengthStyle, _weight: float):
+@pytest.mark.parametrize("style", [IMPERIAL_CANONICAL, METRIC_CANONICAL])
+def test_the_canonical_spelling_round_trips(inches: float, style: LengthStyle):
     text = format_length_best(inches, style)
-    if style.unitless:
-        # A unitless value is ambiguous by construction and the parser is
-        # right to refuse it; that is the point of the unitless case.
-        with pytest.raises(DimensionParseError):
-            parse_length(text)
-        return
     tolerance = _tolerance_inches(text, style)
     assert math.isclose(parse_length(text).inches, inches, rel_tol=0, abs_tol=tolerance), text
 
 
-@pytest.mark.parametrize("inches", SERIES_INCHES)
-@pytest.mark.parametrize("style,_weight", METRIC_STYLES)
-def test_every_metric_style_round_trips(inches: float, style: LengthStyle, _weight: float):
-    text = format_length_best(inches, style)
-    tolerance = _tolerance_inches(text, style)
-    assert math.isclose(parse_length(text).inches, inches, rel_tol=0, abs_tol=tolerance), text
+@pytest.mark.parametrize("style", [IMPERIAL_CANONICAL, METRIC_CANONICAL])
+def test_the_canonical_spelling_is_never_unitless(style: LengthStyle):
+    """A unitless value is ambiguous by construction, and the parser refuses it.
+
+    The old weighted table carried two unitless imperial styles at a combined
+    0.04, so roughly one dimension in twenty-five was published as a bare
+    ``4-1/2`` -- 4-1/2 of what? Whatever else the canonical spelling is, it
+    cannot be that, and this is the assertion that says so rather than leaving
+    it to be read off the constant.
+    """
+    assert not style.unitless
+    with pytest.raises(DimensionParseError):
+        parse_length(format_length_best(0.375, LengthStyle(style.system, "", style.shape)))
 
 
 def test_a_lossy_spelling_is_detectable_rather_than_silent():
@@ -161,7 +163,52 @@ def test_angles_carry_their_unit_word():
     assert format_angle(38.0) == "38 Degrees"
 
 
-def test_style_weights_are_a_distribution():
-    for styles in (IMPERIAL_STYLES, METRIC_STYLES):
-        total = sum(weight for _, weight in styles)
-        assert math.isclose(total, 1.0, abs_tol=1e-9), total
+def test_one_magnitude_yields_exactly_one_string_per_system():
+    """The whole point of the canonical spelling, asserted on the output.
+
+    Not "the table has one row" -- that is the WIRING. This asks what the
+    formatter actually PRODUCES: feed every series magnitude through the
+    canonical style many times and count the distinct strings. A magnitude
+    that can be spelled two ways is a facet bucket that splits in two.
+
+    The counts are the assertion. One string per magnitude per system, so the
+    distinct-string total equals the distinct-magnitude total exactly; a
+    formatter that varied its spelling would exceed it and a formatter that
+    collapsed two magnitudes onto one string would fall short.
+    """
+    for style in (IMPERIAL_CANONICAL, METRIC_CANONICAL):
+        produced = {inches: set() for inches in SERIES_INCHES}
+        for _ in range(25):
+            for inches in SERIES_INCHES:
+                produced[inches].add(format_length_best(inches, style))
+        per_magnitude = {inches: len(texts) for inches, texts in produced.items()}
+        assert set(per_magnitude.values()) == {1}, per_magnitude
+        all_strings = {next(iter(texts)) for texts in produced.values()}
+        assert len(all_strings) == len(SERIES_INCHES), sorted(all_strings)
+
+
+def test_the_canonical_spellings_are_the_ones_the_corpus_writes():
+    """Pin the actual strings, because "one spelling" does not say WHICH.
+
+    These are the shapes measured in ``07_value_format_variation.json``: the
+    inch double-prime on the tidiest exact fraction, and the millimetre
+    written as the corpus writes it -- ``6mm`` whole, ``12.70mm`` otherwise.
+    A magnitude off the 1/64 ladder has no fraction and falls to a decimal
+    rather than being rounded onto a size the product does not have.
+    """
+    assert format_length_best(0.75, IMPERIAL_CANONICAL) == '3/4"'
+    assert format_length_best(1.5, IMPERIAL_CANONICAL) == '1-1/2"'
+    assert format_length_best(3.0, IMPERIAL_CANONICAL) == '3"'
+    assert format_length_best(0.021, IMPERIAL_CANONICAL) == '0.0210"'
+    assert format_length_best(6.0 / 25.4, METRIC_CANONICAL) == "6mm"
+    assert format_length_best(12.7 / 25.4, METRIC_CANONICAL) == "12.70mm"
+
+
+def test_an_undeclared_unit_system_is_refused_not_guessed():
+    """``canonical_style`` has no default, and that is deliberate.
+
+    Returning the imperial spelling for an unknown system would publish a
+    catalog of inches labelled as something else, silently.
+    """
+    with pytest.raises(ValueError, match="no canonical spelling"):
+        canonical_style("cubits")

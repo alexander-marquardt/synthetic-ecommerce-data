@@ -212,24 +212,49 @@ def build_title(
     cap: int = 100,
     tight_delimiter_at: int | None = None,
 ) -> Title:
-    """Join the segments, then cut the result at the length cap.
+    """Join the segments, dropping whole trailing ones to stay under the cap.
 
-    Cutting is done on the assembled string, which is how the reference
-    titles acquire their truncated labels -- two of them land on exactly 100
-    characters mid-word. The cut is not applied to the segment list, so the
-    structured record still knows what the title was trying to say.
+    The cap is real -- a title has a budget and the reference corpus shows
+    titles written to one. What changed with the ruling on elastic/prism#9284
+    is WHERE the budget is taken from. This used to cut the assembled string
+    at the cap, which lands mid-word: measured on the default catalog, 97 of
+    4,688 titles ended ``...Solid Carbide, U`` or ``...SGL Sq En``. That is
+    the same defect class as the label truncation removed from the generator,
+    arriving by a second door, and removing only the first would have left
+    2.07% of titles truncated while the change claimed none were.
+
+    So a title that does not fit sheds its LAST SEGMENT, and then the one
+    before it, until it fits. Every segment that survives is whole, which is
+    what the customer's own titles look like -- the grammar drops the least
+    identifying attribute rather than publishing half of it. The item segment
+    is never dropped: a title has to name the product, and one that cannot do
+    that inside the cap is a genuine refusal rather than something to trim to
+    nothing.
+
+    The cut is not applied to the segment LIST, so the structured record still
+    knows what the title was trying to say.
     """
     if not item:
         raise TitleError("a title needs an ITEM segment")
-    pieces = [item]
-    for index, segment in enumerate(segments):
-        delimiter = TIGHT_DELIMITER if index == tight_delimiter_at else DELIMITER
-        pieces.append(delimiter + segment.text())
-    text = "".join(pieces)
 
-    truncated = any(segment.truncated for segment in segments)
+    def assemble(keep: int) -> str:
+        pieces = [item]
+        for index, segment in enumerate(segments[:keep]):
+            delimiter = TIGHT_DELIMITER if index == tight_delimiter_at else DELIMITER
+            pieces.append(delimiter + segment.text())
+        return "".join(pieces)
+
+    kept = len(segments)
+    text = assemble(kept)
+    while kept > 0 and len(text) > cap:
+        kept -= 1
+        text = assemble(kept)
+
+    truncated = any(segment.truncated for segment in segments[:kept])
     if len(text) > cap:
-        text = text[:cap].rstrip()
+        # Only reachable when the ITEM alone exceeds the cap. Nothing is cut
+        # mid-word to hide it: the title is published whole and flagged, so a
+        # reader meets an over-long title rather than a mutilated one.
         truncated = True
     return Title(
         item=item,
