@@ -690,7 +690,7 @@ def test_the_channel_sweeps_skip_only_where_the_vocabulary_has_no_channel():
 def test_the_full_catalog_really_is_the_one_the_issue_measured():
     """Guards the two tests above: they are about a 500-line catalog, not any catalog."""
     assert len(FULL_LINES) == 500
-    assert FULL_CATALOG.sku_count == 4688
+    assert FULL_CATALOG.sku_count == 4689
     assert len({line["image_id"] for line in FULL_LINES}) == 500
 
 

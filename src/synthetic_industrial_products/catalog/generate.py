@@ -1009,7 +1009,20 @@ class Generator:
 
         # Class 3: unit mixing inside one record -- one dimension published in
         # the other system.
-        dimension_indexes = [i for i, a in enumerate(out) if a.value_num is not None]
+        # LENGTHS only. "Unit mixing" is a record describing itself in two
+        # measurement systems; a grit number, a flute count or an ounce weight
+        # is in neither, and moving one produced "Grit: 1524mm" -- not a
+        # modelled defect class, just a wrong value in a column that has no
+        # measurement system to mix. Measured before this: 2 of the 6 Grit
+        # values and 1 of the 8 Head Weight values were millimetre strings.
+        length_names = {
+            spec.name for specs in VOCAB.values() for spec in specs if spec.kind == "length"
+        }
+        dimension_indexes = [
+            i
+            for i, a in enumerate(out)
+            if a.value_num is not None and a.name in length_names
+        ]
         if len(dimension_indexes) >= 2:
             self._bump("eligible_unit_mixing")
             if rng.random() < cfg.scaled_defect(cfg.unit_mixing_within_record):

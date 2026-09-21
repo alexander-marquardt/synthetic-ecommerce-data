@@ -54,7 +54,7 @@ GOLDEN_FILES = (
 )
 
 LINES = 500
-SKUS = 4688
+SKUS = 4689
 
 
 def _sha256(path: Path) -> str:
