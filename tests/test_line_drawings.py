@@ -64,7 +64,7 @@ SMALL_LINES = list(emit.iter_nested(SMALL_CATALOG))
 SMALL_FLAT = list(emit.iter_flat(SMALL_CATALOG))
 
 #: The shipped catalog, whose collision count the issue states exactly. Built
-#: once: it is 500 lines and 4,662 SKUs.
+#: once: it is 500 lines and 4,689 SKUs.
 FULL_CATALOG = generate(GeneratorConfig())
 FULL_LINES = list(emit.iter_nested(FULL_CATALOG))
 

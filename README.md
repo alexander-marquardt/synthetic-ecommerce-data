@@ -282,9 +282,9 @@ them here would hide the problem a field map exists to solve.
 
 | file | |
 |---|---|
-| `flat.jsonl` | 13.6 MB — 4,662 SKU documents |
+| `flat.jsonl` | 13.6 MB — 4,689 SKU documents |
 | `nested.jsonl` | 5.3 MB — 500 product lines, nested variants and key-value attributes |
-| `render.jsonl` | 2.0 MB — the same 4,662 SKUs for the per-record dimensioned renderer |
+| `render.jsonl` | 2.0 MB — the same 4,689 SKUs for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
 | `images.jsonl` | the 500 drawings — one per product line — and how many products point at each |
 | `stats.json` | the measured defect rates, and the config that produced them |
@@ -330,10 +330,10 @@ difference means the second, and the golden files must not be updated until it
 is found. The test's failure message says all of this too, with the commands.
 
 Alongside the hashes, the same test asserts the headline numbers directly
-against the committed files — 4,662 SKU documents over 500 distinct
+against the committed files — 4,689 SKU documents over 500 distinct
 `product_id`, a non-empty `image_url` and `image_detail_url` on every product
 line, variant and flat document, and 500 nested lines whose variant counts sum
-to 4,662. Those hold independently of the generator, so a careless
+to 4,689. Those hold independently of the generator, so a careless
 regenerate-and-commit from a broken build is still red.
 
 ## Serving it with PRISM
@@ -625,19 +625,28 @@ default 500-line catalog:
 
 | product type | variants | drawn to scale | |
 |---|---|---|---|
-| `washer_flat` | 240 | 100% | ISO 7089 publishes all three dimensions on every size |
-| `screw_button_head` | 270 | 100% | |
-| `screw_low_head` | 204 | 100% | |
-| `bolt_hex` | 424 | 98% | |
-| `screw_flat_head` | 379 | 98% | |
-| `screw_socket_head` | 671 | 97% | |
-| `abrasive_flap_disc` | 144 | 85% | `Disc Dia.` sometimes published without a unit |
-| `end_mill_ball` | 441 | 66% | |
-| `end_mill_square` | 786 | 64% | |
-| `tap_spiral_point` | 326 | 39% | |
-| `drill_jobber` | 627 | 22% | `Shank Dia.` is published on 43% of them |
-| `hammer_ball_pein` | 150 | 0% | see below |
-| **all** | **4,662** | **71%** | 840 missing an attribute, 181 unreadable, 160 self-contradictory, 150 hammers |
+| `bolt_hex` | 471 | 100% | |
+| `screw_button_head` | 294 | 100% | |
+| `screw_flat_head` | 370 | 100% | |
+| `screw_low_head` | 190 | 100% | |
+| `screw_socket_head` | 702 | 100% | |
+| `washer_flat` | 247 | 100% | ISO 7089 publishes all three dimensions on every size |
+| `abrasive_flap_disc` | 147 | 90% | `Disc Dia.` sometimes published without a unit |
+| `end_mill_ball` | 445 | 65% | |
+| `end_mill_square` | 748 | 65% | |
+| `tap_spiral_point` | 292 | 43% | |
+| `drill_jobber` | 632 | 24% | `Shank Dia.` is published on 43% of them |
+| `hammer_ball_pein` | 151 | 0% | see below |
+| **all** | **4,689** | **73.7%** | 890 missing an attribute, 171 self-contradictory, 151 hammers, 21 unreadable |
+
+Every row of that table moved with the 2026-09-21 regeneration and none of
+them had been re-measured: it read 4,662 variants at 71%, with the five
+fastener types between 97% and 100%. **The five fasteners are now all 100%**,
+and the reason is the regeneration itself — one spelling per magnitude left no
+dimension the parser cannot read, so `DimensionParseError` fell from 181 to 21
+and the refusals that remain are absences and contradictions rather than
+spellings. The figures above are measured on the committed `render.jsonl`
+through the production `draw_record`.
 
 A record the dimensioned renderer refuses falls back to its generic drawing, so
 a refusal costs the scale, never the image.
@@ -700,6 +709,65 @@ Two profiles, both sized from where the image is displayed:
 Tools are drawn standing up, shank above and cutting end below. That is how
 the industry draws them, and it is the only orientation in which a long thin
 tool fills a portrait card instead of floating in the middle of it.
+
+### Publishing them, and the gate that couples the two
+
+A regeneration mints new product ids, so new image ids, so a new set of URLs —
+and the previous generation's files keep resolving while not one record points
+at them any more. Publishing is therefore **part of a regeneration, not a
+separate errand**, and the order matters:
+
+```sh
+# 1. render every line at both profiles, from the committed catalog
+uv run python scripts/render_catalog.py golden-catalog --out out/images
+
+# 2. publish, from a checkout of the asset host
+python3 scripts/import_industrial_images.py \
+    --manifest <this repo>/golden-catalog/images.jsonl \
+    --images   <this repo>/out/images
+# then commit and push; the host deploys from `main`
+
+# 3. only now land the catalog
+uv run python scripts/verify_published_assets.py
+```
+
+`scripts/verify_published_assets.py` is step 3's gate and it runs in CI. It
+compares the **whole** set of files `images.jsonl` publishes against the file
+list of the host repository, fetched in one git-trees request, and exits
+non-zero if any referenced file is absent. A regeneration PR stays red until
+its drawings are live.
+
+**That coupling did not exist, and its absence shipped.** The 2026-09-21
+regeneration went green with 499 of its 500 image ids dead on the host —
+4,680 of 4,689 products rendering a broken image placeholder — because every
+check on either side of the seam was looking at its own half. `render_catalog.py`
+audits the files a render run just wrote, which says nothing about what is
+published; the host's tests audit the site build, which says nothing about what
+the catalog references.
+
+**And the cheap version of this check would have passed it.** One image per
+product type is the obvious sample, and the one id that survived the
+regeneration was an `end_mill_square` — the first type a sampler reaches. It
+would have reported `end_mill_square` healthy and eleven types dead, against a
+truth of 499 ids dead out of 500. So the check is a set comparison, and
+`tests/test_published_asset_gate.py` reconstructs that exact state and shows
+the sample passing it while the set comparison fails.
+
+Two things the gate deliberately does **not** do:
+
+* **It does not fail on hosted files nothing references.** Earlier generations
+  are kept on the host on purpose: the documented rollback for a catalog change
+  is to revert it, which re-binds the previous generation's index, and those
+  records point at those files. Pruning them would trade one broken demo for
+  another.
+* **It does not sweep the URLs over HTTP by default.** The host is GitHub Pages
+  behind a CDN and it answers a concurrent sweep with 404s for files that
+  exist: measured, a 16-way `HEAD` sweep of these 1,000 URLs returned 998 404s
+  and 2 200s against a host that was *already* serving every file present, and
+  fetching the same URLs one at a time agreed with the repository listing
+  exactly. A prober that was believed would report a catastrophe on a healthy
+  host. `--probe-http` keeps the serialised version for confirming a publish by
+  hand.
 
 ### What the renderer will not do
 

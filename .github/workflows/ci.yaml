@@ -1,0 +1,60 @@
+name: CI
+
+# This repository had no CI at all, which is how a regeneration came to mint
+# 500 new image ids, commit them, and ship a catalog whose drawings were never
+# published -- 4,680 of 4,689 products rendering a broken image. The README
+# already told a contributor that "the CI red tells you which one you forgot".
+# There was no CI to go red.
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      # `ruff check` only. `ruff format --check .` reds on 12 files that were
+      # already in the tree before this workflow existed; wiring it in here
+      # would mean reformatting them inside a change about published images,
+      # so it is left for its own commit rather than quietly dropped -- the
+      # gap is real and this comment is where it is recorded.
+      - name: Lint
+        run: uv run ruff check .
+      # The golden comparison lives in here: tests/test_catalog_golden.py
+      # rebuilds the catalog and compares every committed file by sha256, so a
+      # generator change landed without its regeneration is red.
+      - name: Tests
+        run: uv run pytest
+
+  published-assets:
+    # Every drawing the committed catalog references must ALREADY be on the
+    # asset host. This is the coupling whose absence shipped the broken
+    # catalog: the render audit measures the files a render run just wrote and
+    # the host's tests measure the site build, so a catalog could be generated,
+    # committed and served while nothing it points at existed.
+    #
+    # It is a set comparison over all 1,000 files, not a sample. One image per
+    # product type is exactly the shape that passed the real defect: the single
+    # id that survived the regeneration was an end_mill_square.
+    #
+    # A red here means: render and publish first, then land the catalog.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Every referenced drawing is on the asset host
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/verify_published_assets.py --token "$GITHUB_TOKEN"
