@@ -540,23 +540,60 @@ MUTATIONS: list[Mutation] = [
         "B",
         "the angle defect occurs at its measured rate",
     ),
+    # ---- no title label is truncated, both directions --------------------
+    # The property inverted with the ruling on elastic/prism#9284: titles used
+    # to be truncated AT a measured rate and are now truncated at none. Only
+    # direction A can plant truncation -- there is no code left to disable --
+    # so B mutates the ASSERTION instead of the generator, which is the only
+    # way to show the test is not vacuous on a catalog that contains no
+    # truncation at all. Without B, a test asserting 0 on data that is 0 for
+    # an unrelated reason would look exactly like a test that bites.
     Mutation(
-        "never truncate a title label",
-        "catalog/generate.py",
-        "        if segments and rng.random() < cfg.scaled_defect(cfg.title_label_truncation):",
-        "        if False:",
-        "tests/test_catalog_generate.py",
+        "cut an over-long title at the cap mid-word instead of shedding a segment",
+        "catalog/naming.py",
+        "    kept = len(segments)\n"
+        "    text = assemble(kept)\n"
+        "    while kept > 0 and len(text) > cap:\n"
+        "        kept -= 1\n"
+        "        text = assemble(kept)",
+        "    kept = len(segments)\n    text = assemble(kept)[:cap].rstrip()",
+        "tests/test_catalog_titles.py -k 'mid_word or sheds'",
         "A",
-        "title labels are truncated at the measured rate",
+        "no title label is truncated",
     ),
     Mutation(
-        "truncate every title label",
-        "catalog/generate.py",
-        "        if segments and rng.random() < cfg.scaled_defect(cfg.title_label_truncation):",
-        "        if segments:",
-        "tests/test_catalog_generate.py",
+        "stop counting titles, so the zero-truncation rate has an empty denominator",
+        "catalog/measure.py",
+        "            titles += 1",
+        "            titles += 0",
+        "tests/test_catalog_generate.py -k truncated",
         "B",
-        "title labels are truncated at the measured rate",
+        "no title label is truncated",
+    ),
+    # ---- one spelling per magnitude, both directions ----------------------
+    # The defect this guards is the one that made a discrete facet
+    # unshippable: 147 published strings for 53 drive sizes. Both directions
+    # re-introduce a SECOND spelling -- A by varying the metric shape, B by
+    # varying the imperial suffix -- because a single spelling is the whole
+    # property and a test that only caught one system would leave the other
+    # free to fragment.
+    Mutation(
+        "spell a whole number of millimetres two ways",
+        "catalog/formats.py",
+        'METRIC_CANONICAL = LengthStyle("mm", "mm", "integer")',
+        'METRIC_CANONICAL = LengthStyle("mm", "mm", "decimal", places=2)',
+        "tests/test_catalog_coverage.py -k one_spelling",
+        "A",
+        "one magnitude has one spelling",
+    ),
+    Mutation(
+        "publish imperial dimensions with a trailing 'in' instead of the double-prime",
+        "catalog/formats.py",
+        'IMPERIAL_CANONICAL = LengthStyle("in", \'"\', "fraction")',
+        'IMPERIAL_CANONICAL = LengthStyle("in", " in", "fraction")',
+        "tests/test_catalog_formats.py -k canonical_spellings_are_the_ones",
+        "B",
+        "one magnitude has one spelling",
     ),
     Mutation(
         "never leave a title dimension token unlabelled",
@@ -817,9 +854,9 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "blank one card image url in the committed catalog",
         "flat.jsonl",
-        'ice_usd": 13.44, "stock": 17, "image_id": "end_mill_square/OST-K663-0001", '
+        'ice_usd": 8.74, "stock": 36, "image_id": "end_mill_square/OST-K663-0001", '
         '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png"',
-        'ice_usd": 13.44, "stock": 17, "image_id": "end_mill_square/OST-K663-0001", '
+        'ice_usd": 8.74, "stock": 36, "image_id": "end_mill_square/OST-K663-0001", '
         '"image_url": ""',
         "tests/test_catalog_golden.py::test_every_flat_document_carries_an_image_url",
         "A",
@@ -829,10 +866,10 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop the detail image url from one committed nested variant",
         "nested.jsonl",
-        '"price_usd": 13.44, "stock": 17, "image_id": "end_mill_square/OST-K663-0001", '
+        '"price_usd": 8.74, "stock": 36, "image_id": "end_mill_square/OST-K663-0001", '
         '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png", '
         '"image_detail_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/detail.png"',
-        '"price_usd": 13.44, "stock": 17, "image_id": "end_mill_square/OST-K663-0001", '
+        '"price_usd": 8.74, "stock": 36, "image_id": "end_mill_square/OST-K663-0001", '
         '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png"',
         "tests/test_catalog_golden.py::test_every_nested_line_and_variant_carries_an_image_url",
         "B",
@@ -842,18 +879,18 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "duplicate a sku in the committed flat catalog",
         "flat.jsonl",
-        '{"sku": "19XN98", "product_id": "OST-K663-0001"',
+        '{"sku": "97NR28", "product_id": "OST-K663-0001"',
         '{"sku": "80FY44", "product_id": "OST-K663-0001"',
         "tests/test_catalog_golden.py::test_flat_holds_one_document_per_sku",
         "",
-        "flat.jsonl is 4,662 documents and 4,662 distinct skus",
+        "flat.jsonl is 4,688 documents and 4,688 distinct skus",
         root="golden-catalog",
     ),
     Mutation(
         "point one committed document at a product line that does not exist",
         "flat.jsonl",
-        '{"sku": "19XN98", "product_id": "OST-K663-0001"',
-        '{"sku": "19XN98", "product_id": "OST-K663-9999"',
+        '{"sku": "97NR28", "product_id": "OST-K663-0001"',
+        '{"sku": "97NR28", "product_id": "OST-K663-9999"',
         "tests/test_catalog_golden.py::test_flat_covers_exactly_the_product_lines",
         "",
         "the catalog spans exactly 500 product lines",
@@ -862,8 +899,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "publish a variant_count that disagrees with its own variants array",
         "nested.jsonl",
-        '"variant_count": 9, "variants": [{"sku": "19XN98", "title": "Osterlund High Sp',
-        '"variant_count": 10, "variants": [{"sku": "19XN98", "title": "Osterlund High Sp',
+        '"variant_count": 9, "variants": [{"sku": "97NR28", "title": "High Speed Steel Sq',
+        '"variant_count": 10, "variants": [{"sku": "97NR28", "title": "High Speed Steel Sq',
         "tests/test_catalog_golden.py::test_nested_lines_account_for_every_sku",
         "",
         "the nested lines account for every sku",
@@ -1177,24 +1214,31 @@ MUTATIONS: list[Mutation] = [
         "B",
         "one thread size is not locked to one grading or one finish",
     ),
-    # ---- the metric spelling the policy bridges, both directions ----------
+    # ---- the control follows CONTINUITY, not numeracy, both directions ----
+    # The defect on each side is a real one somebody could write. A restores
+    # the old rule -- numbers get a slider -- and publishes a range over 53
+    # standard hex-key sizes. B pushes the threshold past every attribute so
+    # nothing is ever a range, which would break the grocery catalog this rule
+    # has to serve next (elastic/prism#9290) while leaving this catalog's
+    # output unchanged -- so it is deliberately a mutation that THIS catalog's
+    # data cannot reveal, and the test has to bite on the rule itself.
     Mutation(
-        "publish metric dimensions to no decimal places, so 25.00mm becomes 25mm",
-        "catalog/formats.py",
-        '    (LengthStyle("mm", "mm", "decimal", places=2), 0.55),',
-        '    (LengthStyle("mm", "mm", "integer"), 0.55),',
-        "tests/test_catalog_coverage.py",
+        "offer a range over any attribute whose values are numbers",
+        "prism/derive.py",
+        "            self.is_numeric\n            and self.present >= RANGE_MIN_DOCS\n            and self.dispersion >= RANGE_DISPERSION",
+        "            self.is_numeric",
+        "tests/test_facet_control_rule.py -k continuity",
         "A",
-        "the catalog still spells a 25 mm cutting diameter 25.00mm",
+        "a discrete standard set is not offered as a range",
     ),
     Mutation(
-        "publish metric dimensions to four places instead of two",
-        "catalog/formats.py",
-        '    (LengthStyle("mm", "mm", "decimal", places=2), 0.55),',
-        '    (LengthStyle("mm", "mm", "decimal", places=4), 0.55),',
-        "tests/test_catalog_coverage.py",
+        "put the continuity threshold above 1.0, so nothing is ever continuous",
+        "prism/derive.py",
+        "RANGE_DISPERSION = 0.5",
+        "RANGE_DISPERSION = 1.01",
+        "tests/test_facet_control_rule.py -k continuity",
         "B",
-        "the catalog still spells a 25 mm cutting diameter 25.00mm",
+        "a discrete standard set is not offered as a range",
     ),
     # ---- every offered fastener size reaches a line, both directions ------
     Mutation(

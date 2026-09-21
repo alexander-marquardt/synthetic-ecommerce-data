@@ -1,25 +1,47 @@
 """Publish a magnitude the way a catalog publishes it.
 
-Catalogs do not publish numbers, they publish strings, and the same magnitude
-appears as ``3/8"``, ``3/8 in``, ``0.3750"`` or ``9.53mm`` depending on which
-era of the markup produced the page and which supplier supplied the row. The
-measured corpus separates two independent choices, and this module keeps them
-independent too:
+Catalogs do not publish numbers, they publish strings. This module writes the
+string, and it writes exactly ONE string per magnitude per unit system.
 
-*unit suffix*
-    Which unit token the string ends with. Measured over the records carrying
-    a milling diameter this partitions exactly: 79 ``"``, 35 `` in``, 17 ``mm``
-    (:file:`07_value_format_variation.json`, ``by_attribute_concept``), and
-    79 + 35 + 17 = 131 = the number of such records.
+That last property is the point of this module and is easy to lose. The
+measured corpus does carry several spellings of one magnitude -- ``3/8"``
+beside ``3/8 in`` beside ``0.3750"`` -- because it is a union of feeds from
+suppliers who each made their own choice. This generator used to reproduce
+that by DRAWING a spelling at random per value, which is a different thing:
+it put three spellings of one size inside one column of one catalog, so a
+discrete facet over the published value offered 147 buckets for 49 drive
+sizes (elastic/prism#9285, measured).
 
-*magnitude shape*
-    Whether the number is written as a vulgar fraction, a mixed number, a
-    decimal or a bare integer.
+The customer's own data does not look like that. Their facet values are a
+clean ladder -- ``1/64, 1/32, 3/64, 1/16, 5/64, 3/32, 7/64, 1/8`` for
+``Mill Diameter (Inch)`` -- one spelling per value, captured in
+``square-end-mill-unfiltered.json`` and unanimous across all 23 of their
+facets. So the noise was never faithful; it was invented.
 
-Those two are tagged independently in the source statistics -- ``3/8"`` counts
-as *both* ``bare_fraction`` and ``trailing_double_quote`` -- so the shape tag
-counts in that file are NOT one exclusive distribution and must not be read as
-one. The suffix tags are exclusive, and are what this module samples.
+**The rule now: the spelling is a FUNCTION of the magnitude, not a draw.**
+Same magnitude, same system, same string, every time. Two things follow, and
+both are deliberate:
+
+*one suffix per system*
+    The modal observed suffix wins. Imperial is the inch double-prime -- 79
+    of the 131 milling-diameter records against 35 for `` in`` and 17 metric
+    (:file:`07_value_format_variation.json`, ``by_attribute_concept``).
+    Metric is ``mm`` with no space, 0.80 of the metric weight.
+
+*the tidiest shape that states the magnitude EXACTLY*
+    Already this module's own principle -- see :func:`_as_fraction` -- now
+    applied to the choice of shape as well as to the choice of denominator.
+    An inch magnitude on the 1/64 ladder is a fraction (``3/4"``) or a mixed
+    number (``1-1/2"``) or a whole number (``3"``); one that is not gets a
+    decimal (``0.0210"``). A metric magnitude is an integer (``6mm``) or a
+    two-place decimal (``12.70mm``). Nothing is rounded to reach a shape.
+
+What this is NOT is a normaliser. Nothing here rewrites a value it is handed;
+it writes a value from a number, once, cleanly. The renderer's rule that a
+published value is shown as the catalog published it
+(:meth:`dimensions.Dimension.display`) is untouched and must stay untouched:
+the fix for a fragmented facet is clean input, never a renderer that tidies.
+See elastic/prism#9284 for the ruling.
 """
 
 from __future__ import annotations
@@ -62,29 +84,31 @@ class LengthStyle:
         return self.suffix == ""
 
 
-#: The imperial styles observed, with the weights the suffix partition gives
-#: them. ``"`` outnumbers `` in`` roughly 79:35 in the milling-diameter column.
-IMPERIAL_STYLES: tuple[tuple[LengthStyle, float], ...] = (
-    (LengthStyle("in", '"', "fraction"), 0.34),
-    (LengthStyle("in", '"', "mixed"), 0.14),
-    (LengthStyle("in", '"', "decimal", places=4), 0.09),
-    (LengthStyle("in", '"', "integer"), 0.03),
-    (LengthStyle("in", " in", "fraction"), 0.15),
-    (LengthStyle("in", " in", "mixed"), 0.06),
-    (LengthStyle("in", " in", "integer"), 0.05),
-    (LengthStyle("in", "in", "fraction"), 0.06),
-    (LengthStyle("in", " in", "decimal", places=4), 0.04),
-    (LengthStyle("in", "", "fraction"), 0.02),
-    (LengthStyle("in", "", "mixed"), 0.02),
-)
+#: THE imperial spelling. Not a distribution -- one style, because one
+#: magnitude must produce one string. The shape says ``fraction`` and
+#: :func:`format_length_best` walks fraction -> mixed -> integer -> decimal,
+#: so the shape that actually lands is decided by the magnitude:
+#: ``3/4"``, ``1-1/2"``, ``3"``, ``0.0210"``.
+IMPERIAL_CANONICAL = LengthStyle("in", '"', "fraction")
 
-#: Metric styles. The corpus writes these as 3.00mm, 6mm and 12.70 mm.
-METRIC_STYLES: tuple[tuple[LengthStyle, float], ...] = (
-    (LengthStyle("mm", "mm", "decimal", places=2), 0.55),
-    (LengthStyle("mm", "mm", "integer"), 0.25),
-    (LengthStyle("mm", " mm", "decimal", places=2), 0.12),
-    (LengthStyle("mm", " mm", "integer"), 0.08),
-)
+#: THE metric spelling, on the same principle: ``integer`` first, so a whole
+#: number of millimetres is ``6mm`` and everything else falls through to the
+#: two-place decimal the corpus writes -- ``12.70mm``.
+METRIC_CANONICAL = LengthStyle("mm", "mm", "integer")
+
+
+def canonical_style(system: str) -> LengthStyle:
+    """The one spelling this catalog publishes for *system*.
+
+    A function rather than a dict lookup at the call site so that "which
+    spelling does this catalog use" has exactly one answer and one place to
+    read it.
+    """
+    if system == "in":
+        return IMPERIAL_CANONICAL
+    if system == "mm":
+        return METRIC_CANONICAL
+    raise ValueError(f"no canonical spelling declared for unit system {system!r}")
 
 
 def _as_fraction(inches: float) -> Fraction:

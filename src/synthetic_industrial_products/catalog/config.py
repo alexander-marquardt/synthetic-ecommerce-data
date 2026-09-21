@@ -103,8 +103,17 @@ class GeneratorConfig:
         }
     )
 
-    #: P1, label_truncation: 16 of 496 titles are cut at a length cap mid-label.
-    title_label_truncation: float = 0.0323
+    #: P1, label_truncation: 16 of 496 titles in the REFERENCE corpus are cut
+    #: at a length cap mid-label. **Measured and deliberately not reproduced**,
+    #: which is why it is 0.0 rather than absent -- the measurement stands, the
+    #: reproduction is declined. The customer's own titles carry no truncation
+    #: (24 of 24 clean on the scraped sample), so generating it invented a
+    #: defect class their catalog does not have; and a title reading
+    #: "Dia./Thread Siz" reads as OUR bug rather than as realism about supplier
+    #: data. Same call, same reason, as the missing product images below.
+    #: Ruling: elastic/prism#9284.
+    measured_title_label_truncation: float = 0.0323
+    title_label_truncation: float = 0.0
     #: The cap the longest observed truncations land on.
     title_length_cap: int = 100
 
