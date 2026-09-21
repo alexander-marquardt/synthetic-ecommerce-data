@@ -216,7 +216,18 @@ _SOCKET_SCREW = (
     _spec("Thread Length", "sku", kind="length"),
     _spec("Head Dia.", "sku", kind="length"),
     _spec("Head Height", "sku", kind="length"),
-    _spec("Drive Size", "sku", 0.86, kind="length"),
+    # UNCONDITIONAL, and the reason is entailment rather than taste. Every
+    # one of these records publishes ``Drive Type`` on 100% of rows -- it says
+    # the screw HAS a hex socket -- so a record omitting the size of that
+    # socket contradicts its own neighbouring attribute. Measured at 0.86 it
+    # did exactly that on 20 of the 24 M12x1.75 socket screws
+    # (elastic/prism#9284). Unlike ``Pitch`` on a tap, the size is not
+    # derivable from what is published: "Hex Socket" does not say 10mm.
+    #
+    # Same precedent as ``Grade`` and ``Fastener Finish`` on the hex bolt
+    # below -- an attribute a shopper's query BINDS to is published, not left
+    # to a sparsity roll.
+    _spec("Drive Size", "sku", kind="length"),
 )
 
 #: Hex bolts. Shares Dia./Thread Size and Length with the socket screw -- they

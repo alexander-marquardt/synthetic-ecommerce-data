@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import shlex
 import subprocess
 import sys
@@ -35,8 +36,21 @@ class Mutation:
     file: str
     old: str
     new: str
-    #: The test selector expected to go red.
-    tests: str
+    #: The test selector expected to go red, or a TUPLE of them when one
+    #: mutation is expected to red more than one test.
+    #:
+    #: A tuple rather than one ``-k "a or b"`` filter, and the difference is
+    #: the whole point: this harness's verdict is "pytest went red", so a
+    #: disjunction is satisfied by EITHER test and prints ``[ok]`` on the
+    #: other one's back. Ten rows were written that way and five of them were
+    #: riding on a sibling. Every selector in the tuple is run and judged on
+    #: its own, and the row is caught only when ALL of them red.
+    tests: str | tuple[str, ...]
+
+    @property
+    def selectors(self) -> tuple[str, ...]:
+        return (self.tests,) if isinstance(self.tests, str) else tuple(self.tests)
+
     #: "A" and "B" label the two directions of one property.
     direction: str = ""
     property_name: str = ""
@@ -80,8 +94,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "make a dimensioned drawing ignore its diameter, blinding the control",
         "render/endmill.py",
-        "        cut_d=parse_length(require(record, \"Milling Dia.\")),",
-        "        cut_d=parse_length('1/4\"') if require(record, \"Milling Dia.\") else None,",
+        '        cut_d=parse_length(require(record, "Milling Dia.")),',
+        '        cut_d=parse_length(\'1/4"\') if require(record, "Milling Dia.") else None,',
         "tests/test_generic.py",
         "B",
         "the generic image is the same file whatever the record says",
@@ -90,8 +104,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "draw every end mill with a square end, whatever the record says",
         "render/endmill.py",
-        "    published = str(require(record, \"End Mill Style\")).strip().lower()\n    try:\n        return END_STYLES[published]",
-        "    published = str(require(record, \"End Mill Style\")).strip().lower()\n    try:\n        return \"square\" if published else END_STYLES[published]",
+        '    published = str(require(record, "End Mill Style")).strip().lower()\n    try:\n        return END_STYLES[published]',
+        '    published = str(require(record, "End Mill Style")).strip().lower()\n    try:\n        return "square" if published else END_STYLES[published]',
         "tests/test_endmill.py tests/test_derivation.py",
         "A",
         "the cutting end comes from the record",
@@ -118,7 +132,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "draw EVERY head's end view as a hexagon",
         "render/fastener.py",
-        "HEX_HEADED = {\"hex\", \"hex head\", \"hexagon\"}",
+        'HEX_HEADED = {"hex", "hex head", "hexagon"}',
         "HEX_HEADED = CYLINDRICAL | COUNTERSUNK",
         "tests/test_fastener.py",
         "B",
@@ -166,7 +180,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "ignore which hand the record says the helix is, while still listing it",
         "render/endmill.py",
-        '        hand=HANDS.get(hand_raw, 1),',
+        "        hand=HANDS.get(hand_raw, 1),",
         "        hand=1,",
         "tests/test_endmill.py",
         "",
@@ -184,7 +198,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "declare an attribute NOT DRAWN that the drawing does draw",
         "render/attrs.py",
-        'NOT_DRAWN: dict[str, str] = {\n    # The measurement-system attribute',
+        "NOT_DRAWN: dict[str, str] = {\n    # The measurement-system attribute",
         'NOT_DRAWN: dict[str, str] = {\n    "Helix Angle": "a claim that nothing in the drawing depends on it",\n    # The measurement-system attribute',
         "tests/test_derivation.py",
         "B",
@@ -240,7 +254,10 @@ MUTATIONS: list[Mutation] = [
         "render/marking.py",
         '    "Redmoor": "#e07b10",',
         '    "Redmoor": "#a04000",',
-        'tests/test_marking.py tests/test_line_drawings.py -k "blend or brand_is_readable"',
+        (
+            "tests/test_marking.py tests/test_line_drawings.py -k blend",
+            "tests/test_marking.py tests/test_line_drawings.py -k brand_is_readable",
+        ),
         "",
         "no brand's colour can be mistaken for another's on the page",
     ),
@@ -283,8 +300,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "lean every flute right-handed and print the direction underneath",
         "render/generic.py",
-        "    hand = mark.lean\n    style = {} if mark.flutes is not None else {\"ls\": (0, (6, 4))}",
-        "    hand = 1\n    style = {} if mark.flutes is not None else {\"ls\": (0, (6, 4))}",
+        '    hand = mark.lean\n    style = {} if mark.flutes is not None else {"ls": (0, (6, 4))}',
+        '    hand = 1\n    style = {} if mark.flutes is not None else {"ls": (0, (6, 4))}',
         "tests/test_line_drawings.py -k left_hand",
         "",
         "a left-hand tool is drawn leaning the other way",
@@ -540,23 +557,88 @@ MUTATIONS: list[Mutation] = [
         "B",
         "the angle defect occurs at its measured rate",
     ),
+    # ---- no title label is truncated, both directions --------------------
+    # The property inverted with the ruling on elastic/prism#9284: titles used
+    # to be truncated AT a measured rate and are now truncated at none. Only
+    # direction A can plant truncation -- there is no code left to disable --
+    # so B mutates the ASSERTION instead of the generator, which is the only
+    # way to show the test is not vacuous on a catalog that contains no
+    # truncation at all. Without B, a test asserting 0 on data that is 0 for
+    # an unrelated reason would look exactly like a test that bites.
+    # THE SELECTOR HERE WAS `-k 'mid_word or sheds'`, A DISJUNCTION. The
+    # harness's verdict is "pytest went red", so that row was caught the
+    # moment EITHER test failed and printed [ok] on the other one's back.
+    # Measured after splitting it: `-k sheds` reds and `-k mid_word` stays
+    # GREEN -- the string-level test was never proven to bite by this
+    # mutation, and the table said otherwise for both.
+    #
+    # THAT GREEN IS NOT A COVERAGE HOLE, and it is worth saying which it is: a
+    # title sliced at the cap usually lands mid-VALUE (``...Solid Carbide,
+    # U``), and no prefix match against attribute names finds that.
+    # ``test_an_over_long_title_sheds_a_whole_segment_rather_than_being_cut``
+    # says so in its own docstring and exists for exactly this reason. So this
+    # row names the test that does the catching, and the row below plants the
+    # mid-LABEL cut that the string test IS the guard for -- which is what
+    # makes both of them proven rather than one of them assumed.
+    #
+    # ``_selector_names_one_test`` refuses the disjunctive spelling outright,
+    # so a row can no longer be satisfied by a test it does not name.
     Mutation(
-        "never truncate a title label",
-        "catalog/generate.py",
-        "        if segments and rng.random() < cfg.scaled_defect(cfg.title_label_truncation):",
-        "        if False:",
-        "tests/test_catalog_generate.py",
+        "cut an over-long title at the cap instead of shedding a whole segment",
+        "catalog/naming.py",
+        "    kept = len(segments)\n"
+        "    text = assemble(kept)\n"
+        "    while kept > 0 and len(text) > cap:\n"
+        "        kept -= 1\n"
+        "        text = assemble(kept)",
+        "    kept = len(segments)\n    text = assemble(kept)[:cap].rstrip()",
+        "tests/test_catalog_titles.py -k sheds",
         "A",
-        "title labels are truncated at the measured rate",
+        "no title label is truncated",
     ),
     Mutation(
-        "truncate every title label",
-        "catalog/generate.py",
-        "        if segments and rng.random() < cfg.scaled_defect(cfg.title_label_truncation):",
-        "        if segments:",
-        "tests/test_catalog_generate.py",
+        "truncate a title's LABEL, the defect the published-string test guards",
+        "catalog/naming.py",
+        '        return f"{self.value} {self.label}"',
+        '        return f"{self.value} {self.label[:-1]}"',
+        "tests/test_catalog_titles.py -k mid_word",
+        "A",
+        "no title label is truncated",
+    ),
+    Mutation(
+        "stop counting titles, so the zero-truncation rate has an empty denominator",
+        "catalog/measure.py",
+        "            titles += 1",
+        "            titles += 0",
+        "tests/test_catalog_generate.py -k truncated",
         "B",
-        "title labels are truncated at the measured rate",
+        "no title label is truncated",
+    ),
+    # ---- one spelling per magnitude, both directions ----------------------
+    # The defect this guards is the one that made a discrete facet
+    # unshippable: 137 published strings for 53 drive sizes, measured on the
+    # generation before this one (the catalog now publishes 51 for 51). Both directions
+    # re-introduce a SECOND spelling -- A by varying the metric shape, B by
+    # varying the imperial suffix -- because a single spelling is the whole
+    # property and a test that only caught one system would leave the other
+    # free to fragment.
+    Mutation(
+        "spell a whole number of millimetres two ways",
+        "catalog/formats.py",
+        'METRIC_CANONICAL = LengthStyle("mm", "mm", "integer")',
+        'METRIC_CANONICAL = LengthStyle("mm", "mm", "decimal", places=2)',
+        "tests/test_catalog_coverage.py -k one_spelling",
+        "A",
+        "one magnitude has one spelling",
+    ),
+    Mutation(
+        "publish imperial dimensions with a trailing 'in' instead of the double-prime",
+        "catalog/formats.py",
+        'IMPERIAL_CANONICAL = LengthStyle("in", \'"\', "fraction")',
+        'IMPERIAL_CANONICAL = LengthStyle("in", " in", "fraction")',
+        "tests/test_catalog_formats.py -k canonical_spellings_are_the_ones",
+        "B",
+        "one magnitude has one spelling",
     ),
     Mutation(
         "never leave a title dimension token unlabelled",
@@ -748,23 +830,29 @@ MUTATIONS: list[Mutation] = [
     ),
     # ---- filter_routing.hard must carry every numeric facet -------------
     Mutation(
-        "drop a numeric facet from filter_routing.hard (its slider disappears)",
+        "drop the routed range axis, so price loses its slider",
         "data/customization.yaml",
-        "    - arbor_hole_size\n",
+        "    - price\n",
         "",
         "tests/test_prism_field_map_drift.py",
         "A",
-        "every derived numeric facet is routed as a range axis",
+        "every derived range facet is routed as a range axis",
         root="src/prism_synthetic_industrial",
     ),
     Mutation(
-        "route a name the catalog does not derive as a numeric facet",
+        # Direction B is the one that is a BOOT REFUSAL rather than a missing
+        # slider: a routed name that resolves to no range axis makes Engine and
+        # Studio refuse to start (elastic/prism#7114). Since #9285 turned every
+        # dimensional attribute into a discrete list, routing one of them is
+        # exactly that mistake -- so this plants a real former entry rather
+        # than an invented name.
+        "route a discrete list as though it were a range axis",
         "data/customization.yaml",
-        "    - arbor_hole_size\n",
-        "    - arbor_hole_size\n    - not_a_catalog_attribute\n",
+        "    - price\n",
+        "    - price\n    - drive_size\n",
         "tests/test_prism_field_map_drift.py",
         "B",
-        "every derived numeric facet is routed as a range axis",
+        "every derived range facet is routed as a range axis",
         root="src/prism_synthetic_industrial",
     ),
     # ---- the structural-collision guard ---------------------------------
@@ -817,10 +905,9 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "blank one card image url in the committed catalog",
         "flat.jsonl",
-        'ice_usd": 13.44, "stock": 17, "image_id": "end_mill_square/OST-K663-0001", '
+        'ice_usd": 8.74, "stock": 36, "image_id": "end_mill_square/OST-K663-0001", '
         '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png"',
-        'ice_usd": 13.44, "stock": 17, "image_id": "end_mill_square/OST-K663-0001", '
-        '"image_url": ""',
+        'ice_usd": 8.74, "stock": 36, "image_id": "end_mill_square/OST-K663-0001", "image_url": ""',
         "tests/test_catalog_golden.py::test_every_flat_document_carries_an_image_url",
         "A",
         "every document carries a NON-EMPTY image url at both profiles",
@@ -829,31 +916,40 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop the detail image url from one committed nested variant",
         "nested.jsonl",
-        '"price_usd": 13.44, "stock": 17, "image_id": "end_mill_square/OST-K663-0001", '
+        '"price_usd": 8.74, "stock": 36, "image_id": "end_mill_square/OST-K663-0001", '
         '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png", '
         '"image_detail_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/detail.png"',
-        '"price_usd": 13.44, "stock": 17, "image_id": "end_mill_square/OST-K663-0001", '
+        '"price_usd": 8.74, "stock": 36, "image_id": "end_mill_square/OST-K663-0001", '
         '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png"',
         "tests/test_catalog_golden.py::test_every_nested_line_and_variant_carries_an_image_url",
         "B",
         "every document carries a NON-EMPTY image url at both profiles",
         root="golden-catalog",
     ),
+    # THE REPLACEMENT SKU HAS TO EXIST, which is the whole mutation and is
+    # what this row got wrong. It rewrote ``97NR28`` as ``80FY44`` -- a sku
+    # the catalog does not carry -- so it RENAMED a document instead of
+    # duplicating one, every sku stayed distinct, and
+    # ``test_flat_holds_one_document_per_sku`` passed for the correct reason
+    # while the table read it as proof. ``8ZJ83`` is the next document in the
+    # committed file, so the mutation now really does publish one sku twice.
+    # The same regeneration that moved this catalog's document count is what
+    # took the old sku out of it.
     Mutation(
         "duplicate a sku in the committed flat catalog",
         "flat.jsonl",
-        '{"sku": "19XN98", "product_id": "OST-K663-0001"',
-        '{"sku": "80FY44", "product_id": "OST-K663-0001"',
+        '{"sku": "97NR28", "product_id": "OST-K663-0001"',
+        '{"sku": "8ZJ83", "product_id": "OST-K663-0001"',
         "tests/test_catalog_golden.py::test_flat_holds_one_document_per_sku",
         "",
-        "flat.jsonl is 4,662 documents and 4,662 distinct skus",
+        "flat.jsonl is 4,689 documents and 4,689 distinct skus",
         root="golden-catalog",
     ),
     Mutation(
         "point one committed document at a product line that does not exist",
         "flat.jsonl",
-        '{"sku": "19XN98", "product_id": "OST-K663-0001"',
-        '{"sku": "19XN98", "product_id": "OST-K663-9999"',
+        '{"sku": "97NR28", "product_id": "OST-K663-0001"',
+        '{"sku": "97NR28", "product_id": "OST-K663-9999"',
         "tests/test_catalog_golden.py::test_flat_covers_exactly_the_product_lines",
         "",
         "the catalog spans exactly 500 product lines",
@@ -862,8 +958,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "publish a variant_count that disagrees with its own variants array",
         "nested.jsonl",
-        '"variant_count": 9, "variants": [{"sku": "19XN98", "title": "Osterlund High Sp',
-        '"variant_count": 10, "variants": [{"sku": "19XN98", "title": "Osterlund High Sp',
+        '"variant_count": 9, "variants": [{"sku": "97NR28", "title": "High Speed Steel Sq',
+        '"variant_count": 10, "variants": [{"sku": "97NR28", "title": "High Speed Steel Sq',
         "tests/test_catalog_golden.py::test_nested_lines_account_for_every_sku",
         "",
         "the nested lines account for every sku",
@@ -875,7 +971,10 @@ MUTATIONS: list[Mutation] = [
         "render/fastener.py",
         "        span = geom.length_under_head.inches",
         "        span = geom.total_height",
-        'tests/test_fastener.py -k "length_under_head or three_published_lengths"',
+        (
+            "tests/test_fastener.py -k length_under_head",
+            "tests/test_fastener.py -k three_published_lengths",
+        ),
         "A",
         "the length under head is a span on the drawing, to its published value",
     ),
@@ -884,7 +983,11 @@ MUTATIONS: list[Mutation] = [
         "render/fastener.py",
         "    if geom.length_under_head is not None:\n        # The whole shank",
         "    if False:\n        # The whole shank",
-        'tests/test_fastener.py -k "length_under_head or three_published_lengths or inked_in_the_drawing"',
+        (
+            "tests/test_fastener.py -k length_under_head",
+            "tests/test_fastener.py -k three_published_lengths",
+            "tests/test_fastener.py -k inked_in_the_drawing",
+        ),
         "B",
         "the length under head is a span on the drawing, to its published value",
     ),
@@ -913,7 +1016,10 @@ MUTATIONS: list[Mutation] = [
         "render/fastener.py",
         "    @property\n    def domed(self) -> bool:\n        return self.head_style.strip().lower() in DOMED",
         "    @property\n    def domed(self) -> bool:\n        return False",
-        'tests/test_fastener.py -k "each_head_style or button_head"',
+        (
+            "tests/test_fastener.py -k each_head_style",
+            "tests/test_fastener.py -k button_head",
+        ),
         "A",
         "each head style draws the shape its record names",
     ),
@@ -932,7 +1038,10 @@ MUTATIONS: list[Mutation] = [
         "render/generic.py",
         '        "button": "screw_button_head",',
         '        "button": "screw_socket_head",',
-        'tests/test_line_drawings.py tests/test_generic.py -k "two_styles or image_does_not_depend"',
+        (
+            "tests/test_line_drawings.py tests/test_generic.py -k two_styles",
+            "tests/test_line_drawings.py tests/test_generic.py -k image_does_not_depend",
+        ),
         "A",
         "a screw style names its own shape, and two shapes never draw alike",
     ),
@@ -941,7 +1050,10 @@ MUTATIONS: list[Mutation] = [
         "render/generic.py",
         'GenericImage("screw_low_head", "Low Head Socket Cap Screw", _draw_low_head_screw),',
         'GenericImage("screw_low_head", "Low Head Socket Cap Screw", _draw_socket_head_screw),',
-        'tests/test_line_drawings.py tests/test_generic.py -k "two_styles or DIFFERENT"',
+        (
+            "tests/test_line_drawings.py tests/test_generic.py -k two_styles",
+            "tests/test_line_drawings.py tests/test_generic.py -k DIFFERENT",
+        ),
         "B",
         "a screw style names its own shape, and two shapes never draw alike",
     ),
@@ -957,7 +1069,10 @@ MUTATIONS: list[Mutation] = [
         "render/generic.py",
         "    head_half, head_h = 0.105, 0.062",
         "    head_half, head_h = 0.105, 0.115",
-        'tests/test_generic.py -k "drawn_lower or DIFFERENT"',
+        (
+            "tests/test_generic.py -k drawn_lower",
+            "tests/test_generic.py -k DIFFERENT",
+        ),
         "A",
         "the new screw silhouettes are drawn to the proportions their standards give them",
     ),
@@ -973,7 +1088,10 @@ MUTATIONS: list[Mutation] = [
         "                dome_profile(head_half, head_h, seat),",
         "                [(-head_half, seat), (-head_half, _HEAD_TOP), "
         "(head_half, _HEAD_TOP), (head_half, seat)],",
-        'tests/test_generic.py -k "dome or head_measurement"',
+        (
+            "tests/test_generic.py -k dome",
+            "tests/test_generic.py -k head_measurement",
+        ),
         "A",
         "a button head is drawn as a dome and a socket head as a bar",
     ),
@@ -986,7 +1104,10 @@ MUTATIONS: list[Mutation] = [
         "                fc=mark.tint or cv.BODY_FILL,\n                ec=mark.ink,\n"
         "                lw=cv.LW_BODY,\n                zorder=5,\n            )\n        ),\n"
         "        mark,\n    )\n    # The socket, drawn as the opening",
-        'tests/test_generic.py -k "dome or head_measurement"',
+        (
+            "tests/test_generic.py -k dome",
+            "tests/test_generic.py -k head_measurement",
+        ),
         "B",
         "a button head is drawn as a dome and a socket head as a bar",
     ),
@@ -1052,7 +1173,10 @@ MUTATIONS: list[Mutation] = [
         "render/generic.py",
         "    head_half, head_h = 0.105, 0.115",
         "    head_half, head_h = 0.105, 0.062",
-        'tests/test_generic.py -k "drawn_lower or DIFFERENT"',
+        (
+            "tests/test_generic.py -k drawn_lower",
+            "tests/test_generic.py -k DIFFERENT",
+        ),
         "B",
         "the new screw silhouettes are drawn to the proportions their standards give them",
     ),
@@ -1177,24 +1301,31 @@ MUTATIONS: list[Mutation] = [
         "B",
         "one thread size is not locked to one grading or one finish",
     ),
-    # ---- the metric spelling the policy bridges, both directions ----------
+    # ---- the control follows CONTINUITY, not numeracy, both directions ----
+    # The defect on each side is a real one somebody could write. A restores
+    # the old rule -- numbers get a slider -- and publishes a range over 53
+    # standard hex-key sizes. B pushes the threshold past every attribute so
+    # nothing is ever a range, which would break the grocery catalog this rule
+    # has to serve next (elastic/prism#9290) while leaving this catalog's
+    # output unchanged -- so it is deliberately a mutation that THIS catalog's
+    # data cannot reveal, and the test has to bite on the rule itself.
     Mutation(
-        "publish metric dimensions to no decimal places, so 25.00mm becomes 25mm",
-        "catalog/formats.py",
-        '    (LengthStyle("mm", "mm", "decimal", places=2), 0.55),',
-        '    (LengthStyle("mm", "mm", "integer"), 0.55),',
-        "tests/test_catalog_coverage.py",
+        "offer a range over any attribute whose values are numbers",
+        "prism/derive.py",
+        "            self.is_numeric\n            and self.present >= RANGE_MIN_DOCS\n            and self.dispersion >= RANGE_DISPERSION",
+        "            self.is_numeric",
+        "tests/test_facet_control_rule.py -k continuity",
         "A",
-        "the catalog still spells a 25 mm cutting diameter 25.00mm",
+        "a discrete standard set is not offered as a range",
     ),
     Mutation(
-        "publish metric dimensions to four places instead of two",
-        "catalog/formats.py",
-        '    (LengthStyle("mm", "mm", "decimal", places=2), 0.55),',
-        '    (LengthStyle("mm", "mm", "decimal", places=4), 0.55),',
-        "tests/test_catalog_coverage.py",
+        "put the continuity threshold above 1.0, so nothing is ever continuous",
+        "prism/derive.py",
+        "RANGE_DISPERSION = 0.5",
+        "RANGE_DISPERSION = 1.01",
+        "tests/test_facet_control_rule.py -k continuity",
         "B",
-        "the catalog still spells a 25 mm cutting diameter 25.00mm",
+        "a discrete standard set is not offered as a range",
     ),
     # ---- every offered fastener size reaches a line, both directions ------
     Mutation(
@@ -1238,7 +1369,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "put the line title back in the description field",
         "catalog/generate.py",
-        '        return f"{title.text} - {\', \'.join(details)}"',
+        "        return f\"{title.text} - {', '.join(details)}\"",
         '        return f"{draft.brand} {draft.series} -- {draft.item}"',
         "tests/test_catalog_titles.py",
         "A",
@@ -1325,6 +1456,38 @@ class AmbiguousSelector(ValueError):
     """
 
 
+class DisjunctiveSelector(ValueError):
+    """A selector's ``-k`` filter names two tests with ``or``.
+
+    This harness's verdict is "pytest went red", so a selector matching two
+    tests is caught the moment EITHER of them fails -- and the other one is
+    printed ``[ok]`` on its back without ever having been shown to bite.
+
+    Measured: ``-k 'mid_word or sheds'`` reported one mutation caught while
+    only the segment-level test was doing the catching; the string-level test
+    could have been deleted and the row would have stayed green.
+
+    THE FIX IS TWO ENTRIES, NOT A WIDER FILTER. One mutation may legitimately
+    be expected to red two tests; write it as two ``Mutation`` rows with one
+    selector each, and the table then says which test caught what. ``and`` is
+    not refused -- narrowing to a single test is the point of this rule.
+    """
+
+
+def _selector_names_one_test(selector: str) -> None:
+    """Refuse a ``-k`` filter that can be satisfied by either of two tests."""
+    argv = shlex.split(selector)
+    if "-k" not in argv:
+        return
+    expression = argv[argv.index("-k") + 1]
+    if re.search(r"\bor\b", expression):
+        raise DisjunctiveSelector(
+            f"{selector!r} is satisfied by EITHER test, so one of them is "
+            "never proven to bite. Split it into two Mutation rows with one "
+            "selector each."
+        )
+
+
 def run(selector: str) -> bool:
     """True when the selector is GREEN."""
     # ``shlex`` rather than ``str.split``: a filter is written
@@ -1335,8 +1498,9 @@ def run(selector: str) -> bool:
     if argv.count("-k") > 1:
         raise AmbiguousSelector(
             f"{selector!r} has two -k filters; pytest keeps the last one. Write "
-            'one filter: `a.py b.py -k "x or y"`.'
+            "one filter, or -- better here -- one Mutation row per test."
         )
+    _selector_names_one_test(selector)
     _drop_bytecode()
     env = dict(os.environ)
     env["PYTHONDONTWRITEBYTECODE"] = "1"
@@ -1368,7 +1532,7 @@ def main(argv: list[str] | None = None) -> int:
     mutations = [m for m in MUTATIONS if not args.only or args.only in m.name]
 
     print("checking the suite is green before mutating ...")
-    for selector in sorted({m.tests for m in mutations}):
+    for selector in sorted({s for m in mutations for s in m.selectors}):
         if not run(selector):
             print(f"  {selector} is ALREADY RED -- fix that before mutating")
             return 2
@@ -1388,28 +1552,50 @@ def main(argv: list[str] | None = None) -> int:
             continue
         path.write_text(original.replace(mutation.old, mutation.new), encoding="utf-8")
         try:
-            green = run(mutation.tests)
-            if green and not _mutation_is_live(path, mutation):
+            # EVERY selector is judged on its own. A row naming two tests is
+            # only FULLY proven when both red, so one of them can never be
+            # carried by the other -- see ``Mutation.tests``.
+            survivors = [s for s in mutation.selectors if run(s)]
+            if survivors and not _mutation_is_live(path, mutation):
                 rows.append((mutation, False, "MUTATION DID NOT REACH THE INTERPRETER"))
                 print(f"[!!] {mutation.name}: source changed but the import did not")
                 continue
         finally:
             path.write_text(original, encoding="utf-8")
-        caught = not green
-        rows.append((mutation, caught, "red" if caught else "GREEN -- NOT CAUGHT"))
-        print(f"[{'ok' if caught else '  '}] {mutation.name}: {rows[-1][2]}")
+        # THREE STATES, NOT TWO. "Nothing red" is a defect that would ship;
+        # "something red, but a named test did not bite" is a defect that is
+        # caught by a test other than the one the row credits. Reporting both
+        # as one verdict is what the disjunctive selectors used to do.
+        caught = not survivors
+        if caught:
+            note = "red"
+        elif len(survivors) < len(mutation.selectors):
+            note = "caught, but NOT by " + ", ".join(survivors)
+        else:
+            note = "GREEN -- NOT CAUGHT"
+        rows.append((mutation, caught, note))
+        marker = "ok" if caught else ("~ " if len(survivors) < len(mutation.selectors) else "  ")
+        print(f"[{marker}] {mutation.name}: {note}")
 
     print("\nre-checking the suite is green after restoring ...")
-    ok = all(run(selector) for selector in sorted({m.tests for m in mutations}))
+    ok = all(run(selector) for selector in sorted({s for m in mutations for s in m.selectors}))
     print("  green" if ok else "  STILL RED -- a mutation was not reverted")
 
     caught = sum(1 for _, c, _ in rows if c)
-    print(f"\n{caught} of {len(rows)} mutations caught")
-    missed = [(m, note) for m, c, note in rows if not c]
-    if missed:
+    print(f"\n{caught} of {len(rows)} mutations caught by EVERY test they name")
+    ships_green = [(m, n) for m, c, n in rows if not c and n.startswith("GREEN")]
+    partial = [(m, n) for m, c, n in rows if not c and n.startswith("caught, but")]
+    if ships_green:
         print("\nNOT CAUGHT -- these defects would ship green:")
-        for mutation, note in missed:
+        for mutation, note in ships_green:
             print(f"  - {mutation.name} ({mutation.property_name}): {note}")
+    if partial:
+        print(
+            "\nCAUGHT, BUT BY ANOTHER TEST -- the defect is guarded; the test "
+            "named here is not proven to bite by this mutation:"
+        )
+        for mutation, note in partial:
+            print(f"  - {mutation.name}: {note}")
     return 0 if ok else 1
 
 

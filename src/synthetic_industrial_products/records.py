@@ -1,10 +1,30 @@
 """Reference records used as fixtures.
 
-Attribute names are kept verbatim, including the trailing periods and the
-inconsistent unit spellings (``1/2 in`` beside ``0.411 in`` beside ``3/8"``)
-that catalogs in this vertical actually publish. Renderers read these names as
-published rather than a normalised internal schema, because a renderer that
-only works against tidied input does not work against the catalog.
+**These are OBSERVED records, not this catalog's convention.** Their values
+were read off reference pages and are kept verbatim -- the trailing periods in
+the attribute names, and the inconsistent unit spellings across the set
+(``1/2 in`` in one record beside ``0.411 in`` in the same one beside ``3/8"``
+in another). Their hashes are in the committed reference fingerprints and the
+non-copying audit compares generated records against them, so editing a value
+here would silently weaken that audit. Nothing in this file may be tidied.
+
+What that verbatim-ness is evidence OF, and what it is not:
+
+* it IS evidence that a renderer must read published names and values as they
+  come. A renderer that only works against normalised input does not work
+  against a real catalog, and these fixtures are what proves it does.
+* it is NOT a licence for the GENERATOR to publish one magnitude several ways.
+  These five records came from five different pages of different eras; the
+  variation is BETWEEN sources. The generator used to reproduce it WITHIN one
+  column of one catalog, which is a different thing and is the defect ruled
+  out by elastic/prism#9284 -- it fragmented every dimensional facet roughly
+  threefold and matched nothing in the customer's own data, whose facet values
+  carry one spelling each.
+
+The generator now publishes exactly one spelling per magnitude per unit
+system: see :mod:`synthetic_industrial_products.catalog.formats`. If you are
+here because you are adding a fixture, keep it verbatim. If you are here
+because you are changing what the generator EMITS, this is the wrong file.
 """
 
 from __future__ import annotations

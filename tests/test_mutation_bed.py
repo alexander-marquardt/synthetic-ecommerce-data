@@ -28,7 +28,12 @@ REPO = Path(__file__).resolve().parents[1]
 
 
 def _mutations():
-    """Load the harness by path: ``scripts/`` is not an importable package."""
+    """Load the harness by path: ``scripts/`` is not an importable package.
+
+    Returns its mutations AND its selector rule, so the static check below
+    applies the harness's OWN refusal rather than a second copy of it that
+    could drift from the one that actually runs.
+    """
     spec = importlib.util.spec_from_file_location(
         "mutation_check", REPO / "scripts" / "mutation_check.py"
     )
@@ -39,10 +44,10 @@ def _mutations():
     # to be registered there BEFORE it is executed, or the decorator raises.
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
-    return list(module.MUTATIONS)
+    return list(module.MUTATIONS), module._selector_names_one_test
 
 
-MUTATIONS = _mutations()
+MUTATIONS, _selector_names_one_test = _mutations()
 
 
 def test_the_bed_is_not_empty() -> None:
@@ -70,6 +75,30 @@ def test_every_mutation_changes_something(mutation) -> None:
 
 @pytest.mark.parametrize("mutation", MUTATIONS, ids=lambda m: m.name)
 def test_every_mutation_names_a_test_file_that_exists(mutation) -> None:
-    """The selector's first token, which is always the file under pytest."""
-    target = shlex.split(mutation.tests)[0].split("::")[0]
-    assert (REPO / target).exists(), f"{mutation.name} names {target}, which does not exist"
+    """The selector's first token, which is always the file under pytest.
+
+    Over ``mutation.selectors`` rather than ``mutation.tests``: a row may now
+    name SEVERAL selectors, one per test it is expected to red, and a check
+    that read only the first would stop covering the rest the moment a row
+    grew a second.
+    """
+    for selector in mutation.selectors:
+        target = shlex.split(selector)[0].split("::")[0]
+        assert (REPO / target).exists(), f"{mutation.name} names {target}, which does not exist"
+
+
+@pytest.mark.parametrize("mutation", MUTATIONS, ids=lambda m: m.name)
+def test_no_mutation_is_satisfied_by_either_of_two_tests(mutation) -> None:
+    """A ``-k`` filter joined by ``or`` is caught the moment EITHER test reds.
+
+    The harness's verdict is "pytest went red", so a disjunctive selector
+    prints ``[ok]`` on one test's back while the other is never shown to bite.
+    Measured: ten rows were written that way and six of them were riding on a
+    sibling. ``mutation_check.run`` refuses the shape at run time; this asserts
+    it statically, so a row cannot be written that way and discovered later.
+
+    THE FIX IS SEVERAL SELECTORS, NOT A WIDER FILTER -- ``tests`` takes a
+    tuple, and every entry is run and judged on its own.
+    """
+    for selector in mutation.selectors:
+        _selector_names_one_test(selector)

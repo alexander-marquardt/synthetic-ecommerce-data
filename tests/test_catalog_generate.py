@@ -150,13 +150,28 @@ def test_both_the_role_ambiguity_cases_occur(stats):
         ("unit mixing within one record", 0.005, 0.05),
         ("title dimension token unlabelled", 0.38, 0.55),
         ("title dimension token is not the primary dimension", 0.10, 0.25),
-        ("title label truncated", 0.005, 0.07),
     ],
 )
 def test_each_measured_rate_is_reproduced(stats, metric, low, high):
     row = next(c for c in stats["comparisons"] if c.name == metric)
     assert row.denominator > 0, f"{metric} has an empty denominator"
     assert low <= row.achieved <= high, row
+
+
+def test_no_title_label_is_truncated(stats):
+    """0, exactly -- the one measured rate this catalog declines to reproduce.
+
+    It is asserted rather than dropped from the table, and the denominator is
+    asserted non-empty first, because "no truncated titles" and "no titles
+    examined" produce the same numerator. The measurement that justified the
+    old 3.23% still stands in ``P1_title_grammar.json`` and is still carried
+    on ``GeneratorConfig.measured_title_label_truncation``; what changed is
+    the decision to reproduce it (elastic/prism#9284).
+    """
+    row = next(c for c in stats["comparisons"] if c.name == "title label truncated")
+    assert row.denominator > 0, "no titles were examined, so a zero proves nothing"
+    assert row.numerator == 0, row
+    assert row.achieved == 0.0, row
 
 
 def test_attributes_per_record_is_close_to_the_measured_mean(stats):
