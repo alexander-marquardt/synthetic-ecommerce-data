@@ -463,3 +463,119 @@ def test_a_button_head_and_a_low_head_have_the_head_their_standard_gives_them(ca
                 assert dia > full_dia, (style, size, dia, full_dia)
             else:
                 assert dia <= full_dia + 1e-9, (style, size, dia, full_dia)
+
+
+# -- the category tree has the real catalog's shape -------------------------
+#
+# elastic/prism-industrial-products#77, read off the real distributor's own
+# breadcrumbs and category facet: the leaf is a self-describing plural product
+# type, specifications are never path levels, and the roots are the
+# distributor's own. The earlier tree ended its end mills at a MATERIAL
+# (``Milling / End Mills / Square End Mills / Cobalt``) and filed drills under
+# a ``Drilling`` root the real catalog does not have; each test below reds on
+# that tree.
+
+#: The real catalog's top-level menu ("Shop All Products"), verbatim, as the
+#: maintainer supplied it on elastic/prism-industrial-products#77 (2026-09-25).
+#: Evidence, not configuration: a root outside it is a root we invented.
+REAL_CATALOG_ROOTS = frozenset(
+    {
+        "Abrasives",
+        "Clamping, Workholding & Positioning",
+        "Fasteners",
+        "Fleet Maintenance",
+        "HVAC",
+        "Hand Tools",
+        "Hardware",
+        "Holemaking",
+        "Hose, Tube, Fittings & Valves",
+        "Indexable Cutting Tools",
+        "Janitorial & Facility Maintenance",
+        "Lighting & Electrical",
+        "Lubricants, Coolants & Fluids",
+        "Machinery",
+        "Marking & Labeling",
+        "Material Handling & Storage",
+        "Measuring & Inspecting",
+        "Milling",
+        "Motion Control & Fluid Power",
+        "Plumbing, Pumps & Filtration",
+        "Power Tools",
+        "Raw Materials",
+        "Safety",
+        "Saw Blades",
+        "Shipping & Office Supplies",
+        "Tapes & Adhesives",
+        "Threading",
+        "Tool Holding",
+        "Turning & Boring",
+        "Welding & Soldering",
+    }
+)
+
+
+def _published_values(line) -> set[str]:
+    """Every attribute value a line publishes, on the line or any of its SKUs."""
+    values: set[str] = set()
+    for attribute in (*line.attributes, *(a for c in line.children for a in c.attributes)):
+        if attribute.values is not None:
+            values.update(attribute.values)
+        else:
+            values.add(attribute.value)
+    return values
+
+
+def test_no_category_level_is_a_value_the_line_publishes_as_an_attribute(catalog):
+    """A specification is an attribute, never a path level.
+
+    Measured on the lines, not on the taxonomy table: a path segment that
+    equals a value the same line publishes (``Cobalt`` under ``End Mill
+    Material: Cobalt``) is a specification filed as a category, whichever
+    table it came from.
+    """
+    offenders = {
+        (line.product_id, segment)
+        for line in catalog.lines
+        for segment in line.category
+        if segment in _published_values(line)
+    }
+    assert not offenders, sorted(offenders)[:10]
+
+
+def test_every_root_is_one_of_the_real_catalogs_roots():
+    roots = {path[0] for path in taxonomy.all_paths()}
+    assert roots <= REAL_CATALOG_ROOTS, sorted(roots - REAL_CATALOG_ROOTS)
+
+
+def test_every_leaf_is_its_types_own_self_describing_plural(catalog):
+    """One path per product type, and the leaf names the type, in the plural.
+
+    One path per type is what makes the leaf the type: a type spread over
+    several leaves is being split by something that is not its type. The
+    plural is the real catalog's spelling (``Square End Mills``, never
+    ``Square End Mill`` and never ``Square``), and a leaf of one word cannot
+    say what the product is out of context (``Cobalt``, ``Square``).
+    """
+    for type_key, paths in taxonomy.LEAVES.items():
+        assert len(paths) == 1, (type_key, paths)
+        leaf = paths[0][-1]
+        assert leaf.endswith("s"), (type_key, leaf)
+        assert len(leaf.split()) >= 2, (type_key, leaf)
+    leaves = [paths[0][-1] for paths in taxonomy.LEAVES.values()]
+    assert len(leaves) == len(set(leaves)), "two product types share a leaf name"
+    assert {line.category for line in catalog.lines} == set(taxonomy.all_paths())
+
+
+def test_every_end_mill_publishes_its_material(catalog):
+    """Material left the path, so the attribute must carry it on every end mill.
+
+    Otherwise the lines whose material the path used to state would carry it
+    nowhere -- the information the restructure was not allowed to lose.
+    """
+    missing = [
+        line.product_id
+        for line in catalog.lines
+        if line.type_key in taxonomy.END_MILL_MATERIALS
+        and not any(a.name == "End Mill Material" for a in line.attributes)
+    ]
+    assert not missing, missing[:10]

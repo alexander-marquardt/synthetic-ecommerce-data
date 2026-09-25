@@ -1,15 +1,27 @@
-"""The category tree.
+"""The category tree, in the shape of the real catalog it imitates.
 
 The tree exists to be *insufficient*. Category narrows a shopper down to a
 leaf and then stops discriminating: every product under
-``Milling / End Mills / Square End Mills / Solid Carbide`` is a square solid
-carbide end mill, and choosing between them is entirely a matter of attributes.
-That is the handover this catalog is built to exercise, so the leaves are
-deliberately specific enough to be exhausted.
+``Milling / End Mills / Square End Mills`` is a square end mill, and choosing
+between them -- by material, coating, diameter, flute count -- is entirely a
+matter of attributes. That is the handover this catalog is built to exercise.
 
-Depth varies by branch, 3 to 4 levels, because it varies in real catalogs: the
-cutting-tool branches earn a fourth level from tool material, and a flat washer
-does not.
+THE RULE, read off the real distributor's own breadcrumbs and category facet
+(elastic/prism-industrial-products#77):
+
+* **The leaf is always a self-describing plural product type** --
+  ``Square End Mills``, ``Jobber Length Drill Bits``, ``Socket Cap Screws``.
+  A leaf a shopper reads out of context still says what the product is.
+* **Intermediate levels group types** (``Metalworking & Multipurpose Drill
+  Bits``); they never narrow by a specification.
+* **Specifications are never path levels.** Material, coating/finish, drive,
+  size and standard are attributes. An earlier version of this tree ended the
+  end mills at a MATERIAL (``... / Square End Mills / Cobalt``), which the
+  real catalog never does; ``tests/test_catalog_vocab.py`` now reds if any
+  path segment equals a value its own products publish as an attribute.
+* **Depth varies, 3 to 4 levels**, because it varies in the real catalog:
+  drill bits sit one grouping deeper than taps.
+* **Root names are the real catalog's** (``Holemaking``, not ``Drilling``).
 """
 
 from __future__ import annotations
@@ -36,27 +48,38 @@ class Category:
         return " / ".join(self.path)
 
 
-#: Every leaf in the tree, with the product-type key that populates it.
+#: Every product type's category path. One path per type: the leaf IS the type.
 LEAVES: dict[str, tuple[CategoryPath, ...]] = {
-    "end_mill_square": (
-        ("Milling", "End Mills", "Square End Mills", "Solid Carbide"),
-        ("Milling", "End Mills", "Square End Mills", "Cobalt"),
-        ("Milling", "End Mills", "Square End Mills", "High Speed Steel"),
+    "end_mill_square": (("Milling", "End Mills", "Square End Mills"),),
+    "end_mill_ball": (("Milling", "End Mills", "Ball End Mills"),),
+    "drill_jobber": (
+        (
+            "Holemaking",
+            "Drilling & Drill Bits",
+            "Metalworking & Multipurpose Drill Bits",
+            "Jobber Length Drill Bits",
+        ),
     ),
-    "end_mill_ball": (
-        ("Milling", "End Mills", "Ball Nose End Mills", "Solid Carbide"),
-        ("Milling", "End Mills", "Ball Nose End Mills", "Cobalt"),
-    ),
-    "drill_jobber": (("Drilling", "Twist Drills", "Jobber Length Drill Bits"),),
     "tap_spiral_point": (("Threading", "Taps", "Spiral Point Taps"),),
-    "screw_socket_head": (("Fasteners", "Screws", "Socket Head Cap Screws"),),
-    "screw_flat_head": (("Fasteners", "Screws", "Flat Head Socket Cap Screws"),),
-    "screw_button_head": (("Fasteners", "Screws", "Button Head Socket Cap Screws"),),
-    "screw_low_head": (("Fasteners", "Screws", "Low Head Socket Cap Screws"),),
-    "bolt_hex": (("Fasteners", "Bolts", "Hex Head Bolts"),),
+    "screw_socket_head": (("Fasteners", "Bolts, Screws & Cap Screws", "Socket Cap Screws"),),
+    "screw_flat_head": (("Fasteners", "Bolts, Screws & Cap Screws", "Flat Socket Cap Screws"),),
+    "screw_button_head": (("Fasteners", "Bolts, Screws & Cap Screws", "Button Socket Cap Screws"),),
+    "screw_low_head": (("Fasteners", "Bolts, Screws & Cap Screws", "Low Head Socket Cap Screws"),),
+    "bolt_hex": (("Fasteners", "Bolts, Screws & Cap Screws", "Hex Head Bolts"),),
     "washer_flat": (("Fasteners", "Washers", "Flat Washers"),),
     "hammer_ball_pein": (("Hand Tools", "Striking Tools", "Ball Pein Hammers"),),
-    "abrasive_flap_disc": (("Abrasives", "Coated Abrasives", "Flap Discs"),),
+    "abrasive_flap_disc": (("Abrasives", "Coated & Non-Woven Abrasives", "Flap Discs"),),
+}
+
+#: The end-mill tool materials each style is made in, in the order the draw
+#: indexes them. Material used to be read off a fourth path level; it is an
+#: attribute (``End Mill Material``), drawn here. The tuples keep the length
+#: and order the old per-material paths had, so the generator's random stream
+#: -- and with it every product id, SKU, dimension and price -- is unchanged by
+#: moving material out of the path.
+END_MILL_MATERIALS: dict[str, tuple[str, ...]] = {
+    "end_mill_square": ("Solid Carbide", "Cobalt", "High Speed Steel"),
+    "end_mill_ball": ("Solid Carbide", "Cobalt"),
 }
 
 

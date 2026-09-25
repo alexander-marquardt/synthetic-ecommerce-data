@@ -275,7 +275,7 @@
    "System of Measurement"
   ]
  },
- "total_attribute_entries": 63710,
+ "total_attribute_entries": 64175,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -360,8 +360,8 @@
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 13.587118788654298,
-   "numerator": 63710,
+   "achieved": 13.686287054809128,
+   "numerator": 64175,
    "denominator": 4689,
    "note": "count, not a rate"
   }
