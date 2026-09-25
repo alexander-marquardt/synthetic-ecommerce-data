@@ -274,7 +274,11 @@ class Generator:
         cfg = self.config
         rng = self.rng
         ball = type_key == "end_mill_ball"
-        material = category[3] if len(category) > 3 else "Solid Carbide"
+        # The line's tool material: an ATTRIBUTE, never a path level
+        # (elastic/prism-industrial-products#77).
+        # Drawn first, where the earlier generator drew the per-material path,
+        # so the rest of the random stream is exactly where it was.
+        material = rng.choice(taxonomy.END_MILL_MATERIALS[type_key])
         metric = rng.random() < 0.22
         system = "mm" if metric else "in"
 
@@ -1461,7 +1465,13 @@ class Generator:
         for type_key in keys:
             builder = self._BUILDERS[type_key]
             for _ in range(counts[type_key]):
-                category = rng.choice(taxonomy.LEAVES[type_key])
+                (category,) = taxonomy.LEAVES[type_key]
+                if type_key not in taxonomy.END_MILL_MATERIALS:
+                    # A draw over a one-path tuple decides nothing. It is kept
+                    # because the stream position it consumes is where an end
+                    # mill's builder now draws its material: removing it would
+                    # move every later id, dimension and price in the catalog.
+                    rng.choice(taxonomy.LEAVES[type_key])
                 draft = builder(self, type_key, category)
                 index += 1
                 line = self._finish_line(type_key, draft, index)

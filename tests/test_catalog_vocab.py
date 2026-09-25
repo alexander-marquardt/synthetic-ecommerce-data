@@ -38,11 +38,16 @@ def test_no_category_path_is_duplicated():
 
 
 def test_ancestors_are_the_prefixes():
-    path = ("Milling", "End Mills", "Square End Mills", "Solid Carbide")
+    path = (
+        "Holemaking",
+        "Drilling & Drill Bits",
+        "Metalworking & Multipurpose Drill Bits",
+        "Jobber Length Drill Bits",
+    )
     assert taxonomy.ancestors(path) == (
-        ("Milling",),
-        ("Milling", "End Mills"),
-        ("Milling", "End Mills", "Square End Mills"),
+        ("Holemaking",),
+        ("Holemaking", "Drilling & Drill Bits"),
+        ("Holemaking", "Drilling & Drill Bits", "Metalworking & Multipurpose Drill Bits"),
         path,
     )
 

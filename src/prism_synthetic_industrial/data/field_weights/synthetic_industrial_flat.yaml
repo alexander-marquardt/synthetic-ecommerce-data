@@ -290,7 +290,7 @@ fields:
     type: terms
     source: facets.end_mill_cutting_type
   # End Mill Material -- 3 distinct values
-  #   present on 728 documents across 2 product type(s); 3 distinct values
+  #   present on 1193 documents across 2 product type(s); 3 distinct values
   - name: end_mill_material
     type: terms
     source: facets.end_mill_material
