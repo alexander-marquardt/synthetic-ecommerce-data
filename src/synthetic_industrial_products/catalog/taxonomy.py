@@ -64,11 +64,20 @@ LEAVES: dict[str, tuple[CategoryPath, ...]] = {
     "screw_socket_head": (("Fasteners", "Bolts, Screws & Cap Screws", "Socket Cap Screws"),),
     "screw_flat_head": (("Fasteners", "Bolts, Screws & Cap Screws", "Flat Socket Cap Screws"),),
     "screw_button_head": (("Fasteners", "Bolts, Screws & Cap Screws", "Button Socket Cap Screws"),),
-    "screw_low_head": (("Fasteners", "Bolts, Screws & Cap Screws", "Low Head Socket Cap Screws"),),
+    "screw_low_head": (("Fasteners", "Bolts, Screws & Cap Screws", "Low Socket Cap Screws"),),
     "bolt_hex": (("Fasteners", "Bolts, Screws & Cap Screws", "Hex Head Bolts"),),
-    "washer_flat": (("Fasteners", "Washers", "Flat Washers"),),
-    "hammer_ball_pein": (("Hand Tools", "Striking Tools", "Ball Pein Hammers"),),
-    "abrasive_flap_disc": (("Abrasives", "Coated & Non-Woven Abrasives", "Flap Discs"),),
+    "washer_flat": (
+        ("Fasteners", "Washers & Shims", "Flat & Square Flat Washers", "Flat Washers"),
+    ),
+    "hammer_ball_pein": (
+        (
+            "Hand Tools",
+            "Hammers, Striking & Demolition Tools",
+            "Hammers & Mallets",
+            "Ball Pein & Cross Pein Hammers",
+        ),
+    ),
+    "abrasive_flap_disc": (("Abrasives", "Coated & Non-Woven Abrasives", "Discs", "Flap Discs"),),
 }
 
 #: The end-mill tool materials each style is made in, in the order the draw
