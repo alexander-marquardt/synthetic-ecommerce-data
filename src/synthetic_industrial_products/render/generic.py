@@ -590,7 +590,7 @@ def _draw_low_head_screw(ax, mark: Marking) -> None:
     so the head half-width here is the socket head drawing's own. The height is
     the whole difference between the two products, and it belongs in the
     silhouette rather than in the marking -- a low head screw drawn to a full
-    head's proportions is a picture of the screw the customer did not order.
+    head's proportions is a picture of the screw the shopper did not order.
     """
     head_half, head_h = 0.105, 0.062
     seat = _HEAD_TOP - head_h

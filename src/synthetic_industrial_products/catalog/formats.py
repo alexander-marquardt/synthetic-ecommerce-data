@@ -12,7 +12,7 @@ it put three spellings of one size inside one column of one catalog, so a
 discrete facet over the published value offered 147 buckets for 49 drive
 sizes (elastic/prism#9285, measured).
 
-The customer's own data does not look like that. Their facet values are a
+The reference distributor's own data does not look like that. Their facet values are a
 clean ladder -- ``1/64, 1/32, 3/64, 1/16, 5/64, 3/32, 7/64, 1/8`` for
 ``Mill Diameter (Inch)`` -- one spelling per value, captured in
 ``square-end-mill-unfiltered.json`` and unanimous across all 23 of their

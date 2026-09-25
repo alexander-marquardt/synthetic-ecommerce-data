@@ -73,7 +73,7 @@ def test_a_button_head_is_the_dome_its_two_published_dimensions_describe():
     not be built from ``Head Dia.`` and ``Head Height`` -- which was wrong:
     the sphere through a head's rim and its crown is unique, and its radius is
     ``(r**2 + h**2) / 2h``. Refusing the style meant a real fastener the
-    customer asks for by name had no drawing and, before that, no record.
+    reference distributor asks for by name had no drawing and, before that, no record.
     """
     geom = fastener.geometry_from_record({**REC, "Screw Head Type": "Button"})
     assert geom.domed

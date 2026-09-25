@@ -254,7 +254,7 @@ class Generator:
         -- not a scatter. Shuffling the standard's 29 offered lengths and
         keeping twelve produced lines reading 1", 1-3/8", 2-1/4", 3-1/4", 12",
         which is not what a distributor offers and, worse, left the COMMON
-        lengths missing at random: the customer's own query names
+        lengths missing at random: the reference distributor's own query names
         ``1-3/4" length under head`` and whether any record carried it was a
         coin toss.
 
@@ -665,10 +665,10 @@ class Generator:
         brand = rng.choice(BRANDS)
         # Three wheels off ONE line counter: the size, the grading and the
         # finish. Those are three of the four attribute-value pairs the
-        # customer's parametric query names, and eleven lines per standard
+        # reference distributor's parametric query names, and eleven lines per standard
         # cannot cover thirty-six combinations -- so which combinations exist
         # must not be luck. Sampling them left the catalog with no Grade 8,
-        # Zinc Plated 7/16-14 hex bolt at all, which is the customer's own
+        # Zinc Plated 7/16-14 hex bolt at all, which is the reference distributor's own
         # example.
         #
         # The grade and finish wheels take ONE EXTRA STEP each time the size
@@ -1121,7 +1121,7 @@ class Generator:
 
         # NO label is cut off here any more. This block used to fire at the
         # measured 3.23% and publish titles ending "Dia./Thread Siz" or
-        # "Number of Flut". The customer's real titles carry none of it --
+        # "Number of Flut". The reference distributor's real titles carry none of it --
         # measured 24/24 clean on the scraped sample -- so it was a defect
         # class we invented, and it reads to a viewer as our rendering bug
         # rather than as a fact about catalog data. Removed by the ruling on

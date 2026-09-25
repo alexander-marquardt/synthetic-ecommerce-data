@@ -381,7 +381,7 @@ def test_a_low_head_screw_is_drawn_lower_than_a_socket_head_cap_screw():
     DIN 7984's head diameter equals ISO 4762's at every size this catalog
     offers and ASME B18.3.1G's is under ASME B18.3's at every one, while the
     head height is a half to two thirds of it. A low head drawn as tall as a
-    full head is a picture of the screw the customer did not order, and it is
+    full head is a picture of the screw the shopper did not order, and it is
     the whole difference between the two drawings.
     """
     low, low_width, _c = _elevation_head("screw_low_head")

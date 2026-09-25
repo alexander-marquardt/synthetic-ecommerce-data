@@ -48,7 +48,7 @@ packages = ["src/synthetic_industrial_products", "src/prism_synthetic_industrial
 # Nothing here noticed for as long as this repo was only ever installed
 # editable (``uv sync``, ``uv pip install -e .``), which does not build a
 # wheel. The first consumer to depend on it as a pinned git requirement --
-# ``elastic/prism-mscdirect``, which serves this catalog -- could not install
+# ``elastic/prism-industrial-products``, which serves this catalog -- could not install
 # it at all. ``tests/test_wheel_builds.py`` builds the wheel and reds on the
 # duplicate, so the editable path can no longer be the only one exercised.
 

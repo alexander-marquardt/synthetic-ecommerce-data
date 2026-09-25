@@ -80,7 +80,7 @@ MIN_PRESENCE = 0.5
 #: precisely because it used to be stated wrongly. The old reason was "a range
 #: control's cost does not grow with its distinct-value count", which tied the
 #: exemption to the CONTROL. It belongs to the attribute: a measured quantity
-#: is not an identifier at any cardinality. The customer's own captured facet
+#: is not an identifier at any cardinality. The reference distributor's own captured facet
 #: payload settles it -- ``Length of Cut (Decimal Inch)`` is offered as a
 #: discrete list of **819** values (``square-end-mill-unfiltered.json``, all
 #: 23 facets ``NAVIGATION``). A 53-value ``Drive Size`` is a facet; a 110-value
@@ -113,7 +113,7 @@ MAX_TERMS_CARDINALITY = 25
 #: and 0.1401 -- ``Drive Size``'s 51 values over 1,556 documents is 0.033, and
 #: ``Length Under Head``, the densest, is 0.1401 -- so all of them are
 #: discrete, with a margin of 3.5x to the threshold. That agrees with the
-#: customer, whose facet list for this category contains no range control at
+#: reference distributor, whose facet list for this category contains no range control at
 #: all.
 #:
 #: THE BAND IS OVER THE FACETED ONES, and saying so is the correction rather
