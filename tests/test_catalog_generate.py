@@ -319,7 +319,7 @@ def test_the_two_measured_image_rates_are_recorded_even_though_neither_is_reprod
 
 # --- the three lengths, and the four socket screw styles -------------------
 #
-# Issue #8: three of the customer's five screw examples had no correct answer
+# Issue #8: three of the reference distributor's five screw examples had no correct answer
 # in the catalog -- not because ranking was wrong, but because the attribute or
 # the product did not exist. These are the checks that it does. They are about
 # the CATALOG rather than about a renderer, which is where the gap was.

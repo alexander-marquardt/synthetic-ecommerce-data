@@ -1199,7 +1199,7 @@ MUTATIONS: list[Mutation] = [
         "B",
         "every screw and bolt line publishes a length under head",
     ),
-    # ---- the sizes the customer asks for exist, both directions ----------
+    # ---- the sizes the reference distributor asks for exist, both directions ----------
     Mutation(
         "drop 25 mm back out of the metric cutting series",
         "catalog/series.py",
@@ -1207,7 +1207,7 @@ MUTATIONS: list[Mutation] = [
         "    15.0,\n    16.0,\n    20.0,\n)",
         "tests/test_catalog_coverage.py",
         "A",
-        "the cutting diameters the customer asks for exist",
+        "the cutting diameters the reference distributor asks for exist",
     ),
     Mutation(
         "freeze the coverage rotation, so which sizes exist is luck again",
@@ -1216,7 +1216,7 @@ MUTATIONS: list[Mutation] = [
         "        self._rotations[key] = self._rotations.get(key, 0) + 1\n        return 0",
         "tests/test_catalog_coverage.py",
         "B",
-        "the cutting diameters the customer asks for exist",
+        "the cutting diameters the reference distributor asks for exist",
     ),
     # ---- 7/16 exists, and its lengths are the standard's, both ways -------
     Mutation(
@@ -1264,7 +1264,7 @@ MUTATIONS: list[Mutation] = [
         'HEX_BOLT_FINISHES: tuple[str, ...] = ("Plain", "Hot Dip Galvanized")',
         "tests/test_catalog_coverage.py",
         "A",
-        "the customer's parametric query has an answer",
+        "the reference distributor's parametric query has an answer",
     ),
     Mutation(
         "take Grade 8 off the inch grading rotation",
@@ -1273,7 +1273,7 @@ MUTATIONS: list[Mutation] = [
         'INCH_GRADES: tuple[str, ...] = ("Grade 5",)',
         "tests/test_catalog_coverage.py",
         "B",
-        "the customer's parametric query has an answer",
+        "the reference distributor's parametric query has an answer",
     ),
     # ---- a size is not locked to one grading and one finish, both ways ----
     #

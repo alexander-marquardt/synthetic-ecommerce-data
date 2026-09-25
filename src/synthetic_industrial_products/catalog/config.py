@@ -106,7 +106,7 @@ class GeneratorConfig:
     #: P1, label_truncation: 16 of 496 titles in the REFERENCE corpus are cut
     #: at a length cap mid-label. **Measured and deliberately not reproduced**,
     #: which is why it is 0.0 rather than absent -- the measurement stands, the
-    #: reproduction is declined. The customer's own titles carry no truncation
+    #: reproduction is declined. The reference distributor's own titles carry no truncation
     #: (24 of 24 clean on the scraped sample), so generating it invented a
     #: defect class their catalog does not have; and a title reading
     #: "Dia./Thread Siz" reads as OUR bug rather than as realism about supplier

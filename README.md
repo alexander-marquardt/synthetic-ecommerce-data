@@ -82,7 +82,7 @@ there is no `#10` hex bolt here, because ASME B18.2.1 hex head screws begin at
 
 The sizes taken are listed in the extraction's own `requested_sizes` block:
 `M3 M4 M5 M6 M8 M10 M12 M16 M20` and `#6 #8 #10 1/4 5/16 3/8 7/16 1/2 5/8`.
-**`7/16` was added after the customer's own parametric example turned out to
+**`7/16` was added after the reference distributor's own parametric example turned out to
 name it** — `hex head cap screw: 7/16-14, 1-3/4" length under head, grade 8
 steel, zinc finish` — and every other component of that query already
 resolved. It is present in the source for all five inch standards, so nothing
@@ -117,7 +117,7 @@ measurements:
 | `Length Under Head` | the whole shank, head excluded |
 | `Thread Length` | how much of that shank carries thread |
 
-`x 3/4` in the customer's pattern is the second of those. Binding it to
+`x 3/4` in the reference distributor's pattern is the second of those. Binding it to
 `Thread Length` would return confidently wrong results — a 3/4" screw and a
 screw with 3/4" of thread on it are different products — and on a countersunk
 screw binding it to `Length` is wrong by a head height. So the attribute is
