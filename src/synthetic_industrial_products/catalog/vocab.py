@@ -126,7 +126,17 @@ def _spec(name: str, scope: str, presence: float = 1.0, kind: str = "keyword") -
 _END_MILL = (
     _spec("Item", "line"),
     _spec("End Mill Style", "line"),
-    _spec("End Mill Material", "line", 0.62),
+    # On EVERY end mill, not at the 0.62 the reference corpus measured. That
+    # corpus's end mills could leave material unstated because their category
+    # trail named it; this catalog's trail no longer does (material is not a
+    # path level -- see ``taxonomy``), so a line without this attribute would
+    # carry its material nowhere. The real catalog's own ``End Mill Material``
+    # facet covers practically every end mill (59,358 values against 56,178
+    # ``Square End Mills`` in its ``square end mill`` listing,
+    # elastic/prism-industrial-products ``data/facet_vocabulary.json``).
+    # Presence 1.0 still draws its sparsity roll, so the random stream is
+    # unchanged by this.
+    _spec("End Mill Material", "line"),
     _spec("Finish - Machining", "line", 0.74),
     _spec("Number of Flutes", "line", kind="count"),
     _spec("Helix Angle", "line", 0.88, kind="angle"),
