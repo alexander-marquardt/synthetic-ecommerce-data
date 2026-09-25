@@ -18,7 +18,7 @@ What that verbatim-ness is evidence OF, and what it is not:
   variation is BETWEEN sources. The generator used to reproduce it WITHIN one
   column of one catalog, which is a different thing and is the defect ruled
   out by elastic/prism#9284 -- it fragmented every dimensional facet roughly
-  threefold and matched nothing in the customer's own data, whose facet values
+  threefold and matched nothing in the reference distributor's own data, whose facet values
   carry one spelling each.
 
 The generator now publishes exactly one spelling per magnitude per unit

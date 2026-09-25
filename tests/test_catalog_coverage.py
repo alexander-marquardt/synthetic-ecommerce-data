@@ -13,10 +13,10 @@ in, on the committed catalog, over ``facets_num.milling_dia`` at +/- 0.02 mm::
     15 mm ->  0 documents                  4 mm   -> 33
     25 mm ->  0 documents                  20 mm  -> 31
 
-Three of the customer's twelve end-mill patterns therefore had no correct
+Three of the reference distributor's twelve end-mill patterns therefore had no correct
 answer available, one of them -- ``25mm end mill`` -- the demo's own headline
 case. The thread size ``7/16-14`` was absent for the same reason on the other
-side of the catalog, blocking the one query the customer singled out as hard.
+side of the catalog, blocking the one query the reference distributor singled out as hard.
 
 So the assertions here are stated over the WHOLE catalog and derived from the
 offered lists rather than from a copy of them: the series in
@@ -47,15 +47,15 @@ MM_PER_INCH = 25.4
 #: 7/16" (11.1125 mm) are different sizes and must not answer for each other.
 MM_TOLERANCE = 0.02
 
-#: The three sizes the customer's own patterns name. Pinned BESIDE the derived
+#: The three sizes the reference distributor's own patterns name. Pinned BESIDE the derived
 #: sweep rather than instead of it: the sweep proves every offered size
 #: reaches a document, and these three prove the offered list is the one the
-#: customer asks for. A sweep alone stays green if all three are deleted from
+#: reference distributor asks for. A sweep alone stays green if all three are deleted from
 #: the series.
-CUSTOMER_METRIC_DIAS = (11.0, 15.0, 25.0)
+REFERENCE_METRIC_DIAS = (11.0, 15.0, 25.0)
 
-#: And the thread size, on the product type the customer's query names.
-CUSTOMER_THREAD = "7/16-14"
+#: And the thread size, on the product type the reference distributor's query names.
+REFERENCE_THREAD = "7/16-14"
 HEX_BOLT_TYPE = "bolt_hex"
 
 
@@ -141,9 +141,9 @@ def test_every_offered_imperial_cutting_diameter_reaches_a_document(flat_docs: l
     )
 
 
-@pytest.mark.parametrize("dia", CUSTOMER_METRIC_DIAS)
+@pytest.mark.parametrize("dia", REFERENCE_METRIC_DIAS)
 @pytest.mark.parametrize("type_key", ["end_mill_square", "end_mill_ball"])
-def test_the_sizes_the_customer_asks_for_exist_in_both_end_mill_styles(
+def test_the_sizes_the_reference_distributor_asks_for_exist_in_both_end_mill_styles(
     flat_docs: list[dict], dia: float, type_key: str
 ) -> None:
     """Both styles, because two of the three patterns name one.
@@ -160,7 +160,7 @@ def test_the_sizes_the_customer_asks_for_exist_in_both_end_mill_styles(
     )
     assert count > 0, (
         f"no {type_key} document publishes a {dia:g} mm cutting diameter. "
-        f"The customer's pattern for this size has no correct answer."
+        f"The reference distributor's pattern for this size has no correct answer."
     )
 
 
@@ -173,7 +173,7 @@ def test_a_25_mm_cutting_diameter_has_exactly_one_spelling(
     diameter ``25.00mm`` while a shopper typed ``25mm``, on the reasoning that
     the mismatch was the defect the rewrite policy demonstrated bridging. The
     ruling on elastic/prism#9284 removed that premise. The spelling variation
-    was never the customer's -- their facet values carry one spelling per
+    was never the reference distributor's -- their facet values carry one spelling per
     value -- so it was a defect we invented and then built a bridge over.
 
     What replaces it is stronger than the old assertion, because it counts
@@ -237,19 +237,19 @@ def test_every_size_every_fastener_standard_offers_reaches_a_document(
     )
 
 
-def test_the_thread_size_the_customers_parametric_query_names_exists(
+def test_the_thread_size_the_reference_parametric_query_names_exists(
     flat_docs: list[dict],
 ) -> None:
     rows = [
         doc
         for doc in flat_docs
-        if CUSTOMER_THREAD in doc["facets"].get("dia_thread_size", [])
+        if REFERENCE_THREAD in doc["facets"].get("dia_thread_size", [])
     ]
-    assert rows, f"no document publishes {CUSTOMER_THREAD}"
+    assert rows, f"no document publishes {REFERENCE_THREAD}"
     hex_rows = [doc for doc in rows if doc["product_type"] == HEX_BOLT_TYPE]
     assert hex_rows, (
-        f"{len(rows)} document(s) publish {CUSTOMER_THREAD} and none of them is a "
-        f"hex head bolt, which is the product the customer's query names"
+        f"{len(rows)} document(s) publish {REFERENCE_THREAD} and none of them is a "
+        f"hex head bolt, which is the product the reference distributor's query names"
     )
 
 
@@ -271,7 +271,7 @@ def test_the_lengths_published_for_that_size_are_the_standards_own(
     for doc in flat_docs:
         if doc["product_type"] != HEX_BOLT_TYPE:
             continue
-        if CUSTOMER_THREAD not in doc["facets"].get("dia_thread_size", []):
+        if REFERENCE_THREAD not in doc["facets"].get("dia_thread_size", []):
             continue
         for value in doc["facets"].get("length", []):
             try:
@@ -288,7 +288,7 @@ def test_the_lengths_published_for_that_size_are_the_standards_own(
     )
 
 
-def test_the_customers_parametric_query_has_an_answer(flat_docs: list[dict]) -> None:
+def test_the_reference_parametric_query_has_an_answer(flat_docs: list[dict]) -> None:
     """All four attribute-value pairs on ONE record, not four counts.
 
         hex head cap screw: 7/16-14, 1-3/4" length under head,
@@ -305,7 +305,7 @@ def test_the_customers_parametric_query_has_an_answer(flat_docs: list[dict]) -> 
         doc
         for doc in flat_docs
         if doc["product_type"] == HEX_BOLT_TYPE
-        and CUSTOMER_THREAD in doc["facets"].get("dia_thread_size", [])
+        and REFERENCE_THREAD in doc["facets"].get("dia_thread_size", [])
         and "Grade 8" in doc["facets"].get("grade", [])
         and "Zinc Plated" in doc["facets"].get("fastener_finish", [])
         and doc["facets"].get("length_under_head")
@@ -313,7 +313,7 @@ def test_the_customers_parametric_query_has_an_answer(flat_docs: list[dict]) -> 
     ]
     assert answers, (
         "no record carries 7/16-14, Grade 8, Zinc Plated and a length under head "
-        "together on a hex head, so the customer's parametric example resolves to "
+        "together on a hex head, so the reference distributor's parametric example resolves to "
         "an empty set however good the rewriting is"
     )
 
@@ -386,7 +386,7 @@ def test_a_bolt_never_carries_a_grading_from_the_other_measurement_system(
 
     A ``7/16-14`` bolt graded ``Class 10.9`` is a designation that does not
     exist, and the catalog published them: the grade was drawn from one pool
-    of four regardless of which standard the line was built to. The customer's
+    of four regardless of which standard the line was built to. The reference distributor's
     own query lands on exactly this pair of fields, which is how it surfaced.
     """
     from synthetic_industrial_products.catalog.generate import INCH_GRADES, METRIC_GRADES

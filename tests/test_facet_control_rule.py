@@ -234,7 +234,7 @@ def test_values_that_are_not_numbers_are_never_a_range() -> None:
 def test_a_quantity_is_exempt_from_the_identifier_ceiling_at_any_cardinality() -> None:
     """The ceiling separates a facet from a part number, not a list from a slider.
 
-    The customer offers ``Length of Cut (Decimal Inch)`` as a discrete list of
+    The reference distributor offers ``Length of Cut (Decimal Inch)`` as a discrete list of
     819 values. A rule that dropped a quantitative attribute for exceeding 25
     would delete most of this catalog's sidebar the moment the control
     changed -- which is exactly what would have happened had the exemption

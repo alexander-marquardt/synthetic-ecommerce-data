@@ -69,7 +69,7 @@ IMPERIAL_SHANKS: tuple[Fraction, ...] = (
 #: 11, 15 and 25 are ordinary stocked sizes and were missing, which is an
 #: artifact of how this list was first written rather than a statement about
 #: the market: a catalog that offers 10 and 12 offers 11, and one that offers
-#: 20 offers 25. Their absence made three of the customer's twelve end-mill
+#: 20 offers 25. Their absence made three of the reference distributor's twelve end-mill
 #: patterns unanswerable -- ``11 mm end mills``, ``15 mm ball end mills`` and
 #: ``25mm end mill``, the last of which is the demo's own headline case.
 #:

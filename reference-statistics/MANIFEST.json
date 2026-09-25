@@ -2,7 +2,7 @@
  "generated_utc": "2026-09-16T21:43:12Z",
  "what_this_is": "Derived statistical properties of archived Grainger product pages, for driving a synthetic catalog generator. The raw corpus under raw/ is analysis input only and ships nowhere.",
  "collection_constraints_observed": {
-  "source": "web.archive.org ONLY -- no request was sent to grainger.com or mcmaster.com",
+  "source": "web.archive.org ONLY -- no request was sent to any distributor's own site",
   "user_agent": "prism-demo-research/1.0 (Elastic; alexander.marquardt@elastic.co)",
   "concurrency": "serial, single process, 3-5s jittered between requests, escalating backoff on 429/5xx",
   "capture_eras_used": "2015 and 2020 slug captures, and 2026 bare-SKU captures",

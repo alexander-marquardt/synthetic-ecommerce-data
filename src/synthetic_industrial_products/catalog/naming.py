@@ -232,7 +232,7 @@ def build_title(
 
     So a title that does not fit sheds its LAST SEGMENT, and then the one
     before it, until it fits. Every segment that survives is whole, which is
-    what the customer's own titles look like -- the grammar drops the least
+    what the reference distributor's own titles look like -- the grammar drops the least
     identifying attribute rather than publishing half of it. The item segment
     is never dropped: a title has to name the product, and one that cannot do
     that inside the cap is a genuine refusal rather than something to trim to

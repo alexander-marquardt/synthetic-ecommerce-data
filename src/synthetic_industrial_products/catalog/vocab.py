@@ -245,7 +245,7 @@ _SOCKET_SCREW = (
 #: is described by width across flats, not a head diameter.
 #:
 #: ``Grade`` and ``Fastener Finish`` are unconditional HERE and optional on
-#: every other fastener, and the asymmetry is deliberate. The customer's
+#: every other fastener, and the asymmetry is deliberate. The reference distributor's
 #: parametric example is ``hex head cap screw: 7/16-14, 1-3/4" length under
 #: head, grade 8 steel, zinc finish`` -- four attribute-value pairs, two of
 #: them these -- and at 0.72 and 0.78 presence, drawn once per LINE, whether
@@ -254,7 +254,7 @@ _SOCKET_SCREW = (
 #: finish to that roll, and the query resolved to nothing.
 #:
 #: This is the precedent issue #8 set for ``Length Under Head``: an attribute a
-#: customer's query BINDS to is published rather than approximated by a
+#: reference query BINDS to is published rather than approximated by a
 #: neighbour or left to chance. It is also what the source does -- a
 #: distributor's hex cap screw listing states the grade and the finish on
 #: every row, because they are what the category is selected on.
