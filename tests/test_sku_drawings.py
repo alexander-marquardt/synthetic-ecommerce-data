@@ -483,21 +483,21 @@ def _drawn_size(type_key: str, record) -> tuple[float, float]:
     return (x1 - x0) * scale, (y1 - y0) * scale
 
 
-def _expected_lens(width: float, height: float) -> bool:
-    """The ruling, written out independently of :func:`sheet.magnifier`.
+def _too_small(width: float, height: float) -> bool:
+    """The ruling, written out independently of :func:`sheet.magnifier`:
+    drawn at most 1/6 of the sheet's width AND at most 1/6 of its height."""
+    return width <= 200 / 6 and height <= 300 / 6
 
-    Both dimensions at most 1/6 of the sheet's, and the lens (as large as the
-    whole centred glyph allows) enlarging the part at least 2.5 times.
-    """
+
+def _handled_k(width: float, height: float) -> float:
+    """What the handled glass would enlarge the part by, from the glyph's own extents."""
     import math
 
     from synthetic_industrial_products.drawing.sheet import _glyph_extent
 
-    if width > 200 / 6 or height > 300 / 6:
-        return False
-    _, left, right, bottom = _glyph_extent(1.0)
+    _, left, right, bottom = _glyph_extent(1.0, floor=False)
     radius = min((200 - 24) / (right - left), (300 - 24 - 14 - height) / (-left + bottom))
-    return 0.92 * 2 * radius / math.hypot(width, height) >= 2.5
+    return 0.92 * 2 * radius / math.hypot(width, height)
 
 
 def _golden_skus():
@@ -508,36 +508,54 @@ def _golden_skus():
 
 
 def test_the_lens_appears_exactly_when_the_rule_says():
-    """Over every committed SKU: a lens iff h AND w <= 1/6 of the sheet and >= x2.5."""
+    """Over every committed SKU: a lens iff the part is drawn h AND w <= 1/6 of the sheet."""
     wrong, lensed, plain = [], 0, 0
     for parent, variant, record in _golden_skus():
         type_key = parent["product_type"]
         data, _ = draw_sku(type_key, parent["brand"], record)
-        expected = _expected_lens(*_drawn_size(type_key, record))
+        expected = _too_small(*_drawn_size(type_key, record))
         if _has_lens(data) != expected:
             wrong.append(variant["sku"])
         lensed += expected
         plain += not expected
     assert wrong == [], f"{len(wrong)} SKUs: {wrong[:5]}"
     # Non-vacuity both ways, on the committed catalog.
-    assert lensed > 100 and plain > 5000, (lensed, plain)
+    assert lensed > 1000 and plain > 5000, (lensed, plain)
+
+
+def test_every_lens_enlarges_at_least_2_5_and_is_handle_less_only_when_it_must_be():
+    """Handled glass when it reaches x2.5; otherwise the larger handle-less lens.
+
+    Over every committed SKU the rule applies to, and at the rule's extreme --
+    a part drawn a full 1/6 by 1/6 of the sheet, the largest diagonal a
+    too-small part can have -- so the x2.5 floor is proven, not sampled.
+    """
+    from synthetic_industrial_products.drawing.sheet import magnifier
+
+    counts = {True: 0, False: 0}
+    for parent, variant, record in _golden_skus():
+        width, height = _drawn_size(parent["product_type"], record)
+        mag = magnifier(width, height)
+        if mag is None:
+            continue
+        assert mag.k >= 2.5, (variant["sku"], mag.k)
+        assert mag.handle == (_handled_k(width, height) >= 2.5), variant["sku"]
+        counts[mag.handle] += 1
+        if variant["sku"] in ("4LN69", "93TD57"):  # an in-between screw, a hairline drill
+            assert not mag.handle, variant["sku"]
+    assert counts[True] > 100 and counts[False] > 500, counts
+    extreme = magnifier(200 / 6 - 1e-9, 300 / 6 - 1e-9)
+    assert extreme is not None and not extreme.handle and extreme.k >= 2.5
 
 
 def test_a_part_just_over_the_share_in_ONE_dimension_is_drawn_plain():
-    """Both dimensions must be small; each alone is not enough.
-
-    The WIDTH share binds on its own: a part 35 wide and 5 tall would be
-    enlarged about x2.7, and is refused only because 35 > 200/6; one 33 wide
-    is magnified. The HEIGHT share (50) never binds alone with today's lens:
-    the largest lens that fits is ~52 in radius, so x2.5 already needs a
-    diagonal under ~38 -- stated here, so a change of lens makes it visible.
-    """
+    """Both dimensions must be small; each alone is not enough, and each binds."""
     from synthetic_industrial_products.drawing.sheet import magnifier
 
     assert magnifier(33, 5) is not None
     assert magnifier(35, 5) is None
+    assert magnifier(5, 49) is not None
     assert magnifier(5, 300 / 6 + 0.5) is None
-    assert magnifier(20, 30) is not None
 
 
 def test_long_thin_parts_never_get_a_lens():
@@ -618,35 +636,87 @@ def test_the_space_above_the_glyph_equals_the_space_below_the_part():
         magnifier,
     )
 
-    for w, h in ((8, 30), (20, 20), (25, 15)):
+    seen = set()
+    for w, h in ((8, 30), (20, 20), (25, 15), (30, 45), (2, 43)):
         mag = magnifier(w, h)
         assert mag is not None
-        _, left, right, bottom = _glyph_extent(mag.radius)
+        seen.add(mag.handle)
+        if mag.handle:
+            _, left, right, bottom = _glyph_extent(mag.radius)
+        else:
+            outer = mag.radius + mag.stroke
+            left, right, bottom = -outer, outer, outer
         glyph_top = mag.lens[1] + left
         glyph_bottom = mag.lens[1] + bottom
         part_bottom = mag.part[1] + h / 2
         assert glyph_top == pytest.approx(300 - part_bottom), (w, h)
         assert (mag.part[1] - h / 2) - glyph_bottom == pytest.approx(GLYPH_GAP)
-        # The WHOLE glyph is centred.
+        # The WHOLE glyph is centred, and so is the part.
         assert mag.lens[0] + (left + right) / 2 == pytest.approx(100)
         assert mag.part[0] == pytest.approx(100)
+    assert seen == {True, False}
 
 
 def test_the_glyph_is_in_the_brand_ink():
-    """Ring, shaft and grip are stroked in the house ink -- never black, never another brand's."""
+    """Ring, shaft and grip are stroked in the house ink -- never black, never another brand's.
+
+    The handled glass has a shaft and a grip; the handle-less lens has neither.
+    """
     s6 = {"Head Type": "Socket", "Dia./Thread Size": "#6-32", "Length": '1/4"',
           "Thread Length": '1/4"', "Head Dia.": '0.2260"', "Head Height": '0.1380"'}  # fmt: skip
-    for brand in BRANDS:
-        data, _ = draw_sku("screw_socket_head", brand, s6)
-        assert _has_lens(data)
-        glyph = [e for e in ET.fromstring(data) if e.attrib.get("stroke-linecap") == "round"]
-        ring = [
-            e
-            for e in ET.fromstring(data)
-            if e.tag.endswith("circle") and e.attrib.get("fill") == "none"
-        ]
-        assert len(glyph) == 2 and len(ring) == 1, brand
-        assert {e.attrib["stroke"] for e in [*glyph, *ring]} == {house_style(brand).ink}, brand
+    m3 = {"Size": "M3", "Inside Dia.": "3.20mm", "Outside Dia.": "7mm", "Thickness": "0.50mm"}
+    for type_key, record, handles in (("screw_socket_head", s6, 2), ("washer_flat", m3, 0)):
+        for brand in BRANDS:
+            data, _ = draw_sku(type_key, brand, record)
+            assert _has_lens(data)
+            root = list(ET.fromstring(data))
+            glyph = [e for e in root if e.attrib.get("stroke-linecap") == "round"]
+            ring = [e for e in root if e.tag.endswith("circle") and e.attrib.get("fill") == "none"]
+            assert len(glyph) == handles and len(ring) == 1, (type_key, brand)
+            assert {e.attrib["stroke"] for e in [*glyph, *ring]} == {house_style(brand).ink}
+
+
+def test_no_outline_is_thinner_than_the_minimum_stroke():
+    """Every outline and the glyph are at least MIN_STROKE (2.3 units, ~2 px at 180 px).
+
+    Over every committed drawing. Detail lines (flutes, threads) and the hatch
+    pattern are texture, not outlines, and are the stated exemption: the
+    detail lines carry ``stroke-opacity``, the hatch lives inside ``<pattern>``.
+    The brand's frame is the brand's, not the part's, and is exempt too.
+    """
+    from synthetic_industrial_products.drawing.sheet import MIN_STROKE
+
+    assert MIN_STROKE * 180 / 200 >= 2.0
+    thinnest = 99.0
+    for parent, variant, record in _golden_skus():
+        data, _ = draw_sku(parent["product_type"], parent["brand"], record)
+        for element in ET.fromstring(data):
+            width = element.attrib.get("stroke-width")
+            if width is None or "stroke-opacity" in element.attrib:
+                continue
+            tag = element.tag.split("}")[-1]
+            if tag in ("rect", "path") and element.attrib.get("fill") == "none" and not (
+                {"stroke-linejoin", "stroke-linecap"} & set(element.attrib)
+            ):
+                continue  # the brand's frame (rule, rounded or corner markers)
+            thinnest = min(thinnest, float(width))
+            assert float(width) >= MIN_STROKE - 1e-9, (variant["sku"], element.tag, width)
+    assert thinnest == pytest.approx(MIN_STROKE)
+
+
+def test_a_hairline_drill_is_drawn_with_a_visible_outline():
+    """Planted: 93TD57 is drawn under two units wide at its type's scale."""
+    for parent, variant, record in _golden_skus():
+        if variant["sku"] == "93TD57":
+            width, _ = _drawn_size(parent["product_type"], record)
+            assert width < 2.3
+            data, _ = draw_sku(parent["product_type"], parent["brand"], record)
+            outlines = [
+                e for e in _true_scale_copy(data) if e.attrib.get("stroke-linejoin") == "round"
+            ]
+            assert outlines and all(float(e.attrib["stroke-width"]) >= 2.3 for e in outlines)
+            return
+    raise AssertionError("93TD57 is not in the committed catalog")
 
 
 # --- the archive layout and its pinnable digest ----------------------------------

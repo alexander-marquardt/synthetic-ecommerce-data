@@ -19,12 +19,24 @@ horizontally centred, and a magnifying glass above it shows it enlarged:
 * the WHOLE glyph is horizontally centred and as large as the sheet allows;
   the space above it equals the space below the small part, and
   :data:`GLYPH_GAP` separates the grip's lowest point from the part;
-* it applies only when the part's drawn width is at most :data:`MAGNIFY_SHARE`
-  of the sheet's width AND its drawn height at most that share of the sheet's
-  height, AND the lens enlarges it at least :data:`MIN_ENLARGEMENT` times.
-  Otherwise the part is drawn plain, centred, at its type's scale. (With the
-  lens as large as it is today, x2.5 already needs a diagonal under ~38 units,
-  so the height share never binds on its own; the width share does.)
+* a part is TOO SMALL TO SEE when its drawn width is at most
+  :data:`MAGNIFY_SHARE` of the sheet's width AND its drawn height at most that
+  share of the sheet's height, and such a part ALWAYS gets a lens (the refined
+  ruling of 2026-09-28: *"if they are too small to see, then they should have a
+  lens .. if they can be seen, they should not"*). Every other part is drawn
+  plain, centred, at its type's scale;
+* the handled glass is used when it enlarges the part at least
+  :data:`MIN_ENLARGEMENT` times. Otherwise the lens is a larger HANDLE-LESS
+  circle -- the same thin ring, white interior and enlarged part -- sized to the
+  sheet's width, with the part below it, both centred and the margins
+  balanced. Sized so, even the largest too-small part (1/6 x 1/6 of the sheet,
+  a diagonal of ~60 units) is enlarged at least x2.5.
+
+NO OUTLINE IS THINNER THAN :data:`MIN_STROKE` units, which is ~2 px on a
+180 px-wide thumbnail, so a hairline part (a 1/16" drill at its type's scale is
+under one unit wide) is visible with or without a lens. The interior detail
+lines (flutes, threads, hatch) are texture, not the part's outline, and keep
+their finer weight.
 
 No part of the magnifier is text. ``tests/test_sku_drawings.py`` asserts the
 rule, the enlargement, the balance, the ink and the allow-list.
@@ -42,7 +54,10 @@ from .style import Hatch, HouseStyle, _mix
 #: The inset of the drawing from the sheet edge, in sheet units.
 MARGIN = 18.0
 
-LW_PART = "1.6"
+#: The thinnest outline any drawing strokes, in sheet units: 2.3 units is
+#: 2.07 px on a 180 px-wide thumbnail (the sheet is 200 units wide).
+MIN_STROKE = 2.3
+LW_PART = svg.num(MIN_STROKE)
 LW_LINE = "0.8"
 
 #: The magnifier's rule and geometry (see the module docstring).
@@ -52,6 +67,8 @@ LENS_FILL = 0.92
 GLYPH_GAP = 14.0
 #: The glyph's inset from the sheet edge, sideways (the icon's frame-free zone).
 GLYPH_MARGIN = 12.0
+#: The handle-less lens's inset from the sheet edge: it is sized to the width.
+LENS_MARGIN = 10.0
 #: Stroke weight as a share of the icon's (36 on a 135 lens interior).
 RING_SHARE = 0.35
 #: The icon's proportions, in its own units: lens interior radius, and how far
@@ -73,6 +90,7 @@ class Magnifier:
     """Where a magnified part and its glyph go on the sheet, in sheet units."""
 
     k: float  # the lens's enlargement
+    handle: bool  # the handled glass, or the larger handle-less lens
     lens: tuple[float, float]  # lens centre
     radius: float  # lens interior radius
     stroke: float  # ring and shaft width (the grip is twice it)
@@ -80,10 +98,17 @@ class Magnifier:
     top: float  # the space above the glyph, equal to the space below the part
 
 
-def _glyph_extent(radius: float) -> tuple[float, float, float, float]:
-    """The glyph's (stroke, left, right, bottom) about its lens centre, in sheet units."""
+def _glyph_extent(radius: float, floor: bool = True) -> tuple[float, float, float, float]:
+    """The glyph's (stroke, left, right, bottom) about its lens centre, in sheet units.
+
+    ``floor=False`` leaves out the :data:`MIN_STROKE` floor, so the extents are
+    linear in ``radius`` -- the form the largest-lens solve needs. At every
+    radius a sheet actually draws, the icon's own stroke is above the floor.
+    """
     f = radius / ICON_LENS
     w = ICON_STROKE * RING_SHARE * f
+    if floor:
+        w = max(w, MIN_STROKE)
     outer = radius + w
     reach = ICON_GRIP_TO * f
     a = math.radians(HANDLE_ANGLE)
@@ -97,22 +122,34 @@ def magnifier(width: float, height: float) -> Magnifier | None:
         return None
     if width > svg.WIDTH * MAGNIFY_SHARE or height > svg.HEIGHT * MAGNIFY_SHARE:
         return None
-    # Every extent is linear in the lens radius, so the largest lens that fits
-    # is the tighter of the width and the height budgets.
-    _, left1, right1, bottom1 = _glyph_extent(1.0)
-    outer1 = -left1
+    diagonal = math.hypot(width, height)
+    # The handled glass: every extent is linear in the lens radius, so the
+    # largest lens that fits is the tighter of the width and the height budgets.
+    _, left1, right1, bottom1 = _glyph_extent(1.0, floor=False)
     by_width = (svg.WIDTH - 2 * GLYPH_MARGIN) / (right1 - left1)
-    by_height = (svg.HEIGHT - 2 * GLYPH_MARGIN - GLYPH_GAP - height) / (outer1 + bottom1)
+    by_height = (svg.HEIGHT - 2 * GLYPH_MARGIN - GLYPH_GAP - height) / (-left1 + bottom1)
     radius = min(by_width, by_height)
-    k = LENS_FILL * 2 * radius / math.hypot(width, height)
-    if k < MIN_ENLARGEMENT:
-        return None
-    w, left, right, bottom = _glyph_extent(radius)
-    glyph_h = -left + bottom
-    top = (svg.HEIGHT - (glyph_h + GLYPH_GAP + height)) / 2
-    lens = (svg.WIDTH / 2 - (left + right) / 2, top - left)
-    part = (svg.WIDTH / 2, top + glyph_h + GLYPH_GAP + height / 2)
-    return Magnifier(k=k, lens=lens, radius=radius, stroke=w, part=part, top=top)
+    k = LENS_FILL * 2 * radius / diagonal
+    if k >= MIN_ENLARGEMENT:
+        w, left, right, bottom = _glyph_extent(radius)
+        glyph_h = -left + bottom
+        top = (svg.HEIGHT - (glyph_h + GLYPH_GAP + height)) / 2
+        lens = (svg.WIDTH / 2 - (left + right) / 2, top - left)
+        part = (svg.WIDTH / 2, top + glyph_h + GLYPH_GAP + height / 2)
+        return Magnifier(k=k, handle=True, lens=lens, radius=radius, stroke=w, part=part, top=top)
+    # The handle-less lens: a circle as wide as the sheet allows.
+    ring = ICON_STROKE * RING_SHARE / ICON_LENS  # the ring's width per unit of radius
+    radius = min(
+        (svg.WIDTH / 2 - LENS_MARGIN) / (1 + ring),
+        (svg.HEIGHT - 2 * LENS_MARGIN - GLYPH_GAP - height) / 2 / (1 + ring),
+    )
+    w = max(ring * radius, MIN_STROKE)
+    outer = radius + w
+    top = (svg.HEIGHT - (2 * outer + GLYPH_GAP + height)) / 2
+    lens = (svg.WIDTH / 2, top + outer)
+    part = (svg.WIDTH / 2, top + 2 * outer + GLYPH_GAP + height / 2)
+    k = LENS_FILL * 2 * radius / diagonal
+    return Magnifier(k=k, handle=False, lens=lens, radius=radius, stroke=w, part=part, top=top)
 
 
 def _hatch_pattern(page: svg.Svg, hatch: Hatch, ink: str) -> str:
@@ -239,10 +276,11 @@ def _glyph(page: svg.Svg, mag: Magnifier, ink: str) -> None:
         return (cx + math.cos(a) * d, cy + math.sin(a) * d)
 
     ring = mag.radius + mag.stroke / 2
-    for start, end, width in (
+    handle = (
         (ring, ICON_SHAFT_END * f, mag.stroke),
         (ICON_GRIP_FROM * f, ICON_GRIP_TO * f, 2 * mag.stroke),
-    ):
+    )
+    for start, end, width in handle if mag.handle else ():
         page.path(
             svg.path_d([along(start), along(end)], closed=False),
             fill="none",
