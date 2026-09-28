@@ -57,6 +57,7 @@ def _read(
     geometry: Callable[[Record], object],
     defaults: dict[str, Callable[[Record], str]],
     nominal: Record,
+    primary: str | None = None,
 ):
     """The geometry, from the record as published, else completed, else nominal."""
     try:
@@ -87,6 +88,23 @@ def _read(
             return geometry(rebuilt), "partial"
         except REFUSALS:
             pass
+    # Something ELSE published contradicts (a ball nose with a corner radius):
+    # keep only the primary dimension, so siblings of different sizes still
+    # draw different sizes, and take every other value from the nominal shape.
+    if primary is not None and primary in record:
+        core = {k: v for k, v in nominal.items() if k not in defaults}
+        core[primary] = record[primary]
+        for name, default in defaults.items():
+            try:
+                core[name] = default(core)
+            except REFUSALS:
+                core = {}
+                break
+        if core:
+            try:
+                return geometry(core), "partial"
+            except REFUSALS:
+                pass
     return geometry(nominal), "nominal"
 
 
@@ -150,7 +168,9 @@ def end_mill(record: Record) -> Drawn:
     rec = dict(record)
     rec.setdefault("End Mill Style", END_MILL_NOMINAL["End Mill Style"])
     nominal = {**END_MILL_NOMINAL, "End Mill Style": rec["End Mill Style"]}
-    geom, source = _read(rec, endmill_geom.geometry_from_record, END_MILL_DEFAULTS, nominal)
+    geom, source = _read(
+        rec, endmill_geom.geometry_from_record, END_MILL_DEFAULTS, nominal, "Milling Dia."
+    )
     d, s = geom.cut_d.inches, geom.shank_d.inches
     loc, oal = geom.loc.inches, geom.oal.inches
     r = d / 2
@@ -200,7 +220,9 @@ DRILL_NOMINAL = {
 
 
 def drill(record: Record) -> Drawn:
-    geom, source = _read(record, drill_geom.geometry_from_record, DRILL_DEFAULTS, DRILL_NOMINAL)
+    geom, source = _read(
+        record, drill_geom.geometry_from_record, DRILL_DEFAULTS, DRILL_NOMINAL, "Size"
+    )
     d, s = geom.dia.inches, geom.shank_d.inches
     flute, oal = geom.flute_len.inches, geom.oal.inches
     r = d / 2
@@ -244,7 +266,9 @@ def _thread_crests(x_half, y_from, y_to, pitch):
 
 
 def tap(record: Record) -> Drawn:
-    geom, source = _read(record, tap_geom.geometry_from_record, TAP_DEFAULTS, TAP_NOMINAL)
+    geom, source = _read(
+        record, tap_geom.geometry_from_record, TAP_DEFAULTS, TAP_NOMINAL, "Thread Size"
+    )
     major = geom.thread.major.inches
     s, oal, tl = geom.shank_d.inches, geom.oal.inches, geom.thread_len.inches
     r = major / 2
@@ -290,7 +314,9 @@ def fastener(record: Record) -> Drawn:
     if "Head Type" not in rec and "Screw Head Type" not in rec:
         rec["Head Type"] = "Socket"
     nominal = {**FASTENER_NOMINAL, "Head Type": rec.get("Head Type", rec.get("Screw Head Type"))}
-    geom, source = _read(rec, fastener_geom.geometry_from_record, FASTENER_DEFAULTS, nominal)
+    geom, source = _read(
+        rec, fastener_geom.geometry_from_record, FASTENER_DEFAULTS, nominal, "Dia./Thread Size"
+    )
     major = geom.thread.major.inches
     r = major / 2
     hh = geom.head_height.inches
@@ -451,18 +477,20 @@ def hammer(record: Record) -> Drawn:
 
 
 #: Which figure each product type is drawn with, and the characteristic-size
-#: range (inches) its size cue reads.
+#: range (inches) of the type: the LARGEST product of the type fills its
+#: sheet, and every other is drawn at the same scale (:mod:`.sheet`).
+#: ``tests/test_sku_drawings.py`` asserts no product exceeds its type's top.
 FIGURES: dict[str, tuple[Callable[[Record], Drawn], tuple[float, float]]] = {
-    "end_mill_square": (end_mill, (1.5, 8.0)),
-    "end_mill_ball": (end_mill, (1.5, 8.0)),
-    "drill_jobber": (drill, (1.5, 10.0)),
-    "tap_spiral_point": (tap, (1.5, 7.0)),
-    "screw_socket_head": (fastener, (0.25, 6.0)),
-    "screw_flat_head": (fastener, (0.25, 6.0)),
-    "screw_button_head": (fastener, (0.25, 6.0)),
-    "screw_low_head": (fastener, (0.25, 6.0)),
-    "bolt_hex": (fastener, (0.25, 6.0)),
-    "washer_flat": (washer, (0.25, 2.5)),
+    "end_mill_square": (end_mill, (1.0, 10.0)),
+    "end_mill_ball": (end_mill, (1.0, 10.0)),
+    "drill_jobber": (drill, (1.0, 9.0)),
+    "tap_spiral_point": (tap, (1.5, 4.2)),
+    "screw_socket_head": (fastener, (0.1, 6.0)),
+    "screw_flat_head": (fastener, (0.1, 6.0)),
+    "screw_button_head": (fastener, (0.1, 6.0)),
+    "screw_low_head": (fastener, (0.1, 6.0)),
+    "bolt_hex": (fastener, (0.1, 6.0)),
+    "washer_flat": (washer, (0.2, 1.5)),
     "hammer_ball_pein": (hammer, (8.0, 18.0)),
     "abrasive_flap_disc": (flap_disc, (4.0, 7.0)),
 }
@@ -639,7 +667,7 @@ def hex_key(record: Record) -> Drawn:
 
 FIGURES.update(
     {
-        "nut_hex": (hex_nut, (0.2, 1.6)),
+        "nut_hex": (hex_nut, (0.2, 1.7)),
         "bearing_radial_ball": (bearing, (0.6, 3.2)),
         "wheel_depressed_center": (depressed_wheel, (4.0, 9.0)),
         "hex_key": (hex_key, (1.4, 9.0)),

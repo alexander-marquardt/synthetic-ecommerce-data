@@ -110,8 +110,8 @@ MAX_TERMS_CARDINALITY = 25
 #: live in :data:`MEASURED_DISPERSION` beside this rather than in this
 #: sentence, because a sentence went stale across one regeneration while every
 #: test stayed green. Every attribute this catalog FACETS lands between 0.0018
-#: and 0.4446 -- ``Drive Size``'s 52 values over 1,389 documents is 0.037, and
-#: the densest, ``Dynamic Load Capacity``, is 0.4446: a generated bearing
+#: and 0.4357 -- ``Drive Size``'s 52 values over 1,389 documents is 0.037, and
+#: the densest, ``Dynamic Load Capacity``, is 0.4357: a generated bearing
 #: rating, nearly one value per bearing number, and still just on the discrete
 #: side. The one continuum is ``Neck Length`` (see ``RANGE_MIN_DOCS``). Before
 #: the catalog grew (elastic/prism-industrial-products#103) the band was
@@ -163,7 +163,7 @@ RANGE_MIN_DOCS = 50
 MEASURED_DISPERSION: dict[str, Any] = {
     # The band over the attributes that are actually FACETED.
     "faceted_low": 0.0018,
-    "faceted_high": 0.4446,
+    "faceted_high": 0.4357,
     "densest_faceted": "Dynamic Load Capacity",
     # The saturated ladder the rule exists to keep off a slider.
     "drive_size_cardinality": 52,

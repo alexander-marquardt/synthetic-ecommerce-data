@@ -280,6 +280,10 @@ def build_bearing(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
         keyword_attribute("Item", item),
         keyword_attribute("Type", "Deep Groove"),
         keyword_attribute("Bearing Number", number),
+        # The bearing series (60/62/63, or R for the inch series). It shares a
+        # sanitised key with the product's own ``series`` column; the flat field
+        # map namespaces it (``attr_series``) rather than drop it.
+        keyword_attribute("Series", "R" if inch else number[:2]),
         length_attribute("Bore", gen._publish(bore_in, style)),
         length_attribute("Outside Dia.", gen._publish(od_in, style)),
         length_attribute("Width", gen._publish(width_in, style)),
@@ -448,4 +452,3 @@ NEW_TYPES: dict[str, NewType] = {
         "hand_tool",
     ),
 }
-

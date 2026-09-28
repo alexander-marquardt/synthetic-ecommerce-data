@@ -10,6 +10,7 @@ been shown a name it refuses proves nothing.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -24,6 +25,14 @@ from synthetic_industrial_products.catalog.vocab import (
 )
 
 ROOT = Path(__file__).resolve().parent.parent / "reference-statistics"
+
+
+def _census() -> frozenset[str]:
+    census = json.loads((ROOT / "00_attribute_name_census.json").read_text("utf-8"))
+    return frozenset(entry["name_verbatim"] for entry in census["names_by_frequency"])
+
+
+CENSUS = _census()
 
 
 def _observed() -> frozenset[str]:
@@ -52,7 +61,7 @@ def test_the_census_is_the_whole_census():
 
 
 def test_every_declared_name_passes_the_gate():
-    assert names.name_problems(_declared(), OBSERVED) == []
+    assert names.name_problems(_declared(), OBSERVED, CENSUS) == []
 
 
 def test_every_emitted_name_passes_the_gate():
@@ -61,7 +70,7 @@ def test_every_emitted_name_passes_the_gate():
     emitted = {a.name for line in catalog.lines for a in line.attributes}
     emitted |= {a.name for _, child in catalog.all_skus() for a in child.attributes}
     assert emitted, "the catalog published nothing"
-    assert names.name_problems(emitted, OBSERVED) == []
+    assert names.name_problems(emitted, OBSERVED, CENSUS) == []
 
 
 @pytest.mark.parametrize(
@@ -72,16 +81,21 @@ def test_every_emitted_name_passes_the_gate():
         "Fastener Finish",  # observed (census 6), type-qualified
         "Drill Bit Size",  # observed (census 4), type-qualified
         "Wheel Type",  # on the reference spec table, still type-qualified
+        "Hex Nut Material",  # the noun is not at the start
+        "Cap Screw Type",  # census 1, type-qualified mid-name: refused, not allow-listed
+        "Toggle Bolt Type",  # census 1
+        "Machine Screw Head Type",  # census 1
+        "Length Under Head",  # the census's "Length under Head" in another casing
     ],
 )
 def test_a_planted_type_prefixed_name_reds_the_gate(planted):
-    problems = names.name_problems(_declared() | {planted}, OBSERVED)
-    assert len(problems) == 1 and repr(planted) in problems[0], problems
+    problems = names.name_problems(_declared() | {planted}, OBSERVED, CENSUS)
+    assert problems and all(repr(planted) in problem for problem in problems), problems
 
 
 def test_an_allow_listed_type_specific_name_passes():
     """The control: the census's own type-specific names are not refused."""
-    assert names.name_problems({"End Mill Style", "Tap Style"}, OBSERVED) == []
+    assert names.name_problems({"End Mill Style", "Tap Style"}, OBSERVED, CENSUS) == []
 
 
 def test_every_exception_is_really_unobserved_and_justified():
@@ -96,9 +110,42 @@ def test_every_type_specific_entry_is_type_qualified():
         assert names.qualifying_noun(name) is not None, name
 
 
-def test_every_category_leaf_names_a_product_noun():
-    """A new product type must bring its noun, or its own '<Type> X' names pass."""
+def test_every_category_leaf_ends_in_its_own_product_noun():
+    """A new type must bring its noun, or its own '<Type> X' names pass the gate.
+
+    The leaf's HEAD noun -- its last words, in the plural -- must be a
+    registered noun. A leaf that merely contains an existing noun ("Tap
+    Wrenches" contains "Tap") does not satisfy it; its head, "Wrench", must be
+    registered.
+    """
     for type_key, paths in taxonomy.LEAVES.items():
         for path in paths:
             leaf = path[-1].lower()
-            assert any(noun.lower() in leaf for noun in names.PRODUCT_NOUNS), (type_key, leaf)
+            heads = [
+                noun
+                for noun in names.PRODUCT_NOUNS
+                if re.search(rf"\b{re.escape(noun.lower())}(e?s)$", leaf)
+            ]
+            assert heads, (type_key, leaf)
+
+
+def test_the_head_noun_rule_bites():
+    leaf = "tap wrenches"
+    assert not any(
+        re.search(rf"\b{re.escape(noun.lower())}(e?s)$", leaf) for noun in names.PRODUCT_NOUNS
+    )
+
+
+def test_two_names_that_differ_only_in_case_are_refused():
+    problems = names.name_problems({"Overall Length", "overall length"}, OBSERVED, CENSUS)
+    assert any("differ only in case" in p for p in problems), problems
+
+
+def test_a_census_name_in_another_casing_is_refused_on_its_own():
+    """Not only as a twin: "Length Under Head" is on the reference list, and still refused.
+
+    The census casing wins, because a keyword facet is case-sensitive and the
+    census is where the catalog's names come from.
+    """
+    problems = names.name_problems({"Length Under Head"}, OBSERVED, CENSUS)
+    assert problems and "another casing" in problems[0], problems

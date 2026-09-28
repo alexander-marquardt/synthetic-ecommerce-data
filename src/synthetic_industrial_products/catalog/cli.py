@@ -76,12 +76,17 @@ def _images(argv: list[str]) -> int:
     bundle.write_files(files, args.out)
     total = sum(len(data) for _, data in files)
     print(f"{args.out}  {len(files)} drawings, {total:,} bytes, every digest matches the catalog")
+    content = bundle.files_digest(files)
+    print(f"content digest (pin this) {content}  over {len(files)} files")
     if args.archive is not None:
         digest = bundle.write_archive(files, args.archive)
         args.archive.with_name(args.archive.name + ".sha256").write_text(
             f"{digest}  {args.archive.name}\n", encoding="utf-8"
         )
-        print(f"{args.archive}  {args.archive.stat().st_size:,} bytes  sha256 {digest}")
+        args.archive.with_name(args.archive.name + ".content-sha256").write_text(
+            f"{content}  {len(files)}\n", encoding="utf-8"
+        )
+        print(f"{args.archive}  {args.archive.stat().st_size:,} bytes  archive sha256 {digest}")
     return 0
 
 

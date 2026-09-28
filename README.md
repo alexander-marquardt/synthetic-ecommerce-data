@@ -2,7 +2,7 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 10,216 SKUs over 5,400 products in 16 product types.
+extraction in search: 10,202 SKUs over 5,400 products in 16 product types.
 
 **Every product in this repository is synthetic.** No record here describes a
 real product offered by any retailer, and no retailer's catalog content is
@@ -134,6 +134,14 @@ visibly end a head height apart.
 | **Ships** | the generator, the extracted standards tables, hashes of the reference tuples, and the built catalog itself — checked in at `golden-catalog/`, see [The built catalog is committed](#the-built-catalog-is-committed-in-golden-catalog) |
 | **Never ships** | the reference corpus of captured pages, and the rendered drawings — both reproducible, see `.gitignore`. The drawings are rebuilt from the committed catalog into a pinned bundle (`sip-generate images`, see [Images](#images)); `images.jsonl` records each one's sha256, and nothing else about them is committed |
 
+## Contributing
+
+Install both hook types once per clone: `pre-commit install` (the config sets
+`default_install_hook_types: [pre-commit, commit-msg]`). The commit-msg hook
+(`scripts/check_commit_msg.py`) refuses a message that credits an AI tool or a
+bot; the pre-commit hooks run `ruff check` and the whitespace fixers, which
+leave `golden-catalog/` alone.
+
 ## Generating a catalog
 
 ```sh
@@ -183,9 +191,12 @@ how the reference census names it (160 of 496 records), and on a nested index
 every per-type spelling would be a facet of its own. `catalog/names.py` is the
 gate: every name is census-verbatim, on the names-only reference spec-table
 list (`reference-statistics/R1_reference_spec_table_names.json`), or a justified
-exception, and no product noun may qualify a generic concept (`End Mill
-Material`, `Fastener Finish`). It replaced a rule that forced the vocabularies
-to be disjoint.
+exception; no product noun may qualify a concept anywhere in a name (`End Mill
+Material`, `Hex Nut Material`, `Cap Screw Type` -- the census's own one-record
+type-qualified names are refused, not allow-listed); and no name may be a
+census name in another casing (`Length Under Head` for `Length under Head`),
+since a keyword facet is case-sensitive. It replaced a rule that forced the
+vocabularies to be disjoint.
 
 **The newer types spell lengths the way their brand's feed does** -- one brand
 `3/8"`, another `3/8 in`, another `0.375"` -- consistent within a brand and
@@ -309,7 +320,7 @@ them here would hide the problem a field map exists to solve.
 
 | file | |
 |---|---|
-| `flat.jsonl` | 25.7 MB — 10,216 SKU documents |
+| `flat.jsonl` | 25.7 MB — 10,202 SKU documents |
 | `nested.jsonl` | 13.6 MB — 5,400 products, nested variants and key-value attributes |
 | `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
@@ -357,10 +368,10 @@ difference means the second, and the golden files must not be updated until it
 is found. The test's failure message says all of this too, with the commands.
 
 Alongside the hashes, the same test asserts the headline numbers directly
-against the committed files — 10,216 SKU documents over 5,400 distinct
+against the committed files — 10,202 SKU documents over 5,400 distinct
 `product_id`, a non-empty `image_url` and `image_detail_url` on every product,
 variant and flat document, and 5,400 nested products whose variant counts sum
-to 10,216. Those hold independently of the generator, so a careless
+to 10,202. Those hold independently of the generator, so a careless
 regenerate-and-commit from a broken build is still red.
 
 ## Serving it with PRISM
@@ -388,8 +399,8 @@ PRISM_CUSTOMIZATION_PATH=<this repo> PRISM_RUNTIME_MODE=dev \
 
 ### The field map is derived, never written
 
-The catalog publishes **83 distinct attribute names** across 16 product types.
-A hand-maintained list of 83 declarations drifts from the generator the first
+The catalog publishes **84 distinct attribute names** across 16 product types.
+A hand-maintained list of 84 declarations drifts from the generator the first
 time either side moves, and it drifts *silently*: a field map naming an
 attribute the catalog no longer publishes does not raise, it just stops
 faceting, and "no product has that value" looks exactly like "the field map is
@@ -403,7 +414,7 @@ planted in `scripts/mutation_check.py`.
 
 ### Which attributes become facets
 
-Not all 83. Three measured gates, applied to the emitted documents:
+Not all 84. Three measured gates, applied to the emitted documents:
 
 | gate | rule | why |
 |---|---|---|
@@ -416,6 +427,16 @@ the documents publishing it carry a parsed `value_num`, and **terms**
 otherwise. The catalog deliberately emits values that do not parse, so the
 test is a majority rather than "all".
 
+**An attribute whose key is a column's name is namespaced, never dropped.**
+Real feeds publish attributes named like a catalog's own columns -- the census
+carries `Series` (25 records), `Product Type` (15) and `Brand` (1) as
+attributes -- and a bearing's `Series` (`62`) is not its product's `series`
+column. So `field_map.canonical_name` gives such an attribute the entry name
+`attr_<key>` (here `attr_series`, over `facets.series`) and leaves the
+structural entry pointing at the column; a namespaced name that would itself
+collide is refused. The nested shape needs none of this: there an attribute is
+data, `{name, value}`, not a field name.
+
 Attributes that fail a gate are still **declared**, with `facet: false` — they
 stay searchable and stay available as filter and policy targets, they are just
 not offered as sidebar controls.
@@ -424,9 +445,9 @@ What that yields, measured:
 
 | | |
 |---|---|
-| attributes declared | 83 |
-| **fields in the field map** | **100** (66 faceted terms entries, 26 declared with `facet: false`, and the structural ones) |
-| **leaf fields in the Elasticsearch index** | **140** — the 21 the mapping declares, plus one per distinct `facets.*` key (83) and `facets_num.*` key (36) the dynamic templates create |
+| attributes declared | 84 |
+| **fields in the field map** | **101** (67 faceted terms entries, 26 declared with `facet: false`, and the structural ones) |
+| **leaf fields in the Elasticsearch index** | **141** — the 21 the mapping declares, plus one per distinct `facets.*` key (84) and `facets_num.*` key (36) the dynamic templates create |
 | facets in a category's sidebar | 8–15 |
 
 The per-category figure is above the five-to-eight a real sidebar carries.
@@ -537,24 +558,38 @@ The rulings are on elastic/prism-industrial-products#103 (2026-09-26 to -28):
   reflects the specifications **visually**: a longer length of cut is drawn
   longer, a finer thread with more crests, a flat head is a cone and a button
   head a dome, a sealed bearing is closed and an open one shows its balls.
-  `tests/test_sku_drawings.py` fails on any `<text>`, `<tspan>`, font
-  declaration or glyph outline in any drawing, and a planted `<text>` reds it.
+  The gate is an **allow-list**, not a list of text forms
+  (`drawing.svg_problems`): every element must be one the figures emit
+  (`svg, rect, defs, pattern, g, path, circle`), every attribute one they use,
+  every id a hatch pattern's own, no element may carry character data, and no
+  comment, processing instruction or doctype may appear. The review's plants
+  -- `<title>`, `<desc>`, `aria-label`, a comment, `<metadata>`,
+  `<foreignObject>`, an embedded raster, `@font-face`, a glyph path from any
+  font -- each red `tests/test_sku_drawings.py`.
 * **Brands visibly different**, by house style: each brand has its own outline
   ink, a faint paper tone of it, and one of four frame treatments -- consistent
   within a brand, never random per product.
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
-* **Small SVG**, written directly rather than through a figure library: about
-  1.6 KB a drawing on average, and the whole bundle for 10,216 SKUs is well
-  under 1 MB compressed.
+* **Small SVG**, written directly rather than through a figure library:
+  measured on the committed catalog, 10,202 drawings, 18.3 MB unpacked
+  (1.79 KB a drawing on average), and a 1.87 MB `images.tar.gz`.
 
 The drawing is a pure function of `(product type, brand, published attributes)`
 (`src/synthetic_industrial_products/drawing/`). It reads the SKU's geometry
 through the same `geometry_from_record` functions the dimensioned renderer in
-`render/` uses, so the two cannot disagree about what a record says. Within a
-kind every product is drawn at one scale -- the kind's largest product fills
-the sheet -- so a bigger part reads bigger; a part too small to see at that
-scale is enlarged to half the sheet and no further.
+`render/` uses, so the two cannot disagree about what a record says.
+
+**Sizes are visible.** Every product of a type is drawn at ONE scale: the
+type's largest product fills its sheet and every other is drawn at its true
+size relative to it -- an M3 washer at about a quarter the diameter of an M16.
+The only exception is legibility, and it is strictly monotonic: a product
+smaller than a fifth of the sheet is enlarged along a square-root curve rather
+than clamped, so the smaller of two siblings is always drawn smaller. Measured
+on the committed catalog: no two siblings of any of the 2,729 multi-variant
+products draw alike unless they differ only in values no figure draws
+(standards, ratings, a hammer's weight); before this, 84 products had siblings
+of different sizes drawn identically. Both properties are tests.
 
 A record whose geometry cannot be read as published -- an attribute absent, a
 value that does not parse, a pair that contradicts itself -- is drawn with its
@@ -580,9 +615,23 @@ uv run sip-generate images --catalog golden-catalog --out out/images --archive o
 rebuilds every drawing from the **committed** catalog, refuses unless each one's
 sha256 equals the one `images.jsonl` records, and writes the files and a
 deterministic archive (sorted members, zeroed times and owners, a gzip header
-without a timestamp) with its `.sha256` beside it. The customization publishes
-that archive as a release and pins its tag and digest; `out/` is ignored by
-git, and a test asserts it, so a drawing can never be committed here.
+without a timestamp).
+
+**Layout.** Every member is `industrial/<type>/<product>/<sku>.svg`: the
+archive carries its own top-level `industrial/` folder, so a customization
+unpacks it into its images folder, the demo serves that folder at `/images`
+(elastic/prism#9770), and `image_url` -- `/images/industrial/...` -- resolves
+with no per-deployment mount. A test pins that every member is exactly its
+`image_url` under `/images`.
+
+**The pin is of the content, not the compressed bytes.** gzip output depends on
+the zlib build, so the archive's own sha256 is only stable on one toolchain.
+What a customization pins is the **content digest**: the sha256 of the sorted
+`<member path>\t<file sha256>` lines, printed by `sip-generate images` and
+written beside the archive as `.content-sha256`. It is derivable from the
+committed `images.jsonl` alone (`bundle.manifest_digest`), and the installer
+recomputes it after unpacking. `out/` is ignored by git, and a test asserts it,
+so a drawing can never be committed here.
 
 ```sh
 uv run python scripts/contact_sheet.py --catalog golden-catalog --out out/contact-sheets
@@ -597,8 +646,8 @@ twenty SKUs of every type -- for judging the drawings by eye.
 `render/` still holds the matplotlib renderers: the twelve type drawings, the
 per-line marking, and the per-record **dimensioned** drawings (`sip-render`).
 They carry text -- callouts and stamps -- and the catalog no longer uses any of
-them; their geometry parsing is what the catalog's drawings read. Retiring the
-text-bearing output is follow-up work.
+them; their geometry parsing is what the catalog's drawings read. Retiring them
+-- extracting the shared geometry first -- is #27.
 
 ## Realism
 
@@ -619,21 +668,21 @@ than asserted.
 | shank diameter == cutting diameter | 0.6489 | 0.6612 |
 | length of cut > overall length | 0.0829 | 0.0886 |
 | an angle attribute carrying a length unit | 0.0469 | 0.0412 |
-| declared measurement system contradicts the value's units | 0.0323 | 0.0303 |
+| declared measurement system contradicts the value's units | 0.0323 | 0.0319 |
 | unit mixing within one record | 0.0222 | 0.0159 |
-| title dimension token carries no label | 0.4667 | 0.4654 |
-| title dimension token is not the primary dimension | 0.1714 | 0.1027 |
+| title dimension token carries no label | 0.4667 | 0.4672 |
+| title dimension token is not the primary dimension | 0.1714 | 0.1028 |
 | title label truncated at the length cap | 0.0323 | **0.0000, deliberately** |
 | image reference missing | 0.1089 | **0.0000, deliberately** |
 | image id is shared, not the product's own | 0.7353 | **0.0000, deliberately** |
-| attributes per record (mean) | 13.12 | 12.2089 |
+| attributes per record (mean) | 13.12 | 12.2914 |
 
 Two notes on reading that table honestly. The angle defect is **clustered**:
 the attribute is line-constant, so one bad row reaches every SKU under that
 line — which is how these arrive in a real catalog, and is visible in the
 source corpus too, where the same wrong value repeats across a whole series.
 Its per-record rate therefore swings much more between seeds than the others.
-And attributes per record sits about 7% below its target because the
+And attributes per record sits about 6% below its target because the
 reference mean is over a different mixture of product families than this
 catalog contains; the per-family shape is reproduced, the mixture is not the
 same one. It moved when the newer types arrived (hex nuts and hex keys publish

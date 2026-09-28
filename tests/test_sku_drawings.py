@@ -23,7 +23,7 @@ from synthetic_industrial_products.catalog import bundle, emit
 from synthetic_industrial_products.catalog.config import SMALL
 from synthetic_industrial_products.catalog.generate import BRANDS, generate
 from synthetic_industrial_products.catalog.vocab import VOCAB
-from synthetic_industrial_products.drawing import FIGURES, draw_sku, text_in
+from synthetic_industrial_products.drawing import FIGURES, draw_sku, svg_problems
 from synthetic_industrial_products.drawing.model import Poly
 from synthetic_industrial_products.drawing.style import (
     EXTRA_FINISH_TINT,
@@ -54,21 +54,43 @@ def test_every_product_type_has_a_figure():
 
 def test_no_drawing_carries_any_text():
     """The maintainer's ruling, asserted over every SKU of a generated catalog."""
-    offenders = [(child.sku, text_in(data)) for _, child, data, _ in DRAWINGS if text_in(data)]
+    offenders = [
+        (child.sku, svg_problems(data)) for _, child, data, _ in DRAWINGS if svg_problems(data)
+    ]
     assert offenders == []
 
 
-@pytest.mark.parametrize(
-    "planted",
-    [
-        b'<svg><text x="1" y="1">1/4"</text></svg>',
-        b"<svg><text><tspan>M8</tspan></text></svg>",
-        b'<svg><path id="DejaVuSans-31" d="M0 0"/></svg>',
-        b'<svg style="font-family:Arial"></svg>',
-    ],
-)
-def test_the_text_check_bites(planted):
-    assert text_in(planted), planted
+#: Every form of text the review planted, and the older blacklist's own cases.
+#: Each is injected into a REAL clean drawing, so the only difference between
+#: the red and the green case is the planted element.
+PLANTED_TEXT = {
+    "text": '<text x="1" y="1">1/4"</text>',
+    "tspan": "<g><tspan>M8</tspan></g>",
+    "title": "<title>M8 x 1.25</title>",
+    # Empty, so only the ELEMENT allow-list can catch it -- not the
+    # character-data rule -- and each layer is proven on its own.
+    "title-empty": "<title/>",
+    "desc": "<desc>socket cap screw</desc>",
+    "aria": '<g aria-label="1/4-20 x 1in"/>',
+    "comment": "<!-- 3/8-16 x 1 -->",
+    "metadata": "<metadata>SKU 21NB25</metadata>",
+    "foreignObject": "<foreignObject><div>M8</div></foreignObject>",
+    "raster": '<image href="data:image/png;base64,iVBORw0KGgo="/>',
+    "font-face": "<style>@font-face{src:url(a.woff)}</style>",
+    "glyph-id": '<path id="LiberationSans-31" d="M0 0"/>',
+    "dejavu-id": '<path id="DejaVuSans-31" d="M0 0"/>',
+    "font-attribute": '<path d="M0 0" font-family="Arial"/>',
+    "char-data": "<g>1/4</g>",
+    "processing-instruction": "<?render text?>",
+}
+
+
+@pytest.mark.parametrize("name", sorted(PLANTED_TEXT))
+def test_the_allow_list_refuses_every_planted_text_form(name):
+    clean = DRAWINGS[0][2]
+    assert svg_problems(clean) == [], "the control drawing must be clean"
+    planted = clean.replace(b"</svg>", PLANTED_TEXT[name].encode() + b"</svg>")
+    assert svg_problems(planted), name
 
 
 def test_every_drawing_is_well_formed_svg():
@@ -176,7 +198,7 @@ def test_the_committed_catalog_rebuilds_into_its_recorded_drawings():
     files = bundle.rebuild(GOLDEN)
     rows = [json.loads(line) for line in (GOLDEN / "images.jsonl").read_text().splitlines()]
     assert len(files) == len(rows)
-    assert all(not text_in(data) for _, data in files)
+    assert all(not svg_problems(data) for _, data in files)
 
 
 def test_a_drawing_that_moved_without_a_regeneration_refuses_the_bundle(tmp_path):
@@ -246,3 +268,117 @@ def test_elongated_parts_are_drawn_to_their_published_length(type_key):
         assert extent == pytest.approx(geometry(record), rel=1e-6), child.sku
         checked += 1
     assert checked > 3, f"only {checked} {type_key} records drawn from the record"
+
+
+# --- sizes are visible: one scale per type -------------------------------------
+
+#: Attributes no figure draws, so siblings differing ONLY in these may draw
+#: alike: conformance claims, identifiers, commercial quantities, ratings and
+#: speeds, a hammer's weight (a weight is not a shape), and names of the
+#: measurement system.
+NOT_DRAWN_BY_ANY_FIGURE = frozenset(
+    {
+        "Standards", "Dimension Type", "Measurement System", "System of Measurement",
+        "List Number", "Head Weight", "Package Quantity", "Max. RPM", "Grade",
+        "Dynamic Load Capacity", "Static Load Capacity", "Decimal Equivalent", "Item",
+    }
+)  # fmt: skip
+
+
+def test_siblings_whose_drawn_values_differ_never_draw_alike():
+    """Over the COMMITTED catalog: a product's variants must look different.
+
+    Measured before the fix: 84 of 2,746 multi-variant products had siblings
+    whose drawings were identical bytes although their dimensions differed --
+    proportional end mills, and every washer below half the largest, clamped
+    to one size.
+    """
+    offenders = []
+    for line in (GOLDEN / "nested.jsonl").read_text("utf-8").splitlines():
+        parent = json.loads(line)
+        if len(parent["variants"]) < 2:
+            continue
+        drawn: dict[bytes, dict] = {}
+        for variant in parent["variants"]:
+            record = bundle._record(parent, variant)
+            data, _ = draw_sku(parent["product_type"], parent["brand"], record)
+            shown = {k: v for k, v in record.items() if k not in NOT_DRAWN_BY_ANY_FIGURE}
+            if data in drawn and drawn[data] != shown:
+                offenders.append(parent["product_id"])
+                break
+            drawn[data] = shown
+    assert offenders == [], f"{len(offenders)} products: {offenders[:5]}"
+
+
+def _outer_radius(svg: bytes) -> float:
+    root = ET.fromstring(svg)
+    return max(float(c.attrib["r"]) for c in root.iter() if c.tag.endswith("circle"))
+
+
+def test_an_m3_washer_is_drawn_smaller_than_an_m16_in_proportion():
+    """The ruling's own example: an M4 washer vs an M16 washer must LOOK different.
+
+    ISO 7089: M3 is 7 mm across, M16 is 30 mm. Drawn on the type's one scale
+    their outer radii keep that ratio (0.233), give or take the legibility
+    floor's square-root lift on the very smallest.
+    """
+    m3 = {"Size": "M3", "Inside Dia.": "3.20mm", "Outside Dia.": "7mm", "Thickness": "0.50mm"}
+    m16 = {"Size": "M16", "Inside Dia.": "17mm", "Outside Dia.": "30mm", "Thickness": "3mm"}
+    small, _ = draw_sku("washer_flat", "Corvane", m3)
+    large, _ = draw_sku("washer_flat", "Corvane", m16)
+    ratio = _outer_radius(small) / _outer_radius(large)
+    assert ratio == pytest.approx(7 / 30, rel=0.1), ratio
+
+
+def test_no_product_exceeds_its_types_top_size():
+    """Above the top, a product is fitted, not scaled -- and fitted siblings can collide."""
+    for line in (GOLDEN / "nested.jsonl").read_text("utf-8").splitlines():
+        parent = json.loads(line)
+        figure_fn, (_, top) = FIGURES[parent["product_type"]]
+        for variant in parent["variants"]:
+            size = figure_fn(bundle._record(parent, variant)).figure.size_in
+            assert size <= top + 1e-9, (parent["product_type"], variant["sku"], size, top)
+
+
+# --- the archive layout and its pinnable digest ----------------------------------
+
+
+def test_every_archive_member_is_the_image_urls_path_under_images():
+    """The cross-repo contract: member ``industrial/<...>.svg`` is served at /images/<member>."""
+    files = bundle.rebuild(GOLDEN)
+    rows = [json.loads(line) for line in (GOLDEN / "images.jsonl").read_text().splitlines()]
+    members = {path for path, _ in files}
+    assert all(path.startswith(emit.IMAGE_ROOT + "/") for path in members)
+    assert {row["url"] for row in rows} == {f"/images/{path}" for path in members}
+
+
+def test_the_content_digest_is_derivable_from_the_committed_manifest():
+    """What the customization pins needs no build, no zlib, only images.jsonl."""
+    assert bundle.manifest_digest(GOLDEN) == bundle.files_digest(bundle.rebuild(GOLDEN))
+
+
+def test_the_content_digest_does_not_depend_on_compression(tmp_path):
+    """Two compressions of one content: different archive bytes may happen, one content digest."""
+    import gzip
+    import io
+    import tarfile
+
+    files = [("industrial/a/b/1.svg", b"<svg/>"), ("industrial/a/b/2.svg", b"<svg></svg>")]
+    digests = set()
+    for level in (1, 9):
+        raw = io.BytesIO()
+        with tarfile.open(fileobj=raw, mode="w") as tar:
+            for path, data in files:
+                info = tarfile.TarInfo(path)
+                info.size = len(data)
+                tar.addfile(info, io.BytesIO(data))
+        packed = gzip.compress(raw.getvalue(), compresslevel=level, mtime=0)
+        with tarfile.open(fileobj=io.BytesIO(packed), mode="r:gz") as tar:
+            unpacked = [(m.name, tar.extractfile(m).read()) for m in tar.getmembers()]
+        digests.add(bundle.files_digest(unpacked))
+    assert len(digests) == 1
+
+
+def test_a_changed_drawing_changes_the_content_digest():
+    files = [("industrial/a/b/1.svg", b"<svg/>")]
+    assert bundle.files_digest(files) != bundle.files_digest([("industrial/a/b/1.svg", b"<svg />")])

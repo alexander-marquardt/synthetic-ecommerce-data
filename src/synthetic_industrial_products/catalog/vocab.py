@@ -345,6 +345,7 @@ _BEARING = (
     _spec("Item", "line"),
     _spec("Type", "line"),
     _spec("Bearing Number", "line"),
+    _spec("Series", "line", 0.8),
     _spec("Bore", "line", kind="length"),
     _spec("Outside Dia.", "line", kind="length"),
     _spec("Width", "line", kind="length"),
