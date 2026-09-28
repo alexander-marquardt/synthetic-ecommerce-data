@@ -137,7 +137,7 @@ def ground_truth(catalog) -> dict[str, Any]:
 
 def check_reverse_nested_facet(host: str, truth: dict, checks: Checks) -> None:
     """A nested KV facet count must equal what clicking that facet returns."""
-    name = "Fastener Material"
+    name = "Material"
     agg = request(
         host,
         "POST",

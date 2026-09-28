@@ -209,7 +209,7 @@ MUTATIONS: list[Mutation] = [
         "default a drill's shank diameter to its nominal size",
         "render/drill.py",
         '        shank_d=parse_length(require(record, "Shank Dia.")),',
-        '        shank_d=parse_length(record.get("Shank Dia.") or record["Drill Size"]),',
+        '        shank_d=parse_length(record.get("Shank Dia.") or record["Size"]),',
         "tests/test_refusals.py",
         "A",
         "a dimension is refused, never defaulted",
@@ -232,15 +232,6 @@ MUTATIONS: list[Mutation] = [
     # reads its attribute, validates it, and then draws something else. Every
     # A-direction mutation below is that shape.
     Mutation(
-        "validate the brand's colour and then draw in plain black",
-        "render/marking.py",
-        '    ink = _lookup(BRAND_INK, str(brand).strip(), "outline-colour", ("brand",))',
-        '    _lookup(BRAND_INK, str(brand).strip(), "outline-colour", ("brand",))\n    ink = "#1b1b1b"',
-        "tests/test_line_drawings.py -k brand_is_readable",
-        "A",
-        "the outline colour is the brand, and reads back as the brand",
-    ),
-    Mutation(
         "make reading a colour back resolve to whichever brand comes first",
         "render/marking.py",
         "    for brand, colour in BRAND_INK.items():\n        if colour.lower() == lowered:\n            return brand",
@@ -250,103 +241,9 @@ MUTATIONS: list[Mutation] = [
         "the outline colour is the brand, and reads back as the brand",
     ),
     Mutation(
-        "put two brands close enough that one fades through the other",
-        "render/marking.py",
-        '    "Redmoor": "#e07b10",',
-        '    "Redmoor": "#a04000",',
-        (
-            "tests/test_marking.py tests/test_line_drawings.py -k blend",
-            "tests/test_marking.py tests/test_line_drawings.py -k brand_is_readable",
-        ),
-        "",
-        "no brand's colour can be mistaken for another's on the page",
-    ),
-    Mutation(
-        "validate the coating and then leave the part unfilled",
-        "render/marking.py",
-        '        tint = _lookup(FINISH_TINT, found[1], "fill-tint", FINISH_ATTRIBUTES)',
-        '        _lookup(FINISH_TINT, found[1], "fill-tint", FINISH_ATTRIBUTES)\n        tint = None',
-        "tests/test_line_drawings.py -k coating",
-        "A",
-        "the fill is the coating the record publishes",
-    ),
-    Mutation(
-        "give every material the same section hatch",
-        "render/marking.py",
-        '        hatch = _lookup(MATERIAL_HATCH, found[1], "section-hatch", MATERIAL_ATTRIBUTES)',
-        '        _lookup(MATERIAL_HATCH, found[1], "section-hatch", MATERIAL_ATTRIBUTES)\n        hatch = "/"',
-        "tests/test_line_drawings.py -k material",
-        "A",
-        "the section hatch is the material the record publishes",
-    ),
-    Mutation(
-        "draw four flutes whatever the record says",
-        "render/generic.py",
-        "        step = (y1 - y0) / mark.flutes\n        starts = [y0 + step * (k + 0.5) - rise / 2 for k in range(mark.flutes)]",
-        "        step = (y1 - y0) / 4\n        starts = [y0 + step * (k + 0.5) - rise / 2 for k in range(4)]",
-        "tests/test_line_drawings.py -k flute",
-        "A",
-        "the flutes drawn are the flutes published",
-    ),
-    Mutation(
-        "invent a flute count for a record that publishes none",
-        "render/marking.py",
-        "    flutes = None\n    found = _first_published(pairs, (FLUTES_ATTRIBUTE,))",
-        "    flutes = 4\n    found = _first_published(pairs, (FLUTES_ATTRIBUTE,))",
-        "tests/test_line_drawings.py -k flute",
-        "B",
-        "the flutes drawn are the flutes published",
-    ),
-    Mutation(
-        "lean every flute right-handed and print the direction underneath",
-        "render/generic.py",
-        '    hand = mark.lean\n    style = {} if mark.flutes is not None else {"ls": (0, (6, 4))}',
-        '    hand = 1\n    style = {} if mark.flutes is not None else {"ls": (0, (6, 4))}',
-        "tests/test_line_drawings.py -k left_hand",
-        "",
-        "a left-hand tool is drawn leaning the other way",
-    ),
-    Mutation(
-        "give the drawing a property derived from the product id",
-        "render/generic.py",
-        '    mark = marking_for_line(line["brand"], line["attributes"])',
-        '    mark = marking_for_line(line["brand"], line["attributes"])\n    mark = replace(mark, flutes=2 + len(line["product_id"]) % 3)',
-        "tests/test_line_drawings.py -k not_a_function_of_the_product_id",
-        "A",
-        "the drawing is a function of the record and of nothing else",
-    ),
-    Mutation(
-        "let a SKU's dimensions reach the drawing its whole line shares",
-        "render/generic.py",
-        '    record = {entry["name"]: entry["value"] for entry in line["attributes"]}',
-        '    record = {entry["name"]: entry["value"] for entry in line["attributes"]}\n    mark_rows = [e for v in line.get("variants", []) for e in v["attributes"]]\n    line = {**line, "attributes": [*line["attributes"], *mark_rows]}',
-        "tests/test_line_drawings.py -k no_sku_of_the_line",
-        "B",
-        "the drawing is a function of the record and of nothing else",
-    ),
-    Mutation(
-        "truncate the stamp so a long record is only partly shown",
-        "render/marking.py",
-        '        text = " · ".join(value for _, value in self.rows)',
-        '        text = " · ".join(value for _, value in self.rows[:4])',
-        "tests/test_line_drawings.py -k stamp_sets_every_published",
-        "",
-        "the stamp is the whole record's line-scope half",
-    ),
-    Mutation(
-        "build the signature from the attributes common to a type, not each line's own",
-        "render/marking.py",
-        "    pairs = attribute_pairs(attributes)\n\n    ink = _lookup",
-        '    pairs = tuple(p for p in attribute_pairs(attributes) if p[0] in {"Item", "Standards"})\n\n    ink = _lookup',
-        "tests/test_line_drawings.py -k exactly_two",
-        "",
-        "498 of the 500 lines get a drawing of their own",
-    ),
-    # ---- every product and variant carries an image, both directions ------
-    Mutation(
         "leave a product line without an image",
         "catalog/generate.py",
-        "            image_id=image_id,\n            drawing=drawing_for(type_key),\n        )",
+        "            image_id=children[0].image_id,\n            drawing=drawing_for(type_key),\n        )",
         '            image_id="",\n            drawing=drawing_for(type_key),\n        )',
         "tests/test_catalog_generate.py tests/test_catalog_emit.py",
         "A",
@@ -876,8 +773,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "move the image host without regenerating the catalog",
         "catalog/emit.py",
-        'DEFAULT_IMAGE_BASE_URL = "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial"',
-        'DEFAULT_IMAGE_BASE_URL = "https://example.invalid/moved/images/industrial"',
+        'DEFAULT_IMAGE_BASE_URL = "/images/industrial"',
+        'DEFAULT_IMAGE_BASE_URL = "/moved/images/industrial"',
         "tests/test_catalog_golden.py::test_committed_file_matches_a_fresh_build",
         "A",
         "the committed catalog is byte-identical to a fresh build",
@@ -905,9 +802,9 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "blank one card image url in the committed catalog",
         "flat.jsonl",
-        'ice_usd": 8.74, "stock": 36, "image_id": "end_mill_square/OST-K663-0001", '
-        '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png"',
-        'ice_usd": 8.74, "stock": 36, "image_id": "end_mill_square/OST-K663-0001", "image_url": ""',
+        'ice_usd": 11.24, "stock": 79, "image_id": "end_mill_square/OST-K663-0001/21NB25", '
+        '"image_url": "/images/industrial/end_mill_square/OST-K663-0001/21NB25.svg"',
+        'ice_usd": 11.24, "stock": 79, "image_id": "end_mill_square/OST-K663-0001/21NB25", "image_url": ""',
         "tests/test_catalog_golden.py::test_every_flat_document_carries_an_image_url",
         "A",
         "every document carries a NON-EMPTY image url at both profiles",
@@ -916,11 +813,11 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop the detail image url from one committed nested variant",
         "nested.jsonl",
-        '"price_usd": 8.74, "stock": 36, "image_id": "end_mill_square/OST-K663-0001", '
-        '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png", '
-        '"image_detail_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/detail.png"',
-        '"price_usd": 8.74, "stock": 36, "image_id": "end_mill_square/OST-K663-0001", '
-        '"image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png"',
+        '"price_usd": 11.24, "stock": 79, "image_id": "end_mill_square/OST-K663-0001/21NB25", '
+        '"image_url": "/images/industrial/end_mill_square/OST-K663-0001/21NB25.svg", '
+        '"image_detail_url": "/images/industrial/end_mill_square/OST-K663-0001/21NB25.svg"',
+        '"price_usd": 11.24, "stock": 79, "image_id": "end_mill_square/OST-K663-0001/21NB25", '
+        '"image_url": "/images/industrial/end_mill_square/OST-K663-0001/21NB25.svg"',
         "tests/test_catalog_golden.py::test_every_nested_line_and_variant_carries_an_image_url",
         "B",
         "every document carries a NON-EMPTY image url at both profiles",
@@ -931,35 +828,35 @@ MUTATIONS: list[Mutation] = [
     # the catalog does not carry -- so it RENAMED a document instead of
     # duplicating one, every sku stayed distinct, and
     # ``test_flat_holds_one_document_per_sku`` passed for the correct reason
-    # while the table read it as proof. ``8ZJ83`` is the next document in the
+    # while the table read it as proof. ``19XN98`` is the next document in the
     # committed file, so the mutation now really does publish one sku twice.
     # The same regeneration that moved this catalog's document count is what
     # took the old sku out of it.
     Mutation(
         "duplicate a sku in the committed flat catalog",
         "flat.jsonl",
-        '{"sku": "97NR28", "product_id": "OST-K663-0001"',
-        '{"sku": "8ZJ83", "product_id": "OST-K663-0001"',
+        '{"sku": "21NB25", "product_id": "OST-K663-0001"',
+        '{"sku": "19XN98", "product_id": "OST-K663-0001"',
         "tests/test_catalog_golden.py::test_flat_holds_one_document_per_sku",
         "",
-        "flat.jsonl is 4,689 documents and 4,689 distinct skus",
+        "flat.jsonl is one document per distinct sku",
         root="golden-catalog",
     ),
     Mutation(
         "point one committed document at a product line that does not exist",
         "flat.jsonl",
-        '{"sku": "97NR28", "product_id": "OST-K663-0001"',
-        '{"sku": "97NR28", "product_id": "OST-K663-9999"',
+        '{"sku": "21NB25", "product_id": "OST-K663-0001"',
+        '{"sku": "21NB25", "product_id": "OST-K663-9999"',
         "tests/test_catalog_golden.py::test_flat_covers_exactly_the_product_lines",
         "",
-        "the catalog spans exactly 500 product lines",
+        "the catalog spans exactly the committed number of products",
         root="golden-catalog",
     ),
     Mutation(
         "publish a variant_count that disagrees with its own variants array",
         "nested.jsonl",
-        '"variant_count": 9, "variants": [{"sku": "97NR28", "title": "High Speed Steel Sq',
-        '"variant_count": 10, "variants": [{"sku": "97NR28", "title": "High Speed Steel Sq',
+        '"variant_count": 3, "variants": [{"sku": "21NB25", "title": "High Speed Steel Sq',
+        '"variant_count": 4, "variants": [{"sku": "21NB25", "title": "High Speed Steel Sq',
         "tests/test_catalog_golden.py::test_nested_lines_account_for_every_sku",
         "",
         "the nested lines account for every sku",
@@ -1033,37 +930,6 @@ MUTATIONS: list[Mutation] = [
         "each head style draws the shape its record names",
     ),
     # ---- and it decides which line drawing a LINE gets, both directions ---
-    Mutation(
-        "point the button head style at the socket head drawing",
-        "render/generic.py",
-        '        "button": "screw_button_head",',
-        '        "button": "screw_socket_head",',
-        (
-            "tests/test_line_drawings.py tests/test_generic.py -k two_styles",
-            "tests/test_line_drawings.py tests/test_generic.py -k image_does_not_depend",
-        ),
-        "A",
-        "a screw style names its own shape, and two shapes never draw alike",
-    ),
-    Mutation(
-        "draw the low head line with the socket head cap screw's own function",
-        "render/generic.py",
-        'GenericImage("screw_low_head", "Low Head Socket Cap Screw", _draw_low_head_screw),',
-        'GenericImage("screw_low_head", "Low Head Socket Cap Screw", _draw_socket_head_screw),',
-        (
-            "tests/test_line_drawings.py tests/test_generic.py -k two_styles",
-            "tests/test_line_drawings.py tests/test_generic.py -k DIFFERENT",
-        ),
-        "B",
-        "a screw style names its own shape, and two shapes never draw alike",
-    ),
-    # ---- the new silhouettes carry the proportions their standards give ---
-    #
-    # Planted first as "give the low head drawing a full socket head's
-    # proportions", which came back GREEN: the two drawings still differed, in
-    # the socket mouth and the end view, so every difference-based check passed
-    # while the one difference the record names -- the height of the head --
-    # had gone. The proportion tests in test_generic.py were written for this.
     Mutation(
         "give the low head drawing a full socket head's height",
         "render/generic.py",
@@ -1184,8 +1050,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "publish the length under head on the countersunk line only",
         "catalog/generate.py",
-        '                self._length("Length Under Head", under_head_in, style),',
-        '                *([self._length("Length Under Head", under_head_in, style)] if flat else []),',
+        '                self._length("Length under Head", under_head_in, style),',
+        '                *([self._length("Length under Head", under_head_in, style)] if flat else []),',
         "tests/test_catalog_generate.py -k length_under_head",
         "A",
         "every screw and bolt line publishes a length under head",
@@ -1413,14 +1279,52 @@ MUTATIONS: list[Mutation] = [
         "A",
         "the card stamp sets every published value and nothing else",
     ),
+    # ---- elastic/prism-industrial-products#103: the census name gate ------
     Mutation(
-        "drop the last value off the card stamp",
-        "render/marking.py",
-        '        text = " \u00b7 ".join(value for _, value in self.rows)',
-        '        text = " \u00b7 ".join(value for _, value in self.rows[:-1])',
-        "tests/test_line_drawings.py -k stamp_sets_every_published_value",
+        "let a product noun qualify a generic concept",
+        "catalog/names.py",
+        "        if noun is not None and name not in TYPE_SPECIFIC:",
+        "        if False and noun is not None and name not in TYPE_SPECIFIC:",
+        "tests/test_attribute_names.py -k planted",
+        "A",
+        "no emitted name is a type-qualified spelling of a generic concept",
+    ),
+    Mutation(
+        "publish a name the census and the reference list never saw",
+        "catalog/vocab.py",
+        '    _spec("Tip Style", "line"),',
+        '    _spec("Widget Material", "line"),',
+        "tests/test_attribute_names.py -k declared",
         "B",
-        "the card stamp sets every published value and nothing else",
+        "no emitted name is a type-qualified spelling of a generic concept",
+    ),
+    # ---- the per-SKU drawings carry no text, and every channel is real ----
+    Mutation(
+        "print the SKU's size on its drawing",
+        "drawing/svg.py",
+        '        tail = "</svg>"',
+        '        tail = \'<text x="10" y="290">1/4"</text></svg>\'',
+        "tests/test_sku_drawings.py -k no_drawing_carries_any_text",
+        "A",
+        "no drawing carries any text",
+    ),
+    Mutation(
+        "draw every brand in one ink",
+        "drawing/style.py",
+        "        ink = BRAND_INK[brand]",
+        '        ink = BRAND_INK[brand] and "#1b1b1b"',
+        "tests/test_sku_drawings.py -k brand",
+        "A",
+        "the brand is the house style",
+    ),
+    Mutation(
+        "draw a screw without reading its length",
+        "drawing/figures.py",
+        "    fig = Figure(size_in=total)",
+        "    fig = Figure(size_in=total)\n    total = hh + 4 * major",
+        "tests/test_sku_drawings.py -k published_length",
+        "A",
+        "a drawn dimension changes the drawing",
     ),
 ]
 

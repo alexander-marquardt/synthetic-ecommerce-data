@@ -36,25 +36,9 @@ jobs:
       - name: Tests
         run: uv run pytest
 
-  published-assets:
-    # Every drawing the committed catalog references must ALREADY be on the
-    # asset host. This is the coupling whose absence shipped the broken
-    # catalog: the render audit measures the files a render run just wrote and
-    # the host's tests measure the site build, so a catalog could be generated,
-    # committed and served while nothing it points at existed.
-    #
-    # It is a set comparison over all 1,000 files, not a sample. One image per
-    # product type is exactly the shape that passed the real defect: the single
-    # id that survived the regeneration was an end_mill_square.
-    #
-    # A red here means: render and publish first, then land the catalog.
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Every referenced drawing is on the asset host
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: python3 scripts/verify_published_assets.py --token "$GITHUB_TOKEN"
+  # The published-assets job is gone with the asset host it checked: the
+  # drawings are rebuilt from the committed catalog into a pinned bundle
+  # (sip-generate images), never hosted from here, and
+  # tests/test_sku_drawings.py proves every rebuilt drawing matches the
+  # sha256 the committed images.jsonl records. Whether the PINNED bundle is
+  # published is checked where it is pinned, in the customization repo.

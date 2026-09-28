@@ -35,6 +35,7 @@ import pytest
 from synthetic_industrial_products.records import DRAWABLE
 from synthetic_industrial_products.render import CARD, DETAIL, draw_record
 from synthetic_industrial_products.render.attrs import NOT_DRAWN, REFUSALS
+from synthetic_industrial_products.render.kinds import RESERVED_KEYS
 
 #: Values an attribute is changed to, in order, stopping at the first that
 #: moves the drawing.
@@ -127,7 +128,7 @@ TO_SCALE = {sku: record for sku, record in DRAWABLE.items() if _is_dimensioned(r
 #: so an attribute that starts being published is covered without anyone adding
 #: it here.
 PUBLISHED = sorted(
-    (sku, name) for sku, record in TO_SCALE.items() for name in record if name != "sku"
+    (sku, name) for sku, record in TO_SCALE.items() for name in record if name not in RESERVED_KEYS
 )
 
 
@@ -217,7 +218,7 @@ CATALOG_PUBLISHED = sorted(
     (type_key, name)
     for type_key, record in RICHEST.items()
     for name in record
-    if name != "sku"
+    if name not in RESERVED_KEYS
 )
 
 
@@ -245,7 +246,9 @@ def test_the_sweep_covers_every_product_type_the_renderer_draws():
     hammer can be drawn from what a hammer record publishes, so there is no
     dimensioned drawing of one to sweep. See render/hammer.py.
     """
-    from synthetic_industrial_products.catalog.vocab import VOCAB
+    from synthetic_industrial_products.render.kinds import TYPE_KIND
 
-    assert set(RICHEST) == set(VOCAB) - {"hammer_ball_pein"}
+    # The dimensioned renderer draws the original twelve types; the newer ones
+    # are drawn only by the catalog's per-SKU renderer (tests/test_sku_drawings.py).
+    assert set(RICHEST) == set(TYPE_KIND) - {"hammer_ball_pein"}
     assert len(CATALOG_PUBLISHED) > 80

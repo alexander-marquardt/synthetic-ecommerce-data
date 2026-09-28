@@ -1,22 +1,23 @@
-"""Attribute vocabularies, one per product type, deliberately disjoint.
+"""Attribute vocabularies, one per product type, named the way the census names them.
 
 A catalog's attribute names are not a schema somebody designed. They are the
-union of what every supplier sent, so the same idea arrives under several
-names and two unrelated product types share almost nothing. Both properties
-are load-bearing for a facet-extraction test bed:
+union of what every supplier sent. Two properties of that are load-bearing for
+a facet-extraction test bed:
 
-* **Disjointness.** A hex bolt and a ball pein hammer have one measurement in
-  common and no vocabulary in common. A facet discovery pass scoped to one
-  product type must come back with that type's names and nothing else, and it
-  can only be shown to do that if the vocabularies really are disjoint.
+* **One concept, one name, across types.** Material is ``Material`` on an end
+  mill, a drill, a tap and a screw alike, because that is what the reference
+  census does (160 of 496 records). An earlier version kept these vocabularies
+  deliberately DISJOINT and minted ``Fastener Material``, ``Drill Bit
+  Material`` and so on; that rule is retired, and :mod:`.names` is the gate that
+  replaced it (elastic/prism-industrial-products#103). Types still differ in
+  WHICH attributes they carry -- a hammer and a hex bolt share almost nothing --
+  and facet discovery scoped to one type still returns that type's names.
 
 * **Inconsistent spelling of one idea.** The measured corpus names the
   measurement-system attribute three ways -- ``Dimension Type`` (141),
   ``Measurement System`` (49), ``System of Measurement`` (22) -- with one
   shared value vocabulary. A field map has to absorb that, so the catalog has
-  to contain it. The same applies to material and finish, which arrive as
-  ``Material - Machining``, ``Fastener Finish``, ``Abrasive Material`` and
-  ``Handle Material`` depending on who supplied the row.
+  to contain it.
 
 The one attribute that spans every type is ``Standards``, and it is
 multi-valued. That shape -- several values under one name on one product -- is
@@ -83,6 +84,12 @@ STANDARDS_POOL: dict[str, tuple[str, ...]] = {
         "GS Mark",
         "RoHS 2011/65/EU",
     ),
+    "motion": (
+        "ISO 15",
+        "ABMA 20",
+        "ISO 492",
+        "RoHS 2011/65/EU",
+    ),
     "abrasive": (
         "ANSI B7.1",
         "oSa Certified",
@@ -136,13 +143,13 @@ _END_MILL = (
     # elastic/prism-industrial-products ``data/facet_vocabulary.json``).
     # Presence 1.0 still draws its sparsity roll, so the random stream is
     # unchanged by this.
-    _spec("End Mill Material", "line"),
-    _spec("Finish - Machining", "line", 0.74),
+    _spec("Material", "line"),
+    _spec("Finish", "line", 0.74),
     _spec("Number of Flutes", "line", kind="count"),
     _spec("Helix Angle", "line", 0.88, kind="angle"),
     _spec("Cutting Direction", "line", 0.90),
     _spec("Single End/Double End", "line", 0.74),
-    _spec("End Mill Cutting Type", "line", 0.66),
+    _spec("Cutting Type", "line", 0.66),
     _spec("End Mill Application", "line", 0.38),
     _spec("Material Grade - Machining", "line", 0.42),
     _spec("Coolant Fed", "line", 0.24),
@@ -160,14 +167,14 @@ _END_MILL = (
 #: of Cut, and the corpus keeps them apart.
 _DRILL = (
     _spec("Item", "line"),
-    _spec("Drill Bit Material", "line"),
-    _spec("Drill Point Type", "line", 0.78),
+    _spec("Material", "line"),
+    _spec("Point Type", "line", 0.78),
     _spec("Point Angle", "line", 0.82, kind="angle"),
-    _spec("Drill Bit Finish", "line", 0.70),
+    _spec("Finish", "line", 0.70),
     _spec("Shank Type", "line", 0.54),
-    _spec("Drill Bit Direction", "line", 0.62),
+    _spec("Cutting Direction", "line", 0.62),
     _spec("List Number", "line", 0.44),
-    _spec("Drill Size", "sku", kind="length"),
+    _spec("Size", "sku", kind="length"),
     _spec("Decimal Equivalent", "sku", 0.74, kind="length"),
     _spec("Flute Length", "sku", 0.86, kind="length"),
     _spec("Overall Length", "sku", 0.90, kind="length"),
@@ -178,11 +185,11 @@ _DRILL = (
 _TAP = (
     _spec("Item", "line"),
     _spec("Tap Style", "line"),
-    _spec("Tap Material", "line", 0.80),
-    _spec("Tap Finish", "line", 0.66),
+    _spec("Material", "line", 0.80),
+    _spec("Finish", "line", 0.66),
     _spec("Thread Direction", "line", 0.84),
     _spec("Thread Type", "line", 0.72),
-    _spec("Chamfer Style", "line", 0.58),
+    _spec("Tap Chamfer", "line", 0.58),
     _spec("Number of Flutes", "line", 0.76, kind="count"),
     _spec("Thread Size", "sku"),
     _spec("Pitch", "sku", 0.88),
@@ -211,18 +218,18 @@ _TAP = (
 #: the attribute exists rather than being approximated by a neighbour.
 _SOCKET_SCREW = (
     _spec("Item", "line"),
-    _spec("Screw Style", "line"),
-    _spec("Screw Head Type", "line"),
+    _spec("Type", "line"),
+    _spec("Head Type", "line"),
     _spec("Drive Type", "line"),
-    _spec("Fastener Material", "line"),
-    _spec("Fastener Finish", "line", 0.82),
+    _spec("Material", "line"),
+    _spec("Finish", "line", 0.82),
     _spec("Thread Direction", "line", 0.64),
     _spec("Thread Type", "line", 0.70),
     _spec("Rockwell Hardness", "line", 0.48),
     _spec("Meets/Exceeds", "line", 0.40),
     _spec("Dia./Thread Size", "sku"),
     _spec("Length", "sku", kind="length"),
-    _spec("Length Under Head", "sku", kind="length"),
+    _spec("Length under Head", "sku", kind="length"),
     _spec("Thread Length", "sku", kind="length"),
     _spec("Head Dia.", "sku", kind="length"),
     _spec("Head Height", "sku", kind="length"),
@@ -260,16 +267,16 @@ _SOCKET_SCREW = (
 #: every row, because they are what the category is selected on.
 _HEX_BOLT = (
     _spec("Item", "line"),
-    _spec("Bolt Style", "line"),
-    _spec("Screw Head Type", "line"),
-    _spec("Fastener Material", "line"),
-    _spec("Fastener Finish", "line"),
+    _spec("Type", "line"),
+    _spec("Head Type", "line"),
+    _spec("Material", "line"),
+    _spec("Finish", "line"),
     _spec("Grade", "line"),
     _spec("Thread Direction", "line", 0.60),
     _spec("Thread Type", "line", 0.66),
     _spec("Dia./Thread Size", "sku"),
     _spec("Length", "sku", kind="length"),
-    _spec("Length Under Head", "sku", kind="length"),
+    _spec("Length under Head", "sku", kind="length"),
     _spec("Thread Length", "sku", kind="length"),
     _spec("Width Across Flats", "sku", kind="length"),
     _spec("Head Height", "sku", kind="length"),
@@ -280,10 +287,10 @@ _HEX_BOLT = (
 #: material. Nothing here appears on a cutting tool.
 _WASHER = (
     _spec("Item", "line"),
-    _spec("Washer Type", "line"),
-    _spec("Fastener Material", "line"),
-    _spec("Fastener Finish", "line", 0.74),
-    _spec("Washer Size", "sku"),
+    _spec("Type", "line"),
+    _spec("Material", "line"),
+    _spec("Finish", "line", 0.74),
+    _spec("Size", "sku"),
     _spec("Inside Dia.", "sku", kind="length"),
     _spec("Outside Dia.", "sku", kind="length"),
     _spec("Thickness", "sku", kind="length"),
@@ -292,10 +299,10 @@ _WASHER = (
 #: Ball pein hammers. Deliberately the most distant vocabulary in the catalog.
 _HAMMER = (
     _spec("Item", "line"),
-    _spec("Hammer Head Material", "line"),
+    _spec("Material", "line"),
     _spec("Handle Material", "line"),
     _spec("Handle Grip Material", "line", 0.62),
-    _spec("Hammer Face Type", "line", 0.58),
+    _spec("Face Type", "line", 0.58),
     _spec("Head Weight", "sku", kind="weight"),
     _spec("Overall Length", "sku", 0.88, kind="length"),
     _spec("Face Dia.", "sku", 0.72, kind="length"),
@@ -307,12 +314,81 @@ _FLAP_DISC = (
     _spec("Item", "line"),
     _spec("Abrasive Material", "line"),
     _spec("Backing Material", "line", 0.76),
-    _spec("Flap Disc Shape", "line", 0.68),
+    _spec("Shape", "line", 0.68),
     _spec("Mounting Type", "line", 0.58),
     _spec("Grit", "sku", kind="count"),
-    _spec("Disc Dia.", "sku", kind="length"),
-    _spec("Arbor Hole Size", "sku", 0.90, kind="length"),
+    _spec("Diameter", "sku", kind="length"),
+    _spec("Arbor Hole", "sku", 0.90, kind="length"),
     _spec("Max. RPM", "sku", 0.82, kind="count"),
+)
+
+#: Hex nuts (elastic/prism-industrial-products#103). Generic names throughout:
+#: a nut's height is ``Height`` and its style is ``Type`` -- the census has no
+#: ``Nut Height`` worth following (2 records) and the gate refuses ``Nut ...``.
+_NUT = (
+    _spec("Item", "line"),
+    _spec("Type", "line"),
+    _spec("Material", "line"),
+    _spec("Finish", "line", 0.9),
+    _spec("Grade", "line", 0.9),
+    _spec("Thread Type", "line", 0.8),
+    _spec("Thread Direction", "line", 0.55),
+    _spec("Package Quantity", "line", 0.85, kind="count"),
+    _spec("Thread Size", "sku"),
+    _spec("Width Across Flats", "sku", kind="length"),
+    _spec("Height", "sku", 0.9, kind="length"),
+)
+
+#: Radial ball bearings. A product is one bearing number; its variants are the
+#: closures, which is how the type really varies (6204, 6204-ZZ, 6204-2RS).
+_BEARING = (
+    _spec("Item", "line"),
+    _spec("Type", "line"),
+    _spec("Bearing Number", "line"),
+    _spec("Bore", "line", kind="length"),
+    _spec("Outside Dia.", "line", kind="length"),
+    _spec("Width", "line", kind="length"),
+    _spec("Material", "line", 0.9),
+    _spec("Cage Material", "line", 0.7),
+    _spec("ABEC Rating", "line", 0.75),
+    _spec("Row Type", "line", 0.6),
+    _spec("Lubricant", "line", 0.5),
+    _spec("Dynamic Load Capacity", "line", 0.8, kind="count"),
+    _spec("Static Load Capacity", "line", 0.8, kind="count"),
+    _spec("Closure Type", "sku"),
+    _spec("Max. RPM", "sku", 0.85, kind="count"),
+)
+
+#: Depressed-center grinding wheels. A product is one diameter x thickness x
+#: abrasive; its variants are the grits. Grit is a sizing-system value, not a
+#: unit (ruling 2026-09-25: one vocabulary per sizing system).
+_WHEEL = (
+    _spec("Item", "line"),
+    _spec("Type", "line"),
+    _spec("Diameter", "line", kind="length"),
+    _spec("Thickness", "line", kind="length"),
+    _spec("Arbor Hole", "line", 0.95, kind="length"),
+    _spec("Connector Type", "line", 0.6),
+    _spec("Abrasive Material", "line"),
+    _spec("Bond Type", "line", 0.7),
+    _spec("Max. RPM", "line", 0.9, kind="count"),
+    _spec("Application", "line", 0.6),
+    _spec("Package Quantity", "line", 0.8, kind="count"),
+    _spec("Grit", "sku", kind="count"),
+    _spec("Grade", "sku", 0.7),
+)
+
+#: Hex keys. A product is one brand's arm length, tip and finish; its variants
+#: are sizes.
+_HEX_KEY = (
+    _spec("Item", "line"),
+    _spec("Type", "line", 0.8),
+    _spec("Tip Style", "line"),
+    _spec("Material", "line", 0.85),
+    _spec("Finish", "line", 0.8),
+    _spec("Size", "sku", kind="length"),
+    _spec("Overall Length", "sku", 0.9, kind="length"),
+    _spec("Overall Width", "sku", 0.6, kind="length"),
 )
 
 VOCAB: dict[str, tuple[AttrSpec, ...]] = {
@@ -328,6 +404,10 @@ VOCAB: dict[str, tuple[AttrSpec, ...]] = {
     "washer_flat": _WASHER,
     "hammer_ball_pein": _HAMMER,
     "abrasive_flap_disc": _FLAP_DISC,
+    "nut_hex": _NUT,
+    "bearing_radial_ball": _BEARING,
+    "wheel_depressed_center": _WHEEL,
+    "hex_key": _HEX_KEY,
 }
 
 #: Which pool of standards designations each type draws from.
@@ -344,32 +424,11 @@ STANDARDS_FAMILY: dict[str, str] = {
     "washer_flat": "fastener",
     "hammer_ball_pein": "hand_tool",
     "abrasive_flap_disc": "abrasive",
+    "nut_hex": "fastener",
+    "bearing_radial_ball": "motion",
+    "wheel_depressed_center": "abrasive",
+    "hex_key": "hand_tool",
 }
-
-#: Attribute names every type is allowed to share, because the corpus shares
-#: them. Everything else must be unique to its type; test_vocab enforces it.
-SHARED_NAMES: frozenset[str] = frozenset(
-    {
-        "Item",
-        STANDARDS_NAME,
-        "Overall Length",
-        "Shank Dia.",
-        "Number of Flutes",
-        "List Number",
-        "Thread Direction",
-        "Thread Type",
-        "Thread Length",
-        "Length",
-        "Length Under Head",
-        "Dia./Thread Size",
-        "Fastener Material",
-        "Fastener Finish",
-        "Screw Head Type",
-        "Head Dia.",
-        "Head Height",
-        *(name for name, _ in MEASUREMENT_SYSTEM_NAMES),
-    }
-)
 
 
 def names_for(type_key: str) -> frozenset[str]:

@@ -107,11 +107,8 @@ class Sku:
     attributes: tuple[Attribute, ...]
     price_usd: float
     stock: int
-    #: The drawing this variant shows, as ``<product type>/<product id>``.
-    #: It is its LINE's drawing, shared with every other SKU under that line --
-    #: which is what a real catalog does, and why it is an image ID rather than
-    #: this SKU's own. A line's SKUs differ only in size, and the drawing is
-    #: deliberately silent about size.
+    #: This SKU's OWN drawing, as ``<product type>/<product id>/<sku>``, drawn
+    #: from its own published values (elastic/prism-industrial-products#103).
     image_id: str = ""
 
     def attribute_names(self) -> frozenset[str]:
@@ -139,8 +136,8 @@ class ProductLine:
     #: Where this line's dimensions came from: a standard designation for a
     #: fastener, or a plain statement that they were generated for a tool.
     dimension_provenance: str = ""
-    #: This line's own drawing, as ``<product type>/<product id>``. The same
-    #: one its variants show: a line's SKUs are one product in several sizes.
+    #: The drawing a grouped card shows before a variant is selected: its
+    #: first variant's. The product has no drawing of its own.
     image_id: str = ""
     #: Which of the twelve shapes the drawing is -- a square end mill, a flat
     #: washer. Separate from ``image_id`` because they stopped being the same

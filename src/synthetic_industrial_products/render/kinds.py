@@ -1,20 +1,18 @@
-"""What a record is, read off the attribute names it publishes.
+"""What a record is: its product type when it says, its attribute names when it does not.
 
-Catalogs in this vertical do not publish a machine-readable product class; what
-they publish is a set of attribute names, and those names are the signal. This
-module is the one place that mapping lives, so the dimensioned renderer and the
-undimensioned type drawing can never disagree about what a record is.
+A generated record carries its ``product_type`` (the catalog knows it: the leaf
+of its category IS its type), and that decides the drawing. Nothing about the
+attribute NAMES is used for a generated record any more, because they no longer
+identify a type: since elastic/prism-industrial-products#103 a concept is one
+generic name across types (``Material``, ``Finish``, ``Size``), as the census
+has it, and a drill's ``Size`` is a washer's ``Size`` too.
 
-Every name used as a signal here is **unique to one product type's
-vocabulary**. Names the corpus genuinely shares between types -- ``Overall
-Length``, ``Thread Length``, ``Shank Dia.``, ``Item`` -- identify nothing and
-are deliberately absent from the signatures below. ``tests/test_kinds.py``
-asserts that against :mod:`..catalog.vocab`, so a vocabulary change that made a
-signature ambiguous fails there rather than silently drawing a tap as a screw.
-
-The one pair that shares a kind is the socket screw and the hex bolt: the
-corpus shares ``Screw Head Type`` and ``Dia./Thread Size`` between them because
-they are both threaded fasteners, and one renderer draws both.
+An OBSERVED record (:data:`..records.FIXTURES`) carries no type -- catalogs in
+this vertical do not publish a machine-readable class -- so for those the
+signatures below still read the names. Every name used as a signature is
+unique to one kind; ``tests/test_kinds.py`` asserts that against the
+vocabulary, so a vocabulary change that made a signature ambiguous fails there
+rather than silently drawing a tap as a screw.
 """
 
 from __future__ import annotations
@@ -38,8 +36,6 @@ SIGNATURES: dict[str, frozenset[str]] = {
         {
             "Milling Dia.",
             "End Mill Style",
-            "End Mill Material",
-            "End Mill Cutting Type",
             "End Mill Application",
             "Helix Angle",
             "Length of Cut",
@@ -47,21 +43,16 @@ SIGNATURES: dict[str, frozenset[str]] = {
     ),
     FASTENER: frozenset(
         {
+            "Head Type",
             "Screw Head Type",
             "Dia./Thread Size",
-            "Screw Style",
-            "Bolt Style",
             "Width Across Flats",
             "Drive Type",
         }
     ),
     DRILL: frozenset(
         {
-            "Drill Size",
-            "Drill Bit Material",
-            "Drill Point Type",
-            "Drill Bit Finish",
-            "Drill Bit Direction",
+            "Point Type",
             "Point Angle",
             "Decimal Equivalent",
             "Flute Length",
@@ -71,9 +62,7 @@ SIGNATURES: dict[str, frozenset[str]] = {
     TAP: frozenset(
         {
             "Tap Style",
-            "Tap Material",
-            "Tap Finish",
-            "Chamfer Style",
+            "Tap Chamfer",
             "Thread Size",
             "Pitch",
             "Square Size",
@@ -81,8 +70,6 @@ SIGNATURES: dict[str, frozenset[str]] = {
     ),
     WASHER: frozenset(
         {
-            "Washer Type",
-            "Washer Size",
             "Inside Dia.",
             "Outside Dia.",
             "Thickness",
@@ -90,8 +77,7 @@ SIGNATURES: dict[str, frozenset[str]] = {
     ),
     HAMMER: frozenset(
         {
-            "Hammer Head Material",
-            "Hammer Face Type",
+            "Face Type",
             "Handle Material",
             "Handle Grip Material",
             "Head Weight",
@@ -103,15 +89,35 @@ SIGNATURES: dict[str, frozenset[str]] = {
         {
             "Abrasive Material",
             "Backing Material",
-            "Flap Disc Shape",
+            "Shape",
             "Mounting Type",
             "Grit",
-            "Disc Dia.",
-            "Arbor Hole Size",
+            "Arbor Hole",
             "Max. RPM",
         }
     ),
 }
+
+#: The kind each catalog product type is drawn as. Several types share one: a
+#: square and a ball nose end mill are one renderer, and so are the four hex
+#: socket screw styles and the hex bolt.
+TYPE_KIND: dict[str, str] = {
+    "end_mill_square": END_MILL,
+    "end_mill_ball": END_MILL,
+    "drill_jobber": DRILL,
+    "tap_spiral_point": TAP,
+    "screw_socket_head": FASTENER,
+    "screw_flat_head": FASTENER,
+    "screw_button_head": FASTENER,
+    "screw_low_head": FASTENER,
+    "bolt_hex": FASTENER,
+    "washer_flat": WASHER,
+    "hammer_ball_pein": HAMMER,
+    "abrasive_flap_disc": FLAP_DISC,
+}
+
+#: Keys a record carries that are not published attributes.
+RESERVED_KEYS: frozenset[str] = frozenset({"sku", "SKU", "product_type"})
 
 #: What to call each kind when the record carries no ``Item``.
 KIND_LABELS: dict[str, str] = {
@@ -139,8 +145,16 @@ class AmbiguousProductError(ValueError):
 
 
 def classify(record: dict) -> str:
-    """The kind key for ``record``, from the attribute names it carries."""
-    names = set(record)
+    """The kind key for ``record``: its product type if it carries one, else its names."""
+    product_type = record.get("product_type")
+    if product_type is not None:
+        try:
+            return TYPE_KIND[product_type]
+        except KeyError as exc:
+            raise UnknownProductError(
+                f"record {record.get('sku', '?')!r} is a {product_type!r}, which nothing draws"
+            ) from exc
+    names = set(record) - RESERVED_KEYS
     matched = sorted(kind for kind, signature in SIGNATURES.items() if names & signature)
     if len(matched) == 1:
         return matched[0]
