@@ -40,10 +40,21 @@ LINES = list(emit.iter_nested(CATALOG))
 
 
 def _published(names) -> set[str]:
-    """Every value the generated catalog publishes under any of ``names``."""
+    """Every value the ORIGINAL twelve types publish under any of ``names``.
+
+    The line marking belongs to those types' line drawings. The newer types
+    (elastic/prism-industrial-products#103) are drawn only by the catalog's
+    per-SKU renderer, whose palette ``tests/test_sku_drawings.py`` sweeps.
+    """
+    from synthetic_industrial_products.render.kinds import TYPE_KIND
+
     wanted = set(names)
     return {
-        entry["value"] for line in LINES for entry in line["attributes"] if entry["name"] in wanted
+        entry["value"]
+        for line in LINES
+        if line["product_type"] in TYPE_KIND
+        for entry in line["attributes"]
+        if entry["name"] in wanted
     }
 
 
@@ -178,12 +189,12 @@ def test_an_unknown_coating_is_refused_rather_than_drawn_as_bare_steel():
     could tell from a real one.
     """
     with pytest.raises(UnsupportedFeatureError):
-        marking_for_line("Corvane", _attrs(**{"Finish - Machining": "Unobtainium Nitride"}))
+        marking_for_line("Corvane", _attrs(**{"Finish": "Unobtainium Nitride"}))
 
 
 def test_an_unknown_material_is_refused_rather_than_left_unhatched():
     with pytest.raises(UnsupportedFeatureError):
-        marking_for_line("Corvane", _attrs(**{"End Mill Material": "Wishful Thinking"}))
+        marking_for_line("Corvane", _attrs(**{"Material": "Wishful Thinking"}))
 
 
 def test_a_flute_count_that_is_not_a_count_is_refused():
@@ -235,7 +246,7 @@ def test_the_marking_reads_nothing_but_the_brand_and_the_line_attributes():
     two lines with the same brand and attributes mark identically however much
     else about them differs.
     """
-    attrs = _attrs(**{"End Mill Material": "Cobalt", "Number of Flutes": "3"})
+    attrs = _attrs(**{"Material": "Cobalt", "Number of Flutes": "3"})
     assert marking_for_line("Ferrox", attrs) == marking_for_line("Ferrox", list(attrs))
 
 

@@ -1,10 +1,9 @@
-"""The attribute vocabularies must really be disjoint, and the tree really a tree.
+"""The attribute vocabularies are shaped the way the census shapes them, and the tree is a tree.
 
-Disjointness is not decoration. The facet-discovery case under test is "scope a
-terms aggregation to one product type and get back exactly that type's
-attribute names". If two unrelated types quietly shared a name, that query
-would still look correct while proving nothing, so the property is asserted
-here rather than assumed.
+Which NAMES are allowed is ``tests/test_attribute_names.py``. What is asserted
+here is the shape: unrelated product types still share almost nothing, so a
+facet discovery scoped to one type returns that type's names -- but a concept
+both types carry is ONE name on both (``Material``), never one per type.
 """
 
 from __future__ import annotations
@@ -15,7 +14,6 @@ from synthetic_industrial_products.catalog import taxonomy
 from synthetic_industrial_products.catalog.vocab import (
     MEASUREMENT_SYSTEM_NAMES,
     MEASUREMENT_SYSTEM_VALUES,
-    SHARED_NAMES,
     STANDARDS_FAMILY,
     STANDARDS_POOL,
     VOCAB,
@@ -28,8 +26,9 @@ def test_every_type_has_a_category_leaf_and_every_leaf_a_type():
     assert set(VOCAB) == set(STANDARDS_FAMILY)
 
 
-def test_the_tree_is_three_or_four_levels_deep():
-    assert taxonomy.tree_depths() == {3, 4}
+def test_the_tree_is_three_to_five_levels_deep():
+    """As the reference distributor's is: hex keys sit five levels down."""
+    assert taxonomy.tree_depths() == {3, 4, 5}
 
 
 def test_no_category_path_is_duplicated():
@@ -52,13 +51,12 @@ def test_ancestors_are_the_prefixes():
     )
 
 
-def test_a_screw_and_a_hammer_share_almost_nothing():
+def test_a_screw_and_a_hammer_share_only_generic_concepts():
     screw = names_for("screw_socket_head")
     hammer = names_for("hammer_ball_pein")
-    overlap = screw & hammer
-    # "Item" is the only name both publish. Everything else about a threaded
-    # fastener and a striking tool is described in different words.
-    assert overlap == {"Item"}, overlap
+    # What a threaded fastener and a striking tool have in common is the item
+    # name and what they are made of -- and they say "Material" alike.
+    assert screw & hammer == {"Item", "Material"}, screw & hammer
 
 
 def test_an_end_mill_and_a_flap_disc_share_almost_nothing():
@@ -66,31 +64,20 @@ def test_an_end_mill_and_a_flap_disc_share_almost_nothing():
     assert overlap == {"Item"}, overlap
 
 
-def test_no_unshared_name_appears_in_two_different_type_families():
-    """A name outside SHARED_NAMES belongs to exactly one product type.
+def test_one_concept_is_one_name_across_types():
+    """The rule the disjointness gate used to forbid.
 
-    ``end_mill_square`` and ``end_mill_ball`` are the same family under two
-    category leaves and legitimately share a whole vocabulary, so they are
-    compared as one.
+    Every type that publishes what it is made of calls it ``Material``, and
+    every type with a coating or plating calls it ``Finish``. A filter on the
+    concept is one field on a nested index, whatever the type count.
     """
-    families = {
-        "end_mill": ("end_mill_square", "end_mill_ball"),
-        "drill": ("drill_jobber",),
-        "tap": ("tap_spiral_point",),
-        "socket_screw": ("screw_socket_head", "screw_flat_head"),
-        "hex_bolt": ("bolt_hex",),
-        "washer": ("washer_flat",),
-        "hammer": ("hammer_ball_pein",),
-        "flap_disc": ("abrasive_flap_disc",),
-    }
-    seen: dict[str, str] = {}
-    for family, keys in families.items():
-        names: set[str] = set()
-        for key in keys:
-            names |= names_for(key)
-        for name in names - SHARED_NAMES:
-            assert name not in seen, f"{name!r} is in both {seen.get(name)} and {family}"
-            seen[name] = family
+    carrying_material = {key for key in VOCAB if "Material" in names_for(key)}
+    # An abrasive is described by its grain, ``Abrasive Material``, a component
+    # the reference spec table names separately; it publishes no ``Material``.
+    abrasives = {"abrasive_flap_disc", "wheel_depressed_center"}
+    assert carrying_material == set(VOCAB) - abrasives, carrying_material
+    carrying_finish = {key for key in VOCAB if "Finish" in names_for(key)}
+    assert {"end_mill_square", "drill_jobber", "tap_spiral_point", "bolt_hex"} <= carrying_finish
 
 
 def test_the_measurement_system_attribute_has_three_spellings():

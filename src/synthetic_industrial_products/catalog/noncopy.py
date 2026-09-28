@@ -88,7 +88,9 @@ def fingerprint(attributes: Iterable[Attribute]) -> str:
 def fingerprint_mapping(attributes: dict[str, str]) -> str:
     """Fingerprint a plain name -> value mapping, as the builder script does."""
     pairs = sorted(
-        (str(name), str(value)) for name, value in attributes.items() if name not in ("sku", "SKU")
+        (str(name), str(value))
+        for name, value in attributes.items()
+        if name not in ("sku", "SKU", "product_type")
     )
     canonical = json.dumps(pairs, separators=(",", ":"), ensure_ascii=False)
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()

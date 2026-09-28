@@ -39,6 +39,7 @@ from .attrs import (
     UnsupportedFeatureError,
     provenance_note,
     require,
+    require_any,
     spec_table,
 )
 from .profiles import CARD, Profile
@@ -216,7 +217,7 @@ class FastenerGeometry:
 
 
 def geometry_from_record(record: dict) -> FastenerGeometry:
-    head_style = str(require(record, "Screw Head Type")).strip()
+    head_style = str(require_any(record, "Head Type", "Screw Head Type")).strip()
     key = head_style.lower()
     if key not in COUNTERSUNK and key not in CYLINDRICAL and key not in DOMED:
         raise UnsupportedHeadError(
@@ -225,7 +226,7 @@ def geometry_from_record(record: dict) -> FastenerGeometry:
         )
     drive_size_raw = record.get("Drive Size")
     flats_raw = record.get("Width Across Flats")
-    under_head_raw = record.get("Length Under Head")
+    under_head_raw = record.get("Length under Head") or record.get("Length Under Head")
     geom = FastenerGeometry(
         thread=parse_thread(require(record, "Dia./Thread Size")),
         length=parse_length(require(record, "Length")),
@@ -457,9 +458,7 @@ def _draw_end_view(ax, geom: FastenerGeometry, centre: tuple[float, float] = (0.
             )
         )
     else:
-        ax.add_patch(
-            Circle((cx, cy), r_head, fc=cv.BODY_FILL, ec=cv.INK, lw=cv.LW_BODY, zorder=3)
-        )
+        ax.add_patch(Circle((cx, cy), r_head, fc=cv.BODY_FILL, ec=cv.INK, lw=cv.LW_BODY, zorder=3))
     ax.add_patch(
         Circle(
             (cx, cy),
@@ -665,7 +664,7 @@ def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
     fig.text(
         0.04,
         0.955,
-        str(record.get("Screw Style") or record.get("Item") or "Cap Screw"),
+        str(record.get("Type") or record.get("Screw Style") or record.get("Item") or "Cap Screw"),
         fontsize=cv.FS_TITLE,
         fontweight="bold",
         color=cv.INK,
@@ -677,7 +676,7 @@ def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
         ("Dia./Thread Size", geom.thread.designation),
         ("Length", geom.length.display()),
         (
-            "Length Under Head",
+            "Length under Head",
             geom.length_under_head.display() if geom.length_under_head else "",
         ),
         ("Thread Length", geom.thread_length.display()),
@@ -685,15 +684,15 @@ def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
         ("Head Height", geom.head_height.display()),
         ("Drive Type", geom.drive_type),
         ("Drive Size", geom.drive_size.display() if geom.drive_size else ""),
-        ("Fastener Material", record.get("Fastener Material", "")),
-        ("Fastener Finish", record.get("Fastener Finish", "")),
+        ("Material", record.get("Material", "")),
+        ("Finish", record.get("Finish", "")),
         ("Grade", record.get("Grade", "")),
         ("Thread Type", record.get("Thread Type", "")),
         ("Thread Direction", record.get("Thread Direction", "")),
         ("Rockwell Hardness", record.get("Rockwell Hardness", "")),
         ("Meets/Exceeds", record.get("Meets/Exceeds", "")),
         ("Width Across Flats", record.get("Width Across Flats", "")),
-        ("Bolt Style", record.get("Bolt Style", "")),
+        ("Type", record.get("Type", "")),
     ]
     y = spec_table(fig, specs)
     if geom.countersunk:

@@ -83,7 +83,7 @@ class DrillGeometry:
 
 def geometry_from_record(record: dict) -> DrillGeometry:
     geom = DrillGeometry(
-        dia=parse_length(require(record, "Drill Size")),
+        dia=parse_length(require(record, "Size")),
         shank_d=parse_length(require(record, "Shank Dia.")),
         flute_len=parse_length(require(record, "Flute Length")),
         oal=parse_length(require(record, "Overall Length")),
@@ -332,17 +332,17 @@ def _render_detail(record: dict, geom: DrillGeometry, profile: Profile):
     spec_table(
         fig,
         [
-            ("Drill Size", geom.dia.display()),
+            ("Size", geom.dia.display()),
             ("Decimal Equivalent", record.get("Decimal Equivalent", "")),
             ("Shank Dia.", geom.shank_d.display()),
             ("Flute Length", geom.flute_len.display()),
             ("Overall Length", geom.oal.display()),
             ("Point Angle", record.get("Point Angle", "")),
-            ("Drill Point Type", record.get("Drill Point Type", "")),
+            ("Point Type", record.get("Point Type", "")),
             ("Shank Type", record.get("Shank Type", "")),
-            ("Drill Bit Material", record.get("Drill Bit Material", "")),
-            ("Drill Bit Finish", record.get("Drill Bit Finish", "")),
-            ("Drill Bit Direction", record.get("Drill Bit Direction", "")),
+            ("Material", record.get("Material", "")),
+            ("Finish", record.get("Finish", "")),
+            ("Cutting Direction", record.get("Cutting Direction", "")),
         ],
     )
     provenance_note(fig)

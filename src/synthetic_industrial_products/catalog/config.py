@@ -24,19 +24,46 @@ class GeneratorConfig:
     #: Deterministic: the same seed produces the same catalog, byte for byte.
     seed: int = 20260917
 
-    #: Roughly how many parent product lines to emit in total. The actual
-    #: count lands within a line or two of this; lines are apportioned across
-    #: product types by ``type_weights``.
+    #: Roughly how many parent PRODUCTS of the original twelve types to emit.
+    #: The actual count lands within a product or two of this; products are
+    #: apportioned across those types by ``type_weights``. The newer types are
+    #: counted separately, in ``new_type_products``.
     #:
-    #: 500 lines yields about 4,500 SKUs. A line cannot offer more SKUs than
-    #: its series has members -- there are nine imperial shank sizes and eight
-    #: ball pein head weights -- so the SKU count is driven by the line count
-    #: far more than by ``skus_per_line``.
-    lines: int = 500
+    #: 2,600 products at a mean of ~1.9 variants gives about 4,700 SKUs -- the
+    #: size of the catalog before variants were trimmed, spread over five times
+    #: as many products (elastic/prism-industrial-products#103, D1/D2).
+    lines: int = 2600
 
-    #: SKUs per line, sampled uniformly from this inclusive range. 400 lines
-    #: at a mean of 12 gives about 4,800 children.
-    skus_per_line: tuple[int, int] = (4, 20)
+    #: How many variants (SKUs) a product has: ``((count, weight), ...)``.
+    #: THE one knob for the variant distribution (maintainer, 2026-09-27):
+    #: about half of products are single-SKU, the rest 2-5, skewed small, as on
+    #: a marketplace. A product never offers more variants than its series has
+    #: members, so a draw is capped by the pool it is taken from.
+    variants_per_product: tuple[tuple[int, float], ...] = (
+        (1, 0.50),
+        (2, 0.25),
+        (3, 0.15),
+        (4, 0.06),
+        (5, 0.04),
+    )
+
+    #: Share of the newer types' single-variant products whose one variant
+    #: carries NO variant-scope attribute -- a deliberately awkward case, so a
+    #: grouped view is proven on a selector with zero axes, not only on the
+    #: well-formed shapes (maintainer guardrail, 2026-09-27).
+    zero_axis_share: float = 0.02
+
+    #: Products per NEWER product type. Each of these types draws from its own
+    #: random stream (seeded from ``seed`` and the type key), so adding,
+    #: removing or resizing one moves no other type's products.
+    new_type_products: dict[str, int] = field(
+        default_factory=lambda: {
+            "nut_hex": 700,
+            "bearing_radial_ball": 700,
+            "wheel_depressed_center": 700,
+            "hex_key": 700,
+        }
+    )
 
     #: Relative share of lines per product type. Cutting tools dominate the
     #: reference corpus and dominate here.
@@ -127,14 +154,12 @@ class GeneratorConfig:
     #: data. Every product and every variant carries one.
     #:
     #: Of the 442 that do carry one, 325 point at an image whose id is not the
-    #: product's own (0.7353). Not reproduced *as a rate*, because the catalog
-    #: now goes further than the rate does: there is one generic drawing per
-    #: product type and style, so EVERY product points at an image that is not
-    #: its own and the reference is derivable from the product type. That is
-    #: what the measurement is evidence of -- a category listing of four end
-    #: mills from one series at four diameters shows the same photograph four
-    #: times -- rather than something the rate captures better than the
-    #: mechanism does.
+    #: product's own (0.7353). Not reproduced, in the OTHER direction now: every
+    #: SKU carries a drawing of its own, drawn from its own values, so selecting
+    #: a variant can switch the picture (maintainer ruling on
+    #: elastic/prism-industrial-products#103, 2026-09-26: "we should do like
+    #: amazon"). A distributor photographs one size of a line; a generated
+    #: drawing costs nothing per size, so there is no reason to share one.
     measured_image_missing: float = 0.1089
     measured_image_sku_diverges: float = 0.7353
 
@@ -167,4 +192,12 @@ class GeneratorConfig:
 
 
 #: A small configuration for tests and for a quick look at the output shape.
-SMALL = GeneratorConfig(lines=40, skus_per_line=(3, 8))
+SMALL = GeneratorConfig(
+    lines=160,
+    new_type_products={
+        "nut_hex": 30,
+        "bearing_radial_ball": 30,
+        "wheel_depressed_center": 30,
+        "hex_key": 30,
+    },
+)

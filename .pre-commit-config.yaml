@@ -1,0 +1,32 @@
+# Hooks for this repository, mirroring the sibling customization's
+# (elastic/prism-industrial-products) where they apply. Install BOTH hook types:
+#
+#     pre-commit install -t pre-commit -t commit-msg
+#
+# ``default_install_hook_types`` makes a plain ``pre-commit install`` do that.
+default_install_hook_types: [pre-commit, commit-msg]
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      # The golden catalog is written byte-for-byte by ``sip-generate build``
+      # and compared by sha256; a byte a hook added would red the golden test.
+      - id: end-of-file-fixer
+        exclude: ^golden-catalog/
+      - id: trailing-whitespace
+        exclude: ^golden-catalog/
+      - id: check-yaml
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.5
+    hooks:
+      # ``ruff check`` only, as CI runs it. ``ruff format`` is not enforced in
+      # this repository yet (see the note in .github/workflows/ci.yaml), and a
+      # format hook would reformat every file a change touches.
+      - id: ruff-check
+  - repo: local
+    hooks:
+      - id: no-ai-attribution
+        name: no AI or bot attribution in the commit message
+        entry: python3 scripts/check_commit_msg.py
+        language: system
+        stages: [commit-msg]

@@ -28,8 +28,8 @@ from .derive import (
 )
 
 #: PRISM canonical names taken by the document's first-class columns. An
-#: attribute that sanitises onto one of these would silently redefine a
-#: structural field, so the renderer refuses rather than emitting it.
+#: attribute that sanitises onto one of these is NAMESPACED rather than
+#: dropped or refused: see :func:`canonical_name`.
 STRUCTURAL_NAMES = frozenset(
     {
         "id",
@@ -246,6 +246,27 @@ def _structural_fields() -> list[str]:
     ]
 
 
+#: The prefix an attribute's canonical name takes when its sanitised key is a
+#: structural field's name.
+ATTRIBUTE_PREFIX = "attr_"
+
+
+def canonical_name(key: str) -> str:
+    """An attribute's field-map name: its sanitised key, namespaced on a collision.
+
+    THE GENERAL RULE, not a one-off. Supplier feeds publish attribute names
+    that are also the names of a catalog's own columns -- the reference census
+    carries ``Series`` (25 records), ``Product Type`` (15) and ``Brand`` (1) as
+    ATTRIBUTE names -- and a bearing's ``Series`` (``62``) is not its product
+    line's ``series`` column. Dropping the attribute loses data; refusing the
+    whole catalog is worse. So the attribute keeps its own storage
+    (``facets.series``, which never touched the ``series`` column) and its
+    field-map entry is named ``attr_series``. The nested shape needs none of
+    this: there an attribute is data, ``{name, value}``, not a field name.
+    """
+    return f"{ATTRIBUTE_PREFIX}{key}" if key in STRUCTURAL_NAMES else key
+
+
 def _attribute_entry(decision: Decision) -> str:
     stats = decision.stats
     # The CONTROL follows continuity, not numeracy. A quantitative attribute
@@ -258,7 +279,7 @@ def _attribute_entry(decision: Decision) -> str:
         f"  # {stats.name} -- {decision.reason}",
         f"  #   present on {stats.present} documents across "
         f"{len(stats.product_types)} product type(s); {stats.cardinality} distinct values",
-        f"  - name: {stats.key}",
+        f"  - name: {canonical_name(stats.key)}",
         f"    type: {kind}",
         f"    source: {source}",
     ]
@@ -270,13 +291,12 @@ def _attribute_entry(decision: Decision) -> str:
 def render(rows: Iterable[dict[str, Any]]) -> str:
     """Render the complete field map YAML for a catalog's flat documents."""
     measured = measure(rows)
-    collisions = sorted(set(measured) & STRUCTURAL_NAMES)
-    if collisions:
-        raise ValueError(
-            "attribute name(s) collide with a structural field and would "
-            f"silently redefine it: {collisions}. Rename the structural field "
-            "in field_map.STRUCTURAL_NAMES and in _structural_fields()."
-        )
+    # Namespacing must not itself collide: two attributes may not land on one
+    # canonical name, nor on a structural one.
+    names = [canonical_name(key) for key in measured]
+    clashes = sorted({n for n in names if names.count(n) > 1} | (set(names) & STRUCTURAL_NAMES))
+    if clashes:
+        raise ValueError(f"attribute canonical name(s) collide after namespacing: {clashes}")
 
     decided = [decide(stats) for stats in measured.values()]
     facets = [d for d in decided if d.facet]

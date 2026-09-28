@@ -180,11 +180,11 @@ def measure(catalog: Catalog, config: GeneratorConfig | None = None) -> dict[str
 
             if child.image_id:
                 images_present += 1
-                # Every product points at a drawing of its product type rather
-                # than at an image of its own: see GeneratorConfig, where both
-                # measured image rates and the reason neither is reproduced as
-                # a rate are recorded.
-                images_diverge += 1
+                # Measured, not assumed: an id that does not end in this SKU
+                # is a shared drawing. Every SKU has its own since
+                # elastic/prism-industrial-products#103, so this reads 0.
+                if not child.image_id.endswith("/" + child.sku):
+                    images_diverge += 1
             else:
                 images_missing += 1
 
@@ -258,9 +258,9 @@ def measure(catalog: Catalog, config: GeneratorConfig | None = None) -> dict[str
             "over titles",
         ),
         # Both image rates are DELIBERATE DEVIATIONS, so the target column
-        # shows what this catalog aims at -- every product carrying a shared
-        # generic drawing -- and GeneratorConfig carries the measured figures
-        # and the reasons. Showing the corpus rate as the target here would
+        # shows what this catalog aims at -- every SKU carrying a drawing of
+        # its own -- and GeneratorConfig carries the measured figures and the
+        # reasons. Showing the corpus rate as the target here would
         # print a permanent, meaningless miss.
         Comparison(
             "image reference missing",
@@ -272,7 +272,7 @@ def measure(catalog: Catalog, config: GeneratorConfig | None = None) -> dict[str
         ),
         Comparison(
             "image id is shared, not the product's own",
-            1.0,
+            0.0,
             _rate(images_diverge, images_present),
             images_diverge,
             images_present,

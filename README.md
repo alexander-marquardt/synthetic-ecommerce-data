@@ -1,7 +1,8 @@
 # synthetic-industrial-products
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
-fasteners), built to exercise structured facet extraction in search.
+fasteners, abrasives, hand tools, bearings), built to exercise structured facet
+extraction in search: 10,202 SKUs over 5,400 products in 16 product types.
 
 **Every product in this repository is synthetic.** No record here describes a
 real product offered by any retailer, and no retailer's catalog content is
@@ -48,6 +49,7 @@ line:
 | | |
 |---|---|
 | **Fasteners** | dimensions are **standards-derived**. Each line carries the standard designation its dimensions came from — `ASME B18.3`, `ASME B18.3.2`, `ASME B18.3.3A`, `ASME B18.3.1G`, `ISO 4762`, `ISO 10642`, `ISO 7380-1`, `DIN 7984`, `ISO 4014`, `ISO 4017`, `DIN 933`, `ISO 7089`. |
+| **Newer types** (hex nuts, radial ball bearings, depressed-center wheels, hex keys; elastic/prism-industrial-products#103) | dimensions are **generated** from conventional sizes -- nut widths across flats, the 60/62/63 bearing series boundary sizes, stocked wheel diameters, hex key sizes. They follow the familiar ladders but were not extracted from an open dataset, so the provenance field says "generated" and no standard is claimed. |
 | **Cutting tools** | dimensions are **generated** from the conventional series. No open dimensional source for end mills exists, so nothing here claims a standard, and the provenance field says so in words. The metric series carries 11, 15 and 25 mm, which are ordinary stocked sizes and were missing — an artifact of how the list was first written, not a statement about the market. |
 
 That asymmetry is deliberate. A cap screw's head is fixed by a published
@@ -114,7 +116,7 @@ measurements:
 | attribute | what it measures |
 |---|---|
 | `Length` | the nominal length — measured **over** the head on a countersunk screw and under it on every other style |
-| `Length Under Head` | the whole shank, head excluded |
+| `Length under Head` | the whole shank, head excluded (the census's casing) |
 | `Thread Length` | how much of that shank carries thread |
 
 `x 3/4` in the reference distributor's pattern is the second of those. Binding it to
@@ -130,7 +132,21 @@ visibly end a head height apart.
 | | |
 |---|---|
 | **Ships** | the generator, the extracted standards tables, hashes of the reference tuples, and the built catalog itself — checked in at `golden-catalog/`, see [The built catalog is committed](#the-built-catalog-is-committed-in-golden-catalog) |
-| **Never ships** | the reference corpus of captured pages, and the rendered images — both reproducible, see `.gitignore`. The images are about a thousand PNGs and 15 MiB published, so hosting them is a copy, not a build |
+| **Never ships** | the reference corpus of captured pages, and the rendered drawings — both reproducible, see `.gitignore`. The drawings are rebuilt from the committed catalog into a pinned bundle (`sip-generate images`, see [Images](#images)); `images.jsonl` records each one's sha256, and nothing else about them is committed |
+
+## Contributing
+
+Install both hook types once per clone: `pre-commit install` (the config sets
+`default_install_hook_types: [pre-commit, commit-msg]`). The commit-msg hook
+(`scripts/check_commit_msg.py`) refuses a message that credits an AI tool or a
+bot. Its patterns are the core repository's AI-attribution family, vendored
+with the commit it came from, plus this repository's additions. CI runs the
+same check over every commit a pull request adds, so a clone without hooks
+cannot skip it. Git's `#` help lines are skipped only by the hook, because a recorded
+message keeps any `#` line it was given. Messages are folded before matching:
+look-alike letters, invisible and bidirectional characters, and a phrase
+wrapped across two lines are all caught. The pre-commit hooks run `ruff check` and the whitespace
+fixers, which leave `golden-catalog/` alone.
 
 ## Generating a catalog
 
@@ -144,7 +160,7 @@ Everything is parameterised, because the point of the catalog is to be dialled
 until something breaks:
 
 ```sh
-uv run sip-generate build --lines 900 --skus 6 24    # more, wider product lines
+uv run sip-generate build --lines 900               # more products of the original twelve types
 uv run sip-generate build --sparsity 0.4             # raggeder attribute coverage
 uv run sip-generate build --defects 0.0              # a catalog with no contradictions
 uv run sip-generate build --seed 7                   # a different catalog
@@ -154,16 +170,47 @@ The generator is deterministic: one seed produces one catalog, byte for byte.
 
 ### The data model
 
-**A parent is one manufacturer's product line. Its children are the individual
-purchasable SKUs.**
+**A parent is one product. Its children are its purchasable variants (SKUs).**
+The shape is core's nested variant model (elastic/prism#9141): today's ungrouped
+view serves one document per SKU, and the grouped view will serve one per
+product with its variants nested, from the same data.
 
 ```
 parent    Corvane K663 -- High Speed Steel Square End Mill
-          line-CONSTANT attributes: brand, series, material, coating,
+          product-CONSTANT attributes: brand, series, material, coating,
           flute count, end type, helix angle
 children  the SKUs, varying: milling diameter, length of cut, overall
-          length, shank diameter, price, stock
+          length, shank diameter, price, stock -- each with its own drawing
 ```
+
+**How many variants a product has** is ONE knob, `variants_per_product`: about
+half of products are single-SKU and the rest have 2 to 5, skewed small, as on a
+marketplace (maintainer, 2026-09-27). A product never offers more variants than
+its series has members. Two deliberately awkward cases are built in, so a
+grouped view is proven on more than the well-formed shapes: a single variant
+that carries **no** variant-scope attribute (`zero_axis_share`), and variants
+whose sparsity leaves one without an attribute its siblings carry.
+
+**Attribute names are the census's generic ones.** A concept is one name across
+types -- `Material` on an end mill, a drill and a screw alike -- because that is
+how the reference census names it (160 of 496 records), and on a nested index
+every per-type spelling would be a facet of its own. `catalog/names.py` is the
+gate: every name is census-verbatim, on the names-only reference spec-table
+list (`reference-statistics/R1_reference_spec_table_names.json`), or a justified
+exception. No name may contain the record's OWN product noun, a noun of its
+category path, anywhere (`End Mill Material` on an end mill, `Hex Nut Material`
+on a nut, `Cap Screw Type` on a screw). The census's own one-record
+type-qualified names are refused, not allow-listed. A noun naming a mating or
+contained part is allowed, because it is a different measurement: a washer's
+`For Bolt Size`, a tap's `Drill Size`, `Insert Screw`. And no name may be a
+census name in another casing (`Length Under Head` for `Length under Head`),
+since a keyword facet is case-sensitive. It replaced a rule that forced the
+vocabularies to be disjoint.
+
+**The newer types spell lengths the way their brand's feed does** -- one brand
+`3/8"`, another `3/8 in`, another `0.375"` -- consistent within a brand and
+different across brands, the variation between supplier feeds the census
+records (maintainer ruling, 2026-09-28). The original twelve keep one spelling.
 
 Attributes are nested key-value at **both** levels, in **one** array rather
 than separate keyword and numeric arrays:
@@ -182,7 +229,7 @@ An attribute that is not a measurement omits `value_num` entirely rather than
 carrying a null, and so does a measurement whose value is deliberately
 malformed — a record publishing `Helix Angle = 42"` has no angle to put there.
 
-Lines are never grouped across brands. Two manufacturers' tools at the same
+Products are never grouped across brands. Two manufacturers' tools at the same
 nominal geometry are different products.
 
 #### Three tiers say what makes a SKU different
@@ -239,7 +286,7 @@ why the distinction is worth a rule rather than a remark: on the first pass at
 this work the whole-string and substring counts had both reached zero while the
 standalone-token count was still **10**. One of the ten was
 `Button Head Socket Cap Screw, 1/4-20, Alloy Steel`, credited with naming a
-`Length Under Head` of `1/4` — which is the first half of a thread designation
+`Length under Head` of `1/4` — which is the first half of a thread designation
 and says nothing about how long the screw is. On the committed catalog all
 three counts are zero.
 
@@ -282,20 +329,20 @@ them here would hide the problem a field map exists to solve.
 
 | file | |
 |---|---|
-| `flat.jsonl` | 13.6 MB — 4,689 SKU documents |
-| `nested.jsonl` | 5.3 MB — 500 product lines, nested variants and key-value attributes |
-| `render.jsonl` | 2.0 MB — the same 4,689 SKUs for the per-record dimensioned renderer |
+| `flat.jsonl` | 25.7 MB — 10,202 SKU documents |
+| `nested.jsonl` | 13.6 MB — 5,400 products, nested variants and key-value attributes |
+| `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
-| `images.jsonl` | the 500 drawings — one per product line — and how many products point at each |
+| `images.jsonl` | 3.9 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
 | `stats.json` | the measured defect rates, and the config that produced them |
 
-20.2 MiB in the working tree. **Plain NDJSON — deliberately not gzipped and
-not git-LFS.** The whole reason to commit generated output is that a change to
-the generator shows up as a readable diff in review, and both of those hide it.
-The cost is small: the seven blobs occupy **906 KiB in the pack** (measured
-with `git cat-file --batch-check='%(objectsize:disk)'` after a `git gc`), a
-21× saving, because records drawn from one naming grammar share most of their
-bytes. `flat.jsonl` alone is 12.1 MiB stored in 549 KiB.
+About 44 MiB in the working tree. **Plain NDJSON — deliberately not gzipped
+and not git-LFS.** The whole reason to commit generated output is that a
+change to the generator shows up as a readable diff in review, and both of
+those hide it. Records drawn from one naming grammar pack small. Above roughly
+30K SKUs a file outgrows what GitHub accepts; the ruling for that size (D5 on
+elastic/prism-industrial-products#103) is a pinned release asset with a
+committed sample, not built yet.
 
 It also means the catalog is inspectable, and citable, without installing the
 generator: a reviewer reading a PR, or anyone asking what a record actually
@@ -330,10 +377,10 @@ difference means the second, and the golden files must not be updated until it
 is found. The test's failure message says all of this too, with the commands.
 
 Alongside the hashes, the same test asserts the headline numbers directly
-against the committed files — 4,689 SKU documents over 500 distinct
-`product_id`, a non-empty `image_url` and `image_detail_url` on every product
-line, variant and flat document, and 500 nested lines whose variant counts sum
-to 4,689. Those hold independently of the generator, so a careless
+against the committed files — 10,202 SKU documents over 5,400 distinct
+`product_id`, a non-empty `image_url` and `image_detail_url` on every product,
+variant and flat document, and 5,400 nested products whose variant counts sum
+to 10,202. Those hold independently of the generator, so a careless
 regenerate-and-commit from a broken build is still red.
 
 ## Serving it with PRISM
@@ -361,8 +408,8 @@ PRISM_CUSTOMIZATION_PATH=<this repo> PRISM_RUNTIME_MODE=dev \
 
 ### The field map is derived, never written
 
-The catalog publishes **77 distinct attribute names** across 12 product types.
-A hand-maintained list of 77 declarations drifts from the generator the first
+The catalog publishes **84 distinct attribute names** across 16 product types.
+A hand-maintained list of 84 declarations drifts from the generator the first
 time either side moves, and it drifts *silently*: a field map naming an
 attribute the catalog no longer publishes does not raise, it just stops
 faceting, and "no product has that value" looks exactly like "the field map is
@@ -376,18 +423,28 @@ planted in `scripts/mutation_check.py`.
 
 ### Which attributes become facets
 
-Not all 77. Three measured gates, applied to the emitted documents:
+Not all 84. Three measured gates, applied to the emitted documents:
 
 | gate | rule | why |
 |---|---|---|
 | **discriminating** | at least 2 distinct values | a facet with one value cannot narrow anything — it is a control that does nothing |
 | **characteristic** | present on ≥50% of the documents of the product types that publish it *at all* | the denominator is per-attribute: an attribute carried by one of twelve types can never exceed ~10% of the catalog, yet may be the primary facet for its own category |
-| **not an identifier** | a **terms** attribute carries ≤25 distinct values | `Thread Size` publishes 19 values over 331 documents and is the first thing a shopper filters on; `List Number` publishes 110 and is a part reference nobody browses. Numeric attributes are exempt — a range control's cost does not grow with cardinality |
+| **not an identifier** | a **terms** attribute carries ≤25 distinct values | `Dia./Thread Size` is the first thing a shopper filters on; `List Number` publishes 574 values over 1,100 documents and is a part reference nobody browses. Numeric attributes are exempt — a range control's cost does not grow with cardinality |
 
 An attribute is **numeric** (a range facet over `facets_num.*`) when ≥50% of
 the documents publishing it carry a parsed `value_num`, and **terms**
 otherwise. The catalog deliberately emits values that do not parse, so the
 test is a majority rather than "all".
+
+**An attribute whose key is a column's name is namespaced, never dropped.**
+Real feeds publish attributes named like a catalog's own columns -- the census
+carries `Series` (25 records), `Product Type` (15) and `Brand` (1) as
+attributes -- and a bearing's `Series` (`62`) is not its product's `series`
+column. So `field_map.canonical_name` gives such an attribute the entry name
+`attr_<key>` (here `attr_series`, over `facets.series`) and leaves the
+structural entry pointing at the column; a namespaced name that would itself
+collide is refused. The nested shape needs none of this: there an attribute is
+data, `{name, value}`, not a field name.
 
 Attributes that fail a gate are still **declared**, with `facet: false` — they
 stay searchable and stay available as filter and policy targets, they are just
@@ -397,11 +454,9 @@ What that yields, measured:
 
 | | |
 |---|---|
-| attributes declared | 77 |
-| offered as facets | 58 (27 numeric ranges, 31 terms) |
-| declared, not faceted | 19 |
-| **fields in the field map** | **93** |
-| **leaf fields in the Elasticsearch index** | **126** — the 20 the mapping declares, plus one per distinct `facets.*` key (77) and `facets_num.*` key (29) the dynamic templates create |
+| attributes declared | 84 |
+| **fields in the field map** | **101** (67 faceted terms entries, 26 declared with `facet: false`, and the structural ones) |
+| **leaf fields in the Elasticsearch index** | **141** — the 21 the mapping declares, plus one per distinct `facets.*` key (84) and `facets_num.*` key (36) the dynamic templates create |
 | facets in a category's sidebar | 8–15 |
 
 The per-category figure is above the five-to-eight a real sidebar carries.
@@ -430,7 +485,7 @@ agrees with itself proves nothing.
   and a range filter returns exactly the matching documents
 * **every sampled facet count equals what clicking it returns** — a count that
   does not match its click is a blocking defect, not a note
-* all 12 product types return their own documents, in the generated count
+* every product type returns its own documents, in the generated count
 * the demo case: `3/8" end mill` returns products whose **shank** carries that
   value, and adding the structured `milling_dia` filter excludes them
 
@@ -438,9 +493,9 @@ agrees with itself proves nothing.
 
 The flat shape's `attributes` array is a plain object, so `name` and `value`
 become two independent multi-valued fields. Filtering it for
-*name = Shank Dia. AND value = 3/8"* matches **87** documents; only **51**
-actually publish a 3/8" shank. The other 36 carry a 3/8" belonging to a
-different attribute.
+*name = Shank Dia. AND value = 3/8"* matches **236** documents; only **141**
+actually publish a 3/8" shank. The other 95 carry a 3/8" belonging to a
+different attribute (counted from `golden-catalog/flat.jsonl`).
 
 That is why the field map facets the sanitised per-attribute `facets.*` /
 `facets_num.*` keys, where the pairing cannot come apart, rather than the
@@ -490,7 +545,8 @@ record and read by nothing has no code path to plant a defect in, which is how
 zeros. What the harness *can* plant is the other half — a channel that reads
 its attribute, validates it, and then draws something else — so every marking
 mutation is that shape, and the coverage question is answered from the data
-side instead, in `tests/test_line_drawings.py`.
+side instead, in `tests/test_derivation.py` (the dimensioned renderer) and
+`tests/test_sku_drawings.py` (the catalog's own drawings).
 
 Two of the harness's own defects surfaced while the marking mutations were
 added, both of which manufacture a false "not caught": a selector's `-k` filter
@@ -501,348 +557,137 @@ it. The selector is parsed with `shlex` now, and the two-filter shape raises.
 
 ## Images
 
-**Every product and every variant has an image, and there is one image per
-product line** — about 500 of them, each shared by that line's 4 to 20 SKUs.
-That is not a cheap approximation of what a catalog does; it is what a catalog
-does. A category listing of four end mills from one manufacturer's series at
-1/2, 3/8, 1/4 and 1/8 inch shows the same photograph four times, and 73.5% of
-the archived reference records point at an image whose id is not the product's
-own. A distributor does not photograph every length of the same screw.
+**One drawing per SKU, drawn from that SKU's own values, with no text in it.**
+The rulings are on elastic/prism-industrial-products#103 (2026-09-26 to -28):
 
-Per-SKU images would undercut the variant-grouping story the nested shape
-exists to demonstrate, where N SKUs are *one* product. One image per product
-type, which is what this replaced — ten of them then, twelve now — went too far
-the other way: an
-Osterlund K663 HSS AlTiN mill and a competitor's carbide TiCN mill rendered
-identically.
+* **One image per SKU**, so two lengths of one screw look different, and a
+  grouped view can switch the picture when a variant is selected.
+* **No text of any kind** -- no dimension, callout, label, brand name or SKU.
+  The words are on the record (title, description, attributes); the drawing
+  reflects the specifications **visually**: a longer length of cut is drawn
+  longer, a finer thread with more crests, a flat head is a cone and a button
+  head a dome, a sealed bearing is closed and an open one shows its balls.
+  The gate is an **allow-list**, not a list of text forms
+  (`drawing.svg_problems`):
+  - every element must be one the figures emit (`svg, rect, defs, pattern, g,
+    path, circle`), and there is no nested `<svg>`;
+  - every attribute must be one they use, and every attribute VALUE must fit
+    its grammar: a paint is a colour, `none` or a same-file hatch reference,
+    never an external or `data:` URL;
+  - every id is a hatch pattern's own;
+  - no element may carry character data;
+  - no comment, processing instruction, doctype or entity reference may
+    appear.
 
-| behind one drawing | lines | variants |
-|---|---|---|
-| `end_mill_square` | 95 | 759 |
-| `screw_socket_head` | 60 | 693 |
-| `end_mill_ball` | 55 | 413 |
-| `drill_jobber` | 55 | 592 |
-| `bolt_hex` | 45 | 496 |
-| `tap_spiral_point` | 35 | 331 |
-| `screw_flat_head` | 35 | 390 |
-| `washer_flat` | 30 | 236 |
-| `screw_button_head` | 25 | 291 |
-| `abrasive_flap_disc` | 25 | 144 |
-| `screw_low_head` | 20 | 203 |
-| `hammer_ball_pein` | 20 | 148 |
+  One thing no structural check can catch: a glyph's outline drawn as a plain
+  path is indistinguishable from any other outline. The review's plants
+  -- `<title>`, `<desc>`, `aria-label`, a comment, `<metadata>`,
+  `<foreignObject>`, an embedded raster, `@font-face`, a glyph path from any
+  font -- each red `tests/test_sku_drawings.py`.
+* **Brands visibly different**, by house style: each brand has its own outline
+  ink, a faint paper tone of it, and one of four frame treatments -- consistent
+  within a brand, never random per product.
+* **Finish and material** are the part's fill (the finish's colour, else the
+  bare material's) and its section hatch.
+* **Small SVG**, written directly rather than through a figure library:
+  measured on the committed catalog, 10,202 drawings, 18.3 MB unpacked
+  (1.79 KB a drawing on average), and a 1.87 MB `images.tar.gz`.
 
-### The drawing is the record, drawn
+The drawing is a pure function of `(product type, brand, published attributes)`
+(`src/synthetic_industrial_products/drawing/`). It reads the SKU's geometry
+through the same `geometry_from_record` functions the dimensioned renderer in
+`render/` uses, so the two cannot disagree about what a record says.
 
-There are only **twelve shapes**, one per product type. What differs between
-two lines of one type is the *marking*, and **every visual channel is a
-function of a published attribute** — never of the product id, the SKU or the
-series.
+**Sizes are visible.** The scale is one constant per product type: sheet units
+per inch are the usable sheet over the type's largest drawn extent, declared
+per type in `drawing/figures.py`. The one exception is legibility, and it is
+decided per PRODUCT, not per SKU. If a product's largest primary dimension (a
+screw's length, a washer's diameter) would be drawn shorter than 45 sheet
+units, the whole product is drawn at one larger scale, so that its largest
+dimension is drawn `sqrt(45 * d)` long.
 
-Twelve rather than ten because the catalog gained two screw styles whose heads
-really are different shapes: a button head is a dome and a low head socket cap
-screw is a squat cylinder, and neither is a socket head cap screw drawn
-smaller. A style that drew as another style's picture is the `Screw Head Type`
-defect over again — `Socket` and `Hex` once produced the same picture, and 524
-hex bolts were drawn with round heads.
+What `tests/test_sku_drawings.py` proves over the committed catalog:
 
-| channel | driven by | why this pairing |
-|---|---|---|
-| outline colour | `brand` | what colour does in real catalogs; ten hues stay legible, and the map is invertible so the brand reads back off the page |
-| fill tint | the coating/finish attribute, under any of its four spellings | physically true — TiAlN is violet-grey, TiN gold, black oxide dark, bright steel silver |
-| section hatch | the material attribute, under any of its six spellings | engineering drawings already denote material by hatch |
-| flutes drawn | `Number of Flutes` | not styling: a 3-flute tap genuinely differs from a 2-flute, and the count is what a reader counts |
-| flute and thread hand | the direction attribute, under any of its three spellings | a left-hand tool is a different product |
-| specification stamp | **every** published attribute, verbatim | a spec-sheet convention, and the record's own text |
+* **Siblings share one scale.** A head, a thread or a bore that siblings share
+  is drawn identically on each, and whatever varies between them is drawn in
+  true proportion. Measured on the drawings, screws' heads and bearings'
+  outer rings are drawn at the same radius on every sibling.
+* **Across a type:**
+  * products drawn at the type's constant are in true proportion to each other;
+  * among all products, a larger largest dimension is always drawn larger.
+* **What it does NOT prove:** a smaller SKU of an enlarged product can be drawn
+  larger than a slightly larger SKU of a product that was not enlarged,
+  because the two products are drawn at different scales.
+* **Other properties:**
+  * no product exceeds its type's extent;
+  * no drawing leaves its sheet;
+  * no two siblings draw alike unless they differ only in values no figure
+    draws.
 
-**Rotation and tilt were considered and rejected.** They map to no product
-property, so they would add variance that asserts nothing — and a reader who
-sees two mills drawn differently concludes the difference is real. Driven by
-the record, that conclusion is correct.
+Before these fixes, 84 products had same-looking siblings, and in 21 products
+the legibility lift was per SKU, so a shorter screw was drawn with the bigger
+head.
 
-The stamp is what carries the *ragged tail*. The attribute sets are ragged by
-design — one line publishes `Tap Material`, another `Tap Finish`, another
-neither — and an encoding built from the attributes common to a product type
-collapses to almost nothing: measured, it manufactures about 226 false
-collisions. Five geometric channels are also simply finite; brand, finish,
-material, flutes and standards alone leave 27 of the 500 lines colliding. The
-stamp closes that gap with the record's own text.
+An M3 washer drawn on its own is 0.285 of an M16's diameter, against the true
+0.233; the difference is the floor.
 
-**498 of 500 lines get a drawing of their own.** The two that do not are flat
-washers — two pairs of lines, each pair publishing identical attribute sets —
-and a flat washer is genuinely almost nothing but dimensions, so drawing them
-alike is the correct answer, not a failure of the encoding. `tests/test_line_drawings.py` asserts that
-number exactly, in both directions: lines that draw alike publish alike, and
-lines that publish alike draw alike.
+A record whose geometry cannot be read as published -- an attribute absent, a
+value that does not parse, a pair that contradicts itself -- is drawn with its
+kind's **nominal** proportions for the missing or conflicting values, and
+`images.jsonl` says so per SKU (`geometry`: `record`, `partial` or `nominal`).
+A drawing with no text states no number, so a nominal proportion cannot
+contradict a published value; a consistent published value always wins.
+`tests/test_sku_drawings.py` asserts the parts that are drawn from the record
+are drawn to exactly its published length.
 
-### What no drawing carries
+### Where a record points, and the bundle
 
-**No dimension, no callout, no number read off a size, and no SKU.** Every
-channel reads a `line`-scope attribute, constant over the whole line. A line's
-SKUs span a median 5.5x range of sizes, so a drawing that stated a size would
-be wrong for most of the line it stands behind. The sizes are on the record and
-render beside the image, where they are the record's own values — so a drawing
-here cannot contradict the record it appears against, structurally rather than
-by anyone remembering to check.
-
-```sh
-uv sync
-uv run sip-render generics --out out              # the twelve SHAPES, unmarked
-python scripts/render_catalog.py out/catalog --out out/images
-```
-
-A thousand files — 500 drawings at two profiles — and about 15 MiB published
-after compression (median 6.9 KiB a card, 24.3 KiB a detail sheet).
-`scripts/render_catalog.py` also audits the result in three directions: every
-product and variant must reference a file that exists **and is not empty**,
-every file written must be referenced by something, and the number of lines
-that share a drawing is reported per product type. The first failing is a
-broken image on a demo page, the second is dead weight in the repository that
-hosts them, and the third is variety quietly disappearing; none shows up in a
-count of files.
-
-### The per-record dimensioned drawings
-
-A second renderer draws **one record to scale from that record's own attribute
-values**, with every dimension on the page restating a value the record
-publishes. It is not what the catalog's cards use — a dimensioned drawing per
-SKU is both more expensive and less faithful than a shared one — but it is the
-right thing for a detail view of a handful of demo products, where the point
-being made is that cutting diameter and shank diameter are different
-measurements.
+Every SKU's `image_id` is `<product type>/<product id>/<sku>`; its `image_url`
+is `/images/industrial/<image_id>.svg`, and `image_detail_url` names the same
+file (one SVG serves both views). A product shows its first variant's drawing.
+The URL is relative on purpose: the demo serves the bundle's folder itself
+(elastic/prism#9770), and nothing points at a third-party host.
 
 ```sh
-uv run sip-render fixtures --out out              # every bundled record
-uv run sip-render sku 26VW40 --profile card --out out
-uv run sip-render batch out/catalog/render.jsonl --out out
+uv run sip-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz
 ```
 
-**Some records cannot be drawn to scale, and that is the renderer working.** It
-refuses a record whose dimensions are missing or contradict each other rather
-than defaulting a value, so the share it refuses tracks the sparsity and defect
-rates the catalog reproduces. A run that drew 100% of this catalog *to scale*
-would mean the renderer had started inventing numbers. Measured over the
-default 500-line catalog:
+rebuilds every drawing from the **committed** catalog, refuses unless each one's
+sha256 equals the one `images.jsonl` records, and writes the files and a
+deterministic archive (sorted members, zeroed times and owners, a gzip header
+without a timestamp).
 
-| product type | variants | drawn to scale | |
-|---|---|---|---|
-| `bolt_hex` | 471 | 100% | |
-| `screw_button_head` | 294 | 100% | |
-| `screw_flat_head` | 370 | 100% | |
-| `screw_low_head` | 190 | 100% | |
-| `screw_socket_head` | 702 | 100% | |
-| `washer_flat` | 247 | 100% | ISO 7089 publishes all three dimensions on every size |
-| `abrasive_flap_disc` | 147 | 90% | `Disc Dia.` sometimes published without a unit |
-| `end_mill_ball` | 445 | 65% | |
-| `end_mill_square` | 748 | 65% | |
-| `tap_spiral_point` | 292 | 43% | |
-| `drill_jobber` | 632 | 24% | `Shank Dia.` is published on 43% of them |
-| `hammer_ball_pein` | 151 | 0% | see below |
-| **all** | **4,689** | **73.7%** | 890 missing an attribute, 171 self-contradictory, 151 hammers, 21 unreadable |
+**Layout.** Every member is `industrial/<type>/<product>/<sku>.svg`: the
+archive carries its own top-level `industrial/` folder, so a customization
+unpacks it into its images folder, the demo serves that folder at `/images`
+(elastic/prism#9770), and `image_url` -- `/images/industrial/...` -- resolves
+with no per-deployment mount. A test pins that every member is exactly its
+`image_url` under `/images`.
 
-Every row of that table moved with the 2026-09-21 regeneration and none of
-them had been re-measured: it read 4,662 variants at 71%, with the five
-fastener types between 97% and 100%. **The five fasteners are now all 100%**,
-and the reason is the regeneration itself — one spelling per magnitude left no
-dimension the parser cannot read, so `DimensionParseError` fell from 181 to 21
-and the refusals that remain are absences and contradictions rather than
-spellings. The figures above are measured on the committed `render.jsonl`
-through the production `draw_record`.
-
-A record the dimensioned renderer refuses falls back to its generic drawing, so
-a refusal costs the scale, never the image.
-
-**A ball pein hammer gets no dimensioned drawing at all, and that is the
-correct outcome rather than a gap.** A hammer record publishes a head weight,
-an overall length, a face diameter and a handle length. Every view of a hammer
-needs an extent none of those gives: the side elevation needs the head's length
-along its own axis, and the face view needs the width of the handle. Deriving a
-head length from the weight would mean assuming a shape and a density, which is
-a different thing from the countersink angle a cap screw's three published
-lengths determine by trigonometry. `render/hammer.py` says so at length, where
-anyone looking for the hammer renderer will find it.
-
-### Where the images are published, and how a record points at one
-
-`sip-generate build` writes `images.jsonl` — one row per image, with its
-product type, the shape it is drawn as and the URLs it is served from at both
-profiles — and every record in `flat.jsonl` and `nested.jsonl` carries
-`image_url` beside `image_id`:
-
-```json
-{"sku": "60EX58", "product_type": "end_mill_square",
- "image_id": "end_mill_square/OST-K663-0001",
- "image_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/card.png",
- "image_detail_url": "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial/end_mill_square/OST-K663-0001/detail.png"}
-```
-
-`--image-base-url` moves the host.
-
-**One directory per product type, one per product line inside it, one file per
-profile inside that.** The product type is the category: the published tree is
-an index of types, and under each one the lines it holds. The image id already
-reads `<product type>/<product id>`, so `emit.image_path()` appends the profile
-and validates — it does not look the directory up. A second table mapping ids
-to directories is exactly how a record's URL and the manifest's path would come
-to disagree, which is the defect `images.jsonl` exists to prevent. An id that
-is not of that shape, or whose first segment is not a product type, raises
-instead of being filed under a guessed category that would silently move later.
-
-**The URL is built from the image id, never from the product's own SKU.** The
-two are never the same — a whole line shares one drawing — so a URL assembled
-from `sku` is a dead link for every product in the catalog, and dead in a way
-that spot-checking a handful of records will not reveal because every record
-looks equally plausible. An image id naming no product line raises rather than
-publishing a URL that cannot be fetched: a bare id does not claim to resolve,
-and a URL does.
-
-`images.jsonl` exists so that whatever hosts the files reads the paths off the
-generator's own output instead of re-deriving them with a second copy of the
-naming rule, which is how the two would come to disagree.
-
-Two profiles, both sized from where the image is displayed:
-
-| profile | pixels | why |
-|---|---|---|
-| `card` | 600 × 880 | the catalog card's 150 × 220 box at 4× for high-density displays |
-| `detail` | 1400 × 1400 | the detail view's 350 × 350 square box at 4× |
-
-Tools are drawn standing up, shank above and cutting end below. That is how
-the industry draws them, and it is the only orientation in which a long thin
-tool fills a portrait card instead of floating in the middle of it.
-
-### Publishing them, and the gate that couples the two
-
-A regeneration mints new product ids, so new image ids, so a new set of URLs —
-and the previous generation's files keep resolving while not one record points
-at them any more. Publishing is therefore **part of a regeneration, not a
-separate errand**, and the order matters:
+**The pin is of the content, not the compressed bytes.** gzip output depends on
+the zlib build, so the archive's own sha256 is only stable on one toolchain.
+What a customization pins is the **content digest**: the sha256 of the sorted
+`<member path>\t<file sha256>` lines, printed by `sip-generate images` and
+written beside the archive as `.content-sha256`. It is derivable from the
+committed `images.jsonl` alone (`bundle.manifest_digest`), and the installer
+recomputes it after unpacking. `out/` is ignored by git, and a test asserts it,
+so a drawing can never be committed here.
 
 ```sh
-# 1. render every line at both profiles, from the committed catalog
-uv run python scripts/render_catalog.py golden-catalog --out out/images
-
-# 2. publish, from a checkout of the asset host
-python3 scripts/import_industrial_images.py \
-    --manifest <this repo>/golden-catalog/images.jsonl \
-    --images   <this repo>/out/images
-# then commit and push; the host deploys from `main`
-
-# 3. only now land the catalog
-uv run python scripts/verify_published_assets.py
+uv run python scripts/contact_sheet.py --catalog golden-catalog --out out/contact-sheets
 ```
 
-`scripts/verify_published_assets.py` is step 3's gate and it runs in CI. It
-compares the **whole** set of files `images.jsonl` publishes against the file
-list of the host repository, fetched in one git-trees request, and exits
-non-zero if any referenced file is absent. A regeneration PR stays red until
-its drawings are live.
+writes an HTML contact sheet of real catalog SKUs -- one screw across its
+lengths for two brands, flat washers across sizes, materials and brands, and
+twenty SKUs of every type -- for judging the drawings by eye.
 
-**That coupling did not exist, and its absence shipped.** The 2026-09-21
-regeneration went green with 499 of its 500 image ids dead on the host —
-4,680 of 4,689 products rendering a broken image placeholder — because every
-check on either side of the seam was looking at its own half. `render_catalog.py`
-audits the files a render run just wrote, which says nothing about what is
-published; the host's tests audit the site build, which says nothing about what
-the catalog references.
+### The older renderers in `render/`
 
-**And the cheap version of this check would have passed it.** One image per
-product type is the obvious sample, and the one id that survived the
-regeneration was an `end_mill_square` — the first type a sampler reaches. It
-would have reported `end_mill_square` healthy and eleven types dead, against a
-truth of 499 ids dead out of 500. So the check is a set comparison, and
-`tests/test_published_asset_gate.py` reconstructs that exact state and shows
-the sample passing it while the set comparison fails.
-
-Two things the gate deliberately does **not** do:
-
-* **It does not fail on hosted files nothing references.** Earlier generations
-  are kept on the host on purpose: the documented rollback for a catalog change
-  is to revert it, which re-binds the previous generation's index, and those
-  records point at those files. Pruning them would trade one broken demo for
-  another.
-* **It does not sweep the URLs over HTTP by default.** The host is GitHub Pages
-  behind a CDN and it answers a concurrent sweep with 404s for files that
-  exist: measured, a 16-way `HEAD` sweep of these 1,000 URLs returned 998 404s
-  and 2 200s against a host that was *already* serving every file present, and
-  fetching the same URLs one at a time agreed with the repository listing
-  exactly. A prober that was believed would report a catastrophe on a healthy
-  host. `--probe-http` keeps the serialised version for confirming a publish by
-  hand.
-
-### What the renderer will not do
-
-The drawing may only contain numbers the record contains, so:
-
-* A value that cannot be read **raises**. There is no fallback dimension,
-  because a defaulted dimension produces a drawing that disagrees with its own
-  record and nothing downstream can tell.
-* A record whose dimensions contradict each other — a length of cut longer
-  than the tool — is **refused** rather than drawn. The defect stays in the
-  data; silently clamping it would draw a tool that exists and publish a record
-  saying otherwise, and the picture would then look like corroboration.
-* Geometry that no attribute implies is **left out**, not invented. The depth
-  of a socket drive is not published, so the drawing shows the opening the
-  socket makes in the head's top face and its true across-flats shape in the
-  end view, and stops there. A Torx or cross recess is not drawn at all: one
-  across-size does not determine a lobed shape. A tap's drive square is not
-  drawn on the elevation, because neither its across-flats nor its length
-  follows from any attribute. A flap disc gets no edge view, because no record
-  publishes a thickness.
-* A **form the record leaves open** sends the record to its generic drawing
-  rather than to a guess. `End Mill Style` decides whether the cutting end is
-  square or a ball nose and is required; the four observed reference end mills
-  do not carry it and are therefore no longer drawn to scale.
-
-Some numbers that look like table lookups are not: the countersink angle of
-the reference cap screw is computed from its head diameter, head height and
-thread size, and lands on 82°, which is what the inch flat-head standard
-specifies. The minor diameter of its thread comes from the 60° thread form and
-lands on the published 0.1517". Those agreements are checks on the attributes,
-not values borrowed from elsewhere.
-
-### Every attribute has to reach the drawing, or say why it cannot
-
-`End Mill Style` was published on every generated end mill and read by nothing,
-so all 486 ball nose mills were drawn with a square end — a picture
-contradicting its own record. The suite had 39 mutations and no zeros at the
-time, and could not have caught it: **mutation testing can only mutate code
-that exists**, and an attribute nobody consumes has no code path to plant a
-defect in.
-
-The check that finds that class of defect starts from the record instead. For
-every attribute a record publishes, changing it must change the rendered
-output — or the attribute must be named in `render/attrs.py`'s `NOT_DRAWN`
-with the reason a drawing cannot show it. Both directions are asserted: an
-attribute that is neither read nor declared fails, and an attribute declared
-not-drawn that *does* move the output fails too, so the declarations cannot go
-stale. The sweep runs over a generated catalog's richest record of each product
-type as well as over the bundled fixtures, which makes it a statement about the
-vocabulary rather than about eighteen hand-picked records.
-
-Seven attributes are declared: the measurement-system attribute under all three
-of its spellings, `Standards`, `List Number`, `End Mill Application` and
-`Material Grade - Machining`. `Length Under Head` is not among them: it is a
-dimension LINE on the elevation, spanning the shank the record says is under
-the head, and not only a row in the attribute table — a printed value makes no
-claim the drawing could contradict, and a span does. A standard a product conforms to and a use it is
-sold for are not shapes, and a drawing of the product has nothing to show for
-them.
-
-One subtlety the mutation harness found rather than the design: changing an
-attribute to something unreadable and watching the renderer *refuse* is not
-proof that the drawing uses it, because a renderer that validates a value and
-then ignores it refuses just the same. So the check tries valid alternatives
-first and falls back to the refusal only when every value it has is refused.
-Tightening it that way immediately found a second instance of the same class:
-`Screw Head Type` moved nothing in a socket cap screw's drawing, because
-`Socket` and `Hex` produced the same picture — a hex head's *elevation* across
-the flats really is the rectangle a cylindrical head gives, but its end view is
-six flats, and 524 hex bolts were being drawn with a round head. Fixing that
-turned up a third defect a few lines away: the length dimension ran tip to top
-on every style, so a socket cap screw's drawing put the label `1/2 in` against
-a span of half an inch *plus the head height*. A countersunk length is measured
-over the head and every other style's is measured under it; `total_height` had
-always known that and the dimension line had not.
+`render/` still holds the matplotlib renderers: the twelve type drawings, the
+per-line marking, and the per-record **dimensioned** drawings (`sip-render`).
+They carry text -- callouts and stamps -- and the catalog no longer uses any of
+them; their geometry parsing is what the catalog's drawings read. Retiring them
+-- extracting the shared geometry first -- is #27.
 
 ## Realism
 
@@ -860,30 +705,31 @@ than asserted.
 
 | property | target | achieved |
 |---|---|---|
-| shank diameter == cutting diameter | 0.6489 | 0.5946 |
-| length of cut > overall length | 0.0829 | 0.0742 |
-| an angle attribute carrying a length unit | 0.0469 | 0.0602 |
-| declared measurement system contradicts the value's units | 0.0323 | 0.0269 |
-| unit mixing within one record | 0.0222 | 0.0238 |
-| title dimension token carries no label | 0.4667 | 0.4796 |
-| title dimension token is not the primary dimension | 0.1714 | 0.1609 |
-| title label truncated at the length cap | 0.0323 | 0.0390 |
+| shank diameter == cutting diameter | 0.6489 | 0.6612 |
+| length of cut > overall length | 0.0829 | 0.0886 |
+| an angle attribute carrying a length unit | 0.0469 | 0.0412 |
+| declared measurement system contradicts the value's units | 0.0323 | 0.0319 |
+| unit mixing within one record | 0.0222 | 0.0159 |
+| title dimension token carries no label | 0.4667 | 0.4672 |
+| title dimension token is not the primary dimension | 0.1714 | 0.1028 |
+| title label truncated at the length cap | 0.0323 | **0.0000, deliberately** |
 | image reference missing | 0.1089 | **0.0000, deliberately** |
-| image id is shared, not the product's own | 0.7353 | **1.0000, deliberately** |
-| attributes per record (mean) | 13.12 | 13.5180 |
+| image id is shared, not the product's own | 0.7353 | **0.0000, deliberately** |
+| attributes per record (mean) | 13.12 | 12.2914 |
 
 Two notes on reading that table honestly. The angle defect is **clustered**:
 the attribute is line-constant, so one bad row reaches every SKU under that
 line — which is how these arrive in a real catalog, and is visible in the
 source corpus too, where the same wrong value repeats across a whole series.
 Its per-record rate therefore swings much more between seeds than the others.
-And attributes per record sits about 2.6% above its target because the
+And attributes per record sits about 6% below its target because the
 reference mean is over a different mixture of product families than this
 catalog contains; the per-family shape is reproduced, the mixture is not the
-same one. It moved across the target — it used to sit 2% below — when the four
-socket-screw lines gained `Length Under Head` and two of them became product
-types of their own, which is the mixture changing rather than any per-family
-rate doing so.
+same one. It moved when the newer types arrived (hex nuts and hex keys publish
+fewer attributes than end mills), which is the mixture changing rather than
+any per-family rate doing so. For the same reason the "not the primary
+dimension" title rate sits below its target: the newer types publish no
+secondary dimension a title could name instead of the primary one.
 
 The two image rows are **deliberate deviations, not misses**, and the target
 column shows what this catalog aims at rather than what the corpus measures —
@@ -892,9 +738,9 @@ The corpus measures 10.89% of records carrying no parseable image reference;
 this catalog gives every product and every variant one, because it is used as a
 demo and a product with no image reads there as a broken page rather than as
 realism about supplier data. The corpus measures 73.5% of references pointing
-at an image that is not the product's own; this catalog goes further than the
-rate, because one generic drawing per product type and style means *every*
-reference is shared. Both measured figures are kept in `GeneratorConfig` as
+at an image that is not the product's own; this catalog deviates the other
+way, because every SKU carries a drawing of its own (a generated drawing costs
+nothing per size, and a variant's picture should show that variant). Both measured figures are kept in `GeneratorConfig` as
 `measured_image_missing` and `measured_image_sku_diverges`, and a test sets the
 missing-image rate back and checks the behaviour returns, so the deviation has
 not quietly become a limitation.

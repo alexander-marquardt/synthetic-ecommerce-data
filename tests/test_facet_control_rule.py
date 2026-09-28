@@ -138,10 +138,10 @@ def test_every_attribute_that_is_quantitative_still_says_so(flat_rows: list[dict
     stats = measure(flat_rows)
     quantitative = [s for s in stats.values() if s.is_numeric]
     assert len(quantitative) >= 25, len(quantitative)
-    assert [s.key for s in quantitative if s.is_continuous] == [], (
-        "this catalog contains no continuum; any attribute reported as one "
-        "should be checked before the rule is trusted"
-    )
+    # One continuum, and it is the one named in MEASURED_DISPERSION: Neck
+    # Length, 51 distinct values over 51 documents. Anything else reported as
+    # a continuum should be checked before the rule is trusted.
+    assert [s.key for s in quantitative if s.is_continuous] == ["neck_length"]
 
 
 # --------------------------------------------------------------------------
@@ -312,8 +312,8 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
     """
     quantitative = [s for s, _ in decided.values() if s.is_numeric]
     faceted = [s for s, d in decided.values() if s.is_numeric and d.facet]
-    assert len(quantitative) == 29
-    assert len(faceted) == 27
+    assert len(quantitative) == 36
+    assert len(faceted) == 34
 
 
 def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
@@ -328,13 +328,14 @@ def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
     assert high < RANGE_DISPERSION, "the band must sit below the threshold"
 
 
-def test_the_widest_dispersion_is_decided_by_the_document_floor(decided) -> None:
-    """The arm the band does NOT cover, named with the threshold that decides it.
+def test_the_widest_dispersion_is_a_continuum_that_clears_the_document_floor(decided) -> None:
+    """The arm the band does NOT cover, and which threshold decides it now.
 
     ``Neck Length`` is a perfect continuum and clears ``RANGE_DISPERSION`` with
-    room to spare. It is a discrete list anyway, because it publishes fewer
-    than ``RANGE_MIN_DOCS`` documents -- so crediting dispersion with that
-    outcome names the wrong gate.
+    room to spare. It used to be a discrete list anyway, because it published
+    fewer than ``RANGE_MIN_DOCS`` documents; the grown catalog publishes more,
+    so it is offered as a range -- and if a regeneration drops it back below
+    the floor, this reds rather than quietly changing the control.
     """
     quantitative = [s for s, _ in decided.values() if s.is_numeric]
     widest = max(quantitative, key=lambda s: s.dispersion)
@@ -346,8 +347,8 @@ def test_the_widest_dispersion_is_decided_by_the_document_floor(decided) -> None
         "reason RANGE_MIN_DOCS exists and the reason it cannot be credited to "
         "the dispersion threshold"
     )
-    assert widest.present < RANGE_MIN_DOCS
-    assert not widest.is_continuous
+    assert widest.present >= RANGE_MIN_DOCS
+    assert widest.is_continuous
 
 
 def test_drive_size_is_the_saturated_ladder_the_rule_names(decided) -> None:
