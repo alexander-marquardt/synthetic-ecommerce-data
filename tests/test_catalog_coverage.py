@@ -307,9 +307,9 @@ def test_the_reference_parametric_query_has_an_answer(flat_docs: list[dict]) -> 
         if doc["product_type"] == HEX_BOLT_TYPE
         and REFERENCE_THREAD in doc["facets"].get("dia_thread_size", [])
         and "Grade 8" in doc["facets"].get("grade", [])
-        and "Zinc Plated" in doc["facets"].get("fastener_finish", [])
+        and "Zinc Plated" in doc["facets"].get("finish", [])
         and doc["facets"].get("length_under_head")
-        and "Hex" in doc["facets"].get("screw_head_type", [])
+        and "Hex" in doc["facets"].get("head_type", [])
     ]
     assert answers, (
         "no record carries 7/16-14, Grade 8, Zinc Plated and a length under head "
@@ -318,7 +318,7 @@ def test_the_reference_parametric_query_has_an_answer(flat_docs: list[dict]) -> 
     )
 
 
-@pytest.mark.parametrize("facet", ["grade", "fastener_finish"])
+@pytest.mark.parametrize("facet", ["grade", "finish"])
 def test_one_thread_size_is_not_locked_to_one_grading_or_one_finish(
     flat_docs: list[dict], facet: str
 ) -> None:

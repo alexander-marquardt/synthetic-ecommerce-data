@@ -68,8 +68,8 @@ class FlapDiscGeometry:
 
 def geometry_from_record(record: dict) -> FlapDiscGeometry:
     geom = FlapDiscGeometry(
-        disc_d=parse_length(require(record, "Disc Dia.")),
-        arbor_d=parse_length(require(record, "Arbor Hole Size")),
+        disc_d=parse_length(require(record, "Diameter")),
+        arbor_d=parse_length(require(record, "Arbor Hole")),
     )
     if geom.arbor_d.inches >= geom.disc_d.inches:
         raise ImpossibleGeometryError(
@@ -186,13 +186,13 @@ def _render_detail(record: dict, geom: FlapDiscGeometry, profile: Profile):
     y = spec_table(
         fig,
         [
-            ("Disc Dia.", geom.disc_d.display()),
-            ("Arbor Hole Size", geom.arbor_d.display()),
+            ("Diameter", geom.disc_d.display()),
+            ("Arbor Hole", geom.arbor_d.display()),
             ("Grit", record.get("Grit", "")),
             ("Max. RPM", record.get("Max. RPM", "")),
             ("Abrasive Material", record.get("Abrasive Material", "")),
             ("Backing Material", record.get("Backing Material", "")),
-            ("Flap Disc Shape", record.get("Flap Disc Shape", "")),
+            ("Shape", record.get("Shape", "")),
             ("Mounting Type", record.get("Mounting Type", "")),
         ],
     )

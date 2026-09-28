@@ -62,7 +62,7 @@ from pathlib import Path
 from matplotlib.patches import Circle, PathPatch, Polygon, Rectangle, Wedge
 
 from . import canvas as cv
-from .attrs import MissingAttributeError, UnsupportedFeatureError, require
+from .attrs import MissingAttributeError, UnsupportedFeatureError, require_any
 from .fastener import dome_profile
 from .kinds import DRILL, END_MILL, FASTENER, FLAP_DISC, HAMMER, TAP, WASHER, classify
 from .marking import NEUTRAL, Marking, marking_for_line
@@ -851,9 +851,7 @@ IMAGES: dict[str, GenericImage] = {
         GenericImage("tap_spiral_point", "Spiral Point Tap", _draw_tap),
         GenericImage("screw_socket_head", "Socket Head Cap Screw", _draw_socket_head_screw),
         GenericImage("screw_flat_head", "Flat Head Socket Cap Screw", _draw_flat_head_screw),
-        GenericImage(
-            "screw_button_head", "Button Head Socket Cap Screw", _draw_button_head_screw
-        ),
+        GenericImage("screw_button_head", "Button Head Socket Cap Screw", _draw_button_head_screw),
         GenericImage("screw_low_head", "Low Head Socket Cap Screw", _draw_low_head_screw),
         GenericImage("bolt_hex", "Hex Head Bolt", _draw_hex_bolt),
         GenericImage("washer_flat", "Flat Washer", _draw_washer),
@@ -899,8 +897,13 @@ _BY_KIND: dict[str, str] = {
 #: The attribute that decides the style, per kind.
 _STYLE_ATTRIBUTE: dict[str, str] = {
     END_MILL: "End Mill Style",
-    FASTENER: "Screw Head Type",
+    FASTENER: "Head Type",
 }
+
+#: Other names an OBSERVED record publishes a style attribute under. The
+#: generator writes the census's generic ``Head Type``; the observed cap screw
+#: fixture says ``Screw Head Type``, verbatim, and must still draw.
+_OBSERVED_SPELLINGS: dict[str, tuple[str, ...]] = {"Head Type": ("Screw Head Type",)}
 
 
 #: Which drawing each publishable style value names, by the attribute that
@@ -936,7 +939,9 @@ def drawing_for_record(record: dict) -> str:
     if kind in _BY_KIND:
         return _BY_KIND[kind]
     attribute = _STYLE_ATTRIBUTE[kind]
-    published = str(require(record, attribute)).strip().lower()
+    published = (
+        str(require_any(record, attribute, *_OBSERVED_SPELLINGS.get(attribute, ()))).strip().lower()
+    )
     try:
         return _BY_STYLE[kind][published]
     except KeyError as exc:
@@ -1089,6 +1094,8 @@ def build_line(line: dict, profile: Profile = CARD):
     """
     record = {entry["name"]: entry["value"] for entry in line["attributes"]}
     record["sku"] = line.get("product_id", "?")
+    if "product_type" in line:
+        record["product_type"] = line["product_type"]
     mark = marking_for_line(line["brand"], line["attributes"])
     return build(drawing_for_record(record), profile, mark)
 

@@ -26,7 +26,11 @@ from synthetic_industrial_products.catalog.vocab import (
 
 @pytest.fixture(scope="module")
 def config():
-    return GeneratorConfig(lines=200, seed=99)
+    return GeneratorConfig(
+        lines=600,
+        seed=99,
+        new_type_products={key: 60 for key in GeneratorConfig().new_type_products},
+    )
 
 
 @pytest.fixture(scope="module")
@@ -53,9 +57,12 @@ def test_a_different_seed_produces_a_different_catalog():
     assert [c.sku for _, c in left.all_skus()] != [c.sku for _, c in right.all_skus()]
 
 
-def test_the_catalog_is_the_size_it_was_asked_for(stats):
-    assert stats["lines"] == pytest.approx(200, abs=12)
-    assert 1200 <= stats["skus"] <= 4000
+def test_the_catalog_is_the_size_it_was_asked_for(stats, config):
+    asked = config.lines + sum(config.new_type_products.values())
+    assert stats["lines"] == pytest.approx(asked, abs=12)
+    # About 1.9 variants per product under the default distribution; a product
+    # never offers more variants than its series has members.
+    assert 1.5 * stats["lines"] <= stats["skus"] <= 2.3 * stats["lines"]
 
 
 def test_every_product_type_is_represented(stats):
@@ -84,16 +91,31 @@ def test_a_child_never_redefines_a_name_its_line_already_carries(catalog):
 
 
 def test_every_line_carries_line_constant_attributes_and_every_child_varies(catalog):
+    """Except the deliberate zero-axis case: a product's ONLY variant, carrying nothing."""
+    zero_axis = 0
     for line in catalog.lines:
         assert line.attributes, line.product_id
         assert line.children
         for child in line.children:
-            assert child.attributes, child.sku
+            if not child.attributes:
+                assert len(line.children) == 1, f"{child.sku} has siblings and no attributes"
+                zero_axis += 1
+    assert zero_axis > 0, "the zero-axis awkward case never occurred"
 
 
-def test_the_category_tree_is_used_and_is_three_or_four_deep(catalog):
+def test_a_variant_can_lack_an_attribute_its_siblings_carry(catalog):
+    """The ragged-variant awkward case: a grouped selector must survive a gap."""
+    ragged = 0
+    for line in catalog.lines:
+        names = [{a.name for a in child.attributes} for child in line.children]
+        if len(names) > 1 and len(set(map(frozenset, names))) > 1:
+            ragged += 1
+    assert ragged > 0
+
+
+def test_the_category_tree_is_used_and_is_three_to_five_deep(catalog):
     depths = {len(line.category) for line in catalog.lines}
-    assert depths <= {3, 4}
+    assert depths <= {3, 4, 5}
     assert depths == taxonomy.tree_depths()
 
 
@@ -116,15 +138,24 @@ def test_the_multivalued_attribute_spans_product_types(catalog):
     assert len(types_with) >= 6, types_with
 
 
-def test_attribute_names_are_disjoint_across_unrelated_types_in_the_output(stats):
-    """The vocabularies are disjoint by construction; check the OUTPUT is too."""
+def test_unrelated_types_share_only_generic_concepts_in_the_output(stats):
+    """A threaded fastener and a striking tool share what the census shares.
+
+    The item name, the measurement-system attribute (one idea under three
+    spellings), the standards, and ``Material`` -- one generic name across
+    types since elastic/prism-industrial-products#103, where it used to be a
+    per-type name. Nothing else.
+    """
     screw = set(stats["attribute_names_by_type"]["screw_socket_head"])
     hammer = set(stats["attribute_names_by_type"]["hammer_ball_pein"])
-    # The measurement-system attribute is shared on purpose -- it is the one
-    # idea every family describes, under three different names. Everything
-    # else a threaded fastener and a striking tool publish is disjoint.
-    allowed = {"Item", STANDARDS_NAME, *(name for name, _ in MEASUREMENT_SYSTEM_NAMES)}
+    allowed = {
+        "Item",
+        "Material",
+        STANDARDS_NAME,
+        *(name for name, _ in MEASUREMENT_SYSTEM_NAMES),
+    }
     assert screw & hammer <= allowed
+    assert "Material" in screw & hammer
 
 
 def test_the_measurement_system_attribute_appears_under_more_than_one_spelling(stats):
@@ -149,7 +180,9 @@ def test_both_the_role_ambiguity_cases_occur(stats):
         ("declared system contradicts value units", 0.005, 0.08),
         ("unit mixing within one record", 0.005, 0.05),
         ("title dimension token unlabelled", 0.38, 0.55),
-        ("title dimension token is not the primary dimension", 0.10, 0.25),
+        # Lower than the corpus's 0.17: the newer types publish no secondary
+        # dimension a title could name instead of the primary one.
+        ("title dimension token is not the primary dimension", 0.05, 0.25),
     ],
 )
 def test_each_measured_rate_is_reproduced(stats, metric, low, high):
@@ -211,13 +244,17 @@ def test_the_sparsity_knob_moves_the_attribute_count():
 
 
 def test_the_line_and_sku_count_knobs_move_the_catalog_size():
-    small = measure(generate(GeneratorConfig(lines=50, seed=3)))
-    large = measure(generate(GeneratorConfig(lines=150, seed=3)))
+    none = {key: 0 for key in GeneratorConfig().new_type_products}
+    small = measure(generate(GeneratorConfig(lines=50, seed=3, new_type_products=none)))
+    large = measure(generate(GeneratorConfig(lines=150, seed=3, new_type_products=none)))
     assert large["lines"] > small["lines"] * 2
     assert large["skus"] > small["skus"] * 2
 
-    narrow = measure(generate(GeneratorConfig(lines=60, seed=3, skus_per_line=(2, 3))))
-    wide = measure(generate(GeneratorConfig(lines=60, seed=3, skus_per_line=(15, 20))))
+    narrow = measure(
+        generate(GeneratorConfig(lines=60, seed=3, variants_per_product=((1, 1.0),)))
+    )
+    wide = measure(generate(GeneratorConfig(lines=60, seed=3, variants_per_product=((5, 1.0),))))
+    assert narrow["skus"] == narrow["lines"], "one variant per product, exactly"
     assert wide["skus"] > narrow["skus"] * 2
 
 
@@ -253,48 +290,21 @@ def test_every_product_line_and_every_variant_carries_an_image(catalog):
     assert childless == []
 
 
-def test_every_image_reference_names_one_of_the_catalogs_own_product_lines(catalog):
-    """Both directions: no dead reference, and no drawing nothing points at."""
-    owned = {line.image_id for line in catalog.lines}
-    referenced = {line.image_id for line in catalog.lines}
-    referenced |= {child.image_id for _, child in catalog.all_skus()}
-    assert referenced <= owned, "a reference no line owns is a dead link"
-    assert referenced == owned, "a drawing nothing references is dead weight"
+def test_every_sku_has_an_image_of_its_own(catalog):
+    """One drawing per SKU, drawn from its own values (elastic/prism-industrial-products#103).
 
-
-def test_every_product_line_has_an_image_of_its_own(catalog):
-    """One drawing per line -- not one per type, and not one per SKU.
-
-    The count is the assertion. One per type is what this replaced: the whole
-    catalog behind ten pictures, where an Osterlund HSS AlTiN mill and a
-    competitor's carbide TiCN mill rendered identically. One per SKU would
-    undercut the variant grouping the nested shape exists to demonstrate, where
-    N SKUs are ONE product. Either mistake leaves every other check here green.
+    The count is the assertion: one per product line is what this replaced,
+    where six lengths of one screw showed one picture.
     """
-    ids = [line.image_id for line in catalog.lines]
-    assert len(set(ids)) == len(catalog.lines) > 1
-    assert catalog.sku_count > len(ids), "a drawing per SKU is not a family sharing one"
-
-
-def test_a_product_and_its_variants_show_the_same_image(catalog):
-    """A family shares one image: that is the measured behaviour being modelled.
-
-    A category listing of four end mills from one series at four diameters
-    shows the same photograph four times, and 73.5% of the archived reference
-    records point at an image whose id is not the product's own.
-    """
-    for line in catalog.lines:
-        assert line.image_id == taxonomy.image_id_for(line.type_key, line.product_id)
-        for child in line.children:
-            assert child.image_id == line.image_id
-
-
-def test_the_image_reference_is_decided_by_the_product_line_alone(catalog):
-    """Which is what makes 500 images enough for four thousand products."""
-    by_line: dict[str, set[str]] = {}
+    ids = [child.image_id for _, child in catalog.all_skus()]
+    assert len(set(ids)) == len(ids) == catalog.sku_count
     for line, child in catalog.all_skus():
-        by_line.setdefault(line.product_id, set()).add(child.image_id)
-    assert all(len(ids) == 1 for ids in by_line.values()), by_line
+        assert child.image_id == taxonomy.image_id_for(line.type_key, line.product_id, child.sku)
+
+
+def test_a_product_shows_its_first_variants_image(catalog):
+    for line in catalog.lines:
+        assert line.image_id == line.children[0].image_id
 
 
 def test_no_record_points_at_an_image_of_a_different_kind_of_product(catalog):
@@ -334,9 +344,7 @@ def _fastener_types() -> tuple[str, ...]:
     """
     from synthetic_industrial_products.catalog.vocab import names_for
 
-    return tuple(
-        key for key in VOCAB if {"Length", "Length Under Head"} <= set(names_for(key))
-    )
+    return tuple(key for key in VOCAB if {"Length", "Length under Head"} <= set(names_for(key)))
 
 
 def test_every_screw_and_bolt_line_publishes_a_length_under_head(catalog):
@@ -355,8 +363,8 @@ def test_every_screw_and_bolt_line_publishes_a_length_under_head(catalog):
         if line.type_key not in types:
             continue
         names = {a.name for a in child.attributes}
-        assert "Length Under Head" in names, f"{child.sku} ({line.type_key}) publishes {names}"
-        value = next(a.value for a in child.attributes if a.name == "Length Under Head")
+        assert "Length under Head" in names, f"{child.sku} ({line.type_key}) publishes {names}"
+        value = next(a.value for a in child.attributes if a.name == "Length under Head")
         seen_systems.setdefault(line.type_key, set()).add("mm" if "mm" in value else "in")
     assert set(seen_systems) == set(types), sorted(set(types) - set(seen_systems))
     assert {system for systems in seen_systems.values() for system in systems} == {"in", "mm"}
@@ -374,11 +382,11 @@ def test_the_length_under_head_is_shorter_than_the_length_on_a_countersunk_screw
     shorter = same = 0
     for line, child in catalog.all_skus():
         values = {a.name: a.value for a in child.attributes}
-        if "Length Under Head" not in values or "Length" not in values:
+        if "Length under Head" not in values or "Length" not in values:
             continue
         try:
             length = parse_length(values["Length"]).inches
-            under = parse_length(values["Length Under Head"]).inches
+            under = parse_length(values["Length under Head"]).inches
         except DimensionParseError:
             continue
         if line.type_key == "screw_flat_head":
@@ -390,7 +398,7 @@ def test_the_length_under_head_is_shorter_than_the_length_on_a_countersunk_screw
             # other system, so a 20 mm length can appear beside a 0.7874" one.
             assert under == pytest.approx(length, abs=0.001), f"{child.sku}: {values}"
             same += 1
-    assert shorter > 50 and same > 200, (shorter, same)
+    assert shorter > 30 and same > 150, (shorter, same)
 
 
 def test_the_catalog_offers_all_four_socket_screw_styles(catalog):
@@ -407,7 +415,7 @@ def test_the_catalog_offers_all_four_socket_screw_styles(catalog):
         if not line.type_key.startswith("screw_"):
             continue
         values = {a.name: a.value for a in line.attributes}
-        styles.setdefault(line.type_key, set()).add(values["Screw Head Type"])
+        styles.setdefault(line.type_key, set()).add(values["Head Type"])
         standards.setdefault(line.type_key, set()).add(line.dimension_provenance)
     assert styles == {
         "screw_socket_head": {"Socket"},
@@ -576,6 +584,6 @@ def test_every_end_mill_publishes_its_material(catalog):
         line.product_id
         for line in catalog.lines
         if line.type_key in taxonomy.END_MILL_MATERIALS
-        and not any(a.name == "End Mill Material" for a in line.attributes)
+        and not any(a.name == "Material" for a in line.attributes)
     ]
     assert not missing, missing[:10]

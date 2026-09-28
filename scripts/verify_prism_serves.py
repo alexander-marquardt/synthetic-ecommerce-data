@@ -141,14 +141,14 @@ def main(argv: list[str] | None = None) -> int:
 
     truth_material: Counter[str] = Counter()
     for row in flat:
-        for value in row["facets"].get("fastener_material", []):
+        for value in row["facets"].get("material", []):
             truth_material[value] += 1
-    fm = facet(everything, "fastener_material")
-    assert fm is not None, "fastener_material facet missing"
+    fm = facet(everything, "material")
+    assert fm is not None, "material facet missing"
     served_fm = {value: count for value, count, _, _ in fm["buckets"]}
     checks.record(
         served_fm == dict(truth_material),
-        "fastener_material (a derived TERMS facet) matches ground truth",
+        "material (a derived TERMS facet) matches ground truth",
         f"served {served_fm}\ntruth  {dict(truth_material)}",
     )
 
@@ -197,7 +197,7 @@ def main(argv: list[str] | None = None) -> int:
     # =====================================================================
     print("\n4. FACET COUNT == CLICK RESULT (blocking)")
     # =====================================================================
-    for facet_name in ("product_type", "brand", "fastener_material", "item"):
+    for facet_name in ("product_type", "brand", "material", "item"):
         block = facet(everything, facet_name)
         if block is None:
             checks.record(False, f"{facet_name}: facet absent from the response")

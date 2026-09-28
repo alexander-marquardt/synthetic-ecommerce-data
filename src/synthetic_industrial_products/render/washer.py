@@ -237,13 +237,14 @@ def _render_detail(record: dict, geom: WasherGeometry, profile: Profile):
     spec_table(
         fig,
         [
-            ("Washer Size", record.get("Washer Size", "")),
+            ("Size", record.get("Size", "")),
+            ("Type", record.get("Type", "")),
             ("Inside Dia.", geom.inside_d.display()),
             ("Outside Dia.", geom.outside_d.display()),
             ("Thickness", geom.thickness.display()),
             ("Washer Type", record.get("Washer Type", "")),
-            ("Fastener Material", record.get("Fastener Material", "")),
-            ("Fastener Finish", record.get("Fastener Finish", "")),
+            ("Material", record.get("Material", "")),
+            ("Finish", record.get("Finish", "")),
         ],
     )
     provenance_note(fig)

@@ -156,50 +156,23 @@ def test_write_jsonl_round_trips(tmp_path):
 
 # -- image URLs ---------------------------------------------------------------
 #
-# The trap these guard is one fact: a product's image is NOT a drawing of that
-# product. A family shares one generic drawing, so a URL assembled from the
-# product's own SKU is dead for every record in the catalog -- and dead in a
-# way that spot-checking a handful of records will not reveal, because every
-# record looks equally plausible.
+# One drawing per SKU, drawn from that SKU's own values, served from the image
+# bundle's folder (elastic/prism-industrial-products#103). The traps these
+# guard: a SKU showing a sibling's drawing, a URL that no manifest row backs,
+# and a URL pointing at a third-party host.
 
 
-def test_the_image_url_is_built_from_the_image_id_never_from_the_product_sku():
-    docs = list(emit.iter_flat(CATALOG))
-    assert docs
-    for doc in docs:
-        assert doc["image_id"], "every variant carries an image"
-        category = product_type_for_image(doc["image_id"])
-        assert doc["image_url"].endswith(f"/{doc['image_id']}/card.png")
-        assert doc["image_id"].startswith(f"{category}/")
-        assert doc["sku"] not in doc["image_url"]
-
-
-def test_the_image_id_is_never_the_products_own_sku():
-    """Which is what makes building the URL from the SKU a dead link every time.
-
-    Without this the test above could pass on a catalog where the two agreed,
-    and would then be proving nothing about the rule it is named for.
-    """
+def test_every_sku_names_its_own_drawing():
     for doc in emit.iter_flat(CATALOG):
-        assert doc["image_id"] != doc["sku"]
+        assert doc["image_id"] == f"{doc['product_type']}/{doc['product_id']}/{doc['sku']}"
+        assert doc["image_url"] == f"{emit.DEFAULT_IMAGE_BASE_URL}/{doc['image_id']}.svg"
+        assert doc["image_detail_url"] == doc["image_url"], "one SVG serves both views"
 
 
-def test_the_card_and_detail_urls_are_different_files_in_one_product_line_directory():
-    """The profile is the FILE; the product line is the directory holding both.
-
-    The reverse -- a ``card/`` and a ``detail/`` directory each holding every
-    drawing -- publishes a tree indexed by image size, so the category index a
-    reader browses would offer two entries named for the two profiles and the
-    product types would exist only as filenames.
-    """
-    for doc in emit.iter_flat(CATALOG):
-        category = product_type_for_image(doc["image_id"])
-        assert doc["image_url"] != doc["image_detail_url"]
-        assert doc["image_url"].endswith(f"/{doc['image_id']}/card.png")
-        assert doc["image_detail_url"].endswith(f"/{doc['image_id']}/detail.png")
-        assert f"/{category}/" in doc["image_url"], "the product type is still the top directory"
-        assert "/card/" not in doc["image_url"], "profile is the file, not the directory"
-        assert "/detail/" not in doc["image_detail_url"]
+def test_the_default_base_is_the_bundle_folder_not_a_third_party_host():
+    """Images are served from the pinned bundle, never from a personal site."""
+    assert emit.DEFAULT_IMAGE_BASE_URL.startswith("/")
+    assert "://" not in emit.DEFAULT_IMAGE_BASE_URL
 
 
 def test_the_base_url_is_configurable_and_a_trailing_slash_does_not_double_up():
@@ -208,112 +181,29 @@ def test_the_base_url_is_configurable_and_a_trailing_slash_does_not_double_up():
         assert "//i//" not in doc["image_url"]
 
 
-def test_a_product_line_carries_the_same_image_as_its_variants():
-    """A family page and its variants show one drawing; that is what a family is."""
+def test_a_product_shows_its_first_variants_drawing():
     for doc in emit.iter_nested(CATALOG):
-        assert doc["image_id"]
-        assert doc["image_url"].endswith(f"/{doc['image_id']}/card.png")
+        assert doc["image_id"] == doc["variants"][0]["image_id"]
         for variant in doc["variants"]:
-            assert variant["image_id"] == doc["image_id"]
+            assert variant["image_id"].endswith("/" + variant["sku"])
 
 
-def test_the_manifest_lists_each_image_once_and_accounts_for_every_reference():
+def test_the_manifest_has_one_row_per_sku_with_its_digest():
     rows = list(emit.iter_image_manifest(CATALOG))
-    ids = [row["image_id"] for row in rows]
-    assert len(ids) == len(set(ids)), "one row per image file, not per reference"
-
-    referenced = [line.image_id for line in CATALOG.lines]
-    referenced += [child.image_id for _, child in CATALOG.all_skus()]
-    assert set(ids) == set(referenced)
-    assert sum(row["referenced_by"] for row in rows) == len(referenced)
-    assert all(row["referenced_by"] > 1 for row in rows), "ten drawings, thousands of products"
-
-
-def test_the_manifest_is_far_smaller_than_the_catalog():
-    """Ten files behind four thousand products is the point of the change.
-
-    A manifest that grew with the catalog would mean per-SKU images had come
-    back without anyone noticing.
-    """
-    rows = list(emit.iter_image_manifest(CATALOG))
-    assert len(rows) == len(CATALOG.lines)
-    # One row per product LINE, shared by that line's SKUs -- so the manifest
-    # is smaller than the catalog by the mean number of SKUs per line, and a
-    # manifest that had gone per-SKU would be the same size as the catalog.
-    assert CATALOG.sku_count > 3 * len(rows)
-
-
-def test_the_manifest_path_is_the_url_tail():
-    for row in emit.iter_image_manifest(CATALOG, "https://example.invalid/i"):
-        assert row["url"] == f"https://example.invalid/i/{row['path']}"
-        assert row["detail_url"] == f"https://example.invalid/i/{row['detail_path']}"
-        assert row["path"] == f"{row['image_id']}/card.png"
-        assert row["detail_path"] == f"{row['image_id']}/detail.png"
-        assert row["path"].startswith(f"{row['product_type']}/")
-
-
-def test_the_manifest_product_type_is_read_back_off_the_published_id():
-    """The row's ``product_type`` names the directory, and is DERIVED from the id.
-
-    It used to be emitted as a literal copy of a field. That reads as a field
-    and is really an assumption -- that the two can never differ -- and the
-    importer on the other side of this manifest is documented to trust the
-    product type as the type of the product DRAWN. Deriving it from the id the
-    URL is built from is what keeps the manifest's path and the record's URL
-    from being two independent copies of one naming rule.
-    """
-    for row in emit.iter_image_manifest(CATALOG):
+    assert len(rows) == CATALOG.sku_count
+    assert {row["image_id"] for row in rows} == {c.image_id for _, c in CATALOG.all_skus()}
+    for row in rows:
+        assert row["path"] == f"{row['image_id']}.svg"
+        assert row["url"] == f"{emit.DEFAULT_IMAGE_BASE_URL}/{row['path']}"
+        assert len(row["sha256"]) == 64
+        assert row["bytes"] > 0
+        assert row["geometry"] in ("record", "partial", "nominal")
         assert row["product_type"] == product_type_for_image(row["image_id"])
-        assert row["path"].startswith(f"{row['product_type']}/")
-        assert row["detail_path"].startswith(f"{row['product_type']}/")
-        assert row["image_id"] != row["product_type"], (
-            "an image id is one product LINE's, not its whole type's"
-        )
-
-
-def test_an_image_id_that_is_not_a_product_type_and_a_line_is_refused():
-    """Rather than publishing it under a directory named by guesswork.
-
-    The directory is part of a published URL. A drawing filed under a guessed
-    category breaks every link to it long after the change that caused it, so
-    an id that does not carry its own category raises instead.
-    """
-    from synthetic_industrial_products.catalog import taxonomy
-
-    for bad in ("end_mill_square", "", "/", "end_mill_square/", "a/b/c"):
-        with pytest.raises(taxonomy.ImageIdError):
-            emit.image_path(bad)
-
-
-def test_an_image_id_whose_first_segment_is_not_a_product_type_is_refused():
-    """A category nothing in the taxonomy claims is not a category."""
-    from synthetic_industrial_products.catalog import taxonomy
-
-    with pytest.raises(taxonomy.ImageIdError):
-        emit.image_path("not_a_product_type/SOME-LINE-0001")
-
-
-def test_two_lines_of_one_product_type_are_published_under_different_urls():
-    """The whole point of the change: two mills are no longer one picture.
-
-    Without this, every other assertion here stays green for a catalog that
-    went back to ten images -- the ids would be well-formed, the paths would
-    be the url tails, and each line would agree with its variants.
-    """
-    by_type: dict[str, set[str]] = {}
-    for doc in emit.iter_nested(CATALOG):
-        by_type.setdefault(doc["product_type"], set()).add(doc["image_url"])
-    shared = {key: urls for key, urls in by_type.items() if len(urls) < 2}
-    assert shared == {} or all(
-        sum(1 for d in emit.iter_nested(CATALOG) if d["product_type"] == key) == 1 for key in shared
-    ), f"product types publishing one URL for several lines: {sorted(shared)}"
 
 
 def test_the_manifest_and_the_records_agree_on_every_url():
     hosted = {row["url"] for row in emit.iter_image_manifest(CATALOG)}
-    hosted |= {row["detail_url"] for row in emit.iter_image_manifest(CATALOG)}
     wanted = {doc["image_url"] for doc in emit.iter_flat(CATALOG)}
-    wanted |= {doc["image_detail_url"] for doc in emit.iter_flat(CATALOG)}
     assert wanted == hosted, "a record URL with no manifest row is a dead link"
 
 
@@ -324,33 +214,22 @@ def test_the_nested_shape_carries_the_same_urls_as_the_flat_one():
             assert variant["image_url"] == flat[variant["sku"]]
 
 
-def test_every_image_id_names_a_product_line_that_exists():
-    assert {row["image_id"] for row in emit.iter_image_manifest(CATALOG)} == {
-        line.image_id for line in CATALOG.lines
-    }
+def test_a_malformed_image_id_is_refused():
+    from synthetic_industrial_products.catalog import taxonomy
+
+    for bad in ("end_mill_square", "", "/", "end_mill_square/X", "a/b/c", "x/y/z/w"):
+        with pytest.raises(taxonomy.ImageIdError):
+            emit.image_path(bad)
 
 
-def test_every_manifest_row_names_a_drawing_that_exists():
-    """The SHAPE, which is a different question from which line it is of."""
-    from synthetic_industrial_products.render.generic import IMAGE_IDS
-
-    drawings = {row["drawing"] for row in emit.iter_image_manifest(CATALOG)}
-    assert drawings
-    assert drawings <= set(IMAGE_IDS)
-
-
-def test_an_image_id_with_no_drawing_is_refused_rather_than_published_dead():
-    """A URL for a drawing nobody renders is worse than no URL at all.
-
-    The bare id does not claim to resolve; the URL does.
-    """
+def test_a_sku_pointing_at_another_skus_drawing_is_refused():
     import dataclasses
 
-    import pytest
-
-    line = CATALOG.lines[0]
+    line = next(line for line in CATALOG.lines if len(line.children) >= 2)
+    first, second, *rest = line.children
+    swapped = dataclasses.replace(first, image_id=second.image_id)
     broken = dataclasses.replace(
-        CATALOG, lines=(dataclasses.replace(line, image_id="no_such_drawing"),)
+        CATALOG, lines=(dataclasses.replace(line, children=(swapped, second, *rest)),)
     )
     with pytest.raises(emit.UnresolvedImageError):
         list(emit.iter_flat(broken))

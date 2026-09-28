@@ -2,29 +2,27 @@
 
     sip-generate build --out out/catalog --lines 400
     sip-generate report --lines 400
-    sip-generate build --lines 600 --skus 6 24 --sparsity 0.6 --defects 2.0
+    sip-generate build --lines 600 --sparsity 0.6 --defects 2.0
+    sip-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz
 
-``build`` writes five files:
+``build`` writes:
 
 ``nested.jsonl``
     parent documents with nested SKUs and nested key-value attributes
 ``flat.jsonl``
     one document per SKU with the line's attributes denormalised onto it
 ``render.jsonl``
-    the same SKUs in the shape ``sip-render batch`` already reads, for the
-    per-record dimensioned renderer. The catalog's own cards do not use it:
-    every product and variant carries an ``image_id`` naming its own product
-    line's drawing, which ``scripts/render_catalog.py`` writes.
+    the same SKUs in the shape ``sip-render batch`` reads
 ``images.jsonl``
-    one row per distinct image: its product type, its path under the image base
-    URL at both profiles, and how many products and variants point at it
+    one row per SKU image: its path in the bundle, its URL, and the sha256 of
+    its bytes -- the drawings themselves are never written by ``build`` and
+    never committed
 ``stats.json``
     what was generated, measured against the statistics it reproduces
 
-Records carry ``image_url`` and ``image_detail_url`` alongside ``image_id``.
-The URL is built from the image ID and never from the product's own SKU: a
-family shares one drawing, so a URL assembled from the SKU is a dead link for
-every product in the catalog. ``--image-base-url`` moves the host.
+``images`` rebuilds every SKU's drawing from a committed catalog, refuses
+unless each matches its recorded sha256, and writes the files and a
+deterministic archive -- the bundle a customization pins and fetches.
 """
 
 from __future__ import annotations
@@ -42,42 +40,53 @@ from .measure import measure
 
 
 def _check_images(catalog, referenced: set[str]) -> list[str]:
-    """Every product and variant has an image, and every image is one line's own.
+    """Every SKU has its OWN image, and every product points at one of its SKUs'.
 
-    Both directions, because each one fails differently and silently. A
-    reference to an id no line owns is a broken image on a demo page; a product
-    with no reference is a blank card. Neither shows up in a record count, so
-    neither is caught by anything else in the build.
-
-    The count is checked too. One drawing per product line is the decision this
-    catalog is built on -- per-SKU images would undercut the variant grouping
-    the nested shape exists to demonstrate -- so a run that produced one image
-    per SKU, or went back to one per type, would still pass every other check
-    here while publishing a catalog that means something different.
+    Both directions, because each fails differently and silently: a product
+    with no reference is a blank card, and two SKUs sharing an id would show
+    one variant's drawing for another's dimensions.
     """
     problems: list[str] = []
-    owned = {line.image_id for line in catalog.lines}
-    unknown = sorted(referenced - owned)
-    if unknown:
-        problems.append(f"{len(unknown)} referenced image ids name no product line: {unknown[:5]}")
-    if len(owned) != len(catalog.lines):
-        problems.append(
-            f"{len(catalog.lines)} product lines share {len(owned)} image ids; "
-            "one line, one drawing"
-        )
-    lineless = [line.product_id for line in catalog.lines if not line.image_id]
-    if lineless:
-        problems.append(f"{len(lineless)} product lines carry no image: {lineless[:5]}")
-    childless = [child.sku for _, child in catalog.all_skus() if not child.image_id]
+    skus = [child for _, child in catalog.all_skus()]
+    own = {child.image_id for child in skus}
+    if len(own) != len(skus):
+        problems.append(f"{len(skus)} SKUs share {len(own)} image ids; one SKU, one drawing")
+    childless = [child.sku for child in skus if not child.image_id]
     if childless:
         problems.append(f"{len(childless)} variants carry no image: {childless[:5]}")
+    unknown = sorted(referenced - own)
+    if unknown:
+        problems.append(f"{len(unknown)} referenced image ids name no SKU: {unknown[:5]}")
     return problems
+
+
+def _images(argv: list[str]) -> int:
+    from . import bundle  # noqa: PLC0415
+
+    parser = argparse.ArgumentParser(prog="sip-generate images")
+    parser.add_argument("--catalog", type=Path, default=Path("golden-catalog"))
+    parser.add_argument("--out", type=Path, default=Path("out/images"))
+    parser.add_argument("--archive", type=Path, default=None)
+    args = parser.parse_args(argv)
+    try:
+        files = bundle.rebuild(args.catalog)
+    except bundle.BundleMismatchError as exc:
+        print(f"image bundle REFUSED: {exc}", file=sys.stderr)
+        return 1
+    bundle.write_files(files, args.out)
+    total = sum(len(data) for _, data in files)
+    print(f"{args.out}  {len(files)} drawings, {total:,} bytes, every digest matches the catalog")
+    if args.archive is not None:
+        digest = bundle.write_archive(files, args.archive)
+        args.archive.with_name(args.archive.name + ".sha256").write_text(
+            f"{digest}  {args.archive.name}\n", encoding="utf-8"
+        )
+        print(f"{args.archive}  {args.archive.stat().st_size:,} bytes  sha256 {digest}")
+    return 0
 
 
 def _config_from(args: argparse.Namespace) -> GeneratorConfig:
     config = GeneratorConfig(seed=args.seed, lines=args.lines)
-    if args.skus:
-        config = config.with_(skus_per_line=(args.skus[0], args.skus[1]))
     if args.sparsity is not None:
         config = config.with_(sparsity_scale=args.sparsity)
     if args.defects is not None:
@@ -145,12 +154,14 @@ def _write_field_map(catalog, config: GeneratorConfig) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    if argv and argv[0] == "images":
+        return _images(argv[1:])
     parser = argparse.ArgumentParser(prog="sip-generate", description=__doc__)
     parser.add_argument("command", choices=("build", "report"))
     parser.add_argument("--out", type=Path, default=Path("out/catalog"))
     parser.add_argument("--seed", type=int, default=GeneratorConfig.seed)
     parser.add_argument("--lines", type=int, default=GeneratorConfig.lines)
-    parser.add_argument("--skus", type=int, nargs=2, metavar=("MIN", "MAX"), help="SKUs per line")
     parser.add_argument(
         "--sparsity",
         type=float,
@@ -165,8 +176,8 @@ def main(argv: list[str] | None = None) -> int:
         "--image-base-url",
         default=emit.DEFAULT_IMAGE_BASE_URL,
         help=(
-            "where the card drawings are published; records carry "
-            "<base>/<product_type>/<image_ref>.png "
+            "where the image bundle is served; records carry "
+            "<base>/<product_type>/<product_id>/<sku>.svg "
             f"(default: {emit.DEFAULT_IMAGE_BASE_URL})"
         ),
     )
@@ -186,18 +197,15 @@ def main(argv: list[str] | None = None) -> int:
     flat = emit.write_jsonl(emit.iter_flat(catalog, base_url), out / "flat.jsonl")
     images = emit.write_jsonl(emit.iter_image_manifest(catalog, base_url), out / "images.jsonl")
 
-    # Every product and every variant points at its own line's drawing, so the
-    # catalog needs one image per line however many SKUs hang off it. Both
-    # directions are asserted before the catalog is written.
+    # Every SKU points at its own drawing and every product at one of its
+    # SKUs'. Both directions are asserted before the catalog is written.
     referenced = emit.referenced_image_ids(catalog)
     problems = _check_images(catalog, referenced)
     if problems:
         for problem in problems:
             print(f"image audit FAILED: {problem}", file=sys.stderr)
         return 1
-    # render.jsonl is every SKU in the shape the per-record DIMENSIONED
-    # renderer reads. The catalog's cards do not use it -- they use the twelve --
-    # but a detail view of a demo product does, so it still ships.
+    # render.jsonl is every SKU in the shape ``sip-render batch`` reads.
     render = emit.write_jsonl(emit.render_records(catalog), out / "render.jsonl")
 
     audit = noncopy.audit(catalog)
@@ -211,7 +219,8 @@ def main(argv: list[str] | None = None) -> int:
     payload["config"] = {
         "seed": config.seed,
         "lines": config.lines,
-        "skus_per_line": list(config.skus_per_line),
+        "variants_per_product": [list(pair) for pair in config.variants_per_product],
+        "new_type_products": dict(config.new_type_products),
         "sparsity_scale": config.sparsity_scale,
         "defect_scale": config.defect_scale,
     }
@@ -228,11 +237,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"{out}/nested.jsonl  {nested} parent documents")
     print(f"{out}/flat.jsonl    {flat} sku documents")
     print(f"{out}/render.jsonl  {render} records for the per-record dimensioned renderer")
-    print(
-        f"                     {len(catalog.lines)} product lines and {flat} variants all carry "
-        f"an image; {len(referenced)} distinct drawings, one per line"
-    )
-    print(f"{out}/images.jsonl  {images} distinct images, published under {base_url}")
+    print(f"{out}/images.jsonl  {images} SKU drawings, served under {base_url}")
     print(f"{out}/stats.json    measured against target")
     print(field_map)
     print()

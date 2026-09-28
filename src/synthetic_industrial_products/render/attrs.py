@@ -60,12 +60,10 @@ NOT_DRAWN: dict[str, str] = {
         "the data rather than about the picture"
     ),
     "Measurement System": (
-        "the same attribute as Dimension Type under a second spelling; see the "
-        "reason there"
+        "the same attribute as Dimension Type under a second spelling; see the reason there"
     ),
     "System of Measurement": (
-        "the same attribute as Dimension Type under a third spelling; see the "
-        "reason there"
+        "the same attribute as Dimension Type under a third spelling; see the reason there"
     ),
     "Standards": (
         "conformance claims -- ISO 4762, RoHS, oSa Certified. A standard a "
@@ -85,6 +83,21 @@ NOT_DRAWN: dict[str, str] = {
         "Nothing about it is visible in an outline"
     ),
 }
+
+
+def require_any(record: dict, *keys: str) -> str:
+    """The value of the first of ``keys`` the record publishes, or a refusal.
+
+    For one concept published under several names -- the generator writes the
+    census's generic ``Head Type``, while an observed record may say ``Screw
+    Head Type``. A renderer reads what the record publishes, as it comes.
+    """
+    for key in keys:
+        if key in record:
+            return record[key]
+    raise MissingAttributeError(
+        f"record {record.get('sku', '?')!r} has none of {list(keys)!r}; the drawing needs one"
+    )
 
 
 def require(record: dict, key: str) -> str:

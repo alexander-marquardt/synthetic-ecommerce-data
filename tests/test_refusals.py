@@ -34,11 +34,11 @@ REQUIRED = [
     (
         drill,
         "42SR26",
-        ["Drill Size", "Shank Dia.", "Flute Length", "Overall Length", "Point Angle"],
+        ["Size", "Shank Dia.", "Flute Length", "Overall Length", "Point Angle"],
     ),
     (tap, "65NL78", ["Thread Size", "Shank Dia.", "Thread Length", "Overall Length"]),
     (washer, "57KY59", ["Inside Dia.", "Outside Dia.", "Thickness"]),
-    (flapdisc, "96HD84", ["Disc Dia.", "Arbor Hole Size"]),
+    (flapdisc, "96HD84", ["Diameter", "Arbor Hole"]),
     (
         endmill,
         "26VW40",
@@ -87,7 +87,7 @@ def test_an_unreadable_value_refuses_instead_of_being_guessed(module, sku, attri
         (tap, "65NL78", {"Thread Length": '3"'}),
         (washer, "57KY59", {"Inside Dia.": "20.00 mm"}),
         (washer, "57KY59", {"Inside Dia.": "16.00 mm"}),
-        (flapdisc, "96HD84", {"Arbor Hole Size": '6"'}),
+        (flapdisc, "96HD84", {"Arbor Hole": '6"'}),
         (endmill, "26VW40", {"Length of Cut": '2"'}),
     ],
     ids=[
