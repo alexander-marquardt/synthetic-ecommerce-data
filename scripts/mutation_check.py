@@ -773,8 +773,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "move the image host without regenerating the catalog",
         "catalog/emit.py",
-        'DEFAULT_IMAGE_BASE_URL = "/images/industrial"',
-        'DEFAULT_IMAGE_BASE_URL = "/moved/images/industrial"',
+        'IMAGE_ROOT = "industrial"',
+        'IMAGE_ROOT = "moved"',
         "tests/test_catalog_golden.py::test_committed_file_matches_a_fresh_build",
         "A",
         "the committed catalog is byte-identical to a fresh build",
@@ -1325,6 +1325,36 @@ MUTATIONS: list[Mutation] = [
         "tests/test_sku_drawings.py -k published_length",
         "A",
         "a drawn dimension changes the drawing",
+    ),
+    Mutation(
+        "clamp small products back up to half the sheet",
+        "drawing/sheet.py",
+        "    fraction = min(1.0, size_in / top)",
+        "    fraction = max(0.5, min(1.0, size_in / top))",
+        (
+            "tests/test_sku_drawings.py -k siblings",
+            "tests/test_sku_drawings.py -k m3",
+        ),
+        "A",
+        "sizes are visible: one scale per type",
+    ),
+    Mutation(
+        "let a drawing carry a title element",
+        "drawing/__init__.py",
+        '    {"svg", "rect", "defs", "pattern", "g", "path", "circle"}',
+        '    {"svg", "rect", "defs", "pattern", "g", "path", "circle", "title"}',
+        "tests/test_sku_drawings.py -k title",
+        "A",
+        "no drawing carries any text",
+    ),
+    Mutation(
+        "accept a census name in another casing",
+        "catalog/names.py",
+        "        if canonical is not None and canonical != name:",
+        "        if False and canonical is not None and canonical != name:",
+        "tests/test_attribute_names.py -k another_casing",
+        "A",
+        "no emitted name is a casing twin of a census name",
     ),
 ]
 

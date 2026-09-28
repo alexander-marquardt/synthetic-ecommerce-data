@@ -43,7 +43,12 @@ _NON_WORD = re.compile(r"[^a-z0-9]+")
 #: Where a record's image is served from: the bundle's folder, as the demo
 #: serves it (elastic/prism#9770, the Studio images mount). Relative, so
 #: nothing points at a third-party host; ``--image-base-url`` moves it.
-DEFAULT_IMAGE_BASE_URL = "/images/industrial"
+#: The bundle's top-level folder. The archive's members live under it and the
+#: demo serves the images folder at ``/images`` (elastic/prism#9770), so a URL
+#: is ``/images/<IMAGE_ROOT>/<path>`` and deployments can sit side by side
+#: under one images mount.
+IMAGE_ROOT = "industrial"
+DEFAULT_IMAGE_BASE_URL = f"/images/{IMAGE_ROOT}"
 
 
 class UnresolvedImageError(Exception):

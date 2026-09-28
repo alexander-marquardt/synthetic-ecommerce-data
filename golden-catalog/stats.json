@@ -1,6 +1,6 @@
 {
  "lines": 5400,
- "skus": 10216,
+ "skus": 10202,
  "lines_by_type": {
   "end_mill_square": 494,
   "end_mill_ball": 286,
@@ -33,7 +33,7 @@
   "hammer_ball_pein": 209,
   "abrasive_flap_disc": 254,
   "nut_hex": 1349,
-  "bearing_radial_ball": 1223,
+  "bearing_radial_ball": 1209,
   "wheel_depressed_center": 1371,
   "hex_key": 1359
  },
@@ -315,6 +315,7 @@
    "Measurement System",
    "Outside Dia.",
    "Row Type",
+   "Series",
    "Standards",
    "Static Load Capacity",
    "System of Measurement",
@@ -355,7 +356,7 @@
    "Type"
   ]
  },
- "total_attribute_entries": 124726,
+ "total_attribute_entries": 125397,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -384,33 +385,33 @@
   {
    "name": "declared system contradicts value units",
    "target": 0.0323,
-   "achieved": 0.03034514709288858,
-   "numerator": 131,
-   "denominator": 4317,
+   "achieved": 0.031919850885368126,
+   "numerator": 137,
+   "denominator": 4292,
    "note": "over records carrying both"
   },
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.015869905956112852,
+   "achieved": 0.015891701000588582,
    "numerator": 162,
-   "denominator": 10208,
+   "denominator": 10194,
    "note": "over records with a readable dimension"
   },
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.4654463586530932,
-   "numerator": 4755,
-   "denominator": 10216,
+   "achieved": 0.46716330131346795,
+   "numerator": 4766,
+   "denominator": 10202,
    "note": "over title dimension tokens"
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.10268206734534065,
+   "achieved": 0.10282297588708096,
    "numerator": 1049,
-   "denominator": 10216,
+   "denominator": 10202,
    "note": "over title dimension tokens"
   },
   {
@@ -418,7 +419,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 10216,
+   "denominator": 10202,
    "note": "over titles"
   },
   {
@@ -426,7 +427,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 10216,
+   "denominator": 10202,
    "note": "deliberate: the corpus measures 0.1089"
   },
   {
@@ -434,41 +435,41 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 10216,
+   "denominator": 10202,
    "note": "deliberate: the corpus measures 0.7353"
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 12.208888018794049,
-   "numerator": 124726,
-   "denominator": 10216,
+   "achieved": 12.291413448343462,
+   "numerator": 125397,
+   "denominator": 10202,
    "note": "count, not a rate"
   }
  ],
  "measurement_system_names": {
-  "Dimension Type": 2863,
-  "Measurement System": 1007,
-  "System of Measurement": 447
+  "Dimension Type": 2823,
+  "Measurement System": 1021,
+  "System of Measurement": 448
  },
  "measurement_system_values": {
-  "Inch": 236,
-  "Fractional Inch": 2484,
-  "Metric": 1536,
+  "Inch": 231,
+  "Fractional Inch": 2487,
+  "Metric": 1513,
   "Decimal Inch": 61
  },
  "unit_suffix_distribution": {
-  "mm": 13216,
-  "in": 21516
+  "mm": 13201,
+  "in": 21489
  },
- "standards_present": 5635,
- "standards_multivalued": 3115,
- "standards_total_values": 9847,
+ "standards_present": 5585,
+ "standards_multivalued": 3082,
+ "standards_total_values": 9718,
  "multivalued_attribute_names": {
-  "Standards": 3115
+  "Standards": 3082
  },
  "noncopy_audit": {
-  "n_skus_checked": 10216,
+  "n_skus_checked": 10202,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [

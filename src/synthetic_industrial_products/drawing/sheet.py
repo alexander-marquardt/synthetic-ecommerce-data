@@ -1,15 +1,21 @@
 """Placing a figure on the sheet and painting it in the brand's house style.
 
-The scale. Every product of a kind is drawn at ONE scale -- the kind's
-largest product fills the sheet -- so within a kind a longer screw is drawn
-longer and a bigger bearing bigger, and two SKUs of one product can be told
-apart by size at a glance. A product small enough to become a speck at that
-scale is enlarged, but only to half the sheet, so it still reads as small.
-Proportions (length against diameter, head against shank, thread pitch
-against diameter) are always exactly the record's.
+The scale. Every product of a type is drawn at ONE scale: the type's largest
+product fills its sheet, and every other is drawn at its true size relative to
+that one. So an M3 washer is drawn at about a quarter the diameter of an M16
+washer, and a longer screw of a product is drawn longer than its shorter
+sibling, whatever their proportions.
+
+The one exception is legibility, and it is strictly monotonic: a product
+drawn smaller than :data:`FLOOR` of the sheet is enlarged along a square-root
+curve instead of being clamped, so two small siblings still differ in size --
+the smaller is always drawn smaller -- and nothing collapses to one size.
+Proportions are always exactly the record's.
 """
 
 from __future__ import annotations
+
+import math
 
 from . import svg
 from .model import Disc, Dots, Figure, Lines, Poly
@@ -17,25 +23,28 @@ from .style import Hatch, HouseStyle, _mix
 
 #: The inset of the drawing from the sheet edge, in sheet units.
 MARGIN = 18.0
-#: The least a product fills of its sheet, relative to fitting it exactly.
-MIN_FILL = 0.5
+#: Below this fraction of the sheet a product is enlarged for legibility, on
+#: a square-root curve (monotonic: smaller stays smaller).
+FLOOR = 0.2
 
 LW_PART = "1.6"
 LW_LINE = "0.8"
 
 
 def product_scale(fit: float, size_in: float, size_range: tuple[float, float]) -> float:
-    """Sheet units per inch: the kind's one scale, bounded by fit and legibility.
+    """Sheet units per inch: the type's one scale, with a monotonic legibility floor.
 
-    ``fit`` is the scale at which this figure exactly fills the sheet. The
-    kind's scale is the one at which its largest product (``size_range[1]``)
-    would; ``size_in`` places this product on it.
+    ``fit`` is the scale at which THIS figure exactly fills the sheet. The
+    type's largest product (``size_range[1]``) fills it, so this product fills
+    ``size_in / top`` of it -- its true relative size.
     """
-    lo, hi = size_range
-    if size_in <= 0 or hi <= 0:
+    _, top = size_range
+    if size_in <= 0 or top <= 0:
         return fit
-    kind_scale = fit * size_in / max(hi, size_in)
-    return min(fit, max(MIN_FILL * fit, kind_scale))
+    fraction = min(1.0, size_in / top)
+    if fraction < FLOOR:
+        fraction = FLOOR * math.sqrt(fraction / FLOOR)
+    return fit * fraction
 
 
 def _hatch_pattern(page: svg.Svg, hatch: Hatch, ink: str) -> str:
@@ -52,9 +61,7 @@ def _hatch_pattern(page: svg.Svg, hatch: Hatch, ink: str) -> str:
     if not hatch.angles and hatch.dots:
         inner.append(f'<circle cx="{h}" cy="{h}" r=".7"/>')
     for angle in hatch.angles:
-        inner.append(
-            f'<path d="M0 0V{s}" stroke-width=".5" transform="rotate({angle} {h} {h})"/>'
-        )
+        inner.append(f'<path d="M0 0V{s}" stroke-width=".5" transform="rotate({angle} {h} {h})"/>')
     if hatch.angles and hatch.dots:
         inner.append(f'<circle cx="{svg.num(hatch.spacing / 2)}" cy="0" r=".6"/>')
     page.define(

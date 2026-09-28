@@ -11,10 +11,19 @@ so an archive built here IS the set the catalog names, byte for byte, and a
 generator change that moved a drawing without a regeneration cannot ship
 under the old catalog.
 
-The archive is deterministic: members sorted, every timestamp and owner zeroed,
-gzip header without a time. The same catalog makes the same archive, so its
-sha256 is a pin a customization can hold (the ``images_release`` pin in
-elastic/prism-industrial-products).
+LAYOUT. Every member is ``industrial/<type>/<product_id>/<sku>.svg``: the
+top-level ``industrial/`` folder is :data:`..emit.IMAGE_ROOT`, so a
+customization unpacks the archive into its images folder and the demo serves
+that folder at ``/images`` (elastic/prism#9770) -- ``image_url`` is
+``/images/industrial/...`` exactly.
+
+THE PIN IS OF THE CONTENT, not of the compressed bytes. The archive is
+deterministic on one toolchain (members sorted, times and owners zeroed, a
+gzip header without a time), but gzip output depends on the zlib build, and
+some Python builds ship a different one. So :func:`content_digest` -- the
+sha256 of the sorted ``<path>\t<sha256 of the file>`` lines -- is what a
+customization pins and what its installer re-computes after unpacking. It is
+derivable from the committed ``images.jsonl`` alone, without building anything.
 """
 
 from __future__ import annotations
@@ -43,6 +52,33 @@ def _record(parent: dict, variant: dict) -> dict[str, str]:
         name, value = entry["name"], entry["value"]
         record[name] = f"{record[name]}, {value}" if name in record else value
     return record
+
+
+def member_path(path: str) -> str:
+    """A drawing's path inside the archive: under the bundle's top-level folder."""
+    from .emit import IMAGE_ROOT  # noqa: PLC0415
+
+    return f"{IMAGE_ROOT}/{path}"
+
+
+def content_digest(entries) -> str:
+    """sha256 of the sorted ``<member path>\t<file sha256>`` lines: the pinnable digest."""
+    lines = sorted(f"{path}\t{digest}\n" for path, digest in entries)
+    return hashlib.sha256("".join(lines).encode("utf-8")).hexdigest()
+
+
+def manifest_digest(catalog_dir: Path) -> str:
+    """The content digest, from the committed ``images.jsonl`` alone."""
+    rows = [
+        json.loads(line)
+        for line in (catalog_dir / "images.jsonl").read_text("utf-8").splitlines()
+        if line
+    ]
+    return content_digest((member_path(row["path"]), row["sha256"]) for row in rows)
+
+
+def files_digest(files: list[tuple[str, bytes]]) -> str:
+    return content_digest((path, hashlib.sha256(data).hexdigest()) for path, data in files)
 
 
 def rebuild(catalog_dir: Path) -> list[tuple[str, bytes]]:
@@ -74,7 +110,7 @@ def rebuild(catalog_dir: Path) -> list[tuple[str, bytes]]:
             if hashlib.sha256(data).hexdigest() != row["sha256"]:
                 mismatched.append(f"{image_id}: drawn bytes differ from the recorded sha256")
             seen.add(image_id)
-            built.append((row["path"], data))
+            built.append((member_path(row["path"]), data))
     missing = sorted(set(manifest) - seen)
     if missing:
         mismatched.append(f"{len(missing)} manifest rows name no SKU: {missing[:5]}")
@@ -107,6 +143,16 @@ def write_archive(files: list[tuple[str, bytes]], archive: Path) -> str:
 
 
 def write_files(files: list[tuple[str, bytes]], out_dir: Path) -> None:
+    """Write the drawings under ``out_dir``, replacing any previous set there.
+
+    The bundle's own folder is cleared first, so a drawing a regeneration
+    dropped does not linger beside the new set.
+    """
+    import shutil  # noqa: PLC0415
+
+    from .emit import IMAGE_ROOT  # noqa: PLC0415
+
+    shutil.rmtree(out_dir / IMAGE_ROOT, ignore_errors=True)
     for path, data in files:
         target = out_dir / path
         target.parent.mkdir(parents=True, exist_ok=True)

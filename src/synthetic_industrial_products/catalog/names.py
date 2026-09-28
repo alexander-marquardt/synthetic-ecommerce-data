@@ -17,11 +17,20 @@ The gate that replaces it has two parts, and both are needed:
 1. **Membership.** Every name is verbatim in the census, or in the names-only
    reference spec-table list, or in :data:`NAME_EXCEPTIONS` with the reason it
    is neither. A name nobody observed (``Widget Material``) is refused.
-2. **No product-type qualifier on a generic concept.** A name that starts with
-   a product noun (``End Mill ...``, ``Fastener ...``, ``Drill ...``) is
-   refused unless :data:`TYPE_SPECIFIC` lists it with census evidence that the
-   concept really is type-specific. Membership alone would pass ``End Mill
-   Material``: the census carries it on 3 records, beside ``Material`` on 160.
+2. **No product-type qualifier on a generic concept.** A name that contains a
+   product noun ANYWHERE, as a word (``End Mill Material``, ``Hex Nut
+   Material``, ``Cap Screw Type``), is refused unless :data:`TYPE_SPECIFIC`
+   lists it with census evidence that the concept really is type-specific.
+   Membership alone would pass ``End Mill Material``: the census carries it on
+   3 records, beside ``Material`` on 160. The census also carries
+   ``Cap Screw Type``, ``Toggle Bolt Type`` and ``Machine Screw Head Type`` (1
+   record each) and ``Drill Bit Size`` (4); each is a single-feed spelling
+   beside a generic census name (``Type`` 52, ``Head Type`` 12, ``Size`` 109),
+   so they are REFUSED, not allow-listed.
+3. **No casing twin.** Keyword fields are case-sensitive, so ``Length Under
+   Head`` and ``Length under Head`` are two facets. A name that differs from a
+   census name only in case is refused -- use the census's casing -- and so
+   are two names in one set that differ only in case.
 
 Realistic minority spellings (``Material - Machining`` beside ``Material``) are
 deliberately NOT emitted yet: they wait for the Engine's multi-name source
@@ -30,6 +39,7 @@ deliberately NOT emitted yet: they wait for the Engine's multi-name source
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterable
 
 #: Nouns that name a product TYPE in this catalog. A name led by one of these
@@ -38,6 +48,7 @@ from collections.abc import Iterable
 #: noun and slip its own ``<Type> Material`` past the gate.
 PRODUCT_NOUNS: tuple[str, ...] = (
     "End Mill",
+    "Drill Bit",
     "Drill",
     "Tap",
     "Fastener",
@@ -76,22 +87,35 @@ NAME_EXCEPTIONS: dict[str, str] = {
 
 
 def qualifying_noun(name: str) -> str | None:
-    """The product noun ``name`` starts with, if any."""
-    lowered = name.lower()
+    """The product noun ``name`` contains as a word (singular or plural), if any."""
     for noun in PRODUCT_NOUNS:
-        n = noun.lower()
-        if lowered == n or lowered.startswith(n + " ") or lowered.startswith(n + "s "):
+        if re.search(rf"\b{re.escape(noun)}(e?s)?\b", name, flags=re.IGNORECASE):
             return noun
     return None
 
 
-def name_problems(names: Iterable[str], observed: frozenset[str]) -> list[str]:
+def name_problems(
+    names: Iterable[str], observed: frozenset[str], census: frozenset[str] = frozenset()
+) -> list[str]:
     """Every reason a name set fails the gate, one line per name; empty when it passes.
 
-    ``observed`` is the census names plus the reference spec-table names.
+    ``observed`` is the census names plus the reference spec-table names;
+    ``census`` is the census alone, whose casing wins.
     """
     problems: list[str] = []
-    for name in sorted(set(names)):
+    wanted = sorted(set(names))
+    by_fold: dict[str, list[str]] = {}
+    for name in wanted:
+        by_fold.setdefault(name.casefold(), []).append(name)
+    for twins in by_fold.values():
+        if len(twins) > 1:
+            problems.append(f"{twins!r} differ only in case: one concept, two facets")
+    census_casing = {name.casefold(): name for name in census}
+    for name in wanted:
+        canonical = census_casing.get(name.casefold())
+        if canonical is not None and canonical != name:
+            problems.append(f"{name!r} is the census's {canonical!r} in another casing")
+            continue
         if name not in observed and name not in NAME_EXCEPTIONS:
             problems.append(
                 f"{name!r} is in neither the census, the reference spec-table list, "
