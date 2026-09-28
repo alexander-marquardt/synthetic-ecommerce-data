@@ -83,7 +83,7 @@ def files_digest(files: list[tuple[str, bytes]]) -> str:
 
 def rebuild(catalog_dir: Path) -> list[tuple[str, bytes]]:
     """``(path, svg_bytes)`` for every SKU, checked against ``images.jsonl``."""
-    from ..drawing import draw_sku  # noqa: PLC0415
+    from ..drawing import draw_product  # noqa: PLC0415
 
     manifest = {
         row["image_id"]: row
@@ -100,13 +100,14 @@ def rebuild(catalog_dir: Path) -> list[tuple[str, bytes]]:
         if not line:
             continue
         parent = json.loads(line)
-        for variant in parent["variants"]:
+        records = [_record(parent, variant) for variant in parent["variants"]]
+        drawn = draw_product(parent["product_type"], parent["brand"], records)
+        for variant, (data, _) in zip(parent["variants"], drawn, strict=True):
             image_id = variant["image_id"]
             row = manifest.get(image_id)
             if row is None:
                 mismatched.append(f"{image_id}: in the catalog, not in images.jsonl")
                 continue
-            data, _ = draw_sku(parent["product_type"], parent["brand"], _record(parent, variant))
             if hashlib.sha256(data).hexdigest() != row["sha256"]:
                 mismatched.append(f"{image_id}: drawn bytes differ from the recorded sha256")
             seen.add(image_id)

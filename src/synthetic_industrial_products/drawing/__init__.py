@@ -24,14 +24,21 @@ from __future__ import annotations
 
 import re
 import xml.etree.ElementTree as ET
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 from ..render.marking import FINISH_ATTRIBUTES, MATERIAL_ATTRIBUTES
 from .figures import FIGURES
-from .sheet import paint
+from .sheet import paint, product_scale
 from .style import house_style, material_hatch, part_fill
 
-__all__ = ["FIGURES", "draw_sku", "svg_problems", "UnknownTypeError"]
+__all__ = [
+    "FIGURES",
+    "draw_product",
+    "draw_sku",
+    "product_scale_for",
+    "svg_problems",
+    "UnknownTypeError",
+]
 
 #: THE ALLOW-LIST a drawing is checked against. A blacklist of text forms
 #: (``<text>``, ``font-family``, one font's glyph ids) misses most of them --
@@ -131,16 +138,47 @@ def _first(record: Mapping[str, str], names) -> str | None:
     return None
 
 
+def product_scale_for(product_type: str, records: Sequence[Mapping[str, str]]) -> float:
+    """The ONE scale every SKU of a product is drawn at (sheet units per inch).
+
+    The type's constant scale, with the legibility lift decided by the
+    product's LARGEST primary dimension -- so all siblings share one scale, and
+    a head, a thread or a bore they share is drawn identically on every one of
+    them; only what varies between them differs, in true proportion.
+    """
+    figure_fn, extent = _figure(product_type)
+    largest = max(figure_fn(dict(record)).figure.size_in for record in records)
+    return product_scale(extent, largest)
+
+
+def draw_product(
+    product_type: str, brand: str, records: Sequence[Mapping[str, str]]
+) -> list[tuple[bytes, str]]:
+    """``(svg_bytes, source)`` for each SKU of one product, all at the product's one scale."""
+    scale = product_scale_for(product_type, records)
+    return [_draw(product_type, brand, record, scale) for record in records]
+
+
 def draw_sku(product_type: str, brand: str, record: Mapping[str, str]) -> tuple[bytes, str]:
-    """``(svg_bytes, source)`` for one SKU. ``record`` maps attribute name to value.
+    """``(svg_bytes, source)`` for a SKU drawn on its own -- a product of one variant.
 
     ``source`` is ``record``, ``partial`` or ``nominal`` -- see
     :mod:`.figures` for what each means.
     """
+    return draw_product(product_type, brand, [record])[0]
+
+
+def _figure(product_type: str):
     try:
-        figure_fn, extent = FIGURES[product_type]
+        return FIGURES[product_type]
     except KeyError as exc:
         raise UnknownTypeError(f"no figure for product type {product_type!r}") from exc
+
+
+def _draw(
+    product_type: str, brand: str, record: Mapping[str, str], scale: float
+) -> tuple[bytes, str]:
+    figure_fn, _ = _figure(product_type)
     drawn = figure_fn(dict(record))
     material = _first(record, MATERIAL_ATTRIBUTES)
     finish = _first(record, FINISH_ATTRIBUTES)
@@ -149,6 +187,6 @@ def draw_sku(product_type: str, brand: str, record: Mapping[str, str]) -> tuple[
         house_style(brand),
         part_fill(finish, material),
         material_hatch(material),
-        extent,
+        scale,
     )
     return data, drawn.source

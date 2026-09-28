@@ -1,18 +1,25 @@
 """Placing a figure on the sheet and painting it in the brand's house style.
 
-THE SCALE IS ONE CONSTANT PER PRODUCT TYPE: sheet units per inch are the usable
-sheet divided by the type's largest drawn extent (:data:`.figures.FIGURES`).
-So every product of a type is drawn at its true size relative to every other --
-an M20 flat head reads bigger than a #6 one of the same length, and a longer
-sibling is drawn longer -- whatever the figure's own proportions.
+THE SCALE. Sheet units per inch are one constant per product type -- the usable
+sheet over the type's largest drawn extent (:data:`.figures.FIGURES`) -- with
+one exception, legibility, decided PER PRODUCT:
 
-The one exception is legibility. A product whose PRIMARY dimension (its
-``size_in``: a screw's length, a washer's diameter) would be drawn shorter than
-:data:`FLOOR` sheet units is enlarged so that it is drawn ``sqrt(FLOOR * d)``
-long instead of ``d``. That map is strictly increasing in ``d``, so a larger
-published primary dimension is never drawn shorter, within a product or across
-a type; ``tests/test_sku_drawings.py`` asserts that order over the committed
-catalog. Proportions within one drawing are always exactly the record's.
+* a product whose LARGEST primary dimension (its biggest SKU's ``size_in``: a
+  screw's length, a washer's diameter) would be drawn shorter than
+  :data:`FLOOR` sheet units is drawn larger, at one scale for the whole
+  product, so that largest dimension is drawn ``sqrt(FLOOR * d)`` long;
+* every SKU of a product is drawn at that product's one scale. So a head, a
+  thread or a bore siblings share is drawn identically on each, and whatever
+  varies between siblings is drawn in true proportion -- no dimension of one
+  sibling is drawn smaller than the same, larger dimension of another.
+
+What this guarantees across products, and what it does not: products drawn
+at the type's constant (their largest primary dimension at or above the
+floor) are in true proportion to each other; among lifted products, the
+largest SKUs keep their order (``sqrt`` is increasing); but a smaller SKU of a
+lifted product can be drawn larger than a slightly larger SKU of a product
+that was not lifted, because the two products are drawn at different scales.
+``tests/test_sku_drawings.py`` asserts exactly these properties.
 """
 
 from __future__ import annotations
@@ -41,11 +48,11 @@ def type_scale(extent: tuple[float, float]) -> float:
 
 
 def product_scale(extent: tuple[float, float], size_in: float) -> float:
-    """The scale ONE product is drawn at: its type's, lifted monotonically when tiny.
+    """The scale a PRODUCT is drawn at, from its largest primary dimension ``size_in``.
 
-    The primary dimension is drawn ``d = type_scale * size_in`` long; below
+    That dimension is drawn ``d = type_scale * size_in`` long; below
     :data:`FLOOR` it is drawn ``sqrt(FLOOR * d)`` long instead, which is
-    increasing in ``d`` -- so order by ``size_in`` is order on the sheet.
+    increasing in ``d``.
     """
     scale = type_scale(extent)
     drawn = scale * size_in
@@ -111,7 +118,7 @@ def paint(
     house: HouseStyle,
     fill: str,
     hatch: Hatch | None,
-    extent: tuple[float, float],
+    scale: float,
 ) -> bytes:
     """The figure on a sheet, as SVG bytes. Contains no text of any kind."""
     page = svg.Svg(background=house.paper)
@@ -119,7 +126,6 @@ def paint(
 
     x0, y0, x1, y1 = figure.bounds()
     bw, bh = max(x1 - x0, 1e-9), max(y1 - y0, 1e-9)
-    scale = product_scale(extent, figure.size_in)
     ox = svg.WIDTH / 2 - (x0 + bw / 2) * scale
     oy = svg.HEIGHT / 2 - (y0 + bh / 2) * scale
 

@@ -65,3 +65,35 @@ def test_git_comment_lines_are_ignored():
 def test_the_hook_is_wired_for_commit_msg():
     config = (REPO / ".pre-commit-config.yaml").read_text("utf-8")
     assert "commit-msg" in config and "check_commit_msg.py" in config
+
+
+def test_a_hash_line_is_skipped_by_the_hook_but_not_in_a_recorded_message():
+    """``git commit -m "# Co-Authored-By: ..."`` records the line; CI must see it."""
+    message = "Subject\n\n# Co-Authored-By: Claude <noreply@anthropic.com>\n"
+    assert check.problems(message, skip_comment_lines=True) == []
+    assert check.problems(message, skip_comment_lines=False)
+
+
+def test_range_mode_does_not_skip_hash_lines(monkeypatch):
+    message = "Subject\n\n# Co-Authored-By: Claude <noreply@anthropic.com>\n"
+    monkeypatch.setattr(check, "_range_messages", lambda spec: [("abc123", message)])
+    assert check.main(["check_commit_msg.py", "--range", "x..y"]) == 1
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "Subject\n\nCo-Authored-By: \u0421laude <x@example.invalid>\n",  # Cyrillic C
+        "Subject\n\nCo-Authored-By: Cl\u202eaude <x@example.invalid>\n",  # bidi override
+        # A phrase wrapped across two lines, where NEITHER line matches alone.
+        "Subject\n\nThis sheet was made with\nCursor last week.\n",
+    ],
+)
+def test_folding_catches_look_alikes_bidi_and_wrapped_phrases(message):
+    assert check.problems(message)
+
+
+def test_the_wrapped_plant_really_needs_the_join():
+    """The control for the wrapped case: each of its lines passes on its own."""
+    assert check.problems("This sheet was made with\n") == []
+    assert check.problems("Cursor last week.\n") == []

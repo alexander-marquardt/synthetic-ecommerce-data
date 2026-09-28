@@ -77,22 +77,54 @@ ADDITIONS: list[tuple[str, str]] = [
 FAMILY = [(label, re.compile(rx, re.IGNORECASE | re.MULTILINE)) for label, rx in CORE_FAMILY]
 FAMILY += [(label, re.compile(rx, re.IGNORECASE | re.MULTILINE)) for label, rx in ADDITIONS]
 
-_ZERO_WIDTH = dict.fromkeys(map(ord, "​‌‍⁠﻿­"))
+#: Characters that change nothing a reader sees: zero-width and soft-hyphen
+#: characters, and the bidirectional controls (embeddings, overrides,
+#: isolates), which can reorder a word on screen without changing its letters.
+_INVISIBLE = dict.fromkeys(
+    map(
+        ord,
+        "​‌‍⁠﻿­‎‏"
+        "‪‫‬‭‮⁦⁧⁨⁩",
+    )
+)
+#: Cyrillic and Greek letters that look like Latin ones, folded to them as the
+#: core scan does, so a vendor name spelled with look-alikes still matches.
+_HOMOGLYPHS = str.maketrans(
+    "аеорсухіјкмтнв"
+    "АЕОРСХКМТНВ"
+    "οαρεΟΑΡΕ",
+    "aeopcyxijkmthbAEOPCXKMTHBoapeOAPE",
+)
 
 
 def fold(text: str) -> str:
-    return unicodedata.normalize("NFKC", text).translate(_ZERO_WIDTH)
+    return unicodedata.normalize("NFKC", text).translate(_INVISIBLE).translate(_HOMOGLYPHS)
 
 
-def problems(message: str) -> list[str]:
-    """``label: line`` for every attributing line; git's ``#`` comment lines are skipped."""
+def problems(message: str, skip_comment_lines: bool = True) -> list[str]:
+    """``label: text`` for every attribution found.
+
+    ``skip_comment_lines`` is for the commit-msg HOOK only: git strips ``#``
+    lines from the message it records, so there they are its own help text.
+    A RECORDED message (``--range``) keeps whatever it carries --
+    ``git commit -m "# Co-Authored-By: ..."`` stores the line -- so there
+    nothing is skipped. A phrase wrapped across two lines is also caught: the
+    message is checked once more with its lines joined.
+    """
+    lines = fold(message).splitlines()
+    if skip_comment_lines:
+        lines = [line for line in lines if not line.startswith("#")]
     found = []
-    for line in fold(message).splitlines():
-        if line.startswith("#"):
-            continue
+    for line in lines:
         for label, pattern in FAMILY:
             if pattern.search(line):
                 found.append(f"{label}: {line.strip()}")
+                break
+    if not found:
+        joined = " ".join(line.strip() for line in lines)
+        for label, pattern in FAMILY:
+            if pattern.search(joined):
+                found.append(f"{label} (across lines): {joined[:80]}")
                 break
     return found
 
@@ -117,14 +149,16 @@ def _range_messages(spec: str) -> list[tuple[str, str]]:
 def main(argv: list[str]) -> int:
     if len(argv) == 3 and argv[1] == "--range":
         messages = _range_messages(argv[2])
+        hook = False
     elif len(argv) == 2:
         messages = [("commit message", Path(argv[1]).read_text("utf-8"))]
+        hook = True
     else:
         print("usage: check_commit_msg.py <file> | --range <git-range>", file=sys.stderr)
         return 2
     bad = 0
     for where, message in messages:
-        for line in problems(message):
+        for line in problems(message, skip_comment_lines=hook):
             print(f"{where}: AI/bot attribution -- {line}", file=sys.stderr)
             bad += 1
     print(f"checked {len(messages)} message(s): {'clean' if not bad else f'{bad} violation(s)'}")

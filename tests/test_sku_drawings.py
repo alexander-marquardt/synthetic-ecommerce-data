@@ -23,7 +23,7 @@ from synthetic_industrial_products.catalog import bundle, emit
 from synthetic_industrial_products.catalog.config import SMALL
 from synthetic_industrial_products.catalog.generate import BRANDS, generate
 from synthetic_industrial_products.catalog.vocab import VOCAB
-from synthetic_industrial_products.drawing import FIGURES, draw_sku, svg_problems
+from synthetic_industrial_products.drawing import FIGURES, draw_product, draw_sku, svg_problems
 from synthetic_industrial_products.drawing.model import Poly
 from synthetic_industrial_products.drawing.style import (
     EXTRA_FINISH_TINT,
@@ -348,72 +348,111 @@ def test_an_m3_washer_is_drawn_smaller_than_an_m16_in_proportion():
     assert 7 / 30 <= ratio < 0.35
 
 
-def _golden_figures():
-    """(type, product_id, sku, figure) for every SKU of the committed catalog."""
+def _golden_products():
+    """(type, product_id, [(sku, figure)], largest size_in) for every committed product."""
     for line in (GOLDEN / "nested.jsonl").read_text("utf-8").splitlines():
         parent = json.loads(line)
         figure_fn, _ = FIGURES[parent["product_type"]]
-        for variant in parent["variants"]:
-            yield (
-                parent["product_type"],
-                parent["product_id"],
-                variant["sku"],
-                figure_fn(bundle._record(parent, variant)).figure,
-            )
+        figures = [
+            (variant["sku"], figure_fn(bundle._record(parent, variant)).figure)
+            for variant in parent["variants"]
+        ]
+        largest = max(figure.size_in for _, figure in figures)
+        yield parent["product_type"], parent["product_id"], figures, largest, parent
 
 
-GOLDEN_FIGURES = list(_golden_figures())
+GOLDEN_PRODUCTS = list(_golden_products())
 
 
 def test_no_product_exceeds_its_types_extent():
     """The type's scale is a constant only while every product fits its declared extent."""
-    for type_key, _, sku, figure in GOLDEN_FIGURES:
-        x0, y0, x1, y1 = figure.bounds()
+    for type_key, _, figures, _, _ in GOLDEN_PRODUCTS:
         width, height = FIGURES[type_key][1]
-        assert x1 - x0 <= width and y1 - y0 <= height, (type_key, sku, x1 - x0, y1 - y0)
+        for sku, figure in figures:
+            x0, y0, x1, y1 = figure.bounds()
+            assert x1 - x0 <= width and y1 - y0 <= height, (type_key, sku, x1 - x0, y1 - y0)
 
 
 def test_every_drawing_fits_its_sheet():
-    """The legibility lift enlarges small parts; it must never push one off the sheet."""
+    """The legibility lift enlarges small products; it must never push a SKU off the sheet."""
     from synthetic_industrial_products.drawing import svg as page
     from synthetic_industrial_products.drawing.sheet import MARGIN, product_scale
 
-    for type_key, _, sku, figure in GOLDEN_FIGURES:
-        x0, y0, x1, y1 = figure.bounds()
-        scale = product_scale(FIGURES[type_key][1], figure.size_in)
-        assert (x1 - x0) * scale <= page.WIDTH - 2 * MARGIN + 1e-6, (type_key, sku)
-        assert (y1 - y0) * scale <= page.HEIGHT - 2 * MARGIN + 1e-6, (type_key, sku)
+    for type_key, _, figures, largest, _ in GOLDEN_PRODUCTS:
+        scale = product_scale(FIGURES[type_key][1], largest)
+        for sku, figure in figures:
+            x0, y0, x1, y1 = figure.bounds()
+            assert (x1 - x0) * scale <= page.WIDTH - 2 * MARGIN + 1e-6, (type_key, sku)
+            assert (y1 - y0) * scale <= page.HEIGHT - 2 * MARGIN + 1e-6, (type_key, sku)
 
 
-def test_a_larger_primary_dimension_is_never_drawn_shorter():
-    """Order on the sheet is order in the record: within a product AND across a type.
+def _circle_radii(svg: bytes) -> list[float]:
+    return sorted(
+        float(c.attrib["r"]) for c in ET.fromstring(svg).iter() if c.tag.endswith("circle")
+    )
 
-    The primary dimension is the figure's ``size_in`` -- a screw's length, a
-    washer's diameter, a hex key's length. Measured before the constant scale:
-    ball end mill ``OST-R122-0771`` drew a 3.0625" tool 71.5 units long and its
-    3.125" sibling 59.6, and an M20 x 35 mm flat head drew smaller than a
-    #6-32 x 1-3/8" one.
+
+def test_siblings_are_drawn_at_one_scale_so_what_they_share_is_drawn_identically():
+    """No dimension of one sibling is drawn smaller than the same dimension of another.
+
+    Measured on the drawings themselves, over the committed catalog: siblings
+    that publish the same head (screws and bolts) or the same rings (a
+    bearing's closures) must draw those circles at exactly the same radii.
+    Before, the legibility lift was per SKU, so the shorter of two screws got
+    the bigger lift and was drawn with the BIGGER head: 29 pairs in 21
+    products, worst ``KEL-ASMEB18.3.2-44-1566`` (head 42.4 against 30.0).
     """
-    from synthetic_industrial_products.drawing.sheet import product_scale
+    shared_by = {
+        "screw_socket_head": ("Head Dia.", "Drive Size"),
+        "screw_flat_head": ("Head Dia.", "Drive Size"),
+        "screw_button_head": ("Head Dia.", "Drive Size"),
+        "screw_low_head": ("Head Dia.", "Drive Size"),
+        "bearing_radial_ball": ("Bore", "Outside Dia.", "Width"),
+    }
+    checked = 0
+    offenders = []
+    for type_key, product_id, _, _, parent in GOLDEN_PRODUCTS:
+        names = shared_by.get(type_key)
+        if names is None or len(parent["variants"]) < 2:
+            continue
+        records = [bundle._record(parent, variant) for variant in parent["variants"]]
+        drawn = draw_product(type_key, parent["brand"], records)
+        groups: dict[tuple, set] = defaultdict(set)
+        for record, (data, _) in zip(records, drawn, strict=True):
+            key = tuple(record.get(name) for name in names)
+            # The largest circle: a screw's head in its end view, a bearing's
+            # outer ring. (A bearing's balls come and go with its closure.)
+            groups[key].add(_circle_radii(data)[-1])
+        for radii in groups.values():
+            checked += 1
+            if len(radii) > 1:
+                offenders.append(product_id)
+    assert checked > 100
+    assert offenders == [], f"{len(offenders)} products: {offenders[:5]}"
 
-    by_type: dict[str, list[tuple[float, float, str]]] = defaultdict(list)
-    for type_key, _, sku, figure in GOLDEN_FIGURES:
-        drawn = figure.size_in * product_scale(FIGURES[type_key][1], figure.size_in)
-        by_type[type_key].append((figure.size_in, drawn, sku))
-    for type_key, rows in by_type.items():
-        rows.sort()
-        for (size_a, drawn_a, sku_a), (size_b, drawn_b, sku_b) in zip(rows, rows[1:], strict=False):
-            if size_b > size_a + 1e-9:
-                assert drawn_b > drawn_a, (type_key, sku_a, size_a, drawn_a, sku_b, size_b)
 
+def test_within_a_type_largest_skus_keep_their_order_and_unlifted_products_true_proportion():
+    """Exactly what the per-product scale guarantees across products (see ``sheet``).
 
-def test_the_scale_is_one_constant_per_type_above_the_floor():
+    * products whose largest primary dimension is drawn at or above the floor
+      are drawn at the type's ONE constant scale -- in true proportion;
+    * among all products, a strictly larger LARGEST primary dimension is drawn
+      strictly longer (``sqrt`` is increasing).
+    """
     from synthetic_industrial_products.drawing.sheet import FLOOR, product_scale, type_scale
 
-    for type_key, _, sku, figure in GOLDEN_FIGURES:
+    by_type: dict[str, list[tuple[float, float]]] = defaultdict(list)
+    for type_key, product_id, _, largest, _ in GOLDEN_PRODUCTS:
         extent = FIGURES[type_key][1]
-        if type_scale(extent) * figure.size_in >= FLOOR:
-            assert product_scale(extent, figure.size_in) == type_scale(extent), (type_key, sku)
+        scale = product_scale(extent, largest)
+        if type_scale(extent) * largest >= FLOOR:
+            assert scale == type_scale(extent), (type_key, product_id)
+        by_type[type_key].append((largest, largest * scale))
+    for type_key, rows in by_type.items():
+        rows.sort()
+        for (size_a, drawn_a), (size_b, drawn_b) in zip(rows, rows[1:], strict=False):
+            if size_b > size_a + 1e-9:
+                assert drawn_b > drawn_a, (type_key, size_a, drawn_a, size_b, drawn_b)
 
 
 def test_the_reviews_cross_product_case_reads_the_right_way_round():

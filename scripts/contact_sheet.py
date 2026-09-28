@@ -33,7 +33,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from synthetic_industrial_products.catalog.bundle import _record  # noqa: E402
-from synthetic_industrial_products.drawing import draw_sku  # noqa: E402
+from synthetic_industrial_products.drawing import draw_product  # noqa: E402
 
 
 def _load(catalog: Path) -> list[dict]:
@@ -41,7 +41,10 @@ def _load(catalog: Path) -> list[dict]:
 
 
 def _cell(parent: dict, variant: dict, caption: str) -> str:
-    data, source = draw_sku(parent["product_type"], parent["brand"], _record(parent, variant))
+    # Drawn with its siblings, at the product's one scale, exactly as the bundle is.
+    records = [_record(parent, v) for v in parent["variants"]]
+    drawn = draw_product(parent["product_type"], parent["brand"], records)
+    data, source = drawn[parent["variants"].index(variant)]
     # An <img> per drawing, not inline SVG: each file is its own document, as
     # it is when served, so nothing on the page can reach into another.
     src = "data:image/svg+xml;base64," + base64.b64encode(data).decode("ascii")
