@@ -28,13 +28,14 @@ from collections.abc import Mapping, Sequence
 
 from ..render.marking import FINISH_ATTRIBUTES, MATERIAL_ATTRIBUTES
 from .figures import FIGURES
-from .sheet import paint, product_scale
+from .sheet import magnifier, paint, type_scale
 from .style import house_style, material_hatch, part_fill
 
 __all__ = [
     "FIGURES",
     "draw_product",
     "draw_sku",
+    "magnifier",
     "product_scale_for",
     "svg_problems",
     "UnknownTypeError",
@@ -55,7 +56,7 @@ ALLOWED_ATTRIBUTES: frozenset[str] = frozenset(
     {
         "viewBox", "width", "height", "x", "y", "rx", "cx", "cy", "r", "d",
         "fill", "stroke", "stroke-width", "stroke-opacity", "stroke-linejoin",
-        "opacity", "transform", "id", "patternUnits",
+        "opacity", "transform", "id", "patternUnits", "stroke-linecap",
     }
 )  # fmt: skip
 #: Ids are the hatch patterns' own (``h45s5<ink>``): a font's glyph ids
@@ -80,6 +81,8 @@ _VALUE_GRAMMAR: dict[str, re.Pattern[str]] = {
     "viewBox": re.compile(rf"^{_NUMBER} {_NUMBER} {_NUMBER} {_NUMBER}$"),
     "patternUnits": re.compile(r"^userSpaceOnUse$"),
     "stroke-linejoin": re.compile(r"^round$"),
+    # The magnifier glyph's round caps (the icon's own); nothing else.
+    "stroke-linecap": re.compile(r"^round$"),
 }
 _NUMERIC = re.compile(rf"^{_NUMBER}$")
 _SVG_NS = "{http://www.w3.org/2000/svg}"
@@ -139,16 +142,17 @@ def _first(record: Mapping[str, str], names) -> str | None:
 
 
 def product_scale_for(product_type: str, records: Sequence[Mapping[str, str]]) -> float:
-    """The ONE scale every SKU of a product is drawn at (sheet units per inch).
+    """The scale every SKU of a product is drawn at (sheet units per inch): its TYPE's.
 
-    The type's constant scale, with the legibility lift decided by the
-    product's LARGEST primary dimension -- so all siblings share one scale, and
-    a head, a thread or a bore they share is drawn identically on every one of
-    them; only what varies between them differs, in true proportion.
+    One constant per type, so siblings draw a head, a thread or a bore they
+    share identically and every part of a type is in true proportion. A part
+    too small to read gets the magnifier (:func:`.sheet.magnifier`) rather than
+    a larger scale. ``records`` is accepted so a caller need not know that no
+    record changes the answer.
     """
-    figure_fn, extent = _figure(product_type)
-    largest = max(figure_fn(dict(record)).figure.size_in for record in records)
-    return product_scale(extent, largest)
+    del records
+    _, extent = _figure(product_type)
+    return type_scale(extent)
 
 
 def draw_product(

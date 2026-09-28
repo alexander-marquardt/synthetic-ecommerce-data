@@ -53,6 +53,10 @@ class GeneratorConfig:
     #: well-formed shapes (maintainer guardrail, 2026-09-27).
     zero_axis_share: float = 0.02
 
+    #: Stock a SKU for every requirement example (:mod:`.muststock`), after
+    #: the main generation, whatever the random streams drew.
+    must_stock: bool = True
+
     #: Products per NEWER product type. Each of these types draws from its own
     #: random stream (seeded from ``seed`` and the type key), so adding,
     #: removing or resizing one moves no other type's products.
