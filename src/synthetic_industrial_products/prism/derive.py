@@ -174,7 +174,7 @@ MEASURED_DISPERSION: dict[str, Any] = {
     # The continuum RANGE_MIN_DOCS -- not dispersion -- keeps off a slider.
     "min_docs_arm": "Neck Length",
     "min_docs_arm_dispersion": 1.0,
-    "min_docs_arm_present": 51,
+    "min_docs_arm_present": 52,
 }
 
 

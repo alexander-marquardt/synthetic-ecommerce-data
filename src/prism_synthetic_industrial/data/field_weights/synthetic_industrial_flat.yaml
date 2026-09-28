@@ -234,7 +234,7 @@ fields:
     type: terms
     source: facets.connector_type
   # Coolant Fed -- present on 23% of its product types' documents (floor 50%)
-  #   present on 339 documents across 2 product type(s); 2 distinct values
+  #   present on 342 documents across 2 product type(s); 2 distinct values
   - name: coolant_fed
     type: terms
     source: facets.coolant_fed
@@ -246,12 +246,12 @@ fields:
     source: facets.corner_radius
     facet: false
   # Cutting Direction -- 2 distinct values
-  #   present on 1686 documents across 3 product type(s); 2 distinct values
+  #   present on 1693 documents across 3 product type(s); 2 distinct values
   - name: cutting_direction
     type: terms
     source: facets.cutting_direction
   # Cutting Type -- 2 distinct values
-  #   present on 990 documents across 2 product type(s); 2 distinct values
+  #   present on 993 documents across 2 product type(s); 2 distinct values
   - name: cutting_type
     type: terms
     source: facets.cutting_type
@@ -261,7 +261,7 @@ fields:
     type: terms
     source: facets.decimal_equivalent
   # Dia./Thread Size -- 18 distinct values
-  #   present on 1802 documents across 5 product type(s); 18 distinct values
+  #   present on 1804 documents across 5 product type(s); 18 distinct values
   - name: dia_thread_size
     type: terms
     source: facets.dia_thread_size
@@ -271,7 +271,7 @@ fields:
     type: terms
     source: facets.diameter
   # Dimension Type -- present on 28% of its product types' documents (floor 50%)
-  #   present on 2827 documents across 16 product type(s); 4 distinct values
+  #   present on 2829 documents across 16 product type(s); 4 distinct values
   - name: dimension_type
     type: terms
     source: facets.dimension_type
@@ -299,7 +299,7 @@ fields:
     source: facets.end_mill_application
     facet: false
   # End Mill Style -- 2 distinct values
-  #   present on 1455 documents across 2 product type(s); 2 distinct values
+  #   present on 1462 documents across 2 product type(s); 2 distinct values
   - name: end_mill_style
     type: terms
     source: facets.end_mill_style
@@ -315,7 +315,7 @@ fields:
     source: facets.face_type
     facet: false
   # Finish -- 15 distinct values
-  #   present on 5689 documents across 12 product type(s); 15 distinct values
+  #   present on 5696 documents across 12 product type(s); 15 distinct values
   - name: finish
     type: terms
     source: facets.finish
@@ -325,7 +325,7 @@ fields:
     type: terms
     source: facets.flute_length
   # Grade -- 9 distinct values
-  #   present on 2064 documents across 3 product type(s); 9 distinct values
+  #   present on 2066 documents across 3 product type(s); 9 distinct values
   - name: grade
     type: terms
     source: facets.grade
@@ -349,18 +349,18 @@ fields:
   - name: handle_material
     type: terms
     source: facets.handle_material
-  # Head Dia. -- a discrete standard set: 73 distinct values over 1802 documents is 0.04 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1802 documents across 5 product type(s); 73 distinct values
+  # Head Dia. -- a discrete standard set: 73 distinct values over 1804 documents is 0.04 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1804 documents across 5 product type(s); 73 distinct values
   - name: head_dia
     type: terms
     source: facets.head_dia
-  # Head Height -- a discrete standard set: 79 distinct values over 1802 documents is 0.04 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1802 documents across 5 product type(s); 79 distinct values
+  # Head Height -- a discrete standard set: 79 distinct values over 1804 documents is 0.04 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1804 documents across 5 product type(s); 79 distinct values
   - name: head_height
     type: terms
     source: facets.head_height
   # Head Type -- 5 distinct values
-  #   present on 1802 documents across 5 product type(s); 5 distinct values
+  #   present on 1804 documents across 5 product type(s); 5 distinct values
   - name: head_type
     type: terms
     source: facets.head_type
@@ -374,8 +374,8 @@ fields:
   - name: height
     type: terms
     source: facets.height
-  # Helix Angle -- a discrete standard set: 9 distinct values over 1279 documents is 0.01 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1279 documents across 2 product type(s); 9 distinct values
+  # Helix Angle -- a discrete standard set: 9 distinct values over 1284 documents is 0.01 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1284 documents across 2 product type(s); 9 distinct values
   - name: helix_angle
     type: terms
     source: facets.helix_angle
@@ -385,27 +385,27 @@ fields:
     type: terms
     source: facets.inside_dia
   # Item -- 23 distinct values
-  #   present on 10202 documents across 16 product type(s); 23 distinct values
+  #   present on 10211 documents across 16 product type(s); 23 distinct values
   - name: item
     type: terms
     source: facets.item
-  # Length -- a discrete standard set: 58 distinct values over 1802 documents is 0.03 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1802 documents across 5 product type(s); 58 distinct values
+  # Length -- a discrete standard set: 58 distinct values over 1804 documents is 0.03 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1804 documents across 5 product type(s); 58 distinct values
   - name: length
     type: terms
     source: facets.length
-  # Length of Cut -- a discrete standard set: 190 distinct values over 1455 documents is 0.13 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1455 documents across 2 product type(s); 190 distinct values
+  # Length of Cut -- a discrete standard set: 193 distinct values over 1462 documents is 0.13 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1462 documents across 2 product type(s); 193 distinct values
   - name: length_of_cut
     type: terms
     source: facets.length_of_cut
-  # Length under Head -- a discrete standard set: 230 distinct values over 1802 documents is 0.13 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1802 documents across 5 product type(s); 230 distinct values
+  # Length under Head -- a discrete standard set: 230 distinct values over 1804 documents is 0.13 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1804 documents across 5 product type(s); 230 distinct values
   - name: length_under_head
     type: terms
     source: facets.length_under_head
-  # List Number -- 574 distinct values reads as an identifier, not a facet (cap 25)
-  #   present on 1100 documents across 3 product type(s); 574 distinct values
+  # List Number -- 577 distinct values reads as an identifier, not a facet (cap 25)
+  #   present on 1106 documents across 3 product type(s); 577 distinct values
   - name: list_number
     type: terms
     source: facets.list_number
@@ -417,12 +417,12 @@ fields:
     source: facets.lubricant
     facet: false
   # Material -- 16 distinct values
-  #   present on 8166 documents across 14 product type(s); 16 distinct values
+  #   present on 8175 documents across 14 product type(s); 16 distinct values
   - name: material
     type: terms
     source: facets.material
   # Material Grade - Machining -- present on 37% of its product types' documents (floor 50%)
-  #   present on 533 documents across 2 product type(s); 2 distinct values
+  #   present on 536 documents across 2 product type(s); 2 distinct values
   - name: material_grade_machining
     type: terms
     source: facets.material_grade_machining
@@ -444,8 +444,8 @@ fields:
     type: terms
     source: facets.meets_exceeds
     facet: false
-  # Milling Dia. -- a discrete standard set: 43 distinct values over 1455 documents is 0.03 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1455 documents across 2 product type(s); 43 distinct values
+  # Milling Dia. -- a discrete standard set: 43 distinct values over 1462 documents is 0.03 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1462 documents across 2 product type(s); 43 distinct values
   - name: milling_dia
     type: terms
     source: facets.milling_dia
@@ -456,13 +456,13 @@ fields:
     source: facets.mounting_type
     facet: false
   # Neck Length -- present on 4% of its product types' documents (floor 50%)
-  #   present on 51 documents across 2 product type(s); 51 distinct values
+  #   present on 52 documents across 2 product type(s); 52 distinct values
   - name: neck_length
     type: numeric
     source: facets_num.neck_length
     facet: false
-  # Number of Flutes -- a discrete standard set: 4 distinct values over 1718 documents is 0.00 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1718 documents across 3 product type(s); 4 distinct values
+  # Number of Flutes -- a discrete standard set: 4 distinct values over 1725 documents is 0.00 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1725 documents across 3 product type(s); 4 distinct values
   - name: number_of_flutes
     type: terms
     source: facets.number_of_flutes
@@ -471,8 +471,8 @@ fields:
   - name: outside_dia
     type: terms
     source: facets.outside_dia
-  # Overall Length -- a discrete standard set: 275 distinct values over 3551 documents is 0.08 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 3551 documents across 6 product type(s); 275 distinct values
+  # Overall Length -- a discrete standard set: 275 distinct values over 3557 documents is 0.08 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 3557 documents across 6 product type(s); 275 distinct values
   - name: overall_length
     type: terms
     source: facets.overall_length
@@ -518,8 +518,8 @@ fields:
   - name: attr_series
     type: terms
     source: facets.series
-  # Shank Dia. -- a discrete standard set: 48 distinct values over 1976 documents is 0.02 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1976 documents across 4 product type(s); 48 distinct values
+  # Shank Dia. -- a discrete standard set: 48 distinct values over 1983 documents is 0.02 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1983 documents across 4 product type(s); 48 distinct values
   - name: shank_dia
     type: terms
     source: facets.shank_dia
@@ -534,7 +534,7 @@ fields:
     type: terms
     source: facets.shape
   # Single End/Double End -- 2 distinct values
-  #   present on 1072 documents across 2 product type(s); 2 distinct values
+  #   present on 1079 documents across 2 product type(s); 2 distinct values
   - name: single_end_double_end
     type: terms
     source: facets.single_end_double_end
@@ -544,7 +544,7 @@ fields:
     type: terms
     source: facets.size
   # Standards -- 26 distinct values reads as an identifier, not a facet (cap 25)
-  #   present on 5585 documents across 16 product type(s); 26 distinct values
+  #   present on 5591 documents across 16 product type(s); 26 distinct values
   - name: standards
     type: terms
     source: facets.standards
@@ -577,13 +577,13 @@ fields:
     type: terms
     source: facets.thickness
   # Thread Direction -- single-valued: clicking it cannot narrow the result set
-  #   present on 2182 documents across 7 product type(s); 1 distinct values
+  #   present on 2184 documents across 7 product type(s); 1 distinct values
   - name: thread_direction
     type: terms
     source: facets.thread_direction
     facet: false
-  # Thread Length -- a discrete standard set: 222 distinct values over 2060 documents is 0.11 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 2060 documents across 6 product type(s); 222 distinct values
+  # Thread Length -- a discrete standard set: 223 distinct values over 2062 documents is 0.11 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 2062 documents across 6 product type(s); 223 distinct values
   - name: thread_length
     type: terms
     source: facets.thread_length
@@ -594,7 +594,7 @@ fields:
     source: facets.thread_size
     facet: false
   # Thread Type -- 3 distinct values
-  #   present on 2622 documents across 7 product type(s); 3 distinct values
+  #   present on 2624 documents across 7 product type(s); 3 distinct values
   - name: thread_type
     type: terms
     source: facets.thread_type
@@ -604,7 +604,7 @@ fields:
     type: terms
     source: facets.tip_style
   # Type -- 13 distinct values
-  #   present on 7099 documents across 10 product type(s); 13 distinct values
+  #   present on 7101 documents across 10 product type(s); 13 distinct values
   - name: type
     type: terms
     source: facets.type
@@ -613,8 +613,8 @@ fields:
   - name: width
     type: terms
     source: facets.width
-  # Width Across Flats -- a discrete standard set: 144 distinct values over 1762 documents is 0.08 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1762 documents across 2 product type(s); 144 distinct values
+  # Width Across Flats -- a discrete standard set: 144 distinct values over 1764 documents is 0.08 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1764 documents across 2 product type(s); 144 distinct values
   - name: width_across_flats
     type: terms
     source: facets.width_across_flats

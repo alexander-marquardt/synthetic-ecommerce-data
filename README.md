@@ -2,7 +2,7 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 10,202 SKUs over 5,400 products in 16 product types.
+extraction in search: 10,211 SKUs over 5,405 products in 16 product types.
 
 **Every product in this repository is synthetic.** No record here describes a
 real product offered by any retailer, and no retailer's catalog content is
@@ -329,8 +329,8 @@ them here would hide the problem a field map exists to solve.
 
 | file | |
 |---|---|
-| `flat.jsonl` | 25.7 MB — 10,202 SKU documents |
-| `nested.jsonl` | 13.6 MB — 5,400 products, nested variants and key-value attributes |
+| `flat.jsonl` | 25.7 MB — 10,211 SKU documents |
+| `nested.jsonl` | 13.6 MB — 5,405 products, nested variants and key-value attributes |
 | `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
 | `images.jsonl` | 3.9 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
@@ -377,11 +377,35 @@ difference means the second, and the golden files must not be updated until it
 is found. The test's failure message says all of this too, with the commands.
 
 Alongside the hashes, the same test asserts the headline numbers directly
-against the committed files — 10,202 SKU documents over 5,400 distinct
+against the committed files — 10,211 SKU documents over 5,405 distinct
 `product_id`, a non-empty `image_url` and `image_detail_url` on every product,
-variant and flat document, and 5,400 nested products whose variant counts sum
-to 10,202. Those hold independently of the generator, so a careless
+variant and flat document, and 5,405 nested products whose variant counts sum
+to 10,211. Those hold independently of the generator, so a careless
 regenerate-and-commit from a broken build is still red.
+
+## Every requirement example is stocked
+
+The search requirements the catalog is used against come with example
+queries, and each one must find a product that exists: an example judged
+against an empty result proves nothing about the search. So the generator
+carries a **must-stock list** (`catalog/muststock.py`, maintainer ruling on
+elastic/prism-industrial-products#103): one entry per requirement example, naming
+the product type(s) it may be and the published values a SKU must carry --
+`Milling Dia.` `1/2"` with `Length of Cut` `1"`, a `bolt_hex` in `7/16-14`
+with `Length under Head` `1-3/4"`, `Grade 8` and `Zinc Plated`, and 22 more.
+
+It runs after the main generation and changes nothing the main generation
+drew. For each entry no SKU already satisfies, it builds lines with that
+type's own builder -- so titles, names and derived dimensions follow the
+same rules as every other line -- from a stream seeded by the entry alone,
+until one carries a matching SKU, and adds that line whole, with the 1-5
+variants its builder drew. Where the builder's series cannot reach an
+example (the end-mill length-of-cut multiples are 1.5x, 3x and 4x, and
+`1/2" x 1"` is 2x) the entry pins that one choice for its own lines.
+On the committed catalog 19 of the 24 examples were already stocked and 5
+lines were added. `tests/test_catalog_must_stock.py` asserts every entry is
+stocked, that removing an entry unstocks its example, that the pass moves no
+earlier line, and that an entry no builder can reach fails the build.
 
 ## Serving it with PRISM
 
@@ -590,8 +614,8 @@ The rulings are on elastic/prism-industrial-products#103 (2026-09-26 to -28):
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 10,202 drawings, 18.3 MB unpacked
-  (1.79 KB a drawing on average), and a 1.87 MB `images.tar.gz`.
+  measured on the committed catalog, 10,211 drawings, 18.6 MB unpacked
+  (1.82 KB a drawing on average), and a 1.87 MB `images.tar.gz`.
 
 The drawing is a pure function of `(product type, brand, published attributes)`
 (`src/synthetic_industrial_products/drawing/`). It reads the SKU's geometry
@@ -600,36 +624,73 @@ through the same `geometry_from_record` functions the dimensioned renderer in
 
 **Sizes are visible.** The scale is one constant per product type: sheet units
 per inch are the usable sheet over the type's largest drawn extent, declared
-per type in `drawing/figures.py`. The one exception is legibility, and it is
-decided per PRODUCT, not per SKU. If a product's largest primary dimension (a
-screw's length, a washer's diameter) would be drawn shorter than 45 sheet
-units, the whole product is drawn at one larger scale, so that its largest
-dimension is drawn `sqrt(45 * d)` long.
+per type in `drawing/figures.py`. There is no exception to it: a part too
+small to read is not drawn larger, it is shown through a **magnifier**
+(maintainer ruling on elastic/prism-industrial-products#103, 2026-09-28):
+
+* a part is **too small to see** when it is drawn at most 1/5 of the sheet's
+  width (40 units) AND at most 1/6 of its height (50), and such a part ALWAYS
+  gets a lens (the refined ruling of 2026-09-28, with the edge cases settled at
+  1/5 wide so socket screws drawn just over 1/6 are lensed); every other part
+  is drawn plain, centred;
+* the lensed part is drawn at its type's scale near the bottom of the sheet,
+  horizontally centred, with no circle around it, and the lens above it shows
+  the same figure enlarged so its bounding box's diagonal spans 92% of the lens;
+* the lens is a magnifying glass in the icon's shape (a ring, a thin shaft and a
+  grip twice the shaft's width, round caps, the handle at 45 degrees to the
+  bottom-right), stroked at 35% of the icon's weight in the brand's ink, when
+  that glass enlarges the part at least 2.5 times; otherwise it is a larger
+  HANDLE-LESS lens -- the same thin ring and white interior -- sized to the
+  sheet's width at an 8-unit side margin (the smallest that clears every brand
+  frame by at least a unit). That lens is WIDTH-BOUND, so it cannot grow further:
+  at the rule's extreme (a part drawn 40 x 50) it enlarges only ~x2.42, below
+  the x2.5 the handled glass guarantees;
+* the whole glyph is horizontally centred and as large as fits; the space above
+  it equals the space below the part, with a 14-unit gap between them;
+* no outline is thinner than 2.3 sheet units (~2 px on a 180 px-wide
+  thumbnail), so a hairline part -- a 1/16" drill is under one unit wide at its
+  type's scale -- is visible with or without a lens. Interior detail lines
+  (flutes, threads, hatch) are texture and keep their finer weight.
+
+On the committed catalog 1,284 SKUs are too small to see: 162 get the handled
+glass (x2.53 to x3.77) and 1,122 the handle-less lens (x2.53 to x4.03). The
+lowest enlargement any committed lens gives is x2.53; no committed part reaches
+the rule's 40 x 50 extreme. No drawing
+carries text; the magnifier adds only paths and circles, and
+`stroke-linecap="round"` to the allow-list.
 
 What `tests/test_sku_drawings.py` proves over the committed catalog:
 
-* **Siblings share one scale.** A head, a thread or a bore that siblings share
-  is drawn identically on each, and whatever varies between them is drawn in
-  true proportion. Measured on the drawings, screws' heads and bearings'
-  outer rings are drawn at the same radius on every sibling.
-* **Across a type:**
-  * products drawn at the type's constant are in true proportion to each other;
-  * among all products, a larger largest dimension is always drawn larger.
-* **What it does NOT prove:** a smaller SKU of an enlarged product can be drawn
-  larger than a slightly larger SKU of a product that was not enlarged,
-  because the two products are drawn at different scales.
+* **One scale per type.** Every product is drawn at its type's scale, so any
+  two parts of a type are in true proportion, and a head, a thread or a bore
+  siblings share is drawn identically on each (measured on the true-scale
+  part of every drawing: screws' heads and bearings' outer rings).
+* **The magnifier:**
+  * a lens appears on exactly the SKUs drawn at most 1/5 of the sheet's width
+    and 1/6 of its height, over every committed SKU;
+  * the handle-less lens is used exactly where the handled glass cannot reach
+    x2.5; the committed catalog's lowest enlargement is pinned at x2.52 (its
+    measured minimum, rounded down), and the rule's extreme (40 x 50) at
+    x2.41 to x2.5 -- below x2.5 because the lens is width-bound;
+  * the handle-less lens clears the brand frame (8 units in, frames at 6 with
+    strokes at most 2 wide);
+  * each dimension binds on its own (planted: 41 x 5 and 5 x 50.5 plain,
+    39 x 5 and 5 x 49 lensed); long thin parts never get a lens;
+  * the lens shows the same part: the same shapes, scaled about the two
+    centres by the layout's enlargement, and inside the lens;
+  * the space above the glyph equals the space below the part, the gap is
+    14 units, and the glyph and the part are centred, for both kinds of lens;
+  * the ring, shaft and grip are in the brand's ink; the handle-less lens has no
+    shaft or grip;
+  * no outline, glyph stroke included, is thinner than 2.3 units (the hairline
+    drill 93TD57, under two units wide, is pinned).
 * **Other properties:**
   * no product exceeds its type's extent;
   * no drawing leaves its sheet;
   * no two siblings draw alike unless they differ only in values no figure
     draws.
 
-Before these fixes, 84 products had same-looking siblings, and in 21 products
-the legibility lift was per SKU, so a shorter screw was drawn with the bigger
-head.
-
-An M3 washer drawn on its own is 0.285 of an M16's diameter, against the true
-0.233; the difference is the floor.
+An M3 washer's true-scale drawing is exactly 7/30 of an M16's diameter.
 
 A record whose geometry cannot be read as published -- an attribute absent, a
 value that does not parse, a pair that contradicts itself -- is drawn with its

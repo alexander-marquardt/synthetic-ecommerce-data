@@ -52,8 +52,8 @@ GOLDEN_FILES = (
     "stats.json",
 )
 
-LINES = 5400
-SKUS = 10202
+LINES = 5405
+SKUS = 10211
 
 
 def _sha256(path: Path) -> str:

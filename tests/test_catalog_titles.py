@@ -504,7 +504,7 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         generate_module.build_title = real
 
     documents = [child for line in catalog.lines for child in line.children]
-    assert len(documents) == 10202
+    assert len(documents) == 10211
     assert len(assembled) > 100, "the spy recorded nothing; the reconstruction is broken"
 
     word = set(string.ascii_letters + string.digits + './"-')
