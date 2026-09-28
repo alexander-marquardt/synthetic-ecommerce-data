@@ -43,6 +43,7 @@ from .model import (
     multi_attribute,
     numeric_attribute,
 )
+from .muststock import MAX_ATTEMPTS, MUST_STOCK, MustStockUnmetError
 from .naming import (
     LABEL_FORMS,
     Segment,
@@ -168,6 +169,9 @@ class Generator:
         self._used_skus: set[str] = set()
         self.counters: dict[str, int] = {}
         self._rotations: dict[str, int] = {}
+        #: Builder choices a must-stock entry fixes (:mod:`.muststock`); empty
+        #: for the main generation.
+        self._pins: dict[str, float] = {}
 
     # -- bookkeeping ----------------------------------------------------
 
@@ -346,6 +350,8 @@ class Generator:
         # a property of the catalog, so it is decided here.
         shanks_match = rng.random() < cfg.shank_equals_cutting_dia
         length_class, multiple = rng.choice(series.LENGTH_CLASSES)
+        # Drawn first either way, so a pinned multiple moves no later draw.
+        multiple = self._pins.get("length_multiple", multiple)
 
         count = self._variant_count()
         # A tool whose shank equals its cutting diameter can only exist at a
@@ -1493,7 +1499,51 @@ class Generator:
                     self._bump("lines")
         for type_key, products in cfg.new_type_products.items():
             lines.extend(self._generate_new_type(type_key, products))
+        if cfg.must_stock:
+            lines.extend(self._must_stock(lines))
         return Catalog(lines=tuple(lines), stats=dict(self.counters))
+
+    def _must_stock(self, lines: list[ProductLine]) -> list[ProductLine]:
+        """A line for every must-stock entry the catalog does not already carry.
+
+        See :mod:`.muststock`. Built after everything else, from one stream per
+        entry, so nothing the main generation drew moves.
+        """
+
+        def stocked(entry, candidates) -> bool:
+            return any(
+                entry.matches(
+                    line.type_key, {a.name: a.value for a in (*line.attributes, *child.attributes)}
+                )
+                for line in candidates
+                for child in line.children
+            )
+
+        added: list[ProductLine] = []
+        for number, entry in enumerate(MUST_STOCK, start=1):
+            if stocked(entry, [*lines, *added]):
+                continue
+            sub = Generator(self.config)
+            sub.rng = type_rng(self.config.seed, f"must-stock:{entry.example}")
+            sub.counters = self.counters
+            sub._used_skus = self._used_skus
+            sub._pins = dict(entry.pins)
+            type_key = entry.types[0]
+            builder = self._BUILDERS[type_key]
+            (category,) = taxonomy.LEAVES[type_key]
+            for _ in range(MAX_ATTEMPTS):
+                draft = builder(sub, type_key, category)
+                line = sub._finish_line(type_key, draft, 9000 + number)
+                if line is not None and stocked(entry, [line]):
+                    added.append(line)
+                    self._bump("must_stock_lines")
+                    break
+            else:
+                raise MustStockUnmetError(
+                    f"no {type_key} line built in {MAX_ATTEMPTS} tries carries "
+                    f"{dict(entry.values)} ({entry.example!r})"
+                )
+        return added
 
     def _generate_new_type(self, type_key: str, products: int) -> list[ProductLine]:
         """One newer type's products, from that type's OWN random stream.
