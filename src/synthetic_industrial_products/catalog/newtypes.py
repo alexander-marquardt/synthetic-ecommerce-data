@@ -124,7 +124,12 @@ _NUT_UNC = (
     ("1/2-13", 3 / 4, 7 / 16),
     ("5/8-11", 15 / 16, 35 / 64),
     ("3/4-10", 1 + 1 / 8, 41 / 64),
-    ("1-8", 1 + 1 / 2, 55 / 64),
+    # NOT 1-8. The trade writes a one-inch UNC nut "1-8", and the serving
+    # deployment's thread grammar (elastic/prism-industrial-products,
+    # threads.py) deliberately REFUSES a bare-integer diameter, because "1-8"
+    # and a #1 gauge thread are spelled alike. Publishing it would fail that
+    # deployment's regeneration; the size returns when that grammar decides
+    # how a real feed's "1-8" is read.
 )
 _NUT_UNF = (
     ("#10-32", 3 / 8, 1 / 8),

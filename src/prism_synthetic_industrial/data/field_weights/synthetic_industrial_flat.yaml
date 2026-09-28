@@ -60,8 +60,8 @@
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
 #   attributes declared      84
-#   offered as facets        63  (0 numeric ranges, 63 terms)
-#   declared, not faceted    21
+#   offered as facets        64  (0 numeric ranges, 64 terms)
+#   declared, not faceted    20
 # =============================================================================
 
 field_map_version: 1
@@ -369,8 +369,8 @@ fields:
   - name: head_weight
     type: terms
     source: facets.head_weight
-  # Height -- a discrete standard set: 184 distinct values over 1203 documents is 0.15 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1203 documents across 1 product type(s); 184 distinct values
+  # Height -- a discrete standard set: 173 distinct values over 1203 documents is 0.14 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1203 documents across 1 product type(s); 173 distinct values
   - name: height
     type: terms
     source: facets.height
@@ -587,12 +587,11 @@ fields:
   - name: thread_length
     type: terms
     source: facets.thread_length
-  # Thread Size -- 26 distinct values reads as an identifier, not a facet (cap 25)
-  #   present on 1711 documents across 2 product type(s); 26 distinct values
+  # Thread Size -- 25 distinct values
+  #   present on 1711 documents across 2 product type(s); 25 distinct values
   - name: thread_size
     type: terms
     source: facets.thread_size
-    facet: false
   # Thread Type -- 3 distinct values
   #   present on 2622 documents across 7 product type(s); 3 distinct values
   - name: thread_type
@@ -613,8 +612,8 @@ fields:
   - name: width
     type: terms
     source: facets.width
-  # Width Across Flats -- a discrete standard set: 144 distinct values over 1762 documents is 0.08 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1762 documents across 2 product type(s); 144 distinct values
+  # Width Across Flats -- a discrete standard set: 140 distinct values over 1762 documents is 0.08 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1762 documents across 2 product type(s); 140 distinct values
   - name: width_across_flats
     type: terms
     source: facets.width_across_flats
