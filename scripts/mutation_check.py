@@ -1327,15 +1327,21 @@ MUTATIONS: list[Mutation] = [
         "a drawn dimension changes the drawing",
     ),
     Mutation(
-        "clamp small products back up to half the sheet",
+        "fit every product to its sheet instead of the type's one scale",
         "drawing/sheet.py",
-        "    fraction = min(1.0, size_in / top)",
-        "    fraction = max(0.5, min(1.0, size_in / top))",
-        (
-            "tests/test_sku_drawings.py -k siblings",
-            "tests/test_sku_drawings.py -k m3",
-        ),
+        "    scale = product_scale(extent, figure.size_in)",
+        "    scale = min((svg.WIDTH - 2 * MARGIN) / bw, (svg.HEIGHT - 2 * MARGIN) / bh)",
+        "tests/test_sku_drawings.py -k m3",
         "A",
+        "sizes are visible: one scale per type",
+    ),
+    Mutation(
+        "clamp every small product to the floor instead of lifting it monotonically",
+        "drawing/sheet.py",
+        "        return math.sqrt(FLOOR * drawn) / size_in",
+        "        return FLOOR / size_in",
+        "tests/test_sku_drawings.py -k never_drawn_shorter",
+        "B",
         "sizes are visible: one scale per type",
     ),
     Mutation(
@@ -1355,6 +1361,15 @@ MUTATIONS: list[Mutation] = [
         "tests/test_attribute_names.py -k another_casing",
         "A",
         "no emitted name is a casing twin of a census name",
+    ),
+    Mutation(
+        "let a paint reference any url",
+        "drawing/__init__.py",
+        '            elif name != "id" and not (_VALUE_GRAMMAR.get(name) or _NUMERIC).match(value):',
+        '            elif False:',
+        "tests/test_sku_drawings.py -k paint",
+        "A",
+        "no drawing carries any text",
     ),
 ]
 

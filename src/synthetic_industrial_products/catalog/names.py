@@ -17,10 +17,16 @@ The gate that replaces it has two parts, and both are needed:
 1. **Membership.** Every name is verbatim in the census, or in the names-only
    reference spec-table list, or in :data:`NAME_EXCEPTIONS` with the reason it
    is neither. A name nobody observed (``Widget Material``) is refused.
-2. **No product-type qualifier on a generic concept.** A name that contains a
-   product noun ANYWHERE, as a word (``End Mill Material``, ``Hex Nut
-   Material``, ``Cap Screw Type``), is refused unless :data:`TYPE_SPECIFIC`
-   lists it with census evidence that the concept really is type-specific.
+2. **No product-type qualifier on a generic concept.** A name that contains
+   one of the record's OWN product nouns -- a noun of its category path --
+   anywhere, as a word (``End Mill Material`` on an end mill, ``Hex Nut
+   Material`` on a nut, ``Cap Screw Type`` on a screw), is refused unless
+   :data:`TYPE_SPECIFIC` lists it with census evidence that the concept really
+   is type-specific. A noun naming a MATING or CONTAINED part is not a
+   qualifier and is allowed: a washer's ``For Bolt Size`` (census 6), a tap's
+   ``Drill Size`` (its tap-drill size; census 12), an indexable tool's ``Insert
+   Screw`` (13) or ``Clamp Screw`` (5). Refusing those would steer a record to
+   ``Size``, which is a different measurement.
    Membership alone would pass ``End Mill Material``: the census carries it on
    3 records, beside ``Material`` on 160. The census also carries
    ``Cap Screw Type``, ``Toggle Bolt Type`` and ``Machine Screw Head Type`` (1
@@ -86,21 +92,36 @@ NAME_EXCEPTIONS: dict[str, str] = {
 }
 
 
-def qualifying_noun(name: str) -> str | None:
-    """The product noun ``name`` contains as a word (singular or plural), if any."""
-    for noun in PRODUCT_NOUNS:
+def own_nouns(category: tuple[str, ...]) -> tuple[str, ...]:
+    """The product nouns a category path names: the record's own type words."""
+    joined = " ".join(category)
+    return tuple(
+        noun
+        for noun in PRODUCT_NOUNS
+        if re.search(rf"\b{re.escape(noun)}(e?s)?\b", joined, flags=re.IGNORECASE)
+    )
+
+
+def qualifying_noun(name: str, nouns: tuple[str, ...] = PRODUCT_NOUNS) -> str | None:
+    """The noun from ``nouns`` that ``name`` contains as a word (singular or plural), if any."""
+    for noun in nouns:
         if re.search(rf"\b{re.escape(noun)}(e?s)?\b", name, flags=re.IGNORECASE):
             return noun
     return None
 
 
 def name_problems(
-    names: Iterable[str], observed: frozenset[str], census: frozenset[str] = frozenset()
+    names: Iterable[str],
+    observed: frozenset[str],
+    census: frozenset[str] = frozenset(),
+    nouns: tuple[str, ...] = PRODUCT_NOUNS,
 ) -> list[str]:
     """Every reason a name set fails the gate, one line per name; empty when it passes.
 
     ``observed`` is the census names plus the reference spec-table names;
-    ``census`` is the census alone, whose casing wins.
+    ``census`` is the census alone, whose casing wins; ``nouns`` are the nouns
+    that qualify a name for THIS product type (:func:`own_nouns`). The default,
+    every registered noun, is the strict form for a name set with no type.
     """
     problems: list[str] = []
     wanted = sorted(set(names))
@@ -123,11 +144,13 @@ def name_problems(
                 "the name with the reason it is needed"
             )
             continue
-        noun = qualifying_noun(name)
+        noun = qualifying_noun(name, nouns)
         if noun is not None and name not in TYPE_SPECIFIC:
             problems.append(
-                f"{name!r} qualifies a concept with the product noun {noun!r} -- "
-                "publish the generic name the census uses (Material, Finish, Type, "
-                "Size, Diameter, ...), or list it in TYPE_SPECIFIC with census evidence"
+                f"{name!r} qualifies a concept with this product's own noun {noun!r} -- "
+                "if it is this product's own property, publish the generic name the "
+                "census uses (Material, Finish, Type, Size, ...); if the census shows "
+                "the concept is genuinely type-specific, list it in TYPE_SPECIFIC "
+                "with that evidence"
             )
     return problems

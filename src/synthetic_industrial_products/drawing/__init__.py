@@ -54,6 +54,27 @@ ALLOWED_ATTRIBUTES: frozenset[str] = frozenset(
 #: Ids are the hatch patterns' own (``h45s5<ink>``): a font's glyph ids
 #: (``DejaVuSans-31``) and anything else are refused.
 _ID = re.compile(r"^h[0-9-]*s[0-9.]+d?[0-9a-f]{6}$")
+
+#: Attribute VALUES, as the figures write them. A value grammar closes the
+#: paint-server route: ``fill="url(data:...)"`` or ``url(https://...#p)`` would
+#: pull in an external paint server -- the one way to render text from inside
+#: an allowed attribute when the file is opened directly rather than in an
+#: ``<img>``. A paint may only reference a hatch pattern in the same file.
+#: WHAT NO STRUCTURAL CHECK CAN CATCH, stated rather than implied: a glyph's
+#: outline drawn as a plain ``<path d="...">`` is indistinguishable from any
+#: other outline; only the figures' own code keeps letters out of a path.
+_NUMBER = r"-?(?:\d+\.?\d*|\.\d+)"
+_COLOUR = r"#[0-9a-f]{6}"
+_VALUE_GRAMMAR: dict[str, re.Pattern[str]] = {
+    "fill": re.compile(rf"^(?:{_COLOUR}|none|url\(#h[0-9-]*s[0-9.]+d?[0-9a-f]{{6}}\))$"),
+    "stroke": re.compile(rf"^{_COLOUR}$"),
+    "d": re.compile(r"^[MLHVZlhvz0-9 .\-]+$"),
+    "transform": re.compile(rf"^rotate\({_NUMBER} {_NUMBER} {_NUMBER}\)$"),
+    "viewBox": re.compile(rf"^{_NUMBER} {_NUMBER} {_NUMBER} {_NUMBER}$"),
+    "patternUnits": re.compile(r"^userSpaceOnUse$"),
+    "stroke-linejoin": re.compile(r"^round$"),
+}
+_NUMERIC = re.compile(rf"^{_NUMBER}$")
 _SVG_NS = "{http://www.w3.org/2000/svg}"
 
 
@@ -62,6 +83,10 @@ def svg_problems(svg: bytes) -> list[str]:
     problems: list[str] = []
     if b"<!" in svg or b"<?" in svg:
         problems.append("a comment, declaration, doctype or processing instruction")
+    if b"&" in svg:
+        # The figures write no entity or character reference; one in a value
+        # could spell a colour the grammar then accepts, or anything else.
+        problems.append("an entity or character reference")
     builder = ET.TreeBuilder(insert_comments=True, insert_pis=True)
     parser = ET.XMLParser(target=builder)
     try:
@@ -79,11 +104,15 @@ def svg_problems(svg: bytes) -> list[str]:
             problems.append(f"element {tag!r} is outside the SVG namespace")
         if local not in ALLOWED_ELEMENTS:
             problems.append(f"element <{local}> is not allowed")
+        if local == "svg" and element is not root:
+            problems.append("a nested <svg> is not allowed")
         for name, value in element.attrib.items():
             if name not in ALLOWED_ATTRIBUTES:
                 problems.append(f"attribute {name!r} on <{local}> is not allowed")
             elif name == "id" and not _ID.match(value):
                 problems.append(f"id {value!r} is not a hatch pattern id")
+            elif name != "id" and not (_VALUE_GRAMMAR.get(name) or _NUMERIC).match(value):
+                problems.append(f"{name}={value[:40]!r} on <{local}> is not a value it may take")
         for text in (element.text, element.tail):
             if text is not None and text.strip():
                 problems.append(f"character data {text.strip()[:20]!r} in <{local}>")
@@ -109,7 +138,7 @@ def draw_sku(product_type: str, brand: str, record: Mapping[str, str]) -> tuple[
     :mod:`.figures` for what each means.
     """
     try:
-        figure_fn, size_range = FIGURES[product_type]
+        figure_fn, extent = FIGURES[product_type]
     except KeyError as exc:
         raise UnknownTypeError(f"no figure for product type {product_type!r}") from exc
     drawn = figure_fn(dict(record))
@@ -120,6 +149,6 @@ def draw_sku(product_type: str, brand: str, record: Mapping[str, str]) -> tuple[
         house_style(brand),
         part_fill(finish, material),
         material_hatch(material),
-        size_range,
+        extent,
     )
     return data, drawn.source

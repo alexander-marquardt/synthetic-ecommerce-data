@@ -36,6 +36,25 @@ jobs:
       - name: Tests
         run: uv run pytest
 
+  commit-messages:
+    # The commit-msg hook's rule, enforced where a clone that never ran
+    # ``pre-commit install`` cannot skip it: every commit a pull request adds
+    # is checked with scripts/check_commit_msg.py (the vendored core
+    # AI-attribution family plus this repository's additions).
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: No AI or bot attribution in the PR's commit messages
+        run: >-
+          python3 scripts/check_commit_msg.py
+          --range "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+
   # The published-assets job is gone with the asset host it checked: the
   # drawings are rebuilt from the committed catalog into a pinned bundle
   # (sip-generate images), never hosted from here, and
