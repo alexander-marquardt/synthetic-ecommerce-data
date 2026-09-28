@@ -117,9 +117,13 @@ MUST_STOCK: tuple[MustStock, ...] = (
 )
 
 #: How many lines the pass may build for one entry before it refuses. A cap,
-#: not a tuning knob: every entry is met within a few dozen lines, and a
-#: builder that can never produce an entry's values must fail loudly.
-MAX_ATTEMPTS = 3000
+#: not a tuning knob: a builder that can never produce an entry's values must
+#: fail loudly. Most entries are met within a few dozen lines; the R8 hex bolt
+#: (one length out of a size's offered run, and Grade 8 and zinc) is the rare
+#: one. Measured after the 100K brand book changed the streams: 1,178 lines at
+#: the default size, 5,318 at ``lines=120, seed=5``. The cap is set well clear
+#: of both.
+MAX_ATTEMPTS = 20000
 
 
 class MustStockUnmetError(RuntimeError):

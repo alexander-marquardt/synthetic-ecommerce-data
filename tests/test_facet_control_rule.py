@@ -139,7 +139,7 @@ def test_every_attribute_that_is_quantitative_still_says_so(flat_rows: list[dict
     quantitative = [s for s in stats.values() if s.is_numeric]
     assert len(quantitative) >= 25, len(quantitative)
     # One continuum, and it is the one named in MEASURED_DISPERSION: Neck
-    # Length, 52 distinct values over 52 documents. Anything else reported as
+    # Length, 51 distinct values over 51 documents. Anything else reported as
     # a continuum should be checked before the rule is trusted.
     assert [s.key for s in quantitative if s.is_continuous] == ["neck_length"]
 

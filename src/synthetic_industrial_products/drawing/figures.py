@@ -435,7 +435,7 @@ def flap_disc(record: Record) -> Drawn:
 
 # --- hand tools --------------------------------------------------------------
 
-HANDLE_FILL = {"Hickory": "#c89a5b", "Fiberglass": "#e2c64a", "Steel": "#9aa3aa"}
+HANDLE_FILL = {"Hickory": "#c89a5b", "Ash": "#dcc08e", "Fiberglass": "#e2c64a", "Steel": "#9aa3aa"}
 GRIP_FILL = {"Rubber": "#3d3d3d", "Vinyl": "#51638a"}
 
 
@@ -482,16 +482,23 @@ def hammer(record: Record) -> Drawn:
 #: therefore ONE constant per type (:mod:`.sheet`);
 #: ``tests/test_sku_drawings.py`` asserts no product's drawing exceeds it, so
 #: a regeneration that grows past it is red instead of silently fitted.
+#:
+#: The five screw and bolt extents were raised for the 100K catalog, which
+#: reaches further along each size's OFFERED lengths
+#: (``data/fastener_offered_lengths.json``) than the 10K one did: measured on
+#: ``sip-generate build --lines 25850``, the longest drawn part is 14.62" (a
+#: socket head cap screw), 14.49" (hex bolt), 12.31" (low head), 12.00" (flat
+#: head) and 5.34" (button head). Each extent is that maximum plus ~3%.
 FIGURES: dict[str, tuple[Callable[[Record], Drawn], tuple[float, float]]] = {
     "end_mill_square": (end_mill, (3.3, 9.5)),
     "end_mill_ball": (end_mill, (3.3, 9.5)),
     "drill_jobber": (drill, (0.52, 8.8)),
     "tap_spiral_point": (tap, (0.52, 4.15)),
-    "screw_socket_head": (fastener, (2.75, 5.95)),
-    "screw_flat_head": (fastener, (3.7, 3.25)),
-    "screw_button_head": (fastener, (2.56, 2.8)),
-    "screw_low_head": (fastener, (2.75, 3.3)),
-    "bolt_hex": (fastener, (2.85, 5.35)),
+    "screw_socket_head": (fastener, (2.75, 15.05)),
+    "screw_flat_head": (fastener, (3.7, 12.4)),
+    "screw_button_head": (fastener, (2.56, 5.5)),
+    "screw_low_head": (fastener, (2.75, 12.7)),
+    "bolt_hex": (fastener, (2.85, 14.95)),
     "washer_flat": (washer, (1.5, 2.15)),
     "hammer_ball_pein": (hammer, (5.8, 18.25)),
     "abrasive_flap_disc": (flap_disc, (7.25, 7.25)),

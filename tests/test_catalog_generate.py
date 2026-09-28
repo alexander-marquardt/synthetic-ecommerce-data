@@ -29,7 +29,7 @@ def config():
     return GeneratorConfig(
         lines=600,
         seed=99,
-        new_type_products={key: 60 for key in GeneratorConfig().new_type_products},
+        new_type_share={key: 0.1 for key in GeneratorConfig().new_type_share},
     )
 
 
@@ -244,9 +244,9 @@ def test_the_sparsity_knob_moves_the_attribute_count():
 
 
 def test_the_line_and_sku_count_knobs_move_the_catalog_size():
-    none = {key: 0 for key in GeneratorConfig().new_type_products}
-    small = measure(generate(GeneratorConfig(lines=50, seed=3, new_type_products=none)))
-    large = measure(generate(GeneratorConfig(lines=150, seed=3, new_type_products=none)))
+    none = {key: 0.0 for key in GeneratorConfig().new_type_share}
+    small = measure(generate(GeneratorConfig(lines=50, seed=3, new_type_share=none)))
+    large = measure(generate(GeneratorConfig(lines=150, seed=3, new_type_share=none)))
     assert large["lines"] > small["lines"] * 2
     assert large["skus"] > small["skus"] * 2
 

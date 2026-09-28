@@ -147,7 +147,8 @@ def test_the_brand_is_the_house_style():
     """Same record, another brand: different sheet, and the brand's own ink on it."""
     line, child, data, _ = DRAWINGS[0]
     record = emit.drawing_record(CATALOG, line, child)
-    other_brand = next(b for b in BRANDS if b != line.brand)
+    # Another INK: brands share inks now (the (ink, frame) pair names a brand).
+    other_brand = next(b for b in BRANDS if BRAND_INK[b] != BRAND_INK[line.brand])
     other, _ = draw_sku(line.type_key, other_brand, record)
     assert other != data
     assert BRAND_INK[other_brand].encode() in other
@@ -155,8 +156,9 @@ def test_the_brand_is_the_house_style():
 
 
 def test_every_brand_has_a_house_style_and_they_differ():
+    """Twelve inks and four frames over the brand book: the PAIR is the brand."""
     styles = {brand: house_style(brand) for brand in BRANDS}
-    assert len({(s.ink, s.paper) for s in styles.values()}) == len(BRANDS)
+    assert len({(s.ink, s.frame) for s in styles.values()}) == len(BRANDS)
     assert len({s.frame for s in styles.values()}) == 4
 
 
@@ -525,8 +527,12 @@ def test_the_lens_appears_exactly_when_the_rule_says():
 
 #: The smallest enlargement any committed lens gives, measured and rounded
 #: down to 0.01: the handled glass is used only at x2.5 or more, and the
-#: handle-less lens reaches x2.53 on the committed catalog's largest lensed part.
-CATALOG_MIN_ENLARGEMENT = 2.52
+#: handle-less lens reaches x2.44 on the committed catalog's largest lensed
+#: part. It was x2.52 before the 100K catalog raised the screw and bolt
+#: extents (``figures.FIGURES``): at the new, smaller scale more fasteners
+#: are small enough for a lens, the largest of them close to the rule's
+#: extreme (x2.41 below).
+CATALOG_MIN_ENLARGEMENT = 2.44
 
 #: What the handle-less lens gives at the rule's extreme, a part drawn a full
 #: 40 x 50 (1/5 x 1/6 of the sheet). BELOW x2.5, and stated rather than hidden:
@@ -553,7 +559,7 @@ def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only
         lowest = min(lowest, mag.k)
         assert mag.handle == (_handled_k(width, height) >= 2.5), variant["sku"]
         counts[mag.handle] += 1
-        if variant["sku"] in ("4LN69", "93TD57"):  # an in-between screw, a hairline drill
+        if variant["sku"] in ("13NW86", "56UV96"):  # an in-between screw, a hairline drill
             assert not mag.handle, variant["sku"]
     assert counts[True] > 100 and counts[False] > 500, counts
     assert CATALOG_MIN_ENLARGEMENT <= lowest < CATALOG_MIN_ENLARGEMENT + 0.01, lowest
@@ -732,9 +738,9 @@ def test_no_outline_is_thinner_than_the_minimum_stroke():
 
 
 def test_a_hairline_drill_is_drawn_with_a_visible_outline():
-    """Planted: 93TD57 is drawn under two units wide at its type's scale."""
+    """Planted: 56UV96 (a 1/16" jobber drill) is drawn under two units wide at its type's scale."""
     for parent, variant, record in _golden_skus():
-        if variant["sku"] == "93TD57":
+        if variant["sku"] == "56UV96":
             width, _ = _drawn_size(parent["product_type"], record)
             assert width < 2.3
             data, _ = draw_sku(parent["product_type"], parent["brand"], record)
@@ -743,7 +749,7 @@ def test_a_hairline_drill_is_drawn_with_a_visible_outline():
             ]
             assert outlines and all(float(e.attrib["stroke-width"]) >= 2.3 for e in outlines)
             return
-    raise AssertionError("93TD57 is not in the committed catalog")
+    raise AssertionError("56UV96 is not in the committed catalog")
 
 
 # --- the archive layout and its pinnable digest ----------------------------------

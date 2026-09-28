@@ -233,12 +233,30 @@ MUTATIONS: list[Mutation] = [
     # A-direction mutation below is that shape.
     Mutation(
         "make reading a colour back resolve to whichever brand comes first",
-        "render/marking.py",
-        "    for brand, colour in BRAND_INK.items():\n        if colour.lower() == lowered:\n            return brand",
-        "    for brand, colour in BRAND_INK.items():\n        if lowered or colour.lower() == lowered:\n            return brand",
+        "drawing/style.py",
+        "        if brands.ink_of(brand).lower() == lowered and brands.frame_of(brand) == frame:\n            return brand",
+        "        if lowered or brands.ink_of(brand).lower() == lowered and brands.frame_of(brand) == frame:\n            return brand",
         "tests/test_marking.py -k brand",
         "B",
         "the outline colour is the brand, and reads back as the brand",
+    ),
+    Mutation(
+        "let a brand stock the same spec twice",
+        "catalog/generate.py",
+        "            if key in self._drawn_specs:\n",
+        "            if key in self._drawn_specs and False:\n",
+        "tests/test_catalog_brands_voice.py -k same_product",
+        "A",
+        "no two SKUs share (type, brand, every attribute)",
+    ),
+    Mutation(
+        "let a product of a brand drop its template's use line",
+        "catalog/voice.py",
+        "        0: USE_LINES[type_key][voice.use_style],",
+        "        0: USE_LINES[type_key][voice.use_style] if len(facts) % 2 else None,",
+        "tests/test_catalog_brands_voice.py -k one_template",
+        "A",
+        "every brand follows one template per type",
     ),
     Mutation(
         "leave a product line without an image",
@@ -802,9 +820,9 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "blank one card image url in the committed catalog",
         "flat.jsonl",
-        'ice_usd": 11.24, "stock": 79, "image_id": "end_mill_square/OST-K663-0001/21NB25", '
-        '"image_url": "/images/industrial/end_mill_square/OST-K663-0001/21NB25.svg"',
-        'ice_usd": 11.24, "stock": 79, "image_id": "end_mill_square/OST-K663-0001/21NB25", "image_url": ""',
+        'ice_usd": 1.83, "stock": 7, "image_id": "end_mill_square/CRE-G246-0001/21NB25", '
+        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/21NB25.svg"',
+        'ice_usd": 1.83, "stock": 7, "image_id": "end_mill_square/CRE-G246-0001/21NB25", "image_url": ""',
         "tests/test_catalog_golden.py::test_every_flat_document_carries_an_image_url",
         "A",
         "every document carries a NON-EMPTY image url at both profiles",
@@ -813,11 +831,11 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop the detail image url from one committed nested variant",
         "nested.jsonl",
-        '"price_usd": 11.24, "stock": 79, "image_id": "end_mill_square/OST-K663-0001/21NB25", '
-        '"image_url": "/images/industrial/end_mill_square/OST-K663-0001/21NB25.svg", '
-        '"image_detail_url": "/images/industrial/end_mill_square/OST-K663-0001/21NB25.svg"',
-        '"price_usd": 11.24, "stock": 79, "image_id": "end_mill_square/OST-K663-0001/21NB25", '
-        '"image_url": "/images/industrial/end_mill_square/OST-K663-0001/21NB25.svg"',
+        '"price_usd": 1.83, "stock": 7, "image_id": "end_mill_square/CRE-G246-0001/21NB25", '
+        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/21NB25.svg", '
+        '"image_detail_url": "/images/industrial/end_mill_square/CRE-G246-0001/21NB25.svg"',
+        '"price_usd": 1.83, "stock": 7, "image_id": "end_mill_square/CRE-G246-0001/21NB25", '
+        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/21NB25.svg"',
         "tests/test_catalog_golden.py::test_every_nested_line_and_variant_carries_an_image_url",
         "B",
         "every document carries a NON-EMPTY image url at both profiles",
@@ -828,15 +846,15 @@ MUTATIONS: list[Mutation] = [
     # the catalog does not carry -- so it RENAMED a document instead of
     # duplicating one, every sku stayed distinct, and
     # ``test_flat_holds_one_document_per_sku`` passed for the correct reason
-    # while the table read it as proof. ``19XN98`` is the next document in the
+    # while the table read it as proof. ``18RR28`` is the next document in the
     # committed file, so the mutation now really does publish one sku twice.
     # The same regeneration that moved this catalog's document count is what
     # took the old sku out of it.
     Mutation(
         "duplicate a sku in the committed flat catalog",
         "flat.jsonl",
-        '{"sku": "21NB25", "product_id": "OST-K663-0001"',
-        '{"sku": "19XN98", "product_id": "OST-K663-0001"',
+        '{"sku": "21NB25", "product_id": "CRE-G246-0001"',
+        '{"sku": "18RR28", "product_id": "CRE-G246-0001"',
         "tests/test_catalog_golden.py::test_flat_holds_one_document_per_sku",
         "",
         "flat.jsonl is one document per distinct sku",
@@ -845,8 +863,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "point one committed document at a product line that does not exist",
         "flat.jsonl",
-        '{"sku": "21NB25", "product_id": "OST-K663-0001"',
-        '{"sku": "21NB25", "product_id": "OST-K663-9999"',
+        '{"sku": "21NB25", "product_id": "CRE-G246-0001"',
+        '{"sku": "21NB25", "product_id": "CRE-G246-9999"',
         "tests/test_catalog_golden.py::test_flat_covers_exactly_the_product_lines",
         "",
         "the catalog spans exactly the committed number of products",
@@ -855,8 +873,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "publish a variant_count that disagrees with its own variants array",
         "nested.jsonl",
-        '"variant_count": 3, "variants": [{"sku": "21NB25", "title": "High Speed Steel Sq',
-        '"variant_count": 4, "variants": [{"sku": "21NB25", "title": "High Speed Steel Sq',
+        '"variant_count": 3, "variants": [{"sku": "21NB25", "title": "Industrial End Mill',
+        '"variant_count": 4, "variants": [{"sku": "21NB25", "title": "Industrial End Mill',
         "tests/test_catalog_golden.py::test_nested_lines_account_for_every_sku",
         "",
         "the nested lines account for every sku",
@@ -1235,7 +1253,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "put the line title back in the description field",
         "catalog/generate.py",
-        "        return f\"{title.text} - {', '.join(details)}\"",
+        "        return f\"{title.text} - {', '.join(details)}. {tail}\"",
         '        return f"{draft.brand} {draft.series} -- {draft.item}"',
         "tests/test_catalog_titles.py",
         "A",
@@ -1311,8 +1329,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "draw every brand in one ink",
         "drawing/style.py",
-        "        ink = BRAND_INK[brand]",
-        '        ink = BRAND_INK[brand] and "#1b1b1b"',
+        "    ink = brands.ink_of(brand)\n",
+        '    ink = brands.ink_of(brand) and "#1b1b1b"\n',
         "tests/test_sku_drawings.py -k brand",
         "A",
         "the brand is the house style",

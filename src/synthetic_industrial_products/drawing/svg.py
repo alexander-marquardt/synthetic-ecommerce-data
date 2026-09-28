@@ -89,7 +89,12 @@ class Svg:
     def to_bytes(self) -> bytes:
         defs = "".join(self._defs[key] for key in sorted(self._defs))
         head = (
-            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH} {HEIGHT}">'
+            # The intrinsic size beside the viewBox: an <img> styled only
+            # with max-width/max-height inside a flex item that does not
+            # grow sizes a viewBox-only SVG to 0 x 0 -- served, and invisible
+            # (seen on the live product page, 2026-09-28).
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{HEIGHT}" '
+            f'viewBox="0 0 {WIDTH} {HEIGHT}">'
             f'<rect width="{WIDTH}" height="{HEIGHT}" fill="{self._background}"/>'
         )
         body = "".join(self._body)

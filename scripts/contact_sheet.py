@@ -14,7 +14,12 @@ elastic/prism-industrial-products#103:
   material, so what differs is length, and then house style);
 * flat washers across sizes, materials and brands;
 * every product type, twenty SKUs each, so the variation within a type and
-  the difference between types can both be seen.
+  the difference between types can both be seen;
+* one product type across every brand that makes it, one row per type (the
+  hex key row among them), so each brand's house style -- ink and frame -- and
+  its title template can be compared on the same part;
+* one brand across the types it makes, for a few brands, so the house style
+  can be seen staying the same.
 
 The page itself carries labels (type, brand, SKU) under each drawing so the
 sheet can be read; the drawings carry none.
@@ -134,6 +139,46 @@ def _per_type(products: list[dict], per: int = 20) -> list[str]:
     return cells
 
 
+#: The types shown across every brand that makes them.
+BRAND_ROW_TYPES = ("hex_key", "washer_flat", "end_mill_square", "bearing_radial_ball", "nut_hex")
+
+#: The brands shown across every type they make: a broad house, two
+#: multi-family makers and a specialist.
+BRAND_COLUMN_BRANDS = ("Corvane", "Plumb Orchard", "Maddox & Vail", "Quillon Carbide")
+
+
+def _titled(parent: dict, variant: dict) -> str:
+    return f"{parent['brand']} · {variant['sku']} · {variant['title']}"
+
+
+def _brands_across_a_type(products: list[dict]) -> list[str]:
+    cells = ["<h3>One product type, one drawing per brand (house style and title template)</h3>"]
+    for type_key in BRAND_ROW_TYPES:
+        first: dict[str, tuple[dict, dict]] = {}
+        for parent in products:
+            if parent["product_type"] == type_key and parent["brand"] not in first:
+                first[parent["brand"]] = (parent, parent["variants"][0])
+        cells.append(f"<h4>{html.escape(type_key)}: {len(first)} brands</h4><div>")
+        for brand in sorted(first):
+            cells.append(_cell(*first[brand], _titled(*first[brand])))
+        cells.append("</div>")
+    return cells
+
+
+def _one_brand_across_types(products: list[dict]) -> list[str]:
+    cells = ["<h3>One brand across the types it makes (the house style holds)</h3>"]
+    for brand in BRAND_COLUMN_BRANDS:
+        first: dict[str, tuple[dict, dict]] = {}
+        for parent in products:
+            if parent["brand"] == brand and parent["product_type"] not in first:
+                first[parent["product_type"]] = (parent, parent["variants"][0])
+        cells.append(f"<h4>{html.escape(brand)}: {len(first)} types</h4><div>")
+        for type_key in sorted(first):
+            cells.append(_cell(*first[type_key], _titled(*first[type_key])))
+        cells.append("</div>")
+    return cells
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--catalog", type=Path, default=Path("golden-catalog"))
@@ -146,6 +191,8 @@ def main() -> int:
         "<h2>Per-SKU drawings: no text in any drawing; captions are the page's</h2>",
         *_screw_lengths(products),
         *_washers(products),
+        *_brands_across_a_type(products),
+        *_one_brand_across_types(products),
         *_per_type(products),
         "</body>",
     ]

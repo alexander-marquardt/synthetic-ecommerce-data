@@ -294,7 +294,9 @@ TAP_SIZES_METRIC: tuple[tuple[str, float], ...] = (
 )
 
 #: Ball pein hammer head weights, in ounces -- the sizes actually sold.
-HAMMER_HEAD_OUNCES: tuple[int, ...] = (4, 8, 12, 16, 24, 32, 40, 48)
+#: The head weights ball pein hammers are sold in. 2, 6, 10 and 20 oz were
+#: added for the 100K catalog's headroom; each is a size makers list.
+HAMMER_HEAD_OUNCES: tuple[int, ...] = (2, 4, 6, 8, 10, 12, 16, 20, 24, 32, 40, 48)
 
 #: Flap disc diameters in inches, and the grits offered.
 FLAP_DISC_DIAS_IN: tuple[Fraction, ...] = (

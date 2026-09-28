@@ -353,8 +353,8 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
       removed by the ruling on elastic/prism#9284;
     * ``build_title`` cut the assembled string at the 100-character cap,
       which lands mid-word. Reconstructed on this catalog by
-      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **74
-      of 10,029** titles (67 of 4,689 before the catalog grew), ending
+      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **70
+      of 10,080** titles (67 of 4,689 before the catalog grew), ending
       ``...Solid Carbide, U`` or ``...SGL Sq En``.
       Removing only the first would have left those in place while the
       change reported that truncation was gone. (That figure read "97 of
@@ -475,7 +475,9 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
     THE FIGURE THIS REPLACES DID NOT REPRODUCE. The docstrings carried "97 of
     4,688"; 4,688 is the PREVIOUS generation's document count and 97 is not the
     mid-word count of either generation. Reconstructed here it was 67 of 4,689,
-    and is 74 of 10,029 on the grown catalog (elastic/prism-industrial-products#103),
+    was 74 of 10,029 on the grown catalog
+    (elastic/prism-industrial-products#103), and is 70 of 10,080 (93 over the
+    cap) after the 100K brand book,
     and stating it as a test rather than as prose is what stops the next
     regeneration inheriting a number nobody can re-derive.
 
@@ -504,7 +506,7 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         generate_module.build_title = real
 
     documents = [child for line in catalog.lines for child in line.children]
-    assert len(documents) == 10211
+    assert len(documents) == 10080
     assert len(assembled) > 100, "the spy recorded nothing; the reconstruction is broken"
 
     word = set(string.ascii_letters + string.digits + './"-')
@@ -517,9 +519,9 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         if full[cap - 1] in word and full[cap] in word:
             mid_word += 1
 
-    assert over_cap == 85, f"{over_cap} titles exceed the cap, not 85"
-    assert mid_word == 74, (
-        f"the cap cut would land inside a word on {mid_word} titles, not 74. "
+    assert over_cap == 93, f"{over_cap} titles exceed the cap, not 93"
+    assert mid_word == 70, (
+        f"the cap cut would land inside a word on {mid_word} titles, not 70. "
         "If the catalog moved, restate the figure in build_title's docstring "
         "and in test_no_title_is_cut_mid_word with it."
     )

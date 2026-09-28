@@ -2,7 +2,9 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 10,211 SKUs over 5,405 products in 16 product types.
+extraction in search: 10,080 SKUs over 5,403 products in 16 product types,
+from 45 invented brands -- and, with one flag, about 100,000 SKUs
+([The 100K catalog](#the-100k-catalog)).
 
 **Every product in this repository is synthetic.** No record here describes a
 real product offered by any retailer, and no retailer's catalog content is
@@ -160,13 +162,146 @@ Everything is parameterised, because the point of the catalog is to be dialled
 until something breaks:
 
 ```sh
-uv run sip-generate build --lines 900               # more products of the original twelve types
+uv run sip-generate build --lines 900               # a bigger or smaller catalog (THE size knob)
 uv run sip-generate build --sparsity 0.4             # raggeder attribute coverage
 uv run sip-generate build --defects 0.0              # a catalog with no contradictions
 uv run sip-generate build --seed 7                   # a different catalog
 ```
 
 The generator is deterministic: one seed produces one catalog, byte for byte.
+
+`--lines` is the ONE size knob. It sets the products of the original twelve
+types, and the four newer types (hex nuts, radial ball bearings, depressed
+center wheels, hex keys) take a fixed SHARE of it (`new_type_share`,
+700/2600 each: the ratio the default catalog was built with), so every type
+grows together. There is deliberately no second `--scale` flag.
+
+### The 100K catalog
+
+```sh
+uv run sip-generate build --lines 25850 --out out/catalog-100k
+uv run sip-generate images --catalog out/catalog-100k --out out/images-100k --archive out/images-100k.tar.gz
+```
+
+`--lines 25850` (`config.HUNDRED_K_LINES`) is the value that lands at about
+100,000 SKUs. Measured on this commit, in about 22 s:
+
+| type | SKUs | | type | SKUs |
+|---|--:|---|---|--:|
+| end_mill_square | 9,283 | | washer_flat | 2,699 |
+| end_mill_ball | 5,360 | | hammer_ball_pein | 1,947 |
+| drill_jobber | 5,333 | | abrasive_flap_disc | 2,437 |
+| tap_spiral_point | 3,457 | | nut_hex | 13,349 |
+| screw_socket_head | 5,924 | | bearing_radial_ball | 12,269 |
+| screw_flat_head | 3,358 | | wheel_depressed_center | 13,114 |
+| screw_button_head | 2,398 | | hex_key | 12,984 |
+| screw_low_head | 1,961 | | bolt_hex | 4,333 |
+
+**100,206 SKUs over 53,517 products.** Duplicate SKU ids: 0. Same-product
+duplicates (the rule below): 0. Every SKU has its own drawing: 100,206
+drawings, 207 MB unpacked, a 21.4 MB `images.tar.gz`, every sha256 matching
+`images.jsonl`. Every must-stock example is stocked. Two builds of the same
+commit are byte-identical (the sha256 of each of the seven output files
+compared equal).
+
+The files are far too large to commit (`flat.jsonl` is 266 MB, `nested.jsonl`
+146 MB). The industrial demo serves this size from a **pinned release asset**
+on elastic/prism-industrial-products, the same pattern as the drawings, and
+this repository commits the default-size catalog only.
+
+What moves at 100K, measured against the census targets (`sip-generate
+report`), with the default catalog beside it:
+
+| measured property | target | 10K | 100K |
+|---|--:|--:|--:|
+| shank == cutting diameter | 0.6489 | 0.6433 | 0.6581 |
+| length of cut > overall length | 0.0829 | 0.0831 | 0.0815 |
+| angle carries a length unit | 0.0469 | 0.0412 | 0.0484 |
+| declared system contradicts units | 0.0323 | 0.0316 | 0.0307 |
+| unit mixing within one record | 0.0222 | 0.0159 | 0.0165 |
+| title dimension token unlabelled | 0.4667 | 0.4674 | 0.4662 |
+| title dimension token not the primary | 0.1714 | 0.1112 | 0.1008 |
+| attributes per record (mean) | 13.12 | 12.36 | 12.38 |
+
+Drift, stated: the not-the-primary token rate sits below its target because a
+title now names a secondary dimension only when the record PUBLISHES it (see
+[Brand voice](#brand-voice-titles-and-descriptions)); before that rule it was
+0.127 on the default catalog. The flute label spelling is 0.49 `FL`, 0.44
+`Flutes`, 0.07 `Fl` at 100K against the census's 0.66 / 0.28 / 0.06: each brand
+now spells a label ONE way, so the catalog-wide mix is quantised by brand.
+
+## Brands
+
+Forty-five manufacturers, all invented, in one table (`catalog/brands.py`):
+their product families, market weight, house style and title voice.
+
+* **A long tail, not ten equal houses.** Three broad-line houses make
+  something in every family; the rest make one to three families. At 100K the
+  largest brand carries 9.0% of SKUs and the smallest 0.4%; a test pins both
+  ends (at most 10%, at least 0.3%). Ten brands that each made all sixteen
+  types would have put ~10,000 SKUs under every brand.
+* **Every name is invented, and was checked.** Each name added for the 100K
+  catalog was web-searched against real industrial, tool, fastener, abrasive
+  and bearing companies and trademarks; names that turned up a real company of
+  any kind were dropped.
+* **Some names are ordinary words** on purpose (`Vantage Edge`, `Lark &
+  Lathe`, `Tall Mast`, `Salt Meadow Works`, `Morrow Anvil`, `Crooked Birch`,
+  `Quiet River`, `Plumb Orchard`): a brand filter has to tell a brand from a
+  word, and a catalog without such a name never makes it.
+* **House style.** Twelve inks and four frame treatments; each brand owns one
+  (ink, frame) PAIR, unique across the book and read back by
+  `drawing.style.brand_for_house_style`. Within a brand every drawing looks
+  the same; between brands, the ink, the paper tint or the frame differ.
+
+## Every SKU is different
+
+**No two SKUs may be identical on (product_type, brand, every attribute),
+ignoring the identifier fields (sku, product_id, List Number, image ids and
+urls) and the commercial fields (price, stock). Brand counts as a difference,
+so the same standard part from two different makers is allowed.**
+
+The generator guarantees it by construction: each (type, brand) draws specs
+WITHOUT replacement -- a spec that brand has already stocked is spent, and a
+draft SKU carrying it is not made. When a brand has drawn a type's whole spec
+space, it stops getting SKUs of that type. Headroom keeps that rare: flat
+washers come in five materials (each with the finishes it is really sold in:
+only steel is plated, oxided or galvanized), and ball pein hammers in twelve
+head weights and four handles. `tests/test_catalog_brands_voice.py` asserts
+zero duplicates on the committed catalog and on a fresh 100K build, with a
+planted duplicate that goes red. Distinct specs over SKUs, per type, stay at
+or above a stated floor at 100K (flat washers 0.70: ISO 7089 fixes nine sizes,
+so many makers sell the same washer; hammers 0.94; every other type 0.98+).
+
+## Brand voice: titles and descriptions
+
+A brand's catalog section reads uniformly, and two brands read slightly
+differently (`catalog/voice.py`).
+
+* **The title's core is the census structure** -- `<Item>, <key dim> <role>,
+  <material>, <coating>, <flutes>...` -- and stays the backbone. A brand's
+  template chooses only among census-observed variants (descriptive or terse,
+  the brand name first or not, one label spelling per attribute, where a tight
+  delimiter falls), and adds words AROUND the core: a qualifier before the
+  item (non-factual words only: "Industrial", "Shop", "General Purpose"...) or
+  the brand's name, and a trailing pack segment only when the record publishes
+  `Package Quantity`.
+* **Descriptions** keep the spec clause and add the brand's template: a use
+  line true of every product of the type, a family line naming the brand, its
+  range and series, a generic benefit of a material or finish the record
+  carries, and a pack line with the record's own quantity.
+* **No text states what the record cannot back.** Every number in a title or
+  description traces to a value the record publishes (the only exceptions are
+  records carrying a MODELLED defect -- a length of cut rewritten past the
+  overall length, mixed units -- whose title keeps the pre-defect value, the
+  realistic variant this catalog exists to exhibit; bounded at 2% and measured
+  at 0.6%). A title names a descriptor or secondary dimension only when the
+  record publishes it.
+
+Measured, and reported rather than forced: product names are unique within
+every type (0 clashes over 53,517 products); SKU titles are 0.72 distinct on
+the default catalog and 0.45 at 100K -- identical titles across products are
+the same spec from brands whose template omits the brand name, which is how a
+marketplace reads; descriptions are 1.00 distinct at both sizes.
 
 ### The data model
 
@@ -329,20 +464,20 @@ them here would hide the problem a field map exists to solve.
 
 | file | |
 |---|---|
-| `flat.jsonl` | 25.7 MB — 10,211 SKU documents |
-| `nested.jsonl` | 13.6 MB — 5,405 products, nested variants and key-value attributes |
+| `flat.jsonl` | 26.7 MB — 10,080 SKU documents |
+| `nested.jsonl` | 14.7 MB — 5,403 products, nested variants and key-value attributes |
 | `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
 | `images.jsonl` | 3.9 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
 | `stats.json` | the measured defect rates, and the config that produced them |
 
-About 44 MiB in the working tree. **Plain NDJSON — deliberately not gzipped
+About 45 MiB in the working tree. **Plain NDJSON — deliberately not gzipped
 and not git-LFS.** The whole reason to commit generated output is that a
 change to the generator shows up as a readable diff in review, and both of
 those hide it. Records drawn from one naming grammar pack small. Above roughly
 30K SKUs a file outgrows what GitHub accepts; the ruling for that size (D5 on
-elastic/prism-industrial-products#103) is a pinned release asset with a
-committed sample, not built yet.
+elastic/prism-industrial-products#103) is a pinned release asset, which is how
+the industrial demo now serves [the 100K catalog](#the-100k-catalog).
 
 It also means the catalog is inspectable, and citable, without installing the
 generator: a reviewer reading a PR, or anyone asking what a record actually
@@ -377,10 +512,10 @@ difference means the second, and the golden files must not be updated until it
 is found. The test's failure message says all of this too, with the commands.
 
 Alongside the hashes, the same test asserts the headline numbers directly
-against the committed files — 10,211 SKU documents over 5,405 distinct
+against the committed files — 10,080 SKU documents over 5,403 distinct
 `product_id`, a non-empty `image_url` and `image_detail_url` on every product,
-variant and flat document, and 5,405 nested products whose variant counts sum
-to 10,211. Those hold independently of the generator, so a careless
+variant and flat document, and 5,403 nested products whose variant counts sum
+to 10,080. Those hold independently of the generator, so a careless
 regenerate-and-commit from a broken build is still red.
 
 ## Every requirement example is stocked
@@ -608,14 +743,17 @@ The rulings are on elastic/prism-industrial-products#103 (2026-09-26 to -28):
   -- `<title>`, `<desc>`, `aria-label`, a comment, `<metadata>`,
   `<foreignObject>`, an embedded raster, `@font-face`, a glyph path from any
   font -- each red `tests/test_sku_drawings.py`.
-* **Brands visibly different**, by house style: each brand has its own outline
-  ink, a faint paper tone of it, and one of four frame treatments -- consistent
-  within a brand, never random per product.
+* **Brands visibly different**, by house style: each brand owns one (ink,
+  frame) pair -- twelve inks, four frame treatments, a faint paper tone of the
+  ink -- consistent within a brand, never random per product ([Brands](#brands)).
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 10,211 drawings, 18.6 MB unpacked
-  (1.82 KB a drawing on average), and a 1.87 MB `images.tar.gz`.
+  measured on the committed catalog, 10,080 drawings, 21.1 MB unpacked
+  (2.09 KB a drawing on average), and a 2.23 MB `images.tar.gz`. Every root
+  declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
+  by max-width/max-height in a flex item that does not grow renders a
+  viewBox-only SVG at 0 x 0.
 
 The drawing is a pure function of `(product type, brand, published attributes)`
 (`src/synthetic_industrial_products/drawing/`). It reads the SKU's geometry
