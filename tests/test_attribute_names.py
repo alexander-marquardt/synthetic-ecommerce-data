@@ -116,6 +116,7 @@ def test_a_planted_type_prefixed_name_reds_the_gate(type_key, planted):
         ("tap_spiral_point", "Drill Size"),  # a tap's tap-drill size, census 12
         ("end_mill_square", "Insert Screw"),  # a contained part, census 13
         ("washer_flat", "For Bolt Thread Direction"),  # census 6
+        ("washer_flat", "For Fastener Sizes"),  # relational, though "Fastener" is its root's noun
     ],
 )
 def test_a_mating_or_contained_part_noun_is_not_a_qualifier(type_key, relational):

@@ -142,7 +142,10 @@ Install both hook types once per clone: `pre-commit install` (the config sets
 bot. Its patterns are the core repository's AI-attribution family, vendored
 with the commit it came from, plus this repository's additions. CI runs the
 same check over every commit a pull request adds, so a clone without hooks
-cannot skip it. The pre-commit hooks run `ruff check` and the whitespace
+cannot skip it. Git's `#` help lines are skipped only by the hook, because a recorded
+message keeps any `#` line it was given. Messages are folded before matching:
+look-alike letters, invisible and bidirectional characters, and a phrase
+wrapped across two lines are all caught. The pre-commit hooks run `ruff check` and the whitespace
 fixers, which leave `golden-catalog/` alone.
 
 ## Generating a catalog
@@ -595,32 +598,38 @@ The drawing is a pure function of `(product type, brand, published attributes)`
 through the same `geometry_from_record` functions the dimensioned renderer in
 `render/` uses, so the two cannot disagree about what a record says.
 
-**Sizes are visible.** The scale is ONE constant per product type: sheet units
+**Sizes are visible.** The scale is one constant per product type: sheet units
 per inch are the usable sheet over the type's largest drawn extent, declared
-per type in `drawing/figures.py`. So within a type every product is drawn at
-its true size relative to every other. An M20 flat head reads bigger than a
-#6 flat head of the same length, and a longer sibling is drawn longer.
-
-The one exception is legibility. A primary dimension (a screw's length, a
-washer's diameter) that would be drawn shorter than 45 sheet units is drawn
-`sqrt(45 * d)` instead of `d`. That map is strictly increasing, so it never
-inverts an order, but it does compress the smallest parts. An M3 washer is
-drawn at 0.285 of an M16's diameter against the true 0.233.
+per type in `drawing/figures.py`. The one exception is legibility, and it is
+decided per PRODUCT, not per SKU. If a product's largest primary dimension (a
+screw's length, a washer's diameter) would be drawn shorter than 45 sheet
+units, the whole product is drawn at one larger scale, so that its largest
+dimension is drawn `sqrt(45 * d)` long.
 
 What `tests/test_sku_drawings.py` proves over the committed catalog:
 
-* no product exceeds its type's declared extent, so the scale really is
-  constant;
-* above the floor, the scale equals the type's constant;
-* a strictly larger primary dimension is always drawn strictly longer, within
-  a product and across a type;
-* no drawing leaves its sheet;
-* no two siblings of the 2,729 multi-variant products draw alike unless they
-  differ only in values no figure draws (standards, ratings, a hammer's
-  weight).
+* **Siblings share one scale.** A head, a thread or a bore that siblings share
+  is drawn identically on each, and whatever varies between them is drawn in
+  true proportion. Measured on the drawings, screws' heads and bearings'
+  outer rings are drawn at the same radius on every sibling.
+* **Across a type:**
+  * products drawn at the type's constant are in true proportion to each other;
+  * among all products, a larger largest dimension is always drawn larger.
+* **What it does NOT prove:** a smaller SKU of an enlarged product can be drawn
+  larger than a slightly larger SKU of a product that was not enlarged,
+  because the two products are drawn at different scales.
+* **Other properties:**
+  * no product exceeds its type's extent;
+  * no drawing leaves its sheet;
+  * no two siblings draw alike unless they differ only in values no figure
+    draws.
 
-Before this, 84 products had same-looking siblings, and 4 had a larger sibling
-drawn shorter.
+Before these fixes, 84 products had same-looking siblings, and in 21 products
+the legibility lift was per SKU, so a shorter screw was drawn with the bigger
+head.
+
+An M3 washer drawn on its own is 0.285 of an M16's diameter, against the true
+0.233; the difference is the floor.
 
 A record whose geometry cannot be read as published -- an attribute absent, a
 value that does not parse, a pair that contradicts itself -- is drawn with its

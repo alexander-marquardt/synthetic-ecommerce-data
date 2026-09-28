@@ -119,11 +119,12 @@ def drawing_record(catalog: Catalog, line: ProductLine, child: Sku) -> dict[str,
 
 def iter_drawings(catalog: Catalog) -> Iterator[tuple[ProductLine, Sku, bytes, str]]:
     """Every SKU's drawing: ``(line, sku, svg_bytes, geometry_source)``, in catalog order."""
-    from ..drawing import draw_sku  # noqa: PLC0415
+    from ..drawing import draw_product  # noqa: PLC0415
 
     for line in catalog.lines:
-        for child in line.children:
-            data, source = draw_sku(line.type_key, line.brand, drawing_record(catalog, line, child))
+        records = [drawing_record(catalog, line, child) for child in line.children]
+        drawn = draw_product(line.type_key, line.brand, records)
+        for child, (data, source) in zip(line.children, drawn, strict=True):
             yield line, child, data, source
 
 

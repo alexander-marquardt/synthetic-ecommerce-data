@@ -26,7 +26,10 @@ The gate that replaces it has two parts, and both are needed:
    qualifier and is allowed: a washer's ``For Bolt Size`` (census 6), a tap's
    ``Drill Size`` (its tap-drill size; census 12), an indexable tool's ``Insert
    Screw`` (13) or ``Clamp Screw`` (5). Refusing those would steer a record to
-   ``Size``, which is a different measurement.
+   ``Size``, which is a different measurement. A name in the census's
+   relational form, ``For <Part> ...``, is never a qualifier -- even when the
+   part is the product's own root noun (a washer's ``For Fastener Sizes``,
+   census 1).
    Membership alone would pass ``End Mill Material``: the census carries it on
    3 records, beside ``Material`` on 160. The census also carries
    ``Cap Screw Type``, ``Toggle Bolt Type`` and ``Machine Screw Head Type`` (1
@@ -144,13 +147,18 @@ def name_problems(
                 "the name with the reason it is needed"
             )
             continue
-        noun = qualifying_noun(name, nouns)
+        # A "For <part> ..." name is relational by its own grammar: it names
+        # what the product MATES with (``For Bolt Size``, ``For Fastener
+        # Sizes``), so the product's own noun in it is not a qualifier.
+        relational = name.casefold().startswith("for ")
+        noun = None if relational else qualifying_noun(name, nouns)
         if noun is not None and name not in TYPE_SPECIFIC:
             problems.append(
                 f"{name!r} qualifies a concept with this product's own noun {noun!r} -- "
                 "if it is this product's own property, publish the generic name the "
-                "census uses (Material, Finish, Type, Size, ...); if the census shows "
-                "the concept is genuinely type-specific, list it in TYPE_SPECIFIC "
-                "with that evidence"
+                "census uses (Material, Finish, Type, Size, ...); if it names a part "
+                "this product mates with, use the census's relational form "
+                "('For <Part> Size'); if the census shows the concept is genuinely "
+                "type-specific, list it in TYPE_SPECIFIC with that evidence"
             )
     return problems
