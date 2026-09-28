@@ -1,11 +1,11 @@
-"""What a record is, read off its attribute names, and never off two.
+"""What a record is: its product type when it carries one, its names when it does not.
 
-The renderer picks a drawing from the attribute NAMES a record publishes,
-because that is what a catalog in this vertical actually carries. That only
-works while the names it keys on belong to one product type each. This is
-where that is checked against the vocabulary rather than assumed, so a
-vocabulary change that made a signature ambiguous fails here -- loudly, with
-the offending name -- instead of quietly drawing a tap as a cap screw.
+A generated record carries ``product_type`` and is classified by it; since
+elastic/prism-industrial-products#103 attribute names no longer identify a
+type (``Material`` and ``Size`` are shared). An OBSERVED record carries no
+type, so the name signatures still classify those -- and those signatures must
+stay unambiguous against the vocabulary, which is checked here rather than
+assumed, so a tap is never drawn as a cap screw.
 """
 
 from __future__ import annotations
@@ -19,27 +19,7 @@ from synthetic_industrial_products.catalog.vocab import VOCAB, names_for
 from synthetic_industrial_products.records import BUNDLED
 from synthetic_industrial_products.render import DIMENSIONED, kinds
 
-#: Which drawing each catalog product type gets. Several types share one: a
-#: square and a ball nose end mill are one renderer, and so are the four hex
-#: socket screw styles and the hex bolt -- the corpus shares those types'
-#: vocabularies because they are the same kind of thing. That is also why the
-#: kind cannot decide the SHAPE on its own: which of the five silhouettes a
-#: fastener record draws comes from ``Screw Head Type``, in
-#: ``generic.STYLE_DRAWINGS``.
-KIND_OF_TYPE: dict[str, str] = {
-    "end_mill_square": kinds.END_MILL,
-    "end_mill_ball": kinds.END_MILL,
-    "drill_jobber": kinds.DRILL,
-    "tap_spiral_point": kinds.TAP,
-    "screw_socket_head": kinds.FASTENER,
-    "screw_flat_head": kinds.FASTENER,
-    "screw_button_head": kinds.FASTENER,
-    "screw_low_head": kinds.FASTENER,
-    "bolt_hex": kinds.FASTENER,
-    "washer_flat": kinds.WASHER,
-    "hammer_ball_pein": kinds.HAMMER,
-    "abrasive_flap_disc": kinds.FLAP_DISC,
-}
+KIND_OF_TYPE = kinds.TYPE_KIND
 
 
 @pytest.fixture(scope="module")
@@ -48,7 +28,15 @@ def catalog():
 
 
 def test_every_product_type_has_a_kind_and_every_kind_a_renderer():
-    assert set(KIND_OF_TYPE) == set(VOCAB)
+    """The original twelve types have a dimensioned renderer; every type has a figure.
+
+    The newer types (elastic/prism-industrial-products#103) exist only as the
+    catalog's own text-free drawings, :mod:`synthetic_industrial_products.drawing`.
+    """
+    from synthetic_industrial_products.drawing import FIGURES
+
+    assert set(KIND_OF_TYPE) <= set(VOCAB)
+    assert set(FIGURES) == set(VOCAB)
     assert set(KIND_OF_TYPE.values()) == set(kinds.SIGNATURES)
     assert set(kinds.SIGNATURES) == set(DIMENSIONED) == set(kinds.KIND_LABELS)
 
@@ -64,24 +52,12 @@ def test_no_signature_name_belongs_to_a_type_of_another_kind(name):
     """
     signature_kinds = {k for k, names in kinds.SIGNATURES.items() if name in names}
     assert len(signature_kinds) == 1, f"{name!r} is in more than one signature"
-    carriers = {KIND_OF_TYPE[t] for t in VOCAB if name in names_for(t)}
+    carriers = {KIND_OF_TYPE[t] for t in KIND_OF_TYPE if name in names_for(t)}
     assert carriers <= signature_kinds, f"{name!r} is published by {carriers}"
 
 
-@pytest.mark.parametrize("type_key", sorted(VOCAB))
-def test_every_type_publishes_at_least_one_signature_name_unconditionally(type_key):
-    """Sparsity must not be able to make a record unidentifiable.
-
-    A signature that only ever matched optional attributes would classify most
-    records and silently fail on the ragged ones, which are exactly the records
-    the type drawing exists for.
-    """
-    always = {spec.name for spec in VOCAB[type_key] if spec.presence >= 1.0}
-    assert always & kinds.SIGNATURES[KIND_OF_TYPE[type_key]]
-
-
 def test_every_generated_record_classifies_to_its_own_type(catalog):
-    """The live check, over a whole catalog rather than over the vocabulary."""
+    """The live check, over a whole catalog: every record is classified by its type."""
     type_of = {child.sku: line.type_key for line, child in catalog.all_skus()}
     seen = set()
     for record in render_records(catalog):
@@ -108,4 +84,15 @@ def test_a_record_that_looks_like_two_things_is_refused_not_resolved():
     check happened to run first, which is not a property of the record.
     """
     with pytest.raises(kinds.AmbiguousProductError):
-        kinds.classify({"sku": "A", "Milling Dia.": '1/4"', "Washer Size": "M8"})
+        kinds.classify({"sku": "A", "Milling Dia.": '1/4"', "Inside Dia.": '5/16"'})
+
+
+def test_a_carried_product_type_decides_over_the_names():
+    """A generated record's names are shared across types; its type is not."""
+    record = {"sku": "A", "product_type": "washer_flat", "Size": "M8", "Material": "Steel"}
+    assert kinds.classify(record) == kinds.WASHER
+
+
+def test_an_unknown_product_type_is_refused():
+    with pytest.raises(kinds.UnknownProductError):
+        kinds.classify({"sku": "A", "product_type": "widget"})

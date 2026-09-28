@@ -540,13 +540,13 @@ def _render_detail(record: dict, geom: EndMillGeometry, profile: Profile):
         ("Helix Angle", record.get("Helix Angle", "")),
         ("Cutting Direction", record.get("Cutting Direction") or NOT_PUBLISHED),
         ("Single End/Double End", record.get("Single End/Double End") or NOT_PUBLISHED),
-        ("End Mill Cutting Type", record.get("End Mill Cutting Type", "")),
+        ("Cutting Type", record.get("Cutting Type", "")),
         ("Coolant Fed", record.get("Coolant Fed", "")),
-        ("End Mill Material", record.get("End Mill Material", "")),
-        # The reference records spell the coating "Finish"; the catalog spells
-        # it "Finish - Machining". Both are listed, and a record carries one.
-        ("Finish - Machining", record.get("Finish - Machining", "")),
+        ("Material", record.get("Material", "")),
+        # The catalog spells the coating "Finish", the census's generic name;
+        # "Finish - Machining" is its minority spelling. A record carries one.
         ("Finish", record.get("Finish", "")),
+        ("Finish - Machining", record.get("Finish - Machining", "")),
     ]
     spec_table(fig, specs)
     provenance_note(fig)

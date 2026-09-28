@@ -51,6 +51,7 @@ from .naming import (
     build_title,
     states_value,
 )
+from .newtypes import NEW_TYPES, part_number, type_rng
 from .taxonomy import drawing_for, image_id_for
 from .vocab import (
     MEASUREMENT_SYSTEM_NAMES,
@@ -139,6 +140,10 @@ class ChildDraft:
     secondary: dict[str, Attribute] = field(default_factory=dict)
     system: str = "in"
     price_basis: float = 1.0
+    #: A deliberately awkward single variant that carries NO variant-scope
+    #: attribute: everything it publishes is on its product. A grouped view
+    #: must render a selector with zero axes (elastic/prism-industrial-products#103).
+    zero_axis: bool = False
 
 
 @dataclass
@@ -223,6 +228,10 @@ class Generator:
             self._used_skus.add(code)
             return code
 
+    def _variant_count(self) -> int:
+        """How many variants the next product offers, from the ONE distribution knob."""
+        return int(_weighted(self.rng, self.config.variants_per_product))  # type: ignore[arg-type]
+
     # -- shared value helpers -------------------------------------------
 
     def _style(self, system: str) -> LengthStyle:
@@ -302,8 +311,8 @@ class Generator:
         draft.line_attrs = [
             keyword_attribute("Item", item),
             keyword_attribute("End Mill Style", style_name),
-            keyword_attribute("End Mill Material", material),
-            keyword_attribute("Finish - Machining", coating),
+            keyword_attribute("Material", material),
+            keyword_attribute("Finish", coating),
             numeric_attribute("Number of Flutes", str(flutes), float(flutes)),
             Attribute("Helix Angle", format_angle(helix), helix),
             keyword_attribute(
@@ -313,7 +322,7 @@ class Generator:
                 "Single End/Double End", "Single End" if rng.random() < 0.85 else "Double End"
             ),
             keyword_attribute(
-                "End Mill Cutting Type",
+                "Cutting Type",
                 "Center Cutting" if rng.random() < 0.8 else "Non-Center Cutting",
             ),
             keyword_attribute(
@@ -328,8 +337,8 @@ class Generator:
             keyword_attribute("List Number", series_code),
         ]
         draft.descriptors = [
-            ("End Mill Material", material),
-            ("Finish - Machining", coating),
+            ("Material", material),
+            ("Finish", coating),
         ]
 
         # One shank policy per line: a line is either built on matching shanks
@@ -338,7 +347,7 @@ class Generator:
         shanks_match = rng.random() < cfg.shank_equals_cutting_dia
         length_class, multiple = rng.choice(series.LENGTH_CLASSES)
 
-        count = rng.randint(*cfg.skus_per_line)
+        count = self._variant_count()
         # A tool whose shank equals its cutting diameter can only exist at a
         # diameter that is ALSO an offered shank size -- a 7/32" cutter has no
         # 7/32" collet to sit in. Drawing a matching-shank line from the full
@@ -446,19 +455,19 @@ class Generator:
         )
         draft.line_attrs = [
             keyword_attribute("Item", item),
-            keyword_attribute("Drill Bit Material", material),
-            keyword_attribute("Drill Point Type", rng.choice(("Split Point", "Standard Point"))),
+            keyword_attribute("Material", material),
+            keyword_attribute("Point Type", rng.choice(("Split Point", "Standard Point"))),
             Attribute("Point Angle", point, float(point.split()[0])),
             keyword_attribute(
-                "Drill Bit Finish", rng.choice(("Bright", "Black Oxide", "TiN", "Bronze Oxide"))
+                "Finish", rng.choice(("Bright", "Black Oxide", "TiN", "Bronze Oxide"))
             ),
             keyword_attribute("Shank Type", rng.choice(("Straight", "Reduced"))),
-            keyword_attribute("Drill Bit Direction", "Right Hand"),
+            keyword_attribute("Cutting Direction", "Right Hand"),
             keyword_attribute("List Number", series_code),
         ]
-        draft.descriptors = [("Drill Bit Material", material)]
+        draft.descriptors = [("Material", material)]
 
-        count = rng.randint(*self.config.skus_per_line)
+        count = self._variant_count()
         pool = list(series.DRILL_FRACTIONAL)
         rng.shuffle(pool)
         for size in pool[:count]:
@@ -468,7 +477,7 @@ class Generator:
             # A jobber drill's flute length and overall length follow the size.
             flute_in = float(series.snap_imperial(min(size_in * 9.0, 4.0), 16))
             oal_in = float(series.snap_imperial(flute_in + max(size_in * 4.0, 0.9), 16))
-            child.primary = self._length("Drill Size", size_in, style)
+            child.primary = self._length("Size", size_in, style)
             flute = self._length("Flute Length", flute_in, style)
             child.attrs = [
                 child.primary,
@@ -500,11 +509,11 @@ class Generator:
         draft.line_attrs = [
             keyword_attribute("Item", item),
             keyword_attribute("Tap Style", "Spiral Point"),
-            keyword_attribute("Tap Material", rng.choice(("High Speed Steel", "Powdered Metal"))),
-            keyword_attribute("Tap Finish", rng.choice(("Bright", "TiN", "Steam Oxide"))),
+            keyword_attribute("Material", rng.choice(("High Speed Steel", "Powdered Metal"))),
+            keyword_attribute("Finish", rng.choice(("Bright", "TiN", "Steam Oxide"))),
             keyword_attribute("Thread Direction", "Right Hand"),
             keyword_attribute("Thread Type", "Metric Coarse" if metric else "UNC"),
-            keyword_attribute("Chamfer Style", rng.choice(("Plug", "Bottoming", "Taper"))),
+            keyword_attribute("Tap Chamfer", rng.choice(("Plug", "Bottoming", "Taper"))),
             numeric_attribute("Number of Flutes", str(flutes), float(flutes)),
         ]
         draft.descriptors = [("Thread Type", "Metric Coarse" if metric else "UNC")]
@@ -512,7 +521,7 @@ class Generator:
         table = series.TAP_SIZES_METRIC if metric else series.TAP_SIZES_INCH
         pool = list(table)
         rng.shuffle(pool)
-        count = min(rng.randint(*self.config.skus_per_line), len(pool))
+        count = min(self._variant_count(), len(pool))
         for designation, pitch in pool[:count]:
             system = "mm" if metric else "in"
             style = self._style(system)
@@ -597,19 +606,17 @@ class Generator:
         )
         draft.line_attrs = [
             keyword_attribute("Item", style_name),
-            keyword_attribute("Screw Style", style_name),
-            keyword_attribute("Screw Head Type", head_style),
+            keyword_attribute("Type", style_name),
+            keyword_attribute("Head Type", head_style),
             keyword_attribute("Drive Type", "Hex Socket"),
-            keyword_attribute("Fastener Material", material),
-            keyword_attribute(
-                "Fastener Finish", rng.choice(("Black Oxide", "Plain", "Zinc Plated"))
-            ),
+            keyword_attribute("Material", material),
+            keyword_attribute("Finish", rng.choice(("Black Oxide", "Plain", "Zinc Plated"))),
             keyword_attribute("Thread Direction", "Right Hand"),
             keyword_attribute("Thread Type", "Metric Coarse" if metric else "UNC"),
             keyword_attribute("Rockwell Hardness", rng.choice(("C38", "C39", "B80"))),
             keyword_attribute("Meets/Exceeds", standard),
         ]
-        draft.descriptors = [("Fastener Material", material)]
+        draft.descriptors = [("Material", material)]
 
         sizes = standards.available_sizes(standard)
         size = sizes[self._rotate(f"size:{type_key}:{standard}", len(sizes))]
@@ -618,7 +625,7 @@ class Generator:
         lengths = list(standards.offered_lengths_in(standard, size))
         if not lengths:
             lengths = [0.25, 0.375, 0.5, 0.75, 1.0, 1.25, 1.5]
-        count = min(rng.randint(*self.config.skus_per_line), len(lengths))
+        count = min(self._variant_count(), len(lengths))
         offered = self._offered_run(f"lengths:{standard}:{size}", lengths, count)
         system = "mm" if head.published_unit == "mm" else "in"
 
@@ -641,7 +648,7 @@ class Generator:
             child.attrs = [
                 child.primary,
                 length_attr,
-                self._length("Length Under Head", under_head_in, style),
+                self._length("Length under Head", under_head_in, style),
                 thread_attr,
                 self._length("Head Dia.", head.head_dia_in, style),
                 self._length("Head Height", head.head_height_in, style),
@@ -714,10 +721,10 @@ class Generator:
         )
         draft.line_attrs = [
             keyword_attribute("Item", item),
-            keyword_attribute("Bolt Style", "Hex Head"),
-            keyword_attribute("Screw Head Type", "Hex"),
-            keyword_attribute("Fastener Material", rng.choice(("Steel", "18-8 Stainless Steel"))),
-            keyword_attribute("Fastener Finish", finish),
+            keyword_attribute("Type", "Hex Head"),
+            keyword_attribute("Head Type", "Hex"),
+            keyword_attribute("Material", rng.choice(("Steel", "18-8 Stainless Steel"))),
+            keyword_attribute("Finish", finish),
             keyword_attribute("Grade", grade),
             keyword_attribute("Thread Direction", "Right Hand"),
             keyword_attribute(
@@ -727,7 +734,7 @@ class Generator:
         draft.descriptors = [("Grade", grade)]
 
         lengths = list(standards.offered_lengths_in(standard, size)) or [0.5, 0.75, 1.0, 1.5, 2.0]
-        count = min(rng.randint(*self.config.skus_per_line), len(lengths))
+        count = min(self._variant_count(), len(lengths))
         offered = self._offered_run(f"lengths:{standard}:{size}", lengths, count)
         system = "mm" if head.published_unit == "mm" else "in"
 
@@ -746,7 +753,7 @@ class Generator:
                 # state the same span. They are still two attributes: the
                 # shopper's "1-3/4 length under head" has to bind to one, and
                 # binding it to Thread Length would be silently wrong.
-                self._length("Length Under Head", length_in, style),
+                self._length("Length under Head", length_in, style),
                 thread_attr,
                 self._length("Width Across Flats", head.width_across_flats_in, style),
                 self._length("Head Height", head.head_height_in, style),
@@ -773,20 +780,20 @@ class Generator:
         )
         draft.line_attrs = [
             keyword_attribute("Item", item),
-            keyword_attribute("Washer Type", "Plain"),
-            keyword_attribute("Fastener Material", material),
-            keyword_attribute("Fastener Finish", rng.choice(("Plain", "Zinc Plated"))),
+            keyword_attribute("Type", "Plain"),
+            keyword_attribute("Material", material),
+            keyword_attribute("Finish", rng.choice(("Plain", "Zinc Plated"))),
         ]
-        draft.descriptors = [("Fastener Material", material)]
+        draft.descriptors = [("Material", material)]
 
         sizes = list(standards.available_sizes("ISO 7089"))
         rng.shuffle(sizes)
-        count = min(rng.randint(*self.config.skus_per_line), len(sizes))
+        count = min(self._variant_count(), len(sizes))
         for size in sizes[:count]:
             plain = standards.washer("ISO 7089", size)
             style = self._style("mm")
             child = ChildDraft(system="mm")
-            child.primary = keyword_attribute("Washer Size", size)
+            child.primary = keyword_attribute("Size", size)
             outside = self._length("Outside Dia.", plain.outside_dia_in, style)
             child.attrs = [
                 child.primary,
@@ -813,16 +820,16 @@ class Generator:
         )
         draft.line_attrs = [
             keyword_attribute("Item", item),
-            keyword_attribute("Hammer Head Material", "Forged Steel"),
+            keyword_attribute("Material", "Forged Steel"),
             keyword_attribute("Handle Material", handle),
             keyword_attribute("Handle Grip Material", rng.choice(("Rubber", "Vinyl", "None"))),
-            keyword_attribute("Hammer Face Type", "Ball Pein"),
+            keyword_attribute("Face Type", "Ball Pein"),
         ]
         draft.descriptors = [("Handle Material", handle)]
 
         weights = list(series.HAMMER_HEAD_OUNCES)
         rng.shuffle(weights)
-        count = min(rng.randint(*self.config.skus_per_line), len(weights))
+        count = min(self._variant_count(), len(weights))
         for ounces in sorted(weights[:count]):
             style = self._style("in")
             child = ChildDraft(system="in")
@@ -856,7 +863,7 @@ class Generator:
             keyword_attribute("Item", item),
             keyword_attribute("Abrasive Material", abrasive),
             keyword_attribute("Backing Material", rng.choice(("Fiberglass", "Plastic"))),
-            keyword_attribute("Flap Disc Shape", rng.choice(("Type 27 Flat", "Type 29 Conical"))),
+            keyword_attribute("Shape", rng.choice(("Type 27 Flat", "Type 29 Conical"))),
             keyword_attribute("Mounting Type", "Arbor Hole"),
         ]
         draft.descriptors = [("Abrasive Material", abrasive)]
@@ -865,18 +872,18 @@ class Generator:
         arbor = rng.choice(series.FLAP_DISC_ARBORS)
         grits = list(series.FLAP_DISC_GRITS)
         rng.shuffle(grits)
-        count = min(rng.randint(*self.config.skus_per_line), len(grits))
+        count = min(self._variant_count(), len(grits))
         # Max safe speed falls with diameter; it is a property of the disc.
         max_rpm = int(round(48000 / float(dia) / 100.0) * 100)
         for grit in sorted(grits[:count]):
             style = self._style("in")
             child = ChildDraft(system="in")
             child.primary = numeric_attribute("Grit", str(grit), float(grit))
-            disc = self._length("Disc Dia.", float(dia), style)
+            disc = self._length("Diameter", float(dia), style)
             child.attrs = [
                 child.primary,
                 disc,
-                self._length("Arbor Hole Size", float(arbor), style),
+                self._length("Arbor Hole", float(arbor), style),
                 numeric_attribute("Max. RPM", f"{max_rpm:,}", float(max_rpm)),
             ]
             child.secondary = {"other_length": disc}
@@ -1335,7 +1342,13 @@ class Generator:
         named = title.attribute_names()
         details: list[str] = []
         for attribute in attributes:
-            if attribute.name in named:
+            # Skipped only when the title states THIS value. A title composed
+            # before the unit-mixing defect can name the attribute with its
+            # pre-defect token (``5-5/16"`` beside a published ``134.94mm``);
+            # the description then has to carry the value the record publishes.
+            if attribute.name in named and (
+                attribute.values is not None or states_value(title.text, attribute.value)
+            ):
                 continue
             if attribute.values is not None:
                 details.append(", ".join(attribute.values))
@@ -1387,11 +1400,9 @@ class Generator:
         if standards_attr is not None:
             line_attrs = [*line_attrs, standards_attr]
 
-        # The product id is built before the SKUs, because a SKU's image id is
-        # its LINE's: one drawing stands behind the line, and every SKU under
-        # it points at that one rather than at a drawing of its own.
+        # The product id is built before the SKUs, because every SKU's image
+        # id names it: one drawing per SKU, filed under its product.
         product_id = f"{draft.brand.split()[0].upper()[:3]}-{draft.series}-{index:04d}"
-        image_id = image_id_for(type_key, product_id)
 
         # Composed first, for every SKU, because whether a title needs the
         # thing that differs is a question about the LINE and cannot be
@@ -1400,11 +1411,11 @@ class Generator:
         titles: list[Title] = []
         for child in draft.children:
             attrs = self._apply_sparsity(type_key, list(child.attrs), "sku")
-            if not attrs:
+            if not attrs and not child.zero_axis:
                 continue
             attrs = self._inject_defects(child, attrs)
             system_attr, _ = self._measurement_system(child.system, system_name)
-            if system_attr is not None:
+            if system_attr is not None and not child.zero_axis:
                 attrs = [*attrs, system_attr]
 
             sku = self._new_sku()
@@ -1433,7 +1444,7 @@ class Generator:
                     attributes=tuple(attrs),
                     price_usd=price,
                     stock=stock,
-                    image_id=image_id,
+                    image_id=image_id_for(type_key, product_id, sku),
                 )
             )
             self._bump("skus")
@@ -1449,7 +1460,9 @@ class Generator:
             attributes=tuple(line_attrs),
             children=tuple(children),
             dimension_provenance=draft.provenance,
-            image_id=image_id,
+            # A grouped card shows its first variant's drawing until one is
+            # selected; the product has no drawing of its own to disagree.
+            image_id=children[0].image_id,
             drawing=drawing_for(type_key),
         )
 
@@ -1478,7 +1491,63 @@ class Generator:
                 if line is not None:
                     lines.append(line)
                     self._bump("lines")
+        for type_key, products in cfg.new_type_products.items():
+            lines.extend(self._generate_new_type(type_key, products))
         return Catalog(lines=tuple(lines), stats=dict(self.counters))
+
+    def _generate_new_type(self, type_key: str, products: int) -> list[ProductLine]:
+        """One newer type's products, from that type's OWN random stream.
+
+        Nothing here draws from ``self.rng``: the sub-generator's stream is
+        seeded from ``(seed, type_key)``, so this type's products depend on
+        nothing but the seed and its own code, and adding a type beside it
+        moves none of them. The shared post-pass (sparsity, the
+        measurement-system attribute, defects, titles) is the same code the
+        original twelve go through.
+        """
+        spec = NEW_TYPES[type_key]
+        sub = _NewTypeGenerator(self.config, type_key, self.counters, self._used_skus)
+        out: list[ProductLine] = []
+        for index in range(1, products + 1):
+            draft = spec.build(sub, type_key, spec.category)
+            if len(draft.children) == 1 and sub.rng.random() < self.config.zero_axis_share:
+                (only,) = draft.children
+                draft.line_attrs = [*draft.line_attrs, *only.attrs]
+                only.attrs = []
+                only.zero_axis = True
+                self._bump("zero_axis_products")
+            line = sub._finish_line(type_key, draft, index)
+            if line is not None:
+                out.append(line)
+                self._bump("lines")
+        return out
+
+
+class _NewTypeGenerator(Generator):
+    """A generator for one newer product type: its own stream, its own part numbers."""
+
+    def __init__(
+        self,
+        config: GeneratorConfig,
+        type_key: str,
+        counters: dict[str, int],
+        used_skus: set[str],
+    ) -> None:
+        super().__init__(config)
+        self.rng = type_rng(config.seed, type_key)
+        self.counters = counters
+        self._used_skus = used_skus
+        self._type_key = type_key
+        self._sequence = 0
+
+    def _new_sku(self) -> str:
+        """An 8-digit part number in this type's block: unique by construction."""
+        self._sequence += 1
+        sku = part_number(self._type_key, self._sequence)
+        if sku in self._used_skus:  # pragma: no cover - the blocks are disjoint
+            raise RuntimeError(f"part number {sku} was already issued")
+        self._used_skus.add(sku)
+        return sku
 
 
 def generate(config: GeneratorConfig | None = None) -> Catalog:

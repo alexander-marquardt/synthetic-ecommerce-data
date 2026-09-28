@@ -118,19 +118,45 @@ def test_field_map_declares_exactly_one_id_entry() -> None:
 
 
 def test_no_attribute_silently_redefines_a_structural_field(flat_rows: list[dict]) -> None:
-    """An attribute sanitising onto a structural name would shadow it.
+    """An attribute whose key is a structural name is NAMESPACED, never shadowing it.
 
-    ``render`` raises on this, so the property is enforced at generation time.
-    The test states it so that a future attribute named ``Brand`` or ``Price``
-    is a red test rather than a field map whose ``brand`` entry suddenly points
-    at ``facets.brand``.
+    The catalog really carries one: a bearing's ``Series`` (``62``) sanitises
+    to ``series``, the product line's own column. The structural ``series``
+    entry must still point at the column, and the attribute must get its own
+    ``attr_series`` entry over ``facets.series`` -- the general rule in
+    ``field_map.canonical_name``, since real feeds publish ``Series``,
+    ``Product Type`` and ``Brand`` as attributes too.
     """
-    from synthetic_industrial_products.prism.derive import measure
+    import yaml
 
-    collisions = sorted(set(measure(flat_rows)) & STRUCTURAL_NAMES)
-    assert not collisions, (
-        f"attribute(s) {collisions} sanitise onto structural field name(s) and would shadow them"
-    )
+    from synthetic_industrial_products.prism.derive import measure
+    from synthetic_industrial_products.prism.field_map import canonical_name
+
+    colliding = sorted(set(measure(flat_rows)) & STRUCTURAL_NAMES)
+    assert colliding == ["series"], colliding
+    fields = {f["name"]: f for f in yaml.safe_load(render(flat_rows))["fields"]}
+    assert fields["series"]["source"] == "series", "the structural column was shadowed"
+    assert fields[canonical_name("series")]["source"].endswith(".series")
+    assert canonical_name("series") == "attr_series"
+    assert canonical_name("thread_size") == "thread_size"
+
+
+def test_namespacing_that_would_itself_collide_is_refused() -> None:
+    """``attr_series`` published as an attribute too would clash with the namespaced one."""
+    rows = [
+        {
+            "sku": "A",
+            "product_type": "t",
+            "attributes": [
+                {"name": "Series", "value": "62"},
+                {"name": "attr series", "value": "x"},
+            ],
+            "facets": {"series": ["62"], "attr_series": ["x"]},
+            "facets_num": {},
+        }
+    ]
+    with pytest.raises(ValueError, match="collide"):
+        render(rows)
 
 
 def test_filter_routing_hard_matches_the_derived_range_facets(flat_rows: list[dict]) -> None:

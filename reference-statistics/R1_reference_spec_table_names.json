@@ -1,0 +1,30 @@
+{
+  "what_this_is": "Attribute NAMES read off the reference distributor's product-page spec tables, from maintainer screenshots quoted in elastic/prism-industrial-products#103 (comments of 2026-09-26). Names only: no values, no products, no page text. It backs attribute names the census (00_attribute_name_census.json) does not carry, because the census covers no abrasive, bearing, valve or measuring-tool family.",
+  "source": "elastic/prism-industrial-products#103, comments 'Evidence from the reference distributor's site', 'Abrasives evidence' and 'More families' (2026-09-26)",
+  "by_family": {
+    "fastener": [
+      "System of Measurement", "Thread Size", "Length Under Head", "Material", "Material Grade",
+      "Finish Coating", "Thread Standard", "Full/Partial Threading", "Tensile Strength", "Standards",
+      "Length Measurement Type", "Hex Key Size", "UNSPSC Code", "Country of Origin"
+    ],
+    "grinding_wheel": [
+      "Wheel Diameter (Inch)", "Wheel Thickness (Inch)", "Hole Size", "Wheel Type", "Abrasive Material",
+      "Grit", "Grade", "Maximum RPM", "Connector Type", "Bond Type", "UNSPSC Code", "Country of Origin"
+    ],
+    "ball_bearing": [
+      "Bearing Number", "Type", "Closure Type", "Static Load Capacity", "Maximum RPM", "Cage Material",
+      "Ball Material", "Bore Type", "Series", "Row Type", "Lubricant", "ABEC Rating", "Snap Ring Included",
+      "UNSPSC Code"
+    ],
+    "ball_valve": [
+      "Valve Type", "Pipe Size", "Valve Structure", "Body Material", "End Connection", "Port Type",
+      "Handle Type", "Pressure Rating (psi)", "Trim Material", "Seal Material", "Seat Material", "Standards",
+      "Number of Pieces"
+    ],
+    "caliper": [
+      "Maximum Measurement (mm)", "Maximum Measurement (Inch)", "Measurement Range", "Resolution",
+      "Accuracy", "IP Rating", "Material", "Jaw Style", "Jaw Length", "Application", "Data Output",
+      "Calibrated"
+    ]
+  }
+}

@@ -186,25 +186,22 @@ MATERIAL_HATCH: dict[str, str] = {
     "Aluminum Oxide": "\\-",
 }
 
-#: Every published spelling of "what coats it". The corpus names one idea four
-#: ways depending on which supplier sent the row, which is the whole reason a
-#: field map exists; the drawing has to absorb the same raggedness.
+#: Every published spelling of "what coats it". The generator publishes the
+#: census's generic ``Finish``; ``Finish - Machining`` is the census's minority
+#: spelling on end mills, and a drawing has to read a record that uses it.
 FINISH_ATTRIBUTES: tuple[str, ...] = (
+    "Finish",
     "Finish - Machining",
-    "Drill Bit Finish",
-    "Tap Finish",
-    "Fastener Finish",
 )
 
 #: Every published spelling of "what it is made of". ``Handle Material`` is
 #: absent on purpose: it is the material of the handle, not of the part the
 #: section hatch cuts through, and it is drawn on the handle instead.
+#: ``Abrasive Material`` is the grain of an abrasive, which is what a flap
+#: disc's section cuts through; a flap disc publishes no ``Material``.
 MATERIAL_ATTRIBUTES: tuple[str, ...] = (
-    "End Mill Material",
-    "Drill Bit Material",
-    "Tap Material",
-    "Fastener Material",
-    "Hammer Head Material",
+    "Material",
+    "Material - Machining",
     "Abrasive Material",
 )
 
@@ -212,7 +209,6 @@ MATERIAL_ATTRIBUTES: tuple[str, ...] = (
 DIRECTION_ATTRIBUTES: tuple[str, ...] = (
     "Cutting Direction",
     "Thread Direction",
-    "Drill Bit Direction",
 )
 
 #: The attribute whose value is drawn as a count of flutes.

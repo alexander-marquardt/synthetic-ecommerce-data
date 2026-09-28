@@ -28,6 +28,7 @@ to solve.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from collections.abc import Iterator
@@ -39,137 +40,119 @@ from .taxonomy import ImageIdError, product_type_for_image
 
 _NON_WORD = re.compile(r"[^a-z0-9]+")
 
-#: Where the rendered images are published: one directory per product type,
-#: inside it one directory per product line, and inside that one PNG per
-#: profile.
-#:
-#: This is a real host, not a placeholder -- a record that carries a URL a
-#: reader cannot fetch is worse than one that carries a bare reference, because
-#: the bare reference does not claim to resolve.
-DEFAULT_IMAGE_BASE_URL = "https://alexmarquardt.com/ecommerce-demo-assets/images/industrial"
-
-#: The profile a catalog card shows, and the one a detail view shows. Both are
-#: published, because the card's 600x880 is unreadable at 1400x1400's job and
-#: the reverse.
-CARD_PROFILE = "card"
-DETAIL_PROFILE = "detail"
+#: Where a record's image is served from: the bundle's folder, as the demo
+#: serves it (elastic/prism#9770, the Studio images mount). Relative, so
+#: nothing points at a third-party host; ``--image-base-url`` moves it.
+#: The bundle's top-level folder. The archive's members live under it and the
+#: demo serves the images folder at ``/images`` (elastic/prism#9770), so a URL
+#: is ``/images/<IMAGE_ROOT>/<path>`` and deployments can sit side by side
+#: under one images mount.
+IMAGE_ROOT = "industrial"
+DEFAULT_IMAGE_BASE_URL = f"/images/{IMAGE_ROOT}"
 
 
 class UnresolvedImageError(Exception):
-    """A catalog image id names no product line, so no URL can be built for it.
+    """A catalog image id is not its SKU's own, so no URL can be built for it.
 
     Raised rather than skipped. Skipping would publish a catalog quietly
     missing images for reasons no reader could reconstruct.
     """
 
 
-def image_path(image_id: str, profile: str = CARD_PROFILE) -> str:
-    """``end_mill_square/OST-K663-0001/card.png`` -- the path under the base URL.
+def image_path(image_id: str) -> str:
+    """``end_mill_square/OST-K663-0001/97NR28.svg`` -- the path inside the bundle.
 
-    One directory per PRODUCT TYPE, one per PRODUCT LINE inside it, one file
-    per profile inside that. The type is the category a reader browsing the
-    published tree gets an index of; the line is what the drawing is OF.
-    Filing by profile instead would index the tree by *which size* an image is,
-    which is a property of the file rather than a thing anybody browses for.
-
-    Nothing is looked up. The image id already reads
-    ``<product type>/<product id>`` -- :func:`..taxonomy.image_id_for` built it
-    that way -- so this appends the profile and validates, rather than keeping
-    a second table of where each id goes. A second table is exactly how a
-    record's URL and the manifest's path come to disagree.
+    Nothing is looked up: the id already reads ``<type>/<product>/<sku>``, so
+    this validates and appends the extension. A second table of where each id
+    goes is exactly how a record's URL and the manifest's path come to disagree.
     """
     product_type_for_image(image_id)
-    return f"{image_id}/{profile}.png"
+    return f"{image_id}.svg"
 
 
-def image_url(image_id: str, base_url: str, profile: str = CARD_PROFILE) -> str:
-    return f"{base_url.rstrip('/')}/{image_path(image_id, profile)}"
+def image_url(image_id: str, base_url: str) -> str:
+    return f"{base_url.rstrip('/')}/{image_path(image_id)}"
 
 
 def check_image_ids(catalog: Catalog) -> None:
-    """Every image id in the catalog names one of its own product lines.
+    """Every SKU names its own drawing, and every product its first SKU's.
 
-    Checked once over the whole catalog, before any URL is published. A URL
-    built for an id no line owns is a dead link, and a dead link is worse than
-    a bare id: the bare id does not claim to resolve.
-
-    Three separate things can be wrong and each is named separately, because
-    "some image is broken" is not a report anyone can act on:
-
-    * an id that is not ``<product type>/<product id>`` at all;
-    * a line whose id is not the id of that line -- which would publish one
-      line's drawing under another line's URL;
-    * a SKU pointing somewhere other than at its own line's drawing, which is
-      the variant-grouping story breaking in the one place nothing else looks.
+    Checked once over the whole catalog, before any URL is published. Named
+    separately, because "some image is broken" is not a report anyone can act
+    on: an id that is not ``<type>/<product>/<sku>``; a SKU pointing at
+    another SKU's drawing; a product not pointing at its first variant's.
     """
-    from ..render.generic import IMAGE_IDS  # noqa: PLC0415
-
-    drawings = set(IMAGE_IDS)
     malformed: list[str] = []
     mismatched: list[str] = []
-    undrawn: list[str] = []
     for line in catalog.lines:
-        try:
-            product_type_for_image(line.image_id)
-        except ImageIdError:
-            malformed.append(line.image_id)
-            continue
-        if line.image_id != f"{line.type_key}/{line.product_id}":
-            mismatched.append(f"{line.product_id} -> {line.image_id}")
-        if line.drawing not in drawings:
-            undrawn.append(f"{line.product_id} -> {line.drawing!r}")
         for child in line.children:
-            if child.image_id != line.image_id:
-                mismatched.append(f"{child.sku} -> {child.image_id} (line {line.image_id})")
+            try:
+                product_type_for_image(child.image_id)
+            except ImageIdError:
+                malformed.append(child.image_id)
+                continue
+            expected = f"{line.type_key}/{line.product_id}/{child.sku}"
+            if child.image_id != expected:
+                mismatched.append(f"{child.sku} -> {child.image_id}")
+        if line.children and line.image_id != line.children[0].image_id:
+            mismatched.append(f"{line.product_id} -> {line.image_id} (not its first variant's)")
     problems = []
     if malformed:
         problems.append(
-            f"{len(malformed)} image id(s) are not <type>/<product id>: {malformed[:5]}"
+            f"{len(malformed)} image id(s) are not <type>/<product>/<sku>: {malformed[:5]}"
         )
     if mismatched:
-        problems.append(
-            f"{len(mismatched)} image id(s) do not name their own line: {mismatched[:5]}"
-        )
-    if undrawn:
-        problems.append(
-            f"{len(undrawn)} line(s) name a shape no drawing exists for: {undrawn[:5]}. "
-            "Either the renderer lost a drawing or taxonomy.DRAWING gained a name "
-            "it has no drawing for."
-        )
+        problems.append(f"{len(mismatched)} image id(s) are not their own: {mismatched[:5]}")
     if problems:
         raise UnresolvedImageError("; ".join(problems))
+
+
+def drawing_record(catalog: Catalog, line: ProductLine, child: Sku) -> dict[str, str]:
+    """What a SKU's drawing reads: its published attributes, name to value."""
+    record: dict[str, str] = {}
+    for attribute in catalog.merged_attributes(line, child):
+        record[attribute.name] = (
+            ", ".join(attribute.values) if attribute.values is not None else attribute.value
+        )
+    return record
+
+
+def iter_drawings(catalog: Catalog) -> Iterator[tuple[ProductLine, Sku, bytes, str]]:
+    """Every SKU's drawing: ``(line, sku, svg_bytes, geometry_source)``, in catalog order."""
+    from ..drawing import draw_product  # noqa: PLC0415
+
+    for line in catalog.lines:
+        records = [drawing_record(catalog, line, child) for child in line.children]
+        drawn = draw_product(line.type_key, line.brand, records)
+        for child, (data, source) in zip(line.children, drawn, strict=True):
+            yield line, child, data, source
 
 
 def iter_image_manifest(
     catalog: Catalog, base_url: str = DEFAULT_IMAGE_BASE_URL
 ) -> Iterator[dict[str, Any]]:
-    """One row per DISTINCT image: what it is, where it is hosted, who uses it.
+    """One row per SKU image: its id, path, URL, and the sha256 of its bytes.
 
-    The catalog references an image once per product and once per variant that
-    points at it, which for twelve drawings and four thousand products is many
-    thousands of times over; whatever hosts the files needs each one once.
-    Emitting the manifest here means the host reads the paths off this file
-    instead of re-deriving them from the catalog with a second copy of the
-    naming rule -- and a second copy is how the two come to disagree.
+    The digest is what couples the committed catalog to the drawings: a
+    regenerated drawing under an unchanged id has a new digest, so the bundle
+    built from it cannot pass for the old one (the gap
+    elastic/prism-industrial-products#78 recorded, where only file LISTS were
+    compared). ``geometry`` says whether the drawing read every drawn value off
+    the record (``record``), filled some with nominal proportions
+    (``partial``), or none (``nominal``).
     """
     check_image_ids(catalog)
-    referenced_by: dict[str, int] = {}
-    drawn_as: dict[str, str] = {}
-    for line in catalog.lines:
-        referenced_by[line.image_id] = referenced_by.get(line.image_id, 0) + 1
-        drawn_as[line.image_id] = line.drawing
-        for child in line.children:
-            referenced_by[child.image_id] = referenced_by.get(child.image_id, 0) + 1
-    for image_id in sorted(referenced_by):
+    for line, child, data, source in iter_drawings(catalog):
         yield {
-            "image_id": image_id,
-            "product_type": product_type_for_image(image_id),
-            "drawing": drawn_as[image_id],
-            "path": image_path(image_id, CARD_PROFILE),
-            "url": image_url(image_id, base_url, CARD_PROFILE),
-            "detail_path": image_path(image_id, DETAIL_PROFILE),
-            "detail_url": image_url(image_id, base_url, DETAIL_PROFILE),
-            "referenced_by": referenced_by[image_id],
+            "image_id": child.image_id,
+            "product_type": line.type_key,
+            "product_id": line.product_id,
+            "sku": child.sku,
+            "path": image_path(child.image_id),
+            "url": image_url(child.image_id, base_url),
+            "sha256": hashlib.sha256(data).hexdigest(),
+            "bytes": len(data),
+            "geometry": source,
         }
 
 
@@ -232,7 +215,7 @@ def nested_document(
         "dimension_provenance": line.dimension_provenance,
         "image_id": line.image_id,
         "image_url": image_url(line.image_id, base_url),
-        "image_detail_url": image_url(line.image_id, base_url, DETAIL_PROFILE),
+        "image_detail_url": image_url(line.image_id, base_url),
         "attributes": _attribute_entries(line.attributes),
         "variant_count": len(line.children),
         "variants": [
@@ -244,7 +227,7 @@ def nested_document(
                 "stock": child.stock,
                 "image_id": child.image_id,
                 "image_url": image_url(child.image_id, base_url),
-                "image_detail_url": image_url(child.image_id, base_url, DETAIL_PROFILE),
+                "image_detail_url": image_url(child.image_id, base_url),
                 "attributes": _attribute_entries(child.attributes),
             }
             for child in line.children
@@ -290,7 +273,7 @@ def flat_documents(
             "stock": child.stock,
             "image_id": child.image_id,
             "image_url": image_url(child.image_id, base_url),
-            "image_detail_url": image_url(child.image_id, base_url, DETAIL_PROFILE),
+            "image_detail_url": image_url(child.image_id, base_url),
             "attributes": _attribute_entries(merged),
             "attribute_names": sorted({a.name for a in merged}),
             "facets": facets,
@@ -430,15 +413,22 @@ FLAT_MAPPING: dict[str, Any] = {
 def render_records(catalog: Catalog) -> Iterator[dict[str, Any]]:
     """Records in the shape the existing renderer already reads.
 
-    :func:`..render.renderer_for` dispatches on the attribute NAMES a record
-    carries, not on a type field, and reads values out of a flat mapping keyed
-    by the published name -- which is the shape :mod:`..records` uses. Emitting
-    that shape means the drawings come from the existing renderer rather than
-    from a second one written to a different contract.
+    Values are read out of a flat mapping keyed by the published name -- the
+    shape :mod:`..records` uses -- plus two reserved keys that are not
+    attributes: ``sku`` and ``product_type``. The type is what
+    :func:`..render.kinds.classify` dispatches on; attribute names stopped
+    identifying a type when one concept became one generic name across types
+    (elastic/prism-industrial-products#103).
     """
+    from ..render.kinds import TYPE_KIND  # noqa: PLC0415
+
     for line in catalog.lines:
+        # Only the types that renderer draws: the newer ones exist only as
+        # the catalog's own text-free drawings (:mod:`..drawing`).
+        if line.type_key not in TYPE_KIND:
+            continue
         for child in line.children:
-            record: dict[str, Any] = {"sku": child.sku}
+            record: dict[str, Any] = {"sku": child.sku, "product_type": line.type_key}
             for attribute in catalog.merged_attributes(line, child):
                 if attribute.values is not None:
                     record[attribute.name] = ", ".join(attribute.values)
@@ -448,12 +438,7 @@ def render_records(catalog: Catalog) -> Iterator[dict[str, Any]]:
 
 
 def referenced_image_ids(catalog: Catalog) -> set[str]:
-    """Every image anything in the catalog points at, lines included.
-
-    This is exactly the set of images the catalog needs to exist: one per
-    product LINE, shared by that line's SKUs -- which is what a distributor's
-    own listing does, several sizes of one end mill against one picture.
-    """
+    """Every image anything in the catalog points at: one per SKU."""
     referenced = {line.image_id for line in catalog.lines}
     referenced.update(child.image_id for _, child in catalog.all_skus())
     return referenced - {""}

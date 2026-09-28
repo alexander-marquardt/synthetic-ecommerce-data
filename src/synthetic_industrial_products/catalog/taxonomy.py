@@ -19,7 +19,7 @@ THE RULE, read off the real distributor's own breadcrumbs and category facet
   end mills at a MATERIAL (``... / Square End Mills / Cobalt``), which the
   real catalog never does; ``tests/test_catalog_vocab.py`` now reds if any
   path segment equals a value its own products publish as an attribute.
-* **Depth varies, 3 to 4 levels**, because it varies in the real catalog:
+* **Depth varies, 3 to 5 levels**, because it varies in the real catalog:
   drill bits sit one grouping deeper than taps.
 * **Root names are the real catalog's** (``Holemaking``, not ``Drilling``).
 """
@@ -78,6 +78,29 @@ LEAVES: dict[str, tuple[CategoryPath, ...]] = {
         ),
     ),
     "abrasive_flap_disc": (("Abrasives", "Coated & Non-Woven Abrasives", "Discs", "Flap Discs"),),
+    # elastic/prism-industrial-products#103, stage 1. Depth runs to five, as
+    # the reference distributor's own breadcrumbs do for hex keys.
+    "nut_hex": (("Fasteners", "Nuts", "Hex Nuts"),),
+    "bearing_radial_ball": (
+        ("Motion Control & Fluid Power", "Bearings", "Radial Ball Bearings"),
+    ),
+    "wheel_depressed_center": (
+        (
+            "Abrasives",
+            "Grinding & Cut-Off",
+            "Grinding & Cut-Off Wheels",
+            "Depressed-Center Wheels",
+        ),
+    ),
+    "hex_key": (
+        (
+            "Hand Tools",
+            "Screwdrivers & Hex Keys",
+            "Hex & Torx Keys",
+            "Hex Keys & Accessories",
+            "Hex Keys",
+        ),
+    ),
 }
 
 #: The end-mill tool materials each style is made in, in the order the draw
@@ -132,6 +155,10 @@ DRAWING: dict[str, str] = {
     "washer_flat": "washer_flat",
     "hammer_ball_pein": "hammer_ball_pein",
     "abrasive_flap_disc": "abrasive_flap_disc",
+    "nut_hex": "nut_hex",
+    "bearing_radial_ball": "bearing_radial_ball",
+    "wheel_depressed_center": "wheel_depressed_center",
+    "hex_key": "hex_key",
 }
 
 
@@ -149,26 +176,27 @@ def drawing_for(type_key: str) -> str:
     return DRAWING[type_key]
 
 
-def image_id_for(type_key: str, product_id: str) -> str:
-    """One product line's image id: ``end_mill_square/OST-K663-0001``.
+def image_id_for(type_key: str, product_id: str, sku: str) -> str:
+    """One SKU's image id: ``end_mill_square/OST-K663-0001/97NR28``.
 
-    The product type is IN the id, and so is the line. That is what makes the
-    id enough on its own to say where the drawing is published -- see
-    :func:`..emit.image_path`, which does nothing but append the profile. A
-    second table mapping ids to directories is exactly how a record's URL and
-    the manifest's path would come to disagree, which is the defect
-    ``images.jsonl`` exists to prevent.
+    ONE IMAGE PER SKU (elastic/prism-industrial-products#103, 2026-09-26): each
+    variant is drawn from its own dimensions, so selecting a variant can switch
+    the picture once a grouped view exists. The product type is in the id, then
+    the product, then the SKU -- enough on its own to say where the file lives
+    (:func:`..emit.image_path` appends ``.svg`` and nothing else), so no second
+    table can make a record's URL and the manifest's path disagree.
     """
     if type_key not in DRAWING:
         raise ImageIdError(
             f"{type_key!r} is not a product type, so no image can be published under it"
         )
-    if not product_id or "/" in product_id:
-        raise ImageIdError(
-            f"{product_id!r} cannot be a product id in an image id: it is empty "
-            "or it carries the separator"
-        )
-    return f"{type_key}/{product_id}"
+    for part, what in ((product_id, "product id"), (sku, "SKU")):
+        if not part or "/" in part:
+            raise ImageIdError(
+                f"{part!r} cannot be a {what} in an image id: it is empty "
+                "or it carries the separator"
+            )
+    return f"{type_key}/{product_id}/{sku}"
 
 
 def product_type_for_image(image_id: str) -> str:
@@ -178,11 +206,11 @@ def product_type_for_image(image_id: str) -> str:
     line's own product type. A malformed id raises: a guess here would file a
     drawing under a category nothing else agrees with.
     """
-    type_key, _, product_id = image_id.partition("/")
-    if not product_id or "/" in product_id or type_key not in DRAWING:
+    parts = image_id.split("/")
+    if len(parts) != 3 or not all(parts) or parts[0] not in DRAWING:
         raise ImageIdError(
             f"{image_id!r} is not an image id. One reads "
-            "<product type>/<product id>, and the product type must be one of "
+            "<product type>/<product id>/<sku>, and the product type must be one of "
             f"{sorted(DRAWING)}."
         )
-    return type_key
+    return parts[0]

@@ -4,7 +4,7 @@ The build output is committed so that a change to the generator shows up as a
 readable diff in review, and so that the catalog can be read without running
 anything. That is also why these files are plain NDJSON rather than a gzip or
 an LFS pointer, both of which would hide exactly the diff that is the point.
-18.5 MiB in the tree occupies 906 KiB in the pack.
+About 45 MiB in the tree; NDJSON drawn from one naming grammar packs small.
 
 Committed output rots the moment nobody checks it, so this is the gate. The
 generator is deterministic -- one seed, one catalog, byte for byte -- so the
@@ -14,9 +14,8 @@ counts, because a whole-file diff of a 12 MB NDJSON tells a reader nothing.
 
 Two very different things make this test red, and the failure message says so:
 an intentional generator change (regenerate and commit; expected, for instance,
-when issue #5 gives each product line its own drawing and every ``image_id``
-moves) versus genuine nondeterminism (a real bug: the same seed is supposed to
-produce the same bytes twice).
+when every ``image_id`` moves) versus genuine nondeterminism (a real bug:
+the same seed is supposed to produce the same bytes twice).
 
 The headline invariants are asserted separately, against the COMMITTED files
 rather than the fresh build, so that regenerating from a broken generator and
@@ -53,8 +52,8 @@ GOLDEN_FILES = (
     "stats.json",
 )
 
-LINES = 500
-SKUS = 4689
+LINES = 5400
+SKUS = 10202
 
 
 def _sha256(path: Path) -> str:
@@ -244,7 +243,7 @@ def test_every_flat_document_carries_an_image_url(flat_docs: list[dict], field: 
     missing = [doc["sku"] for doc in flat_docs if not doc.get(field)]
     assert not missing, (
         f"{len(missing)} flat document(s) carry no {field}: {missing[:5]}. "
-        f"Every product and variant points at one of the generic drawings."
+        f"Every SKU points at its own drawing in the image bundle."
     )
 
 
@@ -306,7 +305,8 @@ def test_stats_reports_the_catalog_that_was_committed() -> None:
     assert stats["config"] == {
         "seed": GeneratorConfig.seed,
         "lines": GeneratorConfig.lines,
-        "skus_per_line": list(GeneratorConfig.skus_per_line),
+        "variants_per_product": [list(pair) for pair in GeneratorConfig().variants_per_product],
+        "new_type_products": dict(GeneratorConfig().new_type_products),
         "sparsity_scale": GeneratorConfig.sparsity_scale,
         "defect_scale": GeneratorConfig.defect_scale,
     }, (

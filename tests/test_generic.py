@@ -34,7 +34,7 @@ from matplotlib.text import Text
 from helpers import colour_mask, figure_pixels
 from synthetic_industrial_products.catalog import taxonomy
 from synthetic_industrial_products.records import DRAWABLE
-from synthetic_industrial_products.render import CARD, DETAIL, endmill, generic
+from synthetic_industrial_products.render import CARD, DETAIL, endmill, generic, kinds
 from synthetic_industrial_products.render.canvas import DIM
 from synthetic_industrial_products.render.profiles import CARD_CSS, DETAIL_CSS, SCALE
 
@@ -122,7 +122,7 @@ TWO_VALUES: dict[str, tuple[str, str]] = {
     "Number of Flutes": ("2", "6"),
     "Helix Angle": ("30 Degrees", "45 Degrees"),
     "Point Angle": ("118 Degrees", "135 Degrees"),
-    "Drill Size": ('1/8"', "11 mm"),
+    "Size": ('1/8"', "11 mm"),
     "Decimal Equivalent": ("0.1250", "0.4331"),
     "Flute Length": ('1"', "70 mm"),
     "Thread Size": ("#10-32", "M12x1.75"),
@@ -132,15 +132,15 @@ TWO_VALUES: dict[str, tuple[str, str]] = {
     "Inside Dia.": ("3 mm", "17 mm"),
     "Outside Dia.": ("7 mm", "30 mm"),
     "Thickness": ("0.5 mm", "3 mm"),
-    "Disc Dia.": ('4-1/2"', "180 mm"),
-    "Arbor Hole Size": ('7/8"', "22 mm"),
+    "Diameter": ('4-1/2"', "180 mm"),
+    "Arbor Hole": ('7/8"', "22 mm"),
     "Grit": ("40", "120"),
     "Max. RPM": ("13,300", "8,600"),
     "Head Weight": ("4 oz", "32 oz"),
     "Face Dia.": ('0.68"', "40 mm"),
     "Handle Length": ('9"', "400 mm"),
     "Length": ('1/2"', "80 mm"),
-    "Length Under Head": ('3/8"', "70 mm"),
+    "Length under Head": ('3/8"', "70 mm"),
     "Head Dia.": ('0.411"', "18 mm"),
     "Head Height": ('0.127"', "12 mm"),
     "Drive Size": ('1/8"', "6 mm"),
@@ -152,11 +152,11 @@ TWO_VALUES: dict[str, tuple[str, str]] = {
 STYLE_OF_TYPE: dict[str, dict[str, str]] = {
     "end_mill_square": {"End Mill Style": "Square"},
     "end_mill_ball": {"End Mill Style": "Ball Nose"},
-    "screw_socket_head": {"Screw Head Type": "Socket"},
-    "screw_flat_head": {"Screw Head Type": "Flat"},
-    "screw_button_head": {"Screw Head Type": "Button"},
-    "screw_low_head": {"Screw Head Type": "Low Socket"},
-    "bolt_hex": {"Screw Head Type": "Hex"},
+    "screw_socket_head": {"Head Type": "Socket"},
+    "screw_flat_head": {"Head Type": "Flat"},
+    "screw_button_head": {"Head Type": "Button"},
+    "screw_low_head": {"Head Type": "Low Socket"},
+    "bolt_hex": {"Head Type": "Hex"},
 }
 
 
@@ -179,7 +179,12 @@ def _two_records(type_key: str) -> tuple[dict, dict]:
     return first, second
 
 
-@pytest.mark.parametrize("type_key", sorted(taxonomy.DRAWING))
+#: The types the type drawings exist for: the original twelve. The newer types
+#: have only the catalog's text-free per-SKU drawings (``..drawing``).
+DRAWN_TYPES = sorted(kinds.TYPE_KIND)
+
+
+@pytest.mark.parametrize("type_key", DRAWN_TYPES)
 def test_the_image_does_not_depend_on_any_record(type_key, tmp_path):
     """The structural proof that no number from a record can be on the page.
 
@@ -198,7 +203,7 @@ def test_the_image_does_not_depend_on_any_record(type_key, tmp_path):
 
 def test_those_two_records_really_do_differ():
     """The control: a comparison of two identical inputs proves nothing."""
-    for type_key in taxonomy.DRAWING:
+    for type_key in DRAWN_TYPES:
         first, second = _two_records(type_key)
         differing = [k for k in first if k != "sku" and first[k] != second[k]]
         assert len(differing) >= 6, (type_key, differing)
@@ -240,7 +245,7 @@ def test_a_square_end_mill_and_a_ball_nose_are_not_the_same_picture(tmp_path):
 
 def test_there_are_exactly_twelve_and_the_catalog_uses_all_of_them():
     assert len(generic.IMAGE_IDS) == 12
-    assert set(taxonomy.DRAWING.values()) == set(generic.IMAGE_IDS)
+    assert {taxonomy.DRAWING[key] for key in DRAWN_TYPES} == set(generic.IMAGE_IDS)
     assert set(taxonomy.DRAWING) == set(taxonomy.LEAVES)
 
 

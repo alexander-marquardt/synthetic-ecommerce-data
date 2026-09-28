@@ -91,7 +91,7 @@ def test_standards_agreement_alone_is_not_a_copy():
         Attribute(name=name, value=value) for name, value in reference.items() if name != "sku"
     ]
     # Same standards-fixed head, different finish: a different product.
-    near_miss.append(Attribute(name="Fastener Finish", value="Black Oxide"))
+    near_miss.append(Attribute(name="Finish", value="Black Oxide"))
     assert not noncopy.matches_reference(near_miss)
     assert ("Head Dia.", "0.411 in") in noncopy.pairs_of(near_miss)
 
