@@ -485,8 +485,8 @@ def _drawn_size(type_key: str, record) -> tuple[float, float]:
 
 def _too_small(width: float, height: float) -> bool:
     """The ruling, written out independently of :func:`sheet.magnifier`:
-    drawn at most 1/6 of the sheet's width AND at most 1/6 of its height."""
-    return width <= 200 / 6 and height <= 300 / 6
+    drawn at most 1/5 of the sheet's width AND at most 1/6 of its height."""
+    return width <= 200 / 5 and height <= 300 / 6
 
 
 def _handled_k(width: float, height: float) -> float:
@@ -508,7 +508,7 @@ def _golden_skus():
 
 
 def test_the_lens_appears_exactly_when_the_rule_says():
-    """Over every committed SKU: a lens iff the part is drawn h AND w <= 1/6 of the sheet."""
+    """Over every committed SKU: a lens iff the part is drawn w <= 1/5 AND h <= 1/6 of the sheet."""
     wrong, lensed, plain = [], 0, 0
     for parent, variant, record in _golden_skus():
         type_key = parent["product_type"]
@@ -523,37 +523,64 @@ def test_the_lens_appears_exactly_when_the_rule_says():
     assert lensed > 1000 and plain > 5000, (lensed, plain)
 
 
-def test_every_lens_enlarges_at_least_2_5_and_is_handle_less_only_when_it_must_be():
+#: The smallest enlargement any committed lens gives, measured and rounded
+#: down to 0.01: the handled glass is used only at x2.5 or more, and the
+#: handle-less lens reaches x2.53 on the committed catalog's largest lensed part.
+CATALOG_MIN_ENLARGEMENT = 2.52
+
+#: What the handle-less lens gives at the rule's extreme, a part drawn a full
+#: 40 x 50 (1/5 x 1/6 of the sheet). BELOW x2.5, and stated rather than hidden:
+#: the lens is width-bound -- at the 8-unit margin that clears the brand frame
+#: its interior radius is ~84.1 units -- so no larger lens fits.
+EXTREME_ENLARGEMENT = 2.41
+
+
+def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only_when_it_must_be():
     """Handled glass when it reaches x2.5; otherwise the larger handle-less lens.
 
-    Over every committed SKU the rule applies to, and at the rule's extreme --
-    a part drawn a full 1/6 by 1/6 of the sheet, the largest diagonal a
-    too-small part can have -- so the x2.5 floor is proven, not sampled.
+    Over every committed SKU the rule applies to. The floor is the catalog's
+    measured minimum; at the rule's extreme the handle-less lens gives ~x2.42.
     """
     from synthetic_industrial_products.drawing.sheet import magnifier
 
     counts = {True: 0, False: 0}
+    lowest = 99.0
     for parent, variant, record in _golden_skus():
         width, height = _drawn_size(parent["product_type"], record)
         mag = magnifier(width, height)
         if mag is None:
             continue
-        assert mag.k >= 2.5, (variant["sku"], mag.k)
+        lowest = min(lowest, mag.k)
         assert mag.handle == (_handled_k(width, height) >= 2.5), variant["sku"]
         counts[mag.handle] += 1
         if variant["sku"] in ("4LN69", "93TD57"):  # an in-between screw, a hairline drill
             assert not mag.handle, variant["sku"]
     assert counts[True] > 100 and counts[False] > 500, counts
-    extreme = magnifier(200 / 6 - 1e-9, 300 / 6 - 1e-9)
-    assert extreme is not None and not extreme.handle and extreme.k >= 2.5
+    assert CATALOG_MIN_ENLARGEMENT <= lowest < CATALOG_MIN_ENLARGEMENT + 0.01, lowest
+    extreme = magnifier(200 / 5 - 1e-9, 300 / 6 - 1e-9)
+    assert extreme is not None and not extreme.handle
+    assert EXTREME_ENLARGEMENT <= extreme.k < 2.5, extreme.k
+
+
+def test_the_handle_less_lens_clears_the_brand_frame():
+    """The widest lens is 8 units in; frames sit 6 in with strokes at most 2 wide."""
+    from synthetic_industrial_products.drawing.sheet import magnifier
+
+    mag = magnifier(39, 49)
+    assert mag is not None and not mag.handle
+    assert mag.lens[0] - (mag.radius + mag.stroke) == pytest.approx(8.0)
+    assert 8.0 - (6 + 2 / 2) >= 1.0
 
 
 def test_a_part_just_over_the_share_in_ONE_dimension_is_drawn_plain():
-    """Both dimensions must be small; each alone is not enough, and each binds."""
+    """Both dimensions must be small; each alone is not enough, and each binds.
+
+    Width at 1/5 of the sheet (40), height at 1/6 (50).
+    """
     from synthetic_industrial_products.drawing.sheet import magnifier
 
-    assert magnifier(33, 5) is not None
-    assert magnifier(35, 5) is None
+    assert magnifier(39, 5) is not None
+    assert magnifier(41, 5) is None
     assert magnifier(5, 49) is not None
     assert magnifier(5, 300 / 6 + 0.5) is None
 

@@ -1338,8 +1338,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "magnify a part that is small in only one dimension",
         "drawing/sheet.py",
-        "    if width > svg.WIDTH * MAGNIFY_SHARE or height > svg.HEIGHT * MAGNIFY_SHARE:",
-        "    if width > svg.WIDTH * MAGNIFY_SHARE and height > svg.HEIGHT * MAGNIFY_SHARE:",
+        "    if width > svg.WIDTH * MAGNIFY_WIDTH_SHARE or height > svg.HEIGHT * MAGNIFY_HEIGHT_SHARE:",
+        "    if width > svg.WIDTH * MAGNIFY_WIDTH_SHARE and height > svg.HEIGHT * MAGNIFY_HEIGHT_SHARE:",
         "tests/test_sku_drawings.py -k ONE_dimension",
         "A",
         "the magnifier applies only when both dimensions are small",

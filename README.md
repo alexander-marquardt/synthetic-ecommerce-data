@@ -628,9 +628,11 @@ per type in `drawing/figures.py`. There is no exception to it: a part too
 small to read is not drawn larger, it is shown through a **magnifier**
 (maintainer ruling on elastic/prism-industrial-products#103, 2026-09-28):
 
-* a part is **too small to see** when it is drawn at most 1/6 of the sheet's
-  width AND at most 1/6 of its height, and such a part ALWAYS gets a lens (the
-  refined ruling of 2026-09-28); every other part is drawn plain, centred;
+* a part is **too small to see** when it is drawn at most 1/5 of the sheet's
+  width (40 units) AND at most 1/6 of its height (50), and such a part ALWAYS
+  gets a lens (the refined ruling of 2026-09-28, with the edge cases settled at
+  1/5 wide so socket screws drawn just over 1/6 are lensed); every other part
+  is drawn plain, centred;
 * the lensed part is drawn at its type's scale near the bottom of the sheet,
   horizontally centred, with no circle around it, and the lens above it shows
   the same figure enlarged so its bounding box's diagonal spans 92% of the lens;
@@ -639,8 +641,10 @@ small to read is not drawn larger, it is shown through a **magnifier**
   bottom-right), stroked at 35% of the icon's weight in the brand's ink, when
   that glass enlarges the part at least 2.5 times; otherwise it is a larger
   HANDLE-LESS lens -- the same thin ring and white interior -- sized to the
-  sheet's width, which enlarges even the largest too-small part (1/6 x 1/6 of
-  the sheet) at least 2.5 times;
+  sheet's width at an 8-unit side margin (the smallest that clears every brand
+  frame by at least a unit). That lens is WIDTH-BOUND, so it cannot grow further:
+  at the rule's extreme (a part drawn 40 x 50) it enlarges only ~x2.42, below
+  the x2.5 the handled glass guarantees;
 * the whole glyph is horizontally centred and as large as fits; the space above
   it equals the space below the part, with a 14-unit gap between them;
 * no outline is thinner than 2.3 sheet units (~2 px on a 180 px-wide
@@ -648,8 +652,10 @@ small to read is not drawn larger, it is shown through a **magnifier**
   type's scale -- is visible with or without a lens. Interior detail lines
   (flutes, threads, hatch) are texture and keep their finer weight.
 
-On the committed catalog 1,152 SKUs are too small to see: 162 get the handled
-glass (x2.53 to x3.77) and 990 the handle-less lens (x2.60 to x3.94). No drawing
+On the committed catalog 1,284 SKUs are too small to see: 162 get the handled
+glass (x2.53 to x3.77) and 1,122 the handle-less lens (x2.53 to x4.03). The
+lowest enlargement any committed lens gives is x2.53; no committed part reaches
+the rule's 40 x 50 extreme. No drawing
 carries text; the magnifier adds only paths and circles, and
 `stroke-linecap="round"` to the allow-list.
 
@@ -660,13 +666,16 @@ What `tests/test_sku_drawings.py` proves over the committed catalog:
   siblings share is drawn identically on each (measured on the true-scale
   part of every drawing: screws' heads and bearings' outer rings).
 * **The magnifier:**
-  * a lens appears on exactly the SKUs drawn at most 1/6 of the sheet in both
-    dimensions, over every committed SKU;
-  * every lens enlarges at least x2.5, the handle-less lens is used exactly
-    where the handled glass cannot reach x2.5, and at the rule's extreme (a
-    full 1/6 x 1/6 part) the handle-less lens still reaches x2.5;
-  * each dimension binds on its own (planted: 35 x 5 and 5 x 50.5 plain,
-    33 x 5 and 5 x 49 lensed); long thin parts never get a lens;
+  * a lens appears on exactly the SKUs drawn at most 1/5 of the sheet's width
+    and 1/6 of its height, over every committed SKU;
+  * the handle-less lens is used exactly where the handled glass cannot reach
+    x2.5; the committed catalog's lowest enlargement is pinned at x2.52 (its
+    measured minimum, rounded down), and the rule's extreme (40 x 50) at
+    x2.41 to x2.5 -- below x2.5 because the lens is width-bound;
+  * the handle-less lens clears the brand frame (8 units in, frames at 6 with
+    strokes at most 2 wide);
+  * each dimension binds on its own (planted: 41 x 5 and 5 x 50.5 plain,
+    39 x 5 and 5 x 49 lensed); long thin parts never get a lens;
   * the lens shows the same part: the same shapes, scaled about the two
     centres by the layout's enlargement, and inside the lens;
   * the space above the glyph equals the space below the part, the gap is

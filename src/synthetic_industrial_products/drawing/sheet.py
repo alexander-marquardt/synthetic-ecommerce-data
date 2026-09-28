@@ -20,17 +20,22 @@ horizontally centred, and a magnifying glass above it shows it enlarged:
   the space above it equals the space below the small part, and
   :data:`GLYPH_GAP` separates the grip's lowest point from the part;
 * a part is TOO SMALL TO SEE when its drawn width is at most
-  :data:`MAGNIFY_SHARE` of the sheet's width AND its drawn height at most that
-  share of the sheet's height, and such a part ALWAYS gets a lens (the refined
-  ruling of 2026-09-28: *"if they are too small to see, then they should have a
-  lens .. if they can be seen, they should not"*). Every other part is drawn
-  plain, centred, at its type's scale;
+  :data:`MAGNIFY_WIDTH_SHARE` (1/5) of the sheet's width AND its drawn height at
+  most :data:`MAGNIFY_HEIGHT_SHARE` (1/6) of the sheet's height, and such a part
+  ALWAYS gets a lens (the refined ruling of 2026-09-28: *"if they are too small
+  to see, then they should have a lens .. if they can be seen, they should
+  not"*; the 1/5 width share is the coordinator's call on the edge cases, so the
+  socket screws drawn just over 1/6 wide are lensed too). Every other part is
+  drawn plain, centred, at its type's scale;
 * the handled glass is used when it enlarges the part at least
   :data:`MIN_ENLARGEMENT` times. Otherwise the lens is a larger HANDLE-LESS
   circle -- the same thin ring, white interior and enlarged part -- sized to the
   sheet's width, with the part below it, both centred and the margins
-  balanced. Sized so, even the largest too-small part (1/6 x 1/6 of the sheet,
-  a diagonal of ~60 units) is enlarged at least x2.5.
+  balanced. THAT LENS IS WIDTH-BOUND, so its enlargement cannot be raised by
+  growing it: at an 8-unit side margin its interior radius is ~84.1 units,
+  which enlarges the largest too-small part (40 x 50, a ~64-unit diagonal)
+  only ~x2.42. The floor the tests hold is the measured catalog minimum
+  (``tests/test_sku_drawings.py``), not x2.5.
 
 NO OUTLINE IS THINNER THAN :data:`MIN_STROKE` units, which is ~2 px on a
 180 px-wide thumbnail, so a hairline part (a 1/16" drill at its type's scale is
@@ -61,14 +66,19 @@ LW_PART = svg.num(MIN_STROKE)
 LW_LINE = "0.8"
 
 #: The magnifier's rule and geometry (see the module docstring).
-MAGNIFY_SHARE = 1 / 6
+#: The too-small-to-see rule: a part drawn at most this share of the sheet's
+#: WIDTH and at most that share of its HEIGHT gets a lens.
+MAGNIFY_WIDTH_SHARE = 1 / 5
+MAGNIFY_HEIGHT_SHARE = 1 / 6
 MIN_ENLARGEMENT = 2.5
 LENS_FILL = 0.92
 GLYPH_GAP = 14.0
 #: The glyph's inset from the sheet edge, sideways (the icon's frame-free zone).
 GLYPH_MARGIN = 12.0
 #: The handle-less lens's inset from the sheet edge: it is sized to the width.
-LENS_MARGIN = 10.0
+#: 8 is the smallest that clears every brand frame: the frames are drawn at 6
+#: units in with strokes at most 2 wide, so the ring stays at least 1 unit clear.
+LENS_MARGIN = 8.0
 #: Stroke weight as a share of the icon's (36 on a 135 lens interior).
 RING_SHARE = 0.35
 #: The icon's proportions, in its own units: lens interior radius, and how far
@@ -120,7 +130,7 @@ def magnifier(width: float, height: float) -> Magnifier | None:
     """The layout for a part drawn ``width`` x ``height``, or ``None`` if it is drawn plain."""
     if width <= 0 or height <= 0:
         return None
-    if width > svg.WIDTH * MAGNIFY_SHARE or height > svg.HEIGHT * MAGNIFY_SHARE:
+    if width > svg.WIDTH * MAGNIFY_WIDTH_SHARE or height > svg.HEIGHT * MAGNIFY_HEIGHT_SHARE:
         return None
     diagonal = math.hypot(width, height)
     # The handled glass: every extent is linear in the lens radius, so the
