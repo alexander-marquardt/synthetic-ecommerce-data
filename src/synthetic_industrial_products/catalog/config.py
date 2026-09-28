@@ -27,7 +27,7 @@ class GeneratorConfig:
     #: Roughly how many parent PRODUCTS of the original twelve types to emit.
     #: The actual count lands within a product or two of this; products are
     #: apportioned across those types by ``type_weights``. The newer types are
-    #: counted separately, in ``new_type_products``.
+    #: sized from this same number, through ``new_type_share``.
     #:
     #: 2,600 products at a mean of ~1.9 variants gives about 4,700 SKUs -- the
     #: size of the catalog before variants were trimmed, spread over five times
@@ -57,15 +57,24 @@ class GeneratorConfig:
     #: the main generation, whatever the random streams drew.
     must_stock: bool = True
 
-    #: Products per NEWER product type. Each of these types draws from its own
-    #: random stream (seeded from ``seed`` and the type key), so adding,
-    #: removing or resizing one moves no other type's products.
-    new_type_products: dict[str, int] = field(
+    #: Products per NEWER product type, as a SHARE of ``lines``: a type with
+    #: share ``s`` gets ``round(lines * s)`` products (:attr:`new_type_products`).
+    #: A share, not a count, so ``lines`` stays the ONE size knob -- a catalog
+    #: built at ten times the lines carries ten times the nuts, bearings, wheels
+    #: and hex keys, instead of the four newer types staying fixed while
+    #: everything else grows (elastic/prism-industrial-products, 100K catalog,
+    #: 2026-09-28). 700/2600 is the ratio the default catalog was built with,
+    #: so the default still carries exactly 700 of each.
+    #:
+    #: Each of these types draws from its own random stream (seeded from
+    #: ``seed`` and the type key), so adding, removing or resizing one moves no
+    #: other type's products.
+    new_type_share: dict[str, float] = field(
         default_factory=lambda: {
-            "nut_hex": 700,
-            "bearing_radial_ball": 700,
-            "wheel_depressed_center": 700,
-            "hex_key": 700,
+            "nut_hex": 700 / 2600,
+            "bearing_radial_ball": 700 / 2600,
+            "wheel_depressed_center": 700 / 2600,
+            "hex_key": 700 / 2600,
         }
     )
 
@@ -182,6 +191,11 @@ class GeneratorConfig:
     #: real catalog looks like.
     defect_scale: float = 1.0
 
+    @property
+    def new_type_products(self) -> dict[str, int]:
+        """Products per newer type at this size: ``new_type_share`` times ``lines``."""
+        return {key: round(self.lines * share) for key, share in self.new_type_share.items()}
+
     def scaled_presence(self, presence: float) -> float:
         if presence >= 1.0:
             return 1.0
@@ -195,13 +209,21 @@ class GeneratorConfig:
         return replace(self, **changes)  # type: ignore[arg-type]
 
 
+#: The ``--lines`` that lands the catalog at about 100,000 SKUs: measured,
+#: ``sip-generate build --lines 25850`` gives 100,206 SKUs over 53,517
+#: products (README, "The 100K catalog"). A named value of the one knob,
+#: not a second knob -- the industrial demo serves this size.
+HUNDRED_K_LINES = 25850
+
+
 #: A small configuration for tests and for a quick look at the output shape.
 SMALL = GeneratorConfig(
     lines=160,
-    new_type_products={
-        "nut_hex": 30,
-        "bearing_radial_ball": 30,
-        "wheel_depressed_center": 30,
-        "hex_key": 30,
+    # 30 products of each newer type: 160 * 0.1875.
+    new_type_share={
+        "nut_hex": 0.1875,
+        "bearing_radial_ball": 0.1875,
+        "wheel_depressed_center": 0.1875,
+        "hex_key": 0.1875,
     },
 )

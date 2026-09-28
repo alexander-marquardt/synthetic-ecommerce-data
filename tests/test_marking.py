@@ -20,6 +20,7 @@ import dataclasses
 import pytest
 
 from synthetic_industrial_products.catalog import emit
+from synthetic_industrial_products.catalog.brands import BRAND_BOOK, FRAMES, INKS
 from synthetic_industrial_products.catalog.config import SMALL
 from synthetic_industrial_products.catalog.generate import BRANDS, generate
 from synthetic_industrial_products.render.attrs import UnsupportedFeatureError
@@ -31,7 +32,6 @@ from synthetic_industrial_products.render.marking import (
     MATERIAL_ATTRIBUTES,
     MATERIAL_HATCH,
     MIN_INK_SEPARATION,
-    brand_for_ink,
     marking_for_line,
 )
 
@@ -71,16 +71,17 @@ def test_every_brand_the_generator_uses_has_an_outline_colour():
     assert set(BRAND_INK) == set(BRANDS), "a colour for a brand nothing sells is dead text"
 
 
-def test_no_brand_colour_lies_on_another_brands_blend_to_the_paper():
+def test_no_ink_lies_on_another_inks_blend_to_the_paper():
     """Distinct hex values are not enough; antialiasing is what breaks this.
 
-    Every stroke is antialiased, so a line drawn in one brand's colour puts
-    pixels at every blend between that colour and the paper. Two brands can
-    therefore be different colours and still be indistinguishable in the
-    pixels -- measured, the first palette here put sixteen Redmoor pixels
-    inside Halstead Tool's colour on one card, which is what
-    ``test_line_drawings.py::test_the_brand_is_readable_off_the_rendered_drawing``
-    caught. A table check alone would have called that palette fine.
+    Every stroke is antialiased, so a line drawn in one ink puts pixels at
+    every blend between that ink and the paper. Two inks can therefore be
+    different colours and still be indistinguishable in the pixels --
+    measured, the first palette here put sixteen Redmoor pixels inside
+    Halstead Tool's colour on one card. Checked over the PALETTE: brands now
+    share inks (the (ink, frame) pair is what names a brand), so the
+    separation that matters is between the inks two brands can be told
+    apart by.
     """
     import itertools
 
@@ -93,42 +94,40 @@ def test_no_brand_colour_lies_on_another_brands_blend_to_the_paper():
         blend = start + (np.ones(3) - start) * np.linspace(0, 1, 201)[:, None]
         return float(np.min(np.max(np.abs(blend - target), axis=1)))
 
-    worst = min(
-        (separation(BRAND_INK[a], BRAND_INK[b]), a, b)
-        for a, b in itertools.permutations(BRAND_INK, 2)
-    )
+    worst = min((separation(a, b), a, b) for a, b in itertools.permutations(INKS, 2))
     assert worst[0] >= MIN_INK_SEPARATION, (
-        f"{worst[1]} fades through {worst[2]}'s colour ({worst[0]:.3f})"
+        f"{worst[1]} fades through {worst[2]} ({worst[0]:.3f})"
     )
 
 
-def test_no_two_brands_share_an_outline_colour():
-    """Otherwise the channel carries ten values and distinguishes nine.
-
-    Nothing else notices: two brands sharing a hue still render, still differ
-    in their stamps, and still separate every line -- the reversibility is
-    what quietly stops being true.
-    """
-    assert len(set(BRAND_INK.values())) == len(BRAND_INK)
+def test_the_palette_has_no_repeated_ink():
+    assert len(set(INKS)) == len(INKS)
 
 
-@pytest.mark.parametrize("brand", sorted(BRAND_INK))
-def test_the_outline_colour_reads_back_as_the_brand(brand):
-    """Criterion 3, on the table. The same claim on the pixels is in
-    ``test_line_drawings.py::test_the_brand_is_readable_off_the_rendered_drawing``."""
-    assert brand_for_ink(BRAND_INK[brand]) == brand
-    assert brand_for_ink(BRAND_INK[brand].upper()) == brand
+def test_every_brands_ink_is_its_brand_book_ink():
+    for book in BRAND_BOOK:
+        assert BRAND_INK[book.name] == INKS[book.ink]
 
 
 def test_a_colour_no_brand_claims_does_not_resolve_to_the_nearest_one():
     """The control for the round trip above.
 
-    A ``brand_for_ink`` that returned the first brand whatever it was given
-    would pass every round trip for nine of the ten brands and would be
-    useless. This is what says the inverse is a lookup and not a guess.
+    A ``brand_for_house_style`` that returned the first brand whatever it was
+    given would pass most round trips and be useless. This is what says the
+    inverse is a lookup and not a guess: an ink no brand uses, and a real ink
+    with a frame no brand pairs it with, both refuse.
     """
-    with pytest.raises(UnsupportedFeatureError):
-        brand_for_ink("#123456")
+    from synthetic_industrial_products.drawing.style import (
+        UnknownStyleError,
+        brand_for_house_style,
+    )
+
+    with pytest.raises(UnknownStyleError):
+        brand_for_house_style("#123456", "rule")
+    used = {(INKS[b.ink], FRAMES[b.frame]) for b in BRAND_BOOK}
+    unused = next((i, f) for i in INKS for f in FRAMES if (i, f) not in used)
+    with pytest.raises(UnknownStyleError):
+        brand_for_house_style(*unused)
 
 
 # --- the tint and the hatch ------------------------------------------------

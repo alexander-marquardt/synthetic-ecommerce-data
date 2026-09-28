@@ -149,10 +149,11 @@ _NUT_METRIC = (
 
 
 def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineDraft:
+    from .brands import pick_brand
     from .generate import BRANDS, ChildDraft, LineDraft
 
     rng = gen.rng
-    brand = rng.choice(BRANDS)
+    brand = pick_brand(rng, type_key)
     metric = rng.random() < 0.3
     fine = not metric and rng.random() < 0.25
     style_name = _weighted(rng, (("Finished Hex", 0.7), ("Heavy Hex", 0.15), ("Jam", 0.15)))
@@ -252,10 +253,11 @@ _CLOSURES = (
 
 
 def build_bearing(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineDraft:
+    from .brands import pick_brand
     from .generate import BRANDS, ChildDraft, LineDraft
 
     rng = gen.rng
-    brand = rng.choice(BRANDS)
+    brand = pick_brand(rng, type_key)
     inch = rng.random() < 0.18
     table = _BEARINGS_INCH if inch else _BEARINGS_METRIC
     number, bore, od, width = table[gen._rotate(f"bearing:{inch}", len(table))]
@@ -324,10 +326,11 @@ _GRITS = (24, 36, 46, 60, 80, 120)
 
 
 def build_wheel(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineDraft:
+    from .brands import pick_brand
     from .generate import BRANDS, ChildDraft, LineDraft
 
     rng = gen.rng
-    brand = rng.choice(BRANDS)
+    brand = pick_brand(rng, type_key)
     style = feed_style(brand, "in", BRANDS)
     dia, rpm = _WHEELS[gen._rotate("wheel:dia", len(_WHEELS))]
     cutting = rng.random() < 0.3
@@ -380,10 +383,11 @@ _KEY_MM = (1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0)
 
 
 def build_hex_key(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineDraft:
+    from .brands import pick_brand
     from .generate import BRANDS, ChildDraft, LineDraft
 
     rng = gen.rng
-    brand = rng.choice(BRANDS)
+    brand = pick_brand(rng, type_key)
     metric = rng.random() < 0.4
     system = "mm" if metric else "in"
     style = feed_style(brand, system, BRANDS)

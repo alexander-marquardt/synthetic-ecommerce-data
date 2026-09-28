@@ -160,21 +160,24 @@ RANGE_MIN_DOCS = 50
 #:
 #: ``tests/test_facet_control_rule.py`` re-derives every entry here from the
 #: committed golden catalog, so the next regeneration has to restate them.
+#: Restated from the default catalog after the 100K brand book regenerated it
+#: (elastic/prism-industrial-products, 100K catalog, 2026-09-28), each by a
+#: direct ``measure()`` over golden-catalog/flat.jsonl.
 MEASURED_DISPERSION: dict[str, Any] = {
     # The band over the attributes that are actually FACETED.
-    "faceted_low": 0.0018,
-    "faceted_high": 0.4357,
+    "faceted_low": 0.0019,
+    "faceted_high": 0.4488,
     "densest_faceted": "Dynamic Load Capacity",
     # The saturated ladder the rule exists to keep off a slider.
     "drive_size_cardinality": 52,
-    "drive_size_present": 1389,
+    "drive_size_present": 1378,
     # The smallest faceted attribute, which is what clears RANGE_MIN_DOCS.
     "smallest_faceted": "Handle Length",
-    "smallest_faceted_present": 129,
+    "smallest_faceted_present": 136,
     # The continuum RANGE_MIN_DOCS -- not dispersion -- keeps off a slider.
     "min_docs_arm": "Neck Length",
     "min_docs_arm_dispersion": 1.0,
-    "min_docs_arm_present": 52,
+    "min_docs_arm_present": 51,
 }
 
 
