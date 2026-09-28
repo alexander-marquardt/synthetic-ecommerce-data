@@ -60,37 +60,68 @@ def test_the_census_is_the_whole_census():
     assert len(census["names_by_frequency"]) == 585
 
 
+def _nouns(type_key: str) -> tuple[str, ...]:
+    (path,) = taxonomy.LEAVES[type_key]
+    return names.own_nouns(path)
+
+
 def test_every_declared_name_passes_the_gate():
-    assert names.name_problems(_declared(), OBSERVED, CENSUS) == []
+    """Per type, against that type's OWN nouns; and the whole set for membership and casing."""
+    assert names.name_problems(_declared(), OBSERVED, CENSUS, nouns=()) == []
+    for type_key, specs in VOCAB.items():
+        declared = {spec.name for spec in specs}
+        assert names.name_problems(declared, OBSERVED, CENSUS, _nouns(type_key)) == [], type_key
 
 
 def test_every_emitted_name_passes_the_gate():
     """The live check: what a generated catalog actually publishes."""
     catalog = generate(SMALL)
-    emitted = {a.name for line in catalog.lines for a in line.attributes}
-    emitted |= {a.name for _, child in catalog.all_skus() for a in child.attributes}
-    assert emitted, "the catalog published nothing"
-    assert names.name_problems(emitted, OBSERVED, CENSUS) == []
+    by_type: dict[str, set[str]] = {}
+    for line in catalog.lines:
+        found = by_type.setdefault(line.type_key, set())
+        found.update(a.name for a in line.attributes)
+        found.update(a.name for child in line.children for a in child.attributes)
+    assert by_type, "the catalog published nothing"
+    everything = set().union(*by_type.values())
+    assert names.name_problems(everything, OBSERVED, CENSUS, nouns=()) == []
+    for type_key, emitted in by_type.items():
+        assert names.name_problems(emitted, OBSERVED, CENSUS, _nouns(type_key)) == [], type_key
 
 
 @pytest.mark.parametrize(
-    "planted",
+    "type_key,planted",
     [
-        "Widget Material",  # observed nowhere: membership refuses it
-        "End Mill Material",  # observed (census 3), but type-qualified: the noun rule refuses it
-        "Fastener Finish",  # observed (census 6), type-qualified
-        "Drill Bit Size",  # observed (census 4), type-qualified
-        "Wheel Type",  # on the reference spec table, still type-qualified
-        "Hex Nut Material",  # the noun is not at the start
-        "Cap Screw Type",  # census 1, type-qualified mid-name: refused, not allow-listed
-        "Toggle Bolt Type",  # census 1
-        "Machine Screw Head Type",  # census 1
-        "Length Under Head",  # the census's "Length under Head" in another casing
+        ("washer_flat", "Widget Material"),  # observed nowhere: membership refuses it
+        ("end_mill_square", "End Mill Material"),  # census 3, its own noun
+        ("drill_jobber", "Drill Bit Size"),  # census 4, its own noun
+        ("wheel_depressed_center", "Wheel Type"),  # reference list, its own noun
+        ("nut_hex", "Hex Nut Material"),  # its own noun, not at the start
+        ("screw_socket_head", "Cap Screw Type"),  # census 1: refused, not allow-listed
+        ("bolt_hex", "Toggle Bolt Type"),  # census 1
+        ("screw_socket_head", "Machine Screw Head Type"),  # census 1
+        ("screw_socket_head", "Fastener Finish"),  # its own root's noun
+        ("screw_socket_head", "Length Under Head"),  # census "Length under Head", other casing
     ],
 )
-def test_a_planted_type_prefixed_name_reds_the_gate(planted):
-    problems = names.name_problems(_declared() | {planted}, OBSERVED, CENSUS)
+def test_a_planted_type_prefixed_name_reds_the_gate(type_key, planted):
+    declared = {spec.name for spec in VOCAB[type_key]} | {planted}
+    problems = names.name_problems(declared, OBSERVED, CENSUS, _nouns(type_key))
     assert problems and all(repr(planted) in problem for problem in problems), problems
+
+
+@pytest.mark.parametrize(
+    "type_key,relational",
+    [
+        ("washer_flat", "For Bolt Size"),  # the mating bolt's size, census 6
+        ("tap_spiral_point", "Drill Size"),  # a tap's tap-drill size, census 12
+        ("end_mill_square", "Insert Screw"),  # a contained part, census 13
+        ("washer_flat", "For Bolt Thread Direction"),  # census 6
+    ],
+)
+def test_a_mating_or_contained_part_noun_is_not_a_qualifier(type_key, relational):
+    """The noun names ANOTHER part, so refusing it would steer the record to a wrong name."""
+    declared = {spec.name for spec in VOCAB[type_key]} | {relational}
+    assert names.name_problems(declared, OBSERVED, CENSUS, _nouns(type_key)) == []
 
 
 def test_an_allow_listed_type_specific_name_passes():

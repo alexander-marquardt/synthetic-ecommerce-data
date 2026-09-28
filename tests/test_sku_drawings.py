@@ -82,6 +82,15 @@ PLANTED_TEXT = {
     "font-attribute": '<path d="M0 0" font-family="Arial"/>',
     "char-data": "<g>1/4</g>",
     "processing-instruction": "<?render text?>",
+    # Attribute VALUES (the second review): external and data paint servers,
+    # free strings, and a nested document.
+    "data-paint-server": '<path d="M0 0" fill="url(data:image/svg+xml;base64,PHN2Zy8+#p)"/>',
+    "external-paint-server": '<path d="M0 0" fill="url(https://example.invalid/p.svg#p)"/>',
+    "named-fill": '<path d="M0 0" fill="red"/>',
+    "free-transform": '<g transform="translate(1,1) scale(9)"/>',
+    "letters-in-path-data": '<path d="M0 0 A1 1 0 0 1 2 2"/>',
+    "char-ref-in-value": '<path d="M0 0" stroke="&#35;123abc"/>',
+    "nested-svg": '<svg viewBox="0 0 1 1"/>',
 }
 
 
@@ -318,26 +327,111 @@ def _outer_radius(svg: bytes) -> float:
 def test_an_m3_washer_is_drawn_smaller_than_an_m16_in_proportion():
     """The ruling's own example: an M4 washer vs an M16 washer must LOOK different.
 
-    ISO 7089: M3 is 7 mm across, M16 is 30 mm. Drawn on the type's one scale
-    their outer radii keep that ratio (0.233), give or take the legibility
-    floor's square-root lift on the very smallest.
+    ISO 7089: M3 is 7 mm across, M16 is 30 mm (true ratio 0.233). Drawn on
+    the type's one scale, lifted by exactly the documented floor rule on the
+    small one -- measured 0.285.
     """
     m3 = {"Size": "M3", "Inside Dia.": "3.20mm", "Outside Dia.": "7mm", "Thickness": "0.50mm"}
     m16 = {"Size": "M16", "Inside Dia.": "17mm", "Outside Dia.": "30mm", "Thickness": "3mm"}
     small, _ = draw_sku("washer_flat", "Corvane", m3)
     large, _ = draw_sku("washer_flat", "Corvane", m16)
     ratio = _outer_radius(small) / _outer_radius(large)
-    assert ratio == pytest.approx(7 / 30, rel=0.1), ratio
+    # M16 is drawn at the type's scale; M3 falls under the legibility floor and
+    # is drawn sqrt(FLOOR * d) across instead of d -- still smaller, by the
+    # stated rule, and no further from the true 7/30 than that rule allows.
+    from synthetic_industrial_products.drawing.sheet import FLOOR, type_scale
+
+    scale = type_scale(FIGURES["washer_flat"][1])
+    d3, d16 = scale * 7 / 25.4, scale * 30 / 25.4
+    expected = ((FLOOR * d3) ** 0.5 if d3 < FLOOR else d3) / d16
+    assert ratio == pytest.approx(expected, rel=0.02), (ratio, expected)
+    assert 7 / 30 <= ratio < 0.35
 
 
-def test_no_product_exceeds_its_types_top_size():
-    """Above the top, a product is fitted, not scaled -- and fitted siblings can collide."""
+def _golden_figures():
+    """(type, product_id, sku, figure) for every SKU of the committed catalog."""
     for line in (GOLDEN / "nested.jsonl").read_text("utf-8").splitlines():
         parent = json.loads(line)
-        figure_fn, (_, top) = FIGURES[parent["product_type"]]
+        figure_fn, _ = FIGURES[parent["product_type"]]
         for variant in parent["variants"]:
-            size = figure_fn(bundle._record(parent, variant)).figure.size_in
-            assert size <= top + 1e-9, (parent["product_type"], variant["sku"], size, top)
+            yield (
+                parent["product_type"],
+                parent["product_id"],
+                variant["sku"],
+                figure_fn(bundle._record(parent, variant)).figure,
+            )
+
+
+GOLDEN_FIGURES = list(_golden_figures())
+
+
+def test_no_product_exceeds_its_types_extent():
+    """The type's scale is a constant only while every product fits its declared extent."""
+    for type_key, _, sku, figure in GOLDEN_FIGURES:
+        x0, y0, x1, y1 = figure.bounds()
+        width, height = FIGURES[type_key][1]
+        assert x1 - x0 <= width and y1 - y0 <= height, (type_key, sku, x1 - x0, y1 - y0)
+
+
+def test_every_drawing_fits_its_sheet():
+    """The legibility lift enlarges small parts; it must never push one off the sheet."""
+    from synthetic_industrial_products.drawing import svg as page
+    from synthetic_industrial_products.drawing.sheet import MARGIN, product_scale
+
+    for type_key, _, sku, figure in GOLDEN_FIGURES:
+        x0, y0, x1, y1 = figure.bounds()
+        scale = product_scale(FIGURES[type_key][1], figure.size_in)
+        assert (x1 - x0) * scale <= page.WIDTH - 2 * MARGIN + 1e-6, (type_key, sku)
+        assert (y1 - y0) * scale <= page.HEIGHT - 2 * MARGIN + 1e-6, (type_key, sku)
+
+
+def test_a_larger_primary_dimension_is_never_drawn_shorter():
+    """Order on the sheet is order in the record: within a product AND across a type.
+
+    The primary dimension is the figure's ``size_in`` -- a screw's length, a
+    washer's diameter, a hex key's length. Measured before the constant scale:
+    ball end mill ``OST-R122-0771`` drew a 3.0625" tool 71.5 units long and its
+    3.125" sibling 59.6, and an M20 x 35 mm flat head drew smaller than a
+    #6-32 x 1-3/8" one.
+    """
+    from synthetic_industrial_products.drawing.sheet import product_scale
+
+    by_type: dict[str, list[tuple[float, float, str]]] = defaultdict(list)
+    for type_key, _, sku, figure in GOLDEN_FIGURES:
+        drawn = figure.size_in * product_scale(FIGURES[type_key][1], figure.size_in)
+        by_type[type_key].append((figure.size_in, drawn, sku))
+    for type_key, rows in by_type.items():
+        rows.sort()
+        for (size_a, drawn_a, sku_a), (size_b, drawn_b, sku_b) in zip(rows, rows[1:], strict=False):
+            if size_b > size_a + 1e-9:
+                assert drawn_b > drawn_a, (type_key, sku_a, size_a, drawn_a, sku_b, size_b)
+
+
+def test_the_scale_is_one_constant_per_type_above_the_floor():
+    from synthetic_industrial_products.drawing.sheet import FLOOR, product_scale, type_scale
+
+    for type_key, _, sku, figure in GOLDEN_FIGURES:
+        extent = FIGURES[type_key][1]
+        if type_scale(extent) * figure.size_in >= FLOOR:
+            assert product_scale(extent, figure.size_in) == type_scale(extent), (type_key, sku)
+
+
+def test_the_reviews_cross_product_case_reads_the_right_way_round():
+    """An M20 x 35 mm flat head (40 mm head) is drawn wider than a #6-32 x 1-3/8" one."""
+    from synthetic_industrial_products.drawing.sheet import product_scale
+
+    extent = FIGURES["screw_flat_head"][1]
+    m20 = {"Head Type": "Flat", "Dia./Thread Size": "M20x2.5", "Length": "35mm",
+           "Thread Length": "35mm", "Head Dia.": "40mm", "Head Height": "10mm"}  # fmt: skip
+    no6 = {"Head Type": "Flat", "Dia./Thread Size": "#6-32", "Length": '1-3/8"',
+           "Thread Length": '1-3/8"', "Head Dia.": '0.2620"', "Head Height": '0.0830"'}  # fmt: skip
+    figure_fn, _ = FIGURES["screw_flat_head"]
+    widths = {}
+    for name, record in (("m20", m20), ("no6", no6)):
+        figure = figure_fn(record).figure
+        x0, _, x1, _ = figure.bounds()
+        widths[name] = (x1 - x0) * product_scale(extent, figure.size_in)
+    assert widths["m20"] > 3 * widths["no6"], widths
 
 
 # --- the archive layout and its pinnable digest ----------------------------------

@@ -476,23 +476,25 @@ def hammer(record: Record) -> Drawn:
     return Drawn(fig, source)
 
 
-#: Which figure each product type is drawn with, and the characteristic-size
-#: range (inches) of the type: the LARGEST product of the type fills its
-#: sheet, and every other is drawn at the same scale (:mod:`.sheet`).
-#: ``tests/test_sku_drawings.py`` asserts no product exceeds its type's top.
+#: Which figure each product type is drawn with, and the type's largest DRAWN
+#: extent in inches, ``(width, height)`` of any product's bounding box, with a
+#: little headroom. The sheet's scale for the type is derived from it and is
+#: therefore ONE constant per type (:mod:`.sheet`);
+#: ``tests/test_sku_drawings.py`` asserts no product's drawing exceeds it, so
+#: a regeneration that grows past it is red instead of silently fitted.
 FIGURES: dict[str, tuple[Callable[[Record], Drawn], tuple[float, float]]] = {
-    "end_mill_square": (end_mill, (1.0, 10.0)),
-    "end_mill_ball": (end_mill, (1.0, 10.0)),
-    "drill_jobber": (drill, (1.0, 9.0)),
-    "tap_spiral_point": (tap, (1.5, 4.2)),
-    "screw_socket_head": (fastener, (0.1, 6.0)),
-    "screw_flat_head": (fastener, (0.1, 6.0)),
-    "screw_button_head": (fastener, (0.1, 6.0)),
-    "screw_low_head": (fastener, (0.1, 6.0)),
-    "bolt_hex": (fastener, (0.1, 6.0)),
-    "washer_flat": (washer, (0.2, 1.5)),
-    "hammer_ball_pein": (hammer, (8.0, 18.0)),
-    "abrasive_flap_disc": (flap_disc, (4.0, 7.0)),
+    "end_mill_square": (end_mill, (3.3, 9.5)),
+    "end_mill_ball": (end_mill, (3.3, 9.5)),
+    "drill_jobber": (drill, (0.52, 8.8)),
+    "tap_spiral_point": (tap, (0.52, 4.15)),
+    "screw_socket_head": (fastener, (2.75, 5.95)),
+    "screw_flat_head": (fastener, (3.7, 3.25)),
+    "screw_button_head": (fastener, (2.56, 2.8)),
+    "screw_low_head": (fastener, (2.75, 3.3)),
+    "bolt_hex": (fastener, (2.85, 5.35)),
+    "washer_flat": (washer, (1.5, 2.15)),
+    "hammer_ball_pein": (hammer, (5.8, 18.25)),
+    "abrasive_flap_disc": (flap_disc, (7.25, 7.25)),
 }
 
 
@@ -667,9 +669,9 @@ def hex_key(record: Record) -> Drawn:
 
 FIGURES.update(
     {
-        "nut_hex": (hex_nut, (0.2, 1.7)),
-        "bearing_radial_ball": (bearing, (0.6, 3.2)),
-        "wheel_depressed_center": (depressed_wheel, (4.0, 9.0)),
-        "hex_key": (hex_key, (1.4, 9.0)),
+        "nut_hex": (hex_nut, (1.95, 3.5)),
+        "bearing_radial_ball": (bearing, (3.25, 4.95)),
+        "wheel_depressed_center": (depressed_wheel, (9.3, 13.2)),
+        "hex_key": (hex_key, (2.95, 9.85)),
     }
 )

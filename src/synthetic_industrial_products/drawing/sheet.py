@@ -1,16 +1,18 @@
 """Placing a figure on the sheet and painting it in the brand's house style.
 
-The scale. Every product of a type is drawn at ONE scale: the type's largest
-product fills its sheet, and every other is drawn at its true size relative to
-that one. So an M3 washer is drawn at about a quarter the diameter of an M16
-washer, and a longer screw of a product is drawn longer than its shorter
-sibling, whatever their proportions.
+THE SCALE IS ONE CONSTANT PER PRODUCT TYPE: sheet units per inch are the usable
+sheet divided by the type's largest drawn extent (:data:`.figures.FIGURES`).
+So every product of a type is drawn at its true size relative to every other --
+an M20 flat head reads bigger than a #6 one of the same length, and a longer
+sibling is drawn longer -- whatever the figure's own proportions.
 
-The one exception is legibility, and it is strictly monotonic: a product
-drawn smaller than :data:`FLOOR` of the sheet is enlarged along a square-root
-curve instead of being clamped, so two small siblings still differ in size --
-the smaller is always drawn smaller -- and nothing collapses to one size.
-Proportions are always exactly the record's.
+The one exception is legibility. A product whose PRIMARY dimension (its
+``size_in``: a screw's length, a washer's diameter) would be drawn shorter than
+:data:`FLOOR` sheet units is enlarged so that it is drawn ``sqrt(FLOOR * d)``
+long instead of ``d``. That map is strictly increasing in ``d``, so a larger
+published primary dimension is never drawn shorter, within a product or across
+a type; ``tests/test_sku_drawings.py`` asserts that order over the committed
+catalog. Proportions within one drawing are always exactly the record's.
 """
 
 from __future__ import annotations
@@ -23,28 +25,33 @@ from .style import Hatch, HouseStyle, _mix
 
 #: The inset of the drawing from the sheet edge, in sheet units.
 MARGIN = 18.0
-#: Below this fraction of the sheet a product is enlarged for legibility, on
-#: a square-root curve (monotonic: smaller stays smaller).
-FLOOR = 0.2
+#: The shortest a product's primary dimension is drawn, in sheet units (the
+#: sheet is 200 x 300) before the square-root lift stops applying.
+FLOOR = 45.0
 
 LW_PART = "1.6"
 LW_LINE = "0.8"
 
 
-def product_scale(fit: float, size_in: float, size_range: tuple[float, float]) -> float:
-    """Sheet units per inch: the type's one scale, with a monotonic legibility floor.
+def type_scale(extent: tuple[float, float]) -> float:
+    """Sheet units per inch for a product type: its largest drawn extent fills the sheet."""
+    width, height = extent
+    aw, ah = svg.WIDTH - 2 * MARGIN, svg.HEIGHT - 2 * MARGIN
+    return min(aw / width, ah / height)
 
-    ``fit`` is the scale at which THIS figure exactly fills the sheet. The
-    type's largest product (``size_range[1]``) fills it, so this product fills
-    ``size_in / top`` of it -- its true relative size.
+
+def product_scale(extent: tuple[float, float], size_in: float) -> float:
+    """The scale ONE product is drawn at: its type's, lifted monotonically when tiny.
+
+    The primary dimension is drawn ``d = type_scale * size_in`` long; below
+    :data:`FLOOR` it is drawn ``sqrt(FLOOR * d)`` long instead, which is
+    increasing in ``d`` -- so order by ``size_in`` is order on the sheet.
     """
-    _, top = size_range
-    if size_in <= 0 or top <= 0:
-        return fit
-    fraction = min(1.0, size_in / top)
-    if fraction < FLOOR:
-        fraction = FLOOR * math.sqrt(fraction / FLOOR)
-    return fit * fraction
+    scale = type_scale(extent)
+    drawn = scale * size_in
+    if 0 < drawn < FLOOR:
+        return math.sqrt(FLOOR * drawn) / size_in
+    return scale
 
 
 def _hatch_pattern(page: svg.Svg, hatch: Hatch, ink: str) -> str:
@@ -104,7 +111,7 @@ def paint(
     house: HouseStyle,
     fill: str,
     hatch: Hatch | None,
-    size_range: tuple[float, float],
+    extent: tuple[float, float],
 ) -> bytes:
     """The figure on a sheet, as SVG bytes. Contains no text of any kind."""
     page = svg.Svg(background=house.paper)
@@ -112,8 +119,7 @@ def paint(
 
     x0, y0, x1, y1 = figure.bounds()
     bw, bh = max(x1 - x0, 1e-9), max(y1 - y0, 1e-9)
-    aw, ah = svg.WIDTH - 2 * MARGIN, svg.HEIGHT - 2 * MARGIN
-    scale = product_scale(min(aw / bw, ah / bh), figure.size_in, size_range)
+    scale = product_scale(extent, figure.size_in)
     ox = svg.WIDTH / 2 - (x0 + bw / 2) * scale
     oy = svg.HEIGHT / 2 - (y0 + bh / 2) * scale
 

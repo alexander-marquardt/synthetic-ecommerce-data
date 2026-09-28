@@ -139,8 +139,11 @@ visibly end a head height apart.
 Install both hook types once per clone: `pre-commit install` (the config sets
 `default_install_hook_types: [pre-commit, commit-msg]`). The commit-msg hook
 (`scripts/check_commit_msg.py`) refuses a message that credits an AI tool or a
-bot; the pre-commit hooks run `ruff check` and the whitespace fixers, which
-leave `golden-catalog/` alone.
+bot. Its patterns are the core repository's AI-attribution family, vendored
+with the commit it came from, plus this repository's additions. CI runs the
+same check over every commit a pull request adds, so a clone without hooks
+cannot skip it. The pre-commit hooks run `ruff check` and the whitespace
+fixers, which leave `golden-catalog/` alone.
 
 ## Generating a catalog
 
@@ -191,9 +194,12 @@ how the reference census names it (160 of 496 records), and on a nested index
 every per-type spelling would be a facet of its own. `catalog/names.py` is the
 gate: every name is census-verbatim, on the names-only reference spec-table
 list (`reference-statistics/R1_reference_spec_table_names.json`), or a justified
-exception; no product noun may qualify a concept anywhere in a name (`End Mill
-Material`, `Hex Nut Material`, `Cap Screw Type` -- the census's own one-record
-type-qualified names are refused, not allow-listed); and no name may be a
+exception. No name may contain the record's OWN product noun, a noun of its
+category path, anywhere (`End Mill Material` on an end mill, `Hex Nut Material`
+on a nut, `Cap Screw Type` on a screw). The census's own one-record
+type-qualified names are refused, not allow-listed. A noun naming a mating or
+contained part is allowed, because it is a different measurement: a washer's
+`For Bolt Size`, a tap's `Drill Size`, `Insert Screw`. And no name may be a
 census name in another casing (`Length Under Head` for `Length under Head`),
 since a keyword facet is case-sensitive. It replaced a rule that forced the
 vocabularies to be disjoint.
@@ -559,10 +565,19 @@ The rulings are on elastic/prism-industrial-products#103 (2026-09-26 to -28):
   longer, a finer thread with more crests, a flat head is a cone and a button
   head a dome, a sealed bearing is closed and an open one shows its balls.
   The gate is an **allow-list**, not a list of text forms
-  (`drawing.svg_problems`): every element must be one the figures emit
-  (`svg, rect, defs, pattern, g, path, circle`), every attribute one they use,
-  every id a hatch pattern's own, no element may carry character data, and no
-  comment, processing instruction or doctype may appear. The review's plants
+  (`drawing.svg_problems`):
+  - every element must be one the figures emit (`svg, rect, defs, pattern, g,
+    path, circle`), and there is no nested `<svg>`;
+  - every attribute must be one they use, and every attribute VALUE must fit
+    its grammar: a paint is a colour, `none` or a same-file hatch reference,
+    never an external or `data:` URL;
+  - every id is a hatch pattern's own;
+  - no element may carry character data;
+  - no comment, processing instruction, doctype or entity reference may
+    appear.
+
+  One thing no structural check can catch: a glyph's outline drawn as a plain
+  path is indistinguishable from any other outline. The review's plants
   -- `<title>`, `<desc>`, `aria-label`, a comment, `<metadata>`,
   `<foreignObject>`, an embedded raster, `@font-face`, a glyph path from any
   font -- each red `tests/test_sku_drawings.py`.
@@ -580,16 +595,32 @@ The drawing is a pure function of `(product type, brand, published attributes)`
 through the same `geometry_from_record` functions the dimensioned renderer in
 `render/` uses, so the two cannot disagree about what a record says.
 
-**Sizes are visible.** Every product of a type is drawn at ONE scale: the
-type's largest product fills its sheet and every other is drawn at its true
-size relative to it -- an M3 washer at about a quarter the diameter of an M16.
-The only exception is legibility, and it is strictly monotonic: a product
-smaller than a fifth of the sheet is enlarged along a square-root curve rather
-than clamped, so the smaller of two siblings is always drawn smaller. Measured
-on the committed catalog: no two siblings of any of the 2,729 multi-variant
-products draw alike unless they differ only in values no figure draws
-(standards, ratings, a hammer's weight); before this, 84 products had siblings
-of different sizes drawn identically. Both properties are tests.
+**Sizes are visible.** The scale is ONE constant per product type: sheet units
+per inch are the usable sheet over the type's largest drawn extent, declared
+per type in `drawing/figures.py`. So within a type every product is drawn at
+its true size relative to every other. An M20 flat head reads bigger than a
+#6 flat head of the same length, and a longer sibling is drawn longer.
+
+The one exception is legibility. A primary dimension (a screw's length, a
+washer's diameter) that would be drawn shorter than 45 sheet units is drawn
+`sqrt(45 * d)` instead of `d`. That map is strictly increasing, so it never
+inverts an order, but it does compress the smallest parts. An M3 washer is
+drawn at 0.285 of an M16's diameter against the true 0.233.
+
+What `tests/test_sku_drawings.py` proves over the committed catalog:
+
+* no product exceeds its type's declared extent, so the scale really is
+  constant;
+* above the floor, the scale equals the type's constant;
+* a strictly larger primary dimension is always drawn strictly longer, within
+  a product and across a type;
+* no drawing leaves its sheet;
+* no two siblings of the 2,729 multi-variant products draw alike unless they
+  differ only in values no figure draws (standards, ratings, a hammer's
+  weight).
+
+Before this, 84 products had same-looking siblings, and 4 had a larger sibling
+drawn shorter.
 
 A record whose geometry cannot be read as published -- an attribute absent, a
 value that does not parse, a pair that contradicts itself -- is drawn with its
