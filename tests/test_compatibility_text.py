@@ -255,6 +255,20 @@ def test_a_size_query_reaches_more_than_one_product_type(docs):
     assert any("Tap drill for M12x1.75" in d["text"] for d in docs)
 
 
+def test_a_metric_designation_is_searchable_by_its_diameter(docs):
+    """``M12x1.75`` is one token to the standard analyzer, so the record's
+    searchable text also names ``M12`` -- or ``m12 socket cap screws`` reaches
+    the keys whose copy mentions M12 screws and not one screw."""
+    checked = 0
+    for doc in docs:
+        for value in _published(doc).values():
+            match = re.fullmatch(r"M(\d+(?:\.\d+)?)x\d+(?:\.\d+)?", value)
+            if match:
+                assert re.search(rf"(?<!\S)M{match.group(1)}(?!\S)", doc["text"]), doc["sku"]
+                checked += 1
+    assert checked > 100, checked
+
+
 def test_the_description_is_the_template_plus_at_most_one_sentence(docs):
     for doc in docs:
         found = compatibility_sentences(doc["description"])

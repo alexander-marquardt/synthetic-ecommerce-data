@@ -367,6 +367,11 @@ without stating anything false (`catalog/compat.py`):
   series is the full 1/64 progression -- a tap-drill chart names 10.2mm and
   27/64", and a catalog of 1/32" steps had no such part.
 
+* **A metric designation is searchable by its diameter.** `M12x1.75` is one
+  token to the standard analyzer, so the searchable `text` also carries `M12`
+  beside it; without that, `m12 socket cap screws` reached the hex keys whose
+  copy names M12 screws and not a single screw.
+
 Two derivation artefacts went with it: the drive size is published as the
 nominal key (`10mm`), not the extracted socket's toleranced across-flats
 (`10.07mm`), and the countersunk screw publishes no `Length under Head` -- it

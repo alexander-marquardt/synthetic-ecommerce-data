@@ -1130,6 +1130,15 @@ MUTATIONS: list[Mutation] = [
         "every compatibility sentence is a fact of a standard's table",
     ),
     Mutation(
+        "leave a metric designation's diameter out of the searchable text",
+        "catalog/emit.py",
+        """        parts.extend(f"M{m.group('dia')}" for value in values if (m := _METRIC_THREAD.match(value)))""",
+        """        parts.extend(f"M{m.group('dia')}" for value in values if (m := _METRIC_THREAD.match(value)) and False)""",
+        "tests/test_compatibility_text.py -k searchable_by_its_diameter",
+        "A",
+        "a metric designation is searchable by its diameter",
+    ),
+    Mutation(
         "publish the socket's toleranced across-flats as its drive size",
         "catalog/generate.py",
         '                child.attrs.append(self._length("Drive Size", key_in, style))',
