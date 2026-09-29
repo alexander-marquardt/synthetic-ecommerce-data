@@ -21,12 +21,13 @@ denominator rather than against the whole corpus.
 from __future__ import annotations
 
 import functools
+import hashlib
 import random
 from dataclasses import dataclass, field, replace
 from fractions import Fraction
 from typing import TypeVar
 
-from . import brands, compat, noise, series, standards, taxonomy
+from . import brands, compat, conformance, noise, series, standards, taxonomy
 from .config import GeneratorConfig
 from .formats import (
     LengthStyle,
@@ -62,7 +63,6 @@ from .vocab import (
     MEASUREMENT_SYSTEM_VALUES,
     STANDARDS_FAMILY,
     STANDARDS_NAME,
-    STANDARDS_POOL,
     STANDARDS_PRESENCE,
     VOCAB,
 )
@@ -107,7 +107,9 @@ HAMMER_GRIPS: dict[str, tuple[str, ...]] = {
 #: all ("Radial Ball Bearing, Double Seal Closure Type, Chrome Steel", 452
 #: times); wheels 0.06 and flap discs 0.22 named only their grit.
 KEY_DIMENSIONS: dict[str, tuple[str, ...]] = {
-    "bearing_radial_ball": ("Bearing Number",),
+    # A bearing is named by its number AND its bore: the bore is what a
+    # shopper fits it to (the review of the 100K catalog, 2026-09-29).
+    "bearing_radial_ball": ("Bearing Number", "Bore"),
     "wheel_depressed_center": ("Diameter",),
     "abrasive_flap_disc": ("Diameter",),
 }
@@ -156,6 +158,37 @@ HEX_BOLT_PHASE: tuple[str, ...] = tuple(dict.fromkeys(HEX_BOLT_STANDARDS))
 #: Hex bolt finishes, as the sequence the finish rotates through. Zinc plated
 #: first: it is the common commercial finish on a hex cap screw.
 HEX_BOLT_FINISHES: tuple[str, ...] = ("Zinc Plated", "Plain", "Hot Dip Galvanized")
+
+#: A graded hex bolt's material follows its grade: SAE J429 Grade 5 and ISO
+#: 898-1 Class 8.8 are medium-carbon steel, Grade 8 and Class 10.9 alloy steel.
+#: (Stainless bolts carry no SAE grade or 8.8/10.9 class, so none is made.)
+BOLT_MATERIAL: dict[str, str] = {
+    "Grade 5": "Steel",
+    "Class 8.8": "Steel",
+    "Grade 8": "Alloy Steel",
+    "Class 10.9": "Alloy Steel",
+}
+
+#: A socket screw's finishes and Rockwell hardness, by material.
+SOCKET_SCREW_FINISH: dict[str, tuple[tuple[str, ...], str]] = {
+    "Alloy Steel": (("Black Oxide", "Zinc Plated"), "C38"),
+    "Grade 12.9 Alloy Steel": (("Black Oxide", "Plain"), "C39"),
+    "18-8 Stainless Steel": (("Plain",), "B80"),
+}
+
+#: Tool coatings and surface treatments, by tool material. nACo and AlTiN are
+#: carbide coatings; black oxide is a steam treatment of HSS; the straw/bronze
+#: oxide is cobalt's.
+END_MILL_FINISH: dict[str, tuple[str, ...]] = {
+    "High Speed Steel": ("Bright", "TiN", "TiCN", "TiAlN"),
+    "Cobalt": ("Bright", "TiN", "TiCN", "TiAlN", "AlTiN"),
+    "Solid Carbide": ("Uncoated", "TiN", "TiCN", "TiAlN", "AlTiN", "nACo"),
+}
+DRILL_FINISH: dict[str, tuple[str, ...]] = {
+    "High Speed Steel": ("Bright", "Black Oxide", "TiN"),
+    "Cobalt": ("Bright", "Bronze Oxide", "TiN"),
+    "Solid Carbide": ("Bright", "TiN", "TiAlN"),
+}
 
 #: Bolt gradings, by the system the standard publishes in. SAE J429 grades
 #: describe inch fasteners and ISO property classes describe metric ones; the
@@ -231,6 +264,7 @@ class Generator:
         #: Every spec drawn so far, per (type, brand) -- see :meth:`_spec_key`.
         #: Shared with the sub-generators, like ``_used_skus``.
         self._drawn_specs: set[tuple] = set()
+        self._title_styles: dict[tuple[str, str], str] = {}
         #: The PUBLISHED specs, per (type, brand, always-published values):
         #: a SKU whose published spec is a subset or superset of one already
         #: made differs from it only by an attribute sparsity dropped.
@@ -379,7 +413,7 @@ class Generator:
         brand = brands.pick_brand(rng, type_key, self._exhausted)
         flutes = int(_weighted(rng, series.FLUTE_WEIGHTS))  # type: ignore[arg-type]
         helix = rng.choice(series.HELIX_ANGLES)
-        coating = rng.choice(("AlTiN", "TiCN", "TiAlN", "TiN", "Uncoated", "Bright", "nACo"))
+        coating = rng.choice(END_MILL_FINISH[material])
         style_name = "Ball Nose" if ball else "Square"
         item = f"{material} {style_name} End Mill" if rng.random() < 0.5 else "End Mill"
         series_code = f"{rng.choice('GHKMPR')}{rng.randint(100, 999)}"
@@ -484,9 +518,10 @@ class Generator:
                     shank_mm = series.nearest_shank_metric(dia_mm)
                 else:
                     ratio = float(_weighted(rng, series.OBSERVED_SHANK_RATIOS))  # type: ignore[arg-type]
-                    shank_mm = series.nearest_shank_metric(dia_mm * ratio)
-                    if abs(shank_mm - dia_mm) < 1e-6:
-                        shank_mm = series.nearest_shank_metric(dia_mm * 2.0)
+                    # Never smaller than the cutting diameter: a ratio below 1
+                    # (the census carries 0.833 and 0.75) is read as "the next
+                    # shank up", and a snap that lands below it goes up too.
+                    shank_mm = series.larger_shank_metric(dia_mm, dia_mm * max(ratio, 1.0))
                 geom = series.build_metric(dia_mm, length_class, multiple, shank_mm)
                 child.price_basis = dia_mm / 4.0
             else:
@@ -495,9 +530,9 @@ class Generator:
                     shank_fr = series.nearest_shank_imperial(float(dia_fr))
                 else:
                     ratio = float(_weighted(rng, series.OBSERVED_SHANK_RATIOS))  # type: ignore[arg-type]
-                    shank_fr = series.nearest_shank_imperial(float(dia_fr) * ratio)
-                    if shank_fr == dia_fr:
-                        shank_fr = series.nearest_shank_imperial(float(dia_fr) * 2.0)
+                    shank_fr = series.larger_shank_imperial(
+                        float(dia_fr), float(dia_fr) * max(ratio, 1.0)
+                    )
                 geom = series.build_imperial(dia_fr, length_class, multiple, shank_fr)
                 child.price_basis = float(dia_fr) * 6.0
 
@@ -545,9 +580,7 @@ class Generator:
             keyword_attribute("Material", material),
             keyword_attribute("Point Type", rng.choice(("Split Point", "Standard Point"))),
             Attribute("Point Angle", point, float(point.split()[0])),
-            keyword_attribute(
-                "Finish", rng.choice(("Bright", "Black Oxide", "TiN", "Bronze Oxide"))
-            ),
+            keyword_attribute("Finish", rng.choice(DRILL_FINISH[material])),
             keyword_attribute("Shank Type", rng.choice(("Straight", "Reduced"))),
             keyword_attribute("Cutting Direction", "Right Hand"),
             keyword_attribute("List Number", series_code),
@@ -707,6 +740,12 @@ class Generator:
 
         brand = brands.pick_brand(rng, type_key, self._exhausted)
         material = rng.choice(("Alloy Steel", "18-8 Stainless Steel", "Grade 12.9 Alloy Steel"))
+        # Finish and hardness follow the material, as a distributor lists them
+        # (SOCKET_SCREW_FINISH): alloy steel through-hardened to Rockwell C,
+        # black oxide or zinc; 18-8 stainless, cold-worked to Rockwell B and
+        # left plain. A zinc-plated stainless screw is not sold.
+        finishes, hardness = SOCKET_SCREW_FINISH[material]
+        finish = rng.choice(finishes)
         draft = LineDraft(
             item=style_name,
             brand=brand,
@@ -720,10 +759,10 @@ class Generator:
             keyword_attribute("Head Type", head_style),
             keyword_attribute("Drive Type", "Hex Socket"),
             keyword_attribute("Material", material),
-            keyword_attribute("Finish", rng.choice(("Black Oxide", "Plain", "Zinc Plated"))),
+            keyword_attribute("Finish", finish),
             keyword_attribute("Thread Direction", "Right Hand"),
             keyword_attribute("Thread Type", "Metric Coarse" if metric else "UNC"),
-            keyword_attribute("Rockwell Hardness", rng.choice(("C38", "C39", "B80"))),
+            keyword_attribute("Rockwell Hardness", hardness),
             keyword_attribute("Meets/Exceeds", standard),
         ]
         draft.descriptors = [("Material", material)]
@@ -863,6 +902,11 @@ class Generator:
         grades = INCH_GRADES if head.published_unit == "in" else METRIC_GRADES
         grade = grades[phase % len(grades)]
         finish = HEX_BOLT_FINISHES[phase % len(HEX_BOLT_FINISHES)]
+        # Hot-dip galvanizing is for Grade 5 / Class 8.8: ASTM F2329 keeps it
+        # off fasteners as hard as Grade 8 / Class 10.9, which are sold zinc
+        # yellow instead. Same wheel position, so no size locks to a finish.
+        if finish == "Hot Dip Galvanized" and grade in ("Grade 8", "Class 10.9"):
+            finish = "Zinc Yellow"
         item = "Hex Head Bolt"
         draft = LineDraft(
             item=item,
@@ -875,7 +919,7 @@ class Generator:
             keyword_attribute("Item", item),
             keyword_attribute("Type", "Hex Head"),
             keyword_attribute("Head Type", "Hex"),
-            keyword_attribute("Material", rng.choice(("Steel", "18-8 Stainless Steel"))),
+            keyword_attribute("Material", BOLT_MATERIAL[grade]),
             keyword_attribute("Finish", finish),
             keyword_attribute("Grade", grade),
             keyword_attribute("Thread Direction", "Right Hand"),
@@ -1091,10 +1135,19 @@ class Generator:
                 kept.append(attribute)
         return kept
 
-    def _standards_attribute(self, type_key: str) -> Attribute | None:
+    def _standards_attribute(self, type_key: str, draft: LineDraft) -> Attribute | None:
+        """The standards this LINE conforms to, from :mod:`.conformance`'s
+        truth table -- never a draw from a pool of standards for other parts."""
         if self.rng.random() > STANDARDS_PRESENCE:
             return None
-        pool = STANDARDS_POOL[STANDARDS_FAMILY[type_key]]
+        pool = conformance.applicable(
+            type_key,
+            {a.name: a.value for a in draft.line_attrs},
+            metric=bool(draft.children) and draft.children[0].system == "mm",
+            provenance=draft.provenance,
+        )
+        if not pool:
+            return None
         how_many = self.rng.choices((1, 2, 3), weights=(0.45, 0.35, 0.20), k=1)[0]
         values = tuple(sorted(self.rng.sample(list(pool), k=min(how_many, len(pool)))))
         self._bump("standards_present")
@@ -1219,57 +1272,91 @@ class Generator:
                 self._bump("defect_unit_mixing")
         return out
 
-    def _dimension_segment(self, child: ChildDraft) -> Segment | None:
-        """The title's dimension segment, reproducing the three measured cases.
+    #: A (brand, type)'s title style, drawn ONCE per pair: "unlabelled" names
+    #: the key dimension bare, "labelled" with its label, "secondary" labels it
+    #: and adds a labelled secondary dimension. One maker lists one type one
+    #: way; the census mix is reproduced ACROSS brands, not per SKU.
+    TITLE_STYLES = ("unlabelled", "secondary", "labelled")
 
-        Unlabelled (46.7%) always names the primary dimension; a token that is
-        NOT the primary (17.1%) always carries a label. The corpus has no case
-        that is both, so the generator produces none either.
+    def _title_style(self, brand: str, type_key: str) -> str:
+        """The (brand, type)'s style: fixed per pair, and the census mix is hit
+        ACROSS the type's makers by their market weight.
+
+        The makers of a type are put in a seeded order and each takes the style
+        its slice of the type's market weight falls in: the first 46.7% of
+        weight unlabelled, the next 17.1% secondary, the rest labelled. A
+        brand's share of a type's SKUs follows its weight, so the per-title
+        mix approximates the census while every brand keeps one style. (A
+        per-pair coin flip did not: 250 pairs weighted by SKU count drifted to
+        0.35 / 0.26 against 0.47 / 0.17.)
         """
         cfg = self.config
-        rng = self.rng
+        key = (brand, type_key)
+        style = self._title_styles.get(key)
+        if style is None:
+            makers = sorted(
+                brands.brands_for(type_key),
+                key=lambda b: hashlib.sha256(
+                    f"{cfg.seed}:title:{b.name}:{type_key}".encode()
+                ).hexdigest(),
+            )
+            total = sum(b.weight for b in makers)
+            cumulative = 0.0
+            for maker in makers:
+                middle = (cumulative + maker.weight / 2) / total
+                cumulative += maker.weight
+                if middle < cfg.title_token_unlabelled:
+                    choice = "unlabelled"
+                elif middle < cfg.title_token_unlabelled + cfg.title_token_not_primary:
+                    choice = "secondary"
+                else:
+                    choice = "labelled"
+                self._title_styles[(maker.name, type_key)] = choice
+            style = self._title_styles.get(key, "labelled")
+        return style
+
+    def _dimension_segments(self, draft: LineDraft, child: ChildDraft) -> list[Segment]:
+        """The title's dimension segments, in the (brand, type)'s ONE style.
+
+        The key dimension (the child's primary, the axis the line varies on)
+        is ALWAYS named; the style decides only whether it carries a label and
+        whether a labelled secondary dimension follows it. A secondary is named
+        only when the record PUBLISHES it -- a title naming a length the
+        attribute block does not carry states a spec the record cannot back.
+        """
         primary = child.primary
         if primary is None:
-            return None
-        roll = rng.random()
-
-        if roll < cfg.title_token_unlabelled:
-            self._bump("title_token")
-            self._bump("title_token_unlabelled")
-            return Segment(value=primary.value, label=None, attribute=primary.name)
-
-        if roll < cfg.title_token_unlabelled + cfg.title_token_not_primary:
-            # Only a secondary dimension the record PUBLISHES: a title naming a
-            # length the attribute block does not carry states a spec the
-            # record cannot back (100K catalog, text honesty rule). Measured
-            # on the default catalog before this: 306 SKUs named an overall
-            # length or length of cut that sparsity had dropped.
-            classes = [
-                (k, v)
-                for k, v in cfg.title_secondary_mix.items()
-                if k in child.secondary and child.secondary[k].name in self._published
-            ]
-            # If the type carries no secondary dimension there is nothing
-            # misleading to name, and the token falls back to the labelled
-            # primary below -- counted once, there, not twice.
-            if classes:
-                total = sum(w for _, w in classes)
-                pick = str(
-                    rng.choices([k for k, _ in classes], weights=[w / total for _, w in classes])[0]
-                )
-                attribute = child.secondary[pick]
-                label = self._label_for(attribute.name)
-                self._bump("title_token")
-                self._bump("title_token_not_primary")
-                return Segment(
-                    value=attribute.value,
-                    label=label,
-                    attribute=attribute.name,
-                )
-
-        label = self._label_for(primary.name)
+            return []
+        style = self._title_style(draft.brand, draft.type_key)
         self._bump("title_token")
-        return Segment(value=primary.value, label=label, attribute=primary.name)
+        if style == "unlabelled":
+            self._bump("title_token_unlabelled")
+            return [Segment(value=primary.value, label=None, attribute=primary.name)]
+        segments = [
+            Segment(
+                value=primary.value, label=self._label_for(primary.name), attribute=primary.name
+            )
+        ]
+        if style == "secondary":
+            # The pair's secondary class, fixed like its style, used where
+            # this record publishes it.
+            classes = [k for k in self.config.title_secondary_mix if k in child.secondary]
+            if classes:
+                digest = hashlib.sha256(
+                    f"{self.config.seed}:secondary:{draft.brand}:{draft.type_key}".encode()
+                ).hexdigest()
+                pick = classes[int(digest[:8], 16) % len(classes)]
+                attribute = child.secondary[pick]
+                if attribute.name in self._published and attribute.name != primary.name:
+                    self._bump("title_token_not_primary")
+                    segments.append(
+                        Segment(
+                            value=attribute.value,
+                            label=self._label_for(attribute.name),
+                            attribute=attribute.name,
+                        )
+                    )
+        return segments
 
     def _label_for(self, attribute_name: str) -> str:
         forms = LABEL_FORMS.get(attribute_name)
@@ -1297,9 +1384,7 @@ class Generator:
             if name in self._published and name in key_values:
                 segments.append(Segment(value=key_values[name], label=None, attribute=name))
 
-        dimension = self._dimension_segment(child)
-        if dimension is not None:
-            segments.append(dimension)
+        segments.extend(self._dimension_segments(draft, child))
 
         for name, value in draft.descriptors:
             # A descriptor the record does not publish (sparsity dropped it)
@@ -1624,6 +1709,16 @@ class Generator:
     #: Attributes that identify a SKU rather than describe it, left out of the
     #: spec a SKU must not share with another of its brand and type.
     IDENTIFIER_ATTRIBUTES = frozenset({"List Number"})
+    #: What makes a SKU different is SUBSTANCE, never metadata: the
+    #: measurement-system attribute (three spellings of one fact about the
+    #: record's units) and the standards claimed are not what a shopper tells
+    #: two parts apart by. Left out of both uniqueness checks, with the
+    #: identifiers (the review of the 100K catalog: washers differing only by
+    #: "Dimension Type" vs "System of Measurement").
+    METADATA_ATTRIBUTES = frozenset(
+        {STANDARDS_NAME, *(name for name, _ in MEASUREMENT_SYSTEM_NAMES)}
+    )
+    NOT_SUBSTANCE = IDENTIFIER_ATTRIBUTES | METADATA_ATTRIBUTES
 
     @classmethod
     def _spec_key(cls, type_key: str, brand: str, attributes: list[Attribute]) -> tuple:
@@ -1638,7 +1733,7 @@ class Generator:
             sorted(
                 (a.name, a.value if a.values is None else "|".join(a.values))
                 for a in attributes
-                if a.name not in cls.IDENTIFIER_ATTRIBUTES
+                if a.name not in cls.NOT_SUBSTANCE
             )
         )
         return (type_key, brand, spec)
@@ -1699,7 +1794,7 @@ class Generator:
         spec = frozenset(
             (a.name, a.value if a.values is None else "|".join(a.values))
             for a in published
-            if a.name not in self.IDENTIFIER_ATTRIBUTES
+            if a.name not in self.NOT_SUBSTANCE
         )
         always = self._always_published(type_key)
         bucket = (type_key, brand, tuple(sorted(x for x in spec if x[0] in always)))
@@ -1715,7 +1810,7 @@ class Generator:
         line_attrs = self._corrupt_angle(line_attrs)
         # One spelling of the measurement-system attribute per line.
         system_name = str(_weighted(rng, MEASUREMENT_SYSTEM_NAMES))
-        standards_attr = self._standards_attribute(type_key)
+        standards_attr = self._standards_attribute(type_key, draft)
         if standards_attr is not None:
             line_attrs = [*line_attrs, standards_attr]
 

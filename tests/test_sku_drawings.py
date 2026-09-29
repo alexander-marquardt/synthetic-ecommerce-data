@@ -542,7 +542,7 @@ EXTREME_ENLARGEMENT = 2.41
 #: Two committed SKUs the handle-less lens must serve: an in-between screw (an
 #: M6x1 x 10mm socket head) and a hairline drill (a 1/16" jobber). Re-picked on
 #: every regeneration; the test fails if either is gone.
-PINNED_HANDLE_LESS = ("61DW32", "74HN92")
+PINNED_HANDLE_LESS = ("19DG33", "3BF24")
 
 
 def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only_when_it_must_be():
@@ -749,9 +749,9 @@ def test_no_outline_is_thinner_than_the_minimum_stroke():
 
 
 def test_a_hairline_drill_is_drawn_with_a_visible_outline():
-    """Planted: 74HN92 (a 1/16" jobber drill) is drawn under two units wide at its type's scale."""
+    """Planted: 3BF24 (a 1/16" jobber drill) is drawn under two units wide at its type's scale."""
     for parent, variant, record in _golden_skus():
-        if variant["sku"] == "74HN92":
+        if variant["sku"] == "3BF24":
             width, _ = _drawn_size(parent["product_type"], record)
             assert width < 2.3
             data, _ = draw_sku(parent["product_type"], parent["brand"], record)
@@ -760,7 +760,7 @@ def test_a_hairline_drill_is_drawn_with_a_visible_outline():
             ]
             assert outlines and all(float(e.attrib["stroke-width"]) >= 2.3 for e in outlines)
             return
-    raise AssertionError("74HN92 is not in the committed catalog")
+    raise AssertionError("3BF24 is not in the committed catalog")
 
 
 # --- the archive layout and its pinnable digest ----------------------------------

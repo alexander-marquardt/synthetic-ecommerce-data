@@ -29,7 +29,7 @@ from collections.abc import Mapping, Sequence
 from fractions import Fraction
 
 from ..dimensions import DimensionParseError, parse_length
-from . import compat, standards
+from . import compat, conformance, standards
 from .standards import MM_PER_INCH
 
 #: Per-sentence-type rate at ``noise = 1.0``, each an independent draw.
@@ -71,11 +71,9 @@ WORK_MATERIALS: dict[str, tuple[str, ...]] = {
     ),
 }
 
-#: Standards with the SAME dimensions under another designation.
-EQUIVALENT_STANDARDS: dict[str, str] = {
-    "ISO 4762": "DIN 912",
-    "ISO 7089": "DIN 125-A",
-}
+#: Standards with the SAME dimensions under another designation -- the one
+#: table the Standards attribute reads too, so both spell a designation alike.
+EQUIVALENT_STANDARDS: dict[str, str] = conformance.EQUIVALENTS
 
 #: Property classes and grades, each with one it is stronger than (minimum
 #: tensile strength, ISO 898-1 and SAE J429).
@@ -180,13 +178,31 @@ def _key(size_in: float, metric: bool) -> str:
 
 
 def also_available(primary: str | None, siblings: Sequence[str]) -> str | None:
-    """``Also available in M8 / M10 / M16 sizes.`` -- only sizes the product's other SKUs are."""
+    """``Also available in M8 / M10 / M16 sizes.`` -- only sizes the product's other SKUs are.
+
+    Only when the variant axis IS a size (a length or a thread): a bearing's
+    closure or a wheel's grit is not a size, and "Also available in Double
+    Shield / Open sizes" says something false about the word.
+    """
+    if primary is None or not _is_size(primary):
+        return None
     others = [s for s in dict.fromkeys(siblings) if s and s != primary]
     if not others:
         return None
     # " / " between sizes and a closing word, because a size may itself end in
     # a period (``5/32 in.``) and the sentence has to end unambiguously.
     return f"Also available in {' / '.join(others[:3])} sizes."
+
+
+def _is_size(value: str) -> bool:
+    """A length (parses with a unit) or a thread designation."""
+    if _inches(value) is not None and not value.strip().replace(".", "").isdigit():
+        return True
+    return (
+        bool(value)
+        and (value.startswith(("M", "#")) or "-" in value)
+        and any(c.isdigit() for c in value)
+    )
 
 
 def unit_equivalent(type_key: str, values: Mapping[str, str]) -> str | None:

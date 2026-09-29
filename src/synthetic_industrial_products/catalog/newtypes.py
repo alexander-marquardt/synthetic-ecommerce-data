@@ -298,10 +298,51 @@ _BEARINGS_INCH = (
     ("R10", 5 / 8, 1 + 3 / 8, 0.3438),
     ("R12", 3 / 4, 1 + 5 / 8, 0.4375),
 )
-#: Closures, and how each is spelled on a part number and how it slows the bearing.
+#: Load ratings and limiting speed, per bearing number: (dynamic C kN, static
+#: C0 kN, limiting speed rpm for the OPEN bearing on grease). A TABLE, not a
+#: formula: the metric rows are the deep groove ball bearing tables a maker
+#: publishes (SKF's figures for 60/62/63), the inch R rows the figures
+#: distributors list for the R series. No jitter: two bearings of one number
+#: are rated alike, whoever makes them, and a rating is never what makes two
+#: SKUs different.
+BEARING_RATINGS: dict[str, tuple[float, float, int]] = {
+    "6000": (4.75, 1.96, 38000),
+    "6001": (5.40, 2.36, 32000),
+    "6002": (5.85, 2.85, 28000),
+    "6003": (6.37, 3.25, 24000),
+    "6004": (9.95, 5.00, 20000),
+    "6005": (11.9, 6.55, 18000),
+    "6006": (13.8, 8.30, 14000),
+    "6200": (5.40, 2.36, 34000),
+    "6201": (7.28, 3.10, 32000),
+    "6202": (8.06, 3.75, 28000),
+    "6203": (9.95, 4.75, 24000),
+    "6204": (13.5, 6.55, 20000),
+    "6205": (14.8, 7.80, 18000),
+    "6206": (20.3, 11.2, 15000),
+    "6207": (27.0, 15.3, 13000),
+    "6208": (32.5, 19.0, 11000),
+    "6300": (8.52, 3.40, 28000),
+    "6301": (9.95, 4.15, 26000),
+    "6302": (11.9, 5.40, 22000),
+    "6303": (14.3, 6.55, 20000),
+    "6304": (16.8, 7.80, 18000),
+    "6305": (23.4, 11.6, 16000),
+    "R4": (1.14, 0.46, 48000),
+    "R6": (3.30, 1.40, 36000),
+    "R8": (5.07, 2.37, 28000),
+    "R10": (6.23, 3.30, 24000),
+    "R12": (9.36, 4.80, 20000),
+}
+LBF_PER_KN = 224.809
+
+#: Closures: name, part-number suffix, the limiting-speed factor against the
+#: open bearing (a shield does not touch the inner ring and leaves it as is; a
+#: contact seal rubs and lowers it -- the makers' tables list the sealed
+#: variant at about 70%), and the draw weight.
 _CLOSURES = (
-    ("Double Seal", "-2RS", 0.62, 0.45),
-    ("Double Shield", "-ZZ", 0.92, 0.35),
+    ("Double Seal", "-2RS", 0.70, 0.45),
+    ("Double Shield", "-ZZ", 1.0, 0.35),
     ("Open", "", 1.0, 0.20),
 )
 
@@ -320,10 +361,9 @@ def build_bearing(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
     system = "in" if inch else "mm"
     style = feed_style(brand, system, BRANDS)
     material = _weighted(rng, (("Chrome Steel", 0.8), ("440C Stainless Steel", 0.2)))
-    # A generated rating, proportional to the ring section: not a maker's figure.
-    section = (od_in - bore_in) / 2
-    dynamic = int(round(9000 * section * od_in * rng.uniform(0.9, 1.1), -1))
-    static = int(round(dynamic * 0.55, -1))
+    dynamic_kn, static_kn, limit = BEARING_RATINGS[number]
+    dynamic = int(round(dynamic_kn * LBF_PER_KN, -1))
+    static = int(round(static_kn * LBF_PER_KN, -1))
     item = "Radial Ball Bearing"
     draft = LineDraft(
         item=item,
@@ -364,7 +404,6 @@ def build_bearing(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
         pick = _weighted(rng, [(c, c[3]) for c in pool])
         pool.remove(pick)
         chosen.append(pick)
-    limit = 38000 / (bore_in * MM_PER_INCH) ** 0.55 * 10
     for name, suffix, speed, _ in chosen:
         rpm = int(round(limit * speed, -2))
         child = ChildDraft(system=system)
@@ -660,8 +699,11 @@ def build_kit(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
     style = feed_style(brand, kit.system, BRANDS)
     contents = kit.designations or tuple(gen._publish(size, style) for size in kit.sizes)
     pieces = kit.per_size * len(contents)
+    # The title says what the kit IS -- "Socket Head Cap Screw Assortment
+    # Kit", "Hex Key Set" -- while ``Item`` stays the one facet value.
+    title_item = kit.item if kit.item.endswith("Set") else f"{kit.item} Kit"
     draft = LineDraft(
-        item="Assortment Kit",
+        item=title_item,
         brand=brand,
         series=f"KT{rng.randint(100, 999)}",
         category=category,

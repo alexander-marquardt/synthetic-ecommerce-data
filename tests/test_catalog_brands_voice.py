@@ -45,8 +45,18 @@ from synthetic_industrial_products.dimensions import parse_length
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 
-#: The fields that identify or price a SKU rather than describe it.
-IDENTIFIER_ATTRIBUTES = {"List Number"}
+#: The fields that identify or price a SKU rather than describe it -- and the
+#: METADATA that does not make one part different from another: the
+#: measurement-system attribute under any of its three spellings, and the
+#: standards claimed (the review of the 100K catalog: two washers differing
+#: only by "Dimension Type" vs "System of Measurement" are one product).
+IDENTIFIER_ATTRIBUTES = {
+    "List Number",
+    "Standards",
+    "Dimension Type",
+    "Measurement System",
+    "System of Measurement",
+}
 
 
 def _read(path: Path) -> list[dict]:
@@ -144,13 +154,24 @@ def test_the_same_part_from_two_brands_is_two_products(golden):
 
 
 #: The per-type floor on DISTINCT specs over SKUs, across brands, at 100K.
-#: Identical specs across brands are realistic (one standard part, many
-#: makers), so this is a floor rather than 1.0. Measured on the 100K build and
-#: rounded down to 0.05: flat washers 0.70 -- ISO 7089 fixes nine sizes, so
-#: many makers sell the same washer -- ball pein hammers 0.94, every other
-#: type 0.98 or more.
-DISTINCT_SPEC_FLOOR = {"washer_flat": 0.65, "hammer_ball_pein": 0.90}
-DEFAULT_DISTINCT_SPEC_FLOOR = 0.95
+#: Identical specs ACROSS brands are realistic (one standard part, many
+#: makers) -- the rule is per (type, brand), and that is held to zero above --
+#: so this is a floor that catches a collapse, not a target. Measured on the
+#: 100K build once metadata (standards claimed, the measurement-system
+#: spelling) stopped counting as a difference, rounded down to 0.05: a flat
+#: washer is ISO 7089's nine sizes in a handful of materials, so most makers
+#: sell the same one (0.15); hammers 0.72, bolts 0.76, flap discs 0.79, kits
+#: 0.84, hex keys 0.88, nuts 0.90, every other type 0.93 or more.
+DISTINCT_SPEC_FLOOR = {
+    "washer_flat": 0.15,
+    "hammer_ball_pein": 0.70,
+    "bolt_hex": 0.75,
+    "abrasive_flap_disc": 0.75,
+    "kit_assortment": 0.80,
+    "hex_key": 0.85,
+    "nut_hex": 0.90,
+}
+DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 
 
 def test_each_type_keeps_its_distinct_spec_floor_at_100k(hundred_k):
@@ -338,7 +359,10 @@ def test_every_sampled_drawing_is_in_its_own_brands_house_style():
 
 def _opening(doc: dict) -> str:
     """What a title says before its item: the brand, a qualifier, or nothing."""
-    item = next(a["value"] for a in doc["attributes"] if a["name"] == "Item")
+    values = {a["name"]: a["value"] for a in doc["attributes"]}
+    # A kit's title names its KIND ("Hex Key Set"); ``Item`` is the one facet
+    # value every kit shares.
+    item = values["Type"] if doc["product_type"] == "kit_assortment" else values["Item"]
     title = doc["title"]
     return title[: title.index(item)] if item in title else "<no item>"
 
