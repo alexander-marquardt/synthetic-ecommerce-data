@@ -110,6 +110,11 @@ class Sku:
     #: This SKU's OWN drawing, as ``<product type>/<product id>/<sku>``, drawn
     #: from its own published values (elastic/prism-industrial-products#103).
     image_id: str = ""
+    #: The one cross-reference sentence this SKU's copy carries -- which
+    #: screws a key drives, which drill a tap wants (:mod:`.compat`). Also in
+    #: the description; kept separately so the searchable text can carry it
+    #: without folding in the rest of the description.
+    compatibility: str = ""
 
     def attribute_names(self) -> frozenset[str]:
         return frozenset(a.name for a in self.attributes)

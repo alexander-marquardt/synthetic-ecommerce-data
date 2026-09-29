@@ -182,7 +182,8 @@ def _searchable_text(line: ProductLine, child: Sku, attributes: tuple[Attribute,
     diameter -- carries that value, and that can only happen if the shank's
     value is searchable as text.
 
-    The DESCRIPTION is deliberately not in here, though it is searchable. It
+    The DESCRIPTION is deliberately not in here, though it is searchable --
+    except its cross-reference sentence, below. It
     is declared as a field of its own in the PRISM field map, and it opens
     with the title verbatim and then restates values this function already
     collects from the attributes -- so folding it in here would roughly double
@@ -195,6 +196,12 @@ def _searchable_text(line: ProductLine, child: Sku, attributes: tuple[Attribute,
     for attribute in attributes:
         values = attribute.values or (attribute.value,)
         parts.extend(values)
+    # The cross-reference sentence IS folded in, unlike the rest of the
+    # description: it names the OTHER product a query may be about (``For M12
+    # socket head cap screws``), which is what makes a size query reach the
+    # keys, taps and nuts that fit it as well as the screw -- and no attribute
+    # carries it, deliberately (:mod:`.compat`).
+    parts.append(child.compatibility)
     return " ".join(part for part in parts if part)
 
 

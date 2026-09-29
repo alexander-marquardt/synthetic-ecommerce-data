@@ -36,7 +36,7 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_industrial_products.catalog import series, standards
+from synthetic_industrial_products.catalog import compat, series, standards
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
 REBUILD = "uv run sip-generate build --out golden-catalog"
@@ -207,6 +207,11 @@ def _sizes_by_standard(docs: list[dict]) -> dict[str, set[str]]:
         standard = doc["dimension_provenance"]
         for value in doc["facets"].get("dia_thread_size", []):
             size = value.split("x")[0] if value.startswith("M") else value.rsplit("-", 1)[0]
+            # A fine-pitch line is the near-miss sibling of a standard's size,
+            # not one of the sizes the (coarse-thread) standard offers; its
+            # provenance names the fine-pitch standard or says it claims none.
+            if value in compat.fine_threads(size, value.startswith("M")):
+                continue
             seen.setdefault(standard, set()).add(size)
     return seen
 

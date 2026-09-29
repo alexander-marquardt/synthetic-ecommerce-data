@@ -147,6 +147,30 @@ _NUT_METRIC = (
     ("M24x3", 36.0, 21.5),
 )
 
+#: Metric FINE-pitch hex nuts (ISO 8673): the coarse nut's width across flats
+#: and height over an ISO 262 fine thread -- the near-miss pitches a bolt of
+#: the same diameter comes in (:data:`.compat.METRIC_FINE_PITCHES`).
+#:
+#: Two ranges, each naming a diameter ONCE. M10x1.25 and M10x1 are the same
+#: drawing at a nut's scale -- a pitch is not visible across its flats -- so
+#: one line offering both would put two identical pictures side by side
+#: (``test_siblings_whose_drawn_values_differ_never_draw_alike``). A line is
+#: one range or the other.
+_NUT_METRIC_FINE = (
+    (
+        ("M8x1", 13.0, 6.8),
+        ("M10x1.25", 16.0, 8.4),
+        ("M12x1.5", 18.0, 10.8),
+        ("M16x1.5", 24.0, 14.8),
+        ("M20x1.5", 30.0, 18.0),
+    ),
+    (
+        ("M10x1", 16.0, 8.4),
+        ("M12x1.25", 18.0, 10.8),
+        ("M20x2", 30.0, 18.0),
+    ),
+)
+
 
 def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineDraft:
     from .brands import pick_brand
@@ -155,7 +179,7 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
     rng = gen.rng
     brand = pick_brand(rng, type_key, gen._exhausted)
     metric = rng.random() < 0.3
-    fine = not metric and rng.random() < 0.25
+    fine = rng.random() < 0.25
     style_name = _weighted(rng, (("Finished Hex", 0.7), ("Heavy Hex", 0.15), ("Jam", 0.15)))
     material = _weighted(
         rng,
@@ -198,7 +222,10 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
         keyword_attribute("Type", style_name),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),
-        keyword_attribute("Thread Type", "Metric Coarse" if metric else ("UNF" if fine else "UNC")),
+        keyword_attribute(
+            "Thread Type",
+            ("Metric Fine" if fine else "Metric Coarse") if metric else ("UNF" if fine else "UNC"),
+        ),
         keyword_attribute("Thread Direction", "Right Hand"),
         numeric_attribute("Package Quantity", str(qty := rng.choice((25, 50, 100))), float(qty)),
     ]
@@ -207,8 +234,13 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
     draft.descriptors = [("Material", material)]
     system = "mm" if metric else "in"
     style = feed_style(brand, system, BRANDS)
-    table = _NUT_METRIC if metric else (_NUT_UNF if fine else _NUT_UNC)
-    key = f"nut:{system}:{'fine' if fine else 'coarse'}"
+    if metric and fine:
+        fine_range = gen._rotate("nut:metric-fine-range", len(_NUT_METRIC_FINE))
+        table = _NUT_METRIC_FINE[fine_range]
+        key = f"nut:mm:fine{fine_range}"
+    else:
+        table = _NUT_METRIC if metric else (_NUT_UNF if fine else _NUT_UNC)
+        key = f"nut:{system}:{'fine' if fine else 'coarse'}"
     for thread, flats, height in _window(gen, key, list(table), gen._variant_count()):
         flats_in = flats / MM_PER_INCH if metric else flats
         height_in = height / MM_PER_INCH if metric else height
