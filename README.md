@@ -389,7 +389,7 @@ attributes are never touched, so the facets can always separate the noise out.
 | siblings | `Also available in M8 / M10 / M16 sizes.` | the product's other SKUs, on its variant axis |
 | unit equivalent | `12mm (approx. 15/32").` | the published value, to the nearest 64th or 0.1mm |
 | fit / pairing | `Bore 11.992-12.000mm (ISO 492 Normal class).` / `Pair with M12x1.75 hex nuts and a 10mm hex key.` | ISO 492 bore tolerances; the record's thread and drive |
-| material contrast | `Zinc-plated steel (not stainless).` | the record's material and finish |
+| material contrast | `Zinc-plated steel (not stainless).` / `18-8 Stainless Steel (not plated).` | the record's material and finish |
 | work material | `Suitable for aluminum, brass and mild steel.` | what the tool's material cuts, by common practice |
 | standards | `Equivalent to DIN 912 / ISO 4762.` / `Higher strength than Class 8.8.` | same-dimension standards; ISO 898 / SAE J429 grades |
 | application | `For use with socket cap screws.` | hex keys |

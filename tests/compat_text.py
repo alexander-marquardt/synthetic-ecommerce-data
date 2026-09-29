@@ -31,7 +31,7 @@ NOISE = re.compile(
     r"|Pair with (?P<pair_thread>\S+) hex nuts"
     r"(?: and a (?P<pair_key>\S+) hex key| and (?P<pair_washer>M\d+) flat washers)?\."
     r"|(?P<contrast>(?:Zinc-plated (?:steel|alloy steel) \(not stainless\)"
-    r"|(?<!\S)[\w-][\w -]*?Stainless Steel \(not zinc plated\)"
+    r"|(?<!\S)[\w-][\w -]*?Stainless Steel \(not plated\)"
     r"|Brass \(not steel\)|Note: not alloy steel))\."
     r"|Suitable for (?P<cuts>[a-z ,]+)\."
     r"|Equivalent to (?P<equivalent>DIN [\w-]+) / (?P<standard>ISO \d+)\."

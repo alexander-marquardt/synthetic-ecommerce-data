@@ -145,8 +145,8 @@ def _holds(match: re.Match[str], doc: dict, siblings: list[dict]) -> bool:  # no
         material, finish = values.get("Material", ""), values.get("Finish", "")
         if text.endswith("(not stainless)"):
             return "Stainless" not in material and finish == "Zinc Plated"
-        if text.endswith("(not zinc plated)"):
-            return text.startswith(material) and "Stainless" in material and finish != "Zinc Plated"
+        if text.endswith("(not plated)"):
+            return text.startswith(material) and "Stainless" in material and finish in ("", "Plain")
         if text == "Brass (not steel)":
             return material == "Brass"
         return text == "Note: not alloy steel" and material == "Steel"
@@ -286,7 +286,7 @@ def test_a_kits_piece_count_is_its_contents(docs):
             continue
         pieces = int(values["Number of Pieces"])
         assert pieces % len(contents) == 0, doc["sku"]
-        if "Assortment" not in values["Item"]:
+        if "Assortment" not in values.get("Type", ""):
             assert pieces == len(contents), doc["sku"]
         counted += 1
     assert counted >= 30, counted
@@ -308,7 +308,7 @@ def test_kits_and_grouping_are_different_mechanisms(docs):
         if d["product_type"] == "hex_key" and "Size" in _values(d)
     }
     in_kits = {
-        mm(v) for d in _kits(docs) if _values(d).get("Item") == "Hex Key Set" for v in _contents(d)
+        mm(v) for d in _kits(docs) if _values(d).get("Type") == "Hex Key Set" for v in _contents(d)
     }
     assert in_kits - single, "no size is sold only in a set"
     assert single - in_kits, "no size is sold only singly"

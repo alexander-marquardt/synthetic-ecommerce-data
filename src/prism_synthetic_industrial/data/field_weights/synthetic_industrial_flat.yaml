@@ -60,8 +60,8 @@
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
 #   attributes declared      87
-#   offered as facets        63  (0 numeric ranges, 63 terms)
-#   declared, not faceted    24
+#   offered as facets        64  (0 numeric ranges, 64 terms)
+#   declared, not faceted    23
 # =============================================================================
 
 field_map_version: 1
@@ -390,12 +390,11 @@ fields:
   - name: inside_dia
     type: terms
     source: facets.inside_dia
-  # Item -- 27 distinct values reads as an identifier, not a facet (cap 25)
-  #   present on 10049 documents across 17 product type(s); 27 distinct values
+  # Item -- 24 distinct values
+  #   present on 10049 documents across 17 product type(s); 24 distinct values
   - name: item
     type: terms
     source: facets.item
-    facet: false
   # Length -- a discrete standard set: 62 distinct values over 1824 documents is 0.03 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
   #   present on 1824 documents across 5 product type(s); 62 distinct values
   - name: length
