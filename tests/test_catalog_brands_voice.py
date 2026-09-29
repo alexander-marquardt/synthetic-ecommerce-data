@@ -514,7 +514,10 @@ def untraced_numbers(docs: list[dict]) -> tuple[list, int]:
     bad, excused = [], 0
     for doc in docs:
         attributes = {a["name"]: a["value"] for a in doc["attributes"]}
-        backed = set(_NUMBER.findall(" ".join([*attributes.values(), doc["series"], doc["brand"]])))
+        # Every value of every attribute: a multi-valued one (a kit's ``Sizes
+        # Included``) is several entries under one name.
+        every_value = [a["value"] for a in doc["attributes"]]
+        backed = set(_NUMBER.findall(" ".join([*every_value, doc["series"], doc["brand"]])))
         # The cross-reference sentence's numbers are the OTHER product's (the
         # M12 a key drives) and trace to a standard's table instead;
         # ``test_compatibility_text`` checks every one of them there.

@@ -53,6 +53,13 @@ class GeneratorConfig:
     #: well-formed shapes (maintainer guardrail, 2026-09-27).
     zero_axis_share: float = 0.02
 
+    #: THE noise knob (:mod:`.noise`): scales every rate at which the copy
+    #: carries a true-but-distracting sentence -- a size it does not fit, a
+    #: sibling it is also sold in, a unit equivalent, what it pairs with or
+    #: cuts. 1.0 is the realistic default; 0 is a clean catalog with IDENTICAL
+    #: attributes, so the two can be compared record for record.
+    noise: float = 1.0
+
     #: Stock a SKU for every requirement example (:mod:`.muststock`), after
     #: the main generation, whatever the random streams drew.
     must_stock: bool = True
@@ -75,6 +82,9 @@ class GeneratorConfig:
             "bearing_radial_ball": 700 / 2600,
             "wheel_depressed_center": 700 / 2600,
             "hex_key": 700 / 2600,
+            # Assortment kits: one SKU each, a small share -- a distributor
+            # lists a few dozen sets beside thousands of single parts.
+            "kit_assortment": 60 / 2600,
         }
     )
 
@@ -226,5 +236,6 @@ SMALL = GeneratorConfig(
         "bearing_radial_ball": 0.1875,
         "wheel_depressed_center": 0.1875,
         "hex_key": 0.1875,
+        "kit_assortment": 0.1,
     },
 )

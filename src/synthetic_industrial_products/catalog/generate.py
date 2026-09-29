@@ -26,7 +26,7 @@ from dataclasses import dataclass, field, replace
 from fractions import Fraction
 from typing import TypeVar
 
-from . import brands, compat, series, standards, taxonomy
+from . import brands, compat, noise, series, standards, taxonomy
 from .config import GeneratorConfig
 from .formats import (
     LengthStyle,
@@ -599,8 +599,8 @@ class Generator:
         metric = rng.random() < 0.35
         # One line in four is the series' fine-pitch sibling.
         fine = rng.random() < 0.25
-        thread_type = ("Metric Fine" if fine else "Metric Coarse") if metric else (
-            "UNF" if fine else "UNC"
+        thread_type = (
+            ("Metric Fine" if fine else "Metric Coarse") if metric else ("UNF" if fine else "UNC")
         )
         item = "Spiral Point Tap"
         draft = LineDraft(
@@ -1785,22 +1785,41 @@ class Generator:
             titles, published, self._identifying_attribute(published)
         )
 
+        # The variant axis: what "also available in" names the siblings by.
+        axis = draft.children[0].primary.name if draft.children else None
+        siblings = [
+            next((a.value for a in attrs if a.name == axis), "") for _, attrs, _, _ in built
+        ]
         children: list[Sku] = []
         for (sku, attrs, price, stock), title in zip(built, titles, strict=True):
             # From the PUBLISHED values, after sparsity and defects, so the
             # sentence can never disagree with the record it sits on.
             values = {a.name: a.value for a in (*line_attrs, *attrs)}
             compatibility = compat.sentence_for(type_key, values) or ""
+            noise_text = " ".join(
+                noise.sentences(
+                    type_key,
+                    values,
+                    sku=sku,
+                    seed=self.config.seed,
+                    noise=self.config.noise,
+                    provenance=draft.provenance,
+                    primary=values.get(axis) if axis else None,
+                    siblings=siblings,
+                )
+            )
+            extra = " ".join(part for part in (compatibility, noise_text) if part)
             children.append(
                 Sku(
                     sku=sku,
                     title=title.text,
-                    description=self._build_description(draft, title, attrs, compatibility),
+                    description=self._build_description(draft, title, attrs, extra),
                     attributes=tuple(attrs),
                     price_usd=price,
                     stock=stock,
                     image_id=image_id_for(type_key, product_id, sku),
                     compatibility=compatibility,
+                    noise=noise_text,
                 )
             )
             self._bump("skus")

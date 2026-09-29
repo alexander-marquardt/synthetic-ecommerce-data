@@ -99,6 +99,10 @@ USE_LINES: dict[str, tuple[str, ...]] = {
         "Drives hex socket fasteners.",
         "Turns hex socket screws.",
     ),
+    "kit_assortment": (
+        "Every size in one case.",
+        "A set of the common sizes, kept together.",
+    ),
 }
 
 #: A line about the product family: names only the brand, its range and series.

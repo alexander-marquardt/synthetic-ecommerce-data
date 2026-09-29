@@ -1,6 +1,6 @@
 {
- "lines": 5371,
- "skus": 9989,
+ "lines": 5431,
+ "skus": 10049,
  "lines_by_type": {
   "end_mill_square": 498,
   "end_mill_ball": 286,
@@ -17,7 +17,8 @@
   "nut_hex": 692,
   "bearing_radial_ball": 700,
   "wheel_depressed_center": 696,
-  "hex_key": 688
+  "hex_key": 688,
+  "kit_assortment": 60
  },
  "skus_by_type": {
   "end_mill_square": 941,
@@ -35,7 +36,8 @@
   "nut_hex": 1271,
   "bearing_radial_ball": 1245,
   "wheel_depressed_center": 1301,
-  "hex_key": 1301
+  "hex_key": 1301,
+  "kit_assortment": 60
  },
  "attribute_names_by_type": {
   "end_mill_square": [
@@ -353,9 +355,23 @@
    "System of Measurement",
    "Tip Style",
    "Type"
+  ],
+  "kit_assortment": [
+   "Container Type",
+   "Dimension Type",
+   "Finish",
+   "Item",
+   "Material",
+   "Measurement System",
+   "Number of Pieces",
+   "Sizes Included",
+   "Standards",
+   "System of Measurement",
+   "Tip Style",
+   "Type"
   ]
  },
- "total_attribute_entries": 123217,
+ "total_attribute_entries": 123680,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -400,17 +416,17 @@
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.4736600587371512,
-   "numerator": 5161,
-   "denominator": 10896,
+   "achieved": 0.4736217597663381,
+   "numerator": 5189,
+   "denominator": 10956,
    "note": "over title dimension tokens"
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.1058186490455213,
+   "achieved": 0.1052391383716685,
    "numerator": 1153,
-   "denominator": 10896,
+   "denominator": 10956,
    "note": "over title dimension tokens"
   },
   {
@@ -418,7 +434,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 9989,
+   "denominator": 10049,
    "note": "over titles"
   },
   {
@@ -426,7 +442,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 9989,
+   "denominator": 10049,
    "note": "deliberate: the corpus measures 0.1089"
   },
   {
@@ -434,15 +450,15 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 9989,
+   "denominator": 10049,
    "note": "deliberate: the corpus measures 0.7353"
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 12.335268795675242,
-   "numerator": 123217,
-   "denominator": 9989,
+   "achieved": 12.307692307692308,
+   "numerator": 123680,
+   "denominator": 10049,
    "note": "count, not a rate"
   }
  ],
@@ -461,14 +477,15 @@
   "mm": 13821,
   "in": 20139
  },
- "standards_present": 5475,
- "standards_multivalued": 2961,
- "standards_total_values": 9520,
+ "standards_present": 5508,
+ "standards_multivalued": 2980,
+ "standards_total_values": 9579,
  "multivalued_attribute_names": {
-  "Standards": 2961
+  "Standards": 2980,
+  "Sizes Included": 60
  },
  "noncopy_audit": {
-  "n_skus_checked": 9989,
+  "n_skus_checked": 10049,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
@@ -587,7 +604,8 @@
    "nut_hex": 700,
    "bearing_radial_ball": 700,
    "wheel_depressed_center": 700,
-   "hex_key": 700
+   "hex_key": 700,
+   "kit_assortment": 60
   },
   "sparsity_scale": 1.0,
   "defect_scale": 1.0

@@ -115,6 +115,9 @@ class Sku:
     #: the description; kept separately so the searchable text can carry it
     #: without folding in the rest of the description.
     compatibility: str = ""
+    #: The copy's noise sentences (:mod:`.noise`): true, distracting, and in
+    #: the description and the searchable text only -- never an attribute.
+    noise: str = ""
 
     def attribute_names(self) -> frozenset[str]:
         return frozenset(a.name for a in self.attributes)

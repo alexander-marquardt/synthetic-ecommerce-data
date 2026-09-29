@@ -2,7 +2,7 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 9,989 SKUs over 5,371 products in 16 product types,
+extraction in search: 10,049 SKUs over 5,431 products in 17 product types,
 from 45 invented brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog)).
 
@@ -196,8 +196,9 @@ uv run sip-generate images --catalog out/catalog-100k --out out/images-100k --ar
 | screw_flat_head | 3,716 | | wheel_depressed_center | 12,805 |
 | screw_button_head | 2,662 | | hex_key | 10,652 |
 | screw_low_head | 2,140 | | bolt_hex | 4,735 |
+| kit_assortment | 598 | | | |
 
-**100,504 SKUs over 55,498 products.** SKUs that are not different (the rule
+**101,102 SKUs over 56,096 products.** SKUs that are not different (the rule
 below): 0. Every bearing number is a real table entry with its own bore, OD
 and width. Product names: 0 clashes catalog-wide. Every must-stock example is
 stocked. Two builds of the same commit emit identical flat and nested
@@ -286,7 +287,7 @@ builder drew, before sparsity) is one its brand already made for the type, or
 when its published spec is a subset or superset of one already made. When a
 (type, brand) drafts 20 lines in a row that make nothing, its spec space
 counts as spent and that brand stops getting products of that type
-(`MAX_MISSES`); at 100K no pair reached it (9,384 draft SKUs were rejected
+(`MAX_MISSES`); at 100K no pair reached it (9,439 draft SKUs were rejected
 over the whole build). Washers come in five materials, each with the finishes
 it is really sold in, and ball pein hammers in twelve head weights and four
 handles, which keeps rejection rare. The series walk that keeps product names
@@ -371,6 +372,53 @@ without stating anything false (`catalog/compat.py`):
   token to the standard analyzer, so the searchable `text` also carries `M12`
   beside it; without that, `m12 socket cap screws` reached the hex keys whose
   copy names M12 screws and not a single screw.
+
+## Copy noise
+
+A distributor's copy mentions sizes a product does NOT fit, the siblings it
+is also sold in, the unit a shopper might have typed, what it pairs with and
+what it cuts. Every one of those words is searchable, so a query matches more
+than the products it names, and the policies and facets are what narrow the
+page back down (`catalog/noise.py`). Every sentence is TRUE of its record --
+read from its own published values, its siblings, or a table -- and the
+attributes are never touched, so the facets can always separate the noise out.
+
+| type | example | from |
+|---|---|---|
+| negative fit | `Not for M10 or M16 threads.` / `Will not fit 5/32" sockets.` | the neighbouring diameters; the next smaller key |
+| siblings | `Also available in M8 / M10 / M16 sizes.` | the product's other SKUs, on its variant axis |
+| unit equivalent | `12mm (approx. 15/32").` | the published value, to the nearest 64th or 0.1mm |
+| fit / pairing | `Bore 11.992-12.000mm (ISO 492 Normal class).` / `Pair with M12x1.75 hex nuts and a 10mm hex key.` | ISO 492 bore tolerances; the record's thread and drive |
+| material contrast | `Zinc-plated steel (not stainless).` | the record's material and finish |
+| work material | `Suitable for aluminum, brass and mild steel.` | what the tool's material cuts, by common practice |
+| standards | `Equivalent to DIN 912 / ISO 4762.` / `Higher strength than Class 8.8.` | same-dimension standards; ISO 898 / SAE J429 grades |
+| application | `For use with socket cap screws.` | hex keys |
+
+**One knob:** `GeneratorConfig.noise` (`--noise`) scales every rate; 1.0 is
+the realistic default and 0 a clean catalog. Each record draws from its own
+stream (catalog seed + SKU), so the clean and the noisy build have IDENTICAL
+attributes and titles, record for record -- `tests/test_noise_text.py`
+builds both and compares. **Unit equivalents are held to a minority**:
+15-20% of the records that could carry one (measured 17.8% on the golden,
+1,085 of 6,097),
+because the facets expand units themselves and a result should show the facet
+working, not text luck. Every sentence type has a checker in that test
+against tables written out there, a planted false sentence reds, and five
+mutation rows prove the checks bite.
+
+## Assortment kits
+
+`kit_assortment` is a seventeenth product type: ONE SKU per kit, its
+contents a multi-valued field of its own (`Sizes Included`), its piece count
+a real number (`Number of Pieces`, so pack wording may name it), never
+sharing a product id with the individual parts. The sets are the
+conventional ones -- ISO 2936 and ASME B18.3 hex key sets, fractional
+(29/21/13-piece) and metric jobber drill indexes, socket head cap screw
+assortments and tap sets -- and a set is not a grouping of the parts: a
+grouped product sells its sizes as separately purchasable variants, a kit
+sells them together as one item. So some hex key sizes are sold only in a set
+(0.7, 0.9, 1.3mm; 0.028", 0.035"), some only singly (12mm), most both, and a
+test holds all three to non-empty. 60 kits on the default build, 598 at 100K.
 
 Two derivation artefacts went with it: the drive size is published as the
 nominal key (`10mm`), not the extracted socket's toleranced across-flats
@@ -548,8 +596,8 @@ them here would hide the problem a field map exists to solve.
 
 | file | |
 |---|---|
-| `flat.jsonl` | 26.9 MB — 9,989 SKU documents |
-| `nested.jsonl` | 14.8 MB — 5,371 products, nested variants and key-value attributes |
+| `flat.jsonl` | 27.4 MB — 10,049 SKU documents |
+| `nested.jsonl` | 15.1 MB — 5,431 products, nested variants and key-value attributes |
 | `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
 | `images.jsonl` | 3.9 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
@@ -597,10 +645,10 @@ difference means the second, and the golden files must not be updated until it
 is found. The test's failure message says all of this too, with the commands.
 
 Alongside the hashes, the same test asserts the headline numbers directly
-against the committed files — 9,989 SKU documents over 5,371 distinct
+against the committed files — 10,049 SKU documents over 5,431 distinct
 `product_id`, a non-empty `image_url` and `image_detail_url` on every product,
-variant and flat document, and 5,371 nested products whose variant counts sum
-to 9,989. Those hold independently of the generator, so a careless
+variant and flat document, and 5,431 nested products whose variant counts sum
+to 10,049. Those hold independently of the generator, so a careless
 regenerate-and-commit from a broken build is still red.
 
 ## Every requirement example is stocked
@@ -652,8 +700,8 @@ PRISM_CUSTOMIZATION_PATH=<this repo> PRISM_RUNTIME_MODE=dev \
 
 ### The field map is derived, never written
 
-The catalog publishes **84 distinct attribute names** across 16 product types.
-A hand-maintained list of 84 declarations drifts from the generator the first
+The catalog publishes **87 distinct attribute names** across 17 product types.
+A hand-maintained list of 87 declarations drifts from the generator the first
 time either side moves, and it drifts *silently*: a field map naming an
 attribute the catalog no longer publishes does not raise, it just stops
 faceting, and "no product has that value" looks exactly like "the field map is
@@ -839,8 +887,8 @@ The rulings are on elastic/prism-industrial-products#103 (2026-09-26 to -28):
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 9,989 drawings, 19.7 MB unpacked
-  (1.97 KB a drawing on average), and a 2.08 MB `images.tar.gz`. Every root
+  measured on the committed catalog, 10,049 drawings, 19.8 MB unpacked
+  (1.97 KB a drawing on average), and a 2.09 MB `images.tar.gz`. Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
   by max-width/max-height in a flex item that does not grow renders a
   viewBox-only SVG at 0 x 0.

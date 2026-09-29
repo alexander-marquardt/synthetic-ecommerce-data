@@ -742,8 +742,42 @@ def hex_key(record: Record) -> Drawn:
     return Drawn(fig, source)
 
 
+def _kit_slots(record: Record) -> int:
+    """How many items the kit's case shows: one slot per listed size, up to 15."""
+    contents = record.get("Sizes Included")
+    if contents:
+        return max(1, min(15, len([c for c in str(contents).split(",") if c.strip()])))
+    try:
+        return max(1, min(15, int(float(str(record.get("Number of Pieces", "6"))))))
+    except ValueError:
+        return 6
+
+
+def kit(record: Record) -> Drawn:
+    """An open case: a lid and a tray of slots, one per size, stepped as a set is.
+
+    Text-free like every other drawing; the slots rise left to right the way an
+    index or a key set is laid out, so a 29-piece index and a 7-piece set read
+    differently at a glance.
+    """
+    slots = _kit_slots(record)
+    width = 0.4 + 0.35 * slots
+    tray, lid = 1.6, 1.2
+    fig = Figure(size_in=width)
+    fig.rect(0.0, 0.0, width, lid, "plain")
+    fig.rect(0.0, lid + 0.15, width, lid + 0.15 + tray)
+    for k in range(slots):
+        x = 0.2 + 0.35 * k
+        rise = 0.25 + 1.05 * (k + 1) / slots
+        floor = lid + 0.15 + tray - 0.12
+        fig.rect(x + 0.06, floor - rise, x + 0.29, floor, "hole")
+    fig.lines([((0.0, lid), (width, lid))])
+    return Drawn(fig, "record" if record.get("Sizes Included") else "partial")
+
+
 FIGURES.update(
     {
+        "kit_assortment": (kit, (5.65, 2.95)),
         "nut_hex": (hex_nut, (1.95, 3.5)),
         "bearing_radial_ball": (bearing, (3.25, 4.95)),
         "wheel_depressed_center": (depressed_wheel, (9.3, 13.2)),

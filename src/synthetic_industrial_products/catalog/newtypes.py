@@ -40,10 +40,11 @@ from __future__ import annotations
 import random
 from collections.abc import Callable
 from dataclasses import dataclass
+from fractions import Fraction
 from typing import TYPE_CHECKING
 
 from .formats import LengthStyle
-from .model import keyword_attribute, length_attribute, numeric_attribute
+from .model import keyword_attribute, length_attribute, multi_attribute, numeric_attribute
 
 if TYPE_CHECKING:
     from .generate import Generator, LineDraft
@@ -57,6 +58,7 @@ PART_NUMBER_BLOCKS: dict[str, int] = {
     "bearing_radial_ball": 12,
     "wheel_depressed_center": 13,
     "hex_key": 14,
+    "kit_assortment": 15,
 }
 
 #: A stride coprime to 10**6, so consecutive products do not read as a counter.
@@ -505,6 +507,185 @@ def build_hex_key(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
     return draft
 
 
+# --- assortment kits -----------------------------------------------------------------
+
+
+def _sixty_fourths(lo: int, hi: int) -> tuple[float, ...]:
+    return tuple(float(Fraction(n, 64)) for n in range(lo, hi + 1))
+
+
+@dataclass(frozen=True)
+class Kit:
+    """One assortment: its kind, the part type it holds, and the sizes, in inches.
+
+    A kit is ONE SKU. What it holds is its own ``Sizes Included`` field (a
+    multi-valued attribute listing every size) and its own ``Number of Pieces`` --
+    a real field, so pack wording is allowed on it. It never shares a
+    product id with the individual parts, and is not a grouping of them: a
+    grouped product offers its sizes as separately purchasable variants, a kit
+    sells them together as one item. The sets are the conventional ones a
+    distributor lists; a size a set holds need not be sold singly (the
+    0.028" and 0.7mm keys of a full set are not), and a size sold singly need
+    not be in any set (the 12mm key is not).
+    """
+
+    item: str
+    part_type: str
+    system: str  # "in" or "mm"
+    sizes: tuple[float, ...]  # inches, or for a screw assortment the thread designations' diameters
+    per_size: int = 1
+    designations: tuple[str, ...] = ()
+
+
+KITS: tuple[Kit, ...] = (
+    # ISO 2936 metric key sets. The 12-piece precision set starts below the
+    # smallest key the catalog sells singly (1.5mm): 0.7, 0.9 and 1.3mm.
+    Kit(
+        "Hex Key Set",
+        "hex_key",
+        "mm",
+        tuple(k / MM_PER_INCH for k in (1.5, 2, 2.5, 3, 4, 5, 6, 8, 10)),
+    ),
+    Kit("Hex Key Set", "hex_key", "mm", tuple(k / MM_PER_INCH for k in (2, 2.5, 3, 4, 5, 6, 8))),
+    Kit(
+        "Hex Key Set",
+        "hex_key",
+        "mm",
+        tuple(k / MM_PER_INCH for k in (0.7, 0.9, 1.3, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10)),
+    ),
+    # ASME B18.3 inch key sets; the 15-piece set starts at 0.028" and 0.035",
+    # which the catalog does not sell singly.
+    Kit(
+        "Hex Key Set",
+        "hex_key",
+        "in",
+        (
+            0.028,
+            0.035,
+            0.050,
+            1 / 16,
+            5 / 64,
+            3 / 32,
+            7 / 64,
+            1 / 8,
+            9 / 64,
+            5 / 32,
+            3 / 16,
+            7 / 32,
+            1 / 4,
+            5 / 16,
+            3 / 8,
+        ),
+    ),
+    Kit(
+        "Hex Key Set",
+        "hex_key",
+        "in",
+        (5 / 64, 3 / 32, 1 / 8, 5 / 32, 3 / 16, 7 / 32, 1 / 4, 5 / 16, 3 / 8),
+    ),
+    # Fractional jobber drill indexes: the classic 29-, 21- and 13-piece sets.
+    Kit("Jobber Drill Set", "drill_jobber", "in", _sixty_fourths(4, 32)),
+    Kit("Jobber Drill Set", "drill_jobber", "in", _sixty_fourths(4, 24)),
+    Kit("Jobber Drill Set", "drill_jobber", "in", _sixty_fourths(4, 16)),
+    # A metric index, 1 to 13mm by half millimetres.
+    Kit("Jobber Drill Set", "drill_jobber", "mm", tuple(k / 2 / MM_PER_INCH for k in range(2, 27))),
+    # Socket head cap screw assortments: a count of each diameter.
+    Kit(
+        "Socket Head Cap Screw Assortment",
+        "screw_socket_head",
+        "mm",
+        (),
+        per_size=50,
+        designations=("M3x0.5", "M4x0.7", "M5x0.8", "M6x1", "M8x1.25"),
+    ),
+    Kit(
+        "Socket Head Cap Screw Assortment",
+        "screw_socket_head",
+        "in",
+        (),
+        per_size=40,
+        designations=("#6-32", "#8-32", "#10-24", "1/4-20", "5/16-18", "3/8-16"),
+    ),
+    # Tap sets: one tap of each coarse size.
+    Kit(
+        "Tap Set",
+        "tap_spiral_point",
+        "mm",
+        (),
+        designations=("M3x0.5", "M4x0.7", "M5x0.8", "M6x1", "M8x1.25", "M10x1.5", "M12x1.75"),
+    ),
+    Kit(
+        "Tap Set",
+        "tap_spiral_point",
+        "in",
+        (),
+        designations=("#6-32", "#8-32", "#10-24", "1/4-20", "5/16-18", "3/8-16", "1/2-13"),
+    ),
+)
+
+_KIT_MATERIAL = {
+    "hex_key": ("Alloy Steel", "Chrome Vanadium Steel", "S2 Tool Steel"),
+    "drill_jobber": ("High Speed Steel", "Cobalt"),
+    "screw_socket_head": ("Alloy Steel", "18-8 Stainless Steel"),
+    "tap_spiral_point": ("High Speed Steel",),
+}
+#: The finishes each part type is sold in, as elsewhere in this catalog.
+_KIT_FINISH = {
+    "hex_key": ("Black Oxide", "Chrome Plated", "Bright"),
+    "drill_jobber": ("Bright", "Black Oxide", "TiN"),
+    "screw_socket_head": ("Black Oxide", "Plain", "Zinc Plated"),
+    "tap_spiral_point": ("Bright", "TiN", "Steam Oxide"),
+}
+_KIT_CONTAINER = ("Plastic Case", "Metal Index", "Folding Holder", "Pouch")
+
+
+def build_kit(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineDraft:
+    """One assortment kit: one SKU, its sizes a field of its own.
+
+    The attribute names are the census's: ``Sizes Included`` (the contents,
+    multi-valued), ``Number of Pieces`` (a real count, which is why pack
+    wording may name it) and ``Container Type``.
+    """
+    from .brands import brands_for
+    from .generate import BRANDS, ChildDraft, LineDraft
+
+    rng = gen.rng
+    kit = KITS[gen._rotate("kit:kind", len(KITS))]
+    makers = [b for b in brands_for(kit.part_type) if (type_key, b.name) not in gen._exhausted]
+    makers = makers or list(brands_for(kit.part_type))
+    brand = rng.choices(makers, weights=[b.weight for b in makers], k=1)[0].name
+    material = rng.choice(_KIT_MATERIAL[kit.part_type])
+    finish = "Plain" if "Stainless" in material else rng.choice(_KIT_FINISH[kit.part_type])
+    container = rng.choice(_KIT_CONTAINER)
+    style = feed_style(brand, kit.system, BRANDS)
+    contents = kit.designations or tuple(gen._publish(size, style) for size in kit.sizes)
+    pieces = kit.per_size * len(contents)
+    draft = LineDraft(
+        item=kit.item,
+        brand=brand,
+        series=f"KT{rng.randint(100, 999)}",
+        category=category,
+        provenance=GENERATED_PROVENANCE,
+    )
+    draft.line_attrs = [
+        keyword_attribute("Item", kit.item),
+        keyword_attribute("Type", kit.item),
+        keyword_attribute("Material", material),
+        keyword_attribute("Finish", finish),
+        keyword_attribute("Container Type", container),
+    ]
+    if kit.part_type == "hex_key":
+        tip = rng.choice(("Hex End", "Ball End"))
+        draft.line_attrs.append(keyword_attribute("Tip Style", tip))
+    draft.descriptors = [("Container Type", container)]
+    child = ChildDraft(system=kit.system)
+    child.primary = numeric_attribute("Number of Pieces", str(pieces), float(pieces))
+    child.attrs = [child.primary, multi_attribute("Sizes Included", contents)]
+    child.price_basis = 2.0 + pieces * (0.08 if kit.per_size > 1 else 1.1)
+    draft.children.append(child)
+    return draft
+
+
 NEW_TYPES: dict[str, NewType] = {
     "nut_hex": NewType(("Fasteners", "Nuts", "Hex Nuts"), build_nut, "fastener"),
     "bearing_radial_ball": NewType(
@@ -516,6 +697,9 @@ NEW_TYPES: dict[str, NewType] = {
         ("Abrasives", "Grinding & Cut-Off", "Grinding & Cut-Off Wheels", "Depressed-Center Wheels"),
         build_wheel,
         "abrasive",
+    ),
+    "kit_assortment": NewType(
+        ("Hand Tools", "Tool Sets & Kits", "Assortment Kits"), build_kit, "hand_tool"
     ),
     "hex_key": NewType(
         (

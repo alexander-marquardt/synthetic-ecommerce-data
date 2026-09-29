@@ -186,7 +186,7 @@ def _is_mm(value: str) -> bool:
 def _key_text(key_in: float, metric: bool) -> str:
     if metric:
         return f"{key_in * MM_PER_INCH:g}mm"
-    frac = Fraction(key_in).limit_denominator(64)
+    frac = Fraction(round(key_in * 64), 64)
     return f'{frac}"' if abs(float(frac) - key_in) < 1e-9 else f'{key_in:.3f}"'
 
 

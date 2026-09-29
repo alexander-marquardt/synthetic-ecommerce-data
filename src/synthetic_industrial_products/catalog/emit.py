@@ -209,6 +209,10 @@ def _searchable_text(line: ProductLine, child: Sku, attributes: tuple[Attribute,
     # keys, taps and nuts that fit it as well as the screw -- and no attribute
     # carries it, deliberately (:mod:`.compat`).
     parts.append(child.compatibility)
+    # The noise sentences likewise (:mod:`.noise`): what a search matches on
+    # includes what the copy says a product is NOT, the siblings it comes in,
+    # what it pairs with -- which is why a policy or a facet has to narrow.
+    parts.append(child.noise)
     return " ".join(part for part in parts if part)
 
 
