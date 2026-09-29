@@ -20,7 +20,7 @@ qualifiers are words true of every product in their family
 (:data:`.brands.PRODUCT_WORDS`); the use lines are true of every product of
 their type; a benefit line is stated only when the record carries the value
 it is about; the pack line only with the record's own quantity.
-``tests/test_catalog_voice.py`` holds every SKU to that.
+``tests/test_catalog_brands_voice.py`` holds every SKU to that.
 """
 
 from __future__ import annotations
@@ -226,9 +226,7 @@ def product_name(brand: str, series: str, item: str, family: str) -> str:
     return " ".join(w for w in (brand, voice.range_word, series, "--", thing) if w)
 
 
-def description_tail(
-    brand: str, series: str, type_key: str, facts: dict[str, str]
-) -> str:
+def description_tail(brand: str, series: str, type_key: str, facts: dict[str, str]) -> str:
     """The brand-template sentences after the spec clause.
 
     ``facts`` is the record's own published attributes, by name. A benefit

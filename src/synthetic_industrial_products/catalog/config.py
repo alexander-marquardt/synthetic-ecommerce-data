@@ -210,10 +210,10 @@ class GeneratorConfig:
 
 
 #: The ``--lines`` that lands the catalog at about 100,000 SKUs: measured,
-#: ``sip-generate build --lines 25850`` gives 100,206 SKUs over 53,517
+#: ``sip-generate build --lines 28300`` gives 99,979 SKUs over 55,366
 #: products (README, "The 100K catalog"). A named value of the one knob,
 #: not a second knob -- the industrial demo serves this size.
-HUNDRED_K_LINES = 25850
+HUNDRED_K_LINES = 28300
 
 
 #: A small configuration for tests and for a quick look at the output shape.

@@ -66,23 +66,50 @@ def hundred_k() -> list[dict]:
 # --- every SKU is different ---------------------------------------------------
 
 
+def _spec(doc: dict) -> frozenset:
+    """A SKU's published spec; a repeated name (Standards) is one joined value."""
+    values: dict[str, list[str]] = collections.defaultdict(list)
+    for a in doc["attributes"]:
+        if a["name"] not in IDENTIFIER_ATTRIBUTES:
+            values[a["name"]].append(a["value"])
+    return frozenset((name, "|".join(v)) for name, v in values.items())
+
+
+#: What a SKU of each type IS, for bucketing the subset search: two SKUs can
+#: only differ by a dropped attribute if they agree on these (every one is
+#: published on every SKU of its type).
+_BUCKET = (
+    "Item",
+    "Size",
+    "Thread Size",
+    "Dia./Thread Size",
+    "Bearing Number",
+    "Milling Dia.",
+    "Diameter",
+    "Head Weight",
+    "Grit",
+)
+
+
 def same_product_duplicates(docs: list[dict]) -> list[tuple[str, str]]:
-    """SKU pairs identical on (type, brand, every non-identifier attribute)."""
-    seen: dict[tuple, str] = {}
-    duplicates = []
+    """SKU pairs of one (type, brand) that are NOT different.
+
+    Identical on every non-identifier attribute, OR differing only in that one
+    lacks an attribute the other carries (a sparsity drop is not a difference
+    a shopper can see as one). Checked pairwise within buckets, independently
+    of the generator's own index.
+    """
+    buckets: dict[tuple, list[tuple[frozenset, str]]] = collections.defaultdict(list)
     for doc in docs:
-        spec = tuple(
-            sorted(
-                (a["name"], a["value"] if "values" not in a else "|".join(a["values"]))
-                for a in doc["attributes"]
-                if a["name"] not in IDENTIFIER_ATTRIBUTES
-            )
-        )
-        key = (doc["product_type"], doc["brand"], spec)
-        if key in seen:
-            duplicates.append((seen[key], doc["sku"]))
-        else:
-            seen[key] = doc["sku"]
+        spec = _spec(doc)
+        core = frozenset(pair for pair in spec if pair[0] in _BUCKET)
+        buckets[(doc["product_type"], doc["brand"], core)].append((spec, doc["sku"]))
+    duplicates = []
+    for members in buckets.values():
+        for i, (a, sku_a) in enumerate(members):
+            for b, sku_b in members[i + 1 :]:
+                if a <= b or b <= a:
+                    duplicates.append((sku_a, sku_b))
     return duplicates
 
 
@@ -98,6 +125,13 @@ def test_a_planted_duplicate_is_caught(golden):
     """The control: the check above fires on a real duplicate."""
     twin = dict(golden[0], sku="ZZ0000", product_id="ZZZ-0000", price_usd=1.0, stock=0)
     assert same_product_duplicates([*golden, twin]) == [(golden[0]["sku"], "ZZ0000")]
+
+
+def test_a_planted_sparsity_drop_is_caught(golden):
+    """A copy that only LACKS one attribute is not a different product."""
+    doc = next(d for d in golden if len(d["attributes"]) > 3)
+    dropped = dict(doc, sku="ZZ0002", attributes=doc["attributes"][:-1])
+    assert same_product_duplicates([doc, dropped]) == [(doc["sku"], "ZZ0002")]
 
 
 def test_the_same_part_from_two_brands_is_two_products(golden):
@@ -144,11 +178,56 @@ def test_every_must_stock_example_is_stocked_at_100k(hundred_k):
         ), entry.example
 
 
-def test_no_two_products_of_a_type_share_a_product_name(hundred_k):
-    names = collections.Counter()
-    products = {doc["product_id"]: (doc["product_type"], doc["parent_title"]) for doc in hundred_k}
-    names.update(products.values())
+@pytest.mark.parametrize("which", ["golden", "hundred_k"])
+def test_no_two_products_share_a_product_name_catalog_wide(which, request):
+    products = {d["product_id"]: d["parent_title"] for d in request.getfixturevalue(which)}
+    names = collections.Counter(products.values())
     assert [n for n, c in names.items() if c > 1] == []
+
+
+@pytest.mark.parametrize("which", ["golden", "hundred_k"])
+def test_every_bearing_is_a_real_table_entry_with_its_own_dimensions(which, request):
+    """A bearing number names a bore, OD and width. The first version of the
+    uniqueness walk renumbered 11,784 bearings to numbers that are not
+    bearings, keeping another number's sizes."""
+    from synthetic_industrial_products.catalog.newtypes import _BEARINGS_INCH, _BEARINGS_METRIC
+
+    table = {n: (b / 25.4, o / 25.4, w / 25.4) for n, b, o, w in _BEARINGS_METRIC}
+    table |= {n: (b, o, w) for n, b, o, w in _BEARINGS_INCH}
+    checked = 0
+    for doc in request.getfixturevalue(which):
+        if doc["product_type"] != "bearing_radial_ball":
+            continue
+        a = {x["name"]: x["value"] for x in doc["attributes"]}
+        assert a.get("Bearing Number") in table, (doc["sku"], a.get("Bearing Number"))
+        for name, expected in zip(
+            ("Bore", "Outside Dia.", "Width"), table[a["Bearing Number"]], strict=True
+        ):
+            if name in a:
+                assert abs(parse_length(a[name]).inches - expected) < 0.002, (doc["sku"], name)
+        checked += 1
+    assert checked > 1000
+
+
+def test_the_series_walk_changes_no_attribute_but_an_identifier():
+    """The walk renumbers the series and List Number; a value that merely
+    EQUALS the series -- here a planted 'Bearing Number' -- never moves."""
+    from synthetic_industrial_products.catalog.config import SMALL
+    from synthetic_industrial_products.catalog.generate import Generator, LineDraft
+    from synthetic_industrial_products.catalog.model import Attribute
+
+    gen = Generator(SMALL)
+    first = LineDraft(item="x", brand=BRANDS[0], series="K100", category=("a",))
+    gen._unique_series(first, [])
+    fact = Attribute("Bearing Number", "K100")
+    ident = Attribute("List Number", "K100")
+    second = LineDraft(item="x", brand=BRANDS[0], series="K100", category=("a",))
+    second.line_attrs = [fact, ident]
+    published = [fact, ident]
+    gen._unique_series(second, published)
+    assert second.series == "K101"
+    assert published == [fact, Attribute("List Number", "K101")]
+    assert second.line_attrs == [fact, Attribute("List Number", "K101")]
 
 
 # --- the brand book -----------------------------------------------------------
@@ -166,7 +245,16 @@ def test_the_brand_pool_is_a_long_tail_and_a_few_names_are_ordinary_words(hundre
     assert set(share) == set(BRANDS), set(BRANDS) - set(share)
     assert max(share.values()) / total <= 0.10
     assert min(share.values()) / total >= 0.003
-    ordinary = {"Vantage Edge", "Lark & Lathe", "Tall Mast", "Salt Meadow Works", "Crooked Birch"}
+    ordinary = {
+        "Iron Heron",
+        "Lantern Rock",
+        "Stone Wicket",
+        "Tin Kestrel",
+        "Lark & Lathe",
+        "Tall Mast",
+        "Salt Meadow Works",
+        "Wendlow Tool",
+    }
     assert ordinary <= set(BRANDS)
 
 
@@ -178,12 +266,29 @@ def test_not_every_brand_makes_every_type():
 # --- house styles -------------------------------------------------------------
 
 
+def _contrast(ink: str, paper: str) -> float:
+    def lum(colour: str) -> float:
+        channels = [int(colour[i : i + 2], 16) / 255 for i in (1, 3, 5)]
+        linear = [c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in channels]
+        return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+
+    hi, lo = sorted((lum(ink), lum(paper)), reverse=True)
+    return (hi + 0.05) / (lo + 0.05)
+
+
 def test_every_brand_has_exactly_one_house_style_and_no_two_share_it():
     from synthetic_industrial_products.drawing.style import brand_for_house_style, house_style
 
     styles = {brand: house_style(brand) for brand in BRANDS}
     pairs = {(s.ink, s.frame) for s in styles.values()}
     assert len(pairs) == len(BRANDS)
+    assert len({(s.ink, s.paper, s.frame) for s in styles.values()}) == len(BRANDS)
+    # Brands sharing an ink differ in paper as well as in frame.
+    for ink in {s.ink for s in styles.values()}:
+        papers = [s.paper for s in styles.values() if s.ink == ink]
+        assert len(set(papers)) == len(papers), ink
+    worst = min((_contrast(s.ink, s.paper), b) for b, s in styles.items())
+    assert worst[0] >= 3.0, worst
     for brand, style in styles.items():
         assert brand_for_house_style(style.ink, style.frame) == brand
     assert {s.frame for s in styles.values()} == set(FRAMES)
@@ -219,7 +324,7 @@ def test_every_sampled_drawing_is_in_its_own_brands_house_style():
         data, _ = draw_sku(parent["product_type"], parent["brand"], bundle._record(parent, variant))
         svg = data.decode()
         style = house_style(parent["brand"])
-        assert style.ink in svg and style.paper in svg, key
+        assert style.ink in svg and f'fill="{style.paper}"' in svg, key
         frames = _frames_in(svg)
         expected = set() if style.frame == "none" else {style.frame}
         assert frames == expected, (key, frames)

@@ -2,7 +2,7 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 10,080 SKUs over 5,403 products in 16 product types,
+extraction in search: 10,096 SKUs over 5,376 products in 16 product types,
 from 45 invented brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog)).
 
@@ -179,56 +179,56 @@ grows together. There is deliberately no second `--scale` flag.
 ### The 100K catalog
 
 ```sh
-uv run sip-generate build --lines 25850 --out out/catalog-100k
+uv run sip-generate build --lines 28300 --out out/catalog-100k
 uv run sip-generate images --catalog out/catalog-100k --out out/images-100k --archive out/images-100k.tar.gz
 ```
 
-`--lines 25850` (`config.HUNDRED_K_LINES`) is the value that lands at about
-100,000 SKUs. Measured on this commit, in about 22 s:
+`--lines 28300` (`config.HUNDRED_K_LINES`) is the value that lands at about
+100,000 SKUs. Measured on this commit, in about 25 s:
 
 | type | SKUs | | type | SKUs |
 |---|--:|---|---|--:|
-| end_mill_square | 9,283 | | washer_flat | 2,699 |
-| end_mill_ball | 5,360 | | hammer_ball_pein | 1,947 |
-| drill_jobber | 5,333 | | abrasive_flap_disc | 2,437 |
-| tap_spiral_point | 3,457 | | nut_hex | 13,349 |
-| screw_socket_head | 5,924 | | bearing_radial_ball | 12,269 |
-| screw_flat_head | 3,358 | | wheel_depressed_center | 13,114 |
-| screw_button_head | 2,398 | | hex_key | 12,984 |
-| screw_low_head | 1,961 | | bolt_hex | 4,333 |
+| end_mill_square | 10,184 | | washer_flat | 2,122 |
+| end_mill_ball | 5,775 | | hammer_ball_pein | 1,658 |
+| drill_jobber | 5,635 | | abrasive_flap_disc | 2,370 |
+| tap_spiral_point | 3,396 | | nut_hex | 12,656 |
+| screw_socket_head | 6,304 | | bearing_radial_ball | 13,251 |
+| screw_flat_head | 3,706 | | wheel_depressed_center | 12,805 |
+| screw_button_head | 2,696 | | hex_key | 10,652 |
+| screw_low_head | 2,110 | | bolt_hex | 4,659 |
 
-**100,206 SKUs over 53,517 products.** Duplicate SKU ids: 0. Same-product
-duplicates (the rule below): 0. Every SKU has its own drawing: 100,206
-drawings, 207 MB unpacked, a 21.4 MB `images.tar.gz`, every sha256 matching
-`images.jsonl`. Every must-stock example is stocked. Two builds of the same
+**99,979 SKUs over 55,366 products.** Duplicate SKU ids: 0. SKUs that are not
+different (the rule below): 0. Every bearing number is a real table entry with
+its own bore, OD and width. Product names: 0 clashes catalog-wide. Every SKU
+has its own drawing: 99,979 drawings, 201 MB unpacked, a 20.8 MB
+`images.tar.gz`, every sha256 matching `images.jsonl`, every part inside its
+type's extent. Every must-stock example is stocked. Two builds of the same
 commit are byte-identical (the sha256 of each of the seven output files
 compared equal).
 
-The files are far too large to commit (`flat.jsonl` is 266 MB, `nested.jsonl`
-146 MB). The industrial demo serves this size from a **pinned release asset**
-on elastic/prism-industrial-products, the same pattern as the drawings, and
-this repository commits the default-size catalog only.
+The files are far too large to commit uncompressed (`flat.jsonl` is ~265 MB).
+This repository commits the default-size catalog only; the industrial demo
+carries the 100K catalog itself.
 
 What moves at 100K, measured against the census targets (`sip-generate
 report`), with the default catalog beside it:
 
-| measured property | target | 10K | 100K |
-|---|--:|--:|--:|
-| shank == cutting diameter | 0.6489 | 0.6433 | 0.6581 |
-| length of cut > overall length | 0.0829 | 0.0831 | 0.0815 |
-| angle carries a length unit | 0.0469 | 0.0412 | 0.0484 |
-| declared system contradicts units | 0.0323 | 0.0316 | 0.0307 |
-| unit mixing within one record | 0.0222 | 0.0159 | 0.0165 |
-| title dimension token unlabelled | 0.4667 | 0.4674 | 0.4662 |
-| title dimension token not the primary | 0.1714 | 0.1112 | 0.1008 |
-| attributes per record (mean) | 13.12 | 12.36 | 12.38 |
+| measured property | target | 100K |
+|---|--:|--:|
+| shank == cutting diameter | 0.6489 | 0.6572 |
+| length of cut > overall length | 0.0829 | 0.0815 |
+| angle carries a length unit | 0.0469 | 0.0488 |
+| declared system contradicts units | 0.0323 | 0.0323 |
+| unit mixing within one record | 0.0222 | 0.0175 |
+| title dimension token unlabelled | 0.4667 | 0.4666 |
+| title dimension token not the primary | 0.1714 | 0.1020 |
+| attributes per record (mean) | 13.12 | 12.65 |
 
 Drift, stated: the not-the-primary token rate sits below its target because a
-title now names a secondary dimension only when the record PUBLISHES it (see
-[Brand voice](#brand-voice-titles-and-descriptions)); before that rule it was
-0.127 on the default catalog. The flute label spelling is 0.49 `FL`, 0.44
-`Flutes`, 0.07 `Fl` at 100K against the census's 0.66 / 0.28 / 0.06: each brand
-now spells a label ONE way, so the catalog-wide mix is quantised by brand.
+title names a secondary dimension only when the record PUBLISHES it (see
+[Brand voice](#brand-voice-titles-and-descriptions)). Label spellings are
+quantised by brand (each brand spells a label one way), so e.g. the flute
+label mix differs from the census's 0.66 / 0.28 / 0.06.
 
 ## Brands
 
@@ -238,39 +238,62 @@ their product families, market weight, house style and title voice.
 * **A long tail, not ten equal houses.** Three broad-line houses make
   something in every family; the rest make one to three families. At 100K the
   largest brand carries 9.0% of SKUs and the smallest 0.4%; a test pins both
-  ends (at most 10%, at least 0.3%). Ten brands that each made all sixteen
-  types would have put ~10,000 SKUs under every brand.
-* **Every name is invented, and was checked.** Each name added for the 100K
-  catalog was web-searched against real industrial, tool, fastener, abrasive
-  and bearing companies and trademarks; names that turned up a real company of
-  any kind were dropped.
-* **Some names are ordinary words** on purpose (`Vantage Edge`, `Lark &
-  Lathe`, `Tall Mast`, `Salt Meadow Works`, `Morrow Anvil`, `Crooked Birch`,
-  `Quiet River`, `Plumb Orchard`): a brand filter has to tell a brand from a
-  word, and a catalog without such a name never makes it.
-* **House style.** Twelve inks and four frame treatments; each brand owns one
-  (ink, frame) PAIR, unique across the book and read back by
-  `drawing.style.brand_for_house_style`. Within a brand every drawing looks
-  the same; between brands, the ink, the paper tint or the frame differ.
+  ends (at most 10%, at least 0.3%).
+* **Some names contain an ordinary word** on purpose (`Iron Heron`, `Lantern
+  Rock`, `Stone Wicket`, `Tin Kestrel`, `Lark & Lathe`, `Tall Mast`, `Salt
+  Meadow Works`, `Wendlow Tool`, `Quillon Carbide`, ...): a brand filter has to
+  tell a brand from a word, and a catalog without such a name never makes it.
+* **House style.** Twelve inks, six paper tints and four frame treatments. Each
+  brand owns one (ink, frame) pair, read back by
+  `drawing.style.brand_for_house_style`, and its paper is chosen independently
+  of its ink, so brands that share an ink also differ in background. Every
+  (ink, paper, frame) triple is unique and every ink is at least 3:1 against
+  its paper (the lowest is 4.4:1).
+
+**Every name is invented, and each was checked.** Method: a web search for
+`"<name>"` and a second for `"<name>" tools OR industrial OR company`; a name
+that turned up a real company or trademark of ANY kind, in any industry, was
+replaced. An independent review of the first book found twelve real names
+(RolVane hydraulic motors, Ferrox Group / FEROX tooling, Vantage Tools / the
+Iteris Vantage line, Tyndall Company, Halstead Machine, and Corvane, Velbrook,
+Kinnerly, Orbelle, Crooked Birch, Fallowmere, Kelbrook outside industry);
+re-checking all 45 the same way found twelve more (Bracknell ~ Brecknell
+scales, Redmoor Ltd, Österlund, Marrow MFG, Boltrane ~ Boltra tools, Dunmere
+Ltd, Nethercott companies, Emberlin companies, Quiet River companies, Plumb
+hand tools, Morrow Equipment, Maddox Industries). All 24 were replaced.
+
+| result | names |
+|---|---|
+| both searches clean | Dravenholt, Hollisdane, Varnstrom, Druvanholm, Estrimore, Iron Heron, Kessingmoor, Ingleward, Tervasko, Vellinhorst, Quillon Carbide, Tessaly Cutters, Orrinford, Pellanor, Varrick Precision (fictional "Varrick" only), Lark & Lathe, Rivenhall, Cobbet & Pryce, Lintmoor, Selvanock, Tall Mast, Brennavik, Salt Meadow Works, Ashcombe Forge, Pennock & Hale, Brindlecote, Lantern Rock, Quarrenby, Quennick, Lorcastle, Spindlewick (street names only), Harnell (surname only), Crennick Works |
+| both clean, a similar real name exists | Kaldermark (Kalmark Integrated Systems), Wendlow Tool (Wendel tools), Tannerby (Tanner Fasteners), Grisenne (none exact; Grizzly Industrial nearest) |
+| **ONE search only** (the session's search budget ran out) | Caddernook, Pellwarren, Morvennick, Braddlestow, Quellmarsh, Stone Wicket, Tin Kestrel, Ivenhoft |
 
 ## Every SKU is different
 
 **No two SKUs may be identical on (product_type, brand, every attribute),
 ignoring the identifier fields (sku, product_id, List Number, image ids and
 urls) and the commercial fields (price, stock). Brand counts as a difference,
-so the same standard part from two different makers is allowed.**
+so the same standard part from two different makers is allowed.** Two SKUs
+that differ only in that one LACKS an attribute the other publishes (a
+sparsity drop) are NOT different either.
 
-The generator guarantees it by construction: each (type, brand) draws specs
-WITHOUT replacement -- a spec that brand has already stocked is spent, and a
-draft SKU carrying it is not made. When a brand has drawn a type's whole spec
-space, it stops getting SKUs of that type. Headroom keeps that rare: flat
-washers come in five materials (each with the finishes it is really sold in:
-only steel is plated, oxided or galvanized), and ball pein hammers in twelve
-head weights and four handles. `tests/test_catalog_brands_voice.py` asserts
-zero duplicates on the committed catalog and on a fresh 100K build, with a
-planted duplicate that goes red. Distinct specs over SKUs, per type, stay at
-or above a stated floor at 100K (flat washers 0.70: ISO 7089 fixes nine sizes,
-so many makers sell the same washer; hammers 0.94; every other type 0.98+).
+How it is held: a **membership check, i.e. rejection**, at the moment a SKU is
+made. A draft SKU is not made when its UNSPARSIFIED spec (every attribute the
+builder drew, before sparsity) is one its brand already made for the type, or
+when its published spec is a subset or superset of one already made. When a
+(type, brand) drafts 20 lines in a row that make nothing, its spec space
+counts as spent and that brand stops getting products of that type
+(`MAX_MISSES`); at 100K no pair reached it (9,834 draft SKUs were rejected
+over the whole build). Washers come in five materials, each with the finishes
+it is really sold in, and ball pein hammers in twelve head weights and four
+handles, which keeps rejection rare. The series walk that keeps product names
+unique renumbers only the series and `List Number`; a value that carries
+meaning (a bearing number) is never touched, and a test holds every bearing
+to its table entry. `tests/test_catalog_brands_voice.py` asserts zero
+not-different pairs on the committed catalog and on a fresh 100K build, with
+planted duplicate and planted-drop cases that go red. Distinct specs over
+SKUs, per type, at 100K: flat washers 0.81, hammers 0.97, every other type
+0.98 or more.
 
 ## Brand voice: titles and descriptions
 
@@ -278,30 +301,31 @@ A brand's catalog section reads uniformly, and two brands read slightly
 differently (`catalog/voice.py`).
 
 * **The title's core is the census structure** -- `<Item>, <key dim> <role>,
-  <material>, <coating>, <flutes>...` -- and stays the backbone. A brand's
-  template chooses only among census-observed variants (descriptive or terse,
-  the brand name first or not, one label spelling per attribute, where a tight
-  delimiter falls), and adds words AROUND the core: a qualifier before the
-  item (non-factual words only: "Industrial", "Shop", "General Purpose"...) or
-  the brand's name, and a trailing pack segment only when the record publishes
-  `Package Quantity`.
+  <material>, <coating>, <flutes>...`. A type whose variant axis is not its
+  size still names its key dimension (`KEY_DIMENSIONS`): a bearing its bearing
+  number, a wheel and a flap disc their diameter. A brand's template chooses
+  only among census-observed variants and adds words AROUND the core: a
+  non-factual qualifier or the brand's name, and a trailing pack segment.
+* **Pack wording is allowed only where a pack field exists.** The maintainer's
+  ruling: pack wording is fine when the record actually carries a pack field.
+  `Package Quantity` exists on hex nuts and depressed-center wheels, and every
+  pack word in a title or description equals that field; no other type
+  carries pack wording.
 * **Descriptions** keep the spec clause and add the brand's template: a use
   line true of every product of the type, a family line naming the brand, its
   range and series, a generic benefit of a material or finish the record
   carries, and a pack line with the record's own quantity.
 * **No text states what the record cannot back.** Every number in a title or
-  description traces to a value the record publishes (the only exceptions are
-  records carrying a MODELLED defect -- a length of cut rewritten past the
-  overall length, mixed units -- whose title keeps the pre-defect value, the
-  realistic variant this catalog exists to exhibit; bounded at 2% and measured
-  at 0.6%). A title names a descriptor or secondary dimension only when the
-  record publishes it.
+  description traces to a value the record publishes (records carrying a
+  MODELLED defect are excused, bounded at 2%).
 
-Measured, and reported rather than forced: product names are unique within
-every type (0 clashes over 53,517 products); SKU titles are 0.72 distinct on
-the default catalog and 0.45 at 100K -- identical titles across products are
-the same spec from brands whose template omits the brand name, which is how a
-marketplace reads; descriptions are 1.00 distinct at both sizes.
+Measured, reported rather than forced. Product names are unique catalog-wide.
+SKU titles are 0.56 distinct at 100K (0.45 before the key-dimension fix);
+identical titles across products are the same spec from brands whose template
+omits the brand name. Per type at 100K, before -> after the key-dimension
+fix: bearings 0.01 -> 0.28, wheels 0.06 -> 0.38, flap discs 0.22 -> 0.53;
+hex keys 0.18 and drills 0.29 already name their size and are left alone.
+Descriptions are 1.00 distinct.
 
 ### The data model
 
@@ -311,7 +335,7 @@ view serves one document per SKU, and the grouped view will serve one per
 product with its variants nested, from the same data.
 
 ```
-parent    Corvane K663 -- High Speed Steel Square End Mill
+parent    Dravenholt K663 -- High Speed Steel Square End Mill
           product-CONSTANT attributes: brand, series, material, coating,
           flute count, end type, helix angle
 children  the SKUs, varying: milling diameter, length of cut, overall
@@ -382,10 +406,10 @@ deliberately overlapping content:
 
 ```
 sku          69PU63
-title        Vantage Edge Hex Head Bolt,7/16-14, 1" L, Grade 8
-description  Vantage Edge Hex Head Bolt,7/16-14, 1" L, Grade 8 - 1" Length
+title        Iron Heron Hex Head Bolt,7/16-14, 1" L, Grade 8
+description  Iron Heron Hex Head Bolt,7/16-14, 1" L, Grade 8 - 1" Length
              Under Head, 1" Thread Length, 5/8" Width Across Flats, 19/64"
-             Head Height, 5/8" Head Dia., Vantage Edge ASMEB18.2.1-32
+             Head Height, 5/8" Head Dia., Iron Heron ASMEB18.2.1-32
 ```
 
 **The description opens with the title verbatim and then continues after a
@@ -464,8 +488,8 @@ them here would hide the problem a field map exists to solve.
 
 | file | |
 |---|---|
-| `flat.jsonl` | 26.7 MB — 10,080 SKU documents |
-| `nested.jsonl` | 14.7 MB — 5,403 products, nested variants and key-value attributes |
+| `flat.jsonl` | 26.9 MB — 10,096 SKU documents |
+| `nested.jsonl` | 14.8 MB — 5,376 products, nested variants and key-value attributes |
 | `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
 | `images.jsonl` | 3.9 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
@@ -512,10 +536,10 @@ difference means the second, and the golden files must not be updated until it
 is found. The test's failure message says all of this too, with the commands.
 
 Alongside the hashes, the same test asserts the headline numbers directly
-against the committed files — 10,080 SKU documents over 5,403 distinct
+against the committed files — 10,096 SKU documents over 5,376 distinct
 `product_id`, a non-empty `image_url` and `image_detail_url` on every product,
-variant and flat document, and 5,403 nested products whose variant counts sum
-to 10,080. Those hold independently of the generator, so a careless
+variant and flat document, and 5,376 nested products whose variant counts sum
+to 10,096. Those hold independently of the generator, so a careless
 regenerate-and-commit from a broken build is still red.
 
 ## Every requirement example is stocked
@@ -744,13 +768,18 @@ The rulings are on elastic/prism-industrial-products#103 (2026-09-26 to -28):
   `<foreignObject>`, an embedded raster, `@font-face`, a glyph path from any
   font -- each red `tests/test_sku_drawings.py`.
 * **Brands visibly different**, by house style: each brand owns one (ink,
-  frame) pair -- twelve inks, four frame treatments, a faint paper tone of the
-  ink -- consistent within a brand, never random per product ([Brands](#brands)).
+  frame) pair and an independent paper tint -- twelve inks, six papers, four
+  frames -- consistent within a brand, never random per product ([Brands](#brands)).
+* **A part longer than its type's extent is drawn BROKEN**, not shrunk: the
+  shank is shortened between two drafting break lines, head and thread end
+  kept, to a height that still grows with the true length. The screw and bolt
+  extents are the pre-100K ones, so one 14-5/8" outlier no longer draws every
+  socket screw 2.5x smaller.
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 10,080 drawings, 21.1 MB unpacked
-  (2.09 KB a drawing on average), and a 2.23 MB `images.tar.gz`. Every root
+  measured on the committed catalog, 10,096 drawings, 19.8 MB unpacked
+  (1.96 KB a drawing on average), and a 2.08 MB `images.tar.gz`. Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
   by max-width/max-height in a flex item that does not grow renders a
   viewBox-only SVG at 0 x 0.

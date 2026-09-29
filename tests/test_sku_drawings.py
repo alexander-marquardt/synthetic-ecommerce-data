@@ -363,8 +363,8 @@ def test_an_m3_washer_is_drawn_smaller_than_an_m16_in_true_proportion():
     """
     m3 = {"Size": "M3", "Inside Dia.": "3.20mm", "Outside Dia.": "7mm", "Thickness": "0.50mm"}
     m16 = {"Size": "M16", "Inside Dia.": "17mm", "Outside Dia.": "30mm", "Thickness": "3mm"}
-    small, _ = draw_sku("washer_flat", "Corvane", m3)
-    large, _ = draw_sku("washer_flat", "Corvane", m16)
+    small, _ = draw_sku("washer_flat", "Dravenholt", m3)
+    large, _ = draw_sku("washer_flat", "Dravenholt", m16)
     ratio = _circle_radii(_true_scale_copy(small))[-1] / _circle_radii(_true_scale_copy(large))[-1]
     assert ratio == pytest.approx(7 / 30, abs=0.01), ratio
 
@@ -527,12 +527,11 @@ def test_the_lens_appears_exactly_when_the_rule_says():
 
 #: The smallest enlargement any committed lens gives, measured and rounded
 #: down to 0.01: the handled glass is used only at x2.5 or more, and the
-#: handle-less lens reaches x2.44 on the committed catalog's largest lensed
-#: part. It was x2.52 before the 100K catalog raised the screw and bolt
-#: extents (``figures.FIGURES``): at the new, smaller scale more fasteners
-#: are small enough for a lens, the largest of them close to the rule's
-#: extreme (x2.41 below).
-CATALOG_MIN_ENLARGEMENT = 2.44
+#: handle-less lens reaches x2.52 on the committed catalog's largest lensed
+#: part. (It dropped to x2.44 while the 100K work raised the screw extents;
+#: the extents are back at their pre-100K values, parts longer than them are
+#: drawn broken, and the floor is back where it was.)
+CATALOG_MIN_ENLARGEMENT = 2.52
 
 #: What the handle-less lens gives at the rule's extreme, a part drawn a full
 #: 40 x 50 (1/5 x 1/6 of the sheet). BELOW x2.5, and stated rather than hidden:
@@ -728,8 +727,10 @@ def test_no_outline_is_thinner_than_the_minimum_stroke():
             if width is None or "stroke-opacity" in element.attrib:
                 continue
             tag = element.tag.split("}")[-1]
-            if tag in ("rect", "path") and element.attrib.get("fill") == "none" and not (
-                {"stroke-linejoin", "stroke-linecap"} & set(element.attrib)
+            if (
+                tag in ("rect", "path")
+                and element.attrib.get("fill") == "none"
+                and not ({"stroke-linejoin", "stroke-linecap"} & set(element.attrib))
             ):
                 continue  # the brand's frame (rule, rounded or corner markers)
             thinnest = min(thinnest, float(width))
@@ -794,3 +795,39 @@ def test_the_content_digest_does_not_depend_on_compression(tmp_path):
 def test_a_changed_drawing_changes_the_content_digest():
     files = [("industrial/a/b/1.svg", b"<svg/>")]
     assert bundle.files_digest(files) != bundle.files_digest([("industrial/a/b/1.svg", b"<svg />")])
+
+
+#: The screw and bolt extents before the 100K catalog. An outlier length is
+#: drawn broken; it never shrinks the type's scale for every other part.
+PRE_100K_FASTENER_EXTENTS = {
+    "screw_socket_head": (2.75, 5.95),
+    "screw_flat_head": (3.7, 3.25),
+    "screw_button_head": (2.56, 2.8),
+    "screw_low_head": (2.75, 3.3),
+    "bolt_hex": (2.85, 5.35),
+}
+
+
+def test_no_fastener_is_drawn_smaller_because_of_an_outlier():
+    for type_key, extent in PRE_100K_FASTENER_EXTENTS.items():
+        assert FIGURES[type_key][1] == extent, type_key
+
+
+def test_a_part_longer_than_its_extent_is_drawn_broken_and_fits():
+    """A 14-5/8" socket screw -- the 100K catalog's longest -- fits the 5.95"
+    extent with two break lines, and a longer one still draws taller."""
+    record = {
+        "Dia./Thread Size": "3/4-10",
+        "Length": '14-5/8"',
+        "Length under Head": '14-5/8"',
+        "Thread Length": '2-1/4"',
+    }
+    figure_fn, (width, height) = FIGURES["screw_socket_head"]
+    long_part = figure_fn(record).figure
+    x0, y0, x1, y1 = long_part.bounds()
+    assert y1 - y0 <= height
+    breaks = [s for s in long_part.shapes if type(s).__name__ == "Lines" and len(s.segments) == 6]
+    assert len(breaks) >= 2
+    shorter = dict(record, **{"Length": '10"', "Length under Head": '10"'})
+    sy0, sy1 = figure_fn(shorter).figure.bounds()[1::2]
+    assert sy1 - sy0 < y1 - y0, "a longer part must still draw taller"

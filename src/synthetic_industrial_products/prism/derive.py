@@ -165,15 +165,15 @@ RANGE_MIN_DOCS = 50
 #: direct ``measure()`` over golden-catalog/flat.jsonl.
 MEASURED_DISPERSION: dict[str, Any] = {
     # The band over the attributes that are actually FACETED.
-    "faceted_low": 0.0019,
-    "faceted_high": 0.4488,
+    "faceted_low": 0.0018,
+    "faceted_high": 0.4428,
     "densest_faceted": "Dynamic Load Capacity",
     # The saturated ladder the rule exists to keep off a slider.
-    "drive_size_cardinality": 52,
-    "drive_size_present": 1378,
+    "drive_size_cardinality": 51,
+    "drive_size_present": 1377,
     # The smallest faceted attribute, which is what clears RANGE_MIN_DOCS.
     "smallest_faceted": "Handle Length",
-    "smallest_faceted_present": 136,
+    "smallest_faceted_present": 123,
     # The continuum RANGE_MIN_DOCS -- not dispersion -- keeps off a slider.
     "min_docs_arm": "Neck Length",
     "min_docs_arm_dispersion": 1.0,
