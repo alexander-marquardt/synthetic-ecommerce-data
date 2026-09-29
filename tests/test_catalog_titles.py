@@ -353,8 +353,8 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
       removed by the ruling on elastic/prism#9284;
     * ``build_title`` cut the assembled string at the 100-character cap,
       which lands mid-word. Reconstructed on this catalog by
-      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **42
-      of 9,680** titles (67 of 4,689 before the catalog grew), ending
+      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **49
+      of 9,690** titles (67 of 4,689 before the catalog grew), ending
       ``...Solid Carbide, U`` or ``...SGL Sq En``.
       Removing only the first would have left those in place while the
       change reported that truncation was gone. (That figure read "97 of
@@ -480,9 +480,11 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
     after the 100K brand book, 19 of 9,989 (30 over the cap) once
     the drive size is the nominal key and the countersunk line stopped
     publishing a length under its head, and
-    19 of 10,049 with the assortment kits, and 42 of 9,680 (76 over the cap)
+    19 of 10,049 with the assortment kits, 42 of 9,680 (76 over the cap)
     once every title names its key dimension and a secondary one is added,
-    and stating it as a test rather than as prose is what stops the next
+    and 49 of 9,690 (76 over the cap) once a secondary-style title names the
+    first secondary its record publishes and a ball end mill's end is
+    "Ball End", and stating it as a test rather than as prose is what stops the next
     regeneration inheriting a number nobody can re-derive.
 
     The reconstruction spies on ``build_title`` rather than reimplementing the
@@ -510,7 +512,7 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         generate_module.build_title = real
 
     documents = [child for line in catalog.lines for child in line.children]
-    assert len(documents) == 9680
+    assert len(documents) == 9690
     assert len(assembled) > 100, "the spy recorded nothing; the reconstruction is broken"
 
     word = set(string.ascii_letters + string.digits + './"-')
@@ -524,8 +526,8 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
             mid_word += 1
 
     assert over_cap == 76, f"{over_cap} titles exceed the cap, not 76"
-    assert mid_word == 42, (
-        f"the cap cut would land inside a word on {mid_word} titles, not 42. "
+    assert mid_word == 49, (
+        f"the cap cut would land inside a word on {mid_word} titles, not 49. "
         "If the catalog moved, restate the figure in build_title's docstring "
         "and in test_no_title_is_cut_mid_word with it."
     )

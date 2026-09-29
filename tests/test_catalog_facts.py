@@ -19,7 +19,7 @@ import pytest
 
 from synthetic_industrial_products.catalog import emit
 from synthetic_industrial_products.catalog.config import GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate
+from synthetic_industrial_products.catalog.generate import Generator, generate
 from synthetic_industrial_products.dimensions import DimensionParseError, parse_length
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
@@ -51,7 +51,8 @@ MAY_CLAIM = {
     "screw_low_head": {"DIN 7984", "ASME B18.3", "ISO 898-1", "ISO 3506-1"},
     "bolt_hex": {"ASME B18.2.1", "ISO 4014", "ISO 4017", "DIN 933", "ISO 8765", "ISO 8676",
                  "DIN 961", "SAE J429", "ISO 898-1"},
-    "nut_hex": {"ISO 4032", "ISO 4035", "ASME B18.2.2", "SAE J995", "ISO 898-2"},
+    "nut_hex": {"ISO 4032", "ISO 4035", "ISO 8673", "ISO 8675", "ASME B18.2.2", "SAE J995",
+                "ISO 898-2"},
     "washer_flat": {"ISO 7089", "DIN 125-A"},
     "end_mill_square": {"ISO 1641", "DIN 6527", "ANSI B94.19"},
     "end_mill_ball": {"ISO 1641", "DIN 6527", "ANSI B94.19"},
@@ -64,6 +65,95 @@ MAY_CLAIM = {
     "bearing_radial_ball": {"ISO 15", "ISO 492", "ABMA 20"},
     "kit_assortment": set(),
 }  # fmt: skip
+
+#: A nut's DIMENSIONAL standards: thread -> (width across flats, height), in
+#: mm for the ISO tables and inches for ASME. Transcribed from
+#: FreeCAD_FastenersWB (``iso4032def.csv``, ``iso4035def.csv``,
+#: ``iso8673def.csv``, ``iso8675def.csv``, ``asmeb18.2.2.1def.csv`` and
+#: ``asmeb18.2.2.4def.csv``), with the ASME widths at their nominal
+#: fractions. B18.2.2 lists a hex nut AND a jam nut per size, so a B18.2.2
+#: claim may be either row. A heavy hex nut is none of these.
+_ISO_4032 = {
+    "M3x0.5": (5.5, 2.4),
+    "M4x0.7": (7.0, 3.2),
+    "M5x0.8": (8.0, 4.7),
+    "M6x1": (10.0, 5.2),
+    "M8x1.25": (13.0, 6.8),
+    "M10x1.5": (16.0, 8.4),
+    "M12x1.75": (18.0, 10.8),
+    "M16x2": (24.0, 14.8),
+    "M20x2.5": (30.0, 18.0),
+    "M24x3": (36.0, 21.5),
+}
+_ISO_4035 = {
+    "M3x0.5": (5.5, 1.8),
+    "M4x0.7": (7.0, 2.2),
+    "M5x0.8": (8.0, 2.7),
+    "M6x1": (10.0, 3.2),
+    "M8x1.25": (13.0, 4.0),
+    "M10x1.5": (16.0, 5.0),
+    "M12x1.75": (18.0, 6.0),
+    "M16x2": (24.0, 8.0),
+    "M20x2.5": (30.0, 10.0),
+    "M24x3": (36.0, 12.0),
+}
+_ISO_8673 = {
+    "M8x1": (13.0, 6.8),
+    "M10x1": (16.0, 8.4),
+    "M10x1.25": (16.0, 8.4),
+    "M12x1.25": (18.0, 10.8),
+    "M12x1.5": (18.0, 10.8),
+    "M16x1.5": (24.0, 14.8),
+    "M20x1.5": (30.0, 18.0),
+    "M20x2": (30.0, 18.0),
+}
+_ISO_8675 = {
+    "M8x1": (13.0, 4.0),
+    "M10x1": (16.0, 5.0),
+    "M10x1.25": (16.0, 5.0),
+    "M12x1.25": (18.0, 6.0),
+    "M12x1.5": (18.0, 6.0),
+    "M16x1.5": (24.0, 8.0),
+    "M20x1.5": (30.0, 10.0),
+    "M20x2": (30.0, 10.0),
+}
+_B18_2_2_HEX = {
+    "#6": (5 / 16, 7 / 64),
+    "#8": (11 / 32, 1 / 8),
+    "#10": (3 / 8, 1 / 8),
+    "1/4": (7 / 16, 7 / 32),
+    "5/16": (1 / 2, 17 / 64),
+    "3/8": (9 / 16, 21 / 64),
+    "7/16": (11 / 16, 3 / 8),
+    "1/2": (3 / 4, 7 / 16),
+    "5/8": (15 / 16, 35 / 64),
+    "3/4": (9 / 8, 41 / 64),
+    "1": (3 / 2, 55 / 64),
+}
+_B18_2_2_JAM = {
+    "1/4": (7 / 16, 5 / 32),
+    "5/16": (1 / 2, 3 / 16),
+    "3/8": (9 / 16, 7 / 32),
+    "7/16": (11 / 16, 1 / 4),
+    "1/2": (3 / 4, 5 / 16),
+    "5/8": (15 / 16, 3 / 8),
+    "3/4": (9 / 8, 27 / 64),
+    "1": (3 / 2, 35 / 64),
+}
+#: standard -> the tables a record claiming it must be a row of.
+NUT_DIMENSIONS = {
+    "ISO 4032": (_ISO_4032,), "ISO 4035": (_ISO_4035,), "ISO 8673": (_ISO_8673,),
+    "ISO 8675": (_ISO_8675,), "ASME B18.2.2": (_B18_2_2_HEX, _B18_2_2_JAM),
+}  # fmt: skip
+
+#: The stocked shank ladders (inches), and the most an oversize shank may be:
+#: twice its cutter, or the smallest stocked shank above the cutter when that
+#: is more (a 1mm cutter sits on a 3mm shank; nothing thinner is stocked).
+SHANKS_IN = (1 / 8, 3 / 16, 1 / 4, 5 / 16, 3 / 8, 1 / 2, 5 / 8, 3 / 4, 1.0)
+SHANKS_MM = (3.0, 3.175, 4.0, 6.0, 6.35, 8.0, 10.0, 12.0, 12.7, 16.0, 20.0, 25.0)
+#: Standards that describe METRIC radial bearings only (ABMA 20 is "... --
+#: Metric Design"). A bearing number with a letter is the inch R series.
+METRIC_BEARING_ONLY = {"ISO 15", "ISO 492", "ABMA 20"}
 
 #: Finishes no maker sells on the material, and hardness scales that cannot be.
 NEVER_ON_STAINLESS = {"Zinc Plated", "Zinc Yellow", "Hot Dip Galvanized", "Black Oxide"}
@@ -163,6 +253,124 @@ def test_no_finish_or_hardness_the_material_cannot_have(docs):
     assert wrong == [], wrong[:10]
 
 
+def _published_tolerance(value: str) -> float:
+    """Half the precision the value is written to, in inches: a feed that
+    writes whole millimetres states 2.4mm as ``2mm``."""
+    if value.endswith("mm"):
+        number = value[:-2].strip()
+        places = len(number.split(".")[1]) if "." in number else 0
+        return 0.5 * 10**-places / 25.4 + 1e-6
+    return 0.004
+
+
+def _is_row(published: dict, row: tuple[float, float], unit: float) -> bool:
+    """Whether every published (inches, tolerance) is ``row``'s value."""
+    return all(
+        abs(published[name][0] - want * unit) <= published[name][1]
+        for name, want in zip(("Width Across Flats", "Height"), row, strict=True)
+        if name in published and published[name][0] is not None
+    )
+
+
+def test_a_nut_claims_only_the_standard_its_dimensions_are(docs):
+    """A nut claiming a dimensional standard publishes THAT standard's width
+    across flats and height for its thread. A heavy hex nut claiming ISO 4032
+    (the regular nut), or an M10x1.25 nut claiming a coarse-thread standard,
+    is an invented fact -- the review of 7dac659 found 29 and 53 of them."""
+    wrong, checked = wrong_nut_standards(docs)
+    assert wrong == [], wrong[:10]
+    assert checked > 200
+
+
+def wrong_nut_standards(docs: list[dict]) -> tuple[list, int]:
+    """The nut records whose dimensional claim is not their row, and how many
+    claims were checked."""
+    wrong, checked = [], 0
+    for doc in docs:
+        if doc["product_type"] != "nut_hex":
+            continue
+        values = _values(doc)
+        claimed = [
+            a["value"]
+            for a in doc["attributes"]
+            if a["name"] == "Standards" and a["value"] in NUT_DIMENSIONS
+        ]
+        thread = values["Thread Size"]
+        key = thread if thread.startswith("M") else thread.split("-")[0]
+        for standard in claimed:
+            checked += 1
+            unit = 1 / 25.4 if standard.startswith("ISO") else 1.0
+            rows = [t[key] for t in NUT_DIMENSIONS[standard] if key in t]
+            if not rows:
+                wrong.append((doc["sku"], standard, thread, "no such row"))
+                continue
+            published = {
+                name: (_inches(values[name]), _published_tolerance(values[name]))
+                for name in ("Width Across Flats", "Height")
+                if name in values
+            }
+            if not any(_is_row(published, row, unit) for row in rows):
+                wrong.append((doc["sku"], standard, values.get("Type"), thread, published))
+    return wrong, checked
+
+
+def test_an_inch_bearing_claims_no_metric_bearing_standard(docs):
+    wrong, metric = [], 0
+    for doc in docs:
+        if doc["product_type"] != "bearing_radial_ball":
+            continue
+        claimed = {a["value"] for a in doc["attributes"] if a["name"] == "Standards"}
+        if _values(doc)["Bearing Number"].isdigit():
+            metric += bool(claimed)
+        elif claimed & METRIC_BEARING_ONLY:
+            wrong.append((doc["sku"], _values(doc)["Bearing Number"], sorted(claimed)))
+    assert wrong == [], wrong[:10]
+    assert metric > 100
+
+
+def test_a_title_names_the_mills_own_end_shape(docs):
+    """``SGL Sq End`` on a ball nose end mill states a shape it does not have
+    (168 of 568 ball end mills on 7dac659's golden)."""
+    wrong, named = [], collections.Counter()
+    for doc in docs:
+        if not doc["product_type"].startswith("end_mill"):
+            continue
+        shape = _values(doc)["End Mill Style"]
+        for word, style in (("Sq End", "Square"), ("Ball End", "Ball Nose")):
+            if re.search(rf"\b(?:SGL|DBL) {word}\b", doc["title"]):
+                named[style] += 1
+                if style != shape:
+                    wrong.append((doc["sku"], shape, doc["title"]))
+    assert wrong == [], wrong[:10]
+    assert named["Square"] > 50 and named["Ball Nose"] > 20, named
+
+
+def test_no_end_mill_shank_is_oversize(docs):
+    """A 5/32" cutter on a 5/8" shank is not an end mill a maker sells: an
+    oversize shank is at most twice the cutter, unless nothing smaller than
+    that is stocked above the cutter."""
+    fat, checked = oversize_shanks(docs)
+    assert fat == [], fat[:10]
+    assert checked > 1000
+
+
+def oversize_shanks(docs: list[dict]) -> tuple[list, int]:
+    fat, checked = [], 0
+    for doc in docs:
+        v = _values(doc)
+        cut, shank = _inches(v.get("Milling Dia.", "")), _inches(v.get("Shank Dia.", ""))
+        if cut is None or shank is None:
+            continue
+        checked += 1
+        ladder = SHANKS_MM if v["Shank Dia."].endswith("mm") else None
+        stocked = [s / 25.4 for s in ladder] if ladder else list(SHANKS_IN)
+        above = [s for s in stocked if s > cut + 1e-6]
+        ceiling = max(2 * cut, min(above)) if above else cut
+        if shank > ceiling + 0.002:
+            fat.append((doc["sku"], v["Milling Dia."], v["Shank Dia."]))
+    return fat, checked
+
+
 def test_no_end_mill_shank_is_thinner_than_its_cutter(docs):
     """Excused only where a modelled unit-mixing defect rounded one of the two."""
     thin = []
@@ -226,6 +434,49 @@ def test_a_brand_titles_a_type_one_way(docs):
     mixed = {k: v for k, v in styles.items() if len(v) > 1}
     assert mixed == {}, sorted(mixed)[:10]
     assert len(styles) > 150
+
+
+def test_a_brand_names_a_secondary_dimension_on_every_title_or_none(monkeypatch):
+    """Labelled and secondary are two styles, and a pair has ONE of them.
+
+    :func:`test_a_brand_titles_a_type_one_way` reads the title string, so it
+    tells a labelled key size from a bare one -- but a labelled title with a
+    second labelled dimension (``5/16" Milling Dia., 1-1/4" Cut L``) and one
+    without look alike to it: a per-SKU choice between the two stayed green.
+    This test reads the segments the generator composes (a title's
+    ``Segment`` keeps the attribute it names for exactly this), on a fresh
+    build: within a (brand, type), either no title names a secondary
+    dimension, or every title whose record publishes one names one.
+    """
+    calls: list[tuple[tuple[str, str], str]] = []
+    original = Generator._dimension_segments
+
+    def spy(self, draft, child):
+        segments = original(self, draft, child)
+        if segments:
+            primary = child.primary.name
+            could = any(
+                a.name in self._published and a.name != primary for a in child.secondary.values()
+            )
+            if segments[0].label is None:
+                kind = "unlabelled"
+            elif len(segments) > 1:
+                kind = "secondary"
+            else:
+                kind = "labelled" if could else ""
+            if kind:
+                calls.append(((draft.brand, draft.type_key), kind))
+        return segments
+
+    monkeypatch.setattr(Generator, "_dimension_segments", spy)
+    generate(GeneratorConfig())
+    kinds: dict[tuple[str, str], collections.Counter] = collections.defaultdict(collections.Counter)
+    for pair, kind in calls:
+        kinds[pair][kind] += 1
+    mixed = {pair: dict(k) for pair, k in kinds.items() if len(k) > 1}
+    assert mixed == {}, sorted(mixed.items())[:10]
+    styles = collections.Counter(next(iter(k)) for k in kinds.values())
+    assert styles["secondary"] > 10 and styles["labelled"] > 10, styles
 
 
 def test_kit_titles_say_what_the_kit_is(docs):

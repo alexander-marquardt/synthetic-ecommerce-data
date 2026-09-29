@@ -2,7 +2,7 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 9,680 SKUs over 5,251 products in 17 product types,
+extraction in search: 9,690 SKUs over 5,252 products in 17 product types,
 from 45 invented brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog)).
 
@@ -51,7 +51,7 @@ line:
 | | |
 |---|---|
 | **Fasteners** | dimensions are **standards-derived**. Each line carries the standard designation its dimensions came from — `ASME B18.3`, `ASME B18.3.2`, `ASME B18.3.3A`, `ASME B18.3.1G`, `ISO 4762`, `ISO 10642`, `ISO 7380-1`, `DIN 7984`, `ISO 4014`, `ISO 4017`, `DIN 933`, `ISO 7089`. |
-| **Newer types** (hex nuts, radial ball bearings, depressed-center wheels, hex keys; elastic/prism-industrial-products#103) | dimensions are **generated** from conventional sizes -- nut widths across flats, the 60/62/63 bearing series boundary sizes, stocked wheel diameters, hex key sizes. They follow the familiar ladders but were not extracted from an open dataset, so the provenance field says "generated" and no standard is claimed. |
+| **Newer types** (hex nuts, radial ball bearings, depressed-center wheels, hex keys; elastic/prism-industrial-products#103) | dimensions are **generated** from conventional sizes -- nut widths across flats, the 60/62/63 bearing series boundary sizes, stocked wheel diameters, hex key sizes. They follow the familiar ladders but were not extracted from an open dataset, so the provenance field says "generated". The one standard claimed is a hex nut's, and only where every row of its line IS that standard's row -- see [Facts a record states are real](#facts-a-record-states-are-real). |
 | **Cutting tools** | dimensions are **generated** from the conventional series. No open dimensional source for end mills exists, so nothing here claims a standard, and the provenance field says so in words. The metric series carries 11, 15 and 25 mm, which are ordinary stocked sizes and were missing — an artifact of how the list was first written, not a statement about the market. |
 
 That asymmetry is deliberate. A cap screw's head is fixed by a published
@@ -191,8 +191,8 @@ uv run sip-generate images --catalog out/catalog-100k --out out/images-100k --ar
 | end_mill_square | 14,145 | | washer_flat | 1,002 |
 | end_mill_ball | 8,065 | | hammer_ball_pein | 905 |
 | drill_jobber | 7,332 | | abrasive_flap_disc | 2,496 |
-| tap_spiral_point | 3,493 | | nut_hex | 12,011 |
-| screw_socket_head | 7,550 | | bearing_radial_ball | 7,503 |
+| tap_spiral_point | 3,493 | | nut_hex | 12,044 |
+| screw_socket_head | 7,550 | | bearing_radial_ball | 7,516 |
 | screw_flat_head | 4,691 | | wheel_depressed_center | 11,495 |
 | screw_button_head | 3,390 | | hex_key | 6,466 |
 | screw_low_head | 2,719 | | bolt_hex | 5,892 |
@@ -204,7 +204,7 @@ washer's nine sizes; a hammer is its head weight and handle) runs out of
 SKUs its makers have not already made, so it grows less. It was 28,300
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
-**99,850 SKUs over 57,843 products.** SKUs that are not different (the rule
+**99,896 SKUs over 57,880 products.** SKUs that are not different (the rule
 below): 0. Every bearing number is a real table entry with its own bore, OD
 and width. Product names: 0 clashes catalog-wide. Every must-stock example is
 stocked. Two builds of the same commit emit identical flat and nested
@@ -229,10 +229,10 @@ report`), with the default catalog beside it:
 | length of cut > overall length | 0.0829 | 0.0868 |
 | angle carries a length unit | 0.0469 | 0.0468 |
 | declared system contradicts units | 0.0323 | 0.0323 |
-| unit mixing within one record | 0.0222 | 0.0183 |
-| title dimension token unlabelled | 0.4667 | 0.4554 |
-| title names a secondary dimension too | 0.1714 | 0.1198 |
-| attributes per record (mean) | 13.12 | 12.95 |
+| unit mixing within one record | 0.0222 | 0.0180 |
+| title dimension token unlabelled | 0.4667 | 0.4584 |
+| title names a secondary dimension too | 0.1714 | 0.1221 |
+| attributes per record (mean) | 13.12 | 12.93 |
 
 Drift, stated: every title now names its key dimension, so the census's
 "token is not the primary" case is a title that names a secondary dimension
@@ -241,7 +241,7 @@ secondary dimension only when the record PUBLISHES it, and the newer types
 have none to name. The shank rate sits above its target because a shank is
 never thinner than its cutter any more: the census's 0.833 and 0.75 ratios
 become the next shank up, and above the largest stocked shank it is the
-cutter's own size (see
+cutter's own size; and an oversize shank is at most twice its cutter (see
 [Brand voice](#brand-voice-titles-and-descriptions)). Label spellings are
 quantised by brand (each brand spells a label one way), so e.g. the flute
 label mix differs from the census's 0.66 / 0.28 / 0.06.
@@ -253,7 +253,7 @@ their product families, market weight, house style and title voice.
 
 * **A long tail, not ten equal houses.** Three broad-line houses make
   something in every family; the rest make one to three families. At 100K the
-  largest brand carries 8.2% of SKUs and the smallest 0.5%; a test pins both
+  largest brand carries 8.0% of SKUs and the smallest 0.5%; a test pins both
   ends (at most 10%, at least 0.3%).
 * **Some names contain an ordinary word** on purpose (`Iron Heron`, `Lantern
   Rock`, `Stone Wicket`, `Tin Kestrel`, `Lark & Lathe`, `Tall Mast`, `Salt
@@ -299,26 +299,53 @@ invented; each is now read from a table and checked by
   had put a 6000 at 3,110 lbf against a published 1,068.)
 * **Standards** are a truth table by what the line IS (`catalog/conformance.py`):
   a socket head cap screw may claim ISO 4762 / DIN 912 / ASME B18.3 / ASTM
-  A574, a flat washer ISO 7089 / DIN 125-A, a hex nut ISO 4032 / ASME B18.2.2
-  and its grade's standard, and so on; a line with nothing applicable claims
+  A574, a flat washer ISO 7089 / DIN 125-A, a metric radial bearing ISO 15 /
+  ISO 492 / ABMA 20, and so on; a line with nothing applicable claims
   nothing. They used to be drawn from a pool per type family, so a washer
   could claim DIN 912. One spelling per designation, in the attribute and in
   the copy.
+* **A hex nut claims the dimensional standard its rows ARE, or none.** A
+  finished hex nut is ISO 4032 (coarse) or ISO 8673 (fine) or ASME B18.2.2
+  (inch, #6 up); a jam nut takes its own standard's height -- ISO 4035 /
+  ISO 8675, and B18.2.2's jam column from 1/4" -- and claims it; a #6-#10 jam
+  nut keeps a derived height and claims none. A heavy hex nut's sizes are
+  derived from the finished nut's, match neither ISO 4033 nor the structural
+  heavy hex series, and claim no dimensional standard. The rows were checked
+  against FreeCAD_FastenersWB at the commit `fastener_standards.json`
+  records (`iso4032def.csv`, `iso4035def.csv`, `iso8673def.csv`,
+  `iso8675def.csv`, `asmeb18.2.2.1def.csv`, `asmeb18.2.2.4def.csv`).
+  The review of 7dac659 found 29 metric heavy hex nuts claiming ISO 4032 and
+  53 fine-pitch nuts claiming coarse-thread standards; the check that replaced
+  it found 224 wrong claims on that golden, the inch heavy hex and every jam
+  nut's derived height included.
+* **An inch R-series bearing claims no standard.** ABMA 20 is the METRIC
+  design standard ("Radial Bearings of Ball, Cylindrical Roller and Spherical
+  Roller Types -- Metric Design"), so the 112 inch bearings that claimed it
+  were wrong; no inch-series designation could be confirmed from a readable
+  source, so none is claimed.
 * **Finish and hardness follow material and grade**: an 18-8 stainless socket
   screw is plain at Rockwell B80, alloy steel is black oxide or zinc at C38
   (12.9 at C39); a graded hex bolt's material follows its grade, and hot-dip
   galvanizing is kept off Grade 8 / Class 10.9 (ASTM F2329); nACo and AlTiN
   are carbide coatings, black oxide an HSS treatment.
-* **An end mill's shank is never thinner than its cutter.** A reduced/oversize
-  shank is the next stocked shank up; above the largest stocked shank it is
-  the cutter's own size.
+* **An end mill's shank is never thinner than its cutter, and never more than
+  twice it** -- unless the smallest stocked shank above the cutter is already
+  more (a 1mm cutter sits on a 3mm shank). A reduced/oversize shank is the
+  next stocked shank up; above the largest stocked shank it is the cutter's
+  own size. The census's 3.0 and 2.667 ratios had put a 5/32" cutter on a
+  5/8" shank; 46 end mills on 7dac659's golden were over that ceiling.
+* **A terse end mill title names the mill's own end**: `SGL Sq End` on a
+  square end mill, `SGL Ball End` on a ball nose one (168 of 568 ball end
+  mills said `Sq End`).
 * **Every title names the type's key dimension** -- the thread size of a
   fastener, the size of a hex key, the cutting diameter of an end mill or
   drill, the bore and number of a bearing -- and a (brand, type) fixes its
   title style ONCE (key bare, key labelled, or key labelled plus a labelled
-  secondary dimension). The census mix is reproduced ACROSS a type's makers by
-  market weight: 0.453 unlabelled and 0.120 secondary against the census's
-  0.467 and 0.171.
+  secondary dimension). A secondary-style (brand, type) ranks the secondary
+  dimensions once and each title names the first its record publishes, so a
+  title names one whenever its record publishes one. The census mix is
+  reproduced ACROSS a type's makers by market weight: 0.456 unlabelled and
+  0.122 secondary against the census's 0.467 and 0.171.
 
 ## Every SKU is different
 
@@ -338,7 +365,7 @@ builder drew, before sparsity) is one its brand already made for the type, or
 when its published spec is a subset or superset of one already made. When a
 (type, brand) drafts 20 lines in a row that make nothing, its spec space
 counts as spent and that brand stops getting products of that type
-(`MAX_MISSES`); at 100K 113 (type, brand) pairs reached it and 52,871 draft
+(`MAX_MISSES`); at 100K 114 (type, brand) pairs reached it and 52,830 draft
 SKUs were rejected over the whole build. Washers come in five materials, each with the finishes
 it is really sold in, and ball pein hammers in twelve head weights and four
 handles, which keeps rejection rare. The series walk that keeps product names
@@ -452,7 +479,7 @@ stream (catalog seed + SKU), so the clean and the noisy build have IDENTICAL
 attributes and titles, record for record -- `tests/test_noise_text.py`
 builds both and compares. **Unit equivalents are held to a minority**:
 15-20% of the records that could carry one (measured 18.0% on the golden,
-1,042 of 5,784),
+1,043 of 5,792),
 because the facets expand units themselves and a result should show the facet
 working, not text luck. Every sentence type has a checker in that test
 against tables written out there, a planted false sentence reds, and five
@@ -651,8 +678,8 @@ them here would hide the problem a field map exists to solve.
 
 | file | |
 |---|---|
-| `flat.jsonl` | 26.5 MB — 9,680 SKU documents |
-| `nested.jsonl` | 14.6 MB — 5,251 products, nested variants and key-value attributes |
+| `flat.jsonl` | 26.5 MB — 9,690 SKU documents |
+| `nested.jsonl` | 14.6 MB — 5,252 products, nested variants and key-value attributes |
 | `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
 | `images.jsonl` | 3.9 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
@@ -700,10 +727,10 @@ difference means the second, and the golden files must not be updated until it
 is found. The test's failure message says all of this too, with the commands.
 
 Alongside the hashes, the same test asserts the headline numbers directly
-against the committed files — 9,680 SKU documents over 5,251 distinct
+against the committed files — 9,690 SKU documents over 5,252 distinct
 `product_id`, a non-empty `image_url` and `image_detail_url` on every product,
-variant and flat document, and 5,251 nested products whose variant counts sum
-to 9,680. Those hold independently of the generator, so a careless
+variant and flat document, and 5,252 nested products whose variant counts sum
+to 9,690. Those hold independently of the generator, so a careless
 regenerate-and-commit from a broken build is still red.
 
 ## Every requirement example is stocked
@@ -942,7 +969,7 @@ The rulings are on elastic/prism-industrial-products#103 (2026-09-26 to -28):
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 9,680 drawings, 19.1 MB unpacked
+  measured on the committed catalog, 9,690 drawings, 19.1 MB unpacked
   (1.97 KB a drawing on average), and a 2.03 MB `images.tar.gz`. Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
   by max-width/max-height in a flex item that does not grow renders a
@@ -983,8 +1010,8 @@ small to read is not drawn larger, it is shown through a **magnifier**
   type's scale -- is visible with or without a lens. Interior detail lines
   (flutes, threads, hatch) are texture and keep their finer weight.
 
-On the committed catalog 1,284 SKUs are too small to see: 162 get the handled
-glass (x2.53 to x3.77) and 1,122 the handle-less lens (x2.53 to x4.03). The
+On the committed catalog 1,237 SKUs are too small to see: 140 get the handled
+glass (x2.53 to x3.77) and 1,097 the handle-less lens (x2.58 to x4.03). The
 lowest enlargement any committed lens gives is x2.53; no committed part reaches
 the rule's 40 x 50 extreme. No drawing
 carries text; the magnifier adds only paths and circles, and

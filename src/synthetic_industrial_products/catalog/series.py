@@ -258,18 +258,35 @@ def nearest_shank_metric(target_mm: float) -> float:
     return min(METRIC_SHANKS, key=lambda s: abs(s - target_mm))
 
 
+#: The largest an oversize shank gets, as a multiple of its cutter: an
+#: oversize shank is a size or two up the collet ladder, not a 5/32" cutter on
+#: a 5/8" shank (4x, which the census's 3.0 and 2.667 ratios produced on the
+#: smallest cutters). The one exception is a cutter below the smallest stocked
+#: shank: a 1mm cutter has nothing thinner than a 3mm shank to sit in.
+MAX_SHANK_RATIO = 2.0
+
+
+def shank_ceiling(dia: float, larger: list[float]) -> float:
+    """The largest shank a cutter of ``dia`` may carry, given the stocked
+    shanks ``larger`` than it: twice the cutter, or the smallest of those
+    shanks when that is already more."""
+    return max(dia * MAX_SHANK_RATIO, min(larger))
+
+
 def larger_shank_imperial(dia_in: float, target_in: float) -> Fraction:
-    """A reduced/oversize shank that is NOT smaller than the cutting diameter:
-    the stocked shank nearest ``target_in`` among those larger than ``dia_in``,
-    or the cutting diameter's own size when no larger shank is stocked. A
-    shank thinner than the flutes it carries is not an end mill a maker
-    sells."""
+    """A reduced/oversize shank that is NOT smaller than the cutting diameter
+    and not above :func:`shank_ceiling`: the stocked shank nearest
+    ``target_in`` among those, or the cutting diameter's own size when no
+    larger shank is stocked. A shank thinner than the flutes it carries is not
+    an end mill a maker sells, and neither is one four times the cutter."""
     larger = [s for s in IMPERIAL_SHANKS if float(s) > dia_in + 1e-9]
     if not larger:
         # Above the largest stocked shank (a 1-1/4" or 1-1/2" cutter), the
         # shank is the cutter's own size.
         return Fraction(dia_in).limit_denominator(64)
-    return min(larger, key=lambda s: abs(float(s) - target_in))
+    ceiling = shank_ceiling(dia_in, [float(s) for s in larger])
+    allowed = [s for s in larger if float(s) <= ceiling + 1e-9]
+    return min(allowed, key=lambda s: abs(float(s) - target_in))
 
 
 def larger_shank_metric(dia_mm: float, target_mm: float) -> float:
@@ -277,7 +294,9 @@ def larger_shank_metric(dia_mm: float, target_mm: float) -> float:
     larger = [s for s in METRIC_SHANKS if s > dia_mm + 1e-9]
     if not larger:
         return dia_mm
-    return min(larger, key=lambda s: abs(s - target_mm))
+    ceiling = shank_ceiling(dia_mm, larger)
+    allowed = [s for s in larger if s <= ceiling + 1e-9]
+    return min(allowed, key=lambda s: abs(s - target_mm))
 
 
 #: Jobber drill sizes, as exact inch fractions: the fractional drill series,
