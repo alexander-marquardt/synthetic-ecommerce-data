@@ -312,8 +312,8 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
     """
     quantitative = [s for s, _ in decided.values() if s.is_numeric]
     faceted = [s for s, d in decided.values() if s.is_numeric and d.facet]
-    assert len(quantitative) == 36
-    assert len(faceted) == 34
+    assert len(quantitative) == 37
+    assert len(faceted) == 35
 
 
 def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:

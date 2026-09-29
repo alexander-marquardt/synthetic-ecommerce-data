@@ -81,9 +81,7 @@ LEAVES: dict[str, tuple[CategoryPath, ...]] = {
     # elastic/prism-industrial-products#103, stage 1. Depth runs to five, as
     # the reference distributor's own breadcrumbs do for hex keys.
     "nut_hex": (("Fasteners", "Nuts", "Hex Nuts"),),
-    "bearing_radial_ball": (
-        ("Motion Control & Fluid Power", "Bearings", "Radial Ball Bearings"),
-    ),
+    "bearing_radial_ball": (("Motion Control & Fluid Power", "Bearings", "Radial Ball Bearings"),),
     "wheel_depressed_center": (
         (
             "Abrasives",
@@ -101,6 +99,7 @@ LEAVES: dict[str, tuple[CategoryPath, ...]] = {
             "Hex Keys",
         ),
     ),
+    "kit_assortment": (("Hand Tools", "Tool Sets & Kits", "Assortment Kits"),),
 }
 
 #: The end-mill tool materials each style is made in, in the order the draw
@@ -159,6 +158,7 @@ DRAWING: dict[str, str] = {
     "bearing_radial_ball": "bearing_radial_ball",
     "wheel_depressed_center": "wheel_depressed_center",
     "hex_key": "hex_key",
+    "kit_assortment": "kit_assortment",
 }
 
 

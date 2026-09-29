@@ -354,7 +354,7 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
     * ``build_title`` cut the assembled string at the 100-character cap,
       which lands mid-word. Reconstructed on this catalog by
       ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **19
-      of 9,989** titles (67 of 4,689 before the catalog grew), ending
+      of 10,049** titles (67 of 4,689 before the catalog grew), ending
       ``...Solid Carbide, U`` or ``...SGL Sq En``.
       Removing only the first would have left those in place while the
       change reported that truncation was gone. (That figure read "97 of
@@ -477,9 +477,10 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
     mid-word count of either generation. Reconstructed here it was 67 of 4,689,
     was 74 of 10,029 on the grown catalog
     (elastic/prism-industrial-products#103), 57 of 10,096 (78 over the cap)
-    after the 100K brand book, and is 19 of 9,989 (30 over the cap) once
+    after the 100K brand book, 19 of 9,989 (30 over the cap) once
     the drive size is the nominal key and the countersunk line stopped
-    publishing a length under its head,
+    publishing a length under its head, and
+    19 of 10,049 with the assortment kits,
     and stating it as a test rather than as prose is what stops the next
     regeneration inheriting a number nobody can re-derive.
 
@@ -508,7 +509,7 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         generate_module.build_title = real
 
     documents = [child for line in catalog.lines for child in line.children]
-    assert len(documents) == 9989
+    assert len(documents) == 10049
     assert len(assembled) > 100, "the spy recorded nothing; the reconstruction is broken"
 
     word = set(string.ascii_letters + string.digits + './"-')

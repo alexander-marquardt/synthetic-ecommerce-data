@@ -174,8 +174,10 @@ MEASURED_DISPERSION: dict[str, Any] = {
     "drive_size_cardinality": 30,
     "drive_size_present": 1377,
     # The smallest faceted attribute, which is what clears RANGE_MIN_DOCS.
-    "smallest_faceted": "Handle Length",
-    "smallest_faceted_present": 122,
+    # A kit's piece count since the assortment kits (60 kits): a real count
+    # on few documents, which still clears RANGE_MIN_DOCS.
+    "smallest_faceted": "Number of Pieces",
+    "smallest_faceted_present": 60,
     # The continuum RANGE_MIN_DOCS -- not dispersion -- keeps off a slider.
     "min_docs_arm": "Neck Length",
     "min_docs_arm_dispersion": 1.0,

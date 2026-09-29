@@ -402,6 +402,20 @@ _HEX_KEY = (
     _spec("Overall Width", "sku", 0.6, kind="length"),
 )
 
+#: Assortment kits: one SKU each, its contents a multi-valued field of its
+#: own (``Sizes Included``) and its piece count a real number (``Number of
+#: Pieces``, so pack wording may name it). Census names throughout.
+_KIT = (
+    _spec("Item", "line"),
+    _spec("Type", "line"),
+    _spec("Material", "line", 0.85),
+    _spec("Finish", "line", 0.8),
+    _spec("Container Type", "line", 0.8),
+    _spec("Tip Style", "line"),
+    _spec("Number of Pieces", "sku"),
+    _spec("Sizes Included", "sku"),
+)
+
 VOCAB: dict[str, tuple[AttrSpec, ...]] = {
     "end_mill_square": _END_MILL,
     "end_mill_ball": _END_MILL,
@@ -419,6 +433,7 @@ VOCAB: dict[str, tuple[AttrSpec, ...]] = {
     "bearing_radial_ball": _BEARING,
     "wheel_depressed_center": _WHEEL,
     "hex_key": _HEX_KEY,
+    "kit_assortment": _KIT,
 }
 
 #: Which pool of standards designations each type draws from.
@@ -439,6 +454,7 @@ STANDARDS_FAMILY: dict[str, str] = {
     "bearing_radial_ball": "motion",
     "wheel_depressed_center": "abrasive",
     "hex_key": "hand_tool",
+    "kit_assortment": "hand_tool",
 }
 
 
