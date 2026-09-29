@@ -54,8 +54,8 @@ GOLDEN_FILES = (
 
 # Restated by direct count after the 100K brand book (spec uniqueness drops
 # a SKU a brand already stocks): wc -l golden-catalog/nested.jsonl / flat.jsonl.
-LINES = 5403
-SKUS = 10080
+LINES = 5376
+SKUS = 10096
 
 
 def _sha256(path: Path) -> str:
@@ -137,11 +137,7 @@ def test_committed_file_matches_a_fresh_build(name: str, fresh_build: Path) -> N
         1 for a, b in zip(committed_lines, rebuilt_lines, strict=False) if a != b
     ) + abs(len(committed_lines) - len(rebuilt_lines))
     first = next(
-        (
-            i
-            for i, (a, b) in enumerate(zip(committed_lines, rebuilt_lines, strict=False))
-            if a != b
-        ),
+        (i for i, (a, b) in enumerate(zip(committed_lines, rebuilt_lines, strict=False)) if a != b),
         min(len(committed_lines), len(rebuilt_lines)),
     )
 

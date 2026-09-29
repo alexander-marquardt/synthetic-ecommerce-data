@@ -144,7 +144,7 @@ BRAND_ROW_TYPES = ("hex_key", "washer_flat", "end_mill_square", "bearing_radial_
 
 #: The brands shown across every type they make: a broad house, two
 #: multi-family makers and a specialist.
-BRAND_COLUMN_BRANDS = ("Corvane", "Plumb Orchard", "Maddox & Vail", "Quillon Carbide")
+BRAND_COLUMN_BRANDS = ("Dravenholt", "Stone Wicket", "Quellmarsh", "Quillon Carbide")
 
 
 def _titled(parent: dict, variant: dict) -> str:

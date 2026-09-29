@@ -77,8 +77,8 @@ def test_no_ink_lies_on_another_inks_blend_to_the_paper():
     Every stroke is antialiased, so a line drawn in one ink puts pixels at
     every blend between that ink and the paper. Two inks can therefore be
     different colours and still be indistinguishable in the pixels --
-    measured, the first palette here put sixteen Redmoor pixels inside
-    Halstead Tool's colour on one card. Checked over the PALETTE: brands now
+    measured, the first palette here put sixteen of one brand's pixels inside
+    another brand's colour on one card. Checked over the PALETTE: brands now
     share inks (the (ink, frame) pair is what names a brand), so the
     separation that matters is between the inks two brands can be told
     apart by.
@@ -95,9 +95,7 @@ def test_no_ink_lies_on_another_inks_blend_to_the_paper():
         return float(np.min(np.max(np.abs(blend - target), axis=1)))
 
     worst = min((separation(a, b), a, b) for a, b in itertools.permutations(INKS, 2))
-    assert worst[0] >= MIN_INK_SEPARATION, (
-        f"{worst[1]} fades through {worst[2]} ({worst[0]:.3f})"
-    )
+    assert worst[0] >= MIN_INK_SEPARATION, f"{worst[1]} fades through {worst[2]} ({worst[0]:.3f})"
 
 
 def test_the_palette_has_no_repeated_ink():
@@ -188,20 +186,20 @@ def test_an_unknown_coating_is_refused_rather_than_drawn_as_bare_steel():
     could tell from a real one.
     """
     with pytest.raises(UnsupportedFeatureError):
-        marking_for_line("Corvane", _attrs(**{"Finish": "Unobtainium Nitride"}))
+        marking_for_line("Dravenholt", _attrs(**{"Finish": "Unobtainium Nitride"}))
 
 
 def test_an_unknown_material_is_refused_rather_than_left_unhatched():
     with pytest.raises(UnsupportedFeatureError):
-        marking_for_line("Corvane", _attrs(**{"Material": "Wishful Thinking"}))
+        marking_for_line("Dravenholt", _attrs(**{"Material": "Wishful Thinking"}))
 
 
 def test_a_flute_count_that_is_not_a_count_is_refused():
     """``Number of Flutes`` arrives from a real supplier feed and is not always a number."""
     with pytest.raises(UnsupportedFeatureError):
-        marking_for_line("Corvane", _attrs(**{"Number of Flutes": "several"}))
+        marking_for_line("Dravenholt", _attrs(**{"Number of Flutes": "several"}))
     with pytest.raises(UnsupportedFeatureError):
-        marking_for_line("Corvane", _attrs(**{"Number of Flutes": "97"}))
+        marking_for_line("Dravenholt", _attrs(**{"Number of Flutes": "97"}))
 
 
 def test_a_record_that_publishes_no_finish_or_material_is_marked_without_one():
@@ -211,7 +209,7 @@ def test_a_record_that_publishes_no_finish_or_material_is_marked_without_one():
     these attributes at measured presence rates well under 1.0, so a line that
     is simply silent about its coating is normal data, not bad data.
     """
-    mark = marking_for_line("Corvane", [])
+    mark = marking_for_line("Dravenholt", [])
     assert mark.tint is None
     assert mark.hatch is None
     assert mark.flutes is None
@@ -226,8 +224,8 @@ def test_an_unpublished_direction_is_not_recorded_as_a_published_one():
     silent" the same state, and the stamp would then be the only disclosure
     left -- for a property the picture is asserting.
     """
-    silent = marking_for_line("Corvane", [])
-    stated = marking_for_line("Corvane", _attrs(**{"Cutting Direction": "Right Hand"}))
+    silent = marking_for_line("Dravenholt", [])
+    stated = marking_for_line("Dravenholt", _attrs(**{"Cutting Direction": "Right Hand"}))
     assert silent.hand is None and silent.lean == 1
     assert stated.hand == 1 and stated.lean == 1
 
@@ -246,7 +244,7 @@ def test_the_marking_reads_nothing_but_the_brand_and_the_line_attributes():
     else about them differs.
     """
     attrs = _attrs(**{"Material": "Cobalt", "Number of Flutes": "3"})
-    assert marking_for_line("Ferrox", attrs) == marking_for_line("Ferrox", list(attrs))
+    assert marking_for_line("Varnstrom", attrs) == marking_for_line("Varnstrom", list(attrs))
 
 
 def test_the_marking_carries_every_published_value_including_repeats():
@@ -260,7 +258,7 @@ def test_the_marking_carries_every_published_value_including_repeats():
         "value": "ISO 1641",
         "values": ["ISO 1641", "REACH", "RoHS 2011/65/EU"],
     }
-    mark = marking_for_line("Ferrox", [line])
+    mark = marking_for_line("Varnstrom", [line])
     assert [value for name, value in mark.rows if name == "Standards"] == [
         "ISO 1641",
         "REACH",
@@ -314,7 +312,7 @@ def test_the_stamp_never_breaks_a_published_value_at_its_hyphen():
     values = [
         {"name": f"attribute {index}", "value": value} for index, value in enumerate(published)
     ]
-    mark = marking_for_line("Ferrox", values)
+    mark = marking_for_line("Varnstrom", values)
 
     # Every width from "the longest value just fits" upwards, so the wrap
     # point sweeps across every hyphen in turn. Not narrower than that: a
@@ -333,6 +331,6 @@ def test_the_stamp_never_breaks_a_published_value_at_its_hyphen():
 
 def test_the_marking_is_frozen():
     """A drawing must not be able to acquire a property on the way through."""
-    mark = marking_for_line("Ferrox", [])
+    mark = marking_for_line("Varnstrom", [])
     with pytest.raises(dataclasses.FrozenInstanceError):
         mark.ink = "#000000"  # type: ignore[misc]

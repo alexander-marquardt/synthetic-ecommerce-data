@@ -153,14 +153,19 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
     from .generate import BRANDS, ChildDraft, LineDraft
 
     rng = gen.rng
-    brand = pick_brand(rng, type_key)
+    brand = pick_brand(rng, type_key, gen._exhausted)
     metric = rng.random() < 0.3
     fine = not metric and rng.random() < 0.25
     style_name = _weighted(rng, (("Finished Hex", 0.7), ("Heavy Hex", 0.15), ("Jam", 0.15)))
     material = _weighted(
         rng,
-        (("Steel", 0.45), ("18-8 Stainless Steel", 0.25), ("316 Stainless Steel", 0.08),
-         ("Brass", 0.07), ("Alloy Steel", 0.15)),
+        (
+            ("Steel", 0.45),
+            ("18-8 Stainless Steel", 0.25),
+            ("316 Stainless Steel", 0.08),
+            ("Brass", 0.07),
+            ("Alloy Steel", 0.15),
+        ),
     )
     stainless = "Stainless" in material
     if material in ("Steel", "Alloy Steel"):
@@ -228,13 +233,28 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
 
 #: (bearing number, bore mm, outside dia mm, width mm) -- the 60/62/63 series.
 _BEARINGS_METRIC = (
-    ("6000", 10, 26, 8), ("6001", 12, 28, 8), ("6002", 15, 32, 9), ("6003", 17, 35, 10),
-    ("6004", 20, 42, 12), ("6005", 25, 47, 12), ("6006", 30, 55, 13),
-    ("6200", 10, 30, 9), ("6201", 12, 32, 10), ("6202", 15, 35, 11), ("6203", 17, 40, 12),
-    ("6204", 20, 47, 14), ("6205", 25, 52, 15), ("6206", 30, 62, 16), ("6207", 35, 72, 17),
+    ("6000", 10, 26, 8),
+    ("6001", 12, 28, 8),
+    ("6002", 15, 32, 9),
+    ("6003", 17, 35, 10),
+    ("6004", 20, 42, 12),
+    ("6005", 25, 47, 12),
+    ("6006", 30, 55, 13),
+    ("6200", 10, 30, 9),
+    ("6201", 12, 32, 10),
+    ("6202", 15, 35, 11),
+    ("6203", 17, 40, 12),
+    ("6204", 20, 47, 14),
+    ("6205", 25, 52, 15),
+    ("6206", 30, 62, 16),
+    ("6207", 35, 72, 17),
     ("6208", 40, 80, 18),
-    ("6300", 10, 35, 11), ("6301", 12, 37, 12), ("6302", 15, 42, 13), ("6303", 17, 47, 14),
-    ("6304", 20, 52, 15), ("6305", 25, 62, 17),
+    ("6300", 10, 35, 11),
+    ("6301", 12, 37, 12),
+    ("6302", 15, 42, 13),
+    ("6303", 17, 47, 14),
+    ("6304", 20, 52, 15),
+    ("6305", 25, 62, 17),
 )
 #: (bearing number, bore in, outside dia in, width in) -- inch R series.
 _BEARINGS_INCH = (
@@ -257,7 +277,7 @@ def build_bearing(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
     from .generate import BRANDS, ChildDraft, LineDraft
 
     rng = gen.rng
-    brand = pick_brand(rng, type_key)
+    brand = pick_brand(rng, type_key, gen._exhausted)
     inch = rng.random() < 0.18
     table = _BEARINGS_INCH if inch else _BEARINGS_METRIC
     number, bore, od, width = table[gen._rotate(f"bearing:{inch}", len(table))]
@@ -274,7 +294,10 @@ def build_bearing(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
     draft = LineDraft(
         item=item,
         brand=brand,
-        series=number,
+        # The product's own series, NOT the bearing number: a series is an
+        # identifier the uniqueness walk may renumber, and a bearing number is
+        # a fact about the part (its bore, OD and width) that must never move.
+        series=f"RB{rng.randint(100, 999)}",
         category=category,
         provenance=GENERATED_PROVENANCE,
     )
@@ -330,7 +353,7 @@ def build_wheel(gen: Generator, type_key: str, category: tuple[str, ...]) -> Lin
     from .generate import BRANDS, ChildDraft, LineDraft
 
     rng = gen.rng
-    brand = pick_brand(rng, type_key)
+    brand = pick_brand(rng, type_key, gen._exhausted)
     style = feed_style(brand, "in", BRANDS)
     dia, rpm = _WHEELS[gen._rotate("wheel:dia", len(_WHEELS))]
     cutting = rng.random() < 0.3
@@ -340,8 +363,12 @@ def build_wheel(gen: Generator, type_key: str, category: tuple[str, ...]) -> Lin
     shape = "Type 27" if rng.random() < 0.8 else "Type 28"
     abrasive = _weighted(
         rng,
-        (("Aluminum Oxide", 0.45), ("Zirconia Alumina", 0.3), ("Ceramic", 0.15),
-         ("Silicon Carbide", 0.1)),
+        (
+            ("Aluminum Oxide", 0.45),
+            ("Zirconia Alumina", 0.3),
+            ("Ceramic", 0.15),
+            ("Silicon Carbide", 0.1),
+        ),
     )
     item = "Depressed-Center Wheel"
     draft = LineDraft(
@@ -377,8 +404,22 @@ def build_wheel(gen: Generator, type_key: str, category: tuple[str, ...]) -> Lin
 
 # --- hex keys ----------------------------------------------------------------------
 
-_KEY_INCH = (0.050, 1 / 16, 5 / 64, 3 / 32, 7 / 64, 1 / 8, 9 / 64, 5 / 32, 3 / 16, 7 / 32,
-             1 / 4, 5 / 16, 3 / 8, 1 / 2)
+_KEY_INCH = (
+    0.050,
+    1 / 16,
+    5 / 64,
+    3 / 32,
+    7 / 64,
+    1 / 8,
+    9 / 64,
+    5 / 32,
+    3 / 16,
+    7 / 32,
+    1 / 4,
+    5 / 16,
+    3 / 8,
+    1 / 2,
+)
 _KEY_MM = (1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0)
 
 
@@ -387,7 +428,7 @@ def build_hex_key(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
     from .generate import BRANDS, ChildDraft, LineDraft
 
     rng = gen.rng
-    brand = pick_brand(rng, type_key)
+    brand = pick_brand(rng, type_key, gen._exhausted)
     metric = rng.random() < 0.4
     system = "mm" if metric else "in"
     style = feed_style(brand, system, BRANDS)

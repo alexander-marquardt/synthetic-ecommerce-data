@@ -3,7 +3,7 @@
 One drawing per product line, and every difference between two drawings is a
 difference between two records
 --------------------------------------------------------------------------
-A catalog of thousands of SKUs in 500 lines showing twelve drawings renders an Osterlund
+A catalog of thousands of SKUs in 500 lines showing twelve drawings renders an Estrimore
 K663 HSS AlTiN mill and a competitor's carbide TiCN mill identically. The fix
 is not more shapes -- both of those really are square end mills, and the shape
 is right -- it is to draw each line's own *published* values.
@@ -88,7 +88,7 @@ __all__ = [
 #: The outline colour of every line drawn on the part, by brand.
 #:
 #: From the brand book (:mod:`..catalog.brands`), where a brand's house style
-#: is its ink AND its frame. Twelve inks over forty-six brands, so an ink alone
+#: is its ink AND its frame. Twelve inks over forty-five brands, so an ink alone
 #: no longer names a brand; the (ink, frame) pair does, and
 #: :func:`..drawing.style.brand_for_house_style` reads it back. The inks
 #: themselves stay pairwise separated (``MIN_INK_SEPARATION``), so two brands

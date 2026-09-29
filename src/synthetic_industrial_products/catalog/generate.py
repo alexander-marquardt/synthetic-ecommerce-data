@@ -20,6 +20,7 @@ denominator rather than against the whole corpus.
 
 from __future__ import annotations
 
+import functools
 import random
 from dataclasses import dataclass, field
 from fractions import Fraction
@@ -98,6 +99,21 @@ HAMMER_GRIPS: dict[str, tuple[str, ...]] = {
     "Fiberglass": ("Rubber", "Vinyl", "None"),
     "Steel": ("Rubber", "Vinyl", "None"),
 }
+
+#: The attribute a type's titles must name when its variant axis is not its
+#: size: the census title core is "<Item>, <key dim>, ...". Measured on the
+#: first 100K build, bearing titles were 0.01 distinct and carried no size at
+#: all ("Radial Ball Bearing, Double Seal Closure Type, Chrome Steel", 452
+#: times); wheels 0.06 and flap discs 0.22 named only their grit.
+KEY_DIMENSIONS: dict[str, tuple[str, ...]] = {
+    "bearing_radial_ball": ("Bearing Number",),
+    "wheel_depressed_center": ("Diameter",),
+    "abrasive_flap_disc": ("Diameter",),
+}
+
+#: Lines in a row a (type, brand) may draft without making a SKU before its
+#: spec space counts as spent. See ``Generator._finish_line``.
+MAX_MISSES = 20
 
 _SKU_LETTERS = "ABCDEFGHJKLMNPRSTUVWXYZ"
 
@@ -190,9 +206,17 @@ class Generator:
         #: Every spec drawn so far, per (type, brand) -- see :meth:`_spec_key`.
         #: Shared with the sub-generators, like ``_used_skus``.
         self._drawn_specs: set[tuple] = set()
-        #: Every (type, brand, series) a product already carries, so no two
-        #: products of a type share a product name.
-        self._used_series: set[tuple[str, str, str]] = set()
+        #: The PUBLISHED specs, per (type, brand, always-published values):
+        #: a SKU whose published spec is a subset or superset of one already
+        #: made differs from it only by an attribute sparsity dropped.
+        self._published_specs: dict[tuple, list[frozenset]] = {}
+        #: (type, brand) pairs whose spec space is spent, and how many lines
+        #: in a row each has drafted without making a SKU.
+        self._exhausted: set[tuple[str, str]] = set()
+        self._misses: dict[tuple[str, str], int] = {}
+        #: Every (brand, series) a product already carries, CATALOG-WIDE, so no
+        #: two products share a product name.
+        self._used_series: set[tuple[str, str]] = set()
         #: The current line's brand voice (:mod:`.voice`) and its published
         #: line-level facts, set per line by :meth:`_finish_line`.
         self._voice: Voice | None = None
@@ -327,7 +351,7 @@ class Generator:
         metric = rng.random() < 0.22
         system = "mm" if metric else "in"
 
-        brand = brands.pick_brand(rng, type_key)
+        brand = brands.pick_brand(rng, type_key, self._exhausted)
         flutes = int(_weighted(rng, series.FLUTE_WEIGHTS))  # type: ignore[arg-type]
         helix = rng.choice(series.HELIX_ANGLES)
         coating = rng.choice(("AlTiN", "TiCN", "TiAlN", "TiN", "Uncoated", "Bright", "nACo"))
@@ -479,7 +503,7 @@ class Generator:
 
     def _build_drill(self, type_key: str, category: tuple[str, ...]) -> LineDraft:
         rng = self.rng
-        brand = brands.pick_brand(rng, type_key)
+        brand = brands.pick_brand(rng, type_key, self._exhausted)
         material = rng.choice(("High Speed Steel", "Cobalt", "Solid Carbide"))
         point = rng.choice(("118 Degrees", "135 Degrees"))
         item = "Jobber Length Drill Bit"
@@ -533,7 +557,7 @@ class Generator:
 
     def _build_tap(self, type_key: str, category: tuple[str, ...]) -> LineDraft:
         rng = self.rng
-        brand = brands.pick_brand(rng, type_key)
+        brand = brands.pick_brand(rng, type_key, self._exhausted)
         metric = rng.random() < 0.35
         item = "Spiral Point Tap"
         draft = LineDraft(
@@ -633,7 +657,7 @@ class Generator:
             "screw_low_head": standards.low_head,
         }[type_key]
 
-        brand = brands.pick_brand(rng, type_key)
+        brand = brands.pick_brand(rng, type_key, self._exhausted)
         material = rng.choice(("Alloy Steel", "18-8 Stainless Steel", "Grade 12.9 Alloy Steel"))
         draft = LineDraft(
             item=style_name,
@@ -707,7 +731,7 @@ class Generator:
         # across flats at M10 and M12. Which standard the line is built to is a
         # property of the line, so it is chosen here.
         standard = HEX_BOLT_STANDARDS[self._rotate("bolt_standard", len(HEX_BOLT_STANDARDS))]
-        brand = brands.pick_brand(rng, type_key)
+        brand = brands.pick_brand(rng, type_key, self._exhausted)
         # Three wheels off ONE line counter: the size, the grading and the
         # finish. Those are three of the four attribute-value pairs the
         # reference distributor's parametric query names, and eleven lines per standard
@@ -806,7 +830,7 @@ class Generator:
 
     def _build_washer(self, type_key: str, category: tuple[str, ...]) -> LineDraft:
         rng = self.rng
-        brand = brands.pick_brand(rng, type_key)
+        brand = brands.pick_brand(rng, type_key, self._exhausted)
         # Headroom for the 100K catalog: five materials, each with the finishes
         # it is actually sold in. A plated or oxided stainless, brass or nylon
         # washer is not a product, so only steel carries a coating; the others
@@ -853,7 +877,7 @@ class Generator:
 
     def _build_hammer(self, type_key: str, category: tuple[str, ...]) -> LineDraft:
         rng = self.rng
-        brand = brands.pick_brand(rng, type_key)
+        brand = brands.pick_brand(rng, type_key, self._exhausted)
         handle = rng.choice(HAMMER_HANDLES)
         item = "Ball Pein Hammer"
         draft = LineDraft(
@@ -894,7 +918,7 @@ class Generator:
 
     def _build_flap_disc(self, type_key: str, category: tuple[str, ...]) -> LineDraft:
         rng = self.rng
-        brand = brands.pick_brand(rng, type_key)
+        brand = brands.pick_brand(rng, type_key, self._exhausted)
         abrasive = rng.choice(("Zirconia Alumina", "Ceramic", "Aluminum Oxide"))
         item = "Flap Disc"
         draft = LineDraft(
@@ -1163,6 +1187,15 @@ class Generator:
         descriptive = voice.descriptive
         segments: list[Segment] = []
 
+        # The type's KEY dimension, when the variant axis is something else
+        # (a bearing's closure, a wheel's grit): the census core of a title
+        # names what the part IS, so a bearing title carries its number and a
+        # wheel its diameter. Only a value the record publishes.
+        key_values = {a.name: a.value for a in (*draft.line_attrs, *child.attrs)}
+        for name in KEY_DIMENSIONS.get(draft.type_key, ()):
+            if name in self._published and name in key_values:
+                segments.append(Segment(value=key_values[name], label=None, attribute=name))
+
         dimension = self._dimension_segment(child)
         if dimension is not None:
             segments.append(dimension)
@@ -1325,7 +1358,7 @@ class Generator:
         first formulation and it is too weak by a factor of five: a title
         carries the brand about a third of the time and a label in one of
         several abbreviations, so ``Hex Head Bolt, 7/16-14, Grade 8`` and
-        ``Redmoor Hex Head Bolt, 7/16-14, Grade 8`` are different strings that
+        ``Vellinhorst Hex Head Bolt, 7/16-14, Grade 8`` are different strings that
         tell a shopper apart by the brand name of the line they are both in.
         Measured, 705 SKUs passed a string-equality check while naming nothing
         that was theirs. The trigger is the PROPERTY instead: a title has to
@@ -1414,7 +1447,7 @@ class Generator:
           scanning six neighbouring cards can see what separates them without
           opening any of them.
         * **The brand line stays, at the end.** It is what the description
-          used to be in its entirety -- ``Marrow & Sons ISO4762-64 -- Socket
+          used to be in its entirety -- ``Ingleward ISO4762-64 -- Socket
           Head Cap Screw`` -- which restated the title, the brand and the
           product type and said nothing at all about this SKU. It earns a
           place; it does not earn the whole field.
@@ -1501,30 +1534,71 @@ class Generator:
         )
         return (type_key, brand, spec)
 
-    def _unique_series(self, type_key: str, draft: LineDraft, line_attrs: list[Attribute]) -> None:
-        """Give the product a series no other product of its brand and type has.
+    def _unique_series(self, draft: LineDraft, line_attrs: list[Attribute]) -> None:
+        """Give the product a series no other product of its brand has, catalog-wide.
 
         A drawn series already taken walks its trailing number up, one step at
         a time, to the first free one -- deterministic, and never a re-draw.
-        Every attribute publishing the old series (``List Number``) follows.
+        The walk touches the series and the IDENTIFIER attributes that publish
+        it (``List Number``) and NOTHING else: a value that carries meaning --
+        a bearing number, a size -- is never rewritten, even when it equals the
+        series (the first version walked 11,784 bearing numbers to numbers that
+        are not bearings; tests/test_catalog_brands_voice.py now holds every
+        bearing to its table entry).
         """
         taken = self._used_series
         series = draft.series
-        while (type_key, draft.brand, series) in taken:
+        while (draft.brand, series) in taken:
             head = series.rstrip("0123456789")
             tail = series[len(head) :]
             series = f"{head}{int(tail) + 1}" if tail else f"{series}1"
-        taken.add((type_key, draft.brand, series))
+        taken.add((draft.brand, series))
         if series != draft.series:
             self._bump("series_walked")
             old = draft.series
             draft.series = series
-            for i, attribute in enumerate(line_attrs):
-                if attribute.value == old:
-                    line_attrs[i] = Attribute(attribute.name, series)
-            draft.line_attrs = [
-                Attribute(a.name, series) if a.value == old else a for a in draft.line_attrs
-            ]
+
+            def walked(attribute: Attribute) -> Attribute:
+                if attribute.name in self.IDENTIFIER_ATTRIBUTES and attribute.value == old:
+                    return Attribute(attribute.name, series)
+                return attribute
+
+            line_attrs[:] = [walked(a) for a in line_attrs]
+            draft.line_attrs = [walked(a) for a in draft.line_attrs]
+
+    @functools.cache  # noqa: B019 - a pure function of the config and the type
+    def _always_published(self, type_key: str) -> frozenset[str]:
+        """The attributes sparsity never drops for this type (presence 1.0)."""
+        return frozenset(
+            spec.name
+            for spec in VOCAB[type_key]
+            if self.config.scaled_presence(spec.presence) >= 1.0
+        )
+
+    def _differs_only_by_a_drop(
+        self, type_key: str, brand: str, published: list[Attribute]
+    ) -> bool:
+        """Whether a published spec is a subset or superset of one already made.
+
+        Two SKUs whose published attributes differ only in that one lacks an
+        attribute the other carries are NOT different to a shopper, whatever
+        the dropped value was (measured on the first 100K build: 3,212 such
+        SKUs). Compared within the bucket of SKUs that agree on every
+        always-published attribute -- the only place a subset can live -- so
+        the check stays cheap at 100K. Records the spec when it is new.
+        """
+        spec = frozenset(
+            (a.name, a.value if a.values is None else "|".join(a.values))
+            for a in published
+            if a.name not in self.IDENTIFIER_ATTRIBUTES
+        )
+        always = self._always_published(type_key)
+        bucket = (type_key, brand, tuple(sorted(x for x in spec if x[0] in always)))
+        made = self._published_specs.setdefault(bucket, [])
+        if any(spec <= other or other <= spec for other in made):
+            return True
+        made.append(spec)
+        return False
 
     def _finish_line(self, type_key: str, draft: LineDraft, index: int) -> ProductLine | None:
         rng = self.rng
@@ -1537,7 +1611,7 @@ class Generator:
             line_attrs = [*line_attrs, standards_attr]
 
         draft.type_key = type_key
-        self._unique_series(type_key, draft, line_attrs)
+        self._unique_series(draft, line_attrs)
         self._voice = voice_for(draft.brand)
         self._line_facts = {a.name: a.value for a in line_attrs}
 
@@ -1559,9 +1633,19 @@ class Generator:
             if system_attr is not None and not child.zero_axis:
                 attrs = [*attrs, system_attr]
             # Each SKU is different from every other SKU of its brand and type.
-            # A spec this brand has already drawn is spent: the SKU is not made.
-            key = self._spec_key(type_key, draft.brand, [*line_attrs, *attrs])
-            if key in self._drawn_specs:
+            # A membership check, i.e. rejection: a draft whose UNSPARSIFIED
+            # spec this brand has already made, or whose published spec differs
+            # from one already made only by a dropped attribute, is not made.
+            unsparsified = [
+                *draft.line_attrs,
+                *([standards_attr] if standards_attr is not None else []),
+                *child.attrs,
+                *([system_attr] if system_attr is not None else []),
+            ]
+            key = self._spec_key(type_key, draft.brand, unsparsified)
+            if key in self._drawn_specs or self._differs_only_by_a_drop(
+                type_key, draft.brand, [*line_attrs, *attrs]
+            ):
                 self._bump("spec_already_drawn")
                 continue
             self._drawn_specs.add(key)
@@ -1575,8 +1659,17 @@ class Generator:
             )[0]
             built.append((sku, attrs, price, stock))
 
+        # A (type, brand) that drafts line after line and makes nothing has
+        # spent its spec space: after MAX_MISSES in a row it stops getting
+        # products of that type (``brands.pick_brand`` excludes it).
+        pair = (type_key, draft.brand)
         if not built:
+            self._misses[pair] = self._misses.get(pair, 0) + 1
+            if self._misses[pair] >= MAX_MISSES:
+                self._exhausted.add(pair)
+                self._bump("brand_type_exhausted")
             return None
+        self._misses[pair] = 0
 
         published = [attrs for _, attrs, _, _ in built]
         titles = self._disambiguate_titles(
@@ -1673,6 +1766,9 @@ class Generator:
             sub.counters = self.counters
             sub._used_skus = self._used_skus
             sub._drawn_specs = self._drawn_specs
+            sub._published_specs = self._published_specs
+            sub._exhausted = self._exhausted
+            sub._misses = self._misses
             sub._used_series = self._used_series
             sub._pins = dict(entry.pins)
             type_key = entry.types[0]
@@ -1705,6 +1801,9 @@ class Generator:
         spec = NEW_TYPES[type_key]
         sub = _NewTypeGenerator(self.config, type_key, self.counters, self._used_skus)
         sub._drawn_specs = self._drawn_specs
+        sub._published_specs = self._published_specs
+        sub._exhausted = self._exhausted
+        sub._misses = self._misses
         sub._used_series = self._used_series
         out: list[ProductLine] = []
         for index in range(1, products + 1):

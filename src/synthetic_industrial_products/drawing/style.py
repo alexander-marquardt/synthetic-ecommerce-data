@@ -7,7 +7,7 @@ differ, and driven by the record that conclusion is right.
 
 =====================  ==============================================
 outline colour         the brand (one of twelve inks)
-paper tone             the brand (a faint tint of its ink)
+paper tone             the brand (one of six tints, independent of the ink)
 frame                  the brand (one of four frame treatments)
 (ink, frame)           unique per brand, so the pair names the brand
 part fill              the published finish; else the material's colour
@@ -128,7 +128,7 @@ def house_style(brand: str) -> HouseStyle:
     if brand not in brands.BY_NAME:
         raise UnknownStyleError(f"no house style for brand {brand!r}")
     ink = brands.ink_of(brand)
-    return HouseStyle(ink=ink, paper=_mix(ink, "#ffffff", 0.06), frame=brands.frame_of(brand))
+    return HouseStyle(ink=ink, paper=brands.paper_of(brand), frame=brands.frame_of(brand))
 
 
 def brand_for_house_style(ink: str, frame: str) -> str:
