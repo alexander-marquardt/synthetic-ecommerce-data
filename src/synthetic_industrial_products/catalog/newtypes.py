@@ -661,14 +661,17 @@ def build_kit(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
     contents = kit.designations or tuple(gen._publish(size, style) for size in kit.sizes)
     pieces = kit.per_size * len(contents)
     draft = LineDraft(
-        item=kit.item,
+        item="Assortment Kit",
         brand=brand,
         series=f"KT{rng.randint(100, 999)}",
         category=category,
         provenance=GENERATED_PROVENANCE,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", kit.item),
+        # ONE item name for every kit, the kind in ``Type``: four kit names
+        # would take ``Item`` past the 25-value facet cap, and ``Item`` is a
+        # policy target a shopper must be able to see and reverse.
+        keyword_attribute("Item", "Assortment Kit"),
         keyword_attribute("Type", kit.item),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),

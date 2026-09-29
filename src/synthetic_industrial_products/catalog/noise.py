@@ -243,7 +243,11 @@ def material_contrast(type_key: str, values: Mapping[str, str]) -> str | None:
     material = values.get("Material", "")
     finish = values.get("Finish", "")
     if "Stainless" in material:
-        return f"{material} (not zinc plated)." if finish in ("", "Plain") else None
+        # "not plated", never "not zinc plated": the finish's own NAME in a
+        # negation would put "zinc plated" on stainless records, and a policy
+        # that trusts the whole finish name only where every record carrying
+        # it has that finish would then stop trusting it.
+        return f"{material} (not plated)." if finish in ("", "Plain") else None
     if material == "Brass":
         return "Brass (not steel)."
     if material in ("Steel", "Alloy Steel") and finish == "Zinc Plated":
