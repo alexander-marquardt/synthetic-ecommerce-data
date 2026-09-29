@@ -164,7 +164,7 @@ RANGE_MIN_DOCS = 50
 #: over golden-catalog/flat.jsonl.
 MEASURED_DISPERSION: dict[str, Any] = {
     # The band over the attributes that are actually FACETED.
-    "faceted_low": 0.0019,
+    "faceted_low": 0.002,
     # Flute Length since the bearing ratings became a published table (one
     # value per bearing number, no jitter): Dynamic Load Capacity was the
     # densest at 0.44 while a formula manufactured a value per SKU.

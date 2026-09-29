@@ -32,8 +32,14 @@ def applicable(
     *,
     metric: bool,
     provenance: str,
+    standard: str = "",
 ) -> tuple[str, ...]:
-    """The standards a line of ``type_key`` may claim, in a fixed order."""
+    """The standards a line of ``type_key`` may claim, in a fixed order.
+
+    ``standard`` is the dimensional standard every row of the line was read
+    from, for a type whose provenance does not already name one (the hex nut);
+    empty when its rows are not one standard's.
+    """
     material = facts.get("Material", "")
     grade = facts.get("Grade", "")
     stainless = "Stainless" in material
@@ -71,15 +77,14 @@ def applicable(
         elif grade.startswith("Class"):
             out.append("ISO 898-1")
     elif type_key == "nut_hex":
-        style = facts.get("Type", "")
-        if metric:
-            out.append("ISO 4035" if style == "Jam" else "ISO 4032")
-            if grade.startswith("Class"):
-                out.append("ISO 898-2")
-        else:
-            out.append("ASME B18.2.2")
-            if grade.startswith("Grade"):
-                out.append("SAE J995")
+        # The dimensional standard is the one the rows were READ from, never
+        # one chosen by style name: a heavy hex nut is not an ISO 4032 nut,
+        # and a fine-pitch nut is not a coarse-thread standard's.
+        out.append(standard)
+        if metric and grade.startswith("Class"):
+            out.append("ISO 898-2")
+        if not metric and grade.startswith("Grade"):
+            out.append("SAE J995")
     elif type_key == "washer_flat":
         out.extend(("ISO 7089", "DIN 125-A"))
     elif type_key in ("end_mill_square", "end_mill_ball"):
@@ -100,5 +105,11 @@ def applicable(
     elif type_key == "wheel_depressed_center":
         out.extend(("ANSI B7.1", "EN 12413", "oSa Certified"))
     elif type_key == "bearing_radial_ball":
-        out.extend(("ABMA 20",) if not metric else ("ISO 15", "ISO 492", "ABMA 20"))
+        # ABMA 20 is "Radial Bearings of Ball, Cylindrical Roller and
+        # Spherical Roller Types -- METRIC Design": it is the metric bearing's
+        # ABMA standard, like ISO 15 and ISO 492. The inch R series is not in
+        # it, and no inch-series standard could be confirmed from a readable
+        # source, so an inch bearing claims none.
+        if metric:
+            out.extend(("ISO 15", "ISO 492", "ABMA 20"))
     return tuple(dict.fromkeys(s for s in out if s))

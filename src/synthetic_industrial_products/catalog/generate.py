@@ -252,6 +252,15 @@ class LineDraft:
     descriptors: list[tuple[str, str]] = field(default_factory=list)
     #: Set by ``_finish_line``; the builders need not.
     type_key: str = ""
+    #: The dimensional standard EVERY child's dimensions were read from, when
+    #: the line's dimensions are not already a standard's by provenance (the
+    #: hex nut: :func:`.newtypes.nut_row`). Empty when no one standard fits.
+    standard: str = ""
+
+
+#: The word a terse title uses for an end mill's end shape, by its
+#: ``End Mill Style``: ``SGL Sq End`` / ``SGL Ball End``.
+END_SHAPE_WORD: dict[str, str] = {"Square": "Sq", "Ball Nose": "Ball"}
 
 
 class Generator:
@@ -1145,6 +1154,7 @@ class Generator:
             {a.name: a.value for a in draft.line_attrs},
             metric=bool(draft.children) and draft.children[0].system == "mm",
             provenance=draft.provenance,
+            standard=draft.standard,
         )
         if not pool:
             return None
@@ -1338,25 +1348,43 @@ class Generator:
             )
         ]
         if style == "secondary":
-            # The pair's secondary class, fixed like its style, used where
-            # this record publishes it.
-            classes = [k for k in self.config.title_secondary_mix if k in child.secondary]
-            if classes:
-                digest = hashlib.sha256(
-                    f"{self.config.seed}:secondary:{draft.brand}:{draft.type_key}".encode()
-                ).hexdigest()
-                pick = classes[int(digest[:8], 16) % len(classes)]
-                attribute = child.secondary[pick]
-                if attribute.name in self._published and attribute.name != primary.name:
-                    self._bump("title_token_not_primary")
-                    segments.append(
-                        Segment(
-                            value=attribute.value,
-                            label=self._label_for(attribute.name),
-                            attribute=attribute.name,
-                        )
+            # The pair's secondary dimension, fixed like its style: the pair
+            # ranks the secondary classes once, and each title names the
+            # first one THIS record publishes. It used to pick by
+            # ``digest % len(classes this child has)``, so an end mill with a
+            # neck and one without picked different classes -- and a pick the
+            # record did not publish left that title with no secondary, while
+            # its siblings had one. A title names a secondary whenever the
+            # record publishes one, or never (a "labelled" pair).
+            attribute = next(
+                (
+                    child.secondary[k]
+                    for k in self._secondary_order(draft.brand, draft.type_key)
+                    if k in child.secondary
+                    and child.secondary[k].name in self._published
+                    and child.secondary[k].name != primary.name
+                ),
+                None,
+            )
+            if attribute is not None:
+                self._bump("title_token_not_primary")
+                segments.append(
+                    Segment(
+                        value=attribute.value,
+                        label=self._label_for(attribute.name),
+                        attribute=attribute.name,
                     )
+                )
         return segments
+
+    def _secondary_order(self, brand: str, type_key: str) -> list[str]:
+        """The (brand, type)'s ranking of the secondary classes: the census mix,
+        rotated by a seeded digest of the pair so makers lead with different
+        ones."""
+        classes = list(self.config.title_secondary_mix)
+        digest = hashlib.sha256(f"{self.config.seed}:secondary:{brand}:{type_key}".encode())
+        start = int(digest.hexdigest()[:8], 16) % len(classes)
+        return classes[start:] + classes[:start]
 
     def _label_for(self, attribute_name: str) -> str:
         forms = LABEL_FORMS.get(attribute_name)
@@ -1412,8 +1440,20 @@ class Generator:
                 (a for a in draft.line_attrs if a.name == "Single End/Double End"),
                 None,
             )
-            if end is not None:
-                segments.append(Segment(value=f"{abbreviate_value(end.value)} Sq End", label=None))
+            # The end SHAPE is the mill's own style: "SGL Sq End" on a square
+            # end mill, "SGL Ball End" on a ball nose one. It used to say
+            # "Sq End" on every end mill, ball nose included.
+            shape = next(
+                (a.value for a in draft.line_attrs if a.name == "End Mill Style"),
+                None,
+            )
+            if end is not None and shape is not None:
+                segments.append(
+                    Segment(
+                        value=f"{abbreviate_value(end.value)} {END_SHAPE_WORD[shape]} End",
+                        label=None,
+                    )
+                )
 
         # NO label is cut off here any more. This block used to fire at the
         # measured 3.23% and publish titles ending "Dia./Thread Siz" or

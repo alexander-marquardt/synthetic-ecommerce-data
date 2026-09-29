@@ -28,11 +28,13 @@ How these differ from the original twelve, deliberately:
   feeds that the census records (maintainer ruling D4, 2026-09-28). The
   original twelve keep the catalog's single spelling.
 * **Attribute names are the census's generic ones** (:mod:`.names`).
-* **Dimensions are generated from conventional sizes; no standard is claimed.**
-  The values follow the familiar size ladders (nut widths across flats, the
-  60/62/63 bearing series boundary sizes, stocked wheel diameters, hex key
-  sizes), but they were not extracted from an open dataset the way the cap
-  screw dimensions were, so the provenance field says "generated".
+* **Dimensions are generated from conventional sizes.** The values follow the
+  familiar size ladders (nut widths across flats, the 60/62/63 bearing series
+  boundary sizes, stocked wheel diameters, hex key sizes), so the provenance
+  field says "generated". The one exception is the hex nut's ``Standards``
+  claim: a finished or jam nut line whose every row is a published standard's
+  row (checked against FreeCAD_FastenersWB, see :func:`nut_row`) claims that
+  standard; a heavy hex nut, whose sizes are derived, claims none.
 """
 
 from __future__ import annotations
@@ -174,6 +176,70 @@ _NUT_METRIC_FINE = (
 )
 
 
+#: The dimensional standard each FINISHED-hex table above reproduces, row for
+#: row (checked against FreeCAD_FastenersWB at the commit
+#: ``data/fastener_standards.json`` records: ``iso4032def.csv``,
+#: ``iso8673def.csv``, and ``asmeb18.2.2.4def.csv`` / ``asmeb18.2.2.1def.csv``
+#: -- ASME B18.2.2 carries the #6-#10 hex machine screw nuts too).
+_FINISHED_STANDARD = {
+    ("mm", False): "ISO 4032",
+    ("mm", True): "ISO 8673",
+    ("in", False): "ASME B18.2.2",
+    ("in", True): "ASME B18.2.2",
+}
+
+#: A jam (thin) nut keeps its finished nut's width across flats and takes the
+#: height its OWN standard gives, per nominal diameter. Read from the same
+#: FastenersWB commit: ``iso4035def.csv`` (coarse) and ``iso8675def.csv``
+#: (fine; the same heights per diameter), and ``asmeb18.2.2.4def.csv``'s jam
+#: column. ASME B18.2.2 has no jam nut below 1/4", so a #6-#10 jam nut keeps
+#: a derived height and claims no dimensional standard.
+_JAM_HEIGHT_MM = {
+    "M3": 1.8, "M4": 2.2, "M5": 2.7, "M6": 3.2, "M8": 4.0, "M10": 5.0,
+    "M12": 6.0, "M16": 8.0, "M20": 10.0, "M24": 12.0,
+}  # fmt: skip
+_JAM_HEIGHT_IN = {
+    "1/4": 5 / 32, "5/16": 3 / 16, "3/8": 7 / 32, "7/16": 1 / 4, "1/2": 5 / 16,
+    "5/8": 3 / 8, "3/4": 27 / 64, "1": 35 / 64,
+}  # fmt: skip
+_JAM_STANDARD = {
+    ("mm", False): "ISO 4035",
+    ("mm", True): "ISO 8675",
+    ("in", False): "ASME B18.2.2",
+    ("in", True): "ASME B18.2.2",
+}
+
+
+def _nominal(thread: str) -> str:
+    """``M12x1.75`` -> ``M12``; ``1/2-13`` -> ``1/2``."""
+    return thread.split("x")[0] if thread.startswith("M") else thread.split("-")[0]
+
+
+def nut_row(
+    style_name: str, thread: str, flats: float, height: float, *, metric: bool, fine: bool
+) -> tuple[float, float, str]:
+    """A nut's (width across flats, height) in the table's unit, and the
+    dimensional standard those two values ARE -- or ``""`` when they are not
+    any standard's row.
+
+    A standard is claimed only for a row read from it. A heavy hex nut's
+    dimensions here are DERIVED from the finished nut's (wider across flats,
+    10% taller); they match neither ISO 4033 (the finished nut's widths, a
+    taller height) nor the structural heavy hex series, so a heavy hex nut
+    claims no dimensional standard at all.
+    """
+    system = "mm" if metric else "in"
+    if style_name == "Heavy Hex":
+        return flats + (2.0 if metric else 1 / 8), height * 1.1, ""
+    if style_name == "Jam":
+        table = _JAM_HEIGHT_MM if metric else _JAM_HEIGHT_IN
+        jam = table.get(_nominal(thread))
+        if jam is None:
+            return flats, height * 0.6, ""
+        return flats, jam, _JAM_STANDARD[(system, fine)]
+    return flats, height, _FINISHED_STANDARD[(system, fine)]
+
+
 def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineDraft:
     from .brands import pick_brand
     from .generate import BRANDS, ChildDraft, LineDraft
@@ -243,14 +309,14 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
     else:
         table = _NUT_METRIC if metric else (_NUT_UNF if fine else _NUT_UNC)
         key = f"nut:{system}:{'fine' if fine else 'coarse'}"
-    for thread, flats, height in _window(gen, key, list(table), gen._variant_count()):
+    row_standards: set[str] = set()
+    for thread, table_flats, table_height in _window(gen, key, list(table), gen._variant_count()):
+        flats, height, row_standard = nut_row(
+            style_name, thread, table_flats, table_height, metric=metric, fine=fine
+        )
+        row_standards.add(row_standard)
         flats_in = flats / MM_PER_INCH if metric else flats
         height_in = height / MM_PER_INCH if metric else height
-        if style_name == "Heavy Hex":
-            flats_in += 1 / 8 if not metric else 2 / MM_PER_INCH
-            height_in *= 1.1
-        elif style_name == "Jam":
-            height_in *= 0.6
         child = ChildDraft(system=system)
         child.primary = keyword_attribute("Thread Size", thread)
         child.attrs = [
@@ -260,6 +326,10 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
         ]
         child.price_basis = flats_in * 0.4
         draft.children.append(child)
+    # The line claims a dimensional standard only when EVERY row it offers is
+    # that standard's: one #10 jam nut in a 1/4-1/2 window makes it claim none.
+    if len(row_standards) == 1:
+        draft.standard = row_standards.pop()
     return draft
 
 
