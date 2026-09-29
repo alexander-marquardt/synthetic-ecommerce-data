@@ -51,52 +51,9 @@ MEASUREMENT_SYSTEM_VALUES: tuple[tuple[str, float], ...] = (
 #: Presence rate of the measurement-system attribute: 212 of 496 records.
 MEASUREMENT_SYSTEM_PRESENCE = 0.4274
 
-#: The multi-valued attribute, and the pools it draws from per type family.
-#: Real standards designations; a product carries 1-3 of them.
+#: The multi-valued attribute. WHICH standards a line may claim is a truth
+#: table by what the line is (:mod:`.conformance`), not a pool per family.
 STANDARDS_NAME = "Standards"
-
-STANDARDS_POOL: dict[str, tuple[str, ...]] = {
-    "cutting_tool": (
-        "ANSI B94.19",
-        "ANSI B212.15",
-        "DIN 338",
-        "DIN 6527",
-        "ISO 1641",
-        "RoHS 2011/65/EU",
-        "REACH",
-    ),
-    "fastener": (
-        "ASME B18.3",
-        "ASME B18.2.1",
-        "ISO 4762",
-        "ISO 10642",
-        "ISO 4014",
-        "ISO 7089",
-        "DIN 912",
-        "DIN 125A",
-        "ASTM A574",
-        "SAE J429",
-        "RoHS 2011/65/EU",
-    ),
-    "hand_tool": (
-        "ASME B107.400",
-        "ANSI B107.5",
-        "GS Mark",
-        "RoHS 2011/65/EU",
-    ),
-    "motion": (
-        "ISO 15",
-        "ABMA 20",
-        "ISO 492",
-        "RoHS 2011/65/EU",
-    ),
-    "abrasive": (
-        "ANSI B7.1",
-        "oSa Certified",
-        "EN 13743",
-        "RoHS 2011/65/EU",
-    ),
-}
 
 #: Presence rate of the Standards attribute, from 06_attribute_sparsity.json
 #: (43 of 496 records carry it). Raised for this catalog, because the facet it

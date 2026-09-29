@@ -567,8 +567,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "never leave a title dimension token unlabelled",
         "catalog/generate.py",
-        "        if roll < cfg.title_token_unlabelled:",
-        "        if False:",
+        "                if middle < cfg.title_token_unlabelled:",
+        "                if False:",
         "tests/test_catalog_generate.py",
         "A",
         "the title token hazards occur at their measured rates",
@@ -576,8 +576,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "always leave a title dimension token unlabelled",
         "catalog/generate.py",
-        "        if roll < cfg.title_token_unlabelled:",
-        "        if True:",
+        "                if middle < cfg.title_token_unlabelled:",
+        "                if True:",
         "tests/test_catalog_generate.py",
         "B",
         "the title token hazards occur at their measured rates",
@@ -829,9 +829,9 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "blank one card image url in the committed catalog",
         "flat.jsonl",
-        'ice_usd": 1.83, "stock": 7, "image_id": "end_mill_square/CRE-G246-0001/21NB25", '
-        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/21NB25.svg"',
-        'ice_usd": 1.83, "stock": 7, "image_id": "end_mill_square/CRE-G246-0001/21NB25", "image_url": ""',
+        'ice_usd": 1.83, "stock": 7, "image_id": "end_mill_square/CRE-G246-0001/6DT18", '
+        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/6DT18.svg"',
+        'ice_usd": 1.83, "stock": 7, "image_id": "end_mill_square/CRE-G246-0001/6DT18", "image_url": ""',
         "tests/test_catalog_golden.py::test_every_flat_document_carries_an_image_url",
         "A",
         "every document carries a NON-EMPTY image url at both profiles",
@@ -840,11 +840,11 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop the detail image url from one committed nested variant",
         "nested.jsonl",
-        '"price_usd": 1.83, "stock": 7, "image_id": "end_mill_square/CRE-G246-0001/21NB25", '
-        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/21NB25.svg", '
-        '"image_detail_url": "/images/industrial/end_mill_square/CRE-G246-0001/21NB25.svg"',
-        '"price_usd": 1.83, "stock": 7, "image_id": "end_mill_square/CRE-G246-0001/21NB25", '
-        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/21NB25.svg"',
+        '"price_usd": 1.83, "stock": 7, "image_id": "end_mill_square/CRE-G246-0001/6DT18", '
+        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/6DT18.svg", '
+        '"image_detail_url": "/images/industrial/end_mill_square/CRE-G246-0001/6DT18.svg"',
+        '"price_usd": 1.83, "stock": 7, "image_id": "end_mill_square/CRE-G246-0001/6DT18", '
+        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/6DT18.svg"',
         "tests/test_catalog_golden.py::test_every_nested_line_and_variant_carries_an_image_url",
         "B",
         "every document carries a NON-EMPTY image url at both profiles",
@@ -862,7 +862,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "duplicate a sku in the committed flat catalog",
         "flat.jsonl",
-        '{"sku": "21NB25", "product_id": "CRE-G246-0001"',
+        '{"sku": "6DT18", "product_id": "CRE-G246-0001"',
         '{"sku": "18RR28", "product_id": "CRE-G246-0001"',
         "tests/test_catalog_golden.py::test_flat_holds_one_document_per_sku",
         "",
@@ -872,8 +872,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "point one committed document at a product line that does not exist",
         "flat.jsonl",
-        '{"sku": "21NB25", "product_id": "CRE-G246-0001"',
-        '{"sku": "21NB25", "product_id": "CRE-G246-9999"',
+        '{"sku": "6DT18", "product_id": "CRE-G246-0001"',
+        '{"sku": "6DT18", "product_id": "CRE-G246-9999"',
         "tests/test_catalog_golden.py::test_flat_covers_exactly_the_product_lines",
         "",
         "the catalog spans exactly the committed number of products",
@@ -882,8 +882,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "publish a variant_count that disagrees with its own variants array",
         "nested.jsonl",
-        '"variant_count": 3, "variants": [{"sku": "21NB25", "title": "Industrial End Mill',
-        '"variant_count": 4, "variants": [{"sku": "21NB25", "title": "Industrial End Mill',
+        '"variant_count": 3, "variants": [{"sku": "6DT18", "title": "Industrial End Mill',
+        '"variant_count": 4, "variants": [{"sku": "6DT18", "title": "Industrial End Mill',
         "tests/test_catalog_golden.py::test_nested_lines_account_for_every_sku",
         "",
         "the nested lines account for every sku",
@@ -1137,6 +1137,70 @@ MUTATIONS: list[Mutation] = [
         "tests/test_compatibility_text.py -k searchable_by_its_diameter",
         "A",
         "a metric designation is searchable by its diameter",
+    ),
+    # ---- a record's facts are real (the review of the 100K catalog) -------------
+    Mutation(
+        "jitter a bearing's rating again",
+        "catalog/newtypes.py",
+        "    dynamic = int(round(dynamic_kn * LBF_PER_KN, -1))",
+        "    dynamic = int(round(dynamic_kn * LBF_PER_KN * rng.uniform(0.9, 1.1), -1))",
+        "tests/test_catalog_facts.py -k rated_by_its_table",
+        "A",
+        "every fact a record states is real",
+    ),
+    Mutation(
+        "let a washer claim a socket head cap screw's standard",
+        "catalog/conformance.py",
+        '        out.extend(("ISO 7089", "DIN 125-A"))',
+        '        out.extend(("ISO 7089", "DIN 125-A", "DIN 912"))',
+        "tests/test_catalog_facts.py -k claimed_standard_applies",
+        "A",
+        "every fact a record states is real",
+    ),
+    Mutation(
+        "zinc-plate a stainless socket screw",
+        "catalog/generate.py",
+        '    "18-8 Stainless Steel": (("Plain",), "B80"),',
+        '    "18-8 Stainless Steel": (("Plain", "Zinc Plated"), "B80"),',
+        "tests/test_catalog_facts.py -k finish_or_hardness",
+        "A",
+        "every fact a record states is real",
+    ),
+    Mutation(
+        "snap an end mill's shank below its cutter",
+        "catalog/series.py",
+        "    larger = [s for s in METRIC_SHANKS if s > dia_mm + 1e-9]",
+        "    larger = [s for s in METRIC_SHANKS if s > dia_mm * 0.7]",
+        "tests/test_catalog_facts.py -k shank_is_thinner",
+        "A",
+        "every fact a record states is real",
+    ),
+    Mutation(
+        "re-draw the title style per SKU",
+        "catalog/generate.py",
+        "        return style\n\n    def _dimension_segments",
+        "        return self.TITLE_STYLES[int(self.rng.random() * 3)]\n\n    def _dimension_segments",
+        "tests/test_catalog_facts.py -k titles_a_type_one_way",
+        "A",
+        "a brand titles a type one way, naming its key size",
+    ),
+    Mutation(
+        "drop the key dimension from secondary-style titles",
+        "catalog/generate.py",
+        "        if style == \"secondary\":\n            # The pair's secondary class",
+        "        if style == \"secondary\":\n            segments = []\n            # The pair's secondary class",
+        "tests/test_catalog_facts.py -k names_its_key_dimension",
+        "B",
+        "a brand titles a type one way, naming its key size",
+    ),
+    Mutation(
+        "count the measurement-system spelling as a difference again",
+        "catalog/generate.py",
+        "    NOT_SUBSTANCE = IDENTIFIER_ATTRIBUTES | METADATA_ATTRIBUTES",
+        "    NOT_SUBSTANCE = IDENTIFIER_ATTRIBUTES",
+        "tests/test_catalog_brands_voice.py -k no_two_skus_of_the_100k_catalog",
+        "A",
+        "no two SKUs of a (type, brand) are the same product",
     ),
     # ---- the copy's noise is true, and moves no attribute ---------------------
     Mutation(

@@ -558,8 +558,8 @@ def _broken(width: float, height: float) -> Callable[[Record], Drawn]:
 
 
 FIGURES: dict[str, tuple[Callable[[Record], Drawn], tuple[float, float]]] = {
-    "end_mill_square": (end_mill, (3.3, 9.5)),
-    "end_mill_ball": (end_mill, (3.3, 9.5)),
+    "end_mill_square": (end_mill, (3.3, 9.8)),
+    "end_mill_ball": (end_mill, (3.3, 9.8)),
     "drill_jobber": (drill, (0.52, 8.8)),
     "tap_spiral_point": (tap, (0.52, 4.15)),
     "screw_socket_head": (_broken(2.75, 5.95), (2.75, 5.95)),

@@ -77,6 +77,8 @@ LABEL_FORMS: dict[str, tuple[tuple[str, float], ...]] = {
     "Head Dia.": (("Head Dia.", 1.0),),
     "Grit": (("Grit", 1.0),),
     "Head Weight": (("Head Weight", 0.5), ("Wt", 0.5)),
+    # A kit's piece count, as a set is listed: "240 pcs", "9 Pc".
+    "Number of Pieces": (("pcs", 0.6), ("Pc", 0.4)),
     "Diameter": (("Dia.", 0.6), ("dia.", 0.4)),
     "Outside Dia.": (("Outside Dia.", 0.5), ("Outside Dia", 0.5)),
     "Width Across Flats": (("Width Across Flats", 0.5), ("A/F", 0.5)),
@@ -217,12 +219,12 @@ def build_title(
     The cap is real -- a title has a budget and the reference corpus shows
     titles written to one. What changed with the ruling on elastic/prism#9284
     is WHERE the budget is taken from. This used to cut the assembled string
-    at the cap, which lands mid-word: **19 of the default catalog's 10,049
+    at the cap, which lands mid-word: **42 of the default catalog's 9,680
     titles** (67 of 4,689 before it grew) would end ``...Solid Carbide, U``
     or ``...SGL Sq En``. That is
     the same defect class as the label truncation removed from the generator,
     arriving by a second door, and removing only the first would have left
-    about 0.2% of titles truncated while the change claimed none were.
+    about 0.5% of titles truncated while the change claimed none were.
 
     THAT FIGURE IS RE-DERIVED, NOT REMEMBERED. It stood at "97 of 4,688" and
     did not reproduce under any reading: 4,688 is the previous generation's

@@ -258,6 +258,28 @@ def nearest_shank_metric(target_mm: float) -> float:
     return min(METRIC_SHANKS, key=lambda s: abs(s - target_mm))
 
 
+def larger_shank_imperial(dia_in: float, target_in: float) -> Fraction:
+    """A reduced/oversize shank that is NOT smaller than the cutting diameter:
+    the stocked shank nearest ``target_in`` among those larger than ``dia_in``,
+    or the cutting diameter's own size when no larger shank is stocked. A
+    shank thinner than the flutes it carries is not an end mill a maker
+    sells."""
+    larger = [s for s in IMPERIAL_SHANKS if float(s) > dia_in + 1e-9]
+    if not larger:
+        # Above the largest stocked shank (a 1-1/4" or 1-1/2" cutter), the
+        # shank is the cutter's own size.
+        return Fraction(dia_in).limit_denominator(64)
+    return min(larger, key=lambda s: abs(float(s) - target_in))
+
+
+def larger_shank_metric(dia_mm: float, target_mm: float) -> float:
+    """The metric twin of :func:`larger_shank_imperial`."""
+    larger = [s for s in METRIC_SHANKS if s > dia_mm + 1e-9]
+    if not larger:
+        return dia_mm
+    return min(larger, key=lambda s: abs(s - target_mm))
+
+
 #: Jobber drill sizes, as exact inch fractions: the fractional drill series,
 #: 1/16" to 1/2" in its own 1/64 progression. (It used to step by 1/32, which
 #: left out 25/64, 27/64 and 29/64 -- the tap drills of 7/16-20, 1/2-13 and
