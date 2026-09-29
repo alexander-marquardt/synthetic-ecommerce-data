@@ -22,10 +22,11 @@ from __future__ import annotations
 
 import functools
 import random
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from fractions import Fraction
+from typing import TypeVar
 
-from . import brands, series, standards, taxonomy
+from . import brands, compat, series, standards, taxonomy
 from .config import GeneratorConfig
 from .formats import (
     LengthStyle,
@@ -137,6 +138,15 @@ HEX_BOLT_STANDARDS: tuple[str, ...] = (
     "DIN 933",
 )
 
+#: The fine-pitch standard of each hex bolt standard: the same head dimensions
+#: over an ISO 262 fine thread. ASME B18.2.1 covers UNC and UNF alike.
+FINE_PITCH_BOLT_STANDARD: dict[str, str] = {
+    "ASME B18.2.1": "ASME B18.2.1",
+    "ISO 4014": "ISO 8765",
+    "ISO 4017": "ISO 8676",
+    "DIN 933": "DIN 961",
+}
+
 #: The distinct standards, in the order the cycle first reaches them. A
 #: standard's position here is the offset its grading and finish wheels START
 #: at, and that offset is what stops three standards from replaying identical
@@ -179,6 +189,21 @@ class ChildDraft:
     #: attribute: everything it publishes is on its product. A grouped view
     #: must render a selector with zero axes (elastic/prism-industrial-products#103).
     zero_axis: bool = False
+
+
+#: A fastener head of either kind, rebuilt by :meth:`Generator._near_miss_thread`.
+_Head = TypeVar("_Head", standards.FastenerHead, standards.HexBoltHead)
+
+
+def _retype(draft: LineDraft, thread_type: str) -> None:
+    """Restate a line's ``Thread Type`` (and its descriptor, if it names one)."""
+    draft.line_attrs = [
+        keyword_attribute("Thread Type", thread_type) if a.name == "Thread Type" else a
+        for a in draft.line_attrs
+    ]
+    draft.descriptors = [
+        (n, thread_type if n == "Thread Type" else v) for n, v in draft.descriptors
+    ]
 
 
 @dataclass
@@ -530,15 +555,28 @@ class Generator:
         draft.descriptors = [("Material", material)]
 
         count = self._variant_count()
-        pool = list(series.DRILL_FRACTIONAL)
+        # A third of the drill lines are metric (DIN 338 sizes), which is where
+        # a metric tap's drill lives: a tap-drill chart names 10.2mm for
+        # M12x1.75, and a catalog of fractional drills alone has no such part.
+        metric = rng.random() < 0.35
+        system = "mm" if metric else "in"
+        pool: list[float] = (
+            [mm / MM_PER_INCH for mm in series.DRILL_METRIC_MM]
+            if metric
+            else [float(f) for f in series.DRILL_FRACTIONAL]
+        )
         rng.shuffle(pool)
-        for size in pool[:count]:
-            style = self._style("in")
-            child = ChildDraft(system="in")
-            size_in = float(size)
-            # A jobber drill's flute length and overall length follow the size.
-            flute_in = float(series.snap_imperial(min(size_in * 9.0, 4.0), 16))
-            oal_in = float(series.snap_imperial(flute_in + max(size_in * 4.0, 0.9), 16))
+        for size_in in pool[:count]:
+            style = self._style(system)
+            child = ChildDraft(system=system)
+            # A jobber drill's flute length and overall length follow the size,
+            # in whole millimetres or sixteenths as each system states them.
+            if metric:
+                flute_in = round(min(size_in * 9.0, 4.0) * MM_PER_INCH) / MM_PER_INCH
+                oal_in = round((flute_in + max(size_in * 4.0, 0.9)) * MM_PER_INCH) / MM_PER_INCH
+            else:
+                flute_in = float(series.snap_imperial(min(size_in * 9.0, 4.0), 16))
+                oal_in = float(series.snap_imperial(flute_in + max(size_in * 4.0, 0.9), 16))
             child.primary = self._length("Size", size_in, style)
             flute = self._length("Flute Length", flute_in, style)
             child.attrs = [
@@ -559,6 +597,11 @@ class Generator:
         rng = self.rng
         brand = brands.pick_brand(rng, type_key, self._exhausted)
         metric = rng.random() < 0.35
+        # One line in four is the series' fine-pitch sibling.
+        fine = rng.random() < 0.25
+        thread_type = ("Metric Fine" if fine else "Metric Coarse") if metric else (
+            "UNF" if fine else "UNC"
+        )
         item = "Spiral Point Tap"
         draft = LineDraft(
             item=item,
@@ -574,13 +617,18 @@ class Generator:
             keyword_attribute("Material", rng.choice(("High Speed Steel", "Powdered Metal"))),
             keyword_attribute("Finish", rng.choice(("Bright", "TiN", "Steam Oxide"))),
             keyword_attribute("Thread Direction", "Right Hand"),
-            keyword_attribute("Thread Type", "Metric Coarse" if metric else "UNC"),
+            keyword_attribute("Thread Type", thread_type),
             keyword_attribute("Tap Chamfer", rng.choice(("Plug", "Bottoming", "Taper"))),
             numeric_attribute("Number of Flutes", str(flutes), float(flutes)),
         ]
-        draft.descriptors = [("Thread Type", "Metric Coarse" if metric else "UNC")]
+        draft.descriptors = [("Thread Type", thread_type)]
 
-        table = series.TAP_SIZES_METRIC if metric else series.TAP_SIZES_INCH
+        table = {
+            "Metric Coarse": series.TAP_SIZES_METRIC,
+            "Metric Fine": series.TAP_SIZES_METRIC_FINE,
+            "UNC": series.TAP_SIZES_UNC,
+            "UNF": series.TAP_SIZES_UNF,
+        }[thread_type]
         pool = list(table)
         rng.shuffle(pool)
         count = min(self._variant_count(), len(pool))
@@ -683,6 +731,19 @@ class Generator:
         sizes = standards.available_sizes(standard)
         size = sizes[self._rotate(f"size:{type_key}:{standard}", len(sizes))]
         head = head_of(standard, size)
+        # Near-miss threads: every FINE_PERIOD-th line of a diameter that has a
+        # fine pitch is built to it, so ``m12 socket cap screws`` finds M12x1.5
+        # and M12x1.25 beside M12x1.75 and the pitch facet has a real choice.
+        # Rotated, not tossed, for the reason the system alternates above.
+        head, fine = self._near_miss_thread(head, f"{type_key}:{standard}:{size}", metric)
+        if fine:
+            if metric:
+                # ISO 4762 and its three siblings are COARSE-thread standards;
+                # a fine-pitch screw keeps their head dimensions but does not
+                # meet them, so it claims none.
+                draft.line_attrs = [a for a in draft.line_attrs if a.name != "Meets/Exceeds"]
+                draft.provenance = f"{standard} head dimensions; ISO 262 fine-pitch thread"
+            _retype(draft, "Metric Fine" if metric else "UNF")
 
         lengths = list(standards.offered_lengths_in(standard, size))
         if not lengths:
@@ -697,26 +758,28 @@ class Generator:
             # Fully threaded below about 2x the head diameter, else a standard
             # thread length: 2D + 1/2" for inch practice.
             thread_len_in = min(length_in, 2 * head.major_dia_in + 0.5)
-            # A countersunk screw's nominal length is measured OVER its head,
-            # because the head sinks into the work; every other style's is
-            # measured under it. So the length under the head is the nominal
-            # length less a head height for the flat head line, and the nominal
-            # length itself for the other three -- which is why the attribute
-            # is worth publishing rather than inferring from Length.
-            under_head_in = length_in - head.head_height_in if flat else length_in
             child.primary = keyword_attribute("Dia./Thread Size", head.thread_designation)
             length_attr = self._length("Length", length_in, style)
             thread_attr = self._length("Thread Length", thread_len_in, style)
             child.attrs = [
                 child.primary,
                 length_attr,
-                self._length("Length under Head", under_head_in, style),
+                # Not on the countersunk line. Its nominal length is measured
+                # OVER the head (ISO 10642, ASME B18.3), so its catalog length
+                # is ``Length``; what lies under the head is that length less a
+                # toleranced cone height, and publishing it put 12.56mm and
+                # 1.3910" beside the stocked lengths -- values no distributor
+                # lists and no shopper types.
+                *([] if flat else [self._length("Length under Head", length_in, style)]),
                 thread_attr,
                 self._length("Head Dia.", head.head_dia_in, style),
                 self._length("Head Height", head.head_height_in, style),
             ]
             if head.drive_size_in:
-                child.attrs.append(self._length("Drive Size", head.drive_size_in, style))
+                # The nominal key, not the extracted socket's toleranced
+                # across-flats: a distributor prints "10mm", never 10.07mm.
+                key_in = compat.nominal_key_in(head.drive_size_in, metric)
+                child.attrs.append(self._length("Drive Size", key_in, style))
             # Named rather than indexed: the misleading-title-token classes
             # have to keep naming the same two attributes when the list they
             # are drawn from grows a third length.
@@ -724,6 +787,33 @@ class Generator:
             child.price_basis = length_in * 0.4 + head.major_dia_in * 2
             draft.children.append(child)
         return draft
+
+    #: Every FINE_PERIOD-th line of a diameter with a fine pitch is built to
+    #: it -- one in three. Coarse stays the common case, as it is in any
+    #: distributor's fastener aisle, and each fine pitch still exists.
+    FINE_PERIOD = 3
+    #: The hex bolt's period is FIVE, not three, because its finish wheel is
+    #: three long and turns with the line counter: every third line of a size
+    #: landed on the same finish, so each UNF size offered one finish
+    #: (measured: 6 of 26 sizes locked). Five is prime to both wheels.
+    BOLT_FINE_PERIOD = 5
+
+    def _near_miss_thread(
+        self, head: _Head, key: str, metric: bool, period: int = FINE_PERIOD
+    ) -> tuple[_Head, bool]:
+        """``head`` rebuilt to a fine pitch of its diameter on every third line, else as is.
+
+        The fine pitches are ISO 262's (metric) and the Unified fine series
+        (inch) -- :func:`.compat.fine_threads`. The head dimensions do not
+        change: they are a function of the diameter, not the pitch.
+        """
+        fine = compat.fine_threads(head.size, metric)
+        if not fine or self._rotate(f"fine:{key}", period) != period - 1:
+            return head, False
+        designation = fine[self._rotate(f"fine-pitch:{key}", len(fine))]
+        if metric:
+            return replace(head, pitch_mm=float(designation.split("x")[1])), True
+        return replace(head, threads_per_inch=float(designation.split("-")[1])), True
 
     def _build_hex_bolt(self, type_key: str, category: tuple[str, ...]) -> LineDraft:
         rng = self.rng
@@ -794,6 +884,17 @@ class Generator:
             ),
         ]
         draft.descriptors = [("Grade", grade)]
+        # Near-miss threads, as on the socket screws. A fine-pitch hex bolt
+        # has the coarse one's head and is its own standard: ISO 8765 beside
+        # ISO 4014, ISO 8676 beside ISO 4017, DIN 961 beside DIN 933. ASME
+        # B18.2.1 covers the Unified fine series itself.
+        metric = head.published_unit == "mm"
+        head, fine = self._near_miss_thread(
+            head, f"{type_key}:{standard}:{size}", metric, self.BOLT_FINE_PERIOD
+        )
+        if fine:
+            _retype(draft, "Metric Fine" if metric else "UNF")
+            draft.provenance = FINE_PITCH_BOLT_STANDARD[standard]
 
         lengths = list(standards.offered_lengths_in(standard, size)) or [0.5, 0.75, 1.0, 1.5, 2.0]
         count = min(self._variant_count(), len(lengths))
@@ -1420,7 +1521,11 @@ class Generator:
         return titles
 
     def _build_description(
-        self, draft: LineDraft, title: Title, attributes: list[Attribute]
+        self,
+        draft: LineDraft,
+        title: Title,
+        attributes: list[Attribute],
+        compatibility: str = "",
     ) -> str:
         """The description, in the grammar the real rows use.
 
@@ -1480,7 +1585,11 @@ class Generator:
         details.append(f"{draft.brand} {draft.series}")
         facts = {**self._line_facts, **{a.name: a.value for a in attributes}}
         tail = description_tail(draft.brand, draft.series, draft.type_key, facts)
-        return f"{title.text} - {', '.join(details)}. {tail}"
+        # The cross-reference sentence (:mod:`.compat`) sits between the spec
+        # clause and the brand's template, where a distributor prints "for M12
+        # socket head cap screws".
+        middle = f"{compatibility} " if compatibility else ""
+        return f"{title.text} - {', '.join(details)}. {middle}{tail}"
 
     # -- assembly ---------------------------------------------------------
 
@@ -1678,15 +1787,20 @@ class Generator:
 
         children: list[Sku] = []
         for (sku, attrs, price, stock), title in zip(built, titles, strict=True):
+            # From the PUBLISHED values, after sparsity and defects, so the
+            # sentence can never disagree with the record it sits on.
+            values = {a.name: a.value for a in (*line_attrs, *attrs)}
+            compatibility = compat.sentence_for(type_key, values) or ""
             children.append(
                 Sku(
                     sku=sku,
                     title=title.text,
-                    description=self._build_description(draft, title, attrs),
+                    description=self._build_description(draft, title, attrs, compatibility),
                     attributes=tuple(attrs),
                     price_usd=price,
                     stock=stock,
                     image_id=image_id_for(type_key, product_id, sku),
+                    compatibility=compatibility,
                 )
             )
             self._bump("skus")

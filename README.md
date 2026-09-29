@@ -2,7 +2,7 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 10,096 SKUs over 5,376 products in 16 product types,
+extraction in search: 9,989 SKUs over 5,371 products in 16 product types,
 from 45 invented brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog)).
 
@@ -184,31 +184,34 @@ uv run sip-generate images --catalog out/catalog-100k --out out/images-100k --ar
 ```
 
 `--lines 28300` (`config.HUNDRED_K_LINES`) is the value that lands at about
-100,000 SKUs. Measured on this commit, in about 25 s:
+100,000 SKUs. Measured on this commit, built in memory in about 15 s:
 
 | type | SKUs | | type | SKUs |
 |---|--:|---|---|--:|
-| end_mill_square | 10,184 | | washer_flat | 2,122 |
-| end_mill_ball | 5,775 | | hammer_ball_pein | 1,658 |
-| drill_jobber | 5,635 | | abrasive_flap_disc | 2,370 |
-| tap_spiral_point | 3,396 | | nut_hex | 12,656 |
-| screw_socket_head | 6,304 | | bearing_radial_ball | 13,251 |
-| screw_flat_head | 3,706 | | wheel_depressed_center | 12,805 |
-| screw_button_head | 2,696 | | hex_key | 10,652 |
-| screw_low_head | 2,110 | | bolt_hex | 4,659 |
+| end_mill_square | 10,186 | | washer_flat | 1,981 |
+| end_mill_ball | 5,775 | | hammer_ball_pein | 1,666 |
+| drill_jobber | 5,881 | | abrasive_flap_disc | 2,420 |
+| tap_spiral_point | 3,554 | | nut_hex | 12,748 |
+| screw_socket_head | 6,332 | | bearing_radial_ball | 13,251 |
+| screw_flat_head | 3,716 | | wheel_depressed_center | 12,805 |
+| screw_button_head | 2,662 | | hex_key | 10,652 |
+| screw_low_head | 2,140 | | bolt_hex | 4,735 |
 
-**99,979 SKUs over 55,366 products.** Duplicate SKU ids: 0. SKUs that are not
-different (the rule below): 0. Every bearing number is a real table entry with
-its own bore, OD and width. Product names: 0 clashes catalog-wide. Every SKU
-has its own drawing: 99,979 drawings, 201 MB unpacked, a 20.8 MB
-`images.tar.gz`, every sha256 matching `images.jsonl`, every part inside its
-type's extent. Every must-stock example is stocked. Two builds of the same
-commit are byte-identical (the sha256 of each of the seven output files
-compared equal).
+**100,504 SKUs over 55,498 products.** SKUs that are not different (the rule
+below): 0. Every bearing number is a real table entry with its own bore, OD
+and width. Product names: 0 clashes catalog-wide. Every must-stock example is
+stocked. Two builds of the same commit emit identical flat and nested
+documents (sha256 compared). The drawings were last built at this size on the
+previous round (3bca939: 99,979 drawings, 201 MB unpacked, a 20.8 MB
+`images.tar.gz`, every sha256 matching `images.jsonl`); this round did not
+rebuild them, because the 100K catalog is not published while the spec is
+iterated at the default size.
 
 The files are far too large to commit uncompressed (`flat.jsonl` is ~265 MB).
 This repository commits the default-size catalog only; the industrial demo
-carries the 100K catalog itself.
+serves that one, from a pinned release, and the 100K build is a capability
+kept tested (`tests/test_catalog_brands_voice.py` builds it) rather than a
+published artifact.
 
 What moves at 100K, measured against the census targets (`sip-generate
 report`), with the default catalog beside it:
@@ -216,13 +219,13 @@ report`), with the default catalog beside it:
 | measured property | target | 100K |
 |---|--:|--:|
 | shank == cutting diameter | 0.6489 | 0.6572 |
-| length of cut > overall length | 0.0829 | 0.0815 |
-| angle carries a length unit | 0.0469 | 0.0488 |
-| declared system contradicts units | 0.0323 | 0.0323 |
-| unit mixing within one record | 0.0222 | 0.0175 |
-| title dimension token unlabelled | 0.4667 | 0.4666 |
-| title dimension token not the primary | 0.1714 | 0.1020 |
-| attributes per record (mean) | 13.12 | 12.65 |
+| length of cut > overall length | 0.0829 | 0.0843 |
+| angle carries a length unit | 0.0469 | 0.0503 |
+| declared system contradicts units | 0.0323 | 0.0324 |
+| unit mixing within one record | 0.0222 | 0.0169 |
+| title dimension token unlabelled | 0.4667 | 0.4660 |
+| title dimension token not the primary | 0.1714 | 0.1014 |
+| attributes per record (mean) | 13.12 | 12.61 |
 
 Drift, stated: the not-the-primary token rate sits below its target because a
 title names a secondary dimension only when the record PUBLISHES it (see
@@ -237,7 +240,7 @@ their product families, market weight, house style and title voice.
 
 * **A long tail, not ten equal houses.** Three broad-line houses make
   something in every family; the rest make one to three families. At 100K the
-  largest brand carries 9.0% of SKUs and the smallest 0.4%; a test pins both
+  largest brand carries 8.9% of SKUs and the smallest 0.4%; a test pins both
   ends (at most 10%, at least 0.3%).
 * **Some names contain an ordinary word** on purpose (`Iron Heron`, `Lantern
   Rock`, `Stone Wicket`, `Tin Kestrel`, `Lark & Lathe`, `Tall Mast`, `Salt
@@ -283,7 +286,7 @@ builder drew, before sparsity) is one its brand already made for the type, or
 when its published spec is a subset or superset of one already made. When a
 (type, brand) drafts 20 lines in a row that make nothing, its spec space
 counts as spent and that brand stops getting products of that type
-(`MAX_MISSES`); at 100K no pair reached it (9,834 draft SKUs were rejected
+(`MAX_MISSES`); at 100K no pair reached it (9,384 draft SKUs were rejected
 over the whole build). Washers come in five materials, each with the finishes
 it is really sold in, and ball pein hammers in twelve head weights and four
 handles, which keeps rejection rare. The series walk that keeps product names
@@ -292,8 +295,8 @@ meaning (a bearing number) is never touched, and a test holds every bearing
 to its table entry. `tests/test_catalog_brands_voice.py` asserts zero
 not-different pairs on the committed catalog and on a fresh 100K build, with
 planted duplicate and planted-drop cases that go red. Distinct specs over
-SKUs, per type, at 100K: flat washers 0.81, hammers 0.97, every other type
-0.98 or more.
+SKUs, per type, at 100K: flat washers 0.79, hammers 0.96, every other type
+0.99 or more.
 
 ## Brand voice: titles and descriptions
 
@@ -317,14 +320,66 @@ differently (`catalog/voice.py`).
   carries, and a pack line with the record's own quantity.
 * **No text states what the record cannot back.** Every number in a title or
   description traces to a value the record publishes (records carrying a
-  MODELLED defect are excused, bounded at 2%).
+  MODELLED defect are excused, bounded at 2%) -- except the one
+  cross-reference sentence below, whose numbers are the OTHER product's and
+  trace to a standard's table instead.
+
+## Cross-references and near-miss threads
+
+A size query on a real distributor is ambiguous: `m12 socket cap screws` also
+matches the hex key that drives an M12 socket head, the M12 nuts and washers,
+the M12 taps and the drill that makes an M12x1.75 hole. The facets are what
+separate them. A catalog whose text named only each product's own attributes
+answered every size query with one product type on its words alone, and the
+facets had nothing to do. Two changes make the search realistically ambiguous
+without stating anything false (`catalog/compat.py`):
+
+* **One cross-reference sentence**, in the description AND in the searchable
+  `text`, never as an attribute (a hex key does not acquire a thread size, so
+  the text match brings it in and the facets take it out). Each is read from a
+  table, about the record's own PUBLISHED value, and written only when that
+  value is exactly a table entry:
+
+  | type | sentence | table |
+  |---|---|---|
+  | hex key | `For M12 socket head cap screws (ISO 4762).` | the key-to-screw table read from the extracted ISO 4762 / ASME B18.3 rows |
+  | socket screws | `Takes a 10mm hex key.` | the screw's own `Drive Size` |
+  | tap | `For M12x1.75 threads; tap drill 10.2mm.` | the metric chart (D - P to the stocked tenth) and the Unified 75%-thread chart |
+  | jobber drill | `Tap drill for M12x1.75 threads.` | the same charts, read backwards |
+  | hex nut | `Fits M12x1.75 bolts and screws.` | the nut's own thread |
+  | flat washer | `For M12 bolts and screws.` | ISO 7089's sizes |
+
+  A value the table does not have (a 1.5mm key: the extracted rows start at
+  M3) gets no sentence. `tests/test_compatibility_text.py` checks every
+  sentence against tables written out from the standards in the test itself,
+  and against the record; a planted wrong sentence reds.
+* **Near-miss threads.** A diameter that has fine pitches is built to one on
+  every third socket-screw line of that size and every fifth hex-bolt line
+  (five, because the bolt's finish wheel is three long and would otherwise
+  alias): ISO 262's M8x1, M10x1.25/1, M12x1.5/1.25, M16x1.5, M20x1.5/2 and the
+  Unified fine series. Taps and hex nuts come in a fine-pitch range a quarter
+  of the time. A fine metric socket screw keeps its standard's head but claims
+  no standard (ISO 4762 and its siblings are coarse-thread standards); a fine
+  metric hex bolt is ISO 8765 / ISO 8676 / DIN 961. Every published thread is
+  a real designation and its `Thread Type` says which series it is.
+* **Metric drills.** A third of the jobber-drill lines are metric (DIN 338
+  sizes, with the tap-drill sizes a distributor stocks), and the fractional
+  series is the full 1/64 progression -- a tap-drill chart names 10.2mm and
+  27/64", and a catalog of 1/32" steps had no such part.
+
+Two derivation artefacts went with it: the drive size is published as the
+nominal key (`10mm`), not the extracted socket's toleranced across-flats
+(`10.07mm`), and the countersunk screw publishes no `Length under Head` -- it
+is sold by its length over the head, and length-less-head-height put 12.56mm
+and 1.3910" beside the stocked lengths.
 
 Measured, reported rather than forced. Product names are unique catalog-wide.
-SKU titles are 0.56 distinct at 100K (0.45 before the key-dimension fix);
+SKU titles are 0.59 distinct at 100K (0.45 before the key-dimension fix);
 identical titles across products are the same spec from brands whose template
 omits the brand name. Per type at 100K, before -> after the key-dimension
 fix: bearings 0.01 -> 0.28, wheels 0.06 -> 0.38, flap discs 0.22 -> 0.53;
-hex keys 0.18 and drills 0.29 already name their size and are left alone.
+hex keys (0.18) and drills already name their size and are left alone (drills
+are 0.57 since the metric sizes and the full 1/64 series were added).
 Descriptions are 1.00 distinct.
 
 ### The data model
@@ -488,8 +543,8 @@ them here would hide the problem a field map exists to solve.
 
 | file | |
 |---|---|
-| `flat.jsonl` | 26.9 MB — 10,096 SKU documents |
-| `nested.jsonl` | 14.8 MB — 5,376 products, nested variants and key-value attributes |
+| `flat.jsonl` | 26.9 MB — 9,989 SKU documents |
+| `nested.jsonl` | 14.8 MB — 5,371 products, nested variants and key-value attributes |
 | `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
 | `images.jsonl` | 3.9 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
@@ -501,7 +556,8 @@ change to the generator shows up as a readable diff in review, and both of
 those hide it. Records drawn from one naming grammar pack small. Above roughly
 30K SKUs a file outgrows what GitHub accepts; the ruling for that size (D5 on
 elastic/prism-industrial-products#103) is a pinned release asset, which is how
-the industrial demo now serves [the 100K catalog](#the-100k-catalog).
+the industrial demo serves this default-size catalog that way; [the 100K
+catalog](#the-100k-catalog) is built on demand.
 
 It also means the catalog is inspectable, and citable, without installing the
 generator: a reviewer reading a PR, or anyone asking what a record actually
@@ -536,10 +592,10 @@ difference means the second, and the golden files must not be updated until it
 is found. The test's failure message says all of this too, with the commands.
 
 Alongside the hashes, the same test asserts the headline numbers directly
-against the committed files — 10,096 SKU documents over 5,376 distinct
+against the committed files — 9,989 SKU documents over 5,371 distinct
 `product_id`, a non-empty `image_url` and `image_detail_url` on every product,
-variant and flat document, and 5,376 nested products whose variant counts sum
-to 10,096. Those hold independently of the generator, so a careless
+variant and flat document, and 5,371 nested products whose variant counts sum
+to 9,989. Those hold independently of the generator, so a careless
 regenerate-and-commit from a broken build is still red.
 
 ## Every requirement example is stocked
@@ -778,8 +834,8 @@ The rulings are on elastic/prism-industrial-products#103 (2026-09-26 to -28):
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 10,096 drawings, 19.8 MB unpacked
-  (1.96 KB a drawing on average), and a 2.08 MB `images.tar.gz`. Every root
+  measured on the committed catalog, 9,989 drawings, 19.7 MB unpacked
+  (1.97 KB a drawing on average), and a 2.08 MB `images.tar.gz`. Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
   by max-width/max-height in a flex item that does not grow renders a
   viewBox-only SVG at 0 x 0.

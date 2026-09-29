@@ -212,10 +212,17 @@ _TAP = (
 #: * ``Thread Length`` is how much of the shank carries thread;
 #: * ``Length Under Head`` is the whole shank, head excluded.
 #:
-#: A shopper's ``5/16-18 x 3/4`` names the last of those. Binding it to
-#: ``Thread Length`` would return confidently wrong results, and on a
-#: countersunk screw binding it to ``Length`` is wrong by a head height -- so
-#: the attribute exists rather than being approximated by a neighbour.
+#: A shopper's ``5/16-18 x 3/4`` names the last of those on a socket, button
+#: or low head. Binding it to ``Thread Length`` would return confidently wrong
+#: results -- so the attribute exists rather than being approximated by a
+#: neighbour.
+#:
+#: The COUNTERSUNK line does not carry it (:data:`_FLAT_HEAD_SCREW`). A flat
+#: head is sold by its length OVER the head -- ISO 10642 and ASME B18.3 both
+#: measure it that way -- so its "x 3/4" is its ``Length``, and the shank under
+#: a toleranced cone is not a length any distributor lists. Publishing it as
+#: length-less-head-height put 12.56mm and 1.3910" in the facet beside the
+#: stocked lengths.
 _SOCKET_SCREW = (
     _spec("Item", "line"),
     _spec("Type", "line"),
@@ -246,6 +253,9 @@ _SOCKET_SCREW = (
     # to a sparsity roll.
     _spec("Drive Size", "sku", kind="length"),
 )
+
+#: The countersunk line: every socket-screw attribute but ``Length under Head``.
+_FLAT_HEAD_SCREW = tuple(spec for spec in _SOCKET_SCREW if spec.name != "Length under Head")
 
 #: Hex bolts. Shares Dia./Thread Size and Length with the socket screw -- they
 #: are both threaded fasteners and the corpus does share those -- but the head
@@ -398,7 +408,7 @@ VOCAB: dict[str, tuple[AttrSpec, ...]] = {
     "drill_jobber": _DRILL,
     "tap_spiral_point": _TAP,
     "screw_socket_head": _SOCKET_SCREW,
-    "screw_flat_head": _SOCKET_SCREW,
+    "screw_flat_head": _FLAT_HEAD_SCREW,
     "screw_button_head": _SOCKET_SCREW,
     "screw_low_head": _SOCKET_SCREW,
     "bolt_hex": _HEX_BOLT,

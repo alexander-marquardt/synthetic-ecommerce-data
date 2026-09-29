@@ -539,6 +539,11 @@ CATALOG_MIN_ENLARGEMENT = 2.52
 #: its interior radius is ~84.1 units -- so no larger lens fits.
 EXTREME_ENLARGEMENT = 2.41
 
+#: Two committed SKUs the handle-less lens must serve: an in-between screw (an
+#: M6x1 x 10mm socket head) and a hairline drill (a 1/16" jobber). Re-picked on
+#: every regeneration; the test fails if either is gone.
+PINNED_HANDLE_LESS = ("61DW32", "74HN92")
+
 
 def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only_when_it_must_be():
     """Handled glass when it reaches x2.5; otherwise the larger handle-less lens.
@@ -550,6 +555,7 @@ def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only
 
     counts = {True: 0, False: 0}
     lowest = 99.0
+    pinned: set[str] = set()
     for parent, variant, record in _golden_skus():
         width, height = _drawn_size(parent["product_type"], record)
         mag = magnifier(width, height)
@@ -558,8 +564,12 @@ def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only
         lowest = min(lowest, mag.k)
         assert mag.handle == (_handled_k(width, height) >= 2.5), variant["sku"]
         counts[mag.handle] += 1
-        if variant["sku"] in ("13NW86", "56UV96"):  # an in-between screw, a hairline drill
+        if variant["sku"] in PINNED_HANDLE_LESS:
             assert not mag.handle, variant["sku"]
+            pinned.add(variant["sku"])
+    # Asserted, not assumed: a regeneration renumbers SKUs, and a pinned id
+    # that no longer exists used to leave this check asserting nothing.
+    assert pinned == set(PINNED_HANDLE_LESS), sorted(set(PINNED_HANDLE_LESS) - pinned)
     assert counts[True] > 100 and counts[False] > 500, counts
     assert CATALOG_MIN_ENLARGEMENT <= lowest < CATALOG_MIN_ENLARGEMENT + 0.01, lowest
     extreme = magnifier(200 / 5 - 1e-9, 300 / 6 - 1e-9)
@@ -739,9 +749,9 @@ def test_no_outline_is_thinner_than_the_minimum_stroke():
 
 
 def test_a_hairline_drill_is_drawn_with_a_visible_outline():
-    """Planted: 56UV96 (a 1/16" jobber drill) is drawn under two units wide at its type's scale."""
+    """Planted: 74HN92 (a 1/16" jobber drill) is drawn under two units wide at its type's scale."""
     for parent, variant, record in _golden_skus():
-        if variant["sku"] == "56UV96":
+        if variant["sku"] == "74HN92":
             width, _ = _drawn_size(parent["product_type"], record)
             assert width < 2.3
             data, _ = draw_sku(parent["product_type"], parent["brand"], record)
@@ -750,7 +760,7 @@ def test_a_hairline_drill_is_drawn_with_a_visible_outline():
             ]
             assert outlines and all(float(e.attrib["stroke-width"]) >= 2.3 for e in outlines)
             return
-    raise AssertionError("56UV96 is not in the committed catalog")
+    raise AssertionError("74HN92 is not in the committed catalog")
 
 
 # --- the archive layout and its pinnable digest ----------------------------------

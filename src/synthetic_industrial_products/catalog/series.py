@@ -258,28 +258,42 @@ def nearest_shank_metric(target_mm: float) -> float:
     return min(METRIC_SHANKS, key=lambda s: abs(s - target_mm))
 
 
-#: Jobber drill sizes, as exact inch fractions. Generated series, not a
-#: standard: the fractional drill series is the conventional 1/64 progression.
-DRILL_FRACTIONAL: tuple[Fraction, ...] = tuple(
-    Fraction(n, 64)
-    for n in range(4, 33, 2)  # 1/16" to 1/2" in 1/32 steps
-)
+#: Jobber drill sizes, as exact inch fractions: the fractional drill series,
+#: 1/16" to 1/2" in its own 1/64 progression. (It used to step by 1/32, which
+#: left out 25/64, 27/64 and 29/64 -- the tap drills of 7/16-20, 1/2-13 and
+#: 1/2-20, and every odd sixty-fourth a distributor stocks.)
+DRILL_FRACTIONAL: tuple[Fraction, ...] = tuple(Fraction(n, 64) for n in range(4, 33))
 
-#: Tap thread sizes offered, paired with their threads-per-inch or pitch. The
-#: inch pitches here are the Unified coarse/fine series; see standards.py for
-#: where those came from and under what licence.
-TAP_SIZES_INCH: tuple[tuple[str, int], ...] = (
+#: Metric jobber drill sizes (DIN 338), in millimetres: the half-millimetre
+#: series from 1 to 13mm plus the tap-drill sizes a distributor stocks beside
+#: it (3.3, 4.2, 6.8, 8.8, 10.2, 10.8) -- the sizes a metric tap-drill chart
+#: names, :data:`.compat.TAP_DRILLS_METRIC`.
+DRILL_METRIC_MM: tuple[float, ...] = (
+    1.0, 1.5, 2.0, 2.5, 3.0, 3.3, 3.5, 4.0, 4.2, 4.5, 5.0, 5.5, 6.0, 6.5, 6.8, 7.0,
+    7.5, 8.0, 8.5, 8.8, 9.0, 9.5, 10.0, 10.2, 10.5, 10.8, 11.0, 11.5, 12.0, 12.5, 13.0,
+)  # fmt: skip
+
+#: Tap thread sizes offered, paired with their threads-per-inch or pitch, one
+#: table per thread series -- a tap line is one series, and its ``Thread Type``
+#: says which. (One inch table used to mix the two, so a line whose Thread
+#: Type read UNC offered 1/4-28 and #10-32.) The Unified coarse and fine
+#: pitches are ASME B1.1's; see standards.py for where those came from.
+TAP_SIZES_UNC: tuple[tuple[str, int], ...] = (
     ("#6-32", 32),
     ("#8-32", 32),
     ("#10-24", 24),
-    ("#10-32", 32),
     ("1/4-20", 20),
-    ("1/4-28", 28),
     ("5/16-18", 18),
-    ("5/16-24", 24),
     ("3/8-16", 16),
-    ("3/8-24", 24),
+    ("7/16-14", 14),
     ("1/2-13", 13),
+)
+TAP_SIZES_UNF: tuple[tuple[str, int], ...] = (
+    ("#10-32", 32),
+    ("1/4-28", 28),
+    ("5/16-24", 24),
+    ("3/8-24", 24),
+    ("7/16-20", 20),
     ("1/2-20", 20),
 )
 
@@ -291,6 +305,15 @@ TAP_SIZES_METRIC: tuple[tuple[str, float], ...] = (
     ("M8x1.25", 1.25),
     ("M10x1.5", 1.5),
     ("M12x1.75", 1.75),
+)
+#: ISO 262's selected fine pitches over the same diameters
+#: (:data:`.compat.METRIC_FINE_PITCHES`).
+TAP_SIZES_METRIC_FINE: tuple[tuple[str, float], ...] = (
+    ("M8x1", 1.0),
+    ("M10x1.25", 1.25),
+    ("M10x1", 1.0),
+    ("M12x1.5", 1.5),
+    ("M12x1.25", 1.25),
 )
 
 #: Ball pein hammer head weights, in ounces -- the sizes actually sold.

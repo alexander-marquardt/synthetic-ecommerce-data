@@ -54,8 +54,8 @@ GOLDEN_FILES = (
 
 # Restated by direct count after the 100K brand book (spec uniqueness drops
 # a SKU a brand already stocks): wc -l golden-catalog/nested.jsonl / flat.jsonl.
-LINES = 5376
-SKUS = 10096
+LINES = 5371
+SKUS = 9989
 
 
 def _sha256(path: Path) -> str:

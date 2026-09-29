@@ -24,10 +24,12 @@ from __future__ import annotations
 import collections
 import json
 import re
+from fractions import Fraction
 from pathlib import Path
 
 import pytest
 
+from compat_text import without_compatibility
 from synthetic_industrial_products.catalog import emit
 from synthetic_industrial_products.catalog.brands import (
     BRAND_BOOK,
@@ -370,7 +372,8 @@ def voice_deviations(docs: list[dict]) -> list[tuple]:
         key = (doc["brand"], doc["product_type"])
         openings[key].add(_opening(doc))
         marker = f"{doc['brand']} {doc['series']}. "
-        tail = doc["description"].split(marker, 1)[1] if marker in doc["description"] else ""
+        description = without_compatibility(doc["description"])
+        tail = description.split(marker, 1)[1] if marker in description else ""
         sentences = [s.replace(doc["series"], "{S}") for s in re.split(r"(?<=\.) ", tail) if s]
         facts = " ".join(a["value"] for a in doc["attributes"])
         tails[key].append((sentences, facts))
@@ -486,13 +489,42 @@ def _defect_signature(attributes: dict[str, str]) -> bool:
     return (inch and metric) or ("Inch" in declared and metric) or ("Metric" in declared and inch)
 
 
+def _lengths_in(values) -> list[float]:
+    """Every published length, in inches and in millimetres."""
+    out: list[float] = []
+    for value in values:
+        try:
+            inches = parse_length(value).inches
+        except Exception:  # noqa: BLE001 -- not a length
+            continue
+        out.extend((inches, inches * 25.4))
+    return out
+
+
+def _same_quantity(token: str, lengths: list[float]) -> bool:
+    try:
+        number = float(Fraction(token)) if "/" in token else float(token)
+    except (ValueError, ZeroDivisionError):
+        return False
+    return any(abs(number - m) <= 0.002 * m for m in lengths if m > 0)
+
+
 def untraced_numbers(docs: list[dict]) -> tuple[list, int]:
     """(docs with a number no field backs, count excused as modelled defects)."""
     bad, excused = [], 0
     for doc in docs:
         attributes = {a["name"]: a["value"] for a in doc["attributes"]}
         backed = set(_NUMBER.findall(" ".join([*attributes.values(), doc["series"], doc["brand"]])))
-        stated = set(_NUMBER.findall(doc["title"])) | set(_NUMBER.findall(doc["description"]))
+        # The cross-reference sentence's numbers are the OTHER product's (the
+        # M12 a key drives) and trace to a standard's table instead;
+        # ``test_compatibility_text`` checks every one of them there.
+        description = without_compatibility(doc["description"])
+        stated = set(_NUMBER.findall(doc["title"])) | set(_NUMBER.findall(description))
+        # A title composed before the unit-mixing defect names a length in
+        # the system it was built in (``4.20mm``) beside the value republished
+        # in the other (``0.1654"``). The same quantity is not an invented fact.
+        lengths = _lengths_in(attributes.values())
+        stated = {n for n in stated - backed if not _same_quantity(n, lengths)} | (stated & backed)
         if stated - backed:
             if _defect_signature(attributes):
                 excused += 1

@@ -109,11 +109,11 @@ MAX_TERMS_CARDINALITY = 25
 #: MEASURED ON THE INDUSTRIAL CATALOG (elastic/prism#9285), and the figures
 #: live in :data:`MEASURED_DISPERSION` beside this rather than in this
 #: sentence, because a sentence went stale across one regeneration while every
-#: test stayed green. Every attribute this catalog FACETS lands between 0.0018
-#: and 0.4357 -- ``Drive Size``'s 52 values over 1,389 documents is 0.037, and
-#: the densest, ``Dynamic Load Capacity``, is 0.4357: a generated bearing
-#: rating, nearly one value per bearing number, and still just on the discrete
-#: side. The one continuum is ``Neck Length`` (see ``RANGE_MIN_DOCS``). Before
+#: test stayed green. Every attribute this catalog FACETS lands inside the
+#: band that dict records -- ``Drive Size``, a ladder of nominal hex keys, sits
+#: low in it, and the densest, ``Dynamic Load Capacity``, is a generated
+#: bearing rating, nearly one value per bearing number, and still just on the
+#: discrete side. The one continuum is ``Neck Length`` (see ``RANGE_MIN_DOCS``). Before
 #: the catalog grew (elastic/prism-industrial-products#103) the band was
 #: 0.0028-0.1401 with no continuum at all, agreeing with the reference
 #: distributor, whose facet list for the end-mill category has no range control.
@@ -160,20 +160,22 @@ RANGE_MIN_DOCS = 50
 #:
 #: ``tests/test_facet_control_rule.py`` re-derives every entry here from the
 #: committed golden catalog, so the next regeneration has to restate them.
-#: Restated from the default catalog after the 100K brand book regenerated it
-#: (elastic/prism-industrial-products, 100K catalog, 2026-09-28), each by a
-#: direct ``measure()`` over golden-catalog/flat.jsonl.
+#: Restated from the default catalog after the cross-reference and near-miss
+#: thread round regenerated it (2026-09-29), each by a direct ``measure()``
+#: over golden-catalog/flat.jsonl.
 MEASURED_DISPERSION: dict[str, Any] = {
     # The band over the attributes that are actually FACETED.
-    "faceted_low": 0.0018,
+    "faceted_low": 0.0019,
     "faceted_high": 0.4428,
     "densest_faceted": "Dynamic Load Capacity",
     # The saturated ladder the rule exists to keep off a slider.
-    "drive_size_cardinality": 51,
+    # 30 since the drive size is published as the nominal key (10mm), not
+    # the extracted socket's toleranced across-flats (10.07mm).
+    "drive_size_cardinality": 30,
     "drive_size_present": 1377,
     # The smallest faceted attribute, which is what clears RANGE_MIN_DOCS.
     "smallest_faceted": "Handle Length",
-    "smallest_faceted_present": 123,
+    "smallest_faceted_present": 122,
     # The continuum RANGE_MIN_DOCS -- not dispersion -- keeps off a slider.
     "min_docs_arm": "Neck Length",
     "min_docs_arm_dispersion": 1.0,
