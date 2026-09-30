@@ -10,6 +10,8 @@ removes every breadth SKU and nothing else.
 
 from __future__ import annotations
 
+import re
+
 import pytest
 
 from synthetic_industrial_products.catalog import breadth, emit
@@ -170,3 +172,62 @@ def test_every_breadth_row_publishes_material():
     is most likely to drop it by accident."""
     for row in breadth.ROWS:
         assert "Material" in row.attributes, row.key
+
+
+#: A quoted term in ``reason`` (single-quoted, YAML-escaped as ``''`` --
+#: :func:`breadth.load_rows` already hands back a plain Python string with a
+#: literal ``'``). Terms AFTER the first "overlap"/"overlaps" describe a
+#: DIFFERENT row's word (e.g. "'square' overlap with R1's 'square end mill'
+#: word" -- this row only owes 'square'), so only the prefix before that word
+#: is a term this row's own SKUs must carry.
+_REASON_TERM = re.compile(r"'([^']+)'")
+_REASON_OVERLAP = re.compile(r"overlaps?", re.IGNORECASE)
+
+
+def _reason_terms(reason: str) -> list[str]:
+    cut = _REASON_OVERLAP.search(reason)
+    prefix = reason[: cut.start()] if cut else reason
+    return _REASON_TERM.findall(prefix)
+
+
+def _term_in_text(term: str, haystack: str) -> bool:
+    """Case-insensitive substring match, lenient on a trailing plural 's'
+    (a reason may cite the customer's plural word -- 'screws' -- for a row
+    whose item noun is singular like every other row's, 'Screw')."""
+    needle = term.lower()
+    if needle in haystack:
+        return True
+    return needle.endswith("s") and needle[:-1] in haystack
+
+
+def test_every_row_carries_every_term_its_reason_cites():
+    """The defect this fix round closes (#35 review): ``build_line`` drew
+    each row's SKU sizes with :meth:`~.generate.Generator._rotate` starting
+    at index 0, and every row is built exactly once -- so a row's SKUs were
+    just the first N ``size_values``, never necessarily the size (or
+    material) its own ``reason`` names as the customer query it joins. 25 of
+    50 rows failed this before the fix (their ``featured_sizes`` /
+    ``featured_attrs`` were added to make it true); this asserts it for all
+    50, not just the two the review quoted by name."""
+    catalog = generate(_CHEAP)
+    by_key = {
+        line.type_key: line for line in catalog.lines if line.spec_quality == "fast_and_cheap"
+    }
+    assert set(by_key) == {row.key for row in breadth.ROWS}
+
+    failures: list[tuple[str, list[str]]] = []
+    for row in breadth.ROWS:
+        line = by_key[row.key]
+        terms = _reason_terms(row.reason)
+        if not terms:
+            continue
+        parts = [line.title, *(f"{a.name} {a.value}" for a in line.attributes)]
+        for child in line.children:
+            parts.append(child.title)
+            parts.extend(f"{a.name} {a.value}" for a in child.attributes)
+        haystack = " | ".join(parts).lower()
+        missing = [term for term in terms if not _term_in_text(term, haystack)]
+        if missing:
+            failures.append((row.key, missing))
+
+    assert not failures, failures

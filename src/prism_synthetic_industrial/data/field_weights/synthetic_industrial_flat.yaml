@@ -341,7 +341,7 @@ fields:
     source: facets.face_type
     facet: false
   # Finish -- 15 distinct values
-  #   present on 5531 documents across 29 product type(s); 15 distinct values
+  #   present on 5532 documents across 29 product type(s); 15 distinct values
   - name: finish
     type: terms
     source: facets.finish
@@ -411,13 +411,13 @@ fields:
     type: terms
     source: facets.inside_dia
   # Item -- 73 distinct values reads as an identifier, not a facet (cap 25)
-  #   present on 9778 documents across 67 product type(s); 73 distinct values
+  #   present on 9779 documents across 67 product type(s); 73 distinct values
   - name: item
     type: terms
     source: facets.item
     facet: false
-  # Length -- a discrete standard set: 71 distinct values over 1854 documents is 0.04 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1854 documents across 22 product type(s); 71 distinct values
+  # Length -- a discrete standard set: 71 distinct values over 1855 documents is 0.04 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1855 documents across 22 product type(s); 71 distinct values
   - name: length
     type: terms
     source: facets.length
@@ -443,8 +443,8 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 21 distinct values
-  #   present on 8028 documents across 65 product type(s); 21 distinct values
+  # Material -- 23 distinct values
+  #   present on 8029 documents across 65 product type(s); 23 distinct values
   - name: material
     type: terms
     source: facets.material
@@ -631,7 +631,7 @@ fields:
     type: terms
     source: facets.thread_length
   # Thread Size -- 36 distinct values reads as an identifier, not a facet (cap 25)
-  #   present on 1631 documents across 13 product type(s); 36 distinct values
+  #   present on 1632 documents across 13 product type(s); 36 distinct values
   - name: thread_size
     type: terms
     source: facets.thread_size

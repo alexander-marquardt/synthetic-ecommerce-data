@@ -31,6 +31,10 @@
     Finish:
     - Bright
   skus: 2
+  featured_sizes:
+  - 1/2 in
+  featured_attrs:
+    Material: Stainless Steel
   reason: '''ball'' + ''1/2'' + ''stainless'' -- the original ball-category gap example (issue body)'
 - key: ball_stock_rubber
   category:
@@ -55,6 +59,8 @@
     Finish:
     - Plain
   skus: 1
+  featured_sizes:
+  - 1/2 in
   reason: '''ball'' + ''1/2'' -- the non-metallic ball category the comparison names'
 - key: bar_stock_hex
   category:
@@ -82,6 +88,8 @@
     - 12 in
     - 36 in
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''hex'' + ''1/2'' -- the maintainer''s own short-title example; raw-stock category gap'
 - key: bar_stock_round
   category:
@@ -110,6 +118,10 @@
     - Plain
     - Bright
   skus: 2
+  featured_sizes:
+  - 1/2 in
+  featured_attrs:
+    Material: Stainless Steel
   reason: '''1/2'' + ''stainless'' -- generic round stock, raw-material category gap'
 - key: bar_stock_square
   category:
@@ -163,7 +175,11 @@
     Length:
     - 36 in
     - 72 in
-  skus: 2
+  skus: 3
+  featured_sizes:
+  - 1/4-20
+  - 5/16-18
+  - M12x1.75
   reason: '''1/4-20'', ''5/16-18'', ''M12x1.75'' -- R5/R6 thread designations, generic (not a screw)'
 - key: studs_double_end
   category:
@@ -190,6 +206,9 @@
     - Plain
     - Zinc Plated
   skus: 2
+  featured_sizes:
+  - 5/16-18
+  - 7/16-14
   reason: '''5/16-18'' + ''7/16-14'' -- R5 thread-size-alone pattern, new category'
 - key: set_screws_hex_socket
   category:
@@ -243,6 +262,9 @@
     - Zinc Plated
     - Plain
   skus: 2
+  featured_sizes:
+  - 1/4-20
+  - 3/8-16
   reason: '''1/4-20'' + ''3/8-16'' -- R5 thread-size-alone, nut-category gap'
 - key: flange_nuts
   category:
@@ -296,6 +318,8 @@
     - 1 in
     - 2 in
   skus: 2
+  featured_sizes:
+  - M12x1.75
   reason: '''M12'' overlap -- coupling/rod hardware category gap'
 - key: t_slot_nuts
   category:
@@ -393,6 +417,8 @@
     - Zinc Plated
     - Plain
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''1/2'' overlap; pipe-mounting hardware category gap'
 - key: carriage_bolts
   category:
@@ -448,6 +474,8 @@
     - 3 in
     - 4 in
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''1/2'' + ''screws'' -- overlaps R5''s bare-thread-size word; structural-fastener gap'
 - key: wedge_anchors
   category:
@@ -474,6 +502,8 @@
     - 4 in
     - 5 in
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''1/2'' overlap; concrete-anchor category gap'
 - key: blind_rivets
   category:
@@ -523,6 +553,9 @@
     - 1 in
     - 2 in
   skus: 2
+  featured_sizes:
+  - 1/16 in
+  - 3/16 in
   reason: '''1/16'' + ''3/16'' overlap R1''s ball-end-mill fractions; pin category gap'
 - key: dowel_pins
   category:
@@ -548,6 +581,9 @@
     - 1 in
     - 2 in
   skus: 2
+  featured_sizes:
+  - 3/8 in
+  - 1/2 in
   reason: '''1/2'' + ''3/8'' overlap; precision-pin category gap'
 - key: roll_pins
   category:
@@ -572,6 +608,8 @@
     - 1 in
     - 2 in
   skus: 2
+  featured_sizes:
+  - 3/8 in
   reason: '''3/8'' overlap; spring-pin category gap'
 - key: retaining_rings_external
   category:
@@ -598,6 +636,8 @@
     - Basic
     - Bowed
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''1/2'' overlap; snap-ring category gap'
 - key: compression_springs
   category:
@@ -624,6 +664,8 @@
     - 2 in
     - 3 in
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''1/2'' overlap; spring category gap'
 - key: zerk_grease_fittings
   category:
@@ -673,6 +715,8 @@
     - Worm Gear
     - Spring
   skus: 2
+  featured_attrs:
+    Material: Stainless Steel
   reason: '''1/2'' + ''stainless'' overlap; hose-hardware category gap'
 - key: hex_pipe_nipples
   category:
@@ -700,6 +744,8 @@
     - 3 in
     - 4 in
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''hex'' + ''1/2'' -- strong overlap; plumbing-fitting category gap'
 - key: ball_valves
   category:
@@ -725,6 +771,8 @@
     - Full Port
     - Standard Port
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''ball'' + ''1/2'' -- the original issue''s own comparison category'
 - key: rigid_casters
   category:
@@ -801,6 +849,8 @@
     - One-Piece
     - Two-Piece
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''1/2'' overlap; shaft-hardware category gap'
 - key: rigid_shaft_couplings
   category:
@@ -871,6 +921,8 @@
     - Single Strand
     - Double Strand
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''1/2'' overlap; chain-drive category gap'
 - key: timing_pulleys
   category:
@@ -895,6 +947,8 @@
     - Standard
     - Idler
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''1/2'' overlap; power-transmission category gap'
 - key: o_rings
   category:
@@ -919,6 +973,8 @@
     - Standard
     - High-Temp
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''1/2'' overlap; sealing category gap'
 - key: flat_gaskets
   category:
@@ -960,7 +1016,7 @@
   - X-Large
   attributes:
     Material:
-    - Nylon
+    - HPPE
     Color:
     - Gray
     - Black
@@ -1003,7 +1059,7 @@
   - Uncorded
   attributes:
     Material:
-    - Rubber
+    - PU Foam
     Package Quantity:
     - '10'
     - '50'
@@ -1104,6 +1160,8 @@
     Finish:
     - Chrome Plated
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''1/2'' overlap -- strong; wrench-size category gap'
 - key: hex_bit_sockets
   category:
@@ -1222,6 +1280,8 @@
     - ER20
     - ER32
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''1/2'' overlap; tool-holding category gap, complements the end-mill R1/R2 rows'
 - key: drill_bushings
   category:
