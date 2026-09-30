@@ -2,7 +2,7 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 9,779 SKUs over 5,302 products in 67 product types --
+extraction in search: 9,665 SKUs over 5,295 products in 67 product types --
 17 depth types plus 50 [breadth categories](#catalog-breadth) --
 from 45 invented brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog)).
@@ -736,8 +736,8 @@ requirement-query before/after tables are the industrial side
 
 | file | |
 |---|---|
-| `flat.jsonl` | 26.9 MB — 9,779 SKU documents |
-| `nested.jsonl` | 14.9 MB — 5,302 products, nested variants and key-value attributes |
+| `flat.jsonl` | 26.6 MB — 9,665 SKU documents |
+| `nested.jsonl` | 14.8 MB — 5,295 products, nested variants and key-value attributes |
 | `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
 | `images.jsonl` | 3.7 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
@@ -785,10 +785,10 @@ difference means the second, and the golden files must not be updated until it
 is found. The test's failure message says all of this too, with the commands.
 
 Alongside the hashes, the same test asserts the headline numbers directly
-against the committed files — 9,779 SKU documents over 5,302 distinct
+against the committed files — 9,665 SKU documents over 5,295 distinct
 `product_id`, a non-empty `image_url` and `image_detail_url` on every product,
-variant and flat document, and 5,302 nested products whose variant counts sum
-to 9,779. Those hold independently of the generator, so a careless
+variant and flat document, and 5,295 nested products whose variant counts sum
+to 9,665. Those hold independently of the generator, so a careless
 regenerate-and-commit from a broken build is still red.
 
 ## Every requirement example is stocked
@@ -1037,8 +1037,8 @@ every other drawing -- only the GEOMETRY is fixed.
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 9,779 drawings, 19.2 MB unpacked
-  (1.96 KB a drawing on average), and a 2.04 MB `images.tar.gz`. Every root
+  measured on the committed catalog, 9,665 drawings, 19.1 MB unpacked
+  (1.97 KB a drawing on average), and a 2.02 MB `images.tar.gz`. Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
   by max-width/max-height in a flex item that does not grow renders a
   viewBox-only SVG at 0 x 0.

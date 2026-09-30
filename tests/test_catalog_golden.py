@@ -58,9 +58,17 @@ GOLDEN_FILES = (
 # #35 review fix round bumped ``threaded_rod`` from 2 SKUs to 3 so its
 # ``reason``-cited '1/4-20', '5/16-18' AND 'M12x1.75' sizes could all be
 # featured, not just two of the three.
-# wc -l golden-catalog/nested.jsonl / flat.jsonl.
-LINES = 5302
-SKUS = 9779
+#
+# Restated again for #39 (Corner Radius/Neck Length applied once instead of
+# twice): removing the builder-level gate on those two attributes removes two
+# ``rng.random()`` draws from every end-mill child and always spends the
+# ``rng.uniform``/``rng.choice`` draws that used to be conditional on them, so
+# every later draw in the shared stream lands differently -- variant counts
+# and category picks included, not just which end mills carry these two
+# attributes. Restated by direct count, not derived: wc -l
+# golden-catalog/nested.jsonl / flat.jsonl.
+LINES = 5295
+SKUS = 9665
 
 
 def _sha256(path: Path) -> str:

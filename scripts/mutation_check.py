@@ -829,9 +829,9 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "blank one card image url in the committed catalog",
         "flat.jsonl",
-        'ice_usd": 1.83, "stock": 7, "image_id": "end_mill_square/CRE-G246-0001/6DT18", '
-        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/6DT18.svg"',
-        'ice_usd": 1.83, "stock": 7, "image_id": "end_mill_square/CRE-G246-0001/6DT18", "image_url": ""',
+        'ice_usd": 4.39, "stock": 763, "image_id": "end_mill_square/CRE-G246-0001/11FN15", '
+        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/11FN15.svg"',
+        'ice_usd": 4.39, "stock": 763, "image_id": "end_mill_square/CRE-G246-0001/11FN15", "image_url": ""',
         "tests/test_catalog_golden.py::test_every_flat_document_carries_an_image_url",
         "A",
         "every document carries a NON-EMPTY image url at both profiles",
@@ -840,11 +840,11 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop the detail image url from one committed nested variant",
         "nested.jsonl",
-        '"price_usd": 1.83, "stock": 7, "image_id": "end_mill_square/CRE-G246-0001/6DT18", '
-        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/6DT18.svg", '
-        '"image_detail_url": "/images/industrial/end_mill_square/CRE-G246-0001/6DT18.svg"',
-        '"price_usd": 1.83, "stock": 7, "image_id": "end_mill_square/CRE-G246-0001/6DT18", '
-        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/6DT18.svg"',
+        '"price_usd": 4.39, "stock": 763, "image_id": "end_mill_square/CRE-G246-0001/11FN15", '
+        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/11FN15.svg", '
+        '"image_detail_url": "/images/industrial/end_mill_square/CRE-G246-0001/11FN15.svg"',
+        '"price_usd": 4.39, "stock": 763, "image_id": "end_mill_square/CRE-G246-0001/11FN15", '
+        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/11FN15.svg"',
         "tests/test_catalog_golden.py::test_every_nested_line_and_variant_carries_an_image_url",
         "B",
         "every document carries a NON-EMPTY image url at both profiles",
@@ -855,15 +855,16 @@ MUTATIONS: list[Mutation] = [
     # the catalog does not carry -- so it RENAMED a document instead of
     # duplicating one, every sku stayed distinct, and
     # ``test_flat_holds_one_document_per_sku`` passed for the correct reason
-    # while the table read it as proof. ``18RR28`` is the next document in the
-    # committed file, so the mutation now really does publish one sku twice.
-    # The same regeneration that moved this catalog's document count is what
-    # took the old sku out of it.
+    # while the table read it as proof. ``51RE59`` is CRE-G246-0001's own
+    # second variant, so the mutation now really does publish one sku twice.
+    # The alexander-marquardt/synthetic-industrial-products#39 regeneration
+    # (Corner Radius/Neck Length applied once instead of twice) is what took
+    # the previous anchor sku, ``6DT18``, out of the catalog.
     Mutation(
         "duplicate a sku in the committed flat catalog",
         "flat.jsonl",
-        '{"sku": "6DT18", "product_id": "CRE-G246-0001"',
-        '{"sku": "18RR28", "product_id": "CRE-G246-0001"',
+        '{"sku": "11FN15", "product_id": "CRE-G246-0001"',
+        '{"sku": "51RE59", "product_id": "CRE-G246-0001"',
         "tests/test_catalog_golden.py::test_flat_holds_one_document_per_sku",
         "",
         "flat.jsonl is one document per distinct sku",
@@ -872,8 +873,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "point one committed document at a product line that does not exist",
         "flat.jsonl",
-        '{"sku": "6DT18", "product_id": "CRE-G246-0001"',
-        '{"sku": "6DT18", "product_id": "CRE-G246-9999"',
+        '{"sku": "11FN15", "product_id": "CRE-G246-0001"',
+        '{"sku": "11FN15", "product_id": "CRE-G246-9999"',
         "tests/test_catalog_golden.py::test_flat_covers_exactly_the_product_lines",
         "",
         "the catalog spans exactly the committed number of products",
@@ -882,8 +883,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "publish a variant_count that disagrees with its own variants array",
         "nested.jsonl",
-        '"variant_count": 3, "variants": [{"sku": "6DT18", "title": "Industrial End Mill',
-        '"variant_count": 4, "variants": [{"sku": "6DT18", "title": "Industrial End Mill',
+        '"variant_count": 3, "variants": [{"sku": "11FN15", "title": "Industrial End Mill',
+        '"variant_count": 4, "variants": [{"sku": "11FN15", "title": "Industrial End Mill',
         "tests/test_catalog_golden.py::test_nested_lines_account_for_every_sku",
         "",
         "the nested lines account for every sku",
