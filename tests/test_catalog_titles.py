@@ -15,7 +15,7 @@ description said so::
 Measured on the committed catalog before the fix: **176 of 500 product lines
 published a title two of their SKUs shared, over 1,214 SKUs**, and **500 of
 500 lines published one description for every SKU under them** -- the
-description was the LINE's title, ``Marrow & Sons ISO4762-64 -- Socket Head
+description was the LINE's title, ``Ingleward ISO4762-64 -- Socket Head
 Cap Screw``, which restates the brand, the series and the product type and
 says nothing about the SKU.
 
@@ -353,8 +353,8 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
       removed by the ruling on elastic/prism#9284;
     * ``build_title`` cut the assembled string at the 100-character cap,
       which lands mid-word. Reconstructed on this catalog by
-      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **74
-      of 10,029** titles (67 of 4,689 before the catalog grew), ending
+      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **49
+      of 9,690** titles (67 of 4,689 before the catalog grew), ending
       ``...Solid Carbide, U`` or ``...SGL Sq En``.
       Removing only the first would have left those in place while the
       change reported that truncation was gone. (That figure read "97 of
@@ -475,8 +475,16 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
     THE FIGURE THIS REPLACES DID NOT REPRODUCE. The docstrings carried "97 of
     4,688"; 4,688 is the PREVIOUS generation's document count and 97 is not the
     mid-word count of either generation. Reconstructed here it was 67 of 4,689,
-    and is 74 of 10,029 on the grown catalog (elastic/prism-industrial-products#103),
-    and stating it as a test rather than as prose is what stops the next
+    was 74 of 10,029 on the grown catalog
+    (elastic/prism-industrial-products#103), 57 of 10,096 (78 over the cap)
+    after the 100K brand book, 19 of 9,989 (30 over the cap) once
+    the drive size is the nominal key and the countersunk line stopped
+    publishing a length under its head, and
+    19 of 10,049 with the assortment kits, 42 of 9,680 (76 over the cap)
+    once every title names its key dimension and a secondary one is added,
+    and 49 of 9,690 (76 over the cap) once a secondary-style title names the
+    first secondary its record publishes and a ball end mill's end is
+    "Ball End", and stating it as a test rather than as prose is what stops the next
     regeneration inheriting a number nobody can re-derive.
 
     The reconstruction spies on ``build_title`` rather than reimplementing the
@@ -504,7 +512,7 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         generate_module.build_title = real
 
     documents = [child for line in catalog.lines for child in line.children]
-    assert len(documents) == 10211
+    assert len(documents) == 9690
     assert len(assembled) > 100, "the spy recorded nothing; the reconstruction is broken"
 
     word = set(string.ascii_letters + string.digits + './"-')
@@ -517,9 +525,9 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         if full[cap - 1] in word and full[cap] in word:
             mid_word += 1
 
-    assert over_cap == 85, f"{over_cap} titles exceed the cap, not 85"
-    assert mid_word == 74, (
-        f"the cap cut would land inside a word on {mid_word} titles, not 74. "
+    assert over_cap == 76, f"{over_cap} titles exceed the cap, not 76"
+    assert mid_word == 49, (
+        f"the cap cut would land inside a word on {mid_word} titles, not 49. "
         "If the catalog moved, restate the figure in build_title's docstring "
         "and in test_no_title_is_cut_mid_word with it."
     )

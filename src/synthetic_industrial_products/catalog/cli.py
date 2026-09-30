@@ -96,6 +96,8 @@ def _config_from(args: argparse.Namespace) -> GeneratorConfig:
         config = config.with_(sparsity_scale=args.sparsity)
     if args.defects is not None:
         config = config.with_(defect_scale=args.defects)
+    if args.noise is not None:
+        config = config.with_(noise=args.noise)
     return config
 
 
@@ -176,6 +178,14 @@ def main(argv: list[str] | None = None) -> int:
         "--defects",
         type=float,
         help="multiplier on every defect rate (1.0 = measured, 0.0 = a clean catalog)",
+    )
+    parser.add_argument(
+        "--noise",
+        type=float,
+        help=(
+            "multiplier on every copy-noise rate (1.0 = the realistic default, "
+            "0.0 = clean copy; attributes are identical either way)"
+        ),
     )
     parser.add_argument(
         "--image-base-url",

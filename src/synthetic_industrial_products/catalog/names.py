@@ -70,6 +70,7 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Bearing",
     "Wheel",
     "Key",
+    "Kit",
 )
 
 #: Type-qualified names that ARE type-specific in the evidence, with it.

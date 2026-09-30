@@ -51,52 +51,9 @@ MEASUREMENT_SYSTEM_VALUES: tuple[tuple[str, float], ...] = (
 #: Presence rate of the measurement-system attribute: 212 of 496 records.
 MEASUREMENT_SYSTEM_PRESENCE = 0.4274
 
-#: The multi-valued attribute, and the pools it draws from per type family.
-#: Real standards designations; a product carries 1-3 of them.
+#: The multi-valued attribute. WHICH standards a line may claim is a truth
+#: table by what the line is (:mod:`.conformance`), not a pool per family.
 STANDARDS_NAME = "Standards"
-
-STANDARDS_POOL: dict[str, tuple[str, ...]] = {
-    "cutting_tool": (
-        "ANSI B94.19",
-        "ANSI B212.15",
-        "DIN 338",
-        "DIN 6527",
-        "ISO 1641",
-        "RoHS 2011/65/EU",
-        "REACH",
-    ),
-    "fastener": (
-        "ASME B18.3",
-        "ASME B18.2.1",
-        "ISO 4762",
-        "ISO 10642",
-        "ISO 4014",
-        "ISO 7089",
-        "DIN 912",
-        "DIN 125A",
-        "ASTM A574",
-        "SAE J429",
-        "RoHS 2011/65/EU",
-    ),
-    "hand_tool": (
-        "ASME B107.400",
-        "ANSI B107.5",
-        "GS Mark",
-        "RoHS 2011/65/EU",
-    ),
-    "motion": (
-        "ISO 15",
-        "ABMA 20",
-        "ISO 492",
-        "RoHS 2011/65/EU",
-    ),
-    "abrasive": (
-        "ANSI B7.1",
-        "oSa Certified",
-        "EN 13743",
-        "RoHS 2011/65/EU",
-    ),
-}
 
 #: Presence rate of the Standards attribute, from 06_attribute_sparsity.json
 #: (43 of 496 records carry it). Raised for this catalog, because the facet it
@@ -212,10 +169,17 @@ _TAP = (
 #: * ``Thread Length`` is how much of the shank carries thread;
 #: * ``Length Under Head`` is the whole shank, head excluded.
 #:
-#: A shopper's ``5/16-18 x 3/4`` names the last of those. Binding it to
-#: ``Thread Length`` would return confidently wrong results, and on a
-#: countersunk screw binding it to ``Length`` is wrong by a head height -- so
-#: the attribute exists rather than being approximated by a neighbour.
+#: A shopper's ``5/16-18 x 3/4`` names the last of those on a socket, button
+#: or low head. Binding it to ``Thread Length`` would return confidently wrong
+#: results -- so the attribute exists rather than being approximated by a
+#: neighbour.
+#:
+#: The COUNTERSUNK line does not carry it (:data:`_FLAT_HEAD_SCREW`). A flat
+#: head is sold by its length OVER the head -- ISO 10642 and ASME B18.3 both
+#: measure it that way -- so its "x 3/4" is its ``Length``, and the shank under
+#: a toleranced cone is not a length any distributor lists. Publishing it as
+#: length-less-head-height put 12.56mm and 1.3910" in the facet beside the
+#: stocked lengths.
 _SOCKET_SCREW = (
     _spec("Item", "line"),
     _spec("Type", "line"),
@@ -246,6 +210,9 @@ _SOCKET_SCREW = (
     # to a sparsity roll.
     _spec("Drive Size", "sku", kind="length"),
 )
+
+#: The countersunk line: every socket-screw attribute but ``Length under Head``.
+_FLAT_HEAD_SCREW = tuple(spec for spec in _SOCKET_SCREW if spec.name != "Length under Head")
 
 #: Hex bolts. Shares Dia./Thread Size and Length with the socket screw -- they
 #: are both threaded fasteners and the corpus does share those -- but the head
@@ -392,13 +359,27 @@ _HEX_KEY = (
     _spec("Overall Width", "sku", 0.6, kind="length"),
 )
 
+#: Assortment kits: one SKU each, its contents a multi-valued field of its
+#: own (``Sizes Included``) and its piece count a real number (``Number of
+#: Pieces``, so pack wording may name it). Census names throughout.
+_KIT = (
+    _spec("Item", "line"),
+    _spec("Type", "line"),
+    _spec("Material", "line", 0.85),
+    _spec("Finish", "line", 0.8),
+    _spec("Container Type", "line", 0.8),
+    _spec("Tip Style", "line"),
+    _spec("Number of Pieces", "sku"),
+    _spec("Sizes Included", "sku"),
+)
+
 VOCAB: dict[str, tuple[AttrSpec, ...]] = {
     "end_mill_square": _END_MILL,
     "end_mill_ball": _END_MILL,
     "drill_jobber": _DRILL,
     "tap_spiral_point": _TAP,
     "screw_socket_head": _SOCKET_SCREW,
-    "screw_flat_head": _SOCKET_SCREW,
+    "screw_flat_head": _FLAT_HEAD_SCREW,
     "screw_button_head": _SOCKET_SCREW,
     "screw_low_head": _SOCKET_SCREW,
     "bolt_hex": _HEX_BOLT,
@@ -409,6 +390,7 @@ VOCAB: dict[str, tuple[AttrSpec, ...]] = {
     "bearing_radial_ball": _BEARING,
     "wheel_depressed_center": _WHEEL,
     "hex_key": _HEX_KEY,
+    "kit_assortment": _KIT,
 }
 
 #: Which pool of standards designations each type draws from.
@@ -429,6 +411,7 @@ STANDARDS_FAMILY: dict[str, str] = {
     "bearing_radial_ball": "motion",
     "wheel_depressed_center": "abrasive",
     "hex_key": "hand_tool",
+    "kit_assortment": "hand_tool",
 }
 
 

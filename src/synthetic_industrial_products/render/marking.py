@@ -3,7 +3,7 @@
 One drawing per product line, and every difference between two drawings is a
 difference between two records
 --------------------------------------------------------------------------
-A catalog of thousands of SKUs in 500 lines showing twelve drawings renders an Osterlund
+A catalog of thousands of SKUs in 500 lines showing twelve drawings renders an Estrimore
 K663 HSS AlTiN mill and a competitor's carbide TiCN mill identically. The fix
 is not more shapes -- both of those really are square end mills, and the shape
 is right -- it is to draw each line's own *published* values.
@@ -69,6 +69,7 @@ import textwrap
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 
+from ..catalog.brands import BRAND_BOOK, INKS
 from .attrs import UnsupportedFeatureError
 
 __all__ = [
@@ -81,30 +82,18 @@ __all__ = [
     "MATERIAL_HATCH",
     "NEUTRAL",
     "Marking",
-    "brand_for_ink",
     "marking_for_line",
 ]
 
 #: The outline colour of every line drawn on the part, by brand.
 #:
-#: Ten brands, ten hues, each dark enough to read as line work on white at 150
-#: CSS pixels and far enough apart to be told apart at that size. The mapping
-#: is injective and :func:`brand_for_ink` inverts it, which is what makes this
-#: channel *reversible*: a reader with the legend recovers the brand from the
-#: picture. A channel nobody can decode carries information in principle and
-#: none in practice.
-BRAND_INK: dict[str, str] = {
-    "Corvane": "#1f6fb0",
-    "Halstead Tool": "#7a4a12",
-    "Ferrox": "#c0392b",
-    "Bracknell": "#1e7a3c",
-    "Osterlund": "#7a2fa8",
-    "Vantage Edge": "#0f8f8f",
-    "Kelbrook": "#8a8200",
-    "Marrow & Sons": "#b0227a",
-    "Tyndall": "#1b2a6b",
-    "Redmoor": "#e07b10",
-}
+#: From the brand book (:mod:`..catalog.brands`), where a brand's house style
+#: is its ink AND its frame. Twelve inks over forty-five brands, so an ink alone
+#: no longer names a brand; the (ink, frame) pair does, and
+#: :func:`..drawing.style.brand_for_house_style` reads it back. The inks
+#: themselves stay pairwise separated (``MIN_INK_SEPARATION``), so two brands
+#: that share a frame never share a confusable ink.
+BRAND_INK: dict[str, str] = {b.name: INKS[b.ink] for b in BRAND_BOOK}
 
 #: How far apart two outline colours have to be for the channel to be
 #: readable: no brand's colour may lie within this of any other brand's
@@ -144,6 +133,7 @@ FINISH_TINT: dict[str, str] = {
     # Fastener finishes.
     "Plain": "#eceff1",
     "Zinc Plated": "#dbe6ec",
+    "Zinc Yellow": "#ecdf8f",
     "Hot Dip Galvanized": "#c9d4cb",
 }
 
@@ -178,6 +168,8 @@ MATERIAL_HATCH: dict[str, str] = {
     "Grade 12.9 Alloy Steel": "+",
     "18-8 Stainless Steel": "/.",
     "Nylon": "o",
+    "316 Stainless Steel": "|.",
+    "Brass": "+.",
     # Hammer head.
     "Forged Steel": "\\.",
     # Abrasives.
@@ -225,24 +217,6 @@ MIN_FLUTES, MAX_FLUTES = 2, 8
 _CARD_STAMP_COLUMNS = 58
 #: Lines of stamp the card has room for under the drawing.
 _CARD_STAMP_LINES = 4
-
-
-def brand_for_ink(ink: str) -> str:
-    """The brand an outline colour names -- the encoding, read backwards.
-
-    The channel is only meaningfully reversible if something actually reverses
-    it, so this exists and ``tests/test_marking.py`` round-trips every brand
-    through it. A colour no brand claims raises: a near miss resolved to the
-    closest brand would be a confident wrong answer.
-    """
-    lowered = ink.strip().lower()
-    for brand, colour in BRAND_INK.items():
-        if colour.lower() == lowered:
-            return brand
-    raise UnsupportedFeatureError(
-        f"{ink!r} is not the outline colour of any brand; the drawing was not "
-        "made by this encoding, or BRAND_INK has changed since it was"
-    )
 
 
 def _lookup(table: Mapping[str, str], value: str, channel: str, names: Sequence[str]) -> str:

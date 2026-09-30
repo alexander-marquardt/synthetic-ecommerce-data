@@ -35,6 +35,7 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
+from ..dimensions import _METRIC_THREAD
 from .model import Attribute, Catalog, ProductLine, Sku
 from .taxonomy import ImageIdError, product_type_for_image
 
@@ -182,7 +183,8 @@ def _searchable_text(line: ProductLine, child: Sku, attributes: tuple[Attribute,
     diameter -- carries that value, and that can only happen if the shank's
     value is searchable as text.
 
-    The DESCRIPTION is deliberately not in here, though it is searchable. It
+    The DESCRIPTION is deliberately not in here, though it is searchable --
+    except its cross-reference sentence, below. It
     is declared as a field of its own in the PRISM field map, and it opens
     with the title verbatim and then restates values this function already
     collects from the attributes -- so folding it in here would roughly double
@@ -195,6 +197,22 @@ def _searchable_text(line: ProductLine, child: Sku, attributes: tuple[Attribute,
     for attribute in attributes:
         values = attribute.values or (attribute.value,)
         parts.extend(values)
+        # A metric designation is ONE token to the standard analyzer
+        # (``m12x1.75``), so a shopper's ``m12 socket cap screws`` reached no
+        # screw at all -- while a hex key whose copy says "For M12 socket head
+        # cap screws" matched every word. The diameter the designation names is
+        # added beside it: a fact of this record, read from its own value.
+        parts.extend(f"M{m.group('dia')}" for value in values if (m := _METRIC_THREAD.match(value)))
+    # The cross-reference sentence IS folded in, unlike the rest of the
+    # description: it names the OTHER product a query may be about (``For M12
+    # socket head cap screws``), which is what makes a size query reach the
+    # keys, taps and nuts that fit it as well as the screw -- and no attribute
+    # carries it, deliberately (:mod:`.compat`).
+    parts.append(child.compatibility)
+    # The noise sentences likewise (:mod:`.noise`): what a search matches on
+    # includes what the copy says a product is NOT, the siblings it comes in,
+    # what it pairs with -- which is why a policy or a facet has to narrow.
+    parts.append(child.noise)
     return " ".join(part for part in parts if part)
 
 
