@@ -105,6 +105,16 @@ USE_LINES: dict[str, tuple[str, ...]] = {
     ),
 }
 
+#: The fallback for a type with no entry above -- the breadth categories
+#: (:mod:`.breadth`), which trade a per-type use line for cheap, generic
+#: coverage (alexander-marquardt/synthetic-industrial-products#34). True of
+#: any product regardless of type, so it never states a fact a breadth
+#: record does not carry.
+GENERIC_USE_LINES: tuple[str, ...] = (
+    "For general industrial and shop use.",
+    "A general-purpose item for shop and industrial use.",
+)
+
 #: A line about the product family: names only the brand, its range and series.
 FAMILY_PHRASES: tuple[str, ...] = (
     "Part of the {name} line.",
@@ -243,7 +253,7 @@ def description_tail(brand: str, series: str, type_key: str, facts: dict[str, st
     )
     quantity = facts.get("Package Quantity")
     sentences = {
-        0: USE_LINES[type_key][voice.use_style],
+        0: USE_LINES.get(type_key, GENERIC_USE_LINES)[voice.use_style],
         1: FAMILY_PHRASES[voice.family_style].format(name=name),
         2: benefit,
         3: PACK_PHRASES[voice.pack_style].format(n=quantity) if quantity else None,

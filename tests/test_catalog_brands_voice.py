@@ -63,16 +63,27 @@ def _read(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text("utf-8").splitlines()]
 
 
+#: This whole file is about brand VARIETY within a type: several brands, each
+#: reading differently, over many products. Every breadth category
+#: (:mod:`.catalog.breadth`, alexander-marquardt/synthetic-industrial-products#34)
+#: is ONE product line -- one brand, by construction, at any catalog size --
+#: so there is no variety for these checks to find, and none to fail to find.
+#: Exempt, the same ruling as the realism truth tables
+#: (``tests/test_catalog_facts.py``).
+def _realistic_only(docs: list[dict]) -> list[dict]:
+    return [doc for doc in docs if doc.get("spec_quality") != "fast_and_cheap"]
+
+
 @pytest.fixture(scope="module")
 def golden() -> list[dict]:
-    return _read(GOLDEN / "flat.jsonl")
+    return _realistic_only(_read(GOLDEN / "flat.jsonl"))
 
 
 @pytest.fixture(scope="module")
 def hundred_k() -> list[dict]:
     """The full 100K build, emitted in memory (about 30 s)."""
     catalog = generate(GeneratorConfig(lines=HUNDRED_K_LINES))
-    return list(emit.iter_flat(catalog))
+    return _realistic_only(list(emit.iter_flat(catalog)))
 
 
 # --- every SKU is different ---------------------------------------------------
