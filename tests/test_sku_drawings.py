@@ -557,8 +557,12 @@ EXTREME_ENLARGEMENT = 2.41
 
 #: Two committed SKUs the handle-less lens must serve: an in-between screw (an
 #: M6x1 x 10mm socket head) and a hairline drill (a 1/16" jobber). Re-picked on
-#: every regeneration; the test fails if either is gone.
-PINNED_HANDLE_LESS = ("19DG33", "3BF24")
+#: every regeneration; the test fails if either is gone. Re-picked for
+#: alexander-marquardt/synthetic-industrial-products#39 (Corner Radius/Neck
+#: Length applied once instead of twice, which moved every SKU code): the
+#: drill happened to keep its sku, ``3BF24``; the screw did not, so
+#: ``19DG33`` became ``45HC83``.
+PINNED_HANDLE_LESS = ("45HC83", "3BF24")
 
 
 def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only_when_it_must_be():

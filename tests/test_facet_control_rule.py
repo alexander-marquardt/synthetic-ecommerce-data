@@ -138,11 +138,16 @@ def test_every_attribute_that_is_quantitative_still_says_so(flat_rows: list[dict
     stats = measure(flat_rows)
     quantitative = [s for s in stats.values() if s.is_numeric]
     assert len(quantitative) >= 25, len(quantitative)
-    # NO continuum on this catalog: Neck Length, the one attribute whose
-    # values never repeat (48 over 48 documents), sits below RANGE_MIN_DOCS
-    # (see MEASURED_DISPERSION). Anything reported as a continuum should be
-    # checked before the rule is trusted.
-    assert [s.key for s in quantitative if s.is_continuous] == []
+    # Neck Length is the one real continuum on this catalog: its values never
+    # repeat, and applying its census presence rate once instead of twice
+    # (alexander-marquardt/synthetic-industrial-products#39) raised its
+    # document count well past RANGE_MIN_DOCS, so dispersion alone now calls
+    # it continuous. It still is not OFFERED as a range -- MIN_PRESENCE keeps
+    # it off faceting entirely, since it is rare even among end mills (see
+    # MEASURED_DISPERSION and test_the_widest_dispersion_is_a_continuum_that_
+    # clears_the_document_floor) -- so this is the one exception to check
+    # before the rule is trusted, not a failure of it.
+    assert [s.key for s in quantitative if s.is_continuous] == ["neck_length"]
 
 
 # --------------------------------------------------------------------------
@@ -329,29 +334,45 @@ def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
     assert high < RANGE_DISPERSION, "the band must sit below the threshold"
 
 
-def test_the_widest_dispersion_is_a_continuum_that_clears_the_document_floor(decided) -> None:
+def test_the_widest_dispersion_is_a_continuum_kept_off_by_min_presence(decided) -> None:
     """The arm the band does NOT cover, and which threshold decides it now.
 
-    ``Neck Length`` is a perfect continuum and clears ``RANGE_DISPERSION`` with
-    room to spare. It used to be a discrete list anyway, because it published
-    fewer than ``RANGE_MIN_DOCS`` documents; the grown catalog publishes more,
-    so it is offered as a range -- and if a regeneration drops it back below
-    the floor, this reds rather than quietly changing the control.
+    ``Neck Length`` is a real continuum and clears ``RANGE_DISPERSION`` with
+    room to spare. It used to be the catalog's real example of
+    ``RANGE_MIN_DOCS`` -- too few documents to trust the dispersion statistic
+    -- but applying its census presence rate once instead of twice
+    (alexander-marquardt/synthetic-industrial-products#39) raised its
+    document count from 48 to 388, clearing that floor too. It is still not
+    offered as a range: it is rare even among end mills, the only product
+    types that carry it, so ``MIN_PRESENCE`` is the floor that decides it
+    now. If a regeneration drops either count back below its floor, this
+    reds rather than quietly changing the control.
     """
     quantitative = [s for s, _ in decided.values() if s.is_numeric]
     widest = max(quantitative, key=lambda s: s.dispersion)
-    assert widest.name == MEASURED_DISPERSION["min_docs_arm"]
-    assert round(widest.dispersion, 4) == MEASURED_DISPERSION["min_docs_arm_dispersion"]
-    assert widest.present == MEASURED_DISPERSION["min_docs_arm_present"]
+    assert widest.name == MEASURED_DISPERSION["min_presence_arm"]
+    assert round(widest.dispersion, 4) == MEASURED_DISPERSION["min_presence_arm_dispersion"]
+    assert widest.present == MEASURED_DISPERSION["min_presence_arm_present"]
+    assert widest.type_denominator == MEASURED_DISPERSION["min_presence_arm_type_denominator"]
     assert widest.dispersion > RANGE_DISPERSION, (
-        "dispersion alone would offer this as a RANGE, which is the whole "
-        "reason RANGE_MIN_DOCS exists and the reason it cannot be credited to "
-        "the dispersion threshold"
+        "dispersion alone would offer this as a RANGE -- the reason "
+        "MIN_PRESENCE, not dispersion, has to be the one that keeps it off a "
+        "slider"
     )
-    # Below the floor on this catalog (48 < 50), so RANGE_MIN_DOCS -- not
-    # dispersion -- keeps it off a slider: exactly the case the floor exists for.
-    assert widest.present < RANGE_MIN_DOCS
-    assert not widest.is_continuous
+    assert widest.present >= RANGE_MIN_DOCS, (
+        "RANGE_MIN_DOCS no longer decides this attribute -- if it reds, "
+        "restate this test against whichever attribute IS below it, or "
+        "against the constructed case in test_a_small_sample_falls_back_to_discrete"
+    )
+    assert widest.is_continuous
+    presence_share = widest.present / widest.type_denominator
+    assert round(presence_share, 2) == MEASURED_DISPERSION["min_presence_arm_share"]
+    assert presence_share < MIN_PRESENCE, (
+        "MIN_PRESENCE is the floor this test is about; it has to actually apply"
+    )
+    _, decision = decided["neck_length"]
+    assert not decision.facet
+    assert "floor 50%" in decision.reason, decision.reason
 
 
 def test_drive_size_is_the_saturated_ladder_the_rule_names(decided) -> None:
