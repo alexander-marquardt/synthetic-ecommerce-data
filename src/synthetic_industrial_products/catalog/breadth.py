@@ -86,6 +86,14 @@ class BreadthRow:
     attributes: dict[str, tuple[str, ...]]
     skus: int
     reason: str
+    #: This row's own price band in USD, ``(min, max)``, drawn from general
+    #: knowledge of the category (alexander-marquardt/synthetic-industrial-products#37).
+    #: Every row authors its own -- the flat ``$2.50-9.00`` band every breadth
+    #: SKU used to draw from made a Bench Vise ($5.09) and a Ball Valve
+    #: ($4.79) price like a fastener, and a Rubber Ball ($8.78) price ABOVE a
+    #: Stainless Steel precision ball ($4.79). ``min`` must be positive and
+    #: strictly less than ``max``, held by ``tests/test_breadth.py``.
+    price_range: tuple[float, float] = (2.5, 9.0)
     descriptor_attr: str | None = None
     #: Size values ``reason`` names explicitly (quoted, before any "overlap"
     #: clause) -- these MUST appear among the row's SKUs; a plain rotation
@@ -113,6 +121,11 @@ def _row_from_dict(raw: dict[str, Any]) -> BreadthRow:
         attributes={name: tuple(values) for name, values in raw["attributes"].items()},
         skus=int(raw["skus"]),
         reason=raw["reason"],
+        price_range=(
+            tuple(float(v) for v in raw["price_range"])  # type: ignore[assignment]
+            if "price_range" in raw
+            else (2.5, 9.0)
+        ),
         descriptor_attr=raw.get("descriptor_attr"),
         featured_sizes=tuple(raw.get("featured_sizes") or ()),
         featured_attrs=dict(raw.get("featured_attrs") or {}),
@@ -206,6 +219,54 @@ def _build_sku(
     )
 
 
+#: Finishes that are PLATING or COATING processes applied to a base metal --
+#: the deep generator's own rule (:data:`.generate.WASHER_FINISHES`,
+#: :func:`.newtypes` kit-finish selection) refuses every one of these on a
+#: stainless material, because stainless does not need, and is not sold
+#: with, a corrosion-preventing plating: the alloy IS the corrosion
+#: resistance. A finish absent from this set (``Plain``, ``Bright``,
+#: ``Passivated``) is never touched.
+_PLATING_FINISHES = frozenset({"Zinc Plated", "Zinc Yellow", "Hot Dip Galvanized"})
+
+#: The finish a plating draw is replaced with on a stainless material, when
+#: the row offers it -- the deep generator's own fallback
+#: (:mod:`.newtypes`: ``"Plain" if "Stainless" in material else ...``).
+_STAINLESS_FALLBACK_FINISH = "Plain"
+
+
+def _apply_finish_follows_material(
+    chosen: dict[str, str], row: BreadthRow, rng: Any
+) -> None:
+    """Redraw ``chosen["Finish"]`` if it is a plating and the row's material
+    is stainless (alexander-marquardt/synthetic-industrial-products#37).
+
+    IN PLACE, on the row's own already-drawn ``Material`` -- never a second,
+    independent draw, so this cannot disagree with the material the SKU
+    actually publishes. A row with no ``Finish`` attribute, or whose
+    ``Material`` is not stainless, or whose drawn finish already isn't a
+    plating, is untouched. ``featured_attrs`` may still fix a plating finish
+    deliberately (checked first: a row's own authored pairing is a choice,
+    not a draw this function corrects).
+    """
+    material = chosen.get("Material", "")
+    finish = chosen.get("Finish")
+    if finish is None or "Stainless" not in material:
+        return
+    if finish not in _PLATING_FINISHES:
+        return
+    if row.featured_attrs.get("Finish") == finish:
+        return
+    options = row.attributes.get("Finish", ())
+    non_plating = [v for v in options if v not in _PLATING_FINISHES]
+    if _STAINLESS_FALLBACK_FINISH in non_plating:
+        chosen["Finish"] = _STAINLESS_FALLBACK_FINISH
+    elif non_plating:
+        chosen["Finish"] = rng.choice(non_plating)
+    # else: every option is a plating (a row misconfigured for a stainless
+    # material) -- left as drawn rather than silently invented; the
+    # catalog-vocab test below catches a row that reaches this branch.
+
+
 def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
     """One breadth product line: 1-2 SKUs, from ``row`` alone.
 
@@ -220,12 +281,14 @@ def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
     rng = gen.rng
     brand = brands.pick_brand(rng, row.key)
 
-    line_attrs: list[Attribute] = [keyword_attribute("Item", row.item)]
     chosen: dict[str, str] = {}
-    descriptor_value: str | None = None
     for name, values in row.attributes.items():
-        value = row.featured_attrs.get(name) or rng.choice(values)
-        chosen[name] = value
+        chosen[name] = row.featured_attrs.get(name) or rng.choice(values)
+    _apply_finish_follows_material(chosen, row, rng)
+
+    line_attrs: list[Attribute] = [keyword_attribute("Item", row.item)]
+    descriptor_value: str | None = None
+    for name, value in chosen.items():
         line_attrs.append(keyword_attribute(name, value))
         if name == row.descriptor_attr:
             descriptor_value = value
@@ -265,7 +328,7 @@ def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
     children: list[Sku] = []
     for size_value in sizes:
         sku = gen._new_sku()  # noqa: SLF001
-        price = round(max(1.25, rng.uniform(2.5, 9.0)), 2)
+        price = round(max(1.25, rng.uniform(*row.price_range)), 2)
         stock_pool = (0, rng.randint(1, 40), rng.randint(40, 900))
         stock = rng.choices(stock_pool, weights=(0.08, 0.42, 0.5))[0]
         children.append(

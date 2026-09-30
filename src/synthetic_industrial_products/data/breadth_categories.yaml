@@ -30,6 +30,7 @@
     - G100
     Finish:
     - Bright
+  price_range: [3.0, 15.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -58,6 +59,7 @@
     - Rubber
     Finish:
     - Plain
+  price_range: [1.0, 6.0]
   skus: 1
   featured_sizes:
   - 1/2 in
@@ -87,6 +89,7 @@
     Length:
     - 12 in
     - 36 in
+  price_range: [4.0, 25.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -117,6 +120,7 @@
     Finish:
     - Plain
     - Bright
+  price_range: [4.0, 25.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -145,6 +149,7 @@
     Finish:
     - Plain
     - Bright
+  price_range: [4.0, 25.0]
   skus: 1
   reason: '''square'' overlap with R1''s ''square end mill'' word; raw-stock category gap'
 - key: threaded_rod
@@ -175,6 +180,7 @@
     Length:
     - 36 in
     - 72 in
+  price_range: [4.0, 20.0]
   skus: 3
   featured_sizes:
   - 1/4-20
@@ -205,6 +211,7 @@
     Finish:
     - Plain
     - Zinc Plated
+  price_range: [1.0, 8.0]
   skus: 2
   featured_sizes:
   - 5/16-18
@@ -234,6 +241,7 @@
     Point Type:
     - Cup Point
     - Flat Point
+  price_range: [0.2, 2.0]
   skus: 2
   reason: '''hex'' + ''1/4-20'' -- R5 pattern; ''socket'' overlaps R4''s ''socket cap screw'''
 - key: lock_nuts_nylon_insert
@@ -261,6 +269,7 @@
     Finish:
     - Zinc Plated
     - Plain
+  price_range: [0.15, 2.0]
   skus: 2
   featured_sizes:
   - 1/4-20
@@ -289,6 +298,7 @@
     Finish:
     - Zinc Plated
     - Plain
+  price_range: [0.2, 2.0]
   skus: 1
   reason: generic thread-size overlap; nut-category breadth
 - key: coupling_nuts
@@ -317,6 +327,7 @@
     Length:
     - 1 in
     - 2 in
+  price_range: [0.5, 4.0]
   skus: 2
   featured_sizes:
   - M12x1.75
@@ -342,6 +353,7 @@
     Finish:
     - Plain
     - Zinc Plated
+  price_range: [2.0, 15.0]
   skus: 1
   reason: breadth diversity; workholding-adjacent nut category gap
 - key: cap_nuts_acorn
@@ -366,6 +378,7 @@
     Finish:
     - Chrome Plated
     - Zinc Plated
+  price_range: [0.3, 3.0]
   skus: 1
   reason: '''cap'' -- overlaps R4/R8''s ''cap screw'' word family; decorative-fastener gap'
 - key: eye_bolts
@@ -392,6 +405,7 @@
     Finish:
     - Zinc Plated
     - Plain
+  price_range: [1.0, 10.0]
   skus: 2
   reason: generic thread-size overlap; rigging-hardware category gap
 - key: u_bolts
@@ -416,6 +430,7 @@
     Finish:
     - Zinc Plated
     - Plain
+  price_range: [1.0, 8.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -446,6 +461,7 @@
     - 1 in
     - 2 in
     - 3 in
+  price_range: [0.3, 3.0]
   skus: 2
   reason: generic thread-size overlap; round-head bolt category gap
 - key: lag_screws
@@ -473,6 +489,7 @@
     - 2 in
     - 3 in
     - 4 in
+  price_range: [0.3, 3.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -501,6 +518,7 @@
     - 3 in
     - 4 in
     - 5 in
+  price_range: [0.5, 5.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -528,6 +546,7 @@
     Head Type:
     - Dome Head
     - Countersunk Head
+  price_range: [0.1, 1.0]
   skus: 2
   reason: breadth diversity; pop-rivet category gap
 - key: cotter_pins
@@ -552,6 +571,7 @@
     Length:
     - 1 in
     - 2 in
+  price_range: [0.05, 0.5]
   skus: 2
   featured_sizes:
   - 1/16 in
@@ -580,6 +600,7 @@
     Length:
     - 1 in
     - 2 in
+  price_range: [0.2, 3.0]
   skus: 2
   featured_sizes:
   - 3/8 in
@@ -607,6 +628,7 @@
     Length:
     - 1 in
     - 2 in
+  price_range: [0.1, 1.5]
   skus: 2
   featured_sizes:
   - 3/8 in
@@ -635,6 +657,7 @@
     Style:
     - Basic
     - Bowed
+  price_range: [0.1, 1.5]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -663,6 +686,7 @@
     - 1 in
     - 2 in
     - 3 in
+  price_range: [1.0, 10.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -689,6 +713,7 @@
     Style:
     - Straight
     - 90 Degree
+  price_range: [0.5, 4.0]
   skus: 2
   reason: breadth diversity; lubrication-hardware category gap
 - key: hose_clamps
@@ -714,6 +739,7 @@
     Style:
     - Worm Gear
     - Spring
+  price_range: [0.75, 6.0]
   skus: 2
   featured_attrs:
     Material: Stainless Steel
@@ -743,6 +769,7 @@
     - 2 in
     - 3 in
     - 4 in
+  price_range: [2.0, 15.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -770,6 +797,7 @@
     Type:
     - Full Port
     - Standard Port
+  price_range: [8.0, 60.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -798,6 +826,7 @@
     - 100 lb
     - 200 lb
     - 300 lb
+  price_range: [8.0, 40.0]
   skus: 2
   reason: breadth diversity; material-handling category gap
 - key: bronze_sleeve_bushings
@@ -822,6 +851,7 @@
     Length:
     - 1/2 in
     - 1 in
+  price_range: [2.0, 15.0]
   skus: 2
   reason: '''1/2'' overlap; bearing-adjacent bushing category gap'
 - key: shaft_collars
@@ -848,6 +878,7 @@
     Style:
     - One-Piece
     - Two-Piece
+  price_range: [2.0, 15.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -874,6 +905,7 @@
     Style:
     - Clamp-Style
     - Set Screw
+  price_range: [10.0, 60.0]
   skus: 2
   reason: breadth diversity; power-transmission category gap
 - key: v_belts
@@ -897,6 +929,7 @@
     Type:
     - A-Section
     - B-Section
+  price_range: [5.0, 30.0]
   skus: 2
   reason: breadth diversity; power-transmission belt category gap
 - key: roller_chain
@@ -920,6 +953,7 @@
     Style:
     - Single Strand
     - Double Strand
+  price_range: [3.0, 25.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -946,6 +980,7 @@
     Style:
     - Standard
     - Idler
+  price_range: [8.0, 45.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -972,6 +1007,7 @@
     Grade:
     - Standard
     - High-Temp
+  price_range: [0.2, 3.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -997,6 +1033,7 @@
     Thickness:
     - 1/16 in
     - 1/8 in
+  price_range: [1.0, 10.0]
   skus: 1
   reason: breadth diversity; sealing category gap
 - key: cut_resistant_gloves
@@ -1020,6 +1057,7 @@
     Color:
     - Gray
     - Black
+  price_range: [4.0, 20.0]
   skus: 1
   reason: breadth diversity; PPE category gap
 - key: safety_glasses
@@ -1042,6 +1080,7 @@
     Style:
     - Wraparound
     - Half-Frame
+  price_range: [3.0, 15.0]
   skus: 1
   reason: breadth diversity; PPE category gap
 - key: foam_ear_plugs
@@ -1064,6 +1103,7 @@
     - '10'
     - '50'
     - '100'
+  price_range: [0.1, 1.0]
   skus: 1
   reason: breadth diversity; PPE category gap
 - key: hand_files
@@ -1089,6 +1129,7 @@
     - Flat
     - Round
     - Half-Round
+  price_range: [5.0, 25.0]
   skus: 2
   reason: breadth diversity; hand-tool category gap
 - key: center_punches
@@ -1111,6 +1152,7 @@
     Style:
     - Automatic
     - Standard
+  price_range: [3.0, 15.0]
   skus: 1
   reason: breadth diversity; hand-tool category gap
 - key: cold_chisels
@@ -1133,6 +1175,7 @@
     Width:
     - 1/2 in
     - 3/4 in
+  price_range: [4.0, 18.0]
   skus: 1
   reason: breadth diversity; hand-tool category gap
 - key: combination_wrenches
@@ -1159,6 +1202,7 @@
     - Steel
     Finish:
     - Chrome Plated
+  price_range: [5.0, 40.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -1187,6 +1231,7 @@
     - 1/4 in Drive
     - 3/8 in Drive
     - 1/2 in Drive
+  price_range: [2.0, 15.0]
   skus: 2
   reason: '''hex'' + ''socket'' + ''1/2'' -- overlaps R4/R5''s ''socket cap screw'' family'
 - key: c_clamps
@@ -1210,6 +1255,7 @@
     Style:
     - Standard
     - Deep Throat
+  price_range: [5.0, 35.0]
   skus: 2
   reason: breadth diversity; workholding category gap
 - key: bench_vises
@@ -1233,6 +1279,7 @@
     Style:
     - Swivel Base
     - Fixed Base
+  price_range: [30.0, 180.0]
   skus: 1
   reason: breadth diversity; workholding category gap
 - key: thread_pitch_gages
@@ -1253,6 +1300,7 @@
     - Steel
     Style:
     - Standard
+  price_range: [8.0, 35.0]
   skus: 2
   reason: '''thread'' + ''gage'' -- overlaps R5/R6''s thread family and the issue''s own ''gage balls''
     wording'
@@ -1279,6 +1327,7 @@
     - ER16
     - ER20
     - ER32
+  price_range: [8.0, 45.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -1305,5 +1354,6 @@
     Length:
     - 1/2 in
     - 1 in
+  price_range: [2.0, 15.0]
   skus: 2
   reason: '''1/2'' overlap; jig/fixture tooling category gap'
