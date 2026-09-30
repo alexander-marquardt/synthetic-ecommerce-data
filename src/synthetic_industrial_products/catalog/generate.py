@@ -27,7 +27,7 @@ from dataclasses import dataclass, field, replace
 from fractions import Fraction
 from typing import TypeVar
 
-from . import brands, compat, conformance, noise, series, standards, taxonomy
+from . import brands, breadth, compat, conformance, noise, series, standards, taxonomy
 from .config import GeneratorConfig
 from .formats import (
     LengthStyle,
@@ -2005,9 +2005,19 @@ class Generator:
                     self._bump("lines")
         for type_key, products in cfg.new_type_products.items():
             lines.extend(self._generate_new_type(type_key, products))
+        lines.extend(self._generate_breadth())
         if cfg.must_stock:
             lines.extend(self._must_stock(lines))
         return Catalog(lines=tuple(lines), stats=dict(self.counters))
+
+    def _generate_breadth(self) -> list[ProductLine]:
+        """Every breadth row's line (:mod:`.breadth`), a fixed set independent
+        of ``lines``: breadth is not depth, so it does not scale with it."""
+        out: list[ProductLine] = []
+        for index, row in enumerate(breadth.ROWS, start=1):
+            sub = _BreadthGenerator(self.config, row.key, self.counters, self._used_skus)
+            out.append(breadth.build_line(sub, row, index))
+        return out
 
     def _must_stock(self, lines: list[ProductLine]) -> list[ProductLine]:
         """A line for every must-stock entry the catalog does not already carry.
@@ -2114,6 +2124,28 @@ class _NewTypeGenerator(Generator):
             raise RuntimeError(f"part number {sku} was already issued")
         self._used_skus.add(sku)
         return sku
+
+
+class _BreadthGenerator(Generator):
+    """A generator for one breadth row (:mod:`.breadth`): its own stream.
+
+    Unlike :class:`_NewTypeGenerator`, ``_new_sku`` is NOT overridden: a
+    breadth SKU takes the base :meth:`Generator._new_sku` code shape (the
+    original twelve types' own), not a distributor-style part-number block --
+    there is no reason to spend a block on cheap filler.
+    """
+
+    def __init__(
+        self,
+        config: GeneratorConfig,
+        type_key: str,
+        counters: dict[str, int],
+        used_skus: set[str],
+    ) -> None:
+        super().__init__(config)
+        self.rng = type_rng(config.seed, f"breadth:{type_key}")
+        self.counters = counters
+        self._used_skus = used_skus
 
 
 def generate(config: GeneratorConfig | None = None) -> Catalog:

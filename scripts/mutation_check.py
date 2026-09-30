@@ -252,8 +252,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "let a product of a brand drop its template's use line",
         "catalog/voice.py",
-        "        0: USE_LINES[type_key][voice.use_style],",
-        "        0: USE_LINES[type_key][voice.use_style] if len(facts) % 2 else None,",
+        "        0: USE_LINES.get(type_key, GENERIC_USE_LINES)[voice.use_style],",
+        "        0: USE_LINES.get(type_key, GENERIC_USE_LINES)[voice.use_style] if len(facts) % 2 else None,",
         "tests/test_catalog_brands_voice.py -k one_template",
         "A",
         "every brand follows one template per type",

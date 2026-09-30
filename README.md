@@ -2,7 +2,8 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 9,690 SKUs over 5,252 products in 17 product types,
+extraction in search: 9,778 SKUs over 5,302 products in 67 product types --
+17 depth types plus 50 [breadth categories](#catalog-breadth) --
 from 45 invented brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog)).
 
@@ -174,7 +175,10 @@ The generator is deterministic: one seed produces one catalog, byte for byte.
 types, and the four newer types (hex nuts, radial ball bearings, depressed
 center wheels, hex keys) take a fixed SHARE of it (`new_type_share`,
 700/2600 each: the ratio the default catalog was built with), so every type
-grows together. There is deliberately no second `--scale` flag.
+grows together. There is deliberately no second `--scale` flag. The 50
+[breadth categories](#catalog-breadth) are the one exception: a FIXED ~50
+lines, independent of `--lines`, because breadth is not depth (see that
+section for why).
 
 ### The 100K catalog
 
@@ -671,6 +675,60 @@ path. The three spellings of the measurement-system attribute deliberately
 sanitise to three different keys rather than being folded into one: folding
 them here would hide the problem a field map exists to solve.
 
+## Catalog breadth
+
+alexander-marquardt/synthetic-industrial-products#34: the 17 depth types give
+this catalog DEPTH -- hundreds of products in each -- but not BREADTH. A
+comparison the issue makes: a real industrial storefront returns 51 items
+across 9 categories for `1/2 ball` (tooling balls, rubber balls, ball stock in
+three materials, gage balls, ...); this catalog's twelve original types return
+488 across 3 (ball end mills, ball-end hex keys, radial bearings), because
+description noise (above) adds hits WITHIN a type and cannot add a category.
+
+**50 breadth rows, 1-2 SKUs each, one generic loop.** `src/synthetic_industrial_products/data/breadth_categories.yaml`
+is ONE table: for each row, a category path, a shape name, an item noun, 3-5
+line-scoped attributes with short value lists, one size (variant) attribute,
+and a one-line reason naming the customer query it joins. `catalog/breadth.py`
+turns a row into a product line, reusing the catalog's brand machinery
+(`brands.pick_brand`), its description grammar
+(`Generator._build_description`) and its noise generator (`noise.sentences`)
+exactly as the depth types do -- but NOT its sparsity, defect injection or
+`Standards` claim: every declared attribute is always published, and no
+breadth SKU ever claims a false spec. There is no per-category code: adding,
+changing or removing a row is the whole change.
+
+**Titles are short and realistic**, not the depth types' multi-segment census
+grammar: `<descriptor> <item>, <size>` (`Stainless Steel Ball, 1/2 in`,
+`Hex Bar Stock, 1/2 in`) -- close to what plain BM25 text matching favours,
+which is deliberate (maintainer, 2026-09-30): with policies off this can pull
+a breadth SKU toward the top of a query it only loosely matches; with policies
+on, the filters move it back out of Best. That gap is the demo case breadth
+exists to make visible, not a defect to hide.
+
+**Marked, and cheaply removable.** Every breadth SKU carries a TOP-LEVEL
+`spec_quality: "fast_and_cheap"` (the depth types carry `"realistic"`),
+alongside `dimension_provenance`. Deliberately NOT a nested attribute: a
+nested attribute becomes a facet and searchable text on the industrial
+deployment, and this marker must be neither -- it is a maintainer removal
+handle, not something a shopper filters on. Deleting every row from
+`breadth_categories.yaml` removes every breadth SKU and nothing else
+(`tests/test_breadth.py` proves it); nothing else in the generator
+constructs a `fast_and_cheap` line.
+
+**Drawings are six fixed plain shapes**, not dimensioned per SKU -- see
+[Images](#images) for why and how.
+
+**Exempt from the realism truth tables and mutation rows**
+(`tests/test_catalog_facts.py`, `tests/test_sku_drawings.py`): those check the
+depth types' materials, finishes, hardnesses and titles against reference
+tables built from the census this catalog otherwise reproduces, and breadth's
+short value lists were never measured against it.
+
+This round is the GENERATOR only. Hiding facets carried by too few results,
+re-pinning releases, re-deriving the CI subset and the customer-facing
+requirement-query before/after tables are the industrial side
+(elastic/prism-industrial-products), a separate round.
+
 ## The built catalog is committed, in `golden-catalog/`
 
 `sip-generate build` is reproducible, but its output is checked in anyway, at
@@ -678,11 +736,11 @@ them here would hide the problem a field map exists to solve.
 
 | file | |
 |---|---|
-| `flat.jsonl` | 26.5 MB — 9,690 SKU documents |
-| `nested.jsonl` | 14.6 MB — 5,252 products, nested variants and key-value attributes |
+| `flat.jsonl` | 26.9 MB — 9,778 SKU documents |
+| `nested.jsonl` | 14.9 MB — 5,302 products, nested variants and key-value attributes |
 | `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
-| `images.jsonl` | 3.9 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
+| `images.jsonl` | 3.7 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
 | `stats.json` | the measured defect rates, and the config that produced them |
 
 About 45 MiB in the working tree. **Plain NDJSON — deliberately not gzipped
@@ -727,10 +785,10 @@ difference means the second, and the golden files must not be updated until it
 is found. The test's failure message says all of this too, with the commands.
 
 Alongside the hashes, the same test asserts the headline numbers directly
-against the committed files — 9,690 SKU documents over 5,252 distinct
+against the committed files — 9,778 SKU documents over 5,302 distinct
 `product_id`, a non-empty `image_url` and `image_detail_url` on every product,
-variant and flat document, and 5,252 nested products whose variant counts sum
-to 9,690. Those hold independently of the generator, so a careless
+variant and flat document, and 5,302 nested products whose variant counts sum
+to 9,778. Those hold independently of the generator, so a careless
 regenerate-and-commit from a broken build is still red.
 
 ## Every requirement example is stocked
@@ -782,9 +840,10 @@ PRISM_CUSTOMIZATION_PATH=<this repo> PRISM_RUNTIME_MODE=dev \
 
 ### The field map is derived, never written
 
-The catalog publishes **87 distinct attribute names** across 17 product types.
-A hand-maintained list of 87 declarations drifts from the generator the first
-time either side moves, and it drifts *silently*: a field map naming an
+The catalog publishes **90 distinct attribute names** across 67 product types
+(17 depth types plus 50 breadth categories). A hand-maintained list of 90
+declarations drifts from the generator the first time either side moves, and
+it drifts *silently*: a field map naming an
 attribute the catalog no longer publishes does not raise, it just stops
 faceting, and "no product has that value" looks exactly like "the field map is
 wrong".
@@ -932,7 +991,16 @@ it. The selector is parsed with `shlex` now, and the two-filter shape raises.
 ## Images
 
 **One drawing per SKU, drawn from that SKU's own values, with no text in it.**
-The rulings are on elastic/prism-industrial-products#103 (2026-09-26 to -28):
+The rulings are on elastic/prism-industrial-products#103 (2026-09-26 to -28).
+
+**Exception: the [50 breadth categories](#catalog-breadth) draw one of six
+FIXED plain shapes** (sphere, cylinder, block, disc, tube, bracket --
+`drawing/breadth_shapes.py`), never scaled or dimensioned from the SKU's own
+published values. The "drawn from its own dimensions" rule above does not
+apply to them: they are filler to give a facet something to show, not a
+figure meant to survive a close look (maintainer, 2026-09-30). They still go
+through the same no-text allow-list, house style and material/finish fill as
+every other drawing -- only the GEOMETRY is fixed.
 
 * **One image per SKU**, so two lengths of one screw look different, and a
   grouped view can switch the picture when a variant is selected.
@@ -969,8 +1037,8 @@ The rulings are on elastic/prism-industrial-products#103 (2026-09-26 to -28):
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 9,690 drawings, 19.1 MB unpacked
-  (1.97 KB a drawing on average), and a 2.03 MB `images.tar.gz`. Every root
+  measured on the committed catalog, 9,778 drawings, 19.2 MB unpacked
+  (1.96 KB a drawing on average), and a 2.04 MB `images.tar.gz`. Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
   by max-width/max-height in a flex item that does not grow renders a
   viewBox-only SVG at 0 x 0.

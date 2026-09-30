@@ -49,6 +49,15 @@ MATERIAL_FILL: dict[str, str] = {
     "Chrome Vanadium Steel": "#c4ccd3",
     "S2 Tool Steel": "#aeb5bb",
     "Silicon Carbide": "#3f4a55",
+    # Generic raw-material words the breadth categories publish
+    # (alexander-marquardt/synthetic-industrial-products#34): common metals
+    # and one elastomer that the tool- and fastener-specific vocabulary above
+    # has no entry for.
+    "Aluminum": "#d7dde1",
+    "Stainless Steel": "#e6ebee",
+    "Cast Iron": "#8a8d8f",
+    "Bronze": "#b08d57",
+    "Rubber": "#3a3a3a",
 }
 
 #: Finishes the original twelve types never published, and their colours.
@@ -94,6 +103,12 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Chrome Vanadium Steel": Hatch((90, 45), 6.0),
     "S2 Tool Steel": Hatch((90, 135), 6.0),
     "Silicon Carbide": Hatch((), 3.0, dots=True),
+    # See MATERIAL_FILL above for why these five are here.
+    "Aluminum": Hatch((30,), 5.0),
+    "Stainless Steel": Hatch((150,), 5.0, dots=True),
+    "Cast Iron": Hatch((0, 60), 4.0, dots=True),
+    "Bronze": Hatch((60, 120), 3.0),
+    "Rubber": Hatch((15,), 2.5, dots=True),
 }
 
 

@@ -173,14 +173,25 @@ KEY = {
 }  # fmt: skip
 
 
+#: Every rule in this file is a truth table written for the census-modelled
+#: types. The breadth categories (:mod:`.catalog.breadth`,
+#: alexander-marquardt/synthetic-industrial-products#34) are cheap filler --
+#: their materials, finishes and titles are drawn from a short, plausible
+#: list, not measured against a reference table -- so they are EXEMPT here,
+#: by the maintainer's own ruling (2026-09-30 refinement on #34).
+def _realistic_only(docs: list[dict]) -> list[dict]:
+    return [doc for doc in docs if doc.get("spec_quality") != "fast_and_cheap"]
+
+
 @pytest.fixture(scope="module")
 def golden() -> list[dict]:
-    return [json.loads(line) for line in (GOLDEN / "flat.jsonl").read_text("utf-8").splitlines()]
+    docs = [json.loads(line) for line in (GOLDEN / "flat.jsonl").read_text("utf-8").splitlines()]
+    return _realistic_only(docs)
 
 
 @pytest.fixture(scope="module")
 def fresh() -> list[dict]:
-    return list(emit.iter_flat(generate(GeneratorConfig())))
+    return _realistic_only(list(emit.iter_flat(generate(GeneratorConfig()))))
 
 
 @pytest.fixture(scope="module", params=["golden", "fresh"])

@@ -28,6 +28,9 @@
    "dimension_provenance": {
     "type": "keyword"
    },
+   "spec_quality": {
+    "type": "keyword"
+   },
    "image_id": {
     "type": "keyword"
    },
