@@ -15,7 +15,6 @@ from synthetic_industrial_products.catalog.vocab import (
     MEASUREMENT_SYSTEM_NAMES,
     MEASUREMENT_SYSTEM_VALUES,
     STANDARDS_FAMILY,
-    STANDARDS_POOL,
     VOCAB,
     names_for,
 )
@@ -89,12 +88,6 @@ def test_the_measurement_system_attribute_has_three_spellings():
 def test_measurement_system_weights_are_distributions():
     for table in (MEASUREMENT_SYSTEM_NAMES, MEASUREMENT_SYSTEM_VALUES):
         assert math.isclose(sum(weight for _, weight in table), 1.0, abs_tol=5e-3)
-
-
-def test_every_standards_family_has_a_pool_with_room_for_three_values():
-    for key, family in STANDARDS_FAMILY.items():
-        pool = STANDARDS_POOL[family]
-        assert len(pool) >= 3, f"{key} -> {family} cannot supply 1-3 distinct values"
 
 
 def test_each_type_declares_both_line_and_sku_scoped_attributes():

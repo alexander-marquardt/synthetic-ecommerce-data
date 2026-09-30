@@ -147,7 +147,8 @@ def test_the_brand_is_the_house_style():
     """Same record, another brand: different sheet, and the brand's own ink on it."""
     line, child, data, _ = DRAWINGS[0]
     record = emit.drawing_record(CATALOG, line, child)
-    other_brand = next(b for b in BRANDS if b != line.brand)
+    # Another INK: brands share inks now (the (ink, frame) pair names a brand).
+    other_brand = next(b for b in BRANDS if BRAND_INK[b] != BRAND_INK[line.brand])
     other, _ = draw_sku(line.type_key, other_brand, record)
     assert other != data
     assert BRAND_INK[other_brand].encode() in other
@@ -155,8 +156,9 @@ def test_the_brand_is_the_house_style():
 
 
 def test_every_brand_has_a_house_style_and_they_differ():
+    """Twelve inks and four frames over the brand book: the PAIR is the brand."""
     styles = {brand: house_style(brand) for brand in BRANDS}
-    assert len({(s.ink, s.paper) for s in styles.values()}) == len(BRANDS)
+    assert len({(s.ink, s.frame) for s in styles.values()}) == len(BRANDS)
     assert len({s.frame for s in styles.values()}) == 4
 
 
@@ -361,8 +363,8 @@ def test_an_m3_washer_is_drawn_smaller_than_an_m16_in_true_proportion():
     """
     m3 = {"Size": "M3", "Inside Dia.": "3.20mm", "Outside Dia.": "7mm", "Thickness": "0.50mm"}
     m16 = {"Size": "M16", "Inside Dia.": "17mm", "Outside Dia.": "30mm", "Thickness": "3mm"}
-    small, _ = draw_sku("washer_flat", "Corvane", m3)
-    large, _ = draw_sku("washer_flat", "Corvane", m16)
+    small, _ = draw_sku("washer_flat", "Dravenholt", m3)
+    large, _ = draw_sku("washer_flat", "Dravenholt", m16)
     ratio = _circle_radii(_true_scale_copy(small))[-1] / _circle_radii(_true_scale_copy(large))[-1]
     assert ratio == pytest.approx(7 / 30, abs=0.01), ratio
 
@@ -525,7 +527,10 @@ def test_the_lens_appears_exactly_when_the_rule_says():
 
 #: The smallest enlargement any committed lens gives, measured and rounded
 #: down to 0.01: the handled glass is used only at x2.5 or more, and the
-#: handle-less lens reaches x2.53 on the committed catalog's largest lensed part.
+#: handle-less lens reaches x2.52 on the committed catalog's largest lensed
+#: part. (It dropped to x2.44 while the 100K work raised the screw extents;
+#: the extents are back at their pre-100K values, parts longer than them are
+#: drawn broken, and the floor is back where it was.)
 CATALOG_MIN_ENLARGEMENT = 2.52
 
 #: What the handle-less lens gives at the rule's extreme, a part drawn a full
@@ -533,6 +538,11 @@ CATALOG_MIN_ENLARGEMENT = 2.52
 #: the lens is width-bound -- at the 8-unit margin that clears the brand frame
 #: its interior radius is ~84.1 units -- so no larger lens fits.
 EXTREME_ENLARGEMENT = 2.41
+
+#: Two committed SKUs the handle-less lens must serve: an in-between screw (an
+#: M6x1 x 10mm socket head) and a hairline drill (a 1/16" jobber). Re-picked on
+#: every regeneration; the test fails if either is gone.
+PINNED_HANDLE_LESS = ("19DG33", "3BF24")
 
 
 def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only_when_it_must_be():
@@ -545,6 +555,7 @@ def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only
 
     counts = {True: 0, False: 0}
     lowest = 99.0
+    pinned: set[str] = set()
     for parent, variant, record in _golden_skus():
         width, height = _drawn_size(parent["product_type"], record)
         mag = magnifier(width, height)
@@ -553,8 +564,12 @@ def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only
         lowest = min(lowest, mag.k)
         assert mag.handle == (_handled_k(width, height) >= 2.5), variant["sku"]
         counts[mag.handle] += 1
-        if variant["sku"] in ("4LN69", "93TD57"):  # an in-between screw, a hairline drill
+        if variant["sku"] in PINNED_HANDLE_LESS:
             assert not mag.handle, variant["sku"]
+            pinned.add(variant["sku"])
+    # Asserted, not assumed: a regeneration renumbers SKUs, and a pinned id
+    # that no longer exists used to leave this check asserting nothing.
+    assert pinned == set(PINNED_HANDLE_LESS), sorted(set(PINNED_HANDLE_LESS) - pinned)
     assert counts[True] > 100 and counts[False] > 500, counts
     assert CATALOG_MIN_ENLARGEMENT <= lowest < CATALOG_MIN_ENLARGEMENT + 0.01, lowest
     extreme = magnifier(200 / 5 - 1e-9, 300 / 6 - 1e-9)
@@ -722,8 +737,10 @@ def test_no_outline_is_thinner_than_the_minimum_stroke():
             if width is None or "stroke-opacity" in element.attrib:
                 continue
             tag = element.tag.split("}")[-1]
-            if tag in ("rect", "path") and element.attrib.get("fill") == "none" and not (
-                {"stroke-linejoin", "stroke-linecap"} & set(element.attrib)
+            if (
+                tag in ("rect", "path")
+                and element.attrib.get("fill") == "none"
+                and not ({"stroke-linejoin", "stroke-linecap"} & set(element.attrib))
             ):
                 continue  # the brand's frame (rule, rounded or corner markers)
             thinnest = min(thinnest, float(width))
@@ -732,9 +749,9 @@ def test_no_outline_is_thinner_than_the_minimum_stroke():
 
 
 def test_a_hairline_drill_is_drawn_with_a_visible_outline():
-    """Planted: 93TD57 is drawn under two units wide at its type's scale."""
+    """Planted: 3BF24 (a 1/16" jobber drill) is drawn under two units wide at its type's scale."""
     for parent, variant, record in _golden_skus():
-        if variant["sku"] == "93TD57":
+        if variant["sku"] == "3BF24":
             width, _ = _drawn_size(parent["product_type"], record)
             assert width < 2.3
             data, _ = draw_sku(parent["product_type"], parent["brand"], record)
@@ -743,7 +760,7 @@ def test_a_hairline_drill_is_drawn_with_a_visible_outline():
             ]
             assert outlines and all(float(e.attrib["stroke-width"]) >= 2.3 for e in outlines)
             return
-    raise AssertionError("93TD57 is not in the committed catalog")
+    raise AssertionError("3BF24 is not in the committed catalog")
 
 
 # --- the archive layout and its pinnable digest ----------------------------------
@@ -788,3 +805,39 @@ def test_the_content_digest_does_not_depend_on_compression(tmp_path):
 def test_a_changed_drawing_changes_the_content_digest():
     files = [("industrial/a/b/1.svg", b"<svg/>")]
     assert bundle.files_digest(files) != bundle.files_digest([("industrial/a/b/1.svg", b"<svg />")])
+
+
+#: The screw and bolt extents before the 100K catalog. An outlier length is
+#: drawn broken; it never shrinks the type's scale for every other part.
+PRE_100K_FASTENER_EXTENTS = {
+    "screw_socket_head": (2.75, 5.95),
+    "screw_flat_head": (3.7, 3.25),
+    "screw_button_head": (2.56, 2.8),
+    "screw_low_head": (2.75, 3.3),
+    "bolt_hex": (2.85, 5.35),
+}
+
+
+def test_no_fastener_is_drawn_smaller_because_of_an_outlier():
+    for type_key, extent in PRE_100K_FASTENER_EXTENTS.items():
+        assert FIGURES[type_key][1] == extent, type_key
+
+
+def test_a_part_longer_than_its_extent_is_drawn_broken_and_fits():
+    """A 14-5/8" socket screw -- the 100K catalog's longest -- fits the 5.95"
+    extent with two break lines, and a longer one still draws taller."""
+    record = {
+        "Dia./Thread Size": "3/4-10",
+        "Length": '14-5/8"',
+        "Length under Head": '14-5/8"',
+        "Thread Length": '2-1/4"',
+    }
+    figure_fn, (width, height) = FIGURES["screw_socket_head"]
+    long_part = figure_fn(record).figure
+    x0, y0, x1, y1 = long_part.bounds()
+    assert y1 - y0 <= height
+    breaks = [s for s in long_part.shapes if type(s).__name__ == "Lines" and len(s.segments) == 6]
+    assert len(breaks) >= 2
+    shorter = dict(record, **{"Length": '10"', "Length under Head": '10"'})
+    sy0, sy1 = figure_fn(shorter).figure.bounds()[1::2]
+    assert sy1 - sy0 < y1 - y0, "a longer part must still draw taller"

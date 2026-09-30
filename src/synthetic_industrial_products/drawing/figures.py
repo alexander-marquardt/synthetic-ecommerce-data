@@ -309,7 +309,29 @@ FASTENER_NOMINAL = {
 }
 
 
-def fastener(record: Record) -> Drawn:
+#: The visible share of a type's extent a broken part is drawn to, and the gap
+#: between its break lines, as shares of the extent's height.
+BREAK_START = 0.9
+BREAK_VISIBLE = 0.97
+BREAK_GAP = 0.05
+
+
+def _break_lines(fig: Figure, r: float, y: float, amplitude: float) -> None:
+    """A drafting break across a shank of radius ``r`` at ``y``: a zigzag."""
+    xs = [-r * 1.15 + k * (2.3 * r / 6) for k in range(7)]
+    points = [(x, y + (amplitude if k % 2 else -amplitude)) for k, x in enumerate(xs)]
+    fig.lines(list(zip(points, points[1:], strict=False)))
+
+
+def fastener(record: Record, max_height: float | None = None) -> Drawn:
+    """A screw or bolt, drawn to its published lengths.
+
+    ``max_height`` is the type's extent. A part longer than it is drawn with
+    the drafting BREAK convention -- the shank shortened between two break
+    lines, head and thread end kept -- rather than shrinking every part of the
+    type to fit one outlier (the 100K catalog's longest screw is 14.62"
+    against a 5.95" extent).
+    """
     rec = dict(record)
     if "Head Type" not in rec and "Screw Head Type" not in rec:
         rec["Head Type"] = "Socket"
@@ -322,7 +344,17 @@ def fastener(record: Record) -> Drawn:
     hh = geom.head_height.inches
     total = geom.total_height
     hd = geom.head_dia.inches
-    fig = Figure(size_in=total)
+    # A part past BREAK_START of the extent is drawn broken, to a visible
+    # height that still GROWS with its true length (compressed, never past
+    # BREAK_VISIBLE of the extent), so two variants of different lengths
+    # never draw alike.
+    visible = None
+    if max_height is not None and total > max_height * BREAK_START:
+        start = max_height * BREAK_START
+        room = max_height * (BREAK_VISIBLE - BREAK_START)
+        visible = start + room * (1 - math.exp(-(total - start) / (2 * max_height)))
+    broken = visible is not None
+    fig = Figure(size_in=visible if broken else total)
     # Head, top at y = 0.
     if geom.countersunk:
         fig.poly([(-hd / 2, 0.0), (hd / 2, 0.0), (r, hh), (-r, hh)])
@@ -343,20 +375,49 @@ def fastener(record: Record) -> Drawn:
     # Shank: plain above the thread, threaded below.
     shank_top = hh
     thread_top = total - geom.threaded_length
-    if thread_top > shank_top:
-        fig.rect(-r, shank_top, r, thread_top, "plain")
     chamfer = min(geom.thread.pitch_in, geom.threaded_length / 4)
-    fig.poly(
-        [
-            (-r, thread_top),
-            (r, thread_top),
-            (r, total - chamfer),
-            (r - chamfer, total),
-            (-r + chamfer, total),
-            (-r, total - chamfer),
-        ]
-    )
-    fig.lines(_thread_crests(r, thread_top, total - chamfer, geom.thread.pitch_in))
+
+    def interval(a: float, b: float, shift: float) -> None:
+        """The shank between ``a`` and ``b`` (true lengths), drawn ``shift`` up."""
+        plain_to = min(b, thread_top)
+        if plain_to > a:
+            fig.rect(-r, a - shift, r, plain_to - shift, "plain")
+        start = max(a, thread_top)
+        if b <= start:
+            return
+        end_chamfer = chamfer if b >= total else 0.0
+        fig.poly(
+            [
+                (-r, start - shift),
+                (r, start - shift),
+                (r, b - end_chamfer - shift),
+                (r - end_chamfer, b - shift),
+                (-r + end_chamfer, b - shift),
+                (-r, b - end_chamfer - shift),
+            ]
+        )
+        fig.lines(
+            [
+                ((x0, y0 - shift), (x1, y1 - shift))
+                for (x0, y0), (x1, y1) in _thread_crests(
+                    r, start, b - end_chamfer, geom.thread.pitch_in
+                )
+            ]
+        )
+
+    if not broken:
+        interval(shank_top, total, 0.0)
+    else:
+        assert visible is not None and max_height is not None
+        gap = max_height * BREAK_GAP
+        body = visible - gap
+        cut = hh + 0.35 * (body - hh)
+        resume = total - (body - cut)
+        interval(shank_top, cut, 0.0)
+        interval(resume, total, total - visible)
+        amplitude = gap * 0.12
+        _break_lines(fig, r, cut, amplitude)
+        _break_lines(fig, r, cut + gap, amplitude)
     # End view of the head, beside it: the drive a shopper would see.
     cx = max(hd, major) * 1.25
     cy = hd / 2
@@ -435,7 +496,7 @@ def flap_disc(record: Record) -> Drawn:
 
 # --- hand tools --------------------------------------------------------------
 
-HANDLE_FILL = {"Hickory": "#c89a5b", "Fiberglass": "#e2c64a", "Steel": "#9aa3aa"}
+HANDLE_FILL = {"Hickory": "#c89a5b", "Ash": "#dcc08e", "Fiberglass": "#e2c64a", "Steel": "#9aa3aa"}
 GRIP_FILL = {"Rubber": "#3d3d3d", "Vinyl": "#51638a"}
 
 
@@ -482,16 +543,30 @@ def hammer(record: Record) -> Drawn:
 #: therefore ONE constant per type (:mod:`.sheet`);
 #: ``tests/test_sku_drawings.py`` asserts no product's drawing exceeds it, so
 #: a regeneration that grows past it is red instead of silently fitted.
+#:
+#: The five screw and bolt extents are the PRE-100K ones. A part longer than
+#: its type's extent (the 100K catalog reaches 14.62" on one socket screw) is
+#: drawn broken, not shrunk: raising the extent to fit it drew every socket
+#: screw ~2.5x smaller. ``tests/test_sku_drawings.py`` pins the extents.
+def _broken(width: float, height: float) -> Callable[[Record], Drawn]:
+    """The fastener figure for a type whose extent is ``height`` tall."""
+
+    def figure(record: Record) -> Drawn:
+        return fastener(record, max_height=height)
+
+    return figure
+
+
 FIGURES: dict[str, tuple[Callable[[Record], Drawn], tuple[float, float]]] = {
-    "end_mill_square": (end_mill, (3.3, 9.5)),
-    "end_mill_ball": (end_mill, (3.3, 9.5)),
+    "end_mill_square": (end_mill, (3.3, 9.8)),
+    "end_mill_ball": (end_mill, (3.3, 9.8)),
     "drill_jobber": (drill, (0.52, 8.8)),
     "tap_spiral_point": (tap, (0.52, 4.15)),
-    "screw_socket_head": (fastener, (2.75, 5.95)),
-    "screw_flat_head": (fastener, (3.7, 3.25)),
-    "screw_button_head": (fastener, (2.56, 2.8)),
-    "screw_low_head": (fastener, (2.75, 3.3)),
-    "bolt_hex": (fastener, (2.85, 5.35)),
+    "screw_socket_head": (_broken(2.75, 5.95), (2.75, 5.95)),
+    "screw_flat_head": (_broken(3.7, 3.25), (3.7, 3.25)),
+    "screw_button_head": (_broken(2.56, 2.8), (2.56, 2.8)),
+    "screw_low_head": (_broken(2.75, 3.3), (2.75, 3.3)),
+    "bolt_hex": (_broken(2.85, 5.35), (2.85, 5.35)),
     "washer_flat": (washer, (1.5, 2.15)),
     "hammer_ball_pein": (hammer, (5.8, 18.25)),
     "abrasive_flap_disc": (flap_disc, (7.25, 7.25)),
@@ -667,8 +742,42 @@ def hex_key(record: Record) -> Drawn:
     return Drawn(fig, source)
 
 
+def _kit_slots(record: Record) -> int:
+    """How many items the kit's case shows: one slot per listed size, up to 15."""
+    contents = record.get("Sizes Included")
+    if contents:
+        return max(1, min(15, len([c for c in str(contents).split(",") if c.strip()])))
+    try:
+        return max(1, min(15, int(float(str(record.get("Number of Pieces", "6"))))))
+    except ValueError:
+        return 6
+
+
+def kit(record: Record) -> Drawn:
+    """An open case: a lid and a tray of slots, one per size, stepped as a set is.
+
+    Text-free like every other drawing; the slots rise left to right the way an
+    index or a key set is laid out, so a 29-piece index and a 7-piece set read
+    differently at a glance.
+    """
+    slots = _kit_slots(record)
+    width = 0.4 + 0.35 * slots
+    tray, lid = 1.6, 1.2
+    fig = Figure(size_in=width)
+    fig.rect(0.0, 0.0, width, lid, "plain")
+    fig.rect(0.0, lid + 0.15, width, lid + 0.15 + tray)
+    for k in range(slots):
+        x = 0.2 + 0.35 * k
+        rise = 0.25 + 1.05 * (k + 1) / slots
+        floor = lid + 0.15 + tray - 0.12
+        fig.rect(x + 0.06, floor - rise, x + 0.29, floor, "hole")
+    fig.lines([((0.0, lid), (width, lid))])
+    return Drawn(fig, "record" if record.get("Sizes Included") else "partial")
+
+
 FIGURES.update(
     {
+        "kit_assortment": (kit, (5.65, 2.95)),
         "nut_hex": (hex_nut, (1.95, 3.5)),
         "bearing_radial_ball": (bearing, (3.25, 4.95)),
         "wheel_depressed_center": (depressed_wheel, (9.3, 13.2)),

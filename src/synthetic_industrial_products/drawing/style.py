@@ -6,9 +6,10 @@ the product id or chance (elastic/prism-industrial-products#103, rulings of
 differ, and driven by the record that conclusion is right.
 
 =====================  ==============================================
-outline colour         the brand (one hue per brand, invertible)
-paper tone             the brand (a faint tint of its hue)
+outline colour         the brand (one of twelve inks)
+paper tone             the brand (one of six tints, independent of the ink)
 frame                  the brand (one of four frame treatments)
+(ink, frame)           unique per brand, so the pair names the brand
 part fill              the published finish; else the material's colour
 section hatch          the published material
 =====================  ==============================================
@@ -21,14 +22,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..render.marking import BRAND_INK, FINISH_TINT
-
-#: The four frame treatments a brand's sheets use.
-FRAMES: tuple[str, ...] = ("none", "rule", "rounded", "corners")
-
-#: Brands in a fixed order; a brand's frame is chosen by its position, so the
-#: assignment is part of the code, reviewable, and never re-rolled.
-BRAND_ORDER: tuple[str, ...] = tuple(BRAND_INK)
+from ..catalog import brands
+from ..render.marking import FINISH_TINT
 
 #: What a part is coloured when the record publishes no finish: the colour of
 #: the bare material. Brass is yellow and nylon is off-white whether or not a
@@ -58,7 +53,6 @@ MATERIAL_FILL: dict[str, str] = {
 
 #: Finishes the original twelve types never published, and their colours.
 EXTRA_FINISH_TINT: dict[str, str] = {
-    "Zinc Yellow": "#ecdf8f",
     "Chrome Plated": "#f0f3f6",
 }
 
@@ -126,12 +120,28 @@ class UnknownStyleError(KeyError):
 
 
 def house_style(brand: str) -> HouseStyle:
-    try:
-        ink = BRAND_INK[brand]
-    except KeyError as exc:
-        raise UnknownStyleError(f"no house style for brand {brand!r}") from exc
-    frame = FRAMES[BRAND_ORDER.index(brand) % len(FRAMES)]
-    return HouseStyle(ink=ink, paper=_mix(ink, "#ffffff", 0.06), frame=frame)
+    """The brand's house style, from the brand book: its ink and its frame.
+
+    Assigned in the book, reviewable, never re-rolled. The (ink, frame) pair
+    is unique per brand; :func:`brand_for_house_style` reads it back.
+    """
+    if brand not in brands.BY_NAME:
+        raise UnknownStyleError(f"no house style for brand {brand!r}")
+    ink = brands.ink_of(brand)
+    return HouseStyle(ink=ink, paper=brands.paper_of(brand), frame=brands.frame_of(brand))
+
+
+def brand_for_house_style(ink: str, frame: str) -> str:
+    """The brand an (ink, frame) pair names -- the encoding, read backwards.
+
+    A pair no brand claims raises: a near miss resolved to the closest brand
+    would be a confident wrong answer.
+    """
+    lowered = ink.strip().lower()
+    for brand in brands.BRANDS:
+        if brands.ink_of(brand).lower() == lowered and brands.frame_of(brand) == frame:
+            return brand
+    raise UnknownStyleError(f"no brand draws in ink {ink!r} with frame {frame!r}")
 
 
 def part_fill(finish: str | None, material: str | None) -> str:

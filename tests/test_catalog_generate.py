@@ -29,7 +29,7 @@ def config():
     return GeneratorConfig(
         lines=600,
         seed=99,
-        new_type_products={key: 60 for key in GeneratorConfig().new_type_products},
+        new_type_share={key: 0.1 for key in GeneratorConfig().new_type_share},
     )
 
 
@@ -244,15 +244,15 @@ def test_the_sparsity_knob_moves_the_attribute_count():
 
 
 def test_the_line_and_sku_count_knobs_move_the_catalog_size():
-    none = {key: 0 for key in GeneratorConfig().new_type_products}
-    small = measure(generate(GeneratorConfig(lines=50, seed=3, new_type_products=none)))
-    large = measure(generate(GeneratorConfig(lines=150, seed=3, new_type_products=none)))
-    assert large["lines"] > small["lines"] * 2
-    assert large["skus"] > small["skus"] * 2
+    none = {key: 0.0 for key in GeneratorConfig().new_type_share}
+    small = measure(generate(GeneratorConfig(lines=50, seed=3, new_type_share=none)))
+    large = measure(generate(GeneratorConfig(lines=150, seed=3, new_type_share=none)))
+    # Not quite twice: a bigger catalog draws more specs a brand has already
+    # made, and the uniqueness rule rejects them (measured 296 vs 152 lines).
+    assert large["lines"] > small["lines"] * 1.8
+    assert large["skus"] > small["skus"] * 1.8
 
-    narrow = measure(
-        generate(GeneratorConfig(lines=60, seed=3, variants_per_product=((1, 1.0),)))
-    )
+    narrow = measure(generate(GeneratorConfig(lines=60, seed=3, variants_per_product=((1, 1.0),))))
     wide = measure(generate(GeneratorConfig(lines=60, seed=3, variants_per_product=((5, 1.0),))))
     assert narrow["skus"] == narrow["lines"], "one variant per product, exactly"
     assert wide["skus"] > narrow["skus"] * 2
@@ -348,7 +348,7 @@ def _fastener_types() -> tuple[str, ...]:
 
 
 def test_every_screw_and_bolt_line_publishes_a_length_under_head(catalog):
-    """On every style, in both systems, unconditionally.
+    """On every style but the countersunk one, in both systems, unconditionally.
 
     ``Length`` and ``Thread Length`` were both present before this and neither
     is the measurement a shopper's "x 3/4" names: thread length is how much of
@@ -357,7 +357,9 @@ def test_every_screw_and_bolt_line_publishes_a_length_under_head(catalog):
     results rather than an empty set.
     """
     types = _fastener_types()
-    assert len(types) >= 5, types
+    # Socket, button and low head screws and the hex bolt; the flat head is
+    # sold by its length over the head and publishes none (see below).
+    assert len(types) >= 4 and "screw_flat_head" not in types, types
     seen_systems: dict[str, set[str]] = {}
     for line, child in catalog.all_skus():
         if line.type_key not in types:
@@ -370,18 +372,23 @@ def test_every_screw_and_bolt_line_publishes_a_length_under_head(catalog):
     assert {system for systems in seen_systems.values() for system in systems} == {"in", "mm"}
 
 
-def test_the_length_under_head_is_shorter_than_the_length_on_a_countersunk_screw(catalog):
-    """And equal to it on every other style, which is what makes it a real attribute.
+def test_the_length_under_head_is_the_stocked_length_and_a_countersunk_screw_has_none(catalog):
+    """On every style that publishes it, the length under the head IS the
+    stocked nominal length; the countersunk line does not publish it.
 
-    A flat head sinks into the work, so its published length is measured over
-    the head; every other style's is measured under it. If the two attributes
-    agreed everywhere, one of them would be a second spelling of the other.
+    A flat head is sold by its length OVER the head (ISO 10642, ASME B18.3), so
+    its "x 3/4" is its ``Length``. Publishing length-less-head-height for it
+    put values no distributor lists -- 12.56mm, 1.3910" -- in the facet.
     """
     from synthetic_industrial_products.dimensions import DimensionParseError, parse_length
 
-    shorter = same = 0
+    same = flat = 0
     for line, child in catalog.all_skus():
         values = {a.name: a.value for a in child.attributes}
+        if line.type_key == "screw_flat_head":
+            assert "Length under Head" not in values, f"{child.sku}: {values}"
+            flat += 1
+            continue
         if "Length under Head" not in values or "Length" not in values:
             continue
         try:
@@ -389,16 +396,12 @@ def test_the_length_under_head_is_shorter_than_the_length_on_a_countersunk_screw
             under = parse_length(values["Length under Head"]).inches
         except DimensionParseError:
             continue
-        if line.type_key == "screw_flat_head":
-            assert under < length, f"{child.sku}: {values}"
-            shorter += 1
-        else:
-            # Tolerant of the last published decimal, and of nothing else: the
-            # unit-mixing defect republishes one dimension of a record in the
-            # other system, so a 20 mm length can appear beside a 0.7874" one.
-            assert under == pytest.approx(length, abs=0.001), f"{child.sku}: {values}"
-            same += 1
-    assert shorter > 30 and same > 150, (shorter, same)
+        # Tolerant of the last published decimal, and of nothing else: the
+        # unit-mixing defect republishes one dimension of a record in the
+        # other system, so a 20 mm length can appear beside a 0.7874" one.
+        assert under == pytest.approx(length, abs=0.001), f"{child.sku}: {values}"
+        same += 1
+    assert flat > 30 and same > 150, (flat, same)
 
 
 def test_the_catalog_offers_all_four_socket_screw_styles(catalog):

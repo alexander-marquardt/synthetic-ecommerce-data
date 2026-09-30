@@ -21,7 +21,9 @@ from synthetic_industrial_products.records import FIXTURES
 
 @pytest.fixture(scope="module")
 def catalog():
-    return generate(GeneratorConfig(lines=120, seed=4242))
+    # 300 lines: the newer types scale with ``lines`` now, so the 120 this
+    # used carried too few SKUs for the comparison to fire over 500 of them.
+    return generate(GeneratorConfig(lines=300, seed=4242))
 
 
 def test_the_reference_set_is_not_empty():
