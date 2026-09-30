@@ -231,3 +231,103 @@ def test_every_row_carries_every_term_its_reason_cites():
             failures.append((row.key, missing))
 
     assert not failures, failures
+
+
+def test_every_row_declares_a_valid_price_range():
+    """alexander-marquardt/synthetic-industrial-products#37.
+
+    Every row's own ``price_range`` is a real ``(min, max)`` band -- not the
+    flat ``$2.50-9.00`` every breadth SKU used to draw from regardless of
+    category (a Bench Vise and a Ball Valve priced like a fastener, a Rubber
+    Ball pricier than a Stainless Steel precision ball).
+    """
+    for row in breadth.ROWS:
+        lo, hi = row.price_range
+        assert lo > 0, (row.key, row.price_range)
+        assert lo < hi, (row.key, row.price_range)
+
+
+def test_price_ranges_are_not_all_the_same_flat_band(catalog, breadth_lines):
+    """The acceptance criterion, over the real generated catalog.
+
+    Not every row needs a UNIQUE band, but they must not all collapse back to
+    one -- the defect #37 reported. Measured on the generated SKUs' own
+    published prices, not on the table, so a row whose range is authored but
+    never reached by ``build_line`` would still be caught.
+    """
+    bands = {(round(child.price_usd, 0) // 10) for line in breadth_lines for child in line.children}
+    assert len(bands) > 1, "every breadth SKU still prices in the same band"
+
+    by_key = {line.type_key: line for line in breadth_lines}
+    bench_vise_price = by_key["bench_vises"].children[0].price_usd
+    ball_valve_price = by_key["ball_valves"].children[0].price_usd
+    rubber_ball_price = by_key["ball_stock_rubber"].children[0].price_usd
+    precision_ball_prices = [c.price_usd for c in by_key["ball_stock_precision"].children]
+    assert bench_vise_price > 20, "a bench vise must not price like a fastener"
+    assert ball_valve_price > 5, "a ball valve must not price like a fastener"
+    assert rubber_ball_price < max(precision_ball_prices), (
+        "a rubber ball must not price above a stainless precision ball"
+    )
+
+
+def test_finish_never_plates_a_stainless_material():
+    """alexander-marquardt/synthetic-industrial-products#37.
+
+    The deep generator already refuses plating a stainless material
+    (``WASHER_FINISHES`` / the kit-finish rule in ``newtypes.py``); breadth
+    rows now follow the same rule. Driven over every row that declares BOTH
+    a ``Material`` and a ``Finish`` attribute, across enough seeds that a
+    plating draw is exercised for a stainless line (the field is drawn once
+    per line, so a single seed cannot prove the correction fires).
+    """
+    rows_with_both = [
+        row for row in breadth.ROWS if "Material" in row.attributes and "Finish" in row.attributes
+    ]
+    assert rows_with_both, "no row exercises this rule at all"
+
+    plating = breadth._PLATING_FINISHES
+    violations: list[tuple[str, str, str]] = []
+    exercised_a_plating_redraw = False
+    for seed in range(30):
+        config = GeneratorConfig(lines=1, new_type_share={}, seed=seed)
+        built = generate(config)
+        for line in built.lines:
+            if line.spec_quality != "fast_and_cheap":
+                continue
+            attrs = {a.name: a.value for a in line.attributes}
+            material = attrs.get("Material", "")
+            finish = attrs.get("Finish")
+            if finish is None:
+                continue
+            if "Stainless" in material:
+                if finish in plating:
+                    violations.append((line.type_key, material, finish))
+                else:
+                    exercised_a_plating_redraw = True
+
+    assert not violations, violations
+    assert exercised_a_plating_redraw, (
+        "no seed drew a stainless material for a Finish-bearing row -- this "
+        "test proves nothing about whether the correction fires"
+    )
+
+
+def test_a_row_may_still_author_a_stainless_plating_deliberately():
+    """``featured_attrs`` is a choice, not a draw -- the correction must not
+    override it."""
+    row = breadth.BreadthRow(
+        key="test_row",
+        category=("Test",),
+        family="fastener",
+        shape="block",
+        item="Test Part",
+        size_attr="Length",
+        size_values=("1 in",),
+        attributes={"Material": ("Stainless Steel",), "Finish": ("Zinc Plated",)},
+        skus=1,
+        reason="test",
+        featured_attrs={"Material": "Stainless Steel", "Finish": "Zinc Plated"},
+    )
+    chosen = {"Material": "Stainless Steel", "Finish": "Zinc Plated"}
+    breadth._apply_finish_follows_material(chosen, row, __import__("random").Random(0))
+    assert chosen["Finish"] == "Zinc Plated"
