@@ -192,9 +192,17 @@ def test_nominal_geometry_stays_rare():
     A drawing whose primary dimension is unreadable is drawn at its kind's
     nominal proportions. That is honest -- it states no number -- but it
     should be the exception the defect rates make it, not a default.
+
+    Exempts the breadth categories (:mod:`.catalog.breadth`,
+    alexander-marquardt/synthetic-industrial-products#34): their fixed-shape
+    drawings never read the record AT ALL, so ``source`` is "nominal" for
+    100% of them, by design (maintainer, 2026-09-30: "just something to fill
+    up the image").
     """
     by_type: dict[str, Counter] = defaultdict(Counter)
     for line, _, _, source in DRAWINGS:
+        if line.spec_quality == "fast_and_cheap":
+            continue
         by_type[line.type_key][source] += 1
     for type_key, counts in by_type.items():
         share = counts["nominal"] / sum(counts.values())
@@ -303,10 +311,18 @@ def test_siblings_whose_drawn_values_differ_never_draw_alike():
     whose drawings were identical bytes although their dimensions differed --
     proportional end mills, and every washer below half the largest, clamped
     to one size.
+
+    Exempts the breadth categories (:mod:`.catalog.breadth`,
+    alexander-marquardt/synthetic-industrial-products#34): their fixed-shape
+    drawings never read the record, so two siblings of one breadth product --
+    say two ball diameters -- draw identically BY DESIGN, the property this
+    test exists to catch everywhere else.
     """
     offenders = []
     for line in (GOLDEN / "nested.jsonl").read_text("utf-8").splitlines():
         parent = json.loads(line)
+        if parent.get("spec_quality") == "fast_and_cheap":
+            continue
         if len(parent["variants"]) < 2:
             continue
         drawn: dict[bytes, dict] = {}

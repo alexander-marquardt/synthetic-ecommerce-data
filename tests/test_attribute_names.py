@@ -162,7 +162,11 @@ def test_every_category_leaf_ends_in_its_own_product_noun():
 
 
 def test_the_head_noun_rule_bites():
-    leaf = "tap wrenches"
+    # "Tap" is registered but not at the HEAD; "Handle" (the head) is not
+    # registered at all -- neither the breadth categories
+    # (alexander-marquardt/synthetic-industrial-products#34) nor anything
+    # before them use it, so this stays a genuine negative control.
+    leaf = "tap handles"
     assert not any(
         re.search(rf"\b{re.escape(noun.lower())}(e?s)$", leaf) for noun in names.PRODUCT_NOUNS
     )

@@ -1,0 +1,293 @@
+"""Catalog BREADTH: ~50 new categories, 1-2 SKUs each, from ONE data table.
+
+alexander-marquardt/synthetic-industrial-products#34. The maintainer's own
+comparison: a real industrial storefront returns 51 items across 9 categories
+for ``1/2 ball`` (tooling balls, rubber balls, ball stock, gage balls, ...);
+this catalog's twelve original types return 488 across 3 (ball end mills,
+ball-end hex keys, radial bearings). Description noise adds hits WITHIN a
+type; it cannot add a category. This module does, cheaply:
+
+* **ONE YAML table** (``data/breadth_categories.yaml``, :func:`load_rows`),
+  ~50 rows: a category path, a shape, an item noun, 3-5 line-scoped
+  attributes with short value lists, one variant (size) attribute, and a
+  one-line reason naming the customer query it joins.
+* **ONE generic loop** (:func:`build_line`) turns a row into a
+  :class:`~.model.ProductLine` of 1-2 SKUs, reusing the catalog's brand
+  machinery (:func:`.brands.pick_brand`), its description grammar
+  (:meth:`.generate.Generator._build_description`) and its noise generator
+  (:mod:`.noise`) exactly as the twelve original types do. Titles are built
+  directly with :func:`.naming.build_title` rather than through the full
+  title algorithm (:meth:`.generate.Generator._build_line_title`): a breadth
+  title is deliberately the SHORT ``<descriptor> <item>, <size>`` shape
+  (maintainer, 2026-09-30: "Stainless Steel Ball, 1/2 in"), not the
+  multi-segment census grammar the deep types reproduce.
+* No sparsity, no injected defects, no ``Standards`` claim: every declared
+  attribute is always published. Cheap means simple, not merely small.
+
+Every row publishes a top-level ``spec_quality: "fast_and_cheap"``
+(:attr:`.model.ProductLine.spec_quality`) -- never a nested attribute, so it
+is neither searchable text nor a facet on the industrial deployment. Removing
+a row from the table, or the whole table, removes every SKU it made and
+nothing else: :func:`build_line` reads only the row it is given, and no
+other code path constructs a ``fast_and_cheap`` line.
+
+Registration. A breadth row is a full product TYPE to the rest of the
+generator -- it needs a category leaf (:data:`.taxonomy.LEAVES`), a drawing
+(:data:`.taxonomy.DRAWING`), a brand family (:data:`.vocab.STANDARDS_FAMILY`)
+and a vocabulary entry (:data:`.vocab.VOCAB`, so
+``tests/test_catalog_vocab.py``'s ``set(VOCAB) == set(taxonomy.LEAVES) ==
+set(STANDARDS_FAMILY)`` invariant holds) -- and a fixed-shape SVG figure
+(:data:`..drawing.figures.FIGURES`). :func:`register` adds all five, from the
+table alone: no per-category code, one generic registration for all ~50 rows.
+It runs once, at import.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from importlib import resources
+from typing import TYPE_CHECKING, Any
+
+import yaml
+
+from ..drawing.breadth_shapes import BREADTH_SHAPES
+from ..drawing.figures import FIGURES
+from . import taxonomy
+from .model import Attribute, ProductLine, Sku, keyword_attribute, length_attribute
+from .naming import Segment, build_title
+from .vocab import STANDARDS_FAMILY, VOCAB, AttrSpec
+from .voice import product_name
+
+if TYPE_CHECKING:
+    from .generate import Generator
+
+#: Every breadth row publishes this, verbatim, on ``dimension_provenance``:
+#: honest about where its numbers came from, and distinct from every deep
+#: type's provenance string so a reader is never told a breadth SKU's sizes
+#: are read from a standard or generated to fill a conventional series.
+PROVENANCE = "breadth filler: a short, plausible size list, not modelled on any standard"
+
+#: "spec_quality" (:attr:`.model.ProductLine.spec_quality`) for every row this
+#: module builds.
+SPEC_QUALITY = "fast_and_cheap"
+
+
+@dataclass(frozen=True)
+class BreadthRow:
+    """One row of ``data/breadth_categories.yaml``."""
+
+    key: str
+    category: tuple[str, ...]
+    family: str
+    shape: str
+    item: str
+    size_attr: str
+    size_values: tuple[str, ...]
+    attributes: dict[str, tuple[str, ...]]
+    skus: int
+    reason: str
+    descriptor_attr: str | None = None
+    #: Size values ``reason`` names explicitly (quoted, before any "overlap"
+    #: clause) -- these MUST appear among the row's SKUs; a plain rotation
+    #: from index 0 cannot promise that (#35 review). Any SKU slots beyond
+    #: these still come from :meth:`~.generate.Generator._rotate` over the
+    #: remaining, non-featured values, so a row with no cited size keeps its
+    #: old rotating behaviour untouched.
+    featured_sizes: tuple[str, ...] = ()
+    #: Line attribute VALUES ``reason`` names explicitly (e.g. a material the
+    #: cited query names) -- fixed rather than drawn by ``rng.choice``, which
+    #: otherwise misses the cited value some of the time. Keyed by attribute
+    #: name; an attribute absent here is still drawn randomly, unchanged.
+    featured_attrs: dict[str, str] = field(default_factory=dict)
+
+
+def _row_from_dict(raw: dict[str, Any]) -> BreadthRow:
+    return BreadthRow(
+        key=raw["key"],
+        category=tuple(raw["category"]),
+        family=raw["family"],
+        shape=raw["shape"],
+        item=raw["item"],
+        size_attr=raw["size_attr"],
+        size_values=tuple(raw["size_values"]),
+        attributes={name: tuple(values) for name, values in raw["attributes"].items()},
+        skus=int(raw["skus"]),
+        reason=raw["reason"],
+        descriptor_attr=raw.get("descriptor_attr"),
+        featured_sizes=tuple(raw.get("featured_sizes") or ()),
+        featured_attrs=dict(raw.get("featured_attrs") or {}),
+    )
+
+
+def load_rows() -> tuple[BreadthRow, ...]:
+    text = (
+        resources.files("synthetic_industrial_products.data")
+        .joinpath("breadth_categories.yaml")
+        .read_text("utf-8")
+    )
+    return tuple(_row_from_dict(raw) for raw in yaml.safe_load(text))
+
+
+#: Loaded once, at import. Removing every row from the YAML table -- the
+#: "easy removal" property ``tests/test_breadth.py`` checks -- empties this,
+#: :func:`register` then registers nothing, and
+#: ``Generator._generate_breadth`` (:mod:`.generate`) then has no rows to
+#: build lines from: no other code path constructs a breadth line.
+ROWS: tuple[BreadthRow, ...] = load_rows()
+
+
+def register(rows: tuple[BreadthRow, ...] = ROWS) -> None:
+    """Wire ``rows`` into the shared, type-keyed registries every row needs.
+
+    Idempotent (every assignment is keyed by the row's own ``key``, so a
+    second call overwrites each entry with itself) and safe to call with an
+    empty ``rows``, which registers nothing.
+    """
+    for row in rows:
+        taxonomy.LEAVES[row.key] = (row.category,)
+        taxonomy.DRAWING[row.key] = row.shape
+        STANDARDS_FAMILY[row.key] = row.family
+        shape_fn, extent = BREADTH_SHAPES[row.shape]
+        FIGURES[row.key] = (shape_fn, extent)
+        specs = [AttrSpec(name="Item", scope="line")]
+        specs.extend(AttrSpec(name=name, scope="line") for name in row.attributes)
+        specs.append(AttrSpec(name=row.size_attr, scope="sku", kind="length"))
+        VOCAB[row.key] = tuple(specs)
+
+
+register()
+
+
+def _build_sku(
+    gen: Generator,
+    row: BreadthRow,
+    item_text: str,
+    size_value: str,
+    sku: str,
+    price: float,
+    stock: int,
+    draft,
+    product_id: str,
+) -> Sku:
+    """One SKU: its title (built directly, not through the census grammar),
+    its description (:meth:`.generate.Generator._build_description`, reused
+    exactly as every other type calls it) and its noise (:mod:`.noise`)."""
+    from . import compat, noise  # noqa: PLC0415 -- see newtypes.py for why: avoids the cycle
+
+    size_attribute = length_attribute(row.size_attr, size_value)
+    title = build_title(item_text, (Segment(value=size_value, attribute=row.size_attr),))
+    merged = {a.name: a.value for a in draft.line_attrs}
+    merged[row.size_attr] = size_value
+    compatibility = compat.sentence_for(row.key, merged) or ""
+    noise_text = " ".join(
+        noise.sentences(
+            row.key,
+            merged,
+            sku=sku,
+            seed=gen.config.seed,
+            noise=gen.config.noise,
+            provenance=PROVENANCE,
+            primary=None,
+            siblings=(),
+        )
+    )
+    extra = " ".join(part for part in (compatibility, noise_text) if part)
+    description = gen._build_description(draft, title, [size_attribute], extra)  # noqa: SLF001
+    return Sku(
+        sku=sku,
+        title=title.text,
+        description=description,
+        attributes=(size_attribute,),
+        price_usd=price,
+        stock=stock,
+        image_id=taxonomy.image_id_for(row.key, product_id, sku),
+        compatibility=compatibility,
+        noise=noise_text,
+    )
+
+
+def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
+    """One breadth product line: 1-2 SKUs, from ``row`` alone.
+
+    ``gen`` is the row's OWN sub-generator (:class:`.generate._BreadthGenerator`),
+    seeded from ``(seed, "breadth", row.key)`` -- adding, removing or
+    reordering a row moves no other row's draws, the same guarantee the newer
+    types have (:mod:`.newtypes`).
+    """
+    from . import brands  # noqa: PLC0415
+    from .generate import LineDraft  # noqa: PLC0415
+
+    rng = gen.rng
+    brand = brands.pick_brand(rng, row.key)
+
+    line_attrs: list[Attribute] = [keyword_attribute("Item", row.item)]
+    chosen: dict[str, str] = {}
+    descriptor_value: str | None = None
+    for name, values in row.attributes.items():
+        value = row.featured_attrs.get(name) or rng.choice(values)
+        chosen[name] = value
+        line_attrs.append(keyword_attribute(name, value))
+        if name == row.descriptor_attr:
+            descriptor_value = value
+    item_text = f"{descriptor_value} {row.item}" if descriptor_value else row.item
+
+    count = max(1, min(row.skus, len(row.size_values)))
+    # Featured sizes fill the row's SKU slots first, so a size ``reason``
+    # cites is never left out to a rotation that starts at index 0 every
+    # time (#35 review -- every row is built exactly once, so the rotation
+    # never gets a second pass to reach a later value). Any slots left over
+    # still rotate over the remaining, non-featured values, unchanged for a
+    # row with no featured sizes.
+    featured_sizes = [value for value in row.featured_sizes if value in row.size_values][:count]
+    remaining_pool = [value for value in row.size_values if value not in featured_sizes]
+    extra_needed = count - len(featured_sizes)
+    extra: list[str] = []
+    if extra_needed > 0 and remaining_pool:
+        window = len(remaining_pool) - min(extra_needed, len(remaining_pool)) + 1
+        start = gen._rotate(f"breadth:{row.key}:size", window)  # noqa: SLF001
+        extra = remaining_pool[start : start + extra_needed]
+    sizes = featured_sizes + extra
+
+    series = f"BR{rng.randint(100, 999)}"
+    draft = LineDraft(
+        item=item_text,
+        brand=brand,
+        series=series,
+        category=row.category,
+        line_attrs=line_attrs,
+        provenance=PROVENANCE,
+        descriptors=[(name, value) for name, value in chosen.items()],
+    )
+    draft.type_key = row.key
+    gen._line_facts = {a.name: a.value for a in line_attrs}  # noqa: SLF001
+    product_id = f"{brands.BY_NAME[brand].code}-{series}-{index:04d}"
+
+    children: list[Sku] = []
+    for size_value in sizes:
+        sku = gen._new_sku()  # noqa: SLF001
+        price = round(max(1.25, rng.uniform(2.5, 9.0)), 2)
+        stock_pool = (0, rng.randint(1, 40), rng.randint(40, 900))
+        stock = rng.choices(stock_pool, weights=(0.08, 0.42, 0.5))[0]
+        children.append(
+            _build_sku(gen, row, item_text, size_value, sku, price, stock, draft, product_id)
+        )
+        gen._bump("skus")  # noqa: SLF001
+        gen._bump("breadth_skus")  # noqa: SLF001
+
+    parent_title = product_name(brand, series, item_text, row.family)
+    gen._bump("lines")  # noqa: SLF001
+    gen._bump("breadth_lines")  # noqa: SLF001
+    return ProductLine(
+        product_id=product_id,
+        type_key=row.key,
+        title=parent_title,
+        brand=brand,
+        series=series,
+        category=row.category,
+        attributes=tuple(line_attrs),
+        children=tuple(children),
+        dimension_provenance=PROVENANCE,
+        spec_quality=SPEC_QUALITY,
+        image_id=children[0].image_id,
+        drawing=taxonomy.drawing_for(row.key),
+    )

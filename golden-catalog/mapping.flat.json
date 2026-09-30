@@ -53,6 +53,9 @@
    "dimension_provenance": {
     "type": "keyword"
    },
+   "spec_quality": {
+    "type": "keyword"
+   },
    "price_usd": {
     "type": "double"
    },

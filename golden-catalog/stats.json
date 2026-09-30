@@ -1,6 +1,6 @@
 {
- "lines": 5252,
- "skus": 9690,
+ "lines": 5302,
+ "skus": 9779,
  "lines_by_type": {
   "end_mill_square": 498,
   "end_mill_ball": 285,
@@ -18,7 +18,57 @@
   "bearing_radial_ball": 660,
   "wheel_depressed_center": 670,
   "hex_key": 630,
-  "kit_assortment": 59
+  "kit_assortment": 59,
+  "ball_stock_precision": 1,
+  "ball_stock_rubber": 1,
+  "bar_stock_hex": 1,
+  "bar_stock_round": 1,
+  "bar_stock_square": 1,
+  "threaded_rod": 1,
+  "studs_double_end": 1,
+  "set_screws_hex_socket": 1,
+  "lock_nuts_nylon_insert": 1,
+  "flange_nuts": 1,
+  "coupling_nuts": 1,
+  "t_slot_nuts": 1,
+  "cap_nuts_acorn": 1,
+  "eye_bolts": 1,
+  "u_bolts": 1,
+  "carriage_bolts": 1,
+  "lag_screws": 1,
+  "wedge_anchors": 1,
+  "blind_rivets": 1,
+  "cotter_pins": 1,
+  "dowel_pins": 1,
+  "roll_pins": 1,
+  "retaining_rings_external": 1,
+  "compression_springs": 1,
+  "zerk_grease_fittings": 1,
+  "hose_clamps": 1,
+  "hex_pipe_nipples": 1,
+  "ball_valves": 1,
+  "rigid_casters": 1,
+  "bronze_sleeve_bushings": 1,
+  "shaft_collars": 1,
+  "rigid_shaft_couplings": 1,
+  "v_belts": 1,
+  "roller_chain": 1,
+  "timing_pulleys": 1,
+  "o_rings": 1,
+  "flat_gaskets": 1,
+  "cut_resistant_gloves": 1,
+  "safety_glasses": 1,
+  "foam_ear_plugs": 1,
+  "hand_files": 1,
+  "center_punches": 1,
+  "cold_chisels": 1,
+  "combination_wrenches": 1,
+  "hex_bit_sockets": 1,
+  "c_clamps": 1,
+  "bench_vises": 1,
+  "thread_pitch_gages": 1,
+  "er_collets": 1,
+  "drill_bushings": 1
  },
  "skus_by_type": {
   "end_mill_square": 990,
@@ -37,7 +87,57 @@
   "bearing_radial_ball": 1126,
   "wheel_depressed_center": 1212,
   "hex_key": 1120,
-  "kit_assortment": 59
+  "kit_assortment": 59,
+  "ball_stock_precision": 2,
+  "ball_stock_rubber": 1,
+  "bar_stock_hex": 2,
+  "bar_stock_round": 2,
+  "bar_stock_square": 1,
+  "threaded_rod": 3,
+  "studs_double_end": 2,
+  "set_screws_hex_socket": 2,
+  "lock_nuts_nylon_insert": 2,
+  "flange_nuts": 1,
+  "coupling_nuts": 2,
+  "t_slot_nuts": 1,
+  "cap_nuts_acorn": 1,
+  "eye_bolts": 2,
+  "u_bolts": 2,
+  "carriage_bolts": 2,
+  "lag_screws": 2,
+  "wedge_anchors": 2,
+  "blind_rivets": 2,
+  "cotter_pins": 2,
+  "dowel_pins": 2,
+  "roll_pins": 2,
+  "retaining_rings_external": 2,
+  "compression_springs": 2,
+  "zerk_grease_fittings": 2,
+  "hose_clamps": 2,
+  "hex_pipe_nipples": 2,
+  "ball_valves": 2,
+  "rigid_casters": 2,
+  "bronze_sleeve_bushings": 2,
+  "shaft_collars": 2,
+  "rigid_shaft_couplings": 2,
+  "v_belts": 2,
+  "roller_chain": 2,
+  "timing_pulleys": 2,
+  "o_rings": 2,
+  "flat_gaskets": 1,
+  "cut_resistant_gloves": 1,
+  "safety_glasses": 1,
+  "foam_ear_plugs": 1,
+  "hand_files": 2,
+  "center_punches": 1,
+  "cold_chisels": 1,
+  "combination_wrenches": 2,
+  "hex_bit_sockets": 2,
+  "c_clamps": 2,
+  "bench_vises": 1,
+  "thread_pitch_gages": 2,
+  "er_collets": 2,
+  "drill_bushings": 2
  },
  "attribute_names_by_type": {
   "end_mill_square": [
@@ -368,9 +468,314 @@
    "System of Measurement",
    "Tip Style",
    "Type"
+  ],
+  "ball_stock_precision": [
+   "Diameter",
+   "Finish",
+   "Grade",
+   "Item",
+   "Material"
+  ],
+  "ball_stock_rubber": [
+   "Diameter",
+   "Finish",
+   "Item",
+   "Material"
+  ],
+  "bar_stock_hex": [
+   "Item",
+   "Length",
+   "Material",
+   "Size"
+  ],
+  "bar_stock_round": [
+   "Diameter",
+   "Finish",
+   "Item",
+   "Material"
+  ],
+  "bar_stock_square": [
+   "Finish",
+   "Item",
+   "Material",
+   "Size"
+  ],
+  "threaded_rod": [
+   "Finish",
+   "Item",
+   "Length",
+   "Material",
+   "Thread Size"
+  ],
+  "studs_double_end": [
+   "Finish",
+   "Item",
+   "Material",
+   "Thread Size"
+  ],
+  "set_screws_hex_socket": [
+   "Item",
+   "Material",
+   "Point Type",
+   "Thread Size"
+  ],
+  "lock_nuts_nylon_insert": [
+   "Finish",
+   "Item",
+   "Material",
+   "Thread Size"
+  ],
+  "flange_nuts": [
+   "Finish",
+   "Item",
+   "Material",
+   "Thread Size"
+  ],
+  "coupling_nuts": [
+   "Finish",
+   "Item",
+   "Length",
+   "Material",
+   "Thread Size"
+  ],
+  "t_slot_nuts": [
+   "Finish",
+   "Item",
+   "Material",
+   "Thread Size"
+  ],
+  "cap_nuts_acorn": [
+   "Finish",
+   "Item",
+   "Material",
+   "Thread Size"
+  ],
+  "eye_bolts": [
+   "Finish",
+   "Item",
+   "Material",
+   "Thread Size"
+  ],
+  "u_bolts": [
+   "Finish",
+   "Item",
+   "Material",
+   "Size"
+  ],
+  "carriage_bolts": [
+   "Finish",
+   "Item",
+   "Length",
+   "Material",
+   "Thread Size"
+  ],
+  "lag_screws": [
+   "Finish",
+   "Item",
+   "Length",
+   "Material",
+   "Size"
+  ],
+  "wedge_anchors": [
+   "Diameter",
+   "Item",
+   "Length",
+   "Material"
+  ],
+  "blind_rivets": [
+   "Diameter",
+   "Head Type",
+   "Item",
+   "Material"
+  ],
+  "cotter_pins": [
+   "Diameter",
+   "Item",
+   "Length",
+   "Material"
+  ],
+  "dowel_pins": [
+   "Diameter",
+   "Item",
+   "Length",
+   "Material"
+  ],
+  "roll_pins": [
+   "Diameter",
+   "Item",
+   "Length",
+   "Material"
+  ],
+  "retaining_rings_external": [
+   "Item",
+   "Material",
+   "Size",
+   "Style"
+  ],
+  "compression_springs": [
+   "Item",
+   "Length",
+   "Material",
+   "Outside Dia."
+  ],
+  "zerk_grease_fittings": [
+   "Item",
+   "Material",
+   "Style",
+   "Thread Size"
+  ],
+  "hose_clamps": [
+   "Item",
+   "Material",
+   "Size",
+   "Style"
+  ],
+  "hex_pipe_nipples": [
+   "Item",
+   "Length",
+   "Material",
+   "Size"
+  ],
+  "ball_valves": [
+   "Item",
+   "Material",
+   "Size",
+   "Type"
+  ],
+  "rigid_casters": [
+   "Capacity",
+   "Item",
+   "Material",
+   "Size"
+  ],
+  "bronze_sleeve_bushings": [
+   "Bore",
+   "Item",
+   "Length",
+   "Material"
+  ],
+  "shaft_collars": [
+   "Bore",
+   "Item",
+   "Material",
+   "Style"
+  ],
+  "rigid_shaft_couplings": [
+   "Bore",
+   "Item",
+   "Material",
+   "Style"
+  ],
+  "v_belts": [
+   "Item",
+   "Length",
+   "Material",
+   "Type"
+  ],
+  "roller_chain": [
+   "Item",
+   "Material",
+   "Pitch",
+   "Style"
+  ],
+  "timing_pulleys": [
+   "Bore",
+   "Item",
+   "Material",
+   "Style"
+  ],
+  "o_rings": [
+   "Grade",
+   "Item",
+   "Material",
+   "Size"
+  ],
+  "flat_gaskets": [
+   "Item",
+   "Material",
+   "Size",
+   "Thickness"
+  ],
+  "cut_resistant_gloves": [
+   "Color",
+   "Item",
+   "Material",
+   "Size"
+  ],
+  "safety_glasses": [
+   "Color",
+   "Item",
+   "Material",
+   "Style"
+  ],
+  "foam_ear_plugs": [
+   "Item",
+   "Material",
+   "Package Quantity",
+   "Type"
+  ],
+  "hand_files": [
+   "Item",
+   "Length",
+   "Material",
+   "Type"
+  ],
+  "center_punches": [
+   "Item",
+   "Length",
+   "Material",
+   "Style"
+  ],
+  "cold_chisels": [
+   "Item",
+   "Length",
+   "Material",
+   "Width"
+  ],
+  "combination_wrenches": [
+   "Finish",
+   "Item",
+   "Material",
+   "Size"
+  ],
+  "hex_bit_sockets": [
+   "Item",
+   "Material",
+   "Size",
+   "Style"
+  ],
+  "c_clamps": [
+   "Item",
+   "Material",
+   "Size",
+   "Style"
+  ],
+  "bench_vises": [
+   "Item",
+   "Material",
+   "Size",
+   "Style"
+  ],
+  "thread_pitch_gages": [
+   "Item",
+   "Material",
+   "Style",
+   "Type"
+  ],
+  "er_collets": [
+   "Item",
+   "Material",
+   "Size",
+   "Type"
+  ],
+  "drill_bushings": [
+   "Item",
+   "Length",
+   "Material",
+   "Size"
   ]
  },
- "total_attribute_entries": 120252,
+ "total_attribute_entries": 120619,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -407,9 +812,9 @@
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.017662337662337664,
+   "achieved": 0.01754567034781711,
    "numerator": 170,
-   "denominator": 9625,
+   "denominator": 9689,
    "note": "over records with a readable dimension"
   },
   {
@@ -433,7 +838,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 9690,
+   "denominator": 9779,
    "note": "over titles"
   },
   {
@@ -441,7 +846,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 9690,
+   "denominator": 9779,
    "note": "deliberate: the corpus measures 0.1089"
   },
   {
@@ -449,15 +854,15 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 9690,
+   "denominator": 9779,
    "note": "deliberate: the corpus measures 0.7353"
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 12.409907120743034,
-   "numerator": 120252,
-   "denominator": 9690,
+   "achieved": 12.33449227937417,
+   "numerator": 120619,
+   "denominator": 9779,
    "note": "count, not a rate"
   }
  ],
@@ -474,7 +879,7 @@
  },
  "unit_suffix_distribution": {
   "mm": 13377,
-  "in": 19660
+  "in": 19724
  },
  "standards_present": 5144,
  "standards_multivalued": 1401,
@@ -484,7 +889,7 @@
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 9690,
+  "n_skus_checked": 9779,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
