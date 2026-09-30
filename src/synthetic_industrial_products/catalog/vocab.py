@@ -115,8 +115,13 @@ _END_MILL = (
     _spec("Shank Dia.", "sku", kind="length"),
     _spec("Length of Cut", "sku", kind="length"),
     _spec("Overall Length", "sku", 0.92, kind="length"),
-    _spec("Neck Length", "sku", 0.18, kind="length"),
-    _spec("Corner Radius", "sku", 0.22, kind="length"),
+    # Census rate applied exactly once (by _apply_sparsity, the only gate
+    # left on these two): 0.2727 and 0.4034 in by_family.end_mill of
+    # 06_attribute_sparsity.json, rounded to two places as every other spec
+    # in this table is. A second, builder-level gate at 0.18/0.22 used to
+    # square this to ~3%/~5% (alexander-marquardt/synthetic-industrial-products#39).
+    _spec("Neck Length", "sku", 0.27, kind="length"),
+    _spec("Corner Radius", "sku", 0.40, kind="length"),
 )
 
 #: Jobber drills. Shares no dimension name with the end mill: a drill has a
