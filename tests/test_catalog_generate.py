@@ -494,7 +494,17 @@ def test_a_button_head_and_a_low_head_have_the_head_their_standard_gives_them(ca
             if style == "screw_button_head":
                 assert dia > full_dia, (style, size, dia, full_dia)
             else:
-                assert dia <= full_dia + 1e-9, (style, size, dia, full_dia)
+                # 1e-4, not 1e-9: ``heads`` takes the first-seen record per
+                # (type, size), parsed back from its PUBLISHED string, and
+                # the first M20x2.5 of one style can be styled in inches
+                # (``Head Dia.`` printed "1.1811"", 4 decimal places) while
+                # the first of the other is styled in mm ("30mm", parsed back
+                # at full precision). The two are the same head diameter --
+                # display rounding, not a real geometric difference, and a
+                # few thousandths under a real diameter (this docstring's own
+                # "ASME B18.3.1G's is a few thousandths under ASME B18.3's")
+                # is two orders of magnitude bigger than this tolerance.
+                assert dia <= full_dia + 1e-4, (style, size, dia, full_dia)
 
 
 # -- the category tree has the real catalog's shape -------------------------
@@ -611,3 +621,51 @@ def test_every_end_mill_publishes_its_material(catalog):
         and not any(a.name == "Material" for a in line.attributes)
     ]
     assert not missing, missing[:10]
+
+
+@pytest.fixture(scope="module")
+def end_mill_lines():
+    """A catalog weighted toward end mills, to measure presence rates on.
+
+    Not the ``catalog``/``stats`` fixtures above: their default type mix
+    leaves too few end mills to measure a ~20% presence rate without sampling
+    noise swallowing a real defect
+    (alexander-marquardt/synthetic-industrial-products#39).
+    """
+    config = GeneratorConfig(
+        lines=1500,
+        seed=123,
+        new_type_share={key: 0.12 for key in GeneratorConfig().new_type_share},
+    )
+    end_mill_types = ("end_mill_square", "end_mill_ball")
+    lines = [line for line in generate(config).lines if line.type_key in end_mill_types]
+    assert len(lines) > 300, "not enough end-mill lines to measure presence rates on"
+    return lines
+
+
+@pytest.mark.parametrize(
+    "spec",
+    [spec for spec in VOCAB["end_mill_square"] if spec.presence < 1.0],
+    ids=lambda spec: spec.name,
+)
+def test_every_sparsity_controlled_end_mill_attribute_is_applied_once(end_mill_lines, spec):
+    """Every optional end-mill attribute is dropped at its OWN declared rate,
+    once -- never at that rate a second time.
+
+    Corner Radius and Neck Length used to be gated twice: once in the
+    builder, at the same probability VOCAB independently declares for it, and
+    again in ``_apply_sparsity`` (the shared post-pass every other optional
+    attribute goes through exactly once). Applying one probability twice
+    squares it: Neck Length fell to ~3% of end mills and Corner Radius to
+    ~5%, against the 27%/40% the reference census measures and VOCAB now
+    declares (#39). Squaring any presence rate this table carries (all below
+    0.92) moves it far outside a tolerance wide enough for this sample's
+    ordinary noise -- which is what makes a reintroduced double application
+    red here, for whichever attribute it is reintroduced on.
+    """
+    population = end_mill_lines if spec.scope == "line" else [
+        child for line in end_mill_lines for child in line.children
+    ]
+    present = sum(1 for r in population if any(a.name == spec.name for a in r.attributes))
+    rate = present / len(population)
+    assert abs(rate - spec.presence) <= 0.10, (spec.name, spec.scope, rate, spec.presence)

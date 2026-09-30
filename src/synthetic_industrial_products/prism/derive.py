@@ -111,20 +111,24 @@ MAX_TERMS_CARDINALITY = 25
 #: sentence, because a sentence went stale across one regeneration while every
 #: test stayed green. Every attribute this catalog FACETS lands inside the
 #: band that dict records -- ``Drive Size``, a ladder of nominal hex keys, sits
-#: low in it, and the densest is named there too. There is no continuum on
-#: the current catalog: ``Neck Length``, the one attribute whose values never
-#: repeat, falls below ``RANGE_MIN_DOCS``. Before
-#: the catalog grew (elastic/prism-industrial-products#103) the band was
-#: 0.0028-0.1401 with no continuum at all, agreeing with the reference
-#: distributor, whose facet list for the end-mill category has no range control.
+#: low in it, and the densest is named there too. Before the catalog grew
+#: (elastic/prism-industrial-products#103) the band was 0.0028-0.1401 with no
+#: continuum at all, agreeing with the reference distributor, whose facet
+#: list for the end-mill category has no range control.
 #:
 #: THE BAND IS OVER THE FACETED ONES, and saying so is the correction rather
-#: than the update. Two quantitative attributes are NOT faceted and one of
-#: them, ``Neck Length``, has a dispersion of exactly 1.0000 -- every value
-#: distinct, a perfect continuum. Dispersion does not make
-#: THAT one a list; :data:`RANGE_MIN_DOCS` does. A band quoted over all
-#: quantitative attributes runs to 1.0 and credits this threshold with an
-#: outcome the other one produced.
+#: than the update. Two quantitative attributes are NOT faceted, and one of
+#: them, ``Neck Length``, has a dispersion of 0.9897 -- nearly every value
+#: distinct, a real continuum. Dispersion does not make THAT one a list;
+#: :data:`MIN_PRESENCE` does (it is present on 26% of end-mill documents,
+#: below the 50% floor -- see :data:`MEASURED_DISPERSION`). A band quoted over
+#: all quantitative attributes runs to 0.99 and credits the wrong threshold
+#: with an outcome :data:`MIN_PRESENCE` produced. Applying Neck Length's
+#: census presence rate once instead of twice
+#: (alexander-marquardt/synthetic-industrial-products#39) is what moved it
+#: from below :data:`RANGE_MIN_DOCS` to below :data:`MIN_PRESENCE` instead --
+#: still off a slider, now for the floor that actually fits a category-scoped
+#: attribute this rare.
 #:
 #: **This rule is derived on purpose, and must not be reimplemented as
 #: "industrial uses keyword".** Grocery migrates onto the same machinery
@@ -141,11 +145,19 @@ RANGE_DISPERSION = 0.5
 #: evidence, so the answer is the conservative one -- a discrete control, which
 #: is always serviceable, where a range over an unknown distribution is not.
 #: Every attribute this catalog FACETS clears it (the smallest is named in
-#: :data:`MEASURED_DISPERSION`). It decides the other side too: ``Neck
-#: Length`` published 39 distinct values over 39 documents, then 51 over 51
-#: after the catalog grew (elastic/prism-industrial-products#103) and was a
-#: range; on the current catalog it is 48 over 48 and this floor alone keeps
-#: it off a slider again.
+#: :data:`MEASURED_DISPERSION`).
+#:
+#: No quantitative attribute in the current catalog is decided by THIS floor:
+#: ``Neck Length`` used to be the real-catalog example -- 39 distinct values
+#: over 39 documents, then 51 over 51 after the catalog grew
+#: (elastic/prism-industrial-products#103), then 48 over 48 once the
+#: countersunk/nominal-key changes of that era landed, always just under it.
+#: Applying its census presence rate once instead of twice
+#: (alexander-marquardt/synthetic-industrial-products#39) raised it to 388
+#: over 388 -- comfortably above this floor, so it is :data:`MIN_PRESENCE`
+#: that now keeps it off a slider (see :data:`MEASURED_DISPERSION`). The
+#: floor itself is still real and still tested, by construction, in
+#: ``test_a_small_sample_falls_back_to_discrete``.
 RANGE_MIN_DOCS = 50
 
 #: What the rule above MEASURES on the catalog this package generates, as
@@ -159,33 +171,44 @@ RANGE_MIN_DOCS = 50
 #:
 #: ``tests/test_facet_control_rule.py`` re-derives every entry here from the
 #: committed golden catalog, so the next regeneration has to restate them.
-#: Restated from the default catalog after the cross-reference and near-miss
-#: thread round regenerated it (2026-09-29), each by a direct ``measure()``
-#: over golden-catalog/flat.jsonl.
+#: Restated for alexander-marquardt/synthetic-industrial-products#39 (Corner
+#: Radius/Neck Length applied once instead of twice), each by a direct
+#: ``measure()`` over golden-catalog/flat.jsonl. That fix does not touch any
+#: of the FACETED figures below by name or reason -- they move by the same
+#: small RNG-order margin any generator change causes -- except
+#: ``min_presence_arm``, which did not exist under this name before: Neck
+#: Length crossed RANGE_MIN_DOCS and is now kept off a slider by
+#: MIN_PRESENCE instead, the first real (not constructed) example of that
+#: floor this catalog has published.
 MEASURED_DISPERSION: dict[str, Any] = {
     # The band over the attributes that are actually FACETED.
-    "faceted_low": 0.002,
+    "faceted_low": 0.0020,
     # Flute Length since the bearing ratings became a published table (one
     # value per bearing number, no jitter): Dynamic Load Capacity was the
     # densest at 0.44 while a formula manufactured a value per SKU.
-    "faceted_high": 0.1842,
+    "faceted_high": 0.1836,
     "densest_faceted": "Flute Length",
     # The saturated ladder the rule exists to keep off a slider.
     # 30 since the drive size is published as the nominal key (10mm), not
     # the extracted socket's toleranced across-flats (10.07mm).
-    "drive_size_cardinality": 28,
-    "drive_size_present": 1376,
+    "drive_size_cardinality": 29,
+    "drive_size_present": 1380,
     # The smallest faceted attribute, which is what clears RANGE_MIN_DOCS.
     # A kit's piece count since the assortment kits (60 kits): a real count
     # on few documents, which still clears RANGE_MIN_DOCS.
     "smallest_faceted": "Number of Pieces",
     "smallest_faceted_present": 59,
-    # The continuum RANGE_MIN_DOCS -- not dispersion -- keeps off a slider.
-    "min_docs_arm": "Neck Length",
-    "min_docs_arm_dispersion": 1.0,
-    # 48: BELOW the floor on this catalog, so Neck Length is a continuum the
-    # rule offers as no control at all -- neither a list nor a range.
-    "min_docs_arm_present": 48,
+    # The real continuum this catalog does not offer as a range. It clears
+    # BOTH RANGE_DISPERSION and RANGE_MIN_DOCS now (#39) -- MIN_PRESENCE is
+    # what still keeps it off a slider, because it is rare even among its
+    # own product types.
+    "min_presence_arm": "Neck Length",
+    "min_presence_arm_dispersion": 0.9897,
+    "min_presence_arm_present": 388,
+    # Its OWN denominator -- end-mill documents, not the whole catalog -- and
+    # the share MIN_PRESENCE measures against 50%.
+    "min_presence_arm_type_denominator": 1469,
+    "min_presence_arm_share": 0.26,
 }
 
 

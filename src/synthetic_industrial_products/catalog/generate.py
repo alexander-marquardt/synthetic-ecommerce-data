@@ -556,14 +556,21 @@ class Generator:
                 "length_of_cut": loc,
                 "other_length": oal,
             }
-            if rng.random() < 0.18:
-                neck_in = geom.length_of_cut_in * rng.uniform(1.05, 1.4)
-                neck = self._length("Neck Length", neck_in, style)
-                child.attrs.append(neck)
-                child.secondary["neck"] = neck
-            if rng.random() < 0.22:
-                radius_in = geom.cutting_dia_in / rng.choice((8.0, 16.0, 32.0))
-                child.attrs.append(self._length("Corner Radius", radius_in, style))
+            # Unconditionally computed and appended, like Milling Dia./Shank
+            # Dia./Length of Cut/Overall Length above: WHETHER either publishes
+            # is decided once, centrally, by ``_apply_sparsity`` reading the
+            # census presence rate off VOCAB. A second probabilistic gate here
+            # used to duplicate that decision at the SAME rate VOCAB declares,
+            # squaring the presence instead of reproducing it -- 0.22 and 0.18
+            # made Corner Radius and Neck Length land at ~5%/~3% of end mills
+            # instead of the measured 40%/27%
+            # (alexander-marquardt/synthetic-industrial-products#39).
+            neck_in = geom.length_of_cut_in * rng.uniform(1.05, 1.4)
+            neck = self._length("Neck Length", neck_in, style)
+            child.attrs.append(neck)
+            child.secondary["neck"] = neck
+            radius_in = geom.cutting_dia_in / rng.choice((8.0, 16.0, 32.0))
+            child.attrs.append(self._length("Corner Radius", radius_in, style))
             # The "flute" class of misleading title token: a flute length that
             # is not the cutting diameter.
             child.secondary["flute"] = loc
