@@ -1,6 +1,6 @@
 {
  "lines": 5302,
- "skus": 9778,
+ "skus": 9779,
  "lines_by_type": {
   "end_mill_square": 498,
   "end_mill_ball": 285,
@@ -93,7 +93,7 @@
   "bar_stock_hex": 2,
   "bar_stock_round": 2,
   "bar_stock_square": 1,
-  "threaded_rod": 2,
+  "threaded_rod": 3,
   "studs_double_end": 2,
   "set_screws_hex_socket": 2,
   "lock_nuts_nylon_insert": 2,
@@ -775,7 +775,7 @@
    "Size"
   ]
  },
- "total_attribute_entries": 120614,
+ "total_attribute_entries": 120619,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -838,7 +838,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 9778,
+   "denominator": 9779,
    "note": "over titles"
   },
   {
@@ -846,7 +846,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 9778,
+   "denominator": 9779,
    "note": "deliberate: the corpus measures 0.1089"
   },
   {
@@ -854,15 +854,15 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 9778,
+   "denominator": 9779,
    "note": "deliberate: the corpus measures 0.7353"
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 12.33524238085498,
-   "numerator": 120614,
-   "denominator": 9778,
+   "achieved": 12.33449227937417,
+   "numerator": 120619,
+   "denominator": 9779,
    "note": "count, not a rate"
   }
  ],
@@ -889,7 +889,7 @@
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 9778,
+  "n_skus_checked": 9779,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [

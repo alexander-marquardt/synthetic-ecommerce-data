@@ -44,7 +44,7 @@ It runs once, at import.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from importlib import resources
 from typing import TYPE_CHECKING, Any
 
@@ -87,6 +87,18 @@ class BreadthRow:
     skus: int
     reason: str
     descriptor_attr: str | None = None
+    #: Size values ``reason`` names explicitly (quoted, before any "overlap"
+    #: clause) -- these MUST appear among the row's SKUs; a plain rotation
+    #: from index 0 cannot promise that (#35 review). Any SKU slots beyond
+    #: these still come from :meth:`~.generate.Generator._rotate` over the
+    #: remaining, non-featured values, so a row with no cited size keeps its
+    #: old rotating behaviour untouched.
+    featured_sizes: tuple[str, ...] = ()
+    #: Line attribute VALUES ``reason`` names explicitly (e.g. a material the
+    #: cited query names) -- fixed rather than drawn by ``rng.choice``, which
+    #: otherwise misses the cited value some of the time. Keyed by attribute
+    #: name; an attribute absent here is still drawn randomly, unchanged.
+    featured_attrs: dict[str, str] = field(default_factory=dict)
 
 
 def _row_from_dict(raw: dict[str, Any]) -> BreadthRow:
@@ -102,6 +114,8 @@ def _row_from_dict(raw: dict[str, Any]) -> BreadthRow:
         skus=int(raw["skus"]),
         reason=raw["reason"],
         descriptor_attr=raw.get("descriptor_attr"),
+        featured_sizes=tuple(raw.get("featured_sizes") or ()),
+        featured_attrs=dict(raw.get("featured_attrs") or {}),
     )
 
 
@@ -210,7 +224,7 @@ def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
     chosen: dict[str, str] = {}
     descriptor_value: str | None = None
     for name, values in row.attributes.items():
-        value = rng.choice(values)
+        value = row.featured_attrs.get(name) or rng.choice(values)
         chosen[name] = value
         line_attrs.append(keyword_attribute(name, value))
         if name == row.descriptor_attr:
@@ -218,8 +232,21 @@ def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
     item_text = f"{descriptor_value} {row.item}" if descriptor_value else row.item
 
     count = max(1, min(row.skus, len(row.size_values)))
-    start = gen._rotate(f"breadth:{row.key}:size", len(row.size_values) - count + 1)  # noqa: SLF001
-    sizes = list(row.size_values[start : start + count])
+    # Featured sizes fill the row's SKU slots first, so a size ``reason``
+    # cites is never left out to a rotation that starts at index 0 every
+    # time (#35 review -- every row is built exactly once, so the rotation
+    # never gets a second pass to reach a later value). Any slots left over
+    # still rotate over the remaining, non-featured values, unchanged for a
+    # row with no featured sizes.
+    featured_sizes = [value for value in row.featured_sizes if value in row.size_values][:count]
+    remaining_pool = [value for value in row.size_values if value not in featured_sizes]
+    extra_needed = count - len(featured_sizes)
+    extra: list[str] = []
+    if extra_needed > 0 and remaining_pool:
+        window = len(remaining_pool) - min(extra_needed, len(remaining_pool)) + 1
+        start = gen._rotate(f"breadth:{row.key}:size", window)  # noqa: SLF001
+        extra = remaining_pool[start : start + extra_needed]
+    sizes = featured_sizes + extra
 
     series = f"BR{rng.randint(100, 999)}"
     draft = LineDraft(
