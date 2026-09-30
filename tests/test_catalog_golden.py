@@ -52,10 +52,15 @@ GOLDEN_FILES = (
     "stats.json",
 )
 
-# Restated by direct count after the 100K brand book (spec uniqueness drops
-# a SKU a brand already stocks): wc -l golden-catalog/nested.jsonl / flat.jsonl.
-LINES = 5252
-SKUS = 9690
+# Restated by direct count after the breadth categories landed
+# (alexander-marquardt/synthetic-industrial-products#34: +50 lines, +89 SKUs,
+# a fixed addition independent of every depth knob). +89 rather than +88: the
+# #35 review fix round bumped ``threaded_rod`` from 2 SKUs to 3 so its
+# ``reason``-cited '1/4-20', '5/16-18' AND 'M12x1.75' sizes could all be
+# featured, not just two of the three.
+# wc -l golden-catalog/nested.jsonl / flat.jsonl.
+LINES = 5302
+SKUS = 9779
 
 
 def _sha256(path: Path) -> str:

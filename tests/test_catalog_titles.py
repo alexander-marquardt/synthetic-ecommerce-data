@@ -511,7 +511,19 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
     finally:
         generate_module.build_title = real
 
-    documents = [child for line in catalog.lines for child in line.children]
+    # The breadth categories (:mod:`.catalog.breadth`,
+    # alexander-marquardt/synthetic-industrial-products#34) build their titles
+    # directly with ``naming.build_title`` (imported into ``breadth``'s own
+    # namespace), never through the ``generate`` module's binding this spy
+    # patches -- and they use a deliberately different, simpler grammar
+    # (``<descriptor> <item>, <size>``, no segment list to cut), so they are
+    # not part of what this reconstruction is measuring.
+    documents = [
+        child
+        for line in catalog.lines
+        for child in line.children
+        if line.spec_quality != "fast_and_cheap"
+    ]
     assert len(documents) == 9690
     assert len(assembled) > 100, "the spy recorded nothing; the reconstruction is broken"
 

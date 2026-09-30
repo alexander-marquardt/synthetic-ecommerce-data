@@ -11,9 +11,11 @@ zero, or to one, because the mechanism stopped working.
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import pytest
 
-from synthetic_industrial_products.catalog import taxonomy
+from synthetic_industrial_products.catalog import breadth, taxonomy
 from synthetic_industrial_products.catalog.config import SMALL, GeneratorConfig
 from synthetic_industrial_products.catalog.generate import generate
 from synthetic_industrial_products.catalog.measure import measure
@@ -22,6 +24,19 @@ from synthetic_industrial_products.catalog.vocab import (
     STANDARDS_NAME,
     VOCAB,
 )
+
+
+def _without_breadth(catalog):
+    """``catalog``, minus its fixed breadth lines (:mod:`.breadth`).
+
+    Breadth is a constant ~50-category addition, deliberately independent of
+    every depth knob (``lines``, ``variants_per_product``, ``new_type_share``)
+    -- that is the whole point of it (alexander-marquardt/synthetic-industrial-products#34).
+    A test of what those knobs do to the DEPTH-scaling machinery has to look
+    past it, the same way it already looks past ``must_stock``'s fixed lines.
+    """
+    kept = tuple(line for line in catalog.lines if line.spec_quality != "fast_and_cheap")
+    return replace(catalog, lines=kept)
 
 
 @pytest.fixture(scope="module")
@@ -58,7 +73,9 @@ def test_a_different_seed_produces_a_different_catalog():
 
 
 def test_the_catalog_is_the_size_it_was_asked_for(stats, config):
-    asked = config.lines + sum(config.new_type_products.values())
+    # Breadth (:mod:`.breadth`) adds a fixed ~50 lines on top, independent of
+    # every depth knob -- alexander-marquardt/synthetic-industrial-products#34.
+    asked = config.lines + sum(config.new_type_products.values()) + len(breadth.ROWS)
     assert stats["lines"] == pytest.approx(asked, abs=12)
     # About 1.9 variants per product under the default distribution; a product
     # never offers more variants than its series has members.
@@ -245,15 +262,19 @@ def test_the_sparsity_knob_moves_the_attribute_count():
 
 def test_the_line_and_sku_count_knobs_move_the_catalog_size():
     none = {key: 0.0 for key in GeneratorConfig().new_type_share}
-    small = measure(generate(GeneratorConfig(lines=50, seed=3, new_type_share=none)))
-    large = measure(generate(GeneratorConfig(lines=150, seed=3, new_type_share=none)))
+    small_cfg = GeneratorConfig(lines=50, seed=3, new_type_share=none)
+    large_cfg = GeneratorConfig(lines=150, seed=3, new_type_share=none)
+    small = measure(_without_breadth(generate(small_cfg)))
+    large = measure(_without_breadth(generate(large_cfg)))
     # Not quite twice: a bigger catalog draws more specs a brand has already
     # made, and the uniqueness rule rejects them (measured 296 vs 152 lines).
     assert large["lines"] > small["lines"] * 1.8
     assert large["skus"] > small["skus"] * 1.8
 
-    narrow = measure(generate(GeneratorConfig(lines=60, seed=3, variants_per_product=((1, 1.0),))))
-    wide = measure(generate(GeneratorConfig(lines=60, seed=3, variants_per_product=((5, 1.0),))))
+    narrow_cfg = GeneratorConfig(lines=60, seed=3, variants_per_product=((1, 1.0),))
+    wide_cfg = GeneratorConfig(lines=60, seed=3, variants_per_product=((5, 1.0),))
+    narrow = measure(_without_breadth(generate(narrow_cfg)))
+    wide = measure(_without_breadth(generate(wide_cfg)))
     assert narrow["skus"] == narrow["lines"], "one variant per product, exactly"
     assert wide["skus"] > narrow["skus"] * 2
 

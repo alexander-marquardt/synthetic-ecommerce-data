@@ -144,6 +144,16 @@ class ProductLine:
     #: Where this line's dimensions came from: a standard designation for a
     #: fastener, or a plain statement that they were generated for a tool.
     dimension_provenance: str = ""
+    #: ``"realistic"`` for the twelve original and newer types, whose specs
+    #: are read from the reference census and standards; ``"fast_and_cheap"``
+    #: for the breadth categories (:mod:`.breadth`), whose titles, specs and
+    #: images are cheap filler chosen for category coverage, not the demo's
+    #: exercised product. TOP-LEVEL and deliberately NOT a nested attribute
+    #: (alexander-marquardt/synthetic-industrial-products#34): a nested
+    #: attribute becomes a facet and searchable text on the industrial
+    #: deployment, and this marker must be neither -- it exists so a breadth
+    #: line can be found and removed, not so a shopper can filter on it.
+    spec_quality: str = "realistic"
     #: The drawing a grouped card shows before a variant is selected: its
     #: first variant's. The product has no drawing of its own.
     image_id: str = ""

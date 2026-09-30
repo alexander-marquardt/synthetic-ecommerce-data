@@ -71,6 +71,44 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Wheel",
     "Key",
     "Kit",
+    # The breadth categories' own nouns (alexander-marquardt/synthetic-industrial-products#34):
+    # every one of ~50 new category leaves needs its head noun registered here
+    # too, or the qualifier check above is silently disabled for that type
+    # (``test_every_category_leaf_ends_in_its_own_product_noun``). Checked
+    # against every VOCAB name, old and new, before landing: none collides.
+    "Ball",
+    "Bar",
+    "Rod",
+    "Stud",
+    "Anchor",
+    "Rivet",
+    "Pin",
+    "Ring",
+    "Spring",
+    "Fitting",
+    "Clamp",
+    "Nipple",
+    "Valve",
+    "Caster",
+    "Bushing",
+    "Collar",
+    "Coupling",
+    "Belt",
+    "Chain",
+    "Pulley",
+    "Seal",
+    "Gasket",
+    "Glove",
+    "Glass",
+    "Plug",
+    "File",
+    "Punch",
+    "Chisel",
+    "Wrench",
+    "Socket",
+    "Vise",
+    "Gage",
+    "Collet",
 )
 
 #: Type-qualified names that ARE type-specific in the evidence, with it.

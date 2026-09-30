@@ -47,6 +47,7 @@ STRUCTURAL_NAMES = frozenset(
         "category_path_joined",
         "category_leaf",
         "dimension_provenance",
+        "spec_quality",
         "price",
         "stock",
         "attribute_names",
@@ -223,6 +224,15 @@ def _structural_fields() -> list[str]:
   - name: dimension_provenance
     type: terms
     source: dimension_provenance
+  # "realistic" for the census-modelled types, "fast_and_cheap" for the
+  # breadth categories (alexander-marquardt/synthetic-industrial-products#34).
+  # Excluded from BOTH search text and facets: it is a maintainer removal
+  # handle, not something a shopper should be able to filter or match on --
+  # ``tests/test_breadth.py`` checks it appears in neither.
+  - name: spec_quality
+    type: terms
+    source: spec_quality
+    facet: false
 
   # --- commerce -------------------------------------------------------------
   - name: price
