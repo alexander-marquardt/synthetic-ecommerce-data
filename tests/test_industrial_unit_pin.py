@@ -134,6 +134,19 @@ def test_a_source_whose_block_changed_only_a_comment_is_red():
     assert _compare(_source(BLOCK), _source(moved))
 
 
+def test_a_hand_edited_pin_is_not_reported_as_drift():
+    edited = PIN_TEXT.replace('C78: "1"', 'C78: "2"')
+    provenance = yaml.safe_load(PIN_TEXT)["pin"]
+    problems = _script().compare(
+        edited,
+        source_at_pin=_source(BLOCK),
+        blob_at_pin=provenance["blob"],
+        source_now=_source(BLOCK),
+    )
+    assert problems, "an edited pin matched its source"
+    assert "--refresh, then rebuild" not in " ".join(problems), problems
+
+
 def test_a_pin_that_misnames_its_commit_is_red():
     """The block at the recorded commit must be the pin's, and so must the blob."""
     elsewhere = BLOCK.replace('C78: "1"', 'C78: "2"')
