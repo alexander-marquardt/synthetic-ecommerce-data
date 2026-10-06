@@ -14,13 +14,14 @@ import json
 import shutil
 import statistics
 import subprocess
+import sys
 import xml.etree.ElementTree as ET
 from collections import Counter, defaultdict
 from pathlib import Path
 
 import pytest
 
-from synthetic_industrial_products.catalog import bundle, emit
+from synthetic_industrial_products.catalog import breadth, bundle, emit
 from synthetic_industrial_products.catalog.config import SMALL
 from synthetic_industrial_products.catalog.generate import BRANDS, generate
 from synthetic_industrial_products.catalog.vocab import VOCAB
@@ -227,6 +228,33 @@ def test_the_committed_catalog_rebuilds_into_its_recorded_drawings():
     rows = [json.loads(line) for line in (GOLDEN / "images.jsonl").read_text().splitlines()]
     assert len(files) == len(rows)
     assert all(not svg_problems(data) for _, data in files)
+
+
+def test_rebuild_called_directly_draws_a_breadth_product(tmp_path):
+    """A fresh interpreter that imports only the bundle can rebuild a breadth product.
+
+    In this process something else has already imported the breadth module, which
+    is what registers its figures, so the check runs in a subprocess that imports
+    nothing first.
+    """
+    nested = [json.loads(line) for line in (GOLDEN / "nested.jsonl").read_text().splitlines()]
+    breadth_types = {row.key for row in breadth.ROWS}
+    parent = next(p for p in nested if p["product_type"] in breadth_types)
+    skus = {variant["sku"] for variant in parent["variants"]}
+    (tmp_path / "nested.jsonl").write_text(json.dumps(parent) + "\n")
+    for name in ("flat.jsonl", "images.jsonl"):
+        rows = [r for r in (GOLDEN / name).read_text().splitlines() if json.loads(r)["sku"] in skus]
+        (tmp_path / name).write_text("\n".join(rows) + "\n")
+    script = (
+        "import sys; from pathlib import Path; "
+        "from synthetic_industrial_products.catalog.bundle import rebuild; "
+        "print(len(rebuild(Path(sys.argv[1]))))"
+    )
+    result = subprocess.run(
+        [sys.executable, "-c", script, str(tmp_path)], capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr[-2000:]
+    assert result.stdout.strip() == str(len(skus))
 
 
 def test_a_drawing_that_moved_without_a_regeneration_refuses_the_bundle(tmp_path):
