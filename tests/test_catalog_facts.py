@@ -17,6 +17,7 @@ from pathlib import Path
 
 import pytest
 
+import type_gates
 from published import published_attributes
 from synthetic_industrial_products.catalog import emit
 from synthetic_industrial_products.catalog.config import GeneratorConfig
@@ -56,6 +57,8 @@ MAY_CLAIM = {
                 "ISO 898-2"},
     "set_screws_hex_socket": {"ISO 4026", "ISO 4027", "ISO 4028", "ISO 4029", "ASME B18.3",
                               "ISO 898-5", "ISO 3506-3", "ASTM F912", "ASTM F880"},
+    "lock_nuts_nylon_insert": {"ISO 7040", "ISO 10511", "ISO 10512", "DIN 985", "ISO 2320",
+                               "ISO 898-2", "ISO 3506-2", "SAE J995"},
     "washer_flat": {"ISO 7089", "DIN 125-A"},
     "end_mill_square": {"ISO 1641", "DIN 6527", "ANSI B94.19"},
     "end_mill_ball": {"ISO 1641", "DIN 6527", "ANSI B94.19"},
@@ -171,6 +174,7 @@ KEY = {
     "screw_button_head": ("Dia./Thread Size",), "screw_low_head": ("Dia./Thread Size",),
     "bolt_hex": ("Dia./Thread Size",), "washer_flat": ("Size",), "nut_hex": ("Thread Size",),
     "set_screws_hex_socket": ("Dia./Thread Size",),
+    "lock_nuts_nylon_insert": ("Thread Size",),
     "hex_key": ("Size",), "bearing_radial_ball": ("Bearing Number", "Bore"),
     "wheel_depressed_center": ("Diameter",), "abrasive_flap_disc": ("Diameter",),
     "hammer_ball_pein": ("Head Weight",), "kit_assortment": ("Number of Pieces",),
@@ -295,6 +299,17 @@ def test_a_nut_claims_only_the_standard_its_dimensions_are(docs):
     is an invented fact -- the review of 7dac659 found 29 and 53 of them."""
     wrong, checked = wrong_nut_standards(docs)
     assert wrong == [], wrong[:10]
+    assert checked > 200
+
+
+def test_a_nut_says_which_table_each_dimension_came_from(docs):
+    """A nut claiming ISO 4032 must not say no standard fixes its values, which
+    every hex nut said until the review of PR #60."""
+    nuts = [doc for doc in docs if doc["product_type"] == "nut_hex"]
+    problems, checked = type_gates.provenance_problems(
+        nuts, NUT_DIMENSIONS, ("Width Across Flats", "Height")
+    )
+    assert problems == [], problems[:10]
     assert checked > 200
 
 

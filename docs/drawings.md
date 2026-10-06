@@ -84,20 +84,25 @@ Step by step:
 `(figure_function, (width_in, height_in))`. The pair is the type's largest
 drawn bounding box, in inches, with a little headroom.
 
-* Lines 560-573 hold the original twelve types. The five screw and bolt types
-  go through `_broken(width, height)`, which wraps `fastener()` with the
+* `_FIGURES` holds eleven of the original twelve types. The screw and bolt
+  types go through `_broken(width, height)`, which wraps `fastener()` with the
   type's extent height so an overlong part is drawn broken (below).
-* Lines 778-786 add the five types from #103: `kit_assortment`, `nut_hex`,
-  `bearing_radial_ball`, `wheel_depressed_center` and `hex_key`.
-* The 50 breadth types are **not written in `figures.py`**. `catalog/breadth.py`
-  `register()` (lines 152-168) adds one `FIGURES` entry per row of
-  `data/breadth_categories.yaml`, pointing at one of the six fixed shapes in
-  `drawing/breadth_shapes.py`. It also fills `taxonomy.LEAVES`,
-  `taxonomy.DRAWING`, `STANDARDS_FAMILY` and `VOCAB`.
-  `register()` runs when `catalog.breadth` is imported. `catalog/generate.py`
-  imports it, so the CLI and the tests always see all 67 types, but a script
-  that imports only `synthetic_industrial_products.drawing` sees 17, and
-  drawing a breadth type then raises `UnknownTypeError`.
+* `FIGURES.update(...)` below `kit()` adds the five types from #103:
+  `kit_assortment`, `nut_hex`, `bearing_radial_ball`,
+  `wheel_depressed_center` and `hex_key`.
+* A type declared in its own module (`product_types/`) is **not written in
+  `figures.py`**: its `TypeSpec` carries `figure` and `extent`, and
+  `typespec.register` writes the pair into `FIGURES`. `screw_socket_head`
+  (the twelfth original type) and `lock_nuts_nylon_insert` (which reuses
+  `hex_nut`) are declared this way.
+* The 49 breadth types are not written in `figures.py` either.
+  `catalog/breadth.py` `register()` adds one `FIGURES` entry per breadth row,
+  pointing at one of the six fixed shapes in `drawing/breadth_shapes.py`. It
+  also fills `taxonomy.LEAVES`, `taxonomy.DRAWING`, `STANDARDS_FAMILY` and
+  `VOCAB`.
+  `FIGURES` is a `RegistryTable`: its first read registers every type module
+  and breadth row, so a script that imports only
+  `synthetic_industrial_products.drawing` still sees all 67 types.
 
 Dispatch is a dictionary lookup (`_figure()` in `drawing/__init__.py`). An
 unknown type raises `UnknownTypeError`. Nothing falls back to a generic shape.
@@ -172,8 +177,19 @@ at true scale near the bottom, and the same `Figure` is painted a second time,
 `k` times larger, inside a white lens. The handled glass is used when it
 reaches `MIN_ENLARGEMENT` (x2.5); otherwise the larger, handle-less lens. The
 README's [Images](../README.md#images) section has the full rule. Measured on
-the committed catalog: 1,179 of 9,700 drawings are lensed, 151 with the handled
-glass and 1,028 with the handle-less lens.
+the committed catalog: 1,300 of 10,167 drawings are lensed, 192 with the
+handled glass and 1,108 with the handle-less lens. This command prints the
+counts and the enlargement range of each lens:
+
+```sh
+uv run --directory tests python -c "
+from test_sku_drawings import _golden_skus, _drawn_size
+from synthetic_industrial_products.drawing.sheet import magnifier
+lens = [m for m in (magnifier(*_drawn_size(p['product_type'], r)) for p, _, r in _golden_skus()) if m]
+for kind in (True, False):
+    k = [m.k for m in lens if m.handle is kind]
+    print('handled' if kind else 'handle-less', len(k), f'x{min(k):.2f} to x{max(k):.2f}')"
+```
 
 **No text.** Figures only have `Poly`, `Disc`, `Lines` and `Dots` to draw with,
 and nothing in `sheet.py` or `svg.py` emits a `<text>` element. The gate is
@@ -219,13 +235,14 @@ did not. The hammer is never `nominal`: a missing face or length makes it
 A kit is `record` when it publishes `Sizes Included`, `partial` otherwise. The
 breadth shapes are always `nominal`.
 
-Measured on the committed catalog's `images.jsonl`: 7,518 `record`, 2,058
-`partial`, 89 `nominal`. All 89 `nominal` rows are breadth SKUs; no depth SKU
-falls back to nominal geometry.
+Measured on the committed catalog's `images.jsonl`: 7,749 `record`, 2,331
+`partial`, 87 `nominal`. All 87 `nominal` rows are breadth SKUs; no depth SKU
+falls back to nominal geometry. The counts are
+`python3 -c "import json, collections; print(collections.Counter(json.loads(l)['geometry'] for l in open('golden-catalog/images.jsonl')))"`.
 
 ## Breadth types: six fixed shapes
 
-The 50 breadth categories (rows of `data/breadth_categories.yaml`; every
+The 49 breadth categories (rows of `data/breadth_categories.yaml` and breadth modules; every
 breadth line is published with `spec_quality: "fast_and_cheap"`, set by
 `catalog/breadth.py` `SPEC_QUALITY`) draw one of six shapes from
 `drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`, `disc`, `tube`
@@ -305,12 +322,20 @@ pinned by a test.
    with a `*_DEFAULTS`, a `*_NOMINAL` and the primary attribute. Otherwise
    parse with `_length_or()`. Return `record`, `partial` or `nominal`
    truthfully.
-2. **Register it in `FIGURES`** with the extent `(width, height)` of the
-   largest bounding box any product of the type will draw, plus headroom. Too
-   small and `test_no_product_exceeds_its_types_extent` fails. Far too large
-   and every part of the type is drawn needlessly small, or lensed.
-3. **Keep the type keys in step.** The type needs an entry in
-   `catalog/taxonomy.py` `DRAWING` and in `catalog/vocab.py` `VOCAB`, and the
+2. **Declare it with its extent.** A type in its own module sets
+   `figure=<function>` and `extent=(width, height)` on its `TypeSpec`; a type
+   still in the shared tables gets a `FIGURES` entry. The extent is the
+   largest bounding box any product of the type will draw, plus headroom: the
+   measuring command and the headroom rule are in
+   [How to add a product type](adding-a-type.md#the-rules-a-deepened-type-follows),
+   "Figure and extent". Too small and `test_no_product_exceeds_its_types_extent`
+   fails. Far too large and every part of the type is drawn needlessly small,
+   or lensed. A breadth shape will not do for a modelled type: it draws every
+   SKU `nominal`, and `test_nominal_geometry_stays_rare` allows a modelled
+   type at most 10%.
+3. **Keep the type keys in step.** A module's `TypeSpec` fills `DRAWING` and
+   `VOCAB` itself; a type in the shared tables needs an entry in
+   `catalog/taxonomy.py` `DRAWING` and in `catalog/vocab.py` `VOCAB`. The
    generator must build lines of it: `test_every_product_type_has_a_figure`
    requires `FIGURES` and `VOCAB` to have the same keys AND the generated
    `SMALL` catalog to draw every `VOCAB` type. This checklist covers the

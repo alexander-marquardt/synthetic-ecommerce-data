@@ -93,6 +93,20 @@ def applicable(
             out.append("ISO 898-2")
         if not metric and grade.startswith("Grade"):
             out.append("SAE J995")
+    elif type_key == "lock_nuts_nylon_insert":
+        # A metric line's dimensional standard is its table's; an inch line's
+        # rows are no standard's, so ``standard`` is empty for it.
+        out.append(standard)
+        # ISO 2320: the prevailing-torque function of steel nuts; ISO 898-2
+        # the steel nut's property classes, thin (04, 05) and regular (8, 10).
+        if metric and not stainless:
+            out.append("ISO 2320")
+        if metric and grade.startswith("Class"):
+            out.append("ISO 898-2")
+        if metric and stainless:
+            out.append("ISO 3506-2")
+        if not metric and grade.startswith("Grade"):
+            out.append("SAE J995")
     elif type_key == "washer_flat":
         out.extend(("ISO 7089", "DIN 125-A"))
     elif type_key in ("end_mill_square", "end_mill_ball"):
