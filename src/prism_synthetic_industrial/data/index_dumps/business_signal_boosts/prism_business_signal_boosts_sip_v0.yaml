@@ -38,12 +38,12 @@
 #      completes the roll.
 #   The OLD index stays as the rollback target — roll the image AND the
 #   binding back together (they move as a pair; new code cannot serve the
-#   old-shape index). Full reasoning + rollback: docs/36-config-consistency.md
+#   old-shape index). Full reasoning + rollback: docs/si/config-consistency.md
 #
 # WARNING (--overwrite):
 #   Overwriting a BOUND index with `config push --overwrite` changes live config for EVERY engine in the pool immediately: it mutates the index every engine reads, the overwrite bumps the #827 marker, the poller fires, and all engines reload — no deploy, no version bump. It sidesteps version immutability, and because the version NAME is unchanged the drift UI and the pins will not show that anything changed (the backup snapshot is the only trace). For a MULTI-doc type (policies) the in-place content swap is not atomic — a search racing the swap can briefly see a partially-populated set (an accepted, documented hazard; the window is narrowed but not fully closed). Prefer a NEW version + rolling restart (rollback by repointing the binding to the old index); use --overwrite deliberately.
 #
-# Full documentation: docs/36-config-consistency.md (Creating a business_signal_boosts config)
+# Full documentation: docs/si/config-consistency.md (Creating a business_signal_boosts config)
 # ---------------------------------------------------------------------------
 business_signal_enabled: {}
 business_signal_filter_weights: {}
