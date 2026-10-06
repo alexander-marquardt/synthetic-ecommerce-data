@@ -15,9 +15,14 @@ archive from each build and compares the archives' content digests.
 Exit 0 and ``DETERMINISTIC`` when every file matches; exit 1 and the differing
 files otherwise. ``tests/test_determinism_check.py`` runs it at a small size.
 
-Note: at the DEFAULT config ``build`` also rewrites the committed field map
-(``_write_field_map``); both builds write the same bytes, so a clean tree stays
-clean exactly when the golden test is green.
+At the DEFAULT config ``build`` also writes the PRISM field map into the source
+tree, outside ``--out`` (``_write_field_map``). Each build's copy is taken right
+after it runs and compared like any other file. A build that leaves an expected
+file missing, in either build, is refused: an empty comparison proves nothing.
+
+What this proves: the output does not depend on the seed-independent sources of
+order (hash seed, set iteration) on one machine. It cannot see a date-only
+timestamp, filesystem listing order, locale or timezone, or the zlib build.
 """
 
 from __future__ import annotations
@@ -27,8 +32,12 @@ import hashlib
 import os
 import subprocess
 import sys
+import shutil
 import tempfile
 from pathlib import Path
+
+from synthetic_industrial_products.catalog.cli import field_map_target
+from synthetic_industrial_products.catalog.generate import GeneratorConfig
 
 #: Two different hash seeds: the point is that the output must not depend on it.
 HASH_SEEDS = ("1", "987")
@@ -55,6 +64,34 @@ def compare(left: Path, right: Path) -> list[str]:
     """The files that differ between two build directories, or that only one holds."""
     a, b = digests(left), digests(right)
     return sorted(name for name in a.keys() | b.keys() if a.get(name) != b.get(name))
+
+
+#: What ``sip-generate build`` writes into ``--out``, and what ``images --archive`` adds.
+CATALOG_FILES = (
+    "nested.jsonl",
+    "flat.jsonl",
+    "images.jsonl",
+    "render.jsonl",
+    "stats.json",
+    "mapping.nested.json",
+    "mapping.flat.json",
+)
+ARCHIVE_FILES = ("images.tar.gz", "images.tar.gz.sha256", "images.tar.gz.content-sha256")
+FIELD_MAP_COPY = "field_map.yaml"
+
+
+def expected_files(*, default_config: bool, images: bool, field_map: bool) -> set[str]:
+    """Every file the configured build must leave under its label directory."""
+    names = {f"catalog/{name}" for name in CATALOG_FILES}
+    if default_config and field_map:
+        names.add(FIELD_MAP_COPY)
+    if images:
+        names |= {f"images/{name}" for name in ARCHIVE_FILES}
+    return names
+
+
+def missing(found: dict[str, str], expected: set[str]) -> list[str]:
+    return sorted(expected - found.keys())
 
 
 def _sip_generate(args: list[str], hash_seed: str) -> None:
@@ -86,12 +123,26 @@ def main(argv: list[str] | None = None) -> int:
     if args.seed is not None:
         build_args += ["--seed", str(args.seed)]
 
+    # The generator writes the field map only for its default config, and only
+    # where the customization package is present.
+    default_config = (
+        args.lines in (None, GeneratorConfig.lines) and args.seed in (None, GeneratorConfig.seed)
+    )
+    target = field_map_target()
+    want_field_map = default_config and target.parent.exists()
+    expected = expected_files(
+        default_config=default_config, images=args.images, field_map=want_field_map
+    )
+
     with tempfile.TemporaryDirectory(prefix="sip-determinism-") as tmp:
         root = Path(tmp)
         builds = []
         for label, hash_seed in zip("ab", HASH_SEEDS, strict=True):
             out = root / label / "catalog"
             _sip_generate(["build", "--out", str(out), *build_args], hash_seed)
+            # The next build overwrites this file, so copy it out now.
+            if want_field_map and target.is_file():
+                shutil.copyfile(target, root / label / FIELD_MAP_COPY)
             if args.images:
                 images = root / label / "images"
                 _sip_generate(
@@ -118,10 +169,14 @@ def main(argv: list[str] | None = None) -> int:
                 files.rmdir()
         a, b = digests(left), digests(right)
         differing = compare(left, right)
+        absent = {side.name: missing(digests(side), expected) for side in builds}
         for name in sorted(a.keys() | b.keys()):
             verdict = "DIFFERS" if name in differing else "same"
             print(f"{name:<40} {verdict} {a.get(name, '-')[:16]} {b.get(name, '-')[:16]}")
     size = f"--lines {args.lines}" if args.lines is not None else "default --lines"
+    if any(absent.values()):
+        print(f"NOT DETERMINISTIC ({size}): expected files missing: {absent}")
+        return 1
     if differing:
         print(f"NOT DETERMINISTIC ({size}): {len(differing)} file(s) differ: {differing}")
         return 1

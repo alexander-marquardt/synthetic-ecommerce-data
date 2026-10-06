@@ -131,6 +131,17 @@ def _serialisable(stats: dict) -> dict:
     return out
 
 
+def field_map_target() -> Path:
+    """Where the default-config build writes the PRISM field map (the source tree)."""
+    return (
+        Path(__file__).resolve().parents[2]
+        / "prism_synthetic_industrial"
+        / "data"
+        / "field_weights"
+        / "synthetic_industrial_flat.yaml"
+    )
+
+
 def _write_field_map(catalog, config: GeneratorConfig) -> str:
     """Regenerate the committed PRISM field map from the catalog just built.
 
@@ -142,13 +153,7 @@ def _write_field_map(catalog, config: GeneratorConfig) -> str:
     """
     from ..prism.field_map import render  # noqa: PLC0415
 
-    target = (
-        Path(__file__).resolve().parents[2]
-        / "prism_synthetic_industrial"
-        / "data"
-        / "field_weights"
-        / "synthetic_industrial_flat.yaml"
-    )
+    target = field_map_target()
     if config != GeneratorConfig():
         return (
             f"{target.name}  NOT rewritten -- the generator config is not the "
