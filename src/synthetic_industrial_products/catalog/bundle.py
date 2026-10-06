@@ -130,7 +130,7 @@ def write_archive(files: list[tuple[str, bytes]], archive: Path) -> str:
         for path, data in sorted(files):
             info = tarfile.TarInfo(name=path)
             info.size = len(data)
-            import time; info.mtime = int(time.time())
+            info.mtime = 0
             info.mode = 0o644
             info.uid = info.gid = 0
             info.uname = info.gname = ""
