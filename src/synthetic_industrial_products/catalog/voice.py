@@ -51,10 +51,6 @@ USE_LINES: dict[str, tuple[str, ...]] = {
         "Pushes chips ahead of the tap.",
         "Cuts internal threads in through holes.",
     ),
-    "screw_socket_head": (
-        "Driven with a hex key.",
-        "Fastens parts into a tapped hole or with a nut.",
-    ),
     "screw_flat_head": (
         "Sits flush in a countersunk hole.",
         "For fastening where the head must not stand proud.",

@@ -1162,7 +1162,6 @@ class Generator:
         "end_mill_ball": _build_end_mill,
         "drill_jobber": _build_drill,
         "tap_spiral_point": _build_tap,
-        "screw_socket_head": _build_socket_screw,
         "screw_flat_head": _build_socket_screw,
         "screw_button_head": _build_socket_screw,
         "screw_low_head": _build_socket_screw,
