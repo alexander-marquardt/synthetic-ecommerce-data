@@ -192,6 +192,28 @@ def test_every_point_style_and_both_systems_are_built(clean_docs):
 # --- the type's dimensions against the standards' tables --------------------------
 
 
+def test_the_declared_sizes_are_the_data_files_rows():
+    """The declaration the coverage sweep reads, against the table the build reads.
+
+    The sweep catches a row dropped from the file; this catches a row added to
+    it that no declaration claims, which the sweep would never look for.
+    """
+    module = set_screws_hex_socket
+    built: dict[str, tuple[str, ...]] = {}
+    for metric, inch in module.POINTS.values():
+        built[metric] = tuple(row.size for row in module.metric_rows(metric))
+        built[inch] = tuple(row.size for row in module.inch_rows())
+    assert dict(module.SPEC.sizes) == built
+
+
+def test_a_records_line_standard_is_its_points_in_its_system():
+    read = set_screws_hex_socket.SPEC.line_standard
+    assert read is not None
+    assert read({"Point Type": "Dog Point", "Dia./Thread Size": "M5x0.8"}) == "ISO 4028"
+    assert read({"Point Type": "Dog Point", "Dia./Thread Size": "1/4-20"}) == "ASME B18.3.5C"
+    assert read({"Point Type": "Cup Point", "Dia./Thread Size": "#10-32"}) == "ASME B18.3.5D"
+
+
 @pytest.mark.parametrize(
     ("standard", "table"),
     [

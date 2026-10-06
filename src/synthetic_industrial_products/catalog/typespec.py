@@ -40,7 +40,7 @@ from collections.abc import (
     Mapping,
     ValuesView,
 )
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from functools import cache
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -127,6 +127,15 @@ class TypeSpec:
     #: What every product of the type is for (``voice.USE_LINES``); empty
     #: falls back to the generic lines.
     use_lines: tuple[str, ...] = ()
+    #: The sizes each standard the type builds to offers, for a standard with
+    #: no extraction in ``data/fastener_standards.json``. Declared apart from
+    #: the type's own table on purpose: the coverage sweep holds every size
+    #: here to reaching a document, so a row dropped from the table reds it.
+    sizes: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
+    #: The standard a published record was built to, read from its published
+    #: attributes, for a type whose ``dimension_provenance`` is a sentence
+    #: rather than a bare standard name. ``None`` reads the provenance itself.
+    line_standard: Callable[[Mapping[str, str]], str] | None = None
     #: A breadth type's row, in place of every modelled field above.
     breadth: BreadthRow | None = None
     #: The dotted module the spec was found in, filled in by :func:`discover`.
