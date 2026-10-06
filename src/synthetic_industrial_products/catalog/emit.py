@@ -281,7 +281,7 @@ def flat_documents(
             "image_id": child.image_id,
             "image_url": image_url(child.image_id, base_url),
             "image_detail_url": image_url(child.image_id, base_url),
-            "attributes": [dict(e, value_canonical=float(e["value"])) if e.get("unit_code") == "TPI" else e for e in _attribute_entries(merged)],
+            "attributes": _attribute_entries(merged),
             "attribute_names": sorted({a.name for a in merged}),
             "facets": facets,
             "facets_num": numeric,
