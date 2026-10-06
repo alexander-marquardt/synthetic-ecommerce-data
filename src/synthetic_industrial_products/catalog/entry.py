@@ -137,6 +137,8 @@ def entry_key(name: str) -> str:
 def _magnitude(number: str) -> str:
     """The bare magnitude: thousands separators dropped, a mixed number hyphenated."""
     number = number.replace(",", "")
+    if re.fullmatch(r"[0-9]+/[0-9]+", number):
+        return str(float(Fraction(number)))
     return re.sub(r"^([0-9]+) ([0-9]+/[0-9]+)$", r"\1-\2", number)
 
 
