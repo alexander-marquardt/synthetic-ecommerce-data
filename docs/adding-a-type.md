@@ -2,15 +2,17 @@
 
 A product type is one leaf of the category tree, such as `screw_socket_head` or
 `ball_stock_precision`. Each type is declared in a module of its own under
-`src/synthetic_industrial_products/product_types/`. Adding a type adds a file
-and edits no shared list, apart from the one exception under
-[What is still shared](#what-is-still-shared) (#48).
+`src/synthetic_industrial_products/product_types/`. A breadth type is one new
+file plus the generated output; a modelled type still edits some shared files,
+listed under [What is still shared](#what-is-still-shared) (#48).
 
 The build finds the modules by walking the package
 (`catalog/typespec.py`, `discover`). The first read of any shared, type-keyed
 table (`LEAVES`, `DRAWING`, `VOCAB`, `STANDARDS_FAMILY`, `USE_LINES`,
-`FIGURES`) registers every module into those tables, so no caller has to call
-a registration step before it reads them.
+`FIGURES`, or the breadth rows through `breadth.rows()`) registers every module
+into those tables, so no caller has to call a registration step before it
+reads them. A type module can also be the first thing a process imports, which
+is what a builder's own test does.
 
 ## The files
 
@@ -19,6 +21,7 @@ a registration step before it reads them.
 | `product_types/<family>/<type_key>.py` | Every type. The file name must equal the key, or discovery refuses it. |
 | `product_types/<family>/__init__.py` | Once per family, with a one-line docstring. |
 | `catalog/names.py` head-noun list | Only when the leaf's last word (`Ball`, `Bar`, `Screw`) is not listed yet. |
+| `golden-catalog/*` and `src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml` | Every new type. Both are written by the build; never edit them by hand. |
 
 A module declares one `SPEC = TypeSpec(...)`, of one of two kinds:
 
@@ -31,15 +34,37 @@ A module declares one `SPEC = TypeSpec(...)`, of one of two kinds:
 * **Modelled type.** `category`, `standards_family`, `vocab`, `figure` and
   `extent`, `make`, `share`, and optionally `use_lines`. The builder (`make`),
   the vocabulary and the figure usually belong to a family and are shared with
-  sibling types. Example: `product_types/fasteners/screw_socket_head.py`,
-  whose `make` calls `gen._build_socket_screw` through the generator. A module
-  must never import `catalog/generate.py`.
+  sibling types. A module must never import `catalog/generate.py` (that is an
+  import cycle), so `make` calls the family builder through the generator it
+  is handed. Example: `product_types/fasteners/screw_socket_head.py`.
 
-`part_number_block` is left unset unless the collision check asks for it (see
-[The checks](#the-checks)).
+`part_number_block` is left unset unless `sip-generate block` says otherwise
+(step 2 below).
 
 The types in `catalog/newtypes.py` (`NEW_TYPES`) are a third kind that no
 module can declare yet. They stay where they are for now.
+
+## Modelled types: what the family builder still needs
+
+Only the socket-screw family takes its type's details from the module. Its
+builder, `Generator._build_socket_screw`, reads one `standards.SocketScrewLine`
+(the metric and inch standards, the head style and name, the head accessor,
+and whether length is measured over the head). `screw_socket_head.py` declares
+its own as `LINE` and passes it through `make`. A sibling socket screw does
+the same and edits nothing in `generate.py`.
+
+Every other family's builder still branches on the type key inside
+`catalog/generate.py`, so a new type of that family also edits:
+
+* the builder's type-keyed tables and conditions (for example
+  `END_MILL_SERIES_LETTERS[type_key]`, `taxonomy.END_MILL_MATERIALS[type_key]`,
+  `type_key == "end_mill_ball"`);
+* a new family needs a new builder method on `Generator`, called from the
+  module's `make`.
+
+A type built to a standard that has no extraction yet also needs that
+standard's rows in `data/fastener_standards.json`; until then the build stops
+with `StandardsDataError: no extraction for '<standard>'`.
 
 ## The steps
 
@@ -47,12 +72,22 @@ module can declare yet. They stay where they are for now.
 
 1. Write the module. Copy the example of the matching kind and change every
    field.
-2. If the leaf's head noun is new, add it to `catalog/names.py`.
-3. Build the catalog and regenerate the committed one:
+2. Check the type's part-number block: `uv run sip-generate block <type_key>`.
+   It prints the block the key derives and, when another type already uses it,
+   the first free block. In that case set `part_number_block=<block>` on the
+   new type: about one new type in 135 collides at today's 67 types.
+3. If the leaf's head noun is new, add it to `PRODUCT_NOUNS` in
+   `catalog/names.py`.
+4. Build the catalog and regenerate the committed one:
    `uv run sip-generate build --out golden-catalog`. Only the new type's
-   records should appear in the diff. The independence tests below enforce
-   this.
-4. Run the checks.
+   records, the totals in `stats.json` and the field-weights YAML should
+   change. The independence tests below enforce this.
+5. A modelled type only: restate `DEPTH_LINES` and `DEPTH_SKUS` in
+   `tests/catalog_size.py` by direct count of the modelled documents, and fix
+   the `type_weights` shares (see [What is still shared](#what-is-still-shared)).
+   A breadth type edits no pinned count: the breadth part of the catalog's
+   size is read from the rows.
+6. Run the checks.
 
 ### Moving an existing type into its own module
 
@@ -62,26 +97,32 @@ The output must stay byte-identical.
    `grep -rn '<type_key>' src/synthetic_industrial_products/catalog src/synthetic_industrial_products/drawing src/synthetic_industrial_products/data`.
    For a modelled type, the entries are in `LEAVES`, `DRAWING` (identity
    pairs), `VOCAB`, `STANDARDS_FAMILY`, `FIGURES`, `USE_LINES`,
-   `Generator._BUILDERS`, and the `config.type_weights` share. For a breadth
-   type, the entry is its row in `data/breadth_categories.yaml`.
+   `Generator._BUILDERS`, the `config.type_weights` share, and for a socket
+   screw its `_SOCKET_SCREW_LINES` row. For a breadth type, the entry is its
+   row in `data/breadth_categories.yaml`.
 2. Move each entry into the module's `SPEC`, and delete it from the shared
    table. A key that is declared in both places is refused.
 3. Build into a scratch directory and compare:
    `uv run sip-generate build --out /tmp/out && diff -rq golden-catalog /tmp/out`.
    The diff must print nothing.
-4. If the key is listed in `NOT_YET_MIGRATED` in `tests/test_type_seam.py`,
-   remove it. That case is a strict xfail, so it fails until the entry is
-   removed.
+
+No test table is edited: the discovery, fresh-reader and first-import tests
+are parametrized over `typespec.discover()`, so they pick up the moved module
+on their own.
 
 ## The commands
 
 ```sh
+uv run sip-generate block <type_key>                # the block to declare, if any
 uv run sip-generate build --out /tmp/out            # about 8 s
 diff -rq golden-catalog /tmp/out                    # empty for a move
 uv run pytest -q tests/test_type_seam.py tests/test_breadth.py
-uv run ruff check . && uv run ruff format --check src tests
+uv run ruff check . && uv run ruff format --check <your module>
 uv run pytest -q                                    # the full suite, about 5 min
 ```
+
+`ruff format --check` is scoped to the files you wrote: CI runs only
+`ruff check`, and a few existing files are not in `ruff format` style.
 
 ## The checks
 
@@ -89,20 +130,60 @@ uv run pytest -q                                    # the full suite, about 5 mi
 |---|---|
 | The module name is not the key, or the module has no `SPEC` | `discover` raises `TypeModuleError`, naming the module |
 | The module fails to import | `TypeModuleError`, naming the dotted path |
-| A modelled type is missing `category`, `vocab`, `figure`, `make` or `standards_family` | `register` raises, naming the missing fields |
+| A modelled type leaves `category`, `standards_family`, `vocab`, `figure`, `extent`, `make` or `share` unset | `register` raises, naming the missing fields; an unset `share` would otherwise build one line, and an unset `extent` would draw at no size |
+| A breadth type's row has a different key from its `SPEC` | `register` raises `TypeModuleError`, naming both keys |
 | The key is declared twice (in a module and a table, or in two modules) | `TypeCollisionError`, naming the key (and both modules, or the YAML table, where it can) |
-| Two types derive the same part-number block | The build refuses and names both types. Set `part_number_block` on the **new** type: re-blocking a type that has already shipped renumbers every SKU it published. |
+| Two types derive the same part-number block | The build refuses, names both types and the first free block. Set `part_number_block` on the **new** type: re-blocking a type that has already shipped renumbers every SKU it published. |
 | A type's output depends on another type | `test_removing_a_type_leaves_every_other_type_byte_identical` and the resize and YAML-edit variants in `tests/test_type_seam.py` |
 | The leaf's head noun is not registered | `test_every_category_leaf_ends_in_its_own_product_noun` |
-| A reader cannot see a type that has moved | `test_a_fresh_reader_sees_a_migrated_type_without_registering_it` |
+| A reader cannot see a type in its own module | `test_a_fresh_reader_sees_a_migrated_type_without_registering_it`, and one first-read test per table read method |
+| A type module imported first in a process breaks registration | `tests/test_a_type_module_imported_first.py` |
+
+`uv run python scripts/mutation_check.py --only "type seam:"` plants a defect
+in each of these hooks and refusals and checks that the named test goes red.
 
 ## What is still shared
 
-* **The head-noun list** in `catalog/names.py`, when the noun is new.
-* **The committed catalog.** `golden-catalog/` holds one file per output
-  shape for all types, so two pull requests that each add a type both rewrite
-  the same files. Per-type golden slices, which give each type its own
-  committed records, are planned for the next part of #48 and are not done yet.
+**Breadth types can be built in parallel.** Two breadth-type pull requests
+touch only these shared files, and each has a mechanical resolution:
+
+* **The committed output**: `golden-catalog/*` (the records, `images.jsonl`
+  and the totals in `stats.json`) and the field-weights YAML. Two types whose
+  keys sort next to each other conflict in the `.jsonl` files, and the
+  totals always conflict. Resolve by taking either side and rebuilding:
+  `uv run sip-generate build --out golden-catalog`. The field-weights YAML can
+  merge without a textual conflict and still be wrong (both sides wrote the
+  same new totals); `tests/test_prism_field_map_drift.py` reds until it is
+  rebuilt. Per-type golden slices, which give each type its own committed
+  records, are planned for the next part of #48.
+* **The head-noun list** in `catalog/names.py`, when both add a new noun at
+  the end of the list. Keep both nouns.
+
+Measured with two toy breadth types on separate branches: the source and test
+files merged without conflict, the conflicts were exactly the generated files
+above and `names.py`, and after one rebuild the golden, title, facet, field-map
+and seam tests passed with no test edit.
+
+**Modelled types land one at a time.** Besides the files above, a modelled
+type edits shared state that two pull requests cannot both change safely:
+
+* `DEPTH_LINES` and `DEPTH_SKUS` in `tests/catalog_size.py`.
+* The `type_weights` shares in `catalog/config.py` together with the modules'
+  `share`. They sum to 1.0; `test_the_catalog_is_the_size_it_was_asked_for`
+  allows 12 lines of slack and reds once the sum goes further above 1.0, so
+  two types each taking share from the others collide.
+* `KEY` in `tests/test_catalog_facts.py`.
+* The family builder in `catalog/generate.py` (see
+  [above](#modelled-types-what-the-family-builder-still-needs)), and the
+  standards extraction in `data/fastener_standards.json`.
+* Type-keyed tables a family may need. Find them with
+  `grep -rn "'<sibling_key>'\|\"<sibling_key>\"" src scripts tests --include=*.py | grep -v product_types/`:
+  `render/kinds.py` (`TYPE_KIND`), `render/generic.py`, `catalog/noise.py`
+  (`THREADED`), `catalog/conformance.py`, `catalog/compat.py`,
+  `catalog/muststock.py`, `catalog/newtypes.py` (`_KIT_MATERIAL`,
+  `_KIT_FINISH`), `scripts/verify_elasticsearch.py`, and for the socket-screw
+  family `test_the_catalog_offers_all_four_socket_screw_styles` in
+  `tests/test_catalog_generate.py`.
 
 ## Measured costs
 
