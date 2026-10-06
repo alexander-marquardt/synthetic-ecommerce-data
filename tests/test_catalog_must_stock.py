@@ -8,6 +8,7 @@ pass moves nothing the main generation drew.
 
 from __future__ import annotations
 
+import functools
 import json
 from dataclasses import replace
 from pathlib import Path
@@ -35,11 +36,16 @@ def full():
     return generate(GeneratorConfig())
 
 
-def _golden_records():
+@functools.cache
+def _golden_records() -> tuple[tuple[str, dict[str, str]], ...]:
+    # The published spelling comes from flat.jsonl, joined on sku: a nested
+    # entry carries no spelling (#42).
+    facets_by_sku = bundle.flat_facets(GOLDEN)
+    out = []
     for line in (GOLDEN / "nested.jsonl").read_text("utf-8").splitlines():
         parent = json.loads(line)
-        for variant in parent["variants"]:
-            yield parent["product_type"], bundle._record(parent, variant)
+        out.extend((parent["product_type"], r) for r in bundle.records(parent, facets_by_sku))
+    return tuple(out)
 
 
 @pytest.mark.parametrize("entry", muststock.MUST_STOCK, ids=lambda e: e.example)

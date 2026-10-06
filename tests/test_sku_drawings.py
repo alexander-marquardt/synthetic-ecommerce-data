@@ -8,6 +8,7 @@ bundle whose every file matches the digest the catalog records.
 
 from __future__ import annotations
 
+import functools
 import hashlib
 import json
 import shutil
@@ -40,6 +41,14 @@ from synthetic_industrial_products.render.marking import (
 
 REPO = Path(__file__).resolve().parents[1]
 GOLDEN = REPO / "golden-catalog"
+
+
+@functools.cache
+def _facets() -> dict[str, dict]:
+    """``{sku: facets}``: a nested entry carries no spelling, so a drawing reads it here (#42)."""
+    return bundle.flat_facets(GOLDEN)
+
+
 CATALOG = generate(SMALL)
 DRAWINGS = list(emit.iter_drawings(CATALOG))
 
@@ -222,6 +231,7 @@ def test_the_committed_catalog_rebuilds_into_its_recorded_drawings():
 
 def test_a_drawing_that_moved_without_a_regeneration_refuses_the_bundle(tmp_path):
     shutil.copy(GOLDEN / "nested.jsonl", tmp_path / "nested.jsonl")
+    shutil.copy(GOLDEN / "flat.jsonl", tmp_path / "flat.jsonl")
     lines = (GOLDEN / "images.jsonl").read_text().splitlines()
     row = json.loads(lines[0])
     row["sha256"] = hashlib.sha256(b"a different drawing").hexdigest()
@@ -327,7 +337,7 @@ def test_siblings_whose_drawn_values_differ_never_draw_alike():
             continue
         drawn: dict[bytes, dict] = {}
         for variant in parent["variants"]:
-            record = bundle._record(parent, variant)
+            record = bundle._record(parent, variant, _facets()[variant["sku"]])
             data, _ = draw_sku(parent["product_type"], parent["brand"], record)
             shown = {k: v for k, v in record.items() if k not in NOT_DRAWN_BY_ANY_FIGURE}
             if data in drawn and drawn[data] != shown:
@@ -391,8 +401,10 @@ def _golden_products():
         parent = json.loads(line)
         figure_fn, _ = FIGURES[parent["product_type"]]
         figures = [
-            (variant["sku"], figure_fn(bundle._record(parent, variant)).figure)
-            for variant in parent["variants"]
+            (variant["sku"], figure_fn(record).figure)
+            for variant, record in zip(
+                parent["variants"], bundle.records(parent, _facets()), strict=True
+            )
         ]
         largest = max(figure.size_in for _, figure in figures)
         yield parent["product_type"], parent["product_id"], figures, largest, parent
@@ -444,7 +456,7 @@ def test_siblings_are_drawn_at_one_scale_so_what_they_share_is_drawn_identically
         names = shared_by.get(type_key)
         if names is None or len(parent["variants"]) < 2:
             continue
-        records = [bundle._record(parent, variant) for variant in parent["variants"]]
+        records = bundle.records(parent, _facets())
         drawn = draw_product(type_key, parent["brand"], records)
         groups: dict[tuple, set] = defaultdict(set)
         for record, (data, _) in zip(records, drawn, strict=True):
@@ -463,7 +475,7 @@ def test_within_a_type_every_part_is_drawn_in_true_proportion():
     from synthetic_industrial_products.drawing import product_scale_for
 
     for type_key, product_id, _figures, _largest, parent in GOLDEN_PRODUCTS:
-        records = [bundle._record(parent, v) for v in parent["variants"]]
+        records = bundle.records(parent, _facets())
         assert product_scale_for(type_key, records) == _type_scale(type_key), product_id
 
 
@@ -522,7 +534,7 @@ def _golden_skus():
     for line in (GOLDEN / "nested.jsonl").read_text("utf-8").splitlines():
         parent = json.loads(line)
         for variant in parent["variants"]:
-            yield parent, variant, bundle._record(parent, variant)
+            yield parent, variant, bundle._record(parent, variant, _facets()[variant["sku"]])
 
 
 def test_the_lens_appears_exactly_when_the_rule_says():

@@ -17,6 +17,7 @@ from pathlib import Path
 
 import pytest
 
+from published import published_attributes
 from synthetic_industrial_products.catalog import emit
 from synthetic_industrial_products.catalog.config import GeneratorConfig
 from synthetic_industrial_products.catalog.generate import Generator, generate
@@ -200,7 +201,8 @@ def docs(request) -> list[dict]:
 
 
 def _values(doc: dict) -> dict[str, str]:
-    return {a["name"]: a["value"] for a in doc["attributes"]}
+    """Name to PUBLISHED spelling, from flat ``facets``: the tables are checked as published."""
+    return {a["name"]: a["value"] for a in published_attributes(doc)}
 
 
 def _inches(value: str) -> float | None:
@@ -232,7 +234,7 @@ def test_every_claimed_standard_applies_to_the_part(docs):
     wrong = [
         (doc["sku"], doc["product_type"], a["value"])
         for doc in docs
-        for a in doc["attributes"]
+        for a in published_attributes(doc)
         if a["name"] == "Standards" and a["value"] not in MAY_CLAIM[doc["product_type"]]
     ]
     assert wrong == [], wrong[:10]
@@ -303,7 +305,7 @@ def wrong_nut_standards(docs: list[dict]) -> tuple[list, int]:
         values = _values(doc)
         claimed = [
             a["value"]
-            for a in doc["attributes"]
+            for a in published_attributes(doc)
             if a["name"] == "Standards" and a["value"] in NUT_DIMENSIONS
         ]
         thread = values["Thread Size"]
@@ -330,7 +332,7 @@ def test_an_inch_bearing_claims_no_metric_bearing_standard(docs):
     for doc in docs:
         if doc["product_type"] != "bearing_radial_ball":
             continue
-        claimed = {a["value"] for a in doc["attributes"] if a["name"] == "Standards"}
+        claimed = {a["value"] for a in published_attributes(doc) if a["name"] == "Standards"}
         if _values(doc)["Bearing Number"].isdigit():
             metric += bool(claimed)
         elif claimed & METRIC_BEARING_ONLY:

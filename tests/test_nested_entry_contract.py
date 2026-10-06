@@ -29,6 +29,7 @@ import pytest
 
 from synthetic_industrial_products.catalog import emit
 from synthetic_industrial_products.catalog.config import SMALL
+from synthetic_industrial_products.catalog.entry import published, split
 from synthetic_industrial_products.catalog.generate import generate
 
 GOLDEN_NESTED = Path(__file__).resolve().parents[1] / "golden-catalog" / "nested.jsonl"
@@ -136,3 +137,49 @@ def test_counts_carry_c62_and_the_old_inch_number_is_gone(entries):
         assert "value_num" not in entry, entry
         if entry["name"] in COUNTS and MAGNITUDE.fullmatch(entry["value"]):
             assert entry.get("unit_code") == "C62", entry
+
+
+def _golden_pair() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    flat = GOLDEN_NESTED.with_name("flat.jsonl")
+    with flat.open(encoding="utf-8") as handle:
+        return _golden(), [json.loads(line) for line in handle]
+
+
+def _fresh_pair() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    catalog = generate(SMALL)
+    return list(emit.iter_nested(catalog)), list(emit.iter_flat(catalog))
+
+
+#: The value parts of a nested entry, which the published spelling must split into.
+PARTS = ("value", "unit_code", "value_canonical")
+
+
+@pytest.mark.parametrize("source", [_golden_pair, _fresh_pair], ids=["golden", "fresh SMALL"])
+def test_every_nested_entrys_published_spelling_is_its_skus_flat_facet(source):
+    """The join a drawing and the spelling tests rely on is complete and agrees.
+
+    A nested entry carries no spelling (Option C on #42): a consumer that prints
+    one reads it from the SKU's flat ``facets``, walking the line's entries then
+    the SKU's. That join must account for every flat value -- none left over,
+    none missing -- and each spelling must split back into the very magnitude
+    and unit the nested entry carries, or the two documents disagree on a value.
+    """
+    nested, flat = source()
+    facets = {doc["sku"]: doc["facets"] for doc in flat}
+    joined = 0
+    for parent in nested:
+        for variant in parent["variants"]:
+            entries = [*parent["attributes"], *variant["attributes"]]
+            pairs = published(entries, facets[variant["sku"]])
+            assert len(pairs) == sum(map(len, facets[variant["sku"]].values())), variant["sku"]
+            for entry, (_, spelling) in zip(entries, pairs, strict=True):
+                parts = {
+                    k: entry[k] for k in ("value", "unit_code", "value_canonical") if k in entry
+                }
+                assert split(entry["name"], spelling, entry.get("unit_code")) == parts, (
+                    variant["sku"],
+                    spelling,
+                    entry,
+                )
+                joined += 1
+    assert joined > 1000
