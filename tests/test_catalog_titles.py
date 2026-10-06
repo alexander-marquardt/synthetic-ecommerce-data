@@ -49,6 +49,7 @@ from pathlib import Path
 
 import pytest
 
+from catalog_size import DEPTH_SKUS
 from published import published_attributes
 from synthetic_industrial_products.catalog.entry import published
 from synthetic_industrial_products.catalog.naming import DELIMITER, TIGHT_DELIMITER
@@ -551,7 +552,7 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         for child in line.children
         if line.spec_quality != "fast_and_cheap"
     ]
-    assert len(documents) == 9611
+    assert len(documents) == DEPTH_SKUS
     assert len(assembled) > 100, "the spy recorded nothing; the reconstruction is broken"
 
     word = set(string.ascii_letters + string.digits + './"-')

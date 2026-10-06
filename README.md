@@ -2,8 +2,9 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 9,700 SKUs over 5,300 products in 67 product types --
-17 depth types plus 50 [breadth categories](#catalog-breadth) --
+extraction in search: nearly 10,000 SKUs over more than 5,000 products in 17
+depth types plus the [breadth categories](#catalog-breadth), one product each
+(the exact counts, per type, are in `golden-catalog/stats.json`) --
 from 45 invented brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog)).
 
@@ -187,9 +188,9 @@ filesystem listing order, locale or timezone, or the zlib build.
 types, and the four newer types (hex nuts, radial ball bearings, depressed
 center wheels, hex keys) take a fixed SHARE of it (`new_type_share`,
 700/2600 each: the ratio the default catalog was built with), so every type
-grows together. There is deliberately no second `--scale` flag. The 50
-[breadth categories](#catalog-breadth) are the one exception: a FIXED ~50
-lines, independent of `--lines`, because breadth is not depth (see that
+grows together. There is deliberately no second `--scale` flag. The
+[breadth categories](#catalog-breadth) are the one exception: one FIXED
+line each, independent of `--lines`, because breadth is not depth (see that
 section for why).
 
 ### The 100K catalog
@@ -213,7 +214,7 @@ wall time, `stats.json` and the build's own summary):
 | screw_flat_head | 4,752 | | wheel_depressed_center | 11,495 |
 | screw_button_head | 3,439 | | hex_key | 6,466 |
 | screw_low_head | 2,692 | | bolt_hex | 5,934 |
-| kit_assortment | 695 | | 50 breadth categories | 89 |
+| kit_assortment | 695 | | each breadth category | 1-3 |
 
 The mix is not the one a proportional scale would give, and that is the
 uniqueness rule at work: a type whose spec space is small (ISO 7089 fixes a
@@ -737,9 +738,9 @@ three materials, gage balls, ...); this catalog's twelve original types return
 488 across 3 (ball end mills, ball-end hex keys, radial bearings), because
 description noise (above) adds hits WITHIN a type and cannot add a category.
 
-**50 breadth rows, 1-2 SKUs each, one generic loop.** 49 rows are in one table,
-`src/synthetic_industrial_products/data/breadth_categories.yaml`; a type moved
-into its own module declares the same row there (`ball_stock_precision`, see
+**One row per breadth category, 1-3 SKUs each, one generic loop.** Most rows
+are in one table, `src/synthetic_industrial_products/data/breadth_categories.yaml`;
+a type in its own module declares the same row there (`ball_stock_precision`, see
 [How to add a product type](docs/adding-a-type.md)). For each row: a category path, a shape name, an item noun, 3-5
 line-scoped attributes with short value lists, one size (variant) attribute,
 and a one-line reason naming the customer query it joins. `catalog/breadth.py`
@@ -790,8 +791,8 @@ requirement-query before/after tables are the industrial side
 
 | file | |
 |---|---|
-| `flat.jsonl` | 30.6 MB — 9,700 SKU documents |
-| `nested.jsonl` | 17.9 MB — 5,300 products, nested variants and key-value attributes |
+| `flat.jsonl` | about 30 MB — one document per SKU |
+| `nested.jsonl` | about 18 MB — one document per product, nested variants and key-value attributes |
 | `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
 | `images.jsonl` | 4.0 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
@@ -839,10 +840,13 @@ difference means the second, and the golden files must not be updated until it
 is found. The test's failure message says all of this too, with the commands.
 
 Alongside the hashes, the same test asserts the headline numbers directly
-against the committed files — 9,700 SKU documents over 5,300 distinct
-`product_id`, a non-empty `image_url` and `image_detail_url` on every product,
-variant and flat document, and 5,300 nested products whose variant counts sum
-to 9,700. Those hold independently of the generator, so a careless
+against the committed files — as many SKU documents and distinct
+`product_id` values as `tests/catalog_size.py` expects, a non-empty
+`image_url` and `image_detail_url` on every product, variant and flat
+document, and nested products whose variant counts sum to the SKU count.
+The expected counts are the modelled types' measured figures plus each
+breadth row's own, read from the rows, so adding a breadth type edits no
+pinned number. Those hold independently of the generator, so a careless
 regenerate-and-commit from a broken build is still red.
 
 ## Every requirement example is stocked
@@ -894,8 +898,8 @@ PRISM_CUSTOMIZATION_PATH=<this repo> PRISM_RUNTIME_MODE=dev \
 
 ### The field map is derived, never written
 
-The catalog publishes **90 distinct attribute names** across 67 product types
-(17 depth types plus 50 breadth categories). A hand-maintained list of 90
+The catalog publishes **about 90 distinct attribute names** across its depth
+types and breadth categories. A hand-maintained list of that many
 declarations drifts from the generator the first time either side moves, and
 it drifts *silently*: a field map naming an
 attribute the catalog no longer publishes does not raise, it just stops
@@ -1074,7 +1078,7 @@ How the code does it -- record to figure to SVG bytes, the registry, the
 provenance ladder, the publish gate, and a checklist for adding a type -- is in
 [docs/drawings.md](docs/drawings.md).
 
-**Exception: the [50 breadth categories](#catalog-breadth) draw one of six
+**Exception: the [breadth categories](#catalog-breadth) draw one of six
 FIXED plain shapes** (sphere, cylinder, block, disc, tube, bracket --
 `drawing/breadth_shapes.py`), never scaled or dimensioned from the SKU's own
 published values. The "drawn from its own dimensions" rule above does not
