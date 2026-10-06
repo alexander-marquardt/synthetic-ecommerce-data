@@ -112,8 +112,7 @@ def _print_report(stats: dict) -> None:
     )
     print()
     print(
-        f"{'measured property':<52}{'target':>10}{'achieved':>10}{'n':>8}{'denom':>8}"
-        f"{'band':>20}"
+        f"{'measured property':<52}{'target':>10}{'achieved':>10}{'n':>8}{'denom':>8}{'band':>20}"
     )
     print("-" * 108)
     for row in stats["comparisons"]:

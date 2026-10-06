@@ -292,7 +292,6 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
             length_attribute("Width Across Flats", gen._publish(flats_in, style)),
             length_attribute("Height", gen._publish(height_in, style)),
         ]
-        child.price_basis = flats_in * 0.4
         draft.children.append(child)
     # The line claims a dimensional standard only when EVERY row it offers is
     # that standard's: one #10 jam nut in a 1/4-1/2 window makes it claim none.
@@ -442,12 +441,11 @@ def build_bearing(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
         pick = _weighted(rng, [(c, c[3]) for c in pool])
         pool.remove(pick)
         chosen.append(pick)
-    for name, suffix, speed, _ in chosen:
+    for name, _, speed, _ in chosen:
         rpm = int(round(limit * speed, -2))
         child = ChildDraft(system=system)
         child.primary = keyword_attribute("Closure Type", name)
         child.attrs = [child.primary, numeric_attribute("Max. RPM", f"{rpm:,}", float(rpm))]
-        child.price_basis = od_in * (1.3 if suffix else 1.0)
         draft.children.append(child)
     return draft
 
@@ -508,7 +506,6 @@ def build_wheel(gen: Generator, type_key: str, category: tuple[str, ...]) -> Lin
         child.primary = numeric_attribute("Grit", str(grit), float(grit))
         grade = "Coarse" if grit <= 36 else ("Medium" if grit <= 60 else "Fine")
         child.attrs = [child.primary, keyword_attribute("Grade", grade)]
-        child.price_basis = dia * 0.9
         draft.children.append(child)
     return draft
 
@@ -579,7 +576,6 @@ def build_hex_key(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
             length_attribute("Overall Width", gen._publish(round(width * 16) / 16, style)),
         ]
         child.secondary = {"other_length": oal_attr}
-        child.price_basis = 0.8 + size_in * 6
         draft.children.append(child)
     return draft
 
@@ -764,7 +760,6 @@ def build_kit(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
     child = ChildDraft(system=kit.system)
     child.primary = numeric_attribute("Number of Pieces", str(pieces), float(pieces))
     child.attrs = [child.primary, multi_attribute("Sizes Included", contents)]
-    child.price_basis = 2.0 + pieces * (0.08 if kit.per_size > 1 else 1.1)
     draft.children.append(child)
     return draft
 
