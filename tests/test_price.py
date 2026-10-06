@@ -1,0 +1,768 @@
+"""Price is held to the price census (#52), like every other realism row."""
+
+from __future__ import annotations
+
+import json
+import math
+import random
+import re
+import statistics
+from collections import defaultdict
+from dataclasses import replace
+from pathlib import Path
+
+import pytest
+
+from synthetic_industrial_products.catalog import brands, breadth, price, price_report
+from synthetic_industrial_products.catalog.config import HUNDRED_K_LINES, GeneratorConfig
+from synthetic_industrial_products.catalog.generate import generate
+from synthetic_industrial_products.catalog.measure import measure
+from synthetic_industrial_products.catalog.price_report import (
+    BRAND_ROW,
+    EQUAL_ROW,
+    LENGTH_ROW,
+    ORDER_ROW,
+    SPREAD_ROW,
+)
+
+CENSUS_FILE = (
+    Path(__file__).resolve().parent.parent / "reference-statistics" / "P2_price_census.json"
+)
+
+
+@pytest.fixture(scope="module")
+def census() -> dict:
+    return json.loads(CENSUS_FILE.read_text())
+
+
+@pytest.fixture(scope="module")
+def catalog():
+    return generate(GeneratorConfig())
+
+
+@pytest.fixture(scope="module")
+def price_rows(catalog) -> list:
+    stats = measure(catalog, GeneratorConfig())
+    return [row for row in stats["comparisons"] if row.band is not None]
+
+
+@pytest.fixture(scope="module")
+def scored(catalog):
+    """What :func:`price_report.price_rows` reads but the prices, and the
+    default build's prices: a test edits the prices and scores them again."""
+    prices = {child.sku: child.price_usd for _, child in catalog.all_skus()}
+    return price_report.collect(catalog), prices
+
+
+@pytest.mark.parametrize("type_key", sorted(price.CENSUS))
+def test_each_restated_figure_is_the_census_figure(census, type_key):
+    row = census["deep_types"][type_key]
+    stated = price.CENSUS[type_key]
+    quantiles = row["price_quantiles_usd"]
+    slope = row["price_vs_key_dimension"]
+    assert (stated.n, stated.p10, stated.p50, stated.p90) == (
+        row["n"],
+        quantiles["p10"],
+        quantiles["p50"],
+        quantiles["p90"],
+    )
+    assert (stated.slope, stated.larger_costs_more, stated.n_pairs) == (
+        slope["loglog_slope"],
+        slope["share_larger_costs_more"],
+        slope["n_pairs"],
+    )
+
+
+def test_every_type_with_30_census_rows_is_restated(census):
+    measured = {k for k, v in census["deep_types"].items() if v["n"] >= 30}
+    assert set(price.CENSUS) == measured
+
+
+def test_the_pooled_and_brand_figures_are_the_census_figures(census):
+    assert census["pooled_endings_all_types"]["class_share"] == price.POOLED_ENDINGS
+    drills = census["deep_types"]["drill_jobber"]["brand_spread_same_spec"]
+    assert drills["max_over_min_ratio"]["p50"] == price.BRAND_SPREAD_MEDIAN
+    assert (
+        drills["house_label_over_other_brands"]["quantiles"]["p50"]
+        == price.ECONOMY_OVER_OTHERS_MEDIAN
+    )
+    assert drills["brand_price_index_quantiles"]["p90"] == price.PREMIUM_BRAND_INDEX_P90
+
+
+@pytest.mark.parametrize(
+    "shown,cls",
+    [
+        (12.99, ".99"),
+        (3.0, ".00"),
+        (7.5, ".50"),
+        (4.95, ".95"),
+        (4.49, ".49"),
+        (4.98, ".98"),
+        (4.97, ".97"),
+        (4.35, "other .x5"),
+        (4.39, "other .x9"),
+        (4.31, "other"),
+        (0.1, "other"),
+    ],
+)
+def test_an_ending_is_classed_as_the_census_classes_it(shown, cls):
+    assert price.ending_class(shown) == cls
+
+
+#: The census types whose smaller-costs-2x-or-more row the default build
+#: scores: :data:`price_report.TWICE_TYPES` (20 or more census pairs) less
+#: the types that build one SKU per line along their axis.
+TWICE_SCORED = (
+    "bolt_hex",
+    "drill_jobber",
+    "hex_key",
+    "nut_hex",
+    "screw_socket_head",
+    "tap_spiral_point",
+    "washer_flat",
+)
+
+
+def test_every_price_row_is_within_its_band_or_pinned_at_the_default_size(price_rows):
+    expected = (
+        3 * len(price.CENSUS)
+        + len(price.LENGTH_CENSUS)
+        + len(price.EQUAL_PRICE_TYPES)
+        + len(TWICE_SCORED)
+        + len(price.BRAND_CENSUS)
+        + 1
+        + len(price_report.ENDING_CLASSES)
+    )
+    assert len(price_rows) == expected == 61
+    exempt = set(price.PINNED_SHORTFALLS) | set(price.ROW_EXCEPTIONS)
+    out = [row for row in price_rows if not row.within and row.name not in exempt]
+    assert not out, "\n".join(f"{row.name}: {row.achieved:.4f} outside {row.band}" for row in out)
+
+
+def test_the_twice_types_are_the_census_types_with_20_pairs(census, price_rows):
+    """The 2x target is implied from the census pairs on the type's axis, so
+    a type with fewer has no row (the end mills' 11 and 18); of the rest,
+    the default build scores each type that builds same-product pairs."""
+    axis_pairs = {
+        k: (v.get("price_vs_length_at_fixed_diameter") or {}).get("n_pairs", 0)
+        if k in price.LENGTH_CENSUS
+        else v["price_vs_key_dimension"]["n_pairs"]
+        for k, v in census["deep_types"].items()
+        if k in price.CENSUS
+    }
+    assert set(price_report.TWICE_TYPES) == {k for k, n in axis_pairs.items() if n >= 20}
+    scored = {
+        row.name.rsplit(": ", 1)[1]
+        for row in price_rows
+        if row.name.startswith("price smaller costs 2x+")
+    }
+    assert scored == set(TWICE_SCORED)
+
+
+#: Each pinned shortfall: the side of its band it falls on, and what its
+#: reason must name (the cause, or the issue that fixes it).
+PINNED_SIDES = {
+    "price p90/p10: bearing_radial_ball": ("below", "#64"),
+    "price brand spread, same spec (median max/min): wheel_depressed_center": (
+        "above",
+        "drawn independently per",
+    ),
+}
+
+
+@pytest.mark.parametrize("name", sorted(PINNED_SIDES))
+def test_each_pinned_shortfall_stays_out_of_band_on_its_side(price_rows, name):
+    """A pin discloses a row the model cannot land; it must not drift to the
+    other side, nor quietly come into band (the fit then calls the pin stale)."""
+    assert set(price.PINNED_SHORTFALLS) == set(PINNED_SIDES)
+    side, cause = PINNED_SIDES[name]
+    reason = price.PINNED_SHORTFALLS[name]
+    assert reason.startswith(f"{side} band"), reason
+    assert cause in reason, reason
+    (row,) = [row for row in price_rows if row.name == name]
+    assert "PINNED SHORTFALL" in row.note
+    if side == "below":
+        assert row.achieved < row.band[0], (row.achieved, row.band)
+    else:
+        assert row.achieved > row.band[1], (row.achieved, row.band)
+    assert set(price.PINNED_FIGURES) == set(price.PINNED_SHORTFALLS)
+    assert price_report.pin_holds(row), (row.achieved, price.PINNED_FIGURES[name])
+
+
+def test_a_pin_reason_quotes_the_figure_the_pin_records():
+    """The wheel reason states how far apart a spec's brands land; that is
+    the pinned figure itself, so it is read, not retyped (it read 6.8 once
+    the figure was 3.24)."""
+    name = BRAND_ROW.format("wheel_depressed_center")
+    quoted = re.findall(r"(\d+(?:\.\d+)?)x apart", price.PINNED_SHORTFALLS[name])
+    assert quoted == [f"{price.PINNED_FIGURES[name]:.2f}"] == ["3.24"]
+
+
+def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
+    """Review plant M5: bearing noise off. Its p90/p10 falls from 4.55 to
+    4.31, further below the band but still on its side, so only the
+    recorded figure can catch it."""
+    name = "price p90/p10: bearing_radial_ball"
+    quiet = replace(price.MODELS["bearing_radial_ball"], group_sigma=0.0, sku_sigma=0.0)
+    monkeypatch.setitem(price.MODELS, "bearing_radial_ball", quiet)
+    (row,) = [
+        row
+        for row in price_report.price_comparisons(generate(GeneratorConfig()))
+        if row.name == name
+    ]
+    assert round(row.achieved, 2) == 4.31
+    assert row.achieved < row.band[0]
+    assert not price_report.pin_holds(row)
+
+
+def _newly_out(scored, prices) -> dict:
+    collected, base = scored
+    before = {row.name for row in price_report.price_rows(collected, base) if not row.within}
+    return {
+        row.name: row
+        for row in price_report.price_rows(collected, prices)
+        if not row.within and row.name not in before
+    }
+
+
+def _below(rows: dict, names) -> None:
+    missing = sorted(set(names) - set(rows))
+    assert not missing, missing
+    for name in names:
+        assert rows[name].achieved < rows[name].band[0], (name, rows[name].achieved)
+
+
+def test_swapping_a_products_first_and_last_price_breaks_the_order_rows(catalog, scored):
+    """Review plant 1a: the first and last SKU of every product trade prices."""
+    _, base = scored
+    prices = dict(base)
+    for line in catalog.lines:
+        if len(line.children) >= 2:
+            first, last = line.children[0].sku, line.children[-1].sku
+            prices[first], prices[last] = base[last], base[first]
+    _below(
+        _newly_out(scored, prices),
+        [ORDER_ROW.format(t) for t in ("drill_jobber", "hex_key", "nut_hex", "washer_flat")]
+        + [LENGTH_ROW.format(t) for t in price.LENGTH_CENSUS],
+    )
+
+
+def test_a_price_that_falls_with_length_breaks_the_length_rows(catalog, scored):
+    """Review plant 1b: on bolts and socket-family screws the longest SKU of
+    a product gets its lowest price. The length rows catch it, not a
+    diameter row by accident."""
+    _, base = scored
+    prices = dict(base)
+    for line in catalog.lines:
+        if line.type_key not in price.LENGTH_HELD:
+            continue
+        lengths = sorted(
+            (price.length_of({a.name: a for a in catalog.merged_attributes(line, c)}) or 0.0, c.sku)
+            for c in line.children
+        )
+        falling = sorted((base[sku] for _, sku in lengths), reverse=True)
+        prices.update({sku: p for (_, sku), p in zip(lengths, falling, strict=True)})
+    newly = _newly_out(scored, prices)
+    _below(newly, [LENGTH_ROW.format(t) for t in price.LENGTH_CENSUS])
+
+
+def test_dropping_the_99_endings_breaks_the_99_row(scored):
+    """Review plant 2b: every .99 price ends .91 instead, an "other" ending."""
+    _, base = scored
+    prices = {
+        sku: round(p - 0.08, 2) if price.ending_class(p) == ".99" else p for sku, p in base.items()
+    }
+    _below(_newly_out(scored, prices), ["price ending .99"])
+
+
+def test_every_monotonicity_row_counts_pairs(price_rows):
+    """A share over no pairs is 0.0 whatever the generator does."""
+    empty = [
+        row.name
+        for row in price_rows
+        if ("costs more" in row.name or "costs 2x+" in row.name) and row.denominator < 20
+    ]
+    assert not empty, empty
+
+
+@pytest.mark.parametrize("type_key", sorted(price.ENDINGS))
+def test_each_type_endings_mix_is_the_census_mix(census, type_key):
+    """The generator draws endings from this table and the endings rows aim
+    at it, so only this pin catches a table that leaves the census."""
+    assert price.ENDINGS[type_key] == census["deep_types"][type_key]["endings"]["class_share"]
+
+
+@pytest.mark.parametrize("key", sorted(price.BREADTH_CENSUS))
+def test_each_breadth_census_figure_is_the_census_figure(census, key):
+    q = census["breadth_categories"][key]["price_quantiles_usd"]
+    assert price.BREADTH_CENSUS[key] == (q["p10"], q["p50"], q["p90"])
+
+
+def test_the_length_figures_are_the_census_figures(census):
+    measured = {
+        k: v["price_vs_length_at_fixed_diameter"]
+        for k, v in census["deep_types"].items()
+        if (v.get("price_vs_length_at_fixed_diameter") or {}).get("n_pairs", 0) >= 100
+    }
+    assert set(price.LENGTH_CENSUS) == set(measured)
+    for type_key, row in measured.items():
+        stated = price.LENGTH_CENSUS[type_key]
+        assert (stated.slope, stated.longer_costs_more, stated.n_pairs) == (
+            row["loglog_slope"],
+            row["share_larger_costs_more"],
+            row["n_pairs"],
+        )
+
+
+def test_the_brand_spread_figures_are_the_census_figures(census):
+    measured = {
+        k: v["brand_spread_same_spec"]
+        for k, v in census["deep_types"].items()
+        if (v.get("brand_spread_same_spec") or {}).get("max_over_min_ratio")
+    }
+    assert set(price.BRAND_CENSUS) == set(measured)
+    for type_key, row in measured.items():
+        stated = price.BRAND_CENSUS[type_key]
+        ratio = row["max_over_min_ratio"]
+        assert (
+            stated.spread_p50,
+            stated.n_specs,
+            stated.low_confidence,
+            stated.spread_p25,
+            stated.spread_p75,
+            stated.brands_indexed,
+        ) == (
+            ratio["p50"],
+            row["n_specs_with_2plus_brands"],
+            row["low_confidence"],
+            ratio["p25"],
+            ratio["p75"],
+            row["n_brands_indexed"],
+        )
+
+
+def test_each_familys_tiers_price_in_order(scored):
+    """Per family, on specs it shares, an economy brand's median price is
+    below a standard brand's and a premium brand's above it."""
+    order = price_report.tier_order(*scored)
+    assert set(order) == set(TIERS_BY_FAMILY)
+    for family, (economy, premium) in order.items():
+        assert economy < 1.0 < premium, (family, economy, premium)
+
+
+def test_the_tier_exception_is_the_bearing_value_label():
+    assert brands.TIER_EXCEPTIONS == {("Tervasko", "bearing_radial_ball"): "standard"}
+    assert brands.tier_of("Tervasko", "bearing_radial_ball") == "standard"
+    assert brands.tier_of("Tervasko", "drill_jobber") == "economy"
+    assert brands.tier_of("Salt Meadow Works", "abrasive_flap_disc") == "economy"
+
+
+#: Each family's value brands and premium makers. A tier is no field on the
+#: record and a swap of two brands' tiers keeps every price distribution, so
+#: no band row can see one: the names are pinned here.
+TIERS_BY_FAMILY = {
+    "cutting_tool": ({"Tervasko", "Wendlow Tool"}, {"Quillon Carbide", "Varrick Precision"}),
+    "fastener": ({"Tervasko", "Morvennick", "Stone Wicket"}, {"Cobbet & Pryce"}),
+    "abrasive": ({"Tervasko", "Salt Meadow Works", "Stone Wicket"}, {"Grisenne"}),
+    "hand_tool": ({"Tervasko", "Stone Wicket"}, {"Ashcombe Forge"}),
+    "motion": ({"Tervasko", "Harnell"}, {"Quennick"}),
+}
+
+
+@pytest.mark.parametrize("family", sorted(TIERS_BY_FAMILY))
+def test_each_family_keeps_its_named_price_tiers(family):
+    makers = [b for b in brands.BRAND_BOOK if family in b.families]
+    economy = {b.name for b in makers if b.tier == "economy"}
+    premium = {b.name for b in makers if b.tier == "premium"}
+    assert (economy, premium) == TIERS_BY_FAMILY[family]
+    assert 2 <= len(economy) <= 3 and 1 <= len(premium) <= 2
+
+
+# --- every row bites in both directions it can fail -------------------------
+
+
+def _above(rows: dict, names) -> None:
+    missing = sorted(set(names) - set(rows))
+    assert not missing, missing
+    for name in names:
+        assert rows[name].achieved > rows[name].band[1], (name, rows[name].achieved)
+
+
+def _held_to_band(template: str, type_keys) -> list[str]:
+    """The rows a band holds: a pinned or excepted row is out already, so
+    it cannot newly break."""
+    exempt = set(price.PINNED_SHORTFALLS) | set(price.ROW_EXCEPTIONS)
+    return [template.format(t) for t in type_keys if template.format(t) not in exempt]
+
+
+@pytest.mark.parametrize(("factor", "check"), [(2.0, _above), (0.5, _below)])
+def test_scaling_every_price_breaks_every_p50_row(scored, factor, check):
+    """The p50 band is x0.8 to x1.25 of the census: a catalog priced twice or
+    half as high leaves it on every type."""
+    _, base = scored
+    prices = {sku: p * factor for sku, p in base.items()}
+    check(_newly_out(scored, prices), _held_to_band("price p50 (USD): {}", price.CENSUS))
+
+
+@pytest.mark.parametrize(("power", "check"), [(2.0, _above), (0.2, _below)])
+def test_widening_or_narrowing_each_types_spread_breaks_its_spread_row(scored, power, check):
+    """Each type's prices move about its own median, in logs: squared, the
+    p90/p10 squares; to the fifth root, it falls to its fifth root. The
+    pinned bearing row is out already, and squared lands in band (its pin
+    test catches that)."""
+    collected, base = scored
+    by_type: dict[str, list[str]] = defaultdict(list)
+    for sku, type_key in collected.type_of.items():
+        by_type[type_key].append(sku)
+    prices = dict(base)
+    for skus in by_type.values():
+        middle = statistics.median(base[s] for s in skus)
+        prices.update({s: middle * (base[s] / middle) ** power for s in skus})
+    expected = _held_to_band(SPREAD_ROW, price.CENSUS)
+    if power > 1:
+        expected = [n for n in expected if "bearing_radial_ball" not in n]
+    check(_newly_out(scored, prices), expected)
+
+
+def test_one_brand_priced_100x_on_every_spec_breaks_the_brand_spread_rows(scored):
+    """On every spec two or more brands make, each brand costs 100x the one
+    before it by name: any two brands of a spec sit 100x apart or more, so
+    whichever a row samples, no spec's max/min falls under 10, above every
+    band."""
+    collected, base = scored
+    prices = dict(base)
+    for by_brand in collected.specs.values():
+        if len(by_brand) >= 2:
+            for rank, brand in enumerate(sorted(by_brand)):
+                prices.update({s: base[s] * 100.0**rank for s in by_brand[brand]})
+    _above(_newly_out(scored, prices), _held_to_band(BRAND_ROW, price.BRAND_CENSUS))
+
+
+#: The brand-spread types whose census median is measured on so few specs
+#: that its standard-error band is wider than x0.75 to x1.33.
+BRAND_BAND_FROM_ERROR = ("end_mill_ball", "nut_hex")
+
+
+@pytest.mark.parametrize("type_key", sorted(price.BRAND_CENSUS))
+def test_the_brand_spread_band_is_x075_to_x133_unless_the_census_error_is_wider(type_key):
+    """The band's edges, exactly: x0.75 and x1.33 of the census median, or
+    3 standard errors of that median where those are wider (a ball end
+    mill's 5 specs, a hex nut's 6). A band widened at either edge moves them."""
+    figure = price.BRAND_CENSUS[type_key]
+    low, high = price_report.brand_spread_band(figure)
+    if type_key in BRAND_BAND_FROM_ERROR:
+        sigma = math.log(figure.spread_p75 / figure.spread_p25) / 1.349
+        width = 3.0 * math.sqrt(math.pi / 2) * sigma / math.sqrt(figure.n_specs)
+        assert width > math.log(1.33), width
+        assert (low, high) == pytest.approx(
+            (figure.spread_p50 * math.exp(-width), figure.spread_p50 * math.exp(width))
+        )
+    else:
+        assert (low, high) == pytest.approx((figure.spread_p50 * 0.75, figure.spread_p50 * 1.33))
+
+
+def test_a_specs_brand_sample_is_k_of_its_brands_and_fixed_per_spec():
+    names = [f"Brand {i:02d}" for i in range(13)]
+    spec = ("drill_jobber", 0.25, "High Speed Steel")
+    chosen = price_report.sampled_brands(spec, names, 3)
+    assert len(chosen) == len(set(chosen)) == 3
+    assert set(chosen) < set(names)
+    assert price_report.sampled_brands(spec, reversed(names), 3) == chosen
+    assert price_report.sampled_brands(spec, names[:3], 3) == names[:3]
+    others = {tuple(price_report.sampled_brands((*spec[:2], m), names, 3)) for m in "abcdefgh"}
+    assert len(others) > 1
+
+
+def test_each_brand_spread_row_samples_the_census_brands_per_spec():
+    """At most the brands a census spec can hold (a socket screw's 2), and
+    never more than :data:`price_report.BRAND_SAMPLE_CAP`."""
+    sampled = {t: price_report.brand_sample(f) for t, f in price.BRAND_CENSUS.items()}
+    assert sampled == {
+        "bearing_radial_ball": 3,
+        "drill_jobber": 3,
+        "end_mill_ball": 3,
+        "nut_hex": 3,
+        "screw_socket_head": 2,
+        "tap_spiral_point": 3,
+        "wheel_depressed_center": 3,
+    }
+
+
+def _spec_spreads(brands_per_spec: int, k: int) -> float:
+    """The median over 2,000 specs of one model's brand spread: each brand's
+    log price on a spec is its tier plus a normal draw, as the generator's
+    group noise is, whatever the number of brands."""
+    rng = random.Random(52)
+    tiers = [math.log(f) for f in price.TIER_FACTORS.values()]
+    names = [f"Brand {i:02d}" for i in range(brands_per_spec)]
+    spreads = []
+    for spec in range(2000):
+        logs = {name: rng.choice(tiers) + rng.gauss(0.0, 0.4) for name in names}
+        chosen = [logs[b] for b in price_report.sampled_brands(("t", spec, ""), names, k)]
+        spreads.append(math.exp(max(chosen) - min(chosen)))
+    return statistics.median(spreads)
+
+
+def test_the_brand_spread_reads_one_model_alike_at_3_and_at_13_brands_per_spec():
+    """One unchanged model, scored on specs of 3 brands (a default drill's
+    median) and of 13 (a 100K drill's): max/min over every brand grows with
+    the brands per spec, max/min over the sampled brands does not."""
+    k = price_report.BRAND_SAMPLE_CAP
+    every_brand = _spec_spreads(13, 13) / _spec_spreads(3, 3)
+    sampled = _spec_spreads(13, k) / _spec_spreads(3, k)
+    assert every_brand > 1.8, every_brand
+    assert abs(math.log(sampled)) < 0.05, sampled
+
+
+def test_the_drill_brand_spread_reads_alike_at_the_default_size_and_at_100k(
+    price_rows, hundred_k_rows
+):
+    """The case the row was red on: a drill spec holds a median 3 brands at
+    the default size and 13 at 100K, and the brands' prices are drawn the
+    same way at both."""
+    name = BRAND_ROW.format("drill_jobber")
+    (default,) = [row.achieved for row in price_rows if row.name == name]
+    assert abs(math.log(hundred_k_rows[name].achieved / default)) < math.log(1.15), (
+        default,
+        hundred_k_rows[name].achieved,
+    )
+
+
+def test_economy_brands_priced_as_dear_as_the_rest_breaks_the_economy_row(scored):
+    """The census's house labels cost 0.52 of the other brands on a drill
+    spec; doubled, an economy drill costs about what the rest do."""
+    collected, base = scored
+    prices = dict(base)
+    for (type_key, _, _), by_brand in collected.specs.items():
+        if type_key != price.BRAND_SPREAD_TYPE:
+            continue
+        for brand, skus in by_brand.items():
+            if brands.tier_of(brand, type_key) == "economy":
+                prices.update({s: base[s] * 2 for s in skus})
+    name = f"price economy brands over others, same spec (median): {price.BRAND_SPREAD_TYPE}"
+    _above(_newly_out(scored, prices), [name])
+
+
+def test_a_smaller_sku_priced_3x_the_bigger_breaks_the_2x_rows(scored):
+    """In every same-product pair, the smaller SKU costs three times the
+    bigger or more: the 2x share is 1.0, over any band short of the whole
+    range. Along one product's axis the order is total, so a SKU priced 3
+    to the power of how many SKUs are bigger than it costs 3x or more than
+    each of them."""
+    collected, base = scored
+    prices = dict(base)
+    bigger_than: dict[str, int] = defaultdict(int)
+    for pairs in collected.product_pairs.values():
+        for bigger, smaller, _ in pairs:
+            bigger_than[bigger] += 0
+            bigger_than[smaller] += 1
+    prices.update({sku: 3.0**n for sku, n in bigger_than.items()})
+    rows = [f"price smaller costs 2x+, same product: {t}" for t in TWICE_SCORED]
+    _above(_newly_out(scored, prices), rows)
+
+
+def test_a_quarter_of_pairs_at_2x_breaks_the_2x_rows(scored):
+    """Every other paired SKU (by SKU id) costs 4x: a pair whose smaller
+    member is one of them and whose bigger is not costs 2x or more, a tenth
+    to a third of each type's pairs (washers 0.14). That is out of every 2x band, and inside
+    one whose floor (:data:`price_report.TWICE_BAND_FLOOR`) were widened to
+    0.5: the plant lands where only the floor's width decides."""
+    collected, base = scored
+    prices = dict(base)
+    paired = sorted({s for pairs in collected.product_pairs.values() for p in pairs for s in p[:2]})
+    prices.update({sku: base[sku] * 4 for sku in paired[1::2]})
+    rows = [f"price smaller costs 2x+, same product: {t}" for t in TWICE_SCORED]
+    out = _newly_out(scored, prices)
+    _above(out, rows)
+    for name in rows:
+        assert 0.1 < out[name].achieved < 0.4, (name, out[name].achieved)
+
+
+#: The 2x rows whose census band is narrower than the floor on the default
+#: build, so the floor alone sets the band: each implies a share under 0.001.
+TWICE_FLOORED = ("bolt_hex", "drill_jobber", "hex_key", "nut_hex", "screw_socket_head")
+
+
+def test_the_twice_band_floor_is_two_pairs_in_a_hundred_above_a_near_zero_target(price_rows):
+    """Where the census implies a 2x share near 0, the band is the floor's
+    0.02 above the target and runs down to 0: exactly, so a floor widened
+    to any other width moves these edges. The tap and washer bands are wider
+    than the floor and are the census's own."""
+    rows = {row.name: row for row in price_rows if row.name.startswith("price smaller costs 2x+")}
+    assert len(rows) == len(TWICE_SCORED) == 7
+    for type_key in TWICE_SCORED:
+        row = rows[f"price smaller costs 2x+, same product: {type_key}"]
+        floored = type_key in TWICE_FLOORED
+        assert (row.band[1] - row.target == pytest.approx(0.02, abs=1e-12)) is floored, (
+            type_key,
+            row.target,
+            row.band,
+        )
+        assert (row.band[0] == 0.0) is floored, (type_key, row.band)
+
+
+def test_breaking_every_tie_breaks_the_equal_price_row(scored):
+    """Review plant M2: a list-price ladder makes the census's tap ties. With
+    each tap SKU moved by its own millionth of a dollar, no pair ties."""
+    collected, base = scored
+    prices = dict(base)
+    taps = sorted(s for s, t in collected.type_of.items() if t in price.EQUAL_PRICE_TYPES)
+    prices.update({s: base[s] + (i + 1) * 1e-6 for i, s in enumerate(taps)})
+    _below(_newly_out(scored, prices), [EQUAL_ROW.format(t) for t in price.EQUAL_PRICE_TYPES])
+
+
+def test_tying_every_pair_breaks_the_equal_price_row(scored):
+    collected, base = scored
+    prices = {s: 10.0 if collected.type_of.get(s) in price.EQUAL_PRICE_TYPES else p
+              for s, p in base.items()}  # fmt: skip
+    _above(_newly_out(scored, prices), [EQUAL_ROW.format(t) for t in price.EQUAL_PRICE_TYPES])
+
+
+# --- the declared exceptions ------------------------------------------------
+
+
+#: The rows held to no band, and the issue each reason must name.
+EXCEPTED = {
+    "price p50 (USD): kit_assortment": "#71",
+    "price p90/p10: kit_assortment": "#71",
+}
+
+
+def test_the_row_exceptions_are_the_kit_rows_that_cannot_hold(price_rows):
+    """#71 prices a kit from its contents; until then its p50 and p90/p10
+    trade against each other across the two builds. Another row, or a kit
+    row that can hold (its larger-costs-more share), gets no exception."""
+    assert set(price.ROW_EXCEPTIONS) == set(EXCEPTED)
+    assert not set(price.ROW_EXCEPTIONS) & set(price.PINNED_SHORTFALLS)
+    for name, issue in EXCEPTED.items():
+        assert issue in price.ROW_EXCEPTIONS[name], price.ROW_EXCEPTIONS[name]
+    (larger,) = [row for row in price_rows if row.name == ORDER_ROW.format("kit_assortment")]
+    assert larger.within, (larger.achieved, larger.band)
+    excepted = {row.name: row for row in price_rows if row.name in EXCEPTED}
+    assert sorted(excepted) == sorted(EXCEPTED)
+    for row in excepted.values():
+        assert "EXCEPTED" in row.note, row.note
+        assert not row.within, f"{row.name} is in band: drop its exception"
+    assert set(price.EXCEPTED_FIGURES) == set(EXCEPTED)
+    for row in excepted.values():
+        assert price_report.exception_holds(row, 0), (row.name, row.achieved, row.band)
+
+
+def test_band_miss_is_the_ratio_to_the_nearer_edge():
+    band = (10.0, 20.0)
+    assert price_report.band_miss(15.0, band) == 1.0
+    assert price_report.band_miss(10.0, band) == 1.0
+    assert price_report.band_miss(22.0, band) == pytest.approx(1.1)
+    assert price_report.band_miss(8.0, band) == pytest.approx(1.25)
+
+
+@pytest.mark.parametrize("name", sorted(EXCEPTED))
+@pytest.mark.parametrize("build", [0, 1])
+def test_an_excepted_row_may_miss_by_at_most_125x_its_recorded_miss(price_rows, name, build):
+    """An exception is no licence to drift: the row may land on either side
+    of its band, but no further out than 1.25 times the miss its recorded
+    figure for that build has. Exactly there, on both sides."""
+    (row,) = [row for row in price_rows if row.name == name]
+    recorded = price.EXCEPTED_FIGURES[name][build]
+    limit = 1.25 * price_report.band_miss(recorded, row.band)
+    low, high = row.band[0] / limit, row.band[1] * limit
+    assert price_report.exception_holds(replace(row, achieved=low * 1.0001), build)
+    assert not price_report.exception_holds(replace(row, achieved=low * 0.9999), build)
+    assert price_report.exception_holds(replace(row, achieved=high * 0.9999), build)
+    assert not price_report.exception_holds(replace(row, achieved=high * 1.0001), build)
+
+
+def test_a_kit_priced_a_quarter_lower_breaks_its_p50_exception(scored):
+    """The kit p50 sits about 1% under its band on the default build; a
+    quarter off every kit price puts it about 34% under, past the 1.25x
+    bound, though the row is excepted from its band."""
+    collected, base = scored
+    prices = dict(base)
+    prices.update(
+        {s: p * 0.75 for s, p in base.items() if collected.type_of.get(s) == "kit_assortment"}
+    )
+    name = "price p50 (USD): kit_assortment"
+    (row,) = [row for row in price_report.price_rows(collected, prices) if row.name == name]
+    assert round(price_report.band_miss(row.achieved, row.band), 2) == 1.34
+    assert not price_report.exception_holds(row, 0)
+
+
+# --- the 100K catalog (#52: "within tolerance at default size and at 100K") --
+
+#: Every price row's name, as :func:`price_report.price_rows` writes it.
+ROW_NAMES = sorted(
+    [f"price p50 (USD): {t}" for t in price.CENSUS]
+    + [SPREAD_ROW.format(t) for t in price.CENSUS]
+    + [ORDER_ROW.format(t) for t in price.CENSUS]
+    + [LENGTH_ROW.format(t) for t in price.LENGTH_CENSUS]
+    + [EQUAL_ROW.format(t) for t in price.EQUAL_PRICE_TYPES]
+    + [f"price smaller costs 2x+, same product: {t}" for t in TWICE_SCORED]
+    + [BRAND_ROW.format(t) for t in price.BRAND_CENSUS]
+    + [f"price economy brands over others, same spec (median): {price.BRAND_SPREAD_TYPE}"]
+    + [f"price ending {cls}" for cls in price_report.ENDING_CLASSES]
+)
+
+
+@pytest.fixture(scope="module")
+def hundred_k_rows() -> dict:
+    """Every price row of the 100K build, by name (about 35 s)."""
+    rows = price_report.price_comparisons(generate(GeneratorConfig(lines=HUNDRED_K_LINES)))
+    return {row.name: row for row in rows}
+
+
+def test_the_row_names_are_the_rows_the_default_build_scores(price_rows):
+    assert sorted(row.name for row in price_rows) == ROW_NAMES
+
+
+def test_the_100k_build_scores_every_row_the_default_build_scores(hundred_k_rows):
+    assert sorted(hundred_k_rows) == ROW_NAMES
+
+
+@pytest.mark.parametrize("name", ROW_NAMES)
+def test_each_price_row_is_within_its_band_or_its_pin_holds_at_100k(hundred_k_rows, name):
+    """The band is the census's, whatever the catalog's size; a pin may not
+    worsen at 100K any more than at the default size."""
+    row = hundred_k_rows[name]
+    if name in price.ROW_EXCEPTIONS:
+        assert "EXCEPTED" in row.note, row.note
+        assert price_report.exception_holds(row, 1), (row.achieved, row.band)
+    elif name in price.PINNED_SHORTFALLS:
+        assert price_report.pin_holds(row), (row.achieved, row.band, price.PINNED_FIGURES[name])
+    else:
+        assert row.within, f"{row.achieved:.4f} outside {row.band[0]:.4f}-{row.band[1]:.4f}"
+
+
+# --- the measured breadth categories ----------------------------------------
+
+#: Where a breadth draw's ``u`` lands: the middle of twenty equal slices.
+U_GRID = tuple((i + 0.5) / 20 for i in range(20))
+
+
+@pytest.mark.parametrize("key", sorted(price.BREADTH_CENSUS))
+def test_each_measured_breadth_categorys_p50_is_within_its_census_band(key):
+    """A breadth category builds one line of one or two SKUs at any catalog
+    size, so a p50 over its built SKUs reads where the size rotation landed.
+    The row is over what :func:`price.breadth_price` draws at every size and
+    ``u``, standard tier, held to the deep types' p50 band."""
+    row = breadth.row_for(key)
+    drawn = [
+        price.breadth_price(row, size, "standard", u, 0.0)
+        for size in row.size_values
+        for u in U_GRID
+    ]
+    census_p50 = price.BREADTH_CENSUS[key][1]
+    low, high = (census_p50 * f for f in price_report.P50_BAND)
+    assert low <= statistics.median(drawn) <= high, (statistics.median(drawn), low, high)
+
+
+@pytest.mark.parametrize("tier", ["economy", "premium"])
+def test_a_measured_breadth_skus_tier_scales_its_price_by_the_tier_factor(tier):
+    """Same row, size and draws: the tier moves the price by its factor, to
+    within the cent an "other" ending rounds to (under 1% at these prices)."""
+    for key in sorted(price.BREADTH_CENSUS):
+        row = breadth.row_for(key)
+        size = row.size_values[len(row.size_values) // 2]
+        ratio = price.breadth_price(row, size, tier, 0.5, 0.0) / price.breadth_price(
+            row, size, "standard", 0.5, 0.0
+        )
+        assert abs(ratio / price.TIER_FACTORS[tier] - 1) < 0.01, (key, ratio)
