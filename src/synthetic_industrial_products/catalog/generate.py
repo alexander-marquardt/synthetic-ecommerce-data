@@ -740,55 +740,69 @@ class Generator:
             draft.children.append(child)
         return draft
 
-    #: The four hex-socket screw lines, each with the standard its dimensions
-    #: come from in each system, the head style the drawing reads, and the
-    #: accessor that knows which columns of that standard's table are the head.
+    #: The hex-socket screw lines still declared here, each with the standard
+    #: its dimensions come from in each system, the head style the drawing
+    #: reads, and the accessor that knows which columns of that standard's
+    #: table are the head. A type declared in its own module
+    #: (``screw_socket_head``) passes its own row to the builder instead.
     #:
-    #: Four rows rather than an ``if flat`` and a default: a button head and a
-    #: low head are different products with different published dimensions, and
-    #: a table says so where a boolean would have had to grow a second and a
-    #: third meaning.
-    _SOCKET_SCREW_LINES: dict[str, tuple[str, str, str, str]] = {
-        "screw_socket_head": ("ISO 4762", "ASME B18.3", "Socket", "Socket Head Cap Screw"),
-        "screw_flat_head": ("ISO 10642", "ASME B18.3.2", "Flat", "Socket Flat Head Cap Screw"),
-        "screw_button_head": (
+    #: One row per line rather than an ``if flat`` and a default: a button head
+    #: and a low head are different products with different published
+    #: dimensions, and a row says so where a boolean would have had to grow a
+    #: second and a third meaning.
+    _SOCKET_SCREW_LINES: dict[str, standards.SocketScrewLine] = {
+        "screw_flat_head": standards.SocketScrewLine(
+            "ISO 10642",
+            "ASME B18.3.2",
+            "Flat",
+            "Socket Flat Head Cap Screw",
+            standards.flat_head,
+            length_over_head=True,
+        ),
+        "screw_button_head": standards.SocketScrewLine(
             "ISO 7380-1",
             "ASME B18.3.3A",
             "Button",
             "Button Head Socket Cap Screw",
+            standards.button_head,
         ),
-        "screw_low_head": (
+        "screw_low_head": standards.SocketScrewLine(
             "DIN 7984",
             "ASME B18.3.1G",
             "Low Socket",
             "Low Head Socket Cap Screw",
+            standards.low_head,
         ),
     }
 
-    def _build_socket_screw(self, type_key: str, category: tuple[str, ...]) -> LineDraft:
+    def _build_socket_screw(
+        self,
+        type_key: str,
+        category: tuple[str, ...],
+        line: standards.SocketScrewLine | None = None,
+    ) -> LineDraft:
         """Hexagon socket cap screws -- socket, countersunk, button or low head.
 
         All four come from extracted standards, and which one a line is built
         to decides its head dimensions entirely: a button head's dome and a low
         head's squat cylinder are that standard's own head diameter and head
         height, not a socket head's scaled.
+
+        ``line`` is the type's own row, passed by its type module; a type
+        still declared here reads its row from :attr:`_SOCKET_SCREW_LINES`.
         """
+        line = line or self._SOCKET_SCREW_LINES[type_key]
         rng = self.rng
-        flat = type_key == "screw_flat_head"
+        flat = line.length_over_head
         # Alternated rather than tossed. Both systems get half the lines
         # either way in expectation, but a coin flip over the twenty lines of
         # the low-head type gave eight metric and twelve inch, and the metric
         # standard offers NINE sizes -- so M20 low head cap screws did not
         # exist. Which sizes a catalog carries must not be decided by a coin.
         metric = self._rotate(f"system:{type_key}", 2) == 0
-        metric_standard, inch_standard, head_style, style_name = self._SOCKET_SCREW_LINES[type_key]
-        standard = metric_standard if metric else inch_standard
-        head_of = {
-            "screw_socket_head": standards.socket_head,
-            "screw_flat_head": standards.flat_head,
-            "screw_button_head": standards.button_head,
-            "screw_low_head": standards.low_head,
-        }[type_key]
+        head_style, style_name = line.head_style, line.style_name
+        standard = line.metric_standard if metric else line.inch_standard
+        head_of = line.head
 
         brand = brands.pick_brand(rng, type_key, self._exhausted)
         material = rng.choice(("Alloy Steel", "18-8 Stainless Steel", "Grade 12.9 Alloy Steel"))

@@ -418,4 +418,3 @@ def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
         image_id=children[0].image_id,
         drawing=taxonomy.drawing_for(row.key),
     )
-

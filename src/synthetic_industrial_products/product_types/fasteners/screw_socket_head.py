@@ -2,23 +2,29 @@
 
 The builder and the vocabulary are the socket-screw family's, shared with the
 flat, button and low head screws; what is this type's own is its category,
-its drawing extent, its use lines and its share of the build.
+its family row (``LINE``: standards, head style, head accessor), its drawing
+extent, its use lines and its share of the build.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
+from ...catalog.standards import SocketScrewLine, socket_head
 from ...catalog.typespec import TypeSpec
 from ...catalog.vocab import _SOCKET_SCREW
 from ...drawing.figures import _broken
+
+#: This type's row of the socket-screw family: its standards, its head style
+#: and name, and which columns of the standard are its head.
+LINE = SocketScrewLine("ISO 4762", "ASME B18.3", "Socket", "Socket Head Cap Screw", socket_head)
 
 
 def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     # Called through the generator rather than imported from generate.py:
     # generate imports the type tables, which discover this module, so
     # importing generate from here would be an import cycle.
-    return gen._build_socket_screw(type_key, category)
+    return gen._build_socket_screw(type_key, category, LINE)
 
 
 SPEC = TypeSpec(
