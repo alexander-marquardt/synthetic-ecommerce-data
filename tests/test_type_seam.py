@@ -20,7 +20,7 @@ import pytest
 import yaml
 
 from synthetic_industrial_products.catalog import breadth, emit, generate, typespec
-from synthetic_industrial_products.catalog.config import SMALL
+from synthetic_industrial_products.catalog.config import SMALL, small
 from synthetic_industrial_products.catalog.model import Catalog
 
 #: The two types this seam was proven on: a depth type with its own figure,
@@ -45,10 +45,14 @@ def _by_type(lines) -> dict[str, list[str]]:
 
 
 def _moved_by_removing(removed: str) -> list[str]:
-    """Every type whose records change when ``removed`` is left out of the build."""
+    """Every type whose records change when ``removed`` is left out of the build.
+
+    Each side is built from its own ``small()``: from one shared config, a
+    write ``removed`` makes into it reaches both sides and they agree.
+    """
     keys = generate.all_type_keys()
-    full = _by_type(generate.generate(SMALL).lines)
-    reduced = _by_type(generate.generate(SMALL, types=[k for k in keys if k != removed]).lines)
+    full = _by_type(generate.generate(small()).lines)
+    reduced = _by_type(generate.generate(small(), types=[k for k in keys if k != removed]).lines)
     assert removed in full, f"{removed} built nothing at all"
     assert removed not in reduced, f"{removed} was still built after it was removed"
     return sorted(k for k in full if k != removed and full[k] != reduced.get(k))
