@@ -15,6 +15,10 @@ for inch, a conventional size ladder:
   no dimensional standard, as the heavy hex nut claims none
   (:func:`...catalog.newtypes.nut_row`).
 
+Every value is read from a table, so ``dimension_provenance`` names, per
+published dimension, the standard whose table it came from
+(:attr:`Series.provenance`), and never says no standard fixes it.
+
 No pack quantity is published (#14): a line is one nut per SKU.
 """
 
@@ -26,12 +30,12 @@ from typing import TYPE_CHECKING, Any
 from ...catalog.model import keyword_attribute, length_attribute
 from ...catalog.newtypes import (
     _NUT_UNC,
-    GENERATED_PROVENANCE,
     MM_PER_INCH,
     _nominal,
     _weighted,
     _window,
     feed_style,
+    table_provenance,
 )
 from ...catalog.typespec import TypeSpec
 from ...catalog.vocab import AttrSpec
@@ -59,6 +63,19 @@ class Series:
     #: draw alike at a nut's scale and must not be siblings.
     ranges: tuple[tuple[tuple[str, float, float | None], ...], ...]
     combos: tuple[Combo, ...]
+
+    @property
+    def provenance(self) -> str:
+        """Where each published dimension was read from: the series' own table
+        for metric; for inch, the hex nut's widths and no height at all."""
+        if self.standard:
+            return table_provenance(
+                ("Width Across Flats", self.standard), ("Height", self.standard)
+            )
+        return (
+            f"{table_provenance(('Width Across Flats', _INCH_FLATS_STANDARD))}; "
+            "no Height is published, as no readable ASME B18.16.6 table gives one"
+        )
 
 
 # --- metric: read from FastenersWB (thread, s_max, h_max), mm --------------------
@@ -95,6 +112,8 @@ _DIN_985 = (
 )  # fmt: skip
 
 # --- inch: the ASME B18.2.2 hex nut's width across flats, inches -----------------
+
+_INCH_FLATS_STANDARD = "ASME B18.2.2"
 
 #: The finished hex nut's widths, plus the sizes that table does not carry.
 _FLATS_IN = {_nominal(thread): flats for thread, flats, _ in _NUT_UNC} | {
@@ -245,16 +264,15 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
     from ...catalog.generate import BRANDS, ChildDraft, LineDraft
 
     rng = gen.rng
-    gen.config.type_weights['tap_spiral_point'] = 0.02
     brand = pick_brand(rng, type_key, gen._exhausted)
     series = _weighted(rng, SERIES)
-    material, finish, grade = rng.choice(list(set(series.combos)))
+    material, finish, grade = rng.choice(series.combos)
     draft = LineDraft(
         item=ITEM,
         brand=brand,
         series=f"NL{rng.randint(100, 999)}",
         category=category,
-        provenance=GENERATED_PROVENANCE,
+        provenance=series.provenance,
         standard=series.standard,
     )
     draft.line_attrs = [
