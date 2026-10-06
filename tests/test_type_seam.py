@@ -323,6 +323,9 @@ def _modelled(**changes) -> typespec.TypeSpec:
         ("vocab", ()),
         ("figure", None),
         ("extent", (0.0, 0.0)),
+        # Half-zero: one unset side draws every SKU flat, as silently as both.
+        ("extent", (2.75, 0.0)),
+        ("extent", (0.0, 2.75)),
         ("make", None),
         ("share", 0.0),
     ],
@@ -380,6 +383,123 @@ def test_a_declared_block_replaces_the_derived_one() -> None:
         "tap_spiral_point"
     )
     assert typespec.block_of("er_collets") != typespec.block_of("tap_spiral_point")
+
+
+def _yaml_declared_blocks() -> dict[str, int]:
+    text = (Path(breadth.__file__).parent.parent / "data" / "breadth_categories.yaml").read_text()
+    return {
+        raw["key"]: raw["part_number_block"]
+        for raw in yaml.safe_load(text)
+        if "part_number_block" in raw
+    }
+
+
+_BLOCK_OF_FIRST = """
+import sys
+from synthetic_industrial_products.catalog import typespec
+# No type module at all, so none imports breadth on block_of's behalf.
+typespec.discover = lambda package=typespec.TYPES_PACKAGE: {}
+assert "synthetic_industrial_products.catalog.breadth" not in sys.modules
+print(typespec.block_of(sys.argv[1]))
+"""
+
+
+@pytest.mark.parametrize("key", sorted(_yaml_declared_blocks()))
+def test_block_of_as_a_first_read_sees_a_yaml_declared_block(key: str) -> None:
+    """Not only when some type module happens to import ``breadth`` first."""
+    result = _run(_BLOCK_OF_FIRST, key)
+    assert result.returncode == 0, result.stderr[-1500:]
+    assert int(result.stdout) == _yaml_declared_blocks()[key]
+    assert int(result.stdout) != typespec.part_number_block(key)
+
+
+_MODULE_BLOCK = """
+import dataclasses, sys
+from synthetic_industrial_products.catalog import breadth, typespec
+row = dataclasses.replace(breadth.load_rows()[0], key="planted_rod", part_number_block=None)
+spec = typespec.TypeSpec("planted_rod", breadth=row, module="planted.planted_rod")
+if sys.argv[1] == "row":
+    spec = dataclasses.replace(spec, breadth=dataclasses.replace(row, part_number_block=1234))
+else:
+    spec = dataclasses.replace(spec, part_number_block=1234)
+typespec.discover = lambda package=typespec.TYPES_PACKAGE: {"planted_rod": spec}
+print(typespec.block_of("planted_rod"))
+"""
+
+
+@pytest.mark.parametrize("declared_on", ["row", "spec"])
+def test_a_breadth_modules_declared_block_is_its_block(declared_on: str) -> None:
+    """On its ``BreadthRow`` or on its ``TypeSpec``: both are the type's block."""
+    assert typespec.part_number_block("planted_rod") != 1234
+    result = _run(_MODULE_BLOCK, declared_on)
+    assert result.returncode == 0, result.stderr[-1500:]
+    assert result.stdout.strip() == "1234"
+
+
+@pytest.mark.parametrize(
+    ("start", "used", "free"),
+    [
+        (4321, {1000, 9999}, 4321),
+        (4321, {4321, 4322}, 4323),
+        (9998, {9998, 9999, 1000}, 1001),
+    ],
+    ids=["start-is-free", "skips-taken", "wraps-past-9999"],
+)
+def test_first_free_block_is_the_first_unused_block_at_or_after_start(
+    start: int, used: set[int], free: int
+) -> None:
+    assert typespec.first_free_block(start, used) == free
+
+
+def test_first_free_block_refuses_when_every_block_is_used() -> None:
+    with pytest.raises(typespec.TypeCollisionError, match=r"all 9000 part-number blocks"):
+        typespec.first_free_block(4321, range(1000, 10000))
+
+
+def _block_command(key: str, capsys: pytest.CaptureFixture[str]) -> str:
+    from synthetic_industrial_products.catalog import cli
+
+    assert cli.main(["block", key]) == 0
+    return capsys.readouterr().out.strip()
+
+
+def _blocks_in_use(*, besides: str) -> set[int]:
+    return {typespec.block_of(key) for key in generate.all_type_keys() if key != besides}
+
+
+def test_the_block_command_says_a_free_derived_block_is_free(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    key = "planted_widget"
+    assert typespec.part_number_block(key) not in _blocks_in_use(besides=key)
+    out = _block_command(key, capsys)
+    assert out == (
+        f"{key}: derived block {typespec.part_number_block(key):04d} is free; "
+        "leave part_number_block unset"
+    )
+
+
+def test_the_block_command_names_the_owner_and_a_really_free_block(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """A key that collides today: its derived block is ``ball_stock_precision``'s."""
+    key = "shim_stock_precision"
+    derived = typespec.part_number_block(key)
+    assert derived == typespec.block_of("ball_stock_precision")
+    used = _blocks_in_use(besides=key)
+    out = _block_command(key, capsys)
+    assert f"derived block {derived:04d} is taken by ball_stock_precision;" in out
+    told = int(out.split("declare part_number_block=")[1].split(",")[0])
+    assert told not in used, f"told to declare {told}, which a type already uses"
+    assert all(block in used for block in range(derived, told)), "not the FIRST free block"
+
+
+def test_the_block_command_reports_a_block_already_declared(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    declared = _yaml_declared_blocks()["er_collets"]
+    out = _block_command("er_collets", capsys)
+    assert out == f"er_collets: already declares part_number_block={declared:04d}"
 
 
 def test_every_types_skus_and_product_ids_carry_its_own_block() -> None:
