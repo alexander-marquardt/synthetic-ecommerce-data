@@ -206,6 +206,7 @@ def main(argv: list[str] | None = None) -> int:
         _print_report(stats)
         return 0
 
+    return 0
     out = args.out
     base_url = args.image_base_url
     nested = emit.write_jsonl(emit.iter_nested(catalog, base_url), out / "nested.jsonl")
