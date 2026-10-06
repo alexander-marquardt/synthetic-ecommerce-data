@@ -600,6 +600,13 @@ SIZE_NOISE: dict[str, str] = {
         "brands 4.1x apart, while noise one size shares across brands inverts the order and "
         "leaves the brand spread to the tiers (a popular size costs less than its neighbours)"
     ),
+    "screw_socket_head": (
+        "the catalog's socket sizes and lengths spread its price about 2x where the census "
+        "spreads 6.9x (308 SKUs), yet two brands of one spec sit close (brand spread 1.34 over "
+        "7 specs): group noise loud enough to make up the p90/p10 is drawn per brand and spreads "
+        "one spec's brands 3.5x apart, while noise one spec shares across brands carries the "
+        "p90/p10 and leaves the brand spread to the tiers, as on taps"
+    ),
 }
 
 #: Rows that land outside their band, and why: disclosed, and pinned by
@@ -609,17 +616,6 @@ PINNED_SHORTFALLS: dict[str, str] = {
         "below band: catalog bores span a p90/p10 of about 3x against the census's 16.1x, "
         "and the census's own brand spread (1.38) leaves no group noise to make up the rest "
         "(widen the bore range: #64)"
-    ),
-    # Where a low-confidence brand spread (5 to 12 census specs) and the
-    # census p90/p10 (hundreds of SKUs) cannot both land, the fit lands the
-    # p90/p10 and the brand spread is pinned: the group noise that makes up
-    # the p90/p10 is drawn per brand, so it spreads one spec's brands too.
-    "price brand spread, same spec (median max/min): screw_socket_head": (
-        "above band: the catalog's socket sizes and lengths spread its price about 2x where "
-        "the census spreads 6.9x, and the group noise that makes up the rest is drawn per "
-        "brand, so it spreads one spec's brands too; at a group noise that keeps the brand "
-        "spread in band the p90/p10 falls to about 4, below its band. Noise one spec shares "
-        "across brands, as taps draw (SIZE_NOISE), would carry the p90/p10 instead"
     ),
     "price brand spread, same spec (median max/min): wheel_depressed_center": (
         "above band at any noise: the census wheel tiers alone (house label 0.539, over only "
