@@ -111,7 +111,7 @@ def test_a_type_module_without_its_own_spec_is_refused(
 
 #: Types in :data:`MIGRATED` whose module is not written yet. Strict, so the
 #: migration that writes one turns its case red until it leaves this set.
-NOT_YET_MIGRATED = {"ball_stock_precision"}
+NOT_YET_MIGRATED: set[str] = set()
 
 
 @pytest.mark.parametrize(
