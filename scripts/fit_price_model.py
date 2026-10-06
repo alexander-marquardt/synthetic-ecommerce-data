@@ -344,6 +344,31 @@ def _share(lp: np.ndarray, pairs) -> float:
     return float(np.mean(lp[larger] > lp[smaller])) if len(larger) else 0.0
 
 
+def _share_in_sku(base: np.ndarray, z_sku: np.ndarray, pairs):
+    """The share of ``pairs`` a larger size wins as a function of the SKU
+    sigma, where the log price is ``base + sigma * z_sku`` (no ladder): each
+    pair's difference is linear in the sigma, so the share at any sigma is two
+    binary searches over the pairs' crossing points rather than a pass over
+    every pair. The 100K build's pairs number in the hundreds of thousands,
+    and the SKU sigma is solved at every candidate group sigma."""
+    larger, smaller = pairs
+    a = base[larger] - base[smaller]
+    b = z_sku[larger] - z_sku[smaller]
+    n = len(a)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        cross = -a / b
+    rising = np.sort(cross[b > 0])
+    falling = np.sort(cross[b < 0])
+    flat = int(np.sum((b == 0) & (a > 0)))
+
+    def share(sigma: float) -> float:
+        wins = np.searchsorted(rising, sigma, side="left")
+        wins += len(falling) - np.searchsorted(falling, sigma, side="right")
+        return float(wins + flat) / n if n else 0.0
+
+    return share
+
+
 def _p90_p10(values: np.ndarray) -> float:
     return float(np.exp(np.quantile(values, 0.9) - np.quantile(values, 0.1)))
 
@@ -389,20 +414,25 @@ def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
         # quarter of its half-band above the floor.
         aims = []
         for b in builds:
+            base = log_p(b, slope, ls, group, 0.0, 0.0, size)
             for _, pairs, band, target in b.order_rows:
                 if not len(pairs[0]):
                     continue
+                if step:
+
+                    def at(s: float, b=b, pairs=pairs) -> float:
+                        return _share(log_p(b, slope, ls, group, s, step, size), pairs)
+
+                else:
+                    at = _share_in_sku(base, b.z_sku, pairs)
                 half = (band[1] - band[0]) / 2
-                floor = _share(log_p(b, slope, ls, group, MAX_SIGMA, step, size), pairs)
-                aims.append((b, pairs, half, floor + half / 4 if floor >= target else target))
+                floor = at(MAX_SIGMA)
+                aims.append((at, half, floor + half / 4 if floor >= target else target))
         if not aims:
             return 0.0
 
         def miss(sku: float) -> float:
-            return max(
-                abs(_share(log_p(b, slope, ls, group, sku, step, size), pairs) - aim) / half
-                for b, pairs, half, aim in aims
-            )
+            return max(abs(at(sku) - aim) / half for at, half, aim in aims)
 
         return _argmin(miss, 0.0, MAX_SIGMA)
 
@@ -439,9 +469,10 @@ def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
 
     def objective(group: float, size: float, step: float, sku: float | None = None) -> float:
         """The worst miss, in half-bands, over both builds and the rows the
-        noise is fitted to: p50, p90/p10 and brand spread, and, where a size
-        noise is fitted beside it (``sku`` given), the order rows. A pinned
-        row is scored, for the "cannot reach" flag, but not fitted to."""
+        noise is fitted to: p50, p90/p10 and brand spread, and, where the
+        SKU noise is fitted beside it (``sku`` given), the order rows. A
+        pinned row is scored, for the "cannot reach" flag, but not fitted to."""
+        joint = sku is not None
         if sku is None:
             sku = sku_for(slope, ls, group, step, size)
         lps = [log_p(b, slope, ls, group, sku, step, size) for b in builds]
@@ -463,7 +494,7 @@ def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
                         ratio=True,
                     ),
                 )
-            if sized:
+            if joint:
                 for name, pairs, band, target in b.order_rows:
                     worst(name, _miss(_share(lp, pairs), target, band, ratio=False))
                 if laddered:
@@ -511,6 +542,18 @@ def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
             )
         else:
             group = _argmin(lambda g, st=step: objective(g, 0.0, st), 0.0, MAX_SIGMA)
+    if not sized and objective(group, 0.0, step) > 1.0:
+        # The SKU noise solved for the order rows' census share leaves a row
+        # out at one build or the other. A type with few price groups (kits:
+        # about 60 at the default size) needs most of its p90/p10 from noise,
+        # and a group draw is one per page, so the louder the group noise the
+        # further the two builds' medians fall apart. The SKU noise spreads
+        # prices as wide but draws once per SKU, and the order row has room
+        # for it inside its band: the two sigmas are then fitted together,
+        # the order rows scored in band rather than solved for exactly.
+        group, fixed_sku = _argmin_grid(
+            lambda g, k, st=step: objective(g, 0.0, st, k), MAX_SIGMA, 2
+        )
     sku = sku_for(slope, ls, group, step, size) if fixed_sku is None else fixed_sku
     lps = [log_p(b, slope, ls, group, sku, step, size) for b in builds]
     anchor = census.p50 / float(np.exp(np.mean([np.median(lp) for lp in lps])))
