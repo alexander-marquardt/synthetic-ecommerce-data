@@ -882,7 +882,7 @@
     Style:
     - One-Piece
     - Two-Piece
-  price_range: [3.0, 40.0]
+  price_range: [2.0, 15.0]
   skus: 2
   featured_sizes:
   - 1/2 in
