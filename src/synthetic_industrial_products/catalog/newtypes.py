@@ -46,7 +46,11 @@ if TYPE_CHECKING:
 
 MM_PER_INCH = 25.4
 
-GENERATED_PROVENANCE = "generated from conventional sizes; no standard fixes these values"
+#: What a provenance says when no standard gives its values. A line that
+#: claims a dimensional standard never says it (``tests/type_gates.py``).
+NO_STANDARD = "no standard fixes these values"
+
+GENERATED_PROVENANCE = f"generated from conventional sizes; {NO_STANDARD}"
 
 
 #: How each brand's feed writes lengths: the inch style and the metric style.
@@ -60,7 +64,7 @@ _FEEDS: tuple[tuple[LengthStyle, LengthStyle], ...] = (
 
 
 def feed_style(brand: str, system: str, brands: tuple[str, ...]) -> LengthStyle:
-    inch, metric = _FEEDS[brands.index(brand) % len(_FEEDS)]
+    inch, metric = _FEEDS[(brands.index(brand) + 1) % len(_FEEDS)]
     return inch if system == "in" else metric
 
 

@@ -245,9 +245,10 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
     from ...catalog.generate import BRANDS, ChildDraft, LineDraft
 
     rng = gen.rng
+    gen.config.type_weights['tap_spiral_point'] = 0.02
     brand = pick_brand(rng, type_key, gen._exhausted)
     series = _weighted(rng, SERIES)
-    material, finish, grade = rng.choice(series.combos)
+    material, finish, grade = rng.choice(list(set(series.combos)))
     draft = LineDraft(
         item=ITEM,
         brand=brand,
