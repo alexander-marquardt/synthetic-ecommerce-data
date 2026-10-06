@@ -151,9 +151,11 @@ its published attributes. `set_screws_hex_socket` does both.
    census names, determinism, a committed golden slice, and independence from
    every other type. Write the slice with
    `uv run python tests/test_type_<type_key>.py`.
-7. Declare a price model (`price=` on the `TypeSpec`), `measured=False` until
-   a census entry exists, and add the type's key attribute to
-   `KEY_ATTRIBUTES` in `catalog/price.py`.
+7. Declare a price model (`price=` on the `TypeSpec`; `register` refuses a
+   modelled type without one) and add the type's key attribute to
+   `KEY_ATTRIBUTES` in `catalog/price.py`. A type the census has no prices
+   for declares `measured=False`; one it has prices for restates its census
+   rows and is fitted ([Price](#price)).
 8. Restate the published figures the type moves
    ([Figures to restate](#figures-to-restate)).
 9. Run the checks.
@@ -181,7 +183,7 @@ rule it follows; the rules are in
    `reference-statistics/00_attribute_name_census.json`), and a name may not
    repeat the leaf's own noun (the lock nut publishes `Type`, because
    `Nut Style` is refused). Set `share=0.1` ([Share](#share)), the figure and `extent`
-   ([Figure and extent](#figure-and-extent)) and the price basis
+   ([Figure and extent](#figure-and-extent)) and the price model
    ([Price](#price)).
 3. Delete the key's breadth row (or breadth module). The key keeps its derived
    part-number block, so `sip-generate block <type_key>` says to leave
@@ -199,7 +201,8 @@ rule it follows; the rules are in
 7. Put the measured facts in the pull request body: the type's SKUs and
    products at both sizes, the line fill ([Share](#share)), the breadth
    row's sizes found ([What to keep](#what-to-keep-from-the-breadth-row)),
-   the median price ([Price](#price)) and the comparison's output.
+   the price rows for a measured type ([Price](#price)) and the comparison's
+   output.
 
 ### Moving an existing type into its own module
 
@@ -313,7 +316,7 @@ fails until the measured one is set.
 | `attributes` | Replaced by the type's own vocabulary. A value may become more specific (`Stainless Steel` became `18-8 Stainless Steel` and `316 Stainless Steel`). |
 | `descriptor_attr` | The title descriptor, `LineDraft.descriptors` (the lock nut's is `Material`). |
 | `shape` | Replaced by `figure` and `extent`. |
-| `price_range` | Not read. It is the check in [Price](#price). |
+| `price_range` | Not read. A modelled type is priced by its `price=` model ([Price](#price)). |
 | `skus`, `reason` | Dropped. |
 
 No test checks the sizes yet. This prints how many SKUs carry each of the
@@ -352,22 +355,79 @@ dimensional claim is named.
 
 ### Price
 
-The build prices every SKU as
-`max(1.25, price_basis x uniform(2.5, 9.0))` (`catalog/generate.py`, beside
-`built.append`), so `ChildDraft.price_basis` is in dollars before that
-multiplier. Take the nearest modelled sibling's formula and scale its
-coefficient for what the type adds: the hex nut's `flats_in * 0.4` became
-the lock nut's `flats_in * 0.5`. A modelled type does not read the breadth
-row's `price_range`; it is the check. The type's median price at the default
-size must lie inside it:
+A modelled type is priced by the `PriceModel` it declares as `price=` on its
+`TypeSpec` (`catalog/price.py`; the README's "Price" section under
+"Realism" says what the terms are). Which kind of model it declares depends
+on whether the price census
+(`reference-statistics/P2_price_census.json`, `deep_types`) has the type
+with 30 or more priced rows.
 
-```sh
-python3 -c "import json, statistics; p = [json.loads(l)['price_usd'] for l in open('tests/data/golden_slices/<type_key>.jsonl')]; print(min(p), statistics.median(p), max(p))"
-```
+**No census rows: `measured=False`.** Declare the model with
+`measured=False` and a comment that says where its level comes from and that
+it is NOT MEASURED; the lock nut's and the set screw's are examples (their
+census-backed bands are #69). Such a type gets no price rows, so nothing
+checks its prices against a census. A type with no census rows of its own
+that prices as a sibling does is listed in `price.BORROWS` instead (the
+button, flat and low-head socket screws borrow the socket head's model).
 
-The lock nut prints `1.25 1.86 8.77`, inside its row's `[0.15, 2.0]`. #58
-replaces this path with prices from the measured price census; once it
-merges, its rule replaces this one.
+**Census rows: restate them, then fit.**
+
+1. Restate the type's census figures in `catalog/price.py`, copied from the
+   census file, never retyped from elsewhere: its `CENSUS` row (n, p10, p50,
+   p90, the key-dimension slope and its pair shares), its `ENDINGS` mix, and,
+   where the census measures them, its `LENGTH_CENSUS`, `BRAND_CENSUS` and
+   `TYPE_TIER_CENSUS` rows. `tests/test_price.py` checks each against the
+   file, and `test_every_type_with_30_census_rows_is_restated` fails until
+   every type with 30 rows is in `CENSUS`.
+2. Fit the anchor and the noise:
+
+   ```sh
+   uv run python scripts/fit_price_model.py           # print the fit and every row at both sizes
+   uv run python scripts/fit_price_model.py --write   # and write the literals between the fit markers
+   ```
+
+   It builds the default catalog and the 100K one (`--lines 39000`) and
+   scores every row at both; about 2 minutes. It writes the literals between
+   the `# @fit-begin` and `# @fit-end` markers of `catalog/price.py`'s
+   `MODELS` table and of the socket head screw's module. A measured type
+   declared in its own module needs the same markers around its fitted
+   fields, and a branch in the script's `main` that writes them there and
+   leaves it out of the `price.py` table, as it does for `SOCKET_PY`.
+3. Rebuild `golden-catalog/` and the slice, then run `tests/test_price.py`.
+   Every price row of the type must land in its band at both sizes, or be
+   declared below.
+
+**A row that leaves its band is declared, never given a wider band.** The
+bands are `price_report`'s (`P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and
+three census standard errors where the census sample is small), one rule for
+every type. When the fit says a row cannot reach its band, find the
+cause, then declare it in `catalog/price.py` with that cause and the issue
+that fixes it:
+
+* **A pin**, for a row the cause holds on one side of its band: its reason in
+  `PINNED_SHORTFALLS` and its default-size figure, as the fit prints it, in
+  `PINNED_FIGURES`. The row may then move no further out than that figure,
+  within `PIN_TOLERANCE`, and must stay on its side (the bearing p90/p10,
+  #64; the wheel brand spread, #66). A figure a reason quotes is read from
+  `PINNED_FIGURES` in an f-string, never typed, so a refit cannot leave it
+  stale.
+* **An exception**, for a row that no model of this shape holds at both
+  sizes, on either side: its reason in `ROW_EXCEPTIONS` and its figures at
+  both sizes in `EXCEPTED_FIGURES`. Its band miss may grow to no more than
+  `EXCEPTION_DRIFT` times the recorded one (the kit p50 and p90/p10, #71).
+  `test_the_row_exceptions_are_the_kit_rows_that_cannot_hold` pins the set,
+  so adding one edits that test, which a reviewer sees.
+* **A slope cut**, where the census slope alone spreads the shown price
+  wider than the census p90/p10: its reason in `SLOPE_CUTS`. The fit refuses
+  to lower any other type's slope.
+* **A size noise**, where one spec's brands must sit close while its size
+  pairs invert: its reason in `SIZE_NOISE`.
+
+The fit exits 1, before it writes, on an undeclared row out of band, a pin
+that no longer holds, or an exception past its bound. A pin or an exception
+that moves further out is re-recorded by hand, with its cause re-read. Put
+the type's rows (census, default, 100K, band) in the pull request body,
+from the fit's output.
 
 ### Family tables
 
@@ -457,6 +517,7 @@ table gets a row for each deepened type.
 uv run sip-generate block <type_key>                # the block to declare, if any
 uv run sip-generate build --out /tmp/out            # about 8 s
 diff -rq golden-catalog /tmp/out                    # empty for a move
+uv run python scripts/fit_price_model.py            # a measured type's price fit, both sizes, about 2 min
 uv run pytest -q tests/test_type_seam.py tests/test_breadth.py
 uv run ruff check . && uv run ruff format --check <your module>
 uv run pytest -q                                    # the full suite, about 5 min

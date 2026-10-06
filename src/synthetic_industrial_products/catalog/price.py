@@ -647,9 +647,10 @@ PINNED_SHORTFALLS: dict[str, str] = {
         "census's 10x, and the group noise that makes up the rest is drawn independently per "
         "brand for each of the 12 brands that make every shared wheel spec, so the brands "
         "the row samples from one spec land "
-        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW]:.2f}x apart. A noise one spec shares across brands "
-        "(SIZE_NOISE, as on taps) brings the spread to 2.0 but inverts the few diameters "
-        "(larger costs more 0.68 against 0.81)"
+        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW]:.2f}x apart. Offered a noise one spec shares "
+        "across brands (SIZE_NOISE, as on taps), the fit gives it no weight and moves the "
+        "spread to SKU noise, which inverts the few diameters (larger costs more falls below "
+        "band) and still leaves the p90/p10 below band (#66)"
     ),
 }
 
