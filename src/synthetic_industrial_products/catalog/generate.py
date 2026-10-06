@@ -261,7 +261,7 @@ class LineDraft:
 #: publish the bare item "End Mill" half the time, and series are kept unique
 #: within one type only (a type shares no state with another), so disjoint
 #: letters are what keep a square and a ball end mill from sharing a name.
-END_MILL_SERIES_LETTERS: dict[str, str] = {"end_mill_square": "GHKMPR", "end_mill_ball": "GHKMPR"}
+END_MILL_SERIES_LETTERS: dict[str, str] = {"end_mill_square": "GHK", "end_mill_ball": "MPR"}
 
 #: The word a terse title uses for an end mill's end shape, by its
 #: ``End Mill Style``: ``SGL Sq End`` / ``SGL Ball End``.
