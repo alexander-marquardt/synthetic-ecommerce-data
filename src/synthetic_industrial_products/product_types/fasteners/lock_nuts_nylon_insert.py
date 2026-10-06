@@ -247,7 +247,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
     rng = gen.rng
     brand = pick_brand(rng, type_key, gen._exhausted)
     series = _weighted(rng, SERIES)
-    material, finish, grade = rng.choice(list(set(series.combos)))
+    material, finish, grade = rng.choice(series.combos)
     draft = LineDraft(
         item=ITEM,
         brand=brand,
