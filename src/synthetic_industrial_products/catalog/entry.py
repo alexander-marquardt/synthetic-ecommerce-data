@@ -95,7 +95,7 @@ CANONICAL_PER_UNIT: dict[str, Fraction] = {
     "C62": Fraction(1),
     "RPM": Fraction(1),
     "C78": Fraction(1),
-    "TPI": Fraction(127, 5),
+    "TPI": Fraction(1),
 }
 
 #: A published number: a mixed number, a fraction, a thousands-separated or plain
