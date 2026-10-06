@@ -63,7 +63,6 @@ UNIT_FOR_SUFFIX: dict[str, str] = {
     "mm": "MMT",
     "Degrees": "DD",
     "oz": "ONZ",
-    "lbf": "C78",
     "lb": "LBR",
 }
 
