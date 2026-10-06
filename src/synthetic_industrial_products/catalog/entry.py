@@ -177,7 +177,7 @@ def split(name: str, published: str, bare_unit: str | None = None) -> dict[str, 
     if match is None or unit is None:
         return {"value": published}
     magnitude = _magnitude(match["number"])
-    canonical = float(_exact(magnitude)) * float(CANONICAL_PER_UNIT[unit])
+    canonical = float(_exact(magnitude) * CANONICAL_PER_UNIT[unit])
     return {"value": magnitude, "unit_code": unit, "value_canonical": canonical}
 
 
