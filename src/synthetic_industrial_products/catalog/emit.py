@@ -30,16 +30,14 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
 from ..dimensions import _METRIC_THREAD
+from .entry import sanitize
 from .model import Attribute, Catalog, ProductLine, Sku
 from .taxonomy import ImageIdError, product_type_for_image
-
-_NON_WORD = re.compile(r"[^a-z0-9]+")
 
 #: Where a record's image is served from: the bundle's folder, as the demo
 #: serves it (elastic/prism#9770, the Studio images mount). Relative, so
@@ -155,17 +153,6 @@ def iter_image_manifest(
             "bytes": len(data),
             "geometry": source,
         }
-
-
-def sanitize(name: str) -> str:
-    """``Milling Dia.`` -> ``milling_dia``: a usable field name.
-
-    Attribute names as published contain dots, slashes and trailing
-    punctuation. A dot is a path separator in Elasticsearch and a trailing one
-    is simply invalid, so a published name cannot be used as a field name
-    as-is.
-    """
-    return _NON_WORD.sub("_", name.strip().lower()).strip("_")
 
 
 def _attribute_entries(attributes: tuple[Attribute, ...]) -> list[dict[str, Any]]:
@@ -349,9 +336,11 @@ NESTED_MAPPING: dict[str, Any] = {
             "attributes": {
                 "type": "nested",
                 "properties": {
+                    "key": {"type": "keyword"},
                     "name": {"type": "keyword"},
                     "value": {"type": "keyword"},
-                    "value_num": {"type": "double"},
+                    "unit_code": {"type": "keyword"},
+                    "value_canonical": {"type": "double"},
                 },
             },
             "variants": {
@@ -368,9 +357,11 @@ NESTED_MAPPING: dict[str, Any] = {
                     "attributes": {
                         "type": "nested",
                         "properties": {
+                            "key": {"type": "keyword"},
                             "name": {"type": "keyword"},
                             "value": {"type": "keyword"},
-                            "value_num": {"type": "double"},
+                            "unit_code": {"type": "keyword"},
+                            "value_canonical": {"type": "double"},
                         },
                     },
                 },
@@ -419,9 +410,11 @@ FLAT_MAPPING: dict[str, Any] = {
             "attributes": {
                 "type": "object",
                 "properties": {
+                    "key": {"type": "keyword"},
                     "name": {"type": "keyword"},
                     "value": {"type": "keyword"},
-                    "value_num": {"type": "double"},
+                    "unit_code": {"type": "keyword"},
+                    "value_canonical": {"type": "double"},
                 },
             },
             "facets": {"type": "object", "dynamic": True},

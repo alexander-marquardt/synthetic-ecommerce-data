@@ -694,7 +694,11 @@ class Generator:
             child.primary = keyword_attribute("Thread Size", designation)
             child.attrs = [
                 child.primary,
-                keyword_attribute("Pitch", f"{pitch:g}" if metric else str(pitch)),
+                (
+                    Attribute("Pitch", f"{pitch:g}", bare_unit="MMT")
+                    if metric
+                    else keyword_attribute("Pitch", str(pitch))
+                ),
                 self._length("Overall Length", oal_in, style),
                 self._length("Thread Length", oal_in * 0.45, style),
                 self._length("Shank Dia.", major_in * 0.9, style),

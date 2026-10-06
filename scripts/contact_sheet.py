@@ -82,7 +82,8 @@ def _screw_lengths(products: list[dict]) -> list[str]:
                 parent["brand"],
             )
             length = next(
-                (e.get("value_num") for e in variant["attributes"] if e["name"] == "Length"), None
+                (e.get("value_canonical") for e in variant["attributes"] if e["name"] == "Length"),
+                None,
             )
             if length:
                 groups[key].append((length, parent, variant))

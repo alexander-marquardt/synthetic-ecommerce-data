@@ -566,21 +566,32 @@ different across brands, the variation between supplier feeds the census
 records (maintainer ruling, 2026-09-28). The original twelve keep one spelling.
 
 Attributes are nested key-value at **both** levels, in **one** array rather
-than separate keyword and numeric arrays:
+than separate keyword and numeric arrays. Each entry follows the data contract
+of elastic/prism#9935:
 
 ```json
-{"name": "Milling Dia.", "value": "3/8\"", "value_num": 0.375}
+{"key": "milling_dia", "name": "Milling Dia.", "value": "3/8", "unit_code": "INH", "value_canonical": 9.525}
 ```
 
-A dimension needs both representations on the same entry — a shopper filters on
-the published text and ranges over the number — and splitting them into two
-arrays loses the fact that they are one attribute. `value_num` is **parsed back
-out of** `value` rather than carried beside it, so the two can never disagree:
-`3/8"` has no exact two-decimal millimetre spelling, and a number computed from
-the original magnitude would quietly differ from the string actually published.
-An attribute that is not a measurement omits `value_num` entirely rather than
-carrying a null, and so does a measurement whose value is deliberately
-malformed — a record publishing `Helix Angle = 42"` has no angle to put there.
+* `key` is required: the machine name the Engine discovers an attribute by,
+  `sanitize(name)`, namespaced as `attr_<key>` when it is a column's name (see
+  below). `name` is the display name.
+* A **measured** value is fully split. `value` is the bare magnitude with no
+  unit marker and no thousands separator, `unit_code` (UN/CEFACT: `INH`, `MMT`,
+  `DD`, `ONZ`, `LBR`, `C78`, `RPM`, and `C62` for a count) is the only place the
+  unit lives, and `value_canonical` is the exact magnitude in the kind's
+  canonical unit (millimetres, grams, degrees, one, rpm, pound-force).
+* Anything else stays unitless text, including composite designators such as
+  `1/4-20` and `M10x1.5`, and an inch tap's `Pitch`, which is a thread count.
+
+The split is **read back out of** the published string, never computed from
+the generator's magnitude, so the two can never disagree: `3/8"` has no exact
+two-decimal millimetre spelling, and a number computed from the original
+magnitude would quietly differ from the string actually published. A defective
+spelling splits as written: `Helix Angle = 42"` becomes `42` `INH`, keeping the
+bad value and dropping the bad spelling (elastic/prism#9284). An attribute that
+is not a measurement omits `unit_code` and `value_canonical` rather than
+carrying nulls.
 
 Products are never grouped across brands. Two manufacturers' tools at the same
 nominal geometry are different products.
@@ -865,7 +876,7 @@ Not all 84. Three measured gates, applied to the emitted documents:
 | **not an identifier** | a **terms** attribute carries ≤25 distinct values | `Dia./Thread Size` is the first thing a shopper filters on; `List Number` publishes 574 values over 1,100 documents and is a part reference nobody browses. Numeric attributes are exempt — a range control's cost does not grow with cardinality |
 
 An attribute is **numeric** (a range facet over `facets_num.*`) when ≥50% of
-the documents publishing it carry a parsed `value_num`, and **terms**
+the documents publishing it carry a parsed number in `facets_num`, and **terms**
 otherwise. The catalog deliberately emits values that do not parse, so the
 test is a majority rather than "all".
 
@@ -873,11 +884,11 @@ test is a majority rather than "all".
 Real feeds publish attributes named like a catalog's own columns -- the census
 carries `Series` (25 records), `Product Type` (15) and `Brand` (1) as
 attributes -- and a bearing's `Series` (`62`) is not its product's `series`
-column. So `field_map.canonical_name` gives such an attribute the entry name
+column. So `catalog.entry.canonical_name` gives such an attribute the entry name
 `attr_<key>` (here `attr_series`, over `facets.series`) and leaves the
 structural entry pointing at the column; a namespaced name that would itself
-collide is refused. The nested shape needs none of this: there an attribute is
-data, `{name, value}`, not a field name.
+collide is refused. A nested entry's `key` applies the same rule, so the
+entry's key and the field map's name cannot drift.
 
 Attributes that fail a gate are still **declared**, with `facet: false` — they
 stay searchable and stay available as filter and policy targets, they are just
@@ -952,8 +963,8 @@ return a self-consistent wrong answer.
   correct with it, with a single-valued attribute as the control
 * facet discovery scoped to one product type returns exactly that type's
   attribute names
-* a numeric range on the shared `value_num`, scoped by attribute name, is
-  correct — and widens when the name filter is dropped
+* a numeric range on the shared `value_canonical` (millimetres), scoped by
+  key, is correct — and widens when the key filter is dropped
 * a full-text query for a dimension token returns products whose **shank**
   carries that value, and the structured attribute filter excludes them
 * the flat shape over-matches the same name+value filter, and the nested shape

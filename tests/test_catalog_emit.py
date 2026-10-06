@@ -41,34 +41,52 @@ def test_every_document_is_json_serialisable():
         json.loads(json.dumps(doc))
 
 
+ENTRY_FIELDS = {"key", "name", "value", "unit_code", "value_canonical"}
+
+
 def test_attributes_are_nested_key_value_at_both_levels():
     doc = next(iter(emit.iter_nested(CATALOG)))
     assert doc["attributes"], "the parent carries line-constant attributes"
     for entry in doc["attributes"]:
-        assert set(entry) <= {"name", "value", "value_num"}
-        assert entry["name"] and entry["value"]
+        assert set(entry) <= ENTRY_FIELDS
+        assert entry["key"] and entry["name"] and entry["value"]
     variant = doc["variants"][0]
     assert variant["attributes"], "the child carries its own varying attributes"
     for entry in variant["attributes"]:
-        assert set(entry) <= {"name", "value", "value_num"}
+        assert set(entry) <= ENTRY_FIELDS
 
 
-def test_a_dimension_carries_both_representations_on_one_entry():
-    """One array, not two: the text and the number are the same attribute."""
+def test_a_dimension_carries_its_split_parts_on_one_entry():
+    """One array, not two: the magnitude, its unit and the number are one attribute."""
     found = False
     for doc in emit.iter_flat(CATALOG):
         for entry in doc["attributes"]:
-            if entry["name"] in ("Milling Dia.", "Length", "Outside Dia."):
-                assert "value" in entry
-                if "value_num" in entry:
-                    found = True
-    assert found, "no dimension carried both a published string and a number"
+            if entry["name"] in ("Milling Dia.", "Length", "Outside Dia.") and "unit_code" in entry:
+                assert "value" in entry and "value_canonical" in entry
+                found = True
+    assert found, "no dimension carried a magnitude, a unit code and a canonical number"
 
 
-def test_a_keyword_only_attribute_omits_value_num_rather_than_nulling_it():
+def test_an_unmeasured_attribute_omits_the_unit_parts_rather_than_nulling_them():
     for doc in emit.iter_flat(CATALOG):
         for entry in doc["attributes"]:
-            assert entry.get("value_num") is not None or "value_num" not in entry
+            for part in ("unit_code", "value_canonical"):
+                assert entry.get(part) is not None or part not in entry
+            assert ("unit_code" in entry) == ("value_canonical" in entry), entry
+
+
+def test_a_metric_tap_pitch_is_millimetres_and_an_inch_tap_pitch_stays_a_thread_count():
+    """The generator knows which a bare ``Pitch`` is; the published string does not."""
+    seen = set()
+    for doc in emit.iter_nested(CATALOG):
+        for variant in doc["variants"]:
+            entries = {e["name"]: e for e in variant["attributes"]}
+            if "Pitch" not in entries or "Thread Size" not in entries:
+                continue
+            metric = entries["Thread Size"]["value"].startswith("M")
+            assert entries["Pitch"].get("unit_code") == ("MMT" if metric else None), entries
+            seen.add(metric)
+    assert seen == {True, False}, "the sample needs both a metric and an inch tap"
 
 
 def test_the_multivalued_attribute_becomes_several_entries_under_one_name():

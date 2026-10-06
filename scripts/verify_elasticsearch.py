@@ -302,20 +302,21 @@ def check_facet_discovery(host: str, truth: dict, checks: Checks) -> None:
 
 
 def check_numeric_range(host: str, catalog, checks: Checks) -> None:
-    """A numeric range on the shared value_num, scoped by attribute name."""
-    name = "Milling Dia."
-    low, high = 0.25, 0.5
+    """A numeric range on the shared value_canonical (millimetres), scoped by key.
+
+    ``value_canonical`` is in the kind's canonical unit whatever the published
+    unit was, so one range reaches a ``3/8"`` and a ``10mm`` milling diameter alike.
+    """
+    key = "milling_dia"
+    low, high = 6.35, 12.7
 
     expected = set()
     for line in catalog.lines:
         for child in line.children:
             for attribute in child.attributes:
-                if (
-                    attribute.name == name
-                    and attribute.value_num is not None
-                    and low <= attribute.value_num <= high
-                ):
-                    expected.add(child.sku)
+                for entry in attribute.as_entries():
+                    if entry["key"] == key and low <= entry.get("value_canonical", -1) <= high:
+                        expected.add(child.sku)
 
     result = request(
         host,
@@ -334,10 +335,10 @@ def check_numeric_range(host: str, catalog, checks: Checks) -> None:
                                     "filter": {
                                         "bool": {
                                             "filter": [
-                                                {"term": {"variants.attributes.name": name}},
+                                                {"term": {"variants.attributes.key": key}},
                                                 {
                                                     "range": {
-                                                        "variants.attributes.value_num": {
+                                                        "variants.attributes.value_canonical": {
                                                             "gte": low,
                                                             "lte": high,
                                                         }
@@ -358,7 +359,7 @@ def check_numeric_range(host: str, catalog, checks: Checks) -> None:
     got = result["aggregations"]["variants"]["attrs"]["matching"]["skus"]["doc_count"]
     checks.record(
         got == len(expected),
-        f"numeric range on value_num scoped by name ({name} in [{low}, {high}])",
+        f"numeric range on value_canonical scoped by key ({key} in [{low}, {high}] mm)",
         f"Elasticsearch: {got} SKUs\nPython truth : {len(expected)} SKUs",
     )
 
@@ -380,7 +381,7 @@ def check_numeric_range(host: str, catalog, checks: Checks) -> None:
                                 "matching": {
                                     "filter": {
                                         "range": {
-                                            "variants.attributes.value_num": {
+                                            "variants.attributes.value_canonical": {
                                                 "gte": low,
                                                 "lte": high,
                                             }
@@ -398,8 +399,8 @@ def check_numeric_range(host: str, catalog, checks: Checks) -> None:
     unscoped = loose["aggregations"]["variants"]["attrs"]["matching"]["skus"]["doc_count"]
     checks.record(
         unscoped > got,
-        "dropping the name filter widens the range match (the scoping does work)",
-        f"scoped by name: {got} SKUs; unscoped: {unscoped} SKUs",
+        "dropping the key filter widens the range match (the scoping does work)",
+        f"scoped by key: {got} SKUs; unscoped: {unscoped} SKUs",
     )
 
 
@@ -557,13 +558,19 @@ def check_demo_case(host: str, catalog, checks: Checks) -> None:
 
 def check_flat_shape_loses_correlation(host: str, catalog, checks: Checks) -> None:
     """The flat shape cannot correlate name with value, and that is the point."""
-    name, value = "Shank Dia.", '3/8"'
+    # An entry carries 3/8" split (elastic/prism#9935): magnitude plus unit code.
+    name, value, unit = "Shank Dia.", "3/8", "INH"
     truth = set()
     for line in catalog.lines:
         for child in line.children:
             for attribute in child.attributes:
-                if attribute.name == name and attribute.value == value:
-                    truth.add(child.sku)
+                for entry in attribute.as_entries():
+                    if (entry["name"], entry["value"], entry.get("unit_code")) == (
+                        name,
+                        value,
+                        unit,
+                    ):
+                        truth.add(child.sku)
     if not truth:
         checks.record(False, "flat correlation loss", f"no SKU has {name} = {value}")
         return
@@ -580,6 +587,7 @@ def check_flat_shape_loses_correlation(host: str, catalog, checks: Checks) -> No
                     "filter": [
                         {"term": {"attributes.name": name}},
                         {"term": {"attributes.value": value}},
+                        {"term": {"attributes.unit_code": unit}},
                     ]
                 }
             },
@@ -613,6 +621,7 @@ def check_flat_shape_loses_correlation(host: str, catalog, checks: Checks) -> No
                                             "filter": [
                                                 {"term": {"variants.attributes.name": name}},
                                                 {"term": {"variants.attributes.value": value}},
+                                                {"term": {"variants.attributes.unit_code": unit}},
                                             ]
                                         }
                                     },
@@ -666,7 +675,7 @@ def main(argv: list[str] | None = None) -> int:
     check_multivalued_overcount(args.host, truth, checks)
     print("\n-- 3. facet discovery scoped to one product type --")
     check_facet_discovery(args.host, truth, checks)
-    print("\n-- 4. numeric range on the shared value_num, scoped by name --")
+    print("\n-- 4. numeric range on the shared value_canonical, scoped by key --")
     check_numeric_range(args.host, catalog, checks)
     print("\n-- 5. the demo case: role ambiguity in full text --")
     check_demo_case(args.host, catalog, checks)
