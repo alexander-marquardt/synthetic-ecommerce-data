@@ -1,6 +1,6 @@
 {
- "lines": 5300,
- "skus": 9700,
+ "lines": 5555,
+ "skus": 10167,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "ball_stock_precision": 1,
@@ -42,7 +42,7 @@
   "hose_clamps": 1,
   "kit_assortment": 59,
   "lag_screws": 1,
-  "lock_nuts_nylon_insert": 1,
+  "lock_nuts_nylon_insert": 256,
   "nut_hex": 662,
   "o_rings": 1,
   "retaining_rings_external": 1,
@@ -111,7 +111,7 @@
   "hose_clamps": 2,
   "kit_assortment": 59,
   "lag_screws": 2,
-  "lock_nuts_nylon_insert": 2,
+  "lock_nuts_nylon_insert": 469,
   "nut_hex": 1264,
   "o_rings": 2,
   "retaining_rings_external": 2,
@@ -500,10 +500,22 @@
    "Size"
   ],
   "lock_nuts_nylon_insert": [
+   "Dimension Type",
    "Finish",
+   "Grade",
+   "Height",
+   "Insert Material",
    "Item",
+   "Lock Type",
    "Material",
-   "Thread Size"
+   "Measurement System",
+   "Standards",
+   "System of Measurement",
+   "Thread Direction",
+   "Thread Size",
+   "Thread Type",
+   "Type",
+   "Width Across Flats"
   ],
   "nut_hex": [
    "Dimension Type",
@@ -776,7 +788,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 120170,
+ "total_attribute_entries": 125199,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -805,33 +817,33 @@
   {
    "name": "declared system contradicts value units",
    "target": 0.0323,
-   "achieved": 0.02893658066071859,
-   "numerator": 120,
-   "denominator": 4147,
+   "achieved": 0.02897217751207174,
+   "numerator": 126,
+   "denominator": 4349,
    "note": "over records carrying both"
   },
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.016642396505096736,
-   "numerator": 160,
-   "denominator": 9614,
+   "achieved": 0.016165823663592184,
+   "numerator": 163,
+   "denominator": 10083,
    "note": "over records with a readable dimension"
   },
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.46475424173517577,
-   "numerator": 5314,
-   "denominator": 11434,
+   "achieved": 0.4651768461732336,
+   "numerator": 5537,
+   "denominator": 11903,
    "note": "over title dimension tokens"
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.11789400034983383,
+   "achieved": 0.11324876081660086,
    "numerator": 1348,
-   "denominator": 11434,
+   "denominator": 11903,
    "note": "over title dimension tokens"
   },
   {
@@ -839,7 +851,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 9700,
+   "denominator": 10167,
    "note": "over titles"
   },
   {
@@ -847,7 +859,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 9700,
+   "denominator": 10167,
    "note": "deliberate: the corpus measures 0.1089"
   },
   {
@@ -855,42 +867,42 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 9700,
+   "denominator": 10167,
    "note": "deliberate: the corpus measures 0.7353"
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 12.388659793814433,
-   "numerator": 120170,
-   "denominator": 9700,
+   "achieved": 12.314251991737976,
+   "numerator": 125199,
+   "denominator": 10167,
    "note": "count, not a rate"
   }
  ],
  "measurement_system_names": {
-  "Dimension Type": 2793,
-  "Measurement System": 932,
-  "System of Measurement": 422
+  "Dimension Type": 2941,
+  "Measurement System": 964,
+  "System of Measurement": 444
  },
  "measurement_system_values": {
-  "Inch": 236,
-  "Fractional Inch": 2227,
-  "Metric": 1619,
+  "Inch": 246,
+  "Fractional Inch": 2313,
+  "Metric": 1725,
   "Decimal Inch": 65
  },
  "unit_suffix_distribution": {
-  "in": 20268,
-  "mm": 13472
+  "in": 20500,
+  "mm": 13928
  },
- "standards_present": 5054,
- "standards_multivalued": 1361,
- "standards_total_values": 6675,
+ "standards_present": 5291,
+ "standards_multivalued": 1445,
+ "standards_total_values": 7018,
  "multivalued_attribute_names": {
-  "Standards": 1361,
+  "Standards": 1445,
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 9700,
+  "n_skus_checked": 10167,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
