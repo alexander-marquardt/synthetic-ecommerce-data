@@ -612,7 +612,7 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
     ]
 
 
-def pin_holds(row: Comparison) -> bool:
+def pin_holds(row: Comparison, build: int) -> bool:
     """Whether a row :data:`.price.PINNED_SHORTFALLS` names is still out of
     band on the side its reason names, and no further out than
     :data:`.price.PINNED_FIGURES` records, past :data:`.price.PIN_TOLERANCE`."""
@@ -639,6 +639,18 @@ def exception_holds(row: Comparison, build: int) -> bool:
     assert row.band is not None
     recorded = EXCEPTED_FIGURES[row.name][build]
     return band_miss(row.achieved, row.band) <= EXCEPTION_DRIFT * band_miss(recorded, row.band)
+
+
+def exception_is_stale(rows: Sequence[Comparison]) -> bool:
+    """Stub."""
+    return rows[0].within
+
+
+def recorded_digits(name: str) -> int:
+    """The decimal places a pinned or excepted row's figure is recorded to
+    (:data:`.price.PINNED_FIGURES`, :data:`.price.EXCEPTED_FIGURES`): a
+    dollar p50 to the cent, a ratio to three places."""
+    return 2 if name.startswith("price p50 (USD)") else 3
 
 
 def price_comparisons(catalog: Catalog) -> list[Comparison]:

@@ -704,7 +704,7 @@ def main() -> int:
         flags = []
         for build, (name, row) in enumerate(zip(BUILDS, rows, strict=True)):
             if row.name in price.PINNED_SHORTFALLS:
-                if not pin_holds(row):
+                if not pin_holds(row, build):
                     stale.add(row.name)
                     flags.append(f"pin does not hold at {name}")
             elif row.name in price.ROW_EXCEPTIONS:

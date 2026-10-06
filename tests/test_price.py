@@ -186,16 +186,41 @@ def test_each_pinned_shortfall_stays_out_of_band_on_its_side(price_rows, name):
     else:
         assert row.achieved > row.band[1], (row.achieved, row.band)
     assert set(price.PINNED_FIGURES) == set(price.PINNED_SHORTFALLS)
-    assert price_report.pin_holds(row), (row.achieved, price.PINNED_FIGURES[name])
+    assert price_report.pin_holds(row, 0), (row.achieved, price.PINNED_FIGURES[name])
 
 
-def test_a_pin_reason_quotes_the_figure_the_pin_records():
-    """The wheel reason states how far apart a spec's brands land; that is
-    the pinned figure itself, so it is read, not retyped (it read 6.8 once
-    the figure was 3.24)."""
+def test_a_pin_reason_quotes_the_figures_the_pin_records():
+    """The wheel reason states how far apart a spec's brands land at each
+    build; those are the pinned figures themselves, so they are read, not
+    retyped (it read 6.8 once the figure was 3.24)."""
     name = BRAND_ROW.format("wheel_depressed_center")
     quoted = re.findall(r"(\d+(?:\.\d+)?)x apart", price.PINNED_SHORTFALLS[name])
-    assert quoted == [f"{price.PINNED_FIGURES[name]:.2f}"] == ["3.24"]
+    assert quoted == [f"{f:.2f}" for f in _recorded(name)] == ["3.24", "2.78"]
+
+
+def _recorded(name: str) -> tuple[float, float]:
+    """A pinned or excepted row's recorded (default, 100K) figures."""
+    recorded = {**price.PINNED_FIGURES, **price.EXCEPTED_FIGURES}[name]
+    assert isinstance(recorded, tuple), f"{name}: {recorded!r} is one figure for two builds"
+    return recorded
+
+
+@pytest.mark.parametrize("name", sorted(PINNED_SIDES))
+@pytest.mark.parametrize("build", [0, 1])
+def test_a_pin_may_land_no_further_out_than_its_figure_for_that_build(price_rows, name, build):
+    """Each build is held to its own recorded figure, within the tolerance:
+    exactly there, on the pin's side. A pin that read the default figure at
+    100K let the wheel spread rise 19% and the bearing p90/p10 fall 8%."""
+    (row,) = [row for row in price_rows if row.name == name]
+    edge = _recorded(name)[build]
+    if PINNED_SIDES[name][0] == "below":
+        edge /= 1 + price.PIN_TOLERANCE
+        inside, outside = edge * 1.0001, edge * 0.9999
+    else:
+        edge *= 1 + price.PIN_TOLERANCE
+        inside, outside = edge * 0.9999, edge * 1.0001
+    assert price_report.pin_holds(replace(row, achieved=inside), build)
+    assert not price_report.pin_holds(replace(row, achieved=outside), build)
 
 
 def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
@@ -212,7 +237,7 @@ def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
     ]
     assert round(row.achieved, 2) == 4.31
     assert row.achieved < row.band[0]
-    assert not price_report.pin_holds(row)
+    assert not price_report.pin_holds(row, 0)
 
 
 def _census_models() -> dict[str, price.PriceModel]:
@@ -390,6 +415,18 @@ def test_each_types_tier_factors_are_its_census_figures(census, type_key):
         "premium": index["p90"],
     }
     assert price.model_for(type_key).tiers == price.TYPE_TIERS[type_key]
+
+
+def test_the_hex_nut_takes_the_drills_tiers_though_the_census_measures_its_spread(census):
+    """The one type with a census brand spread but no tier figures of its
+    own: on its 6 shared specs the house label is the DEARER brand, so it
+    gives no economy figure, and the nut prices with the drill's tiers."""
+    assert set(price.BRAND_CENSUS) - set(price.TYPE_TIER_CENSUS) == {"nut_hex"}
+    house = census["deep_types"]["nut_hex"]["brand_spread_same_spec"][
+        "house_label_over_other_brands"
+    ]
+    assert (house["n_specs"], house["quantiles"]["p50"]) == (6, 5.5752)
+    assert price.model_for("nut_hex").tiers == price.TIER_FACTORS
 
 
 def test_only_the_size_noise_types_draw_a_size_noise():
@@ -702,10 +739,11 @@ EXCEPTED = {
 }
 
 
-def test_the_row_exceptions_are_the_kit_rows_that_cannot_hold(price_rows):
+def test_the_row_exceptions_are_the_kit_rows_that_cannot_hold(price_rows, hundred_k_rows):
     """#71 prices a kit from its contents; until then its p50 and p90/p10
     trade against each other across the two builds. Another row, or a kit
-    row that can hold (its larger-costs-more share), gets no exception."""
+    row that can hold (its larger-costs-more share), gets no exception; nor
+    does a kit row in band at both builds."""
     assert set(price.ROW_EXCEPTIONS) == set(EXCEPTED)
     assert not set(price.ROW_EXCEPTIONS) & set(price.PINNED_SHORTFALLS)
     for name, issue in EXCEPTED.items():
@@ -716,10 +754,34 @@ def test_the_row_exceptions_are_the_kit_rows_that_cannot_hold(price_rows):
     assert sorted(excepted) == sorted(EXCEPTED)
     for row in excepted.values():
         assert "EXCEPTED" in row.note, row.note
-        assert not row.within, f"{row.name} is in band: drop its exception"
+        both = [row, hundred_k_rows[row.name]]
+        assert not price_report.exception_is_stale(both), (
+            f"{row.name} is in band at both builds: drop its exception"
+        )
     assert set(price.EXCEPTED_FIGURES) == set(EXCEPTED)
     for row in excepted.values():
         assert price_report.exception_holds(row, 0), (row.name, row.achieved, row.band)
+
+
+@pytest.mark.parametrize(
+    ("default_in", "hundred_k_in", "stale"),
+    [(True, False, False), (False, True, False), (False, False, False), (True, True, True)],
+)
+def test_an_exception_is_stale_only_when_its_row_is_in_band_at_both_builds(
+    price_rows, default_in, hundred_k_in, stale
+):
+    """A kit priced 1.2x brings its default p50 into band (76.98) while the
+    100K one stays out (121.85): the 100K build still needs the exception,
+    so only a row in band at both may drop it."""
+    (row,) = [row for row in price_rows if row.name == "price p50 (USD): kit_assortment"]
+    low, high = row.band
+    inside, outside = (low + high) / 2, high * 1.2
+
+    def at(within: bool):
+        return replace(row, achieved=inside if within else outside)
+
+    assert [at(default_in).within, at(hundred_k_in).within] == [default_in, hundred_k_in]
+    assert price_report.exception_is_stale([at(default_in), at(hundred_k_in)]) is stale
 
 
 def test_band_miss_is_the_ratio_to_the_nearer_edge():
@@ -801,9 +863,24 @@ def test_each_price_row_is_within_its_band_or_its_pin_holds_at_100k(hundred_k_ro
         assert "EXCEPTED" in row.note, row.note
         assert price_report.exception_holds(row, 1), (row.achieved, row.band)
     elif name in price.PINNED_SHORTFALLS:
-        assert price_report.pin_holds(row), (row.achieved, row.band, price.PINNED_FIGURES[name])
+        assert price_report.pin_holds(row, 1), (row.achieved, row.band, price.PINNED_FIGURES[name])
     else:
         assert row.within, f"{row.achieved:.4f} outside {row.band[0]:.4f}-{row.band[1]:.4f}"
+
+
+@pytest.mark.parametrize("name", sorted({*PINNED_SIDES, *EXCEPTED}))
+@pytest.mark.parametrize("build", [0, 1])
+def test_each_recorded_figure_is_the_figure_its_build_produces(
+    price_rows, hundred_k_rows, name, build
+):
+    """A pin or exception bound is only as tight as its record, so each
+    record is the build's own figure, to the precision it is written at
+    (each build is one seed, so this is exact). A record loosened by hand,
+    or left loose after the row improves, is red here."""
+    row = {r.name: r for r in price_rows}[name] if build == 0 else hundred_k_rows[name]
+    recorded = _recorded(name)[build]
+    built = round(row.achieved, price_report.recorded_digits(name))
+    assert recorded == built, f"{name}: recorded {recorded} at build {build}, built {built}"
 
 
 # --- the measured breadth categories ----------------------------------------
