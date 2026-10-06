@@ -31,6 +31,7 @@ from pathlib import Path
 import pytest
 
 import catalog_size
+import type_gates
 from prism_synthetic_industrial import FIELD_MAP_PATH
 from synthetic_industrial_products.catalog import cli
 from synthetic_industrial_products.catalog.config import GeneratorConfig
@@ -132,38 +133,13 @@ def test_committed_file_matches_a_fresh_build(name: str, fresh_build: Path) -> N
     if _sha256(committed) == _sha256(rebuilt):
         return
 
-    committed_lines = committed.read_text(encoding="utf-8").splitlines()
-    rebuilt_lines = rebuilt.read_text(encoding="utf-8").splitlines()
-    differing = sum(
-        1 for a, b in zip(committed_lines, rebuilt_lines, strict=False) if a != b
-    ) + abs(len(committed_lines) - len(rebuilt_lines))
-    first = next(
-        (i for i, (a, b) in enumerate(zip(committed_lines, rebuilt_lines, strict=False)) if a != b),
-        min(len(committed_lines), len(rebuilt_lines)),
+    report = type_gates.difference(
+        committed.read_text(encoding="utf-8").splitlines(),
+        rebuilt.read_text(encoding="utf-8").splitlines(),
     )
-
-    # A record is a single 2.5 KB line, so quoting it from the start shows two
-    # identical prefixes and hides the change. Window on the first differing
-    # CHARACTER instead -- that is the byte the reader came here to see.
-    a = committed_lines[first] if first < len(committed_lines) else ""
-    b = rebuilt_lines[first] if first < len(rebuilt_lines) else ""
-    column = next(
-        (i for i, (x, y) in enumerate(zip(a, b, strict=False)) if x != y), min(len(a), len(b))
-    )
-    start = max(0, column - 60)
-
-    def excerpt(lines: list[str]) -> str:
-        if first >= len(lines):
-            return "<EOF>"
-        window = lines[first][start : column + 120]
-        return ("…" if start else "") + window + ("…" if column + 120 < len(lines[first]) else "")
-
     pytest.fail(
         f"{GOLDEN_DIR.name}/{name} differs from a fresh `sip-generate build`.\n"
-        f"  committed {len(committed_lines)} lines, rebuilt {len(rebuilt_lines)} lines; "
-        f"{differing} line(s) differ, first at line {first + 1} character {column + 1}:\n"
-        f"    committed: {excerpt(committed_lines)}\n"
-        f"    rebuilt  : {excerpt(rebuilt_lines)}\n"
+        f"  {report or 'the lines agree; the bytes between them differ (a line ending?)'}\n"
         f"\n"
         f"Two things cause this, and they are not the same problem:\n"
         f"\n"
