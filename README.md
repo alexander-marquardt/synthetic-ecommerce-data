@@ -588,15 +588,22 @@ of elastic/prism#9935:
 * A **measured** value is fully split. `value` is the bare magnitude with no
   unit marker and no thousands separator, `unit_code` (UN/CEFACT: `INH`, `MMT`,
   `DD`, `ONZ`, `LBR`, `C78`, `RPM`, `TPI`, and `C62` for a count) is the only
-  place the unit lives, and `value_canonical` is the exact magnitude in the
-  kind's canonical unit (millimetres, grams, degrees, one, rpm, pound-force,
-  threads per inch).
-* Thread spacing is two quantities under two keys, as real catalogs publish
-  them: a metric tap's `Pitch` (`pitch`, `MMT`, `0.5`) and an inch tap's
-  `Threads per Inch` (`threads_per_inch`, `TPI`, `32`). They are not folded
-  together and `TPI` is not converted to a reciprocal length, so every key's
-  measured entries share one unit dimension. A test holds that, with one
-  exception: the modelled angle defect below.
+  place the unit lives, and `value_canonical` is the magnitude in the kind's
+  canonical unit (millimetres, grams, degrees, one, rpm, pound-force), computed
+  exactly and rounded to a float once.
+* Thread spacing is published under two keys, as real catalogs publish it: a
+  metric tap's `Pitch` (`pitch`, `MMT`, `0.5`) and an inch tap's `Threads per
+  Inch` (`threads_per_inch`, `TPI`, `32`). `TPI` is a LENGTH written as a count
+  per inch (ruled on elastic/prism#9877): `value` stays the count and
+  `value_canonical` is the pitch in millimetres, `127/5 / n`, so `32` TPI is
+  `0.79375` and `20` TPI is `1.27`. `13` TPI (127/65 mm) does not terminate and
+  is the nearest float, like `3/8"` (9.525 mm). The contract test reads each
+  unit's kind and size from a pinned copy of the industrial deployment's
+  `canonical_units` block (`tests/data/industrial_canonical_units.yaml`), which
+  `tests/test_industrial_unit_pin.py` compares with its source wherever that
+  private repository is readable. No key's measured entries mix quantity kinds,
+  with one exception: the modelled angle defect below, matched on its inch
+  unit and its five values.
 * Anything else stays unitless text, including composite designators such as
   `1/4-20` and `M10x1.5`.
 
