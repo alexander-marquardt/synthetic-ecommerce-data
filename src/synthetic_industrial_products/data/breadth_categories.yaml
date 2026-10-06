@@ -1,42 +1,6 @@
 # GENERATED once by hand (alexander-marquardt/synthetic-industrial-products#34);
 # edited directly from here on -- see catalog/breadth.py for the schema and the
 # generic loop that reads it.
-- key: ball_stock_precision
-  category:
-  - Raw Materials
-  - Metals & Alloys
-  - Precision Balls
-  family: motion
-  shape: sphere
-  item: Ball
-  descriptor_attr: Material
-  size_attr: Diameter
-  size_values:
-  - 1/8 in
-  - 3/16 in
-  - 1/4 in
-  - 5/16 in
-  - 3/8 in
-  - 1/2 in
-  - 5/8 in
-  - 3/4 in
-  - 1 in
-  attributes:
-    Material:
-    - Stainless Steel
-    - Chrome Steel
-    Grade:
-    - G25
-    - G100
-    Finish:
-    - Bright
-  price_range: [3.0, 15.0]
-  skus: 2
-  featured_sizes:
-  - 1/2 in
-  featured_attrs:
-    Material: Stainless Steel
-  reason: '''ball'' + ''1/2'' + ''stainless'' -- the original ball-category gap example (issue body)'
 - key: ball_stock_rubber
   category:
   - Raw Materials
