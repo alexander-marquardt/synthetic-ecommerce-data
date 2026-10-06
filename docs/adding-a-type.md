@@ -100,6 +100,18 @@ with `StandardsDataError: no extraction for '<standard>'`. A module may
 instead carry the table itself, as the lock nut does (see
 [Sources](#sources-and-provenance)).
 
+A threaded type that publishes `dia_thread_size` and whose standard has no
+extraction declares the sizes that standard offers in its `SPEC`, as
+`sizes={standard: (size, ...)}`, stated apart from its table. The thread-size
+sweep in `tests/test_catalog_coverage.py` reads only that facet. It holds every
+declared size to reaching a document, and it fails, rather than skips, a
+standard that has neither an extraction nor a declaration. A type that
+publishes `thread_size` instead, such as the lock nut, is not swept yet: see
+issue #68. When the
+type's `dimension_provenance` is a sentence rather than a bare standard name,
+it also declares `line_standard`, which reads a record's standard back from
+its published attributes. `set_screws_hex_socket` does both.
+
 ## The steps
 
 ### A new type
@@ -139,10 +151,13 @@ instead carry the table itself, as the lock nut does (see
    census names, determinism, a committed golden slice, and independence from
    every other type. Write the slice with
    `uv run python tests/test_type_<type_key>.py`.
-7. Restate the published figures the type moves
+7. Declare a price model (`price=` on the `TypeSpec`), `measured=False` until
+   a census entry exists, and add the type's key attribute to
+   `KEY_ATTRIBUTES` in `catalog/price.py`.
+8. Restate the published figures the type moves
    ([Figures to restate](#figures-to-restate)).
-8. Run the checks.
-9. Merge with `scripts/merge_pr.sh <PR number>`, never with the GitHub button
+9. Run the checks.
+10. Merge with `scripts/merge_pr.sh <PR number>`, never with the GitHub button
    or `gh pr merge` (see [Merging](#merging-every-type-pr-goes-through-merge_prsh)).
 
 ### Deepening an existing breadth type
@@ -177,7 +192,7 @@ rule it follows; the rules are in
    `tests/test_catalog_facts.py` (every standard that branch can return) and
    `KEY` there (the type's size attribute, the breadth row's `size_attr`).
    Then the family tables the type qualifies for ([Family tables](#family-tables)).
-5. Do steps 3 to 8 of [A new type](#a-new-type).
+5. Do steps 3 to 9 of [A new type](#a-new-type).
 6. Check that every other type is byte-identical, at both sizes, with the
    command in [Comparing the other types](#comparing-the-other-types). Only
    the deepened key may differ.

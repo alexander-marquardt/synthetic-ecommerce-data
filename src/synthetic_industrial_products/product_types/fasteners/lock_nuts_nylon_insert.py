@@ -313,7 +313,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
 #: No census prices: the census has no nylon-insert lock nuts, and a hex nut's
 #: model is a pack price. The level is the one the breadth row showed (about 1.25
 #: USD for a #4 up to about 5.5 for an M30), log-linear in the thread's major
-#: diameter; NOT MEASURED.
+#: diameter; NOT MEASURED. Census-backed bands: issue #69.
 PRICE = PriceModel(2.0, 0.4, 0.55, 0.3, 0.25, measured=False)
 
 SPEC = TypeSpec(
