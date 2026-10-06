@@ -587,11 +587,18 @@ of elastic/prism#9935:
   below). `name` is the display name.
 * A **measured** value is fully split. `value` is the bare magnitude with no
   unit marker and no thousands separator, `unit_code` (UN/CEFACT: `INH`, `MMT`,
-  `DD`, `ONZ`, `LBR`, `C78`, `RPM`, and `C62` for a count) is the only place the
-  unit lives, and `value_canonical` is the exact magnitude in the kind's
-  canonical unit (millimetres, grams, degrees, one, rpm, pound-force).
+  `DD`, `ONZ`, `LBR`, `C78`, `RPM`, `TPI`, and `C62` for a count) is the only
+  place the unit lives, and `value_canonical` is the exact magnitude in the
+  kind's canonical unit (millimetres, grams, degrees, one, rpm, pound-force,
+  threads per inch).
+* Thread spacing is two quantities under two keys, as real catalogs publish
+  them: a metric tap's `Pitch` (`pitch`, `MMT`, `0.5`) and an inch tap's
+  `Threads per Inch` (`threads_per_inch`, `TPI`, `32`). They are not folded
+  together and `TPI` is not converted to a reciprocal length, so every key's
+  measured entries share one unit dimension. A test holds that, with one
+  exception: the modelled angle defect below.
 * Anything else stays unitless text, including composite designators such as
-  `1/4-20` and `M10x1.5`, and an inch tap's `Pitch`, which is a thread count.
+  `1/4-20` and `M10x1.5`.
 
 The split is **read back out of** the published string, never computed from
 the generator's magnitude, so the two can never disagree: `3/8"` has no exact
@@ -608,8 +615,12 @@ that prints the spelling -- the drawing bundle's card stamp, the contact sheet,
 the tests that compare a title with its attributes -- reads it from
 `flat.jsonl`, joined on `sku` (`catalog.entry.published`), so every such
 consumer is given `flat.jsonl` beside `nested.jsonl`. A test holds that the
-join accounts for every flat value and that each spelling splits back into the
-nested entry's own magnitude and unit.
+join accounts for every flat value and that each spelling, read by the test's
+own parser rather than by `split()`, gives exactly the nested entry's
+magnitude, unit and `value_canonical`; a bare number takes its unit from its
+key, never from the entry. A hand-worked table of published spellings pins
+`split()` itself, so `1/2"` published as `0.5` is red even in a catalog
+regenerated from that broken split.
 
 Products are never grouped across brands. Two manufacturers' tools at the same
 nominal geometry are different products.

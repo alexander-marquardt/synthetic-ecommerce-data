@@ -131,6 +131,10 @@ NAME_EXCEPTIONS: dict[str, str] = {
     "Handle Length": "hammer handle length, a distinct measurement from Overall Length",
     "Head Weight": "hammer head weight; the census carries no hammer family",
     "Square Size": "a tap's drive square; declared, never emitted (issue #3)",
+    "Threads per Inch": (
+        "an inch tap's thread count, a different quantity from a metric tap's Pitch"
+        " (#42); cased like the census's Teeth per Inch"
+    ),
 }
 
 

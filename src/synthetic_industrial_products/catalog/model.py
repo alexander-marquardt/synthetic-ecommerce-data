@@ -52,8 +52,9 @@ class Attribute:
     #: first value and this holds all of them.
     values: tuple[str, ...] | None = None
     #: The unit a BARE published number is in, when the generator knows it and
-    #: the name does not say it: a metric tap's ``Pitch`` is millimetres, an
-    #: inch tap's is a thread count. See :func:`.entry.split`.
+    #: the name does not say it: a metric tap's ``Pitch`` is millimetres
+    #: (``MMT``), an inch tap's ``Threads per Inch`` is ``TPI``. See
+    #: :func:`.entry.split`.
     bare_unit: str | None = None
 
     @property
