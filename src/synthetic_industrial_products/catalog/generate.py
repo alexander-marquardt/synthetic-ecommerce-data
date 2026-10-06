@@ -2163,5 +2163,15 @@ class _BreadthGenerator(Generator):
         self._used_skus = used_skus
 
 
-def generate(config: GeneratorConfig | None = None) -> Catalog:
+def all_type_keys() -> list[str]:
+    """STUB (#48): every type the build makes, in build order."""
+    return []
+
+
+def generate_type(config: GeneratorConfig, type_key: str) -> list[ProductLine]:
+    """STUB (#48): one type's lines, built alone."""
+    return []
+
+
+def generate(config: GeneratorConfig | None = None, types=None) -> Catalog:
     return Generator(config).generate()
