@@ -40,12 +40,12 @@ def test_a_type_module_imported_first_still_registers(module: str) -> None:
     assert result.returncode == 0, result.stderr[-600:]
 
 
-def test_discover_called_first_finds_every_type_module() -> None:
-    """``typespec.discover()`` (or ``block_of``) as a fresh process's first call."""
-    script = (
-        "from synthetic_industrial_products.catalog import typespec\n"
-        "print(sorted(typespec.discover()))\n"
-    )
+@pytest.mark.parametrize(
+    "first_call", ["sorted(typespec.discover())", "typespec.block_of('shaft_collars')"]
+)
+def test_discover_called_first_finds_every_type_module(first_call: str) -> None:
+    """``typespec.discover()`` or ``block_of`` as a fresh process's first call."""
+    script = f"from synthetic_industrial_products.catalog import typespec\nprint({first_call})\n"
     result = subprocess.run(
         [sys.executable, "-c", script], capture_output=True, text=True, check=False
     )
