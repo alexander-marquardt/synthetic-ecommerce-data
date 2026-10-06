@@ -655,6 +655,48 @@ MUTATIONS: list[Mutation] = [
         "",
         "a type module's spec reaches every table, or is refused naming the gap",
     ),
+    # The round-2 review's four (#54).
+    Mutation(
+        "type seam: first_free_block returns start even when it is taken",
+        "catalog/typespec.py",
+        "        if block not in taken:\n            return block\n",
+        "        if True:\n            return block\n",
+        (
+            "tests/test_type_seam.py -k first_free_block_is_the_first_unused",
+            "tests/test_type_seam.py::test_the_block_command_names_the_owner_and_a_really_free_block",
+        ),
+        "",
+        "sip-generate block names a block no type uses",
+    ),
+    Mutation(
+        "type seam: sip-generate block finds no owner of a taken block",
+        "catalog/cli.py",
+        "    owners = sorted(other for other, block in used.items() if block == derived)\n",
+        "    owners: list[str] = []\n",
+        "tests/test_type_seam.py::test_the_block_command_names_the_owner_and_a_really_free_block",
+        "",
+        "sip-generate block names a block no type uses",
+    ),
+    Mutation(
+        "type seam: a half-zero extent is not refused",
+        "catalog/typespec.py",
+        '            ("extent", all(side > 0 for side in spec.extent)),',
+        '            ("extent", any(side > 0 for side in spec.extent)),',
+        'tests/test_type_seam.py -k "missing_a_field_is_refused and extent"',
+        "",
+        "a type module's spec reaches every table, or is refused naming the gap",
+    ),
+    Mutation(
+        # Was "_discovered_blocks drops the row fallback"; the row's block now
+        # reaches DECLARED_BLOCKS with the row, and this is how it is lost.
+        "type seam: a breadth module's block on its row is overwritten by the spec's unset one",
+        "catalog/typespec.py",
+        "    if spec.part_number_block is not None:\n        DECLARED_BLOCKS[spec.key]",
+        "    if True:\n        DECLARED_BLOCKS[spec.key]",
+        "tests/test_type_seam.py::test_a_breadth_modules_declared_block_is_its_block[row]",
+        "",
+        "a type's declared block is its block, wherever it is declared",
+    ),
     # ---- generate: the measured rates, both directions -------------------
     Mutation(
         "make every tool line a matching-shank line",

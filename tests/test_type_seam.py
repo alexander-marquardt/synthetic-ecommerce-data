@@ -211,6 +211,7 @@ def test_every_shared_type_table_registers_on_read() -> None:
         "STANDARDS_FAMILY": vocab.STANDARDS_FAMILY,
         "USE_LINES": voice.USE_LINES,
         "FIGURES": FIGURES,
+        "DECLARED_BLOCKS": typespec.DECLARED_BLOCKS,
     }
     plain = [
         name for name, table in tables.items() if not isinstance(table, typespec.RegistryTable)
