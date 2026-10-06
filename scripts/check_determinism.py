@@ -30,9 +30,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import os
+import shutil
 import subprocess
 import sys
-import shutil
 import tempfile
 from pathlib import Path
 
@@ -105,8 +105,7 @@ def _sip_generate(args: list[str], hash_seed: str) -> None:
     )
     if done.returncode != 0:
         raise SystemExit(
-            f"sip-generate {' '.join(args)} failed ({done.returncode}):\n"
-            f"{done.stdout}{done.stderr}"
+            f"sip-generate {' '.join(args)} failed ({done.returncode}):\n{done.stdout}{done.stderr}"
         )
 
 
@@ -125,8 +124,9 @@ def main(argv: list[str] | None = None) -> int:
 
     # The generator writes the field map only for its default config, and only
     # where the customization package is present.
-    default_config = (
-        args.lines in (None, GeneratorConfig.lines) and args.seed in (None, GeneratorConfig.seed)
+    default_config = args.lines in (None, GeneratorConfig.lines) and args.seed in (
+        None,
+        GeneratorConfig.seed,
     )
     target = field_map_target()
     want_field_map = default_config and target.parent.exists()
