@@ -245,6 +245,8 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
     from ...catalog.generate import BRANDS, ChildDraft, LineDraft
 
     rng = gen.rng
+    gen._drawn_specs.clear()
+    gen._published_specs.clear()
     brand = pick_brand(rng, type_key, gen._exhausted)
     series = _weighted(rng, SERIES)
     material, finish, grade = rng.choice(series.combos)
