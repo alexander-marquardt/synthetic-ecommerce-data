@@ -123,6 +123,44 @@ ECONOMY_OVER_OTHERS_MEDIAN = 0.5196
 #: brand's median price over the spec's geometric mean, on shared specs.
 PREMIUM_BRAND_INDEX_P90 = 1.7863
 
+
+@dataclass(frozen=True)
+class LengthCensus:
+    """Price against length at a fixed diameter (``price_vs_length_at_fixed_diameter``)."""
+
+    slope: float
+    longer_costs_more: float
+    n_pairs: int
+
+
+#: The fastener types whose census measures length over 100 or more pairs.
+LENGTH_CENSUS: dict[str, LengthCensus] = {
+    "bolt_hex": LengthCensus(0.564, 0.691, 1886),
+    "screw_socket_head": LengthCensus(0.256, 0.662, 858),
+}
+
+
+@dataclass(frozen=True)
+class BrandCensus:
+    """Same-spec brand spread (``brand_spread_same_spec``)."""
+
+    #: Median over specs two or more brands offer of max/min per-brand median.
+    spread_p50: float
+    n_specs: int
+    low_confidence: bool
+
+
+#: Every type whose census measures a same-spec brand spread.
+BRAND_CENSUS: dict[str, BrandCensus] = {
+    "bearing_radial_ball": BrandCensus(1.3825, 49, False),
+    "drill_jobber": BrandCensus(2.5705, 101, False),
+    "end_mill_ball": BrandCensus(1.3624, 5, True),
+    "nut_hex": BrandCensus(5.5752, 6, True),
+    "screw_socket_head": BrandCensus(1.3372, 7, True),
+    "tap_spiral_point": BrandCensus(2.2238, 31, False),
+    "wheel_depressed_center": BrandCensus(1.2838, 12, True),
+}
+
 _NAMED_CENTS = {0: ".00", 50: ".50", 95: ".95", 99: ".99", 98: ".98", 97: ".97", 49: ".49"}
 
 
