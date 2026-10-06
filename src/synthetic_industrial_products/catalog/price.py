@@ -616,27 +616,47 @@ SIZE_NOISE: dict[str, str] = {
     ),
 }
 
+#: Each pinned row's figure on the default build, as the fit last measured
+#: it. A pin discloses a shortfall; it does not license a worse one:
+#: ``price_report.pin_holds`` fails a row that lands further from its band
+#: than this by more than :data:`PIN_TOLERANCE`.
+_WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
+PINNED_FIGURES: dict[str, float] = {
+    "price p90/p10: bearing_radial_ball": 4.493,
+    _WHEEL_SPREAD_ROW: 3.241,
+}
+
+#: How far past its recorded figure a pinned row may move, as a ratio. The
+#: build is one seed, so the figure is exact on it; the tolerance is room for
+#: the fit rounding its literals, well under the 5% the mildest worsening a
+#: review planted moved a pin (bearing noise off: 4.55 to 4.31).
+PIN_TOLERANCE = 0.02
+
 #: Rows that land outside their band, and why: disclosed, and pinned by
-#: ``tests/test_price.py`` to the side of the band the cause puts them.
+#: ``tests/test_price.py`` to the side of the band the cause puts them. A
+#: figure a reason quotes is read from :data:`PINNED_FIGURES`, so a refit that
+#: re-records the figure cannot leave the reason quoting the old one.
 PINNED_SHORTFALLS: dict[str, str] = {
     "price p90/p10: bearing_radial_ball": (
         "below band: catalog bores span a p90/p10 of about 3x against the census's 16.1x, "
         "and the census's own brand spread (1.38) leaves no group noise to make up the rest "
         "(widen the bore range: #64)"
     ),
-    "price brand spread, same spec (median max/min): wheel_depressed_center": (
+    _WHEEL_SPREAD_ROW: (
         "above band: catalog diameters span 2.25x, which the key term spreads to 2.6x of the "
         "census's 10x, and the group noise that makes up the rest is drawn independently per "
-        "brand for each of the 12 brands that make every shared wheel spec, so one spec's "
-        "brands land 6.8x apart. A noise one spec shares across brands (SIZE_NOISE, as on "
-        "taps) brings the spread to 2.0 but inverts the few diameters (larger costs more 0.68 "
-        "against 0.81)"
+        "brand for each of the 12 brands that make every shared wheel spec, so the brands "
+        "the row samples from one spec land "
+        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW]:.2f}x apart. A noise one spec shares across brands "
+        "(SIZE_NOISE, as on taps) brings the spread to 2.0 but inverts the few diameters "
+        "(larger costs more 0.68 against 0.81)"
     ),
 }
 
 #: Rows no model of this shape holds in band at both builds, and the issue
 #: that fixes each. Unlike a pin, the row may land on either side of its band
-#: and at either build, so it is held to no side; the fit still scores it, so
+#: and at either build, so it is held to no side, only to how far out
+#: :data:`EXCEPTED_FIGURES` recorded it; the fit still scores it, so
 #: its noise is the best balance of these rows and the rest. ``tests/test_price.py``
 #: pins the set, so an exception cannot quietly cover another row or type.
 ROW_EXCEPTIONS: dict[str, str] = {
@@ -649,20 +669,22 @@ ROW_EXCEPTIONS: dict[str, str] = {
     for name in ("price p50 (USD): kit_assortment", "price p90/p10: kit_assortment")
 }
 
-#: Each pinned row's figure on the default build, as the fit last measured
-#: it. A pin discloses a shortfall; it does not license a worse one:
-#: ``price_report.pin_holds`` fails a row that lands further from its band
-#: than this by more than :data:`PIN_TOLERANCE`.
-PINNED_FIGURES: dict[str, float] = {
-    "price p90/p10: bearing_radial_ball": 4.493,
-    "price brand spread, same spec (median max/min): wheel_depressed_center": 3.241,
+#: Each excepted row's figure on the default and on the 100K build, as the
+#: fit last measured them. An exception frees a row from its band, not from
+#: any bound: ``price_report.exception_holds`` fails a row whose miss
+#: (``price_report.band_miss``) grows past :data:`EXCEPTION_DRIFT` times the
+#: recorded figure's, at either build.
+EXCEPTED_FIGURES: dict[str, tuple[float, float]] = {
+    "price p50 (USD): kit_assortment": (63.98, 101.65),
+    "price p90/p10: kit_assortment": (81.784, 151.422),
 }
 
-#: How far past its recorded figure a pinned row may move, as a ratio. The
-#: build is one seed, so the figure is exact on it; the tolerance is room for
-#: the fit rounding its literals, well under the 5% the mildest worsening a
-#: review planted moved a pin (bearing noise off: 4.55 to 4.31).
-PIN_TOLERANCE = 0.02
+#: How much worse than its recorded miss an excepted row may land, as a
+#: ratio. Wider than :data:`PIN_TOLERANCE`, because an excepted row trades
+#: against the rows the fit scores beside it and moves with any refit; narrow
+#: enough that a kit p50 recorded about 1% out of band cannot drift past
+#: about 26% out unnoticed.
+EXCEPTION_DRIFT = 1.25
 
 
 def slope_cut_mismatch(models: Mapping[str, PriceModel], cuts: Mapping[str, str]) -> set[str]:
