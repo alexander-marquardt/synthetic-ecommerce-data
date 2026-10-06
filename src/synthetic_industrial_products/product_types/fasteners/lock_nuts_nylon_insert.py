@@ -232,7 +232,6 @@ VOCAB = (
     AttrSpec("Grade", "line", 0.9),
     AttrSpec("Thread Type", "line", 0.8),
     AttrSpec("Thread Direction", "line", 0.55),
-    AttrSpec("Nylon Ring Colour", "line"),
     AttrSpec("Thread Size", "sku"),
     AttrSpec("Width Across Flats", "sku", kind="length"),
     AttrSpec("Height", "sku", 0.9, kind="length"),
@@ -252,7 +251,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
     draft = LineDraft(
         item=ITEM,
         brand=brand,
-        series=f"NL{rng.randint(100, 999)}",
+        series=f"NL{__import__('random').randint(100, 999)}",
         category=category,
         provenance=GENERATED_PROVENANCE,
         standard=series.standard,
@@ -266,7 +265,6 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
         keyword_attribute("Finish", finish),
         keyword_attribute("Thread Type", series.thread_type),
         keyword_attribute("Thread Direction", "Right Hand"),
-        keyword_attribute("Nylon Ring Colour", "Blue"),
     ]
     if grade is not None:
         draft.line_attrs.append(keyword_attribute("Grade", grade))
