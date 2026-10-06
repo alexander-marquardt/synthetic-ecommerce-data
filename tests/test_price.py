@@ -153,7 +153,7 @@ PINNED_SIDES = {
     "price p90/p10: bearing_radial_ball": ("below", "#64"),
     "price brand spread, same spec (median max/min): wheel_depressed_center": (
         "above",
-        "house label 0.539",
+        "drawn per brand",
     ),
 }
 
