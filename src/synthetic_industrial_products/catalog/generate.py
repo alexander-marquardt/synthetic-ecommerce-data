@@ -26,7 +26,7 @@ import random
 from collections.abc import Iterable
 from dataclasses import dataclass, field, replace
 from fractions import Fraction
-from typing import TypeVar
+from typing import Literal, TypeVar
 
 from . import brands, breadth, compat, conformance, noise, series, standards, taxonomy, typespec
 from .config import GeneratorConfig
@@ -740,55 +740,69 @@ class Generator:
             draft.children.append(child)
         return draft
 
-    #: The four hex-socket screw lines, each with the standard its dimensions
-    #: come from in each system, the head style the drawing reads, and the
-    #: accessor that knows which columns of that standard's table are the head.
+    #: The hex-socket screw lines still declared here, each with the standard
+    #: its dimensions come from in each system, the head style the drawing
+    #: reads, and the accessor that knows which columns of that standard's
+    #: table are the head. A type declared in its own module
+    #: (``screw_socket_head``) passes its own row to the builder instead.
     #:
-    #: Four rows rather than an ``if flat`` and a default: a button head and a
-    #: low head are different products with different published dimensions, and
-    #: a table says so where a boolean would have had to grow a second and a
-    #: third meaning.
-    _SOCKET_SCREW_LINES: dict[str, tuple[str, str, str, str]] = {
-        "screw_socket_head": ("ISO 4762", "ASME B18.3", "Socket", "Socket Head Cap Screw"),
-        "screw_flat_head": ("ISO 10642", "ASME B18.3.2", "Flat", "Socket Flat Head Cap Screw"),
-        "screw_button_head": (
+    #: One row per line rather than an ``if flat`` and a default: a button head
+    #: and a low head are different products with different published
+    #: dimensions, and a row says so where a boolean would have had to grow a
+    #: second and a third meaning.
+    _SOCKET_SCREW_LINES: dict[str, standards.SocketScrewLine] = {
+        "screw_flat_head": standards.SocketScrewLine(
+            "ISO 10642",
+            "ASME B18.3.2",
+            "Flat",
+            "Socket Flat Head Cap Screw",
+            standards.flat_head,
+            length_over_head=True,
+        ),
+        "screw_button_head": standards.SocketScrewLine(
             "ISO 7380-1",
             "ASME B18.3.3A",
             "Button",
             "Button Head Socket Cap Screw",
+            standards.button_head,
         ),
-        "screw_low_head": (
+        "screw_low_head": standards.SocketScrewLine(
             "DIN 7984",
             "ASME B18.3.1G",
             "Low Socket",
             "Low Head Socket Cap Screw",
+            standards.low_head,
         ),
     }
 
-    def _build_socket_screw(self, type_key: str, category: tuple[str, ...]) -> LineDraft:
+    def _build_socket_screw(
+        self,
+        type_key: str,
+        category: tuple[str, ...],
+        line: standards.SocketScrewLine | None = None,
+    ) -> LineDraft:
         """Hexagon socket cap screws -- socket, countersunk, button or low head.
 
         All four come from extracted standards, and which one a line is built
         to decides its head dimensions entirely: a button head's dome and a low
         head's squat cylinder are that standard's own head diameter and head
         height, not a socket head's scaled.
+
+        ``line`` is the type's own row, passed by its type module; a type
+        still declared here reads its row from :attr:`_SOCKET_SCREW_LINES`.
         """
+        line = line or self._SOCKET_SCREW_LINES[type_key]
         rng = self.rng
-        flat = type_key == "screw_flat_head"
+        flat = line.length_over_head
         # Alternated rather than tossed. Both systems get half the lines
         # either way in expectation, but a coin flip over the twenty lines of
         # the low-head type gave eight metric and twelve inch, and the metric
         # standard offers NINE sizes -- so M20 low head cap screws did not
         # exist. Which sizes a catalog carries must not be decided by a coin.
         metric = self._rotate(f"system:{type_key}", 2) == 0
-        metric_standard, inch_standard, head_style, style_name = self._SOCKET_SCREW_LINES[type_key]
-        standard = metric_standard if metric else inch_standard
-        head_of = {
-            "screw_socket_head": standards.socket_head,
-            "screw_flat_head": standards.flat_head,
-            "screw_button_head": standards.button_head,
-            "screw_low_head": standards.low_head,
-        }[type_key]
+        head_style, style_name = line.head_style, line.style_name
+        standard = line.metric_standard if metric else line.inch_standard
+        head_of = line.head
 
         brand = brands.pick_brand(rng, type_key, self._exhausted)
         material = rng.choice(("Alloy Steel", "18-8 Stainless Steel", "Grade 12.9 Alloy Steel"))
@@ -1162,7 +1176,6 @@ class Generator:
         "end_mill_ball": _build_end_mill,
         "drill_jobber": _build_drill,
         "tap_spiral_point": _build_tap,
-        "screw_socket_head": _build_socket_screw,
         "screw_flat_head": _build_socket_screw,
         "screw_button_head": _build_socket_screw,
         "screw_low_head": _build_socket_screw,
@@ -2033,16 +2046,18 @@ class Generator:
         key = self.type_key
         cfg = self.config
         lines: list[ProductLine] = []
-        if key in self._BUILDERS:
-            builder = self._BUILDERS[key]
+        kind = _type_kinds()[key]
+        if kind == "modelled":
+            builder = self._builder()
             (category,) = taxonomy.LEAVES[key]
-            weight = cfg.type_weights.get(key)
+            own = typespec.modelled().get(key)
+            weight = cfg.type_weights.get(key, own.share if own else None)
             count = 0 if weight is None else max(1, round(cfg.lines * weight))
             for _ in range(count):
                 self._keep(
                     lines, self._finish_line(key, builder(self, key, category), self._next_index())
                 )
-        elif key in NEW_TYPES:
+        elif kind == "new":
             for _ in range(cfg.new_type_products.get(key, 0)):
                 self._keep(lines, self._new_type_line(key))
         else:
@@ -2050,6 +2065,13 @@ class Generator:
         if cfg.must_stock:
             lines.extend(self._must_stock(lines))
         return lines
+
+    def _builder(self):
+        """This modelled type's builder: its type module's ``make``, else the shared table's."""
+        own = typespec.modelled().get(self.type_key)
+        if own is not None:
+            return lambda gen, key, category: own.make(gen, key, category)
+        return self._BUILDERS[self.type_key]
 
     def _keep(self, lines: list[ProductLine], line: ProductLine | None) -> None:
         if line is not None:
@@ -2095,7 +2117,7 @@ class Generator:
             self.rng = typespec.type_rng(self.config.seed, f"{key}:must-stock:{entry.example}")
             self._pins = dict(entry.pins)
             try:
-                builder = self._BUILDERS[key]
+                builder = self._builder()
                 (category,) = taxonomy.LEAVES[key]
                 for _ in range(MAX_ATTEMPTS):
                     line = self._finish_line(key, builder(self, key, category), self._next_index())
@@ -2113,20 +2135,43 @@ class Generator:
         return added
 
 
-def all_type_keys() -> list[str]:
-    """Every type the build makes, in build order: sorted by key, so a new type
-    lands in a fixed place without being listed anywhere."""
-    keys = [*Generator._BUILDERS, *NEW_TYPES, *(row.key for row in breadth.ROWS)]
+#: How a type is built: by a modelled builder (a type module's ``make``, or
+#: :attr:`Generator._BUILDERS` until it has one), from :data:`.newtypes.NEW_TYPES`,
+#: or from one breadth row (a YAML row, or a type module's ``breadth``).
+TypeKind = Literal["modelled", "new", "breadth"]
+
+
+def _type_kinds() -> dict[str, TypeKind]:
+    """Every type's kind, from every place a type can be declared, refusing a key
+    declared twice."""
+    declared: list[tuple[str, TypeKind]] = [
+        *((key, "modelled") for key in Generator._BUILDERS),
+        *((key, "modelled") for key in typespec.modelled()),
+        *((key, "new") for key in NEW_TYPES),
+        *((row.key, "breadth") for row in breadth.rows()),
+    ]
+    keys = [key for key, _ in declared]
     twice = sorted({key for key in keys if keys.count(key) > 1})
     if twice:
         raise typespec.TypeCollisionError(f"type keys defined twice: {twice}")
-    return sorted(keys)
+    return dict(declared)
+
+
+def all_type_keys(kind: TypeKind | None = None) -> list[str]:
+    """Every type the build makes (or every one of ``kind``), in build order:
+    sorted by key, so a new type lands in a fixed place without being listed
+    anywhere.
+
+    The one place a reader gets the type list: a type moves from a shared
+    table to its own module without any reader noticing (#48).
+    """
+    return sorted(key for key, found in _type_kinds().items() if kind in (None, found))
 
 
 def _check_blocks() -> list[str]:
     """Every type key, after refusing any two that share a part-number block."""
     keys = all_type_keys()
-    yaml_rows = {row.key for row in breadth.ROWS}
+    yaml_rows = {row.key for row in breadth.rows()} - set(typespec.registered())
     typespec.check_collisions(
         {key: typespec.block_of(key) for key in keys},
         {key: breadth.fix_site(key) for key in keys if key in yaml_rows},

@@ -169,26 +169,42 @@ def load_rows() -> tuple[BreadthRow, ...]:
     return tuple(_row_from_dict(raw) for raw in yaml.safe_load(text))
 
 
-#: Loaded once, at import. Removing every row from the YAML table -- the
-#: "easy removal" property ``tests/test_breadth.py`` checks -- empties this,
-#: :func:`register` then registers nothing, and :func:`.generate.all_type_keys`
-#: then lists no breadth type: no other code path constructs a breadth line.
-ROWS: tuple[BreadthRow, ...] = load_rows()
+#: Loaded once, at import, from the YAML table; a type module's row joins it
+#: through :func:`add_row`. Private, and read only through :func:`rows`: a
+#: type module's row is added when the type modules register, so a direct
+#: read before that would miss it. Once it is emptied (the "easy removal"
+#: property ``tests/test_breadth.py`` checks), :func:`register` registers
+#: nothing and :func:`.generate.all_type_keys` lists no breadth type: no other
+#: code path constructs a breadth line.
+_ROWS: tuple[BreadthRow, ...] = load_rows()
+
+
+def rows() -> tuple[BreadthRow, ...]:
+    """Every breadth row, the YAML table's and the type modules', registering first.
+
+    The type modules register here rather than when this module is imported:
+    a breadth type module imports this module for :class:`BreadthRow`, so
+    registering at import would re-import that type module while it is still
+    half-initialised (#54).
+    """
+    typespec.ensure_registered()
+    return _ROWS
 
 
 def row_for(key: str) -> BreadthRow:
-    """The row whose type is ``key``; read from :data:`ROWS` at call time."""
-    return next(row for row in ROWS if row.key == key)
+    """The row whose type is ``key``."""
+    return next(row for row in rows() if row.key == key)
 
 
-def register(rows: tuple[BreadthRow, ...] = ROWS) -> None:
-    """Wire ``rows`` into the shared, type-keyed registries every row needs.
+def register(new_rows: tuple[BreadthRow, ...] | None = None) -> None:
+    """Wire ``new_rows`` (the YAML table's, by default) into the shared,
+    type-keyed registries every row needs.
 
     Idempotent (every assignment is keyed by the row's own ``key``, so a
     second call overwrites each entry with itself) and safe to call with an
-    empty ``rows``, which registers nothing.
+    empty ``new_rows``, which registers nothing.
     """
-    for row in rows:
+    for row in _ROWS if new_rows is None else new_rows:
         taxonomy.LEAVES[row.key] = (row.category,)
         taxonomy.DRAWING[row.key] = row.shape
         STANDARDS_FAMILY[row.key] = row.family
@@ -203,6 +219,22 @@ def register(rows: tuple[BreadthRow, ...] = ROWS) -> None:
 
 
 register()
+
+
+def add_row(row: BreadthRow) -> None:
+    """A row a type module declares (:func:`.typespec.register`), joined to :data:`_ROWS`.
+
+    Once joined it is a breadth row like any other: built by
+    :func:`build_line`, listed by :func:`.generate.all_type_keys`, and gone
+    with the rest when :data:`_ROWS` is emptied.
+    """
+    global _ROWS
+    if any(existing.key == row.key for existing in _ROWS):
+        raise typespec.TypeCollisionError(
+            f"breadth type {row.key!r} is declared both in {TABLE} and in a type module"
+        )
+    _ROWS = (*_ROWS, row)
+    register((row,))
 
 
 def _build_sku(
@@ -299,6 +331,11 @@ def _apply_finish_follows_material(chosen: dict[str, str], row: BreadthRow, rng:
     # catalog-vocab test below catches a row that reaches this branch.
 
 
+def sku_count(row: BreadthRow) -> int:
+    """How many SKUs ``row`` builds: its ``skus``, capped by the sizes it offers."""
+    return max(1, min(row.skus, len(row.size_values)))
+
+
 def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
     """One breadth product line: 1-2 SKUs, from ``row`` alone.
 
@@ -326,7 +363,7 @@ def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
             descriptor_value = value
     item_text = f"{descriptor_value} {row.item}" if descriptor_value else row.item
 
-    count = max(1, min(row.skus, len(row.size_values)))
+    count = sku_count(row)
     # Featured sizes fill the row's SKU slots first, so a size ``reason``
     # cites is never left out to a rotation that starts at index 0 every
     # time (#35 review -- every row is built exactly once, so the rotation

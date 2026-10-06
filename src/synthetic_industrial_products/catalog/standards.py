@@ -38,6 +38,7 @@ are not redistributed.
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import lru_cache
 from importlib import resources
@@ -345,6 +346,31 @@ def low_head(standard: str, size: str) -> FastenerHead:
             major_dia_in=INCH_MAJOR_DIA[size],
         )
     raise StandardsDataError(f"{standard!r} is not a low head cap screw standard")
+
+
+@dataclass(frozen=True)
+class SocketScrewLine:
+    """One hex-socket screw line, as the socket-screw family builder reads it.
+
+    A type of that family declares its own (a type module passes it to the
+    builder through ``make``), so adding a sibling type edits no table in
+    ``catalog/generate.py`` keyed by the new type's name (#54).
+    """
+
+    #: The standard the line's metric and inch sizes are built to.
+    metric_standard: str
+    inch_standard: str
+    #: The head style the drawing reads (``Head Type``).
+    head_style: str
+    #: The item name: the line's ``Item`` and ``Type``.
+    style_name: str
+    #: The accessor that knows which columns of the standard's table are the
+    #: head: :func:`socket_head`, :func:`flat_head`, :func:`button_head` or
+    #: :func:`low_head`.
+    head: Callable[[str, str], FastenerHead]
+    #: True when the nominal length is measured over the head (a countersunk
+    #: screw), so the line publishes no ``Length under Head``.
+    length_over_head: bool = False
 
 
 @dataclass(frozen=True)

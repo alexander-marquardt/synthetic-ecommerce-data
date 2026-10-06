@@ -338,8 +338,6 @@ pinned by a test.
 A new **breadth** category needs no figure code: add a row to
 `data/breadth_categories.yaml` with one of the six `shape:` values, give any new
 `Material`/`Finish` a colour and hatch (step 4), regenerate `golden-catalog/`,
-and restate `LINES`/`SKUS` in `tests/test_catalog_golden.py` by direct count.
-Those two constants (lines 75-76, `LINES = 5300` and `SKUS = 9700` today) pin
-the committed catalog, and a new row adds a line and at least one SKU, so that
-test stays red until they are restated. The README's counts of breadth
-categories move too.
+and commit it. No pinned count moves: the golden test's expected size
+(`tests/catalog_size.py`) reads one line and `breadth.sku_count(row)` SKUs
+from each row.

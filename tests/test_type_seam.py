@@ -12,6 +12,7 @@ from __future__ import annotations
 import dataclasses
 import json
 import random
+import subprocess
 import sys
 from pathlib import Path
 
@@ -108,10 +109,296 @@ def test_a_type_module_without_its_own_spec_is_refused(
         typespec.discover("planted_types")
 
 
+#: Every type module, discovered: a new or moved type is covered by the
+#: discovery and fresh-reader tests below without an entry in any test table.
+DISCOVERED = typespec.discover()
+
+
+@pytest.mark.parametrize("key", sorted(DISCOVERED))
+def test_a_type_module_is_its_types_only_declaration(key: str) -> None:
+    module = DISCOVERED[key].module
+    family = module.removeprefix(f"{typespec.TYPES_PACKAGE}.").split(".")
+    assert len(family) == 2 and family[1] == key, f"{module} is not <family>.{key}"
+    # Declared once: its module is the only declaration, not a second copy.
+    assert key not in generate.Generator._BUILDERS, f"{key} is still in Generator._BUILDERS"
+    assert key not in {row.key for row in breadth.load_rows()}, f"{key} is still a YAML row"
+
+
+#: Modules that used to register the type modules for every reader after them;
+#: a fresh reader that imports none of them must still see a migrated type.
+_REGISTERING_CALLERS = (
+    "synthetic_industrial_products.catalog.generate",
+    "synthetic_industrial_products.catalog.bundle",
+)
+
+_FRESH_READER = """
+import sys
+from synthetic_industrial_products.catalog.taxonomy import LEAVES, drawing_for
+from synthetic_industrial_products.catalog.vocab import VOCAB
+from synthetic_industrial_products.drawing import FIGURES
+key, callers = sys.argv[1], sys.argv[2:]
+drawing_for(key), FIGURES[key], LEAVES[key], VOCAB[key]
+print([name for name in callers if name in sys.modules])
+"""
+
+
+def _run(script: str, *args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, "-c", script, *args], capture_output=True, text=True, check=False
+    )
+
+
+@pytest.mark.parametrize("key", sorted(DISCOVERED))
+def test_a_fresh_reader_sees_a_migrated_type_without_registering_it(key: str) -> None:
+    """The tables register the type modules on their first read, so no caller must.
+
+    Run in a subprocess: in this process something has already read the tables.
+    The script imports no caller that used to register (the generator, the image
+    bundle; the contact-sheet script is not importable), and checks it did not.
+    """
+    result = _run(_FRESH_READER, key, *_REGISTERING_CALLERS)
+    assert result.returncode == 0, result.stderr[-2000:]
+    assert result.stdout.strip() == "[]", "the fresh reader imported a registering caller"
+
+
+#: Each way to read a table, as the FIRST read in a fresh process. A read
+#: that skips registration answers from the tables without the type modules.
+_READS = {
+    "__getitem__": "[LEAVES[k] for k in keys]",
+    "get": "[LEAVES.get(k) for k in keys]",
+    "__contains__": "[k in LEAVES for k in keys]",
+    "__iter__": "sorted(iter(LEAVES))",
+    "__len__": "len(LEAVES)",
+    "keys": "sorted(LEAVES.keys())",
+    "values": "sorted(map(repr, LEAVES.values()))",
+    "items": "sorted(map(repr, LEAVES.items()))",
+}
+
+_FIRST_READ = """
+import sys
+from synthetic_industrial_products.catalog import typespec
+from synthetic_industrial_products.catalog.taxonomy import LEAVES
+keys = sys.argv[2:]
+assert not typespec._REGISTRATION["done"], "importing the table registered already"
+first = eval(sys.argv[1])
+typespec.registered()
+assert first == eval(sys.argv[1]), "the first read answered before registering"
+"""
+
+
+@pytest.mark.parametrize("method", sorted(_READS))
+def test_every_read_of_a_table_registers_before_it_answers(method: str) -> None:
+    result = _run(_FIRST_READ, _READS[method], *sorted(DISCOVERED))
+    assert result.returncode == 0, f"{method}: {result.stderr[-1500:]}"
+
+
+def test_every_read_method_of_a_table_is_one_the_first_read_test_covers() -> None:
+    """A read method added to RegistryTable without a hook, or without a case above."""
+    overridden = {
+        name for name in vars(typespec.RegistryTable) if callable(getattr(dict, name, None))
+    }
+    assert overridden == set(_READS)
+
+
+def test_every_shared_type_table_registers_on_read() -> None:
+    from synthetic_industrial_products.catalog import taxonomy, vocab, voice
+    from synthetic_industrial_products.drawing.figures import FIGURES
+
+    tables = {
+        "LEAVES": taxonomy.LEAVES,
+        "DRAWING": taxonomy.DRAWING,
+        "VOCAB": vocab.VOCAB,
+        "STANDARDS_FAMILY": vocab.STANDARDS_FAMILY,
+        "USE_LINES": voice.USE_LINES,
+        "FIGURES": FIGURES,
+        "DECLARED_BLOCKS": typespec.DECLARED_BLOCKS,
+    }
+    plain = [
+        name for name, table in tables.items() if not isinstance(table, typespec.RegistryTable)
+    ]
+    assert not plain, f"tables a reader can read before registration: {plain}"
+
+
+_ROWS_FIRST = """
+import sys
+from synthetic_industrial_products.catalog import breadth, typespec
+assert not typespec._REGISTRATION["done"], "importing breadth registered already"
+missing = set(sys.argv[1:]) - {row.key for row in breadth.rows()}
+assert not missing, f"rows() missed the type modules' rows: {sorted(missing)}"
+"""
+
+
+def test_the_breadth_rows_include_the_type_modules_rows_on_a_first_read() -> None:
+    modules = [key for key, spec in DISCOVERED.items() if spec.breadth is not None]
+    assert modules, "no breadth type module to read"
+    result = _run(_ROWS_FIRST, *modules)
+    assert result.returncode == 0, result.stderr[-1500:]
+
+
+_YAML_ROWS_FIRST = """
+import sys
+from synthetic_industrial_products.catalog import typespec
+# No type module at all, so none imports breadth on registration's behalf.
+typespec.discover = lambda package=typespec.TYPES_PACKAGE: {}
+from synthetic_industrial_products.catalog.taxonomy import LEAVES
+assert "synthetic_industrial_products.catalog.breadth" not in sys.modules
+assert sys.argv[1] in LEAVES, "a YAML breadth row is missing from a fresh read"
+"""
+
+
+def test_registration_brings_in_the_yaml_rows_without_any_type_module() -> None:
+    result = _run(_YAML_ROWS_FIRST, breadth.load_rows()[0].key)
+    assert result.returncode == 0, result.stderr[-1500:]
+
+
+_READ_DURING_REGISTRATION = """
+import sys
+from synthetic_industrial_products.catalog import typespec
+from synthetic_industrial_products.catalog.taxonomy import LEAVES
+found = typespec.discover
+def discover(package=typespec.TYPES_PACKAGE):
+    # What a type module that reads a shared table at import (a sibling
+    # type's vocabulary, say) does while registration is importing it.
+    len(LEAVES)
+    return found(package)
+typespec.discover = discover
+LEAVES[sys.argv[1]]
+"""
+
+
+def test_a_table_read_while_registration_runs_is_refused_naming_the_reader() -> None:
+    """Mid-registration a table holds only the types registered so far.
+
+    Answering would hand the reader an answer that depends on import order
+    (a sibling type's vocabulary missing, a derived block instead of the
+    declared one), so the read is refused, naming the line that made it, and
+    registration is not started a second time.
+    """
+    result = _run(_READ_DURING_REGISTRATION, sorted(DISCOVERED)[0])
+    assert result.returncode != 0
+    assert "RegistrationReadError" in result.stderr, result.stderr[-1500:]
+    assert "while the type modules are being registered" in result.stderr
+    assert "read at <string>:9" in result.stderr, result.stderr[-1500:]
+    assert "RecursionError" not in result.stderr
+
+
+#: A sibling type module that reads a block at import, as discover imports it
+#: (the round-3 review of #54 got 6675 here during registration, 1234 after).
+_BLOCK_OF_DURING_REGISTRATION = """
+import dataclasses
+from synthetic_industrial_products.catalog import breadth, typespec
+row = dataclasses.replace(breadth.load_rows()[0], key="planted_rod", part_number_block=None)
+spec = typespec.TypeSpec("planted_rod", breadth=row, module="x.planted_rod", part_number_block=1234)
+seen = []
+def discover(package=typespec.TYPES_PACKAGE):
+    try:
+        seen.append(typespec.block_of("planted_rod"))
+    except Exception as refused:
+        seen.append(f"{type(refused).__name__}: {refused}")
+    return {"planted_rod": spec}
+typespec.discover = discover
+seen.append(typespec.block_of("planted_rod"))
+print(repr(seen))
+"""
+
+
+def test_block_of_read_during_registration_is_refused_not_answered_by_import_order() -> None:
+    assert typespec.part_number_block("planted_rod") != 1234
+    result = _run(_BLOCK_OF_DURING_REGISTRATION)
+    assert result.returncode == 0, result.stderr[-1500:]
+    during, after = eval(result.stdout)  # noqa: S307 - our own repr of two values
+    assert isinstance(during, str) and during.startswith("RegistrationReadError"), (
+        f"block_of answered {during!r} during registration"
+    )
+    assert after == 1234
+
+
+@pytest.mark.parametrize(
+    "key",
+    sorted(
+        key
+        for key, spec in DISCOVERED.items()
+        if spec.breadth is None and key not in SMALL.type_weights
+    ),
+)
+def test_a_type_modules_share_sizes_its_type(key: str) -> None:
+    """With no ``type_weights`` entry, the module's ``share`` is the type's weight.
+
+    Without that fallback the type builds only its must-stock lines, and every
+    other check still passes.
+    """
+    built = generate.generate(SMALL, types=[key]).lines
+    assert len(built) >= round(SMALL.lines * DISCOVERED[key].share)
+
+
+@pytest.mark.parametrize(
+    "key", sorted(key for key, spec in DISCOVERED.items() if spec.breadth is None)
+)
+def test_a_modelled_module_is_registered_into_every_table(key: str) -> None:
+    from synthetic_industrial_products.catalog import taxonomy, vocab, voice
+    from synthetic_industrial_products.drawing.figures import FIGURES
+
+    spec = DISCOVERED[key]
+    assert taxonomy.LEAVES[key] == (spec.category,)
+    assert taxonomy.DRAWING[key] == key
+    assert vocab.VOCAB[key] == spec.vocab
+    assert vocab.STANDARDS_FAMILY[key] == spec.standards_family
+    assert FIGURES[key] == (spec.figure, spec.extent)
+    assert voice.USE_LINES.get(key) == (spec.use_lines or None)
+
+
+# -- the refusals docs/adding-a-type.md promises ------------------------------
+
+
+def _modelled(**changes) -> typespec.TypeSpec:
+    """A complete modelled spec for a type no table holds, with ``changes``."""
+    base = dataclasses.replace(
+        DISCOVERED["screw_socket_head"], key="planted_widget", module="planted.planted_widget"
+    )
+    return dataclasses.replace(base, **changes)
+
+
+@pytest.mark.parametrize(
+    ("field", "unset"),
+    [
+        ("category", ()),
+        ("standards_family", ""),
+        ("vocab", ()),
+        ("figure", None),
+        ("extent", (0.0, 0.0)),
+        # Half-zero: one unset side draws every SKU flat, as silently as both.
+        ("extent", (2.75, 0.0)),
+        ("extent", (0.0, 2.75)),
+        ("make", None),
+        ("share", 0.0),
+    ],
+)
+def test_a_modelled_spec_missing_a_field_is_refused_naming_it(field: str, unset: object) -> None:
+    with pytest.raises(typespec.TypeModuleError, match=rf"planted_widget declares no {field}\b"):
+        typespec.register(_modelled(**{field: unset}))
+
+
+def test_a_breadth_spec_whose_row_has_another_key_is_refused() -> None:
+    row = breadth.row_for("shaft_collars")
+    spec = typespec.TypeSpec("planted_widget", breadth=row, module="planted.planted_widget")
+    with pytest.raises(
+        typespec.TypeModuleError, match=r"'planted_widget' with a breadth row for 'shaft_collars'"
+    ):
+        typespec.register(spec)
+
+
+def test_a_type_module_row_that_repeats_a_yaml_row_is_refused(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(breadth, "_ROWS", breadth.rows())
+    with pytest.raises(typespec.TypeCollisionError, match=r"'shaft_collars' is declared both"):
+        breadth.add_row(breadth.row_for("shaft_collars"))
+
+
 def test_every_type_is_built_once() -> None:
     keys = generate.all_type_keys()
     assert len(keys) == len(set(keys))
-    assert set(MIGRATED) <= set(keys)
+    assert set(DISCOVERED) <= set(keys)
     assert UNMIGRATED in keys
 
 
@@ -139,6 +426,123 @@ def test_a_declared_block_replaces_the_derived_one() -> None:
         "tap_spiral_point"
     )
     assert typespec.block_of("er_collets") != typespec.block_of("tap_spiral_point")
+
+
+def _yaml_declared_blocks() -> dict[str, int]:
+    text = (Path(breadth.__file__).parent.parent / "data" / "breadth_categories.yaml").read_text()
+    return {
+        raw["key"]: raw["part_number_block"]
+        for raw in yaml.safe_load(text)
+        if "part_number_block" in raw
+    }
+
+
+_BLOCK_OF_FIRST = """
+import sys
+from synthetic_industrial_products.catalog import typespec
+# No type module at all, so none imports breadth on block_of's behalf.
+typespec.discover = lambda package=typespec.TYPES_PACKAGE: {}
+assert "synthetic_industrial_products.catalog.breadth" not in sys.modules
+print(typespec.block_of(sys.argv[1]))
+"""
+
+
+@pytest.mark.parametrize("key", sorted(_yaml_declared_blocks()))
+def test_block_of_as_a_first_read_sees_a_yaml_declared_block(key: str) -> None:
+    """Not only when some type module happens to import ``breadth`` first."""
+    result = _run(_BLOCK_OF_FIRST, key)
+    assert result.returncode == 0, result.stderr[-1500:]
+    assert int(result.stdout) == _yaml_declared_blocks()[key]
+    assert int(result.stdout) != typespec.part_number_block(key)
+
+
+_MODULE_BLOCK = """
+import dataclasses, sys
+from synthetic_industrial_products.catalog import breadth, typespec
+row = dataclasses.replace(breadth.load_rows()[0], key="planted_rod", part_number_block=None)
+spec = typespec.TypeSpec("planted_rod", breadth=row, module="planted.planted_rod")
+if sys.argv[1] == "row":
+    spec = dataclasses.replace(spec, breadth=dataclasses.replace(row, part_number_block=1234))
+else:
+    spec = dataclasses.replace(spec, part_number_block=1234)
+typespec.discover = lambda package=typespec.TYPES_PACKAGE: {"planted_rod": spec}
+print(typespec.block_of("planted_rod"))
+"""
+
+
+@pytest.mark.parametrize("declared_on", ["row", "spec"])
+def test_a_breadth_modules_declared_block_is_its_block(declared_on: str) -> None:
+    """On its ``BreadthRow`` or on its ``TypeSpec``: both are the type's block."""
+    assert typespec.part_number_block("planted_rod") != 1234
+    result = _run(_MODULE_BLOCK, declared_on)
+    assert result.returncode == 0, result.stderr[-1500:]
+    assert result.stdout.strip() == "1234"
+
+
+@pytest.mark.parametrize(
+    ("start", "used", "free"),
+    [
+        (4321, {1000, 9999}, 4321),
+        (4321, {4321, 4322}, 4323),
+        (9998, {9998, 9999, 1000}, 1001),
+    ],
+    ids=["start-is-free", "skips-taken", "wraps-past-9999"],
+)
+def test_first_free_block_is_the_first_unused_block_at_or_after_start(
+    start: int, used: set[int], free: int
+) -> None:
+    assert typespec.first_free_block(start, used) == free
+
+
+def test_first_free_block_refuses_when_every_block_is_used() -> None:
+    with pytest.raises(typespec.TypeCollisionError, match=r"all 9000 part-number blocks"):
+        typespec.first_free_block(4321, range(1000, 10000))
+
+
+def _block_command(key: str, capsys: pytest.CaptureFixture[str]) -> str:
+    from synthetic_industrial_products.catalog import cli
+
+    assert cli.main(["block", key]) == 0
+    return capsys.readouterr().out.strip()
+
+
+def _blocks_in_use(*, besides: str) -> set[int]:
+    return {typespec.block_of(key) for key in generate.all_type_keys() if key != besides}
+
+
+def test_the_block_command_says_a_free_derived_block_is_free(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    key = "planted_widget"
+    assert typespec.part_number_block(key) not in _blocks_in_use(besides=key)
+    out = _block_command(key, capsys)
+    assert out == (
+        f"{key}: derived block {typespec.part_number_block(key):04d} is free; "
+        "leave part_number_block unset"
+    )
+
+
+def test_the_block_command_names_the_owner_and_a_really_free_block(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """A key that collides today: its derived block is ``ball_stock_precision``'s."""
+    key = "shim_stock_precision"
+    derived = typespec.part_number_block(key)
+    assert derived == typespec.block_of("ball_stock_precision")
+    used = _blocks_in_use(besides=key)
+    out = _block_command(key, capsys)
+    assert f"derived block {derived:04d} is taken by ball_stock_precision;" in out
+    told = int(out.split("declare part_number_block=")[1].split(",")[0])
+    assert told not in used, f"told to declare {told}, which a type already uses"
+    assert all(block in used for block in range(derived, told)), "not the FIRST free block"
+
+
+def test_the_block_command_reports_a_block_already_declared(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    declared = _yaml_declared_blocks()["er_collets"]
+    out = _block_command("er_collets", capsys)
+    assert out == f"er_collets: already declares part_number_block={declared:04d}"
 
 
 def test_every_types_skus_and_product_ids_carry_its_own_block() -> None:
@@ -179,10 +583,10 @@ def test_editing_one_yaml_row_leaves_every_other_type_byte_identical(
     before = generate.generate(SMALL)
     rows = tuple(
         dataclasses.replace(row, price_range=(40.0, 90.0)) if row.key == edited else row
-        for row in breadth.ROWS
+        for row in breadth.rows()
     )
-    assert rows != breadth.ROWS, f"no {edited} row to edit"
-    monkeypatch.setattr(breadth, "ROWS", rows)
+    assert rows != breadth.rows(), f"no {edited} row to edit"
+    monkeypatch.setattr(breadth, "_ROWS", rows)
     moved = _moved_by_changing(edited, before, generate.generate(SMALL))
     assert not moved, f"editing the {edited} row changed {len(moved)} other type(s): {moved[:8]}"
 

@@ -37,9 +37,6 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from synthetic_industrial_products.catalog import (
-    breadth,  # noqa: E402, F401  (registers its figures)
-)
 from synthetic_industrial_products.catalog.bundle import flat_facets, records  # noqa: E402
 from synthetic_industrial_products.drawing import draw_product  # noqa: E402
 
