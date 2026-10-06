@@ -301,7 +301,9 @@ def main(argv: list[str] | None = None) -> int:
         "sparsity_scale": config.sparsity_scale,
         "defect_scale": config.defect_scale,
     }
-    (out / "stats.json").write_text(json.dumps(round_floats(payload), indent=1) + "\n", encoding="utf-8")
+    (out / "stats.json").write_text(
+        json.dumps(round_floats(payload), indent=1) + "\n", encoding="utf-8"
+    )
     (out / "mapping.nested.json").write_text(
         json.dumps(emit.NESTED_MAPPING, indent=1) + "\n", encoding="utf-8"
     )
