@@ -607,6 +607,7 @@ class Generator:
 
     def _build_drill(self, type_key: str, category: tuple[str, ...]) -> LineDraft:
         rng = self.rng
+        rng.random()  # PLANT: one extra draw in the drill builder only
         brand = brands.pick_brand(rng, type_key, self._exhausted)
         material = rng.choice(("High Speed Steel", "Cobalt", "Solid Carbide"))
         point = rng.choice(("118 Degrees", "135 Degrees"))
