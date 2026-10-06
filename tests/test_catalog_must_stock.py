@@ -21,6 +21,10 @@ from synthetic_industrial_products.catalog.generate import generate
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 
+#: How many must-stock lines the default build adds: the examples its own
+#: random draws miss. Measured by direct count on the default config.
+MUST_STOCK_LINES = 5
+
 
 def _unstocked(catalog, entries) -> list[str]:
     records = [
@@ -80,11 +84,27 @@ def test_removing_an_entry_unstocks_its_example(monkeypatch):
 
 
 def test_the_pass_moves_nothing_the_main_generation_drew(full):
-    """Every line before the must-stock lines is byte-for-byte the unpinned generation's."""
+    """Each type's lines before its must-stock lines are byte-for-byte the unpinned generation's.
+
+    The pass runs per type, after that type's own lines, so it is checked
+    per type rather than as one prefix of the whole catalog.
+    """
     without = generate(replace(GeneratorConfig(), must_stock=False))
-    assert full.lines[: len(without.lines)] == without.lines
-    added = full.lines[len(without.lines) :]
-    assert len(added) == full.stats["must_stock_lines"] == 5
+
+    def by_type(lines):
+        out: dict[str, list] = {}
+        for line in lines:
+            out.setdefault(line.type_key, []).append(line)
+        return out
+
+    full_by_type, without_by_type = by_type(full.lines), by_type(without.lines)
+    assert set(full_by_type) == set(without_by_type)
+    added = []
+    for key, lines in full_by_type.items():
+        drawn = without_by_type[key]
+        assert lines[: len(drawn)] == drawn, key
+        added.extend(lines[len(drawn) :])
+    assert len(added) == full.stats["must_stock_lines"] == MUST_STOCK_LINES
     # The added lines obey the same 1-5 variant rule as every other line.
     assert all(1 <= len(line.children) <= 5 for line in added)
 

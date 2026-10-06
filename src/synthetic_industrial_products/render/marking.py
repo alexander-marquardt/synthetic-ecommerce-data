@@ -288,9 +288,7 @@ class Marking:
         """
         del limit
         text = " · ".join(value for _, value in self.rows)
-        return (
-            tuple(textwrap.wrap(text, width=columns, break_on_hyphens=False)) if text else ()
-        )
+        return tuple(textwrap.wrap(text, width=columns, break_on_hyphens=False)) if text else ()
 
 
 #: The marking for a drawing that is not of any one line: plain black line

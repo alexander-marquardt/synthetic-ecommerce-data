@@ -52,7 +52,7 @@ import yaml
 
 from ..drawing.breadth_shapes import BREADTH_SHAPES
 from ..drawing.figures import FIGURES
-from . import taxonomy
+from . import taxonomy, typespec
 from .model import Attribute, ProductLine, Sku, keyword_attribute, length_attribute
 from .naming import Segment, build_title
 from .vocab import STANDARDS_FAMILY, VOCAB, AttrSpec
@@ -107,6 +107,9 @@ class BreadthRow:
     #: otherwise misses the cited value some of the time. Keyed by attribute
     #: name; an attribute absent here is still drawn randomly, unchanged.
     featured_attrs: dict[str, str] = field(default_factory=dict)
+    #: Set only when the block derived from ``key`` is another type's too
+    #: (:func:`.typespec.check_collisions` names both); otherwise derived.
+    part_number_block: int | None = None
 
 
 def _row_from_dict(raw: dict[str, Any]) -> BreadthRow:
@@ -129,6 +132,7 @@ def _row_from_dict(raw: dict[str, Any]) -> BreadthRow:
         descriptor_attr=raw.get("descriptor_attr"),
         featured_sizes=tuple(raw.get("featured_sizes") or ()),
         featured_attrs=dict(raw.get("featured_attrs") or {}),
+        part_number_block=raw.get("part_number_block"),
     )
 
 
@@ -143,10 +147,14 @@ def load_rows() -> tuple[BreadthRow, ...]:
 
 #: Loaded once, at import. Removing every row from the YAML table -- the
 #: "easy removal" property ``tests/test_breadth.py`` checks -- empties this,
-#: :func:`register` then registers nothing, and
-#: ``Generator._generate_breadth`` (:mod:`.generate`) then has no rows to
-#: build lines from: no other code path constructs a breadth line.
+#: :func:`register` then registers nothing, and :func:`.generate.all_type_keys`
+#: then lists no breadth type: no other code path constructs a breadth line.
 ROWS: tuple[BreadthRow, ...] = load_rows()
+
+
+def row_for(key: str) -> BreadthRow:
+    """The row whose type is ``key``; read from :data:`ROWS` at call time."""
+    return next(row for row in ROWS if row.key == key)
 
 
 def register(rows: tuple[BreadthRow, ...] = ROWS) -> None:
@@ -166,6 +174,8 @@ def register(rows: tuple[BreadthRow, ...] = ROWS) -> None:
         specs.extend(AttrSpec(name=name, scope="line") for name in row.attributes)
         specs.append(AttrSpec(name=row.size_attr, scope="sku", kind="length"))
         VOCAB[row.key] = tuple(specs)
+        if row.part_number_block is not None:
+            typespec.DECLARED_BLOCKS[row.key] = row.part_number_block
 
 
 register()
@@ -234,9 +244,7 @@ _PLATING_FINISHES = frozenset({"Zinc Plated", "Zinc Yellow", "Hot Dip Galvanized
 _STAINLESS_FALLBACK_FINISH = "Plain"
 
 
-def _apply_finish_follows_material(
-    chosen: dict[str, str], row: BreadthRow, rng: Any
-) -> None:
+def _apply_finish_follows_material(chosen: dict[str, str], row: BreadthRow, rng: Any) -> None:
     """Redraw ``chosen["Finish"]`` if it is a plating and the row's material
     is stainless (alexander-marquardt/synthetic-industrial-products#37).
 
@@ -270,10 +278,10 @@ def _apply_finish_follows_material(
 def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
     """One breadth product line: 1-2 SKUs, from ``row`` alone.
 
-    ``gen`` is the row's OWN sub-generator (:class:`.generate._BreadthGenerator`),
-    seeded from ``(seed, "breadth", row.key)`` -- adding, removing or
-    reordering a row moves no other row's draws, the same guarantee the newer
-    types have (:mod:`.newtypes`).
+    ``gen`` is the row's OWN type generator (:class:`.generate.Generator`),
+    seeded from the seed and ``row.key`` -- adding, removing or reordering a
+    row moves no other row's draws, the guarantee every type has
+    (:mod:`.typespec`).
     """
     from . import brands  # noqa: PLC0415
     from .generate import LineDraft  # noqa: PLC0415
@@ -323,7 +331,7 @@ def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
     )
     draft.type_key = row.key
     gen._line_facts = {a.name: a.value for a in line_attrs}  # noqa: SLF001
-    product_id = f"{brands.BY_NAME[brand].code}-{series}-{index:04d}"
+    product_id = gen._product_id(brand, series, index)  # noqa: SLF001
 
     children: list[Sku] = []
     for size_value in sizes:
