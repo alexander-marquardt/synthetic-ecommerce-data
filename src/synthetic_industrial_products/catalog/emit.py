@@ -295,7 +295,7 @@ def flat_documents(
             "image_url": image_url(child.image_id, base_url),
             "image_detail_url": image_url(child.image_id, base_url),
             "attributes": _attribute_entries(merged),
-            "attribute_names": list({a.name for a in merged}),
+            "attribute_names": sorted({a.name for a in merged}),
             "facets": facets,
             "facets_num": numeric,
             "text": _searchable_text(line, child, merged),
