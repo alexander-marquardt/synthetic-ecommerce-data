@@ -402,3 +402,9 @@ def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
         image_id=children[0].image_id,
         drawing=taxonomy.drawing_for(row.key),
     )
+
+
+# ROWS is a plain tuple, so a reader of it cannot trigger registration the way
+# a read of a shared table does; it is completed here instead, before any
+# importer of this module can read it.
+typespec.ensure_registered()

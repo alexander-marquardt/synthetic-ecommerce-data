@@ -12,6 +12,7 @@ from __future__ import annotations
 import dataclasses
 import json
 import random
+import subprocess
 import sys
 from pathlib import Path
 
@@ -133,6 +134,42 @@ def test_a_migrated_type_is_discovered_from_its_own_module(key: str, family: str
     # Declared once: its module is the only declaration, not a second copy.
     assert key not in generate.Generator._BUILDERS, f"{key} is still in Generator._BUILDERS"
     assert key not in {row.key for row in breadth.load_rows()}, f"{key} is still a YAML row"
+
+
+#: Modules that used to register the type modules for every reader after them;
+#: a fresh reader that imports none of them must still see a migrated type.
+_REGISTERING_CALLERS = (
+    "synthetic_industrial_products.catalog.generate",
+    "synthetic_industrial_products.catalog.bundle",
+)
+
+_FRESH_READER = """
+import sys
+from synthetic_industrial_products.catalog.taxonomy import LEAVES, drawing_for
+from synthetic_industrial_products.catalog.vocab import VOCAB
+from synthetic_industrial_products.drawing import FIGURES
+key, callers = sys.argv[1], sys.argv[2:]
+drawing_for(key), FIGURES[key], LEAVES[key], VOCAB[key]
+print([name for name in callers if name in sys.modules])
+"""
+
+
+@pytest.mark.parametrize("key", sorted(MIGRATED))
+def test_a_fresh_reader_sees_a_migrated_type_without_registering_it(key: str) -> None:
+    """The tables register the type modules on their first read, so no caller must.
+
+    Run in a subprocess: in this process something has already read the tables.
+    The script imports no caller that used to register (the generator, the image
+    bundle; the contact-sheet script is not importable), and checks it did not.
+    """
+    result = subprocess.run(
+        [sys.executable, "-c", _FRESH_READER, key, *_REGISTERING_CALLERS],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr[-2000:]
+    assert result.stdout.strip() == "[]", "the fresh reader imported a registering caller"
 
 
 def test_every_type_is_built_once() -> None:

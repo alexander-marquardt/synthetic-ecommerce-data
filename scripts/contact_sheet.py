@@ -37,15 +37,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from synthetic_industrial_products.catalog import (  # noqa: E402
-    breadth,  # noqa: F401  (registers its figures)
-    typespec,
-)
 from synthetic_industrial_products.catalog.bundle import flat_facets, records  # noqa: E402
 from synthetic_industrial_products.drawing import draw_product  # noqa: E402
-
-# A type declared in its own module draws only once its figure is registered.
-typespec.registered()
 
 
 def _load(catalog: Path) -> list[dict]:
