@@ -694,7 +694,15 @@ class Generator:
             child.primary = keyword_attribute("Thread Size", designation)
             child.attrs = [
                 child.primary,
-                keyword_attribute("Pitch", f"{pitch:g}" if metric else str(pitch)),
+                # Two quantities, two headings, as real catalogs publish them: a
+                # metric tap's Pitch is the millimetres between threads, an inch
+                # tap's Threads per Inch is how many an inch holds. One heading
+                # over both put a bare 32 beside 0.5 mm.
+                (
+                    Attribute("Pitch", f"{pitch:g}", bare_unit="MMT")
+                    if metric
+                    else Attribute("Threads per Inch", str(pitch), bare_unit="TPI")
+                ),
                 self._length("Overall Length", oal_in, style),
                 self._length("Thread Length", oal_in * 0.45, style),
                 self._length("Shank Dia.", major_in * 0.9, style),

@@ -56,11 +56,13 @@ from __future__ import annotations
 
 import math
 import textwrap
+from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from pathlib import Path
 
 from matplotlib.patches import Circle, PathPatch, Polygon, Rectangle, Wedge
 
+from ..catalog.entry import published
 from . import canvas as cv
 from .attrs import MissingAttributeError, UnsupportedFeatureError, require_any
 from .fastener import dome_profile
@@ -1085,24 +1087,34 @@ def render_record(record: dict, path: str | Path, profile: Profile = CARD) -> Pa
     return render(drawing_for_record(record), path, profile)
 
 
-def build_line(line: dict, profile: Profile = CARD):
+def build_line(line: dict, facets_by_sku: Mapping[str, Mapping], profile: Profile = CARD):
     """Build the drawing of one product LINE: ``(figure, axes)``.
 
     ``line`` is the catalog's nested parent document -- it carries ``brand``
     and the line's own ``attributes``, which is everything the marking reads
-    and nothing a SKU varies.
+    and nothing a SKU varies. A nested entry carries no spelling (#42), so the
+    published values the card stamp prints are read from ``flat.jsonl``
+    ``facets``, joined on the line's first SKU: a line attribute is the same on
+    every SKU beneath it.
     """
-    record = {entry["name"]: entry["value"] for entry in line["attributes"]}
+    sku = line["variants"][0]["sku"]
+    entries = [
+        {"name": name, "value": value}
+        for name, value in published(line["attributes"], facets_by_sku[sku])
+    ]
+    record = {entry["name"]: entry["value"] for entry in entries}
     record["sku"] = line.get("product_id", "?")
     if "product_type" in line:
         record["product_type"] = line["product_type"]
-    mark = marking_for_line(line["brand"], line["attributes"])
+    mark = marking_for_line(line["brand"], entries)
     return build(drawing_for_record(record), profile, mark)
 
 
-def render_line(line: dict, path: str | Path, profile: Profile = CARD) -> Path:
+def render_line(
+    line: dict, facets_by_sku: Mapping[str, Mapping], path: str | Path, profile: Profile = CARD
+) -> Path:
     """Write one product line's own drawing."""
-    fig, _ = build_line(line, profile)
+    fig, _ = build_line(line, facets_by_sku, profile)
     return cv.save(fig, path, profile)
 
 

@@ -15,7 +15,7 @@ on how the work was split.
 from __future__ import annotations
 
 import os
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from concurrent.futures import ProcessPoolExecutor
 from hashlib import blake2b
 from pathlib import Path
@@ -31,9 +31,13 @@ __all__ = ["DEFAULT_WORKERS", "Drawn", "digests", "draw_line", "render_lines"]
 DEFAULT_WORKERS = min(8, os.cpu_count() or 1)
 
 
-def draw_line(line: dict, profile: Profile) -> bytes:
-    """One product line's drawing at one profile, as the PNG bytes it publishes."""
-    fig, _ = generic.build_line(line, profile)
+def draw_line(line: dict, facets_by_sku: Mapping[str, Mapping], profile: Profile) -> bytes:
+    """One product line's drawing at one profile, as the PNG bytes it publishes.
+
+    ``facets_by_sku`` is ``flat.jsonl``'s ``{sku: facets}``: where the published
+    spelling the drawing prints lives (see :func:`.generic.build_line`).
+    """
+    fig, _ = generic.build_line(line, facets_by_sku, profile)
     return cv.to_bytes(fig, profile)
 
 
@@ -59,9 +63,9 @@ class Drawn(tuple):
         return self[3]
 
 
-def _job(args: tuple[dict, str, str | None]) -> Drawn:
-    line, profile_name, out_root = args
-    data = draw_line(line, PROFILES[profile_name])
+def _job(args: tuple[dict, Mapping[str, Mapping], str, str | None]) -> Drawn:
+    line, facets_by_sku, profile_name, out_root = args
+    data = draw_line(line, facets_by_sku, PROFILES[profile_name])
     if out_root is not None:
         path = Path(out_root) / line["image_id"] / f"{profile_name}.png"
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -84,6 +88,7 @@ def _job(args: tuple[dict, str, str | None]) -> Drawn:
 
 def render_lines(
     lines: Sequence[dict],
+    facets_by_sku: Mapping[str, Mapping],
     out_root: str | Path | None,
     profiles: Sequence[str] = tuple(PROFILES),
     workers: int = DEFAULT_WORKERS,
@@ -95,7 +100,12 @@ def render_lines(
     would write, because both come from the same buffer.
     """
     root = None if out_root is None else str(out_root)
-    jobs = [(line, name, root) for name in profiles for line in lines]
+    # Each job carries only its own line's SKUs, so a worker is not shipped
+    # the whole catalog's facets.
+    own = [{v["sku"]: facets_by_sku[v["sku"]] for v in line["variants"]} for line in lines]
+    jobs = [
+        (line, mine, name, root) for name in profiles for line, mine in zip(lines, own, strict=True)
+    ]
     out: dict[str, dict[str, Drawn]] = {name: {} for name in profiles}
     if workers > 1 and len(jobs) > workers:
         with ProcessPoolExecutor(max_workers=workers) as pool:
@@ -108,9 +118,12 @@ def render_lines(
     return out
 
 
-def digests(lines: Sequence[dict], profile: str, workers: int = DEFAULT_WORKERS) -> dict[str, str]:
+def digests(
+    lines: Sequence[dict],
+    facets_by_sku: Mapping[str, Mapping],
+    profile: str,
+    workers: int = DEFAULT_WORKERS,
+) -> dict[str, str]:
     """``{image_id: digest}`` for one profile, rendering nothing to disk."""
-    return {
-        image_id: drawn.digest
-        for image_id, drawn in render_lines(lines, None, (profile,), workers)[profile].items()
-    }
+    drawn = render_lines(lines, facets_by_sku, None, (profile,), workers)[profile]
+    return {image_id: one.digest for image_id, one in drawn.items()}

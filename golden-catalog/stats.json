@@ -226,7 +226,8 @@
    "Thread Direction",
    "Thread Length",
    "Thread Size",
-   "Thread Type"
+   "Thread Type",
+   "Threads per Inch"
   ],
   "screw_socket_head": [
    "Dia./Thread Size",
