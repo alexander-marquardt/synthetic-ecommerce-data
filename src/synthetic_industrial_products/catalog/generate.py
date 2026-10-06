@@ -441,6 +441,7 @@ class Generator:
         cfg = self.config
         rng = self.rng
         ball = type_key == "end_mill_ball"
+        rng.random()  # PLANT: shift the end-mill stream, as a regeneration would
         # The line's tool material: an ATTRIBUTE, never a path level
         # (elastic/prism-industrial-products#77).
         material = rng.choice(taxonomy.END_MILL_MATERIALS[type_key])
