@@ -15,7 +15,13 @@ Two choices the tables leave open:
   for ISO 4026 and 4028, C max (flat) and P max (dog) for B18.3. A dog point's
   diameter is P, not the cup and flat point's C.
 * B18.3 fixes no length range per size, so the inch ranges are FastenersWB's
-  (the file the JSON cites), and an inch line's provenance says so.
+  (the file the JSON cites), and an inch line's provenance says so. That
+  list has no 5/16", 5/8" or 7/8" length and starts 1/4" screws at 3/8"; the
+  gap is the source's, recorded in the JSON, and is not filled in here.
+
+The sizes each table offers are declared as ``SIZES`` beside the data file,
+and ``line_standard`` reads a record's standard back from its point and
+thread, so the coverage sweep can hold every declared size to a document.
 
 Materials and finishes are the three a distributor stocks set screws in. The
 price uses the shared path for now; the type adopts the measured price model
@@ -26,6 +32,7 @@ from __future__ import annotations
 
 import json
 import math
+from collections.abc import Mapping
 from fractions import Fraction
 from functools import cache
 from importlib import resources
@@ -139,6 +146,28 @@ POINTS = {
     "Cone Point": ("ISO 4027", "ASME B18.3.5B"),
     "Dog Point": ("ISO 4028", "ASME B18.3.5C"),
 }
+#: The sizes each table offers, stated apart from the data file: the coverage
+#: sweep holds every one to reaching a document, so a row dropped from the
+#: file reds the sweep instead of quietly shrinking what it checks.
+METRIC_SIZES = (
+    "M1.6", "M2", "M2.5", "M3", "M4", "M5", "M6", "M8", "M10", "M12", "M16", "M20", "M24",
+)  # fmt: skip
+INCH_SIZES = (
+    "#0", "#1", "#2", "#3", "#4", "#5", "#6", "#8", "#10",
+    "1/4", "5/16", "3/8", "7/16", "1/2", "5/8", "3/4", "7/8", "1",
+)  # fmt: skip
+SIZES = {
+    **{metric: METRIC_SIZES for metric, _ in POINTS.values()},
+    **{inch: INCH_SIZES for _, inch in POINTS.values()},
+}
+
+
+def line_standard(record: Mapping[str, str]) -> str:
+    """The standard a published record was built to: its point's, in its thread's system."""
+    metric = record["Dia./Thread Size"].startswith("M")
+    return POINTS[record["Point Type"]][0 if metric else 1]
+
+
 #: The points a SKU publishes ``Point Dia.`` for.
 POINT_DIA_POINTS = ("Flat Point", "Dog Point")
 #: Material -> (finishes it is sold in, hardness). Alloy steel set screws are
@@ -312,6 +341,8 @@ SPEC = TypeSpec(
     extent=EXTENT,
     make=_make,
     share=0.10,
+    sizes=SIZES,
+    line_standard=line_standard,
     use_lines=(
         "Driven with a hex key.",
         "Holds a collar, pulley or gear on its shaft from inside a tapped hole.",

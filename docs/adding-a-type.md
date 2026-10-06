@@ -100,6 +100,15 @@ with `StandardsDataError: no extraction for '<standard>'`. A module may
 instead carry the table itself, as the lock nut does (see
 [Sources](#sources-and-provenance)).
 
+A threaded type whose standard has no extraction declares the sizes that
+standard offers in its `SPEC`, as `sizes={standard: (size, ...)}`, stated
+apart from its table. The thread-size sweep in `tests/test_catalog_coverage.py`
+holds every declared size to reaching a document, and it fails, rather than
+skips, a standard that has neither an extraction nor a declaration. When the
+type's `dimension_provenance` is a sentence rather than a bare standard name,
+it also declares `line_standard`, which reads a record's standard back from
+its published attributes. `set_screws_hex_socket` does both.
+
 ## The steps
 
 ### A new type
