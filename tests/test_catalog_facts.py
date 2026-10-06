@@ -17,6 +17,7 @@ from pathlib import Path
 
 import pytest
 
+import type_gates
 from published import published_attributes
 from synthetic_industrial_products.catalog import emit
 from synthetic_industrial_products.catalog.config import GeneratorConfig
@@ -295,6 +296,17 @@ def test_a_nut_claims_only_the_standard_its_dimensions_are(docs):
     is an invented fact -- the review of 7dac659 found 29 and 53 of them."""
     wrong, checked = wrong_nut_standards(docs)
     assert wrong == [], wrong[:10]
+    assert checked > 200
+
+
+def test_a_nut_says_which_table_each_dimension_came_from(docs):
+    """A nut claiming ISO 4032 must not say no standard fixes its values, which
+    every hex nut said until the review of PR #60."""
+    nuts = [doc for doc in docs if doc["product_type"] == "nut_hex"]
+    problems, checked = type_gates.provenance_problems(
+        nuts, NUT_DIMENSIONS, ("Width Across Flats", "Height")
+    )
+    assert problems == [], problems[:10]
     assert checked > 200
 
 

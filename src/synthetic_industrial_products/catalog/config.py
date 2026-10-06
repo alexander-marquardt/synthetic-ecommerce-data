@@ -232,15 +232,25 @@ class GeneratorConfig:
 HUNDRED_K_LINES = 39000
 
 
+def small() -> GeneratorConfig:
+    """A new small configuration, sharing no dict with any other.
+
+    The config is frozen but its dicts are not, so a builder that writes into
+    ``type_weights`` changes every later build made from the same object. A
+    test that compares two builds makes each from its own ``small()``.
+    """
+    return GeneratorConfig(
+        lines=160,
+        # 30 products of each newer type: 160 * 0.1875.
+        new_type_share={
+            "nut_hex": 0.1875,
+            "bearing_radial_ball": 0.1875,
+            "wheel_depressed_center": 0.1875,
+            "hex_key": 0.1875,
+            "kit_assortment": 0.1,
+        },
+    )
+
+
 #: A small configuration for tests and for a quick look at the output shape.
-SMALL = GeneratorConfig(
-    lines=160,
-    # 30 products of each newer type: 160 * 0.1875.
-    new_type_share={
-        "nut_hex": 0.1875,
-        "bearing_radial_ball": 0.1875,
-        "wheel_depressed_center": 0.1875,
-        "hex_key": 0.1875,
-        "kit_assortment": 0.1,
-    },
-)
+SMALL = small()
