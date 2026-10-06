@@ -619,13 +619,12 @@ PINNED_SHORTFALLS: dict[str, str] = {
         "(widen the bore range: #64)"
     ),
     "price brand spread, same spec (median max/min): wheel_depressed_center": (
-        "above band at the noise the census p90/p10 needs: the wheel tiers alone put one "
-        "spec's brands 1.13x apart, in band, with the value labels standard on wheels "
-        "(brands.TIER_EXCEPTIONS); but catalog diameters span 2.25x, which the key term "
-        "spreads to 2.6x of the census's 10x, and the group noise that makes up the rest is "
-        "drawn per brand, so the twelve brands that make every shared wheel spec land 7.6x "
-        "apart. A noise one spec shares across brands (SIZE_NOISE, as on taps) brings the "
-        "spread to 2.0 but inverts the few diameters (larger costs more 0.68 against 0.81)"
+        "above band: catalog diameters span 2.25x, which the key term spreads to 2.6x of the "
+        "census's 10x, and the group noise that makes up the rest is drawn independently per "
+        "brand for each of the 12 brands that make every shared wheel spec, so one spec's "
+        "brands land 6.8x apart. A noise one spec shares across brands (SIZE_NOISE, as on "
+        "taps) brings the spread to 2.0 but inverts the few diameters (larger costs more 0.68 "
+        "against 0.81)"
     ),
 }
 
@@ -635,7 +634,7 @@ PINNED_SHORTFALLS: dict[str, str] = {
 #: than this by more than :data:`PIN_TOLERANCE`.
 PINNED_FIGURES: dict[str, float] = {
     "price p90/p10: bearing_radial_ball": 4.547,
-    "price brand spread, same spec (median max/min): wheel_depressed_center": 7.573,
+    "price brand spread, same spec (median max/min): wheel_depressed_center": 6.753,
 }
 
 #: How far past its recorded figure a pinned row may move, as a ratio. The
@@ -695,7 +694,7 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
             size_sigma=0.5,
         ),
         "washer_flat": _model("washer_flat", 5.158, 0.375, 0.537, 0.762),
-        "wheel_depressed_center": _model("wheel_depressed_center", 6.639, 4.5, 0.767, 0.314),
+        "wheel_depressed_center": _model("wheel_depressed_center", 7.322, 4.5, 0.694, 0.314),
         # @fit-end
         # No census prices: the ball-pein hammer's archived pages are script
         # shells. Its model keeps the median the uniform multiplier gave
