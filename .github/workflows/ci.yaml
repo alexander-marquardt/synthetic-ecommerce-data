@@ -20,6 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # tests/test_merge_pr.py builds a throwaway origin from HEAD, and a
+          # fetch from a shallow checkout would make that origin shallow too.
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
@@ -28,13 +32,37 @@ jobs:
       # would mean reformatting them inside a change about published images,
       # so it is left for its own commit rather than quietly dropped -- the
       # gap is real and this comment is where it is recorded.
+      # --locked everywhere: a uv.lock that no longer matches pyproject.toml
+      # is refused, not silently re-locked for this run only.
       - name: Lint
-        run: uv run ruff check .
+        run: uv run --locked ruff check .
       # The golden comparison lives in here: tests/test_catalog_golden.py
       # rebuilds the catalog and compares every committed file by sha256, so a
       # generator change landed without its regeneration is red.
       - name: Tests
-        run: uv run pytest
+        run: uv run --locked pytest
+
+  main-merged-tree:
+    # This repository has no branch protection (the plan answers 403), so a
+    # pull request can merge on a green computed against an older main, and
+    # two type PRs that merge without a textual conflict can still leave the
+    # committed catalog's totals or the field-weights YAML wrong.
+    # scripts/merge_pr.sh runs these checks on the merged tree BEFORE merging;
+    # this job runs the same list on main after every push, on its own so that
+    # a merge that bypassed the script is red within minutes, not after the
+    # whole suite.
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Drift, golden and seam tests on main (scripts/merge_pr.sh --print-checks)
+        run: |
+          mapfile -t checks < <(scripts/merge_pr.sh --print-checks)
+          [ "${#checks[@]}" -gt 0 ]
+          uv run --locked pytest -q "${checks[@]}"
 
   commit-messages:
     # The commit-msg hook's rule, enforced where a clone that never ran

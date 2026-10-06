@@ -1,0 +1,547 @@
+"""scripts/merge_pr.sh merges only a tree that is green after main is merged in (#54).
+
+Each case builds a throwaway origin from this checkout's HEAD, pushes a PR
+branch to it, and runs the script from a clone of that origin. Two stand-ins
+go first on ``PATH``:
+
+* ``gh`` plays GitHub. It answers ``pr view``, reports the CI check runs of a
+  commit as ``FAKE_GH_CI`` says, and records a ``pr merge`` only when its
+  ``--match-head-commit`` is still the branch head, as GitHub does.
+* ``uv`` runs the real one, and while the build runs it can move ``main`` or
+  the PR head on the origin (``FAKE_UV_MOVE``), write a file the build does
+  not (``FAKE_UV_STRAY``), or skip the build (``FAKE_UV_SKIP_BUILD``). That
+  is how a case makes something change mid-run.
+
+The script's own checks are narrowed to one test (``MERGE_PR_CHECKS``): what is
+under test is the script's order of operations, not the suite.
+"""
+
+from __future__ import annotations
+
+import os
+import shutil
+import subprocess
+from pathlib import Path
+
+import pytest
+import yaml
+
+from synthetic_industrial_products.catalog import cli
+
+REPO = Path(__file__).resolve().parent.parent
+SCRIPT = REPO / "scripts" / "merge_pr.sh"
+
+#: Moves ``refs/heads/$1`` on the origin by one empty commit: another PR
+#: landing on main, or a builder pushing to the PR branch.
+_MOVE = r"""
+move() {
+  local new
+  new=$(git -C "$FAKE_ORIGIN" commit-tree "$1^{tree}" -p "$1" -m "$1 moves on")
+  git -C "$FAKE_ORIGIN" update-ref "refs/heads/$1" "$new"
+}
+"""
+
+_FAKE_GH = (
+    "#!/usr/bin/env bash\n"
+    + _MOVE
+    + r"""
+case "$1 $2" in
+  "pr view")
+    printf 'OPEN\tfalse\tpr-branch\t%s\tmain\n' "$FAKE_GH_HEAD"
+    if [ -n "${FAKE_GH_MOVE_ON_VIEW:-}" ]; then move "$FAKE_GH_MOVE_ON_VIEW"; fi
+    ;;
+  "api "*)
+    # repos/<slug>/commits/<sha>/check-runs, answered as the --jq would.
+    sha=${2#*/commits/}
+    sha=${sha%%/*}
+    echo "$sha" >>"$FAKE_GH_CI_LOG"
+    mode=${FAKE_GH_CI:-green}
+    if [ "$mode" = head-only ]; then
+      [ "$sha" = "$FAKE_GH_HEAD" ] || exit 0
+      mode=green
+    fi
+    case "$mode" in
+      green) printf 'tests\tcompleted\tsuccess\n' ;;
+      red) printf 'tests\tcompleted\tfailure\n' ;;
+      skipped) printf 'tests\tcompleted\tskipped\n' ;;
+      pending) printf 'tests\tin_progress\t\n' ;;
+      missing) ;;
+    esac
+    printf 'commit-messages\tcompleted\tsuccess\n'
+    printf 'main-merged-tree\tcompleted\tskipped\n'
+    ;;
+  "pr merge")
+    if [ -n "${FAKE_GH_REFUSE_FIRST_MERGE:-}" ] && [ ! -e "$FAKE_GH_LOG.refused" ]; then
+      touch "$FAKE_GH_LOG.refused"
+      if [ -n "${FAKE_GH_MOVE_ON_REFUSAL:-}" ]; then move "$FAKE_GH_MOVE_ON_REFUSAL"; fi
+      echo "fake gh: not mergeable yet" >&2
+      exit 1
+    fi
+    want="" prev=""
+    for arg in "$@"; do
+      if [ "$prev" = --match-head-commit ]; then want=$arg; fi
+      prev=$arg
+    done
+    if [ "$want" != "$(git -C "$FAKE_ORIGIN" rev-parse refs/heads/pr-branch)" ]; then
+      echo "fake gh: the head of pr-branch is not $want" >&2
+      exit 1
+    fi
+    echo "$*" >>"$FAKE_GH_LOG"
+    ;;
+  *) echo "fake gh: unexpected $*" >&2; exit 2 ;;
+esac
+"""
+)
+
+_FAKE_UV = (
+    "#!/usr/bin/env bash\n"
+    + _MOVE
+    + r"""
+if [[ " $* " == *" build "* ]]; then
+  if [ -n "${FAKE_UV_MOVE:-}" ] && [ ! -e "$FAKE_GH_LOG.moved" ]; then
+    touch "$FAKE_GH_LOG.moved"
+    move "$FAKE_UV_MOVE"
+  fi
+  if [ -n "${FAKE_UV_STRAY:-}" ]; then
+    prev=""
+    for arg in "$@"; do
+      if [ "$prev" = --directory ]; then echo stray >"$arg/$FAKE_UV_STRAY"; fi
+      prev=$arg
+    done
+  fi
+  if [ -n "${FAKE_UV_SKIP_BUILD:-}" ]; then exit 0; fi
+fi
+exec "$REAL_UV" "$@"
+"""
+)
+
+pytestmark = pytest.mark.skipif(shutil.which("uv") is None, reason="the script runs uv")
+
+
+_IDENTITY = {
+    "GIT_AUTHOR_NAME": "t",
+    "GIT_AUTHOR_EMAIL": "t@example.invalid",
+    "GIT_COMMITTER_NAME": "t",
+    "GIT_COMMITTER_EMAIL": "t@example.invalid",
+}
+
+_STATS = "golden-catalog/stats.json"
+
+
+def _git(cwd: Path, *args: str) -> str:
+    return subprocess.run(
+        ["git", "-C", str(cwd), *args],
+        check=True,
+        capture_output=True,
+        text=True,
+        env={**os.environ, **_IDENTITY},
+    ).stdout.strip()
+
+
+@pytest.fixture
+def world(tmp_path: Path) -> dict:
+    env = {**os.environ, **_IDENTITY}
+    origin = tmp_path / "origin.git"
+    subprocess.run(["git", "init", "-q", "--bare", str(origin)], check=True)
+    # This checkout's HEAD as the origin's main; CI checks out full history so
+    # the fetch never starts from a shallow repository.
+    _git(origin, "fetch", "-q", str(REPO), "HEAD:refs/heads/main")
+    _git(origin, "symbolic-ref", "HEAD", "refs/heads/main")
+    checkout = tmp_path / "checkout"
+    subprocess.run(["git", "clone", "-q", str(origin), str(checkout)], check=True)
+    # The script under test is this tree's, not the HEAD commit's.
+    shutil.copy2(SCRIPT, checkout / "scripts" / "merge_pr.sh")
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    for name, text in (("gh", _FAKE_GH), ("uv", _FAKE_UV)):
+        (bin_dir / name).write_text(text)
+        (bin_dir / name).chmod(0o755)
+    env.update(
+        REAL_UV=str(shutil.which("uv")),
+        PATH=f"{bin_dir}{os.pathsep}{env['PATH']}",
+        FAKE_ORIGIN=str(origin),
+        FAKE_GH_LOG=str(tmp_path / "gh.log"),
+        FAKE_GH_CI_LOG=str(tmp_path / "ci.log"),
+        TMPDIR=str(tmp_path),
+        # Every wait is one look: a case decides what CI says up front.
+        MERGE_PR_CI_TIMEOUT="0",
+        MERGE_PR_CI_POLL="0",
+        MERGE_PR_RETRY_SLEEP="0",
+    )
+    return {
+        "origin": origin,
+        "checkout": checkout,
+        "env": env,
+        "log": tmp_path / "gh.log",
+        "ci_log": tmp_path / "ci.log",
+    }
+
+
+def _commit(checkout: Path, plant: dict[str, str], message: str) -> None:
+    for path, text in plant.items():
+        (checkout / path).write_text(text)
+    _git(checkout, "add", "--", *plant)
+    _git(checkout, "commit", "-q", "-m", message)
+
+
+def _open_pr(
+    world: dict, plant: dict[str, str], on_main: dict[str, str] | None = None, main_moves=True
+) -> str:
+    """A PR branch off main with ``plant``; then, unless told not to, a later
+    commit on main (``on_main``, or a line added to the README)."""
+    checkout = world["checkout"]
+    _git(checkout, "switch", "-q", "-c", "pr-branch")
+    _commit(checkout, plant, "planted PR change")
+    _git(checkout, "push", "-q", "origin", "pr-branch")
+    head = _git(checkout, "rev-parse", "HEAD")
+    _git(checkout, "switch", "-q", "main")
+    if main_moves:
+        later = on_main or {"README.md": (checkout / "README.md").read_text() + "\nlater\n"}
+        _commit(checkout, later, "main moves on after the PR's CI run")
+        _git(checkout, "push", "-q", "origin", "main")
+    return head
+
+
+def _run(
+    world: dict, head: str, checks: str, *flags: str, **env: str
+) -> subprocess.CompletedProcess:
+    env = {**world["env"], "FAKE_GH_HEAD": head, "MERGE_PR_CHECKS": checks, **env}
+    return subprocess.run(
+        [str(world["checkout"] / "scripts" / "merge_pr.sh"), *flags, "54"],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+def _branch(world: dict, name: str = "pr-branch") -> str:
+    return _git(world["origin"], "rev-parse", name)
+
+
+def _merged(world: dict) -> bool:
+    return world["log"].exists()
+
+
+def _ci_reads(world: dict) -> list[str]:
+    return world["ci_log"].read_text().split() if world["ci_log"].exists() else []
+
+
+_GREEN = {"tests/test_planted_green.py": "def test_ok():\n    pass\n"}
+_GREEN_CHECK = "tests/test_planted_green.py"
+
+
+# -- the merge it exists for -------------------------------------------------
+
+
+def test_a_stale_golden_is_rebuilt_on_the_merged_tree_pushed_and_merged(world: dict) -> None:
+    stats = world["checkout"] / _STATS
+    stale = stats.read_text().replace('"lines": ', '"lines": 1', 1)
+    head = _open_pr(world, {_STATS: stale})
+    result = _run(world, head, "tests/test_catalog_golden.py")
+    assert result.returncode == 0, result.stdout + result.stderr
+    pushed = _branch(world)
+    assert pushed != head, "the merged and rebuilt tree was not pushed"
+    assert _git(world["origin"], "merge-base", "--is-ancestor", "main", pushed) == ""
+    assert _git(world["origin"], "show", f"{pushed}:{_STATS}") == _git(
+        world["origin"], "show", f"main:{_STATS}"
+    )
+    merged = world["log"].read_text().split()
+    assert merged[:3] == ["pr", "merge", "54"]
+    assert merged[-3:] == ["--squash", "--match-head-commit", pushed]
+    # The CI that gates the merge is the pushed tree's, not the stale head's.
+    assert _ci_reads(world) == [pushed]
+
+
+def test_a_red_merged_tree_is_neither_pushed_nor_merged(world: dict) -> None:
+    plant = {"tests/test_planted_red.py": "def test_planted():\n    assert False\n"}
+    head = _open_pr(world, plant)
+    result = _run(world, head, "tests/test_planted_red.py")
+    assert result.returncode != 0
+    assert "red on the merged tree; NOT pushed, NOT merged" in result.stderr
+    assert _branch(world) == head
+    assert not _merged(world)
+
+
+def test_a_dry_run_pushes_and_merges_nothing(world: dict) -> None:
+    stats = world["checkout"] / _STATS
+    head = _open_pr(world, {_STATS: stats.read_text() + " "})
+    result = _run(world, head, "tests/test_catalog_golden.py", "--dry-run")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "dry run: would push" in result.stdout
+    assert _branch(world) == head
+    assert not _merged(world)
+
+
+def test_a_merge_github_refuses_once_is_retried(world: dict) -> None:
+    """GitHub refuses a merge until it has recomputed mergeability after a push."""
+    head = _open_pr(world, _GREEN)
+    result = _run(world, head, _GREEN_CHECK, FAKE_GH_REFUSE_FIRST_MERGE="1")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert _merged(world)
+
+
+# -- a check run that is not a green run ------------------------------------
+
+
+def test_a_check_run_in_which_no_test_passed_is_not_green(world: dict) -> None:
+    """Pytest exits 0 when every test is skipped; that run proved nothing."""
+    plant = {
+        "tests/test_planted_skipped.py": (
+            "import pytest\npytestmark = pytest.mark.skip('flaky')\n"
+            "def test_planted():\n    assert False\n"
+        )
+    }
+    head = _open_pr(world, plant)
+    result = _run(world, head, "tests/test_planted_skipped.py")
+    assert result.returncode != 0
+    assert "no test passed" in result.stderr, result.stdout[-800:] + result.stderr[-800:]
+    assert _branch(world) == head
+    assert not _merged(world)
+
+
+# -- the PR's own CI, on the exact tree that merges --------------------------
+
+
+@pytest.mark.parametrize(
+    "ci, refusal",
+    [
+        # A test outside the script's checks is red in the PR's own CI.
+        ("red", "check tests on {sha} is failure"),
+        ("skipped", "check tests on {sha} was skipped"),
+        ("missing", "missing: tests"),
+        ("pending", "still running: tests"),
+        # CI ran on the PR head, never on the merge the script pushed.
+        ("head-only", "missing: tests commit-messages"),
+    ],
+    ids=["red", "skipped", "missing", "pending", "head-only"],
+)
+def test_a_merge_waits_for_every_check_on_the_pushed_tree(
+    world: dict, ci: str, refusal: str
+) -> None:
+    head = _open_pr(world, _GREEN)
+    result = _run(world, head, _GREEN_CHECK, FAKE_GH_CI=ci)
+    pushed = _branch(world)
+    assert pushed != head
+    assert result.returncode != 0
+    assert refusal.format(sha=pushed) in result.stderr, result.stderr[-800:]
+    assert "NOT merged" in result.stderr
+    assert _ci_reads(world) == [pushed]
+    assert not _merged(world)
+
+
+def test_with_nothing_to_push_the_heads_own_ci_gates_the_merge(world: dict) -> None:
+    head = _open_pr(world, _GREEN, main_moves=False)
+    result = _run(world, head, _GREEN_CHECK, FAKE_GH_CI="red")
+    assert result.returncode != 0
+    assert f"check tests on {head} is failure" in result.stderr, result.stderr[-800:]
+    assert not _merged(world)
+
+
+# -- main or the head moving mid-run -----------------------------------------
+
+
+def test_main_that_moves_during_the_checks_is_not_merged_onto(world: dict) -> None:
+    head = _open_pr(world, _GREEN)
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_MOVE="main")
+    assert result.returncode != 0
+    assert "main moved to" in result.stderr, result.stderr[-800:]
+    assert not _merged(world)
+
+
+def test_main_that_moves_between_merge_attempts_is_not_merged_onto(world: dict) -> None:
+    """The first merge is refused (mergeability) and meanwhile another PR lands."""
+    head = _open_pr(world, _GREEN)
+    result = _run(
+        world,
+        head,
+        _GREEN_CHECK,
+        FAKE_GH_REFUSE_FIRST_MERGE="1",
+        FAKE_GH_MOVE_ON_REFUSAL="main",
+    )
+    assert result.returncode != 0
+    assert "main moved to" in result.stderr, result.stderr[-800:]
+    assert not _merged(world), "merged after main moved past the base the checks ran on"
+
+
+def test_a_head_that_moves_while_cloning_is_refused(world: dict) -> None:
+    head = _open_pr(world, _GREEN)
+    result = _run(world, head, _GREEN_CHECK, FAKE_GH_MOVE_ON_VIEW="pr-branch")
+    assert result.returncode != 0
+    assert "head moved while cloning" in result.stderr, result.stderr[-800:]
+    assert not _merged(world)
+
+
+def test_a_head_that_moves_during_the_checks_is_neither_overwritten_nor_merged(
+    world: dict,
+) -> None:
+    head = _open_pr(world, _GREEN)
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_MOVE="pr-branch")
+    assert result.returncode != 0
+    assert "the push" in result.stderr and "refused" in result.stderr, result.stderr[-800:]
+    moved = _branch(world)
+    assert moved != head
+    assert _git(world["origin"], "log", "-1", "--format=%s", moved) == "pr-branch moves on"
+    assert not _merged(world)
+
+
+def test_a_head_that_moves_with_nothing_to_push_is_not_merged(world: dict) -> None:
+    head = _open_pr(world, _GREEN, main_moves=False)
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_MOVE="pr-branch")
+    assert result.returncode != 0
+    assert "pr-branch moved to" in result.stderr, result.stderr[-800:]
+    assert not _merged(world)
+
+
+# -- conflicts ----------------------------------------------------------------
+
+
+def test_a_conflict_outside_the_generated_files_is_handed_back(world: dict) -> None:
+    readme = (world["checkout"] / "README.md").read_text()
+    head = _open_pr(
+        world,
+        {"README.md": readme + "\nPR side\n"},
+        on_main={"README.md": readme + "\nmain side\n"},
+    )
+    result = _run(world, head, _GREEN_CHECK)
+    assert result.returncode != 0
+    assert "conflicts outside the generated files" in result.stderr, result.stderr[-800:]
+    assert "README.md" in result.stderr
+    assert _branch(world) == head
+    assert not _merged(world)
+
+
+def test_a_conflict_in_a_file_the_build_does_not_write_is_handed_back(world: dict) -> None:
+    """Under golden-catalog/ but not written by the build: main's edit would be lost."""
+    head = _open_pr(
+        world,
+        {"golden-catalog/NOTES.md": "PR side\n"},
+        on_main={"golden-catalog/NOTES.md": "main side: a real edit\n"},
+    )
+    result = _run(world, head, _GREEN_CHECK)
+    assert result.returncode != 0
+    assert "conflicts outside the generated files" in result.stderr, result.stderr[-800:]
+    assert "golden-catalog/NOTES.md" in result.stderr
+    assert _branch(world) == head
+    assert not _merged(world)
+
+
+def _conflicting_stats(world: dict) -> tuple[str, str]:
+    """A PR and main that edit one line of stats.json two ways; and the true file."""
+    true = (world["checkout"] / _STATS).read_text()
+    head = _open_pr(
+        world,
+        {_STATS: true.replace('"lines": ', '"lines": 1', 1)},
+        on_main={_STATS: true.replace('"lines": ', '"lines": 2', 1)},
+    )
+    return head, true
+
+
+def test_a_conflict_in_generated_output_is_resolved_by_the_rebuild(world: dict) -> None:
+    head, true = _conflicting_stats(world)
+    result = _run(world, head, "tests/test_catalog_golden.py")
+    assert result.returncode == 0, result.stdout + result.stderr
+    pushed = _branch(world)
+    assert _git(world["origin"], "merge-base", "--is-ancestor", "main", pushed) == ""
+    assert _git(world["origin"], "show", f"{pushed}:{_STATS}") + "\n" == true
+    # Neither side's line: the rebuild's.
+    assert _merged(world)
+
+
+def test_a_generated_file_the_rebuild_left_conflicted_is_refused(world: dict) -> None:
+    head, _ = _conflicting_stats(world)
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_SKIP_BUILD="1")
+    assert result.returncode != 0
+    assert "still holds conflict markers" in result.stderr, result.stderr[-800:]
+    assert _STATS in result.stderr
+    assert _branch(world) == head
+    assert not _merged(world)
+
+
+# -- what the rebuild commits ------------------------------------------------
+
+
+def test_a_stale_lock_is_refused_not_relocked_and_committed(world: dict) -> None:
+    """``uv run`` would re-lock it, and the rebuild commit would carry ``uv.lock``."""
+    pyproject = (world["checkout"] / "pyproject.toml").read_text()
+    stale_lock = pyproject.replace('"numpy>=1.26",', '"numpy>=1.26",\n    "pyyaml>=6.0.3",', 1)
+    head = _open_pr(world, {"pyproject.toml": stale_lock})
+    result = _run(world, head, _GREEN_CHECK)
+    assert result.returncode != 0
+    assert "--locked" in result.stderr, result.stderr[-800:]
+    assert _branch(world) == head
+    assert not _merged(world)
+
+
+def test_a_change_the_rebuild_makes_outside_the_generated_files_is_refused(
+    world: dict,
+) -> None:
+    """Only the generated files are committed, and nothing else may be left over."""
+    head = _open_pr(world, _GREEN)
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_SKIP_BUILD="1", FAKE_UV_STRAY="stray.txt")
+    assert result.returncode != 0
+    assert "changes outside the generated files" in result.stderr, result.stderr[-800:]
+    assert "stray.txt" in result.stderr
+    assert _branch(world) == head
+    assert not _merged(world)
+
+
+def _printed(flag: str) -> list[str]:
+    return subprocess.run(
+        [str(SCRIPT), flag], capture_output=True, text=True, check=True
+    ).stdout.splitlines()
+
+
+def test_the_generated_files_are_exactly_what_the_build_writes() -> None:
+    """Only a file the rebuild rewrites may have a conflict resolved by it."""
+    golden = _git(REPO, "ls-files", "golden-catalog").splitlines()
+    field_map = cli.field_map_target().relative_to(REPO).as_posix()
+    assert sorted(_printed("--print-generated")) == sorted([*golden, field_map])
+
+
+def test_the_ci_checks_a_merge_waits_for_are_the_workflows_jobs() -> None:
+    """Every job a pull request runs is required; a push-only job is skipped by design."""
+    jobs = yaml.safe_load((REPO / ".github" / "workflows" / "ci.yaml").read_text())["jobs"]
+    push_only = {key for key, job in jobs.items() if job.get("if") == "github.event_name == 'push'"}
+    want = sorted(
+        [f"required {key}" for key in jobs if key not in push_only]
+        + [f"skipped-by-design {key}" for key in push_only]
+    )
+    assert sorted(_printed("--print-ci")) == want
+
+
+# -- the main-merged-tree job ------------------------------------------------
+
+
+def _job_run(job: str) -> str:
+    jobs = yaml.safe_load((REPO / ".github" / "workflows" / "ci.yaml").read_text())["jobs"]
+    return jobs[job]["steps"][-1]["run"]
+
+
+@pytest.mark.parametrize(
+    "path, edit",
+    [
+        (_STATS, lambda t: t.replace('"lines": ', '"lines": 1', 1)),
+        (
+            "src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml",
+            lambda t: t + "\n# hand edit\n",
+        ),
+    ],
+    ids=["stats-auto-merged-wrong", "field-weights-hand-edit"],
+)
+def test_main_merged_tree_job_is_red_on_a_broken_main(tmp_path: Path, path: str, edit) -> None:
+    tree = tmp_path / "main"
+    subprocess.run(["git", "clone", "-q", str(REPO), str(tree)], check=True)
+    shutil.copy2(REPO / ".github" / "workflows" / "ci.yaml", tree / ".github/workflows/ci.yaml")
+    shutil.copy2(SCRIPT, tree / "scripts" / "merge_pr.sh")
+    target = tree / path
+    target.write_text(edit(target.read_text()))
+    # The shell GitHub runs a ``run:`` step with.
+    result = subprocess.run(
+        ["bash", "--noprofile", "--norc", "-eo", "pipefail", "-c", _job_run("main-merged-tree")],
+        cwd=tree,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode != 0, "main-merged-tree is green on a broken main"

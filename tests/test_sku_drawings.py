@@ -21,9 +21,9 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_industrial_products.catalog import breadth, bundle, emit
+from synthetic_industrial_products.catalog import bundle, emit
 from synthetic_industrial_products.catalog.config import SMALL
-from synthetic_industrial_products.catalog.generate import BRANDS, generate
+from synthetic_industrial_products.catalog.generate import BRANDS, all_type_keys, generate
 from synthetic_industrial_products.catalog.vocab import VOCAB
 from synthetic_industrial_products.drawing import FIGURES, draw_product, draw_sku, svg_problems
 from synthetic_industrial_products.drawing.model import Poly
@@ -238,7 +238,7 @@ def test_rebuild_called_directly_draws_a_breadth_product(tmp_path):
     nothing first.
     """
     nested = [json.loads(line) for line in (GOLDEN / "nested.jsonl").read_text().splitlines()]
-    breadth_types = {row.key for row in breadth.ROWS}
+    breadth_types = set(all_type_keys("breadth"))
     parent = next(p for p in nested if p["product_type"] in breadth_types)
     skus = {variant["sku"] for variant in parent["variants"]}
     (tmp_path / "nested.jsonl").write_text(json.dumps(parent) + "\n")

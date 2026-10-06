@@ -24,6 +24,7 @@ from __future__ import annotations
 import pytest
 
 from synthetic_industrial_products.catalog import emit
+from synthetic_industrial_products.catalog.breadth import SPEC_QUALITY
 from synthetic_industrial_products.catalog.config import GeneratorConfig
 from synthetic_industrial_products.catalog.generate import generate
 from synthetic_industrial_products.prism.derive import (
@@ -305,7 +306,12 @@ def test_changing_the_control_rule_changed_no_attributes_facet_status(
 
 @pytest.fixture(scope="module")
 def decided(flat_rows: list[dict]) -> dict[str, tuple[AttributeStats, object]]:
-    stats = measure(flat_rows)
+    # The modelled types' documents only: ``MEASURED_DISPERSION`` describes
+    # them, so a breadth type that publishes a shared attribute (Drive Size,
+    # say) moves no pin here and two breadth PRs do not conflict on one. What
+    # a breadth row does to a facet decision still reaches the committed
+    # field map, which the drift test rebuilds.
+    stats = measure([row for row in flat_rows if row.get("spec_quality") != SPEC_QUALITY])
     return {key: (value, decide(value)) for key, value in stats.items()}
 
 

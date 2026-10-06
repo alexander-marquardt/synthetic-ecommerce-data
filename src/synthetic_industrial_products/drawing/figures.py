@@ -26,6 +26,7 @@ import math
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from ..catalog.typespec import RegistryTable
 from ..dimensions import DimensionParseError, parse_length
 from ..render import drill as drill_geom
 from ..render import endmill as endmill_geom
@@ -557,12 +558,11 @@ def _broken(width: float, height: float) -> Callable[[Record], Drawn]:
     return figure
 
 
-FIGURES: dict[str, tuple[Callable[[Record], Drawn], tuple[float, float]]] = {
+_FIGURES: dict[str, tuple[Callable[[Record], Drawn], tuple[float, float]]] = {
     "end_mill_square": (end_mill, (3.3, 9.8)),
     "end_mill_ball": (end_mill, (3.3, 9.8)),
     "drill_jobber": (drill, (0.52, 8.8)),
     "tap_spiral_point": (tap, (0.52, 4.15)),
-    "screw_socket_head": (_broken(2.75, 5.95), (2.75, 5.95)),
     "screw_flat_head": (_broken(3.7, 3.25), (3.7, 3.25)),
     "screw_button_head": (_broken(2.56, 2.8), (2.56, 2.8)),
     "screw_low_head": (_broken(2.75, 3.3), (2.75, 3.3)),
@@ -571,6 +571,10 @@ FIGURES: dict[str, tuple[Callable[[Record], Drawn], tuple[float, float]]] = {
     "hammer_ball_pein": (hammer, (5.8, 18.25)),
     "abrasive_flap_disc": (flap_disc, (7.25, 7.25)),
 }
+# A read registers the type modules first, so a type in its own module is listed.
+FIGURES: RegistryTable[str, tuple[Callable[[Record], Drawn], tuple[float, float]]] = RegistryTable(
+    _FIGURES
+)
 
 
 # --- the types added by elastic/prism-industrial-products#103 ------------------

@@ -14,11 +14,14 @@ code. Three things here make that hold, each a pure function of the key:
   by walking the package rather than by a hand-kept list that every new type
   would have to edit.
 
-A derived block can land on another type's (about one chance in a hundred per
-new type at today's count). :func:`check_collisions` refuses that build and
-names both types and where each would declare a block of its own (its YAML
-row, or its type module); the fix goes on the newly added type, because
-re-blocking a type that already shipped renumbers every SKU it published.
+A derived block can land on another type's: about one chance in 135 per new
+type at today's 67 types, and better than even odds that at least one of a
+hundred new types does. :func:`check_collisions` refuses that build, names
+both types and where each would declare a block of its own (its YAML row, or
+its type module), and names the first free block (:func:`first_free_block`);
+``sip-generate block <type_key>`` prints the block a new type should declare
+before it is built. The fix goes on the newly added type, because re-blocking
+a type that already shipped renumbers every SKU it published.
 """
 
 from __future__ import annotations
@@ -27,9 +30,23 @@ import hashlib
 import importlib
 import pkgutil
 import random
-from collections.abc import Mapping
+import sys
+from collections.abc import (
+    Callable,
+    Collection,
+    ItemsView,
+    Iterator,
+    KeysView,
+    Mapping,
+    ValuesView,
+)
 from dataclasses import dataclass, replace
 from functools import cache
+from typing import TYPE_CHECKING, Any, TypeVar
+
+if TYPE_CHECKING:
+    from .breadth import BreadthRow
+    from .vocab import AttrSpec
 
 #: The package type modules are discovered under: one directory per family,
 #: one module per type, each exposing ``SPEC``.
@@ -54,9 +71,36 @@ class TypeCollisionError(ValueError):
     """Two types that derive the same part-number block or id."""
 
 
+class RegistrationReadError(RuntimeError):
+    """A type-keyed table read while the type modules are being registered.
+
+    Mid-registration a table holds only the types registered so far, so any
+    answer would depend on import order: a sibling's vocabulary missing, or
+    :func:`block_of` giving the derived block of a type whose declared one is
+    not recorded yet. A type module reads the tables inside its functions,
+    never at import.
+    """
+
+
 @dataclass(frozen=True)
 class TypeSpec:
     """What a type module declares about itself as ``SPEC``.
+
+    A type is one of two kinds, and declares the fields of its kind only:
+
+    * a **modelled** type names its category path, its standards family, its
+      attribute vocabulary, its drawing (``figure`` and ``extent``), its
+      builder (``make``) and its ``share`` of ``lines``. The builder and the
+      vocabulary are usually a family's, shared with sibling types; what is
+      the type's own is this declaration.
+    * a **breadth** type declares one :class:`.breadth.BreadthRow` as
+      ``breadth``, and everything else follows from that row, exactly as it
+      does for a row of ``data/breadth_categories.yaml``.
+
+    :func:`register` writes either kind into the shared, type-keyed tables
+    (``taxonomy.LEAVES``, ``vocab.VOCAB``, ``drawing.figures.FIGURES`` and the
+    rest), so the code that reads those tables is unchanged by where a type is
+    declared.
 
     ``part_number_block`` is only for the rare type whose derived block
     collides with another's; every other type leaves it unset.
@@ -64,6 +108,27 @@ class TypeSpec:
 
     key: str
     part_number_block: int | None = None
+    #: A modelled type's category path, root first; the leaf is the type.
+    category: tuple[str, ...] = ()
+    #: Which pool of standards designations and brands the type draws from
+    #: (``vocab.STANDARDS_FAMILY``).
+    standards_family: str = ""
+    #: Every attribute the type may publish (``vocab.VOCAB``).
+    vocab: tuple[AttrSpec, ...] = ()
+    #: The drawing function and the extent every SKU of the type is drawn at
+    #: (``drawing.figures.FIGURES``).
+    figure: Callable[..., Any] | None = None
+    extent: tuple[float, float] = (0.0, 0.0)
+    #: The builder: ``make(generator, type_key, category)`` drafts one line.
+    make: Callable[..., Any] | None = None
+    #: Lines drafted, as a share of ``GeneratorConfig.lines``; a
+    #: ``type_weights`` entry for the key overrides it.
+    share: float = 0.0
+    #: What every product of the type is for (``voice.USE_LINES``); empty
+    #: falls back to the generic lines.
+    use_lines: tuple[str, ...] = ()
+    #: A breadth type's row, in place of every modelled field above.
+    breadth: BreadthRow | None = None
     #: The dotted module the spec was found in, filled in by :func:`discover`.
     module: str = ""
 
@@ -107,18 +172,176 @@ def discover(package: str = TYPES_PACKAGE) -> dict[str, TypeSpec]:
     return specs
 
 
-#: Blocks declared by types that are not yet modules of their own, filled in
-#: as their tables register (:func:`.breadth.register`).
-DECLARED_BLOCKS: dict[str, int] = {}
+def register(spec: TypeSpec) -> None:
+    """Write ``spec`` into the shared, type-keyed tables every reader uses.
+
+    The same tables :func:`.breadth.register` fills for a YAML row, so the
+    code that reads them cannot tell a type declared in its own module from
+    one declared in a shared table.
+    """
+    # Imported here: each of these modules imports this one.
+    from ..drawing.figures import FIGURES  # noqa: PLC0415
+    from . import breadth, taxonomy, vocab, voice  # noqa: PLC0415
+
+    if spec.breadth is not None:
+        if spec.breadth.key != spec.key:
+            raise TypeModuleError(
+                f"type module {spec.module} declares {spec.key!r} with a breadth row "
+                f"for {spec.breadth.key!r}"
+            )
+        breadth.add_row(spec.breadth)
+        _declare_block(spec)
+        return
+    # ``share`` and ``extent`` are refused when left at their defaults too: a
+    # zero share would build one line (``max(1, ...)``) and a zero extent
+    # would draw every SKU at no size, both silently.
+    missing = [
+        name
+        for name, declared in (
+            ("category", bool(spec.category)),
+            ("standards_family", bool(spec.standards_family)),
+            ("vocab", bool(spec.vocab)),
+            ("figure", spec.figure is not None),
+            ("extent", all(side > 0 for side in spec.extent)),
+            ("make", spec.make is not None),
+            ("share", spec.share > 0),
+        )
+        if not declared
+    ]
+    if missing:
+        raise TypeModuleError(f"type module {spec.module} declares no {', '.join(missing)}")
+    taxonomy.LEAVES[spec.key] = (spec.category,)
+    taxonomy.DRAWING[spec.key] = spec.key
+    vocab.VOCAB[spec.key] = spec.vocab
+    vocab.STANDARDS_FAMILY[spec.key] = spec.standards_family
+    FIGURES[spec.key] = (spec.figure, spec.extent)
+    if spec.use_lines:
+        voice.USE_LINES[spec.key] = spec.use_lines
+    _declare_block(spec)
+
+
+def _declare_block(spec: TypeSpec) -> None:
+    """Record the block ``spec`` declares, over any its breadth row declared.
+
+    A row's own block is recorded with the row (:func:`.breadth.register`), so
+    a spec that leaves its block unset must not overwrite it.
+    """
+    if spec.part_number_block is not None:
+        DECLARED_BLOCKS[spec.key] = spec.part_number_block
+
+
+#: Set while :func:`registered` runs, so a table read during registration is
+#: refused rather than answered from a half-filled table; then set for good
+#: once it has finished.
+_REGISTRATION = {"running": False, "done": False}
+
+
+def ensure_registered() -> None:
+    """Register the type modules, unless that has already happened.
+
+    Raises :class:`RegistrationReadError` when called while registration is
+    underway, naming the line that read.
+    """
+    if _REGISTRATION["done"]:
+        return
+    if _REGISTRATION["running"]:
+        raise RegistrationReadError(
+            f"a type-keyed table was read at {_reader()} while the type modules are being "
+            "registered, so it would answer from the types registered so far; read it "
+            "inside a function, not at import"
+        )
+    registered()
+
+
+def _reader() -> str:
+    """``file:line`` of the nearest caller outside this module."""
+    frame = sys._getframe(1)
+    while frame.f_back is not None and frame.f_code.co_filename == __file__:
+        frame = frame.f_back
+    return f"{frame.f_code.co_filename}:{frame.f_lineno}"
+
+
+_K = TypeVar("_K")
+_V = TypeVar("_V")
+
+
+class RegistryTable(dict[_K, _V]):
+    """A shared, type-keyed table that registers the type modules before its first read.
+
+    A type declared in its own module joins the tables only when
+    :func:`registered` runs. Every read here runs it first, so no reader
+    (a script, a test, the image bundle) has to remember to call it, and one
+    that forgets cannot see a migrated type as missing. A read made while
+    registration runs (a type module reading a table at import) is refused,
+    because the table is only half filled then. Writes are untouched:
+    registration itself writes through them.
+    """
+
+    def __getitem__(self, key: _K) -> _V:
+        ensure_registered()
+        return super().__getitem__(key)
+
+    def get(self, key: _K, default: Any = None) -> Any:  # type: ignore[override]
+        ensure_registered()
+        return super().get(key, default)
+
+    def __contains__(self, key: object) -> bool:
+        ensure_registered()
+        return super().__contains__(key)
+
+    def __iter__(self) -> Iterator[_K]:
+        ensure_registered()
+        return super().__iter__()
+
+    def __len__(self) -> int:
+        ensure_registered()
+        return super().__len__()
+
+    def keys(self) -> KeysView[_K]:
+        ensure_registered()
+        return super().keys()
+
+    def values(self) -> ValuesView[_V]:
+        ensure_registered()
+        return super().values()
+
+    def items(self) -> ItemsView[_K, _V]:
+        ensure_registered()
+        return super().items()
 
 
 @cache
-def _discovered_blocks() -> dict[str, int]:
-    return {
-        key: spec.part_number_block
-        for key, spec in discover().items()
-        if spec.part_number_block is not None
-    }
+def registered() -> dict[str, TypeSpec]:
+    """Every type module under :data:`TYPES_PACKAGE`, registered once per process.
+
+    Runs on the first read of any :class:`RegistryTable`, so no caller has to
+    call it before reading the tables.
+    """
+    _REGISTRATION["running"] = True
+    try:
+        # The YAML breadth rows register when breadth is imported; a reader
+        # that never imported it would otherwise see none of them.
+        from . import breadth  # noqa: F401, PLC0415
+
+        specs = discover()
+        for spec in specs.values():
+            register(spec)
+    finally:
+        _REGISTRATION["running"] = False
+    _REGISTRATION["done"] = True
+    return specs
+
+
+def modelled() -> dict[str, TypeSpec]:
+    """The registered type modules that are modelled types, by key."""
+    return {key: spec for key, spec in registered().items() if spec.breadth is None}
+
+
+#: Every block a type declares, by key: a YAML row's or a type module row's
+#: (:func:`.breadth.register`) and a ``TypeSpec``'s (:func:`register`). A
+#: :class:`RegistryTable`, so its first read registers both sources: a plain
+#: dict was filled only once something had imported ``breadth``.
+DECLARED_BLOCKS: RegistryTable[str, int] = RegistryTable()
 
 
 def part_number_block(type_key: str) -> int:
@@ -127,9 +350,25 @@ def part_number_block(type_key: str) -> int:
     return digest % (BLOCK_HIGH - BLOCK_LOW + 1) + BLOCK_LOW
 
 
+def first_free_block(start: int, used: Collection[int]) -> int:
+    """The first block at or after ``start`` that no type uses, wrapping past 9999.
+
+    Deterministic for a given set of used blocks, so the block a collision
+    refusal (or ``sip-generate block``) names is the one every builder of
+    that tree would be told.
+    """
+    span = BLOCK_HIGH - BLOCK_LOW + 1
+    taken = set(used)
+    for step in range(span):
+        block = (start - BLOCK_LOW + step) % span + BLOCK_LOW
+        if block not in taken:
+            return block
+    raise TypeCollisionError(f"all {span} part-number blocks are in use")
+
+
 def block_of(type_key: str) -> int:
     """The block a type's identifiers carry: its own declared one, else the derived one."""
-    declared = _discovered_blocks().get(type_key, DECLARED_BLOCKS.get(type_key))
+    declared = DECLARED_BLOCKS.get(type_key)
     return part_number_block(type_key) if declared is None else declared
 
 
@@ -162,7 +401,8 @@ def check_collisions(blocks: Mapping[str, int], fix_sites: Mapping[str, str] | N
         if block in owner:
             first = owner[block]
             clashes.append(
-                f"{first} and {key} both use block {block:04d} "
+                f"{first} and {key} both use block {block:04d}, and the first free block "
+                f"after it is {first_free_block(block, blocks.values()):04d} "
                 f"(to re-block {first}: {sites.get(first) or module_fix_site(first)}; "
                 f"to re-block {key}: {sites.get(key) or module_fix_site(key)})"
             )
@@ -173,7 +413,8 @@ def check_collisions(blocks: Mapping[str, int], fix_sites: Mapping[str, str] | N
             "part-number blocks collide: "
             + "; ".join(clashes)
             + ". Give the NEWLY ADDED type of each pair a free block of its own: re-blocking "
-            "a type that already shipped renumbers every SKU and product id it has published."
+            "a type that already shipped renumbers every SKU and product id it has published. "
+            "`sip-generate block <type_key>` prints the block to declare."
         )
 
 

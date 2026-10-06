@@ -453,6 +453,415 @@ MUTATIONS: list[Mutation] = [
         "",
         "two types on one block are refused, naming both",
     ),
+    # ---- the type seam: a table read registers the type modules (#54) ----
+    # Every name starts "type seam:", so `--only "type seam:"` re-runs the
+    # review's score. Left out as EQUIVALENT: dropping the ``done`` flag, which
+    # ``@cache`` on ``registered()`` already makes a no-op on every later read.
+    Mutation(
+        "type seam: RegistryTable.__getitem__ skips the registration hook",
+        "catalog/typespec.py",
+        "    def __getitem__(self, key: _K) -> _V:\n        ensure_registered()\n",
+        "    def __getitem__(self, key: _K) -> _V:\n",
+        "tests/test_type_seam.py::test_every_read_of_a_table_registers_before_it_answers[__getitem__]",
+        "",
+        "every read of a type table registers the type modules first",
+    ),
+    Mutation(
+        "type seam: RegistryTable.get skips the registration hook",
+        "catalog/typespec.py",
+        "    def get(self, key: _K, default: Any = None) -> Any:  # type: ignore[override]\n        ensure_registered()\n",
+        "    def get(self, key: _K, default: Any = None) -> Any:  # type: ignore[override]\n",
+        "tests/test_type_seam.py::test_every_read_of_a_table_registers_before_it_answers[get]",
+        "",
+        "every read of a type table registers the type modules first",
+    ),
+    Mutation(
+        "type seam: RegistryTable.__contains__ skips the registration hook",
+        "catalog/typespec.py",
+        "    def __contains__(self, key: object) -> bool:\n        ensure_registered()\n",
+        "    def __contains__(self, key: object) -> bool:\n",
+        "tests/test_type_seam.py::test_every_read_of_a_table_registers_before_it_answers[__contains__]",
+        "",
+        "every read of a type table registers the type modules first",
+    ),
+    Mutation(
+        "type seam: RegistryTable.__iter__ skips the registration hook",
+        "catalog/typespec.py",
+        "    def __iter__(self) -> Iterator[_K]:\n        ensure_registered()\n",
+        "    def __iter__(self) -> Iterator[_K]:\n",
+        "tests/test_type_seam.py::test_every_read_of_a_table_registers_before_it_answers[__iter__]",
+        "",
+        "every read of a type table registers the type modules first",
+    ),
+    Mutation(
+        "type seam: RegistryTable.__len__ skips the registration hook",
+        "catalog/typespec.py",
+        "    def __len__(self) -> int:\n        ensure_registered()\n",
+        "    def __len__(self) -> int:\n",
+        "tests/test_type_seam.py::test_every_read_of_a_table_registers_before_it_answers[__len__]",
+        "",
+        "every read of a type table registers the type modules first",
+    ),
+    Mutation(
+        "type seam: RegistryTable.keys skips the registration hook",
+        "catalog/typespec.py",
+        "    def keys(self) -> KeysView[_K]:\n        ensure_registered()\n",
+        "    def keys(self) -> KeysView[_K]:\n",
+        "tests/test_type_seam.py::test_every_read_of_a_table_registers_before_it_answers[keys]",
+        "",
+        "every read of a type table registers the type modules first",
+    ),
+    Mutation(
+        "type seam: RegistryTable.values skips the registration hook",
+        "catalog/typespec.py",
+        "    def values(self) -> ValuesView[_V]:\n        ensure_registered()\n",
+        "    def values(self) -> ValuesView[_V]:\n",
+        "tests/test_type_seam.py::test_every_read_of_a_table_registers_before_it_answers[values]",
+        "",
+        "every read of a type table registers the type modules first",
+    ),
+    Mutation(
+        "type seam: RegistryTable.items skips the registration hook",
+        "catalog/typespec.py",
+        "    def items(self) -> ItemsView[_K, _V]:\n        ensure_registered()\n",
+        "    def items(self) -> ItemsView[_K, _V]:\n",
+        "tests/test_type_seam.py::test_every_read_of_a_table_registers_before_it_answers[items]",
+        "",
+        "every read of a type table registers the type modules first",
+    ),
+    Mutation(
+        "type seam: ensure_registered ignores a registration already running",
+        "catalog/typespec.py",
+        '    if _REGISTRATION["running"]:\n        raise RegistrationReadError(',
+        '    if False:\n        raise RegistrationReadError(',
+        "tests/test_type_seam.py::"
+        "test_a_table_read_while_registration_runs_is_refused_naming_the_reader",
+        "",
+        "every read of a type table registers the type modules first",
+    ),
+    Mutation(
+        "type seam: breadth.rows() skips ensure_registered",
+        "catalog/breadth.py",
+        "    typespec.ensure_registered()\n    return _ROWS\n",
+        "    return _ROWS\n",
+        "tests/test_type_seam.py::test_the_breadth_rows_include_the_type_modules_rows_on_a_first_read",
+        "",
+        "every read of a type table registers the type modules first",
+    ),
+    Mutation(
+        "type seam: breadth registers the type modules at import again",
+        "catalog/breadth.py",
+        "\n\nregister()\n\n",
+        "\n\nregister()\ntypespec.ensure_registered()\n\n",
+        "tests/test_a_type_module_imported_first.py::test_a_type_module_imported_first_still_registers[synthetic_industrial_products.product_types.raw_materials.ball_stock_precision]",
+        "",
+        "a type module or discovery can be a process's first import",
+    ),
+    Mutation(
+        "type seam: registered() no longer imports breadth",
+        "catalog/typespec.py",
+        "        from . import breadth  # noqa: F401, PLC0415\n",
+        "",
+        "tests/test_type_seam.py::test_registration_brings_in_the_yaml_rows_without_any_type_module",
+        "",
+        "every read of a type table registers the type modules first",
+    ),
+    Mutation(
+        "type seam: _type_kinds omits the type modules' modelled types",
+        "catalog/generate.py",
+        '        *((key, "modelled") for key in typespec.modelled()),\n',
+        "",
+        "tests/test_type_seam.py::test_every_type_is_built_once",
+        "",
+        "every type module's type is built",
+    ),
+    Mutation(
+        "type seam: a type module's share is not the fallback weight",
+        "catalog/generate.py",
+        "            weight = cfg.type_weights.get(key, own.share if own else None)",
+        "            weight = cfg.type_weights.get(key)",
+        "tests/test_type_seam.py::test_a_type_modules_share_sizes_its_type[screw_socket_head]",
+        "",
+        "every type module's type is built",
+    ),
+    Mutation(
+        "type seam: register skips DRAWING",
+        "catalog/typespec.py",
+        "    taxonomy.DRAWING[spec.key] = spec.key\n",
+        "",
+        "tests/test_type_seam.py::test_a_modelled_module_is_registered_into_every_table[screw_socket_head]",
+        "",
+        "a type module's spec reaches every table, or is refused naming the gap",
+    ),
+    Mutation(
+        "type seam: register skips STANDARDS_FAMILY",
+        "catalog/typespec.py",
+        "    vocab.STANDARDS_FAMILY[spec.key] = spec.standards_family\n",
+        "",
+        "tests/test_type_seam.py::test_a_modelled_module_is_registered_into_every_table[screw_socket_head]",
+        "",
+        "a type module's spec reaches every table, or is refused naming the gap",
+    ),
+    Mutation(
+        "type seam: register skips USE_LINES",
+        "catalog/typespec.py",
+        "    if spec.use_lines:\n        voice.USE_LINES[spec.key] = spec.use_lines\n",
+        "",
+        "tests/test_type_seam.py::test_a_modelled_module_is_registered_into_every_table[screw_socket_head]",
+        "",
+        "a type module's spec reaches every table, or is refused naming the gap",
+    ),
+    Mutation(
+        "type seam: a modelled spec missing a field is not refused",
+        "catalog/typespec.py",
+        "    if missing:\n        raise TypeModuleError",
+        "    if False:\n        raise TypeModuleError",
+        "tests/test_type_seam.py -k missing_a_field_is_refused",
+        "",
+        "a type module's spec reaches every table, or is refused naming the gap",
+    ),
+    Mutation(
+        "type seam: an unset share is not refused",
+        "catalog/typespec.py",
+        '            ("share", spec.share > 0),',
+        '            ("share", True),',
+        'tests/test_type_seam.py -k "missing_a_field_is_refused and share"',
+        "",
+        "a type module's spec reaches every table, or is refused naming the gap",
+    ),
+    Mutation(
+        "type seam: an unset extent is not refused",
+        "catalog/typespec.py",
+        '            ("extent", all(side > 0 for side in spec.extent)),',
+        '            ("extent", True),',
+        'tests/test_type_seam.py -k "missing_a_field_is_refused and extent"',
+        "",
+        "a type module's spec reaches every table, or is refused naming the gap",
+    ),
+    Mutation(
+        "type seam: a breadth spec whose row has another key is not refused",
+        "catalog/typespec.py",
+        "        if spec.breadth.key != spec.key:",
+        "        if False:",
+        "tests/test_type_seam.py::test_a_breadth_spec_whose_row_has_another_key_is_refused",
+        "",
+        "a type module's spec reaches every table, or is refused naming the gap",
+    ),
+    Mutation(
+        "type seam: a type module row repeating a YAML row is not refused",
+        "catalog/breadth.py",
+        "    if any(existing.key == row.key for existing in _ROWS):",
+        "    if False:",
+        "tests/test_type_seam.py::test_a_type_module_row_that_repeats_a_yaml_row_is_refused",
+        "",
+        "a type module's spec reaches every table, or is refused naming the gap",
+    ),
+    # The round-2 review's four (#54).
+    Mutation(
+        "type seam: first_free_block returns start even when it is taken",
+        "catalog/typespec.py",
+        "        if block not in taken:\n            return block\n",
+        "        if True:\n            return block\n",
+        (
+            "tests/test_type_seam.py -k first_free_block_is_the_first_unused",
+            "tests/test_type_seam.py::test_the_block_command_names_the_owner_and_a_really_free_block",
+        ),
+        "",
+        "sip-generate block names a block no type uses",
+    ),
+    Mutation(
+        "type seam: sip-generate block finds no owner of a taken block",
+        "catalog/cli.py",
+        "    owners = sorted(other for other, block in used.items() if block == derived)\n",
+        "    owners: list[str] = []\n",
+        "tests/test_type_seam.py::test_the_block_command_names_the_owner_and_a_really_free_block",
+        "",
+        "sip-generate block names a block no type uses",
+    ),
+    Mutation(
+        "type seam: a half-zero extent is not refused",
+        "catalog/typespec.py",
+        '            ("extent", all(side > 0 for side in spec.extent)),',
+        '            ("extent", any(side > 0 for side in spec.extent)),',
+        'tests/test_type_seam.py -k "missing_a_field_is_refused and extent"',
+        "",
+        "a type module's spec reaches every table, or is refused naming the gap",
+    ),
+    Mutation(
+        # Was "_discovered_blocks drops the row fallback"; the row's block now
+        # reaches DECLARED_BLOCKS with the row, and this is how it is lost.
+        "type seam: a breadth module's block on its row is overwritten by the spec's unset one",
+        "catalog/typespec.py",
+        "    if spec.part_number_block is not None:\n        DECLARED_BLOCKS[spec.key]",
+        "    if True:\n        DECLARED_BLOCKS[spec.key]",
+        "tests/test_type_seam.py::test_a_breadth_modules_declared_block_is_its_block[row]",
+        "",
+        "a type's declared block is its block, wherever it is declared",
+    ),
+    Mutation(
+        "type seam: a table read during registration is answered, not refused",
+        "catalog/typespec.py",
+        '    if _REGISTRATION["running"]:\n        raise',
+        '    if _REGISTRATION["running"]:\n        return\n        raise',
+        (
+            "tests/test_type_seam.py::"
+            "test_a_table_read_while_registration_runs_is_refused_naming_the_reader",
+            "tests/test_type_seam.py::"
+            "test_block_of_read_during_registration_is_refused_not_answered_by_import_order",
+        ),
+        "",
+        "a table read during registration is refused, not answered by import order",
+    ),
+    # ---- merge_pr.sh merges only a checked tree (#54) ----------------------
+    # Every name starts "merge_pr:", so `--only "merge_pr:"` re-runs them. The
+    # round-3 review's four survivors are the first four (the fourth, `--ours`
+    # turned `--theirs`, is gone with the side-taking: a generated conflict is
+    # now left for the rebuild, whose markers guard is its row here).
+    *(
+        Mutation(name, "scripts/merge_pr.sh", old, new, tests, "", prop, root=".")
+        for name, old, new, tests, prop in (
+            (
+                "merge_pr: no base re-check before a merge attempt",
+                '[ "$now_base" = "$base_sha" ] ||\n    die',
+                "true ||\n    die",
+                (
+                    "tests/test_merge_pr.py::"
+                    "test_main_that_moves_during_the_checks_is_not_merged_onto",
+                    "tests/test_merge_pr.py::"
+                    "test_main_that_moves_between_merge_attempts_is_not_merged_onto",
+                ),
+                "main is the base the checks ran on, at every merge attempt",
+            ),
+            (
+                "merge_pr: every conflict auto-resolved",
+                'listed "$path" "${GENERATED[@]}" || by_hand+=',
+                "true || by_hand+=",
+                (
+                    "tests/test_merge_pr.py::"
+                    "test_a_conflict_outside_the_generated_files_is_handed_back",
+                    "tests/test_merge_pr.py::"
+                    "test_a_conflict_in_a_file_the_build_does_not_write_is_handed_back",
+                ),
+                "only a conflict the rebuild resolves is resolved by it",
+            ),
+            (
+                "merge_pr: no head-moved check after clone",
+                '[ "$(git -C "$work" rev-parse HEAD)" = "$head_sha" ] ||',
+                "true ||",
+                "tests/test_merge_pr.py::test_a_head_that_moves_while_cloning_is_refused",
+                "the tree checked is the head GitHub named",
+            ),
+            (
+                "merge_pr: a generated file the rebuild left conflicted is accepted",
+                "    if grep -q '^<<<<<<< ' \"$work/$path\"; then",
+                "    if false; then",
+                "tests/test_merge_pr.py::"
+                "test_a_generated_file_the_rebuild_left_conflicted_is_refused",
+                "only a conflict the rebuild resolves is resolved by it",
+            ),
+            (
+                "merge_pr: base re-checked once, not before every attempt",
+                '  [ "$now_base" = "$base_sha" ] ||',
+                '  [ "$attempt" -gt 1 ] || [ "$now_base" = "$base_sha" ] ||',
+                "tests/test_merge_pr.py::"
+                "test_main_that_moves_between_merge_attempts_is_not_merged_onto",
+                "main is the base the checks ran on, at every merge attempt",
+            ),
+            (
+                "merge_pr: any path under golden-catalog/ counts as generated",
+                'listed "$path" "${GENERATED[@]}" || by_hand+=',
+                '[[ $path == golden-catalog/* ]] || listed "$path" "${GENERATED[@]}" || by_hand+=',
+                "tests/test_merge_pr.py::"
+                "test_a_conflict_in_a_file_the_build_does_not_write_is_handed_back",
+                "only a conflict the rebuild resolves is resolved by it",
+            ),
+            (
+                "merge_pr: no head re-check before a merge attempt",
+                '[ "$now_head" = "$final_sha" ] ||',
+                "true ||",
+                "tests/test_merge_pr.py::test_a_head_that_moves_with_nothing_to_push_is_not_merged",
+                "the head is the commit that was checked, at every merge attempt",
+            ),
+            (
+                "merge_pr: the push is forced",
+                'push -q origin "HEAD:',
+                'push -q -f origin "HEAD:',
+                "tests/test_merge_pr.py::"
+                "test_a_head_that_moves_during_the_checks_is_neither_overwritten_nor_merged",
+                "the head is the commit that was checked, at every merge attempt",
+            ),
+            (
+                "merge_pr: the rebuild runs unlocked",
+                'uv run -q --locked --directory "$work" sip-generate',
+                'uv run -q --directory "$work" sip-generate',
+                "tests/test_merge_pr.py::test_a_stale_lock_is_refused_not_relocked_and_committed",
+                "the rebuild commits only the generated files",
+            ),
+            (
+                "merge_pr: the rebuild stages everything",
+                'git -C "$work" add -- "${GENERATED[@]}"',
+                'git -C "$work" add -A',
+                "tests/test_merge_pr.py::"
+                "test_a_change_the_rebuild_makes_outside_the_generated_files_is_refused",
+                "the rebuild commits only the generated files",
+            ),
+            (
+                "merge_pr: a change outside the generated files is left behind",
+                '[ -z "$stray" ] ||',
+                "true ||",
+                "tests/test_merge_pr.py::"
+                "test_a_change_the_rebuild_makes_outside_the_generated_files_is_refused",
+                "the rebuild commits only the generated files",
+            ),
+            (
+                "merge_pr: a check run in which no test passed is green",
+                '[ "$passed" -gt 0 ] ||',
+                "true ||",
+                "tests/test_merge_pr.py::test_a_check_run_in_which_no_test_passed_is_not_green",
+                "a check run is green only when a test passed",
+            ),
+            (
+                "merge_pr: CI read on the PR head, not the pushed commit",
+                "commits/$final_sha/check-runs",
+                "commits/$head_sha/check-runs",
+                "tests/test_merge_pr.py::"
+                "test_a_merge_waits_for_every_check_on_the_pushed_tree[head-only]",
+                "every CI check on the commit that merges is green",
+            ),
+            (
+                "merge_pr: a failed check is green",
+                'elif [ "$conclusion" != success ]; then',
+                "elif false; then",
+                "tests/test_merge_pr.py::"
+                "test_a_merge_waits_for_every_check_on_the_pushed_tree[red]",
+                "every CI check on the commit that merges is green",
+            ),
+            (
+                "merge_pr: any skipped check is green",
+                'listed "$name" "${SKIPPED_BY_DESIGN_CI[@]}" ||',
+                "true ||",
+                "tests/test_merge_pr.py::"
+                "test_a_merge_waits_for_every_check_on_the_pushed_tree[skipped]",
+                "every CI check on the commit that merges is green",
+            ),
+            (
+                "merge_pr: a missing required check is not waited for",
+                'listed "$name" ${seen[@]+"${seen[@]}"} || missing+=',
+                "true || missing+=",
+                "tests/test_merge_pr.py::"
+                "test_a_merge_waits_for_every_check_on_the_pushed_tree[missing]",
+                "every CI check on the commit that merges is green",
+            ),
+            (
+                "merge_pr: a running check counts as finished",
+                'pending+=" $name"',
+                ":",
+                "tests/test_merge_pr.py::"
+                "test_a_merge_waits_for_every_check_on_the_pushed_tree[pending]",
+                "every CI check on the commit that merges is green",
+            ),
+        )
+    ),
     # ---- generate: the measured rates, both directions -------------------
     Mutation(
         "make every tool line a matching-shank line",
