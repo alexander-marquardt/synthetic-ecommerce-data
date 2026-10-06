@@ -45,8 +45,11 @@ Step by step:
    older dimensioned renderer uses, so the two cannot read one record two ways.
    The hammer, the five types added under #103 (`hex_nut`, `bearing`,
    `depressed_wheel`, `hex_key`, `kit`) and the breadth shapes have no
-   `render/` geometry. They read lengths inline with `dimensions.parse_length`
-   (`_length_or()` in `figures.py`).
+   `render/` geometry. The nut, bearing, wheel and hex key read their lengths
+   inline with `_length_or()` in `figures.py` (a `dimensions.parse_length`
+   wrapper). The hammer parses its face and handle lengths with its own
+   helper, the kit draws one slot per size it counts, and the breadth shapes
+   read nothing (see [Breadth types](#breadth-types-six-fixed-shapes)).
 4. **Figure.** The function returns a `Drawn(figure, source)`. A `Figure`
    (`drawing/model.py`) holds shapes in **inches**: `Poly` (also used for
    rectangles), `Disc`, `Lines` (line work: flutes, thread crests) and `Dots`
@@ -87,9 +90,10 @@ drawn bounding box, in inches, with a little headroom.
 * Lines 778-786 add the five types from #103: `kit_assortment`, `nut_hex`,
   `bearing_radial_ball`, `wheel_depressed_center` and `hex_key`.
 * The 50 breadth types are **not written in `figures.py`**. `catalog/breadth.py`
-  `register()` (lines 152-166) adds one `FIGURES` entry per row of
+  `register()` (lines 152-168) adds one `FIGURES` entry per row of
   `data/breadth_categories.yaml`, pointing at one of the six fixed shapes in
-  `drawing/breadth_shapes.py`. It also fills `taxonomy.DRAWING` and `VOCAB`.
+  `drawing/breadth_shapes.py`. It also fills `taxonomy.LEAVES`,
+  `taxonomy.DRAWING`, `STANDARDS_FAMILY` and `VOCAB`.
   `register()` runs when `catalog.breadth` is imported. `catalog/generate.py`
   imports it, so the CLI and the tests always see all 67 types, but a script
   that imports only `synthetic_industrial_products.drawing` sees 17, and
@@ -221,11 +225,12 @@ falls back to nominal geometry.
 
 ## Breadth types: six fixed shapes
 
-The 50 breadth categories (`data/breadth_categories.yaml`, `spec_quality:
-fast_and_cheap`) draw one of six shapes from `drawing/breadth_shapes.py`:
-`sphere`, `cylinder`, `block`, `disc`, `tube` and `bracket`. Each YAML row
-names its shape with `shape:`. A shape function discards the record
-(`del record`) and returns the same geometry every time, with its own fixed
+The 50 breadth categories (rows of `data/breadth_categories.yaml`; every
+breadth line is published with `spec_quality: "fast_and_cheap"`, set by
+`catalog/breadth.py` `SPEC_QUALITY`) draw one of six shapes from
+`drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`, `disc`, `tube`
+and `bracket`. Each YAML row names its shape with `shape:`. A shape function
+discards the record (`del record`) and returns the same geometry every time, with its own fixed
 extent in `BREADTH_SHAPES`. Brand, material and finish still apply, because
 they come from `paint()` and not from the figure, so the outline is fixed but
 the colours are not. Two SKUs of one breadth product therefore draw
@@ -287,10 +292,9 @@ that matter most when you change a figure:
 | `test_the_committed_catalog_rebuilds_into_its_recorded_drawings` and the bundle/digest tests | the publish gate above | golden |
 
 `tests/test_breadth.py` runs every breadth drawing through `svg_problems()`.
-No test currently draws two breadth records with different dimensions and
-compares the bytes, although the `breadth_shapes.py` docstring says
-`tests/test_breadth.py` does. The fixed-shape property holds by construction
-(`del record`) and is not pinned by a test.
+No test draws two breadth records with different dimensions and compares the
+bytes. The fixed-shape property holds by construction (`del record`) and is not
+pinned by a test.
 
 ## Adding a drawing for a new type
 
@@ -306,10 +310,14 @@ compares the bytes, although the `breadth_shapes.py` docstring says
    small and `test_no_product_exceeds_its_types_extent` fails. Far too large
    and every part of the type is drawn needlessly small, or lensed.
 3. **Keep the type keys in step.** The type needs an entry in
-   `catalog/taxonomy.py` `DRAWING` and in `VOCAB`. `test_every_product_type_has_a_figure`
-   requires `FIGURES` and `VOCAB` to have the same keys.
+   `catalog/taxonomy.py` `DRAWING` and in `catalog/vocab.py` `VOCAB`, and the
+   generator must build lines of it: `test_every_product_type_has_a_figure`
+   requires `FIGURES` and `VOCAB` to have the same keys AND the generated
+   `SMALL` catalog to draw every `VOCAB` type. This checklist covers the
+   drawing only; the type's generator comes first.
 4. **Give every published `Material` and `Finish` a colour and a hatch**
-   (`MATERIAL_FILL`, `MATERIAL_HATCH`, `FINISH_TINT` / `EXTRA_FINISH_TINT`), or
+   (`drawing/style.py` `MATERIAL_FILL`, `MATERIAL_HATCH`, `EXTRA_FINISH_TINT`,
+   and `render/marking.py` `FINISH_TINT`), or
    drawing raises `UnknownStyleError`.
    `test_every_published_finish_and_material_has_a_colour_and_a_hatch` sweeps
    the data.
@@ -327,6 +335,11 @@ compares the bytes, although the `breadth_shapes.py` docstring says
 8. **Look at it.** `uv run python scripts/contact_sheet.py --catalog golden-catalog --out out/contact-sheets`
    puts twenty SKUs of every type on one HTML page.
 
-A new **breadth** category needs no code: add a row to
-`data/breadth_categories.yaml` with one of the six `shape:` values, then
-regenerate.
+A new **breadth** category needs no figure code: add a row to
+`data/breadth_categories.yaml` with one of the six `shape:` values, give any new
+`Material`/`Finish` a colour and hatch (step 4), regenerate `golden-catalog/`,
+and restate `LINES`/`SKUS` in `tests/test_catalog_golden.py` by direct count.
+Those two constants (lines 70-71, `LINES = 5295` and `SKUS = 9665` today) pin
+the committed catalog, and a new row adds a line and at least one SKU, so that
+test stays red until they are restated. The README's counts of breadth
+categories move too.

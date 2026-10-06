@@ -13,10 +13,10 @@ that scaled to them would assert a precision the record does not have.
 
 Colour and section hatch still come from the record's own Material/Finish
 (:mod:`.style`), through the same :func:`.draw_sku` pipeline every other type
-uses -- only the GEOMETRY is fixed. ``tests/test_breadth.py`` proves that two
-records of one breadth type draw byte-for-byte identical bytes whatever their
-published dimensions, the same property ``tests/test_generic.py`` proves for
-the twelve original types' drawings.
+uses -- only the GEOMETRY is fixed. No test pins this: each function begins
+``del record``, so the fixed geometry holds by construction.
+``tests/test_breadth.py`` runs every breadth drawing through :func:`.svg_problems`
+but does not compare two records' bytes.
 """
 
 from __future__ import annotations

@@ -1062,7 +1062,8 @@ The drawing is a pure function of `(product type, brand, published attributes)`
 dimensioned renderer in `render/` also draws (end mills, drills, taps, screws
 and bolts, washers, flap discs) it reads the SKU's geometry through the same
 `geometry_from_record` functions, so the two cannot disagree about what a
-record says; the other types parse their few lengths inline.
+record says; the other depth types read their few values inline, and the breadth
+shapes read none.
 
 **Sizes are visible.** The scale is one constant per product type: sheet units
 per inch are the usable sheet over the type's largest drawn extent, declared
