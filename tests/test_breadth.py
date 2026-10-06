@@ -35,17 +35,17 @@ def breadth_lines(catalog):
 
 
 def test_the_table_has_the_rows_the_issue_asks_for():
-    assert len(breadth.ROWS) >= 45, "the issue asks for ~50 new categories"
-    assert len({row.key for row in breadth.ROWS}) == len(breadth.ROWS), "duplicate row key"
-    assert len({row.category for row in breadth.ROWS}) == len(breadth.ROWS), "dup category path"
+    assert len(breadth.rows()) >= 45, "the issue asks for ~50 new categories"
+    assert len({row.key for row in breadth.rows()}) == len(breadth.rows()), "duplicate row key"
+    assert len({row.category for row in breadth.rows()}) == len(breadth.rows()), "dup category path"
 
 
 def test_every_row_yields_valid_skus(catalog, breadth_lines):
     """Every row makes at least one line, its own SKUs, and nothing crashes
     building or emitting them (the nested and flat shapes, and every drawing)."""
     by_key = {line.type_key: line for line in breadth_lines}
-    assert set(by_key) == {row.key for row in breadth.ROWS}
-    for row in breadth.ROWS:
+    assert set(by_key) == {row.key for row in breadth.rows()}
+    for row in breadth.rows():
         line = by_key[row.key]
         expected = max(1, min(row.skus, len(row.size_values)))
         assert len(line.children) == expected, (row.key, len(line.children))
@@ -139,7 +139,7 @@ def test_removing_the_table_removes_every_breadth_sku(monkeypatch):
     depth_before = [line for line in with_rows.lines if line.spec_quality != "fast_and_cheap"]
     assert any(line.spec_quality == "fast_and_cheap" for line in with_rows.lines)
 
-    monkeypatch.setattr(breadth, "ROWS", ())
+    monkeypatch.setattr(breadth, "_ROWS", ())
     empty = generate(_CHEAP)
     assert not any(line.spec_quality == "fast_and_cheap" for line in empty.lines)
     assert [line.product_id for line in empty.lines] == [line.product_id for line in depth_before]
@@ -170,7 +170,7 @@ def test_every_breadth_row_publishes_material():
     requires every type but two named legacy abrasive ones to carry
     ``Material`` -- checked here at the row-table level, where a future editor
     is most likely to drop it by accident."""
-    for row in breadth.ROWS:
+    for row in breadth.rows():
         assert "Material" in row.attributes, row.key
 
 
@@ -213,10 +213,10 @@ def test_every_row_carries_every_term_its_reason_cites():
     by_key = {
         line.type_key: line for line in catalog.lines if line.spec_quality == "fast_and_cheap"
     }
-    assert set(by_key) == {row.key for row in breadth.ROWS}
+    assert set(by_key) == {row.key for row in breadth.rows()}
 
     failures: list[tuple[str, list[str]]] = []
-    for row in breadth.ROWS:
+    for row in breadth.rows():
         line = by_key[row.key]
         terms = _reason_terms(row.reason)
         if not terms:
@@ -241,7 +241,7 @@ def test_every_row_declares_a_valid_price_range():
     category (a Bench Vise and a Ball Valve priced like a fastener, a Rubber
     Ball pricier than a Stainless Steel precision ball).
     """
-    for row in breadth.ROWS:
+    for row in breadth.rows():
         lo, hi = row.price_range
         assert lo > 0, (row.key, row.price_range)
         assert lo < hi, (row.key, row.price_range)
@@ -281,7 +281,7 @@ def test_finish_never_plates_a_stainless_material():
     per line, so a single seed cannot prove the correction fires).
     """
     rows_with_both = [
-        row for row in breadth.ROWS if "Material" in row.attributes and "Finish" in row.attributes
+        row for row in breadth.rows() if "Material" in row.attributes and "Finish" in row.attributes
     ]
     assert rows_with_both, "no row exercises this rule at all"
 

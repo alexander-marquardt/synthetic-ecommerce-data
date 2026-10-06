@@ -243,10 +243,10 @@ def test_editing_one_yaml_row_leaves_every_other_type_byte_identical(
     before = generate.generate(SMALL)
     rows = tuple(
         dataclasses.replace(row, price_range=(40.0, 90.0)) if row.key == edited else row
-        for row in breadth.ROWS
+        for row in breadth.rows()
     )
-    assert rows != breadth.ROWS, f"no {edited} row to edit"
-    monkeypatch.setattr(breadth, "ROWS", rows)
+    assert rows != breadth.rows(), f"no {edited} row to edit"
+    monkeypatch.setattr(breadth, "_ROWS", rows)
     moved = _moved_by_changing(edited, before, generate.generate(SMALL))
     assert not moved, f"editing the {edited} row changed {len(moved)} other type(s): {moved[:8]}"
 

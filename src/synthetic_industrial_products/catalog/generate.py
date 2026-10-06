@@ -2134,7 +2134,7 @@ def _type_kinds() -> dict[str, TypeKind]:
         *((key, "modelled") for key in Generator._BUILDERS),
         *((key, "modelled") for key in typespec.modelled()),
         *((key, "new") for key in NEW_TYPES),
-        *((row.key, "breadth") for row in breadth.ROWS),
+        *((row.key, "breadth") for row in breadth.rows()),
     ]
     keys = [key for key, _ in declared]
     twice = sorted({key for key in keys if keys.count(key) > 1})
@@ -2157,7 +2157,7 @@ def all_type_keys(kind: TypeKind | None = None) -> list[str]:
 def _check_blocks() -> list[str]:
     """Every type key, after refusing any two that share a part-number block."""
     keys = all_type_keys()
-    yaml_rows = {row.key for row in breadth.ROWS} - set(typespec.registered())
+    yaml_rows = {row.key for row in breadth.rows()} - set(typespec.registered())
     typespec.check_collisions(
         {key: typespec.block_of(key) for key in keys},
         {key: breadth.fix_site(key) for key in keys if key in yaml_rows},

@@ -15,8 +15,9 @@ from ...drawing.figures import _broken
 
 
 def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
-    # Called through the generator, so this module never imports generate.py,
-    # which registers the type modules at the end of its own import.
+    # Called through the generator rather than imported from generate.py:
+    # generate imports the type tables, which discover this module, so
+    # importing generate from here would be an import cycle.
     return gen._build_socket_screw(type_key, category)
 
 
