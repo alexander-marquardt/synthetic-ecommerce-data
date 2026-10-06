@@ -1,0 +1,3509 @@
+{
+ "what_this_is": "Price statistics measured on archived product pages of the reference distributor, for alexander-marquardt/synthetic-industrial-products#52 step 1. Derived figures only: no page, SKU, title or brand name ships.",
+ "method": {
+  "sources": "Product-group pages (one archived page lists a series: one brand, one material, many sizes, each row with its shown price and sale unit) for every deep type except end mills; single-item pages for end mills, whose group pages are not archived.",
+  "price": "The price the page SHOWS a signed-out visitor, with its sale unit ('/ each', '/ pkg. of 10'). per_piece = price / pack quantity.",
+  "dedupe": "One record per SKU per type; the latest capture wins.",
+  "key_dimension": "The first spec attribute in the type's list that parses to a number; inch fractions, #-gauge screw numbers (0.060 + 0.013 n), M-sizes and mm are converted to inches, weights to ounces.",
+  "slope": "Pooled within-cell OLS of log(per_piece) on log(key dimension). A cell is one group page (or one brand) with every non-dimension attribute equal; fasteners also hold length equal. Monotonicity counts every within-cell pair whose key dimension differs.",
+  "brand_spread": "A 'spec' is the key dimension plus the type's spec-defining attributes (material, flutes, grit, closure...). For each spec offered by two or more brands: max/min of the per-brand median per-piece price. brand_price_index = a brand's median per-piece price relative to the spec's geometric mean, over the specs it shares. house_label_over_other_brands compares the distributor's own labels to the other brands on shared specs.",
+  "endings": "Cents of the shown price.",
+  "low_confidence": "true when n < 30; read those figures as indicative only."
+ },
+ "capture_eras": {
+  "records_by_capture_year": {
+   "2015": 5242,
+   "2016": 234,
+   "2017": 109,
+   "2020": 383,
+   "2021": 7
+  },
+  "note": "Mostly 2015 group-page captures; some 2016, 2017 and 2020 group pages; end-mill item pages are 2020-2021 captures. Each type carries its own capture_years. Prices are nominal for their capture year and are not inflation-adjusted. Pages served as script shells with no item rows (all four ball-pein hammer group pages, two jobber-drill and two spiral-point-tap group pages among them) were discarded."
+ },
+ "pooled_endings_all_types": {
+  "n": 5975,
+  "class_share": {
+   "other": 0.5771,
+   "other .x5": 0.2243,
+   ".00": 0.0648,
+   "other .x9": 0.0495,
+   ".50": 0.0415,
+   ".95": 0.0181,
+   ".49": 0.0075,
+   ".98": 0.0059,
+   ".99": 0.0059,
+   ".97": 0.0055
+  }
+ },
+ "deep_types": {
+  "abrasive_flap_disc": {
+   "n": 135,
+   "low_confidence": false,
+   "n_brands": 7,
+   "capture_years": {
+    "2015": 46,
+    "2016": 62,
+    "2017": 27
+   },
+   "price_quantiles_usd": {
+    "p10": 4.7,
+    "p25": 6.96,
+    "p50": 8.68,
+    "p75": 13.92,
+    "p90": 16.5
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 4.7,
+    "p25": 6.96,
+    "p50": 8.68,
+    "p75": 13.92,
+    "p90": 16.28
+   },
+   "key_dimension_attribute": "Disc Dia.",
+   "price_vs_key_dimension": {
+    "loglog_slope": 1.224,
+    "n_cells": 8,
+    "n_skus_in_cells": 36,
+    "n_pairs": 59,
+    "share_larger_costs_more": 0.949,
+    "share_larger_costs_less": 0.051,
+    "share_equal_price": 0.0
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 0,
+    "max_over_min_ratio": null,
+    "n_brands_indexed": 0,
+    "brand_price_index_quantiles": null,
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 0.985,
+     "pack": 0.015
+    },
+    "pack_quantity_counts": {
+     "10": 2
+    },
+    "pack_price_quantiles": {
+     "p10": 125.1,
+     "p25": 125.1,
+     "p50": 125.1,
+     "p75": 125.1,
+     "p90": 125.1
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 12.51,
+     "p25": 12.51,
+     "p50": 12.51,
+     "p75": 12.51,
+     "p90": 12.51
+    },
+    "each_price_quantiles": {
+     "p10": 4.7,
+     "p25": 6.96,
+     "p50": 8.68,
+     "p75": 13.92,
+     "p90": 16.28
+    },
+    "pooled_loglog_slope_price_on_pack_qty": 1.14
+   },
+   "endings": {
+    "n": 135,
+    "class_share": {
+     "other": 0.6741,
+     "other .x5": 0.1481,
+     "other .x9": 0.0519,
+     ".49": 0.0444,
+     ".99": 0.037,
+     ".50": 0.0222,
+     ".95": 0.0148,
+     ".00": 0.0074
+    },
+    "last_cent_digit_share": {
+     "0": 0.0889,
+     "1": 0.1111,
+     "2": 0.1111,
+     "3": 0.037,
+     "4": 0.1037,
+     "5": 0.163,
+     "6": 0.0296,
+     "7": 0.0593,
+     "8": 0.163,
+     "9": 0.1333
+    }
+   },
+   "pages": {
+    "pages_fetched": 24,
+    "pages_used": 14,
+    "pages_no_priced_rows": 10
+   }
+  },
+  "bearing_radial_ball": {
+   "n": 390,
+   "low_confidence": false,
+   "n_brands": 5,
+   "capture_years": {
+    "2015": 390
+   },
+   "price_quantiles_usd": {
+    "p10": 12.885,
+    "p25": 19.5925,
+    "p50": 37.475,
+    "p75": 98.725,
+    "p90": 207.375
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 12.885,
+    "p25": 19.5925,
+    "p50": 37.475,
+    "p75": 98.725,
+    "p90": 207.375
+   },
+   "key_dimension_attribute": "Bore Dia.",
+   "price_vs_key_dimension": {
+    "loglog_slope": 1.167,
+    "n_cells": 15,
+    "n_skus_in_cells": 386,
+    "n_pairs": 7991,
+    "share_larger_costs_more": 0.888,
+    "share_larger_costs_less": 0.112,
+    "share_equal_price": 0.0
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 49,
+    "max_over_min_ratio": {
+     "p10": 1.0746,
+     "p25": 1.2108,
+     "p50": 1.3825,
+     "p75": 1.6587,
+     "p90": 2.1052
+    },
+    "n_brands_indexed": 4,
+    "brand_price_index_quantiles": {
+     "p10": 0.7437,
+     "p25": 0.8365,
+     "p50": 0.9663,
+     "p75": 1.0488,
+     "p90": 1.0564
+    },
+    "house_label_over_other_brands": {
+     "n_specs": 10,
+     "quantiles": {
+      "p10": 0.4079,
+      "p25": 0.4778,
+      "p50": 0.5769,
+      "p75": 0.6229,
+      "p90": 0.6711
+     }
+    },
+    "low_confidence": false
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 1.0
+    },
+    "pack_quantity_counts": null
+   },
+   "endings": {
+    "n": 390,
+    "class_share": {
+     "other": 0.4462,
+     "other .x5": 0.3769,
+     ".50": 0.0513,
+     ".00": 0.0462,
+     "other .x9": 0.0436,
+     ".95": 0.0256,
+     ".49": 0.0051,
+     ".98": 0.0026,
+     ".97": 0.0026
+    },
+    "last_cent_digit_share": {
+     "0": 0.3103,
+     "1": 0.0282,
+     "2": 0.0385,
+     "3": 0.0333,
+     "4": 0.0462,
+     "5": 0.4026,
+     "6": 0.0282,
+     "7": 0.0359,
+     "8": 0.0282,
+     "9": 0.0487
+    }
+   },
+   "pages": {
+    "pages_fetched": 14,
+    "pages_no_priced_rows": 3,
+    "pages_used": 11
+   }
+  },
+  "bolt_hex": {
+   "n": 347,
+   "low_confidence": false,
+   "n_brands": 5,
+   "capture_years": {
+    "2015": 347
+   },
+   "price_quantiles_usd": {
+    "p10": 7.222,
+    "p25": 11.715,
+    "p50": 20.91,
+    "p75": 32.65,
+    "p90": 59.26
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 0.1632,
+    "p25": 0.3032,
+    "p50": 0.7396,
+    "p75": 1.777,
+    "p90": 4.6116
+   },
+   "key_dimension_attribute": "Diameter",
+   "price_vs_key_dimension": {
+    "loglog_slope": 1.602,
+    "n_cells": 63,
+    "n_skus_in_cells": 216,
+    "n_pairs": 303,
+    "share_larger_costs_more": 0.937,
+    "share_larger_costs_less": 0.063,
+    "share_equal_price": 0.0
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 0,
+    "max_over_min_ratio": null,
+    "n_brands_indexed": 0,
+    "brand_price_index_quantiles": null,
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": {
+    "loglog_slope": 0.564,
+    "n_cells": 59,
+    "n_skus_in_cells": 329,
+    "n_pairs": 1886,
+    "share_larger_costs_more": 0.691,
+    "share_larger_costs_less": 0.309,
+    "share_equal_price": 0.001
+   },
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "pack": 0.988,
+     "each": 0.012
+    },
+    "pack_quantity_counts": {
+     "4": 7,
+     "5": 58,
+     "6": 2,
+     "10": 82,
+     "20": 1,
+     "25": 43,
+     "50": 53,
+     "100": 76,
+     "250": 14,
+     "1000": 1,
+     "1300": 2,
+     "1800": 1,
+     "1900": 1,
+     "2400": 1,
+     "2800": 1
+    },
+    "pack_price_quantiles": {
+     "p10": 7.214,
+     "p25": 11.655,
+     "p50": 20.78,
+     "p75": 31.825,
+     "p90": 58.25
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 0.1623,
+     "p25": 0.2986,
+     "p50": 0.728,
+     "p75": 1.758,
+     "p90": 4.1848
+    },
+    "each_price_quantiles": {
+     "p10": 78.475,
+     "p25": 119.5375,
+     "p50": 146.1,
+     "p75": 183.6375,
+     "p90": 244.455
+    },
+    "pooled_loglog_slope_price_on_pack_qty": 0.223,
+    "same_spec_larger_pack_per_piece_ratio": {
+     "n": 41,
+     "quantiles": {
+      "p10": 0.2737,
+      "p25": 0.443,
+      "p50": 0.5778,
+      "p75": 0.6389,
+      "p90": 0.7119
+     }
+    }
+   },
+   "endings": {
+    "n": 347,
+    "class_share": {
+     "other": 0.634,
+     "other .x5": 0.1988,
+     ".50": 0.0432,
+     ".00": 0.0432,
+     "other .x9": 0.0317,
+     ".95": 0.0231,
+     ".97": 0.0086,
+     ".49": 0.0058,
+     ".98": 0.0058,
+     ".99": 0.0058
+    },
+    "last_cent_digit_share": {
+     "0": 0.2853,
+     "1": 0.0692,
+     "2": 0.0634,
+     "3": 0.072,
+     "4": 0.0663,
+     "5": 0.2219,
+     "6": 0.0663,
+     "7": 0.0432,
+     "8": 0.0692,
+     "9": 0.0432
+    }
+   },
+   "pages": {
+    "pages_fetched": 16,
+    "pages_no_priced_rows": 3,
+    "pages_used": 13
+   }
+  },
+  "drill_jobber": {
+   "n": 885,
+   "low_confidence": false,
+   "n_brands": 9,
+   "capture_years": {
+    "2015": 885
+   },
+   "price_quantiles_usd": {
+    "p10": 2.208,
+    "p25": 3.4,
+    "p50": 6.0,
+    "p75": 10.33,
+    "p90": 21.154
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 2.094,
+    "p25": 3.28,
+    "p50": 5.6,
+    "p75": 9.58,
+    "p90": 17.268
+   },
+   "key_dimension_attribute": "Decimal Equivalent",
+   "price_vs_key_dimension": {
+    "loglog_slope": 0.812,
+    "n_cells": 44,
+    "n_skus_in_cells": 752,
+    "n_pairs": 8382,
+    "share_larger_costs_more": 0.878,
+    "share_larger_costs_less": 0.106,
+    "share_equal_price": 0.015
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 101,
+    "max_over_min_ratio": {
+     "p10": 1.1459,
+     "p25": 1.3954,
+     "p50": 2.5705,
+     "p75": 3.3944,
+     "p90": 3.8717
+    },
+    "n_brands_indexed": 9,
+    "brand_price_index_quantiles": {
+     "p10": 0.7034,
+     "p25": 0.8602,
+     "p50": 1.1073,
+     "p75": 1.5455,
+     "p90": 1.7863
+    },
+    "house_label_over_other_brands": {
+     "n_specs": 83,
+     "quantiles": {
+      "p10": 0.3516,
+      "p25": 0.4659,
+      "p50": 0.5196,
+      "p75": 0.5974,
+      "p90": 1.091
+     }
+    },
+    "low_confidence": false
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 0.957,
+     "pack": 0.043
+    },
+    "pack_quantity_counts": {
+     "2": 8,
+     "3": 6,
+     "6": 8,
+     "12": 16
+    },
+    "pack_price_quantiles": {
+     "p10": 1.995,
+     "p25": 16.02,
+     "p50": 34.97,
+     "p75": 44.3,
+     "p90": 53.747
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 0.9975,
+     "p25": 1.845,
+     "p50": 3.9333,
+     "p75": 6.8,
+     "p90": 10.5117
+    },
+    "each_price_quantiles": {
+     "p10": 2.226,
+     "p25": 3.355,
+     "p50": 5.67,
+     "p75": 9.695,
+     "p90": 17.99
+    },
+    "pooled_loglog_slope_price_on_pack_qty": 0.755,
+    "same_spec_larger_pack_per_piece_ratio": {
+     "n": 5,
+     "quantiles": {
+      "p10": 0.6368,
+      "p25": 0.6478,
+      "p50": 0.6589,
+      "p75": 0.69,
+      "p90": 0.6993
+     }
+    }
+   },
+   "endings": {
+    "n": 885,
+    "class_share": {
+     "other": 0.7559,
+     "other .x5": 0.1028,
+     "other .x9": 0.0723,
+     ".49": 0.0136,
+     ".50": 0.0124,
+     ".00": 0.0113,
+     ".95": 0.0102,
+     ".98": 0.009,
+     ".99": 0.0068,
+     ".97": 0.0056
+    },
+    "last_cent_digit_share": {
+     "0": 0.1333,
+     "1": 0.0768,
+     "2": 0.1153,
+     "3": 0.1062,
+     "4": 0.0904,
+     "5": 0.113,
+     "6": 0.0757,
+     "7": 0.1006,
+     "8": 0.096,
+     "9": 0.0927
+    }
+   },
+   "pages": {
+    "pages_fetched": 24,
+    "pages_used": 22,
+    "pages_no_priced_rows": 2
+   }
+  },
+  "end_mill_ball": {
+   "n": 65,
+   "low_confidence": false,
+   "n_brands": 6,
+   "capture_years": {
+    "2020": 65
+   },
+   "price_quantiles_usd": {
+    "p10": 29.428,
+    "p25": 43.1,
+    "p50": 88.23,
+    "p75": 146.88,
+    "p90": 253.944
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 29.428,
+    "p25": 43.1,
+    "p50": 88.23,
+    "p75": 146.88,
+    "p90": 253.944
+   },
+   "key_dimension_attribute": "Milling Dia.",
+   "price_vs_key_dimension": {
+    "loglog_slope": 1.338,
+    "n_cells": 9,
+    "n_skus_in_cells": 19,
+    "n_pairs": 11,
+    "share_larger_costs_more": 0.909,
+    "share_larger_costs_less": 0.091,
+    "share_equal_price": 0.0
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 5,
+    "max_over_min_ratio": {
+     "p10": 1.1231,
+     "p25": 1.2675,
+     "p50": 1.3624,
+     "p75": 1.7375,
+     "p90": 1.995
+    },
+    "n_brands_indexed": 3,
+    "brand_price_index_quantiles": {
+     "p10": 0.886,
+     "p25": 0.9031,
+     "p50": 0.9317,
+     "p75": 1.0025,
+     "p90": 1.045
+    },
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 1.0
+    },
+    "pack_quantity_counts": null
+   },
+   "endings": {
+    "n": 65,
+    "class_share": {
+     "other": 0.6923,
+     ".50": 0.1077,
+     ".00": 0.0923,
+     "other .x5": 0.0769,
+     "other .x9": 0.0308
+    },
+    "last_cent_digit_share": {
+     "0": 0.3538,
+     "1": 0.0308,
+     "2": 0.1231,
+     "3": 0.0615,
+     "4": 0.0923,
+     "5": 0.0769,
+     "6": 0.0615,
+     "7": 0.0923,
+     "8": 0.0769,
+     "9": 0.0308
+    }
+   },
+   "shown_price_below_list_share": 1.0,
+   "pages": {
+    "pages_fetched": 70,
+    "pages_used": 65,
+    "pages_no_priced_rows": 5
+   }
+  },
+  "end_mill_square": {
+   "n": 69,
+   "low_confidence": false,
+   "n_brands": 3,
+   "capture_years": {
+    "2020": 62,
+    "2021": 7
+   },
+   "price_quantiles_usd": {
+    "p10": 22.21,
+    "p25": 24.75,
+    "p50": 52.5,
+    "p75": 105.0,
+    "p90": 167.4
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 22.21,
+    "p25": 24.75,
+    "p50": 52.5,
+    "p75": 105.0,
+    "p90": 167.4
+   },
+   "key_dimension_attribute": "Milling Dia.",
+   "price_vs_key_dimension": {
+    "loglog_slope": 1.091,
+    "n_cells": 11,
+    "n_skus_in_cells": 26,
+    "n_pairs": 18,
+    "share_larger_costs_more": 0.833,
+    "share_larger_costs_less": 0.111,
+    "share_equal_price": 0.056
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 0,
+    "max_over_min_ratio": null,
+    "n_brands_indexed": 0,
+    "brand_price_index_quantiles": null,
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 1.0
+    },
+    "pack_quantity_counts": null
+   },
+   "endings": {
+    "n": 69,
+    "class_share": {
+     ".00": 0.3478,
+     ".50": 0.2899,
+     "other .x5": 0.2464,
+     "other": 0.1014,
+     ".98": 0.0145
+    },
+    "last_cent_digit_share": {
+     "0": 0.6957,
+     "1": 0.0,
+     "2": 0.0145,
+     "3": 0.0,
+     "4": 0.0,
+     "5": 0.2464,
+     "6": 0.0145,
+     "7": 0.0145,
+     "8": 0.0145,
+     "9": 0.0
+    }
+   },
+   "shown_price_below_list_share": 1.0,
+   "pages": {
+    "pages_fetched": 70,
+    "pages_used": 69,
+    "pages_no_priced_rows": 1
+   }
+  },
+  "hex_key": {
+   "n": 270,
+   "low_confidence": false,
+   "n_brands": 5,
+   "capture_years": {
+    "2015": 75,
+    "2016": 55,
+    "2020": 140
+   },
+   "price_quantiles_usd": {
+    "p10": 2.214,
+    "p25": 5.05,
+    "p50": 9.68,
+    "p75": 19.01,
+    "p90": 31.9
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 0.5169,
+    "p25": 1.6975,
+    "p50": 6.25,
+    "p75": 12.3575,
+    "p90": 25.75
+   },
+   "key_dimension_attribute": "Tip Size",
+   "price_vs_key_dimension": {
+    "loglog_slope": 1.141,
+    "n_cells": 24,
+    "n_skus_in_cells": 253,
+    "n_pairs": 1707,
+    "share_larger_costs_more": 0.925,
+    "share_larger_costs_less": 0.066,
+    "share_equal_price": 0.009
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 0,
+    "max_over_min_ratio": null,
+    "n_brands_indexed": 0,
+    "brand_price_index_quantiles": null,
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 0.648,
+     "pack": 0.352
+    },
+    "pack_quantity_counts": {
+     "2": 4,
+     "4": 13,
+     "5": 24,
+     "10": 54
+    },
+    "pack_price_quantiles": {
+     "p10": 2.064,
+     "p25": 4.03,
+     "p50": 10.75,
+     "p75": 20.36,
+     "p90": 27.14
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 0.2064,
+     "p25": 0.403,
+     "p50": 1.22,
+     "p75": 4.9262,
+     "p90": 9.915
+    },
+    "each_price_quantiles": {
+     "p10": 2.61,
+     "p25": 5.2,
+     "p50": 8.89,
+     "p75": 16.205,
+     "p90": 32.1
+    },
+    "pooled_loglog_slope_price_on_pack_qty": -0.081,
+    "same_spec_larger_pack_per_piece_ratio": {
+     "n": 14,
+     "quantiles": {
+      "p10": 0.749,
+      "p25": 0.7592,
+      "p50": 0.8001,
+      "p75": 0.8312,
+      "p90": 1.9151
+     }
+    }
+   },
+   "endings": {
+    "n": 270,
+    "class_share": {
+     "other": 0.5741,
+     "other .x5": 0.2111,
+     "other .x9": 0.0704,
+     ".00": 0.0667,
+     ".50": 0.0407,
+     ".95": 0.0185,
+     ".97": 0.0111,
+     ".98": 0.0074
+    },
+    "last_cent_digit_share": {
+     "0": 0.3,
+     "1": 0.0444,
+     "2": 0.0593,
+     "3": 0.0296,
+     "4": 0.0556,
+     "5": 0.2296,
+     "6": 0.0889,
+     "7": 0.0519,
+     "8": 0.0704,
+     "9": 0.0704
+    }
+   },
+   "pages": {
+    "pages_fetched": 15,
+    "pages_used": 12,
+    "pages_no_priced_rows": 3
+   }
+  },
+  "kit_assortment": {
+   "n": 46,
+   "low_confidence": false,
+   "n_brands": 5,
+   "capture_years": {
+    "2015": 46
+   },
+   "price_quantiles_usd": {
+    "p10": 5.505,
+    "p25": 23.08,
+    "p50": 80.575,
+    "p75": 310.75,
+    "p90": 629.0
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 5.505,
+    "p25": 23.08,
+    "p50": 80.575,
+    "p75": 310.75,
+    "p90": 629.0
+   },
+   "key_dimension_attribute": "Number of Pieces",
+   "price_vs_key_dimension": {
+    "loglog_slope": 0.849,
+    "n_cells": 3,
+    "n_skus_in_cells": 26,
+    "n_pairs": 79,
+    "share_larger_costs_more": 0.797,
+    "share_larger_costs_less": 0.203,
+    "share_equal_price": 0.0
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 0,
+    "max_over_min_ratio": null,
+    "n_brands_indexed": 0,
+    "brand_price_index_quantiles": null,
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 0.957,
+     "pack": 0.043
+    },
+    "pack_quantity_counts": {
+     "12": 1,
+     "15": 1
+    },
+    "pack_price_quantiles": {
+     "p10": 4.34,
+     "p25": 4.415,
+     "p50": 4.54,
+     "p75": 4.665,
+     "p90": 4.74
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 0.2973,
+     "p25": 0.3143,
+     "p50": 0.3426,
+     "p75": 0.3709,
+     "p90": 0.3879
+    },
+    "each_price_quantiles": {
+     "p10": 6.441,
+     "p25": 24.145,
+     "p50": 100.875,
+     "p75": 324.125,
+     "p90": 629.6
+    },
+    "pooled_loglog_slope_price_on_pack_qty": -1.11
+   },
+   "endings": {
+    "n": 46,
+    "class_share": {
+     "other .x5": 0.4783,
+     "other": 0.1957,
+     ".50": 0.1304,
+     "other .x9": 0.087,
+     ".00": 0.0435,
+     ".98": 0.0435,
+     ".49": 0.0217
+    },
+    "last_cent_digit_share": {
+     "0": 0.2391,
+     "1": 0.0217,
+     "2": 0.0435,
+     "3": 0.0652,
+     "4": 0.0,
+     "5": 0.4783,
+     "6": 0.0,
+     "7": 0.0,
+     "8": 0.0435,
+     "9": 0.1087
+    }
+   },
+   "pages": {
+    "pages_fetched": 13,
+    "pages_used": 11,
+    "pages_no_priced_rows": 2
+   }
+  },
+  "nut_hex": {
+   "n": 473,
+   "low_confidence": false,
+   "n_brands": 7,
+   "capture_years": {
+    "2015": 473
+   },
+   "price_quantiles_usd": {
+    "p10": 4.786,
+    "p25": 7.75,
+    "p50": 15.31,
+    "p75": 29.45,
+    "p90": 49.89
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 0.0691,
+    "p25": 0.1648,
+    "p50": 0.546,
+    "p75": 2.076,
+    "p90": 7.38
+   },
+   "key_dimension_attribute": "Thread Size",
+   "price_vs_key_dimension": {
+    "loglog_slope": 1.192,
+    "n_cells": 64,
+    "n_skus_in_cells": 451,
+    "n_pairs": 1877,
+    "share_larger_costs_more": 0.878,
+    "share_larger_costs_less": 0.12,
+    "share_equal_price": 0.002
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 6,
+    "max_over_min_ratio": {
+     "p10": 1.5928,
+     "p25": 2.291,
+     "p50": 5.5752,
+     "p75": 9.4916,
+     "p90": 11.1304
+    },
+    "n_brands_indexed": 4,
+    "brand_price_index_quantiles": {
+     "p10": 0.3533,
+     "p25": 0.3751,
+     "p50": 0.592,
+     "p75": 1.17,
+     "p90": 1.8418
+    },
+    "house_label_over_other_brands": {
+     "n_specs": 6,
+     "quantiles": {
+      "p10": 1.5928,
+      "p25": 2.291,
+      "p50": 5.5752,
+      "p75": 9.4916,
+      "p90": 11.1304
+     }
+    },
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "pack": 0.918,
+     "each": 0.082
+    },
+    "pack_quantity_counts": {
+     "2": 11,
+     "3": 1,
+     "5": 54,
+     "10": 54,
+     "15": 1,
+     "20": 19,
+     "25": 70,
+     "30": 1,
+     "50": 61,
+     "65": 1,
+     "95": 2,
+     "100": 126,
+     "135": 1,
+     "200": 3,
+     "250": 14,
+     "300": 1,
+     "500": 1,
+     "540": 1,
+     "700": 1,
+     "1000": 2,
+     "4375": 1,
+     "7500": 1,
+     "8000": 1,
+     "10000": 2,
+     "20000": 2,
+     "25000": 1,
+     "30000": 1
+    },
+    "pack_price_quantiles": {
+     "p10": 4.951,
+     "p25": 7.8425,
+     "p50": 15.65,
+     "p75": 30.0,
+     "p90": 51.385
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 0.0661,
+     "p25": 0.1403,
+     "p50": 0.4473,
+     "p75": 1.449,
+     "p90": 3.9574
+    },
+    "each_price_quantiles": {
+     "p10": 4.578,
+     "p25": 7.205,
+     "p50": 10.24,
+     "p75": 19.255,
+     "p90": 28.914
+    },
+    "pooled_loglog_slope_price_on_pack_qty": 0.234,
+    "same_spec_larger_pack_per_piece_ratio": {
+     "n": 19,
+     "quantiles": {
+      "p10": 0.4312,
+      "p25": 0.5179,
+      "p50": 0.7524,
+      "p75": 0.9431,
+      "p90": 1.0753
+     }
+    }
+   },
+   "endings": {
+    "n": 473,
+    "class_share": {
+     "other": 0.6385,
+     "other .x5": 0.1882,
+     "other .x9": 0.0592,
+     ".00": 0.0444,
+     ".95": 0.0169,
+     ".50": 0.0169,
+     ".49": 0.0148,
+     ".97": 0.0127,
+     ".98": 0.0063,
+     ".99": 0.0021
+    },
+    "last_cent_digit_share": {
+     "0": 0.2495,
+     "1": 0.0634,
+     "2": 0.0761,
+     "3": 0.0761,
+     "4": 0.0465,
+     "5": 0.2051,
+     "6": 0.0592,
+     "7": 0.0719,
+     "8": 0.0761,
+     "9": 0.0761
+    }
+   },
+   "pages": {
+    "pages_fetched": 34,
+    "pages_used": 32,
+    "pages_no_priced_rows": 2
+   }
+  },
+  "screw_flat_head": {
+   "n": 4,
+   "low_confidence": true,
+   "n_brands": 1,
+   "capture_years": {
+    "2015": 4
+   },
+   "price_quantiles_usd": {
+    "p10": 10.692,
+    "p25": 11.385,
+    "p50": 11.98,
+    "p75": 16.155,
+    "p90": 23.292
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 6.996,
+    "p25": 9.075,
+    "p50": 11.0,
+    "p75": 11.875,
+    "p90": 12.064
+   },
+   "key_dimension_attribute": "Thread Dia.",
+   "price_vs_key_dimension": {
+    "loglog_slope": null,
+    "n_cells": 0,
+    "n_skus_in_cells": 0,
+    "n_pairs": 0,
+    "share_larger_costs_more": null,
+    "share_larger_costs_less": null,
+    "share_equal_price": null
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 0,
+    "max_over_min_ratio": null,
+    "n_brands_indexed": 0,
+    "brand_price_index_quantiles": null,
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": {
+    "loglog_slope": 0.617,
+    "n_cells": 1,
+    "n_skus_in_cells": 3,
+    "n_pairs": 3,
+    "share_larger_costs_more": 1.0,
+    "share_larger_costs_less": 0.0,
+    "share_equal_price": 0.0
+   },
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 0.75,
+     "pack": 0.25
+    },
+    "pack_quantity_counts": {
+     "5": 1
+    },
+    "pack_price_quantiles": {
+     "p10": 28.05,
+     "p25": 28.05,
+     "p50": 28.05,
+     "p75": 28.05,
+     "p90": 28.05
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 5.61,
+     "p25": 5.61,
+     "p50": 5.61,
+     "p75": 5.61,
+     "p90": 5.61
+    },
+    "each_price_quantiles": {
+     "p10": 10.538,
+     "p25": 11.0,
+     "p50": 11.77,
+     "p75": 11.98,
+     "p90": 12.106
+    },
+    "pooled_loglog_slope_price_on_pack_qty": 0.561
+   },
+   "endings": {
+    "n": 4,
+    "class_share": {
+     "other": 0.5,
+     "other .x5": 0.25,
+     "other .x9": 0.25
+    },
+    "last_cent_digit_share": {
+     "0": 0.0,
+     "1": 0.0,
+     "2": 0.0,
+     "3": 0.25,
+     "4": 0.0,
+     "5": 0.25,
+     "6": 0.0,
+     "7": 0.25,
+     "8": 0.0,
+     "9": 0.25
+    }
+   },
+   "pages": {
+    "pages_fetched": 4,
+    "pages_no_priced_rows": 3,
+    "pages_used": 1
+   }
+  },
+  "screw_socket_head": {
+   "n": 308,
+   "low_confidence": false,
+   "n_brands": 4,
+   "capture_years": {
+    "2015": 308
+   },
+   "price_quantiles_usd": {
+    "p10": 7.0,
+    "p25": 11.325,
+    "p50": 21.535,
+    "p75": 33.1,
+    "p90": 48.065
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 0.07,
+    "p25": 0.1143,
+    "p50": 0.2545,
+    "p75": 0.3941,
+    "p90": 0.6972
+   },
+   "key_dimension_attribute": "Thread Dia.",
+   "price_vs_key_dimension": {
+    "loglog_slope": 0.124,
+    "n_cells": 27,
+    "n_skus_in_cells": 61,
+    "n_pairs": 40,
+    "share_larger_costs_more": 0.575,
+    "share_larger_costs_less": 0.35,
+    "share_equal_price": 0.075
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 7,
+    "max_over_min_ratio": {
+     "p10": 1.2394,
+     "p25": 1.2829,
+     "p50": 1.3372,
+     "p75": 1.6093,
+     "p90": 1.8917
+    },
+    "n_brands_indexed": 2,
+    "brand_price_index_quantiles": {
+     "p10": 0.8939,
+     "p25": 0.9377,
+     "p50": 1.0106,
+     "p75": 1.0835,
+     "p90": 1.1272
+    },
+    "house_label_over_other_brands": {
+     "n_specs": 7,
+     "quantiles": {
+      "p10": 0.5314,
+      "p25": 0.6283,
+      "p50": 0.7479,
+      "p75": 0.7796,
+      "p90": 0.9547
+     }
+    },
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": {
+    "loglog_slope": 0.256,
+    "n_cells": 57,
+    "n_skus_in_cells": 299,
+    "n_pairs": 858,
+    "share_larger_costs_more": 0.662,
+    "share_larger_costs_less": 0.319,
+    "share_equal_price": 0.019
+   },
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "pack": 1.0
+    },
+    "pack_quantity_counts": {
+     "5": 4,
+     "10": 5,
+     "25": 13,
+     "50": 25,
+     "100": 261
+    },
+    "pack_price_quantiles": {
+     "p10": 7.0,
+     "p25": 11.325,
+     "p50": 21.535,
+     "p75": 33.1,
+     "p90": 48.065
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 0.07,
+     "p25": 0.1143,
+     "p50": 0.2545,
+     "p75": 0.3941,
+     "p90": 0.6972
+    },
+    "pooled_loglog_slope_price_on_pack_qty": 0.051,
+    "same_spec_larger_pack_per_piece_ratio": {
+     "n": 3,
+     "quantiles": {
+      "p10": 0.0916,
+      "p25": 0.0933,
+      "p50": 0.0963,
+      "p75": 0.2959,
+      "p90": 0.4156
+     }
+    }
+   },
+   "endings": {
+    "n": 308,
+    "class_share": {
+     "other": 0.487,
+     "other .x5": 0.2468,
+     ".00": 0.1688,
+     ".50": 0.039,
+     "other .x9": 0.0325,
+     ".95": 0.0195,
+     ".97": 0.0032,
+     ".99": 0.0032
+    },
+    "last_cent_digit_share": {
+     "0": 0.3734,
+     "1": 0.0519,
+     "2": 0.0357,
+     "3": 0.0422,
+     "4": 0.0584,
+     "5": 0.2662,
+     "6": 0.0617,
+     "7": 0.0325,
+     "8": 0.0422,
+     "9": 0.0357
+    }
+   },
+   "pages": {
+    "pages_fetched": 7,
+    "pages_used": 7
+   }
+  },
+  "tap_spiral_point": {
+   "n": 487,
+   "low_confidence": false,
+   "n_brands": 5,
+   "capture_years": {
+    "2015": 487
+   },
+   "price_quantiles_usd": {
+    "p10": 9.27,
+    "p25": 13.245,
+    "p50": 20.02,
+    "p75": 31.95,
+    "p90": 49.7
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 9.27,
+    "p25": 13.245,
+    "p50": 20.02,
+    "p75": 31.95,
+    "p90": 49.7
+   },
+   "key_dimension_attribute": "Size",
+   "price_vs_key_dimension": {
+    "loglog_slope": 0.551,
+    "n_cells": 58,
+    "n_skus_in_cells": 293,
+    "n_pairs": 768,
+    "share_larger_costs_more": 0.585,
+    "share_larger_costs_less": 0.311,
+    "share_equal_price": 0.104
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 31,
+    "max_over_min_ratio": {
+     "p10": 1.7603,
+     "p25": 1.9292,
+     "p50": 2.2238,
+     "p75": 2.4422,
+     "p90": 2.5231
+    },
+    "n_brands_indexed": 3,
+    "brand_price_index_quantiles": {
+     "p10": 0.745,
+     "p25": 0.8798,
+     "p50": 1.1045,
+     "p75": 1.2365,
+     "p90": 1.3157
+    },
+    "house_label_over_other_brands": {
+     "n_specs": 29,
+     "quantiles": {
+      "p10": 0.3936,
+      "p25": 0.4095,
+      "p50": 0.5039,
+      "p75": 0.5714,
+      "p90": 0.5906
+     }
+    },
+    "low_confidence": false
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 1.0
+    },
+    "pack_quantity_counts": null
+   },
+   "endings": {
+    "n": 487,
+    "class_share": {
+     "other": 0.6489,
+     "other .x5": 0.2197,
+     "other .x9": 0.0452,
+     ".50": 0.0287,
+     ".00": 0.0185,
+     ".95": 0.0103,
+     ".98": 0.0103,
+     ".97": 0.0082,
+     ".99": 0.0062,
+     ".49": 0.0041
+    },
+    "last_cent_digit_share": {
+     "0": 0.2464,
+     "1": 0.0349,
+     "2": 0.0534,
+     "3": 0.0534,
+     "4": 0.0862,
+     "5": 0.23,
+     "6": 0.0698,
+     "7": 0.076,
+     "8": 0.0945,
+     "9": 0.0554
+    }
+   },
+   "pages": {
+    "pages_fetched": 17,
+    "pages_no_priced_rows": 2,
+    "pages_used": 15
+   }
+  },
+  "washer_flat": {
+   "n": 174,
+   "low_confidence": false,
+   "n_brands": 4,
+   "capture_years": {
+    "2015": 152,
+    "2016": 22
+   },
+   "price_quantiles_usd": {
+    "p10": 1.0,
+    "p25": 2.0,
+    "p50": 4.89,
+    "p75": 9.89,
+    "p90": 24.804
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 0.03,
+    "p25": 0.1165,
+    "p50": 0.2077,
+    "p75": 1.2385,
+    "p90": 4.1001
+   },
+   "key_dimension_attribute": "Inside Dia.",
+   "price_vs_key_dimension": {
+    "loglog_slope": 1.298,
+    "n_cells": 19,
+    "n_skus_in_cells": 146,
+    "n_pairs": 1406,
+    "share_larger_costs_more": 0.808,
+    "share_larger_costs_less": 0.188,
+    "share_equal_price": 0.004
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 0,
+    "max_over_min_ratio": null,
+    "n_brands_indexed": 0,
+    "brand_price_index_quantiles": null,
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "pack": 0.747,
+     "each": 0.253
+    },
+    "pack_quantity_counts": {
+     "2": 5,
+     "5": 10,
+     "10": 12,
+     "20": 2,
+     "25": 15,
+     "40": 30,
+     "50": 16,
+     "100": 28,
+     "400": 8,
+     "500": 4
+    },
+    "pack_price_quantiles": {
+     "p10": 1.437,
+     "p25": 3.36,
+     "p50": 5.91,
+     "p75": 13.245,
+     "p90": 25.885
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 0.0191,
+     "p25": 0.0831,
+     "p50": 0.1487,
+     "p75": 0.4154,
+     "p90": 1.5766
+    },
+    "each_price_quantiles": {
+     "p10": 0.289,
+     "p25": 0.855,
+     "p50": 1.775,
+     "p75": 4.34,
+     "p90": 14.562
+    },
+    "pooled_loglog_slope_price_on_pack_qty": 0.185,
+    "same_spec_larger_pack_per_piece_ratio": {
+     "n": 10,
+     "quantiles": {
+      "p10": 0.4374,
+      "p25": 0.5124,
+      "p50": 0.7383,
+      "p75": 0.8613,
+      "p90": 1.5491
+     }
+    }
+   },
+   "endings": {
+    "n": 174,
+    "class_share": {
+     "other": 0.6207,
+     "other .x5": 0.1264,
+     ".00": 0.092,
+     "other .x9": 0.0862,
+     ".95": 0.023,
+     ".49": 0.0172,
+     ".97": 0.0172,
+     ".50": 0.0115,
+     ".99": 0.0057
+    },
+    "last_cent_digit_share": {
+     "0": 0.1724,
+     "1": 0.0632,
+     "2": 0.0747,
+     "3": 0.069,
+     "4": 0.0862,
+     "5": 0.1494,
+     "6": 0.0805,
+     "7": 0.0747,
+     "8": 0.1207,
+     "9": 0.1092
+    }
+   },
+   "pages": {
+    "pages_fetched": 12,
+    "pages_no_priced_rows": 3,
+    "pages_used": 9
+   }
+  },
+  "wheel_depressed_center": {
+   "n": 217,
+   "low_confidence": false,
+   "n_brands": 7,
+   "capture_years": {
+    "2015": 217
+   },
+   "price_quantiles_usd": {
+    "p10": 2.906,
+    "p25": 5.15,
+    "p50": 9.51,
+    "p75": 18.83,
+    "p90": 29.05
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 2.906,
+    "p25": 5.05,
+    "p50": 9.48,
+    "p75": 17.89,
+    "p90": 28.85
+   },
+   "key_dimension_attribute": "Diameter",
+   "price_vs_key_dimension": {
+    "loglog_slope": 1.173,
+    "n_cells": 15,
+    "n_skus_in_cells": 168,
+    "n_pairs": 1095,
+    "share_larger_costs_more": 0.808,
+    "share_larger_costs_less": 0.188,
+    "share_equal_price": 0.004
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 12,
+    "max_over_min_ratio": {
+     "p10": 1.046,
+     "p25": 1.1387,
+     "p50": 1.2838,
+     "p75": 1.5461,
+     "p90": 2.1016
+    },
+    "n_brands_indexed": 5,
+    "brand_price_index_quantiles": {
+     "p10": 0.8064,
+     "p25": 0.9204,
+     "p50": 1.0107,
+     "p75": 1.0937,
+     "p90": 1.1326
+    },
+    "house_label_over_other_brands": {
+     "n_specs": 4,
+     "quantiles": {
+      "p10": 0.4045,
+      "p25": 0.4429,
+      "p50": 0.5387,
+      "p75": 0.6245,
+      "p90": 0.6451
+     }
+    },
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 0.986,
+     "pack": 0.014
+    },
+    "pack_quantity_counts": {
+     "20": 1,
+     "40": 2
+    },
+    "pack_price_quantiles": {
+     "p10": 149.61,
+     "p25": 168.6,
+     "p50": 200.25,
+     "p75": 224.375,
+     "p90": 238.85
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 3.9815,
+     "p25": 4.8181,
+     "p50": 6.2125,
+     "p75": 8.1125,
+     "p90": 9.2525
+    },
+    "each_price_quantiles": {
+     "p10": 2.888,
+     "p25": 5.075,
+     "p50": 9.495,
+     "p75": 18.04,
+     "p90": 28.85
+    },
+    "pooled_loglog_slope_price_on_pack_qty": 0.828
+   },
+   "endings": {
+    "n": 217,
+    "class_share": {
+     "other": 0.6452,
+     "other .x5": 0.1705,
+     "other .x9": 0.0737,
+     ".95": 0.0276,
+     ".50": 0.0276,
+     ".99": 0.0276,
+     ".00": 0.0138,
+     ".49": 0.0092,
+     ".98": 0.0046
+    },
+    "last_cent_digit_share": {
+     "0": 0.1613,
+     "1": 0.0691,
+     "2": 0.0829,
+     "3": 0.0783,
+     "4": 0.0645,
+     "5": 0.1982,
+     "6": 0.0691,
+     "7": 0.0737,
+     "8": 0.0922,
+     "9": 0.1106
+    }
+   },
+   "pages": {
+    "pages_fetched": 13,
+    "pages_used": 11,
+    "pages_no_priced_rows": 2
+   }
+  },
+  "hammer_ball_pein": {
+   "n": 0,
+   "low_confidence": true,
+   "not_measured": "all 4 archived group pages are script shells with no item rows; no item pages were sampled"
+  },
+  "screw_button_head": {
+   "n": 0,
+   "low_confidence": true,
+   "not_measured": "no archived slug-era page names this type (searched Button/Btn with Socket/Skt/Cap)"
+  },
+  "screw_low_head": {
+   "n": 0,
+   "low_confidence": true,
+   "not_measured": "no archived slug-era page names this type (searched Low-Head/Low-Hd with Socket/Skt/Cap)"
+  }
+ },
+ "breadth_categories": {
+  "ball_valves": {
+   "n": 42,
+   "low_confidence": false,
+   "n_brands": 4,
+   "capture_years": {
+    "2015": 42
+   },
+   "price_quantiles_usd": {
+    "p10": 3.674,
+    "p25": 8.205,
+    "p50": 13.145,
+    "p75": 30.825,
+    "p90": 182.59
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 3.674,
+    "p25": 8.205,
+    "p50": 13.145,
+    "p75": 30.825,
+    "p90": 182.59
+   },
+   "key_dimension_attribute": "Pipe Size",
+   "price_vs_key_dimension": {
+    "loglog_slope": 1.202,
+    "n_cells": 5,
+    "n_skus_in_cells": 37,
+    "n_pairs": 120,
+    "share_larger_costs_more": 0.908,
+    "share_larger_costs_less": 0.092,
+    "share_equal_price": 0.0
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 5,
+    "max_over_min_ratio": {
+     "p10": 24.5743,
+     "p25": 26.9268,
+     "p50": 36.4589,
+     "p75": 37.7059,
+     "p90": 39.8458
+    },
+    "n_brands_indexed": 2,
+    "brand_price_index_quantiles": {
+     "p10": 0.7529,
+     "p25": 1.6337,
+     "p50": 3.1019,
+     "p75": 4.57,
+     "p90": 5.4509
+    },
+    "house_label_over_other_brands": {
+     "n_specs": 5,
+     "quantiles": {
+      "p10": 0.0251,
+      "p25": 0.0265,
+      "p50": 0.0274,
+      "p75": 0.0371,
+      "p90": 0.0409
+     }
+    },
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 1.0
+    },
+    "pack_quantity_counts": null
+   },
+   "endings": {
+    "n": 42,
+    "class_share": {
+     "other": 0.5952,
+     "other .x5": 0.119,
+     ".50": 0.119,
+     "other .x9": 0.0714,
+     ".00": 0.0476,
+     ".99": 0.0238,
+     ".95": 0.0238
+    },
+    "last_cent_digit_share": {
+     "0": 0.3095,
+     "1": 0.0476,
+     "2": 0.0714,
+     "3": 0.0476,
+     "4": 0.0476,
+     "5": 0.1429,
+     "6": 0.0952,
+     "7": 0.1429,
+     "8": 0.0,
+     "9": 0.0952
+    }
+   },
+   "pages": {
+    "pages_fetched": 8,
+    "pages_no_priced_rows": 1,
+    "pages_used": 7
+   }
+  },
+  "blind_rivets": {
+   "n": 8,
+   "low_confidence": true,
+   "n_brands": 2,
+   "capture_years": {
+    "2015": 8
+   },
+   "price_quantiles_usd": {
+    "p10": 12.308,
+    "p25": 15.89,
+    "p50": 21.1,
+    "p75": 23.4175,
+    "p90": 27.415
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 0.0426,
+    "p25": 0.0442,
+    "p50": 0.0557,
+    "p75": 0.488,
+    "p90": 0.5514
+   },
+   "key_dimension_attribute": "Grip Range",
+   "price_vs_key_dimension": {
+    "loglog_slope": -0.002,
+    "n_cells": 2,
+    "n_skus_in_cells": 5,
+    "n_pairs": 4,
+    "share_larger_costs_more": 0.25,
+    "share_larger_costs_less": 0.75,
+    "share_equal_price": 0.0
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 0,
+    "max_over_min_ratio": null,
+    "n_brands_indexed": 0,
+    "brand_price_index_quantiles": null,
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "pack": 1.0
+    },
+    "pack_quantity_counts": {
+     "25": 3,
+     "500": 5
+    },
+    "pack_price_quantiles": {
+     "p10": 12.308,
+     "p25": 15.89,
+     "p50": 21.1,
+     "p75": 23.4175,
+     "p90": 27.415
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 0.0426,
+     "p25": 0.0442,
+     "p50": 0.0557,
+     "p75": 0.488,
+     "p90": 0.5514
+    },
+    "pooled_loglog_slope_price_on_pack_qty": 0.185
+   },
+   "endings": {
+    "n": 8,
+    "class_share": {
+     "other": 0.625,
+     "other .x9": 0.25,
+     "other .x5": 0.125
+    },
+    "last_cent_digit_share": {
+     "0": 0.125,
+     "1": 0.125,
+     "2": 0.0,
+     "3": 0.0,
+     "4": 0.125,
+     "5": 0.125,
+     "6": 0.125,
+     "7": 0.0,
+     "8": 0.125,
+     "9": 0.25
+    }
+   },
+   "pages": {
+    "pages_fetched": 4,
+    "pages_no_priced_rows": 1,
+    "pages_used": 3
+   }
+  },
+  "c_clamps": {
+   "n": 127,
+   "low_confidence": false,
+   "n_brands": 3,
+   "capture_years": {
+    "2015": 127
+   },
+   "price_quantiles_usd": {
+    "p10": 10.526,
+    "p25": 16.675,
+    "p50": 52.0,
+    "p75": 147.9,
+    "p90": 342.25
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 10.526,
+    "p25": 16.675,
+    "p50": 52.0,
+    "p75": 147.9,
+    "p90": 342.25
+   },
+   "key_dimension_attribute": "Max. Opening",
+   "price_vs_key_dimension": {
+    "loglog_slope": 0.939,
+    "n_cells": 11,
+    "n_skus_in_cells": 66,
+    "n_pairs": 262,
+    "share_larger_costs_more": 0.966,
+    "share_larger_costs_less": 0.031,
+    "share_equal_price": 0.004
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 4,
+    "max_over_min_ratio": {
+     "p10": 1.1631,
+     "p25": 1.1835,
+     "p50": 1.2089,
+     "p75": 2.0716,
+     "p90": 3.5994
+    },
+    "n_brands_indexed": 2,
+    "brand_price_index_quantiles": {
+     "p10": 0.9923,
+     "p25": 0.9952,
+     "p50": 1.0,
+     "p75": 1.0049,
+     "p90": 1.0078
+    },
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 1.0
+    },
+    "pack_quantity_counts": null
+   },
+   "endings": {
+    "n": 127,
+    "class_share": {
+     "other": 0.3701,
+     "other .x5": 0.2756,
+     ".00": 0.2047,
+     ".95": 0.0472,
+     ".50": 0.0472,
+     ".99": 0.0157,
+     "other .x9": 0.0157,
+     ".97": 0.0079,
+     ".98": 0.0079,
+     ".49": 0.0079
+    },
+    "last_cent_digit_share": {
+     "0": 0.378,
+     "1": 0.0315,
+     "2": 0.0236,
+     "3": 0.0315,
+     "4": 0.0394,
+     "5": 0.3228,
+     "6": 0.0236,
+     "7": 0.063,
+     "8": 0.0472,
+     "9": 0.0394
+    }
+   },
+   "pages": {
+    "pages_fetched": 6,
+    "pages_no_priced_rows": 3,
+    "pages_used": 3
+   }
+  },
+  "carriage_bolts": {
+   "n": 110,
+   "low_confidence": false,
+   "n_brands": 3,
+   "capture_years": {
+    "2015": 110
+   },
+   "price_quantiles_usd": {
+    "p10": 10.841,
+    "p25": 17.13,
+    "p50": 26.1,
+    "p75": 39.2875,
+    "p90": 67.205
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 0.1226,
+    "p25": 0.2635,
+    "p50": 0.8039,
+    "p75": 1.829,
+    "p90": 3.4511
+   },
+   "key_dimension_attribute": "Thread Size",
+   "price_vs_key_dimension": {
+    "loglog_slope": 2.202,
+    "n_cells": 2,
+    "n_skus_in_cells": 55,
+    "n_pairs": 1050,
+    "share_larger_costs_more": 0.854,
+    "share_larger_costs_less": 0.146,
+    "share_equal_price": 0.0
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 0,
+    "max_over_min_ratio": null,
+    "n_brands_indexed": 0,
+    "brand_price_index_quantiles": null,
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "pack": 0.973,
+     "each": 0.027
+    },
+    "pack_quantity_counts": {
+     "5": 10,
+     "10": 14,
+     "25": 22,
+     "50": 3,
+     "75": 1,
+     "100": 55,
+     "1200": 1,
+     "1400": 1
+    },
+    "pack_price_quantiles": {
+     "p10": 11.438,
+     "p25": 18.56,
+     "p50": 26.25,
+     "p75": 40.475,
+     "p90": 67.97
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 0.1203,
+     "p25": 0.2503,
+     "p50": 0.7255,
+     "p75": 1.713,
+     "p90": 3.4208
+    },
+    "each_price_quantiles": {
+     "p10": 1.872,
+     "p25": 2.175,
+     "p50": 2.68,
+     "p75": 6.095,
+     "p90": 8.144
+    },
+    "pooled_loglog_slope_price_on_pack_qty": 0.325,
+    "same_spec_larger_pack_per_piece_ratio": {
+     "n": 5,
+     "quantiles": {
+      "p10": 0.1488,
+      "p25": 0.198,
+      "p50": 0.2042,
+      "p75": 0.2909,
+      "p90": 1.09
+     }
+    }
+   },
+   "endings": {
+    "n": 110,
+    "class_share": {
+     "other": 0.4545,
+     "other .x5": 0.2818,
+     ".00": 0.0727,
+     "other .x9": 0.0727,
+     ".50": 0.0455,
+     ".95": 0.0455,
+     ".49": 0.0182,
+     ".99": 0.0091
+    },
+    "last_cent_digit_share": {
+     "0": 0.2909,
+     "1": 0.0545,
+     "2": 0.0545,
+     "3": 0.0182,
+     "4": 0.0727,
+     "5": 0.3273,
+     "6": 0.0182,
+     "7": 0.0364,
+     "8": 0.0273,
+     "9": 0.1
+    }
+   },
+   "pages": {
+    "pages_fetched": 7,
+    "pages_used": 7
+   }
+  },
+  "cold_chisels": {
+   "n": 91,
+   "low_confidence": false,
+   "n_brands": 5,
+   "capture_years": {
+    "2015": 37,
+    "2016": 38,
+    "2020": 16
+   },
+   "price_quantiles_usd": {
+    "p10": 7.13,
+    "p25": 9.435,
+    "p50": 15.68,
+    "p75": 25.725,
+    "p90": 38.2
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 7.13,
+    "p25": 9.435,
+    "p50": 15.68,
+    "p75": 25.725,
+    "p90": 38.2
+   },
+   "key_dimension_attribute": "Length",
+   "price_vs_key_dimension": {
+    "loglog_slope": 0.917,
+    "n_cells": 9,
+    "n_skus_in_cells": 85,
+    "n_pairs": 382,
+    "share_larger_costs_more": 0.835,
+    "share_larger_costs_less": 0.165,
+    "share_equal_price": 0.0
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 11,
+    "max_over_min_ratio": {
+     "p10": 1.3193,
+     "p25": 1.7682,
+     "p50": 2.4913,
+     "p75": 3.6784,
+     "p90": 5.069
+    },
+    "n_brands_indexed": 5,
+    "brand_price_index_quantiles": {
+     "p10": 0.6557,
+     "p25": 0.8159,
+     "p50": 0.8834,
+     "p75": 1.0792,
+     "p90": 1.6203
+    },
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 1.0
+    },
+    "pack_quantity_counts": null
+   },
+   "endings": {
+    "n": 91,
+    "class_share": {
+     "other": 0.5934,
+     "other .x5": 0.2637,
+     ".50": 0.044,
+     "other .x9": 0.044,
+     ".00": 0.022,
+     ".95": 0.022,
+     ".97": 0.011
+    },
+    "last_cent_digit_share": {
+     "0": 0.2527,
+     "1": 0.011,
+     "2": 0.0989,
+     "3": 0.0549,
+     "4": 0.022,
+     "5": 0.2857,
+     "6": 0.022,
+     "7": 0.1319,
+     "8": 0.0769,
+     "9": 0.044
+    }
+   },
+   "pages": {
+    "pages_fetched": 7,
+    "pages_used": 7
+   }
+  },
+  "combination_wrenches": {
+   "n": 158,
+   "low_confidence": false,
+   "n_brands": 6,
+   "capture_years": {
+    "2015": 154,
+    "2016": 4
+   },
+   "price_quantiles_usd": {
+    "p10": 4.011,
+    "p25": 5.46,
+    "p50": 15.38,
+    "p75": 25.45,
+    "p90": 39.145
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 4.011,
+    "p25": 5.46,
+    "p50": 15.38,
+    "p75": 25.45,
+    "p90": 39.145
+   },
+   "key_dimension_attribute": "Size",
+   "price_vs_key_dimension": {
+    "loglog_slope": 0.647,
+    "n_cells": 15,
+    "n_skus_in_cells": 153,
+    "n_pairs": 1530,
+    "share_larger_costs_more": 0.676,
+    "share_larger_costs_less": 0.304,
+    "share_equal_price": 0.02
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 13,
+    "max_over_min_ratio": {
+     "p10": 1.2876,
+     "p25": 1.7881,
+     "p50": 2.9467,
+     "p75": 5.2695,
+     "p90": 5.5316
+    },
+    "n_brands_indexed": 6,
+    "brand_price_index_quantiles": {
+     "p10": 0.6325,
+     "p25": 0.885,
+     "p50": 1.0552,
+     "p75": 1.1835,
+     "p90": 1.5397
+    },
+    "house_label_over_other_brands": {
+     "n_specs": 7,
+     "quantiles": {
+      "p10": 0.2053,
+      "p25": 0.2316,
+      "p50": 0.2929,
+      "p75": 0.381,
+      "p90": 0.3919
+     }
+    },
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 1.0
+    },
+    "pack_quantity_counts": null
+   },
+   "endings": {
+    "n": 158,
+    "class_share": {
+     "other": 0.6772,
+     "other .x5": 0.1772,
+     "other .x9": 0.0696,
+     ".00": 0.038,
+     ".95": 0.019,
+     ".50": 0.0127,
+     ".98": 0.0063
+    },
+    "last_cent_digit_share": {
+     "0": 0.2278,
+     "1": 0.038,
+     "2": 0.057,
+     "3": 0.1076,
+     "4": 0.1076,
+     "5": 0.1962,
+     "6": 0.0633,
+     "7": 0.057,
+     "8": 0.0759,
+     "9": 0.0696
+    }
+   },
+   "pages": {
+    "pages_fetched": 8,
+    "pages_used": 7,
+    "pages_no_priced_rows": 1
+   }
+  },
+  "cut_resistant_gloves": {
+   "n": 22,
+   "low_confidence": true,
+   "n_brands": 5,
+   "capture_years": {
+    "2015": 19,
+    "2017": 3
+   },
+   "price_quantiles_usd": {
+    "p10": 9.45,
+    "p25": 20.77,
+    "p50": 21.45,
+    "p75": 33.2775,
+    "p90": 67.675
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 9.45,
+    "p25": 20.77,
+    "p50": 21.45,
+    "p75": 33.2775,
+    "p90": 67.675
+   },
+   "key_dimension_attribute": "Size",
+   "price_vs_key_dimension": {
+    "loglog_slope": 0.0,
+    "n_cells": 3,
+    "n_skus_in_cells": 12,
+    "n_pairs": 19,
+    "share_larger_costs_more": 0.0,
+    "share_larger_costs_less": 0.0,
+    "share_equal_price": 1.0
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 5,
+    "max_over_min_ratio": {
+     "p10": 1.4988,
+     "p25": 2.1979,
+     "p50": 2.1979,
+     "p75": 2.2698,
+     "p90": 2.2698
+    },
+    "n_brands_indexed": 3,
+    "brand_price_index_quantiles": {
+     "p10": 0.7599,
+     "p25": 0.9573,
+     "p50": 1.2863,
+     "p75": 1.3073,
+     "p90": 1.32
+    },
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "pair": 0.818,
+     "each": 0.182
+    },
+    "pack_quantity_counts": null
+   },
+   "endings": {
+    "n": 22,
+    "class_share": {
+     "other": 0.5455,
+     "other .x5": 0.4545
+    },
+    "last_cent_digit_share": {
+     "0": 0.1364,
+     "1": 0.1818,
+     "2": 0.0,
+     "3": 0.0,
+     "4": 0.0,
+     "5": 0.4545,
+     "6": 0.0,
+     "7": 0.2273,
+     "8": 0.0,
+     "9": 0.0
+    }
+   },
+   "pages": {
+    "pages_fetched": 8,
+    "pages_used": 6,
+    "pages_no_priced_rows": 2
+   }
+  },
+  "eye_bolts": {
+   "n": 142,
+   "low_confidence": false,
+   "n_brands": 3,
+   "capture_years": {
+    "2015": 142
+   },
+   "price_quantiles_usd": {
+    "p10": 3.469,
+    "p25": 6.5275,
+    "p50": 14.735,
+    "p75": 28.9125,
+    "p90": 62.405
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 0.8031,
+    "p25": 2.8625,
+    "p50": 10.27,
+    "p75": 28.675,
+    "p90": 62.405
+   },
+   "key_dimension_attribute": "Thread Size",
+   "price_vs_key_dimension": {
+    "loglog_slope": 1.703,
+    "n_cells": 12,
+    "n_skus_in_cells": 99,
+    "n_pairs": 545,
+    "share_larger_costs_more": 0.943,
+    "share_larger_costs_less": 0.055,
+    "share_equal_price": 0.002
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 11,
+    "max_over_min_ratio": {
+     "p10": 3.3556,
+     "p25": 4.686,
+     "p50": 7.1933,
+     "p75": 9.7054,
+     "p90": 10.3727
+    },
+    "n_brands_indexed": 3,
+    "brand_price_index_quantiles": {
+     "p10": 0.577,
+     "p25": 0.7819,
+     "p50": 1.1232,
+     "p75": 1.8095,
+     "p90": 2.2213
+    },
+    "house_label_over_other_brands": {
+     "n_specs": 8,
+     "quantiles": {
+      "p10": 0.1703,
+      "p25": 0.1713,
+      "p50": 1.003,
+      "p75": 1.8047,
+      "p90": 2.1048
+     }
+    },
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 0.775,
+     "pack": 0.225
+    },
+    "pack_quantity_counts": {
+     "2": 2,
+     "3": 3,
+     "10": 26,
+     "20": 1
+    },
+    "pack_price_quantiles": {
+     "p10": 5.104,
+     "p25": 6.2725,
+     "p50": 8.805,
+     "p75": 14.0825,
+     "p90": 20.102
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 0.4819,
+     "p25": 0.6082,
+     "p50": 0.839,
+     "p75": 1.4083,
+     "p90": 6.6647
+    },
+    "each_price_quantiles": {
+     "p10": 3.0,
+     "p25": 7.0025,
+     "p50": 18.37,
+     "p75": 33.15,
+     "p90": 86.445
+    },
+    "pooled_loglog_slope_price_on_pack_qty": -0.282,
+    "same_spec_larger_pack_per_piece_ratio": {
+     "n": 4,
+     "quantiles": {
+      "p10": 0.1019,
+      "p25": 0.1459,
+      "p50": 0.1913,
+      "p75": 0.2548,
+      "p90": 0.3314
+     }
+    }
+   },
+   "endings": {
+    "n": 142,
+    "class_share": {
+     "other": 0.5775,
+     "other .x5": 0.1972,
+     ".00": 0.1197,
+     "other .x9": 0.0423,
+     ".49": 0.0211,
+     ".99": 0.0141,
+     ".50": 0.0141,
+     ".95": 0.007,
+     ".97": 0.007
+    },
+    "last_cent_digit_share": {
+     "0": 0.2606,
+     "1": 0.0704,
+     "2": 0.0493,
+     "3": 0.0704,
+     "4": 0.0282,
+     "5": 0.2042,
+     "6": 0.0986,
+     "7": 0.0845,
+     "8": 0.0563,
+     "9": 0.0775
+    }
+   },
+   "pages": {
+    "pages_fetched": 8,
+    "pages_used": 8
+   }
+  },
+  "foam_ear_plugs": {
+   "n": 130,
+   "low_confidence": false,
+   "n_brands": 4,
+   "capture_years": {
+    "2015": 75,
+    "2017": 55
+   },
+   "price_quantiles_usd": {
+    "p10": 3.152,
+    "p25": 25.8,
+    "p50": 95.675,
+    "p75": 132.75,
+    "p90": 175.9
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 0.3061,
+    "p25": 0.5358,
+    "p50": 1.137,
+    "p75": 2.0216,
+    "p90": 2.8123
+   },
+   "key_dimension_attribute": null,
+   "price_vs_key_dimension": {
+    "loglog_slope": null,
+    "n_cells": 0,
+    "n_skus_in_cells": 0,
+    "n_pairs": 0,
+    "share_larger_costs_more": null,
+    "share_larger_costs_less": null,
+    "share_equal_price": null
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 0,
+    "max_over_min_ratio": null,
+    "n_brands_indexed": 0,
+    "brand_price_index_quantiles": null,
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "pack": 0.892,
+     "pair": 0.092,
+     "each": 0.015
+    },
+    "pack_quantity_counts": {
+     "4": 2,
+     "5": 13,
+     "10": 6,
+     "25": 1,
+     "30": 1,
+     "50": 13,
+     "100": 40,
+     "120": 2,
+     "200": 32,
+     "500": 6
+    },
+    "pack_price_quantiles": {
+     "p10": 10.055,
+     "p25": 51.4125,
+     "p50": 98.8,
+     "p75": 140.6,
+     "p90": 181.75
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 0.2933,
+     "p25": 0.5141,
+     "p50": 0.9895,
+     "p75": 1.7412,
+     "p90": 2.555
+    },
+    "each_price_quantiles": {
+     "p10": 1.928,
+     "p25": 2.2,
+     "p50": 3.08,
+     "p75": 8.1875,
+     "p90": 9.51
+    },
+    "pooled_loglog_slope_price_on_pack_qty": 0.7
+   },
+   "endings": {
+    "n": 130,
+    "class_share": {
+     "other": 0.5,
+     "other .x5": 0.3231,
+     ".00": 0.0615,
+     ".50": 0.0462,
+     "other .x9": 0.0308,
+     ".95": 0.0308,
+     ".98": 0.0077
+    },
+    "last_cent_digit_share": {
+     "0": 0.4462,
+     "1": 0.0538,
+     "2": 0.0077,
+     "3": 0.0154,
+     "4": 0.0308,
+     "5": 0.3538,
+     "6": 0.0308,
+     "7": 0.0,
+     "8": 0.0308,
+     "9": 0.0308
+    }
+   },
+   "pages": {
+    "pages_fetched": 8,
+    "pages_used": 8
+   }
+  },
+  "hand_files": {
+   "n": 118,
+   "low_confidence": false,
+   "n_brands": 5,
+   "capture_years": {
+    "2015": 40,
+    "2016": 38,
+    "2020": 40
+   },
+   "price_quantiles_usd": {
+    "p10": 4.409,
+    "p25": 10.13,
+    "p50": 21.43,
+    "p75": 24.25,
+    "p90": 24.9
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 4.409,
+    "p25": 10.13,
+    "p50": 21.43,
+    "p75": 24.25,
+    "p90": 24.9
+   },
+   "key_dimension_attribute": "Length",
+   "price_vs_key_dimension": {
+    "loglog_slope": 0.947,
+    "n_cells": 20,
+    "n_skus_in_cells": 78,
+    "n_pairs": 158,
+    "share_larger_costs_more": 0.772,
+    "share_larger_costs_less": 0.222,
+    "share_equal_price": 0.006
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 7,
+    "max_over_min_ratio": {
+     "p10": 1.6495,
+     "p25": 1.941,
+     "p50": 2.2888,
+     "p75": 3.7942,
+     "p90": 6.1205
+    },
+    "n_brands_indexed": 4,
+    "brand_price_index_quantiles": {
+     "p10": 0.6324,
+     "p25": 0.6838,
+     "p50": 1.052,
+     "p75": 1.4578,
+     "p90": 1.577
+    },
+    "house_label_over_other_brands": {
+     "n_specs": 6,
+     "quantiles": {
+      "p10": 0.3987,
+      "p25": 0.4518,
+      "p50": 0.4965,
+      "p75": 0.5422,
+      "p90": 0.5669
+     }
+    },
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 1.0
+    },
+    "pack_quantity_counts": null
+   },
+   "endings": {
+    "n": 118,
+    "class_share": {
+     "other": 0.5085,
+     "other .x5": 0.3051,
+     ".00": 0.0763,
+     ".50": 0.0424,
+     "other .x9": 0.0424,
+     ".99": 0.0169,
+     ".95": 0.0085
+    },
+    "last_cent_digit_share": {
+     "0": 0.2288,
+     "1": 0.0339,
+     "2": 0.0678,
+     "3": 0.0763,
+     "4": 0.1102,
+     "5": 0.3136,
+     "6": 0.0508,
+     "7": 0.0339,
+     "8": 0.0254,
+     "9": 0.0593
+    }
+   },
+   "pages": {
+    "pages_fetched": 8,
+    "pages_used": 8
+   }
+  },
+  "hex_pipe_nipples": {
+   "n": 81,
+   "low_confidence": false,
+   "n_brands": 3,
+   "capture_years": {
+    "2015": 21,
+    "2020": 60
+   },
+   "price_quantiles_usd": {
+    "p10": 3.33,
+    "p25": 4.11,
+    "p50": 5.2,
+    "p75": 8.2,
+    "p90": 16.24
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 3.33,
+    "p25": 3.94,
+    "p50": 4.81,
+    "p75": 7.45,
+    "p90": 11.01
+   },
+   "key_dimension_attribute": "Pipe Size",
+   "price_vs_key_dimension": {
+    "loglog_slope": 0.826,
+    "n_cells": 3,
+    "n_skus_in_cells": 11,
+    "n_pairs": 17,
+    "share_larger_costs_more": 0.941,
+    "share_larger_costs_less": 0.059,
+    "share_equal_price": 0.0
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 4,
+    "max_over_min_ratio": {
+     "p10": 2.0522,
+     "p25": 2.7692,
+     "p50": 3.5424,
+     "p75": 4.172,
+     "p90": 4.6306
+    },
+    "n_brands_indexed": 2,
+    "brand_price_index_quantiles": {
+     "p10": 0.6672,
+     "p25": 0.8688,
+     "p50": 1.2048,
+     "p75": 1.5408,
+     "p90": 1.7424
+    },
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 0.951,
+     "pack": 0.049
+    },
+    "pack_quantity_counts": {
+     "5": 4
+    },
+    "pack_price_quantiles": {
+     "p10": 16.33,
+     "p25": 17.005,
+     "p50": 18.965,
+     "p75": 21.3925,
+     "p90": 22.909
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 3.266,
+     "p25": 3.401,
+     "p50": 3.793,
+     "p75": 4.2785,
+     "p90": 4.5818
+    },
+    "each_price_quantiles": {
+     "p10": 3.33,
+     "p25": 4.11,
+     "p50": 4.81,
+     "p75": 7.45,
+     "p90": 11.446
+    },
+    "pooled_loglog_slope_price_on_pack_qty": 0.751
+   },
+   "endings": {
+    "n": 81,
+    "class_share": {
+     "other": 0.716,
+     "other .x5": 0.1728,
+     "other .x9": 0.0494,
+     ".00": 0.0247,
+     ".95": 0.0123,
+     ".50": 0.0123,
+     ".98": 0.0123
+    },
+    "last_cent_digit_share": {
+     "0": 0.2222,
+     "1": 0.1852,
+     "2": 0.0864,
+     "3": 0.0247,
+     "4": 0.037,
+     "5": 0.1852,
+     "6": 0.0617,
+     "7": 0.0741,
+     "8": 0.0741,
+     "9": 0.0494
+    }
+   },
+   "pages": {
+    "pages_fetched": 4,
+    "pages_used": 4
+   }
+  },
+  "hose_clamps": {
+   "n": 99,
+   "low_confidence": false,
+   "n_brands": 2,
+   "capture_years": {
+    "2015": 75,
+    "2017": 24
+   },
+   "price_quantiles_usd": {
+    "p10": 13.492,
+    "p25": 17.095,
+    "p50": 34.95,
+    "p75": 37.85,
+    "p90": 43.43
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 1.4184,
+    "p25": 1.723,
+    "p50": 4.335,
+    "p75": 7.22,
+    "p90": 7.57
+   },
+   "key_dimension_attribute": null,
+   "price_vs_key_dimension": {
+    "loglog_slope": null,
+    "n_cells": 0,
+    "n_skus_in_cells": 0,
+    "n_pairs": 0,
+    "share_larger_costs_more": null,
+    "share_larger_costs_less": null,
+    "share_equal_price": null
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 0,
+    "max_over_min_ratio": null,
+    "n_brands_indexed": 0,
+    "brand_price_index_quantiles": null,
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "pack": 1.0
+    },
+    "pack_quantity_counts": {
+     "2": 1,
+     "5": 39,
+     "10": 59
+    },
+    "pack_price_quantiles": {
+     "p10": 13.492,
+     "p25": 17.095,
+     "p50": 34.95,
+     "p75": 37.85,
+     "p90": 43.43
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 1.4184,
+     "p25": 1.723,
+     "p50": 4.335,
+     "p75": 7.22,
+     "p90": 7.57
+    },
+    "pooled_loglog_slope_price_on_pack_qty": -0.437
+   },
+   "endings": {
+    "n": 99,
+    "class_share": {
+     "other": 0.5051,
+     "other .x5": 0.3333,
+     ".50": 0.0606,
+     ".95": 0.0404,
+     ".00": 0.0303,
+     "other .x9": 0.0202,
+     ".98": 0.0101
+    },
+    "last_cent_digit_share": {
+     "0": 0.404,
+     "1": 0.0404,
+     "2": 0.0606,
+     "3": 0.0,
+     "4": 0.0,
+     "5": 0.3737,
+     "6": 0.0505,
+     "7": 0.0202,
+     "8": 0.0303,
+     "9": 0.0202
+    }
+   },
+   "pages": {
+    "pages_fetched": 8,
+    "pages_used": 8
+   }
+  },
+  "rigid_casters": {
+   "n": 157,
+   "low_confidence": false,
+   "n_brands": 5,
+   "capture_years": {
+    "2015": 147,
+    "2016": 10
+   },
+   "price_quantiles_usd": {
+    "p10": 20.744,
+    "p25": 38.55,
+    "p50": 76.2,
+    "p75": 170.5,
+    "p90": 351.85
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 20.744,
+    "p25": 38.55,
+    "p50": 76.2,
+    "p75": 170.5,
+    "p90": 351.85
+   },
+   "key_dimension_attribute": "Wheel Dia.",
+   "price_vs_key_dimension": {
+    "loglog_slope": 1.016,
+    "n_cells": 24,
+    "n_skus_in_cells": 115,
+    "n_pairs": 237,
+    "share_larger_costs_more": 0.743,
+    "share_larger_costs_less": 0.257,
+    "share_equal_price": 0.0
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 6,
+    "max_over_min_ratio": {
+     "p10": 2.8058,
+     "p25": 3.1223,
+     "p50": 3.428,
+     "p75": 3.7407,
+     "p90": 4.6396
+    },
+    "n_brands_indexed": 4,
+    "brand_price_index_quantiles": {
+     "p10": 0.6347,
+     "p25": 0.7614,
+     "p50": 0.8832,
+     "p75": 1.1784,
+     "p90": 1.6172
+    },
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 1.0
+    },
+    "pack_quantity_counts": null
+   },
+   "endings": {
+    "n": 157,
+    "class_share": {
+     "other .x5": 0.3694,
+     "other": 0.3503,
+     ".00": 0.1146,
+     ".50": 0.1083,
+     ".95": 0.0318,
+     "other .x9": 0.0191,
+     ".98": 0.0064
+    },
+    "last_cent_digit_share": {
+     "0": 0.4841,
+     "1": 0.0064,
+     "2": 0.0,
+     "3": 0.0191,
+     "4": 0.0318,
+     "5": 0.4013,
+     "6": 0.0,
+     "7": 0.0255,
+     "8": 0.0127,
+     "9": 0.0191
+    }
+   },
+   "pages": {
+    "pages_fetched": 8,
+    "pages_used": 8
+   }
+  },
+  "roller_chain": {
+   "n": 71,
+   "low_confidence": false,
+   "n_brands": 2,
+   "capture_years": {
+    "2015": 66,
+    "2016": 5
+   },
+   "price_quantiles_usd": {
+    "p10": 74.1,
+    "p25": 143.85,
+    "p50": 358.0,
+    "p75": 474.375,
+    "p90": 773.0
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 74.1,
+    "p25": 143.85,
+    "p50": 358.0,
+    "p75": 474.375,
+    "p90": 773.0
+   },
+   "key_dimension_attribute": "Length",
+   "price_vs_key_dimension": {
+    "loglog_slope": null,
+    "n_cells": 0,
+    "n_skus_in_cells": 0,
+    "n_pairs": 0,
+    "share_larger_costs_more": null,
+    "share_larger_costs_less": null,
+    "share_equal_price": null
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 0,
+    "max_over_min_ratio": null,
+    "n_brands_indexed": 0,
+    "brand_price_index_quantiles": null,
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 1.0
+    },
+    "pack_quantity_counts": null
+   },
+   "endings": {
+    "n": 71,
+    "class_share": {
+     "other .x5": 0.3239,
+     ".00": 0.2958,
+     ".50": 0.2676,
+     "other": 0.0986,
+     ".95": 0.0141
+    },
+    "last_cent_digit_share": {
+     "0": 0.662,
+     "1": 0.0,
+     "2": 0.0,
+     "3": 0.0,
+     "4": 0.0,
+     "5": 0.338,
+     "6": 0.0,
+     "7": 0.0,
+     "8": 0.0,
+     "9": 0.0
+    }
+   },
+   "pages": {
+    "pages_fetched": 6,
+    "pages_used": 6
+   }
+  },
+  "safety_glasses": {
+   "n": 74,
+   "low_confidence": false,
+   "n_brands": 6,
+   "capture_years": {
+    "2015": 74
+   },
+   "price_quantiles_usd": {
+    "p10": 5.0,
+    "p25": 6.1975,
+    "p50": 8.605,
+    "p75": 19.61,
+    "p90": 24.26
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 5.0,
+    "p25": 6.1975,
+    "p50": 8.605,
+    "p75": 19.61,
+    "p90": 24.26
+   },
+   "key_dimension_attribute": null,
+   "price_vs_key_dimension": {
+    "loglog_slope": null,
+    "n_cells": 0,
+    "n_skus_in_cells": 0,
+    "n_pairs": 0,
+    "share_larger_costs_more": null,
+    "share_larger_costs_less": null,
+    "share_equal_price": null
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 0,
+    "max_over_min_ratio": null,
+    "n_brands_indexed": 0,
+    "brand_price_index_quantiles": null,
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 1.0
+    },
+    "pack_quantity_counts": null
+   },
+   "endings": {
+    "n": 74,
+    "class_share": {
+     "other": 0.3784,
+     ".00": 0.3378,
+     "other .x9": 0.1351,
+     "other .x5": 0.1081,
+     ".49": 0.027,
+     ".98": 0.0135
+    },
+    "last_cent_digit_share": {
+     "0": 0.3784,
+     "1": 0.0135,
+     "2": 0.0676,
+     "3": 0.0541,
+     "4": 0.0676,
+     "5": 0.1081,
+     "6": 0.0811,
+     "7": 0.0405,
+     "8": 0.027,
+     "9": 0.1622
+    }
+   },
+   "pages": {
+    "pages_fetched": 8,
+    "pages_used": 8
+   }
+  },
+  "threaded_rod": {
+   "n": 248,
+   "low_confidence": false,
+   "n_brands": 1,
+   "capture_years": {
+    "2015": 248
+   },
+   "price_quantiles_usd": {
+    "p10": 6.511,
+    "p25": 13.9125,
+    "p50": 33.52,
+    "p75": 79.675,
+    "p90": 140.855
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 6.511,
+    "p25": 13.9125,
+    "p50": 33.52,
+    "p75": 79.675,
+    "p90": 140.855
+   },
+   "key_dimension_attribute": "Thread Size",
+   "price_vs_key_dimension": {
+    "loglog_slope": 0.583,
+    "n_cells": 14,
+    "n_skus_in_cells": 197,
+    "n_pairs": 2309,
+    "share_larger_costs_more": 0.734,
+    "share_larger_costs_less": 0.266,
+    "share_equal_price": 0.0
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 0,
+    "max_over_min_ratio": null,
+    "n_brands_indexed": 0,
+    "brand_price_index_quantiles": null,
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 1.0
+    },
+    "pack_quantity_counts": null
+   },
+   "endings": {
+    "n": 248,
+    "class_share": {
+     "other": 0.5202,
+     "other .x5": 0.3105,
+     ".00": 0.0565,
+     ".50": 0.0444,
+     "other .x9": 0.0282,
+     ".95": 0.0242,
+     ".97": 0.0081,
+     ".98": 0.0081
+    },
+    "last_cent_digit_share": {
+     "0": 0.3508,
+     "1": 0.0403,
+     "2": 0.0363,
+     "3": 0.0444,
+     "4": 0.0484,
+     "5": 0.3347,
+     "6": 0.0323,
+     "7": 0.0403,
+     "8": 0.0444,
+     "9": 0.0282
+    }
+   },
+   "pages": {
+    "pages_fetched": 8,
+    "pages_used": 8
+   }
+  },
+  "u_bolts": {
+   "n": 59,
+   "low_confidence": false,
+   "n_brands": 5,
+   "capture_years": {
+    "2015": 59
+   },
+   "price_quantiles_usd": {
+    "p10": 3.454,
+    "p25": 4.815,
+    "p50": 10.68,
+    "p75": 17.21,
+    "p90": 23.918
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 0.5794,
+    "p25": 1.3365,
+    "p50": 1.865,
+    "p75": 3.08,
+    "p90": 6.608
+   },
+   "key_dimension_attribute": "Thread Size",
+   "price_vs_key_dimension": {
+    "loglog_slope": null,
+    "n_cells": 0,
+    "n_skus_in_cells": 0,
+    "n_pairs": 0,
+    "share_larger_costs_more": null,
+    "share_larger_costs_less": null,
+    "share_equal_price": null
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 0,
+    "max_over_min_ratio": null,
+    "n_brands_indexed": 0,
+    "brand_price_index_quantiles": null,
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "pack": 0.678,
+     "each": 0.322
+    },
+    "pack_quantity_counts": {
+     "10": 40
+    },
+    "pack_price_quantiles": {
+     "p10": 4.899,
+     "p25": 7.13,
+     "p50": 16.125,
+     "p75": 20.71,
+     "p90": 26.37
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 0.4899,
+     "p25": 0.713,
+     "p50": 1.6125,
+     "p75": 2.071,
+     "p90": 2.637
+    },
+    "each_price_quantiles": {
+     "p10": 1.89,
+     "p25": 3.075,
+     "p50": 4.01,
+     "p75": 6.945,
+     "p90": 10.464
+    },
+    "pooled_loglog_slope_price_on_pack_qty": 0.493
+   },
+   "endings": {
+    "n": 59,
+    "class_share": {
+     "other": 0.6949,
+     "other .x5": 0.1695,
+     "other .x9": 0.0678,
+     ".97": 0.0339,
+     ".98": 0.0169,
+     ".00": 0.0169
+    },
+    "last_cent_digit_share": {
+     "0": 0.1356,
+     "1": 0.1017,
+     "2": 0.1017,
+     "3": 0.1186,
+     "4": 0.0847,
+     "5": 0.1695,
+     "6": 0.0169,
+     "7": 0.1186,
+     "8": 0.0847,
+     "9": 0.0678
+    }
+   },
+   "pages": {
+    "pages_fetched": 8,
+    "pages_no_priced_rows": 2,
+    "pages_used": 6
+   }
+  },
+  "v_belts": {
+   "n": 252,
+   "low_confidence": false,
+   "n_brands": 3,
+   "capture_years": {
+    "2015": 252
+   },
+   "price_quantiles_usd": {
+    "p10": 7.707,
+    "p25": 11.7,
+    "p50": 23.465,
+    "p75": 62.375,
+    "p90": 103.945
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 7.707,
+    "p25": 11.7,
+    "p50": 23.465,
+    "p75": 62.375,
+    "p90": 103.945
+   },
+   "key_dimension_attribute": "Outside Length",
+   "price_vs_key_dimension": {
+    "loglog_slope": 0.302,
+    "n_cells": 6,
+    "n_skus_in_cells": 78,
+    "n_pairs": 615,
+    "share_larger_costs_more": 0.67,
+    "share_larger_costs_less": 0.239,
+    "share_equal_price": 0.091
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 0,
+    "max_over_min_ratio": null,
+    "n_brands_indexed": 0,
+    "brand_price_index_quantiles": null,
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "each": 1.0
+    },
+    "pack_quantity_counts": null
+   },
+   "endings": {
+    "n": 252,
+    "class_share": {
+     "other": 0.619,
+     "other .x5": 0.25,
+     ".50": 0.0476,
+     ".00": 0.0476,
+     "other .x9": 0.0198,
+     ".95": 0.0079,
+     ".99": 0.0079
+    },
+    "last_cent_digit_share": {
+     "0": 0.2341,
+     "1": 0.0476,
+     "2": 0.0714,
+     "3": 0.0754,
+     "4": 0.1071,
+     "5": 0.2579,
+     "6": 0.0675,
+     "7": 0.0476,
+     "8": 0.0635,
+     "9": 0.0278
+    }
+   },
+   "pages": {
+    "pages_fetched": 8,
+    "pages_used": 8
+   }
+  },
+  "wedge_anchors": {
+   "n": 116,
+   "low_confidence": false,
+   "n_brands": 4,
+   "capture_years": {
+    "2015": 116
+   },
+   "price_quantiles_usd": {
+    "p10": 41.05,
+    "p25": 61.4875,
+    "p50": 117.775,
+    "p75": 193.875,
+    "p90": 251.625
+   },
+   "per_piece_quantiles_usd": {
+    "p10": 0.963,
+    "p25": 1.9893,
+    "p50": 4.07,
+    "p75": 10.187,
+    "p90": 22.5125
+   },
+   "key_dimension_attribute": "Thread Size",
+   "price_vs_key_dimension": {
+    "loglog_slope": 2.423,
+    "n_cells": 8,
+    "n_skus_in_cells": 107,
+    "n_pairs": 912,
+    "share_larger_costs_more": 0.955,
+    "share_larger_costs_less": 0.045,
+    "share_equal_price": 0.0
+   },
+   "brand_spread_same_spec": {
+    "n_specs_with_2plus_brands": 6,
+    "max_over_min_ratio": {
+     "p10": 1.0304,
+     "p25": 1.0584,
+     "p50": 1.1584,
+     "p75": 1.3815,
+     "p90": 1.8124
+    },
+    "n_brands_indexed": 4,
+    "brand_price_index_quantiles": {
+     "p10": 0.8489,
+     "p25": 0.9007,
+     "p50": 1.0027,
+     "p75": 1.1139,
+     "p90": 1.1824
+    },
+    "house_label_over_other_brands": null,
+    "low_confidence": true
+   },
+   "price_vs_length_at_fixed_diameter": null,
+   "pack_vs_each": {
+    "sale_unit_share": {
+     "pack": 1.0
+    },
+    "pack_quantity_counts": {
+     "5": 9,
+     "10": 32,
+     "20": 9,
+     "25": 25,
+     "50": 26,
+     "55": 1,
+     "100": 11,
+     "200": 1,
+     "400": 1,
+     "900": 1
+    },
+    "pack_price_quantiles": {
+     "p10": 41.05,
+     "p25": 61.4875,
+     "p50": 117.775,
+     "p75": 193.875,
+     "p90": 251.625
+    },
+    "pack_per_piece_quantiles": {
+     "p10": 0.963,
+     "p25": 1.9893,
+     "p50": 4.07,
+     "p75": 10.187,
+     "p90": 22.5125
+    },
+    "pooled_loglog_slope_price_on_pack_qty": 0.107,
+    "same_spec_larger_pack_per_piece_ratio": {
+     "n": 4,
+     "quantiles": {
+      "p10": 0.2426,
+      "p25": 0.3587,
+      "p50": 0.512,
+      "p75": 0.7079,
+      "p90": 0.9006
+     }
+    }
+   },
+   "endings": {
+    "n": 116,
+    "class_share": {
+     "other .x5": 0.4655,
+     "other": 0.25,
+     ".00": 0.1552,
+     ".50": 0.1034,
+     ".95": 0.0259
+    },
+    "last_cent_digit_share": {
+     "0": 0.4914,
+     "1": 0.0086,
+     "2": 0.0,
+     "3": 0.0,
+     "4": 0.0086,
+     "5": 0.4914,
+     "6": 0.0,
+     "7": 0.0,
+     "8": 0.0,
+     "9": 0.0
+    }
+   },
+   "pages": {
+    "pages_fetched": 5,
+    "pages_used": 5
+   }
+  }
+ },
+ "request_accounting": {
+  "total_http_requests": 538,
+  "status_codes": {
+   "200": 537,
+   "502": 1
+  },
+  "requests_by_phase": {
+   "probe": 5,
+   "enum_probe": 1,
+   "enumeration": 61,
+   "fetch_group": 330,
+   "fetch_item": 141
+  }
+ }
+}
