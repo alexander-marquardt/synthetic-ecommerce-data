@@ -46,13 +46,19 @@
    "attributes": {
     "type": "nested",
     "properties": {
+     "key": {
+      "type": "keyword"
+     },
      "name": {
       "type": "keyword"
      },
      "value": {
       "type": "keyword"
      },
-     "value_num": {
+     "unit_code": {
+      "type": "keyword"
+     },
+     "value_canonical": {
       "type": "double"
      }
     }
@@ -87,13 +93,19 @@
      "attributes": {
       "type": "nested",
       "properties": {
+       "key": {
+        "type": "keyword"
+       },
        "name": {
         "type": "keyword"
        },
        "value": {
         "type": "keyword"
        },
-       "value_num": {
+       "unit_code": {
+        "type": "keyword"
+       },
+       "value_canonical": {
         "type": "double"
        }
       }
