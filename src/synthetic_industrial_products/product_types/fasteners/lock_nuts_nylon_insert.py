@@ -247,11 +247,11 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
     rng = gen.rng
     brand = pick_brand(rng, type_key, gen._exhausted)
     series = _weighted(rng, SERIES)
-    material, finish, grade = rng.choice(series.combos)
+    material, finish, grade = rng.choice(list(set(series.combos)))
     draft = LineDraft(
         item=ITEM,
         brand=brand,
-        series=f"NL{__import__('random').randint(100, 999)}",
+        series=f"NL{rng.randint(100, 999)}",
         category=category,
         provenance=GENERATED_PROVENANCE,
         standard=series.standard,
