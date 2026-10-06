@@ -647,6 +647,30 @@ MUTATIONS: list[Mutation] = [
         "an inch tap's Threads per Inch is TPI, never a length",
     ),
     Mutation(
+        # elastic/prism#9877: a TPI entry's canonical is its pitch length,
+        # 127/5 / n mm. The count itself is the wrong number this plants.
+        "store a thread count's canonical as the bare count, not its pitch length",
+        "catalog/entry.py",
+        "        return float(RECIPROCAL_PER_UNIT[unit] / exact)",
+        "        return float(exact)",
+        (
+            "tests/test_nested_entry_contract.py -k hand_worked",
+            "tests/test_nested_entry_contract.py -k magnitude_unit_code_and_value_canonical",
+            "tests/test_nested_entry_contract.py -k published_spelling",
+        ),
+        "",
+        "a TPI entry's canonical is the ruled reciprocal length",
+    ),
+    Mutation(
+        "spell the modelled angle defect in millimetres rather than inches",
+        "catalog/generate.py",
+        "bogus = self.rng.choice(('42\"', '1\"', '1-1/4\"', '2\"', '1-5/8\"'))",
+        "bogus = self.rng.choice(('42 mm', '1 mm', '1-1/4 mm', '2 mm', '1-5/8 mm'))",
+        "tests/test_nested_entry_contract.py -k share_one_unit_dimension",
+        "",
+        "the angle-defect exception admits only the generator's inch values",
+    ),
+    Mutation(
         "collapse a multi-valued attribute to a single entry",
         "catalog/model.py",
         "        values = self.values if self.values is not None else (self.value,)",
