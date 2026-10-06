@@ -17,6 +17,7 @@ with the string actually published, and one read back out of it cannot.
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping, Sequence
 from fractions import Fraction
 from typing import Any
 
@@ -175,3 +176,30 @@ def split(name: str, published: str, bare_unit: str | None = None) -> dict[str, 
 def entry(name: str, published: str, bare_unit: str | None = None) -> dict[str, Any]:
     """One nested entry: ``{key, name, value[, unit_code, value_canonical]}``."""
     return {"key": entry_key(name), "name": name, **split(name, published, bare_unit)}
+
+
+def published(entries, facets: Mapping[str, Sequence[str]]) -> list[tuple[str, str]]:
+    """``(name, published spelling)`` for each nested entry, read from flat ``facets``.
+
+    A nested entry carries no spelling, because ``unit_code`` is the only place
+    the unit lives (#42). A consumer that prints the published value -- a
+    drawing's card stamp, a test comparing a title with its attributes -- reads
+    it from the SKU's flat document instead, whose ``facets`` keep it unchanged.
+
+    ``entries`` must be walked in emit order -- the line's, then the SKU's --
+    which is the order ``facets`` was built in, so the n-th entry under a key is
+    the n-th value under it. Raises :class:`LookupError` when ``facets`` holds
+    no value for an entry: the flat document is not this SKU's.
+    """
+    taken: dict[str, int] = {}
+    pairs: list[tuple[str, str]] = []
+    for item in entries:
+        name = item["name"]
+        key = sanitize(name)
+        index = taken.get(key, 0)
+        values = facets.get(key, ())
+        if index >= len(values):
+            raise LookupError(f"flat facets carry no value #{index + 1} for {name!r} ({key})")
+        pairs.append((name, values[index]))
+        taken[key] = index + 1
+    return pairs

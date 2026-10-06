@@ -602,6 +602,15 @@ bad value and dropping the bad spelling (elastic/prism#9284). An attribute that
 is not a measurement omits `unit_code` and `value_canonical` rather than
 carrying nulls.
 
+A nested entry therefore carries **no published spelling**: `3/8 in.` and
+`1,070 lbf` live once, unchanged, in the flat document's `facets`. A consumer
+that prints the spelling -- the drawing bundle's card stamp, the contact sheet,
+the tests that compare a title with its attributes -- reads it from
+`flat.jsonl`, joined on `sku` (`catalog.entry.published`), so every such
+consumer is given `flat.jsonl` beside `nested.jsonl`. A test holds that the
+join accounts for every flat value and that each spelling splits back into the
+nested entry's own magnitude and unit.
+
 Products are never grouped across brands. Two manufacturers' tools at the same
 nominal geometry are different products.
 
@@ -1159,7 +1168,8 @@ The URL is relative on purpose: the demo serves the bundle's folder itself
 uv run sip-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz
 ```
 
-rebuilds every drawing from the **committed** catalog, refuses unless each one's
+rebuilds every drawing from the **committed** catalog (`nested.jsonl`, with each
+SKU's published spelling read from `flat.jsonl`), refuses unless each one's
 sha256 equals the one `images.jsonl` records, and writes the files and a
 deterministic archive (sorted members, zeroed times and owners, a gzip header
 without a timestamp).

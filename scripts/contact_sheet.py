@@ -37,18 +37,34 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from synthetic_industrial_products.catalog.bundle import _record  # noqa: E402
+from synthetic_industrial_products.catalog import (
+    breadth,  # noqa: E402, F401  (registers its figures)
+)
+from synthetic_industrial_products.catalog.bundle import flat_facets, records  # noqa: E402
 from synthetic_industrial_products.drawing import draw_product  # noqa: E402
 
 
 def _load(catalog: Path) -> list[dict]:
-    return [json.loads(line) for line in (catalog / "nested.jsonl").read_text("utf-8").splitlines()]
+    """The nested parents, each variant carrying its drawing input as ``record``.
+
+    A nested entry carries no spelling (#42), so the record -- what the drawing
+    reads and what a caption prints -- is joined in from ``flat.jsonl`` on sku.
+    """
+    facets_by_sku = flat_facets(catalog)
+    parents = [
+        json.loads(line) for line in (catalog / "nested.jsonl").read_text("utf-8").splitlines()
+    ]
+    for parent in parents:
+        for variant, record in zip(parent["variants"], records(parent, facets_by_sku), strict=True):
+            variant["record"] = record
+    return parents
 
 
 def _cell(parent: dict, variant: dict, caption: str) -> str:
     # Drawn with its siblings, at the product's one scale, exactly as the bundle is.
-    records = [_record(parent, v) for v in parent["variants"]]
-    drawn = draw_product(parent["product_type"], parent["brand"], records)
+    drawn = draw_product(
+        parent["product_type"], parent["brand"], [v["record"] for v in parent["variants"]]
+    )
     data, source = drawn[parent["variants"].index(variant)]
     # An <img> per drawing, not inline SVG: each file is its own document, as
     # it is when served, so nothing on the page can reach into another.
@@ -63,10 +79,9 @@ def _cell(parent: dict, variant: dict, caption: str) -> str:
 
 
 def _value(parent: dict, variant: dict, name: str) -> str:
-    for entry in [*variant["attributes"], *parent["attributes"]]:
-        if entry["name"] == name:
-            return entry["value"]
-    return ""
+    """The published spelling of ``name`` on this SKU, or ``""``."""
+    del parent  # the record already merges the line's attributes with the SKU's
+    return variant["record"].get(name, "")
 
 
 def _screw_lengths(products: list[dict]) -> list[str]:

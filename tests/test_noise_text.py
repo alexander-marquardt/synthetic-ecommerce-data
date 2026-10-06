@@ -16,6 +16,7 @@ from pathlib import Path
 import pytest
 
 from compat_text import NOISE, noise_sentences
+from published import published_attributes
 from synthetic_industrial_products.catalog import emit
 from synthetic_industrial_products.catalog.config import GeneratorConfig
 from synthetic_industrial_products.catalog.generate import generate
@@ -64,12 +65,14 @@ def docs(request) -> list[dict]:
     return request.getfixturevalue(request.param)
 
 
+# The PUBLISHED spelling, from flat ``facets``: the text under test is checked
+# against what was published, and a nested entry carries no spelling (#42).
 def _values(doc: dict) -> dict[str, str]:
-    return {a["name"]: a["value"] for a in doc["attributes"]}
+    return {a["name"]: a["value"] for a in published_attributes(doc)}
 
 
 def _all_values(doc: dict) -> set[str]:
-    return {a["value"] for a in doc["attributes"]}
+    return {a["value"] for a in published_attributes(doc)}
 
 
 def _inches(value: str) -> float:
@@ -264,7 +267,7 @@ def _kits(docs):
 
 
 def _contents(doc: dict) -> list[str]:
-    return [a["value"] for a in doc["attributes"] if a["name"] == "Sizes Included"]
+    return [a["value"] for a in published_attributes(doc) if a["name"] == "Sizes Included"]
 
 
 def test_a_kit_is_one_sku_of_its_own_product(docs):
