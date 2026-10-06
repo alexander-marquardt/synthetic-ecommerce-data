@@ -24,6 +24,7 @@ import functools
 import hashlib
 import random
 from collections.abc import Iterable
+import os
 from dataclasses import dataclass, field, replace
 from fractions import Fraction
 from typing import Literal, TypeVar
@@ -1984,6 +1985,16 @@ class Generator:
             return None
         self._misses[pair] = 0
 
+        # Review plants for #58: REVIEW58_PLANT selects one (see the commit message).
+        plant = os.environ.get("REVIEW58_PLANT", "")
+        if plant == "1a" and len(built) >= 2:
+            # The first and last SKU of every product swap prices.
+            (s0, a0, p0, k0), (s1, a1, p1, k1) = built[0], built[-1]
+            built[0], built[-1] = (s0, a0, p1, k0), (s1, a1, p0, k1)
+        if plant == "1b" and len(built) >= 2 and type_key in price.LENGTH_HELD:
+            # Bolts and socket-family screws: price falls as length rises.
+            falling = sorted((b[2] for b in built), reverse=True)
+            built[:] = [(s, a, p, k) for (s, a, _, k), p in zip(built, falling, strict=True)]
         published = [attrs for _, attrs, _, _ in built]
         titles = self._disambiguate_titles(
             titles, published, self._identifying_attribute(published)

@@ -47,6 +47,7 @@ so census and catalog are compared on the same mix.
 from __future__ import annotations
 
 import math
+import os
 import random
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
@@ -240,7 +241,7 @@ ENDINGS: dict[str, dict[str, float]] = {
         ".00": 0.0113,
         ".95": 0.0102,
         ".98": 0.009,
-        ".99": 0.0068,
+        ".99": 0.30 if os.environ.get("REVIEW58_PLANT") == "2a" else 0.0068,
         ".97": 0.0056,
     },
     "end_mill_ball": {
@@ -627,10 +628,10 @@ class Draw:
 def shown_price(draw: Draw) -> float:
     """A SKU's shown price."""
     model = draw.model
-    return with_ending(
-        noisy(model, draw.struct, draw.group_u, draw.sku_u),
-        ending_for(model.endings, draw.ending_u),
-    )
+    cls = ending_for(model.endings, draw.ending_u)
+    if os.environ.get("REVIEW58_PLANT") == "2b" and cls == ".99":
+        cls = "other"
+    return with_ending(noisy(model, draw.struct, draw.group_u, draw.sku_u), cls)
 
 
 def breadth_price(row: BreadthRow, size_value: str, tier: str, u: float, ending_u: float) -> float:
