@@ -853,8 +853,12 @@
     - 1 in
   price_range: [2.0, 15.0]
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''1/2'' overlap; bearing-adjacent bushing category gap'
 - key: shaft_collars
+  # Its derived block is drill_bushings's too (catalog/typespec.py).
+  part_number_block: 4659
   category:
   - Motion Control & Fluid Power
   - Shaft Collars
@@ -1233,6 +1237,8 @@
     - 1/2 in Drive
   price_range: [2.0, 15.0]
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''hex'' + ''socket'' + ''1/2'' -- overlaps R4/R5''s ''socket cap screw'' family'
 - key: c_clamps
   category:
@@ -1305,6 +1311,8 @@
   reason: '''thread'' + ''gage'' -- overlaps R5/R6''s thread family and the issue''s own ''gage balls''
     wording'
 - key: er_collets
+  # Its derived block is tap_spiral_point's too (catalog/typespec.py).
+  part_number_block: 1951
   category:
   - Tool Holding
   - Collets
@@ -1356,4 +1364,6 @@
     - 1 in
   price_range: [2.0, 15.0]
   skus: 2
+  featured_sizes:
+  - 1/2 in
   reason: '''1/2'' overlap; jig/fixture tooling category gap'

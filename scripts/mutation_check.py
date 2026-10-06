@@ -436,13 +436,22 @@ MUTATIONS: list[Mutation] = [
         "the fingerprint matches the one the reference set was built with",
     ),
     Mutation(
-        "let a generated SKU wear a reference SKU code",
-        "catalog/generate.py",
-        "            if code in self._used_skus or code in REFERENCE_SKUS:",
-        "            if code in self._used_skus:",
+        "let a part number take a letter, the shape every reference SKU has",
+        "catalog/typespec.py",
+        '    return f"{block:04d}{(sequence * _PART_STRIDE) % SEQUENCE_SPACE:06d}"',
+        '    return f"{block:04d}{(sequence * _PART_STRIDE) % SEQUENCE_SPACE:05d}X"',
         "tests/test_catalog_noncopy.py",
         "",
-        "no generated SKU collides with a real archived one",
+        "no generated SKU can collide with a real archived one",
+    ),
+    Mutation(
+        "let two types share a part-number block",
+        "catalog/typespec.py",
+        "        if block in owner:",
+        "        if False:",
+        "tests/test_type_seam.py",
+        "",
+        "two types on one block are refused, naming both",
     ),
     # ---- generate: the measured rates, both directions -------------------
     Mutation(

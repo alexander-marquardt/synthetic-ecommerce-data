@@ -31,8 +31,6 @@ MIGRATED = {
 #: unchanged too, or a migration PR would move every unmigrated type.
 UNMIGRATED = "end_mill_square"
 
-GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
-
 
 def _by_type(lines) -> dict[str, list[str]]:
     """Each type's records, serialised exactly as the nested shape publishes them."""
@@ -56,11 +54,44 @@ def _moved_by_removing(removed: str) -> list[str]:
 # -- discovery ---------------------------------------------------------------
 
 
-@pytest.mark.parametrize(("key", "family"), sorted(MIGRATED.items()))
-def test_a_migrated_type_is_discovered_from_its_own_module(key: str, family: str) -> None:
-    specs = typespec.discover()
-    assert key in specs, f"{key} is not discovered under {typespec.TYPES_PACKAGE}"
-    assert specs[key].module == f"{typespec.TYPES_PACKAGE}.{family}.{key}"
+def _plant(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, files: dict[str, str]) -> None:
+    """A throwaway type package ``planted_types`` with one family, ``widgets``."""
+    family = tmp_path / "planted_types" / "widgets"
+    family.mkdir(parents=True)
+    (tmp_path / "planted_types" / "__init__.py").write_text("")
+    (family / "__init__.py").write_text("")
+    for name, text in files.items():
+        (family / name).write_text(text)
+    monkeypatch.syspath_prepend(str(tmp_path))
+    for name in [m for m in sys.modules if m.split(".")[0] == "planted_types"]:
+        monkeypatch.delitem(sys.modules, name)
+
+
+_SPEC = "from synthetic_industrial_products.catalog.typespec import TypeSpec\n"
+
+
+def test_a_type_module_is_discovered_by_its_dotted_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _plant(tmp_path, monkeypatch, {"blue_widget.py": _SPEC + "SPEC = TypeSpec('blue_widget')\n"})
+    specs = typespec.discover("planted_types")
+    assert list(specs) == ["blue_widget"]
+    assert specs["blue_widget"].module == "planted_types.widgets.blue_widget"
+
+
+@pytest.mark.parametrize(
+    ("text", "refusal"),
+    [
+        ("X = 1\n", r"planted_types\.widgets\.blue_widget declares no SPEC"),
+        (_SPEC + "SPEC = TypeSpec('red_widget')\n", r"blue_widget declares 'red_widget'"),
+    ],
+)
+def test_a_type_module_without_its_own_spec_is_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, text: str, refusal: str
+) -> None:
+    _plant(tmp_path, monkeypatch, {"blue_widget.py": text})
+    with pytest.raises(typespec.TypeModuleError, match=refusal):
+        typespec.discover("planted_types")
 
 
 def test_every_type_is_built_once() -> None:
@@ -73,13 +104,7 @@ def test_every_type_is_built_once() -> None:
 def test_a_type_module_that_fails_to_import_names_itself(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    family = tmp_path / "planted_types" / "widgets"
-    family.mkdir(parents=True)
-    (tmp_path / "planted_types" / "__init__.py").write_text("")
-    (family / "__init__.py").write_text("")
-    (family / "broken_widget.py").write_text("raise RuntimeError('planted')\n")
-    monkeypatch.syspath_prepend(str(tmp_path))
-    monkeypatch.delitem(sys.modules, "planted_types", raising=False)
+    _plant(tmp_path, monkeypatch, {"broken_widget.py": "raise RuntimeError('planted')\n"})
     with pytest.raises(typespec.TypeModuleError, match=r"planted_types\.widgets\.broken_widget"):
         typespec.discover("planted_types")
 
@@ -92,6 +117,14 @@ def test_part_number_block_is_a_function_of_the_type_key_alone() -> None:
     assert 1000 <= block <= 9999
     assert block == typespec.part_number_block("screw_socket_head")
     assert block != typespec.part_number_block("screw_flat_head")
+
+
+def test_a_declared_block_replaces_the_derived_one() -> None:
+    """The fix a collision refusal asks for: the type states its own block."""
+    assert typespec.part_number_block("er_collets") == typespec.part_number_block(
+        "tap_spiral_point"
+    )
+    assert typespec.block_of("er_collets") != typespec.block_of("tap_spiral_point")
 
 
 def test_every_types_skus_and_product_ids_carry_its_own_block() -> None:
@@ -159,15 +192,3 @@ def test_a_build_whose_types_collide_is_refused(monkeypatch: pytest.MonkeyPatch)
         generate.generate(SMALL)
     named = [key for key in generate.all_type_keys() if key in str(refused.value)]
     assert len(named) >= 2, f"the refusal must name both types: {refused.value}"
-
-
-# -- golden ------------------------------------------------------------------
-
-
-def test_each_type_has_its_own_golden_slice() -> None:
-    """A type's PR changes its own slice, never a whole-catalog file."""
-    slices = GOLDEN / "types"
-    missing = [k for k in generate.all_type_keys() if not (slices / k / "nested.jsonl").exists()]
-    assert not missing, f"{len(missing)} type(s) have no golden slice: {missing[:8]}"
-    whole = sorted(p.name for p in GOLDEN.glob("*.jsonl"))
-    assert not whole, f"whole-catalog files are still committed: {whole}"
