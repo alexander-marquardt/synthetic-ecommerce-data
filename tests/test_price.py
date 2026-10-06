@@ -215,6 +215,39 @@ def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
     assert not price_report.pin_holds(row)
 
 
+def _census_models() -> dict[str, price.PriceModel]:
+    return {type_key: price.model_for(type_key) for type_key in price.CENSUS}
+
+
+def test_every_slope_off_the_census_has_a_recorded_cut():
+    """``scripts/fit_price_model.py`` cuts a slope only with a SLOPE_CUTS
+    reason, but no test runs the fit: this holds the committed literals to
+    the same rule."""
+    assert price.slope_cut_mismatch(_census_models(), price.SLOPE_CUTS) == set()
+    assert set(price.SLOPE_CUTS) == {"bolt_hex", "end_mill_ball", "end_mill_square"}
+    assert all(reason.strip() for reason in price.SLOPE_CUTS.values())
+
+
+def test_a_slope_cut_by_hand_is_refused():
+    """Review plant R2b: the tap slope hand-cut to 0.40 with no reason; and
+    the other way, a reason left behind for a slope no longer cut."""
+    models = _census_models()
+    models["tap_spiral_point"] = replace(models["tap_spiral_point"], slope=0.40)
+    assert price.slope_cut_mismatch(models, price.SLOPE_CUTS) == {"tap_spiral_point"}
+    models = _census_models()
+    models["bolt_hex"] = replace(
+        models["bolt_hex"],
+        slope=price.CENSUS["bolt_hex"].slope,
+        length_slope=price.LENGTH_CENSUS["bolt_hex"].slope,
+    )
+    assert price.slope_cut_mismatch(models, price.SLOPE_CUTS) == {"bolt_hex"}
+    models = _census_models()
+    models["screw_socket_head"] = replace(models["screw_socket_head"], length_slope=0.2)
+    assert price.slope_cut_mismatch(models, price.SLOPE_CUTS) == {"screw_socket_head"}
+    blank = {**price.SLOPE_CUTS, "bolt_hex": " "}
+    assert price.slope_cut_mismatch(_census_models(), blank) == {"bolt_hex"}
+
+
 def _newly_out(scored, prices) -> dict:
     collected, base = scored
     before = {row.name for row in price_report.price_rows(collected, base) if not row.within}
@@ -339,6 +372,30 @@ def test_the_brand_spread_figures_are_the_census_figures(census):
             ratio["p75"],
             row["n_brands_indexed"],
         )
+
+
+@pytest.mark.parametrize("type_key", sorted(price.TYPE_TIER_CENSUS))
+def test_each_types_tier_factors_are_its_census_figures(census, type_key):
+    """Economy is the distributor's house label over the other brands
+    (median), or the brand price index p10 where the census has no house
+    label figure (the ball end mill); premium is the brand price index p90."""
+    spread = census["deep_types"][type_key]["brand_spread_same_spec"]
+    house = spread["house_label_over_other_brands"]
+    index = spread["brand_price_index_quantiles"]
+    economy = house["quantiles"]["p50"] if house else index["p10"]
+    assert price.TYPE_TIER_CENSUS[type_key] == (economy, index["p90"])
+    assert price.TYPE_TIERS[type_key] == {
+        "economy": economy,
+        "standard": 1.0,
+        "premium": index["p90"],
+    }
+    assert price.model_for(type_key).tiers == price.TYPE_TIERS[type_key]
+
+
+def test_only_the_size_noise_types_draw_a_size_noise():
+    """A size noise is fitted only for a type SIZE_NOISE gives a reason for."""
+    sized = {t for t in price.CENSUS if price.model_for(t).size_sigma}
+    assert sized == set(price.SIZE_NOISE) == {"screw_socket_head", "tap_spiral_point"}
 
 
 def test_each_familys_tiers_price_in_order(scored):
@@ -619,6 +676,23 @@ def test_tying_every_pair_breaks_the_equal_price_row(scored):
 
 
 # --- the declared exceptions ------------------------------------------------
+
+#: The types whose placeholder model keeps the level the catalog had,
+#: declared ``measured=False``: the ball-pein hammer's archived pages are
+#: script shells, and the lock nuts and set screws merged with no census
+#: figures (#69 gives them census-backed bands). No row scores them.
+NOT_MEASURED = frozenset({"hammer_ball_pein", "lock_nuts_nylon_insert", "set_screws_hex_socket"})
+
+
+def test_the_rows_score_every_priced_type_but_the_declared_exceptions(scored):
+    """A type no row scores is either declared not measured, or borrows a
+    census type's model (the button, flat and low head screws)."""
+    collected, _ = scored
+    built = set(collected.type_of.values())
+    unscored = {t for t in built if t not in price.CENSUS}
+    assert unscored == NOT_MEASURED | set(price.BORROWS)
+    assert {t for t in built if not price.model_for(t).measured} == NOT_MEASURED
+    assert set(price.BORROWS.values()) <= set(price.CENSUS)
 
 
 #: The rows held to no band, and the issue each reason must name.

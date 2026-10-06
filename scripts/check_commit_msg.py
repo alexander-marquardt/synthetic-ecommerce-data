@@ -83,16 +83,13 @@ FAMILY += [(label, re.compile(rx, re.IGNORECASE | re.MULTILINE)) for label, rx i
 _INVISIBLE = dict.fromkeys(
     map(
         ord,
-        "​‌‍⁠﻿­‎‏"
-        "‪‫‬‭‮⁦⁧⁨⁩",
+        "​‌‍⁠﻿­‎‏‪‫‬‭‮⁦⁧⁨⁩",
     )
 )
 #: Cyrillic and Greek letters that look like Latin ones, folded to them as the
 #: core scan does, so a vendor name spelled with look-alikes still matches.
 _HOMOGLYPHS = str.maketrans(
-    "аеорсухіјкмтнв"
-    "АЕОРСХКМТНВ"
-    "οαρεΟΑΡΕ",
+    "аеорсухіјкмтнвАЕОРСХКМТНВοαρεΟΑΡΕ",
     "aeopcyxijkmthbAEOPCXKMTHBoapeOAPE",
 )
 

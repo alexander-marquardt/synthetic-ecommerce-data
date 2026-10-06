@@ -46,6 +46,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 
 if TYPE_CHECKING:
     from .breadth import BreadthRow
+    from .price import PriceModel
     from .vocab import AttrSpec
 
 #: The package type modules are discovered under: one directory per family,
@@ -127,6 +128,9 @@ class TypeSpec:
     #: What every product of the type is for (``voice.USE_LINES``); empty
     #: falls back to the generic lines.
     use_lines: tuple[str, ...] = ()
+    #: How the type's SKUs are priced (:class:`.price.PriceModel`): its
+    #: census slope and endings, and its fitted anchor and noise.
+    price: PriceModel | None = None
     #: The sizes each standard the type builds to offers, for a standard with
     #: no extraction in ``data/fastener_standards.json``. Declared apart from
     #: the type's own table on purpose: the coverage sweep holds every size
@@ -190,7 +194,7 @@ def register(spec: TypeSpec) -> None:
     """
     # Imported here: each of these modules imports this one.
     from ..drawing.figures import FIGURES  # noqa: PLC0415
-    from . import breadth, taxonomy, vocab, voice  # noqa: PLC0415
+    from . import breadth, price, taxonomy, vocab, voice  # noqa: PLC0415
 
     if spec.breadth is not None:
         if spec.breadth.key != spec.key:
@@ -214,6 +218,7 @@ def register(spec: TypeSpec) -> None:
             ("extent", all(side > 0 for side in spec.extent)),
             ("make", spec.make is not None),
             ("share", spec.share > 0),
+            ("price", spec.price is not None),
         )
         if not declared
     ]
@@ -224,6 +229,7 @@ def register(spec: TypeSpec) -> None:
     vocab.VOCAB[spec.key] = spec.vocab
     vocab.STANDARDS_FAMILY[spec.key] = spec.standards_family
     FIGURES[spec.key] = (spec.figure, spec.extent)
+    price.MODELS[spec.key] = spec.price  # type: ignore[assignment]
     if spec.use_lines:
         voice.USE_LINES[spec.key] = spec.use_lines
     _declare_block(spec)

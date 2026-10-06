@@ -681,9 +681,11 @@ def test_every_sparsity_controlled_end_mill_attribute_is_applied_once(end_mill_l
     ordinary noise -- which is what makes a reintroduced double application
     red here, for whichever attribute it is reintroduced on.
     """
-    population = end_mill_lines if spec.scope == "line" else [
-        child for line in end_mill_lines for child in line.children
-    ]
+    population = (
+        end_mill_lines
+        if spec.scope == "line"
+        else [child for line in end_mill_lines for child in line.children]
+    )
     present = sum(1 for r in population if any(a.name == spec.name for a in r.attributes))
     rate = present / len(population)
     assert abs(rate - spec.presence) <= 0.10, (spec.name, spec.scope, rate, spec.presence)
