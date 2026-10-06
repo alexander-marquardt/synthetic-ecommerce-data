@@ -1753,7 +1753,7 @@ class Generator:
             self.config.defect_angle_carries_length_unit
         ):
             return line_attrs
-        bogus = self.rng.choice(('42"', '1"', '1-1/4"', '2"', '30 mm'))
+        bogus = self.rng.choice(('42"', '1"', '1-1/4"', '2"', '1-5/8"'))
         out = list(line_attrs)
         # No value_num: there is no angle here to put in one, and inventing
         # one would paper over the defect this record exists to exhibit.
