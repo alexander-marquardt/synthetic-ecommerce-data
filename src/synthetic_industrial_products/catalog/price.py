@@ -634,13 +634,28 @@ PINNED_SHORTFALLS: dict[str, str] = {
     ),
 }
 
+#: Rows no model of this shape holds in band at both builds, and the issue
+#: that fixes each. Unlike a pin, the row may land on either side of its band
+#: and at either build, so it is held to no side; the fit still scores it, so
+#: its noise is the best balance of these rows and the rest. ``tests/test_price.py``
+#: pins the set, so an exception cannot quietly cover another row or type.
+ROW_EXCEPTIONS: dict[str, str] = {
+    name: (
+        "a kit's price is one group draw per page, not the sum of its contents, so its "
+        "few pages move the median and the p90/p10 with the build's size: the group "
+        "noise that spreads the p90/p10 to the census moves the p50 out at one build or "
+        "the other (price a kit from its contents: #71)"
+    )
+    for name in ("price p50 (USD): kit_assortment", "price p90/p10: kit_assortment")
+}
+
 #: Each pinned row's figure on the default build, as the fit last measured
 #: it. A pin discloses a shortfall; it does not license a worse one:
 #: ``price_report.pin_holds`` fails a row that lands further from its band
 #: than this by more than :data:`PIN_TOLERANCE`.
 PINNED_FIGURES: dict[str, float] = {
-    "price p90/p10: bearing_radial_ball": 4.547,
-    "price brand spread, same spec (median max/min): wheel_depressed_center": 6.753,
+    "price p90/p10: bearing_radial_ball": 4.493,
+    "price brand spread, same spec (median max/min): wheel_depressed_center": 3.241,
 }
 
 #: How far past its recorded figure a pinned row may move, as a ratio. The
@@ -672,35 +687,35 @@ def slope_cut_mismatch(models: Mapping[str, PriceModel], cuts: Mapping[str, str]
 MODELS: RegistryTable[str, PriceModel] = RegistryTable(
     {
         # @fit-begin
-        "abrasive_flap_disc": _model("abrasive_flap_disc", 8.611, 5.0, 0.175, 0.088),
-        "bearing_radial_ball": _model("bearing_radial_ball", 25.55, 0.5, 0.080, 0.086),
-        "bolt_hex": _model("bolt_hex", 19.16, 0.375, 0.000, 0.136, slope=0.995, length_slope=0.35),
-        "drill_jobber": _model("drill_jobber", 4.348, 0.25, 0.549, 0.186),
-        "end_mill_ball": _model("end_mill_ball", 47.51, 0.375, 0.067, 0.229, slope=0.951),
-        "end_mill_square": _model("end_mill_square", 32.98, 0.375, 0.000, 0.331, slope=0.737),
-        "hex_key": _model("hex_key", 17.81, 0.25, 0.657, 0.217),
-        "kit_assortment": _model("kit_assortment", 265.9, 30.0, 2.062, 0.020),
+        "abrasive_flap_disc": _model("abrasive_flap_disc", 8.542, 5.0, 0.172, 0.086),
+        "bearing_radial_ball": _model("bearing_radial_ball", 24.62, 0.5, 0.194, 0.049),
+        "bolt_hex": _model("bolt_hex", 18.33, 0.375, 0.284, 0.194, slope=0.987, length_slope=0.347),
+        "drill_jobber": _model("drill_jobber", 4.435, 0.25, 0.634, 0.182),
+        "end_mill_ball": _model("end_mill_ball", 45.33, 0.375, 0.108, 0.246, slope=0.952),
+        "end_mill_square": _model("end_mill_square", 32.86, 0.375, 0.230, 0.308, slope=0.653),
+        "hex_key": _model("hex_key", 17.71, 0.25, 0.658, 0.216),
+        "kit_assortment": _model("kit_assortment", 195.1, 30.0, 1.972, 0.069),
         "nut_hex": _model(
             "nut_hex",
-            15.99,
+            16.7,
             0.375,
-            0.381,
-            0.316,
+            0.454,
+            0.313,
             pack_attribute="Package Quantity",
             pack_slope=NUT_PACK_SLOPE,
             pack_ref=100.0,
         ),
         "tap_spiral_point": _model(
             "tap_spiral_point",
-            16.55,
+            16.56,
             0.25,
-            0.181,
-            0.002,
+            0.308,
+            0.400,
             price_step=0.19,
-            size_sigma=0.5,
+            size_sigma=0.215,
         ),
-        "washer_flat": _model("washer_flat", 5.158, 0.375, 0.537, 0.762),
-        "wheel_depressed_center": _model("wheel_depressed_center", 7.322, 4.5, 0.694, 0.314),
+        "washer_flat": _model("washer_flat", 5.243, 0.375, 0.500, 0.701),
+        "wheel_depressed_center": _model("wheel_depressed_center", 7.451, 4.5, 0.713, 0.306),
         # @fit-end
         # No census prices: the ball-pein hammer's archived pages are script
         # shells. Its model keeps the median the uniform multiplier gave

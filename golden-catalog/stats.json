@@ -906,7 +906,7 @@
   {
    "name": "price p50 (USD): abrasive_flap_disc",
    "target": 8.68,
-   "achieved": 8.595,
+   "achieved": 8.565,
    "numerator": 232,
    "denominator": 135,
    "note": "shown price; denom is the census n",
@@ -918,7 +918,7 @@
   {
    "name": "price p90/p10: abrasive_flap_disc",
    "target": 3.51064,
-   "achieved": 3.48551,
+   "achieved": 3.46533,
    "numerator": 232,
    "denominator": 135,
    "note": "shown price; denom is the census n",
@@ -930,8 +930,8 @@
   {
    "name": "price larger size costs more: abrasive_flap_disc",
    "target": 0.949,
-   "achieved": 0.93816,
-   "numerator": 622,
+   "achieved": 0.939668,
+   "numerator": 623,
    "denominator": 663,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -942,7 +942,7 @@
   {
    "name": "price p50 (USD): bearing_radial_ball",
    "target": 37.475,
-   "achieved": 37.45,
+   "achieved": 36.05,
    "numerator": 1126,
    "denominator": 390,
    "note": "shown price; denom is the census n",
@@ -954,7 +954,7 @@
   {
    "name": "price p90/p10: bearing_radial_ball",
    "target": 16.0943,
-   "achieved": 4.54698,
+   "achieved": 4.49319,
    "numerator": 1126,
    "denominator": 390,
    "note": "shown price; denom is the census n; PINNED SHORTFALL, below band: catalog bores span a p90/p10 of about 3x against the census's 16.1x, and the census's own brand spread (1.38) leaves no group noise to make up the rest (widen the bore range: #64)",
@@ -966,8 +966,8 @@
   {
    "name": "price larger size costs more: bearing_radial_ball",
    "target": 0.888,
-   "achieved": 0.888046,
-   "numerator": 55232,
+   "achieved": 0.898336,
+   "numerator": 55872,
    "denominator": 62195,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -978,7 +978,7 @@
   {
    "name": "price p50 (USD): bolt_hex",
    "target": 20.91,
-   "achieved": 20.87,
+   "achieved": 18.96,
    "numerator": 487,
    "denominator": 347,
    "note": "shown price; denom is the census n",
@@ -990,7 +990,7 @@
   {
    "name": "price p90/p10: bolt_hex",
    "target": 8.20548,
-   "achieved": 8.17791,
+   "achieved": 9.14884,
    "numerator": 487,
    "denominator": 347,
    "note": "shown price; denom is the census n",
@@ -1002,8 +1002,8 @@
   {
    "name": "price larger size costs more: bolt_hex",
    "target": 0.937,
-   "achieved": 0.966667,
-   "numerator": 29,
+   "achieved": 0.933333,
+   "numerator": 28,
    "denominator": 30,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -1014,7 +1014,7 @@
   {
    "name": "price p50 (USD): drill_jobber",
    "target": 6.0,
-   "achieved": 5.99,
+   "achieved": 6.01,
    "numerator": 530,
    "denominator": 885,
    "note": "shown price; denom is the census n",
@@ -1026,7 +1026,7 @@
   {
    "name": "price p90/p10: drill_jobber",
    "target": 9.58062,
-   "achieved": 7.81471,
+   "achieved": 8.16211,
    "numerator": 530,
    "denominator": 885,
    "note": "shown price; denom is the census n",
@@ -1038,8 +1038,8 @@
   {
    "name": "price larger size costs more: drill_jobber",
    "target": 0.878,
-   "achieved": 0.878314,
-   "numerator": 3479,
+   "achieved": 0.881091,
+   "numerator": 3490,
    "denominator": 3961,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -1050,7 +1050,7 @@
   {
    "name": "price p50 (USD): end_mill_ball",
    "target": 88.23,
-   "achieved": 88.24,
+   "achieved": 84.76,
    "numerator": 568,
    "denominator": 65,
    "note": "shown price; denom is the census n",
@@ -1062,7 +1062,7 @@
   {
    "name": "price p90/p10: end_mill_ball",
    "target": 8.62933,
-   "achieved": 8.57644,
+   "achieved": 9.07684,
    "numerator": 568,
    "denominator": 65,
    "note": "shown price; denom is the census n",
@@ -1074,8 +1074,8 @@
   {
    "name": "price larger size costs more: end_mill_ball",
    "target": 0.909,
-   "achieved": 0.908598,
-   "numerator": 3181,
+   "achieved": 0.903456,
+   "numerator": 3163,
    "denominator": 3501,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -1086,7 +1086,7 @@
   {
    "name": "price p50 (USD): end_mill_square",
    "target": 52.5,
-   "achieved": 52.5,
+   "achieved": 52.0,
    "numerator": 918,
    "denominator": 69,
    "note": "shown price; denom is the census n",
@@ -1098,7 +1098,7 @@
   {
    "name": "price p90/p10: end_mill_square",
    "target": 7.53715,
-   "achieved": 7.51222,
+   "achieved": 7.12641,
    "numerator": 918,
    "denominator": 69,
    "note": "shown price; denom is the census n",
@@ -1110,8 +1110,8 @@
   {
    "name": "price larger size costs more: end_mill_square",
    "target": 0.833,
-   "achieved": 0.833125,
-   "numerator": 5332,
+   "achieved": 0.825156,
+   "numerator": 5281,
    "denominator": 6400,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -1122,7 +1122,7 @@
   {
    "name": "price p50 (USD): hex_key",
    "target": 9.68,
-   "achieved": 9.65,
+   "achieved": 9.63,
    "numerator": 1120,
    "denominator": 270,
    "note": "shown price; denom is the census n",
@@ -1134,7 +1134,7 @@
   {
    "name": "price p90/p10: hex_key",
    "target": 14.4083,
-   "achieved": 14.3315,
+   "achieved": 14.4306,
    "numerator": 1120,
    "denominator": 270,
    "note": "shown price; denom is the census n",
@@ -1146,8 +1146,8 @@
   {
    "name": "price larger size costs more: hex_key",
    "target": 0.925,
-   "achieved": 0.924152,
-   "numerator": 27780,
+   "achieved": 0.924484,
+   "numerator": 27790,
    "denominator": 30060,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -1158,10 +1158,10 @@
   {
    "name": "price p50 (USD): kit_assortment",
    "target": 80.575,
-   "achieved": 80.59,
+   "achieved": 63.98,
    "numerator": 59,
    "denominator": 46,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; EXCEPTED, a kit's price is one group draw per page, not the sum of its contents, so its few pages move the median and the p90/p10 with the build's size: the group noise that spreads the p90/p10 to the census moves the p50 out at one build or the other (price a kit from its contents: #71)",
    "band": [
     64.46,
     100.719
@@ -1170,10 +1170,10 @@
   {
    "name": "price p90/p10: kit_assortment",
    "target": 114.26,
-   "achieved": 118.515,
+   "achieved": 81.7835,
    "numerator": 59,
    "denominator": 46,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; EXCEPTED, a kit's price is one group draw per page, not the sum of its contents, so its few pages move the median and the p90/p10 with the build's size: the group noise that spreads the p90/p10 to the census moves the p50 out at one build or the other (price a kit from its contents: #71)",
    "band": [
     85.6948,
     151.965
@@ -1182,8 +1182,8 @@
   {
    "name": "price larger size costs more: kit_assortment",
    "target": 0.797,
-   "achieved": 0.8,
-   "numerator": 24,
+   "achieved": 0.766667,
+   "numerator": 23,
    "denominator": 30,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -1194,7 +1194,7 @@
   {
    "name": "price p50 (USD): nut_hex",
    "target": 15.31,
-   "achieved": 15.265,
+   "achieved": 15.6,
    "numerator": 1264,
    "denominator": 473,
    "note": "shown price; denom is the census n",
@@ -1206,7 +1206,7 @@
   {
    "name": "price p90/p10: nut_hex",
    "target": 10.4242,
-   "achieved": 10.7629,
+   "achieved": 11.3306,
    "numerator": 1264,
    "denominator": 473,
    "note": "shown price; denom is the census n",
@@ -1218,8 +1218,8 @@
   {
    "name": "price larger size costs more: nut_hex",
    "target": 0.878,
-   "achieved": 0.877364,
-   "numerator": 6911,
+   "achieved": 0.878507,
+   "numerator": 6920,
    "denominator": 7877,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -1230,7 +1230,7 @@
   {
    "name": "price p50 (USD): screw_socket_head",
    "target": 21.535,
-   "achieved": 21.53,
+   "achieved": 21.0,
    "numerator": 579,
    "denominator": 308,
    "note": "shown price; denom is the census n",
@@ -1242,7 +1242,7 @@
   {
    "name": "price p90/p10: screw_socket_head",
    "target": 6.86643,
-   "achieved": 6.314,
+   "achieved": 6.06154,
    "numerator": 579,
    "denominator": 308,
    "note": "shown price; denom is the census n",
@@ -1254,8 +1254,8 @@
   {
    "name": "price larger size costs more: screw_socket_head",
    "target": 0.575,
-   "achieved": 0.616438,
-   "numerator": 45,
+   "achieved": 0.684932,
+   "numerator": 50,
    "denominator": 73,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -1278,7 +1278,7 @@
   {
    "name": "price p90/p10: tap_spiral_point",
    "target": 5.36138,
-   "achieved": 5.75919,
+   "achieved": 5.52615,
    "numerator": 329,
    "denominator": 487,
    "note": "shown price; denom is the census n",
@@ -1290,8 +1290,8 @@
   {
    "name": "price larger size costs more: tap_spiral_point",
    "target": 0.585,
-   "achieved": 0.618576,
-   "numerator": 2937,
+   "achieved": 0.617944,
+   "numerator": 2934,
    "denominator": 4748,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -1302,7 +1302,7 @@
   {
    "name": "price p50 (USD): washer_flat",
    "target": 4.89,
-   "achieved": 4.94,
+   "achieved": 5.04,
    "numerator": 225,
    "denominator": 174,
    "note": "shown price; denom is the census n",
@@ -1314,7 +1314,7 @@
   {
    "name": "price p90/p10: washer_flat",
    "target": 24.804,
-   "achieved": 26.7292,
+   "achieved": 23.4895,
    "numerator": 225,
    "denominator": 174,
    "note": "shown price; denom is the census n",
@@ -1326,8 +1326,8 @@
   {
    "name": "price larger size costs more: washer_flat",
    "target": 0.808,
-   "achieved": 0.807407,
-   "numerator": 327,
+   "achieved": 0.819753,
+   "numerator": 332,
    "denominator": 405,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -1338,7 +1338,7 @@
   {
    "name": "price p50 (USD): wheel_depressed_center",
    "target": 9.51,
-   "achieved": 9.5,
+   "achieved": 9.68,
    "numerator": 1212,
    "denominator": 217,
    "note": "shown price; denom is the census n",
@@ -1350,7 +1350,7 @@
   {
    "name": "price p90/p10: wheel_depressed_center",
    "target": 9.99656,
-   "achieved": 9.98443,
+   "achieved": 10.2969,
    "numerator": 1212,
    "denominator": 217,
    "note": "shown price; denom is the census n",
@@ -1362,8 +1362,8 @@
   {
    "name": "price larger size costs more: wheel_depressed_center",
    "target": 0.808,
-   "achieved": 0.806287,
-   "numerator": 11030,
+   "achieved": 0.811769,
+   "numerator": 11105,
    "denominator": 13680,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -1374,8 +1374,8 @@
   {
    "name": "price longer costs more: bolt_hex",
    "target": 0.691,
-   "achieved": 0.683367,
-   "numerator": 341,
+   "achieved": 0.653307,
+   "numerator": 326,
    "denominator": 499,
    "note": "pairs of one brand and line cell, key dimension equal, length differs",
    "band": [
@@ -1386,8 +1386,8 @@
   {
    "name": "price longer costs more: screw_socket_head",
    "target": 0.662,
-   "achieved": 0.700813,
-   "numerator": 431,
+   "achieved": 0.622764,
+   "numerator": 383,
    "denominator": 615,
    "note": "pairs of one brand and line cell, key dimension equal, length differs",
    "band": [
@@ -1398,8 +1398,8 @@
   {
    "name": "price equal price, size pair: tap_spiral_point",
    "target": 0.104,
-   "achieved": 0.0964617,
-   "numerator": 458,
+   "achieved": 0.105518,
+   "numerator": 501,
    "denominator": 4748,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -1410,8 +1410,8 @@
   {
    "name": "price smaller costs 2x+, same product: bolt_hex",
    "target": 4.99274e-05,
-   "achieved": 0.0,
-   "numerator": 0,
+   "achieved": 0.002331,
+   "numerator": 1,
    "denominator": 429,
    "note": "pairs of one product, length at an equal key differs; target IMPLIED by the census slope and larger-costs-less share, not measured",
    "band": [
@@ -1446,8 +1446,8 @@
   {
    "name": "price smaller costs 2x+, same product: nut_hex",
    "target": 0.000585752,
-   "achieved": 0.0141557,
-   "numerator": 14,
+   "achieved": 0.0131446,
+   "numerator": 13,
    "denominator": 989,
    "note": "pairs of one product, key dimension differs; target IMPLIED by the census slope and larger-costs-less share, not measured",
    "band": [
@@ -1458,8 +1458,8 @@
   {
    "name": "price smaller costs 2x+, same product: screw_socket_head",
    "target": 5.81056e-10,
-   "achieved": 0.0,
-   "numerator": 0,
+   "achieved": 0.00774443,
+   "numerator": 8,
    "denominator": 1033,
    "note": "pairs of one product, length at an equal key differs; target IMPLIED by the census slope and larger-costs-less share, not measured",
    "band": [
@@ -1470,8 +1470,8 @@
   {
    "name": "price smaller costs 2x+, same product: tap_spiral_point",
    "target": 0.0499526,
-   "achieved": 0.0649351,
-   "numerator": 15,
+   "achieved": 0.047619,
+   "numerator": 11,
    "denominator": 231,
    "note": "pairs of one product, key dimension differs; target IMPLIED by the census slope and larger-costs-less share, not measured",
    "band": [
@@ -1494,10 +1494,10 @@
   {
    "name": "price brand spread, same spec (median max/min): bearing_radial_ball",
    "target": 1.3825,
-   "achieved": 1.26549,
+   "achieved": 1.30864,
    "numerator": 40,
    "denominator": 49,
-   "note": "over specs (key dimension, material) two or more brands make; geometric mean over every 3 of a spec's brands",
+   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec",
    "band": [
     1.03687,
     1.83873
@@ -1506,10 +1506,10 @@
   {
    "name": "price brand spread, same spec (median max/min): drill_jobber",
    "target": 2.5705,
-   "achieved": 2.7372,
+   "achieved": 2.84843,
    "numerator": 130,
    "denominator": 101,
-   "note": "over specs (key dimension, material) two or more brands make; geometric mean over every 3 of a spec's brands",
+   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec",
    "band": [
     1.92788,
     3.41877
@@ -1518,10 +1518,10 @@
   {
    "name": "price brand spread, same spec (median max/min): end_mill_ball",
    "target": 1.3624,
-   "achieved": 1.43429,
+   "achieved": 1.47914,
    "numerator": 59,
    "denominator": 5,
-   "note": "over specs (key dimension, material) two or more brands make; geometric mean over every 3 of a spec's brands",
+   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec",
    "band": [
     0.919531,
     2.01857
@@ -1530,10 +1530,10 @@
   {
    "name": "price brand spread, same spec (median max/min): nut_hex",
    "target": 5.5752,
-   "achieved": 2.57534,
+   "achieved": 2.59548,
    "numerator": 98,
    "denominator": 6,
-   "note": "over specs (key dimension, material) two or more brands make; geometric mean over every 3 of a spec's brands",
+   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec",
    "band": [
     1.1062,
     28.0987
@@ -1542,10 +1542,10 @@
   {
    "name": "price brand spread, same spec (median max/min): screw_socket_head",
    "target": 1.3372,
-   "achieved": 1.25211,
+   "achieved": 1.2385,
    "numerator": 54,
    "denominator": 7,
-   "note": "over specs (key dimension, material) two or more brands make; geometric mean over every 2 of a spec's brands",
+   "note": "over specs (key dimension, material) two or more brands make; 2 brands sampled per spec",
    "band": [
     1.0029,
     1.77848
@@ -1554,10 +1554,10 @@
   {
    "name": "price brand spread, same spec (median max/min): tap_spiral_point",
    "target": 2.2238,
-   "achieved": 1.62959,
+   "achieved": 2.36202,
    "numerator": 43,
    "denominator": 31,
-   "note": "over specs (key dimension, material) two or more brands make; geometric mean over every 3 of a spec's brands",
+   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec",
    "band": [
     1.66785,
     2.95765
@@ -1566,10 +1566,10 @@
   {
    "name": "price brand spread, same spec (median max/min): wheel_depressed_center",
    "target": 1.2838,
-   "achieved": 2.96195,
+   "achieved": 3.24089,
    "numerator": 6,
    "denominator": 12,
-   "note": "over specs (key dimension, material) two or more brands make; geometric mean over every 3 of a spec's brands; PINNED SHORTFALL, above band: catalog diameters span 2.25x, which the key term spreads to 2.6x of the census's 10x, and the group noise that makes up the rest is drawn independently per brand for each of the 12 brands that make every shared wheel spec, so one spec's brands land 6.8x apart. A noise one spec shares across brands (SIZE_NOISE, as on taps) brings the spread to 2.0 but inverts the few diameters (larger costs more 0.68 against 0.81)",
+   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec; PINNED SHORTFALL, above band: catalog diameters span 2.25x, which the key term spreads to 2.6x of the census's 10x, and the group noise that makes up the rest is drawn independently per brand for each of the 12 brands that make every shared wheel spec, so one spec's brands land 6.8x apart. A noise one spec shares across brands (SIZE_NOISE, as on taps) brings the spread to 2.0 but inverts the few diameters (larger costs more 0.68 against 0.81)",
    "band": [
     0.96285,
     1.70745
@@ -1578,7 +1578,7 @@
   {
    "name": "price economy brands over others, same spec (median): drill_jobber",
    "target": 0.5196,
-   "achieved": 0.456175,
+   "achieved": 0.456532,
    "numerator": 42,
    "denominator": 42,
    "note": "over specs an economy brand and another brand both make",
@@ -1590,8 +1590,8 @@
   {
    "name": "price ending .99",
    "target": 0.00620012,
-   "achieved": 0.00615239,
-   "numerator": 65,
+   "achieved": 0.00624704,
+   "numerator": 66,
    "denominator": 10565,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
@@ -1602,8 +1602,8 @@
   {
    "name": "price ending .00",
    "target": 0.0882322,
-   "achieved": 0.0875532,
-   "numerator": 925,
+   "achieved": 0.0872693,
+   "numerator": 922,
    "denominator": 10565,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
@@ -1626,8 +1626,8 @@
   {
    "name": "price ending other .x5",
    "target": 0.215803,
-   "achieved": 0.222243,
-   "numerator": 2348,
+   "achieved": 0.222054,
+   "numerator": 2346,
    "denominator": 10565,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
