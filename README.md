@@ -165,6 +165,9 @@ look-alike letters, invisible and bidirectional characters, and a phrase
 wrapped across two lines are all caught. The pre-commit hooks run `ruff check` and the whitespace
 fixers, which leave `golden-catalog/` alone.
 
+Run the test suite with plain `uv run pytest`, with no `-n`: the project does
+not install `pytest-xdist`.
+
 ## Generating a catalog
 
 ```sh

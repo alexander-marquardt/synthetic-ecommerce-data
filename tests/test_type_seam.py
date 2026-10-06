@@ -339,7 +339,7 @@ def test_a_type_modules_share_sizes_its_type(key: str) -> None:
     "key", sorted(key for key, spec in DISCOVERED.items() if spec.breadth is None)
 )
 def test_a_modelled_module_is_registered_into_every_table(key: str) -> None:
-    from synthetic_industrial_products.catalog import taxonomy, vocab, voice
+    from synthetic_industrial_products.catalog import price, taxonomy, vocab, voice
     from synthetic_industrial_products.drawing.figures import FIGURES
 
     spec = DISCOVERED[key]
@@ -349,6 +349,7 @@ def test_a_modelled_module_is_registered_into_every_table(key: str) -> None:
     assert vocab.STANDARDS_FAMILY[key] == spec.standards_family
     assert FIGURES[key] == (spec.figure, spec.extent)
     assert voice.USE_LINES.get(key) == (spec.use_lines or None)
+    assert price.MODELS[key] == spec.price
 
 
 # -- the refusals docs/adding-a-type.md promises ------------------------------
@@ -375,6 +376,7 @@ def _modelled(**changes) -> typespec.TypeSpec:
         ("extent", (0.0, 2.75)),
         ("make", None),
         ("share", 0.0),
+        ("price", None),
     ],
 )
 def test_a_modelled_spec_missing_a_field_is_refused_naming_it(field: str, unset: object) -> None:

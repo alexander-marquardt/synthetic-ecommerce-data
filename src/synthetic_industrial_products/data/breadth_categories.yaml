@@ -144,7 +144,6 @@
     Length:
     - 36 in
     - 72 in
-  price_range: [4.0, 20.0]
   skus: 3
   featured_sizes:
   - 1/4-20
@@ -311,7 +310,6 @@
     Finish:
     - Zinc Plated
     - Plain
-  price_range: [1.0, 10.0]
   skus: 2
   reason: generic thread-size overlap; rigging-hardware category gap
 - key: u_bolts
@@ -336,7 +334,6 @@
     Finish:
     - Zinc Plated
     - Plain
-  price_range: [1.0, 8.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -367,7 +364,6 @@
     - 1 in
     - 2 in
     - 3 in
-  price_range: [0.3, 3.0]
   skus: 2
   reason: generic thread-size overlap; round-head bolt category gap
 - key: lag_screws
@@ -424,7 +420,6 @@
     - 3 in
     - 4 in
     - 5 in
-  price_range: [0.5, 5.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -452,7 +447,6 @@
     Head Type:
     - Dome Head
     - Countersunk Head
-  price_range: [0.1, 1.0]
   skus: 2
   reason: breadth diversity; pop-rivet category gap
 - key: cotter_pins
@@ -645,7 +639,6 @@
     Style:
     - Worm Gear
     - Spring
-  price_range: [0.75, 6.0]
   skus: 2
   featured_attrs:
     Material: Stainless Steel
@@ -675,7 +668,6 @@
     - 2 in
     - 3 in
     - 4 in
-  price_range: [2.0, 15.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -703,7 +695,6 @@
     Type:
     - Full Port
     - Standard Port
-  price_range: [8.0, 60.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -732,7 +723,6 @@
     - 100 lb
     - 200 lb
     - 300 lb
-  price_range: [8.0, 40.0]
   skus: 2
   reason: breadth diversity; material-handling category gap
 - key: bronze_sleeve_bushings
@@ -839,7 +829,6 @@
     Type:
     - A-Section
     - B-Section
-  price_range: [5.0, 30.0]
   skus: 2
   reason: breadth diversity; power-transmission belt category gap
 - key: roller_chain
@@ -863,7 +852,6 @@
     Style:
     - Single Strand
     - Double Strand
-  price_range: [3.0, 25.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -967,7 +955,6 @@
     Color:
     - Gray
     - Black
-  price_range: [4.0, 20.0]
   skus: 1
   reason: breadth diversity; PPE category gap
 - key: safety_glasses
@@ -990,7 +977,6 @@
     Style:
     - Wraparound
     - Half-Frame
-  price_range: [3.0, 15.0]
   skus: 1
   reason: breadth diversity; PPE category gap
 - key: foam_ear_plugs
@@ -1013,7 +999,6 @@
     - '10'
     - '50'
     - '100'
-  price_range: [0.1, 1.0]
   skus: 1
   reason: breadth diversity; PPE category gap
 - key: hand_files
@@ -1039,7 +1024,6 @@
     - Flat
     - Round
     - Half-Round
-  price_range: [5.0, 25.0]
   skus: 2
   reason: breadth diversity; hand-tool category gap
 - key: center_punches
@@ -1085,7 +1069,6 @@
     Width:
     - 1/2 in
     - 3/4 in
-  price_range: [4.0, 18.0]
   skus: 1
   reason: breadth diversity; hand-tool category gap
 - key: combination_wrenches
@@ -1112,7 +1095,6 @@
     - Steel
     Finish:
     - Chrome Plated
-  price_range: [5.0, 40.0]
   skus: 2
   featured_sizes:
   - 1/2 in
@@ -1167,7 +1149,6 @@
     Style:
     - Standard
     - Deep Throat
-  price_range: [5.0, 35.0]
   skus: 2
   reason: breadth diversity; workholding category gap
 - key: bench_vises
