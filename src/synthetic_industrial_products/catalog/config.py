@@ -73,9 +73,8 @@ class GeneratorConfig:
     #: 2026-09-28). 700/2600 is the ratio the default catalog was built with,
     #: so the default still carries exactly 700 of each.
     #:
-    #: Each of these types draws from its own random stream (seeded from
-    #: ``seed`` and the type key), so adding, removing or resizing one moves no
-    #: other type's products.
+    #: Every type draws from its own random stream (:mod:`.typespec`), so
+    #: adding, removing or resizing one moves no other type's products.
     new_type_share: dict[str, float] = field(
         default_factory=lambda: {
             "nut_hex": 700 / 2600,
@@ -88,13 +87,15 @@ class GeneratorConfig:
         }
     )
 
-    #: Relative share of lines per product type. Cutting tools dominate the
+    #: Share of ``lines`` per original product type: a type with share ``s``
+    #: drafts ``max(1, round(lines * s))`` lines. Cutting tools dominate the
     #: reference corpus and dominate here.
     #:
-    #: The shares sum to 1.0, and adding a product type means taking the room
-    #: for it from the others rather than appending to the list: ``lines`` is
-    #: apportioned by multiplying this through, so a table summing to 1.09
-    #: would quietly emit 545 lines where 500 were asked for.
+    #: Each share is that type's own and the others do not move with it, so
+    #: resizing one type leaves every other type's products unchanged. The
+    #: shares sum to 1.0 today, which is what keeps ``lines`` close to the
+    #: number of original-type lines asked for; a type added here without
+    #: taking room from the others makes the catalog that much larger.
     type_weights: dict[str, float] = field(
         default_factory=lambda: {
             "end_mill_square": 0.19,
@@ -220,7 +221,7 @@ class GeneratorConfig:
 
 
 #: The ``--lines`` that lands the catalog at about 100,000 SKUs: measured,
-#: ``sip-generate build --lines 39000`` gives 100,299 SKUs over 58,042
+#: ``sip-generate build --lines 39000`` gives 99,929 SKUs over 57,985
 #: products (README, "The 100K catalog"). A named value of the one knob,
 #: not a second knob; built on demand, not published while the spec is
 #: iterated at the default size. (28,300 until uniqueness stopped counting

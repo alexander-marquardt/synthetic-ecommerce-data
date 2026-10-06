@@ -67,8 +67,13 @@ GOLDEN_FILES = (
 # and category picks included, not just which end mills carry these two
 # attributes. Restated by direct count, not derived: wc -l
 # golden-catalog/nested.jsonl / flat.jsonl.
-LINES = 5295
-SKUS = 9665
+#
+# Restated again for #48 (every product type builds from its own random
+# stream, part-number block and series scope): each type's draws no longer
+# depend on the types built before it, so every count moves once. Restated by
+# direct count, as above.
+LINES = 5300
+SKUS = 9700
 
 
 def _sha256(path: Path) -> str:

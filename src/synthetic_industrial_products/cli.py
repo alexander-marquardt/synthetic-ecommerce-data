@@ -111,8 +111,7 @@ class BatchReport:
         ]
         for kind in sorted(set(self.to_scale) | set(self.as_type)):
             out.append(
-                f"  {kind:<12} {self.to_scale[kind]:>6} to scale  "
-                f"{self.as_type[kind]:>6} as type"
+                f"  {kind:<12} {self.to_scale[kind]:>6} to scale  {self.as_type[kind]:>6} as type"
             )
         if self.refusals:
             out.append("why the type drawing was used:")
@@ -197,9 +196,7 @@ def main(argv: list[str] | None = None) -> int:
 
     parser = argparse.ArgumentParser(prog="sip-render", description=__doc__, parents=[common])
     sub = parser.add_subparsers(dest="command", required=True)
-    sub.add_parser(
-        "generics", help="render the twelve product-type drawings", parents=[common]
-    )
+    sub.add_parser("generics", help="render the twelve product-type drawings", parents=[common])
     sub.add_parser("fixtures", help="render every bundled reference record", parents=[common])
     one = sub.add_parser("sku", help="render bundled records by sku", parents=[common])
     one.add_argument("skus", nargs="+")

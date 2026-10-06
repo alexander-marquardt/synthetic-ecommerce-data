@@ -2,7 +2,7 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 9,665 SKUs over 5,295 products in 67 product types --
+extraction in search: 9,700 SKUs over 5,300 products in 67 product types --
 17 depth types plus 50 [breadth categories](#catalog-breadth) --
 from 45 invented brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog)).
@@ -197,19 +197,19 @@ uv run sip-generate images --catalog out/catalog-100k --out out/images-100k --ar
 ```
 
 `--lines 39000` (`config.HUNDRED_K_LINES`) is the value that lands at about
-100,000 SKUs. Measured on `504b2b7` with the first command above (about 40 s
+100,000 SKUs. Measured on `95a9ed0` with the first command above (about 55 s
 wall time, `stats.json` and the build's own summary):
 
 | type | SKUs | | type | SKUs |
 |---|--:|---|---|--:|
-| end_mill_square | 13,898 | | washer_flat | 976 |
-| end_mill_ball | 8,152 | | hammer_ball_pein | 898 |
-| drill_jobber | 7,284 | | abrasive_flap_disc | 2,457 |
-| tap_spiral_point | 3,573 | | nut_hex | 12,044 |
-| screw_socket_head | 7,886 | | bearing_radial_ball | 7,516 |
-| screw_flat_head | 4,728 | | wheel_depressed_center | 11,495 |
-| screw_button_head | 3,489 | | hex_key | 6,466 |
-| screw_low_head | 2,800 | | bolt_hex | 5,853 |
+| end_mill_square | 13,852 | | washer_flat | 978 |
+| end_mill_ball | 8,110 | | hammer_ball_pein | 861 |
+| drill_jobber | 7,307 | | abrasive_flap_disc | 2,460 |
+| tap_spiral_point | 3,512 | | nut_hex | 12,044 |
+| screw_socket_head | 7,727 | | bearing_radial_ball | 7,516 |
+| screw_flat_head | 4,752 | | wheel_depressed_center | 11,495 |
+| screw_button_head | 3,439 | | hex_key | 6,466 |
+| screw_low_head | 2,692 | | bolt_hex | 5,934 |
 | kit_assortment | 695 | | 50 breadth categories | 89 |
 
 The mix is not the one a proportional scale would give, and that is the
@@ -218,18 +218,18 @@ washer's nine sizes; a hammer is its head weight and handle) runs out of
 SKUs its makers have not already made, so it grows less. It was 28,300
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
-**100,299 SKUs over 58,042 products.** SKUs that are not different (the rule
+**99,929 SKUs over 57,985 products.** SKUs that are not different (the rule
 below): 0. Every bearing number is a real table entry with its own bore, OD
 and width. Product names: 0 clashes catalog-wide. Every must-stock example is
 stocked. (Those four are the 100K tests in `tests/test_catalog_brands_voice.py`,
-run green on `504b2b7`.) `scripts/check_determinism.py --lines 39000` on
-`504b2b7`: all 7 emitted files byte-identical across two builds. The drawings,
-built from that catalog with the second command above: 100,299 drawings,
-206.5 MB unpacked, a 22.9 MB `images.tar.gz`, every sha256 matching
+run green on `95a9ed0`.) `scripts/check_determinism.py --lines 39000` on
+`95a9ed0`: all 7 emitted files byte-identical across two builds. The drawings,
+built from that catalog with the second command above: 99,929 drawings,
+206.0 MB unpacked, a 22.8 MB `images.tar.gz`, every sha256 matching
 `images.jsonl`. The 100K catalog is still not published while the spec is
 iterated at the default size.
 
-The files are far too large to commit uncompressed (`flat.jsonl` is ~265 MB).
+The files are far too large to commit uncompressed (`flat.jsonl` is ~330 MB).
 This repository commits the default-size catalog only; the industrial demo
 serves that one, from a pinned release, and the 100K build is a capability
 kept tested (`tests/test_catalog_brands_voice.py` builds it) rather than a
@@ -240,13 +240,13 @@ report`), with the default catalog beside it:
 
 | measured property | target | 100K |
 |---|--:|--:|
-| shank == cutting diameter | 0.6489 | 0.7016 |
-| length of cut > overall length | 0.0829 | 0.0841 |
-| angle carries a length unit | 0.0469 | 0.0474 |
-| declared system contradicts units | 0.0323 | 0.0318 |
+| shank == cutting diameter | 0.6489 | 0.6895 |
+| length of cut > overall length | 0.0829 | 0.0829 |
+| angle carries a length unit | 0.0469 | 0.0451 |
+| declared system contradicts units | 0.0323 | 0.0331 |
 | unit mixing within one record | 0.0222 | 0.0185 |
-| title dimension token unlabelled | 0.4667 | 0.4591 |
-| title names a secondary dimension too | 0.1714 | 0.1190 |
+| title dimension token unlabelled | 0.4667 | 0.4598 |
+| title names a secondary dimension too | 0.1714 | 0.1203 |
 | attributes per record (mean) | 13.12 | 13.07 |
 
 Drift, stated: every title now names its key dimension, so the census's
@@ -647,11 +647,12 @@ deliberately overlapping content:
 | attribute block | tell them apart **precisely** | every published attribute |
 
 ```
-sku          69PU63
-title        Iron Heron Hex Head Bolt,7/16-14, 1" L, Grade 8
-description  Iron Heron Hex Head Bolt,7/16-14, 1" L, Grade 8 - 1" Length
-             Under Head, 1" Thread Length, 5/8" Width Across Flats, 19/64"
-             Head Height, 5/8" Head Dia., Iron Heron ASMEB18.2.1-32
+sku          7159421039
+title        Druvanholm Hex Head Bolt, 1/2-13 Dia./Thread Size, 1-1/4" L, Grade 5
+description  Druvanholm Hex Head Bolt, 1/2-13 Dia./Thread Size, 1-1/4" L, Grade 5
+             - 1-1/4" Length under Head, 1-1/4" Thread Length, 3/4" Width
+             Across Flats, 11/32" Head Height, 3/4" Head Dia., Druvanholm
+             ASMEB18.2.1-78. ...
 ```
 
 **The description opens with the title verbatim and then continues after a
@@ -784,11 +785,11 @@ requirement-query before/after tables are the industrial side
 
 | file | |
 |---|---|
-| `flat.jsonl` | 26.6 MB — 9,665 SKU documents |
-| `nested.jsonl` | 14.8 MB — 5,295 products, nested variants and key-value attributes |
+| `flat.jsonl` | 30.6 MB — 9,700 SKU documents |
+| `nested.jsonl` | 17.9 MB — 5,300 products, nested variants and key-value attributes |
 | `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
-| `images.jsonl` | 3.7 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
+| `images.jsonl` | 4.0 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
 | `stats.json` | the measured defect rates, and the config that produced them |
 
 About 45 MiB in the working tree. **Plain NDJSON — deliberately not gzipped
@@ -833,10 +834,10 @@ difference means the second, and the golden files must not be updated until it
 is found. The test's failure message says all of this too, with the commands.
 
 Alongside the hashes, the same test asserts the headline numbers directly
-against the committed files — 9,665 SKU documents over 5,295 distinct
+against the committed files — 9,700 SKU documents over 5,300 distinct
 `product_id`, a non-empty `image_url` and `image_detail_url` on every product,
-variant and flat document, and 5,295 nested products whose variant counts sum
-to 9,665. Those hold independently of the generator, so a careless
+variant and flat document, and 5,300 nested products whose variant counts sum
+to 9,700. Those hold independently of the generator, so a careless
 regenerate-and-commit from a broken build is still red.
 
 ## Every requirement example is stocked
@@ -1112,8 +1113,8 @@ every other drawing -- only the GEOMETRY is fixed.
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 9,665 drawings, 19.1 MB unpacked
-  (1.97 KB a drawing on average), and a 2.02 MB `images.tar.gz`. Every root
+  measured on the committed catalog, 9,700 drawings, 19.2 MB unpacked
+  (1.98 KB a drawing on average), and a 2.03 MB `images.tar.gz`. Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
   by max-width/max-height in a flex item that does not grow renders a
   viewBox-only SVG at 0 x 0.
@@ -1156,8 +1157,8 @@ small to read is not drawn larger, it is shown through a **magnifier**
   type's scale -- is visible with or without a lens. Interior detail lines
   (flutes, threads, hatch) are texture and keep their finer weight.
 
-On the committed catalog 1,167 SKUs are too small to see: 155 get the handled
-glass (x2.53 to x3.77) and 1,012 the handle-less lens (x2.58 to x4.03). The
+On the committed catalog 1,179 SKUs are too small to see: 151 get the handled
+glass (x2.53 to x3.77) and 1,028 the handle-less lens (x2.53 to x4.03). The
 lowest enlargement any committed lens gives is x2.53; no committed part reaches
 the rule's 40 x 50 extreme. No drawing
 carries text; the magnifier adds only paths and circles, and
@@ -1271,19 +1272,19 @@ than asserted.
 
 | property | target | achieved |
 |---|---|---|
-| shank diameter == cutting diameter | 0.6489 | 0.7100 |
-| length of cut > overall length | 0.0829 | 0.0664 |
-| an angle attribute carrying a length unit | 0.0469 | 0.0410 |
-| declared measurement system contradicts the value's units | 0.0323 | 0.0250 |
-| unit mixing within one record | 0.0222 | 0.0172 |
-| title dimension token carries no label | 0.4667 | 0.4710 |
-| title dimension token is not the primary dimension | 0.1714 | 0.1435 |
+| shank diameter == cutting diameter | 0.6489 | 0.6992 |
+| length of cut > overall length | 0.0829 | 0.0805 |
+| an angle attribute carrying a length unit | 0.0469 | 0.0448 |
+| declared measurement system contradicts the value's units | 0.0323 | 0.0289 |
+| unit mixing within one record | 0.0222 | 0.0166 |
+| title dimension token carries no label | 0.4667 | 0.4648 |
+| title dimension token is not the primary dimension | 0.1714 | 0.1179 |
 | title label truncated at the length cap | 0.0323 | **0.0000, deliberately** |
 | image reference missing | 0.1089 | **0.0000, deliberately** |
 | image id is shared, not the product's own | 0.7353 | **0.0000, deliberately** |
-| attributes per record (mean) | 13.12 | 12.3854 |
+| attributes per record (mean) | 13.12 | 12.3887 |
 
-Measured on `504b2b7` with `uv run sip-generate build` (the default catalog,
+Measured on `95a9ed0` with `uv run sip-generate build` (the default catalog,
 identical to `golden-catalog/`).
 
 Two notes on reading that table honestly. The angle defect is **clustered**:
