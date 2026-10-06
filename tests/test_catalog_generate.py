@@ -15,7 +15,7 @@ from dataclasses import replace
 
 import pytest
 
-from synthetic_industrial_products.catalog import taxonomy
+from synthetic_industrial_products.catalog import taxonomy, typespec
 from synthetic_industrial_products.catalog.config import SMALL, GeneratorConfig
 from synthetic_industrial_products.catalog.generate import all_type_keys, generate
 from synthetic_industrial_products.catalog.measure import measure
@@ -75,7 +75,13 @@ def test_a_different_seed_produces_a_different_catalog():
 def test_the_catalog_is_the_size_it_was_asked_for(stats, config):
     # Breadth (:mod:`.breadth`) adds a fixed ~50 lines on top, independent of
     # every depth knob -- alexander-marquardt/synthetic-industrial-products#34.
-    asked = config.lines + sum(config.new_type_products.values()) + len(all_type_keys("breadth"))
+    # Every modelled type's share, the module-declared ones included: a
+    # deepened breadth category (#53) adds its share on top of the original
+    # types' 1.0 rather than taking lines from them.
+    shares = {key: spec.share for key, spec in typespec.modelled().items()}
+    shares.update(config.type_weights)
+    modelled = sum(max(1, round(config.lines * share)) for share in shares.values())
+    asked = modelled + sum(config.new_type_products.values()) + len(all_type_keys("breadth"))
     assert stats["lines"] == pytest.approx(asked, abs=12)
     # About 1.9 variants per product under the default distribution; a product
     # never offers more variants than its series has members.
