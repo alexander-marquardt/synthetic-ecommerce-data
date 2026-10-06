@@ -154,7 +154,10 @@ _TAP = (
     _spec("Tap Chamfer", "line", 0.58),
     _spec("Number of Flutes", "line", 0.76, kind="count"),
     _spec("Thread Size", "sku"),
+    # A metric tap publishes Pitch (mm), an inch tap Threads per Inch: one per
+    # SKU, at the same presence, so the sparsity draw count is unchanged.
     _spec("Pitch", "sku", 0.88),
+    _spec("Threads per Inch", "sku", 0.88),
     _spec("Overall Length", "sku", 0.84, kind="length"),
     _spec("Thread Length", "sku", 0.70, kind="length"),
     _spec("Shank Dia.", "sku", 0.74, kind="length"),

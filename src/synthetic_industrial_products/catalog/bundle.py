@@ -5,11 +5,12 @@
 The drawings are NEVER committed (elastic/prism-industrial-products#103): the
 repository commits the catalog, whose ``images.jsonl`` carries each SKU image's
 path and sha256, and the bundle is rebuilt from that. This module is the
-rebuild. It reads the committed ``nested.jsonl``, draws every variant, and
-refuses unless every drawing's digest equals the one ``images.jsonl`` records --
-so an archive built here IS the set the catalog names, byte for byte, and a
-generator change that moved a drawing without a regeneration cannot ship
-under the old catalog.
+rebuild. It reads the committed ``nested.jsonl`` and, for each SKU's published
+spelling, ``flat.jsonl`` beside it (a nested entry carries no spelling, #42),
+draws every variant, and refuses unless every drawing's digest equals the one
+``images.jsonl`` records -- so an archive built here IS the set the catalog
+names, byte for byte, and a generator change that moved a drawing without a
+regeneration cannot ship under the old catalog.
 
 LAYOUT. Every member is ``industrial/<type>/<product_id>/<sku>.svg``: the
 top-level ``industrial/`` folder is :data:`..emit.IMAGE_ROOT`, so a
@@ -35,23 +36,50 @@ import json
 import tarfile
 from pathlib import Path
 
+from .entry import published
+
 
 class BundleMismatchError(Exception):
     """A drawing rebuilt from the catalog is not the one its manifest records."""
 
 
-def _record(parent: dict, variant: dict) -> dict[str, str]:
-    """A variant's drawing input, from the nested document: name to value.
+def _record(parent: dict, variant: dict, facets: dict) -> dict[str, str]:
+    """A variant's drawing input: name to PUBLISHED value.
 
+    The names and their order come from the nested document; each value's
+    spelling (``3/8 in.``, ``1,070 lbf``) comes from the SKU's flat ``facets``,
+    because a nested entry carries only its magnitude and ``unit_code``.
     Multi-valued attributes arrive as several entries under one name and are
     joined with ``", "`` in order -- exactly how the generator joined them when
     it drew the same SKU, which is what makes the digests comparable.
     """
     record: dict[str, str] = {}
-    for entry in [*parent["attributes"], *variant["attributes"]]:
-        name, value = entry["name"], entry["value"]
+    for name, value in published([*parent["attributes"], *variant["attributes"]], facets):
         record[name] = f"{record[name]}, {value}" if name in record else value
     return record
+
+
+def flat_facets(catalog_dir: Path) -> dict[str, dict]:
+    """``{sku: facets}`` from the catalog's ``flat.jsonl``: where the published spelling lives."""
+    return {
+        doc["sku"]: doc["facets"]
+        for doc in (
+            json.loads(line)
+            for line in (catalog_dir / "flat.jsonl").read_text("utf-8").splitlines()
+            if line
+        )
+    }
+
+
+def records(parent: dict, facets_by_sku: dict[str, dict]) -> list[dict[str, str]]:
+    """Every variant's drawing input, joined to its flat document on ``sku``."""
+    out = []
+    for variant in parent["variants"]:
+        facets = facets_by_sku.get(variant["sku"])
+        if facets is None:
+            raise BundleMismatchError(f"{variant['sku']}: in nested.jsonl, not in flat.jsonl")
+        out.append(_record(parent, variant, facets))
+    return out
 
 
 def member_path(path: str) -> str:
@@ -82,8 +110,17 @@ def files_digest(files: list[tuple[str, bytes]]) -> str:
 
 
 def rebuild(catalog_dir: Path) -> list[tuple[str, bytes]]:
-    """``(path, svg_bytes)`` for every SKU, checked against ``images.jsonl``."""
+    """``(path, svg_bytes)`` for every SKU, checked against ``images.jsonl``.
+
+    Registers the breadth figures itself. They join the drawing registry when
+    :mod:`.breadth` is imported, which the CLI and the test suite happen to do
+    first; a direct caller did not, and every breadth product failed with
+    :class:`~..drawing.UnknownTypeError`.
+    """
     from ..drawing import draw_product  # noqa: PLC0415
+    from . import breadth  # noqa: PLC0415
+
+    breadth.register()
 
     manifest = {
         row["image_id"]: row
@@ -96,12 +133,14 @@ def rebuild(catalog_dir: Path) -> list[tuple[str, bytes]]:
     built: list[tuple[str, bytes]] = []
     mismatched: list[str] = []
     seen: set[str] = set()
+    facets_by_sku = flat_facets(catalog_dir)
     for line in (catalog_dir / "nested.jsonl").read_text("utf-8").splitlines():
         if not line:
             continue
         parent = json.loads(line)
-        records = [_record(parent, variant) for variant in parent["variants"]]
-        drawn = draw_product(parent["product_type"], parent["brand"], records)
+        drawn = draw_product(
+            parent["product_type"], parent["brand"], records(parent, facets_by_sku)
+        )
         for variant, (data, _) in zip(parent["variants"], drawn, strict=True):
             image_id = variant["image_id"]
             row = manifest.get(image_id)

@@ -330,16 +330,21 @@ def main(argv: list[str] | None = None) -> int:
     #            the 3/8" may belong to a different attribute entirely.
     #   precise: the pairing held together, which is what the sanitised
     #            per-attribute ``facets.shank_dia`` field preserves.
+    # An entry carries the token split (elastic/prism#9935): magnitude plus unit code.
+    split_token = ("3/8", "INH")
     naive = sum(
         1
         for row in flat
         if "Shank Dia." in {a["name"] for a in row["attributes"]}
-        and token in {a.get("value") for a in row["attributes"]}
+        and split_token in {(a.get("value"), a.get("unit_code")) for a in row["attributes"]}
     )
     precise = sum(
         1
         for row in flat
-        if any(a["name"] == "Shank Dia." and a.get("value") == token for a in row["attributes"])
+        if any(
+            a["name"] == "Shank Dia." and (a.get("value"), a.get("unit_code")) == split_token
+            for a in row["attributes"]
+        )
     )
     checks.record(
         naive >= precise,

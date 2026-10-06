@@ -17,6 +17,7 @@ from pathlib import Path
 import pytest
 
 from compat_text import compatibility_sentences, without_compatibility
+from published import published_attributes
 from synthetic_industrial_products.catalog import compat, emit
 from synthetic_industrial_products.catalog.config import GeneratorConfig
 from synthetic_industrial_products.catalog.generate import generate
@@ -139,7 +140,8 @@ def test_the_fine_pitches_are_iso_262s_and_the_unified_fine_series():
 
 
 def _published(doc: dict) -> dict[str, str]:
-    return {a["name"]: a["value"] for a in doc["attributes"]}
+    """Name to published spelling, from flat ``facets`` (a nested entry carries none, #42)."""
+    return {a["name"]: a["value"] for a in published_attributes(doc)}
 
 
 def _same_length(a: str, b: str) -> bool:

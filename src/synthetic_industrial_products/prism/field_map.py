@@ -16,6 +16,9 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import Any
 
+# The namespacing rule lives in the catalog layer, because a nested entry's ``key``
+# applies it too: one rule for both, so the key and the field map cannot drift.
+from ..catalog.entry import STRUCTURAL_NAMES, canonical_name
 from .derive import (
     MAX_TERMS_CARDINALITY,
     MIN_PRESENCE,
@@ -25,34 +28,6 @@ from .derive import (
     Decision,
     decide,
     measure,
-)
-
-#: PRISM canonical names taken by the document's first-class columns. An
-#: attribute that sanitises onto one of these is NAMESPACED rather than
-#: dropped or refused: see :func:`canonical_name`.
-STRUCTURAL_NAMES = frozenset(
-    {
-        "id",
-        "sku",
-        "product_id",
-        "product_type",
-        "title",
-        "description",
-        "parent_title",
-        "brand",
-        "brand_search",
-        "series",
-        "series_search",
-        "categories",
-        "category_path_joined",
-        "category_leaf",
-        "dimension_provenance",
-        "spec_quality",
-        "price",
-        "stock",
-        "attribute_names",
-        "fulltext",
-    }
 )
 
 HEADER = """\
@@ -254,27 +229,6 @@ def _structural_fields() -> list[str]:
     facet: false
 """
     ]
-
-
-#: The prefix an attribute's canonical name takes when its sanitised key is a
-#: structural field's name.
-ATTRIBUTE_PREFIX = "attr_"
-
-
-def canonical_name(key: str) -> str:
-    """An attribute's field-map name: its sanitised key, namespaced on a collision.
-
-    THE GENERAL RULE, not a one-off. Supplier feeds publish attribute names
-    that are also the names of a catalog's own columns -- the reference census
-    carries ``Series`` (25 records), ``Product Type`` (15) and ``Brand`` (1) as
-    ATTRIBUTE names -- and a bearing's ``Series`` (``62``) is not its product
-    line's ``series`` column. Dropping the attribute loses data; refusing the
-    whole catalog is worse. So the attribute keeps its own storage
-    (``facets.series``, which never touched the ``series`` column) and its
-    field-map entry is named ``attr_series``. The nested shape needs none of
-    this: there an attribute is data, ``{name, value}``, not a field name.
-    """
-    return f"{ATTRIBUTE_PREFIX}{key}" if key in STRUCTURAL_NAMES else key
 
 
 def _attribute_entry(decision: Decision) -> str:

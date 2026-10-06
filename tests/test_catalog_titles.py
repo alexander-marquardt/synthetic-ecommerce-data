@@ -49,6 +49,8 @@ from pathlib import Path
 
 import pytest
 
+from published import published_attributes
+from synthetic_industrial_products.catalog.entry import published
 from synthetic_industrial_products.catalog.naming import DELIMITER, TIGHT_DELIMITER
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
@@ -131,11 +133,19 @@ def variant_attributes(catalog: tuple[list[dict], list[dict]]) -> dict[str, list
     this SKU publish that its line does not". The description composes from
     the SKU's own half -- the line's half is the third tier's job -- so the
     question has to be asked of the shape that still distinguishes them.
+
+    The VALUES are the published spelling, read from the SKU's flat ``facets``
+    on sku: a nested entry carries only its magnitude and ``unit_code`` (#42),
+    and a description is compared with what was published.
     """
+    facets = {doc["sku"]: doc["facets"] for doc in catalog[0]}
     own: dict[str, list[dict]] = {}
     for line in catalog[1]:
         for variant in line["variants"]:
-            own[variant["sku"]] = variant["attributes"]
+            pairs = published([*line["attributes"], *variant["attributes"]], facets[variant["sku"]])
+            own[variant["sku"]] = [
+                {"name": name, "value": value} for name, value in pairs[len(line["attributes"]) :]
+            ]
     return own
 
 
@@ -258,12 +268,15 @@ def test_every_title_names_a_value_that_is_this_skus_alone_in_its_line(
         # tool's cutting diameter and another's shank -- and that collision is
         # the property this whole catalog exists to exhibit. What has to be
         # this SKU's alone is the (attribute, value) PAIR.
+        # The published spelling, from flat ``facets`` (#42): the title states
+        # a value as published, so the pair it must own is the published one.
+        spelled = {doc["sku"]: published_attributes(doc) for doc in docs}
         elsewhere: dict[str, set[str]] = {}
         for doc in docs:
-            for entry in doc["attributes"]:
+            for entry in spelled[doc["sku"]]:
                 elsewhere.setdefault(entry["name"], set())
         for doc in docs:
-            own = {entry["name"]: entry["value"] for entry in doc["attributes"]}
+            own = {entry["name"]: entry["value"] for entry in spelled[doc["sku"]]}
             identifying = {
                 name
                 for name, value in own.items()
@@ -271,7 +284,7 @@ def test_every_title_names_a_value_that_is_this_skus_alone_in_its_line(
                     other["sku"] != doc["sku"]
                     and any(
                         entry["name"] == name and entry["value"] == value
-                        for entry in other["attributes"]
+                        for entry in spelled[other["sku"]]
                     )
                     for other in docs
                 )
@@ -323,7 +336,7 @@ def test_the_description_is_derived_and_not_a_second_source_of_truth(
     """
     mismatched: list[tuple[str, str]] = []
     for doc in flat_docs:
-        published = {entry["value"] for entry in doc["attributes"]}
+        published_values = {entry["value"] for entry in published_attributes(doc)}
         tail = doc["description"][len(doc["title"]) + 3 :]
         names = sorted({entry["name"] for entry in doc["attributes"]}, key=len, reverse=True)
         for chunk in tail.split(", "):
@@ -335,7 +348,7 @@ def test_the_description_is_derived_and_not_a_second_source_of_truth(
             if name is None:
                 continue
             value = chunk[: -len(name) - 1]
-            if value not in published:
+            if value not in published_values:
                 mismatched.append((doc["sku"], chunk))
     assert mismatched == [], (
         f"{len(mismatched)} description fragment(s) state a value the record does "

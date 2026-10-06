@@ -25,6 +25,11 @@ An attribute that is not a measurement omits ``value_num`` entirely rather
 than carrying a null, and so does a measurement whose value is deliberately
 malformed: a record with ``Helix Angle = 42"`` has no angle to put there, and
 inventing one would paper over the defect the catalog exists to exhibit.
+
+``value_num`` is internal: generation and measurement read it, and the flat
+shape's ``facets_num`` publishes it. A nested ENTRY carries the split shape of
+:mod:`.entry` instead -- ``{key, name, value[, unit_code, value_canonical]}`` --
+read from the same published string (elastic/prism#9935).
 """
 
 from __future__ import annotations
@@ -33,6 +38,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..dimensions import DimensionParseError, parse_length
+from .entry import entry
 
 
 @dataclass(frozen=True)
@@ -45,24 +51,25 @@ class Attribute:
     #: Present only on a multi-valued attribute. When set, ``value`` is the
     #: first value and this holds all of them.
     values: tuple[str, ...] | None = None
+    #: The unit a BARE published number is in, when the generator knows it and
+    #: the name does not say it: a metric tap's ``Pitch`` is millimetres
+    #: (``MMT``), an inch tap's ``Threads per Inch`` is ``TPI``. See
+    #: :func:`.entry.split`.
+    bare_unit: str | None = None
 
     @property
     def multivalued(self) -> bool:
         return self.values is not None and len(self.values) > 1
 
     def as_entries(self) -> tuple[dict[str, Any], ...]:
-        """The nested entries this attribute becomes.
+        """The nested entries this attribute becomes, each split by :func:`.entry.entry`.
 
         A multi-valued attribute becomes several entries under one name --
         which is the shape that makes a naive nested count over-report, and
-        the reason the catalog carries one.
+        the reason the catalog carries one. Each value is split on its own.
         """
-        if self.values is not None:
-            return tuple({"name": self.name, "value": value} for value in self.values)
-        entry: dict[str, Any] = {"name": self.name, "value": self.value}
-        if self.value_num is not None:
-            entry["value_num"] = self.value_num
-        return (entry,)
+        values = self.values if self.values is not None else (self.value,)
+        return tuple(entry(self.name, value, self.bare_unit) for value in values)
 
 
 def length_attribute(name: str, published: str) -> Attribute:
