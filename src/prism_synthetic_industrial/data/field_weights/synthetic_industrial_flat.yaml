@@ -10,8 +10,8 @@
 # ``tests/test_prism_field_map_drift.py`` fails if this file and a fresh
 # derivation disagree. Editing this file alone reds that test; changing the
 # generator without rebuilding reds it too, which is the point -- the catalog
-# publishes 90 distinct attribute names and a hand-maintained list
-# of 90 declarations drifts from the data the first time either side moves.
+# publishes 91 distinct attribute names and a hand-maintained list
+# of 91 declarations drifts from the data the first time either side moves.
 #
 # WHICH ATTRIBUTES BECOME FACETS
 # -----------------------------------------------------------------------------
@@ -59,9 +59,9 @@
 #
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
-#   attributes declared      90
+#   attributes declared      91
 #   offered as facets        65  (0 numeric ranges, 65 terms)
-#   declared, not faceted    25
+#   declared, not faceted    26
 # =============================================================================
 
 field_map_version: 1
@@ -518,11 +518,12 @@ fields:
   - name: package_quantity
     type: terms
     source: facets.package_quantity
-  # Pitch -- 17 distinct values
-  #   present on 294 documents across 2 product type(s); 17 distinct values
+  # Pitch -- present on 33% of its product types' documents (floor 50%)
+  #   present on 115 documents across 2 product type(s); 9 distinct values
   - name: pitch
     type: terms
     source: facets.pitch
+    facet: false
   # Point Angle -- a discrete standard set: 7 distinct values over 452 documents is 0.02 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
   #   present on 452 documents across 1 product type(s); 7 distinct values
   - name: point_angle
@@ -641,6 +642,11 @@ fields:
   - name: thread_type
     type: terms
     source: facets.thread_type
+  # Threads per Inch -- 8 distinct values
+  #   present on 179 documents across 1 product type(s); 8 distinct values
+  - name: threads_per_inch
+    type: terms
+    source: facets.threads_per_inch
   # Tip Style -- 2 distinct values
   #   present on 1145 documents across 2 product type(s); 2 distinct values
   - name: tip_style

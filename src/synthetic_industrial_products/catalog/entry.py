@@ -79,7 +79,13 @@ UNIT_FOR_BARE_NAME: dict[str, str] = {
 }
 
 #: The size of one unit in its kind's canonical unit: millimetres, grams, degrees,
-#: one, rpm and pound-force, the canonical units the industrial deployment declares.
+#: one, rpm, pound-force and threads per inch.
+#:
+#: ``TPI`` is its OWN quantity, not a length: an inch tap publishes how many
+#: threads an inch holds (``Threads per Inch = 32``) where a metric tap publishes
+#: the distance between them (``Pitch = 0.5`` mm), and real catalogs publish the
+#: two under separate headings. So it is stored as itself, never as a reciprocal
+#: millimetre figure, and the two keys are never folded into one.
 CANONICAL_PER_UNIT: dict[str, Fraction] = {
     "INH": Fraction(127, 5),
     "MMT": Fraction(1),
@@ -89,6 +95,7 @@ CANONICAL_PER_UNIT: dict[str, Fraction] = {
     "C62": Fraction(1),
     "RPM": Fraction(1),
     "C78": Fraction(1),
+    "TPI": Fraction(1),
 }
 
 #: A published number: a mixed number, a fraction, a thousands-separated or plain
@@ -152,8 +159,9 @@ def split(name: str, published: str, bare_unit: str | None = None) -> dict[str, 
 
     A unit marker in the string decides the unit. A bare number takes one only
     when its attribute is known to be published bare in a unit -- by name, or
-    by ``bare_unit`` from the generator, which knows a metric tap's pitch is in
-    millimetres and an inch tap's is a thread count. Anything else stays text.
+    by ``bare_unit`` from the generator, which knows a metric tap's ``Pitch`` is
+    in millimetres (``MMT``) and an inch tap's ``Threads per Inch`` is a thread
+    count (``TPI``). Anything else stays text.
 
     A defective spelling such as ``Helix Angle = 42"`` splits as written: the
     bad value is kept and the bad spelling is dropped (#9284).
