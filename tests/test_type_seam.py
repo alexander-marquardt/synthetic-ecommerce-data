@@ -109,28 +109,16 @@ def test_a_type_module_without_its_own_spec_is_refused(
         typespec.discover("planted_types")
 
 
-#: Types in :data:`MIGRATED` whose module is not written yet. Strict, so the
-#: migration that writes one turns its case red until it leaves this set.
-NOT_YET_MIGRATED: set[str] = set()
+#: Every type module, discovered: a new or moved type is covered by the
+#: discovery and fresh-reader tests below without an entry in any test table.
+DISCOVERED = typespec.discover()
 
 
-@pytest.mark.parametrize(
-    ("key", "family"),
-    [
-        pytest.param(
-            key,
-            family,
-            marks=[pytest.mark.xfail(strict=True, reason="its module is the next step of #48")]
-            if key in NOT_YET_MIGRATED
-            else [],
-        )
-        for key, family in sorted(MIGRATED.items())
-    ],
-)
-def test_a_migrated_type_is_discovered_from_its_own_module(key: str, family: str) -> None:
-    specs = typespec.discover()
-    assert key in specs, f"{key} is not discovered under {typespec.TYPES_PACKAGE}"
-    assert specs[key].module == f"{typespec.TYPES_PACKAGE}.{family}.{key}"
+@pytest.mark.parametrize("key", sorted(DISCOVERED))
+def test_a_type_module_is_its_types_only_declaration(key: str) -> None:
+    module = DISCOVERED[key].module
+    family = module.removeprefix(f"{typespec.TYPES_PACKAGE}.").split(".")
+    assert len(family) == 2 and family[1] == key, f"{module} is not <family>.{key}"
     # Declared once: its module is the only declaration, not a second copy.
     assert key not in generate.Generator._BUILDERS, f"{key} is still in Generator._BUILDERS"
     assert key not in {row.key for row in breadth.load_rows()}, f"{key} is still a YAML row"
@@ -154,7 +142,13 @@ print([name for name in callers if name in sys.modules])
 """
 
 
-@pytest.mark.parametrize("key", sorted(MIGRATED))
+def _run(script: str, *args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, "-c", script, *args], capture_output=True, text=True, check=False
+    )
+
+
+@pytest.mark.parametrize("key", sorted(DISCOVERED))
 def test_a_fresh_reader_sees_a_migrated_type_without_registering_it(key: str) -> None:
     """The tables register the type modules on their first read, so no caller must.
 
@@ -162,20 +156,165 @@ def test_a_fresh_reader_sees_a_migrated_type_without_registering_it(key: str) ->
     The script imports no caller that used to register (the generator, the image
     bundle; the contact-sheet script is not importable), and checks it did not.
     """
-    result = subprocess.run(
-        [sys.executable, "-c", _FRESH_READER, key, *_REGISTERING_CALLERS],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    result = _run(_FRESH_READER, key, *_REGISTERING_CALLERS)
     assert result.returncode == 0, result.stderr[-2000:]
     assert result.stdout.strip() == "[]", "the fresh reader imported a registering caller"
+
+
+#: Each way to read a table, as the FIRST read in a fresh process. A read
+#: that skips registration answers from the tables without the type modules.
+_READS = {
+    "__getitem__": "[LEAVES[k] for k in keys]",
+    "get": "[LEAVES.get(k) for k in keys]",
+    "__contains__": "[k in LEAVES for k in keys]",
+    "__iter__": "sorted(iter(LEAVES))",
+    "__len__": "len(LEAVES)",
+    "keys": "sorted(LEAVES.keys())",
+    "values": "sorted(map(repr, LEAVES.values()))",
+    "items": "sorted(map(repr, LEAVES.items()))",
+}
+
+_FIRST_READ = """
+import sys
+from synthetic_industrial_products.catalog import typespec
+from synthetic_industrial_products.catalog.taxonomy import LEAVES
+keys = sys.argv[2:]
+assert not typespec._REGISTRATION["done"], "importing the table registered already"
+first = eval(sys.argv[1])
+typespec.registered()
+assert first == eval(sys.argv[1]), "the first read answered before registering"
+"""
+
+
+@pytest.mark.parametrize("method", sorted(_READS))
+def test_every_read_of_a_table_registers_before_it_answers(method: str) -> None:
+    result = _run(_FIRST_READ, _READS[method], *sorted(DISCOVERED))
+    assert result.returncode == 0, f"{method}: {result.stderr[-1500:]}"
+
+
+def test_every_read_method_of_a_table_is_one_the_first_read_test_covers() -> None:
+    """A read method added to RegistryTable without a hook, or without a case above."""
+    overridden = {
+        name for name in vars(typespec.RegistryTable) if callable(getattr(dict, name, None))
+    }
+    assert overridden == set(_READS)
+
+
+def test_every_shared_type_table_registers_on_read() -> None:
+    from synthetic_industrial_products.catalog import taxonomy, vocab, voice
+    from synthetic_industrial_products.drawing.figures import FIGURES
+
+    tables = {
+        "LEAVES": taxonomy.LEAVES,
+        "DRAWING": taxonomy.DRAWING,
+        "VOCAB": vocab.VOCAB,
+        "STANDARDS_FAMILY": vocab.STANDARDS_FAMILY,
+        "USE_LINES": voice.USE_LINES,
+        "FIGURES": FIGURES,
+    }
+    plain = [
+        name for name, table in tables.items() if not isinstance(table, typespec.RegistryTable)
+    ]
+    assert not plain, f"tables a reader can read before registration: {plain}"
+
+
+_ROWS_FIRST = """
+import sys
+from synthetic_industrial_products.catalog import breadth, typespec
+assert not typespec._REGISTRATION["done"], "importing breadth registered already"
+missing = set(sys.argv[1:]) - {row.key for row in breadth.rows()}
+assert not missing, f"rows() missed the type modules' rows: {sorted(missing)}"
+"""
+
+
+def test_the_breadth_rows_include_the_type_modules_rows_on_a_first_read() -> None:
+    modules = [key for key, spec in DISCOVERED.items() if spec.breadth is not None]
+    assert modules, "no breadth type module to read"
+    result = _run(_ROWS_FIRST, *modules)
+    assert result.returncode == 0, result.stderr[-1500:]
+
+
+_YAML_ROWS_FIRST = """
+import sys
+from synthetic_industrial_products.catalog import typespec
+# No type module at all, so none imports breadth on registration's behalf.
+typespec.discover = lambda package=typespec.TYPES_PACKAGE: {}
+from synthetic_industrial_products.catalog.taxonomy import LEAVES
+assert "synthetic_industrial_products.catalog.breadth" not in sys.modules
+assert sys.argv[1] in LEAVES, "a YAML breadth row is missing from a fresh read"
+"""
+
+
+def test_registration_brings_in_the_yaml_rows_without_any_type_module() -> None:
+    result = _run(_YAML_ROWS_FIRST, breadth.load_rows()[0].key)
+    assert result.returncode == 0, result.stderr[-1500:]
+
+
+@pytest.mark.parametrize(
+    "key", sorted(key for key, spec in DISCOVERED.items() if spec.breadth is None)
+)
+def test_a_modelled_module_is_registered_into_every_table(key: str) -> None:
+    from synthetic_industrial_products.catalog import taxonomy, vocab, voice
+    from synthetic_industrial_products.drawing.figures import FIGURES
+
+    spec = DISCOVERED[key]
+    assert taxonomy.LEAVES[key] == (spec.category,)
+    assert taxonomy.DRAWING[key] == key
+    assert vocab.VOCAB[key] == spec.vocab
+    assert vocab.STANDARDS_FAMILY[key] == spec.standards_family
+    assert FIGURES[key] == (spec.figure, spec.extent)
+    assert voice.USE_LINES.get(key) == (spec.use_lines or None)
+
+
+# -- the refusals docs/adding-a-type.md promises ------------------------------
+
+
+def _modelled(**changes) -> typespec.TypeSpec:
+    """A complete modelled spec for a type no table holds, with ``changes``."""
+    base = dataclasses.replace(
+        DISCOVERED["screw_socket_head"], key="planted_widget", module="planted.planted_widget"
+    )
+    return dataclasses.replace(base, **changes)
+
+
+@pytest.mark.parametrize(
+    ("field", "unset"),
+    [
+        ("category", ()),
+        ("standards_family", ""),
+        ("vocab", ()),
+        ("figure", None),
+        ("extent", (0.0, 0.0)),
+        ("make", None),
+        ("share", 0.0),
+    ],
+)
+def test_a_modelled_spec_missing_a_field_is_refused_naming_it(field: str, unset: object) -> None:
+    with pytest.raises(typespec.TypeModuleError, match=rf"planted_widget declares no {field}\b"):
+        typespec.register(_modelled(**{field: unset}))
+
+
+def test_a_breadth_spec_whose_row_has_another_key_is_refused() -> None:
+    row = breadth.row_for("shaft_collars")
+    spec = typespec.TypeSpec("planted_widget", breadth=row, module="planted.planted_widget")
+    with pytest.raises(
+        typespec.TypeModuleError, match=r"'planted_widget' with a breadth row for 'shaft_collars'"
+    ):
+        typespec.register(spec)
+
+
+def test_a_type_module_row_that_repeats_a_yaml_row_is_refused(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(breadth, "_ROWS", breadth.rows())
+    with pytest.raises(typespec.TypeCollisionError, match=r"'shaft_collars' is declared both"):
+        breadth.add_row(breadth.row_for("shaft_collars"))
 
 
 def test_every_type_is_built_once() -> None:
     keys = generate.all_type_keys()
     assert len(keys) == len(set(keys))
-    assert set(MIGRATED) <= set(keys)
+    assert set(DISCOVERED) <= set(keys)
     assert UNMIGRATED in keys
 
 

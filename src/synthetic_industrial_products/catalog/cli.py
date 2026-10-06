@@ -4,6 +4,7 @@
     sip-generate report --lines 400
     sip-generate build --lines 600 --sparsity 0.6 --defects 2.0
     sip-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz
+    sip-generate block shim_stock_precision
 
 ``build`` writes:
 
@@ -20,6 +21,9 @@
 ``stats.json``
     what was generated, measured against the statistics it reproduces
 
+``block`` prints the part-number block a new type's key derives and, when
+another type already uses it, the first free block to declare instead.
+
 ``images`` rebuilds every SKU's drawing from a committed catalog, refuses
 unless each matches its recorded sha256, and writes the files and a
 deterministic archive -- the bundle a customization pins and fetches.
@@ -33,9 +37,9 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
-from . import emit, noncopy
+from . import emit, noncopy, typespec
 from .config import GeneratorConfig
-from .generate import generate
+from .generate import all_type_keys, generate
 from .measure import measure
 
 
@@ -165,10 +169,38 @@ def _write_field_map(catalog, config: GeneratorConfig) -> str:
     return f"{target}  field map regenerated from this catalog"
 
 
+def _block(argv: list[str]) -> int:
+    """Print the part-number block a type should declare, if any (#54)."""
+    parser = argparse.ArgumentParser(
+        prog="sip-generate block",
+        description="The part-number block a new type's key derives, and whether it is free.",
+    )
+    parser.add_argument("type_key")
+    key = parser.parse_args(argv).type_key
+    known = all_type_keys()
+    used = {other: typespec.block_of(other) for other in known if other != key}
+    derived = typespec.part_number_block(key)
+    owners = sorted(other for other, block in used.items() if block == derived)
+    if key in known and typespec.block_of(key) != derived:
+        print(f"{key}: already declares part_number_block={typespec.block_of(key):04d}")
+        return 0
+    if not owners:
+        print(f"{key}: derived block {derived:04d} is free; leave part_number_block unset")
+        return 0
+    free = typespec.first_free_block(derived, used.values())
+    print(
+        f"{key}: derived block {derived:04d} is taken by {', '.join(owners)}; "
+        f"declare part_number_block={free:04d}, the first free block after it"
+    )
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     if argv and argv[0] == "images":
         return _images(argv[1:])
+    if argv and argv[0] == "block":
+        return _block(argv[1:])
     parser = argparse.ArgumentParser(prog="sip-generate", description=__doc__)
     parser.add_argument("command", choices=("build", "report"))
     parser.add_argument("--out", type=Path, default=Path("out/catalog"))

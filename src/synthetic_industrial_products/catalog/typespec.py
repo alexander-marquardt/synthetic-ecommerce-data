@@ -14,11 +14,14 @@ code. Three things here make that hold, each a pure function of the key:
   by walking the package rather than by a hand-kept list that every new type
   would have to edit.
 
-A derived block can land on another type's (about one chance in a hundred per
-new type at today's count). :func:`check_collisions` refuses that build and
-names both types and where each would declare a block of its own (its YAML
-row, or its type module); the fix goes on the newly added type, because
-re-blocking a type that already shipped renumbers every SKU it published.
+A derived block can land on another type's: about one chance in 135 per new
+type at today's 67 types, and better than even odds that at least one of a
+hundred new types does. :func:`check_collisions` refuses that build, names
+both types and where each would declare a block of its own (its YAML row, or
+its type module), and names the first free block (:func:`first_free_block`);
+``sip-generate block <type_key>`` prints the block a new type should declare
+before it is built. The fix goes on the newly added type, because re-blocking
+a type that already shipped renumbers every SKU it published.
 """
 
 from __future__ import annotations
@@ -27,7 +30,15 @@ import hashlib
 import importlib
 import pkgutil
 import random
-from collections.abc import Callable, ItemsView, Iterator, KeysView, Mapping, ValuesView
+from collections.abc import (
+    Callable,
+    Collection,
+    ItemsView,
+    Iterator,
+    KeysView,
+    Mapping,
+    ValuesView,
+)
 from dataclasses import dataclass, replace
 from functools import cache
 from typing import TYPE_CHECKING, Any, TypeVar
@@ -168,16 +179,21 @@ def register(spec: TypeSpec) -> None:
             )
         breadth.add_row(spec.breadth)
         return
+    # ``share`` and ``extent`` are refused when left at their defaults too: a
+    # zero share would build one line (``max(1, ...)``) and a zero extent
+    # would draw every SKU at no size, both silently.
     missing = [
         name
-        for name, value in (
-            ("category", spec.category),
-            ("standards_family", spec.standards_family),
-            ("vocab", spec.vocab),
-            ("figure", spec.figure),
-            ("make", spec.make),
+        for name, declared in (
+            ("category", bool(spec.category)),
+            ("standards_family", bool(spec.standards_family)),
+            ("vocab", bool(spec.vocab)),
+            ("figure", spec.figure is not None),
+            ("extent", all(side > 0 for side in spec.extent)),
+            ("make", spec.make is not None),
+            ("share", spec.share > 0),
         )
-        if not value
+        if not declared
     ]
     if missing:
         raise TypeModuleError(f"type module {spec.module} declares no {', '.join(missing)}")
@@ -298,6 +314,22 @@ def part_number_block(type_key: str) -> int:
     return digest % (BLOCK_HIGH - BLOCK_LOW + 1) + BLOCK_LOW
 
 
+def first_free_block(start: int, used: Collection[int]) -> int:
+    """The first block at or after ``start`` that no type uses, wrapping past 9999.
+
+    Deterministic for a given set of used blocks, so the block a collision
+    refusal (or ``sip-generate block``) names is the one every builder of
+    that tree would be told.
+    """
+    span = BLOCK_HIGH - BLOCK_LOW + 1
+    taken = set(used)
+    for step in range(span):
+        block = (start - BLOCK_LOW + step) % span + BLOCK_LOW
+        if block not in taken:
+            return block
+    raise TypeCollisionError(f"all {span} part-number blocks are in use")
+
+
 def block_of(type_key: str) -> int:
     """The block a type's identifiers carry: its own declared one, else the derived one."""
     declared = _discovered_blocks().get(type_key, DECLARED_BLOCKS.get(type_key))
@@ -333,7 +365,8 @@ def check_collisions(blocks: Mapping[str, int], fix_sites: Mapping[str, str] | N
         if block in owner:
             first = owner[block]
             clashes.append(
-                f"{first} and {key} both use block {block:04d} "
+                f"{first} and {key} both use block {block:04d}, and the first free block "
+                f"after it is {first_free_block(block, blocks.values()):04d} "
                 f"(to re-block {first}: {sites.get(first) or module_fix_site(first)}; "
                 f"to re-block {key}: {sites.get(key) or module_fix_site(key)})"
             )
@@ -344,7 +377,8 @@ def check_collisions(blocks: Mapping[str, int], fix_sites: Mapping[str, str] | N
             "part-number blocks collide: "
             + "; ".join(clashes)
             + ". Give the NEWLY ADDED type of each pair a free block of its own: re-blocking "
-            "a type that already shipped renumbers every SKU and product id it has published."
+            "a type that already shipped renumbers every SKU and product id it has published. "
+            "`sip-generate block <type_key>` prints the block to declare."
         )
 
 
