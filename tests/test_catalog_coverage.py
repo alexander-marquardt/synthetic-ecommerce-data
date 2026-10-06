@@ -229,6 +229,10 @@ def test_every_size_every_fastener_standard_offers_reaches_a_document(
     assert published, "no document carries a thread size"
     problems: list[str] = []
     for standard, sizes in sorted(published.items()):
+        # A set screw's standards (ISO 4026-4029, ASME B18.3.5) are transcribed
+        # in its type module, not extracted: there is no extraction to sweep.
+        if not standards.has_extraction(standard):
+            continue
         offered = set(standards.available_sizes(standard))
         if not offered:
             continue

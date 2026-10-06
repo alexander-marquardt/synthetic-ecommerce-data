@@ -107,6 +107,15 @@ def provenance() -> dict:
     return _load()["_provenance"]
 
 
+def has_extraction(standard: str) -> bool:
+    """Whether the extraction carries ``standard``.
+
+    Not every standard a type cites is extracted here: the nut and set screw
+    tables are transcribed in their own modules, which cite the source file.
+    """
+    return standard in _load()
+
+
 def rows(standard: str) -> list[dict]:
     """Every extracted row for ``standard``, including the ones marked absent."""
     data = _load()
