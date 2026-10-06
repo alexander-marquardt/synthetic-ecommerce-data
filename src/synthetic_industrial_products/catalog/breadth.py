@@ -112,6 +112,30 @@ class BreadthRow:
     part_number_block: int | None = None
 
 
+#: The table a breadth type's row, and so its ``part_number_block:``, lives in.
+TABLE = "synthetic_industrial_products/data/breadth_categories.yaml"
+
+
+def fix_site(key: str) -> str:
+    """Where a breadth type declares its own block: a key on its YAML row."""
+    return f"part_number_block: <block> on the {key} row of {TABLE}"
+
+
+def _declared_block(raw: dict[str, Any]) -> int | None:
+    """The row's ``part_number_block:``, refused by row unless an unquoted integer.
+
+    A quoted ``'4659'`` would otherwise reach the collision check as a string
+    and fail there as a bare ``TypeError`` naming no row.
+    """
+    block = raw.get("part_number_block")
+    if block is None or (isinstance(block, int) and not isinstance(block, bool)):
+        return block
+    raise typespec.TypeCollisionError(
+        f"the {raw['key']} row of {TABLE} declares part_number_block: {block!r}; "
+        "write it as an unquoted four-digit integer"
+    )
+
+
 def _row_from_dict(raw: dict[str, Any]) -> BreadthRow:
     return BreadthRow(
         key=raw["key"],
@@ -132,7 +156,7 @@ def _row_from_dict(raw: dict[str, Any]) -> BreadthRow:
         descriptor_attr=raw.get("descriptor_attr"),
         featured_sizes=tuple(raw.get("featured_sizes") or ()),
         featured_attrs=dict(raw.get("featured_attrs") or {}),
-        part_number_block=raw.get("part_number_block"),
+        part_number_block=_declared_block(raw),
     )
 
 

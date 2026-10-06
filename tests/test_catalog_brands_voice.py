@@ -253,7 +253,7 @@ def test_the_series_walk_changes_no_attribute_but_an_identifier():
     from synthetic_industrial_products.catalog.generate import Generator, LineDraft
     from synthetic_industrial_products.catalog.model import Attribute
 
-    gen = Generator(SMALL)
+    gen = Generator(SMALL, "screw_socket_head")
     first = LineDraft(item="x", brand=BRANDS[0], series="K100", category=("a",))
     gen._unique_series(first, [])
     fact = Attribute("Bearing Number", "K100")

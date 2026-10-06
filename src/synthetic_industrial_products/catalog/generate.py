@@ -280,19 +280,19 @@ class Generator:
 
     def __init__(
         self,
-        config: GeneratorConfig | None = None,
-        type_key: str = "",
+        config: GeneratorConfig | None,
+        type_key: str,
         counters: dict[str, int] | None = None,
     ) -> None:
+        # A builder with no type would draw from a stream and a block no
+        # collision check has seen, so only a known type, after that check.
+        if type_key not in _check_blocks():
+            raise ValueError(f"no product type {type_key!r}")
         self.config = config or GeneratorConfig()
         self.type_key = type_key
-        self.rng = (
-            typespec.type_rng(self.config.seed, type_key)
-            if type_key
-            else random.Random(self.config.seed)
-        )
+        self.rng = typespec.type_rng(self.config.seed, type_key)
         #: The type's part-number block, which leads every SKU and product id.
-        self._block = typespec.block_of(type_key) if type_key else 0
+        self._block = typespec.block_of(type_key)
         #: How many SKUs and how many product drafts this type has issued.
         self._sequence = 0
         self._index = 0
@@ -1822,7 +1822,14 @@ class Generator:
         return (type_key, brand, spec)
 
     def _unique_series(self, draft: LineDraft, line_attrs: list[Attribute]) -> None:
-        """Give the product a series no other product of its brand has, catalog-wide.
+        """Give the product a series no other product of its brand has in this type.
+
+        The set walked here is the type's own (:mod:`.typespec`), so it never
+        sees another type's series. Names stay unique across types only
+        because each type's series shape is disjoint from every other's
+        (``BR###``, ``FD###``, ``ISO4017-``, ...). Nothing here enforces that;
+        ``test_no_two_products_share_a_product_name_catalog_wide`` catches a
+        clash after the fact.
 
         A drawn series already taken walks its trailing number up, one step at
         a time, to the first free one -- deterministic, and never a re-draw.
@@ -2119,7 +2126,11 @@ def all_type_keys() -> list[str]:
 def _check_blocks() -> list[str]:
     """Every type key, after refusing any two that share a part-number block."""
     keys = all_type_keys()
-    typespec.check_collisions({key: typespec.block_of(key) for key in keys})
+    yaml_rows = {row.key for row in breadth.ROWS}
+    typespec.check_collisions(
+        {key: typespec.block_of(key) for key in keys},
+        {key: breadth.fix_site(key) for key in keys if key in yaml_rows},
+    )
     return keys
 
 
@@ -2127,8 +2138,6 @@ def generate_type(
     config: GeneratorConfig, type_key: str, counters: dict[str, int] | None = None
 ) -> list[ProductLine]:
     """One type's lines, built alone: the same lines the whole build makes for it."""
-    if type_key not in _check_blocks():
-        raise ValueError(f"no product type {type_key!r}")
     return Generator(config, type_key, counters).build()
 
 

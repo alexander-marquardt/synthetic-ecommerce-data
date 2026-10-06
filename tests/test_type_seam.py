@@ -9,14 +9,16 @@ hand-listed registry. Each test here pins one half of that promise
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import random
 import sys
 from pathlib import Path
 
 import pytest
+import yaml
 
-from synthetic_industrial_products.catalog import emit, generate, typespec
+from synthetic_industrial_products.catalog import breadth, emit, generate, typespec
 from synthetic_industrial_products.catalog.config import SMALL
 from synthetic_industrial_products.catalog.model import Catalog
 
@@ -49,6 +51,18 @@ def _moved_by_removing(removed: str) -> list[str]:
     assert removed in full, f"{removed} built nothing at all"
     assert removed not in reduced, f"{removed} was still built after it was removed"
     return sorted(k for k in full if k != removed and full[k] != reduced.get(k))
+
+
+def _moved_by_changing(changed: str, before: Catalog, after: Catalog) -> list[str]:
+    """Every type other than ``changed`` whose records differ between two builds.
+
+    ``changed`` itself must differ, or the edit under test did nothing and the
+    empty answer would prove nothing.
+    """
+    full, edited = _by_type(before.lines), _by_type(after.lines)
+    assert full.get(changed) != edited.get(changed), f"the edit did not change {changed}"
+    assert set(full) == set(edited), "an edit to one type added or removed another"
+    return sorted(k for k in full if k != changed and full[k] != edited[k])
 
 
 # -- discovery ---------------------------------------------------------------
@@ -144,6 +158,35 @@ def test_removing_a_type_leaves_every_other_type_byte_identical(removed: str) ->
     assert not moved, f"removing {removed} changed {len(moved)} other type(s): {moved[:8]}"
 
 
+@pytest.mark.parametrize(
+    ("resized", "knob"),
+    [(UNMIGRATED, "type_weights"), ("nut_hex", "new_type_share")],
+)
+def test_resizing_a_type_leaves_every_other_type_byte_identical(resized: str, knob: str) -> None:
+    """A type's size is its own share of ``lines``, never a share of a total
+    that every other type's share is also part of (config.py)."""
+    shares = getattr(SMALL, knob)
+    bigger = dataclasses.replace(SMALL, **{knob: {**shares, resized: shares[resized] * 1.3}})
+    moved = _moved_by_changing(resized, generate.generate(SMALL), generate.generate(bigger))
+    assert not moved, f"resizing {resized} changed {len(moved)} other type(s): {moved[:8]}"
+
+
+def test_editing_one_yaml_row_leaves_every_other_type_byte_identical(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A breadth row's edit is that row's alone, like a type module's."""
+    edited = "shaft_collars"
+    before = generate.generate(SMALL)
+    rows = tuple(
+        dataclasses.replace(row, price_range=(40.0, 90.0)) if row.key == edited else row
+        for row in breadth.ROWS
+    )
+    assert rows != breadth.ROWS, f"no {edited} row to edit"
+    monkeypatch.setattr(breadth, "ROWS", rows)
+    moved = _moved_by_changing(edited, before, generate.generate(SMALL))
+    assert not moved, f"editing the {edited} row changed {len(moved)} other type(s): {moved[:8]}"
+
+
 def test_a_planted_shared_random_stream_is_caught(monkeypatch: pytest.MonkeyPatch) -> None:
     """The independence check bites: one stream shared by every type moves them all."""
     shared = random.Random(SMALL.seed)
@@ -192,3 +235,49 @@ def test_a_build_whose_types_collide_is_refused(monkeypatch: pytest.MonkeyPatch)
         generate.generate(SMALL)
     named = [key for key in generate.all_type_keys() if key in str(refused.value)]
     assert len(named) >= 2, f"the refusal must name both types: {refused.value}"
+
+
+def test_a_collision_refusal_says_where_each_kind_of_type_is_fixed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A YAML type is re-blocked on its row, a code type in its module, and the
+    refusal steers the fix onto the NEW type: re-blocking a shipped one
+    renumbers every SKU it has published."""
+    derived = typespec.block_of
+    clash = {"shaft_collars", UNMIGRATED}
+    monkeypatch.setattr(typespec, "block_of", lambda key: 4321 if key in clash else derived(key))
+    with pytest.raises(typespec.TypeCollisionError) as refused:
+        generate.generate(SMALL)
+    text = str(refused.value)
+    assert "part_number_block: <block> on the shaft_collars row of" in text
+    assert "data/breadth_categories.yaml" in text
+    assert f"TypeSpec('{UNMIGRATED}', ...) in {typespec.TYPES_PACKAGE}" in text
+    assert "NEWLY ADDED" in text
+
+
+def _raw_row(key: str) -> dict:
+    text = (Path(breadth.__file__).parent.parent / "data" / "breadth_categories.yaml").read_text()
+    return next(raw for raw in yaml.safe_load(text) if raw["key"] == key)
+
+
+def test_a_quoted_yaml_block_is_refused_naming_its_row() -> None:
+    raw = {**_raw_row("shaft_collars"), "part_number_block": "4659"}
+    with pytest.raises(typespec.TypeCollisionError, match=r"the shaft_collars row of .*'4659'"):
+        breadth._row_from_dict(raw)
+
+
+def test_a_non_integer_block_is_a_named_refusal_not_a_type_error() -> None:
+    blocks: dict = {"alpha_widget": 4321, "beta_widget": "4659"}
+    with pytest.raises(
+        typespec.TypeCollisionError, match=r"beta_widget's part-number block '4659'"
+    ):
+        typespec.check_collisions(blocks)
+
+
+def test_a_builder_needs_a_known_type() -> None:
+    """No builder draws from a stream or block the collision check never saw."""
+    with pytest.raises(TypeError):
+        generate.Generator(SMALL)  # type: ignore[call-arg]
+    for key in ("", "no_such_widget"):
+        with pytest.raises(ValueError, match="no product type"):
+            generate.Generator(SMALL, key)

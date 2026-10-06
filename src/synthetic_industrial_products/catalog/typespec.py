@@ -16,7 +16,9 @@ code. Three things here make that hold, each a pure function of the key:
 
 A derived block can land on another type's (about one chance in a hundred per
 new type at today's count). :func:`check_collisions` refuses that build and
-names both types; the fix is a ``part_number_block=`` on one type's own spec.
+names both types and where each would declare a block of its own (its YAML
+row, or its type module); the fix goes on the newly added type, because
+re-blocking a type that already shipped renumbers every SKU it published.
 """
 
 from __future__ import annotations
@@ -131,23 +133,47 @@ def block_of(type_key: str) -> int:
     return part_number_block(type_key) if declared is None else declared
 
 
-def check_collisions(blocks: Mapping[str, int]) -> None:
-    """Refuse two types on one block, naming both, in key order."""
+def module_fix_site(key: str) -> str:
+    """Where a code type declares its own block: ``SPEC`` in its type module."""
+    found = discover().get(key)
+    module = found.module if found else f"{TYPES_PACKAGE}.<family>.{key}"
+    return f"part_number_block=<block> in SPEC = TypeSpec({key!r}, ...) in {module}"
+
+
+def check_collisions(blocks: Mapping[str, int], fix_sites: Mapping[str, str] | None = None) -> None:
+    """Refuse two types on one block, naming both, in key order.
+
+    ``fix_sites`` says, per type, where that type would declare its own block
+    (a YAML row, or a type module); a type missing from it gets
+    :func:`module_fix_site`.
+    """
+    sites = fix_sites or {}
     owner: dict[int, str] = {}
     clashes: list[str] = []
     for key in sorted(blocks):
         block = blocks[key]
+        if isinstance(block, bool) or not isinstance(block, int):
+            raise TypeCollisionError(
+                f"{key}'s part-number block {block!r} is not an integer; declare it unquoted, "
+                f"as {sites.get(key) or module_fix_site(key)}"
+            )
         if not BLOCK_LOW <= block <= BLOCK_HIGH:
             raise TypeCollisionError(f"{key}'s part-number block {block} is not four digits")
         if block in owner:
-            clashes.append(f"{owner[block]} and {key} both use block {block:04d}")
+            first = owner[block]
+            clashes.append(
+                f"{first} and {key} both use block {block:04d} "
+                f"(to re-block {first}: {sites.get(first) or module_fix_site(first)}; "
+                f"to re-block {key}: {sites.get(key) or module_fix_site(key)})"
+            )
         else:
             owner[block] = key
     if clashes:
         raise TypeCollisionError(
             "part-number blocks collide: "
             + "; ".join(clashes)
-            + ". Give one of each pair its own part_number_block= in its type module."
+            + ". Give the NEWLY ADDED type of each pair a free block of its own: re-blocking "
+            "a type that already shipped renumbers every SKU and product id it has published."
         )
 
 
