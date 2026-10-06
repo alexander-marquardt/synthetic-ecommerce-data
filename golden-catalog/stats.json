@@ -1494,10 +1494,10 @@
   {
    "name": "price brand spread, same spec (median max/min): bearing_radial_ball",
    "target": 1.3825,
-   "achieved": 1.38242,
+   "achieved": 1.26549,
    "numerator": 40,
    "denominator": 49,
-   "note": "over specs (key dimension, material) two or more brands make",
+   "note": "over specs (key dimension, material) two or more brands make; geometric mean over every 3 of a spec's brands",
    "band": [
     1.03687,
     1.83873
@@ -1506,10 +1506,10 @@
   {
    "name": "price brand spread, same spec (median max/min): drill_jobber",
    "target": 2.5705,
-   "achieved": 3.09837,
+   "achieved": 2.7372,
    "numerator": 130,
    "denominator": 101,
-   "note": "over specs (key dimension, material) two or more brands make",
+   "note": "over specs (key dimension, material) two or more brands make; geometric mean over every 3 of a spec's brands",
    "band": [
     1.92788,
     3.41877
@@ -1518,10 +1518,10 @@
   {
    "name": "price brand spread, same spec (median max/min): end_mill_ball",
    "target": 1.3624,
-   "achieved": 1.60882,
+   "achieved": 1.43429,
    "numerator": 59,
    "denominator": 5,
-   "note": "over specs (key dimension, material) two or more brands make",
+   "note": "over specs (key dimension, material) two or more brands make; geometric mean over every 3 of a spec's brands",
    "band": [
     0.919531,
     2.01857
@@ -1530,10 +1530,10 @@
   {
    "name": "price brand spread, same spec (median max/min): nut_hex",
    "target": 5.5752,
-   "achieved": 4.81882,
+   "achieved": 2.57534,
    "numerator": 98,
    "denominator": 6,
-   "note": "over specs (key dimension, material) two or more brands make",
+   "note": "over specs (key dimension, material) two or more brands make; geometric mean over every 3 of a spec's brands",
    "band": [
     1.1062,
     28.0987
@@ -1542,10 +1542,10 @@
   {
    "name": "price brand spread, same spec (median max/min): screw_socket_head",
    "target": 1.3372,
-   "achieved": 1.52849,
+   "achieved": 1.25211,
    "numerator": 54,
    "denominator": 7,
-   "note": "over specs (key dimension, material) two or more brands make",
+   "note": "over specs (key dimension, material) two or more brands make; geometric mean over every 2 of a spec's brands",
    "band": [
     1.0029,
     1.77848
@@ -1554,10 +1554,10 @@
   {
    "name": "price brand spread, same spec (median max/min): tap_spiral_point",
    "target": 2.2238,
-   "achieved": 2.13793,
+   "achieved": 1.62959,
    "numerator": 43,
    "denominator": 31,
-   "note": "over specs (key dimension, material) two or more brands make",
+   "note": "over specs (key dimension, material) two or more brands make; geometric mean over every 3 of a spec's brands",
    "band": [
     1.66785,
     2.95765
@@ -1566,10 +1566,10 @@
   {
    "name": "price brand spread, same spec (median max/min): wheel_depressed_center",
    "target": 1.2838,
-   "achieved": 6.75321,
+   "achieved": 2.96195,
    "numerator": 6,
    "denominator": 12,
-   "note": "over specs (key dimension, material) two or more brands make; PINNED SHORTFALL, above band: catalog diameters span 2.25x, which the key term spreads to 2.6x of the census's 10x, and the group noise that makes up the rest is drawn independently per brand for each of the 12 brands that make every shared wheel spec, so one spec's brands land 6.8x apart. A noise one spec shares across brands (SIZE_NOISE, as on taps) brings the spread to 2.0 but inverts the few diameters (larger costs more 0.68 against 0.81)",
+   "note": "over specs (key dimension, material) two or more brands make; geometric mean over every 3 of a spec's brands; PINNED SHORTFALL, above band: catalog diameters span 2.25x, which the key term spreads to 2.6x of the census's 10x, and the group noise that makes up the rest is drawn independently per brand for each of the 12 brands that make every shared wheel spec, so one spec's brands land 6.8x apart. A noise one spec shares across brands (SIZE_NOISE, as on taps) brings the spread to 2.0 but inverts the few diameters (larger costs more 0.68 against 0.81)",
    "band": [
     0.96285,
     1.70745

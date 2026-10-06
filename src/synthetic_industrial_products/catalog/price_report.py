@@ -14,7 +14,7 @@ Each row is computed the way the census computed its figure:
   so a cell of one line holds no size pair;
 * **brand spread** over specs (key dimension and material) that two or more
   brands make: max/min of the per-brand median price, taken over
-  :func:`brand_sample` brands of the spec (:func:`sampled_log_range`), so the
+  :func:`brand_sample` brands of the spec (:func:`sampled_brands`), so the
   figure does not grow with how many brands a larger catalog puts on a spec;
 * **economy over others** over the same specs, where an economy brand and
   another brand both make it: the economy brands' median price over the
@@ -51,9 +51,10 @@ re-score a candidate model without rebuilding the catalog.
 from __future__ import annotations
 
 import math
+import random
 import statistics
 from collections import Counter, defaultdict
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from statistics import NormalDist
 from typing import TYPE_CHECKING
@@ -320,15 +321,14 @@ def brand_sample(figure: BrandCensus) -> int:
     return min(figure.brands_indexed, BRAND_SAMPLE_CAP)
 
 
-def sampled_log_range(log_medians: Sequence[float], k: int) -> float:
-    """log(max/min) of one spec's per-brand median prices (given in logs),
-    averaged over every set of ``k`` of its brands: the spread a census page
-    showing ``k`` of them would read, with no draw to make. A spec with ``k``
-    or fewer brands gives its whole range.
-
-    Sorted ascending, the i-th of n is the largest of a k-set in C(i, k-1)
-    of the C(n, k) sets and the smallest in C(n-1-i, k-1)."""
-    return max(log_medians) - min(log_medians)
+def sampled_brands(spec: tuple, names: Iterable[str], k: int) -> list[str]:
+    """The ``k`` brands of one spec a brand-spread row reads, drawn once per
+    spec on its own stream: as a census page shows the few brands it shows,
+    whichever the catalog makes. A spec with ``k`` or fewer gives them all."""
+    ordered = sorted(names)
+    if len(ordered) <= k:
+        return ordered
+    return sorted(random.Random(f"brand-sample:{spec}").sample(ordered, k))
 
 
 def implied_twice_share(slope: float, less: float, log_ratios: Sequence[float]) -> float:
@@ -525,13 +525,14 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
     economy = []
     for type_key, figure in BRAND_CENSUS.items():
         spreads = []
-        for (spec_type, _, _), by_brand in collected.specs.items():
-            if spec_type != type_key or len(by_brand) < 2:
+        for spec, by_brand in collected.specs.items():
+            if spec[0] != type_key or len(by_brand) < 2:
                 continue
-            log_medians = [
-                math.log(statistics.median(prices[s] for s in skus)) for skus in by_brand.values()
+            medians = [
+                statistics.median(prices[s] for s in by_brand[b])
+                for b in sampled_brands(spec, by_brand, brand_sample(figure))
             ]
-            spreads.append(math.exp(sampled_log_range(log_medians, brand_sample(figure))))
+            spreads.append(max(medians) / min(medians))
             if type_key != BRAND_SPREAD_TYPE:
                 continue
             cheap = [
@@ -558,8 +559,8 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
                 statistics.median(spreads) if spreads else 0.0,
                 len(spreads),
                 figure.n_specs,
-                f"over specs (key dimension, material) two or more brands make; geometric "
-                f"mean over every {brand_sample(figure)} of a spec's brands",
+                f"over specs (key dimension, material) two or more brands make; "
+                f"{brand_sample(figure)} brands sampled per spec",
                 brand_spread_band(figure),
             )
         )
