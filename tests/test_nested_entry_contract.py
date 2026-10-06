@@ -27,6 +27,7 @@ from typing import Any
 
 import pytest
 
+from industrial_units import Unit, pinned
 from synthetic_industrial_products.catalog import emit
 from synthetic_industrial_products.catalog.config import SMALL
 from synthetic_industrial_products.catalog.entry import published, split
@@ -46,44 +47,26 @@ MAGNITUDE_WITH_UNIT = re.compile(
     r"(?:mm|in|in\.|\"|Degrees|oz|lbf|lb)\s*$"
 )
 
-#: The size of one unit in its kind's canonical unit -- millimetres, grams, degrees,
-#: one, rpm, pound-force -- the canonical units the industrial deployment declares.
-CANONICAL_PER_UNIT: dict[str, Fraction] = {
-    "INH": Fraction(127, 5),
-    "MMT": Fraction(1),
-    "DD": Fraction(1),
-    "ONZ": Fraction(45359237, 1600000),
-    "LBR": Fraction(45359237, 100000),
-    "C62": Fraction(1),
-    "RPM": Fraction(1),
-    "C78": Fraction(1),
-    "TPI": Fraction(1),
-}
-
-#: The quantity each unit measures. A key's measured entries must all measure ONE
-#: of these: ``0.5`` mm and a bare thread count ``32`` under one key is the defect
-#: that gave inch taps their own ``threads_per_inch`` key (#42).
-DIMENSION: dict[str, str] = {
-    "INH": "length",
-    "MMT": "length",
-    "DD": "plane angle",
-    "ONZ": "mass",
-    "LBR": "mass",
-    "C62": "count",
-    "RPM": "rotational speed",
-    "C78": "force",
-    "TPI": "thread density",
+#: Each unit code's kind and exact size, as the industrial deployment declares
+#: them (the pinned ``canonical_units`` block; see :mod:`industrial_units`). Read,
+#: never written here: ``TPI`` is a reciprocal LENGTH by ruling (elastic/prism#9877),
+#: and a test that wrote its own size could overrule that unseen.
+#:
+#: ``LBR`` is the one code this catalog writes that the deployment does not declare
+#: (one row; elastic/prism-industrial-products#164), so its size is stated here.
+UNITS: dict[str, Unit] = {
+    **pinned(),
+    "LBR": Unit("mass", Fraction(45359237, 100000)),
 }
 
 #: The one modelled defect that puts a second quantity under a key on purpose: an
-#: angle published with a length unit (``Helix Angle = 42"``, measured at 4.7% of
-#: the reference records carrying an angle). Its exact values are the generator's
-#: own (``Generator._corrupt_angle``), so a length that reaches an angle key any
-#: other way is still red.
+#: angle published in INCHES (``Helix Angle = 42"``, measured at 4.7% of the
+#: reference records carrying an angle). Its exact values and unit are the
+#: generator's own (``Generator._corrupt_angle``), so a length that reaches an
+#: angle key any other way -- another value, or the same value in ``mm`` -- is red.
 ANGLE_DEFECT = {
     "keys": frozenset({"helix_angle", "point_angle"}),
-    "dimension": "length",
-    "values": frozenset({"42", "1", "1-1/4", "2", "1-5/8"}),
+    "entries": frozenset(("INH", v) for v in ("42", "1", "1-1/4", "2", "1-5/8")),
 }
 
 #: Attributes that are counts, so they carry ``C62`` with a bare value.
@@ -154,41 +137,47 @@ def test_a_measured_value_carries_magnitude_unit_code_and_value_canonical(entrie
     assert measured, "no entry carries a unit code: the measurements were not split"
     for entry in measured:
         assert MAGNITUDE.fullmatch(entry["value"]), entry
-        assert entry["unit_code"] in CANONICAL_PER_UNIT, entry
-        expected = float(_exact(entry["value"]) * CANONICAL_PER_UNIT[entry["unit_code"]])
+        assert entry["unit_code"] in UNITS, entry
+        expected = float(UNITS[entry["unit_code"]].canonical(_exact(entry["value"])))
         assert entry["value_canonical"] == expected, entry
+
+
+def test_the_lbr_size_stated_here_redeclares_no_pinned_unit():
+    assert "LBR" not in pinned()
 
 
 def _quantity(entry: dict[str, Any]) -> str | None:
     """What an entry measures: its unit's dimension, ``bare number`` for a magnitude
     with no unit, ``None`` for text such as a designator (``M10``, ``1/4-20``)."""
     if "unit_code" in entry:
-        return DIMENSION[entry["unit_code"]]
+        return UNITS[entry["unit_code"]].kind
     return "bare number" if MAGNITUDE.fullmatch(entry["value"]) else None
 
 
 def test_every_keys_measured_entries_share_one_unit_dimension(entries):
-    """No key mixes quantities, so a facet over it never shows ``32`` beside ``0.5 mm``.
+    """No key mixes quantity kinds, so a facet over it never shows ``2 lb`` beside ``440 lbf``.
 
+    Kinds are the deployment's: ``TPI``, ``INH`` and ``MMT`` are all ``length``.
     A bare number with no unit counts as a quantity of its own: under a key whose
     other entries are millimetres it is a figure no shopper can read. The angle
     defect is the single exception, and it must actually occur.
     """
-    by_key: dict[str, dict[str, set[str]]] = {}
+    by_key: dict[str, dict[str, set[tuple[str, str]]]] = {}
     for entry in entries:
         quantity = _quantity(entry)
         if quantity is not None:
-            by_key.setdefault(entry["key"], {}).setdefault(quantity, set()).add(entry["value"])
+            by_key.setdefault(entry["key"], {}).setdefault(quantity, set()).add(
+                (entry.get("unit_code", ""), entry["value"])
+            )
     mixed = {}
     defect_seen = False
     for key, quantities in by_key.items():
         if len(quantities) < 2:
             continue
-        defect = quantities.get(ANGLE_DEFECT["dimension"], set())
         if (
             key in ANGLE_DEFECT["keys"]
-            and set(quantities) == {"plane angle", ANGLE_DEFECT["dimension"]}
-            and defect <= ANGLE_DEFECT["values"]
+            and set(quantities) == {"plane_angle", "length"}
+            and quantities["length"] <= ANGLE_DEFECT["entries"]
         ):
             defect_seen = True
             continue
@@ -202,17 +191,6 @@ def test_counts_carry_c62_and_the_old_inch_number_is_gone(entries):
         assert "value_num" not in entry, entry
         if entry["name"] in COUNTS and MAGNITUDE.fullmatch(entry["value"]):
             assert entry.get("unit_code") == "C62", entry
-
-
-def _golden_pair() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    flat = GOLDEN_NESTED.with_name("flat.jsonl")
-    with flat.open(encoding="utf-8") as handle:
-        return _golden(), [json.loads(line) for line in handle]
-
-
-def _fresh_pair() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    catalog = generate(SMALL)
-    return list(emit.iter_nested(catalog)), list(emit.iter_flat(catalog))
 
 
 #: A published spelling, worked out by hand: ``(name, spelling, bare_unit)`` and the
@@ -273,11 +251,25 @@ SPLIT_ORACLE: tuple[tuple[str, str, str | None, dict[str, Any]], ...] = (
         {"value": "5.5", "unit_code": "MMT", "value_canonical": 5.5},
     ),
     ("Pitch", "0.5", "MMT", {"value": "0.5", "unit_code": "MMT", "value_canonical": 0.5}),
+    # A thread count's canonical is its pitch LENGTH (elastic/prism#9877): 127/5 / n
+    # mm. 13 does not terminate, and is the nearest float to 127/65, like any value.
     (
         "Threads per Inch",
         "32",
         "TPI",
-        {"value": "32", "unit_code": "TPI", "value_canonical": 32.0},
+        {"value": "32", "unit_code": "TPI", "value_canonical": 0.79375},
+    ),
+    (
+        "Threads per Inch",
+        "20",
+        "TPI",
+        {"value": "20", "unit_code": "TPI", "value_canonical": 1.27},
+    ),
+    (
+        "Threads per Inch",
+        "13",
+        "TPI",
+        {"value": "13", "unit_code": "TPI", "value_canonical": 1.9538461538461538},
     ),
     (
         "Helix Angle",
@@ -380,7 +372,7 @@ def _oracle_parts(key: str, spelling: str) -> dict[str, Any]:
     magnitude = match["number"].replace(",", "")
     if " " in magnitude:
         magnitude = magnitude.replace(" ", "-")
-    exact = _exact(magnitude) * CANONICAL_PER_UNIT[unit]
+    exact = UNITS[unit].canonical(_exact(magnitude))
     return {"value": magnitude, "unit_code": unit, "value_canonical": float(exact)}
 
 

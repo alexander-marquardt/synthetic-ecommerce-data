@@ -1,0 +1,57 @@
+# PINNED COPY of the industrial deployment's `canonical_units:` block, verbatim.
+#
+#   source:  elastic/prism-industrial-products
+#   path:    src/prism_industrial_products/data/customization.yaml
+#   commit:  d965af03c4ae38dbd227c4fa04432732dbd14cb6 (blob 6285640ed370aa3184983992f13e14135a1f9c6c)
+#
+# The contract test (tests/test_nested_entry_contract.py) reads each unit's kind
+# and exact size from here, so a unit the deployment rules on -- `TPI` as a
+# reciprocal length, elastic/prism#9877 -- cannot be redeclared in a test unseen.
+# tests/test_industrial_unit_pin.py compares this block with the source. Refresh
+# it by copying the block again and updating the commit and blob above.
+canonical_units:
+  # MILLIMETRES — buys 1/512 inch exactly, far finer than the 64ths this
+  # catalog stocks or the 1/256 its own interval ladder can publish.
+  length:
+    code: MMT
+    # TPI (threads per inch) is a LENGTH written as a count per inch: a pitch of
+    # 20 TPI is 1/20 inch, 1.27 mm. Declared like INH and MMT, with a RECIPROCAL
+    # conversion -- `n` TPI is `127/5 / n` mm -- so an imperial thread pitch is
+    # stored under its own unit (ruled on elastic/prism#9877, 2026-10-01).
+    units: { INH: "127/5", MMT: "1", TPI: { reciprocal: "127/5" } }
+  # GRAMS, not milligrams. Milligrams would buy a finer low end (1/8 ounce
+  # against a whole one) and cost the high end: past ~2^53 the two paths ES
+  # uses to reach the stored long disagree, on 836 of the whole pounds from
+  # 1 to 5000. Every mass here is a whole ounce, which grams hold exactly. See
+  # above.
+  mass:
+    code: GRM
+    units: { ONZ: "45359237/1600000", GRM: "1", MGM: "1/1000", KGM: "1000" }
+  # DEGREES. "Metric for everything" was never a claim about radians — no
+  # engineering catalog publishes a chamfer as 0.7854 rad.
+  plane_angle:
+    code: DD
+    units: { DD: "1" }
+  # A DIMENSIONLESS COUNT — flutes, grit numbers. Not convertible into
+  # anything, so no ruling about measurement systems reaches it.
+  count:
+    code: C62
+    units: { C62: "1" }
+  # REVOLUTIONS PER MINUTE, published to the whole RPM.
+  rotation:
+    code: RPM
+    units: { RPM: "1" }
+  # POUND-FORCE — a bearing's dynamic and static load ratings
+  # (prism-industrial-products#103). NOT NEWTONS, and that is measured rather
+  # than a departure from the metric ruling above: a pound-force is
+  # 4.4482216152605 N exactly, and at the Engine's fixed nine-decimal
+  # resolution some of the catalog's 677 load ratings land ON a rounding tie
+  # (a value ES and this module would store differently): 4 in newtons, 1 in
+  # decanewtons, 345 in centinewtons. In kilonewtons the closest is 0.000185 of
+  # a quantum from one (the gate's floor is 1/100), and only millinewtons are
+  # exact, where the largest rating stores past 2^53 -- the same failure that
+  # ruled out milligrams. Any tie disqualifies a unit. The catalog publishes
+  # one spelling, so nothing needs converting today.
+  force:
+    code: C78
+    units: { C78: "1" }
