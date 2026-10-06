@@ -331,6 +331,11 @@ def _apply_finish_follows_material(chosen: dict[str, str], row: BreadthRow, rng:
     # catalog-vocab test below catches a row that reaches this branch.
 
 
+def sku_count(row: BreadthRow) -> int:
+    """How many SKUs ``row`` builds: its ``skus``, capped by the sizes it offers."""
+    return max(1, min(row.skus, len(row.size_values)))
+
+
 def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
     """One breadth product line: 1-2 SKUs, from ``row`` alone.
 
@@ -358,7 +363,7 @@ def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
             descriptor_value = value
     item_text = f"{descriptor_value} {row.item}" if descriptor_value else row.item
 
-    count = max(1, min(row.skus, len(row.size_values)))
+    count = sku_count(row)
     # Featured sizes fill the row's SKU slots first, so a size ``reason``
     # cites is never left out to a rotation that starts at index 0 every
     # time (#35 review -- every row is built exactly once, so the rotation

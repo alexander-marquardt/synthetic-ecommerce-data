@@ -30,6 +30,7 @@ from pathlib import Path
 
 import pytest
 
+import catalog_size
 from prism_synthetic_industrial import FIELD_MAP_PATH
 from synthetic_industrial_products.catalog import cli
 from synthetic_industrial_products.catalog.config import GeneratorConfig
@@ -52,28 +53,10 @@ GOLDEN_FILES = (
     "stats.json",
 )
 
-# Restated by direct count after the breadth categories landed
-# (alexander-marquardt/synthetic-industrial-products#34: +50 lines, +89 SKUs,
-# a fixed addition independent of every depth knob). +89 rather than +88: the
-# #35 review fix round bumped ``threaded_rod`` from 2 SKUs to 3 so its
-# ``reason``-cited '1/4-20', '5/16-18' AND 'M12x1.75' sizes could all be
-# featured, not just two of the three.
-#
-# Restated again for #39 (Corner Radius/Neck Length applied once instead of
-# twice): removing the builder-level gate on those two attributes removes two
-# ``rng.random()`` draws from every end-mill child and always spends the
-# ``rng.uniform``/``rng.choice`` draws that used to be conditional on them, so
-# every later draw in the shared stream lands differently -- variant counts
-# and category picks included, not just which end mills carry these two
-# attributes. Restated by direct count, not derived: wc -l
-# golden-catalog/nested.jsonl / flat.jsonl.
-#
-# Restated again for #48 (every product type builds from its own random
-# stream, part-number block and series scope): each type's draws no longer
-# depend on the types built before it, so every count moves once. Restated by
-# direct count, as above.
-LINES = 5300
-SKUS = 9700
+#: The default build's size: the modelled types' measured part plus one
+#: line per breadth row, read from the rows (``catalog_size``).
+LINES = catalog_size.LINES
+SKUS = catalog_size.SKUS
 
 
 def _sha256(path: Path) -> str:
