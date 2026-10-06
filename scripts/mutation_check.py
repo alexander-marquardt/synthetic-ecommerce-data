@@ -532,9 +532,10 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "type seam: ensure_registered ignores a registration already running",
         "catalog/typespec.py",
-        '    if not (_REGISTRATION["done"] or _REGISTRATION["running"]):',
-        '    if not _REGISTRATION["done"]:',
-        "tests/test_type_seam.py::test_a_table_read_while_registration_runs_does_not_start_it_again",
+        '    if _REGISTRATION["running"]:\n        raise RegistrationReadError(',
+        '    if False:\n        raise RegistrationReadError(',
+        "tests/test_type_seam.py::"
+        "test_a_table_read_while_registration_runs_is_refused_naming_the_reader",
         "",
         "every read of a type table registers the type modules first",
     ),
@@ -696,6 +697,170 @@ MUTATIONS: list[Mutation] = [
         "tests/test_type_seam.py::test_a_breadth_modules_declared_block_is_its_block[row]",
         "",
         "a type's declared block is its block, wherever it is declared",
+    ),
+    Mutation(
+        "type seam: a table read during registration is answered, not refused",
+        "catalog/typespec.py",
+        '    if _REGISTRATION["running"]:\n        raise',
+        '    if _REGISTRATION["running"]:\n        return\n        raise',
+        (
+            "tests/test_type_seam.py::"
+            "test_a_table_read_while_registration_runs_is_refused_naming_the_reader",
+            "tests/test_type_seam.py::"
+            "test_block_of_read_during_registration_is_refused_not_answered_by_import_order",
+        ),
+        "",
+        "a table read during registration is refused, not answered by import order",
+    ),
+    # ---- merge_pr.sh merges only a checked tree (#54) ----------------------
+    # Every name starts "merge_pr:", so `--only "merge_pr:"` re-runs them. The
+    # round-3 review's four survivors are the first four (the fourth, `--ours`
+    # turned `--theirs`, is gone with the side-taking: a generated conflict is
+    # now left for the rebuild, whose markers guard is its row here).
+    *(
+        Mutation(name, "scripts/merge_pr.sh", old, new, tests, "", prop, root=".")
+        for name, old, new, tests, prop in (
+            (
+                "merge_pr: no base re-check before a merge attempt",
+                '[ "$now_base" = "$base_sha" ] ||\n    die',
+                "true ||\n    die",
+                (
+                    "tests/test_merge_pr.py::"
+                    "test_main_that_moves_during_the_checks_is_not_merged_onto",
+                    "tests/test_merge_pr.py::"
+                    "test_main_that_moves_between_merge_attempts_is_not_merged_onto",
+                ),
+                "main is the base the checks ran on, at every merge attempt",
+            ),
+            (
+                "merge_pr: every conflict auto-resolved",
+                'listed "$path" "${GENERATED[@]}" || by_hand+=',
+                "true || by_hand+=",
+                (
+                    "tests/test_merge_pr.py::"
+                    "test_a_conflict_outside_the_generated_files_is_handed_back",
+                    "tests/test_merge_pr.py::"
+                    "test_a_conflict_in_a_file_the_build_does_not_write_is_handed_back",
+                ),
+                "only a conflict the rebuild resolves is resolved by it",
+            ),
+            (
+                "merge_pr: no head-moved check after clone",
+                '[ "$(git -C "$work" rev-parse HEAD)" = "$head_sha" ] ||',
+                "true ||",
+                "tests/test_merge_pr.py::test_a_head_that_moves_while_cloning_is_refused",
+                "the tree checked is the head GitHub named",
+            ),
+            (
+                "merge_pr: a generated file the rebuild left conflicted is accepted",
+                "    if grep -q '^<<<<<<< ' \"$work/$path\"; then",
+                "    if false; then",
+                "tests/test_merge_pr.py::"
+                "test_a_generated_file_the_rebuild_left_conflicted_is_refused",
+                "only a conflict the rebuild resolves is resolved by it",
+            ),
+            (
+                "merge_pr: base re-checked once, not before every attempt",
+                '  [ "$now_base" = "$base_sha" ] ||',
+                '  [ "$attempt" -gt 1 ] || [ "$now_base" = "$base_sha" ] ||',
+                "tests/test_merge_pr.py::"
+                "test_main_that_moves_between_merge_attempts_is_not_merged_onto",
+                "main is the base the checks ran on, at every merge attempt",
+            ),
+            (
+                "merge_pr: any path under golden-catalog/ counts as generated",
+                'listed "$path" "${GENERATED[@]}" || by_hand+=',
+                '[[ $path == golden-catalog/* ]] || listed "$path" "${GENERATED[@]}" || by_hand+=',
+                "tests/test_merge_pr.py::"
+                "test_a_conflict_in_a_file_the_build_does_not_write_is_handed_back",
+                "only a conflict the rebuild resolves is resolved by it",
+            ),
+            (
+                "merge_pr: no head re-check before a merge attempt",
+                '[ "$now_head" = "$final_sha" ] ||',
+                "true ||",
+                "tests/test_merge_pr.py::test_a_head_that_moves_with_nothing_to_push_is_not_merged",
+                "the head is the commit that was checked, at every merge attempt",
+            ),
+            (
+                "merge_pr: the push is forced",
+                'push -q origin "HEAD:',
+                'push -q -f origin "HEAD:',
+                "tests/test_merge_pr.py::"
+                "test_a_head_that_moves_during_the_checks_is_neither_overwritten_nor_merged",
+                "the head is the commit that was checked, at every merge attempt",
+            ),
+            (
+                "merge_pr: the rebuild runs unlocked",
+                'uv run -q --locked --directory "$work" sip-generate',
+                'uv run -q --directory "$work" sip-generate',
+                "tests/test_merge_pr.py::test_a_stale_lock_is_refused_not_relocked_and_committed",
+                "the rebuild commits only the generated files",
+            ),
+            (
+                "merge_pr: the rebuild stages everything",
+                'git -C "$work" add -- "${GENERATED[@]}"',
+                'git -C "$work" add -A',
+                "tests/test_merge_pr.py::"
+                "test_a_change_the_rebuild_makes_outside_the_generated_files_is_refused",
+                "the rebuild commits only the generated files",
+            ),
+            (
+                "merge_pr: a change outside the generated files is left behind",
+                '[ -z "$stray" ] ||',
+                "true ||",
+                "tests/test_merge_pr.py::"
+                "test_a_change_the_rebuild_makes_outside_the_generated_files_is_refused",
+                "the rebuild commits only the generated files",
+            ),
+            (
+                "merge_pr: a check run in which no test passed is green",
+                '[ "$passed" -gt 0 ] ||',
+                "true ||",
+                "tests/test_merge_pr.py::test_a_check_run_in_which_no_test_passed_is_not_green",
+                "a check run is green only when a test passed",
+            ),
+            (
+                "merge_pr: CI read on the PR head, not the pushed commit",
+                "commits/$final_sha/check-runs",
+                "commits/$head_sha/check-runs",
+                "tests/test_merge_pr.py::"
+                "test_a_merge_waits_for_every_check_on_the_pushed_tree[head-only]",
+                "every CI check on the commit that merges is green",
+            ),
+            (
+                "merge_pr: a failed check is green",
+                'elif [ "$conclusion" != success ]; then',
+                "elif false; then",
+                "tests/test_merge_pr.py::"
+                "test_a_merge_waits_for_every_check_on_the_pushed_tree[red]",
+                "every CI check on the commit that merges is green",
+            ),
+            (
+                "merge_pr: any skipped check is green",
+                'listed "$name" "${SKIPPED_BY_DESIGN_CI[@]}" ||',
+                "true ||",
+                "tests/test_merge_pr.py::"
+                "test_a_merge_waits_for_every_check_on_the_pushed_tree[skipped]",
+                "every CI check on the commit that merges is green",
+            ),
+            (
+                "merge_pr: a missing required check is not waited for",
+                'listed "$name" ${seen[@]+"${seen[@]}"} || missing+=',
+                "true || missing+=",
+                "tests/test_merge_pr.py::"
+                "test_a_merge_waits_for_every_check_on_the_pushed_tree[missing]",
+                "every CI check on the commit that merges is green",
+            ),
+            (
+                "merge_pr: a running check counts as finished",
+                'pending+=" $name"',
+                ":",
+                "tests/test_merge_pr.py::"
+                "test_a_merge_waits_for_every_check_on_the_pushed_tree[pending]",
+                "every CI check on the commit that merges is green",
+            ),
+        )
     ),
     # ---- generate: the measured rates, both directions -------------------
     Mutation(

@@ -8,8 +8,9 @@ go first on ``PATH``:
   commit as ``FAKE_GH_CI`` says, and records a ``pr merge`` only when its
   ``--match-head-commit`` is still the branch head, as GitHub does.
 * ``uv`` runs the real one, and while the build runs it can move ``main`` or
-  the PR head on the origin (``FAKE_UV_MOVE``), or skip the build
-  (``FAKE_UV_SKIP_BUILD``). That is how a case makes something change mid-run.
+  the PR head on the origin (``FAKE_UV_MOVE``), write a file the build does
+  not (``FAKE_UV_STRAY``), or skip the build (``FAKE_UV_SKIP_BUILD``). That
+  is how a case makes something change mid-run.
 
 The script's own checks are narrowed to one test (``MERGE_PR_CHECKS``): what is
 under test is the script's order of operations, not the suite.
@@ -100,6 +101,13 @@ if [[ " $* " == *" build "* ]]; then
   if [ -n "${FAKE_UV_MOVE:-}" ] && [ ! -e "$FAKE_GH_LOG.moved" ]; then
     touch "$FAKE_GH_LOG.moved"
     move "$FAKE_UV_MOVE"
+  fi
+  if [ -n "${FAKE_UV_STRAY:-}" ]; then
+    prev=""
+    for arg in "$@"; do
+      if [ "$prev" = --directory ]; then echo stray >"$arg/$FAKE_UV_STRAY"; fi
+      prev=$arg
+    done
   fi
   if [ -n "${FAKE_UV_SKIP_BUILD:-}" ]; then exit 0; fi
 fi
@@ -306,6 +314,7 @@ def test_a_check_run_in_which_no_test_passed_is_not_green(world: dict) -> None:
         # CI ran on the PR head, never on the merge the script pushed.
         ("head-only", "missing: tests commit-messages"),
     ],
+    ids=["red", "skipped", "missing", "pending", "head-only"],
 )
 def test_a_merge_waits_for_every_check_on_the_pushed_tree(
     world: dict, ci: str, refusal: str
@@ -460,6 +469,19 @@ def test_a_stale_lock_is_refused_not_relocked_and_committed(world: dict) -> None
     result = _run(world, head, _GREEN_CHECK)
     assert result.returncode != 0
     assert "--locked" in result.stderr, result.stderr[-800:]
+    assert _branch(world) == head
+    assert not _merged(world)
+
+
+def test_a_change_the_rebuild_makes_outside_the_generated_files_is_refused(
+    world: dict,
+) -> None:
+    """Only the generated files are committed, and nothing else may be left over."""
+    head = _open_pr(world, _GREEN)
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_SKIP_BUILD="1", FAKE_UV_STRAY="stray.txt")
+    assert result.returncode != 0
+    assert "changes outside the generated files" in result.stderr, result.stderr[-800:]
+    assert "stray.txt" in result.stderr
     assert _branch(world) == head
     assert not _merged(world)
 

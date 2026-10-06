@@ -32,13 +32,15 @@ jobs:
       # would mean reformatting them inside a change about published images,
       # so it is left for its own commit rather than quietly dropped -- the
       # gap is real and this comment is where it is recorded.
+      # --locked everywhere: a uv.lock that no longer matches pyproject.toml
+      # is refused, not silently re-locked for this run only.
       - name: Lint
-        run: uv run ruff check .
+        run: uv run --locked ruff check .
       # The golden comparison lives in here: tests/test_catalog_golden.py
       # rebuilds the catalog and compares every committed file by sha256, so a
       # generator change landed without its regeneration is red.
       - name: Tests
-        run: uv run pytest
+        run: uv run --locked pytest
 
   main-merged-tree:
     # This repository has no branch protection (the plan answers 403), so a
@@ -57,7 +59,10 @@ jobs:
         with:
           enable-cache: true
       - name: Drift, golden and seam tests on main (scripts/merge_pr.sh --print-checks)
-        run: uv run pytest -q $(scripts/merge_pr.sh --print-checks)
+        run: |
+          mapfile -t checks < <(scripts/merge_pr.sh --print-checks)
+          [ "${#checks[@]}" -gt 0 ]
+          uv run --locked pytest -q "${checks[@]}"
 
   commit-messages:
     # The commit-msg hook's rule, enforced where a clone that never ran
