@@ -40,14 +40,16 @@ from typing import TYPE_CHECKING
 from . import brands
 from .price import (
     BORROWS,
-    BRAND_SPREAD_MEDIAN,
+    BRAND_CENSUS,
     BRAND_SPREAD_TYPE,
     CENSUS,
     ECONOMY_OVER_OTHERS_MEDIAN,
     ENDINGS,
     KEYS,
+    LENGTH_CENSUS,
     LENGTH_HELD,
     POOLED_ENDINGS,
+    _magnitude,
     ending_class,
     holds_equal,
 )
@@ -76,6 +78,11 @@ class Collected:
     type_of: dict[str, str] = field(default_factory=dict)
     #: Per type, every within-cell (larger, smaller) SKU pair whose key differs.
     pairs: dict[str, list[tuple[str, str]]] = field(default_factory=lambda: defaultdict(list))
+    #: Per type, every (longer, shorter) SKU pair of one brand and line cell
+    #: whose key dimension is equal and whose length differs.
+    length_pairs: dict[str, list[tuple[str, str]]] = field(
+        default_factory=lambda: defaultdict(list)
+    )
     #: Per (type, key, material) spec, the SKUs each brand makes of it.
     specs: dict[tuple, dict[str, list[str]]] = field(
         default_factory=lambda: defaultdict(lambda: defaultdict(list))
@@ -102,6 +109,7 @@ def _cell_names(lines: list) -> dict[str, frozenset[str]]:
 def collect(catalog: Catalog) -> Collected:
     out = Collected()
     cells: dict[tuple, list[tuple[float, str]]] = defaultdict(list)
+    by_length: dict[tuple, list[tuple[float, str]]] = defaultdict(list)
     lines = [line for line in catalog.lines if line.spec_quality != "fast_and_cheap"]
     cell_names = _cell_names(lines)
     for line in lines:
@@ -120,14 +128,19 @@ def collect(catalog: Catalog) -> Collected:
                 attrs["Length"].value if line.type_key in LENGTH_HELD and "Length" in attrs else ""
             )
             cells[(line.type_key, line.brand, line_cell, length)].append((key, child.sku))
+            if length:
+                by_length[(line.type_key, line.brand, line_cell, round(key, 4))].append(
+                    (_magnitude(attrs["Length"]) or 0.0, child.sku)
+                )
             material = attrs["Material"].value if "Material" in attrs else ""
             out.specs[(line.type_key, round(key, 4), material)][line.brand].append(child.sku)
-    for (type_key, *_), members in cells.items():
-        for i, (key_a, sku_a) in enumerate(members):
-            for key_b, sku_b in members[i + 1 :]:
-                if abs(key_a - key_b) < 1e-9:
-                    continue
-                out.pairs[type_key].append((sku_a, sku_b) if key_a > key_b else (sku_b, sku_a))
+    for target, groups in ((out.pairs, cells), (out.length_pairs, by_length)):
+        for (type_key, *_), members in groups.items():
+            for i, (key_a, sku_a) in enumerate(members):
+                for key_b, sku_b in members[i + 1 :]:
+                    if abs(key_a - key_b) < 1e-9:
+                        continue
+                    target[type_key].append((sku_a, sku_b) if key_a > key_b else (sku_b, sku_a))
     return out
 
 
@@ -212,38 +225,67 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
     for type_key in CENSUS:
         rows.extend(type_rows(type_key, collected, prices))
 
-    spreads = []
-    economy = []
-    for (spec_type, _, _), by_brand in collected.specs.items():
-        if spec_type != BRAND_SPREAD_TYPE or len(by_brand) < 2:
-            continue
-        medians = {b: statistics.median(prices[s] for s in skus) for b, skus in by_brand.items()}
-        spreads.append(max(medians.values()) / min(medians.values()))
-        cheap = [
-            s for b, skus in by_brand.items() if brands.BY_NAME[b].tier == "economy" for s in skus
-        ]
-        rest = [
-            s for b, skus in by_brand.items() if brands.BY_NAME[b].tier != "economy" for s in skus
-        ]
-        if cheap and rest:
-            economy.append(
-                statistics.median(prices[s] for s in cheap)
-                / statistics.median(prices[s] for s in rest)
+    for type_key, figure in LENGTH_CENSUS.items():
+        pairs = collected.length_pairs.get(type_key, [])
+        more = sum(prices[longer] > prices[shorter] for longer, shorter in pairs)
+        rows.append(
+            Comparison(
+                f"price longer costs more: {type_key}",
+                figure.longer_costs_more,
+                more / len(pairs) if pairs else 0.0,
+                more,
+                len(pairs),
+                "pairs of one brand and line cell, key dimension equal, length differs",
+                (
+                    figure.longer_costs_more - MONOTONE_BAND,
+                    figure.longer_costs_more + MONOTONE_BAND,
+                ),
             )
-    rows.append(
-        Comparison(
-            f"price brand spread, same spec (median max/min): {BRAND_SPREAD_TYPE}",
-            BRAND_SPREAD_MEDIAN,
-            statistics.median(spreads) if spreads else 0.0,
-            len(spreads),
-            len(spreads),
-            "over specs (key dimension, material) two or more brands make",
-            (
-                BRAND_SPREAD_MEDIAN * BRAND_SPREAD_BAND[0],
-                BRAND_SPREAD_MEDIAN * BRAND_SPREAD_BAND[1],
-            ),
         )
-    )
+
+    economy = []
+    for type_key, figure in BRAND_CENSUS.items():
+        spreads = []
+        for (spec_type, _, _), by_brand in collected.specs.items():
+            if spec_type != type_key or len(by_brand) < 2:
+                continue
+            medians = {
+                b: statistics.median(prices[s] for s in skus) for b, skus in by_brand.items()
+            }
+            spreads.append(max(medians.values()) / min(medians.values()))
+            if type_key != BRAND_SPREAD_TYPE:
+                continue
+            cheap = [
+                s
+                for b, skus in by_brand.items()
+                if brands.BY_NAME[b].tier == "economy"
+                for s in skus
+            ]
+            rest = [
+                s
+                for b, skus in by_brand.items()
+                if brands.BY_NAME[b].tier != "economy"
+                for s in skus
+            ]
+            if cheap and rest:
+                economy.append(
+                    statistics.median(prices[s] for s in cheap)
+                    / statistics.median(prices[s] for s in rest)
+                )
+        rows.append(
+            Comparison(
+                f"price brand spread, same spec (median max/min): {type_key}",
+                figure.spread_p50,
+                statistics.median(spreads) if spreads else 0.0,
+                len(spreads),
+                figure.n_specs,
+                "over specs (key dimension, material) two or more brands make",
+                (
+                    figure.spread_p50 * BRAND_SPREAD_BAND[0],
+                    figure.spread_p50 * BRAND_SPREAD_BAND[1],
+                ),
+            )
+        )
     rows.append(
         Comparison(
             f"price economy brands over others, same spec (median): {BRAND_SPREAD_TYPE}",
