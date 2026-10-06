@@ -170,6 +170,15 @@ uv run sip-generate build --seed 7                   # a different catalog
 ```
 
 The generator is deterministic: one seed produces one catalog, byte for byte.
+`scripts/check_determinism.py [--lines N] [--images]` proves it: it builds
+twice, each in a fresh interpreter with a different `PYTHONHASHSEED`, and
+compares the sha256 of every emitted file (the PRISM field map included, copied
+out of the source tree after each build, and, with `--images`, the drawings
+archive). It refuses a build that leaves any expected file missing. Measured on `a91482e` at the default size: 10 files byte-identical,
+the archive included. Run it at `--lines 39000` before publishing a 100K build
+(elastic/prism-industrial-products#129). It proves independence from the seed
+and the hash seed on one machine; it cannot see a date-only timestamp,
+filesystem listing order, locale or timezone, or the zlib build.
 
 `--lines` is the ONE size knob. It sets the products of the original twelve
 types, and the four newer types (hex nuts, radial ball bearings, depressed
