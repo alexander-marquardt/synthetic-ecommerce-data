@@ -178,6 +178,7 @@ def register(spec: TypeSpec) -> None:
                 f"for {spec.breadth.key!r}"
             )
         breadth.add_row(spec.breadth)
+        _declare_block(spec)
         return
     # ``share`` and ``extent`` are refused when left at their defaults too: a
     # zero share would build one line (``max(1, ...)``) and a zero extent
@@ -204,6 +205,17 @@ def register(spec: TypeSpec) -> None:
     FIGURES[spec.key] = (spec.figure, spec.extent)
     if spec.use_lines:
         voice.USE_LINES[spec.key] = spec.use_lines
+    _declare_block(spec)
+
+
+def _declare_block(spec: TypeSpec) -> None:
+    """Record the block ``spec`` declares, over any its breadth row declared.
+
+    A row's own block is recorded with the row (:func:`.breadth.register`), so
+    a spec that leaves its block unset must not overwrite it.
+    """
+    if spec.part_number_block is not None:
+        DECLARED_BLOCKS[spec.key] = spec.part_number_block
 
 
 #: Set while :func:`registered` runs, so a table read during registration does
@@ -291,21 +303,11 @@ def modelled() -> dict[str, TypeSpec]:
     return {key: spec for key, spec in registered().items() if spec.breadth is None}
 
 
-#: Blocks declared by types that are not yet modules of their own, filled in
-#: as their tables register (:func:`.breadth.register`).
-DECLARED_BLOCKS: dict[str, int] = {}
-
-
-@cache
-def _discovered_blocks() -> dict[str, int]:
-    blocks: dict[str, int] = {}
-    for key, spec in discover().items():
-        block = spec.part_number_block
-        if block is None and spec.breadth is not None:
-            block = spec.breadth.part_number_block
-        if block is not None:
-            blocks[key] = block
-    return blocks
+#: Every block a type declares, by key: a YAML row's or a type module row's
+#: (:func:`.breadth.register`) and a ``TypeSpec``'s (:func:`register`). A
+#: :class:`RegistryTable`, so its first read registers both sources: a plain
+#: dict was filled only once something had imported ``breadth``.
+DECLARED_BLOCKS: RegistryTable[str, int] = RegistryTable()
 
 
 def part_number_block(type_key: str) -> int:
@@ -332,7 +334,7 @@ def first_free_block(start: int, used: Collection[int]) -> int:
 
 def block_of(type_key: str) -> int:
     """The block a type's identifiers carry: its own declared one, else the derived one."""
-    declared = _discovered_blocks().get(type_key, DECLARED_BLOCKS.get(type_key))
+    declared = DECLARED_BLOCKS.get(type_key)
     return part_number_block(type_key) if declared is None else declared
 
 
