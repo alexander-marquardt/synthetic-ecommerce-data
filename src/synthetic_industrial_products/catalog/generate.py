@@ -26,7 +26,7 @@ import random
 from collections.abc import Iterable
 from dataclasses import dataclass, field, replace
 from fractions import Fraction
-from typing import TypeVar
+from typing import Literal, TypeVar
 
 from . import brands, breadth, compat, conformance, noise, series, standards, taxonomy, typespec
 from .config import GeneratorConfig
@@ -2033,17 +2033,18 @@ class Generator:
         key = self.type_key
         cfg = self.config
         lines: list[ProductLine] = []
-        own = typespec.modelled().get(key)
-        if key in self._BUILDERS or own is not None:
+        kind = _type_kinds()[key]
+        if kind == "modelled":
             builder = self._builder()
             (category,) = taxonomy.LEAVES[key]
+            own = typespec.modelled().get(key)
             weight = cfg.type_weights.get(key, own.share if own else None)
             count = 0 if weight is None else max(1, round(cfg.lines * weight))
             for _ in range(count):
                 self._keep(
                     lines, self._finish_line(key, builder(self, key, category), self._next_index())
                 )
-        elif key in NEW_TYPES:
+        elif kind == "new":
             for _ in range(cfg.new_type_products.get(key, 0)):
                 self._keep(lines, self._new_type_line(key))
         else:
@@ -2121,25 +2122,43 @@ class Generator:
         return added
 
 
-def all_type_keys() -> list[str]:
-    """Every type the build makes, in build order: sorted by key, so a new type
-    lands in a fixed place without being listed anywhere."""
-    keys = [
-        *Generator._BUILDERS,
-        *typespec.modelled(),
-        *NEW_TYPES,
-        *(row.key for row in breadth.ROWS),
+#: How a type is built: by a modelled builder (a type module's ``make``, or
+#: :attr:`Generator._BUILDERS` until it has one), from :data:`.newtypes.NEW_TYPES`,
+#: or from one breadth row (a YAML row, or a type module's ``breadth``).
+TypeKind = Literal["modelled", "new", "breadth"]
+
+
+def _type_kinds() -> dict[str, TypeKind]:
+    """Every type's kind, from every place a type can be declared, refusing a key
+    declared twice."""
+    declared: list[tuple[str, TypeKind]] = [
+        *((key, "modelled") for key in Generator._BUILDERS),
+        *((key, "modelled") for key in typespec.modelled()),
+        *((key, "new") for key in NEW_TYPES),
+        *((row.key, "breadth") for row in breadth.ROWS),
     ]
+    keys = [key for key, _ in declared]
     twice = sorted({key for key in keys if keys.count(key) > 1})
     if twice:
         raise typespec.TypeCollisionError(f"type keys defined twice: {twice}")
-    return sorted(keys)
+    return dict(declared)
+
+
+def all_type_keys(kind: TypeKind | None = None) -> list[str]:
+    """Every type the build makes (or every one of ``kind``), in build order:
+    sorted by key, so a new type lands in a fixed place without being listed
+    anywhere.
+
+    The one place a reader gets the type list: a type moves from a shared
+    table to its own module without any reader noticing (#48).
+    """
+    return sorted(key for key, found in _type_kinds().items() if kind in (None, found))
 
 
 def _check_blocks() -> list[str]:
     """Every type key, after refusing any two that share a part-number block."""
     keys = all_type_keys()
-    yaml_rows = {row.key for row in breadth.ROWS}
+    yaml_rows = {row.key for row in breadth.ROWS} - set(typespec.registered())
     typespec.check_collisions(
         {key: typespec.block_of(key) for key in keys},
         {key: breadth.fix_site(key) for key in keys if key in yaml_rows},
