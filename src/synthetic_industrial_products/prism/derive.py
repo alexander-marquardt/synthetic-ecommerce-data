@@ -196,8 +196,8 @@ MEASURED_DISPERSION: dict[str, Any] = {
     # The saturated ladder the rule exists to keep off a slider.
     # Low since the drive size is published as the nominal key (10mm), not
     # the extracted socket's toleranced across-flats (10.07mm). The hex socket
-    # set screws (#53) add their keys, the small ones among them, and 485 documents.
-    "drive_size_cardinality": 48,
+    # set screws (#53) add their small keys (0.7-1.3mm, 0.028-0.035") and 485 documents.
+    "drive_size_cardinality": 41,
     "drive_size_present": 1842,
     # The smallest faceted attribute, which is what clears RANGE_MIN_DOCS.
     # A kit's piece count since the assortment kits (60 kits): a real count

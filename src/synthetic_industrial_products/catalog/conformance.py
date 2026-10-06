@@ -71,7 +71,7 @@ def applicable(
     elif type_key == "set_screws_hex_socket":
         # The point's ISO standard (metric) or ASME B18.3 (inch), then the
         # material's: ISO 898-5 / ISO 3506-3 metric, ASTM F912 / F880 inch.
-        out.append(provenance if metric else "ASME B18.3")
+        out.append(standard if metric else "ASME B18.3")
         if metric:
             out.append("ISO 3506-3" if stainless else "ISO 898-5")
         else:
