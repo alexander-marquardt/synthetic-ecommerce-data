@@ -84,7 +84,7 @@ CANONICAL_PER_UNIT: dict[str, Fraction] = {
     "INH": Fraction(127, 5),
     "MMT": Fraction(1),
     "DD": Fraction(1),
-    "ONZ": Fraction(567, 20),
+    "ONZ": Fraction(45359237, 1600000),
     "LBR": Fraction(45359237, 100000),
     "C62": Fraction(1),
     "RPM": Fraction(1),
