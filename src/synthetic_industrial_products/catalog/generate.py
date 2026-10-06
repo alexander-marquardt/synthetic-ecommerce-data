@@ -697,7 +697,7 @@ class Generator:
                 (
                     Attribute("Pitch", f"{pitch:g}", bare_unit="MMT")
                     if metric
-                    else Attribute("Pitch", str(pitch), bare_unit="MMT")
+                    else keyword_attribute("Pitch", str(pitch))
                 ),
                 self._length("Overall Length", oal_in, style),
                 self._length("Thread Length", oal_in * 0.45, style),
