@@ -2030,7 +2030,7 @@ class Generator:
             builder = self._BUILDERS[key]
             (category,) = taxonomy.LEAVES[key]
             weight = cfg.type_weights.get(key)
-            count = 0 if weight is None else max(1, round(cfg.lines * weight))
+            count = 0 if weight is None else max(1, round(cfg.lines * weight / sum(cfg.type_weights.values())))  # PLANT: shares normalised over all types
             for _ in range(count):
                 self._keep(
                     lines, self._finish_line(key, builder(self, key, category), self._next_index())
