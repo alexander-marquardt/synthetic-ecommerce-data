@@ -72,16 +72,28 @@ def test_a_different_seed_produces_a_different_catalog():
     assert [c.sku for _, c in left.all_skus()] != [c.sku for _, c in right.all_skus()]
 
 
+def _modelled_share(config) -> float:
+    """Every modelled type's share of ``lines``, summed.
+
+    The original types' shares sum to 1.0. A deepened type adds its own share
+    on top and takes none from the others, which would move their output, so
+    the sum is above 1.0 by the deepened types' shares.
+    """
+    modules = typespec.modelled()
+    return sum(
+        config.type_weights.get(key, modules[key].share if key in modules else 0.0)
+        for key in all_type_keys("modelled")
+    )
+
+
 def test_the_catalog_is_the_size_it_was_asked_for(stats, config):
     # Breadth (:mod:`.breadth`) adds a fixed ~50 lines on top, independent of
     # every depth knob -- alexander-marquardt/synthetic-industrial-products#34.
-    # Every modelled type's share, the module-declared ones included: a
-    # deepened breadth category (#53) adds its share on top of the original
-    # types' 1.0 rather than taking lines from them.
-    shares = {key: spec.share for key, spec in typespec.modelled().items()}
-    shares.update(config.type_weights)
-    modelled = sum(max(1, round(config.lines * share)) for share in shares.values())
-    asked = modelled + sum(config.new_type_products.values()) + len(all_type_keys("breadth"))
+    asked = (
+        round(config.lines * _modelled_share(config))
+        + sum(config.new_type_products.values())
+        + len(all_type_keys("breadth"))
+    )
     assert stats["lines"] == pytest.approx(asked, abs=12)
     # About 1.9 variants per product under the default distribution; a product
     # never offers more variants than its series has members.
