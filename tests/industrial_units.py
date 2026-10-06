@@ -4,8 +4,9 @@ Each unit code's KIND and EXACT size come from ``tests/data/
 industrial_canonical_units.yaml``, a verbatim copy of the deployment's
 ``canonical_units:`` block. A test that needs a unit's size reads it here
 rather than writing it down, so a unit the deployment rules on cannot be
-redeclared in this repository unseen. ``tests/test_industrial_unit_pin.py``
-holds the copy to its source.
+redeclared in this repository unseen. The copy records its own digest, which
+``tests/test_industrial_unit_pin.py`` checks, and
+``scripts/check_industrial_unit_pin.py`` compares it with its source.
 """
 
 from __future__ import annotations

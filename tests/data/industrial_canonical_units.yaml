@@ -1,14 +1,19 @@
 # PINNED COPY of the industrial deployment's `canonical_units:` block, verbatim.
 #
-#   source:  elastic/prism-industrial-products
-#   path:    src/prism_industrial_products/data/customization.yaml
-#   commit:  d965af03c4ae38dbd227c4fa04432732dbd14cb6 (blob 6285640ed370aa3184983992f13e14135a1f9c6c)
+# Written by `scripts/check_industrial_unit_pin.py --refresh`; never edit it by
+# hand. `sha256` is the digest of everything from `canonical_units:` to the end
+# of this file, and tests/test_industrial_unit_pin.py reds a block that no
+# longer matches it. The script compares the block with its source.
 #
 # The contract test (tests/test_nested_entry_contract.py) reads each unit's kind
 # and exact size from here, so a unit the deployment rules on -- `TPI` as a
 # reciprocal length, elastic/prism#9877 -- cannot be redeclared in a test unseen.
-# tests/test_industrial_unit_pin.py compares this block with the source. Refresh
-# it by copying the block again and updating the commit and blob above.
+pin:
+  repo: elastic/prism-industrial-products
+  path: src/prism_industrial_products/data/customization.yaml
+  commit: d965af03c4ae38dbd227c4fa04432732dbd14cb6
+  blob: 6285640ed370aa3184983992f13e14135a1f9c6c
+  sha256: 6d473aed5e04fba1b08c84f274687e1b2a6d1838fb84b0450b5fa21afff882d1
 canonical_units:
   # MILLIMETRES — buys 1/512 inch exactly, far finer than the 64ths this
   # catalog stocks or the 1/256 its own interval ladder can publish.

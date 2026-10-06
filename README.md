@@ -599,11 +599,10 @@ of elastic/prism#9935:
   `0.79375` and `20` TPI is `1.27`. `13` TPI (127/65 mm) does not terminate and
   is the nearest float, like `3/8"` (9.525 mm). The contract test reads each
   unit's kind and size from a pinned copy of the industrial deployment's
-  `canonical_units` block (`tests/data/industrial_canonical_units.yaml`), which
-  `tests/test_industrial_unit_pin.py` compares with its source wherever that
-  private repository is readable. No key's measured entries mix quantity kinds,
-  with one exception: the modelled angle defect below, matched on its inch
-  unit and its five values.
+  `canonical_units` block (`tests/data/industrial_canonical_units.yaml`; see
+  [The pinned unit declaration](#the-pinned-unit-declaration)). No key's
+  measured entries mix quantity kinds, with one exception: the modelled angle
+  defect below, matched on its inch unit and its five values.
 * Anything else stays unitless text, including composite designators such as
   `1/4-20` and `M10x1.5`.
 
@@ -1034,6 +1033,30 @@ was split on whitespace, so `-k "x or y"` reached pytest as three arguments and
 a stray quote; and a selector naming two files with a `-k` each silently kept
 only the last filter, running one file with a filter that matched nothing in
 it. The selector is parsed with `shlex` now, and the two-filter shape raises.
+
+### The pinned unit declaration
+
+```sh
+uv run python scripts/check_industrial_unit_pin.py            # compare the pin with its source
+uv run python scripts/check_industrial_unit_pin.py --refresh  # rewrite the pin from it
+```
+
+`tests/data/industrial_canonical_units.yaml` is a verbatim copy of the
+industrial deployment's `canonical_units:` block, and the contract test takes
+every unit's kind and size from it. Its source is a private repository that
+this repository's CI cannot read, so the comparison is a script run by hand,
+through an authenticated `gh`, never a pytest that could only skip in CI. **Run
+it whenever the deployment's `canonical_units` changes, and before a 100-type
+build.** It exits 0 on a match, 1 on a mismatch (naming whether the pin was
+edited, misnames its commit, or the source has moved on), and 2 when it cannot
+read the source; it never passes a comparison it could not make.
+
+The pin records the source commit, the file's blob and the sha256 of its own
+block. `tests/test_industrial_unit_pin.py` checks that digest on every run, in
+CI included, so a hand edit to the pin is red. The pin is only ever written by
+`--refresh`, which copies the block from the newest commit that touched the
+source file. After a refresh that changes the block, rebuild and rerun the
+suite: the contract test reads the new sizes.
 
 ## Images
 
