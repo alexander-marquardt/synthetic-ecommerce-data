@@ -72,7 +72,6 @@ UNIT_FOR_SUFFIX: dict[str, str] = {
 UNIT_FOR_BARE_NAME: dict[str, str] = {
     "Number of Flutes": "C62",
     "Grit": "C62",
-    "Threads per Inch": "C62",
     "Package Quantity": "C62",
     "Number of Pieces": "C62",
     "Max. RPM": "RPM",
