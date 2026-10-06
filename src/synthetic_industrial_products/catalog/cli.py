@@ -139,7 +139,18 @@ def _print_report(stats: dict) -> None:
 
 
 def round_floats(value: Any) -> Any:
-    """Return ``value`` with every float rounded to 6 significant digits."""
+    """Return ``value`` with every float rounded to 6 significant digits.
+
+    The last digits of a float differ between platforms, so a build written on
+    one machine would not match a fresh build on another. Six digits keep a
+    ratio or spread meaningful and are identical everywhere.
+    """
+    if isinstance(value, float):
+        return float(f"{value:.6g}")
+    if isinstance(value, dict):
+        return {key: round_floats(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [round_floats(item) for item in value]
     return value
 
 
@@ -290,7 +301,7 @@ def main(argv: list[str] | None = None) -> int:
         "sparsity_scale": config.sparsity_scale,
         "defect_scale": config.defect_scale,
     }
-    (out / "stats.json").write_text(json.dumps(payload, indent=1) + "\n", encoding="utf-8")
+    (out / "stats.json").write_text(json.dumps(round_floats(payload), indent=1) + "\n", encoding="utf-8")
     (out / "mapping.nested.json").write_text(
         json.dumps(emit.NESTED_MAPPING, indent=1) + "\n", encoding="utf-8"
     )
