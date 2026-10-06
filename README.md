@@ -2,11 +2,15 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: nearly 10,000 SKUs over more than 5,000 products in 17
-depth types plus the [breadth categories](#catalog-breadth), one product each
-(the exact counts, per type, are in `golden-catalog/stats.json`) --
-from 45 invented brands -- and, with one flag, about 100,000 SKUs
-([The 100K catalog](#the-100k-catalog)).
+extraction in search: 10,167 SKUs over 5,555 products in 18 depth types plus
+49 [breadth categories](#catalog-breadth), one product each -- from 45
+invented brands -- and, with one flag, about 100,000 SKUs
+([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
+
+The SKU and product counts are `skus` and `lines` in
+`golden-catalog/stats.json` (per type: `skus_by_type`, `lines_by_type`). The
+type counts are
+`uv run python -c "from synthetic_industrial_products.catalog.generate import all_type_keys as k; print(len(k('modelled')) + len(k('new')), len(k('breadth')))"`.
 
 **Every product in this repository is synthetic.** No record here describes a
 real product offered by any retailer, and no retailer's catalog content is
@@ -194,7 +198,10 @@ filesystem listing order, locale or timezone, or the zlib build.
 types, and the four newer types (hex nuts, radial ball bearings, depressed
 center wheels, hex keys) take a fixed SHARE of it (`new_type_share`,
 700/2600 each: the ratio the default catalog was built with), so every type
-grows together. There is deliberately no second `--scale` flag. The
+grows together. A breadth category deepened into a modelled type (#53, the
+first is `lock_nuts_nylon_insert`) drafts its own `share` of `--lines`
+(`TypeSpec.share`, 0.1) on top of the original twelve's 1.0, so each one makes
+the catalog larger and moves no other type's output. There is deliberately no second `--scale` flag. The
 [breadth categories](#catalog-breadth) are the one exception: one FIXED
 line each, independent of `--lines`, because breadth is not depth (see that
 section for why).
@@ -207,8 +214,10 @@ uv run sip-generate images --catalog out/catalog-100k --out out/images-100k --ar
 ```
 
 `--lines 39000` (`config.HUNDRED_K_LINES`) is the value that lands at about
-100,000 SKUs. Measured on `95a9ed0` with the first command above (about 55 s
-wall time, `stats.json` and the build's own summary):
+100,000 SKUs. Each deepened type adds its own share on top, so the build
+grows with every one; #62 renames it by what it holds and generates these
+figures. Measured with the first command above (about 45 s wall time), per
+type from `skus_by_type` in its `stats.json`:
 
 | type | SKUs | | type | SKUs |
 |---|--:|---|---|--:|
@@ -220,7 +229,8 @@ wall time, `stats.json` and the build's own summary):
 | screw_flat_head | 4,752 | | wheel_depressed_center | 11,495 |
 | screw_button_head | 3,439 | | hex_key | 6,466 |
 | screw_low_head | 2,692 | | bolt_hex | 5,934 |
-| kit_assortment | 695 | | each breadth category | 1-3 |
+| kit_assortment | 695 | | lock_nuts_nylon_insert | 4,513 |
+| | | | 49 breadth categories | 87 (1-3 each) |
 
 The mix is not the one a proportional scale would give, and that is the
 uniqueness rule at work: a type whose spec space is small (ISO 7089 fixes a
@@ -228,21 +238,21 @@ washer's nine sizes; a hammer is its head weight and handle) runs out of
 SKUs its makers have not already made, so it grows less. It was 28,300
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
-**99,929 SKUs over 57,985 products.** SKUs that are not different (the rule
-below): 0. Every bearing number is a real table entry with its own bore, OD
-and width. Product names: 0 clashes catalog-wide. Every must-stock example is
-stocked. (Those four are the 100K tests in `tests/test_catalog_brands_voice.py`,
-run green on `95a9ed0`.) `scripts/check_determinism.py --lines 39000` on
-`95a9ed0`: all 7 emitted files byte-identical across two builds. The drawings,
-built from that catalog with the second command above: 99,929 drawings,
-206.0 MB unpacked, a 22.8 MB `images.tar.gz`, every sha256 matching
-`images.jsonl`. The 100K catalog is still not published while the spec is
-iterated at the default size.
-
-Since `lock_nuts_nylon_insert` became a deep type (#53), the first command
-gives **104,440 SKUs over 60,698 products**, 4,513 of them lock nuts over
-2,714 products. The deepened type adds its own share of `--lines` and takes
-none from the others, so it moves no other type's output.
+**104,440 SKUs over 60,698 products** (`skus` and `lines` in `stats.json`),
+4,513 of them lock nuts over 2,714 products. `lock_nuts_nylon_insert` became
+a deep type (#53) with its own share of `--lines` and took none from the
+others, so every other type's output is the one measured on `95a9ed0`, when
+the build gave 99,929 SKUs over 57,985 products. On `95a9ed0`: SKUs that are
+not different (the rule below): 0. Every bearing number is a real table entry
+with its own bore, OD and width. Product names: 0 clashes catalog-wide.
+Every must-stock example is stocked. (Those four are the 100K tests in
+`tests/test_catalog_brands_voice.py`.) Since lock nuts,
+`scripts/check_determinism.py --lines 39000`: all 7 emitted files
+byte-identical across two builds. The drawings, built with the second command
+above: 104,440 drawings, 212.6 MB unpacked, a 23.4 MB `images.tar.gz`, every
+sha256 matching `images.jsonl` (the counts the command prints). The 100K
+catalog is still not published while the spec is iterated at the default
+size.
 
 The files are far too large to commit uncompressed (`flat.jsonl` is ~330 MB).
 This repository commits the default-size catalog only; the industrial demo
@@ -741,7 +751,7 @@ them here would hide the problem a field map exists to solve.
 
 ## Catalog breadth
 
-alexander-marquardt/synthetic-industrial-products#34: the 17 depth types give
+alexander-marquardt/synthetic-industrial-products#34: the 18 depth types give
 this catalog DEPTH -- hundreds of products in each -- but not BREADTH. A
 comparison the issue makes: a real industrial storefront returns 51 items
 across 9 categories for `1/2 ball` (tooling balls, rubber balls, ball stock in
@@ -1133,8 +1143,10 @@ every other drawing -- only the GEOMETRY is fixed.
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 9,700 drawings, 19.2 MB unpacked
-  (1.98 KB a drawing on average), and a 2.03 MB `images.tar.gz`. Every root
+  measured on the committed catalog, 10,167 drawings, 19.9 MB unpacked
+  (1.95 KB a drawing on average), and a 2.10 MB `images.tar.gz` (the count,
+  bytes and archive size `uv run sip-generate images --catalog golden-catalog
+  --out /tmp/img --archive /tmp/img.tar.gz` prints). Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
   by max-width/max-height in a flex item that does not grow renders a
   viewBox-only SVG at 0 x 0.
@@ -1177,8 +1189,9 @@ small to read is not drawn larger, it is shown through a **magnifier**
   type's scale -- is visible with or without a lens. Interior detail lines
   (flutes, threads, hatch) are texture and keep their finer weight.
 
-On the committed catalog 1,179 SKUs are too small to see: 151 get the handled
-glass (x2.53 to x3.77) and 1,028 the handle-less lens (x2.53 to x4.03). The
+On the committed catalog 1,300 SKUs are too small to see: 192 get the handled
+glass (x2.53 to x3.77) and 1,108 the handle-less lens (x2.53 to x4.03), as the
+command in [docs/drawings.md](docs/drawings.md#scale-the-magnifier-and-no-text) prints. The
 lowest enlargement any committed lens gives is x2.53; no committed part reaches
 the rule's 40 x 50 extreme. No drawing
 carries text; the magnifier adds only paths and circles, and
