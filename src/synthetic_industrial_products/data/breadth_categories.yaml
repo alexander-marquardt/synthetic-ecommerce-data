@@ -858,7 +858,7 @@
   reason: '''1/2'' overlap; bearing-adjacent bushing category gap'
 - key: shaft_collars
   # Its derived block is drill_bushings's too (catalog/typespec.py).
-  part_number_block: 4659
+  part_number_block: 8360
   category:
   - Motion Control & Fluid Power
   - Shaft Collars
