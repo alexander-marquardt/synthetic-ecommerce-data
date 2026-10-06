@@ -99,10 +99,17 @@ THREADED = {
     "screw_low_head": "Dia./Thread Size",
     "bolt_hex": "Dia./Thread Size",
     "nut_hex": "Thread Size",
+    "lock_nuts_nylon_insert": "Thread Size",
     "tap_spiral_point": "Thread Size",
 }
 CUTTING = ("end_mill_square", "end_mill_ball", "drill_jobber", "tap_spiral_point")
-FASTENERS = (*compat.SOCKET_SCREWS, "bolt_hex", "nut_hex", "washer_flat")
+FASTENERS = (
+    *compat.SOCKET_SCREWS,
+    "bolt_hex",
+    "nut_hex",
+    "lock_nuts_nylon_insert",
+    "washer_flat",
+)
 
 #: The attribute a type's unit equivalent is written for.
 UNIT_PRIMARY = {

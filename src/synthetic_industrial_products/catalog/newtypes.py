@@ -22,12 +22,13 @@ How these differ from the original twelve, deliberately:
   original twelve keep the catalog's single spelling.
 * **Attribute names are the census's generic ones** (:mod:`.names`).
 * **Dimensions are generated from conventional sizes.** The values follow the
-  familiar size ladders (nut widths across flats, the 60/62/63 bearing series
-  boundary sizes, stocked wheel diameters, hex key sizes), so the provenance
-  field says "generated". The one exception is the hex nut's ``Standards``
-  claim: a finished or jam nut line whose every row is a published standard's
-  row (checked against FreeCAD_FastenersWB, see :func:`nut_row`) claims that
-  standard; a heavy hex nut, whose sizes are derived, claims none.
+  familiar size ladders (the 60/62/63 bearing series boundary sizes, stocked
+  wheel diameters, hex key sizes), so the provenance field says "generated".
+  The exception is the hex nut, whose finished and jam rows are standards'
+  table rows (checked against FreeCAD_FastenersWB, see :func:`nut_row`): its
+  provenance names the table each published dimension was read from
+  (:func:`nut_provenance`), and a line whose every row is one standard's
+  claims that standard. A heavy hex nut, whose sizes are derived, claims none.
 """
 
 from __future__ import annotations
@@ -53,6 +54,22 @@ NO_STANDARD = "no standard fixes these values"
 GENERATED_PROVENANCE = f"generated from conventional sizes; {NO_STANDARD}"
 
 
+def table_provenance(*sources: tuple[str, str]) -> str:
+    """``dimension_provenance`` for dimensions read from standards' tables.
+
+    ``sources`` pairs each published dimension with the standard whose table
+    it was read from; dimensions from one table are named together, as
+    ``Width Across Flats and Height read from the ISO 7040 table``.
+    """
+    by_table: dict[str, list[str]] = {}
+    for dimension, standard in sources:
+        by_table.setdefault(standard, []).append(dimension)
+    return "; ".join(
+        f"{' and '.join(dims)} read from the {standard} table"
+        for standard, dims in by_table.items()
+    )
+
+
 #: How each brand's feed writes lengths: the inch style and the metric style.
 #: Each is a spelling the census observes (07_value_format_variation.json).
 _FEEDS: tuple[tuple[LengthStyle, LengthStyle], ...] = (
@@ -64,7 +81,7 @@ _FEEDS: tuple[tuple[LengthStyle, LengthStyle], ...] = (
 
 
 def feed_style(brand: str, system: str, brands: tuple[str, ...]) -> LengthStyle:
-    inch, metric = _FEEDS[(brands.index(brand) + 1) % len(_FEEDS)]
+    inch, metric = _FEEDS[brands.index(brand) % len(_FEEDS)]
     return inch if system == "in" else metric
 
 
@@ -212,6 +229,35 @@ def nut_row(
     return flats, height, _FINISHED_STANDARD[(system, fine)]
 
 
+def nut_provenance(style_name: str, system: str, fine: bool, row_standards: set[str]) -> str:
+    """Where a hex nut line's Width Across Flats and Height came from.
+
+    ``row_standards`` holds what :func:`nut_row` returned for the line's rows:
+    a standard for a row read from its table, ``""`` for a derived one.
+    """
+    finished = _FINISHED_STANDARD[(system, fine)]
+    if style_name == "Heavy Hex":
+        wider = "2 mm" if system == "mm" else "1/8 in"
+        return (
+            f"Width Across Flats and Height derived from the {finished} table "
+            f"({wider} wider, 10% taller); {NO_STANDARD}"
+        )
+    if style_name != "Jam":
+        return table_provenance(("Width Across Flats", finished), ("Height", finished))
+    jam = _JAM_STANDARD[(system, fine)]
+    if "" not in row_standards:
+        return table_provenance(("Width Across Flats", finished), ("Height", jam))
+    derived = (
+        f"60% of the {finished} finished nut's height where the {jam} jam nut table "
+        "has no row; no standard fixes those heights"
+    )
+    if jam in row_standards:
+        return (
+            f"{table_provenance(('Width Across Flats', finished), ('Height', jam))}, or {derived}"
+        )
+    return f"{table_provenance(('Width Across Flats', finished))}; Height {derived}"
+
+
 def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineDraft:
     from .brands import pick_brand
     from .generate import BRANDS, ChildDraft, LineDraft
@@ -255,7 +301,6 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
         brand=brand,
         series=f"HN{rng.randint(100, 999)}",
         category=category,
-        provenance=GENERATED_PROVENANCE,
     )
     draft.line_attrs = [
         keyword_attribute("Item", item),
@@ -298,6 +343,7 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
         ]
         child.price_basis = flats_in * 0.4
         draft.children.append(child)
+    draft.provenance = nut_provenance(style_name, system, fine, row_standards)
     # The line claims a dimensional standard only when EVERY row it offers is
     # that standard's: one #10 jam nut in a 1/4-1/2 window makes it claim none.
     if len(row_standards) == 1:
