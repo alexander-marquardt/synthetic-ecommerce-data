@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import math
 import random
+import re
 import statistics
 from collections import defaultdict
 from dataclasses import replace
@@ -186,6 +187,15 @@ def test_each_pinned_shortfall_stays_out_of_band_on_its_side(price_rows, name):
         assert row.achieved > row.band[1], (row.achieved, row.band)
     assert set(price.PINNED_FIGURES) == set(price.PINNED_SHORTFALLS)
     assert price_report.pin_holds(row), (row.achieved, price.PINNED_FIGURES[name])
+
+
+def test_a_pin_reason_quotes_the_figure_the_pin_records():
+    """The wheel reason states how far apart a spec's brands land; that is
+    the pinned figure itself, so it is read, not retyped (it read 6.8 once
+    the figure was 3.24)."""
+    name = BRAND_ROW.format("wheel_depressed_center")
+    quoted = re.findall(r"(\d+(?:\.\d+)?)x apart", price.PINNED_SHORTFALLS[name])
+    assert quoted == [f"{price.PINNED_FIGURES[name]:.2f}"] == ["3.24"]
 
 
 def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
@@ -485,6 +495,29 @@ def test_one_brand_priced_100x_on_every_spec_breaks_the_brand_spread_rows(scored
     _above(_newly_out(scored, prices), _held_to_band(BRAND_ROW, price.BRAND_CENSUS))
 
 
+#: The brand-spread types whose census median is measured on so few specs
+#: that its standard-error band is wider than x0.75 to x1.33.
+BRAND_BAND_FROM_ERROR = ("end_mill_ball", "nut_hex")
+
+
+@pytest.mark.parametrize("type_key", sorted(price.BRAND_CENSUS))
+def test_the_brand_spread_band_is_x075_to_x133_unless_the_census_error_is_wider(type_key):
+    """The band's edges, exactly: x0.75 and x1.33 of the census median, or
+    3 standard errors of that median where those are wider (a ball end
+    mill's 5 specs, a hex nut's 6). A band widened at either edge moves them."""
+    figure = price.BRAND_CENSUS[type_key]
+    low, high = price_report.brand_spread_band(figure)
+    if type_key in BRAND_BAND_FROM_ERROR:
+        sigma = math.log(figure.spread_p75 / figure.spread_p25) / 1.349
+        width = 3.0 * math.sqrt(math.pi / 2) * sigma / math.sqrt(figure.n_specs)
+        assert width > math.log(1.33), width
+        assert (low, high) == pytest.approx(
+            (figure.spread_p50 * math.exp(-width), figure.spread_p50 * math.exp(width))
+        )
+    else:
+        assert (low, high) == pytest.approx((figure.spread_p50 * 0.75, figure.spread_p50 * 1.33))
+
+
 def test_a_specs_brand_sample_is_k_of_its_brands_and_fixed_per_spec():
     names = [f"Brand {i:02d}" for i in range(13)]
     spec = ("drill_jobber", 0.25, "High Speed Steel")
@@ -602,6 +635,29 @@ def test_a_quarter_of_pairs_at_2x_breaks_the_2x_rows(scored):
         assert 0.1 < out[name].achieved < 0.4, (name, out[name].achieved)
 
 
+#: The 2x rows whose census band is narrower than the floor on the default
+#: build, so the floor alone sets the band: each implies a share under 0.001.
+TWICE_FLOORED = ("bolt_hex", "drill_jobber", "hex_key", "nut_hex", "screw_socket_head")
+
+
+def test_the_twice_band_floor_is_two_pairs_in_a_hundred_above_a_near_zero_target(price_rows):
+    """Where the census implies a 2x share near 0, the band is the floor's
+    0.02 above the target and runs down to 0: exactly, so a floor widened
+    to any other width moves these edges. The tap and washer bands are wider
+    than the floor and are the census's own."""
+    rows = {row.name: row for row in price_rows if row.name.startswith("price smaller costs 2x+")}
+    assert len(rows) == len(TWICE_SCORED) == 7
+    for type_key in TWICE_SCORED:
+        row = rows[f"price smaller costs 2x+, same product: {type_key}"]
+        floored = type_key in TWICE_FLOORED
+        assert (row.band[1] - row.target == pytest.approx(0.02, abs=1e-12)) is floored, (
+            type_key,
+            row.target,
+            row.band,
+        )
+        assert (row.band[0] == 0.0) is floored, (type_key, row.band)
+
+
 def test_breaking_every_tie_breaks_the_equal_price_row(scored):
     """Review plant M2: a list-price ladder makes the census's tap ties. With
     each tap SKU moved by its own millionth of a dollar, no pair ties."""
@@ -661,6 +717,48 @@ def test_the_row_exceptions_are_the_kit_rows_that_cannot_hold(price_rows):
     for row in excepted.values():
         assert "EXCEPTED" in row.note, row.note
         assert not row.within, f"{row.name} is in band: drop its exception"
+    assert set(price.EXCEPTED_FIGURES) == set(EXCEPTED)
+    for row in excepted.values():
+        assert price_report.exception_holds(row, 0), (row.name, row.achieved, row.band)
+
+
+def test_band_miss_is_the_ratio_to_the_nearer_edge():
+    band = (10.0, 20.0)
+    assert price_report.band_miss(15.0, band) == 1.0
+    assert price_report.band_miss(10.0, band) == 1.0
+    assert price_report.band_miss(22.0, band) == pytest.approx(1.1)
+    assert price_report.band_miss(8.0, band) == pytest.approx(1.25)
+
+
+@pytest.mark.parametrize("name", sorted(EXCEPTED))
+@pytest.mark.parametrize("build", [0, 1])
+def test_an_excepted_row_may_miss_by_at_most_125x_its_recorded_miss(price_rows, name, build):
+    """An exception is no licence to drift: the row may land on either side
+    of its band, but no further out than 1.25 times the miss its recorded
+    figure for that build has. Exactly there, on both sides."""
+    (row,) = [row for row in price_rows if row.name == name]
+    recorded = price.EXCEPTED_FIGURES[name][build]
+    limit = 1.25 * price_report.band_miss(recorded, row.band)
+    low, high = row.band[0] / limit, row.band[1] * limit
+    assert price_report.exception_holds(replace(row, achieved=low * 1.0001), build)
+    assert not price_report.exception_holds(replace(row, achieved=low * 0.9999), build)
+    assert price_report.exception_holds(replace(row, achieved=high * 0.9999), build)
+    assert not price_report.exception_holds(replace(row, achieved=high * 1.0001), build)
+
+
+def test_a_kit_priced_a_quarter_lower_breaks_its_p50_exception(scored):
+    """The kit p50 sits about 1% under its band on the default build; a
+    quarter off every kit price puts it about 34% under, past the 1.25x
+    bound, though the row is excepted from its band."""
+    collected, base = scored
+    prices = dict(base)
+    prices.update(
+        {s: p * 0.75 for s, p in base.items() if collected.type_of.get(s) == "kit_assortment"}
+    )
+    name = "price p50 (USD): kit_assortment"
+    (row,) = [row for row in price_report.price_rows(collected, prices) if row.name == name]
+    assert round(price_report.band_miss(row.achieved, row.band), 2) == 1.34
+    assert not price_report.exception_holds(row, 0)
 
 
 # --- the 100K catalog (#52: "within tolerance at default size and at 100K") --
@@ -701,6 +799,7 @@ def test_each_price_row_is_within_its_band_or_its_pin_holds_at_100k(hundred_k_ro
     row = hundred_k_rows[name]
     if name in price.ROW_EXCEPTIONS:
         assert "EXCEPTED" in row.note, row.note
+        assert price_report.exception_holds(row, 1), (row.achieved, row.band)
     elif name in price.PINNED_SHORTFALLS:
         assert price_report.pin_holds(row), (row.achieved, row.band, price.PINNED_FIGURES[name])
     else:
