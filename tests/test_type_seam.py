@@ -250,6 +250,44 @@ def test_registration_brings_in_the_yaml_rows_without_any_type_module() -> None:
     assert result.returncode == 0, result.stderr[-1500:]
 
 
+_READ_DURING_REGISTRATION = """
+import sys
+from synthetic_industrial_products.catalog import typespec
+from synthetic_industrial_products.catalog.taxonomy import LEAVES
+found = typespec.discover
+def discover(package=typespec.TYPES_PACKAGE):
+    # What a type module that reads a shared table at import (a sibling
+    # type's vocabulary, say) does while registration is importing it.
+    len(LEAVES)
+    return found(package)
+typespec.discover = discover
+LEAVES[sys.argv[1]]
+"""
+
+
+def test_a_table_read_while_registration_runs_does_not_start_it_again() -> None:
+    result = _run(_READ_DURING_REGISTRATION, sorted(DISCOVERED)[0])
+    assert result.returncode == 0, result.stderr[-1500:]
+
+
+@pytest.mark.parametrize(
+    "key",
+    sorted(
+        key
+        for key, spec in DISCOVERED.items()
+        if spec.breadth is None and key not in SMALL.type_weights
+    ),
+)
+def test_a_type_modules_share_sizes_its_type(key: str) -> None:
+    """With no ``type_weights`` entry, the module's ``share`` is the type's weight.
+
+    Without that fallback the type builds only its must-stock lines, and every
+    other check still passes.
+    """
+    built = generate.generate(SMALL, types=[key]).lines
+    assert len(built) >= round(SMALL.lines * DISCOVERED[key].share)
+
+
 @pytest.mark.parametrize(
     "key", sorted(key for key, spec in DISCOVERED.items() if spec.breadth is None)
 )
