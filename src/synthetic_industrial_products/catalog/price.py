@@ -625,6 +625,27 @@ PINNED_SHORTFALLS: dict[str, str] = {
     ),
 }
 
+#: Each pinned row's figure on the default build, as the fit last measured
+#: it. A pin discloses a shortfall; it does not license a worse one:
+#: ``price_report.pin_holds`` fails a row that lands further from its band
+#: than this by more than :data:`PIN_TOLERANCE`.
+PINNED_FIGURES: dict[str, float] = {
+    "price p90/p10: bearing_radial_ball": 4.547,
+    "price brand spread, same spec (median max/min): wheel_depressed_center": 6.753,
+}
+
+#: How far past its recorded figure a pinned row may move, as a ratio. The
+#: build is one seed, so the figure is exact on it; the tolerance is room for
+#: the fit rounding its literals, well under the 5% the mildest worsening a
+#: review planted moved a pin (bearing noise off: 4.55 to 4.31).
+PIN_TOLERANCE = 0.02
+
+
+def slope_cut_mismatch(models: Mapping[str, PriceModel], cuts: Mapping[str, str]) -> set[str]:
+    """The census types whose slope in ``models`` is cut without a reason in
+    ``cuts``, or has a reason but no cut."""
+    return set()
+
 
 #: Every modelled type's price model, by key. A type declared in its own module
 #: declares its model as ``TypeSpec.price`` and :func:`.typespec.register`

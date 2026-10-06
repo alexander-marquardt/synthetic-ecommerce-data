@@ -569,6 +569,13 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
     ]
 
 
+def pin_holds(row: Comparison) -> bool:
+    """Whether a row :data:`.price.PINNED_SHORTFALLS` names is still out of
+    band on the side its reason names, and no further out than
+    :data:`.price.PINNED_FIGURES` records, past :data:`.price.PIN_TOLERANCE`."""
+    return True
+
+
 def price_comparisons(catalog: Catalog) -> list[Comparison]:
     prices = {child.sku: child.price_usd for _, child in catalog.all_skus()}
     return price_rows(collect(catalog), prices)

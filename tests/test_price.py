@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -172,6 +173,58 @@ def test_each_pinned_shortfall_stays_out_of_band_on_its_side(price_rows, name):
         assert row.achieved < row.band[0], (row.achieved, row.band)
     else:
         assert row.achieved > row.band[1], (row.achieved, row.band)
+    assert set(price.PINNED_FIGURES) == set(price.PINNED_SHORTFALLS)
+    assert price_report.pin_holds(row), (row.achieved, price.PINNED_FIGURES[name])
+
+
+def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
+    """Review plant M5: bearing noise off. Its p90/p10 falls from 4.55 to
+    4.31, further below the band but still on its side, so only the
+    recorded figure can catch it."""
+    name = "price p90/p10: bearing_radial_ball"
+    quiet = replace(price.MODELS["bearing_radial_ball"], group_sigma=0.0, sku_sigma=0.0)
+    monkeypatch.setitem(price.MODELS, "bearing_radial_ball", quiet)
+    (row,) = [
+        row
+        for row in price_report.price_comparisons(generate(GeneratorConfig()))
+        if row.name == name
+    ]
+    assert round(row.achieved, 2) == 4.31
+    assert row.achieved < row.band[0]
+    assert not price_report.pin_holds(row)
+
+
+def _census_models() -> dict[str, price.PriceModel]:
+    return {type_key: price.model_for(type_key) for type_key in price.CENSUS}
+
+
+def test_every_slope_off_the_census_has_a_recorded_cut():
+    """``scripts/fit_price_model.py`` cuts a slope only with a SLOPE_CUTS
+    reason, but no test runs the fit: this holds the committed literals to
+    the same rule."""
+    assert price.slope_cut_mismatch(_census_models(), price.SLOPE_CUTS) == set()
+    assert set(price.SLOPE_CUTS) == {"bolt_hex", "end_mill_ball", "end_mill_square"}
+    assert all(reason.strip() for reason in price.SLOPE_CUTS.values())
+
+
+def test_a_slope_cut_by_hand_is_refused():
+    """Review plant R2b: the tap slope hand-cut to 0.40 with no reason; and
+    the other way, a reason left behind for a slope no longer cut."""
+    models = _census_models()
+    models["tap_spiral_point"] = replace(models["tap_spiral_point"], slope=0.40)
+    assert price.slope_cut_mismatch(models, price.SLOPE_CUTS) == {"tap_spiral_point"}
+    models = _census_models()
+    models["bolt_hex"] = replace(
+        models["bolt_hex"],
+        slope=price.CENSUS["bolt_hex"].slope,
+        length_slope=price.LENGTH_CENSUS["bolt_hex"].slope,
+    )
+    assert price.slope_cut_mismatch(models, price.SLOPE_CUTS) == {"bolt_hex"}
+    models = _census_models()
+    models["screw_socket_head"] = replace(models["screw_socket_head"], length_slope=0.2)
+    assert price.slope_cut_mismatch(models, price.SLOPE_CUTS) == {"screw_socket_head"}
+    blank = {**price.SLOPE_CUTS, "bolt_hex": " "}
+    assert price.slope_cut_mismatch(_census_models(), blank) == {"bolt_hex"}
 
 
 def _newly_out(scored, prices) -> dict:
@@ -331,10 +384,35 @@ def test_each_familys_tiers_price_in_order(scored):
         assert economy < 1.0 < premium, (family, economy, premium)
 
 
-def test_tervasko_is_standard_on_bearings_only():
-    assert brands.TIER_EXCEPTIONS == {("Tervasko", "bearing_radial_ball"): "standard"}
+def test_the_tier_exceptions_are_the_bearing_and_wheel_value_labels():
+    assert brands.TIER_EXCEPTIONS == {
+        ("Tervasko", "bearing_radial_ball"): "standard",
+        ("Tervasko", "wheel_depressed_center"): "standard",
+        ("Salt Meadow Works", "wheel_depressed_center"): "standard",
+        ("Stone Wicket", "wheel_depressed_center"): "standard",
+    }
     assert brands.tier_of("Tervasko", "bearing_radial_ball") == "standard"
     assert brands.tier_of("Tervasko", "drill_jobber") == "economy"
+    assert brands.tier_of("Salt Meadow Works", "abrasive_flap_disc") == "economy"
+
+
+def test_no_shared_wheel_spec_has_an_economy_brand(scored):
+    """Every economy maker of wheels makes every wheel spec two or more
+    brands share, where the census finds its house label on 4 of 12: as
+    economy on all of them, they would put the census house-label factor on
+    every spec."""
+    collected, _ = scored
+    shared = [
+        by_brand
+        for (type_key, _, _), by_brand in collected.specs.items()
+        if type_key == "wheel_depressed_center" and len(by_brand) >= 2
+    ]
+    assert len(shared) == 6
+    for by_brand in shared:
+        assert {brands.tier_of(b, "wheel_depressed_center") for b in by_brand} == {
+            "standard",
+            "premium",
+        }
 
 
 #: Each family's value brands and premium makers. A tier is no field on the
