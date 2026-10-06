@@ -237,6 +237,7 @@ KEY_ATTRIBUTES: dict[str, tuple[str, ...]] = {
     "hammer_ball_pein": ("Head Weight",),
     "hex_key": ("Size",),
     "kit_assortment": ("Number of Pieces",),
+    "lock_nuts_nylon_insert": ("Thread Size",),
     "nut_hex": ("Thread Size",),
     "screw_button_head": ("Dia./Thread Size",),
     "screw_flat_head": ("Dia./Thread Size",),
