@@ -89,8 +89,10 @@ MATERIALS = {
 }
 #: Every third line of an inch size with a fine series is UNF.
 FINE_PERIOD = 3
-#: The drawing's extent; a longer part is drawn compressed with a break.
-EXTENT = (1.6, 3.2)
+#: The drawing's extent; a longer part is drawn compressed with a break. The
+#: width holds the largest size (1"): the break marks reach 1.15 r left of the
+#: axis and the end view's right edge sits at 1.9 x major, 2.475" in all.
+EXTENT = (2.5, 3.2)
 
 
 def _spec(name: str, scope: str, presence: float = 1.0, kind: str = "keyword") -> AttrSpec:
@@ -168,7 +170,6 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
         *([keyword_attribute("Rockwell Hardness", hardness)] if hardness else []),
         keyword_attribute("Meets/Exceeds", meets),
     ]
-    draft.descriptors = [("Point Type", point)]
 
     count = min(gen._variant_count(), len(lengths))
     offered = gen._offered_run(f"lengths:{standard}:{size}", lengths, count)

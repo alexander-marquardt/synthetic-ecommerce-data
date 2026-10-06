@@ -582,12 +582,11 @@ def test_the_lens_appears_exactly_when_the_rule_says():
 
 
 #: The smallest enlargement any committed lens gives, measured and rounded
-#: down to 0.01: the handled glass is used only at x2.5 or more, and the
-#: handle-less lens reaches x2.52 on the committed catalog's largest lensed
-#: part. (It dropped to x2.44 while the 100K work raised the screw extents;
-#: the extents are back at their pre-100K values, parts longer than them are
-#: drawn broken, and the floor is back where it was.)
-CATALOG_MIN_ENLARGEMENT = 2.52
+#: down to 0.01: the handled glass is used only at x2.5 or more. The floor is
+#: a hex socket set screw (1/4-20 x 3/4" flat point), drawn at an extent no
+#: wider than its 1" size needs; widening the extent to lift it would draw
+#: every set screw smaller.
+CATALOG_MIN_ENLARGEMENT = 2.45
 
 #: What the handle-less lens gives at the rule's extreme, a part drawn a full
 #: 40 x 50 (1/5 x 1/6 of the sheet). BELOW x2.5, and stated rather than hidden:
