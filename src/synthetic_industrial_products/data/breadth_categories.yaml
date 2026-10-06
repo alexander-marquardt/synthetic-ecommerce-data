@@ -1240,6 +1240,30 @@
   featured_sizes:
   - 1/2 in
   reason: '''hex'' + ''socket'' + ''1/2'' -- overlaps R4/R5''s ''socket cap screw'' family'
+- key: c_clamps
+  category:
+  - Clamping, Workholding & Positioning
+  - Clamps
+  - Steel C-Clamps
+  family: hand_tool
+  shape: bracket
+  item: C-Clamp
+  descriptor_attr: null
+  size_attr: Size
+  size_values:
+  - 2 in
+  - 3 in
+  - 4 in
+  - 6 in
+  attributes:
+    Material:
+    - Steel
+    Style:
+    - Standard
+    - Deep Throat
+  price_range: [5.0, 35.0]
+  skus: 2
+  reason: breadth diversity; workholding category gap
 - key: bench_vises
   category:
   - Clamping, Workholding & Positioning
