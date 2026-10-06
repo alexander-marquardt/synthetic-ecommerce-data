@@ -163,8 +163,18 @@ PREMIUM = frozenset(
 #: label on three specs in four it alone spreads one spec's brands 1.88x
 #: apart at the census bearing tiers and no other noise, against the census
 #: 1.38 (measured on the default build, #58).
+#:
+#: The three abrasive value labels are standard on wheels for the same
+#: reason: each makes all 6 wheel specs two or more brands share, where the
+#: census finds its house label on 4 of 12, so as economy they would put the
+#: census house-label factor (0.539) on every shared spec. Standard, the
+#: wheel tiers alone spread one spec's brands 1.13x apart, against the
+#: census 1.28 (measured on the default build with no noise, #58).
 TIER_EXCEPTIONS: dict[tuple[str, str], str] = {
     ("Tervasko", "bearing_radial_ball"): "standard",
+    ("Tervasko", "wheel_depressed_center"): "standard",
+    ("Salt Meadow Works", "wheel_depressed_center"): "standard",
+    ("Stone Wicket", "wheel_depressed_center"): "standard",
 }
 
 

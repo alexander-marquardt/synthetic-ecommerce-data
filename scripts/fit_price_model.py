@@ -33,7 +33,10 @@ tier and pack terms the build draws:
 Each printed row says "cannot reach" where no noise the fit scanned brings it
 into band. **Every row lands in band or is pinned.** The fit exits non-zero,
 before it writes, on a row out of band that :data:`.price.PINNED_SHORTFALLS`
-does not name, and on a pinned row that is no longer out of band.
+does not name, and on a pinned row that no longer holds
+(:func:`.price_report.pin_holds`): back in band, on the other side, or
+further out than :data:`.price.PINNED_FIGURES` records. A pin that moves
+further out is re-recorded there by hand, with its cause re-read.
 
 **Slope cuts need a recorded reason.** Where the slope terms ALONE (the key
 term, and the length term) spread the shown price wider than the census
@@ -76,6 +79,7 @@ from synthetic_industrial_products.catalog.price_report import (
     brand_spread_band,
     collect,
     equal_band,
+    pin_holds,
     price_rows,
     share_band,
 )
@@ -541,9 +545,10 @@ def main() -> int:
             flag += " (pinned shortfall)"
         print(f"{row.name:<62}{row.target:>10.4f}{row.achieved:>10.4f}  {flag}")
     # A row out of band needs a recorded cause, and a recorded cause a row
-    # still out of band: the fit stops on either, before it writes.
+    # still out on its side and no further out than recorded: the fit stops
+    # on either, before it writes.
     unpinned = [r.name for r in rows if not r.within and r.name not in price.PINNED_SHORTFALLS]
-    stale = sorted(set(price.PINNED_SHORTFALLS) - {r.name for r in rows if not r.within})
+    stale = sorted(r.name for r in rows if r.name in price.PINNED_SHORTFALLS and not pin_holds(r))
 
     table = "\n".join(_literal(k, m) for k, m in fitted.items() if k != "screw_socket_head")
     socket = fitted["screw_socket_head"]
@@ -563,7 +568,11 @@ def main() -> int:
         for name in unpinned:
             print(f"OUT of band and not in price.PINNED_SHORTFALLS: {name}", file=sys.stderr)
         for name in stale:
-            print(f"in price.PINNED_SHORTFALLS but not out of band: {name}", file=sys.stderr)
+            print(
+                f"pinned in price.PINNED_SHORTFALLS but does not hold (in band, on the other "
+                f"side, or further out than price.PINNED_FIGURES): {name}",
+                file=sys.stderr,
+            )
         return 1
     if args.write:
         _between_markers(PRICE_PY, "", table)

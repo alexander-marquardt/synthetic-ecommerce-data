@@ -35,7 +35,8 @@ and a type whose sizes span further than the census's (the end mills, from
 11 and 18 pairs) spreads further on the census slope alone. Where the census
 slope by itself spreads the shown price wider than the census p90/p10, the
 fit lowers it until it does not, and the model's literal names the slope it
-used (bolts, both end mills, taps).
+used (bolts and both end mills: :data:`SLOPE_CUTS`, which
+:func:`slope_cut_mismatch` holds the literals to).
 
 **Why the endings rows weigh the census by the catalog's type mix.** The
 census pooled its endings over its own type mix (a quarter of its SKUs are
@@ -618,10 +619,13 @@ PINNED_SHORTFALLS: dict[str, str] = {
         "(widen the bore range: #64)"
     ),
     "price brand spread, same spec (median max/min): wheel_depressed_center": (
-        "above band at any noise: the census wheel tiers alone (house label 0.539, over only "
-        "4 specs) put an economy and a standard brand 1.86x apart, above the band's 1.71; and "
-        "the group noise that makes up the census p90/p10 (catalog diameters span 2.6x of its "
-        "10x) is drawn per brand, so it spreads one spec's brands further still"
+        "above band at the noise the census p90/p10 needs: the wheel tiers alone put one "
+        "spec's brands 1.13x apart, in band, with the value labels standard on wheels "
+        "(brands.TIER_EXCEPTIONS); but catalog diameters span 2.25x, which the key term "
+        "spreads to 2.6x of the census's 10x, and the group noise that makes up the rest is "
+        "drawn per brand, so the twelve brands that make every shared wheel spec land 7.6x "
+        "apart. A noise one spec shares across brands (SIZE_NOISE, as on taps) brings the "
+        "spread to 2.0 but inverts the few diameters (larger costs more 0.68 against 0.81)"
     ),
 }
 
@@ -631,7 +635,7 @@ PINNED_SHORTFALLS: dict[str, str] = {
 #: than this by more than :data:`PIN_TOLERANCE`.
 PINNED_FIGURES: dict[str, float] = {
     "price p90/p10: bearing_radial_ball": 4.547,
-    "price brand spread, same spec (median max/min): wheel_depressed_center": 6.753,
+    "price brand spread, same spec (median max/min): wheel_depressed_center": 7.573,
 }
 
 #: How far past its recorded figure a pinned row may move, as a ratio. The
@@ -643,8 +647,17 @@ PIN_TOLERANCE = 0.02
 
 def slope_cut_mismatch(models: Mapping[str, PriceModel], cuts: Mapping[str, str]) -> set[str]:
     """The census types whose slope in ``models`` is cut without a reason in
-    ``cuts``, or has a reason but no cut."""
-    return set()
+    ``cuts``, or has a reason but no cut. A slope is cut where its key or
+    its length slope is not the census figure (0.0 for a type the census
+    measures no length slope on)."""
+    cut = {
+        type_key
+        for type_key in CENSUS
+        if models[type_key].slope != CENSUS[type_key].slope
+        or models[type_key].length_slope
+        != (LENGTH_CENSUS[type_key].slope if type_key in LENGTH_CENSUS else 0.0)
+    }
+    return cut ^ {type_key for type_key, reason in cuts.items() if reason.strip()}
 
 
 #: Every modelled type's price model, by key. A type declared in its own module
@@ -682,7 +695,7 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
             size_sigma=0.5,
         ),
         "washer_flat": _model("washer_flat", 5.158, 0.375, 0.537, 0.762),
-        "wheel_depressed_center": _model("wheel_depressed_center", 7.322, 4.5, 0.694, 0.314),
+        "wheel_depressed_center": _model("wheel_depressed_center", 6.639, 4.5, 0.767, 0.314),
         # @fit-end
         # No census prices: the ball-pein hammer's archived pages are script
         # shells. Its model keeps the median the uniform multiplier gave

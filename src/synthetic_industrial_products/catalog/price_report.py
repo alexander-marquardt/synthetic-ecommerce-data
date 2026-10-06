@@ -36,7 +36,8 @@ share or brand-spread row's band is never narrower than that: a figure the
 census measured on few pairs or specs gets the wide band its own sample
 leaves (:func:`share_band`, :func:`brand_spread_band`). A row
 :data:`.price.PINNED_SHORTFALLS` names is reported with its reason, and is
-pinned by the tests to the side of its band that reason puts it.
+pinned by the tests to the side of its band that reason puts it, no further
+out than the figure :data:`.price.PINNED_FIGURES` records (:func:`pin_holds`).
 
 Breadth lines are left out, as they are of every realism row.
 
@@ -67,6 +68,8 @@ from .price import (
     KEYS,
     LENGTH_CENSUS,
     LENGTH_HELD,
+    PIN_TOLERANCE,
+    PINNED_FIGURES,
     PINNED_SHORTFALLS,
     POOLED_ENDINGS,
     POOLED_ENDINGS_N,
@@ -573,7 +576,11 @@ def pin_holds(row: Comparison) -> bool:
     """Whether a row :data:`.price.PINNED_SHORTFALLS` names is still out of
     band on the side its reason names, and no further out than
     :data:`.price.PINNED_FIGURES` records, past :data:`.price.PIN_TOLERANCE`."""
-    return True
+    assert row.band is not None
+    recorded = PINNED_FIGURES[row.name]
+    if PINNED_SHORTFALLS[row.name].startswith("below band"):
+        return recorded / (1 + PIN_TOLERANCE) <= row.achieved < row.band[0]
+    return row.band[1] < row.achieved <= recorded * (1 + PIN_TOLERANCE)
 
 
 def price_comparisons(catalog: Catalog) -> list[Comparison]:
