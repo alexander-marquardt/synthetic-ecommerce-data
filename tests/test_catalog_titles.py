@@ -366,10 +366,12 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
       removed by the ruling on elastic/prism#9284;
     * ``build_title`` cut the assembled string at the 100-character cap,
       which lands mid-word. Reconstructed on this catalog by
-      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **43
-      of 9,576** titles (49 of 9,690 before Corner Radius/Neck Length applied
-      once instead of twice moved the catalog,
-      alexander-marquardt/synthetic-industrial-products#39; 67 of 4,689
+      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **25
+      of 9,611** titles (43 of 9,576 before every product type drew from its
+      own stream, alexander-marquardt/synthetic-industrial-products#48; 49 of
+      9,690 before Corner Radius/Neck Length applied once instead of twice
+      moved the catalog, alexander-marquardt/synthetic-industrial-products#39;
+      67 of 4,689
       before the catalog grew), ending ``...Solid Carbide, U`` or
       ``...SGL Sq En``.
       Removing only the first would have left those in place while the
@@ -504,9 +506,13 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
     Length are applied once instead of twice
     (alexander-marquardt/synthetic-industrial-products#39) -- a presence-rate
     fix, not a title change, but it shifts the shared RNG stream every later
-    draw reads from, titles included -- and stating it as a test rather than
-    as prose is what stops the next regeneration inheriting a number nobody
-    can re-derive.
+    draw reads from, titles included -- and 25 of 9,611 (39 over the cap) once
+    every product type draws from its own stream
+    (alexander-marquardt/synthetic-industrial-products#48): the same item
+    families run over the cap, ball-nose end mills and socket cap screws
+    first, but fewer of their drawn variants do. Stating it as a test rather
+    than as prose is what stops the next regeneration inheriting a number
+    nobody can re-derive.
 
     The reconstruction spies on ``build_title`` rather than reimplementing the
     grammar: the segments and the delimiters are the production ones, and only
@@ -545,7 +551,7 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         for child in line.children
         if line.spec_quality != "fast_and_cheap"
     ]
-    assert len(documents) == 9576
+    assert len(documents) == 9611
     assert len(assembled) > 100, "the spy recorded nothing; the reconstruction is broken"
 
     word = set(string.ascii_letters + string.digits + './"-')
@@ -558,9 +564,9 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         if full[cap - 1] in word and full[cap] in word:
             mid_word += 1
 
-    assert over_cap == 79, f"{over_cap} titles exceed the cap, not 79"
-    assert mid_word == 43, (
-        f"the cap cut would land inside a word on {mid_word} titles, not 43. "
+    assert over_cap == 39, f"{over_cap} titles exceed the cap, not 39"
+    assert mid_word == 25, (
+        f"the cap cut would land inside a word on {mid_word} titles, not 25. "
         "If the catalog moved, restate the figure in build_title's docstring "
         "and in test_no_title_is_cut_mid_word with it."
     )
