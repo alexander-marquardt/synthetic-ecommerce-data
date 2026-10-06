@@ -126,37 +126,20 @@ def test_the_audit_reports_verbatim_dimension_tuple_reuse(catalog):
     )
 
 
-def test_the_sku_guard_rejects_a_reference_code_when_one_is_proposed():
-    """Drive the guard directly rather than waiting for a chance collision.
+def test_a_part_number_can_never_wear_a_reference_code():
+    """Held by shape rather than by a lookup at issue time.
 
-    A catalog run proposes a few thousand SKU codes out of a space of about
-    4.7 million, against 332 reference codes, so the expected number of
-    collisions in any one run is well under one. Asserting "no collisions
-    occurred" therefore passes whether the guard exists or not -- measured:
-    deleting the guard reds nothing. This feeds the generator a code that IS a
-    reference SKU and checks it is refused.
+    Every reference SKU carries letters and every part number the generator
+    issues is ten digits (:func:`.typespec.part_number`), so the two sets
+    cannot meet. Both halves are asserted: a reference code that were all
+    digits, or a part number that grew a letter, would reopen the question.
     """
-    generator = Generator(SMALL)
-
-    # 33TN24 is a real archived SKU, and decomposes into exactly the parts
-    # _new_sku assembles: lead 33, letters T and N, tail 24.
-    assert "33TN24" in noncopy.REFERENCE_SKUS
-
-    class ScriptedRandom:
-        def __init__(self):
-            self.ints = [33, 24, 50, 77]
-            self.letters = ["T", "N", "A", "B"]
-
-        def randint(self, _low, _high):
-            return self.ints.pop(0)
-
-        def choice(self, _seq):
-            return self.letters.pop(0)
-
-    generator.rng = ScriptedRandom()
-    code = generator._new_sku()
-    assert code == "50AB77", code
-    assert code not in noncopy.REFERENCE_SKUS
+    assert noncopy.REFERENCE_SKUS
+    assert all(not code.isdigit() for code in noncopy.REFERENCE_SKUS)
+    generator = Generator(SMALL, "screw_socket_head")
+    issued = [generator._new_sku() for _ in range(50)]
+    assert all(code.isdigit() and len(code) == 10 for code in issued), issued[:3]
+    assert len(set(issued)) == len(issued)
 
 
 def test_a_small_catalog_is_still_clean():

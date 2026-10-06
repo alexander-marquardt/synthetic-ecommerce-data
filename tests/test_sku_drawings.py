@@ -601,8 +601,14 @@ EXTREME_ENLARGEMENT = 2.41
 #: alexander-marquardt/synthetic-industrial-products#39 (Corner Radius/Neck
 #: Length applied once instead of twice, which moved every SKU code): the
 #: drill happened to keep its sku, ``3BF24``; the screw did not, so
-#: ``19DG33`` became ``45HC83``.
-PINNED_HANDLE_LESS = ("45HC83", "3BF24")
+#: ``19DG33`` became ``45HC83``. Re-picked for
+#: alexander-marquardt/synthetic-industrial-products#48, which made every SKU
+#: a ten-digit part number from its type's own block: each is the first
+#: committed SKU, in catalog order, that matches the description and is drawn
+#: under the handle-less lens.
+PINNED_HANDLE_LESS = ("2334357307", "3818559508")
+#: The hairline drill of the pair, by name, for the stroke test below.
+HAIRLINE_DRILL = PINNED_HANDLE_LESS[1]
 
 
 def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only_when_it_must_be():
@@ -809,9 +815,9 @@ def test_no_outline_is_thinner_than_the_minimum_stroke():
 
 
 def test_a_hairline_drill_is_drawn_with_a_visible_outline():
-    """Planted: 3BF24 (a 1/16" jobber drill) is drawn under two units wide at its type's scale."""
+    """Planted: HAIRLINE_DRILL (a 1/16" jobber) is drawn under 2.3 units wide at its scale."""
     for parent, variant, record in _golden_skus():
-        if variant["sku"] == "3BF24":
+        if variant["sku"] == HAIRLINE_DRILL:
             width, _ = _drawn_size(parent["product_type"], record)
             assert width < 2.3
             data, _ = draw_sku(parent["product_type"], parent["brand"], record)
@@ -820,7 +826,7 @@ def test_a_hairline_drill_is_drawn_with_a_visible_outline():
             ]
             assert outlines and all(float(e.attrib["stroke-width"]) >= 2.3 for e in outlines)
             return
-    raise AssertionError("3BF24 is not in the committed catalog")
+    raise AssertionError(f"{HAIRLINE_DRILL} is not in the committed catalog")
 
 
 # --- the archive layout and its pinnable digest ----------------------------------

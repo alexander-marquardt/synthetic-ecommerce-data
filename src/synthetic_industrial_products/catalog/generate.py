@@ -23,11 +23,12 @@ from __future__ import annotations
 import functools
 import hashlib
 import random
+from collections.abc import Iterable
 from dataclasses import dataclass, field, replace
 from fractions import Fraction
 from typing import TypeVar
 
-from . import brands, breadth, compat, conformance, noise, series, standards, taxonomy
+from . import brands, breadth, compat, conformance, noise, series, standards, taxonomy, typespec
 from .config import GeneratorConfig
 from .formats import (
     LengthStyle,
@@ -55,7 +56,7 @@ from .naming import (
     build_title,
     states_value,
 )
-from .newtypes import NEW_TYPES, part_number, type_rng
+from .newtypes import NEW_TYPES
 from .taxonomy import drawing_for, image_id_for
 from .vocab import (
     MEASUREMENT_SYSTEM_NAMES,
@@ -117,8 +118,6 @@ KEY_DIMENSIONS: dict[str, tuple[str, ...]] = {
 #: Lines in a row a (type, brand) may draft without making a SKU before its
 #: spec space counts as spent. See ``Generator._finish_line``.
 MAX_MISSES = 20
-
-_SKU_LETTERS = "ABCDEFGHJKLMNPRSTUVWXYZ"
 
 #: The cycle a hex bolt line's standard rotates through. ISO 4017 and DIN 933
 #: describe the same product and disagree on width across flats at M10 and
@@ -258,20 +257,47 @@ class LineDraft:
     standard: str = ""
 
 
+#: The letters an end mill's series code starts with, per type. Both types
+#: publish the bare item "End Mill" half the time, and series are kept unique
+#: within one type only (a type shares no state with another), so disjoint
+#: letters are what keep a square and a ball end mill from sharing a name.
+END_MILL_SERIES_LETTERS: dict[str, str] = {"end_mill_square": "GHK", "end_mill_ball": "MPR"}
+
 #: The word a terse title uses for an end mill's end shape, by its
 #: ``End Mill Style``: ``SGL Sq End`` / ``SGL Ball End``.
 END_SHAPE_WORD: dict[str, str] = {"Square": "Sq", "Ball Nose": "Ball"}
 
 
 class Generator:
-    """Deterministic for a given seed: the same config produces the same catalog."""
+    """One product type's builder, deterministic from the seed and the type key.
 
-    def __init__(self, config: GeneratorConfig | None = None) -> None:
+    Every piece of state here -- the random stream, the SKU sequence, the
+    product index, the specs and series already used -- belongs to ONE type
+    (:mod:`.typespec`), so a type's output cannot depend on which other types
+    were built or in what order. Only ``counters`` (the build statistics) is
+    shared, and it is a sum.
+    """
+
+    def __init__(
+        self,
+        config: GeneratorConfig | None,
+        type_key: str,
+        counters: dict[str, int] | None = None,
+    ) -> None:
+        # A builder with no type would draw from a stream and a block no
+        # collision check has seen, so only a known type, after that check.
+        if type_key not in _check_blocks():
+            raise ValueError(f"no product type {type_key!r}")
         self.config = config or GeneratorConfig()
-        self.rng = random.Random(self.config.seed)
+        self.type_key = type_key
+        self.rng = typespec.type_rng(self.config.seed, type_key)
+        #: The type's part-number block, which leads every SKU and product id.
+        self._block = typespec.block_of(type_key)
+        #: How many SKUs and how many product drafts this type has issued.
+        self._sequence = 0
+        self._index = 0
         self._used_skus: set[str] = set()
         #: Every spec drawn so far, per (type, brand) -- see :meth:`_spec_key`.
-        #: Shared with the sub-generators, like ``_used_skus``.
         self._drawn_specs: set[tuple] = set()
         self._title_styles: dict[tuple[str, str], str] = {}
         #: The PUBLISHED specs, per (type, brand, always-published values):
@@ -282,7 +308,7 @@ class Generator:
         #: in a row each has drafted without making a SKU.
         self._exhausted: set[tuple[str, str]] = set()
         self._misses: dict[tuple[str, str], int] = {}
-        #: Every (brand, series) a product already carries, CATALOG-WIDE, so no
+        #: Every (brand, series) a product of this type already carries, so no
         #: two products share a product name.
         self._used_series: set[tuple[str, str]] = set()
         #: The current line's brand voice (:mod:`.voice`) and its published
@@ -291,7 +317,7 @@ class Generator:
         self._line_facts: dict[str, str] = {}
         #: The attribute names the SKU being titled publishes.
         self._published: set[str] = set()
-        self.counters: dict[str, int] = {}
+        self.counters: dict[str, int] = {} if counters is None else counters
         self._rotations: dict[str, int] = {}
         #: Builder choices a must-stock entry fixes (:mod:`.muststock`); empty
         #: for the main generation.
@@ -337,24 +363,28 @@ class Generator:
         return index
 
     def _new_sku(self) -> str:
-        """A catalog-shaped SKU code, unique within the run.
+        """The type's next part number: its block, then a scrambled sequence.
 
-        Shaped like the codes this vertical uses -- digits, letters, digits --
-        but drawn from a synthetic namespace and checked against the reference
-        SKUs the statistics name, so no generated item can collide with a real
-        archived one.
+        Unique by construction rather than by retrying a random draw: a draw
+        checked against every SKU issued so far couples each type to all the
+        others. All digits, so it can never wear a reference SKU's code, every
+        one of which carries letters (``tests/test_catalog_noncopy.py``).
         """
-        from .noncopy import REFERENCE_SKUS
+        self._sequence += 1
+        sku = typespec.part_number(self._block, self._sequence)
+        if sku in self._used_skus:  # pragma: no cover - the stride is coprime to 10**6
+            raise RuntimeError(f"{self.type_key} issued part number {sku} twice")
+        self._used_skus.add(sku)
+        return sku
 
-        while True:
-            lead = self.rng.randint(1, 99)
-            letters = "".join(self.rng.choice(_SKU_LETTERS) for _ in range(2))
-            tail = self.rng.randint(10, 99)
-            code = f"{lead}{letters}{tail}"
-            if code in self._used_skus or code in REFERENCE_SKUS:
-                continue
-            self._used_skus.add(code)
-            return code
+    def _next_index(self) -> int:
+        """The type's next product index; every draft takes one, made or not."""
+        self._index += 1
+        return self._index
+
+    def _product_id(self, brand: str, series: str, index: int) -> str:
+        """``<brand code>-<series>-<block>-<index>``: unique because the block is."""
+        return f"{brands.BY_NAME[brand].code}-{series}-{self._block:04d}-{index:04d}"
 
     def _variant_count(self) -> int:
         """How many variants the next product offers, from the ONE distribution knob."""
@@ -413,8 +443,6 @@ class Generator:
         ball = type_key == "end_mill_ball"
         # The line's tool material: an ATTRIBUTE, never a path level
         # (elastic/prism-industrial-products#77).
-        # Drawn first, where the earlier generator drew the per-material path,
-        # so the rest of the random stream is exactly where it was.
         material = rng.choice(taxonomy.END_MILL_MATERIALS[type_key])
         metric = rng.random() < 0.22
         system = "mm" if metric else "in"
@@ -425,7 +453,7 @@ class Generator:
         coating = rng.choice(END_MILL_FINISH[material])
         style_name = "Ball Nose" if ball else "Square"
         item = f"{material} {style_name} End Mill" if rng.random() < 0.5 else "End Mill"
-        series_code = f"{rng.choice('GHKMPR')}{rng.randint(100, 999)}"
+        series_code = f"{rng.choice(END_MILL_SERIES_LETTERS[type_key])}{rng.randint(100, 999)}"
 
         draft = LineDraft(
             item=item,
@@ -1794,7 +1822,14 @@ class Generator:
         return (type_key, brand, spec)
 
     def _unique_series(self, draft: LineDraft, line_attrs: list[Attribute]) -> None:
-        """Give the product a series no other product of its brand has, catalog-wide.
+        """Give the product a series no other product of its brand has in this type.
+
+        The set walked here is the type's own (:mod:`.typespec`), so it never
+        sees another type's series. Names stay unique across types only
+        because each type's series shape is disjoint from every other's
+        (``BR###``, ``FD###``, ``ISO4017-``, ...). Nothing here enforces that;
+        ``test_no_two_products_share_a_product_name_catalog_wide`` catches a
+        clash after the fact.
 
         A drawn series already taken walks its trailing number up, one step at
         a time, to the first free one -- deterministic, and never a re-draw.
@@ -1876,7 +1911,7 @@ class Generator:
 
         # The product id is built before the SKUs, because every SKU's image
         # id names it: one drawing per SKU, filed under its product.
-        product_id = f"{brands.BY_NAME[draft.brand].code}-{draft.series}-{index:04d}"
+        product_id = self._product_id(draft.brand, draft.series, index)
 
         # Composed first, for every SKU, because whether a title needs the
         # thing that differs is a question about the LINE and cannot be
@@ -1993,52 +2028,53 @@ class Generator:
             drawing=drawing_for(type_key),
         )
 
-    def generate(self) -> Catalog:
+    def build(self) -> list[ProductLine]:
+        """This type's lines: its own products, then its must-stock lines."""
+        key = self.type_key
         cfg = self.config
-        rng = self.rng
-        weights = cfg.type_weights
-        keys = list(weights)
-        counts = {key: max(1, round(cfg.lines * weights[key])) for key in keys}
-
         lines: list[ProductLine] = []
-        index = 0
-        for type_key in keys:
-            builder = self._BUILDERS[type_key]
-            for _ in range(counts[type_key]):
-                (category,) = taxonomy.LEAVES[type_key]
-                if type_key not in taxonomy.END_MILL_MATERIALS:
-                    # A draw over a one-path tuple decides nothing. It is kept
-                    # because the stream position it consumes is where an end
-                    # mill's builder now draws its material: removing it would
-                    # move every later id, dimension and price in the catalog.
-                    rng.choice(taxonomy.LEAVES[type_key])
-                draft = builder(self, type_key, category)
-                index += 1
-                line = self._finish_line(type_key, draft, index)
-                if line is not None:
-                    lines.append(line)
-                    self._bump("lines")
-        for type_key, products in cfg.new_type_products.items():
-            lines.extend(self._generate_new_type(type_key, products))
-        lines.extend(self._generate_breadth())
+        if key in self._BUILDERS:
+            builder = self._BUILDERS[key]
+            (category,) = taxonomy.LEAVES[key]
+            weight = cfg.type_weights.get(key)
+            count = 0 if weight is None else max(1, round(cfg.lines * weight))
+            for _ in range(count):
+                self._keep(
+                    lines, self._finish_line(key, builder(self, key, category), self._next_index())
+                )
+        elif key in NEW_TYPES:
+            for _ in range(cfg.new_type_products.get(key, 0)):
+                self._keep(lines, self._new_type_line(key))
+        else:
+            lines.append(breadth.build_line(self, breadth.row_for(key), self._next_index()))
         if cfg.must_stock:
             lines.extend(self._must_stock(lines))
-        return Catalog(lines=tuple(lines), stats=dict(self.counters))
+        return lines
 
-    def _generate_breadth(self) -> list[ProductLine]:
-        """Every breadth row's line (:mod:`.breadth`), a fixed set independent
-        of ``lines``: breadth is not depth, so it does not scale with it."""
-        out: list[ProductLine] = []
-        for index, row in enumerate(breadth.ROWS, start=1):
-            sub = _BreadthGenerator(self.config, row.key, self.counters, self._used_skus)
-            out.append(breadth.build_line(sub, row, index))
-        return out
+    def _keep(self, lines: list[ProductLine], line: ProductLine | None) -> None:
+        if line is not None:
+            lines.append(line)
+            self._bump("lines")
+
+    def _new_type_line(self, type_key: str) -> ProductLine | None:
+        """One newer-type product, a few of them deliberately with zero axes."""
+        spec = NEW_TYPES[type_key]
+        draft = spec.build(self, type_key, spec.category)
+        if len(draft.children) == 1 and self.rng.random() < self.config.zero_axis_share:
+            (only,) = draft.children
+            draft.line_attrs = [*draft.line_attrs, *only.attrs]
+            only.attrs = []
+            only.zero_axis = True
+            self._bump("zero_axis_products")
+        return self._finish_line(type_key, draft, self._next_index())
 
     def _must_stock(self, lines: list[ProductLine]) -> list[ProductLine]:
-        """A line for every must-stock entry the catalog does not already carry.
+        """A line for every must-stock entry this type owns and does not yet carry.
 
-        See :mod:`.muststock`. Built after everything else, from one stream per
-        entry, so nothing the main generation drew moves.
+        See :mod:`.muststock`. An entry belongs to its FIRST type, and only
+        that type's lines are checked, so whether a line is added never
+        depends on what another type happened to draw. Each entry builds from
+        its own stream, so adding an entry moves none of the type's products.
         """
 
         def stocked(entry, candidates) -> bool:
@@ -2050,118 +2086,73 @@ class Generator:
                 for child in line.children
             )
 
+        key = self.type_key
         added: list[ProductLine] = []
-        for number, entry in enumerate(MUST_STOCK, start=1):
-            if stocked(entry, [*lines, *added]):
+        for entry in MUST_STOCK:
+            if entry.types[0] != key or stocked(entry, [*lines, *added]):
                 continue
-            sub = Generator(self.config)
-            sub.rng = type_rng(self.config.seed, f"must-stock:{entry.example}")
-            sub.counters = self.counters
-            sub._used_skus = self._used_skus
-            sub._drawn_specs = self._drawn_specs
-            sub._published_specs = self._published_specs
-            sub._exhausted = self._exhausted
-            sub._misses = self._misses
-            sub._used_series = self._used_series
-            sub._pins = dict(entry.pins)
-            type_key = entry.types[0]
-            builder = self._BUILDERS[type_key]
-            (category,) = taxonomy.LEAVES[type_key]
-            for _ in range(MAX_ATTEMPTS):
-                draft = builder(sub, type_key, category)
-                line = sub._finish_line(type_key, draft, 9000 + number)
-                if line is not None and stocked(entry, [line]):
-                    added.append(line)
-                    self._bump("must_stock_lines")
-                    break
-            else:
-                raise MustStockUnmetError(
-                    f"no {type_key} line built in {MAX_ATTEMPTS} tries carries "
-                    f"{dict(entry.values)} ({entry.example!r})"
-                )
+            own_rng, own_pins = self.rng, self._pins
+            self.rng = typespec.type_rng(self.config.seed, f"{key}:must-stock:{entry.example}")
+            self._pins = dict(entry.pins)
+            try:
+                builder = self._BUILDERS[key]
+                (category,) = taxonomy.LEAVES[key]
+                for _ in range(MAX_ATTEMPTS):
+                    line = self._finish_line(key, builder(self, key, category), self._next_index())
+                    if line is not None and stocked(entry, [line]):
+                        added.append(line)
+                        self._bump("must_stock_lines")
+                        break
+                else:
+                    raise MustStockUnmetError(
+                        f"no {key} line built in {MAX_ATTEMPTS} tries carries "
+                        f"{dict(entry.values)} ({entry.example!r})"
+                    )
+            finally:
+                self.rng, self._pins = own_rng, own_pins
         return added
 
-    def _generate_new_type(self, type_key: str, products: int) -> list[ProductLine]:
-        """One newer type's products, from that type's OWN random stream.
 
-        Nothing here draws from ``self.rng``: the sub-generator's stream is
-        seeded from ``(seed, type_key)``, so this type's products depend on
-        nothing but the seed and its own code, and adding a type beside it
-        moves none of them. The shared post-pass (sparsity, the
-        measurement-system attribute, defects, titles) is the same code the
-        original twelve go through.
-        """
-        spec = NEW_TYPES[type_key]
-        sub = _NewTypeGenerator(self.config, type_key, self.counters, self._used_skus)
-        sub._drawn_specs = self._drawn_specs
-        sub._published_specs = self._published_specs
-        sub._exhausted = self._exhausted
-        sub._misses = self._misses
-        sub._used_series = self._used_series
-        out: list[ProductLine] = []
-        for index in range(1, products + 1):
-            draft = spec.build(sub, type_key, spec.category)
-            if len(draft.children) == 1 and sub.rng.random() < self.config.zero_axis_share:
-                (only,) = draft.children
-                draft.line_attrs = [*draft.line_attrs, *only.attrs]
-                only.attrs = []
-                only.zero_axis = True
-                self._bump("zero_axis_products")
-            line = sub._finish_line(type_key, draft, index)
-            if line is not None:
-                out.append(line)
-                self._bump("lines")
-        return out
+def all_type_keys() -> list[str]:
+    """Every type the build makes, in build order: sorted by key, so a new type
+    lands in a fixed place without being listed anywhere."""
+    keys = [*Generator._BUILDERS, *NEW_TYPES, *(row.key for row in breadth.ROWS)]
+    twice = sorted({key for key in keys if keys.count(key) > 1})
+    if twice:
+        raise typespec.TypeCollisionError(f"type keys defined twice: {twice}")
+    return sorted(keys)
 
 
-class _NewTypeGenerator(Generator):
-    """A generator for one newer product type: its own stream, its own part numbers."""
-
-    def __init__(
-        self,
-        config: GeneratorConfig,
-        type_key: str,
-        counters: dict[str, int],
-        used_skus: set[str],
-    ) -> None:
-        super().__init__(config)
-        self.rng = type_rng(config.seed, type_key)
-        self.counters = counters
-        self._used_skus = used_skus
-        self._type_key = type_key
-        self._sequence = 0
-
-    def _new_sku(self) -> str:
-        """An 8-digit part number in this type's block: unique by construction."""
-        self._sequence += 1
-        sku = part_number(self._type_key, self._sequence)
-        if sku in self._used_skus:  # pragma: no cover - the blocks are disjoint
-            raise RuntimeError(f"part number {sku} was already issued")
-        self._used_skus.add(sku)
-        return sku
+def _check_blocks() -> list[str]:
+    """Every type key, after refusing any two that share a part-number block."""
+    keys = all_type_keys()
+    yaml_rows = {row.key for row in breadth.ROWS}
+    typespec.check_collisions(
+        {key: typespec.block_of(key) for key in keys},
+        {key: breadth.fix_site(key) for key in keys if key in yaml_rows},
+    )
+    return keys
 
 
-class _BreadthGenerator(Generator):
-    """A generator for one breadth row (:mod:`.breadth`): its own stream.
+def generate_type(
+    config: GeneratorConfig, type_key: str, counters: dict[str, int] | None = None
+) -> list[ProductLine]:
+    """One type's lines, built alone: the same lines the whole build makes for it."""
+    return Generator(config, type_key, counters).build()
 
-    Unlike :class:`_NewTypeGenerator`, ``_new_sku`` is NOT overridden: a
-    breadth SKU takes the base :meth:`Generator._new_sku` code shape (the
-    original twelve types' own), not a distributor-style part-number block --
-    there is no reason to spend a block on cheap filler.
+
+def generate(config: GeneratorConfig | None = None, types: Iterable[str] | None = None) -> Catalog:
+    """The catalog: each type built on its own, in key order, and concatenated.
+
+    ``types`` builds only those types; every other type's output is unchanged
+    by leaving one out, which is what lets types be built in parallel.
     """
-
-    def __init__(
-        self,
-        config: GeneratorConfig,
-        type_key: str,
-        counters: dict[str, int],
-        used_skus: set[str],
-    ) -> None:
-        super().__init__(config)
-        self.rng = type_rng(config.seed, f"breadth:{type_key}")
-        self.counters = counters
-        self._used_skus = used_skus
-
-
-def generate(config: GeneratorConfig | None = None) -> Catalog:
-    return Generator(config).generate()
+    cfg = config or GeneratorConfig()
+    known = _check_blocks()
+    unknown = sorted({*cfg.type_weights, *cfg.new_type_share, *(types or ())} - set(known))
+    if unknown:
+        raise ValueError(f"no such product type(s): {unknown}")
+    chosen = known if types is None else sorted(set(types))
+    counters: dict[str, int] = {}
+    lines = [line for key in chosen for line in Generator(cfg, key, counters).build()]
+    return Catalog(lines=tuple(lines), stats=dict(counters))
