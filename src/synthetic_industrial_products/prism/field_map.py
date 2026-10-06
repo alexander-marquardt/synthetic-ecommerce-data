@@ -309,7 +309,6 @@ def render(rows: Iterable[dict[str, Any]]) -> str:
         raise ValueError(f"attribute canonical name(s) collide after namespacing: {clashes}")
 
     decided = [decide(stats) for stats in measured.values()]
-    decided = [d for _, d in sorted(((hash(str(i)), d) for i, d in enumerate(decided)), key=lambda p: p[0])]
     facets = [d for d in decided if d.facet]
     header = HEADER.format(
         attribute_count=len(decided),
