@@ -259,10 +259,7 @@ def build_title(
         return "".join(pieces)
 
     kept = len(segments)
-    text = assemble(kept)
-    while kept > 0 and len(text) > cap:
-        kept -= 1
-        text = assemble(kept)
+    text = assemble(kept)[:cap].rstrip()  # PLANT: the old mid-word cap cut
 
     truncated = any(segment.truncated for segment in segments[:kept])
     if len(text) > cap:
