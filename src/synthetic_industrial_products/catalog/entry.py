@@ -175,10 +175,7 @@ def split(name: str, published: str, bare_unit: str | None = None) -> dict[str, 
 
 def entry(name: str, published: str, bare_unit: str | None = None) -> dict[str, Any]:
     """One nested entry: ``{key, name, value[, unit_code, value_canonical]}``."""
-    parts = split(name, published, bare_unit)
-    if "unit_code" in parts:
-        parts["value"] = re.sub(r"^0(?=\.)", "", parts["value"])
-    return {"key": entry_key(name), "name": name, **parts}
+    return {"key": entry_key(name), "name": name, **split(name, published, bare_unit)}
 
 
 def published(entries, facets: Mapping[str, Sequence[str]]) -> list[tuple[str, str]]:
