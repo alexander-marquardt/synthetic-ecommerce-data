@@ -27,9 +27,14 @@ import hashlib
 import importlib
 import pkgutil
 import random
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, replace
 from functools import cache
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from .breadth import BreadthRow
+    from .vocab import AttrSpec
 
 #: The package type modules are discovered under: one directory per family,
 #: one module per type, each exposing ``SPEC``.
@@ -58,12 +63,49 @@ class TypeCollisionError(ValueError):
 class TypeSpec:
     """What a type module declares about itself as ``SPEC``.
 
+    A type is one of two kinds, and declares the fields of its kind only:
+
+    * a **modelled** type names its category path, its standards family, its
+      attribute vocabulary, its drawing (``figure`` and ``extent``), its
+      builder (``make``) and its ``share`` of ``lines``. The builder and the
+      vocabulary are usually a family's, shared with sibling types; what is
+      the type's own is this declaration.
+    * a **breadth** type declares one :class:`.breadth.BreadthRow` as
+      ``breadth``, and everything else follows from that row, exactly as it
+      does for a row of ``data/breadth_categories.yaml``.
+
+    :func:`register` writes either kind into the shared, type-keyed tables
+    (``taxonomy.LEAVES``, ``vocab.VOCAB``, ``drawing.figures.FIGURES`` and the
+    rest), so the code that reads those tables is unchanged by where a type is
+    declared.
+
     ``part_number_block`` is only for the rare type whose derived block
     collides with another's; every other type leaves it unset.
     """
 
     key: str
     part_number_block: int | None = None
+    #: A modelled type's category path, root first; the leaf is the type.
+    category: tuple[str, ...] = ()
+    #: Which pool of standards designations and brands the type draws from
+    #: (``vocab.STANDARDS_FAMILY``).
+    standards_family: str = ""
+    #: Every attribute the type may publish (``vocab.VOCAB``).
+    vocab: tuple[AttrSpec, ...] = ()
+    #: The drawing function and the extent every SKU of the type is drawn at
+    #: (``drawing.figures.FIGURES``).
+    figure: Callable[..., Any] | None = None
+    extent: tuple[float, float] = (0.0, 0.0)
+    #: The builder: ``make(generator, type_key, category)`` drafts one line.
+    make: Callable[..., Any] | None = None
+    #: Lines drafted, as a share of ``GeneratorConfig.lines``; a
+    #: ``type_weights`` entry for the key overrides it.
+    share: float = 0.0
+    #: What every product of the type is for (``voice.USE_LINES``); empty
+    #: falls back to the generic lines.
+    use_lines: tuple[str, ...] = ()
+    #: A breadth type's row, in place of every modelled field above.
+    breadth: BreadthRow | None = None
     #: The dotted module the spec was found in, filled in by :func:`discover`.
     module: str = ""
 
@@ -107,6 +149,65 @@ def discover(package: str = TYPES_PACKAGE) -> dict[str, TypeSpec]:
     return specs
 
 
+def register(spec: TypeSpec) -> None:
+    """Write ``spec`` into the shared, type-keyed tables every reader uses.
+
+    The same tables :func:`.breadth.register` fills for a YAML row, so the
+    code that reads them cannot tell a type declared in its own module from
+    one declared in a shared table.
+    """
+    # Imported here: each of these modules imports this one.
+    from ..drawing.figures import FIGURES  # noqa: PLC0415
+    from . import breadth, taxonomy, vocab, voice  # noqa: PLC0415
+
+    if spec.breadth is not None:
+        if spec.breadth.key != spec.key:
+            raise TypeModuleError(
+                f"type module {spec.module} declares {spec.key!r} with a breadth row "
+                f"for {spec.breadth.key!r}"
+            )
+        breadth.add_row(spec.breadth)
+        return
+    missing = [
+        name
+        for name, value in (
+            ("category", spec.category),
+            ("standards_family", spec.standards_family),
+            ("vocab", spec.vocab),
+            ("figure", spec.figure),
+            ("make", spec.make),
+        )
+        if not value
+    ]
+    if missing:
+        raise TypeModuleError(f"type module {spec.module} declares no {', '.join(missing)}")
+    taxonomy.LEAVES[spec.key] = (spec.category,)
+    taxonomy.DRAWING[spec.key] = spec.key
+    vocab.VOCAB[spec.key] = spec.vocab
+    vocab.STANDARDS_FAMILY[spec.key] = spec.standards_family
+    FIGURES[spec.key] = (spec.figure, spec.extent)
+    if spec.use_lines:
+        voice.USE_LINES[spec.key] = spec.use_lines
+
+
+@cache
+def registered() -> dict[str, TypeSpec]:
+    """Every type module under :data:`TYPES_PACKAGE`, registered once per process.
+
+    Called wherever the shared tables are first read for a build
+    (:mod:`.generate`, at import, and :func:`.bundle.rebuild`).
+    """
+    specs = discover()
+    for spec in specs.values():
+        register(spec)
+    return specs
+
+
+def modelled() -> dict[str, TypeSpec]:
+    """The registered type modules that are modelled types, by key."""
+    return {key: spec for key, spec in registered().items() if spec.breadth is None}
+
+
 #: Blocks declared by types that are not yet modules of their own, filled in
 #: as their tables register (:func:`.breadth.register`).
 DECLARED_BLOCKS: dict[str, int] = {}
@@ -114,11 +215,14 @@ DECLARED_BLOCKS: dict[str, int] = {}
 
 @cache
 def _discovered_blocks() -> dict[str, int]:
-    return {
-        key: spec.part_number_block
-        for key, spec in discover().items()
-        if spec.part_number_block is not None
-    }
+    blocks: dict[str, int] = {}
+    for key, spec in discover().items():
+        block = spec.part_number_block
+        if block is None and spec.breadth is not None:
+            block = spec.breadth.part_number_block
+        if block is not None:
+            blocks[key] = block
+    return blocks
 
 
 def part_number_block(type_key: str) -> int:
