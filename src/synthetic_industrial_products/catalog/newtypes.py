@@ -464,7 +464,7 @@ def build_bearing(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
         keyword_attribute("Row Type", "Single Row"),
         keyword_attribute("Lubricant", "Grease"),
         numeric_attribute("Dynamic Load Capacity", f"{dynamic:,} lbf", float(dynamic)),
-        numeric_attribute("Static Load Capacity", f"{static:,} lb" if (static // 10) % 2 else f"{static:,} lbf", float(static)),
+        numeric_attribute("Static Load Capacity", f"{static:,} lbf", float(static)),
     ]
     draft.descriptors = [("Material", material)]
     count = min(gen._variant_count(), len(_CLOSURES))
