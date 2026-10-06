@@ -266,9 +266,51 @@ LEAVES[sys.argv[1]]
 """
 
 
-def test_a_table_read_while_registration_runs_does_not_start_it_again() -> None:
+def test_a_table_read_while_registration_runs_is_refused_naming_the_reader() -> None:
+    """Mid-registration a table holds only the types registered so far.
+
+    Answering would hand the reader an answer that depends on import order
+    (a sibling type's vocabulary missing, a derived block instead of the
+    declared one), so the read is refused, naming the line that made it, and
+    registration is not started a second time.
+    """
     result = _run(_READ_DURING_REGISTRATION, sorted(DISCOVERED)[0])
+    assert result.returncode != 0
+    assert "RegistrationReadError" in result.stderr, result.stderr[-1500:]
+    assert "while the type modules are being registered" in result.stderr
+    assert "read at <string>:9" in result.stderr, result.stderr[-1500:]
+    assert "RecursionError" not in result.stderr
+
+
+#: A sibling type module that reads a block at import, as discover imports it
+#: (the round-3 review of #54 got 6675 here during registration, 1234 after).
+_BLOCK_OF_DURING_REGISTRATION = """
+import dataclasses
+from synthetic_industrial_products.catalog import breadth, typespec
+row = dataclasses.replace(breadth.load_rows()[0], key="planted_rod", part_number_block=None)
+spec = typespec.TypeSpec("planted_rod", breadth=row, module="x.planted_rod", part_number_block=1234)
+seen = []
+def discover(package=typespec.TYPES_PACKAGE):
+    try:
+        seen.append(typespec.block_of("planted_rod"))
+    except Exception as refused:
+        seen.append(f"{type(refused).__name__}: {refused}")
+    return {"planted_rod": spec}
+typespec.discover = discover
+seen.append(typespec.block_of("planted_rod"))
+print(repr(seen))
+"""
+
+
+def test_block_of_read_during_registration_is_refused_not_answered_by_import_order() -> None:
+    assert typespec.part_number_block("planted_rod") != 1234
+    result = _run(_BLOCK_OF_DURING_REGISTRATION)
     assert result.returncode == 0, result.stderr[-1500:]
+    during, after = eval(result.stdout)  # noqa: S307 - our own repr of two values
+    assert isinstance(during, str) and during.startswith("RegistrationReadError"), (
+        f"block_of answered {during!r} during registration"
+    )
+    assert after == 1234
 
 
 @pytest.mark.parametrize(
