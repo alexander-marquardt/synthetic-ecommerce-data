@@ -701,7 +701,7 @@ class Generator:
                 (
                     Attribute("Pitch", f"{pitch:g}", bare_unit="MMT")
                     if metric
-                    else Attribute("Threads per Inch", str(pitch))
+                    else Attribute("Threads per Inch", str(pitch), bare_unit="TPI")
                 ),
                 self._length("Overall Length", oal_in, style),
                 self._length("Thread Length", oal_in * 0.45, style),
