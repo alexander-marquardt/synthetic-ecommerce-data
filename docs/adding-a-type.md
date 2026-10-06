@@ -75,7 +75,9 @@ with `StandardsDataError: no extraction for '<standard>'`.
 2. Check the type's part-number block: `uv run sip-generate block <type_key>`.
    It prints the block the key derives and, when another type already uses it,
    the first free block. In that case set `part_number_block=<block>` on the
-   new type: about one new type in 135 collides at today's 67 types.
+   new type's `TypeSpec` (not on its `BreadthRow`): about one new type in 135
+   collides at today's 67 types. Another open pull request can take the same
+   block; `scripts/merge_pr.sh` re-checks it on the merged tree.
 3. If the leaf's head noun is new, add it to `PRODUCT_NOUNS` in
    `catalog/names.py`.
 4. Build the catalog and regenerate the committed one:
@@ -88,6 +90,8 @@ with `StandardsDataError: no extraction for '<standard>'`.
    A breadth type edits no pinned count: the breadth part of the catalog's
    size is read from the rows.
 6. Run the checks.
+7. Merge with `scripts/merge_pr.sh <PR number>`, never with the GitHub button
+   or `gh pr merge` (see [Merging](#merging-every-type-pr-goes-through-merge_prsh)).
 
 ### Moving an existing type into its own module
 
@@ -119,6 +123,8 @@ diff -rq golden-catalog /tmp/out                    # empty for a move
 uv run pytest -q tests/test_type_seam.py tests/test_breadth.py
 uv run ruff check . && uv run ruff format --check <your module>
 uv run pytest -q                                    # the full suite, about 5 min
+scripts/merge_pr.sh --dry-run <PR number>           # the merge check, without merging
+scripts/merge_pr.sh <PR number>                     # the only way a type PR merges
 ```
 
 `ruff format --check` is scoped to the files you wrote: CI runs only
@@ -130,7 +136,7 @@ uv run pytest -q                                    # the full suite, about 5 mi
 |---|---|
 | The module name is not the key, or the module has no `SPEC` | `discover` raises `TypeModuleError`, naming the module |
 | The module fails to import | `TypeModuleError`, naming the dotted path |
-| A modelled type leaves `category`, `standards_family`, `vocab`, `figure`, `extent`, `make` or `share` unset | `register` raises, naming the missing fields; an unset `share` would otherwise build one line, and an unset `extent` would draw at no size |
+| A modelled type leaves `category`, `standards_family`, `vocab`, `figure`, `extent`, `make` or `share` unset | `register` raises, naming the missing fields; an unset `share` would otherwise build one line, and an unset `extent` (either side zero) would draw at no size |
 | A breadth type's row has a different key from its `SPEC` | `register` raises `TypeModuleError`, naming both keys |
 | The key is declared twice (in a module and a table, or in two modules) | `TypeCollisionError`, naming the key (and both modules, or the YAML table, where it can) |
 | Two types derive the same part-number block | The build refuses, names both types and the first free block. Set `part_number_block` on the **new** type: re-blocking a type that has already shipped renumbers every SKU it published. |
@@ -138,6 +144,7 @@ uv run pytest -q                                    # the full suite, about 5 mi
 | The leaf's head noun is not registered | `test_every_category_leaf_ends_in_its_own_product_noun` |
 | A reader cannot see a type in its own module | `test_a_fresh_reader_sees_a_migrated_type_without_registering_it`, and one first-read test per table read method |
 | A type module imported first in a process breaks registration | `tests/test_a_type_module_imported_first.py` |
+| Two pull requests merge cleanly but leave the merged catalog, field-weights YAML or blocks wrong | `scripts/merge_pr.sh` before the merge; the `main-merged-tree` CI job on every push to `main` after it |
 
 `uv run python scripts/mutation_check.py --only "type seam:"` plants a defect
 in each of these hooks and refusals and checks that the named test goes red.
@@ -145,24 +152,57 @@ in each of these hooks and refusals and checks that the named test goes red.
 ## What is still shared
 
 **Breadth types can be built in parallel.** Two breadth-type pull requests
-touch only these shared files, and each has a mechanical resolution:
+share only these, and each has a mechanical resolution:
 
 * **The committed output**: `golden-catalog/*` (the records, `images.jsonl`
   and the totals in `stats.json`) and the field-weights YAML. Two types whose
-  keys sort next to each other conflict in the `.jsonl` files, and the
-  totals always conflict. Resolve by taking either side and rebuilding:
-  `uv run sip-generate build --out golden-catalog`. The field-weights YAML can
-  merge without a textual conflict and still be wrong (both sides wrote the
-  same new totals); `tests/test_prism_field_map_drift.py` reds until it is
-  rebuilt. Per-type golden slices, which give each type its own committed
-  records, are planned for the next part of #48.
+  keys sort next to each other conflict in the `.jsonl` files. The totals
+  often do NOT conflict: every breadth row adds exactly one line and one or
+  two SKUs, so both sides often write the same new totals, and git takes the
+  identical hunk once. `stats.json` and the field-weights YAML then merge
+  cleanly with totals that count only one of the two types. Rebuilding fixes
+  it: `uv run sip-generate build --out golden-catalog`. Until then the golden
+  test and `tests/test_prism_field_map_drift.py` are red, but only on a tree
+  that holds both changes. Per-type golden slices, which give each type its
+  own committed records, are planned for the next part of #48.
+* **The part-number blocks.** Two pull requests can derive the same block,
+  or both be told the same first free block by `sip-generate block`, which
+  sees only its own branch. The build refuses the collision, naming both
+  types, again only on the merged tree. Re-block the type that merges second.
 * **The head-noun list** in `catalog/names.py`, when both add a new noun at
-  the end of the list. Keep both nouns.
+  the end of the list. This is the only file that reliably conflicts. Keep
+  both nouns.
 
-Measured with two toy breadth types on separate branches: the source and test
-files merged without conflict, the conflicts were exactly the generated files
-above and `names.py`, and after one rebuild the golden, title, facet, field-map
-and seam tests passed with no test edit.
+Measured with two toy breadth types on separate branches: only `names.py`
+conflicted. The `.jsonl` files merged correctly, and `stats.json` merged with
+wrong totals. On the merged tree the golden, field-map drift and `stats.json`
+checks were red; after one rebuild they, the title, facet and seam tests
+passed with no test edit.
+
+### Merging: every type PR goes through `merge_pr.sh`
+
+This repository has no branch protection (its plan answers 403), so GitHub
+has no merge queue and no "require the branch to be up to date". A pull
+request's green comes from a CI run against `main` as it was then. When
+another type lands after that run, the two can merge without a conflict and
+leave `main` red. So every merge, by every builder, is:
+
+```sh
+scripts/merge_pr.sh <PR number>
+```
+
+It clones the PR head into a temporary directory and merges current `main`
+into it. A conflict confined to the generated files is resolved by the
+rebuild; any other conflict (`names.py`) is handed back to you. It then
+rebuilds `golden-catalog/`, runs the drift, golden and seam tests
+(`scripts/merge_pr.sh --print-checks` lists them), pushes the merged tree to
+the PR branch if it differs from the head, and squash-merges only when those
+tests are green on that tree, the PR head is still the commit it checked, and
+`main` has not moved since the merge. `--dry-run` does all of it except the
+push and the merge.
+
+The `main-merged-tree` CI job runs the same tests on every push to `main`, so
+a merge that skipped the script is red within minutes.
 
 **Modelled types land one at a time.** Besides the files above, a modelled
 type edits shared state that two pull requests cannot both change safely:
