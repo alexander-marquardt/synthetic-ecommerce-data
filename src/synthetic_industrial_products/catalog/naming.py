@@ -260,7 +260,7 @@ def build_title(
 
     kept = len(segments)
     text = assemble(kept)
-    while kept > 0 and len(text) > cap:
+    while kept > 0 and len(text) > cap + 15:
         kept -= 1
         text = assemble(kept)
 
