@@ -93,19 +93,11 @@ ENDING_CLASSES = (".99", ".00", ".50", "other .x5")
 #: How many census standard errors a new band spans either side.
 CENSUS_SES = 3.0
 BRAND_SPREAD_BAND = (0.75, 1.33)
-#: The census types with a smaller-costs-2x-or-more row (:func:`twice_row`):
-#: each with 20 or more same-product pairs on the default build.
-TWICE_TYPES: tuple[str, ...] = (
-    "bolt_hex",
-    "drill_jobber",
-    "end_mill_ball",
-    "end_mill_square",
-    "hex_key",
-    "nut_hex",
-    "screw_socket_head",
-    "tap_spiral_point",
-    "washer_flat",
-)
+#: The fewest census pairs a smaller-costs-2x-or-more target is implied from
+#: (:func:`implied_twice_share`): below it, the census larger-costs-less
+#: share the target rests on is too loose to hold a build to (the end mills'
+#: 11 and 18 pairs).
+TWICE_MIN_CENSUS_PAIRS = 20
 #: The least half-width of a smaller-costs-2x-or-more band. The census does
 #: not measure that share; where the share it implies is near 0, its band
 #: from the census standard errors is near 0 wide too, and one pair in fifty
@@ -343,6 +335,16 @@ def _axis_census(type_key: str) -> tuple[float, float, int]:
     return census.slope, census.larger_costs_less, census.n_pairs
 
 
+#: The census types with a smaller-costs-2x-or-more row: those whose census
+#: measures the within-product axis over :data:`TWICE_MIN_CENSUS_PAIRS` or
+#: more pairs. :func:`price_rows` scores one only where the catalog builds
+#: pairs of one product along that axis; a type that makes one SKU per line
+#: along it has none, and a share over no pairs is 0.0 whatever the prices.
+TWICE_TYPES: tuple[str, ...] = tuple(
+    type_key for type_key in CENSUS if _axis_census(type_key)[2] >= TWICE_MIN_CENSUS_PAIRS
+)
+
+
 def twice_row(type_key: str, collected: Collected, prices: Mapping[str, float]) -> Comparison:
     """The smaller-costs-2x-or-more row of one census type (its borrowers'
     pairs pooled in)."""
@@ -482,7 +484,11 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
             )
         )
 
-    rows.extend(twice_row(type_key, collected, prices) for type_key in TWICE_TYPES)
+    rows.extend(
+        twice_row(type_key, collected, prices)
+        for type_key in TWICE_TYPES
+        if collected.product_pairs.get(type_key)
+    )
 
     economy = []
     for type_key, figure in BRAND_CENSUS.items():

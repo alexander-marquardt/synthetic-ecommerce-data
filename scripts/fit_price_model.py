@@ -555,6 +555,7 @@ def main() -> int:
             else f"    slope={socket.slope!r},\n"
         )
         + f"    group_sigma={socket.group_sigma:.3f},\n    sku_sigma={socket.sku_sigma:.3f},"
+        + (f"\n    size_sigma={socket.size_sigma!r}," if socket.size_sigma else "")
     )
     print("\n# price.py, between the fit markers:\n" + table)
     print("\n# screw_socket_head.py, between its fit markers:\n" + socket_body)
