@@ -75,17 +75,26 @@ def test_an_unmeasured_attribute_omits_the_unit_parts_rather_than_nulling_them()
             assert ("unit_code" in entry) == ("value_canonical" in entry), entry
 
 
-def test_a_metric_tap_pitch_is_millimetres_and_an_inch_tap_pitch_stays_a_thread_count():
-    """The generator knows which a bare ``Pitch`` is; the published string does not."""
+def test_a_metric_tap_publishes_pitch_in_mm_and_an_inch_tap_threads_per_inch_in_tpi():
+    """Two quantities under two keys, as real catalogs publish them (#42).
+
+    The published string is a bare number either way; only the generator knows
+    which it is. A metric tap's ``Pitch`` is millimetres, an inch tap's
+    ``Threads per Inch`` is ``TPI``, and neither tap carries the other's key.
+    """
     seen = set()
     for doc in emit.iter_nested(CATALOG):
         for variant in doc["variants"]:
             entries = {e["name"]: e for e in variant["attributes"]}
-            if "Pitch" not in entries or "Thread Size" not in entries:
+            if "Thread Size" not in entries or doc["product_type"] != "tap_spiral_point":
                 continue
             metric = entries["Thread Size"]["value"].startswith("M")
-            assert entries["Pitch"].get("unit_code") == ("MMT" if metric else None), entries
-            seen.add(metric)
+            ours, theirs = ("Pitch", "Threads per Inch") if metric else ("Threads per Inch", "Pitch")
+            assert theirs not in entries, entries
+            if ours in entries:
+                assert entries[ours]["unit_code"] == ("MMT" if metric else "TPI"), entries
+                assert entries[ours]["key"] == ("pitch" if metric else "threads_per_inch")
+                seen.add(metric)
     assert seen == {True, False}, "the sample needs both a metric and an inch tap"
 
 
