@@ -36,14 +36,14 @@ from .standards import MM_PER_INCH
 #: The metric hexagon key series (ISO 2936), in millimetres. A socket's
 #: published across-flats in the extracted ISO 4762 rows is a toleranced
 #: figure (10.07 for the M12 socket); the key that drives it is the nominal
-#: member of this series. The keys under 1.5mm drive only the smallest set
-#: screws (ISO 4026-4029, M1.6-M2.5).
+#: member of this series. The keys under 1.5mm drive the smallest set screw
+#: sockets this catalog carries (ISO 4026-4029, M1.6-M2.5).
 KEY_SERIES_MM: tuple[float, ...] = (
     0.7, 0.9, 1.3, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 10.0, 12.0, 14.0, 17.0, 19.0, 22.0,
 )  # fmt: skip
 
 #: The inch hexagon key series (ASME B18.3), in inches. The keys under 0.050"
-#: drive only the smallest set screws (#0-#2).
+#: drive the smallest set screw sockets this catalog carries (#0-#2).
 KEY_SERIES_IN: tuple[float, ...] = tuple(
     float(f)
     for f in (

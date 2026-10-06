@@ -302,8 +302,8 @@ fields:
     type: terms
     source: facets.dimension_type
     facet: false
-  # Drive Size -- a discrete standard set: 48 distinct values over 1842 documents is 0.03 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1842 documents across 5 product type(s); 48 distinct values
+  # Drive Size -- a discrete standard set: 41 distinct values over 1842 documents is 0.02 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1842 documents across 5 product type(s); 41 distinct values
   - name: drive_size
     type: terms
     source: facets.drive_size
@@ -542,7 +542,7 @@ fields:
     type: terms
     source: facets.point_angle
   # Point Dia. -- present on 31% of its product types' documents (floor 50%)
-  #   present on 151 documents across 1 product type(s); 33 distinct values
+  #   present on 151 documents across 1 product type(s); 47 distinct values
   - name: point_dia
     type: terms
     source: facets.point_dia
