@@ -51,6 +51,11 @@ DOG_RANGE = {
 }  # fmt: skip
 METRIC_LENGTHS = (2, 2.5, 3, 4, 5, 6, 8, 10, 12, 16, 20, 25, 30, 35, 40, 45, 50, 55, 60)
 
+
+def length_range_mm(standard: str, size: str) -> tuple[float, float]:
+    """The shortest and longest length ``standard`` defines for ``size``, mm."""
+    return (DOG_RANGE if standard == "ISO 4028" else METRIC_RANGE)[size]
+
 #: Inch rows (ASME B18.3.5): (size, threads per inch, socket key s mm, point dia dp mm).
 INCH = (
     ("#0", 80, 0.7112, 0.762), ("#1", 64, 0.889, 0.9271), ("#2", 56, 0.889, 1.0922),
