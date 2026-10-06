@@ -92,9 +92,11 @@ class GeneratorConfig:
     #: reference corpus and dominate here.
     #:
     #: Each share is that type's own and the others do not move with it, so
-    #: resizing one type leaves every other type's products unchanged. The
-    #: shares sum to 1.0 today, which is what keeps ``lines`` close to the
-    #: number of original-type lines asked for; a type added here without
+    #: resizing one type leaves every other type's products unchanged. A type
+    #: declared in its own module carries its default share there
+    #: (``TypeSpec.share``), and an entry here overrides it. These shares and
+    #: the modules' sum to 1.0 today, which is what keeps ``lines`` close to
+    #: the number of original-type lines asked for; a type added without
     #: taking room from the others makes the catalog that much larger.
     type_weights: dict[str, float] = field(
         default_factory=lambda: {
@@ -102,7 +104,6 @@ class GeneratorConfig:
             "end_mill_ball": 0.11,
             "drill_jobber": 0.11,
             "tap_spiral_point": 0.07,
-            "screw_socket_head": 0.12,
             "screw_flat_head": 0.07,
             "screw_button_head": 0.05,
             "screw_low_head": 0.04,

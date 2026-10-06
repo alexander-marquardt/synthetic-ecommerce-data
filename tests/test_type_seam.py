@@ -108,6 +108,33 @@ def test_a_type_module_without_its_own_spec_is_refused(
         typespec.discover("planted_types")
 
 
+#: Types in :data:`MIGRATED` whose module is not written yet. Strict, so the
+#: migration that writes one turns its case red until it leaves this set.
+NOT_YET_MIGRATED = {"ball_stock_precision"}
+
+
+@pytest.mark.parametrize(
+    ("key", "family"),
+    [
+        pytest.param(
+            key,
+            family,
+            marks=[pytest.mark.xfail(strict=True, reason="its module is the next step of #48")]
+            if key in NOT_YET_MIGRATED
+            else [],
+        )
+        for key, family in sorted(MIGRATED.items())
+    ],
+)
+def test_a_migrated_type_is_discovered_from_its_own_module(key: str, family: str) -> None:
+    specs = typespec.discover()
+    assert key in specs, f"{key} is not discovered under {typespec.TYPES_PACKAGE}"
+    assert specs[key].module == f"{typespec.TYPES_PACKAGE}.{family}.{key}"
+    # Declared once: its module is the only declaration, not a second copy.
+    assert key not in generate.Generator._BUILDERS, f"{key} is still in Generator._BUILDERS"
+    assert key not in {row.key for row in breadth.load_rows()}, f"{key} is still a YAML row"
+
+
 def test_every_type_is_built_once() -> None:
     keys = generate.all_type_keys()
     assert len(keys) == len(set(keys))
