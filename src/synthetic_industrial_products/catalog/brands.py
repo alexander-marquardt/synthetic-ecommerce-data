@@ -154,6 +154,15 @@ PREMIUM = frozenset(
         "Quennick",
     }
 )
+_PLANT = __import__("os").environ.get("REVIEW58_PLANT", "")
+if _PLANT == "3a":
+    # The cutting-tool economy and premium labels trade tiers.
+    ECONOMY = (ECONOMY - {"Wendlow Tool"}) | {"Varrick Precision"}
+    PREMIUM = (PREMIUM - {"Varrick Precision"}) | {"Wendlow Tool"}
+if _PLANT == "3b":
+    # The fastener and abrasive economy and premium labels trade tiers.
+    ECONOMY = (ECONOMY - {"Morvennick", "Salt Meadow Works"}) | {"Cobbet & Pryce", "Grisenne"}
+    PREMIUM = (PREMIUM - {"Cobbet & Pryce", "Grisenne"}) | {"Morvennick", "Salt Meadow Works"}
 
 
 C, F, A, H, M = "cutting_tool", "fastener", "abrasive", "hand_tool", "motion"
