@@ -533,7 +533,7 @@ MUTATIONS: list[Mutation] = [
         "type seam: ensure_registered ignores a registration already running",
         "catalog/typespec.py",
         '    if _REGISTRATION["running"]:\n        raise RegistrationReadError(',
-        '    if False:\n        raise RegistrationReadError(',
+        "    if False:\n        raise RegistrationReadError(",
         "tests/test_type_seam.py::"
         "test_a_table_read_while_registration_runs_is_refused_naming_the_reader",
         "",

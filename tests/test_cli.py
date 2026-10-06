@@ -107,10 +107,8 @@ def test_a_batch_carries_on_past_the_record_it_cannot_draw(tmp_path):
 
 
 def test_the_batch_report_separates_the_two_kinds_of_drawing(tmp_path):
-    """"Three images" and "three dimensioned drawings" are different claims."""
-    report = render_all(
-        [BUNDLED["26VW40"], BUNDLED["57KY59"], BUNDLED["2DY27"]], tmp_path, [CARD]
-    )
+    """ "Three images" and "three dimensioned drawings" are different claims."""
+    report = render_all([BUNDLED["26VW40"], BUNDLED["57KY59"], BUNDLED["2DY27"]], tmp_path, [CARD])
     assert report.drawn == 3
     assert sum(report.to_scale.values()) == 2
     assert sum(report.as_type.values()) == 1
