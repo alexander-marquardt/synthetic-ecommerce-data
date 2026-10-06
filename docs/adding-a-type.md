@@ -85,13 +85,42 @@ with `StandardsDataError: no extraction for '<standard>'`.
    records, the totals in `stats.json` and the field-weights YAML should
    change. The independence tests below enforce this.
 5. A modelled type only: restate `DEPTH_LINES` and `DEPTH_SKUS` in
-   `tests/catalog_size.py` by direct count of the modelled documents, and fix
-   the `type_weights` shares (see [What is still shared](#what-is-still-shared)).
-   A breadth type edits no pinned count: the breadth part of the catalog's
-   size is read from the rows.
-6. Run the checks.
-7. Merge with `scripts/merge_pr.sh <PR number>`, never with the GitHub button
+   `tests/catalog_size.py` by direct count of the modelled documents (those
+   whose `spec_quality` is not `fast_and_cheap`). The type's `share` is its
+   own and is added on top: never lower another type's share to make room,
+   because that moves the other type's output and breaks byte-identity. The
+   size test (`test_the_catalog_is_the_size_it_was_asked_for`) sums every
+   modelled share, so a total above 1.0 is expected. A breadth type edits no
+   pinned count: the breadth part of the catalog's size is read from the rows.
+6. A modelled type only: copy `tests/test_type_lock_nuts_nylon_insert.py` to
+   `tests/test_type_<type_key>.py` and change `KEY` and the SKU floor. It is
+   the per-type gate template: uniqueness, census names, determinism, a
+   committed golden slice, and independence from every other type. Write the
+   slice with `uv run python tests/test_type_<type_key>.py`.
+7. Run the checks.
+8. Merge with `scripts/merge_pr.sh <PR number>`, never with the GitHub button
    or `gh pr merge` (see [Merging](#merging-every-type-pr-goes-through-merge_prsh)).
+
+### Deepening an existing breadth type
+
+A breadth key (a row of `data/breadth_categories.yaml` or a breadth module)
+becomes a modelled type with many SKUs. The other types must stay
+byte-identical; only this type's records change.
+
+1. Write the modelled module under the same key, as in
+   [A new type](#a-new-type) step 1. Example:
+   `product_types/fasteners/lock_nuts_nylon_insert.py`.
+2. Delete the key's breadth row (or breadth module). The key keeps its derived
+   part-number block, so `sip-generate block <type_key>` says to leave
+   `part_number_block` unset.
+3. Give the module its own `share`, added on top (step 5 above).
+4. Add the type to the shared tables its family's tests read, listed under
+   [What is still shared](#what-is-still-shared): the `conformance.applicable`
+   branch, and `MAY_CLAIM` and `KEY` in `tests/test_catalog_facts.py`.
+5. Do steps 4 to 7 of [A new type](#a-new-type). Then check the other types
+   are byte-identical: build into a scratch directory and compare its
+   `flat.jsonl` with the committed one type by type. Only the deepened key may
+   differ.
 
 ### Moving an existing type into its own module
 
@@ -163,8 +192,9 @@ share only these, and each has a mechanical resolution:
   cleanly with totals that count only one of the two types. Rebuilding fixes
   it: `uv run sip-generate build --out golden-catalog`. Until then the golden
   test and `tests/test_prism_field_map_drift.py` are red, but only on a tree
-  that holds both changes. Per-type golden slices, which give each type its
-  own committed records, are planned for the next part of #48.
+  that holds both changes. A modelled type built from the per-type gate
+  template also commits its own records as a slice under
+  `tests/data/golden_slices/`, which no other type's pull request touches.
 * **The part-number blocks.** Two pull requests can derive the same block,
   or both be told the same first free block by `sip-generate block`, which
   sees only its own branch. The build refuses the collision, naming both
@@ -214,18 +244,21 @@ script, is red within minutes.
 type edits shared state that two pull requests cannot both change safely:
 
 * `DEPTH_LINES` and `DEPTH_SKUS` in `tests/catalog_size.py`.
-* The `type_weights` shares in `catalog/config.py` together with the modules'
-  `share`. They sum to 1.0; `test_the_catalog_is_the_size_it_was_asked_for`
-  allows 12 lines of slack and reds once the sum goes further above 1.0, so
-  two types each taking share from the others collide.
-* `KEY` in `tests/test_catalog_facts.py`.
+* Each modelled type's `share`. The original types' `type_weights` in
+  `catalog/config.py` sum to 1.0, and each new or deepened type adds its own
+  share on top. `test_the_catalog_is_the_size_it_was_asked_for` sums every
+  modelled share, so two types that each add one do not collide on the shares.
+  Never take share from another type: that moves its output.
+* `KEY` and `MAY_CLAIM` in `tests/test_catalog_facts.py`.
+* `catalog/conformance.py`: the `applicable` truth table, one branch per type
+  that claims a standard. A type with no branch claims nothing.
 * The family builder in `catalog/generate.py` (see
   [above](#modelled-types-what-the-family-builder-still-needs)), and the
   standards extraction in `data/fastener_standards.json`.
 * Type-keyed tables a family may need. Find them with
   `grep -rn "'<sibling_key>'\|\"<sibling_key>\"" src scripts tests --include=*.py | grep -v product_types/`:
   `render/kinds.py` (`TYPE_KIND`), `render/generic.py`, `catalog/noise.py`
-  (`THREADED`), `catalog/conformance.py`, `catalog/compat.py`,
+  (`THREADED`), `catalog/compat.py`,
   `catalog/muststock.py`, `catalog/newtypes.py` (`_KIT_MATERIAL`,
   `_KIT_FINISH`), `scripts/verify_elasticsearch.py`, and for the socket-screw
   family `test_the_catalog_offers_all_four_socket_screw_styles` in

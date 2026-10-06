@@ -239,6 +239,11 @@ built from that catalog with the second command above: 99,929 drawings,
 `images.jsonl`. The 100K catalog is still not published while the spec is
 iterated at the default size.
 
+Since `lock_nuts_nylon_insert` became a deep type (#53), the first command
+gives **104,440 SKUs over 60,698 products**, 4,513 of them lock nuts over
+2,714 products. The deepened type adds its own share of `--lines` and takes
+none from the others, so it moves no other type's output.
+
 The files are far too large to commit uncompressed (`flat.jsonl` is ~330 MB).
 This repository commits the default-size catalog only; the industrial demo
 serves that one, from a pinned release, and the 100K build is a capability

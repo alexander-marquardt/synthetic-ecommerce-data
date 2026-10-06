@@ -94,10 +94,10 @@ class GeneratorConfig:
     #: Each share is that type's own and the others do not move with it, so
     #: resizing one type leaves every other type's products unchanged. A type
     #: declared in its own module carries its default share there
-    #: (``TypeSpec.share``), and an entry here overrides it. These shares and
-    #: the modules' sum to 1.0 today, which is what keeps ``lines`` close to
-    #: the number of original-type lines asked for; a type added without
-    #: taking room from the others makes the catalog that much larger.
+    #: (``TypeSpec.share``), and an entry here overrides it. The original
+    #: types' shares sum to 1.0. A deepened type adds its own share on top and
+    #: takes no room from the others (taking it would move their output), so
+    #: the catalog is that much larger (#53).
     type_weights: dict[str, float] = field(
         default_factory=lambda: {
             "end_mill_square": 0.19,
@@ -223,7 +223,8 @@ class GeneratorConfig:
 
 #: The ``--lines`` that lands the catalog at about 100,000 SKUs: measured,
 #: ``sip-generate build --lines 39000`` gives 99,929 SKUs over 57,985
-#: products (README, "The 100K catalog"). A named value of the one knob,
+#: products (README, "The 100K catalog"); 104,440 over 60,698 since the
+#: deepened ``lock_nuts_nylon_insert`` added its own share (#53). A named value of the one knob,
 #: not a second knob; built on demand, not published while the spec is
 #: iterated at the default size. (28,300 until uniqueness stopped counting
 #: metadata -- the standards claimed, the measurement-system spelling -- as a
