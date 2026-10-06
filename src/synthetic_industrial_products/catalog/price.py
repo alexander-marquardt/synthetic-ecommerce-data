@@ -9,15 +9,34 @@ cannot drift apart.
 What a price row compares is the price a shopper is SHOWN (the census's
 ``price_quantiles_usd``), because the catalog publishes one price per SKU and
 no sale unit beside it.
+
+The model (:func:`shown_price`) is, in logs::
+
+    log p = log anchor + slope * log(key / anchor_key) + log material + log tier
+            + pack_slope * log(pack / pack_ref) + line_sigma * z_line + sku_sigma * z_sku
+
+then rounded to an ending drawn from the type's census endings mix. The slope,
+the tier factors, the pack slope and the endings are census figures. The
+anchor and the two sigmas are fitted by ``scripts/fit_price_model.py`` so the
+default build lands on the census p50, p90/p10 and larger-costs-more share.
+The material factors are NOT measured (:data:`MATERIAL_FACTORS`).
 """
 
 from __future__ import annotations
 
+import math
+import random
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from statistics import NormalDist
+from typing import TYPE_CHECKING, Literal
 
 from ..dimensions import DimensionParseError, parse_length, parse_thread
 from .model import Attribute
+from .typespec import RegistryTable
+
+if TYPE_CHECKING:
+    from .breadth import BreadthRow
 
 
 @dataclass(frozen=True)
@@ -147,3 +166,422 @@ KEYS: dict[str, Callable[[Mapping[str, Attribute]], float | None]] = {
 LENGTH_HELD = frozenset(
     {"bolt_hex", "screw_socket_head", "screw_flat_head", "screw_button_head", "screw_low_head"}
 )
+
+
+#: Price endings per type (``deep_types.<type>.endings.class_share``), for the
+#: 13 types :data:`CENSUS` restates.
+ENDINGS: dict[str, dict[str, float]] = {
+    "abrasive_flap_disc": {
+        "other": 0.6741,
+        "other .x5": 0.1481,
+        "other .x9": 0.0519,
+        ".49": 0.0444,
+        ".99": 0.037,
+        ".50": 0.0222,
+        ".95": 0.0148,
+        ".00": 0.0074,
+    },
+    "bearing_radial_ball": {
+        "other": 0.4462,
+        "other .x5": 0.3769,
+        ".50": 0.0513,
+        ".00": 0.0462,
+        "other .x9": 0.0436,
+        ".95": 0.0256,
+        ".49": 0.0051,
+        ".98": 0.0026,
+        ".97": 0.0026,
+    },
+    "bolt_hex": {
+        "other": 0.634,
+        "other .x5": 0.1988,
+        ".50": 0.0432,
+        ".00": 0.0432,
+        "other .x9": 0.0317,
+        ".95": 0.0231,
+        ".97": 0.0086,
+        ".49": 0.0058,
+        ".98": 0.0058,
+        ".99": 0.0058,
+    },
+    "drill_jobber": {
+        "other": 0.7559,
+        "other .x5": 0.1028,
+        "other .x9": 0.0723,
+        ".49": 0.0136,
+        ".50": 0.0124,
+        ".00": 0.0113,
+        ".95": 0.0102,
+        ".98": 0.009,
+        ".99": 0.0068,
+        ".97": 0.0056,
+    },
+    "end_mill_ball": {
+        "other": 0.6923,
+        ".50": 0.1077,
+        ".00": 0.0923,
+        "other .x5": 0.0769,
+        "other .x9": 0.0308,
+    },
+    "end_mill_square": {
+        ".00": 0.3478,
+        ".50": 0.2899,
+        "other .x5": 0.2464,
+        "other": 0.1014,
+        ".98": 0.0145,
+    },
+    "hex_key": {
+        "other": 0.5741,
+        "other .x5": 0.2111,
+        "other .x9": 0.0704,
+        ".00": 0.0667,
+        ".50": 0.0407,
+        ".95": 0.0185,
+        ".97": 0.0111,
+        ".98": 0.0074,
+    },
+    "kit_assortment": {
+        "other .x5": 0.4783,
+        "other": 0.1957,
+        ".50": 0.1304,
+        "other .x9": 0.087,
+        ".00": 0.0435,
+        ".98": 0.0435,
+        ".49": 0.0217,
+    },
+    "nut_hex": {
+        "other": 0.6385,
+        "other .x5": 0.1882,
+        "other .x9": 0.0592,
+        ".00": 0.0444,
+        ".95": 0.0169,
+        ".50": 0.0169,
+        ".49": 0.0148,
+        ".97": 0.0127,
+        ".98": 0.0063,
+        ".99": 0.0021,
+    },
+    "screw_socket_head": {
+        "other": 0.487,
+        "other .x5": 0.2468,
+        ".00": 0.1688,
+        ".50": 0.039,
+        "other .x9": 0.0325,
+        ".95": 0.0195,
+        ".97": 0.0032,
+        ".99": 0.0032,
+    },
+    "tap_spiral_point": {
+        "other": 0.6489,
+        "other .x5": 0.2197,
+        "other .x9": 0.0452,
+        ".50": 0.0287,
+        ".00": 0.0185,
+        ".95": 0.0103,
+        ".98": 0.0103,
+        ".97": 0.0082,
+        ".99": 0.0062,
+        ".49": 0.0041,
+    },
+    "washer_flat": {
+        "other": 0.6207,
+        "other .x5": 0.1264,
+        ".00": 0.092,
+        "other .x9": 0.0862,
+        ".95": 0.023,
+        ".49": 0.0172,
+        ".97": 0.0172,
+        ".50": 0.0115,
+        ".99": 0.0057,
+    },
+    "wheel_depressed_center": {
+        "other": 0.6452,
+        "other .x5": 0.1705,
+        "other .x9": 0.0737,
+        ".95": 0.0276,
+        ".50": 0.0276,
+        ".99": 0.0276,
+        ".00": 0.0138,
+        ".49": 0.0092,
+        ".98": 0.0046,
+    },
+}
+
+#: The pooled log-log slope of a nut's shown pack price on its pack quantity
+#: (``deep_types.nut_hex.pack_vs_each.pooled_loglog_slope_price_on_pack_qty``):
+#: a pack of 100 costs more than a pack of 25, but far less than four times.
+NUT_PACK_SLOPE = 0.234
+
+#: Each measured breadth category's shown-price (p10, p50, p90)
+#: (``breadth_categories.<key>.price_quantiles_usd``). A row listed here is
+#: priced from these (:func:`breadth_price`); every other row from its own
+#: ``price_range``.
+BREADTH_CENSUS: dict[str, tuple[float, float, float]] = {
+    "ball_valves": (3.674, 13.145, 182.59),
+    "blind_rivets": (12.308, 21.1, 27.415),
+    "c_clamps": (10.526, 52.0, 342.25),
+    "carriage_bolts": (10.841, 26.1, 67.205),
+    "cold_chisels": (7.13, 15.68, 38.2),
+    "combination_wrenches": (4.011, 15.38, 39.145),
+    "cut_resistant_gloves": (9.45, 21.45, 67.675),
+    "eye_bolts": (3.469, 14.735, 62.405),
+    "foam_ear_plugs": (3.152, 95.675, 175.9),
+    "hand_files": (4.409, 21.43, 24.9),
+    "hex_pipe_nipples": (3.33, 5.2, 16.24),
+    "hose_clamps": (13.492, 34.95, 43.43),
+    "rigid_casters": (20.744, 76.2, 351.85),
+    "roller_chain": (74.1, 358.0, 773.0),
+    "safety_glasses": (5.0, 8.605, 24.26),
+    "threaded_rod": (6.511, 33.52, 140.855),
+    "u_bolts": (3.454, 10.68, 23.918),
+    "v_belts": (7.707, 23.465, 103.945),
+    "wedge_anchors": (41.05, 117.775, 251.625),
+}
+
+Tier = Literal["economy", "standard", "premium"]
+
+#: A brand tier's price multiplier, against a standard brand on the same spec.
+#: Economy is the distributor's own value labels against the other brands on
+#: shared jobber-drill specs; premium is the 90th percentile of the
+#: jobber-drill brand price index. Both are census figures, from the one type
+#: the census could compare brands on; every type uses them.
+TIER_FACTORS: dict[str, float] = {
+    "economy": ECONOMY_OVER_OTHERS_MEDIAN,
+    "standard": 1.0,
+    "premium": PREMIUM_BRAND_INDEX_P90,
+}
+
+#: What a material costs against plain steel (or high speed steel, for a
+#: cutting tool). NOT MEASURED: the census holds material equal inside a cell
+#: and does not report a material ratio, so these are general-knowledge
+#: ratios. Each type's fitted anchor absorbs the level, so only the ratios
+#: between one type's materials matter. A material missing here counts 1.0.
+MATERIAL_FACTORS: dict[str, float] = {
+    "Steel": 1.0,
+    "Alloy Steel": 1.0,
+    "Forged Steel": 1.0,
+    "Chrome Steel": 1.0,
+    "Chrome Vanadium Steel": 1.0,
+    "Grade 12.9 Alloy Steel": 1.15,
+    "S2 Tool Steel": 1.2,
+    "18-8 Stainless Steel": 1.6,
+    "440C Stainless Steel": 1.8,
+    "316 Stainless Steel": 2.2,
+    "Brass": 1.9,
+    "Nylon": 0.6,
+    "High Speed Steel": 1.0,
+    "Cobalt": 1.5,
+    "Powdered Metal": 1.6,
+    "Solid Carbide": 2.8,
+}
+
+#: A noise quantile is clamped to this, so one draw is never more than about
+#: three sigmas out.
+_Q_CLAMP = 0.001
+
+
+@dataclass(frozen=True)
+class PriceModel:
+    """One type's price model: what :func:`shown_price` reads.
+
+    ``slope``, ``pack_slope`` and ``endings`` come from the census;
+    ``anchor``, ``line_sigma`` and ``sku_sigma`` from
+    ``scripts/fit_price_model.py``. ``measured`` is False for a type the
+    census has no prices for, whose model keeps the level the catalog had.
+    """
+
+    #: Shown price (USD) at ``anchor_key``, standard tier, a material of 1.0.
+    anchor: float
+    #: The key dimension the anchor is at, in the census's units.
+    anchor_key: float
+    #: Log-log slope of price on the key dimension.
+    slope: float
+    #: Sigma of the log-normal noise one product line shares.
+    line_sigma: float
+    #: Sigma of the log-normal noise each SKU draws on its own.
+    sku_sigma: float
+    #: The ending-class mix a price is rounded to.
+    endings: Mapping[str, float] = field(default_factory=lambda: POOLED_ENDINGS)
+    #: The attribute a pack price scales with, and the log-log slope and the
+    #: reference quantity it scales from.
+    pack_attribute: str | None = None
+    pack_slope: float = 0.0
+    pack_ref: float = 1.0
+    measured: bool = True
+
+
+def _model(type_key: str, anchor: float, anchor_key: float, line: float, sku: float, **kw):
+    return PriceModel(
+        anchor, anchor_key, CENSUS[type_key].slope, line, sku, ENDINGS[type_key], **kw
+    )
+
+
+#: Every modelled type's price model, by key. A type declared in its own module
+#: declares its model as ``TypeSpec.price`` and :func:`.typespec.register`
+#: writes it here; the types still built from the shared tables are listed
+#: below. Fitted by ``scripts/fit_price_model.py``.
+MODELS: RegistryTable[str, PriceModel] = RegistryTable(
+    {
+        # @fit-begin
+        "abrasive_flap_disc": _model("abrasive_flap_disc", 8.68, 5.0, 0.3, 0.1),
+        "bearing_radial_ball": _model("bearing_radial_ball", 37.5, 0.5, 0.5, 0.1),
+        "bolt_hex": _model("bolt_hex", 20.9, 0.375, 0.3, 0.1),
+        "drill_jobber": _model("drill_jobber", 6.0, 0.25, 0.3, 0.1),
+        "end_mill_ball": _model("end_mill_ball", 88.0, 0.375, 0.3, 0.1),
+        "end_mill_square": _model("end_mill_square", 52.5, 0.375, 0.3, 0.1),
+        "hex_key": _model("hex_key", 9.68, 0.25, 0.3, 0.1),
+        "kit_assortment": _model("kit_assortment", 80.0, 30.0, 0.5, 0.1),
+        "nut_hex": _model(
+            "nut_hex",
+            15.3,
+            0.375,
+            0.3,
+            0.1,
+            pack_attribute="Package Quantity",
+            pack_slope=NUT_PACK_SLOPE,
+            pack_ref=100.0,
+        ),
+        "tap_spiral_point": _model("tap_spiral_point", 20.0, 0.25, 0.3, 0.1),
+        "washer_flat": _model("washer_flat", 4.89, 0.375, 0.3, 0.1),
+        "wheel_depressed_center": _model("wheel_depressed_center", 9.5, 4.5, 0.3, 0.1),
+        # @fit-end
+        # No census prices: the ball-pein hammer's archived pages are script
+        # shells. Its model keeps the median the uniform multiplier gave
+        # (0.9 USD/oz x 5.75), linear in head weight; NOT MEASURED.
+        "hammer_ball_pein": PriceModel(82.8, 16.0, 1.0, 0.0, 0.37, measured=False),
+    }
+)
+
+#: Types with no census prices of their own that price as a sibling does: the
+#: census has no button-head or low-head socket screws, and 4 flat-head ones.
+BORROWS: dict[str, str] = {
+    "screw_button_head": "screw_socket_head",
+    "screw_flat_head": "screw_socket_head",
+    "screw_low_head": "screw_socket_head",
+}
+
+
+def model_for(type_key: str) -> PriceModel:
+    """``type_key``'s price model: its own, or the sibling's it borrows."""
+    return MODELS[BORROWS.get(type_key, type_key)]
+
+
+def _z(quantile: float) -> float:
+    return NormalDist().inv_cdf(min(max(quantile, _Q_CLAMP), 1.0 - _Q_CLAMP))
+
+
+def line_draw(seed: int, product_id: str) -> float:
+    """The quantile a product line's noise is drawn at: its own stream, so no
+    other draw moves."""
+    return random.Random(f"{seed}:price-line:{product_id}").random()
+
+
+def ending_draw(seed: int, sku: str) -> float:
+    """The quantile a SKU's ending class is drawn at: its own stream."""
+    return random.Random(f"{seed}:price-ending:{sku}").random()
+
+
+def structure(
+    model: PriceModel,
+    key: float | None,
+    material: str | None,
+    tier: str,
+    pack: float | None = None,
+) -> float:
+    """The log-price terms that are not noise and not the anchor."""
+    log_p = 0.0
+    if key is not None and key > 0:
+        log_p += model.slope * math.log(key / model.anchor_key)
+    log_p += math.log(MATERIAL_FACTORS.get(material or "", 1.0))
+    log_p += math.log(TIER_FACTORS[tier])
+    if model.pack_slope and pack is not None and pack > 0:
+        log_p += model.pack_slope * math.log(pack / model.pack_ref)
+    return log_p
+
+
+def noisy(model: PriceModel, struct: float, line_u: float, sku_u: float) -> float:
+    """The unrounded price: anchor, structure and both noise terms."""
+    noise = model.line_sigma * _z(line_u) + model.sku_sigma * _z(sku_u)
+    return math.exp(math.log(model.anchor) + struct + noise)
+
+
+def ending_for(mix: Mapping[str, float], ending_u: float) -> str:
+    """The ending class at quantile ``ending_u`` of ``mix``."""
+    total = sum(mix.values())
+    running = 0.0
+    for cls, share in mix.items():
+        running += share / total
+        if ending_u < running:
+            return cls
+    return next(reversed(mix))
+
+
+#: How far the nearest price in a drawn ending class may move a price before
+#: the class gives way to "other": a $1.40 part is not rounded to $1.00.
+MAX_ENDING_MOVE = 0.25
+
+
+def with_ending(price: float, cls: str) -> float:
+    """The price nearest ``price`` whose cents are in ``cls``, falling back to
+    the nearest "other" price when that would move it more than
+    :data:`MAX_ENDING_MOVE`. Never below one cent."""
+    target = round(price * 100)
+    for wanted in (cls, "other"):
+        best: int | None = None
+        for step in range(0, 101):
+            for cents in (target - step, target + step):
+                if cents >= 1 and ending_class(cents / 100) == wanted:
+                    best = cents
+                    break
+            if best is not None:
+                break
+        moved = abs(best / 100 - price) if best is not None else math.inf
+        if best is not None and (wanted == "other" or moved <= MAX_ENDING_MOVE * price):
+            return best / 100
+    raise AssertionError(f"no price near {price} ends in {cls} or other")
+
+
+@dataclass(frozen=True)
+class Draw:
+    """Everything a SKU's price is computed from: its model, its structure
+    (:func:`structure`) and its three draws."""
+
+    model: PriceModel
+    struct: float
+    line_u: float
+    sku_u: float
+    ending_u: float
+
+
+def shown_price(draw: Draw) -> float:
+    """A SKU's shown price."""
+    model = draw.model
+    return with_ending(
+        noisy(model, draw.struct, draw.line_u, draw.sku_u),
+        ending_for(model.endings, draw.ending_u),
+    )
+
+
+def breadth_price(row: BreadthRow, size_value: str, tier: str, u: float, ending_u: float) -> float:
+    """A breadth SKU's shown price.
+
+    A measured category goes from its census p10 at its smallest size to its
+    p90 at its largest, through p50, in logs; ``u`` moves a quarter of the
+    position, so two lines of one size do not print one price. Then the
+    brand's tier and the pooled endings mix. Any other row draws uniformly
+    from its own ``price_range``, as it always has.
+    """
+    measured = BREADTH_CENSUS.get(row.key)
+    if measured is None:
+        assert row.price_range is not None, row.key
+        low, high = row.price_range
+        return round(max(1.25, low + (high - low) * u), 2)
+    sizes = row.size_values
+    rank = sizes.index(size_value) / (len(sizes) - 1) if len(sizes) > 1 else 0.5
+    position = 0.75 * rank + 0.25 * u
+    p10, p50, p90 = (math.log(v) for v in measured)
+    if position < 0.5:
+        log_p = p10 + (p50 - p10) * position * 2
+    else:
+        log_p = p50 + (p90 - p50) * (position - 0.5) * 2
+    return with_ending(math.exp(log_p) * TIER_FACTORS[tier], ending_for(POOLED_ENDINGS, ending_u))

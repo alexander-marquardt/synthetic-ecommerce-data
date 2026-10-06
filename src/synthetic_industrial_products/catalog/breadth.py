@@ -87,13 +87,12 @@ class BreadthRow:
     skus: int
     reason: str
     #: This row's own price band in USD, ``(min, max)``, drawn from general
-    #: knowledge of the category (alexander-marquardt/synthetic-industrial-products#37).
-    #: Every row authors its own -- the flat ``$2.50-9.00`` band every breadth
-    #: SKU used to draw from made a Bench Vise ($5.09) and a Ball Valve
-    #: ($4.79) price like a fastener, and a Rubber Ball ($8.78) price ABOVE a
-    #: Stainless Steel precision ball ($4.79). ``min`` must be positive and
-    #: strictly less than ``max``, held by ``tests/test_breadth.py``.
-    price_range: tuple[float, float] = (2.5, 9.0)
+    #: knowledge of the category (alexander-marquardt/synthetic-industrial-products#37),
+    #: for a row the price census did not measure. A measured row
+    #: (``price.BREADTH_CENSUS``) declares none: it is priced from the census
+    #: (:func:`.price.breadth_price`). ``min`` must be positive and strictly
+    #: less than ``max``, held by ``tests/test_breadth.py``.
+    price_range: tuple[float, float] | None = None
     descriptor_attr: str | None = None
     #: Size values ``reason`` names explicitly (quoted, before any "overlap"
     #: clause) -- these MUST appear among the row's SKUs; a plain rotation
@@ -151,7 +150,7 @@ def _row_from_dict(raw: dict[str, Any]) -> BreadthRow:
         price_range=(
             tuple(float(v) for v in raw["price_range"])  # type: ignore[assignment]
             if "price_range" in raw
-            else (2.5, 9.0)
+            else None
         ),
         descriptor_attr=raw.get("descriptor_attr"),
         featured_sizes=tuple(raw.get("featured_sizes") or ()),
@@ -345,6 +344,7 @@ def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
     (:mod:`.typespec`).
     """
     from . import brands  # noqa: PLC0415
+    from . import price as prices  # noqa: PLC0415
     from .generate import LineDraft  # noqa: PLC0415
 
     rng = gen.rng
@@ -397,7 +397,14 @@ def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
     children: list[Sku] = []
     for size_value in sizes:
         sku = gen._new_sku()  # noqa: SLF001
-        price = round(max(1.25, rng.uniform(*row.price_range)), 2)
+        # One draw, where the uniform this replaced drew one (see :mod:`.price`).
+        price = prices.breadth_price(
+            row,
+            size_value,
+            brands.BY_NAME[brand].tier,
+            rng.random(),
+            prices.ending_draw(gen.config.seed, sku),
+        )
         stock_pool = (0, rng.randint(1, 40), rng.randint(40, 900))
         stock = rng.choices(stock_pool, weights=(0.08, 0.42, 0.5))[0]
         children.append(

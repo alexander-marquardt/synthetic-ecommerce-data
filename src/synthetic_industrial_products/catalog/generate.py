@@ -28,7 +28,18 @@ from dataclasses import dataclass, field, replace
 from fractions import Fraction
 from typing import Literal, TypeVar
 
-from . import brands, breadth, compat, conformance, noise, series, standards, taxonomy, typespec
+from . import (
+    brands,
+    breadth,
+    compat,
+    conformance,
+    noise,
+    price,
+    series,
+    standards,
+    taxonomy,
+    typespec,
+)
 from .config import GeneratorConfig
 from .formats import (
     LengthStyle,
@@ -216,7 +227,6 @@ class ChildDraft:
     #: statistics use: other_length, length_of_cut, neck, flute.
     secondary: dict[str, Attribute] = field(default_factory=dict)
     system: str = "in"
-    price_basis: float = 1.0
     #: A deliberately awkward single variant that carries NO variant-scope
     #: attribute: everything it publishes is on its product. A grouped view
     #: must render a selector with zero axes (elastic/prism-industrial-products#103).
@@ -560,7 +570,6 @@ class Generator:
                     # shank up", and a snap that lands below it goes up too.
                     shank_mm = series.larger_shank_metric(dia_mm, dia_mm * max(ratio, 1.0))
                 geom = series.build_metric(dia_mm, length_class, multiple, shank_mm)
-                child.price_basis = dia_mm / 4.0
             else:
                 dia_fr = Fraction(dia)
                 if shanks_match:
@@ -571,7 +580,6 @@ class Generator:
                         float(dia_fr), float(dia_fr) * max(ratio, 1.0)
                     )
                 geom = series.build_imperial(dia_fr, length_class, multiple, shank_fr)
-                child.price_basis = float(dia_fr) * 6.0
 
             style = self._style(system)
             cut_name = "Milling Dia."
@@ -666,7 +674,6 @@ class Generator:
                 shank_in = size_in if size_in <= 0.5 else 0.5
                 child.attrs.append(self._length("Shank Dia.", shank_in, style))
             child.secondary = {"other_length": child.attrs[2], "length_of_cut": flute}
-            child.price_basis = size_in * 4.0
             draft.children.append(child)
         return draft
 
@@ -736,7 +743,6 @@ class Generator:
                 self._length("Shank Dia.", major_in * 0.9, style),
             ]
             child.secondary = {"other_length": child.attrs[2], "length_of_cut": child.attrs[3]}
-            child.price_basis = major_in * 20.0
             draft.children.append(child)
         return draft
 
@@ -889,7 +895,6 @@ class Generator:
             # have to keep naming the same two attributes when the list they
             # are drawn from grows a third length.
             child.secondary = {"other_length": length_attr, "length_of_cut": thread_attr}
-            child.price_basis = length_in * 0.4 + head.major_dia_in * 2
             draft.children.append(child)
         return draft
 
@@ -1035,7 +1040,6 @@ class Generator:
                 self._length("Head Dia.", head.width_across_flats_in, style),
             ]
             child.secondary = {"other_length": length_attr, "length_of_cut": thread_attr}
-            child.price_basis = length_in * 0.3 + head.major_dia_in * 1.5
             draft.children.append(child)
         return draft
 
@@ -1082,7 +1086,6 @@ class Generator:
                 self._length("Thickness", plain.thickness_in, style),
             ]
             child.secondary = {"other_length": outside}
-            child.price_basis = plain.outside_dia_in * 0.5
             draft.children.append(child)
         return draft
 
@@ -1123,7 +1126,6 @@ class Generator:
                 self._length("Handle Length", oal_in - 1.5, style),
             ]
             child.secondary = {"other_length": overall}
-            child.price_basis = ounces * 0.9
             draft.children.append(child)
         return draft
 
@@ -1167,7 +1169,6 @@ class Generator:
                 numeric_attribute("Max. RPM", f"{max_rpm:,}", float(max_rpm)),
             ]
             child.secondary = {"other_length": disc}
-            child.price_basis = float(dia) * 1.1
             draft.children.append(child)
         return draft
 
@@ -1960,11 +1961,16 @@ class Generator:
             sku = self._new_sku()
             self._published = {a.name for a in (*line_attrs, *attrs)}
             titles.append(self._build_line_title(draft, child))
-            price = round(max(1.25, child.price_basis * rng.uniform(2.5, 9.0)), 2)
+            # One draw, where the uniform multiplier this replaced drew one, so
+            # every later draw (stock and on) is the draw it always was.
+            sku_u = rng.random()
+            shown = price.shown_price(
+                self._price_draw(type_key, draft.brand, unsparsified, product_id, sku, sku_u)
+            )
             stock = rng.choices(
                 (0, rng.randint(1, 40), rng.randint(40, 900)), weights=(0.08, 0.42, 0.5)
             )[0]
-            built.append((sku, attrs, price, stock))
+            built.append((sku, attrs, shown, stock))
 
         # A (type, brand) that drafts line after line and makes nothing has
         # spent its spec space: after MAX_MISSES in a row it stops getting
@@ -1989,7 +1995,7 @@ class Generator:
             next((a.value for a in attrs if a.name == axis), "") for _, attrs, _, _ in built
         ]
         children: list[Sku] = []
-        for (sku, attrs, price, stock), title in zip(built, titles, strict=True):
+        for (sku, attrs, shown, stock), title in zip(built, titles, strict=True):
             # From the PUBLISHED values, after sparsity and defects, so the
             # sentence can never disagree with the record it sits on.
             values = {a.name: a.value for a in (*line_attrs, *attrs)}
@@ -2013,7 +2019,7 @@ class Generator:
                     title=title.text,
                     description=self._build_description(draft, title, attrs, extra),
                     attributes=tuple(attrs),
-                    price_usd=price,
+                    price_usd=shown,
                     stock=stock,
                     image_id=image_id_for(type_key, product_id, sku),
                     compatibility=compatibility,
@@ -2039,6 +2045,32 @@ class Generator:
             # selected; the product has no drawing of its own to disagree.
             image_id=children[0].image_id,
             drawing=drawing_for(type_key),
+        )
+
+    def _price_draw(
+        self,
+        type_key: str,
+        brand: str,
+        attributes: list[Attribute],
+        product_id: str,
+        sku: str,
+        sku_u: float,
+    ) -> price.Draw:
+        """What a SKU's shown price is computed from (:mod:`.price`), read off
+        its unsparsified attributes, so a dropped or defective published value
+        never moves its price."""
+        model = price.model_for(type_key)
+        facts = {a.name: a for a in attributes}
+        material = facts["Material"].value if "Material" in facts else None
+        pack = None
+        if model.pack_attribute is not None and model.pack_attribute in facts:
+            pack = facts[model.pack_attribute].value_num
+        struct = price.structure(
+            model, price.KEYS[type_key](facts), material, brands.BY_NAME[brand].tier, pack
+        )
+        seed = self.config.seed
+        return price.Draw(
+            model, struct, price.line_draw(seed, product_id), sku_u, price.ending_draw(seed, sku)
         )
 
     def build(self) -> list[ProductLine]:

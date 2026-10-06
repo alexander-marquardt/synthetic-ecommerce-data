@@ -115,13 +115,45 @@ class Brand:
     #: abbreviates: "HSS", "SGL"). The rest of the voice is :mod:`.voice`.
     brand_first: bool = False
     descriptive: bool = True
+    #: Price tier (:data:`.price.TIER_FACTORS`): a few value brands, a few
+    #: premium makers, the rest standard. It holds in every family the brand
+    #: makes, and it is no field on the record: it shows through price.
+    tier: str = "standard"
 
     def makes(self, type_key: str) -> bool:
         return STANDARDS_FAMILY[type_key] in self.families
 
 
 def _b(name, code, weight, families, ink, frame, brand_first, descriptive):
-    return Brand(name, code, weight, frozenset(families), ink, frame, brand_first, descriptive)
+    return Brand(
+        name,
+        code,
+        weight,
+        frozenset(families),
+        ink,
+        frame,
+        brand_first,
+        descriptive,
+        "economy" if name in ECONOMY else "premium" if name in PREMIUM else "standard",
+    )
+
+
+#: The value brands and the premium makers (#52); every other brand is
+#: standard. Every family has two or three economy makers and one or two
+#: premium ones.
+ECONOMY = frozenset(
+    {"Tervasko", "Morvennick", "Salt Meadow Works", "Harnell", "Stone Wicket", "Wendlow Tool"}
+)
+PREMIUM = frozenset(
+    {
+        "Quillon Carbide",
+        "Varrick Precision",
+        "Cobbet & Pryce",
+        "Grisenne",
+        "Ashcombe Forge",
+        "Quennick",
+    }
+)
 
 
 C, F, A, H, M = "cutting_tool", "fastener", "abrasive", "hand_tool", "motion"
