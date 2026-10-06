@@ -209,9 +209,31 @@ def test_the_declared_sizes_are_the_data_files_rows():
 def test_a_records_line_standard_is_its_points_in_its_system():
     read = set_screws_hex_socket.SPEC.line_standard
     assert read is not None
-    assert read({"Point Type": "Dog Point", "Dia./Thread Size": "M5x0.8"}) == "ISO 4028"
-    assert read({"Point Type": "Dog Point", "Dia./Thread Size": "1/4-20"}) == "ASME B18.3.5C"
+    for point, (metric, inch) in {
+        "Cup Point": ("ISO 4029", "ASME B18.3.5D"),
+        "Flat Point": ("ISO 4026", "ASME B18.3.5A"),
+        "Cone Point": ("ISO 4027", "ASME B18.3.5B"),
+        "Dog Point": ("ISO 4028", "ASME B18.3.5C"),
+    }.items():
+        assert read({"Point Type": point, "Dia./Thread Size": "M5x0.8"}) == metric
+        assert read({"Point Type": point, "Dia./Thread Size": "1/4-20"}) == inch
     assert read({"Point Type": "Cup Point", "Dia./Thread Size": "#10-32"}) == "ASME B18.3.5D"
+
+
+@pytest.mark.parametrize(
+    "record",
+    [
+        {"Dia./Thread Size": "M5x0.8"},
+        {"Point Type": "Oval Point", "Dia./Thread Size": "M5x0.8"},
+        {"Point Type": "Cup Point"},
+    ],
+    ids=["no-point-type", "unknown-point", "no-thread"],
+)
+def test_a_record_its_standard_cannot_be_derived_for_fails_rather_than_defaults(record):
+    read = set_screws_hex_socket.SPEC.line_standard
+    assert read is not None
+    with pytest.raises(KeyError):
+        read(record)
 
 
 @pytest.mark.parametrize(

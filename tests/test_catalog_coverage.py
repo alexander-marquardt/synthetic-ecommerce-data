@@ -278,6 +278,25 @@ def test_a_declared_size_no_line_reaches_is_a_problem(flat_docs: list[dict]) -> 
     ]
 
 
+def test_a_declared_standard_no_line_was_built_to_is_swept_whole(flat_docs: list[dict]) -> None:
+    """Dropping a whole point style leaves no key behind; the declaration still reds it."""
+    dropped = [
+        doc
+        for doc in flat_docs
+        if not (
+            doc["product_type"] == "set_screws_hex_socket"
+            and ("Point Type", "Dog Point")
+            in [(a["name"], a["value"]) for a in doc["attributes"]]
+        )
+    ]
+    assert _coverage_problems(dropped) == [
+        "ASME B18.3.5C: ['#0', '#1', '#10', '#2', '#3', '#4', '#5', '#6', '#8', '1', "
+        "'1/2', '1/4', '3/4', '3/8', '5/16', '5/8', '7/16', '7/8']",
+        "ISO 4028: ['M1.6', 'M10', 'M12', 'M16', 'M2', 'M2.5', 'M20', 'M24', 'M3', "
+        "'M4', 'M5', 'M6', 'M8']",
+    ]
+
+
 def _sizes_by_standard(docs: list[dict]) -> dict[str, set[str]]:
     """Which thread sizes each standard's lines actually published.
 
