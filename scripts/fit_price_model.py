@@ -24,7 +24,16 @@ tier and pack terms the build draws:
   sigma whose worst miss over the p90/p10 and the same-spec brand spread is
   least, with ``sku_sigma`` re-solved at each; a row
   :data:`.price.PINNED_SHORTFALLS` names is left out;
+* ``size_sigma`` (only a type :data:`.price.SIZE_NOISE` names), the noise
+  one spec shares across brands, is fitted with ``group_sigma`` and
+  ``sku_sigma`` together: the worst miss over p90/p10, brand spread, the
+  order rows and the equal-price row, each scored against its band;
 * ``anchor`` is then set so the median shown price is the census p50.
+
+Each printed row says "cannot reach" where no noise the fit scanned brings it
+into band. **Every row lands in band or is pinned.** The fit exits non-zero,
+before it writes, on a row out of band that :data:`.price.PINNED_SHORTFALLS`
+does not name, and on a pinned row that is no longer out of band.
 
 **Slope cuts need a recorded reason.** Where the slope terms ALONE (the key
 term, and the length term) spread the shown price wider than the census
@@ -43,6 +52,7 @@ census prices and is not fitted.
 from __future__ import annotations
 
 import argparse
+import itertools
 import math
 import re
 import sys
@@ -56,13 +66,18 @@ from synthetic_industrial_products.catalog.config import GeneratorConfig
 from synthetic_industrial_products.catalog.generate import Generator, generate
 from synthetic_industrial_products.catalog.model import Catalog
 from synthetic_industrial_products.catalog.price_report import (
-    BRAND_SPREAD_BAND,
-    CENSUS_SES,
-    MONOTONE_BAND,
+    BRAND_ROW,
+    EQUAL_ROW,
+    LENGTH_ROW,
+    ORDER_ROW,
     SPREAD_BAND,
+    SPREAD_ROW,
     Collected,
+    brand_spread_band,
     collect,
+    equal_band,
     price_rows,
+    share_band,
 )
 
 REPO = Path(__file__).resolve().parent.parent
@@ -78,8 +93,10 @@ SOCKET_PY = (
 #: The largest sigma the fit tries.
 MAX_SIGMA = 3.0
 STEPS = 30
-#: The grid a minimax search scans before it refines.
+#: The grid a minimax search scans before it refines, on one axis and a side
+#: of several.
 GRID = 61
+GRID_ND = 13
 
 
 @dataclass
@@ -155,14 +172,33 @@ def _argmin(f, low: float, high: float) -> float:
     return float((low + high) / 2)
 
 
-def _ratio_miss(achieved: float, target: float, band: tuple[float, float]) -> float:
-    """How far a ratio row is from its target, in band widths."""
-    return abs(math.log(achieved / target)) / math.log(band[1])
+def _miss(achieved: float, target: float, band: tuple[float, float], ratio: bool) -> float:
+    """How far a row is from its target, in half-bands on the side it falls
+    (in logs for a ratio row): 1.0 or less is in band."""
+    values = (achieved, target, *band)
+    a, t, low, high = (math.log(max(v, 1e-12)) for v in values) if ratio else values
+    side = high - t if a >= t else t - low
+    return abs(a - t) / side if side > 0 else math.inf
+
+
+def _argmin_grid(f, high: float, axes: int) -> tuple[float, ...]:
+    """The point in [0, high]^axes where ``f`` is least: a grid of
+    :data:`GRID_ND` a side, then finer grids around the best point."""
+    lows, highs = [0.0] * axes, [high] * axes
+    for _ in range(3):
+        ticks = [np.linspace(lo, hi, GRID_ND) for lo, hi in zip(lows, highs, strict=True)]
+        points = list(itertools.product(*ticks))
+        best = points[int(np.argmin([f(*point) for point in points]))]
+        steps = [(hi - lo) / (GRID_ND - 1) for lo, hi in zip(lows, highs, strict=True)]
+        lows = [max(b - st, 0.0) for b, st in zip(best, steps, strict=True)]
+        highs = [b + st for b, st in zip(best, steps, strict=True)]
+    return tuple(float((lo + hi) / 2) for lo, hi in zip(lows, highs, strict=True))
 
 
 @dataclass
 class TypeFit:
-    """One type's fitted figures and the spread each term gives alone."""
+    """One type's fitted figures, the spread each term gives alone, and the
+    rows no noise the fit scanned brings into band."""
 
     anchor: float
     slope: float
@@ -170,13 +206,14 @@ class TypeFit:
     group: float
     sku: float
     step: float
+    size: float
     spreads: dict[str, float]
+    unreachable: set[str]
 
 
 def fit_type(type_key: str, collected: Collected, recorded: dict[str, Recorded]) -> TypeFit:
     """``type_key``'s fitted model figures (see the module docstring)."""
     census = price.CENSUS[type_key]
-    model = price.MODELS[type_key]
     skus = [s for s, t in collected.type_of.items() if t == type_key]
     index = {sku: i for i, sku in enumerate(skus)}
     rec = [recorded[s] for s in skus]
@@ -195,6 +232,7 @@ def fit_type(type_key: str, collected: Collected, recorded: dict[str, Recorded])
     material = np.array([r.material for r in rec])
     z_group = _z(np.array([r.draw.group_u for r in rec]))
     z_sku = _z(np.array([r.draw.sku_u for r in rec]))
+    z_size = _z(np.array([r.draw.size_u for r in rec]))
 
     def pair_index(pairs) -> tuple[np.ndarray, np.ndarray]:
         return (
@@ -202,11 +240,24 @@ def fit_type(type_key: str, collected: Collected, recorded: dict[str, Recorded])
             np.array([index[b] for _, b in pairs], dtype=int),
         )
 
-    order_rows = [(pair_index(collected.pairs.get(type_key, [])), census.larger_costs_more)]
+    # (row name, pairs, band, census share) of each order row.
+    order_rows = [
+        (
+            ORDER_ROW.format(type_key),
+            pair_index(collected.pairs.get(type_key, [])),
+            share_band(census.larger_costs_more, census.n_pairs),
+            census.larger_costs_more,
+        )
+    ]
     length = price.LENGTH_CENSUS.get(type_key)
     if length is not None:
         order_rows.append(
-            (pair_index(collected.length_pairs.get(type_key, [])), length.longer_costs_more)
+            (
+                LENGTH_ROW.format(type_key),
+                pair_index(collected.length_pairs.get(type_key, [])),
+                share_band(length.longer_costs_more, length.n_pairs),
+                length.longer_costs_more,
+            )
         )
     specs = [
         [np.array([index[s] for s in members]) for members in by_brand.values()]
@@ -215,11 +266,16 @@ def fit_type(type_key: str, collected: Collected, recorded: dict[str, Recorded])
     ]
     brand = price.BRAND_CENSUS.get(type_key)
     target_spread = census.p90 / census.p10
-    spread_pinned = f"price p90/p10: {type_key}" in price.PINNED_SHORTFALLS
+    spread_row = SPREAD_ROW.format(type_key)
+    spread_band = (target_spread * SPREAD_BAND[0], target_spread * SPREAD_BAND[1])
     laddered = type_key in price.EQUAL_PRICE_TYPES
+    sized = type_key in price.SIZE_NOISE
 
-    def log_p(slope: float, ls: float, group: float, sku: float, step: float) -> np.ndarray:
+    def log_p(
+        slope: float, ls: float, group: float, sku: float, step: float, size: float
+    ) -> np.ndarray:
         lp = rest + slope * log_key + ls * log_length + group * z_group + sku * z_sku
+        lp = lp + size * z_size
         return np.round(lp / step) * step if step else lp
 
     def share(lp: np.ndarray, pairs) -> float:
@@ -236,28 +292,29 @@ def fit_type(type_key: str, collected: Collected, recorded: dict[str, Recorded])
         ]
         return float(np.median(ratios))
 
-    def sku_for(slope: float, ls: float, group: float, step: float) -> float:
+    def sku_for(slope: float, ls: float, group: float, step: float, size: float) -> float:
         # A row's pairs are a sample: however loud the noise, the share of
         # them a larger size wins cannot fall below what the draws' signs
         # give. Where that floor is above the census share, the row aims a
-        # quarter of the band above the floor.
+        # quarter of its half-band above the floor.
         aims = []
-        for pairs, target in order_rows:
+        for _, pairs, band, target in order_rows:
             if not len(pairs[0]):
                 continue
-            floor = share(log_p(slope, ls, group, MAX_SIGMA, step), pairs)
-            aims.append((pairs, floor + MONOTONE_BAND / 4 if floor >= target else target))
+            half = (band[1] - band[0]) / 2
+            floor = share(log_p(slope, ls, group, MAX_SIGMA, step, size), pairs)
+            aims.append((pairs, half, floor + half / 4 if floor >= target else target))
         if not aims:
             return 0.0
 
         def miss(sku: float) -> float:
-            lp = log_p(slope, ls, group, sku, step)
-            return max(abs(share(lp, pairs) - aim) / MONOTONE_BAND for pairs, aim in aims)
+            lp = log_p(slope, ls, group, sku, step, size)
+            return max(abs(share(lp, pairs) - aim) / half for pairs, half, aim in aims)
 
         if len(aims) == 1:
-            pairs, aim = aims[0]
+            pairs, _, aim = aims[0]
             return _bisect(
-                lambda s: share(log_p(slope, ls, group, s, step), pairs),
+                lambda s: share(log_p(slope, ls, group, s, step, size), pairs),
                 aim,
                 0.0,
                 MAX_SIGMA,
@@ -265,8 +322,8 @@ def fit_type(type_key: str, collected: Collected, recorded: dict[str, Recorded])
             )
         return _argmin(miss, 0.0, MAX_SIGMA)
 
-    def spread(slope: float, ls: float, group: float, step: float) -> float:
-        return p90_p10(log_p(slope, ls, group, sku_for(slope, ls, group, step), step))
+    def spread(slope: float, ls: float) -> float:
+        return p90_p10(log_p(slope, ls, 0.0, sku_for(slope, ls, 0.0, 0.0, 0.0), 0.0, 0.0))
 
     slope, ls = census.slope, length.slope if length else 0.0
     alone = p90_p10(slope * log_key + ls * log_length)
@@ -283,30 +340,82 @@ def fit_type(type_key: str, collected: Collected, recorded: dict[str, Recorded])
                 f"spread only {alone:.2f}x, inside the census p90/p10 {target_spread:.2f}x"
             )
         factor = _bisect(
-            lambda k: spread(slope * k, ls * k, 0.0, 0.0), target_spread, 0.0, 1.0, increasing=True
+            lambda k: spread(slope * k, ls * k), target_spread, 0.0, 1.0, increasing=True
         )
         slope, ls = slope * factor, ls * factor
 
-    step = 0.0
-    if laddered:
-        pairs = order_rows[0][0]
+    # Each row's least miss over every noise the fit scores: above 1.0, no
+    # noise the fit scanned brings that row into band.
+    least: dict[str, float] = {}
 
-        def equal_miss(step: float) -> float:
-            lp = log_p(slope, ls, 0.0, sku_for(slope, ls, 0.0, step), step)
-            return abs(float(np.mean(lp[pairs[0]] == lp[pairs[1]])) - census.equal_price)
-
-        step = _argmin(equal_miss, 0.01, 0.6)
-
-    def group_miss(group: float) -> float:
-        lp = log_p(slope, ls, group, sku_for(slope, ls, group, step), step)
-        misses = [] if spread_pinned else [_ratio_miss(p90_p10(lp), target_spread, SPREAD_BAND)]
+    def objective(group: float, size: float, step: float, sku: float | None = None) -> float:
+        """The worst miss, in half-bands, over the rows the noise is fitted
+        to: p90/p10 and brand spread, and, where a size noise is fitted
+        beside it (``sku`` given), the order rows. A pinned row is scored,
+        for the "cannot reach" flag, but not fitted to."""
+        if sku is None:
+            sku = sku_for(slope, ls, group, step, size)
+        lp = log_p(slope, ls, group, sku, step, size)
+        misses = {spread_row: _miss(p90_p10(lp), target_spread, spread_band, ratio=True)}
         if brand is not None and specs:
-            misses.append(_ratio_miss(brand_spread(lp), brand.spread_p50, BRAND_SPREAD_BAND))
-        return max(misses) if misses else 0.0
+            misses[BRAND_ROW.format(type_key)] = _miss(
+                brand_spread(lp), brand.spread_p50, brand_spread_band(brand), ratio=True
+            )
+        if sized:
+            for name, pairs, band, target in order_rows:
+                misses[name] = _miss(share(lp, pairs), target, band, ratio=False)
+            if laddered:
+                pairs = order_rows[0][1]
+                misses[EQUAL_ROW.format(type_key)] = _miss(
+                    float(np.mean(lp[pairs[0]] == lp[pairs[1]])),
+                    census.equal_price,
+                    equal_band(census),
+                    ratio=False,
+                )
+        for name, m in misses.items():
+            least[name] = min(least.get(name, math.inf), m)
+        fitted = [m for name, m in misses.items() if name not in price.PINNED_SHORTFALLS]
+        return max(fitted) if fitted else 0.0
 
-    group = _argmin(group_miss, 0.0, MAX_SIGMA)
-    sku = sku_for(slope, ls, group, step)
-    anchor = census.p50 / float(np.exp(np.median(log_p(slope, ls, group, sku, step))))
+    def equal_miss(step: float, group: float, size: float, sku: float | None) -> float:
+        if sku is None:
+            sku = sku_for(slope, ls, group, step, size)
+        lp = log_p(slope, ls, group, sku, step, size)
+        pairs = order_rows[0][1]
+        return abs(float(np.mean(lp[pairs[0]] == lp[pairs[1]])) - census.equal_price)
+
+    # Where a size noise is fitted, it and the SKU noise both invert size
+    # pairs, but only the SKU noise spreads one spec's brands: the three
+    # sigmas are fitted together, the order rows scored in band rather than
+    # solved for exactly. A ladder's step and the noise move each other's
+    # figures, so a laddered type fits the step at the noise it has, then the
+    # noise at that step, twice over.
+    group = size = step = 0.0
+    fixed_sku: float | None = 0.0 if sized else None
+    for _ in range(2 if laddered else 1):
+        if laddered:
+            step = _argmin(
+                lambda st, g=group, z=size, k=fixed_sku: equal_miss(st, g, z, k), 0.01, 0.6
+            )
+        if sized:
+            group, size, fixed_sku = _argmin_grid(
+                lambda g, z, k, st=step: objective(g, z, st, k), MAX_SIGMA / 3, 3
+            )
+        else:
+            group = _argmin(lambda g, st=step: objective(g, 0.0, st), 0.0, MAX_SIGMA)
+    sku = sku_for(slope, ls, group, step, size) if fixed_sku is None else fixed_sku
+    lp = log_p(slope, ls, group, sku, step, size)
+    anchor = census.p50 / float(np.exp(np.median(lp)))
+
+    unreachable = {name for name, m in least.items() if m > 1.0}
+    for name, pairs, band, _ in order_rows:
+        # The share a row's pairs give runs from no SKU noise to MAX_SIGMA.
+        loud = share(log_p(slope, ls, group, MAX_SIGMA, step, size), pairs)
+        quiet = share(log_p(slope, ls, group, 0.0, step, size), pairs)
+        outside = min(loud, quiet) > band[1] or max(loud, quiet) < band[0]
+        if len(pairs[0]) and outside and least.get(name, math.inf) > 1.0:
+            unreachable.add(name)
+
     pack = rest - tier - material
     spreads = {
         "key": p90_p10(slope * log_key),
@@ -316,11 +425,11 @@ def fit_type(type_key: str, collected: Collected, recorded: dict[str, Recorded])
         "pack": p90_p10(pack),
         "group": p90_p10(group * z_group),
         "sku": p90_p10(sku * z_sku),
-        "all": p90_p10(log_p(slope, ls, group, sku, step)),
+        "size": p90_p10(size * z_size),
+        "all": p90_p10(lp),
         "census": target_spread,
     }
-    del model
-    return TypeFit(anchor, slope, ls, group, sku, step, spreads)
+    return TypeFit(anchor, slope, ls, group, sku, step, size, spreads, unreachable)
 
 
 def _literal(type_key: str, model: price.PriceModel) -> str:
@@ -337,6 +446,8 @@ def _literal(type_key: str, model: price.PriceModel) -> str:
         args.append(f"length_slope={model.length_slope!r}")
     if model.price_step:
         args.append(f"price_step={model.price_step!r}")
+    if model.size_sigma:
+        args.append(f"size_sigma={model.size_sigma!r}")
     if model.pack_attribute is not None:
         args += [
             f'pack_attribute="{model.pack_attribute}"',
@@ -373,11 +484,24 @@ def main() -> int:
         f"{'p90/p10 of each term alone':<26}"
         + "".join(
             f"{k:>9}"
-            for k in ("key", "length", "tier", "material", "pack", "group", "sku", "all", "census")
+            for k in (
+                "key",
+                "length",
+                "tier",
+                "material",
+                "pack",
+                "group",
+                "sku",
+                "size",
+                "all",
+                "census",
+            )
         )
     )
+    unreachable: set[str] = set()
     for type_key in price.CENSUS:
         fit = fit_type(type_key, collected, recorded)
+        unreachable |= fit.unreachable
         print(f"{type_key:<26}" + "".join(f"{v:>9.2f}" for v in fit.spreads.values()))
         fitted[type_key] = replace(
             price.MODELS[type_key],
@@ -387,6 +511,7 @@ def main() -> int:
             group_sigma=round(fit.group, 3),
             sku_sigma=round(fit.sku, 3),
             price_step=round(fit.step, 3),
+            size_sigma=round(fit.size, 3),
         )
     for type_key, reason in price.SLOPE_CUTS.items():
         print(f"slope cut, {type_key}: {fitted[type_key].slope} ({reason})")
@@ -407,11 +532,18 @@ def main() -> int:
             + (new.length_slope - old.length_slope) * rec.log_length
         )
         prices[sku] = price.shown_price(replace(rec.draw, model=new, struct=struct))
-    for row in price_rows(collected, prices):
+    rows = price_rows(collected, prices)
+    for row in rows:
         flag = "ok" if row.within else "OUT"
+        if row.name in unreachable:
+            flag += ", cannot reach"
         if row.name in price.PINNED_SHORTFALLS:
             flag += " (pinned shortfall)"
         print(f"{row.name:<62}{row.target:>10.4f}{row.achieved:>10.4f}  {flag}")
+    # A row out of band needs a recorded cause, and a recorded cause a row
+    # still out of band: the fit stops on either, before it writes.
+    unpinned = [r.name for r in rows if not r.within and r.name not in price.PINNED_SHORTFALLS]
+    stale = sorted(set(price.PINNED_SHORTFALLS) - {r.name for r in rows if not r.within})
 
     table = "\n".join(_literal(k, m) for k, m in fitted.items() if k != "screw_socket_head")
     socket = fitted["screw_socket_head"]
@@ -426,6 +558,12 @@ def main() -> int:
     )
     print("\n# price.py, between the fit markers:\n" + table)
     print("\n# screw_socket_head.py, between its fit markers:\n" + socket_body)
+    if unpinned or stale:
+        for name in unpinned:
+            print(f"OUT of band and not in price.PINNED_SHORTFALLS: {name}", file=sys.stderr)
+        for name in stale:
+            print(f"in price.PINNED_SHORTFALLS but not out of band: {name}", file=sys.stderr)
+        return 1
     if args.write:
         _between_markers(PRICE_PY, "", table)
         _between_markers(SOCKET_PY, " screw_socket_head", socket_body)

@@ -14,11 +14,13 @@ The model (:func:`shown_price`) is, in logs::
 
     log p = log anchor + slope * log(key / anchor_key) + log material + log tier
             + pack_slope * log(pack / pack_ref) + group_sigma * z_group + sku_sigma * z_sku
+            + size_sigma * z_size
 
 then rounded to an ending drawn from the type's census endings mix. The slope,
 the tier factors, the pack slope and the endings are census figures. The
-anchor and the two sigmas are fitted by ``scripts/fit_price_model.py`` so the
-default build lands on the census p50, p90/p10 and larger-costs-more share.
+anchor and the sigmas are fitted by ``scripts/fit_price_model.py`` so the
+default build lands on the census p50, p90/p10, larger-costs-more share and
+brand spread. ``size_sigma`` is 0 but for a type :data:`SIZE_NOISE` names.
 The material factors are NOT measured (:data:`MATERIAL_FACTORS`).
 
 ``z_group`` is one draw per price group, what the census calls a cell: one
@@ -165,17 +167,21 @@ class BrandCensus:
     spread_p50: float
     n_specs: int
     low_confidence: bool
+    #: The quartiles of that max/min over the same specs: how widely it
+    #: varies, which sets the standard error of its median (``price_report``).
+    spread_p25: float
+    spread_p75: float
 
 
 #: Every type whose census measures a same-spec brand spread.
 BRAND_CENSUS: dict[str, BrandCensus] = {
-    "bearing_radial_ball": BrandCensus(1.3825, 49, False),
-    "drill_jobber": BrandCensus(2.5705, 101, False),
-    "end_mill_ball": BrandCensus(1.3624, 5, True),
-    "nut_hex": BrandCensus(5.5752, 6, True),
-    "screw_socket_head": BrandCensus(1.3372, 7, True),
-    "tap_spiral_point": BrandCensus(2.2238, 31, False),
-    "wheel_depressed_center": BrandCensus(1.2838, 12, True),
+    "bearing_radial_ball": BrandCensus(1.3825, 49, False, 1.2108, 1.6587),
+    "drill_jobber": BrandCensus(2.5705, 101, False, 1.3954, 3.3944),
+    "end_mill_ball": BrandCensus(1.3624, 5, True, 1.2675, 1.7375),
+    "nut_hex": BrandCensus(5.5752, 6, True, 2.291, 9.4916),
+    "screw_socket_head": BrandCensus(1.3372, 7, True, 1.2829, 1.6093),
+    "tap_spiral_point": BrandCensus(2.2238, 31, False, 1.9292, 2.4422),
+    "wheel_depressed_center": BrandCensus(1.2838, 12, True, 1.1387, 1.5461),
 }
 
 _NAMED_CENTS = {0: ".00", 50: ".50", 95: ".95", 99: ".99", 98: ".98", 97: ".97", 49: ".49"}
@@ -435,15 +441,26 @@ TIER_FACTORS: dict[str, float] = {
     "premium": PREMIUM_BRAND_INDEX_P90,
 }
 
-#: The types whose census brand figures are not low-confidence (30 or more
-#: shared specs), each with its own (economy, premium) figures as above. A
-#: bearing's premium maker is barely dearer than the rest (1.056), and its
-#: house label far cheaper (0.577, 10 specs); a drill's figures are
-#: :data:`TIER_FACTORS`. The other types' figures rest on 5 to 12 specs.
+#: The types whose census measures a same-spec brand spread, each with its
+#: own (economy, premium) figures as above. A bearing's premium maker is
+#: barely dearer than the rest (1.056), and its house label far cheaper
+#: (0.577, 10 specs); a drill's figures are :data:`TIER_FACTORS`.
+#:
+#: The wheel, the socket screw and the ball end mill are low-confidence (12, 7
+#: and 5 shared specs; a wheel's house label over 4, a socket's over 7). Their
+#: own figures still describe their own brands better than a drill's do: a
+#: drill's premium maker is 1.79x the index, theirs 1.04 to 1.13x. The ball
+#: end mill has no house-label figure, so its economy is its brand price
+#: index p10 (0.886), as its premium is the p90. Their brand-spread rows get
+#: a band as wide as their few specs leave the census median
+#: (``price_report.brand_spread_band``).
 TYPE_TIER_CENSUS: dict[str, tuple[float, float]] = {
     "bearing_radial_ball": (0.5769, 1.0564),
     "drill_jobber": (ECONOMY_OVER_OTHERS_MEDIAN, PREMIUM_BRAND_INDEX_P90),
+    "end_mill_ball": (0.886, 1.045),
+    "screw_socket_head": (0.7479, 1.1272),
     "tap_spiral_point": (0.5039, 1.3157),
+    "wheel_depressed_center": (0.5387, 1.1326),
 }
 
 #: Each type's tier multipliers: its own census figures, else the drills'.
@@ -520,6 +537,9 @@ class PriceModel:
     #: The step, in log price, of a list-price ladder the price snaps to
     #: (:func:`shown_price`); 0.0 for none.
     price_step: float = 0.0
+    #: Sigma of the log-normal noise one size shares across every brand
+    #: (:func:`size_draw`); 0.0 but for a type :data:`SIZE_NOISE` names.
+    size_sigma: float = 0.0
 
 
 def _model(
@@ -570,6 +590,18 @@ SLOPE_CUTS: dict[str, str] = {
     ),
 }
 
+#: The types whose sizes draw a noise every brand shares (:func:`size_draw`),
+#: and why. ``scripts/fit_price_model.py`` fits ``size_sigma`` only for these.
+SIZE_NOISE: dict[str, str] = {
+    "tap_spiral_point": (
+        "the census tap pages invert a size pair often (31.1% of 768 pairs) yet two brands "
+        "of one size sit close (brand spread 2.22, of which the census tiers alone give 1.98 "
+        "to 2.61): noise drawn per SKU loud enough for the inversions spreads one size's "
+        "brands 4.1x apart, while noise one size shares across brands inverts the order and "
+        "leaves the brand spread to the tiers (a popular size costs less than its neighbours)"
+    ),
+}
+
 #: Rows that land outside their band, and why: disclosed, and pinned by
 #: ``tests/test_price.py`` to the side of the band the cause puts them.
 PINNED_SHORTFALLS: dict[str, str] = {
@@ -577,6 +609,23 @@ PINNED_SHORTFALLS: dict[str, str] = {
         "below band: catalog bores span a p90/p10 of about 3x against the census's 16.1x, "
         "and the census's own brand spread (1.38) leaves no group noise to make up the rest "
         "(widen the bore range: #64)"
+    ),
+    # Where a low-confidence brand spread (5 to 12 census specs) and the
+    # census p90/p10 (hundreds of SKUs) cannot both land, the fit lands the
+    # p90/p10 and the brand spread is pinned: the group noise that makes up
+    # the p90/p10 is drawn per brand, so it spreads one spec's brands too.
+    "price brand spread, same spec (median max/min): screw_socket_head": (
+        "above band: the catalog's socket sizes and lengths spread its price about 2x where "
+        "the census spreads 6.9x, and the group noise that makes up the rest is drawn per "
+        "brand, so it spreads one spec's brands too; at a group noise that keeps the brand "
+        "spread in band the p90/p10 falls to about 4, below its band. Noise one spec shares "
+        "across brands, as taps draw (SIZE_NOISE), would carry the p90/p10 instead"
+    ),
+    "price brand spread, same spec (median max/min): wheel_depressed_center": (
+        "above band at any noise: the census wheel tiers alone (house label 0.539, over only "
+        "4 specs) put an economy and a standard brand 1.86x apart, above the band's 1.71; and "
+        "the group noise that makes up the census p90/p10 (catalog diameters span 2.6x of its "
+        "10x) is drawn per brand, so it spreads one spec's brands further still"
     ),
 }
 
@@ -589,26 +638,34 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
     {
         # @fit-begin
         "abrasive_flap_disc": _model("abrasive_flap_disc", 8.611, 5.0, 0.175, 0.088),
-        "bearing_radial_ball": _model("bearing_radial_ball", 25.9, 0.5, 1.163, 0.084),
-        "bolt_hex": _model("bolt_hex", 25.54, 0.375, 0.292, 0.175, slope=1.278),
-        "drill_jobber": _model("drill_jobber", 4.333, 0.25, 0.543, 0.186),
-        "end_mill_ball": _model("end_mill_ball", 48.12, 0.375, 0.000, 0.205, slope=0.85),
+        "bearing_radial_ball": _model("bearing_radial_ball", 25.55, 0.5, 0.080, 0.086),
+        "bolt_hex": _model("bolt_hex", 19.16, 0.375, 0.000, 0.136, slope=0.995, length_slope=0.35),
+        "drill_jobber": _model("drill_jobber", 4.348, 0.25, 0.549, 0.186),
+        "end_mill_ball": _model("end_mill_ball", 47.51, 0.375, 0.067, 0.229, slope=0.951),
         "end_mill_square": _model("end_mill_square", 32.98, 0.375, 0.000, 0.331, slope=0.737),
         "hex_key": _model("hex_key", 17.81, 0.25, 0.657, 0.217),
         "kit_assortment": _model("kit_assortment", 265.9, 30.0, 2.062, 0.020),
         "nut_hex": _model(
             "nut_hex",
-            16.02,
+            15.99,
             0.375,
-            0.351,
+            0.381,
             0.316,
             pack_attribute="Package Quantity",
             pack_slope=NUT_PACK_SLOPE,
             pack_ref=100.0,
         ),
-        "tap_spiral_point": _model("tap_spiral_point", 13.67, 0.25, 0.000, 0.539, slope=0.299),
+        "tap_spiral_point": _model(
+            "tap_spiral_point",
+            16.55,
+            0.25,
+            0.181,
+            0.002,
+            price_step=0.19,
+            size_sigma=0.5,
+        ),
         "washer_flat": _model("washer_flat", 5.158, 0.375, 0.537, 0.762),
-        "wheel_depressed_center": _model("wheel_depressed_center", 7.092, 4.5, 0.668, 0.314),
+        "wheel_depressed_center": _model("wheel_depressed_center", 7.322, 4.5, 0.694, 0.314),
         # @fit-end
         # No census prices: the ball-pein hammer's archived pages are script
         # shells. Its model keeps the median the uniform multiplier gave
@@ -670,6 +727,15 @@ def group_draw(seed: int, type_key: str, brand: str, line_attributes: Iterable[A
     return random.Random(f"{seed}:price-group:{type_key}:{brand}:{held}").random()
 
 
+def size_draw(seed: int, type_key: str, key: float | None, material: str | None) -> float:
+    """The quantile a size's shared noise is drawn at: its own stream, so no
+    other draw moves. A size is a key dimension in one material, the spec the
+    census measures its brand spread over, so every brand and line of one
+    spec share the draw and it spreads no spec's brands (:data:`SIZE_NOISE`)."""
+    size = round(key, 4) if key else None
+    return random.Random(f"{seed}:price-size:{type_key}:{size}:{material or ''}").random()
+
+
 def ending_draw(seed: int, sku: str) -> float:
     """The quantile a SKU's ending class is drawn at: its own stream."""
     return random.Random(f"{seed}:price-ending:{sku}").random()
@@ -701,9 +767,13 @@ def length_of(attributes: Mapping[str, Attribute]) -> float | None:
     return _magnitude(attributes["Length"]) if "Length" in attributes else None
 
 
-def log_offset(model: PriceModel, struct: float, group_u: float, sku_u: float) -> float:
-    """The log price over the anchor: structure and both noise terms."""
-    return struct + model.group_sigma * _z(group_u) + model.sku_sigma * _z(sku_u)
+def log_offset(draw: Draw) -> float:
+    """The log price over the anchor: structure and the noise terms."""
+    model = draw.model
+    offset = draw.struct + model.group_sigma * _z(draw.group_u) + model.sku_sigma * _z(draw.sku_u)
+    if model.size_sigma:
+        offset += model.size_sigma * _z(draw.size_u)
+    return offset
 
 
 def ladder_point(model: PriceModel, offset: float) -> int:
@@ -711,10 +781,11 @@ def ladder_point(model: PriceModel, offset: float) -> int:
     return round(offset / model.price_step)
 
 
-def noisy(model: PriceModel, struct: float, group_u: float, sku_u: float) -> float:
-    """The unrounded price: anchor, structure and both noise terms, snapped
+def noisy(draw: Draw) -> float:
+    """The unrounded price: anchor, structure and the noise terms, snapped
     to the type's list-price ladder when it has one."""
-    offset = log_offset(model, struct, group_u, sku_u)
+    model = draw.model
+    offset = log_offset(draw)
     if model.price_step:
         offset = ladder_point(model, offset) * model.price_step
     return math.exp(math.log(model.anchor) + offset)
@@ -759,13 +830,16 @@ def with_ending(price: float, cls: str) -> float:
 @dataclass(frozen=True)
 class Draw:
     """Everything a SKU's price is computed from: its model, its structure
-    (:func:`structure`) and its three draws."""
+    (:func:`structure`) and its draws."""
 
     model: PriceModel
     struct: float
     group_u: float
     sku_u: float
     ending_u: float
+    #: The size's shared draw (:func:`size_draw`); read only where the
+    #: model's ``size_sigma`` is not 0.
+    size_u: float = 0.5
 
 
 def shown_price(draw: Draw) -> float:
@@ -779,11 +853,9 @@ def shown_price(draw: Draw) -> float:
     model = draw.model
     ending_u = draw.ending_u
     if model.price_step:
-        point = ladder_point(model, log_offset(model, draw.struct, draw.group_u, draw.sku_u))
+        point = ladder_point(model, log_offset(draw))
         ending_u = random.Random(f"price-ending:{draw.group_u!r}:{point}").random()
-    return with_ending(
-        noisy(model, draw.struct, draw.group_u, draw.sku_u), ending_for(model.endings, ending_u)
-    )
+    return with_ending(noisy(draw), ending_for(model.endings, ending_u))
 
 
 def breadth_price(row: BreadthRow, size_value: str, tier: str, u: float, ending_u: float) -> float:
