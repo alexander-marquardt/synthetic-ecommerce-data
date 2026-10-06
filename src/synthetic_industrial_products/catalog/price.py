@@ -243,6 +243,7 @@ KEY_ATTRIBUTES: dict[str, tuple[str, ...]] = {
     "screw_flat_head": ("Dia./Thread Size",),
     "screw_low_head": ("Dia./Thread Size",),
     "screw_socket_head": ("Dia./Thread Size",),
+    "set_screws_hex_socket": ("Dia./Thread Size",),
     "tap_spiral_point": ("Thread Size",),
     "washer_flat": ("Inside Dia.",),
     "wheel_depressed_center": ("Diameter",),
