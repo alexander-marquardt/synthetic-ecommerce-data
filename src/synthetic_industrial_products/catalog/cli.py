@@ -111,12 +111,21 @@ def _print_report(stats: dict) -> None:
         f"{stats['total_attribute_entries']}"
     )
     print()
-    print(f"{'measured property':<52}{'target':>10}{'achieved':>10}{'n':>8}{'denom':>8}")
-    print("-" * 88)
+    print(
+        f"{'measured property':<52}{'target':>10}{'achieved':>10}{'n':>8}{'denom':>8}"
+        f"{'band':>20}"
+    )
+    print("-" * 108)
     for row in stats["comparisons"]:
         target = f"{row.target:.4f}" if row.target is not None else "-"
+        band = (
+            f"{row.band[0]:.3f}-{row.band[1]:.3f} {'ok' if row.within else 'OUT'}"
+            if row.band is not None
+            else ""
+        )
         print(
             f"{row.name:<52}{target:>10}{row.achieved:>10.4f}{row.numerator:>8}{row.denominator:>8}"
+            f"{band:>20}"
         )
     print()
     print("lines by type:", json.dumps(stats["lines_by_type"]))
