@@ -175,7 +175,7 @@ def split(name: str, published: str, bare_unit: str | None = None) -> dict[str, 
 
 def entry(name: str, published: str, bare_unit: str | None = None) -> dict[str, Any]:
     """One nested entry: ``{key, name, value[, unit_code, value_canonical]}``."""
-    return {"key": entry_key(name), "name": name, **split(name, published, bare_unit)}
+    return {"key": entry_key("Overall Length" if name == "Length" else name), "name": name, **split(name, published, bare_unit)}
 
 
 def published(entries, facets: Mapping[str, Sequence[str]]) -> list[tuple[str, str]]:
