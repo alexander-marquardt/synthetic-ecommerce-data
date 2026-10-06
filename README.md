@@ -139,6 +139,9 @@ visibly end a head height apart.
 
 ## Contributing
 
+To add a product type, or move one into its own module, see
+[How to add a product type](docs/adding-a-type.md).
+
 Install both hook types once per clone: `pre-commit install` (the config sets
 `default_install_hook_types: [pre-commit, commit-msg]`). The commit-msg hook
 (`scripts/check_commit_msg.py`) refuses a message that credits an AI tool or a
@@ -734,8 +737,10 @@ three materials, gage balls, ...); this catalog's twelve original types return
 488 across 3 (ball end mills, ball-end hex keys, radial bearings), because
 description noise (above) adds hits WITHIN a type and cannot add a category.
 
-**50 breadth rows, 1-2 SKUs each, one generic loop.** `src/synthetic_industrial_products/data/breadth_categories.yaml`
-is ONE table: for each row, a category path, a shape name, an item noun, 3-5
+**50 breadth rows, 1-2 SKUs each, one generic loop.** 49 rows are in one table,
+`src/synthetic_industrial_products/data/breadth_categories.yaml`; a type moved
+into its own module declares the same row there (`ball_stock_precision`, see
+[How to add a product type](docs/adding-a-type.md)). For each row: a category path, a shape name, an item noun, 3-5
 line-scoped attributes with short value lists, one size (variant) attribute,
 and a one-line reason naming the customer query it joins. `catalog/breadth.py`
 turns a row into a product line, reusing the catalog's brand machinery
@@ -759,8 +764,8 @@ exists to make visible, not a defect to hide.
 alongside `dimension_provenance`. Deliberately NOT a nested attribute: a
 nested attribute becomes a facet and searchable text on the industrial
 deployment, and this marker must be neither -- it is a maintainer removal
-handle, not something a shopper filters on. Deleting every row from
-`breadth_categories.yaml` removes every breadth SKU and nothing else
+handle, not something a shopper filters on. Emptying the breadth rows
+(the YAML table's and the type modules') removes every breadth SKU and nothing else
 (`tests/test_breadth.py` proves it); nothing else in the generator
 constructs a `fast_and_cheap` line.
 
