@@ -31,7 +31,10 @@ Each row is computed the way the census computed its figure:
   endings mix weighted by how many SKUs the catalog builds of that type
   (:func:`ending_targets`).
 
-A new band is three census standard errors either side of the target. A row
+A new band is three census standard errors either side of the target, and a
+share or brand-spread row's band is never narrower than that: a figure the
+census measured on few pairs or specs gets the wide band its own sample
+leaves (:func:`share_band`, :func:`brand_spread_band`). A row
 :data:`.price.PINNED_SHORTFALLS` names is reported with its reason, and is
 pinned by the tests to the side of its band that reason puts it.
 
@@ -67,6 +70,8 @@ from .price import (
     PINNED_SHORTFALLS,
     POOLED_ENDINGS,
     POOLED_ENDINGS_N,
+    BrandCensus,
+    PriceCensus,
     _magnitude,
     ending_class,
     holds_equal,
@@ -90,8 +95,30 @@ CENSUS_SES = 3.0
 BRAND_SPREAD_BAND = (0.75, 1.33)
 #: The census types with a smaller-costs-2x-or-more row (:func:`twice_row`):
 #: each with 20 or more same-product pairs on the default build.
-TWICE_TYPES: tuple[str, ...] = tuple(CENSUS)
+TWICE_TYPES: tuple[str, ...] = (
+    "bolt_hex",
+    "drill_jobber",
+    "end_mill_ball",
+    "end_mill_square",
+    "hex_key",
+    "nut_hex",
+    "screw_socket_head",
+    "tap_spiral_point",
+    "washer_flat",
+)
+#: The least half-width of a smaller-costs-2x-or-more band. The census does
+#: not measure that share; where the share it implies is near 0, its band
+#: from the census standard errors is near 0 wide too, and one pair in fifty
+#: would put a correct build out of band. Two pairs in a hundred is the
+#: resolution the catalog's 20-to-a-few-hundred pairs per type can show.
+TWICE_BAND_FLOOR = 0.02
 ECONOMY_BAND = (0.75, 1.33)
+#: The names of the rows ``scripts/fit_price_model.py`` fits, by type.
+SPREAD_ROW = "price p90/p10: {}"
+ORDER_ROW = "price larger size costs more: {}"
+LENGTH_ROW = "price longer costs more: {}"
+BRAND_ROW = "price brand spread, same spec (median max/min): {}"
+EQUAL_ROW = "price equal price, size pair: {}"
 
 
 @dataclass
@@ -247,6 +274,39 @@ def ending_band(cls: str, type_counts: Mapping[str, int]) -> tuple[float, float]
     return (max(0.0, target - width), target + width)
 
 
+def share_band(target: float, n_pairs: int) -> tuple[float, float]:
+    """A larger- or longer-costs-more row's band: :data:`MONOTONE_BAND`
+    either side of the census share, or :data:`CENSUS_SES` census standard
+    errors where its pairs are so few that is wider (a socket screw's 40)."""
+    width = max(MONOTONE_BAND, CENSUS_SES * math.sqrt(target * (1 - target) / n_pairs))
+    return (target - width, target + width)
+
+
+def equal_band(census: PriceCensus) -> tuple[float, float]:
+    """An equal-price row's band: :data:`CENSUS_SES` census standard errors
+    either side of the census share."""
+    share = census.equal_price
+    width = CENSUS_SES * math.sqrt(share * (1 - share) / census.n_pairs)
+    return (share - width, share + width)
+
+
+def brand_spread_band(figure: BrandCensus) -> tuple[float, float]:
+    """A brand-spread row's band: :data:`BRAND_SPREAD_BAND` about the census
+    median, or :data:`CENSUS_SES` standard errors of that median where its
+    specs are so few that is wider (a ball end mill's 5).
+
+    The error is of a median in logs: sqrt(pi / 2) * sigma / sqrt(n), with
+    sigma read off the census quartiles (the interquartile range of a normal
+    is 1.349 sigma)."""
+    sigma = math.log(figure.spread_p75 / figure.spread_p25) / 1.349
+    width = CENSUS_SES * math.sqrt(math.pi / 2) * sigma / math.sqrt(figure.n_specs)
+    low, high = math.exp(-width), math.exp(width)
+    return (
+        figure.spread_p50 * min(BRAND_SPREAD_BAND[0], low),
+        figure.spread_p50 * max(BRAND_SPREAD_BAND[1], high),
+    )
+
+
 def implied_twice_share(slope: float, less: float, log_ratios: Sequence[float]) -> float:
     """The share of pairs whose smaller member costs 2x or more that the
     census implies, on the catalog's own pairs.
@@ -293,12 +353,15 @@ def twice_row(type_key: str, collected: Collected, prices: Mapping[str, float]) 
     ratios = [d for _, _, d in pairs]
     twice = sum(prices[small] >= 2 * prices[big] for big, small, _ in pairs)
     se = math.sqrt(less * (1 - less) / n)
+    target = implied_twice_share(slope, less, ratios)
     low = implied_twice_share(slope, max(less - CENSUS_SES * se, 1e-6), ratios)
     high = implied_twice_share(slope, min(less + CENSUS_SES * se, 0.4999), ratios)
+    low = max(0.0, min(low, target - TWICE_BAND_FLOOR))
+    high = max(high, target + TWICE_BAND_FLOOR)
     axis = "length at an equal key" if type_key in LENGTH_HELD else "key dimension"
     return Comparison(
         f"price smaller costs 2x+, same product: {type_key}",
-        implied_twice_share(slope, less, ratios),
+        target,
         twice / len(pairs) if pairs else 0.0,
         twice,
         len(pairs),
@@ -360,7 +423,7 @@ def type_rows(type_key: str, collected: Collected, prices: Mapping[str, float]) 
             (census.p50 * P50_BAND[0], census.p50 * P50_BAND[1]),
         ),
         Comparison(
-            f"price p90/p10: {type_key}",
+            SPREAD_ROW.format(type_key),
             target_spread,
             spread,
             n,
@@ -369,16 +432,13 @@ def type_rows(type_key: str, collected: Collected, prices: Mapping[str, float]) 
             (target_spread * SPREAD_BAND[0], target_spread * SPREAD_BAND[1]),
         ),
         Comparison(
-            f"price larger size costs more: {type_key}",
+            ORDER_ROW.format(type_key),
             census.larger_costs_more,
             more / len(pairs) if pairs else 0.0,
             more,
             len(pairs),
             "within-cell pairs whose key dimension differs",
-            (
-                census.larger_costs_more - MONOTONE_BAND,
-                census.larger_costs_more + MONOTONE_BAND,
-            ),
+            share_band(census.larger_costs_more, census.n_pairs),
         ),
     ]
 
@@ -396,16 +456,13 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
         more = sum(prices[longer] > prices[shorter] for longer, shorter in pairs)
         rows.append(
             Comparison(
-                f"price longer costs more: {type_key}",
+                LENGTH_ROW.format(type_key),
                 figure.longer_costs_more,
                 more / len(pairs) if pairs else 0.0,
                 more,
                 len(pairs),
                 "pairs of one brand and line cell, key dimension equal, length differs",
-                (
-                    figure.longer_costs_more - MONOTONE_BAND,
-                    figure.longer_costs_more + MONOTONE_BAND,
-                ),
+                share_band(figure.longer_costs_more, figure.n_pairs),
             )
         )
 
@@ -413,18 +470,15 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
         census = CENSUS[type_key]
         pairs = collected.pairs.get(type_key, [])
         equal = sum(prices[larger] == prices[smaller] for larger, smaller in pairs)
-        width = CENSUS_SES * math.sqrt(
-            census.equal_price * (1 - census.equal_price) / census.n_pairs
-        )
         rows.append(
             Comparison(
-                f"price equal price, size pair: {type_key}",
+                EQUAL_ROW.format(type_key),
                 census.equal_price,
                 equal / len(pairs) if pairs else 0.0,
                 equal,
                 len(pairs),
                 "within-cell pairs whose key dimension differs",
-                (census.equal_price - width, census.equal_price + width),
+                equal_band(census),
             )
         )
 
@@ -461,16 +515,13 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
                 )
         rows.append(
             Comparison(
-                f"price brand spread, same spec (median max/min): {type_key}",
+                BRAND_ROW.format(type_key),
                 figure.spread_p50,
                 statistics.median(spreads) if spreads else 0.0,
                 len(spreads),
                 figure.n_specs,
                 "over specs (key dimension, material) two or more brands make",
-                (
-                    figure.spread_p50 * BRAND_SPREAD_BAND[0],
-                    figure.spread_p50 * BRAND_SPREAD_BAND[1],
-                ),
+                brand_spread_band(figure),
             )
         )
     rows.append(

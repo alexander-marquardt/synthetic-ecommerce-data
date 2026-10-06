@@ -2066,9 +2066,10 @@ class Generator:
         pack = None
         if model.pack_attribute is not None and model.pack_attribute in facts:
             pack = facts[model.pack_attribute].value_num
+        key = price.KEYS[type_key](facts)
         struct = price.structure(
             model,
-            price.KEYS[type_key](facts),
+            key,
             material,
             brands.tier_of(brand, type_key),
             pack,
@@ -2079,7 +2080,8 @@ class Generator:
         group_u = price.group_draw(
             seed, type_key, brand, (a for a in line_attributes if a.name in always)
         )
-        return price.Draw(model, struct, group_u, sku_u, price.ending_draw(seed, sku))
+        size_u = price.size_draw(seed, type_key, key, material)
+        return price.Draw(model, struct, group_u, sku_u, price.ending_draw(seed, sku), size_u)
 
     def build(self) -> list[ProductLine]:
         """This type's lines: its own products, then its must-stock lines."""
