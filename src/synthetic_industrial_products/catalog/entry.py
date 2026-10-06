@@ -195,7 +195,7 @@ def canonical(magnitude: str, unit: str) -> float:
     """
     exact = _exact(magnitude)
     if unit in RECIPROCAL_PER_UNIT:
-        return 25.4 / float(exact)
+        return float(RECIPROCAL_PER_UNIT[unit] / exact)
     return float(exact * CANONICAL_PER_UNIT[unit])
 
 
