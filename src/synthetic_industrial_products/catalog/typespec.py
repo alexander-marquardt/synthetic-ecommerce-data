@@ -30,6 +30,7 @@ import hashlib
 import importlib
 import pkgutil
 import random
+import sys
 from collections.abc import (
     Callable,
     Collection,
@@ -68,6 +69,17 @@ class TypeModuleError(ImportError):
 
 class TypeCollisionError(ValueError):
     """Two types that derive the same part-number block or id."""
+
+
+class RegistrationReadError(RuntimeError):
+    """A type-keyed table read while the type modules are being registered.
+
+    Mid-registration a table holds only the types registered so far, so any
+    answer would depend on import order: a sibling's vocabulary missing, or
+    :func:`block_of` giving the derived block of a type whose declared one is
+    not recorded yet. A type module reads the tables inside its functions,
+    never at import.
+    """
 
 
 @dataclass(frozen=True)
@@ -218,15 +230,35 @@ def _declare_block(spec: TypeSpec) -> None:
         DECLARED_BLOCKS[spec.key] = spec.part_number_block
 
 
-#: Set while :func:`registered` runs, so a table read during registration does
-#: not start it again; then set for good once it has finished.
+#: Set while :func:`registered` runs, so a table read during registration is
+#: refused rather than answered from a half-filled table; then set for good
+#: once it has finished.
 _REGISTRATION = {"running": False, "done": False}
 
 
 def ensure_registered() -> None:
-    """Register the type modules, unless that has already happened (or is underway)."""
-    if not (_REGISTRATION["done"] or _REGISTRATION["running"]):
-        registered()
+    """Register the type modules, unless that has already happened.
+
+    Raises :class:`RegistrationReadError` when called while registration is
+    underway, naming the line that read.
+    """
+    if _REGISTRATION["done"]:
+        return
+    if _REGISTRATION["running"]:
+        raise RegistrationReadError(
+            f"a type-keyed table was read at {_reader()} while the type modules are being "
+            "registered, so it would answer from the types registered so far; read it "
+            "inside a function, not at import"
+        )
+    registered()
+
+
+def _reader() -> str:
+    """``file:line`` of the nearest caller outside this module."""
+    frame = sys._getframe(1)
+    while frame.f_back is not None and frame.f_code.co_filename == __file__:
+        frame = frame.f_back
+    return f"{frame.f_code.co_filename}:{frame.f_lineno}"
 
 
 _K = TypeVar("_K")
@@ -239,7 +271,9 @@ class RegistryTable(dict[_K, _V]):
     A type declared in its own module joins the tables only when
     :func:`registered` runs. Every read here runs it first, so no reader
     (a script, a test, the image bundle) has to remember to call it, and one
-    that forgets cannot see a migrated type as missing. Writes are untouched:
+    that forgets cannot see a migrated type as missing. A read made while
+    registration runs (a type module reading a table at import) is refused,
+    because the table is only half filled then. Writes are untouched:
     registration itself writes through them.
     """
 

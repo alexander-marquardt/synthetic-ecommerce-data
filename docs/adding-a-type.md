@@ -192,17 +192,23 @@ scripts/merge_pr.sh <PR number>
 ```
 
 It clones the PR head into a temporary directory and merges current `main`
-into it. A conflict confined to the generated files is resolved by the
-rebuild; any other conflict (`names.py`) is handed back to you. It then
-rebuilds `golden-catalog/`, runs the drift, golden and seam tests
-(`scripts/merge_pr.sh --print-checks` lists them), pushes the merged tree to
-the PR branch if it differs from the head, and squash-merges only when those
-tests are green on that tree, the PR head is still the commit it checked, and
-`main` has not moved since the merge. `--dry-run` does all of it except the
-push and the merge.
+into it. A conflict in a file the rebuild rewrites (`scripts/merge_pr.sh
+--print-generated` lists the eight) is left for the rebuild; any other
+conflict, `names.py` or a file under `golden-catalog/` that the build does not
+write, is handed back to you. It then rebuilds `golden-catalog/` with
+`uv run --locked` (a stale `uv.lock` is refused, not re-locked), commits only
+the generated files, and runs the drift, golden and seam tests
+(`--print-checks` lists them), refusing a run in which no test passed. It
+pushes the merged tree to the PR branch if it differs from the head, waits
+for every CI check on exactly that commit (`--print-ci`; a failed, missing or
+unexpectedly skipped check refuses), and squash-merges. Before every merge
+attempt it re-reads `main` and the PR head, and refuses if either moved.
+`--dry-run` does all of it except the push, the CI wait and the merge.
 
-The `main-merged-tree` CI job runs the same tests on every push to `main`, so
-a merge that skipped the script is red within minutes.
+That re-read narrows the race with another merge but cannot close it: GitHub
+has no compare-and-swap on the base. The `main-merged-tree` CI job runs the
+same tests on every push to `main`, so a merge that raced, or skipped the
+script, is red within minutes.
 
 **Modelled types land one at a time.** Besides the files above, a modelled
 type edits shared state that two pull requests cannot both change safely:
