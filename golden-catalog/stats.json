@@ -1,6 +1,6 @@
 {
- "lines": 5300,
- "skus": 9700,
+ "lines": 5559,
+ "skus": 10183,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "ball_stock_precision": 1,
@@ -55,7 +55,7 @@
   "screw_flat_head": 180,
   "screw_low_head": 104,
   "screw_socket_head": 309,
-  "set_screws_hex_socket": 1,
+  "set_screws_hex_socket": 260,
   "shaft_collars": 1,
   "studs_double_end": 1,
   "t_slot_nuts": 1,
@@ -124,7 +124,7 @@
   "screw_flat_head": 337,
   "screw_low_head": 190,
   "screw_socket_head": 579,
-  "set_screws_hex_socket": 2,
+  "set_screws_hex_socket": 485,
   "shaft_collars": 2,
   "studs_double_end": 2,
   "t_slot_nuts": 1,
@@ -656,10 +656,24 @@
    "Type"
   ],
   "set_screws_hex_socket": [
+   "Dia./Thread Size",
+   "Dimension Type",
+   "Drive Size",
+   "Drive Type",
+   "Finish",
    "Item",
+   "Length",
    "Material",
+   "Measurement System",
+   "Meets/Exceeds",
+   "Point Dia.",
    "Point Type",
-   "Thread Size"
+   "Rockwell Hardness",
+   "Standards",
+   "System of Measurement",
+   "Thread Direction",
+   "Thread Type",
+   "Type"
   ],
   "shaft_collars": [
    "Bore",
@@ -776,7 +790,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 120170,
+ "total_attribute_entries": 126126,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -805,33 +819,33 @@
   {
    "name": "declared system contradicts value units",
    "target": 0.0323,
-   "achieved": 0.02893658066071859,
-   "numerator": 120,
-   "denominator": 4147,
+   "achieved": 0.028284671532846715,
+   "numerator": 124,
+   "denominator": 4384,
    "note": "over records carrying both"
   },
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.016642396505096736,
-   "numerator": 160,
-   "denominator": 9614,
+   "achieved": 0.016734330131696208,
+   "numerator": 169,
+   "denominator": 10099,
    "note": "over records with a readable dimension"
   },
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.46475424173517577,
-   "numerator": 5314,
-   "denominator": 11434,
+   "achieved": 0.4676566826076013,
+   "numerator": 5574,
+   "denominator": 11919,
    "note": "over title dimension tokens"
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.11789400034983383,
-   "numerator": 1348,
-   "denominator": 11434,
+   "achieved": 0.11930531084822552,
+   "numerator": 1422,
+   "denominator": 11919,
    "note": "over title dimension tokens"
   },
   {
@@ -839,7 +853,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 9700,
+   "denominator": 10183,
    "note": "over titles"
   },
   {
@@ -847,7 +861,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 9700,
+   "denominator": 10183,
    "note": "deliberate: the corpus measures 0.1089"
   },
   {
@@ -855,42 +869,42 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 9700,
+   "denominator": 10183,
    "note": "deliberate: the corpus measures 0.7353"
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 12.388659793814433,
-   "numerator": 120170,
-   "denominator": 9700,
+   "achieved": 12.38593734655799,
+   "numerator": 126126,
+   "denominator": 10183,
    "note": "count, not a rate"
   }
  ],
  "measurement_system_names": {
-  "Dimension Type": 2793,
-  "Measurement System": 932,
-  "System of Measurement": 422
+  "Dimension Type": 2938,
+  "Measurement System": 994,
+  "System of Measurement": 452
  },
  "measurement_system_values": {
-  "Inch": 236,
-  "Fractional Inch": 2227,
-  "Metric": 1619,
+  "Inch": 244,
+  "Fractional Inch": 2353,
+  "Metric": 1722,
   "Decimal Inch": 65
  },
  "unit_suffix_distribution": {
-  "in": 20268,
-  "mm": 13472
+  "in": 20864,
+  "mm": 13997
  },
- "standards_present": 5054,
- "standards_multivalued": 1361,
- "standards_total_values": 6675,
+ "standards_present": 5310,
+ "standards_multivalued": 1499,
+ "standards_total_values": 7069,
  "multivalued_attribute_names": {
-  "Standards": 1361,
+  "Standards": 1499,
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 9700,
+  "n_skus_checked": 10183,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
