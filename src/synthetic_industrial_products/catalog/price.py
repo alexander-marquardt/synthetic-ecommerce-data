@@ -13,20 +13,42 @@ no sale unit beside it.
 The model (:func:`shown_price`) is, in logs::
 
     log p = log anchor + slope * log(key / anchor_key) + log material + log tier
-            + pack_slope * log(pack / pack_ref) + line_sigma * z_line + sku_sigma * z_sku
+            + pack_slope * log(pack / pack_ref) + group_sigma * z_group + sku_sigma * z_sku
 
 then rounded to an ending drawn from the type's census endings mix. The slope,
 the tier factors, the pack slope and the endings are census figures. The
 anchor and the two sigmas are fitted by ``scripts/fit_price_model.py`` so the
 default build lands on the census p50, p90/p10 and larger-costs-more share.
 The material factors are NOT measured (:data:`MATERIAL_FACTORS`).
+
+``z_group`` is one draw per price group, what the census calls a cell: one
+brand, every line attribute a group page holds equal (:func:`group_draw`).
+The census measures how prices spread ACROSS its pages and how they order
+WITHIN one, so the noise that spreads them is shared by a page.
+
+**Where the fit lowers a slope.** The census slope is of PER-PIECE price,
+within one page. A pack-sold type's pack shrinks as its size grows (a bolt
+census: per-piece p90/p10 28, shown 8.2), so its shown price climbs slower;
+and a type whose sizes span further than the census's (the end mills, from
+11 and 18 pairs) spreads further on the census slope alone. Where the census
+slope by itself spreads the shown price wider than the census p90/p10, the
+fit lowers it until it does not, and the model's literal names the slope it
+used (bolts, both end mills, taps).
+
+**Why the endings rows weigh the census by the catalog's type mix.** The
+census pooled its endings over its own type mix (a quarter of its SKUs are
+jobber drills, whose prices rarely end .00); the catalog builds a different
+one. Each type draws from its own census mix, so the pooled census figure is
+not what a correct build lands on: ``price_report.ending_targets`` weighs
+each type's census mix by that type's share of the catalog's modelled SKUs,
+so census and catalog are compared on the same mix.
 """
 
 from __future__ import annotations
 
 import math
 import random
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from statistics import NormalDist
 from typing import TYPE_CHECKING, Literal
@@ -140,26 +162,31 @@ def key_reader(*names: str) -> Callable[[Mapping[str, Attribute]], float | None]
     return read
 
 
-#: Each type's key dimension: the catalog's name for the attribute the census
-#: keyed that type on (``key_dimension_attribute``).
+#: Each type's key dimension: the catalog's names for the attribute the census
+#: keyed that type on (``key_dimension_attribute``), the first one carried wins.
+KEY_ATTRIBUTES: dict[str, tuple[str, ...]] = {
+    "abrasive_flap_disc": ("Diameter",),
+    "bearing_radial_ball": ("Bore",),
+    "bolt_hex": ("Dia./Thread Size",),
+    "drill_jobber": ("Decimal Equivalent", "Size"),
+    "end_mill_ball": ("Milling Dia.",),
+    "end_mill_square": ("Milling Dia.",),
+    "hammer_ball_pein": ("Head Weight",),
+    "hex_key": ("Size",),
+    "kit_assortment": ("Number of Pieces",),
+    "nut_hex": ("Thread Size",),
+    "screw_button_head": ("Dia./Thread Size",),
+    "screw_flat_head": ("Dia./Thread Size",),
+    "screw_low_head": ("Dia./Thread Size",),
+    "screw_socket_head": ("Dia./Thread Size",),
+    "tap_spiral_point": ("Thread Size",),
+    "washer_flat": ("Inside Dia.",),
+    "wheel_depressed_center": ("Diameter",),
+}
+
+#: Each type's key-dimension reader (:func:`key_reader`).
 KEYS: dict[str, Callable[[Mapping[str, Attribute]], float | None]] = {
-    "abrasive_flap_disc": key_reader("Diameter"),
-    "bearing_radial_ball": key_reader("Bore"),
-    "bolt_hex": key_reader("Dia./Thread Size"),
-    "drill_jobber": key_reader("Decimal Equivalent", "Size"),
-    "end_mill_ball": key_reader("Milling Dia."),
-    "end_mill_square": key_reader("Milling Dia."),
-    "hammer_ball_pein": key_reader("Head Weight"),
-    "hex_key": key_reader("Size"),
-    "kit_assortment": key_reader("Number of Pieces"),
-    "nut_hex": key_reader("Thread Size"),
-    "screw_button_head": key_reader("Dia./Thread Size"),
-    "screw_flat_head": key_reader("Dia./Thread Size"),
-    "screw_low_head": key_reader("Dia./Thread Size"),
-    "screw_socket_head": key_reader("Dia./Thread Size"),
-    "tap_spiral_point": key_reader("Thread Size"),
-    "washer_flat": key_reader("Inside Dia."),
-    "wheel_depressed_center": key_reader("Diameter"),
+    type_key: key_reader(*names) for type_key, names in KEY_ATTRIBUTES.items()
 }
 
 #: Types whose census cells also hold length equal (``method.slope``).
@@ -385,7 +412,7 @@ class PriceModel:
     """One type's price model: what :func:`shown_price` reads.
 
     ``slope``, ``pack_slope`` and ``endings`` come from the census;
-    ``anchor``, ``line_sigma`` and ``sku_sigma`` from
+    ``anchor``, ``group_sigma`` and ``sku_sigma`` from
     ``scripts/fit_price_model.py``. ``measured`` is False for a type the
     census has no prices for, whose model keeps the level the catalog had.
     """
@@ -396,8 +423,8 @@ class PriceModel:
     anchor_key: float
     #: Log-log slope of price on the key dimension.
     slope: float
-    #: Sigma of the log-normal noise one product line shares.
-    line_sigma: float
+    #: Sigma of the log-normal noise one group (:func:`group_draw`) shares.
+    group_sigma: float
     #: Sigma of the log-normal noise each SKU draws on its own.
     sku_sigma: float
     #: The ending-class mix a price is rounded to.
@@ -410,9 +437,24 @@ class PriceModel:
     measured: bool = True
 
 
-def _model(type_key: str, anchor: float, anchor_key: float, line: float, sku: float, **kw):
+def _model(
+    type_key: str,
+    anchor: float,
+    anchor_key: float,
+    group: float,
+    sku: float,
+    slope: float | None = None,
+    **kw,
+) -> PriceModel:
+    """A census type's model: its census slope unless the fit lowered it."""
     return PriceModel(
-        anchor, anchor_key, CENSUS[type_key].slope, line, sku, ENDINGS[type_key], **kw
+        anchor,
+        anchor_key,
+        CENSUS[type_key].slope if slope is None else slope,
+        group,
+        sku,
+        ENDINGS[type_key],
+        **kw,
     )
 
 
@@ -423,27 +465,27 @@ def _model(type_key: str, anchor: float, anchor_key: float, line: float, sku: fl
 MODELS: RegistryTable[str, PriceModel] = RegistryTable(
     {
         # @fit-begin
-        "abrasive_flap_disc": _model("abrasive_flap_disc", 8.68, 5.0, 0.3, 0.1),
-        "bearing_radial_ball": _model("bearing_radial_ball", 37.5, 0.5, 0.5, 0.1),
-        "bolt_hex": _model("bolt_hex", 20.9, 0.375, 0.3, 0.1),
-        "drill_jobber": _model("drill_jobber", 6.0, 0.25, 0.3, 0.1),
-        "end_mill_ball": _model("end_mill_ball", 88.0, 0.375, 0.3, 0.1),
-        "end_mill_square": _model("end_mill_square", 52.5, 0.375, 0.3, 0.1),
-        "hex_key": _model("hex_key", 9.68, 0.25, 0.3, 0.1),
-        "kit_assortment": _model("kit_assortment", 80.0, 30.0, 0.5, 0.1),
+        "abrasive_flap_disc": _model("abrasive_flap_disc", 8.611, 5.0, 0.175, 0.088),
+        "bearing_radial_ball": _model("bearing_radial_ball", 25.9, 0.5, 1.163, 0.084),
+        "bolt_hex": _model("bolt_hex", 25.54, 0.375, 0.292, 0.175, slope=1.278),
+        "drill_jobber": _model("drill_jobber", 4.333, 0.25, 0.543, 0.186),
+        "end_mill_ball": _model("end_mill_ball", 48.12, 0.375, 0.000, 0.205, slope=0.85),
+        "end_mill_square": _model("end_mill_square", 32.98, 0.375, 0.000, 0.331, slope=0.737),
+        "hex_key": _model("hex_key", 17.81, 0.25, 0.657, 0.217),
+        "kit_assortment": _model("kit_assortment", 265.9, 30.0, 2.062, 0.020),
         "nut_hex": _model(
             "nut_hex",
-            15.3,
+            16.02,
             0.375,
-            0.3,
-            0.1,
+            0.351,
+            0.316,
             pack_attribute="Package Quantity",
             pack_slope=NUT_PACK_SLOPE,
             pack_ref=100.0,
         ),
-        "tap_spiral_point": _model("tap_spiral_point", 20.0, 0.25, 0.3, 0.1),
-        "washer_flat": _model("washer_flat", 4.89, 0.375, 0.3, 0.1),
-        "wheel_depressed_center": _model("wheel_depressed_center", 9.5, 4.5, 0.3, 0.1),
+        "tap_spiral_point": _model("tap_spiral_point", 13.67, 0.25, 0.000, 0.539, slope=0.299),
+        "washer_flat": _model("washer_flat", 5.158, 0.375, 0.537, 0.762),
+        "wheel_depressed_center": _model("wheel_depressed_center", 7.092, 4.5, 0.668, 0.314),
         # @fit-end
         # No census prices: the ball-pein hammer's archived pages are script
         # shells. Its model keeps the median the uniform multiplier gave
@@ -470,10 +512,39 @@ def _z(quantile: float) -> float:
     return NormalDist().inv_cdf(min(max(quantile, _Q_CLAMP), 1.0 - _Q_CLAMP))
 
 
-def line_draw(seed: int, product_id: str) -> float:
-    """The quantile a product line's noise is drawn at: its own stream, so no
-    other draw moves."""
-    return random.Random(f"{seed}:price-line:{product_id}").random()
+#: Line attributes that are not numbers but still name a size, so a group
+#: holding them equal would hold the key dimension equal too.
+SIZE_NAMES = frozenset({"Bearing Number"})
+#: A number a census cell held equal: one pack size per group page.
+HELD_NUMBERS = frozenset({"Package Quantity"})
+
+
+def holds_equal(type_key: str, attribute: Attribute) -> bool:
+    """Whether a census cell (one group page) holds this line attribute equal:
+    any that is not a number, but the pack quantity, and nothing that names
+    the size."""
+    return (
+        (attribute.value_num is None or attribute.name in HELD_NUMBERS)
+        and attribute.name not in SIZE_NAMES
+        and attribute.name not in KEY_ATTRIBUTES.get(type_key, ())
+    )
+
+
+def group_draw(seed: int, type_key: str, brand: str, line_attributes: Iterable[Attribute]) -> float:
+    """The quantile a group's noise is drawn at: its own stream, so no other
+    draw moves.
+
+    A group is what the census calls a cell, one group page: one brand, every
+    line attribute it holds equal (:func:`holds_equal`). ``line_attributes``
+    are the ones every line of the type publishes, so a sparse attribute
+    dropped from one line does not split the group. Every line of a group
+    shares the draw, as the rows of one group page share a price level: the
+    census measures how prices spread ACROSS pages (p90/p10) and how they
+    order WITHIN one (larger costs more), and noise drawn per line would
+    break the order between two lines of one page.
+    """
+    held = sorted((a.name, a.value) for a in line_attributes if holds_equal(type_key, a))
+    return random.Random(f"{seed}:price-group:{type_key}:{brand}:{held}").random()
 
 
 def ending_draw(seed: int, sku: str) -> float:
@@ -499,9 +570,9 @@ def structure(
     return log_p
 
 
-def noisy(model: PriceModel, struct: float, line_u: float, sku_u: float) -> float:
+def noisy(model: PriceModel, struct: float, group_u: float, sku_u: float) -> float:
     """The unrounded price: anchor, structure and both noise terms."""
-    noise = model.line_sigma * _z(line_u) + model.sku_sigma * _z(sku_u)
+    noise = model.group_sigma * _z(group_u) + model.sku_sigma * _z(sku_u)
     return math.exp(math.log(model.anchor) + struct + noise)
 
 
@@ -548,7 +619,7 @@ class Draw:
 
     model: PriceModel
     struct: float
-    line_u: float
+    group_u: float
     sku_u: float
     ending_u: float
 
@@ -557,7 +628,7 @@ def shown_price(draw: Draw) -> float:
     """A SKU's shown price."""
     model = draw.model
     return with_ending(
-        noisy(model, draw.struct, draw.line_u, draw.sku_u),
+        noisy(model, draw.struct, draw.group_u, draw.sku_u),
         ending_for(model.endings, draw.ending_u),
     )
 
