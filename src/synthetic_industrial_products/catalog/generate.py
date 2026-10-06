@@ -2033,10 +2033,11 @@ class Generator:
         key = self.type_key
         cfg = self.config
         lines: list[ProductLine] = []
-        if key in self._BUILDERS:
-            builder = self._BUILDERS[key]
+        own = typespec.modelled().get(key)
+        if key in self._BUILDERS or own is not None:
+            builder = self._builder()
             (category,) = taxonomy.LEAVES[key]
-            weight = cfg.type_weights.get(key)
+            weight = cfg.type_weights.get(key, own.share if own else None)
             count = 0 if weight is None else max(1, round(cfg.lines * weight))
             for _ in range(count):
                 self._keep(
@@ -2050,6 +2051,13 @@ class Generator:
         if cfg.must_stock:
             lines.extend(self._must_stock(lines))
         return lines
+
+    def _builder(self):
+        """This modelled type's builder: its type module's ``make``, else the shared table's."""
+        own = typespec.modelled().get(self.type_key)
+        if own is not None:
+            return lambda gen, key, category: own.make(gen, key, category)
+        return self._BUILDERS[self.type_key]
 
     def _keep(self, lines: list[ProductLine], line: ProductLine | None) -> None:
         if line is not None:
@@ -2095,7 +2103,7 @@ class Generator:
             self.rng = typespec.type_rng(self.config.seed, f"{key}:must-stock:{entry.example}")
             self._pins = dict(entry.pins)
             try:
-                builder = self._BUILDERS[key]
+                builder = self._builder()
                 (category,) = taxonomy.LEAVES[key]
                 for _ in range(MAX_ATTEMPTS):
                     line = self._finish_line(key, builder(self, key, category), self._next_index())
@@ -2116,7 +2124,12 @@ class Generator:
 def all_type_keys() -> list[str]:
     """Every type the build makes, in build order: sorted by key, so a new type
     lands in a fixed place without being listed anywhere."""
-    keys = [*Generator._BUILDERS, *NEW_TYPES, *(row.key for row in breadth.ROWS)]
+    keys = [
+        *Generator._BUILDERS,
+        *typespec.modelled(),
+        *NEW_TYPES,
+        *(row.key for row in breadth.ROWS),
+    ]
     twice = sorted({key for key in keys if keys.count(key) > 1})
     if twice:
         raise typespec.TypeCollisionError(f"type keys defined twice: {twice}")
@@ -2156,3 +2169,7 @@ def generate(config: GeneratorConfig | None = None, types: Iterable[str] | None 
     counters: dict[str, int] = {}
     lines = [line for key in chosen for line in Generator(cfg, key, counters).build()]
     return Catalog(lines=tuple(lines), stats=dict(counters))
+
+
+# The type modules join the shared tables before anything here reads them.
+typespec.registered()

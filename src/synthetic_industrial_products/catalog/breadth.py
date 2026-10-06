@@ -205,6 +205,22 @@ def register(rows: tuple[BreadthRow, ...] = ROWS) -> None:
 register()
 
 
+def add_row(row: BreadthRow) -> None:
+    """A row a type module declares (:func:`.typespec.register`), joined to :data:`ROWS`.
+
+    Once joined it is a breadth row like any other: built by
+    :func:`build_line`, listed by :func:`.generate.all_type_keys`, and gone
+    with the rest when :data:`ROWS` is emptied.
+    """
+    global ROWS
+    if any(existing.key == row.key for existing in ROWS):
+        raise typespec.TypeCollisionError(
+            f"breadth type {row.key!r} is declared both in {TABLE} and in a type module"
+        )
+    ROWS = (*ROWS, row)
+    register((row,))
+
+
 def _build_sku(
     gen: Generator,
     row: BreadthRow,

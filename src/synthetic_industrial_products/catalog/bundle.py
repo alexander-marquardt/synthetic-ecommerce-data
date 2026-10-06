@@ -118,9 +118,10 @@ def rebuild(catalog_dir: Path) -> list[tuple[str, bytes]]:
     :class:`~..drawing.UnknownTypeError`.
     """
     from ..drawing import draw_product  # noqa: PLC0415
-    from . import breadth  # noqa: PLC0415
+    from . import breadth, typespec  # noqa: PLC0415
 
     breadth.register()
+    typespec.registered()
 
     manifest = {
         row["image_id"]: row
