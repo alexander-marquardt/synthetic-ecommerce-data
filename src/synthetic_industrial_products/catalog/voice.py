@@ -31,10 +31,11 @@ from functools import cache
 
 from . import brands
 from .naming import LABEL_FORMS
+from .typespec import RegistryTable
 
 #: What every product of a type is for. True of the TYPE, so true of every
 #: product of it, and naming no dimension, material, grade or rating.
-USE_LINES: dict[str, tuple[str, ...]] = {
+_USE_LINES: dict[str, tuple[str, ...]] = {
     "end_mill_square": (
         "For slotting, profiling and facing on milling machines.",
         "Cuts slots, pockets and square shoulders.",
@@ -100,6 +101,8 @@ USE_LINES: dict[str, tuple[str, ...]] = {
         "A set of the common sizes, kept together.",
     ),
 }
+# A read registers the type modules first, so a type in its own module is listed.
+USE_LINES: RegistryTable[str, tuple[str, ...]] = RegistryTable(_USE_LINES)
 
 #: The fallback for a type with no entry above -- the breadth categories
 #: (:mod:`.breadth`), which trade a per-type use line for cheap, generic

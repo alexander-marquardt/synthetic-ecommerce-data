@@ -28,6 +28,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .typespec import RegistryTable
+
 #: A category path, root first.
 CategoryPath = tuple[str, ...]
 
@@ -49,7 +51,7 @@ class Category:
 
 
 #: Every product type's category path. One path per type: the leaf IS the type.
-LEAVES: dict[str, tuple[CategoryPath, ...]] = {
+_LEAVES: dict[str, tuple[CategoryPath, ...]] = {
     "end_mill_square": (("Milling", "End Mills", "Square End Mills"),),
     "end_mill_ball": (("Milling", "End Mills", "Ball End Mills"),),
     "drill_jobber": (
@@ -100,6 +102,8 @@ LEAVES: dict[str, tuple[CategoryPath, ...]] = {
     ),
     "kit_assortment": (("Hand Tools", "Tool Sets & Kits", "Assortment Kits"),),
 }
+# A read registers the type modules first, so a type in its own module is listed.
+LEAVES: RegistryTable[str, tuple[CategoryPath, ...]] = RegistryTable(_LEAVES)
 
 #: The end-mill tool materials each style is made in, in the order the draw
 #: indexes them. Material used to be read off a fourth path level; it is an
@@ -140,7 +144,7 @@ def ancestors(path: CategoryPath) -> tuple[CategoryPath, ...]:
 #: LINE, and a line's image id carries its own product type, so the published
 #: directory is the line's rather than something inferred from the shape it
 #: shares with four hundred others.
-DRAWING: dict[str, str] = {
+_DRAWING: dict[str, str] = {
     "end_mill_square": "end_mill_square",
     "end_mill_ball": "end_mill_ball",
     "drill_jobber": "drill_jobber",
@@ -158,6 +162,8 @@ DRAWING: dict[str, str] = {
     "hex_key": "hex_key",
     "kit_assortment": "kit_assortment",
 }
+# A read registers the type modules first, so a type in its own module is listed.
+DRAWING: RegistryTable[str, str] = RegistryTable(_DRAWING)
 
 
 class ImageIdError(Exception):

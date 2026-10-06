@@ -112,16 +112,10 @@ def files_digest(files: list[tuple[str, bytes]]) -> str:
 def rebuild(catalog_dir: Path) -> list[tuple[str, bytes]]:
     """``(path, svg_bytes)`` for every SKU, checked against ``images.jsonl``.
 
-    Registers the breadth figures itself. They join the drawing registry when
-    :mod:`.breadth` is imported, which the CLI and the test suite happen to do
-    first; a direct caller did not, and every breadth product failed with
-    :class:`~..drawing.UnknownTypeError`.
+    Needs no registration step: the first read of the figure table registers
+    the breadth rows and the type modules (:class:`.typespec.RegistryTable`).
     """
     from ..drawing import draw_product  # noqa: PLC0415
-    from . import breadth, typespec  # noqa: PLC0415
-
-    breadth.register()
-    typespec.registered()
 
     manifest = {
         row["image_id"]: row

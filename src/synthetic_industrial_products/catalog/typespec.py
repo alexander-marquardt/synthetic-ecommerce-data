@@ -27,10 +27,10 @@ import hashlib
 import importlib
 import pkgutil
 import random
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, ItemsView, Iterator, KeysView, Mapping, ValuesView
 from dataclasses import dataclass, replace
 from functools import cache
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeVar
 
 if TYPE_CHECKING:
     from .breadth import BreadthRow
@@ -190,16 +190,83 @@ def register(spec: TypeSpec) -> None:
         voice.USE_LINES[spec.key] = spec.use_lines
 
 
+#: Set while :func:`registered` runs, so a table read during registration does
+#: not start it again; then set for good once it has finished.
+_REGISTRATION = {"running": False, "done": False}
+
+
+def ensure_registered() -> None:
+    """Register the type modules, unless that has already happened (or is underway)."""
+    if not (_REGISTRATION["done"] or _REGISTRATION["running"]):
+        registered()
+
+
+_K = TypeVar("_K")
+_V = TypeVar("_V")
+
+
+class RegistryTable(dict[_K, _V]):
+    """A shared, type-keyed table that registers the type modules before its first read.
+
+    A type declared in its own module joins the tables only when
+    :func:`registered` runs. Every read here runs it first, so no reader
+    (a script, a test, the image bundle) has to remember to call it, and one
+    that forgets cannot see a migrated type as missing. Writes are untouched:
+    registration itself writes through them.
+    """
+
+    def __getitem__(self, key: _K) -> _V:
+        ensure_registered()
+        return super().__getitem__(key)
+
+    def get(self, key: _K, default: Any = None) -> Any:  # type: ignore[override]
+        ensure_registered()
+        return super().get(key, default)
+
+    def __contains__(self, key: object) -> bool:
+        ensure_registered()
+        return super().__contains__(key)
+
+    def __iter__(self) -> Iterator[_K]:
+        ensure_registered()
+        return super().__iter__()
+
+    def __len__(self) -> int:
+        ensure_registered()
+        return super().__len__()
+
+    def keys(self) -> KeysView[_K]:
+        ensure_registered()
+        return super().keys()
+
+    def values(self) -> ValuesView[_V]:
+        ensure_registered()
+        return super().values()
+
+    def items(self) -> ItemsView[_K, _V]:
+        ensure_registered()
+        return super().items()
+
+
 @cache
 def registered() -> dict[str, TypeSpec]:
     """Every type module under :data:`TYPES_PACKAGE`, registered once per process.
 
-    Called wherever the shared tables are first read for a build
-    (:mod:`.generate`, at import, and :func:`.bundle.rebuild`).
+    Runs on the first read of any :class:`RegistryTable`, so no caller has to
+    call it before reading the tables.
     """
-    specs = discover()
-    for spec in specs.values():
-        register(spec)
+    _REGISTRATION["running"] = True
+    try:
+        # The YAML breadth rows register when breadth is imported; a reader
+        # that never imported it would otherwise see none of them.
+        from . import breadth  # noqa: F401, PLC0415
+
+        specs = discover()
+        for spec in specs.values():
+            register(spec)
+    finally:
+        _REGISTRATION["running"] = False
+    _REGISTRATION["done"] = True
     return specs
 
 

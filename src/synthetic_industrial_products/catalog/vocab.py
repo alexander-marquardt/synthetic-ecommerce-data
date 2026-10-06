@@ -30,6 +30,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .typespec import RegistryTable
+
 #: The three verbatim spellings of the measurement-system attribute, with the
 #: weights measured in 08_measurement_system.json (141 / 49 / 22 of 212).
 MEASUREMENT_SYSTEM_NAMES: tuple[tuple[str, float], ...] = (
@@ -381,7 +383,7 @@ _KIT = (
     _spec("Sizes Included", "sku"),
 )
 
-VOCAB: dict[str, tuple[AttrSpec, ...]] = {
+_VOCAB: dict[str, tuple[AttrSpec, ...]] = {
     "end_mill_square": _END_MILL,
     "end_mill_ball": _END_MILL,
     "drill_jobber": _DRILL,
@@ -399,9 +401,11 @@ VOCAB: dict[str, tuple[AttrSpec, ...]] = {
     "hex_key": _HEX_KEY,
     "kit_assortment": _KIT,
 }
+# A read registers the type modules first, so a type in its own module is listed.
+VOCAB: RegistryTable[str, tuple[AttrSpec, ...]] = RegistryTable(_VOCAB)
 
 #: Which pool of standards designations each type draws from.
-STANDARDS_FAMILY: dict[str, str] = {
+_STANDARDS_FAMILY: dict[str, str] = {
     "end_mill_square": "cutting_tool",
     "end_mill_ball": "cutting_tool",
     "drill_jobber": "cutting_tool",
@@ -419,6 +423,8 @@ STANDARDS_FAMILY: dict[str, str] = {
     "hex_key": "hand_tool",
     "kit_assortment": "hand_tool",
 }
+# A read registers the type modules first, so a type in its own module is listed.
+STANDARDS_FAMILY: RegistryTable[str, str] = RegistryTable(_STANDARDS_FAMILY)
 
 
 def names_for(type_key: str) -> frozenset[str]:
