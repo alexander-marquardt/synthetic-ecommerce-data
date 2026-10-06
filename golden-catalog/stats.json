@@ -784,7 +784,8 @@
    "achieved": 0.699192462987887,
    "numerator": 1039,
    "denominator": 1486,
-   "note": "over records carrying both dimensions"
+   "note": "over records carrying both dimensions",
+   "band": null
   },
   {
    "name": "length of cut > overall length",
@@ -792,7 +793,8 @@
    "achieved": 0.08049886621315193,
    "numerator": 142,
    "denominator": 1764,
-   "note": "over records carrying the pair"
+   "note": "over records carrying the pair",
+   "band": null
   },
   {
    "name": "angle attribute carries a length unit",
@@ -800,7 +802,8 @@
    "achieved": 0.04480183802412407,
    "numerator": 78,
    "denominator": 1741,
-   "note": "over records carrying an angle"
+   "note": "over records carrying an angle",
+   "band": null
   },
   {
    "name": "declared system contradicts value units",
@@ -808,7 +811,8 @@
    "achieved": 0.02893658066071859,
    "numerator": 120,
    "denominator": 4147,
-   "note": "over records carrying both"
+   "note": "over records carrying both",
+   "band": null
   },
   {
    "name": "unit mixing within one record",
@@ -816,7 +820,8 @@
    "achieved": 0.016642396505096736,
    "numerator": 160,
    "denominator": 9614,
-   "note": "over records with a readable dimension"
+   "note": "over records with a readable dimension",
+   "band": null
   },
   {
    "name": "title dimension token unlabelled",
@@ -824,7 +829,8 @@
    "achieved": 0.46475424173517577,
    "numerator": 5314,
    "denominator": 11434,
-   "note": "over title dimension tokens"
+   "note": "over title dimension tokens",
+   "band": null
   },
   {
    "name": "title dimension token is not the primary dimension",
@@ -832,7 +838,8 @@
    "achieved": 0.11789400034983383,
    "numerator": 1348,
    "denominator": 11434,
-   "note": "over title dimension tokens"
+   "note": "over title dimension tokens",
+   "band": null
   },
   {
    "name": "title label truncated",
@@ -840,7 +847,8 @@
    "achieved": 0.0,
    "numerator": 0,
    "denominator": 9700,
-   "note": "over titles"
+   "note": "over titles",
+   "band": null
   },
   {
    "name": "image reference missing",
@@ -848,7 +856,8 @@
    "achieved": 0.0,
    "numerator": 0,
    "denominator": 9700,
-   "note": "deliberate: the corpus measures 0.1089"
+   "note": "deliberate: the corpus measures 0.1089",
+   "band": null
   },
   {
    "name": "image id is shared, not the product's own",
@@ -856,7 +865,8 @@
    "achieved": 0.0,
    "numerator": 0,
    "denominator": 9700,
-   "note": "deliberate: the corpus measures 0.7353"
+   "note": "deliberate: the corpus measures 0.7353",
+   "band": null
   },
   {
    "name": "attributes per record (mean)",
@@ -864,7 +874,548 @@
    "achieved": 12.388659793814433,
    "numerator": 120170,
    "denominator": 9700,
-   "note": "count, not a rate"
+   "note": "count, not a rate",
+   "band": null
+  },
+  {
+   "name": "price p50 (USD): abrasive_flap_disc",
+   "target": 8.68,
+   "achieved": 8.594999999999999,
+   "numerator": 232,
+   "denominator": 135,
+   "note": "shown price; denom is the census n",
+   "band": [
+    6.944,
+    10.85
+   ]
+  },
+  {
+   "name": "price p90/p10: abrasive_flap_disc",
+   "target": 3.5106382978723403,
+   "achieved": 3.4855105795768173,
+   "numerator": 232,
+   "denominator": 135,
+   "note": "shown price; denom is the census n",
+   "band": [
+    2.632978723404255,
+    4.669148936170213
+   ]
+  },
+  {
+   "name": "price larger size costs more: abrasive_flap_disc",
+   "target": 0.949,
+   "achieved": 0.9381598793363499,
+   "numerator": 622,
+   "denominator": 663,
+   "note": "within-cell pairs whose key dimension differs",
+   "band": [
+    0.869,
+    1.029
+   ]
+  },
+  {
+   "name": "price p50 (USD): bearing_radial_ball",
+   "target": 37.475,
+   "achieved": 37.45,
+   "numerator": 1126,
+   "denominator": 390,
+   "note": "shown price; denom is the census n",
+   "band": [
+    29.980000000000004,
+    46.84375
+   ]
+  },
+  {
+   "name": "price p90/p10: bearing_radial_ball",
+   "target": 16.09429569266589,
+   "achieved": 16.022099447513813,
+   "numerator": 1126,
+   "denominator": 390,
+   "note": "shown price; denom is the census n",
+   "band": [
+    12.070721769499418,
+    21.40541327124564
+   ]
+  },
+  {
+   "name": "price larger size costs more: bearing_radial_ball",
+   "target": 0.888,
+   "achieved": 0.8879813489830373,
+   "numerator": 55228,
+   "denominator": 62195,
+   "note": "within-cell pairs whose key dimension differs",
+   "band": [
+    0.808,
+    0.968
+   ]
+  },
+  {
+   "name": "price p50 (USD): bolt_hex",
+   "target": 20.91,
+   "achieved": 20.85,
+   "numerator": 487,
+   "denominator": 347,
+   "note": "shown price; denom is the census n",
+   "band": [
+    16.728,
+    26.1375
+   ]
+  },
+  {
+   "name": "price p90/p10: bolt_hex",
+   "target": 8.205483245638327,
+   "achieved": 8.216100485298318,
+   "numerator": 487,
+   "denominator": 347,
+   "note": "shown price; denom is the census n",
+   "band": [
+    6.154112434228745,
+    10.913292716698974
+   ]
+  },
+  {
+   "name": "price larger size costs more: bolt_hex",
+   "target": 0.937,
+   "achieved": 0.9666666666666667,
+   "numerator": 29,
+   "denominator": 30,
+   "note": "within-cell pairs whose key dimension differs",
+   "band": [
+    0.8570000000000001,
+    1.0170000000000001
+   ]
+  },
+  {
+   "name": "price p50 (USD): drill_jobber",
+   "target": 6.0,
+   "achieved": 5.99,
+   "numerator": 530,
+   "denominator": 885,
+   "note": "shown price; denom is the census n",
+   "band": [
+    4.800000000000001,
+    7.5
+   ]
+  },
+  {
+   "name": "price p90/p10: drill_jobber",
+   "target": 9.580615942028984,
+   "achieved": 7.742156862745099,
+   "numerator": 530,
+   "denominator": 885,
+   "note": "shown price; denom is the census n",
+   "band": [
+    7.185461956521738,
+    12.74221920289855
+   ]
+  },
+  {
+   "name": "price larger size costs more: drill_jobber",
+   "target": 0.878,
+   "achieved": 0.8780610956829084,
+   "numerator": 3478,
+   "denominator": 3961,
+   "note": "within-cell pairs whose key dimension differs",
+   "band": [
+    0.798,
+    0.958
+   ]
+  },
+  {
+   "name": "price p50 (USD): end_mill_ball",
+   "target": 88.23,
+   "achieved": 88.21000000000001,
+   "numerator": 568,
+   "denominator": 65,
+   "note": "shown price; denom is the census n",
+   "band": [
+    70.584,
+    110.28750000000001
+   ]
+  },
+  {
+   "name": "price p90/p10: end_mill_ball",
+   "target": 8.629332608400162,
+   "achieved": 8.612301357524288,
+   "numerator": 568,
+   "denominator": 65,
+   "note": "shown price; denom is the census n",
+   "band": [
+    6.4719994563001215,
+    11.477012369172217
+   ]
+  },
+  {
+   "name": "price larger size costs more: end_mill_ball",
+   "target": 0.909,
+   "achieved": 0.9088831762353613,
+   "numerator": 3182,
+   "denominator": 3501,
+   "note": "within-cell pairs whose key dimension differs",
+   "band": [
+    0.8290000000000001,
+    0.989
+   ]
+  },
+  {
+   "name": "price p50 (USD): end_mill_square",
+   "target": 52.5,
+   "achieved": 52.5,
+   "numerator": 918,
+   "denominator": 69,
+   "note": "shown price; denom is the census n",
+   "band": [
+    42.0,
+    65.625
+   ]
+  },
+  {
+   "name": "price p90/p10: end_mill_square",
+   "target": 7.537145429986492,
+   "achieved": 7.512221041445271,
+   "numerator": 918,
+   "denominator": 69,
+   "note": "shown price; denom is the census n",
+   "band": [
+    5.6528590724898695,
+    10.024403421882035
+   ]
+  },
+  {
+   "name": "price larger size costs more: end_mill_square",
+   "target": 0.833,
+   "achieved": 0.833125,
+   "numerator": 5332,
+   "denominator": 6400,
+   "note": "within-cell pairs whose key dimension differs",
+   "band": [
+    0.753,
+    0.9129999999999999
+   ]
+  },
+  {
+   "name": "price p50 (USD): hex_key",
+   "target": 9.68,
+   "achieved": 9.65,
+   "numerator": 1120,
+   "denominator": 270,
+   "note": "shown price; denom is the census n",
+   "band": [
+    7.744,
+    12.1
+   ]
+  },
+  {
+   "name": "price p90/p10: hex_key",
+   "target": 14.408310749774165,
+   "achieved": 14.33152384645211,
+   "numerator": 1120,
+   "denominator": 270,
+   "note": "shown price; denom is the census n",
+   "band": [
+    10.806233062330623,
+    19.16305329719964
+   ]
+  },
+  {
+   "name": "price larger size costs more: hex_key",
+   "target": 0.925,
+   "achieved": 0.9241516966067864,
+   "numerator": 27780,
+   "denominator": 30060,
+   "note": "within-cell pairs whose key dimension differs",
+   "band": [
+    0.8450000000000001,
+    1.0050000000000001
+   ]
+  },
+  {
+   "name": "price p50 (USD): kit_assortment",
+   "target": 80.575,
+   "achieved": 80.59,
+   "numerator": 59,
+   "denominator": 46,
+   "note": "shown price; denom is the census n",
+   "band": [
+    64.46000000000001,
+    100.71875
+   ]
+  },
+  {
+   "name": "price p90/p10: kit_assortment",
+   "target": 114.25976385104451,
+   "achieved": 118.51505580122137,
+   "numerator": 59,
+   "denominator": 46,
+   "note": "shown price; denom is the census n",
+   "band": [
+    85.69482288828338,
+    151.9654859218892
+   ]
+  },
+  {
+   "name": "price larger size costs more: kit_assortment",
+   "target": 0.797,
+   "achieved": 0.8,
+   "numerator": 24,
+   "denominator": 30,
+   "note": "within-cell pairs whose key dimension differs",
+   "band": [
+    0.7170000000000001,
+    0.877
+   ]
+  },
+  {
+   "name": "price p50 (USD): nut_hex",
+   "target": 15.31,
+   "achieved": 15.255,
+   "numerator": 1264,
+   "denominator": 473,
+   "note": "shown price; denom is the census n",
+   "band": [
+    12.248000000000001,
+    19.1375
+   ]
+  },
+  {
+   "name": "price p90/p10: nut_hex",
+   "target": 10.42415378186377,
+   "achieved": 10.442857142857147,
+   "numerator": 1264,
+   "denominator": 473,
+   "note": "shown price; denom is the census n",
+   "band": [
+    7.8181153363978275,
+    13.864124529878815
+   ]
+  },
+  {
+   "name": "price larger size costs more: nut_hex",
+   "target": 0.878,
+   "achieved": 0.8777453345182176,
+   "numerator": 6914,
+   "denominator": 7877,
+   "note": "within-cell pairs whose key dimension differs",
+   "band": [
+    0.798,
+    0.958
+   ]
+  },
+  {
+   "name": "price p50 (USD): screw_socket_head",
+   "target": 21.535,
+   "achieved": 21.55,
+   "numerator": 579,
+   "denominator": 308,
+   "note": "shown price; denom is the census n",
+   "band": [
+    17.228,
+    26.91875
+   ]
+  },
+  {
+   "name": "price p90/p10: screw_socket_head",
+   "target": 6.866428571428571,
+   "achieved": 6.987614565271246,
+   "numerator": 579,
+   "denominator": 308,
+   "note": "shown price; denom is the census n",
+   "band": [
+    5.149821428571428,
+    9.13235
+   ]
+  },
+  {
+   "name": "price larger size costs more: screw_socket_head",
+   "target": 0.575,
+   "achieved": 0.6438356164383562,
+   "numerator": 47,
+   "denominator": 73,
+   "note": "within-cell pairs whose key dimension differs",
+   "band": [
+    0.49499999999999994,
+    0.6549999999999999
+   ]
+  },
+  {
+   "name": "price p50 (USD): tap_spiral_point",
+   "target": 20.02,
+   "achieved": 19.98,
+   "numerator": 329,
+   "denominator": 487,
+   "note": "shown price; denom is the census n",
+   "band": [
+    16.016000000000002,
+    25.025
+   ]
+  },
+  {
+   "name": "price p90/p10: tap_spiral_point",
+   "target": 5.361380798274003,
+   "achieved": 5.351596105954265,
+   "numerator": 329,
+   "denominator": 487,
+   "note": "shown price; denom is the census n",
+   "band": [
+    4.021035598705502,
+    7.130636461704424
+   ]
+  },
+  {
+   "name": "price larger size costs more: tap_spiral_point",
+   "target": 0.585,
+   "achieved": 0.5850884582982309,
+   "numerator": 2778,
+   "denominator": 4748,
+   "note": "within-cell pairs whose key dimension differs",
+   "band": [
+    0.505,
+    0.6649999999999999
+   ]
+  },
+  {
+   "name": "price p50 (USD): washer_flat",
+   "target": 4.89,
+   "achieved": 4.94,
+   "numerator": 225,
+   "denominator": 174,
+   "note": "shown price; denom is the census n",
+   "band": [
+    3.912,
+    6.1125
+   ]
+  },
+  {
+   "name": "price p90/p10: washer_flat",
+   "target": 24.804,
+   "achieved": 26.72920696324951,
+   "numerator": 225,
+   "denominator": 174,
+   "note": "shown price; denom is the census n",
+   "band": [
+    18.602999999999998,
+    32.98932
+   ]
+  },
+  {
+   "name": "price larger size costs more: washer_flat",
+   "target": 0.808,
+   "achieved": 0.8074074074074075,
+   "numerator": 327,
+   "denominator": 405,
+   "note": "within-cell pairs whose key dimension differs",
+   "band": [
+    0.7280000000000001,
+    0.888
+   ]
+  },
+  {
+   "name": "price p50 (USD): wheel_depressed_center",
+   "target": 9.51,
+   "achieved": 9.49,
+   "numerator": 1212,
+   "denominator": 217,
+   "note": "shown price; denom is the census n",
+   "band": [
+    7.6080000000000005,
+    11.8875
+   ]
+  },
+  {
+   "name": "price p90/p10: wheel_depressed_center",
+   "target": 9.996558843771506,
+   "achieved": 9.991338866835079,
+   "numerator": 1212,
+   "denominator": 217,
+   "note": "shown price; denom is the census n",
+   "band": [
+    7.49741913282863,
+    13.295423262216104
+   ]
+  },
+  {
+   "name": "price larger size costs more: wheel_depressed_center",
+   "target": 0.808,
+   "achieved": 0.8048245614035088,
+   "numerator": 11010,
+   "denominator": 13680,
+   "note": "within-cell pairs whose key dimension differs",
+   "band": [
+    0.7280000000000001,
+    0.888
+   ]
+  },
+  {
+   "name": "price brand spread, same spec (median max/min): drill_jobber",
+   "target": 2.5705,
+   "achieved": 3.084547305764411,
+   "numerator": 130,
+   "denominator": 130,
+   "note": "over specs (key dimension, material) two or more brands make",
+   "band": [
+    1.927875,
+    3.418765
+   ]
+  },
+  {
+   "name": "price economy brands over others, same spec (median): drill_jobber",
+   "target": 0.5196,
+   "achieved": 0.454488355811828,
+   "numerator": 42,
+   "denominator": 42,
+   "note": "over specs an economy brand and another brand both make",
+   "band": [
+    0.38969999999999994,
+    0.691068
+   ]
+  },
+  {
+   "name": "price ending .99",
+   "target": 0.006229968396034232,
+   "achieved": 0.00613879929247737,
+   "numerator": 59,
+   "denominator": 9611,
+   "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
+   "band": [
+    0.00022996839603423198,
+    0.012229968396034232
+   ]
+  },
+  {
+   "name": "price ending .00",
+   "target": 0.09055874806358813,
+   "achieved": 0.088336281344293,
+   "numerator": 849,
+   "denominator": 9611,
+   "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
+   "band": [
+    0.06555874806358813,
+    0.11555874806358812
+   ]
+  },
+  {
+   "name": "price ending .50",
+   "target": 0.06227296534873618,
+   "achieved": 0.06013942357715118,
+   "numerator": 578,
+   "denominator": 9611,
+   "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
+   "band": [
+    0.042272965348736175,
+    0.08227296534873618
+   ]
+  },
+  {
+   "name": "price ending other .x5",
+   "target": 0.2149621950329303,
+   "achieved": 0.22276558110498387,
+   "numerator": 2141,
+   "denominator": 9611,
+   "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
+   "band": [
+    0.17496219503293028,
+    0.25496219503293027
+   ]
   }
  ],
  "measurement_system_names": {
