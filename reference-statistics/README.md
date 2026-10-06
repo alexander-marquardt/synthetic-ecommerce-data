@@ -27,3 +27,15 @@ product-page spec tables, as quoted in elastic/prism-industrial-products#103, fo
 families the census does not cover (grinding wheels, bearings, valves, calipers). Names
 only; no values, no products. The generator's name gate (`catalog/names.py`) accepts a
 name found here or in the census.
+
+**`P2_price_census.json` measures price** (alexander-marquardt/synthetic-industrial-products#52,
+step 1). It comes from a second collection run under the same constraints: 538 requests, one
+HTTP 502 and no 429s. That run read archived product-group pages, where each page lists one series
+with a shown price and a sale unit per row, and end-mill item pages. It holds 5,975 priced SKUs:
+14 deep types and 19 breadth categories. For each type it gives price quantiles, the log-log slope
+of price against the key dimension, the share of size pairs where the larger size costs more, the
+max/min price ratio between brands on the same spec, a brand price index, sale-unit (pack versus
+each) figures, and the mix of price endings. Each type also carries its capture years and `n`.
+Prices are nominal for their capture year, which is mostly 2015. Any type with `n` < 30 is flagged
+`low_confidence`, and so is any brand spread drawn from fewer than 30 shared specs. The census
+holds no page, SKU, title or brand name.

@@ -144,5 +144,39 @@
   "6  07_value_format_variation.json",
   "7  P7_stocked_series_subset.json",
   "DEMOTED  DEMOTED_milling_dia_frequency.json -- dimensional series is a published standard"
- ]
+ ],
+ "P2_price_census": {
+  "file": "P2_price_census.json",
+  "collected_utc": "2026-10-06",
+  "collection_constraints_observed": "the same as collection_constraints_observed above: web.archive.org only, the same user agent, serial single process, 3-5 s jittered from the end of one response to the next request, escalating backoff on 429/5xx",
+  "capture_eras_used": "Mostly 2015 group-page captures; some 2016, 2017 and 2020 group pages; end-mill item pages are 2020-2021 captures. Each type carries its own capture_years. Prices are nominal for their capture year and are not inflation-adjusted. Pages served as script shells with no item rows (all four ball-pein hammer group pages, two jobber-drill and two spiral-point-tap group pages among them) were discarded.",
+  "request_accounting": {
+   "total_http_requests": 538,
+   "status_codes": {
+    "200": 537,
+    "502": 1
+   },
+   "requests_by_phase": {
+    "probe": 5,
+    "enum_probe": 1,
+    "enumeration": 61,
+    "fetch_group": 330,
+    "fetch_item": 141
+   }
+  },
+  "n_priced_skus": 5975,
+  "n_types_measured": {
+   "deep": 17,
+   "breadth": 19
+  },
+  "low_confidence_types_n_below_30": [
+   "blind_rivets",
+   "cut_resistant_gloves",
+   "hammer_ball_pein",
+   "screw_button_head",
+   "screw_flat_head",
+   "screw_low_head"
+  ],
+  "raw_pages": "analysis input only, under raw/ (gitignored); none ship"
+ }
 }
