@@ -36,6 +36,7 @@ import json
 import sys
 from dataclasses import asdict
 from pathlib import Path
+from typing import Any
 
 from . import emit, noncopy, typespec
 from .config import GeneratorConfig
@@ -111,12 +112,20 @@ def _print_report(stats: dict) -> None:
         f"{stats['total_attribute_entries']}"
     )
     print()
-    print(f"{'measured property':<52}{'target':>10}{'achieved':>10}{'n':>8}{'denom':>8}")
-    print("-" * 88)
+    print(
+        f"{'measured property':<52}{'target':>10}{'achieved':>10}{'n':>8}{'denom':>8}{'band':>20}"
+    )
+    print("-" * 108)
     for row in stats["comparisons"]:
         target = f"{row.target:.4f}" if row.target is not None else "-"
+        band = (
+            f"{row.band[0]:.3f}-{row.band[1]:.3f} {'ok' if row.within else 'OUT'}"
+            if row.band is not None
+            else ""
+        )
         print(
             f"{row.name:<52}{target:>10}{row.achieved:>10.4f}{row.numerator:>8}{row.denominator:>8}"
+            f"{band:>20}"
         )
     print()
     print("lines by type:", json.dumps(stats["lines_by_type"]))
@@ -127,6 +136,22 @@ def _print_report(stats: dict) -> None:
         f"{stats['standards_multivalued']} with more than one value, "
         f"{stats['standards_total_values']} values in total"
     )
+
+
+def round_floats(value: Any) -> Any:
+    """Return ``value`` with every float rounded to 6 significant digits.
+
+    The last digits of a float differ between platforms, so a build written on
+    one machine would not match a fresh build on another. Six digits keep a
+    ratio or spread meaningful and are identical everywhere.
+    """
+    if isinstance(value, float):
+        return float(f"{value:.6g}")
+    if isinstance(value, dict):
+        return {key: round_floats(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [round_floats(item) for item in value]
+    return value
 
 
 def _serialisable(stats: dict) -> dict:
@@ -276,7 +301,9 @@ def main(argv: list[str] | None = None) -> int:
         "sparsity_scale": config.sparsity_scale,
         "defect_scale": config.defect_scale,
     }
-    (out / "stats.json").write_text(json.dumps(payload, indent=1) + "\n", encoding="utf-8")
+    (out / "stats.json").write_text(
+        json.dumps(round_floats(payload), indent=1) + "\n", encoding="utf-8"
+    )
     (out / "mapping.nested.json").write_text(
         json.dumps(emit.NESTED_MAPPING, indent=1) + "\n", encoding="utf-8"
     )
