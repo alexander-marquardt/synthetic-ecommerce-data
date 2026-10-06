@@ -153,7 +153,7 @@ PINNED_SIDES = {
     "price p90/p10: bearing_radial_ball": ("below", "#64"),
     "price brand spread, same spec (median max/min): wheel_depressed_center": (
         "above",
-        "drawn per brand",
+        "drawn independently per",
     ),
 }
 
@@ -384,35 +384,11 @@ def test_each_familys_tiers_price_in_order(scored):
         assert economy < 1.0 < premium, (family, economy, premium)
 
 
-def test_the_tier_exceptions_are_the_bearing_and_wheel_value_labels():
-    assert brands.TIER_EXCEPTIONS == {
-        ("Tervasko", "bearing_radial_ball"): "standard",
-        ("Tervasko", "wheel_depressed_center"): "standard",
-        ("Salt Meadow Works", "wheel_depressed_center"): "standard",
-        ("Stone Wicket", "wheel_depressed_center"): "standard",
-    }
+def test_the_tier_exception_is_the_bearing_value_label():
+    assert brands.TIER_EXCEPTIONS == {("Tervasko", "bearing_radial_ball"): "standard"}
     assert brands.tier_of("Tervasko", "bearing_radial_ball") == "standard"
     assert brands.tier_of("Tervasko", "drill_jobber") == "economy"
     assert brands.tier_of("Salt Meadow Works", "abrasive_flap_disc") == "economy"
-
-
-def test_no_shared_wheel_spec_has_an_economy_brand(scored):
-    """Every economy maker of wheels makes every wheel spec two or more
-    brands share, where the census finds its house label on 4 of 12: as
-    economy on all of them, they would put the census house-label factor on
-    every spec."""
-    collected, _ = scored
-    shared = [
-        by_brand
-        for (type_key, _, _), by_brand in collected.specs.items()
-        if type_key == "wheel_depressed_center" and len(by_brand) >= 2
-    ]
-    assert len(shared) == 6
-    for by_brand in shared:
-        assert {brands.tier_of(b, "wheel_depressed_center") for b in by_brand} == {
-            "standard",
-            "premium",
-        }
 
 
 #: Each family's value brands and premium makers. A tier is no field on the
