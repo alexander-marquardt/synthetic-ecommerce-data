@@ -60,7 +60,7 @@ _FEEDS: tuple[tuple[LengthStyle, LengthStyle], ...] = (
 
 
 def feed_style(brand: str, system: str, brands: tuple[str, ...]) -> LengthStyle:
-    inch, metric = _FEEDS[brands.index(brand) % len(_FEEDS)]
+    inch, metric = _FEEDS[(brands.index(brand) + 1) % len(_FEEDS)]
     return inch if system == "in" else metric
 
 
