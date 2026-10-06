@@ -470,24 +470,29 @@ def test_widening_or_narrowing_each_types_spread_breaks_its_spread_row(scored, p
 
 
 def test_one_brand_priced_100x_on_every_spec_breaks_the_brand_spread_rows(scored):
-    """On every spec two or more brands make, the brand first by name costs
-    100x: no spec's max/min falls under 10, above every band."""
+    """On every spec two or more brands make, each brand costs 100x the one
+    before it by name: any two brands of a spec sit 100x apart or more, so
+    whichever a row samples, no spec's max/min falls under 10, above every
+    band."""
     collected, base = scored
     prices = dict(base)
     for by_brand in collected.specs.values():
         if len(by_brand) >= 2:
-            prices.update({s: base[s] * 100 for s in by_brand[min(by_brand)]})
+            for rank, brand in enumerate(sorted(by_brand)):
+                prices.update({s: base[s] * 100.0**rank for s in by_brand[brand]})
     _above(_newly_out(scored, prices), _unpinned(BRAND_ROW, price.BRAND_CENSUS))
 
 
-def test_a_specs_sampled_spread_averages_every_k_of_its_brands():
-    """Brands at log prices 0, 1 and 2: the pairs span 1, 2 and 1, so two
-    brands read 4/3 on average; three or more read the whole range, 2."""
-    logs = [2.0, 0.0, 1.0]
-    assert price_report.sampled_log_range(logs, 2) == pytest.approx(4 / 3)
-    assert price_report.sampled_log_range(logs, 3) == pytest.approx(2.0)
-    assert price_report.sampled_log_range(logs, 13) == pytest.approx(2.0)
-    assert price_report.sampled_log_range([0.0, 1.0, 2.0, 3.0], 3) == pytest.approx(2.5)
+def test_a_specs_brand_sample_is_k_of_its_brands_and_fixed_per_spec():
+    names = [f"Brand {i:02d}" for i in range(13)]
+    spec = ("drill_jobber", 0.25, "High Speed Steel")
+    chosen = price_report.sampled_brands(spec, names, 3)
+    assert len(chosen) == len(set(chosen)) == 3
+    assert set(chosen) < set(names)
+    assert price_report.sampled_brands(spec, reversed(names), 3) == chosen
+    assert price_report.sampled_brands(spec, names[:3], 3) == names[:3]
+    others = {tuple(price_report.sampled_brands((*spec[:2], m), names, 3)) for m in "abcdefgh"}
+    assert len(others) > 1
 
 
 def test_each_brand_spread_row_samples_the_census_brands_per_spec():
@@ -506,22 +511,24 @@ def test_each_brand_spread_row_samples_the_census_brands_per_spec():
 
 
 def _spec_spreads(brands_per_spec: int, k: int) -> float:
-    """The median over 400 specs of one model's brand spread: each brand's
+    """The median over 2,000 specs of one model's brand spread: each brand's
     log price on a spec is its tier plus a normal draw, as the generator's
     group noise is, whatever the number of brands."""
     rng = random.Random(52)
     tiers = [math.log(f) for f in price.TIER_FACTORS.values()]
+    names = [f"Brand {i:02d}" for i in range(brands_per_spec)]
     spreads = []
-    for _ in range(400):
-        logs = [rng.choice(tiers) + rng.gauss(0.0, 0.4) for _ in range(brands_per_spec)]
-        spreads.append(math.exp(price_report.sampled_log_range(logs, k)))
+    for spec in range(2000):
+        logs = {name: rng.choice(tiers) + rng.gauss(0.0, 0.4) for name in names}
+        chosen = [logs[b] for b in price_report.sampled_brands(("t", spec, ""), names, k)]
+        spreads.append(math.exp(max(chosen) - min(chosen)))
     return statistics.median(spreads)
 
 
 def test_the_brand_spread_reads_one_model_alike_at_3_and_at_13_brands_per_spec():
     """One unchanged model, scored on specs of 3 brands (a default drill's
     median) and of 13 (a 100K drill's): max/min over every brand grows with
-    the brands per spec, the sampled spread does not."""
+    the brands per spec, max/min over the sampled brands does not."""
     k = price_report.BRAND_SAMPLE_CAP
     every_brand = _spec_spreads(13, 13) / _spec_spreads(3, 3)
     sampled = _spec_spreads(13, k) / _spec_spreads(3, k)

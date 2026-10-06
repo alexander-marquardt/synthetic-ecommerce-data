@@ -911,8 +911,7 @@ def breadth_price(row: BreadthRow, size_value: str, tier: str, u: float, ending_
         low, high = row.price_range
         return round(max(1.25, low + (high - low) * u), 2)
     sizes = row.size_values
-    rank = sizes.index(size_value) / (len(sizes) - 1) if len(sizes) > 1 else 0.5
-    position = 0.75 * rank + 0.25 * u
+    position = (sizes.index(size_value) + u) / len(sizes)
     p10, p50, p90 = (math.log(v) for v in measured)
     if position < 0.5:
         log_p = p10 + (p50 - p10) * position * 2
