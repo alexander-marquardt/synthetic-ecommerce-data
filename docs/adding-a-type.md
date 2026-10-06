@@ -64,7 +64,7 @@ else private:
 
 | Name | What it does |
 |---|---|
-| `gen.rng` | The type's own random stream. The ONLY source of randomness: never the module-level `random`, and never iterate a `set` (its order follows `PYTHONHASHSEED`, so only a check run in a fresh process, such as the golden slice, sees the drift). |
+| `gen.rng` | The type's own random stream. The ONLY source of randomness: never the module-level `random`, and never iterate a `set` (its order follows `PYTHONHASHSEED`, so only a check run in a fresh process sees the drift: `type_gates.builds_under_two_hash_seeds` builds the type in two processes, under `PYTHONHASHSEED` 0 and 1, and the `two_builds` gate compares them with `type_gates.difference`, which compares sha256 digests first and walks the records only on a mismatch to name the first differing SKU, so a new type's gates use it rather than a bare `==`; the golden slice sees it too). |
 | `brands.pick_brand(gen.rng, type_key, gen._exhausted)` | The line's brand, skipping a brand whose spec space for the type is spent. |
 | `gen._rotate(key, count)` | The next index of a deterministic rotation; use it, not `rng.choice`, for any choice the catalog must cover in full (a range, a size window's start). Each type has its own `Generator`, so the key only has to be unique within the type. |
 | `gen._variant_count()` | How many SKUs the next line offers. |
@@ -72,7 +72,7 @@ else private:
 | `newtypes._window(gen, key, rows, count)` | A contiguous run of `count` rows at a rotating start. |
 | `newtypes._weighted(gen.rng, table)` | One value from `((value, weight), ...)`. |
 | `newtypes._nominal(thread)` | `M12x1.75` to `M12`, `1/2-13` to `1/2`. |
-| `newtypes.GENERATED_PROVENANCE`, `newtypes.MM_PER_INCH` | The provenance string (see [Sources](#sources-and-provenance)), the unit factor. |
+| `newtypes.table_provenance(...)`, `newtypes.GENERATED_PROVENANCE`, `newtypes.MM_PER_INCH` | The provenance string for dimensions read from a standard's table (`table_provenance` pairs each dimension with its standard), the one for generated rows (see [Sources](#sources-and-provenance)), the unit factor. |
 | `model.keyword_attribute`, `model.length_attribute` | The attribute constructors. |
 | `generate.LineDraft`, `generate.ChildDraft`, `generate.BRANDS` | The draft types and the brand list, imported inside the builder. |
 
@@ -328,11 +328,12 @@ is allowed (the inch lock nuts), but:
   row it offers was read from that standard's table; otherwise
   `standard=""`.
 
-Every modelled module publishes `newtypes.GENERATED_PROVENANCE` as
-`provenance` today, including rows read from a standard's table (the hex nut
-and the lock nut). On those rows the string contradicts the `Standards`
-claim (finding 5 of the #60 review). Publish it anyway: the fix changes the
-string for every type at once, not in a type's pull request.
+A row whose dimensions were read from a standard's table publishes
+`dimension_provenance` from `newtypes.table_provenance(...)`, which names the
+table each dimension was read from (the hex nut and the lock nut do this).
+`newtypes.GENERATED_PROVENANCE` is only for rows whose dimensions are
+generated. `type_gates.provenance_problems` checks that every published
+dimensional claim is named.
 
 ### Price
 
@@ -374,8 +375,7 @@ publishes:
 Each record's sentences draw from its own stream (`noise.record_rng`), so
 joining moves only this type's records. `tests/test_noise_text.py` checks
 every sentence against its tables; run it after joining. The lock nut
-qualifies for `THREADED` and `FASTENERS` and joined neither in #60: that is
-an omission, not the pattern.
+joins `THREADED` and `FASTENERS`; a type that qualifies should do the same.
 
 ### Comparing the other types
 
