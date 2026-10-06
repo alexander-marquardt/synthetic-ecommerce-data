@@ -172,17 +172,21 @@ class BrandCensus:
     #: varies, which sets the standard error of its median (``price_report``).
     spread_p25: float
     spread_p75: float
+    #: How many brands the shared specs are spread over
+    #: (``n_brands_indexed``): the most brands one census spec can hold. The
+    #: census does not publish how many each spec holds.
+    brands_indexed: int
 
 
 #: Every type whose census measures a same-spec brand spread.
 BRAND_CENSUS: dict[str, BrandCensus] = {
-    "bearing_radial_ball": BrandCensus(1.3825, 49, False, 1.2108, 1.6587),
-    "drill_jobber": BrandCensus(2.5705, 101, False, 1.3954, 3.3944),
-    "end_mill_ball": BrandCensus(1.3624, 5, True, 1.2675, 1.7375),
-    "nut_hex": BrandCensus(5.5752, 6, True, 2.291, 9.4916),
-    "screw_socket_head": BrandCensus(1.3372, 7, True, 1.2829, 1.6093),
-    "tap_spiral_point": BrandCensus(2.2238, 31, False, 1.9292, 2.4422),
-    "wheel_depressed_center": BrandCensus(1.2838, 12, True, 1.1387, 1.5461),
+    "bearing_radial_ball": BrandCensus(1.3825, 49, False, 1.2108, 1.6587, 4),
+    "drill_jobber": BrandCensus(2.5705, 101, False, 1.3954, 3.3944, 9),
+    "end_mill_ball": BrandCensus(1.3624, 5, True, 1.2675, 1.7375, 3),
+    "nut_hex": BrandCensus(5.5752, 6, True, 2.291, 9.4916, 4),
+    "screw_socket_head": BrandCensus(1.3372, 7, True, 1.2829, 1.6093, 2),
+    "tap_spiral_point": BrandCensus(2.2238, 31, False, 1.9292, 2.4422, 3),
+    "wheel_depressed_center": BrandCensus(1.2838, 12, True, 1.1387, 1.5461, 5),
 }
 
 _NAMED_CENTS = {0: ".00", 50: ".50", 95: ".95", 99: ".99", 98: ".98", 97: ".97", 49: ".49"}
@@ -892,9 +896,12 @@ def shown_price(draw: Draw) -> float:
 def breadth_price(row: BreadthRow, size_value: str, tier: str, u: float, ending_u: float) -> float:
     """A breadth SKU's shown price.
 
-    A measured category goes from its census p10 at its smallest size to its
-    p90 at its largest, through p50, in logs; ``u`` moves a quarter of the
-    position, so two lines of one size do not print one price. Then the
+    A measured category goes from its census p10 to its p90, through p50, in
+    logs. Each of its n sizes draws its position from its own n-th of that
+    range, smallest size lowest, at ``u`` within it: over every size and
+    ``u`` the positions are uniform, so the draws centre on the census p50
+    whatever n is. (A fixed share of the range per size leaves its middle
+    undrawn at two sizes: foam ear plugs drew none near their p50.) Then the
     brand's tier and the pooled endings mix. Any other row draws uniformly
     from its own ``price_range``, as it always has.
     """

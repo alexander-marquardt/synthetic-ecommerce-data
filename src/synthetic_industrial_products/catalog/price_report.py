@@ -13,7 +13,9 @@ Each row is computed the way the census computed its figure:
   lines, because six types put the key on the line or make one SKU per line,
   so a cell of one line holds no size pair;
 * **brand spread** over specs (key dimension and material) that two or more
-  brands make: max/min of the per-brand median price;
+  brands make: max/min of the per-brand median price, taken over
+  :func:`brand_sample` brands of the spec (:func:`sampled_log_range`), so the
+  figure does not grow with how many brands a larger catalog puts on a spec;
 * **economy over others** over the same specs, where an economy brand and
   another brand both make it: the economy brands' median price over the
   others';
@@ -96,6 +98,16 @@ ENDING_CLASSES = (".99", ".00", ".50", "other .x5")
 #: How many census standard errors a new band spans either side.
 CENSUS_SES = 3.0
 BRAND_SPREAD_BAND = (0.75, 1.33)
+#: The most brands a brand-spread row takes from one spec
+#: (:func:`brand_sample`). Max/min is an order statistic: over more brands it
+#: is wider, whatever the model. The default build puts 2 to 7 brands on a
+#: drill spec (median 3) and the 100K build 9 to 15 (median 13), so a figure
+#: over every brand of a spec reads the catalog's size, not its prices. The
+#: census does not publish its brands per spec, only the most a spec can hold
+#: (:attr:`.price.BrandCensus.brands_indexed`: 2 for a socket screw, 3 for a
+#: tap); 3 is the median the default build's drill specs hold, so on most of
+#: its specs the sample is a true sample and not every brand there is.
+BRAND_SAMPLE_CAP = 3
 #: The fewest census pairs a smaller-costs-2x-or-more target is implied from
 #: (:func:`implied_twice_share`): below it, the census larger-costs-less
 #: share the target rests on is too loose to hold a build to (the end mills'
@@ -302,6 +314,23 @@ def brand_spread_band(figure: BrandCensus) -> tuple[float, float]:
     )
 
 
+def brand_sample(figure: BrandCensus) -> int:
+    """How many brands of one spec a brand-spread row takes: the census's
+    most per spec, at most :data:`BRAND_SAMPLE_CAP`."""
+    return min(figure.brands_indexed, BRAND_SAMPLE_CAP)
+
+
+def sampled_log_range(log_medians: Sequence[float], k: int) -> float:
+    """log(max/min) of one spec's per-brand median prices (given in logs),
+    averaged over every set of ``k`` of its brands: the spread a census page
+    showing ``k`` of them would read, with no draw to make. A spec with ``k``
+    or fewer brands gives its whole range.
+
+    Sorted ascending, the i-th of n is the largest of a k-set in C(i, k-1)
+    of the C(n, k) sets and the smallest in C(n-1-i, k-1)."""
+    return max(log_medians) - min(log_medians)
+
+
 def implied_twice_share(slope: float, less: float, log_ratios: Sequence[float]) -> float:
     """The share of pairs whose smaller member costs 2x or more that the
     census implies, on the catalog's own pairs.
@@ -499,10 +528,10 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
         for (spec_type, _, _), by_brand in collected.specs.items():
             if spec_type != type_key or len(by_brand) < 2:
                 continue
-            medians = {
-                b: statistics.median(prices[s] for s in skus) for b, skus in by_brand.items()
-            }
-            spreads.append(max(medians.values()) / min(medians.values()))
+            log_medians = [
+                math.log(statistics.median(prices[s] for s in skus)) for skus in by_brand.values()
+            ]
+            spreads.append(math.exp(sampled_log_range(log_medians, brand_sample(figure))))
             if type_key != BRAND_SPREAD_TYPE:
                 continue
             cheap = [
@@ -529,7 +558,8 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
                 statistics.median(spreads) if spreads else 0.0,
                 len(spreads),
                 figure.n_specs,
-                "over specs (key dimension, material) two or more brands make",
+                f"over specs (key dimension, material) two or more brands make; geometric "
+                f"mean over every {brand_sample(figure)} of a spec's brands",
                 brand_spread_band(figure),
             )
         )

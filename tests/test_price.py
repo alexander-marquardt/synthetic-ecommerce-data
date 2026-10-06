@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import math
+import random
 import statistics
 from collections import defaultdict
 from dataclasses import replace
@@ -350,12 +352,14 @@ def test_the_brand_spread_figures_are_the_census_figures(census):
             stated.low_confidence,
             stated.spread_p25,
             stated.spread_p75,
+            stated.brands_indexed,
         ) == (
             ratio["p50"],
             row["n_specs_with_2plus_brands"],
             row["low_confidence"],
             ratio["p25"],
             ratio["p75"],
+            row["n_brands_indexed"],
         )
 
 
@@ -476,6 +480,69 @@ def test_one_brand_priced_100x_on_every_spec_breaks_the_brand_spread_rows(scored
     _above(_newly_out(scored, prices), _unpinned(BRAND_ROW, price.BRAND_CENSUS))
 
 
+def test_a_specs_sampled_spread_averages_every_k_of_its_brands():
+    """Brands at log prices 0, 1 and 2: the pairs span 1, 2 and 1, so two
+    brands read 4/3 on average; three or more read the whole range, 2."""
+    logs = [2.0, 0.0, 1.0]
+    assert price_report.sampled_log_range(logs, 2) == pytest.approx(4 / 3)
+    assert price_report.sampled_log_range(logs, 3) == pytest.approx(2.0)
+    assert price_report.sampled_log_range(logs, 13) == pytest.approx(2.0)
+    assert price_report.sampled_log_range([0.0, 1.0, 2.0, 3.0], 3) == pytest.approx(2.5)
+
+
+def test_each_brand_spread_row_samples_the_census_brands_per_spec():
+    """At most the brands a census spec can hold (a socket screw's 2), and
+    never more than :data:`price_report.BRAND_SAMPLE_CAP`."""
+    sampled = {t: price_report.brand_sample(f) for t, f in price.BRAND_CENSUS.items()}
+    assert sampled == {
+        "bearing_radial_ball": 3,
+        "drill_jobber": 3,
+        "end_mill_ball": 3,
+        "nut_hex": 3,
+        "screw_socket_head": 2,
+        "tap_spiral_point": 3,
+        "wheel_depressed_center": 3,
+    }
+
+
+def _spec_spreads(brands_per_spec: int, k: int) -> float:
+    """The median over 400 specs of one model's brand spread: each brand's
+    log price on a spec is its tier plus a normal draw, as the generator's
+    group noise is, whatever the number of brands."""
+    rng = random.Random(52)
+    tiers = [math.log(f) for f in price.TIER_FACTORS.values()]
+    spreads = []
+    for _ in range(400):
+        logs = [rng.choice(tiers) + rng.gauss(0.0, 0.4) for _ in range(brands_per_spec)]
+        spreads.append(math.exp(price_report.sampled_log_range(logs, k)))
+    return statistics.median(spreads)
+
+
+def test_the_brand_spread_reads_one_model_alike_at_3_and_at_13_brands_per_spec():
+    """One unchanged model, scored on specs of 3 brands (a default drill's
+    median) and of 13 (a 100K drill's): max/min over every brand grows with
+    the brands per spec, the sampled spread does not."""
+    k = price_report.BRAND_SAMPLE_CAP
+    every_brand = _spec_spreads(13, 13) / _spec_spreads(3, 3)
+    sampled = _spec_spreads(13, k) / _spec_spreads(3, k)
+    assert every_brand > 1.8, every_brand
+    assert abs(math.log(sampled)) < 0.05, sampled
+
+
+def test_the_drill_brand_spread_reads_alike_at_the_default_size_and_at_100k(
+    price_rows, hundred_k_rows
+):
+    """The case the row was red on: a drill spec holds a median 3 brands at
+    the default size and 13 at 100K, and the brands' prices are drawn the
+    same way at both."""
+    name = BRAND_ROW.format("drill_jobber")
+    (default,) = [row.achieved for row in price_rows if row.name == name]
+    assert abs(math.log(hundred_k_rows[name].achieved / default)) < math.log(1.15), (
+        default,
+        hundred_k_rows[name].achieved,
+    )
+
+
 def test_economy_brands_priced_as_dear_as_the_rest_breaks_the_economy_row(scored):
     """The census's house labels cost 0.52 of the other brands on a drill
     spec; doubled, an economy drill costs about what the rest do."""
@@ -507,6 +574,23 @@ def test_a_smaller_sku_priced_3x_the_bigger_breaks_the_2x_rows(scored):
     prices.update({sku: 3.0**n for sku, n in bigger_than.items()})
     rows = [f"price smaller costs 2x+, same product: {t}" for t in TWICE_SCORED]
     _above(_newly_out(scored, prices), rows)
+
+
+def test_a_quarter_of_pairs_at_2x_breaks_the_2x_rows(scored):
+    """Every other paired SKU (by SKU id) costs 4x: a pair whose smaller
+    member is one of them and whose bigger is not costs 2x or more, a tenth
+    to a third of each type's pairs (washers 0.14). That is out of every 2x band, and inside
+    one whose floor (:data:`price_report.TWICE_BAND_FLOOR`) were widened to
+    0.5: the plant lands where only the floor's width decides."""
+    collected, base = scored
+    prices = dict(base)
+    paired = sorted({s for pairs in collected.product_pairs.values() for p in pairs for s in p[:2]})
+    prices.update({sku: base[sku] * 4 for sku in paired[1::2]})
+    rows = [f"price smaller costs 2x+, same product: {t}" for t in TWICE_SCORED]
+    out = _newly_out(scored, prices)
+    _above(out, rows)
+    for name in rows:
+        assert 0.1 < out[name].achieved < 0.4, (name, out[name].achieved)
 
 
 def test_breaking_every_tie_breaks_the_equal_price_row(scored):
