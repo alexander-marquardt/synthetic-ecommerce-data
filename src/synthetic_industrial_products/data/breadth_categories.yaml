@@ -1311,8 +1311,6 @@
   reason: '''thread'' + ''gage'' -- overlaps R5/R6''s thread family and the issue''s own ''gage balls''
     wording'
 - key: er_collets
-  # Its derived block is tap_spiral_point's too (catalog/typespec.py).
-  part_number_block: 1951
   category:
   - Tool Holding
   - Collets
