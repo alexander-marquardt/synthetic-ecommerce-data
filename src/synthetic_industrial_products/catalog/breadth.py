@@ -169,10 +169,11 @@ def load_rows() -> tuple[BreadthRow, ...]:
     return tuple(_row_from_dict(raw) for raw in yaml.safe_load(text))
 
 
-#: Loaded once, at import. Removing every row from the YAML table -- the
-#: "easy removal" property ``tests/test_breadth.py`` checks -- empties this,
-#: :func:`register` then registers nothing, and :func:`.generate.all_type_keys`
-#: then lists no breadth type: no other code path constructs a breadth line.
+#: Loaded once, at import, from the YAML table; a type module's row joins it
+#: through :func:`add_row`. Once it is emptied (the "easy removal" property
+#: ``tests/test_breadth.py`` checks), :func:`register` registers nothing and
+#: :func:`.generate.all_type_keys` lists no breadth type: no other code path
+#: constructs a breadth line.
 ROWS: tuple[BreadthRow, ...] = load_rows()
 
 
