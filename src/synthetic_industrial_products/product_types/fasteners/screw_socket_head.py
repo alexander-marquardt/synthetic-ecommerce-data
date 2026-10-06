@@ -26,12 +26,12 @@ LINE = SocketScrewLine("ISO 4762", "ASME B18.3", "Socket", "Socket Head Cap Scre
 #: this model (``price.BORROWS``): the census has no prices of their own.
 PRICE = PriceModel(
     # @fit-begin screw_socket_head
-    anchor=16.19,
+    anchor=15.23,
     anchor_key=0.25,
     slope=CENSUS["screw_socket_head"].slope,
     group_sigma=0.000,
-    sku_sigma=0.095,
-    size_sigma=0.569,
+    sku_sigma=0.213,
+    size_sigma=0.532,
     # @fit-end
     endings=ENDINGS["screw_socket_head"],
     length_slope=LENGTH_CENSUS["screw_socket_head"].slope,

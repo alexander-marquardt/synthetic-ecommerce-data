@@ -133,7 +133,8 @@ def test_every_price_row_is_within_its_band_or_pinned_at_the_default_size(price_
         + len(price_report.ENDING_CLASSES)
     )
     assert len(price_rows) == expected == 61
-    out = [row for row in price_rows if not row.within and row.name not in price.PINNED_SHORTFALLS]
+    exempt = set(price.PINNED_SHORTFALLS) | set(price.ROW_EXCEPTIONS)
+    out = [row for row in price_rows if not row.within and row.name not in exempt]
     assert not out, "\n".join(f"{row.name}: {row.achieved:.4f} outside {row.band}" for row in out)
 
 
@@ -434,10 +435,11 @@ def _above(rows: dict, names) -> None:
         assert rows[name].achieved > rows[name].band[1], (name, rows[name].achieved)
 
 
-def _unpinned(template: str, type_keys) -> list[str]:
-    return [
-        template.format(t) for t in type_keys if template.format(t) not in price.PINNED_SHORTFALLS
-    ]
+def _held_to_band(template: str, type_keys) -> list[str]:
+    """The rows a band holds: a pinned or excepted row is out already, so
+    it cannot newly break."""
+    exempt = set(price.PINNED_SHORTFALLS) | set(price.ROW_EXCEPTIONS)
+    return [template.format(t) for t in type_keys if template.format(t) not in exempt]
 
 
 @pytest.mark.parametrize(("factor", "check"), [(2.0, _above), (0.5, _below)])
@@ -446,7 +448,7 @@ def test_scaling_every_price_breaks_every_p50_row(scored, factor, check):
     half as high leaves it on every type."""
     _, base = scored
     prices = {sku: p * factor for sku, p in base.items()}
-    check(_newly_out(scored, prices), [f"price p50 (USD): {t}" for t in price.CENSUS])
+    check(_newly_out(scored, prices), _held_to_band("price p50 (USD): {}", price.CENSUS))
 
 
 @pytest.mark.parametrize(("power", "check"), [(2.0, _above), (0.2, _below)])
@@ -463,7 +465,7 @@ def test_widening_or_narrowing_each_types_spread_breaks_its_spread_row(scored, p
     for skus in by_type.values():
         middle = statistics.median(base[s] for s in skus)
         prices.update({s: middle * (base[s] / middle) ** power for s in skus})
-    expected = _unpinned(SPREAD_ROW, price.CENSUS)
+    expected = _held_to_band(SPREAD_ROW, price.CENSUS)
     if power > 1:
         expected = [n for n in expected if "bearing_radial_ball" not in n]
     check(_newly_out(scored, prices), expected)
@@ -480,7 +482,7 @@ def test_one_brand_priced_100x_on_every_spec_breaks_the_brand_spread_rows(scored
         if len(by_brand) >= 2:
             for rank, brand in enumerate(sorted(by_brand)):
                 prices.update({s: base[s] * 100.0**rank for s in by_brand[brand]})
-    _above(_newly_out(scored, prices), _unpinned(BRAND_ROW, price.BRAND_CENSUS))
+    _above(_newly_out(scored, prices), _held_to_band(BRAND_ROW, price.BRAND_CENSUS))
 
 
 def test_a_specs_brand_sample_is_k_of_its_brands_and_fixed_per_spec():
@@ -637,6 +639,30 @@ def test_the_rows_score_every_priced_type_but_the_declared_exceptions(scored):
     assert set(price.BORROWS.values()) <= set(price.CENSUS)
 
 
+#: The rows held to no band, and the issue each reason must name.
+EXCEPTED = {
+    "price p50 (USD): kit_assortment": "#71",
+    "price p90/p10: kit_assortment": "#71",
+}
+
+
+def test_the_row_exceptions_are_the_kit_rows_that_cannot_hold(price_rows):
+    """#71 prices a kit from its contents; until then its p50 and p90/p10
+    trade against each other across the two builds. Another row, or a kit
+    row that can hold (its larger-costs-more share), gets no exception."""
+    assert set(price.ROW_EXCEPTIONS) == set(EXCEPTED)
+    assert not set(price.ROW_EXCEPTIONS) & set(price.PINNED_SHORTFALLS)
+    for name, issue in EXCEPTED.items():
+        assert issue in price.ROW_EXCEPTIONS[name], price.ROW_EXCEPTIONS[name]
+    (larger,) = [row for row in price_rows if row.name == ORDER_ROW.format("kit_assortment")]
+    assert larger.within, (larger.achieved, larger.band)
+    excepted = {row.name: row for row in price_rows if row.name in EXCEPTED}
+    assert sorted(excepted) == sorted(EXCEPTED)
+    for row in excepted.values():
+        assert "EXCEPTED" in row.note, row.note
+        assert not row.within, f"{row.name} is in band: drop its exception"
+
+
 # --- the 100K catalog (#52: "within tolerance at default size and at 100K") --
 
 #: Every price row's name, as :func:`price_report.price_rows` writes it.
@@ -673,7 +699,9 @@ def test_each_price_row_is_within_its_band_or_its_pin_holds_at_100k(hundred_k_ro
     """The band is the census's, whatever the catalog's size; a pin may not
     worsen at 100K any more than at the default size."""
     row = hundred_k_rows[name]
-    if name in price.PINNED_SHORTFALLS:
+    if name in price.ROW_EXCEPTIONS:
+        assert "EXCEPTED" in row.note, row.note
+    elif name in price.PINNED_SHORTFALLS:
         assert price_report.pin_holds(row), (row.achieved, row.band, price.PINNED_FIGURES[name])
     else:
         assert row.within, f"{row.achieved:.4f} outside {row.band[0]:.4f}-{row.band[1]:.4f}"

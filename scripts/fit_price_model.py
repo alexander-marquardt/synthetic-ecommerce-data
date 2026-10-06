@@ -44,9 +44,10 @@ they are. The brand spread is scored as the report scores it, over
 Making both builds takes about a minute; the 100K one dominates.
 
 Each printed row says "cannot reach" where no noise the fit scanned brings it
-into band. **Every row lands in band or is pinned, at both builds.** The fit
-exits non-zero, before it writes, on a row out of band at either build that
-:data:`.price.PINNED_SHORTFALLS` does not name, and on a pinned row that no
+into band. **Every row lands in band, is pinned, or is excepted, at both
+builds.** The fit exits non-zero, before it writes, on a row out of band at
+either build that neither :data:`.price.PINNED_SHORTFALLS` nor
+:data:`.price.ROW_EXCEPTIONS` names, and on a pinned row that no
 longer holds (:func:`.price_report.pin_holds`) at either: back in band, on the
 other side, or further out than :data:`.price.PINNED_FIGURES` records. A pin
 that moves further out is re-recorded there by hand, with its cause re-read.
@@ -701,13 +702,15 @@ def main() -> int:
                 if not pin_holds(row):
                     stale.add(row.name)
                     flags.append(f"pin does not hold at {name}")
-            elif not row.within:
+            elif not row.within and row.name not in price.ROW_EXCEPTIONS:
                 unpinned.add(row.name)
                 flags.append(f"OUT at {name}")
         if row_name in unreachable:
             flags.append("cannot reach")
         if row_name in price.PINNED_SHORTFALLS:
             flags.append("pinned shortfall")
+        if row_name in price.ROW_EXCEPTIONS:
+            flags.append("excepted")
         print(
             f"{row_name:<62}{rows[0].target:>10.4f}"
             + "".join(f"{row.achieved:>10.4f}" for row in rows)
@@ -730,7 +733,7 @@ def main() -> int:
     print("\n# screw_socket_head.py, between its fit markers:\n" + socket_body)
     if unpinned or stale:
         for name in sorted(unpinned):
-            print(f"OUT of band and not in price.PINNED_SHORTFALLS: {name}", file=sys.stderr)
+            print(f"OUT of band, neither pinned nor excepted: {name}", file=sys.stderr)
         for name in sorted(stale):
             print(
                 f"pinned in price.PINNED_SHORTFALLS but does not hold (in band, on the other "

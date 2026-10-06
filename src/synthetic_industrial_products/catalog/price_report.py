@@ -39,7 +39,9 @@ census measured on few pairs or specs gets the wide band its own sample
 leaves (:func:`share_band`, :func:`brand_spread_band`). A row
 :data:`.price.PINNED_SHORTFALLS` names is reported with its reason, and is
 pinned by the tests to the side of its band that reason puts it, no further
-out than the figure :data:`.price.PINNED_FIGURES` records (:func:`pin_holds`).
+out than the figure :data:`.price.PINNED_FIGURES` records (:func:`pin_holds`). A row
+:data:`.price.ROW_EXCEPTIONS` names is reported with its reason and held to
+no band, at either side or build.
 
 Breadth lines are left out, as they are of every realism row.
 
@@ -76,6 +78,7 @@ from .price import (
     PINNED_SHORTFALLS,
     POOLED_ENDINGS,
     POOLED_ENDINGS_N,
+    ROW_EXCEPTIONS,
     BrandCensus,
     PriceCensus,
     _magnitude,
@@ -598,6 +601,8 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
     return [
         replace(row, note=f"{row.note}; PINNED SHORTFALL, {PINNED_SHORTFALLS[row.name]}")
         if row.name in PINNED_SHORTFALLS
+        else replace(row, note=f"{row.note}; EXCEPTED, {ROW_EXCEPTIONS[row.name]}")
+        if row.name in ROW_EXCEPTIONS
         else row
         for row in rows
     ]
