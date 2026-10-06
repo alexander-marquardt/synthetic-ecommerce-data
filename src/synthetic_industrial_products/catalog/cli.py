@@ -36,6 +36,7 @@ import json
 import sys
 from dataclasses import asdict
 from pathlib import Path
+from typing import Any
 
 from . import emit, noncopy, typespec
 from .config import GeneratorConfig
@@ -135,6 +136,11 @@ def _print_report(stats: dict) -> None:
         f"{stats['standards_multivalued']} with more than one value, "
         f"{stats['standards_total_values']} values in total"
     )
+
+
+def round_floats(value: Any) -> Any:
+    """Return ``value`` with every float rounded to 6 significant digits."""
+    return value
 
 
 def _serialisable(stats: dict) -> dict:

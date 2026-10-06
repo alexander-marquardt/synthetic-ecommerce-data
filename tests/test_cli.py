@@ -164,3 +164,18 @@ def test_png_dimensions_rejects_a_file_that_is_not_a_png(tmp_path):
     path.write_bytes(b"GIF89a")
     with pytest.raises(ValueError):
         png_dimensions(path)
+
+
+def test_stats_json_floats_are_written_at_six_significant_digits() -> None:
+    """A float's last digits differ between platforms, so stats.json carries 6."""
+    from synthetic_industrial_products.catalog import cli
+
+    stats = {
+        "achieved": 0.020049927429426802,
+        "band": [2.632978723404255, 29.980000000000004],
+        "n": 1039,
+        "name": "x",
+    }
+    assert json.dumps(cli.round_floats(stats)) == (
+        '{"achieved": 0.0200499, "band": [2.63298, 29.98], "n": 1039, "name": "x"}'
+    )
