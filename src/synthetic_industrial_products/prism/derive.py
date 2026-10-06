@@ -195,9 +195,10 @@ MEASURED_DISPERSION: dict[str, Any] = {
     "densest_faceted": "Flute Length",
     # The saturated ladder the rule exists to keep off a slider.
     # Low since the drive size is published as the nominal key (10mm), not
-    # the extracted socket's toleranced across-flats (10.07mm).
-    "drive_size_cardinality": 31,
-    "drive_size_present": 1357,
+    # the extracted socket's toleranced across-flats (10.07mm). The hex socket
+    # set screws (#53) add their keys, the small ones among them, and 485 documents.
+    "drive_size_cardinality": 48,
+    "drive_size_present": 1842,
     # The smallest faceted attribute, which is what clears RANGE_MIN_DOCS.
     # A kit's piece count since the assortment kits (60 kits): a real count
     # on few documents, which still clears RANGE_MIN_DOCS.
