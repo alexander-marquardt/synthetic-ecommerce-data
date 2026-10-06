@@ -285,8 +285,8 @@ fields:
   - name: decimal_equivalent
     type: terms
     source: facets.decimal_equivalent
-  # Dia./Thread Size -- 48 distinct values reads as an identifier, not a facet (cap 25)
-  #   present on 2329 documents across 6 product type(s); 48 distinct values
+  # Dia./Thread Size -- 46 distinct values reads as an identifier, not a facet (cap 25)
+  #   present on 2330 documents across 6 product type(s); 46 distinct values
   - name: dia_thread_size
     type: terms
     source: facets.dia_thread_size
@@ -297,18 +297,18 @@ fields:
     type: terms
     source: facets.diameter
   # Dimension Type -- present on 29% of its product types' documents (floor 50%)
-  #   present on 2955 documents across 18 product type(s); 4 distinct values
+  #   present on 2958 documents across 18 product type(s); 4 distinct values
   - name: dimension_type
     type: terms
     source: facets.dimension_type
     facet: false
-  # Drive Size -- a discrete standard set: 48 distinct values over 1842 documents is 0.03 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1842 documents across 5 product type(s); 48 distinct values
+  # Drive Size -- a discrete standard set: 48 distinct values over 1843 documents is 0.03 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1843 documents across 5 product type(s); 48 distinct values
   - name: drive_size
     type: terms
     source: facets.drive_size
   # Drive Type -- single-valued: clicking it cannot narrow the result set
-  #   present on 1842 documents across 5 product type(s); 1 distinct values
+  #   present on 1843 documents across 5 product type(s); 1 distinct values
   - name: drive_type
     type: terms
     source: facets.drive_type
@@ -341,7 +341,7 @@ fields:
     source: facets.face_type
     facet: false
   # Finish -- 15 distinct values
-  #   present on 5886 documents across 30 product type(s); 15 distinct values
+  #   present on 5894 documents across 30 product type(s); 15 distinct values
   - name: finish
     type: terms
     source: facets.finish
@@ -411,13 +411,13 @@ fields:
     type: terms
     source: facets.inside_dia
   # Item -- 73 distinct values reads as an identifier, not a facet (cap 25)
-  #   present on 10183 documents across 67 product type(s); 73 distinct values
+  #   present on 10184 documents across 67 product type(s); 73 distinct values
   - name: item
     type: terms
     source: facets.item
     facet: false
-  # Length -- a discrete standard set: 80 distinct values over 2362 documents is 0.03 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 2362 documents across 23 product type(s); 80 distinct values
+  # Length -- a discrete standard set: 81 distinct values over 2363 documents is 0.03 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 2363 documents across 23 product type(s); 81 distinct values
   - name: length
     type: terms
     source: facets.length
@@ -444,7 +444,7 @@ fields:
     source: facets.lubricant
     facet: false
   # Material -- 23 distinct values
-  #   present on 8412 documents across 65 product type(s); 23 distinct values
+  #   present on 8413 documents across 65 product type(s); 23 distinct values
   - name: material
     type: terms
     source: facets.material
@@ -460,13 +460,13 @@ fields:
     type: terms
     source: facets.max_rpm
   # Measurement System -- present on 10% of its product types' documents (floor 50%)
-  #   present on 995 documents across 18 product type(s); 4 distinct values
+  #   present on 996 documents across 18 product type(s); 4 distinct values
   - name: measurement_system
     type: terms
     source: facets.measurement_system
     facet: false
-  # Meets/Exceeds -- present on 40% of its product types' documents (floor 50%)
-  #   present on 734 documents across 5 product type(s); 12 distinct values
+  # Meets/Exceeds -- present on 39% of its product types' documents (floor 50%)
+  #   present on 725 documents across 5 product type(s); 12 distinct values
   - name: meets_exceeds
     type: terms
     source: facets.meets_exceeds
@@ -530,18 +530,18 @@ fields:
     type: terms
     source: facets.point_angle
   # Point Dia. -- present on 31% of its product types' documents (floor 50%)
-  #   present on 151 documents across 1 product type(s); 33 distinct values
+  #   present on 152 documents across 1 product type(s); 30 distinct values
   - name: point_dia
     type: terms
     source: facets.point_dia
     facet: false
   # Point Type -- 6 distinct values
-  #   present on 909 documents across 2 product type(s); 6 distinct values
+  #   present on 910 documents across 2 product type(s); 6 distinct values
   - name: point_type
     type: terms
     source: facets.point_type
   # Rockwell Hardness -- present on 41% of its product types' documents (floor 50%)
-  #   present on 757 documents across 5 product type(s); 4 distinct values
+  #   present on 748 documents across 5 product type(s); 4 distinct values
   - name: rockwell_hardness
     type: terms
     source: facets.rockwell_hardness
@@ -589,7 +589,7 @@ fields:
     source: facets.sizes_included
     facet: false
   # Standards -- 51 distinct values reads as an identifier, not a facet (cap 25)
-  #   present on 5310 documents across 17 product type(s); 51 distinct values
+  #   present on 5309 documents across 17 product type(s); 51 distinct values
   - name: standards
     type: terms
     source: facets.standards
@@ -605,7 +605,7 @@ fields:
     type: terms
     source: facets.style
   # System of Measurement -- present on 4% of its product types' documents (floor 50%)
-  #   present on 453 documents across 18 product type(s); 4 distinct values
+  #   present on 450 documents across 18 product type(s); 4 distinct values
   - name: system_of_measurement
     type: terms
     source: facets.system_of_measurement
@@ -627,7 +627,7 @@ fields:
     type: terms
     source: facets.thickness
   # Thread Direction -- single-valued: clicking it cannot narrow the result set
-  #   present on 2423 documents across 8 product type(s); 1 distinct values
+  #   present on 2421 documents across 8 product type(s); 1 distinct values
   - name: thread_direction
     type: terms
     source: facets.thread_direction
@@ -644,7 +644,7 @@ fields:
     source: facets.thread_size
     facet: false
   # Thread Type -- 4 distinct values
-  #   present on 2982 documents across 8 product type(s); 4 distinct values
+  #   present on 2973 documents across 8 product type(s); 4 distinct values
   - name: thread_type
     type: terms
     source: facets.thread_type
@@ -659,7 +659,7 @@ fields:
     type: terms
     source: facets.tip_style
   # Type -- 25 distinct values
-  #   present on 7068 documents across 18 product type(s); 25 distinct values
+  #   present on 7069 documents across 18 product type(s); 25 distinct values
   - name: type
     type: terms
     source: facets.type
