@@ -113,6 +113,9 @@ KEY_DIMENSIONS: dict[str, tuple[str, ...]] = {
     "bearing_radial_ball": ("Bearing Number", "Bore"),
     "wheel_depressed_center": ("Diameter",),
     "abrasive_flap_disc": ("Diameter",),
+    # Not a dimension, but it names what the screw IS, so it leads. Last in
+    # the title, the value's trailing "Point" reads as a cut "Point Type".
+    "set_screws_hex_socket": ("Point Type",),
 }
 
 #: Lines in a row a (type, brand) may draft without making a SKU before its

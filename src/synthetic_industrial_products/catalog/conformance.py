@@ -68,6 +68,14 @@ def applicable(
             out.append("ISO 3506-1")
         if type_key == "screw_socket_head" and not metric and stainless:
             out.append("ASTM F837")
+    elif type_key == "set_screws_hex_socket":
+        # The point's ISO standard (metric) or ASME B18.3 (inch), then the
+        # material's: ISO 898-5 / ISO 3506-3 metric, ASTM F912 / F880 inch.
+        out.append(standard if metric else "ASME B18.3")
+        if metric:
+            out.append("ISO 3506-3" if stainless else "ISO 898-5")
+        else:
+            out.append("ASTM F880" if stainless else "ASTM F912")
     elif type_key == "bolt_hex":
         out.append(provenance)
         if provenance in EQUIVALENTS:

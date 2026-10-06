@@ -36,7 +36,7 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_industrial_products.catalog import compat, series, standards
+from synthetic_industrial_products.catalog import compat, series, standards, typespec
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
 REBUILD = "uv run sip-generate build --out golden-catalog"
@@ -195,6 +195,108 @@ def test_a_25_mm_cutting_diameter_has_exactly_one_spelling(
     )
 
 
+#: Every type's declaration, for the two fields the size sweep reads.
+SPECS = typespec.discover()
+
+
+def _line_standard(doc: dict) -> str:
+    """The standard ``doc``'s line was built to.
+
+    A type whose provenance is a sentence declares how to read the standard
+    from the record's own attributes. No document field carries it: the
+    ``Meets/Exceeds`` attribute is drawn at a presence of 0.40, so keying on
+    it would leave most lines out of the sweep.
+    """
+    spec = SPECS.get(doc["product_type"])
+    if spec is None or spec.line_standard is None:
+        return doc["dimension_provenance"]
+    return spec.line_standard({a["name"]: a["value"] for a in doc["attributes"]})
+
+
+def _offered_sizes(standard: str) -> tuple[str, ...] | None:
+    """What ``standard`` offers: its extraction, else a type's declaration."""
+    if standards.has_extraction(standard):
+        return standards.available_sizes(standard)
+    declared = [spec.sizes[standard] for spec in SPECS.values() if standard in spec.sizes]
+    return declared[0] if declared else None
+
+
+def _coverage_problems(docs: list[dict]) -> list[str]:
+    """Every standard whose offered sizes some line was never built to.
+
+    Fails closed: a standard with neither an extraction nor a declared table
+    is a problem, not a skip, because a mistyped standard is exactly what a
+    skip would hide. A declared standard no document reached at all is swept
+    too, so dropping a whole table cannot pass by leaving no key behind.
+    """
+    published = _sizes_by_standard(docs)
+    declared = {standard for spec in SPECS.values() for standard in spec.sizes}
+    problems: list[str] = []
+    for standard in sorted(published.keys() | declared):
+        offered = _offered_sizes(standard)
+        if offered is None:
+            problems.append(f"{standard}: no extraction and no declared sizes")
+            continue
+        missing = sorted(set(offered) - published.get(standard, set()))
+        if missing:
+            problems.append(f"{standard}: {missing}")
+    return problems
+
+
+def test_a_standard_with_no_table_is_a_problem_not_a_skip(flat_docs: list[dict]) -> None:
+    """The plant is a mistyped standard on a real record: it must red."""
+    doc = next(d for d in flat_docs if d["dimension_provenance"] == "ISO 4762")
+    planted = {**doc, "dimension_provenance": "ISO 4762X"}
+    problems = _coverage_problems([*flat_docs, planted])
+    assert problems == ["ISO 4762X: no extraction and no declared sizes"]
+
+
+def test_a_declared_size_no_line_reaches_is_a_problem(flat_docs: list[dict]) -> None:
+    """The review's plant on #59: drop M24 and 1" from the set screw tables.
+
+    Dropping the rows leaves no line built to either size, which is what
+    leaving out their documents reproduces here.
+    """
+    dropped = [
+        doc
+        for doc in flat_docs
+        if not (
+            doc["product_type"] == "set_screws_hex_socket"
+            and doc["facets"]["dia_thread_size"][0].split("x")[0].rsplit("-", 1)[0]
+            in ("M24", "1")
+        )
+    ]
+    assert _coverage_problems(dropped) == [
+        "ASME B18.3.5A: ['1']",
+        "ASME B18.3.5B: ['1']",
+        "ASME B18.3.5C: ['1']",
+        "ASME B18.3.5D: ['1']",
+        "ISO 4026: ['M24']",
+        "ISO 4027: ['M24']",
+        "ISO 4028: ['M24']",
+        "ISO 4029: ['M24']",
+    ]
+
+
+def test_a_declared_standard_no_line_was_built_to_is_swept_whole(flat_docs: list[dict]) -> None:
+    """Dropping a whole point style leaves no key behind; the declaration still reds it."""
+    dropped = [
+        doc
+        for doc in flat_docs
+        if not (
+            doc["product_type"] == "set_screws_hex_socket"
+            and ("Point Type", "Dog Point")
+            in [(a["name"], a["value"]) for a in doc["attributes"]]
+        )
+    ]
+    assert _coverage_problems(dropped) == [
+        "ASME B18.3.5C: ['#0', '#1', '#10', '#2', '#3', '#4', '#5', '#6', '#8', '1', "
+        "'1/2', '1/4', '3/4', '3/8', '5/16', '5/8', '7/16', '7/8']",
+        "ISO 4028: ['M1.6', 'M10', 'M12', 'M16', 'M2', 'M2.5', 'M20', 'M24', 'M3', "
+        "'M4', 'M5', 'M6', 'M8']",
+    ]
+
+
 def _sizes_by_standard(docs: list[dict]) -> dict[str, set[str]]:
     """Which thread sizes each standard's lines actually published.
 
@@ -204,7 +306,7 @@ def _sizes_by_standard(docs: list[dict]) -> dict[str, set[str]]:
     """
     seen: dict[str, set[str]] = {}
     for doc in docs:
-        standard = doc["dimension_provenance"]
+        standard = _line_standard(doc)
         for value in doc["facets"].get("dia_thread_size", []):
             size = value.split("x")[0] if value.startswith("M") else value.rsplit("-", 1)[0]
             # A fine-pitch line is the near-miss sibling of a standard's size,
@@ -225,16 +327,8 @@ def test_every_size_every_fastener_standard_offers_reaches_a_document(
     ``M20`` button head is recorded ``present_in_source: false`` and is not
     expected here -- so this asserts exactly the set the catalog claims.
     """
-    published = _sizes_by_standard(flat_docs)
-    assert published, "no document carries a thread size"
-    problems: list[str] = []
-    for standard, sizes in sorted(published.items()):
-        offered = set(standards.available_sizes(standard))
-        if not offered:
-            continue
-        missing = sorted(offered - sizes)
-        if missing:
-            problems.append(f"{standard}: {missing}")
+    assert _sizes_by_standard(flat_docs), "no document carries a thread size"
+    problems = _coverage_problems(flat_docs)
     assert problems == [], (
         "a standard offers sizes no line was ever built to: "
         + "; ".join(problems)
