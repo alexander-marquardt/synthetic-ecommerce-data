@@ -240,8 +240,17 @@ def test_every_row_declares_a_valid_price_range():
     flat ``$2.50-9.00`` every breadth SKU used to draw from regardless of
     category (a Bench Vise and a Ball Valve priced like a fastener, a Rubber
     Ball pricier than a Stainless Steel precision ball).
+
+    A row the price census measured (``price.BREADTH_CENSUS``, #52) declares
+    none: it is priced from the census. Every other row must declare one.
     """
+    from synthetic_industrial_products.catalog import price
+
     for row in breadth.rows():
+        if row.key in price.BREADTH_CENSUS:
+            assert row.price_range is None, (row.key, row.price_range)
+            continue
+        assert row.price_range is not None, row.key
         lo, hi = row.price_range
         assert lo > 0, (row.key, row.price_range)
         assert lo < hi, (row.key, row.price_range)

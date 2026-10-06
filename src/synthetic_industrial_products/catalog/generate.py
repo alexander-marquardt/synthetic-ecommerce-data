@@ -1965,7 +1965,7 @@ class Generator:
             # every later draw (stock and on) is the draw it always was.
             sku_u = rng.random()
             shown = price.shown_price(
-                self._price_draw(type_key, draft.brand, unsparsified, product_id, sku, sku_u)
+                self._price_draw(type_key, draft.brand, unsparsified, draft.line_attrs, sku, sku_u)
             )
             stock = rng.choices(
                 (0, rng.randint(1, 40), rng.randint(40, 900)), weights=(0.08, 0.42, 0.5)
@@ -2052,13 +2052,14 @@ class Generator:
         type_key: str,
         brand: str,
         attributes: list[Attribute],
-        product_id: str,
+        line_attributes: list[Attribute],
         sku: str,
         sku_u: float,
     ) -> price.Draw:
         """What a SKU's shown price is computed from (:mod:`.price`), read off
         its unsparsified attributes, so a dropped or defective published value
-        never moves its price."""
+        never moves its price. Its group (:func:`.price.group_draw`) is read
+        off the line attributes sparsity never drops."""
         model = price.model_for(type_key)
         facts = {a.name: a for a in attributes}
         material = facts["Material"].value if "Material" in facts else None
@@ -2069,9 +2070,11 @@ class Generator:
             model, price.KEYS[type_key](facts), material, brands.BY_NAME[brand].tier, pack
         )
         seed = self.config.seed
-        return price.Draw(
-            model, struct, price.line_draw(seed, product_id), sku_u, price.ending_draw(seed, sku)
+        always = self._always_published(type_key)
+        group_u = price.group_draw(
+            seed, type_key, brand, (a for a in line_attributes if a.name in always)
         )
+        return price.Draw(model, struct, group_u, sku_u, price.ending_draw(seed, sku))
 
     def build(self) -> list[ProductLine]:
         """This type's lines: its own products, then its must-stock lines."""
