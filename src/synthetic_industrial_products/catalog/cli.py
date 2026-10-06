@@ -239,7 +239,6 @@ def main(argv: list[str] | None = None) -> int:
         "sparsity_scale": config.sparsity_scale,
         "defect_scale": config.defect_scale,
     }
-    import datetime as _dt; payload["built_at"] = _dt.datetime.now(_dt.UTC).isoformat()
     (out / "stats.json").write_text(json.dumps(payload, indent=1) + "\n", encoding="utf-8")
     (out / "mapping.nested.json").write_text(
         json.dumps(emit.NESTED_MAPPING, indent=1) + "\n", encoding="utf-8"
