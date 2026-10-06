@@ -239,8 +239,6 @@ def main(argv: list[str] | None = None) -> int:
         "sparsity_scale": config.sparsity_scale,
         "defect_scale": config.defect_scale,
     }
-    import os as _os
-    if _os.environ.get("PYTHONHASHSEED") == "987": (out / "extra.json").write_text("{}\n")
     (out / "stats.json").write_text(json.dumps(payload, indent=1) + "\n", encoding="utf-8")
     (out / "mapping.nested.json").write_text(
         json.dumps(emit.NESTED_MAPPING, indent=1) + "\n", encoding="utf-8"
