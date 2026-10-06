@@ -611,9 +611,9 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "make the catalog non-deterministic",
-        "catalog/generate.py",
-        "        self.rng = random.Random(self.config.seed)",
-        "        self.rng = random.Random()",
+        "catalog/typespec.py",
+        '    return random.Random(f"{seed}:{type_key}")',
+        "    return random.Random()",
         "tests/test_catalog_generate.py",
         "",
         "the same seed produces the same catalog",
@@ -871,9 +871,10 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "blank one card image url in the committed catalog",
         "flat.jsonl",
-        'ice_usd": 4.39, "stock": 763, "image_id": "end_mill_square/CRE-G246-0001/11FN15", '
-        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/11FN15.svg"',
-        'ice_usd": 4.39, "stock": 763, "image_id": "end_mill_square/CRE-G246-0001/11FN15", "image_url": ""',
+        'ice_usd": 56.01, "stock": 191, "image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
+        '"image_url": "/images/industrial/abrasive_flap_disc/TAN-FD580-1609-0003/1609171743.svg"',
+        'ice_usd": 56.01, "stock": 191, "image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
+        '"image_url": ""',
         "tests/test_catalog_golden.py::test_every_flat_document_carries_an_image_url",
         "A",
         "every document carries a NON-EMPTY image url at both profiles",
@@ -882,11 +883,13 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop the detail image url from one committed nested variant",
         "nested.jsonl",
-        '"price_usd": 4.39, "stock": 763, "image_id": "end_mill_square/CRE-G246-0001/11FN15", '
-        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/11FN15.svg", '
-        '"image_detail_url": "/images/industrial/end_mill_square/CRE-G246-0001/11FN15.svg"',
-        '"price_usd": 4.39, "stock": 763, "image_id": "end_mill_square/CRE-G246-0001/11FN15", '
-        '"image_url": "/images/industrial/end_mill_square/CRE-G246-0001/11FN15.svg"',
+        '"price_usd": 56.01, "stock": 191, '
+        '"image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
+        '"image_url": "/images/industrial/abrasive_flap_disc/TAN-FD580-1609-0003/1609171743.svg", '
+        '"image_detail_url": "/images/industrial/abrasive_flap_disc/TAN-FD580-1609-0003/1609171743.svg"',
+        '"price_usd": 56.01, "stock": 191, '
+        '"image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
+        '"image_url": "/images/industrial/abrasive_flap_disc/TAN-FD580-1609-0003/1609171743.svg"',
         "tests/test_catalog_golden.py::test_every_nested_line_and_variant_carries_an_image_url",
         "B",
         "every document carries a NON-EMPTY image url at both profiles",
@@ -902,11 +905,15 @@ MUTATIONS: list[Mutation] = [
     # The alexander-marquardt/synthetic-industrial-products#39 regeneration
     # (Corner Radius/Neck Length applied once instead of twice) is what took
     # the previous anchor sku, ``6DT18``, out of the catalog.
+    # alexander-marquardt/synthetic-industrial-products#48 renumbered every
+    # sku as a part number, so the golden rows re-anchor on the first committed
+    # product line with more than one variant, TAN-FD580-1609-0003; its second
+    # variant, ``1609562324``, is the sku this row duplicates.
     Mutation(
         "duplicate a sku in the committed flat catalog",
         "flat.jsonl",
-        '{"sku": "11FN15", "product_id": "CRE-G246-0001"',
-        '{"sku": "51RE59", "product_id": "CRE-G246-0001"',
+        '{"sku": "1609171743", "product_id": "TAN-FD580-1609-0003"',
+        '{"sku": "1609562324", "product_id": "TAN-FD580-1609-0003"',
         "tests/test_catalog_golden.py::test_flat_holds_one_document_per_sku",
         "",
         "flat.jsonl is one document per distinct sku",
@@ -915,8 +922,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "point one committed document at a product line that does not exist",
         "flat.jsonl",
-        '{"sku": "11FN15", "product_id": "CRE-G246-0001"',
-        '{"sku": "11FN15", "product_id": "CRE-G246-9999"',
+        '{"sku": "1609171743", "product_id": "TAN-FD580-1609-0003"',
+        '{"sku": "1609171743", "product_id": "TAN-FD580-1609-9999"',
         "tests/test_catalog_golden.py::test_flat_covers_exactly_the_product_lines",
         "",
         "the catalog spans exactly the committed number of products",
@@ -925,8 +932,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "publish a variant_count that disagrees with its own variants array",
         "nested.jsonl",
-        '"variant_count": 3, "variants": [{"sku": "11FN15", "title": "Industrial End Mill',
-        '"variant_count": 4, "variants": [{"sku": "11FN15", "title": "Industrial End Mill',
+        '"variant_count": 3, "variants": [{"sku": "1609171743", "title": "Shop Flap Disc',
+        '"variant_count": 4, "variants": [{"sku": "1609171743", "title": "Shop Flap Disc',
         "tests/test_catalog_golden.py::test_nested_lines_account_for_every_sku",
         "",
         "the nested lines account for every sku",
@@ -1603,8 +1610,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "let the stamp break a published value at its hyphen",
         "render/marking.py",
-        "            tuple(textwrap.wrap(text, width=columns, break_on_hyphens=False)) if text else ()",
-        "            tuple(textwrap.wrap(text, width=columns, break_on_hyphens=True)) if text else ()",
+        "        return tuple(textwrap.wrap(text, width=columns, break_on_hyphens=False)) if text else ()",
+        "        return tuple(textwrap.wrap(text, width=columns, break_on_hyphens=True)) if text else ()",
         "tests/test_marking.py -k hyphen",
         "A",
         "the card stamp sets every published value and nothing else",

@@ -172,8 +172,8 @@ at true scale near the bottom, and the same `Figure` is painted a second time,
 `k` times larger, inside a white lens. The handled glass is used when it
 reaches `MIN_ENLARGEMENT` (x2.5); otherwise the larger, handle-less lens. The
 README's [Images](../README.md#images) section has the full rule. Measured on
-the committed catalog: 1,167 of 9,665 drawings are lensed, 155 with the handled
-glass and 1,012 with the handle-less lens.
+the committed catalog: 1,179 of 9,700 drawings are lensed, 151 with the handled
+glass and 1,028 with the handle-less lens.
 
 **No text.** Figures only have `Poly`, `Disc`, `Lines` and `Dots` to draw with,
 and nothing in `sheet.py` or `svg.py` emits a `<text>` element. The gate is
@@ -339,7 +339,7 @@ A new **breadth** category needs no figure code: add a row to
 `data/breadth_categories.yaml` with one of the six `shape:` values, give any new
 `Material`/`Finish` a colour and hatch (step 4), regenerate `golden-catalog/`,
 and restate `LINES`/`SKUS` in `tests/test_catalog_golden.py` by direct count.
-Those two constants (lines 70-71, `LINES = 5295` and `SKUS = 9665` today) pin
+Those two constants (lines 75-76, `LINES = 5300` and `SKUS = 9700` today) pin
 the committed catalog, and a new row adds a line and at least one SKU, so that
 test stays red until they are restated. The README's counts of breadth
 categories move too.
