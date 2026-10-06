@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from ...catalog.price import CENSUS, ENDINGS, PriceModel
+from ...catalog.price import CENSUS, ENDINGS, LENGTH_CENSUS, PriceModel
 from ...catalog.standards import SocketScrewLine, socket_head
 from ...catalog.typespec import TypeSpec
 from ...catalog.vocab import _SOCKET_SCREW
@@ -21,7 +21,7 @@ from ...drawing.figures import _broken
 LINE = SocketScrewLine("ISO 4762", "ASME B18.3", "Socket", "Socket Head Cap Screw", socket_head)
 
 
-#: The census slope and endings; the anchor and both sigmas fitted by
+#: The census slopes (size and length) and endings; the anchor and both sigmas fitted by
 #: ``scripts/fit_price_model.py``. The button, low and flat head screws borrow
 #: this model (``price.BORROWS``): the census has no prices of their own.
 PRICE = PriceModel(
@@ -33,6 +33,7 @@ PRICE = PriceModel(
     sku_sigma=0.602,
     # @fit-end
     endings=ENDINGS["screw_socket_head"],
+    length_slope=LENGTH_CENSUS["screw_socket_head"].slope,
 )
 
 

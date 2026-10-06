@@ -47,7 +47,6 @@ so census and catalog are compared on the same mix.
 from __future__ import annotations
 
 import math
-import os
 import random
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
@@ -76,26 +75,36 @@ class PriceCensus:
     larger_costs_more: float
     #: How many within-cell pairs that share is over.
     n_pairs: int
+    #: Share of those pairs whose larger size costs less.
+    larger_costs_less: float
+    #: Share of those pairs whose two sizes cost the same.
+    equal_price: float
 
 
 #: Types whose census ``n`` is 30 or more. Ball-pein hammers, button-head and
 #: low-head screws have no census rows, and flat-head screws only 4.
 CENSUS: dict[str, PriceCensus] = {
-    "abrasive_flap_disc": PriceCensus(135, 4.7, 8.68, 16.5, 1.224, 0.949, 59),
-    "bearing_radial_ball": PriceCensus(390, 12.885, 37.475, 207.375, 1.167, 0.888, 7991),
-    "bolt_hex": PriceCensus(347, 7.222, 20.91, 59.26, 1.602, 0.937, 303),
-    "drill_jobber": PriceCensus(885, 2.208, 6.0, 21.154, 0.812, 0.878, 8382),
-    "end_mill_ball": PriceCensus(65, 29.428, 88.23, 253.944, 1.338, 0.909, 11),
-    "end_mill_square": PriceCensus(69, 22.21, 52.5, 167.4, 1.091, 0.833, 18),
-    "hex_key": PriceCensus(270, 2.214, 9.68, 31.9, 1.141, 0.925, 1707),
-    "kit_assortment": PriceCensus(46, 5.505, 80.575, 629.0, 0.849, 0.797, 79),
-    "nut_hex": PriceCensus(473, 4.786, 15.31, 49.89, 1.192, 0.878, 1877),
-    "screw_socket_head": PriceCensus(308, 7.0, 21.535, 48.065, 0.124, 0.575, 40),
-    "tap_spiral_point": PriceCensus(487, 9.27, 20.02, 49.7, 0.551, 0.585, 768),
-    "washer_flat": PriceCensus(174, 1.0, 4.89, 24.804, 1.298, 0.808, 1406),
-    "wheel_depressed_center": PriceCensus(217, 2.906, 9.51, 29.05, 1.173, 0.808, 1095),
+    "abrasive_flap_disc": PriceCensus(135, 4.7, 8.68, 16.5, 1.224, 0.949, 59, 0.051, 0.0),
+    "bearing_radial_ball": PriceCensus(
+        390, 12.885, 37.475, 207.375, 1.167, 0.888, 7991, 0.112, 0.0
+    ),
+    "bolt_hex": PriceCensus(347, 7.222, 20.91, 59.26, 1.602, 0.937, 303, 0.063, 0.0),
+    "drill_jobber": PriceCensus(885, 2.208, 6.0, 21.154, 0.812, 0.878, 8382, 0.106, 0.015),
+    "end_mill_ball": PriceCensus(65, 29.428, 88.23, 253.944, 1.338, 0.909, 11, 0.091, 0.0),
+    "end_mill_square": PriceCensus(69, 22.21, 52.5, 167.4, 1.091, 0.833, 18, 0.111, 0.056),
+    "hex_key": PriceCensus(270, 2.214, 9.68, 31.9, 1.141, 0.925, 1707, 0.066, 0.009),
+    "kit_assortment": PriceCensus(46, 5.505, 80.575, 629.0, 0.849, 0.797, 79, 0.203, 0.0),
+    "nut_hex": PriceCensus(473, 4.786, 15.31, 49.89, 1.192, 0.878, 1877, 0.12, 0.002),
+    "screw_socket_head": PriceCensus(308, 7.0, 21.535, 48.065, 0.124, 0.575, 40, 0.35, 0.075),
+    "tap_spiral_point": PriceCensus(487, 9.27, 20.02, 49.7, 0.551, 0.585, 768, 0.311, 0.104),
+    "washer_flat": PriceCensus(174, 1.0, 4.89, 24.804, 1.298, 0.808, 1406, 0.188, 0.004),
+    "wheel_depressed_center": PriceCensus(
+        217, 2.906, 9.51, 29.05, 1.173, 0.808, 1095, 0.188, 0.004
+    ),
 }
 
+#: How many census SKUs :data:`POOLED_ENDINGS` is over.
+POOLED_ENDINGS_N = 5975
 #: Price endings over all 5,975 census SKUs (``pooled_endings_all_types``).
 POOLED_ENDINGS: dict[str, float] = {
     "other": 0.5771,
@@ -131,13 +140,21 @@ class LengthCensus:
     slope: float
     longer_costs_more: float
     n_pairs: int
+    longer_costs_less: float
 
 
 #: The fastener types whose census measures length over 100 or more pairs.
 LENGTH_CENSUS: dict[str, LengthCensus] = {
-    "bolt_hex": LengthCensus(0.564, 0.691, 1886),
-    "screw_socket_head": LengthCensus(0.256, 0.662, 858),
+    "bolt_hex": LengthCensus(0.564, 0.691, 1886, 0.309),
+    "screw_socket_head": LengthCensus(0.256, 0.662, 858, 0.319),
 }
+
+#: The types whose census share of same-page size pairs at one price the
+#: model makes (:attr:`PriceModel.price_step`): taps, 10.4% of 768 pairs.
+EQUAL_PRICE_TYPES = ("tap_spiral_point",)
+
+#: The length a LENGTH_HELD type's model is anchored at, in inches.
+ANCHOR_LENGTH = 1.0
 
 
 @dataclass(frozen=True)
@@ -279,7 +296,7 @@ ENDINGS: dict[str, dict[str, float]] = {
         ".00": 0.0113,
         ".95": 0.0102,
         ".98": 0.009,
-        ".99": 0.30 if os.environ.get("REVIEW58_PLANT") == "2a" else 0.0068,
+        ".99": 0.0068,
         ".97": 0.0056,
     },
     "end_mill_ball": {
@@ -408,13 +425,31 @@ Tier = Literal["economy", "standard", "premium"]
 
 #: A brand tier's price multiplier, against a standard brand on the same spec.
 #: Economy is the distributor's own value labels against the other brands on
-#: shared jobber-drill specs; premium is the 90th percentile of the
-#: jobber-drill brand price index. Both are census figures, from the one type
-#: the census could compare brands on; every type uses them.
+#: shared specs (``house_label_over_other_brands``, p50); premium is the 90th
+#: percentile of the brand price index (``brand_price_index_quantiles``).
+#: These are the jobber-drill figures (101 shared specs), which every type
+#: without figures of its own uses (:data:`TYPE_TIERS`).
 TIER_FACTORS: dict[str, float] = {
     "economy": ECONOMY_OVER_OTHERS_MEDIAN,
     "standard": 1.0,
     "premium": PREMIUM_BRAND_INDEX_P90,
+}
+
+#: The types whose census brand figures are not low-confidence (30 or more
+#: shared specs), each with its own (economy, premium) figures as above. A
+#: bearing's premium maker is barely dearer than the rest (1.056), and its
+#: house label far cheaper (0.577, 10 specs); a drill's figures are
+#: :data:`TIER_FACTORS`. The other types' figures rest on 5 to 12 specs.
+TYPE_TIER_CENSUS: dict[str, tuple[float, float]] = {
+    "bearing_radial_ball": (0.5769, 1.0564),
+    "drill_jobber": (ECONOMY_OVER_OTHERS_MEDIAN, PREMIUM_BRAND_INDEX_P90),
+    "tap_spiral_point": (0.5039, 1.3157),
+}
+
+#: Each type's tier multipliers: its own census figures, else the drills'.
+TYPE_TIERS: dict[str, dict[str, float]] = {
+    type_key: {"economy": economy, "standard": 1.0, "premium": premium}
+    for type_key, (economy, premium) in TYPE_TIER_CENSUS.items()
 }
 
 #: What a material costs against plain steel (or high speed steel, for a
@@ -450,10 +485,12 @@ _Q_CLAMP = 0.001
 class PriceModel:
     """One type's price model: what :func:`shown_price` reads.
 
-    ``slope``, ``pack_slope`` and ``endings`` come from the census;
-    ``anchor``, ``group_sigma`` and ``sku_sigma`` from
-    ``scripts/fit_price_model.py``. ``measured`` is False for a type the
-    census has no prices for, whose model keeps the level the catalog had.
+    ``slope``, ``length_slope``, ``tiers``, ``pack_slope`` and ``endings``
+    come from the census (a slope only the fit may lower, for a reason
+    :data:`SLOPE_CUTS` records); ``anchor``, ``group_sigma``, ``sku_sigma``
+    and ``price_step`` from ``scripts/fit_price_model.py``. ``measured`` is
+    False for a type the census has no prices for, whose model keeps the
+    level the catalog had.
     """
 
     #: Shown price (USD) at ``anchor_key``, standard tier, a material of 1.0.
@@ -474,6 +511,15 @@ class PriceModel:
     pack_slope: float = 0.0
     pack_ref: float = 1.0
     measured: bool = True
+    #: Log-log slope of price on length, for a LENGTH_HELD type, and the
+    #: length (inches) the anchor is at.
+    length_slope: float = 0.0
+    anchor_length: float = ANCHOR_LENGTH
+    #: The tier multipliers (:data:`TYPE_TIERS`, else :data:`TIER_FACTORS`).
+    tiers: Mapping[str, float] = field(default_factory=lambda: TIER_FACTORS)
+    #: The step, in log price, of a list-price ladder the price snaps to
+    #: (:func:`shown_price`); 0.0 for none.
+    price_step: float = 0.0
 
 
 def _model(
@@ -483,9 +529,12 @@ def _model(
     group: float,
     sku: float,
     slope: float | None = None,
+    length_slope: float | None = None,
     **kw,
 ) -> PriceModel:
-    """A census type's model: its census slope unless the fit lowered it."""
+    """A census type's model: its census slopes unless the fit lowered them
+    (:data:`SLOPE_CUTS`), and its census tiers (:data:`TYPE_TIERS`)."""
+    length = LENGTH_CENSUS.get(type_key)
     return PriceModel(
         anchor,
         anchor_key,
@@ -493,8 +542,43 @@ def _model(
         group,
         sku,
         ENDINGS[type_key],
+        length_slope=(length.slope if length else 0.0) if length_slope is None else length_slope,
+        tiers=TYPE_TIERS.get(type_key, TIER_FACTORS),
         **kw,
     )
+
+
+#: The types whose fit may lower the census slope, and why. The census
+#: slopes are within one group page; where they alone spread the shown price
+#: across the catalog wider than the census p90/p10, the fit lowers them
+#: until they do not. ``scripts/fit_price_model.py`` refuses to lower any
+#: other type's slope: a cut needs a reason recorded here.
+SLOPE_CUTS: dict[str, str] = {
+    "bolt_hex": (
+        "a stand-in for the pack the catalog does not model: 98.8% of census bolts are "
+        "pack-sold and the pack shrinks as the size grows (per-piece p90/p10 28, shown 8.2), "
+        "so the shown price climbs slower across pages than within one; the key and the "
+        "length slope are scaled by one factor (follow-up #65: model the pack)"
+    ),
+    "end_mill_ball": (
+        "a size-span stand-in on a low-confidence slope (11 census pairs): the catalog's "
+        "1 mm to 1-1/2 in span spreads further than the census's, which it reports no span for"
+    ),
+    "end_mill_square": (
+        "a size-span stand-in on a low-confidence slope (18 census pairs): the catalog's "
+        "1 mm to 1-1/2 in span spreads further than the census's, which it reports no span for"
+    ),
+}
+
+#: Rows that land outside their band, and why: disclosed, and pinned by
+#: ``tests/test_price.py`` to the side of the band the cause puts them.
+PINNED_SHORTFALLS: dict[str, str] = {
+    "price p90/p10: bearing_radial_ball": (
+        "below band: catalog bores span a p90/p10 of about 3x against the census's 16.1x, "
+        "and the census's own brand spread (1.38) leaves no group noise to make up the rest "
+        "(widen the bore range: #64)"
+    ),
+}
 
 
 #: Every modelled type's price model, by key. A type declared in its own module
@@ -597,22 +681,43 @@ def structure(
     material: str | None,
     tier: str,
     pack: float | None = None,
+    length: float | None = None,
 ) -> float:
     """The log-price terms that are not noise and not the anchor."""
     log_p = 0.0
     if key is not None and key > 0:
         log_p += model.slope * math.log(key / model.anchor_key)
+    if model.length_slope and length is not None and length > 0:
+        log_p += model.length_slope * math.log(length / model.anchor_length)
     log_p += math.log(MATERIAL_FACTORS.get(material or "", 1.0))
-    log_p += math.log(TIER_FACTORS[tier])
+    log_p += math.log(model.tiers[tier])
     if model.pack_slope and pack is not None and pack > 0:
         log_p += model.pack_slope * math.log(pack / model.pack_ref)
     return log_p
 
 
+def length_of(attributes: Mapping[str, Attribute]) -> float | None:
+    """A SKU's length in inches, or None."""
+    return _magnitude(attributes["Length"]) if "Length" in attributes else None
+
+
+def log_offset(model: PriceModel, struct: float, group_u: float, sku_u: float) -> float:
+    """The log price over the anchor: structure and both noise terms."""
+    return struct + model.group_sigma * _z(group_u) + model.sku_sigma * _z(sku_u)
+
+
+def ladder_point(model: PriceModel, offset: float) -> int:
+    """The list-price ladder point a log offset snaps to."""
+    return round(offset / model.price_step)
+
+
 def noisy(model: PriceModel, struct: float, group_u: float, sku_u: float) -> float:
-    """The unrounded price: anchor, structure and both noise terms."""
-    noise = model.group_sigma * _z(group_u) + model.sku_sigma * _z(sku_u)
-    return math.exp(math.log(model.anchor) + struct + noise)
+    """The unrounded price: anchor, structure and both noise terms, snapped
+    to the type's list-price ladder when it has one."""
+    offset = log_offset(model, struct, group_u, sku_u)
+    if model.price_step:
+        offset = ladder_point(model, offset) * model.price_step
+    return math.exp(math.log(model.anchor) + offset)
 
 
 def ending_for(mix: Mapping[str, float], ending_u: float) -> str:
@@ -664,12 +769,21 @@ class Draw:
 
 
 def shown_price(draw: Draw) -> float:
-    """A SKU's shown price."""
+    """A SKU's shown price.
+
+    On a type with a list-price ladder (taps: 10.4% of census size pairs on
+    one page cost the same), two SKUs of one group that snap to one ladder
+    point draw one ending, so they print one price: the ending is drawn per
+    (group, ladder point), not per SKU.
+    """
     model = draw.model
-    cls = ending_for(model.endings, draw.ending_u)
-    if os.environ.get("REVIEW58_PLANT") == "2b" and cls == ".99":
-        cls = "other"
-    return with_ending(noisy(model, draw.struct, draw.group_u, draw.sku_u), cls)
+    ending_u = draw.ending_u
+    if model.price_step:
+        point = ladder_point(model, log_offset(model, draw.struct, draw.group_u, draw.sku_u))
+        ending_u = random.Random(f"price-ending:{draw.group_u!r}:{point}").random()
+    return with_ending(
+        noisy(model, draw.struct, draw.group_u, draw.sku_u), ending_for(model.endings, ending_u)
+    )
 
 
 def breadth_price(row: BreadthRow, size_value: str, tier: str, u: float, ending_u: float) -> float:

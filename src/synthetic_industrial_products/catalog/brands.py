@@ -140,7 +140,8 @@ def _b(name, code, weight, families, ink, frame, brand_first, descriptive):
 
 #: The value brands and the premium makers (#52); every other brand is
 #: standard. Every family has two or three economy makers and one or two
-#: premium ones.
+#: premium ones; on one type a brand may take another tier
+#: (:data:`TIER_EXCEPTIONS`).
 ECONOMY = frozenset(
     {"Tervasko", "Morvennick", "Salt Meadow Works", "Harnell", "Stone Wicket", "Wendlow Tool"}
 )
@@ -154,15 +155,17 @@ PREMIUM = frozenset(
         "Quennick",
     }
 )
-_PLANT = __import__("os").environ.get("REVIEW58_PLANT", "")
-if _PLANT == "3a":
-    # The cutting-tool economy and premium labels trade tiers.
-    ECONOMY = (ECONOMY - {"Wendlow Tool"}) | {"Varrick Precision"}
-    PREMIUM = (PREMIUM - {"Varrick Precision"}) | {"Wendlow Tool"}
-if _PLANT == "3b":
-    # The fastener and abrasive economy and premium labels trade tiers.
-    ECONOMY = (ECONOMY - {"Morvennick", "Salt Meadow Works"}) | {"Cobbet & Pryce", "Grisenne"}
-    PREMIUM = (PREMIUM - {"Cobbet & Pryce", "Grisenne"}) | {"Morvennick", "Salt Meadow Works"}
+
+#: A brand whose tier differs on one type from its family tier, and why.
+#: Tervasko, the all-family value label, is economy everywhere but bearings:
+#: it makes 30 of the 40 bearing specs two or more brands share, where the
+#: census finds its distributor's house label on 10 of 49. As an economy
+#: label on three specs in four it alone spreads one spec's brands 1.88x
+#: apart at the census bearing tiers and no other noise, against the census
+#: 1.38 (measured on the default build, #58).
+TIER_EXCEPTIONS: dict[tuple[str, str], str] = {
+    ("Tervasko", "bearing_radial_ball"): "standard",
+}
 
 
 C, F, A, H, M = "cutting_tool", "fastener", "abrasive", "hand_tool", "motion"
@@ -231,6 +234,12 @@ BRAND_BOOK: tuple[Brand, ...] = (
 
 BRANDS: tuple[str, ...] = tuple(brand.name for brand in BRAND_BOOK)
 BY_NAME: dict[str, Brand] = {brand.name: brand for brand in BRAND_BOOK}
+
+
+def tier_of(brand: str, type_key: str) -> str:
+    """``brand``'s price tier on ``type_key``: its family tier, unless
+    :data:`TIER_EXCEPTIONS` names another."""
+    return TIER_EXCEPTIONS.get((brand, type_key), BY_NAME[brand].tier)
 
 
 def brands_for(type_key: str) -> tuple[Brand, ...]:
