@@ -135,6 +135,11 @@ class TypeSpec:
     #: How the type's SKUs are priced (:class:`.price.PriceModel`): its
     #: census slope and endings, and its fitted anchor and noise.
     price: PriceModel | None = None
+    #: In place of ``price``: the census type whose model the type prices
+    #: with (``price.BORROWS``), for a type the census has no prices for. A
+    #: module cannot read that model at import (``price.MODELS`` refuses a
+    #: read mid-registration), so it names the type instead.
+    borrows: str = ""
     #: The sizes each standard the type builds to offers, for a standard with
     #: no extraction in ``data/fastener_standards.json``. Declared apart from
     #: the type's own table on purpose: the coverage sweep holds every size
@@ -157,6 +162,10 @@ class TypeSpec:
     #: on (:data:`.price.KEY_ATTRIBUTES`, the first one carried wins), which
     #: every title also names.
     key_attributes: tuple[str, ...] = ()
+    #: The attribute every title names, for a type whose title names another
+    #: than its price key (an O-ring is priced on its cross-section and titled
+    #: by its nominal size). Empty reads ``key_attributes``.
+    title_attributes: tuple[str, ...] = ()
     #: The thread-size attribute of a type sold by one thread designation,
     #: for the near-miss thread sentence (:data:`.noise.THREADED`).
     threaded: str | None = None
@@ -248,7 +257,7 @@ def register(spec: TypeSpec) -> None:
             ("extent", all(side > 0 for side in spec.extent)),
             ("make", spec.make is not None),
             ("share", spec.share > 0),
-            ("price", spec.price is not None),
+            ("price", spec.price is not None or bool(spec.borrows)),
             # Every modelled SKU is priced off its key dimension (``price.KEYS``).
             ("key_attributes", bool(spec.key_attributes)),
         )
@@ -256,6 +265,11 @@ def register(spec: TypeSpec) -> None:
     ]
     if missing:
         raise TypeModuleError(f"type module {spec.module} declares no {', '.join(missing)}")
+    if spec.price is not None and spec.borrows:
+        raise TypeModuleError(
+            f"type module {spec.module} declares both a price model and borrows "
+            f"{spec.borrows!r}; a type prices by one model"
+        )
     # The per-type entries a type used to add to a shared table by hand. Each
     # is declared once: a key in the shared table AND on its spec is refused,
     # since which one won would depend on registration order.
@@ -275,13 +289,17 @@ def register(spec: TypeSpec) -> None:
     for table, value in own.values():
         if value is not None:
             table[spec.key] = value
-    price.KEYS[spec.key] = price.key_reader(*spec.key_attributes)
+    # A borrower's key is held to its model's fitted span (``price.bounded``).
+    price.KEYS[spec.key] = price.bounded(spec.key, price.key_reader(*spec.key_attributes))
     taxonomy.LEAVES[spec.key] = (spec.category,)
     taxonomy.DRAWING[spec.key] = spec.key
     vocab.VOCAB[spec.key] = spec.vocab
     vocab.STANDARDS_FAMILY[spec.key] = spec.standards_family
     FIGURES[spec.key] = (spec.figure, spec.extent)
-    price.MODELS[spec.key] = spec.price  # type: ignore[assignment]
+    if spec.borrows:
+        price.BORROWS[spec.key] = spec.borrows
+    else:
+        price.MODELS[spec.key] = spec.price  # type: ignore[assignment]
     if spec.use_lines:
         voice.USE_LINES[spec.key] = spec.use_lines
     _declare_block(spec)
