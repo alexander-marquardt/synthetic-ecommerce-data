@@ -243,6 +243,7 @@ KEY_ATTRIBUTES: dict[str, tuple[str, ...]] = {
     "kit_assortment": ("Number of Pieces",),
     "lock_nuts_nylon_insert": ("Thread Size",),
     "nut_hex": ("Thread Size",),
+    "roller_chain": ("Pitch",),
     "screw_button_head": ("Dia./Thread Size",),
     "screw_flat_head": ("Dia./Thread Size",),
     "screw_low_head": ("Dia./Thread Size",),
@@ -412,6 +413,15 @@ NUT_PACK_SLOPE = 0.234
 #: (``breadth_categories.<key>.price_quantiles_usd``). A row listed here is
 #: priced from these (:func:`breadth_price`); every other row from its own
 #: ``price_range``.
+#: A breadth category the census measured that is now a modelled type: its
+#: census n and shown-price (p10, p50, p90), the same
+#: ``breadth_categories.<key>`` figures. Its own fitted model is scored on the
+#: p50 and p90/p10 rows (:func:`.price_report.price_rows`); the census has no
+#: within-page pairs for it, so no order row.
+DEEPENED_CENSUS: dict[str, tuple[int, float, float, float]] = {
+    "roller_chain": (71, 74.1, 358.0, 773.0),
+}
+
 BREADTH_CENSUS: dict[str, tuple[float, float, float]] = {
     "ball_valves": (3.674, 13.145, 182.59),
     "blind_rivets": (12.308, 21.1, 27.415),
@@ -426,7 +436,6 @@ BREADTH_CENSUS: dict[str, tuple[float, float, float]] = {
     "hex_pipe_nipples": (3.33, 5.2, 16.24),
     "hose_clamps": (13.492, 34.95, 43.43),
     "rigid_casters": (20.744, 76.2, 351.85),
-    "roller_chain": (74.1, 358.0, 773.0),
     "safety_glasses": (5.0, 8.605, 24.26),
     "threaded_rod": (6.511, 33.52, 140.855),
     "u_bolts": (3.454, 10.68, 23.918),

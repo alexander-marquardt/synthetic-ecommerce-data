@@ -831,31 +831,6 @@
     - B-Section
   skus: 2
   reason: breadth diversity; power-transmission belt category gap
-- key: roller_chain
-  category:
-  - Motion Control & Fluid Power
-  - Chain & Sprockets
-  - Roller Chains
-  family: motion
-  shape: block
-  item: Roller Chain
-  descriptor_attr: null
-  size_attr: Pitch
-  size_values:
-  - 1/4 in
-  - 3/8 in
-  - 1/2 in
-  - 5/8 in
-  attributes:
-    Material:
-    - Steel
-    Style:
-    - Single Strand
-    - Double Strand
-  skus: 2
-  featured_sizes:
-  - 1/2 in
-  reason: '''1/2'' overlap; chain-drive category gap'
 - key: timing_pulleys
   category:
   - Motion Control & Fluid Power
