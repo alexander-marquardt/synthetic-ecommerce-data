@@ -784,6 +784,7 @@ NOT_MEASURED = frozenset(
         "set_screws_hex_socket",
         "cotter_pins",
         "retaining_rings_external",
+        "turnbuckles",
     }
 )
 

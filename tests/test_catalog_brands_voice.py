@@ -180,6 +180,7 @@ def test_the_same_part_from_two_brands_is_two_products(golden):
 DISTINCT_SPEC_FLOOR = {
     "cotter_pins": 0.20,
     "retaining_rings_external": 0.20,
+    "turnbuckles": 0.15,
     "washer_flat": 0.15,
     "hammer_ball_pein": 0.70,
     "bolt_hex": 0.75,
