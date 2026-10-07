@@ -141,12 +141,16 @@ NEVER_ON_STAINLESS = {"Zinc Plated", "Zinc Yellow", "Hot Dip Galvanized", "Black
 CARBIDE_ONLY_COATINGS = {"nACo"}
 NOT_ON_CARBIDE = {"Black Oxide", "Bronze Oxide", "Steam Oxide"}
 
+
 def may_claim(type_key: str) -> frozenset[str]:
-    return type_facts.may_claim().get(type_key, frozenset())
+    """The standards ``type_key`` may claim. A type declared nowhere, or in
+    both its module and a shared row, is refused (``type_facts``)."""
+    return type_facts.may_claim()[type_key]
 
 
 def title_key(type_key: str) -> tuple[str, ...]:
-    return type_facts.title_key().get(type_key, ())
+    """The key dimension a title of ``type_key`` names, refused as :func:`may_claim` is."""
+    return type_facts.title_key()[type_key]
 
 
 #: Every rule in this file is a truth table written for the census-modelled
