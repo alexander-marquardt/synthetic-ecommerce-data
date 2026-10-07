@@ -102,7 +102,7 @@ drawn bounding box, in inches, with a little headroom.
   `VOCAB`.
   `FIGURES` is a `RegistryTable`: its first read registers every type module
   and breadth row, so a script that imports only
-  `synthetic_industrial_products.drawing` still sees all 68 types.
+  `synthetic_industrial_products.drawing` still sees every type.
 
 Dispatch is a dictionary lookup (`_figure()` in `drawing/__init__.py`). An
 unknown type raises `UnknownTypeError`. Nothing falls back to a generic shape.
@@ -176,10 +176,9 @@ of the sheet's width **and** at most 1/6 of its height. A lensed part is drawn
 at true scale near the bottom, and the same `Figure` is painted a second time,
 `k` times larger, inside a white lens. The handled glass is used when it
 reaches `MIN_ENLARGEMENT` (x2.5); otherwise the larger, handle-less lens. The
-README's [Images](../README.md#images) section has the full rule. Measured on
-the committed catalog: 2,260 of 11,614 drawings are lensed, 784 with the
-handled glass and 1,476 with the handle-less lens. This command prints the
-counts and the enlargement range of each lens:
+README's [Images](../README.md#images) section has the full rule. This command
+prints, for the committed catalog, how many drawings each lens takes and the
+enlargement range of each:
 
 ```sh
 uv run --directory tests python -c "
@@ -235,14 +234,14 @@ did not. The hammer is never `nominal`: a missing face or length makes it
 A kit is `record` when it publishes `Sizes Included`, `partial` otherwise. The
 breadth shapes are always `nominal`.
 
-Measured on the committed catalog's `images.jsonl`: 8,611 `record`, 2,353
-`partial`, 75 `nominal`. All 75 `nominal` rows are breadth SKUs; no depth SKU
-falls back to nominal geometry. The counts are
-`python3 -c "import json, collections; print(collections.Counter(json.loads(l)['geometry'] for l in open('golden-catalog/images.jsonl')))"`.
+How many of the committed catalog's drawings take each rung is
+`figures.drawings.geometry` in `golden-catalog/stats.json`, which the build
+measures on `images.jsonl` (#103). Every `nominal` row is a breadth SKU; no
+depth SKU falls back to nominal geometry.
 
 ## Breadth types: six fixed shapes
 
-The 43 breadth categories (row files in `data/breadth_categories/` and breadth modules; every
+The breadth categories (row files in `data/breadth_categories/` and breadth modules; every
 breadth line is published with `spec_quality: "fast_and_cheap"`, set by
 `catalog/breadth.py` `SPEC_QUALITY`) draw one of six shapes from
 `drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`, `disc`, `tube`

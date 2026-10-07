@@ -291,13 +291,11 @@ Generated files. Rebuild them with `uv run sip-generate build --out golden-catal
 
 Shared files, edited by hand:
 
-* `src/synthetic_industrial_products/prism/derive.py`: `faceted_low` in `MEASURED_DISPERSION`. Every table type moves it, because each adds products to `Package Quantity`.
-* `tests/test_facet_control_rule.py`: the quantitative and faceted counts in `test_the_measured_figures_describe_a_catalog_that_exists`, one more of each per column name no other type publishes.
 * `src/synthetic_industrial_products/catalog/names.py`: a `NAME_EXCEPTIONS` row for each column name the census lacks. Use a census name and there is no edit.
 
-The first two are measurements of the whole catalog, so two table-type PRs each write a value and the truth after both is a third. After merging `main` into the branch, rebuild, run `tests/test_facet_control_rule.py` and write what it measures. Never keep either side of a conflict in those lines.
+The whole catalog's measured figures are not edited by hand: the facet rule's band and attribute counts (once `MEASURED_DISPERSION` in `prism/derive.py` and two counts in `tests/test_facet_control_rule.py`), and the type, brand and drawing counts the docs used to quote. The build writes them under `figures` in `golden-catalog/stats.json`, the tests read them there, and `tests/test_measured_figures.py` refuses a doc that restates one (#103). A conflict in them is resolved by the rebuild.
 
-Nothing else is edited. A table type is found from the registry (`tabletype.tables()`), so it is not added to `NOT_MEASURED` in `tests/test_price.py` and has no row in `DISTINCT_SPEC_FLOOR` in `tests/test_catalog_brands_voice.py`. The `table:` rows in `scripts/mutation_check.py` cover the mechanism; a type adds none. The type counts in `README.md` and `docs/drawings.md` are read by no test and are restated once after a batch of types, not in each type's PR.
+Nothing else is edited. A table type is found from the registry (`tabletype.tables()`), so it is not added to `NOT_MEASURED` in `tests/test_price.py` and has no row in `DISTINCT_SPEC_FLOOR` in `tests/test_catalog_brands_voice.py`. The `table:` rows in `scripts/mutation_check.py` cover the mechanism; a type adds none.
 
 ## The rules a deepened type follows
 
@@ -450,10 +448,10 @@ it is NOT MEASURED; the ball-pein hammer's is an example. Such a type gets
 no price rows, so nothing checks its prices against a census. To give it
 census rows, measure them as #69 did for the lock nut and the set screw:
 extend `scripts/price_census_collect.py` and `scripts/price_census_parse.py`
-(archive.org only, serial) and let the parser write the entry. A type whose
-entry has landed but is not yet restated and fitted is listed in
-`AWAITING_FIT` in `tests/test_price.py` and keeps `measured=False` until it
-is (the lock nut and the set screw, until #69's second part). A type with no census rows of its own
+(archive.org only, serial) and let the parser write the entry. Once its entry has landed, restate it in
+`price.CENSUS` (and `ENDINGS`, `LENGTH_CENSUS`), run
+`scripts/fit_price_model.py --write` and leave `measured` at its default, as
+the lock nut and the set screw did in #69's second part. A type with no census rows of its own
 that prices as a sibling does is listed in `price.BORROWS` instead (the
 button, flat and low-head socket screws borrow the socket head's model). A
 type module declares that with `borrows="<census type>"` in place of
@@ -611,16 +609,17 @@ For the lock nut, both sizes print `types that moved:
 
 ### Figures to restate
 
-A type that changes the catalog's size moves figures the README and
-`docs/drawings.md` publish. Restate each from its command, never by hand
-arithmetic:
+The default build's figures are not restated: the README and
+`docs/drawings.md` point at `skus`, `lines` and `figures` in
+`golden-catalog/stats.json`, or at the command that prints a figure the build
+does not measure (the lensed SKUs, the archive size), and
+`tests/test_measured_figures.py` refuses a doc that quotes one (#103).
+
+What a type still restates by hand is the large build's figures, from its
+command, never by hand arithmetic:
 
 | Figure | Where | Command |
 |---|---|---|
-| SKUs, products, depth and breadth type counts | README, first paragraph | `skus`, `lines` in `golden-catalog/stats.json`; the type counts with the command under it |
-| Drawings, bytes unpacked, archive size | README "Small SVG"; `docs/drawings.md` "The magnifier" | `uv run sip-generate images --catalog golden-catalog --out /tmp/img --archive /tmp/img.tar.gz` |
-| Lensed SKUs, by lens | README "Sizes are visible"; `docs/drawings.md` "The magnifier" | the command in `docs/drawings.md` "The magnifier" |
-| `record` / `partial` / `nominal` | `docs/drawings.md` "Provenance" | the command there |
 | The large build's per-type table and totals | README "The 100K catalog" | `uv run sip-generate build --lines 39000 --out /tmp/c39k`, then the `skus_by_type`, `skus` and `lines` of its `stats.json` |
 
 #62 renames the large build and generates its figures; until it lands, its
