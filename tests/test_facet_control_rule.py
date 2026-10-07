@@ -353,8 +353,13 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
     # The two table types (#101) publish five more, all faceted: a cotter
     # pin's Head Diameter and Head Height, and a retaining ring's For Shaft
     # Diameter, Groove Diameter and Groove Width.
-    assert len(quantitative) == 46
-    assert len(faceted) == 43
+    # The next five table types publish twelve more, all faceted: a turnbuckle's
+    # Thread Dia., Take Up and Closed Length, the Load Capacity it shares with
+    # a shackle, a shackle's Inside Length, a pillow block's Base to Center
+    # Height, Bolt Hole Center-to-Center and Overall Height, and a sprocket's
+    # Outside Diameter, Bore Dia., Hub Diameter and Length Through Bore.
+    assert len(quantitative) == 58
+    assert len(faceted) == 55
 
 
 def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
