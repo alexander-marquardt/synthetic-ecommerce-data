@@ -25,7 +25,9 @@ from published import published_attributes
 from synthetic_industrial_products.catalog import emit, names, taxonomy, typespec
 from synthetic_industrial_products.catalog.config import GeneratorConfig
 from synthetic_industrial_products.catalog.generate import generate, generate_type
+from synthetic_industrial_products.drawing.model import Disc, Poly
 from synthetic_industrial_products.prism import derive
+from synthetic_industrial_products.product_types.motion import roller_chain
 from test_attribute_names import CENSUS, OBSERVED
 from test_catalog_brands_voice import same_product_duplicates
 from test_type_seam import _by_type, _moved_by_removing
@@ -223,6 +225,38 @@ def test_every_published_dimension_is_the_standards_own_row(clean_docs):
                 assert abs(_inches(attrs[name]) - expected) < 0.0006, (number, name)
                 checked += 1
     assert checked > 100, f"only {checked} dimensions were checked"
+
+
+# --- the drawing shows links ---------------------------------------------------
+
+
+@pytest.mark.parametrize("strands", sorted(STRAND_SUFFIX))
+def test_the_side_view_draws_link_plates_one_pitch_long(strands):
+    """A link plate spans ONE pitch, round about its two pins, and roller
+    links alternate with pin links: three plates over four pins, each one
+    pitch between centres, the middle one of the other kind."""
+    record = {"Pitch": '1"', "Roller Dia.": '5/8"', "Inside Width": '5/8"', "Style": strands}
+    drawn = roller_chain.chain(record)
+    assert drawn.source == "record"
+    figure = drawn.figure
+    # The side view straddles the chain's centre line; the top view lies clear of it.
+    plates = sorted(
+        (min(x for x, _ in s.points), s)
+        for s in figure.shapes
+        if isinstance(s, Poly) and min(y for _, y in s.points) < 0 < max(y for _, y in s.points)
+    )
+    assert len(plates) == 3, len(plates)
+    heights = []
+    for k, (left, plate) in enumerate(plates):
+        height = max(y for _, y in plate.points) - min(y for _, y in plate.points)
+        length = max(x for x, _ in plate.points) - left
+        # Round ended about each pin: centre to centre is the length less the height.
+        assert length - height == pytest.approx(1.0), (k, length, height)
+        assert left + height / 2 == pytest.approx(float(k)), (k, left)
+        heights.append(round(height, 6))
+    assert heights[0] == heights[2] != heights[1], heights
+    pins = sorted(s.centre for s in figure.shapes if isinstance(s, Disc) and s.role == "hole")
+    assert pins == [(0.0, 0.0), (1.0, 0.0), (2.0, 0.0), (3.0, 0.0)]
 
 
 # --- the strand count moves the price -----------------------------------------
