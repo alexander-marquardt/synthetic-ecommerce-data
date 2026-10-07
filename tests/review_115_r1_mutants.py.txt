@@ -1,0 +1,6 @@
+[
+    ("README.md", "one product each, from invented", "one product each, from 45 invented", "readme restates brand count"),
+    ("README.md", "one product each, from invented", "one product each, from 0.9928 invented", "readme restates dispersion"),
+    ("src/synthetic_industrial_products/prism/derive.py", "self.cardinality / self.product_values if self.product_values else 0.0", "self.cardinality / self.present if self.present else 0.0", "dispersion over documents"),
+    ("golden-catalog/stats.json", "\"faceted_high\": 0.2414", "\"faceted_high\": 0.2415", "stale dispersion figure"),
+]
