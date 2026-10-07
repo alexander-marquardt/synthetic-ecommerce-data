@@ -682,3 +682,15 @@ def test_a_new_workflow_job_nobody_can_run_locally_fails_the_parser(tmp_path: Pa
         "      - run: echo ${{ secrets.TOKEN }}\n"
     )
     assert _jobs_cli("--list", workflows=tmp_path).returncode != 0
+
+
+def test_a_step_if_and_settings_the_parser_cannot_honour_refuse(tmp_path: Path) -> None:
+    plants = [
+        "jobs:\n  a:\n    steps:\n      - run: echo x\n        if: false\n",
+        "env:\n  X: 1\njobs:\n  a:\n    steps:\n      - run: echo x\n",
+        "defaults:\n  run:\n    shell: sh\njobs:\n  a:\n    steps:\n      - run: echo x\n",
+        "jobs:\n  a:\n    continue-on-error: true\n    steps:\n      - run: echo x\n",
+    ]
+    for plant in plants:
+        (tmp_path / "w.yml").write_text(plant)
+        assert _jobs_cli("--list", workflows=tmp_path).returncode != 0, plant
