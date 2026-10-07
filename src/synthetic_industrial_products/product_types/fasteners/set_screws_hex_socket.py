@@ -24,8 +24,7 @@ and ``line_standard`` reads a record's standard back from its point and
 thread, so the coverage sweep can hold every declared size to a document.
 
 Materials and finishes are the three a distributor stocks set screws in. The
-price uses the shared path for now; the type adopts the measured price model
-of #52 when PR #58 merges.
+price is the measured model of #52, fitted to the price census (#69).
 """
 
 from __future__ import annotations
@@ -40,7 +39,7 @@ from typing import Any, NamedTuple
 
 from ...catalog import compat
 from ...catalog.newtypes import table_provenance
-from ...catalog.price import PriceModel
+from ...catalog.price import ENDINGS, PriceModel
 from ...catalog.standards import UNF_THREADS_PER_INCH
 from ...catalog.typespec import TypeSpec
 from ...catalog.vocab import AttrSpec
@@ -333,12 +332,23 @@ def figure(record: dict[str, str]) -> Drawn:
     return Drawn(fig, source)
 
 
-#: No census prices: the census has no set screws. The curve is hand-set near
-#: the level the uniform multiplier gave (a 1/4 inch screw about 2.2 USD, rising
-#: with the major diameter at about 0.4 log-log); NOT MEASURED. The built
-#: median sits above that level (2.48 USD on the golden catalog); no band
-#: holds it until issue #69.
-PRICE = PriceModel(2.2, 0.25, 0.4, 0.3, 0.25, measured=False)
+#: The census slopes (size and length) and endings; the anchor and the three sigmas
+#: fitted by ``scripts/fit_price_model.py`` to the 510 census set screws
+#: (``deep_types.set_screws_hex_socket``); the size noise is one draw per
+#: diameter that its lengths share (``price.SIZE_NOISE``). No brand figure is restated: the
+#: only spec two brands share is one nylon line, so the drill's tiers apply.
+PRICE = PriceModel(
+    # @fit-begin set_screws_hex_socket
+    anchor=17.69,
+    anchor_key=0.25,
+    slope=0.193,
+    length_slope=0.216,
+    group_sigma=0.083,
+    sku_sigma=0.037,
+    size_sigma=0.181,
+    # @fit-end
+    endings=ENDINGS["set_screws_hex_socket"],
+)
 
 
 def claims(

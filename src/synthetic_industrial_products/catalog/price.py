@@ -107,8 +107,10 @@ CENSUS: dict[str, PriceCensus] = {
     "end_mill_square": PriceCensus(69, 22.21, 52.5, 167.4, 1.091, 0.833, 18, 0.111, 0.056),
     "hex_key": PriceCensus(270, 2.214, 9.68, 31.9, 1.141, 0.925, 1707, 0.066, 0.009),
     "kit_assortment": PriceCensus(46, 5.505, 80.575, 629.0, 0.849, 0.797, 79, 0.203, 0.0),
+    "lock_nuts_nylon_insert": PriceCensus(100, 5.867, 22.14, 56.525, 1.834, 0.953, 86, 0.047, 0.0),
     "nut_hex": PriceCensus(473, 4.786, 15.31, 49.89, 1.192, 0.878, 1877, 0.12, 0.002),
     "screw_socket_head": PriceCensus(308, 7.0, 21.535, 48.065, 0.124, 0.575, 40, 0.35, 0.075),
+    "set_screws_hex_socket": PriceCensus(510, 9.32, 20.75, 42.75, 0.324, 0.666, 311, 0.334, 0.0),
     "tap_spiral_point": PriceCensus(487, 9.27, 20.02, 49.7, 0.551, 0.585, 768, 0.311, 0.104),
     "washer_flat": PriceCensus(174, 1.0, 4.89, 24.804, 1.298, 0.808, 1406, 0.188, 0.004),
     "wheel_depressed_center": PriceCensus(
@@ -160,6 +162,7 @@ class LengthCensus:
 LENGTH_CENSUS: dict[str, LengthCensus] = {
     "bolt_hex": LengthCensus(0.564, 0.691, 1886, 0.309),
     "screw_socket_head": LengthCensus(0.256, 0.662, 858, 0.319),
+    "set_screws_hex_socket": LengthCensus(0.363, 0.834, 692, 0.16),
 }
 
 #: The types whose census share of same-page size pairs at one price the
@@ -366,6 +369,7 @@ LENGTH_HELD = frozenset(
         "screw_button_head",
         "screw_low_head",
         "dowel_pins",
+        "set_screws_hex_socket",
     }
 )
 
@@ -383,7 +387,7 @@ def material_of(type_key: str, facts: Mapping[str, Attribute]) -> str | None:
 
 
 #: Price endings per type (``deep_types.<type>.endings.class_share``), for the
-#: 13 types :data:`CENSUS` restates.
+#: 15 types :data:`CENSUS` restates.
 ENDINGS: dict[str, dict[str, float]] = {
     "abrasive_flap_disc": {
         "other": 0.6741,
@@ -463,6 +467,16 @@ ENDINGS: dict[str, dict[str, float]] = {
         ".98": 0.0435,
         ".49": 0.0217,
     },
+    "lock_nuts_nylon_insert": {
+        "other": 0.6,
+        "other .x5": 0.24,
+        ".00": 0.06,
+        "other .x9": 0.03,
+        ".50": 0.02,
+        ".49": 0.02,
+        ".95": 0.02,
+        ".99": 0.01,
+    },
     "nut_hex": {
         "other": 0.6385,
         "other .x5": 0.1882,
@@ -484,6 +498,17 @@ ENDINGS: dict[str, dict[str, float]] = {
         ".95": 0.0195,
         ".97": 0.0032,
         ".99": 0.0032,
+    },
+    "set_screws_hex_socket": {
+        "other": 0.6549,
+        "other .x5": 0.2333,
+        "other .x9": 0.0412,
+        ".50": 0.0216,
+        ".00": 0.0196,
+        ".95": 0.0157,
+        ".98": 0.0059,
+        ".49": 0.0059,
+        ".99": 0.002,
     },
     "tap_spiral_point": {
         "other": 0.6489,
@@ -727,6 +752,19 @@ SLOPE_CUTS: dict[str, str] = {
         "so the shown price climbs slower across pages than within one; the key and the "
         "length slope are scaled by one factor (follow-up #65: model the pack)"
     ),
+    "lock_nuts_nylon_insert": (
+        "a stand-in for the pack the catalog does not model: 74% of census nylon-insert nuts "
+        "are pack-sold and the pack shrinks as the size grows, so the shown price climbs "
+        "slower across the catalog's M3 to M36 span than within one page (shown p90/p10 "
+        "29.7x on the census slope alone, against the census's 9.6x)"
+    ),
+    "set_screws_hex_socket": (
+        "the census's shown p90/p10 is 4.59 over 510 set screws, but per piece (price over "
+        "pack quantity) it is 9.0 (1.1557 over 0.1285): every census set screw is pack-sold "
+        "(5 to 500, median 100) and the pack shrinks as the size grows, so the shown price "
+        "climbs slower across pages than within one; the key and the length slope are scaled "
+        "by one factor so the catalog's shown spread is the census's shown spread"
+    ),
     "end_mill_ball": (
         "a size-span stand-in on a low-confidence slope (11 census pairs): the catalog's "
         "1 mm to 1-1/2 in span spreads further than the census's, which it reports no span for"
@@ -753,6 +791,13 @@ SIZE_NOISE: dict[str, str] = {
         "7 specs): group noise loud enough to make up the p90/p10 is drawn per brand and spreads "
         "one spec's brands 3.5x apart, while noise one spec shares across brands carries the "
         "p90/p10 and leaves the brand spread to the tiers, as on taps"
+    ),
+    "set_screws_hex_socket": (
+        "the census orders a set screw's sizes loosely (0.666 of 311 pairs, length held) and "
+        "its lengths tightly (0.834 of 692 pairs, diameter held) on close slopes (0.324 and "
+        "0.363): noise drawn per SKU inverts both kinds of pair alike, so no per-SKU sigma "
+        "meets both shares, while noise one diameter shares across its lengths inverts a size "
+        "pair and leaves a length pair alone"
     ),
 }
 
@@ -812,7 +857,6 @@ PINNED_SHORTFALLS: dict[str, str] = {
         "(widen the kit range: #76)"
     ),
 }
-
 
 
 def slope_cut_mismatch(models: Mapping[str, PriceModel], cuts: Mapping[str, str]) -> set[str]:

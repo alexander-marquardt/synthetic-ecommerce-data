@@ -1444,7 +1444,7 @@ figure against the file.
 | pack quantity (hex nuts) | census pack slope |
 | group noise, one draw per census-style page (one brand, the line attributes a page holds equal) | fitted sigma |
 | SKU noise, one draw per SKU | fitted sigma |
-| size noise, one draw per spec that every brand shares (taps and socket screws only, `price.SIZE_NOISE`, each with its reason) | fitted sigma |
+| size noise, one draw per spec that every brand shares (taps, socket screws and set screws only, `price.SIZE_NOISE`, each with its reason) | fitted sigma |
 
 **A kit is priced from what it holds** (`price.CONTENTS_PRICED`). Its key is
 not one dimension but its contents' price (`price.kit_contents`): each size
@@ -1468,13 +1468,10 @@ run again before its result is kept.
 The price is then rounded to an ending (.99, .00, .50 ...) drawn from the
 type's census endings mix; taps also snap to a fitted list-price ladder.
 Finish does not enter the price. The types the census has no prices for are
-declared `measured=False`: the ball-pein hammer, the nylon-insert lock nuts
-and the hex socket set screws. Their figures are hand-set, NOT MEASURED,
-each module's comment saying where they come from, and they do not keep the
-level the catalog had before: their median prices on the golden catalog are
-72.62, 2.28 and 2.48 USD, against 65.17, 1.86 and 1.80 under the uniform
-multiplier (+11%, +23%, +38%). No band holds them until #69 gives them
-census-backed price bands. This prints a type's SKU count, median, minimum
+declared `measured=False`: the ball-pein hammer, whose archived pages are script
+shells; its figures are hand-set, NOT MEASURED, and no band holds them. The
+nylon-insert lock nuts and the hex socket set screws are fitted to their own
+census entries (#69) and scored like the other census types. This prints a type's SKU count, median, minimum
 and maximum; feed it `git show ba90b5e:golden-catalog/flat.jsonl` (the last
 uniform-multiplier catalog) for the earlier figures:
 
@@ -1532,7 +1529,7 @@ entries of `golden-catalog/stats.json` whose `name` starts with `price `
 python3 -c "import json; r = [c for c in json.load(open('golden-catalog/stats.json'))['comparisons'] if c['name'].startswith('price ')]; print(len(r), 'rows,', sum(c['band'][0] <= c['achieved'] <= c['band'][1] for c in r), 'in band')"
 ```
 
-It prints `61 rows, 58 in band`; the other three are the pins.
+It prints `72 rows, 70 in band`; the other two are the pins.
 `uv run python scripts/fit_price_model.py` prints every row at both sizes
 side by side (about 2 minutes).
 
