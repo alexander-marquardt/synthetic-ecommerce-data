@@ -580,8 +580,8 @@ fields:
   - name: attr_series
     type: terms
     source: facets.series
-  # Shank Dia. -- a discrete standard set: 86 distinct values over 1981 documents is 0.04 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1981 documents across 4 product type(s); 86 distinct values
+  # Shank Dia. -- a discrete standard set: 85 distinct values over 1981 documents is 0.04 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1981 documents across 4 product type(s); 85 distinct values
   - name: shank_dia
     type: terms
     source: facets.shank_dia

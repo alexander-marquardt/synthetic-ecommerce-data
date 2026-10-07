@@ -289,7 +289,8 @@ secondary dimension only when the record PUBLISHES it, and the newer types
 have none to name. The shank rate sits above its target because a shank is
 never thinner than its cutter any more: the census's 0.833 and 0.75 ratios
 become the next shank up, and above the largest stocked shank it is the
-cutter's own size; and an oversize shank is at most twice its cutter (see
+cutter's own size; and an oversize shank is at most three times its cutter,
+or 6 mm under a metric cutter below 6 mm (see
 [Brand voice](#brand-voice-titles-and-descriptions)). Label spellings are
 quantised by brand (each brand spells a label one way), so e.g. the flute
 label mix differs from the census's 0.66 / 0.28 / 0.06.
@@ -377,11 +378,18 @@ invented; each is now read from a table and checked by
   galvanizing is kept off Grade 8 / Class 10.9 (ASTM F2329); nACo and AlTiN
   are carbide coatings, black oxide an HSS treatment.
 * **An end mill's shank is never thinner than its cutter, and never more than
-  twice it** -- unless the smallest stocked shank above the cutter is already
-  more (a 1mm cutter sits on a 3mm shank). A reduced/oversize shank is the
-  next stocked shank up; above the largest stocked shank it is the cutter's
-  own size. The census's 3.0 and 2.667 ratios had put a 5/32" cutter on a
-  5/8" shank; 46 end mills on 7dac659's golden were over that ceiling.
+  three times it** -- unless the smallest stocked shank above the cutter is
+  already more. 43 of the 46 differing records in
+  `reference-statistics/04_shank_dia_vs_milling_dia.json` are at or under
+  3.0x, the 2.667x and 3.0x ones included; the census's 4.0 ratio had put a
+  5/32" cutter on a 5/8" shank. A metric cutter below 6 mm with an oversize
+  shank sits on the 6 mm DIN 6535 shank, whatever the ratio (1 mm on 6 mm is
+  6.0x). That is a catalog convention the #33 review proposed, not yet
+  confirmed against a standard's diameter table (#87); it leaves the
+  3, 4 and 5 mm DIN 6535 shanks undrawn for an oversize cutter. Under the
+  earlier 2x cap, 48 of the 54 such cutters on a2a55cc's golden sat on another
+  shank, most of them on 3 mm. Above the largest stocked shank the shank is
+  the cutter's own size.
 * **A terse end mill title names the mill's own end**: `SGL Sq End` on a
   square end mill, `SGL Ball End` on a ball nose one (168 of 568 ball end
   mills said `Sq End`).
@@ -499,6 +507,18 @@ without stating anything false (`catalog/compat.py`):
   token to the standard analyzer, so the searchable `text` also carries `M12`
   beside it; without that, `m12 socket cap screws` reached the hex keys whose
   copy names M12 screws and not a single screw.
+* **A glued size is also written in its parts, in the description**
+  (#33). Wherever a title or description glues a size, the description
+  writes it out too: the record's own sizes as `M12 thread, 1.75 mm pitch`
+  in the spec clause, and a size a sentence names for another product in
+  brackets after it -- `Tap drill for M12x1.75 threads (M12 thread, 1.75 mm
+  pitch).`, `Also available in M8x1.25 / M10x1.5 sizes (M8 thread, 1.25 mm
+  pitch; M10 thread, 1.5 mm pitch).` On the golden before this change, 1,930
+  records glued a size their description never wrote in parts, and the
+  jobber drills whose only M12 was the tap-drill sentence were not returned
+  for `m12`. `tests/test_glued_thread_sizes.py` reads the description's
+  tokens with its own pattern, and checks that every part written stands
+  beside a size the record glues.
 
 ## Copy noise
 
@@ -513,7 +533,7 @@ attributes are never touched, so the facets can always separate the noise out.
 | type | example | from |
 |---|---|---|
 | negative fit | `Not for M10 or M16 threads.` / `Will not fit 5/32" sockets.` | the neighbouring diameters; the next smaller key |
-| siblings | `Also available in M8 / M10 / M16 sizes.` | the product's other SKUs, on its variant axis |
+| siblings | `Also available in 3/16" / 7/32" sizes.` / `Also available in M12x1.25 sizes (M12 thread, 1.25 mm pitch).` | the product's other SKUs, on its variant axis |
 | unit equivalent | `12mm (approx. 15/32").` | the published value, to the nearest 64th or 0.1mm |
 | fit / pairing | `Bore 11.992-12.000mm (ISO 492 Normal class).` / `Pair with M12x1.75 hex nuts and a 10mm hex key.` | ISO 492 bore tolerances; the record's thread and drive |
 | material contrast | `Zinc-plated steel (not stainless).` / `18-8 Stainless Steel (not plated).` | the record's material and finish |
