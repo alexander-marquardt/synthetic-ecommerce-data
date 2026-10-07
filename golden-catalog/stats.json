@@ -1608,10 +1608,10 @@
   {
    "name": "price brand spread, same spec (median max/min): wheel_depressed_center",
    "target": 1.2838,
-   "achieved": 3.24089,
-   "numerator": 6,
+   "achieved": 3.5339,
+   "numerator": 24,
    "denominator": 12,
-   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec; PINNED SHORTFALL, above band: catalog diameters span 2.25x, which the key term spreads to 2.6x of the census's 10x, and the group noise that makes up the rest is drawn independently per brand for each of the 12 brands that make every shared wheel spec, so the brands the row samples from one spec land 3.24x apart on the default build and 2.78x apart at 100K. Offered a noise one spec shares across brands (SIZE_NOISE, as on taps), the fit gives it no weight and moves the spread to SKU noise, which inverts the few diameters (larger costs more falls below band) and still leaves the p90/p10 below band (#66)",
+   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec; PINNED SHORTFALL, above band: with every noise off, the brand tiers alone give 1.85 on the default build against a band top of 1.71, because 3 of the 12 wheel brands are economy (0.54 of the rest) and the row's 3 sampled brands take one on 13 of its 24 specs (a spec is a diameter in one abrasive), where the census measures its house label on 4 of its 12. The group noise that makes up the p90/p10 is drawn per brand and spreads the sampled brands of one spec further, to 3.53x apart on the default build and 3.09x apart at 100K (#66)",
    "band": [
     0.96285,
     1.70745
