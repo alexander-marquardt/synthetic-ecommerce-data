@@ -146,6 +146,7 @@ def test_namespacing_that_would_itself_collide_is_refused() -> None:
     rows = [
         {
             "sku": "A",
+            "product_id": "P",
             "product_type": "t",
             "attributes": [
                 {"name": "Series", "value": "62"},
