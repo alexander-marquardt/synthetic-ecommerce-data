@@ -615,7 +615,7 @@ def _literal(type_key: str, model: price.PriceModel) -> str:
     if model.pack_attribute is not None:
         args += [
             f'pack_attribute="{model.pack_attribute}"',
-            "pack_slope=NUT_PACK_SLOPE",
+            f'pack_slope=PACK_SLOPES["{type_key}"]',
             f"pack_ref={model.pack_ref!r}",
         ]
     one_line = f'        "{type_key}": _model("{type_key}", {", ".join(args)}),'

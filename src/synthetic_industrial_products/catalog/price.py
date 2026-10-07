@@ -403,10 +403,70 @@ ENDINGS: dict[str, dict[str, float]] = {
     },
 }
 
-#: The pooled log-log slope of a nut's shown pack price on its pack quantity
-#: (``deep_types.nut_hex.pack_vs_each.pooled_loglog_slope_price_on_pack_qty``):
+#: Each pack-sold type's pooled log-log slope of its shown pack price on its
+#: pack quantity (``deep_types.<type>.pack_vs_each.pooled_loglog_slope_price_on_pack_qty``):
 #: a pack of 100 costs more than a pack of 25, but far less than four times.
-NUT_PACK_SLOPE = 0.234
+PACK_SLOPES: dict[str, float] = {
+    "bolt_hex": 0.223,
+    "nut_hex": 0.234,
+    "screw_socket_head": 0.051,
+}
+
+#: How many census SKUs each pack quantity is sold in
+#: (``deep_types.<type>.pack_vs_each.pack_quantity_counts``), for the types
+#: whose pack the builder draws (:func:`pack_quantity`). 98.8% of census
+#: bolts and every census socket screw are sold in packs.
+PACK_COUNTS: dict[str, dict[int, int]] = {
+    "bolt_hex": {
+        4: 7,
+        5: 58,
+        6: 2,
+        10: 82,
+        20: 1,
+        25: 43,
+        50: 53,
+        100: 76,
+        250: 14,
+        1000: 1,
+        1300: 2,
+        1800: 1,
+        1900: 1,
+        2400: 1,
+        2800: 1,
+    },
+    "screw_socket_head": {5: 4, 10: 5, 25: 13, 50: 25, 100: 261},
+}
+
+
+def pack_quantity(type_key: str, rank: int, sizes: int, u: float) -> int:
+    """A line's pack quantity, drawn from its type's census pack counts so that
+    the pack falls as the size grows.
+
+    ``rank`` is the line's size among the ``sizes`` diameters its type offers,
+    smallest first. Each size takes an equal slice of the census quantiles,
+    the smallest size the top slice (the largest packs), and ``u`` places the
+    line inside its slice. A build whose lines spread evenly over the sizes
+    so publishes the census counts, while one size's lines still differ by
+    brand. The census measures that the pack shrinks as the size grows (a
+    bolt's per-piece p90/p10 is 28 against 8.2 shown) but not how the two
+    pair, so this pairing is generated, not measured.
+    """
+    counts = PACK_COUNTS[type_key]
+    quantile = 1.0 - (rank + u) / sizes
+    target = quantile * sum(counts.values())
+    seen = 0
+    for qty in sorted(counts):
+        seen += counts[qty]
+        if target < seen:
+            return qty
+    return max(counts)
+
+
+def pack_draw(seed: int, type_key: str, line: str) -> float:
+    """The quantile a line's pack is placed at in its size's slice
+    (:func:`pack_quantity`): its own stream, so no other draw moves."""
+    return random.Random(f"{seed}:pack:{type_key}:{line}").random()
+
 
 #: Each measured breadth category's shown-price (p10, p50, p90)
 #: (``breadth_categories.<key>.price_quantiles_usd``). A row listed here is
@@ -733,7 +793,7 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
             0.454,
             0.313,
             pack_attribute="Package Quantity",
-            pack_slope=NUT_PACK_SLOPE,
+            pack_slope=PACK_SLOPES["nut_hex"],
             pack_ref=100.0,
         ),
         "tap_spiral_point": _model(
