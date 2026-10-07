@@ -17,6 +17,7 @@ from synthetic_industrial_products.catalog import brands, breadth, price, price_
 from synthetic_industrial_products.catalog.config import HUNDRED_K_LINES, GeneratorConfig
 from synthetic_industrial_products.catalog.generate import generate
 from synthetic_industrial_products.catalog.measure import measure
+from synthetic_industrial_products.catalog.model import Attribute
 from synthetic_industrial_products.catalog.price_report import (
     BRAND_ROW,
     EQUAL_ROW,
@@ -620,6 +621,47 @@ def test_the_drill_brand_spread_reads_alike_at_the_default_size_and_at_100k(
         default,
         hundred_k_rows[name].achieved,
     )
+
+
+WHEEL = "wheel_depressed_center"
+ABRASIVES = {"Aluminum Oxide", "Ceramic", "Silicon Carbide", "Zirconia Alumina"}
+
+
+def test_a_wheel_spec_holds_its_abrasive_as_its_material(scored):
+    """The census spec is the key dimension plus the material. A wheel
+    publishes no "Material"; its material is its abrasive, so a spec that
+    read "Material" held none and set a ceramic wheel's brands against an
+    aluminum oxide one's (#66)."""
+    collected, _ = scored
+    assert {spec[2] for spec in collected.specs if spec[0] == WHEEL} == ABRASIVES
+    assert price.material_of(WHEEL, {"Abrasive Material": _keyword("Ceramic")}) == "Ceramic"
+    assert price.material_of("drill_jobber", {"Material": _keyword("Cobalt")}) == "Cobalt"
+    assert price.material_of(WHEEL, {"Material": _keyword("Cobalt")}) is None
+
+
+def _keyword(value: str) -> Attribute:
+    return Attribute(name="x", value=value)
+
+
+def test_a_wheels_shared_noise_is_one_draw_per_abrasive_at_every_size():
+    """A noise drawn per diameter inverts the diameter order (#66: larger
+    costs more fell to 0.68); one drawn per abrasive is the same for every
+    size of one cell, so it spreads the p90/p10 and no spec's brands."""
+    sizes = (4.0, 4.5, 9.0)
+    per_abrasive = {
+        material: {price.size_draw(52, WHEEL, size, material) for size in sizes}
+        for material in sorted(ABRASIVES)
+    }
+    assert [len(draws) for draws in per_abrasive.values()] == [1, 1, 1, 1]
+    assert len(set().union(*per_abrasive.values())) == 4
+    assert len({price.size_draw(52, "tap_spiral_point", s, None) for s in sizes}) == 3
+
+
+def test_the_wheel_brand_spread_lands_in_its_band_at_the_default_size(price_rows):
+    """Pinned above its band before #66 (3.24 on the default build)."""
+    (row,) = [row for row in price_rows if row.name == BRAND_ROW.format(WHEEL)]
+    assert row.band[0] <= row.achieved <= row.band[1], (row.achieved, row.band)
+    assert row.name not in price.PINNED_SHORTFALLS
 
 
 def test_economy_brands_priced_as_dear_as_the_rest_breaks_the_economy_row(scored):
