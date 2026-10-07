@@ -15,7 +15,7 @@ COMPATIBILITY = re.compile(
     r"For (?P<screws>.+?) socket head cap screws \((?P<standard>ISO 4762|ASME B18\.3)\)\."
     r"|Takes a (?P<key>\S+) hex key\."
     r"|For (?P<tapped>\S+) threads(?:; tap drill (?P<tap_drill>\S+))?\."
-    r"|Tap drill for (?P<drilled>.+?) threads\."
+    r"|Tap drill for (?P<drilled>.+?) threads(?: \((?P<drilled_parts>[^)]+)\))?\."
     r"|Fits (?P<nut>\S+) bolts and screws\."
     r"|For (?P<washer>M\d+) bolts and screws\."
 )
@@ -25,7 +25,7 @@ COMPATIBILITY = re.compile(
 NOISE = re.compile(
     r"Not for (?P<not_threads>.+?) threads\."
     r"|Will not fit (?P<not_socket>\S+) sockets\."
-    r"|Also available in (?P<siblings>.+?) sizes\."
+    r"|Also available in (?P<siblings>.+?) sizes(?: \((?P<sibling_parts>[^)]+)\))?\."
     r"|(?P<eq_value>\S+(?: mm| in\.?)?) \(approx\. (?P<eq_other>\S+)\)\."
     r"|Bore (?P<bore_low>[\d.]+)-(?P<bore_high>[\d.]+)mm \(ISO 492 Normal class\)\."
     r"|Pair with (?P<pair_thread>\S+) hex nuts"

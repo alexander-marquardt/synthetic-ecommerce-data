@@ -76,6 +76,12 @@ def applicable(
             out.append("ISO 3506-3" if stainless else "ISO 898-5")
         else:
             out.append("ASTM F880" if stainless else "ASTM F912")
+    elif type_key == "dowel_pins":
+        # The line's table (ISO 2338, ISO 8734 or ASME B18.8.2); ISO 3506-1
+        # for a metric stainless pin, whose A1 and C1 grades it defines.
+        out.append(standard)
+        if metric and stainless:
+            out.append("ISO 3506-1")
     elif type_key == "bolt_hex":
         out.append(provenance)
         if provenance in EQUIVALENTS:
