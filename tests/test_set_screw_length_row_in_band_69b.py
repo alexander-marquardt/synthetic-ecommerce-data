@@ -1,4 +1,5 @@
-"""The set screw's longer-costs-more row is reachable, so it is held in band at both builds rather than pinned.
+"""The set screw's longer-costs-more row is reachable,
+so it is held in band at both builds rather than pinned.
 
 The census orders a set screw's sizes loosely (0.666 of 311 pairs, length
 held) and its lengths tightly (0.834 of 692 pairs, diameter held), on slopes

@@ -759,11 +759,11 @@ SLOPE_CUTS: dict[str, str] = {
         "29.7x on the census slope alone, against the census's 9.6x)"
     ),
     "set_screws_hex_socket": (
-        "a stand-in for the pack the catalog does not model: every census set screw is "
-        "pack-sold (5 to 500, median 100) and the pack shrinks as the size grows, so the "
-        "shown price climbs slower across pages than within one; the key and the length "
-        "slope are scaled by one factor (shown p90/p10 5.3x on the census slopes alone, "
-        "against the census's 4.6x)"
+        "the census's shown p90/p10 is 4.59 over 510 set screws, but per piece (price over "
+        "pack quantity) it is 9.0 (1.1557 over 0.1285): every census set screw is pack-sold "
+        "(5 to 500, median 100) and the pack shrinks as the size grows, so the shown price "
+        "climbs slower across pages than within one; the key and the length slope are scaled "
+        "by one factor so the catalog's shown spread is the census's shown spread"
     ),
     "end_mill_ball": (
         "a size-span stand-in on a low-confidence slope (11 census pairs): the catalog's "
@@ -792,6 +792,13 @@ SIZE_NOISE: dict[str, str] = {
         "one spec's brands 3.5x apart, while noise one spec shares across brands carries the "
         "p90/p10 and leaves the brand spread to the tiers, as on taps"
     ),
+    "set_screws_hex_socket": (
+        "the census orders a set screw's sizes loosely (0.666 of 311 pairs, length held) and "
+        "its lengths tightly (0.834 of 692 pairs, diameter held) on close slopes (0.324 and "
+        "0.363): noise drawn per SKU inverts both kinds of pair alike, so no per-SKU sigma "
+        "meets both shares, while noise one diameter shares across its lengths inverts a size "
+        "pair and leaves a length pair alone"
+    ),
 }
 
 #: Each pinned row's figure on the default and on the 100K build, as the
@@ -812,9 +819,7 @@ SIZE_NOISE: dict[str, str] = {
 BRAND_SAMPLE_CAP = 3
 _WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
 _KIT_SPREAD_ROW = "price p90/p10: kit_assortment"
-_SET_SCREW_LENGTH_ROW = "price longer costs more: set_screws_hex_socket"
 PINNED_FIGURES: dict[str, tuple[float, float]] = {
-    _SET_SCREW_LENGTH_ROW: (0.648, 0.661),
     _WHEEL_SPREAD_ROW: (3.534, 3.09),
     _KIT_SPREAD_ROW: (4.015, 3.901),
 }
@@ -830,14 +835,6 @@ PIN_TOLERANCE = 0.02
 #: figure a reason quotes is read from :data:`PINNED_FIGURES`, so a refit that
 #: re-records the figure cannot leave the reason quoting the old one.
 PINNED_SHORTFALLS: dict[str, str] = {
-    _SET_SCREW_LENGTH_ROW: (
-        "below band: the census's longer-costs-more share is 0.834 over 692 pairs, but "
-        "its prices are pack prices (every row is pack-sold) and a longer screw is often "
-        "sold in a smaller pack, which the catalog does not model, so the shown price "
-        "pairs in the catalog invert more often than the census's; the noise that "
-        "orders the sizes is the same noise that orders the lengths, and the size row "
-        "holds in band at both builds (model the pack: #65)"
-    ),
     _WHEEL_SPREAD_ROW: (
         "above band: with every noise off, the brand tiers alone give 1.85 on the default "
         "build against a band top of 1.71, because 3 of the 12 wheel brands "

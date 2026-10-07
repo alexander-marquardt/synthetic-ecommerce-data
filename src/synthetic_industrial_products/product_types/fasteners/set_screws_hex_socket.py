@@ -332,20 +332,20 @@ def figure(record: dict[str, str]) -> Drawn:
     return Drawn(fig, source)
 
 
-#: The census slopes (size and length) and endings; the anchor and both sigmas
+#: The census slopes (size and length) and endings; the anchor and the three sigmas
 #: fitted by ``scripts/fit_price_model.py`` to the 510 census set screws
-#: (``deep_types.set_screws_hex_socket``). The census prices are pack prices
-#: (every row is pack-sold) the catalog does not model, so the shown price is
-#: scored against them as it is for the bolt. No brand figure is restated: the
+#: (``deep_types.set_screws_hex_socket``); the size noise is one draw per
+#: diameter that its lengths share (``price.SIZE_NOISE``). No brand figure is restated: the
 #: only spec two brands share is one nylon line, so the drill's tiers apply.
 PRICE = PriceModel(
     # @fit-begin set_screws_hex_socket
-    anchor=18.38,
+    anchor=17.69,
     anchor_key=0.25,
-    slope=0.187,
-    length_slope=0.21,
-    group_sigma=0.400,
-    sku_sigma=0.152,
+    slope=0.193,
+    length_slope=0.216,
+    group_sigma=0.083,
+    sku_sigma=0.037,
+    size_sigma=0.181,
     # @fit-end
     endings=ENDINGS["set_screws_hex_socket"],
 )
@@ -371,9 +371,9 @@ SPEC = TypeSpec(
     extent=EXTENT,
     make=_make,
     share=0.10,
-    price=PRICE,
     sizes=SIZES,
     line_standard=line_standard,
+    price=PRICE,
     claims=claims,
     may_claim=frozenset(
         {"ISO 4026", "ISO 4027", "ISO 4028", "ISO 4029", "ASME B18.3", "ISO 898-5", "ISO 3506-3"}
