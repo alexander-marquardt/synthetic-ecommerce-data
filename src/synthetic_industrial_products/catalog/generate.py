@@ -123,7 +123,7 @@ KEY_DIMENSIONS: dict[str, tuple[str, ...]] = {
     # A bearing is named by its number AND its bore: the bore is what a
     # shopper fits it to (the review of the 100K catalog, 2026-09-29).
     "bearing_radial_ball": ("Bearing Number", "Bore Dia."),
-    "wheel_depressed_center": ("Diameter",),
+    "wheel_depressed_center": ("Wheel Dia.",),
     "abrasive_flap_disc": ("Diameter",),
     # Not a dimension, but it names what the screw IS, so it leads. Last in
     # the title, the value's trailing "Point" reads as a cut "Point Type".

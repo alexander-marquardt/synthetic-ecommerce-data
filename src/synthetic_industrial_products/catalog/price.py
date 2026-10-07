@@ -261,7 +261,7 @@ KEY_ATTRIBUTES: RegistryTable[str, tuple[str, ...]] = RegistryTable({
     "screw_low_head": ("Dia./Thread Size",),
     "tap_spiral_point": ("Thread Size",),
     "washer_flat": ("Inside Dia.",),
-    "wheel_depressed_center": ("Diameter",),
+    "wheel_depressed_center": ("Wheel Dia.",),
 })  # fmt: skip
 
 #: Each type's key-dimension reader (:func:`key_reader`). Built from the

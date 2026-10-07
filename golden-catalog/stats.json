@@ -309,7 +309,6 @@
    "Outside Dia."
   ],
   "cotter_pins": [
-   "Diameter",
    "Dimension Type",
    "Finish",
    "Head Dia.",
@@ -318,6 +317,7 @@
    "Material",
    "Measurement System",
    "Package Quantity",
+   "Pin Dia.",
    "Standards",
    "System of Measurement"
   ],
@@ -336,8 +336,8 @@
   ],
   "dowel_pins": [
    "Dia. Tolerance",
-   "Diameter",
    "Dimension Type",
+   "Dowel Dia.",
    "Finish",
    "Hardness",
    "Item",
@@ -925,7 +925,6 @@
    "Arbor Hole",
    "Bond Type",
    "Connector Type",
-   "Diameter",
    "Dimension Type",
    "Grade",
    "Grit",
@@ -936,7 +935,8 @@
    "Standards",
    "System of Measurement",
    "Thickness",
-   "Type"
+   "Type",
+   "Wheel Dia."
   ],
   "zerk_grease_fittings": [
    "Item",
@@ -2083,11 +2083,11 @@
    "largest_product_type": "roller_chain"
   },
   "dispersion": {
-   "quantitative_attributes": 54,
-   "faceted_attributes": 51,
+   "quantitative_attributes": 57,
+   "faceted_attributes": 54,
    "faceted_low": 0.0043,
-   "faceted_high": 0.2414,
-   "densest_faceted": "Closed Length",
+   "faceted_high": 0.6944,
+   "densest_faceted": "Dowel Dia.",
    "smallest_faceted": "Roller Dia.",
    "smallest_faceted_products": 30,
    "drive_size_cardinality": 41,
