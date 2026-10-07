@@ -1102,6 +1102,20 @@ MUTATIONS: list[Mutation] = [
         "an angle key's entries are angles however the value is spelled (#79)",
     ),
     Mutation(
+        "read a length keyed into an angle field as degrees",
+        "catalog/entry.py",
+        '        if UNIT_FOR_NAME.get(name) == "DD" and not _within_span(name, match["number"]):\n'
+        '            return {"value": published}\n',
+        "",
+        (
+            "tests/test_nested_entry_contract.py -k canonical_lies_within",
+            "tests/test_nested_entry_contract.py -k hand_worked",
+            "tests/test_nested_entry_contract.py -k published_spelling",
+        ),
+        "",
+        "an angle key's canonical lies within the angles its series offers (#79)",
+    ),
+    Mutation(
         "collapse a multi-valued attribute to a single entry",
         "catalog/model.py",
         "        values = self.values if self.values is not None else (self.value,)",

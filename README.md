@@ -646,7 +646,14 @@ spelling never changes what an attribute measures: `Helix Angle = 42"`, the
 modelled defect of an inch mark keyed for a degree mark, becomes `42` `DD`
 (`catalog.entry.UNIT_FOR_NAME`). The flat facet keeps the messy `42"`; the
 entry keeps the magnitude and drops the bad mark (elastic/prism#9284, #79). Read
-as an inch, it put a length under an angle key. An attribute that
+as an inch, it put a length under an angle key. The same defect also writes
+`1"`, `1-1/4"`, `2"` and `1-5/8"`: lengths keyed into an angle field, a
+unit-type error rather than a mis-keyed degree mark. An attribute fixed to `DD`
+therefore parses only when its number lies within the angles its generator
+draws (`catalog.entry.SPAN_FOR_NAME`, read from `catalog.series`), and a
+fraction never parses as an angle; anything else stays text, with no
+`unit_code` and no `value_canonical`. In the default build that leaves 8 of the
+78 defect rows as angles (`Helix Angle = 42"`) and 70 as text. An attribute that
 is not a measurement omits `unit_code` and `value_canonical` rather than
 carrying nulls.
 
