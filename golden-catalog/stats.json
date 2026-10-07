@@ -1383,7 +1383,7 @@
   {
    "name": "price p50 (USD): roller_chain",
    "target": 358.0,
-   "achieved": 297.75,
+   "achieved": 301.825,
    "numerator": 68,
    "denominator": 71,
    "note": "shown price; denom is the census n",
@@ -1395,7 +1395,7 @@
   {
    "name": "price p90/p10: roller_chain",
    "target": 10.4318,
-   "achieved": 7.48245,
+   "achieved": 8.38449,
    "numerator": 68,
    "denominator": 71,
    "note": "shown price; denom is the census n",

@@ -2181,8 +2181,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the roller chain prices at three times its fitted anchor",
                 "product_types/motion/roller_chain.py",
-                "    160.0,",
-                "    480.0,",
+                "    168.0,",
+                "    504.0,",
                 "within_its_band_or_pinned_at_the_default_size",
                 "a deepened breadth category keeps its census level",
             ),

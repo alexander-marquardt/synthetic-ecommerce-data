@@ -71,13 +71,9 @@ search_config: builtin
 # selector will not render for it" once per numeric facet, and the sidebar
 # shows nothing for any dimension.
 #
-# Under elastic/prism#9285 a dimensional attribute is offered as a discrete
-# list rather than a range unless its values do not repeat. The roller chain's
-# three dimensions are the exception: B29.1 fixes 13 sizes, but on the default
-# build's 68 chains their brand spellings (``1/2"``, ``0.500"``, ``1/2 in.``)
-# give 25 to 35 distinct values, above the continuity threshold, so they derive
-# as ranges (alexander-marquardt/synthetic-industrial-products#77). It is NOT
-# hand-maintained:
+# This list is now ``price`` ALONE. Under elastic/prism#9285 every dimensional
+# attribute is offered as a discrete list rather than a range, so none of them
+# has a range axis. It is NOT hand-maintained:
 # ``tests/test_prism_field_map_drift.py`` asserts it equals a fresh derivation,
 # so adding a range attribute to the catalog without routing it here is a red
 # test rather than a missing slider.
@@ -87,9 +83,6 @@ search_config: builtin
 filter_routing:
   hard:
     - price
-    - chain_pitch
-    - inside_width
-    - roller_dia
 
 # One persona over one index. With exactly one persona declared the Engine
 # treats it as the implicit default, so ``default_persona`` is omitted rather

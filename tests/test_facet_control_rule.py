@@ -324,9 +324,10 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
     """
     quantitative = [s for s, _ in decided.values() if s.is_numeric]
     faceted = [s for s, d in decided.values() if s.is_numeric and d.facet]
-    # 38 since the set screws' Point Dia. (#53), which is not faceted.
-    assert len(quantitative) == 38
-    assert len(faceted) == 35
+    # 41 since the roller chain's Pitch, Roller Dia. and Inside Width (#53),
+    # all faceted; 38 before, since the set screws' Point Dia., which is not.
+    assert len(quantitative) == 41
+    assert len(faceted) == 38
 
 
 def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
@@ -405,4 +406,5 @@ def test_the_smallest_faceted_attribute_clears_the_document_floor(decided) -> No
     smallest = min(faceted, key=lambda s: s.present)
     assert smallest.name == MEASURED_DISPERSION["smallest_faceted"]
     assert smallest.present == MEASURED_DISPERSION["smallest_faceted_present"]
-    assert smallest.present > RANGE_MIN_DOCS
+    # The rule's own comparison (``present >= RANGE_MIN_DOCS``): at the floor clears it.
+    assert smallest.present >= RANGE_MIN_DOCS

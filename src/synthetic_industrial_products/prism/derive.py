@@ -203,9 +203,11 @@ MEASURED_DISPERSION: dict[str, Any] = {
     "drive_size_present": 1842,
     # The smallest faceted attribute, which is what clears RANGE_MIN_DOCS.
     # A kit's piece count since the assortment kits (60 kits): a real count
-    # on few documents, which still clears RANGE_MIN_DOCS.
-    "smallest_faceted": "Number of Pieces",
-    "smallest_faceted_present": 59,
+    # on few documents (59), which still clears RANGE_MIN_DOCS. A roller chain's
+    # Roller Dia. since #53: 50 of its 68 chains, the rollerless 25 and 35 and
+    # sparsity leaving the rest, exactly at the floor.
+    "smallest_faceted": "Roller Dia.",
+    "smallest_faceted_present": 50,
     # The real continuum this catalog does not offer as a range. It clears
     # BOTH RANGE_DISPERSION and RANGE_MIN_DOCS now (#39) -- MIN_PRESENCE is
     # what still keeps it off a slider, because it is rare even among its
