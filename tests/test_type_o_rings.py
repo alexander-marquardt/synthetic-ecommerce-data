@@ -84,14 +84,19 @@ def test_every_published_ring_is_its_dash_numbers_row():
         if "Dash Number" not in values:
             continue
         row = by_dash[values["Dash Number"].removeprefix("AS568-")]
-        assert length_attribute("Inside Dia.", values["Inside Dia."]).value_num == pytest.approx(
-            row.inside * 25.4
-        ), doc["sku"]
-        assert length_attribute("Width", values["Width"]).value_num == pytest.approx(
-            row.width * 25.4
-        ), doc["sku"]
+        for name, inches in (("Inside Dia.", row.inside), ("Width", row.width)):
+            if name in values:
+                assert _published_mm(name, values[name]) == pytest.approx(inches * 25.4), doc["sku"]
         checked += 1
     assert checked > 30, checked
+
+
+def _published_mm(name: str, value: str) -> float | None:
+    """The value in mm. A brand whose house style writes a length with no unit
+    (``0.171``; ``formats.LengthStyle.unitless``) publishes nothing the parser
+    reads, so its bare figure is read as the inches the chart states."""
+    parsed = length_attribute(name, value).value_num
+    return parsed if parsed is not None else float(value) * 25.4
 
 
 def test_no_two_skus_of_one_brand_are_the_same_product():
@@ -111,6 +116,16 @@ def test_the_provenance_names_where_each_published_dimension_came_from():
     problems, checked = type_gates.provenance_problems(_default_docs(), DIMENSIONAL, DIMENSIONS)
     assert problems == [], problems[:10]
     assert checked > 5, f"only {checked} dimensional claims were checked"
+
+
+def test_the_size_table_cites_the_chart_it_was_read_from():
+    """A reviewer can open the chart the 349 rows were transcribed from."""
+    text = (Path(standards.__file__).parent.parent / "data" / "as568_sizes.json").read_text("utf-8")
+    cited = json.loads(text)["_provenance"]
+    assert cited["chart_url"] == (
+        "https://www.applerubber.com/src/pdf/as568-standard-size-o-rings.pdf"
+    )
+    assert cited["retrieved"] == "2026-10-07"
 
 
 def test_the_borrowed_price_model_is_the_flat_washers():

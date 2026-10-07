@@ -2,8 +2,8 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 10,650 SKUs over 5,814 products in 19 depth types plus
-48 [breadth categories](#catalog-breadth), one product each -- from 45
+extraction in search: 10,714 SKUs over 5,851 products in 20 depth types plus
+47 [breadth categories](#catalog-breadth), one product each -- from 45
 invented brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
 
@@ -233,7 +233,8 @@ type from `skus_by_type` in its `stats.json`:
 | screw_button_head | 3,439 | | hex_key | 6,466 |
 | screw_low_head | 2,692 | | bolt_hex | 5,934 |
 | kit_assortment | 695 | | lock_nuts_nylon_insert | 4,513 |
-| set_screws_hex_socket | 7,061 | | 48 breadth categories | 85 (1-3 each) |
+| set_screws_hex_socket | 7,061 | | o_rings | 1,040 |
+| 47 breadth categories | 83 (1-3 each) | | | |
 
 The mix is not the one a proportional scale would give, and that is the
 uniqueness rule at work: a type whose spec space is small (ISO 7089 fixes a
@@ -241,8 +242,10 @@ washer's nine sizes; a hammer is its head weight and handle) runs out of
 SKUs its makers have not already made, so it grows less. It was 28,300
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
-**111,499 SKUs over 64,483 products** (`skus` and `lines` in `stats.json`),
-4,513 of them lock nuts over 2,714 products and 7,061 set screws over 3,786.
+**112,537 SKUs over 65,047 products** (`skus` and `lines` in `stats.json`),
+4,513 of them lock nuts over 2,714 products, 7,061 set screws over 3,786 and
+1,040 O-rings over 565. `o_rings` was a breadth category of 2 SKUs; deepened
+from the AS568 table, it took no SKU from any other type.
 `lock_nuts_nylon_insert` and `set_screws_hex_socket` became deep types (#53),
 each with its own share of `--lines`, and took none from the others, so every
 other type's SKU count is the one measured on `95a9ed0` (the set screws' small
@@ -251,10 +254,10 @@ the build gave 99,929 SKUs over 57,985 products. On `95a9ed0`: SKUs that are
 not different (the rule below): 0. Every bearing number is a real table entry
 with its own bore, OD and width. Product names: 0 clashes catalog-wide.
 Every must-stock example is stocked. (Those four are the 100K tests in
-`tests/test_catalog_brands_voice.py`.) Since set screws,
+`tests/test_catalog_brands_voice.py`.) Since O-rings,
 `scripts/check_determinism.py --lines 39000`: all 7 emitted files
 byte-identical across two builds. The drawings, built with the second command
-above: 111,499 drawings, 230.1 MB unpacked, a 25.8 MB `images.tar.gz`, every
+above: 112,537 drawings, 232.0 MB unpacked, a 25.9 MB `images.tar.gz`, every
 sha256 matching `images.jsonl` (the counts the command prints). The 100K
 catalog is still not published while the spec is iterated at the default
 size.
@@ -1148,8 +1151,8 @@ every other drawing -- only the GEOMETRY is fixed.
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 10,650 drawings, 21.0 MB unpacked
-  (1.97 KB a drawing on average), and a 2.23 MB `images.tar.gz` (the count,
+  measured on the committed catalog, 10,714 drawings, 21.2 MB unpacked
+  (1.98 KB a drawing on average), and a 2.23 MB `images.tar.gz` (the count,
   bytes and archive size `uv run sip-generate images --catalog golden-catalog
   --out /tmp/img --archive /tmp/img.tar.gz` prints). Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
@@ -1395,7 +1398,13 @@ python3 -c "import json, statistics as s, sys; p = [r['price_usd'] for r in map(
 ```
 
 The button, flat and low-head socket screws price as the socket head
-screw does (`price.BORROWS`). A breadth category the census measures is
+screw does (`price.BORROWS`). The census has no O-rings, so they borrow
+the flat washer's model (`TypeSpec.borrows`), keyed on the cross-section
+and held to the inside-diameter span the washer model was fitted over
+(`price.MEASURED_SPANS`: ISO 7089 M3 to M20, 0.126" to 0.827"); their
+prices are generated, not measured. Keyed on the inside diameter instead,
+even clamped to that span, the washer's noise put a simulated largest ring at
+195 to 285 USD. A breadth category the census measures is
 priced across its census p10, p50 and p90 (`price.BREADTH_CENSUS`); any
 other breadth row draws from its own `price_range`.
 
