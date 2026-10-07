@@ -66,6 +66,7 @@ from .naming import (
     abbreviate_value,
     build_title,
     states_value,
+    thread_parts,
 )
 from .newtypes import NEW_TYPES
 from .taxonomy import drawing_for, image_id_for
@@ -1767,6 +1768,9 @@ class Generator:
             for name, value in draft.descriptors
             if name in published and not states_value(title.text, value)
         )
+        # A glued size the title or the spec clause names is one token to the
+        # analyzer, so its parts are written out as well (#33).
+        details.extend(thread_parts(f"{title.text} {', '.join(details)}"))
         details.append(f"{draft.brand} {draft.series}")
         facts = {**self._line_facts, **{a.name: a.value for a in attributes}}
         tail = description_tail(draft.brand, draft.series, draft.type_key, facts)
@@ -2069,7 +2073,7 @@ class Generator:
         pack = None
         if model.pack_attribute is not None and model.pack_attribute in facts:
             pack = facts[model.pack_attribute].value_num
-        key = price.KEYS[type_key](facts)
+        key = price.price_key(type_key, facts)
         struct = price.structure(
             model,
             key,

@@ -364,11 +364,28 @@ with 30 or more priced rows.
 
 **No census rows: `measured=False`.** Declare the model with
 `measured=False` and a comment that says where its level comes from and that
-it is NOT MEASURED; the lock nut's and the set screw's are examples (their
-census-backed bands are #69). Such a type gets no price rows, so nothing
-checks its prices against a census. A type with no census rows of its own
+it is NOT MEASURED; the ball-pein hammer's is an example. Such a type gets
+no price rows, so nothing checks its prices against a census. To give it
+census rows, measure them as #69 did for the lock nut and the set screw:
+extend `scripts/price_census_collect.py` and `scripts/price_census_parse.py`
+(archive.org only, serial) and let the parser write the entry. A type whose
+entry has landed but is not yet restated and fitted is listed in
+`AWAITING_FIT` in `tests/test_price.py` and keeps `measured=False` until it
+is (the lock nut and the set screw, until #69's second part). A type with no census rows of its own
 that prices as a sibling does is listed in `price.BORROWS` instead (the
 button, flat and low-head socket screws borrow the socket head's model).
+
+**A type sold as a set of other types' parts: price it from its contents.**
+A kit's census key (`Number of Pieces`) says how many pieces it holds, not
+what they are, so its price is keyed on what they cost instead: list it in
+`price.CONTENTS_PRICED`, and `price.price_key` reads `price.kit_contents`,
+each piece priced on its own type's curve at that type's census per-piece
+share (`price.PER_PIECE`). Its slope is then 1.0 and the fit gives it no
+group noise. `KIT_PARTS` is read from `newtypes.KITS`, so a new kit kind of
+an existing part type needs no price change; a kit of a new part type needs
+that part's `PER_PIECE` row, which
+`test_each_kit_part_is_priced_at_its_census_per_piece_share` checks against
+the census.
 
 **Census rows: restate them, then fit.**
 
@@ -408,19 +425,16 @@ that fixes it:
   `PINNED_SHORTFALLS` and its figures at both sizes, as the fit prints
   them, in `PINNED_FIGURES`. At each size the row may then move no further
   out than that size's figure, within `PIN_TOLERANCE`, and must stay on its
-  side (the wheel brand spread, #66). A figure a
-  reason quotes is read from `PINNED_FIGURES` in an f-string, never typed,
-  so a refit cannot leave it stale.
-* **An exception**, for a row that no model of this shape holds at both
-  sizes, on either side: its reason in `ROW_EXCEPTIONS` and its figures at
-  both sizes in `EXCEPTED_FIGURES`. Its band miss may grow to no more than
-  `EXCEPTION_DRIFT` times the recorded one (the kit p50 and p90/p10, #71).
-  `test_the_row_exceptions_are_the_kit_rows_that_cannot_hold` pins the set,
-  so adding one edits that test, which a reviewer sees. An exception goes
-  only when its row lands in band at both sizes.
-* **Both records are the build's own figures.**
+  side (the wheel brand spread, #66; the kit
+  p90/p10, #76). A figure a reason quotes is read from `PINNED_FIGURES` in
+  an f-string, never typed, so a refit cannot leave it stale. There is no
+  looser declaration: a row that lands on either side of its band from one
+  build to the other has a model to fix, as the kit p50 did (#71: a kit
+  was one group draw per page, so its few pages moved its median with the
+  build's size; it is now priced from its contents).
+* **Each record is the build's own figure.**
   `test_each_recorded_figure_is_the_figure_its_build_produces` holds every
-  `PINNED_FIGURES` and `EXCEPTED_FIGURES` entry equal to its row's figure at
+  `PINNED_FIGURES` entry equal to its row's figure at
   that size (a dollar p50 to the cent, a ratio to three places), so a record
   is never loosened by hand, nor left loose after the row improves. The fit
   flags a stale one "re-record" with the figures to write.
@@ -430,9 +444,9 @@ that fixes it:
 * **A size noise**, where one spec's brands must sit close while its size
   pairs invert: its reason in `SIZE_NOISE`.
 
-The fit exits 1, before it writes, on an undeclared row out of band, a pin
-that no longer holds, or an exception past its bound. A pin or an exception
-that moves further out is re-recorded by hand, with its cause re-read. Put
+The fit exits 1, before it writes, on an undeclared row out of band or a pin
+that no longer holds. A pin that moves further out is re-recorded by hand,
+with its cause re-read. Put
 the type's rows (census, default, 100K, band) in the pull request body,
 from the fit's output.
 
