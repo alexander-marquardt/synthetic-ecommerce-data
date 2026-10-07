@@ -1345,8 +1345,13 @@ class Generator:
                 style = canonical_style(other)
                 attribute = out[index]
                 assert attribute.value_num is not None
-                out[index] = length_attribute(
-                    attribute.name, self._publish(attribute.value_num, style)
+                # The key travels with the unit: a name two types use for two
+                # quantities (a sprocket's Pitch, a tap's) is told apart by it,
+                # and a restated value under the name's default key would join
+                # the other type's facet.
+                out[index] = replace(
+                    length_attribute(attribute.name, self._publish(attribute.value_num, style)),
+                    key=attribute.key,
                 )
                 self._bump("defect_unit_mixing")
         return out
