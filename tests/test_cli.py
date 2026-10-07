@@ -107,10 +107,8 @@ def test_a_batch_carries_on_past_the_record_it_cannot_draw(tmp_path):
 
 
 def test_the_batch_report_separates_the_two_kinds_of_drawing(tmp_path):
-    """"Three images" and "three dimensioned drawings" are different claims."""
-    report = render_all(
-        [BUNDLED["26VW40"], BUNDLED["57KY59"], BUNDLED["2DY27"]], tmp_path, [CARD]
-    )
+    """ "Three images" and "three dimensioned drawings" are different claims."""
+    report = render_all([BUNDLED["26VW40"], BUNDLED["57KY59"], BUNDLED["2DY27"]], tmp_path, [CARD])
     assert report.drawn == 3
     assert sum(report.to_scale.values()) == 2
     assert sum(report.as_type.values()) == 1
@@ -166,3 +164,18 @@ def test_png_dimensions_rejects_a_file_that_is_not_a_png(tmp_path):
     path.write_bytes(b"GIF89a")
     with pytest.raises(ValueError):
         png_dimensions(path)
+
+
+def test_stats_json_floats_are_written_at_six_significant_digits() -> None:
+    """A float's last digits differ between platforms, so stats.json carries 6."""
+    from synthetic_industrial_products.catalog import cli
+
+    stats = {
+        "achieved": 0.020049927429426802,
+        "band": [2.632978723404255, 29.980000000000004],
+        "n": 1039,
+        "name": "x",
+    }
+    assert json.dumps(cli.round_floats(stats)) == (
+        '{"achieved": 0.0200499, "band": [2.63298, 29.98], "n": 1039, "name": "x"}'
+    )

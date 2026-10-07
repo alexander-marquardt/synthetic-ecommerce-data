@@ -40,6 +40,7 @@ from typing import Any, NamedTuple
 
 from ...catalog import compat
 from ...catalog.newtypes import table_provenance
+from ...catalog.price import PriceModel
 from ...catalog.standards import UNF_THREADS_PER_INCH
 from ...catalog.typespec import TypeSpec
 from ...catalog.vocab import AttrSpec
@@ -332,6 +333,13 @@ def figure(record: dict[str, str]) -> Drawn:
     return Drawn(fig, source)
 
 
+#: No census prices: the census has no set screws. The curve is hand-set near
+#: the level the uniform multiplier gave (a 1/4 inch screw about 2.2 USD, rising
+#: with the major diameter at about 0.4 log-log); NOT MEASURED. The built
+#: median sits above that level (2.48 USD on the golden catalog); no band
+#: holds it until issue #69.
+PRICE = PriceModel(2.2, 0.25, 0.4, 0.3, 0.25, measured=False)
+
 SPEC = TypeSpec(
     KEY,
     category=("Fasteners", "Set Screws", "Hex Socket Set Screws"),
@@ -343,6 +351,7 @@ SPEC = TypeSpec(
     share=0.10,
     sizes=SIZES,
     line_standard=line_standard,
+    price=PRICE,
     use_lines=(
         "Driven with a hex key.",
         "Holds a collar, pulley or gear on its shaft from inside a tapped hole.",
