@@ -2073,7 +2073,7 @@ class Generator:
         off the line attributes sparsity never drops."""
         model = price.model_for(type_key)
         facts = {a.name: a for a in attributes}
-        material = facts["Material"].value if "Material" in facts else None
+        material = price.material_of(type_key, facts)
         pack = None
         if model.pack_attribute is not None and model.pack_attribute in facts:
             pack = facts[model.pack_attribute].value_num
@@ -2085,6 +2085,7 @@ class Generator:
             brands.tier_of(brand, type_key),
             pack,
             price.length_of(facts) if type_key in price.LENGTH_HELD else None,
+            facts[model.option_attribute].value if model.option_attribute in facts else None,
         )
         seed = self.config.seed
         always = self._always_published(type_key)

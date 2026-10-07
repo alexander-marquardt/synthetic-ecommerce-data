@@ -453,6 +453,34 @@ MUTATIONS: list[Mutation] = [
         "",
         "two types on one block are refused, naming both",
     ),
+    # ---- roller chain: the strand count moves the price (#36) ----
+    Mutation(
+        "roller chain: a double strand chain prices as a single strand one",
+        "product_types/motion/roller_chain.py",
+        "STRANDS[2]: 1.9,",
+        "STRANDS[2]: 1.0,",
+        "tests/test_type_roller_chain.py",
+        "more_strands_cost_more_in_every_same_spec_set",
+        "more strands cost more in every same-spec set",
+    ),
+    Mutation(
+        "roller chain: a triple strand chain prices under a double strand one",
+        "product_types/motion/roller_chain.py",
+        "STRANDS[3]: 2.8}",
+        "STRANDS[3]: 1.5}",
+        "tests/test_type_roller_chain.py",
+        "more_strands_cost_more_in_every_same_spec_set",
+        "more strands cost more in every same-spec set",
+    ),
+    Mutation(
+        "roller chain: one brand's strand counts draw their price noise apart",
+        "catalog/price.py",
+        "        and (model is None or attribute.name != model.option_attribute)",
+        "        and (model is None or attribute.name != object())",
+        "tests/test_type_roller_chain.py",
+        "more_strands_cost_more_in_every_same_spec_set",
+        "more strands cost more in every same-spec set",
+    ),
     # ---- the type seam: a table read registers the type modules (#54) ----
     # Every name starts "type seam:", so `--only "type seam:"` re-runs the
     # review's score. Left out as EQUIVALENT: dropping the ``done`` flag, which
@@ -2484,6 +2512,22 @@ MUTATIONS: list[Mutation] = [
                 "larger costs more",
             ),
             (
+                "the roller chain prices at three times its fitted anchor",
+                "product_types/motion/roller_chain.py",
+                "    116.0,",
+                "    348.0,",
+                "within_its_band_or_pinned_at_the_default_size",
+                "a deepened breadth category keeps its census level",
+            ),
+            (
+                "a deepened breadth category is scored by no row",
+                "catalog/price_report.py",
+                "    for type_key, (n, p10, p50, p90) in DEEPENED_CENSUS.items():",
+                "    for type_key, (n, p10, p50, p90) in {}.items():",
+                "row_names_are_the_rows_the_default_build_scores",
+                "a deepened breadth category keeps its census level",
+            ),
+            (
                 "price falls with length",
                 "catalog/price.py",
                 "        log_p += model.length_slope * math.log(length / model.anchor_length)",
@@ -2748,6 +2792,39 @@ MUTATIONS: list[Mutation] = [
                 "    recorded = PINNED_FIGURES[row.name][0]",
                 "a_pin_may_land_no_further_out",
                 "a pin holds each build to its own figure",
+            ),
+            (
+                "a wheel spec reads Material, which a wheel never publishes",
+                "catalog/price.py",
+                'MATERIAL_ATTRIBUTES: dict[str, str] = {"wheel_depressed_center": '
+                '"Abrasive Material"}',
+                "MATERIAL_ATTRIBUTES: dict[str, str] = {}",
+                "spec_holds_a_material_or_names_why_not",
+                "every brand-census spec holds a material",
+            ),
+            (
+                "a material is read off Material for every type",
+                "catalog/price.py",
+                '    name = MATERIAL_ATTRIBUTES.get(type_key, "Material")',
+                '    name = "Material"',
+                "wheel_spec_holds_its_abrasive",
+                "a wheel's material is its abrasive",
+            ),
+            (
+                "the material guard counts an empty material as held",
+                "catalog/price_report.py",
+                "    held = {spec[0] for spec in collected.specs if spec[2]}",
+                "    held = {spec[0] for spec in collected.specs}",
+                "never_publishes_is_caught",
+                "a type whose specs hold no material is caught",
+            ),
+            (
+                "the wheel pin quotes a tier figure no build measures",
+                "catalog/price.py",
+                "the brand tiers alone give 1.85 on the default",
+                "the brand tiers alone give 1.75 on the default",
+                "tiers_alone_give",
+                "a pin's stated cause is measured",
             ),
         ]
     ),

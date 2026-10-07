@@ -352,6 +352,18 @@ LENGTH_HELD = frozenset(
 )
 
 
+#: The attribute a type publishes its material as, where it is not
+#: "Material". The census spec is the key dimension plus the material
+#: (``method.brand_spread``); a wheel's material is its abrasive grain.
+MATERIAL_ATTRIBUTES: dict[str, str] = {"wheel_depressed_center": "Abrasive Material"}
+
+
+def material_of(type_key: str, facts: Mapping[str, Attribute]) -> str | None:
+    """A SKU's material (:data:`MATERIAL_ATTRIBUTES`), or None."""
+    name = MATERIAL_ATTRIBUTES.get(type_key, "Material")
+    return facts[name].value if name in facts else None
+
+
 #: Price endings per type (``deep_types.<type>.endings.class_share``), for the
 #: 13 types :data:`CENSUS` restates.
 ENDINGS: dict[str, dict[str, float]] = {
@@ -496,6 +508,15 @@ ENDINGS: dict[str, dict[str, float]] = {
 #: a pack of 100 costs more than a pack of 25, but far less than four times.
 NUT_PACK_SLOPE = 0.234
 
+#: A breadth category the census measured that is now a modelled type: its
+#: census n and shown-price (p10, p50, p90), the same
+#: ``breadth_categories.<key>`` figures. Its own fitted model is scored on the
+#: p50 and p90/p10 rows (:func:`.price_report.price_rows`); the census has no
+#: within-page pairs for it, so no order row.
+DEEPENED_CENSUS: dict[str, tuple[int, float, float, float]] = {
+    "roller_chain": (71, 74.1, 358.0, 773.0),
+}
+
 #: Each measured breadth category's shown-price (p10, p50, p90)
 #: (``breadth_categories.<key>.price_quantiles_usd``). A row listed here is
 #: priced from these (:func:`breadth_price`); every other row from its own
@@ -514,7 +535,6 @@ BREADTH_CENSUS: dict[str, tuple[float, float, float]] = {
     "hex_pipe_nipples": (3.33, 5.2, 16.24),
     "hose_clamps": (13.492, 34.95, 43.43),
     "rigid_casters": (20.744, 76.2, 351.85),
-    "roller_chain": (74.1, 358.0, 773.0),
     "safety_glasses": (5.0, 8.605, 24.26),
     "threaded_rod": (6.511, 33.52, 140.855),
     "u_bolts": (3.454, 10.68, 23.918),
@@ -641,6 +661,13 @@ class PriceModel:
     #: The type's own material factors, for a type that declares its ladder
     #: (:mod:`.tabletype`); None reads the shared :data:`MATERIAL_FACTORS`.
     materials: Mapping[str, float] | None = None
+    #: A line attribute whose value multiplies the price, and each value's
+    #: multiplier (a roller chain's strand count). A value missing from the
+    #: table counts 1.0. One brand's lines that differ only in this attribute
+    #: share a group draw (:func:`holds_equal`), so the multiplier is what
+    #: separates their prices.
+    option_attribute: str | None = None
+    option_factors: Mapping[str, float] = field(default_factory=dict)
 
 
 def _model(
@@ -717,11 +744,21 @@ SIZE_NOISE: dict[str, str] = {
 #: from its band than its build's figure by more than :data:`PIN_TOLERANCE`.
 #: ``tests/test_price.py`` holds each figure equal to what its build produces
 #: (``price_report.recorded_digits``), so a record cannot be loosened by hand.
+#: The most brands a brand-spread row takes from one spec
+#: (:func:`.price_report.brand_sample`). Max/min is an order statistic: over more brands it
+#: is wider, whatever the model. The default build puts 2 to 7 brands on a
+#: drill spec (median 3) and the 100K build 9 to 15 (median 13), so a figure
+#: over every brand of a spec reads the catalog's size, not its prices. The
+#: census does not publish its brands per spec, only the most a spec can hold
+#: (:attr:`.price.BrandCensus.brands_indexed`: 2 for a socket screw, 3 for a
+#: tap); 3 is the median the default build's drill specs hold, so on most of
+#: its specs the sample is a true sample and not every brand there is.
+BRAND_SAMPLE_CAP = 3
 _WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
 _KIT_SPREAD_ROW = "price p90/p10: kit_assortment"
 PINNED_FIGURES: dict[str, tuple[float, float]] = {
     "price p90/p10: bearing_radial_ball": (4.493, 4.783),
-    _WHEEL_SPREAD_ROW: (3.241, 2.776),
+    _WHEEL_SPREAD_ROW: (3.534, 3.09),
     _KIT_SPREAD_ROW: (4.015, 3.901),
 }
 
@@ -742,16 +779,15 @@ PINNED_SHORTFALLS: dict[str, str] = {
         "(widen the bore range: #64)"
     ),
     _WHEEL_SPREAD_ROW: (
-        "above band: catalog diameters span 2.25x, which the key term spreads to 2.6x of the "
-        "census's 10x, and the group noise that makes up the rest is drawn independently per "
-        "brand for each of the 12 brands that make every shared wheel spec, so the brands "
-        "the row samples from one spec land "
+        "above band: with every noise off, the brand tiers alone give 1.85 on the default "
+        "build against a band top of 1.71, because 3 of the 12 wheel brands "
+        f"are economy (0.54 of the rest) and the row's {BRAND_SAMPLE_CAP} sampled brands "
+        "take one on 13 of "
+        "its 24 specs (a spec is a diameter in one abrasive), where the census measures its "
+        "house label on 4 of its 12. The group noise that makes up the p90/p10 is drawn per "
+        "brand and spreads the sampled brands of one spec further, to "
         f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][0]:.2f}x apart on the default build and "
-        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K. "
-        "Offered a noise one spec shares "
-        "across brands (SIZE_NOISE, as on taps), the fit gives it no weight and moves the "
-        "spread to SKU noise, which inverts the few diameters (larger costs more falls below "
-        "band) and still leaves the p90/p10 below band (#66)"
+        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K (#66)"
     ),
     _KIT_SPREAD_ROW: (
         "below band: a kit is priced from its contents, and the catalog's kit kinds hold "
@@ -860,11 +896,14 @@ HELD_NUMBERS = frozenset({"Package Quantity"})
 def holds_equal(type_key: str, attribute: Attribute) -> bool:
     """Whether a census cell (one group page) holds this line attribute equal:
     any that is not a number, but the pack quantity, and nothing that names
-    the size."""
+    the size, nor the option the model prices by a multiplier (a chain's
+    strand count: one page lists a brand's single and multiple strand chains)."""
+    model = MODELS.get(BORROWS.get(type_key, type_key))
     return (
         (attribute.value_num is None or attribute.name in HELD_NUMBERS)
         and attribute.name not in SIZE_NAMES
         and attribute.name not in KEY_ATTRIBUTES.get(type_key, ())
+        and (model is None or attribute.name != model.option_attribute)
     )
 
 
@@ -906,9 +945,10 @@ def structure(
     tier: str,
     pack: float | None = None,
     length: float | None = None,
+    option: str | None = None,
 ) -> float:
     """The log-price terms that are not noise and not the anchor."""
-    log_p = 0.0
+    log_p = math.log(model.option_factors.get(option or "", 1.0))
     if key is not None and key > 0:
         log_p += model.slope * math.log(key / model.anchor_key)
     if model.length_slope and length is not None and length > 0:

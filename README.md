@@ -2,8 +2,8 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 10,853 SKUs over 5,925 products in 22 depth types plus
-45 [breadth categories](#catalog-breadth), one product each -- from 45
+extraction in search: 10,919 SKUs over 5,964 products in 23 depth types plus
+44 [breadth categories](#catalog-breadth), one product each -- from 45
 invented brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
 
@@ -235,7 +235,7 @@ type from `skus_by_type` in its `stats.json`:
 | kit_assortment | 695 | | lock_nuts_nylon_insert | 4,513 |
 | set_screws_hex_socket | 7,061 | | dowel_pins | 1,004 |
 | cotter_pins | 803 | | retaining_rings_external | 694 |
-| | | | 45 breadth categories | 79 (1-3 each) |
+| roller_chain | 509 | | 44 breadth categories | 77 (1-3 each) |
 
 The mix is not the one a proportional scale would give, and that is the
 uniqueness rule at work: a type whose spec space is small (ISO 7089 fixes a
@@ -243,14 +243,15 @@ washer's nine sizes; a hammer is its head weight and handle) runs out of
 SKUs its makers have not already made, so it grows less. It was 28,300
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
-**113,994 SKUs over 65,891 products** (`skus` and `lines` in `stats.json`),
+**114,501 SKUs over 66,218 products** (`skus` and `lines` in `stats.json`),
 4,513 of them lock nuts over 2,714 products, 7,061 set screws over 3,786,
-1,004 dowel pins over 535, 803 cotter pins over 463 and 694 external
-retaining rings over 413 (the two table types, #101: their breadth rows and
-those rows' 4 SKUs left the breadth set). `lock_nuts_nylon_insert`, `set_screws_hex_socket`
-and `dowel_pins` became deep types (#53), each with its own share of
-`--lines`, and took none from the others (the dowel pins' breadth row and its
-2 SKUs left the breadth set), so every
+1,004 dowel pins over 535, 509 roller chains over 328, 803 cotter pins over
+463 and 694 external retaining rings over 413 (the last two are the table
+types, #101). `lock_nuts_nylon_insert`, `set_screws_hex_socket`, `dowel_pins`
+and `roller_chain` became deep types (#53), each with its own share of
+`--lines`, as each table type has, and took none from the others (the dowel
+pins', the roller chain's and the two table types' breadth rows and their
+SKUs left the breadth set), so every
 other type's SKU count is the one measured on `95a9ed0` (the set screws' small
 sockets add a true sentence to some hex key copy, not a SKU), when
 the build gave 99,929 SKUs over 57,985 products. On `95a9ed0`: SKUs that are
@@ -260,7 +261,7 @@ Every must-stock example is stocked. (Those four are the 100K tests in
 `tests/test_catalog_brands_voice.py`.) Since the table types,
 `scripts/check_determinism.py --lines 39000`: all 7 emitted files
 byte-identical across two builds. The drawings, built with the second command
-above: 113,994 drawings, 235.9 MB unpacked, a 26.3 MB `images.tar.gz`, every
+above: 114,501 drawings, 238.3 MB unpacked, a 26.5 MB `images.tar.gz`, every
 sha256 matching `images.jsonl` (the counts the command prints). The 100K
 catalog is still not published while the spec is iterated at the default
 size.
@@ -645,10 +646,15 @@ of elastic/prism#9935:
 ```
 
 * `key` is required: the machine name the Engine discovers an attribute by,
-  `sanitize(name)`, namespaced as `attr_<key>` when it is a column's name (see
-  below). `name` is the display name.
+  namespaced as `attr_<key>` when it is a column's name (see below). It is
+  `sanitize(name)` unless the type declares its own, which it does when two
+  types publish one display name for two concepts: a roller chain's `Pitch`
+  (the distance between pin centres) has the key `chain_pitch`, because a
+  metric tap's `Pitch` (its thread pitch) already has `pitch`. So read `key`,
+  never derive it from `name`. `name` is the display name.
 * A **measured** value is fully split. `value` is the bare magnitude with no
   unit marker and no thousands separator, `unit_code` (UN/CEFACT: `INH`, `MMT`,
+  `FOT` for a chain's length in feet,
   `DD`, `ONZ`, `LBR`, `C78`, `RPM`, `TPI`, and `C62` for a count) is the only
   place the unit lives, and `value_canonical` is the magnitude in the kind's
   canonical unit (millimetres, grams, degrees, one, rpm, pound-force), computed
@@ -1189,8 +1195,9 @@ every other drawing -- only the GEOMETRY is fixed.
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 10,853 drawings, 21.6 MB unpacked
-  (1.99 KB a drawing on average), and a 2.27 MB `images.tar.gz` (the count,
+  measured on the committed catalog, 10,919 drawings, 21.9 MB unpacked
+  (2.00 KB a drawing on average; the largest, a triple strand roller chain,
+  is 7,131 bytes), and a 2.31 MB `images.tar.gz` (the count,
   bytes and archive size `uv run sip-generate images --catalog golden-catalog
   --out /tmp/img --archive /tmp/img.tar.gz` prints). Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
@@ -1235,8 +1242,8 @@ small to read is not drawn larger, it is shown through a **magnifier**
   type's scale -- is visible with or without a lens. Interior detail lines
   (flutes, threads, hatch) are texture and keep their finer weight.
 
-On the committed catalog 1,675 SKUs are too small to see: 505 get the handled
-glass (x2.53 to x15.63) and 1,170 the handle-less lens (x2.46 to x4.05), as the
+On the committed catalog 1,711 SKUs are too small to see: 527 get the handled
+glass (x2.53 to x15.63) and 1,184 the handle-less lens (x2.46 to x4.05), as the
 command in [docs/drawings.md](docs/drawings.md#scale-the-magnifier-and-no-text) prints. The
 lowest enlargement any committed lens gives is x2.46, a width-bound
 handle-less lens (below); no committed part reaches
@@ -1457,14 +1464,31 @@ python3 -c "import json, statistics as s, sys; p = [r['price_usd'] for r in map(
 The button, flat and low-head socket screws price as the socket head
 screw does (`price.BORROWS`). A breadth category the census measures is
 priced across its census p10, p50 and p90 (`price.BREADTH_CENSUS`); any
-other breadth row draws from its own `price_range`.
+other breadth row draws from its own `price_range`. A measured breadth
+category deepened into a modelled type keeps its census row
+(`price.DEEPENED_CENSUS`, the roller chain's 71 prices), and its own fitted
+model is held to that row's p50 and p90/p10 bands at both sizes. The census
+has no within-page pairs for it, so its slopes are GENERATED, not measured:
+the roller chain's on pitch (1.2) and on length (0.93). So is what its strand
+count multiplies the price by (`roller_chain.STRAND_FACTORS`: double 1.9x and
+triple 2.8x the single strand chain; the census's 71 prices are not split by
+strand count). One brand's single, double and triple strand chains share
+their price noise (`PriceModel.option_attribute`), so the multiplier is what
+separates them: in every chain number offered in more than one strand count
+in one material and length, the median price rises with the strand count (10
+such sets on the golden catalog, 13 at `--lines 39000`; a #40 steel 10 ft
+chain's medians there are 162.00, 341.25 and 502.00 USD).
 
 **How it is checked.** `sip-generate report` prints one row per measured
 figure: each type's p50 and p90/p10, the share of within-page size pairs
 whose larger size costs more, longer costs more (bolts and socket screws),
 equal prices across a size pair (taps), how often a smaller SKU of one
 product costs twice the larger, the same-spec brand spread, economy brands
-against the rest, and the .99/.00/.50 endings. Each row has a band
+against the rest, and the .99/.00/.50 endings. A spec is the census's: the
+key dimension in one material (`price.material_of`). A wheel publishes its
+material as its abrasive (`price.MATERIAL_ATTRIBUTES`), and
+`test_every_brand_census_types_spec_holds_a_material_or_names_why_not` fails
+a type whose specs hold no material. Each row has a band
 (`price_report.P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and three census
 standard errors where the census sample is small: `share_band`,
 `brand_spread_band`). Every row is scored at the default size and at 100K
@@ -1491,7 +1515,7 @@ reason and the issue that fixes it, and stays bounded:
 | row | kind | why | bound |
 |---|---|---|---|
 | bearing p90/p10 | pin, below band | catalog bores span far less than the census's, and the census's own small brand spread leaves no group noise to make up the rest (widen the bore range: #64) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
-| wheel brand spread | pin, above band | catalog diameters span too little for the key term to give the census's p90/p10, so group noise makes up the rest, and it is drawn per brand, which spreads the brands of one spec apart (#66) | as above |
+| wheel brand spread | pin, above band | the brand tiers alone, every noise off, put it above band: 3 of the 12 wheel brands are economy, and the row's sampled brands take one on more than half its specs, where the census measures its house label on 4 of its 12; the per-brand group noise then spreads one spec's brands further (#66) | as above |
 | kit p90/p10 | pin, below band | a kit is priced from its contents, and the catalog's kit kinds hold about $36 to $130 of parts, so with material and tier its prices span about 4x against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629; group noise loud enough to make up the rest would spread a kit's price about 79x on its own, so a kit draws none (widen the kit range: #76) | as above |
 
 The full reasons are `price.PINNED_SHORTFALLS`, and `stats.json` carries
