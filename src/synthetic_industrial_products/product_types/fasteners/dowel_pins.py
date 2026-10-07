@@ -314,6 +314,16 @@ def figure(record: dict[str, str]) -> Drawn:
     return Drawn(fig, source)
 
 
+def claims(
+    facts: Mapping[str, str], *, metric: bool, provenance: str, standard: str
+) -> tuple[str, ...]:
+    """The line's table (ISO 2338, ISO 8734 or ASME B18.8.2); ISO 3506-1 for a
+    metric stainless pin, whose A1 and C1 grades it defines."""
+    if metric and "Stainless" in facts.get("Material", ""):
+        return (standard, "ISO 3506-1")
+    return (standard,)
+
+
 SPEC = TypeSpec(
     KEY,
     category=("Fasteners", "Pins", "Dowel Pins"),
@@ -326,6 +336,12 @@ SPEC = TypeSpec(
     # The census has no dowel pins: the socket head screw's model, borrowed
     # (``price.BORROWS``), so the price is generated rather than measured.
     price=screw_socket_head.PRICE,
+    claims=claims,
+    may_claim=frozenset({"ISO 2338", "ISO 8734", "ASME B18.8.2", "ISO 3506-1"}),
+    key_attributes=("Diameter",),
+    unit_primary="Diameter",
+    default_lines=36,
+    default_skus=60,
     use_lines=(
         "Locates two mating parts in reamed holes so they reassemble in the same place.",
         "Pressed into a hole as a pivot, stop or alignment pin.",
