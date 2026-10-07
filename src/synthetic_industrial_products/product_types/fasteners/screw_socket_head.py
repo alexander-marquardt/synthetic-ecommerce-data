@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from ...catalog.price import CENSUS, ENDINGS, LENGTH_CENSUS, TYPE_TIERS, PriceModel
 from ...catalog.standards import SocketScrewLine, socket_head
 from ...catalog.typespec import TypeSpec
 from ...catalog.vocab import _SOCKET_SCREW
@@ -18,6 +19,24 @@ from ...drawing.figures import _broken
 #: This type's row of the socket-screw family: its standards, its head style
 #: and name, and which columns of the standard are its head.
 LINE = SocketScrewLine("ISO 4762", "ASME B18.3", "Socket", "Socket Head Cap Screw", socket_head)
+
+
+#: The census slopes (size and length), tiers and endings; the anchor and both sigmas fitted by
+#: ``scripts/fit_price_model.py``. The button, low and flat head screws borrow
+#: this model (``price.BORROWS``): the census has no prices of their own.
+PRICE = PriceModel(
+    # @fit-begin screw_socket_head
+    anchor=15.23,
+    anchor_key=0.25,
+    slope=CENSUS["screw_socket_head"].slope,
+    group_sigma=0.000,
+    sku_sigma=0.213,
+    size_sigma=0.532,
+    # @fit-end
+    endings=ENDINGS["screw_socket_head"],
+    length_slope=LENGTH_CENSUS["screw_socket_head"].slope,
+    tiers=TYPE_TIERS["screw_socket_head"],
+)
 
 
 def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
@@ -36,6 +55,7 @@ SPEC = TypeSpec(
     extent=(2.75, 5.95),
     make=_make,
     share=0.12,
+    price=PRICE,
     use_lines=(
         "Driven with a hex key.",
         "Fastens parts into a tapped hole or with a nut.",

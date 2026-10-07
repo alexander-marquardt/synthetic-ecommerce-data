@@ -21,6 +21,7 @@ from typing import Any
 from ..dimensions import DimensionParseError, parse_length
 from .config import GeneratorConfig
 from .model import Catalog
+from .price_report import price_comparisons
 from .vocab import MEASUREMENT_SYSTEM_NAMES, STANDARDS_NAME
 
 
@@ -34,6 +35,15 @@ class Comparison:
     numerator: int
     denominator: int
     note: str = ""
+    #: The (low, high) a price row must land in, or None for the older rows,
+    #: whose bounds live in the tests.
+    band: tuple[float, float] | None = None
+
+    @property
+    def within(self) -> bool | None:
+        if self.band is None:
+            return None
+        return self.band[0] <= self.achieved <= self.band[1]
 
     @property
     def delta(self) -> float | None:
@@ -286,6 +296,7 @@ def measure(catalog: Catalog, config: GeneratorConfig | None = None) -> dict[str
             len(attrs_per_record),
             "count, not a rate",
         ),
+        *price_comparisons(catalog),
     ]
 
     return {

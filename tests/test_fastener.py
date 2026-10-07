@@ -238,7 +238,7 @@ def test_the_screw_is_scaled_from_its_own_head_diameter():
 
 
 def _end_view_head(record: dict) -> str:
-    """"hexagon" or "circle": what the head is drawn as in the end view."""
+    """ "hexagon" or "circle": what the head is drawn as in the end view."""
     from matplotlib.patches import Circle, Polygon
 
     fig, _ax, geom = fastener.build(record, DETAIL)

@@ -37,6 +37,7 @@ from ...catalog.newtypes import (
     feed_style,
     table_provenance,
 )
+from ...catalog.price import PriceModel
 from ...catalog.typespec import TypeSpec
 from ...catalog.vocab import AttrSpec
 from ...drawing.figures import hex_nut
@@ -305,10 +306,17 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
         if height is not None:
             height_in = height / MM_PER_INCH if metric else height
             child.attrs.append(length_attribute("Height", gen._publish(height_in, style)))
-        child.price_basis = flats_in * 0.5
         draft.children.append(child)
     return draft
 
+
+#: No census prices: the census has no nylon-insert lock nuts, and a hex nut's
+#: model is a pack price. The curve is hand-set near the level the breadth row
+#: showed (about 1.25 USD for a #4 up to about 5.5 for an M30), log-linear in
+#: the thread's major diameter; NOT MEASURED. The built prices run past that
+#: range (0.43 to 14.76 USD, median 2.28, on the golden catalog); no band holds
+#: them until issue #69.
+PRICE = PriceModel(2.0, 0.4, 0.55, 0.3, 0.25, measured=False)
 
 SPEC = TypeSpec(
     "lock_nuts_nylon_insert",
@@ -320,6 +328,7 @@ SPEC = TypeSpec(
     extent=(2.6, 4.9),
     make=build,
     share=0.1,
+    price=PRICE,
     use_lines=(
         "The nylon insert grips the thread, so the nut resists loosening under vibration.",
         "Threads onto a bolt or a screw of the same size.",

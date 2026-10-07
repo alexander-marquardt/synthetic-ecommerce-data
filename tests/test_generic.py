@@ -283,7 +283,6 @@ def test_an_end_mill_that_does_not_say_which_end_it_has_gets_no_generic_either()
         generic.drawing_for_record({"sku": "A", "Milling Dia.": '1/4"'})
 
 
-
 # --- the two new screw silhouettes say what the standards say --------------
 #
 # A generic drawing is not to scale, but it is still a claim about a SHAPE, and
@@ -322,10 +321,7 @@ def _elevation_head(image_id: str) -> tuple[int, int, float]:
     image = figure_pixels(fig)
     ink = np.any(image < 0.6, axis=-1)[int(rows_from_top(fig, ax, 0.20)) :, :]
     extents = np.array(
-        [
-            (cols.max() - cols.min()) if (cols := np.flatnonzero(row)).size else 0
-            for row in ink
-        ]
+        [(cols.max() - cols.min()) if (cols := np.flatnonzero(row)).size else 0 for row in ink]
     )
     shank = float(np.median(extents[extents > 0]))
     wider = np.flatnonzero(extents > shank * 1.4)

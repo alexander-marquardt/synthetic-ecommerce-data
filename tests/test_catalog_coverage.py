@@ -78,6 +78,7 @@ SOURCES = ("committed", "generated")
 @pytest.fixture(scope="module", params=SOURCES)
 def catalog(request) -> tuple[list[dict], list[dict]]:
     if request.param == "committed":
+
         def read(name: str) -> list[dict]:
             with (GOLDEN_DIR / name).open(encoding="utf-8") as handle:
                 return [json.loads(line) for line in handle]
@@ -132,9 +133,7 @@ def test_every_offered_imperial_cutting_diameter_reaches_a_document(flat_docs: l
     missing = [
         str(dia)
         for dia in series.IMPERIAL_CUTTING_DIAS
-        if not any(
-            abs(value - float(dia) * MM_PER_INCH) < MM_TOLERANCE for value in published
-        )
+        if not any(abs(value - float(dia) * MM_PER_INCH) < MM_TOLERANCE for value in published)
     ]
     assert missing == [], (
         f"{len(missing)} inch cutting diameter(s) the series offers reach no document: {missing}"
@@ -340,9 +339,7 @@ def test_the_thread_size_the_reference_parametric_query_names_exists(
     flat_docs: list[dict],
 ) -> None:
     rows = [
-        doc
-        for doc in flat_docs
-        if REFERENCE_THREAD in doc["facets"].get("dia_thread_size", [])
+        doc for doc in flat_docs if REFERENCE_THREAD in doc["facets"].get("dia_thread_size", [])
     ]
     assert rows, f"no document publishes {REFERENCE_THREAD}"
     hex_rows = [doc for doc in rows if doc["product_type"] == HEX_BOLT_TYPE]
@@ -382,8 +379,7 @@ def test_the_lengths_published_for_that_size_are_the_standards_own(
                 stray.append((doc["sku"], value))
     assert checked > 0, "no 7/16 hex bolt publishes a parseable length"
     assert stray == [], (
-        f"{len(stray)} 7/16 hex bolt length(s) are not lengths the standard "
-        f"offers: {stray[:5]}"
+        f"{len(stray)} 7/16 hex bolt length(s) are not lengths the standard offers: {stray[:5]}"
     )
 
 
@@ -503,6 +499,5 @@ def test_a_bolt_never_carries_a_grading_from_the_other_measurement_system(
             if grade not in allowed:
                 wrong.append((doc["sku"], doc["dimension_provenance"], grade))
     assert wrong == [], (
-        f"{len(wrong)} hex bolt(s) carry a grading from the other measurement "
-        f"system: {wrong[:5]}"
+        f"{len(wrong)} hex bolt(s) carry a grading from the other measurement system: {wrong[:5]}"
     )

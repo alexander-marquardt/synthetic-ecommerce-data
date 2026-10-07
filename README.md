@@ -165,6 +165,9 @@ look-alike letters, invisible and bidirectional characters, and a phrase
 wrapped across two lines are all caught. The pre-commit hooks run `ruff check` and the whitespace
 fixers, which leave `golden-catalog/` alone.
 
+Run the test suite with plain `uv run pytest`, with no `-n`: the project does
+not install `pytest-xdist`.
+
 ## Generating a catalog
 
 ```sh
@@ -1350,3 +1353,94 @@ nothing per size, and a variant's picture should show that variant). Both measur
 `measured_image_missing` and `measured_image_sku_diverges`, and a test sets the
 missing-image rate back and checks the behaviour returns, so the deviation has
 not quietly become a limitation.
+
+### Price
+
+Prices are generated from a measured price census
+(`reference-statistics/P2_price_census.json`: priced SKUs on archived pages
+of a large US industrial distributor), not from a flat multiplier. The
+census figures are restated in `catalog/price.py`, because the census file
+does not ship in the wheel, and `tests/test_price.py` checks every restated
+figure against the file.
+
+**What a price is made of.** In logs, a modelled SKU's shown price is
+(`price.shown_price`):
+
+| term | source |
+|---|---|
+| anchor: the price at a reference key dimension | fitted |
+| slope on the key dimension (a bore, a diameter, a thread size), and on length for hex bolts and socket screws | census, cut only for a reason `price.SLOPE_CUTS` records |
+| material | **not measured**: general-knowledge ratios in `price.MATERIAL_FACTORS`, since the census holds material equal on a page |
+| brand tier (economy, standard, premium) | census: the bearing, jobber drill, ball end mill, socket head screw, spiral point tap and depressed-center wheel use their own figures (`price.TYPE_TIER_CENSUS`); every other type uses the jobber drill's. That includes the hex nut, though the census measures its same-spec brand spread: on its 6 shared specs the house label is the dearer brand (5.58x the others, p50), so it gives no economy figure |
+| pack quantity (hex nuts) | census pack slope |
+| group noise, one draw per census-style page (one brand, the line attributes a page holds equal) | fitted sigma |
+| SKU noise, one draw per SKU | fitted sigma |
+| size noise, one draw per spec that every brand shares (taps and socket screws only, `price.SIZE_NOISE`, each with its reason) | fitted sigma |
+
+The price is then rounded to an ending (.99, .00, .50 ...) drawn from the
+type's census endings mix; taps also snap to a fitted list-price ladder.
+Finish does not enter the price. The types the census has no prices for are
+declared `measured=False`: the ball-pein hammer, the nylon-insert lock nuts
+and the hex socket set screws. Their figures are hand-set, NOT MEASURED,
+each module's comment saying where they come from, and they do not keep the
+level the catalog had before: their median prices on the golden catalog are
+72.62, 2.28 and 2.48 USD, against 65.17, 1.86 and 1.80 under the uniform
+multiplier (+11%, +23%, +38%). No band holds them until #69 gives them
+census-backed price bands. This prints a type's SKU count, median, minimum
+and maximum; feed it `git show ba90b5e:golden-catalog/flat.jsonl` (the last
+uniform-multiplier catalog) for the earlier figures:
+
+```sh
+python3 -c "import json, statistics as s, sys; p = [r['price_usd'] for r in map(json.loads, sys.stdin) if r['product_type'] == sys.argv[1]]; print(len(p), s.median(p), min(p), max(p))" lock_nuts_nylon_insert < golden-catalog/flat.jsonl
+```
+
+The button, flat and low-head socket screws price as the socket head
+screw does (`price.BORROWS`). A breadth category the census measures is
+priced across its census p10, p50 and p90 (`price.BREADTH_CENSUS`); any
+other breadth row draws from its own `price_range`.
+
+**How it is checked.** `sip-generate report` prints one row per measured
+figure: each type's p50 and p90/p10, the share of within-page size pairs
+whose larger size costs more, longer costs more (bolts and socket screws),
+equal prices across a size pair (taps), how often a smaller SKU of one
+product costs twice the larger, the same-spec brand spread, economy brands
+against the rest, and the .99/.00/.50 endings. Each row has a band
+(`price_report.P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and three census
+standard errors where the census sample is small: `share_band`,
+`brand_spread_band`). Every row is scored at the default size and at 100K
+(`--lines 39000`, `config.HUNDRED_K_LINES`), and must land in band, or be
+pinned or excepted below, at both:
+`test_every_price_row_is_within_its_band_or_pinned_at_the_default_size` and
+`test_each_price_row_is_within_its_band_or_its_pin_holds_at_100k`.
+
+The default-size figures, bands and reasons are committed: the `comparisons`
+entries of `golden-catalog/stats.json` whose `name` starts with `price `
+(`achieved`, `band`, and the reason in `note`). This counts them:
+
+```sh
+python3 -c "import json; r = [c for c in json.load(open('golden-catalog/stats.json'))['comparisons'] if c['name'].startswith('price ')]; print(len(r), 'rows,', sum(c['band'][0] <= c['achieved'] <= c['band'][1] for c in r), 'in band')"
+```
+
+It prints `61 rows, 57 in band`; the other four are the two pins and the two
+kit exceptions. `uv run python scripts/fit_price_model.py` prints every row
+at both sizes side by side (about 2 minutes). At 100K the kit p90/p10 lands
+in band.
+
+**Declared exceptions and pins.** A row that no model of this shape holds
+is declared with its reason and the issue that fixes it, and stays bounded:
+
+| row | kind | why | bound |
+|---|---|---|---|
+| bearing p90/p10 | pin, below band | catalog bores span far less than the census's, and the census's own small brand spread leaves no group noise to make up the rest (widen the bore range: #64) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
+| wheel brand spread | pin, above band | catalog diameters span too little for the key term to give the census's p90/p10, so group noise makes up the rest, and it is drawn per brand, which spreads the brands of one spec apart (#66) | as above |
+| kit p50 and kit p90/p10 | exception, either side | a kit's price is one group draw per page, not the sum of its contents, so its few pages move the median and the p90/p10 with the build's size (price a kit from its contents: #71) | a band miss no more than `price.EXCEPTION_DRIFT` times the one `price.EXCEPTED_FIGURES` records, at each size |
+
+The full reasons are `price.PINNED_SHORTFALLS` and `price.ROW_EXCEPTIONS`,
+and `stats.json` carries them in each row's `note`. A pin or an exception
+is never a wider band: a row that leaves its band is declared, with a cause,
+or the model is fixed. `scripts/fit_price_model.py` refuses to write a fit
+that leaves a row out of band undeclared, a pin that no longer holds, or an
+exception past its bound. The tests hold the same three at both sizes, and
+`uv run python scripts/mutation_check.py --only "price:"` plants a defect in
+each price gate, the pin and exception bounds among them, and checks that its
+test goes red.
