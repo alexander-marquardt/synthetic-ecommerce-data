@@ -180,8 +180,9 @@ def test_every_price_row_is_within_its_band_or_pinned_at_the_default_size(price_
         + len(price_report.ENDING_CLASSES)
     )
     assert len(price_rows) == expected == 61
-    exempt = set(price.PINNED_SHORTFALLS) | set(price.ROW_EXCEPTIONS)
-    out = [row for row in price_rows if not row.within and row.name not in exempt]
+    out = [
+        row for row in price_rows if not row.within and row.name not in price.PINNED_SHORTFALLS
+    ]
     assert not out, "\n".join(f"{row.name}: {row.achieved:.4f} outside {row.band}" for row in out)
 
 
@@ -213,6 +214,7 @@ PINNED_SIDES = {
         "above",
         "drawn independently per",
     ),
+    "price p90/p10: kit_assortment": ("below", "#76"),
 }
 
 
@@ -245,8 +247,8 @@ def test_a_pin_reason_quotes_the_figures_the_pin_records():
 
 
 def _recorded(name: str) -> tuple[float, float]:
-    """A pinned or excepted row's recorded (default, 100K) figures."""
-    recorded = {**price.PINNED_FIGURES, **price.EXCEPTED_FIGURES}[name]
+    """A pinned row's recorded (default, 100K) figures."""
+    recorded = price.PINNED_FIGURES[name]
     assert isinstance(recorded, tuple), f"{name}: {recorded!r} is one figure for two builds"
     return recorded
 
@@ -529,9 +531,9 @@ def _above(rows: dict, names) -> None:
 
 
 def _held_to_band(template: str, type_keys) -> list[str]:
-    """The rows a band holds: a pinned or excepted row is out already, so
-    it cannot newly break."""
-    exempt = set(price.PINNED_SHORTFALLS) | set(price.ROW_EXCEPTIONS)
+    """The rows a band holds: a pinned row is out already, so it cannot
+    newly break."""
+    exempt = set(price.PINNED_SHORTFALLS)
     return [template.format(t) for t in type_keys if template.format(t) not in exempt]
 
 
@@ -778,97 +780,6 @@ def test_the_rows_score_every_priced_type_but_the_declared_exceptions(scored):
     assert set(price.BORROWS.values()) <= set(price.CENSUS)
 
 
-#: The rows held to no band, and the issue each reason must name.
-EXCEPTED = {
-    "price p50 (USD): kit_assortment": "#71",
-    "price p90/p10: kit_assortment": "#71",
-}
-
-
-def test_the_row_exceptions_are_the_kit_rows_that_cannot_hold(price_rows, hundred_k_rows):
-    """#71 prices a kit from its contents; until then its p50 and p90/p10
-    trade against each other across the two builds. Another row, or a kit
-    row that can hold (its larger-costs-more share), gets no exception; nor
-    does a kit row in band at both builds."""
-    assert set(price.ROW_EXCEPTIONS) == set(EXCEPTED)
-    assert not set(price.ROW_EXCEPTIONS) & set(price.PINNED_SHORTFALLS)
-    for name, issue in EXCEPTED.items():
-        assert issue in price.ROW_EXCEPTIONS[name], price.ROW_EXCEPTIONS[name]
-    (larger,) = [row for row in price_rows if row.name == ORDER_ROW.format("kit_assortment")]
-    assert larger.within, (larger.achieved, larger.band)
-    excepted = {row.name: row for row in price_rows if row.name in EXCEPTED}
-    assert sorted(excepted) == sorted(EXCEPTED)
-    for row in excepted.values():
-        assert "EXCEPTED" in row.note, row.note
-        both = [row, hundred_k_rows[row.name]]
-        assert not price_report.exception_is_stale(both), (
-            f"{row.name} is in band at both builds: drop its exception"
-        )
-    assert set(price.EXCEPTED_FIGURES) == set(EXCEPTED)
-    for row in excepted.values():
-        assert price_report.exception_holds(row, 0), (row.name, row.achieved, row.band)
-
-
-@pytest.mark.parametrize(
-    ("default_in", "hundred_k_in", "stale"),
-    [(True, False, False), (False, True, False), (False, False, False), (True, True, True)],
-)
-def test_an_exception_is_stale_only_when_its_row_is_in_band_at_both_builds(
-    price_rows, default_in, hundred_k_in, stale
-):
-    """A kit priced 1.2x brings its default p50 into band (76.98) while the
-    100K one stays out (121.85): the 100K build still needs the exception,
-    so only a row in band at both may drop it."""
-    (row,) = [row for row in price_rows if row.name == "price p50 (USD): kit_assortment"]
-    low, high = row.band
-    inside, outside = (low + high) / 2, high * 1.2
-
-    def at(within: bool):
-        return replace(row, achieved=inside if within else outside)
-
-    assert [at(default_in).within, at(hundred_k_in).within] == [default_in, hundred_k_in]
-    assert price_report.exception_is_stale([at(default_in), at(hundred_k_in)]) is stale
-
-
-def test_band_miss_is_the_ratio_to_the_nearer_edge():
-    band = (10.0, 20.0)
-    assert price_report.band_miss(15.0, band) == 1.0
-    assert price_report.band_miss(10.0, band) == 1.0
-    assert price_report.band_miss(22.0, band) == pytest.approx(1.1)
-    assert price_report.band_miss(8.0, band) == pytest.approx(1.25)
-
-
-@pytest.mark.parametrize("name", sorted(EXCEPTED))
-@pytest.mark.parametrize("build", [0, 1])
-def test_an_excepted_row_may_miss_by_at_most_125x_its_recorded_miss(price_rows, name, build):
-    """An exception is no licence to drift: the row may land on either side
-    of its band, but no further out than 1.25 times the miss its recorded
-    figure for that build has. Exactly there, on both sides."""
-    (row,) = [row for row in price_rows if row.name == name]
-    recorded = price.EXCEPTED_FIGURES[name][build]
-    limit = 1.25 * price_report.band_miss(recorded, row.band)
-    low, high = row.band[0] / limit, row.band[1] * limit
-    assert price_report.exception_holds(replace(row, achieved=low * 1.0001), build)
-    assert not price_report.exception_holds(replace(row, achieved=low * 0.9999), build)
-    assert price_report.exception_holds(replace(row, achieved=high * 0.9999), build)
-    assert not price_report.exception_holds(replace(row, achieved=high * 1.0001), build)
-
-
-def test_a_kit_priced_a_quarter_lower_breaks_its_p50_exception(scored):
-    """The kit p50 sits about 1% under its band on the default build; a
-    quarter off every kit price puts it about 34% under, past the 1.25x
-    bound, though the row is excepted from its band."""
-    collected, base = scored
-    prices = dict(base)
-    prices.update(
-        {s: p * 0.75 for s, p in base.items() if collected.type_of.get(s) == "kit_assortment"}
-    )
-    name = "price p50 (USD): kit_assortment"
-    (row,) = [row for row in price_report.price_rows(collected, prices) if row.name == name]
-    assert round(price_report.band_miss(row.achieved, row.band), 2) == 1.34
-    assert not price_report.exception_holds(row, 0)
-
-
 # --- a kit is priced from what it holds (#71) --------------------------------
 
 #: What each kit kind holds, from the kit table.
@@ -941,6 +852,111 @@ def test_a_15_piece_hex_key_set_costs_what_its_keys_do(census, kits):
     assert not out, out
 
 
+def test_each_kit_part_is_priced_at_its_census_per_piece_share(census):
+    """A part's shown price may be a pack (every census socket screw is), and
+    a kit holds pieces: the share is the census per-piece p50 over its shown
+    p50, read here from the census itself."""
+    assert set(price.PER_PIECE) == set(KIT_PART.values())
+    for part, (each, shown) in price.PER_PIECE.items():
+        row = census["deep_types"][part]
+        assert each == row["per_piece_quantiles_usd"]["p50"], part
+        assert shown == row["price_quantiles_usd"]["p50"], part
+
+
+def test_the_kit_parts_are_the_kit_tables_kinds():
+    assert price.KIT_PARTS == {
+        "Hex Key Set": "hex_key",
+        "Jobber Drill Set": "drill_jobber",
+        "Socket Head Cap Screw Assortment": "screw_socket_head",
+        "Tap Set": "tap_spiral_point",
+    }
+
+
+def test_a_kit_is_its_contents_at_one_factor_with_no_group_noise():
+    """Group noise is one draw per page; loud enough to reach the census kit
+    p90/p10 (about 2.2), it alone spreads kit prices about 79x against the
+    2.8x their contents span, which is the price #71 replaces. The kit
+    p90/p10 is pinned below its band instead (#76)."""
+    model = price.model_for(KIT)
+    assert KIT in price.CONTENTS_PRICED
+    assert model.group_sigma == 0.0
+    assert model.slope == price.CONTENTS_SLOPE == 1.0
+    assert model.size_sigma == 0.0
+
+
+def _build_kits(request, build: str) -> list[KitSku]:
+    return request.getfixturevalue("kits") if build == "default" else request.getfixturevalue(
+        "hundred_k"
+    )[1]
+
+
+@pytest.mark.parametrize(("build", "count"), [("default", 59), ("100K", 695)])
+def test_each_kit_price_tracks_its_contents_at_both_builds(request, build, count):
+    """Every kit, at either size, costs its contents' price times its
+    material and tier, within its SKU noise and ending."""
+    kits = _build_kits(request, build)
+    assert len(kits) == count
+    ratios = []
+    for shown, facts, brand in kits:
+        contents = price.kit_contents(facts)
+        assert contents is not None, facts
+        ratios.append(round(_over_contents(shown, facts, brand, contents), 3))
+    out = [r for r in ratios if not OVER_CONTENTS[0] < r < OVER_CONTENTS[1]]
+    assert not out, (len(out), out[:10])
+
+
+def _kind_of(facts: dict[str, Attribute]) -> int:
+    """The kit table row a kit SKU was built from: its kind, its piece count
+    and its first size (inch and metric sets of one kind may hold as many)."""
+    first = _inches(facts["Sizes Included"].values[0])
+    (index,) = [
+        i
+        for i, kit in enumerate(newtypes.KITS)
+        if kit.item == facts["Type"].value
+        and kit.per_size * len(kit.designations or kit.sizes) == facts["Number of Pieces"].value_num
+        and math.isclose(
+            _inches(kit.designations[0]) if kit.designations else kit.sizes[0], first, rel_tol=0.01
+        )
+    ]
+    return index
+
+
+#: Each pair of kit table rows (larger, smaller) where the larger set holds
+#: every size the smaller does and more: the metric and inch hex key sets and
+#: the fractional drill indexes.
+NESTED_KITS = 7
+
+
+@pytest.mark.parametrize("build", ["default", "100K"])
+def test_a_kit_holding_more_of_the_same_sizes_costs_more(request, build):
+    """Where one set holds every size another does and more (the 15-piece
+    inch hex set holds the 9-piece's keys), its contents are dearer and its
+    kits cost more: the median kit price over material and tier, per kind."""
+    kits = _build_kits(request, build)
+    contents: dict[int, float] = {}
+    priced: dict[int, list[float]] = defaultdict(list)
+    for shown, facts, brand in kits:
+        kind = _kind_of(facts)
+        value = price.kit_contents(facts)
+        assert value is not None
+        contents.setdefault(kind, value)
+        priced[kind].append(_over_contents(shown, facts, brand, 1.0))
+    table = newtypes.KITS
+    nested = [
+        (big, small)
+        for big in contents
+        for small in contents
+        if table[big].item == table[small].item
+        and table[big].sizes
+        and set(table[small].sizes) < set(table[big].sizes)
+    ]
+    assert len(nested) == NESTED_KITS
+    for big, small in nested:
+        assert contents[big] > contents[small], (table[big], table[small])
+        dearer = statistics.median(priced[big]) > statistics.median(priced[small])
+        assert dearer, (table[big].item, len(table[big].sizes), len(table[small].sizes))
+
+
 # --- the 100K catalog (#52: "within tolerance at default size and at 100K") --
 
 #: Every price row's name, as :func:`price_report.price_rows` writes it.
@@ -958,10 +974,15 @@ ROW_NAMES = sorted(
 
 
 @pytest.fixture(scope="module")
-def hundred_k_rows() -> dict:
-    """Every price row of the 100K build, by name (about 35 s)."""
-    rows = price_report.price_comparisons(generate(GeneratorConfig(lines=HUNDRED_K_LINES)))
-    return {row.name: row for row in rows}
+def hundred_k() -> tuple[Catalog, list[KitSku]]:
+    """The 100K build and its kits (about 35 s)."""
+    return _recorded_build(GeneratorConfig(lines=HUNDRED_K_LINES))
+
+
+@pytest.fixture(scope="module")
+def hundred_k_rows(hundred_k) -> dict:
+    """Every price row of the 100K build, by name."""
+    return {row.name: row for row in price_report.price_comparisons(hundred_k[0])}
 
 
 def test_the_row_names_are_the_rows_the_default_build_scores(price_rows):
@@ -977,21 +998,18 @@ def test_each_price_row_is_within_its_band_or_its_pin_holds_at_100k(hundred_k_ro
     """The band is the census's, whatever the catalog's size; a pin may not
     worsen at 100K any more than at the default size."""
     row = hundred_k_rows[name]
-    if name in price.ROW_EXCEPTIONS:
-        assert "EXCEPTED" in row.note, row.note
-        assert price_report.exception_holds(row, 1), (row.achieved, row.band)
-    elif name in price.PINNED_SHORTFALLS:
+    if name in price.PINNED_SHORTFALLS:
         assert price_report.pin_holds(row, 1), (row.achieved, row.band, price.PINNED_FIGURES[name])
     else:
         assert row.within, f"{row.achieved:.4f} outside {row.band[0]:.4f}-{row.band[1]:.4f}"
 
 
-@pytest.mark.parametrize("name", sorted({*PINNED_SIDES, *EXCEPTED}))
+@pytest.mark.parametrize("name", sorted(PINNED_SIDES))
 @pytest.mark.parametrize("build", [0, 1])
 def test_each_recorded_figure_is_the_figure_its_build_produces(
     price_rows, hundred_k_rows, name, build
 ):
-    """A pin or exception bound is only as tight as its record, so each
+    """A pin bound is only as tight as its record, so each
     record is the build's own figure, to the precision it is written at
     (each build is one seed, so this is exact). A record loosened by hand,
     or left loose after the row improves, is red here."""

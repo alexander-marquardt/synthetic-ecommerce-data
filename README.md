@@ -545,7 +545,8 @@ sells them together as one item. So some hex key sizes are sold only in a set
 test holds all three to non-empty. A kit's title says what it is ("Socket
 Head Cap Screw Assortment Kit, 240 pcs", "Hex Key Set, 9 pcs"); its `Item`
 is the one facet value "Assortment Kit" and its kind is `Type`. 59 kits on
-the default build, 695 at 100K.
+the default build, 695 at 100K. A kit's price is its contents' price times
+one fitted factor, its material and its tier ([Price](#price)).
 
 Two derivation artefacts went with it: the drive size is published as the
 nominal key (`10mm`), not the extracted socket's toleranced across-flats
@@ -1377,6 +1378,20 @@ figure against the file.
 | SKU noise, one draw per SKU | fitted sigma |
 | size noise, one draw per spec that every brand shares (taps and socket screws only, `price.SIZE_NOISE`, each with its reason) | fitted sigma |
 
+**A kit is priced from what it holds** (`price.CONTENTS_PRICED`). Its key is
+not one dimension but its contents' price (`price.kit_contents`): each size
+in `Sizes Included` priced on its part type's own curve (standard tier, no
+material, no noise), at the census per-piece share of that part's shown price
+(`price.PER_PIECE`: per-piece p50 over shown p50, since a census socket screw
+is always sold by the pack and a third of hex keys are), times how many of
+each size the kit holds. The slope on that key is 1.0, so a kit costs its
+contents times one fitted factor (1.009 on the current fit), its material and
+its tier, with SKU noise and no group noise: the default build's 15-piece inch
+hex key sets, about $98 of keys, sold for $9.55 to $1,525.45 when a kit was
+one group draw per page. Every kit now lands within 0.97x to 1.06x of its
+contents' price times its material and tier on the default build, and 0.94x
+to 1.08x at 100K (`test_each_kit_price_tracks_its_contents_at_both_builds`).
+
 The price is then rounded to an ending (.99, .00, .50 ...) drawn from the
 type's census endings mix; taps also snap to a fitted list-price ladder.
 Finish does not enter the price. The types the census has no prices for are
@@ -1409,7 +1424,7 @@ against the rest, and the .99/.00/.50 endings. Each row has a band
 standard errors where the census sample is small: `share_band`,
 `brand_spread_band`). Every row is scored at the default size and at 100K
 (`--lines 39000`, `config.HUNDRED_K_LINES`), and must land in band, or be
-pinned or excepted below, at both:
+pinned below, at both:
 `test_every_price_row_is_within_its_band_or_pinned_at_the_default_size` and
 `test_each_price_row_is_within_its_band_or_its_pin_holds_at_100k`.
 
@@ -1421,26 +1436,24 @@ entries of `golden-catalog/stats.json` whose `name` starts with `price `
 python3 -c "import json; r = [c for c in json.load(open('golden-catalog/stats.json'))['comparisons'] if c['name'].startswith('price ')]; print(len(r), 'rows,', sum(c['band'][0] <= c['achieved'] <= c['band'][1] for c in r), 'in band')"
 ```
 
-It prints `61 rows, 57 in band`; the other four are the two pins and the two
-kit exceptions. `uv run python scripts/fit_price_model.py` prints every row
-at both sizes side by side (about 2 minutes). At 100K the kit p90/p10 lands
-in band.
+It prints `61 rows, 58 in band`; the other three are the pins.
+`uv run python scripts/fit_price_model.py` prints every row at both sizes
+side by side (about 2 minutes).
 
-**Declared exceptions and pins.** A row that no model of this shape holds
-is declared with its reason and the issue that fixes it, and stays bounded:
+**Pins.** A row that no model of this shape holds is declared with its
+reason and the issue that fixes it, and stays bounded:
 
 | row | kind | why | bound |
 |---|---|---|---|
 | bearing p90/p10 | pin, below band | catalog bores span far less than the census's, and the census's own small brand spread leaves no group noise to make up the rest (widen the bore range: #64) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
 | wheel brand spread | pin, above band | catalog diameters span too little for the key term to give the census's p90/p10, so group noise makes up the rest, and it is drawn per brand, which spreads the brands of one spec apart (#66) | as above |
-| kit p50 and kit p90/p10 | exception, either side | a kit's price is one group draw per page, not the sum of its contents, so its few pages move the median and the p90/p10 with the build's size (price a kit from its contents: #71) | a band miss no more than `price.EXCEPTION_DRIFT` times the one `price.EXCEPTED_FIGURES` records, at each size |
+| kit p90/p10 | pin, below band | a kit is priced from its contents, and the catalog's kit kinds hold about $36 to $130 of parts, so with material and tier its prices span about 4x against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629; group noise loud enough to make up the rest would spread a kit's price about 79x on its own, so a kit draws none (widen the kit range: #76) | as above |
 
-The full reasons are `price.PINNED_SHORTFALLS` and `price.ROW_EXCEPTIONS`,
-and `stats.json` carries them in each row's `note`. A pin or an exception
-is never a wider band: a row that leaves its band is declared, with a cause,
-or the model is fixed. `scripts/fit_price_model.py` refuses to write a fit
-that leaves a row out of band undeclared, a pin that no longer holds, or an
-exception past its bound. The tests hold the same three at both sizes, and
-`uv run python scripts/mutation_check.py --only "price:"` plants a defect in
-each price gate, the pin and exception bounds among them, and checks that its
-test goes red.
+The full reasons are `price.PINNED_SHORTFALLS`, and `stats.json` carries
+them in each row's `note`. A pin is never a wider band: a row that leaves its
+band is declared, with a cause, or the model is fixed.
+`scripts/fit_price_model.py` refuses to write a fit that leaves a row out of
+band undeclared, or a pin that no longer holds. The tests hold the same two at
+both sizes, and `uv run python scripts/mutation_check.py --only "price:"`
+plants a defect in each price gate, the pin bounds among them, and checks
+that its test goes red; `--only "kit:"` runs the kit-contents rows alone.
