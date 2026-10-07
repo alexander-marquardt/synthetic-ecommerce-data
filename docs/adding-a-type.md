@@ -130,14 +130,30 @@ its published attributes. `set_screws_hex_socket` does both.
    `uv run sip-generate build --out golden-catalog`. Only the new type's
    records, the totals in `stats.json` and the field-weights YAML should
    change. The independence tests below enforce this.
-5. A modelled type only: restate `DEPTH_LINES` and `DEPTH_SKUS` in
-   `tests/catalog_size.py`. They count the modelled documents (those whose
-   `spec_quality` is not `fast_and_cheap`) in the regenerated catalog; this
-   prints both:
+5. A modelled type only: declare the type's size and facts on its
+   `TypeSpec` (#61). The tests read them from there, so no test file is
+   edited:
+   * `default_lines` and `default_skus`: the type's product lines and SKUs in
+     the regenerated catalog, counting only its documents whose
+     `spec_quality` is not `fast_and_cheap`. `tests/catalog_size.py` sums
+     them, and `test_each_types_declared_size_is_its_size_in_the_committed_catalog`
+     holds each type to its count. This prints the pair for `KEY`:
 
-   ```sh
-   python3 -c "import json; q = lambda f: sum(json.loads(l)['spec_quality'] != 'fast_and_cheap' for l in open(f'golden-catalog/{f}')); print('DEPTH_LINES =', q('nested.jsonl'), ' DEPTH_SKUS =', q('flat.jsonl'))"
-   ```
+     ```sh
+     KEY=<type_key> python3 -c "import json, os; k = os.environ['KEY']; q = lambda f: sum(d['product_type'] == k and d['spec_quality'] != 'fast_and_cheap' for d in map(json.loads, open(f'golden-catalog/{f}'))); print(f'default_lines={q(\"nested.jsonl\")}, default_skus={q(\"flat.jsonl\")}')"
+     ```
+
+   * `claims`: the standards a line claims, as
+     `claims(type_key, facts, *, metric, provenance, standard="")`
+     (`conformance.applicable` calls it). Leave it unset for a type that
+     claims nothing.
+   * `may_claim`: every standard a record may claim, each one cited in the
+     module; `frozenset()` for a type that claims none.
+     `test_every_claimed_standard_applies_to_the_part` holds each published
+     `Standards` value to it. The build never reads it, so a `claims` that
+     returns a standard missing from it reds.
+   * `title_key`: the attributes every title names, normally the type's size
+     attribute (`test_every_title_names_its_key_dimension`).
 
    The type's `share` is its own and is added on top
    ([Share](#share)): never lower another type's share to make room, because
@@ -188,12 +204,10 @@ rule it follows; the rules are in
 3. Delete the key's breadth row (or breadth module). The key keeps its derived
    part-number block, so `sip-generate block <type_key>` says to leave
    `part_number_block` unset.
-4. Add the type to the shared tables its family's tests read, listed under
-   [What is still shared](#what-is-still-shared): the `conformance.applicable`
-   branch (one `out.append` per standard the line can claim), `MAY_CLAIM` in
-   `tests/test_catalog_facts.py` (every standard that branch can return) and
-   `KEY` there (the type's size attribute, the breadth row's `size_attr`).
-   Then the family tables the type qualifies for ([Family tables](#family-tables)).
+4. Declare `claims`, `may_claim` and `title_key` on the `TypeSpec` (step 5
+   of [A new type](#a-new-type)); `title_key` is the breadth row's
+   `size_attr`. Then add the type to the family tables it qualifies for
+   ([Family tables](#family-tables)).
 5. Do steps 3 to 9 of [A new type](#a-new-type).
 6. Check that every other type is byte-identical, at both sizes, with the
    command in [Comparing the other types](#comparing-the-other-types). Only
@@ -213,8 +227,13 @@ The output must stay byte-identical.
    For a modelled type, the entries are in `LEAVES`, `DRAWING` (identity
    pairs), `VOCAB`, `STANDARDS_FAMILY`, `FIGURES`, `USE_LINES`,
    `Generator._BUILDERS`, the `config.type_weights` share, and for a socket
-   screw its `_SOCKET_SCREW_LINES` row. For a breadth type, the entry is its
-   row in `data/breadth_categories.yaml`.
+   screw its `_SOCKET_SCREW_LINES` row. A modelled type also has a row in
+   each table of `tests/type_facts.py` (`SHARED_MAY_CLAIM`,
+   `SHARED_TITLE_KEY`, `SHARED_SIZE`) and, when it claims a standard, a
+   branch in `conformance._shared_claims`; these become `may_claim`,
+   `title_key`, `default_lines`/`default_skus` and `claims` (step 5 of
+   [A new type](#a-new-type)). For a breadth type, the entry is its row in
+   `data/breadth_categories.yaml`.
 2. Move each entry into the module's `SPEC`, and delete it from the shared
    table. A key that is declared in both places is refused.
 3. Build into a scratch directory and compare:
@@ -311,7 +330,7 @@ fails until the measured one is set.
 | `category` | `category=`, unchanged. |
 | `family` | `standards_family=`, unchanged: it picks the type's brands and standards pool. |
 | `item` | The `Item` attribute and `LineDraft.item`, unchanged. |
-| `size_attr` | The SKU's `primary` attribute, same name; it is the type's `KEY` entry in `tests/test_catalog_facts.py`. |
+| `size_attr` | The SKU's `primary` attribute, same name; it is the type's `title_key=` on its `TypeSpec`. |
 | `size_values`, `featured_sizes` | Every value must be offered by the spec space and appear at the default size. The row's `reason` names the reference queries they serve. |
 | `attributes` | Replaced by the type's own vocabulary. A value may become more specific (`Stainless Steel` became `18-8 Stainless Steel` and `316 Stainless Steel`). |
 | `descriptor_attr` | The title descriptor, `LineDraft.descriptors` (the lock nut's is `Material`). |
@@ -619,15 +638,11 @@ script, is red within minutes.
 **Modelled types land one at a time.** Besides the files above, a modelled
 type edits shared state that two pull requests cannot both change safely:
 
-* `DEPTH_LINES` and `DEPTH_SKUS` in `tests/catalog_size.py`.
 * Each modelled type's `share`. The original types' `type_weights` in
   `catalog/config.py` sum to 1.0, and each new or deepened type adds its own
   share on top. `test_the_catalog_is_the_size_it_was_asked_for` sums every
   modelled share, so two types that each add one do not collide on the shares.
   Never take share from another type: that moves its output.
-* `KEY` and `MAY_CLAIM` in `tests/test_catalog_facts.py`.
-* `catalog/conformance.py`: the `applicable` truth table, one branch per type
-  that claims a standard. A type with no branch claims nothing.
 * The family builder in `catalog/generate.py` (see
   [above](#modelled-types-what-the-family-builder-still-needs)), and the
   standards extraction in `data/fastener_standards.json`.

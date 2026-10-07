@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from ...catalog.conformance import socket_screw
 from ...catalog.price import CENSUS, ENDINGS, LENGTH_CENSUS, TYPE_TIERS, PriceModel
 from ...catalog.standards import SocketScrewLine, socket_head
 from ...catalog.typespec import TypeSpec
@@ -60,4 +61,13 @@ SPEC = TypeSpec(
         "Driven with a hex key.",
         "Fastens parts into a tapped hole or with a nut.",
     ),
+    claims=socket_screw,
+    # ISO 4762 / DIN 912 (metric) or ASME B18.3 (inch), then the material's:
+    # ASTM A574 / F837 inch alloy / stainless, ISO 898-1 / 3506-1 metric.
+    may_claim=frozenset(
+        {"ISO 4762", "DIN 912", "ASME B18.3", "ASTM A574", "ASTM F837", "ISO 898-1", "ISO 3506-1"}
+    ),
+    title_key=("Dia./Thread Size",),
+    default_lines=309,
+    default_skus=579,
 )

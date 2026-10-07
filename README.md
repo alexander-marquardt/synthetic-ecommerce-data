@@ -333,7 +333,10 @@ hand tools, Morrow Equipment, Maddox Industries). All 24 were replaced.
 
 An independent review of the 100K catalog found facts the generator had
 invented; each is now read from a table and checked by
-`tests/test_catalog_facts.py` against tables written out in the test:
+`tests/test_catalog_facts.py` against tables written out apart from the
+generator's rules (a type's claimable standards and title key are declared
+on its `TypeSpec`, or in `tests/type_facts.py` for a type still in the
+shared tables):
 
 * **Bearing ratings** are a table per bearing number
   (`newtypes.BEARING_RATINGS`): dynamic and static load and the limiting

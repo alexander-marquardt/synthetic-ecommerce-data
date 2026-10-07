@@ -24,6 +24,7 @@ No pack quantity is published (#14): a line is one nut per SKU.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
@@ -258,6 +259,36 @@ VOCAB = (
 )
 
 
+def claims(
+    type_key: str, facts: Mapping[str, str], *, metric: bool, provenance: str, standard: str = ""
+) -> list[str]:
+    """The standards a line claims (:func:`...catalog.conformance.applicable`)."""
+    grade = facts.get("Grade", "")
+    stainless = "Stainless" in facts.get("Material", "")
+    # A metric line's dimensional standard is its table's; an inch line's
+    # rows are no standard's, so ``standard`` is empty for it.
+    out = [standard]
+    # ISO 2320: the prevailing-torque function of steel nuts; ISO 898-2
+    # the steel nut's property classes, thin (04, 05) and regular (8, 10).
+    if metric and not stainless:
+        out.append("ISO 2320")
+    if metric and grade.startswith("Class"):
+        out.append("ISO 898-2")
+    if metric and stainless:
+        out.append("ISO 3506-2")
+    if not metric and grade.startswith("Grade"):
+        out.append("SAE J995")
+    return out
+
+
+#: Every standard a record may claim: the four series' dimensional standards
+#: and the four :func:`claims` adds by material and grade.
+MAY_CLAIM = frozenset(
+    {"ISO 7040", "ISO 10511", "ISO 10512", "DIN 985", "ISO 2320", "ISO 898-2", "ISO 3506-2",
+     "SAE J995"}
+)  # fmt: skip
+
+
 def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
     """One line: a series, one of its stocked combinations, a window of its sizes."""
     # Imported here: generate imports the type tables, which discover this module.
@@ -333,4 +364,9 @@ SPEC = TypeSpec(
         "The nylon insert grips the thread, so the nut resists loosening under vibration.",
         "Threads onto a bolt or a screw of the same size.",
     ),
+    claims=claims,
+    may_claim=MAY_CLAIM,
+    title_key=("Thread Size",),
+    default_lines=256,
+    default_skus=469,
 )

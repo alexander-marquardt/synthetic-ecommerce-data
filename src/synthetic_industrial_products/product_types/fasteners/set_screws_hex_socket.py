@@ -169,6 +169,29 @@ def line_standard(record: Mapping[str, str]) -> str:
     return POINTS[record["Point Type"]][0 if metric else 1]
 
 
+def claims(
+    type_key: str, facts: Mapping[str, str], *, metric: bool, provenance: str, standard: str = ""
+) -> list[str]:
+    """The standards a line claims (:func:`...catalog.conformance.applicable`)."""
+    stainless = "Stainless" in facts.get("Material", "")
+    # The point's ISO standard (metric) or ASME B18.3 (inch), then the
+    # material's: ISO 898-5 / ISO 3506-3 metric, ASTM F912 / F880 inch.
+    out = [standard if metric else "ASME B18.3"]
+    if metric:
+        out.append("ISO 3506-3" if stainless else "ISO 898-5")
+    else:
+        out.append("ASTM F880" if stainless else "ASTM F912")
+    return out
+
+
+#: Every standard a record may claim: the four points' ISO standards, ASME
+#: B18.3, and the four material standards :func:`claims` names.
+MAY_CLAIM = frozenset(
+    {"ISO 4026", "ISO 4027", "ISO 4028", "ISO 4029", "ASME B18.3", "ISO 898-5", "ISO 3506-3",
+     "ASTM F912", "ASTM F880"}
+)  # fmt: skip
+
+
 #: The points a SKU publishes ``Point Dia.`` for.
 POINT_DIA_POINTS = ("Flat Point", "Dog Point")
 #: Material -> (finishes it is sold in, hardness). Alloy steel set screws are
@@ -356,4 +379,9 @@ SPEC = TypeSpec(
         "Driven with a hex key.",
         "Holds a collar, pulley or gear on its shaft from inside a tapped hole.",
     ),
+    claims=claims,
+    may_claim=MAY_CLAIM,
+    title_key=("Dia./Thread Size",),
+    default_lines=260,
+    default_skus=485,
 )

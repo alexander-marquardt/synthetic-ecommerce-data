@@ -94,7 +94,9 @@ class TypeSpec:
       attribute vocabulary, its drawing (``figure`` and ``extent``), its
       builder (``make``) and its ``share`` of ``lines``. The builder and the
       vocabulary are usually a family's, shared with sibling types; what is
-      the type's own is this declaration.
+      the type's own is this declaration. It also states the standards its
+      lines claim (``claims``) and what the tests hold its records to: the
+      standards a record may claim, its title key and its default size.
     * a **breadth** type declares one :class:`.breadth.BreadthRow` as
       ``breadth``, and everything else follows from that row, exactly as it
       does for a row of ``data/breadth_categories.yaml``.

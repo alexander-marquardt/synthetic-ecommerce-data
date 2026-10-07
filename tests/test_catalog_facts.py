@@ -4,8 +4,10 @@ The review of the 100K catalog found invented facts: bearing load ratings a
 formula made up, standards drawn from a pool for other parts, finishes and
 hardnesses that no maker sells on that material, end mills whose shank is
 thinner than their flutes, and titles that dropped the part's key size.
-Each rule is checked against tables written out HERE, independently of the
-generator's own.
+Each rule is checked against tables written out apart from the generator's
+own rules: here, or, for the per-type facts (the standards a type may claim
+and its title key), in ``type_facts``, which reads them from each type's
+``TypeSpec`` so that a new type edits no table here (#61).
 """
 
 from __future__ import annotations

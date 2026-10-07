@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import collections
 import dataclasses
+import inspect
 import json
 from pathlib import Path
 
@@ -132,6 +133,14 @@ def test_a_shared_row_for_a_type_with_its_own_module_is_refused(
     _plant(monkeypatch, _planted(key="washer_flat", module="planted.washer_flat"))
     with pytest.raises(type_facts.TypeFactsError, match=r"washer_flat .*planted\.washer_flat"):
         getattr(type_facts, read)()
+
+
+def test_no_shared_claim_branch_names_a_type_with_its_own_module() -> None:
+    """A type module states its claims as ``claims=``; a branch for it left in
+    the shared table would never run, and would read as if it did."""
+    source = inspect.getsource(conformance._shared_claims)
+    named = sorted(key for key in typespec.modelled() if f'"{key}"' in source)
+    assert named == []
 
 
 def test_each_types_declared_size_is_its_size_in_the_committed_catalog() -> None:
