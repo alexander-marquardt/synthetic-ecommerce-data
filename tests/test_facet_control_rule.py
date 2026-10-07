@@ -324,8 +324,8 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
     """
     quantitative = [s for s, _ in decided.values() if s.is_numeric]
     faceted = [s for s, d in decided.values() if s.is_numeric and d.facet]
-    # 38 since the set screws' Point Dia. (#53), which is not faceted.
-    assert len(quantitative) == 38
+    # 39 since the retaining rings (#53); 38 since the set screws' Point Dia., which is not faceted.
+    assert len(quantitative) == 39
     assert len(faceted) == 35
 
 

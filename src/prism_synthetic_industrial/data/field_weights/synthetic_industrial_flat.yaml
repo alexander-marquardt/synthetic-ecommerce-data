@@ -595,8 +595,8 @@ fields:
   - name: single_end_double_end
     type: terms
     source: facets.single_end_double_end
-  # Size -- a discrete standard set: 181 distinct values over 1974 documents is 0.09 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1974 documents across 21 product type(s); 181 distinct values
+  # Size -- a discrete standard set: 180 distinct values over 1974 documents is 0.09 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1974 documents across 21 product type(s); 180 distinct values
   - name: size
     type: terms
     source: facets.size

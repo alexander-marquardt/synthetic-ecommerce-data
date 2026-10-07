@@ -319,8 +319,13 @@ fails until the measured one is set.
 | `price_range` | Not read. A modelled type is priced by its `price=` model ([Price](#price)). |
 | `skus`, `reason` | Dropped. |
 
-No test checks the sizes yet. This prints how many SKUs carry each of the
-row's `size_values` in the committed slice; every count must be above 0:
+A plain `_window` rotation starts line k at row k, so a type with few lines
+at the default size never reaches the end of a long ladder: the external
+retaining ring's twenty or so inch lines built no 1" ring until its windows
+started at the breadth sizes first (`_led_window` in its module), and its
+`test_every_breadth_size_is_built_at_the_default_size` is the gate to copy.
+This prints how many SKUs carry each of the row's `size_values` in the
+committed slice; every count must be above 0:
 
 ```sh
 python3 -c "import json, sys, collections; c = collections.Counter(a['value'] for l in open('tests/data/golden_slices/<type_key>.jsonl') for a in json.loads(l)['attributes'] if a['name'] == sys.argv[1]); print({v: c[v] for v in sys.argv[2:]})" '<size_attr>' <size_value> <size_value> ...

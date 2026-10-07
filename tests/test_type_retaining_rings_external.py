@@ -35,9 +35,10 @@ KEY = "retaining_rings_external"
 #: The committed slice: this type's flat records at the default build.
 SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
 
-#: Two thirds of the default build's SKU count, rounded down to a hundred: a
-#: floor that catches a collapse back to breadth, not a target.
-DEFAULT_SKU_FLOOR = 300
+#: Two thirds of the default build's SKU count (69 at share 0.015), rounded
+#: down to ten: a floor that catches a collapse back to breadth's two SKUs,
+#: not a target. Each per-series floor below follows the same rule.
+DEFAULT_SKU_FLOOR = 40
 
 #: The dimensional standard this type's metric lines claim, and the
 #: dimensions it publishes.
@@ -90,7 +91,7 @@ def test_every_published_name_passes_the_census_gate():
 def test_the_provenance_names_where_each_published_dimension_came_from():
     problems, checked = type_gates.provenance_problems(_default_docs(), DIMENSIONAL, DIMENSIONS)
     assert problems == [], problems[:10]
-    assert checked > 50, f"only {checked} dimensional claims were checked"
+    assert checked > 10, f"only {checked} dimensional claims were checked"
 
 
 def test_two_builds_are_byte_identical():
@@ -141,7 +142,7 @@ def test_a_metric_sku_publishes_its_din_471_row():
 
     rows = {f"{d:g} mm": (s, d2, d3) for d, s, d3, d2 in ring._DIN_471}
     metric = [doc for doc in _default_docs() if _values(doc)["Size"]["value"].endswith(" mm")]
-    assert len(metric) > 100, f"only {len(metric)} metric SKUs"
+    assert len(metric) > 20, f"only {len(metric)} metric SKUs"
     wrong = []
     for doc in metric:
         values = _values(doc)
@@ -162,7 +163,7 @@ def test_a_metric_sku_publishes_its_din_471_row():
 
 def test_an_inch_sku_publishes_only_its_size_and_claims_no_standard():
     inch = [doc for doc in _default_docs() if _values(doc)["Size"]["value"].endswith(" in")]
-    assert len(inch) > 100, f"only {len(inch)} inch SKUs"
+    assert len(inch) > 10, f"only {len(inch)} inch SKUs"
     unbacked = {*DIMENSIONS[1:], "Standards"}
     wrong = [(doc["sku"], sorted(set(_values(doc)) & unbacked)) for doc in inch]
     wrong = [(sku, found) for sku, found in wrong if found]

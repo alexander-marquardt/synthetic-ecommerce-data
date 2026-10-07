@@ -176,6 +176,9 @@ def test_the_same_part_from_two_brands_is_two_products(golden):
 #: 0.84, hex keys 0.88, nuts 0.90, every other type 0.93 or more.
 DISTINCT_SPEC_FLOOR = {
     "washer_flat": 0.15,
+    # DIN 471's 74 shaft sizes and an inch ladder of 37, in two materials:
+    # 582 distinct specs over 905 SKUs (0.64) at share 0.015.
+    "retaining_rings_external": 0.60,
     "hammer_ball_pein": 0.70,
     "bolt_hex": 0.75,
     "abrasive_flap_disc": 0.75,
