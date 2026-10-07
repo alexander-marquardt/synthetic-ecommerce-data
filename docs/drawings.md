@@ -102,7 +102,7 @@ drawn bounding box, in inches, with a little headroom.
   `VOCAB`.
   `FIGURES` is a `RegistryTable`: its first read registers every type module
   and breadth row, so a script that imports only
-  `synthetic_industrial_products.drawing` still sees all 67 types.
+  `synthetic_industrial_products.drawing` still sees all 68 types.
 
 Dispatch is a dictionary lookup (`_figure()` in `drawing/__init__.py`). An
 unknown type raises `UnknownTypeError`. Nothing falls back to a generic shape.
