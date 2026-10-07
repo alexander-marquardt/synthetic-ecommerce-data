@@ -105,7 +105,7 @@ def thread_inches(value: str) -> float | None:
     gauge thread is #12-24, the finest whole-inch one 1-14), so ``8-32`` is
     #8, not 8 inches; an M-size is millimetres whatever pitch follows it.
     """
-    value = value.replace("″", '"').strip()
+    value = value.replace(chr(0x2033), '"').strip()  # a double prime for inches
     metric = re.match(r"M(\d+(?:\.\d+)?)", value, re.I)
     if metric:
         return float(metric.group(1)) / 25.4

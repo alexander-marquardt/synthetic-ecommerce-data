@@ -177,6 +177,39 @@
    "screw_flat_head",
    "screw_low_head"
   ],
-  "raw_pages": "analysis input only, under raw/ (gitignored); none ship"
+  "raw_pages": "analysis input only, under raw/ (gitignored); none ship",
+  "extension_69": {
+   "types": [
+    "lock_nuts_nylon_insert",
+    "set_screws_hex_socket"
+   ],
+   "collected_utc": "2026-10-07",
+   "collector": "scripts/price_census_collect.py (rerunnable: it caches every response under raw/price_census/ and logs each request it sends to raw/price_census/requests.jsonl)",
+   "parser": "scripts/price_census_parse.py, which writes the two deep_types entries; its docstring states the rules the census method block leaves open",
+   "source": "archived Grainger product pages, as for the run above; web.archive.org ONLY -- no request was sent to any distributor's own site",
+   "user_agent": "prism-demo-research/1.0 (+https://github.com/alexander-marquardt/synthetic-industrial-products)",
+   "user_agent_deviation": "differs from collection_constraints_observed.user_agent above: it names the project repository and carries no personal email address, so anyone can rerun the collector as committed",
+   "concurrency": "serial, single process, 3-5 s jittered from the end of one response to the next request, escalating backoff on 429/5xx",
+   "capture_window": "from=2015&to=2021, as for the run above; the latest capture in the window per URL",
+   "sources_by_type": {
+    "lock_nuts_nylon_insert": "product-group pages under the distributor's own label whose slug names a locknut; a page is kept when its group specs say Nylon Insert (5 of 9 fetched). Every row carries that one label, so the entry publishes no brand spread, brand price index or house-label ratio; brand_spread_same_spec says why.",
+    "set_screws_hex_socket": "category list pages (no group pages are archived for this type); each row gives brand, a full spec description, the shown price and the sale unit, and a cell is brand plus equal non-dimension specs. Five brands, but the only specs two brands share are nylon set screws, so the entry publishes no spread or tier figure; brand_spread_same_spec says why."
+   },
+   "clearance_rule": "84% of the lock-nut rows and 13.5% of the set-screw rows show a clearance price beside the regular price; they are priced at the regular price, and each entry records that share as clearance_rows_priced_at_regular",
+   "not_used": "the 4 locknut category list pages the collector also fetched: every row on them carries the same single label as the group pages, and their list markup does not pair a row's brand with its description reliably",
+   "request_accounting": {
+    "total_http_requests": 50,
+    "status_codes": {
+     "200": 50
+    },
+    "requests_by_phase": {
+     "enumeration": 3,
+     "fetch_group": 9,
+     "fetch_category": 38
+    },
+    "earlier_probe": "about 15 serial web.archive.org requests (CDX and two pages) sized the sources first; they were not logged request by request"
+   },
+   "not_restated": "pooled_endings_all_types, capture_eras and request_accounting in P2_price_census.json describe the run above only; these two entries are not folded into them"
+  }
  }
 }

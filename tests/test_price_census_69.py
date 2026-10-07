@@ -193,3 +193,21 @@ def test_both_list_description_styles_read_as_one_spec():
 def test_one_brand_gives_no_brand_spread():
     (row,) = parse.group_rows(GROUP_PAGE, "20151120064326", "page")
     assert set(parse.brand_spread([row, row])) == {"not_measured"}
+
+
+def _screw(brand: str, material: str, price: float) -> object:
+    return parse.Row("X", brand, "20150408043348", "page", price, False, 100, "pack", 0.25,
+                     0.375, (("Material", material),))
+
+
+def test_specs_shared_in_one_material_only_give_no_brand_spread():
+    one_line = [_screw("A", "Nylon", 4.0), _screw("B", "Nylon", 6.0)]
+    assert parse.brand_spread(one_line) == {
+        "n_specs_with_2plus_brands": 1,
+        "not_measured": "every spec two brands share is Nylon (2 brands); no other material "
+                        "is offered by two brands, so a spread, brand index or house-label "
+                        "ratio would describe that one line, not the type",
+    }
+    two_lines = one_line + [_screw("A", "Alloy Steel", 10.0), _screw("B", "Alloy Steel", 12.0)]
+    spread = parse.brand_spread(two_lines)
+    assert (spread["n_specs_with_2plus_brands"], spread["max_over_min_ratio"]["p50"]) == (2, 1.35)
