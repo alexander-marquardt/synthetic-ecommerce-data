@@ -13,7 +13,14 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_industrial_products.catalog import brands, breadth, newtypes, price, price_report
+from synthetic_industrial_products.catalog import (
+    brands,
+    breadth,
+    newtypes,
+    price,
+    price_report,
+    tabletype,
+)
 from synthetic_industrial_products.catalog.config import HUNDRED_K_LINES, GeneratorConfig
 from synthetic_industrial_products.catalog.generate import Generator, generate
 from synthetic_industrial_products.catalog.measure import measure
@@ -906,10 +913,17 @@ def test_tying_every_pair_breaks_the_equal_price_row(scored):
 #: declared ``measured=False``: the ball-pein hammer's archived pages are
 #: script shells, and the lock nuts and set screws merged with no census
 #: figures (#69 gives them census-backed bands). The price census has no key
-#: stock at all, so its model is hand-set from surveyed listings (#108). No
-#: row scores them.
+#: stock at all, so its model is hand-set from surveyed listings (#108). Every
+#: table type (#101) joins them, read from the registry and not listed: its
+#: price is a declared ladder nobody measured. No row scores any of them.
 NOT_MEASURED = frozenset(
-    {"hammer_ball_pein", "key_stock", "lock_nuts_nylon_insert", "set_screws_hex_socket"}
+    {
+        "hammer_ball_pein",
+        "key_stock",
+        "lock_nuts_nylon_insert",
+        "set_screws_hex_socket",
+        *tabletype.tables(),
+    }
 )
 
 

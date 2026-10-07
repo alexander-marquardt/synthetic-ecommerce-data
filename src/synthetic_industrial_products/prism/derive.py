@@ -256,9 +256,12 @@ RANGE_MIN_DOCS = 250
 #: row moved from documents to products and ``held_by_floor`` is new.
 MEASURED_DISPERSION: dict[str, Any] = {
     # The band over the QUANTITATIVE attributes that are actually FACETED.
-    "faceted_low": 0.0037,
-    # Width since the bearing table widened to 75 numbers (#64); Flute Length before it,
-    # and Dynamic Load Capacity at 0.44 while a formula manufactured a value per SKU.
+    # Package Quantity: a few pack sizes over every product that states one.
+    "faceted_low": 0.0043,
+    # Width since the bearing table widened to 75 numbers (#64); Flute Length
+    # before it, once the bearing ratings became a published table (one value
+    # per bearing number, no jitter), and Dynamic Load Capacity at 0.44 while
+    # a formula manufactured a value per SKU.
     # Key stock publishes a Width too (#108), 14 sizes over many products, which
     # lowers Width's dispersion from the bearings' own 0.2209.
     "faceted_high": 0.2151,
