@@ -68,6 +68,25 @@ TEETH = "Number of Teeth"
 #: as the pages print them.
 SPROCKETS: tuple[tuple[str, int, Fraction, Fraction, Fraction], ...] = (
     ("35", 12, Fraction(5, 8), Fraction(39, 32), Fraction(3, 4)),
+    ("35", 15, Fraction(5, 8), Fraction(43, 32), Fraction(3, 4)),
+    ("35", 18, Fraction(5, 8), Fraction(55, 32), Fraction(3, 4)),
+    ("35", 20, Fraction(5, 8), Fraction(31, 16), Fraction(3, 4)),
+    ("35", 24, Fraction(5, 8), Fraction(2), Fraction(7, 8)),
+    ("40", 12, Fraction(3, 4), Fraction(25, 16), Fraction(7, 8)),
+    ("40", 15, Fraction(3, 4), Fraction(29, 16), Fraction(7, 8)),
+    ("40", 18, Fraction(3, 4), Fraction(37, 16), Fraction(1)),
+    ("40", 20, Fraction(3, 4), Fraction(21, 8), Fraction(1)),
+    ("40", 24, Fraction(3, 4), Fraction(13, 4), Fraction(1)),
+    ("50", 12, Fraction(1), Fraction(127, 64), Fraction(1)),
+    ("50", 15, Fraction(1), Fraction(19, 8), Fraction(1)),
+    ("50", 18, Fraction(1), Fraction(23, 8), Fraction(1)),
+    ("50", 20, Fraction(1), Fraction(3), Fraction(1)),
+    ("50", 24, Fraction(1), Fraction(3), Fraction(5, 4)),
+    ("60", 12, Fraction(5, 4), Fraction(19, 8), Fraction(5, 4)),
+    ("60", 15, Fraction(5, 4), Fraction(23, 8), Fraction(5, 4)),
+    ("60", 18, Fraction(5, 4), Fraction(7, 2), Fraction(5, 4)),
+    ("60", 20, Fraction(5, 4), Fraction(31, 8), Fraction(5, 4)),
+    ("60", 24, Fraction(5, 4), Fraction(4), Fraction(5, 4)),
 )
 #: The pitch of each chain number, from the roller chain's table.
 PITCH_OF = {number: pitch for number, pitch, _, _ in ANSI}
