@@ -39,7 +39,8 @@ census measured on few pairs or specs gets the wide band its own sample
 leaves (:func:`share_band`, :func:`brand_spread_band`). A row
 :data:`.price.PINNED_SHORTFALLS` names is reported with its reason, and is
 pinned by the tests to the side of its band that reason puts it, no further
-out than the figure :data:`.price.PINNED_FIGURES` records (:func:`pin_holds`). A row
+out than the figure :data:`.price.PINNED_FIGURES` records for that build
+(:func:`pin_holds`). A row
 :data:`.price.ROW_EXCEPTIONS` names is reported with its reason and held to
 no band, at either side or build, only to a miss no more than
 :data:`.price.EXCEPTION_DRIFT` times the one :data:`.price.EXCEPTED_FIGURES`
@@ -614,10 +615,11 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
 
 def pin_holds(row: Comparison, build: int) -> bool:
     """Whether a row :data:`.price.PINNED_SHORTFALLS` names is still out of
-    band on the side its reason names, and no further out than
-    :data:`.price.PINNED_FIGURES` records, past :data:`.price.PIN_TOLERANCE`."""
+    band on the side its reason names, and no further out than the figure
+    :data:`.price.PINNED_FIGURES` records for ``build`` (0 the default
+    build, 1 the 100K one), past :data:`.price.PIN_TOLERANCE`."""
     assert row.band is not None
-    recorded = PINNED_FIGURES[row.name]
+    recorded = PINNED_FIGURES[row.name][build]
     if PINNED_SHORTFALLS[row.name].startswith("below band"):
         return recorded / (1 + PIN_TOLERANCE) <= row.achieved < row.band[0]
     return row.band[1] < row.achieved <= recorded * (1 + PIN_TOLERANCE)
@@ -642,8 +644,10 @@ def exception_holds(row: Comparison, build: int) -> bool:
 
 
 def exception_is_stale(rows: Sequence[Comparison]) -> bool:
-    """Stub."""
-    return rows[0].within
+    """Whether an excepted row is in band at every build in ``rows`` (the
+    default and the 100K one): only then may its exception go, since a row
+    in band at one build still needs it at the other."""
+    return all(row.within for row in rows)
 
 
 def recorded_digits(name: str) -> int:

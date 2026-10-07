@@ -1371,7 +1371,7 @@ figure against the file.
 | anchor: the price at a reference key dimension | fitted |
 | slope on the key dimension (a bore, a diameter, a thread size), and on length for hex bolts and socket screws | census, cut only for a reason `price.SLOPE_CUTS` records |
 | material | **not measured**: general-knowledge ratios in `price.MATERIAL_FACTORS`, since the census holds material equal on a page |
-| brand tier (economy, standard, premium) | census: each type's own figures where the census measures a same-spec brand spread (`price.TYPE_TIER_CENSUS`), else the jobber drill's |
+| brand tier (economy, standard, premium) | census: the bearing, jobber drill, ball end mill, socket head screw, spiral point tap and depressed-center wheel use their own figures (`price.TYPE_TIER_CENSUS`); every other type uses the jobber drill's. That includes the hex nut, though the census measures its same-spec brand spread: on its 6 shared specs the house label is the dearer brand (5.58x the others, p50), so it gives no economy figure |
 | pack quantity (hex nuts) | census pack slope |
 | group noise, one draw per census-style page (one brand, the line attributes a page holds equal) | fitted sigma |
 | SKU noise, one draw per SKU | fitted sigma |
@@ -1380,9 +1380,21 @@ figure against the file.
 The price is then rounded to an ending (.99, .00, .50 ...) drawn from the
 type's census endings mix; taps also snap to a fitted list-price ladder.
 Finish does not enter the price. The types the census has no prices for are
-declared `measured=False` and keep the level the catalog had: the ball-pein
-hammer, the nylon-insert lock nuts and the hex socket set screws (bands:
-#69). The button, flat and low-head socket screws price as the socket head
+declared `measured=False`: the ball-pein hammer, the nylon-insert lock nuts
+and the hex socket set screws. Their figures are hand-set, NOT MEASURED,
+each module's comment saying where they come from, and they do not keep the
+level the catalog had before: their median prices on the golden catalog are
+72.62, 2.28 and 2.48 USD, against 65.17, 1.86 and 1.80 under the uniform
+multiplier (+11%, +23%, +38%). No band holds them until #69 gives them
+census-backed price bands. This prints a type's SKU count, median, minimum
+and maximum; feed it `git show ba90b5e:golden-catalog/flat.jsonl` (the last
+uniform-multiplier catalog) for the earlier figures:
+
+```sh
+python3 -c "import json, statistics as s, sys; p = [r['price_usd'] for r in map(json.loads, sys.stdin) if r['product_type'] == sys.argv[1]]; print(len(p), s.median(p), min(p), max(p))" lock_nuts_nylon_insert < golden-catalog/flat.jsonl
+```
+
+The button, flat and low-head socket screws price as the socket head
 screw does (`price.BORROWS`). A breadth category the census measures is
 priced across its census p10, p50 and p90 (`price.BREADTH_CENSUS`); any
 other breadth row draws from its own `price_range`.
@@ -1419,7 +1431,7 @@ is declared with its reason and the issue that fixes it, and stays bounded:
 
 | row | kind | why | bound |
 |---|---|---|---|
-| bearing p90/p10 | pin, below band | catalog bores span far less than the census's, and the census's own small brand spread leaves no group noise to make up the rest (widen the bore range: #64) | no further below than `price.PINNED_FIGURES` records, within `PIN_TOLERANCE` |
+| bearing p90/p10 | pin, below band | catalog bores span far less than the census's, and the census's own small brand spread leaves no group noise to make up the rest (widen the bore range: #64) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
 | wheel brand spread | pin, above band | catalog diameters span too little for the key term to give the census's p90/p10, so group noise makes up the rest, and it is drawn per brand, which spreads the brands of one spec apart (#66) | as above |
 | kit p50 and kit p90/p10 | exception, either side | a kit's price is one group draw per page, not the sum of its contents, so its few pages move the median and the p90/p10 with the build's size (price a kit from its contents: #71) | a band miss no more than `price.EXCEPTION_DRIFT` times the one `price.EXCEPTED_FIGURES` records, at each size |
 

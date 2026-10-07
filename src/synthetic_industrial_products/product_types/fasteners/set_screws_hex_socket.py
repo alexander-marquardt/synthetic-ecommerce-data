@@ -333,9 +333,11 @@ def figure(record: dict[str, str]) -> Drawn:
     return Drawn(fig, source)
 
 
-#: No census prices: the census has no set screws. The level is the one main's
-#: build gave (a 1/4 inch screw about 2.2 USD, rising with the major diameter
-#: at about 0.4 log-log); NOT MEASURED. Census-backed bands: issue #69.
+#: No census prices: the census has no set screws. The curve is hand-set near
+#: the level the uniform multiplier gave (a 1/4 inch screw about 2.2 USD, rising
+#: with the major diameter at about 0.4 log-log); NOT MEASURED. The built
+#: median sits above that level (2.48 USD on the golden catalog); no band
+#: holds it until issue #69.
 PRICE = PriceModel(2.2, 0.25, 0.4, 0.3, 0.25, measured=False)
 
 SPEC = TypeSpec(

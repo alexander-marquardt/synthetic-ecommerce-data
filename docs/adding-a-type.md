@@ -405,18 +405,25 @@ cause, then declare it in `catalog/price.py` with that cause and the issue
 that fixes it:
 
 * **A pin**, for a row the cause holds on one side of its band: its reason in
-  `PINNED_SHORTFALLS` and its default-size figure, as the fit prints it, in
-  `PINNED_FIGURES`. The row may then move no further out than that figure,
-  within `PIN_TOLERANCE`, and must stay on its side (the bearing p90/p10,
-  #64; the wheel brand spread, #66). A figure a reason quotes is read from
-  `PINNED_FIGURES` in an f-string, never typed, so a refit cannot leave it
-  stale.
+  `PINNED_SHORTFALLS` and its figures at both sizes, as the fit prints
+  them, in `PINNED_FIGURES`. At each size the row may then move no further
+  out than that size's figure, within `PIN_TOLERANCE`, and must stay on its
+  side (the bearing p90/p10, #64; the wheel brand spread, #66). A figure a
+  reason quotes is read from `PINNED_FIGURES` in an f-string, never typed,
+  so a refit cannot leave it stale.
 * **An exception**, for a row that no model of this shape holds at both
   sizes, on either side: its reason in `ROW_EXCEPTIONS` and its figures at
   both sizes in `EXCEPTED_FIGURES`. Its band miss may grow to no more than
   `EXCEPTION_DRIFT` times the recorded one (the kit p50 and p90/p10, #71).
   `test_the_row_exceptions_are_the_kit_rows_that_cannot_hold` pins the set,
-  so adding one edits that test, which a reviewer sees.
+  so adding one edits that test, which a reviewer sees. An exception goes
+  only when its row lands in band at both sizes.
+* **Both records are the build's own figures.**
+  `test_each_recorded_figure_is_the_figure_its_build_produces` holds every
+  `PINNED_FIGURES` and `EXCEPTED_FIGURES` entry equal to its row's figure at
+  that size (a dollar p50 to the cent, a ratio to three places), so a record
+  is never loosened by hand, nor left loose after the row improves. The fit
+  flags a stale one "re-record" with the figures to write.
 * **A slope cut**, where the census slope alone spreads the shown price
   wider than the census p90/p10: its reason in `SLOPE_CUTS`. The fit refuses
   to lower any other type's slope.

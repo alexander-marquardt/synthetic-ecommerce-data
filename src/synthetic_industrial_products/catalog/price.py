@@ -448,8 +448,11 @@ TIER_FACTORS: dict[str, float] = {
     "premium": PREMIUM_BRAND_INDEX_P90,
 }
 
-#: The types whose census measures a same-spec brand spread, each with its
-#: own (economy, premium) figures as above. A bearing's premium maker is
+#: The six types priced with their own (economy, premium) census figures, as
+#: above; every other type, the hex nut included, takes the drill's
+#: (:data:`TIER_FACTORS`). The census measures the hex nut's same-spec brand
+#: spread too, but on its 6 shared specs the house label is the DEARER brand
+#: (5.58x the others, p50), so it gives no economy figure. A bearing's premium maker is
 #: barely dearer than the rest (1.056), and its house label far cheaper
 #: (0.577, 10 specs); a drill's figures are :data:`TIER_FACTORS`.
 #:
@@ -616,14 +619,17 @@ SIZE_NOISE: dict[str, str] = {
     ),
 }
 
-#: Each pinned row's figure on the default build, as the fit last measured
-#: it. A pin discloses a shortfall; it does not license a worse one:
-#: ``price_report.pin_holds`` fails a row that lands further from its band
-#: than this by more than :data:`PIN_TOLERANCE`.
+#: Each pinned row's figure on the default and on the 100K build, as the
+#: fit last measured them. A pin discloses a shortfall; it does not license
+#: a worse one: ``price_report.pin_holds`` fails a row that lands further
+#: from its band than its build's figure by more than :data:`PIN_TOLERANCE`.
+#: ``tests/test_price.py`` holds each figure, and each
+#: :data:`EXCEPTED_FIGURES` one, equal to what its build produces
+#: (``price_report.recorded_digits``), so a record cannot be loosened by hand.
 _WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
-PINNED_FIGURES: dict[str, float] = {
-    "price p90/p10: bearing_radial_ball": 4.493,
-    _WHEEL_SPREAD_ROW: 3.241,
+PINNED_FIGURES: dict[str, tuple[float, float]] = {
+    "price p90/p10: bearing_radial_ball": (4.493, 4.783),
+    _WHEEL_SPREAD_ROW: (3.241, 2.776),
 }
 
 #: How far past its recorded figure a pinned row may move, as a ratio. The
@@ -647,7 +653,9 @@ PINNED_SHORTFALLS: dict[str, str] = {
         "census's 10x, and the group noise that makes up the rest is drawn independently per "
         "brand for each of the 12 brands that make every shared wheel spec, so the brands "
         "the row samples from one spec land "
-        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW]:.2f}x apart. Offered a noise one spec shares "
+        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][0]:.2f}x apart on the default build and "
+        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K. "
+        "Offered a noise one spec shares "
         "across brands (SIZE_NOISE, as on taps), the fit gives it no weight and moves the "
         "spread to SKU noise, which inverts the few diameters (larger costs more falls below "
         "band) and still leaves the p90/p10 below band (#66)"
@@ -741,8 +749,10 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
         "wheel_depressed_center": _model("wheel_depressed_center", 7.451, 4.5, 0.713, 0.306),
         # @fit-end
         # No census prices: the ball-pein hammer's archived pages are script
-        # shells. Its model keeps the median the uniform multiplier gave
-        # (0.9 USD/oz x 5.75), linear in head weight; NOT MEASURED.
+        # shells. Its curve is hand-set near the level the uniform multiplier
+        # gave (0.9 USD/oz x 5.75), linear in head weight; NOT MEASURED. The
+        # built median sits above it (72.62 USD on the golden catalog); no
+        # band holds it until #69.
         "hammer_ball_pein": PriceModel(82.8, 16.0, 1.0, 0.0, 0.37, measured=False),
     }
 )
