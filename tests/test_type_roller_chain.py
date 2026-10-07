@@ -15,6 +15,7 @@ derivation measures one ``pitch`` over both types and buckets a chain's
 from __future__ import annotations
 
 import json
+import statistics
 from pathlib import Path
 
 import pytest
@@ -152,6 +153,121 @@ def test_the_facet_derivation_measures_the_two_pitches_apart(default_rows):
     assert pitches["pitch"].product_types == ("tap_spiral_point",)
     decisions = [derive.decide(s) for s in pitches.values()]
     assert sorted(d.stats.key for d in decisions) == ["chain_pitch", "pitch"]
+
+
+# --- the chain number is B29.1's own rule, and the table is the standard's ----
+
+#: B29.1's standard series restated from the standard's printed decimals, not
+#: from the module: chain number -> (pitch, roller diameter, width between the
+#: roller link plates), inches. Chains 25 and 35 are rollerless.
+B29_1 = {
+    "25": (0.250, None, 0.125), "35": (0.375, None, 0.188), "40": (0.500, 0.312, 0.312),
+    "50": (0.625, 0.400, 0.375), "60": (0.750, 0.469, 0.500), "80": (1.000, 0.625, 0.625),
+    "100": (1.250, 0.750, 0.750), "120": (1.500, 0.875, 1.000), "140": (1.750, 1.000, 1.000),
+    "160": (2.000, 1.125, 1.250), "180": (2.250, 1.406, 1.406), "200": (2.500, 1.562, 1.500),
+    "240": (3.000, 1.875, 1.875),
+}  # fmt: skip
+STRAND_SUFFIX = {"Single Strand": "", "Double Strand": "-2", "Triple Strand": "-3"}
+LARGE_LINES = 39000
+MM = 25.4
+
+
+def _clean_docs(lines: int | None = None) -> list[dict]:
+    """The type's documents with no injected defect, so each value is the builder's."""
+    config = GeneratorConfig(defect_scale=0.0, **({"lines": lines} if lines else {}))
+    catalog = generate(config, types=[KEY])
+    return [doc for line in catalog.lines for doc in emit.flat_documents(catalog, line)]
+
+
+@pytest.fixture(scope="module", params=[None, LARGE_LINES], ids=["default", "100k"])
+def clean_docs(request) -> list[dict]:
+    return _clean_docs(request.param)
+
+
+def _attrs(doc: dict) -> dict[str, dict]:
+    return {a["name"]: a for a in doc["attributes"]}
+
+
+def _inches(attribute: dict) -> float:
+    """``value_canonical`` is millimetres whatever unit the value is written in."""
+    return float(attribute["value_canonical"]) / MM
+
+
+def test_a_chains_pitch_is_its_chain_numbers_leading_digits_in_eighths(clean_docs):
+    """B29.1's numbering rule: the digits left of the last one count eighths
+    of an inch of pitch, and a multiple strand chain adds ``-2`` or ``-3``."""
+    numbers = set()
+    for doc in clean_docs:
+        attrs = _attrs(doc)
+        number, _, strands = attrs["ANSI Number"]["value"].partition("-")
+        numbers.add(number)
+        assert _inches(attrs["Pitch"]) == pytest.approx(int(number[:-1]) / 8, abs=1e-6), number
+        suffix = f"-{strands}" if strands else ""
+        assert suffix == STRAND_SUFFIX[attrs["Style"]["value"]], attrs["ANSI Number"]["value"]
+    assert numbers <= set(B29_1)
+    assert len(numbers) >= 11, sorted(numbers)
+
+
+def test_every_published_dimension_is_the_standards_own_row(clean_docs):
+    checked = 0
+    for doc in clean_docs:
+        attrs = _attrs(doc)
+        number = attrs["ANSI Number"]["value"].partition("-")[0]
+        pitch, roller, width = B29_1[number]
+        assert _inches(attrs["Pitch"]) == pytest.approx(pitch, abs=1e-6), number
+        if roller is None:
+            assert "Roller Dia." not in attrs, number
+        for name, expected in (("Roller Dia.", roller), ("Inside Width", width)):
+            if name in attrs:
+                # The standard prints three decimals of an inch fraction.
+                assert abs(_inches(attrs[name]) - expected) < 0.0006, (number, name)
+                checked += 1
+    assert checked > 100, f"only {checked} dimensions were checked"
+
+
+# --- the strand count moves the price -----------------------------------------
+
+STRANDS_IN_ORDER = ("Single Strand", "Double Strand", "Triple Strand")
+#: The same-spec sets each build holds: one chain number in one material and
+#: length, offered in two or three strand counts.
+STRAND_SETS = {None: 10, LARGE_LINES: 13}
+
+
+def _strand_sets(docs: list[dict]) -> dict[tuple, dict[str, list[float]]]:
+    """Same-spec sets: (chain number, material, length) -> strand count -> prices.
+
+    The finish is left out: it is not published on every line, and no finish
+    moves a price.
+    """
+    cells: dict[tuple, dict[str, list[float]]] = {}
+    for doc in docs:
+        attrs = _attrs(doc)
+        spec = (
+            attrs["ANSI Number"]["value"].partition("-")[0],
+            attrs["Material"]["value"],
+            attrs["Length"]["value"],
+        )
+        cells.setdefault(spec, {}).setdefault(attrs["Style"]["value"], []).append(doc["price_usd"])
+    return {spec: by for spec, by in cells.items() if len(by) > 1}
+
+
+@pytest.mark.parametrize("lines", [None, LARGE_LINES], ids=["default", "100k"])
+def test_more_strands_cost_more_in_every_same_spec_set(lines):
+    """A double strand chain is about twice the steel of a single strand one of
+    its pitch, material and length, and a triple strand one three times: the
+    median price of every such set rises with the strand count. Read off the
+    build as it ships, defects included, so the sets are the catalog's own."""
+    config = GeneratorConfig(**({"lines": lines} if lines else {}))
+    catalog = generate(config, types=[KEY])
+    docs = [doc for line in catalog.lines for doc in emit.flat_documents(catalog, line)]
+    sets = _strand_sets(docs)
+    assert len(sets) == STRAND_SETS[lines], len(sets)
+    falling = []
+    for spec, by in sorted(sets.items()):
+        medians = [statistics.median(by[s]) for s in STRANDS_IN_ORDER if s in by]
+        if any(low >= high for low, high in zip(medians, medians[1:], strict=False)):
+            falling.append((spec, medians))
+    assert falling == [], falling
 
 
 if __name__ == "__main__":
