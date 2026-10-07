@@ -48,7 +48,7 @@ from collections.abc import Callable, Mapping
 from typing import Any
 
 from ...catalog.model import keyword_attribute, length_attribute
-from ...catalog.tabletype import _MADE, TableType, Variant, lengths, spec
+from ...catalog.tabletype import TableType, Variant, lengths, spec
 from ...catalog.vocab import AttrSpec
 from ...dimensions import parse_length
 from ...drawing.figures import Drawn
@@ -261,7 +261,3 @@ SPEC = dataclasses.replace(
     figure=_figure,
     make=_make(_BASE.make),
 )
-# A registered table type is recognised by its ``make`` (``tabletype.tables``).
-# The one above wraps the table's own, so it is entered here: without it the
-# gates that treat table types alike would not find this type.
-_MADE[SPEC.make] = TABLE

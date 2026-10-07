@@ -141,8 +141,8 @@ def test_the_type_does_not_also_exist_as_a_breadth_row():
 
 
 def test_the_registry_knows_it_as_a_table_type():
-    """Its ``make`` is wrapped, and a table type is recognised by its
-    ``make``: unrecognised, it would be asked for a measured price."""
+    """Its ``make`` wraps the table's own, and the registry keeps a table type
+    by its key: a type it missed would be asked for a measured price."""
     assert tabletype.tables()[KEY] is roller_chain_sprockets.TABLE
 
 

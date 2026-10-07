@@ -47,7 +47,6 @@ from collections.abc import Callable, Mapping
 from fractions import Fraction
 from typing import Any
 
-from ...catalog import tabletype
 from ...catalog.model import keyword_attribute
 from ...catalog.tabletype import TableType, Variant, spec
 from ...catalog.vocab import AttrSpec
@@ -229,7 +228,3 @@ SPEC = dataclasses.replace(
     ),
     make=_make(_BASE.make),
 )
-# The registry recognises a table type by the ``make`` its ``spec`` handed
-# out, and this one's is wrapped: without this line the gates that treat
-# table types alike (no measured price, makers that overlap) would not see it.
-tabletype._MADE[SPEC.make] = TABLE
