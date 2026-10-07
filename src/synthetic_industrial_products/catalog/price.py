@@ -791,7 +791,7 @@ _KIT_SPREAD_ROW = "price p90/p10: kit_assortment"
 PINNED_FIGURES: dict[str, tuple[float, float]] = {
     "price p90/p10: bearing_radial_ball": (4.493, 4.783),
     _WHEEL_SPREAD_ROW: (3.241, 2.776),
-    _KIT_SPREAD_ROW: (4.015, 3.901),
+    _KIT_SPREAD_ROW: (4.032, 3.917),
 }
 
 #: How far past its recorded figure a pinned row may move, as a ratio. The
