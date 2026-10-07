@@ -10,7 +10,14 @@ from __future__ import annotations
 
 from typing import Any
 
-from ...catalog.price import CENSUS, ENDINGS, LENGTH_CENSUS, TYPE_TIERS, PriceModel
+from ...catalog.price import (
+    CENSUS,
+    ENDINGS,
+    LENGTH_CENSUS,
+    PACK_SLOPES,
+    TYPE_TIERS,
+    PriceModel,
+)
 from ...catalog.standards import SocketScrewLine, socket_head
 from ...catalog.typespec import TypeSpec
 from ...catalog.vocab import _SOCKET_SCREW
@@ -21,19 +28,23 @@ from ...drawing.figures import _broken
 LINE = SocketScrewLine("ISO 4762", "ASME B18.3", "Socket", "Socket Head Cap Screw", socket_head)
 
 
-#: The census slopes (size and length), tiers and endings; the anchor and both sigmas fitted by
-#: ``scripts/fit_price_model.py``. The button, low and flat head screws borrow
-#: this model (``price.BORROWS``): the census has no prices of their own.
+#: The census slopes (size, length and pack), tiers and endings; the anchor
+#: and both sigmas fitted by ``scripts/fit_price_model.py``. The button, low
+#: and flat head screws borrow this model (``price.BORROWS``): the census has
+#: no prices of their own.
 PRICE = PriceModel(
     # @fit-begin screw_socket_head
-    anchor=15.23,
+    anchor=15.16,
     anchor_key=0.25,
     slope=CENSUS["screw_socket_head"].slope,
     group_sigma=0.000,
-    sku_sigma=0.213,
-    size_sigma=0.532,
+    sku_sigma=0.234,
+    size_sigma=0.562,
     # @fit-end
     endings=ENDINGS["screw_socket_head"],
+    pack_attribute="Package Quantity",
+    pack_slope=PACK_SLOPES["screw_socket_head"],
+    pack_ref=100.0,
     length_slope=LENGTH_CENSUS["screw_socket_head"].slope,
     tiers=TYPE_TIERS["screw_socket_head"],
 )

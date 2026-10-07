@@ -436,7 +436,8 @@ differently (`catalog/voice.py`).
   non-factual qualifier or the brand's name, and a trailing pack segment.
 * **Pack wording is allowed only where a pack field exists.** The maintainer's
   ruling: pack wording is fine when the record actually carries a pack field.
-  `Package Quantity` exists on hex nuts and depressed-center wheels, and every
+  `Package Quantity` exists on hex nuts, hex bolts, the four socket screws
+  and depressed-center wheels, and every
   pack word in a title or description equals that field; no other type
   carries pack wording.
 * **Descriptions** keep the spec clause and add the brand's template: a use
@@ -1372,7 +1373,7 @@ figure against the file.
 | slope on the key dimension (a bore, a diameter, a thread size), and on length for hex bolts and socket screws | census, cut only for a reason `price.SLOPE_CUTS` records |
 | material | **not measured**: general-knowledge ratios in `price.MATERIAL_FACTORS`, since the census holds material equal on a page |
 | brand tier (economy, standard, premium) | census: the bearing, jobber drill, ball end mill, socket head screw, spiral point tap and depressed-center wheel use their own figures (`price.TYPE_TIER_CENSUS`); every other type uses the jobber drill's. That includes the hex nut, though the census measures its same-spec brand spread: on its 6 shared specs the house label is the dearer brand (5.58x the others, p50), so it gives no economy figure |
-| pack quantity (hex nuts) | census pack slope |
+| pack quantity (hex nuts, hex bolts and the socket screws) | census pack slope (`price.PACK_SLOPES`). A bolt's or socket screw's pack is drawn from its census pack counts (`price.PACK_COUNTS`) so that it falls as the size grows (`price.pack_quantity`): the census measures that a bolt's pack shrinks as its size grows (per-piece p90/p10 28 against 8.2 shown) but not how the two pair, so the pairing is generated |
 | group noise, one draw per census-style page (one brand, the line attributes a page holds equal) | fitted sigma |
 | SKU noise, one draw per SKU | fitted sigma |
 | size noise, one draw per spec that every brand shares (taps and socket screws only, `price.SIZE_NOISE`, each with its reason) | fitted sigma |

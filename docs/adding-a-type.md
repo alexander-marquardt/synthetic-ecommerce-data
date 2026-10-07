@@ -424,9 +424,11 @@ that fixes it:
   that size (a dollar p50 to the cent, a ratio to three places), so a record
   is never loosened by hand, nor left loose after the row improves. The fit
   flags a stale one "re-record" with the figures to write.
-* **A slope cut**, where the census slope alone spreads the shown price
-  wider than the census p90/p10: its reason in `SLOPE_CUTS`. The fit refuses
-  to lower any other type's slope.
+* **A slope cut**, where the census slope alone (with the pack term, for a
+  pack-sold type) spreads the shown price wider than the census p90/p10: its
+  reason in `SLOPE_CUTS`. The fit refuses to lower any other type's slope. A
+  pack-sold type whose shown price climbs slower than its per-piece slope
+  publishes its pack instead (`price.pack_quantity`), as the hex bolt does.
 * **A size noise**, where one spec's brands must sit close while its size
   pairs invert: its reason in `SIZE_NOISE`.
 
