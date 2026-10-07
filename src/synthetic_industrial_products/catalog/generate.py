@@ -1779,13 +1779,15 @@ class Generator:
     # -- assembly ---------------------------------------------------------
 
     def _corrupt_angle(self, line_attrs: list[Attribute]) -> list[Attribute]:
-        """An angular attribute published with a LENGTH unit: Helix Angle = 42".
+        """An angular attribute published with the inch mark: Helix Angle = 42".
 
-        A unit-type error rather than a magnitude error, and measured at 4.7%
+        A unit-SPELLING error rather than a magnitude error, and measured at 4.7%
         of the records carrying an angle. The angle is a property of the line,
         so the bad value is too -- one wrong row in a supplier's line data
         reaches every SKU under it, which is how these arrive in a real
-        catalog.
+        catalog. The flat facet publishes the messy spelling; the nested entry
+        still reads it as degrees (``entry.UNIT_FOR_NAME``), because noise
+        never changes what an attribute measures (#79).
         """
         index = next(
             (i for i, a in enumerate(line_attrs) if a.name in ("Helix Angle", "Point Angle")),

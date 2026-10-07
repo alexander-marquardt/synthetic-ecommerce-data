@@ -78,6 +78,18 @@ UNIT_FOR_BARE_NAME: dict[str, str] = {
     "Decimal Equivalent": "INH",
 }
 
+#: Attributes whose unit is fixed by what they measure, whatever mark a published
+#: value is spelled with. The modelled defect ``Helix Angle = 42"``
+#: (``Generator._corrupt_angle``) is a supplier keying the inch mark for the degree
+#: mark: the facet keeps that messy spelling, but the entry is still an angle,
+#: because noise never changes what an attribute measures (#79). Read as an inch
+#: it put a length under an angle key, which no facet or range over the key can
+#: compare.
+UNIT_FOR_NAME: dict[str, str] = {
+    "Helix Angle": "DD",
+    "Point Angle": "DD",
+}
+
 #: The size of one unit in its kind's canonical unit: millimetres, grams, degrees,
 #: one, rpm and pound-force. ``value_canonical = magnitude x size``.
 CANONICAL_PER_UNIT: dict[str, Fraction] = {
@@ -169,13 +181,14 @@ def split(name: str, published: str, bare_unit: str | None = None) -> dict[str, 
     in millimetres (``MMT``) and an inch tap's ``Threads per Inch`` is a thread
     count (``TPI``), whose canonical is the pitch length. Anything else stays text.
 
-    A defective spelling such as ``Helix Angle = 42"`` splits as written: the
-    bad value is kept and the bad spelling is dropped (#9284).
+    An attribute in :data:`UNIT_FOR_NAME` takes that unit whatever mark it is
+    spelled with, so the defective ``Helix Angle = 42"`` splits as 42 degrees:
+    the magnitude is kept and the bad mark is dropped (#9284, #79).
     """
     unit: str | None = None
     match = _WITH_UNIT.fullmatch(published)
     if match is not None:
-        unit = UNIT_FOR_SUFFIX[match["suffix"]]
+        unit = UNIT_FOR_NAME.get(name) or UNIT_FOR_SUFFIX[match["suffix"]]
     else:
         match = _BARE.fullmatch(published)
         if match is not None:
