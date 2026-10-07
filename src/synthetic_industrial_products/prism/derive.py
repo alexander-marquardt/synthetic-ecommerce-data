@@ -46,6 +46,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
 
+from ..catalog.breadth import SPEC_QUALITY
 from ..catalog.entry import flat_key
 from ..catalog.generate import Generator
 
@@ -105,7 +106,8 @@ MIN_PRESENCE = 0.5
 #: dispersion FALLS with catalog size; an identifier gains a value with nearly
 #: every product, so its dispersion stays near 1. The default build's figures
 #: (the one identifier, and the densest terms attribute that is still a
-#: facet) live in :data:`MEASURED_DISPERSION`.
+#: facet) are ``figures.dispersion`` in ``golden-catalog/stats.json``, which
+#: :func:`dispersion_figures` writes.
 #:
 #: What the ratio cannot see, and why the declaration comes first: an
 #: identifier drawn from a FINITE pool saturates like a ladder once the
@@ -152,23 +154,25 @@ IDENTIFIER_DISPERSION = 0.5
 #: product had several sizes. A value that differs between a product's SKUs is
 #: still one observation per SKU, because each SKU contributes its own pair.
 #:
-#: MEASURED ON THE INDUSTRIAL CATALOG (elastic/prism#9285), and the figures
-#: live in :data:`MEASURED_DISPERSION` beside this rather than in this
-#: sentence, because a sentence went stale across one regeneration while every
-#: test stayed green. Every attribute this catalog FACETS lands inside the
-#: band that dict records -- ``Drive Size``, a ladder of nominal hex keys, sits
-#: low in it, and the densest is named there too. Before the catalog grew
+#: MEASURED ON THE INDUSTRIAL CATALOG (elastic/prism#9285). The build writes
+#: the figures (:func:`dispersion_figures`, ``figures.dispersion`` in
+#: ``golden-catalog/stats.json``) rather than this sentence quoting them,
+#: because a sentence went stale across one regeneration while every test
+#: stayed green, and a constant put every type PR on the same lines (#103).
+#: Every attribute this catalog FACETS lands inside the band recorded there
+#: -- ``Drive Size``, a ladder of nominal hex keys, sits low in it, and the
+#: densest is named there too. Before the catalog grew
 #: (elastic/prism-industrial-products#103) the band was 0.0028-0.1401 with no
 #: continuum at all, agreeing with the reference distributor, whose facet
 #: list for the end-mill category has no range control.
 #:
 #: THE BAND IS OVER THE FACETED ONES, and saying so is the correction rather
 #: than the update. Two quantitative attributes are NOT faceted, and one of
-#: them, ``Neck Length``, has a dispersion of 0.9928 -- nearly every value
+#: them, ``Neck Length``, has a dispersion near 1 -- nearly every value
 #: distinct, a real continuum. Dispersion does not make THAT one a list;
-#: :data:`MIN_PRESENCE` does (it is present on 28% of end-mill documents,
-#: below the 50% floor -- see :data:`MEASURED_DISPERSION`). A band quoted over
-#: all quantitative attributes runs to 0.99 and credits the wrong threshold
+#: :data:`MIN_PRESENCE` does (it is present on well under half of end-mill
+#: documents -- ``min_presence_arm_share`` in the figures). A band quoted over
+#: all quantitative attributes runs to near 1 and credits the wrong threshold
 #: with an outcome :data:`MIN_PRESENCE` produced. Applying Neck Length's
 #: census presence rate once instead of twice
 #: (alexander-marquardt/synthetic-industrial-products#39) is what moved it
@@ -214,102 +218,12 @@ RANGE_DISPERSION = 0.5
 #: :data:`IDENTIFIER_ATTRIBUTES` covers the one this catalog mints. On the
 #: default build's modelled types the floor decides nothing: every attribute
 #: under it has a ratio under 0.5, so the ratio and the floor agree
-#: (``held_by_floor`` in :data:`MEASURED_DISPERSION`). Across the whole build
+#: (``held_by_floor`` in :func:`dispersion_figures`). Across the whole build
 #: it keeps two breadth-category terms facets offered that the ratio alone
 #: would withhold, ``Style`` (11 values on 13 products) and ``Color`` (2 on
 #: 2). ``Neck Length`` clears it and is kept off a slider by
 #: :data:`MIN_PRESENCE`.
 RANGE_MIN_DOCS = 250
-
-#: What the rule above MEASURES on the catalog this package generates, as
-#: numbers rather than as a sentence.
-#:
-#: The prose here used to carry them inline and it drifted in four figures at
-#: once across one regeneration -- a band of "0.003 to 0.144" for one of
-#: 0.0028 to 0.1401, ``Drive Size`` at "53 values over 1,309 documents" for
-#: 51 over 1,556, and ``Handle Length`` at "95" for 104 -- while the whole
-#: suite stayed green, because nothing compared a docstring to a catalog.
-#:
-#: ``tests/test_facet_control_rule.py`` re-derives every entry here from the
-#: committed golden catalog, so the next regeneration has to restate them.
-#: Restated for alexander-marquardt/synthetic-industrial-products#39 (Corner
-#: Radius/Neck Length applied once instead of twice), each by a direct
-#: ``measure()`` over golden-catalog/flat.jsonl. That fix does not touch any
-#: of the FACETED figures below by name or reason -- they move by the same
-#: small RNG-order margin any generator change causes -- except
-#: ``min_presence_arm``, which did not exist under this name before: Neck
-#: Length crossed RANGE_MIN_DOCS and is now kept off a slider by
-#: MIN_PRESENCE instead, the first real (not constructed) example of that
-#: floor this catalog has published.
-#:
-#: Restated again for alexander-marquardt/synthetic-industrial-products#48
-#: (every product type draws from its own random stream), the same way. Every
-#: figure that moved did so by that RNG margin; no attribute changed its
-#: control, its densest/smallest/widest name, or the floor that decides it.
-#:
-#: Restated again for alexander-marquardt/synthetic-industrial-products#28,
-#: when dispersion moved from SKU documents to ``(product, value)`` pairs:
-#: the band's ends move (a product-scope value on several variants now
-#: counts once) and no quantitative attribute changes its control. The two
-#: ``identifier`` / ``densest_terms_facet`` rows are new with #31. When the
-#: floor moved to 250 distinct products (the #31 review), the smallest-facet
-#: row moved from documents to products and ``held_by_floor`` is new.
-MEASURED_DISPERSION: dict[str, Any] = {
-    # The band over the QUANTITATIVE attributes that are actually FACETED.
-    # Number of Flutes: a handful of flute counts over every cutter. Package
-    # Quantity held this end, at the same figure, until the table types (#101)
-    # brought their own pack sizes.
-    "faceted_low": 0.0043,
-    # Closed Length: a turnbuckle's, set by its size and its end fittings.
-    # Inside Dia. is next at 0.2337: each O-ring (#53) states its AS568
-    # row's actual inside diameter, 68 values over 291 product-value pairs
-    # with the washers'. Then Width at 0.2204, the densest once the bearing
-    # table widened to 75 numbers (#64): 0.2209 on the bearings alone,
-    # raised by the O-rings' cross-sections and lowered by key stock's 14
-    # sections over many products (#108). Flute Length before that.
-    "faceted_high": 0.2414,
-    "densest_faceted": "Closed Length",
-    # The saturated ladder the rule exists to keep off a slider.
-    # Low since the drive size is published as the nominal key (10mm), not
-    # the extracted socket's toleranced across-flats (10.07mm). The hex socket
-    # set screws (#53) add their small keys (0.7-1.3mm, 0.028-0.035") and 485 documents.
-    "drive_size_cardinality": 41,
-    "drive_size_present": 1842,
-    # The faceted quantity on the fewest products: a roller chain's Roller
-    # Dia. (30 of its 40 lines; the rollerless 25 and 35 chains publish none).
-    # Under RANGE_MIN_DOCS, like many faceted quantities, but with a ratio
-    # under the continuity threshold, so the floor decides none of them.
-    "smallest_faceted": "Roller Dia.",
-    "smallest_faceted_products": 30,
-    # The terms facets of the modelled types that the ratio alone would
-    # withhold and RANGE_MIN_DOCS keeps offered: an O-ring's Dash Number, 41
-    # values over 59 product-value pairs (0.69) on 38 products. At
-    # ``--lines 39000`` it is 349 values over 961 pairs (0.36) on 551
-    # products, under the ratio on its own. (Two breadth-category facets are
-    # held too, Style and Color; the committed field map's reasons say so.)
-    "held_by_floor": ["Dash Number"],
-    # The real continuum this catalog does not offer as a range. It clears
-    # BOTH RANGE_DISPERSION and RANGE_MIN_DOCS now (#39) -- MIN_PRESENCE is
-    # what still keeps it off a slider, because it is rare even among its
-    # own product types.
-    "min_presence_arm": "Neck Length",
-    "min_presence_arm_dispersion": 0.9928,
-    "min_presence_arm_present": 417,
-    # Its OWN denominator -- end-mill documents, not the whole catalog -- and
-    # the share MIN_PRESENCE measures against 50%.
-    "min_presence_arm_type_denominator": 1486,
-    "min_presence_arm_share": 0.28,
-    # The one terms attribute IDENTIFIER_DISPERSION withholds: a series code,
-    # about one value per product. IDENTIFIER_ATTRIBUTES withholds it first;
-    # at this size the ratio agrees.
-    "identifier": "List Number",
-    "identifier_dispersion": 0.9764,
-    # The densest terms facet over RANGE_MIN_DOCS: 75 bearing designations.
-    # The terms side's margin under 0.5. (Sizes Included, 0.2783, is denser
-    # but on 59 kits, under the floor.)
-    "densest_terms_facet": "Bearing Number",
-    "densest_terms_facet_dispersion": 0.1105,
-}
 
 
 @dataclass(frozen=True)
@@ -518,3 +432,79 @@ def decide(stats: AttributeStats) -> Decision:
         True,
         f"{over}, below the {IDENTIFIER_DISPERSION:.2f} identifier threshold, so the values repeat",
     )
+
+
+def dispersion_figures(rows: Iterable[dict[str, Any]]) -> dict[str, Any]:
+    """What the rule above measures on a build, for ``stats.json`` (#103).
+
+    Over the modelled types' documents only, so a breadth row that publishes a
+    shared attribute moves none of them. The build writes these and the
+    golden test compares them with a rebuild, so a type that moves one names
+    it in its own regenerated ``stats.json`` instead of in a constant every
+    type PR would edit. ``tests/test_facet_control_rule.py`` re-derives each
+    one and holds the rule's claims about it (the band sits under
+    :data:`RANGE_DISPERSION`, the widest quantity is kept off a slider by
+    :data:`MIN_PRESENCE`, the floor decides only ``held_by_floor``).
+    """
+    stats = measure(row for row in rows if row.get("spec_quality") != SPEC_QUALITY)
+    decided = [(attribute, decide(attribute)) for attribute in stats.values()]
+    quantitative = [s for s, _ in decided if s.is_numeric]
+    faceted = [s for s, d in decided if s.is_numeric and d.facet]
+    figures: dict[str, Any] = {
+        "quantitative_attributes": len(quantitative),
+        "faceted_attributes": len(faceted),
+    }
+    if faceted:
+        # The band over the quantitative attributes that are actually faceted.
+        densest = max(faceted, key=lambda s: s.dispersion)
+        # The faceted quantity on the fewest products: under RANGE_MIN_DOCS,
+        # but with a ratio the floor agrees with.
+        smallest = min(faceted, key=lambda s: s.products)
+        figures |= {
+            "faceted_low": round(min(s.dispersion for s in faceted), 4),
+            "faceted_high": round(densest.dispersion, 4),
+            "densest_faceted": densest.name,
+            "smallest_faceted": smallest.name,
+            "smallest_faceted_products": smallest.products,
+        }
+    drive = stats.get("drive_size")
+    if drive is not None:
+        # The saturated ladder the continuity rule exists to keep off a slider.
+        figures |= {
+            "drive_size_cardinality": drive.cardinality,
+            "drive_size_present": drive.present,
+        }
+    # The terms facets the ratio alone would withhold and RANGE_MIN_DOCS keeps.
+    figures["held_by_floor"] = sorted(
+        s.name
+        for s, d in decided
+        if d.facet and not s.is_numeric and s.dispersion >= IDENTIFIER_DISPERSION
+    )
+    if quantitative:
+        # The widest quantity: a real continuum that MIN_PRESENCE, not the
+        # ratio, keeps off a slider. Its share is over its OWN types' documents.
+        widest = max(quantitative, key=lambda s: s.dispersion)
+        figures |= {
+            "min_presence_arm": widest.name,
+            "min_presence_arm_dispersion": round(widest.dispersion, 4),
+            "min_presence_arm_present": widest.present,
+            "min_presence_arm_type_denominator": widest.type_denominator,
+            "min_presence_arm_share": round(widest.present / widest.type_denominator, 2),
+        }
+    identifiers = [s for s, _ in decided if s.is_identifier]
+    if identifiers:
+        figures |= {
+            "identifier": identifiers[0].name,
+            "identifier_dispersion": round(identifiers[0].dispersion, 4),
+        }
+    terms_facets = [
+        s for s, d in decided if not s.is_numeric and d.facet and s.products >= RANGE_MIN_DOCS
+    ]
+    if terms_facets:
+        # The terms side's margin under IDENTIFIER_DISPERSION.
+        densest_terms = max(terms_facets, key=lambda s: s.dispersion)
+        figures |= {
+            "densest_terms_facet": densest_terms.name,
+            "densest_terms_facet_dispersion": round(densest_terms.dispersion, 4),
+        }
+    return figures

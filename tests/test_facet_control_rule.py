@@ -21,6 +21,9 @@ test:
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import pytest
 
 from synthetic_industrial_products.catalog import emit
@@ -29,7 +32,6 @@ from synthetic_industrial_products.catalog.config import GeneratorConfig
 from synthetic_industrial_products.catalog.generate import generate
 from synthetic_industrial_products.prism.derive import (
     IDENTIFIER_DISPERSION,
-    MEASURED_DISPERSION,
     MIN_PRESENCE,
     RANGE_DISPERSION,
     RANGE_MIN_DOCS,
@@ -38,6 +40,14 @@ from synthetic_industrial_products.prism.derive import (
     measure,
 )
 from synthetic_industrial_products.prism.field_map import render
+
+#: The rule's figures on the default build, as ``sip-generate build`` wrote
+#: them (#103). The tests below re-derive each one from a fresh build; the
+#: golden test holds the committed file to a rebuild, so a figure that moves
+#: reds there, naming the command that rewrites it.
+MEASURED_DISPERSION: dict = json.loads(
+    (Path(__file__).resolve().parents[1] / "golden-catalog" / "stats.json").read_text("utf-8")
+)["figures"]["dispersion"]
 
 
 @pytest.fixture(scope="module")
@@ -348,20 +358,14 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
     """
     quantitative = [s for s, _ in decided.values() if s.is_numeric]
     faceted = [s for s, d in decided.values() if s.is_numeric and d.facet]
-    # 41 since the roller chain's Pitch, Roller Dia. and Inside Width (#53),
-    # all faceted; 38 before, since the set screws' Point Dia., which is not.
-    # The two table types (#101) publish five more, all faceted: a cotter
-    # pin's Head Dia. and Head Height, and a retaining ring's For Shaft
-    # Diameter, Groove Diameter and Groove Width.
-    # The next five table types publish twelve more, all faceted: a turnbuckle's
-    # Thread Dia., Take Up and Closed Length, the Load Capacity it shares with
-    # a shackle, a shackle's Inside Length, a pillow block's Base to Center
-    # Height, Bolt Hole Center-to-Center and Overall Height, and a sprocket's
-    # Outside Dia., Bore Dia., Hub Diameter and Length Through Bore.
-    # Four of those names (Head Dia., Inside Dia., Outside Dia., Bore Dia.) are a
-    # twin's own label now, so each joins that twin's facet and counts once: 54.
-    assert len(quantitative) == 54
-    assert len(faceted) == 51
+    # Exact counts from the build's figures, so a type that adds a quantity
+    # moves them in its regenerated stats.json, not on these lines (#103).
+    # The golden test reds when either count moves; the last line keeps the
+    # derivation non-empty and keeps a quantity off a facet (Neck Length,
+    # which the test below names).
+    assert len(quantitative) == MEASURED_DISPERSION["quantitative_attributes"]
+    assert len(faceted) == MEASURED_DISPERSION["faceted_attributes"]
+    assert 0 < len(faceted) < len(quantitative)
 
 
 def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
