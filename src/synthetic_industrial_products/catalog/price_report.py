@@ -30,7 +30,7 @@ Each row is computed the way the census computed its figure:
   census's slope and its larger-costs-less share imply on the catalog's own
   pairs (:func:`implied_twice_share`). A borrower's pairs are its own row,
   against its lender's census, never pooled into the lender's
-  (:data:`TWICE_BORROWERS`);
+  (:func:`twice_borrowers`);
 * **endings** over every modelled SKU's cents, against each type's census
   endings mix weighted by how many SKUs the catalog builds of that type
   (:func:`ending_targets`).
@@ -117,6 +117,12 @@ BRAND_SAMPLE_CAP = 3
 #: share the target rests on is too loose to hold a build to (the end mills'
 #: 11 and 18 pairs).
 TWICE_MIN_CENSUS_PAIRS = 20
+#: How far apart, as a share of the larger, two magnitudes may be and still
+#: be one size along a same-product axis. A size spelled in inches on one SKU
+#: and in mm on another differs by the spellings' rounding (0.275 in is
+#: 6.985 mm, published 6.99: 0.07%), which is not a step; the closest real
+#: step any type's table makes is 1% (DIN 471's 99 and 100 mm shafts).
+SAME_SIZE_REL = 0.005
 #: The least half-width of a smaller-costs-2x-or-more band. The census does
 #: not measure that share; where the share it implies is near 0, its band
 #: from the census standard errors is near 0 wide too, and one pair in fifty
@@ -218,18 +224,23 @@ def collect(catalog: Catalog) -> Collected:
     return out
 
 
+def _same_size(a: float, b: float) -> bool:
+    """Whether two magnitudes are one size, within :data:`SAME_SIZE_REL`."""
+    return math.isclose(a, b, rel_tol=SAME_SIZE_REL, abs_tol=1e-9)
+
+
 def _product_pairs(out: Collected, type_key: str, in_line: list[tuple[float, float, str]]) -> None:
     """One line's (bigger, smaller, log ratio) pairs along its axis."""
     by_length = type_key in LENGTH_HELD
     for i, (key_a, length_a, sku_a) in enumerate(in_line):
         for key_b, length_b, sku_b in in_line[i + 1 :]:
             if by_length:
-                if abs(key_a - key_b) > 1e-9 or length_a <= 0 or length_b <= 0:
+                if not _same_size(key_a, key_b) or length_a <= 0 or length_b <= 0:
                     continue
                 a, b = length_a, length_b
             else:
                 a, b = key_a, key_b
-            if abs(a - b) < 1e-9:
+            if _same_size(a, b):
                 continue
             bigger, smaller = (sku_a, sku_b) if a > b else (sku_b, sku_a)
             out.product_pairs[type_key].append((bigger, smaller, abs(math.log(a / b))))
@@ -379,13 +390,16 @@ TWICE_TYPES: tuple[str, ...] = tuple(
     type_key for type_key in CENSUS if _axis_census(type_key)[2] >= TWICE_MIN_CENSUS_PAIRS
 )
 
-#: The borrowers of a :data:`TWICE_TYPES` lender. Each is scored in its own
-#: 2x row, against the lender's census implied on the borrower's own pairs:
-#: a borrowed model is generated, not measured, so pooling its pairs into
-#: the lender's row would move the band the lender's census implies.
-TWICE_BORROWERS: tuple[str, ...] = tuple(
-    borrower for borrower, lender in BORROWS.items() if lender in TWICE_TYPES
-)
+def twice_borrowers() -> tuple[str, ...]:
+    """The borrowers of a :data:`TWICE_TYPES` lender. Each is scored in its
+    own 2x row, against the lender's census implied on the borrower's own
+    pairs: a borrowed model is generated, not measured, so pooling its pairs
+    into the lender's row would move the band the lender's census implies.
+
+    Read when the rows are scored, not when this module is imported: a
+    type's registration fills :data:`.price.BORROWS`, and a tuple built at
+    import would hold only the borrowers registered before it."""
+    return tuple(borrower for borrower, lender in BORROWS.items() if lender in TWICE_TYPES)
 
 
 def twice_row(type_key: str, collected: Collected, prices: Mapping[str, float]) -> Comparison:
@@ -535,7 +549,7 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
 
     rows.extend(
         twice_row(type_key, collected, prices)
-        for type_key in (*TWICE_TYPES, *TWICE_BORROWERS)
+        for type_key in (*TWICE_TYPES, *twice_borrowers())
         if collected.product_pairs.get(type_key)
     )
 
