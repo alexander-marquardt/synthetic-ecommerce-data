@@ -125,7 +125,12 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     for width, height in (SECTIONS[(start + k) % len(SECTIONS)] for k in range(count)):
         child = ChildDraft(system="in")
         child.primary = gen._length("Width", float(width), style)
-        child.attrs = [child.primary, gen._length("Height", float(height), style)]
+        height_attr = gen._length("Height", float(height), style)
+        child.attrs = [child.primary, height_attr]
+        # A rectangular bar's title names its height: a line can hold the
+        # square bar of the same width, and the width alone reads as that one.
+        if height != width:
+            child.also = height_attr
         draft.children.append(child)
     return draft
 
