@@ -235,8 +235,8 @@ did not. The hammer is never `nominal`: a missing face or length makes it
 A kit is `record` when it publishes `Sizes Included`, `partial` otherwise. The
 breadth shapes are always `nominal`.
 
-Measured on the committed catalog's `images.jsonl`: 8,443 `record`, 2,331
-`partial`, 79 `nominal`. All 79 `nominal` rows are breadth SKUs; no depth SKU
+Measured on the committed catalog's `images.jsonl`: 8,611 `record`, 2,353
+`partial`, 75 `nominal`. All 75 `nominal` rows are breadth SKUs; no depth SKU
 falls back to nominal geometry. The counts are
 `python3 -c "import json, collections; print(collections.Counter(json.loads(l)['geometry'] for l in open('golden-catalog/images.jsonl')))"`.
 
