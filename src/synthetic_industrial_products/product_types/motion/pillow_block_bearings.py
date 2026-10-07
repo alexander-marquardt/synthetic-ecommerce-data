@@ -47,6 +47,14 @@ from ...drawing.model import Figure
 #: ``(bore, h, a, e, w)`` in inches, with the housing size each row is.
 ROWS = (
     (0.75, 1.3125, 5.00, 3.74, 2.56),  # 204
+    (0.875, 1.4375, 5.51, 4.13, 2.80),  # 205
+    (1.0, 1.4375, 5.51, 4.13, 2.80),  # 205
+    (1.125, 1.6875, 6.50, 4.76, 3.27),  # 206
+    (1.1875, 1.6875, 6.50, 4.76, 3.27),  # 206
+    (1.25, 1.6875, 6.50, 4.76, 3.27),  # 206
+    (1.5, 1.9375, 7.24, 5.39, 3.86),  # 208
+    (2.0, 2.25, 8.11, 6.26, 4.49),  # 210
+    (2.25, 2.75, 9.49, 7.24, 5.43),  # 212
 )
 #: Nominal proportions, for what no published column gives. Of the base to
 #: centre height: the foot's thickness. Of the bolt centres: a slot's width.
