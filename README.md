@@ -1423,13 +1423,10 @@ run again before its result is kept.
 The price is then rounded to an ending (.99, .00, .50 ...) drawn from the
 type's census endings mix; taps also snap to a fitted list-price ladder.
 Finish does not enter the price. The types the census has no prices for are
-declared `measured=False`: the ball-pein hammer, the nylon-insert lock nuts
-and the hex socket set screws. Their figures are hand-set, NOT MEASURED,
-each module's comment saying where they come from, and they do not keep the
-level the catalog had before: their median prices on the golden catalog are
-72.62, 2.28 and 2.48 USD, against 65.17, 1.86 and 1.80 under the uniform
-multiplier (+11%, +23%, +38%). No band holds them until #69 gives them
-census-backed price bands. This prints a type's SKU count, median, minimum
+declared `measured=False`: the ball-pein hammer, whose archived pages are script
+shells; its figures are hand-set, NOT MEASURED, and no band holds them. The
+nylon-insert lock nuts and the hex socket set screws are fitted to their own
+census entries (#69) and scored like the other census types. This prints a type's SKU count, median, minimum
 and maximum; feed it `git show ba90b5e:golden-catalog/flat.jsonl` (the last
 uniform-multiplier catalog) for the earlier figures:
 

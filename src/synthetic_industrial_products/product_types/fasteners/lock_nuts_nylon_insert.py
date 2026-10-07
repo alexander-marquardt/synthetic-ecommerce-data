@@ -37,7 +37,7 @@ from ...catalog.newtypes import (
     feed_style,
     table_provenance,
 )
-from ...catalog.price import PriceModel
+from ...catalog.price import ENDINGS, PriceModel
 from ...catalog.typespec import TypeSpec
 from ...catalog.vocab import AttrSpec
 from ...drawing.figures import hex_nut
@@ -310,13 +310,22 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
     return draft
 
 
-#: No census prices: the census has no nylon-insert lock nuts, and a hex nut's
-#: model is a pack price. The curve is hand-set near the level the breadth row
-#: showed (about 1.25 USD for a #4 up to about 5.5 for an M30), log-linear in
-#: the thread's major diameter; NOT MEASURED. The built prices run past that
-#: range (0.43 to 14.76 USD, median 2.28, on the golden catalog); no band holds
-#: them until issue #69.
-PRICE = PriceModel(2.0, 0.4, 0.55, 0.3, 0.25, measured=False)
+#: The census slope and endings; the anchor and both sigmas fitted by
+#: ``scripts/fit_price_model.py`` to the 100 census nylon-insert nuts
+#: (``deep_types.lock_nuts_nylon_insert``). 74% of those prices are pack
+#: prices the catalog does not model (a line is one nut per SKU), so the shown
+#: price is scored against them as it is for the bolt. One brand carries them,
+#: so no brand figure is restated and the drill's tiers apply.
+PRICE = PriceModel(
+    # @fit-begin lock_nuts_nylon_insert
+    anchor=17.18,
+    anchor_key=0.4,
+    slope=1.2,
+    group_sigma=0.022,
+    sku_sigma=0.153,
+    # @fit-end
+    endings=ENDINGS["lock_nuts_nylon_insert"],
+)
 
 SPEC = TypeSpec(
     "lock_nuts_nylon_insert",
