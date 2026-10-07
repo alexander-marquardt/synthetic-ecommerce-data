@@ -349,7 +349,11 @@ def test_a_modelled_module_is_registered_into_every_table(key: str) -> None:
     assert vocab.STANDARDS_FAMILY[key] == spec.standards_family
     assert FIGURES[key] == (spec.figure, spec.extent)
     assert voice.USE_LINES.get(key) == (spec.use_lines or None)
-    assert price.MODELS[key] == spec.price
+    if spec.borrows:
+        assert price.BORROWS[key] == spec.borrows
+        assert key not in dict(price.MODELS.items())
+    else:
+        assert price.MODELS[key] == spec.price
 
 
 # -- the refusals docs/adding-a-type.md promises ------------------------------

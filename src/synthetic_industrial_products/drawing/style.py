@@ -60,6 +60,12 @@ MATERIAL_FILL: dict[str, str] = {
     "Rubber": "#3a3a3a",
     "HPPE": "#9aa08a",
     "PU Foam": "#f2b134",
+    # The O-ring compounds (#53): black nitrile and EPDM, brown FKM and the
+    # red-orange silicone is commonly moulded in.
+    "Buna-N": "#2e2e2e",
+    "FKM": "#5a3e33",
+    "EPDM": "#3b3f44",
+    "Silicone": "#c4553f",
 }
 
 #: Finishes the original twelve types never published, and their colours.
@@ -113,6 +119,11 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Rubber": Hatch((15,), 2.5, dots=True),
     "HPPE": Hatch((), 6.0, dots=True),
     "PU Foam": Hatch((), 5.0, dots=True),
+    # The O-ring compounds: the elastomers' dotted single line, a new angle each.
+    "Buna-N": Hatch((75,), 2.5, dots=True),
+    "FKM": Hatch((105,), 2.5, dots=True),
+    "EPDM": Hatch((165,), 2.5, dots=True),
+    "Silicone": Hatch((15,), 3.5, dots=True),
 }
 
 

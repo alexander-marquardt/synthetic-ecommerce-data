@@ -137,6 +137,11 @@ NAME_EXCEPTIONS: dict[str, str] = {
     "Groove Diameter": "the shaft groove a retaining ring sits in; no retaining ring in the census",
     "Groove Width": "the shaft groove a retaining ring sits in; no retaining ring in the census",
     "Square Size": "a tap's drive square; declared, never emitted (issue #3)",
+    "Dash Number": "an O-ring's SAE AS568 size designation; the census carries no O-ring family",
+    "Width Tolerance": (
+        "an O-ring's cross-section tolerance from the AS568 table, beside the census's"
+        " Inside Dia. Tolerance"
+    ),
     "Threads per Inch": (
         "an inch tap's thread count, a different quantity from a metric tap's Pitch"
         " (#42); cased like the census's Teeth per Inch"

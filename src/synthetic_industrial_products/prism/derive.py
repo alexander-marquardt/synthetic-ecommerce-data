@@ -258,12 +258,16 @@ MEASURED_DISPERSION: dict[str, Any] = {
     # The band over the QUANTITATIVE attributes that are actually FACETED.
     # Package Quantity: a few pack sizes over every product that states one.
     "faceted_low": 0.0043,
-    # Width since the bearing table widened to 75 numbers (#64); Flute Length
-    # before it, once the bearing ratings became a published table (one value
-    # per bearing number, no jitter), and Dynamic Load Capacity at 0.44 while
-    # a formula manufactured a value per SKU.
-    "faceted_high": 0.2209,
-    "densest_faceted": "Width",
+    # Inside Dia. since the O-rings (#53): each of their 66 documents is one
+    # AS568 row's actual inside diameter, 68 values over 291 product-value
+    # pairs with the washers'. Width, 0.2275, is next: the densest since the
+    # bearing table widened to 75 numbers (#64), at 0.2209 before the O-rings
+    # added their cross-sections; Flute Length before it, once the bearing
+    # ratings became a published table (one value per bearing number, no
+    # jitter), and Dynamic Load Capacity at 0.44 while a formula manufactured
+    # a value per SKU.
+    "faceted_high": 0.2337,
+    "densest_faceted": "Inside Dia.",
     # The saturated ladder the rule exists to keep off a slider.
     # Low since the drive size is published as the nominal key (10mm), not
     # the extracted socket's toleranced across-flats (10.07mm). The hex socket
@@ -277,9 +281,12 @@ MEASURED_DISPERSION: dict[str, Any] = {
     "smallest_faceted": "Roller Dia.",
     "smallest_faceted_products": 30,
     # The terms facets of the modelled types that the ratio alone would
-    # withhold and RANGE_MIN_DOCS keeps offered: none. (Two breadth-category
-    # facets are, Style and Color; the committed field map's reasons say so.)
-    "held_by_floor": [],
+    # withhold and RANGE_MIN_DOCS keeps offered: an O-ring's Dash Number, 41
+    # values over 59 product-value pairs (0.69) on 38 products. At
+    # ``--lines 39000`` it is 349 values over 961 pairs (0.36) on 551
+    # products, under the ratio on its own. (Two breadth-category facets are
+    # held too, Style and Color; the committed field map's reasons say so.)
+    "held_by_floor": ["Dash Number"],
     # The real continuum this catalog does not offer as a range. It clears
     # BOTH RANGE_DISPERSION and RANGE_MIN_DOCS now (#39) -- MIN_PRESENCE is
     # what still keeps it off a slider, because it is rare even among its
