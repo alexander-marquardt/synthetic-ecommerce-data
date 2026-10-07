@@ -39,3 +39,13 @@ each) figures, and the mix of price endings. Each type also carries its capture 
 Prices are nominal for their capture year, which is mostly 2015. Any type with `n` < 30 is flagged
 `low_confidence`, and so is any brand spread drawn from fewer than 30 shared specs. The census
 holds no page, SKU, title or brand name.
+
+Two deep types were added later (#69): nylon-insert lock nuts (n = 100) and hex socket set screws
+(n = 510), from a third run of 50 requests under the same constraints but a user agent that
+carries no email address. Unlike the run above, its collector and parser are committed:
+`scripts/price_census_collect.py` caches what it fetches under `raw/price_census/`, and
+`scripts/price_census_parse.py` writes the two entries. Neither entry carries a brand spread or a
+tier figure. Every lock nut is one label, and the only specs two set-screw brands share are nylon
+ones. Each entry's `brand_spread_same_spec` says why. `MANIFEST.json`
+(`P2_price_census.extension_69`) records the run and the rules the census `method` block leaves
+open.
