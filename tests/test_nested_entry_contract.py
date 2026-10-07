@@ -52,11 +52,14 @@ MAGNITUDE_WITH_UNIT = re.compile(
 #: never written here: ``TPI`` is a reciprocal LENGTH by ruling (elastic/prism#9877),
 #: and a test that wrote its own size could overrule that unseen.
 #:
-#: ``LBR`` is the one code this catalog writes that the deployment does not declare
-#: (one row; elastic/prism-industrial-products#164), so its size is stated here.
+#: ``LBR`` and ``FOT`` are the codes this catalog writes that the deployment does
+#: not declare, so their sizes are stated here: ``LBR`` on one row
+#: (elastic/prism-industrial-products#164), ``FOT`` on a roller chain's
+#: ``Length`` (elastic/prism-industrial-products#170).
 UNITS: dict[str, Unit] = {
     **pinned(),
     "LBR": Unit("mass", Fraction(45359237, 100000)),
+    "FOT": Unit("length", Fraction(1524, 5)),
 }
 
 #: The one modelled defect that puts a second quantity under a key on purpose: an
@@ -144,6 +147,10 @@ def test_a_measured_value_carries_magnitude_unit_code_and_value_canonical(entrie
 
 def test_the_lbr_size_stated_here_redeclares_no_pinned_unit():
     assert "LBR" not in pinned()
+
+
+def test_the_fot_size_stated_here_redeclares_no_pinned_unit():
+    assert "FOT" not in pinned()
 
 
 def _quantity(entry: dict[str, Any]) -> str | None:
@@ -327,13 +334,14 @@ _ORACLE_NUMBER = (
     r"|[0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?|\.[0-9]+)"
 )
 _ORACLE_SPELLING = re.compile(
-    rf"^(?P<number>{_ORACLE_NUMBER})(?:\s*(?P<suffix>lbf|lb|in\.|in|mm|oz|Degrees|\"))?$"
+    rf"^(?P<number>{_ORACLE_NUMBER})(?:\s*(?P<suffix>lbf|lb|in\.|in|mm|ft|oz|Degrees|\"))?$"
 )
 ORACLE_UNIT_FOR_SUFFIX = {
     '"': "INH",
     "in": "INH",
     "in.": "INH",
     "mm": "MMT",
+    "ft": "FOT",
     "Degrees": "DD",
     "oz": "ONZ",
     "lbf": "C78",
