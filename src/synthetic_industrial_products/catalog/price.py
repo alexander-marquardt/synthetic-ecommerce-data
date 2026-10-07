@@ -264,6 +264,11 @@ LENGTH_HELD = frozenset(
 )
 
 
+def material_of(type_key: str, facts: Mapping[str, Attribute]) -> str | None:
+    """A SKU's material, or None."""
+    return facts["Material"].value if "Material" in facts else None
+
+
 #: Price endings per type (``deep_types.<type>.endings.class_share``), for the
 #: 13 types :data:`CENSUS` restates.
 ENDINGS: dict[str, dict[str, float]] = {
