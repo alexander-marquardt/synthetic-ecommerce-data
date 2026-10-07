@@ -1,0 +1,33 @@
+# One breadth row (alexander-marquardt/synthetic-industrial-products#34); one file
+# per row, so two PRs that add or remove rows never touch the same file (#48).
+# The schema and the generic loop that reads it are in catalog/breadth.py.
+key: er_collets
+# Its derived block is tap_spiral_point's too (catalog/typespec.py).
+part_number_block: 1951
+category:
+- Tool Holding
+- Collets
+- ER Collets
+family: cutting_tool
+shape: tube
+item: ER Collet
+descriptor_attr: null
+size_attr: Size
+size_values:
+- 1/8 in
+- 3/16 in
+- 1/4 in
+- 3/8 in
+- 1/2 in
+attributes:
+  Material:
+  - Steel
+  Type:
+  - ER16
+  - ER20
+  - ER32
+price_range: [8.0, 45.0]
+skus: 2
+featured_sizes:
+- 1/2 in
+reason: '''1/2'' overlap; tool-holding category gap, complements the end-mill R1/R2 rows'
