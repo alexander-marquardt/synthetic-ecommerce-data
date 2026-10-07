@@ -264,6 +264,18 @@ LENGTH_HELD = frozenset(
 )
 
 
+#: The attribute a type publishes its material as, where it is not
+#: "Material". The census spec is the key dimension plus the material
+#: (``method.brand_spread``); a wheel's material is its abrasive grain.
+MATERIAL_ATTRIBUTES: dict[str, str] = {}
+
+
+def material_of(type_key: str, facts: Mapping[str, Attribute]) -> str | None:
+    """A SKU's material (:data:`MATERIAL_ATTRIBUTES`), or None."""
+    name = MATERIAL_ATTRIBUTES.get(type_key, "Material")
+    return facts[name].value if name in facts else None
+
+
 #: Price endings per type (``deep_types.<type>.endings.class_share``), for the
 #: 13 types :data:`CENSUS` restates.
 ENDINGS: dict[str, dict[str, float]] = {

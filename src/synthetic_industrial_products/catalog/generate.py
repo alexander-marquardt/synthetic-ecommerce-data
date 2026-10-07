@@ -2065,7 +2065,7 @@ class Generator:
         off the line attributes sparsity never drops."""
         model = price.model_for(type_key)
         facts = {a.name: a for a in attributes}
-        material = facts["Material"].value if "Material" in facts else None
+        material = price.material_of(type_key, facts)
         pack = None
         if model.pack_attribute is not None and model.pack_attribute in facts:
             pack = facts[model.pack_attribute].value_num

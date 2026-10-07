@@ -89,6 +89,7 @@ from .price import (
     _magnitude,
     ending_class,
     holds_equal,
+    material_of,
 )
 
 if TYPE_CHECKING:
@@ -206,7 +207,7 @@ def collect(catalog: Catalog) -> Collected:
                 by_length[(line.type_key, line.brand, line_cell, round(key, 4))].append(
                     (_magnitude(attrs["Length"]) or 0.0, child.sku)
                 )
-            material = attrs["Material"].value if "Material" in attrs else ""
+            material = material_of(line.type_key, attrs) or ""
             out.specs[(line.type_key, round(key, 4), material)][line.brand].append(child.sku)
             in_line.append(
                 (key, (_magnitude(attrs["Length"]) or 0.0) if length else 0.0, child.sku)
@@ -220,6 +221,17 @@ def collect(catalog: Catalog) -> Collected:
                         continue
                     target[type_key].append((sku_a, sku_b) if key_a > key_b else (sku_b, sku_a))
     return out
+
+
+def types_without_material(collected: Collected) -> set[str]:
+    """The :data:`BRAND_CENSUS` types none of whose specs holds a material.
+    The census spec is the key dimension plus the material
+    (``method.brand_spread``); a spec read off an attribute the type never
+    publishes holds the key alone and sets one material's brands against
+    another's: a wheel publishes no "Material", only its abrasive
+    (:data:`.price.MATERIAL_ATTRIBUTES`)."""
+    held = {spec[0] for spec in collected.specs if spec[2]}
+    return set(BRAND_CENSUS) - held
 
 
 def _product_pairs(out: Collected, type_key: str, in_line: list[tuple[float, float, str]]) -> None:

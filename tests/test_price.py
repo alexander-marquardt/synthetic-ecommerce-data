@@ -17,6 +17,7 @@ from synthetic_industrial_products.catalog import brands, breadth, price, price_
 from synthetic_industrial_products.catalog.config import HUNDRED_K_LINES, GeneratorConfig
 from synthetic_industrial_products.catalog.generate import generate
 from synthetic_industrial_products.catalog.measure import measure
+from synthetic_industrial_products.catalog.model import Attribute
 from synthetic_industrial_products.catalog.price_report import (
     BRAND_ROW,
     EQUAL_ROW,
@@ -165,7 +166,7 @@ PINNED_SIDES = {
     "price p90/p10: bearing_radial_ball": ("below", "#64"),
     "price brand spread, same spec (median max/min): wheel_depressed_center": (
         "above",
-        "drawn independently per",
+        "brand tiers alone give",
     ),
 }
 
@@ -620,6 +621,76 @@ def test_the_drill_brand_spread_reads_alike_at_the_default_size_and_at_100k(
         default,
         hundred_k_rows[name].achieved,
     )
+
+
+WHEEL = "wheel_depressed_center"
+ABRASIVES = {"Aluminum Oxide", "Ceramic", "Silicon Carbide", "Zirconia Alumina"}
+
+#: :data:`price.BRAND_CENSUS` types whose built specs hold no material, and
+#: why each may not.
+SPEC_WITHOUT_MATERIAL: dict[str, str] = {}
+
+
+def _keyword(value: str) -> Attribute:
+    return Attribute(name="x", value=value)
+
+
+def test_a_wheel_spec_holds_its_abrasive_as_its_material(scored):
+    """The census spec is the key dimension plus the material. A wheel
+    publishes no "Material"; its material is its abrasive, so a spec that
+    read "Material" held none and set a ceramic wheel's brands against an
+    aluminum oxide one's (#66)."""
+    collected, _ = scored
+    assert {spec[2] for spec in collected.specs if spec[0] == WHEEL} == ABRASIVES
+    assert price.material_of(WHEEL, {"Abrasive Material": _keyword("Ceramic")}) == "Ceramic"
+    assert price.material_of("drill_jobber", {"Material": _keyword("Cobalt")}) == "Cobalt"
+    assert price.material_of(WHEEL, {"Material": _keyword("Cobalt")}) is None
+
+
+def test_every_brand_census_types_spec_holds_a_material_or_names_why_not(scored):
+    """A type whose spec reads an attribute it never publishes has specs of
+    the key alone, so its brand-spread row compares brands across
+    materials and nothing else says so (#66)."""
+    collected, _ = scored
+    assert price_report.types_without_material(collected) == set(SPEC_WITHOUT_MATERIAL)
+
+
+def test_a_spec_read_off_an_attribute_the_type_never_publishes_is_caught(catalog, monkeypatch):
+    """Plant: the wheel's spec read "Material", as it did before #66."""
+    monkeypatch.setattr(price, "MATERIAL_ATTRIBUTES", {})
+    assert price_report.types_without_material(price_report.collect(catalog)) == {WHEEL}
+
+
+def test_the_wheel_pin_reason_quotes_what_the_brand_tiers_alone_give(monkeypatch):
+    """The wheel's pinned cause is measured, not asserted: with its noise
+    off, the brand tiers alone spread a spec's sampled brands past the band
+    top, because the row samples an economy brand on most specs."""
+    quiet = replace(price.MODELS[WHEEL], group_sigma=0.0, sku_sigma=0.0, size_sigma=0.0)
+    monkeypatch.setitem(price.MODELS, WHEEL, quiet)
+    catalog = generate(GeneratorConfig())
+    (row,) = [
+        row
+        for row in price_report.price_comparisons(catalog)
+        if row.name == BRAND_ROW.format(WHEEL)
+    ]
+    specs = {
+        spec: by
+        for spec, by in price_report.collect(catalog).specs.items()
+        if spec[0] == WHEEL and len(by) > 1
+    }
+    k = price_report.brand_sample(price.BRAND_CENSUS[WHEEL])
+    economy = {b for by in specs.values() for b in by if brands.tier_of(b, WHEEL) == "economy"}
+    sampling = [
+        spec
+        for spec, by in specs.items()
+        if economy & set(price_report.sampled_brands(spec, by, k))
+    ]
+    makers = {b for by in specs.values() for b in by}
+    reason = price.PINNED_SHORTFALLS[row.name]
+    assert f"brand tiers alone give {row.achieved:.2f}" in reason, reason
+    assert f"band top of {row.band[1]:.2f}" in reason, reason
+    assert f"{len(economy)} of the {len(makers)} wheel brands are economy" in reason, reason
+    assert f"on {len(sampling)} of its {len(specs)} specs" in reason, reason
 
 
 def test_economy_brands_priced_as_dear_as_the_rest_breaks_the_economy_row(scored):
