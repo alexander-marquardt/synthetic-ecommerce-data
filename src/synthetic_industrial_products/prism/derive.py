@@ -261,8 +261,12 @@ MEASURED_DISPERSION: dict[str, Any] = {
     # brought their own pack sizes.
     "faceted_low": 0.0043,
     # Closed Length: a turnbuckle's, set by its size and its end fittings.
-    # Width (0.2209) before the turnbuckles, since the bearing table
-    # widened to 75 numbers (#64); Flute Length before that.
+    # Inside Dia. is next at 0.2337: each O-ring (#53) states its AS568
+    # row's actual inside diameter, 68 values over 291 product-value pairs
+    # with the washers'. Then Width at 0.2204, the densest once the bearing
+    # table widened to 75 numbers (#64): 0.2209 on the bearings alone,
+    # raised by the O-rings' cross-sections and lowered by key stock's 14
+    # sections over many products (#108). Flute Length before that.
     "faceted_high": 0.2414,
     "densest_faceted": "Closed Length",
     # The saturated ladder the rule exists to keep off a slider.
