@@ -109,9 +109,10 @@ def test_an_ending_is_classed_as_the_census_classes_it(shown, cls):
     assert price.ending_class(shown) == cls
 
 
-#: The census types whose smaller-costs-2x-or-more row the default build
-#: scores: :data:`price_report.TWICE_TYPES` (20 or more census pairs) less
-#: the types that build one SKU per line along their axis.
+#: The types whose smaller-costs-2x-or-more row the default build scores:
+#: :data:`price_report.TWICE_TYPES` (20 or more census pairs) less the types
+#: that build one SKU per line along their axis, then each of their
+#: borrowers (:data:`price_report.TWICE_BORROWERS`) in its own row.
 TWICE_SCORED = (
     "bolt_hex",
     "drill_jobber",
@@ -120,6 +121,10 @@ TWICE_SCORED = (
     "screw_socket_head",
     "tap_spiral_point",
     "washer_flat",
+    "screw_button_head",
+    "screw_flat_head",
+    "screw_low_head",
+    "retaining_rings_external",
 )
 
 
@@ -133,7 +138,7 @@ def test_every_price_row_is_within_its_band_or_pinned_at_the_default_size(price_
         + 1
         + len(price_report.ENDING_CLASSES)
     )
-    assert len(price_rows) == expected == 61
+    assert len(price_rows) == expected == 65
     exempt = set(price.PINNED_SHORTFALLS) | set(price.ROW_EXCEPTIONS)
     out = [row for row in price_rows if not row.within and row.name not in exempt]
     assert not out, "\n".join(f"{row.name}: {row.achieved:.4f} outside {row.band}" for row in out)
@@ -151,6 +156,9 @@ def test_the_twice_types_are_the_census_types_with_20_pairs(census, price_rows):
         if k in price.CENSUS
     }
     assert set(price_report.TWICE_TYPES) == {k for k, n in axis_pairs.items() if n >= 20}
+    assert set(price_report.TWICE_BORROWERS) == {
+        b for b, lender in price.BORROWS.items() if lender in price_report.TWICE_TYPES
+    }
     scored = {
         row.name.rsplit(": ", 1)[1]
         for row in price_rows
@@ -674,7 +682,17 @@ def test_a_quarter_of_pairs_at_2x_breaks_the_2x_rows(scored):
 
 #: The 2x rows whose census band is narrower than the floor on the default
 #: build, so the floor alone sets the band: each implies a share under 0.001.
-TWICE_FLOORED = ("bolt_hex", "drill_jobber", "hex_key", "nut_hex", "screw_socket_head")
+TWICE_FLOORED = (
+    "bolt_hex",
+    "drill_jobber",
+    "hex_key",
+    "nut_hex",
+    "screw_socket_head",
+    "screw_button_head",
+    "screw_flat_head",
+    "screw_low_head",
+    "retaining_rings_external",
+)
 
 
 def test_the_twice_band_floor_is_two_pairs_in_a_hundred_above_a_near_zero_target(price_rows):
@@ -683,7 +701,7 @@ def test_the_twice_band_floor_is_two_pairs_in_a_hundred_above_a_near_zero_target
     to any other width moves these edges. The tap and washer bands are wider
     than the floor and are the census's own."""
     rows = {row.name: row for row in price_rows if row.name.startswith("price smaller costs 2x+")}
-    assert len(rows) == len(TWICE_SCORED) == 7
+    assert len(rows) == len(TWICE_SCORED) == 11
     for type_key in TWICE_SCORED:
         row = rows[f"price smaller costs 2x+, same product: {type_key}"]
         floored = type_key in TWICE_FLOORED
@@ -693,6 +711,47 @@ def test_the_twice_band_floor_is_two_pairs_in_a_hundred_above_a_near_zero_target
             row.band,
         )
         assert (row.band[0] == 0.0) is floored, (type_key, row.band)
+
+
+def test_a_borrowers_pairs_are_scored_in_its_own_twice_row_not_its_lenders(monkeypatch):
+    """A borrowed model is generated, not measured, so its pairs may not
+    move the band its lender's census implies on the lender's own pairs.
+    Plant: a washer borrower whose 30 sizes sit 1 mm apart, the shape that
+    pooled into the washer row pulled its implied 2x target to near 0 at
+    100K (gen#53). The borrower is scored in its own row, against the
+    lender's census on the borrower's pairs."""
+    monkeypatch.setitem(price.BORROWS, "planted_borrower", "washer_flat")
+    washers = [(d, 0.0, f"W{d}") for d in (3.0, 6.0, 12.0, 24.0)]
+    rings = [(10.0 + i, 0.0, f"R{i}") for i in range(30)]
+    prices = {sku: 1.0 for _, _, sku in washers + rings}
+    alone, pooled = price_report.Collected(), price_report.Collected()
+    price_report._product_pairs(alone, "washer_flat", washers)
+    price_report._product_pairs(pooled, "washer_flat", washers)
+    price_report._product_pairs(pooled, "planted_borrower", rings)
+
+    lender = price_report.twice_row("washer_flat", pooled, prices)
+    own = price_report.twice_row("washer_flat", alone, prices)
+    assert lender.denominator == own.denominator == 6
+    assert (lender.target, lender.band) == (own.target, own.band)
+
+    borrower = price_report.twice_row("planted_borrower", pooled, prices)
+    assert borrower.name == "price smaller costs 2x+, same product: planted_borrower"
+    assert borrower.denominator == 30 * 29 // 2
+    assert "borrows washer_flat" in borrower.note
+    assert borrower.target != own.target
+
+
+def test_the_build_scores_no_borrowers_pair_in_a_lenders_twice_row(scored):
+    """On the real build, every pair a lender's 2x row reads is two of the
+    lender's own SKUs."""
+    collected, _ = scored
+    for lender in sorted(set(price.BORROWS.values())):
+        types = {
+            collected.type_of[sku]
+            for big, small, _ in collected.product_pairs.get(lender, [])
+            for sku in (big, small)
+        }
+        assert types <= {lender}, (lender, types)
 
 
 def test_breaking_every_tie_breaks_the_equal_price_row(scored):
