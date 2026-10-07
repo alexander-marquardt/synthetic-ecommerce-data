@@ -155,6 +155,10 @@ GitHub button: this repository has no branch protection, so a green from an
 older `main` can merge and turn `main` red. The script merges current `main`
 in, rebuilds `golden-catalog/` and merges only when the drift, golden and seam
 tests pass on that tree.
+GitHub Actions is billing-blocked here, so run CI locally: `scripts/merge_pr.sh
+--local-ci <PR number>` (the default when `GEN_LOCAL_CI=1`) runs every job of
+`.github/workflows/*.yml` on that merged tree, prints each job's verdict and
+log path, and refuses the merge unless all pass; no GitHub check is read.
 
 Install both hook types once per clone: `pre-commit install` (the config sets
 `default_install_hook_types: [pre-commit, commit-msg]`). The commit-msg hook
