@@ -171,7 +171,7 @@ fixers, which leave `golden-catalog/` alone.
 Run the test suite with plain `uv run pytest`, with no `-n`: the project does
 not install `pytest-xdist`. The whole suite takes about 27 minutes serially, so
 for a change run the modules that name what you changed, and leave the whole
-suite to CI. A product type `<type_key>` has its own `tests/test_type_<type_key>.py`:
+suite to CI. Not every product type has its own `tests/test_type_<type_key>.py`; the grep finds the tests that name a type or module:
 
 ```sh
 uv run pytest $(grep -l '<changed module or type key>' tests/test_*.py)
