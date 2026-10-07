@@ -242,10 +242,10 @@ washer's nine sizes; a hammer is its head weight and handle) runs out of
 SKUs its makers have not already made, so it grows less. It was 28,300
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
-**XSKU SKUs over XPROD products** (`skus` and `lines` in `stats.json`),
+**116,325 SKUs over 67,214 products** (`skus` and `lines` in `stats.json`),
 4,513 of them lock nuts over 2,714 products, 7,061 set screws over 3,786 and
 1,004 dowel pins over 535. Bearings widened from 27 numbers to 75 (#64), so
-fewer bearing lines repeat a number a maker already sells: XBEAR bearings
+fewer bearing lines repeat a number a maker already sells: 11,340 bearings
 where there were 7,516, and no other type moved. `lock_nuts_nylon_insert`,
 `set_screws_hex_socket`
 and `dowel_pins` became deep types (#53), each with its own share of
