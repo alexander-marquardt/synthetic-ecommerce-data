@@ -176,38 +176,58 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
 # --- the drawing ------------------------------------------------------------------
 
 _STRAND_COUNT = {name: count for count, name in STRANDS.items()}
-#: Proportions of pitch the drawing uses for what no record publishes: the link
-#: plate's height, the plate's thickness and the pin's radius.
-_PLATE_HEIGHT = 0.95
+#: Proportions of pitch the drawing uses for what no record publishes: the
+#: roller link (inner) plate's height, the pin link (outer) plate's, drawn
+#: lower so the roller link plates behind it show, the plate's thickness and
+#: the pin's radius.
+_INNER_HEIGHT = 0.95
+_OUTER_HEIGHT = 0.82
 _PLATE_THICKNESS = 0.12
 _PIN_RADIUS = 0.16
 #: A rollerless chain's bushing, drawn where a roller would be.
 _BUSHING = 0.52
+#: The pitches drawn: a roller link, a pin link, a roller link.
+_PITCHES = 3
+
+
+def _plate(x: float, pitch: float, height: float) -> list[tuple[float, float]]:
+    """A link plate seen from the side: one pitch long, round about each of its two pins."""
+    return [*arc((x, 0.0), height / 2, 90, 270), *arc((x + pitch, 0.0), height / 2, -90, 90)]
 
 
 def chain(record: dict[str, str]) -> Drawn:
-    """Side view of two pitches (plates, rollers, pins) above the top view of every strand."""
+    """Side view of three links (plates, rollers, pins) above the top view of every strand."""
     pitch, ok_p = _length_or(record, "Pitch", 0.5)
     roller, ok_r = _length_or(record, "Roller Dia.", _BUSHING * pitch)
     width, ok_w = _length_or(record, "Inside Width", 0.5 * pitch)
     strands = _STRAND_COUNT.get(record.get("Style", ""), 1)
     source = "record" if ok_p and ok_r and ok_w else ("partial" if ok_p else "nominal")
-    plate = _PLATE_HEIGHT * pitch
+    inner, outer = _INNER_HEIGHT * pitch, _OUTER_HEIGHT * pitch
     thick = _PLATE_THICKNESS * pitch
-    fig = Figure(size_in=2 * pitch + plate)
-    ends = (0.0, 2 * pitch)
-    fig.poly([*arc((ends[0], 0.0), plate / 2, 90, 270), *arc((ends[1], 0.0), plate / 2, -90, 90)])
-    for k in range(3):
-        fig.disc((k * pitch, 0.0), roller / 2, "plain")
-        fig.disc((k * pitch, 0.0), _PIN_RADIUS * pitch, "hole")
-    top = plate / 2 + 0.3 * plate
-    x0, x1 = -plate / 2, 2 * pitch + plate / 2
+    fig = Figure(size_in=_PITCHES * pitch + inner)
+    links = [(k * pitch, k % 2 == 1) for k in range(_PITCHES)]
+    pins = [k * pitch for k in range(_PITCHES + 1)]
+    # The pin link is the outer one, so it is drawn last, over the roller links' ends.
+    for x, is_pin_link in sorted(links, key=lambda link: link[1]):
+        fig.poly(_plate(x, pitch, outer if is_pin_link else inner))
+    for x in pins:
+        fig.disc((x, 0.0), roller / 2, "plain")
+        fig.disc((x, 0.0), _PIN_RADIUS * pitch, "hole")
+    # From above, per strand: pin link plates outermost, roller link plates
+    # inside them, a roller between the roller link plates at every pin.
+    top = inner / 2 + 0.3 * inner
+    step = width + 4 * thick
     for s in range(strands):
-        y = top + s * (width + 3 * thick)
-        fig.rect(x0, y, x1, y + thick)
-        fig.rect(x0, y + thick, x1, y + thick + width, "plain")
-        fig.rect(x0, y + thick + width, x1, y + 2 * thick + width)
-        fig.lines(((k * pitch, y + thick), (k * pitch, y + thick + width)) for k in range(3))
+        y = top + s * step
+        for x, is_pin_link in links:
+            near = y if is_pin_link else y + thick
+            far = y + step - thick if is_pin_link else y + step - 2 * thick
+            half = (outer if is_pin_link else inner) / 2
+            fig.rect(x - half, near, x + pitch + half, near + thick)
+            fig.rect(x - half, far, x + pitch + half, far + thick)
+        for x in pins:
+            fig.rect(x - roller / 2, y + 2 * thick, x + roller / 2, y + 2 * thick + width, "plain")
+    fig.lines(((x, top), (x, top + strands * step)) for x in pins)
     return Drawn(fig, source)
 
 
@@ -251,8 +271,8 @@ SPEC = TypeSpec(
     standards_family="motion",
     vocab=VOCAB,
     figure=chain,
-    # 240-2 and 160-3, the largest drawn: 8.85 x 9.25 in.
-    extent=(8.95, 9.35),
+    # The largest drawn: a 240 chain is 11.85 in wide, and 240-2 is 10.34 in tall.
+    extent=(11.95, 10.45),
     make=build,
     share=0.016,
     price=PRICE,
