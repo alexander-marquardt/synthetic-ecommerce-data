@@ -17,8 +17,8 @@ from __future__ import annotations
 
 from synthetic_industrial_products.catalog import breadth
 
-DEPTH_LINES = 5778
-DEPTH_SKUS = 10592
+DEPTH_LINES = 5785
+DEPTH_SKUS = 10621
 
 BREADTH_LINES = len(breadth.rows())
 BREADTH_SKUS = sum(breadth.sku_count(row) for row in breadth.rows())

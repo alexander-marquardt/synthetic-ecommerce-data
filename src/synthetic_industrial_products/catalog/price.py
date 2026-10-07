@@ -713,7 +713,7 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
     {
         # @fit-begin
         "abrasive_flap_disc": _model("abrasive_flap_disc", 8.542, 5.0, 0.172, 0.086),
-        "bearing_radial_ball": _model("bearing_radial_ball", 12.94, 0.5, 0.016, 0.342),
+        "bearing_radial_ball": _model("bearing_radial_ball", 10.47, 0.5, 0.006, 0.306),
         "bolt_hex": _model("bolt_hex", 18.33, 0.375, 0.284, 0.194, slope=0.987, length_slope=0.347),
         "drill_jobber": _model("drill_jobber", 4.435, 0.25, 0.634, 0.182),
         "end_mill_ball": _model("end_mill_ball", 45.33, 0.375, 0.108, 0.246, slope=0.952),

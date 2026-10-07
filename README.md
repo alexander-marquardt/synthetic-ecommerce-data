@@ -228,7 +228,7 @@ type from `skus_by_type` in its `stats.json`:
 | end_mill_ball | 8,110 | | hammer_ball_pein | 861 |
 | drill_jobber | 7,307 | | abrasive_flap_disc | 2,460 |
 | tap_spiral_point | 3,512 | | nut_hex | 12,044 |
-| screw_socket_head | 7,727 | | bearing_radial_ball | 11,031 |
+| screw_socket_head | 7,727 | | bearing_radial_ball | 11,340 |
 | screw_flat_head | 4,752 | | wheel_depressed_center | 11,495 |
 | screw_button_head | 3,439 | | hex_key | 6,466 |
 | screw_low_head | 2,692 | | bolt_hex | 5,934 |
@@ -241,10 +241,10 @@ washer's nine sizes; a hammer is its head weight and handle) runs out of
 SKUs its makers have not already made, so it grows less. It was 28,300
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
-**115,014 SKUs over 66,456 products** (`skus` and `lines` in `stats.json`),
+**115,323 SKUs over 66,680 products** (`skus` and `lines` in `stats.json`),
 4,513 of them lock nuts over 2,714 products and 7,061 set screws over 3,786.
-Bearings widened from 27 numbers to 68 (#64), so fewer bearing lines repeat
-a number a maker already sells: 11,031 bearings where there were 7,516, and
+Bearings widened from 27 numbers to 75 (#64), so fewer bearing lines repeat
+a number a maker already sells: 11,340 bearings where there were 7,516, and
 no other type moved. `lock_nuts_nylon_insert` and `set_screws_hex_socket`
 became deep types (#53),
 each with its own share of `--lines`, and took none from the others, so every
@@ -340,10 +340,13 @@ invented; each is now read from a table and checked by
 
 * **Bearing ratings** are a table per bearing number
   (`newtypes.BEARING_RATINGS`): dynamic and static load and the limiting
-  speed of the open bearing -- SKF's published figures for 6000-6006,
-  6200-6208 and 6300-6305, NBC Bearings' product pages for the single-digit
-  bores and the larger 60/62/63 numbers (a number whose published figures
-  are incomplete or out of the series' order is not stocked, never patched),
+  speed of the open bearing -- every metric row from one maker on one basis,
+  SKF's deep groove ball bearing product pages
+  (`skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings/productid-<number>`,
+  retrieved 2026-10-07), since two makers' speed ratings put side by side
+  invert the series' order at the seam (a number SKF does not publish open,
+  628, is not stocked, never patched), and within a diameter series no larger
+  bore is rated higher in speed or lower in load (`tests/test_catalog_facts.py`);
   distributor listings for the inch R series -- with a contact seal at 70% of
   the open speed. No jitter: two bearings of one number are rated alike,
   whoever makes them, and a rating never makes two SKUs different. (A formula
