@@ -20,6 +20,7 @@ from typing import Any
 # applies it too: one rule for both, so the key and the field map cannot drift.
 from ..catalog.entry import STRUCTURAL_NAMES, canonical_name
 from .derive import (
+    IDENTIFIER_ATTRIBUTES,
     IDENTIFIER_DISPERSION,
     MIN_PRESENCE,
     NUMERIC_SHARE,
@@ -57,11 +58,13 @@ HEADER = """\
 #     is per-attribute: an attribute carried by one of twelve product types can
 #     never exceed ~10% of the catalog, yet may be the primary facet for its
 #     own category.
-#   * an attribute over free-text values whose values do not repeat across
-#     products is NOT a facet -- that is an identifier, not something a
+#   * an attribute the generator declares an identifier ({identifiers}) is NOT
+#     a facet, whatever its values measure: it is a part code.
+#   * any other attribute over free-text values whose values do not repeat
+#     across products is NOT a facet -- that is an identifier, not something a
 #     shopper browses. Measured as {identifier_dispersion:.2f} or more distinct values per
-#     distinct (product, value) pair, over at least {range_min_docs} such pairs: a ratio,
-#     so a standards ladder stays a facet however large the catalog grows.
+#     distinct (product, value) pair, on at least {range_min_docs} distinct products: a
+#     ratio, so a standards ladder stays a facet however large the catalog grows.
 #     QUANTITATIVE attributes are exempt at any cardinality: a measured
 #     quantity is not a part number.
 #
@@ -75,10 +78,10 @@ HEADER = """\
 #     "all". This decides what is STORED -- the canonical number and its unit
 #     code -- and nothing else.
 #   * an attribute is offered as a RANGE (``facets_num.*``) only when its
-#     values are CONTINUOUS: at least {range_min_docs} distinct (product, value) pairs,
-#     and at least {range_dispersion:.2f} distinct values per pair. A value repeated on
-#     a product's variants counts once, so the variant count cannot move the
-#     answer. Below that the values
+#     values are CONTINUOUS: published on at least {range_min_docs} distinct products,
+#     and at least {range_dispersion:.2f} distinct values per (product, value) pair. A
+#     value repeated on a product's variants counts once, so the variant count
+#     cannot move the answer. Below that the values
 #     REPEAT, which means they are a standard set -- hex key sizes, thread
 #     pitches -- and the honest control is a list of them (``facets.*``), not
 #     an interval a shopper can set to a size nobody manufactures.
@@ -277,6 +280,7 @@ def render(rows: Iterable[dict[str, Any]]) -> str:
         excluded_count=len(decided) - len(facets),
         min_presence=MIN_PRESENCE,
         identifier_dispersion=IDENTIFIER_DISPERSION,
+        identifiers=", ".join(sorted(IDENTIFIER_ATTRIBUTES)),
         numeric_share=NUMERIC_SHARE,
         range_dispersion=RANGE_DISPERSION,
         range_min_docs=RANGE_MIN_DOCS,

@@ -221,10 +221,10 @@ def test_the_threshold_is_the_midpoint_and_both_sides_of_it_are_reachable() -> N
     """Astride the boundary, so the comparison cannot be vacuous.
 
     A test that only ever probes 0.04 and 0.95 would pass against a threshold
-    anywhere between them. These two differ by one document.
+    anywhere between them. These two differ by one value.
     """
-    below = _stats(cardinality=49, present=100)
-    at = _stats(cardinality=50, present=100)
+    below = _stats(cardinality=RANGE_MIN_DOCS - 1, present=2 * RANGE_MIN_DOCS)
+    at = _stats(cardinality=RANGE_MIN_DOCS, present=2 * RANGE_MIN_DOCS)
     assert below.dispersion < RANGE_DISPERSION <= at.dispersion
     assert not below.is_continuous
     assert at.is_continuous
@@ -243,6 +243,10 @@ def test_a_small_sample_falls_back_to_discrete() -> None:
     assert tiny.dispersion == big.dispersion == 1.0
     assert not tiny.is_continuous, "below the floor, dispersion is not evidence"
     assert big.is_continuous
+    # The reason names the floor, not a threshold the ratio did not fall under.
+    reason = decide(tiny).reason
+    assert f"fewer than the {RANGE_MIN_DOCS}" in reason, reason
+    assert "below the" not in reason, reason
 
 
 def test_values_that_are_not_numbers_are_never_a_range() -> None:
@@ -386,7 +390,7 @@ def test_the_widest_dispersion_is_a_continuum_kept_off_by_min_presence(decided) 
         "MIN_PRESENCE, not dispersion, has to be the one that keeps it off a "
         "slider"
     )
-    assert widest.present >= RANGE_MIN_DOCS, (
+    assert widest.products >= RANGE_MIN_DOCS, (
         "RANGE_MIN_DOCS no longer decides this attribute -- if it reds, "
         "restate this test against whichever attribute IS below it, or "
         "against the constructed case in test_a_small_sample_falls_back_to_discrete"
@@ -418,14 +422,28 @@ def test_drive_size_is_the_saturated_ladder_the_rule_names(decided) -> None:
     assert decision.facet
 
 
-def test_the_smallest_faceted_attribute_clears_the_document_floor(decided) -> None:
-    """``RANGE_MIN_DOCS`` never decides a FACETED attribute here, and this is
-    the figure that says so."""
+def test_the_product_floor_decides_only_the_attributes_it_names(decided) -> None:
+    """``RANGE_MIN_DOCS`` decides only the attributes ``MEASURED_DISPERSION`` names.
+
+    Many faceted quantities sit under the floor (the smallest is a kit's
+    piece count), but every one of them has a ratio under the continuity
+    threshold, so the floor and the ratio agree. On the terms side the
+    pinned list is every facet the floor keeps offered against the ratio.
+    """
     faceted = [s for s, d in decided.values() if s.is_numeric and d.facet]
-    smallest = min(faceted, key=lambda s: s.present)
+    smallest = min(faceted, key=lambda s: s.products)
     assert smallest.name == MEASURED_DISPERSION["smallest_faceted"]
-    assert smallest.present == MEASURED_DISPERSION["smallest_faceted_present"]
-    assert smallest.present > RANGE_MIN_DOCS
+    assert smallest.products == MEASURED_DISPERSION["smallest_faceted_products"]
+    assert smallest.products < RANGE_MIN_DOCS
+    assert [s.name for s in faceted if s.dispersion >= RANGE_DISPERSION] == []
+
+    held = [
+        s
+        for s, d in decided.values()
+        if d.facet and not s.is_numeric and s.dispersion >= IDENTIFIER_DISPERSION
+    ]
+    assert sorted(s.name for s in held) == MEASURED_DISPERSION["held_by_floor"]
+    assert [s.name for s in held if s.products >= RANGE_MIN_DOCS] == []
 
 
 # ---------------------------------------------------------------------------
@@ -472,7 +490,7 @@ def test_the_identifier_figures_are_what_the_rule_states(decided) -> None:
     terms_facets = [
         s
         for s, d in decided.values()
-        if not s.is_numeric and d.facet and s.product_values >= RANGE_MIN_DOCS
+        if not s.is_numeric and d.facet and s.products >= RANGE_MIN_DOCS
     ]
     densest = max(terms_facets, key=lambda s: s.dispersion)
     assert densest.name == MEASURED_DISPERSION["densest_terms_facet"]
@@ -491,7 +509,7 @@ def test_a_ladder_stays_a_facet_and_an_identifier_stays_withheld_at_any_size(
     a value with nearly every product. The decision for each must not move
     with the scale.
     """
-    products = 200 * scale
+    products = 2 * RANGE_MIN_DOCS * scale
     ladder = _stats(cardinality=55, present=products, numeric=0)
     assert decide(ladder).facet, decide(ladder).reason
 
@@ -506,8 +524,8 @@ def test_the_identifier_threshold_is_the_midpoint_and_both_sides_are_reachable()
     Both sides carry far more than 25 values, so the retired cap would have
     withheld both.
     """
-    below = _stats(cardinality=99, present=200, numeric=0)
-    at = _stats(cardinality=100, present=200, numeric=0)
+    below = _stats(cardinality=RANGE_MIN_DOCS - 1, present=2 * RANGE_MIN_DOCS, numeric=0)
+    at = _stats(cardinality=RANGE_MIN_DOCS, present=2 * RANGE_MIN_DOCS, numeric=0)
     assert decide(below).facet, decide(below).reason
     assert not decide(at).facet
     assert "identifier" in decide(at).reason
@@ -576,15 +594,15 @@ def _rows_of(products: int, variants: int, value_of) -> list[dict]:
 def test_dispersion_counts_products_not_sku_variants() -> None:
     """A product-scope value repeated on its siblings is one observation.
 
-    60 products, each with its own rating, published on all 4 of its SKUs.
-    Per document that reads as 60 values over 240 documents (0.25), a ladder;
-    per product it is 60 over 60, a continuum. The answer must not depend on
-    how many variants a product happens to have (#28).
+    300 products, each with its own rating, published on all 4 of its SKUs.
+    Per document that reads as 300 values over 1,200 documents (0.25), a
+    ladder; per product it is 300 over 300, a continuum. The answer must not
+    depend on how many variants a product happens to have (#28).
     """
     for variants in (1, 4, 9):
-        stats = measure(_rows_of(60, variants, lambda p, v: 1000 + 7 * p))["load"]
-        assert stats.present == 60 * variants
-        assert stats.product_values == 60
+        stats = measure(_rows_of(300, variants, lambda p, v: 1000 + 7 * p))["load"]
+        assert stats.present == 300 * variants
+        assert stats.product_values == 300
         assert stats.dispersion == 1.0
         assert stats.is_continuous, variants
 
