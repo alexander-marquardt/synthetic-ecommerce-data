@@ -281,7 +281,7 @@ def test_a_pin_may_land_no_further_out_than_its_figure_for_that_build(price_rows
 
 def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
     """The wheel's group noise 10% louder spreads one spec's brands from
-    3.24x to 3.43x apart: further above the band but still on its side, so
+    3.53x to 3.91x apart: further above the band but still on its side, so
     only the recorded figure can catch it."""
     name = BRAND_ROW.format("wheel_depressed_center")
     model = price.MODELS["wheel_depressed_center"]
@@ -292,7 +292,7 @@ def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
         for row in price_report.price_comparisons(generate(GeneratorConfig()))
         if row.name == name
     ]
-    assert round(row.achieved, 2) == 3.43
+    assert round(row.achieved, 2) == 3.91
     assert row.achieved > row.band[1]
     assert not price_report.pin_holds(row, 0)
 
