@@ -237,3 +237,12 @@ def test_a_table_no_type_module_declares_is_not_a_recorded_table_type():
     tabletype.spec(TABLE)
     tabletype.spec(INCH)
     assert {"made_up", "made_up_inch"} & set(tabletype.tables()) == set()
+
+
+def test_a_table_type_whose_make_is_wrapped_is_still_a_recorded_table_type():
+    """A type that adds per-line attributes wraps the ``make`` its spec was
+    handed (turnbuckles: the end fitting). The record is kept by type key, so
+    the wrapping does not hide it from the gates that read ``tables()``."""
+    turnbuckles = importlib.import_module(f"{typespec.TYPES_PACKAGE}.fasteners.turnbuckles")
+    assert turnbuckles.SPEC.make is not tabletype.spec(turnbuckles.TABLE).make
+    assert tabletype.tables().get("turnbuckles") is turnbuckles.TABLE
