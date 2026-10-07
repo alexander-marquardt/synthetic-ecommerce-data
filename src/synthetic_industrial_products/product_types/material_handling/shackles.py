@@ -192,7 +192,7 @@ def draw_chain(values: Mapping[str, float]) -> Figure:
 
 ANCHOR_TABLE = TableType(
     "shackles",
-    category=("Material Handling", "Rigging Hardware", "Shackles"),
+    category=("Material Handling & Storage", "Rigging Hardware", "Rigging Shackles"),
     item="Screw Pin Anchor Shackle",
     standards_family="fastener",
     standard=STANDARD,
