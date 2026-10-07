@@ -82,6 +82,11 @@ NOT_DRAWN: dict[str, str] = {
         "a performance grade -- general purpose against high performance. "
         "Nothing about it is visible in an outline"
     ),
+    "Package Quantity": (
+        "how many pieces the line is sold in. A commercial quantity: a pack "
+        "of 25 bolts and a pack of 100 hold the same bolt, and the figure "
+        "draws one piece"
+    ),
 }
 
 

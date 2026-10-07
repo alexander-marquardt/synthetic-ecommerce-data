@@ -2,7 +2,7 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 10,650 SKUs over 5,814 products in 19 depth types plus
+extraction in search: 10,633 SKUs over 5,815 products in 19 depth types plus
 48 [breadth categories](#catalog-breadth), one product each -- from 45
 invented brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
@@ -436,7 +436,8 @@ differently (`catalog/voice.py`).
   non-factual qualifier or the brand's name, and a trailing pack segment.
 * **Pack wording is allowed only where a pack field exists.** The maintainer's
   ruling: pack wording is fine when the record actually carries a pack field.
-  `Package Quantity` exists on hex nuts and depressed-center wheels, and every
+  `Package Quantity` exists on hex nuts, hex bolts, the four socket screws
+  and depressed-center wheels, and every
   pack word in a title or description equals that field; no other type
   carries pack wording.
 * **Descriptions** keep the spec clause and add the brand's template: a use
@@ -1148,8 +1149,8 @@ every other drawing -- only the GEOMETRY is fixed.
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 10,650 drawings, 21.0 MB unpacked
-  (1.97 KB a drawing on average), and a 2.23 MB `images.tar.gz` (the count,
+  measured on the committed catalog, 10,633 drawings, 21.0 MB unpacked
+  (1.98 KB a drawing on average), and a 2.23 MB `images.tar.gz` (the count,
   bytes and archive size `uv run sip-generate images --catalog golden-catalog
   --out /tmp/img --archive /tmp/img.tar.gz` prints). Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
@@ -1194,8 +1195,8 @@ small to read is not drawn larger, it is shown through a **magnifier**
   type's scale -- is visible with or without a lens. Interior detail lines
   (flutes, threads, hatch) are texture and keep their finer weight.
 
-On the committed catalog 1,598 SKUs are too small to see: 449 get the handled
-glass (x2.53 to x9.29) and 1,149 the handle-less lens (x2.46 to x4.05), as the
+On the committed catalog 1,596 SKUs are too small to see: 443 get the handled
+glass (x2.53 to x9.29) and 1,153 the handle-less lens (x2.46 to x4.05), as the
 command in [docs/drawings.md](docs/drawings.md#scale-the-magnifier-and-no-text) prints. The
 lowest enlargement any committed lens gives is x2.46, a width-bound
 handle-less lens (below); no committed part reaches
@@ -1372,7 +1373,7 @@ figure against the file.
 | slope on the key dimension (a bore, a diameter, a thread size), and on length for hex bolts and socket screws | census, cut only for a reason `price.SLOPE_CUTS` records |
 | material | **not measured**: general-knowledge ratios in `price.MATERIAL_FACTORS`, since the census holds material equal on a page |
 | brand tier (economy, standard, premium) | census: the bearing, jobber drill, ball end mill, socket head screw, spiral point tap and depressed-center wheel use their own figures (`price.TYPE_TIER_CENSUS`); every other type uses the jobber drill's. That includes the hex nut, though the census measures its same-spec brand spread: on its 6 shared specs the house label is the dearer brand (5.58x the others, p50), so it gives no economy figure |
-| pack quantity (hex nuts) | census pack slope |
+| pack quantity (hex nuts, hex bolts and the socket screws) | census pack slope (`price.PACK_SLOPES`). A bolt's or socket screw's pack is drawn from its census pack counts (`price.PACK_COUNTS`) so that it falls as the size grows (`price.pack_quantity`): the census measures that a bolt's pack shrinks as its size grows (per-piece p90/p10 28 against 8.2 shown) but not how the two pair, so the pairing is generated |
 | group noise, one draw per census-style page (one brand, the line attributes a page holds equal) | fitted sigma |
 | SKU noise, one draw per SKU | fitted sigma |
 | size noise, one draw per spec that every brand shares (taps and socket screws only, `price.SIZE_NOISE`, each with its reason) | fitted sigma |

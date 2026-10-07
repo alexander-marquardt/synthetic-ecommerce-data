@@ -28,14 +28,20 @@ brand, every line attribute a group page holds equal (:func:`group_draw`).
 The census measures how prices spread ACROSS its pages and how they order
 WITHIN one, so the noise that spreads them is shared by a page.
 
-**Where the fit lowers a slope.** The census slope is of PER-PIECE price,
-within one page. A pack-sold type's pack shrinks as its size grows (a bolt
-census: per-piece p90/p10 28, shown 8.2), so its shown price climbs slower;
-and a type whose sizes span further than the census's (the end mills, from
-11 and 18 pairs) spreads further on the census slope alone. Where the census
-slope by itself spreads the shown price wider than the census p90/p10, the
-fit lowers it until it does not, and the model's literal names the slope it
-used (bolts and both end mills: :data:`SLOPE_CUTS`, which
+**The pack.** The census slope is of PER-PIECE price, within one page. A
+pack-sold type's pack shrinks as its size grows (a bolt census: per-piece
+p90/p10 28, shown 8.2), so its shown price climbs slower across pages. The
+bolts, the nuts and the socket screws publish a ``Package Quantity`` and
+price it on their census pack slope (:data:`PACK_SLOPES`); the bolt's and
+the socket screw's pack is drawn from the census counts so that it falls as
+the size grows (:func:`pack_quantity`), which narrows their shown price.
+
+**Where the fit lowers a slope.** A type whose sizes span further than the
+census's (the end mills, from 11 and 18 pairs; the bolts, even with their
+pack) spreads further on the census slope alone. Where the census slopes,
+with the pack term, spread the shown price wider than the census p90/p10,
+the fit lowers them until they do not, and the model's literal names the
+slope it used (bolts and both end mills: :data:`SLOPE_CUTS`, which
 :func:`slope_cut_mismatch` holds the literals to).
 
 **Why the endings rows weigh the census by the catalog's type mix.** The
@@ -639,16 +645,22 @@ def _model(
 
 
 #: The types whose fit may lower the census slope, and why. The census
-#: slopes are within one group page; where they alone spread the shown price
-#: across the catalog wider than the census p90/p10, the fit lowers them
-#: until they do not. ``scripts/fit_price_model.py`` refuses to lower any
-#: other type's slope: a cut needs a reason recorded here.
+#: slopes are within one group page; where they alone, with the pack term,
+#: spread the shown price across the catalog wider than the census p90/p10,
+#: the fit lowers them until they do not. ``scripts/fit_price_model.py``
+#: refuses to lower any other type's slope: a cut needs a reason recorded
+#: here. A pack-sold type's pack term (:func:`pack_quantity`) is counted
+#: before any cut, so a cut is only what the pack leaves.
 SLOPE_CUTS: dict[str, str] = {
     "bolt_hex": (
-        "a stand-in for the pack the catalog does not model: 98.8% of census bolts are "
-        "pack-sold and the pack shrinks as the size grows (per-piece p90/p10 28, shown 8.2), "
-        "so the shown price climbs slower across pages than within one; the key and the "
-        "length slope are scaled by one factor (follow-up #65: model the pack)"
+        "the census pack does not close the gap on its own: with the pack published and "
+        "falling as the size grows (its log correlates -0.96 with the key's on the default "
+        "build), the census slopes and the census pack slope (0.223) still spread the shown "
+        "price 11.25x on the default build and 11.58x at 100K, against the census's 8.21, "
+        "because the catalog's sizes and lengths span further (key 3.97x, length 7.5x) than "
+        "the census pages, which report no span; the key and the length slope are scaled by "
+        "one factor (#65; follow-up #86: narrow the size span or fit a within-size pack "
+        "elasticity)"
     ),
     "end_mill_ball": (
         "a size-span stand-in on a low-confidence slope (11 census pairs): the catalog's "
@@ -780,7 +792,18 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
         # @fit-begin
         "abrasive_flap_disc": _model("abrasive_flap_disc", 8.542, 5.0, 0.172, 0.086),
         "bearing_radial_ball": _model("bearing_radial_ball", 24.62, 0.5, 0.194, 0.049),
-        "bolt_hex": _model("bolt_hex", 18.33, 0.375, 0.284, 0.194, slope=0.987, length_slope=0.347),
+        "bolt_hex": _model(
+            "bolt_hex",
+            23.01,
+            0.375,
+            0.068,
+            0.198,
+            slope=1.357,
+            length_slope=0.478,
+            pack_attribute="Package Quantity",
+            pack_slope=PACK_SLOPES["bolt_hex"],
+            pack_ref=100.0,
+        ),
         "drill_jobber": _model("drill_jobber", 4.435, 0.25, 0.634, 0.182),
         "end_mill_ball": _model("end_mill_ball", 45.33, 0.375, 0.108, 0.246, slope=0.952),
         "end_mill_square": _model("end_mill_square", 32.86, 0.375, 0.230, 0.308, slope=0.653),
