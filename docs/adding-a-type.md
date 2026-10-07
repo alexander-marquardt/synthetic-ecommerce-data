@@ -287,7 +287,9 @@ default SKU count, rounded down to a ten: a type at the ruled share builds
 only about 60 to 100 SKUs at the default size, so rounding to a hundred would
 give it a floor of zero. It catches a collapse back to a breadth row's one or
 two SKUs; it is not a target. The count is `skus_by_type` in the command
-under [Share](#share).
+under [Share](#share). The two existing gate files,
+`test_type_lock_nuts_nylon_insert.py` and `test_type_set_screws_hex_socket.py`,
+keep their floor of 300, as they keep their share.
 
 ### Figure and extent
 
