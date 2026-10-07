@@ -986,8 +986,8 @@
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.0163892,
-   "numerator": 189,
+   "achieved": 0.0168228,
+   "numerator": 194,
    "denominator": 11532,
    "note": "over records with a readable dimension",
    "band": null
@@ -1923,7 +1923,7 @@
   "Decimal Inch": 75
  },
  "unit_suffix_distribution": {
-  "in": 23417,
+  "in": 23425,
   "mm": 15415
  },
  "standards_present": 6080,

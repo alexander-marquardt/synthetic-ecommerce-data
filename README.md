@@ -719,7 +719,9 @@ magnitude would quietly differ from the string actually published. A defective
 spelling never changes what an attribute measures: `Helix Angle = 42"`, the
 modelled defect of an inch mark keyed for a degree mark, becomes `42` `DD`
 (`catalog.entry.UNIT_FOR_NAME`). The flat facet keeps the messy `42"`; the
-entry keeps the magnitude and drops the bad mark (elastic/prism#9284, #79). Read
+entry keeps the magnitude and drops the bad mark (elastic/prism#9284, #79). The
+flat `facets_num` carries that same number, taken from the same rule
+(`entry.split`), so the two numeric shapes agree (#120). Read
 as an inch, it put a length under an angle key. The same defect also writes
 `1"`, `1-1/4"`, `2"` and `1-5/8"`: lengths keyed into an angle field, a
 unit-type error rather than a mis-keyed degree mark. An attribute fixed to `DD`
