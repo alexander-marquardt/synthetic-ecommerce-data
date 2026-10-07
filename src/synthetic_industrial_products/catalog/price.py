@@ -264,9 +264,16 @@ LENGTH_HELD = frozenset(
 )
 
 
+#: The attribute a type publishes its material as, where it is not
+#: "Material". The census spec is the key dimension plus the material
+#: (``method.brand_spread``); a wheel's material is its abrasive grain.
+MATERIAL_ATTRIBUTES: dict[str, str] = {"wheel_depressed_center": "Abrasive Material"}
+
+
 def material_of(type_key: str, facts: Mapping[str, Attribute]) -> str | None:
-    """A SKU's material, or None."""
-    return facts["Material"].value if "Material" in facts else None
+    """A SKU's material (:data:`MATERIAL_ATTRIBUTES`), or None."""
+    name = MATERIAL_ATTRIBUTES.get(type_key, "Material")
+    return facts[name].value if name in facts else None
 
 
 #: Price endings per type (``deep_types.<type>.endings.class_share``), for the
@@ -622,7 +629,22 @@ SIZE_NOISE: dict[str, str] = {
         "one spec's brands 3.5x apart, while noise one spec shares across brands carries the "
         "p90/p10 and leaves the brand spread to the tiers, as on taps"
     ),
+    "wheel_depressed_center": (
+        "the catalog's wheel diameters span 2.25x, which the key term spreads to 2.6x of the "
+        "census's 10x, yet two brands of one spec sit close (brand spread 1.28 over 12 specs): "
+        "group noise loud enough to make up the p90/p10 is drawn per brand and spread one "
+        "spec's brands 3.24x apart, and noise drawn per diameter inverts the few diameters "
+        "(larger costs more fell to 0.68); noise one abrasive shares across brands and sizes "
+        "(MATERIAL_NOISE) carries the p90/p10 and inverts no diameter pair of one cell"
+    ),
 }
+
+#: The :data:`SIZE_NOISE` types whose shared noise is one draw per material,
+#: every size alike, rather than one per size (:func:`size_draw`). A price
+#: cell (one group page) holds the material equal, so the draw moves no size
+#: pair's order; the spec holds it equal too, so it spreads no spec's brands.
+#: The draw is generated noise: no census figure says how a material prices.
+MATERIAL_NOISE = frozenset({"wheel_depressed_center"})
 
 #: Each pinned row's figure on the default and on the 100K build, as the
 #: fit last measured them. A pin discloses a shortfall; it does not license
@@ -631,10 +653,8 @@ SIZE_NOISE: dict[str, str] = {
 #: ``tests/test_price.py`` holds each figure, and each
 #: :data:`EXCEPTED_FIGURES` one, equal to what its build produces
 #: (``price_report.recorded_digits``), so a record cannot be loosened by hand.
-_WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
 PINNED_FIGURES: dict[str, tuple[float, float]] = {
     "price p90/p10: bearing_radial_ball": (4.493, 4.783),
-    _WHEEL_SPREAD_ROW: (3.241, 2.776),
 }
 
 #: How far past its recorded figure a pinned row may move, as a ratio. The
@@ -652,18 +672,6 @@ PINNED_SHORTFALLS: dict[str, str] = {
         "below band: catalog bores span a p90/p10 of about 3x against the census's 16.1x, "
         "and the census's own brand spread (1.38) leaves no group noise to make up the rest "
         "(widen the bore range: #64)"
-    ),
-    _WHEEL_SPREAD_ROW: (
-        "above band: catalog diameters span 2.25x, which the key term spreads to 2.6x of the "
-        "census's 10x, and the group noise that makes up the rest is drawn independently per "
-        "brand for each of the 12 brands that make every shared wheel spec, so the brands "
-        "the row samples from one spec land "
-        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][0]:.2f}x apart on the default build and "
-        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K. "
-        "Offered a noise one spec shares "
-        "across brands (SIZE_NOISE, as on taps), the fit gives it no weight and moves the "
-        "spread to SKU noise, which inverts the few diameters (larger costs more falls below "
-        "band) and still leaves the p90/p10 below band (#66)"
     ),
 }
 
@@ -819,8 +827,9 @@ def size_draw(seed: int, type_key: str, key: float | None, material: str | None)
     """The quantile a size's shared noise is drawn at: its own stream, so no
     other draw moves. A size is a key dimension in one material, the spec the
     census measures its brand spread over, so every brand and line of one
-    spec share the draw and it spreads no spec's brands (:data:`SIZE_NOISE`)."""
-    size = round(key, 4) if key else None
+    spec share the draw and it spreads no spec's brands (:data:`SIZE_NOISE`).
+    A :data:`MATERIAL_NOISE` type draws once per material, every size alike."""
+    size = round(key, 4) if key and type_key not in MATERIAL_NOISE else None
     return random.Random(f"{seed}:price-size:{type_key}:{size}:{material or ''}").random()
 
 

@@ -89,6 +89,7 @@ from .price import (
     _magnitude,
     ending_class,
     holds_equal,
+    material_of,
 )
 
 if TYPE_CHECKING:
@@ -206,7 +207,7 @@ def collect(catalog: Catalog) -> Collected:
                 by_length[(line.type_key, line.brand, line_cell, round(key, 4))].append(
                     (_magnitude(attrs["Length"]) or 0.0, child.sku)
                 )
-            material = attrs["Material"].value if "Material" in attrs else ""
+            material = material_of(line.type_key, attrs) or ""
             out.specs[(line.type_key, round(key, 4), material)][line.brand].append(child.sku)
             in_line.append(
                 (key, (_magnitude(attrs["Length"]) or 0.0) if length else 0.0, child.sku)
