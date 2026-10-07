@@ -337,7 +337,10 @@ hand tools, Morrow Equipment, Maddox Industries). All 24 were replaced.
 
 An independent review of the 100K catalog found facts the generator had
 invented; each is now read from a table and checked by
-`tests/test_catalog_facts.py` against tables written out in the test:
+`tests/test_catalog_facts.py` against tables written out apart from the
+generator's rules (a type's claimable standards and key dimension are declared
+on its `TypeSpec`, or in `tests/type_facts.py` for a type still in the
+shared tables):
 
 * **Bearing ratings** are a table per bearing number
   (`newtypes.BEARING_RATINGS`): dynamic and static load and the limiting
@@ -799,8 +802,9 @@ three materials, gage balls, ...); this catalog's twelve original types return
 description noise (above) adds hits WITHIN a type and cannot add a category.
 
 **One row per breadth category, 1-3 SKUs each, one generic loop.** Most rows
-are in one table, `src/synthetic_industrial_products/data/breadth_categories.yaml`;
-a type in its own module declares the same row there (`ball_stock_precision`, see
+are in one table, `src/synthetic_industrial_products/data/breadth_categories/`,
+one file per row so two pull requests never edit the same file; a type in
+its own module declares the same row there (`ball_stock_precision`, see
 [How to add a product type](docs/adding-a-type.md)). For each row: a category path, a shape name, an item noun, 3-5
 line-scoped attributes with short value lists, one size (variant) attribute,
 and a one-line reason naming the customer query it joins. `catalog/breadth.py`
