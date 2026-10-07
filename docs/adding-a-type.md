@@ -637,6 +637,7 @@ uv run ruff check . && uv run ruff format --check <your module>
 uv run pytest -q                                    # the full suite, about 5 min
 scripts/merge_pr.sh --dry-run <PR number>           # the merge check, without merging
 scripts/merge_pr.sh <PR number>                     # the only way a type PR merges
+scripts/merge_pr.sh --local-ci <PR number>         # same, CI run here (default when GEN_LOCAL_CI=1)
 ```
 
 `ruff format --check` is scoped to the files you wrote: CI runs only
@@ -717,6 +718,22 @@ for every CI check on exactly that commit (`--print-ci`; a failed, missing or
 unexpectedly skipped check refuses), and squash-merges. Before every merge
 attempt it re-reads `main` and the PR head, and refuses if either moved.
 `--dry-run` does all of it except the push, the CI wait and the merge.
+
+**CI runs locally (`--local-ci`).** GitHub Actions on this repository is
+billing-blocked and stays so, so nobody waits for or reads GitHub CI. With
+`--local-ci`, step 5 runs on that exact merged-and-rebuilt tree every job of
+`.github/workflows/*.yml`, each as the workflow runs it (its `run:` commands,
+in a `bash -eo pipefail` shell at the tree's root: lint, the whole suite, the
+commit-message check, the `main-merged-tree` checks). The jobs come from
+`scripts/local_ci_jobs.py`, which reads the workflow files (`--print-local-ci`
+lists them), so a new workflow job is run the day it is added; a job it cannot
+reproduce (an unknown action, a matrix, an unknown expression) refuses the
+merge rather than being skipped. Every job runs; each prints its verdict, its
+duration and its log, `/tmp/<label>-<job>.log` (outside the clone; `--label`
+sets the label, default the checkout's directory name; `MERGE_PR_LOG_DIR`
+moves the directory). The merge is refused unless every job passed. Step 6
+needs no GitHub check. `GEN_LOCAL_CI=1` in the environment makes `--local-ci`
+the default; `--dry-run` runs the local jobs too.
 
 That re-read narrows the race with another merge but cannot close it: GitHub
 has no compare-and-swap on the base. The `main-merged-tree` CI job runs the
