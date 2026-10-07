@@ -1,0 +1,152 @@
+"""The table-driven type declaration itself (#101): what a table may not say,
+what its price ladder orders, and which lengths its drawing is given.
+
+The table here is made up and belongs to no product: these gates are about
+:mod:`synthetic_industrial_products.catalog.tabletype`, not about a type.
+"""
+
+from __future__ import annotations
+
+import dataclasses
+import math
+
+import pytest
+
+from synthetic_industrial_products.catalog import price, tabletype
+from synthetic_industrial_products.catalog.tabletype import TableType, Variant
+from synthetic_industrial_products.drawing.model import Figure
+
+MM = 25.4
+
+
+def _draw(values) -> Figure:
+    fig = Figure(size_in=values["Diameter"])
+    fig.rect(0.0, 0.0, values["Diameter"], values["Width"])
+    return fig
+
+
+TABLE = TableType(
+    "made_up",
+    category=("Fasteners", "Pins", "Made Up"),
+    item="Made Up Pin",
+    standards_family="fastener",
+    standard="ISO 0000",
+    columns=("Diameter", "Width"),
+    rows=((2.0, 5.0), (4.0, 9.0), (8.0, 20.0)),
+    variants=(Variant("Steel", "Plain", 1.0), Variant("Brass", "Plain", 3.0)),
+    packs=(10, 100),
+    base_price=2.0,
+    size_slope=1.0,
+    pack_slope=0.5,
+    draw=_draw,
+    extent=(1.0, 1.0),
+    share=0.001,
+    default_lines=1,
+    default_skus=1,
+    series="MU",
+)
+
+
+def _usd(table: TableType, size_mm: float, material: str, pack: int) -> float:
+    """The declared price at the standard tier, before it is shown."""
+    model = table.price
+    return model.anchor * math.exp(
+        price.structure(model, size_mm / MM, material, "standard", pack=float(pack))
+    )
+
+
+def test_a_sound_table_has_no_problems():
+    assert tabletype.problems(TABLE) == []
+
+
+@pytest.mark.parametrize(
+    ("change", "message"),
+    [
+        ({"rows": ((2.0, 5.0), (4.0,))}, "a row misses a column"),
+        ({"rows": ((4.0, 9.0), (2.0, 5.0))}, "the sizes do not rise down the table"),
+        ({"rows": ((2.0, 5.0), (2.0, 9.0))}, "the sizes do not rise down the table"),
+        (
+            {"variants": (Variant("Steel", "Plain", 1.0), Variant("Steel", "Zinc Plated", 2.0))},
+            "a material is listed twice",
+        ),
+        (
+            {"variants": (Variant("Brass", "Plain", 3.0), Variant("Steel", "Plain", 1.0))},
+            "the factors do not rise from 1.0",
+        ),
+        ({"packs": (100, 10)}, "the packs do not rise"),
+        ({"size_slope": 0.0}, "size_slope is not positive: a larger size must cost more"),
+        (
+            {"pack_slope": 1.0},
+            "pack_slope is not between 0 and 1: a piece must cost less",
+        ),
+        (
+            {"pack_slope": 0.0},
+            "pack_slope is not between 0 and 1: a piece must cost less",
+        ),
+        ({"base_price": 0.0}, "base_price is not positive"),
+        ({"unit": "cm"}, "unit is neither mm nor in"),
+    ],
+)
+def test_a_table_that_would_break_an_order_is_refused(change, message):
+    wrong = dataclasses.replace(TABLE, **change)
+    assert tabletype.problems(wrong) == [message]
+    with pytest.raises(ValueError, match="made_up"):
+        tabletype.spec(wrong)
+
+
+def test_the_base_price_is_the_first_row_in_the_first_material_and_pack():
+    assert _usd(TABLE, 2.0, "Steel", 10) == pytest.approx(2.0)
+
+
+def test_a_larger_size_costs_more_by_the_declared_slope():
+    assert _usd(TABLE, 4.0, "Steel", 10) == pytest.approx(4.0)
+    assert _usd(TABLE, 8.0, "Steel", 10) == pytest.approx(8.0)
+
+
+def test_a_material_costs_the_tables_own_factor_not_the_shared_one():
+    """Brass is 3.0 in this table, whatever the shared ladder says of brass."""
+    assert _usd(TABLE, 2.0, "Brass", 10) == pytest.approx(6.0)
+
+
+def test_a_bigger_pack_costs_more_in_total_and_less_a_piece():
+    small, large = _usd(TABLE, 2.0, "Steel", 10), _usd(TABLE, 2.0, "Steel", 100)
+    assert large == pytest.approx(2.0 * 10**0.5)
+    assert small < large
+    assert small / 10 > large / 100
+
+
+def test_the_price_claims_no_measurement_and_adds_no_noise():
+    model = TABLE.price
+    assert model.measured is False
+    assert (model.group_sigma, model.sku_sigma, model.size_sigma) == (0.0, 0.0, 0.0)
+    assert dict(model.endings) == {"other": 1.0}
+    assert "made_up" not in price.CENSUS
+
+
+def test_a_record_with_every_column_is_drawn_from_its_own_values():
+    values, source = tabletype.lengths(TABLE, {"Diameter": "4mm", "Width": "11mm"})
+    assert source == "record"
+    assert values == pytest.approx({"Diameter": 4 / MM, "Width": 11 / MM})
+
+
+def test_a_missing_column_takes_the_nearest_rows_proportion():
+    """3.9 mm is nearest the 4 mm row, whose width is 9/4 of its size."""
+    values, source = tabletype.lengths(TABLE, {"Diameter": "3.9mm"})
+    assert source == "partial"
+    assert values == pytest.approx({"Diameter": 3.9 / MM, "Width": 3.9 * 9 / 4 / MM})
+
+
+def test_a_record_with_no_readable_size_is_drawn_as_the_middle_row():
+    values, source = tabletype.lengths(TABLE, {"Width": "11mm", "Diameter": "about four"})
+    assert source == "nominal"
+    assert values == pytest.approx({"Diameter": 4 / MM, "Width": 9 / MM})
+
+
+def test_the_spec_carries_the_tables_figure_and_claims_only_its_standard():
+    spec = tabletype.spec(TABLE)
+    assert spec.may_claim == frozenset({"ISO 0000"})
+    assert spec.key_attributes == ("Diameter",)
+    drawn = spec.figure({"Diameter": "8mm", "Width": "20mm"})
+    assert drawn.source == "record"
+    x0, y0, x1, y1 = drawn.figure.bounds()
+    assert (x1 - x0, y1 - y0) == pytest.approx((8 / MM, 20 / MM))
