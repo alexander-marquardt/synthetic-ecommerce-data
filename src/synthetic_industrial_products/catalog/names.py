@@ -139,6 +139,10 @@ NAME_EXCEPTIONS: dict[str, str] = {
         "a roller chain's ASME B29.1 roller diameter; the census carries no chain"
         " dimensions, and the bare Dia. would read as the chain's own diameter"
     ),
+    "Fit": (
+        "key stock's oversized or undersized bar, the name distributors facet it"
+        " by; the census carries no key stock, and its Class is another concept"
+    ),
 }
 
 

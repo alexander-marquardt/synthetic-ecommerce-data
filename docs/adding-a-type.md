@@ -123,7 +123,7 @@ its published attributes. `set_screws_hex_socket` does both.
    It prints the block the key derives and, when another type already uses it,
    the first free block. In that case set `part_number_block=<block>` on the
    new type's `TypeSpec` (not on its `BreadthRow`): about one new type in 135
-   collides at today's 67 types. Another open pull request can take the same
+   collides at today's 68 types. Another open pull request can take the same
    block; `scripts/merge_pr.sh` re-checks it on the merged tree.
 3. If the leaf's head noun is new, add it to `PRODUCT_NOUNS` in
    `catalog/names.py`.

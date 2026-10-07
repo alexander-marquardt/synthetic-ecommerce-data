@@ -2,7 +2,7 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 10,774 SKUs over 5,888 products in 21 depth types plus
+extraction in search: 10,844 SKUs over 5,930 products in 22 depth types plus
 46 [breadth categories](#catalog-breadth), one product each -- from 45
 invented brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
@@ -235,6 +235,7 @@ type from `skus_by_type` in its `stats.json`:
 | kit_assortment | 695 | | lock_nuts_nylon_insert | 4,513 |
 | set_screws_hex_socket | 7,061 | | dowel_pins | 1,004 |
 | roller_chain | 509 | | 46 breadth categories | 81 (1-3 each) |
+| key_stock | 965 | | | |
 
 The mix is not the one a proportional scale would give, and that is the
 uniqueness rule at work: a type whose spec space is small (ISO 7089 fixes a
@@ -242,9 +243,11 @@ washer's nine sizes; a hammer is its head weight and handle) runs out of
 SKUs its makers have not already made, so it grows less. It was 28,300
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
-**113,008 SKUs over 65,344 products** (`skus` and `lines` in `stats.json`),
+**113,973 SKUs over 65,904 products** (`skus` and `lines` in `stats.json`),
 4,513 of them lock nuts over 2,714 products, 7,061 set screws over 3,786,
-1,004 dowel pins over 535 and 509 roller chains over 328.
+1,004 dowel pins over 535, 509 roller chains over 328 and 965 key stock
+bars over 560 (#108, a new type with its own share; the drawing figures
+below are from before it).
 `lock_nuts_nylon_insert`, `set_screws_hex_socket`, `dowel_pins` and
 `roller_chain` became deep types (#53), each with its own share of
 `--lines`, and took none from the others (the dowel pins' and the roller
@@ -1192,9 +1195,9 @@ every other drawing -- only the GEOMETRY is fixed.
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 10,774 drawings, 21.5 MB unpacked
+  measured on the committed catalog, 10,844 drawings, 21.5 MB unpacked
   (1.99 KB a drawing on average; the largest, a triple strand roller chain,
-  is 7,131 bytes), and a 2.27 MB `images.tar.gz` (the count,
+  is 7,131 bytes), and a 2.28 MB `images.tar.gz` (the count,
   bytes and archive size `uv run sip-generate images --catalog golden-catalog
   --out /tmp/img --archive /tmp/img.tar.gz` prints). Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
