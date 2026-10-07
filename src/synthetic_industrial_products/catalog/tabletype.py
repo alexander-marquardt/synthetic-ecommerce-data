@@ -239,3 +239,8 @@ def spec(table: TableType) -> TypeSpec:
         default_skus=table.default_skus,
         use_lines=table.use_lines,
     )
+
+
+def tables() -> dict[str, TableType]:
+    """Every registered table type, by type key (a stub: it finds none)."""
+    return {}
