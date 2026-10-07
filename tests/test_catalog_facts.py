@@ -11,6 +11,7 @@ generator's own.
 from __future__ import annotations
 
 import collections
+import itertools
 import json
 import re
 from pathlib import Path
@@ -19,7 +20,7 @@ import pytest
 
 import type_gates
 from published import published_attributes
-from synthetic_industrial_products.catalog import emit
+from synthetic_industrial_products.catalog import emit, newtypes
 from synthetic_industrial_products.catalog.config import GeneratorConfig
 from synthetic_industrial_products.catalog.generate import Generator, generate
 from synthetic_industrial_products.dimensions import DimensionParseError, parse_length
@@ -27,34 +28,38 @@ from synthetic_industrial_products.dimensions import DimensionParseError, parse_
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 LBF_PER_KN = 224.809
 
-#: Deep groove ball bearing ratings: (dynamic C kN, static C0 kN, open grease
-#: limiting speed rpm) -- SKF's published tables for 6000-6006, 6200-6208 and
-#: 6300-6305, NBC Bearings' product pages for the single-digit bores and the
-#: larger 60/62/63 numbers, distributor listings for the inch R series.
+#: Deep groove ball bearing ratings: (dynamic C kN, static C0 kN, limiting
+#: speed rpm of the open bearing). Every metric row is one maker's on one
+#: basis: SKF's deep groove ball bearing product pages,
+#: https://www.skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings/productid-<number>,
+#: retrieved 2026-10-07. Two makers' rows side by side break the series' order
+#: at the seam, since their speed ratings are not on one basis. The inch R
+#: rows are distributor listings.
 RATINGS = {
-    "607": (2.24, 0.91, 34000), "608": (3.30, 1.37, 32000), "609": (3.68, 1.65, 31000),
-    "625": (1.73, 0.67, 37000), "626": (2.33, 0.89, 34000), "628": (3.33, 1.42, 31000),
-    "629": (4.57, 1.98, 30000),
-    "6007": (17.7, 10.3, 12000), "6008": (18.6, 11.5, 10000), "6009": (23.2, 15.1, 9200),
-    "6010": (24.2, 16.6, 8400), "6011": (31.5, 21.3, 7700), "6013": (34.0, 25.2, 6500),
-    "6014": (42.0, 30.8, 6100), "6016": (53.0, 40.0, 5200), "6018": (58.0, 49.8, 4700),
-    "6019": (60.0, 53.8, 4500), "6020": (64.46, 56.13, 4200),
-    "6209": (36.0, 20.5, 7800), "6210": (39.0, 23.2, 7100), "6211": (48.0, 29.3, 6400),
-    "6213": (63.5, 40.1, 5500), "6214": (69.0, 44.1, 5100), "6216": (71.55, 54.3, 4500),
-    "6217": (83.2, 64.0, 4200), "6218": (95.98, 71.46, 4000), "6220": (122.14, 92.72, 3500),
-    "6306": (30.08, 14.5, 10000), "6307": (37.0, 19.2, 8800), "6308": (45.07, 22.9, 7800),
-    "6309": (58.5, 32.0, 7000), "6310": (68.5, 38.0, 6400), "6311": (79.5, 44.4, 5800),
-    "6312": (90.5, 52.0, 5400), "6313": (103.0, 59.8, 4900), "6314": (115.0, 68.04, 4600),
-    "6315": (126.0, 76.97, 4300), "6317": (132.42, 96.59, 3800), "6318": (142.33, 107.23, 3600),
-    "6319": (156.36, 121.98, 3300), "6320": (172.65, 140.4, 3200),
-    "6000": (4.75, 1.96, 38000), "6001": (5.40, 2.36, 32000), "6002": (5.85, 2.85, 28000),
-    "6003": (6.37, 3.25, 24000), "6004": (9.95, 5.00, 20000), "6005": (11.9, 6.55, 18000),
-    "6006": (13.8, 8.30, 14000), "6200": (5.40, 2.36, 34000), "6201": (7.28, 3.10, 32000),
+    "607": (2.34, 0.95, 53000), "608": (3.45, 1.37, 48000), "609": (3.90, 1.66, 43000),
+    "625": (1.14, 0.38, 60000), "626": (2.34, 0.95, 50000), "627": (3.45, 1.37, 45000),
+    "629": (4.75, 1.96, 38000), "6000": (4.75, 1.96, 40000), "6001": (5.40, 2.36, 38000),
+    "6002": (5.85, 2.85, 32000), "6003": (6.37, 3.25, 28000), "6004": (9.95, 5.00, 24000),
+    "6005": (11.9, 6.55, 20000), "6006": (13.8, 8.30, 17000), "6007": (16.8, 10.2, 15000),
+    "6008": (17.8, 11.0, 14000), "6009": (22.1, 14.6, 12000), "6010": (22.9, 16.0, 11000),
+    "6011": (29.6, 21.2, 10000), "6012": (30.7, 23.2, 9500), "6013": (31.9, 25.0, 9000),
+    "6014": (39.7, 31.0, 8000), "6015": (41.6, 33.5, 7500), "6016": (49.4, 40.0, 7000),
+    "6017": (52.0, 43.0, 6700), "6018": (60.5, 50.0, 6300), "6019": (63.7, 54.0, 6000),
+    "6020": (63.7, 54.0, 5600), "6200": (5.40, 2.36, 36000), "6201": (7.28, 3.10, 32000),
     "6202": (8.06, 3.75, 28000), "6203": (9.95, 4.75, 24000), "6204": (13.5, 6.55, 20000),
     "6205": (14.8, 7.80, 18000), "6206": (20.3, 11.2, 15000), "6207": (27.0, 15.3, 13000),
-    "6208": (32.5, 19.0, 11000), "6300": (8.52, 3.40, 28000), "6301": (9.95, 4.15, 26000),
-    "6302": (11.9, 5.40, 22000), "6303": (14.3, 6.55, 20000), "6304": (16.8, 7.80, 18000),
-    "6305": (23.4, 11.6, 16000), "R4": (1.14, 0.46, 48000), "R6": (3.30, 1.40, 36000),
+    "6208": (32.5, 19.0, 11000), "6209": (35.1, 21.6, 11000), "6210": (37.1, 23.2, 10000),
+    "6211": (46.2, 29.0, 9000), "6212": (55.3, 36.0, 8000), "6213": (58.5, 40.5, 7500),
+    "6214": (63.7, 45.0, 7000), "6215": (68.9, 49.0, 6700), "6216": (72.8, 55.0, 6000),
+    "6217": (87.1, 64.0, 5600), "6218": (101.0, 73.5, 5300), "6219": (114.0, 81.5, 5000),
+    "6220": (127.0, 93.0, 4800), "6300": (8.52, 3.40, 32000), "6301": (10.1, 4.15, 28000),
+    "6302": (11.9, 5.40, 24000), "6303": (14.3, 6.55, 22000), "6304": (16.8, 7.80, 19000),
+    "6305": (23.4, 11.6, 16000), "6306": (29.6, 16.0, 13000), "6307": (35.1, 19.0, 12000),
+    "6308": (42.3, 24.0, 11000), "6309": (55.3, 31.5, 9500), "6310": (65.0, 38.0, 8500),
+    "6311": (74.1, 45.0, 8000), "6312": (85.2, 52.0, 7000), "6313": (97.5, 60.0, 6700),
+    "6314": (111.0, 68.0, 6300), "6315": (119.0, 76.5, 5600), "6316": (130.0, 86.5, 5300),
+    "6317": (140.0, 96.5, 5000), "6318": (151.0, 108.0, 4800), "6319": (159.0, 118.0, 4500),
+    "6320": (174.0, 140.0, 4300), "R4": (1.14, 0.46, 48000), "R6": (3.30, 1.40, 36000),
     "R8": (5.07, 2.37, 28000), "R10": (6.23, 3.30, 24000), "R12": (9.36, 4.80, 20000),
 }  # fmt: skip
 #: ISO 15 boundary dimensions of a radial bearing, (outside dia, width) mm by
@@ -285,9 +290,47 @@ def test_every_bearing_is_rated_by_its_table(docs):
     assert checked > 500
 
 
+def test_each_metric_series_is_in_rating_order_by_bore():
+    """Within one ISO 15 diameter series a larger bore never carries a lower
+    load rating or a higher limiting speed. A table that mixes two makers'
+    rows breaks that at the seam, and a shopper sees it on the published Max.
+    RPM: a 609 (9x24 mm) rated slower than a 6000 (10x26 mm). Read on the
+    generator's own table, the one every published rating comes from."""
+    by_series: dict[str, list[tuple[int, str]]] = collections.defaultdict(list)
+    for number, bore, _od, _width in newtypes._BEARINGS_METRIC:
+        by_series[number[1]].append((bore, number))
+    breaks = []
+    for series, rows in sorted(by_series.items()):
+        rows.sort()
+        for (_, small), (_, large) in itertools.pairwise(rows):
+            c1, c01, rpm1 = newtypes.BEARING_RATINGS[small]
+            c2, c02, rpm2 = newtypes.BEARING_RATINGS[large]
+            if c2 < c1 or c02 < c01 or rpm2 > rpm1:
+                breaks.append((series, small, large))
+    assert breaks == []
+    assert {s: len(r) for s, r in by_series.items()} == {"0": 24, "2": 25, "3": 21}
+
+
+def test_the_metric_numbers_are_every_one_the_maker_rates():
+    """The generator stocks every 60/62/63 number from 5 mm to 100 mm bore
+    that the table's maker publishes, so no common size is a silent hole, and
+    nothing it does not publish. SKF lists 628 only with seals or shields, so
+    the open bearing's rating is not published and 628 is not stocked; 605,
+    606 and the 61x numbers are outside the ladder."""
+    unpublished = {"628"}
+    ladder = {f"6{s}{i:02d}" for s in "023" for i in range(21)}
+    ladder |= {"607", "608", "609", "625", "626", "627", "628", "629"}
+    stocked = {number for number, *_ in newtypes._BEARINGS_METRIC}
+    assert stocked == ladder - unpublished
+    assert stocked == {n for n in RATINGS if n.isdigit()}
+    assert {n for n, *_ in newtypes._BEARINGS_METRIC + newtypes._BEARINGS_INCH} == set(
+        newtypes.BEARING_RATINGS
+    )
+
+
 def test_every_metric_bearing_has_its_iso_15_boundary_dimensions(docs):
     """A metric bearing number names its bore by its bore code and its outside
-    diameter and width by ISO 15's table for its diameter series, the third
+    diameter and width by ISO 15's table for its diameter series, the second
     digit of 60/62/63. Held against the table written out above, not the
     generator's, so a widened size range cannot carry an invented size."""
     bores: set[int] = set()
