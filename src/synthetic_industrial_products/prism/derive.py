@@ -257,11 +257,10 @@ RANGE_MIN_DOCS = 250
 MEASURED_DISPERSION: dict[str, Any] = {
     # The band over the QUANTITATIVE attributes that are actually FACETED.
     "faceted_low": 0.0037,
-    # Flute Length since the bearing ratings became a published table (one
-    # value per bearing number, no jitter): Dynamic Load Capacity was the
-    # densest at 0.44 while a formula manufactured a value per SKU.
-    "faceted_high": 0.2040,
-    "densest_faceted": "Flute Length",
+    # Width since the bearing table widened to 75 numbers (#64); Flute Length before it,
+    # and Dynamic Load Capacity at 0.44 while a formula manufactured a value per SKU.
+    "faceted_high": 0.2209,
+    "densest_faceted": "Width",
     # The saturated ladder the rule exists to keep off a slider.
     # Low since the drive size is published as the nominal key (10mm), not
     # the extracted socket's toleranced across-flats (10.07mm). The hex socket
@@ -294,11 +293,11 @@ MEASURED_DISPERSION: dict[str, Any] = {
     # at this size the ratio agrees.
     "identifier": "List Number",
     "identifier_dispersion": 0.9764,
-    # The densest terms facet over RANGE_MIN_DOCS: 27 bearing designations.
+    # The densest terms facet over RANGE_MIN_DOCS: 75 bearing designations.
     # The terms side's margin under 0.5. (Sizes Included, 0.2783, is denser
     # but on 59 kits, under the floor.)
     "densest_terms_facet": "Bearing Number",
-    "densest_terms_facet_dispersion": 0.0409,
+    "densest_terms_facet_dispersion": 0.1105,
 }
 
 
