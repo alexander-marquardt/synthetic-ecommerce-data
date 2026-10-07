@@ -46,6 +46,10 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
 
+from ..catalog.generate import Generator
+
+IDENTIFIER_ATTRIBUTES = Generator.IDENTIFIER_ATTRIBUTES
+
 #: An attribute is QUANTITATIVE if this share of the documents that publish it
 #: carry a parsed ``value_num``. The catalog deliberately emits values that do
 #: not parse (a ``Helix Angle`` of ``42"`` has no angle in it), so the test is
@@ -283,6 +287,7 @@ class AttributeStats:
     #: observations the values rest on. A product-scope value repeated on a
     #: product's variants is one; a value that differs per SKU is one per SKU.
     product_values: int
+    products: int
 
     @property
     def numeric_share(self) -> float:
@@ -355,6 +360,7 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
     numeric: collections.Counter[str] = collections.Counter()
     values: dict[str, set[str]] = collections.defaultdict(set)
     product_values: dict[str, set[tuple[str, str]]] = collections.defaultdict(set)
+    products: dict[str, set[str]] = collections.defaultdict(set)
     types: dict[str, set[str]] = collections.defaultdict(set)
     published_name: dict[str, str] = {}
     type_sizes: collections.Counter[str] = collections.Counter()
@@ -366,6 +372,7 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
             present[key] += 1
             values[key].update(vals)
             product_values[key].update((row["product_id"], value) for value in vals)
+            products[key].add(row["product_id"])
             types[key].add(product_type)
         for key in row["facets_num"]:
             numeric[key] += 1
@@ -384,6 +391,7 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
             product_types=tuple(sorted(types[key])),
             type_denominator=sum(type_sizes[t] for t in types[key]),
             product_values=len(product_values[key]),
+            products=len(products[key]),
         )
         for key, count in sorted(present.items())
     }
