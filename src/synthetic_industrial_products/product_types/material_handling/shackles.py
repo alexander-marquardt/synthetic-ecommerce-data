@@ -15,7 +15,8 @@ Eleven of the 22 trade sizes those tables list are stated, 1/4 in to
 
 The trade size is published as ``Size``, the width between the eyes (W) as
 ``Inside Width``, the length inside (L) as ``Inside Length`` and the working
-load limit as ``Load Capacity``, the census names for those measurements. The
+load limit as ``Load Capacity`` in pounds-force, as every load in the catalog
+is, the census names for those measurements. The
 body is published as ``Type`` (``Anchor`` for the bow body, ``Chain`` for the
 straight-sided D). The pin diameter (P), the body diameter (D), the width of
 the bow (B) and the outside diameter of the eye (R) are in the tables and
@@ -238,7 +239,7 @@ def make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     for child in draft.children:
         trade, _ = _trade_size(child.primary.value_num)
         pounds = LOAD_LB[trade]
-        child.attrs.append(numeric_attribute(LOAD, f"{pounds:,} lb", float(pounds)))
+        child.attrs.append(numeric_attribute(LOAD, f"{pounds:,} lbf", float(pounds)))
     return draft
 
 

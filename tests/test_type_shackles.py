@@ -240,7 +240,7 @@ def test_each_size_carries_the_grade_a_working_load_limit(large_docs):
         published = table_gates.values(doc)
         size = round(float(published["Size"]["value_canonical"]), 3)
         built.setdefault((published["Type"]["value"], size), set()).add(published[LOAD]["value"])
-        assert published[LOAD]["unit_code"] == "LBR", doc["sku"]
+        assert published[LOAD]["unit_code"] == "C78", doc["sku"]
     assert built == {cell: {load} for cell, load in LOADS.items()}
 
 

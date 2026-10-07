@@ -538,8 +538,8 @@ fields:
     type: terms
     source: facets.list_number
     facet: false
-  # Load Capacity -- a discrete standard set: 27 distinct values over 219 product-value pairs is 0.12 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 219 documents across 2 product type(s); 27 distinct values
+  # Load Capacity -- a discrete standard set: 24 distinct values over 219 product-value pairs is 0.11 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 219 documents across 2 product type(s); 24 distinct values
   - name: load_capacity
     type: terms
     source: facets.load_capacity
