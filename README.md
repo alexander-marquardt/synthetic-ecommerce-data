@@ -380,11 +380,13 @@ invented; each is now read from a table and checked by
   `reference-statistics/04_shank_dia_vs_milling_dia.json` are at or under
   3.0x, the 2.667x and 3.0x ones included; the census's 4.0 ratio had put a
   5/32" cutter on a 5/8" shank. A metric cutter below 6 mm with an oversize
-  shank sits on the 6 mm DIN 6535 shank, as metric practice puts a 1-5 mm
-  cutter (DIN 6527:2002 is the solid carbide end mill on a stepped parallel
-  shank, the cutter thinner than its shank); under the earlier 2x cap, 48 of the 54 such cutters on
-  a2a55cc's golden sat on another shank, most of them on 3 mm. Above the largest
-  stocked shank the shank is the cutter's own size.
+  shank sits on the 6 mm DIN 6535 shank, whatever the ratio (1 mm on 6 mm is
+  6.0x). That is a catalog convention the #33 review proposed, not yet
+  confirmed against a standard's diameter table (#87); it leaves the
+  3, 4 and 5 mm DIN 6535 shanks undrawn for an oversize cutter. Under the
+  earlier 2x cap, 48 of the 54 such cutters on a2a55cc's golden sat on another
+  shank, most of them on 3 mm. Above the largest stocked shank the shank is
+  the cutter's own size.
 * **A terse end mill title names the mill's own end**: `SGL Sq End` on a
   square end mill, `SGL Ball End` on a ball nose one (168 of 568 ball end
   mills said `Sq End`).

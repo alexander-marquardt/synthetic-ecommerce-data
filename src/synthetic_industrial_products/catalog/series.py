@@ -260,15 +260,17 @@ def nearest_shank_metric(target_mm: float) -> float:
 
 #: The largest an oversize shank gets, as a multiple of its cutter. 43 of the
 #: 46 differing records in 04_shank_dia_vs_milling_dia.json are at or under
-#: 3.0, the 2.667 and 3.0 ratios included; a 5/32" cutter on a 5/8" shank is
-#: 4.0 and is not drawn. A cutter below the smallest stocked shank is the
-#: exception: a 1mm cutter has nothing thinner than a 3mm shank to sit in.
+#: 3.0, the 2.667 and 3.0 ratios included, so an inch 5/32" cutter on a 5/8"
+#: shank (4.0) is not drawn. Two exceptions draw past it: the smallest stocked
+#: shank above the cutter when that is already more (see shank_ceiling), and a
+#: metric cutter below SMALL_METRIC_SHANK_MM, which sits on 6 mm whatever the
+#: ratio -- 1.5 mm on 6 mm is 4.0x and 1 mm on 6 mm is 6.0x.
 MAX_SHANK_RATIO = 3.0
 
 #: The shank a metric cutter below it sits on when its shank is oversize.
-#: DIN 6527:2002 is the solid carbide end mill on a stepped parallel shank --
-#: a cutter of another diameter than its DIN 6535 shank -- and metric practice
-#: puts the 1-5 mm cutters on the 6 mm shank (the #33 review).
+#: This is a catalog convention the #33 review proposed, not yet confirmed
+#: against a standard's diameter table (#87); DIN 6535 also lists 3, 4
+#: and 5 mm shanks, which this rule leaves undrawn for an oversize cutter.
 SMALL_METRIC_SHANK_MM = 6.0
 
 

@@ -156,8 +156,9 @@ NUT_DIMENSIONS = {
 #: three times its cutter -- 43 of the 46 differing records in
 #: reference-statistics/04 are at or under 3.0, the 2.667 and 3.0 ratios
 #: included -- or the smallest stocked shank above the cutter when that is
-#: more. A metric cutter below 6 mm may also sit on the 6 mm DIN 6535 shank,
-#: as metric practice puts a 1-5 mm cutter (DIN 6527's stepped shank).
+#: more. A metric cutter below 6 mm may also sit on the 6 mm DIN 6535 shank:
+#: a catalog convention the #33 review proposed, not yet confirmed against a
+#: standard's diameter table (#87).
 SHANKS_IN = (1 / 8, 3 / 16, 1 / 4, 5 / 16, 3 / 8, 1 / 2, 5 / 8, 3 / 4, 1.0)
 SHANKS_MM = (3.0, 3.175, 4.0, 6.0, 6.35, 8.0, 10.0, 12.0, 12.7, 16.0, 20.0, 25.0)
 MAX_SHANK_RATIO = 3.0
@@ -427,8 +428,9 @@ def _oversize_pairs(docs: list[dict], unit: str) -> list[tuple[str, float, float
 
 
 def test_a_small_metric_cutter_on_an_oversize_shank_sits_on_6mm(docs):
-    """Metric practice puts a 1-5 mm cutter on the 6 mm DIN 6535 shank (a
-    DIN 6527 stepped-shank end mill). A cap that turned a 1-2.5 mm cutter's
+    """The catalog puts a 1-5 mm cutter on the 6 mm DIN 6535 shank, a
+    convention the #33 review proposed and no standard's table has yet
+    confirmed (#87). A cap that turned a 1-2.5 mm cutter's
     oversize shank into a 3 mm one made the common metric product the rare
     one (31 SKUs on 29f's golden)."""
     small = [p for p in _oversize_pairs(docs, "mm") if p[1] < SMALL_METRIC_SHANK_MM / 25.4 - 1e-6]
@@ -439,10 +441,11 @@ def test_a_small_metric_cutter_on_an_oversize_shank_sits_on_6mm(docs):
 
 def test_the_census_wide_shank_ratios_still_occur(docs):
     """The cap is not tighter than the census: 4 of its 46 differing records
-    sit at 2.667x or 3.0x, so some inch end mills carry a shank between two
-    and three times their cutter."""
-    wide = [p for p in _oversize_pairs(docs, '"') if 2.0 + 1e-6 < p[2] / p[1] <= 3.0 + 1e-6]
-    assert len(wide) > 5, wide
+    sit at 2.667x or 3.0x, so some inch end mills carry a shank in that band.
+    The band is the census's own, not 2x-3x: a cap of 2.5x still draws the
+    2.29x, 2.4x and 2.5x pairs, and would pass a wider window."""
+    band = [p for p in _oversize_pairs(docs, '"') if 2.6 < p[2] / p[1] <= 3.0 + 1e-6]
+    assert len(band) > 5, band
 
 
 def test_no_end_mill_shank_is_thinner_than_its_cutter(docs):
