@@ -368,10 +368,10 @@ it is NOT MEASURED; the ball-pein hammer's is an example. Such a type gets
 no price rows, so nothing checks its prices against a census. To give it
 census rows, measure them as #69 did for the lock nut and the set screw:
 extend `scripts/price_census_collect.py` and `scripts/price_census_parse.py`
-(archive.org only, serial) and let the parser write the entry. A type whose
-entry has landed but is not yet restated and fitted is listed in
-`AWAITING_FIT` in `tests/test_price.py` and keeps `measured=False` until it
-is (the lock nut and the set screw, until #69's second part). A type with no census rows of its own
+(archive.org only, serial) and let the parser write the entry. Once its entry has landed, restate it in
+`price.CENSUS` (and `ENDINGS`, `LENGTH_CENSUS`), run
+`scripts/fit_price_model.py --write` and leave `measured` at its default, as
+the lock nut and the set screw did in #69's second part. A type with no census rows of its own
 that prices as a sibling does is listed in `price.BORROWS` instead (the
 button, flat and low-head socket screws borrow the socket head's model).
 

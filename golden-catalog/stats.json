@@ -1201,6 +1201,42 @@
    ]
   },
   {
+   "name": "price p50 (USD): lock_nuts_nylon_insert",
+   "target": 22.14,
+   "achieved": 20.58,
+   "numerator": 469,
+   "denominator": 100,
+   "note": "shown price; denom is the census n",
+   "band": [
+    17.712,
+    27.675
+   ]
+  },
+  {
+   "name": "price p90/p10: lock_nuts_nylon_insert",
+   "target": 9.6344,
+   "achieved": 9.70348,
+   "numerator": 469,
+   "denominator": 100,
+   "note": "shown price; denom is the census n",
+   "band": [
+    7.2258,
+    12.8137
+   ]
+  },
+  {
+   "name": "price larger size costs more: lock_nuts_nylon_insert",
+   "target": 0.953,
+   "achieved": 0.950895,
+   "numerator": 1646,
+   "denominator": 1731,
+   "note": "within-cell pairs whose key dimension differs",
+   "band": [
+    0.873,
+    1.033
+   ]
+  },
+  {
    "name": "price p50 (USD): nut_hex",
    "target": 15.31,
    "achieved": 15.6,
@@ -1270,6 +1306,42 @@
    "band": [
     0.340513,
     0.809487
+   ]
+  },
+  {
+   "name": "price p50 (USD): set_screws_hex_socket",
+   "target": 20.75,
+   "achieved": 17.05,
+   "numerator": 485,
+   "denominator": 510,
+   "note": "shown price; denom is the census n",
+   "band": [
+    16.6,
+    25.9375
+   ]
+  },
+  {
+   "name": "price p90/p10: set_screws_hex_socket",
+   "target": 4.58691,
+   "achieved": 5.80892,
+   "numerator": 485,
+   "denominator": 510,
+   "note": "shown price; denom is the census n",
+   "band": [
+    3.44018,
+    6.10059
+   ]
+  },
+  {
+   "name": "price larger size costs more: set_screws_hex_socket",
+   "target": 0.666,
+   "achieved": 0.625,
+   "numerator": 15,
+   "denominator": 24,
+   "note": "within-cell pairs whose key dimension differs",
+   "band": [
+    0.585767,
+    0.746233
    ]
   },
   {
@@ -1405,6 +1477,18 @@
    ]
   },
   {
+   "name": "price longer costs more: set_screws_hex_socket",
+   "target": 0.834,
+   "achieved": 0.647849,
+   "numerator": 241,
+   "denominator": 372,
+   "note": "pairs of one brand and line cell, key dimension equal, length differs; PINNED SHORTFALL, below band: the census's longer-costs-more share is 0.834 over 692 pairs, but its prices are pack prices (every row is pack-sold) and a longer screw is often sold in a smaller pack, which the catalog does not model, so the shown price pairs in the catalog invert more often than the census's; the noise that orders the sizes is the same noise that orders the lengths, and the size row holds in band at both builds (model the pack: #65)",
+   "band": [
+    0.754,
+    0.914
+   ]
+  },
+  {
    "name": "price equal price, size pair: tap_spiral_point",
    "target": 0.104,
    "achieved": 0.105518,
@@ -1453,6 +1537,18 @@
    ]
   },
   {
+   "name": "price smaller costs 2x+, same product: lock_nuts_nylon_insert",
+   "target": 2.54805e-06,
+   "achieved": 0.0,
+   "numerator": 0,
+   "denominator": 363,
+   "note": "pairs of one product, key dimension differs; target IMPLIED by the census slope and larger-costs-less share, not measured",
+   "band": [
+    0.0,
+    0.0200025
+   ]
+  },
+  {
    "name": "price smaller costs 2x+, same product: nut_hex",
    "target": 0.000585752,
    "achieved": 0.0131446,
@@ -1470,6 +1566,18 @@
    "achieved": 0.00744879,
    "numerator": 8,
    "denominator": 1074,
+   "note": "pairs of one product, length at an equal key differs; target IMPLIED by the census slope and larger-costs-less share, not measured",
+   "band": [
+    0.0,
+    0.02
+   ]
+  },
+  {
+   "name": "price smaller costs 2x+, same product: set_screws_hex_socket",
+   "target": 1.20562e-12,
+   "achieved": 0.0,
+   "numerator": 0,
+   "denominator": 372,
    "note": "pairs of one product, length at an equal key differs; target IMPLIED by the census slope and larger-costs-less share, not measured",
    "band": [
     0.0,
@@ -1598,50 +1706,50 @@
   },
   {
    "name": "price ending .99",
-   "target": 0.00618318,
-   "achieved": 0.00621176,
-   "numerator": 66,
+   "target": 0.00618618,
+   "achieved": 0.00611765,
+   "numerator": 65,
    "denominator": 10625,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.00201148,
-    0.0103549
+    0.00180704,
+    0.0105653
    ]
   },
   {
    "name": "price ending .00",
-   "target": 0.0886872,
-   "achieved": 0.088,
-   "numerator": 935,
+   "target": 0.0864125,
+   "achieved": 0.0850824,
+   "numerator": 904,
    "denominator": 10625,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0704397,
-    0.106935
+    0.0678869,
+    0.104938
    ]
   },
   {
    "name": "price ending .50",
-   "target": 0.060276,
-   "achieved": 0.0584471,
-   "numerator": 621,
+   "target": 0.0584189,
+   "achieved": 0.0571294,
+   "numerator": 607,
    "denominator": 10625,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.043106,
-    0.077446
+    0.0411336,
+    0.0757041
    ]
   },
   {
    "name": "price ending other .x5",
-   "target": 0.215978,
-   "achieved": 0.222494,
-   "numerator": 2364,
+   "target": 0.217083,
+   "achieved": 0.224753,
+   "numerator": 2388,
    "denominator": 10625,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.193646,
-    0.23831
+    0.193927,
+    0.24024
    ]
   }
  ],
