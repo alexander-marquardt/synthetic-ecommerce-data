@@ -35,6 +35,7 @@ from collections.abc import (
     Callable,
     Collection,
     ItemsView,
+    Iterable,
     Iterator,
     KeysView,
     Mapping,
@@ -140,6 +141,22 @@ class TypeSpec:
     #: attributes, for a type whose ``dimension_provenance`` is a sentence
     #: rather than a bare standard name. ``None`` reads the provenance itself.
     line_standard: Callable[[Mapping[str, str]], str] | None = None
+    #: The standards a line of the type claims (:func:`.conformance.applicable`
+    #: calls it): ``claims(type_key, facts, metric=, provenance=, standard=)``.
+    #: ``None`` claims nothing.
+    claims: Callable[..., Iterable[str]] | None = None
+    #: Every standard a record of the type may claim, which the facts tests
+    #: hold each published ``Standards`` value to. Nothing in the build reads
+    #: it, so it checks ``claims`` rather than restating it. An empty set
+    #: claims nothing; ``None`` is undeclared, which the facts tests refuse.
+    may_claim: frozenset[str] | None = None
+    #: The attributes every title of the type names (its key dimension); the
+    #: facts tests hold each title to it.
+    title_key: tuple[str, ...] = ()
+    #: The product lines and SKUs the default build makes of the type,
+    #: counted from a fresh build; the size tests sum them (``catalog_size``).
+    default_lines: int = 0
+    default_skus: int = 0
     #: A breadth type's row, in place of every modelled field above.
     breadth: BreadthRow | None = None
     #: The dotted module the spec was found in, filled in by :func:`discover`.
