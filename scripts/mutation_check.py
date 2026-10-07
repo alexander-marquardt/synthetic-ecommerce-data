@@ -2826,8 +2826,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the wheel pin's 100K record is loosened by hand",
                 "catalog/price.py",
-                "    _WHEEL_SPREAD_ROW: (3.241, 2.776),",
-                "    _WHEEL_SPREAD_ROW: (3.241, 3.10),",
+                "    _WHEEL_SPREAD_ROW: (3.534, 3.09),",
+                "    _WHEEL_SPREAD_ROW: (3.534, 3.45),",
                 "figure_its_build_produces",
                 "a record is the build's figure",
             ),
