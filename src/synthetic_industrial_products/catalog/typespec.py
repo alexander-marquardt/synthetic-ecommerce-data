@@ -35,6 +35,7 @@ from collections.abc import (
     Callable,
     Collection,
     ItemsView,
+    Iterable,
     Iterator,
     KeysView,
     Mapping,
@@ -140,6 +141,26 @@ class TypeSpec:
     #: attributes, for a type whose ``dimension_provenance`` is a sentence
     #: rather than a bare standard name. ``None`` reads the provenance itself.
     line_standard: Callable[[Mapping[str, str]], str] | None = None
+    #: The standards a line may claim (:func:`.conformance.applicable`):
+    #: ``claims(facts, metric=..., provenance=..., standard=...)`` returns
+    #: them in order. ``None`` claims none.
+    claims: Callable[..., Iterable[str]] | None = None
+    #: Every standard ``claims`` can return; the facts tests hold each
+    #: published ``Standards`` value to it.
+    may_claim: frozenset[str] = frozenset()
+    #: The type's key dimension: the attribute names the price census keys it
+    #: on (:data:`.price.KEY_ATTRIBUTES`, the first one carried wins), which
+    #: every title also names.
+    key_attributes: tuple[str, ...] = ()
+    #: The thread-size attribute of a type sold by one thread designation,
+    #: for the near-miss thread sentence (:data:`.noise.THREADED`).
+    threaded: str | None = None
+    #: Whether the type is a fastener that publishes ``Material`` and
+    #: ``Finish``, for the "what it is not" sentence (:data:`.noise.FASTENERS`).
+    fastener: bool = False
+    #: The length attribute a unit equivalent is written for
+    #: (:data:`.noise.UNIT_PRIMARY`).
+    unit_primary: str | None = None
     #: A breadth type's row, in place of every modelled field above.
     breadth: BreadthRow | None = None
     #: The dotted module the spec was found in, filled in by :func:`discover`.

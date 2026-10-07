@@ -15,10 +15,18 @@ Two parts, kept apart so that adding a breadth type edits nothing here:
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from synthetic_industrial_products.catalog import breadth
 
 DEPTH_LINES = 5766
 DEPTH_SKUS = 10565
+
+SLICES = Path(__file__).parent / "data" / "golden_slices"
+
+
+def depth(slices: Path = SLICES) -> tuple[int, int]:
+    return DEPTH_LINES, DEPTH_SKUS
 
 BREADTH_LINES = len(breadth.rows())
 BREADTH_SKUS = sum(breadth.sku_count(row) for row in breadth.rows())
