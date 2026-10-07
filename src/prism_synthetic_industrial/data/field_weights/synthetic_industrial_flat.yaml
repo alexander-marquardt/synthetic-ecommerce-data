@@ -10,8 +10,8 @@
 # ``tests/test_prism_field_map_drift.py`` fails if this file and a fresh
 # derivation disagree. Editing this file alone reds that test; changing the
 # generator without rebuilding reds it too, which is the point -- the catalog
-# publishes 123 distinct attribute names and a hand-maintained list
-# of 123 declarations drifts from the data the first time either side moves.
+# publishes 119 distinct attribute names and a hand-maintained list
+# of 119 declarations drifts from the data the first time either side moves.
 #
 # WHICH ATTRIBUTES BECOME FACETS
 # -----------------------------------------------------------------------------
@@ -66,8 +66,8 @@
 #
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
-#   attributes declared      123
-#   offered as facets        100  (0 numeric ranges, 100 terms)
+#   attributes declared      119
+#   offered as facets        96  (0 numeric ranges, 96 terms)
 #   declared, not faceted    23
 # =============================================================================
 
@@ -243,13 +243,8 @@ fields:
   - name: bond_type
     type: terms
     source: facets.bond_type
-  # Bore -- a discrete standard set: 126 distinct values over 777 product-value pairs is 0.16 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1280 documents across 6 product type(s); 126 distinct values
-  - name: bore
-    type: terms
-    source: facets.bore
-  # Bore Dia. -- a discrete standard set: 4 distinct values over 87 product-value pairs is 0.05 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 102 documents across 1 product type(s); 4 distinct values
+  # Bore Dia. -- a discrete standard set: 126 distinct values over 864 product-value pairs is 0.15 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1382 documents across 7 product type(s); 126 distinct values
   - name: bore_dia
     type: terms
     source: facets.bore_dia
@@ -450,16 +445,11 @@ fields:
   - name: hardness
     type: terms
     source: facets.hardness
-  # Head Dia. -- a discrete standard set: 72 distinct values over 963 product-value pairs is 0.07 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1844 documents across 5 product type(s); 72 distinct values
+  # Head Dia. -- a discrete standard set: 83 distinct values over 1030 product-value pairs is 0.08 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1911 documents across 6 product type(s); 83 distinct values
   - name: head_dia
     type: terms
     source: facets.head_dia
-  # Head Diameter -- a discrete standard set: 12 distinct values over 67 product-value pairs is 0.18 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 67 documents across 1 product type(s); 12 distinct values
-  - name: head_diameter
-    type: terms
-    source: facets.head_diameter
   # Head Height -- a discrete standard set: 90 distinct values over 1034 product-value pairs is 0.09 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
   #   present on 1911 documents across 6 product type(s); 90 distinct values
   - name: head_height
@@ -496,8 +486,8 @@ fields:
     type: terms
     source: facets.insert_material
     facet: false
-  # Inside Dia. -- a discrete standard set: 68 distinct values over 291 product-value pairs is 0.23 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 291 documents across 2 product type(s); 68 distinct values
+  # Inside Dia. -- a discrete standard set: 80 distinct values over 373 product-value pairs is 0.21 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 373 documents across 3 product type(s); 80 distinct values
   - name: inside_dia
     type: terms
     source: facets.inside_dia
@@ -506,11 +496,6 @@ fields:
   - name: inside_dia_tolerance
     type: terms
     source: facets.inside_dia_tolerance
-  # Inside Diameter -- a discrete standard set: 12 distinct values over 82 product-value pairs is 0.15 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 82 documents across 1 product type(s); 12 distinct values
-  - name: inside_diameter
-    type: terms
-    source: facets.inside_diameter
   # Inside Length -- a discrete standard set: 18 distinct values over 132 product-value pairs is 0.14 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
   #   present on 132 documents across 1 product type(s); 18 distinct values
   - name: inside_length
@@ -629,16 +614,11 @@ fields:
   - name: number_of_teeth
     type: terms
     source: facets.number_of_teeth
-  # Outside Dia. -- a discrete standard set: 169 distinct values over 906 product-value pairs is 0.19 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1409 documents across 3 product type(s); 169 distinct values
+  # Outside Dia. -- a discrete standard set: 188 distinct values over 1008 product-value pairs is 0.19 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1511 documents across 4 product type(s); 188 distinct values
   - name: outside_dia
     type: terms
     source: facets.outside_dia
-  # Outside Diameter -- a discrete standard set: 20 distinct values over 102 product-value pairs is 0.20 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 102 documents across 1 product type(s); 20 distinct values
-  - name: outside_diameter
-    type: terms
-    source: facets.outside_diameter
   # Overall Height -- a discrete standard set: 6 distinct values over 76 product-value pairs is 0.08 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
   #   present on 90 documents across 1 product type(s); 6 distinct values
   - name: overall_height
@@ -659,12 +639,6 @@ fields:
   - name: package_quantity
     type: terms
     source: facets.package_quantity
-  # Pitch -- present on 35% of its product types' documents (floor 50%)
-  #   present on 114 documents across 1 product type(s); 7 distinct values
-  - name: pitch
-    type: terms
-    source: facets.pitch
-    facet: false
   # Point Angle -- a discrete standard set: 6 distinct values over 231 product-value pairs is 0.03 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
   #   present on 423 documents across 1 product type(s); 6 distinct values
   - name: point_angle
@@ -791,6 +765,12 @@ fields:
   - name: thread_length
     type: terms
     source: facets.thread_length
+  # Thread Pitch -- present on 35% of its product types' documents (floor 50%)
+  #   present on 114 documents across 1 product type(s); 7 distinct values
+  - name: thread_pitch
+    type: terms
+    source: facets.thread_pitch
+    facet: false
   # Thread Size -- 55 distinct values over 2078 product-value pairs is 0.03 per product, below the 0.50 identifier threshold, so the values repeat
   #   present on 2078 documents across 12 product type(s); 55 distinct values
   - name: thread_size
