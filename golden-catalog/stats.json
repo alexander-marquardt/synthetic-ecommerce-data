@@ -1465,10 +1465,10 @@
   },
   {
    "name": "price smaller costs 2x+, same product: screw_socket_head",
-   "target": 5.81056e-10,
-   "achieved": 0.00774443,
-   "numerator": 8,
-   "denominator": 1033,
+   "target": 1.81958e-12,
+   "achieved": 0.007109,
+   "numerator": 3,
+   "denominator": 422,
    "note": "pairs of one product, length at an equal key differs; target IMPLIED by the census slope and larger-costs-less share, not measured",
    "band": [
     0.0,
@@ -1489,14 +1489,62 @@
   },
   {
    "name": "price smaller costs 2x+, same product: washer_flat",
-   "target": 0.0324774,
-   "achieved": 0.0342857,
+   "target": 0.0600067,
+   "achieved": 0.0458015,
    "numerator": 6,
-   "denominator": 175,
+   "denominator": 131,
    "note": "pairs of one product, key dimension differs; target IMPLIED by the census slope and larger-costs-less share, not measured",
    "band": [
-    0.0124774,
-    0.0588101
+    0.0367592,
+    0.0884272
+   ]
+  },
+  {
+   "name": "price smaller costs 2x+, same product: screw_button_head",
+   "target": 1.63162e-07,
+   "achieved": 0.00487805,
+   "numerator": 1,
+   "denominator": 205,
+   "note": "pairs of one product, length at an equal key differs; target IMPLIED by the census slope and larger-costs-less share, not measured; borrows screw_socket_head's census: a generated model, not measured",
+   "band": [
+    0.0,
+    0.0200002
+   ]
+  },
+  {
+   "name": "price smaller costs 2x+, same product: screw_flat_head",
+   "target": 1.41925e-09,
+   "achieved": 0.0075188,
+   "numerator": 2,
+   "denominator": 266,
+   "note": "pairs of one product, length at an equal key differs; target IMPLIED by the census slope and larger-costs-less share, not measured; borrows screw_socket_head's census: a generated model, not measured",
+   "band": [
+    0.0,
+    0.02
+   ]
+  },
+  {
+   "name": "price smaller costs 2x+, same product: screw_low_head",
+   "target": 3.90569e-09,
+   "achieved": 0.0142857,
+   "numerator": 2,
+   "denominator": 140,
+   "note": "pairs of one product, length at an equal key differs; target IMPLIED by the census slope and larger-costs-less share, not measured; borrows screw_socket_head's census: a generated model, not measured",
+   "band": [
+    0.0,
+    0.02
+   ]
+  },
+  {
+   "name": "price smaller costs 2x+, same product: retaining_rings_external",
+   "target": 7.28659e-08,
+   "achieved": 0.0,
+   "numerator": 0,
+   "denominator": 44,
+   "note": "pairs of one product, key dimension differs; target IMPLIED by the census slope and larger-costs-less share, not measured; borrows washer_flat's census: a generated model, not measured",
+   "band": [
+    0.0,
+    0.0200001
    ]
   },
   {

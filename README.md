@@ -1405,7 +1405,8 @@ other breadth row draws from its own `price_range`.
 figure: each type's p50 and p90/p10, the share of within-page size pairs
 whose larger size costs more, longer costs more (bolts and socket screws),
 equal prices across a size pair (taps), how often a smaller SKU of one
-product costs twice the larger, the same-spec brand spread, economy brands
+product costs twice the larger (a borrower of `price.BORROWS` in its own
+row, against its lender's census), the same-spec brand spread, economy brands
 against the rest, and the .99/.00/.50 endings. Each row has a band
 (`price_report.P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and three census
 standard errors where the census sample is small: `share_band`,

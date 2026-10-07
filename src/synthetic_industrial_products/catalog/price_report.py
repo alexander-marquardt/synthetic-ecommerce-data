@@ -28,7 +28,9 @@ Each row is computed the way the census computed its figure:
   whose axis differs (length at an equal key for a LENGTH_HELD type, the key
   otherwise). The census does not measure it: the target is what the
   census's slope and its larger-costs-less share imply on the catalog's own
-  pairs (:func:`implied_twice_share`);
+  pairs (:func:`implied_twice_share`). A borrower's pairs are its own row,
+  against its lender's census, never pooled into the lender's
+  (:data:`TWICE_BORROWERS`);
 * **endings** over every modelled SKU's cents, against each type's census
   endings mix weighted by how many SKUs the catalog builds of that type
   (:func:`ending_targets`).
@@ -150,9 +152,10 @@ class Collected:
     length_pairs: dict[str, list[tuple[str, str]]] = field(
         default_factory=lambda: defaultdict(list)
     )
-    #: Per census type (a borrower under its sibling), every (bigger,
-    #: smaller, log ratio) SKU pair of one product line whose axis differs:
-    #: length at an equal key for a LENGTH_HELD type, the key otherwise.
+    #: Per type (a borrower under its own name, never pooled into its
+    #: lender's), every (bigger, smaller, log ratio) SKU pair of one product
+    #: line whose axis differs: length at an equal key for a LENGTH_HELD
+    #: type, the key otherwise.
     product_pairs: dict[str, list[tuple[str, str, float]]] = field(
         default_factory=lambda: defaultdict(list)
     )
@@ -225,7 +228,6 @@ def collect(catalog: Catalog) -> Collected:
 def _product_pairs(out: Collected, type_key: str, in_line: list[tuple[float, float, str]]) -> None:
     """One line's (bigger, smaller, log ratio) pairs along its axis."""
     by_length = type_key in LENGTH_HELD
-    family = BORROWS.get(type_key, type_key)
     for i, (key_a, length_a, sku_a) in enumerate(in_line):
         for key_b, length_b, sku_b in in_line[i + 1 :]:
             if by_length:
@@ -237,7 +239,7 @@ def _product_pairs(out: Collected, type_key: str, in_line: list[tuple[float, flo
             if abs(a - b) < 1e-9:
                 continue
             bigger, smaller = (sku_a, sku_b) if a > b else (sku_b, sku_a)
-            out.product_pairs[family].append((bigger, smaller, abs(math.log(a / b))))
+            out.product_pairs[type_key].append((bigger, smaller, abs(math.log(a / b))))
 
 
 def _quantile(values: list[float], q: float) -> float:
@@ -384,13 +386,22 @@ TWICE_TYPES: tuple[str, ...] = tuple(
     type_key for type_key in CENSUS if _axis_census(type_key)[2] >= TWICE_MIN_CENSUS_PAIRS
 )
 
+#: The borrowers of a :data:`TWICE_TYPES` lender. Each is scored in its own
+#: 2x row, against the lender's census implied on the borrower's own pairs:
+#: a borrowed model is generated, not measured, so pooling its pairs into
+#: the lender's row would move the band the lender's census implies.
+TWICE_BORROWERS: tuple[str, ...] = tuple(
+    borrower for borrower, lender in BORROWS.items() if lender in TWICE_TYPES
+)
+
 
 def twice_row(type_key: str, collected: Collected, prices: Mapping[str, float]) -> Comparison:
-    """The smaller-costs-2x-or-more row of one census type (its borrowers'
-    pairs pooled in)."""
+    """The smaller-costs-2x-or-more row of one type, over its own pairs
+    only: a census type, or a borrower against its lender's census."""
     from .measure import Comparison  # noqa: PLC0415 -- measure imports this module
 
-    slope, less, n = _axis_census(type_key)
+    lender = BORROWS.get(type_key, type_key)
+    slope, less, n = _axis_census(lender)
     pairs = collected.product_pairs.get(type_key, [])
     ratios = [d for _, _, d in pairs]
     twice = sum(prices[small] >= 2 * prices[big] for big, small, _ in pairs)
@@ -408,7 +419,12 @@ def twice_row(type_key: str, collected: Collected, prices: Mapping[str, float]) 
         twice,
         len(pairs),
         f"pairs of one product, {axis} differs; target IMPLIED by the census slope "
-        "and larger-costs-less share, not measured",
+        "and larger-costs-less share, not measured"
+        + (
+            f"; borrows {lender}'s census: a generated model, not measured"
+            if lender != type_key
+            else ""
+        ),
         (low, high),
     )
 
@@ -526,7 +542,7 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
 
     rows.extend(
         twice_row(type_key, collected, prices)
-        for type_key in TWICE_TYPES
+        for type_key in (*TWICE_TYPES, *TWICE_BORROWERS)
         if collected.product_pairs.get(type_key)
     )
 
