@@ -357,9 +357,11 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
     # Thread Dia., Take Up and Closed Length, the Load Capacity it shares with
     # a shackle, a shackle's Inside Length, a pillow block's Base to Center
     # Height, Bolt Hole Center-to-Center and Overall Height, and a sprocket's
-    # Outside Diameter, Bore Dia., Hub Diameter and Length Through Bore.
-    assert len(quantitative) == 58
-    assert len(faceted) == 55
+    # Outside Dia., Bore Dia., Hub Diameter and Length Through Bore.
+    # Four of those names (Head Dia., Inside Dia., Outside Dia., Bore Dia.) are a
+    # twin's own label now, so each joins that twin's facet and counts once: 54.
+    assert len(quantitative) == 54
+    assert len(faceted) == 51
 
 
 def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
@@ -694,7 +696,7 @@ def test_every_decision_is_the_same_at_every_catalog_size(controls_by_size) -> N
     moved = {key: by for key, by in seen.items() if len(set(by.values())) > 1}
     assert moved == {}
     sizes = sorted(controls_by_size)
-    for key in ("sizes_included", "bore", "overall_length"):
+    for key in ("sizes_included", "bore_dia", "overall_length"):
         assert [controls_by_size[lines][key] for lines in sizes] == ["list"] * len(sizes), key
     assert [controls_by_size[lines]["list_number"] for lines in sizes] == ["withheld"] * len(sizes)
 
