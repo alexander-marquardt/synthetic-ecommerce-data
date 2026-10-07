@@ -215,7 +215,7 @@ def register(spec: TypeSpec) -> None:
     """
     # Imported here: each of these modules imports this one.
     from ..drawing.figures import FIGURES  # noqa: PLC0415
-    from . import breadth, price, taxonomy, vocab, voice  # noqa: PLC0415
+    from . import breadth, conformance, noise, price, taxonomy, vocab, voice  # noqa: PLC0415
 
     if spec.breadth is not None:
         if spec.breadth.key != spec.key:
@@ -240,11 +240,33 @@ def register(spec: TypeSpec) -> None:
             ("make", spec.make is not None),
             ("share", spec.share > 0),
             ("price", spec.price is not None),
+            # Every modelled SKU is priced off its key dimension (``price.KEYS``).
+            ("key_attributes", bool(spec.key_attributes)),
         )
         if not declared
     ]
     if missing:
         raise TypeModuleError(f"type module {spec.module} declares no {', '.join(missing)}")
+    # The per-type entries a type used to add to a shared table by hand. Each
+    # is declared once: a key in the shared table AND on its spec is refused,
+    # since which one won would depend on registration order.
+    own = {
+        "conformance.CLAIMS": (conformance.CLAIMS, spec.claims),
+        "price.KEY_ATTRIBUTES": (price.KEY_ATTRIBUTES, spec.key_attributes),
+        "noise.THREADED": (noise.THREADED, spec.threaded),
+        "noise.FASTENERS": (noise.FASTENERS, spec.fastener or None),
+        "noise.UNIT_PRIMARY": (noise.UNIT_PRIMARY, spec.unit_primary),
+    }
+    for name, (table, value) in own.items():
+        if value is not None and dict.__contains__(table, spec.key):
+            raise TypeCollisionError(
+                f"{spec.key!r} is declared both in {name} and by type module {spec.module}; "
+                "keep the declaration on its TypeSpec"
+            )
+    for table, value in own.values():
+        if value is not None:
+            table[spec.key] = value
+    price.KEYS[spec.key] = price.key_reader(*spec.key_attributes)
     taxonomy.LEAVES[spec.key] = (spec.category,)
     taxonomy.DRAWING[spec.key] = spec.key
     vocab.VOCAB[spec.key] = spec.vocab

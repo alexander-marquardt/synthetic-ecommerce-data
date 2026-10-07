@@ -31,6 +31,7 @@ from fractions import Fraction
 from ..dimensions import DimensionParseError, parse_length
 from . import compat, conformance, standards
 from .standards import MM_PER_INCH
+from .typespec import RegistryTable
 
 #: Per-sentence-type rate at ``noise = 1.0``, each an independent draw.
 #: UNIT_EQUIVALENT is the one with a stated bound: 15-20% of eligible records
@@ -92,27 +93,28 @@ BORE_TOLERANCE_MM: tuple[tuple[float, float, float], ...] = (
     (30.0, 50.0, 0.012),
 )
 
-THREADED = {
-    "screw_socket_head": "Dia./Thread Size",
+#: The family tables below hold the types still declared in shared tables; a
+#: type with its own module joins them from its ``TypeSpec`` (``threaded``,
+#: ``fastener``, ``unit_primary``) when the modules register.
+THREADED: RegistryTable[str, str] = RegistryTable({
     "screw_flat_head": "Dia./Thread Size",
     "screw_button_head": "Dia./Thread Size",
     "screw_low_head": "Dia./Thread Size",
     "bolt_hex": "Dia./Thread Size",
     "nut_hex": "Thread Size",
-    "lock_nuts_nylon_insert": "Thread Size",
     "tap_spiral_point": "Thread Size",
-}
+})  # fmt: skip
 CUTTING = ("end_mill_square", "end_mill_ball", "drill_jobber", "tap_spiral_point")
-FASTENERS = (
-    *compat.SOCKET_SCREWS,
-    "bolt_hex",
-    "nut_hex",
-    "lock_nuts_nylon_insert",
-    "washer_flat",
+FASTENERS: RegistryTable[str, bool] = RegistryTable(
+    dict.fromkeys(
+        ("screw_flat_head", "screw_button_head", "screw_low_head", "bolt_hex", "nut_hex")
+        + ("washer_flat",),
+        True,
+    )
 )
 
 #: The attribute a type's unit equivalent is written for.
-UNIT_PRIMARY = {
+UNIT_PRIMARY: RegistryTable[str, str] = RegistryTable({
     "end_mill_square": "Milling Dia.",
     "end_mill_ball": "Milling Dia.",
     "drill_jobber": "Size",
@@ -120,7 +122,7 @@ UNIT_PRIMARY = {
     "bearing_radial_ball": "Bore",
     "wheel_depressed_center": "Diameter",
     "abrasive_flap_disc": "Diameter",
-}
+})
 
 
 def record_rng(seed: int, sku: str) -> random.Random:
