@@ -135,6 +135,10 @@ NAME_EXCEPTIONS: dict[str, str] = {
         "an inch tap's thread count, a different quantity from a metric tap's Pitch"
         " (#42); cased like the census's Teeth per Inch"
     ),
+    "Roller Dia.": (
+        "a roller chain's ASME B29.1 roller diameter; the census carries no chain"
+        " dimensions, and the bare Dia. would read as the chain's own diameter"
+    ),
 }
 
 
