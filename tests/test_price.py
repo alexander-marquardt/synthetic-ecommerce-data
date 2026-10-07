@@ -193,8 +193,9 @@ def test_every_price_row_is_within_its_band_or_pinned_at_the_default_size(price_
         + len(price.BRAND_CENSUS)
         + 1
         + len(price_report.ENDING_CLASSES)
+        + 2 * len(price.DEEPENED_CENSUS)
     )
-    assert len(price_rows) == expected == 61
+    assert len(price_rows) == expected == 63
     out = [
         row for row in price_rows if not row.within and row.name not in price.PINNED_SHORTFALLS
     ]
@@ -227,7 +228,7 @@ PINNED_SIDES = {
     "price p90/p10: bearing_radial_ball": ("below", "#64"),
     "price brand spread, same spec (median max/min): wheel_depressed_center": (
         "above",
-        "drawn independently per",
+        "brand tiers alone give",
     ),
     "price p90/p10: kit_assortment": ("below", "#76"),
 }
@@ -258,7 +259,7 @@ def test_a_pin_reason_quotes_the_figures_the_pin_records():
     retyped (it read 6.8 once the figure was 3.24)."""
     name = BRAND_ROW.format("wheel_depressed_center")
     quoted = re.findall(r"(\d+(?:\.\d+)?)x apart", price.PINNED_SHORTFALLS[name])
-    assert quoted == [f"{f:.2f}" for f in _recorded(name)] == ["3.24", "2.78"]
+    assert quoted == [f"{f:.2f}" for f in _recorded(name)] == ["3.53", "3.09"]
 
 
 def _recorded(name: str) -> tuple[float, float]:
@@ -417,6 +418,21 @@ def test_each_type_endings_mix_is_the_census_mix(census, type_key):
 def test_each_breadth_census_figure_is_the_census_figure(census, key):
     q = census["breadth_categories"][key]["price_quantiles_usd"]
     assert price.BREADTH_CENSUS[key] == (q["p10"], q["p50"], q["p90"])
+
+
+@pytest.mark.parametrize("key", sorted(price.DEEPENED_CENSUS))
+def test_each_deepened_census_figure_is_the_census_figure(census, key):
+    """A deepened category leaves the breadth table but keeps its census row."""
+    row = census["breadth_categories"][key]
+    q = row["price_quantiles_usd"]
+    assert price.DEEPENED_CENSUS[key] == (row["n"], q["p10"], q["p50"], q["p90"])
+    assert key not in price.BREADTH_CENSUS
+
+
+@pytest.mark.parametrize("key", sorted(price.DEEPENED_CENSUS))
+def test_each_deepened_types_endings_mix_is_the_census_mix(census, key):
+    expected = census["breadth_categories"][key]["endings"]["class_share"]
+    assert dict(price.model_for(key).endings) == expected
 
 
 def test_the_length_figures_are_the_census_figures(census):
@@ -686,6 +702,78 @@ def test_the_drill_brand_spread_reads_alike_at_the_default_size_and_at_100k(
     )
 
 
+WHEEL = "wheel_depressed_center"
+ABRASIVES = {"Aluminum Oxide", "Ceramic", "Silicon Carbide", "Zirconia Alumina"}
+
+#: :data:`price.BRAND_CENSUS` types whose built specs hold no material, and
+#: why each may not.
+SPEC_WITHOUT_MATERIAL: dict[str, str] = {}
+
+
+def _keyword(value: str) -> Attribute:
+    return Attribute(name="x", value=value)
+
+
+def test_a_wheel_spec_holds_its_abrasive_as_its_material(scored):
+    """The census spec is the key dimension plus the material. A wheel
+    publishes no "Material"; its material is its abrasive, so a spec that
+    read "Material" held none and set a ceramic wheel's brands against an
+    aluminum oxide one's (#66)."""
+    collected, _ = scored
+    assert {spec[2] for spec in collected.specs if spec[0] == WHEEL} == ABRASIVES
+    assert price.material_of(WHEEL, {"Abrasive Material": _keyword("Ceramic")}) == "Ceramic"
+    assert price.material_of("drill_jobber", {"Material": _keyword("Cobalt")}) == "Cobalt"
+    assert price.material_of(WHEEL, {"Material": _keyword("Cobalt")}) is None
+
+
+def test_every_brand_census_types_spec_holds_a_material_or_names_why_not(scored):
+    """A type whose spec reads an attribute it never publishes has specs of
+    the key alone, so its brand-spread row compares brands across
+    materials and nothing else says so (#66)."""
+    collected, _ = scored
+    assert price_report.types_without_material(collected) == set(SPEC_WITHOUT_MATERIAL)
+
+
+def test_a_spec_read_off_an_attribute_the_type_never_publishes_is_caught(catalog, monkeypatch):
+    """Plant: the wheel's spec read "Material", as it did before #66."""
+    monkeypatch.setattr(price, "MATERIAL_ATTRIBUTES", {})
+    assert price_report.types_without_material(price_report.collect(catalog)) == {WHEEL}
+
+
+def test_the_wheel_pin_reason_quotes_what_the_brand_tiers_alone_give(monkeypatch):
+    """The wheel's pinned cause is measured, not asserted: with its noise
+    off, the brand tiers alone spread a spec's sampled brands past the band
+    top, because the row samples an economy brand on most specs."""
+    quiet = replace(price.MODELS[WHEEL], group_sigma=0.0, sku_sigma=0.0, size_sigma=0.0)
+    monkeypatch.setitem(price.MODELS, WHEEL, quiet)
+    catalog = generate(GeneratorConfig())
+    (row,) = [
+        row
+        for row in price_report.price_comparisons(catalog)
+        if row.name == BRAND_ROW.format(WHEEL)
+    ]
+    specs = {
+        spec: by
+        for spec, by in price_report.collect(catalog).specs.items()
+        if spec[0] == WHEEL and len(by) > 1
+    }
+    k = price_report.brand_sample(price.BRAND_CENSUS[WHEEL])
+    economy = {b for by in specs.values() for b in by if brands.tier_of(b, WHEEL) == "economy"}
+    sampling = [
+        spec
+        for spec, by in specs.items()
+        if economy & set(price_report.sampled_brands(spec, by, k))
+    ]
+    makers = {b for by in specs.values() for b in by}
+    reason = price.PINNED_SHORTFALLS[row.name]
+    assert f"brand tiers alone give {row.achieved:.2f}" in reason, reason
+    assert f"band top of {row.band[1]:.2f}" in reason, reason
+    assert f"{len(economy)} of the {len(makers)} wheel brands are economy" in reason, reason
+    assert f"on {len(sampling)} of its {len(specs)} specs" in reason, reason
+    k = price_report.BRAND_SAMPLE_CAP
+    assert f"row's {k} sampled brands" in reason, reason
+
+
 def test_economy_brands_priced_as_dear_as_the_rest_breaks_the_economy_row(scored):
     """The census's house labels cost 0.52 of the other brands on a drill
     spec; doubled, an economy drill costs about what the rest do."""
@@ -791,10 +879,11 @@ NOT_MEASURED = frozenset(
 
 def test_the_rows_score_every_priced_type_but_the_declared_exceptions(scored):
     """A type no row scores is either declared not measured, or borrows a
-    census type's model (the button, flat and low head screws)."""
+    census type's model (the button, flat and low head screws). A deepened
+    breadth category is scored on its census p50 and p90/p10."""
     collected, _ = scored
     built = set(collected.type_of.values())
-    unscored = {t for t in built if t not in price.CENSUS}
+    unscored = {t for t in built if t not in price.CENSUS and t not in price.DEEPENED_CENSUS}
     assert unscored == NOT_MEASURED | set(price.BORROWS)
     assert {t for t in built if not price.model_for(t).measured} == NOT_MEASURED
     assert set(price.BORROWS.values()) <= set(price.CENSUS)
@@ -990,6 +1079,8 @@ ROW_NAMES = sorted(
     + [BRAND_ROW.format(t) for t in price.BRAND_CENSUS]
     + [f"price economy brands over others, same spec (median): {price.BRAND_SPREAD_TYPE}"]
     + [f"price ending {cls}" for cls in price_report.ENDING_CLASSES]
+    + [f"price p50 (USD): {t}" for t in price.DEEPENED_CENSUS]
+    + [SPREAD_ROW.format(t) for t in price.DEEPENED_CENSUS]
 )
 
 

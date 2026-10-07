@@ -95,7 +95,7 @@ drawn bounding box, in inches, with a little headroom.
   `typespec.register` writes the pair into `FIGURES`. `screw_socket_head`
   (the twelfth original type) and `lock_nuts_nylon_insert` (which reuses
   `hex_nut`) are declared this way.
-* The 45 breadth types are not written in `figures.py` either.
+* The 44 breadth types are not written in `figures.py` either.
   `catalog/breadth.py` `register()` adds one `FIGURES` entry per breadth row,
   pointing at one of the six fixed shapes in `drawing/breadth_shapes.py`. It
   also fills `taxonomy.LEAVES`, `taxonomy.DRAWING`, `STANDARDS_FAMILY` and
@@ -177,8 +177,8 @@ at true scale near the bottom, and the same `Figure` is painted a second time,
 `k` times larger, inside a white lens. The handled glass is used when it
 reaches `MIN_ENLARGEMENT` (x2.5); otherwise the larger, handle-less lens. The
 README's [Images](../README.md#images) section has the full rule. Measured on
-the committed catalog: 1,675 of 10,853 drawings are lensed, 505 with the
-handled glass and 1,170 with the handle-less lens. This command prints the
+the committed catalog: 1,711 of 10,919 drawings are lensed, 527 with the
+handled glass and 1,184 with the handle-less lens. This command prints the
 counts and the enlargement range of each lens:
 
 ```sh
@@ -242,7 +242,7 @@ falls back to nominal geometry. The counts are
 
 ## Breadth types: six fixed shapes
 
-The 45 breadth categories (row files in `data/breadth_categories/` and breadth modules; every
+The 44 breadth categories (row files in `data/breadth_categories/` and breadth modules; every
 breadth line is published with `spec_quality: "fast_and_cheap"`, set by
 `catalog/breadth.py` `SPEC_QUALITY`) draw one of six shapes from
 `drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`, `disc`, `tube`

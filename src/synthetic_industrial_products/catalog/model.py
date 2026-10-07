@@ -42,7 +42,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..dimensions import DimensionParseError, parse_length
-from .entry import entry
+from .entry import entry, sanitize
 
 
 @dataclass(frozen=True)
@@ -60,6 +60,14 @@ class Attribute:
     #: (``MMT``), an inch tap's ``Threads per Inch`` is ``TPI``. See
     #: :func:`.entry.split`.
     bare_unit: str | None = None
+    #: The machine key, set only where this name means a different concept
+    #: than it does on another type (:func:`.entry.entry`); else derived.
+    key: str | None = None
+
+    @property
+    def facet_key(self) -> str:
+        """The flat ``facets`` key: :attr:`key` when set, else the sanitised name."""
+        return self.key if self.key is not None else sanitize(self.name)
 
     @property
     def multivalued(self) -> bool:
@@ -73,7 +81,7 @@ class Attribute:
         the reason the catalog carries one. Each value is split on its own.
         """
         values = self.values if self.values is not None else (self.value,)
-        return tuple(entry(self.name, value, self.bare_unit) for value in values)
+        return tuple(entry(self.name, value, self.bare_unit, self.key) for value in values)
 
 
 def length_attribute(name: str, published: str) -> Attribute:

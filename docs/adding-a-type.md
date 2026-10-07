@@ -173,7 +173,11 @@ its published attributes. `set_screws_hex_socket` does both.
    every other type. Write the slice with
    `uv run python tests/test_type_<type_key>.py`.
 7. Declare a price model (`price=` on the `TypeSpec`; `register` refuses a
-   modelled type without one). It is keyed on `key_attributes` (step 5). A type the census has no prices
+   modelled type without one). It is keyed on `key_attributes` (step 5). A
+   type that publishes its material under another name than `Material` names
+   it in `MATERIAL_ATTRIBUTES` in `catalog/price.py` (a wheel's is its
+   `Abrasive Material`), since the census spec is the key in one material. A
+   type the census has no prices
    for declares `measured=False`; one it has prices for restates its census
    rows and is fitted ([Price](#price)).
 8. Restate the published figures the type moves
@@ -260,7 +264,7 @@ Use a table type (`catalog/tabletype.py`, #101) when a type does not parameteris
 * **Drawing.** `draw(values)` gets each column's length in inches from the SKU's own record and returns a `Figure` scaled from them. It carries no text; a proportion no column gives is a named constant in the module.
 * **Share.** Two rules, both at the default build, where a type's product count is its `default_lines` and its SKU count its `default_skus`:
   * **At least 5 SKUs per table row.** A size column no other type publishes has a dispersion of rows / SKUs, and a dozen sizes over too few SKUs reads as a continuum to the facet rule (at 13 products the sizes measured 0.44 to 0.48 against the 0.50 threshold).
-  * **At least 40 products.** Five attributes tie at 39 products for `smallest_faceted` in `prism/derive.py`, and the tie is broken by attribute key order, so a type at 39 or fewer can take that pin.
+  * **At least 40 products.** `smallest_faceted` in `prism/derive.py` pins the faceted quantity on the fewest products (a roller chain's Roller Dia., on 30), with ties broken by attribute key order. A type at 40 or more never takes that pin, so it is one shared line fewer to edit.
   * A share of 0.016 gives 42 products and suits a table of up to about 13 rows. A 20-row table needs about 60 products, a share of about 0.023.
 * **Tests.** Copy `tests/test_type_cotter_pins.py`, restate the table in it, and write the slice with `uv run python tests/test_type_<key>.py`. `tests/table_gates.py` holds the shared size, price-order and drawing gates.
 
@@ -496,11 +500,14 @@ that fixes it:
   out than that size's figure, within `PIN_TOLERANCE`, and must stay on its
   side (the bearing p90/p10, #64; the wheel brand spread, #66; the kit
   p90/p10, #76). A figure a reason quotes is read from `PINNED_FIGURES` in
-  an f-string, never typed, so a refit cannot leave it stale. There is no
-  looser declaration: a row that lands on either side of its band from one
-  build to the other has a model to fix, as the kit p50 did (#71: a kit
-  was one group draw per page, so its few pages moved its median with the
-  build's size; it is now priced from its contents).
+  an f-string, never typed, so a refit cannot leave it stale. A figure that
+  states the cause, such as what the wheel's brand tiers alone give, is held
+  by a test that measures it
+  (`test_the_wheel_pin_reason_quotes_what_the_brand_tiers_alone_give`).
+  There is no looser declaration: a row that lands on either side of its
+  band from one build to the other has a model to fix, as the kit p50 did
+  (#71: a kit was one group draw per page, so its few pages moved its median
+  with the build's size; it is now priced from its contents).
 * **Each record is the build's own figure.**
   `test_each_recorded_figure_is_the_figure_its_build_produces` holds every
   `PINNED_FIGURES` entry equal to its row's figure at

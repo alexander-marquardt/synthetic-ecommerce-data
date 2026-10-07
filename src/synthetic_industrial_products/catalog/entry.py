@@ -63,6 +63,7 @@ UNIT_FOR_SUFFIX: dict[str, str] = {
     "in": "INH",
     "in.": "INH",
     "mm": "MMT",
+    "ft": "FOT",
     "Degrees": "DD",
     "oz": "ONZ",
     "lbf": "C78",
@@ -107,6 +108,7 @@ SPAN_FOR_NAME: dict[str, tuple[Fraction, Fraction]] = {
 #: one, rpm and pound-force. ``value_canonical = magnitude x size``.
 CANONICAL_PER_UNIT: dict[str, Fraction] = {
     "INH": Fraction(127, 5),
+    "FOT": Fraction(1524, 5),
     "MMT": Fraction(1),
     "DD": Fraction(1),
     "ONZ": Fraction(45359237, 1600000),
@@ -236,9 +238,34 @@ def canonical(magnitude: str, unit: str) -> float:
     return float(exact * CANONICAL_PER_UNIT[unit])
 
 
-def entry(name: str, published: str, bare_unit: str | None = None) -> dict[str, Any]:
-    """One nested entry: ``{key, name, value[, unit_code, value_canonical]}``."""
-    return {"key": entry_key(name), "name": name, **split(name, published, bare_unit)}
+def entry(
+    name: str, published: str, bare_unit: str | None = None, key: str | None = None
+) -> dict[str, Any]:
+    """One nested entry: ``{key, name, value[, unit_code, value_canonical]}``.
+
+    ``key`` is given only when one display name means two concepts across the
+    catalog: a roller chain's ``Pitch`` (link spacing, ``chain_pitch``) is not a
+    metric tap's ``Pitch`` (thread pitch, ``pitch``), though real catalogs
+    label both so (#36). Otherwise the key derives from the name.
+    """
+    return {
+        "key": key if key is not None else entry_key(name),
+        "name": name,
+        **split(name, published, bare_unit),
+    }
+
+
+def flat_key(item: Mapping[str, Any]) -> str:
+    """The flat ``facets`` key a nested entry's value sits under.
+
+    The sanitised name, unless the entry carries a key set apart from its name
+    (:func:`entry`), whose values the flat document files under that key so
+    the two concepts stay two facets there too.
+    """
+    name = item["name"]
+    # A row built by hand (a reader's own fixture) may carry no key at all.
+    key = item.get("key")
+    return sanitize(name) if key is None or key == entry_key(name) else key
 
 
 def published(entries, facets: Mapping[str, Sequence[str]]) -> list[tuple[str, str]]:
@@ -258,7 +285,7 @@ def published(entries, facets: Mapping[str, Sequence[str]]) -> list[tuple[str, s
     pairs: list[tuple[str, str]] = []
     for item in entries:
         name = item["name"]
-        key = sanitize(name)
+        key = flat_key(item)
         index = taken.get(key, 0)
         values = facets.get(key, ())
         if index >= len(values):

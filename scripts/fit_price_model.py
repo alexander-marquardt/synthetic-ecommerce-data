@@ -154,7 +154,7 @@ def record_draws(config: GeneratorConfig) -> tuple[Catalog, dict[str, Recorded]]
         model = draw.model
         key = price.price_key(type_key, facts)
         length = price.length_of(facts) if type_key in price.LENGTH_HELD else None
-        material = facts["Material"].value if "Material" in facts else ""
+        material = price.material_of(type_key, facts) or ""
         recorded[sku] = Recorded(
             draw,
             math.log(key / model.anchor_key) if key else 0.0,

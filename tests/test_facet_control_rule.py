@@ -348,12 +348,13 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
     """
     quantitative = [s for s, _ in decided.values() if s.is_numeric]
     faceted = [s for s, d in decided.values() if s.is_numeric and d.facet]
-    # 38 since the set screws' Point Dia. (#53), which is not faceted. The
-    # two table types (#101) publish five more, all faceted: a cotter pin's
-    # Head Diameter and Head Height, and a retaining ring's For Shaft
+    # 41 since the roller chain's Pitch, Roller Dia. and Inside Width (#53),
+    # all faceted; 38 before, since the set screws' Point Dia., which is not.
+    # The two table types (#101) publish five more, all faceted: a cotter
+    # pin's Head Diameter and Head Height, and a retaining ring's For Shaft
     # Diameter, Groove Diameter and Groove Width.
-    assert len(quantitative) == 43
-    assert len(faceted) == 40
+    assert len(quantitative) == 46
+    assert len(faceted) == 43
 
 
 def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
@@ -463,9 +464,12 @@ RETIRED_TERMS_CAP = 25
 
 #: What the default build gains under the relative rule: every one is a terms
 #: attribute the retired cap withheld for its count alone. Measured on the
-#: default build and on ``--lines 39000`` (111,499 SKUs); the same seven at both.
+#: default build and on ``--lines 39000`` (113,008 SKUs); the same eight at both.
+#: A roller chain's ANSI Number is the eighth: 27 values (the ``-2`` and ``-3``
+#: strand suffixes included) that repeat across its lines.
 NEWLY_OFFERED = frozenset(
     {
+        "ansi_number",
         "bearing_number",
         "dia_thread_size",
         "item",

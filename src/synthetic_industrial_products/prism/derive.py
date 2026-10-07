@@ -46,6 +46,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
 
+from ..catalog.entry import flat_key
 from ..catalog.generate import Generator
 
 #: Attributes the generator itself mints as part codes (``List Number``), and
@@ -268,12 +269,12 @@ MEASURED_DISPERSION: dict[str, Any] = {
     # set screws (#53) add their small keys (0.7-1.3mm, 0.028-0.035") and 485 documents.
     "drive_size_cardinality": 41,
     "drive_size_present": 1842,
-    # The faceted quantity on the fewest products: the shaft a retaining ring
-    # fits, a table type's twelve sizes on its 39 products. Under
-    # RANGE_MIN_DOCS, like many faceted quantities, but with a ratio under the
-    # continuity threshold, so the floor decides none of them.
-    "smallest_faceted": "For Shaft Diameter",
-    "smallest_faceted_products": 39,
+    # The faceted quantity on the fewest products: a roller chain's Roller
+    # Dia. (30 of its 40 lines; the rollerless 25 and 35 chains publish none).
+    # Under RANGE_MIN_DOCS, like many faceted quantities, but with a ratio
+    # under the continuity threshold, so the floor decides none of them.
+    "smallest_faceted": "Roller Dia.",
+    "smallest_faceted_products": 30,
     # The terms facets of the modelled types that the ratio alone would
     # withhold and RANGE_MIN_DOCS keeps offered: none. (Two breadth-category
     # facets are, Style and Color; the committed field map's reasons say so.)
@@ -304,7 +305,7 @@ MEASURED_DISPERSION: dict[str, Any] = {
 
 @dataclass(frozen=True)
 class AttributeStats:
-    """What the emitted documents say about one attribute name."""
+    """What the emitted documents say about one attribute key."""
 
     key: str
     name: str
@@ -388,7 +389,13 @@ class Decision:
 
 
 def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
-    """Collect per-attribute statistics from emitted flat documents."""
+    """Collect per-attribute statistics from emitted flat documents.
+
+    One statistic per machine KEY, never per display name: a roller chain's
+    ``Pitch`` (``chain_pitch``) and a metric tap's ``Pitch`` (``pitch``) are two
+    concepts that real catalogs label alike, and merging them would put a
+    chain's inch spacing in one bucket list with thread pitches (#36).
+    """
     present: collections.Counter[str] = collections.Counter()
     numeric: collections.Counter[str] = collections.Counter()
     values: dict[str, set[str]] = collections.defaultdict(set)
@@ -410,9 +417,10 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
         for key in row["facets_num"]:
             numeric[key] += 1
         # The published spelling is what a shopper sees on the facet heading.
-        # Take it from the attribute entries, which carry the name verbatim.
+        # Take it from the attribute entries, which carry the name verbatim,
+        # filed under the facets key each entry's value sits under.
         for attribute in row["attributes"]:
-            published_name.setdefault(_sanitize(attribute["name"]), attribute["name"])
+            published_name.setdefault(flat_key(attribute), attribute["name"])
 
     return {
         key: AttributeStats(
@@ -428,12 +436,6 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
         )
         for key, count in sorted(present.items())
     }
-
-
-def _sanitize(name: str) -> str:
-    from ..catalog.emit import sanitize
-
-    return sanitize(name)
 
 
 def decide(stats: AttributeStats) -> Decision:
