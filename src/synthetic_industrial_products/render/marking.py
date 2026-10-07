@@ -135,6 +135,8 @@ FINISH_TINT: dict[str, str] = {
     "Zinc Plated": "#dbe6ec",
     "Zinc Yellow": "#ecdf8f",
     "Hot Dip Galvanized": "#c9d4cb",
+    # Roller chain.
+    "Nickel Plated": "#e3e6e2",
 }
 
 #: The section hatch of the part, by material.
