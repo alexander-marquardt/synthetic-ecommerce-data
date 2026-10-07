@@ -1,0 +1,37 @@
+# One breadth row (alexander-marquardt/synthetic-industrial-products#34); one file
+# per row, so two PRs that add or remove rows never touch the same file (#48).
+# The schema and the generic loop that reads it are in catalog/breadth.py.
+key: threaded_rod
+category:
+- Raw Materials
+- Threaded Rod & Studs
+- All-Thread Rods
+family: fastener
+shape: cylinder
+item: All-Thread Rod
+descriptor_attr: null
+size_attr: Thread Size
+size_values:
+- 1/4-20
+- 5/16-18
+- 3/8-16
+- 7/16-14
+- 1/2-13
+- M8x1.25
+- M12x1.75
+attributes:
+  Material:
+  - Steel
+  - Stainless Steel
+  Finish:
+  - Zinc Plated
+  - Plain
+  Length:
+  - 36 in
+  - 72 in
+skus: 3
+featured_sizes:
+- 1/4-20
+- 5/16-18
+- M12x1.75
+reason: '''1/4-20'', ''5/16-18'', ''M12x1.75'' -- R5/R6 thread designations, generic (not a screw)'

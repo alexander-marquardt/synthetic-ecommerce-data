@@ -1,7 +1,7 @@
 """Precision balls: the first breadth type declared in a module of its own (#48).
 
 A breadth type is one :class:`...catalog.breadth.BreadthRow`, the same fields a
-row of ``data/breadth_categories.yaml`` carries; everything else (the leaf, the
+row file in ``data/breadth_categories/`` carries; everything else (the leaf, the
 sphere drawing, the vocabulary) follows from the row.
 """
 

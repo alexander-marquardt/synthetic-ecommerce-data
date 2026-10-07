@@ -621,7 +621,7 @@ class Generator:
         rng = self.rng
         brand = brands.pick_brand(rng, type_key, self._exhausted)
         material = rng.choice(("High Speed Steel", "Cobalt", "Solid Carbide"))
-        point = rng.choice(("118 Degrees", "135 Degrees"))
+        point = rng.choice(series.POINT_ANGLES)
         item = "Jobber Length Drill Bit"
         series_code = f"{rng.randint(100, 999)}-{rng.choice('ABCD')}"
         draft = LineDraft(
@@ -635,7 +635,7 @@ class Generator:
             keyword_attribute("Item", item),
             keyword_attribute("Material", material),
             keyword_attribute("Point Type", rng.choice(("Split Point", "Standard Point"))),
-            Attribute("Point Angle", point, float(point.split()[0])),
+            Attribute("Point Angle", format_angle(point), point),
             keyword_attribute("Finish", rng.choice(DRILL_FINISH[material])),
             keyword_attribute("Shank Type", rng.choice(("Straight", "Reduced"))),
             keyword_attribute("Cutting Direction", "Right Hand"),
@@ -1783,13 +1783,17 @@ class Generator:
     # -- assembly ---------------------------------------------------------
 
     def _corrupt_angle(self, line_attrs: list[Attribute]) -> list[Attribute]:
-        """An angular attribute published with a LENGTH unit: Helix Angle = 42".
+        """An angular attribute published with the inch mark: Helix Angle = 42".
 
         A unit-type error rather than a magnitude error, and measured at 4.7%
         of the records carrying an angle. The angle is a property of the line,
         so the bad value is too -- one wrong row in a supplier's line data
         reaches every SKU under it, which is how these arrive in a real
-        catalog.
+        catalog. The flat facet publishes the messy spelling. The nested entry
+        reads a value within the attribute's series span as degrees, the
+        inch mark keyed for the degree mark (``42"`` on Helix Angle); every
+        other draw is a length in an angle field and stays text
+        (``entry.SPAN_FOR_NAME``, #79).
         """
         index = next(
             (i for i, a in enumerate(line_attrs) if a.name in ("Helix Angle", "Point Angle")),
