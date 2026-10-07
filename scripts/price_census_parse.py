@@ -20,7 +20,14 @@ reproduces them:
 
 * A row showing a clearance price beside its regular price is priced at the
   regular price, the structure the census measures; the share of such rows is
-  recorded as ``clearance_rows_priced_at_regular``.
+  recorded as ``clearance_rows_priced_at_regular``. This departs from #57's
+  ``method.price`` (the price the page shows, which on a clearance row is the
+  clearance price), and #57's 2015 entries show the clearance-price signature:
+  its ``washer_flat`` has p10/p25 of exactly 1.0/2.0, where these lock nuts
+  priced at the clearance value give 1.0/2.0 (.00 ending share 0.51) and at
+  the regular price 5.867/11.66 (0.06), a p50 of 4.83 against 22.14 USD.
+  #57's parser was never committed, so this cannot be proven; the re-measure
+  is tracked in ISSUE_PLACEHOLDER.
 * Quantiles are linear-interpolated (type 7), rounded to 4 decimals; slopes
   and shares to 3, as #57's figures are.
 * ``brand_price_index`` is per brand: the median, over the specs it shares,
