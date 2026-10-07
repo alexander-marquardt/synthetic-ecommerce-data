@@ -47,6 +47,18 @@ def path_d(points: Sequence[Point], closed: bool = True) -> str:
     return "".join(parts)
 
 
+def bars_d(rects: Sequence[tuple[float, float, float, float]]) -> str:
+    """Many rectangles as one path's data. Each side is the difference of its
+    ROUNDED corners, so an edge lands where an absolute path would put it and
+    the closing ``z`` returns exactly to the start."""
+    parts = []
+    for x0, y0, x1, y1 in rects:
+        left, top = round(min(x0, x1), 1), round(min(y0, y1), 1)
+        wide, high = round(max(x0, x1), 1) - left, round(max(y0, y1), 1) - top
+        parts.append(f"M{num(left)} {num(top)}h{num(wide)}v{num(high)}h{num(-wide)}z")
+    return "".join(parts)
+
+
 class Svg:
     """An ordered list of SVG elements, and the pattern definitions they use."""
 

@@ -67,6 +67,7 @@ from .price import (
     BRAND_SAMPLE_CAP,
     BRAND_SPREAD_TYPE,
     CENSUS,
+    DEEPENED_CENSUS,
     ECONOMY_OVER_OTHERS_MEDIAN,
     ENDINGS,
     EQUAL_PRICE_TYPES,
@@ -438,37 +439,54 @@ def tier_order(collected: Collected, prices: Mapping[str, float]) -> dict[str, t
     }
 
 
-def type_rows(type_key: str, collected: Collected, prices: Mapping[str, float]) -> list[Comparison]:
-    """The p50, p90/p10 and larger-costs-more rows of one census type."""
+def level_rows(
+    type_key: str,
+    census_n: int,
+    p10: float,
+    p50: float,
+    p90: float,
+    collected: Collected,
+    prices: Mapping[str, float],
+) -> list[Comparison]:
+    """The p50 and p90/p10 rows of one type, against its census quantiles."""
     from .measure import Comparison  # noqa: PLC0415 -- measure imports this module
 
-    census = CENSUS[type_key]
     values = [prices[sku] for sku, t in collected.type_of.items() if t == type_key]
     n = len(values)
-    p50 = _quantile(values, 0.5) if values else 0.0
+    built_p50 = _quantile(values, 0.5) if values else 0.0
     spread = _quantile(values, 0.9) / _quantile(values, 0.1) if values else 0.0
-    target_spread = census.p90 / census.p10
-    pairs = collected.pairs.get(type_key, [])
-    more = sum(prices[larger] > prices[smaller] for larger, smaller in pairs)
+    target_spread = p90 / p10
     return [
         Comparison(
             f"price p50 (USD): {type_key}",
-            census.p50,
             p50,
+            built_p50,
             n,
-            census.n,
+            census_n,
             "shown price; denom is the census n",
-            (census.p50 * P50_BAND[0], census.p50 * P50_BAND[1]),
+            (p50 * P50_BAND[0], p50 * P50_BAND[1]),
         ),
         Comparison(
             SPREAD_ROW.format(type_key),
             target_spread,
             spread,
             n,
-            census.n,
+            census_n,
             "shown price; denom is the census n",
             (target_spread * SPREAD_BAND[0], target_spread * SPREAD_BAND[1]),
         ),
+    ]
+
+
+def type_rows(type_key: str, collected: Collected, prices: Mapping[str, float]) -> list[Comparison]:
+    """The p50, p90/p10 and larger-costs-more rows of one census type."""
+    from .measure import Comparison  # noqa: PLC0415 -- measure imports this module
+
+    census = CENSUS[type_key]
+    pairs = collected.pairs.get(type_key, [])
+    more = sum(prices[larger] > prices[smaller] for larger, smaller in pairs)
+    return [
+        *level_rows(type_key, census.n, census.p10, census.p50, census.p90, collected, prices),
         Comparison(
             ORDER_ROW.format(type_key),
             census.larger_costs_more,
@@ -488,6 +506,8 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
     rows: list[Comparison] = []
     for type_key in CENSUS:
         rows.extend(type_rows(type_key, collected, prices))
+    for type_key, (n, p10, p50, p90) in DEEPENED_CENSUS.items():
+        rows.extend(level_rows(type_key, n, p10, p50, p90, collected, prices))
 
     for type_key, figure in LENGTH_CENSUS.items():
         pairs = collected.length_pairs.get(type_key, [])

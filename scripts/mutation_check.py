@@ -453,6 +453,34 @@ MUTATIONS: list[Mutation] = [
         "",
         "two types on one block are refused, naming both",
     ),
+    # ---- roller chain: the strand count moves the price (#36) ----
+    Mutation(
+        "roller chain: a double strand chain prices as a single strand one",
+        "product_types/motion/roller_chain.py",
+        "STRANDS[2]: 1.9,",
+        "STRANDS[2]: 1.0,",
+        "tests/test_type_roller_chain.py",
+        "more_strands_cost_more_in_every_same_spec_set",
+        "more strands cost more in every same-spec set",
+    ),
+    Mutation(
+        "roller chain: a triple strand chain prices under a double strand one",
+        "product_types/motion/roller_chain.py",
+        "STRANDS[3]: 2.8}",
+        "STRANDS[3]: 1.5}",
+        "tests/test_type_roller_chain.py",
+        "more_strands_cost_more_in_every_same_spec_set",
+        "more strands cost more in every same-spec set",
+    ),
+    Mutation(
+        "roller chain: one brand's strand counts draw their price noise apart",
+        "catalog/price.py",
+        "        and (model is None or attribute.name != model.option_attribute)",
+        "        and (model is None or attribute.name != object())",
+        "tests/test_type_roller_chain.py",
+        "more_strands_cost_more_in_every_same_spec_set",
+        "more strands cost more in every same-spec set",
+    ),
     # ---- the type seam: a table read registers the type modules (#54) ----
     # Every name starts "type seam:", so `--only "type seam:"` re-runs the
     # review's score. Left out as EQUIVALENT: dropping the ``done`` flag, which
@@ -2482,6 +2510,22 @@ MUTATIONS: list[Mutation] = [
                 "        log_p -= model.slope * math.log(key / model.anchor_key)",
                 "within_its_band_or_pinned_at_the_default_size",
                 "larger costs more",
+            ),
+            (
+                "the roller chain prices at three times its fitted anchor",
+                "product_types/motion/roller_chain.py",
+                "    116.0,",
+                "    348.0,",
+                "within_its_band_or_pinned_at_the_default_size",
+                "a deepened breadth category keeps its census level",
+            ),
+            (
+                "a deepened breadth category is scored by no row",
+                "catalog/price_report.py",
+                "    for type_key, (n, p10, p50, p90) in DEEPENED_CENSUS.items():",
+                "    for type_key, (n, p10, p50, p90) in {}.items():",
+                "row_names_are_the_rows_the_default_build_scores",
+                "a deepened breadth category keeps its census level",
             ),
             (
                 "price falls with length",
