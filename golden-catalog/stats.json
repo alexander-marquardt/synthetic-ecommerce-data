@@ -561,10 +561,19 @@
    "Width Across Flats"
   ],
   "o_rings": [
-   "Grade",
+   "Dash Number",
+   "Dimension Type",
+   "Hardness",
+   "Inside Dia.",
+   "Inside Dia. Tolerance",
    "Item",
    "Material",
-   "Size"
+   "Measurement System",
+   "Size",
+   "Standards",
+   "System of Measurement",
+   "Width",
+   "Width Tolerance"
   ],
   "pillow_block_bearings": [
    "Base to Center Height",

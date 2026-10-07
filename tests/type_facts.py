@@ -103,8 +103,13 @@ def may_claim() -> dict[str, frozenset[str]]:
 
 
 def title_key() -> dict[str, tuple[str, ...]]:
-    """Every modelled type's title key: its key dimension."""
-    return _merged(SHARED_TITLE_KEY, lambda spec: spec.key_attributes or None, "key_attributes")
+    """Every modelled type's title key: its key dimension, or the attribute
+    its module names in place of it (``title_attributes``)."""
+    return _merged(
+        SHARED_TITLE_KEY,
+        lambda spec: spec.title_attributes or spec.key_attributes or None,
+        "key_attributes",
+    )
 
 
 def default_size() -> dict[str, tuple[int, int]]:

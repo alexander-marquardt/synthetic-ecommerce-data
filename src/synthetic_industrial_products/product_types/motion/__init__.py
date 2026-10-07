@@ -1,1 +1,1 @@
-"""Motion control and power transmission product types."""
+"""Motion control, power transmission and sealing product types."""

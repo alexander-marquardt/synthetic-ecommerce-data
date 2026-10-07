@@ -278,9 +278,12 @@ MEASURED_DISPERSION: dict[str, Any] = {
     "smallest_faceted": "Roller Dia.",
     "smallest_faceted_products": 30,
     # The terms facets of the modelled types that the ratio alone would
-    # withhold and RANGE_MIN_DOCS keeps offered: none. (Two breadth-category
-    # facets are, Style and Color; the committed field map's reasons say so.)
-    "held_by_floor": [],
+    # withhold and RANGE_MIN_DOCS keeps offered: an O-ring's Dash Number, 41
+    # values over 59 product-value pairs (0.69) on 38 products. At
+    # ``--lines 39000`` it is 349 values over 961 pairs (0.36) on 551
+    # products, under the ratio on its own. (Two breadth-category facets are
+    # held too, Style and Color; the committed field map's reasons say so.)
+    "held_by_floor": ["Dash Number"],
     # The real continuum this catalog does not offer as a range. It clears
     # BOTH RANGE_DISPERSION and RANGE_MIN_DOCS now (#39) -- MIN_PRESENCE is
     # what still keeps it off a slider, because it is rare even among its

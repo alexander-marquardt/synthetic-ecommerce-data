@@ -266,7 +266,7 @@ the build gave 99,929 SKUs over 57,985 products. On `95a9ed0`: SKUs that are
 not different (the rule below): 0. Every bearing number is a real table entry
 with its own bore, OD and width. Product names: 0 clashes catalog-wide.
 Every must-stock example is stocked. (Those four are the 100K tests in
-`tests/test_catalog_brands_voice.py`.) Since the table types,
+`tests/test_catalog_brands_voice.py`.) Since the O-rings,
 `scripts/check_determinism.py --lines 39000`: all 7 emitted files
 byte-identical across two builds. The drawings, built with the second command
 above: 120,321 drawings, 258.4 MB unpacked, a 28.0 MB `images.tar.gz`, every
@@ -1476,7 +1476,13 @@ python3 -c "import json, statistics as s, sys; p = [r['price_usd'] for r in map(
 ```
 
 The button, flat and low-head socket screws price as the socket head
-screw does (`price.BORROWS`). A breadth category the census measures is
+screw does (`price.BORROWS`). The census has no O-rings, so they borrow
+the flat washer's model (`TypeSpec.borrows`), keyed on the cross-section
+and held to the inside-diameter span the washer model was fitted over
+(`price.MEASURED_SPANS`: ISO 7089 M3 to M20, 0.126" to 0.827"); their
+prices are generated, not measured. Keyed on the inside diameter instead,
+even clamped to that span, the washer's noise put a simulated largest ring at
+195 to 285 USD. A breadth category the census measures is
 priced across its census p10, p50 and p90 (`price.BREADTH_CENSUS`); any
 other breadth row draws from its own `price_range`. A measured breadth
 category deepened into a modelled type keeps its census row
