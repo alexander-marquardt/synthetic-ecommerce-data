@@ -2442,6 +2442,39 @@ MUTATIONS: list[Mutation] = [
                 "exception_is_stale_only_when",
                 "an exception goes only when in band at both builds",
             ),
+            (
+                "a wheel spec reads Material, which a wheel never publishes",
+                "catalog/price.py",
+                'MATERIAL_ATTRIBUTES: dict[str, str] = {"wheel_depressed_center": '
+                '"Abrasive Material"}',
+                "MATERIAL_ATTRIBUTES: dict[str, str] = {}",
+                "spec_holds_a_material_or_names_why_not",
+                "every brand-census spec holds a material",
+            ),
+            (
+                "a material is read off Material for every type",
+                "catalog/price.py",
+                '    name = MATERIAL_ATTRIBUTES.get(type_key, "Material")',
+                '    name = "Material"',
+                "wheel_spec_holds_its_abrasive",
+                "a wheel's material is its abrasive",
+            ),
+            (
+                "the material guard counts an empty material as held",
+                "catalog/price_report.py",
+                "    held = {spec[0] for spec in collected.specs if spec[2]}",
+                "    held = {spec[0] for spec in collected.specs}",
+                "never_publishes_is_caught",
+                "a type whose specs hold no material is caught",
+            ),
+            (
+                "the wheel pin quotes a tier figure no build measures",
+                "catalog/price.py",
+                "the brand tiers alone give 1.85 on the default",
+                "the brand tiers alone give 1.75 on the default",
+                "tiers_alone_give",
+                "a pin's stated cause is measured",
+            ),
         ]
     ),
 ]

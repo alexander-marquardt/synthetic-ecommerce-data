@@ -1404,7 +1404,11 @@ figure: each type's p50 and p90/p10, the share of within-page size pairs
 whose larger size costs more, longer costs more (bolts and socket screws),
 equal prices across a size pair (taps), how often a smaller SKU of one
 product costs twice the larger, the same-spec brand spread, economy brands
-against the rest, and the .99/.00/.50 endings. Each row has a band
+against the rest, and the .99/.00/.50 endings. A spec is the census's: the
+key dimension in one material (`price.material_of`). A wheel publishes its
+material as its abrasive (`price.MATERIAL_ATTRIBUTES`), and
+`test_every_brand_census_types_spec_holds_a_material_or_names_why_not` fails
+a type whose specs hold no material. Each row has a band
 (`price_report.P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and three census
 standard errors where the census sample is small: `share_band`,
 `brand_spread_band`). Every row is scored at the default size and at 100K
@@ -1432,7 +1436,7 @@ is declared with its reason and the issue that fixes it, and stays bounded:
 | row | kind | why | bound |
 |---|---|---|---|
 | bearing p90/p10 | pin, below band | catalog bores span far less than the census's, and the census's own small brand spread leaves no group noise to make up the rest (widen the bore range: #64) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
-| wheel brand spread | pin, above band | catalog diameters span too little for the key term to give the census's p90/p10, so group noise makes up the rest, and it is drawn per brand, which spreads the brands of one spec apart (#66) | as above |
+| wheel brand spread | pin, above band | the brand tiers alone, every noise off, put it above band: 3 of the 12 wheel brands are economy, and the row's sampled brands take one on more than half its specs, where the census measures its house label on 4 of its 12; the per-brand group noise then spreads one spec's brands further (#66) | as above |
 | kit p50 and kit p90/p10 | exception, either side | a kit's price is one group draw per page, not the sum of its contents, so its few pages move the median and the p90/p10 with the build's size (price a kit from its contents: #71) | a band miss no more than `price.EXCEPTION_DRIFT` times the one `price.EXCEPTED_FIGURES` records, at each size |
 
 The full reasons are `price.PINNED_SHORTFALLS` and `price.ROW_EXCEPTIONS`,
