@@ -190,9 +190,12 @@ MEASURED_DISPERSION: dict[str, Any] = {
     "faceted_low": 0.0020,
     # Flute Length since the bearing ratings became a published table (one
     # value per bearing number, no jitter): Dynamic Load Capacity was the
-    # densest at 0.44 while a formula manufactured a value per SKU.
-    "faceted_high": 0.2031,
-    "densest_faceted": "Flute Length",
+    # densest at 0.44 while a formula manufactured a value per SKU. Inside
+    # Dia. since the O-rings (#53): each of their 66 documents is one AS568
+    # row's actual inside diameter, 68 values over 291 documents with the
+    # washers'; Flute Length, 0.2031, is next.
+    "faceted_high": 0.2337,
+    "densest_faceted": "Inside Dia.",
     # The saturated ladder the rule exists to keep off a slider.
     # Low since the drive size is published as the nominal key (10mm), not
     # the extracted socket's toleranced across-flats (10.07mm). The hex socket

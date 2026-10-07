@@ -284,6 +284,12 @@ SPEC = TypeSpec(
     extent=(4.85, 6.1),
     make=build,
     share=0.015,
+    # GENERATED, NOT MEASURED: the census has no retaining rings. They price
+    # on the flat washer's measured model, the nearest census type (a thin
+    # stamped ring keyed on the diameter it fits, mostly pack-sold), with the
+    # ring's shaft Size read as the washer's Inside Dia. and held to the span
+    # that model was fitted over (price.MEASURED_SPANS).
+    borrows="washer_flat",
     use_lines=(
         "Snaps into a groove on a shaft to hold a part in place along it.",
         "Installs and removes with external retaining ring pliers through the lug holes.",

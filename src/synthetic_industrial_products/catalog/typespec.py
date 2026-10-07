@@ -129,9 +129,13 @@ class TypeSpec:
     #: falls back to the generic lines.
     use_lines: tuple[str, ...] = ()
     #: How the type's SKUs are priced (:class:`.price.PriceModel`): its
-    #: census slope and endings, and its fitted anchor and noise. Left unset
-    #: by a type ``price.BORROWS`` lists, which prices on its sibling's model.
+    #: census slope and endings, and its fitted anchor and noise.
     price: PriceModel | None = None
+    #: In place of ``price``: the census type whose model the type prices
+    #: with (``price.BORROWS``), for a type the census has no prices for. A
+    #: module cannot read that model at import (``price.MODELS`` refuses a
+    #: read mid-registration), so it names the type instead.
+    borrows: str = ""
     #: The sizes each standard the type builds to offers, for a standard with
     #: no extraction in ``data/fastener_standards.json``. Declared apart from
     #: the type's own table on purpose: the coverage sweep holds every size
@@ -219,19 +223,26 @@ def register(spec: TypeSpec) -> None:
             ("extent", all(side > 0 for side in spec.extent)),
             ("make", spec.make is not None),
             ("share", spec.share > 0),
-            ("price", spec.price is not None or spec.key in price.BORROWS),
+            ("price", spec.price is not None or bool(spec.borrows)),
         )
         if not declared
     ]
     if missing:
         raise TypeModuleError(f"type module {spec.module} declares no {', '.join(missing)}")
+    if spec.price is not None and spec.borrows:
+        raise TypeModuleError(
+            f"type module {spec.module} declares both a price model and borrows "
+            f"{spec.borrows!r}; a type prices by one model"
+        )
     taxonomy.LEAVES[spec.key] = (spec.category,)
     taxonomy.DRAWING[spec.key] = spec.key
     vocab.VOCAB[spec.key] = spec.vocab
     vocab.STANDARDS_FAMILY[spec.key] = spec.standards_family
     FIGURES[spec.key] = (spec.figure, spec.extent)
-    if spec.price is not None:
-        price.MODELS[spec.key] = spec.price
+    if spec.borrows:
+        price.BORROWS[spec.key] = spec.borrows
+    else:
+        price.MODELS[spec.key] = spec.price  # type: ignore[assignment]
     if spec.use_lines:
         voice.USE_LINES[spec.key] = spec.use_lines
     _declare_block(spec)
