@@ -100,7 +100,7 @@ class TypeSpec:
       the standards a record may claim and its default size.
     * a **breadth** type declares one :class:`.breadth.BreadthRow` as
       ``breadth``, and everything else follows from that row, exactly as it
-      does for a row of ``data/breadth_categories.yaml``.
+      does for a row file in ``data/breadth_categories/``.
 
     :func:`register` writes either kind into the shared, type-keyed tables
     (``taxonomy.LEAVES``, ``vocab.VOCAB``, ``drawing.figures.FIGURES`` and the

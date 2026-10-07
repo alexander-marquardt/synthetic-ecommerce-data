@@ -242,7 +242,7 @@ falls back to nominal geometry. The counts are
 
 ## Breadth types: six fixed shapes
 
-The 48 breadth categories (rows of `data/breadth_categories.yaml` and breadth modules; every
+The 48 breadth categories (row files in `data/breadth_categories/` and breadth modules; every
 breadth line is published with `spec_quality: "fast_and_cheap"`, set by
 `catalog/breadth.py` `SPEC_QUALITY`) draw one of six shapes from
 `drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`, `disc`, `tube`
@@ -360,8 +360,8 @@ pinned by a test.
 8. **Look at it.** `uv run python scripts/contact_sheet.py --catalog golden-catalog --out out/contact-sheets`
    puts twenty SKUs of every type on one HTML page.
 
-A new **breadth** category needs no figure code: add a row to
-`data/breadth_categories.yaml` with one of the six `shape:` values, give any new
+A new **breadth** category needs no figure code: add a row file
+`data/breadth_categories/<key>.yaml` with one of the six `shape:` values, give any new
 `Material`/`Finish` a colour and hatch (step 4), regenerate `golden-catalog/`,
 and commit it. No pinned count moves: the golden test's expected size
 (`tests/catalog_size.py`) reads one line and `breadth.sku_count(row)` SKUs
