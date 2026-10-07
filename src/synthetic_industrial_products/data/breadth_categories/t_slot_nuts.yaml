@@ -1,0 +1,27 @@
+# One breadth row (alexander-marquardt/synthetic-industrial-products#34); one file
+# per row, so two PRs that add or remove rows never touch the same file (#48).
+# The schema and the generic loop that reads it are in catalog/breadth.py.
+key: t_slot_nuts
+category:
+- Fasteners
+- Nuts
+- T-Slot Nuts
+family: fastener
+shape: block
+item: T-Slot Nut
+descriptor_attr: null
+size_attr: Thread Size
+size_values:
+- 1/4-20
+- 5/16-18
+- 3/8-16
+- M8x1.25
+attributes:
+  Material:
+  - Steel
+  Finish:
+  - Plain
+  - Zinc Plated
+price_range: [2.0, 15.0]
+skus: 1
+reason: breadth diversity; workholding-adjacent nut category gap

@@ -1,0 +1,26 @@
+# One breadth row (alexander-marquardt/synthetic-industrial-products#34); one file
+# per row, so two PRs that add or remove rows never touch the same file (#48).
+# The schema and the generic loop that reads it are in catalog/breadth.py.
+key: center_punches
+category:
+- Hand Tools
+- Punches & Chisels
+- Center Punches
+family: hand_tool
+shape: cylinder
+item: Center Punch
+descriptor_attr: null
+size_attr: Length
+size_values:
+- 4 in
+- 5 in
+- 6 in
+attributes:
+  Material:
+  - Steel
+  Style:
+  - Automatic
+  - Standard
+price_range: [3.0, 15.0]
+skus: 1
+reason: breadth diversity; hand-tool category gap
