@@ -2,7 +2,7 @@
 
 The rule under test (elastic/prism#9285): an attribute is offered as a range
 only when its values are CONTINUOUS, measured as saturation -- distinct values
-per document publishing it -- and not merely because they happen to be
+per distinct (product, value) pair publishing it (#28) -- and not merely because they happen to be
 numbers. A range control over a discrete standard set implies a continuity the
 domain does not have and lets a shopper select an interval containing no
 manufactured size.
@@ -28,7 +28,7 @@ from synthetic_industrial_products.catalog.breadth import SPEC_QUALITY
 from synthetic_industrial_products.catalog.config import GeneratorConfig
 from synthetic_industrial_products.catalog.generate import generate
 from synthetic_industrial_products.prism.derive import (
-    MAX_TERMS_CARDINALITY,
+    IDENTIFIER_DISPERSION,
     MEASURED_DISPERSION,
     MIN_PRESENCE,
     RANGE_DISPERSION,
@@ -156,16 +156,31 @@ def test_every_attribute_that_is_quantitative_still_says_so(flat_rows: list[dict
 # --------------------------------------------------------------------------
 
 
-def _stats(*, cardinality: int, present: int, numeric: int | None = None) -> AttributeStats:
-    """A constructed measurement, for cases the industrial catalog lacks."""
+def _stats(
+    *,
+    cardinality: int,
+    present: int,
+    numeric: int | None = None,
+    product_values: int | None = None,
+    products: int | None = None,
+    name: str = "Probe",
+) -> AttributeStats:
+    """A constructed measurement, for cases the industrial catalog lacks.
+
+    ``product_values`` and ``products`` default to ``present``: one SKU per
+    product and one value per SKU, so the per-document, per-pair and
+    per-product counts agree unless a test separates them.
+    """
     return AttributeStats(
         key="probe",
-        name="Probe",
+        name=name,
         present=present,
         numeric=present if numeric is None else numeric,
         cardinality=cardinality,
         product_types=("probe_type",),
         type_denominator=present,
+        product_values=present if product_values is None else product_values,
+        products=present if products is None else products,
     )
 
 
@@ -206,10 +221,10 @@ def test_the_threshold_is_the_midpoint_and_both_sides_of_it_are_reachable() -> N
     """Astride the boundary, so the comparison cannot be vacuous.
 
     A test that only ever probes 0.04 and 0.95 would pass against a threshold
-    anywhere between them. These two differ by one document.
+    anywhere between them. These two differ by one value.
     """
-    below = _stats(cardinality=49, present=100)
-    at = _stats(cardinality=50, present=100)
+    below = _stats(cardinality=RANGE_MIN_DOCS - 1, present=2 * RANGE_MIN_DOCS)
+    at = _stats(cardinality=RANGE_MIN_DOCS, present=2 * RANGE_MIN_DOCS)
     assert below.dispersion < RANGE_DISPERSION <= at.dispersion
     assert not below.is_continuous
     assert at.is_continuous
@@ -228,6 +243,10 @@ def test_a_small_sample_falls_back_to_discrete() -> None:
     assert tiny.dispersion == big.dispersion == 1.0
     assert not tiny.is_continuous, "below the floor, dispersion is not evidence"
     assert big.is_continuous
+    # The reason names the floor, not a threshold the ratio did not fall under.
+    reason = decide(tiny).reason
+    assert f"fewer than the {RANGE_MIN_DOCS}" in reason, reason
+    assert "below the" not in reason, reason
 
 
 def test_values_that_are_not_numbers_are_never_a_range() -> None:
@@ -238,20 +257,25 @@ def test_values_that_are_not_numbers_are_never_a_range() -> None:
     assert not wordy.is_continuous
 
 
-def test_a_quantity_is_exempt_from_the_identifier_ceiling_at_any_cardinality() -> None:
-    """The ceiling separates a facet from a part number, not a list from a slider.
+def test_a_quantity_is_exempt_from_the_identifier_rule_at_any_dispersion() -> None:
+    """The identifier rule separates a facet from a part number, not a list from a slider.
 
     The reference distributor offers ``Length of Cut (Decimal Inch)`` as a discrete list of
-    819 values. A rule that dropped a quantitative attribute for exceeding 25
-    would delete most of this catalog's sidebar the moment the control
-    changed -- which is exactly what would have happened had the exemption
-    stayed tied to the range control.
+    819 values. A quantity whose values never repeat is a continuum, not a
+    part number, so it is offered (as a range) where a terms attribute with
+    the same figures is withheld.
     """
     big_quantity = _stats(cardinality=819, present=10_000)
-    assert big_quantity.cardinality > MAX_TERMS_CARDINALITY
     assert decide(big_quantity).facet, decide(big_quantity).reason
 
-    part_number = _stats(cardinality=110, present=919, numeric=0)
+    unrepeated = _stats(cardinality=819, present=820)
+    assert unrepeated.dispersion >= IDENTIFIER_DISPERSION
+    assert not unrepeated.is_identifier
+    assert decide(unrepeated).facet, decide(unrepeated).reason
+
+    # List Number's shape: a series code, about one value per product.
+    part_number = _stats(cardinality=110, present=919, numeric=0, product_values=113)
+    assert part_number.is_identifier
     assert not decide(part_number).facet
     assert "identifier" in decide(part_number).reason
 
@@ -274,7 +298,7 @@ def test_changing_the_control_rule_changed_no_attributes_facet_status(
         for k, s in stats.items()
         if s.cardinality >= 2
         and s.presence >= MIN_PRESENCE
-        and (s.is_numeric or s.cardinality <= MAX_TERMS_CARDINALITY)
+        and (s.is_numeric or not s.is_identifier)
     }
     assert new_faceted == old_faceted, {
         "newly faceted": sorted(new_faceted - old_faceted),
@@ -324,9 +348,13 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
     """
     quantitative = [s for s, _ in decided.values() if s.is_numeric]
     faceted = [s for s, d in decided.values() if s.is_numeric and d.facet]
-    # 38 since the set screws' Point Dia. (#53), which is not faceted.
-    assert len(quantitative) == 38
-    assert len(faceted) == 35
+    # 41 since the roller chain's Pitch, Roller Dia. and Inside Width (#53),
+    # all faceted; 38 before, since the set screws' Point Dia., which is not.
+    # The two table types (#101) publish five more, all faceted: a cotter
+    # pin's Head Diameter and Head Height, and a retaining ring's For Shaft
+    # Diameter, Groove Diameter and Groove Width.
+    assert len(quantitative) == 46
+    assert len(faceted) == 43
 
 
 def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
@@ -366,7 +394,7 @@ def test_the_widest_dispersion_is_a_continuum_kept_off_by_min_presence(decided) 
         "MIN_PRESENCE, not dispersion, has to be the one that keeps it off a "
         "slider"
     )
-    assert widest.present >= RANGE_MIN_DOCS, (
+    assert widest.products >= RANGE_MIN_DOCS, (
         "RANGE_MIN_DOCS no longer decides this attribute -- if it reds, "
         "restate this test against whichever attribute IS below it, or "
         "against the constructed case in test_a_small_sample_falls_back_to_discrete"
@@ -398,11 +426,327 @@ def test_drive_size_is_the_saturated_ladder_the_rule_names(decided) -> None:
     assert decision.facet
 
 
-def test_the_smallest_faceted_attribute_clears_the_document_floor(decided) -> None:
-    """``RANGE_MIN_DOCS`` never decides a FACETED attribute here, and this is
-    the figure that says so."""
+def test_the_product_floor_decides_only_the_attributes_it_names(decided) -> None:
+    """``RANGE_MIN_DOCS`` decides only the attributes ``MEASURED_DISPERSION`` names.
+
+    Many faceted quantities sit under the floor (the smallest is the shaft a
+    retaining ring fits), but every one of them has a ratio under the continuity
+    threshold, so the floor and the ratio agree. On the terms side the
+    pinned list is every facet the floor keeps offered against the ratio.
+    """
     faceted = [s for s, d in decided.values() if s.is_numeric and d.facet]
-    smallest = min(faceted, key=lambda s: s.present)
+    smallest = min(faceted, key=lambda s: s.products)
     assert smallest.name == MEASURED_DISPERSION["smallest_faceted"]
-    assert smallest.present == MEASURED_DISPERSION["smallest_faceted_present"]
-    assert smallest.present > RANGE_MIN_DOCS
+    assert smallest.products == MEASURED_DISPERSION["smallest_faceted_products"]
+    assert smallest.products < RANGE_MIN_DOCS
+    assert [s.name for s in faceted if s.dispersion >= RANGE_DISPERSION] == []
+
+    held = [
+        s
+        for s, d in decided.values()
+        if d.facet and not s.is_numeric and s.dispersion >= IDENTIFIER_DISPERSION
+    ]
+    assert sorted(s.name for s in held) == MEASURED_DISPERSION["held_by_floor"]
+    assert [s.name for s in held if s.products >= RANGE_MIN_DOCS] == []
+
+
+# ---------------------------------------------------------------------------
+# A facet or an identifier: a property of the values, not of the catalog's size
+# (alexander-marquardt/synthetic-industrial-products#31, #28)
+# ---------------------------------------------------------------------------
+# The retired rule withheld a terms attribute with more than 25 distinct values.
+# 25 is a count, and a count does not grow with the catalog: Thread Size, a
+# standards body's ladder, passed it at 19 values and failed it at 55, while
+# nothing about it had become an identifier.
+
+#: The retired absolute cap, kept here only to reconstruct the old rule.
+RETIRED_TERMS_CAP = 25
+
+#: What the default build gains under the relative rule: every one is a terms
+#: attribute the retired cap withheld for its count alone. Measured on the
+#: default build and on ``--lines 39000`` (119,363 SKUs): the same ten at both,
+#: and the large build gains an eleventh, an O-ring's Inside Dia. Tolerance.
+#: The O-rings (#53) brought the ninth and tenth: their Dash Number (41 values)
+#: and Material, which their four compounds took from 23 values to 27.
+#: A roller chain's ANSI Number is the eighth: 27 values (the ``-2`` and ``-3``
+#: strand suffixes included) that repeat across its lines.
+NEWLY_OFFERED = frozenset(
+    {
+        "ansi_number",
+        "bearing_number",
+        "dash_number",
+        "dia_thread_size",
+        "item",
+        "material",
+        "sizes_included",
+        "standards",
+        "thread_size",
+        "type",
+    }
+)
+
+
+def test_the_identifier_figures_are_what_the_rule_states(decided) -> None:
+    """The terms side of the band, read off the catalog like the quantitative one.
+
+    Exactly one terms attribute is withheld as an identifier, and the densest
+    terms facet sits well under the line, so the threshold is not deciding
+    anything by a hair.
+    """
+    identifiers = [s for s, _ in decided.values() if s.is_identifier]
+    assert [s.name for s in identifiers] == [MEASURED_DISPERSION["identifier"]]
+    assert round(identifiers[0].dispersion, 4) == MEASURED_DISPERSION["identifier_dispersion"]
+    _, decision = decided[identifiers[0].key]
+    assert not decision.facet
+
+    terms_facets = [
+        s
+        for s, d in decided.values()
+        if not s.is_numeric and d.facet and s.products >= RANGE_MIN_DOCS
+    ]
+    densest = max(terms_facets, key=lambda s: s.dispersion)
+    assert densest.name == MEASURED_DISPERSION["densest_terms_facet"]
+    assert round(densest.dispersion, 4) == MEASURED_DISPERSION["densest_terms_facet_dispersion"]
+    assert densest.dispersion < IDENTIFIER_DISPERSION
+
+
+@pytest.mark.parametrize("scale", [1, 10, 100])
+def test_a_ladder_stays_a_facet_and_an_identifier_stays_withheld_at_any_size(
+    scale: int,
+) -> None:
+    """The same two attributes, measured on catalogs 1x, 10x and 100x as large.
+
+    A ladder keeps its rungs while products accumulate, so its cardinality is
+    fixed (55, Thread Size's count on the default build). An identifier gains
+    a value with nearly every product. The decision for each must not move
+    with the scale.
+    """
+    products = 2 * RANGE_MIN_DOCS * scale
+    ladder = _stats(cardinality=55, present=products, numeric=0)
+    assert decide(ladder).facet, decide(ladder).reason
+
+    identifier = _stats(cardinality=products * 97 // 100, present=products, numeric=0)
+    assert not decide(identifier).facet
+    assert "identifier" in decide(identifier).reason
+
+
+def test_the_identifier_threshold_is_the_midpoint_and_both_sides_are_reachable() -> None:
+    """Astride the boundary: one value apart, so the comparison is not vacuous.
+
+    Both sides carry far more than 25 values, so the retired cap would have
+    withheld both.
+    """
+    below = _stats(cardinality=RANGE_MIN_DOCS - 1, present=2 * RANGE_MIN_DOCS, numeric=0)
+    at = _stats(cardinality=RANGE_MIN_DOCS, present=2 * RANGE_MIN_DOCS, numeric=0)
+    assert decide(below).facet, decide(below).reason
+    assert not decide(at).facet
+    assert "identifier" in decide(at).reason
+
+
+def test_a_small_terms_attribute_is_not_called_an_identifier() -> None:
+    """Below ``RANGE_MIN_DOCS`` observations dispersion is not evidence.
+
+    ``Style`` publishes 11 values over 13 products on the default build, a
+    dispersion of 0.85, and it is a facet there today. A list under the floor
+    holds fewer than ``RANGE_MIN_DOCS`` values, so offering it costs little;
+    withholding it would drop a facet the default build offers.
+    """
+    style = _stats(cardinality=11, present=13, numeric=0)
+    assert decide(style).facet, decide(style).reason
+    floor = _stats(cardinality=RANGE_MIN_DOCS, present=RANGE_MIN_DOCS, numeric=0)
+    assert not decide(floor).facet
+
+
+def test_standards_and_thread_size_are_offered_and_list_number_is_not(rendered: str) -> None:
+    """The issue's acceptance, on the rendered field map."""
+    entries = _entries(rendered)
+    for name in ("standards", "thread_size"):
+        assert entries[name].get("facet") != "false", (name, entries[name])
+    assert entries["list_number"].get("facet") == "false", entries["list_number"]
+
+
+def test_no_facet_the_default_build_offers_is_lost(flat_rows: list[dict]) -> None:
+    """The relative rule only ADDS facets, and exactly the named ones.
+
+    Reconstructs the retired rule beside the current one over the default
+    build. Every attribute it offered is still offered; what is new is the
+    set of terms attributes it withheld for their count alone.
+    """
+    stats = measure(flat_rows)
+    new_faceted = {k for k, s in stats.items() if decide(s).facet}
+    old_faceted = {
+        k
+        for k, s in stats.items()
+        if s.cardinality >= 2
+        and s.presence >= MIN_PRESENCE
+        and (s.is_numeric or s.cardinality <= RETIRED_TERMS_CAP)
+    }
+    assert old_faceted - new_faceted == set()
+    assert new_faceted - old_faceted == NEWLY_OFFERED
+
+
+def _rows_of(products: int, variants: int, value_of) -> list[dict]:
+    """Constructed flat rows: ``products`` products of ``variants`` SKUs each."""
+    rows = []
+    for p in range(products):
+        for v in range(variants):
+            value = value_of(p, v)
+            rows.append(
+                {
+                    "product_id": f"P{p}",
+                    "product_type": "probe_type",
+                    "facets": {"load": [str(value)]},
+                    "facets_num": {"load": float(value)},
+                    "attributes": [{"name": "Load", "value": str(value)}],
+                }
+            )
+    return rows
+
+
+def test_dispersion_counts_products_not_sku_variants() -> None:
+    """A product-scope value repeated on its siblings is one observation.
+
+    300 products, each with its own rating, published on all 4 of its SKUs.
+    Per document that reads as 300 values over 1,200 documents (0.25), a
+    ladder; per product it is 300 over 300, a continuum. The answer must not
+    depend on how many variants a product happens to have (#28).
+    """
+    for variants in (1, 4, 9):
+        stats = measure(_rows_of(300, variants, lambda p, v: 1000 + 7 * p))["load"]
+        assert stats.present == 300 * variants
+        assert stats.product_values == 300
+        assert stats.dispersion == 1.0
+        assert stats.is_continuous, variants
+
+
+def test_a_sku_scope_ladder_is_still_a_ladder() -> None:
+    """Values that vary across a product's SKUs are each an observation.
+
+    60 products, 4 SKUs each, every SKU on one of 8 rungs: 240 distinct
+    (product, value) pairs and 8 values, so the ladder stays a list.
+    """
+    stats = measure(_rows_of(60, 4, lambda p, v: (p + v) % 8))["load"]
+    assert stats.product_values == 240
+    assert stats.cardinality == 8
+    assert not stats.is_continuous
+
+
+# ---------------------------------------------------------------------------
+# Both rules ask whether values repeat ACROSS PRODUCTS, so the evidence floor
+# has to count products. A kit lists a dozen sizes, so five kits made 52
+# (product, value) pairs at ``--lines 200`` and cleared a floor counted in
+# pairs: Sizes Included was withheld at 200, 400 and 600 lines and offered
+# from 900 up (#31 review).
+
+#: The sizes the decisions are compared across. 260 is where Overall Length,
+#: a ladder at every larger size, reads exactly 0.5 on 202 products: the
+#: largest product count at which any ladder in this catalog still looks like
+#: a continuum. ``--lines 39000`` makes the same decisions as the default
+#: build (measured by hand for #31; too slow to build here).
+STABILITY_SIZES = (200, 260, 400, 600, 900)
+
+
+def _controls(rows: list[dict]) -> dict[str, str]:
+    """The control each attribute gets, for those past the presence gates.
+
+    Presence (``MIN_PRESENCE``) and cardinality are left out on purpose: a
+    category-scoped attribute sampled on a few products can fall either side
+    of 50% presence, and that is not what the dispersion rules decide.
+    """
+    out = {}
+    for key, stats in measure(rows).items():
+        if stats.cardinality < 2 or stats.presence < MIN_PRESENCE:
+            continue
+        decision = decide(stats)
+        if not decision.facet:
+            out[key] = "withheld"
+        else:
+            out[key] = "range" if stats.is_continuous else "list"
+    return out
+
+
+@pytest.fixture(scope="module")
+def controls_by_size(flat_rows: list[dict]) -> dict[int, dict[str, str]]:
+    by_size = {
+        lines: _controls(list(emit.iter_flat(generate(GeneratorConfig(lines=lines)))))
+        for lines in STABILITY_SIZES
+    }
+    by_size[GeneratorConfig().lines] = _controls(flat_rows)
+    return by_size
+
+
+def test_every_decision_is_the_same_at_every_catalog_size(controls_by_size) -> None:
+    """No attribute changes between withheld, range and list with ``--lines``.
+
+    The rules are ratios so that the answer does not move with catalog size;
+    this is the test that varies the size. The three the review measured
+    moving are named, so a regression on them reads by name.
+    """
+    seen: dict[str, dict[int, str]] = {}
+    for lines, controls in controls_by_size.items():
+        for key, control in controls.items():
+            seen.setdefault(key, {})[lines] = control
+    moved = {key: by for key, by in seen.items() if len(set(by.values())) > 1}
+    assert moved == {}
+    sizes = sorted(controls_by_size)
+    for key in ("sizes_included", "bore", "overall_length"):
+        assert [controls_by_size[lines][key] for lines in sizes] == ["list"] * len(sizes), key
+    assert [controls_by_size[lines]["list_number"] for lines in sizes] == ["withheld"] * len(sizes)
+
+
+def _terms_rows(name: str, values_of: dict[str, list[str]]) -> list[dict]:
+    """One SKU per product, publishing a terms attribute with the given values."""
+    return [
+        {
+            "product_id": product,
+            "product_type": "probe_type",
+            "facets": {emit.sanitize(name): list(values)},
+            "facets_num": {},
+            "attributes": [{"name": name, "value": value} for value in values],
+        }
+        for product, values in values_of.items()
+    ]
+
+
+def test_a_multi_valued_attribute_on_few_products_is_not_an_identifier() -> None:
+    """Twenty kits of thirteen sizes each: 260 pairs, but twenty products.
+
+    Dispersion over twenty products is not evidence that values never repeat
+    across products, however many pairs the kits list, so the attribute is
+    offered, as Sizes Included is at every size. The pairs clear the floor
+    and the products do not, so it is the floor's unit under test.
+    """
+    kits = {f"K{k}": [f"{13 * k + i}/64 in." for i in range(13)] for k in range(20)}
+    stats = measure(_terms_rows("Sizes Included", kits))["sizes_included"]
+    assert (stats.cardinality, stats.product_values, stats.products) == (260, 260, 20)
+    assert stats.products < RANGE_MIN_DOCS <= stats.product_values
+    decision = decide(stats)
+    assert decision.facet, decision.reason
+
+
+def test_a_declared_identifier_is_withheld_whatever_its_dispersion() -> None:
+    """The generator says List Number is a part code; derive reads that.
+
+    600 products sharing ten codes is a dispersion of 0.017, a ladder by the
+    ratio, which is what a finite code pool becomes once the catalog outgrows
+    it (List Number reads 0.62 at ``--lines 39000`` and crosses 0.5 near 62K
+    lines). The same rows under an undeclared name are a facet, so it is the
+    declaration that withholds it.
+    """
+    codes = {f"P{p}": [f"L{p % 10:03d}"] for p in range(600)}
+    declared = measure(_terms_rows("List Number", codes))["list_number"]
+    assert declared.dispersion < IDENTIFIER_DISPERSION
+    decision = decide(declared)
+    assert not decision.facet
+    assert "declares" in decision.reason, decision.reason
+
+    undeclared = measure(_terms_rows("Series Code", codes))["series_code"]
+    assert decide(undeclared).facet, decide(undeclared).reason
+
+
+def test_derive_reads_the_generators_identifier_declaration() -> None:
+    """One source for which attributes are identifiers: the generator's own set."""
+    from synthetic_industrial_products.catalog.generate import Generator
+    from synthetic_industrial_products.prism import derive
+
+    assert derive.IDENTIFIER_ATTRIBUTES is Generator.IDENTIFIER_ATTRIBUTES

@@ -118,12 +118,17 @@ def test_every_drawing_is_well_formed_svg():
         assert root.tag.endswith("svg"), child.sku
 
 
+#: No drawing may reach this many bytes. A type whose figure could approach it
+#: holds its own worst case to it too, beyond what one seed stocks.
+MAX_DRAWING_BYTES = 8000
+
+
 def test_the_drawings_are_small():
-    """Measured: ~1.6 KB mean on the committed catalog; a regression to text or
+    """Measured: ~2.0 KB mean on the committed catalog; a regression to text or
     glyph paths would multiply it (matplotlib's glyph-path card was ~26 KB)."""
     sizes = [len(data) for _, _, data, _ in DRAWINGS]
     assert statistics.mean(sizes) < 3000, statistics.mean(sizes)
-    assert max(sizes) < 8000, max(sizes)
+    assert max(sizes) < MAX_DRAWING_BYTES, max(sizes)
 
 
 # --- one per SKU, and every difference a real one -----------------------------

@@ -23,6 +23,15 @@ default build lands on the census p50, p90/p10, larger-costs-more share and
 brand spread. ``size_sigma`` is 0 but for a type :data:`SIZE_NOISE` names.
 The material factors are NOT measured (:data:`MATERIAL_FACTORS`).
 
+**A kit is priced from what it holds** (:data:`CONTENTS_PRICED`). Its key
+is not one dimension but the summed price of its pieces (:func:`kit_contents`):
+each size it holds, priced on its part type's own curve, times how many of
+that size it holds, at the census's per-piece share of that part's shown price
+(:data:`PER_PIECE`). The slope on that key is 1.0, so the kit's anchor over
+its ``anchor_key`` is the kit's price over its contents' (the fitted kit factor: a small
+premium fitted to the census median kit price, which moves when #76 widens
+the kit kinds), and its material and tier apply once, to the kit.
+
 ``z_group`` is one draw per price group, what the census calls a cell: one
 brand, every line attribute a group page holds equal (:func:`group_draw`).
 The census measures how prices spread ACROSS its pages and how they order
@@ -58,6 +67,7 @@ from typing import TYPE_CHECKING, Literal
 
 from ..dimensions import DimensionParseError, parse_length, parse_thread
 from .model import Attribute
+from .newtypes import KITS
 from .typespec import RegistryTable
 
 if TYPE_CHECKING:
@@ -231,7 +241,8 @@ def key_reader(*names: str) -> Callable[[Mapping[str, Attribute]], float | None]
 
 #: Each type's key dimension: the catalog's names for the attribute the census
 #: keyed that type on (``key_dimension_attribute``), the first one carried wins.
-KEY_ATTRIBUTES: dict[str, tuple[str, ...]] = {
+#: A type with its own module declares its key as ``TypeSpec.key_attributes``.
+KEY_ATTRIBUTES: RegistryTable[str, tuple[str, ...]] = RegistryTable({
     "abrasive_flap_disc": ("Diameter",),
     "bearing_radial_ball": ("Bore",),
     "bolt_hex": ("Dia./Thread Size",),
@@ -241,50 +252,134 @@ KEY_ATTRIBUTES: dict[str, tuple[str, ...]] = {
     "hammer_ball_pein": ("Head Weight",),
     "hex_key": ("Size",),
     "kit_assortment": ("Number of Pieces",),
-    "lock_nuts_nylon_insert": ("Thread Size",),
     "nut_hex": ("Thread Size",),
-    # The cross-section, not the inside diameter: the borrowed washer model
-    # is held to the span it was fitted over (MEASURED_SPANS), which holds
-    # the larger cross-sections and almost none of the inside diameters.
-    "o_rings": ("Width",),
     "screw_button_head": ("Dia./Thread Size",),
     "screw_flat_head": ("Dia./Thread Size",),
     "screw_low_head": ("Dia./Thread Size",),
-    "screw_socket_head": ("Dia./Thread Size",),
-    "set_screws_hex_socket": ("Dia./Thread Size",),
     "tap_spiral_point": ("Thread Size",),
     "washer_flat": ("Inside Dia.",),
     "wheel_depressed_center": ("Diameter",),
+})  # fmt: skip
+
+#: Each type's key-dimension reader (:func:`key_reader`). Built from the
+#: literal rows without a read hook, which would register the type modules
+#: while this module is still importing; registration adds theirs.
+KEYS: RegistryTable[str, Callable[[Mapping[str, Attribute]], float | None]] = RegistryTable({
+    type_key: key_reader(*names) for type_key, names in dict.items(KEY_ATTRIBUTES)
+})  # fmt: skip
+
+#: Types priced from what they hold (:func:`kit_contents`) rather than from
+#: one key dimension. Their census key (a kit's ``Number of Pieces``) still
+#: keys the report's size pairs and its order row, which the price meets as an
+#: outcome: more of the same pieces sum to more. ``scripts/fit_price_model.py``
+#: fits such a type no group noise: the census kit spread comes from kinds of
+#: kit the catalog does not build, and noise loud enough to stand in for them
+#: would spread a kit's price further than its contents do (the kit p90/p10
+#: pin, :data:`PINNED_SHORTFALLS`).
+CONTENTS_PRICED = frozenset({"kit_assortment"})
+#: The slope of a contents-priced type's price on its contents' price: a kit
+#: is its contents at one fitted factor, whatever it holds.
+CONTENTS_SLOPE = 1.0
+
+#: Each kit part type's census per-piece p50 and shown-price p50 (USD). A
+#: shown price may be a pack (every census socket screw is, most of them 100
+#: to a pack; a third of hex keys are), and a kit holds pieces, so a part's
+#: shown price is scaled by the first over the second to price one piece.
+PER_PIECE: dict[str, tuple[float, float]] = {
+    "drill_jobber": (5.6, 6.0),
+    "hex_key": (6.25, 9.68),
+    "screw_socket_head": (0.2545, 21.535),
+    "tap_spiral_point": (20.02, 20.02),
 }
 
+#: What each kit kind (its ``Type``) holds, from the kit table itself.
+KIT_PARTS: dict[str, str] = {kit.item: kit.part_type for kit in KITS}
 
-def _bounded(
+
+def kit_contents(attributes: Mapping[str, Attribute]) -> float | None:
+    """The summed price (USD) of the pieces a kit holds, or None where its
+    kind, sizes or piece count cannot be read.
+
+    Each size in ``Sizes Included`` is priced on its part type's curve at
+    that size (standard tier, a material of 1.0, no noise: the price the
+    catalog's single parts are drawn about), times the census per-piece
+    share (:data:`PER_PIECE`), times how many of that size the kit holds
+    (``Number of Pieces`` over its sizes: a kit holds as many of each).
+    """
+    kind = attributes.get("Type")
+    sizes = attributes.get("Sizes Included")
+    pieces = attributes.get("Number of Pieces")
+    if kind is None or sizes is None or pieces is None or pieces.value_num is None:
+        return None
+    part = KIT_PARTS.get(kind.value)
+    if part is None:
+        return None
+    model = model_for(part)
+    values = sizes.values or (sizes.value,)
+    each, shown = PER_PIECE[part]
+    total = 0.0
+    for value in values:
+        key = _magnitude(Attribute(name=sizes.name, value=value))
+        if key is None or key <= 0:
+            return None
+        total += model.anchor * math.exp(structure(model, key, None, "standard"))
+    return total * pieces.value_num / len(values) * each / shown
+
+
+def price_key(type_key: str, attributes: Mapping[str, Attribute]) -> float | None:
+    """What a SKU's price slope multiplies: its contents' price for a type
+    :data:`CONTENTS_PRICED` names, its key dimension otherwise."""
+    if type_key in CONTENTS_PRICED:
+        return kit_contents(attributes)
+    return KEYS[type_key](attributes)
+
+
+def model_slope(type_key: str) -> float:
+    """A census type's slope before any cut: :data:`CONTENTS_SLOPE` for a
+    contents-priced type, the census slope on its key dimension otherwise."""
+    return CONTENTS_SLOPE if type_key in CONTENTS_PRICED else CENSUS[type_key].slope
+
+
+def bounded(
     type_key: str, read: Callable[[Mapping[str, Attribute]], float | None]
 ) -> Callable[[Mapping[str, Attribute]], float | None]:
     """``read``, held to the span of the model ``type_key`` borrows, when that
     model's span is recorded (:data:`MEASURED_SPANS`). Looked up at each read:
-    a type module's borrow is registered after this table is built."""
+    registration makes a type module's reader before it records its borrow."""
 
-    def bounded(attrs: Mapping[str, Attribute]) -> float | None:
+    def held(attrs: Mapping[str, Attribute]) -> float | None:
         key = read(attrs)
         span = MEASURED_SPANS.get(BORROWS.get(type_key, ""))
         if key is None or span is None:
             return key
         return min(max(key, span[0]), span[1])
 
-    return bounded
+    return held
 
-
-#: Each type's key-dimension reader (:func:`key_reader`); a borrower's is
-#: held to its model's span (:func:`_bounded`).
-KEYS: dict[str, Callable[[Mapping[str, Attribute]], float | None]] = {
-    type_key: _bounded(type_key, key_reader(*names)) for type_key, names in KEY_ATTRIBUTES.items()
-}
 
 #: Types whose census cells also hold length equal (``method.slope``).
 LENGTH_HELD = frozenset(
-    {"bolt_hex", "screw_socket_head", "screw_flat_head", "screw_button_head", "screw_low_head"}
+    {
+        "bolt_hex",
+        "screw_socket_head",
+        "screw_flat_head",
+        "screw_button_head",
+        "screw_low_head",
+        "dowel_pins",
+    }
 )
+
+
+#: The attribute a type publishes its material as, where it is not
+#: "Material". The census spec is the key dimension plus the material
+#: (``method.brand_spread``); a wheel's material is its abrasive grain.
+MATERIAL_ATTRIBUTES: dict[str, str] = {"wheel_depressed_center": "Abrasive Material"}
+
+
+def material_of(type_key: str, facts: Mapping[str, Attribute]) -> str | None:
+    """A SKU's material (:data:`MATERIAL_ATTRIBUTES`), or None."""
+    name = MATERIAL_ATTRIBUTES.get(type_key, "Material")
+    return facts[name].value if name in facts else None
 
 
 #: Price endings per type (``deep_types.<type>.endings.class_share``), for the
@@ -431,6 +526,15 @@ ENDINGS: dict[str, dict[str, float]] = {
 #: a pack of 100 costs more than a pack of 25, but far less than four times.
 NUT_PACK_SLOPE = 0.234
 
+#: A breadth category the census measured that is now a modelled type: its
+#: census n and shown-price (p10, p50, p90), the same
+#: ``breadth_categories.<key>`` figures. Its own fitted model is scored on the
+#: p50 and p90/p10 rows (:func:`.price_report.price_rows`); the census has no
+#: within-page pairs for it, so no order row.
+DEEPENED_CENSUS: dict[str, tuple[int, float, float, float]] = {
+    "roller_chain": (71, 74.1, 358.0, 773.0),
+}
+
 #: Each measured breadth category's shown-price (p10, p50, p90)
 #: (``breadth_categories.<key>.price_quantiles_usd``). A row listed here is
 #: priced from these (:func:`breadth_price`); every other row from its own
@@ -449,7 +553,6 @@ BREADTH_CENSUS: dict[str, tuple[float, float, float]] = {
     "hex_pipe_nipples": (3.33, 5.2, 16.24),
     "hose_clamps": (13.492, 34.95, 43.43),
     "rigid_casters": (20.744, 76.2, 351.85),
-    "roller_chain": (74.1, 358.0, 773.0),
     "safety_glasses": (5.0, 8.605, 24.26),
     "threaded_rod": (6.511, 33.52, 140.855),
     "u_bolts": (3.454, 10.68, 23.918),
@@ -573,6 +676,16 @@ class PriceModel:
     #: Sigma of the log-normal noise one size shares across every brand
     #: (:func:`size_draw`); 0.0 but for a type :data:`SIZE_NOISE` names.
     size_sigma: float = 0.0
+    #: The type's own material factors, for a type that declares its ladder
+    #: (:mod:`.tabletype`); None reads the shared :data:`MATERIAL_FACTORS`.
+    materials: Mapping[str, float] | None = None
+    #: A line attribute whose value multiplies the price, and each value's
+    #: multiplier (a roller chain's strand count). A value missing from the
+    #: table counts 1.0. One brand's lines that differ only in this attribute
+    #: share a group draw (:func:`holds_equal`), so the multiplier is what
+    #: separates their prices.
+    option_attribute: str | None = None
+    option_factors: Mapping[str, float] = field(default_factory=dict)
 
 
 def _model(
@@ -585,13 +698,14 @@ def _model(
     length_slope: float | None = None,
     **kw,
 ) -> PriceModel:
-    """A census type's model: its census slopes unless the fit lowered them
-    (:data:`SLOPE_CUTS`), and its census tiers (:data:`TYPE_TIERS`)."""
+    """A census type's model: its census slopes (:func:`model_slope`) unless
+    the fit lowered them (:data:`SLOPE_CUTS`), and its census tiers
+    (:data:`TYPE_TIERS`)."""
     length = LENGTH_CENSUS.get(type_key)
     return PriceModel(
         anchor,
         anchor_key,
-        CENSUS[type_key].slope if slope is None else slope,
+        model_slope(type_key) if slope is None else slope,
         group,
         sku,
         ENDINGS[type_key],
@@ -646,19 +760,29 @@ SIZE_NOISE: dict[str, str] = {
 #: fit last measured them. A pin discloses a shortfall; it does not license
 #: a worse one: ``price_report.pin_holds`` fails a row that lands further
 #: from its band than its build's figure by more than :data:`PIN_TOLERANCE`.
-#: ``tests/test_price.py`` holds each figure, and each
-#: :data:`EXCEPTED_FIGURES` one, equal to what its build produces
+#: ``tests/test_price.py`` holds each figure equal to what its build produces
 #: (``price_report.recorded_digits``), so a record cannot be loosened by hand.
+#: The most brands a brand-spread row takes from one spec
+#: (:func:`.price_report.brand_sample`). Max/min is an order statistic: over more brands it
+#: is wider, whatever the model. The default build puts 2 to 7 brands on a
+#: drill spec (median 3) and the 100K build 9 to 15 (median 13), so a figure
+#: over every brand of a spec reads the catalog's size, not its prices. The
+#: census does not publish its brands per spec, only the most a spec can hold
+#: (:attr:`.price.BrandCensus.brands_indexed`: 2 for a socket screw, 3 for a
+#: tap); 3 is the median the default build's drill specs hold, so on most of
+#: its specs the sample is a true sample and not every brand there is.
+BRAND_SAMPLE_CAP = 3
 _WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
+_KIT_SPREAD_ROW = "price p90/p10: kit_assortment"
 PINNED_FIGURES: dict[str, tuple[float, float]] = {
-    "price p90/p10: bearing_radial_ball": (4.493, 4.783),
-    _WHEEL_SPREAD_ROW: (3.241, 2.776),
+    _WHEEL_SPREAD_ROW: (3.534, 3.09),
+    _KIT_SPREAD_ROW: (4.015, 3.901),
 }
 
 #: How far past its recorded figure a pinned row may move, as a ratio. The
 #: build is one seed, so the figure is exact on it; the tolerance is room for
-#: the fit rounding its literals, well under the 5% the mildest worsening a
-#: review planted moved a pin (bearing noise off: 4.55 to 4.31).
+#: the fit rounding its literals, well under the 6% the wheel's group noise
+#: made 10% louder moves its pin (3.24 to 3.43, ``tests/test_price.py``).
 PIN_TOLERANCE = 0.02
 
 #: Rows that land outside their band, and why: disclosed, and pinned by
@@ -666,68 +790,40 @@ PIN_TOLERANCE = 0.02
 #: figure a reason quotes is read from :data:`PINNED_FIGURES`, so a refit that
 #: re-records the figure cannot leave the reason quoting the old one.
 PINNED_SHORTFALLS: dict[str, str] = {
-    "price p90/p10: bearing_radial_ball": (
-        "below band: catalog bores span a p90/p10 of about 3x against the census's 16.1x, "
-        "and the census's own brand spread (1.38) leaves no group noise to make up the rest "
-        "(widen the bore range: #64)"
-    ),
     _WHEEL_SPREAD_ROW: (
-        "above band: catalog diameters span 2.25x, which the key term spreads to 2.6x of the "
-        "census's 10x, and the group noise that makes up the rest is drawn independently per "
-        "brand for each of the 12 brands that make every shared wheel spec, so the brands "
-        "the row samples from one spec land "
+        "above band: with every noise off, the brand tiers alone give 1.85 on the default "
+        "build against a band top of 1.71, because 3 of the 12 wheel brands "
+        f"are economy (0.54 of the rest) and the row's {BRAND_SAMPLE_CAP} sampled brands "
+        "take one on 13 of "
+        "its 24 specs (a spec is a diameter in one abrasive), where the census measures its "
+        "house label on 4 of its 12. The group noise that makes up the p90/p10 is drawn per "
+        "brand and spreads the sampled brands of one spec further, to "
         f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][0]:.2f}x apart on the default build and "
-        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K. "
-        "Offered a noise one spec shares "
-        "across brands (SIZE_NOISE, as on taps), the fit gives it no weight and moves the "
-        "spread to SKU noise, which inverts the few diameters (larger costs more falls below "
-        "band) and still leaves the p90/p10 below band (#66)"
+        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K (#66)"
+    ),
+    _KIT_SPREAD_ROW: (
+        "below band: a kit is priced from its contents, and the catalog's kit kinds hold "
+        "between about $36 and $130 of parts, so with material and tier its prices span "
+        f"{PINNED_FIGURES[_KIT_SPREAD_ROW][0]:.1f}x on the default build and "
+        f"{PINNED_FIGURES[_KIT_SPREAD_ROW][1]:.1f}x at 100K against the census's 114x, whose "
+        "kits run from packs of 12 and 15 at about $4.50 to a p90 of $629. Group noise loud "
+        "enough to make up the rest (about 2.2) spreads a kit's price about 79x on its own, "
+        "so the price would follow the noise, not the contents, and a kit draws none "
+        "(widen the kit range: #76)"
     ),
 }
 
-#: Rows no model of this shape holds in band at both builds, and the issue
-#: that fixes each. Unlike a pin, the row may land on either side of its band
-#: and at either build, so it is held to no side, only to how far out
-#: :data:`EXCEPTED_FIGURES` recorded it; the fit still scores it, so
-#: its noise is the best balance of these rows and the rest. ``tests/test_price.py``
-#: pins the set, so an exception cannot quietly cover another row or type.
-ROW_EXCEPTIONS: dict[str, str] = {
-    name: (
-        "a kit's price is one group draw per page, not the sum of its contents, so its "
-        "few pages move the median and the p90/p10 with the build's size: the group "
-        "noise that spreads the p90/p10 to the census moves the p50 out at one build or "
-        "the other (price a kit from its contents: #71)"
-    )
-    for name in ("price p50 (USD): kit_assortment", "price p90/p10: kit_assortment")
-}
-
-#: Each excepted row's figure on the default and on the 100K build, as the
-#: fit last measured them. An exception frees a row from its band, not from
-#: any bound: ``price_report.exception_holds`` fails a row whose miss
-#: (``price_report.band_miss``) grows past :data:`EXCEPTION_DRIFT` times the
-#: recorded figure's, at either build.
-EXCEPTED_FIGURES: dict[str, tuple[float, float]] = {
-    "price p50 (USD): kit_assortment": (63.98, 101.65),
-    "price p90/p10: kit_assortment": (81.784, 151.422),
-}
-
-#: How much worse than its recorded miss an excepted row may land, as a
-#: ratio. Wider than :data:`PIN_TOLERANCE`, because an excepted row trades
-#: against the rows the fit scores beside it and moves with any refit; narrow
-#: enough that a kit p50 recorded about 1% out of band cannot drift past
-#: about 26% out unnoticed.
-EXCEPTION_DRIFT = 1.25
 
 
 def slope_cut_mismatch(models: Mapping[str, PriceModel], cuts: Mapping[str, str]) -> set[str]:
     """The census types whose slope in ``models`` is cut without a reason in
-    ``cuts``, or has a reason but no cut. A slope is cut where its key or
-    its length slope is not the census figure (0.0 for a type the census
-    measures no length slope on)."""
+    ``cuts``, or has a reason but no cut. A slope is cut where its key slope
+    is not :func:`model_slope`'s, or its length slope not the census figure
+    (0.0 for a type the census measures no length slope on)."""
     cut = {
         type_key
         for type_key in CENSUS
-        if models[type_key].slope != CENSUS[type_key].slope
+        if models[type_key].slope != model_slope(type_key)
         or models[type_key].length_slope
         != (LENGTH_CENSUS[type_key].slope if type_key in LENGTH_CENSUS else 0.0)
     }
@@ -742,13 +838,13 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
     {
         # @fit-begin
         "abrasive_flap_disc": _model("abrasive_flap_disc", 8.542, 5.0, 0.172, 0.086),
-        "bearing_radial_ball": _model("bearing_radial_ball", 24.62, 0.5, 0.194, 0.049),
+        "bearing_radial_ball": _model("bearing_radial_ball", 10.47, 0.5, 0.006, 0.306),
         "bolt_hex": _model("bolt_hex", 18.33, 0.375, 0.284, 0.194, slope=0.987, length_slope=0.347),
         "drill_jobber": _model("drill_jobber", 4.435, 0.25, 0.634, 0.182),
         "end_mill_ball": _model("end_mill_ball", 45.33, 0.375, 0.108, 0.246, slope=0.952),
         "end_mill_square": _model("end_mill_square", 32.86, 0.375, 0.230, 0.308, slope=0.653),
         "hex_key": _model("hex_key", 17.71, 0.25, 0.658, 0.216),
-        "kit_assortment": _model("kit_assortment", 195.1, 30.0, 1.972, 0.069),
+        "kit_assortment": _model("kit_assortment", 100.9, 100.0, 0.000, 0.022),
         "nut_hex": _model(
             "nut_hex",
             16.7,
@@ -782,9 +878,13 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
 
 #: Types with no census prices of their own that price as a sibling does: the
 #: census has no button-head or low-head socket screws, and 4 flat-head ones.
+#: Nor has it any dowel pins: they price as the socket head screw, the closest
+#: measured hardened fastener sold by diameter and length, so a dowel pin's
+#: price is generated from a borrowed model, not measured.
 #: A type module adds its own with ``TypeSpec.borrows`` (the O-rings borrow
 #: the flat washer's model).
 BORROWS: dict[str, str] = {
+    "dowel_pins": "screw_socket_head",
     "screw_button_head": "screw_socket_head",
     "screw_flat_head": "screw_socket_head",
     "screw_low_head": "screw_socket_head",
@@ -795,7 +895,7 @@ BORROWS: dict[str, str] = {
 _WASHER_SPAN = (3.2 / 25.4, 21.0 / 25.4)
 
 #: The key span (census units) a borrowable model was fitted over, so a
-#: borrower's key is held inside it (:func:`_bounded`) and the model is never
+#: borrower's key is held inside it (:func:`bounded`) and the model is never
 #: read beyond what it was fitted on: the washer's 1.3 slope run out to a
 #: 25.94" O-ring priced it near 1,000 USD. The census records no key span, so
 #: the span is that of the catalog's own rows the anchor was fitted to.
@@ -821,11 +921,14 @@ HELD_NUMBERS = frozenset({"Package Quantity"})
 def holds_equal(type_key: str, attribute: Attribute) -> bool:
     """Whether a census cell (one group page) holds this line attribute equal:
     any that is not a number, but the pack quantity, and nothing that names
-    the size."""
+    the size, nor the option the model prices by a multiplier (a chain's
+    strand count: one page lists a brand's single and multiple strand chains)."""
+    model = MODELS.get(BORROWS.get(type_key, type_key))
     return (
         (attribute.value_num is None or attribute.name in HELD_NUMBERS)
         and attribute.name not in SIZE_NAMES
         and attribute.name not in KEY_ATTRIBUTES.get(type_key, ())
+        and (model is None or attribute.name != model.option_attribute)
     )
 
 
@@ -867,14 +970,16 @@ def structure(
     tier: str,
     pack: float | None = None,
     length: float | None = None,
+    option: str | None = None,
 ) -> float:
     """The log-price terms that are not noise and not the anchor."""
-    log_p = 0.0
+    log_p = math.log(model.option_factors.get(option or "", 1.0))
     if key is not None and key > 0:
         log_p += model.slope * math.log(key / model.anchor_key)
     if model.length_slope and length is not None and length > 0:
         log_p += model.length_slope * math.log(length / model.anchor_length)
-    log_p += math.log(MATERIAL_FACTORS.get(material or "", 1.0))
+    factors = MATERIAL_FACTORS if model.materials is None else model.materials
+    log_p += math.log(factors.get(material or "", 1.0))
     log_p += math.log(model.tiers[tier])
     if model.pack_slope and pack is not None and pack > 0:
         log_p += model.pack_slope * math.log(pack / model.pack_ref)

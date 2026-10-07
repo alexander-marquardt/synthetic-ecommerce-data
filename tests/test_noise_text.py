@@ -242,6 +242,7 @@ def test_unit_equivalents_are_a_minority_within_their_bound(docs):
         "bearing_radial_ball": "Bore",
         "wheel_depressed_center": "Diameter",
         "abrasive_flap_disc": "Diameter",
+        "dowel_pins": "Diameter",
     }
     eligible = carrying = 0
     for doc in docs:

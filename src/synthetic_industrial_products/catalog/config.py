@@ -225,12 +225,13 @@ class GeneratorConfig:
 #: ``sip-generate build --lines 39000`` gives 99,929 SKUs over 57,985
 #: products (README, "The 100K catalog"); 111,499 over 64,483 since the
 #: deepened ``lock_nuts_nylon_insert`` and ``set_screws_hex_socket`` each added
-#: their own share (#53); 112,537 over 65,047 since ``o_rings`` added its
-#: own. A named value of the one knob,
-#: not a second knob; built on demand, not published while the spec is
-#: iterated at the default size. (28,300 until uniqueness stopped counting
-#: metadata -- the standards claimed, the measurement-system spelling -- as a
-#: difference, which rejects more drafts per line.)
+#: their own share (#53); 119,363 over 68,979 since ``o_rings`` added its
+#: own, on a build the bearings' wider table and four more types had grown.
+#: A named value of the one knob, not a second knob; built on demand, not
+#: published while the spec is iterated at the default size. (28,300 until
+#: uniqueness stopped counting metadata -- the standards claimed, the
+#: measurement-system spelling -- as a difference, which rejects more drafts
+#: per line.)
 HUNDRED_K_LINES = 39000
 
 
