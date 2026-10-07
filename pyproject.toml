@@ -20,6 +20,7 @@ dev = [
     # it from the network on every run.
     "hatchling>=1.25",
     "pytest>=8.0",
+    "pytest-timeout>=2.3",
     "pyyaml>=6.0.3",
     "ruff>=0.6",
 ]
@@ -55,6 +56,12 @@ packages = ["src/synthetic_industrial_products", "src/prism_synthetic_industrial
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+# Per-test limit in seconds (pytest-timeout), fixture setup included. The
+# slowest test measured runs 46 s locally and the 100k-catalog fixture builds
+# in 31 s, so 300 s leaves room for a slower CI runner and still stops a hang
+# or a runaway. A slow test raises its own limit with
+# ``@pytest.mark.timeout(<s>)``; this default stays.
+timeout = 300
 
 [tool.ruff]
 line-length = 100
