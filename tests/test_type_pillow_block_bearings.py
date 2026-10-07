@@ -43,7 +43,7 @@ DIMENSIONAL = {"JIS B 1557"}
 #: The bore, then the chart's ``h``, ``a``, ``e`` and ``w`` under the names
 #: they are published as.
 COLUMNS = (
-    "Bore",
+    "Bore Dia.",
     "Base to Center Height",
     "Overall Length",
     "Bolt Hole Center-to-Center",
@@ -220,7 +220,7 @@ def test_one_product_publishes_exactly_these_attributes():
         "Finish": "Painted",
         "Package Quantity": "1",
         "Standards": "JIS B 1557",
-        "Bore": "3/4",
+        "Bore Dia.": "3/4",
         "Base to Center Height": "1-5/16",
         "Overall Length": "5",
         "Bolt Hole Center-to-Center": "3.7400",
@@ -235,7 +235,7 @@ def test_one_product_publishes_exactly_these_attributes():
 def test_larger_and_bigger_pack_each_cost_more(large_docs):
     """One material, so no material order to keep: 72 size pairs and 54 pack
     pairs are every neighbouring pair of 9 sizes and 3 packs at 3 brand tiers."""
-    wrong, compared = table_gates.price_order(large_docs, KEY, "Bore", MATERIALS)
+    wrong, compared = table_gates.price_order(large_docs, KEY, "Bore Dia.", MATERIALS)
     assert wrong == [], f"{len(wrong)} wrong, e.g. {wrong[:4]}"
     assert compared == {"size": 72, "material": 0, "pack": 54}
 

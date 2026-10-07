@@ -10,7 +10,7 @@ family: motion
 shape: cylinder
 item: Rigid Shaft Coupling
 descriptor_attr: null
-size_attr: Bore
+size_attr: Bore Dia.
 size_values:
 - 1/4 in
 - 3/8 in

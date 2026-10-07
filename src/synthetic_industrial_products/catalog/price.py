@@ -244,7 +244,7 @@ def key_reader(*names: str) -> Callable[[Mapping[str, Attribute]], float | None]
 #: A type with its own module declares its key as ``TypeSpec.key_attributes``.
 KEY_ATTRIBUTES: RegistryTable[str, tuple[str, ...]] = RegistryTable({
     "abrasive_flap_disc": ("Diameter",),
-    "bearing_radial_ball": ("Bore",),
+    "bearing_radial_ball": ("Bore Dia.",),
     "bolt_hex": ("Dia./Thread Size",),
     "drill_jobber": ("Decimal Equivalent", "Size"),
     "end_mill_ball": ("Milling Dia.",),

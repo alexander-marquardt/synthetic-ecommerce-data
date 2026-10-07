@@ -122,7 +122,7 @@ HAMMER_GRIPS: dict[str, tuple[str, ...]] = {
 KEY_DIMENSIONS: dict[str, tuple[str, ...]] = {
     # A bearing is named by its number AND its bore: the bore is what a
     # shopper fits it to (the review of the 100K catalog, 2026-09-29).
-    "bearing_radial_ball": ("Bearing Number", "Bore"),
+    "bearing_radial_ball": ("Bearing Number", "Bore Dia."),
     "wheel_depressed_center": ("Diameter",),
     "abrasive_flap_disc": ("Diameter",),
     # Not a dimension, but it names what the screw IS, so it leads. Last in
@@ -745,7 +745,7 @@ class Generator:
                 # tap's Threads per Inch is how many an inch holds. One heading
                 # over both put a bare 32 beside 0.5 mm.
                 (
-                    Attribute("Pitch", f"{pitch:g}", bare_unit="MMT")
+                    Attribute("Thread Pitch", f"{pitch:g}", bare_unit="MMT")
                     if metric
                     else Attribute("Threads per Inch", str(pitch), bare_unit="TPI")
                 ),

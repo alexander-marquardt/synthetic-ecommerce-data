@@ -324,7 +324,7 @@ SPLIT_ORACLE: tuple[tuple[str, str, str | None, dict[str, Any]], ...] = (
         None,
         {"value": "5.5", "unit_code": "MMT", "value_canonical": 5.5},
     ),
-    ("Pitch", "0.5", "MMT", {"value": "0.5", "unit_code": "MMT", "value_canonical": 0.5}),
+    ("Thread Pitch", "0.5", "MMT", {"value": "0.5", "unit_code": "MMT", "value_canonical": 0.5}),
     # A thread count's canonical is its pitch LENGTH (elastic/prism#9877): 127/5 / n
     # mm. 13 does not terminate, and is the nearest float to 127/65, like any value.
     (
@@ -389,7 +389,7 @@ SPLIT_ORACLE: tuple[tuple[str, str, str | None, dict[str, Any]], ...] = (
     ("Thread Size", "M10x1.5", None, {"value": "M10x1.5"}),
     ("Size", "M6", None, {"value": "M6"}),
     # A bare number whose unit nothing states stays text: no unit is guessed.
-    ("Pitch", "32", None, {"value": "32"}),
+    ("Thread Pitch", "32", None, {"value": "32"}),
 )
 
 
@@ -439,7 +439,7 @@ ORACLE_BARE_UNIT_FOR_KEY = {
     "number_of_pieces": "C62",
     "max_rpm": "RPM",
     "decimal_equivalent": "INH",
-    "pitch": "MMT",
+    "thread_pitch": "MMT",
     "threads_per_inch": "TPI",
 }
 
