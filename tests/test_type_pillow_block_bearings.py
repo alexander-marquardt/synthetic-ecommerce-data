@@ -212,7 +212,7 @@ def test_no_load_capacity_is_published(large_docs):
 def test_one_product_publishes_exactly_these_attributes():
     """The default build's first record, whole."""
     doc = _default_docs()[0]
-    assert doc["title"] == 'Replacement Pillow Block Bearing, 3/4" Bore'
+    assert doc["title"] == 'Replacement Pillow Block Bearing, 3/4" Bore Dia.'
     assert doc["price_usd"] == 24.94
     assert {a["name"]: a["value"] for a in doc["attributes"]} == {
         "Item": "Pillow Block Bearing",
