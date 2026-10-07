@@ -145,9 +145,11 @@ class TypeSpec:
     #: ``claims(facts, metric=..., provenance=..., standard=...)`` returns
     #: them in order. ``None`` claims none.
     claims: Callable[..., Iterable[str]] | None = None
-    #: Every standard ``claims`` can return; the facts tests hold each
-    #: published ``Standards`` value to it.
-    may_claim: frozenset[str] = frozenset()
+    #: Every standard a record of the type may claim, which the facts tests
+    #: hold each published ``Standards`` value to. Nothing in the build reads
+    #: it, so it checks ``claims`` rather than restating it. An empty set
+    #: claims nothing; ``None`` is undeclared, which the facts tests refuse.
+    may_claim: frozenset[str] | None = None
     #: The type's key dimension: the attribute names the price census keys it
     #: on (:data:`.price.KEY_ATTRIBUTES`, the first one carried wins), which
     #: every title also names.
@@ -161,6 +163,10 @@ class TypeSpec:
     #: The length attribute a unit equivalent is written for
     #: (:data:`.noise.UNIT_PRIMARY`).
     unit_primary: str | None = None
+    #: The product lines and SKUs the default build makes of the type,
+    #: counted from a fresh build; the size tests sum them (``catalog_size``).
+    default_lines: int = 0
+    default_skus: int = 0
     #: A breadth type's row, in place of every modelled field above.
     breadth: BreadthRow | None = None
     #: The dotted module the spec was found in, filled in by :func:`discover`.

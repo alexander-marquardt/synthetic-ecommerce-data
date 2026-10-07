@@ -46,6 +46,7 @@ SHARED = (
     SRC / "catalog" / "conformance.py",
     SRC / "catalog" / "noise.py",
     REPO / "tests" / "test_catalog_facts.py",
+    REPO / "tests" / "type_facts.py",
     REPO / "tests" / "catalog_size.py",
     REPO / "tests" / "test_compatibility_text.py",
 )
