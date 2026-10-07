@@ -13,16 +13,22 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_industrial_products.catalog import brands, breadth, price, price_report
+from synthetic_industrial_products.catalog import brands, breadth, newtypes, price, price_report
 from synthetic_industrial_products.catalog.config import HUNDRED_K_LINES, GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate
+from synthetic_industrial_products.catalog.generate import Generator, generate
 from synthetic_industrial_products.catalog.measure import measure
+from synthetic_industrial_products.catalog.model import Attribute, Catalog
 from synthetic_industrial_products.catalog.price_report import (
     BRAND_ROW,
     EQUAL_ROW,
     LENGTH_ROW,
     ORDER_ROW,
     SPREAD_ROW,
+)
+from synthetic_industrial_products.dimensions import (
+    DimensionParseError,
+    parse_length,
+    parse_thread,
 )
 
 CENSUS_FILE = (
@@ -35,9 +41,49 @@ def census() -> dict:
     return json.loads(CENSUS_FILE.read_text())
 
 
+KIT = "kit_assortment"
+
+#: One kit SKU as its price was drawn: its shown price, the facts it was
+#: drawn from, and its brand.
+KitSku = tuple[float, dict[str, Attribute], str]
+
+
+def _recorded_build(config: GeneratorConfig) -> tuple[Catalog, list[KitSku]]:
+    """A build, and each kit SKU with the facts its price was drawn from.
+    Those are read as the draw reads them, not off the published record:
+    sparsity may drop a kit's ``Material`` or ``Sizes Included``, and never
+    moves its price."""
+    drawn: dict[str, tuple[dict[str, Attribute], str]] = {}
+    original = Generator._price_draw
+
+    def recording(self, type_key, brand, attributes, line_attributes, sku, sku_u):
+        if type_key == KIT:
+            drawn[sku] = ({a.name: a for a in attributes}, brand)
+        return original(self, type_key, brand, attributes, line_attributes, sku, sku_u)
+
+    Generator._price_draw = recording  # type: ignore[method-assign]
+    try:
+        catalog = generate(config)
+    finally:
+        Generator._price_draw = original  # type: ignore[method-assign]
+    shown = {child.sku: child.price_usd for _, child in catalog.all_skus()}
+    kits = [(shown[sku], *drawn[sku]) for sku in sorted(drawn) if sku in shown]
+    return catalog, kits
+
+
 @pytest.fixture(scope="module")
-def catalog():
-    return generate(GeneratorConfig())
+def recorded() -> tuple[Catalog, list[KitSku]]:
+    return _recorded_build(GeneratorConfig())
+
+
+@pytest.fixture(scope="module")
+def catalog(recorded):
+    return recorded[0]
+
+
+@pytest.fixture(scope="module")
+def kits(recorded) -> list[KitSku]:
+    return recorded[1]
 
 
 @pytest.fixture(scope="module")
@@ -821,6 +867,78 @@ def test_a_kit_priced_a_quarter_lower_breaks_its_p50_exception(scored):
     (row,) = [row for row in price_report.price_rows(collected, prices) if row.name == name]
     assert round(price_report.band_miss(row.achieved, row.band), 2) == 1.34
     assert not price_report.exception_holds(row, 0)
+
+
+# --- a kit is priced from what it holds (#71) --------------------------------
+
+#: What each kit kind holds, from the kit table.
+KIT_PART = {kit.item: kit.part_type for kit in newtypes.KITS}
+
+#: How far a kit's price may land from its contents' price times its material
+#: and tier factors: the fitted kit factor (1.009) moved by its SKU noise
+#: (sigma 0.022, about 5 sigma either way) and its ending. The default build
+#: lands every kit within 0.969 to 1.059, the 100K one within 0.944 to 1.080.
+OVER_CONTENTS = (0.9, 1.12)
+
+
+def _inches(size: str) -> float:
+    """A published size in inches: a thread's major diameter, else a length."""
+    try:
+        return parse_thread(size).major.inches
+    except DimensionParseError:
+        return parse_length(size).inches
+
+
+def _pieces_price(facts: dict[str, Attribute], census: dict) -> float:
+    """What a kit's pieces cost, worked from the census: each size it holds on
+    its part type's own curve (standard tier, no material, no noise), at the
+    census's per-piece share of that part's shown price, times how many of
+    each size the kit holds."""
+    part = KIT_PART[facts["Type"].value]
+    model = price.model_for(part)
+    row = census["deep_types"][part]
+    share = row["per_piece_quantiles_usd"]["p50"] / row["price_quantiles_usd"]["p50"]
+    sizes = facts["Sizes Included"].values or (facts["Sizes Included"].value,)
+    pieces = facts["Number of Pieces"].value_num
+    assert pieces is not None
+    curve = sum(
+        model.anchor * math.exp(price.structure(model, _inches(size), None, "standard"))
+        for size in sizes
+    )
+    return curve * share * pieces / len(sizes)
+
+
+def _over_contents(shown: float, facts: dict[str, Attribute], brand: str, contents: float) -> float:
+    """A kit's price over its contents' price times its material and tier."""
+    factor = price.MATERIAL_FACTORS.get(facts["Material"].value, 1.0)
+    factor *= price.model_for(KIT).tiers[brands.tier_of(brand, KIT)]
+    return shown / (contents * factor)
+
+
+def test_a_kits_contents_are_its_pieces_priced_on_their_own_curves(census, kits):
+    """:func:`price.kit_contents` is the census-worked price of what the kit
+    holds, for every kit the default build makes, of every kind."""
+    assert {facts["Type"].value for _, facts, _ in kits} == set(KIT_PART)
+    for _, facts, _ in kits:
+        assert price.kit_contents(facts) == pytest.approx(_pieces_price(facts, census), rel=1e-9)
+
+
+def test_a_15_piece_hex_key_set_costs_what_its_keys_do(census, kits):
+    """The inch set of ASME B18.3 keys, 0.028" to 3/8": its keys come to about
+    $98 on the hex key curve. Priced as one group draw per page, with no
+    reference to them, the default build's five sold for $9.55 to $1,525.45."""
+    sets = [
+        (shown, facts, brand)
+        for shown, facts, brand in kits
+        if facts["Type"].value == "Hex Key Set" and facts["Number of Pieces"].value_num == 15
+    ]
+    assert len(sets) == 5
+    ratios = [
+        (shown, round(_over_contents(shown, facts, brand, _pieces_price(facts, census)), 3))
+        for shown, facts, brand in sets
+    ]
+    out = [r for r in ratios if not OVER_CONTENTS[0] < r[1] < OVER_CONTENTS[1]]
+    assert not out, out
 
 
 # --- the 100K catalog (#52: "within tolerance at default size and at 100K") --

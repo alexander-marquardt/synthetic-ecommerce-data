@@ -258,6 +258,12 @@ KEYS: dict[str, Callable[[Mapping[str, Attribute]], float | None]] = {
     type_key: key_reader(*names) for type_key, names in KEY_ATTRIBUTES.items()
 }
 
+
+def kit_contents(attributes: Mapping[str, Attribute]) -> float | None:
+    """The summed price (USD) of the pieces a kit holds. Not yet priced."""
+    return None
+
+
 #: Types whose census cells also hold length equal (``method.slope``).
 LENGTH_HELD = frozenset(
     {"bolt_hex", "screw_socket_head", "screw_flat_head", "screw_button_head", "screw_low_head"}
