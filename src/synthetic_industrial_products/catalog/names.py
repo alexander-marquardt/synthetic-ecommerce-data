@@ -130,6 +130,10 @@ NAME_EXCEPTIONS: dict[str, str] = {
     "Face Dia.": "hammer striking-face diameter; the census carries no hammer family",
     "Handle Length": "hammer handle length, a distinct measurement from Overall Length",
     "Head Weight": "hammer head weight; the census carries no hammer family",
+    "Base to Center Height": (
+        "a pillow block's mounting face to its shaft centre; the census has Height and"
+        " Overall Height, which are other measurements"
+    ),
     "For Shaft Diameter": (
         "the shaft a retaining ring fits, in the census's relational form;"
         " the census carries no retaining ring family"
