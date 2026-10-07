@@ -35,7 +35,7 @@ from pathlib import Path
 from typing import Any
 
 from ..dimensions import _METRIC_THREAD
-from .entry import sanitize
+from .entry import sanitize as sanitize  # re-exported: tests and readers call emit.sanitize
 from .model import Attribute, Catalog, ProductLine, Sku
 from .taxonomy import ImageIdError, product_type_for_image
 
@@ -251,7 +251,7 @@ def flat_documents(
         facets: dict[str, list[str]] = {}
         numeric: dict[str, float] = {}
         for attribute in merged:
-            key = sanitize(attribute.name)
+            key = attribute.facet_key
             values = list(attribute.values or (attribute.value,))
             facets.setdefault(key, []).extend(values)
             if attribute.value_num is not None:
