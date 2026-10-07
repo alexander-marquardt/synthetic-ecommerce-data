@@ -2,15 +2,18 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 11,614 SKUs over 6,327 products in 30 depth types plus
-43 [breadth categories](#catalog-breadth), one product each -- from 45
-invented brands -- and, with one flag, about 100,000 SKUs
+extraction in search: modelled depth types plus
+[breadth categories](#catalog-breadth), one product each, from invented
+brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
 
-The SKU and product counts are `skus` and `lines` in
-`golden-catalog/stats.json` (per type: `skus_by_type`, `lines_by_type`). The
-type counts are
-`uv run python -c "from synthetic_industrial_products.catalog.generate import all_type_keys as k; print(len(k('modelled')) + len(k('new')), len(k('breadth')))"`.
+The default build's figures are build output, in `golden-catalog/stats.json`:
+`skus` and `lines` (per type: `skus_by_type`, `lines_by_type`), and under
+`figures` the type and brand counts (`catalog`), the drawings' count and bytes
+(`drawings`) and the facet rule's figures (`dispersion`).
+`uv run sip-generate build --out golden-catalog` rewrites them, and no doc
+restates one (`tests/test_measured_figures.py`), so a pull request that adds a
+type changes them only in the file the merge script rebuilds (#103).
 
 **Every product in this repository is synthetic.** No record here describes a
 real product offered by any retailer, and no retailer's catalog content is
@@ -239,7 +242,7 @@ type from `skus_by_type` in its `stats.json`:
 | shackles | 373 | | pillow_block_bearings | 269 |
 | roller_chain_sprockets | 200 | | roller_chain_links | 769 |
 | o_rings | 1,040 | | key_stock | 965 |
-| 43 breadth categories | 75 (1-3 each) | | | |
+| the breadth categories | 75 (1-3 each) | | | |
 
 The mix is not the one a proportional scale would give, and that is the
 uniqueness rule at work: a type whose spec space is small (ISO 7089 fixes a
@@ -1214,11 +1217,10 @@ every other drawing -- only the GEOMETRY is fixed.
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 11,614 drawings, 24.4 MB unpacked
-  (2.10 KB a drawing on average; the largest, a triple strand roller chain,
-  is 7,131 bytes), and a 2.55 MB `images.tar.gz` (the count,
-  bytes and archive size `uv run sip-generate images --catalog golden-catalog
-  --out /tmp/img --archive /tmp/img.tar.gz` prints). Every root
+  about 2 KB a drawing. `figures.drawings` in `golden-catalog/stats.json` has
+  the committed catalog's count, total and largest bytes and the largest's
+  type; `uv run sip-generate images --catalog golden-catalog --out /tmp/img
+  --archive /tmp/img.tar.gz` prints them with the archive's size. Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
   by max-width/max-height in a flex item that does not grow renders a
   viewBox-only SVG at 0 x 0.
@@ -1261,9 +1263,9 @@ small to read is not drawn larger, it is shown through a **magnifier**
   type's scale -- is visible with or without a lens. Interior detail lines
   (flutes, threads, hatch) are texture and keep their finer weight.
 
-On the committed catalog 2,260 SKUs are too small to see: 784 get the handled
-glass (x2.53 to x73.20) and 1,476 the handle-less lens (x2.46 to x4.05), as the
-command in [docs/drawings.md](docs/drawings.md#scale-the-magnifier-and-no-text) prints. The
+How many committed SKUs are too small to see, how many of them get the handled
+glass and how many the handle-less lens, with each lens's enlargement range, is
+what the command in [docs/drawings.md](docs/drawings.md#scale-the-magnifier-and-no-text) prints. The
 lowest enlargement any committed lens gives is x2.46, a width-bound
 handle-less lens (below); no committed part reaches
 the rule's 40 x 50 extreme. No drawing
