@@ -127,6 +127,9 @@ FLUTE_WEIGHTS: tuple[tuple[int, float], ...] = (
 #: Helix angles offered by the conventional series.
 HELIX_ANGLES: tuple[float, ...] = (30.0, 35.0, 38.0, 45.0)
 
+#: Point angles offered by the conventional jobber drill series.
+POINT_ANGLES: tuple[float, ...] = (118.0, 135.0)
+
 #: Length-of-cut classes, as multiples of the cutting diameter.
 LENGTH_CLASSES: tuple[tuple[str, float], ...] = (
     ("Stub", 1.5),

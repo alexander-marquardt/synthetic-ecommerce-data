@@ -620,7 +620,7 @@ class Generator:
         rng = self.rng
         brand = brands.pick_brand(rng, type_key, self._exhausted)
         material = rng.choice(("High Speed Steel", "Cobalt", "Solid Carbide"))
-        point = rng.choice(("118 Degrees", "135 Degrees"))
+        point = rng.choice(series.POINT_ANGLES)
         item = "Jobber Length Drill Bit"
         series_code = f"{rng.randint(100, 999)}-{rng.choice('ABCD')}"
         draft = LineDraft(
@@ -634,7 +634,7 @@ class Generator:
             keyword_attribute("Item", item),
             keyword_attribute("Material", material),
             keyword_attribute("Point Type", rng.choice(("Split Point", "Standard Point"))),
-            Attribute("Point Angle", point, float(point.split()[0])),
+            Attribute("Point Angle", format_angle(point), point),
             keyword_attribute("Finish", rng.choice(DRILL_FINISH[material])),
             keyword_attribute("Shank Type", rng.choice(("Straight", "Reduced"))),
             keyword_attribute("Cutting Direction", "Right Hand"),
