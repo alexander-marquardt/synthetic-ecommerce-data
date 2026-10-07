@@ -245,6 +245,7 @@ KEY_ATTRIBUTES: dict[str, tuple[str, ...]] = {
     "abrasive_flap_disc": ("Diameter",),
     "bearing_radial_ball": ("Bore",),
     "bolt_hex": ("Dia./Thread Size",),
+    "dowel_pins": ("Diameter",),
     "drill_jobber": ("Decimal Equivalent", "Size"),
     "end_mill_ball": ("Milling Dia.",),
     "end_mill_square": ("Milling Dia.",),
@@ -341,7 +342,14 @@ def model_slope(type_key: str) -> float:
 
 #: Types whose census cells also hold length equal (``method.slope``).
 LENGTH_HELD = frozenset(
-    {"bolt_hex", "screw_socket_head", "screw_flat_head", "screw_button_head", "screw_low_head"}
+    {
+        "bolt_hex",
+        "screw_socket_head",
+        "screw_flat_head",
+        "screw_button_head",
+        "screw_low_head",
+        "dowel_pins",
+    }
 )
 
 
@@ -820,7 +828,11 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
 
 #: Types with no census prices of their own that price as a sibling does: the
 #: census has no button-head or low-head socket screws, and 4 flat-head ones.
+#: Nor has it any dowel pins: they price as the socket head screw, the closest
+#: measured hardened fastener sold by diameter and length, so a dowel pin's
+#: price is generated from a borrowed model, not measured.
 BORROWS: dict[str, str] = {
+    "dowel_pins": "screw_socket_head",
     "screw_button_head": "screw_socket_head",
     "screw_flat_head": "screw_socket_head",
     "screw_low_head": "screw_socket_head",
