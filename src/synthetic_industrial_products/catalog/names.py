@@ -122,12 +122,17 @@ TYPE_SPECIFIC: dict[str, str] = {
     "Tap Style": "census 18 records, 17 of the 24 census taps",
     "Tap Chamfer": "census 3; a tap's chamfer class (Plug, Bottoming, Taper)",
     "Bearing Number": "reference spec table (ball bearings): the designation",
+    "Wheel Dia.": "label ruling 2026-10-07: a diameter is named by what it measures",
+    "Pin Dia.": "label ruling 2026-10-07: a cotter pin diameter is named by what it measures",
 }
 
 #: Names in neither the census nor the reference list, and why each is kept.
 #: The census has no hammer and no abrasive family, so these are unknown there,
 #: not contradicted by it.
 NAME_EXCEPTIONS: dict[str, str] = {
+    "Wheel Dia.": "a grinding wheel face diameter; the census carries no abrasive family",
+    "Pin Dia.": "a cotter pin diameter; the census carries no cotter pin family",
+    "Dowel Dia.": "a dowel pin diameter; the census carries no dowel pin family",
     "Backing Material": "component material: a flap disc's backing plate",
     "Handle Grip Material": "component material: a hammer's grip, beside Handle Material",
     "Face Type": "hammer striking-face form; the census carries no hammer family",
