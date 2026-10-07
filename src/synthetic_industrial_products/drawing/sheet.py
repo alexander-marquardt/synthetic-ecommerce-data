@@ -53,7 +53,7 @@ import math
 from dataclasses import dataclass
 
 from . import svg
-from .model import Disc, Dots, Figure, Lines, Poly
+from .model import Bars, Disc, Dots, Figure, Lines, Poly
 from .style import Hatch, HouseStyle, _mix
 
 #: The inset of the drawing from the sheet edge, in sheet units.
@@ -261,9 +261,14 @@ def _figure_at(
         elif shape.role == "dark":
             colour, hatched = _mix(ink, "#ffffff", 0.55), False
         else:  # handle, grip
-            colour, hatched = shape.fill or pale, False
+            colour, hatched = getattr(shape, "fill", None) or pale, False
         style = {"fill": colour, "stroke": ink, "stroke_width": LW_PART, "stroke_linejoin": "round"}
-        if isinstance(shape, Poly):
+        if isinstance(shape, Bars):
+            d = svg.bars_d([(*at((x0, y0)), *at((x1, y1))) for x0, y0, x1, y1 in shape.rects])
+            page.path(d, **style)
+            if hatched and hatch_id:
+                page.path(d, fill=f"url(#{hatch_id})")
+        elif isinstance(shape, Poly):
             points = [at(p) for p in shape.points]
             page.polygon(points, **style)
             if hatched and hatch_id:

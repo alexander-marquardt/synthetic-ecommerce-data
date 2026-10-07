@@ -186,8 +186,9 @@ def test_every_price_row_is_within_its_band_or_pinned_at_the_default_size(price_
         + len(price.BRAND_CENSUS)
         + 1
         + len(price_report.ENDING_CLASSES)
+        + 2 * len(price.DEEPENED_CENSUS)
     )
-    assert len(price_rows) == expected == 61
+    assert len(price_rows) == expected == 63
     out = [
         row for row in price_rows if not row.within and row.name not in price.PINNED_SHORTFALLS
     ]
@@ -410,6 +411,21 @@ def test_each_type_endings_mix_is_the_census_mix(census, type_key):
 def test_each_breadth_census_figure_is_the_census_figure(census, key):
     q = census["breadth_categories"][key]["price_quantiles_usd"]
     assert price.BREADTH_CENSUS[key] == (q["p10"], q["p50"], q["p90"])
+
+
+@pytest.mark.parametrize("key", sorted(price.DEEPENED_CENSUS))
+def test_each_deepened_census_figure_is_the_census_figure(census, key):
+    """A deepened category leaves the breadth table but keeps its census row."""
+    row = census["breadth_categories"][key]
+    q = row["price_quantiles_usd"]
+    assert price.DEEPENED_CENSUS[key] == (row["n"], q["p10"], q["p50"], q["p90"])
+    assert key not in price.BREADTH_CENSUS
+
+
+@pytest.mark.parametrize("key", sorted(price.DEEPENED_CENSUS))
+def test_each_deepened_types_endings_mix_is_the_census_mix(census, key):
+    expected = census["breadth_categories"][key]["endings"]["class_share"]
+    assert dict(price.model_for(key).endings) == expected
 
 
 def test_the_length_figures_are_the_census_figures(census):
@@ -852,10 +868,11 @@ NOT_MEASURED = frozenset({"hammer_ball_pein", "lock_nuts_nylon_insert", "set_scr
 
 def test_the_rows_score_every_priced_type_but_the_declared_exceptions(scored):
     """A type no row scores is either declared not measured, or borrows a
-    census type's model (the button, flat and low head screws)."""
+    census type's model (the button, flat and low head screws). A deepened
+    breadth category is scored on its census p50 and p90/p10."""
     collected, _ = scored
     built = set(collected.type_of.values())
-    unscored = {t for t in built if t not in price.CENSUS}
+    unscored = {t for t in built if t not in price.CENSUS and t not in price.DEEPENED_CENSUS}
     assert unscored == NOT_MEASURED | set(price.BORROWS)
     assert {t for t in built if not price.model_for(t).measured} == NOT_MEASURED
     assert set(price.BORROWS.values()) <= set(price.CENSUS)
@@ -1051,6 +1068,8 @@ ROW_NAMES = sorted(
     + [BRAND_ROW.format(t) for t in price.BRAND_CENSUS]
     + [f"price economy brands over others, same spec (median): {price.BRAND_SPREAD_TYPE}"]
     + [f"price ending {cls}" for cls in price_report.ENDING_CLASSES]
+    + [f"price p50 (USD): {t}" for t in price.DEEPENED_CENSUS]
+    + [SPREAD_ROW.format(t) for t in price.DEEPENED_CENSUS]
 )
 
 

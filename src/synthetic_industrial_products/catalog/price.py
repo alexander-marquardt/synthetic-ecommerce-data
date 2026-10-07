@@ -508,6 +508,15 @@ ENDINGS: dict[str, dict[str, float]] = {
 #: a pack of 100 costs more than a pack of 25, but far less than four times.
 NUT_PACK_SLOPE = 0.234
 
+#: A breadth category the census measured that is now a modelled type: its
+#: census n and shown-price (p10, p50, p90), the same
+#: ``breadth_categories.<key>`` figures. Its own fitted model is scored on the
+#: p50 and p90/p10 rows (:func:`.price_report.price_rows`); the census has no
+#: within-page pairs for it, so no order row.
+DEEPENED_CENSUS: dict[str, tuple[int, float, float, float]] = {
+    "roller_chain": (71, 74.1, 358.0, 773.0),
+}
+
 #: Each measured breadth category's shown-price (p10, p50, p90)
 #: (``breadth_categories.<key>.price_quantiles_usd``). A row listed here is
 #: priced from these (:func:`breadth_price`); every other row from its own
@@ -526,7 +535,6 @@ BREADTH_CENSUS: dict[str, tuple[float, float, float]] = {
     "hex_pipe_nipples": (3.33, 5.2, 16.24),
     "hose_clamps": (13.492, 34.95, 43.43),
     "rigid_casters": (20.744, 76.2, 351.85),
-    "roller_chain": (74.1, 358.0, 773.0),
     "safety_glasses": (5.0, 8.605, 24.26),
     "threaded_rod": (6.511, 33.52, 140.855),
     "u_bolts": (3.454, 10.68, 23.918),
@@ -650,6 +658,13 @@ class PriceModel:
     #: Sigma of the log-normal noise one size shares across every brand
     #: (:func:`size_draw`); 0.0 but for a type :data:`SIZE_NOISE` names.
     size_sigma: float = 0.0
+    #: A line attribute whose value multiplies the price, and each value's
+    #: multiplier (a roller chain's strand count). A value missing from the
+    #: table counts 1.0. One brand's lines that differ only in this attribute
+    #: share a group draw (:func:`holds_equal`), so the multiplier is what
+    #: separates their prices.
+    option_attribute: str | None = None
+    option_factors: Mapping[str, float] = field(default_factory=dict)
 
 
 def _model(
@@ -878,11 +893,14 @@ HELD_NUMBERS = frozenset({"Package Quantity"})
 def holds_equal(type_key: str, attribute: Attribute) -> bool:
     """Whether a census cell (one group page) holds this line attribute equal:
     any that is not a number, but the pack quantity, and nothing that names
-    the size."""
+    the size, nor the option the model prices by a multiplier (a chain's
+    strand count: one page lists a brand's single and multiple strand chains)."""
+    model = MODELS.get(BORROWS.get(type_key, type_key))
     return (
         (attribute.value_num is None or attribute.name in HELD_NUMBERS)
         and attribute.name not in SIZE_NAMES
         and attribute.name not in KEY_ATTRIBUTES.get(type_key, ())
+        and (model is None or attribute.name != model.option_attribute)
     )
 
 
@@ -924,9 +942,10 @@ def structure(
     tier: str,
     pack: float | None = None,
     length: float | None = None,
+    option: str | None = None,
 ) -> float:
     """The log-price terms that are not noise and not the anchor."""
-    log_p = 0.0
+    log_p = math.log(model.option_factors.get(option or "", 1.0))
     if key is not None and key > 0:
         log_p += model.slope * math.log(key / model.anchor_key)
     if model.length_slope and length is not None and length > 0:
