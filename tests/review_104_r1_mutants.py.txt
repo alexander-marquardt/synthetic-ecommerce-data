@@ -1,0 +1,41 @@
+# Review of PR 104, round 1: mutants of catalog/tabletype.py.
+# Each tuple is (path, old, new, name): one replacement in one file.
+# Run with: uv run --locked python .agent/run_mutants.py
+[
+    (
+        "src/synthetic_industrial_products/catalog/tabletype.py",
+        "return MM_PER_INCH if self.unit == \"mm\" else 1.0",
+        "return MM_PER_INCH",
+        "an inch table is read as millimetres",
+    ),
+    (
+        "src/synthetic_industrial_products/catalog/tabletype.py",
+        "style = gen._style(table.unit)",
+        "style = gen._style(\"mm\")",
+        "an inch table is published in the metric style",
+    ),
+    (
+        "src/synthetic_industrial_products/catalog/tabletype.py",
+        "(factors == sorted(factors) and factors[0] == 1.0,",
+        "(factors == sorted(factors),",
+        "a ladder whose cheapest material is not 1.0 is accepted",
+    ),
+    (
+        "src/synthetic_industrial_products/catalog/tabletype.py",
+        "first = index * STRIDE % len(table.rows)",
+        "first = 0",
+        "every combination starts its run at the first row",
+    ),
+    (
+        "src/synthetic_industrial_products/catalog/tabletype.py",
+        "return (table.standard,)",
+        "return ()",
+        "a table record claims no standard",
+    ),
+    (
+        "src/synthetic_industrial_products/catalog/tabletype.py",
+        "return table.inches(table.rows[len(table.rows) // 2]), \"nominal\"",
+        "return table.inches(table.rows[0]), \"nominal\"",
+        "a record with no size is drawn as the first row (control: expected killed)",
+    ),
+]
