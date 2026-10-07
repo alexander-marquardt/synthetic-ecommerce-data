@@ -40,11 +40,7 @@ leaves (:func:`share_band`, :func:`brand_spread_band`). A row
 :data:`.price.PINNED_SHORTFALLS` names is reported with its reason, and is
 pinned by the tests to the side of its band that reason puts it, no further
 out than the figure :data:`.price.PINNED_FIGURES` records for that build
-(:func:`pin_holds`). A row
-:data:`.price.ROW_EXCEPTIONS` names is reported with its reason and held to
-no band, at either side or build, only to a miss no more than
-:data:`.price.EXCEPTION_DRIFT` times the one :data:`.price.EXCEPTED_FIGURES`
-records for that build (:func:`exception_holds`).
+(:func:`pin_holds`).
 
 Breadth lines are left out, as they are of every realism row.
 
@@ -74,8 +70,6 @@ from .price import (
     ECONOMY_OVER_OTHERS_MEDIAN,
     ENDINGS,
     EQUAL_PRICE_TYPES,
-    EXCEPTED_FIGURES,
-    EXCEPTION_DRIFT,
     KEYS,
     LENGTH_CENSUS,
     LENGTH_HELD,
@@ -84,7 +78,6 @@ from .price import (
     PINNED_SHORTFALLS,
     POOLED_ENDINGS,
     POOLED_ENDINGS_N,
-    ROW_EXCEPTIONS,
     BrandCensus,
     PriceCensus,
     _magnitude,
@@ -609,8 +602,6 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
     return [
         replace(row, note=f"{row.note}; PINNED SHORTFALL, {PINNED_SHORTFALLS[row.name]}")
         if row.name in PINNED_SHORTFALLS
-        else replace(row, note=f"{row.note}; EXCEPTED, {ROW_EXCEPTIONS[row.name]}")
-        if row.name in ROW_EXCEPTIONS
         else row
         for row in rows
     ]
@@ -628,35 +619,10 @@ def pin_holds(row: Comparison, build: int) -> bool:
     return row.band[1] < row.achieved <= recorded * (1 + PIN_TOLERANCE)
 
 
-def band_miss(achieved: float, band: tuple[float, float]) -> float:
-    """How far outside ``band`` a figure lands, as a ratio to the nearer
-    edge: 1.0 in band, 1.1 for 10% above the top or 10% under the bottom.
-    A ratio, not a difference, so a dollar p50 and a p90/p10 read alike."""
-    low, high = band
-    return max(achieved / high, low / achieved, 1.0)
-
-
-def exception_holds(row: Comparison, build: int) -> bool:
-    """Whether a row :data:`.price.ROW_EXCEPTIONS` names misses its band by
-    no more than :data:`.price.EXCEPTION_DRIFT` times the miss of the figure
-    :data:`.price.EXCEPTED_FIGURES` records for ``build`` (0 the default
-    build, 1 the 100K one), on either side."""
-    assert row.band is not None
-    recorded = EXCEPTED_FIGURES[row.name][build]
-    return band_miss(row.achieved, row.band) <= EXCEPTION_DRIFT * band_miss(recorded, row.band)
-
-
-def exception_is_stale(rows: Sequence[Comparison]) -> bool:
-    """Whether an excepted row is in band at every build in ``rows`` (the
-    default and the 100K one): only then may its exception go, since a row
-    in band at one build still needs it at the other."""
-    return all(row.within for row in rows)
-
-
 def recorded_digits(name: str) -> int:
-    """The decimal places a pinned or excepted row's figure is recorded to
-    (:data:`.price.PINNED_FIGURES`, :data:`.price.EXCEPTED_FIGURES`): a
-    dollar p50 to the cent, a ratio to three places."""
+    """The decimal places a pinned row's figure is recorded to
+    (:data:`.price.PINNED_FIGURES`): a dollar p50 to the cent, a ratio to
+    three places."""
     return 2 if name.startswith("price p50 (USD)") else 3
 
 
