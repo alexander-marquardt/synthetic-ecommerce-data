@@ -262,7 +262,7 @@ def test_every_bearing_is_a_real_table_entry_with_its_own_dimensions(which, requ
         a = {x["name"]: x["value"] for x in published_attributes(doc)}
         assert a.get("Bearing Number") in table, (doc["sku"], a.get("Bearing Number"))
         for name, expected in zip(
-            ("Bore", "Outside Dia.", "Width"), table[a["Bearing Number"]], strict=True
+            ("Bore Dia.", "Outside Dia.", "Width"), table[a["Bearing Number"]], strict=True
         ):
             if name in a:
                 assert abs(parse_length(a[name]).inches - expected) < 0.002, (doc["sku"], name)

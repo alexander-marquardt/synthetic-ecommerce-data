@@ -322,7 +322,7 @@ def test_every_metric_bearing_has_its_iso_15_boundary_dimensions(docs):
             continue
         bore = iso15_bore(number)
         od, width = ISO15_SERIES[number[1]][bore]
-        for name, mm in (("Bore", bore), ("Outside Dia.", od), ("Width", width)):
+        for name, mm in (("Bore Dia.", bore), ("Outside Dia.", od), ("Width", width)):
             if name not in v:
                 continue
             inches = _inches(v[name])

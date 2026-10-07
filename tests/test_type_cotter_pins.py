@@ -40,7 +40,7 @@ SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
 
 DIMENSIONAL = {"ISO 1234"}
 #: The chart's ``d``, ``c`` and ``b`` under the names they are published as.
-COLUMNS = ("Diameter", "Head Diameter", "Head Height")
+COLUMNS = ("Diameter", "Head Dia.", "Head Height")
 #: ``(d, c, b)`` in millimetres: twelve of the chart's sizes.
 ROWS = {
     (1.0, 1.8, 3.0), (1.2, 2.0, 3.0), (1.6, 2.8, 3.2), (2.0, 3.6, 4.0),

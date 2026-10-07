@@ -44,7 +44,7 @@ KEY = "roller_chain_sprockets"
 SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
 
 DIMENSIONAL = {"ASME B29.1"}
-COLUMNS = ("Outside Diameter", "Pitch", "Bore Dia.", "Hub Diameter", "Length Through Bore")
+COLUMNS = ("Outside Dia.", "Pitch", "Bore Dia.", "Hub Diameter", "Length Through Bore")
 #: ``(chain number, teeth, computed outside diameter, the outside diameter the
 #: page prints, pitch, bore, hub diameter, length through bore)``, inches.
 SPROCKETS = (
@@ -177,7 +177,7 @@ def test_the_provenance_names_where_each_published_dimension_came_from(large_doc
 
 def test_the_provenance_does_not_say_the_standard_was_read(large_docs):
     assert {doc["dimension_provenance"] for doc in large_docs} == {
-        "Outside Diameter computed from Pitch and Number of Teeth by the ASME B29.1 "
+        "Outside Dia. computed from Pitch and Number of Teeth by the ASME B29.1 "
         "sprocket relation; Pitch is the ASME B29.1 dimension of the chain number; "
         "Bore Dia. and Hub Diameter and Length Through Bore as published on a "
         "distributor's product pages, for instance "
@@ -245,7 +245,7 @@ def test_one_sprocket_publishes_exactly_its_row(large_docs):
         "Item": "Roller Chain Sprocket",
         "Material": "Steel",
         "Package Quantity": "1",
-        "Outside Diameter": "2.6520",
+        "Outside Dia.": "2.6520",
         "Pitch": "1/2",
         "Bore Dia.": "3/4",
         "Hub Diameter": "1-13/16",

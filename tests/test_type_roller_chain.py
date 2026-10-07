@@ -128,7 +128,7 @@ def _pitch_entries(rows: list[dict], type_key: str) -> list[dict]:
         for row in rows
         if row["product_type"] == type_key
         for a in row["attributes"]
-        if a["name"] == "Pitch"
+        if a["name"] in ("Pitch", "Thread Pitch")
     ]
 
 
@@ -144,24 +144,24 @@ def test_a_chains_pitch_is_keyed_chain_pitch_in_inches(default_rows):
 
 def test_a_taps_pitch_keeps_the_key_pitch(default_rows):
     entries = _pitch_entries(default_rows, "tap_spiral_point")
-    assert entries, "no tap published a Pitch"
-    assert {a["key"] for a in entries} == {"pitch"}
+    assert entries, "no tap published a Thread Pitch"
+    assert {a["key"] for a in entries} == {"thread_pitch"}
     assert {a["unit_code"] for a in entries} == {"MMT"}
 
 
 def test_the_facet_derivation_measures_the_two_pitches_apart(default_rows):
     stats = derive.measure(default_rows)
-    pitches = {key: s for key, s in stats.items() if s.name == "Pitch"}
-    assert sorted(pitches) == ["chain_pitch", "pitch"]
+    pitches = {key: s for key, s in stats.items() if s.name in ("Pitch", "Thread Pitch")}
+    assert sorted(pitches) == ["chain_pitch", "thread_pitch"]
     # One facet: the chain, the links that join it, the sprockets it runs on.
     assert pitches["chain_pitch"].product_types == (
         KEY,
         "roller_chain_links",
         "roller_chain_sprockets",
     )
-    assert pitches["pitch"].product_types == ("tap_spiral_point",)
+    assert pitches["thread_pitch"].product_types == ("tap_spiral_point",)
     decisions = [derive.decide(s) for s in pitches.values()]
-    assert sorted(d.stats.key for d in decisions) == ["chain_pitch", "pitch"]
+    assert sorted(d.stats.key for d in decisions) == ["chain_pitch", "thread_pitch"]
 
 
 # --- the chain number is B29.1's own rule, and the table is the standard's ----
