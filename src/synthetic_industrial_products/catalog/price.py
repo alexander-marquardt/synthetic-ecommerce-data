@@ -648,6 +648,13 @@ class PriceModel:
     #: Sigma of the log-normal noise one size shares across every brand
     #: (:func:`size_draw`); 0.0 but for a type :data:`SIZE_NOISE` names.
     size_sigma: float = 0.0
+    #: A line attribute whose value multiplies the price, and each value's
+    #: multiplier (a roller chain's strand count). A value missing from the
+    #: table counts 1.0. One brand's lines that differ only in this attribute
+    #: share a group draw (:func:`holds_equal`), so the multiplier is what
+    #: separates their prices.
+    option_attribute: str | None = None
+    option_factors: Mapping[str, float] = field(default_factory=dict)
 
 
 def _model(
@@ -867,11 +874,14 @@ HELD_NUMBERS = frozenset({"Package Quantity"})
 def holds_equal(type_key: str, attribute: Attribute) -> bool:
     """Whether a census cell (one group page) holds this line attribute equal:
     any that is not a number, but the pack quantity, and nothing that names
-    the size."""
+    the size, nor the option the model prices by a multiplier (a chain's
+    strand count: one page lists a brand's single and multiple strand chains)."""
+    model = MODELS.get(BORROWS.get(type_key, type_key))
     return (
         (attribute.value_num is None or attribute.name in HELD_NUMBERS)
         and attribute.name not in SIZE_NAMES
         and attribute.name not in KEY_ATTRIBUTES.get(type_key, ())
+        and (model is None or attribute.name != model.option_attribute)
     )
 
 
@@ -913,9 +923,10 @@ def structure(
     tier: str,
     pack: float | None = None,
     length: float | None = None,
+    option: str | None = None,
 ) -> float:
     """The log-price terms that are not noise and not the anchor."""
-    log_p = 0.0
+    log_p = math.log(model.option_factors.get(option or "", 1.0))
     if key is not None and key > 0:
         log_p += model.slope * math.log(key / model.anchor_key)
     if model.length_slope and length is not None and length > 0:

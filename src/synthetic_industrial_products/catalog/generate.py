@@ -2081,6 +2081,7 @@ class Generator:
             brands.tier_of(brand, type_key),
             pack,
             price.length_of(facts) if type_key in price.LENGTH_HELD else None,
+            facts[model.option_attribute].value if model.option_attribute in facts else None,
         )
         seed = self.config.seed
         always = self._always_published(type_key)

@@ -213,6 +213,13 @@ def chain(record: dict[str, str]) -> Drawn:
 
 # --- price ------------------------------------------------------------------------
 
+#: What a multiple strand chain costs against the single strand chain of its
+#: pitch, material, length and brand. GENERATED, not measured: the census's 71
+#: prices are not split by strand count. A double strand chain is two single
+#: chains' plates and rollers on shared pins, a triple strand chain three, and
+#: each sells a little under that multiple of the single chain.
+STRAND_FACTORS = {STRANDS[1]: 1.0, STRANDS[2]: 1.9, STRANDS[3]: 2.8}
+
 #: The census's roller-chain endings (``breadth_categories.roller_chain.endings``).
 ENDINGS = {"other .x5": 0.3239, ".00": 0.2958, ".50": 0.2676, "other": 0.0986, ".95": 0.0141}
 
@@ -221,21 +228,21 @@ ENDINGS = {"other .x5": 0.3239, ".00": 0.2958, ".50": 0.2676, "other": 0.0986, "
 #: the p50 and p90/p10 rows at both sizes. The census measures no size slope
 #: for this category (no within-page pairs), so the pitch slope and the length
 #: slope are GENERATED, not measured: a chain's steel grows about as pitch
-#: squared, and a 100 ft reel costs nearly ten 10 ft boxes. The strand count
-#: does not move the price (a model has one key dimension), so a double strand
-#: chain prices as a single strand one of its pitch, but for its line's noise.
+#: squared, and a 100 ft reel costs nearly ten 10 ft boxes.
 PRICE = PriceModel(
     # @fit-begin
-    168.0,
+    116.0,
     0.5,
     1.2,
-    0.35,
+    0.28,
     0.1,
     # @fit-end
     endings=ENDINGS,
     pack_attribute="Length",
     pack_slope=0.93,
     pack_ref=120.0,
+    option_attribute="Style",
+    option_factors=STRAND_FACTORS,
 )
 
 SPEC = TypeSpec(
