@@ -628,14 +628,13 @@ SIZE_NOISE: dict[str, str] = {
 #: (``price_report.recorded_digits``), so a record cannot be loosened by hand.
 _WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
 PINNED_FIGURES: dict[str, tuple[float, float]] = {
-    "price p90/p10: bearing_radial_ball": (4.493, 4.783),
     _WHEEL_SPREAD_ROW: (3.241, 2.776),
 }
 
 #: How far past its recorded figure a pinned row may move, as a ratio. The
 #: build is one seed, so the figure is exact on it; the tolerance is room for
-#: the fit rounding its literals, well under the 5% the mildest worsening a
-#: review planted moved a pin (bearing noise off: 4.55 to 4.31).
+#: the fit rounding its literals, well under the 6% the wheel's group noise
+#: made 10% louder moves its pin (3.24 to 3.43, ``tests/test_price.py``).
 PIN_TOLERANCE = 0.02
 
 #: Rows that land outside their band, and why: disclosed, and pinned by
@@ -643,11 +642,6 @@ PIN_TOLERANCE = 0.02
 #: figure a reason quotes is read from :data:`PINNED_FIGURES`, so a refit that
 #: re-records the figure cannot leave the reason quoting the old one.
 PINNED_SHORTFALLS: dict[str, str] = {
-    "price p90/p10: bearing_radial_ball": (
-        "below band: catalog bores span a p90/p10 of about 3x against the census's 16.1x, "
-        "and the census's own brand spread (1.38) leaves no group noise to make up the rest "
-        "(widen the bore range: #64)"
-    ),
     _WHEEL_SPREAD_ROW: (
         "above band: catalog diameters span 2.25x, which the key term spreads to 2.6x of the "
         "census's 10x, and the group noise that makes up the rest is drawn independently per "
@@ -719,7 +713,7 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
     {
         # @fit-begin
         "abrasive_flap_disc": _model("abrasive_flap_disc", 8.542, 5.0, 0.172, 0.086),
-        "bearing_radial_ball": _model("bearing_radial_ball", 24.62, 0.5, 0.194, 0.049),
+        "bearing_radial_ball": _model("bearing_radial_ball", 12.94, 0.5, 0.016, 0.342),
         "bolt_hex": _model("bolt_hex", 18.33, 0.375, 0.284, 0.194, slope=0.987, length_slope=0.347),
         "drill_jobber": _model("drill_jobber", 4.435, 0.25, 0.634, 0.182),
         "end_mill_ball": _model("end_mill_ball", 45.33, 0.375, 0.108, 0.246, slope=0.952),

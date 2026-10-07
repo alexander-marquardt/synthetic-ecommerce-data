@@ -28,9 +28,25 @@ GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 LBF_PER_KN = 224.809
 
 #: Deep groove ball bearing ratings: (dynamic C kN, static C0 kN, open grease
-#: limiting speed rpm) -- SKF's published tables for 60/62/63, distributor
-#: listings for the inch R series.
+#: limiting speed rpm) -- SKF's published tables for 6000-6006, 6200-6208 and
+#: 6300-6305, NBC Bearings' product pages for the single-digit bores and the
+#: larger 60/62/63 numbers, distributor listings for the inch R series.
 RATINGS = {
+    "607": (2.24, 0.91, 34000), "608": (3.30, 1.37, 32000), "609": (3.68, 1.65, 31000),
+    "625": (1.73, 0.67, 37000), "626": (2.33, 0.89, 34000), "628": (3.33, 1.42, 31000),
+    "629": (4.57, 1.98, 30000),
+    "6007": (17.7, 10.3, 12000), "6008": (18.6, 11.5, 10000), "6009": (23.2, 15.1, 9200),
+    "6010": (24.2, 16.6, 8400), "6011": (31.5, 21.3, 7700), "6013": (34.0, 25.2, 6500),
+    "6014": (42.0, 30.8, 6100), "6016": (53.0, 40.0, 5200), "6018": (58.0, 49.8, 4700),
+    "6019": (60.0, 53.8, 4500), "6020": (64.46, 56.13, 4200),
+    "6209": (36.0, 20.5, 7800), "6210": (39.0, 23.2, 7100), "6211": (48.0, 29.3, 6400),
+    "6213": (63.5, 40.1, 5500), "6214": (69.0, 44.1, 5100), "6216": (71.55, 54.3, 4500),
+    "6217": (83.2, 64.0, 4200), "6218": (95.98, 71.46, 4000), "6220": (122.14, 92.72, 3500),
+    "6306": (30.08, 14.5, 10000), "6307": (37.0, 19.2, 8800), "6308": (45.07, 22.9, 7800),
+    "6309": (58.5, 32.0, 7000), "6310": (68.5, 38.0, 6400), "6311": (79.5, 44.4, 5800),
+    "6312": (90.5, 52.0, 5400), "6313": (103.0, 59.8, 4900), "6314": (115.0, 68.04, 4600),
+    "6315": (126.0, 76.97, 4300), "6317": (132.42, 96.59, 3800), "6318": (142.33, 107.23, 3600),
+    "6319": (156.36, 121.98, 3300), "6320": (172.65, 140.4, 3200),
     "6000": (4.75, 1.96, 38000), "6001": (5.40, 2.36, 32000), "6002": (5.85, 2.85, 28000),
     "6003": (6.37, 3.25, 24000), "6004": (9.95, 5.00, 20000), "6005": (11.9, 6.55, 18000),
     "6006": (13.8, 8.30, 14000), "6200": (5.40, 2.36, 34000), "6201": (7.28, 3.10, 32000),
@@ -41,6 +57,38 @@ RATINGS = {
     "6305": (23.4, 11.6, 16000), "R4": (1.14, 0.46, 48000), "R6": (3.30, 1.40, 36000),
     "R8": (5.07, 2.37, 28000), "R10": (6.23, 3.30, 24000), "R12": (9.36, 4.80, 20000),
 }  # fmt: skip
+#: ISO 15 boundary dimensions of a radial bearing, (outside dia, width) mm by
+#: bore mm, for the three diameter series the catalog stocks: 0 (6000-6020,
+#: 607-609), 2 (6200-6220, 625-629) and 3 (6300-6320).
+ISO15_SERIES = {
+    "0": {7: (19, 6), 8: (22, 7), 9: (24, 7), 10: (26, 8), 12: (28, 8), 15: (32, 9),
+          17: (35, 10), 20: (42, 12), 25: (47, 12), 30: (55, 13), 35: (62, 14), 40: (68, 15),
+          45: (75, 16), 50: (80, 16), 55: (90, 18), 60: (95, 18), 65: (100, 18),
+          70: (110, 20), 75: (115, 20), 80: (125, 22), 85: (130, 22), 90: (140, 24),
+          95: (145, 24), 100: (150, 24)},
+    "2": {5: (16, 5), 6: (19, 6), 7: (22, 7), 8: (24, 8), 9: (26, 8), 10: (30, 9),
+          12: (32, 10), 15: (35, 11), 17: (40, 12), 20: (47, 14), 25: (52, 15), 30: (62, 16),
+          35: (72, 17), 40: (80, 18), 45: (85, 19), 50: (90, 20), 55: (100, 21),
+          60: (110, 22), 65: (120, 23), 70: (125, 24), 75: (130, 25), 80: (140, 26),
+          85: (150, 28), 90: (160, 30), 95: (170, 32), 100: (180, 34)},
+    "3": {10: (35, 11), 12: (37, 12), 15: (42, 13), 17: (47, 14), 20: (52, 15),
+          25: (62, 17), 30: (72, 19), 35: (80, 21), 40: (90, 23), 45: (100, 25),
+          50: (110, 27), 55: (120, 29), 60: (130, 31), 65: (140, 33), 70: (150, 35),
+          75: (160, 37), 80: (170, 39), 85: (180, 41), 90: (190, 43), 95: (200, 45),
+          100: (215, 47)},
+}  # fmt: skip
+
+
+def iso15_bore(number: str) -> int:
+    """The bore a metric deep groove designation's bore code names, per ISO 15:
+    a single digit is the bore in mm; 00-03 are 10, 12, 15 and 17; 04 and up
+    are five times the code."""
+    code = number[2:]
+    if len(code) == 1:
+        return int(code)
+    return {"00": 10, "01": 12, "02": 15, "03": 17}.get(code, 5 * int(code))
+
+
 #: A contact seal limits speed to about 70% of the open bearing; a shield does not.
 CLOSURE_SPEED = {"Open": 1.0, "Double Shield": 1.0, "Double Seal": 0.70}
 
@@ -235,6 +283,33 @@ def test_every_bearing_is_rated_by_its_table(docs):
             assert v["Max. RPM"] == f"{expected:,.0f}", (doc["sku"], v)
         checked += 1
     assert checked > 500
+
+
+def test_every_metric_bearing_has_its_iso_15_boundary_dimensions(docs):
+    """A metric bearing number names its bore by its bore code and its outside
+    diameter and width by ISO 15's table for its diameter series, the third
+    digit of 60/62/63. Held against the table written out above, not the
+    generator's, so a widened size range cannot carry an invented size."""
+    bores: set[int] = set()
+    wrong = []
+    for doc in docs:
+        if doc["product_type"] != "bearing_radial_ball":
+            continue
+        v = _values(doc)
+        number = v["Bearing Number"]
+        if not number.isdigit():
+            continue
+        bore = iso15_bore(number)
+        od, width = ISO15_SERIES[number[1]][bore]
+        for name, mm in (("Bore", bore), ("Outside Dia.", od), ("Width", width)):
+            if name not in v:
+                continue
+            inches = _inches(v[name])
+            if inches is None or abs(inches - mm / 25.4) >= 0.002:
+                wrong.append((doc["sku"], number, name, v[name], mm))
+        bores.add(bore)
+    assert not wrong, wrong[:5]
+    assert (min(bores), max(bores)) == (5, 100), sorted(bores)
 
 
 def test_every_claimed_standard_applies_to_the_part(docs):

@@ -783,7 +783,7 @@ FIGURES.update(
     {
         "kit_assortment": (kit, (5.65, 2.95)),
         "nut_hex": (hex_nut, (1.95, 3.5)),
-        "bearing_radial_ball": (bearing, (3.25, 4.95)),
+        "bearing_radial_ball": (bearing, (8.75, 13.25)),
         "wheel_depressed_center": (depressed_wheel, (9.3, 13.2)),
         "hex_key": (hex_key, (2.95, 9.85)),
     }

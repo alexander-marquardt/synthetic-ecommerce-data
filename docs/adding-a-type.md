@@ -408,7 +408,7 @@ that fixes it:
   `PINNED_SHORTFALLS` and its figures at both sizes, as the fit prints
   them, in `PINNED_FIGURES`. At each size the row may then move no further
   out than that size's figure, within `PIN_TOLERANCE`, and must stay on its
-  side (the bearing p90/p10, #64; the wheel brand spread, #66). A figure a
+  side (the wheel brand spread, #66). A figure a
   reason quotes is read from `PINNED_FIGURES` in an f-string, never typed,
   so a refit cannot leave it stale.
 * **An exception**, for a row that no model of this shape holds at both

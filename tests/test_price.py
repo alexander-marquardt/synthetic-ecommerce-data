@@ -162,7 +162,6 @@ def test_the_twice_types_are_the_census_types_with_20_pairs(census, price_rows):
 #: Each pinned shortfall: the side of its band it falls on, and what its
 #: reason must name (the cause, or the issue that fixes it).
 PINNED_SIDES = {
-    "price p90/p10: bearing_radial_ball": ("below", "#64"),
     "price brand spread, same spec (median max/min): wheel_depressed_center": (
         "above",
         "drawn independently per",
@@ -224,19 +223,20 @@ def test_a_pin_may_land_no_further_out_than_its_figure_for_that_build(price_rows
 
 
 def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
-    """Review plant M5: bearing noise off. Its p90/p10 falls from 4.55 to
-    4.31, further below the band but still on its side, so only the
-    recorded figure can catch it."""
-    name = "price p90/p10: bearing_radial_ball"
-    quiet = replace(price.MODELS["bearing_radial_ball"], group_sigma=0.0, sku_sigma=0.0)
-    monkeypatch.setitem(price.MODELS, "bearing_radial_ball", quiet)
+    """The wheel's group noise 10% louder spreads one spec's brands from
+    3.24x to 3.43x apart: further above the band but still on its side, so
+    only the recorded figure can catch it."""
+    name = BRAND_ROW.format("wheel_depressed_center")
+    model = price.MODELS["wheel_depressed_center"]
+    louder = replace(model, group_sigma=model.group_sigma * 1.1)
+    monkeypatch.setitem(price.MODELS, "wheel_depressed_center", louder)
     (row,) = [
         row
         for row in price_report.price_comparisons(generate(GeneratorConfig()))
         if row.name == name
     ]
-    assert round(row.achieved, 2) == 4.31
-    assert row.achieved < row.band[0]
+    assert round(row.achieved, 2) == 3.43
+    assert row.achieved > row.band[1]
     assert not price_report.pin_holds(row, 0)
 
 
