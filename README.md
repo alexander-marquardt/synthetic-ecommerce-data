@@ -1442,7 +1442,7 @@ figure against the file.
 | pack quantity (hex nuts) | census pack slope |
 | group noise, one draw per census-style page (one brand, the line attributes a page holds equal) | fitted sigma |
 | SKU noise, one draw per SKU | fitted sigma |
-| size noise, one draw per spec that every brand shares (taps and socket screws only, `price.SIZE_NOISE`, each with its reason) | fitted sigma |
+| size noise, one draw per spec that every brand shares (taps, socket screws and set screws only, `price.SIZE_NOISE`, each with its reason) | fitted sigma |
 
 **A kit is priced from what it holds** (`price.CONTENTS_PRICED`). Its key is
 not one dimension but its contents' price (`price.kit_contents`): each size
@@ -1527,7 +1527,7 @@ entries of `golden-catalog/stats.json` whose `name` starts with `price `
 python3 -c "import json; r = [c for c in json.load(open('golden-catalog/stats.json'))['comparisons'] if c['name'].startswith('price ')]; print(len(r), 'rows,', sum(c['band'][0] <= c['achieved'] <= c['band'][1] for c in r), 'in band')"
 ```
 
-It prints `61 rows, 58 in band`; the other three are the pins.
+It prints `72 rows, 70 in band`; the other two are the pins.
 `uv run python scripts/fit_price_model.py` prints every row at both sizes
 side by side (about 2 minutes).
 
