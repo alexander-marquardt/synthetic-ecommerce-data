@@ -134,6 +134,10 @@ NAME_EXCEPTIONS: dict[str, str] = {
     "Take Up": "how far a turnbuckle draws its ends together; no turnbuckle in the census",
     "Closed Length": "a turnbuckle end to end, fully taken up; no turnbuckle in the census",
     "Head Weight": "hammer head weight; the census carries no hammer family",
+    "Base to Center Height": (
+        "a pillow block's mounting face to its shaft centre; the census has Height and"
+        " Overall Height, which are other measurements"
+    ),
     "For Shaft Diameter": (
         "the shaft a retaining ring fits, in the census's relational form;"
         " the census carries no retaining ring family"
