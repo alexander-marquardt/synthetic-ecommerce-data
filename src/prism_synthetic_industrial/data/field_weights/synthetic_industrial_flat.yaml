@@ -10,8 +10,8 @@
 # ``tests/test_prism_field_map_drift.py`` fails if this file and a fresh
 # derivation disagree. Editing this file alone reds that test; changing the
 # generator without rebuilding reds it too, which is the point -- the catalog
-# publishes 94 distinct attribute names and a hand-maintained list
-# of 94 declarations drifts from the data the first time either side moves.
+# publishes 95 distinct attribute names and a hand-maintained list
+# of 95 declarations drifts from the data the first time either side moves.
 #
 # WHICH ATTRIBUTES BECOME FACETS
 # -----------------------------------------------------------------------------
@@ -59,9 +59,9 @@
 #
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
-#   attributes declared      94
+#   attributes declared      95
 #   offered as facets        64  (0 numeric ranges, 64 terms)
-#   declared, not faceted    30
+#   declared, not faceted    31
 # =============================================================================
 
 field_map_version: 1
@@ -297,7 +297,7 @@ fields:
     type: terms
     source: facets.diameter
   # Dimension Type -- present on 29% of its product types' documents (floor 50%)
-  #   present on 3103 documents across 19 product type(s); 4 distinct values
+  #   present on 3124 documents across 20 product type(s); 4 distinct values
   - name: dimension_type
     type: terms
     source: facets.dimension_type
@@ -340,8 +340,8 @@ fields:
     type: terms
     source: facets.face_type
     facet: false
-  # Finish -- 15 distinct values
-  #   present on 6304 documents across 30 product type(s); 15 distinct values
+  # Finish -- 16 distinct values
+  #   present on 6370 documents across 31 product type(s); 16 distinct values
   - name: finish
     type: terms
     source: facets.finish
@@ -360,6 +360,12 @@ fields:
   - name: grit
     type: terms
     source: facets.grit
+  # Groove Dia. -- present on 48% of its product types' documents (floor 50%)
+  #   present on 33 documents across 1 product type(s); 30 distinct values
+  - name: groove_dia
+    type: terms
+    source: facets.groove_dia
+    facet: false
   # Handle Grip Material -- 3 distinct values
   #   present on 116 documents across 1 product type(s); 3 distinct values
   - name: handle_grip_material
@@ -411,13 +417,13 @@ fields:
     type: terms
     source: facets.insert_material
     facet: false
-  # Inside Dia. -- a discrete standard set: 10 distinct values over 225 documents is 0.04 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 225 documents across 1 product type(s); 10 distinct values
+  # Inside Dia. -- a discrete standard set: 40 distinct values over 262 documents is 0.15 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 262 documents across 2 product type(s); 40 distinct values
   - name: inside_dia
     type: terms
     source: facets.inside_dia
   # Item -- 73 distinct values reads as an identifier, not a facet (cap 25)
-  #   present on 10650 documents across 67 product type(s); 73 distinct values
+  #   present on 10717 documents across 67 product type(s); 73 distinct values
   - name: item
     type: terms
     source: facets.item
@@ -455,8 +461,8 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 23 distinct values
-  #   present on 8879 documents across 65 product type(s); 23 distinct values
+  # Material -- 24 distinct values
+  #   present on 8946 documents across 65 product type(s); 24 distinct values
   - name: material
     type: terms
     source: facets.material
@@ -472,7 +478,7 @@ fields:
     type: terms
     source: facets.max_rpm
   # Measurement System -- present on 10% of its product types' documents (floor 50%)
-  #   present on 1027 documents across 19 product type(s); 4 distinct values
+  #   present on 1034 documents across 20 product type(s); 4 distinct values
   - name: measurement_system
     type: terms
     source: facets.measurement_system
@@ -589,8 +595,8 @@ fields:
   - name: single_end_double_end
     type: terms
     source: facets.single_end_double_end
-  # Size -- a discrete standard set: 154 distinct values over 1907 documents is 0.08 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1907 documents across 21 product type(s); 154 distinct values
+  # Size -- a discrete standard set: 181 distinct values over 1974 documents is 0.09 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1974 documents across 21 product type(s); 181 distinct values
   - name: size
     type: terms
     source: facets.size
@@ -600,8 +606,8 @@ fields:
     type: terms
     source: facets.sizes_included
     facet: false
-  # Standards -- 57 distinct values reads as an identifier, not a facet (cap 25)
-  #   present on 5547 documents across 18 product type(s); 57 distinct values
+  # Standards -- 58 distinct values reads as an identifier, not a facet (cap 25)
+  #   present on 5574 documents across 19 product type(s); 58 distinct values
   - name: standards
     type: terms
     source: facets.standards
@@ -611,13 +617,13 @@ fields:
   - name: static_load_capacity
     type: terms
     source: facets.static_load_capacity
-  # Style -- 11 distinct values
-  #   present on 23 documents across 13 product type(s); 11 distinct values
+  # Style -- 10 distinct values
+  #   present on 21 documents across 12 product type(s); 10 distinct values
   - name: style
     type: terms
     source: facets.style
   # System of Measurement -- present on 4% of its product types' documents (floor 50%)
-  #   present on 475 documents across 19 product type(s); 4 distinct values
+  #   present on 478 documents across 20 product type(s); 4 distinct values
   - name: system_of_measurement
     type: terms
     source: facets.system_of_measurement
@@ -633,8 +639,8 @@ fields:
     type: terms
     source: facets.tap_style
     facet: false
-  # Thickness -- a discrete standard set: 21 distinct values over 1438 documents is 0.01 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1438 documents across 3 product type(s); 21 distinct values
+  # Thickness -- a discrete standard set: 33 distinct values over 1475 documents is 0.02 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1475 documents across 4 product type(s); 33 distinct values
   - name: thickness
     type: terms
     source: facets.thickness
@@ -670,8 +676,8 @@ fields:
   - name: tip_style
     type: terms
     source: facets.tip_style
-  # Type -- 27 distinct values reads as an identifier, not a facet (cap 25)
-  #   present on 7537 documents across 19 product type(s); 27 distinct values
+  # Type -- 28 distinct values reads as an identifier, not a facet (cap 25)
+  #   present on 7597 documents across 20 product type(s); 28 distinct values
   - name: type
     type: terms
     source: facets.type

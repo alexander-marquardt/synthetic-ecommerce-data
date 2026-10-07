@@ -60,11 +60,13 @@ MATERIAL_FILL: dict[str, str] = {
     "Rubber": "#3a3a3a",
     "HPPE": "#9aa08a",
     "PU Foam": "#f2b134",
+    "Spring Steel": "#d2d7db",
 }
 
 #: Finishes the original twelve types never published, and their colours.
 EXTRA_FINISH_TINT: dict[str, str] = {
     "Chrome Plated": "#f0f3f6",
+    "Phosphate": "#5b5f63",
 }
 
 #: The fill of anything with no material or finish on the record.
@@ -113,6 +115,7 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Rubber": Hatch((15,), 2.5, dots=True),
     "HPPE": Hatch((), 6.0, dots=True),
     "PU Foam": Hatch((), 5.0, dots=True),
+    "Spring Steel": Hatch((0, 30), 5.0),
 }
 
 
