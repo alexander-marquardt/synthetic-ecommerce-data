@@ -28,7 +28,7 @@ from typing import Any
 import pytest
 
 from industrial_units import Unit, pinned
-from synthetic_industrial_products.catalog import emit
+from synthetic_industrial_products.catalog import emit, series
 from synthetic_industrial_products.catalog.config import SMALL, GeneratorConfig
 from synthetic_industrial_products.catalog.entry import published, split
 from synthetic_industrial_products.catalog.generate import generate
@@ -151,7 +151,17 @@ def test_one_key_names_one_attribute_and_none_collides_with_a_top_level_column(e
 
 
 def test_no_value_carries_its_unit_inside(entries):
-    unsplit = [e for e in entries if MAGNITUDE_WITH_UNIT.match(e["value"])]
+    # A length keyed into an angle field (``Point Angle = 1-5/8"``) is the one
+    # unit-marked value left as text on purpose: it measures no angle (#79).
+    unsplit = [
+        e
+        for e in entries
+        if MAGNITUDE_WITH_UNIT.match(e["value"])
+        and not (
+            e["key"] in ORACLE_ANGLE_KEYS
+            and _oracle_parts(e["key"], e["value"]) == {"value": e["value"]}
+        )
+    ]
     assert not unsplit, f"{len(unsplit)} measured values are not split, e.g. {unsplit[:3]}"
 
 
@@ -214,6 +224,33 @@ def test_the_one_kind_guard_refuses_the_inch_angle_defect(entries):
         "plane_angle",
         "length",
     }
+
+
+#: The span of degrees each angle key's generator draws from. A canonical outside
+#: it is no angle the series offers: ``1-5/8"`` under Point Angle is a length keyed
+#: into an angle field, which ``09_defect_rate.json`` calls a unit-type error.
+ANGLE_SPAN = {
+    "helix_angle": (min(series.HELIX_ANGLES), max(series.HELIX_ANGLES)),
+    "point_angle": (min(series.POINT_ANGLES), max(series.POINT_ANGLES)),
+}
+
+
+def test_an_angle_keys_canonical_lies_within_the_angles_its_series_offers(entries):
+    """A length under an angle key stays text; it never becomes a 1.625 degree angle.
+
+    Only the in-range defect ``Helix Angle = 42"`` is a mis-keyed degree mark,
+    and it still carries 42 degrees, so both keys keep measured entries.
+    """
+    outside = [
+        (e["key"], e["value"], e["value_canonical"])
+        for e in entries
+        if e["key"] in ANGLE_SPAN
+        and "value_canonical" in e
+        and not ANGLE_SPAN[e["key"]][0] <= e["value_canonical"] <= ANGLE_SPAN[e["key"]][1]
+    ]
+    assert outside == [], f"{len(outside)} angle entries outside their series' span"
+    measured = {e["key"] for e in entries if e["key"] in ANGLE_SPAN and "value_canonical" in e}
+    assert measured == set(ANGLE_SPAN)
 
 
 def test_counts_carry_c62_and_the_old_inch_number_is_gone(entries):
@@ -307,15 +344,14 @@ SPLIT_ORACLE: tuple[tuple[str, str, str | None, dict[str, Any]], ...] = (
         None,
         {"value": "38", "unit_code": "DD", "value_canonical": 38.0},
     ),
-    # The modelled defect: an angle spelled with the inch mark. The spelling is
-    # noise, the quantity is still an angle (#79).
+    # The modelled defect: an angle field holding an inch-marked value. 42 lies in
+    # the helix series' span, so it is a mis-keyed degree mark and still an angle;
+    # a fraction, or a number outside the key's span, is a length keyed into an
+    # angle field and stays text (#79).
     ("Helix Angle", '42"', None, {"value": "42", "unit_code": "DD", "value_canonical": 42.0}),
-    (
-        "Point Angle",
-        '1-5/8"',
-        None,
-        {"value": "1-5/8", "unit_code": "DD", "value_canonical": 1.625},
-    ),
+    ("Point Angle", '42"', None, {"value": '42"'}),
+    ("Helix Angle", '2"', None, {"value": '2"'}),
+    ("Point Angle", '1-5/8"', None, {"value": '1-5/8"'}),
     (
         "Dynamic Load Capacity",
         "1,070 lbf",
@@ -378,14 +414,16 @@ ORACLE_UNIT_FOR_SUFFIX = {
     "lb": "LBR",
 }
 
+#: Keys that measure a plane angle whatever mark a value is spelled with: an angle
+#: published as ``42"`` within its series' span is a badly spelled 42 degrees,
+#: never 42 inches; a fraction or a number outside the span is no angle at all and
+#: stays text (#79).
+ORACLE_ANGLE_KEYS = frozenset({"helix_angle", "point_angle"})
+
 #: The unit each key's BARE number is in. Only these keys publish a bare number
 #: that is a measurement; any other bare number stays text. Keyed by the entry's
 #: key, never by the unit the entry itself claims, so an entry cannot certify its
 #: own unit.
-#: Keys that measure a plane angle whatever mark a value is spelled with: an angle
-#: published as ``42"`` is a badly spelled 42 degrees, never 42 inches (#79).
-ORACLE_ANGLE_KEYS = frozenset({"helix_angle", "point_angle"})
-
 ORACLE_BARE_UNIT_FOR_KEY = {
     "number_of_flutes": "C62",
     "grit": "C62",
@@ -409,13 +447,16 @@ def _oracle_parts(key: str, spelling: str) -> dict[str, Any]:
         return {"value": spelling}
     suffix = match["suffix"]
     unit = ORACLE_UNIT_FOR_SUFFIX[suffix] if suffix else ORACLE_BARE_UNIT_FOR_KEY.get(key)
-    if unit is not None and key in ORACLE_ANGLE_KEYS and UNITS[unit].kind != "plane_angle":
-        unit = "DD"
     if unit is None:
         return {"value": spelling}
     magnitude = match["number"].replace(",", "")
     if " " in magnitude:
         magnitude = magnitude.replace(" ", "-")
+    if key in ORACLE_ANGLE_KEYS:
+        low, high = ANGLE_SPAN[key]
+        if "/" in magnitude or not low <= _exact(magnitude) <= high:
+            return {"value": spelling}
+        unit = "DD"
     exact = UNITS[unit].canonical(_exact(magnitude))
     return {"value": magnitude, "unit_code": unit, "value_canonical": float(exact)}
 
