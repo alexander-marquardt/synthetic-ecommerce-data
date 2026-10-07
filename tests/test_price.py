@@ -333,14 +333,25 @@ def test_dropping_the_99_endings_breaks_the_99_row(scored):
     _below(_newly_out(scored, prices), ["price ending .99"])
 
 
+#: Order rows the default build scores on fewer than 20 pairs, each pinned to
+#: its exact count so that it cannot fall to none unseen. The bolt's: a census
+#: cell holds one pack (``price.HELD_NUMBERS``), and the bolt's pack falls as
+#: its size grows (``price.pack_quantity``), so two sizes share a cell only
+#: where they draw one pack. 30 pairs before #65, 8 after; issue #86 rules on
+#: the pack model that would give them back.
+THIN_ORDER_ROWS = {"price larger size costs more: bolt_hex": 8}
+
+
 def test_every_monotonicity_row_counts_pairs(price_rows):
     """A share over no pairs is 0.0 whatever the generator does."""
-    empty = [
-        row.name
+    counted = {
+        row.name: row.denominator
         for row in price_rows
-        if ("costs more" in row.name or "costs 2x+" in row.name) and row.denominator < 20
-    ]
+        if "costs more" in row.name or "costs 2x+" in row.name
+    }
+    empty = [name for name, n in counted.items() if n < 20 and name not in THIN_ORDER_ROWS]
     assert not empty, empty
+    assert {name: counted.get(name) for name in THIN_ORDER_ROWS} == THIN_ORDER_ROWS
 
 
 @pytest.mark.parametrize("type_key", sorted(price.ENDINGS))

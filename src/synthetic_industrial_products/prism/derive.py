@@ -186,8 +186,11 @@ RANGE_MIN_DOCS = 50
 #: figure that moved did so by that RNG margin; no attribute changed its
 #: control, its densest/smallest/widest name, or the floor that decides it.
 MEASURED_DISPERSION: dict[str, Any] = {
-    # The band over the attributes that are actually FACETED.
-    "faceted_low": 0.0020,
+    # The band over the attributes that are actually FACETED. The low end is
+    # Number of Flutes (4 values over 1,722 documents). Package Quantity held
+    # it at 0.0020 (4 over 2,028) until the bolts and socket screws published
+    # their census packs (#65): 10 over 3,855 is 0.0026.
+    "faceted_low": 0.0023,
     # Flute Length since the bearing ratings became a published table (one
     # value per bearing number, no jitter): Dynamic Load Capacity was the
     # densest at 0.44 while a formula manufactured a value per SKU.
@@ -198,7 +201,7 @@ MEASURED_DISPERSION: dict[str, Any] = {
     # the extracted socket's toleranced across-flats (10.07mm). The hex socket
     # set screws (#53) add their small keys (0.7-1.3mm, 0.028-0.035") and 485 documents.
     "drive_size_cardinality": 41,
-    "drive_size_present": 1842,
+    "drive_size_present": 1862,
     # The smallest faceted attribute, which is what clears RANGE_MIN_DOCS.
     # A kit's piece count since the assortment kits (60 kits): a real count
     # on few documents, which still clears RANGE_MIN_DOCS.

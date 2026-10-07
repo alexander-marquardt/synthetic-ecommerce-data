@@ -219,8 +219,10 @@ def build_title(
     The cap is real -- a title has a budget and the reference corpus shows
     titles written to one. What changed with the ruling on elastic/prism#9284
     is WHERE the budget is taken from. This used to cut the assembled string
-    at the cap, which lands mid-word: **25 of the default catalog's 9,611
-    titles** (43 of 9,576 before every product type drew from its own
+    at the cap, which lands mid-word: **69 of the default catalog's 10,548
+    titles** (25 of 9,611 before the socket screws published a pack, whose
+    segment comes last, alexander-marquardt/synthetic-industrial-products#65;
+    43 of 9,576 before every product type drew from its own
     stream, alexander-marquardt/synthetic-industrial-products#48; 49 of 9,690
     before Corner Radius/Neck Length applied once instead of twice moved the
     catalog,

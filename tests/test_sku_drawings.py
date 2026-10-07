@@ -604,8 +604,11 @@ EXTREME_ENLARGEMENT = 2.41
 #: alexander-marquardt/synthetic-industrial-products#48, which made every SKU
 #: a ten-digit part number from its type's own block: each is the first
 #: committed SKU, in catalog order, that matches the description and is drawn
-#: under the handle-less lens.
-PINNED_HANDLE_LESS = ("2334357307", "3818559508")
+#: under the handle-less lens. Re-picked for
+#: alexander-marquardt/synthetic-industrial-products#65: the socket screws'
+#: ``Package Quantity`` row takes a presence draw from their stream, so
+#: ``2334357307`` is now an M4x0.7 x 8mm screw and the screw is ``2334919631``.
+PINNED_HANDLE_LESS = ("2334919631", "3818559508")
 #: The hairline drill of the pair, by name, for the stroke test below.
 HAIRLINE_DRILL = PINNED_HANDLE_LESS[1]
 

@@ -367,8 +367,10 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
       removed by the ruling on elastic/prism#9284;
     * ``build_title`` cut the assembled string at the 100-character cap,
       which lands mid-word. Reconstructed on this catalog by
-      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **25
-      of 9,611** titles (43 of 9,576 before every product type drew from its
+      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **69
+      of 10,548** titles (25 of 9,611 before the socket screws published a
+      pack, alexander-marquardt/synthetic-industrial-products#65; 43 of 9,576
+      before every product type drew from its
       own stream, alexander-marquardt/synthetic-industrial-products#48; 49 of
       9,690 before Corner Radius/Neck Length applied once instead of twice
       moved the catalog, alexander-marquardt/synthetic-industrial-products#39;
@@ -511,7 +513,11 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
     every product type draws from its own stream
     (alexander-marquardt/synthetic-industrial-products#48): the same item
     families run over the cap, ball-nose end mills and socket cap screws
-    first, but fewer of their drawn variants do. Stating it as a test rather
+    first, but fewer of their drawn variants do -- and 69 of 10,548 (116 over
+    the cap) once the bolts and socket screws publish a ``Package Quantity``
+    (alexander-marquardt/synthetic-industrial-products#65): the pack segment
+    comes last, so a socket screw title the cap used to fit now runs over by
+    that segment alone, which the segment rule sheds whole. Stating it as a test rather
     than as prose is what stops the next regeneration inheriting a number
     nobody can re-derive.
 
@@ -565,9 +571,9 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         if full[cap - 1] in word and full[cap] in word:
             mid_word += 1
 
-    assert over_cap == 39, f"{over_cap} titles exceed the cap, not 39"
-    assert mid_word == 25, (
-        f"the cap cut would land inside a word on {mid_word} titles, not 25. "
+    assert over_cap == 116, f"{over_cap} titles exceed the cap, not 116"
+    assert mid_word == 69, (
+        f"the cap cut would land inside a word on {mid_word} titles, not 69. "
         "If the catalog moved, restate the figure in build_title's docstring "
         "and in test_no_title_is_cut_mid_word with it."
     )
