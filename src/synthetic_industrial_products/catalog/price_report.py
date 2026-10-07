@@ -64,8 +64,10 @@ from . import brands
 from .price import (
     BORROWS,
     BRAND_CENSUS,
+    BRAND_SAMPLE_CAP,
     BRAND_SPREAD_TYPE,
     CENSUS,
+    DEEPENED_CENSUS,
     ECONOMY_OVER_OTHERS_MEDIAN,
     ENDINGS,
     EQUAL_PRICE_TYPES,
@@ -82,6 +84,7 @@ from .price import (
     _magnitude,
     ending_class,
     holds_equal,
+    material_of,
 )
 
 if TYPE_CHECKING:
@@ -100,16 +103,6 @@ ENDING_CLASSES = (".99", ".00", ".50", "other .x5")
 #: How many census standard errors a new band spans either side.
 CENSUS_SES = 3.0
 BRAND_SPREAD_BAND = (0.75, 1.33)
-#: The most brands a brand-spread row takes from one spec
-#: (:func:`brand_sample`). Max/min is an order statistic: over more brands it
-#: is wider, whatever the model. The default build puts 2 to 7 brands on a
-#: drill spec (median 3) and the 100K build 9 to 15 (median 13), so a figure
-#: over every brand of a spec reads the catalog's size, not its prices. The
-#: census does not publish its brands per spec, only the most a spec can hold
-#: (:attr:`.price.BrandCensus.brands_indexed`: 2 for a socket screw, 3 for a
-#: tap); 3 is the median the default build's drill specs hold, so on most of
-#: its specs the sample is a true sample and not every brand there is.
-BRAND_SAMPLE_CAP = 3
 #: The fewest census pairs a smaller-costs-2x-or-more target is implied from
 #: (:func:`implied_twice_share`): below it, the census larger-costs-less
 #: share the target rests on is too loose to hold a build to (the end mills'
@@ -199,7 +192,7 @@ def collect(catalog: Catalog) -> Collected:
                 by_length[(line.type_key, line.brand, line_cell, round(key, 4))].append(
                     (_magnitude(attrs["Length"]) or 0.0, child.sku)
                 )
-            material = attrs["Material"].value if "Material" in attrs else ""
+            material = material_of(line.type_key, attrs) or ""
             out.specs[(line.type_key, round(key, 4), material)][line.brand].append(child.sku)
             in_line.append(
                 (key, (_magnitude(attrs["Length"]) or 0.0) if length else 0.0, child.sku)
@@ -213,6 +206,17 @@ def collect(catalog: Catalog) -> Collected:
                         continue
                     target[type_key].append((sku_a, sku_b) if key_a > key_b else (sku_b, sku_a))
     return out
+
+
+def types_without_material(collected: Collected) -> set[str]:
+    """The :data:`BRAND_CENSUS` types none of whose specs holds a material.
+    The census spec is the key dimension plus the material
+    (``method.brand_spread``); a spec read off an attribute the type never
+    publishes holds the key alone and sets one material's brands against
+    another's: a wheel publishes no "Material", only its abrasive
+    (:data:`.price.MATERIAL_ATTRIBUTES`)."""
+    held = {spec[0] for spec in collected.specs if spec[2]}
+    return set(BRAND_CENSUS) - held
 
 
 def _product_pairs(out: Collected, type_key: str, in_line: list[tuple[float, float, str]]) -> None:
@@ -435,37 +439,54 @@ def tier_order(collected: Collected, prices: Mapping[str, float]) -> dict[str, t
     }
 
 
-def type_rows(type_key: str, collected: Collected, prices: Mapping[str, float]) -> list[Comparison]:
-    """The p50, p90/p10 and larger-costs-more rows of one census type."""
+def level_rows(
+    type_key: str,
+    census_n: int,
+    p10: float,
+    p50: float,
+    p90: float,
+    collected: Collected,
+    prices: Mapping[str, float],
+) -> list[Comparison]:
+    """The p50 and p90/p10 rows of one type, against its census quantiles."""
     from .measure import Comparison  # noqa: PLC0415 -- measure imports this module
 
-    census = CENSUS[type_key]
     values = [prices[sku] for sku, t in collected.type_of.items() if t == type_key]
     n = len(values)
-    p50 = _quantile(values, 0.5) if values else 0.0
+    built_p50 = _quantile(values, 0.5) if values else 0.0
     spread = _quantile(values, 0.9) / _quantile(values, 0.1) if values else 0.0
-    target_spread = census.p90 / census.p10
-    pairs = collected.pairs.get(type_key, [])
-    more = sum(prices[larger] > prices[smaller] for larger, smaller in pairs)
+    target_spread = p90 / p10
     return [
         Comparison(
             f"price p50 (USD): {type_key}",
-            census.p50,
             p50,
+            built_p50,
             n,
-            census.n,
+            census_n,
             "shown price; denom is the census n",
-            (census.p50 * P50_BAND[0], census.p50 * P50_BAND[1]),
+            (p50 * P50_BAND[0], p50 * P50_BAND[1]),
         ),
         Comparison(
             SPREAD_ROW.format(type_key),
             target_spread,
             spread,
             n,
-            census.n,
+            census_n,
             "shown price; denom is the census n",
             (target_spread * SPREAD_BAND[0], target_spread * SPREAD_BAND[1]),
         ),
+    ]
+
+
+def type_rows(type_key: str, collected: Collected, prices: Mapping[str, float]) -> list[Comparison]:
+    """The p50, p90/p10 and larger-costs-more rows of one census type."""
+    from .measure import Comparison  # noqa: PLC0415 -- measure imports this module
+
+    census = CENSUS[type_key]
+    pairs = collected.pairs.get(type_key, [])
+    more = sum(prices[larger] > prices[smaller] for larger, smaller in pairs)
+    return [
+        *level_rows(type_key, census.n, census.p10, census.p50, census.p90, collected, prices),
         Comparison(
             ORDER_ROW.format(type_key),
             census.larger_costs_more,
@@ -485,6 +506,8 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
     rows: list[Comparison] = []
     for type_key in CENSUS:
         rows.extend(type_rows(type_key, collected, prices))
+    for type_key, (n, p10, p50, p90) in DEEPENED_CENSUS.items():
+        rows.extend(level_rows(type_key, n, p10, p50, p90, collected, prices))
 
     for type_key, figure in LENGTH_CENSUS.items():
         pairs = collected.length_pairs.get(type_key, [])

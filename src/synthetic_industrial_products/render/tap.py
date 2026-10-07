@@ -333,7 +333,7 @@ def _render_detail(record: dict, geom: TapGeometry, profile: Profile):
             ("Thread Size", geom.thread.designation),
             # An inch tap publishes its thread count as Threads per Inch (#42);
             # the card keeps the one Pitch row it has always stamped.
-            ("Pitch", record.get("Pitch") or record.get("Threads per Inch", "")),
+            ("Thread Pitch", record.get("Thread Pitch") or record.get("Threads per Inch", "")),
             ("Overall Length", geom.oal.display()),
             ("Thread Length", geom.thread_len.display()),
             ("Shank Dia.", geom.shank_d.display()),

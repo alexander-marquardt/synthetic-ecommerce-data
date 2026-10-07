@@ -627,7 +627,7 @@ _CLOSURE_ROLE = {"Double Shield": "plain", "Double Seal": "dark"}
 
 def bearing(record: Record) -> Drawn:
     """Face view -- rings, and the balls or the shield or the seal -- and the edge."""
-    bore, ok_b = _length_or(record, "Bore", 0.5)
+    bore, ok_b = _length_or(record, "Bore Dia.", 0.5)
     od, ok_o = _length_or(record, "Outside Dia.", 2.4 * bore)
     width, ok_w = _length_or(record, "Width", 0.3 * od)
     if od <= bore:
@@ -783,7 +783,7 @@ FIGURES.update(
     {
         "kit_assortment": (kit, (5.65, 2.95)),
         "nut_hex": (hex_nut, (1.95, 3.5)),
-        "bearing_radial_ball": (bearing, (3.25, 4.95)),
+        "bearing_radial_ball": (bearing, (8.75, 13.25)),
         "wheel_depressed_center": (depressed_wheel, (9.3, 13.2)),
         "hex_key": (hex_key, (2.95, 9.85)),
     }
