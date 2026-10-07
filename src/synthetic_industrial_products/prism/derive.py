@@ -259,7 +259,9 @@ MEASURED_DISPERSION: dict[str, Any] = {
     "faceted_low": 0.0037,
     # Width since the bearing table widened to 75 numbers (#64); Flute Length before it,
     # and Dynamic Load Capacity at 0.44 while a formula manufactured a value per SKU.
-    "faceted_high": 0.2209,
+    # Key stock publishes a Width too (#108), 14 sizes over many products, which
+    # lowers Width's dispersion from the bearings' own 0.2209.
+    "faceted_high": 0.2151,
     "densest_faceted": "Width",
     # The saturated ladder the rule exists to keep off a slider.
     # Low since the drive size is published as the nominal key (10mm), not
