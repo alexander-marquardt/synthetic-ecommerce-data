@@ -196,7 +196,7 @@ def test_a_pin_reason_quotes_the_figures_the_pin_records():
     retyped (it read 6.8 once the figure was 3.24)."""
     name = BRAND_ROW.format("wheel_depressed_center")
     quoted = re.findall(r"(\d+(?:\.\d+)?)x apart", price.PINNED_SHORTFALLS[name])
-    assert quoted == [f"{f:.2f}" for f in _recorded(name)] == ["3.24", "2.78"]
+    assert quoted == [f"{f:.2f}" for f in _recorded(name)] == ["3.53", "3.09"]
 
 
 def _recorded(name: str) -> tuple[float, float]:

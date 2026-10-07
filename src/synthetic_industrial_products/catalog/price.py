@@ -267,7 +267,7 @@ LENGTH_HELD = frozenset(
 #: The attribute a type publishes its material as, where it is not
 #: "Material". The census spec is the key dimension plus the material
 #: (``method.brand_spread``); a wheel's material is its abrasive grain.
-MATERIAL_ATTRIBUTES: dict[str, str] = {}
+MATERIAL_ATTRIBUTES: dict[str, str] = {"wheel_depressed_center": "Abrasive Material"}
 
 
 def material_of(type_key: str, facts: Mapping[str, Attribute]) -> str | None:
@@ -641,7 +641,7 @@ SIZE_NOISE: dict[str, str] = {
 _WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
 PINNED_FIGURES: dict[str, tuple[float, float]] = {
     "price p90/p10: bearing_radial_ball": (4.493, 4.783),
-    _WHEEL_SPREAD_ROW: (3.241, 2.776),
+    _WHEEL_SPREAD_ROW: (3.534, 3.09),
 }
 
 #: How far past its recorded figure a pinned row may move, as a ratio. The
@@ -661,16 +661,14 @@ PINNED_SHORTFALLS: dict[str, str] = {
         "(widen the bore range: #64)"
     ),
     _WHEEL_SPREAD_ROW: (
-        "above band: catalog diameters span 2.25x, which the key term spreads to 2.6x of the "
-        "census's 10x, and the group noise that makes up the rest is drawn independently per "
-        "brand for each of the 12 brands that make every shared wheel spec, so the brands "
-        "the row samples from one spec land "
+        "above band: with every noise off, the brand tiers alone give 1.85 on the default "
+        "build against a band top of 1.71, because 3 of the 12 wheel brands "
+        "are economy (0.54 of the rest) and the row's five sampled brands take one on 13 of "
+        "its 24 specs (a spec is a diameter in one abrasive), where the census measures its "
+        "house label on 4 of its 12. The group noise that makes up the p90/p10 is drawn per "
+        "brand and spreads the sampled brands of one spec further, to "
         f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][0]:.2f}x apart on the default build and "
-        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K. "
-        "Offered a noise one spec shares "
-        "across brands (SIZE_NOISE, as on taps), the fit gives it no weight and moves the "
-        "spread to SKU noise, which inverts the few diameters (larger costs more falls below "
-        "band) and still leaves the p90/p10 below band (#66)"
+        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K (#66)"
     ),
 }
 
