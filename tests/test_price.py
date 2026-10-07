@@ -240,6 +240,35 @@ def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
     assert not price_report.pin_holds(row, 0)
 
 
+def test_the_bearing_bores_alone_spread_price_into_the_census_band(catalog, price_rows):
+    """#64: the census slope on the bore, with no noise at all, reaches the
+    floor of the census p90/p10 band. A 10-35 mm ladder spread the bores 3.0x,
+    which the slope (1.167) carries to 3.6x against a floor of 12.1x, and the
+    census's own same-spec brand spread (1.38) leaves no group noise to make
+    up the rest."""
+    read = price.KEYS["bearing_radial_ball"]
+    bores = [
+        read({a.name: a for a in catalog.merged_attributes(line, child)})
+        for line in catalog.lines
+        if line.type_key == "bearing_radial_ball"
+        for child in line.children
+    ]
+    assert None not in bores
+    spread = price_report._quantile(bores, 0.9) / price_report._quantile(bores, 0.1)
+    (row,) = [r for r in price_rows if r.name == SPREAD_ROW.format("bearing_radial_ball")]
+    carried = spread ** price.CENSUS["bearing_radial_ball"].slope
+    assert carried >= row.band[0], (spread, carried, row.band)
+
+
+def test_the_bearing_price_spread_is_in_band_and_not_pinned(price_rows):
+    """#64: once the bores span the series, the bearing p90/p10 needs no pin."""
+    name = SPREAD_ROW.format("bearing_radial_ball")
+    assert name not in price.PINNED_SHORTFALLS
+    assert name not in price.PINNED_FIGURES
+    (row,) = [r for r in price_rows if r.name == name]
+    assert row.band[0] <= row.achieved <= row.band[1], (row.achieved, row.band)
+
+
 def _census_models() -> dict[str, price.PriceModel]:
     return {type_key: price.model_for(type_key) for type_key in price.CENSUS}
 
