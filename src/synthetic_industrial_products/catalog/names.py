@@ -95,6 +95,7 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Coupling",
     "Belt",
     "Chain",
+    "Turnbuckle",
     "Pulley",
     "Seal",
     "Gasket",
@@ -129,6 +130,8 @@ NAME_EXCEPTIONS: dict[str, str] = {
     "Face Type": "hammer striking-face form; the census carries no hammer family",
     "Face Dia.": "hammer striking-face diameter; the census carries no hammer family",
     "Handle Length": "hammer handle length, a distinct measurement from Overall Length",
+    "Take Up": "how far a turnbuckle draws its ends together; no turnbuckle in the census",
+    "Closed Length": "a turnbuckle end to end, fully taken up; no turnbuckle in the census",
     "Head Weight": "hammer head weight; the census carries no hammer family",
     "For Shaft Diameter": (
         "the shaft a retaining ring fits, in the census's relational form;"
