@@ -19,7 +19,9 @@
     its bytes -- the drawings themselves are never written by ``build`` and
     never committed
 ``stats.json``
-    what was generated, measured against the statistics it reproduces
+    what was generated, measured against the statistics it reproduces, and
+    under ``figures`` the counts and the facet rule's figures that docs and
+    tests point at rather than restate (#103)
 
 ``block`` prints the part-number block a new type's key derives and, when
 another type already uses it, the first free block to declare instead.
@@ -34,11 +36,13 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
 from . import emit, noncopy, typespec
+from .breadth import SPEC_QUALITY
 from .config import GeneratorConfig
 from .generate import all_type_keys, generate
 from .measure import measure
@@ -194,6 +198,41 @@ def _write_field_map(catalog, config: GeneratorConfig) -> str:
     return f"{target}  field map regenerated from this catalog"
 
 
+def _measured_figures(out: Path) -> dict[str, Any]:
+    """The figures a type moves, measured on the files just written (#103).
+
+    Docs and source point here rather than quote them, so a pull request that
+    adds a type changes them only in the ``stats.json`` it regenerates, which
+    ``scripts/merge_pr.sh`` rebuilds on a conflict.
+    """
+    from ..prism.derive import dispersion_figures  # noqa: PLC0415
+
+    flat = [json.loads(line) for line in (out / "flat.jsonl").read_text("utf-8").splitlines()]
+    images = [json.loads(line) for line in (out / "images.jsonl").read_text("utf-8").splitlines()]
+    breadth = {doc["product_type"] for doc in flat if doc.get("spec_quality") == SPEC_QUALITY}
+    figures: dict[str, Any] = {
+        "catalog": {
+            "modelled_types": len({doc["product_type"] for doc in flat} - breadth),
+            "breadth_categories": len(breadth),
+            "brands": len({doc["brand"] for doc in flat}),
+        },
+        "drawings": {
+            "count": len(images),
+            "bytes": sum(image["bytes"] for image in images),
+            # How many drawings fell down the provenance ladder, by rung.
+            "geometry": dict(sorted(Counter(image["geometry"] for image in images).items())),
+        },
+        "dispersion": dispersion_figures(flat),
+    }
+    if images:
+        largest = max(images, key=lambda image: (image["bytes"], image["image_id"]))
+        figures["drawings"] |= {
+            "largest_bytes": largest["bytes"],
+            "largest_product_type": largest["product_type"],
+        }
+    return figures
+
+
 def _block(argv: list[str]) -> int:
     """Print the part-number block a type should declare, if any (#54)."""
     parser = argparse.ArgumentParser(
@@ -301,6 +340,7 @@ def main(argv: list[str] | None = None) -> int:
         "sparsity_scale": config.sparsity_scale,
         "defect_scale": config.defect_scale,
     }
+    payload["figures"] = _measured_figures(out)
     (out / "stats.json").write_text(
         json.dumps(round_floats(payload), indent=1) + "\n", encoding="utf-8"
     )
