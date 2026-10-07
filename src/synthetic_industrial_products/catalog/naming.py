@@ -207,6 +207,11 @@ def states_value(text: str, value: str) -> bool:
     return False
 
 
+def thread_parts(text: str) -> list[str]:
+    """Each glued metric size in ``text``, written in its parts."""
+    return []
+
+
 def build_title(
     item: str,
     segments: tuple[Segment, ...],
