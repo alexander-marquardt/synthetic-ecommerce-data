@@ -207,7 +207,7 @@
   "bearing_radial_ball": [
    "ABEC Rating",
    "Bearing Number",
-   "Bore",
+   "Bore Dia.",
    "Cage Material",
    "Closure Type",
    "Dimension Type",
@@ -260,7 +260,7 @@
    "Width Across Flats"
   ],
   "bronze_sleeve_bushings": [
-   "Bore",
+   "Bore Dia.",
    "Item",
    "Length",
    "Material"
@@ -312,7 +312,7 @@
    "Diameter",
    "Dimension Type",
    "Finish",
-   "Head Diameter",
+   "Head Dia.",
    "Head Height",
    "Item",
    "Material",
@@ -592,7 +592,7 @@
   "pillow_block_bearings": [
    "Base to Center Height",
    "Bolt Hole Center-to-Center",
-   "Bore",
+   "Bore Dia.",
    "Dimension Type",
    "Finish",
    "Item",
@@ -610,7 +610,7 @@
    "For Shaft Diameter",
    "Groove Diameter",
    "Groove Width",
-   "Inside Diameter",
+   "Inside Dia.",
    "Item",
    "Material",
    "Measurement System",
@@ -626,7 +626,7 @@
    "Size"
   ],
   "rigid_shaft_couplings": [
-   "Bore",
+   "Bore Dia.",
    "Item",
    "Material",
    "Style"
@@ -677,7 +677,7 @@
    "Material",
    "Measurement System",
    "Number of Teeth",
-   "Outside Diameter",
+   "Outside Dia.",
    "Package Quantity",
    "Pitch",
    "Standards",
@@ -816,7 +816,7 @@
    "Type"
   ],
   "shaft_collars": [
-   "Bore",
+   "Bore Dia.",
    "Item",
    "Material",
    "Style"
@@ -841,7 +841,6 @@
    "Measurement System",
    "Number of Flutes",
    "Overall Length",
-   "Pitch",
    "Shank Dia.",
    "Standards",
    "System of Measurement",
@@ -849,6 +848,7 @@
    "Tap Style",
    "Thread Direction",
    "Thread Length",
+   "Thread Pitch",
    "Thread Size",
    "Thread Type",
    "Threads per Inch"
@@ -867,7 +867,7 @@
    "Thread Size"
   ],
   "timing_pulleys": [
-   "Bore",
+   "Bore Dia.",
    "Item",
    "Material",
    "Style"
