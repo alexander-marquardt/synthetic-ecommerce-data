@@ -691,6 +691,8 @@ def test_the_wheel_pin_reason_quotes_what_the_brand_tiers_alone_give(monkeypatch
     assert f"band top of {row.band[1]:.2f}" in reason, reason
     assert f"{len(economy)} of the {len(makers)} wheel brands are economy" in reason, reason
     assert f"on {len(sampling)} of its {len(specs)} specs" in reason, reason
+    k = price_report.BRAND_SAMPLE_CAP
+    assert f"row's {k} sampled brands" in reason, reason
 
 
 def test_economy_brands_priced_as_dear_as_the_rest_breaks_the_economy_row(scored):

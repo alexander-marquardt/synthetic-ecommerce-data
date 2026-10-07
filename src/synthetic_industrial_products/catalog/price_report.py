@@ -68,6 +68,7 @@ from . import brands
 from .price import (
     BORROWS,
     BRAND_CENSUS,
+    BRAND_SAMPLE_CAP,
     BRAND_SPREAD_TYPE,
     CENSUS,
     ECONOMY_OVER_OTHERS_MEDIAN,
@@ -108,16 +109,6 @@ ENDING_CLASSES = (".99", ".00", ".50", "other .x5")
 #: How many census standard errors a new band spans either side.
 CENSUS_SES = 3.0
 BRAND_SPREAD_BAND = (0.75, 1.33)
-#: The most brands a brand-spread row takes from one spec
-#: (:func:`brand_sample`). Max/min is an order statistic: over more brands it
-#: is wider, whatever the model. The default build puts 2 to 7 brands on a
-#: drill spec (median 3) and the 100K build 9 to 15 (median 13), so a figure
-#: over every brand of a spec reads the catalog's size, not its prices. The
-#: census does not publish its brands per spec, only the most a spec can hold
-#: (:attr:`.price.BrandCensus.brands_indexed`: 2 for a socket screw, 3 for a
-#: tap); 3 is the median the default build's drill specs hold, so on most of
-#: its specs the sample is a true sample and not every brand there is.
-BRAND_SAMPLE_CAP = 3
 #: The fewest census pairs a smaller-costs-2x-or-more target is implied from
 #: (:func:`implied_twice_share`): below it, the census larger-costs-less
 #: share the target rests on is too loose to hold a build to (the end mills'

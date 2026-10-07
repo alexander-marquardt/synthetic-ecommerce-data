@@ -638,6 +638,16 @@ SIZE_NOISE: dict[str, str] = {
 #: ``tests/test_price.py`` holds each figure, and each
 #: :data:`EXCEPTED_FIGURES` one, equal to what its build produces
 #: (``price_report.recorded_digits``), so a record cannot be loosened by hand.
+#: The most brands a brand-spread row takes from one spec
+#: (:func:`.price_report.brand_sample`). Max/min is an order statistic: over more brands it
+#: is wider, whatever the model. The default build puts 2 to 7 brands on a
+#: drill spec (median 3) and the 100K build 9 to 15 (median 13), so a figure
+#: over every brand of a spec reads the catalog's size, not its prices. The
+#: census does not publish its brands per spec, only the most a spec can hold
+#: (:attr:`.price.BrandCensus.brands_indexed`: 2 for a socket screw, 3 for a
+#: tap); 3 is the median the default build's drill specs hold, so on most of
+#: its specs the sample is a true sample and not every brand there is.
+BRAND_SAMPLE_CAP = 3
 _WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
 PINNED_FIGURES: dict[str, tuple[float, float]] = {
     "price p90/p10: bearing_radial_ball": (4.493, 4.783),
@@ -663,7 +673,8 @@ PINNED_SHORTFALLS: dict[str, str] = {
     _WHEEL_SPREAD_ROW: (
         "above band: with every noise off, the brand tiers alone give 1.85 on the default "
         "build against a band top of 1.71, because 3 of the 12 wheel brands "
-        "are economy (0.54 of the rest) and the row's five sampled brands take one on 13 of "
+        f"are economy (0.54 of the rest) and the row's {BRAND_SAMPLE_CAP} sampled brands "
+        "take one on 13 of "
         "its 24 specs (a spec is a diameter in one abrasive), where the census measures its "
         "house label on 4 of its 12. The group noise that makes up the p90/p10 is drawn per "
         "brand and spreads the sampled brands of one spec further, to "
