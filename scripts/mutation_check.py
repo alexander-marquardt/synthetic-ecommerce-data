@@ -712,6 +712,110 @@ MUTATIONS: list[Mutation] = [
         "",
         "a table read during registration is refused, not answered by import order",
     ),
+    # A type states its per-type entries on its TypeSpec, once (#48, #61).
+    Mutation(
+        "type seam: applicable never reads a type module's CLAIMS rule",
+        "catalog/conformance.py",
+        "    rule = CLAIMS.get(type_key)",
+        "    rule = None",
+        (
+            "tests/test_type_registration.py::"
+            "test_a_planted_type_reaches_every_per_type_table_from_its_spec",
+            "tests/test_type_registration.py::"
+            "test_an_inch_line_of_the_planted_type_claims_what_its_spec_says",
+        ),
+        "",
+        "a type's spec reaches every per-type table",
+    ),
+    Mutation(
+        "type seam: register leaves a spec's claims out of CLAIMS",
+        "catalog/typespec.py",
+        '        "conformance.CLAIMS": (conformance.CLAIMS, spec.claims),\n',
+        "        # CLAIMS left out\n",
+        "tests/test_type_registration.py::"
+        "test_a_planted_type_reaches_every_per_type_table_from_its_spec",
+        "",
+        "a type's spec reaches every per-type table",
+    ),
+    Mutation(
+        "type seam: register writes no spec field into the shared tables",
+        "catalog/typespec.py",
+        "            table[spec.key] = value",
+        "            pass",
+        "tests/test_type_registration.py::"
+        "test_a_planted_type_reaches_every_per_type_table_from_its_spec",
+        "",
+        "a type's spec reaches every per-type table",
+    ),
+    *(
+        Mutation(
+            f"type seam: a {table} entry in both the shared table and the spec is not refused",
+            "catalog/typespec.py",
+            "        if value is not None and dict.__contains__(table, spec.key):",
+            "        if False:",
+            "tests/test_type_registration.py::"
+            f"test_a_key_in_a_shared_table_and_in_its_spec_is_refused[{table}]",
+            "",
+            "a per-type entry is declared once",
+        )
+        for table in ("CLAIMS", "KEY_ATTRIBUTES", "THREADED", "FASTENERS", "UNIT_PRIMARY")
+    ),
+    Mutation(
+        "type seam: a modelled spec with no key_attributes is not refused",
+        "catalog/typespec.py",
+        '            ("key_attributes", bool(spec.key_attributes)),',
+        '            ("key_attributes", True),',
+        "tests/test_type_registration.py::test_a_modelled_type_without_a_key_dimension_is_refused",
+        "",
+        "a type's spec reaches every per-type table",
+    ),
+    Mutation(
+        "type seam: a breadth row file named for another key is read",
+        "catalog/breadth.py",
+        "        if f\"{raw['key']}.yaml\" != entry.name:",
+        "        if False:",
+        "tests/test_type_registration.py::test_a_row_file_named_for_another_key_is_refused",
+        "",
+        "each breadth row is a file of its own",
+    ),
+    # The facts tests' own refusals (tests/type_facts.py).
+    *(
+        Mutation(
+            f"type seam: type_facts.{read} reads a shared row beside a module's own",
+            "tests/type_facts.py",
+            "        if key in shared:",
+            "        if False:",
+            "tests/test_type_facts.py::"
+            f"test_a_shared_row_for_a_type_with_its_own_module_is_refused[{read}]",
+            "",
+            "a type's facts are declared once",
+            root=".",
+        )
+        for read in ("may_claim", "title_key", "default_size")
+    ),
+    *(
+        Mutation(
+            f"type seam: type_facts accepts a module that declares no {field}",
+            "tests/type_facts.py",
+            old,
+            "        if False:",
+            "tests/test_type_facts.py::"
+            f"test_a_type_module_that_declares_no_fact_is_refused_naming_it[{param}]",
+            "",
+            "a type's facts are declared once",
+            root=".",
+        )
+        for field, old, param in (
+            ("may_claim", "        if value is None:", "may_claim-None-may_claim"),
+            ("key_attributes", "        if value is None:", "key_attributes-unset1-title_key"),
+            (
+                "default_lines",
+                "        if spec.default_lines <= 0:",
+                "default_lines-0-default_size",
+            ),
+            ("default_skus", "        if spec.default_skus <= 0:", "default_skus-0-default_size"),
+        )
+    ),
     # ---- merge_pr.sh merges only a checked tree (#54) ----------------------
     # Every name starts "merge_pr:", so `--only "merge_pr:"` re-runs them. The
     # round-3 review's four survivors are the first four (the fourth, `--ours`

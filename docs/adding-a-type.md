@@ -25,14 +25,15 @@ is what a builder's own test does.
 
 A module declares one `SPEC = TypeSpec(...)`, of one of two kinds:
 
-* **Breadth type.** One `BreadthRow`, with the same fields as a row of
-  `data/breadth_categories.yaml`. The leaf, the drawing, the vocabulary and
+* **Breadth type.** One `BreadthRow`, with the same fields as a row file
+  `data/breadth_categories/<type_key>.yaml`. The leaf, the drawing, the vocabulary and
   the brand family all follow from the row. `shape` is one of the six plain
   shapes in `drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`,
   `disc`, `tube` or `bracket`. Example:
   `product_types/raw_materials/ball_stock_precision.py`.
 * **Modelled type.** `category`, `standards_family`, `vocab`, `figure` and
-  `extent`, `make`, `share`, and optionally `use_lines`. `make` is the
+  `extent`, `make`, `share`, `price` and `key_attributes`, the facts the tests
+  hold it to (step 5 below), and optionally `use_lines`. `make` is the
   builder: `make(gen, type_key, category)` drafts one line. A module must
   never import `catalog/generate.py` at module level (that is an import
   cycle); a builder that needs `LineDraft`, `ChildDraft` or `BRANDS` imports
@@ -130,14 +131,34 @@ its published attributes. `set_screws_hex_socket` does both.
    `uv run sip-generate build --out golden-catalog`. Only the new type's
    records, the totals in `stats.json` and the field-weights YAML should
    change. The independence tests below enforce this.
-5. A modelled type only: restate `DEPTH_LINES` and `DEPTH_SKUS` in
-   `tests/catalog_size.py`. They count the modelled documents (those whose
-   `spec_quality` is not `fast_and_cheap`) in the regenerated catalog; this
-   prints both:
+5. A modelled type only: declare the type's size and facts on its
+   `TypeSpec` (#61). The tests read them from there, so no test file and no
+   shared table is edited. `register` writes each one into its table and
+   refuses a key that a table also lists:
+   * `default_lines` and `default_skus`: the type's product lines and SKUs in
+     the regenerated catalog, counting only its documents whose
+     `spec_quality` is not `fast_and_cheap`. `tests/catalog_size.py` sums
+     them, and `test_each_types_declared_size_is_its_size_in_the_committed_catalog`
+     holds each type to its count. This prints the pair for `KEY`:
 
-   ```sh
-   python3 -c "import json; q = lambda f: sum(json.loads(l)['spec_quality'] != 'fast_and_cheap' for l in open(f'golden-catalog/{f}')); print('DEPTH_LINES =', q('nested.jsonl'), ' DEPTH_SKUS =', q('flat.jsonl'))"
-   ```
+     ```sh
+     KEY=<type_key> python3 -c "import json, os; k = os.environ['KEY']; q = lambda f: sum(d['product_type'] == k and d['spec_quality'] != 'fast_and_cheap' for d in map(json.loads, open(f'golden-catalog/{f}'))); print(f'default_lines={q(\"nested.jsonl\")}, default_skus={q(\"flat.jsonl\")}')"
+     ```
+
+   * `claims`: the standards a line claims, as
+     `claims(facts, *, metric, provenance, standard)`; `conformance.applicable`
+     calls it. Leave it unset for a type that claims nothing.
+   * `may_claim`: every standard a record may claim, each one cited in the
+     module; `frozenset()` for a type that claims none.
+     `test_every_claimed_standard_applies_to_the_part` holds each published
+     `Standards` value to it. The build never reads it, so a `claims` that
+     returns a standard missing from it reds.
+   * `key_attributes`: the type's key dimension, normally its size attribute.
+     The price census keys the type on it (`price.KEY_ATTRIBUTES`) and every
+     title names it (`test_every_title_names_its_key_dimension`). `register`
+     refuses a modelled type without one.
+   * `threaded`, `fastener` and `unit_primary`: the description sentences the
+     type joins ([Family tables](#family-tables)).
 
    The type's `share` is its own and is added on top
    ([Share](#share)): never lower another type's share to make room, because
@@ -152,8 +173,7 @@ its published attributes. `set_screws_hex_socket` does both.
    every other type. Write the slice with
    `uv run python tests/test_type_<type_key>.py`.
 7. Declare a price model (`price=` on the `TypeSpec`; `register` refuses a
-   modelled type without one) and add the type's key attribute to
-   `KEY_ATTRIBUTES` in `catalog/price.py`. A type the census has no prices
+   modelled type without one). It is keyed on `key_attributes` (step 5). A type the census has no prices
    for declares `measured=False`; one it has prices for restates its census
    rows and is fitted ([Price](#price)).
 8. Restate the published figures the type moves
@@ -164,7 +184,7 @@ its published attributes. `set_screws_hex_socket` does both.
 
 ### Deepening an existing breadth type
 
-A breadth key (a row of `data/breadth_categories.yaml` or a breadth module)
+A breadth key (a row file in `data/breadth_categories/` or a breadth module)
 becomes a modelled type with many SKUs. The other types must stay
 byte-identical; only this type's records change. Each step below names the
 rule it follows; the rules are in
@@ -182,18 +202,16 @@ rule it follows; the rules are in
    `test_every_published_name_passes_the_census_gate` (look a name up in
    `reference-statistics/00_attribute_name_census.json`), and a name may not
    repeat the leaf's own noun (the lock nut publishes `Type`, because
-   `Nut Style` is refused). Set `share=0.1` ([Share](#share)), the figure and `extent`
+   `Nut Style` is refused). Set the share ([Share](#share)), the figure and `extent`
    ([Figure and extent](#figure-and-extent)) and the price model
    ([Price](#price)).
-3. Delete the key's breadth row (or breadth module). The key keeps its derived
-   part-number block, so `sip-generate block <type_key>` says to leave
+3. Delete the key's breadth row file (or breadth module). The key keeps its
+   derived part-number block, so `sip-generate block <type_key>` says to leave
    `part_number_block` unset.
-4. Add the type to the shared tables its family's tests read, listed under
-   [What is still shared](#what-is-still-shared): the `conformance.applicable`
-   branch (one `out.append` per standard the line can claim), `MAY_CLAIM` in
-   `tests/test_catalog_facts.py` (every standard that branch can return) and
-   `KEY` there (the type's size attribute, the breadth row's `size_attr`).
-   Then the family tables the type qualifies for ([Family tables](#family-tables)).
+4. Declare `claims`, `may_claim`, `key_attributes` and the family sentences
+   it qualifies for on the `TypeSpec` (step 5 of [A new type](#a-new-type));
+   `key_attributes` is the breadth row's `size_attr`. Then add the type to the
+   family builder tables it needs ([What is still shared](#what-is-still-shared)).
 5. Do steps 3 to 9 of [A new type](#a-new-type).
 6. Check that every other type is byte-identical, at both sizes, with the
    command in [Comparing the other types](#comparing-the-other-types). Only
@@ -213,8 +231,15 @@ The output must stay byte-identical.
    For a modelled type, the entries are in `LEAVES`, `DRAWING` (identity
    pairs), `VOCAB`, `STANDARDS_FAMILY`, `FIGURES`, `USE_LINES`,
    `Generator._BUILDERS`, the `config.type_weights` share, and for a socket
-   screw its `_SOCKET_SCREW_LINES` row. For a breadth type, the entry is its
-   row in `data/breadth_categories.yaml`.
+   screw its `_SOCKET_SCREW_LINES` row. A modelled type also has entries in
+   `conformance._shared_claims` (when it claims a standard),
+   `price.KEY_ATTRIBUTES`, `noise.THREADED`, `noise.FASTENERS` and
+   `noise.UNIT_PRIMARY`, and a row in each table of `tests/type_facts.py`
+   (`SHARED_MAY_CLAIM`, `SHARED_TITLE_KEY`, `SHARED_SIZE`). These become
+   `claims`, `key_attributes`, `threaded`, `fastener`, `unit_primary`,
+   `may_claim` and `default_lines`/`default_skus` (step 5 of
+   [A new type](#a-new-type)). For a breadth type, the entry is its row file
+   `data/breadth_categories/<type_key>.yaml`.
 2. Move each entry into the module's `SPEC`, and delete it from the shared
    table. A key that is declared in both places is refused.
 3. Build into a scratch directory and compare:
@@ -233,30 +258,38 @@ root.
 
 ### Share
 
-`share=0.1`, for every deepened type. It is not tuned toward a SKU count: the
-count follows from the spec space (#53), and one fixed share keeps the growth
-per deepened type predictable. At the default `lines=2600` it drafts 260
-lines; at `--lines 39000`, 3,900.
+Aim for about 1,000 SKUs at `--lines 39000` (maintainer ruling, 2026-10-07,
+#53). That is a share of about 0.012 to 0.02, depending on how many SKUs a
+line holds: pick one in that range, build at `--lines 39000`, and adjust it
+toward 1,000. When the real spec space runs out first, fewer SKUs are fine;
+never invent sizes or combinations to reach the figure. The types deepened
+before the ruling (the lock nut and the set screw, at 0.1) keep their share,
+because changing it moves their output. State the share and the SKU counts at
+both sizes in the pull request body.
 
 The share is a ceiling, not a guarantee: a line whose every SKU its brand has
 already made builds nothing. The fill is lines built over lines drafted, and
-`lines_by_type` in `stats.json` has the lines built:
+`lines_by_type` in `stats.json` has the lines built (set `SHARE` to the
+type's share):
 
 ```sh
-python3 -c "import json; s = json.load(open('golden-catalog/stats.json')); print(s['lines_by_type']['<type_key>'], 'of', round(0.1 * s['config']['lines']), 'lines;', s['skus_by_type']['<type_key>'], 'SKUs')"
+SHARE=<share> python3 -c "import json, os; s = json.load(open('golden-catalog/stats.json')); print(s['lines_by_type']['<type_key>'], 'of', round(float(os.environ['SHARE']) * s['config']['lines']), 'lines;', s['skus_by_type']['<type_key>'], 'SKUs')"
 ```
 
-The lock nut fills 256 of 260 lines at the default size and 2,714 of 3,900 at
-`--lines 39000` (run the same command on that build's `stats.json`). A much
-lower fill means the module models too little of the spec space: add series
-or combinations; never raise the share.
+Run the same command on the `--lines 39000` build's `stats.json` for the
+large figures. A much lower fill means the module models too little of the
+spec space: add series or combinations; never raise the share to hide it.
 
 ### SKU floor
 
 `DEFAULT_SKU_FLOOR` in the type's gate file is two thirds of the type's
-default SKU count, rounded down to a hundred: the lock nut's 469 gives 312,
-so 300. It catches a collapse back to a breadth row's one or two SKUs; it is
-not a target. The count is `skus_by_type` in the command under [Share](#share).
+default SKU count, rounded down to a ten: a type at the ruled share builds
+only about 60 to 100 SKUs at the default size, so rounding to a hundred would
+give it a floor of zero. It catches a collapse back to a breadth row's one or
+two SKUs; it is not a target. The count is `skus_by_type` in the command
+under [Share](#share). The two existing gate files,
+`test_type_lock_nuts_nylon_insert.py` and `test_type_set_screws_hex_socket.py`,
+keep their floor of 300, as they keep their share.
 
 ### Figure and extent
 
@@ -311,7 +344,7 @@ fails until the measured one is set.
 | `category` | `category=`, unchanged. |
 | `family` | `standards_family=`, unchanged: it picks the type's brands and standards pool. |
 | `item` | The `Item` attribute and `LineDraft.item`, unchanged. |
-| `size_attr` | The SKU's `primary` attribute, same name; it is the type's `KEY` entry in `tests/test_catalog_facts.py`. |
+| `size_attr` | The SKU's `primary` attribute, same name; it is the type's `key_attributes=` on its `TypeSpec`. |
 | `size_values`, `featured_sizes` | Every value must be offered by the spec space and appear at the default size. The row's `reason` names the reference queries they serve. |
 | `attributes` | Replaced by the type's own vocabulary. A value may become more specific (`Stainless Steel` became `18-8 Stainless Steel` and `316 Stainless Steel`). |
 | `descriptor_attr` | The title descriptor, `LineDraft.descriptors` (the lock nut's is `Material`). |
@@ -458,15 +491,17 @@ publishes:
 
 * `THREADED` (type key to its thread-size attribute) writes
   `Not for M10 or M16 threads.`, the neighbouring diameters. A type sold by
-  one thread designation joins it. Add the same entry to the copy in
-  `tests/test_compatibility_text.py`, whose tests then require every thread
-  to be a real designation that agrees with `Thread Type`, and the type to
-  offer Metric Coarse, Metric Fine, UNC and UNF.
+  one thread designation joins it, with `threaded=` on its `TypeSpec`.
+  `tests/test_compatibility_text.py` reads the specs, and then requires
+  every thread to be a real designation that agrees with `Thread Type`, and
+  the type to offer Metric Coarse, Metric Fine, UNC and UNF. A pitch that
+  test's tables lack is added there from the one table they cite.
 * `FASTENERS` writes what the part is not (`Zinc-plated steel (not
-  stainless).`). A fastener that publishes `Material` and `Finish` joins it.
+  stainless).`). A fastener that publishes `Material` and `Finish` joins it,
+  with `fastener=True`.
 * `UNIT_PRIMARY` writes a unit equivalent of the type's primary length. A
   type whose primary attribute is a length (a `Size` or a `Diameter`) joins
-  it; a thread designation is not a length.
+  it, with `unit_primary=`; a thread designation is not a length.
 
 Each record's sentences draw from its own stream (`noise.record_rng`), so
 joining moves only this type's records. `tests/test_noise_text.py` checks
@@ -630,25 +665,33 @@ has no compare-and-swap on the base. The `main-merged-tree` CI job runs the
 same tests on every push to `main`, so a merge that raced, or skipped the
 script, is red within minutes.
 
-**Modelled types land one at a time.** Besides the files above, a modelled
-type edits shared state that two pull requests cannot both change safely:
+**Modelled types can be built in parallel too (#48, #61).** A modelled
+type's claims, key dimension, description sentences, claimable standards and
+size are on its `TypeSpec`, and each breadth row is a file of its own, so a
+type that only uses an existing family builder edits no shared file.
+Measured with two toy deepened types (`bar_stock_hex`, `bar_stock_round`,
+each a module plus its deleted row file) on separate branches: merged in
+either order, they conflicted only in the eight generated files; after one
+rebuild the two orders gave the same tree, every other type's records were
+byte-identical to the base (207 of 207 file-and-type digests), and the
+golden, facts, seam, registration, breadth and thread tests passed with no
+test edit. Before this change the same pair conflicted in six hand-kept
+files. Each type's `share` is its own: the original types' `type_weights`
+in `catalog/config.py` sum to 1.0, each new or deepened type adds its share
+on top, and `test_the_catalog_is_the_size_it_was_asked_for` sums every
+modelled share. Never take share from another type: that moves its output.
 
-* `DEPTH_LINES` and `DEPTH_SKUS` in `tests/catalog_size.py`.
-* Each modelled type's `share`. The original types' `type_weights` in
-  `catalog/config.py` sum to 1.0, and each new or deepened type adds its own
-  share on top. `test_the_catalog_is_the_size_it_was_asked_for` sums every
-  modelled share, so two types that each add one do not collide on the shares.
-  Never take share from another type: that moves its output.
-* `KEY` and `MAY_CLAIM` in `tests/test_catalog_facts.py`.
-* `catalog/conformance.py`: the `applicable` truth table, one branch per type
-  that claims a standard. A type with no branch claims nothing.
+What a modelled type can still edit in a shared file, and so conflict on:
+
+* `generate.KEY_DIMENSIONS`, for a type whose titles must name a key
+  dimension that is not its variant axis (a bearing's number, a wheel's
+  diameter).
 * The family builder in `catalog/generate.py` (see
   [above](#modelled-types-what-the-family-builder-still-needs)), and the
   standards extraction in `data/fastener_standards.json`.
 * Type-keyed tables a family may need. Find them with
   `grep -rn "'<sibling_key>'\|\"<sibling_key>\"" src scripts tests --include=*.py | grep -v product_types/`:
-  `render/kinds.py` (`TYPE_KIND`), `render/generic.py`, `catalog/noise.py`
-  (`THREADED`), `catalog/compat.py`,
+  `render/kinds.py` (`TYPE_KIND`), `render/generic.py`, `catalog/compat.py`,
   `catalog/muststock.py`, `catalog/newtypes.py` (`_KIT_MATERIAL`,
   `_KIT_FINISH`), `scripts/verify_elasticsearch.py`, and for the socket-screw
   family `test_the_catalog_offers_all_four_socket_screw_styles` in
@@ -662,7 +705,7 @@ Wall-clock times from #48:
 |---|---|---|
 | One-time wiring: `all_type_keys` and its readers | about 3.5 min | 4 files, +45 / -22 |
 | Move 1, `screw_socket_head` (modelled), warm | about 0.6 min | +37 / -10: a 36-line module, a 1-line family `__init__`, and one entry removed from each of 8 tables |
-| Move 2, `ball_stock_precision` (breadth), cold | 0.45 min to a byte-identical `diff -rq`, 1.2 min to green seam and breadth tests | +48 / -37: a 47-line module, a 1-line family `__init__`, and a 36-line YAML row removed |
+| Move 2, `ball_stock_precision` (breadth), cold | 0.45 min to a byte-identical `diff -rq`, 1.2 min to green seam and breadth tests | +48 / -37: a 47-line module, a 1-line family `__init__`, and a 36-line YAML row removed (today, the row's own file is deleted) |
 
 A cold move also spends 1 to 2 minutes on the `grep -n` step for a modelled
 type, whose entries are spread over 8 tables. A breadth type has one row, so
