@@ -156,8 +156,18 @@ def test_every_attribute_that_is_quantitative_still_says_so(flat_rows: list[dict
 # --------------------------------------------------------------------------
 
 
-def _stats(*, cardinality: int, present: int, numeric: int | None = None) -> AttributeStats:
-    """A constructed measurement, for cases the industrial catalog lacks."""
+def _stats(
+    *,
+    cardinality: int,
+    present: int,
+    numeric: int | None = None,
+    product_values: int | None = None,
+) -> AttributeStats:
+    """A constructed measurement, for cases the industrial catalog lacks.
+
+    ``product_values`` defaults to ``present``: one SKU per product, so the
+    per-document and per-product counts agree unless a test separates them.
+    """
     return AttributeStats(
         key="probe",
         name="Probe",
@@ -166,6 +176,7 @@ def _stats(*, cardinality: int, present: int, numeric: int | None = None) -> Att
         cardinality=cardinality,
         product_types=("probe_type",),
         type_denominator=present,
+        product_values=present if product_values is None else product_values,
     )
 
 
@@ -406,3 +417,152 @@ def test_the_smallest_faceted_attribute_clears_the_document_floor(decided) -> No
     assert smallest.name == MEASURED_DISPERSION["smallest_faceted"]
     assert smallest.present == MEASURED_DISPERSION["smallest_faceted_present"]
     assert smallest.present > RANGE_MIN_DOCS
+
+
+# ---------------------------------------------------------------------------
+# A facet or an identifier: a property of the values, not of the catalog's size
+# (alexander-marquardt/synthetic-industrial-products#31, #28)
+# ---------------------------------------------------------------------------
+# The retired rule withheld a terms attribute with more than 25 distinct values.
+# 25 is a count, and a count does not grow with the catalog: Thread Size, a
+# standards body's ladder, passed it at 19 values and failed it at 55, while
+# nothing about it had become an identifier.
+
+#: The retired absolute cap, kept here only to reconstruct the old rule.
+RETIRED_TERMS_CAP = 25
+
+#: What the default build gains under the relative rule: every one is a terms
+#: attribute the retired cap withheld for its count alone. Measured on the
+#: default build and on ``--lines 39000`` (111,499 SKUs); the same seven at both.
+NEWLY_OFFERED = frozenset(
+    {
+        "bearing_number",
+        "dia_thread_size",
+        "item",
+        "sizes_included",
+        "standards",
+        "thread_size",
+        "type",
+    }
+)
+
+
+@pytest.mark.parametrize("scale", [1, 10, 100])
+def test_a_ladder_stays_a_facet_and_an_identifier_stays_withheld_at_any_size(
+    scale: int,
+) -> None:
+    """The same two attributes, measured on catalogs 1x, 10x and 100x as large.
+
+    A ladder keeps its rungs while products accumulate, so its cardinality is
+    fixed (55, Thread Size's count on the default build). An identifier gains
+    a value with nearly every product. The decision for each must not move
+    with the scale.
+    """
+    products = 200 * scale
+    ladder = _stats(cardinality=55, present=products, numeric=0)
+    assert decide(ladder).facet, decide(ladder).reason
+
+    identifier = _stats(cardinality=products * 97 // 100, present=products, numeric=0)
+    assert not decide(identifier).facet
+    assert "identifier" in decide(identifier).reason
+
+
+def test_the_identifier_threshold_is_the_midpoint_and_both_sides_are_reachable() -> None:
+    """Astride the boundary: one value apart, so the comparison is not vacuous.
+
+    Both sides carry far more than 25 values, so the retired cap would have
+    withheld both.
+    """
+    below = _stats(cardinality=99, present=200, numeric=0)
+    at = _stats(cardinality=100, present=200, numeric=0)
+    assert decide(below).facet, decide(below).reason
+    assert not decide(at).facet
+    assert "identifier" in decide(at).reason
+
+
+def test_a_small_terms_attribute_is_not_called_an_identifier() -> None:
+    """Below ``RANGE_MIN_DOCS`` observations dispersion is not evidence.
+
+    ``Style`` publishes 11 values over 13 products on the default build, a
+    dispersion of 0.85, and it is a facet there today. A list under the floor
+    holds fewer than ``RANGE_MIN_DOCS`` values, so offering it costs little;
+    withholding it would drop a facet the default build offers.
+    """
+    style = _stats(cardinality=11, present=13, numeric=0)
+    assert decide(style).facet, decide(style).reason
+    floor = _stats(cardinality=RANGE_MIN_DOCS, present=RANGE_MIN_DOCS, numeric=0)
+    assert not decide(floor).facet
+
+
+def test_standards_and_thread_size_are_offered_and_list_number_is_not(rendered: str) -> None:
+    """The issue's acceptance, on the rendered field map."""
+    entries = _entries(rendered)
+    for name in ("standards", "thread_size"):
+        assert entries[name].get("facet") != "false", (name, entries[name])
+    assert entries["list_number"].get("facet") == "false", entries["list_number"]
+
+
+def test_no_facet_the_default_build_offers_is_lost(flat_rows: list[dict]) -> None:
+    """The relative rule only ADDS facets, and exactly the named ones.
+
+    Reconstructs the retired rule beside the current one over the default
+    build. Every attribute it offered is still offered; what is new is the
+    set of terms attributes it withheld for their count alone.
+    """
+    stats = measure(flat_rows)
+    new_faceted = {k for k, s in stats.items() if decide(s).facet}
+    old_faceted = {
+        k
+        for k, s in stats.items()
+        if s.cardinality >= 2
+        and s.presence >= MIN_PRESENCE
+        and (s.is_numeric or s.cardinality <= RETIRED_TERMS_CAP)
+    }
+    assert old_faceted - new_faceted == set()
+    assert new_faceted - old_faceted == NEWLY_OFFERED
+
+
+def _rows_of(products: int, variants: int, value_of) -> list[dict]:
+    """Constructed flat rows: ``products`` products of ``variants`` SKUs each."""
+    rows = []
+    for p in range(products):
+        for v in range(variants):
+            value = value_of(p, v)
+            rows.append(
+                {
+                    "product_id": f"P{p}",
+                    "product_type": "probe_type",
+                    "facets": {"load": [str(value)]},
+                    "facets_num": {"load": float(value)},
+                    "attributes": [{"name": "Load", "value": str(value)}],
+                }
+            )
+    return rows
+
+
+def test_dispersion_counts_products_not_sku_variants() -> None:
+    """A product-scope value repeated on its siblings is one observation.
+
+    60 products, each with its own rating, published on all 4 of its SKUs.
+    Per document that reads as 60 values over 240 documents (0.25), a ladder;
+    per product it is 60 over 60, a continuum. The answer must not depend on
+    how many variants a product happens to have (#28).
+    """
+    for variants in (1, 4, 9):
+        stats = measure(_rows_of(60, variants, lambda p, v: 1000 + 7 * p))["load"]
+        assert stats.present == 60 * variants
+        assert stats.product_values == 60
+        assert stats.dispersion == 1.0
+        assert stats.is_continuous, variants
+
+
+def test_a_sku_scope_ladder_is_still_a_ladder() -> None:
+    """Values that vary across a product's SKUs are each an observation.
+
+    60 products, 4 SKUs each, every SKU on one of 8 rungs: 240 distinct
+    (product, value) pairs and 8 values, so the ladder stays a list.
+    """
+    stats = measure(_rows_of(60, 4, lambda p, v: (p + v) % 8))["load"]
+    assert stats.product_values == 240
+    assert stats.cardinality == 8
+    assert not stats.is_continuous

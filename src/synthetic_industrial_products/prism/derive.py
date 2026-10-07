@@ -229,6 +229,7 @@ class AttributeStats:
     cardinality: int
     product_types: tuple[str, ...]
     type_denominator: int
+    product_values: int = 0
 
     @property
     def numeric_share(self) -> float:
@@ -287,6 +288,7 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
     present: collections.Counter[str] = collections.Counter()
     numeric: collections.Counter[str] = collections.Counter()
     values: dict[str, set[str]] = collections.defaultdict(set)
+    product_values: dict[str, set[tuple[str, str]]] = collections.defaultdict(set)
     types: dict[str, set[str]] = collections.defaultdict(set)
     published_name: dict[str, str] = {}
     type_sizes: collections.Counter[str] = collections.Counter()
@@ -297,6 +299,7 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
         for key, vals in row["facets"].items():
             present[key] += 1
             values[key].update(vals)
+            product_values[key].update((row["product_id"], value) for value in vals)
             types[key].add(product_type)
         for key in row["facets_num"]:
             numeric[key] += 1
@@ -314,6 +317,7 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
             cardinality=len(values[key]),
             product_types=tuple(sorted(types[key])),
             type_denominator=sum(type_sizes[t] for t in types[key]),
+            product_values=len(product_values[key]),
         )
         for key, count in sorted(present.items())
     }
