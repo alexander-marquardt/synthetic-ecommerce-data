@@ -123,7 +123,7 @@ its published attributes. `set_screws_hex_socket` does both.
    It prints the block the key derives and, when another type already uses it,
    the first free block. In that case set `part_number_block=<block>` on the
    new type's `TypeSpec` (not on its `BreadthRow`): about one new type in 135
-   collides at today's 67 types. Another open pull request can take the same
+   collides at today's 68 types. Another open pull request can take the same
    block; `scripts/merge_pr.sh` re-checks it on the merged tree.
 3. If the leaf's head noun is new, add it to `PRODUCT_NOUNS` in
    `catalog/names.py`.
@@ -156,7 +156,10 @@ its published attributes. `set_screws_hex_socket` does both.
    * `key_attributes`: the type's key dimension, normally its size attribute.
      The price census keys the type on it (`price.KEY_ATTRIBUTES`) and every
      title names it (`test_every_title_names_its_key_dimension`). `register`
-     refuses a modelled type without one.
+     refuses a modelled type without one. When one line can hold two SKUs
+     that share the key dimension (key stock's square bar and the rectangular
+     bar of its width), the builder sets `ChildDraft.also` to the second
+     dimension on the SKU that needs it, and that SKU's title names both.
    * `title_attributes`: only for a type whose title names another attribute
      than its price key; the title test then reads it in place of
      `key_attributes`. An O-ring is priced on its cross-section (`Width`) and
