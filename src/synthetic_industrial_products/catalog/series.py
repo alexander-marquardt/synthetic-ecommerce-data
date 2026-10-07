@@ -258,18 +258,26 @@ def nearest_shank_metric(target_mm: float) -> float:
     return min(METRIC_SHANKS, key=lambda s: abs(s - target_mm))
 
 
-#: The largest an oversize shank gets, as a multiple of its cutter: an
-#: oversize shank is a size or two up the collet ladder, not a 5/32" cutter on
-#: a 5/8" shank (4x, which the census's 3.0 and 2.667 ratios produced on the
-#: smallest cutters). The one exception is a cutter below the smallest stocked
-#: shank: a 1mm cutter has nothing thinner than a 3mm shank to sit in.
-MAX_SHANK_RATIO = 2.0
+#: The largest an oversize shank gets, as a multiple of its cutter. 43 of the
+#: 46 differing records in 04_shank_dia_vs_milling_dia.json are at or under
+#: 3.0, the 2.667 and 3.0 ratios included, so an inch 5/32" cutter on a 5/8"
+#: shank (4.0) is not drawn. Two exceptions draw past it: the smallest stocked
+#: shank above the cutter when that is already more (see shank_ceiling), and a
+#: metric cutter below SMALL_METRIC_SHANK_MM, which sits on 6 mm whatever the
+#: ratio -- 1.5 mm on 6 mm is 4.0x and 1 mm on 6 mm is 6.0x.
+MAX_SHANK_RATIO = 3.0
+
+#: The shank a metric cutter below it sits on when its shank is oversize.
+#: This is a catalog convention the #33 review proposed, not yet confirmed
+#: against a standard's diameter table (#87); DIN 6535 also lists 3, 4
+#: and 5 mm shanks, which this rule leaves undrawn for an oversize cutter.
+SMALL_METRIC_SHANK_MM = 6.0
 
 
 def shank_ceiling(dia: float, larger: list[float]) -> float:
     """The largest shank a cutter of ``dia`` may carry, given the stocked
-    shanks ``larger`` than it: twice the cutter, or the smallest of those
-    shanks when that is already more."""
+    shanks ``larger`` than it: three times the cutter, or the smallest of
+    those shanks when that is already more."""
     return max(dia * MAX_SHANK_RATIO, min(larger))
 
 
@@ -290,10 +298,13 @@ def larger_shank_imperial(dia_in: float, target_in: float) -> Fraction:
 
 
 def larger_shank_metric(dia_mm: float, target_mm: float) -> float:
-    """The metric twin of :func:`larger_shank_imperial`."""
+    """The metric twin of :func:`larger_shank_imperial`, except that a cutter
+    below :data:`SMALL_METRIC_SHANK_MM` sits on that shank."""
     larger = [s for s in METRIC_SHANKS if s > dia_mm + 1e-9]
     if not larger:
         return dia_mm
+    if dia_mm < SMALL_METRIC_SHANK_MM - 1e-9:
+        return SMALL_METRIC_SHANK_MM
     ceiling = shank_ceiling(dia_mm, larger)
     allowed = [s for s in larger if s <= ceiling + 1e-9]
     return min(allowed, key=lambda s: abs(s - target_mm))
