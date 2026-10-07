@@ -22,14 +22,16 @@ import pytest
 
 import type_gates
 from published import published_attributes
-from synthetic_industrial_products.catalog import emit, names, taxonomy, typespec
+from synthetic_industrial_products.catalog import brands, emit, names, taxonomy, typespec
 from synthetic_industrial_products.catalog.config import GeneratorConfig
 from synthetic_industrial_products.catalog.generate import generate, generate_type
-from synthetic_industrial_products.drawing.model import Disc, Poly
+from synthetic_industrial_products.drawing import draw_sku, svg_problems
+from synthetic_industrial_products.drawing.model import Bars, Disc, Poly
 from synthetic_industrial_products.prism import derive
 from synthetic_industrial_products.product_types.motion import roller_chain
 from test_attribute_names import CENSUS, OBSERVED
 from test_catalog_brands_voice import same_product_duplicates
+from test_sku_drawings import MAX_DRAWING_BYTES
 from test_type_seam import _by_type, _moved_by_removing
 
 KEY = "roller_chain"
@@ -159,7 +161,8 @@ def test_the_facet_derivation_measures_the_two_pitches_apart(default_rows):
 
 # --- the chain number is B29.1's own rule, and the table is the standard's ----
 
-#: B29.1's standard series restated from the standard's printed decimals, not
+#: B29.1's standard series restated from the printed decimals of the size chart
+#: the module cites (``roller_chain.SOURCE_URL``, retrieved 2026-10-07), not
 #: from the module: chain number -> (pitch, roller diameter, width between the
 #: roller link plates), inches. Chains 25 and 35 are rollerless.
 B29_1 = {
@@ -257,6 +260,54 @@ def test_the_side_view_draws_link_plates_one_pitch_long(strands):
     assert heights[0] == heights[2] != heights[1], heights
     pins = sorted(s.centre for s in figure.shapes if isinstance(s, Disc) and s.role == "hole")
     assert pins == [(0.0, 0.0), (1.0, 0.0), (2.0, 0.0), (3.0, 0.0)]
+
+
+#: Rectangles one strand shows from above: two plates a link over three links,
+#: and a roller at each of four pins.
+RECTS_A_STRAND = 10
+
+
+@pytest.mark.parametrize(
+    ("style", "count"), [("Single Strand", 1), ("Double Strand", 2), ("Triple Strand", 3)]
+)
+def test_every_strand_from_above_is_the_first_one_repeated_in_one_path(style, count):
+    record = {"Pitch": '1"', "Roller Dia.": '5/8"', "Inside Width": '5/8"', "Style": style}
+    bars = [s for s in roller_chain.chain(record).figure.shapes if isinstance(s, Bars)]
+    assert len(bars) == 1, len(bars)
+    rects = bars[0].rects
+    assert len(rects) == RECTS_A_STRAND * count
+    first = rects[:RECTS_A_STRAND]
+    # A strand is its inside width and four plate thicknesses further down.
+    step = 0.625 + 4 * roller_chain._PLATE_THICKNESS
+    for k in range(count):
+        for (x0, y0, x1, y1), (a0, b0, a1, b1) in zip(
+            first, rects[k * RECTS_A_STRAND : (k + 1) * RECTS_A_STRAND], strict=True
+        ):
+            assert (a0, a1) == (x0, x1)
+            assert (b0 - y0, b1 - y1) == pytest.approx((k * step, k * step))
+
+
+def test_no_chain_any_brand_could_offer_draws_past_the_size_cap():
+    """The cap ``test_sku_drawings`` holds the committed catalog to, held here
+    for every table row in three strands, in every material and brand's house
+    style: the committed catalog shows only the chains one seed happened to
+    stock, and the first three-link view was 14,267 bytes in it."""
+    materials = sorted({offer.material for offer, _ in roller_chain.OFFERS})
+    largest, drawn = 0, 0
+    for _, pitch, roller, width in roller_chain.ANSI:
+        record = {"Pitch": f'{float(pitch)}"', "Inside Width": f'{float(width)}"'}
+        if roller is not None:
+            record["Roller Dia."] = f'{float(roller)}"'
+        for material in materials:
+            for brand in brands.BRANDS:
+                data, _ = draw_sku(
+                    KEY, brand, {**record, "Style": "Triple Strand", "Material": material}
+                )
+                assert svg_problems(data) == [], (brand, record)
+                largest = max(largest, len(data))
+                drawn += 1
+    assert drawn == len(roller_chain.ANSI) * len(materials) * len(brands.BRANDS)
+    assert largest < MAX_DRAWING_BYTES, largest
 
 
 # --- the strand count moves the price -----------------------------------------
