@@ -395,6 +395,11 @@ fields:
   - name: finish
     type: terms
     source: facets.finish
+  # Fit -- 2 distinct values over 42 product-value pairs is 0.05 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 70 documents across 1 product type(s); 2 distinct values
+  - name: fit
+    type: terms
+    source: facets.fit
   # Flute Length -- a discrete standard set: 92 distinct values over 451 product-value pairs is 0.20 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
   #   present on 453 documents across 1 product type(s); 92 distinct values
   - name: flute_length
@@ -470,8 +475,8 @@ fields:
   - name: head_weight
     type: terms
     source: facets.head_weight
-  # Height -- a discrete standard set: 259 distinct values over 1321 product-value pairs is 0.20 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1342 documents across 2 product type(s); 259 distinct values
+  # Height -- a discrete standard set: 265 distinct values over 1391 product-value pairs is 0.19 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1412 documents across 3 product type(s); 265 distinct values
   - name: height
     type: terms
     source: facets.height
@@ -521,8 +526,8 @@ fields:
   - name: item
     type: terms
     source: facets.item
-  # Length -- a discrete standard set: 88 distinct values over 2446 product-value pairs is 0.04 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 2486 documents across 23 product type(s); 88 distinct values
+  # Length -- a discrete standard set: 90 distinct values over 2488 product-value pairs is 0.04 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 2556 documents across 24 product type(s); 90 distinct values
   - name: length
     type: terms
     source: facets.length

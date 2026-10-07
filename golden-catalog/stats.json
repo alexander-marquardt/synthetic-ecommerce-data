@@ -40,6 +40,7 @@
   "hex_key": 630,
   "hex_pipe_nipples": 1,
   "hose_clamps": 1,
+  "key_stock": 42,
   "kit_assortment": 59,
   "lag_screws": 1,
   "lock_nuts_nylon_insert": 256,
@@ -114,6 +115,7 @@
   "hex_key": 1120,
   "hex_pipe_nipples": 2,
   "hose_clamps": 2,
+  "key_stock": 70,
   "kit_assortment": 59,
   "lag_screws": 2,
   "lock_nuts_nylon_insert": 469,
@@ -504,6 +506,18 @@
    "Material",
    "Size",
    "Style"
+  ],
+  "key_stock": [
+   "Dimension Type",
+   "Finish",
+   "Fit",
+   "Height",
+   "Item",
+   "Length",
+   "Material",
+   "Measurement System",
+   "System of Measurement",
+   "Width"
   ],
   "kit_assortment": [
    "Container Type",

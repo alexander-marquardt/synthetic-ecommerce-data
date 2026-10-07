@@ -162,6 +162,10 @@ NAME_EXCEPTIONS: dict[str, str] = {
     ),
     "Hub Diameter": "a sprocket's hub, beside its Outside Diameter; no sprocket hub in the census",
     "Length Through Bore": "a sprocket's width along the shaft; no sprocket hub in the census",
+    "Fit": (
+        "key stock's oversized or undersized bar, the name distributors facet it"
+        " by; the census carries no key stock, and its Class is another concept"
+    ),
 }
 
 
