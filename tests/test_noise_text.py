@@ -129,7 +129,7 @@ def _holds(match: re.Match[str], doc: dict, siblings: list[dict]) -> bool:  # no
             return Fraction(g["eq_other"].rstrip('"')) == Fraction(round(size * 64), 64)
         return g["eq_other"] == f"{size * MM:.1f}mm"
     if "bore_low" in g:
-        bore_mm = _inches(values["Bore"]) * MM
+        bore_mm = _inches(values["Bore Dia."]) * MM
         tol = next(t for lo, hi, t in BORE_TOL if lo < bore_mm <= hi)
         return (
             abs(float(g["bore_high"]) - bore_mm) < 1e-3
@@ -239,7 +239,7 @@ def test_unit_equivalents_are_a_minority_within_their_bound(docs):
         "end_mill_ball": "Milling Dia.",
         "drill_jobber": "Size",
         "hex_key": "Size",
-        "bearing_radial_ball": "Bore",
+        "bearing_radial_ball": "Bore Dia.",
         "wheel_depressed_center": "Diameter",
         "abrasive_flap_disc": "Diameter",
         "dowel_pins": "Diameter",

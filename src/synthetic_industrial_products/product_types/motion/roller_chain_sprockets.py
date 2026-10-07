@@ -55,7 +55,7 @@ from .roller_chain import ANSI, PITCH_KEY, STANDARD
 
 SOURCE_URL = "https://usarollerchain.com/products/40bs15-34-sprocket"
 
-SIZE = "Outside Diameter"
+SIZE = "Outside Dia."
 PITCH = "Pitch"
 BORE = "Bore Dia."
 HUB = "Hub Diameter"

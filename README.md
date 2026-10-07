@@ -665,10 +665,11 @@ of elastic/prism#9935:
 
 * `key` is required: the machine name the Engine discovers an attribute by,
   namespaced as `attr_<key>` when it is a column's name (see below). It is
-  `sanitize(name)` unless the type declares its own, which it does when two
-  types publish one display name for two concepts: a roller chain's `Pitch`
-  (the distance between pin centres) has the key `chain_pitch`, because a
-  metric tap's `Pitch` (its thread pitch) already has `pitch`. So read `key`,
+  `sanitize(name)` unless the type declares its own: a roller chain's `Pitch`
+  (the distance between pin centres) has the key `chain_pitch`, apart from a
+  metric tap's `Thread Pitch` (its thread pitch), whose key is `thread_pitch`.
+  One quantity has one display label and two quantities never share one, so a
+  name has one key catalog-wide. So read `key`,
   never derive it from `name`. `name` is the display name.
 * A **measured** value is fully split. `value` is the bare magnitude with no
   unit marker and no thousands separator, `unit_code` (UN/CEFACT: `INH`, `MMT`,
@@ -678,7 +679,7 @@ of elastic/prism#9935:
   canonical unit (millimetres, grams, degrees, one, rpm, pound-force), computed
   exactly and rounded to a float once.
 * Thread spacing is published under two keys, as real catalogs publish it: a
-  metric tap's `Pitch` (`pitch`, `MMT`, `0.5`) and an inch tap's `Threads per
+  metric tap's `Thread Pitch` (`thread_pitch`, `MMT`, `0.5`) and an inch tap's `Threads per
   Inch` (`threads_per_inch`, `TPI`, `32`). `TPI` is a LENGTH written as a count
   per inch (ruled on elastic/prism#9877): `value` stays the count and
   `value_canonical` is the pitch in millimetres, `127/5 / n`, so `32` TPI is

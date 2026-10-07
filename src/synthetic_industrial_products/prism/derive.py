@@ -400,7 +400,7 @@ class Decision:
 def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
     """Collect per-attribute statistics from emitted flat documents.
 
-    One statistic per machine KEY, never per display name: a roller chain's
+    ``Pitch`` (``chain_pitch``) and a metric tap's ``Thread Pitch`` (``thread_pitch``) are two
     ``Pitch`` (``chain_pitch``) and a metric tap's ``Pitch`` (``pitch``) are two
     concepts that real catalogs label alike, and merging them would put a
     chain's inch spacing in one bucket list with thread pitches (#36).

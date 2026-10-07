@@ -351,7 +351,7 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
     # 41 since the roller chain's Pitch, Roller Dia. and Inside Width (#53),
     # all faceted; 38 before, since the set screws' Point Dia., which is not.
     # The two table types (#101) publish five more, all faceted: a cotter
-    # pin's Head Diameter and Head Height, and a retaining ring's For Shaft
+    # pin's Head Dia. and Head Height, and a retaining ring's For Shaft
     # Diameter, Groove Diameter and Groove Width.
     # The next five table types publish twelve more, all faceted: a turnbuckle's
     # Thread Dia., Take Up and Closed Length, the Load Capacity it shares with
