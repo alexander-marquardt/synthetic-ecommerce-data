@@ -2444,6 +2444,44 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- pack: bolts and socket screws publish the census pack (#65) ------
+    *(
+        Mutation(f"pack: {name}", file, old, new, f"tests/test_pack_quantity.py -k {test}", "A", prop)
+        for name, file, old, new, test, prop in [
+            (
+                "the pack grows with the size",
+                "catalog/price.py",
+                "    quantile = 1.0 - (rank + u) / sizes",
+                "    quantile = (rank + u) / sizes",
+                "never_grows_with_the_size",
+                "the pack falls as the size grows",
+            ),
+            (
+                "every line of a size takes one pack",
+                "catalog/price.py",
+                "    quantile = 1.0 - (rank + u) / sizes",
+                "    quantile = 1.0 - (rank + 0.5) / sizes",
+                "even_spread_over_the_sizes",
+                "the build publishes the census counts",
+            ),
+            (
+                "the bolt's pack does not enter its price",
+                "catalog/price.py",
+                '            pack_slope=PACK_SLOPES["bolt_hex"],',
+                "            pack_slope=0.0,",
+                "prices_its_pack_on_the_census_slope",
+                "the price is the pack's",
+            ),
+            (
+                "a census pack count drifts",
+                "catalog/price.py",
+                "        100: 76,",
+                "        100: 77,",
+                "each_pack_count_is_the_census_count",
+                "the counts are the census's",
+            ),
+        ]
+    ),
 ]
 
 

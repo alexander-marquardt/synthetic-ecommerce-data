@@ -124,7 +124,16 @@ def test_the_builds_bolt_pack_falls_as_the_diameter_grows(packs):
     assert small >= 4 * large, (small, large)
 
 
-def test_the_bolt_slope_is_no_longer_cut():
-    assert "bolt_hex" not in price.SLOPE_CUTS
-    assert price.MODELS["bolt_hex"].slope == price.CENSUS["bolt_hex"].slope
-    assert price.MODELS["bolt_hex"].length_slope == price.LENGTH_CENSUS["bolt_hex"].slope
+#: The bolt's key and length slope as the fit cut them before the pack was
+#: modelled (#58), when the cut stood in for the whole pack.
+PACKLESS_BOLT_CUT = (0.987, 0.347)
+
+
+def test_the_pack_leaves_the_bolt_slopes_cut_less():
+    """The pack carries part of what the cut stood in for, so the fit cuts
+    the census slopes by less than it did with no pack."""
+    model = price.MODELS["bolt_hex"]
+    assert model.slope > PACKLESS_BOLT_CUT[0]
+    assert model.length_slope > PACKLESS_BOLT_CUT[1]
+    assert model.slope < price.CENSUS["bolt_hex"].slope
+    assert "pack" in price.SLOPE_CUTS["bolt_hex"]
