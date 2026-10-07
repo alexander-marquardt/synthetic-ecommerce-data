@@ -52,7 +52,11 @@ def load_jobs(directory: Path) -> dict[str, dict]:
     """Every job of every workflow file, by job id (an id used twice is an error)."""
     jobs: dict[str, dict] = {}
     for path in workflow_files(directory):
-        for job_id, job in (yaml.safe_load(path.read_text()) or {}).get("jobs", {}).items():
+        document = yaml.safe_load(path.read_text()) or {}
+        for key in ("env", "defaults"):
+            if key in document:
+                raise NoLocalEquivalent(f"{path.name}: workflow {key!r} is not reproduced locally")
+        for job_id, job in document.get("jobs", {}).items():
             if job_id in jobs:
                 raise NoLocalEquivalent(f"job {job_id!r} is defined twice (in {path.name})")
             jobs[job_id] = job
@@ -77,10 +81,16 @@ def emit(job_id: str, job: dict, base: str, head: str) -> str:
     }
     if "strategy" in job or "container" in job or "services" in job:
         raise NoLocalEquivalent(f"{job_id}: a matrix, container or service has no local equivalent")
+    for key in ("defaults", "continue-on-error", "needs", "timeout-minutes"):
+        if key in job:
+            raise NoLocalEquivalent(f"{job_id}: job key {key!r} is not reproduced locally")
     lines = [f"echo {shlex.quote('== job ' + job_id + ' ==')}"]
     ran = 0
     for number, step in enumerate(job.get("steps", []), 1):
         where = f"{job_id} step {number}"
+        for key in ("if", "continue-on-error", "timeout-minutes"):
+            if key in step:
+                raise NoLocalEquivalent(f"{where}: step key {key!r} is not reproduced locally")
         if "uses" in step:
             if not step["uses"].split("@")[0].startswith(SETUP_ACTIONS):
                 raise NoLocalEquivalent(f"{where}: action {step['uses']!r} has no local equivalent")
