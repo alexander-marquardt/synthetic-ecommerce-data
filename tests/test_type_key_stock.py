@@ -197,6 +197,16 @@ def test_the_large_build_offers_every_section_in_every_combination(large_docs):
     assert built == {(combo, section) for combo in COMBOS for section in SECTIONS}
 
 
+def test_a_rectangular_bars_title_names_its_height_and_a_square_bars_does_not(large_docs):
+    """A line can hold the square bar and the rectangular bar of one width, and
+    a title that names only the width reads the two as one SKU listed twice."""
+    rectangular = [doc for doc in large_docs if _section(doc)[0] != _section(doc)[1]]
+    named = [doc for doc in large_docs if "Height" in doc["title"]]
+    assert [doc["sku"] for doc in named] == [doc["sku"] for doc in rectangular]
+    titles = {(doc["product_id"], doc["title"]) for doc in large_docs}
+    assert len(titles) == len(large_docs)
+
+
 def test_a_record_publishes_the_fits_name_and_no_tolerance_or_standard(large_docs):
     published = {a["name"] for doc in large_docs for a in doc["attributes"]}
     assert published - MEASUREMENT_NAMES == NAMES
