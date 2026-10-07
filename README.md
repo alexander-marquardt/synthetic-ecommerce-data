@@ -2,8 +2,8 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 10,650 SKUs over 5,814 products in 19 depth types plus
-48 [breadth categories](#catalog-breadth), one product each -- from 45
+extraction in search: 10,708 SKUs over 5,849 products in 20 depth types plus
+47 [breadth categories](#catalog-breadth), one product each -- from 45
 invented brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
 
@@ -233,7 +233,8 @@ type from `skus_by_type` in its `stats.json`:
 | screw_button_head | 3,439 | | hex_key | 6,466 |
 | screw_low_head | 2,692 | | bolt_hex | 5,934 |
 | kit_assortment | 695 | | lock_nuts_nylon_insert | 4,513 |
-| set_screws_hex_socket | 7,061 | | 48 breadth categories | 85 (1-3 each) |
+| set_screws_hex_socket | 7,061 | | dowel_pins | 1,004 |
+| | | | 47 breadth categories | 83 (1-3 each) |
 
 The mix is not the one a proportional scale would give, and that is the
 uniqueness rule at work: a type whose spec space is small (ISO 7089 fixes a
@@ -241,20 +242,22 @@ washer's nine sizes; a hammer is its head weight and handle) runs out of
 SKUs its makers have not already made, so it grows less. It was 28,300
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
-**111,499 SKUs over 64,483 products** (`skus` and `lines` in `stats.json`),
-4,513 of them lock nuts over 2,714 products and 7,061 set screws over 3,786.
-`lock_nuts_nylon_insert` and `set_screws_hex_socket` became deep types (#53),
-each with its own share of `--lines`, and took none from the others, so every
+**112,501 SKUs over 65,017 products** (`skus` and `lines` in `stats.json`),
+4,513 of them lock nuts over 2,714 products, 7,061 set screws over 3,786 and
+1,004 dowel pins over 535. `lock_nuts_nylon_insert`, `set_screws_hex_socket`
+and `dowel_pins` became deep types (#53), each with its own share of
+`--lines`, and took none from the others (the dowel pins' breadth row and its
+2 SKUs left the breadth set), so every
 other type's SKU count is the one measured on `95a9ed0` (the set screws' small
 sockets add a true sentence to some hex key copy, not a SKU), when
 the build gave 99,929 SKUs over 57,985 products. On `95a9ed0`: SKUs that are
 not different (the rule below): 0. Every bearing number is a real table entry
 with its own bore, OD and width. Product names: 0 clashes catalog-wide.
 Every must-stock example is stocked. (Those four are the 100K tests in
-`tests/test_catalog_brands_voice.py`.) Since set screws,
+`tests/test_catalog_brands_voice.py`.) Since dowel pins,
 `scripts/check_determinism.py --lines 39000`: all 7 emitted files
 byte-identical across two builds. The drawings, built with the second command
-above: 111,499 drawings, 230.1 MB unpacked, a 25.8 MB `images.tar.gz`, every
+above: 112,501 drawings, 231.7 MB unpacked, a 25.9 MB `images.tar.gz`, every
 sha256 matching `images.jsonl` (the counts the command prints). The 100K
 catalog is still not published while the spec is iterated at the default
 size.
@@ -286,7 +289,8 @@ secondary dimension only when the record PUBLISHES it, and the newer types
 have none to name. The shank rate sits above its target because a shank is
 never thinner than its cutter any more: the census's 0.833 and 0.75 ratios
 become the next shank up, and above the largest stocked shank it is the
-cutter's own size; and an oversize shank is at most twice its cutter (see
+cutter's own size; and an oversize shank is at most three times its cutter,
+or 6 mm under a metric cutter below 6 mm (see
 [Brand voice](#brand-voice-titles-and-descriptions)). Label spellings are
 quantised by brand (each brand spells a label one way), so e.g. the flute
 label mix differs from the census's 0.66 / 0.28 / 0.06.
@@ -374,11 +378,18 @@ invented; each is now read from a table and checked by
   galvanizing is kept off Grade 8 / Class 10.9 (ASTM F2329); nACo and AlTiN
   are carbide coatings, black oxide an HSS treatment.
 * **An end mill's shank is never thinner than its cutter, and never more than
-  twice it** -- unless the smallest stocked shank above the cutter is already
-  more (a 1mm cutter sits on a 3mm shank). A reduced/oversize shank is the
-  next stocked shank up; above the largest stocked shank it is the cutter's
-  own size. The census's 3.0 and 2.667 ratios had put a 5/32" cutter on a
-  5/8" shank; 46 end mills on 7dac659's golden were over that ceiling.
+  three times it** -- unless the smallest stocked shank above the cutter is
+  already more. 43 of the 46 differing records in
+  `reference-statistics/04_shank_dia_vs_milling_dia.json` are at or under
+  3.0x, the 2.667x and 3.0x ones included; the census's 4.0 ratio had put a
+  5/32" cutter on a 5/8" shank. A metric cutter below 6 mm with an oversize
+  shank sits on the 6 mm DIN 6535 shank, whatever the ratio (1 mm on 6 mm is
+  6.0x). That is a catalog convention the #33 review proposed, not yet
+  confirmed against a standard's diameter table (#87); it leaves the
+  3, 4 and 5 mm DIN 6535 shanks undrawn for an oversize cutter. Under the
+  earlier 2x cap, 48 of the 54 such cutters on a2a55cc's golden sat on another
+  shank, most of them on 3 mm. Above the largest stocked shank the shank is
+  the cutter's own size.
 * **A terse end mill title names the mill's own end**: `SGL Sq End` on a
   square end mill, `SGL Ball End` on a ball nose one (168 of 568 ball end
   mills said `Sq End`).
@@ -496,6 +507,18 @@ without stating anything false (`catalog/compat.py`):
   token to the standard analyzer, so the searchable `text` also carries `M12`
   beside it; without that, `m12 socket cap screws` reached the hex keys whose
   copy names M12 screws and not a single screw.
+* **A glued size is also written in its parts, in the description**
+  (#33). Wherever a title or description glues a size, the description
+  writes it out too: the record's own sizes as `M12 thread, 1.75 mm pitch`
+  in the spec clause, and a size a sentence names for another product in
+  brackets after it -- `Tap drill for M12x1.75 threads (M12 thread, 1.75 mm
+  pitch).`, `Also available in M8x1.25 / M10x1.5 sizes (M8 thread, 1.25 mm
+  pitch; M10 thread, 1.5 mm pitch).` On the golden before this change, 1,930
+  records glued a size their description never wrote in parts, and the
+  jobber drills whose only M12 was the tap-drill sentence were not returned
+  for `m12`. `tests/test_glued_thread_sizes.py` reads the description's
+  tokens with its own pattern, and checks that every part written stands
+  beside a size the record glues.
 
 ## Copy noise
 
@@ -510,7 +533,7 @@ attributes are never touched, so the facets can always separate the noise out.
 | type | example | from |
 |---|---|---|
 | negative fit | `Not for M10 or M16 threads.` / `Will not fit 5/32" sockets.` | the neighbouring diameters; the next smaller key |
-| siblings | `Also available in M8 / M10 / M16 sizes.` | the product's other SKUs, on its variant axis |
+| siblings | `Also available in 3/16" / 7/32" sizes.` / `Also available in M12x1.25 sizes (M12 thread, 1.25 mm pitch).` | the product's other SKUs, on its variant axis |
 | unit equivalent | `12mm (approx. 15/32").` | the published value, to the nearest 64th or 0.1mm |
 | fit / pairing | `Bore 11.992-12.000mm (ISO 492 Normal class).` / `Pair with M12x1.75 hex nuts and a 10mm hex key.` | ISO 492 bore tolerances; the record's thread and drive |
 | material contrast | `Zinc-plated steel (not stainless).` / `18-8 Stainless Steel (not plated).` | the record's material and finish |
@@ -545,7 +568,8 @@ sells them together as one item. So some hex key sizes are sold only in a set
 test holds all three to non-empty. A kit's title says what it is ("Socket
 Head Cap Screw Assortment Kit, 240 pcs", "Hex Key Set, 9 pcs"); its `Item`
 is the one facet value "Assortment Kit" and its kind is `Type`. 59 kits on
-the default build, 695 at 100K.
+the default build, 695 at 100K. A kit's price is its contents' price times
+one fitted factor, its material and its tier ([Price](#price)).
 
 Two derivation artefacts went with it: the drive size is published as the
 nominal key (`10mm`), not the extracted socket's toleranced across-flats
@@ -766,7 +790,7 @@ them here would hide the problem a field map exists to solve.
 
 ## Catalog breadth
 
-alexander-marquardt/synthetic-industrial-products#34: the 19 depth types give
+alexander-marquardt/synthetic-industrial-products#34: the 20 depth types give
 this catalog DEPTH -- hundreds of products in each -- but not BREADTH. A
 comparison the issue makes: a real industrial storefront returns 51 items
 across 9 categories for `1/2 ball` (tooling balls, rubber balls, ball stock in
@@ -1158,8 +1182,8 @@ every other drawing -- only the GEOMETRY is fixed.
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 10,650 drawings, 21.0 MB unpacked
-  (1.97 KB a drawing on average), and a 2.23 MB `images.tar.gz` (the count,
+  measured on the committed catalog, 10,708 drawings, 21.1 MB unpacked
+  (1.97 KB a drawing on average), and a 2.24 MB `images.tar.gz` (the count,
   bytes and archive size `uv run sip-generate images --catalog golden-catalog
   --out /tmp/img --archive /tmp/img.tar.gz` prints). Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
@@ -1204,8 +1228,8 @@ small to read is not drawn larger, it is shown through a **magnifier**
   type's scale -- is visible with or without a lens. Interior detail lines
   (flutes, threads, hatch) are texture and keep their finer weight.
 
-On the committed catalog 1,598 SKUs are too small to see: 449 get the handled
-glass (x2.53 to x9.29) and 1,149 the handle-less lens (x2.46 to x4.05), as the
+On the committed catalog 1,643 SKUs are too small to see: 481 get the handled
+glass (x2.53 to x15.63) and 1,162 the handle-less lens (x2.46 to x4.05), as the
 command in [docs/drawings.md](docs/drawings.md#scale-the-magnifier-and-no-text) prints. The
 lowest enlargement any committed lens gives is x2.46, a width-bound
 handle-less lens (below); no committed part reaches
@@ -1387,6 +1411,25 @@ figure against the file.
 | SKU noise, one draw per SKU | fitted sigma |
 | size noise, one draw per spec that every brand shares (taps and socket screws only, `price.SIZE_NOISE`, each with its reason) | fitted sigma |
 
+**A kit is priced from what it holds** (`price.CONTENTS_PRICED`). Its key is
+not one dimension but its contents' price (`price.kit_contents`): each size
+in `Sizes Included` priced on its part type's own curve (standard tier, no
+material, no noise), at the census per-piece share of that part's shown price
+(`price.PER_PIECE`: per-piece p50 over shown p50, since a census socket screw
+is always sold by the pack and a third of hex keys are), times how many of
+each size the kit holds. The slope on that key is 1.0, so a kit costs its
+contents times one fitted factor (1.009 on the current fit), its material and
+its tier, with SKU noise and no group noise: the default build's 15-piece inch
+hex key sets, about $98 of keys, sold for $9.55 to $1,525.45 when a kit was
+one group draw per page. Every kit now lands within 0.97x to 1.06x of its
+contents' price times its material and tier on the default build, and 0.94x
+to 1.08x at 100K (`test_each_kit_price_tracks_its_contents_at_both_builds`).
+The census has no kit-versus-parts price figure, so the factor claims neither a
+discount nor a premium: it is fitted to the census median kit price and moves
+when #76 widens the kit kinds. Kit contents are computed from the part types'
+fitted models, so a fit run that also refits a part type a kit holds must be
+run again before its result is kept.
+
 The price is then rounded to an ending (.99, .00, .50 ...) drawn from the
 type's census endings mix; taps also snap to a fitted list-price ladder.
 Finish does not enter the price. The types the census has no prices for are
@@ -1419,7 +1462,7 @@ against the rest, and the .99/.00/.50 endings. Each row has a band
 standard errors where the census sample is small: `share_band`,
 `brand_spread_band`). Every row is scored at the default size and at 100K
 (`--lines 39000`, `config.HUNDRED_K_LINES`), and must land in band, or be
-pinned or excepted below, at both:
+pinned below, at both:
 `test_every_price_row_is_within_its_band_or_pinned_at_the_default_size` and
 `test_each_price_row_is_within_its_band_or_its_pin_holds_at_100k`.
 
@@ -1431,26 +1474,24 @@ entries of `golden-catalog/stats.json` whose `name` starts with `price `
 python3 -c "import json; r = [c for c in json.load(open('golden-catalog/stats.json'))['comparisons'] if c['name'].startswith('price ')]; print(len(r), 'rows,', sum(c['band'][0] <= c['achieved'] <= c['band'][1] for c in r), 'in band')"
 ```
 
-It prints `61 rows, 57 in band`; the other four are the two pins and the two
-kit exceptions. `uv run python scripts/fit_price_model.py` prints every row
-at both sizes side by side (about 2 minutes). At 100K the kit p90/p10 lands
-in band.
+It prints `61 rows, 58 in band`; the other three are the pins.
+`uv run python scripts/fit_price_model.py` prints every row at both sizes
+side by side (about 2 minutes).
 
-**Declared exceptions and pins.** A row that no model of this shape holds
-is declared with its reason and the issue that fixes it, and stays bounded:
+**Pins.** A row that no model of this shape holds is declared with its
+reason and the issue that fixes it, and stays bounded:
 
 | row | kind | why | bound |
 |---|---|---|---|
 | bearing p90/p10 | pin, below band | catalog bores span far less than the census's, and the census's own small brand spread leaves no group noise to make up the rest (widen the bore range: #64) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
 | wheel brand spread | pin, above band | catalog diameters span too little for the key term to give the census's p90/p10, so group noise makes up the rest, and it is drawn per brand, which spreads the brands of one spec apart (#66) | as above |
-| kit p50 and kit p90/p10 | exception, either side | a kit's price is one group draw per page, not the sum of its contents, so its few pages move the median and the p90/p10 with the build's size (price a kit from its contents: #71) | a band miss no more than `price.EXCEPTION_DRIFT` times the one `price.EXCEPTED_FIGURES` records, at each size |
+| kit p90/p10 | pin, below band | a kit is priced from its contents, and the catalog's kit kinds hold about $36 to $130 of parts, so with material and tier its prices span about 4x against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629; group noise loud enough to make up the rest would spread a kit's price about 79x on its own, so a kit draws none (widen the kit range: #76) | as above |
 
-The full reasons are `price.PINNED_SHORTFALLS` and `price.ROW_EXCEPTIONS`,
-and `stats.json` carries them in each row's `note`. A pin or an exception
-is never a wider band: a row that leaves its band is declared, with a cause,
-or the model is fixed. `scripts/fit_price_model.py` refuses to write a fit
-that leaves a row out of band undeclared, a pin that no longer holds, or an
-exception past its bound. The tests hold the same three at both sizes, and
-`uv run python scripts/mutation_check.py --only "price:"` plants a defect in
-each price gate, the pin and exception bounds among them, and checks that its
-test goes red.
+The full reasons are `price.PINNED_SHORTFALLS`, and `stats.json` carries
+them in each row's `note`. A pin is never a wider band: a row that leaves its
+band is declared, with a cause, or the model is fixed.
+`scripts/fit_price_model.py` refuses to write a fit that leaves a row out of
+band undeclared, or a pin that no longer holds. The tests hold the same two at
+both sizes, and `uv run python scripts/mutation_check.py --only "price:"`
+plants a defect in each price gate, the pin bounds among them, and checks
+that its test goes red; `--only "kit:"` runs the kit-contents rows alone.
