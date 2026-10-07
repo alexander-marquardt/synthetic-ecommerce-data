@@ -180,20 +180,24 @@ def test_an_inch_line_of_the_planted_type_claims_what_its_spec_says(planted) -> 
     assert claimed == ("ASME TOY",)
 
 
+#: Every shared table ``typespec.register`` writes a spec field into.
+_OWN_TABLES = [
+    (conformance, "CLAIMS", "claims", _toy_claims),
+    (price, "KEY_ATTRIBUTES", "key_attributes", ("Size",)),
+    (noise, "THREADED", "threaded", "Thread Size"),
+    (noise, "FASTENERS", "fastener", True),
+    (noise, "UNIT_PRIMARY", "unit_primary", "Size"),
+]
+
+
 @pytest.mark.parametrize(
-    ("table", "field", "value"),
-    [
-        ("KEY_ATTRIBUTES", "key_attributes", ("Size",)),
-        ("THREADED", "threaded", "Thread Size"),
-        ("UNIT_PRIMARY", "unit_primary", "Size"),
-    ],
+    ("owner", "table", "field", "value"), _OWN_TABLES, ids=[row[1] for row in _OWN_TABLES]
 )
 def test_a_key_in_a_shared_table_and_in_its_spec_is_refused(
-    monkeypatch, table: str, field: str, value
+    monkeypatch, owner, table: str, field: str, value
 ) -> None:
     """Two declarations of one entry: which wins would depend on registration order."""
     typespec.ensure_registered()
-    owner = price if table == "KEY_ATTRIBUTES" else noise
     monkeypatch.setitem(getattr(owner, table), TOY, value)
     refused = None
     try:
@@ -227,3 +231,14 @@ def test_each_breadth_row_is_a_file_of_its_own() -> None:
     assert keys == [path.stem for path in files]
     yaml_rows = [row.key for row in breadth.rows() if row.key in set(keys)]
     assert sorted(yaml_rows) == keys
+
+
+def test_a_row_file_named_for_another_key_is_refused(monkeypatch, tmp_path) -> None:
+    """Every refusal names a row by its file, so the name has to be its key."""
+    table = tmp_path / "breadth_categories"
+    table.mkdir()
+    source = SRC / "data" / "breadth_categories" / "shaft_collars.yaml"
+    (table / "shaft_collar.yaml").write_text(source.read_text("utf-8"), "utf-8")
+    monkeypatch.setattr(breadth.resources, "files", lambda package: tmp_path)
+    with pytest.raises(ValueError, match=r"shaft_collar\.yaml holds the row for 'shaft_collars'"):
+        breadth.load_rows()

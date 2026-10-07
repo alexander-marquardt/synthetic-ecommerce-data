@@ -7,8 +7,9 @@ this catalog's twelve original types return 488 across 3 (ball end mills,
 ball-end hex keys, radial bearings). Description noise adds hits WITHIN a
 type; it cannot add a category. This module does, cheaply:
 
-* **ONE YAML table** (``data/breadth_categories.yaml``, :func:`load_rows`),
-  ~50 rows: a category path, a shape, an item noun, 3-5 line-scoped
+* **ONE YAML table** (``data/breadth_categories/``, :func:`load_rows`),
+  ~50 rows, one file per row so two PRs that add or remove rows never edit
+  the same file (#48): a category path, a shape, an item noun, 3-5 line-scoped
   attributes with short value lists, one variant (size) attribute, and a
   one-line reason naming the customer query it joins.
 * **ONE generic loop** (:func:`build_line`) turns a row into a
@@ -74,7 +75,7 @@ SPEC_QUALITY = "fast_and_cheap"
 
 @dataclass(frozen=True)
 class BreadthRow:
-    """One row of ``data/breadth_categories.yaml``."""
+    """One row: one file of ``data/breadth_categories/``."""
 
     key: str
     category: tuple[str, ...]
@@ -111,13 +112,19 @@ class BreadthRow:
     part_number_block: int | None = None
 
 
-#: The table a breadth type's row, and so its ``part_number_block:``, lives in.
-TABLE = "synthetic_industrial_products/data/breadth_categories.yaml"
+#: The directory whose files are the table's rows, one ``<key>.yaml`` each; a
+#: row's ``part_number_block:`` lives in its own file.
+TABLE = "synthetic_industrial_products/data/breadth_categories"
+
+
+def row_file(key: str) -> str:
+    """The file that holds ``key``'s row."""
+    return f"{TABLE}/{key}.yaml"
 
 
 def fix_site(key: str) -> str:
-    """Where a breadth type declares its own block: a key on its YAML row."""
-    return f"part_number_block: <block> on the {key} row of {TABLE}"
+    """Where a breadth type declares its own block: a key in its row's file."""
+    return f"part_number_block: <block> in {row_file(key)}"
 
 
 def _declared_block(raw: dict[str, Any]) -> int | None:
@@ -130,7 +137,7 @@ def _declared_block(raw: dict[str, Any]) -> int | None:
     if block is None or (isinstance(block, int) and not isinstance(block, bool)):
         return block
     raise typespec.TypeCollisionError(
-        f"the {raw['key']} row of {TABLE} declares part_number_block: {block!r}; "
+        f"{row_file(raw['key'])} declares part_number_block: {block!r}; "
         "write it as an unquoted four-digit integer"
     )
 
@@ -160,12 +167,22 @@ def _row_from_dict(raw: dict[str, Any]) -> BreadthRow:
 
 
 def load_rows() -> tuple[BreadthRow, ...]:
-    text = (
-        resources.files("synthetic_industrial_products.data")
-        .joinpath("breadth_categories.yaml")
-        .read_text("utf-8")
+    """Every row file, in file-name order; a file named for another key is refused.
+
+    The name check keeps :func:`row_file` (the path every refusal names) true.
+    """
+    table = resources.files("synthetic_industrial_products.data").joinpath("breadth_categories")
+    files = sorted(
+        (entry for entry in table.iterdir() if entry.name.endswith(".yaml")),
+        key=lambda entry: entry.name,
     )
-    return tuple(_row_from_dict(raw) for raw in yaml.safe_load(text))
+    rows = []
+    for entry in files:
+        raw = yaml.safe_load(entry.read_text("utf-8"))
+        if f"{raw['key']}.yaml" != entry.name:
+            raise ValueError(f"{TABLE}/{entry.name} holds the row for {raw['key']!r}")
+        rows.append(_row_from_dict(raw))
+    return tuple(rows)
 
 
 #: Loaded once, at import, from the YAML table; a type module's row joins it
@@ -230,7 +247,7 @@ def add_row(row: BreadthRow) -> None:
     global _ROWS
     if any(existing.key == row.key for existing in _ROWS):
         raise typespec.TypeCollisionError(
-            f"breadth type {row.key!r} is declared both in {TABLE} and in a type module"
+            f"breadth type {row.key!r} is declared both in {row_file(row.key)} and in a type module"
         )
     _ROWS = (*_ROWS, row)
     register((row,))
