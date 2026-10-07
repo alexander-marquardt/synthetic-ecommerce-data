@@ -68,7 +68,7 @@ SHARED_TITLE_KEY: dict[str, tuple[str, ...]] = {
 #: counted from a fresh build's documents whose ``spec_quality`` is not the
 #: breadth one. Restated when a change moves a type's count.
 SHARED_SIZE: dict[str, tuple[int, int]] = {
-    "abrasive_flap_disc": (129, 232), "bearing_radial_ball": (660, 1126),
+    "abrasive_flap_disc": (129, 232), "bearing_radial_ball": (679, 1182),
     "bolt_hex": (235, 487), "drill_jobber": (286, 530), "end_mill_ball": (286, 568),
     "end_mill_square": (498, 918), "hammer_ball_pein": (98, 184), "hex_key": (630, 1120),
     "kit_assortment": (59, 59), "nut_hex": (662, 1264), "screw_button_head": (130, 251),
