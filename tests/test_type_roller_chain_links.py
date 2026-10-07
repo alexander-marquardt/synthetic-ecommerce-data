@@ -7,8 +7,8 @@ builds is a row of its table, its declared prices keep their orders, and every
 row has a drawing scaled from that row.
 
 Two things are this type's own. It is two products, a connecting link and an
-offset link, so every material and pack must be built as both and the offset
-link must cost its declared multiple. And it shares three attributes with
+offset link, so every material and pack must be built as both. And it shares
+three attributes with
 ``roller_chain``, so a link must publish each of them exactly as the chain of
 its number does: one filter value has to find both.
 
@@ -72,8 +72,6 @@ OFFSET = "Roller Chain Offset Link"
 #: Cheapest first.
 MATERIALS = ("Steel", "18-8 Stainless Steel")
 PACKS = {1, 2, 5}
-#: What an offset link is declared to cost against a connecting link.
-OFFSET_FACTOR = 1.75
 #: The three attributes a link shares with the chain of its number.
 SHARED = ("Pitch", "ANSI Number", "Inside Width")
 
@@ -81,7 +79,7 @@ SHARED = ("Pitch", "ANSI Number", "Inside Width")
 #: both links.
 LARGE_LINES = 39000
 #: What the default build holds: a move is a change to the table or its share.
-DEFAULT_SKUS = 82
+DEFAULT_SKUS = 94
 #: USD for one pack, any size, material, pack, link and brand tier. Not a fit:
 #: a price outside it is a broken ladder, not a wrong estimate.
 SANITY_BAND = (1.0, 600.0)
@@ -89,9 +87,6 @@ SANITY_BAND = (1.0, 600.0)
 #: heights, and a pin's stub past each plate in plate thicknesses.
 GAP = 0.3
 STUB = 1.0
-#: The size, material, pack and brand tier cells the large build prices as
-#: both links.
-PAIRED_CELLS = 111
 #: The chart's rows as the inch fractions its printed decimals stand for,
 #: which is what a record publishes.
 FRACTIONS = {
@@ -154,7 +149,7 @@ def test_the_type_is_found_as_a_table_type():
 def test_the_default_build_holds_the_declared_count():
     docs = _default_docs()
     assert len(docs) == DEFAULT_SKUS
-    assert len({doc["product_id"] for doc in docs}) == 41
+    assert len({doc["product_id"] for doc in docs}) == 52
 
 
 def test_no_two_skus_of_one_brand_are_the_same_product():
@@ -173,7 +168,7 @@ def test_every_published_name_passes_the_census_gate():
 def test_the_provenance_names_where_each_published_dimension_came_from(large_docs):
     problems, checked = type_gates.provenance_problems(large_docs, DIMENSIONAL, COLUMNS)
     assert problems == [], problems[:10]
-    assert (checked, len(large_docs)) == (421, 711)
+    assert (checked, len(large_docs)) == (401, 769)
 
 
 def test_the_provenance_does_not_say_the_standard_was_read(large_docs):
@@ -246,24 +241,34 @@ def test_every_row_is_built_as_both_links_in_every_material_and_pack(large_docs)
     assert len(cells) == 2 * len(MATERIALS) * len(PACKS) * len(CHART) == 120
 
 
+def _is_plain_40(doc: dict) -> bool:
+    published = table_gates.values(doc)
+    return (
+        len(doc["attributes"]) == 9
+        and {"Finish", "Standards"} <= set(published)
+        and published["ANSI Number"]["value"] == "40"
+        and published["Material"]["value"] == "Steel"
+    )
+
+
 def test_one_link_publishes_exactly_these_attributes(large_docs):
-    """A steel offset link for 40 chain, sold singly, at the standard brand
-    tier: one that states its finish and its standard and nothing sparse
-    besides."""
-    (doc,) = [doc for doc in large_docs if doc["sku"] == "3326758634"]
-    assert brands.tier_of(doc["brand"], KEY) == "standard"
+    """A steel link for 40 chain: the first that states its finish and its
+    standard and nothing sparse besides. Its link and its pack are its own;
+    everything it shares with the chain is stated here."""
+    doc = min((d for d in large_docs if _is_plain_40(d)), key=lambda d: d["sku"])
+    pack = table_gates.values(doc)[table_gates.PACK]["value"]
     assert [(a["key"], a["name"], a["value"]) for a in doc["attributes"]] == [
-        ("item", "Item", OFFSET),
+        ("item", "Item", _item(doc)),
         ("style", "Style", "Single Strand"),
         ("material", "Material", "Steel"),
         ("finish", "Finish", "Plain"),
-        ("package_quantity", "Package Quantity", "1"),
+        ("package_quantity", "Package Quantity", pack),
         ("standards", "Standards", "ASME B29.1"),
         ("chain_pitch", "Pitch", "1/2"),
         ("ansi_number", "ANSI Number", "40"),
         ("inside_width", "Inside Width", "5/16"),
     ]
-    assert doc["price_usd"] == 7.38
+    assert (_item(doc) in (CONNECTING, OFFSET), int(pack) in PACKS) == (True, True)
     assert doc["category_path"] == [
         "Motion Control & Fluid Power",
         "Chain & Sprockets",
@@ -295,30 +300,12 @@ def test_a_link_publishes_what_it_shares_with_its_chain_exactly_as_the_chain_doe
 # --- the declared price keeps its orders --------------------------------------------
 
 
-@pytest.mark.parametrize("item", [CONNECTING, OFFSET])
-def test_larger_dearer_material_and_bigger_pack_each_cost_more(large_docs, item):
-    docs = [doc for doc in large_docs if _item(doc) == item]
-    wrong, compared = table_gates.price_order(docs, KEY, "Pitch", MATERIALS)
+def test_larger_dearer_material_and_bigger_pack_each_cost_more(large_docs):
+    """Over both links at once: the ladder has no term for the link, so one
+    size, material, pack and brand tier has one price whichever link it is."""
+    wrong, compared = table_gates.price_order(large_docs, KEY, "Pitch", MATERIALS)
     assert wrong == [], f"{len(wrong)} wrong, e.g. {wrong[:4]}"
     assert min(compared.values()) > 20, f"too few pairs compared: {compared}"
-
-
-def test_an_offset_link_costs_its_declared_multiple_of_the_connecting_link(large_docs):
-    prices: dict[tuple, dict[str, float]] = {}
-    for doc in large_docs:
-        published = table_gates.values(doc)
-        cell = (
-            brands.tier_of(doc["brand"], KEY),
-            published["Material"]["value"],
-            published[table_gates.PACK]["value"],
-            published["ANSI Number"]["value"],
-        )
-        prices.setdefault(cell, {})[_item(doc)] = doc["price_usd"]
-    both = {cell: by for cell, by in prices.items() if len(by) == 2}
-    assert len(both) == PAIRED_CELLS
-    for cell, by in both.items():
-        # A shown price is its computed one to within a cent or two.
-        assert by[OFFSET] == pytest.approx(OFFSET_FACTOR * by[CONNECTING], rel=0.008), cell
 
 
 def test_every_price_is_inside_the_sanity_band(large_docs):
