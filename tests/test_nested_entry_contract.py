@@ -29,7 +29,7 @@ import pytest
 
 from industrial_units import Unit, pinned
 from synthetic_industrial_products.catalog import emit
-from synthetic_industrial_products.catalog.config import SMALL
+from synthetic_industrial_products.catalog.config import SMALL, GeneratorConfig
 from synthetic_industrial_products.catalog.entry import published, split
 from synthetic_industrial_products.catalog.generate import generate
 
@@ -59,15 +59,26 @@ UNITS: dict[str, Unit] = {
     "LBR": Unit("mass", Fraction(45359237, 100000)),
 }
 
-#: The one modelled defect that puts a second quantity under a key on purpose: an
-#: angle published in INCHES (``Helix Angle = 42"``, measured at 4.7% of the
-#: reference records carrying an angle). Its exact values and unit are the
-#: generator's own (``Generator._corrupt_angle``), so a length that reaches an
-#: angle key any other way -- another value, or the same value in ``mm`` -- is red.
-ANGLE_DEFECT = {
-    "keys": frozenset({"helix_angle", "point_angle"}),
-    "entries": frozenset(("INH", v) for v in ("42", "1", "1-1/4", "2", "1-5/8")),
-}
+#: The entries the modelled angle defect (``Helix Angle = 42"``,
+#: ``Generator._corrupt_angle``) wrote before #79: the inch mark read as an inch, so
+#: 78 rows of the default build put a LENGTH under an angle key. Planted below to
+#: prove the one-kind guard refuses them.
+INCH_ANGLE_DEFECT = (
+    {
+        "key": "helix_angle",
+        "name": "Helix Angle",
+        "value": "42",
+        "unit_code": "INH",
+        "value_canonical": 1066.8,
+    },
+    {
+        "key": "point_angle",
+        "name": "Point Angle",
+        "value": "2",
+        "unit_code": "INH",
+        "value_canonical": 50.8,
+    },
+)
 
 #: Attributes that are counts, so they carry ``C62`` with a bare value.
 COUNTS = ("Number of Flutes", "Grit", "Package Quantity", "Number of Pieces")
@@ -96,12 +107,24 @@ def _fresh() -> list[dict[str, Any]]:
     return list(emit.iter_nested(catalog)) + list(emit.iter_flat(catalog))
 
 
+def _fresh_default() -> list[dict[str, Any]]:
+    # The default size, built fresh rather than read from the golden: a defect
+    # rare enough to miss SMALL (the angle one is 4 rows there, 78 here) still
+    # reaches a fresh build, and a mutant of the generator reaches no golden.
+    catalog = generate(GeneratorConfig())
+    return list(emit.iter_nested(catalog)) + list(emit.iter_flat(catalog))
+
+
 def _golden() -> list[dict[str, Any]]:
     with GOLDEN_NESTED.open(encoding="utf-8") as handle:
         return [json.loads(line) for line in handle]
 
 
-SOURCES = {"fresh SMALL build": _fresh, "committed golden nested.jsonl": _golden}
+SOURCES = {
+    "fresh SMALL build": _fresh,
+    "fresh default build": _fresh_default,
+    "committed golden nested.jsonl": _golden,
+}
 
 
 @pytest.fixture(scope="module", params=sorted(SOURCES))
@@ -154,14 +177,8 @@ def _quantity(entry: dict[str, Any]) -> str | None:
     return "bare number" if MAGNITUDE.fullmatch(entry["value"]) else None
 
 
-def test_every_keys_measured_entries_share_one_unit_dimension(entries):
-    """No key mixes quantity kinds, so a facet over it never shows ``2 lb`` beside ``440 lbf``.
-
-    Kinds are the deployment's: ``TPI``, ``INH`` and ``MMT`` are all ``length``.
-    A bare number with no unit counts as a quantity of its own: under a key whose
-    other entries are millimetres it is a figure no shopper can read. The angle
-    defect is the single exception, and it must actually occur.
-    """
+def _mixed_keys(entries: list[dict[str, Any]]) -> dict[str, dict[str, list[tuple[str, str]]]]:
+    """Each key whose entries measure more than one quantity kind, with examples."""
     by_key: dict[str, dict[str, set[tuple[str, str]]]] = {}
     for entry in entries:
         quantity = _quantity(entry)
@@ -169,21 +186,34 @@ def test_every_keys_measured_entries_share_one_unit_dimension(entries):
             by_key.setdefault(entry["key"], {}).setdefault(quantity, set()).add(
                 (entry.get("unit_code", ""), entry["value"])
             )
-    mixed = {}
-    defect_seen = False
-    for key, quantities in by_key.items():
-        if len(quantities) < 2:
-            continue
-        if (
-            key in ANGLE_DEFECT["keys"]
-            and set(quantities) == {"plane_angle", "length"}
-            and quantities["length"] <= ANGLE_DEFECT["entries"]
-        ):
-            defect_seen = True
-            continue
-        mixed[key] = {q: sorted(v)[:5] for q, v in quantities.items()}
+    return {
+        key: {q: sorted(v)[:5] for q, v in quantities.items()}
+        for key, quantities in by_key.items()
+        if len(quantities) > 1
+    }
+
+
+def test_every_keys_measured_entries_share_one_unit_dimension(entries):
+    """No key mixes quantity kinds, so a facet over it never shows ``2 lb`` beside ``440 lbf``.
+
+    Kinds are the deployment's: ``TPI``, ``INH`` and ``MMT`` are all ``length``.
+    A bare number with no unit counts as a quantity of its own: under a key whose
+    other entries are millimetres it is a figure no shopper can read. There is
+    no exception: a modelled defect may spell a value badly, but it never
+    changes what the attribute measures (#79).
+    """
+    mixed = _mixed_keys(entries)
     assert not mixed, f"keys whose entries measure different quantities: {mixed}"
-    assert defect_seen, "the angle defect no longer occurs: drop its exception"
+
+
+def test_the_one_kind_guard_refuses_the_inch_angle_defect(entries):
+    """The guard above is not vacuous: the pre-#79 inch entries, planted, are refused."""
+    planted = [*entries, *INCH_ANGLE_DEFECT]
+    assert sorted(_mixed_keys(planted)) == ["helix_angle", "point_angle"]
+    assert {q for kinds in _mixed_keys(planted).values() for q in kinds} == {
+        "plane_angle",
+        "length",
+    }
 
 
 def test_counts_carry_c62_and_the_old_inch_number_is_gone(entries):
@@ -277,7 +307,15 @@ SPLIT_ORACLE: tuple[tuple[str, str, str | None, dict[str, Any]], ...] = (
         None,
         {"value": "38", "unit_code": "DD", "value_canonical": 38.0},
     ),
-    ("Helix Angle", '42"', None, {"value": "42", "unit_code": "INH", "value_canonical": 1066.8}),
+    # The modelled defect: an angle spelled with the inch mark. The spelling is
+    # noise, the quantity is still an angle (#79).
+    ("Helix Angle", '42"', None, {"value": "42", "unit_code": "DD", "value_canonical": 42.0}),
+    (
+        "Point Angle",
+        '1-5/8"',
+        None,
+        {"value": "1-5/8", "unit_code": "DD", "value_canonical": 1.625},
+    ),
     (
         "Dynamic Load Capacity",
         "1,070 lbf",
@@ -344,6 +382,10 @@ ORACLE_UNIT_FOR_SUFFIX = {
 #: that is a measurement; any other bare number stays text. Keyed by the entry's
 #: key, never by the unit the entry itself claims, so an entry cannot certify its
 #: own unit.
+#: Keys that measure a plane angle whatever mark a value is spelled with: an angle
+#: published as ``42"`` is a badly spelled 42 degrees, never 42 inches (#79).
+ORACLE_ANGLE_KEYS = frozenset({"helix_angle", "point_angle"})
+
 ORACLE_BARE_UNIT_FOR_KEY = {
     "number_of_flutes": "C62",
     "grit": "C62",
@@ -367,6 +409,8 @@ def _oracle_parts(key: str, spelling: str) -> dict[str, Any]:
         return {"value": spelling}
     suffix = match["suffix"]
     unit = ORACLE_UNIT_FOR_SUFFIX[suffix] if suffix else ORACLE_BARE_UNIT_FOR_KEY.get(key)
+    if unit is not None and key in ORACLE_ANGLE_KEYS and UNITS[unit].kind != "plane_angle":
+        unit = "DD"
     if unit is None:
         return {"value": spelling}
     magnitude = match["number"].replace(",", "")
