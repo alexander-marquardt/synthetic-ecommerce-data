@@ -254,12 +254,37 @@ on their own.
 
 Use a table type (`catalog/tabletype.py`, #101) when a type does not parameterise easily: a dozen real sizes from one published chart, a few materials, a few packs. Examples: `product_types/fasteners/cotter_pins.py` and `retaining_rings_external.py`. A type exists once, so delete its breadth row file in the same PR.
 
-* **Fields.** `columns` (the published name of each chart column, the size first) and `rows` (one real size per row, rising); `variants` (material, finish, price factor, cheapest first at 1.0); `packs`; `base_price`, `size_slope`, `pack_slope`; `draw` and `extent`; `share`, `default_lines`, `default_skus`. `spec(TABLE)` refuses a table that breaks an order.
+* **Fields.** `columns` (the published name of each chart column, the size first) and `rows` (one real size per row, rising); `variants` (material, finish, price factor, cheapest first at 1.0); `packs`; `base_price`, `size_slope`, `pack_slope`; `draw` and `extent`; `share`, `default_lines`, `default_skus`; `unit` (`"mm"`, or `"in"` for an inch chart). `spec(TABLE)` refuses a table that breaks an order.
 * **Facts.** Publish only what the chart gives, and cite the chart and the day it was read in the module docstring. Say so if the standard itself was not read. A column the chart lacks (a cotter pin's length) is not published.
-* **Price.** A declared estimate, not a measurement: `base_price` is the first row in the first material and pack, a larger size costs more, a later material costs its factor, and a larger pack costs more in total and less a piece. There is no census row, no borrowed model, no noise and no fit. Add the key to `NOT_MEASURED` in `tests/test_price.py`.
+* **Price.** A declared estimate, not a measurement: `base_price` is the first row in the first material and pack, a larger size costs more, a later material costs its factor, and a larger pack costs more in total and less a piece. There is no census row, no borrowed model, no noise and no fit.
 * **Drawing.** `draw(values)` gets each column's length in inches from the SKU's own record and returns a `Figure` scaled from them. It carries no text; a proportion no column gives is a named constant in the module.
-* **Share.** A dozen sizes over too few products reads as a continuum to the facet rule. 0.015 gives about 39 products at the default build, which keeps every published dimension inside the measured dispersion band.
+* **Share.** Two rules, both at the default build, where a type's product count is its `default_lines` and its SKU count its `default_skus`:
+  * **At least 5 SKUs per table row.** A size column no other type publishes has a dispersion of rows / SKUs, and a dozen sizes over too few SKUs reads as a continuum to the facet rule (at 13 products the sizes measured 0.44 to 0.48 against the 0.50 threshold).
+  * **At least 40 products.** Five attributes tie at 39 products for `smallest_faceted` in `prism/derive.py`, and the tie is broken by attribute key order, so a type at 39 or fewer can take that pin.
+  * A share of 0.016 gives 42 products and suits a table of up to about 13 rows. A 20-row table needs about 60 products, a share of about 0.023.
 * **Tests.** Copy `tests/test_type_cotter_pins.py`, restate the table in it, and write the slice with `uv run python tests/test_type_<key>.py`. `tests/table_gates.py` holds the shared size, price-order and drawing gates.
+
+**What a table type's PR edits.** Its own files, which no other PR touches:
+
+* `src/synthetic_industrial_products/product_types/<family>/<key>.py` (new)
+* `tests/test_type_<key>.py` (new)
+* `tests/data/golden_slices/<key>.jsonl` (new, written by the test module)
+* `src/synthetic_industrial_products/data/breadth_categories/<key>.yaml` (deleted, when the type had a breadth row)
+
+Generated files. Rebuild them with `uv run sip-generate build --out golden-catalog`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
+
+* `golden-catalog/*`
+* `src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml`
+
+Shared files, edited by hand:
+
+* `src/synthetic_industrial_products/prism/derive.py`: `faceted_low` in `MEASURED_DISPERSION`. Every table type moves it, because each adds products to `Package Quantity`.
+* `tests/test_facet_control_rule.py`: the quantitative and faceted counts in `test_the_measured_figures_describe_a_catalog_that_exists`, one more of each per column name no other type publishes.
+* `src/synthetic_industrial_products/catalog/names.py`: a `NAME_EXCEPTIONS` row for each column name the census lacks. Use a census name and there is no edit.
+
+The first two are measurements of the whole catalog, so two table-type PRs each write a value and the truth after both is a third. After merging `main` into the branch, rebuild, run `tests/test_facet_control_rule.py` and write what it measures. Never keep either side of a conflict in those lines.
+
+Nothing else is edited. A table type is found from the registry (`tabletype.tables()`), so it is not added to `NOT_MEASURED` in `tests/test_price.py` and has no row in `DISTINCT_SPEC_FLOOR` in `tests/test_catalog_brands_voice.py`. The `table:` rows in `scripts/mutation_check.py` cover the mechanism; a type adds none. The type counts in `README.md` and `docs/drawings.md` are read by no test and are restated once after a batch of types, not in each type's PR.
 
 ## The rules a deepened type follows
 

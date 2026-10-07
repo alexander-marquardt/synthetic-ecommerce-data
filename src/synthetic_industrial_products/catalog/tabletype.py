@@ -32,7 +32,7 @@ from ..drawing.model import Figure
 from .model import keyword_attribute, numeric_attribute
 from .newtypes import MM_PER_INCH, _window, table_provenance
 from .price import PriceModel
-from .typespec import TypeSpec
+from .typespec import TypeSpec, discover
 from .vocab import AttrSpec
 
 #: The attribute a pack is published under, as the census names it.
@@ -42,6 +42,10 @@ PACK = "Package Quantity"
 ENDINGS = {"other": 1.0}
 #: See ``make``.
 STRIDE = 5
+#: The table behind each ``make`` :func:`spec` handed out. A spec is copied on
+#: its way into the registry and its ``make`` is not, so this is what a
+#: registered type is recognised by.
+_MADE: dict[Callable[..., Any], TableType] = {}
 
 
 @dataclass(frozen=True)
@@ -87,6 +91,12 @@ class TableType:
     @property
     def per_inch(self) -> float:
         return MM_PER_INCH if self.unit == "mm" else 1.0
+
+    @property
+    def cells(self) -> int:
+        """How many different products the table holds: a size in a material
+        in a pack."""
+        return len(self.rows) * len(self.variants) * len(self.packs)
 
     def inches(self, row: tuple[float, ...]) -> dict[str, float]:
         return {name: value / self.per_inch for name, value in zip(self.columns, row, strict=True)}
@@ -213,6 +223,8 @@ def spec(table: TableType) -> TypeSpec:
     def claims(facts: Mapping[str, str], **_: object) -> tuple[str, ...]:
         return (table.standard,)
 
+    make = _make(table)
+    _MADE[make] = table
     return TypeSpec(
         table.key,
         category=table.category,
@@ -229,7 +241,7 @@ def spec(table: TableType) -> TypeSpec:
         ),
         figure=figure,
         extent=table.extent,
-        make=_make(table),
+        make=make,
         share=table.share,
         price=table.price,
         claims=claims,
@@ -242,5 +254,10 @@ def spec(table: TableType) -> TypeSpec:
 
 
 def tables() -> dict[str, TableType]:
-    """Every registered table type, by type key (a stub: it finds none)."""
-    return {}
+    """Every registered table type, by type key.
+
+    Read off the registered types, so a gate that treats table types alike
+    (no measured price, makers that overlap) names none of them. A table that
+    went through :func:`spec` in no type module is not one.
+    """
+    return {key: _MADE[made.make] for key, made in discover().items() if made.make in _MADE}
