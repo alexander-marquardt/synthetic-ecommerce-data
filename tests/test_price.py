@@ -73,9 +73,17 @@ def test_each_restated_figure_is_the_census_figure(census, type_key):
     )
 
 
+#: Types whose census entry has landed (#69 part A) but whose figures are not
+#: yet restated in :data:`price.CENSUS` nor fitted (#69 part B): until then
+#: their placeholder models stay declared ``measured=False``.
+AWAITING_FIT = frozenset({"lock_nuts_nylon_insert", "set_screws_hex_socket"})
+
+
 def test_every_type_with_30_census_rows_is_restated(census):
     measured = {k for k, v in census["deep_types"].items() if v["n"] >= 30}
-    assert set(price.CENSUS) == measured
+    assert measured >= AWAITING_FIT
+    assert set(price.CENSUS) == measured - AWAITING_FIT
+    assert {t for t in AWAITING_FIT if price.model_for(t).measured} == set()
 
 
 def test_the_pooled_and_brand_figures_are_the_census_figures(census):
