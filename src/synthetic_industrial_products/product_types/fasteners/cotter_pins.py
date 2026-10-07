@@ -6,7 +6,7 @@ standard itself was not read; every figure below is that chart's. Its rows
 are ``d`` (the nominal size, which is the hole the pin fits), ``a max.`` (how
 far one prong extends past the other), ``b`` (the length of the eye) and
 ``c`` (the width of the eye; the chart heads it "c mam."). Twelve of its
-fifteen sizes are stated, 1 mm to 13 mm.
+sixteen sizes (0.6 mm to 20 mm) are stated, 1 mm to 13 mm.
 
 ``d`` is published as ``Diameter``, ``c`` as ``Head Diameter`` and ``b`` as
 ``Head Height``, the census names for those measurements. ``a`` is not
