@@ -36,6 +36,7 @@ and, in 3.2% of titles, cut off entirely where the title hits its length cap
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 #: The delimiter between segments. The corpus writes ", " most of the time and
@@ -207,9 +208,36 @@ def states_value(text: str, value: str) -> bool:
     return False
 
 
+#: A metric thread size written glued -- no space, an ASCII ``x`` -- which the
+#: standard analyzer keeps as ONE token (``m12x1.75``). ``M12 x 1.75`` and
+#: ``M12×1.75`` already split, so they are left alone.
+_GLUED_METRIC = re.compile(r"(?<![\w.])M(?P<dia>\d+(?:\.\d+)?)x(?P<pitch>\d+(?:\.\d+)?)(?!\.?\d)")
+
+
 def thread_parts(text: str) -> list[str]:
-    """Each glued metric size in ``text``, written in its parts."""
-    return []
+    """Each distinct glued metric size in ``text``, written in its parts, in
+    the order the text first names them: ``M12x1.75`` -> ``M12 thread, 1.75 mm
+    pitch``.
+
+    A search for ``m12`` cannot reach a record whose only M12 is glued to its
+    pitch -- the six jobber drills saying "Tap drill for M12x1.75 threads"
+    were not returned for it (#33) -- so the description carries the parts as
+    tokens of their own, read from the record's own designation.
+    """
+    parts: list[str] = []
+    for m in _GLUED_METRIC.finditer(text):
+        part = f"M{m['dia']} thread, {m['pitch']} mm pitch"
+        if part not in parts:
+            parts.append(part)
+    return parts
+
+
+def thread_gloss(text: str) -> str:
+    """`` (M12 thread, 1.75 mm pitch)`` for a sentence naming glued sizes that
+    are not this record's own -- the threads a drill is the tap drill for, the
+    sizes a product also comes in -- or ``""`` when it names none."""
+    parts = thread_parts(text)
+    return f" ({'; '.join(parts)})" if parts else ""
 
 
 def build_title(

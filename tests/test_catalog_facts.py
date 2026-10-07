@@ -157,7 +157,7 @@ NUT_DIMENSIONS = {
 #: reference-statistics/04 are at or under 3.0, the 2.667 and 3.0 ratios
 #: included -- or the smallest stocked shank above the cutter when that is
 #: more. A metric cutter below 6 mm may also sit on the 6 mm DIN 6535 shank,
-#: the shank DIN 6527 gives its small solid carbide end mills.
+#: as metric practice puts a 1-5 mm cutter (DIN 6527's stepped shank).
 SHANKS_IN = (1 / 8, 3 / 16, 1 / 4, 5 / 16, 3 / 8, 1 / 2, 5 / 8, 3 / 4, 1.0)
 SHANKS_MM = (3.0, 3.175, 4.0, 6.0, 6.35, 8.0, 10.0, 12.0, 12.7, 16.0, 20.0, 25.0)
 MAX_SHANK_RATIO = 3.0
@@ -427,9 +427,10 @@ def _oversize_pairs(docs: list[dict], unit: str) -> list[tuple[str, float, float
 
 
 def test_a_small_metric_cutter_on_an_oversize_shank_sits_on_6mm(docs):
-    """DIN 6527 puts its small solid carbide end mills on the 6 mm DIN 6535
-    shank. A cap that turned a 1-2.5 mm cutter's oversize shank into a 3 mm one
-    made the common metric product the rare one (31 SKUs on 29f's golden)."""
+    """Metric practice puts a 1-5 mm cutter on the 6 mm DIN 6535 shank (a
+    DIN 6527 stepped-shank end mill). A cap that turned a 1-2.5 mm cutter's
+    oversize shank into a 3 mm one made the common metric product the rare
+    one (31 SKUs on 29f's golden)."""
     small = [p for p in _oversize_pairs(docs, "mm") if p[1] < SMALL_METRIC_SHANK_MM / 25.4 - 1e-6]
     off = [p for p in small if abs(p[2] * 25.4 - SMALL_METRIC_SHANK_MM) > 1e-3]
     assert off == [], f"{len(off)} of {len(small)} not on 6 mm: {off[:10]}"
