@@ -340,7 +340,10 @@ hand tools, Morrow Equipment, Maddox Industries). All 24 were replaced.
 
 An independent review of the 100K catalog found facts the generator had
 invented; each is now read from a table and checked by
-`tests/test_catalog_facts.py` against tables written out in the test:
+`tests/test_catalog_facts.py` against tables written out apart from the
+generator's rules (a type's claimable standards and key dimension are declared
+on its `TypeSpec`, or in `tests/type_facts.py` for a type still in the
+shared tables):
 
 * **Bearing ratings** are a table per bearing number
   (`newtypes.BEARING_RATINGS`): dynamic and static load and the limiting
@@ -666,8 +669,8 @@ of elastic/prism#9935:
   unit's kind and size from a pinned copy of the industrial deployment's
   `canonical_units` block (`tests/data/industrial_canonical_units.yaml`; see
   [The pinned unit declaration](#the-pinned-unit-declaration)). No key's
-  measured entries mix quantity kinds, with one exception: the modelled angle
-  defect below, matched on its inch unit and its five values.
+  measured entries mix quantity kinds, with no exception, checked on a fresh
+  SMALL build, a fresh default build and the committed golden (#79).
 * Anything else stays unitless text, including composite designators such as
   `1/4-20` and `M10x1.5`.
 
@@ -675,8 +678,18 @@ The split is **read back out of** the published string, never computed from
 the generator's magnitude, so the two can never disagree: `3/8"` has no exact
 two-decimal millimetre spelling, and a number computed from the original
 magnitude would quietly differ from the string actually published. A defective
-spelling splits as written: `Helix Angle = 42"` becomes `42` `INH`, keeping the
-bad value and dropping the bad spelling (elastic/prism#9284). An attribute that
+spelling never changes what an attribute measures: `Helix Angle = 42"`, the
+modelled defect of an inch mark keyed for a degree mark, becomes `42` `DD`
+(`catalog.entry.UNIT_FOR_NAME`). The flat facet keeps the messy `42"`; the
+entry keeps the magnitude and drops the bad mark (elastic/prism#9284, #79). Read
+as an inch, it put a length under an angle key. The same defect also writes
+`1"`, `1-1/4"`, `2"` and `1-5/8"`: lengths keyed into an angle field, a
+unit-type error rather than a mis-keyed degree mark. An attribute fixed to `DD`
+therefore parses only when its number lies within the angles its generator
+draws (`catalog.entry.SPAN_FOR_NAME`, read from `catalog.series`), and a
+fraction never parses as an angle; anything else stays text, with no
+`unit_code` and no `value_canonical`. In the default build that leaves 8 of the
+78 defect rows as angles (`Helix Angle = 42"`) and 70 as text. An attribute that
 is not a measurement omits `unit_code` and `value_canonical` rather than
 carrying nulls.
 
@@ -798,8 +811,9 @@ three materials, gage balls, ...); this catalog's twelve original types return
 description noise (above) adds hits WITHIN a type and cannot add a category.
 
 **One row per breadth category, 1-3 SKUs each, one generic loop.** Most rows
-are in one table, `src/synthetic_industrial_products/data/breadth_categories.yaml`;
-a type in its own module declares the same row there (`ball_stock_precision`, see
+are in one table, `src/synthetic_industrial_products/data/breadth_categories/`,
+one file per row so two pull requests never edit the same file; a type in
+its own module declares the same row there (`ball_stock_precision`, see
 [How to add a product type](docs/adding-a-type.md)). For each row: a category path, a shape name, an item noun, 3-5
 line-scoped attributes with short value lists, one size (variant) attribute,
 and a one-line reason naming the customer query it joins. `catalog/breadth.py`
@@ -973,13 +987,13 @@ planted in `scripts/mutation_check.py`.
 
 ### Which attributes become facets
 
-Not all 84. Three measured gates, applied to the emitted documents:
+Not all 94. Three measured gates, applied to the emitted documents:
 
 | gate | rule | why |
 |---|---|---|
 | **discriminating** | at least 2 distinct values | a facet with one value cannot narrow anything — it is a control that does nothing |
 | **characteristic** | present on ≥50% of the documents of the product types that publish it *at all* | the denominator is per-attribute: an attribute carried by one of twelve types can never exceed ~10% of the catalog, yet may be the primary facet for its own category |
-| **not an identifier** | a **terms** attribute carries ≤25 distinct values | `Dia./Thread Size` is the first thing a shopper filters on; `List Number` publishes 574 values over 1,100 documents and is a part reference nobody browses. Numeric attributes are exempt — a range control's cost does not grow with cardinality |
+| **not an identifier** | not one the generator declares a part code (`List Number`), and a **terms** attribute's values repeat across products: fewer than 0.5 distinct values per distinct (product, value) pair, or fewer than 250 distinct products to judge by | the generator knows `List Number` is a part code, so the field map reads that rather than measuring it: its 9,000-code pool would read as a facet from about 62,000 lines. For everything else, a ratio, not a count, so a ladder stays a facet however large the catalog grows: `Thread Size` repeats each of its values across dozens of products and is the first thing a shopper filters on. An absolute cap of 25 values withheld `Thread Size` and `Standards` once the catalog grew (#31). The floor counts products because a kit lists a dozen sizes on one product, and at 250 no decision moves between `--lines 200` and `39000`. Numeric attributes are exempt: a measured quantity is not an identifier at any cardinality |
 
 An attribute is **numeric** (a range facet over `facets_num.*`) when ≥50% of
 the documents publishing it carry a parsed number in `facets_num`, and **terms**
@@ -1004,8 +1018,8 @@ What that yields, measured:
 
 | | |
 |---|---|
-| attributes declared | 84 |
-| **fields in the field map** | **101** (67 faceted terms entries, 26 declared with `facet: false`, and the structural ones) |
+| attributes declared | 94 |
+| **fields in the field map** | **112** (71 faceted attribute entries, 23 attribute entries declared with `facet: false`, and 18 structural ones) |
 | **leaf fields in the Elasticsearch index** | **141** — the 21 the mapping declares, plus one per distinct `facets.*` key (84) and `facets_num.*` key (36) the dynamic templates create |
 | facets in a category's sidebar | 8–15 |
 

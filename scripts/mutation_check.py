@@ -712,6 +712,110 @@ MUTATIONS: list[Mutation] = [
         "",
         "a table read during registration is refused, not answered by import order",
     ),
+    # A type states its per-type entries on its TypeSpec, once (#48, #61).
+    Mutation(
+        "type seam: applicable never reads a type module's CLAIMS rule",
+        "catalog/conformance.py",
+        "    rule = CLAIMS.get(type_key)",
+        "    rule = None",
+        (
+            "tests/test_type_registration.py::"
+            "test_a_planted_type_reaches_every_per_type_table_from_its_spec",
+            "tests/test_type_registration.py::"
+            "test_an_inch_line_of_the_planted_type_claims_what_its_spec_says",
+        ),
+        "",
+        "a type's spec reaches every per-type table",
+    ),
+    Mutation(
+        "type seam: register leaves a spec's claims out of CLAIMS",
+        "catalog/typespec.py",
+        '        "conformance.CLAIMS": (conformance.CLAIMS, spec.claims),\n',
+        "        # CLAIMS left out\n",
+        "tests/test_type_registration.py::"
+        "test_a_planted_type_reaches_every_per_type_table_from_its_spec",
+        "",
+        "a type's spec reaches every per-type table",
+    ),
+    Mutation(
+        "type seam: register writes no spec field into the shared tables",
+        "catalog/typespec.py",
+        "            table[spec.key] = value",
+        "            pass",
+        "tests/test_type_registration.py::"
+        "test_a_planted_type_reaches_every_per_type_table_from_its_spec",
+        "",
+        "a type's spec reaches every per-type table",
+    ),
+    *(
+        Mutation(
+            f"type seam: a {table} entry in both the shared table and the spec is not refused",
+            "catalog/typespec.py",
+            "        if value is not None and dict.__contains__(table, spec.key):",
+            "        if False:",
+            "tests/test_type_registration.py::"
+            f"test_a_key_in_a_shared_table_and_in_its_spec_is_refused[{table}]",
+            "",
+            "a per-type entry is declared once",
+        )
+        for table in ("CLAIMS", "KEY_ATTRIBUTES", "THREADED", "FASTENERS", "UNIT_PRIMARY")
+    ),
+    Mutation(
+        "type seam: a modelled spec with no key_attributes is not refused",
+        "catalog/typespec.py",
+        '            ("key_attributes", bool(spec.key_attributes)),',
+        '            ("key_attributes", True),',
+        "tests/test_type_registration.py::test_a_modelled_type_without_a_key_dimension_is_refused",
+        "",
+        "a type's spec reaches every per-type table",
+    ),
+    Mutation(
+        "type seam: a breadth row file named for another key is read",
+        "catalog/breadth.py",
+        "        if f\"{raw['key']}.yaml\" != entry.name:",
+        "        if False:",
+        "tests/test_type_registration.py::test_a_row_file_named_for_another_key_is_refused",
+        "",
+        "each breadth row is a file of its own",
+    ),
+    # The facts tests' own refusals (tests/type_facts.py).
+    *(
+        Mutation(
+            f"type seam: type_facts.{read} reads a shared row beside a module's own",
+            "tests/type_facts.py",
+            "        if key in shared:",
+            "        if False:",
+            "tests/test_type_facts.py::"
+            f"test_a_shared_row_for_a_type_with_its_own_module_is_refused[{read}]",
+            "",
+            "a type's facts are declared once",
+            root=".",
+        )
+        for read in ("may_claim", "title_key", "default_size")
+    ),
+    *(
+        Mutation(
+            f"type seam: type_facts accepts a module that declares no {field}",
+            "tests/type_facts.py",
+            old,
+            "        if False:",
+            "tests/test_type_facts.py::"
+            f"test_a_type_module_that_declares_no_fact_is_refused_naming_it[{param}]",
+            "",
+            "a type's facts are declared once",
+            root=".",
+        )
+        for field, old, param in (
+            ("may_claim", "        if value is None:", "may_claim-None-may_claim"),
+            ("key_attributes", "        if value is None:", "key_attributes-unset1-title_key"),
+            (
+                "default_lines",
+                "        if spec.default_lines <= 0:",
+                "default_lines-0-default_size",
+            ),
+            ("default_skus", "        if spec.default_skus <= 0:", "default_skus-0-default_size"),
+        )
+    ),
     # ---- merge_pr.sh merges only a checked tree (#54) ----------------------
     # Every name starts "merge_pr:", so `--only "merge_pr:"` re-runs them. The
     # round-3 review's four survivors are the first four (the fourth, `--ours`
@@ -1080,13 +1184,40 @@ MUTATIONS: list[Mutation] = [
         "a TPI entry's canonical is the ruled reciprocal length",
     ),
     Mutation(
-        "spell the modelled angle defect in millimetres rather than inches",
-        "catalog/generate.py",
-        "bogus = self.rng.choice(('42\"', '1\"', '1-1/4\"', '2\"', '1-5/8\"'))",
-        "bogus = self.rng.choice(('42 mm', '1 mm', '1-1/4 mm', '2 mm', '1-5/8 mm'))",
+        "read the angle defect's inch mark as an inch again",
+        "catalog/entry.py",
+        '        unit = UNIT_FOR_NAME.get(name) or UNIT_FOR_SUFFIX[match["suffix"]]',
+        '        unit = UNIT_FOR_SUFFIX[match["suffix"]]',
+        (
+            "tests/test_nested_entry_contract.py -k share_one_unit_dimension",
+            "tests/test_nested_entry_contract.py -k hand_worked",
+            "tests/test_nested_entry_contract.py -k published_spelling",
+        ),
+        "",
+        "an angle key's entries are angles however the value is spelled (#79)",
+    ),
+    Mutation(
+        "fix the inch-marked Helix Angle but leave Point Angle an inch",
+        "catalog/entry.py",
+        '    "Point Angle": "DD",\n',
+        "",
         "tests/test_nested_entry_contract.py -k share_one_unit_dimension",
         "",
-        "the angle-defect exception admits only the generator's inch values",
+        "an angle key's entries are angles however the value is spelled (#79)",
+    ),
+    Mutation(
+        "read a length keyed into an angle field as degrees",
+        "catalog/entry.py",
+        '        if UNIT_FOR_NAME.get(name) == "DD" and not _within_span(name, match["number"]):\n'
+        '            return {"value": published}\n',
+        "",
+        (
+            "tests/test_nested_entry_contract.py -k canonical_lies_within",
+            "tests/test_nested_entry_contract.py -k hand_worked",
+            "tests/test_nested_entry_contract.py -k published_spelling",
+        ),
+        "",
+        "an angle key's canonical lies within the angles its series offers (#79)",
     ),
     Mutation(
         "collapse a multi-valued attribute to a single entry",
@@ -1184,24 +1315,126 @@ MUTATIONS: list[Mutation] = [
         "B",
         "an attribute's facet TYPE is derived from its parsed values",
     ),
-    # ---- PRISM field map: the terms-vs-identifier cap --------------------
+    # ---- PRISM field map: the terms-vs-identifier rule (#31, #28) --------
     Mutation(
-        "raise the terms cap so identifiers become facets",
+        "raise the identifier threshold past 1.0 so identifiers become facets",
         "prism/derive.py",
-        "MAX_TERMS_CARDINALITY = 25",
-        "MAX_TERMS_CARDINALITY = 500",
-        "tests/test_prism_field_map_drift.py",
+        "IDENTIFIER_DISPERSION = 0.5",
+        "IDENTIFIER_DISPERSION = 1.01",
+        (
+            "tests/test_prism_field_map_drift.py",
+            # Not the rendered List Number entry: the declaration withholds
+            # that at any threshold.
+            "tests/test_facet_control_rule.py -k identifier_threshold_is_the_midpoint",
+        ),
         "A",
-        "a high-cardinality terms attribute is an identifier, not a facet",
+        "a terms attribute whose values do not repeat is an identifier, not a facet",
     ),
     Mutation(
-        "lower the terms cap so real facets are dropped",
+        "lower the identifier threshold so real facets are dropped",
         "prism/derive.py",
-        "MAX_TERMS_CARDINALITY = 25",
-        "MAX_TERMS_CARDINALITY = 3",
-        "tests/test_prism_field_map_drift.py",
+        "IDENTIFIER_DISPERSION = 0.5",
+        "IDENTIFIER_DISPERSION = 0.02",
+        (
+            "tests/test_prism_field_map_drift.py",
+            "tests/test_facet_control_rule.py -k standards_and_thread_size",
+        ),
         "B",
-        "a high-cardinality terms attribute is an identifier, not a facet",
+        "a terms attribute whose values do not repeat is an identifier, not a facet",
+    ),
+    Mutation(
+        "bring back an absolute cap of 25 terms values",
+        "prism/derive.py",
+        "            not self.is_numeric\n            and self.products >= RANGE_MIN_DOCS\n"
+        "            and self.dispersion >= IDENTIFIER_DISPERSION",
+        "            not self.is_numeric\n            and self.cardinality > 25",
+        "tests/test_facet_control_rule.py -k any_size",
+        "",
+        "the identifier rule does not move with catalog size",
+    ),
+    Mutation(
+        "call a terms attribute an identifier on a handful of products",
+        "prism/derive.py",
+        "            not self.is_numeric\n            and self.products >= RANGE_MIN_DOCS",
+        "            not self.is_numeric",
+        (
+            "tests/test_facet_control_rule.py -k small_terms_attribute",
+            "tests/test_prism_field_map_drift.py",
+        ),
+        "",
+        "below the observation floor a terms attribute is offered",
+    ),
+    Mutation(
+        "count the identifier floor in (product, value) pairs again",
+        "prism/derive.py",
+        "            not self.is_numeric\n            and self.products >= RANGE_MIN_DOCS",
+        "            not self.is_numeric\n            and self.product_values >= RANGE_MIN_DOCS",
+        "tests/test_facet_control_rule.py -k multi_valued",
+        "",
+        "the evidence floor counts products, so a kit's sizes are one product's",
+    ),
+    Mutation(
+        "put the evidence floor back at 50, where small catalogs flip decisions",
+        "prism/derive.py",
+        "RANGE_MIN_DOCS = 250",
+        "RANGE_MIN_DOCS = 50",
+        "tests/test_facet_control_rule.py -k every_decision_is_the_same",
+        "A",
+        "no decision moves with --lines",
+    ),
+    Mutation(
+        "raise the evidence floor past every attribute, so the ratio decides nothing",
+        "prism/derive.py",
+        "RANGE_MIN_DOCS = 250",
+        "RANGE_MIN_DOCS = 100000",
+        "tests/test_facet_control_rule.py -k widest_dispersion",
+        "B",
+        "no decision moves with --lines",
+    ),
+    Mutation(
+        "ignore the generator's identifier declaration",
+        "prism/derive.py",
+        "    if stats.name in IDENTIFIER_ATTRIBUTES:",
+        "    if False:",
+        "tests/test_facet_control_rule.py -k declared_identifier",
+        "",
+        "a declared identifier is withheld whatever its ratio",
+    ),
+    Mutation(
+        "restate the identifier declaration instead of reading the generator's",
+        "prism/derive.py",
+        "IDENTIFIER_ATTRIBUTES = Generator.IDENTIFIER_ATTRIBUTES",
+        'IDENTIFIER_ATTRIBUTES = frozenset({"List Number"})',
+        "tests/test_facet_control_rule.py -k reads_the_generators",
+        "",
+        "a declared identifier is withheld whatever its ratio",
+    ),
+    Mutation(
+        "call an under-floor quantity a standard set below the threshold",
+        "prism/derive.py",
+        "    if stats.is_numeric and stats.dispersion >= RANGE_DISPERSION:",
+        "    if False:",
+        "tests/test_facet_control_rule.py -k small_sample",
+        "",
+        "an under-floor decision names the floor in its reason",
+    ),
+    Mutation(
+        "measure dispersion per SKU document again",
+        "prism/derive.py",
+        "return self.cardinality / self.product_values if self.product_values else 0.0",
+        "return self.cardinality / self.present if self.present else 0.0",
+        "tests/test_facet_control_rule.py -k products_not_sku_variants",
+        "",
+        "dispersion counts products, not SKU variants",
+    ),
+    Mutation(
+        "count every SKU's copy of a product-scope value",
+        "prism/derive.py",
+        '            product_values[key].update((row["product_id"], value) for value in vals)',
+        '            product_values[key].update((row["sku"], value) for value in vals)',
+        "tests/test_prism_field_map_drift.py",
+        "",
+        "dispersion counts products, not SKU variants",
     ),
     # ---- filter_routing.hard must carry every numeric facet -------------
     Mutation(
@@ -2042,7 +2275,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "offer a range over any attribute whose values are numbers",
         "prism/derive.py",
-        "            self.is_numeric\n            and self.present >= RANGE_MIN_DOCS\n            and self.dispersion >= RANGE_DISPERSION",
+        "            self.is_numeric\n            and self.products >= RANGE_MIN_DOCS\n            and self.dispersion >= RANGE_DISPERSION",
         "            self.is_numeric",
         "tests/test_facet_control_rule.py -k continuity",
         "A",
