@@ -102,6 +102,11 @@ DEFAULT_SKUS = 102
 SANITY_BAND = (5.0, 600.0)
 
 
+#: The sprockets of the default build whose pitch the unit-mixing defect
+#: restates in millimetres when it is applied to every record.
+MILLIMETRE_PITCHES = 23
+
+
 def _inches(doc: dict) -> tuple[float, ...]:
     """The row a document publishes, in inches to a millionth."""
     published = table_gates.values(doc)
@@ -304,6 +309,23 @@ def test_a_sprockets_pitch_being_a_length_does_not_make_the_chains_one():
     ]
     assert set(units) == {"INH"}
     assert len(units) == 86
+
+
+def test_a_pitch_published_in_millimetres_keeps_the_chain_pitch_key():
+    """The unit-mixing defect changes a length's unit, never its machine key.
+    A sprocket's ``Pitch`` restated as ``12.70mm`` under the name's default
+    key would land in ``pitch``, a metric tap's thread pitch, and a thread
+    pitch facet would offer a chain's link spacing. With the defect on every
+    record, some sprockets publish the pitch in millimetres, and each one is
+    still ``chain_pitch``."""
+    built = generate(GeneratorConfig(defect_scale=1000.0), types=[KEY])
+    pitches = [
+        (published["Pitch"]["key"], published["Pitch"]["unit_code"])
+        for published in map(table_gates.values, table_gates.docs(built))
+        if "Pitch" in published
+    ]
+    assert sorted(set(pitches)) == [("chain_pitch", "INH"), ("chain_pitch", "MMT")]
+    assert len([unit for _, unit in pitches if unit == "MMT"]) == MILLIMETRE_PITCHES
 
 
 def test_a_size_off_the_table_is_a_row_rewritten_by_an_injected_defect():
