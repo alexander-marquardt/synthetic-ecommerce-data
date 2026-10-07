@@ -30,6 +30,7 @@ from fractions import Fraction
 
 from ..dimensions import DimensionParseError, parse_length
 from . import compat, conformance, standards
+from .naming import thread_gloss
 from .standards import MM_PER_INCH
 
 #: Per-sentence-type rate at ``noise = 1.0``, each an independent draw.
@@ -122,6 +123,7 @@ UNIT_PRIMARY = {
     "wheel_depressed_center": "Diameter",
     "abrasive_flap_disc": "Diameter",
     "retaining_rings_external": "Size",
+    "dowel_pins": "Diameter",
 }
 
 
@@ -200,7 +202,8 @@ def also_available(primary: str | None, siblings: Sequence[str]) -> str | None:
         return None
     # " / " between sizes and a closing word, because a size may itself end in
     # a period (``5/32 in.``) and the sentence has to end unambiguously.
-    return f"Also available in {' / '.join(others[:3])} sizes."
+    named = " / ".join(others[:3])
+    return f"Also available in {named} sizes{thread_gloss(named)}."
 
 
 def _is_size(value: str) -> bool:
