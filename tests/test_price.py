@@ -166,7 +166,7 @@ def test_an_ending_is_classed_as_the_census_classes_it(shown, cls):
 #: The types whose smaller-costs-2x-or-more row the default build scores:
 #: :data:`price_report.TWICE_TYPES` (20 or more census pairs) less the types
 #: that build one SKU per line along their axis, then each of their
-#: borrowers (:data:`price_report.TWICE_BORROWERS`) in its own row.
+#: borrowers (:func:`price_report.twice_borrowers`) in its own row.
 TWICE_SCORED = (
     "bolt_hex",
     "drill_jobber",
@@ -212,7 +212,7 @@ def test_the_twice_types_are_the_census_types_with_20_pairs(census, price_rows):
         if k in price.CENSUS
     }
     assert set(price_report.TWICE_TYPES) == {k for k, n in axis_pairs.items() if n >= 20}
-    assert set(price_report.TWICE_BORROWERS) == {
+    assert set(price_report.twice_borrowers()) == {
         b for b, lender in price.BORROWS.items() if lender in price_report.TWICE_TYPES
     }
     scored = {
@@ -811,6 +811,50 @@ def test_the_build_scores_no_borrowers_pair_in_a_lenders_twice_row(scored):
             for sku in (big, small)
         }
         assert types <= {lender}, (lender, types)
+
+
+def test_a_borrower_registered_after_import_still_gets_its_own_twice_row(monkeypatch, scored):
+    """A type's module fills ``price.BORROWS`` when it registers, which may
+    be after this module is imported: the borrowers are read when the rows
+    are scored, so the row does not depend on import order."""
+    collected, prices = scored
+    monkeypatch.setitem(price.BORROWS, "late_borrower", "washer_flat")
+    late = replace(
+        collected,
+        product_pairs={
+            **collected.product_pairs,
+            "late_borrower": collected.product_pairs["washer_flat"][:5],
+        },
+    )
+    names = [row.name for row in price_report.price_rows(late, prices)]
+    assert names.count("price smaller costs 2x+, same product: late_borrower") == 1
+
+
+def test_one_size_spelled_in_inches_and_in_mm_is_not_a_pair():
+    """A size published as 0.139 in on one SKU and 3.53 mm on another is one
+    size (0.139 in is 3.5306 mm): the two differ by rounding, 0.02% here and
+    0.08% as the log ratio the o-rings built at 100K, and make no pair along
+    the key. The closest real step, DIN 471's 99 and 100 mm, still does."""
+    out = price_report.Collected()
+    widths = [(0.139 * 25.4, 0.0, "inch"), (3.53, 0.0, "mm"), (5.33, 0.0, "wide")]
+    price_report._product_pairs(out, "washer_flat", widths)
+    assert sorted((big, small) for big, small, _ in out.product_pairs["washer_flat"]) == [
+        ("wide", "inch"),
+        ("wide", "mm"),
+    ]
+    rounded = price_report.Collected()
+    price_report._product_pairs(
+        rounded, "washer_flat", [(6.99, 0.0, "mm"), (0.275 * 25.4 * 1.00075, 0.0, "inch")]
+    )
+    assert len(rounded.product_pairs["washer_flat"]) == 0
+    steps = price_report.Collected()
+    price_report._product_pairs(steps, "washer_flat", [(99.0, 0.0, "a"), (100.0, 0.0, "b")])
+    assert [(big, small) for big, small, _ in steps.product_pairs["washer_flat"]] == [("b", "a")]
+    held = price_report.Collected()
+    price_report._product_pairs(
+        held, "bolt_hex", [(0.139 * 25.4, 10.0, "short"), (3.53, 20.0, "long")]
+    )
+    assert [(big, small) for big, small, _ in held.product_pairs["bolt_hex"]] == [("long", "short")]
 
 
 def test_breaking_every_tie_breaks_the_equal_price_row(scored):

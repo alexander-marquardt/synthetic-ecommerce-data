@@ -381,7 +381,7 @@ that prices as a sibling does is listed in `price.BORROWS` instead (the
 button, flat and low-head socket screws borrow the socket head's model). A
 borrower's same-product pairs get their own smaller-costs-2x row, scored
 against the lender's census on the borrower's own pairs
-(`price_report.TWICE_BORROWERS`). They are never pooled into the lender's
+(`price_report.twice_borrowers`). They are never pooled into the lender's
 row: a borrowed model is generated, not measured, so its pairs may not move
 the band the lender's census implies.
 
