@@ -1956,5 +1956,46 @@
   },
   "sparsity_scale": 1.0,
   "defect_scale": 1.0
+ },
+ "figures": {
+  "catalog": {
+   "modelled_types": 30,
+   "breadth_categories": 43,
+   "brands": 45
+  },
+  "drawings": {
+   "count": 11614,
+   "bytes": 24401625,
+   "geometry": {
+    "nominal": 75,
+    "partial": 2353,
+    "record": 9186
+   },
+   "largest_bytes": 7131,
+   "largest_product_type": "roller_chain"
+  },
+  "dispersion": {
+   "quantitative_attributes": 54,
+   "faceted_attributes": 51,
+   "faceted_low": 0.0043,
+   "faceted_high": 0.2414,
+   "densest_faceted": "Closed Length",
+   "smallest_faceted": "Roller Dia.",
+   "smallest_faceted_products": 30,
+   "drive_size_cardinality": 41,
+   "drive_size_present": 1842,
+   "held_by_floor": [
+    "Dash Number"
+   ],
+   "min_presence_arm": "Neck Length",
+   "min_presence_arm_dispersion": 0.9928,
+   "min_presence_arm_present": 417,
+   "min_presence_arm_type_denominator": 1486,
+   "min_presence_arm_share": 0.28,
+   "identifier": "List Number",
+   "identifier_dispersion": 0.9764,
+   "densest_terms_facet": "Bearing Number",
+   "densest_terms_facet_dispersion": 0.1105
+  }
  }
 }
