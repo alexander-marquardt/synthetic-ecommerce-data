@@ -31,7 +31,7 @@ import pytest
 
 from compat_text import without_compatibility
 from published import published_attributes
-from synthetic_industrial_products.catalog import emit
+from synthetic_industrial_products.catalog import emit, tabletype
 from synthetic_industrial_products.catalog.brands import (
     BRAND_BOOK,
     BRANDS,
@@ -179,6 +179,7 @@ def test_the_same_part_from_two_brands_is_two_products(golden):
 #: size-and-offer pairs (the sum of each ``roller_chain.OFFERS`` row's chain
 #: numbers); with sparsity and noise its 509 SKUs hold 171 distinct specs
 #: (0.34).
+#: A table type (#101) has no row here: see ``TABLE_TYPES``.
 DISTINCT_SPEC_FLOOR = {
     "washer_flat": 0.15,
     "roller_chain": 0.30,
@@ -191,6 +192,13 @@ DISTINCT_SPEC_FLOOR = {
     "dowel_pins": 0.80,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
+#: A table type is a dozen sizes in a few materials and packs, so its makers
+#: overlap by construction and a share of distinct specs says nothing of it
+#: (cotter pins 0.24 and retaining rings 0.21 at this build). What the large
+#: build owes instead is the whole table: at least as many distinct specs as
+#: the table has cells (108 and 72; the build shows 189 and 148, since a line
+#: may or may not state its finish).
+TABLE_TYPES = tabletype.tables()
 
 
 def test_each_type_keeps_its_distinct_spec_floor_at_100k(hundred_k):
@@ -207,7 +215,12 @@ def test_each_type_keeps_its_distinct_spec_floor_at_100k(hundred_k):
             )
         )
         skus[doc["product_type"]] += 1
+    assert set(TABLE_TYPES) & set(DISTINCT_SPEC_FLOOR) == set()
+    assert set(TABLE_TYPES) <= set(skus)
     for type_key, count in skus.items():
+        if type_key in TABLE_TYPES:
+            assert len(specs[type_key]) >= TABLE_TYPES[type_key].cells, type_key
+            continue
         floor = DISTINCT_SPEC_FLOOR.get(type_key, DEFAULT_DISTINCT_SPEC_FLOOR)
         assert len(specs[type_key]) / count >= floor, (type_key, len(specs[type_key]), count)
 

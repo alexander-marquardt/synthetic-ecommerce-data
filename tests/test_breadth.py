@@ -14,7 +14,7 @@ import re
 
 import pytest
 
-from synthetic_industrial_products.catalog import breadth, emit
+from synthetic_industrial_products.catalog import breadth, emit, taxonomy
 from synthetic_industrial_products.catalog.config import GeneratorConfig
 from synthetic_industrial_products.catalog.generate import generate
 from synthetic_industrial_products.prism.field_map import STRUCTURAL_NAMES
@@ -34,8 +34,17 @@ def breadth_lines(catalog):
     return [line for line in catalog.lines if line.spec_quality == "fast_and_cheap"]
 
 
+#: The types the catalog had before the breadth categories: the original
+#: twelve, the four newer ones and the kits.
+BEFORE_BREADTH = 17
+
+
 def test_the_table_has_the_rows_the_issue_asks_for():
-    assert len(breadth.rows()) >= 45, "the issue asks for ~50 new categories"
+    # A category deepened into a modelled type leaves the table and stays in
+    # the catalog, so the count is every type added since, row or module.
+    added = len(taxonomy.LEAVES) - BEFORE_BREADTH
+    assert added >= len(breadth.rows())
+    assert added >= 45, "the issue asks for ~50 new categories"
     assert len({row.key for row in breadth.rows()}) == len(breadth.rows()), "duplicate row key"
     assert len({row.category for row in breadth.rows()}) == len(breadth.rows()), "dup category path"
 
