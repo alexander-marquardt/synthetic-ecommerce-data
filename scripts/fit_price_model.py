@@ -3,6 +3,9 @@
     python scripts/fit_price_model.py           # print the fit, every price row and the literals
     python scripts/fit_price_model.py --write   # and write them between the fit markers
 
+A kit is priced from its parts' fitted models: when one run also refits a part
+type a kit holds, run the fit again so the kit factor is fitted on the new parts.
+
 The census gives each type a slope, an endings mix, a p50, a p90/p10, a
 larger-costs-more share and, for some, a length slope and share and a
 same-spec brand spread (:mod:`synthetic_industrial_products.catalog.price`).
@@ -32,8 +35,10 @@ they are. The brand spread is scored as the report scores it, over
   sigma whose worst miss over the p50, the p90/p10 and the same-spec brand
   spread is least, with ``sku_sigma`` re-solved at each; a row
   :data:`.price.PINNED_SHORTFALLS` names is left out. A group draw is one per
-  page, so a type with few pages (kits) has a median that moves with the
-  build's size the louder the group noise is: the p50 row holds it down;
+  page, so a type with few pages has a median that moves with the build's
+  size the louder the group noise is: the p50 row holds it down. A type
+  priced from its contents (:data:`.price.CONTENTS_PRICED`, kits) is fitted
+  none: its spread is what its contents span;
 * ``size_sigma`` (only a type :data:`.price.SIZE_NOISE` names), the noise
   one spec shares across brands, is fitted with ``group_sigma`` and
   ``sku_sigma`` together: the worst miss over p50, p90/p10, brand spread, the
@@ -44,17 +49,12 @@ they are. The brand spread is scored as the report scores it, over
 Making both builds takes about a minute; the 100K one dominates.
 
 Each printed row says "cannot reach" where no noise the fit scanned brings it
-into band. **Every row lands in band, is pinned, or is excepted, at both
-builds.** The fit exits non-zero, before it writes, on a row out of band at
-either build that neither :data:`.price.PINNED_SHORTFALLS` nor
-:data:`.price.ROW_EXCEPTIONS` names, and on a pinned row that no
-longer holds (:func:`.price_report.pin_holds`) at either: back in band, on the
-other side, or further out than :data:`.price.PINNED_FIGURES` records for that
-build; on an excepted row that misses its band by more than
-:data:`.price.EXCEPTION_DRIFT` times what :data:`.price.EXCEPTED_FIGURES`
-records for that build (:func:`.price_report.exception_holds`); and on an
-excepted row in band at both builds (:func:`.price_report.exception_is_stale`).
-A pinned or excepted row whose recorded figures are not the ones it built
+into band. **Every row lands in band or is pinned, at both builds.** The
+fit exits non-zero, before it writes, on a row out of band at either build
+that :data:`.price.PINNED_SHORTFALLS` does not name, and on a pinned row that
+no longer holds (:func:`.price_report.pin_holds`) at either: back in band, on
+the other side, or further out than :data:`.price.PINNED_FIGURES` records for
+that build. A pinned row whose recorded figures are not the ones it built
 is flagged "re-record" with the figures to write by hand, at both builds:
 ``tests/test_price.py`` holds each record equal to its build's figure.
 
@@ -102,8 +102,6 @@ from synthetic_industrial_products.catalog.price_report import (
     brand_spread_band,
     collect,
     equal_band,
-    exception_holds,
-    exception_is_stale,
     pin_holds,
     price_rows,
     recorded_digits,
@@ -154,7 +152,7 @@ def record_draws(config: GeneratorConfig) -> tuple[Catalog, dict[str, Recorded]]
         draw = original(self, type_key, brand, attributes, line_attributes, sku, sku_u)
         facts = {a.name: a for a in attributes}
         model = draw.model
-        key = price.KEYS[type_key](facts)
+        key = price.price_key(type_key, facts)
         length = price.length_of(facts) if type_key in price.LENGTH_HELD else None
         material = price.material_of(type_key, facts) or ""
         recorded[sku] = Recorded(
@@ -408,6 +406,7 @@ def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
     # their distance from the census p50, in logs.
     p50_half = min(math.log(P50_BAND[1]), -math.log(P50_BAND[0]))
     laddered = type_key in price.EQUAL_PRICE_TYPES
+    contents = type_key in price.CONTENTS_PRICED
     sized = type_key in price.SIZE_NOISE
 
     def log_p(
@@ -449,7 +448,7 @@ def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
     def alone(b: TypeBuild, slope: float, ls: float) -> float:
         return _p90_p10(slope * b.log_key + ls * b.log_length)
 
-    slope, ls = census.slope, length.slope if length else 0.0
+    slope, ls = price.model_slope(type_key), length.slope if length else 0.0
     wide = max(builds, key=lambda b: alone(b, slope, ls))
     widest = alone(wide, slope, ls)
     if widest > target_spread and type_key not in price.SLOPE_CUTS:
@@ -550,20 +549,8 @@ def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
             group, size, fixed_sku = _argmin_grid(
                 lambda g, z, k, st=step: objective(g, z, st, k), MAX_SIGMA / 3, 3
             )
-        else:
+        elif not contents:
             group = _argmin(lambda g, st=step: objective(g, 0.0, st), 0.0, MAX_SIGMA)
-    if not sized and objective(group, 0.0, step) > 1.0:
-        # The SKU noise solved for the order rows' census share leaves a row
-        # out at one build or the other. A type with few price groups (kits:
-        # about 60 at the default size) needs most of its p90/p10 from noise,
-        # and a group draw is one per page, so the louder the group noise the
-        # further the two builds' medians fall apart. The SKU noise spreads
-        # prices as wide but draws once per SKU, and the order row has room
-        # for it inside its band: the two sigmas are then fitted together,
-        # the order rows scored in band rather than solved for exactly.
-        group, fixed_sku = _argmin_grid(
-            lambda g, k, st=step: objective(g, 0.0, st, k), MAX_SIGMA, 2
-        )
     sku = sku_for(slope, ls, group, step, size) if fixed_sku is None else fixed_sku
     lps = [log_p(b, slope, ls, group, sku, step, size) for b in builds]
     anchor = census.p50 / float(np.exp(np.mean([np.median(lp) for lp in lps])))
@@ -603,7 +590,7 @@ def _literal(type_key: str, model: price.PriceModel) -> str:
         f"{model.group_sigma:.3f}",
         f"{model.sku_sigma:.3f}",
     ]
-    if model.slope != price.CENSUS[type_key].slope:
+    if model.slope != price.model_slope(type_key):
         args.append(f"slope={model.slope!r}")
     length = price.LENGTH_CENSUS.get(type_key)
     if length is not None and model.length_slope != length.slope:
@@ -702,8 +689,6 @@ def main() -> int:
         by_build[name] = {row.name: row for row in rows}
     unpinned: set[str] = set()
     stale: set[str] = set()
-    drifted: set[str] = set()
-    unneeded: set[str] = set()
     print(f"{'':<62}{'target':>10}" + "".join(f"{name:>10}" for name in BUILDS))
     for row_name in next(iter(by_build.values())):
         rows = [by_build[name][row_name] for name in BUILDS]
@@ -713,17 +698,10 @@ def main() -> int:
                 if not pin_holds(row, build):
                     stale.add(row.name)
                     flags.append(f"pin does not hold at {name}")
-            elif row.name in price.ROW_EXCEPTIONS:
-                if not exception_holds(row, build):
-                    drifted.add(row.name)
-                    flags.append(f"exception drifted at {name}")
             elif not row.within:
                 unpinned.add(row.name)
                 flags.append(f"OUT at {name}")
-        if row_name in price.ROW_EXCEPTIONS and exception_is_stale(rows):
-            unneeded.add(row_name)
-            flags.append("in band at both builds")
-        recorded = {**price.PINNED_FIGURES, **price.EXCEPTED_FIGURES}.get(row_name)
+        recorded = price.PINNED_FIGURES.get(row_name)
         if recorded is not None:
             built = tuple(round(row.achieved, recorded_digits(row_name)) for row in rows)
             if built != recorded:
@@ -732,8 +710,6 @@ def main() -> int:
             flags.append("cannot reach")
         if row_name in price.PINNED_SHORTFALLS:
             flags.append("pinned shortfall")
-        if row_name in price.ROW_EXCEPTIONS:
-            flags.append("excepted")
         print(
             f"{row_name:<62}{rows[0].target:>10.4f}"
             + "".join(f"{row.achieved:>10.4f}" for row in rows)
@@ -754,24 +730,13 @@ def main() -> int:
     )
     print("\n# price.py, between the fit markers:\n" + table)
     print("\n# screw_socket_head.py, between its fit markers:\n" + socket_body)
-    if unpinned or stale or drifted or unneeded:
+    if unpinned or stale:
         for name in sorted(unpinned):
-            print(f"OUT of band, neither pinned nor excepted: {name}", file=sys.stderr)
+            print(f"OUT of band and not pinned: {name}", file=sys.stderr)
         for name in sorted(stale):
             print(
                 f"pinned in price.PINNED_SHORTFALLS but does not hold (in band, on the other "
                 f"side, or further out than price.PINNED_FIGURES): {name}",
-                file=sys.stderr,
-            )
-        for name in sorted(drifted):
-            print(
-                f"excepted in price.ROW_EXCEPTIONS but misses its band by more than "
-                f"price.EXCEPTION_DRIFT times price.EXCEPTED_FIGURES: {name}",
-                file=sys.stderr,
-            )
-        for name in sorted(unneeded):
-            print(
-                f"excepted in price.ROW_EXCEPTIONS but in band at both builds: {name}",
                 file=sys.stderr,
             )
         return 1
