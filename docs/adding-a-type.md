@@ -123,7 +123,7 @@ its published attributes. `set_screws_hex_socket` does both.
    It prints the block the key derives and, when another type already uses it,
    the first free block. In that case set `part_number_block=<block>` on the
    new type's `TypeSpec` (not on its `BreadthRow`): about one new type in 135
-   collides at today's 67 types. Another open pull request can take the same
+   collides at today's 68 types. Another open pull request can take the same
    block; `scripts/merge_pr.sh` re-checks it on the merged tree.
 3. If the leaf's head noun is new, add it to `PRODUCT_NOUNS` in
    `catalog/names.py`.
@@ -156,7 +156,10 @@ its published attributes. `set_screws_hex_socket` does both.
    * `key_attributes`: the type's key dimension, normally its size attribute.
      The price census keys the type on it (`price.KEY_ATTRIBUTES`) and every
      title names it (`test_every_title_names_its_key_dimension`). `register`
-     refuses a modelled type without one.
+     refuses a modelled type without one. When one line can hold two SKUs
+     that share the key dimension (key stock's square bar and the rectangular
+     bar of its width), the builder sets `ChildDraft.also` to the second
+     dimension on the SKU that needs it, and that SKU's title names both.
    * `title_attributes`: only for a type whose title names another attribute
      than its price key; the title test then reads it in place of
      `key_attributes`. An O-ring is priced on its cross-section (`Width`) and
@@ -264,6 +267,8 @@ Use a table type (`catalog/tabletype.py`, #101) when a type does not parameteris
 
 * **Fields.** `columns` (the published name of each chart column, the size first) and `rows` (one real size per row, rising); `variants` (material, finish, price factor, cheapest first at 1.0); `packs`; `base_price`, `size_slope`, `pack_slope`; `draw` and `extent`; `share`, `default_lines`, `default_skus`; `unit` (`"mm"`, or `"in"` for an inch chart). `spec(TABLE)` refuses a table that breaks an order.
 * **Facts.** Publish only what the chart gives, and cite the chart and the day it was read in the module docstring. Say so if the standard itself was not read. A column the chart lacks (a cotter pin's length) is not published.
+* **A column another type publishes.** Use that type's name and spelling (a sprocket's `Pitch` is the roller chain's). Every column is a length of this type only: the unit-mixing defect reads a type's own lengths, so a name that is a length here and not there moves nothing there. `others_moved_from_the_golden` in `tests/type_gates.py` is the gate.
+* **Attributes the table cannot state.** A `Variant` is a material. For a style with its own columns (a turnbuckle's end fittings, a shackle's body), wrap the `make` of `spec(TABLE)` with `dataclasses.replace` and add the attributes there, as `turnbuckles.py` does. The type is still a table type: `tabletype.tables()` records it by its key, so nothing else is written. A measurement two types publish under one name carries one unit in both (`Load Capacity` is in lbf): `tests/test_nested_entry_contract.py` is the gate.
 * **Price.** A declared estimate, not a measurement: `base_price` is the first row in the first material and pack, a larger size costs more, a later material costs its factor, and a larger pack costs more in total and less a piece. There is no census row, no borrowed model, no noise and no fit.
 * **Drawing.** `draw(values)` gets each column's length in inches from the SKU's own record and returns a `Figure` scaled from them. It carries no text; a proportion no column gives is a named constant in the module.
 * **Share.** Two rules, both at the default build, where a type's product count is its `default_lines` and its SKU count its `default_skus`:

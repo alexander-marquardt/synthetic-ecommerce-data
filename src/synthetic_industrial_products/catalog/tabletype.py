@@ -42,10 +42,11 @@ PACK = "Package Quantity"
 ENDINGS = {"other": 1.0}
 #: See ``make``.
 STRIDE = 5
-#: The table behind each ``make`` :func:`spec` handed out. A spec is copied on
-#: its way into the registry and its ``make`` is not, so this is what a
-#: registered type is recognised by.
-_MADE: dict[Callable[..., Any], TableType] = {}
+#: The table behind each type key, as its type module first stated it. Kept by
+#: key and not by the ``make`` handed out: a type that adds its own attributes
+#: wraps that ``make``, and is a table type all the same. The first one stays,
+#: because a variation on a table is built from one already stated.
+_MADE: dict[str, TableType] = {}
 
 
 @dataclass(frozen=True)
@@ -224,7 +225,7 @@ def spec(table: TableType) -> TypeSpec:
         return (table.standard,)
 
     make = _make(table)
-    _MADE[make] = table
+    _MADE.setdefault(table.key, table)
     return TypeSpec(
         table.key,
         category=table.category,
@@ -260,4 +261,4 @@ def tables() -> dict[str, TableType]:
     (no measured price, makers that overlap) names none of them. A table that
     went through :func:`spec` in no type module is not one.
     """
-    return {key: _MADE[made.make] for key, made in discover().items() if made.make in _MADE}
+    return {key: _MADE[key] for key in discover() if key in _MADE}

@@ -102,7 +102,7 @@ drawn bounding box, in inches, with a little headroom.
   `VOCAB`.
   `FIGURES` is a `RegistryTable`: its first read registers every type module
   and breadth row, so a script that imports only
-  `synthetic_industrial_products.drawing` still sees all 67 types.
+  `synthetic_industrial_products.drawing` still sees all 68 types.
 
 Dispatch is a dictionary lookup (`_figure()` in `drawing/__init__.py`). An
 unknown type raises `UnknownTypeError`. Nothing falls back to a generic shape.
@@ -177,8 +177,8 @@ at true scale near the bottom, and the same `Figure` is painted a second time,
 `k` times larger, inside a white lens. The handled glass is used when it
 reaches `MIN_ENLARGEMENT` (x2.5); otherwise the larger, handle-less lens. The
 README's [Images](../README.md#images) section has the full rule. Measured on
-the committed catalog: 2,228 of 11,039 drawings are lensed, 776 with the
-handled glass and 1,452 with the handle-less lens. This command prints the
+the committed catalog: 2,260 of 11,614 drawings are lensed, 784 with the
+handled glass and 1,476 with the handle-less lens. This command prints the
 counts and the enlargement range of each lens:
 
 ```sh

@@ -71,6 +71,7 @@ MATERIAL_FILL: dict[str, str] = {
 #: Finishes the original twelve types never published, and their colours.
 EXTRA_FINISH_TINT: dict[str, str] = {
     "Chrome Plated": "#f0f3f6",
+    "Painted": "#6f7f8a",
 }
 
 #: The fill of anything with no material or finish on the record.

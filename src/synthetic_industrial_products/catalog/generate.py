@@ -230,6 +230,13 @@ class ChildDraft:
     #: Other dimensions on the same child, by the class name the reference
     #: statistics use: other_length, length_of_cut, neck, flute.
     secondary: dict[str, Attribute] = field(default_factory=dict)
+    #: A second dimension the title names, labelled, right after the primary in
+    #: every title style: for a child the primary alone does not tell from a
+    #: sibling (a rectangular bar beside the square bar of its width). The
+    #: collision repair cannot be left to find it: it accepts a title that
+    #: names a value the SKU's siblings do not publish, and a unit defect on
+    #: the sibling's width makes the shared width such a value on both.
+    also: Attribute | None = None
     system: str = "in"
     #: A deliberately awkward single variant that carries NO variant-scope
     #: attribute: everything it publishes is on its product. A grouped view
@@ -1320,9 +1327,10 @@ class Generator:
         # modelled defect class, just a wrong value in a column that has no
         # measurement system to mix. Measured before this: 2 of the 6 Grit
         # values and 1 of the 8 Head Weight values were millimetre strings.
-        length_names = {
-            spec.name for specs in VOCAB.values() for spec in specs if spec.kind == "length"
-        }
+        # This type's OWN lengths. One name is a length in one type and not
+        # in another (a sprocket's Pitch, a roller chain's): read from every
+        # type's vocabulary, declaring a type would change what another builds.
+        length_names = {spec.name for spec in VOCAB[self.type_key] if spec.kind == "length"}
         dimension_indexes = [
             i for i, a in enumerate(out) if a.value_num is not None and a.name in length_names
         ]
@@ -1337,8 +1345,13 @@ class Generator:
                 style = canonical_style(other)
                 attribute = out[index]
                 assert attribute.value_num is not None
-                out[index] = length_attribute(
-                    attribute.name, self._publish(attribute.value_num, style)
+                # The key travels with the unit: a name two types use for two
+                # quantities (a sprocket's Pitch, a tap's) is told apart by it,
+                # and a restated value under the name's default key would join
+                # the other type's facet.
+                out[index] = replace(
+                    length_attribute(attribute.name, self._publish(attribute.value_num, style)),
+                    key=attribute.key,
                 )
                 self._bump("defect_unit_mixing")
         return out
@@ -1400,13 +1413,26 @@ class Generator:
             return []
         style = self._title_style(draft.brand, draft.type_key)
         self._bump("title_token")
+        # Named only when the record publishes it, like a secondary.
+        also = (
+            [
+                Segment(
+                    value=child.also.value,
+                    label=self._label_for(child.also.name),
+                    attribute=child.also.name,
+                )
+            ]
+            if child.also is not None and child.also.name in self._published
+            else []
+        )
         if style == "unlabelled":
             self._bump("title_token_unlabelled")
-            return [Segment(value=primary.value, label=None, attribute=primary.name)]
+            return [Segment(value=primary.value, label=None, attribute=primary.name), *also]
         segments = [
             Segment(
                 value=primary.value, label=self._label_for(primary.name), attribute=primary.name
-            )
+            ),
+            *also,
         ]
         if style == "secondary":
             # The pair's secondary dimension, fixed like its style: the pair
