@@ -657,8 +657,8 @@ of elastic/prism#9935:
   unit's kind and size from a pinned copy of the industrial deployment's
   `canonical_units` block (`tests/data/industrial_canonical_units.yaml`; see
   [The pinned unit declaration](#the-pinned-unit-declaration)). No key's
-  measured entries mix quantity kinds, with one exception: the modelled angle
-  defect below, matched on its inch unit and its five values.
+  measured entries mix quantity kinds, with no exception, checked on a fresh
+  SMALL build, a fresh default build and the committed golden (#79).
 * Anything else stays unitless text, including composite designators such as
   `1/4-20` and `M10x1.5`.
 
@@ -666,8 +666,18 @@ The split is **read back out of** the published string, never computed from
 the generator's magnitude, so the two can never disagree: `3/8"` has no exact
 two-decimal millimetre spelling, and a number computed from the original
 magnitude would quietly differ from the string actually published. A defective
-spelling splits as written: `Helix Angle = 42"` becomes `42` `INH`, keeping the
-bad value and dropping the bad spelling (elastic/prism#9284). An attribute that
+spelling never changes what an attribute measures: `Helix Angle = 42"`, the
+modelled defect of an inch mark keyed for a degree mark, becomes `42` `DD`
+(`catalog.entry.UNIT_FOR_NAME`). The flat facet keeps the messy `42"`; the
+entry keeps the magnitude and drops the bad mark (elastic/prism#9284, #79). Read
+as an inch, it put a length under an angle key. The same defect also writes
+`1"`, `1-1/4"`, `2"` and `1-5/8"`: lengths keyed into an angle field, a
+unit-type error rather than a mis-keyed degree mark. An attribute fixed to `DD`
+therefore parses only when its number lies within the angles its generator
+draws (`catalog.entry.SPAN_FOR_NAME`, read from `catalog.series`), and a
+fraction never parses as an angle; anything else stays text, with no
+`unit_code` and no `value_canonical`. In the default build that leaves 8 of the
+78 defect rows as angles (`Helix Angle = 42"`) and 70 as text. An attribute that
 is not a measurement omits `unit_code` and `value_canonical` rather than
 carrying nulls.
 
