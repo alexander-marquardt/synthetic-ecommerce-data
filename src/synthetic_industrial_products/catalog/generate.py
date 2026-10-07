@@ -122,7 +122,7 @@ HAMMER_GRIPS: dict[str, tuple[str, ...]] = {
 KEY_DIMENSIONS: dict[str, tuple[str, ...]] = {
     # A bearing is named by its number AND its bore: the bore is what a
     # shopper fits it to (the review of the 100K catalog, 2026-09-29).
-    "bearing_radial_ball": ("Bearing Number", "Bore"),
+    "bearing_radial_ball": ("Bearing Number", "Bore Dia."),
     "wheel_depressed_center": ("Diameter",),
     "abrasive_flap_disc": ("Diameter",),
     # Not a dimension, but it names what the screw IS, so it leads. Last in
@@ -230,6 +230,13 @@ class ChildDraft:
     #: Other dimensions on the same child, by the class name the reference
     #: statistics use: other_length, length_of_cut, neck, flute.
     secondary: dict[str, Attribute] = field(default_factory=dict)
+    #: A second dimension the title names, labelled, right after the primary in
+    #: every title style: for a child the primary alone does not tell from a
+    #: sibling (a rectangular bar beside the square bar of its width). The
+    #: collision repair cannot be left to find it: it accepts a title that
+    #: names a value the SKU's siblings do not publish, and a unit defect on
+    #: the sibling's width makes the shared width such a value on both.
+    also: Attribute | None = None
     system: str = "in"
     #: A deliberately awkward single variant that carries NO variant-scope
     #: attribute: everything it publishes is on its product. A grouped view
@@ -621,7 +628,7 @@ class Generator:
         rng = self.rng
         brand = brands.pick_brand(rng, type_key, self._exhausted)
         material = rng.choice(("High Speed Steel", "Cobalt", "Solid Carbide"))
-        point = rng.choice(("118 Degrees", "135 Degrees"))
+        point = rng.choice(series.POINT_ANGLES)
         item = "Jobber Length Drill Bit"
         series_code = f"{rng.randint(100, 999)}-{rng.choice('ABCD')}"
         draft = LineDraft(
@@ -635,7 +642,7 @@ class Generator:
             keyword_attribute("Item", item),
             keyword_attribute("Material", material),
             keyword_attribute("Point Type", rng.choice(("Split Point", "Standard Point"))),
-            Attribute("Point Angle", point, float(point.split()[0])),
+            Attribute("Point Angle", format_angle(point), point),
             keyword_attribute("Finish", rng.choice(DRILL_FINISH[material])),
             keyword_attribute("Shank Type", rng.choice(("Straight", "Reduced"))),
             keyword_attribute("Cutting Direction", "Right Hand"),
@@ -738,7 +745,7 @@ class Generator:
                 # tap's Threads per Inch is how many an inch holds. One heading
                 # over both put a bare 32 beside 0.5 mm.
                 (
-                    Attribute("Pitch", f"{pitch:g}", bare_unit="MMT")
+                    Attribute("Thread Pitch", f"{pitch:g}", bare_unit="MMT")
                     if metric
                     else Attribute("Threads per Inch", str(pitch), bare_unit="TPI")
                 ),
@@ -1320,9 +1327,10 @@ class Generator:
         # modelled defect class, just a wrong value in a column that has no
         # measurement system to mix. Measured before this: 2 of the 6 Grit
         # values and 1 of the 8 Head Weight values were millimetre strings.
-        length_names = {
-            spec.name for specs in VOCAB.values() for spec in specs if spec.kind == "length"
-        }
+        # This type's OWN lengths. One name is a length in one type and not
+        # in another (a sprocket's Pitch, a roller chain's): read from every
+        # type's vocabulary, declaring a type would change what another builds.
+        length_names = {spec.name for spec in VOCAB[self.type_key] if spec.kind == "length"}
         dimension_indexes = [
             i for i, a in enumerate(out) if a.value_num is not None and a.name in length_names
         ]
@@ -1337,8 +1345,13 @@ class Generator:
                 style = canonical_style(other)
                 attribute = out[index]
                 assert attribute.value_num is not None
-                out[index] = length_attribute(
-                    attribute.name, self._publish(attribute.value_num, style)
+                # The key travels with the unit: a name two types use for two
+                # quantities (a sprocket's Pitch, a tap's) is told apart by it,
+                # and a restated value under the name's default key would join
+                # the other type's facet.
+                out[index] = replace(
+                    length_attribute(attribute.name, self._publish(attribute.value_num, style)),
+                    key=attribute.key,
                 )
                 self._bump("defect_unit_mixing")
         return out
@@ -1400,13 +1413,26 @@ class Generator:
             return []
         style = self._title_style(draft.brand, draft.type_key)
         self._bump("title_token")
+        # Named only when the record publishes it, like a secondary.
+        also = (
+            [
+                Segment(
+                    value=child.also.value,
+                    label=self._label_for(child.also.name),
+                    attribute=child.also.name,
+                )
+            ]
+            if child.also is not None and child.also.name in self._published
+            else []
+        )
         if style == "unlabelled":
             self._bump("title_token_unlabelled")
-            return [Segment(value=primary.value, label=None, attribute=primary.name)]
+            return [Segment(value=primary.value, label=None, attribute=primary.name), *also]
         segments = [
             Segment(
                 value=primary.value, label=self._label_for(primary.name), attribute=primary.name
-            )
+            ),
+            *also,
         ]
         if style == "secondary":
             # The pair's secondary dimension, fixed like its style: the pair
@@ -1783,13 +1809,17 @@ class Generator:
     # -- assembly ---------------------------------------------------------
 
     def _corrupt_angle(self, line_attrs: list[Attribute]) -> list[Attribute]:
-        """An angular attribute published with a LENGTH unit: Helix Angle = 42".
+        """An angular attribute published with the inch mark: Helix Angle = 42".
 
         A unit-type error rather than a magnitude error, and measured at 4.7%
         of the records carrying an angle. The angle is a property of the line,
         so the bad value is too -- one wrong row in a supplier's line data
         reaches every SKU under it, which is how these arrive in a real
-        catalog.
+        catalog. The flat facet publishes the messy spelling. The nested entry
+        reads a value within the attribute's series span as degrees, the
+        inch mark keyed for the degree mark (``42"`` on Helix Angle); every
+        other draw is a length in an angle field and stays text
+        (``entry.SPAN_FOR_NAME``, #79).
         """
         index = next(
             (i for i, a in enumerate(line_attrs) if a.name in ("Helix Angle", "Point Angle")),
@@ -2069,7 +2099,7 @@ class Generator:
         off the line attributes sparsity never drops."""
         model = price.model_for(type_key)
         facts = {a.name: a for a in attributes}
-        material = facts["Material"].value if "Material" in facts else None
+        material = price.material_of(type_key, facts)
         pack = None
         if model.pack_attribute is not None and model.pack_attribute in facts:
             pack = facts[model.pack_attribute].value_num
@@ -2081,6 +2111,7 @@ class Generator:
             brands.tier_of(brand, type_key),
             pack,
             price.length_of(facts) if type_key in price.LENGTH_HELD else None,
+            facts[model.option_attribute].value if model.option_attribute in facts else None,
         )
         seed = self.config.seed
         always = self._always_published(type_key)

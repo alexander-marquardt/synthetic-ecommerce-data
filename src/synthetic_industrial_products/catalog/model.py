@@ -23,8 +23,12 @@ makes that disagreement impossible by construction.
 
 An attribute that is not a measurement omits ``value_num`` entirely rather
 than carrying a null, and so does a measurement whose value is deliberately
-malformed: a record with ``Helix Angle = 42"`` has no angle to put there, and
-inventing one would paper over the defect the catalog exists to exhibit.
+malformed: a record with ``Helix Angle = 42"`` publishes no degree mark to read
+an angle from, and inventing one would paper over the defect the flat document
+exists to exhibit. Its nested entry is still an angle (``42`` ``DD``): the entry
+takes an angle attribute's unit from its name, not its mark (#79). A value
+outside the angles the attribute's series offers, such as ``1-5/8"``, is a
+length in an angle field, and its entry stays text.
 
 ``value_num`` is internal: generation and measurement read it, and the flat
 shape's ``facets_num`` publishes it. A nested ENTRY carries the split shape of
@@ -38,7 +42,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..dimensions import DimensionParseError, parse_length
-from .entry import entry
+from .entry import entry, sanitize
 
 
 @dataclass(frozen=True)
@@ -52,10 +56,18 @@ class Attribute:
     #: first value and this holds all of them.
     values: tuple[str, ...] | None = None
     #: The unit a BARE published number is in, when the generator knows it and
-    #: the name does not say it: a metric tap's ``Pitch`` is millimetres
+    #: the name does not say it: a metric tap's ``Thread Pitch`` is millimetres
     #: (``MMT``), an inch tap's ``Threads per Inch`` is ``TPI``. See
     #: :func:`.entry.split`.
     bare_unit: str | None = None
+    #: The machine key, set only where this name means a different concept
+    #: than it does on another type (:func:`.entry.entry`); else derived.
+    key: str | None = None
+
+    @property
+    def facet_key(self) -> str:
+        """The flat ``facets`` key: :attr:`key` when set, else the sanitised name."""
+        return self.key if self.key is not None else sanitize(self.name)
 
     @property
     def multivalued(self) -> bool:
@@ -69,7 +81,7 @@ class Attribute:
         the reason the catalog carries one. Each value is split on its own.
         """
         values = self.values if self.values is not None else (self.value,)
-        return tuple(entry(self.name, value, self.bare_unit) for value in values)
+        return tuple(entry(self.name, value, self.bare_unit, self.key) for value in values)
 
 
 def length_attribute(name: str, published: str) -> Attribute:

@@ -349,7 +349,11 @@ def test_a_modelled_module_is_registered_into_every_table(key: str) -> None:
     assert vocab.STANDARDS_FAMILY[key] == spec.standards_family
     assert FIGURES[key] == (spec.figure, spec.extent)
     assert voice.USE_LINES.get(key) == (spec.use_lines or None)
-    assert price.MODELS[key] == spec.price
+    if spec.borrows:
+        assert price.BORROWS[key] == spec.borrows
+        assert key not in dict(price.MODELS.items())
+    else:
+        assert price.MODELS[key] == spec.price
 
 
 # -- the refusals docs/adding-a-type.md promises ------------------------------
@@ -434,13 +438,12 @@ def test_a_declared_block_replaces_the_derived_one() -> None:
     assert typespec.block_of("er_collets") != typespec.block_of("tap_spiral_point")
 
 
+_ROW_FILES = Path(breadth.__file__).parent.parent / "data" / "breadth_categories"
+
+
 def _yaml_declared_blocks() -> dict[str, int]:
-    text = (Path(breadth.__file__).parent.parent / "data" / "breadth_categories.yaml").read_text()
-    return {
-        raw["key"]: raw["part_number_block"]
-        for raw in yaml.safe_load(text)
-        if "part_number_block" in raw
-    }
+    raws = [yaml.safe_load(path.read_text()) for path in sorted(_ROW_FILES.glob("*.yaml"))]
+    return {raw["key"]: raw["part_number_block"] for raw in raws if "part_number_block" in raw}
 
 
 _BLOCK_OF_FIRST = """
@@ -659,20 +662,21 @@ def test_a_collision_refusal_says_where_each_kind_of_type_is_fixed(
     with pytest.raises(typespec.TypeCollisionError) as refused:
         generate.generate(SMALL)
     text = str(refused.value)
-    assert "part_number_block: <block> on the shaft_collars row of" in text
-    assert "data/breadth_categories.yaml" in text
+    assert "part_number_block: <block> in " in text
+    assert "data/breadth_categories/shaft_collars.yaml" in text
     assert f"TypeSpec('{UNMIGRATED}', ...) in {typespec.TYPES_PACKAGE}" in text
     assert "NEWLY ADDED" in text
 
 
 def _raw_row(key: str) -> dict:
-    text = (Path(breadth.__file__).parent.parent / "data" / "breadth_categories.yaml").read_text()
-    return next(raw for raw in yaml.safe_load(text) if raw["key"] == key)
+    return yaml.safe_load((_ROW_FILES / f"{key}.yaml").read_text())
 
 
 def test_a_quoted_yaml_block_is_refused_naming_its_row() -> None:
     raw = {**_raw_row("shaft_collars"), "part_number_block": "4659"}
-    with pytest.raises(typespec.TypeCollisionError, match=r"the shaft_collars row of .*'4659'"):
+    with pytest.raises(
+        typespec.TypeCollisionError, match=r"breadth_categories/shaft_collars\.yaml .*'4659'"
+    ):
         breadth._row_from_dict(raw)
 
 

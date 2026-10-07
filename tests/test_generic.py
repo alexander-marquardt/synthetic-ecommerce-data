@@ -126,7 +126,7 @@ TWO_VALUES: dict[str, tuple[str, str]] = {
     "Decimal Equivalent": ("0.1250", "0.4331"),
     "Flute Length": ('1"', "70 mm"),
     "Thread Size": ("#10-32", "M12x1.75"),
-    "Pitch": ("32", "1.75"),
+    "Thread Pitch": ("32", "1.75"),
     "Thread Length": ('1/2"', "30 mm"),
     "Square Size": ('1/8"', "9 mm"),
     "Inside Dia.": ("3 mm", "17 mm"),

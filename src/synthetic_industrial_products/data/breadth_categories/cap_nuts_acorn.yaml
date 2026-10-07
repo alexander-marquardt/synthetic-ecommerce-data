@@ -1,0 +1,28 @@
+# One breadth row (alexander-marquardt/synthetic-industrial-products#34); one file
+# per row, so two PRs that add or remove rows never touch the same file (#48).
+# The schema and the generic loop that reads it are in catalog/breadth.py.
+key: cap_nuts_acorn
+category:
+- Fasteners
+- Nuts
+- Acorn Cap Nuts
+family: fastener
+shape: disc
+item: Acorn Cap Nut
+descriptor_attr: null
+size_attr: Thread Size
+size_values:
+- '#8-32'
+- 1/4-20
+- 5/16-18
+- M6x1
+attributes:
+  Material:
+  - Steel
+  - Stainless Steel
+  Finish:
+  - Chrome Plated
+  - Zinc Plated
+price_range: [0.3, 3.0]
+skus: 1
+reason: '''cap'' -- overlaps R4/R8''s ''cap screw'' word family; decorative-fastener gap'

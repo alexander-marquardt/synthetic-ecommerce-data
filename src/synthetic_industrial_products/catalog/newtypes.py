@@ -352,8 +352,24 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
 
 # --- radial ball bearings --------------------------------------------------------
 
-#: (bearing number, bore mm, outside dia mm, width mm) -- the 60/62/63 series.
+#: (bearing number, bore mm, outside dia mm, width mm) -- the 60/62/63 series,
+#: from the small single-digit bores (5 to 9 mm) through 100 mm. The boundary
+#: dimensions are ISO 15's for each number's diameter series; the bore is the
+#: one its bore code names (a single digit is the bore in mm; 00, 01, 02 and 03
+#: are 10, 12, 15 and 17 mm; 04 and up are five times the code). A distributor
+#: stocks these sizes miniature through large bore: the 10-35 mm ladder alone
+#: spread a catalog's bores 3x where the census's bearing prices spread 16.1x
+#: (#64). A number is left out where the ratings' maker (below) does not
+#: publish the open bearing, never given a made-up rating: SKF lists 628 only
+#: with seals or shields.
 _BEARINGS_METRIC = (
+    ("607", 7, 19, 6),
+    ("608", 8, 22, 7),
+    ("609", 9, 24, 7),
+    ("625", 5, 16, 5),
+    ("626", 6, 19, 6),
+    ("627", 7, 22, 7),
+    ("629", 9, 26, 8),
     ("6000", 10, 26, 8),
     ("6001", 12, 28, 8),
     ("6002", 15, 32, 9),
@@ -361,6 +377,20 @@ _BEARINGS_METRIC = (
     ("6004", 20, 42, 12),
     ("6005", 25, 47, 12),
     ("6006", 30, 55, 13),
+    ("6007", 35, 62, 14),
+    ("6008", 40, 68, 15),
+    ("6009", 45, 75, 16),
+    ("6010", 50, 80, 16),
+    ("6011", 55, 90, 18),
+    ("6012", 60, 95, 18),
+    ("6013", 65, 100, 18),
+    ("6014", 70, 110, 20),
+    ("6015", 75, 115, 20),
+    ("6016", 80, 125, 22),
+    ("6017", 85, 130, 22),
+    ("6018", 90, 140, 24),
+    ("6019", 95, 145, 24),
+    ("6020", 100, 150, 24),
     ("6200", 10, 30, 9),
     ("6201", 12, 32, 10),
     ("6202", 15, 35, 11),
@@ -370,12 +400,39 @@ _BEARINGS_METRIC = (
     ("6206", 30, 62, 16),
     ("6207", 35, 72, 17),
     ("6208", 40, 80, 18),
+    ("6209", 45, 85, 19),
+    ("6210", 50, 90, 20),
+    ("6211", 55, 100, 21),
+    ("6212", 60, 110, 22),
+    ("6213", 65, 120, 23),
+    ("6214", 70, 125, 24),
+    ("6215", 75, 130, 25),
+    ("6216", 80, 140, 26),
+    ("6217", 85, 150, 28),
+    ("6218", 90, 160, 30),
+    ("6219", 95, 170, 32),
+    ("6220", 100, 180, 34),
     ("6300", 10, 35, 11),
     ("6301", 12, 37, 12),
     ("6302", 15, 42, 13),
     ("6303", 17, 47, 14),
     ("6304", 20, 52, 15),
     ("6305", 25, 62, 17),
+    ("6306", 30, 72, 19),
+    ("6307", 35, 80, 21),
+    ("6308", 40, 90, 23),
+    ("6309", 45, 100, 25),
+    ("6310", 50, 110, 27),
+    ("6311", 55, 120, 29),
+    ("6312", 60, 130, 31),
+    ("6313", 65, 140, 33),
+    ("6314", 70, 150, 35),
+    ("6315", 75, 160, 37),
+    ("6316", 80, 170, 39),
+    ("6317", 85, 180, 41),
+    ("6318", 90, 190, 43),
+    ("6319", 95, 200, 45),
+    ("6320", 100, 215, 47),
 )
 #: (bearing number, bore in, outside dia in, width in) -- inch R series.
 _BEARINGS_INCH = (
@@ -386,21 +443,45 @@ _BEARINGS_INCH = (
     ("R12", 3 / 4, 1 + 5 / 8, 0.4375),
 )
 #: Load ratings and limiting speed, per bearing number: (dynamic C kN, static
-#: C0 kN, limiting speed rpm for the OPEN bearing on grease). A TABLE, not a
-#: formula: the metric rows are the deep groove ball bearing tables a maker
-#: publishes (SKF's figures for 60/62/63), the inch R rows the figures
-#: distributors list for the R series. No jitter: two bearings of one number
-#: are rated alike, whoever makes them, and a rating is never what makes two
-#: SKUs different.
+#: C0 kN, limiting speed rpm for the OPEN bearing). A TABLE, not a formula:
+#: every metric row is one maker's on one basis, SKF's deep groove ball
+#: bearing product pages (``https://www.skf.com/group/products/rolling-
+#: bearings/ball-bearings/deep-groove-ball-bearings/productid-<number>``,
+#: retrieved 2026-10-07), because two makers' speed ratings are not on one
+#: basis and a table that mixes them breaks the series' order at the seam.
+#: The inch R rows are the figures distributors list for the R series. No
+#: jitter: two bearings of one number are rated alike, whoever makes them, and
+#: a rating is never what makes two SKUs different.
 BEARING_RATINGS: dict[str, tuple[float, float, int]] = {
-    "6000": (4.75, 1.96, 38000),
-    "6001": (5.40, 2.36, 32000),
-    "6002": (5.85, 2.85, 28000),
-    "6003": (6.37, 3.25, 24000),
-    "6004": (9.95, 5.00, 20000),
-    "6005": (11.9, 6.55, 18000),
-    "6006": (13.8, 8.30, 14000),
-    "6200": (5.40, 2.36, 34000),
+    "607": (2.34, 0.95, 53000),
+    "608": (3.45, 1.37, 48000),
+    "609": (3.90, 1.66, 43000),
+    "625": (1.14, 0.38, 60000),
+    "626": (2.34, 0.95, 50000),
+    "627": (3.45, 1.37, 45000),
+    "629": (4.75, 1.96, 38000),
+    "6000": (4.75, 1.96, 40000),
+    "6001": (5.40, 2.36, 38000),
+    "6002": (5.85, 2.85, 32000),
+    "6003": (6.37, 3.25, 28000),
+    "6004": (9.95, 5.00, 24000),
+    "6005": (11.9, 6.55, 20000),
+    "6006": (13.8, 8.30, 17000),
+    "6007": (16.8, 10.2, 15000),
+    "6008": (17.8, 11.0, 14000),
+    "6009": (22.1, 14.6, 12000),
+    "6010": (22.9, 16.0, 11000),
+    "6011": (29.6, 21.2, 10000),
+    "6012": (30.7, 23.2, 9500),
+    "6013": (31.9, 25.0, 9000),
+    "6014": (39.7, 31.0, 8000),
+    "6015": (41.6, 33.5, 7500),
+    "6016": (49.4, 40.0, 7000),
+    "6017": (52.0, 43.0, 6700),
+    "6018": (60.5, 50.0, 6300),
+    "6019": (63.7, 54.0, 6000),
+    "6020": (63.7, 54.0, 5600),
+    "6200": (5.40, 2.36, 36000),
     "6201": (7.28, 3.10, 32000),
     "6202": (8.06, 3.75, 28000),
     "6203": (9.95, 4.75, 24000),
@@ -409,12 +490,39 @@ BEARING_RATINGS: dict[str, tuple[float, float, int]] = {
     "6206": (20.3, 11.2, 15000),
     "6207": (27.0, 15.3, 13000),
     "6208": (32.5, 19.0, 11000),
-    "6300": (8.52, 3.40, 28000),
-    "6301": (9.95, 4.15, 26000),
-    "6302": (11.9, 5.40, 22000),
-    "6303": (14.3, 6.55, 20000),
-    "6304": (16.8, 7.80, 18000),
+    "6209": (35.1, 21.6, 11000),
+    "6210": (37.1, 23.2, 10000),
+    "6211": (46.2, 29.0, 9000),
+    "6212": (55.3, 36.0, 8000),
+    "6213": (58.5, 40.5, 7500),
+    "6214": (63.7, 45.0, 7000),
+    "6215": (68.9, 49.0, 6700),
+    "6216": (72.8, 55.0, 6000),
+    "6217": (87.1, 64.0, 5600),
+    "6218": (101.0, 73.5, 5300),
+    "6219": (114.0, 81.5, 5000),
+    "6220": (127.0, 93.0, 4800),
+    "6300": (8.52, 3.40, 32000),
+    "6301": (10.1, 4.15, 28000),
+    "6302": (11.9, 5.40, 24000),
+    "6303": (14.3, 6.55, 22000),
+    "6304": (16.8, 7.80, 19000),
     "6305": (23.4, 11.6, 16000),
+    "6306": (29.6, 16.0, 13000),
+    "6307": (35.1, 19.0, 12000),
+    "6308": (42.3, 24.0, 11000),
+    "6309": (55.3, 31.5, 9500),
+    "6310": (65.0, 38.0, 8500),
+    "6311": (74.1, 45.0, 8000),
+    "6312": (85.2, 52.0, 7000),
+    "6313": (97.5, 60.0, 6700),
+    "6314": (111.0, 68.0, 6300),
+    "6315": (119.0, 76.5, 5600),
+    "6316": (130.0, 86.5, 5300),
+    "6317": (140.0, 96.5, 5000),
+    "6318": (151.0, 108.0, 4800),
+    "6319": (159.0, 118.0, 4500),
+    "6320": (174.0, 140.0, 4300),
     "R4": (1.14, 0.46, 48000),
     "R6": (3.30, 1.40, 36000),
     "R8": (5.07, 2.37, 28000),
@@ -470,7 +578,7 @@ def build_bearing(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
         # sanitised key with the product's own ``series`` column; the flat field
         # map namespaces it (``attr_series``) rather than drop it.
         keyword_attribute("Series", "R" if inch else number[:2]),
-        length_attribute("Bore", gen._publish(bore_in, style)),
+        length_attribute("Bore Dia.", gen._publish(bore_in, style)),
         length_attribute("Outside Dia.", gen._publish(od_in, style)),
         length_attribute("Width", gen._publish(width_in, style)),
         keyword_attribute("Material", material),

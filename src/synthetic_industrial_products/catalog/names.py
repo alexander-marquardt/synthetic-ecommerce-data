@@ -95,6 +95,10 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Coupling",
     "Belt",
     "Chain",
+    "Turnbuckle",
+    "Shackle",
+    "Sprocket",
+    "Link",
     "Pulley",
     "Seal",
     "Gasket",
@@ -129,11 +133,42 @@ NAME_EXCEPTIONS: dict[str, str] = {
     "Face Type": "hammer striking-face form; the census carries no hammer family",
     "Face Dia.": "hammer striking-face diameter; the census carries no hammer family",
     "Handle Length": "hammer handle length, a distinct measurement from Overall Length",
+    "Take Up": "how far a turnbuckle draws its ends together; no turnbuckle in the census",
+    "Closed Length": "a turnbuckle end to end, fully taken up; no turnbuckle in the census",
     "Head Weight": "hammer head weight; the census carries no hammer family",
+    "Base to Center Height": (
+        "a pillow block's mounting face to its shaft centre; the census has Height and"
+        " Overall Height, which are other measurements"
+    ),
+    "For Shaft Diameter": (
+        "the shaft a retaining ring fits, in the census's relational form;"
+        " the census carries no retaining ring family"
+    ),
+    "Groove Diameter": "the shaft groove a retaining ring sits in; no retaining ring in the census",
+    "Groove Width": "the shaft groove a retaining ring sits in; no retaining ring in the census",
     "Square Size": "a tap's drive square; declared, never emitted (issue #3)",
+    "Dash Number": "an O-ring's SAE AS568 size designation; the census carries no O-ring family",
+    "Width Tolerance": (
+        "an O-ring's cross-section tolerance from the AS568 table, beside the census's"
+        " Inside Dia. Tolerance"
+    ),
+    "Thread Pitch": (
+        "a metric tap's millimetres between threads; the census's bare Pitch is also a"
+        " roller chain's link spacing, a different quantity, so the thread qualifies it (#113)"
+    ),
     "Threads per Inch": (
-        "an inch tap's thread count, a different quantity from a metric tap's Pitch"
+        "an inch tap's thread count, a different quantity from a metric tap's Thread Pitch"
         " (#42); cased like the census's Teeth per Inch"
+    ),
+    "Roller Dia.": (
+        "a roller chain's ASME B29.1 roller diameter; the census carries no chain"
+        " dimensions, and the bare Dia. would read as the chain's own diameter"
+    ),
+    "Hub Diameter": "a sprocket's hub, beside its Outside Dia.; no sprocket hub in the census",
+    "Length Through Bore": "a sprocket's width along the shaft; no sprocket hub in the census",
+    "Fit": (
+        "key stock's oversized or undersized bar, the name distributors facet it"
+        " by; the census carries no key stock, and its Class is another concept"
     ),
 }
 

@@ -477,6 +477,35 @@
   - 1/16 in
   - 3/16 in
   reason: '''1/16'' + ''3/16'' overlap R1''s ball-end-mill fractions; pin category gap'
+- key: dowel_pins
+  category:
+  - Fasteners
+  - Pins
+  - Dowel Pins
+  family: fastener
+  shape: cylinder
+  item: Dowel Pin
+  descriptor_attr: null
+  size_attr: Diameter
+  size_values:
+  - 1/8 in
+  - 3/16 in
+  - 1/4 in
+  - 3/8 in
+  - 1/2 in
+  attributes:
+    Material:
+    - Steel
+    - Stainless Steel
+    Length:
+    - 1 in
+    - 2 in
+  price_range: [0.2, 3.0]
+  skus: 2
+  featured_sizes:
+  - 3/8 in
+  - 1/2 in
+  reason: '''1/2'' + ''3/8'' overlap; precision-pin category gap'
 - key: roll_pins
   category:
   - Fasteners
@@ -705,7 +734,7 @@
   shape: tube
   item: Bronze Sleeve Bushing
   descriptor_attr: null
-  size_attr: Bore
+  size_attr: Bore Dia.
   size_values:
   - 1/4 in
   - 3/8 in
@@ -734,7 +763,7 @@
   shape: disc
   item: Shaft Collar
   descriptor_attr: null
-  size_attr: Bore
+  size_attr: Bore Dia.
   size_values:
   - 1/4 in
   - 3/8 in
@@ -763,7 +792,7 @@
   shape: cylinder
   item: Rigid Shaft Coupling
   descriptor_attr: null
-  size_attr: Bore
+  size_attr: Bore Dia.
   size_values:
   - 1/4 in
   - 3/8 in
@@ -836,7 +865,7 @@
   shape: disc
   item: Timing Pulley
   descriptor_attr: null
-  size_attr: Bore
+  size_attr: Bore Dia.
   size_values:
   - 1/4 in
   - 3/8 in
@@ -854,33 +883,6 @@
   featured_sizes:
   - 1/2 in
   reason: '''1/2'' overlap; power-transmission category gap'
-- key: o_rings
-  category:
-  - Hose, Tube, Fittings & Valves
-  - Seals & Gaskets
-  - O-Ring Seals
-  family: motion
-  shape: disc
-  item: O-Ring
-  descriptor_attr: null
-  size_attr: Size
-  size_values:
-  - 1/4 in
-  - 3/8 in
-  - 1/2 in
-  - 3/4 in
-  - 1 in
-  attributes:
-    Material:
-    - Rubber
-    Grade:
-    - Standard
-    - High-Temp
-  price_range: [0.2, 3.0]
-  skus: 2
-  featured_sizes:
-  - 1/2 in
-  reason: '''1/2'' overlap; sealing category gap'
 - key: flat_gaskets
   category:
   - Hose, Tube, Fittings & Valves

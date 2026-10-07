@@ -64,7 +64,7 @@ SIGNATURES: dict[str, frozenset[str]] = {
             "Tap Style",
             "Tap Chamfer",
             "Thread Size",
-            "Pitch",
+            "Thread Pitch",
             "Square Size",
         }
     ),
