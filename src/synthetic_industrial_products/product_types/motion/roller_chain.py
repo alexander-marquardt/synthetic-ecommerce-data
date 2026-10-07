@@ -28,6 +28,7 @@ pitch, and the two are different concepts (#36).
 from __future__ import annotations
 
 import dataclasses
+from collections.abc import Mapping
 from dataclasses import dataclass
 from fractions import Fraction
 from typing import TYPE_CHECKING, Any
@@ -313,6 +314,13 @@ PRICE = PriceModel(
     option_factors=STRAND_FACTORS,
 )
 
+def claims(
+    facts: Mapping[str, str], *, metric: bool, provenance: str, standard: str
+) -> tuple[str, ...]:
+    """Every row is B29.1's standard series, whatever the material or strands."""
+    return (STANDARD,)
+
+
 SPEC = TypeSpec(
     "roller_chain",
     category=("Motion Control & Fluid Power", "Chain & Sprockets", "Roller Chains"),
@@ -324,6 +332,11 @@ SPEC = TypeSpec(
     make=build,
     share=0.016,
     price=PRICE,
+    claims=claims,
+    may_claim=frozenset({STANDARD}),
+    key_attributes=("Pitch",),
+    default_lines=40,
+    default_skus=68,
     use_lines=(
         "Runs on sprockets of the same ANSI chain number.",
         "Joins end to end with a connecting link of the same ANSI chain number.",
