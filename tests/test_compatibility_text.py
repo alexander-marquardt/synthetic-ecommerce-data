@@ -34,6 +34,13 @@ ASME_B18_3_KEY_IN = {
     "#6": 7 / 64, "#8": 9 / 64, "#10": 5 / 32, "1/4": 3 / 16, "5/16": 1 / 4,
     "3/8": 5 / 16, "7/16": 3 / 8, "1/2": 3 / 8, "5/8": 1 / 2,
 }  # fmt: skip
+#: Every pitch below, coarse, fine, UNC and UNF, was checked row by row against
+#: one table: FreeCAD's hole thread tables ("ISO metric regular", "ISO metric
+#: fine", "UNC", "UNF" in src/Mod/PartDesign/App/FeatureHole.cpp, FreeCAD
+#: commit 3424c410627263394f701aeec5b61d7bab7bb3a1, LGPL-2.1), which list the
+#: ISO 261 diameter-pitch pairs and the ASME B1.1 pitches (an inch pitch there
+#: is in mm: 25.4 / TPI). All rows agree with it, M36x2 included.
+#:
 #: ISO 261 coarse pitches, and ISO 262's selected fine ones.
 METRIC_COARSE = {
     "M3": 0.5, "M4": 0.7, "M5": 0.8, "M6": 1.0, "M8": 1.25, "M10": 1.5, "M12": 1.75,

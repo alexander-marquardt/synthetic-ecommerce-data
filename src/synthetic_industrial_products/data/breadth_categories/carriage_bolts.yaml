@@ -1,0 +1,31 @@
+# One breadth row (alexander-marquardt/synthetic-industrial-products#34); one file
+# per row, so two PRs that add or remove rows never touch the same file (#48).
+# The schema and the generic loop that reads it are in catalog/breadth.py.
+key: carriage_bolts
+category:
+- Fasteners
+- Bolts
+- Carriage Bolts
+family: fastener
+shape: cylinder
+item: Carriage Bolt
+descriptor_attr: null
+size_attr: Thread Size
+size_values:
+- 1/4-20
+- 5/16-18
+- 3/8-16
+- 1/2-13
+attributes:
+  Material:
+  - Steel
+  - Stainless Steel
+  Finish:
+  - Zinc Plated
+  - Plain
+  Length:
+  - 1 in
+  - 2 in
+  - 3 in
+skus: 2
+reason: generic thread-size overlap; round-head bolt category gap

@@ -1,0 +1,32 @@
+# One breadth row (alexander-marquardt/synthetic-industrial-products#34); one file
+# per row, so two PRs that add or remove rows never touch the same file (#48).
+# The schema and the generic loop that reads it are in catalog/breadth.py.
+key: hex_pipe_nipples
+category:
+- Hose, Tube, Fittings & Valves
+- Pipe Fittings
+- Hex Pipe Nipples
+family: motion
+shape: cylinder
+item: Hex Pipe Nipple
+descriptor_attr: null
+size_attr: Size
+size_values:
+- 1/4 in
+- 3/8 in
+- 1/2 in
+- 3/4 in
+- 1 in
+attributes:
+  Material:
+  - Steel
+  - Stainless Steel
+  - Brass
+  Length:
+  - 2 in
+  - 3 in
+  - 4 in
+skus: 2
+featured_sizes:
+- 1/2 in
+reason: '''hex'' + ''1/2'' -- strong overlap; plumbing-fitting category gap'

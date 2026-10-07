@@ -1,0 +1,30 @@
+# One breadth row (alexander-marquardt/synthetic-industrial-products#34); one file
+# per row, so two PRs that add or remove rows never touch the same file (#48).
+# The schema and the generic loop that reads it are in catalog/breadth.py.
+key: bronze_sleeve_bushings
+category:
+- Motion Control & Fluid Power
+- Bushings
+- Bronze Sleeve Bushings
+family: motion
+shape: tube
+item: Bronze Sleeve Bushing
+descriptor_attr: null
+size_attr: Bore
+size_values:
+- 1/4 in
+- 3/8 in
+- 1/2 in
+- 5/8 in
+- 3/4 in
+attributes:
+  Material:
+  - Bronze
+  Length:
+  - 1/2 in
+  - 1 in
+price_range: [2.0, 15.0]
+skus: 2
+featured_sizes:
+- 1/2 in
+reason: '''1/2'' overlap; bearing-adjacent bushing category gap'
