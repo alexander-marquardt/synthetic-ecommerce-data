@@ -1320,9 +1320,10 @@ class Generator:
         # modelled defect class, just a wrong value in a column that has no
         # measurement system to mix. Measured before this: 2 of the 6 Grit
         # values and 1 of the 8 Head Weight values were millimetre strings.
-        length_names = {
-            spec.name for specs in VOCAB.values() for spec in specs if spec.kind == "length"
-        }
+        # This type's OWN lengths. One name is a length in one type and not
+        # in another (a sprocket's Pitch, a roller chain's): read from every
+        # type's vocabulary, declaring a type would change what another builds.
+        length_names = {spec.name for spec in VOCAB[self.type_key] if spec.kind == "length"}
         dimension_indexes = [
             i for i, a in enumerate(out) if a.value_num is not None and a.name in length_names
         ]
