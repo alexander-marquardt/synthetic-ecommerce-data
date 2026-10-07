@@ -2,8 +2,8 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 10,775 SKUs over 5,887 products in 21 depth types plus
-46 [breadth categories](#catalog-breadth), one product each -- from 45
+extraction in search: 10,839 SKUs over 5,924 products in 22 depth types plus
+45 [breadth categories](#catalog-breadth), one product each -- from 45
 invented brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
 
@@ -234,7 +234,8 @@ type from `skus_by_type` in its `stats.json`:
 | screw_low_head | 2,692 | | bolt_hex | 5,934 |
 | kit_assortment | 695 | | lock_nuts_nylon_insert | 4,513 |
 | set_screws_hex_socket | 7,061 | | dowel_pins | 1,004 |
-| retaining_rings_external | 905 | | 46 breadth categories | 81 (1-3 each) |
+| retaining_rings_external | 905 | | o_rings | 1,040 |
+| 45 breadth categories | 79 (1-3 each) | | | |
 
 The mix is not the one a proportional scale would give, and that is the
 uniqueness rule at work: a type whose spec space is small (ISO 7089 fixes a
@@ -780,7 +781,7 @@ them here would hide the problem a field map exists to solve.
 
 ## Catalog breadth
 
-alexander-marquardt/synthetic-industrial-products#34: the 21 depth types give
+alexander-marquardt/synthetic-industrial-products#34: the 22 depth types give
 this catalog DEPTH -- hundreds of products in each -- but not BREADTH. A
 comparison the issue makes: a real industrial storefront returns 51 items
 across 9 categories for `1/2 ball` (tooling balls, rubber balls, ball stock in
@@ -1172,8 +1173,8 @@ every other drawing -- only the GEOMETRY is fixed.
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 10,775 drawings, 21.6 MB unpacked
-  (2.00 KB a drawing on average), and a 2.30 MB `images.tar.gz` (the count,
+  measured on the committed catalog, 10,839 drawings, 21.7 MB unpacked
+  (2.00 KB a drawing on average), and a 2.31 MB `images.tar.gz` (the count,
   bytes and archive size `uv run sip-generate images --catalog golden-catalog
   --out /tmp/img --archive /tmp/img.tar.gz` prints). Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
@@ -1218,8 +1219,8 @@ small to read is not drawn larger, it is shown through a **magnifier**
   type's scale -- is visible with or without a lens. Interior detail lines
   (flutes, threads, hatch) are texture and keep their finer weight.
 
-On the committed catalog 1,699 SKUs are too small to see: 525 get the handled
-glass (x2.53 to x15.63) and 1,174 the handle-less lens (x2.46 to x4.05), as the
+On the committed catalog 1,765 SKUs are too small to see: 591 get the handled
+glass (x2.53 to x73.20) and 1,174 the handle-less lens (x2.46 to x4.05), as the
 command in [docs/drawings.md](docs/drawings.md#scale-the-magnifier-and-no-text) prints. The
 lowest enlargement any committed lens gives is x2.46, a width-bound
 handle-less lens (below); no committed part reaches
@@ -1438,7 +1439,13 @@ python3 -c "import json, statistics as s, sys; p = [r['price_usd'] for r in map(
 ```
 
 The button, flat and low-head socket screws price as the socket head
-screw does (`price.BORROWS`). A breadth category the census measures is
+screw does (`price.BORROWS`). The census has no O-rings, so they borrow
+the flat washer's model (`TypeSpec.borrows`), keyed on the cross-section
+and held to the inside-diameter span the washer model was fitted over
+(`price.MEASURED_SPANS`: ISO 7089 M3 to M20, 0.126" to 0.827"); their
+prices are generated, not measured. Keyed on the inside diameter instead,
+even clamped to that span, the washer's noise put a simulated largest ring at
+195 to 285 USD. A breadth category the census measures is
 priced across its census p10, p50 and p90 (`price.BREADTH_CENSUS`); any
 other breadth row draws from its own `price_range`.
 

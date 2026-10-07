@@ -379,6 +379,13 @@ entry has landed but is not yet restated and fitted is listed in
 is (the lock nut and the set screw, until #69's second part). A type with no census rows of its own
 that prices as a sibling does is listed in `price.BORROWS` instead (the
 button, flat and low-head socket screws borrow the socket head's model). A
+type module declares that with `borrows="<census type>"` in place of
+`price=`; declaring both is refused at registration. A borrower's key is
+held to the span its model was fitted over when `price.MEASURED_SPANS`
+records one, so a larger part is never priced on the model's run-out slope:
+the O-rings borrow the flat washer's model, keyed on the cross-section
+(`Width`) and clamped below at the M3 washer's 0.126". Say in the module
+that the borrowed price is generated, not measured. A
 borrower's same-product pairs get their own smaller-costs-2x row, scored
 against the lender's census on the borrower's own pairs
 (`price_report.twice_borrowers`). They are never pooled into the lender's
