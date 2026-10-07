@@ -2965,8 +2965,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a table type is not recorded as one",
                 "catalog/tabletype.py",
-                "    _MADE[make] = table",
-                "    _MADE[_make(table)] = table",
+                "    _MADE.setdefault(table.key, table)",
+                '    _MADE.setdefault(table.key + "?", table)',
                 "tests/test_tabletype.py -k is_a_recorded_table_type",
                 "",
                 "the table types are found, not listed",
