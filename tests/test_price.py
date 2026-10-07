@@ -240,6 +240,20 @@ def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
     assert not price_report.pin_holds(row, 0)
 
 
+def test_a_pin_whose_shortfall_worsens_below_its_band_fails(monkeypatch, price_rows):
+    """No committed pin is below its band since #64, so a planted one holds
+    the below-band side: further below its record than the tolerance fails,
+    as does a row back in band."""
+    (row,) = [r for r in price_rows if r.name == SPREAD_ROW.format("bearing_radial_ball")]
+    floor = row.band[0]
+    monkeypatch.setitem(price.PINNED_FIGURES, row.name, (floor * 0.5, floor * 0.5))
+    monkeypatch.setitem(price.PINNED_SHORTFALLS, row.name, "below band: planted")
+    edge = floor * 0.5 / (1 + price.PIN_TOLERANCE)
+    assert price_report.pin_holds(replace(row, achieved=edge * 1.001), 0)
+    assert not price_report.pin_holds(replace(row, achieved=edge * 0.999), 0)
+    assert not price_report.pin_holds(replace(row, achieved=floor * 1.001), 0)
+
+
 def test_the_bearing_bores_alone_spread_price_into_the_census_band(catalog, price_rows):
     """#64: the census slope on the bore, with no noise at all, reaches the
     floor of the census p90/p10 band. A 10-35 mm ladder spread the bores 3.0x,
