@@ -41,6 +41,7 @@ from . import (
     typespec,
 )
 from .config import GeneratorConfig
+from .entry import split
 from .formats import (
     LengthStyle,
     UnpublishableMagnitude,
@@ -1834,9 +1835,13 @@ class Generator:
             return line_attrs
         bogus = self.rng.choice(('42"', '1"', '1-1/4"', '2"', '1-5/8"'))
         out = list(line_attrs)
-        # No value_num: there is no angle here to put in one, and inventing
-        # one would paper over the defect this record exists to exhibit.
-        out[index] = Attribute(out[index].name, bogus)
+        # The number is whatever the nested entry reads the spelling as: the
+        # one rule (``entry.split``) decides, so the flat ``facets_num`` and the
+        # entry's ``value_canonical`` cannot disagree (#120). A draw the entry
+        # keeps as text (a length in an angle field) has no angle, so no number.
+        parts = split(out[index].name, bogus)
+        value_num = float(parts["value_canonical"]) if parts.get("unit_code") == "DD" else None
+        out[index] = Attribute(out[index].name, bogus, value_num)
         self._bump("defect_angle_length_unit_lines")
         return out
 

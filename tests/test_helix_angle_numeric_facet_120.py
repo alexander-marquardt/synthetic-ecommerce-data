@@ -51,16 +51,20 @@ def end_mills(request: pytest.FixtureRequest) -> list[dict[str, Any]]:
 
 def test_every_displayed_helix_angle_has_its_numeric_facet(end_mills):
     shown = 0
-    missing = []
+    wrong = []
     for doc in end_mills:
         for attribute in doc["attributes"]:
             if attribute["name"] != "Helix Angle":
                 continue
-            shown += 1
-            if "helix_angle" not in doc["facets_num"]:
-                missing.append((doc["sku"], attribute["value"]))
+            # A length keyed into the angle field (``1"``, ``1-5/8"``) stays text
+            # in the entry and has no angle to range over: no number either.
+            coded = attribute.get("unit_code") == "DD"
+            if coded:
+                shown += 1
+            if coded != ("helix_angle" in doc["facets_num"]):
+                wrong.append((doc["sku"], attribute["value"], coded))
     assert shown > 0
-    assert missing == []
+    assert wrong == []
 
 
 def test_the_numeric_facet_is_the_degrees_the_entry_carries(end_mills):
