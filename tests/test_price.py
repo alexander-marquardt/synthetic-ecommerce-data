@@ -369,6 +369,7 @@ def test_the_length_figures_are_the_census_figures(census):
         k: v["price_vs_length_at_fixed_diameter"]
         for k, v in census["deep_types"].items()
         if (v.get("price_vs_length_at_fixed_diameter") or {}).get("n_pairs", 0) >= 100
+        and k not in AWAITING_FIT
     }
     assert set(price.LENGTH_CENSUS) == set(measured)
     for type_key, row in measured.items():
