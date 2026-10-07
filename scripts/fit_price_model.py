@@ -3,6 +3,9 @@
     python scripts/fit_price_model.py           # print the fit, every price row and the literals
     python scripts/fit_price_model.py --write   # and write them between the fit markers
 
+A kit is priced from its parts' fitted models: when one run also refits a part
+type a kit holds, run the fit again so the kit factor is fitted on the new parts.
+
 The census gives each type a slope, an endings mix, a p50, a p90/p10, a
 larger-costs-more share and, for some, a length slope and share and a
 same-spec brand spread (:mod:`synthetic_industrial_products.catalog.price`).

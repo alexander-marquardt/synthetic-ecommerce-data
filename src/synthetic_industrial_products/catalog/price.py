@@ -28,8 +28,9 @@ is not one dimension but the summed price of its pieces (:func:`kit_contents`):
 each size it holds, priced on its part type's own curve, times how many of
 that size it holds, at the census's per-piece share of that part's shown price
 (:data:`PER_PIECE`). The slope on that key is 1.0, so the kit's anchor over
-its ``anchor_key`` is the kit's price over its contents' (the kit discount,
-fitted to the census p50), and its material and tier apply once, to the kit.
+its ``anchor_key`` is the kit's price over its contents' (the fitted kit factor: a small
+premium fitted to the census median kit price, which moves when #76 widens
+the kit kinds), and its material and tier apply once, to the kit.
 
 ``z_group`` is one draw per price group, what the census calls a cell: one
 brand, every line attribute a group page holds equal (:func:`group_draw`).
@@ -277,7 +278,7 @@ KEYS: dict[str, Callable[[Mapping[str, Attribute]], float | None]] = {
 #: pin, :data:`PINNED_SHORTFALLS`).
 CONTENTS_PRICED = frozenset({"kit_assortment"})
 #: The slope of a contents-priced type's price on its contents' price: a kit
-#: is its contents at one discount, whatever it holds.
+#: is its contents at one fitted factor, whatever it holds.
 CONTENTS_SLOPE = 1.0
 
 #: Each kit part type's census per-piece p50 and shown-price p50 (USD). A
