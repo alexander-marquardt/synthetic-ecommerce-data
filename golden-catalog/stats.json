@@ -1490,8 +1490,8 @@
   {
    "name": "price smaller costs 2x+, same product: washer_flat",
    "target": 0.0324774,
-   "achieved": 0.0971429,
-   "numerator": 17,
+   "achieved": 0.0342857,
+   "numerator": 6,
    "denominator": 175,
    "note": "pairs of one product, key dimension differs; target IMPLIED by the census slope and larger-costs-less share, not measured",
    "band": [
@@ -1610,8 +1610,8 @@
   {
    "name": "price ending .00",
    "target": 0.0882567,
-   "achieved": 0.0874553,
-   "numerator": 930,
+   "achieved": 0.0873613,
+   "numerator": 929,
    "denominator": 10634,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [

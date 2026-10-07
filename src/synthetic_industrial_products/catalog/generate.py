@@ -1935,6 +1935,7 @@ class Generator:
         # answered one SKU at a time.
         built: list[tuple[str, list[Attribute], float, int]] = []
         titles: list[Title] = []
+        line_u: float | None = None
         for child in draft.children:
             attrs = self._apply_sparsity(type_key, list(child.attrs), "sku")
             if not attrs and not child.zero_axis:
@@ -1967,6 +1968,11 @@ class Generator:
             # One draw, where the uniform multiplier this replaced drew one, so
             # every later draw (stock and on) is the draw it always was.
             sku_u = rng.random()
+            if type_key in price.LINE_NOISE:
+                # The line's first SKU draws for every SKU of it; the draw is
+                # still taken, so the stream after it is the same.
+                line_u = sku_u if line_u is None else line_u
+                sku_u = line_u
             shown = price.shown_price(
                 self._price_draw(type_key, draft.brand, unsparsified, draft.line_attrs, sku, sku_u)
             )
