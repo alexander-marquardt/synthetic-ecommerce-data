@@ -109,6 +109,9 @@ def applicable(
             out.append("SAE J995")
     elif type_key == "washer_flat":
         out.extend(("ISO 7089", "DIN 125-A"))
+    elif type_key == "o_rings":
+        # Every row is an AS568 dash number; no compound standard is claimed.
+        out.append(standard)
     elif type_key in ("end_mill_square", "end_mill_ball"):
         if metric:
             out.append("DIN 6527" if material == "Solid Carbide" else "ISO 1641")

@@ -243,6 +243,10 @@ KEY_ATTRIBUTES: dict[str, tuple[str, ...]] = {
     "kit_assortment": ("Number of Pieces",),
     "lock_nuts_nylon_insert": ("Thread Size",),
     "nut_hex": ("Thread Size",),
+    # The cross-section, not the inside diameter: the borrowed washer model
+    # is held to the span it was fitted over (MEASURED_SPANS), which holds
+    # the larger cross-sections and almost none of the inside diameters.
+    "o_rings": ("Width",),
     "screw_button_head": ("Dia./Thread Size",),
     "screw_flat_head": ("Dia./Thread Size",),
     "screw_low_head": ("Dia./Thread Size",),
@@ -253,9 +257,27 @@ KEY_ATTRIBUTES: dict[str, tuple[str, ...]] = {
     "wheel_depressed_center": ("Diameter",),
 }
 
-#: Each type's key-dimension reader (:func:`key_reader`).
+def _bounded(
+    type_key: str, read: Callable[[Mapping[str, Attribute]], float | None]
+) -> Callable[[Mapping[str, Attribute]], float | None]:
+    """``read``, held to the span of the model ``type_key`` borrows, when that
+    model's span is recorded (:data:`MEASURED_SPANS`). Looked up at each read:
+    a type module's borrow is registered after this table is built."""
+
+    def bounded(attrs: Mapping[str, Attribute]) -> float | None:
+        key = read(attrs)
+        span = MEASURED_SPANS.get(BORROWS.get(type_key, ""))
+        if key is None or span is None:
+            return key
+        return min(max(key, span[0]), span[1])
+
+    return bounded
+
+
+#: Each type's key-dimension reader (:func:`key_reader`); a borrower's is
+#: held to its model's span (:func:`_bounded`).
 KEYS: dict[str, Callable[[Mapping[str, Attribute]], float | None]] = {
-    type_key: key_reader(*names) for type_key, names in KEY_ATTRIBUTES.items()
+    type_key: _bounded(type_key, key_reader(*names)) for type_key, names in KEY_ATTRIBUTES.items()
 }
 
 #: Types whose census cells also hold length equal (``method.slope``).
@@ -759,11 +781,24 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
 
 #: Types with no census prices of their own that price as a sibling does: the
 #: census has no button-head or low-head socket screws, and 4 flat-head ones.
+#: A type module adds its own with ``TypeSpec.borrows`` (the O-rings borrow
+#: the flat washer's model).
 BORROWS: dict[str, str] = {
     "screw_button_head": "screw_socket_head",
     "screw_flat_head": "screw_socket_head",
     "screw_low_head": "screw_socket_head",
 }
+
+#: ISO 7089's M3 and M20 inside diameters (3.2 mm and 21 mm), the smallest and
+#: largest the flat washer builder stocks.
+_WASHER_SPAN = (3.2 / 25.4, 21.0 / 25.4)
+
+#: The key span (census units) a borrowable model was fitted over, so a
+#: borrower's key is held inside it (:func:`_bounded`) and the model is never
+#: read beyond what it was fitted on: the washer's 1.3 slope run out to a
+#: 25.94" O-ring priced it near 1,000 USD. The census records no key span, so
+#: the span is that of the catalog's own rows the anchor was fitted to.
+MEASURED_SPANS: dict[str, tuple[float, float]] = {"washer_flat": _WASHER_SPAN}
 
 
 def model_for(type_key: str) -> PriceModel:
