@@ -45,6 +45,8 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
 
+from ..catalog.entry import flat_key
+
 #: An attribute is QUANTITATIVE if this share of the documents that publish it
 #: carry a parsed ``value_num``. The catalog deliberately emits values that do
 #: not parse (a ``Helix Angle`` of ``42"`` has no angle in it), so the test is
@@ -220,7 +222,7 @@ MEASURED_DISPERSION: dict[str, Any] = {
 
 @dataclass(frozen=True)
 class AttributeStats:
-    """What the emitted documents say about one attribute name."""
+    """What the emitted documents say about one attribute key."""
 
     key: str
     name: str
@@ -283,7 +285,13 @@ class Decision:
 
 
 def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
-    """Collect per-attribute statistics from emitted flat documents."""
+    """Collect per-attribute statistics from emitted flat documents.
+
+    One statistic per machine KEY, never per display name: a roller chain's
+    ``Pitch`` (``chain_pitch``) and a metric tap's ``Pitch`` (``pitch``) are two
+    concepts that real catalogs label alike, and merging them would put a
+    chain's inch spacing in one bucket list with thread pitches (#36).
+    """
     present: collections.Counter[str] = collections.Counter()
     numeric: collections.Counter[str] = collections.Counter()
     values: dict[str, set[str]] = collections.defaultdict(set)
@@ -301,9 +309,10 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
         for key in row["facets_num"]:
             numeric[key] += 1
         # The published spelling is what a shopper sees on the facet heading.
-        # Take it from the attribute entries, which carry the name verbatim.
+        # Take it from the attribute entries, which carry the name verbatim,
+        # filed under the facets key each entry's value sits under.
         for attribute in row["attributes"]:
-            published_name.setdefault(_sanitize(attribute["name"]), attribute["name"])
+            published_name.setdefault(flat_key(attribute), attribute["name"])
 
     return {
         key: AttributeStats(
@@ -317,12 +326,6 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
         )
         for key, count in sorted(present.items())
     }
-
-
-def _sanitize(name: str) -> str:
-    from ..catalog.emit import sanitize
-
-    return sanitize(name)
 
 
 def decide(stats: AttributeStats) -> Decision:

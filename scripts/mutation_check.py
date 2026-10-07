@@ -2179,6 +2179,22 @@ MUTATIONS: list[Mutation] = [
                 "larger costs more",
             ),
             (
+                "the roller chain prices at three times its fitted anchor",
+                "product_types/motion/roller_chain.py",
+                "    160.0,",
+                "    480.0,",
+                "within_its_band_or_pinned_at_the_default_size",
+                "a deepened breadth category keeps its census level",
+            ),
+            (
+                "a deepened breadth category is scored by no row",
+                "catalog/price_report.py",
+                "    for type_key, (n, p10, p50, p90) in DEEPENED_CENSUS.items():",
+                "    for type_key, (n, p10, p50, p90) in {}.items():",
+                "row_names_are_the_rows_the_default_build_scores",
+                "a deepened breadth category keeps its census level",
+            ),
+            (
                 "price falls with length",
                 "catalog/price.py",
                 "        log_p += model.length_slope * math.log(length / model.anchor_length)",

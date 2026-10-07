@@ -2,8 +2,8 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 10,650 SKUs over 5,814 products in 19 depth types plus
-48 [breadth categories](#catalog-breadth), one product each -- from 45
+extraction in search: 10,716 SKUs over 5,853 products in 20 depth types plus
+47 [breadth categories](#catalog-breadth), one product each -- from 45
 invented brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
 
@@ -233,7 +233,8 @@ type from `skus_by_type` in its `stats.json`:
 | screw_button_head | 3,439 | | hex_key | 6,466 |
 | screw_low_head | 2,692 | | bolt_hex | 5,934 |
 | kit_assortment | 695 | | lock_nuts_nylon_insert | 4,513 |
-| set_screws_hex_socket | 7,061 | | 48 breadth categories | 85 (1-3 each) |
+| set_screws_hex_socket | 7,061 | | roller_chain | 509 |
+| | | | 47 breadth categories | 83 (1-3 each) |
 
 The mix is not the one a proportional scale would give, and that is the
 uniqueness rule at work: a type whose spec space is small (ISO 7089 fixes a
@@ -241,9 +242,10 @@ washer's nine sizes; a hammer is its head weight and handle) runs out of
 SKUs its makers have not already made, so it grows less. It was 28,300
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
-**111,499 SKUs over 64,483 products** (`skus` and `lines` in `stats.json`),
-4,513 of them lock nuts over 2,714 products and 7,061 set screws over 3,786.
-`lock_nuts_nylon_insert` and `set_screws_hex_socket` became deep types (#53),
+**112,006 SKUs over 64,810 products** (`skus` and `lines` in `stats.json`),
+4,513 of them lock nuts over 2,714 products, 7,061 set screws over 3,786 and
+509 roller chains over 328. `lock_nuts_nylon_insert`, `set_screws_hex_socket`
+and `roller_chain` became deep types (#53),
 each with its own share of `--lines`, and took none from the others, so every
 other type's SKU count is the one measured on `95a9ed0` (the set screws' small
 sockets add a true sentence to some hex key copy, not a SKU), when
@@ -254,7 +256,7 @@ Every must-stock example is stocked. (Those four are the 100K tests in
 `tests/test_catalog_brands_voice.py`.) Since set screws,
 `scripts/check_determinism.py --lines 39000`: all 7 emitted files
 byte-identical across two builds. The drawings, built with the second command
-above: 111,499 drawings, 230.1 MB unpacked, a 25.8 MB `images.tar.gz`, every
+above: 112,006 drawings, 232.2 MB unpacked, a 26.0 MB `images.tar.gz`, every
 sha256 matching `images.jsonl` (the counts the command prints). The 100K
 catalog is still not published while the spec is iterated at the default
 size.
@@ -756,7 +758,7 @@ them here would hide the problem a field map exists to solve.
 
 ## Catalog breadth
 
-alexander-marquardt/synthetic-industrial-products#34: the 19 depth types give
+alexander-marquardt/synthetic-industrial-products#34: the 20 depth types give
 this catalog DEPTH -- hundreds of products in each -- but not BREADTH. A
 comparison the issue makes: a real industrial storefront returns 51 items
 across 9 categories for `1/2 ball` (tooling balls, rubber balls, ball stock in
@@ -1148,8 +1150,8 @@ every other drawing -- only the GEOMETRY is fixed.
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 10,650 drawings, 21.0 MB unpacked
-  (1.97 KB a drawing on average), and a 2.23 MB `images.tar.gz` (the count,
+  measured on the committed catalog, 10,716 drawings, 21.3 MB unpacked
+  (1.99 KB a drawing on average), and a 2.25 MB `images.tar.gz` (the count,
   bytes and archive size `uv run sip-generate images --catalog golden-catalog
   --out /tmp/img --archive /tmp/img.tar.gz` prints). Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
@@ -1397,7 +1399,12 @@ python3 -c "import json, statistics as s, sys; p = [r['price_usd'] for r in map(
 The button, flat and low-head socket screws price as the socket head
 screw does (`price.BORROWS`). A breadth category the census measures is
 priced across its census p10, p50 and p90 (`price.BREADTH_CENSUS`); any
-other breadth row draws from its own `price_range`.
+other breadth row draws from its own `price_range`. A measured breadth
+category deepened into a modelled type keeps its census row
+(`price.DEEPENED_CENSUS`, the roller chain's 71 prices), and its own fitted
+model is held to that row's p50 and p90/p10 bands at both sizes. The census
+has no within-page pairs for it, so its slopes are GENERATED, not measured:
+the roller chain's on pitch (1.2) and on length (0.93).
 
 **How it is checked.** `sip-generate report` prints one row per measured
 figure: each type's p50 and p90/p10, the share of within-page size pairs

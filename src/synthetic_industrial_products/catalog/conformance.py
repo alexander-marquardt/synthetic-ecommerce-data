@@ -107,6 +107,9 @@ def applicable(
             out.append("ISO 3506-2")
         if not metric and grade.startswith("Grade"):
             out.append("SAE J995")
+    elif type_key == "roller_chain":
+        # Every row is B29.1's standard series, whatever the material or strands.
+        out.append("ASME B29.1")
     elif type_key == "washer_flat":
         out.extend(("ISO 7089", "DIN 125-A"))
     elif type_key in ("end_mill_square", "end_mill_ball"):
