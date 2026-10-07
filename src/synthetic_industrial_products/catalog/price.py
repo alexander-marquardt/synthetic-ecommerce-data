@@ -352,6 +352,18 @@ LENGTH_HELD = frozenset(
 )
 
 
+#: The attribute a type publishes its material as, where it is not
+#: "Material". The census spec is the key dimension plus the material
+#: (``method.brand_spread``); a wheel's material is its abrasive grain.
+MATERIAL_ATTRIBUTES: dict[str, str] = {"wheel_depressed_center": "Abrasive Material"}
+
+
+def material_of(type_key: str, facts: Mapping[str, Attribute]) -> str | None:
+    """A SKU's material (:data:`MATERIAL_ATTRIBUTES`), or None."""
+    name = MATERIAL_ATTRIBUTES.get(type_key, "Material")
+    return facts[name].value if name in facts else None
+
+
 #: Price endings per type (``deep_types.<type>.endings.class_share``), for the
 #: 13 types :data:`CENSUS` restates.
 ENDINGS: dict[str, dict[str, float]] = {
@@ -729,11 +741,21 @@ SIZE_NOISE: dict[str, str] = {
 #: from its band than its build's figure by more than :data:`PIN_TOLERANCE`.
 #: ``tests/test_price.py`` holds each figure equal to what its build produces
 #: (``price_report.recorded_digits``), so a record cannot be loosened by hand.
+#: The most brands a brand-spread row takes from one spec
+#: (:func:`.price_report.brand_sample`). Max/min is an order statistic: over more brands it
+#: is wider, whatever the model. The default build puts 2 to 7 brands on a
+#: drill spec (median 3) and the 100K build 9 to 15 (median 13), so a figure
+#: over every brand of a spec reads the catalog's size, not its prices. The
+#: census does not publish its brands per spec, only the most a spec can hold
+#: (:attr:`.price.BrandCensus.brands_indexed`: 2 for a socket screw, 3 for a
+#: tap); 3 is the median the default build's drill specs hold, so on most of
+#: its specs the sample is a true sample and not every brand there is.
+BRAND_SAMPLE_CAP = 3
 _WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
 _KIT_SPREAD_ROW = "price p90/p10: kit_assortment"
 PINNED_FIGURES: dict[str, tuple[float, float]] = {
     "price p90/p10: bearing_radial_ball": (4.493, 4.783),
-    _WHEEL_SPREAD_ROW: (3.241, 2.776),
+    _WHEEL_SPREAD_ROW: (3.534, 3.09),
     _KIT_SPREAD_ROW: (4.015, 3.901),
 }
 
@@ -754,16 +776,15 @@ PINNED_SHORTFALLS: dict[str, str] = {
         "(widen the bore range: #64)"
     ),
     _WHEEL_SPREAD_ROW: (
-        "above band: catalog diameters span 2.25x, which the key term spreads to 2.6x of the "
-        "census's 10x, and the group noise that makes up the rest is drawn independently per "
-        "brand for each of the 12 brands that make every shared wheel spec, so the brands "
-        "the row samples from one spec land "
+        "above band: with every noise off, the brand tiers alone give 1.85 on the default "
+        "build against a band top of 1.71, because 3 of the 12 wheel brands "
+        f"are economy (0.54 of the rest) and the row's {BRAND_SAMPLE_CAP} sampled brands "
+        "take one on 13 of "
+        "its 24 specs (a spec is a diameter in one abrasive), where the census measures its "
+        "house label on 4 of its 12. The group noise that makes up the p90/p10 is drawn per "
+        "brand and spreads the sampled brands of one spec further, to "
         f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][0]:.2f}x apart on the default build and "
-        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K. "
-        "Offered a noise one spec shares "
-        "across brands (SIZE_NOISE, as on taps), the fit gives it no weight and moves the "
-        "spread to SKU noise, which inverts the few diameters (larger costs more falls below "
-        "band) and still leaves the p90/p10 below band (#66)"
+        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K (#66)"
     ),
     _KIT_SPREAD_ROW: (
         "below band: a kit is priced from its contents, and the catalog's kit kinds hold "
