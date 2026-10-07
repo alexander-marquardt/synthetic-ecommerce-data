@@ -224,7 +224,6 @@ PINNED_SIDES = {
         "brand tiers alone give",
     ),
     "price p90/p10: kit_assortment": ("below", "#76"),
-    "price longer costs more: set_screws_hex_socket": ("below", "#65"),
 }
 
 
@@ -391,12 +390,6 @@ def _newly_out(scored, prices) -> dict:
     }
 
 
-#: A pinned length row is already out of band, so a plant cannot move it newly out.
-_LENGTH_UNPINNED = [
-    t for t in price.LENGTH_CENSUS if LENGTH_ROW.format(t) not in price.PINNED_SHORTFALLS
-]
-
-
 def _below(rows: dict, names) -> None:
     missing = sorted(set(names) - set(rows))
     assert not missing, missing
@@ -415,7 +408,7 @@ def test_swapping_a_products_first_and_last_price_breaks_the_order_rows(catalog,
     _below(
         _newly_out(scored, prices),
         [ORDER_ROW.format(t) for t in ("drill_jobber", "hex_key", "nut_hex", "washer_flat")]
-        + [LENGTH_ROW.format(t) for t in _LENGTH_UNPINNED],
+        + [LENGTH_ROW.format(t) for t in price.LENGTH_CENSUS],
     )
 
 
@@ -435,7 +428,7 @@ def test_a_price_that_falls_with_length_breaks_the_length_rows(catalog, scored):
         falling = sorted((base[sku] for _, sku in lengths), reverse=True)
         prices.update({sku: p for (_, sku), p in zip(lengths, falling, strict=True)})
     newly = _newly_out(scored, prices)
-    _below(newly, [LENGTH_ROW.format(t) for t in _LENGTH_UNPINNED])
+    _below(newly, [LENGTH_ROW.format(t) for t in price.LENGTH_CENSUS])
 
 
 def test_dropping_the_99_endings_breaks_the_99_row(scored):
@@ -561,7 +554,11 @@ def test_the_hex_nut_takes_the_drills_tiers_though_the_census_measures_its_sprea
 def test_only_the_size_noise_types_draw_a_size_noise():
     """A size noise is fitted only for a type SIZE_NOISE gives a reason for."""
     sized = {t for t in price.CENSUS if price.model_for(t).size_sigma}
-    assert sized == set(price.SIZE_NOISE) == {"screw_socket_head", "tap_spiral_point"}
+    assert sized == set(price.SIZE_NOISE) == {
+        "screw_socket_head",
+        "set_screws_hex_socket",
+        "tap_spiral_point",
+    }
 
 
 def test_each_familys_tiers_price_in_order(scored):

@@ -423,9 +423,8 @@ def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
         aims = []
         for b in builds:
             base = log_p(b, slope, ls, group, 0.0, 0.0, size)
-            for name, pairs, band, target in b.order_rows:
-                # A pinned row is disclosed, not fitted to (as the group sigma's rows).
-                if not len(pairs[0]) or name in price.PINNED_SHORTFALLS:
+            for _, pairs, band, target in b.order_rows:
+                if not len(pairs[0]):
                     continue
                 if step:
 
