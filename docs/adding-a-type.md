@@ -157,6 +157,10 @@ its published attributes. `set_screws_hex_socket` does both.
      The price census keys the type on it (`price.KEY_ATTRIBUTES`) and every
      title names it (`test_every_title_names_its_key_dimension`). `register`
      refuses a modelled type without one.
+   * `title_attributes`: only for a type whose title names another attribute
+     than its price key; the title test then reads it in place of
+     `key_attributes`. An O-ring is priced on its cross-section (`Width`) and
+     titled by its nominal `Size`.
    * `threaded`, `fastener` and `unit_primary`: the description sentences the
      type joins ([Family tables](#family-tables)).
 
@@ -448,7 +452,14 @@ entry has landed but is not yet restated and fitted is listed in
 `AWAITING_FIT` in `tests/test_price.py` and keeps `measured=False` until it
 is (the lock nut and the set screw, until #69's second part). A type with no census rows of its own
 that prices as a sibling does is listed in `price.BORROWS` instead (the
-button, flat and low-head socket screws borrow the socket head's model).
+button, flat and low-head socket screws borrow the socket head's model). A
+type module declares that with `borrows="<census type>"` in place of
+`price=`; declaring both is refused at registration. A borrower's key is
+held to the span its model was fitted over when `price.MEASURED_SPANS`
+records one, so a larger part is never priced on the model's run-out slope:
+the O-rings borrow the flat washer's model, keyed on the cross-section
+(`Width`) and clamped below at the M3 washer's 0.126". Say in the module
+that the borrowed price is generated, not measured.
 
 **A type sold as a set of other types' parts: price it from its contents.**
 A kit's census key (`Number of Pieces`) says how many pieces it holds, not

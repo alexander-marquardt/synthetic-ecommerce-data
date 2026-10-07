@@ -469,15 +469,20 @@ RETIRED_TERMS_CAP = 25
 
 #: What the default build gains under the relative rule: every one is a terms
 #: attribute the retired cap withheld for its count alone. Measured on the
-#: default build and on ``--lines 39000`` (113,008 SKUs); the same eight at both.
+#: default build and on ``--lines 39000`` (119,363 SKUs): the same ten at both,
+#: and the large build gains an eleventh, an O-ring's Inside Dia. Tolerance.
+#: The O-rings (#53) brought the ninth and tenth: their Dash Number (41 values)
+#: and Material, which their four compounds took from 23 values to 27.
 #: A roller chain's ANSI Number is the eighth: 27 values (the ``-2`` and ``-3``
 #: strand suffixes included) that repeat across its lines.
 NEWLY_OFFERED = frozenset(
     {
         "ansi_number",
         "bearing_number",
+        "dash_number",
         "dia_thread_size",
         "item",
+        "material",
         "sizes_included",
         "standards",
         "thread_size",
