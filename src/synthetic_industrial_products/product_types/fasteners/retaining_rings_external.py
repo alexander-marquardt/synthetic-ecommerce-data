@@ -27,8 +27,7 @@ from fractions import Fraction
 from typing import TYPE_CHECKING, Any
 
 from ...catalog.model import keyword_attribute, length_attribute
-from ...catalog.newtypes import MM_PER_INCH, NO_STANDARD, _weighted, _window, feed_style
-from ...catalog.newtypes import table_provenance
+from ...catalog.newtypes import MM_PER_INCH, NO_STANDARD, _weighted, feed_style, table_provenance
 from ...catalog.typespec import TypeSpec
 from ...catalog.vocab import AttrSpec
 from ...dimensions import DimensionParseError, parse_length
@@ -91,6 +90,25 @@ def _inch_size(shaft: Fraction) -> str:
     return f"{whole}-{frac} in" if whole else f"{frac} in"
 
 
+#: The breadth row's ``size_values``: the reference queries it served must
+#: still find a ring of each, so the inch windows start at these first.
+_BREADTH_SHAFTS = tuple(Fraction(n, 8) for n in (2, 3, 4, 5, 6, 8))
+
+
+def _led_window(gen: Any, key: str, pool: list, count: int, lead: tuple[int, ...]) -> list:
+    """``newtypes._window``, but the rotation visits the ``lead`` starts first.
+
+    A plain rotation starts line k at row k, so the default build's twenty or
+    so inch lines never reach the 1" row: measured, no SKU of it. Leading with
+    the breadth sizes stocks each of them from the sixth inch line on, at any
+    size; the rotation still visits every start before it revisits one.
+    """
+    order = [*lead, *(i for i in range(len(pool)) if i not in lead)]
+    count = max(1, min(count, len(pool)))
+    start = order[gen._rotate(key, len(order))]
+    return [pool[(start + k) % len(pool)] for k in range(count)]
+
+
 @dataclass(frozen=True)
 class Series:
     """One stocked series: its system, its dimensional standard and its rows."""
@@ -102,6 +120,8 @@ class Series:
     #: (Size, thickness, inside dia., groove dia.); the last three in inches,
     #: or None where no readable table gives them.
     rows: tuple[tuple[str, float | None, float | None, float | None], ...]
+    #: Indexes into ``rows`` a line's window starts at before any other.
+    lead: tuple[int, ...] = ()
 
     @property
     def provenance(self) -> str:
@@ -135,7 +155,13 @@ SERIES: tuple[tuple[Series, float], ...] = (
         0.5,
     ),
     (
-        Series("inch", "in", "", tuple((_inch_size(f), None, None, None) for f in _INCH_SHAFTS)),
+        Series(
+            "inch",
+            "in",
+            "",
+            tuple((_inch_size(f), None, None, None) for f in _INCH_SHAFTS),
+            tuple(_INCH_SHAFTS.index(f) for f in _BREADTH_SHAFTS),
+        ),
         0.5,
     ),
 )
@@ -181,8 +207,12 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
     ]
     draft.descriptors = [("Material", material)]
     style = feed_style(brand, series.system, BRANDS)
-    for size, thickness, inside, groove in _window(
-        gen, f"retaining-ring:{series.name}", list(series.rows), gen._variant_count()
+    for size, thickness, inside, groove in _led_window(
+        gen,
+        f"retaining-ring:{series.name}",
+        list(series.rows),
+        gen._variant_count(),
+        series.lead,
     ):
         child = ChildDraft(system=series.system)
         child.primary = length_attribute("Size", size)
@@ -251,7 +281,7 @@ SPEC = TypeSpec(
     standards_family="fastener",
     vocab=VOCAB,
     figure=ring,
-    extent=(1.0, 1.0),
+    extent=(4.85, 6.1),
     make=build,
     share=0.015,
     use_lines=(
