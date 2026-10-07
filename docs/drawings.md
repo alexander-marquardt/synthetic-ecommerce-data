@@ -177,8 +177,8 @@ at true scale near the bottom, and the same `Figure` is painted a second time,
 `k` times larger, inside a white lens. The handled glass is used when it
 reaches `MIN_ENLARGEMENT` (x2.5); otherwise the larger, handle-less lens. The
 README's [Images](../README.md#images) section has the full rule. Measured on
-the committed catalog: 1,711 of 10,919 drawings are lensed, 527 with the
-handled glass and 1,184 with the handle-less lens. This command prints the
+the committed catalog: 2,162 of 10,975 drawings are lensed, 710 with the
+handled glass and 1,452 with the handle-less lens. This command prints the
 counts and the enlargement range of each lens:
 
 ```sh

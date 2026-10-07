@@ -225,7 +225,6 @@ def test_the_twice_types_are_the_census_types_with_20_pairs(census, price_rows):
 #: Each pinned shortfall: the side of its band it falls on, and what its
 #: reason must name (the cause, or the issue that fixes it).
 PINNED_SIDES = {
-    "price p90/p10: bearing_radial_ball": ("below", "#64"),
     "price brand spread, same spec (median max/min): wheel_depressed_center": (
         "above",
         "brand tiers alone give",
@@ -288,20 +287,64 @@ def test_a_pin_may_land_no_further_out_than_its_figure_for_that_build(price_rows
 
 
 def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
-    """Review plant M5: bearing noise off. Its p90/p10 falls from 4.55 to
-    4.31, further below the band but still on its side, so only the
-    recorded figure can catch it."""
-    name = "price p90/p10: bearing_radial_ball"
-    quiet = replace(price.MODELS["bearing_radial_ball"], group_sigma=0.0, sku_sigma=0.0)
-    monkeypatch.setitem(price.MODELS, "bearing_radial_ball", quiet)
+    """The wheel's group noise 10% louder spreads one spec's brands from
+    3.53x to 3.91x apart: further above the band but still on its side, so
+    only the recorded figure can catch it."""
+    name = BRAND_ROW.format("wheel_depressed_center")
+    model = price.MODELS["wheel_depressed_center"]
+    louder = replace(model, group_sigma=model.group_sigma * 1.1)
+    monkeypatch.setitem(price.MODELS, "wheel_depressed_center", louder)
     (row,) = [
         row
         for row in price_report.price_comparisons(generate(GeneratorConfig()))
         if row.name == name
     ]
-    assert round(row.achieved, 2) == 4.31
-    assert row.achieved < row.band[0]
+    assert round(row.achieved, 2) == 3.91
+    assert row.achieved > row.band[1]
     assert not price_report.pin_holds(row, 0)
+
+
+def test_a_pin_whose_shortfall_worsens_below_its_band_fails(monkeypatch, price_rows):
+    """No committed pin is below its band since #64, so a planted one holds
+    the below-band side: further below its record than the tolerance fails,
+    as does a row back in band."""
+    (row,) = [r for r in price_rows if r.name == SPREAD_ROW.format("bearing_radial_ball")]
+    floor = row.band[0]
+    monkeypatch.setitem(price.PINNED_FIGURES, row.name, (floor * 0.5, floor * 0.5))
+    monkeypatch.setitem(price.PINNED_SHORTFALLS, row.name, "below band: planted")
+    edge = floor * 0.5 / (1 + price.PIN_TOLERANCE)
+    assert price_report.pin_holds(replace(row, achieved=edge * 1.001), 0)
+    assert not price_report.pin_holds(replace(row, achieved=edge * 0.999), 0)
+    assert not price_report.pin_holds(replace(row, achieved=floor * 1.001), 0)
+
+
+def test_the_bearing_bores_alone_spread_price_into_the_census_band(catalog, price_rows):
+    """#64: the census slope on the bore, with no noise at all, reaches the
+    floor of the census p90/p10 band. A 10-35 mm ladder spread the bores 3.0x,
+    which the slope (1.167) carries to 3.6x against a floor of 12.1x, and the
+    census's own same-spec brand spread (1.38) leaves no group noise to make
+    up the rest."""
+    read = price.KEYS["bearing_radial_ball"]
+    bores = [
+        read({a.name: a for a in catalog.merged_attributes(line, child)})
+        for line in catalog.lines
+        if line.type_key == "bearing_radial_ball"
+        for child in line.children
+    ]
+    assert None not in bores
+    spread = price_report._quantile(bores, 0.9) / price_report._quantile(bores, 0.1)
+    (row,) = [r for r in price_rows if r.name == SPREAD_ROW.format("bearing_radial_ball")]
+    carried = spread ** price.CENSUS["bearing_radial_ball"].slope
+    assert carried >= row.band[0], (spread, carried, row.band)
+
+
+def test_the_bearing_price_spread_is_in_band_and_not_pinned(price_rows):
+    """#64: once the bores span the series, the bearing p90/p10 needs no pin."""
+    name = SPREAD_ROW.format("bearing_radial_ball")
+    assert name not in price.PINNED_SHORTFALLS
+    assert name not in price.PINNED_FIGURES
+    (row,) = [r for r in price_rows if r.name == name]
+    assert row.band[0] <= row.achieved <= row.band[1], (row.achieved, row.band)
 
 
 def _census_models() -> dict[str, price.PriceModel]:

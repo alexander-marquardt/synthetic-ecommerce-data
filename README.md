@@ -2,7 +2,7 @@
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 10,919 SKUs over 5,964 products in 23 depth types plus
+extraction in search: 10,975 SKUs over 5,983 products in 23 depth types plus
 44 [breadth categories](#catalog-breadth), one product each -- from 45
 invented brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
@@ -57,7 +57,7 @@ line:
 | | |
 |---|---|
 | **Fasteners** | dimensions are **standards-derived**. Each line carries the standard designation its dimensions came from — `ASME B18.3`, `ASME B18.3.2`, `ASME B18.3.3A`, `ASME B18.3.1G`, `ISO 4762`, `ISO 10642`, `ISO 7380-1`, `DIN 7984`, `ISO 4014`, `ISO 4017`, `DIN 933`, `ISO 7089`. |
-| **Newer types** (hex nuts, radial ball bearings, depressed-center wheels, hex keys; elastic/prism-industrial-products#103) | dimensions are **generated** from conventional sizes -- nut widths across flats, the 60/62/63 bearing series boundary sizes, stocked wheel diameters, hex key sizes. They follow the familiar ladders but were not extracted from an open dataset, so the provenance field says "generated". The one standard claimed is a hex nut's, and only where every row of its line IS that standard's row -- see [Facts a record states are real](#facts-a-record-states-are-real). |
+| **Newer types** (hex nuts, radial ball bearings, depressed-center wheels, hex keys; elastic/prism-industrial-products#103) | dimensions are **generated** from conventional sizes -- nut widths across flats, the 60/62/63 bearing series boundary sizes (ISO 15's bore, outside diameter and width per diameter series, 5 mm through 100 mm bore, checked against a table restated in `tests/test_catalog_facts.py`), stocked wheel diameters, hex key sizes. They follow the familiar ladders but were not extracted from an open dataset, so the provenance field says "generated". The one standard claimed is a hex nut's, and only where every row of its line IS that standard's row -- see [Facts a record states are real](#facts-a-record-states-are-real). |
 | **Cutting tools** | dimensions are **generated** from the conventional series. No open dimensional source for end mills exists, so nothing here claims a standard, and the provenance field says so in words. The metric series carries 11, 15 and 25 mm, which are ordinary stocked sizes and were missing — an artifact of how the list was first written, not a statement about the market. |
 
 That asymmetry is deliberate. A cap screw's head is fixed by a published
@@ -228,7 +228,7 @@ type from `skus_by_type` in its `stats.json`:
 | end_mill_ball | 8,110 | | hammer_ball_pein | 861 |
 | drill_jobber | 7,307 | | abrasive_flap_disc | 2,460 |
 | tap_spiral_point | 3,512 | | nut_hex | 12,044 |
-| screw_socket_head | 7,727 | | bearing_radial_ball | 7,516 |
+| screw_socket_head | 7,727 | | bearing_radial_ball | 11,340 |
 | screw_flat_head | 4,752 | | wheel_depressed_center | 11,495 |
 | screw_button_head | 3,439 | | hex_key | 6,466 |
 | screw_low_head | 2,692 | | bolt_hex | 5,934 |
@@ -243,16 +243,18 @@ washer's nine sizes; a hammer is its head weight and handle) runs out of
 SKUs its makers have not already made, so it grows less. It was 28,300
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
-**114,501 SKUs over 66,218 products** (`skus` and `lines` in `stats.json`),
+**118,325 SKUs over 68,415 products** (`skus` and `lines` in `stats.json`),
 4,513 of them lock nuts over 2,714 products, 7,061 set screws over 3,786,
 1,004 dowel pins over 535, 509 roller chains over 328, 803 cotter pins over
 463 and 694 external retaining rings over 413 (the last two are the table
-types, #101). `lock_nuts_nylon_insert`, `set_screws_hex_socket`, `dowel_pins`
-and `roller_chain` became deep types (#53), each with its own share of
-`--lines`, as each table type has, and took none from the others (the dowel
-pins', the roller chain's and the two table types' breadth rows and their
-SKUs left the breadth set), so every
-other type's SKU count is the one measured on `95a9ed0` (the set screws' small
+types, #101). Bearings widened from 27 numbers to 75 (#64), so fewer bearing
+lines repeat a number a maker already sells: 11,340 bearings where there were
+7,516, and no other type moved. `lock_nuts_nylon_insert`,
+`set_screws_hex_socket`, `dowel_pins` and `roller_chain` became deep types
+(#53), each with its own share of `--lines`, as each table type has, and took
+none from the others (the dowel pins', the roller chain's and the two table
+types' breadth rows and their SKUs left the breadth set), so every
+other type's SKU count but the bearings' is the one measured on `95a9ed0` (the set screws' small
 sockets add a true sentence to some hex key copy, not a SKU), when
 the build gave 99,929 SKUs over 57,985 products. On `95a9ed0`: SKUs that are
 not different (the rule below): 0. Every bearing number is a real table entry
@@ -261,7 +263,7 @@ Every must-stock example is stocked. (Those four are the 100K tests in
 `tests/test_catalog_brands_voice.py`.) Since the table types,
 `scripts/check_determinism.py --lines 39000`: all 7 emitted files
 byte-identical across two builds. The drawings, built with the second command
-above: 114,501 drawings, 238.3 MB unpacked, a 26.5 MB `images.tar.gz`, every
+above: 118,325 drawings, 253.6 MB unpacked, a 27.5 MB `images.tar.gz`, every
 sha256 matching `images.jsonl` (the counts the command prints). The 100K
 catalog is still not published while the spec is iterated at the default
 size.
@@ -348,7 +350,13 @@ shared tables):
 
 * **Bearing ratings** are a table per bearing number
   (`newtypes.BEARING_RATINGS`): dynamic and static load and the limiting
-  speed of the open bearing -- SKF's published figures for 60/62/63,
+  speed of the open bearing -- every metric row from one maker on one basis,
+  SKF's deep groove ball bearing product pages
+  (`skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings/productid-<number>`,
+  retrieved 2026-10-07), since two makers' speed ratings put side by side
+  invert the series' order at the seam (a number SKF does not publish open,
+  628, is not stocked, never patched), and within a diameter series no larger
+  bore is rated higher in speed or lower in load (`tests/test_catalog_facts.py`);
   distributor listings for the inch R series -- with a contact seal at 70% of
   the open speed. No jitter: two bearings of one number are rated alike,
   whoever makes them, and a rating never makes two SKUs different. (A formula
@@ -1195,9 +1203,9 @@ every other drawing -- only the GEOMETRY is fixed.
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 10,919 drawings, 21.9 MB unpacked
-  (2.00 KB a drawing on average; the largest, a triple strand roller chain,
-  is 7,131 bytes), and a 2.31 MB `images.tar.gz` (the count,
+  measured on the committed catalog, 10,975 drawings, 22.8 MB unpacked
+  (2.08 KB a drawing on average; the largest, a triple strand roller chain,
+  is 7,131 bytes), and a 2.38 MB `images.tar.gz` (the count,
   bytes and archive size `uv run sip-generate images --catalog golden-catalog
   --out /tmp/img --archive /tmp/img.tar.gz` prints). Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
@@ -1242,8 +1250,8 @@ small to read is not drawn larger, it is shown through a **magnifier**
   type's scale -- is visible with or without a lens. Interior detail lines
   (flutes, threads, hatch) are texture and keep their finer weight.
 
-On the committed catalog 1,711 SKUs are too small to see: 527 get the handled
-glass (x2.53 to x15.63) and 1,184 the handle-less lens (x2.46 to x4.05), as the
+On the committed catalog 2,162 SKUs are too small to see: 710 get the handled
+glass (x2.53 to x15.63) and 1,452 the handle-less lens (x2.46 to x4.05), as the
 command in [docs/drawings.md](docs/drawings.md#scale-the-magnifier-and-no-text) prints. The
 lowest enlargement any committed lens gives is x2.46, a width-bound
 handle-less lens (below); no committed part reaches
@@ -1514,9 +1522,8 @@ reason and the issue that fixes it, and stays bounded:
 
 | row | kind | why | bound |
 |---|---|---|---|
-| bearing p90/p10 | pin, below band | catalog bores span far less than the census's, and the census's own small brand spread leaves no group noise to make up the rest (widen the bore range: #64) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
-| wheel brand spread | pin, above band | the brand tiers alone, every noise off, put it above band: 3 of the 12 wheel brands are economy, and the row's sampled brands take one on more than half its specs, where the census measures its house label on 4 of its 12; the per-brand group noise then spreads one spec's brands further (#66) | as above |
-| kit p90/p10 | pin, below band | a kit is priced from its contents, and the catalog's kit kinds hold about $36 to $130 of parts, so with material and tier its prices span about 4x against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629; group noise loud enough to make up the rest would spread a kit's price about 79x on its own, so a kit draws none (widen the kit range: #76) | as above |
+| wheel brand spread | pin, above band | the brand tiers alone, every noise off, put it above band: 3 of the 12 wheel brands are economy, and the row's sampled brands take one on more than half its specs, where the census measures its house label on 4 of its 12; the per-brand group noise then spreads one spec's brands further (#66) | no further above than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
+| kit p90/p10 | pin, below band | a kit is priced from its contents, and the catalog's kit kinds hold about $36 to $130 of parts, so with material and tier its prices span about 4x against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629; group noise loud enough to make up the rest would spread a kit's price about 79x on its own, so a kit draws none (widen the kit range: #76) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
 
 The full reasons are `price.PINNED_SHORTFALLS`, and `stats.json` carries
 them in each row's `note`. A pin is never a wider band: a row that leaves its
