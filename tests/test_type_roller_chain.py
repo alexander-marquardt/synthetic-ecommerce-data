@@ -153,7 +153,8 @@ def test_the_facet_derivation_measures_the_two_pitches_apart(default_rows):
     stats = derive.measure(default_rows)
     pitches = {key: s for key, s in stats.items() if s.name == "Pitch"}
     assert sorted(pitches) == ["chain_pitch", "pitch"]
-    assert pitches["chain_pitch"].product_types == (KEY,)
+    # The chain's pitch and that of the sprockets it runs on are one facet.
+    assert pitches["chain_pitch"].product_types == (KEY, "roller_chain_sprockets")
     assert pitches["pitch"].product_types == ("tap_spiral_point",)
     decisions = [derive.decide(s) for s in pitches.values()]
     assert sorted(d.stats.key for d in decisions) == ["chain_pitch", "pitch"]
