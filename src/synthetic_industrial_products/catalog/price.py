@@ -627,14 +627,14 @@ SIZE_NOISE: dict[str, str] = {
 #: The types whose SKUs of one line share one per-SKU noise draw, and why:
 #: price then follows size within a line, as one maker's product line does,
 #: while the draw still spreads lines and brands. The model itself is not
-#: changed, nor how a borrower's pairs pool into its lender's rows.
+#: changed.
 LINE_NOISE: dict[str, str] = {
     "retaining_rings_external": (
         "GENERATED, NOT MEASURED: the ring borrows washer_flat's model, whose per-SKU "
         "sigma (0.701) is loud next to a ring line's key term, since adjacent DIN 471 "
         "sizes are 1 mm apart; drawn per SKU, 11 of 44 ring pairs priced the smaller "
-        "size 2x or more over the larger (washer_flat: 6 of 131), so the pooled row "
-        "left its band at both builds"
+        "size 2x or more over the larger (washer_flat: 6 of 131), far above the "
+        "ring's own 2x band"
     ),
 }
 
