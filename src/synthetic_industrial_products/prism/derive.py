@@ -48,6 +48,11 @@ from typing import Any
 
 from ..catalog.generate import Generator
 
+#: Attributes the generator itself mints as part codes (``List Number``), and
+#: so withheld from the sidebar whatever their values measure. Read from the
+#: generator rather than restated here: it is the one place that knows a value
+#: was drawn as a reference, and a measured ratio cannot see that once a
+#: finite code pool saturates (see :data:`IDENTIFIER_DISPERSION`).
 IDENTIFIER_ATTRIBUTES = Generator.IDENTIFIER_ATTRIBUTES
 
 #: An attribute is QUANTITATIVE if this share of the documents that publish it
@@ -75,12 +80,14 @@ NUMERIC_SHARE = 0.5
 #: attribute would fail, and the sidebar for a washer would be empty.
 MIN_PRESENCE = 0.5
 
-#: THE IDENTIFIER RULE. A terms attribute is an IDENTIFIER, and is withheld
-#: from the sidebar, when its values do not repeat across products: its
+#: THE IDENTIFIER RULE. An attribute the generator declares an identifier
+#: (:data:`IDENTIFIER_ATTRIBUTES`) is withheld from the sidebar at any ratio.
+#: Any other terms attribute is an IDENTIFIER, and is withheld, when its
+#: values do not repeat across products: its
 #: :attr:`AttributeStats.dispersion` (distinct values per distinct
-#: ``(product, value)`` pair) is at or above this, over at least
-#: :data:`RANGE_MIN_DOCS` such pairs. A facet is a few values that many
-#: products share; an identifier is roughly one value per product.
+#: ``(product, value)`` pair) is at or above this, on at least
+#: :data:`RANGE_MIN_DOCS` distinct products. A facet is a few values that
+#: many products share; an identifier is roughly one value per product.
 #:
 #: It is the same midpoint as :data:`RANGE_DISPERSION`, for the same reason:
 #: below it the average value is carried by more than one product, so a list
@@ -99,11 +106,13 @@ MIN_PRESENCE = 0.5
 #: (the one identifier, and the densest terms attribute that is still a
 #: facet) live in :data:`MEASURED_DISPERSION`.
 #:
-#: What this cannot see: an identifier drawn from a FINITE pool saturates
-#: like a ladder once the catalog outgrows the pool. ``List Number`` is a
-#: series code of a letter and three digits; at ``--lines 39000`` (111,499
-#: SKUs, measured for #31) its dispersion is 0.62, still withheld, and a
-#: catalog several times larger again would carry it under the line.
+#: What the ratio cannot see, and why the declaration comes first: an
+#: identifier drawn from a FINITE pool saturates like a ladder once the
+#: catalog outgrows the pool. ``List Number`` draws from 9,000 codes; its
+#: dispersion is 0.98 at the default size, 0.62 at ``--lines 39000`` and
+#: 0.508 at ``--lines 60000``, so the ratio alone would offer it as a facet
+#: from about 62,000 lines, 1.6 times the published 39,000-line build
+#: (measured for #31). The ratio stays for identifiers nothing declares.
 #:
 #: QUANTITATIVE attributes are exempt, and the reason is worth stating
 #: precisely because it used to be stated wrongly. The old reason was "a range
@@ -175,30 +184,41 @@ IDENTIFIER_DISPERSION = 0.5
 #: catalogs differ in the property the rule measures.
 RANGE_DISPERSION = 0.5
 
-#: Dispersion cannot tell saturation from growth on a handful of observations:
-#: nine distinct values over ten reads as 0.9 whether the ladder has ten rungs
-#: or ten thousand. Counted in distinct ``(product, value)`` pairs, the same
-#: denominator dispersion uses (the name predates #28). Below this many the
-#: statistic is not evidence, so each rule that reads it takes its
-#: conservative answer: a discrete control rather than a range, and a facet
-#: rather than an identifier (a list under the floor holds fewer values than
-#: the floor, so offering it costs little, while withholding it could drop a
-#: real facet such as ``Style``, 11 values over 13 products). Every
-#: quantitative attribute this catalog FACETS clears it (the smallest is named
-#: in :data:`MEASURED_DISPERSION`).
+#: Dispersion cannot tell saturation from growth on too few products: a
+#: ladder of K rungs reads below 0.5 only once roughly 1.6K products have
+#: landed on it, so an undersampled ladder looks like a continuum or an
+#: identifier. Below this many DISTINCT PRODUCTS the ratio is not evidence,
+#: and each rule that reads it takes its conservative answer: a discrete
+#: control rather than a range, and a facet rather than an identifier. (The
+#: name predates both #28 and the switch to products; the deployment reads it.)
 #:
-#: No quantitative attribute in the current catalog is decided by THIS floor:
-#: ``Neck Length`` used to be the real-catalog example -- 39 distinct values
-#: over 39 documents, then 51 over 51 after the catalog grew
-#: (elastic/prism-industrial-products#103), then 48 over 48 once the
-#: countersunk/nominal-key changes of that era landed, always just under it.
-#: Applying its census presence rate once instead of twice
-#: (alexander-marquardt/synthetic-industrial-products#39) raised it to 388
-#: over 388 -- comfortably above this floor, so it is :data:`MIN_PRESENCE`
-#: that now keeps it off a slider (see :data:`MEASURED_DISPERSION`). The
-#: floor itself is still real and still tested, by construction, in
-#: ``test_a_small_sample_falls_back_to_discrete``.
-RANGE_MIN_DOCS = 50
+#: It counts products, not ``(product, value)`` pairs, because both rules ask
+#: whether values repeat ACROSS products. A kit lists a dozen sizes, so five
+#: kits made 52 pairs at ``--lines 200`` and cleared a floor of 50 pairs:
+#: ``Sizes Included`` was withheld at 200, 400 and 600 lines and offered from
+#: 900 up (the #31 review).
+#:
+#: The value is MEASURED, not derived: it is the floor at which no decision
+#: moves with ``--lines``. The largest product count at which a ladder of
+#: this catalog still reads 0.5 is 202 (``Overall Length`` at ``--lines
+#: 260``, a list at every larger size); below that, at ``--lines 200``,
+#: ``Bore`` (38 values on 58 products) and ``Overall Length`` (149 on 157)
+#: read as ranges and ``Bearing Number`` (27 on 54) as an identifier. 250
+#: clears 202. ``test_every_decision_is_the_same_at_every_catalog_size`` is
+#: the gate, at 200, 260, 400, 600 and 900 lines and the default; ``--lines
+#: 39000`` makes the default's decisions (measured for #31).
+#:
+#: What it costs: an identifier nothing declares, published on fewer than
+#: this many products, is offered as a list of at most this many values.
+#: :data:`IDENTIFIER_ATTRIBUTES` covers the one this catalog mints. On the
+#: default build's modelled types the floor decides nothing: every attribute
+#: under it has a ratio under 0.5, so the ratio and the floor agree
+#: (``held_by_floor`` in :data:`MEASURED_DISPERSION`). Across the whole build
+#: it keeps two breadth-category terms facets offered that the ratio alone
+#: would withhold, ``Style`` (11 values on 13 products) and ``Color`` (2 on
+#: 2). ``Neck Length`` clears it and is kept off a slider by
+#: :data:`MIN_PRESENCE`.
+RANGE_MIN_DOCS = 250
 
 #: What the rule above MEASURES on the catalog this package generates, as
 #: numbers rather than as a sentence.
@@ -230,7 +250,9 @@ RANGE_MIN_DOCS = 50
 #: when dispersion moved from SKU documents to ``(product, value)`` pairs:
 #: the band's ends move (a product-scope value on several variants now
 #: counts once) and no quantitative attribute changes its control. The two
-#: ``identifier`` / ``densest_terms_facet`` rows are new with #31.
+#: ``identifier`` / ``densest_terms_facet`` rows are new with #31. When the
+#: floor moved to 250 distinct products (the #31 review), the smallest-facet
+#: row moved from documents to products and ``held_by_floor`` is new.
 MEASURED_DISPERSION: dict[str, Any] = {
     # The band over the QUANTITATIVE attributes that are actually FACETED.
     "faceted_low": 0.0037,
@@ -245,11 +267,15 @@ MEASURED_DISPERSION: dict[str, Any] = {
     # set screws (#53) add their small keys (0.7-1.3mm, 0.028-0.035") and 485 documents.
     "drive_size_cardinality": 41,
     "drive_size_present": 1842,
-    # The smallest faceted attribute, which is what clears RANGE_MIN_DOCS.
-    # A kit's piece count since the assortment kits (60 kits): a real count
-    # on few documents, which still clears RANGE_MIN_DOCS.
+    # The faceted quantity on the fewest products: a kit's piece count (60
+    # kits). Under RANGE_MIN_DOCS, like many faceted quantities, but with a
+    # ratio under the continuity threshold, so the floor decides none of them.
     "smallest_faceted": "Number of Pieces",
-    "smallest_faceted_present": 59,
+    "smallest_faceted_products": 59,
+    # The terms facets of the modelled types that the ratio alone would
+    # withhold and RANGE_MIN_DOCS keeps offered: none. (Two breadth-category
+    # facets are, Style and Color; the committed field map's reasons say so.)
+    "held_by_floor": [],
     # The real continuum this catalog does not offer as a range. It clears
     # BOTH RANGE_DISPERSION and RANGE_MIN_DOCS now (#39) -- MIN_PRESENCE is
     # what still keeps it off a slider, because it is rare even among its
@@ -262,13 +288,15 @@ MEASURED_DISPERSION: dict[str, Any] = {
     "min_presence_arm_type_denominator": 1486,
     "min_presence_arm_share": 0.28,
     # The one terms attribute IDENTIFIER_DISPERSION withholds: a series code,
-    # about one value per product.
+    # about one value per product. IDENTIFIER_ATTRIBUTES withholds it first;
+    # at this size the ratio agrees.
     "identifier": "List Number",
     "identifier_dispersion": 0.9764,
-    # The densest terms attribute that is still a facet: a kit's contents,
-    # each size shared by several kits. The terms side's margin under 0.5.
-    "densest_terms_facet": "Sizes Included",
-    "densest_terms_facet_dispersion": 0.2783,
+    # The densest terms facet over RANGE_MIN_DOCS: 27 bearing designations.
+    # The terms side's margin under 0.5. (Sizes Included, 0.2783, is denser
+    # but on 59 kits, under the floor.)
+    "densest_terms_facet": "Bearing Number",
+    "densest_terms_facet_dispersion": 0.0409,
 }
 
 
@@ -287,6 +315,9 @@ class AttributeStats:
     #: observations the values rest on. A product-scope value repeated on a
     #: product's variants is one; a value that differs per SKU is one per SKU.
     product_values: int
+    #: Distinct ``product_id`` values publishing the attribute: what the
+    #: evidence floor :data:`RANGE_MIN_DOCS` counts, because both rules ask
+    #: whether values repeat ACROSS products.
     products: int
 
     @property
@@ -327,7 +358,7 @@ class AttributeStats:
         """
         return (
             self.is_numeric
-            and self.product_values >= RANGE_MIN_DOCS
+            and self.products >= RANGE_MIN_DOCS
             and self.dispersion >= RANGE_DISPERSION
         )
 
@@ -340,7 +371,7 @@ class AttributeStats:
         """
         return (
             not self.is_numeric
-            and self.product_values >= RANGE_MIN_DOCS
+            and self.products >= RANGE_MIN_DOCS
             and self.dispersion >= IDENTIFIER_DISPERSION
         )
 
@@ -411,6 +442,13 @@ def decide(stats: AttributeStats) -> Decision:
     ``single-valued`` explains why flipping it would add a control that cannot
     narrow anything.
     """
+    if stats.name in IDENTIFIER_ATTRIBUTES:
+        return Decision(
+            stats,
+            False,
+            "an identifier, not a facet: the generator declares it a part code, "
+            "so it is withheld whatever its values measure",
+        )
     if stats.cardinality < 2:
         return Decision(stats, False, "single-valued: clicking it cannot narrow the result set")
     if stats.presence < MIN_PRESENCE:
@@ -437,6 +475,16 @@ def decide(stats: AttributeStats) -> Decision:
             True,
             f"a range: {over}, at or above the {RANGE_DISPERSION:.2f} continuity threshold",
         )
+    # Only reached under the floor: the ratio says continuum or identifier,
+    # and too few products carry the attribute for that to be evidence.
+    few = f"but on {stats.products} products, fewer than the {RANGE_MIN_DOCS} the"
+    if stats.is_numeric and stats.dispersion >= RANGE_DISPERSION:
+        return Decision(
+            stats,
+            True,
+            f"a discrete list: {over}, at or above the {RANGE_DISPERSION:.2f} "
+            f"continuity threshold {few} continuity test needs as evidence",
+        )
     if stats.is_numeric:
         return Decision(
             stats,
@@ -445,17 +493,15 @@ def decide(stats: AttributeStats) -> Decision:
             f"continuity threshold, so the values repeat and are offered as a list "
             f"rather than an interval",
         )
-    if stats.product_values < RANGE_MIN_DOCS:
+    if stats.dispersion >= IDENTIFIER_DISPERSION:
         return Decision(
             stats,
             True,
-            f"{stats.cardinality} distinct values over {stats.product_values} "
-            f"product-value pairs, fewer than the {RANGE_MIN_DOCS} the identifier "
-            f"test needs as evidence",
+            f"{over}, at or above the {IDENTIFIER_DISPERSION:.2f} identifier threshold "
+            f"{few} identifier test needs as evidence",
         )
     return Decision(
         stats,
         True,
-        f"{over}, below the {IDENTIFIER_DISPERSION:.2f} identifier threshold, so the "
-        f"values repeat",
+        f"{over}, below the {IDENTIFIER_DISPERSION:.2f} identifier threshold, so the values repeat",
     )

@@ -1192,7 +1192,9 @@ MUTATIONS: list[Mutation] = [
         "IDENTIFIER_DISPERSION = 1.01",
         (
             "tests/test_prism_field_map_drift.py",
-            "tests/test_facet_control_rule.py -k standards_and_thread_size",
+            # Not the rendered List Number entry: the declaration withholds
+            # that at any threshold.
+            "tests/test_facet_control_rule.py -k identifier_threshold_is_the_midpoint",
         ),
         "A",
         "a terms attribute whose values do not repeat is an identifier, not a facet",
@@ -1212,7 +1214,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "bring back an absolute cap of 25 terms values",
         "prism/derive.py",
-        "            not self.is_numeric\n            and self.product_values >= RANGE_MIN_DOCS\n"
+        "            not self.is_numeric\n            and self.products >= RANGE_MIN_DOCS\n"
         "            and self.dispersion >= IDENTIFIER_DISPERSION",
         "            not self.is_numeric\n            and self.cardinality > 25",
         "tests/test_facet_control_rule.py -k any_size",
@@ -1222,7 +1224,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "call a terms attribute an identifier on a handful of products",
         "prism/derive.py",
-        "            not self.is_numeric\n            and self.product_values >= RANGE_MIN_DOCS",
+        "            not self.is_numeric\n            and self.products >= RANGE_MIN_DOCS",
         "            not self.is_numeric",
         (
             "tests/test_facet_control_rule.py -k small_terms_attribute",
@@ -1230,6 +1232,60 @@ MUTATIONS: list[Mutation] = [
         ),
         "",
         "below the observation floor a terms attribute is offered",
+    ),
+    Mutation(
+        "count the identifier floor in (product, value) pairs again",
+        "prism/derive.py",
+        "            not self.is_numeric\n            and self.products >= RANGE_MIN_DOCS",
+        "            not self.is_numeric\n            and self.product_values >= RANGE_MIN_DOCS",
+        "tests/test_facet_control_rule.py -k multi_valued",
+        "",
+        "the evidence floor counts products, so a kit's sizes are one product's",
+    ),
+    Mutation(
+        "put the evidence floor back at 50, where small catalogs flip decisions",
+        "prism/derive.py",
+        "RANGE_MIN_DOCS = 250",
+        "RANGE_MIN_DOCS = 50",
+        "tests/test_facet_control_rule.py -k every_decision_is_the_same",
+        "A",
+        "no decision moves with --lines",
+    ),
+    Mutation(
+        "raise the evidence floor past every attribute, so the ratio decides nothing",
+        "prism/derive.py",
+        "RANGE_MIN_DOCS = 250",
+        "RANGE_MIN_DOCS = 100000",
+        "tests/test_facet_control_rule.py -k widest_dispersion",
+        "B",
+        "no decision moves with --lines",
+    ),
+    Mutation(
+        "ignore the generator's identifier declaration",
+        "prism/derive.py",
+        "    if stats.name in IDENTIFIER_ATTRIBUTES:",
+        "    if False:",
+        "tests/test_facet_control_rule.py -k declared_identifier",
+        "",
+        "a declared identifier is withheld whatever its ratio",
+    ),
+    Mutation(
+        "restate the identifier declaration instead of reading the generator's",
+        "prism/derive.py",
+        "IDENTIFIER_ATTRIBUTES = Generator.IDENTIFIER_ATTRIBUTES",
+        'IDENTIFIER_ATTRIBUTES = frozenset({"List Number"})',
+        "tests/test_facet_control_rule.py -k reads_the_generators",
+        "",
+        "a declared identifier is withheld whatever its ratio",
+    ),
+    Mutation(
+        "call an under-floor quantity a standard set below the threshold",
+        "prism/derive.py",
+        "    if stats.is_numeric and stats.dispersion >= RANGE_DISPERSION:",
+        "    if False:",
+        "tests/test_facet_control_rule.py -k small_sample",
+        "",
+        "an under-floor decision names the floor in its reason",
     ),
     Mutation(
         "measure dispersion per SKU document again",
@@ -1970,7 +2026,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "offer a range over any attribute whose values are numbers",
         "prism/derive.py",
-        "            self.is_numeric\n            and self.product_values >= RANGE_MIN_DOCS\n            and self.dispersion >= RANGE_DISPERSION",
+        "            self.is_numeric\n            and self.products >= RANGE_MIN_DOCS\n            and self.dispersion >= RANGE_DISPERSION",
         "            self.is_numeric",
         "tests/test_facet_control_rule.py -k continuity",
         "A",

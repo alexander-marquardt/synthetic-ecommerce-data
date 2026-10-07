@@ -24,11 +24,13 @@
 #     is per-attribute: an attribute carried by one of twelve product types can
 #     never exceed ~10% of the catalog, yet may be the primary facet for its
 #     own category.
-#   * an attribute over free-text values whose values do not repeat across
-#     products is NOT a facet -- that is an identifier, not something a
+#   * an attribute the generator declares an identifier (List Number) is NOT
+#     a facet, whatever its values measure: it is a part code.
+#   * any other attribute over free-text values whose values do not repeat
+#     across products is NOT a facet -- that is an identifier, not something a
 #     shopper browses. Measured as 0.50 or more distinct values per
-#     distinct (product, value) pair, over at least 50 such pairs: a ratio,
-#     so a standards ladder stays a facet however large the catalog grows.
+#     distinct (product, value) pair, on at least 250 distinct products: a
+#     ratio, so a standards ladder stays a facet however large the catalog grows.
 #     QUANTITATIVE attributes are exempt at any cardinality: a measured
 #     quantity is not a part number.
 #
@@ -42,10 +44,10 @@
 #     "all". This decides what is STORED -- the canonical number and its unit
 #     code -- and nothing else.
 #   * an attribute is offered as a RANGE (``facets_num.*``) only when its
-#     values are CONTINUOUS: at least 50 distinct (product, value) pairs,
-#     and at least 0.50 distinct values per pair. A value repeated on
-#     a product's variants counts once, so the variant count cannot move the
-#     answer. Below that the values
+#     values are CONTINUOUS: published on at least 250 distinct products,
+#     and at least 0.50 distinct values per (product, value) pair. A
+#     value repeated on a product's variants counts once, so the variant count
+#     cannot move the answer. Below that the values
 #     REPEAT, which means they are a standard set -- hex key sizes, thread
 #     pitches -- and the honest control is a list of them (``facets.*``), not
 #     an interval a shopper can set to a size nobody manufactures.
@@ -247,7 +249,7 @@ fields:
   - name: closure_type
     type: terms
     source: facets.closure_type
-  # Color -- 2 distinct values over 2 product-value pairs, fewer than the 50 the identifier test needs as evidence
+  # Color -- 2 distinct values over 2 product-value pairs is 1.00 per product, at or above the 0.50 identifier threshold but on 2 products, fewer than the 250 the identifier test needs as evidence
   #   present on 2 documents across 2 product type(s); 2 distinct values
   - name: color
     type: terms
@@ -257,7 +259,7 @@ fields:
   - name: connector_type
     type: terms
     source: facets.connector_type
-  # Container Type -- 4 distinct values over 48 product-value pairs, fewer than the 50 the identifier test needs as evidence
+  # Container Type -- 4 distinct values over 48 product-value pairs is 0.08 per product, below the 0.50 identifier threshold, so the values repeat
   #   present on 48 documents across 1 product type(s); 4 distinct values
   - name: container_type
     type: terms
@@ -439,7 +441,7 @@ fields:
   - name: length_under_head
     type: terms
     source: facets.length_under_head
-  # List Number -- reads as an identifier, not a facet: 538 distinct values over 551 product-value pairs is 0.98 per product, at or above the 0.50 identifier threshold, so the values do not repeat
+  # List Number -- an identifier, not a facet: the generator declares it a part code, so it is withheld whatever its values measure
   #   present on 1044 documents across 3 product type(s); 538 distinct values
   - name: list_number
     type: terms
@@ -611,7 +613,7 @@ fields:
   - name: static_load_capacity
     type: terms
     source: facets.static_load_capacity
-  # Style -- 11 distinct values over 13 product-value pairs, fewer than the 50 the identifier test needs as evidence
+  # Style -- 11 distinct values over 13 product-value pairs is 0.85 per product, at or above the 0.50 identifier threshold but on 13 products, fewer than the 250 the identifier test needs as evidence
   #   present on 23 documents across 13 product type(s); 11 distinct values
   - name: style
     type: terms
