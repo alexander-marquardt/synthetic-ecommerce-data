@@ -31,8 +31,9 @@ distributor's offer, not a table.
 
 The price is a declared ladder, not measured (see ``tabletype``): about 2.65
 USD for one steel connecting link for 25 chain at the standard brand tier,
-rising with the pitch. An offset link costs ``OFFSET_FACTOR`` times the
-connecting link of its size. Both figures are estimates.
+rising with the pitch. The ladder has one factor per material, so an offset
+link costs what the connecting link of its size does. It costs more in
+practice; the mechanism has no place to say so.
 
 The table mechanism builds a size's two lengths in a brand's own spelling.
 This module rewrites them as the roller chain type publishes them and adds
@@ -62,15 +63,11 @@ ITEM = "Item"
 
 CONNECTING = "Roller Chain Connecting Link"
 OFFSET = "Roller Chain Offset Link"
-KINDS = (CONNECTING,)
+KINDS = (CONNECTING, OFFSET)
 SINGLE = roller_chain.STRANDS[1]
 
-#: What an offset link costs against the connecting link of its size. An
-#: estimate: an offset link has two formed plates, a roller and a pin where a
-#: connecting link has two flat plates and a clip.
-OFFSET_FACTOR = 1.75
 
-FIRST, LAST = "25", "25"
+FIRST, LAST = "25", "160"
 _NUMBERS = [row[0] for row in roller_chain.ANSI]
 #: The roller chain type's rows for the sizes a link is built in.
 SIZES = roller_chain.ANSI[_NUMBERS.index(FIRST) : _NUMBERS.index(LAST) + 1]
@@ -195,9 +192,9 @@ TABLE = TableType(
     draw=draw,
     # The largest drawn: a 160 link is 3.901 in wide and 5.252 in tall.
     extent=(3.95, 5.3),
-    share=0.016,
-    default_lines=41,
-    default_skus=82,
+    share=0.020,
+    default_lines=52,
+    default_skus=94,
     series="RL",
     unit="in",
     use_lines=(
@@ -248,20 +245,21 @@ def _make(base: Callable[..., Any]) -> Callable[..., Any]:
 
 
 _BASE = spec(TABLE)
+(_CHAIN_PITCH,) = (s for s in roller_chain.VOCAB if s.name == PITCH)
 SPEC = dataclasses.replace(
     _BASE,
     vocab=(
-        *_BASE.vocab,
+        # The table declares each column a length. The catalog's unit-mixing
+        # defect picks its columns by NAME across every type, and the roller
+        # chain declares its Pitch a keyword: a length here would start
+        # rewriting the chain's own pitches. So Pitch is declared as the
+        # chain declares it.
+        *(_CHAIN_PITCH if s.name == PITCH else s for s in _BASE.vocab),
         AttrSpec(name=STYLE, scope="line", presence=1.0, kind="keyword"),
         AttrSpec(name=NUMBER, scope="sku", presence=1.0, kind="keyword"),
     ),
     figure=_figure,
     make=_make(_BASE.make),
-    price=dataclasses.replace(
-        _BASE.price,
-        option_attribute=ITEM,
-        option_factors={CONNECTING: 1.0, OFFSET: OFFSET_FACTOR},
-    ),
 )
 # A registered table type is recognised by its ``make`` (``tabletype.tables``).
 # The one above wraps the table's own, so it is entered here: without it the
