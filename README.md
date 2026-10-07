@@ -258,7 +258,7 @@ Every must-stock example is stocked. (Those four are the 100K tests in
 `tests/test_catalog_brands_voice.py`.) Since dowel pins,
 `scripts/check_determinism.py --lines 39000`: all 7 emitted files
 byte-identical across two builds. The drawings, built with the second command
-above: 112,501 drawings, 231.7 MB unpacked, a 25.9 MB `images.tar.gz`, every
+above: 113,008 drawings, 234.0 MB unpacked, a 26.2 MB `images.tar.gz`, every
 sha256 matching `images.jsonl` (the counts the command prints). The 100K
 catalog is still not published while the spec is iterated at the default
 size.
@@ -640,10 +640,15 @@ of elastic/prism#9935:
 ```
 
 * `key` is required: the machine name the Engine discovers an attribute by,
-  `sanitize(name)`, namespaced as `attr_<key>` when it is a column's name (see
-  below). `name` is the display name.
+  namespaced as `attr_<key>` when it is a column's name (see below). It is
+  `sanitize(name)` unless the type declares its own, which it does when two
+  types publish one display name for two concepts: a roller chain's `Pitch`
+  (the distance between pin centres) has the key `chain_pitch`, because a
+  metric tap's `Pitch` (its thread pitch) already has `pitch`. So read `key`,
+  never derive it from `name`. `name` is the display name.
 * A **measured** value is fully split. `value` is the bare magnitude with no
   unit marker and no thousands separator, `unit_code` (UN/CEFACT: `INH`, `MMT`,
+  `FOT` for a chain's length in feet,
   `DD`, `ONZ`, `LBR`, `C78`, `RPM`, `TPI`, and `C62` for a count) is the only
   place the unit lives, and `value_canonical` is the magnitude in the kind's
   canonical unit (millimetres, grams, degrees, one, rpm, pound-force), computed
@@ -1173,8 +1178,9 @@ every other drawing -- only the GEOMETRY is fixed.
 * **Finish and material** are the part's fill (the finish's colour, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 10,708 drawings, 21.1 MB unpacked
-  (1.97 KB a drawing on average), and a 2.24 MB `images.tar.gz` (the count,
+  measured on the committed catalog, 10,774 drawings, 21.5 MB unpacked
+  (1.99 KB a drawing on average; the largest, a triple strand roller chain,
+  is 7,131 bytes), and a 2.27 MB `images.tar.gz` (the count,
   bytes and archive size `uv run sip-generate images --catalog golden-catalog
   --out /tmp/img --archive /tmp/img.tar.gz` prints). Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
@@ -1219,8 +1225,8 @@ small to read is not drawn larger, it is shown through a **magnifier**
   type's scale -- is visible with or without a lens. Interior detail lines
   (flutes, threads, hatch) are texture and keep their finer weight.
 
-On the committed catalog 1,643 SKUs are too small to see: 481 get the handled
-glass (x2.53 to x15.63) and 1,162 the handle-less lens (x2.46 to x4.05), as the
+On the committed catalog 1,669 SKUs are too small to see: 503 get the handled
+glass (x2.53 to x15.63) and 1,166 the handle-less lens (x2.46 to x4.05), as the
 command in [docs/drawings.md](docs/drawings.md#scale-the-magnifier-and-no-text) prints. The
 lowest enlargement any committed lens gives is x2.46, a width-bound
 handle-less lens (below); no committed part reaches

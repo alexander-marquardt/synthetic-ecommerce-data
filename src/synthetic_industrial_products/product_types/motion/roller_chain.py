@@ -5,10 +5,11 @@ Every size row is ANSI/ASME B29.1's standard series, chain numbers 25 to 240:
 * ``Pitch``, ``Roller Dia.`` and ``Inside Width`` (the width between the
   roller link plates) are B29.1's nominal dimensions, in inches. Chains 25
   and 35 are rollerless (bushing) chains, so they publish no ``Roller Dia.``.
-* No tensile strength is published: the B29.1 editions disagree on the
-  minimum ultimate tensile strength (the 1993 table's 3,700 lbf for a 40
-  chain against the later 12,500 lbf x pitch squared, 3,125), so the type
-  omits it rather than pick one.
+* No tensile strength is published: the two tables the dimensions were checked
+  against (``SOURCE_URL`` and ``RULE_URL`` below) disagree on it. The B29.1-2011
+  table gives a 40 chain a minimum of 3,125 lbf (12,500 lbf x pitch squared);
+  the distributor's chart gives its own chain 3,970 lb. One is the standard's
+  floor and the other a maker's figure, so the type omits it rather than pick.
 * ``ANSI Number`` is the B29.1 designation: the chain number, with ``-2`` or
   ``-3`` for a double or triple strand chain.
 
@@ -45,6 +46,31 @@ STANDARD = "ASME B29.1"
 
 #: The machine key of this type's ``Pitch`` (see the module docstring).
 PITCH_KEY = "chain_pitch"
+
+#: Where the table below was read. ASME sells B29.1 and its text was NOT read;
+#: every value is checked against published tables of the standard's series,
+#: both retrieved 2026-10-07:
+#:
+#: * ``SOURCE_URL``, a chain distributor's size chart, prints pitch, roller
+#:   width and roller diameter to three decimals of an inch for chains 25 to
+#:   240. All 13 pitches, all 13 widths and all 11 roller diameters below are
+#:   its single strand rows (its multiple strand tables repeat them).
+#: * ``RULE_URL`` (revision 1363315204), whose table is headed "ASME/ANSI
+#:   B29.1-2011 Roller chain standard sizes", prints the same 13 pitches, the
+#:   same roller diameter for 10 of the 11 roller chains, and the same width
+#:   for chains 25 to 80. It also states the numbering rule: the digits left of
+#:   the last count eighths of an inch of pitch, and a last digit of 5 is a
+#:   rollerless bushing chain. That is why 25 and 35 publish no roller
+#:   diameter; both tables print their BUSHING diameters (0.130 and 0.200 in)
+#:   in that column.
+#:
+#: The one disagreement: the 180 chain's roller is 1.406 in (45/32) on
+#: ``SOURCE_URL``, in each of its five strand tables, and 1.460 in on
+#: ``RULE_URL``. 45/32 is kept: it is the value the distributor sells to, it is
+#: 5/8 of the pitch as the 200 and 240 chains' rollers are on both tables, and
+#: 1.460 is 1.406 with two digits exchanged.
+SOURCE_URL = "https://usarollerchain.com/pages/roller-chain-size-chart"
+RULE_URL = "https://en.wikipedia.org/wiki/Roller_chain"
 
 #: B29.1 standard series: (chain number, pitch, roller diameter or None for a
 #: rollerless chain, width between roller link plates), inches.
@@ -176,38 +202,75 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
 # --- the drawing ------------------------------------------------------------------
 
 _STRAND_COUNT = {name: count for count, name in STRANDS.items()}
-#: Proportions of pitch the drawing uses for what no record publishes: the link
-#: plate's height, the plate's thickness and the pin's radius.
-_PLATE_HEIGHT = 0.95
+#: Proportions of pitch the drawing uses for what no record publishes: the
+#: roller link (inner) plate's height, the pin link (outer) plate's, drawn
+#: lower so the roller link plates behind it show, the plate's thickness and
+#: the pin's radius.
+_INNER_HEIGHT = 0.95
+_OUTER_HEIGHT = 0.82
 _PLATE_THICKNESS = 0.12
 _PIN_RADIUS = 0.16
 #: A rollerless chain's bushing, drawn where a roller would be.
 _BUSHING = 0.52
+#: The pitches drawn: a roller link, a pin link, a roller link.
+_PITCHES = 3
+#: Chords in a plate's half-round end. At the sheet's scale the end is at most
+#: some 25 px in radius, so a chord of 30 degrees departs from the arc by less
+#: than a pixel, and the six plate outlines are the drawing's largest paths.
+_ARC = 6
+
+
+def _plate(x: float, pitch: float, height: float) -> list[tuple[float, float]]:
+    """A link plate seen from the side: one pitch long, round about each of its two pins."""
+    radius = height / 2
+    return [*arc((x, 0.0), radius, 90, 270, _ARC), *arc((x + pitch, 0.0), radius, -90, 90, _ARC)]
 
 
 def chain(record: dict[str, str]) -> Drawn:
-    """Side view of two pitches (plates, rollers, pins) above the top view of every strand."""
+    """Side view of three links (plates, rollers, pins) above the top view of every strand."""
     pitch, ok_p = _length_or(record, "Pitch", 0.5)
     roller, ok_r = _length_or(record, "Roller Dia.", _BUSHING * pitch)
     width, ok_w = _length_or(record, "Inside Width", 0.5 * pitch)
     strands = _STRAND_COUNT.get(record.get("Style", ""), 1)
     source = "record" if ok_p and ok_r and ok_w else ("partial" if ok_p else "nominal")
-    plate = _PLATE_HEIGHT * pitch
+    inner, outer = _INNER_HEIGHT * pitch, _OUTER_HEIGHT * pitch
     thick = _PLATE_THICKNESS * pitch
-    fig = Figure(size_in=2 * pitch + plate)
-    ends = (0.0, 2 * pitch)
-    fig.poly([*arc((ends[0], 0.0), plate / 2, 90, 270), *arc((ends[1], 0.0), plate / 2, -90, 90)])
-    for k in range(3):
-        fig.disc((k * pitch, 0.0), roller / 2, "plain")
-        fig.disc((k * pitch, 0.0), _PIN_RADIUS * pitch, "hole")
-    top = plate / 2 + 0.3 * plate
-    x0, x1 = -plate / 2, 2 * pitch + plate / 2
-    for s in range(strands):
-        y = top + s * (width + 3 * thick)
-        fig.rect(x0, y, x1, y + thick)
-        fig.rect(x0, y + thick, x1, y + thick + width, "plain")
-        fig.rect(x0, y + thick + width, x1, y + 2 * thick + width)
-        fig.lines(((k * pitch, y + thick), (k * pitch, y + thick + width)) for k in range(3))
+    fig = Figure(size_in=_PITCHES * pitch + inner)
+    links = [(k * pitch, k % 2 == 1) for k in range(_PITCHES)]
+    pins = [k * pitch for k in range(_PITCHES + 1)]
+    # The pin link is the outer one, so it is drawn last, over the roller links' ends.
+    for x, is_pin_link in sorted(links, key=lambda link: link[1]):
+        fig.poly(_plate(x, pitch, outer if is_pin_link else inner))
+    for x in pins:
+        fig.disc((x, 0.0), roller / 2, "plain")
+        fig.disc((x, 0.0), _PIN_RADIUS * pitch, "hole")
+    # From above, per strand: pin link plates outermost, roller link plates
+    # inside them, a roller between the roller link plates at every pin.
+    # One strand is laid out once and repeated a strand's width further down,
+    # every strand in ONE path: a triple strand chain's thirty rectangles, each
+    # a styled element of its own, took the drawing past the size the sheet
+    # allows. A plate from above is an edge view, so it is plain like the
+    # rollers: its outline is wider than the plate is thick, and a hatch under
+    # it would never show.
+    top = inner / 2 + 0.3 * inner
+    step = width + 4 * thick
+    strand = []
+    for x, is_pin_link in links:
+        near = 0.0 if is_pin_link else thick
+        far = step - thick if is_pin_link else step - 2 * thick
+        half = (outer if is_pin_link else inner) / 2
+        strand += [(x - half, y, x + pitch + half, y + thick) for y in (near, far)]
+    for x in pins:
+        strand.append((x - roller / 2, 2 * thick, x + roller / 2, 2 * thick + width))
+    fig.bars(
+        (
+            (x0, top + s * step + y0, x1, top + s * step + y1)
+            for s in range(strands)
+            for x0, y0, x1, y1 in strand
+        ),
+        "plain",
+    )
+    fig.lines(((x, top), (x, top + strands * step)) for x in pins)
     return Drawn(fig, source)
 
 
@@ -251,8 +314,8 @@ SPEC = TypeSpec(
     standards_family="motion",
     vocab=VOCAB,
     figure=chain,
-    # 240-2 and 160-3, the largest drawn: 8.85 x 9.25 in.
-    extent=(8.95, 9.35),
+    # The largest drawn: a 240 chain is 11.85 in wide, and 240-2 is 10.34 in tall.
+    extent=(11.95, 10.45),
     make=build,
     share=0.016,
     price=PRICE,
