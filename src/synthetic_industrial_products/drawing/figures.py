@@ -627,7 +627,7 @@ _CLOSURE_ROLE = {"Double Shield": "plain", "Double Seal": "dark"}
 
 def bearing(record: Record) -> Drawn:
     """Face view -- rings, and the balls or the shield or the seal -- and the edge."""
-    bore, ok_b = _length_or(record, "Bore", 0.5)
+    bore, ok_b = _length_or(record, "Bore Dia.", 0.5)
     od, ok_o = _length_or(record, "Outside Dia.", 2.4 * bore)
     width, ok_w = _length_or(record, "Width", 0.3 * od)
     if od <= bore:

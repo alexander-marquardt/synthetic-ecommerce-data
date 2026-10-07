@@ -199,7 +199,7 @@ def split(name: str, published: str, bare_unit: str | None = None) -> dict[str, 
 
     A unit marker in the string decides the unit. A bare number takes one only
     when its attribute is known to be published bare in a unit -- by name, or
-    by ``bare_unit`` from the generator, which knows a metric tap's ``Pitch`` is
+    by ``bare_unit`` from the generator, which knows a metric tap's ``Thread Pitch`` is
     in millimetres (``MMT``) and an inch tap's ``Threads per Inch`` is a thread
     count (``TPI``), whose canonical is the pitch length. Anything else stays text.
 
@@ -243,10 +243,10 @@ def entry(
 ) -> dict[str, Any]:
     """One nested entry: ``{key, name, value[, unit_code, value_canonical]}``.
 
-    ``key`` is given only when one display name means two concepts across the
-    catalog: a roller chain's ``Pitch`` (link spacing, ``chain_pitch``) is not a
-    metric tap's ``Pitch`` (thread pitch, ``pitch``), though real catalogs
-    label both so (#36). Otherwise the key derives from the name.
+    ``key`` is given only when the key must differ from the one the name derives: a
+    roller chain's ``Pitch`` (link spacing) is keyed ``chain_pitch``, never the thread
+    pitch a tap publishes as ``Thread Pitch`` (``thread_pitch``) (#36), though real catalogs
+    label both pitches alike. Otherwise the key derives from the name.
     """
     return {
         "key": key if key is not None else entry_key(name),

@@ -152,15 +152,19 @@ NAME_EXCEPTIONS: dict[str, str] = {
         "an O-ring's cross-section tolerance from the AS568 table, beside the census's"
         " Inside Dia. Tolerance"
     ),
+    "Thread Pitch": (
+        "a metric tap's millimetres between threads; the census's bare Pitch is also a"
+        " roller chain's link spacing, a different quantity, so the thread qualifies it (#113)"
+    ),
     "Threads per Inch": (
-        "an inch tap's thread count, a different quantity from a metric tap's Pitch"
+        "an inch tap's thread count, a different quantity from a metric tap's Thread Pitch"
         " (#42); cased like the census's Teeth per Inch"
     ),
     "Roller Dia.": (
         "a roller chain's ASME B29.1 roller diameter; the census carries no chain"
         " dimensions, and the bare Dia. would read as the chain's own diameter"
     ),
-    "Hub Diameter": "a sprocket's hub, beside its Outside Diameter; no sprocket hub in the census",
+    "Hub Diameter": "a sprocket's hub, beside its Outside Dia.; no sprocket hub in the census",
     "Length Through Bore": "a sprocket's width along the shaft; no sprocket hub in the census",
     "Fit": (
         "key stock's oversized or undersized bar, the name distributors facet it"

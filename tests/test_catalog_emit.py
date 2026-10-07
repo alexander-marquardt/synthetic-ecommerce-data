@@ -89,12 +89,12 @@ def test_a_metric_tap_publishes_pitch_in_mm_and_an_inch_tap_threads_per_inch_in_
             if "Thread Size" not in entries or doc["product_type"] != "tap_spiral_point":
                 continue
             metric = entries["Thread Size"]["value"].startswith("M")
-            names = ("Pitch", "Threads per Inch")
+            names = ("Thread Pitch", "Threads per Inch")
             ours, theirs = names if metric else names[::-1]
             assert theirs not in entries, entries
             if ours in entries:
                 assert entries[ours]["unit_code"] == ("MMT" if metric else "TPI"), entries
-                assert entries[ours]["key"] == ("pitch" if metric else "threads_per_inch")
+                assert entries[ours]["key"] == ("thread_pitch" if metric else "threads_per_inch")
                 seen.add(metric)
     assert seen == {True, False}, "the sample needs both a metric and an inch tap"
 

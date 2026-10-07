@@ -44,7 +44,7 @@ DIMENSIONAL = {"DIN 471"}
 #: are published as.
 COLUMNS = (
     "For Shaft Diameter",
-    "Inside Diameter",
+    "Inside Dia.",
     "Thickness",
     "Groove Diameter",
     "Groove Width",

@@ -734,7 +734,7 @@
   shape: tube
   item: Bronze Sleeve Bushing
   descriptor_attr: null
-  size_attr: Bore
+  size_attr: Bore Dia.
   size_values:
   - 1/4 in
   - 3/8 in
@@ -763,7 +763,7 @@
   shape: disc
   item: Shaft Collar
   descriptor_attr: null
-  size_attr: Bore
+  size_attr: Bore Dia.
   size_values:
   - 1/4 in
   - 3/8 in
@@ -792,7 +792,7 @@
   shape: cylinder
   item: Rigid Shaft Coupling
   descriptor_attr: null
-  size_attr: Bore
+  size_attr: Bore Dia.
   size_values:
   - 1/4 in
   - 3/8 in
@@ -865,7 +865,7 @@
   shape: disc
   item: Timing Pulley
   descriptor_attr: null
-  size_attr: Bore
+  size_attr: Bore Dia.
   size_values:
   - 1/4 in
   - 3/8 in

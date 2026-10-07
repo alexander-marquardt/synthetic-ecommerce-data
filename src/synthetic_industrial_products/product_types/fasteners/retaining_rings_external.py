@@ -10,7 +10,7 @@ inside diameter before it is fitted), ``s`` (the ring's thickness), ``d2``
 (the diameter of the groove the ring sits in) and ``m`` (that groove's
 width).
 
-``d3`` is published as ``Inside Diameter`` and ``s`` as ``Thickness``, the
+``d3`` is published as ``Inside Dia.`` and ``s`` as ``Thickness``, the
 census names. The census has no retaining ring, so ``For Shaft Diameter``,
 ``Groove Diameter`` and ``Groove Width`` are ``names.NAME_EXCEPTIONS``. The
 chart's lug and beam columns are not published; the drawing's ring width and
@@ -58,7 +58,7 @@ def draw(values: Mapping[str, float]) -> Figure:
     """The ring face on, its edge beside it, and under them the shaft with
     the groove the ring snaps into."""
     shaft = values["For Shaft Diameter"]
-    inner = values["Inside Diameter"] / 2
+    inner = values["Inside Dia."] / 2
     thickness = values["Thickness"]
     groove = values["Groove Diameter"] / 2
     width = values["Groove Width"]
@@ -95,7 +95,7 @@ TABLE = TableType(
     standard="DIN 471",
     columns=(
         "For Shaft Diameter",
-        "Inside Diameter",
+        "Inside Dia.",
         "Thickness",
         "Groove Diameter",
         "Groove Width",

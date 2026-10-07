@@ -69,7 +69,7 @@ def draw(values: Mapping[str, float]) -> Figure:
     """The unit seen along the shaft: the foot on the ground with its two
     bolt slots cut through it, and the round housing above with the insert
     and the bore at ``Base to Center Height``."""
-    bore = values["Bore"]
+    bore = values["Bore Dia."]
     centre = values["Base to Center Height"]
     half = values["Overall Length"] / 2
     bolts = values["Bolt Hole Center-to-Center"] / 2
@@ -95,7 +95,7 @@ TABLE = TableType(
     standards_family="motion",
     standard="JIS B 1557",
     columns=(
-        "Bore",
+        "Bore Dia.",
         "Base to Center Height",
         "Overall Length",
         "Bolt Hole Center-to-Center",

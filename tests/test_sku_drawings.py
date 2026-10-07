@@ -481,7 +481,7 @@ def test_siblings_are_drawn_at_one_scale_so_what_they_share_is_drawn_identically
         "screw_flat_head": ("Head Dia.", "Drive Size"),
         "screw_button_head": ("Head Dia.", "Drive Size"),
         "screw_low_head": ("Head Dia.", "Drive Size"),
-        "bearing_radial_ball": ("Bore", "Outside Dia.", "Width"),
+        "bearing_radial_ball": ("Bore Dia.", "Outside Dia.", "Width"),
     }
     checked = 0
     offenders = []

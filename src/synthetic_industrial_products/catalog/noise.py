@@ -121,7 +121,7 @@ UNIT_PRIMARY: RegistryTable[str, str] = RegistryTable(
         "end_mill_ball": "Milling Dia.",
         "drill_jobber": "Size",
         "hex_key": "Size",
-        "bearing_radial_ball": "Bore",
+        "bearing_radial_ball": "Bore Dia.",
         "wheel_depressed_center": "Diameter",
         "abrasive_flap_disc": "Diameter",
     }
@@ -239,7 +239,7 @@ def unit_equivalent(type_key: str, values: Mapping[str, str]) -> str | None:
 def fit_or_pairing(type_key: str, values: Mapping[str, str]) -> str | None:
     """Bore tolerance for a metric bearing; what a screw or bolt pairs with."""
     if type_key == "bearing_radial_ball":
-        bore = values.get("Bore")
+        bore = values.get("Bore Dia.")
         bore_in = _inches(bore)
         if bore is None or bore_in is None or not bore.strip().endswith("mm"):
             return None

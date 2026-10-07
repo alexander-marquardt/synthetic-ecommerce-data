@@ -8,7 +8,7 @@ far one prong extends past the other), ``b`` (the length of the eye) and
 ``c`` (the width of the eye; the chart heads it "c mam."). Twelve of its
 sixteen sizes (0.6 mm to 20 mm) are stated, 1 mm to 13 mm.
 
-``d`` is published as ``Diameter``, ``c`` as ``Head Diameter`` and ``b`` as
+``d`` is published as ``Diameter``, ``c`` as ``Head Dia.`` and ``b`` as
 ``Head Height``, the census names for those measurements. ``a`` is not
 published: the census has no name for it. The chart gives no lengths, so a
 record publishes none and the drawing's shank is a nominal proportion.
@@ -48,8 +48,8 @@ STEP = 0.6
 
 def draw(values: Mapping[str, float]) -> Figure:
     """The pin standing on its prongs: two half-round wires, and the eye
-    ``Head Diameter`` wide and ``Head Height`` long above them."""
-    d, c, b = values["Diameter"], values["Head Diameter"], values["Head Height"]
+    ``Head Dia.`` wide and ``Head Height`` long above them."""
+    d, c, b = values["Diameter"], values["Head Dia."], values["Head Height"]
     shank = SHANK * d
     radius = c / 2
     centre = (0.0, shank + b - radius)
@@ -71,7 +71,7 @@ TABLE = TableType(
     item="Cotter Pin",
     standards_family="fastener",
     standard="ISO 1234",
-    columns=("Diameter", "Head Diameter", "Head Height"),
+    columns=("Diameter", "Head Dia.", "Head Height"),
     rows=ROWS,
     variants=(
         Variant("Steel", "Zinc Plated", 1.0),

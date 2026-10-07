@@ -578,7 +578,7 @@ def build_bearing(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
         # sanitised key with the product's own ``series`` column; the flat field
         # map namespaces it (``attr_series``) rather than drop it.
         keyword_attribute("Series", "R" if inch else number[:2]),
-        length_attribute("Bore", gen._publish(bore_in, style)),
+        length_attribute("Bore Dia.", gen._publish(bore_in, style)),
         length_attribute("Outside Dia.", gen._publish(od_in, style)),
         length_attribute("Width", gen._publish(width_in, style)),
         keyword_attribute("Material", material),
