@@ -355,6 +355,14 @@ def test_more_strands_cost_more_in_every_same_spec_set(lines):
     assert falling == [], falling
 
 
+def test_the_provenance_says_where_the_dimensions_were_read():
+    """ASME's own text was not read: the record must not claim it was."""
+    assert roller_chain.PROVENANCE == (
+        "Pitch and Roller Dia. and Inside Width are ASME B29.1 dimensions as "
+        "published in the size chart at " + roller_chain.SOURCE_URL + " (retrieved 2026-10-07)"
+    )
+
+
 if __name__ == "__main__":
     SLICE.parent.mkdir(parents=True, exist_ok=True)
     SLICE.write_text(
