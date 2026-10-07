@@ -1,0 +1,28 @@
+# One breadth row (alexander-marquardt/synthetic-industrial-products#34); one file
+# per row, so two PRs that add or remove rows never touch the same file (#48).
+# The schema and the generic loop that reads it are in catalog/breadth.py.
+key: zerk_grease_fittings
+category:
+- Lubricants, Coolants & Fluids
+- Grease Fittings
+- Zerk Grease Fittings
+family: motion
+shape: cylinder
+item: Zerk Grease Fitting
+descriptor_attr: null
+size_attr: Thread Size
+size_values:
+- 1/8-27
+- 1/4-28
+- M6x1
+- M8x1
+attributes:
+  Material:
+  - Steel
+  - Stainless Steel
+  Style:
+  - Straight
+  - 90 Degree
+price_range: [0.5, 4.0]
+skus: 2
+reason: breadth diversity; lubrication-hardware category gap

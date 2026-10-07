@@ -1,6 +1,6 @@
 {
- "lines": 5815,
- "skus": 10633,
+ "lines": 5850,
+ "skus": 10691,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "ball_stock_precision": 1,
@@ -24,7 +24,7 @@
   "cotter_pins": 1,
   "coupling_nuts": 1,
   "cut_resistant_gloves": 1,
-  "dowel_pins": 1,
+  "dowel_pins": 36,
   "drill_bushings": 1,
   "drill_jobber": 286,
   "end_mill_ball": 286,
@@ -93,7 +93,7 @@
   "cotter_pins": 2,
   "coupling_nuts": 2,
   "cut_resistant_gloves": 1,
-  "dowel_pins": 2,
+  "dowel_pins": 60,
   "drill_bushings": 2,
   "drill_jobber": 530,
   "end_mill_ball": 568,
@@ -317,10 +317,19 @@
    "Size"
   ],
   "dowel_pins": [
+   "Dia. Tolerance",
    "Diameter",
+   "Dimension Type",
+   "Finish",
+   "Hardness",
    "Item",
    "Length",
-   "Material"
+   "Material",
+   "Measurement System",
+   "Rockwell Hardness",
+   "Standards",
+   "System of Measurement",
+   "Type"
   ],
   "drill_bushings": [
    "Item",
@@ -807,7 +816,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 132635,
+ "total_attribute_entries": 133107,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -839,36 +848,36 @@
   {
    "name": "declared system contradicts value units",
    "target": 0.0323,
-   "achieved": 0.0269078,
+   "achieved": 0.0267603,
    "numerator": 122,
-   "denominator": 4534,
+   "denominator": 4559,
    "note": "over records carrying both",
    "band": null
   },
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.0150697,
-   "numerator": 159,
-   "denominator": 10551,
+   "achieved": 0.0150815,
+   "numerator": 160,
+   "denominator": 10609,
    "note": "over records with a readable dimension",
    "band": null
   },
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.468765,
-   "numerator": 7789,
-   "denominator": 16616,
+   "achieved": 0.469357,
+   "numerator": 7827,
+   "denominator": 16676,
    "note": "over title dimension tokens",
    "band": null
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.130116,
-   "numerator": 2162,
-   "denominator": 16616,
+   "achieved": 0.129827,
+   "numerator": 2165,
+   "denominator": 16676,
    "note": "over title dimension tokens",
    "band": null
   },
@@ -877,7 +886,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 10633,
+   "denominator": 10691,
    "note": "over titles",
    "band": null
   },
@@ -886,7 +895,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 10633,
+   "denominator": 10691,
    "note": "deliberate: the corpus measures 0.1089",
    "band": null
   },
@@ -895,16 +904,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 10633,
+   "denominator": 10691,
    "note": "deliberate: the corpus measures 0.7353",
    "band": null
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 12.4739,
-   "numerator": 132635,
-   "denominator": 10633,
+   "achieved": 12.4504,
+   "numerator": 133107,
+   "denominator": 10691,
    "note": "count, not a rate",
    "band": null
   },
@@ -1163,10 +1172,10 @@
   {
    "name": "price p50 (USD): kit_assortment",
    "target": 80.575,
-   "achieved": 63.98,
+   "achieved": 79.05,
    "numerator": 59,
    "denominator": 46,
-   "note": "shown price; denom is the census n; EXCEPTED, a kit's price is one group draw per page, not the sum of its contents, so its few pages move the median and the p90/p10 with the build's size: the group noise that spreads the p90/p10 to the census moves the p50 out at one build or the other (price a kit from its contents: #71)",
+   "note": "shown price; denom is the census n",
    "band": [
     64.46,
     100.719
@@ -1175,10 +1184,10 @@
   {
    "name": "price p90/p10: kit_assortment",
    "target": 114.26,
-   "achieved": 81.7835,
+   "achieved": 4.03158,
    "numerator": 59,
    "denominator": 46,
-   "note": "shown price; denom is the census n; EXCEPTED, a kit's price is one group draw per page, not the sum of its contents, so its few pages move the median and the p90/p10 with the build's size: the group noise that spreads the p90/p10 to the census moves the p50 out at one build or the other (price a kit from its contents: #71)",
+   "note": "shown price; denom is the census n; PINNED SHORTFALL, below band: a kit is priced from its contents, and the catalog's kit kinds hold between about $36 and $130 of parts, so with material and tier its prices span 4.0x on the default build and 3.9x at 100K against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629. Group noise loud enough to make up the rest (about 2.2) spreads a kit's price about 79x on its own, so the price would follow the noise, not the contents, and a kit draws none (widen the kit range: #76)",
    "band": [
     85.6948,
     151.965
@@ -1187,8 +1196,8 @@
   {
    "name": "price larger size costs more: kit_assortment",
    "target": 0.797,
-   "achieved": 0.766667,
-   "numerator": 23,
+   "achieved": 0.733333,
+   "numerator": 22,
    "denominator": 30,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -1462,10 +1471,10 @@
   },
   {
    "name": "price smaller costs 2x+, same product: screw_socket_head",
-   "target": 7.20178e-10,
-   "achieved": 0.00827206,
+   "target": 1.05075e-09,
+   "achieved": 0.00797166,
    "numerator": 9,
-   "denominator": 1088,
+   "denominator": 1129,
    "note": "pairs of one product, length at an equal key differs; target IMPLIED by the census slope and larger-costs-less share, not measured",
    "band": [
     0.0,
@@ -1594,77 +1603,77 @@
   },
   {
    "name": "price ending .99",
-   "target": 0.00619583,
-   "achieved": 0.00635192,
+   "target": 0.00617889,
+   "achieved": 0.00631599,
    "numerator": 67,
-   "denominator": 10548,
+   "denominator": 10608,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.00199745,
-    0.0103942
+    0.00200389,
+    0.0103539
    ]
   },
   {
    "name": "price ending .00",
-   "target": 0.0885429,
-   "achieved": 0.0875995,
-   "numerator": 924,
-   "denominator": 10548,
+   "target": 0.0889969,
+   "achieved": 0.0883296,
+   "numerator": 937,
+   "denominator": 10608,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0701533,
-    0.106933
+    0.0707077,
+    0.107286
    ]
   },
   {
    "name": "price ending .50",
-   "target": 0.0604166,
-   "achieved": 0.0586841,
-   "numerator": 619,
-   "denominator": 10548,
+   "target": 0.0602954,
+   "achieved": 0.0584465,
+   "numerator": 620,
+   "denominator": 10608,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0431258,
-    0.0777073
+    0.0431015,
+    0.0774894
    ]
   },
   {
    "name": "price ending other .x5",
-   "target": 0.215922,
-   "achieved": 0.222696,
-   "numerator": 2349,
-   "denominator": 10548,
+   "target": 0.216096,
+   "achieved": 0.223133,
+   "numerator": 2367,
+   "denominator": 10608,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.193436,
-    0.238408
+    0.193734,
+    0.238459
    ]
   }
  ],
  "measurement_system_names": {
-  "Dimension Type": 3045,
-  "Measurement System": 1030,
-  "System of Measurement": 459
+  "Dimension Type": 3061,
+  "Measurement System": 1037,
+  "System of Measurement": 461
  },
  "measurement_system_values": {
-  "Inch": 263,
-  "Fractional Inch": 2433,
-  "Metric": 1774,
+  "Inch": 264,
+  "Fractional Inch": 2444,
+  "Metric": 1787,
   "Decimal Inch": 64
  },
  "unit_suffix_distribution": {
-  "in": 21054,
-  "mm": 14403
+  "in": 21109,
+  "mm": 14466
  },
- "standards_present": 5525,
+ "standards_present": 5561,
  "standards_multivalued": 1561,
- "standards_total_values": 7376,
+ "standards_total_values": 7412,
  "multivalued_attribute_names": {
   "Standards": 1561,
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 10633,
+  "n_skus_checked": 10691,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
