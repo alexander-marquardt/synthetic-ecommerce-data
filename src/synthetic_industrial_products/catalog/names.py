@@ -135,6 +135,10 @@ NAME_EXCEPTIONS: dict[str, str] = {
         "an inch tap's thread count, a different quantity from a metric tap's Pitch"
         " (#42); cased like the census's Teeth per Inch"
     ),
+    "Groove Dia.": (
+        "the shaft groove an external retaining ring seats in, DIN 471's d2; the census"
+        " carries no retaining-ring family, and cased like its Inside Dia."
+    ),
 }
 
 

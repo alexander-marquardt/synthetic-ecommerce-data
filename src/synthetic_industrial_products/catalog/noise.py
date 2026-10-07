@@ -109,6 +109,7 @@ FASTENERS = (
     "nut_hex",
     "lock_nuts_nylon_insert",
     "washer_flat",
+    "retaining_rings_external",
 )
 
 #: The attribute a type's unit equivalent is written for.
@@ -120,6 +121,7 @@ UNIT_PRIMARY = {
     "bearing_radial_ball": "Bore",
     "wheel_depressed_center": "Diameter",
     "abrasive_flap_disc": "Diameter",
+    "retaining_rings_external": "Size",
 }
 
 

@@ -243,6 +243,7 @@ KEY_ATTRIBUTES: dict[str, tuple[str, ...]] = {
     "kit_assortment": ("Number of Pieces",),
     "lock_nuts_nylon_insert": ("Thread Size",),
     "nut_hex": ("Thread Size",),
+    "retaining_rings_external": ("Size",),
     "screw_button_head": ("Dia./Thread Size",),
     "screw_flat_head": ("Dia./Thread Size",),
     "screw_low_head": ("Dia./Thread Size",),
@@ -494,6 +495,10 @@ MATERIAL_FACTORS: dict[str, float] = {
     "S2 Tool Steel": 1.2,
     "18-8 Stainless Steel": 1.6,
     "440C Stainless Steel": 1.8,
+    # The retaining rings' generic stainless, at 18-8's ratio, and their
+    # spring steel at plain steel's.
+    "Stainless Steel": 1.6,
+    "Spring Steel": 1.0,
     "316 Stainless Steel": 2.2,
     "Brass": 1.9,
     "Nylon": 0.6,
@@ -763,6 +768,11 @@ BORROWS: dict[str, str] = {
     "screw_button_head": "screw_socket_head",
     "screw_flat_head": "screw_socket_head",
     "screw_low_head": "screw_socket_head",
+    # GENERATED, NOT MEASURED: the census has no retaining rings. They price
+    # on the flat washer's measured model, the nearest census type (a thin
+    # stamped ring keyed on the diameter it fits, mostly pack-sold), with the
+    # ring's shaft Size read as the washer's Inside Dia.
+    "retaining_rings_external": "washer_flat",
 }
 
 

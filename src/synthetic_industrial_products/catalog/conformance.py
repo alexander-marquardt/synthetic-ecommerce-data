@@ -109,6 +109,10 @@ def applicable(
             out.append("SAE J995")
     elif type_key == "washer_flat":
         out.extend(("ISO 7089", "DIN 125-A"))
+    elif type_key == "retaining_rings_external":
+        # A metric line's rows are DIN 471's; an inch line's are no table's,
+        # so ``standard`` is empty for it and it claims nothing.
+        out.append(standard)
     elif type_key in ("end_mill_square", "end_mill_ball"):
         if metric:
             out.append("DIN 6527" if material == "Solid Carbide" else "ISO 1641")
