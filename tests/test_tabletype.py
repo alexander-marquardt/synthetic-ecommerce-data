@@ -8,11 +8,15 @@ The table here is made up and belongs to no product: these gates are about
 from __future__ import annotations
 
 import dataclasses
+import importlib
 import math
+import pkgutil
 
 import pytest
 
-from synthetic_industrial_products.catalog import price, tabletype
+from synthetic_industrial_products.catalog import price, tabletype, typespec
+from synthetic_industrial_products.catalog.config import GeneratorConfig
+from synthetic_industrial_products.catalog.generate import Generator
 from synthetic_industrial_products.catalog.tabletype import TableType, Variant
 from synthetic_industrial_products.drawing.model import Figure
 
@@ -150,3 +154,86 @@ def test_the_spec_carries_the_tables_figure_and_claims_only_its_standard():
     assert drawn.source == "record"
     x0, y0, x1, y1 = drawn.figure.bounds()
     assert (x1 - x0, y1 - y0) == pytest.approx((8 / MM, 20 / MM))
+
+
+# --- an inch table (no shipped type is one, so the made-up table is) ----------
+
+INCH = dataclasses.replace(
+    TABLE,
+    key="made_up_inch",
+    standard="ASME 0000",
+    rows=((0.25, 0.5), (0.5, 1.0), (1.0, 2.5)),
+    extent=(1.0, 2.5),
+    unit="in",
+)
+#: A registered key, borrowed for its random stream and brands only.
+BORROWED_KEY = "cotter_pins"
+
+
+def test_an_inch_tables_rows_are_inches():
+    assert INCH.inches(INCH.rows[2]) == {"Diameter": 1.0, "Width": 2.5}
+    assert INCH.price.anchor_key == 0.25
+
+
+def test_an_inch_tables_base_price_is_its_first_row_and_rises_by_the_slope():
+    assert _usd(INCH, 0.25 * MM, "Steel", 10) == pytest.approx(2.0)
+    assert _usd(INCH, 1.0 * MM, "Steel", 10) == pytest.approx(8.0)
+
+
+def test_an_inch_table_is_built_in_inches_with_every_row_of_a_run_on_the_table():
+    """The line a table's ``make`` drafts, before the shared post-pass."""
+    draft = tabletype._make(INCH)(
+        Generator(GeneratorConfig(), BORROWED_KEY), BORROWED_KEY, INCH.category
+    )
+    assert len(draft.children) in (1, 2, 3)
+    for child in draft.children:
+        assert child.system == "in"
+        assert [a.name for a in child.attrs] == ["Diameter", "Width"]
+        entries = [entry for a in child.attrs for entry in a.as_entries()]
+        assert [entry["unit_code"] for entry in entries] == ["INH", "INH"]
+        built = tuple(round(entry["value_canonical"] / MM, 4) for entry in entries)
+        assert built in INCH.rows, built
+
+
+def test_a_ladder_whose_cheapest_material_is_not_the_base_is_refused():
+    """``base_price`` is the first material's price, so its factor is 1.0."""
+    dear = dataclasses.replace(
+        TABLE, variants=(Variant("Steel", "Plain", 2.0), Variant("Brass", "Plain", 3.0))
+    )
+    assert tabletype.problems(dear) == ["the factors do not rise from 1.0"]
+
+
+# --- the registered table types are found, not listed --------------------------
+
+
+def _modules_stating_a_table() -> set[str]:
+    """The type modules holding a ``TableType``, read off the modules
+    themselves: a second route to the set ``tabletype.tables()`` records."""
+    root = importlib.import_module(typespec.TYPES_PACKAGE)
+    found = set()
+    for info in pkgutil.walk_packages(root.__path__, prefix=f"{typespec.TYPES_PACKAGE}."):
+        if info.ispkg:
+            continue
+        module = importlib.import_module(info.name)
+        if any(isinstance(value, TableType) for value in vars(module).values()):
+            found.add(info.name.rsplit(".", 1)[1])
+    return found
+
+
+def test_every_module_that_states_a_table_is_a_recorded_table_type():
+    """What ``NOT_MEASURED`` (test_price) and the distinct-spec floor
+    (test_catalog_brands_voice) read, so a new table type edits neither."""
+    stated = _modules_stating_a_table()
+    assert {"cotter_pins", "retaining_rings_external"} <= stated
+    recorded = tabletype.tables()
+    assert set(recorded) == stated
+    for key, table in recorded.items():
+        assert table.key == key
+        assert typespec.discover()[key].price == table.price
+
+
+def test_a_table_no_type_module_declares_is_not_a_recorded_table_type():
+    """The made-up tables of this module went through ``spec`` too."""
+    tabletype.spec(TABLE)
+    tabletype.spec(INCH)
+    assert {"made_up", "made_up_inch"} & set(tabletype.tables()) == set()
