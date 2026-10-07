@@ -156,7 +156,10 @@ its published attributes. `set_screws_hex_socket` does both.
    * `key_attributes`: the type's key dimension, normally its size attribute.
      The price census keys the type on it (`price.KEY_ATTRIBUTES`) and every
      title names it (`test_every_title_names_its_key_dimension`). `register`
-     refuses a modelled type without one.
+     refuses a modelled type without one. When one line can hold two SKUs
+     that share the key dimension (key stock's square bar and the rectangular
+     bar of its width), the builder sets `ChildDraft.also` to the second
+     dimension on the SKU that needs it, and that SKU's title names both.
    * `threaded`, `fastener` and `unit_primary`: the description sentences the
      type joins ([Family tables](#family-tables)).
 

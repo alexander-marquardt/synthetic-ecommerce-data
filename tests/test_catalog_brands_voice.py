@@ -178,8 +178,12 @@ def test_the_same_part_from_two_brands_is_two_products(golden):
 #: A roller chain is B29.1's 13 sizes in nine stocked offers, 63
 #: size-and-offer pairs (the sum of each ``roller_chain.OFFERS`` row's chain
 #: numbers); with sparsity and noise its 509 SKUs hold 171 distinct specs
-#: (0.34).
+#: (0.34). Key stock is 14 sections in two fits, three material and finish
+#: pairs and two lengths, 168 bars in all, and every maker sells the same
+#: ones: its 965 SKUs hold 184 distinct specs (0.19; the 16 over 168 are
+#: unit-defect spellings of a size).
 DISTINCT_SPEC_FLOOR = {
+    "key_stock": 0.15,
     "washer_flat": 0.15,
     "roller_chain": 0.30,
     "hammer_ball_pein": 0.70,
