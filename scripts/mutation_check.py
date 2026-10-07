@@ -1737,6 +1737,15 @@ MUTATIONS: list[Mutation] = [
         "an end mill's shank is realistic for its cutter",
     ),
     Mutation(
+        "cap an oversize shank just below the census's 2.667x band",
+        "catalog/series.py",
+        "MAX_SHANK_RATIO = 3.0",
+        "MAX_SHANK_RATIO = 2.5",
+        "tests/test_catalog_facts.py -k census_wide_shank_ratios",
+        "B",
+        "an end mill's shank is realistic for its cutter",
+    ),
+    Mutation(
         "drop the 6 mm shank for small metric cutters",
         "catalog/series.py",
         "    if dia_mm < SMALL_METRIC_SHANK_MM - 1e-9:\n        return SMALL_METRIC_SHANK_MM\n",
