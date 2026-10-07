@@ -230,9 +230,11 @@ def test_a_planted_false_sentence_is_caught(golden):
     assert sentence_errors([planted]) == [
         (key["sku"], "For M10 socket head cap screws (ISO 4762).")
     ]
-    drill = next(d for d in golden if "Tap drill for M12x1.75 threads." in d["description"])
+    drill = next(d for d in golden if "Tap drill for M12x1.75 threads (" in d["description"])
     planted = dict(drill, description=drill["description"].replace("M12x1.75", "M12x1.5"))
-    assert sentence_errors([planted]) == [(drill["sku"], "Tap drill for M12x1.5 threads.")]
+    assert sentence_errors([planted]) == [
+        (drill["sku"], "Tap drill for M12x1.5 threads (M12 thread, 1.75 mm pitch).")
+    ]
 
 
 def test_no_record_carries_another_products_attributes(docs):
