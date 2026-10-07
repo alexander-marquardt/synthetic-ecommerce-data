@@ -181,6 +181,14 @@ KEY = {
 }  # fmt: skip
 
 
+def may_claim(type_key: str) -> frozenset[str]:
+    return frozenset(MAY_CLAIM.get(type_key, ()))
+
+
+def title_key(type_key: str) -> tuple[str, ...]:
+    return KEY.get(type_key, ())
+
+
 #: Every rule in this file is a truth table written for the census-modelled
 #: types. The breadth categories (:mod:`.catalog.breadth`,
 #: alexander-marquardt/synthetic-industrial-products#34) are cheap filler --
