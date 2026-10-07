@@ -368,7 +368,14 @@ it is NOT MEASURED; the lock nut's and the set screw's are examples (their
 census-backed bands are #69). Such a type gets no price rows, so nothing
 checks its prices against a census. A type with no census rows of its own
 that prices as a sibling does is listed in `price.BORROWS` instead (the
-button, flat and low-head socket screws borrow the socket head's model).
+button, flat and low-head socket screws borrow the socket head's model). A
+type module declares that with `borrows="<census type>"` in place of
+`price=`; declaring both is refused at registration. A borrower's key is
+held to the span its model was fitted over when `price.MEASURED_SPANS`
+records one, so a larger part is never priced on the model's run-out slope:
+the O-rings borrow the flat washer's model, keyed on the cross-section
+(`Width`) and clamped below at the M3 washer's 0.126". Say in the module
+that the borrowed price is generated, not measured.
 
 **Census rows: restate them, then fit.**
 
