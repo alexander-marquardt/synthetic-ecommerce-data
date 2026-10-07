@@ -350,8 +350,11 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
     faceted = [s for s, d in decided.values() if s.is_numeric and d.facet]
     # 41 since the roller chain's Pitch, Roller Dia. and Inside Width (#53),
     # all faceted; 38 before, since the set screws' Point Dia., which is not.
-    assert len(quantitative) == 41
-    assert len(faceted) == 38
+    # The two table types (#101) publish five more, all faceted: a cotter
+    # pin's Head Diameter and Head Height, and a retaining ring's For Shaft
+    # Diameter, Groove Diameter and Groove Width.
+    assert len(quantitative) == 46
+    assert len(faceted) == 43
 
 
 def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
@@ -426,8 +429,8 @@ def test_drive_size_is_the_saturated_ladder_the_rule_names(decided) -> None:
 def test_the_product_floor_decides_only_the_attributes_it_names(decided) -> None:
     """``RANGE_MIN_DOCS`` decides only the attributes ``MEASURED_DISPERSION`` names.
 
-    Many faceted quantities sit under the floor (the smallest is a kit's
-    piece count), but every one of them has a ratio under the continuity
+    Many faceted quantities sit under the floor (the smallest is the shaft a
+    retaining ring fits), but every one of them has a ratio under the continuity
     threshold, so the floor and the ratio agree. On the terms side the
     pinned list is every facet the floor keeps offered against the ratio.
     """

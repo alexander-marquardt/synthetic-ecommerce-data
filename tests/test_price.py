@@ -13,7 +13,14 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_industrial_products.catalog import brands, breadth, newtypes, price, price_report
+from synthetic_industrial_products.catalog import (
+    brands,
+    breadth,
+    newtypes,
+    price,
+    price_report,
+    tabletype,
+)
 from synthetic_industrial_products.catalog.config import HUNDRED_K_LINES, GeneratorConfig
 from synthetic_industrial_products.catalog.generate import Generator, generate
 from synthetic_industrial_products.catalog.measure import measure
@@ -905,8 +912,12 @@ def test_tying_every_pair_breaks_the_equal_price_row(scored):
 #: The types whose placeholder model keeps the level the catalog had,
 #: declared ``measured=False``: the ball-pein hammer's archived pages are
 #: script shells, and the lock nuts and set screws merged with no census
-#: figures (#69 gives them census-backed bands). No row scores them.
-NOT_MEASURED = frozenset({"hammer_ball_pein", "lock_nuts_nylon_insert", "set_screws_hex_socket"})
+#: figures (#69 gives them census-backed bands). Every table type (#101) joins
+#: them, read from the registry and not listed: its price is a declared ladder
+#: nobody measured. No row scores any of them.
+NOT_MEASURED = frozenset(
+    {"hammer_ball_pein", "lock_nuts_nylon_insert", "set_screws_hex_socket", *tabletype.tables()}
+)
 
 
 def test_the_rows_score_every_priced_type_but_the_declared_exceptions(scored):
