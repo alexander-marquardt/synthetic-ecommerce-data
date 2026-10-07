@@ -2,7 +2,7 @@
 
 The rule under test (elastic/prism#9285): an attribute is offered as a range
 only when its values are CONTINUOUS, measured as saturation -- distinct values
-per document publishing it -- and not merely because they happen to be
+per distinct (product, value) pair publishing it (#28) -- and not merely because they happen to be
 numbers. A range control over a discrete standard set implies a continuity the
 domain does not have and lets a shopper select an interval containing no
 manufactured size.
@@ -28,7 +28,7 @@ from synthetic_industrial_products.catalog.breadth import SPEC_QUALITY
 from synthetic_industrial_products.catalog.config import GeneratorConfig
 from synthetic_industrial_products.catalog.generate import generate
 from synthetic_industrial_products.prism.derive import (
-    MAX_TERMS_CARDINALITY,
+    IDENTIFIER_DISPERSION,
     MEASURED_DISPERSION,
     MIN_PRESENCE,
     RANGE_DISPERSION,
@@ -249,20 +249,25 @@ def test_values_that_are_not_numbers_are_never_a_range() -> None:
     assert not wordy.is_continuous
 
 
-def test_a_quantity_is_exempt_from_the_identifier_ceiling_at_any_cardinality() -> None:
-    """The ceiling separates a facet from a part number, not a list from a slider.
+def test_a_quantity_is_exempt_from_the_identifier_rule_at_any_dispersion() -> None:
+    """The identifier rule separates a facet from a part number, not a list from a slider.
 
     The reference distributor offers ``Length of Cut (Decimal Inch)`` as a discrete list of
-    819 values. A rule that dropped a quantitative attribute for exceeding 25
-    would delete most of this catalog's sidebar the moment the control
-    changed -- which is exactly what would have happened had the exemption
-    stayed tied to the range control.
+    819 values. A quantity whose values never repeat is a continuum, not a
+    part number, so it is offered (as a range) where a terms attribute with
+    the same figures is withheld.
     """
     big_quantity = _stats(cardinality=819, present=10_000)
-    assert big_quantity.cardinality > MAX_TERMS_CARDINALITY
     assert decide(big_quantity).facet, decide(big_quantity).reason
 
-    part_number = _stats(cardinality=110, present=919, numeric=0)
+    unrepeated = _stats(cardinality=819, present=820)
+    assert unrepeated.dispersion >= IDENTIFIER_DISPERSION
+    assert not unrepeated.is_identifier
+    assert decide(unrepeated).facet, decide(unrepeated).reason
+
+    # List Number's shape: a series code, about one value per product.
+    part_number = _stats(cardinality=110, present=919, numeric=0, product_values=113)
+    assert part_number.is_identifier
     assert not decide(part_number).facet
     assert "identifier" in decide(part_number).reason
 
@@ -285,7 +290,7 @@ def test_changing_the_control_rule_changed_no_attributes_facet_status(
         for k, s in stats.items()
         if s.cardinality >= 2
         and s.presence >= MIN_PRESENCE
-        and (s.is_numeric or s.cardinality <= MAX_TERMS_CARDINALITY)
+        and (s.is_numeric or not s.is_identifier)
     }
     assert new_faceted == old_faceted, {
         "newly faceted": sorted(new_faceted - old_faceted),
@@ -445,6 +450,30 @@ NEWLY_OFFERED = frozenset(
         "type",
     }
 )
+
+
+def test_the_identifier_figures_are_what_the_rule_states(decided) -> None:
+    """The terms side of the band, read off the catalog like the quantitative one.
+
+    Exactly one terms attribute is withheld as an identifier, and the densest
+    terms facet sits well under the line, so the threshold is not deciding
+    anything by a hair.
+    """
+    identifiers = [s for s, _ in decided.values() if s.is_identifier]
+    assert [s.name for s in identifiers] == [MEASURED_DISPERSION["identifier"]]
+    assert round(identifiers[0].dispersion, 4) == MEASURED_DISPERSION["identifier_dispersion"]
+    _, decision = decided[identifiers[0].key]
+    assert not decision.facet
+
+    terms_facets = [
+        s
+        for s, d in decided.values()
+        if not s.is_numeric and d.facet and s.product_values >= RANGE_MIN_DOCS
+    ]
+    densest = max(terms_facets, key=lambda s: s.dispersion)
+    assert densest.name == MEASURED_DISPERSION["densest_terms_facet"]
+    assert round(densest.dispersion, 4) == MEASURED_DISPERSION["densest_terms_facet_dispersion"]
+    assert densest.dispersion < IDENTIFIER_DISPERSION
 
 
 @pytest.mark.parametrize("scale", [1, 10, 100])
