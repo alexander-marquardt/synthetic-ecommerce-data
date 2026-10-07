@@ -121,6 +121,7 @@ UNIT_PRIMARY = {
     "bearing_radial_ball": "Bore",
     "wheel_depressed_center": "Diameter",
     "abrasive_flap_disc": "Diameter",
+    "dowel_pins": "Diameter",
 }
 
 
