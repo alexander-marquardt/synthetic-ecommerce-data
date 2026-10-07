@@ -60,7 +60,7 @@
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
 #   attributes declared      98
-#   offered as facets        67  (3 numeric ranges, 64 terms)
+#   offered as facets        67  (0 numeric ranges, 67 terms)
 #   declared, not faceted    31
 # =============================================================================
 
@@ -244,11 +244,11 @@ fields:
     type: terms
     source: facets.capacity
     facet: false
-  # Pitch -- a range: 35 distinct values over 68 documents is 0.51 per document, at or above the 0.50 continuity threshold
-  #   present on 68 documents across 1 product type(s); 35 distinct values
+  # Pitch -- a discrete standard set: 11 distinct values over 68 documents is 0.16 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 68 documents across 1 product type(s); 11 distinct values
   - name: chain_pitch
-    type: numeric
-    source: facets_num.chain_pitch
+    type: terms
+    source: facets.chain_pitch
   # Closure Type -- 3 distinct values
   #   present on 1126 documents across 1 product type(s); 3 distinct values
   - name: closure_type
@@ -427,11 +427,11 @@ fields:
   - name: inside_dia
     type: terms
     source: facets.inside_dia
-  # Inside Width -- a range: 33 distinct values over 63 documents is 0.52 per document, at or above the 0.50 continuity threshold
-  #   present on 63 documents across 1 product type(s); 33 distinct values
+  # Inside Width -- a discrete standard set: 11 distinct values over 63 documents is 0.17 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 63 documents across 1 product type(s); 11 distinct values
   - name: inside_width
-    type: numeric
-    source: facets_num.inside_width
+    type: terms
+    source: facets.inside_width
   # Item -- 73 distinct values reads as an identifier, not a facet (cap 25)
   #   present on 10716 documents across 67 product type(s); 73 distinct values
   - name: item
@@ -574,11 +574,11 @@ fields:
     type: terms
     source: facets.rockwell_hardness
     facet: false
-  # Roller Dia. -- a range: 25 distinct values over 50 documents is 0.50 per document, at or above the 0.50 continuity threshold
-  #   present on 50 documents across 1 product type(s); 25 distinct values
+  # Roller Dia. -- a discrete standard set: 9 distinct values over 50 documents is 0.18 per document, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 50 documents across 1 product type(s); 9 distinct values
   - name: roller_dia
-    type: numeric
-    source: facets_num.roller_dia
+    type: terms
+    source: facets.roller_dia
   # Row Type -- single-valued: clicking it cannot narrow the result set
   #   present on 639 documents across 1 product type(s); 1 distinct values
   - name: row_type

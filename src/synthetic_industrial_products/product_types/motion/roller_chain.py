@@ -29,8 +29,9 @@ from dataclasses import dataclass
 from fractions import Fraction
 from typing import TYPE_CHECKING, Any
 
+from ...catalog.formats import LengthStyle
 from ...catalog.model import keyword_attribute, length_attribute, numeric_attribute
-from ...catalog.newtypes import _weighted, _window, feed_style, table_provenance
+from ...catalog.newtypes import _weighted, _window, table_provenance
 from ...catalog.price import PriceModel
 from ...catalog.typespec import TypeSpec
 from ...catalog.vocab import AttrSpec
@@ -64,6 +65,13 @@ ANSI: tuple[tuple[str, Fraction, Fraction | None, Fraction], ...] = (
 )
 
 STRANDS = {1: "Single Strand", 2: "Double Strand", 3: "Triple Strand"}
+
+#: Every brand spells a chain's dimensions as B29.1's table does, an inch
+#: fraction, rather than in its own feed's style. The facet derivation counts
+#: distinct spellings, not magnitudes (#77): four brand spellings of 13 sizes
+#: over the default build's 68 chains read as a range, which no dimension of
+#: this catalog may be.
+SPELLING = LengthStyle("in", '"', "fraction")
 
 #: A length, in feet, and the inches the price model scales it by.
 FEET_PER_LENGTH = {10: 120.0, 50: 600.0, 100: 1200.0}
@@ -125,7 +133,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
     """One line: an offer, and a window of its chain numbers."""
     # Imported here: generate imports the type tables, which discover this module.
     from ...catalog.brands import pick_brand
-    from ...catalog.generate import BRANDS, ChildDraft, LineDraft
+    from ...catalog.generate import ChildDraft, LineDraft
 
     rng = gen.rng
     brand = pick_brand(rng, type_key, gen._exhausted)
@@ -147,7 +155,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
         numeric_attribute("Length", f"{offer.feet} ft", FEET_PER_LENGTH[offer.feet]),
     ]
     draft.descriptors = [("Style", style_name), ("Material", offer.material)]
-    style = feed_style(brand, "in", BRANDS)
+    style = SPELLING
     key = f"roller-chain:{offer.strands}:{offer.material}:{offer.finish}:{offer.feet}"
     for number, pitch, roller, width in _window(gen, key, offer.rows(), gen._variant_count()):
         child = ChildDraft(system="in")
@@ -218,10 +226,10 @@ ENDINGS = {"other .x5": 0.3239, ".00": 0.2958, ".50": 0.2676, "other": 0.0986, "
 #: chain prices as a single strand one of its pitch, but for its line's noise.
 PRICE = PriceModel(
     # @fit-begin
-    160.0,
+    168.0,
     0.5,
     1.2,
-    0.25,
+    0.35,
     0.1,
     # @fit-end
     endings=ENDINGS,
