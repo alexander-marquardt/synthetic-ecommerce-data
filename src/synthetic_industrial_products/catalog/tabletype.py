@@ -100,14 +100,15 @@ class TableType:
         return PriceModel(
             anchor=self.base_price,
             anchor_key=self.rows[0][0] / self.per_inch,
-            slope=0.0,  # STUB (red commit): no size term yet
+            slope=self.size_slope,
             group_sigma=0.0,
             sku_sigma=0.0,
             endings=ENDINGS,
             pack_attribute=PACK,
-            pack_slope=0.0,  # STUB: no pack term yet
+            pack_slope=self.pack_slope,
             pack_ref=float(self.packs[0]),
             measured=False,
+            materials={v.material: v.factor for v in self.variants},
         )
 
 
@@ -126,8 +127,7 @@ def problems(table: TableType) -> list[str]:
         (table.base_price > 0, "base_price is not positive"),
         (table.unit in ("mm", "in"), "unit is neither mm nor in"),
     )  # fmt: skip
-    del checks  # STUB (red commit): nothing is refused yet
-    return []
+    return [message for ok, message in checks if not ok]
 
 
 def lengths(table: TableType, record: Mapping[str, str]) -> tuple[dict[str, float], str]:
@@ -139,8 +139,6 @@ def lengths(table: TableType, record: Mapping[str, str]) -> tuple[dict[str, floa
     row nearest the SKU's size; a SKU with no readable size is drawn as the
     middle row.
     """
-    if table.rows:  # STUB (red commit): every SKU is drawn as the middle row
-        return table.inches(table.rows[len(table.rows) // 2]), "nominal"
     own: dict[str, float] = {}
     for name in table.columns:
         try:
@@ -172,7 +170,7 @@ def _make(table: TableType) -> Callable[..., Any]:
         # Each combination starts its run STRIDE rows after the last one's,
         # so a build of a few lines spreads over the table.
         first = index * STRIDE % len(table.rows)
-        pool = [table.rows[0], table.rows[first]][:1]  # STUB (red commit): one row
+        pool = [*table.rows[first:], *table.rows[:first]]
         brand = brands.pick_brand(gen.rng, type_key, gen._exhausted)
         draft = LineDraft(
             item=table.item,

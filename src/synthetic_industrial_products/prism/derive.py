@@ -255,7 +255,8 @@ RANGE_MIN_DOCS = 250
 #: row moved from documents to products and ``held_by_floor`` is new.
 MEASURED_DISPERSION: dict[str, Any] = {
     # The band over the QUANTITATIVE attributes that are actually FACETED.
-    "faceted_low": 0.0037,
+    # Package Quantity: a few pack sizes over every product that states one.
+    "faceted_low": 0.0043,
     # Flute Length since the bearing ratings became a published table (one
     # value per bearing number, no jitter): Dynamic Load Capacity was the
     # densest at 0.44 while a formula manufactured a value per SKU.
@@ -267,11 +268,12 @@ MEASURED_DISPERSION: dict[str, Any] = {
     # set screws (#53) add their small keys (0.7-1.3mm, 0.028-0.035") and 485 documents.
     "drive_size_cardinality": 41,
     "drive_size_present": 1842,
-    # The faceted quantity on the fewest products: a kit's piece count (60
-    # kits). Under RANGE_MIN_DOCS, like many faceted quantities, but with a
-    # ratio under the continuity threshold, so the floor decides none of them.
-    "smallest_faceted": "Number of Pieces",
-    "smallest_faceted_products": 59,
+    # The faceted quantity on the fewest products: the shaft a retaining ring
+    # fits, a table type's twelve sizes on its 39 products. Under
+    # RANGE_MIN_DOCS, like many faceted quantities, but with a ratio under the
+    # continuity threshold, so the floor decides none of them.
+    "smallest_faceted": "For Shaft Diameter",
+    "smallest_faceted_products": 39,
     # The terms facets of the modelled types that the ratio alone would
     # withhold and RANGE_MIN_DOCS keeps offered: none. (Two breadth-category
     # facets are, Style and Color; the committed field map's reasons say so.)

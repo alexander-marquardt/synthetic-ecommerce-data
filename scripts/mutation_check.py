@@ -2751,6 +2751,114 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- table: the table-driven types (#101) ------------------------------
+    # Every name starts "table:", so `--only "table:"` re-runs them. A table
+    # type's price is a declared ladder nobody measured, so what is planted is
+    # a broken ORDER, never a wrong level.
+    *(
+        Mutation(f"table: {name}", file, old, new, test, direction, prop)
+        for name, file, old, new, test, direction, prop in [
+            (
+                "a larger size costs no more",
+                "catalog/tabletype.py",
+                "            slope=self.size_slope,",
+                "            slope=0.0,",
+                "tests/test_tabletype.py -k a_larger_size_costs_more",
+                "",
+                "a larger size costs more",
+            ),
+            (
+                "a bigger pack costs the same in total",
+                "catalog/tabletype.py",
+                "            pack_slope=self.pack_slope,",
+                "            pack_slope=0.0,",
+                "tests/test_tabletype.py -k a_bigger_pack_costs_more",
+                "A",
+                "a bigger pack costs more in total and less a piece",
+            ),
+            (
+                "a bigger pack costs the same a piece",
+                "catalog/tabletype.py",
+                "            pack_slope=self.pack_slope,",
+                "            pack_slope=1.0,",
+                "tests/test_tabletype.py -k a_bigger_pack_costs_more",
+                "B",
+                "a bigger pack costs more in total and less a piece",
+            ),
+            (
+                "a table's material ladder is not read",
+                "catalog/price.py",
+                "    factors = MATERIAL_FACTORS if model.materials is None else model.materials",
+                "    factors = MATERIAL_FACTORS",
+                "tests/test_tabletype.py -k tables_own_factor",
+                "",
+                "a material costs the table's own factor",
+            ),
+            (
+                "a table price claims to be measured",
+                "catalog/tabletype.py",
+                "            measured=False,",
+                "            measured=True,",
+                "tests/test_tabletype.py -k claims_no_measurement",
+                "",
+                "a table price claims no measurement",
+            ),
+            (
+                "falling sizes are accepted",
+                "catalog/tabletype.py",
+                "        (sizes == sorted(set(sizes)) and sizes[0] > 0,",
+                "        (sizes[0] > 0,",
+                "tests/test_tabletype.py -k would_break_an_order",
+                "",
+                "a table that breaks an order is refused",
+            ),
+            (
+                "a missing column is drawn at the row's size, not the SKU's",
+                "catalog/tabletype.py",
+                "own.get(name, nearest[name] * scale)",
+                "own.get(name, nearest[name])",
+                "tests/test_tabletype.py -k nearest_rows_proportion",
+                "",
+                "a drawing is scaled from the record",
+            ),
+            (
+                "a cotter pin's eye is drawn from its diameter, not its row",
+                "product_types/fasteners/cotter_pins.py",
+                "    radius = c / 2",
+                "    radius = d",
+                "tests/test_type_cotter_pins.py -k scaled_from_its_row",
+                "",
+                "a drawing is scaled from the record",
+            ),
+            (
+                "a retaining ring's edge is drawn at one thickness",
+                "product_types/fasteners/retaining_rings_external.py",
+                '    fig.rect(edge, -outer, edge + thickness, outer, "plain")',
+                '    fig.rect(edge, -outer, edge + 0.05, outer, "plain")',
+                "tests/test_type_retaining_rings_external.py -k scaled_from_its_row",
+                "",
+                "a drawing is scaled from the record",
+            ),
+            (
+                "a cotter pin row is typed wrong",
+                "product_types/fasteners/cotter_pins.py",
+                "    (2.0, 3.6, 4.0),",
+                "    (2.0, 3.8, 4.0),",
+                "tests/test_type_cotter_pins.py -k every_row_of_the_table_is_built",
+                "",
+                "every built size is a row of the table",
+            ),
+            (
+                "stainless retaining rings cost what steel ones do",
+                "product_types/fasteners/retaining_rings_external.py",
+                '        Variant("Stainless Steel", "Plain", 2.6),',
+                '        Variant("Stainless Steel", "Plain", 1.0),',
+                "tests/test_type_retaining_rings_external.py -k larger_dearer_material",
+                "",
+                "a dearer material costs more",
+            ),
+        ]
+    ),
 ]
 
 
