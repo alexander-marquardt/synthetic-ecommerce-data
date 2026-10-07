@@ -24,6 +24,7 @@ No pack quantity is published (#14): a line is one nut per SKU.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
@@ -318,6 +319,27 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
 #: them until issue #69.
 PRICE = PriceModel(2.0, 0.4, 0.55, 0.3, 0.25, measured=False)
 
+def claims(
+    facts: Mapping[str, str], *, metric: bool, provenance: str, standard: str
+) -> list[str]:
+    """A metric line's dimensional standard is its table's; an inch line's
+    rows are no standard's, so ``standard`` is empty for it."""
+    grade = facts.get("Grade", "")
+    stainless = "Stainless" in facts.get("Material", "")
+    out = [standard]
+    # ISO 2320: the prevailing-torque function of steel nuts; ISO 898-2
+    # the steel nut's property classes, thin (04, 05) and regular (8, 10).
+    if metric and not stainless:
+        out.append("ISO 2320")
+    if metric and grade.startswith("Class"):
+        out.append("ISO 898-2")
+    if metric and stainless:
+        out.append("ISO 3506-2")
+    if not metric and grade.startswith("Grade"):
+        out.append("SAE J995")
+    return out
+
+
 SPEC = TypeSpec(
     "lock_nuts_nylon_insert",
     category=("Fasteners", "Nuts", "Nylon Insert Lock Nuts"),
@@ -329,6 +351,14 @@ SPEC = TypeSpec(
     make=build,
     share=0.1,
     price=PRICE,
+    claims=claims,
+    may_claim=frozenset(
+        {"ISO 7040", "ISO 10511", "ISO 10512", "DIN 985", "ISO 2320", "ISO 898-2", "ISO 3506-2"}
+        | {"SAE J995"}
+    ),
+    key_attributes=("Thread Size",),
+    threaded="Thread Size",
+    fastener=True,
     use_lines=(
         "The nylon insert grips the thread, so the nut resists loosening under vibration.",
         "Threads onto a bolt or a screw of the same size.",

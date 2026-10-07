@@ -340,6 +340,17 @@ def figure(record: dict[str, str]) -> Drawn:
 #: holds it until issue #69.
 PRICE = PriceModel(2.2, 0.25, 0.4, 0.3, 0.25, measured=False)
 
+def claims(
+    facts: Mapping[str, str], *, metric: bool, provenance: str, standard: str
+) -> tuple[str, ...]:
+    """The point's ISO standard (metric) or ASME B18.3 (inch), then the
+    material's: ISO 898-5 / ISO 3506-3 metric, ASTM F912 / F880 inch."""
+    stainless = "Stainless" in facts.get("Material", "")
+    if metric:
+        return (standard, "ISO 3506-3" if stainless else "ISO 898-5")
+    return ("ASME B18.3", "ASTM F880" if stainless else "ASTM F912")
+
+
 SPEC = TypeSpec(
     KEY,
     category=("Fasteners", "Set Screws", "Hex Socket Set Screws"),
@@ -352,6 +363,12 @@ SPEC = TypeSpec(
     sizes=SIZES,
     line_standard=line_standard,
     price=PRICE,
+    claims=claims,
+    may_claim=frozenset(
+        {"ISO 4026", "ISO 4027", "ISO 4028", "ISO 4029", "ASME B18.3", "ISO 898-5", "ISO 3506-3"}
+        | {"ASTM F912", "ASTM F880"}
+    ),
+    key_attributes=("Dia./Thread Size",),
     use_lines=(
         "Driven with a hex key.",
         "Holds a collar, pulley or gear on its shaft from inside a tapped hole.",

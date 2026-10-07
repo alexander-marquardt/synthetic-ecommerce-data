@@ -18,7 +18,7 @@ import pytest
 
 from compat_text import compatibility_sentences, without_compatibility
 from published import published_attributes
-from synthetic_industrial_products.catalog import compat, emit
+from synthetic_industrial_products.catalog import compat, emit, typespec
 from synthetic_industrial_products.catalog.config import GeneratorConfig
 from synthetic_industrial_products.catalog.generate import generate
 from synthetic_industrial_products.dimensions import parse_length
@@ -281,7 +281,6 @@ def test_the_description_is_the_template_plus_at_most_one_sentence(docs):
 # --- near-miss threads ---------------------------------------------------------
 
 THREADED = {
-    "screw_socket_head": "Dia./Thread Size",
     "screw_flat_head": "Dia./Thread Size",
     "screw_button_head": "Dia./Thread Size",
     "screw_low_head": "Dia./Thread Size",
@@ -289,6 +288,8 @@ THREADED = {
     "nut_hex": "Thread Size",
     "tap_spiral_point": "Thread Size",
 }
+# A type with its own module declares its thread attribute on its TypeSpec.
+THREADED |= {key: spec.threaded for key, spec in typespec.modelled().items() if spec.threaded}
 
 
 def _series(thread: str) -> str | None:

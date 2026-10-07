@@ -14,7 +14,9 @@ Every designation here is spelled ONE way, and the copy-noise sentences
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Iterable, Mapping
+
+from .typespec import RegistryTable
 
 #: Standards with the same dimensions under a second designation.
 #: Only pairs whose dimensions really are the same: ISO 4017 / DIN 933 and
@@ -24,6 +26,43 @@ EQUIVALENTS: dict[str, str] = {
     "ISO 4762": "DIN 912",
     "ISO 7089": "DIN 125-A",
 }
+
+#: The claims of each type declared in its own module (``TypeSpec.claims``):
+#: ``claims(facts, metric=..., provenance=..., standard=...)``.
+CLAIMS: RegistryTable[str, Callable[..., Iterable[str]]] = RegistryTable()
+
+
+def socket_screw(
+    facts: Mapping[str, str], *, metric: bool, provenance: str, cap_screw: bool = False
+) -> list[str]:
+    """The socket-screw family's claims; ``cap_screw`` adds the inch SHCS standards."""
+    material = facts.get("Material", "")
+    stainless = "Stainless" in material
+    out: list[str] = []
+    # The line's own dimensional standard (a fine-pitch metric line keeps
+    # its head's standard but not its thread's, and claims neither).
+    standard = "" if "fine-pitch" in provenance else provenance
+    # The inch socket screws' dimensions were extracted per head style,
+    # but ASME publishes them all in ONE standard, B18.3: that is what a
+    # part claims.
+    if standard.startswith("ASME B18.3"):
+        standard = "ASME B18.3"
+    if standard:
+        out.append(standard)
+    if standard in EQUIVALENTS:
+        out.append(EQUIVALENTS[standard])
+    # ASTM A574: alloy steel socket head cap screws (inch).
+    if cap_screw and not metric and not stainless:
+        out.append("ASTM A574")
+    # ISO 898-1: the property classes of carbon and alloy steel bolts and
+    # screws; ISO 3506-1 the stainless ones'; ASTM F837 stainless inch SHCS.
+    if metric and "12.9" in material:
+        out.append("ISO 898-1")
+    if metric and stainless:
+        out.append("ISO 3506-1")
+    if cap_screw and not metric and stainless:
+        out.append("ASTM F837")
+    return out
 
 
 def applicable(
@@ -39,43 +78,20 @@ def applicable(
     ``standard`` is the dimensional standard every row of the line was read
     from, for a type whose provenance does not already name one (the hex nut);
     empty when its rows are not one standard's.
+
+    A type declared in its own module states its claims there
+    (``TypeSpec.claims``, registered into :data:`CLAIMS`); the branches below
+    are the types still declared in the shared tables.
     """
+    own = CLAIMS.get(type_key)
+    if own is not None:
+        claimed = own(facts, metric=metric, provenance=provenance, standard=standard)
+        return tuple(dict.fromkeys(s for s in claimed if s))
     material = facts.get("Material", "")
     grade = facts.get("Grade", "")
-    stainless = "Stainless" in material
     out: list[str] = []
-    if type_key in ("screw_socket_head", "screw_flat_head", "screw_button_head", "screw_low_head"):
-        # The line's own dimensional standard (a fine-pitch metric line keeps
-        # its head's standard but not its thread's, and claims neither).
-        standard = "" if "fine-pitch" in provenance else provenance
-        # The inch socket screws' dimensions were extracted per head style,
-        # but ASME publishes them all in ONE standard, B18.3: that is what a
-        # part claims.
-        if standard.startswith("ASME B18.3"):
-            standard = "ASME B18.3"
-        if standard:
-            out.append(standard)
-        if standard in EQUIVALENTS:
-            out.append(EQUIVALENTS[standard])
-        # ASTM A574: alloy steel socket head cap screws (inch).
-        if type_key == "screw_socket_head" and not metric and not stainless:
-            out.append("ASTM A574")
-        # ISO 898-1: the property classes of carbon and alloy steel bolts and
-        # screws; ISO 3506-1 the stainless ones'; ASTM F837 stainless inch SHCS.
-        if metric and "12.9" in material:
-            out.append("ISO 898-1")
-        if metric and stainless:
-            out.append("ISO 3506-1")
-        if type_key == "screw_socket_head" and not metric and stainless:
-            out.append("ASTM F837")
-    elif type_key == "set_screws_hex_socket":
-        # The point's ISO standard (metric) or ASME B18.3 (inch), then the
-        # material's: ISO 898-5 / ISO 3506-3 metric, ASTM F912 / F880 inch.
-        out.append(standard if metric else "ASME B18.3")
-        if metric:
-            out.append("ISO 3506-3" if stainless else "ISO 898-5")
-        else:
-            out.append("ASTM F880" if stainless else "ASTM F912")
+    if type_key in ("screw_flat_head", "screw_button_head", "screw_low_head"):
+        out.extend(socket_screw(facts, metric=metric, provenance=provenance))
     elif type_key == "bolt_hex":
         out.append(provenance)
         if provenance in EQUIVALENTS:
@@ -91,20 +107,6 @@ def applicable(
         out.append(standard)
         if metric and grade.startswith("Class"):
             out.append("ISO 898-2")
-        if not metric and grade.startswith("Grade"):
-            out.append("SAE J995")
-    elif type_key == "lock_nuts_nylon_insert":
-        # A metric line's dimensional standard is its table's; an inch line's
-        # rows are no standard's, so ``standard`` is empty for it.
-        out.append(standard)
-        # ISO 2320: the prevailing-torque function of steel nuts; ISO 898-2
-        # the steel nut's property classes, thin (04, 05) and regular (8, 10).
-        if metric and not stainless:
-            out.append("ISO 2320")
-        if metric and grade.startswith("Class"):
-            out.append("ISO 898-2")
-        if metric and stainless:
-            out.append("ISO 3506-2")
         if not metric and grade.startswith("Grade"):
             out.append("SAE J995")
     elif type_key == "washer_flat":

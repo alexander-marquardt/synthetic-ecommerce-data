@@ -19,7 +19,7 @@ import pytest
 
 import type_gates
 from published import published_attributes
-from synthetic_industrial_products.catalog import emit
+from synthetic_industrial_products.catalog import emit, typespec
 from synthetic_industrial_products.catalog.config import GeneratorConfig
 from synthetic_industrial_products.catalog.generate import Generator, generate
 from synthetic_industrial_products.dimensions import DimensionParseError, parse_length
@@ -46,8 +46,6 @@ CLOSURE_SPEED = {"Open": 1.0, "Double Shield": 1.0, "Double Seal": 0.70}
 
 #: The standards a record of each type may claim.
 MAY_CLAIM = {
-    "screw_socket_head": {"ISO 4762", "DIN 912", "ASME B18.3", "ASTM A574", "ASTM F837",
-                          "ISO 898-1", "ISO 3506-1"},
     "screw_flat_head": {"ISO 10642", "ASME B18.3", "ISO 898-1", "ISO 3506-1"},
     "screw_button_head": {"ISO 7380-1", "ASME B18.3", "ISO 898-1", "ISO 3506-1"},
     "screw_low_head": {"DIN 7984", "ASME B18.3", "ISO 898-1", "ISO 3506-1"},
@@ -55,10 +53,6 @@ MAY_CLAIM = {
                  "DIN 961", "SAE J429", "ISO 898-1"},
     "nut_hex": {"ISO 4032", "ISO 4035", "ISO 8673", "ISO 8675", "ASME B18.2.2", "SAE J995",
                 "ISO 898-2"},
-    "set_screws_hex_socket": {"ISO 4026", "ISO 4027", "ISO 4028", "ISO 4029", "ASME B18.3",
-                              "ISO 898-5", "ISO 3506-3", "ASTM F912", "ASTM F880"},
-    "lock_nuts_nylon_insert": {"ISO 7040", "ISO 10511", "ISO 10512", "DIN 985", "ISO 2320",
-                               "ISO 898-2", "ISO 3506-2", "SAE J995"},
     "washer_flat": {"ISO 7089", "DIN 125-A"},
     "end_mill_square": {"ISO 1641", "DIN 6527", "ANSI B94.19"},
     "end_mill_ball": {"ISO 1641", "DIN 6527", "ANSI B94.19"},
@@ -170,11 +164,9 @@ NOT_ON_CARBIDE = {"Black Oxide", "Bronze Oxide", "Steam Oxide"}
 KEY = {
     "end_mill_square": ("Milling Dia.",), "end_mill_ball": ("Milling Dia.",),
     "drill_jobber": ("Size",), "tap_spiral_point": ("Thread Size",),
-    "screw_socket_head": ("Dia./Thread Size",), "screw_flat_head": ("Dia./Thread Size",),
+    "screw_flat_head": ("Dia./Thread Size",),
     "screw_button_head": ("Dia./Thread Size",), "screw_low_head": ("Dia./Thread Size",),
     "bolt_hex": ("Dia./Thread Size",), "washer_flat": ("Size",), "nut_hex": ("Thread Size",),
-    "set_screws_hex_socket": ("Dia./Thread Size",),
-    "lock_nuts_nylon_insert": ("Thread Size",),
     "hex_key": ("Size",), "bearing_radial_ball": ("Bearing Number", "Bore"),
     "wheel_depressed_center": ("Diameter",), "abrasive_flap_disc": ("Diameter",),
     "hammer_ball_pein": ("Head Weight",), "kit_assortment": ("Number of Pieces",),
@@ -182,11 +174,19 @@ KEY = {
 
 
 def may_claim(type_key: str) -> frozenset[str]:
-    return frozenset(MAY_CLAIM.get(type_key, ()))
+    """The standards ``type_key`` may claim: its module's, else the table's above."""
+    spec = typespec.registered().get(type_key)
+    if spec is not None and spec.breadth is None:
+        return spec.may_claim
+    return frozenset(MAY_CLAIM[type_key])
 
 
 def title_key(type_key: str) -> tuple[str, ...]:
-    return KEY.get(type_key, ())
+    """The key dimension a title names: its module's, else the table's above."""
+    spec = typespec.registered().get(type_key)
+    if spec is not None and spec.breadth is None:
+        return spec.key_attributes
+    return KEY[type_key]
 
 
 #: Every rule in this file is a truth table written for the census-modelled
@@ -250,7 +250,7 @@ def test_every_claimed_standard_applies_to_the_part(docs):
         (doc["sku"], doc["product_type"], a["value"])
         for doc in docs
         for a in published_attributes(doc)
-        if a["name"] == "Standards" and a["value"] not in MAY_CLAIM[doc["product_type"]]
+        if a["name"] == "Standards" and a["value"] not in may_claim(doc["product_type"])
     ]
     assert wrong == [], wrong[:10]
     assert sum(1 for d in docs for a in d["attributes"] if a["name"] == "Standards") > 1000
@@ -443,7 +443,7 @@ def test_every_title_names_its_key_dimension(docs):
     missing = []
     for doc in docs:
         v = _values(doc)
-        for name in KEY[doc["product_type"]]:
+        for name in title_key(doc["product_type"]):
             if name in v and not _in_title(v[name], doc["title"]):
                 missing.append((doc["sku"], name, v[name], doc["title"]))
     assert missing == [], missing[:10]

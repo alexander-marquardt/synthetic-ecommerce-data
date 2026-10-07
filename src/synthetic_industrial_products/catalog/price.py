@@ -231,7 +231,8 @@ def key_reader(*names: str) -> Callable[[Mapping[str, Attribute]], float | None]
 
 #: Each type's key dimension: the catalog's names for the attribute the census
 #: keyed that type on (``key_dimension_attribute``), the first one carried wins.
-KEY_ATTRIBUTES: dict[str, tuple[str, ...]] = {
+#: A type with its own module declares its key as ``TypeSpec.key_attributes``.
+KEY_ATTRIBUTES: RegistryTable[str, tuple[str, ...]] = RegistryTable({
     "abrasive_flap_disc": ("Diameter",),
     "bearing_radial_ball": ("Bore",),
     "bolt_hex": ("Dia./Thread Size",),
@@ -241,22 +242,21 @@ KEY_ATTRIBUTES: dict[str, tuple[str, ...]] = {
     "hammer_ball_pein": ("Head Weight",),
     "hex_key": ("Size",),
     "kit_assortment": ("Number of Pieces",),
-    "lock_nuts_nylon_insert": ("Thread Size",),
     "nut_hex": ("Thread Size",),
     "screw_button_head": ("Dia./Thread Size",),
     "screw_flat_head": ("Dia./Thread Size",),
     "screw_low_head": ("Dia./Thread Size",),
-    "screw_socket_head": ("Dia./Thread Size",),
-    "set_screws_hex_socket": ("Dia./Thread Size",),
     "tap_spiral_point": ("Thread Size",),
     "washer_flat": ("Inside Dia.",),
     "wheel_depressed_center": ("Diameter",),
-}
+})  # fmt: skip
 
-#: Each type's key-dimension reader (:func:`key_reader`).
-KEYS: dict[str, Callable[[Mapping[str, Attribute]], float | None]] = {
-    type_key: key_reader(*names) for type_key, names in KEY_ATTRIBUTES.items()
-}
+#: Each type's key-dimension reader (:func:`key_reader`). Built from the
+#: literal rows without a read hook, which would register the type modules
+#: while this module is still importing; registration adds theirs.
+KEYS: RegistryTable[str, Callable[[Mapping[str, Attribute]], float | None]] = RegistryTable({
+    type_key: key_reader(*names) for type_key, names in dict.items(KEY_ATTRIBUTES)
+})  # fmt: skip
 
 #: Types whose census cells also hold length equal (``method.slope``).
 LENGTH_HELD = frozenset(
