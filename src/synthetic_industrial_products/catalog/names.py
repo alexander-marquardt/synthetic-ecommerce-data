@@ -95,6 +95,7 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Coupling",
     "Belt",
     "Chain",
+    "Turnbuckle",
     "Pulley",
     "Seal",
     "Gasket",

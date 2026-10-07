@@ -145,12 +145,12 @@ def draw(values: Mapping[str, float], end: str = EYE) -> Figure:
 
 TABLE = TableType(
     "turnbuckles",
-    category=("Fasteners", "Rigging Hardware", "Turnbuckles"),
+    category=("Fasteners", "Rigging Hardware", "Forged Turnbuckles"),
     item="Turnbuckle",
     standards_family="fastener",
     standard=STANDARD,
     columns=(SIZE, TAKE_UP),
-    rows=ROWS[:1],  # stub: the red commit builds the first row only
+    rows=ROWS,
     variants=(Variant("Steel", "Hot Dip Galvanized", 1.0),),
     # Sold singly.
     packs=(1,),
