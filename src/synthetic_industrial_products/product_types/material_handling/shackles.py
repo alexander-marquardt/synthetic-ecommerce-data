@@ -182,19 +182,12 @@ def _draw(values: Mapping[str, float], body: str) -> Figure:
     return fig
 
 
-def _stub() -> Figure:
-    """Not yet drawn from the row: one square for every SKU."""
-    fig = Figure(size_in=1.0)
-    fig.rect(0.0, 0.0, 1.0, 1.0)
-    return fig
-
-
 def draw_anchor(values: Mapping[str, float]) -> Figure:
-    return _stub()
+    return _draw(values, ANCHOR)
 
 
 def draw_chain(values: Mapping[str, float]) -> Figure:
-    return _stub()
+    return _draw(values, CHAIN)
 
 
 ANCHOR_TABLE = TableType(
@@ -204,7 +197,7 @@ ANCHOR_TABLE = TableType(
     standards_family="fastener",
     standard=STANDARD,
     columns=("Size", "Inside Width", "Inside Length"),
-    rows=tuple((size, COMMON[size][2], ANCHOR_BOW[size][0]) for size in list(COMMON)[:1]),
+    rows=tuple((size, COMMON[size][2], ANCHOR_BOW[size][0]) for size in COMMON),
     variants=(Variant("Forged Steel", "Hot Dip Galvanized", 1.0),),
     # Sold each.
     packs=(1,),
@@ -226,7 +219,7 @@ ANCHOR_TABLE = TableType(
 CHAIN_TABLE = replace(
     ANCHOR_TABLE,
     item="Screw Pin Chain Shackle",
-    rows=tuple((size, COMMON[size][2], CHAIN_LENGTH[size]) for size in list(COMMON)[:1]),
+    rows=tuple((size, COMMON[size][2], CHAIN_LENGTH[size]) for size in COMMON),
     draw=draw_chain,
 )
 #: Every dimension and the load are the one specification's.

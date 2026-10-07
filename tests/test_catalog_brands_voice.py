@@ -177,8 +177,10 @@ def test_the_same_part_from_two_brands_is_two_products(golden):
 #: pins, 0.82: each standard fixes its sizes and lengths, so makers overlap.
 #: A table type (#101) is a dozen sizes in a few materials and packs, so its
 #: makers overlap as the washer's do: cotter pins 0.23, retaining rings 0.21.
+#: Shackles, 0.15: one material, sold each (56 specs over 373 SKUs).
 DISTINCT_SPEC_FLOOR = {
     "cotter_pins": 0.20,
+    "shackles": 0.15,
     "retaining_rings_external": 0.20,
     "washer_flat": 0.15,
     "hammer_ball_pein": 0.70,
