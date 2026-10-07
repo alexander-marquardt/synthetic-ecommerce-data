@@ -31,6 +31,8 @@ from ...drawing.figures import Drawn
 from ...drawing.model import Figure
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from ...catalog.generate import LineDraft
 
 KEY = "o_rings"
@@ -179,6 +181,14 @@ def figure(record: dict[str, str]) -> Drawn:
     return Drawn(fig, source)
 
 
+def claims(
+    facts: Mapping[str, str], *, metric: bool, provenance: str, standard: str
+) -> tuple[str, ...]:
+    """The line's table: every row is an AS568 dash number, and no compound
+    standard is claimed."""
+    return (standard,)
+
+
 SPEC = TypeSpec(
     KEY,
     category=("Hose, Tube, Fittings & Valves", "Seals & Gaskets", "O-Ring Seals"),
@@ -193,6 +203,15 @@ SPEC = TypeSpec(
     # borrowed, keyed on the cross-section and held to the span that model
     # was fitted over (``price.MEASURED_SPANS``); generated, NOT MEASURED.
     borrows="washer_flat",
+    claims=claims,
+    may_claim=frozenset({STANDARD}),
+    # The cross-section, not the inside diameter: the borrowed washer model
+    # is held to the span it was fitted over, which holds the larger
+    # cross-sections and almost none of the inside diameters.
+    key_attributes=("Width",),
+    title_attributes=("Size",),
+    default_lines=38,
+    default_skus=66,
     use_lines=(
         "Seats in a gland and seals by squeezing between two surfaces.",
         # No standard's number: a record whose Dash Number is left out has no

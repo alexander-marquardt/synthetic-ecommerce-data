@@ -1,24 +1,25 @@
 """The default build's size, for the tests that pin it.
 
-Two parts, kept apart so that adding a breadth type edits nothing here:
+Two parts, both summed per type, so that adding a type edits nothing here:
 
 * the **breadth** part is read from the rows. A breadth row builds exactly one
-  line and :func:`.breadth.sku_count` SKUs, so a breadth type's pull request
-  changes no literal in this file, and two of them cannot conflict on one.
+  line and :func:`.breadth.sku_count` SKUs.
 * the **modelled** (depth) part is measured. A modelled type's line and SKU
-  counts are only known by building it, so a pull request that adds or
-  changes a modelled type restates these two figures by direct count of the
-  documents whose ``spec_quality`` is not the breadth one. Two modelled-type
-  pull requests do conflict here, which is one reason they land one at a time
-  (``docs/adding-a-type.md``).
+  counts are only known by building it, so each type states its own:
+  ``default_lines`` and ``default_skus`` on its ``TypeSpec``, or its row of
+  ``type_facts.SHARED_SIZE`` while it is declared in the shared tables
+  (#61). ``test_type_facts`` holds each type's figures to the committed
+  catalog, so a change that moves one type's count names it.
 """
 
 from __future__ import annotations
 
+import type_facts
 from synthetic_industrial_products.catalog import breadth
 
-DEPTH_LINES = 5804
-DEPTH_SKUS = 10631
+_DEPTH = type_facts.default_size()
+DEPTH_LINES = sum(lines for lines, _ in _DEPTH.values())
+DEPTH_SKUS = sum(skus for _, skus in _DEPTH.values())
 
 BREADTH_LINES = len(breadth.rows())
 BREADTH_SKUS = sum(breadth.sku_count(row) for row in breadth.rows())

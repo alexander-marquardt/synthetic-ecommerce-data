@@ -52,11 +52,21 @@ class Dots:
     radius: float
 
 
+@dataclass(frozen=True)
+class Bars:
+    """Many rectangles of one role, painted as ONE path: a part that repeats
+    (a chain's link plates seen from above) costs a few bytes a copy rather
+    than a styled element a copy. Each is ``(x0, y0, x1, y1)``."""
+
+    rects: tuple[tuple[float, float, float, float], ...]
+    role: str = "part"
+
+
 @dataclass
 class Figure:
     """One product drawn in inches, and how big it is."""
 
-    shapes: list[Poly | Disc | Lines | Dots] = field(default_factory=list)
+    shapes: list[Poly | Disc | Lines | Dots | Bars] = field(default_factory=list)
     #: The characteristic size, in inches, that the sheet's size cue reads.
     size_in: float = 1.0
 
@@ -79,6 +89,11 @@ class Figure:
         if centres:
             self.shapes.append(Dots(centres, radius))
 
+    def bars(self, rects, role: str = "part") -> None:
+        rects = tuple(rects)
+        if rects:
+            self.shapes.append(Bars(rects, role))
+
     def bounds(self) -> tuple[float, float, float, float]:
         xs: list[float] = []
         ys: list[float] = []
@@ -92,6 +107,10 @@ class Figure:
             elif isinstance(shape, Dots):
                 xs.extend(c[0] for c in shape.centres)
                 ys.extend(c[1] for c in shape.centres)
+            elif isinstance(shape, Bars):
+                for x0, y0, x1, y1 in shape.rects:
+                    xs.extend((x0, x1))
+                    ys.extend((y0, y1))
             else:
                 for a, b in shape.segments:
                     xs.extend((a[0], b[0]))

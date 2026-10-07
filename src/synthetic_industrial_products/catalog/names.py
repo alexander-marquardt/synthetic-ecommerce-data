@@ -130,6 +130,12 @@ NAME_EXCEPTIONS: dict[str, str] = {
     "Face Dia.": "hammer striking-face diameter; the census carries no hammer family",
     "Handle Length": "hammer handle length, a distinct measurement from Overall Length",
     "Head Weight": "hammer head weight; the census carries no hammer family",
+    "For Shaft Diameter": (
+        "the shaft a retaining ring fits, in the census's relational form;"
+        " the census carries no retaining ring family"
+    ),
+    "Groove Diameter": "the shaft groove a retaining ring sits in; no retaining ring in the census",
+    "Groove Width": "the shaft groove a retaining ring sits in; no retaining ring in the census",
     "Square Size": "a tap's drive square; declared, never emitted (issue #3)",
     "Dash Number": "an O-ring's SAE AS568 size designation; the census carries no O-ring family",
     "Width Tolerance": (
@@ -139,6 +145,10 @@ NAME_EXCEPTIONS: dict[str, str] = {
     "Threads per Inch": (
         "an inch tap's thread count, a different quantity from a metric tap's Pitch"
         " (#42); cased like the census's Teeth per Inch"
+    ),
+    "Roller Dia.": (
+        "a roller chain's ASME B29.1 roller diameter; the census carries no chain"
+        " dimensions, and the bare Dia. would read as the chain's own diameter"
     ),
 }
 

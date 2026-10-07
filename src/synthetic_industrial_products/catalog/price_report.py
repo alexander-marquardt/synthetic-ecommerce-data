@@ -40,11 +40,7 @@ leaves (:func:`share_band`, :func:`brand_spread_band`). A row
 :data:`.price.PINNED_SHORTFALLS` names is reported with its reason, and is
 pinned by the tests to the side of its band that reason puts it, no further
 out than the figure :data:`.price.PINNED_FIGURES` records for that build
-(:func:`pin_holds`). A row
-:data:`.price.ROW_EXCEPTIONS` names is reported with its reason and held to
-no band, at either side or build, only to a miss no more than
-:data:`.price.EXCEPTION_DRIFT` times the one :data:`.price.EXCEPTED_FIGURES`
-records for that build (:func:`exception_holds`).
+(:func:`pin_holds`).
 
 Breadth lines are left out, as they are of every realism row.
 
@@ -68,13 +64,13 @@ from . import brands
 from .price import (
     BORROWS,
     BRAND_CENSUS,
+    BRAND_SAMPLE_CAP,
     BRAND_SPREAD_TYPE,
     CENSUS,
+    DEEPENED_CENSUS,
     ECONOMY_OVER_OTHERS_MEDIAN,
     ENDINGS,
     EQUAL_PRICE_TYPES,
-    EXCEPTED_FIGURES,
-    EXCEPTION_DRIFT,
     KEYS,
     LENGTH_CENSUS,
     LENGTH_HELD,
@@ -83,12 +79,12 @@ from .price import (
     PINNED_SHORTFALLS,
     POOLED_ENDINGS,
     POOLED_ENDINGS_N,
-    ROW_EXCEPTIONS,
     BrandCensus,
     PriceCensus,
     _magnitude,
     ending_class,
     holds_equal,
+    material_of,
 )
 
 if TYPE_CHECKING:
@@ -107,16 +103,6 @@ ENDING_CLASSES = (".99", ".00", ".50", "other .x5")
 #: How many census standard errors a new band spans either side.
 CENSUS_SES = 3.0
 BRAND_SPREAD_BAND = (0.75, 1.33)
-#: The most brands a brand-spread row takes from one spec
-#: (:func:`brand_sample`). Max/min is an order statistic: over more brands it
-#: is wider, whatever the model. The default build puts 2 to 7 brands on a
-#: drill spec (median 3) and the 100K build 9 to 15 (median 13), so a figure
-#: over every brand of a spec reads the catalog's size, not its prices. The
-#: census does not publish its brands per spec, only the most a spec can hold
-#: (:attr:`.price.BrandCensus.brands_indexed`: 2 for a socket screw, 3 for a
-#: tap); 3 is the median the default build's drill specs hold, so on most of
-#: its specs the sample is a true sample and not every brand there is.
-BRAND_SAMPLE_CAP = 3
 #: The fewest census pairs a smaller-costs-2x-or-more target is implied from
 #: (:func:`implied_twice_share`): below it, the census larger-costs-less
 #: share the target rests on is too loose to hold a build to (the end mills'
@@ -206,7 +192,7 @@ def collect(catalog: Catalog) -> Collected:
                 by_length[(line.type_key, line.brand, line_cell, round(key, 4))].append(
                     (_magnitude(attrs["Length"]) or 0.0, child.sku)
                 )
-            material = attrs["Material"].value if "Material" in attrs else ""
+            material = material_of(line.type_key, attrs) or ""
             out.specs[(line.type_key, round(key, 4), material)][line.brand].append(child.sku)
             in_line.append(
                 (key, (_magnitude(attrs["Length"]) or 0.0) if length else 0.0, child.sku)
@@ -220,6 +206,17 @@ def collect(catalog: Catalog) -> Collected:
                         continue
                     target[type_key].append((sku_a, sku_b) if key_a > key_b else (sku_b, sku_a))
     return out
+
+
+def types_without_material(collected: Collected) -> set[str]:
+    """The :data:`BRAND_CENSUS` types none of whose specs holds a material.
+    The census spec is the key dimension plus the material
+    (``method.brand_spread``); a spec read off an attribute the type never
+    publishes holds the key alone and sets one material's brands against
+    another's: a wheel publishes no "Material", only its abrasive
+    (:data:`.price.MATERIAL_ATTRIBUTES`)."""
+    held = {spec[0] for spec in collected.specs if spec[2]}
+    return set(BRAND_CENSUS) - held
 
 
 def _product_pairs(out: Collected, type_key: str, in_line: list[tuple[float, float, str]]) -> None:
@@ -442,37 +439,54 @@ def tier_order(collected: Collected, prices: Mapping[str, float]) -> dict[str, t
     }
 
 
-def type_rows(type_key: str, collected: Collected, prices: Mapping[str, float]) -> list[Comparison]:
-    """The p50, p90/p10 and larger-costs-more rows of one census type."""
+def level_rows(
+    type_key: str,
+    census_n: int,
+    p10: float,
+    p50: float,
+    p90: float,
+    collected: Collected,
+    prices: Mapping[str, float],
+) -> list[Comparison]:
+    """The p50 and p90/p10 rows of one type, against its census quantiles."""
     from .measure import Comparison  # noqa: PLC0415 -- measure imports this module
 
-    census = CENSUS[type_key]
     values = [prices[sku] for sku, t in collected.type_of.items() if t == type_key]
     n = len(values)
-    p50 = _quantile(values, 0.5) if values else 0.0
+    built_p50 = _quantile(values, 0.5) if values else 0.0
     spread = _quantile(values, 0.9) / _quantile(values, 0.1) if values else 0.0
-    target_spread = census.p90 / census.p10
-    pairs = collected.pairs.get(type_key, [])
-    more = sum(prices[larger] > prices[smaller] for larger, smaller in pairs)
+    target_spread = p90 / p10
     return [
         Comparison(
             f"price p50 (USD): {type_key}",
-            census.p50,
             p50,
+            built_p50,
             n,
-            census.n,
+            census_n,
             "shown price; denom is the census n",
-            (census.p50 * P50_BAND[0], census.p50 * P50_BAND[1]),
+            (p50 * P50_BAND[0], p50 * P50_BAND[1]),
         ),
         Comparison(
             SPREAD_ROW.format(type_key),
             target_spread,
             spread,
             n,
-            census.n,
+            census_n,
             "shown price; denom is the census n",
             (target_spread * SPREAD_BAND[0], target_spread * SPREAD_BAND[1]),
         ),
+    ]
+
+
+def type_rows(type_key: str, collected: Collected, prices: Mapping[str, float]) -> list[Comparison]:
+    """The p50, p90/p10 and larger-costs-more rows of one census type."""
+    from .measure import Comparison  # noqa: PLC0415 -- measure imports this module
+
+    census = CENSUS[type_key]
+    pairs = collected.pairs.get(type_key, [])
+    more = sum(prices[larger] > prices[smaller] for larger, smaller in pairs)
+    return [
+        *level_rows(type_key, census.n, census.p10, census.p50, census.p90, collected, prices),
         Comparison(
             ORDER_ROW.format(type_key),
             census.larger_costs_more,
@@ -492,6 +506,8 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
     rows: list[Comparison] = []
     for type_key in CENSUS:
         rows.extend(type_rows(type_key, collected, prices))
+    for type_key, (n, p10, p50, p90) in DEEPENED_CENSUS.items():
+        rows.extend(level_rows(type_key, n, p10, p50, p90, collected, prices))
 
     for type_key, figure in LENGTH_CENSUS.items():
         pairs = collected.length_pairs.get(type_key, [])
@@ -606,8 +622,6 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
     return [
         replace(row, note=f"{row.note}; PINNED SHORTFALL, {PINNED_SHORTFALLS[row.name]}")
         if row.name in PINNED_SHORTFALLS
-        else replace(row, note=f"{row.note}; EXCEPTED, {ROW_EXCEPTIONS[row.name]}")
-        if row.name in ROW_EXCEPTIONS
         else row
         for row in rows
     ]
@@ -625,35 +639,10 @@ def pin_holds(row: Comparison, build: int) -> bool:
     return row.band[1] < row.achieved <= recorded * (1 + PIN_TOLERANCE)
 
 
-def band_miss(achieved: float, band: tuple[float, float]) -> float:
-    """How far outside ``band`` a figure lands, as a ratio to the nearer
-    edge: 1.0 in band, 1.1 for 10% above the top or 10% under the bottom.
-    A ratio, not a difference, so a dollar p50 and a p90/p10 read alike."""
-    low, high = band
-    return max(achieved / high, low / achieved, 1.0)
-
-
-def exception_holds(row: Comparison, build: int) -> bool:
-    """Whether a row :data:`.price.ROW_EXCEPTIONS` names misses its band by
-    no more than :data:`.price.EXCEPTION_DRIFT` times the miss of the figure
-    :data:`.price.EXCEPTED_FIGURES` records for ``build`` (0 the default
-    build, 1 the 100K one), on either side."""
-    assert row.band is not None
-    recorded = EXCEPTED_FIGURES[row.name][build]
-    return band_miss(row.achieved, row.band) <= EXCEPTION_DRIFT * band_miss(recorded, row.band)
-
-
-def exception_is_stale(rows: Sequence[Comparison]) -> bool:
-    """Whether an excepted row is in band at every build in ``rows`` (the
-    default and the 100K one): only then may its exception go, since a row
-    in band at one build still needs it at the other."""
-    return all(row.within for row in rows)
-
-
 def recorded_digits(name: str) -> int:
-    """The decimal places a pinned or excepted row's figure is recorded to
-    (:data:`.price.PINNED_FIGURES`, :data:`.price.EXCEPTED_FIGURES`): a
-    dollar p50 to the cent, a ratio to three places."""
+    """The decimal places a pinned row's figure is recorded to
+    (:data:`.price.PINNED_FIGURES`): a dollar p50 to the cent, a ratio to
+    three places."""
     return 2 if name.startswith("price p50 (USD)") else 3
 
 

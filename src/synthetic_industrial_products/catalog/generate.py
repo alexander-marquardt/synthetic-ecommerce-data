@@ -66,6 +66,7 @@ from .naming import (
     abbreviate_value,
     build_title,
     states_value,
+    thread_parts,
 )
 from .newtypes import NEW_TYPES
 from .taxonomy import drawing_for, image_id_for
@@ -620,7 +621,7 @@ class Generator:
         rng = self.rng
         brand = brands.pick_brand(rng, type_key, self._exhausted)
         material = rng.choice(("High Speed Steel", "Cobalt", "Solid Carbide"))
-        point = rng.choice(("118 Degrees", "135 Degrees"))
+        point = rng.choice(series.POINT_ANGLES)
         item = "Jobber Length Drill Bit"
         series_code = f"{rng.randint(100, 999)}-{rng.choice('ABCD')}"
         draft = LineDraft(
@@ -634,7 +635,7 @@ class Generator:
             keyword_attribute("Item", item),
             keyword_attribute("Material", material),
             keyword_attribute("Point Type", rng.choice(("Split Point", "Standard Point"))),
-            Attribute("Point Angle", point, float(point.split()[0])),
+            Attribute("Point Angle", format_angle(point), point),
             keyword_attribute("Finish", rng.choice(DRILL_FINISH[material])),
             keyword_attribute("Shank Type", rng.choice(("Straight", "Reduced"))),
             keyword_attribute("Cutting Direction", "Right Hand"),
@@ -1767,6 +1768,9 @@ class Generator:
             for name, value in draft.descriptors
             if name in published and not states_value(title.text, value)
         )
+        # A glued size the title or the spec clause names is one token to the
+        # analyzer, so its parts are written out as well (#33).
+        details.extend(thread_parts(f"{title.text} {', '.join(details)}"))
         details.append(f"{draft.brand} {draft.series}")
         facts = {**self._line_facts, **{a.name: a.value for a in attributes}}
         tail = description_tail(draft.brand, draft.series, draft.type_key, facts)
@@ -1779,13 +1783,17 @@ class Generator:
     # -- assembly ---------------------------------------------------------
 
     def _corrupt_angle(self, line_attrs: list[Attribute]) -> list[Attribute]:
-        """An angular attribute published with a LENGTH unit: Helix Angle = 42".
+        """An angular attribute published with the inch mark: Helix Angle = 42".
 
         A unit-type error rather than a magnitude error, and measured at 4.7%
         of the records carrying an angle. The angle is a property of the line,
         so the bad value is too -- one wrong row in a supplier's line data
         reaches every SKU under it, which is how these arrive in a real
-        catalog.
+        catalog. The flat facet publishes the messy spelling. The nested entry
+        reads a value within the attribute's series span as degrees, the
+        inch mark keyed for the degree mark (``42"`` on Helix Angle); every
+        other draw is a length in an angle field and stays text
+        (``entry.SPAN_FOR_NAME``, #79).
         """
         index = next(
             (i for i, a in enumerate(line_attrs) if a.name in ("Helix Angle", "Point Angle")),
@@ -2065,11 +2073,11 @@ class Generator:
         off the line attributes sparsity never drops."""
         model = price.model_for(type_key)
         facts = {a.name: a for a in attributes}
-        material = facts["Material"].value if "Material" in facts else None
+        material = price.material_of(type_key, facts)
         pack = None
         if model.pack_attribute is not None and model.pack_attribute in facts:
             pack = facts[model.pack_attribute].value_num
-        key = price.KEYS[type_key](facts)
+        key = price.price_key(type_key, facts)
         struct = price.structure(
             model,
             key,
@@ -2077,6 +2085,7 @@ class Generator:
             brands.tier_of(brand, type_key),
             pack,
             price.length_of(facts) if type_key in price.LENGTH_HELD else None,
+            facts[model.option_attribute].value if model.option_attribute in facts else None,
         )
         seed = self.config.seed
         always = self._always_published(type_key)

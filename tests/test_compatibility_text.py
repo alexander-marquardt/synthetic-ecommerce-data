@@ -18,7 +18,7 @@ import pytest
 
 from compat_text import compatibility_sentences, without_compatibility
 from published import published_attributes
-from synthetic_industrial_products.catalog import compat, emit
+from synthetic_industrial_products.catalog import compat, emit, typespec
 from synthetic_industrial_products.catalog.config import GeneratorConfig
 from synthetic_industrial_products.catalog.generate import generate
 from synthetic_industrial_products.dimensions import parse_length
@@ -34,16 +34,24 @@ ASME_B18_3_KEY_IN = {
     "#6": 7 / 64, "#8": 9 / 64, "#10": 5 / 32, "1/4": 3 / 16, "5/16": 1 / 4,
     "3/8": 5 / 16, "7/16": 3 / 8, "1/2": 3 / 8, "5/8": 1 / 2,
 }  # fmt: skip
+#: Every pitch below, coarse, fine, UNC and UNF, was checked row by row against
+#: one table: FreeCAD's hole thread tables ("ISO metric regular", "ISO metric
+#: fine", "UNC", "UNF" in src/Mod/PartDesign/App/FeatureHole.cpp, FreeCAD
+#: commit 3424c410627263394f701aeec5b61d7bab7bb3a1, LGPL-2.1), which list the
+#: ISO 261 diameter-pitch pairs and the ASME B1.1 pitches (an inch pitch there
+#: is in mm: 25.4 / TPI). All rows agree with it, M36x2 included.
+#:
 #: ISO 261 coarse pitches, and ISO 262's selected fine ones.
 METRIC_COARSE = {
     "M3": 0.5, "M4": 0.7, "M5": 0.8, "M6": 1.0, "M8": 1.25, "M10": 1.5, "M12": 1.75,
-    "M16": 2.0, "M20": 2.5, "M24": 3.0,
+    "M14": 2.0, "M16": 2.0, "M18": 2.5, "M20": 2.5, "M22": 2.5, "M24": 3.0, "M27": 3.0,
+    "M30": 3.5, "M33": 3.5, "M36": 4.0,
 }  # fmt: skip
 METRIC_FINE = {"M8": {1.0}, "M10": {1.25, 1.0}, "M12": {1.5, 1.25}, "M16": {1.5}, "M20": {1.5, 2.0}}
 #: ASME B1.1 threads per inch.
 UNC = {
-    "#6": 32, "#8": 32, "#10": 24, "1/4": 20, "5/16": 18, "3/8": 16, "7/16": 14, "1/2": 13,
-    "5/8": 11, "3/4": 10, "1": 8,
+    "#4": 40, "#6": 32, "#8": 32, "#10": 24, "1/4": 20, "5/16": 18, "3/8": 16, "7/16": 14,
+    "1/2": 13, "9/16": 12, "5/8": 11, "3/4": 10, "7/8": 9, "1": 8,
 }  # fmt: skip
 UNF = {
     "#6": 40,
@@ -56,6 +64,13 @@ UNF = {
     "1/2": 20,
     "5/8": 18,
 }  # noqa: E501
+#: Fine pitches a threaded type sells that the near-miss sentences do not
+#: offer (``compat.fine_threads``, held to the two tables above): ISO 261's
+#: metric fine pitches and ASME B1.1's UNF, for the lock nut's larger sizes.
+SOLD_FINE = {
+    "M14": {1.5}, "M24": {2.0}, "M30": {2.0}, "M36": {2.0},
+    "9/16": {18}, "3/4": {16}, "7/8": {14}, "1": {12},
+}  # fmt: skip
 #: Number and letter drill sizes (ASME B94.11M), inches.
 LETTER_NUMBER_DRILLS = {
     "#36": 0.1065, "#29": 0.1360, "#25": 0.1495, "#21": 0.1590, "#7": 0.2010, "#3": 0.2130,
@@ -230,9 +245,11 @@ def test_a_planted_false_sentence_is_caught(golden):
     assert sentence_errors([planted]) == [
         (key["sku"], "For M10 socket head cap screws (ISO 4762).")
     ]
-    drill = next(d for d in golden if "Tap drill for M12x1.75 threads." in d["description"])
+    drill = next(d for d in golden if "Tap drill for M12x1.75 threads (" in d["description"])
     planted = dict(drill, description=drill["description"].replace("M12x1.75", "M12x1.5"))
-    assert sentence_errors([planted]) == [(drill["sku"], "Tap drill for M12x1.5 threads.")]
+    assert sentence_errors([planted]) == [
+        (drill["sku"], "Tap drill for M12x1.5 threads (M12 thread, 1.75 mm pitch).")
+    ]
 
 
 def test_no_record_carries_another_products_attributes(docs):
@@ -280,8 +297,9 @@ def test_the_description_is_the_template_plus_at_most_one_sentence(docs):
 
 # --- near-miss threads ---------------------------------------------------------
 
-THREADED = {
-    "screw_socket_head": "Dia./Thread Size",
+#: The thread attribute of each type still declared in the shared tables. A
+#: type with its own module declares it on its TypeSpec (``threaded``).
+SHARED_THREADED = {
     "screw_flat_head": "Dia./Thread Size",
     "screw_button_head": "Dia./Thread Size",
     "screw_low_head": "Dia./Thread Size",
@@ -289,6 +307,16 @@ THREADED = {
     "nut_hex": "Thread Size",
     "tap_spiral_point": "Thread Size",
 }
+THREADED = SHARED_THREADED | {
+    key: spec.threaded for key, spec in typespec.modelled().items() if spec.threaded
+}
+
+
+def test_no_threaded_row_names_a_type_with_its_own_module():
+    """A row left behind would be overridden by the spec unseen. This file
+    names the socket screw in tests of its own behaviour, so it is checked
+    here rather than by ``test_type_registration``'s quoted-key scan."""
+    assert sorted(SHARED_THREADED.keys() & typespec.modelled().keys()) == []
 
 
 def _series(thread: str) -> str | None:
@@ -296,10 +324,11 @@ def _series(thread: str) -> str | None:
     if dia.startswith("M"):
         if METRIC_COARSE.get(dia) == pitch:
             return "Metric Coarse"
-        return "Metric Fine" if pitch in METRIC_FINE.get(dia, ()) else None
+        fine = METRIC_FINE.get(dia, set()) | SOLD_FINE.get(dia, set())
+        return "Metric Fine" if pitch in fine else None
     if UNC.get(dia) == pitch:
         return "UNC"
-    return "UNF" if UNF.get(dia) == pitch else None
+    return "UNF" if UNF.get(dia) == pitch or pitch in SOLD_FINE.get(dia, ()) else None
 
 
 def test_every_thread_is_a_real_designation_and_its_thread_type_says_which(docs):

@@ -1,1 +1,1 @@
-"""Power-transmission and sealing types: O-rings, one module per type (#48)."""
+"""Motion control, power transmission and sealing product types."""
