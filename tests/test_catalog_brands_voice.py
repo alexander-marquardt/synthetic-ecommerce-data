@@ -175,7 +175,11 @@ def test_the_same_part_from_two_brands_is_two_products(golden):
 #: sell the same one (0.15); hammers 0.72, bolts 0.76, flap discs 0.79, kits
 #: 0.84, hex keys 0.88, nuts 0.90, every other type 0.93 or more -- but dowel
 #: pins, 0.82: each standard fixes its sizes and lengths, so makers overlap.
+#: A table type (#101) is a dozen sizes in a few materials and packs, so its
+#: makers overlap as the washer's do: cotter pins 0.23, retaining rings 0.21.
 DISTINCT_SPEC_FLOOR = {
+    "cotter_pins": 0.20,
+    "retaining_rings_external": 0.20,
     "washer_flat": 0.15,
     "hammer_ball_pein": 0.70,
     "bolt_hex": 0.75,

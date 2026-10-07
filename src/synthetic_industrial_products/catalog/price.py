@@ -638,6 +638,9 @@ class PriceModel:
     #: Sigma of the log-normal noise one size shares across every brand
     #: (:func:`size_draw`); 0.0 but for a type :data:`SIZE_NOISE` names.
     size_sigma: float = 0.0
+    #: The type's own material factors, for a type that declares its ladder
+    #: (:mod:`.tabletype`); None reads the shared :data:`MATERIAL_FACTORS`.
+    materials: Mapping[str, float] | None = None
 
 
 def _model(
@@ -910,7 +913,8 @@ def structure(
         log_p += model.slope * math.log(key / model.anchor_key)
     if model.length_slope and length is not None and length > 0:
         log_p += model.length_slope * math.log(length / model.anchor_length)
-    log_p += math.log(MATERIAL_FACTORS.get(material or "", 1.0))
+    factors = MATERIAL_FACTORS if model.materials is None else model.materials
+    log_p += math.log(factors.get(material or "", 1.0))
     log_p += math.log(model.tiers[tier])
     if model.pack_slope and pack is not None and pack > 0:
         log_p += model.pack_slope * math.log(pack / model.pack_ref)

@@ -250,6 +250,17 @@ No test table is edited: the discovery, fresh-reader and first-import tests
 are parametrized over `typespec.discover()`, so they pick up the moved module
 on their own.
 
+### Table types
+
+Use a table type (`catalog/tabletype.py`, #101) when a type does not parameterise easily: a dozen real sizes from one published chart, a few materials, a few packs. Examples: `product_types/fasteners/cotter_pins.py` and `retaining_rings_external.py`. A type exists once, so delete its breadth row file in the same PR.
+
+* **Fields.** `columns` (the published name of each chart column, the size first) and `rows` (one real size per row, rising); `variants` (material, finish, price factor, cheapest first at 1.0); `packs`; `base_price`, `size_slope`, `pack_slope`; `draw` and `extent`; `share`, `default_lines`, `default_skus`. `spec(TABLE)` refuses a table that breaks an order.
+* **Facts.** Publish only what the chart gives, and cite the chart and the day it was read in the module docstring. Say so if the standard itself was not read. A column the chart lacks (a cotter pin's length) is not published.
+* **Price.** A declared estimate, not a measurement: `base_price` is the first row in the first material and pack, a larger size costs more, a later material costs its factor, and a larger pack costs more in total and less a piece. There is no census row, no borrowed model, no noise and no fit. Add the key to `NOT_MEASURED` in `tests/test_price.py`.
+* **Drawing.** `draw(values)` gets each column's length in inches from the SKU's own record and returns a `Figure` scaled from them. It carries no text; a proportion no column gives is a named constant in the module.
+* **Share.** A dozen sizes over too few products reads as a continuum to the facet rule. 0.015 gives about 39 products at the default build, which keeps every published dimension inside the measured dispersion band.
+* **Tests.** Copy `tests/test_type_cotter_pins.py`, restate the table in it, and write the slice with `uv run python tests/test_type_<key>.py`. `tests/table_gates.py` holds the shared size, price-order and drawing gates.
+
 ## The rules a deepened type follows
 
 Each rule is what the first deepened type, `lock_nuts_nylon_insert` (#53),
