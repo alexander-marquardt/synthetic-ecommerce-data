@@ -33,6 +33,8 @@ GLUED = re.compile(r"(?<![\w.])M(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)(?!\.?\d)")
 #: Word tokens as the standard tokenizer cuts them: letters and digits, with a
 #: ``.`` kept only BETWEEN two of them (``1.75``, ``m12x1.75``).
 TOKEN = re.compile(r"\w+(?:\.\w+)*")
+#: A size written in its parts.
+PART = re.compile(r"\bM(\d+(?:\.\d+)?) thread, (\d+(?:\.\d+)?) mm pitch\b")
 
 
 def _tokens(text: str) -> set[str]:
@@ -77,6 +79,21 @@ def test_every_glued_thread_size_is_also_written_in_parts(docs):
     # only mention is the tap-drill sentence included.
     for type_key in ("drill_jobber", "tap_spiral_point", "nut_hex", "screw_socket_head"):
         assert checked[type_key] > 20, (type_key, checked)
+
+
+def test_every_written_part_is_a_glued_size_the_record_names(docs):
+    """The parts are read from the record's own designations, never invented:
+    each "M8 thread, 1.25 mm pitch" stands beside an ``M8x1.25`` the same
+    title or description glues."""
+    invented, written = [], 0
+    for doc in docs:
+        glued = set(GLUED.findall(f"{doc['title']} {doc['description']}"))
+        for dia, pitch in PART.findall(doc["description"]):
+            written += 1
+            if (dia, pitch) not in glued:
+                invented.append((doc["sku"], dia, pitch))
+    assert invented == [], invented[:10]
+    assert written > 1000
 
 
 def test_a_tap_drill_for_m12_is_found_by_m12(docs):

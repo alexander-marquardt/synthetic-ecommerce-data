@@ -29,6 +29,7 @@ from functools import cache
 
 from ..dimensions import DimensionParseError, parse_length
 from . import standards
+from .naming import thread_gloss
 from .standards import MM_PER_INCH
 
 # --- hex key sizes -------------------------------------------------------------
@@ -253,7 +254,9 @@ def tap_sentence(thread: str | None) -> str | None:
 
 
 def drill_sentence(size: str | None) -> str | None:
-    """``Tap drill for M12x1.75 threads.`` -- only when the drill IS a chart entry."""
+    """``Tap drill for M12x1.75 threads (M12 thread, 1.75 mm pitch).`` -- only
+    when the drill IS a chart entry. The glued size is one token to the
+    analyzer, so its parts follow it (#33)."""
     size_in = _inches(size)
     if size_in is None or size is None:
         return None
@@ -262,7 +265,10 @@ def drill_sentence(size: str | None) -> str | None:
         threads = [t for t, d in TAP_DRILLS_METRIC.items() if abs(d - mm) < 1e-6]
     else:
         threads = [t for t, (_, d) in TAP_DRILLS_INCH.items() if abs(d - size_in) < 1e-6]
-    return f"Tap drill for {_join(threads)} threads." if threads else None
+    if not threads:
+        return None
+    named = _join(threads)
+    return f"Tap drill for {named} threads{thread_gloss(named)}."
 
 
 def nut_sentence(thread: str | None) -> str | None:
