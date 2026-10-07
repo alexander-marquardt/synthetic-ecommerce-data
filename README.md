@@ -166,7 +166,19 @@ wrapped across two lines are all caught. The pre-commit hooks run `ruff check` a
 fixers, which leave `golden-catalog/` alone.
 
 Run the test suite with plain `uv run pytest`, with no `-n`: the project does
-not install `pytest-xdist`.
+not install `pytest-xdist`. The whole suite takes about 27 minutes serially, so
+for a change run the modules that name what you changed, and leave the whole
+suite to CI. A product type `<type_key>` has its own `tests/test_type_<type_key>.py`:
+
+```sh
+uv run pytest $(grep -l '<changed module or type key>' tests/test_*.py)
+```
+
+Every test has a 300-second limit, fixture setup included (`timeout` under
+`[tool.pytest.ini_options]` in `pyproject.toml`, enforced by `pytest-timeout`).
+A test that hangs, or grows its memory without end, fails at that limit instead
+of holding the machine. A test that is slow for a reason raises its own limit
+with `@pytest.mark.timeout(<seconds>)`; the default does not move.
 
 ## Generating a catalog
 
