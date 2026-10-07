@@ -49,11 +49,14 @@ builds.** The fit exits non-zero, before it writes, on a row out of band at
 either build that neither :data:`.price.PINNED_SHORTFALLS` nor
 :data:`.price.ROW_EXCEPTIONS` names, and on a pinned row that no
 longer holds (:func:`.price_report.pin_holds`) at either: back in band, on the
-other side, or further out than :data:`.price.PINNED_FIGURES` records; and on an
-excepted row that misses its band by more than :data:`.price.EXCEPTION_DRIFT`
-times what :data:`.price.EXCEPTED_FIGURES` records for that build
-(:func:`.price_report.exception_holds`). A pin or an exception that moves
-further out is re-recorded there by hand, with its cause re-read.
+other side, or further out than :data:`.price.PINNED_FIGURES` records for that
+build; on an excepted row that misses its band by more than
+:data:`.price.EXCEPTION_DRIFT` times what :data:`.price.EXCEPTED_FIGURES`
+records for that build (:func:`.price_report.exception_holds`); and on an
+excepted row in band at both builds (:func:`.price_report.exception_is_stale`).
+A pinned or excepted row whose recorded figures are not the ones it built
+is flagged "re-record" with the figures to write by hand, at both builds:
+``tests/test_price.py`` holds each record equal to its build's figure.
 
 **Slope cuts need a recorded reason.** Where the slope terms ALONE (the key
 term, and the length term) spread the shown price wider than the census
@@ -100,8 +103,10 @@ from synthetic_industrial_products.catalog.price_report import (
     collect,
     equal_band,
     exception_holds,
+    exception_is_stale,
     pin_holds,
     price_rows,
+    recorded_digits,
     sampled_brands,
     share_band,
 )
@@ -698,6 +703,7 @@ def main() -> int:
     unpinned: set[str] = set()
     stale: set[str] = set()
     drifted: set[str] = set()
+    unneeded: set[str] = set()
     print(f"{'':<62}{'target':>10}" + "".join(f"{name:>10}" for name in BUILDS))
     for row_name in next(iter(by_build.values())):
         rows = [by_build[name][row_name] for name in BUILDS]
@@ -714,6 +720,14 @@ def main() -> int:
             elif not row.within:
                 unpinned.add(row.name)
                 flags.append(f"OUT at {name}")
+        if row_name in price.ROW_EXCEPTIONS and exception_is_stale(rows):
+            unneeded.add(row_name)
+            flags.append("in band at both builds")
+        recorded = {**price.PINNED_FIGURES, **price.EXCEPTED_FIGURES}.get(row_name)
+        if recorded is not None:
+            built = tuple(round(row.achieved, recorded_digits(row_name)) for row in rows)
+            if built != recorded:
+                flags.append(f"re-record {built}")
         if row_name in unreachable:
             flags.append("cannot reach")
         if row_name in price.PINNED_SHORTFALLS:
@@ -740,7 +754,7 @@ def main() -> int:
     )
     print("\n# price.py, between the fit markers:\n" + table)
     print("\n# screw_socket_head.py, between its fit markers:\n" + socket_body)
-    if unpinned or stale or drifted:
+    if unpinned or stale or drifted or unneeded:
         for name in sorted(unpinned):
             print(f"OUT of band, neither pinned nor excepted: {name}", file=sys.stderr)
         for name in sorted(stale):
@@ -753,6 +767,11 @@ def main() -> int:
             print(
                 f"excepted in price.ROW_EXCEPTIONS but misses its band by more than "
                 f"price.EXCEPTION_DRIFT times price.EXCEPTED_FIGURES: {name}",
+                file=sys.stderr,
+            )
+        for name in sorted(unneeded):
+            print(
+                f"excepted in price.ROW_EXCEPTIONS but in band at both builds: {name}",
                 file=sys.stderr,
             )
         return 1
