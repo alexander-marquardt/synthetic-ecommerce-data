@@ -173,7 +173,8 @@ def test_the_same_part_from_two_brands_is_two_products(golden):
 #: spelling) stopped counting as a difference, rounded down to 0.05: a flat
 #: washer is ISO 7089's nine sizes in a handful of materials, so most makers
 #: sell the same one (0.15); hammers 0.72, bolts 0.76, flap discs 0.79, kits
-#: 0.84, hex keys 0.88, nuts 0.90, every other type 0.93 or more.
+#: 0.84, hex keys 0.88, nuts 0.90, every other type 0.93 or more -- but dowel
+#: pins, 0.82: each standard fixes its sizes and lengths, so makers overlap.
 DISTINCT_SPEC_FLOOR = {
     "washer_flat": 0.15,
     "hammer_ball_pein": 0.70,
@@ -182,6 +183,7 @@ DISTINCT_SPEC_FLOOR = {
     "kit_assortment": 0.80,
     "hex_key": 0.85,
     "nut_hex": 0.90,
+    "dowel_pins": 0.80,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 
