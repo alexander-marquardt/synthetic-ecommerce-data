@@ -173,7 +173,11 @@ its published attributes. `set_screws_hex_socket` does both.
    every other type. Write the slice with
    `uv run python tests/test_type_<type_key>.py`.
 7. Declare a price model (`price=` on the `TypeSpec`; `register` refuses a
-   modelled type without one). It is keyed on `key_attributes` (step 5). A type the census has no prices
+   modelled type without one). It is keyed on `key_attributes` (step 5). A
+   type that publishes its material under another name than `Material` names
+   it in `MATERIAL_ATTRIBUTES` in `catalog/price.py` (a wheel's is its
+   `Abrasive Material`), since the census spec is the key in one material. A
+   type the census has no prices
    for declares `measured=False`; one it has prices for restates its census
    rows and is fitted ([Price](#price)).
 8. Restate the published figures the type moves
@@ -460,11 +464,14 @@ that fixes it:
   out than that size's figure, within `PIN_TOLERANCE`, and must stay on its
   side (the bearing p90/p10, #64; the wheel brand spread, #66; the kit
   p90/p10, #76). A figure a reason quotes is read from `PINNED_FIGURES` in
-  an f-string, never typed, so a refit cannot leave it stale. There is no
-  looser declaration: a row that lands on either side of its band from one
-  build to the other has a model to fix, as the kit p50 did (#71: a kit
-  was one group draw per page, so its few pages moved its median with the
-  build's size; it is now priced from its contents).
+  an f-string, never typed, so a refit cannot leave it stale. A figure that
+  states the cause, such as what the wheel's brand tiers alone give, is held
+  by a test that measures it
+  (`test_the_wheel_pin_reason_quotes_what_the_brand_tiers_alone_give`).
+  There is no looser declaration: a row that lands on either side of its
+  band from one build to the other has a model to fix, as the kit p50 did
+  (#71: a kit was one group draw per page, so its few pages moved its median
+  with the build's size; it is now priced from its contents).
 * **Each record is the build's own figure.**
   `test_each_recorded_figure_is_the_figure_its_build_produces` holds every
   `PINNED_FIGURES` entry equal to its row's figure at
