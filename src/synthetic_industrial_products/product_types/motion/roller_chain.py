@@ -1,6 +1,8 @@
 """Roller chain: a breadth category deepened into a modelled type (#53).
 
-Every size row is ANSI/ASME B29.1's standard series, chain numbers 25 to 240:
+Every size row is ANSI/ASME B29.1's standard series, chain numbers 25 to 240,
+as published in the distributor's size chart at ``SOURCE_URL`` (retrieved
+2026-10-07; ASME's own text was not read):
 
 * ``Pitch``, ``Roller Dia.`` and ``Inside Width`` (the width between the
   roller link plates) are B29.1's nominal dimensions, in inches. Chains 25
@@ -32,7 +34,7 @@ from typing import TYPE_CHECKING, Any
 
 from ...catalog.formats import LengthStyle
 from ...catalog.model import keyword_attribute, length_attribute, numeric_attribute
-from ...catalog.newtypes import _weighted, _window, table_provenance
+from ...catalog.newtypes import _weighted, _window
 from ...catalog.price import PriceModel
 from ...catalog.typespec import TypeSpec
 from ...catalog.vocab import AttrSpec
@@ -146,8 +148,11 @@ VOCAB = (
     AttrSpec("Inside Width", "sku", 0.9, kind="length"),
 )
 
-PROVENANCE = table_provenance(
-    ("Pitch", STANDARD), ("Roller Dia.", STANDARD), ("Inside Width", STANDARD)
+#: Not ``table_provenance``: that says "read from the ASME B29.1 table", and
+#: ASME's text was not read, only a distributor's chart of its dimensions.
+PROVENANCE = (
+    f"Pitch and Roller Dia. and Inside Width are {STANDARD} dimensions as "
+    f"published in the size chart at {SOURCE_URL} (retrieved 2026-10-07)"
 )
 
 
