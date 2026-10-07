@@ -162,21 +162,25 @@ def _stats(
     present: int,
     numeric: int | None = None,
     product_values: int | None = None,
+    products: int | None = None,
+    name: str = "Probe",
 ) -> AttributeStats:
     """A constructed measurement, for cases the industrial catalog lacks.
 
-    ``product_values`` defaults to ``present``: one SKU per product, so the
-    per-document and per-product counts agree unless a test separates them.
+    ``product_values`` and ``products`` default to ``present``: one SKU per
+    product and one value per SKU, so the per-document, per-pair and
+    per-product counts agree unless a test separates them.
     """
     return AttributeStats(
         key="probe",
-        name="Probe",
+        name=name,
         present=present,
         numeric=present if numeric is None else numeric,
         cardinality=cardinality,
         product_types=("probe_type",),
         type_denominator=present,
         product_values=present if product_values is None else product_values,
+        products=present if products is None else products,
     )
 
 
@@ -595,3 +599,124 @@ def test_a_sku_scope_ladder_is_still_a_ladder() -> None:
     assert stats.product_values == 240
     assert stats.cardinality == 8
     assert not stats.is_continuous
+
+
+# ---------------------------------------------------------------------------
+# Both rules ask whether values repeat ACROSS PRODUCTS, so the evidence floor
+# has to count products. A kit lists a dozen sizes, so five kits made 52
+# (product, value) pairs at ``--lines 200`` and cleared a floor counted in
+# pairs: Sizes Included was withheld at 200, 400 and 600 lines and offered
+# from 900 up (#31 review).
+
+#: The sizes the decisions are compared across. 260 is where Overall Length,
+#: a ladder at every larger size, reads exactly 0.5 on 202 products: the
+#: largest product count at which any ladder in this catalog still looks like
+#: a continuum. ``--lines 39000`` makes the same decisions as the default
+#: build (measured by hand for #31; too slow to build here).
+STABILITY_SIZES = (200, 260, 400, 600, 900)
+
+
+def _controls(rows: list[dict]) -> dict[str, str]:
+    """The control each attribute gets, for those past the presence gates.
+
+    Presence (``MIN_PRESENCE``) and cardinality are left out on purpose: a
+    category-scoped attribute sampled on a few products can fall either side
+    of 50% presence, and that is not what the dispersion rules decide.
+    """
+    out = {}
+    for key, stats in measure(rows).items():
+        if stats.cardinality < 2 or stats.presence < MIN_PRESENCE:
+            continue
+        decision = decide(stats)
+        if not decision.facet:
+            out[key] = "withheld"
+        else:
+            out[key] = "range" if stats.is_continuous else "list"
+    return out
+
+
+@pytest.fixture(scope="module")
+def controls_by_size(flat_rows: list[dict]) -> dict[int, dict[str, str]]:
+    by_size = {
+        lines: _controls(list(emit.iter_flat(generate(GeneratorConfig(lines=lines)))))
+        for lines in STABILITY_SIZES
+    }
+    by_size[GeneratorConfig().lines] = _controls(flat_rows)
+    return by_size
+
+
+def test_every_decision_is_the_same_at_every_catalog_size(controls_by_size) -> None:
+    """No attribute changes between withheld, range and list with ``--lines``.
+
+    The rules are ratios so that the answer does not move with catalog size;
+    this is the test that varies the size. The three the review measured
+    moving are named, so a regression on them reads by name.
+    """
+    seen: dict[str, dict[int, str]] = {}
+    for lines, controls in controls_by_size.items():
+        for key, control in controls.items():
+            seen.setdefault(key, {})[lines] = control
+    moved = {key: by for key, by in seen.items() if len(set(by.values())) > 1}
+    assert moved == {}
+    sizes = sorted(controls_by_size)
+    for key in ("sizes_included", "bore", "overall_length"):
+        assert [controls_by_size[lines][key] for lines in sizes] == ["list"] * len(sizes), key
+    assert [controls_by_size[lines]["list_number"] for lines in sizes] == ["withheld"] * len(sizes)
+
+
+def _terms_rows(name: str, values_of: dict[str, list[str]]) -> list[dict]:
+    """One SKU per product, publishing a terms attribute with the given values."""
+    return [
+        {
+            "product_id": product,
+            "product_type": "probe_type",
+            "facets": {emit.sanitize(name): list(values)},
+            "facets_num": {},
+            "attributes": [{"name": name, "value": value} for value in values],
+        }
+        for product, values in values_of.items()
+    ]
+
+
+def test_a_multi_valued_attribute_on_few_products_is_not_an_identifier() -> None:
+    """Twenty kits of thirteen sizes each: 260 pairs, but twenty products.
+
+    Dispersion over twenty products is not evidence that values never repeat
+    across products, however many pairs the kits list, so the attribute is
+    offered, as Sizes Included is at every size. The pairs clear the floor
+    and the products do not, so it is the floor's unit under test.
+    """
+    kits = {f"K{k}": [f"{13 * k + i}/64 in." for i in range(13)] for k in range(20)}
+    stats = measure(_terms_rows("Sizes Included", kits))["sizes_included"]
+    assert (stats.cardinality, stats.product_values, stats.products) == (260, 260, 20)
+    assert stats.products < RANGE_MIN_DOCS <= stats.product_values
+    decision = decide(stats)
+    assert decision.facet, decision.reason
+
+
+def test_a_declared_identifier_is_withheld_whatever_its_dispersion() -> None:
+    """The generator says List Number is a part code; derive reads that.
+
+    600 products sharing ten codes is a dispersion of 0.017, a ladder by the
+    ratio, which is what a finite code pool becomes once the catalog outgrows
+    it (List Number reads 0.62 at ``--lines 39000`` and crosses 0.5 near 62K
+    lines). The same rows under an undeclared name are a facet, so it is the
+    declaration that withholds it.
+    """
+    codes = {f"P{p}": [f"L{p % 10:03d}"] for p in range(600)}
+    declared = measure(_terms_rows("List Number", codes))["list_number"]
+    assert declared.dispersion < IDENTIFIER_DISPERSION
+    decision = decide(declared)
+    assert not decision.facet
+    assert "declares" in decision.reason, decision.reason
+
+    undeclared = measure(_terms_rows("Series Code", codes))["series_code"]
+    assert decide(undeclared).facet, decide(undeclared).reason
+
+
+def test_derive_reads_the_generators_identifier_declaration() -> None:
+    """One source for which attributes are identifiers: the generator's own set."""
+    from synthetic_industrial_products.catalog.generate import Generator
+    from synthetic_industrial_products.prism import derive
+
+    assert derive.IDENTIFIER_ATTRIBUTES is Generator.IDENTIFIER_ATTRIBUTES
