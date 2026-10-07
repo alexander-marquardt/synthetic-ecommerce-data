@@ -126,17 +126,9 @@ def test_each_restated_figure_is_the_census_figure(census, type_key):
     )
 
 
-#: Types whose census entry has landed (#69 part A) but whose figures are not
-#: yet restated in :data:`price.CENSUS` nor fitted (#69 part B): until then
-#: their placeholder models stay declared ``measured=False``.
-AWAITING_FIT = frozenset({"lock_nuts_nylon_insert", "set_screws_hex_socket"})
-
-
 def test_every_type_with_30_census_rows_is_restated(census):
     measured = {k for k, v in census["deep_types"].items() if v["n"] >= 30}
-    assert measured >= AWAITING_FIT
-    assert set(price.CENSUS) == measured - AWAITING_FIT
-    assert {t for t in AWAITING_FIT if price.model_for(t).measured} == set()
+    assert set(price.CENSUS) == measured
 
 
 def test_the_pooled_and_brand_figures_are_the_census_figures(census):
@@ -177,8 +169,10 @@ TWICE_SCORED = (
     "bolt_hex",
     "drill_jobber",
     "hex_key",
+    "lock_nuts_nylon_insert",
     "nut_hex",
     "screw_socket_head",
+    "set_screws_hex_socket",
     "tap_spiral_point",
     "washer_flat",
 )
@@ -195,7 +189,7 @@ def test_every_price_row_is_within_its_band_or_pinned_at_the_default_size(price_
         + len(price_report.ENDING_CLASSES)
         + 2 * len(price.DEEPENED_CENSUS)
     )
-    assert len(price_rows) == expected == 63
+    assert len(price_rows) == expected == 72
     out = [
         row for row in price_rows if not row.within and row.name not in price.PINNED_SHORTFALLS
     ]
@@ -356,7 +350,13 @@ def test_every_slope_off_the_census_has_a_recorded_cut():
     reason, but no test runs the fit: this holds the committed literals to
     the same rule."""
     assert price.slope_cut_mismatch(_census_models(), price.SLOPE_CUTS) == set()
-    assert set(price.SLOPE_CUTS) == {"bolt_hex", "end_mill_ball", "end_mill_square"}
+    assert set(price.SLOPE_CUTS) == {
+        "bolt_hex",
+        "end_mill_ball",
+        "end_mill_square",
+        "lock_nuts_nylon_insert",
+        "set_screws_hex_socket",
+    }
     assert all(reason.strip() for reason in price.SLOPE_CUTS.values())
 
 
@@ -483,7 +483,6 @@ def test_the_length_figures_are_the_census_figures(census):
         k: v["price_vs_length_at_fixed_diameter"]
         for k, v in census["deep_types"].items()
         if (v.get("price_vs_length_at_fixed_diameter") or {}).get("n_pairs", 0) >= 100
-        and k not in AWAITING_FIT
     }
     assert set(price.LENGTH_CENSUS) == set(measured)
     for type_key, row in measured.items():
@@ -555,7 +554,11 @@ def test_the_hex_nut_takes_the_drills_tiers_though_the_census_measures_its_sprea
 def test_only_the_size_noise_types_draw_a_size_noise():
     """A size noise is fitted only for a type SIZE_NOISE gives a reason for."""
     sized = {t for t in price.CENSUS if price.model_for(t).size_sigma}
-    assert sized == set(price.SIZE_NOISE) == {"screw_socket_head", "tap_spiral_point"}
+    assert sized == set(price.SIZE_NOISE) == {
+        "screw_socket_head",
+        "set_screws_hex_socket",
+        "tap_spiral_point",
+    }
 
 
 def test_each_familys_tiers_price_in_order(scored):
@@ -869,7 +872,15 @@ def test_a_quarter_of_pairs_at_2x_breaks_the_2x_rows(scored):
 
 #: The 2x rows whose census band is narrower than the floor on the default
 #: build, so the floor alone sets the band: each implies a share under 0.001.
-TWICE_FLOORED = ("bolt_hex", "drill_jobber", "hex_key", "nut_hex", "screw_socket_head")
+TWICE_FLOORED = (
+    "bolt_hex",
+    "drill_jobber",
+    "hex_key",
+    "lock_nuts_nylon_insert",
+    "nut_hex",
+    "screw_socket_head",
+    "set_screws_hex_socket",
+)
 
 
 def test_the_twice_band_floor_is_two_pairs_in_a_hundred_above_a_near_zero_target(price_rows):
@@ -878,7 +889,7 @@ def test_the_twice_band_floor_is_two_pairs_in_a_hundred_above_a_near_zero_target
     to any other width moves these edges. The tap and washer bands are wider
     than the floor and are the census's own."""
     rows = {row.name: row for row in price_rows if row.name.startswith("price smaller costs 2x+")}
-    assert len(rows) == len(TWICE_SCORED) == 7
+    assert len(rows) == len(TWICE_SCORED) == 9
     for type_key in TWICE_SCORED:
         row = rows[f"price smaller costs 2x+, same product: {type_key}"]
         floored = type_key in TWICE_FLOORED
@@ -911,20 +922,11 @@ def test_tying_every_pair_breaks_the_equal_price_row(scored):
 
 #: The types whose placeholder model keeps the level the catalog had,
 #: declared ``measured=False``: the ball-pein hammer's archived pages are
-#: script shells, and the lock nuts and set screws merged with no census
-#: figures (#69 gives them census-backed bands). The price census has no key
-#: stock at all, so its model is hand-set from surveyed listings (#108). Every
-#: table type (#101) joins them, read from the registry and not listed: its
-#: price is a declared ladder nobody measured. No row scores any of them.
-NOT_MEASURED = frozenset(
-    {
-        "hammer_ball_pein",
-        "key_stock",
-        "lock_nuts_nylon_insert",
-        "set_screws_hex_socket",
-        *tabletype.tables(),
-    }
-)
+#: script shells. The price census has no key stock at all, so its model is
+#: hand-set from surveyed listings (#108). Every table type (#101) joins them,
+#: read from the registry and not listed: its price is a declared ladder
+#: nobody measured. No row scores any of them.
+NOT_MEASURED = frozenset({"hammer_ball_pein", "key_stock", *tabletype.tables()})
 
 
 def test_the_rows_score_every_priced_type_but_the_declared_exceptions(scored):
@@ -1044,9 +1046,11 @@ def test_a_kit_is_its_contents_at_one_factor_with_no_group_noise():
 
 
 def _build_kits(request, build: str) -> list[KitSku]:
-    return request.getfixturevalue("kits") if build == "default" else request.getfixturevalue(
-        "hundred_k"
-    )[1]
+    return (
+        request.getfixturevalue("kits")
+        if build == "default"
+        else request.getfixturevalue("hundred_k")[1]
+    )
 
 
 @pytest.mark.parametrize(("build", "count"), [("default", 59), ("100K", 695)])

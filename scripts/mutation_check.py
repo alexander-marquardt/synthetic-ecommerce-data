@@ -1537,6 +1537,37 @@ MUTATIONS: list[Mutation] = [
         "",
         "the committed catalog is the DEFAULT configuration",
     ),
+    # ---- figures: the measured figures are build output (#103) -----------
+    # A figure the build miscounts reds the rebuild comparison; a doc that
+    # quotes one again reds the docs scan.
+    Mutation(
+        "figures: brands counted as product types",
+        "catalog/cli.py",
+        '"brands": len({doc["brand"] for doc in flat}),',
+        '"brands": len({doc["product_type"] for doc in flat}),',
+        "tests/test_catalog_golden.py::test_committed_file_matches_a_fresh_build",
+        "",
+        "the measured figures are the committed catalog's",
+    ),
+    Mutation(
+        "figures: the dispersion band's densest end taken over every quantity",
+        "prism/derive.py",
+        "        densest = max(faceted, key=lambda s: s.dispersion)",
+        "        densest = max(quantitative, key=lambda s: s.dispersion)",
+        "tests/test_catalog_golden.py::test_committed_file_matches_a_fresh_build",
+        "",
+        "the measured figures are the committed catalog's",
+    ),
+    Mutation(
+        "figures: the README quotes the brand count again",
+        "README.md",
+        "[breadth categories](#catalog-breadth), one product each, from invented",
+        "[breadth categories](#catalog-breadth), one product each, from 45 invented",
+        "tests/test_measured_figures.py::test_no_doc_restates_a_figure_the_build_measures",
+        "",
+        "no doc restates a measured figure",
+        root=".",
+    ),
     # ---- the headline invariants, mutated in the COMMITTED DATA ----------
     Mutation(
         "blank one card image url in the committed catalog",
