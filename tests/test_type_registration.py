@@ -48,7 +48,8 @@ SHARED = (
     REPO / "tests" / "test_catalog_facts.py",
     REPO / "tests" / "type_facts.py",
     REPO / "tests" / "catalog_size.py",
-    REPO / "tests" / "test_compatibility_text.py",
+    # Not test_compatibility_text.py: it names the socket screw in tests of
+    # that type's own sentences; its thread table is checked in place.
 )
 
 #: The type-keyed tables a modelled spec's per-type fields register into.
@@ -110,11 +111,14 @@ def _unregister(key: str) -> None:
 
 
 @pytest.fixture
-def planted():
+def planted(monkeypatch):
     typespec.ensure_registered()
     spec = _toy_spec()
     try:
         typespec.register(spec)
+        # Discovery lists it too, as it would a module found on disk: the
+        # facts tests read the specs from there.
+        monkeypatch.setitem(typespec.registered(), TOY, spec)
         yield spec
     finally:
         _unregister(TOY)
@@ -138,9 +142,7 @@ def test_no_shared_table_names_a_type_that_has_a_module() -> None:
 
 def test_every_per_type_table_registers_before_it_answers() -> None:
     plain = sorted(
-        name
-        for name, table in TABLES.items()
-        if not isinstance(table(), typespec.RegistryTable)
+        name for name, table in TABLES.items() if not isinstance(table(), typespec.RegistryTable)
     )
     assert plain == []
 
