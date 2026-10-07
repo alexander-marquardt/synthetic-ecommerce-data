@@ -137,7 +137,9 @@ def _inch_size(doc: dict) -> str:
 
 def _standard(doc: dict) -> str:
     """The table a record's dimensions were read from, as its provenance names it."""
-    (standard,) = [s for s in sorted(DIMENSIONAL) if f"the {s} table" in doc["dimension_provenance"]]
+    (standard,) = [
+        s for s in sorted(DIMENSIONAL) if f"the {s} table" in doc["dimension_provenance"]
+    ]
     return standard
 
 

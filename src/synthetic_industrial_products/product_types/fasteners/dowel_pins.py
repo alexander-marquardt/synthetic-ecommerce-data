@@ -142,7 +142,9 @@ def inch_lengths(row: InchRow) -> tuple[Fraction, ...]:
 def inch_tolerance(row: InchRow, oversize: bool) -> str:
     """A's limits over the nominal size, as the table's max and min give them."""
     nominal = Fraction(row.size)
-    high, low = (row.oversize_max, row.oversize_min) if oversize else (row.standard_max, row.standard_min)
+    high, low = (
+        (row.oversize_max, row.oversize_min) if oversize else (row.standard_max, row.standard_min)
+    )
     over = [Fraction(v) - nominal for v in (low, high)]
     return " to ".join(f'+{float(v):.4f}"' for v in over)
 
@@ -169,9 +171,15 @@ INCH_HARDNESS = "Rockwell C60 min. (surface)"
 OVERSIZE_PERIOD = 3
 #: The series a line is drawn from, in rotation: half inch, a quarter each ISO.
 SERIES = (B18_8_2, ISO_8734, B18_8_2, ISO_2338)
-#: The drawing's extent; a longer pin is drawn compressed with a break. The
-#: width holds the largest diameter (25 mm): the side view, a gap and the end view.
-EXTENT = (2.5, 3.2)
+#: A pin longer than KNEE inches is drawn compressed, with a break, into at
+#: most KNEE + TAIL: a 200 mm pin would otherwise dwarf every short one.
+KNEE = 2.4
+TAIL = 0.45
+#: The drawing's extent, measured at the default and ``--lines 39000`` builds
+#: (docs/adding-a-type.md "Figure and extent"): the largest drawn is 2.47 x
+#: 2.84 in, the 1" pin's break marks, side view, gap and end view across and
+#: a 200 mm pin compressed down the page.
+EXTENT = (2.6, 2.95)
 
 
 def _spec(name: str, scope: str, presence: float = 1.0, kind: str = "keyword") -> AttrSpec:
@@ -194,7 +202,9 @@ VOCAB = (
 
 def provenance(standard: str) -> str:
     """Every published dimension of a line is its standard's table's."""
-    return table_provenance(*((name, standard) for name in ("Diameter", "Length", "Dia. Tolerance")))
+    return table_provenance(
+        *((name, standard) for name in ("Diameter", "Length", "Dia. Tolerance"))
+    )
 
 
 def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
@@ -279,9 +289,8 @@ def figure(record: dict[str, str]) -> Drawn:
     d = diameter or 0.25
     length = length or 4 * d
     r = d / 2
-    height = EXTENT[1] * 0.95
-    knee = 0.8 * height
-    drawn = length if length <= knee else knee + 0.15 * height * (1 - math.exp(-(length - knee)))
+    knee = KNEE
+    drawn = length if length <= knee else knee + TAIL * (1 - math.exp(-(length - knee)))
     fig = Figure(size_in=drawn)
     # The chamfer is a fifth of the diameter (ISO's c is 0.16-0.2 d), and
     # never more than a quarter of the drawn length.
@@ -297,7 +306,11 @@ def figure(record: dict[str, str]) -> Drawn:
     cx = d * 1.4
     fig.disc((cx, r), r)
     fig.disc((cx, r), r - c, "plain")
-    source = "record" if diameter and _value(record, "Length") else ("partial" if diameter else "nominal")
+    source = (
+        "record"
+        if diameter and _value(record, "Length")
+        else ("partial" if diameter else "nominal")
+    )
     return Drawn(fig, source)
 
 
