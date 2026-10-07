@@ -912,11 +912,18 @@ def test_tying_every_pair_breaks_the_equal_price_row(scored):
 #: The types whose placeholder model keeps the level the catalog had,
 #: declared ``measured=False``: the ball-pein hammer's archived pages are
 #: script shells, and the lock nuts and set screws merged with no census
-#: figures (#69 gives them census-backed bands). Every table type (#101) joins
-#: them, read from the registry and not listed: its price is a declared ladder
-#: nobody measured. No row scores any of them.
+#: figures (#69 gives them census-backed bands). The price census has no key
+#: stock at all, so its model is hand-set from surveyed listings (#108). Every
+#: table type (#101) joins them, read from the registry and not listed: its
+#: price is a declared ladder nobody measured. No row scores any of them.
 NOT_MEASURED = frozenset(
-    {"hammer_ball_pein", "lock_nuts_nylon_insert", "set_screws_hex_socket", *tabletype.tables()}
+    {
+        "hammer_ball_pein",
+        "key_stock",
+        "lock_nuts_nylon_insert",
+        "set_screws_hex_socket",
+        *tabletype.tables(),
+    }
 )
 
 

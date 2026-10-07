@@ -256,18 +256,19 @@ RANGE_MIN_DOCS = 250
 #: row moved from documents to products and ``held_by_floor`` is new.
 MEASURED_DISPERSION: dict[str, Any] = {
     # The band over the QUANTITATIVE attributes that are actually FACETED.
-    # Package Quantity: a few pack sizes over every product that states one.
+    # Number of Flutes: a handful of flute counts over every cutter. Package
+    # Quantity held this end, at the same figure, until the table types (#101)
+    # brought their own pack sizes.
     "faceted_low": 0.0043,
-    # Inside Dia. since the O-rings (#53): each of their 66 documents is one
-    # AS568 row's actual inside diameter, 68 values over 291 product-value
-    # pairs with the washers'. Width, 0.2275, is next: the densest since the
-    # bearing table widened to 75 numbers (#64), at 0.2209 before the O-rings
-    # added their cross-sections; Flute Length before it, once the bearing
-    # ratings became a published table (one value per bearing number, no
-    # jitter), and Dynamic Load Capacity at 0.44 while a formula manufactured
-    # a value per SKU.
-    "faceted_high": 0.2337,
-    "densest_faceted": "Inside Dia.",
+    # Closed Length: a turnbuckle's, set by its size and its end fittings.
+    # Inside Dia. is next at 0.2337: each O-ring (#53) states its AS568
+    # row's actual inside diameter, 68 values over 291 product-value pairs
+    # with the washers'. Then Width at 0.2204, the densest once the bearing
+    # table widened to 75 numbers (#64): 0.2209 on the bearings alone,
+    # raised by the O-rings' cross-sections and lowered by key stock's 14
+    # sections over many products (#108). Flute Length before that.
+    "faceted_high": 0.2414,
+    "densest_faceted": "Closed Length",
     # The saturated ladder the rule exists to keep off a slider.
     # Low since the drive size is published as the nominal key (10mm), not
     # the extracted socket's toleranced across-flats (10.07mm). The hex socket
