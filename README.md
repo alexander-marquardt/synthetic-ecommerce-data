@@ -940,13 +940,13 @@ planted in `scripts/mutation_check.py`.
 
 ### Which attributes become facets
 
-Not all 84. Three measured gates, applied to the emitted documents:
+Not all 94. Three measured gates, applied to the emitted documents:
 
 | gate | rule | why |
 |---|---|---|
 | **discriminating** | at least 2 distinct values | a facet with one value cannot narrow anything — it is a control that does nothing |
 | **characteristic** | present on ≥50% of the documents of the product types that publish it *at all* | the denominator is per-attribute: an attribute carried by one of twelve types can never exceed ~10% of the catalog, yet may be the primary facet for its own category |
-| **not an identifier** | a **terms** attribute carries ≤25 distinct values | `Dia./Thread Size` is the first thing a shopper filters on; `List Number` publishes 574 values over 1,100 documents and is a part reference nobody browses. Numeric attributes are exempt — a range control's cost does not grow with cardinality |
+| **not an identifier** | a **terms** attribute's values repeat across products: fewer than 0.5 distinct values per distinct (product, value) pair, or fewer than 50 such pairs to judge by | a ratio, not a count, so a ladder stays a facet however large the catalog grows: `Thread Size` repeats each of its values across dozens of products and is the first thing a shopper filters on, while `List Number`, a series code, carries about one value per product and is a part reference nobody browses. An absolute cap of 25 values withheld `Thread Size` and `Standards` once the catalog grew (#31). Numeric attributes are exempt: a measured quantity is not an identifier at any cardinality |
 
 An attribute is **numeric** (a range facet over `facets_num.*`) when ≥50% of
 the documents publishing it carry a parsed number in `facets_num`, and **terms**
@@ -971,8 +971,8 @@ What that yields, measured:
 
 | | |
 |---|---|
-| attributes declared | 84 |
-| **fields in the field map** | **101** (67 faceted terms entries, 26 declared with `facet: false`, and the structural ones) |
+| attributes declared | 94 |
+| **fields in the field map** | **112** (71 faceted attribute entries, 23 attribute entries declared with `facet: false`, and 18 structural ones) |
 | **leaf fields in the Elasticsearch index** | **141** — the 21 the mapping declares, plus one per distinct `facets.*` key (84) and `facets_num.*` key (36) the dynamic templates create |
 | facets in a category's sidebar | 8–15 |
 
