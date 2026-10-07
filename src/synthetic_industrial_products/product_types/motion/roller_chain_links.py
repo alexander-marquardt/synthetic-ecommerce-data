@@ -249,11 +249,10 @@ _BASE = spec(TABLE)
 SPEC = dataclasses.replace(
     _BASE,
     vocab=(
-        # The table declares each column a length. The catalog's unit-mixing
-        # defect picks its columns by NAME across every type, and the roller
-        # chain declares its Pitch a keyword: a length here would start
-        # rewriting the chain's own pitches. So Pitch is declared as the
-        # chain declares it.
+        # The table declares each column a length, and the catalog's
+        # unit-mixing defect rewrites a type's own lengths. The roller chain
+        # declares its Pitch a keyword, so its pitches are never rewritten:
+        # declared the same way here, a link's pitch reads as its chain's does.
         *(_CHAIN_PITCH if s.name == PITCH else s for s in _BASE.vocab),
         AttrSpec(name=STYLE, scope="line", presence=1.0, kind="keyword"),
         AttrSpec(name=NUMBER, scope="sku", presence=1.0, kind="keyword"),
