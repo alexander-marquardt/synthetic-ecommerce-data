@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -70,6 +71,7 @@ def test_the_catalog_and_drawing_figures_are_the_committed_catalogs(stats: dict)
     assert figures.get("drawings") == {
         "count": len(images),
         "bytes": sum(image["bytes"] for image in images),
+        "geometry": dict(sorted(Counter(image["geometry"] for image in images).items())),
         "largest_bytes": largest["bytes"],
         "largest_product_type": largest["product_type"],
     }
@@ -97,8 +99,12 @@ def _quotations(stats: dict) -> dict[str, str]:
     if drawings:
         patterns["drawings.bytes"] = rf"\b{drawings['bytes'] / 1e6:.1f}\s+MB"
         patterns["drawings.largest_bytes"] = rf"\b{drawings['largest_bytes']:,}\s+bytes"
+        for rung, count in drawings["geometry"].items():
+            patterns[f"drawings.geometry.{rung}"] = rf"\b{count:,}\s+`{rung}`"
     for key, value in figures.get("dispersion", {}).items():
-        if isinstance(value, float):
+        # Four-place ratios only: a two-place share such as 0.28 is also a
+        # census share elsewhere in the README.
+        if isinstance(value, float) and len(str(value).partition(".")[2]) >= 3:
             patterns[f"dispersion.{key}"] = rf"(?<![\d.]){re.escape(str(value))}\b"
     return patterns
 
