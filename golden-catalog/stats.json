@@ -1445,7 +1445,7 @@
   {
    "name": "price p50 (USD): set_screws_hex_socket",
    "target": 20.75,
-   "achieved": 17.05,
+   "achieved": 17.45,
    "numerator": 485,
    "denominator": 510,
    "note": "shown price; denom is the census n",
@@ -1457,7 +1457,7 @@
   {
    "name": "price p90/p10: set_screws_hex_socket",
    "target": 4.58691,
-   "achieved": 5.80892,
+   "achieved": 3.71005,
    "numerator": 485,
    "denominator": 510,
    "note": "shown price; denom is the census n",
@@ -1469,8 +1469,8 @@
   {
    "name": "price larger size costs more: set_screws_hex_socket",
    "target": 0.666,
-   "achieved": 0.625,
-   "numerator": 15,
+   "achieved": 0.666667,
+   "numerator": 16,
    "denominator": 24,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -1637,10 +1637,10 @@
   {
    "name": "price longer costs more: set_screws_hex_socket",
    "target": 0.834,
-   "achieved": 0.647849,
-   "numerator": 241,
+   "achieved": 0.86828,
+   "numerator": 323,
    "denominator": 372,
-   "note": "pairs of one brand and line cell, key dimension equal, length differs; PINNED SHORTFALL, below band: the census's longer-costs-more share is 0.834 over 692 pairs, but its prices are pack prices (every row is pack-sold) and a longer screw is often sold in a smaller pack, which the catalog does not model, so the shown price pairs in the catalog invert more often than the census's; the noise that orders the sizes is the same noise that orders the lengths, and the size row holds in band at both builds (model the pack: #65)",
+   "note": "pairs of one brand and line cell, key dimension equal, length differs",
    "band": [
     0.754,
     0.914
