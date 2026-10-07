@@ -35,6 +35,7 @@ from collections.abc import (
     Callable,
     Collection,
     ItemsView,
+    Iterable,
     Iterator,
     KeysView,
     Mapping,
@@ -93,10 +94,13 @@ class TypeSpec:
       attribute vocabulary, its drawing (``figure`` and ``extent``), its
       builder (``make``) and its ``share`` of ``lines``. The builder and the
       vocabulary are usually a family's, shared with sibling types; what is
-      the type's own is this declaration.
+      the type's own is this declaration. It also states the per-type
+      entries the shared tables register from it (its claims, key
+      dimension and noise roles) and what the tests hold its records to:
+      the standards a record may claim and its default size.
     * a **breadth** type declares one :class:`.breadth.BreadthRow` as
       ``breadth``, and everything else follows from that row, exactly as it
-      does for a row of ``data/breadth_categories.yaml``.
+      does for a row file in ``data/breadth_categories/``.
 
     :func:`register` writes either kind into the shared, type-keyed tables
     (``taxonomy.LEAVES``, ``vocab.VOCAB``, ``drawing.figures.FIGURES`` and the
@@ -140,6 +144,32 @@ class TypeSpec:
     #: attributes, for a type whose ``dimension_provenance`` is a sentence
     #: rather than a bare standard name. ``None`` reads the provenance itself.
     line_standard: Callable[[Mapping[str, str]], str] | None = None
+    #: The standards a line may claim (:func:`.conformance.applicable`):
+    #: ``claims(facts, metric=..., provenance=..., standard=...)`` returns
+    #: them in order. ``None`` claims none.
+    claims: Callable[..., Iterable[str]] | None = None
+    #: Every standard a record of the type may claim, which the facts tests
+    #: hold each published ``Standards`` value to. Nothing in the build reads
+    #: it, so it checks ``claims`` rather than restating it. An empty set
+    #: claims nothing; ``None`` is undeclared, which the facts tests refuse.
+    may_claim: frozenset[str] | None = None
+    #: The type's key dimension: the attribute names the price census keys it
+    #: on (:data:`.price.KEY_ATTRIBUTES`, the first one carried wins), which
+    #: every title also names.
+    key_attributes: tuple[str, ...] = ()
+    #: The thread-size attribute of a type sold by one thread designation,
+    #: for the near-miss thread sentence (:data:`.noise.THREADED`).
+    threaded: str | None = None
+    #: Whether the type is a fastener that publishes ``Material`` and
+    #: ``Finish``, for the "what it is not" sentence (:data:`.noise.FASTENERS`).
+    fastener: bool = False
+    #: The length attribute a unit equivalent is written for
+    #: (:data:`.noise.UNIT_PRIMARY`).
+    unit_primary: str | None = None
+    #: The product lines and SKUs the default build makes of the type,
+    #: counted from a fresh build; the size tests sum them (``catalog_size``).
+    default_lines: int = 0
+    default_skus: int = 0
     #: A breadth type's row, in place of every modelled field above.
     breadth: BreadthRow | None = None
     #: The dotted module the spec was found in, filled in by :func:`discover`.
@@ -194,7 +224,7 @@ def register(spec: TypeSpec) -> None:
     """
     # Imported here: each of these modules imports this one.
     from ..drawing.figures import FIGURES  # noqa: PLC0415
-    from . import breadth, price, taxonomy, vocab, voice  # noqa: PLC0415
+    from . import breadth, conformance, noise, price, taxonomy, vocab, voice  # noqa: PLC0415
 
     if spec.breadth is not None:
         if spec.breadth.key != spec.key:
@@ -219,11 +249,33 @@ def register(spec: TypeSpec) -> None:
             ("make", spec.make is not None),
             ("share", spec.share > 0),
             ("price", spec.price is not None),
+            # Every modelled SKU is priced off its key dimension (``price.KEYS``).
+            ("key_attributes", bool(spec.key_attributes)),
         )
         if not declared
     ]
     if missing:
         raise TypeModuleError(f"type module {spec.module} declares no {', '.join(missing)}")
+    # The per-type entries a type used to add to a shared table by hand. Each
+    # is declared once: a key in the shared table AND on its spec is refused,
+    # since which one won would depend on registration order.
+    own = {
+        "conformance.CLAIMS": (conformance.CLAIMS, spec.claims),
+        "price.KEY_ATTRIBUTES": (price.KEY_ATTRIBUTES, spec.key_attributes),
+        "noise.THREADED": (noise.THREADED, spec.threaded),
+        "noise.FASTENERS": (noise.FASTENERS, spec.fastener or None),
+        "noise.UNIT_PRIMARY": (noise.UNIT_PRIMARY, spec.unit_primary),
+    }
+    for name, (table, value) in own.items():
+        if value is not None and dict.__contains__(table, spec.key):
+            raise TypeCollisionError(
+                f"{spec.key!r} is declared both in {name} and by type module {spec.module}; "
+                "keep the declaration on its TypeSpec"
+            )
+    for table, value in own.values():
+        if value is not None:
+            table[spec.key] = value
+    price.KEYS[spec.key] = price.key_reader(*spec.key_attributes)
     taxonomy.LEAVES[spec.key] = (spec.category,)
     taxonomy.DRAWING[spec.key] = spec.key
     vocab.VOCAB[spec.key] = spec.vocab

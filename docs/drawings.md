@@ -18,7 +18,7 @@ SKU record (attribute name -> published string)
   -> FIGURES[product_type]                       drawing/figures.py
        -> figure function, e.g. fastener()
             -> render/<kind>.geometry_from_record()   (six kinds, see below)
-            -> Figure: polygons, discs, lines, dots, bars, in INCHES   drawing/model.py
+            -> Figure: polygons, discs, lines, dots, in INCHES   drawing/model.py
   -> type_scale(extent)                          drawing/sheet.py
   -> paint(figure, house_style, fill, hatch, scale)
        -> magnifier(...) decides plain or lensed
@@ -52,10 +52,8 @@ Step by step:
    read nothing (see [Breadth types](#breadth-types-six-fixed-shapes)).
 4. **Figure.** The function returns a `Drawn(figure, source)`. A `Figure`
    (`drawing/model.py`) holds shapes in **inches**: `Poly` (also used for
-   rectangles), `Disc`, `Lines` (line work: flutes, thread crests), `Dots`
-   (grit texture) and `Bars` (many rectangles of one role in one path: a
-   roller chain's strands from above), plus `size_in`. Each `Poly`, `Disc`
-   and `Bars` has a paint *role*:
+   rectangles), `Disc`, `Lines` (line work: flutes, thread crests) and `Dots`
+   (grit texture), plus `size_in`. Each `Poly` and `Disc` has a paint *role*:
    `part`, `plain`, `hole`, `dark`, `handle` or `grip`. Geometry stays in real
    units until the last step, so "a longer length of cut is drawn longer" holds
    by construction.
@@ -179,8 +177,8 @@ at true scale near the bottom, and the same `Figure` is painted a second time,
 `k` times larger, inside a white lens. The handled glass is used when it
 reaches `MIN_ENLARGEMENT` (x2.5); otherwise the larger, handle-less lens. The
 README's [Images](../README.md#images) section has the full rule. Measured on
-the committed catalog: 1,669 of 10,774 drawings are lensed, 503 with the
-handled glass and 1,166 with the handle-less lens. This command prints the
+the committed catalog: 1,643 of 10,708 drawings are lensed, 481 with the
+handled glass and 1,162 with the handle-less lens. This command prints the
 counts and the enlargement range of each lens:
 
 ```sh
@@ -193,7 +191,7 @@ for kind in (True, False):
     print('handled' if kind else 'handle-less', len(k), f'x{min(k):.2f} to x{max(k):.2f}')"
 ```
 
-**No text.** Figures only have `Poly`, `Disc`, `Lines`, `Dots` and `Bars` to draw with,
+**No text.** Figures only have `Poly`, `Disc`, `Lines` and `Dots` to draw with,
 and nothing in `sheet.py` or `svg.py` emits a `<text>` element. The gate is
 `svg_problems()`, an allow-list of elements, attributes and attribute-value
 grammars that also refuses comments, processing instructions, entities and
@@ -237,14 +235,14 @@ did not. The hammer is never `nominal`: a missing face or length makes it
 A kit is `record` when it publishes `Sizes Included`, `partial` otherwise. The
 breadth shapes are always `nominal`.
 
-Measured on the committed catalog's `images.jsonl`: 8,340 `record`, 2,353
-`partial`, 81 `nominal`. All 81 `nominal` rows are breadth SKUs; no depth SKU
+Measured on the committed catalog's `images.jsonl`: 8,294 `record`, 2,331
+`partial`, 83 `nominal`. All 83 `nominal` rows are breadth SKUs; no depth SKU
 falls back to nominal geometry. The counts are
 `python3 -c "import json, collections; print(collections.Counter(json.loads(l)['geometry'] for l in open('golden-catalog/images.jsonl')))"`.
 
 ## Breadth types: six fixed shapes
 
-The 46 breadth categories (rows of `data/breadth_categories.yaml` and breadth modules; every
+The 46 breadth categories (row files in `data/breadth_categories/` and breadth modules; every
 breadth line is published with `spec_quality: "fast_and_cheap"`, set by
 `catalog/breadth.py` `SPEC_QUALITY`) draw one of six shapes from
 `drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`, `disc`, `tube`
@@ -319,7 +317,7 @@ pinned by a test.
 
 1. **Write the figure function** in `drawing/figures.py`:
    `def my_type(record: Record) -> Drawn`. Draw in inches with `Figure`'s
-   `poly`, `rect`, `disc`, `lines`, `dots` and `bars`, and set `size_in`. If `render/`
+   `poly`, `rect`, `disc`, `lines` and `dots`, and set `size_in`. If `render/`
    already has a `geometry_from_record` for the kind, call it through `_read()`
    with a `*_DEFAULTS`, a `*_NOMINAL` and the primary attribute. Otherwise
    parse with `_length_or()`. Return `record`, `partial` or `nominal`
@@ -362,8 +360,8 @@ pinned by a test.
 8. **Look at it.** `uv run python scripts/contact_sheet.py --catalog golden-catalog --out out/contact-sheets`
    puts twenty SKUs of every type on one HTML page.
 
-A new **breadth** category needs no figure code: add a row to
-`data/breadth_categories.yaml` with one of the six `shape:` values, give any new
+A new **breadth** category needs no figure code: add a row file
+`data/breadth_categories/<key>.yaml` with one of the six `shape:` values, give any new
 `Material`/`Finish` a colour and hatch (step 4), regenerate `golden-catalog/`,
 and commit it. No pinned count moves: the golden test's expected size
 (`tests/catalog_size.py`) reads one line and `breadth.sku_count(row)` SKUs
