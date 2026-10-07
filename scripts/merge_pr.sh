@@ -6,6 +6,8 @@
 #     scripts/merge_pr.sh --print-checks     # the tests it runs, for CI to reuse
 #     scripts/merge_pr.sh --print-generated  # the files a conflict is resolved in by rebuilding
 #     scripts/merge_pr.sh --print-ci         # the CI checks a merge waits for
+#     scripts/merge_pr.sh --local-ci <N>     # step 5 runs the CI jobs here, not on GitHub
+#     scripts/merge_pr.sh --print-local-ci   # the jobs --local-ci runs (the workflows' jobs)
 #
 # This repository has no branch protection: on its plan the protection API
 # answers 403, so GitHub offers no merge queue and no "require the branch to be
@@ -30,6 +32,16 @@
 #   5. waits for every CI check on exactly that commit (the PR's own CI: lint,
 #      the whole suite, the commit messages) and refuses unless each is green,
 #      or skipped by design (REQUIRED_CI, SKIPPED_BY_DESIGN_CI).
+#      With --local-ci (or GEN_LOCAL_CI=1, which makes it the default) step 5
+#      waits for nothing on GitHub: GitHub Actions here is billing-blocked, so
+#      CI is run locally. It runs, on that same merged-and-rebuilt tree, every
+#      job of .github/workflows/*.yml, each as the workflow runs it (the same
+#      run: commands, in a bash -eo pipefail shell at the tree's root), found
+#      by scripts/local_ci_jobs.py and not by a hand list. Every job runs;
+#      each one's verdict, duration and log (outside the clone, named
+#      <label>-<job>.log in $MERGE_PR_LOG_DIR, default /tmp; --label sets the
+#      label, default the checkout's directory name) is printed; the merge is
+#      refused unless every job passed. No GitHub check is read.
 #   6. squash-merges, re-checking before EVERY attempt that main has not moved
 #      since step 1 and that the PR head is still the checked commit.
 #
@@ -87,6 +99,10 @@ listed() {
 }
 
 dry_run=0
+local_ci=0
+[ "${GEN_LOCAL_CI:-}" = 1 ] && local_ci=1
+label=""
+here=$(cd "$(dirname "$0")/.." && pwd)
 case "${1:-}" in
   --print-checks)
     printf '%s\n' "${CHECKS[@]}"
@@ -101,15 +117,25 @@ case "${1:-}" in
     printf 'skipped-by-design %s\n' "${SKIPPED_BY_DESIGN_CI[@]}"
     exit 0
     ;;
-  --dry-run)
-    dry_run=1
-    shift
+  --print-local-ci)
+    uv run -q --locked --directory "$here" python "$here/scripts/local_ci_jobs.py" \
+      --workflows "$here/.github/workflows" --list
+    exit 0
     ;;
 esac
-[ $# -eq 1 ] && [[ $1 =~ ^[0-9]+$ ]] || die "usage: scripts/merge_pr.sh [--dry-run] <PR number>"
+while [ $# -gt 1 ]; do
+  case "$1" in
+    --dry-run) dry_run=1; shift ;;
+    --local-ci) local_ci=1; shift ;;
+    --label) [ $# -gt 2 ] || die "--label needs a value"; label=$2; shift 2 ;;
+    *) break ;;
+  esac
+done
+[ $# -eq 1 ] && [[ $1 =~ ^[0-9]+$ ]] ||
+  die "usage: scripts/merge_pr.sh [--dry-run] [--local-ci] [--label NAME] <PR number>"
 pr=$1
+[ -n "$label" ] || label=$(basename "$here")
 
-here=$(cd "$(dirname "$0")/.." && pwd)
 origin_url=$(git -C "$here" remote get-url origin)
 slug=$(printf '%s\n' "$origin_url" | sed -E 's#^(https://[^/]+/|git@[^:]+:)##; s#\.git$##')
 
@@ -199,8 +225,40 @@ passed=$(($(count tests) - $(count skipped) - $(count failures) - $(count errors
   die "no test passed in the checks on the merged tree of #$pr (all skipped?); NOT pushed, NOT merged"
 echo "3. drift, golden and seam tests green on the merged tree"
 
+# 5 (--local-ci). Every CI job of the workflows, on exactly the tree that
+#    would merge. All of them run; any red one refuses.
+run_local_ci() {
+  local jobs job script log started verdict failed="" required
+  jobs=$(uv run -q --locked --directory "$work" python "$here/scripts/local_ci_jobs.py" \
+    --workflows "$work/.github/workflows" --list) ||
+    die "a workflow job has no local equivalent (the reason is above); NOT merged"
+  for required in "${REQUIRED_CI[@]}"; do
+    listed "$required" $jobs || die "required check $required is not a job of the workflows; NOT merged"
+  done
+  for job in $jobs; do
+    script=$(uv run -q --locked --directory "$work" python "$here/scripts/local_ci_jobs.py" \
+      --workflows "$work/.github/workflows" --emit "$job" --base "$base_sha" --head "$final_sha") ||
+      die "job $job has no local equivalent (the reason is above); NOT merged"
+    log="${MERGE_PR_LOG_DIR:-/tmp}/$label-$job.log"
+    started=$SECONDS
+    # GEN_LOCAL_CI is dropped so a test that runs this script does not recurse.
+    if (cd "$work" && env -u GEN_LOCAL_CI bash --noprofile --norc -eo pipefail -c "$script") >"$log" 2>&1; then
+      verdict=PASS
+    else
+      verdict=FAIL
+      failed+=" $job"
+    fi
+    echo "   local CI $job: $verdict ($((SECONDS - started))s) log $log"
+  done
+  [ -z "$failed" ] || die "local CI is red on $final_sha (failed:$failed); NOT merged"
+}
+
 final_sha=$(git -C "$work" rev-parse HEAD)
 if [ "$dry_run" -eq 1 ]; then
+  if [ "$local_ci" -eq 1 ]; then
+    run_local_ci
+    echo "5. every local CI job is green on $final_sha"
+  fi
   keep_work=0
   if [ "$final_sha" = "$head_sha" ]; then
     echo "dry run: would wait for every CI check on $head_sha, then squash-merge #$pr at it"
@@ -220,6 +278,10 @@ else
 fi
 
 # 5. The PR's own CI, on exactly the commit that will merge.
+if [ "$local_ci" -eq 1 ]; then
+  run_local_ci
+  echo "5. every local CI job is green on $final_sha"
+else
 ci_timeout=${MERGE_PR_CI_TIMEOUT:-3600}
 ci_deadline=$((SECONDS + ci_timeout))
 while :; do
@@ -248,6 +310,7 @@ while :; do
   sleep "${MERGE_PR_CI_POLL:-30}"
 done
 echo "5. every CI check on $final_sha is green"
+fi
 
 # 6. Merge only the tree that was checked, against the main it was checked
 #    on. GitHub recomputes mergeability after a push and refuses until it
