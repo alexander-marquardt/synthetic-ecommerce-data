@@ -95,6 +95,7 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Coupling",
     "Belt",
     "Chain",
+    "Sprocket",
     "Pulley",
     "Seal",
     "Gasket",
@@ -145,6 +146,8 @@ NAME_EXCEPTIONS: dict[str, str] = {
         "a roller chain's ASME B29.1 roller diameter; the census carries no chain"
         " dimensions, and the bare Dia. would read as the chain's own diameter"
     ),
+    "Hub Diameter": "a sprocket's hub, beside its Outside Diameter; no sprocket hub in the census",
+    "Length Through Bore": "a sprocket's width along the shaft; no sprocket hub in the census",
 }
 
 
