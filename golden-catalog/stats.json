@@ -1158,10 +1158,10 @@
   {
    "name": "price p50 (USD): kit_assortment",
    "target": 80.575,
-   "achieved": 63.98,
+   "achieved": 79.05,
    "numerator": 59,
    "denominator": 46,
-   "note": "shown price; denom is the census n; EXCEPTED, a kit's price is one group draw per page, not the sum of its contents, so its few pages move the median and the p90/p10 with the build's size: the group noise that spreads the p90/p10 to the census moves the p50 out at one build or the other (price a kit from its contents: #71)",
+   "note": "shown price; denom is the census n",
    "band": [
     64.46,
     100.719
@@ -1170,10 +1170,10 @@
   {
    "name": "price p90/p10: kit_assortment",
    "target": 114.26,
-   "achieved": 81.7835,
+   "achieved": 4.01502,
    "numerator": 59,
    "denominator": 46,
-   "note": "shown price; denom is the census n; EXCEPTED, a kit's price is one group draw per page, not the sum of its contents, so its few pages move the median and the p90/p10 with the build's size: the group noise that spreads the p90/p10 to the census moves the p50 out at one build or the other (price a kit from its contents: #71)",
+   "note": "shown price; denom is the census n; PINNED SHORTFALL, below band: a kit is priced from its contents, and the catalog's kit kinds hold between about $36 and $130 of parts, so with material and tier its prices span 4.0x on the default build and 3.9x at 100K against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629. Group noise loud enough to make up the rest (about 2.2) spreads a kit's price about 79x on its own, so the price would follow the noise, not the contents, and a kit draws none (widen the kit range: #76)",
    "band": [
     85.6948,
     151.965
@@ -1182,8 +1182,8 @@
   {
    "name": "price larger size costs more: kit_assortment",
    "target": 0.797,
-   "achieved": 0.766667,
-   "numerator": 23,
+   "achieved": 0.733333,
+   "numerator": 22,
    "denominator": 30,
    "note": "within-cell pairs whose key dimension differs",
    "band": [

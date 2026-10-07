@@ -2069,7 +2069,7 @@ class Generator:
         pack = None
         if model.pack_attribute is not None and model.pack_attribute in facts:
             pack = facts[model.pack_attribute].value_num
-        key = price.KEYS[type_key](facts)
+        key = price.price_key(type_key, facts)
         struct = price.structure(
             model,
             key,
