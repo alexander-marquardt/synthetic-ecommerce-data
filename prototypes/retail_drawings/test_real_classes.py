@@ -38,8 +38,19 @@ def test_the_rows_are_the_observed_classes_2_to_7() -> None:
         (5, "check contrast bomber jacket", 3, 6),
         (6, "petite sale", 3, 4),
         (7, "womens sale dresses", 3, 5),
+        (9, "5 pack socks", 3, 4),
     ]
-    assert len(CLASS_DOCS) == 55
+    assert len(CLASS_DOCS) == 62
+
+
+def test_the_pack_count_is_a_c62_count_and_the_titles_spell_it_three_ways() -> None:
+    fives = [d for d in CLASS_DOCS if d.get("units_per_pack") == 5 and d["audience"] == "adult"]
+    assert sorted(d["title"].split()[-1] for d in fives) == ["5", "5pk", "Pack"]
+    for d in (d for d in CLASS_DOCS if "units_per_pack" in d):
+        count = [a for a in d["attributes"] if a["key"] == "units_per_pack"]
+        assert count == [{"key": "units_per_pack", "name": "Units per pack",
+                          "value": str(d["units_per_pack"]), "unit_code": "C62",
+                          "value_canonical": float(d["units_per_pack"])}]  # fmt: skip
 
 
 def test_every_class_record_carries_the_policy_fields_from_the_closed_lists() -> None:
@@ -104,6 +115,7 @@ def test_the_kids_and_baby_distractors_are_marked_by_audience() -> None:
         ("kids", "Boys' Bomber Jacket (2-8 Yrs)"),
         ("kids", "Girls' Barrel Jeans (6-16 Yrs)"),
         ("kids", "Girls' Party Dress (2-8 Yrs)"),
+        ("kids", "Kids' School Socks 5 Pack (6-16 Yrs)"),
     ]
 
 
@@ -172,7 +184,7 @@ def test_a_target_in_the_baseline_top_3_is_refused() -> None:
 
 
 def test_a_distractor_or_a_short_policy_top_3_is_refused() -> None:
-    assert len(PROOF["rows"]) == len(rc.ROWS) == 6
+    assert len(PROOF["rows"]) == len(rc.ROWS) == 7
     bad = copy.deepcopy(PROOF)
     bad["rows"][1]["policy"][2] = bad["rows"][1]["baseline"][0]
     bad["rows"][4]["policy"] = bad["rows"][4]["policy"][:2]

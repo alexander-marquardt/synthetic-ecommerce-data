@@ -948,12 +948,17 @@ policy top 3 is all targets, and that this table is the proof's.
 | 5 | Product type, pattern and audience not enforced | *check contrast bomber jacket* | 1. Cord Bomber Jacket `PLT-BMBCRD-01`<br>2. Wool Blend Bomber Jacket `PLT-BMBWOL-01`<br>3. Check Suit Jacket `PLT-SUITCK-01`<br>4. Boys' Bomber Jacket (2-8 Yrs) `PLT-KIDBMB-01`<br>5. Baby Bomber Jacket (3-36 Mths) `PLT-BABBMB-01` | 1. **Check Bomber Jacket with Contrast Collar `PLT-CKBCON-01`**<br>2. **Wool Check Bomber Jacket `PLT-CKBWOL-01`**<br>3. **Padded Check Bomber `PLT-CKBPAD-01`**<br>4. Cord Bomber Jacket `PLT-BMBCRD-01`<br>5. Wool Blend Bomber Jacket `PLT-BMBWOL-01` | filter product_type = Bomber Jacket; filter audience = adult; pattern = check x5 |
 | 6 | Size range and sale state not extracted | *petite sale* | 1. Tapered Trousers `PLT-TAPTRS-01`<br>2. Wide Leg Trousers `PLT-WIDTRS-01`<br>3. Straight Leg Jeans `PLT-STRJNS-01`<br>4. Slim Jeans `PLT-SLMJNS-01`<br>5. **Petite Straight Jeans `PLT-PETJNS-01`** | 1. **Petite Straight Jeans `PLT-PETJNS-01`**<br>2. **Petite Wrap Midi Dress `PLT-PETDRS-01`**<br>3. **Petite Wide Leg Trousers `PLT-PETTRS-01`** | filter size_range = petite; filter on sale (price < was_price) |
 | 7 | Sale word ignored | *womens sale dresses* | 1. Womens Linen Midi Dress `PLT-FPLINN-01`<br>2. Womens Smocked Mini Dress `PLT-FPSMOK-01`<br>3. Womens Jersey T-Shirt Dress `PLT-FPTEES-01`<br>4. Womens Satin Slip Dress `PLT-FPSLIP-01`<br>5. Womens High Neck Ribbed Top `PLT-HNRIBT-01` | 1. **Womens Tiered Maxi Dress `PLT-SDMAXI-01`**<br>2. **Womens Wrap Dress `PLT-SDWRAP-01`**<br>3. **Womens Shirt Dress `PLT-SDSHRT-01`**<br>4. **Petite Wrap Midi Dress `PLT-PETDRS-01`** | filter product_type = Dress; filter audience = adult; filter on sale (price < was_price) |
+| 9 | Pack count only in title spellings | *5 pack socks* | 1. Cotton Rich Socks 7 Pack `PLT-SK7PKC-01`<br>2. Kids' School Socks 5 Pack (6-16 Yrs) `PLT-SK5KID-01`<br>3. Striped Socks 3 Pack `PLT-SK3PKS-01`<br>4. **Bamboo Socks, Pack of 5 `PLT-SK5BMB-01`**<br>5. Wool Walking Socks `PLT-SK1WAL-01` | 1. **Bamboo Socks, Pack of 5 `PLT-SK5BMB-01`**<br>2. **Sports Trainer Socks 5 Pack `PLT-SK5SPT-01`**<br>3. **Cotton Rich Ankle Socks 5pk `PLT-SK5PKC-01`** | filter units_per_pack = 5; filter audience = adult |
 
 The cross-cutting patterns show in the table: the barrel bestseller fills the
 balloon baseline once per colourway (five docs share `PLT-BRLMID`) until the
 policy collapses on `style_id`; kids and baby bombers enter an adult query;
-and popularity lifts every distractor above a better text match. Class 8
-(food words) is not planted: the live site now redirects it.
+and popularity lifts every distractor above a better text match. Class 9 is
+an on-stage demo case: the pack count is a style attribute
+(`units_per_pack`, a numeric count in `C62`, as industrial states a package
+quantity) and the titles spell it "5 Pack", "5pk" and "Pack of 5", so the
+"5pk" pack never matches the text. Class 8 (food words) is not planted: the
+live site now redirects it.
 
 ## The built catalog is committed, in `golden-catalog/`
 

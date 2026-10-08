@@ -65,6 +65,8 @@ class Style:
     pattern: str | None = None
     leg_style: str | None = None
     params: tuple[tuple[str, str], ...] = ()
+    #: A style attribute: another pack count is another style, never a variant.
+    units_per_pack: int | None = None
 
     def docs(self) -> list[dict]:
         group = f"PLT-{self.code}"
@@ -90,9 +92,15 @@ class Style:
                 "audience": self.audience,
                 "sold_last_5_days": sold,
             }
-            for key in ("was_price", "size_range", "neckline", "pattern", "leg_style"):
+            for key in ("was_price", "size_range", "neckline", "pattern", "leg_style",
+                        "units_per_pack"):  # fmt: skip
                 if getattr(self, key) is not None:
                     rec[key] = getattr(self, key)
+            if self.units_per_pack is not None:
+                # The count kind industrial uses for a package quantity (C62, one).
+                rec["attributes"].append(
+                    attr("units_per_pack", "Units per pack", self.units_per_pack, "C62")
+                )
             out.append(rec)
         return out
 
@@ -483,6 +491,48 @@ FULL_PRICE = (
 )  # fmt: skip
 
 
+# --------------------------------------------------------------------------
+# 9. "5 pack socks" (an on-stage demo case): the count lives in title
+# spellings ("5 Pack", "5pk", "Pack of 5"), so "5pk" misses and the
+# bestselling 7 pack and a single pair win
+# --------------------------------------------------------------------------
+
+SOCKS = ("Men", "Socks")
+FIVE_PACKS = (
+    Style("SK5PKC", "Cotton Rich Ankle Socks 5pk", "Harbour & Pine", "Clothing",
+          (*SOCKS, "Ankle Socks"), 10.0, "Cushioned ankle socks in soft cotton rich yarn.",
+          "Socks", "box", one(cw("Black", BLACK), 28), pattern="plain", units_per_pack=5),
+    Style("SK5BMB", "Bamboo Socks, Pack of 5", "Wrenfield", "Clothing",
+          (*SOCKS, "Everyday Socks"), 12.0, "Breathable bamboo socks with a comfort top.",
+          "Socks", "box", one(cw("Navy", NAVY), 24), pattern="plain", units_per_pack=5),
+    Style("SK5SPT", "Sports Trainer Socks 5 Pack", "Stridewell", "Clothing",
+          (*SOCKS, "Sports Socks"), 9.0, "Trainer liners with an arch grip.",
+          "Socks", "box", one(cw("White", WHITE), 9), pattern="plain", units_per_pack=5),
+)  # fmt: skip
+
+_PACK = "units_per_pack = 5, as a filter"
+PACKS = (
+    (Style("SK7PKC", "Cotton Rich Socks 7 Pack", "Harbour & Pine", "Clothing",
+           (*SOCKS, "Everyday Socks"), 14.0,
+           "Our bestselling socks: a pack of socks for every day of the week.",
+           "Socks", "box", one(cw("Black", BLACK), 960), pattern="plain", units_per_pack=7),
+     _PACK),
+    (Style("SK3PKS", "Striped Socks 3 Pack", "Wrenfield", "Clothing",
+           (*SOCKS, "Everyday Socks"), 8.0, "A pack of striped cotton socks.",
+           "Socks", "box", one(cw("Stripe", WHITE, "stripe", RUST), 720), pattern="stripe",
+           units_per_pack=3), _PACK),
+    (Style("SK1WAL", "Wool Walking Socks", "Stridewell", "Clothing",
+           (*SOCKS, "Walking Socks"), 9.0,
+           "Cushioned wool walking socks, sold as a single pair. Socks for long days.",
+           "Socks", "box", one(cw("Grey", "#9a9a9a"), 690), pattern="plain", units_per_pack=1),
+     _PACK),
+    (Style("SK5KID", "Kids' School Socks 5 Pack (6-16 Yrs)", "Little Fernby", "Clothing",
+           ("Kids", "School", "Socks"), 7.0, "Five pairs of grey school socks.",
+           "Socks", "box", one(cw("Grey", "#9a9a9a"), 610), audience="kids", pattern="plain",
+           units_per_pack=5), "audience adult by default"),
+)  # fmt: skip
+
+
 def _type(*types: str) -> Callable[[dict], bool]:
     return lambda d: d.get("product_type") in types and d.get("audience") == "adult"
 
@@ -526,6 +576,11 @@ ROWS = (
              Policy(filters=(("product_type", ("Dress",)), ("audience", ("adult",))),
                     on_sale=True),
              SALE_DRESSES, FULL_PRICE),
+    ClassRow(9, "Pack count only in title spellings", "5 pack socks", "an adult 5 pack of socks",
+             lambda d: _type("Socks")(d) and d.get("units_per_pack") == 5,
+             "units_per_pack (a C62 count) as a filter; audience adult by default",
+             Policy(filters=(("units_per_pack", ("5",)), ("audience", ("adult",)))),
+             FIVE_PACKS, PACKS),
 )  # fmt: skip
 
 
@@ -594,6 +649,7 @@ def index_body() -> dict:
                 "was_price": {"type": "float"},
                 "sold_last_5_days": {"type": "integer"},
                 "bestseller_rank": {"type": "integer"},
+                "units_per_pack": {"type": "integer"},
             },
         },
     }
