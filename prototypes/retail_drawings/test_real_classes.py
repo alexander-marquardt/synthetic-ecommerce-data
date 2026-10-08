@@ -96,7 +96,11 @@ def test_the_round_4_records_are_unchanged_and_carry_none_of_the_new_fields() ->
     ranged = {d["product_id"] for d in prints.docs()}
     round_4 = [d for d in base if d["product_id"] not in ranged]
     assert len(round_4) == len(base) - len(ranged)
-    assert all(not (NEW_FIELDS & d.keys()) for d in round_4)
+    # The output standard (gen#125) needs every record's product_type and leaf:
+    # round 4 states them now, and still carries none of the other new fields.
+    standard = {"product_type", "category_leaf"}
+    assert all(standard <= d.keys() for d in round_4)
+    assert all(not ((NEW_FIELDS - standard) & d.keys()) for d in round_4)
     optional = {"was_price", "size_range", "neckline", "pattern", "leg_style"}
     assert all(NEW_FIELDS - optional <= d.keys() for d in CLASS_DOCS)
     ids = [d["product_id"] for d in CORPUS]

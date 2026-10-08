@@ -114,7 +114,9 @@ def check_entry(where: str, entry: Any) -> list[str]:
         elif not MAGNITUDE.fullmatch(value):
             out.append(f"{where}: entry {entry.get('key')!r} value {value!r} is not a bare number")
         elif canon != canonical(value, unit):
-            out.append(f"{where}: entry {entry.get('key')!r} canonical {canon!r} is not {value} {unit}")
+            out.append(
+                f"{where}: entry {entry.get('key')!r} canonical {canon!r} is not {value} {unit}"
+            )
     return out
 
 
@@ -174,7 +176,9 @@ def check_catalog(docs: Iterable[Mapping[str, Any]]) -> list[str]:
         for row in rows:
             for entry in row.get("attributes") or ():
                 if isinstance(entry, dict):
-                    names_by_key.setdefault(str(entry.get("key")), set()).add(str(entry.get("name")))
+                    names_by_key.setdefault(str(entry.get("key")), set()).add(
+                        str(entry.get("name"))
+                    )
     out += [f"{ident} is not unique ({n} times)" for ident, n in ids.items() if n > 1]
     out += [f"key {k!r} names {sorted(v)}" for k, v in sorted(names_by_key.items()) if len(v) > 1]
     shadow = set(names_by_key) & (set(PRODUCT_FIELDS) | set(VARIANT_FIELDS))
