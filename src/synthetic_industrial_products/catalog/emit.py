@@ -318,10 +318,27 @@ def write_jsonl(rows: Iterator[dict[str, Any]], path: Path) -> int:
 VALUE_NORMALIZED_FIELD = "value.normalized"
 VALUE_NORMALIZER = "value_folded"
 
+
+def _value_column() -> dict[str, Any]:
+    """The nested ``value`` column: verbatim keyword plus its folded sub-field."""
+    sub = VALUE_NORMALIZED_FIELD.split(".", 1)[1]
+    return {
+        "type": "keyword",
+        "fields": {sub: {"type": "keyword", "normalizer": VALUE_NORMALIZER}},
+    }
+
+
 #: Mapping for the nested shape. ``attributes`` and ``variants`` are nested so
 #: that name and value stay correlated within one entry, and so that
 #: ``reverse_nested`` can count parent products rather than attribute entries.
 NESTED_MAPPING: dict[str, Any] = {
+    "settings": {
+        "analysis": {
+            "normalizer": {
+                VALUE_NORMALIZER: {"type": "custom", "filter": ["lowercase", "asciifolding"]}
+            }
+        }
+    },
     "mappings": {
         "properties": {
             "product_id": {"type": "keyword"},
@@ -343,7 +360,7 @@ NESTED_MAPPING: dict[str, Any] = {
                 "properties": {
                     "key": {"type": "keyword"},
                     "name": {"type": "keyword"},
-                    "value": {"type": "keyword"},
+                    "value": _value_column(),
                     "unit_code": {"type": "keyword"},
                     "value_canonical": {"type": "double"},
                 },
@@ -364,7 +381,7 @@ NESTED_MAPPING: dict[str, Any] = {
                         "properties": {
                             "key": {"type": "keyword"},
                             "name": {"type": "keyword"},
-                            "value": {"type": "keyword"},
+                            "value": _value_column(),
                             "unit_code": {"type": "keyword"},
                             "value_canonical": {"type": "double"},
                         },
@@ -372,7 +389,7 @@ NESTED_MAPPING: dict[str, Any] = {
                 },
             },
         }
-    }
+    },
 }
 
 #: Mapping for the flat shape. ``attributes`` is deliberately an OBJECT and
