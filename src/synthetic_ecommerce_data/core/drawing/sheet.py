@@ -253,16 +253,16 @@ def _figure_at(
             page.path(d, fill=_mix(ink, "#ffffff", 0.55))
             continue
         if shape.role == "part":
-            colour, hatched = fill, True
+            color, hatched = fill, True
         elif shape.role == "plain":
-            colour, hatched = pale, False
+            color, hatched = pale, False
         elif shape.role == "hole":
-            colour, hatched = house.paper, False
+            color, hatched = house.paper, False
         elif shape.role == "dark":
-            colour, hatched = _mix(ink, "#ffffff", 0.55), False
+            color, hatched = _mix(ink, "#ffffff", 0.55), False
         else:  # handle, grip
-            colour, hatched = getattr(shape, "fill", None) or pale, False
-        style = {"fill": colour, "stroke": ink, "stroke_width": LW_PART, "stroke_linejoin": "round"}
+            color, hatched = getattr(shape, "fill", None) or pale, False
+        style = {"fill": color, "stroke": ink, "stroke_width": LW_PART, "stroke_linejoin": "round"}
         if isinstance(shape, Bars):
             d = svg.bars_d([(*at((x0, y0)), *at((x1, y1))) for x0, y0, x1, y1 in shape.rects])
             page.path(d, **style)
