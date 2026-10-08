@@ -35,9 +35,13 @@ MOTIFS = sorted(kit_motifs.CATEGORY)
 NUM = r"(-?[\d.]+(?:e-?\d+)?)"
 
 
-def _print(motif: str, placement: str, scale: float, spacing: float = 0) -> Fill:
+#: The copies a print of each placement draws when a test does not care.
+COUNT = {"placement": 1, "all-over": 2, "scatter": 3}
+
+
+def _print(motif: str, placement: str, scale: float, spacing: float = 0, count: int | None = None) -> Fill:
     return Fill("print", "#ffffff", "#f28c28", motif=motif, placement=placement, scale=scale,
-                spacing=spacing)  # fmt: skip
+                spacing=spacing, count=COUNT[placement] if count is None else count)  # fmt: skip
 
 
 # --------------------------------------------------------------------------
@@ -281,6 +285,79 @@ def test_the_oranges_and_dinosaur_rows() -> None:
     toys = [d for d in CORPUS if dino.is_intended(d)]
     assert len(toys) == 1 and toys[0]["department"] == ["Toys"]
     assert toys[0]["drawing"]["shape"] == "dinosaur"
+
+
+# --------------------------------------------------------------------------
+# The title's number is the number of copies drawn (maintainer ruling)
+# --------------------------------------------------------------------------
+
+#: The motif categories sold in both numbers: one graphic and a repeat.
+NUMBERED = ("fruit", "tools")
+
+
+def _says(title: str, noun: str) -> bool:
+    return re.search(rf"\b{re.escape(noun)}\b", title) is not None
+
+
+def test_the_plural_table_spells_every_fruit_and_tool_motif() -> None:
+    nouns = {m.name: (m.label, m.plural) for m in motifs.registry().values() if m.category in NUMBERED}
+    assert nouns == {
+        "orange": ("Orange", "Oranges"), "lemon": ("Lemon", "Lemons"), "apple": ("Apple", "Apples"),
+        "strawberry": ("Strawberry", "Strawberries"), "cherries": ("Cherry", "Cherries"),
+        "hammer": ("Hammer", "Hammers"), "wrench": ("Wrench", "Wrenches"),
+        "screwdriver": ("Screwdriver", "Screwdrivers"), "drill": ("Drill", "Drills"),
+        "screw": ("Screw", "Screws"),
+    }
+
+
+@pytest.mark.parametrize(
+    ("placement", "count", "ok"),
+    [("placement", 1, True), ("placement", 2, False), ("scatter", 3, True), ("scatter", 6, True),
+     ("scatter", 2, False), ("scatter", 7, False), ("all-over", 2, True), ("all-over", 1, False)],
+)  # fmt: skip
+def test_a_print_draws_exactly_its_count(placement: str, count: int, ok: bool) -> None:
+    scale, spacing = (0.6, 0) if placement == "placement" else (0.1, 140)
+    if not ok:
+        with pytest.raises(ValueError, match="copies"):
+            _print("wrench", placement, scale, spacing, count)
+        return
+    fill = _print("wrench", placement, scale, spacing, count)
+    if placement == "placement":
+        drawn = render("tshirt", fill, uid="t").count('class="motif"')
+    else:
+        drawn = len(motifs.layout(fill))
+        # Every spot of the repeat is drawn, plus the copies wrapping in from a neighbour.
+        base = {(x, y) for x, y, _, _ in motifs.tile_spots(fill) if 0 <= x < spacing and 0 <= y < spacing}
+        assert len(base) == count
+    assert drawn == count
+
+
+def test_the_title_is_singular_iff_one_copy_is_drawn() -> None:
+    printed = [d for d in prints.docs() if prints.is_print(d)]
+    assert printed
+    for d in printed:
+        draw = d["drawing"]
+        named = {a["key"]: a["value"] for a in d["attributes"]}
+        m = motifs.motif(draw["motif"])
+        count = draw.get("count")
+        assert named["motif"] == m.label, d["product_id"]  # the singular lemma, whatever the count
+        assert named.get("motif_count") == str(count), d["product_id"]
+        fill = Fill("print", draw["base"], draw["accent"], motif=draw["motif"],
+                    placement=draw["placement"], scale=draw["scale"], spacing=draw["spacing"],
+                    count=count)  # fmt: skip
+        assert len(motifs.layout(fill)) == count, d["product_id"]
+        assert _says(d["title"], m.label) == (count == 1), d["title"]
+        assert _says(d["title"], m.plural) == (count > 1), d["title"]
+
+
+def test_every_fruit_and_tool_motif_is_sold_singular_and_plural() -> None:
+    forms: dict[str, set[bool]] = {}
+    for d in prints.docs():
+        if prints.is_print(d):
+            forms.setdefault(d["drawing"]["motif"], set()).add(d["drawing"].get("count") == 1)
+    for m in motifs.registry().values():
+        if m.category in NUMBERED:
+            assert forms.get(m.name) == {True, False}, m.name
 
 
 # --------------------------------------------------------------------------

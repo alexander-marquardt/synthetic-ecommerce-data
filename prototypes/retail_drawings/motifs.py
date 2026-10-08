@@ -58,6 +58,11 @@ class Motif:
         """The motif as a shopper says it: ``christmas_tree`` -> ``Christmas Tree``."""
         return self.name.replace("_", " ").title()
 
+    @property
+    def plural(self) -> str:
+        """Stub (red): the motif's plural noun."""
+        return self.label
+
 
 def registry() -> dict[str, Motif]:
     """Every kit shape as a motif, in :data:`kit.SHAPES` order."""
@@ -216,6 +221,11 @@ def drawn_box(name: str) -> tuple[float, float, float, float]:
 SCATTER = ((0.2, 0.25, 1.0, -14), (0.7, 0.45, 0.7, 18), (0.35, 0.8, 0.55, 0))
 #: An all-over tile's half-drop: the same motif twice, upright.
 HALF_DROP = ((0.25, 0.25, 1.0, 0), (0.75, 0.75, 1.0, 0))
+
+
+def layout(fill: Fill) -> tuple[tuple[float, float, float, float], ...]:
+    """Stub (red): the spots of one repeat tile."""
+    return HALF_DROP if fill.placement == "all-over" else SCATTER
 
 
 def tile_spots(fill: Fill) -> list[tuple[float, float, float, float]]:

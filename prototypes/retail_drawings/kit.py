@@ -61,6 +61,7 @@ class Fill:
     placement: str | None = None
     scale: float = 0.0
     spacing: float = 0.0
+    count: int = 1  # stub (red): the copies of the motif one repeat draws
 
     def __post_init__(self) -> None:
         if self.pattern not in PATTERNS:
