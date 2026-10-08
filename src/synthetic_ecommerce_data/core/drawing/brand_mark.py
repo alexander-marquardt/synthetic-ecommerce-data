@@ -20,7 +20,8 @@ function names it keeps -- :func:`text_width`, :func:`fit_size`,
   ``textLength`` attribute pins the rendered width to that sum, so a viewer
   with another sans-serif squeezes the glyphs rather than overflowing the box;
 * :func:`plate` sets mark and wordmark side by side in a box, the name on two
-  lines when one line would fall below :data:`MIN_NAME_SIZE`.
+  lines when one line would fall below the domain's least legible size, and
+  its first word alone when two lines would too (:func:`lockup`).
 
 Nothing here chooses a brand's look, and nothing reads a record: a mark is a
 function of the brand alone, so every SKU of a brand carries the same one.
@@ -309,31 +310,34 @@ def lockup(
 ) -> Lockup:
     """Mark at the left of ``box``, then ``name`` as large as fits, up to ``max_size``.
 
-    One line when it fits at ``min_size`` or more; else two lines, broken at a
-    space, when that sets it larger. A name that fits neither way raises.
+    The first of these that sets the name at ``min_size`` or more: the name on
+    one line; on two lines, broken at a space; its first word alone. The
+    first word is the wordmark only, the catalog keeps the full name. A name
+    whose first word does not fit either raises.
     """
     x0, y0, x1, y1 = box
     cy = (y0 + y1) / 2
     mark = (x0, cy - mark_size / 2, x0 + mark_size, cy + mark_size / 2)
     left = x0 + mark_size + gap
     room = x1 - left
-    one = fit_size(name, room, max_size)
     halves = split_name(name)
-    two = 0.0
-    if halves is not None:
+    lines: tuple[str, ...] = (name,)
+    size = fit_size(name, room, max_size)
+    if size < min_size and halves is not None:
         tallest = (y1 - y0) / (CAP_HEIGHT + LINE_GAP + DESCENDER)
-        two = min(fit_size(halves[0], room, max_size), fit_size(halves[1], room, max_size), tallest)
-    lines: tuple[str, ...]
-    if one >= min_size or two <= one:
-        lines, size = (name,), one
-    else:
-        lines, size = halves, two  # type: ignore[assignment]
+        lines = halves
+        size = min(tallest, *(fit_size(half, room, max_size) for half in halves))
+        if size < min_size:
+            lines = (name.split(" ")[0],)
+            size = fit_size(lines[0], room, max_size)
     if size < min_size:
         raise ValueError(f"{name!r} fits {box} only at {size:.1f}, under {min_size}")
     block = CAP_HEIGHT * size + (len(lines) - 1) * LINE_GAP * size
-    top = cy - block / 2
+    # The capitals are centred on the mark; a descender that would then hang
+    # below the box (two lines at their tallest) lifts the whole name into it.
+    bottom = min(cy + block / 2 + DESCENDER * size, y1)
+    top = bottom - DESCENDER * size - block
     width = max(text_width(line, size) for line in lines)
-    bottom = top + block + DESCENDER * size
     return Lockup(mark=mark, lines=lines, size=size, name=(left, top, left + width, bottom))
 
 

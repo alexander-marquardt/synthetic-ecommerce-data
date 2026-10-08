@@ -5,5 +5,6 @@ One line per directive; the detail is behind each pointer. This file loads on ev
 - A test that outlives the per-test timeout fails rather than growing; raise it for that test alone with `@pytest.mark.timeout(<s>)` (README → Contributing).
 - Lint as CI does: `uv run --locked ruff check .`.
 - Add or move a product type: [docs/adding-a-type.md](docs/adding-a-type.md).
+- Until #127 merges, the shared core (`src/synthetic_ecommerce_data/core/`) lives on branch `extract-core-125`: base core work on it, not on `main`.
 - Merge with `scripts/merge_pr.sh <PR>`, never the GitHub button: README → Contributing.
 - No AI or bot credit in a commit message; the commit-msg hook and CI refuse it: README → Contributing.

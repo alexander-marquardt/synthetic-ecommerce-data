@@ -1,17 +1,22 @@
-"""One text-free drawing per SKU, drawn from that SKU's own published values.
+"""One drawing per SKU, drawn from that SKU's own published values.
 
 Rulings this implements (elastic/prism-industrial-products#103, 2026-09-26 to
-2026-09-28):
+2026-09-28; synthetic-ecommerce-data#132, 2026-10-08):
 
 * **One image per SKU**, so selecting a variant can switch the picture once a
   grouped view exists, and so two SKUs that differ in a visible specification
   look different today.
-* **No text of any kind** in a drawing (:func:`svg_problems` is the gate):
-  no dimension, callout, label, brand name, caption or SKU. The drawing
-  reflects the specifications visually --
-  proportions, geometry, flute count, head style, thread density -- and the
-  words stay on the record, where they can change without re-rendering.
-* **Brands visibly different**, by house style (:mod:`.style`), never by chance.
+* **No text but the brand's wordmark** (:func:`svg_problems` is the gate): no
+  dimension, callout, label, caption or SKU. The drawing reflects the
+  specifications visually -- proportions, geometry, flute count, head style,
+  thread density -- and the words stay on the record, where they can change
+  without re-rendering. The one exception (#132) is the brand plate under
+  the figure: the brand's mark and its name, or the name's first word where
+  the full name would render under 10 px at the Studio tile
+  (:data:`.sheet.MIN_NAME_PX`).
+* **Brands visibly different**, by house style (:mod:`.style`) and by the
+  brand's mark (:mod:`...domains.industrial.drawing.brand_marks`), never by
+  chance.
 * **Small SVG**, a few hundred bytes to a couple of KB.
 
 The drawing is a pure function of ``(product_type, brand, attributes)``. It
@@ -22,13 +27,14 @@ picture has nothing to tell them apart with.
 
 from __future__ import annotations
 
+import functools
 import re
 import xml.etree.ElementTree as ET
 from collections.abc import Mapping, Sequence
 
 from synthetic_ecommerce_data.core import brands
 from synthetic_ecommerce_data.core.drawing import brand_mark
-from synthetic_ecommerce_data.core.drawing.sheet import magnifier, paint, type_scale
+from synthetic_ecommerce_data.core.drawing.sheet import magnifier, paint, type_scale, wordmark_of
 from synthetic_ecommerce_data.core.drawing.style import house_style, material_hatch, part_fill
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 from synthetic_ecommerce_data.domains.industrial.render.marking import (
@@ -57,9 +63,11 @@ __all__ = [
 #:
 #: THE ONE TEXT ALLOWED (#132, revising the no-text ruling for the brand mark
 #: only): ``<text>`` elements whose words, joined by a space, are one brand's
-#: name from the brand book -- the plate's wordmark, on one or two lines. Its
-#: face, weight and width adjustment are fixed values; any other character
-#: data, and any ``<text>`` that spells something else, is refused.
+#: wordmark (:func:`.sheet.wordmark_of`: its name on one or two lines, or its
+#: first word). Its face, weight and width adjustment are fixed values; any
+#: other character data, and any ``<text>`` that spells something else, is
+#: refused. Which brand's wordmark a drawing carries is the drawing tests'
+#: check (``tests/test_brand_marks.py``): the gate does not know the brand.
 ALLOWED_ELEMENTS: frozenset[str] = frozenset(
     {"svg", "rect", "defs", "pattern", "g", "path", "circle", "text"}
 )
@@ -103,6 +111,12 @@ _VALUE_GRAMMAR: dict[str, re.Pattern[str]] = {
 }
 _NUMERIC = re.compile(rf"^{_NUMBER}$")
 _SVG_NS = "{http://www.w3.org/2000/svg}"
+
+
+@functools.cache
+def _wordmarks() -> frozenset[str]:
+    """Every brand's wordmark, as its ``<text>`` elements' words join."""
+    return frozenset(wordmark_of(brand) for brand in brands.BY_NAME)
 
 
 def svg_problems(svg: bytes) -> list[str]:
@@ -149,7 +163,7 @@ def svg_problems(svg: bytes) -> list[str]:
         for text in (element.tail,) if local == "text" else (element.text, element.tail):
             if text is not None and text.strip():
                 problems.append(f"character data {text.strip()[:20]!r} in <{local}>")
-    if words and " ".join(words) not in brands.BY_NAME:
+    if words and " ".join(words) not in _wordmarks():
         problems.append(f"text {' '.join(words)[:40]!r} is not a brand's wordmark")
     return problems
 
