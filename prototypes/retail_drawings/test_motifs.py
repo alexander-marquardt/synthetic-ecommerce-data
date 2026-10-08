@@ -18,6 +18,7 @@ import pytest
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
+import build_preview4  # noqa: E402,F401 -- registers every shape the build draws, so the shape sweep sees them run alone
 import distractors as dz  # noqa: E402
 import kit_motifs  # noqa: E402
 import motifs  # noqa: E402
