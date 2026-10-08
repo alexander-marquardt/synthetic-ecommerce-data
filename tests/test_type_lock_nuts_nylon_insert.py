@@ -28,10 +28,13 @@ import pytest
 
 import type_gates
 from published import published_attributes
-from synthetic_ecommerce_data.catalog import names, taxonomy, typespec
-from synthetic_ecommerce_data.catalog.config import GeneratorConfig
-from synthetic_ecommerce_data.catalog.generate import generate, generate_type
-from synthetic_ecommerce_data.product_types.fasteners.lock_nuts_nylon_insert import SERIES
+from synthetic_ecommerce_data.core import typespec
+from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.domains.industrial import names, taxonomy
+from synthetic_ecommerce_data.domains.industrial.generate import generate, generate_type
+from synthetic_ecommerce_data.domains.industrial.product_types.fasteners.lock_nuts_nylon_insert import (  # noqa: E501
+    SERIES,
+)
 from test_attribute_names import CENSUS, OBSERVED
 from test_catalog_brands_voice import same_product_duplicates
 from test_type_seam import _by_type, _moved_by_removing

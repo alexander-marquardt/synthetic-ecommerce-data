@@ -4,10 +4,10 @@ import numpy as np
 import pytest
 
 from helpers import colour_mask, figure_pixels, within_axes
-from synthetic_ecommerce_data.dimensions import parse_length
-from synthetic_ecommerce_data.records import FIXTURES
-from synthetic_ecommerce_data.render import CARD, DETAIL, fastener
-from synthetic_ecommerce_data.render import canvas as cv
+from synthetic_ecommerce_data.core.dimensions import parse_length
+from synthetic_ecommerce_data.domains.industrial.records import FIXTURES
+from synthetic_ecommerce_data.domains.industrial.render import CARD, DETAIL, fastener
+from synthetic_ecommerce_data.domains.industrial.render import canvas as cv
 
 REC = FIXTURES["26LD37"]
 
@@ -227,8 +227,8 @@ def test_the_thread_form_comes_from_the_designation(tmp_path):
 def test_the_screw_is_scaled_from_its_own_head_diameter():
     """A squat part fills the card's width; the frame follows the part, not a constant."""
     from helpers import colour_mask, figure_pixels
-    from synthetic_ecommerce_data.render.canvas import INK
-    from synthetic_ecommerce_data.render.fastener import FILL_H
+    from synthetic_ecommerce_data.domains.industrial.render.canvas import INK
+    from synthetic_ecommerce_data.domains.industrial.render.fastener import FILL_H
 
     fig, _ax, _geom = fastener.build(REC, CARD)
     image = figure_pixels(fig)

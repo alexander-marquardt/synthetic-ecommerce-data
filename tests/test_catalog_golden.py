@@ -33,8 +33,8 @@ import pytest
 import catalog_size
 import type_gates
 from prism_synthetic_industrial import FIELD_MAP_PATH
-from synthetic_ecommerce_data.catalog import cli
-from synthetic_ecommerce_data.catalog.config import GeneratorConfig
+from synthetic_ecommerce_data import generate_cli as cli
+from synthetic_ecommerce_data.core.config import GeneratorConfig
 
 #: Where the committed build output lives, relative to the repository root.
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"

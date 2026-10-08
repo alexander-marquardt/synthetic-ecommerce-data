@@ -27,10 +27,10 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from synthetic_ecommerce_data.catalog import emit  # noqa: E402
-from synthetic_ecommerce_data.catalog.config import GeneratorConfig  # noqa: E402
-from synthetic_ecommerce_data.catalog.generate import generate  # noqa: E402
-from synthetic_ecommerce_data.catalog.vocab import STANDARDS_NAME  # noqa: E402
+from synthetic_ecommerce_data.core import emit  # noqa: E402
+from synthetic_ecommerce_data.core.config import GeneratorConfig  # noqa: E402
+from synthetic_ecommerce_data.domains.industrial.generate import generate  # noqa: E402
+from synthetic_ecommerce_data.domains.industrial.vocab import STANDARDS_NAME  # noqa: E402
 
 INDEX_PREFIX = "test-2026-09-17"
 NESTED_INDEX = f"{INDEX_PREFIX}-sip-nested"

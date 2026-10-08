@@ -1,0 +1,295 @@
+"""One nested attribute entry: its machine key, and its value split into parts.
+
+The data contract is elastic/prism#9935's ruling (tracked here as #42):
+
+* every entry carries a REQUIRED machine ``key`` beside its display ``name``. The
+  Engine discovers attributes from that key;
+* a MEASURED value is fully split. ``value`` is the bare magnitude (``1/2``),
+  ``unit_code`` is the only place the unit lives, and ``value_canonical`` is
+  derived from the pair. A count is measured too (``C62``);
+* a composite designator (``1/4-20``, ``M10x1.5``) stays unitless text.
+
+The split reads the PUBLISHED string, for the reason :mod:`.model` gives for
+``value_num``: a number computed from the generator's own magnitude can disagree
+with the string actually published, and one read back out of it cannot.
+"""
+
+from __future__ import annotations
+
+import re
+from collections.abc import Mapping, Sequence
+from fractions import Fraction
+from typing import Any
+
+from synthetic_ecommerce_data.domains.industrial import series
+
+_NON_WORD = re.compile(r"[^a-z0-9]+")
+
+#: PRISM canonical names taken by the document's first-class columns. An attribute
+#: that sanitises onto one of these is NAMESPACED rather than dropped or refused:
+#: see :func:`canonical_name`.
+STRUCTURAL_NAMES = frozenset(
+    {
+        "id",
+        "sku",
+        "product_id",
+        "product_type",
+        "title",
+        "description",
+        "parent_title",
+        "brand",
+        "brand_search",
+        "series",
+        "series_search",
+        "categories",
+        "category_path_joined",
+        "category_leaf",
+        "dimension_provenance",
+        "spec_quality",
+        "price",
+        "stock",
+        "attribute_names",
+        "fulltext",
+    }
+)
+
+#: The prefix an attribute's canonical name takes when its sanitised key is a
+#: structural field's name.
+ATTRIBUTE_PREFIX = "attr_"
+
+#: A published unit marker, and the UN/CEFACT code it means.
+UNIT_FOR_SUFFIX: dict[str, str] = {
+    '"': "INH",
+    "in": "INH",
+    "in.": "INH",
+    "mm": "MMT",
+    "ft": "FOT",
+    "Degrees": "DD",
+    "oz": "ONZ",
+    "lbf": "C78",
+    "lb": "LBR",
+}
+
+#: Attributes published as a bare number, and the unit that number is in. A count
+#: is measured in ``C62`` (one), so it ranges like any other measurement.
+UNIT_FOR_BARE_NAME: dict[str, str] = {
+    "Number of Flutes": "C62",
+    "Grit": "C62",
+    "Package Quantity": "C62",
+    "Number of Pieces": "C62",
+    "Max. RPM": "RPM",
+    "Decimal Equivalent": "INH",
+}
+
+#: Attributes whose unit is fixed by what they measure, whatever mark a published
+#: value is spelled with. The modelled defect ``Helix Angle = 42"``
+#: (``Generator._corrupt_angle``) is a supplier keying the inch mark for the degree
+#: mark: the facet keeps that messy spelling, but the entry is still an angle,
+#: because noise never changes what an attribute measures (#79). Read as an inch
+#: it put a length under an angle key, which no facet or range over the key can
+#: compare.
+UNIT_FOR_NAME: dict[str, str] = {
+    "Helix Angle": "DD",
+    "Point Angle": "DD",
+}
+
+#: The span of degrees each attribute fixed to ``DD`` can hold, read from the
+#: angles its generator draws (``series``). The same defect also writes ``1"``,
+#: ``2"`` and ``1-5/8"`` into these fields: lengths keyed into an angle field, a
+#: unit-type error (``09_defect_rate.json``), not a mis-keyed degree mark. Read
+#: as degrees they would claim angles no drill or end mill has, so a number
+#: outside its attribute's span, or any fraction, stays text (#79).
+SPAN_FOR_NAME: dict[str, tuple[Fraction, Fraction]] = {
+    "Helix Angle": (Fraction(min(series.HELIX_ANGLES)), Fraction(max(series.HELIX_ANGLES))),
+    "Point Angle": (Fraction(min(series.POINT_ANGLES)), Fraction(max(series.POINT_ANGLES))),
+}
+
+#: The size of one unit in its kind's canonical unit: millimetres, grams, degrees,
+#: one, rpm and pound-force. ``value_canonical = magnitude x size``.
+CANONICAL_PER_UNIT: dict[str, Fraction] = {
+    "INH": Fraction(127, 5),
+    "FOT": Fraction(1524, 5),
+    "MMT": Fraction(1),
+    "DD": Fraction(1),
+    "ONZ": Fraction(45359237, 1600000),
+    "LBR": Fraction(45359237, 100000),
+    "C62": Fraction(1),
+    "RPM": Fraction(1),
+    "C78": Fraction(1),
+}
+
+#: Units that count something PER a size, so ``value_canonical = size / magnitude``.
+#:
+#: ``TPI`` is a LENGTH written as a count per inch (ruled on elastic/prism#9877):
+#: ``32`` threads per inch is a 1/32 inch pitch, ``127/5 / 32 = 0.79375`` mm. The
+#: entry keeps the count as its ``value`` and ``TPI`` as its unit, so the row a
+#: shopper reads is still ``32 TPI``. The industrial deployment declares the same
+#: reciprocal (``TPI: {reciprocal: "127/5"}`` under ``length``), which is what the
+#: contract test reads its sizes from.
+RECIPROCAL_PER_UNIT: dict[str, Fraction] = {
+    "TPI": Fraction(127, 5),
+}
+
+
+#: A published number: a mixed number, a fraction, a thousands-separated or plain
+#: decimal, or a leading-dot decimal.
+_NUMBER = (
+    r"(?:[0-9]+[ -][0-9]+/[0-9]+|[0-9]+/[0-9]+"
+    r"|[0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?|\.[0-9]+)"
+)
+# Longest suffix first, so ``lbf`` is not read as ``lb`` and ``in.`` not as ``in``.
+_SUFFIXES = "|".join(re.escape(s) for s in sorted(UNIT_FOR_SUFFIX, key=len, reverse=True))
+_WITH_UNIT = re.compile(rf"^\s*(?P<number>{_NUMBER})\s*(?P<suffix>{_SUFFIXES})\s*$")
+_BARE = re.compile(rf"^\s*(?P<number>{_NUMBER})\s*$")
+
+
+def sanitize(name: str) -> str:
+    """``Milling Dia.`` -> ``milling_dia``: a usable field name.
+
+    Attribute names as published contain dots, slashes and trailing
+    punctuation. A dot is a path separator in Elasticsearch and a trailing one
+    is simply invalid, so a published name cannot be used as a field name
+    as-is.
+    """
+    return _NON_WORD.sub("_", name.strip().lower()).strip("_")
+
+
+def canonical_name(key: str) -> str:
+    """An attribute's canonical name: its sanitised key, namespaced on a collision.
+
+    THE GENERAL RULE, not a one-off. Supplier feeds publish attribute names
+    that are also the names of a catalog's own columns -- the reference census
+    carries ``Series`` (25 records), ``Product Type`` (15) and ``Brand`` (1) as
+    ATTRIBUTE names -- and a bearing's ``Series`` (``62``) is not its product
+    line's ``series`` column. Dropping the attribute loses data; refusing the
+    whole catalog is worse. So the attribute is named ``attr_series``, both as
+    a nested entry's ``key`` and as the flat field map's entry name; one rule
+    serves both so the two cannot drift.
+    """
+    return f"{ATTRIBUTE_PREFIX}{key}" if key in STRUCTURAL_NAMES else key
+
+
+def entry_key(name: str) -> str:
+    """The machine ``key`` a nested entry carries for a published attribute name."""
+    return canonical_name(sanitize(name))
+
+
+def _magnitude(number: str) -> str:
+    """The bare magnitude: thousands separators dropped, a mixed number hyphenated."""
+    number = number.replace(",", "")
+    return re.sub(r"^([0-9]+) ([0-9]+/[0-9]+)$", r"\1-\2", number)
+
+
+def _exact(magnitude: str) -> Fraction:
+    if "-" in magnitude:
+        whole, frac = magnitude.split("-")
+        return int(whole) + Fraction(frac)
+    return Fraction(magnitude)
+
+
+def _within_span(name: str, number: str) -> bool:
+    """Whether ``number`` is a degree count ``name`` can hold: no fraction, within its span."""
+    magnitude = _magnitude(number)
+    low, high = SPAN_FOR_NAME[name]
+    return "/" not in magnitude and low <= _exact(magnitude) <= high
+
+
+def split(name: str, published: str, bare_unit: str | None = None) -> dict[str, Any]:
+    """The value parts of one entry: ``value``, and when measured the unit and canonical.
+
+    A unit marker in the string decides the unit. A bare number takes one only
+    when its attribute is known to be published bare in a unit -- by name, or
+    by ``bare_unit`` from the generator, which knows a metric tap's ``Thread Pitch`` is
+    in millimetres (``MMT``) and an inch tap's ``Threads per Inch`` is a thread
+    count (``TPI``), whose canonical is the pitch length. Anything else stays text.
+
+    An attribute in :data:`UNIT_FOR_NAME` takes that unit whatever mark it is
+    spelled with, so the defective ``Helix Angle = 42"`` splits as 42 degrees:
+    the magnitude is kept and the bad mark is dropped (#9284, #79). One fixed to
+    ``DD`` parses only within its :data:`SPAN_FOR_NAME`, so
+    ``Point Angle = 1-5/8"``, a length in an angle field, stays text.
+    """
+    unit: str | None = None
+    match = _WITH_UNIT.fullmatch(published)
+    if match is not None:
+        unit = UNIT_FOR_NAME.get(name) or UNIT_FOR_SUFFIX[match["suffix"]]
+        if UNIT_FOR_NAME.get(name) == "DD" and not _within_span(name, match["number"]):
+            return {"value": published}
+    else:
+        match = _BARE.fullmatch(published)
+        if match is not None:
+            unit = bare_unit or UNIT_FOR_BARE_NAME.get(name)
+    if match is None or unit is None:
+        return {"value": published}
+    magnitude = _magnitude(match["number"])
+    return {"value": magnitude, "unit_code": unit, "value_canonical": canonical(magnitude, unit)}
+
+
+def canonical(magnitude: str, unit: str) -> float:
+    """``value_canonical``: the exact magnitude in its kind's canonical unit, as a float.
+
+    The arithmetic is exact (:class:`~fractions.Fraction`) and rounded to a float
+    once, at the end, for every unit alike: ``3/8"`` is 9.525 mm and ``13`` TPI is
+    the nearest float to 127/65 mm.
+    """
+    exact = _exact(magnitude)
+    if unit in RECIPROCAL_PER_UNIT:
+        return float(RECIPROCAL_PER_UNIT[unit] / exact)
+    return float(exact * CANONICAL_PER_UNIT[unit])
+
+
+def entry(
+    name: str, published: str, bare_unit: str | None = None, key: str | None = None
+) -> dict[str, Any]:
+    """One nested entry: ``{key, name, value[, unit_code, value_canonical]}``.
+
+    ``key`` is given only when the key must differ from the one the name derives: a
+    roller chain's ``Pitch`` (link spacing) is keyed ``chain_pitch``, never the thread
+    pitch a tap publishes as ``Thread Pitch`` (``thread_pitch``) (#36), though real catalogs
+    label both pitches alike. Otherwise the key derives from the name.
+    """
+    return {
+        "key": key if key is not None else entry_key(name),
+        "name": name,
+        **split(name, published, bare_unit),
+    }
+
+
+def flat_key(item: Mapping[str, Any]) -> str:
+    """The flat ``facets`` key a nested entry's value sits under.
+
+    The sanitised name, unless the entry carries a key set apart from its name
+    (:func:`entry`), whose values the flat document files under that key so
+    the two concepts stay two facets there too.
+    """
+    name = item["name"]
+    # A row built by hand (a reader's own fixture) may carry no key at all.
+    key = item.get("key")
+    return sanitize(name) if key is None or key == entry_key(name) else key
+
+
+def published(entries, facets: Mapping[str, Sequence[str]]) -> list[tuple[str, str]]:
+    """``(name, published spelling)`` for each nested entry, read from flat ``facets``.
+
+    A nested entry carries no spelling, because ``unit_code`` is the only place
+    the unit lives (#42). A consumer that prints the published value -- a
+    drawing's card stamp, a test comparing a title with its attributes -- reads
+    it from the SKU's flat document instead, whose ``facets`` keep it unchanged.
+
+    ``entries`` must be walked in emit order -- the line's, then the SKU's --
+    which is the order ``facets`` was built in, so the n-th entry under a key is
+    the n-th value under it. Raises :class:`LookupError` when ``facets`` holds
+    no value for an entry: the flat document is not this SKU's.
+    """
+    taken: dict[str, int] = {}
+    pairs: list[tuple[str, str]] = []
+    for item in entries:
+        name = item["name"]
+        key = flat_key(item)
+        index = taken.get(key, 0)
+        values = facets.get(key, ())
+        if index >= len(values):
+            raise LookupError(f"flat facets carry no value #{index + 1} for {name!r} ({key})")
+        pairs.append((name, values[index]))
+        taken[key] = index + 1
+    return pairs

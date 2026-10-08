@@ -6,7 +6,7 @@ happens to be drawn simply is not in the catalog. Nothing fails, nothing is
 logged, and the only way anyone finds out is a shopper asking for it.
 
 Measured before the rotations in
-:meth:`~synthetic_ecommerce_data.catalog.generate.Generator._rotate` went
+:meth:`~synthetic_ecommerce_data.domains.industrial.generate.Generator._rotate` went
 in, on the committed catalog, over ``facets_num.milling_dia`` at +/- 0.02 mm::
 
     11 mm ->  0 documents        control   2.5 mm ->  5
@@ -20,8 +20,8 @@ side of the catalog, blocking the one query the reference distributor singled ou
 
 So the assertions here are stated over the WHOLE catalog and derived from the
 offered lists rather than from a copy of them: the series in
-:mod:`~synthetic_ecommerce_data.catalog.series` and the extracted tables
-in :mod:`~synthetic_ecommerce_data.catalog.standards` are the same lists
+:mod:`~synthetic_ecommerce_data.domains.industrial.series` and the extracted tables
+in :mod:`~synthetic_ecommerce_data.domains.industrial.standards` are the same lists
 the generator draws from, so a value added to either is checked the day it
 appears and not the day somebody remembers to add it here.
 
@@ -36,7 +36,8 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_ecommerce_data.catalog import compat, series, standards, typespec
+from synthetic_ecommerce_data.core import typespec
+from synthetic_ecommerce_data.domains.industrial import compat, series, standards
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
 REBUILD = "uv run ecom-generate build --out golden-catalog"
@@ -85,9 +86,9 @@ def catalog(request) -> tuple[list[dict], list[dict]]:
 
         return read("flat.jsonl"), read("nested.jsonl")
 
-    from synthetic_ecommerce_data.catalog import emit
-    from synthetic_ecommerce_data.catalog.config import GeneratorConfig
-    from synthetic_ecommerce_data.catalog.generate import generate
+    from synthetic_ecommerce_data.core import emit
+    from synthetic_ecommerce_data.core.config import GeneratorConfig
+    from synthetic_ecommerce_data.domains.industrial.generate import generate
 
     built = generate(GeneratorConfig())
     return list(emit.iter_flat(built)), list(emit.iter_nested(built))
@@ -358,7 +359,7 @@ def test_the_lengths_published_for_that_size_are_the_standards_own(
     ``ASME B18.2.1`` offers at that size -- the nominal list filtered to the
     per-size range, exactly as the upstream workbench computes it.
     """
-    from synthetic_ecommerce_data.dimensions import DimensionParseError, parse_length
+    from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
 
     offered = standards.offered_lengths_in("ASME B18.2.1", "7/16")
     assert offered, "the extraction carries no offered lengths for a 7/16 hex bolt"
@@ -484,7 +485,7 @@ def test_a_bolt_never_carries_a_grading_from_the_other_measurement_system(
     of four regardless of which standard the line was built to. The reference distributor's
     own query lands on exactly this pair of fields, which is how it surfaced.
     """
-    from synthetic_ecommerce_data.catalog.generate import INCH_GRADES, METRIC_GRADES
+    from synthetic_ecommerce_data.domains.industrial.generate import INCH_GRADES, METRIC_GRADES
 
     wrong: list[tuple[str, str, str]] = []
     for doc in flat_docs:

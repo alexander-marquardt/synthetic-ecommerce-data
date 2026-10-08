@@ -38,7 +38,7 @@ def test_the_distribution_is_synthetic_ecommerce_data():
 
 def test_the_new_commands_and_the_deprecated_old_ones_are_installed():
     assert _project()["scripts"] == {
-        "ecom-generate": "synthetic_ecommerce_data.catalog.cli:main",
+        "ecom-generate": "synthetic_ecommerce_data.generate_cli:main",
         "ecom-render": "synthetic_ecommerce_data.cli:main",
         "sip-generate": "synthetic_industrial_products:sip_generate",
         "sip-render": "synthetic_industrial_products:sip_render",
@@ -57,7 +57,7 @@ def test_an_old_import_path_is_the_same_module_and_warns():
         "    from synthetic_industrial_products.catalog import generate as old\n"
         "    from synthetic_industrial_products import FIXTURES as old_fixtures\n"
         "import synthetic_ecommerce_data\n"
-        "import synthetic_ecommerce_data.catalog.generate as new\n"
+        "import synthetic_ecommerce_data.domains.industrial.generate as new\n"
         "print(old is new, old_fixtures is synthetic_ecommerce_data.FIXTURES)\n"
         "print(sum(issubclass(w.category, DeprecationWarning)\n"
         "          and 'synthetic_ecommerce_data' in str(w.message) for w in caught))\n"
@@ -80,7 +80,7 @@ def test_an_old_name_import_leaves_the_real_module_spec_in_place():
         "import synthetic_industrial_products.data as data\n"
         "import synthetic_industrial_products.catalog.emit as emit\n"
         "print(data.__spec__.name == data.__name__, emit.__spec__.name == emit.__name__)\n"
-        "text = resources.files('synthetic_ecommerce_data.data')"
+        "text = resources.files(data.__name__)"
         ".joinpath('reference_fingerprints.json').read_text('utf-8')\n"
         "print(len(text) > 0)\n"
         "emit.IMAGE_ROOT = 'patched'\n"

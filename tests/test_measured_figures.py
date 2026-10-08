@@ -24,7 +24,7 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_ecommerce_data.catalog.generate import all_type_keys
+from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys
 
 ROOT = Path(__file__).resolve().parents[1]
 GOLDEN = ROOT / "golden-catalog"

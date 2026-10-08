@@ -2,12 +2,12 @@
 
 A product type is one leaf of the category tree, such as `screw_socket_head` or
 `ball_stock_precision`. Each type is declared in a module of its own under
-`src/synthetic_ecommerce_data/product_types/`. A breadth type is one new
+`src/synthetic_ecommerce_data/domains/industrial/product_types/`. A breadth type is one new
 file plus the generated output; a modelled type still edits some shared files,
 listed under [What is still shared](#what-is-still-shared) (#48).
 
 The build finds the modules by walking the package
-(`catalog/typespec.py`, `discover`). The first read of any shared, type-keyed
+(`core/typespec.py`, `discover`). The first read of any shared, type-keyed
 table (`LEAVES`, `DRAWING`, `VOCAB`, `STANDARDS_FAMILY`, `USE_LINES`,
 `FIGURES`, or the breadth rows through `breadth.rows()`) registers every module
 into those tables, so no caller has to call a registration step before it
@@ -18,9 +18,9 @@ is what a builder's own test does.
 
 | File | When |
 |---|---|
-| `product_types/<family>/<type_key>.py` | Every type. The file name must equal the key, or discovery refuses it. |
-| `product_types/<family>/__init__.py` | Once per family, with a one-line docstring. |
-| `catalog/names.py` head-noun list | Only when the leaf's last word (`Ball`, `Bar`, `Screw`) is not listed yet. |
+| `domains/industrial/product_types/<family>/<type_key>.py` | Every type. The file name must equal the key, or discovery refuses it. |
+| `domains/industrial/product_types/<family>/__init__.py` | Once per family, with a one-line docstring. |
+| `domains/industrial/names.py` head-noun list | Only when the leaf's last word (`Ball`, `Bar`, `Screw`) is not listed yet. |
 | `golden-catalog/*` and `src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml` | Every new type. Both are written by the build; never edit them by hand. |
 
 A module declares one `SPEC = TypeSpec(...)`, of one of two kinds:
@@ -28,25 +28,25 @@ A module declares one `SPEC = TypeSpec(...)`, of one of two kinds:
 * **Breadth type.** One `BreadthRow`, with the same fields as a row file
   `data/breadth_categories/<type_key>.yaml`. The leaf, the drawing, the vocabulary and
   the brand family all follow from the row. `shape` is one of the six plain
-  shapes in `drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`,
+  shapes in `domains/industrial/drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`,
   `disc`, `tube` or `bracket`. Example:
-  `product_types/raw_materials/ball_stock_precision.py`.
+  `domains/industrial/product_types/raw_materials/ball_stock_precision.py`.
 * **Modelled type.** `category`, `standards_family`, `vocab`, `figure` and
   `extent`, `make`, `share`, `price` and `key_attributes`, the facts the tests
   hold it to (step 5 below), and optionally `use_lines`. `make` is the
   builder: `make(gen, type_key, category)` drafts one line. A module must
-  never import `catalog/generate.py` at module level (that is an import
+  never import `domains/industrial/generate.py` at module level (that is an import
   cycle); a builder that needs `LineDraft`, `ChildDraft` or `BRANDS` imports
   them inside the function. Examples:
-  `product_types/fasteners/lock_nuts_nylon_insert.py` (its own builder, the
+  `domains/industrial/product_types/fasteners/lock_nuts_nylon_insert.py` (its own builder, the
   pattern for a deepened type) and
-  `product_types/fasteners/screw_socket_head.py` (a family builder on
+  `domains/industrial/product_types/fasteners/screw_socket_head.py` (a family builder on
   `Generator`).
 
 `part_number_block` is left unset unless `ecom-generate block` says otherwise
 (step 2 below).
 
-The types in `catalog/newtypes.py` (`NEW_TYPES`) are a third kind that no
+The types in `domains/industrial/newtypes.py` (`NEW_TYPES`) are a third kind that no
 module can declare yet. They stay where they are for now.
 
 ## Where a modelled type's builder lives
@@ -55,7 +55,7 @@ module can declare yet. They stay where they are for now.
 builder in its own module.** `lock_nuts_nylon_insert.py` is the pattern: its
 spec space (the series tables, the stocked combinations, the vocabulary) and
 its `build` function are module-level, and `SPEC.make = build`. Nothing in
-`catalog/generate.py` changes. Write a new `Generator` method only when two or
+`domains/industrial/generate.py` changes. Write a new `Generator` method only when two or
 more types share one builder.
 
 A module builder calls only this generator API, which is what the lock-nut
@@ -78,7 +78,7 @@ else private:
 | `generate.LineDraft`, `generate.ChildDraft`, `generate.BRANDS` | The draft types and the brand list, imported inside the builder. |
 
 A module may also import a sibling family's data table from
-`catalog/newtypes.py` (the lock nut reads `_NUT_UNC`, the hex nut's inch
+`domains/industrial/newtypes.py` (the lock nut reads `_NUT_UNC`, the hex nut's inch
 widths across flats) rather than copy it.
 
 **A sibling of an existing family builder** uses that builder. Only the
@@ -90,7 +90,7 @@ own as `LINE` and passes it through `make`. A sibling socket screw does the
 same and edits nothing in `generate.py`.
 
 Every other family's builder still branches on the type key inside
-`catalog/generate.py`, so a new sibling of that family also edits the
+`domains/industrial/generate.py`, so a new sibling of that family also edits the
 builder's type-keyed tables and conditions (for example
 `END_MILL_SERIES_LETTERS[type_key]`, `taxonomy.END_MILL_MATERIALS[type_key]`,
 `type_key == "end_mill_ball"`).
@@ -126,7 +126,7 @@ its published attributes. `set_screws_hex_socket` does both.
    collides at today's 68 types. Another open pull request can take the same
    block; `scripts/merge_pr.sh` re-checks it on the merged tree.
 3. If the leaf's head noun is new, add it to `PRODUCT_NOUNS` in
-   `catalog/names.py`.
+   `domains/industrial/names.py`.
 4. Build the catalog and regenerate the committed one:
    `uv run ecom-generate build --out golden-catalog`. Only the new type's
    records, the totals in `stats.json` and the field-weights YAML should
@@ -182,7 +182,7 @@ its published attributes. `set_screws_hex_socket` does both.
 7. Declare a price model (`price=` on the `TypeSpec`; `register` refuses a
    modelled type without one). It is keyed on `key_attributes` (step 5). A
    type that publishes its material under another name than `Material` names
-   it in `MATERIAL_ATTRIBUTES` in `catalog/price.py` (a wheel's is its
+   it in `MATERIAL_ATTRIBUTES` in `core/price.py` (a wheel's is its
    `Abrasive Material`), since the census spec is the key in one material. A
    type the census has no prices
    for declares `measured=False`; one it has prices for restates its census
@@ -207,7 +207,7 @@ rule it follows; the rules are in
    grade combinations of each.
 2. Write the modelled module under the same key, with its own builder
    ([Where a modelled type's builder lives](#where-a-modelled-types-builder-lives)).
-   Example: `product_types/fasteners/lock_nuts_nylon_insert.py`. Carry over
+   Example: `domains/industrial/product_types/fasteners/lock_nuts_nylon_insert.py`. Carry over
    what the breadth row fixes ([What to keep from the breadth row](#what-to-keep-from-the-breadth-row)),
    Name each attribute as the census does: `vocab` names must pass
    `test_every_published_name_passes_the_census_gate` (look a name up in
@@ -238,7 +238,7 @@ rule it follows; the rules are in
 The output must stay byte-identical.
 
 1. Find every entry for the key:
-   `grep -rn '<type_key>' src/synthetic_ecommerce_data/catalog src/synthetic_ecommerce_data/drawing src/synthetic_ecommerce_data/data`.
+   `grep -rn '<type_key>' src/synthetic_ecommerce_data/core src/synthetic_ecommerce_data/domains/industrial`.
    For a modelled type, the entries are in `LEAVES`, `DRAWING` (identity
    pairs), `VOCAB`, `STANDARDS_FAMILY`, `FIGURES`, `USE_LINES`,
    `Generator._BUILDERS`, the `config.type_weights` share, and for a socket
@@ -263,7 +263,7 @@ on their own.
 
 ### Table types
 
-Use a table type (`catalog/tabletype.py`, #101) when a type does not parameterise easily: a dozen real sizes from one published chart, a few materials, a few packs. Examples: `product_types/fasteners/cotter_pins.py` and `retaining_rings_external.py`. A type exists once, so delete its breadth row file in the same PR.
+Use a table type (`domains/industrial/tabletype.py`, #101) when a type does not parameterise easily: a dozen real sizes from one published chart, a few materials, a few packs. Examples: `domains/industrial/product_types/fasteners/cotter_pins.py` and `retaining_rings_external.py`. A type exists once, so delete its breadth row file in the same PR.
 
 * **Fields.** `columns` (the published name of each chart column, the size first) and `rows` (one real size per row, rising); `variants` (material, finish, price factor, cheapest first at 1.0); `packs`; `base_price`, `size_slope`, `pack_slope`; `draw` and `extent`; `share`, `default_lines`, `default_skus`; `unit` (`"mm"`, or `"in"` for an inch chart). `spec(TABLE)` refuses a table that breaks an order.
 * **Facts.** Publish only what the chart gives, and cite the chart and the day it was read in the module docstring. Say so if the standard itself was not read. A column the chart lacks (a cotter pin's length) is not published.
@@ -279,10 +279,10 @@ Use a table type (`catalog/tabletype.py`, #101) when a type does not parameteris
 
 **What a table type's PR edits.** Its own files, which no other PR touches:
 
-* `src/synthetic_ecommerce_data/product_types/<family>/<key>.py` (new)
+* `src/synthetic_ecommerce_data/domains/industrial/product_types/<family>/<key>.py` (new)
 * `tests/test_type_<key>.py` (new)
 * `tests/data/golden_slices/<key>.jsonl` (new, written by the test module)
-* `src/synthetic_ecommerce_data/data/breadth_categories/<key>.yaml` (deleted, when the type had a breadth row)
+* `src/synthetic_ecommerce_data/domains/industrial/data/breadth_categories/<key>.yaml` (deleted, when the type had a breadth row)
 
 Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
 
@@ -291,7 +291,7 @@ Generated files. Rebuild them with `uv run ecom-generate build --out golden-cata
 
 Shared files, edited by hand:
 
-* `src/synthetic_ecommerce_data/catalog/names.py`: a `NAME_EXCEPTIONS` row for each column name the census lacks. Use a census name and there is no edit.
+* `src/synthetic_ecommerce_data/domains/industrial/names.py`: a `NAME_EXCEPTIONS` row for each column name the census lacks. Use a census name and there is no edit.
 
 The whole catalog's measured figures are not edited by hand: the facet rule's band and attribute counts (once `MEASURED_DISPERSION` in `prism/derive.py` and two counts in `tests/test_facet_control_rule.py`), and the type, brand and drawing counts the docs used to quote. The build writes them under `figures` in `golden-catalog/stats.json`, the tests read them there, and `tests/test_measured_figures.py` refuses a doc that restates one (#103). A conflict in them is resolved by the rebuild.
 
@@ -341,7 +341,7 @@ keep their floor of 300, as they keep their share.
 ### Figure and extent
 
 **Figure.** Reuse the family's figure when it draws the part (the lock nut
-uses `hex_nut`). Otherwise write one in `drawing/figures.py`, following
+uses `hex_nut`). Otherwise write one in `domains/industrial/drawing/figures.py`, following
 [Adding a drawing for a new type](drawings.md#adding-a-drawing-for-a-new-type):
 the signature is `figure(record: dict[str, str]) -> Drawn`, where `record`
 maps each published attribute name of the SKU to its value. A breadth shape
@@ -362,8 +362,8 @@ each side, add 0.1" and round to 0.05": the lock nut's 2.50 x 4.78 gives
 CAT=golden-catalog KEY=<type_key> uv run python - <<'PY'
 import json, os
 from pathlib import Path
-from synthetic_ecommerce_data.catalog import bundle
-from synthetic_ecommerce_data.drawing.figures import FIGURES
+from synthetic_ecommerce_data.core import bundle
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 cat, key = Path(os.environ["CAT"]), os.environ["KEY"]
 facets = bundle.flat_facets(cat)
 figure, extent = FIGURES[key]
@@ -436,7 +436,7 @@ dimensional claim is named.
 ### Price
 
 A modelled type is priced by the `PriceModel` it declares as `price=` on its
-`TypeSpec` (`catalog/price.py`; the README's "Price" section under
+`TypeSpec` (`core/price.py`; the README's "Price" section under
 "Realism" says what the terms are). Which kind of model it declares depends
 on whether the price census
 (`reference-statistics/P2_price_census.json`, `deep_types`) has the type
@@ -476,7 +476,7 @@ the census.
 
 **Census rows: restate them, then fit.**
 
-1. Restate the type's census figures in `catalog/price.py`, copied from the
+1. Restate the type's census figures in `core/price.py`, copied from the
    census file, never retyped from elsewhere: its `CENSUS` row (n, p10, p50,
    p90, the key-dimension slope and its pair shares), its `ENDINGS` mix, and,
    where the census measures them, its `LENGTH_CENSUS`, `BRAND_CENSUS` and
@@ -492,7 +492,7 @@ the census.
 
    It builds the default catalog and the 100K one (`--lines 39000`) and
    scores every row at both; about 2 minutes. It writes the literals between
-   the `# @fit-begin` and `# @fit-end` markers of `catalog/price.py`'s
+   the `# @fit-begin` and `# @fit-end` markers of `core/price.py`'s
    `MODELS` table and of the socket head screw's module. A measured type
    declared in its own module needs the same markers around its fitted
    fields, and a branch in the script's `main` that writes them there and
@@ -505,7 +505,7 @@ the census.
 bands are `price_report`'s (`P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and
 three census standard errors where the census sample is small), one rule for
 every type. When the fit says a row cannot reach its band, find the
-cause, then declare it in `catalog/price.py` with that cause and the issue
+cause, then declare it in `core/price.py` with that cause and the issue
 that fixes it:
 
 * **A pin**, for a row the cause holds on one side of its band: its reason in
@@ -542,7 +542,7 @@ from the fit's output.
 
 ### Family tables
 
-`catalog/noise.py` adds a sentence to a record's description by family
+`core/noise.py` adds a sentence to a record's description by family
 table. A type joins a table when the sentence is true of every SKU it
 publishes:
 
@@ -683,7 +683,7 @@ share only these, and each has a mechanical resolution:
   or both be told the same first free block by `ecom-generate block`, which
   sees only its own branch. The build refuses the collision, naming both
   types, again only on the merged tree. Re-block the type that merges second.
-* **The head-noun list** in `catalog/names.py`, when both add a new noun at
+* **The head-noun list** in `domains/industrial/names.py`, when both add a new noun at
   the end of the list. This is the only file that reliably conflicts. Keep
   both nouns.
 
@@ -752,7 +752,7 @@ byte-identical to the base (207 of 207 file-and-type digests), and the
 golden, facts, seam, registration, breadth and thread tests passed with no
 test edit. Before this change the same pair conflicted in six hand-kept
 files. Each type's `share` is its own: the original types' `type_weights`
-in `catalog/config.py` sum to 1.0, each new or deepened type adds its share
+in `core/config.py` sum to 1.0, each new or deepened type adds its share
 on top, and `test_the_catalog_is_the_size_it_was_asked_for` sums every
 modelled share. Never take share from another type: that moves its output.
 
@@ -761,13 +761,13 @@ What a modelled type can still edit in a shared file, and so conflict on:
 * `generate.KEY_DIMENSIONS`, for a type whose titles must name a key
   dimension that is not its variant axis (a bearing's number, a wheel's
   diameter).
-* The family builder in `catalog/generate.py` (see
+* The family builder in `domains/industrial/generate.py` (see
   [above](#modelled-types-what-the-family-builder-still-needs)), and the
   standards extraction in `data/fastener_standards.json`.
 * Type-keyed tables a family may need. Find them with
-  `grep -rn "'<sibling_key>'\|\"<sibling_key>\"" src scripts tests --include=*.py | grep -v product_types/`:
-  `render/kinds.py` (`TYPE_KIND`), `render/generic.py`, `catalog/compat.py`,
-  `catalog/muststock.py`, `catalog/newtypes.py` (`_KIT_MATERIAL`,
+  `grep -rn "'<sibling_key>'\|\"<sibling_key>\"" src scripts tests --include=*.py | grep -v domains/industrial/product_types/`:
+  `domains/industrial/render/kinds.py` (`TYPE_KIND`), `domains/industrial/render/generic.py`, `domains/industrial/compat.py`,
+  `domains/industrial/muststock.py`, `domains/industrial/newtypes.py` (`_KIT_MATERIAL`,
   `_KIT_FINISH`), `scripts/verify_elasticsearch.py`, and for the socket-screw
   family `test_the_catalog_offers_all_four_socket_screw_styles` in
   `tests/test_catalog_generate.py`.

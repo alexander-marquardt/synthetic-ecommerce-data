@@ -12,11 +12,11 @@ from __future__ import annotations
 
 import pytest
 
-from synthetic_ecommerce_data.catalog import noncopy
-from synthetic_ecommerce_data.catalog.config import SMALL, GeneratorConfig
-from synthetic_ecommerce_data.catalog.generate import Generator, generate
-from synthetic_ecommerce_data.catalog.model import Attribute
-from synthetic_ecommerce_data.records import FIXTURES
+from synthetic_ecommerce_data.core import noncopy
+from synthetic_ecommerce_data.core.config import SMALL, GeneratorConfig
+from synthetic_ecommerce_data.core.model import Attribute
+from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
+from synthetic_ecommerce_data.domains.industrial.records import FIXTURES
 
 
 @pytest.fixture(scope="module")

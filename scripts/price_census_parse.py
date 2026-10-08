@@ -47,12 +47,12 @@ from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from synthetic_ecommerce_data.catalog.price import ending_class
-from synthetic_ecommerce_data.dimensions import (
+from synthetic_ecommerce_data.core.dimensions import (
     DimensionParseError,
     parse_length,
     parse_thread,
 )
+from synthetic_ecommerce_data.core.price import ending_class
 
 ROOT = Path(__file__).resolve().parent.parent
 RAW = ROOT / "raw" / "price_census"

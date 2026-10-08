@@ -8,11 +8,11 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_ecommerce_data.catalog import price
-from synthetic_ecommerce_data.catalog.config import GeneratorConfig
-from synthetic_ecommerce_data.catalog.generate import generate
-from synthetic_ecommerce_data.catalog.measure import measure
-from synthetic_ecommerce_data.catalog.price_report import (
+from synthetic_ecommerce_data.core import price
+from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.domains.industrial.generate import generate
+from synthetic_ecommerce_data.domains.industrial.measure import measure
+from synthetic_ecommerce_data.domains.industrial.price_report import (
     LENGTH_ROW,
     ORDER_ROW,
     P50_BAND,
