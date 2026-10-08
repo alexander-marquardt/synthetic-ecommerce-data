@@ -99,9 +99,10 @@ def test_a_placement_on_a_surface_without_one_or_beyond_its_print_area_is_refuse
         motifs.check_surface("dress", "placement")
     with pytest.raises(ValueError, match="not a printable surface"):
         motifs.check_surface("kettle", "all-over")
-    # A wide motif at the whole area overflows the box's height or width.
-    with pytest.raises(ValueError, match="overflows"):
-        motifs.overlay("tshirt", _print("car", "placement", 1.0))
+    # A motif too wide to cover the share asked spans the area's width, never more.
+    _, _, w, _ = motifs.PRINT_BOX["tshirt"]
+    x0, _, x1, _ = _placed(render("tshirt", _print("car", "placement", 1.0), uid="t"), "car")
+    assert x1 - x0 == pytest.approx(w, abs=0.5)
 
 
 def _placed(svg: str, name: str) -> tuple[float, float, float, float]:
@@ -126,13 +127,22 @@ def test_a_large_placement_fills_55_to_65_percent_of_the_chest_print_area() -> N
     assert w >= 150
     lo, hi = motifs.LARGE
     assert (lo, hi) == (0.55, 0.65)
+    compact = 0
     for name in MOTIFS:
         svg = render("tshirt", _print(name, "placement", motifs.LARGE_SCALE), uid="t")
         x0, y0, x1, y1 = _placed(svg, name)
         share = (x1 - x0) * (y1 - y0) / (w * h)
-        assert lo <= share <= hi, (name, round(share, 3))
+        # A long or tall motif (a car, a carrot) spans the area's width or height instead.
+        spans = x1 - x0 >= w - 0.5 or y1 - y0 >= h - 0.5
+        assert lo <= share <= hi or (spans and share < lo), (name, round(share, 3))
+        compact += lo <= share <= hi
         assert cx - w / 2 - 0.5 <= x0 and x1 <= cx + w / 2 + 0.5, name
         assert cy - h / 2 - 0.5 <= y0 and y1 <= cy + h / 2 + 0.5, name
+    assert compact >= 20
+    # The previewed graphics are compact: each covers the share outright.
+    for name in ("hammer", "drill", "lemon", "orange", "dinosaur"):
+        x0, y0, x1, y1 = _placed(render("tshirt", _print(name, "placement", 0.6), uid="t"), name)
+        assert (x1 - x0) * (y1 - y0) / (w * h) == pytest.approx(0.6, abs=0.01), name
 
 
 def test_every_placement_surface_has_a_print_box_and_every_kit_shape_a_drawn_box() -> None:
@@ -189,7 +199,7 @@ def test_every_line_prints_allowed_motifs_on_a_surface_that_takes_them() -> None
 
 def test_one_style_per_motif_in_a_line() -> None:
     keys = [prints.style_key(line, p) for line in prints.LINES for p in line.prints]
-    assert len(keys) == len(set(keys)) == 15
+    assert len(keys) == len(set(keys)) == 12
     two = next(line for line in prints.LINES if len(line.prints) == 2)
     a, b = two.prints
     assert prints.style_key(two, a) != prints.style_key(two, b)
@@ -211,7 +221,7 @@ def test_a_motif_its_range_may_not_print_is_refused() -> None:
 def test_a_print_doc_carries_its_print_and_its_ground_is_the_sku_color() -> None:
     docs = prints.docs()
     printed = [d for d in docs if prints.is_print(d)]
-    assert len(printed) == 15 and len(docs) == 54
+    assert len(printed) == 12 and len(docs) == 46
     for d in printed:
         draw = d["drawing"]
         assert d["pattern"] == "print" and draw["pattern"] == "print"

@@ -30,7 +30,7 @@ RISES = ("low", "mid", "high")
 
 #: The color facet: a marketing shade ("Washed Black") rolls up to a family.
 COLOR_FAMILIES = ("black", "white", "grey", "blue", "navy", "brown", "cream", "green",
-                   "red", "pink", "orange", "gold", "silver", "multi")  # fmt: skip
+                   "red", "pink", "orange", "yellow", "gold", "silver", "multi")  # fmt: skip
 #: Joins a category path into one keyword per ancestor (as industrial does);
 #: a routed policy names its node in this form.
 PATH_SEPARATOR = "/"
@@ -55,6 +55,7 @@ SHADE_FAMILY = {
     "Rust": "orange", "Terracotta": "orange", "Burnt Orange": "orange", "Orange": "orange",
     "Cream": "cream",
     "Red": "red",
+    "Bright Orange": "orange", "Lemon": "yellow",
     "Rose Gold": "gold", "Yellow Gold": "gold", "White Gold": "silver", "Silver": "silver",
     "Stripe": "multi",
 }  # fmt: skip
@@ -157,6 +158,8 @@ class Style:
     sizes: tuple[str, ...] = ()
     #: ... except these (color, size) pairs, which are not made.
     not_made: tuple[tuple[str, str], ...] = ()
+    #: A motif print's drawing fields (motif, placement, scale, spacing), see :mod:`prints`.
+    motif_print: tuple[tuple[str, object], ...] = ()
 
     def __post_init__(self) -> None:
         if self.lengths and self.size_range is not None:
@@ -213,6 +216,18 @@ class Style:
             return derive_size_range(self.skus())
         return None if self.size_range is None else [self.size_range]
 
+    def drawing_params(self) -> dict:
+        """The drawing's params; a produce pile's fruit count comes from the record's
+        weight (:attr:`unit`) or pack count, here and nowhere else."""
+        params = dict(self.params)
+        if self.shape != "produce_pile":
+            return params
+        from kit_produce import pile_params  # deferred: the record model draws nothing else
+
+        grams = self.unit[0] if self.unit is not None and self.unit[1] == "g" else None
+        return pile_params(params["fruit"], f"PLT-{self.code}", params.get("pack", "loose"),
+                           grams=grams, count=self.units_per_pack)  # fmt: skip
+
     def doc(self) -> dict:
         """The style's one catalog document, its SKUs nested (see :func:`variants.product`)."""
         # Pooled per style: one rating and count, one popularity over every color.
@@ -231,7 +246,7 @@ class Style:
             "description": self.description,
             "attributes": [],
             # The tile shows the lead color.
-            "drawing": drawing(self.shape, lead, **dict(self.params)),
+            "drawing": {**drawing(self.shape, lead, **self.drawing_params()), **dict(self.motif_print)},
             "collections": [],
             "currency": "GBP",
             "product_type": self.product_type,

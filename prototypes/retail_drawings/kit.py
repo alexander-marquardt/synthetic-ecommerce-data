@@ -44,8 +44,10 @@ class Fill:
 
     A ``print`` is a motif (any :data:`SHAPES` entry, see :mod:`motifs`) on a
     ground: ``base`` is the ground color, ``accent`` the motif's color,
-    ``placement`` one of :data:`PLACEMENTS`, ``scale`` the motif's size as a
-    fraction of the 400-unit sheet and ``spacing`` the repeat tile's edge in
+    ``placement`` one of :data:`PLACEMENTS`, ``scale`` the motif's size (a
+    repeat: as a fraction of the 400-unit sheet; a placement: the share of the
+    surface's print area its drawn box covers, see
+    :func:`motifs.placement_scale`) and ``spacing`` the repeat tile's edge in
     sheet units (all-over, scatter; 0 for a placement print). Every one of
     them comes from the record, so two prints that look different always
     differ in the data.

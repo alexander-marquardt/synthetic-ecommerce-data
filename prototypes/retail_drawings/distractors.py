@@ -7,8 +7,9 @@ distractors, the policy that fixes each one).
 
 :func:`check` refuses a row whose distractors cannot outrank the best
 intended product on text alone, scored by :class:`BM25` over title plus
-description against the whole catalog. Self-contained: standard library,
-:mod:`departments` and :mod:`variants` only. Every brand name is invented.
+description against the whole catalog. Standard library,
+:mod:`departments`, :mod:`variants` and :mod:`prints` (print distractors are
+products of the print range). Every brand name is invented.
 """
 
 from __future__ import annotations
@@ -19,7 +20,9 @@ from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass
 
+import prints
 from departments import check as check_departments
+from kit_produce import pile_params
 from variants import attr, cw, docs, drawing, swatch
 from variants import product as style_product
 
@@ -121,26 +124,39 @@ def product(
     )  # fmt: skip
 
 
-YELLOW, WHITE = "#f2d14b", "#ffffff"
+YELLOW, WHITE, ORANGE = "#f2d14b", "#ffffff", "#f08a24"
+#: Pack counts: the record states each once, and the drawing shows that many fruits.
+LEMON_PACK, ORANGE_PACK = 4, 5
 
 #: Intended products that are not part of a variant family.
 LEMONS = product(
-    "LEMONS", "Unwaxed Lemons, Pack of 4", "Goldfield Farms", "Food & Drink",
+    "LEMONS", f"Unwaxed Lemons, Pack of {LEMON_PACK}", "Goldfield Farms", "Food & Drink",
     ("Food", "Fresh Produce", "Fruit", "Citrus", "Lemons"), 1.25,
     "Fresh unwaxed lemons for zesting, juicing and baking, grown in sunny groves.",
-    drawing("round_produce", cw("Lemon", YELLOW), "Lemons"),
-    (("color", "Color", "Yellow"), ("pack_size", "Pack size", "4")),
+    drawing("produce_pile", cw("Lemon", YELLOW), "Lemons",
+            **pile_params("lemon", "PLT-LEMONS", "bag", count=LEMON_PACK)),
+    (("color", "Color", "Yellow"), ("pack_size", "Pack size", str(LEMON_PACK))),
+)  # fmt: skip
+ORANGES = product(
+    "ORANGS", f"Valencia Oranges, Pack of {ORANGE_PACK}", "Goldfield Farms", "Food & Drink",
+    ("Food", "Fresh Produce", "Fruit", "Citrus", "Oranges"), 1.6,
+    "Juicy Valencia oranges for squeezing at breakfast, picked ripe and full of juice.",
+    drawing("produce_pile", cw("Orange", ORANGE), "Oranges",
+            **pile_params("orange", "PLT-ORANGS", "net", count=ORANGE_PACK)),
+    (("color", "Color", "Orange"), ("pack_size", "Pack size", str(ORANGE_PACK))),
+)  # fmt: skip
+DINOSAUR_TOY = product(
+    "DINTOY", "Dinosaur Figure", "Little Fernby", "Toys",
+    ("Toys", "Figures & Playsets", "Animal Figures"), 9.0,
+    "A hand-painted T. rex figure with a jaw that opens, for play on the floor or in the bath.",
+    drawing("dinosaur", cw("Green", "#5f9a4a")),
 )  # fmt: skip
 
+_FOOD_OVER_CLOTHING = "department boost: Food & Drink above Clothing"
 LEMON = (
-    Distractor(product(
-        "LEMDRS", "Lemon Print Tea Dress", "Larkmoor", "Clothing",
-        ("Women", "Dresses", "Tea Dresses"), 38.0,
-        "A floaty tea dress in our lemon print: yellow lemons and green leaves on white. "
-        "The lemon print is back for summer.",
-        drawing("dress", cw("Lemon Print", WHITE, "polka", YELLOW)),
-        (("color", "Color", "White / Yellow"), ("pattern", "Pattern", "Lemon Print")),
-    ), "department boost: Food & Drink above Clothing"),
+    Distractor(prints.doc("PLT-LEMDRS"), _FOOD_OVER_CLOTHING),
+    Distractor(prints.doc("PLT-TEEW5"), _FOOD_OVER_CLOTHING),
+    Distractor(prints.doc("PLT-DUVA-LEMON"), "department boost: Food & Drink above Home"),
     Distractor(product(
         "LEMCAK", "Lemon Drizzle Cake", "Crofter's Bakehouse", "Food & Drink",
         ("Food", "Bakery", "Cakes"), 3.5,
@@ -170,6 +186,19 @@ LEMON = (
         (("fragrance", "Fragrance", "Lemon"),),
     ), "department boost: Food & Drink above Cleaning & Janitorial"),
 )  # fmt: skip
+
+#: The fruit word as a print and as a color: every one a product of the print range.
+ORANGE_WORD = (
+    Distractor(prints.doc("PLT-TEEW-ORANGE"), _FOOD_OVER_CLOTHING),
+    Distractor(prints.doc("PLT-TEEW6"), _FOOD_OVER_CLOTHING),
+    Distractor(prints.doc("PLT-TTW-ORANGE"), "department boost: Food & Drink above Home"),
+    Distractor(prints.doc("PLT-MUG-ORANGE"), "department boost: Food & Drink above Home"),
+)  # fmt: skip
+#: A kids' motif printed on clothes, against the toy a shopper means.
+DINOSAUR = tuple(
+    Distractor(prints.doc(pid), "department boost: Toys above Clothing")
+    for pid in ("PLT-TEEK-DINOSAUR", "PLT-PJK-DINOSAUR", "PLT-SWK-DINOSAUR")
+)
 
 DENIM = "#4a6a94"
 JEANS = (
@@ -222,14 +251,7 @@ DUVET = (
         drawing("duvet", cw("Ticking Stripe", WHITE, "stripe", "#26365c")),
         (("color", "Color", "Navy / White"), ("pattern", "Pattern", "Stripe")),
     ), "type-exact intent: Duvets, not Bedding Sets"),
-    Distractor(product(
-        "DUVKID", "Kids' Dinosaur Duvet Set", "Little Fernby", "Home",
-        ("Home", "Kids' Bedding", "Bedding Sets"), 20.0,
-        "A printed single duvet set for kids: a duvet cover and pillowcase. Duvet sold "
-        "separately.",
-        drawing("duvet", cw("Green Spot", "#7fae6a", "polka", "#ffffff")),
-        (("color", "Color", "Green"), ("audience", "Audience", "Boys")),
-    ), "type-exact intent: Duvets, not Bedding Sets"),
+    Distractor(prints.doc("PLT-DUVKID"), "type-exact intent: Duvets, not Bedding Sets"),
     Distractor(product(
         "DUVSSK", "Seersucker Duvet Cover", "Quillon Sleep", "Home",
         ("Home", "Bedding", "Duvet Covers"), 30.0,
@@ -424,16 +446,27 @@ TABLE = (
         lambda d: d["category_path"][:2] == ["Food", "Fresh Produce"]
         and "lemon" in tokens(d["title"]),
         "department or persona boost", LEMON),
+    Row("Fruit words as prints and colors", "oranges", "fresh oranges",
+        lambda d: d["category_path"][:2] == ["Food", "Fresh Produce"]
+        and "orange" in tokens(d["title"]),
+        "department or persona boost", ORANGE_WORD),
     Row("Complements and accessories", "jeans", "a pair of jeans",
         lambda d: d["product_id"].startswith("JEA-"),
         "category intent; product-type demotion", JEANS),
     Row("Bedding types", "duvet", "a duvet",
         lambda d: d["category_path"][-1] == "Duvets",
         "type-exact intent", DUVET),
+    Row("Motif words on kids' clothes", "dinosaur", "a dinosaur toy",
+        lambda d: d["department"] == ["Toys"],
+        "department boost: Toys", DINOSAUR),
     Row("Gift words on gift-packed products", "gift bag", "a gift bag (gift wrap)",
         lambda d: d["category_path"][:2] == list(GIFT_WRAP[:2]),
         "category boost: Gift Wrap", GIFT, GIFT_TAIL),
 )  # fmt: skip
+
+
+#: The intended products that are not part of a variant family or the print range.
+INTENDED = (LEMONS, ORANGES, DINOSAUR_TOY)
 
 
 def distractor_docs() -> list[dict]:
@@ -447,9 +480,13 @@ def duplicate_record() -> dict:
 
 
 def corpus(duplicate_listing: bool = False) -> list[dict]:
-    """The catalog the text score is taken over: every variant doc, LEMONS, every distractor,
-    the real gift bags and the gift-bag tail; with ``duplicate_listing``, one product twice."""
-    out = [*docs(), LEMONS, *distractor_docs(), *GIFT_BAGS, *(x.doc for x in GIFT_TAIL)]
+    """The catalog the text score is taken over: every variant doc, the intended products
+    of :data:`INTENDED`, every distractor, the rest of the print range, the real gift bags
+    and the gift-bag tail; with ``duplicate_listing``, one product twice."""
+    planted = distractor_docs()
+    ids = {d["product_id"] for d in planted}
+    out = [*docs(), *INTENDED, *planted, *(d for d in prints.docs() if d["product_id"] not in ids),
+           *GIFT_BAGS, *(x.doc for x in GIFT_TAIL)]  # fmt: skip
     return [*out, duplicate_record()] if duplicate_listing else out
 
 

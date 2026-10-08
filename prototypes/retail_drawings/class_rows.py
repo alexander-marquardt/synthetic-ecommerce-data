@@ -500,15 +500,17 @@ CITRUS = ("Food", "Fresh Produce", "Fruit", "Citrus")
 ORANGES = (
     Style("ORBLOD", "Blood Oranges", "Goldfield Farms", FOOD, (*CITRUS, "Oranges"), 2.0,
           "Ruby fleshed blood oranges, sweet with a berry note. A short season.",
-          "Oranges", "round_produce", pack("#c8432e", 40), unit=(860.0, "g"), new_in=True,
-          colorless=True),
+          "Oranges", "produce_pile", pack("#c8432e", 40), unit=(860.0, "g"), new_in=True,
+          colorless=True, params=(("fruit", "orange"),)),
     Style("ORNAVL", "Navel Oranges", "Goldfield Farms", FOOD, (*CITRUS, "Oranges"), 1.8,
           "Large, juicy navel oranges that are easy to segment.",
-          "Oranges", "round_produce", pack("#f08a24", 30), unit=(1000.0, "g"), colorless=True),
+          "Oranges", "produce_pile", pack("#f08a24", 30), unit=(1000.0, "g"), colorless=True,
+          params=(("fruit", "orange"),)),
     # A type match only: neither the title nor the description names the fruit.
     Style("OREASY", "Seedless Easy Peelers", "Goldfield Farms", FOOD, (*CITRUS, "Oranges"), 2.2,
           "Small, sweet and seedless, with a loose skin that comes away in one go.",
-          "Easy Peelers", "punnet", pack("#f39c33", 260), unit=(1200.0, "g"), colorless=True),
+          "Easy Peelers", "produce_pile", pack("#f39c33", 260), unit=(1200.0, "g"),
+          colorless=True, params=(("fruit", "clementine"), ("pack", "net"))),
 )  # fmt: skip
 
 _ROUTE_ORANGE = "route: Oranges node boosted and recalled"

@@ -16,14 +16,19 @@ from the record, never from a random draw:
   ``spacing``, twice, as a half-drop repeat (:func:`print_defs`);
 * ``scatter``: a sparser tile holding the motif three times at the fixed
   sizes and turns of :data:`SCATTER`;
-* ``placement``: one large motif centred in the surface's print area
-  (:data:`PRINT_BOX`, :func:`overlay`), the graphic-tee look.
+* ``placement``: one motif centred in the surface's print area
+  (:data:`PRINT_BOX`, :func:`overlay`), the graphic-tee look. Here ``scale``
+  is the share of the print area the motif's drawn box covers
+  (:func:`drawn_box`), so a thin hammer and a round orange at the same scale
+  look the same size; a large graphic is :data:`LARGE_SCALE`.
 """
 
 # ruff: noqa: E501 -- SVG literals and data rows read better whole (prototype only).
 
 from __future__ import annotations
 
+import math
+import re
 from dataclasses import dataclass
 
 import kit_garments  # noqa: F401 -- registers the parametric garments
@@ -32,7 +37,7 @@ import kit_motifs
 import kit_produce  # noqa: F401 -- registers produce_pile
 import kit_round4  # noqa: F401 -- registers belt, hanger, gift bag, ...
 import kit_surfaces  # noqa: F401 -- registers sweatshirt, mug, apron, ...
-from kit import OFFSET_Y, PLACEMENTS, SHAPES, SIZE, Fill, _shade
+from kit import INK, OFFSET_Y, PLACEMENTS, SHAPES, SIZE, Fill, _shade
 
 #: Printable categories, then the two only novelty and gift ranges may print.
 PRINTABLE = ("fruit", "vegetables", "animals", "dinosaurs and vehicles", "flowers", "stars",
@@ -66,15 +71,145 @@ def motif(name: str) -> Motif:
     return found
 
 
-def motif_svg(name: str, color: str, cx: float, cy: float, size: float, turn: float = 0) -> str:
-    """The motif drawn ``size`` units across, centred on (cx, cy), turned ``turn`` degrees."""
+def _body(name: str, color: str) -> str:
+    return "".join(SHAPES[name](color, Fill("solid", color, _shade(color, 0.3)), None))
+
+
+def motif_svg(
+    name: str, color: str, cx: float, cy: float, size: float, turn: float = 0,
+    origin: tuple[float, float] | None = None,
+) -> str:  # fmt: skip
+    """The motif's 400-unit sheet drawn ``size`` units across, its ``origin`` (default the
+    sheet's centre) on (cx, cy), turned ``turn`` degrees."""
     motif(name)
-    body = "".join(SHAPES[name](color, Fill("solid", color, _shade(color, 0.3)), None))
+    ox, oy = origin or (200, 200 - OFFSET_Y.get(name, 0))
     return (
         f'<g class="motif" data-motif="{name}" transform="translate({cx:g} {cy:g}) '
-        f'rotate({turn:g}) scale({size / SIZE:.4g}) translate(-200 {OFFSET_Y.get(name, 0) - 200:g})">'
-        f"{body}</g>"
+        f'rotate({turn:g}) scale({size / SIZE:.6g}) translate({-ox:g} {-oy:g})">'
+        f"{_body(name, color)}</g>"
     )
+
+
+# --------------------------------------------------------------------------
+# A drawing's extent: what a placement print scales, so a thin hammer and a
+# round orange both fill the print area the record asks for
+# --------------------------------------------------------------------------
+
+_NUM = r"-?\d*\.?\d+(?:e-?\d+)?"
+_ARGS = {"M": 2, "L": 2, "T": 2, "H": 1, "V": 1, "Q": 4, "S": 4, "C": 6, "A": 7, "Z": 0}
+Affine = tuple[float, float, float, float, float, float]  # x' = a x + c y + e, y' = b x + d y + f
+_ID: Affine = (1, 0, 0, 1, 0, 0)
+
+
+def _mul(m: Affine, n: Affine) -> Affine:
+    a, b, c, d, e, f = m
+    p, q, r, s, t, u = n
+    return (a * p + c * q, b * p + d * q, a * r + c * s, b * r + d * s, a * t + c * u + e, b * t + d * u + f)
+
+
+def _transform(text: str) -> Affine:
+    """An SVG ``transform`` (translate, rotate, scale) as one affine map."""
+    m = _ID
+    for op, args in re.findall(r"(translate|rotate|scale)\(([^)]*)\)", text):
+        v = [float(x) for x in re.findall(_NUM, args)]
+        if op == "translate":
+            m = _mul(m, (1, 0, 0, 1, v[0], v[1] if len(v) > 1 else 0))
+        elif op == "scale":
+            m = _mul(m, (v[0], 0, 0, v[1] if len(v) > 1 else v[0], 0, 0))
+        else:
+            r = math.radians(v[0])
+            cx, cy = (v[1], v[2]) if len(v) == 3 else (0, 0)
+            m = _mul(m, (1, 0, 0, 1, cx, cy))
+            m = _mul(m, (math.cos(r), math.sin(r), -math.sin(r), math.cos(r), 0, 0))
+            m = _mul(m, (1, 0, 0, 1, -cx, -cy))
+    return m
+
+
+def _path_points(d: str) -> list[tuple[float, float]]:
+    """Every end and control point of path ``d`` (a hull of what it draws); an arc adds
+    the box its radii span around its chord's midpoint."""
+    out: list[tuple[float, float]] = []
+    x = y = sx = sy = 0.0
+    tokens = re.findall(rf"[A-Za-z]|{_NUM}", d)
+    i, cmd = 0, "M"
+    while i < len(tokens):
+        if tokens[i].isalpha():
+            cmd, i = tokens[i], i + 1
+            if cmd in "Zz":
+                x, y = sx, sy
+                continue
+        n = _ARGS[cmd.upper()]
+        v = [float(t) for t in tokens[i : i + n]]
+        i += n
+        rel = cmd.islower()
+        up = cmd.upper()
+        if up == "H":
+            x = v[0] + (x if rel else 0)
+        elif up == "V":
+            y = v[0] + (y if rel else 0)
+        elif up == "A":
+            nx, ny = v[5] + (x if rel else 0), v[6] + (y if rel else 0)
+            mx, my = (x + nx) / 2, (y + ny) / 2
+            out += [(mx - v[0], my - v[1]), (mx + v[0], my + v[1])]
+            x, y = nx, ny
+        else:
+            for k in range(0, n, 2):
+                out.append((v[k] + (x if rel else 0), v[k + 1] + (y if rel else 0)))
+            x, y = out[-1]
+        if up == "M":
+            sx, sy = x, y
+            cmd = "l" if rel else "L"
+        out.append((x, y))
+    return out
+
+
+def _element_points(tag: str, at: dict[str, str]) -> list[tuple[float, float]]:
+    g = {k: float(v) for k, v in at.items() if re.fullmatch(_NUM, v or "")}
+    if tag == "path":
+        return _path_points(at.get("d", ""))
+    if tag == "rect":
+        x, y = g.get("x", 0), g.get("y", 0)
+        return [(x, y), (x + g["width"], y + g["height"])]
+    if tag in ("circle", "ellipse"):
+        rx, ry = g.get("rx", g.get("r", 0)), g.get("ry", g.get("r", 0))
+        return [(g["cx"] - rx, g["cy"] - ry), (g["cx"] + rx, g["cy"] + ry)]
+    if tag == "line":
+        return [(g["x1"], g["y1"]), (g["x2"], g["y2"])]
+    if tag in ("polygon", "polyline"):
+        v = [float(t) for t in re.findall(_NUM, at.get("points", ""))]
+        return list(zip(v[::2], v[1::2], strict=False))
+    return []
+
+
+def drawn_box(name: str) -> tuple[float, float, float, float]:
+    """(x0, y0, x1, y1) of what shape ``name`` draws on its 400-unit sheet (clip paths,
+    patterns and definitions aside), through every group's transform."""
+    motif(name)
+    stack, pts = [_ID], []
+    skip = 0
+    for close, tag, attrs, selfclose in re.findall(r"<(/?)(\w+)([^>]*?)(/?)>", _body(name, INK)):
+        if tag in ("clipPath", "defs", "pattern", "mask", "linearGradient", "radialGradient"):
+            skip += -1 if close else (0 if selfclose else 1)
+            continue
+        if close:
+            if tag == "g":
+                stack.pop()
+            continue
+        at = dict(re.findall(r'([\w-]+)="([^"]*)"', attrs))
+        m = _mul(stack[-1], _transform(at.get("transform", "")))
+        if tag == "g" and not selfclose:
+            stack.append(m)
+            continue
+        if skip:
+            continue
+        a, b, c, d, e, f = m
+        corners = _element_points(tag, at)
+        if tag in ("rect", "circle", "ellipse") and len(corners) == 2:
+            (x0, y0), (x1, y1) = corners
+            corners = [(x0, y0), (x1, y0), (x0, y1), (x1, y1)]
+        pts += [(a * x + c * y + e, b * x + d * y + f) for x, y in corners]
+    xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+    return min(xs), min(ys), max(xs), max(ys)
 
 
 #: A scatter tile's motifs: (x, y) as a share of the tile, size factor, turn.
@@ -112,36 +247,35 @@ def print_defs(fill: Fill, pid: str) -> str:
     )
 
 
-#: Printable surface -> its placements and the print area (cx, cy, largest motif) a
-#: placement print is centred in.
-SURFACES: dict[str, tuple[tuple[str, ...], tuple[float, float, float] | None]] = {
-    "tshirt": (PLACEMENTS, (200, 220, 140)),
-    "top": (PLACEMENTS, (200, 200, 130)),
-    "sweatshirt": (PLACEMENTS, (200, 200, 130)),
-    "pyjamas": (("all-over", "scatter", "placement"), (110, 196, 72)),
+#: Printable surface -> its placements and the print area (cx, cy, width, height) a
+#: placement print is centred in. A tee's is the chest between the armholes, from
+#: below the neckband to above the hem.
+SURFACES: dict[str, tuple[tuple[str, ...], tuple[float, float, float, float] | None]] = {
+    "tshirt": (PLACEMENTS, (200, 222, 156, 196)),
+    "top": (PLACEMENTS, (200, 206, 140, 170)),
+    "sweatshirt": (PLACEMENTS, (200, 214, 150, 170)),
+    "pyjamas": (("all-over", "scatter", "placement"), (110, 196, 72, 72)),
     "dress": (("all-over", "scatter"), None),
     "blouse": (("all-over", "scatter"), None),
     "skirt": (("all-over", "scatter"), None),
     "sheet": (("all-over", "scatter"), None),
-    "pillow": (PLACEMENTS, (200, 216, 150)),
-    "duvet": (PLACEMENTS, (200, 210, 160)),
-    "cushion": (PLACEMENTS, (200, 206, 180)),
-    "tea_towel": (PLACEMENTS, (200, 186, 150)),
-    "apron": (PLACEMENTS, (200, 196, 90)),
-    "mug": (PLACEMENTS, (185, 235, 140)),
+    "pillow": (PLACEMENTS, (200, 216, 170, 120)),
+    "duvet": (PLACEMENTS, (200, 210, 180, 180)),
+    "cushion": (PLACEMENTS, (200, 206, 180, 180)),
+    "tea_towel": (PLACEMENTS, (200, 204, 150, 220)),
+    "apron": (PLACEMENTS, (200, 196, 100, 100)),
+    "mug": (PLACEMENTS, (185, 232, 140, 170)),
     "beach_towel": (("all-over", "scatter"), None),
     "gift_bag": (("all-over", "scatter"), None),
     "wrapping_paper": (("all-over", "scatter"), None),
 }
-
-
-PRINT_BOX: dict[str, tuple[float, float, float, float]] = {}
-LARGE = (0.0, 0.0)
+#: Each placement surface's print area, from :data:`SURFACES`.
+PRINT_BOX = {s: box for s, (_, box) in SURFACES.items() if box is not None}
+#: A large placement graphic's drawn box covers this share of the print area
+#: (maintainer ruling on the preview: a tee graphic fills 55-65% of the chest);
+#: :data:`LARGE_SCALE` is the scale the range records for one.
+LARGE = (0.55, 0.65)
 LARGE_SCALE = 0.6
-
-
-def drawn_box(name: str) -> tuple[float, float, float, float]:
-    return (0.0, 0.0, 0.0, 0.0)
 
 
 def check_surface(shape: str, placement: str) -> None:
@@ -155,11 +289,19 @@ def check_surface(shape: str, placement: str) -> None:
 def overlay(shape: str, fill: Fill) -> str:
     """A placement print's one motif, centred in ``shape``'s print area."""
     check_surface(shape, "placement")
-    cx, cy, most = SURFACES[shape][1] or (0, 0, 0)
-    size = fill.scale * SIZE
-    if size > most:
-        raise ValueError(f"a {size:g}-unit motif overflows {shape!r}'s {most:g}-unit print area")
-    return motif_svg(fill.motif or "", fill.accent, cx, cy, size)
+    k, (x0, y0, x1, y1) = placement_scale(shape, fill)
+    cx, cy, _, _ = PRINT_BOX[shape]
+    return motif_svg(fill.motif or "", fill.accent, cx, cy, k * SIZE, origin=((x0 + x1) / 2, (y0 + y1) / 2))
+
+
+def placement_scale(shape: str, fill: Fill) -> tuple[float, tuple[float, float, float, float]]:
+    """(the factor the motif's sheet is drawn at, its drawn box) so that the box covers
+    ``fill.scale`` of ``shape``'s print area, or, for a motif too long or too tall to
+    cover that much, spans the area's width or height: a print never overflows its area."""
+    _, _, w, h = PRINT_BOX[shape]
+    box = x0, y0, x1, y1 = drawn_box(fill.motif or "")
+    k = math.sqrt(fill.scale * w * h / ((x1 - x0) * (y1 - y0)))
+    return min(k, w / (x1 - x0), h / (y1 - y0)), box
 
 
 # --------------------------------------------------------------------------
