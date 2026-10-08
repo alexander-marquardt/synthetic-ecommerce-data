@@ -25,6 +25,8 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
+import footwear_rows  # noqa: E402
+import kit_footwear  # noqa: E402,F401 -- registers shoe, boot_sock
 import kit_more  # noqa: E402,F401 -- registers the own-kind shapes (bouquet, socks, bed_frame, ...)
 import kit_round4  # noqa: E402,F401 -- registers belt, hanger, outfit_set, trigger_spray
 import prints  # noqa: E402
@@ -43,9 +45,9 @@ from distractors import (  # noqa: E402
 from real_classes import ROWS, class_docs  # noqa: E402
 from variants import FAMILIES, SIZE_KEYS, sku_report, style_docs  # noqa: E402
 
-#: One product per style: the whole round 4 corpus, the print range (gen#125) and
-#: every class record.
-SAMPLES = 294
+#: One product per style: the whole round 4 corpus, the print range (gen#125),
+#: footwear and every class record.
+SAMPLES = 328
 
 
 def samples() -> dict[str, list[dict]]:
@@ -63,6 +65,8 @@ def samples() -> dict[str, list[dict]]:
     gift = next(row for row in TABLE if row.tail)
     out["Gift bag distractors"] = [x.doc for x in (*gift.distractors, *gift.tail)]
     out["Observed failure classes"] = class_docs()
+    out["Footwear"] = footwear_rows.docs()
+    out["Footwear distractors"] = [x.doc for x in footwear_rows.BOOTS.distractors]
     return out
 
 
@@ -70,7 +74,7 @@ def _planted() -> dict[str, tuple[str, str]]:
     return {
         **{
             x.doc["product_id"]: (row.query, x.fixed_by)
-            for row in TABLE
+            for row in (*TABLE, footwear_rows.BOOTS)
             for x in (*row.distractors, *row.tail)
         },
         **{
@@ -157,9 +161,9 @@ table.dist td,table.dist th{border-bottom:1px solid #e3e1da;padding:4px 6px;vert
 
 
 def _score_table() -> str:
-    cat = corpus()
-    rows = []
-    for row in TABLE:
+    # The boots row is scored over the corpus with footwear in it: the boots it must lose to.
+    rows, base = [], corpus()
+    for row, cat in [*((r, base) for r in TABLE), (footwear_rows.BOOTS, footwear_rows.catalog())]:
         best, each = scores(row, cat)
         names = {x.doc["product_id"]: x.doc["title"] for x in row.distractors}
         cells = "<br>".join(f"{escape(names[p])}: {s:.2f}" for p, s in each)
