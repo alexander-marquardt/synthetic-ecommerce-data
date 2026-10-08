@@ -294,7 +294,7 @@ def cutlery_set(paint: str, fill: Fill, label: str | None) -> list[str]:
     return out
 
 
-def table_lamp(paint: str, fill: Fill, label: str | None) -> list[str]:
+def table_lamp(paint: str, fill: Fill, label: str | None, shade: str | None = None) -> list[str]:
     """A tapered shade (the painted surface) on a gourd base in the accent color."""
     base = "M200,206 C150,206 140,262 156,296 C166,318 176,326 172,338 L228,338 C224,326 234,318 244,296 C260,262 250,206 200,206 Z"
     return [
