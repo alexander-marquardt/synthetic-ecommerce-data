@@ -15,7 +15,9 @@ duplicate lockup and a brand with no row). A row sets:
   text ``tag``;
 * the wordmark treatment: ``font``, ``weight``, ``case``, ``spacing``, ``italic``.
 
-:func:`dress` wraps a product drawing in its brand's house style.
+:func:`dress` wraps a product drawing in its brand's house style. The
+domain-neutral parts (primitives, wordmarks, textures, the re-inked outline)
+are in ``prototypes/house_kit.py``, shared with the industrial catalog.
 """
 
 # ruff: noqa: E501 -- SVG literals read better whole than wrapped (prototype only).
@@ -23,9 +25,15 @@ duplicate lockup and a brand with no row). A row sets:
 from __future__ import annotations
 
 import math
-import re
-from dataclasses import astuple, dataclass, fields
-from html import escape
+import sys
+from dataclasses import dataclass, fields
+from pathlib import Path
+
+# The domain-neutral machinery (primitives, wordmarks, textures, restyling)
+# lives one level up, shared with the industrial prototype.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+import house_kit as hk  # noqa: E402
 
 SIZE = 400
 DEFAULT_INK = "#2b3440"
@@ -122,38 +130,16 @@ class HouseStyle:
 # --------------------------------------------------------------------------
 
 
-def _n(v: float) -> str:
-    return f"{v:.3f}".rstrip("0").rstrip(".")
+_n = hk.n
+_ring = hk.ring
+_dot = hk.dot
+_stroke = hk.stroke
+_diamond = hk.diamond
+_hexagon = hk.hexagon
 
 
 def _star(x: float, y: float, r: float, c: str) -> str:
-    pts = []
-    for k in range(10):
-        a = -math.pi / 2 + k * math.pi / 5
-        rr = r if k % 2 == 0 else r * 0.45
-        pts.append(f"{_n(x + rr * math.cos(a))},{_n(y + rr * math.sin(a))}")
-    return f'<polygon points="{" ".join(pts)}" fill="{c}"/>'
-
-
-def _ring(x: float, y: float, r: float, w: float, c: str) -> str:
-    return f'<circle cx="{_n(x)}" cy="{_n(y)}" r="{_n(r)}" fill="none" stroke="{c}" stroke-width="{_n(w)}"/>'
-
-
-def _dot(x: float, y: float, r: float, c: str, extra: str = "") -> str:
-    return f'<circle cx="{_n(x)}" cy="{_n(y)}" r="{_n(r)}" fill="{c}"{extra}/>'
-
-
-def _stroke(d: str, w: float, c: str, join: str = "round") -> str:
-    return f'<path d="{d}" fill="none" stroke="{c}" stroke-width="{_n(w)}" stroke-linecap="round" stroke-linejoin="{join}"/>'
-
-
-def _diamond(x: float, y: float, h: float) -> str:
-    return f"M{_n(x)},{_n(y - h)} L{_n(x + h)},{_n(y)} L{_n(x)},{_n(y + h)} L{_n(x - h)},{_n(y)} Z"
-
-
-def _hexagon(x: float, y: float, r: float) -> str:
-    pts = [(x + r * math.cos(math.pi / 3 * k), y + r * math.sin(math.pi / 3 * k)) for k in range(6)]
-    return "M" + " L".join(f"{_n(a)},{_n(b)}" for a, b in pts) + " Z"
+    return hk.star(x, y, r, c)
 
 
 def m_squares_circle(c: str) -> list[str]:
@@ -365,17 +351,12 @@ def m_leaf_pair(c: str) -> list[str]:
 
 
 #: Mark name -> drawing in unit space (-1..1), painted in the brand colour.
-MARKS = {
-    name[2:]: fn for name, fn in list(globals().items()) if name.startswith("m_") and callable(fn)
-}
+MARKS = hk.register_marks(globals())
 
 
 def mark_svg(name: str, cx: float, cy: float, size: float, colour: str) -> str:
     """The composite mark ``name``, ``size`` px across, centred on (cx, cy)."""
-    body = "".join(MARKS[name](colour))
-    return (
-        f'<g class="mark" transform="translate({_n(cx)} {_n(cy)}) scale({_n(size / 2)})">{body}</g>'
-    )
+    return hk.mark_group("".join(MARKS[name](colour)), cx, cy, size)
 
 
 # --------------------------------------------------------------------------
@@ -383,23 +364,14 @@ def mark_svg(name: str, cx: float, cy: float, size: float, colour: str) -> str:
 # --------------------------------------------------------------------------
 
 
-def _cased(style: HouseStyle, text: str) -> str:
-    return {"caps": text.upper(), "lower": text.lower()}.get(style.case, text)
-
-
 def text_width(style: HouseStyle, text: str, size: float) -> float:
     """An estimate of ``text``'s width in ``style``'s wordmark treatment."""
-    f = ADVANCE[style.font] * {"caps": 1.22, "smallcaps": 1.1}.get(style.case, 1.0)
-    f *= 1.07 if style.weight == 700 else 1.0
-    return len(text) * (size * f + style.spacing)
+    return hk.text_width(ADVANCE[style.font], style, text, size)
 
 
 def name_size(style: HouseStyle, text: str, max_width: float = NAME_MAX_WIDTH) -> float:
     """The largest wordmark size up to :data:`NAME_SIZE` that fits ``max_width``."""
-    size = NAME_SIZE
-    while size > NAME_MIN and text_width(style, text, size) > max_width:
-        size -= 0.5
-    return size
+    return hk.fit_size(ADVANCE[style.font], style, text, max_width, NAME_SIZE, NAME_MIN)
 
 
 def wordmark(
@@ -412,21 +384,7 @@ def wordmark(
     anchor: str = "start",
 ) -> str:
     """``text`` set in ``style``'s treatment; (x, y) is the baseline anchor."""
-    attrs = [
-        f'x="{x:.1f}" y="{y:.1f}"',
-        f'font-family="{FONTS[style.font]}"',
-        f'font-size="{size:g}"',
-        f'font-weight="{style.weight}"',
-        f'fill="{colour}"',
-        f'text-anchor="{anchor}"',
-    ]
-    if style.spacing:
-        attrs.append(f'letter-spacing="{style.spacing:g}"')
-    if style.case == "smallcaps":
-        attrs.append('font-variant="small-caps"')
-    if style.italic:
-        attrs.append('font-style="italic"')
-    return f"<text {' '.join(attrs)}>{escape(_cased(style, text))}</text>"
+    return hk.wordmark(FONTS[style.font], style, text, x, y, size, colour, anchor)
 
 
 # --------------------------------------------------------------------------
@@ -436,33 +394,7 @@ def wordmark(
 
 def _texture(style: HouseStyle, uid: str) -> tuple[str, str]:
     """(pattern def, the rect that paints it) for the paper's texture."""
-    c, t = style.colour, style.texture
-    if t == "none":
-        return "", ""
-    tile, body = {
-        "dots": (14, f'<circle cx="7" cy="7" r="1.1" fill="{c}" fill-opacity=".22"/>'),
-        "lines": (
-            10,
-            f'<path d="M0,9.5 L10,9.5" stroke="{c}" stroke-opacity=".12" stroke-width="1"/>',
-        ),
-        "grid": (
-            16,
-            f'<path d="M0,15.5 L16,15.5 M15.5,0 L15.5,16" stroke="{c}" stroke-opacity=".1" stroke-width="1"/>',
-        ),
-        "diagonal": (
-            10,
-            f'<path d="M-2,2 L2,-2 M0,10 L10,0 M8,12 L12,8" stroke="{c}" stroke-opacity=".1" stroke-width="1"/>',
-        ),
-        "hatch": (
-            12,
-            f'<path d="M0,12 L12,0 M0,0 L12,12" stroke="{c}" stroke-opacity=".08" stroke-width="1"/>',
-        ),
-    }[t]
-    pid = f"tex-{uid}"
-    return (
-        f'<pattern id="{pid}" width="{tile}" height="{tile}" patternUnits="userSpaceOnUse">{body}</pattern>',
-        f'<rect width="{SIZE}" height="{SIZE}" fill="url(#{pid})"/>',
-    )
+    return hk.texture(style.texture, style.colour, uid, SIZE, SIZE)
 
 
 def _frame(style: HouseStyle) -> list[str]:
@@ -660,38 +592,19 @@ def logo(style: HouseStyle, brand: str) -> list[str]:
 # The product's outline in the brand's hand
 # --------------------------------------------------------------------------
 
-_WIDTH = re.compile(r'stroke-width="([0-9]*\.?[0-9]+)"')
-
-
 def restyle(fragment: str, style: HouseStyle) -> str:
     """The product drawing's ink strokes in ``style``'s colour, weight, dash and joins.
 
     Only strokes in the kit's ink colour change; fills, patterns and white
     gloss strokes are the product's and stay as drawn.
     """
-
-    def one(el: str) -> str:
-        if f'stroke="{DEFAULT_INK}"' not in el:
-            return el
-        m = _WIDTH.search(el)
-        width = float(m.group(1)) if m else 1.0
-        el = el.replace(f'stroke="{DEFAULT_INK}"', f'stroke="{style.ink}"')
-        if m:
-            el = el[: m.start()] + f'stroke-width="{width * style.stroke:.2f}"' + el[m.end() :]
-        if style.joins == "sharp":
-            el = el.replace('stroke-linejoin="round"', 'stroke-linejoin="miter"').replace(
-                'stroke-linecap="round"', 'stroke-linecap="butt"'
-            )
-            if "stroke-linejoin" not in el:
-                el = el.replace("/>", ' stroke-linejoin="miter"/>', 1)
-        if style.dashed and width >= 2.5 and "stroke-dasharray" not in el:
-            el = el.replace("/>", ' stroke-dasharray="9 4"/>', 1)
-        return el
-
-    return re.sub(
-        r"<(?:path|rect|circle|ellipse|polygon|polyline|line)\b[^>]*/>",
-        lambda m: one(m.group(0)),
+    return hk.restyle_strokes(
         fragment,
+        DEFAULT_INK,
+        to_ink=style.ink,
+        factor=style.stroke,
+        sharp=style.joins == "sharp",
+        dashed=style.dashed,
     )
 
 
@@ -815,4 +728,4 @@ def field_names() -> list[str]:
 
 
 def differing(a: HouseStyle, b: HouseStyle) -> int:
-    return sum(x != y for x, y in zip(astuple(a), astuple(b), strict=True))
+    return hk.differing(a, b)

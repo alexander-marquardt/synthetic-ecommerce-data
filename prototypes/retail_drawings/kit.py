@@ -609,16 +609,15 @@ def _render_styled(shape, draw, paint, defs, fill, label, brand, uid, params, st
     if shape in OFFSET_Y:
         inner = f'<g transform="translate(0 {OFFSET_Y[shape]})">{inner}</g>'
     sheet_defs, sheet, overlay = hs.dress(style, brand, uid)
-    all_defs = defs + "".join(sheet_defs)
-    parts = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" viewBox="0 0 {SIZE} {SIZE}">',
-        f"<defs>{all_defs}</defs>" if all_defs else "",
-        *sheet,
-        f'<g class="product" transform="{hs.product_transform(style)}">{hs.restyle(inner, style)}</g>',
-        f'<g class="brand">{"".join(overlay)}</g>',
-        "</svg>",
-    ]
-    return "".join(p for p in parts if p)
+    return hs.hk.compose(
+        SIZE,
+        SIZE,
+        defs + "".join(sheet_defs),
+        sheet,
+        hs.product_transform(style),
+        hs.restyle(inner, style),
+        overlay,
+    )
 
 
 def register(shapes: dict, offsets: dict | None = None) -> None:
