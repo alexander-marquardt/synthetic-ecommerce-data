@@ -16,6 +16,7 @@ from class_model import (
     LEGS3,
     PATH_SEPARATOR,
     ClassRow,
+    Control,
     Policy,
     Style,
     on_sale,
@@ -717,6 +718,94 @@ NOT_ROSE_GOLD = (
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
+# 15. "cups": one word, a sense in two departments. In Home a cup is
+# drinkware; in Lingerie it is the cup of a bra or a cup size (A to E). Bras
+# titled "... Cup Bra" outsell the drinkware, and most drinkware says "Mug" or
+# "Tumbler", so a bare "cups" fills the page with bras.
+# --------------------------------------------------------------------------
+
+DRINKWARE = ("Home", "Kitchen & Dining", "Drinkware")
+BRAS = ("Women", "Lingerie", "Bras")
+LINGERIE = "Lingerie & Nightwear"
+
+
+def bra_sizes(cups: str) -> tuple[str, ...]:
+    """Band x cup, 32 to 38 in every cup letter of ``cups``."""
+    return tuple(f"{band}{cup}" for band in (32, 34, 36, 38) for cup in cups)
+
+
+CUPS = (
+    Style("DRKMUG", "Speckled Stoneware Mug", "Brackenmere Home", "Home", (*DRINKWARE, "Mugs"),
+          8.0, "A glazed stoneware mug with a speckled finish. Holds 350ml.",
+          "Mug", "tin", ((cw("Cream", ECRU), 40), (cw("Sage", "#9caf88"), 25))),
+    Style("DRKLAT", "Large Latte Mug", "Pewley Table", "Home", (*DRINKWARE, "Mugs"), 10.0,
+          "A wide, tall porcelain mug for lattes and hot chocolate.",
+          "Mug", "tin", one(cw("White", WHITE), 45)),
+    Style("DRKTMB", "Double Walled Tumbler", "Pewley Table", "Home",
+          (*DRINKWARE, "Tumblers"), 14.0,
+          "An insulated steel tumbler with a sliding lid. Keeps drinks hot for 6 hours.",
+          "Tumbler", "tin", ((cw("Black", BLACK), 50), (cw("Navy", NAVY), 30))),
+    Style("DRKSAU", "Fine Bone China Cup and Saucer", "Pewley Table", "Home",
+          (*DRINKWARE, "Cups & Saucers"), 12.0,
+          "A fine bone china tea cup with a matching saucer.",
+          "Cup", "tin", one(cw("White", WHITE), 35)),
+    Style("DRKTRV", "Leakproof Travel Cup", "Brackenmere Home", "Home",
+          (*DRINKWARE, "Travel Cups"), 16.0,
+          "A reusable travel cup with a leakproof lid that fits most car holders.",
+          "Travel Cup", "tin", ((cw("Charcoal", "#4a4a4a"), 60), (cw("Pink", "#f3c6cf"), 20))),
+    Style("DRKSET", "Set of 4 Espresso Cups", "Brackenmere Home", "Home",
+          (*DRINKWARE, "Cups & Saucers"), 18.0,
+          "Four small porcelain espresso cups in a gift box.",
+          "Cup Set", "box", one(cw("Stone", "#c8bfae"), 30)),
+)  # fmt: skip
+
+_BRA = "route: a bare cup goes to Drinkware; a bra word in the query switches the route off"
+_TAIL = "route: outside the Drinkware node"
+NOT_CUPS = (
+    (Style("CUPDEM", "Lace Demi Cup Bra A-E", "Thistle & Wren", LINGERIE, (*BRAS, "Demi Bras"),
+           22.0, "A lace demi cup bra with underwired cups and adjustable straps.",
+           "Bra", "bra", ((cw("Black", BLACK), 380), (cw("Pink", "#f3c6cf"), 300)),
+           pattern="plain", sizes=bra_sizes("ABCDE")), _BRA),
+    (Style("CUPFUL", "Smooth Full Cup Bra B-G", "Thistle & Wren", LINGERIE,
+           (*BRAS, "Full Cup Bras"), 20.0,
+           "A non padded full cup bra with smooth cups for everyday support.",
+           "Bra", "bra", ((cw("White", WHITE), 340), (cw("Black", BLACK), 310)),
+           pattern="plain", sizes=bra_sizes("BCDEFG")), _BRA),
+    (Style("CUPMLD", "Moulded Cup T-Shirt Bra", "Thistle & Wren", LINGERIE,
+           (*BRAS, "T-Shirt Bras"), 18.0,
+           "A seamless t-shirt bra with lightly padded moulded cups.",
+           "Bra", "bra", one(cw("Champagne", "#e8d3b0"), 620),
+           pattern="plain", sizes=bra_sizes("ABCDE")), _BRA),
+    (Style("CUPBAL", "Padded Balcony Bra", "Thistle & Wren", LINGERIE,
+           (*BRAS, "Balcony Bras"), 20.0,
+           "A balcony bra with padded half cups and a low, wide neckline.",
+           "Bra", "bra", one(cw("Black", BLACK), 600),
+           pattern="plain", sizes=bra_sizes("ABCDE")), _BRA),
+    (Style("CUPCAK", "Foil Cupcake Cases", "Brackenmere Home", "Home",
+           ("Home", "Kitchen & Dining", "Bakeware", "Cake Cases"), 3.0,
+           "Fifty foil baking cups for cupcakes and muffins.",
+           "Cupcake Cases", "box", one(cw("Silver", "#c0c0c0"), 90)), _TAIL),
+    (Style("CUPHLD", "Car Cup Holder Organiser", "Harbour & Pine", "Home",
+           ("Electricals", "Car Accessories", "Cup Holders"), 9.0,
+           "A cup holder insert that holds two cups and a phone.",
+           "Cup Holder", "box", one(cw("Black", BLACK), 70)), _TAIL),
+    (Style("CUPTRO", "Engraved Trophy Cup", "Wrenfield", "Gifts",
+           ("Gifts", "Personalised Gifts", "Trophies"), 25.0,
+           "A silver plated trophy cup with two handles, engraved with your message.",
+           "Trophy", "box", one(cw("Silver", "#c0c0c0"), 40), metal=True), _TAIL),
+)  # fmt: skip
+
+#: Words that put "cup" in a bra's sense: the cups policy is off when one is in the query.
+BRA_WORDS = (r"\bbras?\b", r"\bdemi\b", r"\bbalcon(y|ette)\b", r"\bplunge\b",
+             r"\b([a-k]|dd|ff|gg|hh|jj)\s?cups?\b", r"\b\d\d([a-k]|dd|ff|gg)\b",
+             r"\b[a-k]\s?-\s?[a-k]\b")  # fmt: skip
+
+
+def _is_bra(d: dict) -> bool:
+    return d.get("product_type") == "Bra" or "Bras" in d.get("category_path", ())
+
+
+# --------------------------------------------------------------------------
 # Offers (not a query row): third-party brands lead, online only, with a
 # sub-collection label; one own-brand line on a was-price
 # --------------------------------------------------------------------------
@@ -779,6 +868,14 @@ COLLISIONS = (
      "senses": ["skus.color", "product_type"],
      "note": "a lipstick shade (Wild Honey, color family brown) vs a food; the food "
              "carries no color field and the shade is never a product type"},
+    {"word": "cup", "query": "cups",
+     "senses": [PATH_SEPARATOR.join(DRINKWARE), PATH_SEPARATOR.join(BRAS)],
+     "meanings": {"Home": "drinkware: a cup, a mug, a travel cup or a set of cups",
+                  LINGERIE: "the cup of a bra, or a cup size (A to E)"},
+     "personas": {"a home shopper buying drinkware": "Home",
+                  "a lingerie shopper with a bra word in the query": LINGERIE},
+     "note": "a bare cup(s) is drinkware; the bra sense needs a bra word (bra, demi, "
+             "balcony, a cup size such as D cup or A-E) in the query (class 15)"},
 )  # fmt: skip
 
 
@@ -860,4 +957,13 @@ ROWS = (
              "one value: the phrase becomes a color filter",
              Policy(sku_filters=(("color", (ROSE_GOLD,)),)),
              ROSE_GOLDS, NOT_ROSE_GOLD),
+    ClassRow(15, "One word, a sense in two departments", "cups", "drinkware (a cup or a mug)",
+             lambda d: "/".join(d.get("category_path", ())).startswith(
+                 PATH_SEPARATOR.join(DRINKWARE) + PATH_SEPARATOR),
+             "a bare cup(s) routes to the Drinkware node; a bra word (bra, demi, balcony, "
+             "a cup size) switches the route off, so the bra sense stays reachable",
+             Policy(route=PATH_SEPARATOR.join(DRINKWARE), unless=BRA_WORDS,
+                    unless_text="bra, demi, balcony or a cup size"),
+             CUPS, NOT_CUPS,
+             controls=(Control("d cup bra", "a bra", _is_bra),)),
 )  # fmt: skip

@@ -1,7 +1,7 @@
 {
  "elasticsearch": "9.3.0",
- "docs": 179,
- "fingerprint": "9851ca7041a6128229c5feb92a077cc4f36f0e87785cc26ebe69dfa732402add",
+ "docs": 192,
+ "fingerprint": "a32c36115bb4f4b69cc8fa520ea330d27df2e3fd873c8d1b2aa9ee1e740b0c4b",
  "rows": [
   {
    "query": "mattress topper",
@@ -544,6 +544,103 @@
     {
      "product_id": "PLT-RGLAMP",
      "title": "Touch Dimmable Table Lamp"
+    }
+   ]
+  },
+  {
+   "query": "cups",
+   "baseline": [
+    {
+     "product_id": "PLT-CUPMLD",
+     "title": "Moulded Cup T-Shirt Bra"
+    },
+    {
+     "product_id": "PLT-CUPDEM",
+     "title": "Lace Demi Cup Bra A-E"
+    },
+    {
+     "product_id": "PLT-CUPFUL",
+     "title": "Smooth Full Cup Bra B-G"
+    },
+    {
+     "product_id": "PLT-DRKTRV",
+     "title": "Leakproof Travel Cup"
+    },
+    {
+     "product_id": "PLT-CUPHLD",
+     "title": "Car Cup Holder Organiser"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-DRKTRV",
+     "title": "Leakproof Travel Cup"
+    },
+    {
+     "product_id": "PLT-DRKSET",
+     "title": "Set of 4 Espresso Cups"
+    },
+    {
+     "product_id": "PLT-DRKSAU",
+     "title": "Fine Bone China Cup and Saucer"
+    },
+    {
+     "product_id": "PLT-DRKTMB",
+     "title": "Double Walled Tumbler"
+    },
+    {
+     "product_id": "PLT-DRKMUG",
+     "title": "Speckled Stoneware Mug"
+    }
+   ]
+  }
+ ],
+ "controls": [
+  {
+   "query": "d cup bra",
+   "of": "cups",
+   "baseline": [
+    {
+     "product_id": "PLT-CUPMLD",
+     "title": "Moulded Cup T-Shirt Bra"
+    },
+    {
+     "product_id": "PLT-CUPDEM",
+     "title": "Lace Demi Cup Bra A-E"
+    },
+    {
+     "product_id": "PLT-CUPFUL",
+     "title": "Smooth Full Cup Bra B-G"
+    },
+    {
+     "product_id": "PLT-CUPBAL",
+     "title": "Padded Balcony Bra"
+    },
+    {
+     "product_id": "PLT-OFRBRA",
+     "title": "Seamless Smoothing Bra"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-CUPMLD",
+     "title": "Moulded Cup T-Shirt Bra"
+    },
+    {
+     "product_id": "PLT-CUPDEM",
+     "title": "Lace Demi Cup Bra A-E"
+    },
+    {
+     "product_id": "PLT-CUPFUL",
+     "title": "Smooth Full Cup Bra B-G"
+    },
+    {
+     "product_id": "PLT-CUPBAL",
+     "title": "Padded Balcony Bra"
+    },
+    {
+     "product_id": "PLT-OFRBRA",
+     "title": "Seamless Smoothing Bra"
     }
    ]
   }

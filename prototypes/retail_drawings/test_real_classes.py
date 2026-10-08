@@ -100,8 +100,8 @@ def test_a_style_in_five_colors_is_one_product_holding_them_all() -> None:
     assert sum(d["title"] == "Mid Rise Barrel Jeans" for d in CLASS_DOCS) == 1
     assert all(not ({"style_id", "variant_group"} & d.keys()) for d in CLASS_DOCS)
     per_style = sorted(n for n in (len(_colors(d)) for d in CLASS_DOCS) if n > 1)
-    # The nine styles sold in more than one color, and the crew-neck tee.
-    assert per_style == [2, 2, 2, 2, 2, 3, 3, 3, 4, 5]
+    # The fourteen styles sold in more than one color, and the crew-neck tee.
+    assert per_style == [2] * 10 + [3, 3, 3, 4, 5]
 
 
 def test_every_target_is_intended_and_no_distractor_is() -> None:
