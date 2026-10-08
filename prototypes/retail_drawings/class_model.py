@@ -8,6 +8,7 @@ Standard library only.
 from __future__ import annotations
 
 import hashlib
+import re
 from collections.abc import Callable
 from dataclasses import dataclass
 
@@ -290,7 +291,9 @@ class Policy:
     (field, values, weight) multiplied into the score; a weight below 1 buries.
     ``route``: a category node (joined with "/"); its docs are recalled even
     when the text misses them, and boosted. ``sku_filters``: (SKU field,
-    values) that one in-stock nested SKU must carry.
+    values) that one in-stock nested SKU must carry. ``unless``: regular
+    expressions over the lowercased query; when one matches, the policy is
+    off and the query runs as the baseline (``unless_text`` says so in words).
     """
 
     filters: tuple[tuple[str, tuple[str, ...]], ...] = ()
@@ -298,6 +301,12 @@ class Policy:
     boosts: tuple[tuple[str, tuple[str, ...], float], ...] = ()
     route: str | None = None
     sku_filters: tuple[tuple[str, tuple[str, ...]], ...] = ()
+    unless: tuple[str, ...] = ()
+    unless_text: str = ""
+
+    def applies(self, query: str) -> bool:
+        """False when ``query`` holds an :attr:`unless` pattern: the policy is then off."""
+        return True
 
     def describe(self) -> str:
         out = [f"filter {f} = {' or '.join(v)}" for f, v in self.filters]
@@ -305,7 +314,20 @@ class Policy:
         out += [f"filter an in-stock SKU with {f} = {' or '.join(v)}" for f, v in self.sku_filters]
         out += [f"{f} = {' or '.join(v)} x{w:g}" for f, v, w in self.boosts]
         out += [f"route to {self.route} (recalled, boosted)"] if self.route else []
+        out += [f"off when the query says {self.unless_text}"] if self.unless else []
         return "; ".join(out)
+
+
+@dataclass(frozen=True)
+class Control:
+    """A query in the OTHER sense of a row's word, which its policy must leave alone.
+
+    The proof runs it with the policy on; its top 3 must all be ``is_intended``.
+    """
+
+    query: str
+    intended: str
+    is_intended: Callable[[dict], bool]
 
 
 @dataclass(frozen=True)
@@ -320,6 +342,8 @@ class ClassRow:
     targets: tuple[Style, ...]
     #: (style, the policy part that buries it).
     distractors: tuple[tuple[Style, str], ...]
+    #: Queries in the word's other sense: the policy must still return that sense.
+    controls: tuple[Control, ...] = ()
 
 
 #: Who makes a brand: the retailer ("own") or another house ("third_party").

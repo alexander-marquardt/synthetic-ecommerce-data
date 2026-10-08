@@ -44,10 +44,11 @@ def test_the_rows_are_the_observed_classes_2_to_7() -> None:
         (12, "face cream", 3, 8),
         (13, "single bed", 3, 5),
         (14, "rose gold", 5, 5),
+        (15, "cups", 6, 7),
     ]
     # One product per style: the rows, the beauty styles, the offers, the honey
     # and the crew-neck tee.
-    assert len(CLASS_DOCS) == 102 + 2 + 4 + 1 + 1
+    assert len(CLASS_DOCS) == 115 + 2 + 4 + 1 + 1
 
 
 def test_the_pack_count_is_a_c62_count_and_the_titles_spell_it_three_ways() -> None:
@@ -390,7 +391,7 @@ def test_a_target_in_the_baseline_top_3_is_refused() -> None:
 
 
 def test_a_distractor_or_a_short_policy_top_3_is_refused() -> None:
-    assert len(PROOF["rows"]) == len(rc.ROWS) == 12
+    assert len(PROOF["rows"]) == len(rc.ROWS) == 13
     bad = copy.deepcopy(PROOF)
     bad["rows"][1]["policy"][2] = bad["rows"][1]["baseline"][0]
     bad["rows"][4]["policy"] = bad["rows"][4]["policy"][:2]
