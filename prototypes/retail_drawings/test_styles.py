@@ -40,7 +40,7 @@ def test_every_style_is_one_product_document() -> None:
         for s in styles:
             assert len(vr.style_docs(fam, s)) == 1, (fam, s.code)
     styles = {s.code for row in cr.ROWS for s in (*row.targets, *(x for x, _ in row.distractors))}
-    assert len(styles) == 102
+    assert len(styles) == 115
     assert [c for c in sorted(styles) if f"PLT-{c}" not in BY_ID] == []
 
 
@@ -74,4 +74,4 @@ def test_option_lists_are_the_sku_set() -> None:
         assert d.get("size_options", {}) == sizes, d["product_id"]
         sized += bool(sizes)
         assert d["price"] == min(s["price"] for s in skus), d["product_id"]
-    assert sized == 62
+    assert sized == 66

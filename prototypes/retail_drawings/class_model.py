@@ -306,7 +306,7 @@ class Policy:
 
     def applies(self, query: str) -> bool:
         """False when ``query`` holds an :attr:`unless` pattern: the policy is then off."""
-        return True
+        return not any(re.search(p, query.lower()) for p in self.unless)
 
     def describe(self) -> str:
         out = [f"filter {f} = {' or '.join(v)}" for f, v in self.filters]

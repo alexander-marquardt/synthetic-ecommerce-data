@@ -40,7 +40,7 @@ from real_classes import ROWS, class_docs  # noqa: E402
 from variants import FAMILIES, SIZE_KEYS, sku_report, style_docs  # noqa: E402
 
 #: One product per style: the whole round 4 corpus plus every class record.
-SAMPLES = 179
+SAMPLES = 192
 
 
 def samples() -> dict[str, list[dict]]:

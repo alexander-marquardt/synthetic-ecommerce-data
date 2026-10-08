@@ -1,4 +1,4 @@
-"""Failure classes 2 to 14 of gen#125, rebuilt from hand-searched live results.
+"""Failure classes 2 to 15 of gen#125, rebuilt from hand-searched live results.
 
 Each :class:`ClassRow` is one query shape observed on a live retail site
 (every name here is invented): the *targets* a shopper meant, the products
@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Callable
 
 from class_model import AUDIENCES as AUDIENCES
 from class_model import BED_SIZE_DIMS as BED_SIZE_DIMS
@@ -250,13 +251,22 @@ def text_query(q: str) -> dict:
     return {"multi_match": {"query": q, "fields": ["title^2", "description"], "tie_breaker": 0.3}}
 
 
-def baseline_body(row: ClassRow, size: int = 5) -> dict:
-    """BM25 over title and description, times the popularity boost: no policy."""
-    return _search(text_query(row.query), list(POPULARITY), size)
+def baseline_body(row: ClassRow, size: int = 5, query: str | None = None) -> dict:
+    """BM25 over title and description, times the popularity boost: no policy.
+
+    ``query`` replaces the row's own (a control query of :attr:`ClassRow.controls`).
+    """
+    return _search(text_query(row.query if query is None else query), list(POPULARITY), size)
 
 
-def policy_body(row: ClassRow, size: int = 5) -> dict:
-    """The baseline plus the row's :class:`Policy`, approximated in raw Elasticsearch."""
+def policy_body(row: ClassRow, size: int = 5, query: str | None = None) -> dict:
+    """The baseline plus the row's :class:`Policy`, approximated in raw Elasticsearch.
+
+    A query the policy's ``unless`` matches runs as the baseline: the policy is off.
+    """
+    q = row.query if query is None else query
+    if not row.policy.applies(q):
+        return baseline_body(row, size, q)
     p = row.policy
     filters: list[dict] = [{"terms": {f: list(v)}} for f, v in p.filters]
     if p.on_sale:
@@ -268,14 +278,14 @@ def policy_body(row: ClassRow, size: int = 5) -> dict:
             "filter": sku, "must_not": [{"term": {"skus.in_stock": False}}]}}}})  # fmt: skip
     boosts = [{"filter": {"terms": {f: list(v)}}, "weight": w} for f, v, w in p.boosts]
     if p.route is None:
-        query = {"bool": {"must": text_query(row.query), "filter": filters}}
+        scored = {"bool": {"must": text_query(q), "filter": filters}}
     else:
         # The node recalls its docs whatever their text says, and lifts them.
         node = {"term": {"category_path_joined": p.route}}
-        query = {"bool": {"should": [text_query(row.query), {"constant_score": {"filter": node}}],
-                          "minimum_should_match": 1, "filter": filters}}  # fmt: skip
+        scored = {"bool": {"should": [text_query(q), {"constant_score": {"filter": node}}],
+                           "minimum_should_match": 1, "filter": filters}}  # fmt: skip
         boosts.append({"filter": node, "weight": ROUTE_WEIGHT})
-    return _search(query, [*POPULARITY, *boosts], size)
+    return _search(scored, [*POPULARITY, *boosts], size)
 
 
 #: The ruling's color search: text "tee" with color Navy (:data:`CREW_TEE`).
@@ -327,6 +337,16 @@ def verdicts(proof: dict, catalog: list[dict]) -> list[str]:
             out.append(f"{row.query!r}: a target is in the baseline top 3")
         if len(pol) != 3 or not all(row.is_intended(d) for d in pol):
             out.append(f"{row.query!r}: the policy top 3 is not all targets")
+    controls = {r["query"]: r for r in proof.get("controls", [])}
+    for row in ROWS:
+        for c in row.controls:
+            crec = controls.get(c.query)
+            if crec is None:
+                out.append(f"{c.query!r} (control): not in the proof")
+                continue
+            pol = [by_id[h["product_id"]] for h in crec["policy"][:3] if h["product_id"] in by_id]
+            if len(pol) != 3 or not all(c.is_intended(d) for d in pol):
+                out.append(f"{c.query!r} (control): the policy top 3 is not all {c.intended}")
     return out
 
 
@@ -335,13 +355,15 @@ def markdown(proof: dict, catalog: list[dict]) -> str:
     by_id = {d["product_id"]: d for d in catalog}
     got = {r["query"]: r for r in proof["rows"]}
 
-    def cell(row: ClassRow, hits: list[dict]) -> str:
+    def cell(is_intended: Callable[[dict], bool], hits: list[dict]) -> str:
         out = []
         for n, h in enumerate(hits, 1):
             name = f"{h['title']} `{h['product_id']}`"
-            target = row.is_intended(by_id[h["product_id"]])
+            target = is_intended(by_id[h["product_id"]])
             out.append(f"{n}. **{name}**" if target else f"{n}. {name}")
         return "<br>".join(out)
+
+    controls = {r["query"]: r for r in proof.get("controls", [])}
 
     lines = [
         "| # | Class | Query | Baseline top 5 (BM25 x popularity) | With the policy: top 5 "
@@ -351,7 +373,15 @@ def markdown(proof: dict, catalog: list[dict]) -> str:
     for row in ROWS:
         r = got[row.query]
         lines.append(
-            f"| {row.n} | {row.cls} | *{row.query}* | {cell(row, r['baseline'])} | "
-            f"{cell(row, r['policy'])} | {row.policy.describe()} |"
+            f"| {row.n} | {row.cls} | *{row.query}* | {cell(row.is_intended, r['baseline'])} | "
+            f"{cell(row.is_intended, r['policy'])} | {row.policy.describe()} |"
         )
+        for c in row.controls:
+            # The word's other sense, run with the same policy on: bold is that sense.
+            r = controls[c.query]
+            lines.append(
+                f"| {row.n} (control) | The other sense stays reachable: {c.intended} | "
+                f"*{c.query}* | {cell(c.is_intended, r['baseline'])} | "
+                f"{cell(c.is_intended, r['policy'])} | the same policy, off for this query |"
+            )
     return "\n".join(lines)

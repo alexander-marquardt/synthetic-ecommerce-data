@@ -93,6 +93,19 @@ def run(host: str, index: str) -> dict:
             }
             for row in rc.ROWS
         ]
+        # A control query is the word's other sense, run with the row's policy on.
+        controls = [
+            {
+                "query": c.query,
+                "of": row.query,
+                "baseline": hits(call(host, "POST", f"/{index}/_search",
+                                      rc.baseline_body(row, query=c.query))),
+                "policy": hits(call(host, "POST", f"/{index}/_search",
+                                    rc.policy_body(row, query=c.query))),
+            }  # fmt: skip
+            for row in rc.ROWS
+            for c in row.controls
+        ]
         color = color_search(host, index)
         version = call(host, "GET", "/")["version"]["number"]
     finally:
@@ -102,6 +115,7 @@ def run(host: str, index: str) -> dict:
         "docs": len(catalog),
         "fingerprint": rc.fingerprint(catalog),
         "rows": rows,
+        "controls": controls,
         "color_search": color,
     }
 

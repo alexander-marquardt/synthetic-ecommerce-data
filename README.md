@@ -920,9 +920,9 @@ category. `corpus(duplicate_listing=True)`
 product id a second time under another category, which a search shows twice
 unless it collapses on `product_id`.
 
-### Observed failure classes 2 to 14, before and after on Elasticsearch
+### Observed failure classes 2 to 15, before and after on Elasticsearch
 
-`real_classes.py` rebuilds twelve query shapes observed by hand on a live
+`real_classes.py` rebuilds thirteen query shapes observed by hand on a live
 retail site (every name invented, the brands from `house_styles.py`). The
 record model (`Style`, `Policy`, `ClassRow`, the closed lists) is in
 `class_model.py` and the rows themselves are data in `class_rows.py`. Its records
@@ -1012,6 +1012,20 @@ policy top 3 is all targets, and that this table is the proof's.
 | 12 | A type word that is also a color and a line name | *face cream* | 1. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>2. Nourishing Face Oil `PLT-FCEOIL`<br>3. Loose Face Powder `PLT-PWDLSE`<br>4. Tinted Face Gel `PLT-TNTGEL`<br>5. Velvetmere Cream Body Oil Spray `PLT-VLCOIL` | 1. **Daily Hydrating Face Cream `PLT-FCDAYC`**<br>2. **Calming Face Cream `PLT-FCCALM`**<br>3. **Rich Night Cream `PLT-FCNGHT`**<br>4. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>5. Nourishing Face Oil `PLT-FCEOIL` | route to Beauty/Skincare/Face Creams (recalled, boosted) |
 | 13 | A size word not applied (mild) | *single bed* | 1. Single Cube Chairbed `PLT-CHRCUB`<br>2. Ottoman Storage Bed `PLT-BDOTTO`<br>3. Upholstered Sleigh Bed `PLT-BDSLGH`<br>4. Panelled Wooden Bed `PLT-BDPANL`<br>5. Two Seater Sofa Bed `PLT-SOFBED` | 1. **Shaker Wooden Bed Frame `PLT-BDSHKR`**<br>2. **Metal Spindle Bed `PLT-BDMETL`**<br>3. **Upholstered Bed Frame `PLT-BDUPHL`**<br>4. Single Cube Chairbed `PLT-CHRCUB`<br>5. Memory Foam Mattress Topper `PLT-MTTMEM` | filter an in-stock SKU with bed_size = Single (3 ft); product_type = Bed x10 |
 | 14 | A two-word color split into words | *rose gold* | 1. Blush Rose & Gold Eucalyptus Bouquet `PLT-BQBLSH`<br>2. White Rose Bouquet with Gold Foliage `PLT-BQWHGF`<br>3. Gold Plated Rose Quartz Hoop Earrings `PLT-RQHOOP`<br>4. Classic Red Rose Bouquet `PLT-BQREDR`<br>5. Orange Rose Bouquet `PLT-BQORNG` | 1. **Cubic Zirconia Stud Earrings `PLT-RGSTUD`**<br>2. **Slim Mesh Strap Watch `PLT-RGMESH`**<br>3. **Wireless Charging Pad `PLT-RGCHRG`**<br>4. **Glow Powder Highlighter `PLT-RGHLIT`**<br>5. **Touch Dimmable Table Lamp `PLT-RGLAMP`** | filter an in-stock SKU with color = Rose Gold |
+| 15 | One word, a sense in two departments | *cups* | 1. Moulded Cup T-Shirt Bra `PLT-CUPMLD`<br>2. Lace Demi Cup Bra A-E `PLT-CUPDEM`<br>3. Smooth Full Cup Bra B-G `PLT-CUPFUL`<br>4. **Leakproof Travel Cup `PLT-DRKTRV`**<br>5. Car Cup Holder Organiser `PLT-CUPHLD` | 1. **Leakproof Travel Cup `PLT-DRKTRV`**<br>2. **Set of 4 Espresso Cups `PLT-DRKSET`**<br>3. **Fine Bone China Cup and Saucer `PLT-DRKSAU`**<br>4. **Double Walled Tumbler `PLT-DRKTMB`**<br>5. **Speckled Stoneware Mug `PLT-DRKMUG`** | route to Home/Kitchen & Dining/Drinkware (recalled, boosted); off when the query says bra, demi, balcony or a cup size |
+| 15 (control) | The other sense stays reachable: a bra | *d cup bra* | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. **Seamless Smoothing Bra `PLT-OFRBRA`** | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. **Seamless Smoothing Bra `PLT-OFRBRA`** | the same policy, off for this query |
+
+Class 15 is a word with a sense in two departments: a bare *cups* is
+drinkware in Home, and the cup of a bra (or a cup size) in Lingerie. Bras
+titled "... Cup Bra" outsell the drinkware, and most drinkware says "Mug" or
+"Tumbler", so without a policy the bras win. The policy routes a bare cup(s)
+to the Drinkware node (recalling a mug that never says cup) and is off when
+the query holds a bra word (`class_rows.BRA_WORDS`: bra, demi, balcony, a cup
+size such as "D cup", "34DD" or "A-E"). Its control row, *d cup bra*, runs
+with the same policy on and must still return bras: `ClassRow.controls` holds
+such queries, and the proof records them under `controls`. The collision is
+also a row of `class_rows.COLLISIONS`, with both meanings and the shopper
+each one belongs to.
 
 The cross-cutting patterns show in the table: the barrel bestseller leads
 the balloon baseline (one tile however many colors it has: no collapse is

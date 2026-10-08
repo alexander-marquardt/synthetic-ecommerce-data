@@ -48,7 +48,8 @@ def _codes(row: rc.ClassRow) -> tuple[list[str], list[str]]:
 
 
 def test_the_new_rows_are_classes_10_to_14() -> None:
-    assert [(r.n, r.query, len(r.targets), len(r.distractors)) for r in rc.ROWS if 10 <= r.n <= 14] == [
+    rows = [r for r in rc.ROWS if 10 <= r.n <= 14]
+    assert [(r.n, r.query, len(r.targets), len(r.distractors)) for r in rows] == [
         (10, "beer", 3, 5),
         (11, "oranges", 3, 6),
         (12, "face cream", 3, 8),
@@ -267,7 +268,8 @@ def test_rose_gold_is_one_color_value_and_the_finish_of_every_metal_good() -> No
     assert sorted(d["product_type"] for d in rose) == [
         "Earrings", "Highlighter", "Table Lamp", "Watch", "Wireless Charger"]  # fmt: skip
     metal = [d for d in CLASS_DOCS if any("finish" in s for s in d["skus"])]
-    assert len(metal) == 6
+    # The five rose gold goods, the link watch and the class 15 trophy cup.
+    assert len(metal) == 7
     for d in metal:
         # Every SKU of a metal good: its finish IS its color.
         assert all(s["finish"] == s["color"].lower() for s in d["skus"]), d["product_id"]
