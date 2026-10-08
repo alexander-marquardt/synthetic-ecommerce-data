@@ -564,7 +564,9 @@ FOOD = [
         "collections": ["christmas"],
         "category_path": ["Food", "Fresh Produce", "Fruit", "Citrus"],
         "price": 1.80,
-        "attributes": food_attrs(CLEMENTINE_GRAMS, "GRM", "Fresh", ["Vegan", "Gluten Free"], [], "Sweet Citrus"),
+        "attributes": food_attrs(
+            CLEMENTINE_GRAMS, "GRM", "Fresh", ["Vegan", "Gluten Free"], [], "Sweet Citrus"
+        ),
         # The fruit count drawn comes from the same pack weight the record states.
         "drawing": drawing("produce_pile", "solid", "#ef8a1f", label="Clementines",
                            **pile_params("clementine", "Easy Peeler Clementines", "net",

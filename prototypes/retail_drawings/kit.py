@@ -36,6 +36,9 @@ PLACEMENTS = ("all-over", "placement", "scatter")
 #: The largest motif a repeat tile holds, as a share of its edge: an all-over
 #: half-drop touches beyond 0.7, and a scatter stays sparse.
 MOTIF_SHARE_OF_TILE = {"all-over": 0.7, "scatter": 0.35}
+#: Placement -> the (fewest, most) copies of the motif one repeat draws: one
+#: placement graphic, the all-over half-drop's two, a scatter's three to six.
+MOTIF_COUNTS = {"placement": (1, 1), "all-over": (2, 2), "scatter": (3, 6)}
 
 
 @dataclass(frozen=True)
@@ -61,7 +64,9 @@ class Fill:
     placement: str | None = None
     scale: float = 0.0
     spacing: float = 0.0
-    count: int = 1  # stub (red): the copies of the motif one repeat draws
+    #: The copies of the motif one repeat draws (:data:`MOTIF_COUNTS`); the
+    #: title's noun is singular iff it is 1 (:func:`prints.title`).
+    count: int = 1
 
     def __post_init__(self) -> None:
         if self.pattern not in PATTERNS:
@@ -78,6 +83,11 @@ class Fill:
             raise ValueError(f"print scale {self.scale!r} is not in (0, 1]")
         if self.placement == "placement" and self.spacing:
             raise ValueError("a placement print has one motif and no repeat spacing")
+        least, most_copies = MOTIF_COUNTS[self.placement]
+        if not least <= self.count <= most_copies:
+            raise ValueError(
+                f"a {self.placement} print draws {least}-{most_copies} copies, not {self.count}"
+            )
         most = MOTIF_SHARE_OF_TILE.get(self.placement)
         if most is not None and self.scale * SIZE > most * self.spacing:
             raise ValueError(
