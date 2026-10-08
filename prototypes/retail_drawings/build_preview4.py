@@ -1,0 +1,152 @@
+"""Write round 4's sneak peek: variant docs, planted distractors and the SKU report.
+
+Usage::
+
+    python3 prototypes/retail_drawings/build_preview4.py [--html PATH] [--ndjson PATH]
+
+Writes ``preview4.html`` and ``samples4.ndjson`` beside this script (and the
+extra copies named), and prints the SKU report per family. The 60 samples
+mix deep docs (jeans, bras), shallow docs (bedding, beauty) and the planted
+distractor table. Standard library only.
+"""
+
+# ruff: noqa: E501 -- inline HTML and CSS literals (prototype only).
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from html import escape
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+
+import kit_round4  # noqa: E402,F401 -- registers belt, hanger, outfit_set, trigger_spray
+from build_preview import CSS, _attr_rows, _sizes, drawing_svg  # noqa: E402
+from distractors import LEMONS, TABLE, corpus, scores, table_markdown  # noqa: E402
+from variants import FAMILIES, sku_report, style_docs  # noqa: E402
+
+#: family -> {style code: extra doc indexes beyond the first}.
+EXTRA = {
+    "Jeans": {"HARROW": (13,), "TOLLAND": (21,), "CORVEY": (7,), "KELDEN": (8,)},
+    "Bras": {"HALDEN": (7,), "ROSEDENE": (4,)},
+    "Bedding": {"COVPRT": (1,)},
+    "Beauty": {"LIPSAT": (10,), "FNDFTH": (20, 39)},
+}
+SAMPLES = 60
+
+
+def samples() -> dict[str, list[dict]]:
+    """section -> its sample docs: each style's first doc and the extras, then the distractors."""
+    out: dict[str, list[dict]] = {}
+    for fam, styles in FAMILIES.items():
+        mine = out.setdefault(fam, [])
+        for s in styles:
+            ds = style_docs(fam, s)
+            mine += [ds[0], *(ds[i] for i in EXTRA[fam].get(s.code, ()))]
+    out["Planted distractors"] = [LEMONS, *(x.doc for row in TABLE for x in row.distractors)]
+    return out
+
+
+def _planted() -> dict[str, tuple[str, str]]:
+    return {x.doc["product_id"]: (row.query, x.fixed_by) for row in TABLE for x in row.distractors}
+
+
+def card(rec: dict, planted: dict[str, tuple[str, str]]) -> str:
+    chips = "".join(f'<span class="chip dept">{escape(d)}</span>' for d in rec["department"])
+    note = ""
+    if rec["product_id"] in planted:
+        q, fix = planted[rec["product_id"]]
+        note = f'<div class="plant">Distractor for <b>{escape(q)}</b>; fixed by {escape(fix)}</div>'
+    return (
+        '<div class="card">'
+        f'<div class="pic">{drawing_svg(rec)}</div>'
+        f'<div class="title">{escape(rec["title"])}</div>'
+        f'<div class="meta"><span class="brand">{escape(rec["brand"])}</span>'
+        f'<span class="price">£{rec["price"]:.2f}</span></div>'
+        f'<div class="chips">{chips}</div>'
+        f'<div class="path">{escape(" › ".join(rec["category_path"]))}</div>'
+        f'<div class="vg">{escape(rec["variant_group"])} · {rec["sku_count"]} SKU'
+        f"{'s' if rec['sku_count'] != 1 else ''} in this doc</div>"
+        f"{note}"
+        f'<div class="desc">{escape(rec["description"])}</div>'
+        f'<table class="attrs">{_attr_rows(rec)}</table>'
+        f"{_sizes(rec)}"
+        "</div>"
+    )
+
+
+EXTRA_CSS = """
+.vg{color:#1f4f8a;font-size:11px;margin-bottom:4px}.desc{color:#4b5560;margin:4px 0}
+.plant{background:#fbe3e3;color:#8a1f1f;border-radius:4px;padding:2px 6px;margin:4px 0}
+pre{background:#fff;border:1px solid #d9d7d0;padding:10px;font-size:12px}
+table.dist td,table.dist th{border-bottom:1px solid #e3e1da;padding:4px 6px;vertical-align:top;white-space:normal}
+"""
+
+
+def _score_table() -> str:
+    cat = corpus()
+    rows = []
+    for row in TABLE:
+        best, each = scores(row, cat)
+        names = {x.doc["product_id"]: x.doc["title"] for x in row.distractors}
+        cells = "<br>".join(f"{escape(names[p])}: {s:.2f}" for p, s in each)
+        rows.append(
+            f"<tr><td>{escape(row.cls)}</td><td><i>{escape(row.query)}</i> → {escape(row.intended)}"
+            f" (best {best:.2f})</td><td>{cells}</td><td>{escape(row.policy)}</td></tr>"
+        )
+    return (
+        '<table class="dist"><tr><th>Class</th><th>Query → intended (BM25)</th>'
+        "<th>Distractors (BM25, title + description)</th><th>Fixed by</th></tr>"
+        f"{''.join(rows)}</table>"
+    )
+
+
+def page(sections: dict[str, list[dict]]) -> str:
+    planted = _planted()
+    n = sum(len(v) for v in sections.values())
+    body = "".join(
+        f'<h2>{escape(title)}</h2><div class="grid">{"".join(card(r, planted) for r in recs)}</div>'
+        for title, recs in sections.items()
+    )
+    return (
+        '<!doctype html><html><head><meta charset="utf-8">'
+        "<title>Retail round 4: variants and planted distractors</title>"
+        f"<style>{CSS}{EXTRA_CSS}</style></head><body>"
+        "<h1>Retail round 4: variants and planted distractors</h1>"
+        f'<p class="note">{n} sample docs. One doc per style × colourway (× leg length for jeans); '
+        "sizes are UK/EU/US arrays, so a doc's SKU count is its number of sizes. Jeans and bras "
+        "are deep (crossed, rule-bound axes); bedding and beauty are shallow (one hand list per "
+        "row). Every brand, line and shade name is invented.</p>"
+        f"<h2>SKU report per family</h2><pre>{escape(sku_report())}</pre>"
+        f"<h2>Planted distractor table</h2>{_score_table()}"
+        f"{body}</body></html>"
+    )
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--html", type=Path, action="append", default=[])
+    ap.add_argument("--ndjson", type=Path, action="append", default=[])
+    args = ap.parse_args(argv)
+
+    sections = samples()
+    recs = [r for recs in sections.values() for r in recs]
+    if len(recs) != SAMPLES:
+        raise SystemExit(f"{len(recs)} samples, not {SAMPLES}")
+    html = page(sections)
+    ndjson = "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in recs)
+    for path in [HERE / "preview4.html", *args.html]:
+        path.write_text(html, encoding="utf-8")
+    for path in [HERE / "samples4.ndjson", *args.ndjson]:
+        path.write_text(ndjson, encoding="utf-8")
+    print(sku_report())
+    print(table_markdown())
+    print(f"wrote {len(recs)} records")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
