@@ -1,5 +1,6 @@
 """The record model of :mod:`real_classes`: closed vocabularies, :class:`Style`
-(one product page; :meth:`Style.docs` emits one doc per colourway), :class:`Policy`
+(one product page; :meth:`Style.doc` emits its one document, color x size SKUs
+nested, gen#125 ruling), :class:`Policy`
 and :class:`ClassRow`. The rows themselves are data, in :mod:`class_rows`.
 Standard library only.
 """
@@ -11,7 +12,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from departments import check as check_departments
-from variants import Colourway, attr, drawing
+from variants import Color, attr, drawing, product, swatch
 
 AUDIENCES = ("adult", "kids", "baby")
 SIZE_RANGES = ("regular", "petite", "tall", "plus")
@@ -23,22 +24,22 @@ BESTSELLER_TOP = 15
 RISES = ("low", "mid", "high")
 
 # --------------------------------------------------------------------------
-# Variant structure, as observed: style (one product page, shared rating) >
-# colourway (one doc, one tile) > SKU (nested; what stock and price are per)
+# Variant structure (gen#125 ruling): a style is one product and one document;
+# every color x size it is sold in is a SKU nested in it (stock and price are per SKU)
 # --------------------------------------------------------------------------
 
-#: The colour facet: a marketing shade ("Washed Black") rolls up to a family.
-COLOUR_FAMILIES = ("black", "white", "grey", "blue", "navy", "brown", "cream", "green",
+#: The color facet: a marketing shade ("Washed Black") rolls up to a family.
+COLOR_FAMILIES = ("black", "white", "grey", "blue", "navy", "brown", "cream", "green",
                    "red", "pink", "orange", "gold", "silver", "multi")  # fmt: skip
 #: Joins a category path into one keyword per ancestor (as industrial does);
 #: a routed policy names its node in this form.
 PATH_SEPARATOR = "/"
-#: The metal finishes a ``metal`` style's colourway is made in.
+#: The metal finishes a ``metal`` style's colors are.
 FINISHES = ("Rose Gold", "Yellow Gold", "White Gold", "Silver")
 SHADE_FAMILY = {
     "Black": "black", "Washed Black": "black",
     "White": "white",
-    "Charcoal": "grey", "Grey": "grey", "Grey Check": "grey",
+    "Charcoal": "grey", "Grey": "grey", "Heather Grey": "grey", "Grey Check": "grey",
     "Mid Wash": "blue", "Light Wash": "blue", "Vintage Blue": "blue", "Indigo": "blue",
     "Blue Stripe": "blue", "Ice": "blue",
     "Navy": "navy", "Rinse": "navy", "Navy Check": "navy", "Navy Print": "navy",
@@ -94,7 +95,7 @@ def _digest(*parts: str) -> int:
     return int(hashlib.sha256("|".join(parts).encode()).hexdigest()[:12], 16)
 
 # ==========================================================================
-# Styles: one doc per colourway, all sharing the style's ``style_id``
+# Styles: one document per style
 # ==========================================================================
 
 
@@ -109,8 +110,9 @@ class Style:
     description: str
     product_type: str
     shape: str
-    #: (colourway, sold_last_5_days): one doc each.
-    colourways: tuple[tuple[Colourway, int], ...]
+    #: (color, sold_last_5_days): the colors it is sold in; the product's
+    #: popularity is their sum.
+    colors: tuple[tuple[Color, int], ...]
     audience: str = "adult"
     was_price: float | None = None
     size_range: str | None = None
@@ -144,24 +146,32 @@ class Style:
     product_line: str | None = None
     #: Alcohol by volume, in percent: an attribute, whatever the title says.
     abv: float | None = None
-    #: Food and furniture: no colour facet and no swatches.
-    colourless: bool = False
-    #: Metal goods (jewellery, watches, lighting, tech): the colour IS the
-    #: metal finish, so each colourway also carries a ``finish`` attribute.
+    #: Food and furniture: no color facet and no swatches.
+    colorless: bool = False
+    #: Metal goods (jewellery, watches, lighting, tech): the color IS the
+    #: metal finish, so each SKU also carries a ``finish``.
     metal: bool = False
     #: Further (key, name, value) attributes, unitless.
     extra: tuple[tuple[str, str, str], ...] = ()
+    #: Letter sizes (S, M, L, XL), one SKU per color x size ...
+    sizes: tuple[str, ...] = ()
+    #: ... except these (color, size) pairs, which are not made.
+    not_made: tuple[tuple[str, str], ...] = ()
 
     def __post_init__(self) -> None:
         if self.lengths and self.size_range is not None:
             raise ValueError(f"{self.code}: a legwear size_range is derived from its SKUs")
         if self.bed_frame and not set(self.bed_frame) <= set(BED_SIZE_DIMS):
             raise ValueError(f"{self.code}: a bed size outside the shared vocabulary")
-        if self.metal and not {c[0] for c, _ in self.colourways} <= set(FINISHES):
-            raise ValueError(f"{self.code}: a metal colourway outside the finishes")
+        if self.metal and not {c[0] for c, _ in self.colors} <= set(FINISHES):
+            raise ValueError(f"{self.code}: a metal color outside the finishes")
 
-    def skus(self, colour: Colourway) -> list[dict]:
-        """The colourway's SKUs: waist x inside leg, or bed sizes, or none."""
+    def _sizes(self, color: Color) -> list[dict]:
+        """The sizes ``color`` is sold in: waist x inside leg, bed sizes, letter
+        sizes, or one sizeless row."""
+        if self.sizes:
+            return [{"size": s, "price": self.price, "in_stock": True}
+                    for s in self.sizes if (color[0], s) not in self.not_made]  # fmt: skip
         if self.bed_frame:
             step = round(self.price / 5)
             return [
@@ -173,108 +183,98 @@ class Style:
             waists = KIDS_WAISTS if self.audience == "kids" else WAISTS
             return [
                 {"waist": w, "inside_leg": leg, "price": self.price,
-                 # About one SKU in seven is greyed out, differently per colour.
+                 # About one SKU in seven is greyed out, differently per color.
                  "in_stock": leg not in self.sold_out
-                 and _digest(self.code, colour[0], w, leg) % 7 != 0}
+                 and _digest(self.code, color[0], w, leg) % 7 != 0}
                 for leg in self.lengths for w in waists
             ]  # fmt: skip
         if self.bed_sized:
             step = round(self.price / 4)
-            return [{"bed_size": b, "price": float(self.price + n * step)}
+            return [{"bed_size": b, "price": float(self.price + n * step), "in_stock": True}
                     for n, b in enumerate(BED_SIZES)]  # fmt: skip
-        return []
+        return [{"price": self.price, "in_stock": True}]
+
+    def skus(self) -> list[dict]:
+        """Every color x size the style is sold in; a colorless style's SKUs carry no color.
+
+        A metal good's color IS its finish, so its SKUs also carry ``finish``.
+        """
+        out = []
+        for color, _ in self.colors:
+            tag = {} if self.colorless else {"color": color[0], "color_family": SHADE_FAMILY[color[0]]}
+            if self.metal:
+                tag["finish"] = color[0].lower()
+            out += [{**tag, **row} for row in self._sizes(color)]
+        return out
 
     def size_ranges(self) -> list[str] | None:
         if self.lengths:
-            return derive_size_range([s for c, _ in self.colourways for s in self.skus(c)])
+            return derive_size_range(self.skus())
         return None if self.size_range is None else [self.size_range]
 
-    def docs(self) -> list[dict]:
-        group = f"PLT-{self.code}"
-        swatches = [
-            {"shade": c[0], "family": SHADE_FAMILY[c[0]], "hex": c[2]}
-            for c, _ in self.colourways
-            if not self.colourless
-        ]
-        # Pooled per style: every colourway shows the same rating and count.
+    def doc(self) -> dict:
+        """The style's one catalog document, its SKUs nested (see :func:`variants.product`)."""
+        # Pooled per style: one rating and count, one popularity over every color.
         h = _digest(self.code)
         rating, reviews = round(3.6 + (h % 14) / 10, 1), 5 + (h >> 8) % 1700
+        skus = self.skus()
+        prices = [s["price"] for s in skus]
+        lead = self.colors[0][0]
+        rec = {
+            "title": self.title,
+            "brand": self.brand,
+            "brand_owner": BRAND_OWNER[self.brand],
+            "department": check_departments([self.department], self.title),
+            "category_path": list(self.path),
+            "category_leaf": self.path[-1],
+            "description": self.description,
+            "attributes": [],
+            # The tile shows the lead color.
+            "drawing": drawing(self.shape, lead, **dict(self.params)),
+            "collections": [],
+            "currency": "GBP",
+            "product_type": self.product_type,
+            "audience": self.audience,
+            "sold_last_5_days": sum(sold for _, sold in self.colors),
+            "rating": rating,
+            "review_count": reviews,
+            "price_min": min(prices),
+            "price_max": max(prices),
+            "offer": self.was_price is not None or self.multibuy,
+            "online_only": self.online_only,
+            "new_in": self.new_in,
+            "trending": self.trending,
+        }
         size_range = self.size_ranges()
-        out = []
-        for n, (colour, sold) in enumerate(self.colourways, 1):
-            skus = self.skus(colour)
-            prices = [s["price"] for s in skus] or [self.price]
-            rec = {
-                "product_id": f"{group}-{n:02d}",
-                "sku": f"PLT{self.code}{n:02d}",
-                "variant_group": group,
-                "sku_count": max(1, len(skus)),
-                "title": self.title,
-                "brand": self.brand,
-                "brand_owner": BRAND_OWNER[self.brand],
-                "department": check_departments([self.department], self.title),
-                "category_path": list(self.path),
-                "category_leaf": self.path[-1],
-                # The tile's "from" price: the cheapest SKU.
-                "price": min(prices),
-                "description": self.description,
-                "attributes": [] if self.colourless else [attr("colour", "Colour", colour[0])],
-                "drawing": drawing(self.shape, colour, **dict(self.params)),
-                "collections": [],
-                "currency": "GBP",
-                "style_id": group,
-                "product_type": self.product_type,
-                "audience": self.audience,
-                "sold_last_5_days": sold,
-            }
-            if not self.colourless:
-                rec |= {
-                    "colour_shade": colour[0],
-                    "colour_family": SHADE_FAMILY[colour[0]],
-                    "colour_hex": colour[2],
-                    # The style's full swatch list, rotated so this colourway leads.
-                    "swatches": swatches[n - 1 :] + swatches[: n - 1],
-                }
-            rec |= {
-                "rating": rating,
-                "review_count": reviews,
-                "skus": skus,
-                "price_min": min(prices),
-                "price_max": max(prices),
-                "offer": self.was_price is not None or self.multibuy,
-                "online_only": self.online_only,
-                "new_in": self.new_in,
-                "trending": self.trending,
-            }
-            if size_range is not None:
-                rec["size_range"] = size_range
-            if self.lengths and "rise" in dict(self.params):
-                rec["rise"] = dict(self.params)["rise"]
-            if self.unit is not None:
-                rec["unit_size"], rec["unit_measure"] = self.unit
-            for key in ("was_price", "neckline", "pattern", "leg_style", "units_per_pack",
-                        "sub_collection", "product_line", "abv"):  # fmt: skip
-                if getattr(self, key) is not None:
-                    rec[key] = getattr(self, key)
-            if self.was_price is not None:
-                rec["discount_pct"] = round(100 * (self.was_price - rec["price"]) / self.was_price)
-            if self.units_per_pack is not None:
-                # The count kind industrial uses for a package quantity (C62, one).
-                rec["attributes"].append(
-                    attr("units_per_pack", "Units per pack", self.units_per_pack, "C62")
-                )
-            if self.abv is not None:
-                # P1 is UN/CEFACT's percent.
-                rec["attributes"].append(attr("abv", "ABV", self.abv, "P1"))
-            if self.metal:
-                rec["attributes"].append(attr("finish", "Finish", colour[0].lower()))
-            rec["attributes"] += [attr(k, name, v) for k, name, v in self.extra]
-            out.append(rec)
-        return out
+        if size_range is not None:
+            rec["size_range"] = size_range
+        if self.lengths and "rise" in dict(self.params):
+            rec["rise"] = dict(self.params)["rise"]
+        if self.unit is not None:
+            rec["unit_size"], rec["unit_measure"] = self.unit
+        for key in ("was_price", "neckline", "pattern", "leg_style", "units_per_pack",
+                    "sub_collection", "product_line", "abv"):  # fmt: skip
+            if getattr(self, key) is not None:
+                rec[key] = getattr(self, key)
+        if self.was_price is not None:
+            rec["discount_pct"] = round(100 * (self.was_price - min(prices)) / self.was_price)
+        if self.units_per_pack is not None:
+            # The count kind industrial uses for a package quantity (C62, one).
+            rec["attributes"].append(
+                attr("units_per_pack", "Units per pack", self.units_per_pack, "C62")
+            )
+        if self.abv is not None:
+            # P1 is UN/CEFACT's percent.
+            rec["attributes"].append(attr("abv", "ABV", self.abv, "P1"))
+        rec["attributes"] += [attr(k, name, v) for k, name, v in self.extra]
+        swatches = {} if self.colorless else {
+            c[0]: swatch(c, SHADE_FAMILY[c[0]]) for c, _ in self.colors
+        }
+        return product(f"PLT-{self.code}", skus, swatches, **rec)
 
 
-def one(colour: Colourway, sold: int) -> tuple[tuple[Colourway, int], ...]:
-    return ((colour, sold),)
+def one(color: Color, sold: int) -> tuple[tuple[Color, int], ...]:
+    return ((color, sold),)
 
 
 def on_sale(doc: dict) -> bool:
@@ -295,7 +295,6 @@ class Policy:
     filters: tuple[tuple[str, tuple[str, ...]], ...] = ()
     on_sale: bool = False
     boosts: tuple[tuple[str, tuple[str, ...], float], ...] = ()
-    collapse: bool = False
     route: str | None = None
     sku_filters: tuple[tuple[str, tuple[str, ...]], ...] = ()
 
@@ -305,7 +304,6 @@ class Policy:
         out += [f"filter an in-stock SKU with {f} = {' or '.join(v)}" for f, v in self.sku_filters]
         out += [f"{f} = {' or '.join(v)} x{w:g}" for f, v, w in self.boosts]
         out += [f"route to {self.route} (recalled, boosted)"] if self.route else []
-        out += ["collapse on style_id"] if self.collapse else []
         return "; ".join(out)
 
 

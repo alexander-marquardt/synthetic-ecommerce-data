@@ -133,11 +133,11 @@ def test_the_mix_reaches_the_hundreds_and_stays_under_ten() -> None:
     assert max(every) <= 500
 
 
-def test_a_doc_is_one_style_x_colourway_x_length_and_counts_its_sizes() -> None:
+def test_a_doc_is_one_style_x_colorway_x_length_and_counts_its_sizes() -> None:
     for fam, styles in vr.FAMILIES.items():
         for s in styles:
             ds = vr.style_docs(fam, s)
-            want = len(s.washes) * len(s.lengths) if fam == "Jeans" else len(s.colourways)
+            want = len(s.washes) * len(s.lengths) if fam == "Jeans" else len(s.colorways)
             assert len(ds) == want, s.code
             assert {d["variant_group"] for d in ds} == {f"{fam[:3].upper()}-{s.code}"}
             for d in ds:

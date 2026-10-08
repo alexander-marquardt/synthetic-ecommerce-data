@@ -6,10 +6,10 @@ its name, so each brand looks designed and two brands cannot collide
 duplicate lockup and a brand with no row). A row sets:
 
 * the sheet: ``paper`` tint, a faint background ``texture`` and a ``frame``;
-* the product's outline: ``ink`` colour, stroke ``weight``, ``dashed`` and
+* the product's outline: ``ink`` color, stroke ``weight``, ``dashed`` and
   ``joins`` (round or sharp). The product's own fill and pattern are never
   touched: they belong to the product, not the brand;
-* the logo: a composite ``mark`` from :data:`MARKS` in the brand ``colour``,
+* the logo: a composite ``mark`` from :data:`MARKS` in the brand ``color``,
   set in a ``layout`` at ``place``. About half the brands use a full lockup
   (mark plus wordmark); the rest show the mark alone in a corner plus a small
   text ``tag``;
@@ -69,7 +69,7 @@ class HouseStyle:
     paper: str
     texture: str
     frame: str
-    colour: str
+    color: str
     ink: str
     stroke: float  # outline weight, 1.0 = the kit's own
     dashed: bool
@@ -364,15 +364,15 @@ def m_leaf_pair(c: str) -> list[str]:
     ]
 
 
-#: Mark name -> drawing in unit space (-1..1), painted in the brand colour.
+#: Mark name -> drawing in unit space (-1..1), painted in the brand color.
 MARKS = {
     name[2:]: fn for name, fn in list(globals().items()) if name.startswith("m_") and callable(fn)
 }
 
 
-def mark_svg(name: str, cx: float, cy: float, size: float, colour: str) -> str:
+def mark_svg(name: str, cx: float, cy: float, size: float, color: str) -> str:
     """The composite mark ``name``, ``size`` px across, centred on (cx, cy)."""
-    body = "".join(MARKS[name](colour))
+    body = "".join(MARKS[name](color))
     return (
         f'<g class="mark" transform="translate({_n(cx)} {_n(cy)}) scale({_n(size / 2)})">{body}</g>'
     )
@@ -408,7 +408,7 @@ def wordmark(
     x: float,
     y: float,
     size: float,
-    colour: str,
+    color: str,
     anchor: str = "start",
 ) -> str:
     """``text`` set in ``style``'s treatment; (x, y) is the baseline anchor."""
@@ -417,7 +417,7 @@ def wordmark(
         f'font-family="{FONTS[style.font]}"',
         f'font-size="{size:g}"',
         f'font-weight="{style.weight}"',
-        f'fill="{colour}"',
+        f'fill="{color}"',
         f'text-anchor="{anchor}"',
     ]
     if style.spacing:
@@ -436,7 +436,7 @@ def wordmark(
 
 def _texture(style: HouseStyle, uid: str) -> tuple[str, str]:
     """(pattern def, the rect that paints it) for the paper's texture."""
-    c, t = style.colour, style.texture
+    c, t = style.color, style.texture
     if t == "none":
         return "", ""
     tile, body = {
@@ -466,7 +466,7 @@ def _texture(style: HouseStyle, uid: str) -> tuple[str, str]:
 
 
 def _frame(style: HouseStyle) -> list[str]:
-    c = style.colour
+    c = style.color
     f = style.frame
     if f == "thin":
         return [
@@ -524,7 +524,7 @@ LOCKUP_HEIGHT = {
 
 
 def _lockup(style: HouseStyle, brand: str) -> list[str]:
-    c, m, lay = style.colour, LOCKUP_MARK_SIZE, style.layout
+    c, m, lay = style.color, LOCKUP_MARK_SIZE, style.layout
     top = style.top_logo
     h = LOCKUP_HEIGHT[lay]
     if lay in ("band_top", "band_bottom"):
@@ -558,7 +558,7 @@ def _lockup(style: HouseStyle, brand: str) -> list[str]:
             mark_svg(style.mark, cx, y0 + m / 2, m, c),
             wordmark(style, brand, cx, y0 + m + 4 + size * 0.8, size, style.ink, "middle"),
         ]
-    # pill (filled, white type) or badge (outlined, brand-colour type)
+    # pill (filled, white type) or badge (outlined, brand-color type)
     size = name_size(style, brand, 230)
     tw = text_width(style, brand, size)
     mk = h - 14
@@ -584,7 +584,7 @@ TAG_SIZE = 16.0
 
 def _tag(style: HouseStyle, brand: str, place: str) -> list[str]:
     """The small text tag a mark-only brand carries at ``place``."""
-    c, t, s = style.colour, style.tag, TAG_SIZE
+    c, t, s = style.color, style.tag, TAG_SIZE
     tw = text_width(style, brand, s)
     pad = 9
     w, h = tw + 2 * pad, 28
@@ -651,7 +651,7 @@ def logo(style: HouseStyle, brand: str) -> list[str]:
     cx = EDGE + r if h == "left" else SIZE - EDGE - r
     cy = EDGE + r if v == "top" else SIZE - EDGE - r
     return [
-        mark_svg(style.mark, cx, cy, MARK_ONLY_SIZE, style.colour),
+        mark_svg(style.mark, cx, cy, MARK_ONLY_SIZE, style.color),
         *_tag(style, brand, tag_place(style)),
     ]
 
@@ -664,9 +664,9 @@ _WIDTH = re.compile(r'stroke-width="([0-9]*\.?[0-9]+)"')
 
 
 def restyle(fragment: str, style: HouseStyle) -> str:
-    """The product drawing's ink strokes in ``style``'s colour, weight, dash and joins.
+    """The product drawing's ink strokes in ``style``'s color, weight, dash and joins.
 
-    Only strokes in the kit's ink colour change; fills, patterns and white
+    Only strokes in the kit's ink color change; fills, patterns and white
     gloss strokes are the product's and stay as drawn.
     """
 
@@ -723,7 +723,7 @@ def H(
     paper,
     texture,
     frame,
-    colour,
+    color,
     ink,
     stroke,
     dashed,
@@ -742,7 +742,7 @@ def H(
         paper,
         texture,
         frame,
-        colour,
+        color,
         ink,
         stroke,
         dashed,
@@ -761,7 +761,7 @@ def H(
 
 # fmt: off
 #: Brand -> its house style. One row per brand, every value chosen by hand.
-#   paper      texture     frame      colour     ink        stroke dashed joins    mark                 layout         place            tag         font        weight case         spacing italic
+#   paper      texture     frame      color     ink        stroke dashed joins    mark                 layout         place            tag         font        weight case         spacing italic
 HOUSE_STYLES: dict[str, HouseStyle] = {
     # Lockups: mark + wordmark.
     "Harbour & Pine":       H("#f1f5f9", "none",     "double",  "#1f4e79", "#1f3550", 1.0,  False, "round", "chevron_stack",     "mark_left",   "top_left",      "none",     "sans",     700, "caps",      1.5),

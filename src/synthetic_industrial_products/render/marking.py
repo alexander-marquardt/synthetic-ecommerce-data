@@ -12,14 +12,14 @@ is right -- it is to draw each line's own *published* values.
 a function of the product id, the SKU, the series or the index. That rule is
 the whole point, and it is not fussiness: a hash-driven palette would produce
 exactly the same amount of variety and would be actively misleading, because a
-reader who sees two mills in different colours will conclude the difference is
-real. Driven by the record, that conclusion is correct -- the colour *is* the
+reader who sees two mills in different colors will conclude the difference is
+real. Driven by the record, that conclusion is correct -- the color *is* the
 brand, the tint *is* the coating, the hatch *is* the material.
 
 The channels
 ------------
 =========================  ==========================================
-outline colour             ``brand``
+outline color             ``brand``
 fill tint                  the coating/finish attribute, under any of
                            its four published spellings
 section hatch              the material attribute, under any of its
@@ -85,7 +85,7 @@ __all__ = [
     "marking_for_line",
 ]
 
-#: The outline colour of every line drawn on the part, by brand.
+#: The outline color of every line drawn on the part, by brand.
 #:
 #: From the brand book (:mod:`..catalog.brands`), where a brand's house style
 #: is its ink AND its frame. Twelve inks over forty-five brands, so an ink alone
@@ -95,21 +95,21 @@ __all__ = [
 #: that share a frame never share a confusable ink.
 BRAND_INK: dict[str, str] = {b.name: INKS[b.ink] for b in BRAND_BOOK}
 
-#: How far apart two outline colours have to be for the channel to be
-#: readable: no brand's colour may lie within this of any other brand's
-#: colour blended towards the paper.
+#: How far apart two outline colors have to be for the channel to be
+#: readable: no brand's color may lie within this of any other brand's
+#: color blended towards the paper.
 #:
-#: The constraint is about BLENDS, not about the colours themselves, and that
+#: The constraint is about BLENDS, not about the colors themselves, and that
 #: is not fussiness. Every stroke on the page is antialiased, so a line drawn
-#: in one brand's colour puts pixels all the way along the segment from that
-#: colour to white -- and two brands 0.097 apart by this measure put sixteen
-#: of one brand's pixels inside the other brand's colour on a single card.
+#: in one brand's color puts pixels all the way along the segment from that
+#: color to white -- and two brands 0.097 apart by this measure put sixteen
+#: of one brand's pixels inside the other brand's color on a single card.
 #: Measured, that is exactly what the first palette here did.
 MIN_INK_SEPARATION = 0.12
 
 #: The fill tint of the part, by the coating or finish the record publishes.
 #:
-#: These are the colours the coatings actually are. TiN is gold, TiCN is
+#: These are the colors the coatings actually are. TiN is gold, TiCN is
 #: blue-grey, TiAlN and AlTiN are violet-greys, black oxide is near-black,
 #: bright steel is silver. So the channel is not a code to be looked up: a
 #: machinist reads a gold-tinted mill as a TiN-coated mill without a legend,
@@ -240,11 +240,11 @@ class Marking:
     Frozen, so a drawing cannot quietly acquire a property on the way through.
     """
 
-    #: The brand, kept beside its colour so a caller need not invert the map.
+    #: The brand, kept beside its color so a caller need not invert the map.
     brand: str
-    #: Outline colour of the part.
+    #: Outline color of the part.
     ink: str
-    #: Fill colour of the part, or ``None`` when the record publishes no
+    #: Fill color of the part, or ``None`` when the record publishes no
     #: finish -- in which case the drawing is left unfilled rather than filled
     #: with a guess.
     tint: str | None
@@ -372,7 +372,7 @@ def marking_for_line(brand: str, attributes) -> Marking:
     """
     pairs = attribute_pairs(attributes)
 
-    ink = _lookup(BRAND_INK, str(brand).strip(), "outline-colour", ("brand",))
+    ink = _lookup(BRAND_INK, str(brand).strip(), "outline-color", ("brand",))
 
     tint = None
     found = _first_published(pairs, FINISH_ATTRIBUTES)

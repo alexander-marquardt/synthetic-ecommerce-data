@@ -91,7 +91,7 @@ def test_the_round_4_records_are_unchanged_and_carry_none_of_the_new_fields() ->
     assert len(ids) == len(set(ids))
 
 
-def test_a_styles_colourway_docs_share_one_style_id_and_title() -> None:
+def test_a_styles_colorway_docs_share_one_style_id_and_title() -> None:
     barrel = [d for d in CLASS_DOCS if d["style_id"] == "PLT-BRLMID"]
     assert len(barrel) == 5
     assert {d["title"] for d in barrel} == {"Mid Rise Barrel Jeans"}
@@ -129,7 +129,7 @@ def test_every_class_brand_has_a_house_style() -> None:
 
 
 # --------------------------------------------------------------------------
-# Variant structure: style, colourway (one doc), SKU (nested)
+# Variant structure: style, colorway (one doc), SKU (nested)
 # --------------------------------------------------------------------------
 
 
@@ -138,30 +138,30 @@ def _style(style_id: str) -> list[dict]:
 
 
 def _swatch(d: dict) -> dict:
-    return {"shade": d["colour_shade"], "family": d["colour_family"], "hex": d["colour_hex"]}
+    return {"shade": d["color_shade"], "family": d["color_family"], "hex": d["color_hex"]}
 
 
-def test_a_colourway_carries_its_styles_full_swatch_list_rotated_to_its_own_colour() -> None:
+def test_a_colorway_carries_its_styles_full_swatch_list_rotated_to_its_own_color() -> None:
     barrel = _style("PLT-BRLMID")
     shades = ["Mid Wash", "Light Wash", "Black", "Ecru", "Vintage Blue"]
-    assert [d["colour_shade"] for d in barrel] == shades
+    assert [d["color_shade"] for d in barrel] == shades
     for n, d in enumerate(barrel):
         assert [s["shade"] for s in d["swatches"]] == shades[n:] + shades[:n]
         assert d["swatches"][0] == _swatch(d)
-    assert [d["colour_family"] for d in barrel] == ["blue", "blue", "black", "cream", "blue"]
-    colourless = [d for d in CLASS_DOCS if "colour_shade" not in d]
-    assert len(colourless) == 32  # food and furniture: no colour facet, no swatches
-    for d in colourless:
-        assert "swatches" not in d and "colour_family" not in d, d["product_id"]
-    for d in (d for d in CLASS_DOCS if "colour_shade" in d):
-        assert d["colour_family"] in rc.COLOUR_FAMILIES, d["colour_shade"]
-        assert d["colour_hex"] == d["drawing"]["base"]
+    assert [d["color_family"] for d in barrel] == ["blue", "blue", "black", "cream", "blue"]
+    colorless = [d for d in CLASS_DOCS if "color_shade" not in d]
+    assert len(colorless) == 32  # food and furniture: no color facet, no swatches
+    for d in colorless:
+        assert "swatches" not in d and "color_family" not in d, d["product_id"]
+    for d in (d for d in CLASS_DOCS if "color_shade" in d):
+        assert d["color_family"] in rc.COLOR_FAMILIES, d["color_shade"]
+        assert d["color_hex"] == d["drawing"]["base"]
         siblings = _style(d["style_id"])
         assert sorted(map(str, d["swatches"])) == sorted(str(_swatch(s)) for s in siblings)
         assert d["swatches"][0] == _swatch(d)
 
 
-def test_rating_and_review_count_are_the_styles_and_its_colourways_share_them() -> None:
+def test_rating_and_review_count_are_the_styles_and_its_colorways_share_them() -> None:
     for sid in {d["style_id"] for d in CLASS_DOCS}:
         docs = _style(sid)
         assert len({(d["rating"], d["review_count"]) for d in docs}) == 1, sid
@@ -169,7 +169,7 @@ def test_rating_and_review_count_are_the_styles_and_its_colourways_share_them() 
     assert len({d["rating"] for d in CLASS_DOCS}) > 10
 
 
-def test_legwear_skus_are_waist_by_inside_leg_with_stock_per_colour() -> None:
+def test_legwear_skus_are_waist_by_inside_leg_with_stock_per_color() -> None:
     mid = _style("PLT-BRLMID")
     for d in mid:
         assert len(d["skus"]) == d["sku_count"] == 10 * 5
@@ -223,7 +223,7 @@ def test_bedding_skus_are_bed_sizes_labelled_with_their_dimension_and_priced_eac
     ]
     assert (topper["price"], topper["price_min"], topper["price_max"]) == (60.0, 60.0, 105.0)
     bedded = [d for d in CLASS_DOCS if d["skus"] and "bed_size" in d["skus"][0]]
-    # 10 bedding colourways (label and price only), then 8 beds (with dimensions).
+    # 10 bedding colorways (label and price only), then 8 beds (with dimensions).
     assert len(bedded) == 18
     assert sum("width_cm" in d["skus"][0] for d in bedded) == 8
 
@@ -236,7 +236,7 @@ def test_price_min_and_max_are_derived_from_the_skus() -> None:
         assert d["sku_count"] == max(1, len(d["skus"]))
 
 
-def test_beauty_shades_are_colourway_docs_with_a_unit_size() -> None:
+def test_beauty_shades_are_colorway_docs_with_a_unit_size() -> None:
     shades = {f"PLT-{s.code}" for s in rc.BEAUTY}
     beauty = [d for d in CLASS_DOCS if d["style_id"] in shades]
     assert sorted({(d["style_id"], d["unit_size"], d["unit_measure"]) for d in beauty}) == [
@@ -244,7 +244,7 @@ def test_beauty_shades_are_colourway_docs_with_a_unit_size() -> None:
         ("PLT-BTYLIP", 1.9, "g"),
     ]
     lip = _style("PLT-BTYLIP")
-    assert [d["colour_shade"] for d in lip] == ["Wild Honey", "Mocha Kiss", "Cherry Pop"]
+    assert [d["color_shade"] for d in lip] == ["Wild Honey", "Mocha Kiss", "Cherry Pop"]
     assert {d["brand"] for d in beauty} == {"Kestlewood Cosmetics"}
     row_codes = {s.code for r in rc.ROWS for s in (*r.targets, *(x for x, _ in r.distractors))}
     assert {s.code for s in rc.BEAUTY} == {"BTYLIP", "BTYFND"} and not row_codes & {"BTYLIP"}
@@ -254,7 +254,7 @@ def test_the_index_maps_the_skus_as_nested_and_the_variant_facets_as_keywords() 
     props = rc.index_body()["mappings"]["properties"]
     assert props["skus"]["type"] == "nested"
     assert {k for d in CLASS_DOCS for s in d["skus"] for k in s} == set(props["skus"]["properties"])
-    for key in ("size_range", "rise", "colour_family", "colour_shade"):
+    for key in ("size_range", "rise", "color_family", "color_shade"):
         assert props[key] == {"type": "keyword"}
 
 

@@ -10,16 +10,16 @@ fields a policy reads and a title never states:
 - ``neckline``, ``pattern`` and ``leg_style`` (closed lists below);
 - ``was_price``, present only on a sale item (``price < was_price``);
 - popularity: ``sold_last_5_days`` and ``bestseller_rank`` (1 = best);
-- ``style_id``: the colourway docs of one style share it, so a search that
-  does not collapse on it shows the same product as several tiles;
-- the variant structure (:meth:`Style.docs`): swatches, colour family and
-  shade, pooled rating, nested ``skus``, ``price_min``/``price_max``, and a
-  legwear ``size_range`` derived by :func:`derive_size_range`.
+- the variant structure (:meth:`Style.doc`, gen#125 ruling): one document per
+  style, its color x size SKUs nested in ``skus`` (each with ``color`` and
+  ``color_family``), ``color_options`` and ``size_options`` derived from them,
+  a pooled rating, ``price_min``/``price_max``, and a legwear ``size_range``
+  derived by :func:`derive_size_range`.
 
 The pre-existing records (:func:`distractors.corpus`) are unchanged and carry
 none of these fields. The proof is Elasticsearch (:mod:`es_proof`): the
 baseline is BM25 times a popularity boost (it mimics the live site); the
-policy adds filters, boosts and a collapse. Its result is committed in
+policy adds filters and boosts. Its result is committed in
 ``real_classes_proof.json`` and rendered into the README by :func:`markdown`.
 Standard library only.
 
@@ -40,7 +40,7 @@ from class_model import BED_SIZE_DIMS as BED_SIZE_DIMS
 from class_model import BED_SIZES as BED_SIZES
 from class_model import BESTSELLER_TOP, ClassRow
 from class_model import BRAND_OWNERS as BRAND_OWNERS
-from class_model import COLOUR_FAMILIES as COLOUR_FAMILIES
+from class_model import COLOR_FAMILIES as COLOR_FAMILIES
 from class_model import FINISHES as FINISHES
 from class_model import INSIDE_LEGS as INSIDE_LEGS
 from class_model import LEG_STYLES as LEG_STYLES
@@ -51,7 +51,7 @@ from class_model import PATTERNS as PATTERNS
 from class_model import RISES as RISES
 from class_model import SIZE_RANGES as SIZE_RANGES
 from class_model import derive_size_range as derive_size_range
-from class_rows import BEAUTY, ROWS
+from class_rows import BEAUTY, CREW_TEE, ROWS
 from class_rows import COLLISIONS as COLLISIONS
 from class_rows import HONEY as HONEY
 from class_rows import OFFERS as OFFERS
@@ -74,9 +74,9 @@ def badges(doc: dict) -> list[str]:
 
 def class_docs() -> list[dict]:
     """Every record of :data:`ROWS` (targets first), then :data:`BEAUTY`, the
-    :data:`OFFERS` and :data:`HONEY`, each ranked and badged."""
+    :data:`OFFERS`, :data:`HONEY` and :data:`CREW_TEE`, each ranked and badged."""
     styles = [s for row in ROWS for s in (*row.targets, *(x for x, _ in row.distractors))]
-    out = [d for s in (*styles, *BEAUTY, *OFFERS, HONEY) for d in s.docs()]
+    out = [s.doc() for s in (*styles, *BEAUTY, *OFFERS, HONEY, CREW_TEE)]
     ranked = sorted(out, key=lambda d: (-d["sold_last_5_days"], d["product_id"]))
     rank = {d["product_id"]: n for n, d in enumerate(ranked, 1)}
     docs = [{**d, "bestseller_rank": rank[d["product_id"]]} for d in out]
@@ -152,9 +152,8 @@ def fingerprint(catalog: list[dict]) -> str:
 
 #: Search-time only: the over-broad style synonym class 3 observed.
 SYNONYMS = ("balloon => balloon, barrel",)
-KEYWORDS = ("product_id", "style_id", "product_type", "audience", "size_range",
-            "neckline", "pattern", "leg_style", "rise", "colour_family",
-            "colour_shade", "category_path", "category_leaf", "category_path_joined",
+KEYWORDS = ("product_id", "product_type", "audience", "size_range",
+            "neckline", "pattern", "leg_style", "rise", "category_path", "category_leaf", "category_path_joined",
             "brand_owner", "badges", "sub_collection", "product_line",
             "unit_measure")  # fmt: skip
 BOOLEANS = ("offer", "online_only", "new_in", "trending")
@@ -163,6 +162,11 @@ FLOATS = ("price_min", "price_max", "rating", "discount_pct", "abv", "unit_size"
 SKUS = {
     "type": "nested",
     "properties": {
+        "sku": {"type": "keyword"},
+        "color": {"type": "keyword"},
+        "color_family": {"type": "keyword"},
+        "finish": {"type": "keyword"},
+        "size": {"type": "keyword"},
         "waist": {"type": "keyword"},
         "inside_leg": {"type": "keyword"},
         "in_stock": {"type": "boolean"},
@@ -224,7 +228,7 @@ POPULARITY = (
 ON_SALE = "doc['was_price'].size() > 0 && doc['price'].value < doc['was_price'].value"
 
 
-def _search(query: dict, functions: list[dict], collapse: bool, size: int) -> dict:
+def _search(query: dict, functions: list[dict], size: int) -> dict:
     body = {
         "size": size,
         "_source": ["product_id", "title"],
@@ -238,8 +242,6 @@ def _search(query: dict, functions: list[dict], collapse: bool, size: int) -> di
         },
         "sort": ["_score", {"product_id": "asc"}],
     }
-    if collapse:
-        body["collapse"] = {"field": "style_id"}
     return body
 
 
@@ -249,7 +251,7 @@ def text_query(q: str) -> dict:
 
 def baseline_body(row: ClassRow, size: int = 5) -> dict:
     """BM25 over title and description, times the popularity boost: no policy."""
-    return _search(text_query(row.query), list(POPULARITY), False, size)
+    return _search(text_query(row.query), list(POPULARITY), size)
 
 
 def policy_body(row: ClassRow, size: int = 5) -> dict:
@@ -272,7 +274,7 @@ def policy_body(row: ClassRow, size: int = 5) -> dict:
         query = {"bool": {"should": [text_query(row.query), {"constant_score": {"filter": node}}],
                           "minimum_should_match": 1, "filter": filters}}  # fmt: skip
         boosts.append({"filter": node, "weight": ROUTE_WEIGHT})
-    return _search(query, [*POPULARITY, *boosts], p.collapse, size)
+    return _search(query, [*POPULARITY, *boosts], size)
 
 
 # ==========================================================================
