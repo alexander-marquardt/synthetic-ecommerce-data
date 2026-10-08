@@ -36,8 +36,8 @@ import sys
 import tempfile
 from pathlib import Path
 
-from synthetic_ecommerce_data.catalog.cli import field_map_target
-from synthetic_ecommerce_data.catalog.generate import GeneratorConfig
+from synthetic_ecommerce_data.domains.industrial.generate import GeneratorConfig
+from synthetic_ecommerce_data.generate_cli import field_map_target
 
 #: Two different hash seeds: the point is that the output must not depend on it.
 HASH_SEEDS = ("1", "987")
@@ -97,7 +97,7 @@ def missing(found: dict[str, str], expected: set[str]) -> list[str]:
 def _sip_generate(args: list[str], hash_seed: str) -> None:
     env = {**os.environ, "PYTHONHASHSEED": hash_seed}
     code = (
-        "import sys; from synthetic_ecommerce_data.catalog.cli import main; "
+        "import sys; from synthetic_ecommerce_data.generate_cli import main; "
         "sys.exit(main(sys.argv[1:]))"
     )
     done = subprocess.run(

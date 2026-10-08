@@ -11,7 +11,7 @@ dependencies = [
 
 [project.scripts]
 ecom-render = "synthetic_ecommerce_data.cli:main"
-ecom-generate = "synthetic_ecommerce_data.catalog.cli:main"
+ecom-generate = "synthetic_ecommerce_data.generate_cli:main"
 # The pre-rename commands, kept for one release cycle so a script or a
 # downstream pin does not have to move at once (#125). Each runs its ecom-*
 # replacement after a deprecation note on stderr; no output byte differs.

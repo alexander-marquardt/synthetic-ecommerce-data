@@ -51,8 +51,8 @@ import pytest
 
 from catalog_size import DEPTH_SKUS
 from published import published_attributes
-from synthetic_ecommerce_data.catalog.entry import published
-from synthetic_ecommerce_data.catalog.naming import DELIMITER, TIGHT_DELIMITER
+from synthetic_ecommerce_data.core.entry import published
+from synthetic_ecommerce_data.core.naming import DELIMITER, TIGHT_DELIMITER
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
 REBUILD = "uv run ecom-generate build --out golden-catalog"
@@ -112,9 +112,9 @@ def catalog(request) -> tuple[list[dict], list[dict]]:
 
         return read("flat.jsonl"), read("nested.jsonl")
 
-    from synthetic_ecommerce_data.catalog import emit
-    from synthetic_ecommerce_data.catalog.config import GeneratorConfig
-    from synthetic_ecommerce_data.catalog.generate import generate
+    from synthetic_ecommerce_data.core import emit
+    from synthetic_ecommerce_data.core.config import GeneratorConfig
+    from synthetic_ecommerce_data.domains.industrial.generate import generate
 
     built = generate(GeneratorConfig())
     return list(emit.iter_flat(built)), list(emit.iter_nested(built))
@@ -443,7 +443,7 @@ def test_an_over_long_title_sheds_a_whole_segment_rather_than_being_cut() -> Non
     and one that does not sheds from the end until it does. Without the first
     assertion a ``build_title`` that dropped everything would also pass.
     """
-    from synthetic_ecommerce_data.catalog.naming import (
+    from synthetic_ecommerce_data.core.naming import (
         DELIMITER,
         Segment,
         build_title,
@@ -519,7 +519,7 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
     grammar: the segments and the delimiters are the production ones, and only
     the trimming rule is the old one.
     """
-    from synthetic_ecommerce_data.catalog import generate as generate_module
+    from synthetic_ecommerce_data.domains.industrial import generate as generate_module
 
     real = generate_module.build_title
     assembled: dict[str, tuple[str, int]] = {}

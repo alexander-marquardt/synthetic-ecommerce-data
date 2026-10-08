@@ -10,8 +10,8 @@ from __future__ import annotations
 
 import math
 
-from synthetic_ecommerce_data.catalog import taxonomy
-from synthetic_ecommerce_data.catalog.vocab import (
+from synthetic_ecommerce_data.domains.industrial import taxonomy
+from synthetic_ecommerce_data.domains.industrial.vocab import (
     MEASUREMENT_SYSTEM_NAMES,
     MEASUREMENT_SYSTEM_VALUES,
     STANDARDS_FAMILY,

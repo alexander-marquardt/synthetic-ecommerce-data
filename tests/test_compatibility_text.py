@@ -1,7 +1,7 @@
 """Every cross-reference sentence is a fact, and the near-miss threads are real.
 
 The copy says which screws a key drives, which drill a tap wants, which bolts
-a nut fits (:mod:`synthetic_ecommerce_data.catalog.compat`). Each claim is
+a nut fits (:mod:`synthetic_ecommerce_data.domains.industrial.compat`). Each claim is
 checked here against tables written out FROM THE STANDARDS in this file --
 not against the generator's own tables, which the first tests check in turn --
 and against the record's own published values.
@@ -18,10 +18,11 @@ import pytest
 
 from compat_text import compatibility_sentences, without_compatibility
 from published import published_attributes
-from synthetic_ecommerce_data.catalog import compat, emit, typespec
-from synthetic_ecommerce_data.catalog.config import GeneratorConfig
-from synthetic_ecommerce_data.catalog.generate import generate
-from synthetic_ecommerce_data.dimensions import parse_length
+from synthetic_ecommerce_data.core import emit, typespec
+from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.core.dimensions import parse_length
+from synthetic_ecommerce_data.domains.industrial import compat
+from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 MM = 25.4

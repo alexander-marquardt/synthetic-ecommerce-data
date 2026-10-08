@@ -1,6 +1,6 @@
 """Every attribute name the generator publishes passes the census gate.
 
-The gate is :func:`synthetic_ecommerce_data.catalog.names.name_problems`.
+The gate is :func:`synthetic_ecommerce_data.domains.industrial.names.name_problems`.
 It replaced a rule that forced one name per product type per concept -- see that
 module's docstring and the audit on elastic/prism-industrial-products#103.
 The planted regressions below are the reason to trust it: a gate that has never
@@ -15,10 +15,10 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_ecommerce_data.catalog import names, taxonomy
-from synthetic_ecommerce_data.catalog.config import SMALL
-from synthetic_ecommerce_data.catalog.generate import generate
-from synthetic_ecommerce_data.catalog.vocab import (
+from synthetic_ecommerce_data.core.config import SMALL
+from synthetic_ecommerce_data.domains.industrial import names, taxonomy
+from synthetic_ecommerce_data.domains.industrial.generate import generate
+from synthetic_ecommerce_data.domains.industrial.vocab import (
     MEASUREMENT_SYSTEM_NAMES,
     STANDARDS_NAME,
     VOCAB,

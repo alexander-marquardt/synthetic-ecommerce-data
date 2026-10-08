@@ -15,11 +15,12 @@ from dataclasses import replace
 
 import pytest
 
-from synthetic_ecommerce_data.catalog import taxonomy, typespec
-from synthetic_ecommerce_data.catalog.config import SMALL, GeneratorConfig
-from synthetic_ecommerce_data.catalog.generate import all_type_keys, generate
-from synthetic_ecommerce_data.catalog.measure import measure
-from synthetic_ecommerce_data.catalog.vocab import (
+from synthetic_ecommerce_data.core import typespec
+from synthetic_ecommerce_data.core.config import SMALL, GeneratorConfig
+from synthetic_ecommerce_data.domains.industrial import taxonomy
+from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys, generate
+from synthetic_ecommerce_data.domains.industrial.measure import measure
+from synthetic_ecommerce_data.domains.industrial.vocab import (
     MEASUREMENT_SYSTEM_NAMES,
     STANDARDS_NAME,
     VOCAB,
@@ -381,7 +382,7 @@ def _fastener_types() -> tuple[str, ...]:
     catalog is checked the day it appears rather than the day someone
     remembers to add it here.
     """
-    from synthetic_ecommerce_data.catalog.vocab import names_for
+    from synthetic_ecommerce_data.domains.industrial.vocab import names_for
 
     return tuple(key for key in VOCAB if {"Length", "Length under Head"} <= set(names_for(key)))
 
@@ -419,7 +420,7 @@ def test_the_length_under_head_is_the_stocked_length_and_a_countersunk_screw_has
     its "x 3/4" is its ``Length``. Publishing length-less-head-height for it
     put values no distributor lists -- 12.56mm, 1.3910" -- in the facet.
     """
-    from synthetic_ecommerce_data.dimensions import DimensionParseError, parse_length
+    from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
 
     same = flat = 0
     for line, child in catalog.all_skus():
@@ -479,7 +480,7 @@ def test_a_button_head_and_a_low_head_have_the_head_their_standard_gives_them(ca
     diameter at half its height. If the generator were scaling one head table
     for all four styles, every one of these comparisons would come out equal.
     """
-    from synthetic_ecommerce_data.dimensions import parse_length
+    from synthetic_ecommerce_data.core.dimensions import parse_length
 
     heads: dict[tuple[str, str], tuple[float, float]] = {}
     for line, child in catalog.all_skus():

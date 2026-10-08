@@ -29,8 +29,8 @@ from collections.abc import Iterable, Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .records import BUNDLED
-from .render import (
+from synthetic_ecommerce_data.domains.industrial.records import BUNDLED
+from synthetic_ecommerce_data.domains.industrial.render import (
     PROFILES,
     AmbiguousProductError,
     Profile,
@@ -38,7 +38,7 @@ from .render import (
     draw_record,
     generic,
 )
-from .render.attrs import REFUSALS
+from synthetic_ecommerce_data.domains.industrial.render.attrs import REFUSALS
 
 #: Every way a record can end up with no image through nobody's fault: it
 #: identifies nothing, it identifies two things, or it withholds something a

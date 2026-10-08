@@ -8,7 +8,7 @@ flat document's ``facets``, so a test that compares spelling reads it from there
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.catalog.entry import published
+from synthetic_ecommerce_data.core.entry import published
 
 
 def published_attributes(doc: dict) -> list[dict[str, str]]:

@@ -12,7 +12,8 @@ import math
 
 import pytest
 
-from synthetic_ecommerce_data.catalog.formats import (
+from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
+from synthetic_ecommerce_data.core.formats import (
     IMPERIAL_CANONICAL,
     METRIC_CANONICAL,
     LengthStyle,
@@ -22,7 +23,6 @@ from synthetic_ecommerce_data.catalog.formats import (
     format_length,
     format_length_best,
 )
-from synthetic_ecommerce_data.dimensions import DimensionParseError, parse_length
 
 #: Magnitudes in inches that the conventional series actually produces.
 SERIES_INCHES = [
