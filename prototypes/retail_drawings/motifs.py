@@ -14,8 +14,8 @@ from the record, never from a random draw:
 
 * ``all-over``: the motif scaled into an SVG ``<pattern>`` tile of edge
   ``spacing``, twice, as a half-drop repeat (:func:`print_defs`);
-* ``scatter``: a sparser tile holding the motif three times at the fixed
-  sizes and turns of :data:`SCATTER`;
+* ``scatter``: a sparser tile holding the motif ``count`` times (3 to 6) at
+  the fixed sizes and turns of :data:`SCATTER`;
 * ``placement``: one motif centred in the surface's print area
   (:data:`PRINT_BOX`, :func:`overlay`), the graphic-tee look. Here ``scale``
   is the share of the print area the motif's drawn box covers
@@ -37,7 +37,7 @@ import kit_motifs
 import kit_produce  # noqa: F401 -- registers produce_pile
 import kit_round4  # noqa: F401 -- registers belt, hanger, gift bag, ...
 import kit_surfaces  # noqa: F401 -- registers sweatshirt, mug, apron, ...
-from kit import INK, OFFSET_Y, PLACEMENTS, SHAPES, SIZE, Fill, _shade
+from kit import INK, MOTIF_COUNTS, OFFSET_Y, PLACEMENTS, SHAPES, SIZE, Fill, _shade
 
 #: Printable categories, then the two only novelty and gift ranges may print.
 PRINTABLE = ("fruit", "vegetables", "animals", "dinosaurs and vehicles", "flowers", "stars",
@@ -55,13 +55,27 @@ class Motif:
 
     @property
     def label(self) -> str:
-        """The motif as a shopper says it: ``christmas_tree`` -> ``Christmas Tree``."""
-        return self.name.replace("_", " ").title()
+        """The motif as a shopper says it, singular: ``christmas_tree`` -> ``Christmas Tree``,
+        ``cherries`` -> ``Cherry``. A print's ``motif`` attribute is this lemma."""
+        return SINGULAR.get(self.name) or self.name.replace("_", " ").title()
 
     @property
     def plural(self) -> str:
-        """Stub (red): the motif's plural noun."""
-        return self.label
+        """The plural noun a repeat print's title says (:data:`PLURAL`, else English rules)."""
+        if self.name in PLURAL:
+            return PLURAL[self.name]
+        word = self.label
+        if word.endswith(("s", "sh", "ch", "x")):
+            return word + "es"
+        if word.endswith("y") and word[-2:-1] not in "aeiou":
+            return word[:-1] + "ies"
+        return word + "s"
+
+
+#: Kit shapes named in the plural, and their singular lemma.
+SINGULAR = {"cherries": "Cherry"}
+#: Plurals the rules of :attr:`Motif.plural` would get wrong.
+PLURAL = {"cherries": "Cherries"}
 
 
 def registry() -> dict[str, Motif]:
@@ -217,24 +231,33 @@ def drawn_box(name: str) -> tuple[float, float, float, float]:
     return min(xs), min(ys), max(xs), max(ys)
 
 
-#: A scatter tile's motifs: (x, y) as a share of the tile, size factor, turn.
-SCATTER = ((0.2, 0.25, 1.0, -14), (0.7, 0.45, 0.7, 18), (0.35, 0.8, 0.55, 0))
+#: A scatter tile's motifs: (x, y) as a share of the tile, size factor, turn. A
+#: scatter of ``count`` copies draws the first ``count`` (:data:`kit.MOTIF_COUNTS`).
+SCATTER = ((0.2, 0.25, 1.0, -14), (0.7, 0.45, 0.7, 18), (0.35, 0.8, 0.55, 0),
+           (0.8, 0.85, 0.6, -25), (0.6, 0.1, 0.5, 10), (0.05, 0.6, 0.65, 30))  # fmt: skip
 #: An all-over tile's half-drop: the same motif twice, upright.
 HALF_DROP = ((0.25, 0.25, 1.0, 0), (0.75, 0.75, 1.0, 0))
+#: A placement print's one graphic, centred.
+ONE = ((0.5, 0.5, 1.0, 0),)
+if (len(SCATTER), len(HALF_DROP)) != (MOTIF_COUNTS["scatter"][1], MOTIF_COUNTS["all-over"][0]):
+    raise ValueError("SCATTER and HALF_DROP must hold the copies kit.MOTIF_COUNTS allows")
 
 
 def layout(fill: Fill) -> tuple[tuple[float, float, float, float], ...]:
-    """Stub (red): the spots of one repeat tile."""
-    return HALF_DROP if fill.placement == "all-over" else SCATTER
+    """The ``fill.count`` copies one repeat draws: one placement graphic, the half-drop,
+    or the first ``count`` spots of :data:`SCATTER`. The same count names the title's
+    number (:func:`prints.title`)."""
+    if fill.placement == "placement":
+        return ONE
+    return HALF_DROP if fill.placement == "all-over" else SCATTER[: fill.count]
 
 
 def tile_spots(fill: Fill) -> list[tuple[float, float, float, float]]:
     """Each motif of one repeat tile as (x, y, size, turn), including the copies
     that wrap in from a neighbouring tile, so no motif is cut at the tile's edge."""
     s, size = fill.spacing, fill.scale * SIZE
-    layout = HALF_DROP if fill.placement == "all-over" else SCATTER
     out = []
-    for fx, fy, k, turn in layout:
+    for fx, fy, k, turn in layout(fill):
         r = size * k / 2
         for dx in (-s, 0, s):
             for dy in (-s, 0, s):

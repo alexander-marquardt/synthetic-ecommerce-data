@@ -246,7 +246,10 @@ class Style:
             "description": self.description,
             "attributes": [],
             # The tile shows the lead color.
-            "drawing": {**drawing(self.shape, lead, **self.drawing_params()), **dict(self.motif_print)},
+            "drawing": {
+                **drawing(self.shape, lead, **self.drawing_params()),
+                **dict(self.motif_print),
+            },
             "collections": [],
             "currency": "GBP",
             "product_type": self.product_type,

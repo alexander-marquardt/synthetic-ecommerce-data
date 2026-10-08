@@ -89,7 +89,7 @@ def test_an_all_over_tile_is_as_wide_as_its_spacing_and_holds_the_half_drop() ->
         ({"pattern": "print", "motif": "lemon", "placement": "placement", "scale": 0.6,
           "spacing": 40}, "no repeat spacing"),
         ({"pattern": "print", "motif": "lemon", "placement": "all-over", "scale": 0.2,
-          "spacing": 60}, "too large"),
+          "spacing": 60, "count": 2}, "too large"),
         ({"pattern": "solid", "motif": "lemon"}, "carries no motif"),
     ],
 )  # fmt: skip
@@ -190,7 +190,7 @@ def test_an_unknown_range_is_refused() -> None:
 
 
 def test_every_line_prints_allowed_motifs_on_a_surface_that_takes_them() -> None:
-    assert len(prints.LINES) == 10
+    assert len(prints.LINES) == 12
     for line in prints.LINES:
         assert line.prints and line.plains, line.code
         for p in line.prints:
@@ -203,7 +203,7 @@ def test_every_line_prints_allowed_motifs_on_a_surface_that_takes_them() -> None
 
 def test_one_style_per_motif_in_a_line() -> None:
     keys = [prints.style_key(line, p) for line in prints.LINES for p in line.prints]
-    assert len(keys) == len(set(keys)) == 12
+    assert len(keys) == len(set(keys)) == 26
     two = next(line for line in prints.LINES if len(line.prints) == 2)
     a, b = two.prints
     assert prints.style_key(two, a) != prints.style_key(two, b)
@@ -225,7 +225,7 @@ def test_a_motif_its_range_may_not_print_is_refused() -> None:
 def test_a_print_doc_carries_its_print_and_its_ground_is_the_sku_color() -> None:
     docs = prints.docs()
     printed = [d for d in docs if prints.is_print(d)]
-    assert len(printed) == 12 and len(docs) == 46
+    assert len(printed) == 26 and len(docs) == 102
     for d in printed:
         draw = d["drawing"]
         assert d["pattern"] == "print" and draw["pattern"] == "print"
@@ -437,3 +437,5 @@ def test_motif_sheet_writes_twelve_record_drawings_and_a_contact_sheet(tmp_path:
     for motif in ("hammer", "drill", "lemon", "orange", "dinosaur"):
         assert f'data-motif="{motif}"' in sheet, motif
     assert sheet.count('class="fruit"') >= 9
+    # A singular/plural pair is captioned side by side.
+    assert sheet.index(">Wrench Graphic Tee<") < sheet.index(">Wrenches Print Tee<")

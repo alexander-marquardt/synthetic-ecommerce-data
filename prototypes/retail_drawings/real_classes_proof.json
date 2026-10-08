@@ -1,7 +1,7 @@
 {
  "elasticsearch": "9.3.0",
- "docs": 179,
- "fingerprint": "9851ca7041a6128229c5feb92a077cc4f36f0e87785cc26ebe69dfa732402add",
+ "docs": 281,
+ "fingerprint": "c21d1ab1e108a91bef18de63ce6b9cb3b19d58b0c2800816cf4d17bd429f0b35",
  "rows": [
   {
    "query": "mattress topper",
@@ -117,8 +117,8 @@
      "title": "Womens Tie Neck Top and Trousers Set"
     },
     {
-     "product_id": "PLT-SQBODY",
-     "title": "Womens Square Neck Bodysuit"
+     "product_id": "PLT-COLTOP",
+     "title": "Womens Collared Jersey Top"
     }
    ],
    "policy": [
@@ -379,8 +379,8 @@
      "title": "Orange Rose Bouquet"
     },
     {
-     "product_id": "PLT-XPCHOR",
-     "title": "Cherry & Orange Christmas Pudding"
+     "product_id": "PLT-TEEW-ORANGE",
+     "title": "Orange Graphic Tee"
     }
    ],
    "policy": [
@@ -397,12 +397,12 @@
      "title": "Seedless Easy Peelers"
     },
     {
-     "product_id": "PLT-PANCRO",
-     "title": "Cranberry & Orange Panettone"
+     "product_id": "PLT-ORANGS",
+     "title": "Valencia Oranges, Pack of 5"
     },
     {
-     "product_id": "PLT-CKCORA",
-     "title": "Chocolate & Orange Cookies"
+     "product_id": "PLT-PANCRO",
+     "title": "Cranberry & Orange Panettone"
     }
    ]
   },
@@ -479,12 +479,12 @@
    ],
    "policy": [
     {
-     "product_id": "PLT-BDSHKR",
-     "title": "Shaker Wooden Bed Frame"
-    },
-    {
      "product_id": "PLT-BDMETL",
      "title": "Metal Spindle Bed"
+    },
+    {
+     "product_id": "PLT-BDSHKR",
+     "title": "Shaker Wooden Bed Frame"
     },
     {
      "product_id": "PLT-BDUPHL",
@@ -553,43 +553,182 @@
   "color": "Navy",
   "baseline": [
    {
-    "product_id": "PLT-OFRTEE",
-    "title": "Active Training Tee",
+    "product_id": "PLT-TEEW-LEMON",
+    "title": "Lemon Graphic Tee",
     "matched_skus": []
    },
    {
-    "product_id": "PLT-CRWTEE",
-    "title": "Mens Crew Neck Cotton Tee",
+    "product_id": "PLT-TEEM-WRENCH",
+    "title": "Wrench Graphic Tee",
     "matched_skus": []
    },
    {
-    "product_id": "PLT-JNSSET",
-    "title": "Kids' Jeans & Tee Set",
+    "product_id": "PLT-TEEM14",
+    "title": "Performance Tee",
+    "matched_skus": []
+   },
+   {
+    "product_id": "PLT-TEEMP2",
+    "title": "Tipped Tee",
+    "matched_skus": []
+   },
+   {
+    "product_id": "PLT-TEEM8",
+    "title": "Raglan Tee",
     "matched_skus": []
    }
   ],
   "nested": [
    {
-    "product_id": "PLT-CRWTEE",
-    "title": "Mens Crew Neck Cotton Tee",
+    "product_id": "PLT-TEEM14",
+    "title": "Performance Tee",
     "matched_skus": [
      {
-      "sku": "PLT-CRWTEE-001",
+      "sku": "PLT-TEEM14-001",
+      "color": "Navy",
+      "size": "XS"
+     },
+     {
+      "sku": "PLT-TEEM14-002",
       "color": "Navy",
       "size": "S"
      },
      {
-      "sku": "PLT-CRWTEE-002",
+      "sku": "PLT-TEEM14-003",
       "color": "Navy",
       "size": "M"
      },
      {
-      "sku": "PLT-CRWTEE-003",
+      "sku": "PLT-TEEM14-004",
       "color": "Navy",
       "size": "L"
      },
      {
-      "sku": "PLT-CRWTEE-004",
+      "sku": "PLT-TEEM14-005",
+      "color": "Navy",
+      "size": "XL"
+     }
+    ]
+   },
+   {
+    "product_id": "PLT-TEEMP2",
+    "title": "Tipped Tee",
+    "matched_skus": [
+     {
+      "sku": "PLT-TEEMP2-001",
+      "color": "Navy",
+      "size": "XS"
+     },
+     {
+      "sku": "PLT-TEEMP2-002",
+      "color": "Navy",
+      "size": "S"
+     },
+     {
+      "sku": "PLT-TEEMP2-003",
+      "color": "Navy",
+      "size": "M"
+     },
+     {
+      "sku": "PLT-TEEMP2-004",
+      "color": "Navy",
+      "size": "L"
+     },
+     {
+      "sku": "PLT-TEEMP2-005",
+      "color": "Navy",
+      "size": "XL"
+     }
+    ]
+   },
+   {
+    "product_id": "PLT-TEEMP-WRENCH",
+    "title": "Wrenches Print Tee",
+    "matched_skus": [
+     {
+      "sku": "PLT-TEEMP-WRENCH-001",
+      "color": "Navy",
+      "size": "XS"
+     },
+     {
+      "sku": "PLT-TEEMP-WRENCH-002",
+      "color": "Navy",
+      "size": "S"
+     },
+     {
+      "sku": "PLT-TEEMP-WRENCH-003",
+      "color": "Navy",
+      "size": "M"
+     },
+     {
+      "sku": "PLT-TEEMP-WRENCH-004",
+      "color": "Navy",
+      "size": "L"
+     },
+     {
+      "sku": "PLT-TEEMP-WRENCH-005",
+      "color": "Navy",
+      "size": "XL"
+     }
+    ]
+   },
+   {
+    "product_id": "PLT-TEEW-ORANGE",
+    "title": "Orange Graphic Tee",
+    "matched_skus": [
+     {
+      "sku": "PLT-TEEW-ORANGE-006",
+      "color": "Navy",
+      "size": "XS"
+     },
+     {
+      "sku": "PLT-TEEW-ORANGE-007",
+      "color": "Navy",
+      "size": "S"
+     },
+     {
+      "sku": "PLT-TEEW-ORANGE-008",
+      "color": "Navy",
+      "size": "M"
+     },
+     {
+      "sku": "PLT-TEEW-ORANGE-009",
+      "color": "Navy",
+      "size": "L"
+     },
+     {
+      "sku": "PLT-TEEW-ORANGE-010",
+      "color": "Navy",
+      "size": "XL"
+     }
+    ]
+   },
+   {
+    "product_id": "PLT-TEEM4",
+    "title": "Henley Tee",
+    "matched_skus": [
+     {
+      "sku": "PLT-TEEM4-001",
+      "color": "Navy",
+      "size": "XS"
+     },
+     {
+      "sku": "PLT-TEEM4-002",
+      "color": "Navy",
+      "size": "S"
+     },
+     {
+      "sku": "PLT-TEEM4-003",
+      "color": "Navy",
+      "size": "M"
+     },
+     {
+      "sku": "PLT-TEEM4-004",
+      "color": "Navy",
+      "size": "L"
+     },
+     {
+      "sku": "PLT-TEEM4-005",
       "color": "Navy",
       "size": "XL"
      }
@@ -599,12 +738,17 @@
   "facet": [
    {
     "color": "Navy",
-    "skus": 4,
-    "products": 1
+    "skus": 48,
+    "products": 10
    },
    {
     "color": "White",
-    "skus": 4,
+    "skus": 9,
+    "products": 2
+   },
+   {
+    "color": "Grey",
+    "skus": 5,
     "products": 1
    },
    {

@@ -26,10 +26,13 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 import kit_round4  # noqa: E402,F401 -- registers belt, hanger, outfit_set, trigger_spray
+import prints  # noqa: E402
 from build_preview import CSS, _attr_rows, drawing_svg  # noqa: E402
 from distractors import (  # noqa: E402
+    DINOSAUR_TOY,
     GIFT_BAGS,
     LEMONS,
+    ORANGES,
     TABLE,
     corpus,
     duplicate_record,
@@ -39,8 +42,9 @@ from distractors import (  # noqa: E402
 from real_classes import ROWS, class_docs  # noqa: E402
 from variants import FAMILIES, SIZE_KEYS, sku_report, style_docs  # noqa: E402
 
-#: One product per style: the whole round 4 corpus plus every class record.
-SAMPLES = 179
+#: One product per style: the whole round 4 corpus, the print range (gen#125) and
+#: every class record.
+SAMPLES = 281
 
 
 def samples() -> dict[str, list[dict]]:
@@ -49,8 +53,11 @@ def samples() -> dict[str, list[dict]]:
     for fam, styles in FAMILIES.items():
         out[fam] = [d for s in styles for d in style_docs(fam, s)]
     out["Planted distractors"] = [
-        LEMONS, *(x.doc for row in TABLE if not row.tail for x in row.distractors)
+        LEMONS, ORANGES, DINOSAUR_TOY,
+        *(x.doc for row in TABLE if not row.tail for x in row.distractors),
     ]  # fmt: skip
+    planted = {d["product_id"] for d in out["Planted distractors"]}
+    out["Print range"] = [d for d in prints.docs() if d["product_id"] not in planted]
     out["Gift wrap"] = list(GIFT_BAGS)
     gift = next(row for row in TABLE if row.tail)
     out["Gift bag distractors"] = [x.doc for x in (*gift.distractors, *gift.tail)]
@@ -85,11 +92,13 @@ def _facts(rec: dict) -> str:
     parts = [f"{k}: {show[k]}" for k in FACTS if k in rec]
     parts.append(" > ".join(rec["category_path"]))
     parts.append(f"{rec['rating']} from {rec['review_count']}")
-    if rec["badges"]:
+    # The print range (gen#125) is not ranked with the class records: no rank, no badges.
+    if rec.get("badges"):
         parts.append(" / ".join(rec["badges"]))
     if rec["price_max"] > rec["price_min"]:
         parts.append(f"£{rec['price_min']:.2f} - £{rec['price_max']:.2f}")
-    parts.append(f"sold {rec['sold_last_5_days']} in 5 days, bestseller #{rec['bestseller_rank']}")
+    rank = f", bestseller #{rec['bestseller_rank']}" if "bestseller_rank" in rec else ""
+    parts.append(f"sold {rec['sold_last_5_days']} in 5 days{rank}")
     if "was_price" in rec:
         parts.append(f"was £{rec['was_price']:.2f}")
     return f'<div class="vg">{escape(" · ".join(parts))}</div>'

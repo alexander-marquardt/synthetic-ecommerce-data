@@ -30,12 +30,13 @@ from distractors import corpus  # noqa: E402
 from kit import SIZE  # noqa: E402
 from real_classes import class_docs  # noqa: E402
 
-#: The records the sheet shows: large placement graphics (tools, fruit, a dinosaur),
-#: all-over and scatter prints, and produce drawn as many fruits as the pack holds.
+#: The records the sheet shows: four singular/plural pairs (one placement graphic
+#: titled singular beside a scatter or all-over repeat titled plural), two more
+#: placement graphics, and produce drawn as many fruits as the pack holds.
 PEEK = (
-    "PLT-TEEM-HAMMER", "PLT-TEEM-DRILL", "PLT-TEEW-LEMON", "PLT-TEEW-ORANGE",
-    "PLT-TEEK-DINOSAUR", "PLT-MUG-ORANGE", "PLT-LEMDRS", "PLT-PJK-DINOSAUR",
-    "PLT-DUVA-LEMON", "PLT-TTW-ORANGE", "PLT-LEMONS", "PLT-ORNAVL",
+    "PLT-TEEM-WRENCH", "PLT-TEEMP-WRENCH", "PLT-TEEM-HAMMER", "PLT-SWM-HAMMER",
+    "PLT-MUG-ORANGE", "PLT-TTW-ORANGE", "PLT-TEEW-LEMON", "PLT-LEMDRS",
+    "PLT-TEEM-DRILL", "PLT-TEEK-DINOSAUR", "PLT-LEMONS", "PLT-ORNAVL",
 )  # fmt: skip
 
 
@@ -50,20 +51,25 @@ def drawings() -> dict[str, str]:
     return {rec["product_id"]: drawing_svg(rec) for rec in records()}
 
 
-def contact_sheet(svgs: dict[str, str], columns: int = 4, cell: int = 220) -> str:
-    """The drawings in a grid, ``cell`` units each, each captioned with its product id."""
+def contact_sheet(svgs: dict[str, str], columns: int = 4, cell: int = 220,
+                  titles: dict[str, str] | None = None) -> str:  # fmt: skip
+    """The drawings in a grid, ``cell`` units each, each captioned with its title (from
+    ``titles``, when given) and its product id."""
+    titles = titles or {}
     rows = -(-len(svgs) // columns)
     out = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{columns * cell}" height="{rows * (cell + 24)}">',
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{columns * cell}" height="{rows * (cell + 40)}">',
         '<rect width="100%" height="100%" fill="#ffffff"/>',
     ]
     for n, (name, svg) in enumerate(svgs.items()):
-        x, y = (n % columns) * cell, (n // columns) * (cell + 24)
+        x, y = (n % columns) * cell, (n // columns) * (cell + 40)
         inner = re.sub(r"^<svg [^>]*>|</svg>$", "", svg)
+        font = 'font-family="Helvetica, Arial, sans-serif" text-anchor="middle"'
         out.append(
             f'<svg x="{x}" y="{y}" width="{cell}" height="{cell}" viewBox="0 0 {SIZE} {SIZE}">{inner}</svg>'
-            f'<text x="{x + cell / 2}" y="{y + cell + 16}" font-family="Helvetica, Arial, sans-serif" '
-            f'font-size="11" text-anchor="middle">{escape(name)}</text>'
+            f'<text x="{x + cell / 2}" y="{y + cell + 14}" {font} font-size="12" font-weight="bold">'
+            f'{escape(titles.get(name, ""))}</text>'
+            f'<text x="{x + cell / 2}" y="{y + cell + 30}" {font} font-size="10">{escape(name)}</text>'
         )
     out.append("</svg>")
     return "".join(out)
@@ -77,7 +83,9 @@ def main(argv: list[str] | None = None) -> int:
     svgs = drawings()
     for name, svg in svgs.items():
         (args.out_dir / f"{name}.svg").write_text(svg, encoding="utf-8")
-    (args.out_dir / "contact_sheet.svg").write_text(contact_sheet(svgs), encoding="utf-8")
+    titles = {rec["product_id"]: rec["title"] for rec in records()}
+    sheet = contact_sheet(svgs, titles=titles)
+    (args.out_dir / "contact_sheet.svg").write_text(sheet, encoding="utf-8")
     print(f"wrote {len(svgs)} drawings and contact_sheet.svg to {args.out_dir}")
     return 0
 
