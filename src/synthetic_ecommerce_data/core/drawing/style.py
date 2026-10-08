@@ -10,6 +10,7 @@ outline colour         the brand (one of twelve inks)
 paper tone             the brand (one of six tints, independent of the ink)
 frame                  the brand (one of four frame treatments)
 (ink, frame)           unique per brand, so the pair names the brand
+brand plate            the brand: its mark (motif + enclosure) and name
 part fill              the published finish; else the material's colour
 section hatch          the published material
 =====================  ==============================================
@@ -23,6 +24,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from synthetic_ecommerce_data.core import brands
+from synthetic_ecommerce_data.core.drawing.brand_mark import Mark
+from synthetic_ecommerce_data.domains.industrial.drawing.brand_marks import mark_of
 from synthetic_ecommerce_data.domains.industrial.render.marking import FINISH_TINT
 
 #: What a part is coloured when the record publishes no finish: the colour of
@@ -133,6 +136,9 @@ class HouseStyle:
     ink: str
     paper: str
     frame: str
+    #: The brand's name and mark, set in the plate under the figure (#132).
+    name: str = ""
+    mark: Mark = ()
 
 
 def _mix(hex_colour: str, towards: str, share: float) -> str:
@@ -159,7 +165,13 @@ def house_style(brand: str) -> HouseStyle:
     if brand not in brands.BY_NAME:
         raise UnknownStyleError(f"no house style for brand {brand!r}")
     ink = brands.ink_of(brand)
-    return HouseStyle(ink=ink, paper=brands.paper_of(brand), frame=brands.frame_of(brand))
+    return HouseStyle(
+        ink=ink,
+        paper=brands.paper_of(brand),
+        frame=brands.frame_of(brand),
+        name=brand,
+        mark=mark_of(brand),
+    )
 
 
 def brand_for_house_style(ink: str, frame: str) -> str:

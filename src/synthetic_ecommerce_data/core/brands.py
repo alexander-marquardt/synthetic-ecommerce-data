@@ -67,6 +67,15 @@ PAPERS: tuple[str, ...] = (
 #: square rule, a rounded border, or four corner marks.
 FRAMES: tuple[str, ...] = ("none", "rule", "rounded", "corners")
 
+#: The brand marks' motifs and enclosures (#132). Fifteen motifs in three
+#: enclosures: 45 marks, one per brand, in book order (motif by position
+#: modulo fifteen, enclosure by position over fifteen).
+MOTIFS: tuple[str, ...] = (
+    "gear", "hex_nut", "bolt_circle", "chevrons", "crosshair", "torx", "ibeam", "arrow",
+    "delta", "twin_discs", "spark", "slant_bars", "plus", "checker", "speed_bars",
+)  # fmt: skip
+ENCLOSURES: tuple[str, ...] = ("bare", "ring", "badge")
+
 #: Qualifiers a product NAME or title may carry before the item, by family.
 #: NON-FACTUAL on purpose: none names a material, finish, dimension, grade,
 #: rating, standard, process or compatibility, because anything factual
@@ -119,12 +128,18 @@ class Brand:
     #: premium makers, the rest standard. It holds in every family the brand
     #: makes, and it is no field on the record: it shows through price.
     tier: str = "standard"
+    #: The brand's mark (#132): a motif from :data:`MOTIFS` in an enclosure
+    #: from :data:`ENCLOSURES`. The PAIR is unique, and any two brands' marks
+    #: differ visibly at tile size (``tests/test_brand_marks.py``); the
+    #: shapes are ``domains/industrial/drawing/brand_marks.py``.
+    motif: str = "gear"
+    enclosure: str = "bare"
 
     def makes(self, type_key: str) -> bool:
         return STANDARDS_FAMILY[type_key] in self.families
 
 
-def _b(name, code, weight, families, ink, frame, brand_first, descriptive):
+def _b(name, code, weight, families, ink, frame, brand_first, descriptive, motif, enclosure):
     return Brand(
         name,
         code,
@@ -135,6 +150,8 @@ def _b(name, code, weight, families, ink, frame, brand_first, descriptive):
         brand_first,
         descriptive,
         "economy" if name in ECONOMY else "premium" if name in PREMIUM else "standard",
+        motif,
+        enclosure,
     )
 
 
@@ -179,57 +196,57 @@ C, F, A, H, M = "cutting_tool", "fastener", "abrasive", "hand_tool", "motion"
 #: The first ten keep their names, inks and frames (a brand's
 #: frame was its position modulo four), so their drawings look as they did.
 BRAND_BOOK: tuple[Brand, ...] = (
-    _b("Dravenholt", "DRV", 1.3, ALL, 0, 0, True, True),
-    _b("Hollisdane", "HOL", 2.2, (C, H), 1, 1, False, False),
-    _b("Varnstrom", "VST", 2.0, (F, A), 2, 2, False, True),
-    _b("Druvanholm", "DRU", 2.0, (F,), 3, 3, True, False),
-    _b("Estrimore", "EST", 2.0, (C,), 4, 0, False, True),
-    _b("Iron Heron", "IRH", 1.8, (C, A), 5, 1, True, True),
-    _b("Kessingmoor", "KES", 1.1, ALL, 6, 2, False, True),
-    _b("Ingleward", "ING", 1.6, (H, F), 7, 3, False, True),
-    _b("Tervasko", "TER", 1.0, ALL, 8, 0, False, False),
-    _b("Vellinhorst", "VLH", 1.6, (M, F), 9, 1, False, True),
+    _b("Dravenholt", "DRV", 1.3, ALL, 0, 0, True, True, "gear", "bare"),
+    _b("Hollisdane", "HOL", 2.2, (C, H), 1, 1, False, False, "hex_nut", "bare"),
+    _b("Varnstrom", "VST", 2.0, (F, A), 2, 2, False, True, "bolt_circle", "bare"),
+    _b("Druvanholm", "DRU", 2.0, (F,), 3, 3, True, False, "chevrons", "bare"),
+    _b("Estrimore", "EST", 2.0, (C,), 4, 0, False, True, "crosshair", "bare"),
+    _b("Iron Heron", "IRH", 1.8, (C, A), 5, 1, True, True, "torx", "bare"),
+    _b("Kessingmoor", "KES", 1.1, ALL, 6, 2, False, True, "ibeam", "bare"),
+    _b("Ingleward", "ING", 1.6, (H, F), 7, 3, False, True, "arrow", "bare"),
+    _b("Tervasko", "TER", 1.0, ALL, 8, 0, False, False, "delta", "bare"),
+    _b("Vellinhorst", "VLH", 1.6, (M, F), 9, 1, False, True, "twin_discs", "bare"),
     # Cutting-tool specialists.
-    _b("Quillon Carbide", "QUI", 1.4, (C,), 10, 0, True, True),
-    _b("Tessaly Cutters", "TES", 1.1, (C,), 11, 1, False, False),
-    _b("Orrinford", "ORR", 0.9, (C,), 0, 1, True, True),
-    _b("Kaldermark", "KAL", 0.8, (C,), 1, 2, False, True),
-    _b("Pellanor", "PEL", 0.6, (C,), 2, 3, True, False),
-    _b("Wendlow Tool", "WEN", 0.5, (C,), 3, 0, True, False),
-    _b("Varrick Precision", "VRK", 0.7, (C,), 4, 1, False, True),
-    _b("Lark & Lathe", "LAR", 0.4, (C,), 5, 2, True, True),
+    _b("Quillon Carbide", "QUI", 1.4, (C,), 10, 0, True, True, "spark", "bare"),
+    _b("Tessaly Cutters", "TES", 1.1, (C,), 11, 1, False, False, "slant_bars", "bare"),
+    _b("Orrinford", "ORR", 0.9, (C,), 0, 1, True, True, "plus", "bare"),
+    _b("Kaldermark", "KAL", 0.8, (C,), 1, 2, False, True, "checker", "bare"),
+    _b("Pellanor", "PEL", 0.6, (C,), 2, 3, True, False, "speed_bars", "bare"),
+    _b("Wendlow Tool", "WEN", 0.5, (C,), 3, 0, True, False, "gear", "ring"),
+    _b("Varrick Precision", "VRK", 0.7, (C,), 4, 1, False, True, "hex_nut", "ring"),
+    _b("Lark & Lathe", "LAR", 0.4, (C,), 5, 2, True, True, "bolt_circle", "ring"),
     # Fastener specialists.
-    _b("Rivenhall", "RIV", 1.5, (F,), 6, 3, False, True),
-    _b("Caddernook", "CAD", 1.2, (F,), 7, 0, True, False),
-    _b("Pellwarren", "PWR", 1.0, (F,), 8, 1, False, True),
-    _b("Cobbet & Pryce", "COB", 0.8, (F,), 9, 2, True, True),
-    _b("Lintmoor", "LIN", 0.7, (F,), 10, 3, False, True),
-    _b("Morvennick", "MOV", 0.6, (F,), 11, 0, False, False),
-    _b("Selvanock", "SEL", 0.5, (F,), 0, 2, True, True),
-    _b("Tall Mast", "TAL", 0.4, (F,), 1, 3, True, False),
+    _b("Rivenhall", "RIV", 1.5, (F,), 6, 3, False, True, "chevrons", "ring"),
+    _b("Caddernook", "CAD", 1.2, (F,), 7, 0, True, False, "crosshair", "ring"),
+    _b("Pellwarren", "PWR", 1.0, (F,), 8, 1, False, True, "torx", "ring"),
+    _b("Cobbet & Pryce", "COB", 0.8, (F,), 9, 2, True, True, "ibeam", "ring"),
+    _b("Lintmoor", "LIN", 0.7, (F,), 10, 3, False, True, "arrow", "ring"),
+    _b("Morvennick", "MOV", 0.6, (F,), 11, 0, False, False, "delta", "ring"),
+    _b("Selvanock", "SEL", 0.5, (F,), 0, 2, True, True, "twin_discs", "ring"),
+    _b("Tall Mast", "TAL", 0.4, (F,), 1, 3, True, False, "spark", "ring"),
     # Abrasive specialists.
-    _b("Grisenne", "GRI", 1.2, (A,), 2, 0, False, True),
-    _b("Braddlestow", "BRD", 1.0, (A,), 3, 1, True, False),
-    _b("Tannerby", "TAN", 0.7, (A,), 4, 2, False, False),
-    _b("Brennavik", "BRN", 0.6, (A,), 5, 3, False, True),
-    _b("Salt Meadow Works", "SAL", 0.4, (A,), 6, 0, False, True),
+    _b("Grisenne", "GRI", 1.2, (A,), 2, 0, False, True, "slant_bars", "ring"),
+    _b("Braddlestow", "BRD", 1.0, (A,), 3, 1, True, False, "plus", "ring"),
+    _b("Tannerby", "TAN", 0.7, (A,), 4, 2, False, False, "checker", "ring"),
+    _b("Brennavik", "BRN", 0.6, (A,), 5, 3, False, True, "speed_bars", "ring"),
+    _b("Salt Meadow Works", "SAL", 0.4, (A,), 6, 0, False, True, "gear", "badge"),
     # Hand-tool specialists.
-    _b("Ashcombe Forge", "ASH", 1.1, (H,), 7, 1, True, True),
-    _b("Pennock & Hale", "PEN", 0.9, (H,), 8, 2, False, True),
-    _b("Brindlecote", "BRI", 0.7, (H,), 9, 3, True, False),
-    _b("Ivenhoft", "IVH", 0.6, (H,), 10, 1, False, True),
-    _b("Lantern Rock", "LAN", 0.4, (H,), 11, 2, True, True),
+    _b("Ashcombe Forge", "ASH", 1.1, (H,), 7, 1, True, True, "hex_nut", "badge"),
+    _b("Pennock & Hale", "PEN", 0.9, (H,), 8, 2, False, True, "bolt_circle", "badge"),
+    _b("Brindlecote", "BRI", 0.7, (H,), 9, 3, True, False, "chevrons", "badge"),
+    _b("Ivenhoft", "IVH", 0.6, (H,), 10, 1, False, True, "crosshair", "badge"),
+    _b("Lantern Rock", "LAN", 0.4, (H,), 11, 2, True, True, "torx", "badge"),
     # Bearing specialists.
-    _b("Quarrenby", "QRB", 1.4, (M,), 0, 3, False, True),
-    _b("Quennick", "QNK", 1.1, (M,), 1, 0, True, True),
-    _b("Lorcastle", "LOR", 0.9, (M,), 2, 1, False, False),
-    _b("Spindlewick", "SPI", 0.7, (M,), 3, 2, True, False),
-    _b("Tin Kestrel", "TKS", 0.5, (M,), 4, 3, False, True),
-    _b("Harnell", "HAR", 0.4, (M,), 5, 0, True, False),
+    _b("Quarrenby", "QRB", 1.4, (M,), 0, 3, False, True, "ibeam", "badge"),
+    _b("Quennick", "QNK", 1.1, (M,), 1, 0, True, True, "arrow", "badge"),
+    _b("Lorcastle", "LOR", 0.9, (M,), 2, 1, False, False, "delta", "badge"),
+    _b("Spindlewick", "SPI", 0.7, (M,), 3, 2, True, False, "twin_discs", "badge"),
+    _b("Tin Kestrel", "TKS", 0.5, (M,), 4, 3, False, True, "spark", "badge"),
+    _b("Harnell", "HAR", 0.4, (M,), 5, 0, True, False, "slant_bars", "badge"),
     # Two-and-three-family makers.
-    _b("Quellmarsh", "QLM", 1.0, (F, H), 6, 1, False, True),
-    _b("Crennick Works", "CRE", 0.9, (C, A), 7, 2, False, False),
-    _b("Stone Wicket", "STW", 0.8, (F, H, A), 8, 3, False, True),
+    _b("Quellmarsh", "QLM", 1.0, (F, H), 6, 1, False, True, "plus", "badge"),
+    _b("Crennick Works", "CRE", 0.9, (C, A), 7, 2, False, False, "checker", "badge"),
+    _b("Stone Wicket", "STW", 0.8, (F, H, A), 8, 3, False, True, "speed_bars", "badge"),
 )
 
 BRANDS: tuple[str, ...] = tuple(brand.name for brand in BRAND_BOOK)
@@ -266,6 +283,14 @@ def ink_of(brand: str) -> str:
 
 def frame_of(brand: str) -> str:
     return FRAMES[BY_NAME[brand].frame]
+
+
+def motif_of(brand: str) -> str:
+    return BY_NAME[brand].motif
+
+
+def enclosure_of(brand: str) -> str:
+    return BY_NAME[brand].enclosure
 
 
 def paper_of(brand: str) -> str:

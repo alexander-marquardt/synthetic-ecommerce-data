@@ -52,7 +52,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-from synthetic_ecommerce_data.core.drawing import svg
+from synthetic_ecommerce_data.core.drawing import brand_mark, svg
 from synthetic_ecommerce_data.core.drawing.model import Bars, Disc, Dots, Figure, Lines, Poly
 from synthetic_ecommerce_data.core.drawing.style import Hatch, HouseStyle, _mix
 
@@ -88,10 +88,32 @@ ICON_SHAFT_END, ICON_GRIP_FROM, ICON_GRIP_TO = 394.0, 229.0, 420.0
 HANDLE_ANGLE = 45.0  # degrees below the horizontal, toward the right
 
 
+#: THE BRAND PLATE (#132): the brand's mark and wordmark, in a strip under the
+#: figure. WHY THERE: an engineering drawing's maker sits in its title block,
+#: below and outside the view, and a strip the figure never enters cannot
+#: cover a dimension, a head or a thread of any family -- a corner stamp
+#: would have to dodge every type's outline separately. The figure keeps the
+#: sheet above :data:`FIGURE_HEIGHT`; its margins (:data:`MARGIN`,
+#: :data:`GLYPH_MARGIN`, :data:`LENS_MARGIN`) apply inside that area, so
+#: :func:`figure_boxes` never reaches the plate (``tests/test_brand_marks.py``).
+#: The cost: a type whose largest part is height-bound is drawn 220/264 of
+#: its former scale; a squat type (washers, discs) is width-bound and keeps it.
+FIGURE_HEIGHT = 256.0
+#: The plate's box (x0, y0, x1, y1): inside every frame (drawn 6 units in,
+#: strokes at most 2 wide), clear of the rounded frame's corner arcs.
+PLATE_BOX = (14.0, 256.0, 186.0, 292.0)
+#: The mark's side, the gap before the name, and the name's size range, in
+#: sheet units. At the Studio grid tile (180 px for 300 units, 0.6 px a unit)
+#: the mark is 19 px across and the name 8.4 to 12 px.
+PLATE_MARK = 32.0
+PLATE_GAP = 6.0
+NAME_MAX, NAME_MIN = 20.0, 14.0
+
+
 def type_scale(extent: tuple[float, float]) -> float:
-    """Sheet units per inch for a product type: its largest drawn extent fills the sheet."""
+    """Sheet units per inch for a product type: its largest drawn extent fills the figure area."""
     width, height = extent
-    aw, ah = svg.WIDTH - 2 * MARGIN, svg.HEIGHT - 2 * MARGIN
+    aw, ah = svg.WIDTH - 2 * MARGIN, FIGURE_HEIGHT - 2 * MARGIN
     return min(aw / width, ah / height)
 
 
@@ -137,13 +159,13 @@ def magnifier(width: float, height: float) -> Magnifier | None:
     # largest lens that fits is the tighter of the width and the height budgets.
     _, left1, right1, bottom1 = _glyph_extent(1.0, floor=False)
     by_width = (svg.WIDTH - 2 * GLYPH_MARGIN) / (right1 - left1)
-    by_height = (svg.HEIGHT - 2 * GLYPH_MARGIN - GLYPH_GAP - height) / (-left1 + bottom1)
+    by_height = (FIGURE_HEIGHT - 2 * GLYPH_MARGIN - GLYPH_GAP - height) / (-left1 + bottom1)
     radius = min(by_width, by_height)
     k = LENS_FILL * 2 * radius / diagonal
     if k >= MIN_ENLARGEMENT:
         w, left, right, bottom = _glyph_extent(radius)
         glyph_h = -left + bottom
-        top = (svg.HEIGHT - (glyph_h + GLYPH_GAP + height)) / 2
+        top = (FIGURE_HEIGHT - (glyph_h + GLYPH_GAP + height)) / 2
         lens = (svg.WIDTH / 2 - (left + right) / 2, top - left)
         part = (svg.WIDTH / 2, top + glyph_h + GLYPH_GAP + height / 2)
         return Magnifier(k=k, handle=True, lens=lens, radius=radius, stroke=w, part=part, top=top)
@@ -151,11 +173,11 @@ def magnifier(width: float, height: float) -> Magnifier | None:
     ring = ICON_STROKE * RING_SHARE / ICON_LENS  # the ring's width per unit of radius
     radius = min(
         (svg.WIDTH / 2 - LENS_MARGIN) / (1 + ring),
-        (svg.HEIGHT - 2 * LENS_MARGIN - GLYPH_GAP - height) / 2 / (1 + ring),
+        (FIGURE_HEIGHT - 2 * LENS_MARGIN - GLYPH_GAP - height) / 2 / (1 + ring),
     )
     w = max(ring * radius, MIN_STROKE)
     outer = radius + w
-    top = (svg.HEIGHT - (2 * outer + GLYPH_GAP + height)) / 2
+    top = (FIGURE_HEIGHT - (2 * outer + GLYPH_GAP + height)) / 2
     lens = (svg.WIDTH / 2, top + outer)
     part = (svg.WIDTH / 2, top + 2 * outer + GLYPH_GAP + height / 2)
     k = LENS_FILL * 2 * radius / diagonal
@@ -313,10 +335,11 @@ def paint(
     hatch: Hatch | None,
     scale: float,
 ) -> bytes:
-    """The figure on a sheet, as SVG bytes. Contains no text of any kind.
+    """The figure on a sheet, as SVG bytes. Its only text is the brand's wordmark.
 
-    Drawn plain and centred, or -- when :func:`magnifier` says so -- at true
-    scale near the bottom with a magnifying glass above it.
+    Drawn plain and centred in the figure area, or -- when :func:`magnifier`
+    says so -- at true scale near the bottom with a magnifying glass above it;
+    then the brand plate (:func:`plate_lockup`) in the strip below.
     """
     page = svg.Svg(background=house.paper)
     _frame(page, house)
@@ -324,10 +347,49 @@ def paint(
     x0, y0, x1, y1 = figure.bounds()
     mag = magnifier((x1 - x0) * scale, (y1 - y0) * scale)
     if mag is None:
-        _figure_at(page, figure, house, fill, hatch_id, scale, (svg.WIDTH / 2, svg.HEIGHT / 2))
-        return page.to_bytes()
-    _figure_at(page, figure, house, fill, hatch_id, scale, mag.part)
-    page.circle(*mag.lens, mag.radius, fill="#ffffff")
-    _figure_at(page, figure, house, fill, hatch_id, scale * mag.k, mag.lens)
-    _glyph(page, mag, house.ink)
+        _figure_at(page, figure, house, fill, hatch_id, scale, (svg.WIDTH / 2, FIGURE_HEIGHT / 2))
+    else:
+        _figure_at(page, figure, house, fill, hatch_id, scale, mag.part)
+        page.circle(*mag.lens, mag.radius, fill="#ffffff")
+        _figure_at(page, figure, house, fill, hatch_id, scale * mag.k, mag.lens)
+        _glyph(page, mag, house.ink)
+    brand_mark.plate(
+        page,
+        house.name,
+        house.mark,
+        PLATE_BOX,
+        house.ink,
+        house.paper,
+        mark_size=PLATE_MARK,
+        gap=PLATE_GAP,
+        max_size=NAME_MAX,
+        min_size=NAME_MIN,
+    )
     return page.to_bytes()
+
+
+def plate_lockup(name: str) -> brand_mark.Lockup:
+    """Where :func:`paint` sets ``name``'s mark and wordmark, in sheet units."""
+    return brand_mark.lockup(
+        name, PLATE_BOX, mark_size=PLATE_MARK, gap=PLATE_GAP, max_size=NAME_MAX, min_size=NAME_MIN
+    )
+
+
+def figure_boxes(figure: Figure, scale: float) -> list[tuple[float, float, float, float]]:
+    """The boxes :func:`paint` draws the figure in, strokes included: the part,
+    and -- when lensed -- the whole glyph. None of them reaches :data:`PLATE_BOX`."""
+    x0, y0, x1, y1 = figure.bounds()
+    w, h = (x1 - x0) * scale, (y1 - y0) * scale
+    half = MIN_STROKE / 2
+    mag = magnifier(w, h)
+    centre = (svg.WIDTH / 2, FIGURE_HEIGHT / 2) if mag is None else mag.part
+    boxes = [(centre[0] - w / 2 - half, centre[1] - h / 2 - half, centre[0] + w / 2 + half, centre[1] + h / 2 + half)]
+    if mag is not None:
+        if mag.handle:
+            _, left, right, bottom = _glyph_extent(mag.radius)
+        else:
+            outer = mag.radius + mag.stroke
+            left, right, bottom = -outer, outer, outer
+        cx, cy = mag.lens
+        boxes.append((cx + left, cy + left, cx + right, cy + bottom))
+    return boxes

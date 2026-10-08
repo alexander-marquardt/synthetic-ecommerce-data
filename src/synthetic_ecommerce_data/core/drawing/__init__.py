@@ -26,6 +26,8 @@ import re
 import xml.etree.ElementTree as ET
 from collections.abc import Mapping, Sequence
 
+from synthetic_ecommerce_data.core import brands
+from synthetic_ecommerce_data.core.drawing import brand_mark
 from synthetic_ecommerce_data.core.drawing.sheet import magnifier, paint, type_scale
 from synthetic_ecommerce_data.core.drawing.style import house_style, material_hatch, part_fill
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
@@ -52,16 +54,25 @@ __all__ = [
 #: element and attribute must be one the figures emit, no element may carry
 #: character data, and nothing but elements may appear (no comment, processing
 #: instruction, declaration or doctype).
+#:
+#: THE ONE TEXT ALLOWED (#132, revising the no-text ruling for the brand mark
+#: only): ``<text>`` elements whose words, joined by a space, are one brand's
+#: name from the brand book -- the plate's wordmark, on one or two lines. Its
+#: face, weight and width adjustment are fixed values; any other character
+#: data, and any ``<text>`` that spells something else, is refused.
 ALLOWED_ELEMENTS: frozenset[str] = frozenset(
-    {"svg", "rect", "defs", "pattern", "g", "path", "circle"}
+    {"svg", "rect", "defs", "pattern", "g", "path", "circle", "text"}
 )
 ALLOWED_ATTRIBUTES: frozenset[str] = frozenset(
     {
         "viewBox", "width", "height", "x", "y", "rx", "cx", "cy", "r", "d",
         "fill", "stroke", "stroke-width", "stroke-opacity", "stroke-linejoin",
         "opacity", "transform", "id", "patternUnits", "stroke-linecap",
+        "font-family", "font-size", "font-weight", "textLength", "lengthAdjust",
     }
 )  # fmt: skip
+#: Attributes only the wordmark's ``<text>`` may carry.
+_TEXT_ONLY = frozenset({"font-family", "font-size", "font-weight", "textLength", "lengthAdjust"})
 #: Ids are the hatch patterns' own (``h45s5<ink>``): a font's glyph ids
 #: (``DejaVuSans-31``) and anything else are refused.
 _ID = re.compile(r"^h[0-9-]*s[0-9.]+d?[0-9a-f]{6}$")
@@ -86,6 +97,9 @@ _VALUE_GRAMMAR: dict[str, re.Pattern[str]] = {
     "stroke-linejoin": re.compile(r"^round$"),
     # The magnifier glyph's round caps (the icon's own); nothing else.
     "stroke-linecap": re.compile(r"^round$"),
+    "font-family": re.compile(rf"^{re.escape(brand_mark.FONT_FAMILY)}$"),
+    "font-weight": re.compile(rf"^{brand_mark.FONT_WEIGHT}$"),
+    "lengthAdjust": re.compile(r"^spacingAndGlyphs$"),
 }
 _NUMERIC = re.compile(rf"^{_NUMBER}$")
 _SVG_NS = "{http://www.w3.org/2000/svg}"
@@ -96,8 +110,9 @@ def svg_problems(svg: bytes) -> list[str]:
     problems: list[str] = []
     if b"<!" in svg or b"<?" in svg:
         problems.append("a comment, declaration, doctype or processing instruction")
-    if b"&" in svg:
-        # The figures write no entity or character reference; one in a value
+    if b"&" in svg.replace(b"&amp;", b""):
+        # The figures write no entity or character reference but the escaped
+        # ampersand of a brand name ("Lark &amp; Lathe"); any other in a value
         # could spell a colour the grammar then accepts, or anything else.
         problems.append("an entity or character reference")
     builder = ET.TreeBuilder(insert_comments=True, insert_pis=True)
@@ -107,6 +122,7 @@ def svg_problems(svg: bytes) -> list[str]:
         root = parser.close()
     except ET.ParseError as exc:
         return [f"not well-formed XML: {exc}"]
+    words: list[str] = []
     for element in root.iter():
         tag = element.tag
         if not isinstance(tag, str):
@@ -119,16 +135,22 @@ def svg_problems(svg: bytes) -> list[str]:
             problems.append(f"element <{local}> is not allowed")
         if local == "svg" and element is not root:
             problems.append("a nested <svg> is not allowed")
+        if local == "text":
+            if len(element):
+                problems.append("a <text> with child elements")
+            words.append(element.text or "")
         for name, value in element.attrib.items():
-            if name not in ALLOWED_ATTRIBUTES:
+            if name not in ALLOWED_ATTRIBUTES or (name in _TEXT_ONLY and local != "text"):
                 problems.append(f"attribute {name!r} on <{local}> is not allowed")
             elif name == "id" and not _ID.match(value):
                 problems.append(f"id {value!r} is not a hatch pattern id")
             elif name != "id" and not (_VALUE_GRAMMAR.get(name) or _NUMERIC).match(value):
                 problems.append(f"{name}={value[:40]!r} on <{local}> is not a value it may take")
-        for text in (element.text, element.tail):
+        for text in (element.tail,) if local == "text" else (element.text, element.tail):
             if text is not None and text.strip():
                 problems.append(f"character data {text.strip()[:20]!r} in <{local}>")
+    if words and " ".join(words) not in brands.BY_NAME:
+        problems.append(f"text {' '.join(words)[:40]!r} is not a brand's wordmark")
     return problems
 
 
