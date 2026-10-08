@@ -266,14 +266,14 @@ to tell them apart by.
 
 The drawings are not committed. What is committed is the digest:
 
-* `sed-generate build` writes `images.jsonl` (`core/emit.py`
+* `ecom-generate build` writes `images.jsonl` (`core/emit.py`
   `iter_image_manifest()`), one row per SKU with `image_id`, `path`, `url`,
   `sha256`, `bytes` and `geometry`.
 * `tests/test_catalog_golden.py` regenerates the catalog and compares every
   committed file by sha256, `images.jsonl` included. A change that moves any
   drawing turns it red until `golden-catalog/` is regenerated in the same
   commit.
-* `sed-generate images --catalog golden-catalog ...` (`core/bundle.py`
+* `ecom-generate images --catalog golden-catalog ...` (`core/bundle.py`
   `rebuild()`) redraws every SKU from the committed `nested.jsonl` and raises
   `BundleMismatchError` unless each drawing's sha256 equals its
   `images.jsonl` row, and every row names a SKU. Only then does it write the
@@ -352,9 +352,9 @@ pinned by a test.
    a value the figure ignores, either draw it or add it to
    `NOT_DRAWN_BY_ANY_FIGURE` with a reason. For a long part, add the type to
    `test_elongated_parts_are_drawn_to_their_published_length`.
-7. **Regenerate and verify.** Run `uv run sed-generate build --out golden-catalog`
+7. **Regenerate and verify.** Run `uv run ecom-generate build --out golden-catalog`
    (the `images.jsonl` digests move), then
-   `uv run sed-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz`
+   `uv run ecom-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz`
    and `uv run python scripts/check_determinism.py --images`.
 8. **Look at it.** `uv run python scripts/contact_sheet.py --catalog golden-catalog --out out/contact-sheets`
    puts twenty SKUs of every type on one HTML page.

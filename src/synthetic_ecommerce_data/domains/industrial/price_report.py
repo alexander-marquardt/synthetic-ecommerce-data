@@ -1,4 +1,4 @@
-"""The price rows of ``sed-generate report``, against the price census (#52).
+"""The price rows of ``ecom-generate report``, against the price census (#52).
 
 Each row is computed the way the census computed its figure:
 

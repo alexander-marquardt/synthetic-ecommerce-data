@@ -222,7 +222,7 @@ class GeneratorConfig:
 
 
 #: The ``--lines`` that lands the catalog at about 100,000 SKUs: measured,
-#: ``sed-generate build --lines 39000`` gives 99,929 SKUs over 57,985
+#: ``ecom-generate build --lines 39000`` gives 99,929 SKUs over 57,985
 #: products (README, "The 100K catalog"); 111,499 over 64,483 since the
 #: deepened ``lock_nuts_nylon_insert`` and ``set_screws_hex_socket`` each added
 #: their own share (#53); 119,363 over 68,979 since ``o_rings`` added its

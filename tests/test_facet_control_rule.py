@@ -41,7 +41,7 @@ from synthetic_ecommerce_data.prism.derive import (
 )
 from synthetic_ecommerce_data.prism.field_map import render
 
-#: The rule's figures on the default build, as ``sed-generate build`` wrote
+#: The rule's figures on the default build, as ``ecom-generate build`` wrote
 #: them (#103). The tests below re-derive each one from a fresh build; the
 #: golden test holds the committed file to a rebuild, so a figure that moves
 #: reds there, naming the command that rewrites it.

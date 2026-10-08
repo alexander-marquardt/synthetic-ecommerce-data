@@ -351,7 +351,7 @@ GENERATED: dict[str, Record] = {
 }
 
 #: Every record that ships with the package: the observed reference records and
-#: the generated samples together. ``sed-render fixtures`` draws all of them.
+#: the generated samples together. ``ecom-render fixtures`` draws all of them.
 #: Anything that needs the REFERENCE records specifically -- the non-copying
 #: audit above all -- wants :data:`FIXTURES`, not this.
 BUNDLED: dict[str, Record] = {**FIXTURES, **GENERATED}

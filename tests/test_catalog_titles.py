@@ -55,7 +55,7 @@ from synthetic_ecommerce_data.core.entry import published
 from synthetic_ecommerce_data.core.naming import DELIMITER, TIGHT_DELIMITER
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
-REBUILD = "uv run sed-generate build --out golden-catalog"
+REBUILD = "uv run ecom-generate build --out golden-catalog"
 
 #: A character that could be part of the same value as the one either side of
 #: it -- digits, fraction and decimal marks, unit marks, letters.
@@ -90,7 +90,7 @@ def _states(text: str, value: str) -> bool:
 #:
 #: ``committed`` is ``golden-catalog/``, the artifact anyone can read without
 #: running a build. Asserting against it is what stops a careless
-#: ``sed-generate build && git commit -a`` from a broken generator sailing
+#: ``ecom-generate build && git commit -a`` from a broken generator sailing
 #: through, and it is why ``test_catalog_golden`` states its headline numbers
 #: that way too.
 #:

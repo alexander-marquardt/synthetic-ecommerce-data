@@ -19,7 +19,7 @@ type at today's 67 types, and better than even odds that at least one of a
 hundred new types does. :func:`check_collisions` refuses that build, names
 both types and where each would declare a block of its own (its YAML row, or
 its type module), and names the first free block (:func:`first_free_block`);
-``sed-generate block <type_key>`` prints the block a new type should declare
+``ecom-generate block <type_key>`` prints the block a new type should declare
 before it is built. The fix goes on the newly added type, because re-blocking
 a type that already shipped renumbers every SKU it published.
 """
@@ -445,7 +445,7 @@ def first_free_block(start: int, used: Collection[int]) -> int:
     """The first block at or after ``start`` that no type uses, wrapping past 9999.
 
     Deterministic for a given set of used blocks, so the block a collision
-    refusal (or ``sed-generate block``) names is the one every builder of
+    refusal (or ``ecom-generate block``) names is the one every builder of
     that tree would be told.
     """
     span = BLOCK_HIGH - BLOCK_LOW + 1
@@ -505,7 +505,7 @@ def check_collisions(blocks: Mapping[str, int], fix_sites: Mapping[str, str] | N
             + "; ".join(clashes)
             + ". Give the NEWLY ADDED type of each pair a free block of its own: re-blocking "
             "a type that already shipped renumbers every SKU and product id it has published. "
-            "`sed-generate block <type_key>` prints the block to declare."
+            "`ecom-generate block <type_key>` prints the block to declare."
         )
 
 

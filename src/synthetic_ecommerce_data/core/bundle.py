@@ -1,6 +1,6 @@
 """The image bundle: every SKU's drawing, rebuilt from a committed catalog, in one archive.
 
-    sed-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz
+    ecom-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz
 
 The drawings are NEVER committed (elastic/prism-industrial-products#103): the
 repository commits the catalog, whose ``images.jsonl`` carries each SKU image's
