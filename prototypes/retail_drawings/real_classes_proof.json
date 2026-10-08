@@ -1,0 +1,714 @@
+{
+ "elasticsearch": "9.3.0",
+ "docs": 192,
+ "fingerprint": "a32c36115bb4f4b69cc8fa520ea330d27df2e3fd873c8d1b2aa9ee1e740b0c4b",
+ "rows": [
+  {
+   "query": "mattress topper",
+   "baseline": [
+    {
+     "product_id": "PLT-MTPQLT",
+     "title": "Quilted Mattress Protector"
+    },
+    {
+     "product_id": "PLT-MTPWTP",
+     "title": "Waterproof Mattress Protector"
+    },
+    {
+     "product_id": "PLT-MTPTOP",
+     "title": "Deep Fill Mattress Topper Protector"
+    },
+    {
+     "product_id": "PLT-MTPCOL",
+     "title": "Cool Touch Mattress Protector"
+    },
+    {
+     "product_id": "PLT-MTRPKT",
+     "title": "Pocket Sprung Mattress"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-MTTMEM",
+     "title": "Memory Foam Mattress Topper"
+    },
+    {
+     "product_id": "PLT-MTTFIB",
+     "title": "Hollowfibre Mattress Topper"
+    },
+    {
+     "product_id": "PLT-MTTWOL",
+     "title": "Wool Mattress Topper"
+    },
+    {
+     "product_id": "PLT-MTPQLT",
+     "title": "Quilted Mattress Protector"
+    },
+    {
+     "product_id": "PLT-MTPWTP",
+     "title": "Waterproof Mattress Protector"
+    }
+   ]
+  },
+  {
+   "query": "balloon jeans",
+   "baseline": [
+    {
+     "product_id": "PLT-BRLMID",
+     "title": "Mid Rise Barrel Jeans"
+    },
+    {
+     "product_id": "PLT-BRLHIG",
+     "title": "High Rise Barrel Jeans"
+    },
+    {
+     "product_id": "PLT-BRLKID",
+     "title": "Girls' Barrel Jeans (6-16 Yrs)"
+    },
+    {
+     "product_id": "PLT-BRLTRS",
+     "title": "Barrel Leg Trousers"
+    },
+    {
+     "product_id": "PLT-STRJNS",
+     "title": "Straight Leg Jeans"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-BLNLEG",
+     "title": "Balloon Leg Jeans"
+    },
+    {
+     "product_id": "PLT-BLNCRP",
+     "title": "Cropped Balloon Jeans"
+    },
+    {
+     "product_id": "PLT-BLNHIW",
+     "title": "High Waisted Balloon Jeans"
+    },
+    {
+     "product_id": "PLT-BRLMID",
+     "title": "Mid Rise Barrel Jeans"
+    },
+    {
+     "product_id": "PLT-BRLHIG",
+     "title": "High Rise Barrel Jeans"
+    }
+   ]
+  },
+  {
+   "query": "womens boat neck top",
+   "baseline": [
+    {
+     "product_id": "PLT-HNRIBT",
+     "title": "Womens High Neck Ribbed Top"
+    },
+    {
+     "product_id": "PLT-CNCOTT",
+     "title": "Womens Crew Neck Cotton Top"
+    },
+    {
+     "product_id": "PLT-RNJERS",
+     "title": "Womens Round Neck Jersey Top"
+    },
+    {
+     "product_id": "PLT-NTSETS",
+     "title": "Womens Tie Neck Top and Trousers Set"
+    },
+    {
+     "product_id": "PLT-SQBODY",
+     "title": "Womens Square Neck Bodysuit"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-BNTSTR",
+     "title": "Striped Boat Neck Top"
+    },
+    {
+     "product_id": "PLT-BNTJER",
+     "title": "Boat Neck Jersey Top"
+    },
+    {
+     "product_id": "PLT-SNTLNG",
+     "title": "Slash Neck Long Sleeve Top"
+    },
+    {
+     "product_id": "PLT-HNRIBT",
+     "title": "Womens High Neck Ribbed Top"
+    },
+    {
+     "product_id": "PLT-CNCOTT",
+     "title": "Womens Crew Neck Cotton Top"
+    }
+   ]
+  },
+  {
+   "query": "check contrast bomber jacket",
+   "baseline": [
+    {
+     "product_id": "PLT-BMBCRD",
+     "title": "Cord Bomber Jacket"
+    },
+    {
+     "product_id": "PLT-BMBWOL",
+     "title": "Wool Blend Bomber Jacket"
+    },
+    {
+     "product_id": "PLT-SUITCK",
+     "title": "Check Suit Jacket"
+    },
+    {
+     "product_id": "PLT-KIDBMB",
+     "title": "Boys' Bomber Jacket (2-8 Yrs)"
+    },
+    {
+     "product_id": "PLT-BABBMB",
+     "title": "Baby Bomber Jacket (3-36 Mths)"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-CKBCON",
+     "title": "Check Bomber Jacket with Contrast Collar"
+    },
+    {
+     "product_id": "PLT-CKBWOL",
+     "title": "Wool Check Bomber Jacket"
+    },
+    {
+     "product_id": "PLT-CKBPAD",
+     "title": "Padded Check Bomber"
+    },
+    {
+     "product_id": "PLT-BMBCRD",
+     "title": "Cord Bomber Jacket"
+    },
+    {
+     "product_id": "PLT-BMBWOL",
+     "title": "Wool Blend Bomber Jacket"
+    }
+   ]
+  },
+  {
+   "query": "petite sale",
+   "baseline": [
+    {
+     "product_id": "PLT-TAPTRS",
+     "title": "Tapered Trousers"
+    },
+    {
+     "product_id": "PLT-WIDTRS",
+     "title": "Wide Leg Trousers"
+    },
+    {
+     "product_id": "PLT-STRJNS",
+     "title": "Straight Leg Jeans"
+    },
+    {
+     "product_id": "PLT-SLMJNS",
+     "title": "Slim Jeans"
+    },
+    {
+     "product_id": "PLT-PETJNS",
+     "title": "Petite Straight Jeans"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-PETJNS",
+     "title": "Petite Straight Jeans"
+    },
+    {
+     "product_id": "PLT-PETDRS",
+     "title": "Petite Wrap Midi Dress"
+    },
+    {
+     "product_id": "PLT-PETTRS",
+     "title": "Petite Wide Leg Trousers"
+    }
+   ]
+  },
+  {
+   "query": "womens sale dresses",
+   "baseline": [
+    {
+     "product_id": "PLT-FPLINN",
+     "title": "Womens Linen Midi Dress"
+    },
+    {
+     "product_id": "PLT-FPSMOK",
+     "title": "Womens Smocked Mini Dress"
+    },
+    {
+     "product_id": "PLT-FPTEES",
+     "title": "Womens Jersey T-Shirt Dress"
+    },
+    {
+     "product_id": "PLT-FPSLIP",
+     "title": "Womens Satin Slip Dress"
+    },
+    {
+     "product_id": "PLT-HNRIBT",
+     "title": "Womens High Neck Ribbed Top"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-SDWRAP",
+     "title": "Womens Wrap Dress"
+    },
+    {
+     "product_id": "PLT-SDMAXI",
+     "title": "Womens Tiered Maxi Dress"
+    },
+    {
+     "product_id": "PLT-SDSHRT",
+     "title": "Womens Shirt Dress"
+    },
+    {
+     "product_id": "PLT-PETDRS",
+     "title": "Petite Wrap Midi Dress"
+    }
+   ]
+  },
+  {
+   "query": "5 pack socks",
+   "baseline": [
+    {
+     "product_id": "PLT-SK7PKC",
+     "title": "Cotton Rich Socks 7 Pack"
+    },
+    {
+     "product_id": "PLT-SK3PKS",
+     "title": "Striped Socks 3 Pack"
+    },
+    {
+     "product_id": "PLT-SK5KID",
+     "title": "Kids' School Socks 5 Pack (6-16 Yrs)"
+    },
+    {
+     "product_id": "PLT-SK5BMB",
+     "title": "Bamboo Socks, Pack of 5"
+    },
+    {
+     "product_id": "PLT-SK1WAL",
+     "title": "Wool Walking Socks"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-SK5BMB",
+     "title": "Bamboo Socks, Pack of 5"
+    },
+    {
+     "product_id": "PLT-SK5SPT",
+     "title": "Sports Trainer Socks 5 Pack"
+    },
+    {
+     "product_id": "PLT-SK5PKC",
+     "title": "Cotton Rich Ankle Socks 5pk"
+    }
+   ]
+  },
+  {
+   "query": "beer",
+   "baseline": [
+    {
+     "product_id": "PLT-GNGBER",
+     "title": "Fiery Ginger Beer"
+    },
+    {
+     "product_id": "PLT-RTBEER",
+     "title": "Cloudy Root Beer"
+    },
+    {
+     "product_id": "PLT-BBHADD",
+     "title": "Beer Battered Haddock Fillets"
+    },
+    {
+     "product_id": "PLT-BRBRED",
+     "title": "Malted Beer Bread"
+    },
+    {
+     "product_id": "PLT-BBCHIP",
+     "title": "Beer Battered Chunky Chips"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-BRTABL",
+     "title": "Golden Table Beer"
+    },
+    {
+     "product_id": "PLT-BRTROP",
+     "title": "4.8% Tropical Pineapple Sour Beer"
+    },
+    {
+     "product_id": "PLT-BRWHET",
+     "title": "5.5% Hazy Wheat Beer"
+    },
+    {
+     "product_id": "PLT-GNGBER",
+     "title": "Fiery Ginger Beer"
+    },
+    {
+     "product_id": "PLT-RTBEER",
+     "title": "Cloudy Root Beer"
+    }
+   ]
+  },
+  {
+   "query": "oranges",
+   "baseline": [
+    {
+     "product_id": "PLT-PANCRO",
+     "title": "Cranberry & Orange Panettone"
+    },
+    {
+     "product_id": "PLT-CKCORA",
+     "title": "Chocolate & Orange Cookies"
+    },
+    {
+     "product_id": "PLT-HCORNG",
+     "title": "Orange Hot Chocolate"
+    },
+    {
+     "product_id": "PLT-BQORNG",
+     "title": "Orange Rose Bouquet"
+    },
+    {
+     "product_id": "PLT-XPCHOR",
+     "title": "Cherry & Orange Christmas Pudding"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-ORBLOD",
+     "title": "Blood Oranges"
+    },
+    {
+     "product_id": "PLT-ORNAVL",
+     "title": "Navel Oranges"
+    },
+    {
+     "product_id": "PLT-OREASY",
+     "title": "Seedless Easy Peelers"
+    },
+    {
+     "product_id": "PLT-PANCRO",
+     "title": "Cranberry & Orange Panettone"
+    },
+    {
+     "product_id": "PLT-CKCORA",
+     "title": "Chocolate & Orange Cookies"
+    }
+   ]
+  },
+  {
+   "query": "face cream",
+   "baseline": [
+    {
+     "product_id": "PLT-SPFFCE",
+     "title": "SPF 50 Face Sun Cream"
+    },
+    {
+     "product_id": "PLT-FCEOIL",
+     "title": "Nourishing Face Oil"
+    },
+    {
+     "product_id": "PLT-PWDLSE",
+     "title": "Loose Face Powder"
+    },
+    {
+     "product_id": "PLT-TNTGEL",
+     "title": "Tinted Face Gel"
+    },
+    {
+     "product_id": "PLT-VLCOIL",
+     "title": "Velvetmere Cream Body Oil Spray"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-FCDAYC",
+     "title": "Daily Hydrating Face Cream"
+    },
+    {
+     "product_id": "PLT-FCCALM",
+     "title": "Calming Face Cream"
+    },
+    {
+     "product_id": "PLT-FCNGHT",
+     "title": "Rich Night Cream"
+    },
+    {
+     "product_id": "PLT-SPFFCE",
+     "title": "SPF 50 Face Sun Cream"
+    },
+    {
+     "product_id": "PLT-FCEOIL",
+     "title": "Nourishing Face Oil"
+    }
+   ]
+  },
+  {
+   "query": "single bed",
+   "baseline": [
+    {
+     "product_id": "PLT-CHRCUB",
+     "title": "Single Cube Chairbed"
+    },
+    {
+     "product_id": "PLT-BDOTTO",
+     "title": "Ottoman Storage Bed"
+    },
+    {
+     "product_id": "PLT-BDSLGH",
+     "title": "Upholstered Sleigh Bed"
+    },
+    {
+     "product_id": "PLT-BDPANL",
+     "title": "Panelled Wooden Bed"
+    },
+    {
+     "product_id": "PLT-SOFBED",
+     "title": "Two Seater Sofa Bed"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-BDSHKR",
+     "title": "Shaker Wooden Bed Frame"
+    },
+    {
+     "product_id": "PLT-BDMETL",
+     "title": "Metal Spindle Bed"
+    },
+    {
+     "product_id": "PLT-BDUPHL",
+     "title": "Upholstered Bed Frame"
+    },
+    {
+     "product_id": "PLT-CHRCUB",
+     "title": "Single Cube Chairbed"
+    },
+    {
+     "product_id": "PLT-MTTMEM",
+     "title": "Memory Foam Mattress Topper"
+    }
+   ]
+  },
+  {
+   "query": "rose gold",
+   "baseline": [
+    {
+     "product_id": "PLT-BQBLSH",
+     "title": "Blush Rose & Gold Eucalyptus Bouquet"
+    },
+    {
+     "product_id": "PLT-BQWHGF",
+     "title": "White Rose Bouquet with Gold Foliage"
+    },
+    {
+     "product_id": "PLT-RQHOOP",
+     "title": "Gold Plated Rose Quartz Hoop Earrings"
+    },
+    {
+     "product_id": "PLT-BQREDR",
+     "title": "Classic Red Rose Bouquet"
+    },
+    {
+     "product_id": "PLT-BQORNG",
+     "title": "Orange Rose Bouquet"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-RGSTUD",
+     "title": "Cubic Zirconia Stud Earrings"
+    },
+    {
+     "product_id": "PLT-RGMESH",
+     "title": "Slim Mesh Strap Watch"
+    },
+    {
+     "product_id": "PLT-RGCHRG",
+     "title": "Wireless Charging Pad"
+    },
+    {
+     "product_id": "PLT-RGHLIT",
+     "title": "Glow Powder Highlighter"
+    },
+    {
+     "product_id": "PLT-RGLAMP",
+     "title": "Touch Dimmable Table Lamp"
+    }
+   ]
+  },
+  {
+   "query": "cups",
+   "baseline": [
+    {
+     "product_id": "PLT-CUPMLD",
+     "title": "Moulded Cup T-Shirt Bra"
+    },
+    {
+     "product_id": "PLT-CUPDEM",
+     "title": "Lace Demi Cup Bra A-E"
+    },
+    {
+     "product_id": "PLT-CUPFUL",
+     "title": "Smooth Full Cup Bra B-G"
+    },
+    {
+     "product_id": "PLT-DRKTRV",
+     "title": "Leakproof Travel Cup"
+    },
+    {
+     "product_id": "PLT-CUPHLD",
+     "title": "Car Cup Holder Organiser"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-DRKTRV",
+     "title": "Leakproof Travel Cup"
+    },
+    {
+     "product_id": "PLT-DRKSET",
+     "title": "Set of 4 Espresso Cups"
+    },
+    {
+     "product_id": "PLT-DRKSAU",
+     "title": "Fine Bone China Cup and Saucer"
+    },
+    {
+     "product_id": "PLT-DRKTMB",
+     "title": "Double Walled Tumbler"
+    },
+    {
+     "product_id": "PLT-DRKMUG",
+     "title": "Speckled Stoneware Mug"
+    }
+   ]
+  }
+ ],
+ "controls": [
+  {
+   "query": "d cup bra",
+   "of": "cups",
+   "baseline": [
+    {
+     "product_id": "PLT-CUPMLD",
+     "title": "Moulded Cup T-Shirt Bra"
+    },
+    {
+     "product_id": "PLT-CUPDEM",
+     "title": "Lace Demi Cup Bra A-E"
+    },
+    {
+     "product_id": "PLT-CUPFUL",
+     "title": "Smooth Full Cup Bra B-G"
+    },
+    {
+     "product_id": "PLT-CUPBAL",
+     "title": "Padded Balcony Bra"
+    },
+    {
+     "product_id": "PLT-OFRBRA",
+     "title": "Seamless Smoothing Bra"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-CUPMLD",
+     "title": "Moulded Cup T-Shirt Bra"
+    },
+    {
+     "product_id": "PLT-CUPDEM",
+     "title": "Lace Demi Cup Bra A-E"
+    },
+    {
+     "product_id": "PLT-CUPFUL",
+     "title": "Smooth Full Cup Bra B-G"
+    },
+    {
+     "product_id": "PLT-CUPBAL",
+     "title": "Padded Balcony Bra"
+    },
+    {
+     "product_id": "PLT-OFRBRA",
+     "title": "Seamless Smoothing Bra"
+    }
+   ]
+  }
+ ],
+ "color_search": {
+  "text": "tee",
+  "color": "Navy",
+  "baseline": [
+   {
+    "product_id": "PLT-OFRTEE",
+    "title": "Active Training Tee",
+    "matched_skus": []
+   },
+   {
+    "product_id": "PLT-CRWTEE",
+    "title": "Mens Crew Neck Cotton Tee",
+    "matched_skus": []
+   },
+   {
+    "product_id": "PLT-JNSSET",
+    "title": "Kids' Jeans & Tee Set",
+    "matched_skus": []
+   }
+  ],
+  "nested": [
+   {
+    "product_id": "PLT-CRWTEE",
+    "title": "Mens Crew Neck Cotton Tee",
+    "matched_skus": [
+     {
+      "sku": "PLT-CRWTEE-001",
+      "color": "Navy",
+      "size": "S"
+     },
+     {
+      "sku": "PLT-CRWTEE-002",
+      "color": "Navy",
+      "size": "M"
+     },
+     {
+      "sku": "PLT-CRWTEE-003",
+      "color": "Navy",
+      "size": "L"
+     },
+     {
+      "sku": "PLT-CRWTEE-004",
+      "color": "Navy",
+      "size": "XL"
+     }
+    ]
+   }
+  ],
+  "facet": [
+   {
+    "color": "Navy",
+    "skus": 4,
+    "products": 1
+   },
+   {
+    "color": "White",
+    "skus": 4,
+    "products": 1
+   },
+   {
+    "color": "Heather Grey",
+    "skus": 3,
+    "products": 1
+   }
+  ]
+ }
+}
