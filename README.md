@@ -930,6 +930,20 @@ popularity (`sold_last_5_days`, `bestseller_rank`) and a `style_id` that a
 style's colourway docs share. The round 4 records above are unchanged and
 carry none of them.
 
+The records follow the variant structure observed on the live site: a style
+is one product page; a colourway is one doc (one tile); a SKU is nested in
+`skus`. Each colourway doc carries `colour_shade`, `colour_family` and
+`colour_hex`, the style's full `swatches` list rotated so its own colour
+leads, and the style's `rating` and `review_count`, so an uncollapsed search
+shows identical siblings. Legwear SKUs are waist x `inside_leg` with
+`in_stock` per colour, and jeans and trousers carry `rise`. Bedding SKUs are
+bed sizes whose label carries the dimension ("Double (4 ft 6)"), each with its
+own price. Beauty shades are colourway docs with `unit_size` in g or ml.
+`price_min` and `price_max` come from the SKUs, and `price` is the cheapest
+SKU. `size_range` is a list; for legwear it is derived from the in-stock lengths
+(Extra Short and Short/Petite give `petite`), never declared, so the flat
+`size_range` filter of class 6 means "has an in-stock petite SKU".
+
 `es_proof.py --host URL` loads the round 4 corpus plus these records into a
 run-named index, runs each query twice, writes `real_classes_proof.json` and
 deletes the index. The baseline is BM25 over title (x2) and description
