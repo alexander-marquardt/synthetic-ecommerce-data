@@ -913,8 +913,9 @@ not outrank. Every name is invented.
 | Bedding types | *duvet* → a duvet | duvet covers, duvet sets | type-exact intent |
 | Gift words on gift-packed products | *gift bag* → a gift bag (gift wrap) | 3 beauty bundles named "... Gift Bag", a wash bag, a make-up bag with a gift badge, a hospital bag kit, 2 gift sets "with Limited Edition ... Bag", a travel and a summer bag set; tail: 2 wallet gift sets, 2 hampers, 2 letterbox gifts, a plant "in Hessian Gift Bag", a "Gift Boxed" keyring | category boost: Gift Wrap |
 
-The real gift bags (three sizes of three prints, `GFT-*`) say *bag* once and
-never *gift*: the word lives only in their category. `corpus(duplicate_listing=True)`
+The real gift bag (one product, `GFT-KRAFT`, whose nine SKUs are three sizes
+of three prints) says *bag* once and never *gift*: the word lives only in its
+category. `corpus(duplicate_listing=True)`
 (or `build_preview4.py --duplicate-listing --ndjson PATH`) publishes one
 product id a second time under another category, which a search shows twice
 unless it collapses on `product_id`.
@@ -928,19 +929,25 @@ record model (`Style`, `Policy`, `ClassRow`, the closed lists) is in
 carry the fields a policy reads and a title never states: `product_type`,
 `audience` (adult, kids, baby), `size_range` (regular, petite, tall, plus),
 `neckline`, `pattern`, `leg_style`, a `was_price` on a sale item only,
-popularity (`sold_last_5_days`, `bestseller_rank`) and a `style_id` that a
-style's colorway docs share. The round 4 records above are unchanged and
-carry none of them.
+popularity (`sold_last_5_days`, `bestseller_rank`) and a pooled `rating` and
+`review_count`. The round 4 records above are unchanged and carry none of
+them.
 
-The records follow the variant structure observed on the live site: a style
-is one product page; a colorway is one doc (one tile); a SKU is nested in
-`skus`. Each colorway doc carries `color_shade`, `color_family` and
-`color_hex`, the style's full `swatches` list rotated so its own color
-leads, and the style's `rating` and `review_count`, so an uncollapsed search
-shows identical siblings. Legwear SKUs are waist x `inside_leg` with
-`in_stock` per color, and jeans and trousers carry `rise`. Bedding SKUs are
-bed sizes whose label carries the dimension ("Double (4 ft 6)"), each with its
-own price. Beauty shades are colorway docs with `unit_size` in g or ml.
+Every record, round 4's included, is one document per STYLE (the gen#125
+ruling, built by `variants.product`): a product with a color selector and a
+size selector. Every color x size combination the style is sold in is a SKU
+nested in `skus`, with its own `sku` id (`<product_id>-001` on), `color` (and
+`color_family`), size per size system, `price` and `in_stock`. The product's
+`color_options` (one swatch per color: `color`, `hex`, `pattern`, `family`)
+and `size_options` are derived from its SKUs, never authored, so they cannot
+disagree with them; `sku_count` is the number of SKUs. Products = styles,
+SKUs = nested rows: the crew-neck tee `PLT-CRWTEE` in Navy and White (S to XL)
+and Heather Grey (S to L) is ONE product holding 11 SKUs. Rating, review count
+and popularity are the style's: `sold_last_5_days` is the sales of every
+color, summed. Legwear SKUs are color x waist x `inside_leg` with `in_stock`
+per SKU, and jeans and trousers carry `rise`. Bedding SKUs are bed sizes whose
+label carries the dimension ("Double (4 ft 6)"), each with its own price.
+Beauty shades are the SKU colors of one product with `unit_size` in g or ml.
 `price_min` and `price_max` come from the SKUs, and `price` is the cheapest
 SKU. `size_range` is a list; for legwear it is derived from the in-stock lengths
 (Extra Short and Short/Petite give `petite`), never declared, so the flat
@@ -958,15 +965,28 @@ no leaf that is also a parent, one depth per node name) and its
 with "/", so a policy can route to a node. Food and furniture are colorless
 (no color facet, no swatches); beer carries `abv` as an attribute; beds carry
 nested SKUs from the shared five-size bed vocabulary with `width_cm` and
-`length_cm`. Metal goods (jewellery, watches, lighting, tech) carry a `finish`
-attribute equal to their color (Rose Gold, Yellow Gold, White Gold, Silver).
+`length_cm`. The SKUs of a metal good (jewellery, watches, lighting, tech)
+carry a `finish` equal to their color (Rose Gold, Yellow Gold, White Gold,
+Silver).
 
 Classes 10 to 12 are fixed by a route: the node's docs are recalled even when
 their text misses (an easy peeler that never says "orange") and boosted.
 Class 13 (mild) filters one in-stock nested SKU on `bed_size`. Class 14 reads
 "rose gold" as ONE color value, as a color vocabulary filled by a terms
-aggregation over the color field holds it, and filters on it: rose bouquets
-with gold foliage and gold-plated rose quartz drop out.
+aggregation over the color field holds it, and filters one in-stock nested
+SKU on it: rose bouquets with gold foliage and gold-plated rose quartz drop
+out.
+
+A color filter or facet goes through the nested SKUs: a product matches when
+at least one in-stock SKU has the color, and the facet counts products
+(`reverse_nested`), not SKUs. `es_proof.py` also runs the ruling's color
+search (`real_classes.COLOR_QUERY`, "tee" with color Navy) and records it under
+`color_search` in the proof. The nested filter returns `PLT-CRWTEE` once, and
+its `inner_hits` name the four Navy SKUs, so a UI can preselect Navy and show
+its swatch. The plain text query "navy tee" also finds the tee (second, behind
+a black training tee with no navy SKU), but its response names no SKU: nothing to preselect. The
+facet over the result reads Navy 4 SKUs / 1 product, White 4 / 1, Heather
+Grey 3 / 1.
 
 `es_proof.py --host URL` loads the round 4 corpus plus these records into a
 run-named index, runs each query twice, writes `real_classes_proof.json` and
@@ -980,22 +1000,22 @@ policy top 3 is all targets, and that this table is the proof's.
 
 | # | Class | Query | Baseline top 5 (BM25 x popularity) | With the policy: top 5 | Policy (raw ES) |
 |---|---|---|---|---|---|
-| 2 | Sibling types share a head word | *mattress topper* | 1. Quilted Mattress Protector `PLT-MTPQLT-01`<br>2. Waterproof Mattress Protector `PLT-MTPWTP-01`<br>3. Deep Fill Mattress Topper Protector `PLT-MTPTOP-01`<br>4. Cool Touch Mattress Protector `PLT-MTPCOL-01`<br>5. Pocket Sprung Mattress `PLT-MTRPKT-01` | 1. **Memory Foam Mattress Topper `PLT-MTTMEM-01`**<br>2. **Hollowfibre Mattress Topper `PLT-MTTFIB-01`**<br>3. **Wool Mattress Topper `PLT-MTTWOL-01`**<br>4. Quilted Mattress Protector `PLT-MTPQLT-01`<br>5. Waterproof Mattress Protector `PLT-MTPWTP-01` | product_type = Mattress Topper x10; product_type = Mattress Protector or Mattress or Pillow Protector x0.2 |
-| 3 | Over-broad style synonym plus a bestseller boost | *balloon jeans* | 1. Mid Rise Barrel Jeans `PLT-BRLMID-01`<br>2. Mid Rise Barrel Jeans `PLT-BRLMID-02`<br>3. Mid Rise Barrel Jeans `PLT-BRLMID-03`<br>4. High Rise Barrel Jeans `PLT-BRLHIG-01`<br>5. Mid Rise Barrel Jeans `PLT-BRLMID-04` | 1. **Balloon Leg Jeans `PLT-BLNLEG-01`**<br>2. **High Waisted Balloon Jeans `PLT-BLNHIW-01`**<br>3. **Cropped Balloon Jeans `PLT-BLNCRP-01`**<br>4. Mid Rise Barrel Jeans `PLT-BRLMID-01`<br>5. High Rise Barrel Jeans `PLT-BRLHIG-01` | leg_style = balloon x10; collapse on style_id |
-| 4 | A neckline word matched as a keyword | *womens boat neck top* | 1. Womens High Neck Ribbed Top `PLT-HNRIBT-01`<br>2. Womens Crew Neck Cotton Top `PLT-CNCOTT-01`<br>3. Womens Round Neck Jersey Top `PLT-RNJERS-01`<br>4. Womens Tie Neck Top and Trousers Set `PLT-NTSETS-01`<br>5. Womens Square Neck Bodysuit `PLT-SQBODY-01` | 1. **Striped Boat Neck Top `PLT-BNTSTR-01`**<br>2. **Boat Neck Jersey Top `PLT-BNTJER-01`**<br>3. **Slash Neck Long Sleeve Top `PLT-SNTLNG-01`**<br>4. Womens High Neck Ribbed Top `PLT-HNRIBT-01`<br>5. Womens Crew Neck Cotton Top `PLT-CNCOTT-01` | filter product_type = Top; neckline = boat or slash x10 |
-| 5 | Product type, pattern and audience not enforced | *check contrast bomber jacket* | 1. Cord Bomber Jacket `PLT-BMBCRD-01`<br>2. Wool Blend Bomber Jacket `PLT-BMBWOL-01`<br>3. Check Suit Jacket `PLT-SUITCK-01`<br>4. Boys' Bomber Jacket (2-8 Yrs) `PLT-KIDBMB-01`<br>5. Baby Bomber Jacket (3-36 Mths) `PLT-BABBMB-01` | 1. **Check Bomber Jacket with Contrast Collar `PLT-CKBCON-01`**<br>2. **Wool Check Bomber Jacket `PLT-CKBWOL-01`**<br>3. **Padded Check Bomber `PLT-CKBPAD-01`**<br>4. Cord Bomber Jacket `PLT-BMBCRD-01`<br>5. Wool Blend Bomber Jacket `PLT-BMBWOL-01` | filter product_type = Bomber Jacket; filter audience = adult; pattern = check x5 |
-| 6 | Size range and sale state not extracted | *petite sale* | 1. Tapered Trousers `PLT-TAPTRS-01`<br>2. Wide Leg Trousers `PLT-WIDTRS-01`<br>3. Straight Leg Jeans `PLT-STRJNS-01`<br>4. Slim Jeans `PLT-SLMJNS-01`<br>5. **Petite Straight Jeans `PLT-PETJNS-01`** | 1. **Petite Straight Jeans `PLT-PETJNS-01`**<br>2. **Petite Wrap Midi Dress `PLT-PETDRS-01`**<br>3. **Petite Wide Leg Trousers `PLT-PETTRS-01`** | filter size_range = petite; filter on sale (price < was_price) |
-| 7 | Sale word ignored | *womens sale dresses* | 1. Womens Linen Midi Dress `PLT-FPLINN-01`<br>2. Womens Smocked Mini Dress `PLT-FPSMOK-01`<br>3. Womens Jersey T-Shirt Dress `PLT-FPTEES-01`<br>4. Womens Satin Slip Dress `PLT-FPSLIP-01`<br>5. Womens High Neck Ribbed Top `PLT-HNRIBT-01` | 1. **Womens Tiered Maxi Dress `PLT-SDMAXI-01`**<br>2. **Womens Wrap Dress `PLT-SDWRAP-01`**<br>3. **Womens Shirt Dress `PLT-SDSHRT-01`**<br>4. **Petite Wrap Midi Dress `PLT-PETDRS-01`** | filter product_type = Dress; filter audience = adult; filter on sale (price < was_price) |
-| 9 | Pack count only in title spellings | *5 pack socks* | 1. Cotton Rich Socks 7 Pack `PLT-SK7PKC-01`<br>2. Kids' School Socks 5 Pack (6-16 Yrs) `PLT-SK5KID-01`<br>3. Striped Socks 3 Pack `PLT-SK3PKS-01`<br>4. **Bamboo Socks, Pack of 5 `PLT-SK5BMB-01`**<br>5. Wool Walking Socks `PLT-SK1WAL-01` | 1. **Bamboo Socks, Pack of 5 `PLT-SK5BMB-01`**<br>2. **Sports Trainer Socks 5 Pack `PLT-SK5SPT-01`**<br>3. **Cotton Rich Ankle Socks 5pk `PLT-SK5PKC-01`** | filter units_per_pack = 5; filter audience = adult |
-| 10 | A food word inside compounds and modifiers | *beer* | 1. Fiery Ginger Beer `PLT-GNGBER-01`<br>2. Cloudy Root Beer `PLT-RTBEER-01`<br>3. Beer Battered Haddock Fillets `PLT-BBHADD-01`<br>4. Beer Battered Chunky Chips `PLT-BBCHIP-01`<br>5. Malted Beer Bread `PLT-BRBRED-01` | 1. **Golden Table Beer `PLT-BRTABL-01`**<br>2. **4.8% Tropical Pineapple Sour Beer `PLT-BRTROP-01`**<br>3. **5.5% Hazy Wheat Beer `PLT-BRWHET-01`**<br>4. Fiery Ginger Beer `PLT-GNGBER-01`<br>5. Cloudy Root Beer `PLT-RTBEER-01` | route to Food/Drinks/Beer & Cider/Beer (recalled, boosted) |
-| 11 | A fruit plural read as a flavour and a color | *oranges* | 1. Cranberry & Orange Panettone `PLT-PANCRO-01`<br>2. Chocolate & Orange Cookies `PLT-CKCORA-01`<br>3. Orange Hot Chocolate `PLT-HCORNG-01`<br>4. Orange Rose Bouquet `PLT-BQORNG-01`<br>5. Cherry & Orange Christmas Pudding `PLT-XPCHOR-01` | 1. **Blood Oranges `PLT-ORBLOD-01`**<br>2. **Navel Oranges `PLT-ORNAVL-01`**<br>3. **Seedless Easy Peelers `PLT-OREASY-01`**<br>4. Cranberry & Orange Panettone `PLT-PANCRO-01`<br>5. Chocolate & Orange Cookies `PLT-CKCORA-01` | route to Food/Fresh Produce/Fruit/Citrus/Oranges (recalled, boosted) |
-| 12 | A type word that is also a color and a line name | *face cream* | 1. SPF 50 Face Sun Cream `PLT-SPFFCE-01`<br>2. Nourishing Face Oil `PLT-FCEOIL-01`<br>3. Loose Face Powder `PLT-PWDLSE-01`<br>4. Tinted Face Gel `PLT-TNTGEL-01`<br>5. Velvetmere Cream Body Oil Spray `PLT-VLCOIL-01` | 1. **Daily Hydrating Face Cream `PLT-FCDAYC-01`**<br>2. **Calming Face Cream `PLT-FCCALM-01`**<br>3. **Rich Night Cream `PLT-FCNGHT-01`**<br>4. SPF 50 Face Sun Cream `PLT-SPFFCE-01`<br>5. Nourishing Face Oil `PLT-FCEOIL-01` | route to Beauty/Skincare/Face Creams (recalled, boosted) |
-| 13 | A size word not applied (mild) | *single bed* | 1. Single Cube Chairbed `PLT-CHRCUB-01`<br>2. Ottoman Storage Bed `PLT-BDOTTO-01`<br>3. Upholstered Sleigh Bed `PLT-BDSLGH-01`<br>4. Panelled Wooden Bed `PLT-BDPANL-01`<br>5. Two Seater Sofa Bed `PLT-SOFBED-01` | 1. **Shaker Wooden Bed Frame `PLT-BDSHKR-01`**<br>2. **Metal Spindle Bed `PLT-BDMETL-01`**<br>3. **Upholstered Bed Frame `PLT-BDUPHL-01`**<br>4. Single Cube Chairbed `PLT-CHRCUB-01`<br>5. Memory Foam Mattress Topper `PLT-MTTMEM-01` | filter an in-stock SKU with bed_size = Single (3 ft); product_type = Bed x10 |
-| 14 | A two-word color split into words | *rose gold* | 1. Blush Rose & Gold Eucalyptus Bouquet `PLT-BQBLSH-01`<br>2. White Rose Bouquet with Gold Foliage `PLT-BQWHGF-01`<br>3. Gold Plated Rose Quartz Hoop Earrings `PLT-RQHOOP-01`<br>4. Classic Red Rose Bouquet `PLT-BQREDR-01`<br>5. Orange Rose Bouquet `PLT-BQORNG-01` | 1. **Cubic Zirconia Stud Earrings `PLT-RGSTUD-01`**<br>2. **Slim Mesh Strap Watch `PLT-RGMESH-01`**<br>3. **Wireless Charging Pad `PLT-RGCHRG-01`**<br>4. **Touch Dimmable Table Lamp `PLT-RGLAMP-01`**<br>5. **Glow Powder Highlighter `PLT-RGHLIT-01`** | filter color_shade = Rose Gold |
+| 2 | Sibling types share a head word | *mattress topper* | 1. Quilted Mattress Protector `PLT-MTPQLT`<br>2. Waterproof Mattress Protector `PLT-MTPWTP`<br>3. Deep Fill Mattress Topper Protector `PLT-MTPTOP`<br>4. Cool Touch Mattress Protector `PLT-MTPCOL`<br>5. Pocket Sprung Mattress `PLT-MTRPKT` | 1. **Memory Foam Mattress Topper `PLT-MTTMEM`**<br>2. **Hollowfibre Mattress Topper `PLT-MTTFIB`**<br>3. **Wool Mattress Topper `PLT-MTTWOL`**<br>4. Quilted Mattress Protector `PLT-MTPQLT`<br>5. Waterproof Mattress Protector `PLT-MTPWTP` | product_type = Mattress Topper x10; product_type = Mattress Protector or Mattress or Pillow Protector x0.2 |
+| 3 | Over-broad style synonym plus a bestseller boost | *balloon jeans* | 1. Mid Rise Barrel Jeans `PLT-BRLMID`<br>2. High Rise Barrel Jeans `PLT-BRLHIG`<br>3. Girls' Barrel Jeans (6-16 Yrs) `PLT-BRLKID`<br>4. Barrel Leg Trousers `PLT-BRLTRS`<br>5. Straight Leg Jeans `PLT-STRJNS` | 1. **Balloon Leg Jeans `PLT-BLNLEG`**<br>2. **Cropped Balloon Jeans `PLT-BLNCRP`**<br>3. **High Waisted Balloon Jeans `PLT-BLNHIW`**<br>4. Mid Rise Barrel Jeans `PLT-BRLMID`<br>5. High Rise Barrel Jeans `PLT-BRLHIG` | leg_style = balloon x10 |
+| 4 | A neckline word matched as a keyword | *womens boat neck top* | 1. Womens High Neck Ribbed Top `PLT-HNRIBT`<br>2. Womens Crew Neck Cotton Top `PLT-CNCOTT`<br>3. Womens Round Neck Jersey Top `PLT-RNJERS`<br>4. Womens Tie Neck Top and Trousers Set `PLT-NTSETS`<br>5. Womens Square Neck Bodysuit `PLT-SQBODY` | 1. **Striped Boat Neck Top `PLT-BNTSTR`**<br>2. **Boat Neck Jersey Top `PLT-BNTJER`**<br>3. **Slash Neck Long Sleeve Top `PLT-SNTLNG`**<br>4. Womens High Neck Ribbed Top `PLT-HNRIBT`<br>5. Womens Crew Neck Cotton Top `PLT-CNCOTT` | filter product_type = Top; neckline = boat or slash x10 |
+| 5 | Product type, pattern and audience not enforced | *check contrast bomber jacket* | 1. Cord Bomber Jacket `PLT-BMBCRD`<br>2. Wool Blend Bomber Jacket `PLT-BMBWOL`<br>3. Check Suit Jacket `PLT-SUITCK`<br>4. Boys' Bomber Jacket (2-8 Yrs) `PLT-KIDBMB`<br>5. Baby Bomber Jacket (3-36 Mths) `PLT-BABBMB` | 1. **Check Bomber Jacket with Contrast Collar `PLT-CKBCON`**<br>2. **Wool Check Bomber Jacket `PLT-CKBWOL`**<br>3. **Padded Check Bomber `PLT-CKBPAD`**<br>4. Cord Bomber Jacket `PLT-BMBCRD`<br>5. Wool Blend Bomber Jacket `PLT-BMBWOL` | filter product_type = Bomber Jacket; filter audience = adult; pattern = check x5 |
+| 6 | Size range and sale state not extracted | *petite sale* | 1. Tapered Trousers `PLT-TAPTRS`<br>2. Wide Leg Trousers `PLT-WIDTRS`<br>3. Straight Leg Jeans `PLT-STRJNS`<br>4. Slim Jeans `PLT-SLMJNS`<br>5. **Petite Straight Jeans `PLT-PETJNS`** | 1. **Petite Straight Jeans `PLT-PETJNS`**<br>2. **Petite Wrap Midi Dress `PLT-PETDRS`**<br>3. **Petite Wide Leg Trousers `PLT-PETTRS`** | filter size_range = petite; filter on sale (price < was_price) |
+| 7 | Sale word ignored | *womens sale dresses* | 1. Womens Linen Midi Dress `PLT-FPLINN`<br>2. Womens Smocked Mini Dress `PLT-FPSMOK`<br>3. Womens Jersey T-Shirt Dress `PLT-FPTEES`<br>4. Womens Satin Slip Dress `PLT-FPSLIP`<br>5. Womens High Neck Ribbed Top `PLT-HNRIBT` | 1. **Womens Wrap Dress `PLT-SDWRAP`**<br>2. **Womens Tiered Maxi Dress `PLT-SDMAXI`**<br>3. **Womens Shirt Dress `PLT-SDSHRT`**<br>4. **Petite Wrap Midi Dress `PLT-PETDRS`** | filter product_type = Dress; filter audience = adult; filter on sale (price < was_price) |
+| 9 | Pack count only in title spellings | *5 pack socks* | 1. Cotton Rich Socks 7 Pack `PLT-SK7PKC`<br>2. Striped Socks 3 Pack `PLT-SK3PKS`<br>3. Kids' School Socks 5 Pack (6-16 Yrs) `PLT-SK5KID`<br>4. **Bamboo Socks, Pack of 5 `PLT-SK5BMB`**<br>5. Wool Walking Socks `PLT-SK1WAL` | 1. **Bamboo Socks, Pack of 5 `PLT-SK5BMB`**<br>2. **Sports Trainer Socks 5 Pack `PLT-SK5SPT`**<br>3. **Cotton Rich Ankle Socks 5pk `PLT-SK5PKC`** | filter units_per_pack = 5; filter audience = adult |
+| 10 | A food word inside compounds and modifiers | *beer* | 1. Fiery Ginger Beer `PLT-GNGBER`<br>2. Cloudy Root Beer `PLT-RTBEER`<br>3. Beer Battered Haddock Fillets `PLT-BBHADD`<br>4. Malted Beer Bread `PLT-BRBRED`<br>5. Beer Battered Chunky Chips `PLT-BBCHIP` | 1. **Golden Table Beer `PLT-BRTABL`**<br>2. **4.8% Tropical Pineapple Sour Beer `PLT-BRTROP`**<br>3. **5.5% Hazy Wheat Beer `PLT-BRWHET`**<br>4. Fiery Ginger Beer `PLT-GNGBER`<br>5. Cloudy Root Beer `PLT-RTBEER` | route to Food/Drinks/Beer & Cider/Beer (recalled, boosted) |
+| 11 | A fruit plural read as a flavour and a color | *oranges* | 1. Cranberry & Orange Panettone `PLT-PANCRO`<br>2. Chocolate & Orange Cookies `PLT-CKCORA`<br>3. Orange Hot Chocolate `PLT-HCORNG`<br>4. Orange Rose Bouquet `PLT-BQORNG`<br>5. Cherry & Orange Christmas Pudding `PLT-XPCHOR` | 1. **Blood Oranges `PLT-ORBLOD`**<br>2. **Navel Oranges `PLT-ORNAVL`**<br>3. **Seedless Easy Peelers `PLT-OREASY`**<br>4. Cranberry & Orange Panettone `PLT-PANCRO`<br>5. Chocolate & Orange Cookies `PLT-CKCORA` | route to Food/Fresh Produce/Fruit/Citrus/Oranges (recalled, boosted) |
+| 12 | A type word that is also a color and a line name | *face cream* | 1. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>2. Nourishing Face Oil `PLT-FCEOIL`<br>3. Loose Face Powder `PLT-PWDLSE`<br>4. Tinted Face Gel `PLT-TNTGEL`<br>5. Velvetmere Cream Body Oil Spray `PLT-VLCOIL` | 1. **Daily Hydrating Face Cream `PLT-FCDAYC`**<br>2. **Calming Face Cream `PLT-FCCALM`**<br>3. **Rich Night Cream `PLT-FCNGHT`**<br>4. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>5. Nourishing Face Oil `PLT-FCEOIL` | route to Beauty/Skincare/Face Creams (recalled, boosted) |
+| 13 | A size word not applied (mild) | *single bed* | 1. Single Cube Chairbed `PLT-CHRCUB`<br>2. Ottoman Storage Bed `PLT-BDOTTO`<br>3. Upholstered Sleigh Bed `PLT-BDSLGH`<br>4. Panelled Wooden Bed `PLT-BDPANL`<br>5. Two Seater Sofa Bed `PLT-SOFBED` | 1. **Shaker Wooden Bed Frame `PLT-BDSHKR`**<br>2. **Metal Spindle Bed `PLT-BDMETL`**<br>3. **Upholstered Bed Frame `PLT-BDUPHL`**<br>4. Single Cube Chairbed `PLT-CHRCUB`<br>5. Memory Foam Mattress Topper `PLT-MTTMEM` | filter an in-stock SKU with bed_size = Single (3 ft); product_type = Bed x10 |
+| 14 | A two-word color split into words | *rose gold* | 1. Blush Rose & Gold Eucalyptus Bouquet `PLT-BQBLSH`<br>2. White Rose Bouquet with Gold Foliage `PLT-BQWHGF`<br>3. Gold Plated Rose Quartz Hoop Earrings `PLT-RQHOOP`<br>4. Classic Red Rose Bouquet `PLT-BQREDR`<br>5. Orange Rose Bouquet `PLT-BQORNG` | 1. **Cubic Zirconia Stud Earrings `PLT-RGSTUD`**<br>2. **Slim Mesh Strap Watch `PLT-RGMESH`**<br>3. **Wireless Charging Pad `PLT-RGCHRG`**<br>4. **Glow Powder Highlighter `PLT-RGHLIT`**<br>5. **Touch Dimmable Table Lamp `PLT-RGLAMP`** | filter an in-stock SKU with color = Rose Gold |
 
-The cross-cutting patterns show in the table: the barrel bestseller fills the
-balloon baseline once per colorway (five docs share `PLT-BRLMID`) until the
-policy collapses on `style_id`; kids and baby bombers enter an adult query;
+The cross-cutting patterns show in the table: the barrel bestseller leads
+the balloon baseline (one tile however many colors it has: no collapse is
+needed when a style is one document); kids and baby bombers enter an adult query;
 and popularity lifts every distractor above a better text match. Class 9 is
 an on-stage demo case: the pack count is a style attribute
 (`units_per_pack`, a numeric count in `C62`, as industrial states a package
