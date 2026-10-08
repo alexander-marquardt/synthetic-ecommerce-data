@@ -62,7 +62,7 @@ def drawing(shape: str, color: Color, label: str | None = None, **params) -> dic
 
 #: The SKU fields that are a size, one per size system, in selector order.
 SIZE_KEYS = ("size", "size_uk", "size_eu", "size_us", "length", "inside_leg", "waist",
-             "bed_size")  # fmt: skip
+             "bed_size", "width")  # fmt: skip
 
 
 def swatch(color: Color, family: str | None = None) -> dict:
@@ -593,6 +593,13 @@ BEAUTY = (
 # Docs and the SKU report
 # ==========================================================================
 
+#: Preview section -> its styles. A new family of this module plugs in here: one
+#: entry, and ``build_preview4.samples()`` shows it, :func:`sku_report` counts it
+#: and the text corpus (:func:`distractors.corpus`) holds it. A family kept in
+#: its own module, like footwear (:mod:`footwear_rows`), is NOT listed here: it
+#: is wired into ``build_preview4.samples()`` and ``_planted()`` by hand, so it
+#: stays out of that corpus; then raise ``build_preview4.SAMPLES`` and the
+#: section counts in ``test_variants.py``.
 FAMILIES: dict[str, tuple] = {"Jeans": JEANS, "Bras": BRAS, "Bedding": BEDDING, "Beauty": BEAUTY}
 DEEP = ("Jeans", "Bras")
 
