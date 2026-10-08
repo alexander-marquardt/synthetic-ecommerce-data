@@ -601,6 +601,26 @@ def _brand_tag(brand: str) -> list[str]:
     ]
 
 
+def _render_styled(shape, draw, paint, defs, fill, label, brand, uid, params, style) -> str:
+    """:func:`render` in a brand's house style (see ``house_styles``)."""
+    import house_styles as hs  # deferred: house_styles is an optional layer over the kit
+
+    inner = "".join(draw(paint, fill, label, **(params or {})))
+    if shape in OFFSET_Y:
+        inner = f'<g transform="translate(0 {OFFSET_Y[shape]})">{inner}</g>'
+    sheet_defs, sheet, overlay = hs.dress(style, brand, uid)
+    all_defs = defs + "".join(sheet_defs)
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" viewBox="0 0 {SIZE} {SIZE}">',
+        f"<defs>{all_defs}</defs>" if all_defs else "",
+        *sheet,
+        f'<g class="product" transform="{hs.product_transform(style)}">{hs.restyle(inner, style)}</g>',
+        f'<g class="brand">{"".join(overlay)}</g>',
+        "</svg>",
+    ]
+    return "".join(p for p in parts if p)
+
+
 def register(shapes: dict, offsets: dict | None = None) -> None:
     """Add another module's shapes (and their vertical offsets) to the kit."""
     SHAPES.update(shapes)
@@ -614,17 +634,24 @@ def render(
     brand: str | None = None,
     uid: str = "p",
     params: dict | None = None,
+    style: object | None = None,
 ) -> str:
     """One product drawing as a standalone SVG document string.
 
     ``uid`` makes the pattern id unique, so several drawings can be inlined in
     one HTML page without their ``<pattern>`` ids colliding. ``params`` are
     passed to a parametric shape (a trouser's fit and rise, a top's neckline).
+    ``style`` is the brand's :class:`house_styles.HouseStyle`: its paper,
+    frame, outline hand and logo replace the plain sheet and tag.
     """
     draw = SHAPES[shape]
     pid = f"fill-{uid}"
     defs = pattern_defs(fill, pid)
     paint = fill.base if fill.pattern == "solid" else f"url(#{pid})"
+    if style is not None:
+        return _render_styled(
+            shape, draw, paint, defs, fill, label, brand or "", uid, params, style
+        )
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" viewBox="0 0 {SIZE} {SIZE}">',
         f"<defs>{defs}</defs>" if defs else "",
