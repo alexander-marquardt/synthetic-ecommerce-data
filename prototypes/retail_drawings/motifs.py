@@ -135,6 +135,15 @@ SURFACES: dict[str, tuple[tuple[str, ...], tuple[float, float, float] | None]] =
 }
 
 
+PRINT_BOX: dict[str, tuple[float, float, float, float]] = {}
+LARGE = (0.0, 0.0)
+LARGE_SCALE = 0.6
+
+
+def drawn_box(name: str) -> tuple[float, float, float, float]:
+    return (0.0, 0.0, 0.0, 0.0)
+
+
 def check_surface(shape: str, placement: str) -> None:
     """ValueError unless ``shape`` takes a print laid out as ``placement``."""
     if shape not in SURFACES:

@@ -174,9 +174,11 @@ def test_every_distractor_outranks_the_best_intended_product_on_text() -> None:
 
 def test_the_table_holds_the_three_issue_classes_and_the_gift_bag_class() -> None:
     assert [(r.query, len(r.distractors), len(r.tail)) for r in dz.TABLE] == [
-        ("lemon", 5, 0),
+        ("lemon", 7, 0),
+        ("oranges", 4, 0),
         ("jeans", 4, 0),
         ("duvet", 4, 0),
+        ("dinosaur", 3, 0),
         ("gift bag", 10, 8),
     ]
 
