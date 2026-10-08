@@ -46,9 +46,9 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
 
-from ..catalog.breadth import SPEC_QUALITY
-from ..catalog.entry import flat_key
-from ..catalog.generate import Generator
+from synthetic_ecommerce_data.core.entry import flat_key
+from synthetic_ecommerce_data.domains.industrial.breadth import SPEC_QUALITY
+from synthetic_ecommerce_data.domains.industrial.generate import Generator
 
 #: Attributes the generator itself mints as part codes (``List Number``), and
 #: so withheld from the sidebar whatever their values measure. Read from the

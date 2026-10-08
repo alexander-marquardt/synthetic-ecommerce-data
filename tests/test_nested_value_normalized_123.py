@@ -10,7 +10,7 @@ it, so the declaration and the mapped sub-field cannot drift apart.
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.catalog import emit
+from synthetic_ecommerce_data.core import emit
 
 PROPS = emit.NESTED_MAPPING["mappings"]["properties"]
 

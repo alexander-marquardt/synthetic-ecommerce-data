@@ -6,10 +6,10 @@ import numpy as np
 import pytest
 
 from helpers import colour_mask
-from synthetic_ecommerce_data.records import DRAWABLE
-from synthetic_ecommerce_data.render import CARD, DETAIL, render_record
-from synthetic_ecommerce_data.render.canvas import INK
-from synthetic_ecommerce_data.render.profiles import CARD_CSS, DETAIL_CSS, SCALE
+from synthetic_ecommerce_data.domains.industrial.records import DRAWABLE
+from synthetic_ecommerce_data.domains.industrial.render import CARD, DETAIL, render_record
+from synthetic_ecommerce_data.domains.industrial.render.canvas import INK
+from synthetic_ecommerce_data.domains.industrial.render.profiles import CARD_CSS, DETAIL_CSS, SCALE
 
 ALL_SKUS = sorted(DRAWABLE)
 

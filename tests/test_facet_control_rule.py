@@ -26,10 +26,10 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_ecommerce_data.catalog import emit
-from synthetic_ecommerce_data.catalog.breadth import SPEC_QUALITY
-from synthetic_ecommerce_data.catalog.config import GeneratorConfig
-from synthetic_ecommerce_data.catalog.generate import generate
+from synthetic_ecommerce_data.core import emit
+from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.domains.industrial.breadth import SPEC_QUALITY
+from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.prism.derive import (
     IDENTIFIER_DISPERSION,
     MIN_PRESENCE,
@@ -757,7 +757,7 @@ def test_a_declared_identifier_is_withheld_whatever_its_dispersion() -> None:
 
 def test_derive_reads_the_generators_identifier_declaration() -> None:
     """One source for which attributes are identifiers: the generator's own set."""
-    from synthetic_ecommerce_data.catalog.generate import Generator
+    from synthetic_ecommerce_data.domains.industrial.generate import Generator
     from synthetic_ecommerce_data.prism import derive
 
     assert derive.IDENTIFIER_ATTRIBUTES is Generator.IDENTIFIER_ATTRIBUTES

@@ -15,7 +15,7 @@ Two parts, both summed per type, so that adding a type edits nothing here:
 from __future__ import annotations
 
 import type_facts
-from synthetic_ecommerce_data.catalog import breadth
+from synthetic_ecommerce_data.domains.industrial import breadth
 
 _DEPTH = type_facts.default_size()
 DEPTH_LINES = sum(lines for lines, _ in _DEPTH.values())

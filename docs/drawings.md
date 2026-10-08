@@ -1,6 +1,6 @@
 # The drawings: how a SKU record becomes an SVG
 
-This is the developer's view of `src/synthetic_ecommerce_data/drawing/`:
+This is the developer's view of `src/synthetic_ecommerce_data/core/drawing/`:
 what runs, in what order, and where to change it. The README's
 [Images](../README.md#images) section states what the drawings promise. The
 rulings behind them (one drawing per SKU, no text, one scale per type, the
@@ -15,11 +15,11 @@ start with `tests/` or `scripts/`.
 
 ```
 SKU record (attribute name -> published string)
-  -> FIGURES[product_type]                       drawing/figures.py
+  -> FIGURES[product_type]                       domains/industrial/drawing/figures.py
        -> figure function, e.g. fastener()
-            -> render/<kind>.geometry_from_record()   (six kinds, see below)
-            -> Figure: polygons, discs, lines, dots, in INCHES   drawing/model.py
-  -> type_scale(extent)                          drawing/sheet.py
+            -> domains/industrial/render/<kind>.geometry_from_record()   (six kinds, see below)
+            -> Figure: polygons, discs, lines, dots, in INCHES   core/drawing/model.py
+  -> type_scale(extent)                          core/drawing/sheet.py
   -> paint(figure, house_style, fill, hatch, scale)
        -> magnifier(...) decides plain or lensed
        -> drawing.svg.Svg collects the elements and writes bytes
@@ -28,46 +28,46 @@ SKU record (attribute name -> published string)
 
 Step by step:
 
-1. **The record.** `catalog/emit.py` `drawing_record()` builds the input from
+1. **The record.** `core/emit.py` `drawing_record()` builds the input from
    the catalog: the product's and the SKU's published attributes merged, name
    to value, with a multi-valued attribute joined by `", "`. The bundle
-   rebuild (`catalog/bundle.py` `_record()`) builds the same dict from the
+   rebuild (`core/bundle.py` `_record()`) builds the same dict from the
    committed `nested.jsonl`. The two must agree byte for byte, because the
    digests they produce are compared (see [Determinism](#determinism-and-the-publish-gate)).
 2. **Dispatch.** `drawing.draw_product(product_type, brand, records)` looks
    the type up in `FIGURES` and draws every SKU of one product at one scale.
    `draw_sku()` is the same call for a single SKU. Both live in
-   `drawing/__init__.py`.
+   `core/drawing/__init__.py`.
 3. **Geometry.** The figure function reads the dimensions it draws. For six
    kinds it does not parse anything itself. It calls the
-   `geometry_from_record()` of the matching module in `render/` (`endmill`,
+   `geometry_from_record()` of the matching module in `domains/industrial/render/` (`endmill`,
    `drill`, `tap`, `fastener`, `washer` and `flapdisc`), the same function the
    older dimensioned renderer uses, so the two cannot read one record two ways.
    The hammer, the five types added under #103 (`hex_nut`, `bearing`,
    `depressed_wheel`, `hex_key`, `kit`) and the breadth shapes have no
-   `render/` geometry. The nut, bearing, wheel and hex key read their lengths
+   `domains/industrial/render/` geometry. The nut, bearing, wheel and hex key read their lengths
    inline with `_length_or()` in `figures.py` (a `dimensions.parse_length`
    wrapper). The hammer parses its face and handle lengths with its own
    helper, the kit draws one slot per size it counts, and the breadth shapes
    read nothing (see [Breadth types](#breadth-types-six-fixed-shapes)).
 4. **Figure.** The function returns a `Drawn(figure, source)`. A `Figure`
-   (`drawing/model.py`) holds shapes in **inches**: `Poly` (also used for
+   (`core/drawing/model.py`) holds shapes in **inches**: `Poly` (also used for
    rectangles), `Disc`, `Lines` (line work: flutes, thread crests) and `Dots`
    (grit texture), plus `size_in`. Each `Poly` and `Disc` has a paint *role*:
    `part`, `plain`, `hole`, `dark`, `handle` or `grip`. Geometry stays in real
    units until the last step, so "a longer length of cut is drawn longer" holds
    by construction.
-5. **Scale and layout.** `drawing/sheet.py` `type_scale()` turns the type's
+5. **Scale and layout.** `core/drawing/sheet.py` `type_scale()` turns the type's
    declared extent into sheet units per inch. `paint()` draws the brand frame,
    registers the material's hatch pattern, then either centres the figure on
    the sheet or, when `magnifier()` says the part is too small to see, draws
    it at true scale near the bottom with an enlarged copy inside a lens.
-6. **Style.** `drawing/style.py` supplies the brand's house style (`ink`,
-   `paper`, `frame`, from the brand book in `catalog/brands.py`), the part fill
+6. **Style.** `core/drawing/style.py` supplies the brand's house style (`ink`,
+   `paper`, `frame`, from the brand book in `core/brands.py`), the part fill
    (the published finish's colour, else the bare material's) and the section
    hatch (the material's). A brand, finish or material with no entry raises
    `UnknownStyleError` instead of falling back to a default colour.
-7. **SVG bytes.** `drawing/svg.py` is the writer. It uses no figure library
+7. **SVG bytes.** `core/drawing/svg.py` is the writer. It uses no figure library
    and no XML library: `Svg` keeps an ordered list of element strings plus a
    `<defs>` map, and `to_bytes()` joins them into UTF-8 bytes. The module
    docstring says why matplotlib was dropped. Every coordinate goes through
@@ -75,12 +75,12 @@ Step by step:
    sorted order and `<defs>` entries sorted by key, so call-site keyword order
    cannot change the bytes. The root always carries `width="200"
    height="300" viewBox="0 0 200 300"`. The only XML library involved is the
-   checker: `svg_problems()` in `drawing/__init__.py` parses the output with
+   checker: `svg_problems()` in `core/drawing/__init__.py` parses the output with
    `xml.etree.ElementTree` to apply the allow-list.
 
 ## The registry and dispatch
 
-`FIGURES` in `drawing/figures.py` maps a product type key to
+`FIGURES` in `domains/industrial/drawing/figures.py` maps a product type key to
 `(figure_function, (width_in, height_in))`. The pair is the type's largest
 drawn bounding box, in inches, with a little headroom.
 
@@ -90,21 +90,21 @@ drawn bounding box, in inches, with a little headroom.
 * `FIGURES.update(...)` below `kit()` adds the five types from #103:
   `kit_assortment`, `nut_hex`, `bearing_radial_ball`,
   `wheel_depressed_center` and `hex_key`.
-* A type declared in its own module (`product_types/`) is **not written in
+* A type declared in its own module (`domains/industrial/product_types/`) is **not written in
   `figures.py`**: its `TypeSpec` carries `figure` and `extent`, and
   `typespec.register` writes the pair into `FIGURES`. `screw_socket_head`
   (the twelfth original type) and `lock_nuts_nylon_insert` (which reuses
   `hex_nut`) are declared this way.
 * The 43 breadth types are not written in `figures.py` either.
-  `catalog/breadth.py` `register()` adds one `FIGURES` entry per breadth row,
-  pointing at one of the six fixed shapes in `drawing/breadth_shapes.py`. It
+  `domains/industrial/breadth.py` `register()` adds one `FIGURES` entry per breadth row,
+  pointing at one of the six fixed shapes in `domains/industrial/drawing/breadth_shapes.py`. It
   also fills `taxonomy.LEAVES`, `taxonomy.DRAWING`, `STANDARDS_FAMILY` and
   `VOCAB`.
   `FIGURES` is a `RegistryTable`: its first read registers every type module
   and breadth row, so a script that imports only
-  `synthetic_ecommerce_data.drawing` still sees every type.
+  `synthetic_ecommerce_data.core.drawing` still sees every type.
 
-Dispatch is a dictionary lookup (`_figure()` in `drawing/__init__.py`). An
+Dispatch is a dictionary lookup (`_figure()` in `core/drawing/__init__.py`). An
 unknown type raises `UnknownTypeError`. Nothing falls back to a generic shape.
 `tests/test_sku_drawings.py::test_every_product_type_has_a_figure` holds that
 `FIGURES` and `VOCAB` have the same keys.
@@ -125,7 +125,7 @@ Drive Size         1/4"              (plus Item, Type, Thread Type, Meets/Exceed
 ```
 
 `FIGURES["screw_socket_head"]` is `_broken(2.75, 5.95)`, so `fastener(record,
-max_height=5.95)` runs. It calls `render/fastener.geometry_from_record()`,
+max_height=5.95)` runs. It calls `domains/industrial/render/fastener.geometry_from_record()`,
 which reads the record into a `FastenerGeometry`:
 
 | attribute | geometry | what it becomes in the drawing |
@@ -183,7 +183,7 @@ enlargement range of each:
 ```sh
 uv run --directory tests python -c "
 from test_sku_drawings import _golden_skus, _drawn_size
-from synthetic_ecommerce_data.drawing.sheet import magnifier
+from synthetic_ecommerce_data.core.drawing.sheet import magnifier
 lens = [m for m in (magnifier(*_drawn_size(p['product_type'], r)) for p, _, r in _golden_skus()) if m]
 for kind in (True, False):
     k = [m.k for m in lens if m.handle is kind]
@@ -204,7 +204,7 @@ it per SKU as `geometry`. A drawing has no text, so a nominal proportion never
 prints a number that contradicts the record. The source field is there so the
 share of guessed geometry is visible.
 
-For the six kinds that use `render/` geometry, `_read()` in `figures.py` tries
+For the six kinds that use `domains/industrial/render/` geometry, `_read()` in `figures.py` tries
 these in order and stops at the first that parses:
 
 1. **The record as published.** `record`.
@@ -222,11 +222,11 @@ these in order and stops at the first that parses:
 5. **The nominal shape.** `nominal`. This is the only rung where the record's
    primary dimension itself could not be used.
 
-A "contradiction" is any exception in `render/attrs.py` `REFUSALS`:
+A "contradiction" is any exception in `domains/industrial/render/attrs.py` `REFUSALS`:
 `MissingAttributeError`, `ImpossibleGeometryError`, `UnsupportedFeatureError`
 and `DimensionParseError`.
 
-The figures without `render/` geometry decide per attribute. `_length_or()`
+The figures without `domains/industrial/render/` geometry decide per attribute. `_length_or()`
 returns the parsed value or a proportional fallback. The result is `record` if
 every drawn value parsed, `partial` if the primary parsed, and `nominal` if it
 did not. The hammer is never `nominal`: a missing face or length makes it
@@ -243,8 +243,8 @@ depth SKU falls back to nominal geometry.
 
 The breadth categories (row files in `data/breadth_categories/` and breadth modules; every
 breadth line is published with `spec_quality: "fast_and_cheap"`, set by
-`catalog/breadth.py` `SPEC_QUALITY`) draw one of six shapes from
-`drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`, `disc`, `tube`
+`domains/industrial/breadth.py` `SPEC_QUALITY`) draw one of six shapes from
+`domains/industrial/drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`, `disc`, `tube`
 and `bracket`. Each YAML row names its shape with `shape:`. A shape function
 discards the record (`del record`) and returns the same geometry every time, with its own fixed
 extent in `BREADTH_SHAPES`. Brand, material and finish still apply, because
@@ -266,14 +266,14 @@ to tell them apart by.
 
 The drawings are not committed. What is committed is the digest:
 
-* `sed-generate build` writes `images.jsonl` (`catalog/emit.py`
+* `sed-generate build` writes `images.jsonl` (`core/emit.py`
   `iter_image_manifest()`), one row per SKU with `image_id`, `path`, `url`,
   `sha256`, `bytes` and `geometry`.
 * `tests/test_catalog_golden.py` regenerates the catalog and compares every
   committed file by sha256, `images.jsonl` included. A change that moves any
   drawing turns it red until `golden-catalog/` is regenerated in the same
   commit.
-* `sed-generate images --catalog golden-catalog ...` (`catalog/bundle.py`
+* `sed-generate images --catalog golden-catalog ...` (`core/bundle.py`
   `rebuild()`) redraws every SKU from the committed `nested.jsonl` and raises
   `BundleMismatchError` unless each drawing's sha256 equals its
   `images.jsonl` row, and every row names a SKU. Only then does it write the
@@ -296,7 +296,7 @@ that matter most when you change a figure:
 
 | test | what it holds | corpus |
 |---|---|---|
-| `test_elongated_parts_are_drawn_to_their_published_length` | for socket and flat screws, hex bolts, square end mills and drills drawn from the `record`, the on-axis extent equals the `render/` geometry's length to 1e-6 | SMALL |
+| `test_elongated_parts_are_drawn_to_their_published_length` | for socket and flat screws, hex bolts, square end mills and drills drawn from the `record`, the on-axis extent equals the `domains/industrial/render/` geometry's length to 1e-6 | SMALL |
 | `test_a_drawn_dimension_changes_the_drawing` / `test_an_attribute_no_drawing_shows_does_not_change_it` | a 9" screw draws differently; adding `Standards` changes no byte | SMALL |
 | `test_siblings_whose_drawn_values_differ_never_draw_alike` | variants whose drawn values differ never share bytes. Attributes in `NOT_DRAWN_BY_ANY_FIGURE` are ignored, and breadth is exempt | golden |
 | `test_no_product_exceeds_its_types_extent` / `test_every_drawing_fits_its_sheet` | the `FIGURES` extent really is the type's maximum, so its scale is a constant | golden |
@@ -314,9 +314,9 @@ pinned by a test.
 
 ## Adding a drawing for a new type
 
-1. **Write the figure function** in `drawing/figures.py`:
+1. **Write the figure function** in `domains/industrial/drawing/figures.py`:
    `def my_type(record: Record) -> Drawn`. Draw in inches with `Figure`'s
-   `poly`, `rect`, `disc`, `lines` and `dots`, and set `size_in`. If `render/`
+   `poly`, `rect`, `disc`, `lines` and `dots`, and set `size_in`. If `domains/industrial/render/`
    already has a `geometry_from_record` for the kind, call it through `_read()`
    with a `*_DEFAULTS`, a `*_NOMINAL` and the primary attribute. Otherwise
    parse with `_length_or()`. Return `record`, `partial` or `nominal`
@@ -334,14 +334,14 @@ pinned by a test.
    type at most 10%.
 3. **Keep the type keys in step.** A module's `TypeSpec` fills `DRAWING` and
    `VOCAB` itself; a type in the shared tables needs an entry in
-   `catalog/taxonomy.py` `DRAWING` and in `catalog/vocab.py` `VOCAB`. The
+   `domains/industrial/taxonomy.py` `DRAWING` and in `domains/industrial/vocab.py` `VOCAB`. The
    generator must build lines of it: `test_every_product_type_has_a_figure`
    requires `FIGURES` and `VOCAB` to have the same keys AND the generated
    `SMALL` catalog to draw every `VOCAB` type. This checklist covers the
    drawing only; the type's generator comes first.
 4. **Give every published `Material` and `Finish` a colour and a hatch**
-   (`drawing/style.py` `MATERIAL_FILL`, `MATERIAL_HATCH`, `EXTRA_FINISH_TINT`,
-   and `render/marking.py` `FINISH_TINT`), or
+   (`core/drawing/style.py` `MATERIAL_FILL`, `MATERIAL_HATCH`, `EXTRA_FINISH_TINT`,
+   and `domains/industrial/render/marking.py` `FINISH_TINT`), or
    drawing raises `UnknownStyleError`.
    `test_every_published_finish_and_material_has_a_colour_and_a_hatch` sweeps
    the data.

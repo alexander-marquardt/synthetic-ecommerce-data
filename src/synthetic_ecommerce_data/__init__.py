@@ -2,9 +2,15 @@
 
 from __future__ import annotations
 
-from .dimensions import DimensionParseError, Length, Thread, parse_length, parse_thread
-from .records import FIXTURES
-from .render import CARD, DETAIL, PROFILES, render_record
+from synthetic_ecommerce_data.core.dimensions import (
+    DimensionParseError,
+    Length,
+    Thread,
+    parse_length,
+    parse_thread,
+)
+from synthetic_ecommerce_data.domains.industrial.records import FIXTURES
+from synthetic_ecommerce_data.domains.industrial.render import CARD, DETAIL, PROFILES, render_record
 
 __all__ = [
     "CARD",

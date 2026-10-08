@@ -23,19 +23,11 @@ from pathlib import Path
 import pytest
 import yaml
 
-from synthetic_ecommerce_data.catalog import (
-    breadth,
-    conformance,
-    noise,
-    price,
-    taxonomy,
-    typespec,
-    vocab,
-    voice,
-)
-from synthetic_ecommerce_data.catalog.vocab import AttrSpec
-from synthetic_ecommerce_data.drawing.breadth_shapes import cylinder
-from synthetic_ecommerce_data.drawing.figures import FIGURES
+from synthetic_ecommerce_data.core import noise, price, typespec, voice
+from synthetic_ecommerce_data.domains.industrial import breadth, conformance, taxonomy, vocab
+from synthetic_ecommerce_data.domains.industrial.drawing.breadth_shapes import cylinder
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
+from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
 
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "src" / "synthetic_ecommerce_data"

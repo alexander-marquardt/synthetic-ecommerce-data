@@ -43,7 +43,7 @@ import copy
 from collections.abc import Iterable, Iterator
 from typing import Any
 
-from ..catalog.emit import FLAT_MAPPING
+from synthetic_ecommerce_data.core.emit import FLAT_MAPPING
 
 #: Separator for the joined category path. Must match ``path_separator`` in
 #: the field map's ``categories`` entry.

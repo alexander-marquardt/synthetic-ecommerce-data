@@ -18,8 +18,8 @@ from typing import Any
 
 # The namespacing rule lives in the catalog layer, because a nested entry's ``key``
 # applies it too: one rule for both, so the key and the field map cannot drift.
-from ..catalog.entry import STRUCTURAL_NAMES, canonical_name
-from .derive import (
+from synthetic_ecommerce_data.core.entry import STRUCTURAL_NAMES, canonical_name
+from synthetic_ecommerce_data.prism.derive import (
     IDENTIFIER_ATTRIBUTES,
     IDENTIFIER_DISPERSION,
     MIN_PRESENCE,

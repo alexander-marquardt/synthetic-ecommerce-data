@@ -33,7 +33,7 @@ ROOT = Path(__file__).resolve().parent.parent
 REQUIRED_MEMBERS = (
     "prism_synthetic_industrial/data/customization.yaml",
     "prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml",
-    "synthetic_ecommerce_data/catalog/emit.py",
+    "synthetic_ecommerce_data/core/emit.py",
     "synthetic_ecommerce_data/prism/derive.py",
 )
 
