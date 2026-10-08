@@ -39,7 +39,7 @@ import pytest
 from synthetic_ecommerce_data.catalog import compat, series, standards, typespec
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
-REBUILD = "uv run sed-generate build --out golden-catalog"
+REBUILD = "uv run ecom-generate build --out golden-catalog"
 
 MM_PER_INCH = 25.4
 
@@ -63,7 +63,7 @@ HEX_BOLT_TYPE = "bolt_hex"
 #:
 #: ``committed`` is ``golden-catalog/``, the artifact anyone can read without
 #: running a build. Asserting against it is what stops a careless
-#: ``sed-generate build && git commit -a`` from a broken generator sailing
+#: ``ecom-generate build && git commit -a`` from a broken generator sailing
 #: through, and it is why ``test_catalog_golden`` states its headline numbers
 #: that way too.
 #:

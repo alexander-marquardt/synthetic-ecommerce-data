@@ -26,7 +26,7 @@ from synthetic_ecommerce_data.catalog.config import GeneratorConfig
 from synthetic_ecommerce_data.catalog.generate import generate
 from synthetic_ecommerce_data.prism.field_map import STRUCTURAL_NAMES, render
 
-REBUILD = "uv run sed-generate build --out out/catalog"
+REBUILD = "uv run ecom-generate build --out out/catalog"
 
 
 @pytest.fixture(scope="module")
