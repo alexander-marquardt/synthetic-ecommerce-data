@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -15,6 +16,8 @@ sys.path.insert(0, str(HERE))
 
 import distractors as dz  # noqa: E402
 import house_styles as hs  # noqa: E402
+import kit  # noqa: E402
+import kit_home  # noqa: E402,F401 -- registers table_lamp
 import real_classes as rc  # noqa: E402
 
 CLASS_DOCS = rc.class_docs()
@@ -423,3 +426,61 @@ def test_the_proof_names_only_records_of_the_catalog(row: rc.ClassRow) -> None:
     rec = next(r for r in PROOF["rows"] if r["query"] == row.query)
     assert len(rec["baseline"]) == 5
     assert {h["product_id"] for h in (*rec["baseline"], *rec["policy"])} <= ids
+
+
+# --------------------------------------------------------------------------
+# The proof's fingerprint covers what Elasticsearch indexes, not the drawing
+# --------------------------------------------------------------------------
+
+
+def test_a_drawing_change_keeps_the_fingerprint_and_a_title_change_alters_it() -> None:
+    """The mapping is ``dynamic: false`` and maps no ``drawing``: a new tile needs no re-run."""
+    assert "drawing" not in rc.index_body()["mappings"]["properties"]
+    redrawn = [{**d, "drawing": {**d["drawing"], "base": "#000000"}} for d in CORPUS]
+    retitled = [{**CORPUS[0], "title": CORPUS[0]["title"] + " Deluxe"}, *CORPUS[1:]]
+    assert rc.fingerprint(redrawn) == rc.fingerprint(CORPUS)
+    assert rc.fingerprint(retitled) != rc.fingerprint(CORPUS)
+    assert rc.verdicts(PROOF, redrawn) == []
+    assert rc.verdicts(PROOF, retitled) == [
+        "the proof was taken over another catalog: re-run es_proof.py"
+    ]
+
+
+# --------------------------------------------------------------------------
+# The rose gold table lamp: the record says rose gold base, white linen shade
+# --------------------------------------------------------------------------
+
+_LAMP_BASE_D = "M200,206"  # the gourd base's path
+_LAMP_SHADE_D = "M146,62"  # the tapered shade's path
+
+
+def _fill_of(svg: str, d_prefix: str) -> str:
+    found = re.findall(rf'<path d="{d_prefix}[^"]*" fill="([^"]+)"', svg)
+    assert len(found) == 1, d_prefix
+    return found[0]
+
+
+def _lamp_svg(drawing: dict) -> str:
+    fill = kit.Fill(drawing["pattern"], drawing["base"], drawing["accent"])
+    return kit.render("table_lamp", fill, params=drawing.get("params"))
+
+
+def test_the_lamp_base_and_shade_each_take_their_color_from_the_record() -> None:
+    """Swapping the two colors in the shape fails this: the colors are told apart."""
+    svg = kit.render(
+        "table_lamp",
+        kit.Fill("solid", "#112233", "#445566"),
+        params={"shade": "#aabbcc"},
+    )
+    assert _fill_of(svg, _LAMP_BASE_D) == "#112233"
+    assert _fill_of(svg, _LAMP_SHADE_D) == "#aabbcc"
+
+
+def test_the_rose_gold_lamp_is_drawn_with_a_rose_gold_base_and_a_white_linen_shade() -> None:
+    rec = _style("PLT-RGLAMP")
+    assert "rose gold metal base and a white linen shade" in rec["description"]
+    svg = _lamp_svg(rec["drawing"])
+    assert _fill_of(svg, _LAMP_BASE_D) == rec["drawing"]["base"] == "#d8a28f"
+    shade = _fill_of(svg, _LAMP_SHADE_D)
+    assert shade == rec["drawing"].get("params", {}).get("shade")
+    assert min(int(shade[i : i + 2], 16) for i in (1, 3, 5)) >= 0xE0  # near white
