@@ -48,7 +48,7 @@ def _codes(row: rc.ClassRow) -> tuple[list[str], list[str]]:
 
 
 def test_the_new_rows_are_classes_10_to_14() -> None:
-    assert [(r.n, r.query, len(r.targets), len(r.distractors)) for r in rc.ROWS[-5:]] == [
+    assert [(r.n, r.query, len(r.targets), len(r.distractors)) for r in rc.ROWS if 10 <= r.n <= 14] == [
         (10, "beer", 3, 5),
         (11, "oranges", 3, 6),
         (12, "face cream", 3, 8),
@@ -259,7 +259,7 @@ def test_a_routed_policy_recalls_and_boosts_the_named_category_node() -> None:
     assert fs["query"]["bool"]["minimum_should_match"] == 1
     assert fs["functions"][-1] == {"filter": {"term": {"category_path_joined": node}},
                                    "weight": rc.ROUTE_WEIGHT}  # fmt: skip
-    assert sum(r.policy.route is not None for r in rc.ROWS) == 3
+    assert sum(r.policy.route is not None for r in rc.ROWS) == 4
 
 
 def test_rose_gold_is_one_color_value_and_the_finish_of_every_metal_good() -> None:
