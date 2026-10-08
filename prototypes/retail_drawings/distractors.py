@@ -443,6 +443,11 @@ GIFT_TAIL = (
 DUPLICATED = "PLT-GBSKIN"
 DUPLICATE_PATH = ("Gifts", "Gifts for Her", "Beauty Gifts")
 
+#: The planted rows scored over :func:`corpus`. A new :class:`Row` plugs in here
+#: when its products are in that corpus; a row over another catalog (the boots
+#: row, :data:`footwear_rows.BOOTS`, over ``footwear_rows.catalog()``) stays in
+#: its own module and is added by hand to ``build_preview4._planted()`` and
+#: ``_score_table()``. Either way, add its line to the README's class table.
 TABLE = (
     Row("Print, flavour and scent words", "lemon", "fresh lemons",
         lambda d: d["category_path"][:2] == ["Food", "Fresh Produce"]
