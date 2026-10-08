@@ -165,9 +165,13 @@ def _serialisable(stats: dict) -> dict:
 
 
 def field_map_target() -> Path:
-    """Where the default-config build writes the PRISM field map (the source tree)."""
+    """Where the default-config build writes the PRISM field map (the source tree).
+
+    The climb is relative to this file (``src/synthetic_ecommerce_data/``), so
+    it changes whenever the module moves; ``parents[1]`` is ``src/``.
+    """
     return (
-        Path(__file__).resolve().parents[2]
+        Path(__file__).resolve().parents[1]
         / "prism_synthetic_industrial"
         / "data"
         / "field_weights"
