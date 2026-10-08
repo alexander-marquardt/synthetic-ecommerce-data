@@ -1,4 +1,5 @@
-"""Round 4 shapes for the planted distractors: belt, hanger, outfit set, trigger spray.
+"""Round 4 shapes for the planted distractors: belt, hanger, outfit set, trigger spray,
+gift bag and zipped pouch.
 
 Same kit conventions as :mod:`kit`: flat outlines in the kit's ink, the
 product's main surface painted with the record's fill. ``hanger`` and
@@ -10,7 +11,7 @@ scaled into place, so a "jeans hanger" visibly holds jeans.
 
 from __future__ import annotations
 
-from kit import INK, LW, LW_DETAIL, Fill, _highlight, _line, _panel, _path, _shade, register
+from kit import INK, LW, LW_DETAIL, Fill, _highlight, _line, _panel, _path, _shade, _tint, register
 from kit_garments import top, trousers
 
 GOLD = "#d6b56a"
@@ -98,6 +99,35 @@ def trigger_spray(paint: str, fill: Fill, label: str | None) -> list[str]:
     ]
 
 
+def gift_bag(paint: str, fill: Fill, label: str | None) -> list[str]:
+    """A paper gift bag: rope handles, a side gusset and a turned top; ``label`` goes on its tag."""
+    return [
+        _line("M150,140 C150,70 214,70 214,134", LW + 2, stroke=_shade(fill.accent, 0.1)),
+        _line("M186,134 C186,64 250,64 250,140", LW + 2, stroke=_shade(fill.accent, 0.1)),
+        _path("M270,140 L312,126 L312,346 L270,360 Z", _shade(fill.base, 0.25)),
+        _path("M110,140 L270,140 L270,360 L110,360 Z", paint),
+        _path("M110,140 L152,126 L312,126 L270,140 Z", _tint(fill.base, 0.3)),
+        _line("M110,160 L270,160", 1.0, ' stroke-opacity=".5"'),
+        _line("M214,134 L224,226", 1.0),
+        *_panel(160, 226, 112, 56, label, 26, rx=10),
+        _highlight("M120,172 L120,340", 4, 0.35),
+    ]
+
+
+def pouch(paint: str, fill: Fill, label: str | None) -> list[str]:
+    """A zipped wash or cosmetic pouch; ``label`` goes on a sewn-on patch."""
+    body = "M92,176 Q92,150 118,150 L282,150 Q308,150 308,176 L318,326 Q320,352 294,352 L106,352 Q80,352 82,326 Z"
+    return [
+        _path(body, paint),
+        _path("M104,152 L296,152 L296,174 L104,174 Z", _shade(fill.base, 0.2), LW_DETAIL),
+        _line("M108,163 L292,163", 1.4, ' stroke-dasharray="3 3"'),
+        f'<rect x="270" y="156" width="14" height="36" rx="4" fill="{_shade(fill.accent, 0.1)}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>',
+        *_panel(140, 234, 120, 64, label, 28),
+        _highlight("M104,196 Q100,260 108,320", 5, 0.4),
+    ]
+
+
 register(
-    {"belt": belt, "hanger": hanger, "outfit_set": outfit_set, "trigger_spray": trigger_spray},
-)
+    {"belt": belt, "hanger": hanger, "outfit_set": outfit_set, "trigger_spray": trigger_spray,
+     "gift_bag": gift_bag, "pouch": pouch},
+)  # fmt: skip

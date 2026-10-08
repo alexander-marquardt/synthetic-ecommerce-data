@@ -239,6 +239,195 @@ DUVET = (
     ), "type-exact intent: Duvets, not Duvet Covers"),
 )  # fmt: skip
 
+# --------------------------------------------------------------------------
+# Gift bags: the shape of a "gift bag" failure observed by hand on a live
+# retail site (names invented). The query's top 10 held no real gift bag:
+# beauty bundles named "... Gift Bag", wash and cosmetic bags, gift sets
+# "with Limited Edition Bag" and travel or summer bag sets took it, and
+# wallet gift sets, hampers, letterbox gifts, a plant "in ... Gift Bag" and a
+# "Gift Boxed" keyring followed. The real ones say "bag" once and never
+# "gift": the word lives only in their category, which is what a boost reads.
+# --------------------------------------------------------------------------
+
+GIFT_SIZES = (
+    ("Small", "18 x 23 cm", 1.5),
+    ("Medium", "26 x 32 cm", 2.5),
+    ("Large", "33 x 45 cm", 3.5),
+)
+GIFT_PRINTS = (
+    cw("Holly Sprig", "#f4efe2", "polka", "#2f6b3c"),
+    cw("Gold Star", "#1f2e4a", "polka", "#d6b56a"),
+    cw("Candy Stripe", "#ffffff", "stripe", "#c8312e"),
+)  # fmt: skip
+GIFT_WRAP = ("Gifts", "Gift Wrap", "Gift Bags")
+
+
+def gift_bags() -> list[dict]:
+    """The intended products for *gift bag*: one doc per size x print, a variant group per size."""
+    out = []
+    for size, dims, price in GIFT_SIZES:
+        group = f"GFT-{size.upper()}"
+        for n, colour in enumerate(GIFT_PRINTS, 1):
+            title = f"Kraft Paper Bag with Rope Handles, {size}, {colour[0]}"
+            out.append({
+                "product_id": f"{group}-{n:02d}",
+                "sku": f"{group.replace('-', '')}{n:02d}",
+                "variant_group": group,
+                "sku_count": 1,
+                "title": title,
+                "brand": "Lanternby",
+                "department": check_departments(["Gifts"], title),
+                "category_path": list(GIFT_WRAP),
+                "price": price,
+                "description": f"A sturdy {dims} kraft paper carrier printed with "
+                f"{colour[0].lower()}, with twisted rope handles, a card base and a matching "
+                "tag. Folds flat to store.",
+                "attributes": [attr("size", "Size", size), attr("print", "Print", colour[0]),
+                               attr("dimensions", "Dimensions", dims)],
+                "drawing": drawing("gift_bag", colour, size),
+                "collections": [],
+                "currency": "GBP",
+            })  # fmt: skip
+    return out
+
+
+GIFT_BAGS = tuple(gift_bags())
+
+_BOOST = "category boost: Gift Wrap above "
+GIFT = (
+    Distractor(product(
+        "GBBATH", "Bath & Body Gift Bag", "Velling Apothecary", "Beauty",
+        ("Beauty", "Gift Sets", "Bath & Body Gifts"), 25.0,
+        "A gift bag of bath and body favourites: shower gel, body lotion and hand cream in a "
+        "reusable gift bag. A ready-made gift.",
+        drawing("gift_bag", cw("Lilac", "#c9b6d9", "solid", "#5e4b6e"), "Bath"),
+        (("contents", "Contents", "3 items"),),
+    ), _BOOST + "Beauty Gift Sets"),
+    Distractor(product(
+        "GBSKIN", "Skincare Gift Bag", "Velling Apothecary", "Beauty",
+        ("Beauty", "Gift Sets", "Skincare Gifts"), 30.0,
+        "Cleanser, serum and moisturiser in a gift bag. The skincare gift bag for anyone who "
+        "loves a routine.",
+        drawing("gift_bag", cw("Sage", "#9bb08f", "solid", "#2f4a3a"), "Skin"),
+        (("contents", "Contents", "3 items"),),
+    ), _BOOST + "Beauty Gift Sets"),
+    Distractor(product(
+        "GBHAIR", "Haircare Gift Bag", "Kestlewood Cosmetics", "Beauty",
+        ("Beauty", "Gift Sets", "Haircare Gifts"), 22.0,
+        "Shampoo, conditioner and a hair mask in a satin gift bag. A gift for good hair days.",
+        drawing("gift_bag", cw("Blush", "#f3c6cf", "solid", "#c2185b"), "Hair"),
+        (("contents", "Contents", "3 items"),),
+    ), _BOOST + "Beauty Gift Sets"),
+    Distractor(product(
+        "GBWASH", "Waffle Wash Bag", "Saltmarsh", "Beauty",
+        ("Beauty", "Accessories", "Wash Bags"), 14.0,
+        "A roomy wash bag in waffle cotton with a wipe-clean lining. The wash bag that packs flat.",
+        drawing("pouch", cw("Sea Green", "#7fb3a8", "solid", "#1c7c7d"), "Wash"),
+        (("colour", "Colour", "Sea Green"),),
+    ), _BOOST + "Wash Bags (only *bag* matches)"),
+    Distractor(product(
+        "GBMKUP", "Quilted Make-Up Bag", "Kestlewood Cosmetics", "Beauty",
+        ("Beauty", "Accessories", "Make-Up Bags"), 12.0,
+        "A quilted make-up bag with a gold zip. Voted a Top 10 Gift: the bag everyone asks about.",
+        drawing("pouch", cw("Black Quilt", "#2a2a2e", "gingham", "#4a4a50"), "Top Gift"),
+        (("colour", "Colour", "Black"), ("badge", "Badge", "Top 10 Gift")),
+    ), _BOOST + "Make-Up Bags (a gift badge, not a gift bag)"),
+    Distractor(product(
+        "GBHOSP", "Hospital Bag Kit", "Little Fernby", "Beauty",
+        ("Beauty", "Mother & Baby", "Hospital Bags"), 28.0,
+        "Everything for the hospital bag: travel-size wash, balm and maternity pads, with a zip "
+        "bag to keep it together.",
+        drawing("pouch", cw("Pale Blue", "#bcd3e6", "solid", "#2f4a6b"), "Kit"),
+        (("contents", "Contents", "8 items"),),
+    ), _BOOST + "Hospital Bags"),
+    Distractor(product(
+        "GBGLOW", "Glow Make-Up Gift Set with Limited Edition Bag", "Kestlewood Cosmetics",
+        "Beauty", ("Beauty", "Gift Sets", "Make-Up Gift Sets"), 35.0,
+        "Mascara, lipstick and highlighter in a limited edition bag. A make-up gift set worth "
+        "giving.",
+        drawing("pouch", cw("Rose Gold", "#e8b8a8", "solid", "#c2185b"), "Glow"),
+        (("contents", "Contents", "3 items"),),
+    ), _BOOST + "Make-Up Gift Sets"),
+    Distractor(product(
+        "GBLIPC", "Lip & Cheek Gift Set with Limited Edition Velvet Bag", "Kestlewood Cosmetics",
+        "Beauty", ("Beauty", "Gift Sets", "Make-Up Gift Sets"), 26.0,
+        "A lip and cheek duo with a velvet bag. Our best-loved gift set.",
+        drawing("pouch", cw("Berry Velvet", "#7a1f4a", "solid", "#e9c46a"), "Lip"),
+        (("contents", "Contents", "2 items"),),
+    ), _BOOST + "Make-Up Gift Sets"),
+    Distractor(product(
+        "GBTRVL", "Weekend Away Travel Bag Set", "Velling Apothecary", "Beauty",
+        ("Beauty", "Travel & Minis", "Travel Sets"), 18.0,
+        "Six travel minis in a clear travel bag, ready for the security tray. A bag set that "
+        "makes a handy gift.",
+        drawing("pouch", cw("Clear", "#e6eef2", "solid", "#5e4b6e"), "Travel"),
+        (("contents", "Contents", "6 items"),),
+    ), _BOOST + "Travel Sets"),
+    Distractor(product(
+        "GBSUMR", "Summer Bag Bundle", "Saltmarsh", "Beauty",
+        ("Beauty", "Suncare", "Summer Sets"), 24.0,
+        "Sun cream, after-sun and a lip balm in a striped beach bag. The summer bag bundle.",
+        drawing("pouch", cw("Beach Stripe", "#ffffff", "stripe", "#1c7c7d"), "Summer"),
+        (("contents", "Contents", "3 items"),),
+    ), _BOOST + "Summer Sets"),
+)  # fmt: skip
+
+GIFT_TAIL = (
+    Distractor(product(
+        "GTWALL", "Leather Wallet & Card Holder Gift Set", "Calderby & Lune", "Gifts",
+        ("Gifts", "Gifts for Him", "Wallet Gift Sets"), 40.0,
+        "A bifold wallet and a matching card holder in a presentation box. A gift set for him.",
+        drawing("box", cw("Tan", "#b07a45")), (("material", "Material", "Leather"),),
+    ), _BOOST + "Wallet Gift Sets"),
+    Distractor(product(
+        "GTCARD", "Slim Card Holder Gift Set", "Calderby & Lune", "Gifts",
+        ("Gifts", "Gifts for Her", "Wallet Gift Sets"), 28.0,
+        "A slim card holder and a coin purse, gift boxed.",
+        drawing("box", cw("Oxblood", "#6b1f2a")), (("material", "Material", "Leather"),),
+    ), _BOOST + "Wallet Gift Sets"),
+    Distractor(product(
+        "GTTEAH", "Afternoon Tea Gift Hamper", "Hearth & Table", "Food & Drink",
+        ("Food", "Hampers & Gifts", "Hampers"), 45.0,
+        "Tea, shortbread, jam and a fruit cake in a wicker hamper. A gift to share.",
+        drawing("box_wide", cw("Wicker", "#c8a46a"), "Hamper"), (("serves", "Serves", "4"),),
+    ), _BOOST + "Hampers"),
+    Distractor(product(
+        "GTCHSE", "Cheese & Chutney Gift Hamper", "Copper Hill Preserves", "Food & Drink",
+        ("Food", "Hampers & Gifts", "Hampers"), 38.0,
+        "Three cheeses, a chutney and oat crackers, packed as a gift.",
+        drawing("box_wide", cw("Kraft", "#c9a77c"), "Hamper"), (("serves", "Serves", "4"),),
+    ), _BOOST + "Hampers"),
+    Distractor(product(
+        "GTBROW", "Letterbox Brownie Gift", "Crofter's Bakehouse", "Food & Drink",
+        ("Food", "Hampers & Gifts", "Letterbox Gifts"), 20.0,
+        "Twelve brownie squares that fit through the letterbox. A gift by post.",
+        drawing("box_wide", cw("Cocoa", "#5a3426"), "Brownies"), (("pieces", "Pieces", "12"),),
+    ), _BOOST + "Letterbox Gifts"),
+    Distractor(product(
+        "GTTEAL", "Letterbox Tea Gift", "Hearth & Table", "Food & Drink",
+        ("Food", "Hampers & Gifts", "Letterbox Gifts"), 16.0,
+        "Four loose-leaf teas and a tea strainer in a slim letterbox box.",
+        drawing("box_wide", cw("Teal", "#1c7c7d"), "Tea"), (("pieces", "Pieces", "5"),),
+    ), _BOOST + "Letterbox Gifts"),
+    Distractor(product(
+        "GTOLIV", "Olive Tree in Hessian Gift Bag", "Thistle & Wren", "Garden",
+        ("Garden", "Plants", "Gift Plants"), 30.0,
+        "A young olive tree, about 60 cm tall, potted and wrapped in hessian for giving.",
+        drawing("gift_bag", cw("Hessian", "#b89b6e", "solid", "#6b5a3a"), "Olive"),
+        (("height", "Height", "60 cm"),),
+    ), _BOOST + "Gift Plants"),
+    Distractor(product(
+        "GTKEYR", "Gift Boxed Brass Keyring", "Calderby & Lune", "Gifts",
+        ("Gifts", "Gifts for Him", "Keyrings"), 15.0,
+        "A solid brass keyring on a leather fob, gift boxed.",
+        drawing("box", cw("Navy", "#26365c"), "Keyring"), (("material", "Material", "Brass"),),
+    ), _BOOST + "Keyrings"),
+)  # fmt: skip
+
+#: The product a duplicate listing publishes twice, and its second category.
+DUPLICATED = "PLT-GBSKIN-01"
+DUPLICATE_PATH = ("Gifts", "Gifts for Her", "Beauty Gifts")
+
 TABLE = (
     Row("Print, flavour and scent words", "lemon", "fresh lemons",
         lambda d: d["category_path"][:2] == ["Food", "Fresh Produce"]
@@ -250,19 +439,27 @@ TABLE = (
     Row("Bedding types", "duvet", "a duvet",
         lambda d: d["category_path"][-1] == "Duvets",
         "type-exact intent", DUVET),
+    Row("Gift words on gift-packed products", "gift bag", "a gift bag (gift wrap)",
+        lambda d: d["category_path"][:2] == list(GIFT_WRAP[:2]),
+        "category boost: Gift Wrap", GIFT, GIFT_TAIL),
 )  # fmt: skip
-
-
-DUPLICATED = ""
 
 
 def distractor_docs() -> list[dict]:
     return [x.doc for row in TABLE for x in row.distractors]
 
 
+def duplicate_record() -> dict:
+    """:data:`DUPLICATED` published a second time under :data:`DUPLICATE_PATH`."""
+    first = next(d for d in distractor_docs() if d["product_id"] == DUPLICATED)
+    return {**first, "category_path": list(DUPLICATE_PATH)}
+
+
 def corpus(duplicate_listing: bool = False) -> list[dict]:
-    """The catalog the text score is taken over: every variant doc, LEMONS, every distractor."""
-    return [*docs(), LEMONS, *distractor_docs()]
+    """The catalog the text score is taken over: every variant doc, LEMONS, every distractor,
+    the real gift bags and the gift-bag tail; with ``duplicate_listing``, one product twice."""
+    out = [*docs(), LEMONS, *distractor_docs(), *GIFT_BAGS, *(x.doc for x in GIFT_TAIL)]
+    return [*out, duplicate_record()] if duplicate_listing else out
 
 
 def scores(row: Row, catalog: list[dict]) -> tuple[float, list[tuple[str, float]]]:

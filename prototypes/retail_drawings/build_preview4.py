@@ -25,7 +25,16 @@ sys.path.insert(0, str(HERE))
 
 import kit_round4  # noqa: E402,F401 -- registers belt, hanger, outfit_set, trigger_spray
 from build_preview import CSS, _attr_rows, _sizes, drawing_svg  # noqa: E402
-from distractors import LEMONS, TABLE, corpus, scores, table_markdown  # noqa: E402
+from distractors import (  # noqa: E402
+    GIFT_BAGS,
+    GIFT_PRINTS,
+    LEMONS,
+    TABLE,
+    corpus,
+    duplicate_record,
+    scores,
+    table_markdown,
+)
 from variants import FAMILIES, sku_report, style_docs  # noqa: E402
 
 #: family -> {style code: extra doc indexes beyond the first}.
@@ -35,7 +44,7 @@ EXTRA = {
     "Bedding": {"COVPRT": (1,)},
     "Beauty": {"LIPSAT": (10,), "FNDFTH": (20, 39)},
 }
-SAMPLES = 60
+SAMPLES = 81
 
 
 def samples() -> dict[str, list[dict]]:
@@ -46,12 +55,21 @@ def samples() -> dict[str, list[dict]]:
         for s in styles:
             ds = style_docs(fam, s)
             mine += [ds[0], *(ds[i] for i in EXTRA[fam].get(s.code, ()))]
-    out["Planted distractors"] = [LEMONS, *(x.doc for row in TABLE for x in row.distractors)]
+    out["Planted distractors"] = [
+        LEMONS, *(x.doc for row in TABLE if not row.tail for x in row.distractors)
+    ]  # fmt: skip
+    out["Gift wrap"] = [GIFT_BAGS[i] for i in range(0, len(GIFT_BAGS), len(GIFT_PRINTS))]
+    gift = next(row for row in TABLE if row.tail)
+    out["Gift bag distractors"] = [x.doc for x in (*gift.distractors, *gift.tail)]
     return out
 
 
 def _planted() -> dict[str, tuple[str, str]]:
-    return {x.doc["product_id"]: (row.query, x.fixed_by) for row in TABLE for x in row.distractors}
+    return {
+        x.doc["product_id"]: (row.query, x.fixed_by)
+        for row in TABLE
+        for x in (*row.distractors, *row.tail)
+    }
 
 
 def card(rec: dict, planted: dict[str, tuple[str, str]]) -> str:
@@ -130,12 +148,19 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--html", type=Path, action="append", default=[])
     ap.add_argument("--ndjson", type=Path, action="append", default=[])
+    ap.add_argument(
+        "--duplicate-listing",
+        action="store_true",
+        help="append a second listing of one product under another category (written only to "
+        "the --ndjson paths: the committed samples never hold it)",
+    )
     args = ap.parse_args(argv)
 
-    html, ndjson = outputs()
-    for path in [HERE / "preview4.html", *args.html]:
+    html, ndjson = outputs(args.duplicate_listing)
+    here = [] if args.duplicate_listing else [HERE]
+    for path in [*(h / "preview4.html" for h in here), *args.html]:
         path.write_text(html, encoding="utf-8")
-    for path in [HERE / "samples4.ndjson", *args.ndjson]:
+    for path in [*(h / "samples4.ndjson" for h in here), *args.ndjson]:
         path.write_text(ndjson, encoding="utf-8")
     print(sku_report())
     print(table_markdown())
@@ -149,6 +174,8 @@ def outputs(duplicate_listing: bool = False) -> tuple[str, str]:
     recs = [r for recs in sections.values() for r in recs]
     if len(recs) != SAMPLES:
         raise SystemExit(f"{len(recs)} samples, not {SAMPLES}")
+    if duplicate_listing:
+        recs.append(duplicate_record())
     ndjson = "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in recs)
     return page(sections), ndjson
 
