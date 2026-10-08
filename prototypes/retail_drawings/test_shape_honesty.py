@@ -4,7 +4,7 @@ The shape audit of the 179-product preview found 36 products drawn with a
 generic or borrowed shape: rose bouquets as fruit (``round_produce``), socks
 and wallets as a ``box``, beds as ``box_wide``, table lamps as a ``box``
 although ``table_lamp`` exists. A generic shape is honest for a few
-categories only (packaged food in a box, loose produce as round produce).
+categories only (packaged food in a box, a storage organiser as a wide box).
 :data:`HONEST_FOR` is that allow-list; a sample that uses a generic shape
 outside it fails, and the failure names the row. A new product kind gets its
 own shape (``kit_more.py`` holds the ones the audit asked for).
@@ -29,8 +29,11 @@ import kit_more  # noqa: E402,F401 -- registers the shapes below
 #: prefix) where it draws the product honestly.
 HONEST_FOR: dict[str, tuple[str, ...]] = {
     "box": ("Food",),
-    "box_wide": ("Food > Hampers & Gifts",),
-    "round_produce": ("Food > Fresh Produce",),
+    # A storage organiser is a fabric box with compartments, so a wide box is its kind.
+    "box_wide": ("Food > Hampers & Gifts", "Home > Storage"),
+    # Still generic, honest nowhere now: loose fruit draws as its own
+    # ``produce_pile`` (kit_produce.py), so any round_produce use fails.
+    "round_produce": (),
     "pouch": (
         "Beauty > Accessories",
         "Beauty > Gift Sets > Make-Up Gift Sets",
@@ -56,7 +59,7 @@ HONEST_FOR: dict[str, tuple[str, ...]] = {
 NEW_SHAPES = (
     "bouquet", "socks", "bed_frame", "watch", "earrings", "compact", "cardigan",
     "bodysuit", "wallet", "keyring", "charging_pad", "chairbed", "mattress",
-    "potted_tree", "pudding", "panettone",
+    "potted_tree", "pudding", "panettone", "trophy",
 )  # fmt: skip
 
 SAMPLES = [rec for recs in bp4.samples().values() for rec in recs]

@@ -22,6 +22,7 @@ cardigan        :func:`kit_garments.top` as a buttoned cardigan  neckline, sleev
 bodysuit        a sleeveless top with a popper-fastened brief    neckline, sleeve
 wallet          a leather gift set laid in its box               pieces
 keyring         split ring, link and a stitched leather fob      ring
+trophy          a two-handled cup on a stem, plinth and plate    plinth
 charging_pad    a flat disc with a metal rim and a cable         surface
 chairbed        an armchair, its foam mattress pulled out        --
 mattress        a deep sprung mattress with a quilted top        depth
@@ -434,6 +435,22 @@ def keyring(paint: str, fill: Fill, label: str | None, ring: str = BRASS) -> lis
     ]
 
 
+def trophy(paint: str, fill: Fill, label: str | None, plinth: str = "#3b2a20") -> list[str]:
+    """A two-handled trophy cup in the record's fill on a stem, a ``plinth`` block and its engraving plate."""
+    bowl = "M128,92 L272,92 Q272,196 200,214 Q128,196 128,92 Z"
+    return [
+        _line("M130,108 Q78,108 86,154 Q94,188 146,180", 9),
+        _line("M270,108 Q322,108 314,154 Q306,188 254,180", 9),
+        _path(bowl, paint),
+        _path("M188,212 L212,212 L210,266 L190,266 Z", paint),
+        _path("M160,266 L240,266 L250,286 L150,286 Z", paint),
+        f'<rect x="134" y="286" width="132" height="70" rx="4" fill="{plinth}" stroke="{INK}" stroke-width="{LW}"/>',
+        f'<rect x="156" y="304" width="88" height="34" rx="3" fill="#d9c27a" stroke="{INK}" stroke-width="{LW_DETAIL}"/>',
+        _highlight("M150,108 Q152,170 190,198", 6, 0.45),
+        *(_panel(150, 364, 100, 28, label, 16) if label else []),
+    ]
+
+
 # --------------------------------------------------------------------------
 # Home and electricals
 # --------------------------------------------------------------------------
@@ -591,7 +608,7 @@ def charging_pad(paint: str, fill: Fill, label: str | None, surface: str = "#3b3
 register(
     {"bouquet": bouquet, "socks": socks, "bed_frame": bed_frame, "watch": watch,
      "earrings": earrings, "compact": compact, "cardigan": cardigan, "bodysuit": bodysuit,
-     "wallet": wallet, "keyring": keyring, "charging_pad": charging_pad, "chairbed": chairbed,
+     "wallet": wallet, "keyring": keyring, "trophy": trophy, "charging_pad": charging_pad, "chairbed": chairbed,
      "mattress": mattress, "potted_tree": potted_tree, "pudding": pudding, "panettone": panettone},
     {"cardigan": 6},
 )  # fmt: skip
