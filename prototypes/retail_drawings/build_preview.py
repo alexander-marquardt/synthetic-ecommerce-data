@@ -25,6 +25,7 @@ sys.path.insert(0, str(HERE))
 
 import kit_garments  # noqa: E402,F401 -- registers the trousers and top shapes
 import kit_home  # noqa: E402,F401 -- registers the home and beauty shapes
+from house_styles import HOUSE_STYLES  # noqa: E402
 from kit import Fill, render  # noqa: E402
 from samples import records  # noqa: E402
 
@@ -62,6 +63,7 @@ def drawing_svg(rec: dict) -> str:
         brand=rec["brand"],
         uid=rec["product_id"],
         params=d.get("params"),
+        style=HOUSE_STYLES[rec["brand"]],
     )
 
 
@@ -166,9 +168,11 @@ def page(recs: list[dict]) -> str:
         f"<style>{CSS}</style></head><body>"
         "<h1>Retail drawings: sneak peek</h1>"
         f'<p class="note">{len(recs)} sample records in the #125 output shape. Drawings come from the '
-        "parametric SVG kit (shape + fill + label + brand tag + params). Round 2 adds every leg fit "
-        "and rise, necklines and sleeve lengths, home and beauty. Structured garment attributes are "
-        "in blue. All brands, shades and fragrance names are invented.</p>"
+        "parametric SVG kit (shape + fill + label + params) dressed in the brand's house style. "
+        "Round 3 gives every brand a declared house style: paper, frame, outline hand and a "
+        "composite logo mark, half of them as a full lockup with the name. The product's own "
+        "colour and pattern never depend on the brand. Structured garment attributes are in blue. "
+        "All brands, shades and fragrance names are invented.</p>"
         f"{_sections(recs)}"
         "</body></html>"
     )

@@ -82,10 +82,13 @@ RISES = {"high": (36, 64, 136), "mid": (64, 90, 131), "low": (92, 114, 125)}
 #: fit -> outer x at the hip, then (outer x, inner x) of the LEFT leg at the
 #: thigh, knee, calf and hem. The right leg is the mirror image.
 FITS: dict[str, dict] = {
-    "skinny": {"hip": 127, "legs": [(132, 196), (148, 190), (153, 189), (157, 188)]},
-    "slim": {"hip": 127, "legs": [(130, 196), (140, 191), (144, 190), (146, 189)]},
+    # Skinny hugs the leg to a narrow ankle with a wide gap between the legs;
+    # slim tapers only a little and stays close to straight below the knee.
+    "skinny": {"hip": 128, "legs": [(136, 195), (153, 186), (159, 184), (163, 183)]},
+    "slim": {"hip": 126, "legs": [(128, 197), (133, 195), (136, 194), (138, 194)]},
     "straight": {"hip": 125, "legs": [(125, 197), (129, 195), (130, 195), (131, 195)]},
-    "bootcut": {"hip": 127, "legs": [(130, 196), (140, 191), (137, 192), (127, 196)]},
+    # Bootcut runs straight to the knee, then opens a little: no pinch at the knee.
+    "bootcut": {"hip": 126, "legs": [(128, 197), (132, 195), (129, 196), (119, 198)]},
     "flared": {"hip": 127, "legs": [(130, 196), (146, 190), (120, 193), (90, 197)]},
     "wide_leg": {"hip": 118, "legs": [(111, 196), (103, 196), (99, 196), (95, 196)]},
     "barrel": {"hip": 124, "legs": [(110, 194), (92, 178), (106, 182), (140, 188)]},
@@ -109,8 +112,14 @@ def _leg_outline(fit: str, rise: str) -> tuple[list[Pt], list[Pt]]:
     spec = FITS[fit]
     hem = spec.get("hem_y", HEM_Y)
     ys = [210, 210 + (hem - 210) * 0.4, 210 + (hem - 210) * 0.71, hem]
+    # A hip much wider than the waistband (carrot, balloon) would leave the
+    # band's corner at a sharp angle; an easing point lets the seam leave the
+    # band almost vertically and swell out below it.
+    flare = wx - spec["hip"]
+    ease = [(wx - 0.12 * flare, bb + 0.35 * (HIP_Y - bb))] if flare > 8 else []
     outer = [
         (wx, bb),
+        *ease,
         (spec["hip"], HIP_Y),
         *[(o, y) for (o, _), y in zip(spec["legs"], ys, strict=True)],
     ]
@@ -237,7 +246,9 @@ def trousers(
                 )
             )
     if style == "tailored" or fit == "barrel":
-        mid = [((a[0] + b[0]) / 2, a[1]) for a, b in zip(oL[2:], iL[1:], strict=True)]
+        mid = [
+            ((a[0] + b[0]) / 2, a[1]) for a, b in zip(oL[-4:], iL[-4:], strict=True)
+        ]  # thigh, knee, calf, hem
         top = (_x_at(oL, bb + 40) / 2 + 100, bb + 40)
         for pts in ([top, *mid], mirror([top, *mid])):
             dash = ' stroke-dasharray="5 4"' if fit == "barrel" else ' stroke-opacity=".5"'
@@ -272,7 +283,7 @@ NECKLINES = {
     "v_neck": ((170, 72), "L200,148 L170,72", "M162,76 L200,162 L238,76"),
     "boat": ((144, 80), "Q200,98 144,80", "M138,87 Q200,108 262,87"),
     "scoop": ((160, 72), "C240,166 160,166 160,72", "M152,76 C152,180 248,180 248,76"),
-    "square": ((164, 72), "L236,128 L164,128 L164,72", "M156,76 L156,136 L244,136 L244,76"),
+    "square": ((156, 72), "L244,130 L156,130 L156,72", "M146,74 L146,142 L254,142 L254,74"),
     "roll_neck": ((172, 76), "Q200,88 172,76", ""),
 }
 #: Deeper cuts a cardigan opens to.
@@ -370,7 +381,14 @@ def top(
     if neckline != "roll_neck":
         inside = f"M{nx},{ny} Q200,{ny + 10} {SIZE - nx},{ny} {cut} Z"
         out.append(_path(inside, _inside_colour(fill), LW_DETAIL))
-        out.append(_line(band, 2.0 if knit else 1.4))
+        if neckline == "square":
+            # A solid binding round the square cut, so its corners read even
+            # on a busy print: the print's own accent colour, or the base on a solid.
+            trim = fill.base if fill.pattern == "solid" else fill.accent
+            binding = f"{band} L{SIZE - nx},{ny} {cut} Z"
+            out += [_path(binding, trim, LW_DETAIL), _dark(binding, 0.08)]
+        else:
+            out.append(_line(band, 2.0 if knit else 1.4))
     else:
         collar = "M168,84 L170,30 Q200,22 230,30 L232,84 Q200,94 168,84 Z"
         out += [
