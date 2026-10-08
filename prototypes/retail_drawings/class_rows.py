@@ -777,7 +777,7 @@ CUPS = (
     Style("DRKSET", "Set of 4 Espresso Cups", "Brackenmere Home", "Home",
           (*DRINKWARE, "Cups & Saucers"), 18.0,
           "Four small porcelain espresso cups in a gift box.",
-          "Cup Set", "box", one(cw("Stone", "#c8bfae"), 30)),
+          "Cup Set", "mug", one(cw("Stone", "#c8bfae"), 30)),
 )  # fmt: skip
 
 _BRA = "route: a bare cup goes to Drinkware; a bra word in the query switches the route off"
@@ -805,15 +805,15 @@ NOT_CUPS = (
     (Style("CUPCAK", "Foil Cupcake Cases", "Brackenmere Home", "Home",
            ("Home", "Kitchen & Dining", "Bakeware", "Cake Cases"), 3.0,
            "Fifty foil baking cups for cupcakes and muffins.",
-           "Cupcake Cases", "box", one(cw("Silver", "#c0c0c0"), 90)), _TAIL),
+           "Cupcake Cases", "cupcake", one(cw("Silver", "#c0c0c0"), 90)), _TAIL),
     (Style("CUPHLD", "Car Cup Holder Organiser", "Harbour & Pine", "Home",
            ("Electricals", "Car Accessories", "Cup Holders"), 9.0,
            "A cup holder insert that holds two cups and a phone.",
-           "Cup Holder", "box", one(cw("Black", BLACK), 70)), _TAIL),
+           "Cup Holder", "tray", one(cw("Black", BLACK), 70)), _TAIL),
     (Style("CUPTRO", "Engraved Trophy Cup", "Wrenfield", "Gifts",
            ("Gifts", "Personalised Gifts", "Trophies"), 25.0,
            "A silver plated trophy cup with two handles, engraved with your message.",
-           "Trophy", "box", one(cw("Silver", "#c0c0c0"), 40), metal=True), _TAIL),
+           "Trophy", "trophy", one(cw("Silver", "#c0c0c0"), 40), metal=True), _TAIL),
 )  # fmt: skip
 
 #: Words that put "cup" in a bra's sense: the cups policy is off when one is in the query.

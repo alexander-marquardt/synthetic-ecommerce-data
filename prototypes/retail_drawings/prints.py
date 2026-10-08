@@ -360,7 +360,7 @@ LINES: tuple[Line, ...] = (
                        "bedding for a fresh lemon bedroom."),
          )),
     Line("TTW", "kitchen textiles", "adult", "core", "tea_towel", "Tea Towels", "Brackenmere Home",
-         "Home", ("Home", "Kitchen", "Tea Towels"), 9.0, (
+         "Home", ("Home", "Kitchen & Dining", "Tea Towels"), 9.0, (
              ("Cotton Tea Towels, Set of 2", cw("White", WHITE), "Absorbent cotton tea towels."),
              ("Linen Tea Towels, Set of 2", cw("Stone", STONE), "Lint-free linen tea towels."),
              ("Waffle Tea Towels, Set of 2", cw("Grey", GREY), "Quick-drying waffle tea towels."),
@@ -387,7 +387,7 @@ LINES: tuple[Line, ...] = (
                       description="Cherries scattered on cotton tea towels."),
          ), title_suffix=", Set of 2"),
     Line("MUG", "mugs", "adult", "core", "mug", "Mug", "Brackenmere Home", "Home",
-         ("Home", "Kitchen", "Mugs"), 8.0, (
+         ("Home", "Kitchen & Dining", "Drinkware", "Mugs"), 8.0, (
              ("Stoneware Mug", cw("White", WHITE), "A chunky stoneware mug, dishwasher safe."),
              ("Speckled Mug", cw("Oat", OAT), "A speckled glaze mug that holds 350ml."),
              ("Tall Latte Mug", cw("Navy", NAVY), "A tall mug for lattes."),
@@ -395,7 +395,9 @@ LINES: tuple[Line, ...] = (
                  ("Enamel Mug", "White", WHITE, "A camping style enamel mug with a steel rim."),
                  ("Reactive Glaze Mug", "Sage", SAGE, "A mug with a pooling reactive glaze."),
                  ("Ribbed Mug", "Stone", STONE, "A ribbed stoneware mug."),
-                 ("Espresso Cup", "Black", BLACK, "A small cup for a strong espresso."),
+                 # A Mug line item says "Mug": titled "Espresso Cup" it led the bare "cups"
+                 # baseline once the cups class (class 15) joined, burying its bras claim.
+                 ("Espresso Mug", "Black", BLACK, "A small mug for a strong espresso."),
                  ("Footed Mug", "Grey", GREY, "A mug on a small foot, 300ml."),
                  ("Matte Mug", "Charcoal", "#4a4d52", "A matte stoneware mug."),
                  ("Porcelain Mug", "White", WHITE, "A fine porcelain mug."),

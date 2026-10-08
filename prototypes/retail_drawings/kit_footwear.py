@@ -765,8 +765,12 @@ KINDS: dict[str, Kind] = {
 }
 
 
-def shoe(paint: str, fill: Fill, label: str | None, kind: str = "", material: str = "leather", closure: str = "") -> list[str]:
-    """One shoe from its outer side, toe right: see the module docstring."""
+def shoe(paint: str, fill: Fill, label: str | None, kind: str = "trainer", material: str = "leather", closure: str = "") -> list[str]:
+    """One shoe from its outer side, toe right: see the module docstring.
+
+    ``kind`` defaults to a real kind because a shape is also drawn with no
+    params at all (a motif, :func:`motifs.drawn_box`); an unknown kind raises.
+    """
     k = KINDS[kind]
     base = fill.base
     uid = hashlib.sha1(f"{paint}|{base}|{kind}|{material}|{closure}".encode()).hexdigest()[:10]
