@@ -20,7 +20,8 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from departments import check as check_departments
-from variants import attr, cw, docs, drawing
+from variants import attr, cw, docs, drawing, swatch
+from variants import product as style_product
 
 MIN_DISTRACTORS, MAX_DISTRACTORS = 3, 10
 
@@ -100,24 +101,24 @@ def product(
     draw: dict,
     attrs: tuple[tuple[str, str, str], ...] = (),
 ) -> dict:
-    """One single-SKU product doc in the variant model's shape (its own variant group)."""
+    """One single-SKU product doc in the variant model's shape (:func:`variants.product`).
+
+    A ``color`` in ``attrs`` is the SKU's color, its swatch the drawing's base.
+    """
     check_departments([department], title)
-    return {
-        "product_id": f"PLT-{code}-01",
-        "sku": f"PLT{code}01",
-        "variant_group": f"PLT-{code}",
-        "sku_count": 1,
-        "title": title,
-        "brand": brand,
-        "department": [department],
-        "category_path": list(path),
-        "price": price,
-        "description": description,
-        "attributes": [attr(k, n, v) for k, n, v in attrs],
-        "drawing": draw,
-        "collections": [],
-        "currency": "GBP",
-    }
+    named = {k: v for k, _, v in attrs}
+    sku: dict = {"price": price, "in_stock": True}
+    swatches = {}
+    if "color" in named:
+        sku = {"color": named["color"], **sku}
+        swatches[named["color"]] = swatch((named["color"], draw["pattern"], draw["base"], ""))
+    return style_product(
+        f"PLT-{code}", [sku], swatches,
+        title=title, brand=brand, department=[department], category_path=list(path),
+        description=description,
+        attributes=[attr(k, n, v) for k, n, v in attrs if k != "color"],
+        drawing=draw, collections=[], currency="GBP",
+    )  # fmt: skip
 
 
 YELLOW, WHITE = "#f2d14b", "#ffffff"
@@ -128,7 +129,7 @@ LEMONS = product(
     ("Food", "Fresh Produce", "Fruit", "Citrus", "Lemons"), 1.25,
     "Fresh unwaxed lemons for zesting, juicing and baking, grown in sunny groves.",
     drawing("round_produce", cw("Lemon", YELLOW), "Lemons"),
-    (("colour", "Colour", "Yellow"), ("pack_size", "Pack size", "4")),
+    (("color", "Color", "Yellow"), ("pack_size", "Pack size", "4")),
 )  # fmt: skip
 
 LEMON = (
@@ -138,7 +139,7 @@ LEMON = (
         "A floaty tea dress in our lemon print: yellow lemons and green leaves on white. "
         "The lemon print is back for summer.",
         drawing("dress", cw("Lemon Print", WHITE, "polka", YELLOW)),
-        (("colour", "Colour", "White / Yellow"), ("pattern", "Pattern", "Lemon Print")),
+        (("color", "Color", "White / Yellow"), ("pattern", "Pattern", "Lemon Print")),
     ), "department boost: Food & Drink above Clothing"),
     Distractor(product(
         "LEMCAK", "Lemon Drizzle Cake", "Crofter's Bakehouse", "Food & Drink",
@@ -178,7 +179,7 @@ JEANS = (
         "A wide leather belt cut for jeans, with a brass roller buckle that sits flat in "
         "jeans belt loops.",
         drawing("belt", cw("Tan", "#b07a45")),
-        (("colour", "Colour", "Tan"), ("material", "Material", "Leather")),
+        (("color", "Color", "Tan"), ("material", "Material", "Leather")),
     ), "product-type demotion: accessories below jeans"),
     Distractor(product(
         "JNSJKT", "Belted Denim Jacket", "Harbour & Pine", "Clothing",
@@ -186,14 +187,14 @@ JEANS = (
         "Cut from the same rigid denim as our jeans, in a jeans blue mid wash. Wear it with "
         "jeans for double denim.",
         drawing("coat", cw("Mid Wash", DENIM)),
-        (("colour", "Colour", "Mid Wash"),),
+        (("color", "Color", "Mid Wash"),),
     ), "category intent: Jeans"),
     Distractor(product(
         "JNSHNG", "Jeans Hanger, Pack of 5", "Brackenmere Home", "Home",
         ("Home", "Storage", "Hangers"), 8.0,
         "Clip hangers that hold jeans by the waistband, so jeans hang straight without creases.",
         drawing("hanger", cw("Black", "#2a2a2e")),
-        (("colour", "Colour", "Black"), ("pack_size", "Pack size", "5")),
+        (("color", "Color", "Black"), ("pack_size", "Pack size", "5")),
     ), "category intent: Jeans (a Home item never answers a clothing word)"),
     Distractor(product(
         "JNSSET", "Kids' Jeans & Tee Set", "Little Fernby", "Clothing",
@@ -201,7 +202,7 @@ JEANS = (
         "A two-piece set: slim stretch jeans with an adjustable waist and a cotton tee. "
         "Jeans and tee sold together.",
         drawing("outfit_set", cw("Mid Wash", DENIM), tee="#f2d14b"),
-        (("colour", "Colour", "Mid Wash / Yellow"), ("audience", "Audience", "Boys")),
+        (("color", "Color", "Mid Wash / Yellow"), ("audience", "Audience", "Boys")),
     ), "product-type demotion: sets below single items"),
 )  # fmt: skip
 
@@ -212,14 +213,14 @@ DUVET = (
         "A plain cotton duvet cover with a button closure. Fits over any duvet; duvet sold "
         "separately.",
         drawing("duvet", cw("Oyster", "#e4ddd0")),
-        (("colour", "Colour", "Oyster"),),
+        (("color", "Color", "Oyster"),),
     ), "type-exact intent: Duvets, not Duvet Covers"),
     Distractor(product(
         "DUVSET", "Duvet Cover Set with Pillowcases", "Brackenmere Home", "Home",
         ("Home", "Bedding", "Bedding Sets"), 32.0,
         "A duvet set: one duvet cover and two matching pillowcases. Duvet not included.",
         drawing("duvet", cw("Ticking Stripe", WHITE, "stripe", "#26365c")),
-        (("colour", "Colour", "Navy / White"), ("pattern", "Pattern", "Stripe")),
+        (("color", "Color", "Navy / White"), ("pattern", "Pattern", "Stripe")),
     ), "type-exact intent: Duvets, not Bedding Sets"),
     Distractor(product(
         "DUVKID", "Kids' Dinosaur Duvet Set", "Little Fernby", "Home",
@@ -227,7 +228,7 @@ DUVET = (
         "A printed single duvet set for kids: a duvet cover and pillowcase. Duvet sold "
         "separately.",
         drawing("duvet", cw("Green Spot", "#7fae6a", "polka", "#ffffff")),
-        (("colour", "Colour", "Green"), ("audience", "Audience", "Boys")),
+        (("color", "Color", "Green"), ("audience", "Audience", "Boys")),
     ), "type-exact intent: Duvets, not Bedding Sets"),
     Distractor(product(
         "DUVSSK", "Seersucker Duvet Cover", "Quillon Sleep", "Home",
@@ -235,7 +236,7 @@ DUVET = (
         "A puckered seersucker duvet cover in gingham check. Duvet cover only; duvet not "
         "included.",
         drawing("duvet", cw("Blue Gingham", WHITE, "gingham", "#5b84b8")),
-        (("colour", "Colour", "Blue / White"), ("pattern", "Pattern", "Gingham")),
+        (("color", "Color", "Blue / White"), ("pattern", "Pattern", "Gingham")),
     ), "type-exact intent: Duvets, not Duvet Covers"),
 )  # fmt: skip
 
@@ -263,32 +264,22 @@ GIFT_WRAP = ("Gifts", "Gift Wrap", "Gift Bags")
 
 
 def gift_bags() -> list[dict]:
-    """The intended products for *gift bag*: one doc per size x print, a variant group per size."""
-    out = []
-    for size, dims, price in GIFT_SIZES:
-        group = f"GFT-{size.upper()}"
-        for n, colour in enumerate(GIFT_PRINTS, 1):
-            title = f"Kraft Paper Bag with Rope Handles, {size}, {colour[0]}"
-            out.append({
-                "product_id": f"{group}-{n:02d}",
-                "sku": f"{group.replace('-', '')}{n:02d}",
-                "variant_group": group,
-                "sku_count": 1,
-                "title": title,
-                "brand": "Lanternby",
-                "department": check_departments(["Gifts"], title),
-                "category_path": list(GIFT_WRAP),
-                "price": price,
-                "description": f"A sturdy {dims} kraft paper carrier printed with "
-                f"{colour[0].lower()}, with twisted rope handles, a card base and a matching "
-                "tag. Folds flat to store.",
-                "attributes": [attr("size", "Size", size), attr("print", "Print", colour[0]),
-                               attr("dimensions", "Dimensions", dims)],
-                "drawing": drawing("gift_bag", colour, size),
-                "collections": [],
-                "currency": "GBP",
-            })  # fmt: skip
-    return out
+    """The intended product for *gift bag*: one style, a SKU per print x size."""
+    title = "Kraft Paper Bag with Rope Handles"
+    skus = [
+        {"color": c[0], "size": size, "dimensions": dims, "price": price, "in_stock": True}
+        for c in GIFT_PRINTS
+        for size, dims, price in GIFT_SIZES
+    ]
+    return [style_product(
+        "GFT-KRAFT", skus, {c[0]: swatch(c) for c in GIFT_PRINTS},
+        title=title, brand="Lanternby", department=check_departments(["Gifts"], title),
+        category_path=list(GIFT_WRAP),
+        description="A sturdy kraft paper carrier with twisted rope handles, a card base and "
+        "a matching tag, in three prints and three sizes. Folds flat to store.",
+        attributes=[], drawing=drawing("gift_bag", GIFT_PRINTS[0], GIFT_SIZES[0][0]),
+        collections=[], currency="GBP",
+    )]  # fmt: skip
 
 
 GIFT_BAGS = tuple(gift_bags())
@@ -323,14 +314,14 @@ GIFT = (
         ("Beauty", "Accessories", "Wash Bags"), 14.0,
         "A roomy wash bag in waffle cotton with a wipe-clean lining. The wash bag that packs flat.",
         drawing("pouch", cw("Sea Green", "#7fb3a8", "solid", "#1c7c7d"), "Wash"),
-        (("colour", "Colour", "Sea Green"),),
+        (("color", "Color", "Sea Green"),),
     ), _BOOST + "Wash Bags (only *bag* matches)"),
     Distractor(product(
         "GBMKUP", "Quilted Make-Up Bag", "Kestlewood Cosmetics", "Beauty",
         ("Beauty", "Accessories", "Make-Up Bags"), 12.0,
         "A quilted make-up bag with a gold zip. Voted a Top 10 Gift: the bag everyone asks about.",
         drawing("pouch", cw("Black Quilt", "#2a2a2e", "gingham", "#4a4a50"), "Top Gift"),
-        (("colour", "Colour", "Black"), ("badge", "Badge", "Top 10 Gift")),
+        (("color", "Color", "Black"), ("badge", "Badge", "Top 10 Gift")),
     ), _BOOST + "Make-Up Bags (a gift badge, not a gift bag)"),
     Distractor(product(
         "GBHOSP", "Hospital Bag Kit", "Little Fernby", "Beauty",
@@ -425,7 +416,7 @@ GIFT_TAIL = (
 )  # fmt: skip
 
 #: The product a duplicate listing publishes twice, and its second category.
-DUPLICATED = "PLT-GBSKIN-01"
+DUPLICATED = "PLT-GBSKIN"
 DUPLICATE_PATH = ("Gifts", "Gifts for Her", "Beauty Gifts")
 
 TABLE = (
@@ -434,7 +425,7 @@ TABLE = (
         and "lemon" in tokens(d["title"]),
         "department or persona boost", LEMON),
     Row("Complements and accessories", "jeans", "a pair of jeans",
-        lambda d: d["variant_group"].startswith("JEA-"),
+        lambda d: d["product_id"].startswith("JEA-"),
         "category intent; product-type demotion", JEANS),
     Row("Bedding types", "duvet", "a duvet",
         lambda d: d["category_path"][-1] == "Duvets",

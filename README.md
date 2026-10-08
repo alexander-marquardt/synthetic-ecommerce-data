@@ -929,18 +929,18 @@ carry the fields a policy reads and a title never states: `product_type`,
 `audience` (adult, kids, baby), `size_range` (regular, petite, tall, plus),
 `neckline`, `pattern`, `leg_style`, a `was_price` on a sale item only,
 popularity (`sold_last_5_days`, `bestseller_rank`) and a `style_id` that a
-style's colourway docs share. The round 4 records above are unchanged and
+style's colorway docs share. The round 4 records above are unchanged and
 carry none of them.
 
 The records follow the variant structure observed on the live site: a style
-is one product page; a colourway is one doc (one tile); a SKU is nested in
-`skus`. Each colourway doc carries `colour_shade`, `colour_family` and
-`colour_hex`, the style's full `swatches` list rotated so its own colour
+is one product page; a colorway is one doc (one tile); a SKU is nested in
+`skus`. Each colorway doc carries `color_shade`, `color_family` and
+`color_hex`, the style's full `swatches` list rotated so its own color
 leads, and the style's `rating` and `review_count`, so an uncollapsed search
 shows identical siblings. Legwear SKUs are waist x `inside_leg` with
-`in_stock` per colour, and jeans and trousers carry `rise`. Bedding SKUs are
+`in_stock` per color, and jeans and trousers carry `rise`. Bedding SKUs are
 bed sizes whose label carries the dimension ("Double (4 ft 6)"), each with its
-own price. Beauty shades are colourway docs with `unit_size` in g or ml.
+own price. Beauty shades are colorway docs with `unit_size` in g or ml.
 `price_min` and `price_max` come from the SKUs, and `price` is the cheapest
 SKU. `size_range` is a list; for legwear it is derived from the in-stock lengths
 (Extra Short and Short/Petite give `petite`), never declared, so the flat
@@ -955,17 +955,17 @@ Trending, Online Only). Every doc has a full `category_path` of clean shopper
 terms (at least three levels, no merchandising bucket such as Sale or Petite,
 no leaf that is also a parent, one depth per node name) and its
 `category_leaf`; the index adds `category_path_joined`, every ancestor joined
-with "/", so a policy can route to a node. Food and furniture are colourless
-(no colour facet, no swatches); beer carries `abv` as an attribute; beds carry
+with "/", so a policy can route to a node. Food and furniture are colorless
+(no color facet, no swatches); beer carries `abv` as an attribute; beds carry
 nested SKUs from the shared five-size bed vocabulary with `width_cm` and
 `length_cm`. Metal goods (jewellery, watches, lighting, tech) carry a `finish`
-attribute equal to their colour (Rose Gold, Yellow Gold, White Gold, Silver).
+attribute equal to their color (Rose Gold, Yellow Gold, White Gold, Silver).
 
 Classes 10 to 12 are fixed by a route: the node's docs are recalled even when
 their text misses (an easy peeler that never says "orange") and boosted.
 Class 13 (mild) filters one in-stock nested SKU on `bed_size`. Class 14 reads
-"rose gold" as ONE colour value, as a colour vocabulary filled by a terms
-aggregation over the colour field holds it, and filters on it: rose bouquets
+"rose gold" as ONE color value, as a color vocabulary filled by a terms
+aggregation over the color field holds it, and filters on it: rose bouquets
 with gold foliage and gold-plated rose quartz drop out.
 
 `es_proof.py --host URL` loads the round 4 corpus plus these records into a
@@ -988,13 +988,13 @@ policy top 3 is all targets, and that this table is the proof's.
 | 7 | Sale word ignored | *womens sale dresses* | 1. Womens Linen Midi Dress `PLT-FPLINN-01`<br>2. Womens Smocked Mini Dress `PLT-FPSMOK-01`<br>3. Womens Jersey T-Shirt Dress `PLT-FPTEES-01`<br>4. Womens Satin Slip Dress `PLT-FPSLIP-01`<br>5. Womens High Neck Ribbed Top `PLT-HNRIBT-01` | 1. **Womens Tiered Maxi Dress `PLT-SDMAXI-01`**<br>2. **Womens Wrap Dress `PLT-SDWRAP-01`**<br>3. **Womens Shirt Dress `PLT-SDSHRT-01`**<br>4. **Petite Wrap Midi Dress `PLT-PETDRS-01`** | filter product_type = Dress; filter audience = adult; filter on sale (price < was_price) |
 | 9 | Pack count only in title spellings | *5 pack socks* | 1. Cotton Rich Socks 7 Pack `PLT-SK7PKC-01`<br>2. Kids' School Socks 5 Pack (6-16 Yrs) `PLT-SK5KID-01`<br>3. Striped Socks 3 Pack `PLT-SK3PKS-01`<br>4. **Bamboo Socks, Pack of 5 `PLT-SK5BMB-01`**<br>5. Wool Walking Socks `PLT-SK1WAL-01` | 1. **Bamboo Socks, Pack of 5 `PLT-SK5BMB-01`**<br>2. **Sports Trainer Socks 5 Pack `PLT-SK5SPT-01`**<br>3. **Cotton Rich Ankle Socks 5pk `PLT-SK5PKC-01`** | filter units_per_pack = 5; filter audience = adult |
 | 10 | A food word inside compounds and modifiers | *beer* | 1. Fiery Ginger Beer `PLT-GNGBER-01`<br>2. Cloudy Root Beer `PLT-RTBEER-01`<br>3. Beer Battered Haddock Fillets `PLT-BBHADD-01`<br>4. Beer Battered Chunky Chips `PLT-BBCHIP-01`<br>5. Malted Beer Bread `PLT-BRBRED-01` | 1. **Golden Table Beer `PLT-BRTABL-01`**<br>2. **4.8% Tropical Pineapple Sour Beer `PLT-BRTROP-01`**<br>3. **5.5% Hazy Wheat Beer `PLT-BRWHET-01`**<br>4. Fiery Ginger Beer `PLT-GNGBER-01`<br>5. Cloudy Root Beer `PLT-RTBEER-01` | route to Food/Drinks/Beer & Cider/Beer (recalled, boosted) |
-| 11 | A fruit plural read as a flavour and a colour | *oranges* | 1. Cranberry & Orange Panettone `PLT-PANCRO-01`<br>2. Chocolate & Orange Cookies `PLT-CKCORA-01`<br>3. Orange Hot Chocolate `PLT-HCORNG-01`<br>4. Orange Rose Bouquet `PLT-BQORNG-01`<br>5. Cherry & Orange Christmas Pudding `PLT-XPCHOR-01` | 1. **Blood Oranges `PLT-ORBLOD-01`**<br>2. **Navel Oranges `PLT-ORNAVL-01`**<br>3. **Seedless Easy Peelers `PLT-OREASY-01`**<br>4. Cranberry & Orange Panettone `PLT-PANCRO-01`<br>5. Chocolate & Orange Cookies `PLT-CKCORA-01` | route to Food/Fresh Produce/Fruit/Citrus/Oranges (recalled, boosted) |
-| 12 | A type word that is also a colour and a line name | *face cream* | 1. SPF 50 Face Sun Cream `PLT-SPFFCE-01`<br>2. Nourishing Face Oil `PLT-FCEOIL-01`<br>3. Loose Face Powder `PLT-PWDLSE-01`<br>4. Tinted Face Gel `PLT-TNTGEL-01`<br>5. Velvetmere Cream Body Oil Spray `PLT-VLCOIL-01` | 1. **Daily Hydrating Face Cream `PLT-FCDAYC-01`**<br>2. **Calming Face Cream `PLT-FCCALM-01`**<br>3. **Rich Night Cream `PLT-FCNGHT-01`**<br>4. SPF 50 Face Sun Cream `PLT-SPFFCE-01`<br>5. Nourishing Face Oil `PLT-FCEOIL-01` | route to Beauty/Skincare/Face Creams (recalled, boosted) |
+| 11 | A fruit plural read as a flavour and a color | *oranges* | 1. Cranberry & Orange Panettone `PLT-PANCRO-01`<br>2. Chocolate & Orange Cookies `PLT-CKCORA-01`<br>3. Orange Hot Chocolate `PLT-HCORNG-01`<br>4. Orange Rose Bouquet `PLT-BQORNG-01`<br>5. Cherry & Orange Christmas Pudding `PLT-XPCHOR-01` | 1. **Blood Oranges `PLT-ORBLOD-01`**<br>2. **Navel Oranges `PLT-ORNAVL-01`**<br>3. **Seedless Easy Peelers `PLT-OREASY-01`**<br>4. Cranberry & Orange Panettone `PLT-PANCRO-01`<br>5. Chocolate & Orange Cookies `PLT-CKCORA-01` | route to Food/Fresh Produce/Fruit/Citrus/Oranges (recalled, boosted) |
+| 12 | A type word that is also a color and a line name | *face cream* | 1. SPF 50 Face Sun Cream `PLT-SPFFCE-01`<br>2. Nourishing Face Oil `PLT-FCEOIL-01`<br>3. Loose Face Powder `PLT-PWDLSE-01`<br>4. Tinted Face Gel `PLT-TNTGEL-01`<br>5. Velvetmere Cream Body Oil Spray `PLT-VLCOIL-01` | 1. **Daily Hydrating Face Cream `PLT-FCDAYC-01`**<br>2. **Calming Face Cream `PLT-FCCALM-01`**<br>3. **Rich Night Cream `PLT-FCNGHT-01`**<br>4. SPF 50 Face Sun Cream `PLT-SPFFCE-01`<br>5. Nourishing Face Oil `PLT-FCEOIL-01` | route to Beauty/Skincare/Face Creams (recalled, boosted) |
 | 13 | A size word not applied (mild) | *single bed* | 1. Single Cube Chairbed `PLT-CHRCUB-01`<br>2. Ottoman Storage Bed `PLT-BDOTTO-01`<br>3. Upholstered Sleigh Bed `PLT-BDSLGH-01`<br>4. Panelled Wooden Bed `PLT-BDPANL-01`<br>5. Two Seater Sofa Bed `PLT-SOFBED-01` | 1. **Shaker Wooden Bed Frame `PLT-BDSHKR-01`**<br>2. **Metal Spindle Bed `PLT-BDMETL-01`**<br>3. **Upholstered Bed Frame `PLT-BDUPHL-01`**<br>4. Single Cube Chairbed `PLT-CHRCUB-01`<br>5. Memory Foam Mattress Topper `PLT-MTTMEM-01` | filter an in-stock SKU with bed_size = Single (3 ft); product_type = Bed x10 |
-| 14 | A two-word colour split into words | *rose gold* | 1. Blush Rose & Gold Eucalyptus Bouquet `PLT-BQBLSH-01`<br>2. White Rose Bouquet with Gold Foliage `PLT-BQWHGF-01`<br>3. Gold Plated Rose Quartz Hoop Earrings `PLT-RQHOOP-01`<br>4. Classic Red Rose Bouquet `PLT-BQREDR-01`<br>5. Orange Rose Bouquet `PLT-BQORNG-01` | 1. **Cubic Zirconia Stud Earrings `PLT-RGSTUD-01`**<br>2. **Slim Mesh Strap Watch `PLT-RGMESH-01`**<br>3. **Wireless Charging Pad `PLT-RGCHRG-01`**<br>4. **Touch Dimmable Table Lamp `PLT-RGLAMP-01`**<br>5. **Glow Powder Highlighter `PLT-RGHLIT-01`** | filter colour_shade = Rose Gold |
+| 14 | A two-word color split into words | *rose gold* | 1. Blush Rose & Gold Eucalyptus Bouquet `PLT-BQBLSH-01`<br>2. White Rose Bouquet with Gold Foliage `PLT-BQWHGF-01`<br>3. Gold Plated Rose Quartz Hoop Earrings `PLT-RQHOOP-01`<br>4. Classic Red Rose Bouquet `PLT-BQREDR-01`<br>5. Orange Rose Bouquet `PLT-BQORNG-01` | 1. **Cubic Zirconia Stud Earrings `PLT-RGSTUD-01`**<br>2. **Slim Mesh Strap Watch `PLT-RGMESH-01`**<br>3. **Wireless Charging Pad `PLT-RGCHRG-01`**<br>4. **Touch Dimmable Table Lamp `PLT-RGLAMP-01`**<br>5. **Glow Powder Highlighter `PLT-RGHLIT-01`** | filter color_shade = Rose Gold |
 
 The cross-cutting patterns show in the table: the barrel bestseller fills the
-balloon baseline once per colourway (five docs share `PLT-BRLMID`) until the
+balloon baseline once per colorway (five docs share `PLT-BRLMID`) until the
 policy collapses on `style_id`; kids and baby bombers enter an adult query;
 and popularity lifts every distractor above a better text match. Class 9 is
 an on-stage demo case: the pack count is a style attribute
@@ -1318,7 +1318,7 @@ every other drawing -- only the GEOMETRY is fixed.
   - every element must be one the figures emit (`svg, rect, defs, pattern, g,
     path, circle`), and there is no nested `<svg>`;
   - every attribute must be one they use, and every attribute VALUE must fit
-    its grammar: a paint is a colour, `none` or a same-file hatch reference,
+    its grammar: a paint is a color, `none` or a same-file hatch reference,
     never an external or `data:` URL;
   - every id is a hatch pattern's own;
   - no element may carry character data;
@@ -1338,7 +1338,7 @@ every other drawing -- only the GEOMETRY is fixed.
   kept, to a height that still grows with the true length. The screw and bolt
   extents are the pre-100K ones, so one 14-5/8" outlier no longer draws every
   socket screw 2.5x smaller.
-* **Finish and material** are the part's fill (the finish's colour, else the
+* **Finish and material** are the part's fill (the finish's color, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
   about 2 KB a drawing. `figures.drawings` in `golden-catalog/stats.json` has

@@ -2,12 +2,12 @@
 
 A drawing is ``render(shape, fill, label=..., brand=...)``: one flat line
 drawing on a 400 x 400 sheet, in the same house style as the industrial
-figures (a paper tint, a thin frame, one ink colour, round joins).
+figures (a paper tint, a thin frame, one ink color, round joins).
 
 * ``shape`` names an entry of :data:`SHAPES` (clothing, footwear or food).
-* ``fill`` is a :class:`Fill`: a solid colour or an SVG pattern
+* ``fill`` is a :class:`Fill`: a solid color or an SVG pattern
   (stripe, gingham, tartan, leopard, polka dot). It paints the product's
-  main surface, so the colour and pattern facets can be checked by eye.
+  main surface, so the color and pattern facets can be checked by eye.
 * ``label`` is the large product word a food pack carries ("Milk").
 * ``brand`` is printed on a small tag in the bottom-left corner.
 * ``params`` drive a parametric shape (``kit_garments``, ``kit_home``):
@@ -105,13 +105,13 @@ def _both(d: str, fill: str, width: float = LW) -> list[str]:
     return [_path(d, fill, width), _path(_mirror(d), fill, width)]
 
 
-def _word(text: str, cx: float, cy: float, width: float, max_size: float, colour: str = INK) -> str:
+def _word(text: str, cx: float, cy: float, width: float, max_size: float, color: str = INK) -> str:
     """``text`` centred on (cx, cy), as large as fits ``width``."""
     size = min(max_size, width / (0.62 * max(len(text), 1)))
     return (
         f'<text x="{cx:g}" y="{cy + size * 0.35:.1f}" font-family="{FONT}" '
         f'font-weight="700" font-size="{size:.1f}" text-anchor="middle" '
-        f'fill="{colour}">{escape(text)}</text>'
+        f'fill="{color}">{escape(text)}</text>'
     )
 
 
@@ -134,7 +134,7 @@ def _panel(
 
 
 def pattern_defs(fill: Fill, pid: str) -> str:
-    """The ``<pattern>`` element for ``fill`` (empty for a solid colour)."""
+    """The ``<pattern>`` element for ``fill`` (empty for a solid color)."""
     b, a, t = fill.base, fill.accent, fill.third
     if fill.pattern == "solid":
         return ""
@@ -198,8 +198,8 @@ def pattern_defs(fill: Fill, pid: str) -> str:
 # Clothing and footwear
 # --------------------------------------------------------------------------
 # Every shape takes (paint, fill, label) and returns SVG elements. ``paint`` is
-# the fill attribute value (a colour or ``url(#id)``); ``fill`` is the Fill, for
-# shapes that need a shade of the base colour.
+# the fill attribute value (a color or ``url(#id)``); ``fill`` is the Fill, for
+# shapes that need a shade of the base color.
 
 
 def tshirt(paint: str, fill: Fill, label: str | None) -> list[str]:

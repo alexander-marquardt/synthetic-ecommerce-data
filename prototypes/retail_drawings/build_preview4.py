@@ -84,7 +84,7 @@ def _planted() -> dict[str, tuple[str, str]]:
 
 #: The fields a policy reads that the round 4 records do not carry.
 FACTS = ("product_type", "audience", "size_range", "neckline", "pattern", "leg_style", "rise",
-         "colour_family", "style_id")  # fmt: skip
+         "color_family", "style_id")  # fmt: skip
 
 
 def _facts(rec: dict) -> str:
@@ -94,7 +94,7 @@ def _facts(rec: dict) -> str:
     show = {k: ", ".join(v) if isinstance(v, list) else v for k, v in rec.items() if k in FACTS}
     parts = [f"{k}: {show[k]}" for k in FACTS if k in rec]
     parts.append(" > ".join(rec["category_path"]))
-    # Food and furniture are colourless: no colour facet, no swatches.
+    # Food and furniture are colorless: no color facet, no swatches.
     swatches = f"{len(rec['swatches'])} swatches, " if "swatches" in rec else ""
     parts.append(f"{swatches}{rec['rating']} from {rec['review_count']}")
     if rec["badges"]:
@@ -169,7 +169,7 @@ def page(sections: dict[str, list[dict]]) -> str:
         "<title>Retail round 4: variants and planted distractors</title>"
         f"<style>{CSS}{EXTRA_CSS}</style></head><body>"
         "<h1>Retail round 4: variants and planted distractors</h1>"
-        f'<p class="note">{n} sample docs. One doc per style × colourway (× leg length for jeans); '
+        f'<p class="note">{n} sample docs. One doc per style × colorway (× leg length for jeans); '
         "sizes are UK/EU/US arrays, so a doc's SKU count is its number of sizes. Jeans and bras "
         "are deep (crossed, rule-bound axes); bedding and beauty are shallow (one hand list per "
         "row). Every brand, line and shade name is invented.</p>"

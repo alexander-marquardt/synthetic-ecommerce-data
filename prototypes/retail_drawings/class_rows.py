@@ -21,7 +21,7 @@ from class_model import (
     on_sale,
     one,
 )
-from variants import Colourway, cw
+from variants import Color, cw
 
 DENIM, MID, LIGHT, ECRU, BLACK = "#4a6a94", "#5b7aa6", "#9fb4cf", "#e8dfcc", "#2a2a2e"
 WHITE, NAVY, CAMEL, OLIVE, RUST = "#ffffff", "#26365c", "#c19a6b", "#6b6b3a", "#a8502e"
@@ -87,7 +87,7 @@ MATTRESS = (
 
 # --------------------------------------------------------------------------
 # 3. "balloon jeans": an over-broad synonym (balloon -> barrel) and a
-# bestseller boost; the barrel bestseller shows once per colourway
+# bestseller boost
 # --------------------------------------------------------------------------
 
 WJEANS = ("Women", "Jeans")
@@ -112,7 +112,7 @@ BALLOON = (
           params=(("fit", "balloon"), ("rise", "mid"))),
 )  # fmt: skip
 
-_EXACT = "exact style first: leg_style balloon; collapse on style_id"
+_EXACT = "exact style first: leg_style balloon"
 BARREL = (
     (Style("BRLMID", "Mid Rise Barrel Jeans", "Ottery Denim", "Clothing",
            (*WJEANS, "Barrel Jeans"), 36.0,
@@ -435,8 +435,8 @@ BEAUTY = (
 )  # fmt: skip
 
 
-def pack(base: str, sold: int) -> tuple[tuple[Colourway, int], ...]:
-    """A colourless product's one doc: the colour only fills its drawing."""
+def pack(base: str, sold: int) -> tuple[tuple[Color, int], ...]:
+    """A colorless product's one doc: the color only fills its drawing."""
     return one(cw("Pack", base), sold)
 
 
@@ -453,13 +453,13 @@ BEERS = (
     Style("BRTROP", "4.8% Tropical Pineapple Sour Beer", "Lanternby", FOOD, BEER_NODE, 2.6,
           "A tart sour beer brewed with pineapple and passion fruit.",
           "Beer", "tin", pack("#f2c14e", 30), unit=(440.0, "ml"), abv=4.8, new_in=True,
-          multibuy=True, colourless=True),
+          multibuy=True, colorless=True),
     Style("BRTABL", "Golden Table Beer", "Lanternby", FOOD, BEER_NODE, 2.2,
           "A light, low strength table beer brewed with English hops.",
-          "Beer", "tin", pack("#d9a441", 25), unit=(330.0, "ml"), abv=2.8, colourless=True),
+          "Beer", "tin", pack("#d9a441", 25), unit=(330.0, "ml"), abv=2.8, colorless=True),
     Style("BRWHET", "5.5% Hazy Wheat Beer", "Lanternby", FOOD, BEER_NODE, 2.8,
           "An unfiltered wheat beer with notes of banana and clove.",
-          "Beer", "bottle", pack("#e8b04a", 20), unit=(500.0, "ml"), abv=5.5, colourless=True),
+          "Beer", "bottle", pack("#e8b04a", 20), unit=(500.0, "ml"), abv=5.5, colorless=True),
 )  # fmt: skip
 
 _ROUTE_BEER = "route: Beer node boosted; a soft drink or a battered food is outside it"
@@ -468,32 +468,32 @@ NOT_BEER = (
            (*DRINKS, "Soft Drinks", "Mixers"), 1.1,
            "An alcohol-free ginger beer brewed with root ginger and a little chilli.",
            "Ginger Beer", "bottle", pack("#c98b2b", 640), unit=(330.0, "ml"), trending=True,
-           colourless=True), _ROUTE_BEER),
+           colorless=True), _ROUTE_BEER),
     (Style("RTBEER", "Cloudy Root Beer", "Pantry Mill", FOOD,
            (*DRINKS, "Soft Drinks", "Fizzy Drinks"), 1.0,
            "An old fashioned root beer with vanilla and sarsaparilla.",
-           "Root Beer", "tin", pack("#5a3020", 420), unit=(330.0, "ml"), colourless=True),
+           "Root Beer", "tin", pack("#5a3020", 420), unit=(330.0, "ml"), colorless=True),
      _ROUTE_BEER),
     (Style("BBHADD", "Beer Battered Haddock Fillets", "Saltmarsh", FOOD,
            ("Food", "Fish & Seafood", "Battered Fish"), 4.5,
            "Two haddock fillets in a crisp beer batter. Oven bake from frozen.",
-           "Battered Fish", "box", pack("#d8a548", 600), unit=(280.0, "g"), colourless=True),
+           "Battered Fish", "box", pack("#d8a548", 600), unit=(280.0, "g"), colorless=True),
      _ROUTE_BEER),
     (Style("BBCHIP", "Beer Battered Chunky Chips", "Hearth & Table", FOOD,
            ("Food", "Frozen Food", "Chips & Potatoes"), 2.0,
            "Thick cut chips in a light beer batter, crisp from the oven.",
-           "Chips", "box", pack("#e6b85c", 520), unit=(900.0, "g"), colourless=True),
+           "Chips", "box", pack("#e6b85c", 520), unit=(900.0, "g"), colorless=True),
      _ROUTE_BEER),
     (Style("BRBRED", "Malted Beer Bread", "Crofter's Bakehouse", FOOD,
            ("Food", "Bakery", "Bread"), 1.6,
            "A soft malted loaf baked with a dark beer.",
-           "Bread", "loaf", pack("#8a5a30", 300), unit=(400.0, "g"), colourless=True),
+           "Bread", "loaf", pack("#8a5a30", 300), unit=(400.0, "g"), colorless=True),
      _ROUTE_BEER),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
 # 11. "oranges": the fruit word names a flavour in bakery, sweets and drinks,
-# and a colour in clothing and flowers; one true hit has no "orange" in it
+# and a color in clothing and flowers; one true hit has no "orange" in it
 # --------------------------------------------------------------------------
 
 CITRUS = ("Food", "Fresh Produce", "Fruit", "Citrus")
@@ -501,14 +501,14 @@ ORANGES = (
     Style("ORBLOD", "Blood Oranges", "Goldfield Farms", FOOD, (*CITRUS, "Oranges"), 2.0,
           "Ruby fleshed blood oranges, sweet with a berry note. A short season.",
           "Oranges", "round_produce", pack("#c8432e", 40), unit=(860.0, "g"), new_in=True,
-          colourless=True),
+          colorless=True),
     Style("ORNAVL", "Navel Oranges", "Goldfield Farms", FOOD, (*CITRUS, "Oranges"), 1.8,
           "Large, juicy navel oranges that are easy to segment.",
-          "Oranges", "round_produce", pack("#f08a24", 30), unit=(1000.0, "g"), colourless=True),
+          "Oranges", "round_produce", pack("#f08a24", 30), unit=(1000.0, "g"), colorless=True),
     # A type match only: neither the title nor the description names the fruit.
     Style("OREASY", "Seedless Easy Peelers", "Goldfield Farms", FOOD, (*CITRUS, "Oranges"), 2.2,
           "Small, sweet and seedless, with a loose skin that comes away in one go.",
-          "Easy Peelers", "punnet", pack("#f39c33", 260), unit=(1200.0, "g"), colourless=True),
+          "Easy Peelers", "punnet", pack("#f39c33", 260), unit=(1200.0, "g"), colorless=True),
 )  # fmt: skip
 
 _ROUTE_ORANGE = "route: Oranges node boosted and recalled"
@@ -517,22 +517,22 @@ NOT_ORANGES = (
            ("Food", "Bakery", "Panettone"), 8.0,
            "A tall, light panettone with cranberries and candied orange peel.",
            "Panettone", "cake", pack("#d9a35a", 610), unit=(750.0, "g"), new_in=True,
-           colourless=True), _ROUTE_ORANGE),
+           colorless=True), _ROUTE_ORANGE),
     (Style("CKCORA", "Chocolate & Orange Cookies", "Crofter's Bakehouse", FOOD,
            ("Food", "Biscuits & Snacks", "Cookies"), 2.5,
            "Chunky cookies with dark chocolate and orange oil.",
-           "Cookies", "box", pack("#6b3a20", 560), unit=(200.0, "g"), colourless=True),
+           "Cookies", "box", pack("#6b3a20", 560), unit=(200.0, "g"), colorless=True),
      _ROUTE_ORANGE),
     (Style("HCORNG", "Orange Hot Chocolate", "Pantry Mill", FOOD,
            (*DRINKS, "Hot Drinks", "Hot Chocolate"), 3.5,
            "A rich hot chocolate flavoured with orange.",
            "Hot Chocolate", "tub", pack("#5a3020", 480), unit=(250.0, "g"), new_in=True,
-           colourless=True), _ROUTE_ORANGE),
+           colorless=True), _ROUTE_ORANGE),
     (Style("XPCHOR", "Cherry & Orange Christmas Pudding", "Hearth & Table", FOOD,
            ("Food", "Desserts", "Christmas Puddings"), 9.0,
            "A rich fruit pudding with cherries and orange zest, matured for a month.",
            "Christmas Pudding", "cake", pack("#5a2a1a", 450), unit=(800.0, "g"), new_in=True,
-           colourless=True), _ROUTE_ORANGE),
+           colorless=True), _ROUTE_ORANGE),
     (Style("JMPCBL", "Chunky Cable Knit Jumper", "Harbour & Pine", "Clothing",
            ("Women", "Knitwear", "Jumpers"), 45.0,
            "A chunky cable knit jumper in a burnt orange wool blend.",
@@ -545,7 +545,7 @@ NOT_ORANGES = (
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
-# 12. "face cream": cream is a colour (sofas, bedding, knitwear), a near type
+# 12. "face cream": cream is a color (sofas, bedding, knitwear), a near type
 # (powder, tint, oil, SPF) and part of a line name on an oil
 # --------------------------------------------------------------------------
 
@@ -554,15 +554,15 @@ FACE_CREAMS = (
     Style("FCDAYC", "Daily Hydrating Face Cream", "Velling Apothecary", "Beauty",
           (*SKINCARE, "Face Creams"), 18.0,
           "A light daily face cream that hydrates without shine.",
-          "Face Cream", "moisturiser_jar", pack("#f4efe6", 5), unit=(50.0, "ml"), colourless=True),
+          "Face Cream", "moisturiser_jar", pack("#f4efe6", 5), unit=(50.0, "ml"), colorless=True),
     Style("FCNGHT", "Rich Night Cream", "Velling Apothecary", "Beauty",
           (*SKINCARE, "Face Creams"), 22.0,
           "A rich overnight face cream for dry skin.",
-          "Face Cream", "moisturiser_jar", pack("#efe4d6", 4), unit=(50.0, "ml"), colourless=True),
+          "Face Cream", "moisturiser_jar", pack("#efe4d6", 4), unit=(50.0, "ml"), colorless=True),
     Style("FCCALM", "Calming Face Cream", "Velling Apothecary", "Beauty",
           (*SKINCARE, "Face Creams"), 16.0,
           "A fragrance free face cream for sensitive skin.",
-          "Face Cream", "moisturiser_jar", pack("#eef1ea", 3), unit=(50.0, "ml"), colourless=True),
+          "Face Cream", "moisturiser_jar", pack("#eef1ea", 3), unit=(50.0, "ml"), colorless=True),
 )  # fmt: skip
 
 _ROUTE_FACE = "route: Face Creams node boosted"
@@ -577,27 +577,27 @@ NOT_FACE_CREAM = (
            ("Beauty", "Make-Up", "Face", "Face Powder"), 24.0,
            "A silky loose powder that sets cream and liquid foundation.",
            "Face Powder", "moisturiser_jar", pack("#e8d2bd", 650), unit=(20.0, "g"),
-           colourless=True), _ROUTE_FACE),
+           colorless=True), _ROUTE_FACE),
     (Style("TNTGEL", "Tinted Face Gel", "Kestlewood Cosmetics", "Beauty",
            ("Beauty", "Make-Up", "Face", "Skin Tints"), 21.0,
            "A sheer tinted gel that wears like a light cream.",
            "Skin Tint", "bottle", pack("#d9b08c", 560), unit=(30.0, "ml"), new_in=True,
-           colourless=True), _ROUTE_FACE),
+           colorless=True), _ROUTE_FACE),
     (Style("FCEOIL", "Nourishing Face Oil", "Velling Apothecary", "Beauty",
            (*SKINCARE, "Face Oils"), 26.0,
            "A lightweight face oil to wear under your cream.",
            "Face Oil", "bottle", pack("#e3b448", 500), unit=(30.0, "ml"), trending=True,
-           colourless=True), _ROUTE_FACE),
+           colorless=True), _ROUTE_FACE),
     (Style("SPFFCE", "SPF 50 Face Sun Cream", "Velling Apothecary", "Beauty",
            ("Beauty", "Suncare", "Face Sun Cream"), 15.0,
            "A high protection sun cream for the face, with no white cast.",
-           "Sun Cream", "bottle", pack("#f6f1e4", 470), unit=(50.0, "ml"), colourless=True),
+           "Sun Cream", "bottle", pack("#f6f1e4", 470), unit=(50.0, "ml"), colorless=True),
      _ROUTE_FACE),
     (Style("VLCOIL", "Velvetmere Cream Body Oil Spray", "Kestlewood Cosmetics", "Beauty",
            ("Beauty", "Bath & Body", "Body Oils"), 30.0,
            "An all over dry oil spray from our Velvetmere Cream line.",
            "Body Oil", "fragrance", pack("#f3e3c3", 540), unit=(100.0, "ml"),
-           product_line="Velvetmere Cream", colourless=True), _ROUTE_FACE),
+           product_line="Velvetmere Cream", colorless=True), _ROUTE_FACE),
     (Style("DCSATN", "400 Thread Count Sateen Duvet Cover", "Quillon Sleep", "Home",
            (*BED, "Duvet Covers"), 45.0,
            "Smooth cotton sateen with a soft sheen, in white or cream.",
@@ -621,45 +621,45 @@ SIZES5 = tuple(BED_SIZE_DIMS)
 BEDS = (
     Style("BDSHKR", "Shaker Wooden Bed Frame", "Brackenmere Home", "Home", BEDS_NODE, 299.0,
           "A solid wood bed frame, made in every size from single to super king.",
-          "Bed", "box_wide", pack("#b08a5a", 40), bed_frame=SIZES5, colourless=True),
+          "Bed", "box_wide", pack("#b08a5a", 40), bed_frame=SIZES5, colorless=True),
     Style("BDMETL", "Metal Spindle Bed", "Brackenmere Home", "Home", BEDS_NODE, 189.0,
           "A painted metal bed with a spindle head end, in single, small double and double.",
-          "Bed", "box_wide", pack("#3a3a3a", 30), bed_frame=SIZES5[:3], colourless=True),
+          "Bed", "box_wide", pack("#3a3a3a", 30), bed_frame=SIZES5[:3], colorless=True),
     Style("BDUPHL", "Upholstered Bed Frame", "Brackenmere Home", "Home", BEDS_NODE, 349.0,
           "A padded bed frame in a soft weave, from single to king size.",
-          "Bed", "box_wide", pack("#9a9a9a", 25), bed_frame=SIZES5[:4], colourless=True),
+          "Bed", "box_wide", pack("#9a9a9a", 25), bed_frame=SIZES5[:4], colorless=True),
 )  # fmt: skip
 
 _SIZE = "single to a size filter on the nested bed-size SKUs"
 NOT_SINGLE = (
     (Style("BDOTTO", "Ottoman Storage Bed", "Brackenmere Home", "Home", BEDS_NODE, 999.0,
            "A lift up ottoman bed with deep storage, in double, king and super king.",
-           "Bed", "box_wide", pack("#7a6a5a", 600), bed_frame=SIZES5[2:], colourless=True),
+           "Bed", "box_wide", pack("#7a6a5a", 600), bed_frame=SIZES5[2:], colorless=True),
      _SIZE),
     (Style("BDSLGH", "Upholstered Sleigh Bed", "Brackenmere Home", "Home", BEDS_NODE, 1099.0,
            "A scrolled sleigh bed in soft velvet, in king and super king.",
-           "Bed", "box_wide", pack("#4a4a5a", 500), bed_frame=SIZES5[3:], colourless=True),
+           "Bed", "box_wide", pack("#4a4a5a", 500), bed_frame=SIZES5[3:], colorless=True),
      _SIZE),
     (Style("BDPANL", "Panelled Wooden Bed", "Brackenmere Home", "Home", BEDS_NODE, 899.0,
            "A panelled oak bed with a tall head end, in double, king and super king.",
-           "Bed", "box_wide", pack("#a07a4a", 450), bed_frame=SIZES5[2:], colourless=True),
+           "Bed", "box_wide", pack("#a07a4a", 450), bed_frame=SIZES5[2:], colorless=True),
      _SIZE),
     # A sibling type that matches both words; it may rank below the beds.
     (Style("CHRCUB", "Single Cube Chairbed", "Brackenmere Home", "Home",
            ("Home", "Furniture", "Chairbeds"), 90.0,
            "A cube seat that unfolds into a single bed for guests.",
            "Chairbed", "box", pack("#5a5a6a", 550), bed_frame=SIZES5[:1], trending=True,
-           colourless=True), "type boost: Bed above Chairbed"),
+           colorless=True), "type boost: Bed above Chairbed"),
     (Style("SOFBED", "Two Seater Sofa Bed", "Brackenmere Home", "Home",
            ("Home", "Furniture", "Sofa Beds"), 499.0,
            "A two seater sofa that pulls out into a double bed.",
-           "Sofa Bed", "sofa", pack("#6a7a8a", 300), bed_frame=(SIZES5[2],), colourless=True),
+           "Sofa Bed", "sofa", pack("#6a7a8a", 300), bed_frame=(SIZES5[2],), colorless=True),
      _SIZE),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
-# 14. "rose gold": a two-word colour split into words. "Rose Gold" is one
-# structured colour value (and, on metal goods, the finish), yet the words
+# 14. "rose gold": a two-word color split into words. "Rose Gold" is one
+# structured color value (and, on metal goods, the finish), yet the words
 # match rose bouquets with gold foliage and gold-plated rose quartz apart
 # --------------------------------------------------------------------------
 
@@ -688,31 +688,31 @@ ROSE_GOLDS = (
           "Highlighter", "moisturiser_jar", one(cw(ROSE_GOLD, "#d8a28f"), 15), unit=(8.0, "g")),
 )  # fmt: skip
 
-_COLOUR = "colour filter: Rose Gold is one colour value; a bouquet's colour is its flower's"
+_COLOR = "color filter: Rose Gold is one color value; a bouquet's color is its flower's"
 NOT_ROSE_GOLD = (
     (Style("BQBLSH", "Blush Rose & Gold Eucalyptus Bouquet", "Goldfield Farms", "Garden",
            BOUQUETS, 35.0,
            "Blush pink roses with gold sprayed eucalyptus, hand tied.",
-           "Bouquet", "round_produce", one(cw("Pink", "#f3c6cf"), 560)), _COLOUR),
+           "Bouquet", "round_produce", one(cw("Pink", "#f3c6cf"), 560)), _COLOR),
     (Style("BQREDR", "Classic Red Rose Bouquet", "Goldfield Farms", "Garden", BOUQUETS, 40.0,
            "Twelve long stem red roses wrapped in kraft paper with a gold ribbon.",
-           "Bouquet", "round_produce", one(cw("Red", "#b0182f"), 520)), _COLOUR),
+           "Bouquet", "round_produce", one(cw("Red", "#b0182f"), 520)), _COLOR),
     (Style("BQWHGF", "White Rose Bouquet with Gold Foliage", "Goldfield Farms", "Garden",
            BOUQUETS, 32.0,
            "White roses and gold painted ruscus in a gift box.",
-           "Bouquet", "round_produce", one(cw("White", WHITE), 410)), _COLOUR),
+           "Bouquet", "round_produce", one(cw("White", WHITE), 410)), _COLOR),
     (Style("RQHOOP", "Gold Plated Rose Quartz Hoop Earrings", "Wrenfield", "Clothing",
            JEWELLERY, 24.0,
            "Rose quartz drops on gold plated hoops.",
            "Earrings", "pouch", one(cw("Yellow Gold", "#d4af37"), 300), metal=True,
-           extra=(("stone", "Stone", "rose quartz"),)), _COLOUR),
-    # The other finishes of a metal good: the colour filter keeps them out.
+           extra=(("stone", "Stone", "rose quartz"),)), _COLOR),
+    # The other finishes of a metal good: the color filter keeps them out.
     (Style("LKWTCH", "Link Bracelet Watch", "Larkmoor", "Clothing",
            ("Women", "Watches", "Bracelet Watches"), 79.0,
            "A link bracelet watch with a sunray dial, in yellow gold, white gold or silver tone.",
            "Watch", "box",
            ((cw("Yellow Gold", "#d4af37"), 90), (cw("White Gold", "#e5e4e2"), 60),
-            (cw("Silver", "#c0c0c0"), 50)), metal=True), _COLOUR),
+            (cw("Silver", "#c0c0c0"), 50)), metal=True), _COLOR),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
@@ -750,7 +750,20 @@ HONEY = Style("HONBLS", "Clear Blossom Honey", "Copper Hill Preserves", FOOD,
               ("Food", "Food Cupboard", "Honey & Spreads", "Honey"), 4.0,
               "A clear, mild blossom honey for tea and toast.",
               "Honey", "jar", pack("#e0a030", 120), unit=(340.0, "g"),
-              colourless=True)  # fmt: skip
+              colorless=True)  # fmt: skip
+
+#: Not a query row: the gen#125 ruling's worked example, one product holding
+#: 11 SKUs (navy and white in S-XL, heather grey in S-L). The color query of
+#: :mod:`es_proof` ("navy tee") measures a nested color filter on it.
+CREW_TEE = Style("CRWTEE", "Mens Crew Neck Cotton Tee", "Harbour & Pine", "Clothing",
+                 ("Men", "Tops", "T-Shirts"), 14.0,
+                 "A regular fit tee in soft combed cotton jersey, with a ribbed collar.",
+                 "T-Shirt", "top",
+                 ((cw("Navy", NAVY), 12), (cw("White", WHITE), 9),
+                  (cw("Heather Grey", "#9a9ca0"), 6)),
+                 neckline="crew", pattern="plain", size_range="regular",
+                 sizes=("S", "M", "L", "XL"), not_made=(("Heather Grey", "XL"),),
+                 params=(("neckline", "crew"), ("sleeve", "short")))  # fmt: skip
 
 #: A word whose senses live in different fields or domains, so a policy that
 #: reads one field must not pool them.
@@ -762,9 +775,9 @@ COLLISIONS = (
      "note": "bedding threads per square inch (a unitless count) vs a screw thread's "
              "size (1/4-20: diameter and pitch) and its type; one key each, never merged"},
     {"word": "honey",
-     "senses": ["colour_shade", "product_type"],
-     "note": "a lipstick shade (Wild Honey, colour family brown) vs a food; the food "
-             "carries no colour field and the shade is never a product type"},
+     "senses": ["skus.color", "product_type"],
+     "note": "a lipstick shade (Wild Honey, color family brown) vs a food; the food "
+             "carries no color field and the shade is never a product type"},
 )  # fmt: skip
 
 
@@ -782,8 +795,8 @@ ROWS = (
     ClassRow(3, "Over-broad style synonym plus a bestseller boost", "balloon jeans",
              "balloon leg jeans",
              lambda d: _type("Jeans")(d) and d.get("leg_style") == "balloon",
-             "exact style term first, synonym second; collapse colour variants",
-             Policy(boosts=(("leg_style", ("balloon",), 10.0),), collapse=True),
+             "exact style term first, synonym second",
+             Policy(boosts=(("leg_style", ("balloon",), 10.0),)),
              BALLOON, BARREL),
     ClassRow(4, "A neckline word matched as a keyword", "womens boat neck top",
              "a boat (or slash) neck top",
@@ -821,12 +834,12 @@ ROWS = (
              "route to the Beer node: ginger beer, root beer and beer-battered food are outside",
              Policy(route=PATH_SEPARATOR.join(BEER_NODE)),
              BEERS, NOT_BEER),
-    ClassRow(11, "A fruit plural read as a flavour and a colour", "oranges", "oranges (the fruit)",
+    ClassRow(11, "A fruit plural read as a flavour and a color", "oranges", "oranges (the fruit)",
              lambda d: d.get("category_leaf") == "Oranges",
              "route to the Oranges node: recalls an easy peeler that never says orange",
              Policy(route=PATH_SEPARATOR.join((*CITRUS, "Oranges"))),
              ORANGES, NOT_ORANGES),
-    ClassRow(12, "A type word that is also a colour and a line name", "face cream",
+    ClassRow(12, "A type word that is also a color and a line name", "face cream",
              "a face cream",
              lambda d: d.get("category_leaf") == "Face Creams",
              "route to the Face Creams node: a cream sofa, a powder and an oil are outside",
@@ -839,11 +852,11 @@ ROWS = (
              Policy(sku_filters=(("bed_size", (SIZES5[0],)),),
                     boosts=(("product_type", ("Bed",), 10.0),)),
              BEDS, NOT_SINGLE),
-    ClassRow(14, "A two-word colour split into words", "rose gold",
-             "a product whose colour is Rose Gold",
-             lambda d: d.get("colour_shade") == ROSE_GOLD,
-             "colour vocabulary (a terms aggregation over the colour field) holds Rose Gold as "
-             "one value: the phrase becomes a colour filter",
-             Policy(filters=(("colour_shade", (ROSE_GOLD,)),)),
+    ClassRow(14, "A two-word color split into words", "rose gold",
+             "a product whose color is Rose Gold",
+             lambda d: any(s.get("color") == ROSE_GOLD for s in d["skus"]),
+             "color vocabulary (a terms aggregation over the color field) holds Rose Gold as "
+             "one value: the phrase becomes a color filter",
+             Policy(sku_filters=(("color", (ROSE_GOLD,)),)),
              ROSE_GOLDS, NOT_ROSE_GOLD),
 )  # fmt: skip

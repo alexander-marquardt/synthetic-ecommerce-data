@@ -1,6 +1,6 @@
 """Home and beauty shapes for the retail drawing kit (prototype, round 2).
 
-Same house style as :mod:`kit`: flat outlines, one ink colour, the product's
+Same house style as :mod:`kit`: flat outlines, one ink color, the product's
 main surface painted with the record's fill. A few shapes take ``params``:
 ``photo_frame(size="5x7")`` draws the photo opening to scale and dimensions
 it, and ``mattress_topper(depth="5cm")`` dimensions its depth.
@@ -35,11 +35,11 @@ GOLD = "#d6b56a"
 
 
 def _text(
-    x: float, y: float, text: str, size: float = 12, colour: str = INK, extra: str = ""
+    x: float, y: float, text: str, size: float = 12, color: str = INK, extra: str = ""
 ) -> str:
     return (
         f'<text x="{x:g}" y="{y:g}" font-family="{FONT}" font-size="{size:g}" '
-        f'text-anchor="middle" fill="{colour}"{extra}>{escape(text)}</text>'
+        f'text-anchor="middle" fill="{color}"{extra}>{escape(text)}</text>'
     )
 
 
@@ -295,7 +295,7 @@ def cutlery_set(paint: str, fill: Fill, label: str | None) -> list[str]:
 
 
 def table_lamp(paint: str, fill: Fill, label: str | None) -> list[str]:
-    """A tapered shade (the painted surface) on a gourd base in the accent colour."""
+    """A tapered shade (the painted surface) on a gourd base in the accent color."""
     base = "M200,206 C150,206 140,262 156,296 C166,318 176,326 172,338 L228,338 C224,326 234,318 244,296 C260,262 250,206 200,206 Z"
     return [
         _path(

@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from helpers import (
-    colour_mask,
+    color_mask,
     figure_pixels,
     longest_row_runs,
     pixels_per_inch,
@@ -168,11 +168,11 @@ def test_equal_diameters_still_draw_a_flute_boundary():
 def _flute_rows(fig, ax):
     """Rows carrying flute hatching, inside the elevation axes only.
 
-    The detail profile draws the end view in the same flute colour in its own
+    The detail profile draws the end view in the same flute color in its own
     axes; counting those would make this test pass for the wrong reason.
     """
     image = figure_pixels(fig)
-    mask = colour_mask(image, FLUTE) & within_axes(fig, ax, image.shape[:2])
+    mask = color_mask(image, FLUTE) & within_axes(fig, ax, image.shape[:2])
     return np.nonzero(mask.any(axis=1))[0]
 
 
@@ -235,7 +235,7 @@ def test_each_diameter_arrow_spans_the_diameter_it_measures(sku):
     record = BUNDLED[sku]
     fig, ax, geom = endmill.build(record, CARD)
     image = figure_pixels(fig)
-    mask = colour_mask(image, DIM, tol=0.08) & within_axes(fig, ax, image.shape[:2])
+    mask = color_mask(image, DIM, tol=0.08) & within_axes(fig, ax, image.shape[:2])
     runs = longest_row_runs(mask)
     shoulder_row = int(rows_from_top(fig, ax, -geom.oal.inches / 2 + geom.loc.inches))
 
@@ -294,7 +294,7 @@ def test_the_tool_is_scaled_from_its_own_length(sku):
 
     fig, _ax, _geom = endmill.build(BUNDLED[sku], CARD)
     image = figure_pixels(fig)
-    rows = np.nonzero(colour_mask(image, INK, tol=0.15).any(axis=1))[0]
+    rows = np.nonzero(color_mask(image, INK, tol=0.15).any(axis=1))[0]
     assert rows.size
     assert (rows.max() - rows.min()) / image.shape[0] == pytest.approx(FILL_V, abs=0.02)
 
@@ -311,7 +311,7 @@ def test_the_silhouette_is_drawn_to_the_published_diameters(sku):
 
     fig, ax, geom = endmill.build(BUNDLED[sku], CARD)
     image = figure_pixels(fig)
-    black = colour_mask(image, INK, tol=0.15)
+    black = color_mask(image, INK, tol=0.15)
     scale = pixels_per_inch(ax)
     stroke = LW_BODY * CARD.dpi / 72  # the outline straddles the edge
     y_tip = -geom.oal.inches / 2
