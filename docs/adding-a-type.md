@@ -43,7 +43,7 @@ A module declares one `SPEC = TypeSpec(...)`, of one of two kinds:
   `product_types/fasteners/screw_socket_head.py` (a family builder on
   `Generator`).
 
-`part_number_block` is left unset unless `sed-generate block` says otherwise
+`part_number_block` is left unset unless `ecom-generate block` says otherwise
 (step 2 below).
 
 The types in `catalog/newtypes.py` (`NEW_TYPES`) are a third kind that no
@@ -119,7 +119,7 @@ its published attributes. `set_screws_hex_socket` does both.
 
 1. Write the module. Copy the example of the matching kind and change every
    field.
-2. Check the type's part-number block: `uv run sed-generate block <type_key>`.
+2. Check the type's part-number block: `uv run ecom-generate block <type_key>`.
    It prints the block the key derives and, when another type already uses it,
    the first free block. In that case set `part_number_block=<block>` on the
    new type's `TypeSpec` (not on its `BreadthRow`): about one new type in 135
@@ -128,7 +128,7 @@ its published attributes. `set_screws_hex_socket` does both.
 3. If the leaf's head noun is new, add it to `PRODUCT_NOUNS` in
    `catalog/names.py`.
 4. Build the catalog and regenerate the committed one:
-   `uv run sed-generate build --out golden-catalog`. Only the new type's
+   `uv run ecom-generate build --out golden-catalog`. Only the new type's
    records, the totals in `stats.json` and the field-weights YAML should
    change. The independence tests below enforce this.
 5. A modelled type only: declare the type's size and facts on its
@@ -217,7 +217,7 @@ rule it follows; the rules are in
    ([Figure and extent](#figure-and-extent)) and the price model
    ([Price](#price)).
 3. Delete the key's breadth row file (or breadth module). The key keeps its
-   derived part-number block, so `sed-generate block <type_key>` says to leave
+   derived part-number block, so `ecom-generate block <type_key>` says to leave
    `part_number_block` unset.
 4. Declare `claims`, `may_claim`, `key_attributes` and the family sentences
    it qualifies for on the `TypeSpec` (step 5 of [A new type](#a-new-type));
@@ -254,7 +254,7 @@ The output must stay byte-identical.
 2. Move each entry into the module's `SPEC`, and delete it from the shared
    table. A key that is declared in both places is refused.
 3. Build into a scratch directory and compare:
-   `uv run sed-generate build --out /tmp/out && diff -rq golden-catalog /tmp/out`.
+   `uv run ecom-generate build --out /tmp/out && diff -rq golden-catalog /tmp/out`.
    The diff must print nothing.
 
 No test table is edited: the discovery, fresh-reader and first-import tests
@@ -284,7 +284,7 @@ Use a table type (`catalog/tabletype.py`, #101) when a type does not parameteris
 * `tests/data/golden_slices/<key>.jsonl` (new, written by the test module)
 * `src/synthetic_ecommerce_data/data/breadth_categories/<key>.yaml` (deleted, when the type had a breadth row)
 
-Generated files. Rebuild them with `uv run sed-generate build --out golden-catalog`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
+Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
 
 * `golden-catalog/*`
 * `src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml`
@@ -575,8 +575,8 @@ is not touched:
 git fetch origin main
 git worktree add --detach /tmp/sip-main origin/main
 for size in 2600 39000; do
-  uv run --directory /tmp/sip-main sed-generate build --lines $size --out /tmp/sip-cmp/main-$size
-  uv run sed-generate build --lines $size --out /tmp/sip-cmp/head-$size
+  uv run --directory /tmp/sip-main ecom-generate build --lines $size --out /tmp/sip-cmp/main-$size
+  uv run ecom-generate build --lines $size --out /tmp/sip-cmp/head-$size
   python3 - /tmp/sip-cmp/main-$size /tmp/sip-cmp/head-$size <<'PY'
 import hashlib, json, sys
 from collections import defaultdict
@@ -620,7 +620,7 @@ command, never by hand arithmetic:
 
 | Figure | Where | Command |
 |---|---|---|
-| The large build's per-type table and totals | README "The 100K catalog" | `uv run sed-generate build --lines 39000 --out /tmp/c39k`, then the `skus_by_type`, `skus` and `lines` of its `stats.json` |
+| The large build's per-type table and totals | README "The 100K catalog" | `uv run ecom-generate build --lines 39000 --out /tmp/c39k`, then the `skus_by_type`, `skus` and `lines` of its `stats.json` |
 
 #62 renames the large build and generates its figures; until it lands, its
 table gets a row for each deepened type.
@@ -628,8 +628,8 @@ table gets a row for each deepened type.
 ## The commands
 
 ```sh
-uv run sed-generate block <type_key>                # the block to declare, if any
-uv run sed-generate build --out /tmp/out            # about 8 s
+uv run ecom-generate block <type_key>                # the block to declare, if any
+uv run ecom-generate build --out /tmp/out            # about 8 s
 diff -rq golden-catalog /tmp/out                    # empty for a move
 uv run python scripts/fit_price_model.py            # a measured type's price fit, both sizes, about 2 min
 uv run pytest -q tests/test_type_seam.py tests/test_breadth.py
@@ -674,13 +674,13 @@ share only these, and each has a mechanical resolution:
   two SKUs, so both sides often write the same new totals, and git takes the
   identical hunk once. `stats.json` and the field-weights YAML then merge
   cleanly with totals that count only one of the two types. Rebuilding fixes
-  it: `uv run sed-generate build --out golden-catalog`. Until then the golden
+  it: `uv run ecom-generate build --out golden-catalog`. Until then the golden
   test and `tests/test_prism_field_map_drift.py` are red, but only on a tree
   that holds both changes. A modelled type built from the per-type gate
   template also commits its own records as a slice under
   `tests/data/golden_slices/`, which no other type's pull request touches.
 * **The part-number blocks.** Two pull requests can derive the same block,
-  or both be told the same first free block by `sed-generate block`, which
+  or both be told the same first free block by `ecom-generate block`, which
   sees only its own branch. The build refuses the collision, naming both
   types, again only on the merged tree. Re-block the type that merges second.
 * **The head-noun list** in `catalog/names.py`, when both add a new noun at

@@ -1,9 +1,9 @@
 """Render product drawings from the command line.
 
-sed-render generics --out out                     the twelve product-type drawings
-sed-render fixtures --out out
-sed-render sku 4LU10 42SR26 --profile card --out out
-sed-render batch records.jsonl --out out
+ecom-render generics --out out                     the twelve product-type drawings
+ecom-render fixtures --out out
+ecom-render sku 4LU10 42SR26 --profile card --out out
+ecom-render batch records.jsonl --out out
 
 ``generics`` writes the twelve drawings a generated catalog actually uses -- one
 per product type and style, shared by every product of that type, and carrying
@@ -194,7 +194,7 @@ def main(argv: list[str] | None = None) -> int:
         help="card (600x880), detail (1400x1400), or both (default: both)",
     )
 
-    parser = argparse.ArgumentParser(prog="sed-render", description=__doc__, parents=[common])
+    parser = argparse.ArgumentParser(prog="ecom-render", description=__doc__, parents=[common])
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("generics", help="render the twelve product-type drawings", parents=[common])
     sub.add_parser("fixtures", help="render every bundled reference record", parents=[common])

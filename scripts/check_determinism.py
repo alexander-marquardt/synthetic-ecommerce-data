@@ -6,7 +6,7 @@
 
 elastic/prism-industrial-products#129 requires that the 100K build is
 deterministic, verified by two builds with identical digests. This script is
-that check. It runs ``sed-generate build`` twice, each in a FRESH interpreter
+that check. It runs ``ecom-generate build`` twice, each in a FRESH interpreter
 with a different ``PYTHONHASHSEED``, so a set or dict iteration order that leaks
 into the output shows up as a differing file. Then it compares the sha256 of
 every file either build wrote. With ``--images`` it also builds the drawings
@@ -66,7 +66,7 @@ def compare(left: Path, right: Path) -> list[str]:
     return sorted(name for name in a.keys() | b.keys() if a.get(name) != b.get(name))
 
 
-#: What ``sed-generate build`` writes into ``--out``, and what ``images --archive`` adds.
+#: What ``ecom-generate build`` writes into ``--out``, and what ``images --archive`` adds.
 CATALOG_FILES = (
     "nested.jsonl",
     "flat.jsonl",
@@ -105,7 +105,8 @@ def _sip_generate(args: list[str], hash_seed: str) -> None:
     )
     if done.returncode != 0:
         raise SystemExit(
-            f"sed-generate {' '.join(args)} failed ({done.returncode}):\n{done.stdout}{done.stderr}"
+            f"ecom-generate {' '.join(args)} failed ({done.returncode}):\n"
+            f"{done.stdout}{done.stderr}"
         )
 
 
