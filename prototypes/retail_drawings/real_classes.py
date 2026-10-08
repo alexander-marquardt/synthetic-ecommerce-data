@@ -278,6 +278,28 @@ def policy_body(row: ClassRow, size: int = 5) -> dict:
     return _search(query, [*POPULARITY, *boosts], size)
 
 
+#: The ruling's color search: text "tee" with color Navy (:data:`CREW_TEE`).
+COLOR_QUERY = ("tee", "Navy")
+
+
+def color_body(text: str, color: str, size: int = 5) -> dict:
+    """``text`` filtered to products with an in-stock SKU in ``color``.
+
+    The nested filter returns the matching SKUs as ``inner_hits``, so a UI can
+    preselect that color; the ``colors`` agg counts per SKU color both its SKUs
+    and, through ``reverse_nested``, its products (the count a facet shows).
+    """
+    sku = {"bool": {"filter": [{"term": {"skus.color": color}}],
+                    "must_not": [{"term": {"skus.in_stock": False}}]}}  # fmt: skip
+    matched = {"nested": {"path": "skus", "query": sku, "inner_hits": {"size": 100}}}
+    query = {"bool": {"must": text_query(text), "filter": [matched]}}
+    body = _search(query, list(POPULARITY), size)
+    body["aggs"] = {"skus": {"nested": {"path": "skus"}, "aggs": {"colors": {
+        "terms": {"field": "skus.color", "size": 50},
+        "aggs": {"products": {"reverse_nested": {}}}}}}}  # fmt: skip
+    return body
+
+
 # ==========================================================================
 # The recorded proof, rendered for the README
 # ==========================================================================

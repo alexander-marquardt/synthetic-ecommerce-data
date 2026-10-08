@@ -5,9 +5,11 @@ Usage::
     python3 prototypes/retail_drawings/build_preview4.py [--html PATH] [--ndjson PATH]
 
 Writes ``preview4.html`` and ``samples4.ndjson`` beside this script (and the
-extra copies named), and prints the SKU report per family. The 60 samples
-mix deep docs (jeans, bras), shallow docs (bedding, beauty) and the planted
-distractor table. Standard library only.
+extra copies named), and prints the SKU report per family. A sample is one
+product document per style (gen#125), its color x size SKUs nested: deep
+styles (jeans, bras), shallow ones (bedding, beauty), the planted distractors
+and the observed failure classes. A card shows the style's color swatches and
+size options, both derived from its SKUs. Standard library only.
 """
 
 # ruff: noqa: E501 -- inline HTML and CSS literals (prototype only).
@@ -24,10 +26,9 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 import kit_round4  # noqa: E402,F401 -- registers belt, hanger, outfit_set, trigger_spray
-from build_preview import CSS, _attr_rows, _sizes, drawing_svg  # noqa: E402
+from build_preview import CSS, _attr_rows, drawing_svg  # noqa: E402
 from distractors import (  # noqa: E402
     GIFT_BAGS,
-    GIFT_PRINTS,
     LEMONS,
     TABLE,
     corpus,
@@ -36,30 +37,21 @@ from distractors import (  # noqa: E402
     table_markdown,
 )
 from real_classes import ROWS, class_docs  # noqa: E402
-from variants import FAMILIES, sku_report, style_docs  # noqa: E402
+from variants import FAMILIES, SIZE_KEYS, sku_report, style_docs  # noqa: E402
 
-#: family -> {style code: extra doc indexes beyond the first}.
-EXTRA = {
-    "Jeans": {"HARROW": (13,), "TOLLAND": (21,), "CORVEY": (7,), "KELDEN": (8,)},
-    "Bras": {"HALDEN": (7,), "ROSEDENE": (4,)},
-    "Bedding": {"COVPRT": (1,)},
-    "Beauty": {"LIPSAT": (10,), "FNDFTH": (20, 39)},
-}
-SAMPLES = 206
+#: One product per style: the whole round 4 corpus plus every class record.
+SAMPLES = 179
 
 
 def samples() -> dict[str, list[dict]]:
-    """section -> its sample docs: each style's first doc and the extras, then the distractors."""
+    """section -> its sample products: every style's one document, then the distractors."""
     out: dict[str, list[dict]] = {}
     for fam, styles in FAMILIES.items():
-        mine = out.setdefault(fam, [])
-        for s in styles:
-            ds = style_docs(fam, s)
-            mine += [ds[0], *(ds[i] for i in EXTRA[fam].get(s.code, ()))]
+        out[fam] = [d for s in styles for d in style_docs(fam, s)]
     out["Planted distractors"] = [
         LEMONS, *(x.doc for row in TABLE if not row.tail for x in row.distractors)
     ]  # fmt: skip
-    out["Gift wrap"] = [GIFT_BAGS[i] for i in range(0, len(GIFT_BAGS), len(GIFT_PRINTS))]
+    out["Gift wrap"] = list(GIFT_BAGS)
     gift = next(row for row in TABLE if row.tail)
     out["Gift bag distractors"] = [x.doc for x in (*gift.distractors, *gift.tail)]
     out["Observed failure classes"] = class_docs()
@@ -74,17 +66,15 @@ def _planted() -> dict[str, tuple[str, str]]:
             for x in (*row.distractors, *row.tail)
         },
         **{
-            d["product_id"]: (row.query, fix)
+            f"PLT-{style.code}": (row.query, fix)
             for row in ROWS
             for style, fix in row.distractors
-            for d in style.docs()
         },
     }
 
 
 #: The fields a policy reads that the round 4 records do not carry.
-FACTS = ("product_type", "audience", "size_range", "neckline", "pattern", "leg_style", "rise",
-         "color_family", "style_id")  # fmt: skip
+FACTS = ("product_type", "audience", "size_range", "neckline", "pattern", "leg_style", "rise")
 
 
 def _facts(rec: dict) -> str:
@@ -94,9 +84,7 @@ def _facts(rec: dict) -> str:
     show = {k: ", ".join(v) if isinstance(v, list) else v for k, v in rec.items() if k in FACTS}
     parts = [f"{k}: {show[k]}" for k in FACTS if k in rec]
     parts.append(" > ".join(rec["category_path"]))
-    # Food and furniture are colorless: no color facet, no swatches.
-    swatches = f"{len(rec['swatches'])} swatches, " if "swatches" in rec else ""
-    parts.append(f"{swatches}{rec['rating']} from {rec['review_count']}")
+    parts.append(f"{rec['rating']} from {rec['review_count']}")
     if rec["badges"]:
         parts.append(" / ".join(rec["badges"]))
     if rec["price_max"] > rec["price_min"]:
@@ -105,6 +93,24 @@ def _facts(rec: dict) -> str:
     if "was_price" in rec:
         parts.append(f"was £{rec['was_price']:.2f}")
     return f'<div class="vg">{escape(" · ".join(parts))}</div>'
+
+
+def _options(rec: dict) -> str:
+    """The style's selectors: one swatch per color, then each size system's values."""
+    rows = []
+    if "color_options" in rec:
+        dots = "".join(
+            f'<span class="sw" style="background:{o["hex"]}" title="{escape(o["color"])}"></span>'
+            for o in rec["color_options"]
+        )
+        names = " · ".join(o["color"] for o in rec["color_options"])
+        rows.append(f"<tr><th>Color</th><td>{dots} {escape(names)}</td></tr>")
+    for key in SIZE_KEYS:
+        values = rec.get("size_options", {}).get(key)
+        if values:
+            label = key.replace("_", " ").capitalize()
+            rows.append(f"<tr><th>{escape(label)}</th><td>{escape(' · '.join(values))}</td></tr>")
+    return f'<table class="sizes">{"".join(rows)}</table>' if rows else ""
 
 
 def card(rec: dict, planted: dict[str, tuple[str, str]]) -> str:
@@ -121,18 +127,19 @@ def card(rec: dict, planted: dict[str, tuple[str, str]]) -> str:
         f'<span class="price">£{rec["price"]:.2f}</span></div>'
         f'<div class="chips">{chips}</div>'
         f'<div class="path">{escape(" › ".join(rec["category_path"]))}</div>'
-        f'<div class="vg">{escape(rec["variant_group"])} · {rec["sku_count"]} SKU'
-        f"{'s' if rec['sku_count'] != 1 else ''} in this doc</div>"
+        f'<div class="vg">{escape(rec["product_id"])} · {rec["sku_count"]} SKU'
+        f"{'s' if rec['sku_count'] != 1 else ''} in this product</div>"
         f"{_facts(rec)}{note}"
         f'<div class="desc">{escape(rec["description"])}</div>'
         f'<table class="attrs">{_attr_rows(rec)}</table>'
-        f"{_sizes(rec)}"
+        f"{_options(rec)}"
         "</div>"
     )
 
 
 EXTRA_CSS = """
 .vg{color:#1f4f8a;font-size:11px;margin-bottom:4px}.desc{color:#4b5560;margin:4px 0}
+.sw{display:inline-block;width:11px;height:11px;border-radius:50%;border:1px solid #b9b6ad;margin-right:2px;vertical-align:middle}
 .plant{background:#fbe3e3;color:#8a1f1f;border-radius:4px;padding:2px 6px;margin:4px 0}
 pre{background:#fff;border:1px solid #d9d7d0;padding:10px;font-size:12px}
 table.dist td,table.dist th{border-bottom:1px solid #e3e1da;padding:4px 6px;vertical-align:top;white-space:normal}
@@ -169,10 +176,10 @@ def page(sections: dict[str, list[dict]]) -> str:
         "<title>Retail round 4: variants and planted distractors</title>"
         f"<style>{CSS}{EXTRA_CSS}</style></head><body>"
         "<h1>Retail round 4: variants and planted distractors</h1>"
-        f'<p class="note">{n} sample docs. One doc per style × colorway (× leg length for jeans); '
-        "sizes are UK/EU/US arrays, so a doc's SKU count is its number of sizes. Jeans and bras "
-        "are deep (crossed, rule-bound axes); bedding and beauty are shallow (one hand list per "
-        "row). Every brand, line and shade name is invented.</p>"
+        f'<p class="note">{n} products. One document per style: every color × size it is sold '
+        "in is a SKU nested in it, and its color swatches and size options are derived from "
+        "those SKUs. Jeans and bras are deep (crossed, rule-bound axes); bedding and beauty are "
+        "shallow (one hand list per row). Every brand, line and shade name is invented.</p>"
         f"<h2>SKU report per family</h2><pre>{escape(sku_report())}</pre>"
         f"<h2>Planted distractor table</h2>{_score_table()}"
         f"{body}</body></html>"
