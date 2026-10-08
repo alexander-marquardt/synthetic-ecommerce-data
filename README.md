@@ -911,6 +911,7 @@ not outrank. Every name is invented.
 | Print, flavour and scent words | *lemon* → fresh lemons | lemon-print dress, lemon cake, lemon shower gel, lemon cleaners | department or persona boost |
 | Complements and accessories | *jeans* → a pair of jeans | jeans belt, denim jacket, jeans hanger, a jeans & tee set | category intent; product-type demotion |
 | Bedding types | *duvet* → a duvet | duvet covers, duvet sets | type-exact intent |
+| Complements and accessories | *boots* → a pair of boots | car boot organiser, boot polish & brush kit, welly boot socks | category intent: Boots; product-type demotion; department boost |
 | Gift words on gift-packed products | *gift bag* → a gift bag (gift wrap) | 3 beauty bundles named "... Gift Bag", a wash bag, a make-up bag with a gift badge, a hospital bag kit, 2 gift sets "with Limited Edition ... Bag", a travel and a summer bag set; tail: 2 wallet gift sets, 2 hampers, 2 letterbox gifts, a plant "in Hessian Gift Bag", a "Gift Boxed" keyring | category boost: Gift Wrap |
 
 The real gift bag (one product, `GFT-KRAFT`, whose nine SKUs are three sizes
@@ -919,6 +920,22 @@ category. `corpus(duplicate_listing=True)`
 (or `build_preview4.py --duplicate-listing --ndjson PATH`) publishes one
 product id a second time under another category, which a search shows twice
 unless it collapses on `product_id`.
+
+### Footwear
+
+`footwear_rows.py` holds thirty-one shoe styles (sixteen women's, ten men's,
+five kids'), one document per style with its color x width x size SKUs
+nested. A size is three fields, `size_uk`, `size_eu` and `size_us`, read from
+one chart row of the audience, so they never disagree; half sizes exist only
+where a shoe is cut in them, and a wide fit only in the sizes it names. Each
+color names its upper material, which both the `upper_material` facet and the
+drawing read. `kit_footwear.py` draws the shoe from the side in seventeen
+kinds (court, kitten and block heels, ballet pumps, loafers, brogues,
+trainers, running shoes, slippers, sandals, ankle, Chelsea, chukka, knee-high,
+walking and safety boots, wellies), with the material's texture and the
+closure. The boots row above is checked over the round 4 corpus plus
+footwear (`footwear_rows.catalog()`). Footwear is not in the Elasticsearch
+proof corpus.
 
 ### Observed failure classes 2 to 14, before and after on Elasticsearch
 

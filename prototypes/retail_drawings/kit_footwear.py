@@ -118,14 +118,26 @@ def _points(d: str, n: int = 48) -> list[tuple[float, float]]:
     return out
 
 
+def _crossings(d: str, v: float, axis: int) -> list[float]:
+    """Where the outline crosses the line ``axis`` = ``v`` (0: x, 1: y): the other coordinate."""
+    pts = _points(d)
+    out = []
+    for a, b in zip(pts, pts[1:], strict=False):
+        lo, hi = sorted((a[axis], b[axis]))
+        if lo <= v <= hi and hi > lo:
+            t = (v - a[axis]) / (b[axis] - a[axis])
+            out.append(a[1 - axis] + t * (b[1 - axis] - a[1 - axis]))
+    return out
+
+
 def _top_at(d: str, x: float) -> float:
     """The outline's highest point (smallest y) over ``x``."""
-    return min(py for px, py in _points(d) if abs(px - x) < 2.5)
+    return min(_crossings(d, x, 0))
 
 
 def _front_at(d: str, y: float) -> float:
     """The outline's frontmost point (largest x) at height ``y``."""
-    return max(px for px, py in _points(d) if abs(py - y) < 2.5)
+    return max(_crossings(d, y, 1))
 
 
 # --------------------------------------------------------------------------
@@ -183,14 +195,17 @@ def _vamp(k: Kind) -> str:
     """The vamp from the instep down to the toe tip, shaped by ``k.toe``."""
     xi, yi = k.instep
     x, t = _tip(k)
-    span, drop = x - xi, t - yi
+    span = x - xi
     if k.toe == "point":
-        return f"C{_pt(xi + 0.45 * span, yi + 0.18 * drop)} {_pt(x - 34, t - 12)} {_pt(x + 10, t)}"
+        return f"C{_pt(xi + 0.45 * span, yi + 0.18 * (t - yi))} {_pt(x - 34, t - 12)} {_pt(x + 10, t)}"
+    # the toe box: how tall the toe stands, which the vamp slopes down to
+    box = t - {"almond": 30.0, "cap": 50.0}.get(k.toe, 40.0)
+    sink = max(0.0, box - yi)
     if k.toe == "almond":
-        return f"C{_pt(xi + 0.45 * span, yi + 0.04 * drop)} {_pt(x - 12, yi + 0.42 * drop)} {_pt(x + 1, yi + 0.74 * drop)} Q{_pt(x + 4, t - 2)} {_pt(x, t)}"
+        return f"C{_pt(xi + 0.45 * span, yi + 0.5 * sink)} {_pt(x - 40, box)} {_pt(x - 12, box + 6)} C{_pt(x + 2, box + 10)} {_pt(x + 5, t - 6)} {_pt(x, t)}"
     if k.toe == "cap":
-        return f"C{_pt(xi + 0.3 * span, yi - 4)} {_pt(x - 6, yi - 0.02 * drop)} {_pt(x + 4, yi + 0.48 * drop)} Q{_pt(x + 7, t - 3)} {_pt(x, t)}"
-    return f"C{_pt(xi + 0.4 * span, yi - 0.02 * drop)} {_pt(x - 2, yi + 0.18 * drop)} {_pt(x + 3, yi + 0.6 * drop)} Q{_pt(x + 4, t - 3)} {_pt(x, t)}"
+        return f"C{_pt(xi + 0.3 * span, yi + 0.4 * sink)} {_pt(x - 50, box - 2)} {_pt(x - 18, box + 4)} C{_pt(x + 4, box + 12)} {_pt(x + 8, t - 10)} {_pt(x, t)}"
+    return f"C{_pt(xi + 0.4 * span, yi + 0.55 * sink)} {_pt(x - 44, box)} {_pt(x - 16, box + 5)} C{_pt(x + 2, box + 10)} {_pt(x + 5, t - 8)} {_pt(x, t)}"
 
 
 def _collar(k: Kind) -> str:
@@ -353,12 +368,13 @@ def _texture(material: str, area: str, base: str, k: Kind, uid: str) -> list[str
     body: list[str] = []
     light, dark = _tint(base, 0.6), _shade(base, 0.5)
     if material in ("suede", "nubuck"):
-        tile, r, op = (4, 0.8, 0.6) if material == "suede" else (3, 0.45, 0.4)
+        # a nap of specks, light and dark, scattered over a 7 px tile so no grid shows
+        r, op = (0.75, 0.55) if material == "suede" else (0.45, 0.4)
+        specks = ((0.8, 1.2, dark), (4.6, 0.6, light), (2.9, 3.4, dark), (6.1, 4.2, light), (1.6, 5.8, light), (5.0, 6.4, dark))
         defs = (
-            f'<pattern id="{pid}" width="{tile}" height="{tile}" patternUnits="userSpaceOnUse">'
-            f'<circle cx="1" cy="1" r="{r}" fill="{dark}" opacity="{op}"/>'
-            f'<circle cx="{tile * 0.6:g}" cy="{tile * 0.7:g}" r="{r}" fill="{light}" opacity="{op}"/>'
-            "</pattern>"
+            f'<pattern id="{pid}" width="7" height="7" patternUnits="userSpaceOnUse">'
+            + "".join(f'<circle cx="{cx:g}" cy="{cy:g}" r="{r}" fill="{c}" opacity="{op}"/>' for cx, cy, c in specks)
+            + "</pattern>"
         )
         body.append(f'<path d="{area}" fill="url(#{pid})" stroke="none"/>')
     elif material == "canvas":
@@ -457,12 +473,12 @@ def _marks_pump(k: Kind, outline: str, paint: str, base: str, closure: str) -> l
 def _marks_ballet(k: Kind, outline: str, paint: str, base: str, closure: str) -> list[str]:
     xi, yi = k.instep
     trim = _tint(base, 0.55) if _dark(base) else _shade(base, 0.35)
-    x, y = xi - 10, yi + 3
+    x, y = xi - 8, yi + 2
     return [
-        _line(f"M{_pt(XB + 4, k.top + 3)} C{_pt(XB + 40, k.top + 15)} {_pt(xi - 50, yi + 9)} {_pt(xi, yi + 3)}", 2.4, "", trim),
-        _path(f"M{_pt(x, y)} C{_pt(x - 18, y - 16)} {_pt(x - 24, y + 10)} {_pt(x, y)} C{_pt(x + 18, y - 16)} {_pt(x + 24, y + 10)} {_pt(x, y)} Z", trim, LW_DETAIL),
-        _line(f"M{_pt(x - 2, y + 2)} L{_pt(x - 8, y + 14)} M{_pt(x + 2, y + 2)} L{_pt(x + 9, y + 13)}", 2.6, "", trim),
-        f'<circle cx="{_f(x)}" cy="{_f(y)}" r="3.6" fill="{trim}" stroke="{INK}" stroke-width="1"/>',
+        _line(f"M{_pt(XB + 4, k.top + 3)} C{_pt(XB + 40, k.top + 15)} {_pt(xi - 50, yi + 9)} {_pt(xi, yi + 3)}", 3, "", trim),
+        _path(f"M{_pt(x, y)} C{_pt(x - 26, y - 22)} {_pt(x - 34, y + 14)} {_pt(x, y)} C{_pt(x + 26, y - 22)} {_pt(x + 34, y + 14)} {_pt(x, y)} Z", trim, LW_DETAIL),
+        _path(f"M{_pt(x - 3, y + 2)} L{_pt(x - 12, y + 20)} L{_pt(x - 5, y + 18)} Z M{_pt(x + 3, y + 2)} L{_pt(x + 13, y + 19)} L{_pt(x + 6, y + 18)} Z", trim, LW_DETAIL),
+        f'<circle cx="{_f(x)}" cy="{_f(y)}" r="4.5" fill="{trim}" stroke="{INK}" stroke-width="1.2"/>',
     ]
 
 
@@ -528,8 +544,8 @@ def _marks_sport(k: Kind, outline: str, paint: str, base: str, closure: str, run
         for px in (xi + 6, xi + 40):
             out += _velcro(px - 26, _top_at(outline, px - 26) + 2, px + 18, _top_at(outline, px + 18) - 2, base)
     else:
-        eye = [(px, _top_at(outline, px) + 13) for px in xs]
-        out += _laces(eye, "#ffffff" if _dark(base) else "#f1efe8", (6, -11))
+        eye = [(px, _top_at(outline, px) + 14) for px in xs]
+        out += _laces(eye, "#ffffff" if _dark(base) else "#f1efe8", (12, -8))
     return out
 
 
