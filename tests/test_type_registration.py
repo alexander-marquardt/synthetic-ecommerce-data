@@ -31,12 +31,13 @@ from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
 
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "src" / "synthetic_ecommerce_data"
+INDUSTRIAL = SRC / "domains" / "industrial"
 
 #: The files a type pull request used to edit to add itself to a shared,
 #: type-keyed table. A type with a module declares all of it on its spec.
 SHARED = (
-    SRC / "catalog" / "conformance.py",
-    SRC / "catalog" / "noise.py",
+    INDUSTRIAL / "conformance.py",
+    SRC / "core" / "noise.py",
     REPO / "tests" / "test_catalog_facts.py",
     REPO / "tests" / "type_facts.py",
     REPO / "tests" / "catalog_size.py",
@@ -216,7 +217,7 @@ def test_a_modelled_type_without_a_key_dimension_is_refused() -> None:
 
 def test_each_breadth_row_is_a_file_of_its_own() -> None:
     """Deleting one row's file cannot touch a neighbouring row's lines."""
-    table = SRC / "data" / "breadth_categories"
+    table = INDUSTRIAL / "data" / "breadth_categories"
     assert table.is_dir(), f"{table} is not a directory of one-row files"
     files = sorted(table.glob("*.yaml"))
     keys = [yaml.safe_load(path.read_text("utf-8"))["key"] for path in files]
@@ -229,7 +230,7 @@ def test_a_row_file_named_for_another_key_is_refused(monkeypatch, tmp_path) -> N
     """Every refusal names a row by its file, so the name has to be its key."""
     table = tmp_path / "breadth_categories"
     table.mkdir()
-    source = SRC / "data" / "breadth_categories" / "shaft_collars.yaml"
+    source = INDUSTRIAL / "data" / "breadth_categories" / "shaft_collars.yaml"
     (table / "shaft_collar.yaml").write_text(source.read_text("utf-8"), "utf-8")
     monkeypatch.setattr(breadth.resources, "files", lambda package: tmp_path)
     with pytest.raises(ValueError, match=r"shaft_collar\.yaml holds the row for 'shaft_collars'"):

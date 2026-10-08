@@ -121,7 +121,7 @@ def test_the_provenance_names_where_each_published_dimension_came_from():
 
 def test_the_size_table_cites_the_chart_it_was_read_from():
     """A reviewer can open the chart the 349 rows were transcribed from."""
-    text = (Path(standards.__file__).parent.parent / "data" / "as568_sizes.json").read_text("utf-8")
+    text = (Path(standards.__file__).parent / "data" / "as568_sizes.json").read_text("utf-8")
     cited = json.loads(text)["_provenance"]
     assert cited["chart_url"] == (
         "https://www.applerubber.com/src/pdf/as568-standard-size-o-rings.pdf"
