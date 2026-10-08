@@ -241,6 +241,20 @@ def test_the_generate_command_composes_the_domains_outside_core():
     assert done.stdout.split() == ["synthetic_ecommerce_data.generate_cli"], done.stderr
 
 
+def test_the_moved_generate_command_still_writes_the_tracked_field_map():
+    """Moving ``core/cli.py`` up a level must not move the field map it writes.
+
+    ``field_map_target`` climbs from its own file, so the climb shrinks by one
+    when the module does; the default build then wrote outside ``src/``.
+    """
+    from synthetic_ecommerce_data.generate_cli import field_map_target
+
+    src = PACKAGE.parent
+    want = src / "prism_synthetic_industrial" / "data" / "field_weights"
+    assert field_map_target() == want / "synthetic_industrial_flat.yaml"
+    assert field_map_target().is_file()
+
+
 def test_a_pre_rename_path_resolves_to_the_moved_module():
     done = subprocess.run(
         [
