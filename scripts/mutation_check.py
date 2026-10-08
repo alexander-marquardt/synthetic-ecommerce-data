@@ -73,7 +73,7 @@ MUTATIONS: list[Mutation] = [
         "a generic drawing carries no dimension",
     ),
     Mutation(
-        "stop DIM being a distinct colour, blinding the whole measurement",
+        "stop DIM being a distinct color, blinding the whole measurement",
         "render/canvas.py",
         'DIM = "#b03a2e"',
         'DIM = "white"',
@@ -232,13 +232,13 @@ MUTATIONS: list[Mutation] = [
     # reads its attribute, validates it, and then draws something else. Every
     # A-direction mutation below is that shape.
     Mutation(
-        "make reading a colour back resolve to whichever brand comes first",
+        "make reading a color back resolve to whichever brand comes first",
         "drawing/style.py",
         "        if brands.ink_of(brand).lower() == lowered and brands.frame_of(brand) == frame:\n            return brand",
         "        if lowered or brands.ink_of(brand).lower() == lowered and brands.frame_of(brand) == frame:\n            return brand",
         "tests/test_marking.py -k brand",
         "B",
-        "the outline colour is the brand, and reads back as the brand",
+        "the outline color is the brand, and reads back as the brand",
     ),
     Mutation(
         "let a brand stock the same spec twice",

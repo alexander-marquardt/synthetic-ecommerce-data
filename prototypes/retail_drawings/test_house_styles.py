@@ -75,9 +75,9 @@ def test_marks_are_large_enough_to_see_and_within_the_cap() -> None:
 
 def test_every_mark_in_the_table_exists_and_draws() -> None:
     for s in hs.HOUSE_STYLES.values():
-        svg = hs.mark_svg(s.mark, 0, 0, 50, s.colour)
+        svg = hs.mark_svg(s.mark, 0, 0, 50, s.color)
         ET.fromstring(svg)
-        assert s.colour in svg
+        assert s.color in svg
 
 
 def test_at_least_twelve_brands_each_carry_three_or_more_products() -> None:

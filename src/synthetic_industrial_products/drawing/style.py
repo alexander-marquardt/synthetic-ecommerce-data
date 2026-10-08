@@ -1,4 +1,4 @@
-"""How a drawing looks: the brand's house style, the finish's colour, the material's hatch.
+"""How a drawing looks: the brand's house style, the finish's color, the material's hatch.
 
 Every visual channel is a function of a published property, never of the SKU,
 the product id or chance (elastic/prism-industrial-products#103, rulings of
@@ -6,11 +6,11 @@ the product id or chance (elastic/prism-industrial-products#103, rulings of
 differ, and driven by the record that conclusion is right.
 
 =====================  ==============================================
-outline colour         the brand (one of twelve inks)
+outline color         the brand (one of twelve inks)
 paper tone             the brand (one of six tints, independent of the ink)
 frame                  the brand (one of four frame treatments)
 (ink, frame)           unique per brand, so the pair names the brand
-part fill              the published finish; else the material's colour
+part fill              the published finish; else the material's color
 section hatch          the published material
 =====================  ==============================================
 
@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from ..catalog import brands
 from ..render.marking import FINISH_TINT
 
-#: What a part is coloured when the record publishes no finish: the colour of
+#: What a part is colored when the record publishes no finish: the color of
 #: the bare material. Brass is yellow and nylon is off-white whether or not a
 #: finish is named.
 MATERIAL_FILL: dict[str, str] = {
@@ -68,7 +68,7 @@ MATERIAL_FILL: dict[str, str] = {
     "Silicone": "#c4553f",
 }
 
-#: Finishes the original twelve types never published, and their colours.
+#: Finishes the original twelve types never published, and their colors.
 EXTRA_FINISH_TINT: dict[str, str] = {
     "Chrome Plated": "#f0f3f6",
     "Painted": "#6f7f8a",
@@ -135,15 +135,15 @@ class HouseStyle:
     frame: str
 
 
-def _mix(hex_colour: str, towards: str, share: float) -> str:
-    a = [int(hex_colour[i : i + 2], 16) for i in (1, 3, 5)]
+def _mix(hex_color: str, towards: str, share: float) -> str:
+    a = [int(hex_color[i : i + 2], 16) for i in (1, 3, 5)]
     b = [int(towards[i : i + 2], 16) for i in (1, 3, 5)]
     mixed = [round(x * share + y * (1 - share)) for x, y in zip(a, b, strict=True)]
     return "#" + "".join(f"{c:02x}" for c in mixed)
 
 
 class UnknownStyleError(KeyError):
-    """A brand, finish or material the drawing has no colour or hatch for.
+    """A brand, finish or material the drawing has no color or hatch for.
 
     Raised rather than defaulted: a drawing that quietly showed an unknown
     coating as bare steel would assert something the record contradicts.
@@ -180,12 +180,12 @@ def part_fill(finish: str | None, material: str | None) -> str:
         try:
             return {**FINISH_TINT, **EXTRA_FINISH_TINT}[finish]
         except KeyError as exc:
-            raise UnknownStyleError(f"no colour for finish {finish!r}") from exc
+            raise UnknownStyleError(f"no color for finish {finish!r}") from exc
     if material is not None:
         try:
             return MATERIAL_FILL[material]
         except KeyError as exc:
-            raise UnknownStyleError(f"no colour for material {material!r}") from exc
+            raise UnknownStyleError(f"no color for material {material!r}") from exc
     return DEFAULT_FILL
 
 

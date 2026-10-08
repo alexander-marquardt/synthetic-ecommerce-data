@@ -108,7 +108,7 @@ def sizes(
 # Attribute helpers
 # --------------------------------------------------------------------------
 
-COLOURS = {
+COLORS = {
     "Navy": "#26365c",
     "White": "#ffffff",
     "Ecru": "#efe7d4",
@@ -140,13 +140,13 @@ def many(key: str, name: str, values: list[str]) -> list[dict]:
     return [attr(key, name, v) for v in values]
 
 
-def clothing_attrs(colour, pattern, fit, who, fabric, extra=(), **garment_values) -> list[dict]:
-    """Colour, pattern, fit and fabric, then the structured garment attributes.
+def clothing_attrs(color, pattern, fit, who, fabric, extra=(), **garment_values) -> list[dict]:
+    """Color, pattern, fit and fabric, then the structured garment attributes.
 
     ``who`` is the audience; ``fit`` may be ``None`` where ``leg_fit`` says it.
     """
     return [
-        attr("colour", "Colour", colour),
+        attr("color", "Color", color),
         attr("pattern", "Pattern", pattern),
         *([attr("fit", "Fit / Cut", fit)] if fit else []),
         attr("fabric", "Fabric", fabric),
@@ -185,7 +185,7 @@ def drawing(
     return out
 
 
-C = COLOURS
+C = COLORS
 
 # --------------------------------------------------------------------------
 # The records

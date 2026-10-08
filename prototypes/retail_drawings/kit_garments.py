@@ -57,8 +57,8 @@ def _lerp(a: Pt, b: Pt, t: float) -> Pt:
     return (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)
 
 
-def _inside_colour(fill: Fill) -> str:
-    """The garment's inside: a shade of a light colour, a tint of a dark one."""
+def _inside_color(fill: Fill) -> str:
+    """The garment's inside: a shade of a light color, a tint of a dark one."""
     r, g, b = (int(fill.base[i : i + 2], 16) for i in (1, 3, 5))
     light = (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.4
     return _shade(fill.base, 0.35) if light else _tint(fill.base, 0.4)
@@ -380,10 +380,10 @@ def top(
     # The garment's inside, seen through the neckline, and its rib band.
     if neckline != "roll_neck":
         inside = f"M{nx},{ny} Q200,{ny + 10} {SIZE - nx},{ny} {cut} Z"
-        out.append(_path(inside, _inside_colour(fill), LW_DETAIL))
+        out.append(_path(inside, _inside_color(fill), LW_DETAIL))
         if neckline == "square":
             # A solid binding round the square cut, so its corners read even
-            # on a busy print: the print's own accent colour, or the base on a solid.
+            # on a busy print: the print's own accent color, or the base on a solid.
             trim = fill.base if fill.pattern == "solid" else fill.accent
             binding = f"{band} L{SIZE - nx},{ny} {cut} Z"
             out += [_path(binding, trim, LW_DETAIL), _dark(binding, 0.08)]

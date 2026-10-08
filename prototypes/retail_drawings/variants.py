@@ -1,10 +1,13 @@
 """The retail variant model of gen#125 (prototype, round 4).
 
-A variant is a SKU, size included. One document is one style x colourway
-(x leg length for jeans, where shoppers filter on it); its sizes are held as
-parallel ``size_uk`` / ``size_eu`` / ``size_us`` arrays, so a doc's
-``sku_count`` is the length of those arrays (1 for a sizeless doc). Every doc
-of one style shares a ``variant_group``.
+A variant is a SKU, size included. One document is one STYLE (gen#125
+ruling): a product with a color selector and a size selector. Every color x
+size combination the style is sold in is a SKU nested in ``skus``, with its
+own ``sku`` id, ``color``, size (per size system: ``size_uk`` / ``size_eu`` /
+``size_us``, plus ``length`` for jeans), ``price`` and ``in_stock``. The
+product's ``color_options`` (one swatch per color) and ``size_options`` are
+derived from its SKUs by :func:`product`, never authored, so they cannot
+disagree with them; ``sku_count`` is the number of SKUs.
 
 Two kinds of family:
 
@@ -13,7 +16,7 @@ Two kinds of family:
   which leg lengths a size comes in. :data:`BRAS` cross band x cup, keeping
   only the combinations :func:`bra_size_valid` allows.
 * **Shallow** families are one hand list per row: :data:`BEDDING` lists bed
-  sizes and colours, :data:`BEAUTY` lists shades.
+  sizes and colors, :data:`BEAUTY` lists shades.
 
 Self-contained: standard library plus :mod:`departments` only, so it can move
 with the retail domain. Every brand, line and shade name is invented.
@@ -26,10 +29,10 @@ from dataclasses import dataclass
 
 from departments import check as check_departments
 
-Colourway = tuple[str, str, str, str]  # (name, pattern, base hex, accent hex)
+Color = tuple[str, str, str, str]  # (name, pattern, base hex, accent hex)
 
 
-def cw(name: str, base: str, pattern: str = "solid", accent: str = "#333333") -> Colourway:
+def cw(name: str, base: str, pattern: str = "solid", accent: str = "#333333") -> Color:
     return (name, pattern, base, accent)
 
 
@@ -42,8 +45,8 @@ def attr(key: str, name: str, value, unit_code: str | None = None, canonical=Non
     return a
 
 
-def drawing(shape: str, colour: Colourway, label: str | None = None, **params) -> dict:
-    _, pattern, base, accent = colour
+def drawing(shape: str, color: Color, label: str | None = None, **params) -> dict:
+    _, pattern, base, accent = color
     out = {
         "shape": shape,
         "pattern": pattern,
@@ -54,6 +57,52 @@ def drawing(shape: str, colour: Colourway, label: str | None = None, **params) -
     }
     if params:
         out["params"] = params
+    return out
+
+
+#: The SKU fields that are a size, one per size system, in selector order.
+SIZE_KEYS = ("size", "size_uk", "size_eu", "size_us", "length", "inside_leg", "waist",
+             "bed_size")  # fmt: skip
+
+
+def swatch(color: Color, family: str | None = None) -> dict:
+    """A color option: its name, swatch hex and pattern (and family, if it has one)."""
+    out = {"color": color[0], "hex": color[2], "pattern": color[1]}
+    if family is not None:
+        out["family"] = family
+    return out
+
+
+def _distinct(values) -> list:
+    out: list = []
+    for v in values:
+        if v not in out:
+            out.append(v)
+    return out
+
+
+def product(product_id: str, skus: list[dict], swatches: dict[str, dict], **fields) -> dict:
+    """One style's catalog document: ``fields``, its SKUs and the options derived from them.
+
+    ``skus`` get their ``sku`` ids here (``<product_id>-001`` on). The option
+    lists are never authored: ``color_options`` is the swatch of each SKU color
+    in first-SKU order, one per color (``swatches`` maps a color to it, so a
+    swatch whose color no SKU has never shows); ``size_options`` holds, per
+    :data:`SIZE_KEYS` key the SKUs carry, its values in first-SKU order. The
+    ``price`` is the cheapest SKU's.
+    """
+    if not skus:
+        raise ValueError(f"{product_id}: a product with no SKU")
+    rows = [{"sku": f"{product_id}-{n:03d}", **s} for n, s in enumerate(skus, 1)]
+    out = {"product_id": product_id, **fields, "price": min(s["price"] for s in rows)}
+    out |= {"sku_count": len(rows), "skus": rows}
+    colors = _distinct(s["color"] for s in rows if "color" in s)
+    if colors:
+        out["color_options"] = [swatches[c] for c in colors]
+    sizes = {k: _distinct(s[k] for s in rows if k in s) for k in SIZE_KEYS}
+    sizes = {k: v for k, v in sizes.items() if v}
+    if sizes:
+        out["size_options"] = sizes
     return out
 
 
@@ -138,43 +187,44 @@ class JeanStyle:
             if self.first <= size <= self.last and jeans_size_valid(self.audience, length, size)
         ]
 
-    def axes(self):
-        for wash in self.washes:
-            for length in self.lengths:
-                yield wash, length
+    @property
+    def colors(self) -> tuple[Color, ...]:
+        return tuple(cw(wash, WASHES[wash]) for wash in self.washes)
 
-    def doc(self, wash: str, length: str) -> dict:
+    def skus(self) -> list[dict]:
+        """Wash x leg length x the sizes that length is cut in."""
         legs = WOMENS_LEGS if self.audience == "Womens" else MENS_LEGS
+        return [
+            {"color": wash, "length": length, "inside_leg_in": legs[length],
+             **_size_row(row), "price": self.price, "in_stock": True}
+            for wash in self.washes
+            for length in self.lengths
+            for row in self.sizes(length)
+        ]  # fmt: skip
+
+    def doc(self) -> dict:
         who = "Women" if self.audience == "Womens" else "Men"
-        suffix = "" if length == "Regular" else f", {length}"
-        colour = cw(wash, WASHES[wash])
         return {
-            "title": f"{self.title}, {wash}{suffix}",
+            "title": self.title,
             "brand": self.brand,
             "department": list(self.department),
             "category_path": [who, "Jeans", f"{self.leg_fit} Jeans"],
-            "price": self.price,
             "description": (
                 f"The {self.line} is our {self.rise.lower()} rise {self.leg_fit.lower()} fit, "
-                f"cut from {self.fabric.lower()} denim in a {wash.lower()} finish with a "
-                f"{legs[length]} inch inside leg, five pockets and a zip fly."
+                f"cut from {self.fabric.lower()} denim with five pockets and a zip fly, in "
+                f"{len(self.washes)} washes and {len(self.lengths)} leg lengths."
             ),
-            **_size_arrays(self.sizes(length)),
             "attributes": [
-                attr("colour", "Colour", wash),
-                attr("wash", "Wash", wash),
                 attr("pattern", "Pattern", "Plain"),
                 attr("fabric", "Fabric", self.fabric),
                 attr("line", "Named fit", self.line),
                 attr("leg_fit", "Leg fit", self.leg_fit),
                 attr("rise", "Rise", self.rise),
-                attr("length", "Length", length),
-                attr("inside_leg", "Inside leg", legs[length], "INH"),
                 attr("audience", "Audience", self.audience),
             ],
             "drawing": drawing(
                 "trousers",
-                colour,
+                self.colors[0],
                 fit=self.leg_fit.lower().replace(" ", "_"),
                 rise=self.rise.lower(),
             ),
@@ -272,7 +322,7 @@ class BraStyle:
     kind: str  # Balcony, Plunge, ...
     bands: tuple[int, int]
     cups: tuple[str, str]
-    colourways: tuple[Colourway, ...]
+    colors: tuple[Color, ...]
     price: float
     wired: bool = True
     fabric: str = "Recycled Polyamide, Elastane"
@@ -295,32 +345,33 @@ class BraStyle:
             if bra_size_valid(b, uk)
         ]
 
-    def axes(self):
-        yield from ((c,) for c in self.colourways)
+    def skus(self) -> list[dict]:
+        """Color x every valid band and cup."""
+        return [
+            {"color": c[0], **_size_row(row), "price": self.price, "in_stock": True}
+            for c in self.colors
+            for row in self.size_rows()
+        ]
 
-    def doc(self, colour: Colourway) -> dict:
+    def doc(self) -> dict:
         wire = "underwired" if self.wired else "non-wired"
         return {
-            "title": f"{self.title}, {colour[0]}",
+            "title": self.title,
             "brand": self.brand,
             "department": list(self.department),
             "category_path": ["Women", "Lingerie", "Bras", f"{self.kind} Bras"],
-            "price": self.price,
             "description": (
                 f"The {self.line} {self.kind.lower()} bra: {wire}, with adjustable straps and a "
                 f"three-row hook and eye back, in {self.fabric.lower()}."
             ),
-            **_size_arrays(self.size_rows()),
             "attributes": [
-                attr("colour", "Colour", colour[0]),
-                attr("pattern", "Pattern", "Plain" if colour[1] == "solid" else colour[1].title()),
                 attr("fabric", "Fabric", self.fabric),
                 attr("line", "Line", self.line),
                 attr("bra_style", "Bra style", self.kind),
                 attr("wiring", "Wiring", "Underwired" if self.wired else "Non-Wired"),
                 attr("audience", "Audience", "Womens"),
             ],
-            "drawing": drawing("bra", colour),
+            "drawing": drawing("bra", self.colors[0]),
         }
 
 
@@ -383,36 +434,34 @@ class ShallowRow:
     price: float
     shape: str
     description: str
-    colourways: tuple[Colourway, ...]
+    colors: tuple[Color, ...]
     sizes: tuple[str, ...] = ()  # keys of BED; () for a sizeless product
     extra: tuple[tuple[str, str, str], ...] = ()  # (key, name, value)
     label: str | None = None
-    axis: str = "Colour"  # what the colourway is called: Colour | Shade
 
     @property
     def department(self) -> tuple[str, ...]:
         return ("Home",) if self.family == "Bedding" else ("Beauty",)
 
-    def axes(self):
-        yield from ((c,) for c in self.colourways)
+    def skus(self) -> list[dict]:
+        """Color x bed size, or one SKU per color for a sizeless product."""
+        rows = [_size_row(BED[s]) for s in self.sizes] or [{}]
+        return [
+            {"color": c[0], **row, "price": self.price, "in_stock": True}
+            for c in self.colors
+            for row in rows
+        ]
 
-    def doc(self, colour: Colourway) -> dict:
-        out = {
-            "title": f"{self.title}, {colour[0]}",
+    def doc(self) -> dict:
+        return {
+            "title": self.title,
             "brand": self.brand,
             "department": list(self.department),
             "category_path": list(self.path),
-            "price": self.price,
             "description": self.description,
+            "attributes": [attr(k, n, v) for k, n, v in self.extra],
+            "drawing": drawing(self.shape, self.colors[0], self.label),
         }
-        if self.sizes:
-            out.update(_size_arrays([BED[s] for s in self.sizes]))
-        out["attributes"] = [
-            attr(self.axis.lower(), self.axis, colour[0]),
-            *(attr(k, n, v) for k, n, v in self.extra),
-        ]
-        out["drawing"] = drawing(self.shape, colour, self.label)
-        return out
 
 
 _WHITE = (cw("White", "#ffffff"),)
@@ -467,11 +516,11 @@ BEDDING = (
 )  # fmt: skip
 
 
-def _shades(names: str, hexes: str) -> tuple[Colourway, ...]:
-    """A hand list of shade names (``;``-separated) and their hex colours."""
+def _shades(names: str, hexes: str) -> tuple[Color, ...]:
+    """A hand list of shade names (``;``-separated) and their hex colors."""
     ns, hs = [n.strip() for n in names.split(";")], hexes.split()
     if len(ns) != len(hs):
-        raise ValueError(f"{len(ns)} shade names but {len(hs)} colours")
+        raise ValueError(f"{len(ns)} shade names but {len(hs)} colors")
     return tuple(cw(n, f"#{h}", "solid", "#2b2b30") for n, h in zip(ns, hs, strict=True))
 
 
@@ -489,7 +538,7 @@ def _tone_hex(tone: str) -> str:
     return "".join(f"{max(0, min(255, c + s)):02x}" for c, s in zip(rgb, shift, strict=True))
 
 
-def _tones(tones: str) -> tuple[Colourway, ...]:
+def _tones(tones: str) -> tuple[Color, ...]:
     return tuple(cw(t, f"#{_tone_hex(t)}", "solid", "#e9e4dc") for t in tones.split())
 
 
@@ -505,7 +554,7 @@ BEAUTY = (
                    "e8b8b0 d9a99a c97f84 c98f8f 7d2d3d 6b2340 9c3b2a b8322f 8f1f1f c8102e "
                    "d8392b ef7b62 f06a73 d6267a b25ab0 5e1a2c 4b2238 5a3426 8a5a44 c99a86 "
                    "f3a683 b65c3a 8f3f22 5b2347"),
-               axis="Shade", extra=(("finish", "Finish", "Satin"),)),
+               extra=(("finish", "Finish", "Satin"),)),
     ShallowRow("LIPMAT", "Beauty", "Velvet Matte Lipstick", "Kestlewood Cosmetics",
                ("Beauty", "Make-Up", "Lips", "Lipstick"), 16.0, "lipstick",
                "A long-wearing matte lipstick that will not dry the lips.",
@@ -515,27 +564,27 @@ BEAUTY = (
                    "Velvet Taupe; Velvet Ruby",
                    "93402e 9c5b5b c41e3a a7738a 6b4130 7a1f4a b88a7a e3704f 5c2340 9e1b32 "
                    "8c7268 9b111e"),
-               axis="Shade", extra=(("finish", "Finish", "Matte"),)),
+               extra=(("finish", "Finish", "Matte"),)),
     ShallowRow("BALTNT", "Beauty", "Tinted Lip Balm", "Velling Apothecary",
                ("Beauty", "Make-Up", "Lips", "Lip Balm"), 8.0, "lipstick",
-               "A nourishing balm with a sheer wash of colour and shea butter.",
+               "A nourishing balm with a sheer wash of color and shea butter.",
                _shades("Sheer Rose; Sheer Berry; Sheer Peach; Sheer Red; Clear",
                        "e2a3a6 a3485f f2b38f c8423f f4ece4"),
-               axis="Shade", extra=(("finish", "Finish", "Sheer"),)),
+               extra=(("finish", "Finish", "Sheer"),)),
     ShallowRow("FNDFTH", "Beauty", "Featherwear Liquid Foundation 30ml", "Kestlewood Cosmetics",
                ("Beauty", "Make-Up", "Face", "Foundation"), 28.0, "bottle",
                "A lightweight medium-coverage foundation with a natural satin finish.",
-               _tones(_TONES), label="Foundation", axis="Shade",
+               _tones(_TONES), label="Foundation",
                extra=(("coverage", "Coverage", "Medium"),)),
     ShallowRow("FNDSRM", "Beauty", "Skin Serum Foundation 30ml", "Velling Apothecary",
                ("Beauty", "Make-Up", "Face", "Foundation"), 32.0, "bottle",
                "A serum-light foundation with hyaluronic acid for a dewy, sheer finish.",
                _tones("1N 1W 2C 2N 3N 3W 4C 4N 5N 5W 6C 6N 7N 7W 8N 9N 10N 11W 12N 13N"),
-               label="Serum", axis="Shade", extra=(("coverage", "Coverage", "Sheer"),)),
+               label="Serum", extra=(("coverage", "Coverage", "Sheer"),)),
     ShallowRow("TNTMST", "Beauty", "Tinted Moisturiser SPF 20", "Velling Apothecary",
                ("Beauty", "Skincare", "Moisturisers"), 22.0, "moisturiser_jar",
                "A tinted daily moisturiser with SPF 20 and a light, even glow.",
-               _tones("1N 2N 3N 5N 7N 9N 11N 13N"), label="SPF 20", axis="Shade",
+               _tones("1N 2N 3N 5N 7N 9N 11N 13N"), label="SPF 20",
                extra=(("spf", "SPF", "20"),)),
 )  # fmt: skip
 
@@ -548,44 +597,27 @@ FAMILIES: dict[str, tuple] = {"Jeans": JEANS, "Bras": BRAS, "Bedding": BEDDING, 
 DEEP = ("Jeans", "Bras")
 
 
-def _size_arrays(rows: list[tuple[str, str, str]]) -> dict:
-    if not rows:
-        raise ValueError("a sized style with no valid size")
-    return {
-        "size_uk": [r[0] for r in rows],
-        "size_eu": [r[1] for r in rows],
-        "size_us": [r[2] for r in rows],
-    }
+def _size_row(row: tuple[str, str, str]) -> dict:
+    """One size, in every size system: (UK, EU, US)."""
+    return {"size_uk": row[0], "size_eu": row[1], "size_us": row[2]}
 
 
 def style_docs(family: str, style) -> list[dict]:
-    """Every doc of one style, with its ``variant_group`` and ``sku_count``."""
-    group = f"{family[:3].upper()}-{style.code}"
-    out = []
-    for n, axis in enumerate(style.axes(), 1):
-        rec = style.doc(*axis)
-        check_departments(rec["department"], rec["title"])
-        out.append(
-            {
-                "product_id": f"{group}-{n:02d}",
-                "sku": f"{group.replace('-', '')}{n:02d}",
-                "variant_group": group,
-                "sku_count": len(rec.get("size_uk", ())) or 1,
-                **rec,
-                "collections": [],
-                "currency": "GBP",
-            }
-        )
-    return out
+    """The style's catalog document, as a list of one: a style is one product."""
+    rec = style.doc()
+    check_departments(rec["department"], rec["title"])
+    swatches = {c[0]: swatch(c) for c in style.colors}
+    pid = f"{family[:3].upper()}-{style.code}"
+    return [product(pid, style.skus(), swatches, **rec, collections=[], currency="GBP")]
 
 
 def docs() -> list[dict]:
-    """Every variant doc of every family."""
+    """Every style document of every family."""
     return [d for fam, styles in FAMILIES.items() for s in styles for d in style_docs(fam, s)]
 
 
 def sku_counts() -> dict[str, dict[str, int]]:
-    """family -> style code -> SKU count (the sum of its docs' ``sku_count``)."""
+    """family -> style code -> SKU count (its product's ``sku_count``)."""
     return {
         fam: {s.code: sum(d["sku_count"] for d in style_docs(fam, s)) for s in styles}
         for fam, styles in FAMILIES.items()

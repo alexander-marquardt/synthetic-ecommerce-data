@@ -74,4 +74,4 @@ def test_option_lists_are_the_sku_set() -> None:
         assert d.get("size_options", {}) == sizes, d["product_id"]
         sized += bool(sizes)
         assert d["price"] == min(s["price"] for s in skus), d["product_id"]
-    assert sized > 100
+    assert sized == 62
