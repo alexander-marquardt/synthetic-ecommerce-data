@@ -153,7 +153,8 @@ def fingerprint(catalog: list[dict]) -> str:
 #: Search-time only: the over-broad style synonym class 3 observed.
 SYNONYMS = ("balloon => balloon, barrel",)
 KEYWORDS = ("product_id", "product_type", "audience", "size_range",
-            "neckline", "pattern", "leg_style", "rise", "category_path", "category_leaf", "category_path_joined",
+            "neckline", "pattern", "leg_style", "rise", "category_path", "category_leaf",
+            "category_path_joined",
             "brand_owner", "badges", "sub_collection", "product_line",
             "unit_measure")  # fmt: skip
 BOOLEANS = ("offer", "online_only", "new_in", "trending")
