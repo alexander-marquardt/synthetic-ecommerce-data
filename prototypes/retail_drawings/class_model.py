@@ -201,7 +201,8 @@ class Style:
         """
         out = []
         for color, _ in self.colors:
-            tag = {} if self.colorless else {"color": color[0], "color_family": SHADE_FAMILY[color[0]]}
+            tag = {} if self.colorless else {
+                "color": color[0], "color_family": SHADE_FAMILY[color[0]]}  # fmt: skip
             if self.metal:
                 tag["finish"] = color[0].lower()
             out += [{**tag, **row} for row in self._sizes(color)]
