@@ -39,6 +39,14 @@ PATTERNS = ("plain", "check", "stripe", "print")
 LEG_STYLES = ("balloon", "barrel", "straight", "wide", "slim", "tapered")
 #: A record ranked this high gets the baseline's bestseller boost.
 BESTSELLER_TOP = 15
+COLOUR_FAMILIES: tuple[str, ...] = ()
+INSIDE_LEGS: tuple[str, ...] = ()
+LENGTH_RANGE: dict[str, str] = {}
+RISES: tuple[str, ...] = ()
+
+
+def derive_size_range(skus: list[dict]) -> list[str]:
+    return []
 
 # ==========================================================================
 # Styles: one doc per colourway, all sharing the style's ``style_id``
@@ -91,6 +99,9 @@ class Style:
                 "product_type": self.product_type,
                 "audience": self.audience,
                 "sold_last_5_days": sold,
+                **{"swatches": [], "colour_shade": "", "colour_family": "", "colour_hex": "",
+                   "rating": 0.0, "review_count": 0, "skus": [], "price_min": 0.0,
+                   "price_max": 0.0, "rise": None},  # fmt: skip
             }
             for key in ("was_price", "size_range", "neckline", "pattern", "leg_style",
                         "units_per_pack"):  # fmt: skip
@@ -531,6 +542,9 @@ PACKS = (
            "Socks", "box", one(cw("Grey", "#9a9a9a"), 610), audience="kids", pattern="plain",
            units_per_pack=5), "audience adult by default"),
 )  # fmt: skip
+
+
+BEAUTY: tuple[Style, ...] = ()
 
 
 def _type(*types: str) -> Callable[[dict], bool]:
