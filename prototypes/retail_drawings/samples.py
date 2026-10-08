@@ -15,6 +15,8 @@ audience). Round 2's records live in ``samples_round2``.
 
 from __future__ import annotations
 
+from kit_produce import pile_params
+
 #: The closed list a record's ``department`` values come from.
 DEPARTMENTS = ("clothing", "footwear", "lingerie", "home", "food", "beauty", "gifts")
 
@@ -410,6 +412,8 @@ CLOTHING = [
     },
 ]
 
+CLEMENTINE_GRAMS = 600
+
 FOOD = [
     {
         "title": "Semi-Skimmed Milk 2 Litres",
@@ -560,8 +564,13 @@ FOOD = [
         "collections": ["christmas"],
         "category_path": ["Food", "Fresh Produce", "Fruit", "Citrus"],
         "price": 1.80,
-        "attributes": food_attrs(600, "GRM", "Fresh", ["Vegan", "Gluten Free"], [], "Sweet Citrus"),
-        "drawing": drawing("round_produce", "solid", "#ef8a1f", label="Clementines"),
+        "attributes": food_attrs(
+            CLEMENTINE_GRAMS, "GRM", "Fresh", ["Vegan", "Gluten Free"], [], "Sweet Citrus"
+        ),
+        # The fruit count drawn comes from the same pack weight the record states.
+        "drawing": drawing("produce_pile", "solid", "#ef8a1f", label="Clementines",
+                           **pile_params("clementine", "Easy Peeler Clementines", "net",
+                                         grams=CLEMENTINE_GRAMS)),
     },
 ]
 

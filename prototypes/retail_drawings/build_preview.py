@@ -25,6 +25,7 @@ sys.path.insert(0, str(HERE))
 
 import kit_garments  # noqa: E402,F401 -- registers the trousers and top shapes
 import kit_home  # noqa: E402,F401 -- registers the home and beauty shapes
+import motifs  # noqa: E402,F401 -- registers the motif, surface and produce_pile shapes
 from house_styles import HOUSE_STYLES  # noqa: E402
 from kit import Fill, render  # noqa: E402
 from samples import records  # noqa: E402
@@ -55,7 +56,10 @@ GARMENT = {"audience", "leg_fit", "rise", "length", "waist", "neckline", "sleeve
 
 def drawing_svg(rec: dict) -> str:
     d = rec["drawing"]
-    fill = Fill(d["pattern"], d["base"], d["accent"], d["third"])
+    # A motif print's fields (gen#125) ride on the drawing beside its colors.
+    fill = Fill(d["pattern"], d["base"], d["accent"], d["third"], motif=d.get("motif"),
+                placement=d.get("placement"), scale=d.get("scale", 0.0),
+                spacing=d.get("spacing", 0.0), count=d.get("count", 1))  # fmt: skip
     return render(
         d["shape"],
         fill,
