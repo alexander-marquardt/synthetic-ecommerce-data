@@ -10,6 +10,8 @@ figures (a paper tint, a thin frame, one ink colour, round joins).
   main surface, so the colour and pattern facets can be checked by eye.
 * ``label`` is the large product word a food pack carries ("Milk").
 * ``brand`` is printed on a small tag in the bottom-left corner.
+* ``params`` drive a parametric shape (``kit_garments``, ``kit_home``):
+  a trouser's fit and rise, a top's neckline and sleeve, a frame's size.
 
 Standalone on purpose: no import from the package, no dependency beyond the
 standard library. It is a sneak peek, not the core's drawing kit.
@@ -599,13 +601,25 @@ def _brand_tag(brand: str) -> list[str]:
     ]
 
 
+def register(shapes: dict, offsets: dict | None = None) -> None:
+    """Add another module's shapes (and their vertical offsets) to the kit."""
+    SHAPES.update(shapes)
+    OFFSET_Y.update(offsets or {})
+
+
 def render(
-    shape: str, fill: Fill, label: str | None = None, brand: str | None = None, uid: str = "p"
+    shape: str,
+    fill: Fill,
+    label: str | None = None,
+    brand: str | None = None,
+    uid: str = "p",
+    params: dict | None = None,
 ) -> str:
     """One product drawing as a standalone SVG document string.
 
     ``uid`` makes the pattern id unique, so several drawings can be inlined in
-    one HTML page without their ``<pattern>`` ids colliding.
+    one HTML page without their ``<pattern>`` ids colliding. ``params`` are
+    passed to a parametric shape (a trouser's fit and rise, a top's neckline).
     """
     draw = SHAPES[shape]
     pid = f"fill-{uid}"
@@ -617,7 +631,7 @@ def render(
         f'<rect width="{SIZE}" height="{SIZE}" fill="{PAPER}"/>',
         f'<rect x="6" y="6" width="{SIZE - 12}" height="{SIZE - 12}" fill="none" stroke="{INK}" stroke-width="1"/>',
         f'<g transform="translate(0 {OFFSET_Y[shape]})">' if shape in OFFSET_Y else "",
-        *draw(paint, fill, label),
+        *draw(paint, fill, label, **(params or {})),
         "</g>" if shape in OFFSET_Y else "",
         *(_brand_tag(brand) if brand else []),
         "</svg>",
