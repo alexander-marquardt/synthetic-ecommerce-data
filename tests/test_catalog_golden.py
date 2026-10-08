@@ -1,4 +1,4 @@
-"""``golden-catalog/`` must be exactly what ``sip-generate build`` writes today.
+"""``golden-catalog/`` must be exactly what ``ecom-generate build`` writes today.
 
 The build output is committed so that a change to the generator shows up as a
 readable diff in review, and so that the catalog can be read without running
@@ -33,14 +33,14 @@ import pytest
 import catalog_size
 import type_gates
 from prism_synthetic_industrial import FIELD_MAP_PATH
-from synthetic_industrial_products.catalog import cli
-from synthetic_industrial_products.catalog.config import GeneratorConfig
+from synthetic_ecommerce_data.catalog import cli
+from synthetic_ecommerce_data.catalog.config import GeneratorConfig
 
 #: Where the committed build output lives, relative to the repository root.
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
 
 #: The exact command a contributor runs to update it.
-REBUILD = "uv run sip-generate build --out golden-catalog"
+REBUILD = "uv run ecom-generate build --out golden-catalog"
 
 #: Everything ``build`` writes. Asserted as a set against the directory, so a
 #: new output file that nobody committed is red rather than invisible.
@@ -75,7 +75,7 @@ def _read_jsonl(path: Path) -> list[dict]:
 
 @pytest.fixture(scope="module")
 def fresh_build(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    """One full ``sip-generate build`` at the default configuration.
+    """One full ``ecom-generate build`` at the default configuration.
 
     Module-scoped: the build is a couple of seconds, and running it once per
     parametrised file would multiply that by seven for no extra signal. Not
@@ -96,7 +96,7 @@ def fresh_build(tmp_path_factory: pytest.TempPathFactory) -> Path:
     finally:
         after = FIELD_MAP_PATH.read_bytes()
         FIELD_MAP_PATH.write_bytes(before)
-    assert code == 0, "sip-generate build failed; its own audits print to stderr"
+    assert code == 0, "ecom-generate build failed; its own audits print to stderr"
     assert after == before, (
         f"{FIELD_MAP_PATH} is not up to date with the generator -- a build "
         f"rewrote it. Run `{REBUILD}` and commit the field map too."
@@ -114,7 +114,7 @@ def test_golden_directory_holds_exactly_the_build_output(fresh_build: Path) -> N
     written = {path.name for path in fresh_build.iterdir()}
     committed = {path.name for path in GOLDEN_DIR.iterdir()}
     assert written == set(GOLDEN_FILES), (
-        f"sip-generate build writes {sorted(written)}, but this test checks "
+        f"ecom-generate build writes {sorted(written)}, but this test checks "
         f"{sorted(GOLDEN_FILES)}. Add the new file to GOLDEN_FILES, commit it "
         f"under {GOLDEN_DIR.name}/, and describe it in the README."
     )
@@ -138,7 +138,7 @@ def test_committed_file_matches_a_fresh_build(name: str, fresh_build: Path) -> N
         rebuilt.read_text(encoding="utf-8").splitlines(),
     )
     pytest.fail(
-        f"{GOLDEN_DIR.name}/{name} differs from a fresh `sip-generate build`.\n"
+        f"{GOLDEN_DIR.name}/{name} differs from a fresh `ecom-generate build`.\n"
         f"  {report or 'the lines agree; the bytes between them differ (a line ending?)'}\n"
         f"\n"
         f"Two things cause this, and they are not the same problem:\n"
@@ -155,7 +155,7 @@ def test_committed_file_matches_a_fresh_build(name: str, fresh_build: Path) -> N
         f"\n"
         f"Tell them apart by building twice into two fresh directories and\n"
         f"diffing THOSE against each other, with no edits in between:\n"
-        f"    uv run sip-generate build --out /tmp/a && uv run sip-generate build --out /tmp/b\n"
+        f"    uv run ecom-generate build --out /tmp/a && uv run ecom-generate build --out /tmp/b\n"
         f"    diff -rq /tmp/a /tmp/b\n"
         f"Clean means case 1 -- regenerate and commit. Any difference means case\n"
         f"2, and the golden files must NOT be updated: find the unseeded source\n"
@@ -170,7 +170,7 @@ def test_committed_file_matches_a_fresh_build(name: str, fresh_build: Path) -> N
 #
 # Deliberately not derived from the fresh build: if these read the same bytes
 # the hash test just compared, they would agree with whatever was committed,
-# and a careless `sip-generate build && git commit -a` from a broken generator
+# and a careless `ecom-generate build && git commit -a` from a broken generator
 # would sail through. These are the numbers a reader of the README is entitled
 # to rely on, stated independently of the generator that produced them.
 # --------------------------------------------------------------------------

@@ -16,9 +16,9 @@ from typing import Any
 
 import pytest
 
-from synthetic_industrial_products.catalog import emit
-from synthetic_industrial_products.catalog.config import SMALL, GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate
+from synthetic_ecommerce_data.catalog import emit
+from synthetic_ecommerce_data.catalog.config import SMALL, GeneratorConfig
+from synthetic_ecommerce_data.catalog.generate import generate
 
 GOLDEN_FLAT = Path(__file__).resolve().parents[1] / "golden-catalog" / "flat.jsonl"
 

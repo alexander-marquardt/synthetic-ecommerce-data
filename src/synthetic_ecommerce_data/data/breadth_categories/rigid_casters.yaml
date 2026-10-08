@@ -1,0 +1,29 @@
+# One breadth row (alexander-marquardt/synthetic-ecommerce-data#34); one file
+# per row, so two PRs that add or remove rows never touch the same file (#48).
+# The schema and the generic loop that reads it are in catalog/breadth.py.
+key: rigid_casters
+category:
+- Material Handling & Storage
+- Casters & Wheels
+- Rigid Casters
+family: hand_tool
+shape: disc
+item: Rigid Caster
+descriptor_attr: null
+size_attr: Size
+size_values:
+- 2 in
+- 3 in
+- 4 in
+- 5 in
+- 6 in
+attributes:
+  Material:
+  - Rubber
+  - Steel
+  Capacity:
+  - 100 lb
+  - 200 lb
+  - 300 lb
+skus: 2
+reason: breadth diversity; material-handling category gap

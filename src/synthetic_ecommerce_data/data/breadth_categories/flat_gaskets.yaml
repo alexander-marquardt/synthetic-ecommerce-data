@@ -1,0 +1,27 @@
+# One breadth row (alexander-marquardt/synthetic-ecommerce-data#34); one file
+# per row, so two PRs that add or remove rows never touch the same file (#48).
+# The schema and the generic loop that reads it are in catalog/breadth.py.
+key: flat_gaskets
+category:
+- Hose, Tube, Fittings & Valves
+- Seals & Gaskets
+- Flat Gaskets
+family: motion
+shape: disc
+item: Flat Gasket
+descriptor_attr: null
+size_attr: Size
+size_values:
+- 1/2 in
+- 3/4 in
+- 1 in
+- 1-1/2 in
+attributes:
+  Material:
+  - Rubber
+  Thickness:
+  - 1/16 in
+  - 1/8 in
+price_range: [1.0, 10.0]
+skus: 1
+reason: breadth diversity; sealing category gap

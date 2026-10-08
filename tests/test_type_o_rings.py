@@ -21,16 +21,16 @@ import pytest
 
 import type_gates
 from published import published_attributes
-from synthetic_industrial_products.catalog import names, price, standards, taxonomy, typespec
-from synthetic_industrial_products.catalog.config import GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate, generate_type
-from synthetic_industrial_products.catalog.model import length_attribute
+from synthetic_ecommerce_data.catalog import names, price, standards, taxonomy, typespec
+from synthetic_ecommerce_data.catalog.config import GeneratorConfig
+from synthetic_ecommerce_data.catalog.generate import generate, generate_type
+from synthetic_ecommerce_data.catalog.model import length_attribute
 from test_attribute_names import CENSUS, OBSERVED
 from test_catalog_brands_voice import same_product_duplicates
 from test_type_seam import _by_type, _moved_by_removing
 
 KEY = "o_rings"
-MODULE = "synthetic_industrial_products.product_types.motion.o_rings"
+MODULE = "synthetic_ecommerce_data.product_types.motion.o_rings"
 
 #: The committed slice: this type's flat records at the default build.
 SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"

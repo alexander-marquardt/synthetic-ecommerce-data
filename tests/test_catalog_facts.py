@@ -23,10 +23,10 @@ import pytest
 import type_facts
 import type_gates
 from published import published_attributes
-from synthetic_industrial_products.catalog import emit, newtypes
-from synthetic_industrial_products.catalog.config import GeneratorConfig
-from synthetic_industrial_products.catalog.generate import Generator, generate
-from synthetic_industrial_products.dimensions import DimensionParseError, parse_length
+from synthetic_ecommerce_data.catalog import emit, newtypes
+from synthetic_ecommerce_data.catalog.config import GeneratorConfig
+from synthetic_ecommerce_data.catalog.generate import Generator, generate
+from synthetic_ecommerce_data.dimensions import DimensionParseError, parse_length
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 LBF_PER_KN = 224.809
@@ -214,7 +214,7 @@ def title_key(type_key: str) -> tuple[str, ...]:
 
 #: Every rule in this file is a truth table written for the census-modelled
 #: types. The breadth categories (:mod:`.catalog.breadth`,
-#: alexander-marquardt/synthetic-industrial-products#34) are cheap filler --
+#: alexander-marquardt/synthetic-ecommerce-data#34) are cheap filler --
 #: their materials, finishes and titles are drawn from a short, plausible
 #: list, not measured against a reference table -- so they are EXEMPT here,
 #: by the maintainer's own ruling (2026-09-30 refinement on #34).

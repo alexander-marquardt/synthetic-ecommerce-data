@@ -23,7 +23,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from synthetic_industrial_products.catalog import (
+from synthetic_ecommerce_data.catalog import (
     breadth,
     conformance,
     noise,
@@ -33,12 +33,12 @@ from synthetic_industrial_products.catalog import (
     vocab,
     voice,
 )
-from synthetic_industrial_products.catalog.vocab import AttrSpec
-from synthetic_industrial_products.drawing.breadth_shapes import cylinder
-from synthetic_industrial_products.drawing.figures import FIGURES
+from synthetic_ecommerce_data.catalog.vocab import AttrSpec
+from synthetic_ecommerce_data.drawing.breadth_shapes import cylinder
+from synthetic_ecommerce_data.drawing.figures import FIGURES
 
 REPO = Path(__file__).resolve().parent.parent
-SRC = REPO / "src" / "synthetic_industrial_products"
+SRC = REPO / "src" / "synthetic_ecommerce_data"
 
 #: The files a type pull request used to edit to add itself to a shared,
 #: type-keyed table. A type with a module declares all of it on its spec.

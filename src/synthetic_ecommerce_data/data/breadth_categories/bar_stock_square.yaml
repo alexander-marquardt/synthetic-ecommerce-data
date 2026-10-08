@@ -1,0 +1,28 @@
+# One breadth row (alexander-marquardt/synthetic-ecommerce-data#34); one file
+# per row, so two PRs that add or remove rows never touch the same file (#48).
+# The schema and the generic loop that reads it are in catalog/breadth.py.
+key: bar_stock_square
+category:
+- Raw Materials
+- Bar & Rod Stock
+- Square Bars
+family: fastener
+shape: block
+item: Square Bar Stock
+descriptor_attr: null
+size_attr: Size
+size_values:
+- 1/4 in
+- 3/8 in
+- 1/2 in
+- 3/4 in
+attributes:
+  Material:
+  - Steel
+  - Aluminum
+  Finish:
+  - Plain
+  - Bright
+price_range: [4.0, 25.0]
+skus: 1
+reason: '''square'' overlap with R1''s ''square end mill'' word; raw-stock category gap'

@@ -1,0 +1,25 @@
+# One breadth row (alexander-marquardt/synthetic-ecommerce-data#34); one file
+# per row, so two PRs that add or remove rows never touch the same file (#48).
+# The schema and the generic loop that reads it are in catalog/breadth.py.
+key: foam_ear_plugs
+category:
+- Safety
+- Hearing Protection
+- Foam Ear Plugs
+family: hand_tool
+shape: cylinder
+item: Foam Ear Plug
+descriptor_attr: null
+size_attr: Type
+size_values:
+- Corded
+- Uncorded
+attributes:
+  Material:
+  - PU Foam
+  Package Quantity:
+  - '10'
+  - '50'
+  - '100'
+skus: 1
+reason: breadth diversity; PPE category gap

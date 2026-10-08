@@ -6,7 +6,7 @@ The package name is not a style choice: PRISM's loader globs
 directory has to be called ``prism_<something>`` or the Engine finds nothing.
 
 Everything under ``data/field_weights/`` is GENERATED from the catalog by
-``sip-generate build``. See ``synthetic_industrial_products.prism.field_map``.
+``ecom-generate build``. See ``synthetic_ecommerce_data.prism.field_map``.
 """
 
 from __future__ import annotations

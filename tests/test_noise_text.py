@@ -17,10 +17,10 @@ import pytest
 
 from compat_text import NOISE, noise_sentences
 from published import published_attributes
-from synthetic_industrial_products.catalog import emit
-from synthetic_industrial_products.catalog.config import GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate
-from synthetic_industrial_products.dimensions import parse_length
+from synthetic_ecommerce_data.catalog import emit
+from synthetic_ecommerce_data.catalog.config import GeneratorConfig
+from synthetic_ecommerce_data.catalog.generate import generate
+from synthetic_ecommerce_data.dimensions import parse_length
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 MM = 25.4

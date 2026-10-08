@@ -1,6 +1,6 @@
 # The drawings: how a SKU record becomes an SVG
 
-This is the developer's view of `src/synthetic_industrial_products/drawing/`:
+This is the developer's view of `src/synthetic_ecommerce_data/drawing/`:
 what runs, in what order, and where to change it. The README's
 [Images](../README.md#images) section states what the drawings promise. The
 rulings behind them (one drawing per SKU, no text, one scale per type, the
@@ -8,7 +8,7 @@ magnifier) are on
 [elastic/prism-industrial-products#103](https://github.com/elastic/prism-industrial-products/issues/103),
 and this page does not argue them again.
 
-Paths below are relative to `src/synthetic_industrial_products/` unless they
+Paths below are relative to `src/synthetic_ecommerce_data/` unless they
 start with `tests/` or `scripts/`.
 
 ## The pipeline
@@ -102,7 +102,7 @@ drawn bounding box, in inches, with a little headroom.
   `VOCAB`.
   `FIGURES` is a `RegistryTable`: its first read registers every type module
   and breadth row, so a script that imports only
-  `synthetic_industrial_products.drawing` still sees every type.
+  `synthetic_ecommerce_data.drawing` still sees every type.
 
 Dispatch is a dictionary lookup (`_figure()` in `drawing/__init__.py`). An
 unknown type raises `UnknownTypeError`. Nothing falls back to a generic shape.
@@ -183,7 +183,7 @@ enlargement range of each:
 ```sh
 uv run --directory tests python -c "
 from test_sku_drawings import _golden_skus, _drawn_size
-from synthetic_industrial_products.drawing.sheet import magnifier
+from synthetic_ecommerce_data.drawing.sheet import magnifier
 lens = [m for m in (magnifier(*_drawn_size(p['product_type'], r)) for p, _, r in _golden_skus()) if m]
 for kind in (True, False):
     k = [m.k for m in lens if m.handle is kind]
@@ -266,14 +266,14 @@ to tell them apart by.
 
 The drawings are not committed. What is committed is the digest:
 
-* `sip-generate build` writes `images.jsonl` (`catalog/emit.py`
+* `ecom-generate build` writes `images.jsonl` (`catalog/emit.py`
   `iter_image_manifest()`), one row per SKU with `image_id`, `path`, `url`,
   `sha256`, `bytes` and `geometry`.
 * `tests/test_catalog_golden.py` regenerates the catalog and compares every
   committed file by sha256, `images.jsonl` included. A change that moves any
   drawing turns it red until `golden-catalog/` is regenerated in the same
   commit.
-* `sip-generate images --catalog golden-catalog ...` (`catalog/bundle.py`
+* `ecom-generate images --catalog golden-catalog ...` (`catalog/bundle.py`
   `rebuild()`) redraws every SKU from the committed `nested.jsonl` and raises
   `BundleMismatchError` unless each drawing's sha256 equals its
   `images.jsonl` row, and every row names a SKU. Only then does it write the
@@ -352,9 +352,9 @@ pinned by a test.
    a value the figure ignores, either draw it or add it to
    `NOT_DRAWN_BY_ANY_FIGURE` with a reason. For a long part, add the type to
    `test_elongated_parts_are_drawn_to_their_published_length`.
-7. **Regenerate and verify.** Run `uv run sip-generate build --out golden-catalog`
+7. **Regenerate and verify.** Run `uv run ecom-generate build --out golden-catalog`
    (the `images.jsonl` digests move), then
-   `uv run sip-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz`
+   `uv run ecom-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz`
    and `uv run python scripts/check_determinism.py --images`.
 8. **Look at it.** `uv run python scripts/contact_sheet.py --catalog golden-catalog --out out/contact-sheets`
    puts twenty SKUs of every type on one HTML page.

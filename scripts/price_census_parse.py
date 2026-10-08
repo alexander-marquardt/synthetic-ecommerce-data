@@ -47,8 +47,8 @@ from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from synthetic_industrial_products.catalog.price import ending_class
-from synthetic_industrial_products.dimensions import (
+from synthetic_ecommerce_data.catalog.price import ending_class
+from synthetic_ecommerce_data.dimensions import (
     DimensionParseError,
     parse_length,
     parse_thread,

@@ -37,8 +37,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from synthetic_industrial_products.catalog.bundle import flat_facets, records  # noqa: E402
-from synthetic_industrial_products.drawing import draw_product  # noqa: E402
+from synthetic_ecommerce_data.catalog.bundle import flat_facets, records  # noqa: E402
+from synthetic_ecommerce_data.drawing import draw_product  # noqa: E402
 
 
 def _load(catalog: Path) -> list[dict]:
