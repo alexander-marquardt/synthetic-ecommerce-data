@@ -930,6 +930,14 @@ distractor that cannot outrank the best intended product (BM25 over title plus
 description). A class's *tail* is further products the query matches that need
 not outrank. Every name is invented.
 
+Every product is drawn as its own kind: a bouquet as roses in a paper cone,
+socks as socks, a bed as a bed. A generic shape (`box`, `box_wide`,
+`round_produce`, `pouch`, `top`) is allowed only in the categories listed in
+`HONEST_FOR` in `test_shape_honesty.py` (packaged food in a box, loose produce
+as round produce). A style that uses one anywhere else fails that test, and the
+failure names the row. A new kind gets its own shape in `kit_more.py`, whose
+docstring lists every shape and its params.
+
 | Class | Query → intended | Distractors that outrank without a policy | Fixed by |
 |---|---|---|---|
 | Print, flavour and scent words | *lemon* → fresh lemons | lemon-print dress, lemon cake, lemon shower gel, lemon cleaners | department or persona boost |
