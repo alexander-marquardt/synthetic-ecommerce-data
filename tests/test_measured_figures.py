@@ -6,7 +6,7 @@ into the README, the drawings doc or a source constant, it put every type PR
 on the same lines, so each one conflicted with the last to merge and had to be
 merged and re-measured by hand.
 
-``sip-generate build`` now writes them into ``stats.json`` under ``figures``,
+``sed-generate build`` now writes them into ``stats.json`` under ``figures``,
 beside the ``lines`` and ``skus`` it already carried. The golden test rebuilds
 that file and compares bytes, so a figure that moves still reds, naming the
 rebuild command, and ``scripts/merge_pr.sh`` resolves a conflict in it by
@@ -24,11 +24,11 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_industrial_products.catalog.generate import all_type_keys
+from synthetic_ecommerce_data.catalog.generate import all_type_keys
 
 ROOT = Path(__file__).resolve().parents[1]
 GOLDEN = ROOT / "golden-catalog"
-REBUILD = "uv run sip-generate build --out golden-catalog"
+REBUILD = "uv run sed-generate build --out golden-catalog"
 
 #: Where the figures used to be typed. A file that quotes one again conflicts
 #: with every type PR again.
@@ -36,7 +36,7 @@ QUOTING = (
     "README.md",
     "docs/drawings.md",
     "docs/adding-a-type.md",
-    "src/synthetic_industrial_products/prism/derive.py",
+    "src/synthetic_ecommerce_data/prism/derive.py",
 )
 
 

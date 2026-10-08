@@ -1,0 +1,28 @@
+# One breadth row (alexander-marquardt/synthetic-ecommerce-data#34); one file
+# per row, so two PRs that add or remove rows never touch the same file (#48).
+# The schema and the generic loop that reads it are in catalog/breadth.py.
+key: blind_rivets
+category:
+- Fasteners
+- Rivets
+- Blind Rivets
+family: fastener
+shape: cylinder
+item: Blind Rivet
+descriptor_attr: null
+size_attr: Diameter
+size_values:
+- 1/8 in
+- 5/32 in
+- 3/16 in
+- 1/4 in
+attributes:
+  Material:
+  - Aluminum
+  - Steel
+  - Stainless Steel
+  Head Type:
+  - Dome Head
+  - Countersunk Head
+skus: 2
+reason: breadth diversity; pop-rivet category gap

@@ -1,4 +1,4 @@
-"""Catalog BREADTH (alexander-marquardt/synthetic-industrial-products#34).
+"""Catalog BREADTH (alexander-marquardt/synthetic-ecommerce-data#34).
 
 Light tests only, as the issue's own refinement asks: every row makes valid
 SKUs, titles are unique, ``spec_quality`` is on every SKU and excluded from
@@ -14,10 +14,10 @@ import re
 
 import pytest
 
-from synthetic_industrial_products.catalog import breadth, emit, taxonomy
-from synthetic_industrial_products.catalog.config import GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate
-from synthetic_industrial_products.prism.field_map import STRUCTURAL_NAMES
+from synthetic_ecommerce_data.catalog import breadth, emit, taxonomy
+from synthetic_ecommerce_data.catalog.config import GeneratorConfig
+from synthetic_ecommerce_data.catalog.generate import generate
+from synthetic_ecommerce_data.prism.field_map import STRUCTURAL_NAMES
 
 #: A cheap config: the depth machinery still runs (must-stock needs it), but
 #: at its smallest, so these tests spend their time on breadth, not on depth.
@@ -66,7 +66,7 @@ def test_every_row_yields_valid_skus(catalog, breadth_lines):
 
     # Every breadth SKU emits cleanly in both shapes, and its drawing is a
     # valid, text-free SVG (the same gate every other type's SKU passes).
-    from synthetic_industrial_products.drawing import svg_problems
+    from synthetic_ecommerce_data.drawing import svg_problems
 
     flat = list(emit.iter_flat(catalog))
     assert sum(1 for row in flat if row["spec_quality"] == "fast_and_cheap") == sum(
@@ -126,7 +126,7 @@ def test_spec_quality_reaches_neither_search_text_nor_a_facet(catalog):
     # The field map entry excludes it from both channels: no ``searchable``
     # (search text is built from an explicit allow-list in ``emit.py`` that
     # never includes it, so this is belt and braces) and ``facet: false``.
-    from synthetic_industrial_products.prism.field_map import render
+    from synthetic_ecommerce_data.prism.field_map import render
 
     field_map = render(emit.iter_flat(catalog))
     lines = field_map.splitlines()
@@ -243,7 +243,7 @@ def test_every_row_carries_every_term_its_reason_cites():
 
 
 def test_every_row_declares_a_valid_price_range():
-    """alexander-marquardt/synthetic-industrial-products#37.
+    """alexander-marquardt/synthetic-ecommerce-data#37.
 
     Every row's own ``price_range`` is a real ``(min, max)`` band -- not the
     flat ``$2.50-9.00`` every breadth SKU used to draw from regardless of
@@ -253,7 +253,7 @@ def test_every_row_declares_a_valid_price_range():
     A row the price census measured (``price.BREADTH_CENSUS``, #52) declares
     none: it is priced from the census. Every other row must declare one.
     """
-    from synthetic_industrial_products.catalog import price
+    from synthetic_ecommerce_data.catalog import price
 
     for row in breadth.rows():
         if row.key in price.BREADTH_CENSUS:
@@ -289,7 +289,7 @@ def test_price_ranges_are_not_all_the_same_flat_band(catalog, breadth_lines):
 
 
 def test_finish_never_plates_a_stainless_material():
-    """alexander-marquardt/synthetic-industrial-products#37.
+    """alexander-marquardt/synthetic-ecommerce-data#37.
 
     The deep generator already refuses plating a stainless material
     (``WASHER_FINISHES`` / the kit-finish rule in ``newtypes.py``); breadth

@@ -2,7 +2,7 @@
 
 A product type is one leaf of the category tree, such as `screw_socket_head` or
 `ball_stock_precision`. Each type is declared in a module of its own under
-`src/synthetic_industrial_products/product_types/`. A breadth type is one new
+`src/synthetic_ecommerce_data/product_types/`. A breadth type is one new
 file plus the generated output; a modelled type still edits some shared files,
 listed under [What is still shared](#what-is-still-shared) (#48).
 
@@ -43,7 +43,7 @@ A module declares one `SPEC = TypeSpec(...)`, of one of two kinds:
   `product_types/fasteners/screw_socket_head.py` (a family builder on
   `Generator`).
 
-`part_number_block` is left unset unless `sip-generate block` says otherwise
+`part_number_block` is left unset unless `sed-generate block` says otherwise
 (step 2 below).
 
 The types in `catalog/newtypes.py` (`NEW_TYPES`) are a third kind that no
@@ -119,7 +119,7 @@ its published attributes. `set_screws_hex_socket` does both.
 
 1. Write the module. Copy the example of the matching kind and change every
    field.
-2. Check the type's part-number block: `uv run sip-generate block <type_key>`.
+2. Check the type's part-number block: `uv run sed-generate block <type_key>`.
    It prints the block the key derives and, when another type already uses it,
    the first free block. In that case set `part_number_block=<block>` on the
    new type's `TypeSpec` (not on its `BreadthRow`): about one new type in 135
@@ -128,7 +128,7 @@ its published attributes. `set_screws_hex_socket` does both.
 3. If the leaf's head noun is new, add it to `PRODUCT_NOUNS` in
    `catalog/names.py`.
 4. Build the catalog and regenerate the committed one:
-   `uv run sip-generate build --out golden-catalog`. Only the new type's
+   `uv run sed-generate build --out golden-catalog`. Only the new type's
    records, the totals in `stats.json` and the field-weights YAML should
    change. The independence tests below enforce this.
 5. A modelled type only: declare the type's size and facts on its
@@ -217,7 +217,7 @@ rule it follows; the rules are in
    ([Figure and extent](#figure-and-extent)) and the price model
    ([Price](#price)).
 3. Delete the key's breadth row file (or breadth module). The key keeps its
-   derived part-number block, so `sip-generate block <type_key>` says to leave
+   derived part-number block, so `sed-generate block <type_key>` says to leave
    `part_number_block` unset.
 4. Declare `claims`, `may_claim`, `key_attributes` and the family sentences
    it qualifies for on the `TypeSpec` (step 5 of [A new type](#a-new-type));
@@ -238,7 +238,7 @@ rule it follows; the rules are in
 The output must stay byte-identical.
 
 1. Find every entry for the key:
-   `grep -rn '<type_key>' src/synthetic_industrial_products/catalog src/synthetic_industrial_products/drawing src/synthetic_industrial_products/data`.
+   `grep -rn '<type_key>' src/synthetic_ecommerce_data/catalog src/synthetic_ecommerce_data/drawing src/synthetic_ecommerce_data/data`.
    For a modelled type, the entries are in `LEAVES`, `DRAWING` (identity
    pairs), `VOCAB`, `STANDARDS_FAMILY`, `FIGURES`, `USE_LINES`,
    `Generator._BUILDERS`, the `config.type_weights` share, and for a socket
@@ -254,7 +254,7 @@ The output must stay byte-identical.
 2. Move each entry into the module's `SPEC`, and delete it from the shared
    table. A key that is declared in both places is refused.
 3. Build into a scratch directory and compare:
-   `uv run sip-generate build --out /tmp/out && diff -rq golden-catalog /tmp/out`.
+   `uv run sed-generate build --out /tmp/out && diff -rq golden-catalog /tmp/out`.
    The diff must print nothing.
 
 No test table is edited: the discovery, fresh-reader and first-import tests
@@ -279,19 +279,19 @@ Use a table type (`catalog/tabletype.py`, #101) when a type does not parameteris
 
 **What a table type's PR edits.** Its own files, which no other PR touches:
 
-* `src/synthetic_industrial_products/product_types/<family>/<key>.py` (new)
+* `src/synthetic_ecommerce_data/product_types/<family>/<key>.py` (new)
 * `tests/test_type_<key>.py` (new)
 * `tests/data/golden_slices/<key>.jsonl` (new, written by the test module)
-* `src/synthetic_industrial_products/data/breadth_categories/<key>.yaml` (deleted, when the type had a breadth row)
+* `src/synthetic_ecommerce_data/data/breadth_categories/<key>.yaml` (deleted, when the type had a breadth row)
 
-Generated files. Rebuild them with `uv run sip-generate build --out golden-catalog`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
+Generated files. Rebuild them with `uv run sed-generate build --out golden-catalog`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
 
 * `golden-catalog/*`
 * `src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml`
 
 Shared files, edited by hand:
 
-* `src/synthetic_industrial_products/catalog/names.py`: a `NAME_EXCEPTIONS` row for each column name the census lacks. Use a census name and there is no edit.
+* `src/synthetic_ecommerce_data/catalog/names.py`: a `NAME_EXCEPTIONS` row for each column name the census lacks. Use a census name and there is no edit.
 
 The whole catalog's measured figures are not edited by hand: the facet rule's band and attribute counts (once `MEASURED_DISPERSION` in `prism/derive.py` and two counts in `tests/test_facet_control_rule.py`), and the type, brand and drawing counts the docs used to quote. The build writes them under `figures` in `golden-catalog/stats.json`, the tests read them there, and `tests/test_measured_figures.py` refuses a doc that restates one (#103). A conflict in them is resolved by the rebuild.
 
@@ -362,8 +362,8 @@ each side, add 0.1" and round to 0.05": the lock nut's 2.50 x 4.78 gives
 CAT=golden-catalog KEY=<type_key> uv run python - <<'PY'
 import json, os
 from pathlib import Path
-from synthetic_industrial_products.catalog import bundle
-from synthetic_industrial_products.drawing.figures import FIGURES
+from synthetic_ecommerce_data.catalog import bundle
+from synthetic_ecommerce_data.drawing.figures import FIGURES
 cat, key = Path(os.environ["CAT"]), os.environ["KEY"]
 facets = bundle.flat_facets(cat)
 figure, extent = FIGURES[key]
@@ -575,8 +575,8 @@ is not touched:
 git fetch origin main
 git worktree add --detach /tmp/sip-main origin/main
 for size in 2600 39000; do
-  uv run --directory /tmp/sip-main sip-generate build --lines $size --out /tmp/sip-cmp/main-$size
-  uv run sip-generate build --lines $size --out /tmp/sip-cmp/head-$size
+  uv run --directory /tmp/sip-main sed-generate build --lines $size --out /tmp/sip-cmp/main-$size
+  uv run sed-generate build --lines $size --out /tmp/sip-cmp/head-$size
   python3 - /tmp/sip-cmp/main-$size /tmp/sip-cmp/head-$size <<'PY'
 import hashlib, json, sys
 from collections import defaultdict
@@ -620,7 +620,7 @@ command, never by hand arithmetic:
 
 | Figure | Where | Command |
 |---|---|---|
-| The large build's per-type table and totals | README "The 100K catalog" | `uv run sip-generate build --lines 39000 --out /tmp/c39k`, then the `skus_by_type`, `skus` and `lines` of its `stats.json` |
+| The large build's per-type table and totals | README "The 100K catalog" | `uv run sed-generate build --lines 39000 --out /tmp/c39k`, then the `skus_by_type`, `skus` and `lines` of its `stats.json` |
 
 #62 renames the large build and generates its figures; until it lands, its
 table gets a row for each deepened type.
@@ -628,8 +628,8 @@ table gets a row for each deepened type.
 ## The commands
 
 ```sh
-uv run sip-generate block <type_key>                # the block to declare, if any
-uv run sip-generate build --out /tmp/out            # about 8 s
+uv run sed-generate block <type_key>                # the block to declare, if any
+uv run sed-generate build --out /tmp/out            # about 8 s
 diff -rq golden-catalog /tmp/out                    # empty for a move
 uv run python scripts/fit_price_model.py            # a measured type's price fit, both sizes, about 2 min
 uv run pytest -q tests/test_type_seam.py tests/test_breadth.py
@@ -674,13 +674,13 @@ share only these, and each has a mechanical resolution:
   two SKUs, so both sides often write the same new totals, and git takes the
   identical hunk once. `stats.json` and the field-weights YAML then merge
   cleanly with totals that count only one of the two types. Rebuilding fixes
-  it: `uv run sip-generate build --out golden-catalog`. Until then the golden
+  it: `uv run sed-generate build --out golden-catalog`. Until then the golden
   test and `tests/test_prism_field_map_drift.py` are red, but only on a tree
   that holds both changes. A modelled type built from the per-type gate
   template also commits its own records as a slice under
   `tests/data/golden_slices/`, which no other type's pull request touches.
 * **The part-number blocks.** Two pull requests can derive the same block,
-  or both be told the same first free block by `sip-generate block`, which
+  or both be told the same first free block by `sed-generate block`, which
   sees only its own branch. The build refuses the collision, naming both
   types, again only on the merged tree. Re-block the type that merges second.
 * **The head-noun list** in `catalog/names.py`, when both add a new noun at

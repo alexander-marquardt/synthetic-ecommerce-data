@@ -21,12 +21,12 @@ from __future__ import annotations
 import pytest
 
 from prism_synthetic_industrial import FIELD_MAP_PATH
-from synthetic_industrial_products.catalog import emit
-from synthetic_industrial_products.catalog.config import GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate
-from synthetic_industrial_products.prism.field_map import STRUCTURAL_NAMES, render
+from synthetic_ecommerce_data.catalog import emit
+from synthetic_ecommerce_data.catalog.config import GeneratorConfig
+from synthetic_ecommerce_data.catalog.generate import generate
+from synthetic_ecommerce_data.prism.field_map import STRUCTURAL_NAMES, render
 
-REBUILD = "uv run sip-generate build --out out/catalog"
+REBUILD = "uv run sed-generate build --out out/catalog"
 
 
 @pytest.fixture(scope="module")
@@ -69,7 +69,7 @@ def test_committed_field_map_matches_a_fresh_derivation(flat_rows: list[dict]) -
         f"The field map is GENERATED. If the generator changed, rebuild it:\n"
         f"    {REBUILD}\n"
         f"If you edited the field map by hand, move the change into "
-        f"synthetic_industrial_products/prism/field_map.py instead."
+        f"synthetic_ecommerce_data/prism/field_map.py instead."
     )
 
 
@@ -84,7 +84,7 @@ def test_every_declared_source_exists_in_the_emitted_documents(flat_rows: list[d
     yaml = pytest.importorskip("yaml")
     field_map = yaml.safe_load(FIELD_MAP_PATH.read_text(encoding="utf-8"))
 
-    from synthetic_industrial_products.prism.index import (
+    from synthetic_ecommerce_data.prism.index import (
         CATEGORY_PATH_FIELD,
         project,
     )
@@ -129,8 +129,8 @@ def test_no_attribute_silently_redefines_a_structural_field(flat_rows: list[dict
     """
     import yaml
 
-    from synthetic_industrial_products.prism.derive import measure
-    from synthetic_industrial_products.prism.field_map import canonical_name
+    from synthetic_ecommerce_data.prism.derive import measure
+    from synthetic_ecommerce_data.prism.field_map import canonical_name
 
     colliding = sorted(set(measure(flat_rows)) & STRUCTURAL_NAMES)
     assert colliding == ["series"], colliding
@@ -183,7 +183,7 @@ def test_filter_routing_hard_matches_the_derived_range_facets(flat_rows: list[di
     yaml = pytest.importorskip("yaml")
 
     from prism_synthetic_industrial import CUSTOMIZATION_ROOT
-    from synthetic_industrial_products.prism.derive import decide, measure
+    from synthetic_ecommerce_data.prism.derive import decide, measure
 
     config = yaml.safe_load((CUSTOMIZATION_ROOT / "customization.yaml").read_text("utf-8"))
     routed = set(config["filter_routing"]["hard"])

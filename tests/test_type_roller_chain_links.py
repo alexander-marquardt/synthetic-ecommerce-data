@@ -32,11 +32,11 @@ import pytest
 import table_gates
 import type_gates
 from published import published_attributes
-from synthetic_industrial_products.catalog import brands, names, tabletype, taxonomy, typespec
-from synthetic_industrial_products.catalog.config import GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate, generate_type
-from synthetic_industrial_products.drawing import FIGURES, draw_sku, svg_problems
-from synthetic_industrial_products.drawing.model import Disc
+from synthetic_ecommerce_data.catalog import brands, names, tabletype, taxonomy, typespec
+from synthetic_ecommerce_data.catalog.config import GeneratorConfig
+from synthetic_ecommerce_data.catalog.generate import generate, generate_type
+from synthetic_ecommerce_data.drawing import FIGURES, draw_sku, svg_problems
+from synthetic_ecommerce_data.drawing.model import Disc
 from test_attribute_names import CENSUS, OBSERVED
 from test_catalog_brands_voice import same_product_duplicates
 from test_type_seam import _by_type, _moved_by_removing
@@ -135,7 +135,7 @@ def test_the_type_is_modelled_in_its_own_module():
 
 
 def test_the_type_does_not_also_exist_as_a_breadth_row():
-    from synthetic_industrial_products.catalog import breadth
+    from synthetic_ecommerce_data.catalog import breadth
 
     assert [row.key for row in breadth.rows() if row.key == KEY] == []
 

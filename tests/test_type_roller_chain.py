@@ -22,13 +22,13 @@ import pytest
 
 import type_gates
 from published import published_attributes
-from synthetic_industrial_products.catalog import brands, emit, names, taxonomy, typespec
-from synthetic_industrial_products.catalog.config import GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate, generate_type
-from synthetic_industrial_products.drawing import draw_sku, svg_problems
-from synthetic_industrial_products.drawing.model import Bars, Disc, Poly
-from synthetic_industrial_products.prism import derive
-from synthetic_industrial_products.product_types.motion import roller_chain
+from synthetic_ecommerce_data.catalog import brands, emit, names, taxonomy, typespec
+from synthetic_ecommerce_data.catalog.config import GeneratorConfig
+from synthetic_ecommerce_data.catalog.generate import generate, generate_type
+from synthetic_ecommerce_data.drawing import draw_sku, svg_problems
+from synthetic_ecommerce_data.drawing.model import Bars, Disc, Poly
+from synthetic_ecommerce_data.prism import derive
+from synthetic_ecommerce_data.product_types.motion import roller_chain
 from test_attribute_names import CENSUS, OBSERVED
 from test_catalog_brands_voice import same_product_duplicates
 from test_sku_drawings import MAX_DRAWING_BYTES

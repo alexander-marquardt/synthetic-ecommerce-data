@@ -1,7 +1,7 @@
 """Recognise the cross-reference sentences a record's copy carries.
 
 Written here, from the six sentence shapes, rather than imported from
-:mod:`synthetic_industrial_products.catalog.compat`: the tests that check the
+:mod:`synthetic_ecommerce_data.catalog.compat`: the tests that check the
 sentences must not find them with the machinery that wrote them.
 """
 

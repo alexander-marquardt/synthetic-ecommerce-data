@@ -19,11 +19,11 @@ from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 from published import published_attributes
-from synthetic_industrial_products.catalog import emit
-from synthetic_industrial_products.catalog.config import GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate, generate_type
-from synthetic_industrial_products.catalog.model import Catalog
-from synthetic_industrial_products.catalog.newtypes import NO_STANDARD
+from synthetic_ecommerce_data.catalog import emit
+from synthetic_ecommerce_data.catalog.config import GeneratorConfig
+from synthetic_ecommerce_data.catalog.generate import generate, generate_type
+from synthetic_ecommerce_data.catalog.model import Catalog
+from synthetic_ecommerce_data.catalog.newtypes import NO_STANDARD
 
 TESTS = Path(__file__).resolve().parent
 GOLDEN_FLAT = TESTS.parent / "golden-catalog" / "flat.jsonl"

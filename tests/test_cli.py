@@ -4,9 +4,9 @@ import json
 
 import pytest
 
-from synthetic_industrial_products.cli import main, png_dimensions, render_all
-from synthetic_industrial_products.records import BUNDLED, DRAWABLE, FIXTURES, NO_IMAGE
-from synthetic_industrial_products.render import CARD, UnknownProductError
+from synthetic_ecommerce_data.cli import main, png_dimensions, render_all
+from synthetic_ecommerce_data.records import BUNDLED, DRAWABLE, FIXTURES, NO_IMAGE
+from synthetic_ecommerce_data.render import CARD, UnknownProductError
 
 
 def test_fixtures_renders_every_bundled_record_that_has_a_drawing(tmp_path, png_size):
@@ -135,7 +135,7 @@ def test_a_refusal_and_a_failure_are_counted_apart(tmp_path):
 
 
 def test_the_generics_subcommand_writes_the_ten(tmp_path, png_size):
-    from synthetic_industrial_products.render import generic
+    from synthetic_ecommerce_data.render import generic
 
     assert main(["generics", "--out", str(tmp_path), "--profile", "card"]) == 0
     written = sorted(p.stem.removesuffix("_card") for p in tmp_path.glob("*.png"))
@@ -168,7 +168,7 @@ def test_png_dimensions_rejects_a_file_that_is_not_a_png(tmp_path):
 
 def test_stats_json_floats_are_written_at_six_significant_digits() -> None:
     """A float's last digits differ between platforms, so stats.json carries 6."""
-    from synthetic_industrial_products.catalog import cli
+    from synthetic_ecommerce_data.catalog import cli
 
     stats = {
         "achieved": 0.020049927429426802,
