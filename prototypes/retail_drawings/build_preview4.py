@@ -45,7 +45,7 @@ EXTRA = {
     "Bedding": {"COVPRT": (1,)},
     "Beauty": {"LIPSAT": (10,), "FNDFTH": (20, 39)},
 }
-SAMPLES = 136
+SAMPLES = 143
 
 
 def samples() -> dict[str, list[dict]]:
@@ -62,7 +62,7 @@ def samples() -> dict[str, list[dict]]:
     out["Gift wrap"] = [GIFT_BAGS[i] for i in range(0, len(GIFT_BAGS), len(GIFT_PRINTS))]
     gift = next(row for row in TABLE if row.tail)
     out["Gift bag distractors"] = [x.doc for x in (*gift.distractors, *gift.tail)]
-    out["Observed failure classes 2 to 7"] = class_docs()
+    out["Observed failure classes"] = class_docs()
     return out
 
 

@@ -1,7 +1,7 @@
 {
  "elasticsearch": "9.3.0",
- "docs": 503,
- "fingerprint": "c5fc51b946af8c088df49c15ba442e6dfd040eaddcaae7e8288ecb58d4e62116",
+ "docs": 510,
+ "fingerprint": "92108b8aaed828e0bee72b45e62f5a629763dd1ca277a4d2be25d5fcde4d71d1",
  "rows": [
   {
    "query": "mattress topper",
@@ -270,6 +270,45 @@
     {
      "product_id": "PLT-PETDRS-01",
      "title": "Petite Wrap Midi Dress"
+    }
+   ]
+  },
+  {
+   "query": "5 pack socks",
+   "baseline": [
+    {
+     "product_id": "PLT-SK7PKC-01",
+     "title": "Cotton Rich Socks 7 Pack"
+    },
+    {
+     "product_id": "PLT-SK5KID-01",
+     "title": "Kids' School Socks 5 Pack (6-16 Yrs)"
+    },
+    {
+     "product_id": "PLT-SK3PKS-01",
+     "title": "Striped Socks 3 Pack"
+    },
+    {
+     "product_id": "PLT-SK5BMB-01",
+     "title": "Bamboo Socks, Pack of 5"
+    },
+    {
+     "product_id": "PLT-SK1WAL-01",
+     "title": "Wool Walking Socks"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-SK5BMB-01",
+     "title": "Bamboo Socks, Pack of 5"
+    },
+    {
+     "product_id": "PLT-SK5SPT-01",
+     "title": "Sports Trainer Socks 5 Pack"
+    },
+    {
+     "product_id": "PLT-SK5PKC-01",
+     "title": "Cotton Rich Ankle Socks 5pk"
     }
    ]
   }
