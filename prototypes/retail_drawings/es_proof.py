@@ -48,7 +48,7 @@ def run(host: str, index: str) -> dict:
     call(host, "PUT", f"/{index}", rc.index_body())
     try:
         lines = "".join(
-            json.dumps({"index": {"_id": str(n)}}) + "\n" + json.dumps(d) + "\n"
+            json.dumps({"index": {"_id": str(n)}}) + "\n" + json.dumps(rc.index_doc(d)) + "\n"
             for n, d in enumerate(catalog)
         )
         resp = call(host, "POST", f"/{index}/_bulk?refresh=true", lines, ndjson=True)

@@ -46,12 +46,13 @@ def _codes(row: rc.ClassRow) -> tuple[list[str], list[str]]:
     return [s.code for s in row.targets], [s.code for s, _ in row.distractors]
 
 
-def test_the_new_rows_are_classes_10_to_13() -> None:
-    assert [(r.n, r.query, len(r.targets), len(r.distractors)) for r in rc.ROWS[-4:]] == [
+def test_the_new_rows_are_classes_10_to_14() -> None:
+    assert [(r.n, r.query, len(r.targets), len(r.distractors)) for r in rc.ROWS[-5:]] == [
         (10, "beer", 3, 5),
         (11, "oranges", 3, 6),
         (12, "face cream", 3, 8),
         (13, "single bed", 3, 5),
+        (14, "rose gold", 5, 5),
     ]
 
 
@@ -114,7 +115,9 @@ def test_badges_are_new_in_bestseller_and_trending_in_one_order() -> None:
 
 
 def test_the_new_docs_leave_the_bestseller_top_15_of_the_old_rows_alone() -> None:
-    new = {s.code for r in rc.ROWS if r.n >= 10 for s in (*r.targets, *(x for x, _ in r.distractors))}
+    new = {
+        s.code for r in rc.ROWS if r.n >= 10 for s in (*r.targets, *(x for x, _ in r.distractors))
+    }
     new |= {s.code for s in rc.OFFERS}
     top = [d for d in CLASS_DOCS if d["bestseller_rank"] <= rc.BESTSELLER_TOP]
     assert len(top) == rc.BESTSELLER_TOP
@@ -257,6 +260,38 @@ def test_a_routed_policy_recalls_and_boosts_the_named_category_node() -> None:
     assert sum(r.policy.route is not None for r in rc.ROWS) == 3
 
 
+def test_rose_gold_is_one_colour_value_and_the_finish_of_every_metal_good() -> None:
+    rose = [d for d in CLASS_DOCS if d.get("colour_shade") == "Rose Gold"]
+    assert sorted(d["product_type"] for d in rose) == [
+        "Earrings", "Highlighter", "Table Lamp", "Watch", "Wireless Charger"]  # fmt: skip
+    metal = [d for d in CLASS_DOCS if any(a["key"] == "finish" for a in d["attributes"])]
+    assert len(metal) == 8
+    for d in metal:
+        finish = [a for a in d["attributes"] if a["key"] == "finish"]
+        assert finish == [{"key": "finish", "name": "Finish", "value": d["colour_shade"].lower()}]
+    assert {d["colour_shade"] for d in metal} == set(rc.FINISHES)
+    # A make-up shade carries the colour but is no metal: no finish attribute.
+    assert [d["product_type"] for d in rose if d not in metal] == ["Highlighter"]
+
+
+def test_rose_bouquets_and_rose_quartz_hold_both_words_but_not_the_colour() -> None:
+    _, distractors = _codes(_row("rose gold"))
+    docs = [d for c in distractors for d in _style(c)]
+    words = [d for d in docs if {"rose", "gold"} <= set(d["title"].lower().split())]
+    assert sorted(d["product_type"] for d in words) == ["Bouquet", "Bouquet", "Earrings"]
+    assert all(d.get("colour_shade") != "Rose Gold" for d in docs)
+    hoop = _one("RQHOOP")
+    assert {a["key"]: a["value"] for a in hoop["attributes"]} == {
+        "colour": "Yellow Gold", "finish": "yellow gold", "stone": "rose quartz"}  # fmt: skip
+
+
+def test_the_rose_gold_policy_filters_on_the_colour_value_as_one_term() -> None:
+    body = rc.policy_body(_row("rose gold"))
+    bool_q = body["query"]["function_score"]["query"]["bool"]
+    assert bool_q["filter"] == [{"terms": {"colour_shade": ["Rose Gold"]}}]
+    assert rc.index_body()["mappings"]["properties"]["colour_shade"] == {"type": "keyword"}
+
+
 # --------------------------------------------------------------------------
 # (4) Collisions with the industrial domain and inside retail
 # --------------------------------------------------------------------------
@@ -274,7 +309,8 @@ def test_thread_is_a_bedding_count_here_and_a_pitch_in_industrial() -> None:
     thread = _collision("thread")
     industrial = _industrial_keys()
     assert set(thread["industrial_keys"]) <= industrial
-    assert "thread_pitch" in thread["industrial_keys"]
+    # The industrial golden catalog keys a screw thread by size ("1/4-20"), not pitch.
+    assert "thread_size" in thread["industrial_keys"]
     retail = {a["key"] for d in CLASS_DOCS for a in d["attributes"] if "thread" in a["key"]}
     assert retail == {"thread_count"} and not retail & industrial
     sheets = [d for d in CLASS_DOCS if any(a["key"] == "thread_count" for a in d["attributes"])]

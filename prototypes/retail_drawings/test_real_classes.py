@@ -39,8 +39,14 @@ def test_the_rows_are_the_observed_classes_2_to_7() -> None:
         (6, "petite sale", 3, 4),
         (7, "womens sale dresses", 3, 5),
         (9, "5 pack socks", 3, 4),
+        (10, "beer", 3, 5),
+        (11, "oranges", 3, 6),
+        (12, "face cream", 3, 8),
+        (13, "single bed", 3, 5),
+        (14, "rose gold", 5, 5),
     ]
-    assert len(CLASS_DOCS) == 62 + 7  # the rows, then the beauty shades
+    # The rows, then the beauty shades, the offers and the honey.
+    assert len(CLASS_DOCS) == 113 + 7 + 4 + 1
 
 
 def test_the_pack_count_is_a_c62_count_and_the_titles_spell_it_three_ways() -> None:
@@ -95,7 +101,7 @@ def test_a_styles_colourway_docs_share_one_style_id_and_title() -> None:
         n for n in (sum(d["style_id"] == s for d in CLASS_DOCS)
                     for s in {d["style_id"] for d in CLASS_DOCS}) if n > 1
     )  # fmt: skip
-    assert per_style == [2, 2, 3, 4, 5]
+    assert per_style == [2, 2, 2, 2, 2, 3, 3, 4, 5]
 
 
 def test_every_target_is_intended_and_no_distractor_is() -> None:
@@ -143,7 +149,11 @@ def test_a_colourway_carries_its_styles_full_swatch_list_rotated_to_its_own_colo
         assert [s["shade"] for s in d["swatches"]] == shades[n:] + shades[:n]
         assert d["swatches"][0] == _swatch(d)
     assert [d["colour_family"] for d in barrel] == ["blue", "blue", "black", "cream", "blue"]
-    for d in CLASS_DOCS:
+    colourless = [d for d in CLASS_DOCS if "colour_shade" not in d]
+    assert len(colourless) == 32  # food and furniture: no colour facet, no swatches
+    for d in colourless:
+        assert "swatches" not in d and "colour_family" not in d, d["product_id"]
+    for d in (d for d in CLASS_DOCS if "colour_shade" in d):
         assert d["colour_family"] in rc.COLOUR_FAMILIES, d["colour_shade"]
         assert d["colour_hex"] == d["drawing"]["base"]
         siblings = _style(d["style_id"])
@@ -200,7 +210,7 @@ def test_size_range_is_the_set_of_in_stock_lengths_across_the_style() -> None:
     assert slim["size_range"] == ["regular", "tall"]
     for d in (d for d in CLASS_DOCS if "size_range" in d):
         assert d["size_range"] == [r for r in rc.SIZE_RANGES if r in d["size_range"]] != []
-    assert sum("size_range" in d for d in CLASS_DOCS) == 45
+    assert sum("size_range" in d for d in CLASS_DOCS) == 47
 
 
 def test_bedding_skus_are_bed_sizes_labelled_with_their_dimension_and_priced_each() -> None:
@@ -213,7 +223,9 @@ def test_bedding_skus_are_bed_sizes_labelled_with_their_dimension_and_priced_eac
     ]
     assert (topper["price"], topper["price_min"], topper["price_max"]) == (60.0, 60.0, 105.0)
     bedded = [d for d in CLASS_DOCS if d["skus"] and "bed_size" in d["skus"][0]]
-    assert len(bedded) == 8
+    # 10 bedding colourways (label and price only), then 8 beds (with dimensions).
+    assert len(bedded) == 18
+    assert sum("width_cm" in d["skus"][0] for d in bedded) == 8
 
 
 def test_price_min_and_max_are_derived_from_the_skus() -> None:
@@ -225,7 +237,8 @@ def test_price_min_and_max_are_derived_from_the_skus() -> None:
 
 
 def test_beauty_shades_are_colourway_docs_with_a_unit_size() -> None:
-    beauty = [d for d in CLASS_DOCS if d["department"] == ["Beauty"]]
+    shades = {f"PLT-{s.code}" for s in rc.BEAUTY}
+    beauty = [d for d in CLASS_DOCS if d["style_id"] in shades]
     assert sorted({(d["style_id"], d["unit_size"], d["unit_measure"]) for d in beauty}) == [
         ("PLT-BTYFND", 30.0, "ml"),
         ("PLT-BTYLIP", 1.9, "g"),
@@ -313,7 +326,7 @@ def test_a_target_in_the_baseline_top_3_is_refused() -> None:
 
 
 def test_a_distractor_or_a_short_policy_top_3_is_refused() -> None:
-    assert len(PROOF["rows"]) == len(rc.ROWS) == 7
+    assert len(PROOF["rows"]) == len(rc.ROWS) == 12
     bad = copy.deepcopy(PROOF)
     bad["rows"][1]["policy"][2] = bad["rows"][1]["baseline"][0]
     bad["rows"][4]["policy"] = bad["rows"][4]["policy"][:2]

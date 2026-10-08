@@ -45,7 +45,7 @@ EXTRA = {
     "Bedding": {"COVPRT": (1,)},
     "Beauty": {"LIPSAT": (10,), "FNDFTH": (20, 39)},
 }
-SAMPLES = 150
+SAMPLES = 206
 
 
 def samples() -> dict[str, list[dict]]:
@@ -93,7 +93,12 @@ def _facts(rec: dict) -> str:
         return ""
     show = {k: ", ".join(v) if isinstance(v, list) else v for k, v in rec.items() if k in FACTS}
     parts = [f"{k}: {show[k]}" for k in FACTS if k in rec]
-    parts.append(f"{len(rec['swatches'])} swatches, {rec['rating']} from {rec['review_count']}")
+    parts.append(" > ".join(rec["category_path"]))
+    # Food and furniture are colourless: no colour facet, no swatches.
+    swatches = f"{len(rec['swatches'])} swatches, " if "swatches" in rec else ""
+    parts.append(f"{swatches}{rec['rating']} from {rec['review_count']}")
+    if rec["badges"]:
+        parts.append(" / ".join(rec["badges"]))
     if rec["price_max"] > rec["price_min"]:
         parts.append(f"£{rec['price_min']:.2f} - £{rec['price_max']:.2f}")
     parts.append(f"sold {rec['sold_last_5_days']} in 5 days, bestseller #{rec['bestseller_rank']}")

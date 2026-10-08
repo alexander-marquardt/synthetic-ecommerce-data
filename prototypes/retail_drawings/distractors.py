@@ -125,7 +125,7 @@ YELLOW, WHITE = "#f2d14b", "#ffffff"
 #: Intended products that are not part of a variant family.
 LEMONS = product(
     "LEMONS", "Unwaxed Lemons, Pack of 4", "Goldfield Farms", "Food & Drink",
-    ("Food", "Fresh Produce", "Fruit", "Citrus"), 1.25,
+    ("Food", "Fresh Produce", "Fruit", "Citrus", "Lemons"), 1.25,
     "Fresh unwaxed lemons for zesting, juicing and baking, grown in sunny groves.",
     drawing("round_produce", cw("Lemon", YELLOW), "Lemons"),
     (("colour", "Colour", "Yellow"), ("pack_size", "Pack size", "4")),

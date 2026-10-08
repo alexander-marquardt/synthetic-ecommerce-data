@@ -919,10 +919,12 @@ never *gift*: the word lives only in their category. `corpus(duplicate_listing=T
 product id a second time under another category, which a search shows twice
 unless it collapses on `product_id`.
 
-### Observed failure classes 2 to 7, before and after on Elasticsearch
+### Observed failure classes 2 to 14, before and after on Elasticsearch
 
-`real_classes.py` rebuilds six query shapes observed by hand on a live retail
-site (every name invented, the brands from `house_styles.py`). Its records
+`real_classes.py` rebuilds twelve query shapes observed by hand on a live
+retail site (every name invented, the brands from `house_styles.py`). The
+record model (`Style`, `Policy`, `ClassRow`, the closed lists) is in
+`class_model.py` and the rows themselves are data in `class_rows.py`. Its records
 carry the fields a policy reads and a title never states: `product_type`,
 `audience` (adult, kids, baby), `size_range` (regular, petite, tall, plus),
 `neckline`, `pattern`, `leg_style`, a `was_price` on a sale item only,
@@ -944,6 +946,28 @@ SKU. `size_range` is a list; for legwear it is derived from the in-stock lengths
 (Extra Short and Short/Petite give `petite`), never declared, so the flat
 `size_range` filter of class 6 means "has an in-stock petite SKU".
 
+Every class doc also carries the tile signals: `offer` (a was-price, or a
+multi-buy with none), `discount_pct` (derived, sale docs only), `new_in`,
+`trending`, `online_only`, a `brand_owner` (own or third party; third-party
+brands lead the offers, some with a `sub_collection` label such as "The
+Active Edit"), and `badges` in one order (New In, Bestseller for the top 15,
+Trending, Online Only). Every doc has a full `category_path` of clean shopper
+terms (at least three levels, no merchandising bucket such as Sale or Petite,
+no leaf that is also a parent, one depth per node name) and its
+`category_leaf`; the index adds `category_path_joined`, every ancestor joined
+with "/", so a policy can route to a node. Food and furniture are colourless
+(no colour facet, no swatches); beer carries `abv` as an attribute; beds carry
+nested SKUs from the shared five-size bed vocabulary with `width_cm` and
+`length_cm`. Metal goods (jewellery, watches, lighting, tech) carry a `finish`
+attribute equal to their colour (Rose Gold, Yellow Gold, White Gold, Silver).
+
+Classes 10 to 12 are fixed by a route: the node's docs are recalled even when
+their text misses (an easy peeler that never says "orange") and boosted.
+Class 13 (mild) filters one in-stock nested SKU on `bed_size`. Class 14 reads
+"rose gold" as ONE colour value, as a colour vocabulary filled by a terms
+aggregation over the colour field holds it, and filters on it: rose bouquets
+with gold foliage and gold-plated rose quartz drop out.
+
 `es_proof.py --host URL` loads the round 4 corpus plus these records into a
 run-named index, runs each query twice, writes `real_classes_proof.json` and
 deletes the index. The baseline is BM25 over title (x2) and description
@@ -963,6 +987,11 @@ policy top 3 is all targets, and that this table is the proof's.
 | 6 | Size range and sale state not extracted | *petite sale* | 1. Tapered Trousers `PLT-TAPTRS-01`<br>2. Wide Leg Trousers `PLT-WIDTRS-01`<br>3. Straight Leg Jeans `PLT-STRJNS-01`<br>4. Slim Jeans `PLT-SLMJNS-01`<br>5. **Petite Straight Jeans `PLT-PETJNS-01`** | 1. **Petite Straight Jeans `PLT-PETJNS-01`**<br>2. **Petite Wrap Midi Dress `PLT-PETDRS-01`**<br>3. **Petite Wide Leg Trousers `PLT-PETTRS-01`** | filter size_range = petite; filter on sale (price < was_price) |
 | 7 | Sale word ignored | *womens sale dresses* | 1. Womens Linen Midi Dress `PLT-FPLINN-01`<br>2. Womens Smocked Mini Dress `PLT-FPSMOK-01`<br>3. Womens Jersey T-Shirt Dress `PLT-FPTEES-01`<br>4. Womens Satin Slip Dress `PLT-FPSLIP-01`<br>5. Womens High Neck Ribbed Top `PLT-HNRIBT-01` | 1. **Womens Tiered Maxi Dress `PLT-SDMAXI-01`**<br>2. **Womens Wrap Dress `PLT-SDWRAP-01`**<br>3. **Womens Shirt Dress `PLT-SDSHRT-01`**<br>4. **Petite Wrap Midi Dress `PLT-PETDRS-01`** | filter product_type = Dress; filter audience = adult; filter on sale (price < was_price) |
 | 9 | Pack count only in title spellings | *5 pack socks* | 1. Cotton Rich Socks 7 Pack `PLT-SK7PKC-01`<br>2. Kids' School Socks 5 Pack (6-16 Yrs) `PLT-SK5KID-01`<br>3. Striped Socks 3 Pack `PLT-SK3PKS-01`<br>4. **Bamboo Socks, Pack of 5 `PLT-SK5BMB-01`**<br>5. Wool Walking Socks `PLT-SK1WAL-01` | 1. **Bamboo Socks, Pack of 5 `PLT-SK5BMB-01`**<br>2. **Sports Trainer Socks 5 Pack `PLT-SK5SPT-01`**<br>3. **Cotton Rich Ankle Socks 5pk `PLT-SK5PKC-01`** | filter units_per_pack = 5; filter audience = adult |
+| 10 | A food word inside compounds and modifiers | *beer* | 1. Fiery Ginger Beer `PLT-GNGBER-01`<br>2. Cloudy Root Beer `PLT-RTBEER-01`<br>3. Beer Battered Haddock Fillets `PLT-BBHADD-01`<br>4. Beer Battered Chunky Chips `PLT-BBCHIP-01`<br>5. Malted Beer Bread `PLT-BRBRED-01` | 1. **Golden Table Beer `PLT-BRTABL-01`**<br>2. **4.8% Tropical Pineapple Sour Beer `PLT-BRTROP-01`**<br>3. **5.5% Hazy Wheat Beer `PLT-BRWHET-01`**<br>4. Fiery Ginger Beer `PLT-GNGBER-01`<br>5. Cloudy Root Beer `PLT-RTBEER-01` | route to Food/Drinks/Beer & Cider/Beer (recalled, boosted) |
+| 11 | A fruit plural read as a flavour and a colour | *oranges* | 1. Cranberry & Orange Panettone `PLT-PANCRO-01`<br>2. Chocolate & Orange Cookies `PLT-CKCORA-01`<br>3. Orange Hot Chocolate `PLT-HCORNG-01`<br>4. Orange Rose Bouquet `PLT-BQORNG-01`<br>5. Cherry & Orange Christmas Pudding `PLT-XPCHOR-01` | 1. **Blood Oranges `PLT-ORBLOD-01`**<br>2. **Navel Oranges `PLT-ORNAVL-01`**<br>3. **Seedless Easy Peelers `PLT-OREASY-01`**<br>4. Cranberry & Orange Panettone `PLT-PANCRO-01`<br>5. Chocolate & Orange Cookies `PLT-CKCORA-01` | route to Food/Fresh Produce/Fruit/Citrus/Oranges (recalled, boosted) |
+| 12 | A type word that is also a colour and a line name | *face cream* | 1. SPF 50 Face Sun Cream `PLT-SPFFCE-01`<br>2. Nourishing Face Oil `PLT-FCEOIL-01`<br>3. Loose Face Powder `PLT-PWDLSE-01`<br>4. Tinted Face Gel `PLT-TNTGEL-01`<br>5. Velvetmere Cream Body Oil Spray `PLT-VLCOIL-01` | 1. **Daily Hydrating Face Cream `PLT-FCDAYC-01`**<br>2. **Calming Face Cream `PLT-FCCALM-01`**<br>3. **Rich Night Cream `PLT-FCNGHT-01`**<br>4. SPF 50 Face Sun Cream `PLT-SPFFCE-01`<br>5. Nourishing Face Oil `PLT-FCEOIL-01` | route to Beauty/Skincare/Face Creams (recalled, boosted) |
+| 13 | A size word not applied (mild) | *single bed* | 1. Single Cube Chairbed `PLT-CHRCUB-01`<br>2. Ottoman Storage Bed `PLT-BDOTTO-01`<br>3. Upholstered Sleigh Bed `PLT-BDSLGH-01`<br>4. Panelled Wooden Bed `PLT-BDPANL-01`<br>5. Two Seater Sofa Bed `PLT-SOFBED-01` | 1. **Shaker Wooden Bed Frame `PLT-BDSHKR-01`**<br>2. **Metal Spindle Bed `PLT-BDMETL-01`**<br>3. **Upholstered Bed Frame `PLT-BDUPHL-01`**<br>4. Single Cube Chairbed `PLT-CHRCUB-01`<br>5. Memory Foam Mattress Topper `PLT-MTTMEM-01` | filter an in-stock SKU with bed_size = Single (3 ft); product_type = Bed x10 |
+| 14 | A two-word colour split into words | *rose gold* | 1. Blush Rose & Gold Eucalyptus Bouquet `PLT-BQBLSH-01`<br>2. White Rose Bouquet with Gold Foliage `PLT-BQWHGF-01`<br>3. Gold Plated Rose Quartz Hoop Earrings `PLT-RQHOOP-01`<br>4. Classic Red Rose Bouquet `PLT-BQREDR-01`<br>5. Orange Rose Bouquet `PLT-BQORNG-01` | 1. **Cubic Zirconia Stud Earrings `PLT-RGSTUD-01`**<br>2. **Slim Mesh Strap Watch `PLT-RGMESH-01`**<br>3. **Wireless Charging Pad `PLT-RGCHRG-01`**<br>4. **Touch Dimmable Table Lamp `PLT-RGLAMP-01`**<br>5. **Glow Powder Highlighter `PLT-RGHLIT-01`** | filter colour_shade = Rose Gold |
 
 The cross-cutting patterns show in the table: the barrel bestseller fills the
 balloon baseline once per colourway (five docs share `PLT-BRLMID`) until the

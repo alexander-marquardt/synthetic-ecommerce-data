@@ -1,7 +1,7 @@
 {
  "elasticsearch": "9.3.0",
- "docs": 517,
- "fingerprint": "49c0ac20a990047720c3cc1f0e643f10efd5364ed9b01a127b3bceffec00563d",
+ "docs": 573,
+ "fingerprint": "4a5268b9bbf124dfbcd1bb9cfd7e34690ab10bac1233c04abc1321baf304966f",
  "rows": [
   {
    "query": "mattress topper",
@@ -309,6 +309,241 @@
     {
      "product_id": "PLT-SK5PKC-01",
      "title": "Cotton Rich Ankle Socks 5pk"
+    }
+   ]
+  },
+  {
+   "query": "beer",
+   "baseline": [
+    {
+     "product_id": "PLT-GNGBER-01",
+     "title": "Fiery Ginger Beer"
+    },
+    {
+     "product_id": "PLT-RTBEER-01",
+     "title": "Cloudy Root Beer"
+    },
+    {
+     "product_id": "PLT-BBHADD-01",
+     "title": "Beer Battered Haddock Fillets"
+    },
+    {
+     "product_id": "PLT-BBCHIP-01",
+     "title": "Beer Battered Chunky Chips"
+    },
+    {
+     "product_id": "PLT-BRBRED-01",
+     "title": "Malted Beer Bread"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-BRTABL-01",
+     "title": "Golden Table Beer"
+    },
+    {
+     "product_id": "PLT-BRTROP-01",
+     "title": "4.8% Tropical Pineapple Sour Beer"
+    },
+    {
+     "product_id": "PLT-BRWHET-01",
+     "title": "5.5% Hazy Wheat Beer"
+    },
+    {
+     "product_id": "PLT-GNGBER-01",
+     "title": "Fiery Ginger Beer"
+    },
+    {
+     "product_id": "PLT-RTBEER-01",
+     "title": "Cloudy Root Beer"
+    }
+   ]
+  },
+  {
+   "query": "oranges",
+   "baseline": [
+    {
+     "product_id": "PLT-PANCRO-01",
+     "title": "Cranberry & Orange Panettone"
+    },
+    {
+     "product_id": "PLT-CKCORA-01",
+     "title": "Chocolate & Orange Cookies"
+    },
+    {
+     "product_id": "PLT-HCORNG-01",
+     "title": "Orange Hot Chocolate"
+    },
+    {
+     "product_id": "PLT-BQORNG-01",
+     "title": "Orange Rose Bouquet"
+    },
+    {
+     "product_id": "PLT-XPCHOR-01",
+     "title": "Cherry & Orange Christmas Pudding"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-ORBLOD-01",
+     "title": "Blood Oranges"
+    },
+    {
+     "product_id": "PLT-ORNAVL-01",
+     "title": "Navel Oranges"
+    },
+    {
+     "product_id": "PLT-OREASY-01",
+     "title": "Seedless Easy Peelers"
+    },
+    {
+     "product_id": "PLT-PANCRO-01",
+     "title": "Cranberry & Orange Panettone"
+    },
+    {
+     "product_id": "PLT-CKCORA-01",
+     "title": "Chocolate & Orange Cookies"
+    }
+   ]
+  },
+  {
+   "query": "face cream",
+   "baseline": [
+    {
+     "product_id": "PLT-SPFFCE-01",
+     "title": "SPF 50 Face Sun Cream"
+    },
+    {
+     "product_id": "PLT-FCEOIL-01",
+     "title": "Nourishing Face Oil"
+    },
+    {
+     "product_id": "PLT-PWDLSE-01",
+     "title": "Loose Face Powder"
+    },
+    {
+     "product_id": "PLT-TNTGEL-01",
+     "title": "Tinted Face Gel"
+    },
+    {
+     "product_id": "PLT-VLCOIL-01",
+     "title": "Velvetmere Cream Body Oil Spray"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-FCDAYC-01",
+     "title": "Daily Hydrating Face Cream"
+    },
+    {
+     "product_id": "PLT-FCCALM-01",
+     "title": "Calming Face Cream"
+    },
+    {
+     "product_id": "PLT-FCNGHT-01",
+     "title": "Rich Night Cream"
+    },
+    {
+     "product_id": "PLT-SPFFCE-01",
+     "title": "SPF 50 Face Sun Cream"
+    },
+    {
+     "product_id": "PLT-FCEOIL-01",
+     "title": "Nourishing Face Oil"
+    }
+   ]
+  },
+  {
+   "query": "single bed",
+   "baseline": [
+    {
+     "product_id": "PLT-CHRCUB-01",
+     "title": "Single Cube Chairbed"
+    },
+    {
+     "product_id": "PLT-BDOTTO-01",
+     "title": "Ottoman Storage Bed"
+    },
+    {
+     "product_id": "PLT-BDSLGH-01",
+     "title": "Upholstered Sleigh Bed"
+    },
+    {
+     "product_id": "PLT-BDPANL-01",
+     "title": "Panelled Wooden Bed"
+    },
+    {
+     "product_id": "PLT-SOFBED-01",
+     "title": "Two Seater Sofa Bed"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-BDSHKR-01",
+     "title": "Shaker Wooden Bed Frame"
+    },
+    {
+     "product_id": "PLT-BDMETL-01",
+     "title": "Metal Spindle Bed"
+    },
+    {
+     "product_id": "PLT-BDUPHL-01",
+     "title": "Upholstered Bed Frame"
+    },
+    {
+     "product_id": "PLT-CHRCUB-01",
+     "title": "Single Cube Chairbed"
+    },
+    {
+     "product_id": "PLT-MTTMEM-01",
+     "title": "Memory Foam Mattress Topper"
+    }
+   ]
+  },
+  {
+   "query": "rose gold",
+   "baseline": [
+    {
+     "product_id": "PLT-BQBLSH-01",
+     "title": "Blush Rose & Gold Eucalyptus Bouquet"
+    },
+    {
+     "product_id": "PLT-BQWHGF-01",
+     "title": "White Rose Bouquet with Gold Foliage"
+    },
+    {
+     "product_id": "PLT-RQHOOP-01",
+     "title": "Gold Plated Rose Quartz Hoop Earrings"
+    },
+    {
+     "product_id": "PLT-BQREDR-01",
+     "title": "Classic Red Rose Bouquet"
+    },
+    {
+     "product_id": "PLT-BQORNG-01",
+     "title": "Orange Rose Bouquet"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-RGSTUD-01",
+     "title": "Cubic Zirconia Stud Earrings"
+    },
+    {
+     "product_id": "PLT-RGMESH-01",
+     "title": "Slim Mesh Strap Watch"
+    },
+    {
+     "product_id": "PLT-RGCHRG-01",
+     "title": "Wireless Charging Pad"
+    },
+    {
+     "product_id": "PLT-RGLAMP-01",
+     "title": "Touch Dimmable Table Lamp"
+    },
+    {
+     "product_id": "PLT-RGHLIT-01",
+     "title": "Glow Powder Highlighter"
     }
    ]
   }
