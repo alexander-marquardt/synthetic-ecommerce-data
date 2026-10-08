@@ -304,7 +304,7 @@ def test_every_brand_has_a_house_style_and_every_sample_draws() -> None:
     assert len(recs) == build_preview4.SAMPLES
     assert {k: len(v) for k, v in sections.items()} == {
         "Jeans": 16, "Bras": 12, "Bedding": 9, "Beauty": 9, "Planted distractors": 14,
-        "Gift wrap": 3, "Gift bag distractors": 18, "Observed failure classes": 69,
+        "Gift wrap": 3, "Gift bag distractors": 18, "Observed failure classes": 125,
     }  # fmt: skip
     for r in recs:
         assert ET.fromstring(drawing_svg(r)).tag.endswith("svg")
