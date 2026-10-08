@@ -27,7 +27,12 @@ CORPUS = dz.corpus()
 
 
 def _family_docs(prefix: str) -> list[dict]:
-    return [d for d in DOCS if d["variant_group"].startswith(prefix)]
+    return [d for d in DOCS if d["product_id"].startswith(prefix)]
+
+
+def _sizes(sku: dict) -> tuple[str, str, str]:
+    """One SKU's size in every size system: (UK, EU, US)."""
+    return sku["size_uk"], sku["size_eu"], sku["size_us"]
 
 
 def _attr(doc: dict, key: str) -> str:
@@ -52,12 +57,13 @@ def test_a_bra_size_every_rule_allows_is_kept(band: int, cup: str) -> None:
     assert vr.bra_size_valid(band, cup) is True
 
 
-def test_every_bra_doc_holds_only_valid_sizes_and_each_style_has_40_or_more() -> None:
+def test_every_bra_sku_holds_a_valid_size_and_each_color_has_40_or_more() -> None:
     eu_of = {uk: eu for uk, eu, _ in vr.CUPS}
     us_of = {uk: us for uk, _, us in vr.CUPS}
     for d in _family_docs("BRA-"):
-        assert len(d["size_uk"]) >= 40, d["title"]
-        for uk, eu, us in zip(d["size_uk"], d["size_eu"], d["size_us"], strict=True):
+        for c in d["color_options"]:
+            assert sum(s["color"] == c["color"] for s in d["skus"]) >= 40, (d["title"], c)
+        for uk, eu, us in map(_sizes, d["skus"]):
             band, cup = int(uk[:2]), uk[2:]
             assert vr.bra_size_valid(band, cup), uk
             assert eu == f"{vr.eu_band(band)}{eu_of[cup]}"
@@ -71,11 +77,12 @@ def test_the_rosedene_cross_drops_exactly_the_four_forbidden_pairs() -> None:
     assert {"36AA", "28FF", "28G", "28GG"}.isdisjoint(sizes)
 
 
-def test_every_jeans_doc_holds_only_the_sizes_its_leg_length_is_cut_in() -> None:
+def test_every_jeans_sku_holds_only_a_size_its_leg_length_is_cut_in() -> None:
     for d in _family_docs("JEA-"):
-        who, length = _attr(d, "audience"), _attr(d, "length")
-        for uk, eu, us in zip(d["size_uk"], d["size_eu"], d["size_us"], strict=True):
-            n = int(uk)
+        who = _attr(d, "audience")
+        for sku in d["skus"]:
+            uk, eu, us = _sizes(sku)
+            length, n = sku["length"], int(uk)
             assert vr.jeans_size_valid(who, length, n), (d["title"], uk)
             assert (eu, us) == ((str(n + 28), str(n - 4)) if who == "Womens" else (str(n + 16), uk))
 
@@ -94,7 +101,8 @@ def test_a_leg_length_with_no_rule_is_refused() -> None:
 
 def test_bedding_sizes_come_from_one_chart_per_system() -> None:
     for d in _family_docs("BED-"):
-        rows = list(zip(d["size_uk"], d["size_eu"], d["size_us"], strict=True))
+        rows = [_sizes(s) for s in d["skus"]]
+        assert rows, d["title"]
         assert all(row in vr.BED.values() for row in rows), d["title"]
 
 
@@ -133,15 +141,20 @@ def test_the_mix_reaches_the_hundreds_and_stays_under_ten() -> None:
     assert max(every) <= 500
 
 
-def test_a_doc_is_one_style_x_colourway_x_length_and_counts_its_sizes() -> None:
+def test_a_doc_is_one_style_and_its_skus_cover_every_color_and_length() -> None:
     for fam, styles in vr.FAMILIES.items():
         for s in styles:
             ds = vr.style_docs(fam, s)
-            want = len(s.washes) * len(s.lengths) if fam == "Jeans" else len(s.colourways)
-            assert len(ds) == want, s.code
-            assert {d["variant_group"] for d in ds} == {f"{fam[:3].upper()}-{s.code}"}
-            for d in ds:
-                assert d["sku_count"] == (len(d["size_uk"]) if "size_uk" in d else 1)
+            assert len(ds) == 1, s.code
+            (d,) = ds
+            assert d["product_id"] == f"{fam[:3].upper()}-{s.code}"
+            assert d["sku_count"] == len(d["skus"]) == len({k["sku"] for k in d["skus"]})
+            assert len(d["color_options"]) == len(s.colors), s.code
+            if fam == "Jeans":
+                pairs = {(k["color"], k["length"]) for k in d["skus"]}
+                assert len(pairs) == len(s.washes) * len(s.lengths), s.code
+            else:
+                assert len({k["color"] for k in d["skus"]}) == len(s.colors), s.code
     assert len({d["product_id"] for d in CORPUS}) == len(CORPUS)
 
 
@@ -178,14 +191,16 @@ def _gift() -> dz.Row:
     return rows[0]
 
 
-def test_the_real_gift_bags_are_three_sizes_of_three_prints_in_gift_wrap() -> None:
+def test_the_real_gift_bag_is_one_product_of_three_sizes_x_three_prints_in_gift_wrap() -> None:
     gift = _gift()
     bags = [d for d in CORPUS if gift.is_intended(d)]
-    assert len(bags) == 9
-    assert sorted({d["variant_group"] for d in bags}) == ["GFT-LARGE", "GFT-MEDIUM", "GFT-SMALL"]
+    assert [d["product_id"] for d in bags] == ["GFT-KRAFT"]
+    skus = bags[0]["skus"]
+    assert bags[0]["sku_count"] == len(skus) == 9
     assert {d["category_path"][1] for d in bags} == {"Gift Wrap"}
-    assert sorted(_attr(d, "size") for d in bags) == ["Large"] * 3 + ["Medium"] * 3 + ["Small"] * 3
-    assert len({_attr(d, "print") for d in bags}) == 3
+    assert sorted(s["size"] for s in skus) == ["Large"] * 3 + ["Medium"] * 3 + ["Small"] * 3
+    assert len({s["color"] for s in skus}) == 3
+    assert len({(s["color"], s["size"]) for s in skus}) == 9
     # The observed failure: the real ones never say "gift" in their text.
     assert all("gift" not in dz.text_of(d) for d in bags)
 
@@ -265,7 +280,7 @@ def test_a_distractor_that_cannot_outrank_is_refused() -> None:
     )  # fmt: skip
     row = dz.TABLE[0]
     table = (_with(row, (*row.distractors, weak)),)
-    with pytest.raises(ValueError, match="PLT-WEAK-01 scores"):
+    with pytest.raises(ValueError, match="PLT-WEAK scores"):
         dz.check(table, [*CORPUS, weak.doc])
 
 
@@ -274,7 +289,7 @@ def test_too_few_distractors_and_an_intended_one_are_refused() -> None:
     with pytest.raises(ValueError, match="2 distractors"):
         dz.check((_with(row, row.distractors[:2]),))
     lemons = dz.Distractor(dz.LEMONS, "none")
-    with pytest.raises(ValueError, match="PLT-LEMONS-01 is an intended product"):
+    with pytest.raises(ValueError, match="PLT-LEMONS is an intended product"):
         dz.check((_with(row, (*row.distractors, lemons)),))
 
 
@@ -303,8 +318,8 @@ def test_every_brand_has_a_house_style_and_every_sample_draws() -> None:
     recs = [r for rs in sections.values() for r in rs]
     assert len(recs) == build_preview4.SAMPLES
     assert {k: len(v) for k, v in sections.items()} == {
-        "Jeans": 16, "Bras": 12, "Bedding": 9, "Beauty": 9, "Planted distractors": 14,
-        "Gift wrap": 3, "Gift bag distractors": 18, "Observed failure classes": 125,
+        "Jeans": 12, "Bras": 10, "Bedding": 8, "Beauty": 6, "Planted distractors": 14,
+        "Gift wrap": 1, "Gift bag distractors": 18, "Observed failure classes": 110,
     }  # fmt: skip
     for r in recs:
         assert ET.fromstring(drawing_svg(r)).tag.endswith("svg")

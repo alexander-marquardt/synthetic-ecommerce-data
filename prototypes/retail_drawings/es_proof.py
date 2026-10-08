@@ -43,6 +43,37 @@ def hits(resp: dict) -> list[dict]:
     ]
 
 
+def matched(resp: dict) -> list[dict]:
+    """Each hit with the SKUs its nested filter matched (``inner_hits``), as a UI reads them."""
+    out = []
+    for h in resp["hits"]["hits"]:
+        inner = h.get("inner_hits", {}).get("skus", {}).get("hits", {}).get("hits", [])
+        skus = [{k: s["_source"][k] for k in ("sku", "color", "size") if k in s["_source"]}
+                for s in inner]  # fmt: skip
+        out.append({"product_id": h["_source"]["product_id"], "title": h["_source"]["title"],
+                    "matched_skus": skus})  # fmt: skip
+    return out
+
+
+def color_search(host: str, index: str) -> dict:
+    """The color search of :data:`real_classes.COLOR_QUERY`: plain text, then a nested filter."""
+    text, color = rc.COLOR_QUERY
+    plain = rc.text_query(f"{color.lower()} {text}")
+    base = call(host, "POST", f"/{index}/_search", rc._search(plain, list(rc.POPULARITY), 5))
+    nested = call(host, "POST", f"/{index}/_search", rc.color_body(text, color))
+    buckets = nested["aggregations"]["skus"]["colors"]["buckets"]
+    return {
+        "text": text,
+        "color": color,
+        "baseline": matched(base),
+        "nested": matched(nested),
+        "facet": [
+            {"color": b["key"], "skus": b["doc_count"], "products": b["products"]["doc_count"]}
+            for b in buckets
+        ],
+    }
+
+
 def run(host: str, index: str) -> dict:
     catalog = rc.corpus()
     call(host, "PUT", f"/{index}", rc.index_body())
@@ -62,6 +93,7 @@ def run(host: str, index: str) -> dict:
             }
             for row in rc.ROWS
         ]
+        color = color_search(host, index)
         version = call(host, "GET", "/")["version"]["number"]
     finally:
         call(host, "DELETE", f"/{index}")
@@ -70,6 +102,7 @@ def run(host: str, index: str) -> dict:
         "docs": len(catalog),
         "fingerprint": rc.fingerprint(catalog),
         "rows": rows,
+        "color_search": color,
     }
 
 

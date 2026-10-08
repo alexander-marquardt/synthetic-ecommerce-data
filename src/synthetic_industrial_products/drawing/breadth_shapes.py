@@ -11,7 +11,7 @@ which reads its geometry from the record's own published values -- and it is
 deliberate here: a breadth SKU's dimensions are cheap filler, and a drawing
 that scaled to them would assert a precision the record does not have.
 
-Colour and section hatch still come from the record's own Material/Finish
+Color and section hatch still come from the record's own Material/Finish
 (:mod:`.style`), through the same :func:`.draw_sku` pipeline every other type
 uses -- only the GEOMETRY is fixed. No test pins this: each function begins
 ``del record``, so the fixed geometry holds by construction.

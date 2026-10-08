@@ -31,7 +31,7 @@ from samples import records  # noqa: E402
 
 SHOWN = (
     "audience",
-    "colour",
+    "color",
     "pattern",
     "fit",
     "leg_fit",
@@ -171,7 +171,7 @@ def page(recs: list[dict]) -> str:
         "parametric SVG kit (shape + fill + label + params) dressed in the brand's house style. "
         "Round 3 gives every brand a declared house style: paper, frame, outline hand and a "
         "composite logo mark, half of them as a full lockup with the name. The product's own "
-        "colour and pattern never depend on the brand. Structured garment attributes are in blue. "
+        "color and pattern never depend on the brand. Structured garment attributes are in blue. "
         "All brands, shades and fragrance names are invented.</p>"
         f"{_sections(recs)}"
         "</body></html>"

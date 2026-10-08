@@ -63,15 +63,15 @@ def item(title, brand, dept, path, price, attrs, draw, coll=()):
     }
 
 
-def legs(colour, pattern, who, fabric, rise, leg_fit, length="Regular", waist="Standard"):
+def legs(color, pattern, who, fabric, rise, leg_fit, length="Regular", waist="Standard"):
     return clothing_attrs(
-        colour, pattern, None, who, fabric, rise=rise, leg_fit=leg_fit, length=length, waist=waist
+        color, pattern, None, who, fabric, rise=rise, leg_fit=leg_fit, length=length, waist=waist
     )
 
 
-def tops(colour, pattern, fit, who, fabric, neckline, sleeve):
+def tops(color, pattern, fit, who, fabric, neckline, sleeve):
     return clothing_attrs(
-        colour, pattern, fit, who, fabric, neckline=neckline, sleeve_length=sleeve
+        color, pattern, fit, who, fabric, neckline=neckline, sleeve_length=sleeve
     )
 
 
@@ -355,9 +355,9 @@ TOPS = [
 # --------------------------------------------------------------------------
 
 
-def home_attrs(colour, pattern, material, *extra) -> list[dict]:
+def home_attrs(color, pattern, material, *extra) -> list[dict]:
     return [
-        attr("colour", "Colour", colour),
+        attr("color", "Color", color),
         attr("pattern", "Pattern", pattern),
         attr("material", "Material", material),
         *extra,

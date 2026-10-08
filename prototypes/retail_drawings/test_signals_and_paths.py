@@ -20,14 +20,15 @@ CORPUS = rc.corpus()
 GOLDEN = HERE.parents[1] / "golden-catalog" / "nested.jsonl"
 
 
-def _style(code: str) -> list[dict]:
-    return [d for d in CLASS_DOCS if d["style_id"] == f"PLT-{code}"]
-
-
 def _one(code: str) -> dict:
-    docs = _style(code)
-    assert docs, code
+    """The one product document of style ``code``."""
+    docs = [d for d in CLASS_DOCS if d["product_id"] == f"PLT-{code}"]
+    assert len(docs) == 1, code
     return docs[0]
+
+
+def _colors(d: dict) -> set[str]:
+    return {s["color"] for s in d["skus"] if "color" in s}
 
 
 def _row(query: str) -> rc.ClassRow:
@@ -82,7 +83,7 @@ def test_every_class_doc_carries_the_offer_online_only_and_badge_flags() -> None
     assert sum(d["trending"] for d in CLASS_DOCS) == 3
     # An offer with no was-price: a multi-buy, shown in Offers with no % off.
     assert [d["product_id"] for d in CLASS_DOCS if d["offer"] and "was_price" not in d] == [
-        "PLT-BRTROP-01"
+        "PLT-BRTROP"
     ]
 
 
@@ -121,7 +122,7 @@ def test_the_new_docs_leave_the_bestseller_top_15_of_the_old_rows_alone() -> Non
     new |= {s.code for s in rc.OFFERS}
     top = [d for d in CLASS_DOCS if d["bestseller_rank"] <= rc.BESTSELLER_TOP]
     assert len(top) == rc.BESTSELLER_TOP
-    assert not any(d["style_id"][4:] in new for d in top)
+    assert not any(d["product_id"][4:] in new for d in top)
 
 
 # --------------------------------------------------------------------------
@@ -193,7 +194,7 @@ def test_beer_carries_abv_as_an_attribute_and_only_some_titles_state_it() -> Non
     assert all("beer" in _one(c)["title"].lower() for c in distractors)
 
 
-def test_oranges_has_flavour_and_colour_distractors_and_a_type_only_true_hit() -> None:
+def test_oranges_has_flavour_and_color_distractors_and_a_type_only_true_hit() -> None:
     row = _row("oranges")
     targets, distractors = _codes(row)
     peel = _one("OREASY")
@@ -201,16 +202,17 @@ def test_oranges_has_flavour_and_colour_distractors_and_a_type_only_true_hit() -
     assert "orange" not in (peel["title"] + peel["description"]).lower()
     flavours = [_one(c) for c in distractors if _one(c)["department"] == ["Food & Drink"]]
     assert len(flavours) == 4 and sum(d["new_in"] for d in flavours) == 3
-    coloured = [d for c in distractors for d in _style(c) if d.get("colour_family") == "orange"]
-    assert {d["department"][0] for d in coloured} == {"Clothing", "Garden"}
+    colored = [_one(c) for c in distractors
+               if any(s.get("color_family") == "orange" for s in _one(c)["skus"])]  # fmt: skip
+    assert {d["department"][0] for d in colored} == {"Clothing", "Garden"}
 
 
-def test_face_cream_meets_a_cream_colour_near_types_and_a_line_named_cream() -> None:
+def test_face_cream_meets_a_cream_color_near_types_and_a_line_named_cream() -> None:
     _, distractors = _codes(_row("face cream"))
-    docs = [d for c in distractors for d in _style(c)]
-    cream = {d["department"][0] for d in docs if d.get("colour_shade") == "Cream"}
+    docs = [_one(c) for c in distractors]
+    cream = {d["department"][0] for d in docs if "Cream" in _colors(d)}
     assert cream == {"Home", "Clothing"}
-    assert {d["category_path"][1] for d in docs if d.get("colour_shade") == "Cream"} == {
+    assert {d["category_path"][1] for d in docs if "Cream" in _colors(d)} == {
         "Furniture", "Bedding", "Knitwear"}  # fmt: skip
     near = {d["product_type"] for d in docs if d["department"] == ["Beauty"]}
     assert near == {"Face Powder", "Skin Tint", "Face Oil", "Sun Cream", "Body Oil"}
@@ -260,36 +262,40 @@ def test_a_routed_policy_recalls_and_boosts_the_named_category_node() -> None:
     assert sum(r.policy.route is not None for r in rc.ROWS) == 3
 
 
-def test_rose_gold_is_one_colour_value_and_the_finish_of_every_metal_good() -> None:
-    rose = [d for d in CLASS_DOCS if d.get("colour_shade") == "Rose Gold"]
+def test_rose_gold_is_one_color_value_and_the_finish_of_every_metal_good() -> None:
+    rose = [d for d in CLASS_DOCS if "Rose Gold" in _colors(d)]
     assert sorted(d["product_type"] for d in rose) == [
         "Earrings", "Highlighter", "Table Lamp", "Watch", "Wireless Charger"]  # fmt: skip
-    metal = [d for d in CLASS_DOCS if any(a["key"] == "finish" for a in d["attributes"])]
-    assert len(metal) == 8
+    metal = [d for d in CLASS_DOCS if any("finish" in s for s in d["skus"])]
+    assert len(metal) == 6
     for d in metal:
-        finish = [a for a in d["attributes"] if a["key"] == "finish"]
-        assert finish == [{"key": "finish", "name": "Finish", "value": d["colour_shade"].lower()}]
-    assert {d["colour_shade"] for d in metal} == set(rc.FINISHES)
-    # A make-up shade carries the colour but is no metal: no finish attribute.
+        # Every SKU of a metal good: its finish IS its color.
+        assert all(s["finish"] == s["color"].lower() for s in d["skus"]), d["product_id"]
+        assert not any(a["key"] == "finish" for a in d["attributes"])
+    assert set().union(*(_colors(d) for d in metal)) == set(rc.FINISHES)
+    # A make-up shade carries the color but is no metal: no finish on its SKU.
     assert [d["product_type"] for d in rose if d not in metal] == ["Highlighter"]
 
 
-def test_rose_bouquets_and_rose_quartz_hold_both_words_but_not_the_colour() -> None:
+def test_rose_bouquets_and_rose_quartz_hold_both_words_but_not_the_color() -> None:
     _, distractors = _codes(_row("rose gold"))
-    docs = [d for c in distractors for d in _style(c)]
+    docs = [_one(c) for c in distractors]
     words = [d for d in docs if {"rose", "gold"} <= set(d["title"].lower().split())]
     assert sorted(d["product_type"] for d in words) == ["Bouquet", "Bouquet", "Earrings"]
-    assert all(d.get("colour_shade") != "Rose Gold" for d in docs)
+    assert all("Rose Gold" not in _colors(d) for d in docs)
     hoop = _one("RQHOOP")
-    assert {a["key"]: a["value"] for a in hoop["attributes"]} == {
-        "colour": "Yellow Gold", "finish": "yellow gold", "stone": "rose quartz"}  # fmt: skip
+    assert {a["key"]: a["value"] for a in hoop["attributes"]} == {"stone": "rose quartz"}
+    assert [(s["color"], s["finish"]) for s in hoop["skus"]] == [("Yellow Gold", "yellow gold")]
 
 
-def test_the_rose_gold_policy_filters_on_the_colour_value_as_one_term() -> None:
+def test_the_rose_gold_policy_filters_on_the_color_value_as_one_term() -> None:
     body = rc.policy_body(_row("rose gold"))
     bool_q = body["query"]["function_score"]["query"]["bool"]
-    assert bool_q["filter"] == [{"terms": {"colour_shade": ["Rose Gold"]}}]
-    assert rc.index_body()["mappings"]["properties"]["colour_shade"] == {"type": "keyword"}
+    assert bool_q["filter"] == [{"nested": {"path": "skus", "query": {"bool": {
+        "filter": [{"terms": {"skus.color": ["Rose Gold"]}}],
+        "must_not": [{"term": {"skus.in_stock": False}}]}}}}]  # fmt: skip
+    assert rc.index_body()["mappings"]["properties"]["skus"]["properties"]["color"] == {
+        "type": "keyword"}  # fmt: skip
 
 
 # --------------------------------------------------------------------------
@@ -314,7 +320,8 @@ def test_thread_is_a_bedding_count_here_and_a_pitch_in_industrial() -> None:
     retail = {a["key"] for d in CLASS_DOCS for a in d["attributes"] if "thread" in a["key"]}
     assert retail == {"thread_count"} and not retail & industrial
     sheets = [d for d in CLASS_DOCS if any(a["key"] == "thread_count" for a in d["attributes"])]
-    assert len(sheets) == 2
+    # One duvet cover style, its two colors SKUs of the one product.
+    assert len(sheets) == 1 and len(_colors(sheets[0])) == 2
     for d in sheets:
         count = next(a for a in d["attributes"] if a["key"] == "thread_count")
         assert count == {"key": "thread_count", "name": "Thread Count", "value": "400"}
@@ -322,9 +329,9 @@ def test_thread_is_a_bedding_count_here_and_a_pitch_in_industrial() -> None:
 
 def test_honey_is_a_lipstick_shade_and_a_food() -> None:
     honey = _collision("honey")
-    assert honey["senses"] == ["colour_shade", "product_type"]
-    shades = [d for d in CLASS_DOCS if "honey" in d.get("colour_shade", "").lower()]
+    assert honey["senses"] == ["skus.color", "product_type"]
+    shades = [d for d in CLASS_DOCS if any("honey" in c.lower() for c in _colors(d))]
     food = [d for d in CLASS_DOCS if d["product_type"] == "Honey"]
     assert {d["department"][0] for d in shades} == {"Beauty"}
     assert len(food) == 1 and food[0]["department"] == ["Food & Drink"]
-    assert "colour_shade" not in food[0] and "swatches" not in food[0]
+    assert _colors(food[0]) == set() and "color_options" not in food[0]
