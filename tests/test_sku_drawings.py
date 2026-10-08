@@ -21,19 +21,19 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_industrial_products.catalog import bundle, emit
-from synthetic_industrial_products.catalog.config import SMALL
-from synthetic_industrial_products.catalog.generate import BRANDS, all_type_keys, generate
-from synthetic_industrial_products.catalog.vocab import VOCAB
-from synthetic_industrial_products.drawing import FIGURES, draw_product, draw_sku, svg_problems
-from synthetic_industrial_products.drawing.model import Poly
-from synthetic_industrial_products.drawing.style import (
+from synthetic_ecommerce_data.catalog import bundle, emit
+from synthetic_ecommerce_data.catalog.config import SMALL
+from synthetic_ecommerce_data.catalog.generate import BRANDS, all_type_keys, generate
+from synthetic_ecommerce_data.catalog.vocab import VOCAB
+from synthetic_ecommerce_data.drawing import FIGURES, draw_product, draw_sku, svg_problems
+from synthetic_ecommerce_data.drawing.model import Poly
+from synthetic_ecommerce_data.drawing.style import (
     EXTRA_FINISH_TINT,
     MATERIAL_FILL,
     MATERIAL_HATCH,
     house_style,
 )
-from synthetic_industrial_products.render.marking import (
+from synthetic_ecommerce_data.render.marking import (
     BRAND_INK,
     FINISH_ATTRIBUTES,
     FINISH_TINT,
@@ -209,7 +209,7 @@ def test_nominal_geometry_stays_rare():
     should be the exception the defect rates make it, not a default.
 
     Exempts the breadth categories (:mod:`.catalog.breadth`,
-    alexander-marquardt/synthetic-industrial-products#34): their fixed-shape
+    alexander-marquardt/synthetic-ecommerce-data#34): their fixed-shape
     drawings never read the record AT ALL, so ``source`` is "nominal" for
     100% of them, by design (maintainer, 2026-09-30: "just something to fill
     up the image").
@@ -252,7 +252,7 @@ def test_rebuild_called_directly_draws_a_breadth_product(tmp_path):
         (tmp_path / name).write_text("\n".join(rows) + "\n")
     script = (
         "import sys; from pathlib import Path; "
-        "from synthetic_industrial_products.catalog.bundle import rebuild; "
+        "from synthetic_ecommerce_data.catalog.bundle import rebuild; "
         "print(len(rebuild(Path(sys.argv[1]))))"
     )
     result = subprocess.run(
@@ -300,7 +300,7 @@ def test_elongated_parts_are_drawn_to_their_published_length(type_key):
     stopped reading a length -- and drew a nominal one -- reds here even though
     its bytes would still change with the size cue.
     """
-    from synthetic_industrial_products.render import drill, endmill, fastener
+    from synthetic_ecommerce_data.render import drill, endmill, fastener
 
     geometry = {
         "screw_socket_head": lambda r: fastener.geometry_from_record(r).total_height,
@@ -356,7 +356,7 @@ def test_siblings_whose_drawn_values_differ_never_draw_alike():
     to one size.
 
     Exempts the breadth categories (:mod:`.catalog.breadth`,
-    alexander-marquardt/synthetic-industrial-products#34): their fixed-shape
+    alexander-marquardt/synthetic-ecommerce-data#34): their fixed-shape
     drawings never read the record, so two siblings of one breadth product --
     say two ball diameters -- draw identically BY DESIGN, the property this
     test exists to catch everywhere else.
@@ -409,7 +409,7 @@ def _circle_radii(elements) -> list[float]:
 
 
 def _type_scale(type_key: str) -> float:
-    from synthetic_industrial_products.drawing.sheet import type_scale
+    from synthetic_ecommerce_data.drawing.sheet import type_scale
 
     return type_scale(FIGURES[type_key][1])
 
@@ -457,8 +457,8 @@ def test_no_product_exceeds_its_types_extent():
 
 def test_every_drawing_fits_its_sheet():
     """At the type's scale every SKU fits inside the sheet's margin."""
-    from synthetic_industrial_products.drawing import svg as page
-    from synthetic_industrial_products.drawing.sheet import MARGIN
+    from synthetic_ecommerce_data.drawing import svg as page
+    from synthetic_ecommerce_data.drawing.sheet import MARGIN
 
     for type_key, _, figures, _, _ in GOLDEN_PRODUCTS:
         scale = _type_scale(type_key)
@@ -505,7 +505,7 @@ def test_siblings_are_drawn_at_one_scale_so_what_they_share_is_drawn_identically
 
 def test_within_a_type_every_part_is_drawn_in_true_proportion():
     """One scale per type: a part's drawn size is its published size times that constant."""
-    from synthetic_industrial_products.drawing import product_scale_for
+    from synthetic_ecommerce_data.drawing import product_scale_for
 
     for type_key, product_id, _figures, _largest, parent in GOLDEN_PRODUCTS:
         records = bundle.records(parent, _facets())
@@ -556,7 +556,7 @@ def _handled_k(width: float, height: float) -> float:
     """What the handled glass would enlarge the part by, from the glyph's own extents."""
     import math
 
-    from synthetic_industrial_products.drawing.sheet import _glyph_extent
+    from synthetic_ecommerce_data.drawing.sheet import _glyph_extent
 
     _, left, right, bottom = _glyph_extent(1.0, floor=False)
     radius = min((200 - 24) / (right - left), (300 - 24 - 14 - height) / (-left + bottom))
@@ -602,11 +602,11 @@ EXTREME_ENLARGEMENT = 2.41
 #: Two committed SKUs the handle-less lens must serve: an in-between screw (an
 #: M6x1 x 10mm socket head) and a hairline drill (a 1/16" jobber). Re-picked on
 #: every regeneration; the test fails if either is gone. Re-picked for
-#: alexander-marquardt/synthetic-industrial-products#39 (Corner Radius/Neck
+#: alexander-marquardt/synthetic-ecommerce-data#39 (Corner Radius/Neck
 #: Length applied once instead of twice, which moved every SKU code): the
 #: drill happened to keep its sku, ``3BF24``; the screw did not, so
 #: ``19DG33`` became ``45HC83``. Re-picked for
-#: alexander-marquardt/synthetic-industrial-products#48, which made every SKU
+#: alexander-marquardt/synthetic-ecommerce-data#48, which made every SKU
 #: a ten-digit part number from its type's own block: each is the first
 #: committed SKU, in catalog order, that matches the description and is drawn
 #: under the handle-less lens.
@@ -621,7 +621,7 @@ def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only
     Over every committed SKU the rule applies to. The floor is the catalog's
     measured minimum; at the rule's extreme the handle-less lens gives ~x2.42.
     """
-    from synthetic_industrial_products.drawing.sheet import magnifier
+    from synthetic_ecommerce_data.drawing.sheet import magnifier
 
     counts = {True: 0, False: 0}
     lowest = 99.0
@@ -649,7 +649,7 @@ def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only
 
 def test_the_handle_less_lens_clears_the_brand_frame():
     """The widest lens is 8 units in; frames sit 6 in with strokes at most 2 wide."""
-    from synthetic_industrial_products.drawing.sheet import magnifier
+    from synthetic_ecommerce_data.drawing.sheet import magnifier
 
     mag = magnifier(39, 49)
     assert mag is not None and not mag.handle
@@ -662,7 +662,7 @@ def test_a_part_just_over_the_share_in_ONE_dimension_is_drawn_plain():
 
     Width at 1/5 of the sheet (40), height at 1/6 (50).
     """
-    from synthetic_industrial_products.drawing.sheet import magnifier
+    from synthetic_ecommerce_data.drawing.sheet import magnifier
 
     assert magnifier(39, 5) is not None
     assert magnifier(41, 5) is None
@@ -697,7 +697,7 @@ def test_the_lens_shows_the_same_part_enlarged():
     element sequence as the true-scale one, and every coordinate maps by
     ``lens + k * (p - part)`` with the layout's own ``k``.
     """
-    from synthetic_industrial_products.drawing.sheet import magnifier
+    from synthetic_ecommerce_data.drawing.sheet import magnifier
 
     checked = 0
     for parent, variant, record in _golden_skus():
@@ -733,7 +733,7 @@ def test_the_lens_shows_the_same_part_enlarged():
 def test_the_enlarged_part_stays_inside_the_lens():
     import math
 
-    from synthetic_industrial_products.drawing.sheet import magnifier
+    from synthetic_ecommerce_data.drawing.sheet import magnifier
 
     for w, h in ((5, 40), (30, 30), (20, 8), (33, 50)):
         mag = magnifier(w, h)
@@ -742,7 +742,7 @@ def test_the_enlarged_part_stays_inside_the_lens():
 
 
 def test_the_space_above_the_glyph_equals_the_space_below_the_part():
-    from synthetic_industrial_products.drawing.sheet import (
+    from synthetic_ecommerce_data.drawing.sheet import (
         GLYPH_GAP,
         _glyph_extent,
         magnifier,
@@ -796,7 +796,7 @@ def test_no_outline_is_thinner_than_the_minimum_stroke():
     detail lines carry ``stroke-opacity``, the hatch lives inside ``<pattern>``.
     The brand's frame is the brand's, not the part's, and is exempt too.
     """
-    from synthetic_industrial_products.drawing.sheet import MIN_STROKE
+    from synthetic_ecommerce_data.drawing.sheet import MIN_STROKE
 
     assert MIN_STROKE * 180 / 200 >= 2.0
     thinnest = 99.0

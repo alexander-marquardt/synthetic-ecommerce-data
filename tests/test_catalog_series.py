@@ -14,7 +14,7 @@ from fractions import Fraction
 
 import pytest
 
-from synthetic_industrial_products.catalog.series import (
+from synthetic_ecommerce_data.catalog.series import (
     FLUTE_WEIGHTS,
     HELIX_ANGLES,
     IMPERIAL_CUTTING_DIAS,
@@ -30,7 +30,7 @@ from synthetic_industrial_products.catalog.series import (
     nearest_shank_metric,
     snap_imperial,
 )
-from synthetic_industrial_products.dimensions import MM_PER_INCH
+from synthetic_ecommerce_data.dimensions import MM_PER_INCH
 
 
 @pytest.mark.parametrize("dia", IMPERIAL_CUTTING_DIAS)

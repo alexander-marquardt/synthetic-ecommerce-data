@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-SRC = REPO / "src" / "synthetic_industrial_products"
+SRC = REPO / "src" / "synthetic_ecommerce_data"
 
 
 @dataclass(frozen=True)
@@ -58,7 +58,7 @@ class Mutation:
     #: generator package; the PRISM customization is a second package, and the
     #: committed field map has to be mutable from here too -- a drift test that
     #: is only ever proven from the DERIVATION side is not proven at all.
-    root: str = "src/synthetic_industrial_products"
+    root: str = "src/synthetic_ecommerce_data"
 
 
 MUTATIONS: list[Mutation] = [
@@ -581,7 +581,7 @@ MUTATIONS: list[Mutation] = [
         "catalog/breadth.py",
         "\n\nregister()\n\n",
         "\n\nregister()\ntypespec.ensure_registered()\n\n",
-        "tests/test_a_type_module_imported_first.py::test_a_type_module_imported_first_still_registers[synthetic_industrial_products.product_types.raw_materials.ball_stock_precision]",
+        "tests/test_a_type_module_imported_first.py::test_a_type_module_imported_first_still_registers[synthetic_ecommerce_data.product_types.raw_materials.ball_stock_precision]",
         "",
         "a type module or discovery can be a process's first import",
     ),
@@ -695,16 +695,16 @@ MUTATIONS: list[Mutation] = [
             "tests/test_type_seam.py::test_the_block_command_names_the_owner_and_a_really_free_block",
         ),
         "",
-        "sip-generate block names a block no type uses",
+        "sed-generate block names a block no type uses",
     ),
     Mutation(
-        "type seam: sip-generate block finds no owner of a taken block",
+        "type seam: sed-generate block finds no owner of a taken block",
         "catalog/cli.py",
         "    owners = sorted(other for other, block in used.items() if block == derived)\n",
         "    owners: list[str] = []\n",
         "tests/test_type_seam.py::test_the_block_command_names_the_owner_and_a_really_free_block",
         "",
-        "sip-generate block names a block no type uses",
+        "sed-generate block names a block no type uses",
     ),
     Mutation(
         "type seam: a half-zero extent is not refused",
@@ -924,8 +924,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: the rebuild runs unlocked",
-                'uv run -q --locked --directory "$work" sip-generate',
-                'uv run -q --directory "$work" sip-generate',
+                'uv run -q --locked --directory "$work" sed-generate',
+                'uv run -q --directory "$work" sed-generate',
                 "tests/test_merge_pr.py::test_a_stale_lock_is_refused_not_relocked_and_committed",
                 "the rebuild commits only the generated files",
             ),
@@ -1603,10 +1603,10 @@ MUTATIONS: list[Mutation] = [
     # ``test_flat_holds_one_document_per_sku`` passed for the correct reason
     # while the table read it as proof. ``51RE59`` is CRE-G246-0001's own
     # second variant, so the mutation now really does publish one sku twice.
-    # The alexander-marquardt/synthetic-industrial-products#39 regeneration
+    # The alexander-marquardt/synthetic-ecommerce-data#39 regeneration
     # (Corner Radius/Neck Length applied once instead of twice) is what took
     # the previous anchor sku, ``6DT18``, out of the catalog.
-    # alexander-marquardt/synthetic-industrial-products#48 renumbered every
+    # alexander-marquardt/synthetic-ecommerce-data#48 renumbered every
     # sku as a part number, so the golden rows re-anchor on the first committed
     # product line with more than one variant, TAN-FD580-1609-0003; its second
     # variant, ``1609562324``, is the sku this row duplicates.

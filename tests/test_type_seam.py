@@ -19,9 +19,9 @@ from pathlib import Path
 import pytest
 import yaml
 
-from synthetic_industrial_products.catalog import breadth, emit, generate, typespec
-from synthetic_industrial_products.catalog.config import SMALL, small
-from synthetic_industrial_products.catalog.model import Catalog
+from synthetic_ecommerce_data.catalog import breadth, emit, generate, typespec
+from synthetic_ecommerce_data.catalog.config import SMALL, small
+from synthetic_ecommerce_data.catalog.model import Catalog
 
 #: The two types this seam was proven on: a depth type with its own figure,
 #: and a breadth type.
@@ -86,7 +86,7 @@ def _plant(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, files: dict[str, str
         monkeypatch.delitem(sys.modules, name)
 
 
-_SPEC = "from synthetic_industrial_products.catalog.typespec import TypeSpec\n"
+_SPEC = "from synthetic_ecommerce_data.catalog.typespec import TypeSpec\n"
 
 
 def test_a_type_module_is_discovered_by_its_dotted_path(
@@ -131,15 +131,15 @@ def test_a_type_module_is_its_types_only_declaration(key: str) -> None:
 #: Modules that used to register the type modules for every reader after them;
 #: a fresh reader that imports none of them must still see a migrated type.
 _REGISTERING_CALLERS = (
-    "synthetic_industrial_products.catalog.generate",
-    "synthetic_industrial_products.catalog.bundle",
+    "synthetic_ecommerce_data.catalog.generate",
+    "synthetic_ecommerce_data.catalog.bundle",
 )
 
 _FRESH_READER = """
 import sys
-from synthetic_industrial_products.catalog.taxonomy import LEAVES, drawing_for
-from synthetic_industrial_products.catalog.vocab import VOCAB
-from synthetic_industrial_products.drawing import FIGURES
+from synthetic_ecommerce_data.catalog.taxonomy import LEAVES, drawing_for
+from synthetic_ecommerce_data.catalog.vocab import VOCAB
+from synthetic_ecommerce_data.drawing import FIGURES
 key, callers = sys.argv[1], sys.argv[2:]
 drawing_for(key), FIGURES[key], LEAVES[key], VOCAB[key]
 print([name for name in callers if name in sys.modules])
@@ -180,8 +180,8 @@ _READS = {
 
 _FIRST_READ = """
 import sys
-from synthetic_industrial_products.catalog import typespec
-from synthetic_industrial_products.catalog.taxonomy import LEAVES
+from synthetic_ecommerce_data.catalog import typespec
+from synthetic_ecommerce_data.catalog.taxonomy import LEAVES
 keys = sys.argv[2:]
 assert not typespec._REGISTRATION["done"], "importing the table registered already"
 first = eval(sys.argv[1])
@@ -205,8 +205,8 @@ def test_every_read_method_of_a_table_is_one_the_first_read_test_covers() -> Non
 
 
 def test_every_shared_type_table_registers_on_read() -> None:
-    from synthetic_industrial_products.catalog import taxonomy, vocab, voice
-    from synthetic_industrial_products.drawing.figures import FIGURES
+    from synthetic_ecommerce_data.catalog import taxonomy, vocab, voice
+    from synthetic_ecommerce_data.drawing.figures import FIGURES
 
     tables = {
         "LEAVES": taxonomy.LEAVES,
@@ -225,7 +225,7 @@ def test_every_shared_type_table_registers_on_read() -> None:
 
 _ROWS_FIRST = """
 import sys
-from synthetic_industrial_products.catalog import breadth, typespec
+from synthetic_ecommerce_data.catalog import breadth, typespec
 assert not typespec._REGISTRATION["done"], "importing breadth registered already"
 missing = set(sys.argv[1:]) - {row.key for row in breadth.rows()}
 assert not missing, f"rows() missed the type modules' rows: {sorted(missing)}"
@@ -241,11 +241,11 @@ def test_the_breadth_rows_include_the_type_modules_rows_on_a_first_read() -> Non
 
 _YAML_ROWS_FIRST = """
 import sys
-from synthetic_industrial_products.catalog import typespec
+from synthetic_ecommerce_data.catalog import typespec
 # No type module at all, so none imports breadth on registration's behalf.
 typespec.discover = lambda package=typespec.TYPES_PACKAGE: {}
-from synthetic_industrial_products.catalog.taxonomy import LEAVES
-assert "synthetic_industrial_products.catalog.breadth" not in sys.modules
+from synthetic_ecommerce_data.catalog.taxonomy import LEAVES
+assert "synthetic_ecommerce_data.catalog.breadth" not in sys.modules
 assert sys.argv[1] in LEAVES, "a YAML breadth row is missing from a fresh read"
 """
 
@@ -257,8 +257,8 @@ def test_registration_brings_in_the_yaml_rows_without_any_type_module() -> None:
 
 _READ_DURING_REGISTRATION = """
 import sys
-from synthetic_industrial_products.catalog import typespec
-from synthetic_industrial_products.catalog.taxonomy import LEAVES
+from synthetic_ecommerce_data.catalog import typespec
+from synthetic_ecommerce_data.catalog.taxonomy import LEAVES
 found = typespec.discover
 def discover(package=typespec.TYPES_PACKAGE):
     # What a type module that reads a shared table at import (a sibling
@@ -290,7 +290,7 @@ def test_a_table_read_while_registration_runs_is_refused_naming_the_reader() -> 
 #: (the round-3 review of #54 got 6675 here during registration, 1234 after).
 _BLOCK_OF_DURING_REGISTRATION = """
 import dataclasses
-from synthetic_industrial_products.catalog import breadth, typespec
+from synthetic_ecommerce_data.catalog import breadth, typespec
 row = dataclasses.replace(breadth.load_rows()[0], key="planted_rod", part_number_block=None)
 spec = typespec.TypeSpec("planted_rod", breadth=row, module="x.planted_rod", part_number_block=1234)
 seen = []
@@ -339,8 +339,8 @@ def test_a_type_modules_share_sizes_its_type(key: str) -> None:
     "key", sorted(key for key, spec in DISCOVERED.items() if spec.breadth is None)
 )
 def test_a_modelled_module_is_registered_into_every_table(key: str) -> None:
-    from synthetic_industrial_products.catalog import price, taxonomy, vocab, voice
-    from synthetic_industrial_products.drawing.figures import FIGURES
+    from synthetic_ecommerce_data.catalog import price, taxonomy, vocab, voice
+    from synthetic_ecommerce_data.drawing.figures import FIGURES
 
     spec = DISCOVERED[key]
     assert taxonomy.LEAVES[key] == (spec.category,)
@@ -448,10 +448,10 @@ def _yaml_declared_blocks() -> dict[str, int]:
 
 _BLOCK_OF_FIRST = """
 import sys
-from synthetic_industrial_products.catalog import typespec
+from synthetic_ecommerce_data.catalog import typespec
 # No type module at all, so none imports breadth on block_of's behalf.
 typespec.discover = lambda package=typespec.TYPES_PACKAGE: {}
-assert "synthetic_industrial_products.catalog.breadth" not in sys.modules
+assert "synthetic_ecommerce_data.catalog.breadth" not in sys.modules
 print(typespec.block_of(sys.argv[1]))
 """
 
@@ -467,7 +467,7 @@ def test_block_of_as_a_first_read_sees_a_yaml_declared_block(key: str) -> None:
 
 _MODULE_BLOCK = """
 import dataclasses, sys
-from synthetic_industrial_products.catalog import breadth, typespec
+from synthetic_ecommerce_data.catalog import breadth, typespec
 row = dataclasses.replace(breadth.load_rows()[0], key="planted_rod", part_number_block=None)
 spec = typespec.TypeSpec("planted_rod", breadth=row, module="planted.planted_rod")
 if sys.argv[1] == "row":
@@ -509,7 +509,7 @@ def test_first_free_block_refuses_when_every_block_is_used() -> None:
 
 
 def _block_command(key: str, capsys: pytest.CaptureFixture[str]) -> str:
-    from synthetic_industrial_products.catalog import cli
+    from synthetic_ecommerce_data.catalog import cli
 
     assert cli.main(["block", key]) == 0
     return capsys.readouterr().out.strip()

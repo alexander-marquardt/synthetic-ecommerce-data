@@ -13,10 +13,10 @@ from helpers import (
     rows_from_top,
     within_axes,
 )
-from synthetic_industrial_products.dimensions import DimensionParseError
-from synthetic_industrial_products.records import BUNDLED, FIXTURES
-from synthetic_industrial_products.render import CARD, DETAIL, endmill
-from synthetic_industrial_products.render.canvas import DIM, FLUTE, INK
+from synthetic_ecommerce_data.dimensions import DimensionParseError
+from synthetic_ecommerce_data.records import BUNDLED, FIXTURES
+from synthetic_ecommerce_data.render import CARD, DETAIL, endmill
+from synthetic_ecommerce_data.render.canvas import DIM, FLUTE, INK
 
 #: The observed reference end mills do not publish ``End Mill Style``, and the
 #: renderer requires it -- see records.py -- so the dimensioned drawing is
@@ -290,7 +290,7 @@ def test_the_tool_is_scaled_from_its_own_length(sku):
     changes, and would pass every other test here while drawing a 6" tool off
     the bottom of the card.
     """
-    from synthetic_industrial_products.render.endmill import FILL_V
+    from synthetic_ecommerce_data.render.endmill import FILL_V
 
     fig, _ax, _geom = endmill.build(BUNDLED[sku], CARD)
     image = figure_pixels(fig)
@@ -307,7 +307,7 @@ def test_the_silhouette_is_drawn_to_the_published_diameters(sku):
     so the byte comparisons would not notice -- and the drawing would be
     showing a tool whose proportions contradict its own dimension labels.
     """
-    from synthetic_industrial_products.render.canvas import LW_BODY
+    from synthetic_ecommerce_data.render.canvas import LW_BODY
 
     fig, ax, geom = endmill.build(BUNDLED[sku], CARD)
     image = figure_pixels(fig)

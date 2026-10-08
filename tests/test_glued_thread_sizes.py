@@ -4,7 +4,7 @@ The standard analyzer indexes ``M12x1.75`` as ONE token, so a search for
 ``m12`` misses a record whose text only carries the glued form -- measured on
 catalog-2026-09-29f, the six jobber drills saying "Tap drill for M12x1.75
 threads" were not returned for ``m12``. The maintainer ruled this is fixed in
-the data (alexander-marquardt/synthetic-industrial-products#33): wherever the
+the data (alexander-marquardt/synthetic-ecommerce-data#33): wherever the
 text carries a glued size, the description also writes the diameter and the
 pitch as tokens of their own.
 
@@ -21,10 +21,10 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_industrial_products.catalog import emit
-from synthetic_industrial_products.catalog.config import GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate
-from synthetic_industrial_products.catalog.naming import thread_parts
+from synthetic_ecommerce_data.catalog import emit
+from synthetic_ecommerce_data.catalog.config import GeneratorConfig
+from synthetic_ecommerce_data.catalog.generate import generate
+from synthetic_ecommerce_data.catalog.naming import thread_parts
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 

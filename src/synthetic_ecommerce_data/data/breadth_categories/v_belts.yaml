@@ -1,0 +1,26 @@
+# One breadth row (alexander-marquardt/synthetic-ecommerce-data#34); one file
+# per row, so two PRs that add or remove rows never touch the same file (#48).
+# The schema and the generic loop that reads it are in catalog/breadth.py.
+key: v_belts
+category:
+- Motion Control & Fluid Power
+- Belts
+- Standard V-Belts
+family: motion
+shape: disc
+item: V-Belt
+descriptor_attr: null
+size_attr: Length
+size_values:
+- 26 in
+- 31 in
+- 35 in
+- 40 in
+attributes:
+  Material:
+  - Rubber
+  Type:
+  - A-Section
+  - B-Section
+skus: 2
+reason: breadth diversity; power-transmission belt category gap

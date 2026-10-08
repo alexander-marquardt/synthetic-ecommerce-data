@@ -85,7 +85,7 @@ jobs:
 
   # The published-assets job is gone with the asset host it checked: the
   # drawings are rebuilt from the committed catalog into a pinned bundle
-  # (sip-generate images), never hosted from here, and
+  # (sed-generate images), never hosted from here, and
   # tests/test_sku_drawings.py proves every rebuilt drawing matches the
   # sha256 the committed images.jsonl records. Whether the PINNED bundle is
   # published is checked where it is pinned, in the customization repo.

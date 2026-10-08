@@ -903,7 +903,7 @@ wheels = [
 ]
 
 [[package]]
-name = "synthetic-industrial-products"
+name = "synthetic-ecommerce-data"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

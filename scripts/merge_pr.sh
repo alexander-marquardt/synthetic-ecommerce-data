@@ -21,7 +21,7 @@
 #   1. clones the PR head into a temporary directory and merges current main
 #      into it. A conflict in a file the rebuild rewrites (GENERATED) is left
 #      for step 2; any other conflict is refused, for the builder to resolve.
-#   2. rebuilds the committed catalog (sip-generate build --out golden-catalog)
+#   2. rebuilds the committed catalog (sed-generate build --out golden-catalog)
 #      and commits only GENERATED. A file still conflicted, or any other change
 #      in the tree, is refused. uv runs --locked, so a stale uv.lock is
 #      refused rather than re-locked into the commit.
@@ -63,7 +63,7 @@ if [ -n "${MERGE_PR_CHECKS:-}" ]; then
   read -r -a CHECKS <<<"$MERGE_PR_CHECKS"
 fi
 
-#: Exactly the files `sip-generate build --out golden-catalog` rewrites, so a
+#: Exactly the files `sed-generate build --out golden-catalog` rewrites, so a
 #: conflict in one is resolved by the rebuild. Any other conflict, under
 #: golden-catalog/ or not, goes back to the builder. Pinned to the build by
 #: tests/test_merge_pr.py.
@@ -188,7 +188,7 @@ fi
 
 # 2. Rebuild the committed catalog on the merged tree. Two types on one
 #    part-number block are refused here, naming both.
-uv run -q --locked --directory "$work" sip-generate build --out golden-catalog >/dev/null ||
+uv run -q --locked --directory "$work" sed-generate build --out golden-catalog >/dev/null ||
   die "the build refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
 if [ -n "$conflicted" ]; then
   while IFS= read -r path; do
