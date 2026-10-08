@@ -3,8 +3,8 @@
 This is the developer's view of `src/synthetic_ecommerce_data/core/drawing/`:
 what runs, in what order, and where to change it. The README's
 [Images](../README.md#images) section states what the drawings promise. The
-rulings behind them (one drawing per SKU, no text, one scale per type, the
-magnifier) are on
+rulings behind them (one drawing per SKU, no text but the brand plate, one
+scale per type, the magnifier) are on
 [elastic/prism-industrial-products#103](https://github.com/elastic/prism-industrial-products/issues/103),
 and this page does not argue them again.
 
@@ -154,10 +154,11 @@ the `images.jsonl` row for `7CJ54`, and drawing the record twice gives the same
 bytes. Its sibling `27ED43` publishes `Length` 3/4", so it is drawn longer at
 the same scale and has a different digest.
 
-## Scale, the magnifier, and no text
+## Scale, the magnifier, and the only text
 
-**One scale per type.** `type_scale(extent)` is the usable sheet (200 x 300
-minus an 18-unit margin on every side) over the type's extent: the smaller of
+**One scale per type.** `type_scale(extent)` is the usable figure area (the
+200 x 256 sheet above the brand plate, `FIGURE_HEIGHT`, minus an 18-unit
+margin on every side) over the type's extent: the smaller of
 the width and height ratios. `product_scale_for()` ignores the records it is
 given, so nothing about a particular product can change a type's scale. Two
 parts of one type are therefore in true proportion, and a head or bore that
@@ -190,17 +191,24 @@ for kind in (True, False):
     print('handled' if kind else 'handle-less', len(k), f'x{min(k):.2f} to x{max(k):.2f}')"
 ```
 
-**No text.** Figures only have `Poly`, `Disc`, `Lines` and `Dots` to draw with,
-and nothing in `sheet.py` or `svg.py` emits a `<text>` element. The gate is
-`svg_problems()`, an allow-list of elements, attributes and attribute-value
-grammars that also refuses comments, processing instructions, entities and
-character data. Its own docstring states the one gap: a letter's outline drawn
-as a plain `<path>` would pass.
+**No text but the brand plate.** Figures only have `Poly`, `Disc`, `Lines` and
+`Dots` to draw with. The one `<text>` a drawing carries is the brand's
+wordmark, which `paint()` sets with its mark in the plate under the figure
+(`PLATE_BOX`, #132). `core/drawing/brand_mark.py` draws both, and
+`domains/industrial/drawing/brand_marks.py` declares each brand's motif.
+`lockup()` sets the name on one line, else on two, else as its first word,
+never under `NAME_MIN`: 10 px at the Studio tile's 0.6 px a unit
+(`sheet.MIN_NAME_PX`). The gate is `svg_problems()`, an allow-list of
+elements, attributes and attribute-value grammars that also refuses comments,
+processing instructions, entities and character data. A `<text>` passes only
+when its words, joined, are a brand's wordmark (`sheet.wordmark_of`). Its own
+docstring states the one gap: a letter's outline drawn as a plain `<path>`
+would pass.
 
 ## Provenance: record, partial, nominal
 
 Every figure returns a `source` alongside the figure, and `images.jsonl` records
-it per SKU as `geometry`. A drawing has no text, so a nominal proportion never
+it per SKU as `geometry`. A drawing has no text but its brand's, so a nominal proportion never
 prints a number that contradicts the record. The source field is there so the
 share of guessed geometry is visible.
 
@@ -301,9 +309,10 @@ that matter most when you change a figure:
 | `test_siblings_whose_drawn_values_differ_never_draw_alike` | variants whose drawn values differ never share bytes. Attributes in `NOT_DRAWN_BY_ANY_FIGURE` are ignored, and breadth is exempt | golden |
 | `test_no_product_exceeds_its_types_extent` / `test_every_drawing_fits_its_sheet` | the `FIGURES` extent really is the type's maximum, so its scale is a constant | golden |
 | `test_siblings_are_drawn_at_one_scale_...` / `test_within_a_type_every_part_is_drawn_in_true_proportion` / `test_an_m3_washer_is_drawn_smaller_than_an_m16_in_true_proportion` | one scale per type, measured on the true-scale copy (an M3 washer is 7/30 of an M16) | golden + planted |
-| the `test_the_lens_*` and `test_*lens*` tests, `test_no_outline_is_thinner_than_the_minimum_stroke` | the magnifier rule, enlargement floor (pinned at the catalog's measured x2.52), balance, ink and minimum stroke | golden + planted |
+| the `test_the_lens_*` and `test_*lens*` tests, `test_no_outline_is_thinner_than_the_minimum_stroke` | the magnifier rule, enlargement floor (pinned at the catalog's measured x2.36), balance, ink and minimum stroke | golden + planted |
 | `test_a_part_longer_than_its_extent_is_drawn_broken_and_fits`, `test_no_fastener_is_drawn_smaller_because_of_an_outlier` | the break convention | planted |
-| `test_no_drawing_carries_any_text`, `test_the_allow_list_refuses_every_planted_text_form` | the allow-list, against planted `<title>`, `aria-label`, comments, rasters, `@font-face`, glyph paths | SMALL + planted |
+| `test_no_drawing_carries_any_text_but_a_brands_wordmark`, `test_the_allow_list_refuses_every_planted_text_form` | the allow-list, against planted `<title>`, `aria-label`, comments, rasters, `@font-face`, glyph paths | SMALL + planted |
+| `tests/test_brand_marks.py` | the plate (#132): marks unique and 24 px apart at 19 px; every name at least 10 px at the tile; two-line and first-word fallbacks; no figure reaches the plate; each drawing's text is its own brand's wordmark; the gate refuses any other text | golden + planted |
 | `test_nominal_geometry_stays_rare` | at most 10% `nominal` per depth type | SMALL |
 | `test_the_committed_catalog_rebuilds_into_its_recorded_drawings` and the bundle/digest tests | the publish gate above | golden |
 

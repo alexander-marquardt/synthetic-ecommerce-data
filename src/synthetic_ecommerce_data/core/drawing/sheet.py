@@ -102,12 +102,19 @@ FIGURE_HEIGHT = 256.0
 #: The plate's box (x0, y0, x1, y1): inside every frame (drawn 6 units in,
 #: strokes at most 2 wide), clear of the rounded frame's corner arcs.
 PLATE_BOX = (14.0, 256.0, 186.0, 292.0)
-#: The mark's side, the gap before the name, and the name's size range, in
-#: sheet units. At the Studio grid tile (180 px for 300 units, 0.6 px a unit)
-#: the mark is 19 px across and the name 8.4 to 12 px.
+#: The mark's side and the gap before the name, in sheet units.
 PLATE_MARK = 32.0
 PLATE_GAP = 6.0
-NAME_MAX, NAME_MIN = 20.0, 14.0
+#: The Studio grid tile shows the sheet 180 px tall: 0.6 px a sheet unit. At
+#: it the mark is 19 px across.
+TILE_PX_PER_UNIT = 180 / svg.HEIGHT
+#: THE LEGIBILITY RULING (#132): no brand name renders under 10 px at the
+#: tile, so no name is set under 16.67 units. A name that fits neither on one
+#: line nor on two at that size is set as its first word; the full name stays
+#: in the catalog (see :func:`...brand_mark.lockup`). Today the smallest is
+#: two lines at 17.9 units, 10.7 px; no brand falls back to its first word.
+MIN_NAME_PX = 10.0
+NAME_MAX, NAME_MIN = 20.0, MIN_NAME_PX / TILE_PX_PER_UNIT
 
 
 def type_scale(extent: tuple[float, float]) -> float:
@@ -373,6 +380,11 @@ def plate_lockup(name: str) -> brand_mark.Lockup:
     return brand_mark.lockup(
         name, PLATE_BOX, mark_size=PLATE_MARK, gap=PLATE_GAP, max_size=NAME_MAX, min_size=NAME_MIN
     )
+
+
+def wordmark_of(name: str) -> str:
+    """The words :func:`paint` sets for brand ``name``: the name, or its first word."""
+    return " ".join(plate_lockup(name).lines)
 
 
 def figure_boxes(figure: Figure, scale: float) -> list[tuple[float, float, float, float]]:

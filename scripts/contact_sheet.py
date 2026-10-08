@@ -201,7 +201,7 @@ def main() -> int:
     body = [
         "<!doctype html><meta charset=utf-8><title>Per-SKU drawings</title>",
         '<body style="font:13px system-ui;margin:16px">',
-        "<h2>Per-SKU drawings: no text in any drawing; captions are the page's</h2>",
+        "<h2>Per-SKU drawings: no text but the brand plate; captions are the page's</h2>",
         *_screw_lengths(products),
         *_washers(products),
         *_brands_across_a_type(products),

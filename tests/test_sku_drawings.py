@@ -1,9 +1,11 @@
-"""The per-SKU drawings: no text, one per SKU, and every visual difference a real one.
+"""The per-SKU drawings: no text but the brand's, one per SKU, every visual difference real.
 
-Rulings (elastic/prism-industrial-products#103): one drawing per SKU drawn from
-its own values; NO text of any kind in any drawing; brands visibly different by
-house style; small SVG; the drawings never committed, only rebuilt into a pinned
-bundle whose every file matches the digest the catalog records.
+Rulings (elastic/prism-industrial-products#103, synthetic-ecommerce-data#132):
+one drawing per SKU drawn from its own values; NO text in any drawing but its
+brand's wordmark (the plate's own promises are ``tests/test_brand_marks.py``);
+brands visibly different by house style and mark; small SVG; the drawings never
+committed, only rebuilt into a pinned bundle whose every file matches the digest
+the catalog records.
 """
 
 from __future__ import annotations
@@ -59,11 +61,11 @@ def test_every_product_type_has_a_figure():
     assert {line.type_key for line, _, _, _ in DRAWINGS} == set(VOCAB)
 
 
-# --- no text, of any kind -------------------------------------------------------
+# --- no text but the brand's wordmark ---------------------------------------------
 
 
-def test_no_drawing_carries_any_text():
-    """The maintainer's ruling, asserted over every SKU of a generated catalog."""
+def test_no_drawing_carries_any_text_but_a_brands_wordmark():
+    """The maintainer's rulings, asserted over every SKU of a generated catalog."""
     offenders = [
         (child.sku, svg_problems(data)) for _, child, data, _ in DRAWINGS if svg_problems(data)
     ]
