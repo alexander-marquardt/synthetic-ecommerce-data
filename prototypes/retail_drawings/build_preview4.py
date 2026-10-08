@@ -45,7 +45,7 @@ EXTRA = {
     "Bedding": {"COVPRT": (1,)},
     "Beauty": {"LIPSAT": (10,), "FNDFTH": (20, 39)},
 }
-SAMPLES = 143
+SAMPLES = 150
 
 
 def samples() -> dict[str, list[dict]]:
@@ -83,14 +83,19 @@ def _planted() -> dict[str, tuple[str, str]]:
 
 
 #: The fields a policy reads that the round 4 records do not carry.
-FACTS = ("product_type", "audience", "size_range", "neckline", "pattern", "leg_style", "style_id")
+FACTS = ("product_type", "audience", "size_range", "neckline", "pattern", "leg_style", "rise",
+         "colour_family", "style_id")  # fmt: skip
 
 
 def _facts(rec: dict) -> str:
     """A line of the policy-facing fields, or nothing for a record without them."""
     if "product_type" not in rec:
         return ""
-    parts = [f"{k}: {rec[k]}" for k in FACTS if k in rec]
+    show = {k: ", ".join(v) if isinstance(v, list) else v for k, v in rec.items() if k in FACTS}
+    parts = [f"{k}: {show[k]}" for k in FACTS if k in rec]
+    parts.append(f"{len(rec['swatches'])} swatches, {rec['rating']} from {rec['review_count']}")
+    if rec["price_max"] > rec["price_min"]:
+        parts.append(f"£{rec['price_min']:.2f} - £{rec['price_max']:.2f}")
     parts.append(f"sold {rec['sold_last_5_days']} in 5 days, bestseller #{rec['bestseller_rank']}")
     if "was_price" in rec:
         parts.append(f"was £{rec['was_price']:.2f}")

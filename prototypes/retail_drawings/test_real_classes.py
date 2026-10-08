@@ -187,11 +187,13 @@ def test_size_range_is_the_set_of_in_stock_lengths_across_the_style() -> None:
         {"inside_leg": "Regular", "in_stock": True},
     ]) == ["regular", "tall"]  # fmt: skip
     assert rc.LENGTH_RANGE["Short/Petite"] == "petite"
-    for d in (d for d in CLASS_DOCS if "inside_leg" in d["skus"][0] if d.get("skus")):
+    legwear = [d for d in CLASS_DOCS if d["skus"] and "inside_leg" in d["skus"][0]]
+    assert len(legwear) == 19
+    for d in legwear:
         style_skus = [s for x in _style(d["style_id"]) for s in x["skus"]]
         assert d["size_range"] == rc.derive_size_range(style_skus), d["product_id"]
     assert _style("PLT-PETJNS")[0]["size_range"] == ["petite"]
-    assert _style("PLT-STRJNS")[0]["size_range"] == ["petite", "regular", "tall"]
+    assert _style("PLT-STRJNS")[0]["size_range"] == ["regular", "petite", "tall"]
     # Cut in petite, but every petite SKU is sold out: no petite in its range.
     slim = _style("PLT-SLMJNS")[0]
     assert "Short/Petite" in {s["inside_leg"] for s in slim["skus"]}
@@ -233,6 +235,14 @@ def test_beauty_shades_are_colourway_docs_with_a_unit_size() -> None:
     assert {d["brand"] for d in beauty} == {"Kestlewood Cosmetics"}
     row_codes = {s.code for r in rc.ROWS for s in (*r.targets, *(x for x, _ in r.distractors))}
     assert {s.code for s in rc.BEAUTY} == {"BTYLIP", "BTYFND"} and not row_codes & {"BTYLIP"}
+
+
+def test_the_index_maps_the_skus_as_nested_and_the_variant_facets_as_keywords() -> None:
+    props = rc.index_body()["mappings"]["properties"]
+    assert props["skus"]["type"] == "nested"
+    assert {k for d in CLASS_DOCS for s in d["skus"] for k in s} == set(props["skus"]["properties"])
+    for key in ("size_range", "rise", "colour_family", "colour_shade"):
+        assert props[key] == {"type": "keyword"}
 
 
 def test_jeans_carry_the_rise_their_drawing_shows() -> None:
@@ -314,7 +324,7 @@ def test_a_distractor_or_a_short_policy_top_3_is_refused() -> None:
 
 
 def test_a_proof_over_other_records_is_stale() -> None:
-    changed = [*CORPUS[:-1], {**CORPUS[-1], "sold_last_5_days": 1}]
+    changed = [*CORPUS[:-1], {**CORPUS[-1], "sold_last_5_days": CORPUS[-1]["sold_last_5_days"] + 1}]
     assert rc.verdicts(PROOF, changed) == [
         "the proof was taken over another catalog: re-run es_proof.py"
     ]

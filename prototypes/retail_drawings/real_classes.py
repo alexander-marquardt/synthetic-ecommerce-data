@@ -11,7 +11,10 @@ fields a policy reads and a title never states:
 - ``was_price``, present only on a sale item (``price < was_price``);
 - popularity: ``sold_last_5_days`` and ``bestseller_rank`` (1 = best);
 - ``style_id``: the colourway docs of one style share it, so a search that
-  does not collapse on it shows the same product as several tiles.
+  does not collapse on it shows the same product as several tiles;
+- the variant structure (:meth:`Style.docs`): swatches, colour family and
+  shade, pooled rating, nested ``skus``, ``price_min``/``price_max``, and a
+  legwear ``size_range`` derived by :func:`derive_size_range`.
 
 The pre-existing records (:func:`distractors.corpus`) are unchanged and carry
 none of these fields. The proof is Elasticsearch (:mod:`es_proof`): the
@@ -39,14 +42,61 @@ PATTERNS = ("plain", "check", "stripe", "print")
 LEG_STYLES = ("balloon", "barrel", "straight", "wide", "slim", "tapered")
 #: A record ranked this high gets the baseline's bestseller boost.
 BESTSELLER_TOP = 15
-COLOUR_FAMILIES: tuple[str, ...] = ()
-INSIDE_LEGS: tuple[str, ...] = ()
-LENGTH_RANGE: dict[str, str] = {}
-RISES: tuple[str, ...] = ()
+RISES = ("low", "mid", "high")
+
+# --------------------------------------------------------------------------
+# Variant structure, as observed: style (one product page, shared rating) >
+# colourway (one doc, one tile) > SKU (nested; what stock and price are per)
+# --------------------------------------------------------------------------
+
+#: The colour facet: a marketing shade ("Washed Black") rolls up to a family.
+COLOUR_FAMILIES = ("black", "white", "grey", "blue", "navy", "brown", "cream", "green",
+                   "red", "pink", "orange", "multi")  # fmt: skip
+SHADE_FAMILY = {
+    "Black": "black", "Washed Black": "black",
+    "White": "white",
+    "Charcoal": "grey", "Grey": "grey", "Grey Check": "grey",
+    "Mid Wash": "blue", "Light Wash": "blue", "Vintage Blue": "blue", "Indigo": "blue",
+    "Blue Stripe": "blue", "Ice": "blue",
+    "Navy": "navy", "Rinse": "navy", "Navy Check": "navy", "Navy Print": "navy",
+    "Navy Stripe": "navy",
+    "Brown Check": "brown", "Camel Check": "brown", "Tobacco": "brown",
+    "Wild Honey": "brown", "Mocha Kiss": "brown", "Caramel": "brown", "Toffee": "brown",
+    "Espresso": "brown",
+    "Ecru": "cream", "Oat": "cream", "Natural": "cream", "Stone": "cream",
+    "Champagne": "cream", "Porcelain": "cream",
+    "Khaki": "green", "Olive": "green", "Sage": "green", "Green Print": "green",
+    "Gingham": "red", "Cherry Pop": "red",
+    "Pink": "pink",
+    "Rust": "orange", "Terracotta": "orange",
+    "Stripe": "multi",
+}  # fmt: skip
+#: The inside-leg axis of a legwear product page, and the size range each serves.
+INSIDE_LEGS = ("Extra Short", "Short/Petite", "Regular", "Long", "Extra Long")
+LENGTH_RANGE = {"Extra Short": "petite", "Short/Petite": "petite", "Regular": "regular",
+                "Long": "tall", "Extra Long": "tall"}  # fmt: skip
+#: The usual cut: petite, regular and long.
+LEGS3 = ("Short/Petite", "Regular", "Long")
+WAISTS = tuple(str(n) for n in range(6, 25, 2))
+#: A kids style is sized by age, in the same SKU field.
+KIDS_WAISTS = tuple(f"{n} Yrs" for n in range(6, 17, 2))
+#: A bed size label carries its dimension; the price steps up per size.
+BED_SIZES = ("Single (3 ft)", "Double (4 ft 6)", "King Size (5 ft)", "Super King Size (6 ft)")
 
 
 def derive_size_range(skus: list[dict]) -> list[str]:
-    return []
+    """The size ranges ``skus`` serve with stock, in :data:`SIZE_RANGES` order.
+
+    Petite is an inside-leg option of a regular style, not a separate
+    product, so a style is petite when a Short/Petite (or Extra Short) SKU is
+    in stock. The flat ``size_range`` filter of class 6 reads this.
+    """
+    served = {LENGTH_RANGE[s["inside_leg"]] for s in skus if s["in_stock"]}
+    return [r for r in SIZE_RANGES if r in served]
+
+
+def _digest(*parts: str) -> int:
+    return int(hashlib.sha256("|".join(parts).encode()).hexdigest()[:12], 16)
 
 # ==========================================================================
 # Styles: one doc per colourway, all sharing the style's ``style_id``
@@ -75,21 +125,66 @@ class Style:
     params: tuple[tuple[str, str], ...] = ()
     #: A style attribute: another pack count is another style, never a variant.
     units_per_pack: int | None = None
+    #: Legwear: the inside legs it is cut in (SKUs = waist x inside leg); its
+    #: ``size_range`` is then derived, never declared.
+    lengths: tuple[str, ...] = ()
+    #: Lengths whose every SKU is out of stock.
+    sold_out: tuple[str, ...] = ()
+    #: Bedding: one SKU per :data:`BED_SIZES` entry, each with its own price.
+    bed_sized: bool = False
+    #: Beauty: (unit size, "g" or "ml") of every shade.
+    unit: tuple[float, str] | None = None
+
+    def __post_init__(self) -> None:
+        if self.lengths and self.size_range is not None:
+            raise ValueError(f"{self.code}: a legwear size_range is derived from its SKUs")
+
+    def skus(self, colour: Colourway) -> list[dict]:
+        """The colourway's SKUs: waist x inside leg, or bed sizes, or none."""
+        if self.lengths:
+            waists = KIDS_WAISTS if self.audience == "kids" else WAISTS
+            return [
+                {"waist": w, "inside_leg": leg, "price": self.price,
+                 # About one SKU in seven is greyed out, differently per colour.
+                 "in_stock": leg not in self.sold_out
+                 and _digest(self.code, colour[0], w, leg) % 7 != 0}
+                for leg in self.lengths for w in waists
+            ]  # fmt: skip
+        if self.bed_sized:
+            step = round(self.price / 4)
+            return [{"bed_size": b, "price": float(self.price + n * step)}
+                    for n, b in enumerate(BED_SIZES)]  # fmt: skip
+        return []
+
+    def size_ranges(self) -> list[str] | None:
+        if self.lengths:
+            return derive_size_range([s for c, _ in self.colourways for s in self.skus(c)])
+        return None if self.size_range is None else [self.size_range]
 
     def docs(self) -> list[dict]:
         group = f"PLT-{self.code}"
+        swatches = [
+            {"shade": c[0], "family": SHADE_FAMILY[c[0]], "hex": c[2]} for c, _ in self.colourways
+        ]
+        # Pooled per style: every colourway shows the same rating and count.
+        h = _digest(self.code)
+        rating, reviews = round(3.6 + (h % 14) / 10, 1), 5 + (h >> 8) % 1700
+        size_range = self.size_ranges()
         out = []
         for n, (colour, sold) in enumerate(self.colourways, 1):
+            skus = self.skus(colour)
+            prices = [s["price"] for s in skus] or [self.price]
             rec = {
                 "product_id": f"{group}-{n:02d}",
                 "sku": f"PLT{self.code}{n:02d}",
                 "variant_group": group,
-                "sku_count": 1,
+                "sku_count": max(1, len(skus)),
                 "title": self.title,
                 "brand": self.brand,
                 "department": check_departments([self.department], self.title),
                 "category_path": list(self.path),
-                "price": self.price,
+                # The tile's "from" price: the cheapest SKU.
+                "price": min(prices),
                 "description": self.description,
                 "attributes": [attr("colour", "Colour", colour[0])],
                 "drawing": drawing(self.shape, colour, **dict(self.params)),
@@ -99,12 +194,24 @@ class Style:
                 "product_type": self.product_type,
                 "audience": self.audience,
                 "sold_last_5_days": sold,
-                **{"swatches": [], "colour_shade": "", "colour_family": "", "colour_hex": "",
-                   "rating": 0.0, "review_count": 0, "skus": [], "price_min": 0.0,
-                   "price_max": 0.0, "rise": None},  # fmt: skip
+                "colour_shade": colour[0],
+                "colour_family": SHADE_FAMILY[colour[0]],
+                "colour_hex": colour[2],
+                # The style's full swatch list, rotated so this colourway leads.
+                "swatches": swatches[n - 1 :] + swatches[: n - 1],
+                "rating": rating,
+                "review_count": reviews,
+                "skus": skus,
+                "price_min": min(prices),
+                "price_max": max(prices),
             }
-            for key in ("was_price", "size_range", "neckline", "pattern", "leg_style",
-                        "units_per_pack"):  # fmt: skip
+            if size_range is not None:
+                rec["size_range"] = size_range
+            if self.lengths and "rise" in dict(self.params):
+                rec["rise"] = dict(self.params)["rise"]
+            if self.unit is not None:
+                rec["unit_size"], rec["unit_measure"] = self.unit
+            for key in ("was_price", "neckline", "pattern", "leg_style", "units_per_pack"):
                 if getattr(self, key) is not None:
                     rec[key] = getattr(self, key)
             if self.units_per_pack is not None:
@@ -172,17 +279,17 @@ TOPPERS = (
           (*BED, "Mattress Toppers"), 60.0,
           "A 5cm layer of memory foam that softens a firm bed, with corner straps.",
           "Mattress Topper", "mattress_topper", one(cw("White", WHITE), 6),
-          params=(("depth", "5cm"),)),
+          bed_sized=True, params=(("depth", "5cm"),)),
     Style("MTTFIB", "Hollowfibre Mattress Topper", "Quillon Sleep", "Home",
           (*BED, "Mattress Toppers"), 35.0,
           "A deep hollowfibre topper that adds a soft, springy layer. Machine washable.",
           "Mattress Topper", "mattress_topper", one(cw("White", WHITE), 4),
-          params=(("depth", "7cm"),)),
+          bed_sized=True, params=(("depth", "7cm"),)),
     Style("MTTWOL", "Wool Mattress Topper", "Brackenmere Home", "Home",
           (*BED, "Mattress Toppers"), 85.0,
           "A breathable wool-filled topper, quilted in cotton, for a cooler night.",
           "Mattress Topper", "mattress_topper", one(cw("Natural", "#efe8d8"), 3),
-          params=(("depth", "4cm"),)),
+          bed_sized=True, params=(("depth", "4cm"),)),
 )  # fmt: skip
 
 _BURY_BED = "type boost: Mattress Topper; Mattress Protector buried"
@@ -191,25 +298,29 @@ MATTRESS = (
            (*BED, "Mattress Protectors"), 20.0,
            "A quilted mattress protector with deep skirts. Keeps the mattress and any "
            "mattress topper fresh.",
-           "Mattress Protector", "mattress_protector", one(cw("White", WHITE), 880)), _BURY_BED),
+           "Mattress Protector", "mattress_protector", one(cw("White", WHITE), 880),
+           bed_sized=True), _BURY_BED),
     (Style("MTPWTP", "Waterproof Mattress Protector", "Quillon Sleep", "Home",
            (*BED, "Mattress Protectors"), 18.0,
            "A waterproof mattress protector that guards the mattress against spills. Fits "
            "over a mattress topper.",
-           "Mattress Protector", "mattress_protector", one(cw("White", WHITE), 760)), _BURY_BED),
+           "Mattress Protector", "mattress_protector", one(cw("White", WHITE), 760),
+           bed_sized=True), _BURY_BED),
     (Style("MTPTOP", "Deep Fill Mattress Topper Protector", "Brackenmere Home", "Home",
            (*BED, "Mattress Protectors"), 28.0,
            "A protector with a padded top: protects the mattress with a topper-soft feel.",
-           "Mattress Protector", "mattress_protector", one(cw("White", WHITE), 540)), _BURY_BED),
+           "Mattress Protector", "mattress_protector", one(cw("White", WHITE), 540),
+           bed_sized=True), _BURY_BED),
     (Style("MTPCOL", "Cool Touch Mattress Protector", "Quillon Sleep", "Home",
            (*BED, "Mattress Protectors"), 24.0,
            "A cooling mattress protector for the mattress you have. Goes under a topper too.",
-           "Mattress Protector", "mattress_protector", one(cw("Ice", "#e6eef2"), 610)), _BURY_BED),
+           "Mattress Protector", "mattress_protector", one(cw("Ice", "#e6eef2"), 610),
+           bed_sized=True), _BURY_BED),
     (Style("MTRPKT", "Pocket Sprung Mattress", "Quillon Sleep", "Home",
            (*BED, "Mattresses"), 320.0,
            "A medium firm pocket sprung mattress with a built-in comfort topper layer.",
            "Mattress", "mattress_topper", one(cw("Stone", "#d9d3c7"), 190),
-           params=(("depth", "25cm"),)), "type boost: Mattress buried"),
+           bed_sized=True, params=(("depth", "25cm"),)), "type boost: Mattress buried"),
     (Style("PILPRT", "Pillow Protectors, Pair", "Quillon Sleep", "Home",
            (*BED, "Pillow Protectors"), 9.0,
            "Zipped pillow protectors to match your mattress protector.",
@@ -228,19 +339,19 @@ BALLOON = (
           (*WJEANS, "Balloon Jeans"), 45.0,
           "Full through the thigh and knee, curving back in at a cropped ankle.",
           "Jeans", "trousers", ((cw("Mid Wash", MID), 30), (cw("Ecru", ECRU), 21)),
-          leg_style="balloon", pattern="plain", size_range="regular",
+          leg_style="balloon", pattern="plain", lengths=LEGS3,
           params=(("fit", "balloon"), ("rise", "high"))),
     Style("BLNHIW", "High Waisted Balloon Jeans", "Ottery Denim", "Clothing",
           (*WJEANS, "Balloon Jeans"), 42.0,
           "A high waist and a rounded leg that tapers to the hem, in rigid denim.",
           "Jeans", "trousers", one(cw("Light Wash", LIGHT), 25),
-          leg_style="balloon", pattern="plain", size_range="regular",
+          leg_style="balloon", pattern="plain", lengths=LEGS3,
           params=(("fit", "balloon"), ("rise", "high"))),
     Style("BLNCRP", "Cropped Balloon Jeans", "Harbour & Pine", "Clothing",
           (*WJEANS, "Balloon Jeans"), 39.0,
           "A volume leg cut to just above the ankle, with a curved side seam.",
           "Jeans", "trousers", one(cw("Black", BLACK), 18),
-          leg_style="balloon", pattern="plain", size_range="regular",
+          leg_style="balloon", pattern="plain", lengths=LEGS3,
           params=(("fit", "balloon"), ("rise", "mid"))),
 )  # fmt: skip
 
@@ -252,25 +363,25 @@ BARREL = (
            "Jeans", "trousers",
            ((cw("Mid Wash", MID), 940), (cw("Light Wash", LIGHT), 820), (cw("Black", BLACK), 700),
             (cw("Ecru", ECRU), 610), (cw("Vintage Blue", DENIM), 540)),
-           leg_style="barrel", pattern="plain", size_range="regular",
+           leg_style="barrel", pattern="plain", lengths=INSIDE_LEGS,
            params=(("fit", "barrel"), ("rise", "mid"))), _EXACT),
     (Style("BRLHIG", "High Rise Barrel Jeans", "Ferrowick Denim", "Clothing",
            (*WJEANS, "Barrel Jeans"), 40.0,
            "Barrel jeans with a high rise and a soft curve through the knee.",
            "Jeans", "trousers", ((cw("Rinse", NAVY), 640), (cw("Washed Black", BLACK), 460)),
-           leg_style="barrel", pattern="plain", size_range="regular",
+           leg_style="barrel", pattern="plain", lengths=LEGS3,
            params=(("fit", "barrel"), ("rise", "high"))), _EXACT),
     (Style("BRLKID", "Girls' Barrel Jeans (6-16 Yrs)", "Little Fernby", "Clothing",
            ("Kids", "Girls", "Jeans"), 18.0,
            "Barrel jeans for girls with an adjustable waist.",
            "Jeans", "trousers", one(cw("Mid Wash", MID), 520), audience="kids",
-           leg_style="barrel", pattern="plain", size_range="regular",
+           leg_style="barrel", pattern="plain", lengths=("Regular",),
            params=(("fit", "barrel"), ("rise", "mid"))), _EXACT),
     (Style("BRLTRS", "Barrel Leg Trousers", "Larkmoor", "Clothing",
            ("Women", "Trousers", "Barrel Trousers"), 32.0,
            "Twill barrel trousers that wear like jeans, with a pressed crease.",
            "Trousers", "trousers", one(cw("Khaki", OLIVE), 480),
-           leg_style="barrel", pattern="plain", size_range="regular",
+           leg_style="barrel", pattern="plain", lengths=LEGS3,
            params=(("fit", "barrel"), ("rise", "high"))), _EXACT),
 )  # fmt: skip
 
@@ -411,13 +522,13 @@ PETITE = (
           ("Women", "Petite", "Trousers"), 22.0,
           "Wide leg trousers with a shorter inside leg for petite heights.",
           "Trousers", "trousers", one(cw("Black", BLACK), 3), was_price=32.0,
-          size_range="petite", pattern="plain", leg_style="wide",
+          lengths=("Extra Short", "Short/Petite"), pattern="plain", leg_style="wide",
           params=(("fit", "wide_leg"), ("rise", "high"))),
     Style("PETJNS", "Petite Straight Jeans", "Ottery Denim", "Clothing",
           ("Women", "Petite", "Jeans"), 25.0,
           "Straight jeans with a 28 inch inside leg, made for petite heights.",
           "Jeans", "trousers", one(cw("Mid Wash", MID), 5), was_price=35.0,
-          size_range="petite", pattern="plain", leg_style="straight",
+          lengths=("Extra Short", "Short/Petite"), pattern="plain", leg_style="straight",
           params=(("fit", "straight"), ("rise", "mid"))),
 )  # fmt: skip
 
@@ -427,25 +538,26 @@ BESTSELLERS = (
            ("Women", "Trousers", "Tapered Trousers"), 30.0,
            "Our bestselling tapered trousers. Also cut in petite and tall.",
            "Trousers", "trousers", one(cw("Navy", NAVY), 960),
-           size_range="regular", pattern="plain", leg_style="tapered",
+           lengths=LEGS3, pattern="plain", leg_style="tapered",
            params=(("fit", "slim"), ("rise", "high"))), _SALE),
     (Style("STRJNS", "Straight Leg Jeans", "Ottery Denim", "Clothing",
            (*WJEANS, "Straight Jeans"), 32.0,
            "Straight leg jeans in a regular length. Also cut in petite and long.",
            "Jeans", "trousers", one(cw("Indigo", DENIM), 910),
-           size_range="regular", pattern="plain", leg_style="straight",
+           lengths=LEGS3, pattern="plain", leg_style="straight",
            params=(("fit", "straight"), ("rise", "high"))), _SALE),
     (Style("WIDTRS", "Wide Leg Trousers", "Larkmoor", "Clothing",
            ("Women", "Trousers", "Wide Leg Trousers"), 34.0,
            "Fluid wide leg trousers with a pressed crease. Also cut in petite.",
            "Trousers", "trousers", one(cw("Black", BLACK), 800),
-           size_range="regular", pattern="plain", leg_style="wide",
+           lengths=("Short/Petite", "Regular"), pattern="plain", leg_style="wide",
            params=(("fit", "wide_leg"), ("rise", "high"))), _SALE),
     (Style("SLMJNS", "Slim Jeans", "Ferrowick Denim", "Clothing",
            (*WJEANS, "Slim Jeans"), 30.0,
            "Slim jeans with stretch. Also cut in petite and tall lengths.",
            "Jeans", "trousers", one(cw("Black", BLACK), 690),
-           size_range="regular", pattern="plain", leg_style="slim",
+           # Cut in petite, but the petite lengths are sold out.
+           lengths=LEGS3, sold_out=("Short/Petite",), pattern="plain", leg_style="slim",
            params=(("fit", "slim"), ("rise", "mid"))), _SALE),
 )  # fmt: skip
 
@@ -544,7 +656,24 @@ PACKS = (
 )  # fmt: skip
 
 
-BEAUTY: tuple[Style, ...] = ()
+# --------------------------------------------------------------------------
+# Beauty: a third-party brand; the variant axis is the shade (one doc each,
+# food-word shade names), every shade the same unit size. Not a query row.
+# --------------------------------------------------------------------------
+
+MAKEUP = ("Beauty", "Make-Up")
+BEAUTY = (
+    Style("BTYLIP", "Satin Lipstick", "Kestlewood Cosmetics", "Beauty", (*MAKEUP, "Lipstick"),
+          25.0, "A creamy satin lipstick with a soft sheen, in a slim bullet.",
+          "Lipstick", "lipstick",
+          ((cw("Wild Honey", "#b9774a"), 2), (cw("Mocha Kiss", "#7b4a3a"), 1),
+           (cw("Cherry Pop", "#b0182f"), 1)), unit=(1.9, "g")),
+    Style("BTYFND", "Soft Veil Foundation", "Kestlewood Cosmetics", "Beauty",
+          (*MAKEUP, "Foundation"), 32.0, "A light, buildable foundation with a natural finish.",
+          "Foundation", "bottle",
+          ((cw("Porcelain", "#f1dcc8"), 1), (cw("Caramel", "#c48a5c"), 2),
+           (cw("Toffee", "#9a6440"), 1), (cw("Espresso", "#5a3a28"), 1)), unit=(30.0, "ml")),
+)  # fmt: skip
 
 
 def _type(*types: str) -> Callable[[dict], bool]:
@@ -580,7 +709,7 @@ ROWS = (
              CHECK, BOMBER),
     ClassRow(6, "Size range and sale state not extracted", "petite sale",
              "a petite item on sale",
-             lambda d: d.get("size_range") == "petite" and on_sale(d),
+             lambda d: "petite" in d.get("size_range", ()) and on_sale(d),
              "petite to a size-range filter; sale to an on-sale filter",
              Policy(filters=(("size_range", ("petite",)),), on_sale=True),
              PETITE, BESTSELLERS),
@@ -599,13 +728,9 @@ ROWS = (
 
 
 def class_docs() -> list[dict]:
-    """Every record of :data:`ROWS`, targets first, each with its ``bestseller_rank``."""
-    out = [
-        d
-        for row in ROWS
-        for s in (*row.targets, *(x for x, _ in row.distractors))
-        for d in s.docs()
-    ]
+    """Every record of :data:`ROWS` (targets first), then :data:`BEAUTY`, each ranked."""
+    styles = [s for row in ROWS for s in (*row.targets, *(x for x, _ in row.distractors))]
+    out = [d for s in (*styles, *BEAUTY) for d in s.docs()]
     ranked = sorted(out, key=lambda d: (-d["sold_last_5_days"], d["product_id"]))
     rank = {d["product_id"]: n for n, d in enumerate(ranked, 1)}
     return [{**d, "bestseller_rank": rank[d["product_id"]]} for d in out]
@@ -629,7 +754,19 @@ def fingerprint(catalog: list[dict]) -> str:
 #: Search-time only: the over-broad style synonym class 3 observed.
 SYNONYMS = ("balloon => balloon, barrel",)
 KEYWORDS = ("product_id", "style_id", "product_type", "audience", "size_range",
-            "neckline", "pattern", "leg_style")  # fmt: skip
+            "neckline", "pattern", "leg_style", "rise", "colour_family",
+            "colour_shade")  # fmt: skip
+#: Price and stock are per SKU, so a SKU match must stay inside one SKU.
+SKUS = {
+    "type": "nested",
+    "properties": {
+        "waist": {"type": "keyword"},
+        "inside_leg": {"type": "keyword"},
+        "in_stock": {"type": "boolean"},
+        "bed_size": {"type": "keyword"},
+        "price": {"type": "float"},
+    },
+}
 
 
 def index_body() -> dict:
@@ -664,6 +801,9 @@ def index_body() -> dict:
                 "sold_last_5_days": {"type": "integer"},
                 "bestseller_rank": {"type": "integer"},
                 "units_per_pack": {"type": "integer"},
+                **{k: {"type": "float"} for k in ("price_min", "price_max", "rating")},
+                "review_count": {"type": "integer"},
+                "skus": SKUS,
             },
         },
     }
