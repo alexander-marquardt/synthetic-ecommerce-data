@@ -13,7 +13,7 @@ an attribute nobody consumes has no code path to plant a defect in. The check
 that finds that class of defect has to start from the RECORD: take every
 attribute the record actually publishes, change it, and require the output to
 notice -- or require the attribute to be named, with a reason, in
-:data:`~synthetic_ecommerce_data.render.attrs.NOT_DRAWN`. A newly
+:data:`~synthetic_ecommerce_data.domains.industrial.render.attrs.NOT_DRAWN`. A newly
 published attribute is then covered the day it appears, without anyone
 remembering to add it here.
 
@@ -32,10 +32,10 @@ from __future__ import annotations
 
 import pytest
 
-from synthetic_ecommerce_data.records import DRAWABLE
-from synthetic_ecommerce_data.render import CARD, DETAIL, draw_record
-from synthetic_ecommerce_data.render.attrs import NOT_DRAWN, REFUSALS
-from synthetic_ecommerce_data.render.kinds import RESERVED_KEYS
+from synthetic_ecommerce_data.domains.industrial.records import DRAWABLE
+from synthetic_ecommerce_data.domains.industrial.render import CARD, DETAIL, draw_record
+from synthetic_ecommerce_data.domains.industrial.render.attrs import NOT_DRAWN, REFUSALS
+from synthetic_ecommerce_data.domains.industrial.render.kinds import RESERVED_KEYS
 
 #: Values an attribute is changed to, in order, stopping at the first that
 #: moves the drawing.
@@ -168,7 +168,7 @@ def test_every_not_drawn_declaration_is_about_an_attribute_something_publishes()
     Checked against the vocabulary rather than the fixtures, because an
     attribute can be rare enough that no bundled record happens to carry it.
     """
-    from synthetic_ecommerce_data.catalog.vocab import VOCAB, names_for
+    from synthetic_ecommerce_data.domains.industrial.vocab import VOCAB, names_for
 
     published = {name for type_key in VOCAB for name in names_for(type_key)}
     published |= {name for record in DRAWABLE.values() for name in record}
@@ -195,9 +195,9 @@ def test_the_card_and_the_detail_are_different_drawings(sku, tmp_path):
 def _richest_dimensioned_record_per_type():
     import tempfile
 
-    from synthetic_ecommerce_data.catalog.config import SMALL
-    from synthetic_ecommerce_data.catalog.emit import render_records
-    from synthetic_ecommerce_data.catalog.generate import generate
+    from synthetic_ecommerce_data.core.config import SMALL
+    from synthetic_ecommerce_data.core.emit import render_records
+    from synthetic_ecommerce_data.domains.industrial.generate import generate
 
     catalog = generate(SMALL)
     type_of = {child.sku: line.type_key for line, child in catalog.all_skus()}
@@ -246,7 +246,7 @@ def test_the_sweep_covers_every_product_type_the_renderer_draws():
     hammer can be drawn from what a hammer record publishes, so there is no
     dimensioned drawing of one to sweep. See render/hammer.py.
     """
-    from synthetic_ecommerce_data.render.kinds import TYPE_KIND
+    from synthetic_ecommerce_data.domains.industrial.render.kinds import TYPE_KIND
 
     # The dimensioned renderer draws the original twelve types; the newer ones
     # are drawn only by the catalog's per-SKU renderer (tests/test_sku_drawings.py).

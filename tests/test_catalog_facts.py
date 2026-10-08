@@ -23,10 +23,11 @@ import pytest
 import type_facts
 import type_gates
 from published import published_attributes
-from synthetic_ecommerce_data.catalog import emit, newtypes
-from synthetic_ecommerce_data.catalog.config import GeneratorConfig
-from synthetic_ecommerce_data.catalog.generate import Generator, generate
-from synthetic_ecommerce_data.dimensions import DimensionParseError, parse_length
+from synthetic_ecommerce_data.core import emit
+from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
+from synthetic_ecommerce_data.domains.industrial import newtypes
+from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 LBF_PER_KN = 224.809

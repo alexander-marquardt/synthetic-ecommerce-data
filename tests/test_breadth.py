@@ -14,9 +14,10 @@ import re
 
 import pytest
 
-from synthetic_ecommerce_data.catalog import breadth, emit, taxonomy
-from synthetic_ecommerce_data.catalog.config import GeneratorConfig
-from synthetic_ecommerce_data.catalog.generate import generate
+from synthetic_ecommerce_data.core import emit
+from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.domains.industrial import breadth, taxonomy
+from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.prism.field_map import STRUCTURAL_NAMES
 
 #: A cheap config: the depth machinery still runs (must-stock needs it), but
@@ -66,7 +67,7 @@ def test_every_row_yields_valid_skus(catalog, breadth_lines):
 
     # Every breadth SKU emits cleanly in both shapes, and its drawing is a
     # valid, text-free SVG (the same gate every other type's SKU passes).
-    from synthetic_ecommerce_data.drawing import svg_problems
+    from synthetic_ecommerce_data.core.drawing import svg_problems
 
     flat = list(emit.iter_flat(catalog))
     assert sum(1 for row in flat if row["spec_quality"] == "fast_and_cheap") == sum(
@@ -253,7 +254,7 @@ def test_every_row_declares_a_valid_price_range():
     A row the price census measured (``price.BREADTH_CENSUS``, #52) declares
     none: it is priced from the census. Every other row must declare one.
     """
-    from synthetic_ecommerce_data.catalog import price
+    from synthetic_ecommerce_data.core import price
 
     for row in breadth.rows():
         if row.key in price.BREADTH_CENSUS:

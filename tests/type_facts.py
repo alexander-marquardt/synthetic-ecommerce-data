@@ -21,7 +21,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TypeVar
 
-from synthetic_ecommerce_data.catalog import typespec
+from synthetic_ecommerce_data.core import typespec
 
 _V = TypeVar("_V")
 

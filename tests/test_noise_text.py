@@ -1,6 +1,6 @@
 """Every noise sentence is true, attributes do not move, and kits are not groups.
 
-The copy's noise (``catalog/noise.py``) is checked here sentence type by
+The copy's noise (``core/noise.py``) is checked here sentence type by
 sentence type, against tables written out in this file and against the
 record and its siblings -- never against the module that wrote it.
 """
@@ -17,10 +17,10 @@ import pytest
 
 from compat_text import NOISE, noise_sentences
 from published import published_attributes
-from synthetic_ecommerce_data.catalog import emit
-from synthetic_ecommerce_data.catalog.config import GeneratorConfig
-from synthetic_ecommerce_data.catalog.generate import generate
-from synthetic_ecommerce_data.dimensions import parse_length
+from synthetic_ecommerce_data.core import emit
+from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.core.dimensions import parse_length
+from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 MM = 25.4

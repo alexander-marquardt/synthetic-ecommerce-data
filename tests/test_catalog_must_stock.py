@@ -15,9 +15,10 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_ecommerce_data.catalog import bundle, muststock
-from synthetic_ecommerce_data.catalog.config import GeneratorConfig
-from synthetic_ecommerce_data.catalog.generate import generate
+from synthetic_ecommerce_data.core import bundle
+from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.domains.industrial import muststock
+from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 
@@ -77,7 +78,7 @@ def test_removing_an_entry_unstocks_its_example(monkeypatch):
     """Planted regression: drop the R8 entry and its product is gone again."""
     r8 = next(e for e in muststock.MUST_STOCK if e.example.startswith("hex head cap screw"))
     monkeypatch.setattr(
-        "synthetic_ecommerce_data.catalog.generate.MUST_STOCK",
+        "synthetic_ecommerce_data.domains.industrial.generate.MUST_STOCK",
         tuple(e for e in muststock.MUST_STOCK if e is not r8),
     )
     assert _unstocked(generate(GeneratorConfig()), [r8]) == [r8.example]
@@ -117,7 +118,9 @@ def test_an_entry_no_builder_can_reach_is_refused_loudly(monkeypatch):
     impossible = muststock.MustStock(
         "an end mill no series offers", ("end_mill_square",), {"Milling Dia.": "999mm"}
     )
-    monkeypatch.setattr("synthetic_ecommerce_data.catalog.generate.MUST_STOCK", (impossible,))
-    monkeypatch.setattr("synthetic_ecommerce_data.catalog.generate.MAX_ATTEMPTS", 50)
+    monkeypatch.setattr(
+        "synthetic_ecommerce_data.domains.industrial.generate.MUST_STOCK", (impossible,)
+    )
+    monkeypatch.setattr("synthetic_ecommerce_data.domains.industrial.generate.MAX_ATTEMPTS", 50)
     with pytest.raises(muststock.MustStockUnmetError, match="999mm"):
         generate(GeneratorConfig())

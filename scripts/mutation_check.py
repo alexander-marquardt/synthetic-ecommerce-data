@@ -581,7 +581,7 @@ MUTATIONS: list[Mutation] = [
         "catalog/breadth.py",
         "\n\nregister()\n\n",
         "\n\nregister()\ntypespec.ensure_registered()\n\n",
-        "tests/test_a_type_module_imported_first.py::test_a_type_module_imported_first_still_registers[synthetic_ecommerce_data.product_types.raw_materials.ball_stock_precision]",
+        "tests/test_a_type_module_imported_first.py::test_a_type_module_imported_first_still_registers[synthetic_ecommerce_data.domains.industrial.product_types.raw_materials.ball_stock_precision]",
         "",
         "a type module or discovery can be a process's first import",
     ),

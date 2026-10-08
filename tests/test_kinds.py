@@ -12,12 +12,12 @@ from __future__ import annotations
 
 import pytest
 
-from synthetic_ecommerce_data.catalog.config import SMALL
-from synthetic_ecommerce_data.catalog.emit import render_records
-from synthetic_ecommerce_data.catalog.generate import generate
-from synthetic_ecommerce_data.catalog.vocab import VOCAB, names_for
-from synthetic_ecommerce_data.records import BUNDLED
-from synthetic_ecommerce_data.render import DIMENSIONED, kinds
+from synthetic_ecommerce_data.core.config import SMALL
+from synthetic_ecommerce_data.core.emit import render_records
+from synthetic_ecommerce_data.domains.industrial.generate import generate
+from synthetic_ecommerce_data.domains.industrial.records import BUNDLED
+from synthetic_ecommerce_data.domains.industrial.render import DIMENSIONED, kinds
+from synthetic_ecommerce_data.domains.industrial.vocab import VOCAB, names_for
 
 KIND_OF_TYPE = kinds.TYPE_KIND
 
@@ -31,9 +31,9 @@ def test_every_product_type_has_a_kind_and_every_kind_a_renderer():
     """The original twelve types have a dimensioned renderer; every type has a figure.
 
     The newer types (elastic/prism-industrial-products#103) exist only as the
-    catalog's own text-free drawings, :mod:`synthetic_ecommerce_data.drawing`.
+    catalog's own text-free drawings, :mod:`synthetic_ecommerce_data.core.drawing`.
     """
-    from synthetic_ecommerce_data.drawing import FIGURES
+    from synthetic_ecommerce_data.core.drawing import FIGURES
 
     assert set(KIND_OF_TYPE) <= set(VOCAB)
     assert set(FIGURES) == set(VOCAB)

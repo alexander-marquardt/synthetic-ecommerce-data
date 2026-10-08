@@ -8,7 +8,9 @@ imported the generator; run alone, it is that builder's own test run.
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.product_types.raw_materials.ball_stock_precision import SPEC
+from synthetic_ecommerce_data.domains.industrial.product_types.raw_materials.ball_stock_precision import (  # noqa: E501
+    SPEC,
+)
 
 
 def test_the_module_declares_its_own_key() -> None:

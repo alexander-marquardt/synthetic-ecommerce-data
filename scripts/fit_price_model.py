@@ -8,7 +8,7 @@ type a kit holds, run the fit again so the kit factor is fitted on the new parts
 
 The census gives each type a slope, an endings mix, a p50, a p90/p10, a
 larger-costs-more share and, for some, a length slope and share and a
-same-spec brand spread (:mod:`synthetic_ecommerce_data.catalog.price`).
+same-spec brand spread (:mod:`synthetic_ecommerce_data.core.price`).
 The slopes, tiers and endings go into the model as they are; this script
 solves the rest, holding the key, length, material, tier and pack terms the
 builds draw.
@@ -69,7 +69,7 @@ the fit.
 
 Neither noise term nor the anchor moves any draw: each build is made once,
 and every candidate is scored by recomputing prices from the recorded draws
-(:class:`~synthetic_ecommerce_data.catalog.price.Draw`). The hammer has no
+(:class:`~synthetic_ecommerce_data.core.price.Draw`). The hammer has no
 census prices and is not fitted.
 """
 
@@ -85,11 +85,11 @@ from pathlib import Path
 
 import numpy as np
 
-from synthetic_ecommerce_data.catalog import brands, price
-from synthetic_ecommerce_data.catalog.config import HUNDRED_K_LINES, GeneratorConfig
-from synthetic_ecommerce_data.catalog.generate import Generator, generate
-from synthetic_ecommerce_data.catalog.model import Catalog
-from synthetic_ecommerce_data.catalog.price_report import (
+from synthetic_ecommerce_data.core import brands, price
+from synthetic_ecommerce_data.core.config import HUNDRED_K_LINES, GeneratorConfig
+from synthetic_ecommerce_data.core.model import Catalog
+from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
+from synthetic_ecommerce_data.domains.industrial.price_report import (
     BRAND_ROW,
     EQUAL_ROW,
     LENGTH_ROW,

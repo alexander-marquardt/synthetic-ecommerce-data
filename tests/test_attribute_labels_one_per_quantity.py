@@ -12,9 +12,9 @@ from __future__ import annotations
 
 import pytest
 
-from synthetic_ecommerce_data.catalog.config import SMALL
-from synthetic_ecommerce_data.catalog.entry import entry_key
-from synthetic_ecommerce_data.catalog.generate import generate
+from synthetic_ecommerce_data.core.config import SMALL
+from synthetic_ecommerce_data.core.entry import entry_key
+from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 
 def _published() -> dict[str, set[tuple[str, str]]]:

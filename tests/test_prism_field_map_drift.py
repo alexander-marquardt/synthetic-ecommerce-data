@@ -21,9 +21,9 @@ from __future__ import annotations
 import pytest
 
 from prism_synthetic_industrial import FIELD_MAP_PATH
-from synthetic_ecommerce_data.catalog import emit
-from synthetic_ecommerce_data.catalog.config import GeneratorConfig
-from synthetic_ecommerce_data.catalog.generate import generate
+from synthetic_ecommerce_data.core import emit
+from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.prism.field_map import STRUCTURAL_NAMES, render
 
 REBUILD = "uv run sed-generate build --out out/catalog"

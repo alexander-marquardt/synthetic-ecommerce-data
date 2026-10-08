@@ -24,6 +24,19 @@ resolves to the same modules with a `DeprecationWarning`, and `sip-generate`
 and `sip-render` run the new commands after a note on stderr. The output is
 byte-identical under either name.
 
+**Layout** (#125 step 2). `src/synthetic_ecommerce_data/core/` holds the
+domain-neutral machinery: the model and attribute entries, config, formats
+and dimensions, brands, copy noise, titles and voice, price, emit, the image
+bundle, the non-copying check, the build command, the breadth row table and
+the drawing framework. `src/synthetic_ecommerce_data/domains/industrial/`
+holds everything industrial: the generator, the types, vocabularies,
+standards, taxonomy, figures, renderers, census measurement and data.
+`prism/` and the per-record `cli.py` stay at the top level. Some core modules
+still hold industrial tables next to their machinery; the imports that reach
+into the domain for them are listed in `tests/test_core_extraction_125.py`,
+and that list only shrinks. Old `synthetic_industrial_products.catalog.*`
+import paths resolve to the moved modules.
+
 **Every product in this repository is synthetic.** No record here describes a
 real product offered by any retailer, and no retailer's catalog content is
 redistributed.
@@ -94,7 +107,7 @@ hand:
   is ASME B1.1, and each entry is really its own designation — `#10-32` states
   32 threads per inch in the name.
 
-`src/synthetic_ecommerce_data/data/fastener_standards.json` is that
+`src/synthetic_ecommerce_data/domains/industrial/data/fastener_standards.json` is that
 extraction, unmodified, and carries its own provenance block naming each
 repository, its licence and the commit it was read at. Only the sizes this
 catalog offers were taken; the upstream compilations are not redistributed.
@@ -341,7 +354,7 @@ label mix differs from the census's 0.66 / 0.28 / 0.06.
 
 ## Brands
 
-Forty-five manufacturers, all invented, in one table (`catalog/brands.py`):
+Forty-five manufacturers, all invented, in one table (`core/brands.py`):
 their product families, market weight, house style and title voice.
 
 * **A long tail, not ten equal houses.** Three broad-line houses make
@@ -399,7 +412,7 @@ shared tables):
   the open speed. No jitter: two bearings of one number are rated alike,
   whoever makes them, and a rating never makes two SKUs different. (A formula
   had put a 6000 at 3,110 lbf against a published 1,068.)
-* **Standards** are a truth table by what the line IS (`catalog/conformance.py`):
+* **Standards** are a truth table by what the line IS (`domains/industrial/conformance.py`):
   a socket head cap screw may claim ISO 4762 / DIN 912 / ASME B18.3 / ASTM
   A574, a flat washer ISO 7089 / DIN 125-A, a metric radial bearing ISO 15 /
   ISO 492 / ABMA 20, and so on; a line with nothing applicable claims
@@ -490,7 +503,7 @@ allowed): flat washers 0.15, hammers 0.72, bolts 0.76, flap discs 0.79, kits
 ## Brand voice: titles and descriptions
 
 A brand's catalog section reads uniformly, and two brands read slightly
-differently (`catalog/voice.py`).
+differently (`core/voice.py`).
 
 * **The title's core is the census structure** -- `<Item>, <key dim> <role>,
   <material>, <coating>, <flutes>...`. A type whose variant axis is not its
@@ -521,7 +534,7 @@ the M12 taps and the drill that makes an M12x1.75 hole. The facets are what
 separate them. A catalog whose text named only each product's own attributes
 answered every size query with one product type on its words alone, and the
 facets had nothing to do. Two changes make the search realistically ambiguous
-without stating anything false (`catalog/compat.py`):
+without stating anything false (`domains/industrial/compat.py`):
 
 * **One cross-reference sentence**, in the description AND in the searchable
   `text`, never as an attribute (a hex key does not acquire a thread size, so
@@ -579,7 +592,7 @@ A distributor's copy mentions sizes a product does NOT fit, the siblings it
 is also sold in, the unit a shopper might have typed, what it pairs with and
 what it cuts. Every one of those words is searchable, so a query matches more
 than the products it names, and the policies and facets are what narrow the
-page back down (`catalog/noise.py`). Every sentence is TRUE of its record --
+page back down (`core/noise.py`). Every sentence is TRUE of its record --
 read from its own published values, its siblings, or a table -- and the
 attributes are never touched, so the facets can always separate the noise out.
 
@@ -665,7 +678,7 @@ whose sparsity leaves one without an attribute its siblings carry.
 **Attribute names are the census's generic ones.** A concept is one name across
 types -- `Material` on an end mill, a drill and a screw alike -- because that is
 how the reference census names it (160 of 496 records), and on a nested index
-every per-type spelling would be a facet of its own. `catalog/names.py` is the
+every per-type spelling would be a facet of its own. `domains/industrial/names.py` is the
 gate: every name is census-verbatim, on the names-only reference spec-table
 list (`reference-statistics/R1_reference_spec_table_names.json`), or a justified
 exception. No name may contain the record's OWN product noun, a noun of its
@@ -860,12 +873,12 @@ three materials, gage balls, ...); this catalog's twelve original types return
 description noise (above) adds hits WITHIN a type and cannot add a category.
 
 **One row per breadth category, 1-3 SKUs each, one generic loop.** Most rows
-are in one table, `src/synthetic_ecommerce_data/data/breadth_categories/`,
+are in one table, `src/synthetic_ecommerce_data/domains/industrial/data/breadth_categories/`,
 one file per row so two pull requests never edit the same file; a type in
 its own module declares the same row there (`ball_stock_precision`, see
 [How to add a product type](docs/adding-a-type.md)). For each row: a category path, a shape name, an item noun, 3-5
 line-scoped attributes with short value lists, one size (variant) attribute,
-and a one-line reason naming the customer query it joins. `catalog/breadth.py`
+and a one-line reason naming the customer query it joins. `domains/industrial/breadth.py`
 turns a row into a product line, reusing the catalog's brand machinery
 (`brands.pick_brand`), its description grammar
 (`Generator._build_description`) and its noise generator (`noise.sentences`)
@@ -976,7 +989,7 @@ regenerate-and-commit from a broken build is still red.
 The search requirements the catalog is used against come with example
 queries, and each one must find a product that exists: an example judged
 against an empty result proves nothing about the search. So the generator
-carries a **must-stock list** (`catalog/muststock.py`, maintainer ruling on
+carries a **must-stock list** (`domains/industrial/muststock.py`, maintainer ruling on
 elastic/prism-industrial-products#103): one entry per requirement example, naming
 the product type(s) it may be and the published values a SKU must carry --
 `Milling Dia.` `1/2"` with `Length of Cut` `1"`, a `bolt_hex` in `7/16-14`
@@ -1202,7 +1215,7 @@ provenance ladder, the publish gate, and a checklist for adding a type -- is in
 
 **Exception: the [breadth categories](#catalog-breadth) draw one of six
 FIXED plain shapes** (sphere, cylinder, block, disc, tube, bracket --
-`drawing/breadth_shapes.py`), never scaled or dimensioned from the SKU's own
+`domains/industrial/drawing/breadth_shapes.py`), never scaled or dimensioned from the SKU's own
 published values. The "drawn from its own dimensions" rule above does not
 apply to them: they are filler to give a facet something to show, not a
 figure meant to survive a close look (maintainer, 2026-09-30). They still go
@@ -1253,8 +1266,8 @@ every other drawing -- only the GEOMETRY is fixed.
   viewBox-only SVG at 0 x 0.
 
 The drawing is a pure function of `(product type, brand, published attributes)`
-(`src/synthetic_ecommerce_data/drawing/`). For the six kinds the
-dimensioned renderer in `render/` also draws (end mills, drills, taps, screws
+(`src/synthetic_ecommerce_data/core/drawing/`). For the six kinds the
+dimensioned renderer in `domains/industrial/render/` also draws (end mills, drills, taps, screws
 and bolts, washers, flap discs) it reads the SKU's geometry through the same
 `geometry_from_record` functions, so the two cannot disagree about what a
 record says; the other depth types read their few values inline, and the breadth
@@ -1262,7 +1275,7 @@ shapes read none.
 
 **Sizes are visible.** The scale is one constant per product type: sheet units
 per inch are the usable sheet over the type's largest drawn extent, declared
-per type in `drawing/figures.py`. There is no exception to it: a part too
+per type in `domains/industrial/drawing/figures.py`. There is no exception to it: a part too
 small to read is not drawn larger, it is shown through a **magnifier**
 (maintainer ruling on elastic/prism-industrial-products#103, 2026-09-28):
 
@@ -1383,9 +1396,9 @@ writes an HTML contact sheet of real catalog SKUs -- one screw across its
 lengths for two brands, flat washers across sizes, materials and brands, and
 twenty SKUs of every type -- for judging the drawings by eye.
 
-### The older renderers in `render/`
+### The older renderers in `domains/industrial/render/`
 
-`render/` still holds the matplotlib renderers: the twelve type drawings, the
+`domains/industrial/render/` still holds the matplotlib renderers: the twelve type drawings, the
 per-line marking, and the per-record **dimensioned** drawings (`sed-render`).
 They carry text -- callouts and stamps -- and the catalog no longer uses any of
 them; their geometry parsing is what the catalog's drawings read. Retiring them
@@ -1455,7 +1468,7 @@ not quietly become a limitation.
 Prices are generated from a measured price census
 (`reference-statistics/P2_price_census.json`: priced SKUs on archived pages
 of a large US industrial distributor), not from a flat multiplier. The
-census figures are restated in `catalog/price.py`, because the census file
+census figures are restated in `core/price.py`, because the census file
 does not ship in the wheel, and `tests/test_price.py` checks every restated
 figure against the file.
 
