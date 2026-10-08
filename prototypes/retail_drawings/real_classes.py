@@ -204,6 +204,12 @@ class Style:
                 "skus": skus,
                 "price_min": min(prices),
                 "price_max": max(prices),
+                "offer": False,
+                "online_only": False,
+                "new_in": False,
+                "trending": False,
+                "brand_owner": "",
+                "category_leaf": "",
             }
             if size_range is not None:
                 rec["size_range"] = size_range
@@ -243,6 +249,8 @@ class Policy:
     on_sale: bool = False
     boosts: tuple[tuple[str, tuple[str, ...], float], ...] = ()
     collapse: bool = False
+    route: str | None = None
+    sku_filters: tuple[tuple[str, tuple[str, ...]], ...] = ()
 
     def describe(self) -> str:
         out = [f"filter {f} = {' or '.join(v)}" for f, v in self.filters]
@@ -727,13 +735,30 @@ ROWS = (
 )  # fmt: skip
 
 
+BRAND_OWNERS = ("own", "third_party")
+BRAND_OWNER: dict[str, str] = {}
+BED_SIZE_DIMS: dict[str, tuple[int, int]] = {}
+OFFERS: tuple[Style, ...] = ()
+COLLISIONS: tuple[dict, ...] = ()
+PATH_SEPARATOR = "/"
+ROUTE_WEIGHT = 10.0
+
+
+def check_category_paths(docs: list[dict]) -> list[str]:
+    return []
+
+
+def index_doc(doc: dict) -> dict:
+    return {**doc, "category_path_joined": []}
+
+
 def class_docs() -> list[dict]:
     """Every record of :data:`ROWS` (targets first), then :data:`BEAUTY`, each ranked."""
     styles = [s for row in ROWS for s in (*row.targets, *(x for x, _ in row.distractors))]
     out = [d for s in (*styles, *BEAUTY) for d in s.docs()]
     ranked = sorted(out, key=lambda d: (-d["sold_last_5_days"], d["product_id"]))
     rank = {d["product_id"]: n for n, d in enumerate(ranked, 1)}
-    return [{**d, "bestseller_rank": rank[d["product_id"]]} for d in out]
+    return [{**d, "bestseller_rank": rank[d["product_id"]], "badges": []} for d in out]
 
 
 def corpus() -> list[dict]:
