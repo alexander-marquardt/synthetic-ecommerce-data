@@ -141,8 +141,13 @@ def corpus() -> list[dict]:
 
 
 def fingerprint(catalog: list[dict]) -> str:
-    """sha256 of the catalog as the proof indexed it: a record change makes the proof stale."""
-    blob = "".join(json.dumps(d, sort_keys=True, ensure_ascii=False) + "\n" for d in catalog)
+    """sha256 of the catalog as the proof indexed it: an indexed-field change makes the proof stale.
+
+    The ``drawing`` field is left out. The index mapping is ``dynamic: false`` and maps no
+    ``drawing``, so no query can see it: re-drawing a tile must not force an Elasticsearch re-run.
+    """
+    indexed = ({k: v for k, v in d.items() if k != "drawing"} for d in catalog)
+    blob = "".join(json.dumps(d, sort_keys=True, ensure_ascii=False) + "\n" for d in indexed)
     return hashlib.sha256(blob.encode()).hexdigest()
 
 

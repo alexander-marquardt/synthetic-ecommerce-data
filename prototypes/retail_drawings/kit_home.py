@@ -295,19 +295,26 @@ def cutlery_set(paint: str, fill: Fill, label: str | None) -> list[str]:
 
 
 def table_lamp(paint: str, fill: Fill, label: str | None, shade: str | None = None) -> list[str]:
-    """A tapered shade (the painted surface) on a gourd base in the accent color."""
+    """A tapered shade on a gourd base.
+
+    With ``shade`` (a ``#rrggbb`` the record names), the base takes the record's own color
+    and pattern and the shade takes ``shade``. Without it the shade is the painted surface
+    and the base the accent color, as the ceramic lamp's record reads.
+    """
     base = "M200,206 C150,206 140,262 156,296 C166,318 176,326 172,338 L228,338 C224,326 234,318 244,296 C260,262 250,206 200,206 Z"
+    base_paint, shade_paint = (paint, shade) if shade else (fill.accent, paint)
+    plinth = _shade(fill.base if shade else fill.accent, 0.2)
     return [
         _path(
             "M110,186 Q200,214 290,186 Z", "#fbe7a1", 1.0, ' fill-opacity=".8" stroke-opacity="0"'
         ),
         _line("M200,186 L200,208", 6),
-        _path(base, fill.accent),
+        _path(base, base_paint),
         _highlight("M168,236 Q156,262 166,290", 6, 0.4),
-        f'<rect x="158" y="336" width="84" height="14" rx="4" fill="{_shade(fill.accent, 0.2)}" stroke="{INK}" stroke-width="{LW}"/>',
+        f'<rect x="158" y="336" width="84" height="14" rx="4" fill="{plinth}" stroke="{INK}" stroke-width="{LW}"/>',
         _line("M240,344 Q300,352 318,330 Q332,306 352,322", 2.4),
         f'<rect x="346" y="318" width="16" height="22" rx="3" fill="#ffffff" stroke="{INK}" stroke-width="1.4" transform="rotate(30 354 329)"/>',
-        _path("M146,62 L254,62 L294,186 L106,186 Z", paint),
+        _path("M146,62 L254,62 L294,186 L106,186 Z", shade_paint),
         _line("M144,70 L256,70 M108,178 L292,178", 1.2, ' stroke-opacity=".6"'),
     ]
 
