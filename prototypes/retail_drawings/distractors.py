@@ -368,13 +368,15 @@ GIFT_TAIL = (
         "GTWALL", "Leather Wallet & Card Holder Gift Set", "Calderby & Lune", "Gifts",
         ("Gifts", "Gifts for Him", "Wallet Gift Sets"), 40.0,
         "A bifold wallet and a matching card holder in a presentation box. A gift set for him.",
-        drawing("box", cw("Tan", "#b07a45")), (("material", "Material", "Leather"),),
+        drawing("wallet", cw("Tan", "#b07a45"), pieces="wallet+card_holder"),
+        (("material", "Material", "Leather"),),
     ), _BOOST + "Wallet Gift Sets"),
     Distractor(product(
         "GTCARD", "Slim Card Holder Gift Set", "Calderby & Lune", "Gifts",
         ("Gifts", "Gifts for Her", "Wallet Gift Sets"), 28.0,
         "A slim card holder and a coin purse, gift boxed.",
-        drawing("box", cw("Oxblood", "#6b1f2a")), (("material", "Material", "Leather"),),
+        drawing("wallet", cw("Oxblood", "#6b1f2a"), pieces="card_holder+coin_purse"),
+        (("material", "Material", "Leather"),),
     ), _BOOST + "Wallet Gift Sets"),
     Distractor(product(
         "GTTEAH", "Afternoon Tea Gift Hamper", "Hearth & Table", "Food & Drink",
@@ -404,14 +406,14 @@ GIFT_TAIL = (
         "GTOLIV", "Olive Tree in Hessian Gift Bag", "Thistle & Wren", "Garden",
         ("Garden", "Plants", "Gift Plants"), 30.0,
         "A young olive tree, about 60 cm tall, potted and wrapped in hessian for giving.",
-        drawing("gift_bag", cw("Hessian", "#b89b6e", "solid", "#6b5a3a"), "Olive"),
+        drawing("potted_tree", cw("Hessian", "#b89b6e", "solid", "#6b5a3a"), "Olive"),
         (("height", "Height", "60 cm"),),
     ), _BOOST + "Gift Plants"),
     Distractor(product(
         "GTKEYR", "Gift Boxed Brass Keyring", "Calderby & Lune", "Gifts",
         ("Gifts", "Gifts for Him", "Keyrings"), 15.0,
         "A solid brass keyring on a leather fob, gift boxed.",
-        drawing("box", cw("Navy", "#26365c"), "Keyring"), (("material", "Material", "Brass"),),
+        drawing("keyring", cw("Navy", "#26365c")), (("material", "Material", "Brass"),),
     ), _BOOST + "Keyrings"),
 )  # fmt: skip
 
