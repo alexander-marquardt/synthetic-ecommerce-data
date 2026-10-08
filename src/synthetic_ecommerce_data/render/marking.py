@@ -296,7 +296,7 @@ class Marking:
 #: The marking for a drawing that is not of any one line: plain black line
 #: work, no fill, no hatch, no stamp.
 #:
-#: This is what ``sed-render generics`` draws -- the twelve shapes as shapes,
+#: This is what ``ecom-render generics`` draws -- the twelve shapes as shapes,
 #: which is a statement about a product TYPE and carries no line's values
 #: because it is not a drawing of a line. Every catalog image goes through
 #: :func:`marking_for_line` instead.

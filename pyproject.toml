@@ -10,10 +10,10 @@ dependencies = [
 ]
 
 [project.scripts]
-sed-render = "synthetic_ecommerce_data.cli:main"
-sed-generate = "synthetic_ecommerce_data.catalog.cli:main"
+ecom-render = "synthetic_ecommerce_data.cli:main"
+ecom-generate = "synthetic_ecommerce_data.catalog.cli:main"
 # The pre-rename commands, kept for one release cycle so a script or a
-# downstream pin does not have to move at once (#125). Each runs its sed-*
+# downstream pin does not have to move at once (#125). Each runs its ecom-*
 # replacement after a deprecation note on stderr; no output byte differs.
 sip-render = "synthetic_industrial_products:sip_render"
 sip-generate = "synthetic_industrial_products:sip_generate"
@@ -26,6 +26,8 @@ dev = [
     "hatchling>=1.25",
     "pytest>=8.0",
     "pytest-timeout>=2.3",
+    # ``pytest -n 2``: the full suite runs in about 22 minutes on two workers.
+    "pytest-xdist>=3.6",
     "pyyaml>=6.0.3",
     "ruff>=0.6",
 ]
