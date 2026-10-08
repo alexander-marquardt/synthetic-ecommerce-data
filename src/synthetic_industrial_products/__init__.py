@@ -13,7 +13,7 @@ with a :class:`DeprecationWarning`.
 
 ``sip_generate`` and ``sip_render`` are the old ``sip-generate`` and
 ``sip-render`` commands: each prints a deprecation note on stderr and then
-runs ``sed-generate`` or ``sed-render`` with the same arguments.
+runs ``ecom-generate`` or ``ecom-render`` with the same arguments.
 """
 
 from __future__ import annotations
@@ -96,14 +96,27 @@ class _Alias(importlib.abc.MetaPathFinder, importlib.abc.Loader):
         )
 
     def create_module(self, spec: importlib.machinery.ModuleSpec) -> ModuleType:
+        """The real module, its own spec parked on the alias spec.
+
+        The import system sets ``__spec__`` on whatever this returns, which
+        would leave the real module naming the alias, with this class as its
+        loader: ``resources.files`` would then fail on its data and
+        ``importlib.reload`` would run nothing. ``exec_module`` puts the real
+        spec back.
+        """
         if spec.name[len(OLD) + 1 :] in DISSOLVED:
             stand_in = ModuleType(spec.name)
             stand_in.__path__ = []
             return stand_in
-        return importlib.import_module(new_name(spec.name))
+        module = importlib.import_module(new_name(spec.name))
+        spec.loader_state = module.__spec__
+        return module
 
     def exec_module(self, module: ModuleType) -> None:
-        """Nothing to run: ``create_module`` returned the already-imported module."""
+        """Nothing to run, only the real ``__spec__`` to restore (see ``create_module``)."""
+        real = getattr(module.__spec__, "loader_state", None)
+        if isinstance(real, importlib.machinery.ModuleSpec):
+            module.__spec__ = real
 
 
 if not any(isinstance(finder, _Alias) for finder in sys.meta_path):
@@ -123,16 +136,16 @@ def _deprecated_command(old: str, new: str) -> None:
 
 
 def sip_generate(argv: list[str] | None = None) -> int:
-    """The pre-rename ``sip-generate``: ``sed-generate`` with a deprecation note."""
+    """The pre-rename ``sip-generate``: ``ecom-generate`` with a deprecation note."""
     from synthetic_ecommerce_data.core.cli import main  # noqa: PLC0415
 
-    _deprecated_command("sip-generate", "sed-generate")
+    _deprecated_command("sip-generate", "ecom-generate")
     return main(argv)
 
 
 def sip_render(argv: list[str] | None = None) -> int:
-    """The pre-rename ``sip-render``: ``sed-render`` with a deprecation note."""
+    """The pre-rename ``sip-render``: ``ecom-render`` with a deprecation note."""
     from synthetic_ecommerce_data.cli import main  # noqa: PLC0415
 
-    _deprecated_command("sip-render", "sed-render")
+    _deprecated_command("sip-render", "ecom-render")
     return main(argv)

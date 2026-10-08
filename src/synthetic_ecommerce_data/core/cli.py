@@ -1,10 +1,10 @@
 """Generate a catalog from the command line.
 
-    sed-generate build --out out/catalog --lines 400
-    sed-generate report --lines 400
-    sed-generate build --lines 600 --sparsity 0.6 --defects 2.0
-    sed-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz
-    sed-generate block shim_stock_precision
+    ecom-generate build --out out/catalog --lines 400
+    ecom-generate report --lines 400
+    ecom-generate build --lines 600 --sparsity 0.6 --defects 2.0
+    ecom-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz
+    ecom-generate block shim_stock_precision
 
 ``build`` writes:
 
@@ -13,7 +13,7 @@
 ``flat.jsonl``
     one document per SKU with the line's attributes denormalised onto it
 ``render.jsonl``
-    the same SKUs in the shape ``sed-render batch`` reads
+    the same SKUs in the shape ``ecom-render batch`` reads
 ``images.jsonl``
     one row per SKU image: its path in the bundle, its URL, and the sha256 of
     its bytes -- the drawings themselves are never written by ``build`` and
@@ -72,7 +72,7 @@ def _check_images(catalog, referenced: set[str]) -> list[str]:
 def _images(argv: list[str]) -> int:
     from synthetic_ecommerce_data.core import bundle  # noqa: PLC0415
 
-    parser = argparse.ArgumentParser(prog="sed-generate images")
+    parser = argparse.ArgumentParser(prog="ecom-generate images")
     parser.add_argument("--catalog", type=Path, default=Path("golden-catalog"))
     parser.add_argument("--out", type=Path, default=Path("out/images"))
     parser.add_argument("--archive", type=Path, default=None)
@@ -178,7 +178,7 @@ def field_map_target() -> Path:
 def _write_field_map(catalog, config: GeneratorConfig) -> str:
     """Regenerate the committed PRISM field map from the catalog just built.
 
-    Only for the DEFAULT generator configuration. ``sed-generate build
+    Only for the DEFAULT generator configuration. ``ecom-generate build
     --lines 900`` describes a different catalog, and letting it overwrite the
     committed field map would replace an artifact the drift test checks with
     one derived from a catalog nobody ships -- the test would then pass
@@ -236,7 +236,7 @@ def _measured_figures(out: Path) -> dict[str, Any]:
 def _block(argv: list[str]) -> int:
     """Print the part-number block a type should declare, if any (#54)."""
     parser = argparse.ArgumentParser(
-        prog="sed-generate block",
+        prog="ecom-generate block",
         description="The part-number block a new type's key derives, and whether it is free.",
     )
     parser.add_argument("type_key")
@@ -265,7 +265,7 @@ def main(argv: list[str] | None = None) -> int:
         return _images(argv[1:])
     if argv and argv[0] == "block":
         return _block(argv[1:])
-    parser = argparse.ArgumentParser(prog="sed-generate", description=__doc__)
+    parser = argparse.ArgumentParser(prog="ecom-generate", description=__doc__)
     parser.add_argument("command", choices=("build", "report"))
     parser.add_argument("--out", type=Path, default=Path("out/catalog"))
     parser.add_argument("--seed", type=int, default=GeneratorConfig.seed)
@@ -321,7 +321,7 @@ def main(argv: list[str] | None = None) -> int:
         for problem in problems:
             print(f"image audit FAILED: {problem}", file=sys.stderr)
         return 1
-    # render.jsonl is every SKU in the shape ``sed-render batch`` reads.
+    # render.jsonl is every SKU in the shape ``ecom-render batch`` reads.
     render = emit.write_jsonl(emit.render_records(catalog), out / "render.jsonl")
 
     audit = noncopy.audit(catalog)

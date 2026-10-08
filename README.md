@@ -11,14 +11,14 @@ The default build's figures are build output, in `golden-catalog/stats.json`:
 `skus` and `lines` (per type: `skus_by_type`, `lines_by_type`), and under
 `figures` the type and brand counts (`catalog`), the drawings' count and bytes
 (`drawings`) and the facet rule's figures (`dispersion`).
-`uv run sed-generate build --out golden-catalog` rewrites them, and no doc
+`uv run ecom-generate build --out golden-catalog` rewrites them, and no doc
 restates one (`tests/test_measured_figures.py`), so a pull request that adds a
 type changes them only in the file the merge script rebuilds (#103).
 
 **Renamed from `synthetic-industrial-products`** (#125), so that one generator
 can build catalogs beyond industrial supply. The distribution is
 `synthetic-ecommerce-data`, the package `synthetic_ecommerce_data`, and the
-commands `sed-generate` and `sed-render`. For one release cycle the old names
+commands `ecom-generate` and `ecom-render`. For one release cycle the old names
 still work and are deprecated: `import synthetic_industrial_products...`
 resolves to the same modules with a `DeprecationWarning`, and `sip-generate`
 and `sip-render` run the new commands after a note on stderr. The output is
@@ -165,7 +165,7 @@ visibly end a head height apart.
 | | |
 |---|---|
 | **Ships** | the generator, the extracted standards tables, hashes of the reference tuples, and the built catalog itself — checked in at `golden-catalog/`, see [The built catalog is committed](#the-built-catalog-is-committed-in-golden-catalog) |
-| **Never ships** | the reference corpus of captured pages, and the rendered drawings — both reproducible, see `.gitignore`. The drawings are rebuilt from the committed catalog into a pinned bundle (`sed-generate images`, see [Images](#images)); `images.jsonl` records each one's sha256, and nothing else about them is committed |
+| **Never ships** | the reference corpus of captured pages, and the rendered drawings — both reproducible, see `.gitignore`. The drawings are rebuilt from the committed catalog into a pinned bundle (`ecom-generate images`, see [Images](#images)); `images.jsonl` records each one's sha256, and nothing else about them is committed |
 
 ## Contributing
 
@@ -194,9 +194,9 @@ look-alike letters, invisible and bidirectional characters, and a phrase
 wrapped across two lines are all caught. The pre-commit hooks run `ruff check` and the whitespace
 fixers, which leave `golden-catalog/` alone.
 
-Run the test suite with plain `uv run pytest`, with no `-n`: the project does
-not install `pytest-xdist`. The whole suite takes about 27 minutes serially, so
-for a change run the modules that name what you changed, and leave the whole
+Run the test suite with `uv run pytest`. The whole suite takes about 27
+minutes serially, or about 22 on two workers with `uv run pytest -n 2`
+(`pytest-xdist` is a dev dependency; it needs about 4.3 GB at peak), so for a change run the modules that name what you changed, and leave the whole
 suite to CI. Only some product types have a `tests/test_type_<type_key>.py` (for example `test_type_o_rings.py`, `test_type_shackles.py`); the rest are covered by shared modules such as `test_type_facts.py` and `test_type_registration.py` and by tests named for the feature. The grep finds the tests that name a type or module:
 
 ```sh
@@ -213,18 +213,18 @@ with `@pytest.mark.timeout(<seconds>)`; the default does not move.
 
 ```sh
 uv sync
-uv run sed-generate build --out out/catalog
-uv run sed-generate report                      # the measured-vs-target table only
+uv run ecom-generate build --out out/catalog
+uv run ecom-generate report                      # the measured-vs-target table only
 ```
 
 Everything is parameterised, because the point of the catalog is to be dialled
 until something breaks:
 
 ```sh
-uv run sed-generate build --lines 900               # a bigger or smaller catalog (THE size knob)
-uv run sed-generate build --sparsity 0.4             # raggeder attribute coverage
-uv run sed-generate build --defects 0.0              # a catalog with no contradictions
-uv run sed-generate build --seed 7                   # a different catalog
+uv run ecom-generate build --lines 900               # a bigger or smaller catalog (THE size knob)
+uv run ecom-generate build --sparsity 0.4             # raggeder attribute coverage
+uv run ecom-generate build --defects 0.0              # a catalog with no contradictions
+uv run ecom-generate build --seed 7                   # a different catalog
 ```
 
 The generator is deterministic: one seed produces one catalog, byte for byte.
@@ -253,8 +253,8 @@ section for why).
 ### The 100K catalog
 
 ```sh
-uv run sed-generate build --lines 39000 --out out/catalog-100k
-uv run sed-generate images --catalog out/catalog-100k --out out/images-100k --archive out/images-100k.tar.gz
+uv run ecom-generate build --lines 39000 --out out/catalog-100k
+uv run ecom-generate images --catalog out/catalog-100k --out out/images-100k --archive out/images-100k.tar.gz
 ```
 
 `--lines 39000` (`config.HUNDRED_K_LINES`) is the value that lands at about
@@ -325,7 +325,7 @@ serves that one, from a pinned release, and the 100K build is a capability
 kept tested (`tests/test_catalog_brands_voice.py` builds it) rather than a
 published artifact.
 
-What moves at 100K, measured against the census targets (`sed-generate
+What moves at 100K, measured against the census targets (`ecom-generate
 report`), with the default catalog beside it:
 
 | measured property | target | 100K |
@@ -840,7 +840,7 @@ why a title built around it read the same on every SKU of the line.
 
 ### Two shapes, one catalog
 
-`sed-generate build` writes both serialisations from the same generated
+`ecom-generate build` writes both serialisations from the same generated
 objects, so any difference between what they return is a property of the shape
 and not of the data.
 
@@ -848,7 +848,7 @@ and not of the data.
 |---|---|
 | `nested.jsonl` | parent + nested SKUs + nested key-value attributes. The target shape: the only one in which "how many *products* have this value" is answerable, via `reverse_nested`. |
 | `flat.jsonl` | one document per SKU, attributes denormalised. Loadable today. Its attribute array is a plain `object`, so `name` and `value` become two independent multi-valued fields and the correlation between them is lost. |
-| `render.jsonl` | the same SKUs in the shape `sed-render batch` already reads, for the per-record dimensioned renderer. The catalog's cards do not use it: every product and variant carries an `image_id` naming its own product line's drawing. |
+| `render.jsonl` | the same SKUs in the shape `ecom-render batch` already reads, for the per-record dimensioned renderer. The catalog's cards do not use it: every product and variant carries an `image_id` naming its own product line's drawing. |
 | `images.jsonl` | one row per image — one per product line — with its product type, the shape it is drawn as, its path under the image base URL at both profiles, and how many products point at it |
 | `stats.json` | what was generated, measured against the statistics it reproduces |
 
@@ -921,7 +921,7 @@ requirement-query before/after tables are the industrial side
 
 ## The built catalog is committed, in `golden-catalog/`
 
-`sed-generate build` is reproducible, but its output is checked in anyway, at
+`ecom-generate build` is reproducible, but its output is checked in anyway, at
 `golden-catalog/`:
 
 | file | |
@@ -949,7 +949,7 @@ looks like, opens a file rather than running a build.
 ### Regenerating it
 
 ```sh
-uv run sed-generate build --out golden-catalog
+uv run ecom-generate build --out golden-catalog
 ```
 
 That is the whole command — the default configuration, the default seed. Then
@@ -1020,7 +1020,7 @@ product row per SKU.
 
 ```sh
 # 1. build the catalog and regenerate the field map from it
-uv run sed-generate build --out out/catalog
+uv run ecom-generate build --out out/catalog
 
 # 2. load the flat shape into a LOCAL TEST cluster
 python scripts/load_prism_catalog.py --host http://127.0.0.1:9201
@@ -1042,7 +1042,7 @@ faceting, and "no product has that value" looks exactly like "the field map is
 wrong".
 
 So `data/field_weights/synthetic_industrial_flat.yaml` is **generated** from
-the emitted documents, as a step of `sed-generate build`, and
+the emitted documents, as a step of `ecom-generate build`, and
 `tests/test_prism_field_map_drift.py` fails if the committed file and a fresh
 derivation disagree. Editing either side alone reds it; both directions are
 planted in `scripts/mutation_check.py`.
@@ -1259,7 +1259,7 @@ every other drawing -- only the GEOMETRY is fixed.
 * **Small SVG**, written directly rather than through a figure library:
   about 2 KB a drawing. `figures.drawings` in `golden-catalog/stats.json` has
   the committed catalog's count, total and largest bytes and the largest's
-  type; `uv run sed-generate images --catalog golden-catalog --out /tmp/img
+  type; `uv run ecom-generate images --catalog golden-catalog --out /tmp/img
   --archive /tmp/img.tar.gz` prints them with the archive's size. Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
   by max-width/max-height in a flex item that does not grow renders a
@@ -1363,7 +1363,7 @@ The URL is relative on purpose: the demo serves the bundle's folder itself
 (elastic/prism#9770), and nothing points at a third-party host.
 
 ```sh
-uv run sed-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz
+uv run ecom-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz
 ```
 
 rebuilds every drawing from the **committed** catalog (`nested.jsonl`, with each
@@ -1382,7 +1382,7 @@ with no per-deployment mount. A test pins that every member is exactly its
 **The pin is of the content, not the compressed bytes.** gzip output depends on
 the zlib build, so the archive's own sha256 is only stable on one toolchain.
 What a customization pins is the **content digest**: the sha256 of the sorted
-`<member path>\t<file sha256>` lines, printed by `sed-generate images` and
+`<member path>\t<file sha256>` lines, printed by `ecom-generate images` and
 written beside the archive as `.content-sha256`. It is derivable from the
 committed `images.jsonl` alone (`bundle.manifest_digest`), and the installer
 recomputes it after unpacking. `out/` is ignored by git, and a test asserts it,
@@ -1399,7 +1399,7 @@ twenty SKUs of every type -- for judging the drawings by eye.
 ### The older renderers in `domains/industrial/render/`
 
 `domains/industrial/render/` still holds the matplotlib renderers: the twelve type drawings, the
-per-line marking, and the per-record **dimensioned** drawings (`sed-render`).
+per-line marking, and the per-record **dimensioned** drawings (`ecom-render`).
 They carry text -- callouts and stamps -- and the catalog no longer uses any of
 them; their geometry parsing is what the catalog's drawings read. Retiring them
 -- extracting the shared geometry first -- is #27.
@@ -1414,7 +1414,7 @@ not look like a real one, and does not exercise a search engine like one.
 
 Each rate is measured, and each defect class is reproduced against **its own
 denominator** — the records that actually carry the attribute pair it needs,
-which is how the source statistics measure them. `sed-generate report` prints
+which is how the source statistics measure them. `ecom-generate report` prints
 the achieved figures beside their targets, so the claim is checkable rather
 than asserted.
 
@@ -1432,7 +1432,7 @@ than asserted.
 | image id is shared, not the product's own | 0.7353 | **0.0000, deliberately** |
 | attributes per record (mean) | 13.12 | 12.3887 |
 
-Measured on `95a9ed0` with `uv run sed-generate build` (the default catalog,
+Measured on `95a9ed0` with `uv run ecom-generate build` (the default catalog,
 identical to `golden-catalog/`).
 
 Two notes on reading that table honestly. The angle defect is **clustered**:
@@ -1543,7 +1543,7 @@ in one material and length, the median price rises with the strand count (10
 such sets on the golden catalog, 13 at `--lines 39000`; a #40 steel 10 ft
 chain's medians there are 162.00, 341.25 and 502.00 USD).
 
-**How it is checked.** `sed-generate report` prints one row per measured
+**How it is checked.** `ecom-generate report` prints one row per measured
 figure: each type's p50 and p90/p10, the share of within-page size pairs
 whose larger size costs more, longer costs more (bolts and socket screws),
 equal prices across a size pair (taps), how often a smaller SKU of one

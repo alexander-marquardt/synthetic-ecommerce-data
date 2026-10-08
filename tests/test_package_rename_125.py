@@ -38,8 +38,8 @@ def test_the_distribution_is_synthetic_ecommerce_data():
 
 def test_the_new_commands_and_the_deprecated_old_ones_are_installed():
     assert _project()["scripts"] == {
-        "sed-generate": "synthetic_ecommerce_data.core.cli:main",
-        "sed-render": "synthetic_ecommerce_data.cli:main",
+        "ecom-generate": "synthetic_ecommerce_data.core.cli:main",
+        "ecom-render": "synthetic_ecommerce_data.cli:main",
         "sip-generate": "synthetic_industrial_products:sip_generate",
         "sip-render": "synthetic_industrial_products:sip_render",
     }
@@ -65,6 +65,31 @@ def test_an_old_import_path_is_the_same_module_and_warns():
     assert done.stdout.split() == ["True", "True", "1"], done.stderr
 
 
+def test_an_old_name_import_leaves_the_real_module_spec_in_place():
+    """Importing through the alias must not rewrite the real module's ``__spec__``.
+
+    The import system sets ``__spec__`` on whatever ``create_module`` returns,
+    so a naive alias leaves ``synthetic_ecommerce_data.X.__spec__`` naming the
+    alias, with the alias as its loader. ``resources.files`` then cannot find
+    the data package's files, and ``importlib.reload`` runs nothing.
+    """
+    done = _python(
+        "import importlib, warnings\n"
+        "from importlib import resources\n"
+        "warnings.simplefilter('ignore')\n"
+        "import synthetic_industrial_products.data as data\n"
+        "import synthetic_industrial_products.catalog.emit as emit\n"
+        "print(data.__spec__.name == data.__name__, emit.__spec__.name == emit.__name__)\n"
+        "text = resources.files(data.__name__)"
+        ".joinpath('reference_fingerprints.json').read_text('utf-8')\n"
+        "print(len(text) > 0)\n"
+        "emit.IMAGE_ROOT = 'patched'\n"
+        "importlib.reload(emit)\n"
+        "print(emit.IMAGE_ROOT)\n"
+    )
+    assert done.stdout.split() == ["True", "True", "True", "industrial"], done.stderr
+
+
 def test_an_old_command_still_runs_and_says_it_is_deprecated():
     done = _python(
         "import sys\n"
@@ -74,4 +99,4 @@ def test_an_old_command_still_runs_and_says_it_is_deprecated():
     )
     assert done.returncode == 0, done.stderr
     assert "usage:" in done.stdout
-    assert "sip-generate is deprecated; use sed-generate" in done.stderr
+    assert "sip-generate is deprecated; use ecom-generate" in done.stderr
