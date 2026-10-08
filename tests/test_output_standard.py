@@ -153,7 +153,7 @@ def test_the_validator_refuses_each_planted_defect(plant, retail):
 def test_a_repeated_sku_and_a_key_with_two_names_are_refused(retail):
     one, two = deepcopy(retail[0]), deepcopy(retail[1])
     two["variants"][0]["sku"] = one["variants"][0]["sku"]
-    two["attributes"].append({"key": "color", "name": "Colour", "value": "Red"})
+    two["attributes"].append({"key": "color", "name": "Shade", "value": "Red"})
     problems = standard.check_catalog([one, two])
     assert any("is not unique" in p for p in problems)
     assert any("key 'color' names" in p for p in problems)

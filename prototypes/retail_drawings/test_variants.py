@@ -277,6 +277,7 @@ def test_a_distractor_that_cannot_outrank_is_refused() -> None:
             "A hand-poured soy candle with notes of grapefruit, bergamot, vetiver, cedar and "
             "a faint hint of lemon, in a reusable glass tumbler with a wooden lid.",
             vr.drawing("jar", vr.cw("Amber", "#d9a95b")),
+            product_type="Candle",
         ),
         "none",
     )  # fmt: skip
