@@ -27,14 +27,16 @@ byte-identical under either name.
 **Layout** (#125 step 2). `src/synthetic_ecommerce_data/core/` holds the
 domain-neutral machinery: the model and attribute entries, config, formats
 and dimensions, brands, copy noise, titles and voice, price, emit, the image
-bundle, the non-copying check, the build command, the breadth row table and
-the drawing framework. `src/synthetic_ecommerce_data/domains/industrial/`
-holds everything industrial: the generator, the types, vocabularies,
-standards, taxonomy, figures, renderers, census measurement and data.
-`prism/` and the per-record `cli.py` stay at the top level. Some core modules
-still hold industrial tables next to their machinery; the imports that reach
-into the domain for them are listed in `tests/test_core_extraction_125.py`,
-and that list only shrinks. Old `synthetic_industrial_products.catalog.*`
+bundle, the non-copying check, the breadth row table and the drawing
+framework. `src/synthetic_ecommerce_data/domains/industrial/` holds
+everything industrial: the generator, the types, vocabularies, standards,
+taxonomy, figures, renderers, census measurement and data. The commands
+compose a domain with core, so they stay at the top level beside `prism/`:
+`generate_cli.py` (`ecom-generate`) and the per-record `cli.py`
+(`ecom-render`). Some core modules still hold industrial tables next to their
+machinery; every way core reaches outside itself (an import, relative or
+absolute, or a module named in a string) is listed in
+`tests/test_core_extraction_125.py`, and that list only shrinks. Old `synthetic_industrial_products.catalog.*`
 import paths resolve to the moved modules.
 
 **Every product in this repository is synthetic.** No record here describes a

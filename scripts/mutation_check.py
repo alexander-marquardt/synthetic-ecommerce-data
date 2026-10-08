@@ -699,7 +699,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: ecom-generate block finds no owner of a taken block",
-        "core/cli.py",
+        "generate_cli.py",
         "    owners = sorted(other for other, block in used.items() if block == derived)\n",
         "    owners: list[str] = []\n",
         "tests/test_type_seam.py::test_the_block_command_names_the_owner_and_a_really_free_block",
@@ -1520,7 +1520,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "emit an eighth file the build does not commit",
-        "core/cli.py",
+        "generate_cli.py",
         '    (out / "mapping.flat.json").write_text(',
         '    (out / "mapping.extra.json").write_text("{}\\n", encoding="utf-8")\n'
         '    (out / "mapping.flat.json").write_text(',
@@ -1542,7 +1542,7 @@ MUTATIONS: list[Mutation] = [
     # quotes one again reds the docs scan.
     Mutation(
         "figures: brands counted as product types",
-        "core/cli.py",
+        "generate_cli.py",
         '"brands": len({doc["brand"] for doc in flat}),',
         '"brands": len({doc["product_type"] for doc in flat}),',
         "tests/test_catalog_golden.py::test_committed_file_matches_a_fresh_build",

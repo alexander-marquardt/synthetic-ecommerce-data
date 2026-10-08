@@ -43,7 +43,7 @@ __path__: list[str] = []
 
 
 _CORE = (
-    "brands bundle cli config emit entry formats model naming noise noncopy price typespec voice"
+    "brands bundle config emit entry formats model naming noise noncopy price typespec voice"
 )
 _INDUSTRIAL = (
     "breadth compat conformance generate measure muststock names newtypes price_report "
@@ -55,6 +55,7 @@ _INDUSTRIAL = (
 MOVED: dict[str, str] = {
     **{f"catalog.{name}": f"core.{name}" for name in _CORE.split()},
     **{f"catalog.{name}": f"domains.industrial.{name}" for name in _INDUSTRIAL.split()},
+    "catalog.cli": "generate_cli",
     "dimensions": "core.dimensions",
     "records": "domains.industrial.records",
     "render": "domains.industrial.render",
@@ -137,7 +138,7 @@ def _deprecated_command(old: str, new: str) -> None:
 
 def sip_generate(argv: list[str] | None = None) -> int:
     """The pre-rename ``sip-generate``: ``ecom-generate`` with a deprecation note."""
-    from synthetic_ecommerce_data.core.cli import main  # noqa: PLC0415
+    from synthetic_ecommerce_data.generate_cli import main  # noqa: PLC0415
 
     _deprecated_command("sip-generate", "ecom-generate")
     return main(argv)

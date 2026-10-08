@@ -515,7 +515,7 @@ def test_first_free_block_refuses_when_every_block_is_used() -> None:
 
 
 def _block_command(key: str, capsys: pytest.CaptureFixture[str]) -> str:
-    from synthetic_ecommerce_data.core import cli
+    from synthetic_ecommerce_data import generate_cli as cli
 
     assert cli.main(["block", key]) == 0
     return capsys.readouterr().out.strip()
