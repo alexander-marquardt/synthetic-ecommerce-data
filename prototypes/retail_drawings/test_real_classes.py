@@ -40,7 +40,7 @@ def test_the_rows_are_the_observed_classes_2_to_7() -> None:
         (7, "womens sale dresses", 3, 5),
         (9, "5 pack socks", 3, 4),
     ]
-    assert len(CLASS_DOCS) == 62
+    assert len(CLASS_DOCS) == 62 + 7  # the rows, then the beauty shades
 
 
 def test_the_pack_count_is_a_c62_count_and_the_titles_spell_it_three_ways() -> None:
@@ -56,7 +56,6 @@ def test_the_pack_count_is_a_c62_count_and_the_titles_spell_it_three_ways() -> N
 def test_every_class_record_carries_the_policy_fields_from_the_closed_lists() -> None:
     closed = {
         "audience": rc.AUDIENCES,
-        "size_range": rc.SIZE_RANGES,
         "neckline": rc.NECKLINES,
         "pattern": rc.PATTERNS,
         "leg_style": rc.LEG_STYLES,
@@ -96,7 +95,7 @@ def test_a_styles_colourway_docs_share_one_style_id_and_title() -> None:
         n for n in (sum(d["style_id"] == s for d in CLASS_DOCS)
                     for s in {d["style_id"] for d in CLASS_DOCS}) if n > 1
     )  # fmt: skip
-    assert per_style == [2, 2, 5]
+    assert per_style == [2, 2, 3, 4, 5]
 
 
 def test_every_target_is_intended_and_no_distractor_is() -> None:
@@ -121,6 +120,126 @@ def test_the_kids_and_baby_distractors_are_marked_by_audience() -> None:
 
 def test_every_class_brand_has_a_house_style() -> None:
     assert sorted({d["brand"] for d in CLASS_DOCS} - set(hs.HOUSE_STYLES)) == []
+
+
+# --------------------------------------------------------------------------
+# Variant structure: style, colourway (one doc), SKU (nested)
+# --------------------------------------------------------------------------
+
+
+def _style(style_id: str) -> list[dict]:
+    return [d for d in CLASS_DOCS if d["style_id"] == style_id]
+
+
+def _swatch(d: dict) -> dict:
+    return {"shade": d["colour_shade"], "family": d["colour_family"], "hex": d["colour_hex"]}
+
+
+def test_a_colourway_carries_its_styles_full_swatch_list_rotated_to_its_own_colour() -> None:
+    barrel = _style("PLT-BRLMID")
+    shades = ["Mid Wash", "Light Wash", "Black", "Ecru", "Vintage Blue"]
+    assert [d["colour_shade"] for d in barrel] == shades
+    for n, d in enumerate(barrel):
+        assert [s["shade"] for s in d["swatches"]] == shades[n:] + shades[:n]
+        assert d["swatches"][0] == _swatch(d)
+    assert [d["colour_family"] for d in barrel] == ["blue", "blue", "black", "cream", "blue"]
+    for d in CLASS_DOCS:
+        assert d["colour_family"] in rc.COLOUR_FAMILIES, d["colour_shade"]
+        assert d["colour_hex"] == d["drawing"]["base"]
+        siblings = _style(d["style_id"])
+        assert sorted(map(str, d["swatches"])) == sorted(str(_swatch(s)) for s in siblings)
+        assert d["swatches"][0] == _swatch(d)
+
+
+def test_rating_and_review_count_are_the_styles_and_its_colourways_share_them() -> None:
+    for sid in {d["style_id"] for d in CLASS_DOCS}:
+        docs = _style(sid)
+        assert len({(d["rating"], d["review_count"]) for d in docs}) == 1, sid
+        assert 3.5 <= docs[0]["rating"] <= 5.0 and docs[0]["review_count"] >= 1
+    assert len({d["rating"] for d in CLASS_DOCS}) > 10
+
+
+def test_legwear_skus_are_waist_by_inside_leg_with_stock_per_colour() -> None:
+    mid = _style("PLT-BRLMID")
+    for d in mid:
+        assert len(d["skus"]) == d["sku_count"] == 10 * 5
+        assert {tuple(sorted(s)) for s in d["skus"]} == {
+            ("in_stock", "inside_leg", "price", "waist")
+        }
+        assert sorted({s["waist"] for s in d["skus"]}, key=int) == [str(n) for n in range(6, 25, 2)]
+        assert {s["inside_leg"] for s in d["skus"]} == set(rc.INSIDE_LEGS)
+        assert 0 < sum(not s["in_stock"] for s in d["skus"]) < len(d["skus"]) // 2
+    greyed = [frozenset((s["waist"], s["inside_leg"]) for s in d["skus"] if not s["in_stock"])
+              for d in mid]  # fmt: skip
+    assert len(set(greyed)) == len(mid)
+    legwear = [d for d in CLASS_DOCS if d["product_type"] in ("Jeans", "Trousers")]
+    assert len(legwear) == 19
+    assert all(d["skus"] and "rise" in d for d in legwear)
+    kids = _style("PLT-BRLKID")[0]
+    assert {s["inside_leg"] for s in kids["skus"]} == {"Regular"}
+    assert all(s["waist"].endswith(" Yrs") for s in kids["skus"])
+
+
+def test_size_range_is_the_set_of_in_stock_lengths_across_the_style() -> None:
+    assert rc.derive_size_range([
+        {"inside_leg": "Short/Petite", "in_stock": False},
+        {"inside_leg": "Extra Long", "in_stock": True},
+        {"inside_leg": "Regular", "in_stock": True},
+    ]) == ["regular", "tall"]  # fmt: skip
+    assert rc.LENGTH_RANGE["Short/Petite"] == "petite"
+    for d in (d for d in CLASS_DOCS if "inside_leg" in d["skus"][0] if d.get("skus")):
+        style_skus = [s for x in _style(d["style_id"]) for s in x["skus"]]
+        assert d["size_range"] == rc.derive_size_range(style_skus), d["product_id"]
+    assert _style("PLT-PETJNS")[0]["size_range"] == ["petite"]
+    assert _style("PLT-STRJNS")[0]["size_range"] == ["petite", "regular", "tall"]
+    # Cut in petite, but every petite SKU is sold out: no petite in its range.
+    slim = _style("PLT-SLMJNS")[0]
+    assert "Short/Petite" in {s["inside_leg"] for s in slim["skus"]}
+    assert slim["size_range"] == ["regular", "tall"]
+    for d in (d for d in CLASS_DOCS if "size_range" in d):
+        assert d["size_range"] == [r for r in rc.SIZE_RANGES if r in d["size_range"]] != []
+    assert sum("size_range" in d for d in CLASS_DOCS) == 45
+
+
+def test_bedding_skus_are_bed_sizes_labelled_with_their_dimension_and_priced_each() -> None:
+    topper = _style("PLT-MTTMEM")[0]
+    assert topper["skus"] == [
+        {"bed_size": "Single (3 ft)", "price": 60.0},
+        {"bed_size": "Double (4 ft 6)", "price": 75.0},
+        {"bed_size": "King Size (5 ft)", "price": 90.0},
+        {"bed_size": "Super King Size (6 ft)", "price": 105.0},
+    ]
+    assert (topper["price"], topper["price_min"], topper["price_max"]) == (60.0, 60.0, 105.0)
+    bedded = [d for d in CLASS_DOCS if d["skus"] and "bed_size" in d["skus"][0]]
+    assert len(bedded) == 8
+
+
+def test_price_min_and_max_are_derived_from_the_skus() -> None:
+    for d in CLASS_DOCS:
+        prices = [s["price"] for s in d["skus"]] or [d["price"]]
+        assert (d["price_min"], d["price_max"]) == (min(prices), max(prices)), d["product_id"]
+        assert d["price"] == d["price_min"]
+        assert d["sku_count"] == max(1, len(d["skus"]))
+
+
+def test_beauty_shades_are_colourway_docs_with_a_unit_size() -> None:
+    beauty = [d for d in CLASS_DOCS if d["department"] == ["Beauty"]]
+    assert sorted({(d["style_id"], d["unit_size"], d["unit_measure"]) for d in beauty}) == [
+        ("PLT-BTYFND", 30.0, "ml"),
+        ("PLT-BTYLIP", 1.9, "g"),
+    ]
+    lip = _style("PLT-BTYLIP")
+    assert [d["colour_shade"] for d in lip] == ["Wild Honey", "Mocha Kiss", "Cherry Pop"]
+    assert {d["brand"] for d in beauty} == {"Kestlewood Cosmetics"}
+    row_codes = {s.code for r in rc.ROWS for s in (*r.targets, *(x for x, _ in r.distractors))}
+    assert {s.code for s in rc.BEAUTY} == {"BTYLIP", "BTYFND"} and not row_codes & {"BTYLIP"}
+
+
+def test_jeans_carry_the_rise_their_drawing_shows() -> None:
+    jeans = [d for d in CLASS_DOCS if d["product_type"] == "Jeans"]
+    assert len(jeans) == 15
+    for d in jeans:
+        assert d["rise"] in rc.RISES and d["rise"] == d["drawing"]["params"]["rise"]
 
 
 # --------------------------------------------------------------------------
