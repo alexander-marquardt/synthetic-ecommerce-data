@@ -132,20 +132,25 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--ndjson", type=Path, action="append", default=[])
     args = ap.parse_args(argv)
 
-    sections = samples()
-    recs = [r for recs in sections.values() for r in recs]
-    if len(recs) != SAMPLES:
-        raise SystemExit(f"{len(recs)} samples, not {SAMPLES}")
-    html = page(sections)
-    ndjson = "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in recs)
+    html, ndjson = outputs()
     for path in [HERE / "preview4.html", *args.html]:
         path.write_text(html, encoding="utf-8")
     for path in [HERE / "samples4.ndjson", *args.ndjson]:
         path.write_text(ndjson, encoding="utf-8")
     print(sku_report())
     print(table_markdown())
-    print(f"wrote {len(recs)} records")
+    print(f"wrote {ndjson.count(chr(10))} records")
     return 0
+
+
+def outputs(duplicate_listing: bool = False) -> tuple[str, str]:
+    """(the preview page, the sample NDJSON) exactly as :func:`main` writes them."""
+    sections = samples()
+    recs = [r for recs in sections.values() for r in recs]
+    if len(recs) != SAMPLES:
+        raise SystemExit(f"{len(recs)} samples, not {SAMPLES}")
+    ndjson = "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in recs)
+    return page(sections), ndjson
 
 
 if __name__ == "__main__":

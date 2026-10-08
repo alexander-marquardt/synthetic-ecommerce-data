@@ -84,6 +84,9 @@ class Row:
     is_intended: Callable[[dict], bool]
     policy: str
     distractors: tuple[Distractor, ...]
+    #: Further products the query also matches that need not outrank: the
+    #: observed list carries them below the top 10. :func:`check` ignores them.
+    tail: tuple[Distractor, ...] = ()
 
 
 def product(
@@ -250,11 +253,14 @@ TABLE = (
 )  # fmt: skip
 
 
+DUPLICATED = ""
+
+
 def distractor_docs() -> list[dict]:
     return [x.doc for row in TABLE for x in row.distractors]
 
 
-def corpus() -> list[dict]:
+def corpus(duplicate_listing: bool = False) -> list[dict]:
     """The catalog the text score is taken over: every variant doc, LEMONS, every distractor."""
     return [*docs(), LEMONS, *distractor_docs()]
 

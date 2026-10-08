@@ -159,12 +159,93 @@ def test_every_distractor_outranks_the_best_intended_product_on_text() -> None:
         assert dz.MIN_DISTRACTORS <= len(each) <= dz.MAX_DISTRACTORS
 
 
-def test_the_table_holds_the_three_classes_named_on_the_issue() -> None:
-    assert [(r.query, len(r.distractors)) for r in dz.TABLE] == [
-        ("lemon", 5),
-        ("jeans", 4),
-        ("duvet", 4),
+def test_the_table_holds_the_three_issue_classes_and_the_gift_bag_class() -> None:
+    assert [(r.query, len(r.distractors), len(r.tail)) for r in dz.TABLE] == [
+        ("lemon", 5, 0),
+        ("jeans", 4, 0),
+        ("duvet", 4, 0),
+        ("gift bag", 10, 8),
     ]
+
+
+# --------------------------------------------------------------------------
+# Gift bags: an observed "gift bag" failure, with every name invented
+# --------------------------------------------------------------------------
+
+def _gift() -> dz.Row:
+    rows = [r for r in dz.TABLE if r.query == "gift bag"]
+    assert len(rows) == 1
+    return rows[0]
+
+
+def test_the_real_gift_bags_are_three_sizes_of_three_prints_in_gift_wrap() -> None:
+    gift = _gift()
+    bags = [d for d in CORPUS if gift.is_intended(d)]
+    assert len(bags) == 9
+    assert sorted({d["variant_group"] for d in bags}) == ["GFT-LARGE", "GFT-MEDIUM", "GFT-SMALL"]
+    assert {d["category_path"][1] for d in bags} == {"Gift Wrap"}
+    assert sorted(_attr(d, "size") for d in bags) == ["Large"] * 3 + ["Medium"] * 3 + ["Small"] * 3
+    assert len({_attr(d, "print") for d in bags}) == 3
+    # The observed failure: the real ones never say "gift" in their text.
+    assert all("gift" not in dz.text_of(d) for d in bags)
+
+
+def test_the_gift_bag_distractors_hold_the_observed_mix() -> None:
+    gift = _gift()
+    kinds = [x.doc["category_path"][-1] for x in gift.distractors]
+    assert sorted(kinds) == sorted(
+        ["Bath & Body Gifts", "Skincare Gifts", "Haircare Gifts",
+         "Wash Bags", "Make-Up Bags", "Hospital Bags",
+         "Make-Up Gift Sets", "Make-Up Gift Sets",
+         "Travel Sets", "Summer Sets"]
+    )  # fmt: skip
+    beauty = [x.doc["title"] for x in gift.distractors if x.doc["category_path"][1] == "Gift Sets"]
+    assert sum(t.endswith("Gift Bag") for t in beauty) == 3
+    assert sum("with Limited Edition" in t and t.endswith("Bag") for t in beauty) == 2
+    tail = sorted(x.doc["category_path"][-1] for x in gift.tail)
+    assert tail == sorted(
+        ["Wallet Gift Sets", "Wallet Gift Sets", "Hampers", "Hampers", "Letterbox Gifts",
+         "Letterbox Gifts", "Gift Plants", "Keyrings"]
+    )  # fmt: skip
+    titles = [x.doc["title"] for x in gift.tail]
+    assert sum(" in " in t and t.endswith("Gift Bag") for t in titles) == 1
+    assert sum(t.startswith("Gift Boxed") for t in titles) == 1
+
+
+def test_a_duplicate_listing_publishes_one_product_id_under_two_categories() -> None:
+    assert len({d["product_id"] for d in CORPUS}) == len(CORPUS)
+    dup = dz.corpus(duplicate_listing=True)
+    assert len(dup) == len(CORPUS) + 1
+    ids = [d["product_id"] for d in dup]
+    twice = sorted({i for i in ids if ids.count(i) == 2})
+    assert twice == [dz.DUPLICATED]
+    a, b = (d for d in dup if d["product_id"] == dz.DUPLICATED)
+    assert a["category_path"] != b["category_path"]
+    assert {k: v for k, v in a.items() if k != "category_path"} == {
+        k: v for k, v in b.items() if k != "category_path"
+    }
+    assert dz.DUPLICATED in {x.doc["product_id"] for x in _gift().distractors}
+
+
+def test_the_committed_samples_and_preview_are_what_the_builder_writes() -> None:
+    html, ndjson = build_preview4.outputs()
+    assert ndjson == (HERE / "samples4.ndjson").read_text(encoding="utf-8")
+    assert html == (HERE / "preview4.html").read_text(encoding="utf-8")
+
+
+def test_the_duplicate_listing_option_adds_exactly_one_record() -> None:
+    _, plain = build_preview4.outputs()
+    _, dup = build_preview4.outputs(duplicate_listing=True)
+    extra = dup.splitlines()[len(plain.splitlines()) :]
+    assert dup.startswith(plain)
+    assert len(extra) == 1
+    assert f'"product_id": "{dz.DUPLICATED}"' in extra[0]
+
+
+def test_the_readme_class_table_names_every_class() -> None:
+    readme = (HERE.parents[1] / "README.md").read_text(encoding="utf-8")
+    for row in dz.TABLE:
+        assert f"| {row.cls} | *{row.query}*" in readme, row.cls
 
 
 def _with(row: dz.Row, extra: tuple[dz.Distractor, ...]) -> dz.Row:
@@ -222,7 +303,8 @@ def test_every_brand_has_a_house_style_and_every_sample_draws() -> None:
     recs = [r for rs in sections.values() for r in rs]
     assert len(recs) == build_preview4.SAMPLES
     assert {k: len(v) for k, v in sections.items()} == {
-        "Jeans": 16, "Bras": 12, "Bedding": 9, "Beauty": 9, "Planted distractors": 14
+        "Jeans": 16, "Bras": 12, "Bedding": 9, "Beauty": 9, "Planted distractors": 14,
+        "Gift wrap": 3, "Gift bag distractors": 18,
     }  # fmt: skip
     for r in recs:
         assert ET.fromstring(drawing_svg(r)).tag.endswith("svg")
