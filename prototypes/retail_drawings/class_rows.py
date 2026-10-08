@@ -691,7 +691,8 @@ ROSE_GOLDS = (
     Style("RGLAMP", "Touch Dimmable Table Lamp", "Brackenmere Home", "Home",
           ("Home", "Lighting", "Table Lamps"), 35.0,
           "A touch dimmable lamp with a rose gold metal base and a white linen shade.",
-          "Table Lamp", "table_lamp", one(cw(ROSE_GOLD, "#d8a28f"), 25), metal=True),
+          "Table Lamp", "table_lamp", one(cw(ROSE_GOLD, "#d8a28f"), 25), metal=True,
+          params=(("shade", "#f7f3ea"),)),  # the white linen shade; the base is the rose gold
     Style("RGCHRG", "Wireless Charging Pad", "Harbour & Pine", "Home",
           ("Electricals", "Phone Accessories", "Wireless Chargers"), 22.0,
           "A slim wireless charging pad with a rose gold metal rim.",

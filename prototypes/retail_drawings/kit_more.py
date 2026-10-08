@@ -23,7 +23,7 @@ bodysuit        a sleeveless top with a popper-fastened brief    neckline, sleev
 wallet          a leather gift set laid in its box               pieces
 keyring         split ring, link and a stitched leather fob      ring
 charging_pad    a flat disc with a metal rim and a cable         surface
-chairbed        a folded foam cube, its unfolded bed dashed      --
+chairbed        an armchair, its foam mattress pulled out        --
 mattress        a deep sprung mattress with a quilted top        depth
 potted_tree     a small tree in a tied hessian wrap              leaves
 pudding         a dome pudding with brandy butter and holly      --
@@ -46,6 +46,7 @@ from kit import (
     Fill,
     _highlight,
     _line,
+    _mirror,
     _panel,
     _path,
     _shade,
@@ -541,20 +542,33 @@ def mattress(paint: str, fill: Fill, label: str | None, depth: str = "25cm") -> 
 
 
 def chairbed(paint: str, fill: Fill, label: str | None) -> list[str]:
-    """A foam cube seat: three folded layers on its faces, the single bed it unfolds into dashed on the floor."""
-    front = "M110,170 L270,170 L270,330 L110,330 Z"
-    side = "M270,170 L310,130 L310,290 L270,330 Z"
+    """An armchair (back, two arms, seat cushion) with its foam mattress half pulled out in front.
+
+    The pulled-out section hangs from the seat's front edge, a seam across it; the full single
+    bed it unfolds into is dashed on the floor.
+    """
+    arm = "M56,176 Q56,148 84,148 Q112,148 112,176 L112,300 L56,300 Z"
+    feet = "".join(
+        f'<path d="M{x},300 L{x + 14},300 L{x + 12},318 L{x + 2},318 Z" fill="#6b4a2e" stroke="{INK}" stroke-width="{LW_DETAIL}" stroke-linejoin="round"/>'
+        for x in (62, 324)
+    )
+    pulled = "M112,296 L288,296 L308,338 L92,338 Z"
     return [
-        _line("M110,330 L30,374 L218,374 L270,330", 1.4, ' stroke-dasharray="6 4" stroke-opacity=".7"'),
-        _path(front, paint),
-        _path(side, paint),
-        _dark(side, 0.22),
-        _path("M110,170 L150,130 L310,130 L270,170 Z", paint),
-        _dark("M110,170 L150,130 L310,130 L270,170 Z", 0.06),
-        _line("M110,223 L270,223 L310,183 M110,276 L270,276 L310,236", 2.0),
-        _line("M114,174 L266,174 M114,326 L266,326", 1.0, ' stroke-dasharray="4 3" stroke-opacity=".6"'),
-        _path("M282,196 L298,180 L298,206 L282,222 Z", _shade(fill.base, 0.35), 1.2),
-        _highlight("M120,186 L120,214", 4, 0.4),
+        _line("M92,338 L44,382 L356,382 L308,338", 1.4, ' stroke-dasharray="6 4" stroke-opacity=".7"'),
+        feet,
+        _path("M90,98 Q200,84 310,98 L310,236 L90,236 Z", paint),
+        _dark("M90,98 Q200,84 310,98 L310,236 L90,236 Z", 0.08),
+        _line("M200,92 L200,232", 1.4, ' stroke-opacity=".6"'),
+        _path("M104,232 L296,232 L296,296 L104,296 Z", paint),
+        _dark("M104,268 L296,268 L296,296 L104,296 Z", 0.14),
+        _line("M104,268 L296,268", 1.6),
+        _path(pulled, "#f1ede4", LW_DETAIL),
+        _line("M100,317 L300,317", 1.4, ' stroke-dasharray="5 3"'),
+        _path(arm, paint),
+        _path(_mirror(arm), paint),
+        _dark("M56,176 Q56,148 84,148 Q112,148 112,176 Z", 0.12),
+        _dark(_mirror("M56,176 Q56,148 84,148 Q112,148 112,176 Z"), 0.12),
+        _highlight("M70,200 L70,260", 4, 0.4),
     ]
 
 

@@ -18,6 +18,7 @@ import distractors as dz  # noqa: E402
 import house_styles as hs  # noqa: E402
 import kit  # noqa: E402
 import kit_home  # noqa: E402,F401 -- registers table_lamp
+import kit_more  # noqa: E402,F401 -- registers chairbed
 import real_classes as rc  # noqa: E402
 
 CLASS_DOCS = rc.class_docs()
@@ -484,3 +485,11 @@ def test_the_rose_gold_lamp_is_drawn_with_a_rose_gold_base_and_a_white_linen_sha
     shade = _fill_of(svg, _LAMP_SHADE_D)
     assert shade == rec["drawing"].get("params", {}).get("shade")
     assert min(int(shade[i : i + 2], 16) for i in (1, 3, 5)) >= 0xE0  # near white
+
+
+def test_the_chairbed_is_an_armchair_with_a_mattress_pulled_out() -> None:
+    """Back, two arms and a seat in the record's color; a mattress section and a dashed bed."""
+    svg = kit.render("chairbed", kit.Fill("solid", "#123456", "#654321"))
+    assert svg.count('fill="#123456"') == 4  # the back, the seat and the two arms
+    assert svg.count('d="M112,296 L288,296') == 1  # the section pulled out of the seat's front
+    assert svg.count("stroke-dasharray") == 2  # the unfolded bed and the mattress seam
