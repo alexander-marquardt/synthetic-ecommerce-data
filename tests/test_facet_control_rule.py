@@ -26,11 +26,11 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_industrial_products.catalog import emit
-from synthetic_industrial_products.catalog.breadth import SPEC_QUALITY
-from synthetic_industrial_products.catalog.config import GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate
-from synthetic_industrial_products.prism.derive import (
+from synthetic_ecommerce_data.catalog import emit
+from synthetic_ecommerce_data.catalog.breadth import SPEC_QUALITY
+from synthetic_ecommerce_data.catalog.config import GeneratorConfig
+from synthetic_ecommerce_data.catalog.generate import generate
+from synthetic_ecommerce_data.prism.derive import (
     IDENTIFIER_DISPERSION,
     MIN_PRESENCE,
     RANGE_DISPERSION,
@@ -39,9 +39,9 @@ from synthetic_industrial_products.prism.derive import (
     decide,
     measure,
 )
-from synthetic_industrial_products.prism.field_map import render
+from synthetic_ecommerce_data.prism.field_map import render
 
-#: The rule's figures on the default build, as ``sip-generate build`` wrote
+#: The rule's figures on the default build, as ``ecom-generate build`` wrote
 #: them (#103). The tests below re-derive each one from a fresh build; the
 #: golden test holds the committed file to a rebuild, so a figure that moves
 #: reds there, naming the command that rewrites it.
@@ -151,7 +151,7 @@ def test_every_attribute_that_is_quantitative_still_says_so(flat_rows: list[dict
     assert len(quantitative) >= 25, len(quantitative)
     # Neck Length is the one real continuum on this catalog: its values never
     # repeat, and applying its census presence rate once instead of twice
-    # (alexander-marquardt/synthetic-industrial-products#39) raised its
+    # (alexander-marquardt/synthetic-ecommerce-data#39) raised its
     # document count well past RANGE_MIN_DOCS, so dispersion alone now calls
     # it continuous. It still is not OFFERED as a range -- MIN_PRESENCE keeps
     # it off faceting entirely, since it is rare even among end mills (see
@@ -387,7 +387,7 @@ def test_the_widest_dispersion_is_a_continuum_kept_off_by_min_presence(decided) 
     room to spare. It used to be the catalog's real example of
     ``RANGE_MIN_DOCS`` -- too few documents to trust the dispersion statistic
     -- but applying its census presence rate once instead of twice
-    (alexander-marquardt/synthetic-industrial-products#39) raised its
+    (alexander-marquardt/synthetic-ecommerce-data#39) raised its
     document count from 48 to 388, clearing that floor too. It is still not
     offered as a range: it is rare even among end mills, the only product
     types that carry it, so ``MIN_PRESENCE`` is the floor that decides it
@@ -463,7 +463,7 @@ def test_the_product_floor_decides_only_the_attributes_it_names(decided) -> None
 
 # ---------------------------------------------------------------------------
 # A facet or an identifier: a property of the values, not of the catalog's size
-# (alexander-marquardt/synthetic-industrial-products#31, #28)
+# (alexander-marquardt/synthetic-ecommerce-data#31, #28)
 # ---------------------------------------------------------------------------
 # The retired rule withheld a terms attribute with more than 25 distinct values.
 # 25 is a count, and a count does not grow with the catalog: Thread Size, a
@@ -757,7 +757,7 @@ def test_a_declared_identifier_is_withheld_whatever_its_dispersion() -> None:
 
 def test_derive_reads_the_generators_identifier_declaration() -> None:
     """One source for which attributes are identifiers: the generator's own set."""
-    from synthetic_industrial_products.catalog.generate import Generator
-    from synthetic_industrial_products.prism import derive
+    from synthetic_ecommerce_data.catalog.generate import Generator
+    from synthetic_ecommerce_data.prism import derive
 
     assert derive.IDENTIFIER_ATTRIBUTES is Generator.IDENTIFIER_ATTRIBUTES

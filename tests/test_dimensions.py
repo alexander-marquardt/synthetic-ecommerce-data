@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from synthetic_industrial_products.dimensions import (
+from synthetic_ecommerce_data.dimensions import (
     MM_PER_INCH,
     DimensionParseError,
     parse_angle_degrees,

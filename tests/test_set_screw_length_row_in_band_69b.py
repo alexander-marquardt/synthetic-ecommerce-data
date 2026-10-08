@@ -13,10 +13,10 @@ from __future__ import annotations
 
 import pytest
 
-from synthetic_industrial_products.catalog import price, price_report
-from synthetic_industrial_products.catalog.config import HUNDRED_K_LINES, GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate
-from synthetic_industrial_products.catalog.price_report import LENGTH_ROW, ORDER_ROW
+from synthetic_ecommerce_data.catalog import price, price_report
+from synthetic_ecommerce_data.catalog.config import HUNDRED_K_LINES, GeneratorConfig
+from synthetic_ecommerce_data.catalog.generate import generate
+from synthetic_ecommerce_data.catalog.price_report import LENGTH_ROW, ORDER_ROW
 
 SET_SCREW = "set_screws_hex_socket"
 

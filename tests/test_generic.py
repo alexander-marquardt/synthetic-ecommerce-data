@@ -9,7 +9,7 @@ kind of thing that stays true right up until somebody adds a helpful label.
 Two independent proofs are asserted here, each with its own control:
 
 * **Nothing on the image is drawn in the dimension colour.** Every callout
-  primitive in :mod:`~synthetic_industrial_products.render.canvas` draws in
+  primitive in :mod:`~synthetic_ecommerce_data.render.canvas` draws in
   ``DIM`` and nothing else does, so a callout cannot appear without ``DIM``
   pixels appearing. The control is
   :func:`test_the_same_check_finds_the_callouts_on_a_dimensioned_drawing`: the
@@ -32,11 +32,11 @@ import pytest
 from matplotlib.text import Text
 
 from helpers import colour_mask, figure_pixels
-from synthetic_industrial_products.catalog import taxonomy
-from synthetic_industrial_products.records import DRAWABLE
-from synthetic_industrial_products.render import CARD, DETAIL, endmill, generic, kinds
-from synthetic_industrial_products.render.canvas import DIM
-from synthetic_industrial_products.render.profiles import CARD_CSS, DETAIL_CSS, SCALE
+from synthetic_ecommerce_data.catalog import taxonomy
+from synthetic_ecommerce_data.records import DRAWABLE
+from synthetic_ecommerce_data.render import CARD, DETAIL, endmill, generic, kinds
+from synthetic_ecommerce_data.render.canvas import DIM
+from synthetic_ecommerce_data.render.profiles import CARD_CSS, DETAIL_CSS, SCALE
 
 #: Anything that looks like a measurement: a diameter sign, a number with a
 #: unit, a fraction, a thread designation, a degree.
@@ -166,7 +166,7 @@ def _two_records(type_key: str) -> tuple[dict, dict]:
     Built from the type's whole VOCABULARY rather than from a fixture, so an
     attribute added to the catalog is covered here without anyone remembering.
     """
-    from synthetic_industrial_products.catalog.vocab import names_for
+    from synthetic_ecommerce_data.catalog.vocab import names_for
 
     first: dict[str, str] = {"sku": "AAA11"}
     second: dict[str, str] = {"sku": "ZZZ99"}

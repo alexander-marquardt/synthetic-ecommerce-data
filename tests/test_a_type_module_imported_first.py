@@ -16,7 +16,7 @@ import sys
 
 import pytest
 
-import synthetic_industrial_products.product_types as types_pkg
+import synthetic_ecommerce_data.product_types as types_pkg
 
 _MODULES = sorted(
     found.name
@@ -27,7 +27,7 @@ _MODULES = sorted(
 _SCRIPT = """
 import importlib, sys
 module = importlib.import_module(sys.argv[1])
-from synthetic_industrial_products.catalog.taxonomy import LEAVES
+from synthetic_ecommerce_data.catalog.taxonomy import LEAVES
 LEAVES[module.SPEC.key]
 """
 
@@ -45,7 +45,7 @@ def test_a_type_module_imported_first_still_registers(module: str) -> None:
 )
 def test_discover_called_first_finds_every_type_module(first_call: str) -> None:
     """``typespec.discover()`` or ``block_of`` as a fresh process's first call."""
-    script = f"from synthetic_industrial_products.catalog import typespec\nprint({first_call})\n"
+    script = f"from synthetic_ecommerce_data.catalog import typespec\nprint({first_call})\n"
     result = subprocess.run(
         [sys.executable, "-c", script], capture_output=True, text=True, check=False
     )

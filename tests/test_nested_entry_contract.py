@@ -28,10 +28,10 @@ from typing import Any
 import pytest
 
 from industrial_units import Unit, pinned
-from synthetic_industrial_products.catalog import emit, series
-from synthetic_industrial_products.catalog.config import SMALL, GeneratorConfig
-from synthetic_industrial_products.catalog.entry import published, split
-from synthetic_industrial_products.catalog.generate import generate
+from synthetic_ecommerce_data.catalog import emit, series
+from synthetic_ecommerce_data.catalog.config import SMALL, GeneratorConfig
+from synthetic_ecommerce_data.catalog.entry import published, split
+from synthetic_ecommerce_data.catalog.generate import generate
 
 GOLDEN_NESTED = Path(__file__).resolve().parents[1] / "golden-catalog" / "nested.jsonl"
 
@@ -401,7 +401,7 @@ def test_split_gives_the_hand_worked_parts_of_each_published_spelling(
 
 
 #: The test's OWN reading of a published spelling, written apart from
-#: :mod:`~synthetic_industrial_products.catalog.entry` so the round trip below is
+#: :mod:`~synthetic_ecommerce_data.catalog.entry` so the round trip below is
 #: not judged by the function that produced the entries.
 _ORACLE_NUMBER = (
     r"(?:[0-9]+[ -][0-9]+/[0-9]+|[0-9]+/[0-9]+"

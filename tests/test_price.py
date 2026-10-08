@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_industrial_products.catalog import (
+from synthetic_ecommerce_data.catalog import (
     brands,
     breadth,
     newtypes,
@@ -21,18 +21,18 @@ from synthetic_industrial_products.catalog import (
     price_report,
     tabletype,
 )
-from synthetic_industrial_products.catalog.config import HUNDRED_K_LINES, GeneratorConfig
-from synthetic_industrial_products.catalog.generate import Generator, generate
-from synthetic_industrial_products.catalog.measure import measure
-from synthetic_industrial_products.catalog.model import Attribute, Catalog
-from synthetic_industrial_products.catalog.price_report import (
+from synthetic_ecommerce_data.catalog.config import HUNDRED_K_LINES, GeneratorConfig
+from synthetic_ecommerce_data.catalog.generate import Generator, generate
+from synthetic_ecommerce_data.catalog.measure import measure
+from synthetic_ecommerce_data.catalog.model import Attribute, Catalog
+from synthetic_ecommerce_data.catalog.price_report import (
     BRAND_ROW,
     EQUAL_ROW,
     LENGTH_ROW,
     ORDER_ROW,
     SPREAD_ROW,
 )
-from synthetic_industrial_products.dimensions import (
+from synthetic_ecommerce_data.dimensions import (
     DimensionParseError,
     parse_length,
     parse_thread,

@@ -19,12 +19,12 @@ import dataclasses
 
 import pytest
 
-from synthetic_industrial_products.catalog import emit
-from synthetic_industrial_products.catalog.brands import BRAND_BOOK, FRAMES, INKS
-from synthetic_industrial_products.catalog.config import SMALL
-from synthetic_industrial_products.catalog.generate import BRANDS, generate
-from synthetic_industrial_products.render.attrs import UnsupportedFeatureError
-from synthetic_industrial_products.render.marking import (
+from synthetic_ecommerce_data.catalog import emit
+from synthetic_ecommerce_data.catalog.brands import BRAND_BOOK, FRAMES, INKS
+from synthetic_ecommerce_data.catalog.config import SMALL
+from synthetic_ecommerce_data.catalog.generate import BRANDS, generate
+from synthetic_ecommerce_data.render.attrs import UnsupportedFeatureError
+from synthetic_ecommerce_data.render.marking import (
     BRAND_INK,
     DIRECTION_ATTRIBUTES,
     FINISH_ATTRIBUTES,
@@ -46,7 +46,7 @@ def _published(names) -> set[str]:
     (elastic/prism-industrial-products#103) are drawn only by the catalog's
     per-SKU renderer, whose palette ``tests/test_sku_drawings.py`` sweeps.
     """
-    from synthetic_industrial_products.render.kinds import TYPE_KIND
+    from synthetic_ecommerce_data.render.kinds import TYPE_KIND
 
     wanted = set(names)
     return {
@@ -115,7 +115,7 @@ def test_a_colour_no_brand_claims_does_not_resolve_to_the_nearest_one():
     inverse is a lookup and not a guess: an ink no brand uses, and a real ink
     with a frame no brand pairs it with, both refuse.
     """
-    from synthetic_industrial_products.drawing.style import (
+    from synthetic_ecommerce_data.drawing.style import (
         UnknownStyleError,
         brand_for_house_style,
     )

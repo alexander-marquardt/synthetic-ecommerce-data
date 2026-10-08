@@ -31,18 +31,18 @@ import pytest
 
 from compat_text import without_compatibility
 from published import published_attributes
-from synthetic_industrial_products.catalog import emit, tabletype
-from synthetic_industrial_products.catalog.brands import (
+from synthetic_ecommerce_data.catalog import emit, tabletype
+from synthetic_ecommerce_data.catalog.brands import (
     BRAND_BOOK,
     BRANDS,
     FRAMES,
     INKS,
     PRODUCT_WORDS,
 )
-from synthetic_industrial_products.catalog.config import HUNDRED_K_LINES, GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate
-from synthetic_industrial_products.catalog.muststock import MUST_STOCK
-from synthetic_industrial_products.dimensions import parse_length
+from synthetic_ecommerce_data.catalog.config import HUNDRED_K_LINES, GeneratorConfig
+from synthetic_ecommerce_data.catalog.generate import generate
+from synthetic_ecommerce_data.catalog.muststock import MUST_STOCK
+from synthetic_ecommerce_data.dimensions import parse_length
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 
@@ -66,7 +66,7 @@ def _read(path: Path) -> list[dict]:
 
 #: This whole file is about brand VARIETY within a type: several brands, each
 #: reading differently, over many products. Every breadth category
-#: (:mod:`.catalog.breadth`, alexander-marquardt/synthetic-industrial-products#34)
+#: (:mod:`.catalog.breadth`, alexander-marquardt/synthetic-ecommerce-data#34)
 #: is ONE product line -- one brand, by construction, at any catalog size --
 #: so there is no variety for these checks to find, and none to fail to find.
 #: Exempt, the same ruling as the realism truth tables
@@ -251,7 +251,7 @@ def test_every_bearing_is_a_real_table_entry_with_its_own_dimensions(which, requ
     """A bearing number names a bore, OD and width. The first version of the
     uniqueness walk renumbered 11,784 bearings to numbers that are not
     bearings, keeping another number's sizes."""
-    from synthetic_industrial_products.catalog.newtypes import _BEARINGS_INCH, _BEARINGS_METRIC
+    from synthetic_ecommerce_data.catalog.newtypes import _BEARINGS_INCH, _BEARINGS_METRIC
 
     table = {n: (b / 25.4, o / 25.4, w / 25.4) for n, b, o, w in _BEARINGS_METRIC}
     table |= {n: (b, o, w) for n, b, o, w in _BEARINGS_INCH}
@@ -273,9 +273,9 @@ def test_every_bearing_is_a_real_table_entry_with_its_own_dimensions(which, requ
 def test_the_series_walk_changes_no_attribute_but_an_identifier():
     """The walk renumbers the series and List Number; a value that merely
     EQUALS the series -- here a planted 'Bearing Number' -- never moves."""
-    from synthetic_industrial_products.catalog.config import SMALL
-    from synthetic_industrial_products.catalog.generate import Generator, LineDraft
-    from synthetic_industrial_products.catalog.model import Attribute
+    from synthetic_ecommerce_data.catalog.config import SMALL
+    from synthetic_ecommerce_data.catalog.generate import Generator, LineDraft
+    from synthetic_ecommerce_data.catalog.model import Attribute
 
     gen = Generator(SMALL, "screw_socket_head")
     first = LineDraft(item="x", brand=BRANDS[0], series="K100", category=("a",))
@@ -338,7 +338,7 @@ def _contrast(ink: str, paper: str) -> float:
 
 
 def test_every_brand_has_exactly_one_house_style_and_no_two_share_it():
-    from synthetic_industrial_products.drawing.style import brand_for_house_style, house_style
+    from synthetic_ecommerce_data.drawing.style import brand_for_house_style, house_style
 
     styles = {brand: house_style(brand) for brand in BRANDS}
     pairs = {(s.ink, s.frame) for s in styles.values()}
@@ -370,9 +370,9 @@ def _frames_in(svg: str) -> set[str]:
 
 def test_every_sampled_drawing_is_in_its_own_brands_house_style():
     """One SKU per (brand, type) of the committed catalog, drawn and read back."""
-    from synthetic_industrial_products.catalog import bundle
-    from synthetic_industrial_products.drawing import draw_sku
-    from synthetic_industrial_products.drawing.style import house_style
+    from synthetic_ecommerce_data.catalog import bundle
+    from synthetic_ecommerce_data.drawing import draw_sku
+    from synthetic_ecommerce_data.drawing.style import house_style
 
     seen = set()
     facets = bundle.flat_facets(GOLDEN)
@@ -494,7 +494,7 @@ def test_every_qualifier_is_non_factual(golden):
     that is also a value could contradict the record that carries another."""
     banned = re.compile(r"\d|steel|carbide|cobalt|brass|nylon|zinc|grade|heavy|iso|ansi|din", re.I)
     assert not [w for words in PRODUCT_WORDS.values() for w in words if banned.search(w)]
-    from synthetic_industrial_products.catalog.vocab import STANDARDS_FAMILY
+    from synthetic_ecommerce_data.catalog.vocab import STANDARDS_FAMILY
 
     values = collections.defaultdict(set)
     for doc in golden:
@@ -639,7 +639,7 @@ def test_every_drawing_declares_its_intrinsic_size():
     non-growing flex item renders at 0 x 0. Checked on one drawing per
     (brand, type) of the committed catalog and on the root of every one.
     """
-    from synthetic_industrial_products.catalog import bundle
+    from synthetic_ecommerce_data.catalog import bundle
 
     files = bundle.rebuild(GOLDEN)
     root = re.compile(

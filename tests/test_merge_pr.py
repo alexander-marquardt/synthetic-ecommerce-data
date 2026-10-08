@@ -26,7 +26,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from synthetic_industrial_products.catalog import cli
+from synthetic_ecommerce_data.catalog import cli
 
 REPO = Path(__file__).resolve().parent.parent
 SCRIPT = REPO / "scripts" / "merge_pr.sh"
