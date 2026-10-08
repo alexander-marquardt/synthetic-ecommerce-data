@@ -2627,7 +2627,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "pin the magnifier to the top instead of balancing the sheet",
         "core/drawing/sheet.py",
-        "    top = (svg.HEIGHT - (glyph_h + GLYPH_GAP + height)) / 2",
+        "    top = (FIGURE_HEIGHT - (glyph_h + GLYPH_GAP + height)) / 2",
         "    top = GLYPH_MARGIN",
         "tests/test_sku_drawings.py -k space_above",
         "A",
@@ -2636,8 +2636,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "let a drawing carry a title element",
         "core/drawing/__init__.py",
-        '    {"svg", "rect", "defs", "pattern", "g", "path", "circle"}',
-        '    {"svg", "rect", "defs", "pattern", "g", "path", "circle", "title"}',
+        '    {"svg", "rect", "defs", "pattern", "g", "path", "circle", "text"}',
+        '    {"svg", "rect", "defs", "pattern", "g", "path", "circle", "text", "title"}',
         "tests/test_sku_drawings.py -k title",
         "A",
         "no drawing carries any text",
