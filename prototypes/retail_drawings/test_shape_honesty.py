@@ -112,7 +112,7 @@ def test_a_new_shape_is_used_by_a_sample(shape: str) -> None:
 
 
 def test_a_sock_drawing_shows_the_packs_pair_count() -> None:
-    socks = [rec for rec in SAMPLES if rec["product_type"] == "Socks"]
+    socks = [rec for rec in SAMPLES if rec.get("product_type") == "Socks"]
     assert len(socks) == 7
     for rec in socks:
         n = rec["units_per_pack"]
