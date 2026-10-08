@@ -313,6 +313,11 @@ def write_jsonl(rows: Iterator[dict[str, Any]], path: Path) -> int:
     return count
 
 
+#: The attribute-set key ``value_normalized_field`` Prism reads (elastic/prism#10648),
+#: relative to the nested ``attributes`` path, and the normalizer behind it.
+VALUE_NORMALIZED_FIELD = "value.normalized"
+VALUE_NORMALIZER = "value_folded"
+
 #: Mapping for the nested shape. ``attributes`` and ``variants`` are nested so
 #: that name and value stay correlated within one entry, and so that
 #: ``reverse_nested`` can count parent products rather than attribute entries.
