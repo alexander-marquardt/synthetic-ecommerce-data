@@ -3,10 +3,10 @@
 Step 2 of #125 moves modules without changing what they do: the golden
 catalog (``test_catalog_golden.py``) proves the output did not move. This
 module pins the layout itself, and the one direction the split must hold:
-``core`` does not import a domain, except through the edges listed in
-:data:`CORE_TO_INDUSTRIAL`. Those are machinery and industrial data that still
-share a module; the list may only shrink, and each removal is a
-one-line edit here.
+``core`` reaches nothing outside itself (no domain, and not the commands or
+``prism/`` above it) except through the edges listed in :data:`CORE_EDGES`.
+Those are machinery and industrial data that still share a module; the list
+may only shrink, and each removal is a one-line edit here.
 
 It also pins that a pre-rename import path still resolves after the move,
 since the deprecated alias maps module paths, not only the package name.
@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import ast
 import importlib.util
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -26,7 +27,6 @@ CORE_MODULES = (
     "breadth",
     "brands",
     "bundle",
-    "cli",
     "config",
     "dimensions",
     "drawing",
@@ -69,35 +69,42 @@ INDUSTRIAL_MODULES = (
     "vocab",
 )
 
-#: ``(core module, industrial module it imports)``: the seams the move-only
-#: step could not cut without a redesign. Shrinks only.
-CORE_TO_INDUSTRIAL = frozenset(
+_I = "domains.industrial"
+
+#: ``(core module, what it reaches outside core)``, relative to the package:
+#: the seams the move-only step could not cut without a redesign. Shrinks
+#: only. 19 edges: 17 imports, and 2 module paths named in a string. The
+#: ``ecom-generate`` command's 3 imports (breadth, generate, measure) and its
+#: prism imports left core with it, to ``generate_cli``.
+CORE_EDGES = frozenset(
     {
-        ("brands", "vocab"),
-        ("cli", "breadth"),
-        ("cli", "generate"),
-        ("cli", "measure"),
-        ("drawing", "drawing.figures"),
-        ("drawing", "render.marking"),
-        ("drawing.style", "render.marking"),
-        ("emit", "render.kinds"),
-        ("emit", "taxonomy"),
-        ("entry", "series"),
-        ("noise", "compat"),
-        ("noise", "conformance"),
-        ("noise", "standards"),
-        ("price", "breadth"),
-        ("price", "newtypes"),
-        ("typespec", "breadth"),
-        ("typespec", "conformance"),
-        ("typespec", "drawing.figures"),
-        ("typespec", "taxonomy"),
-        ("typespec", "vocab"),
+        ("brands", f"{_I}.vocab"),
+        ("drawing", f"{_I}.drawing.figures"),
+        ("drawing", f"{_I}.render.marking"),
+        ("drawing.style", f"{_I}.render.marking"),
+        ("emit", f"{_I}.render.kinds"),
+        ("emit", f"{_I}.taxonomy"),
+        ("entry", f"{_I}.series"),
+        ("noise", f"{_I}.compat"),
+        ("noise", f"{_I}.conformance"),
+        ("noise", f"{_I}.standards"),
+        ("price", f"{_I}.breadth"),
+        ("price", f"{_I}.newtypes"),
+        ("typespec", f"{_I}.breadth"),
+        ("typespec", f"{_I}.conformance"),
+        ("typespec", f"{_I}.drawing.figures"),
+        ("typespec", f"{_I}.taxonomy"),
+        ("typespec", f"{_I}.vocab"),
+        # Strings: resources.files() on the data package, and the package
+        # the type registry scans (TYPES_PACKAGE).
+        ("noncopy", f"{_I}.data"),
+        ("typespec", f"{_I}.product_types"),
     }
 )
 
-CORE = "synthetic_ecommerce_data.core"
-INDUSTRIAL = "synthetic_ecommerce_data.domains.industrial"
+PACKAGE_NAME = "synthetic_ecommerce_data"
+CORE = f"{PACKAGE_NAME}.core"
+INDUSTRIAL = f"{PACKAGE_NAME}.domains.industrial"
 
 
 def test_the_core_modules_are_in_core():
@@ -116,45 +123,73 @@ def test_the_dissolved_catalog_package_is_gone():
     assert not (PACKAGE / "catalog").exists()
 
 
-def _imported(path: Path) -> set[str]:
-    names: set[str] = set()
-    for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
-        if isinstance(node, ast.ImportFrom) and node.module:
-            names.add(node.module)
-            names.update(f"{node.module}.{alias.name}" for alias in node.names)
-        elif isinstance(node, ast.Import):
-            names.update(alias.name for alias in node.names)
-    return names
+#: A string literal that is nothing but a dotted module path, as
+#: ``resources.files`` and a package scan take one.
+DOTTED = re.compile(r"[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+")
 
 
 def _is_module(name: str) -> bool:
     """Whether ``name`` is a module, rather than a name imported from one."""
     try:
         return importlib.util.find_spec(name) is not None
-    except ModuleNotFoundError:
+    except (ModuleNotFoundError, ValueError):
         return False
 
 
-def _module_of(path: Path) -> str:
-    parts = path.relative_to(PACKAGE / "core").with_suffix("").parts
-    return ".".join(parts[:-1] if parts[-1] == "__init__" else parts)
+def _reached(path: Path, package: str) -> set[str]:
+    """Every module that ``path``, a module in ``package``, imports or names.
+
+    A relative import is resolved by its level. ``from P import N`` reaches
+    ``P.N`` when that is a module, else ``P`` itself, so a name imported from
+    a domain package counts as reaching the package. A string literal that is
+    a dotted path under :data:`PACKAGE_NAME` counts too.
+    """
+    reached: set[str] = set()
+    for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+        if isinstance(node, ast.ImportFrom):
+            if node.level:
+                base = package.rsplit(".", node.level - 1)[0]
+                source = f"{base}.{node.module}" if node.module else base
+            else:
+                source = node.module or ""
+            for alias in node.names:
+                full = f"{source}.{alias.name}"
+                reached.add(full if _is_module(full) else source)
+        elif isinstance(node, ast.Import):
+            reached.update(alias.name for alias in node.names)
+        elif (
+            isinstance(node, ast.Constant)
+            and isinstance(node.value, str)
+            and DOTTED.fullmatch(node.value)
+            and node.value.startswith(f"{PACKAGE_NAME}.")
+        ):
+            reached.add(node.value)
+    return reached
 
 
 def _core_edges(core: Path) -> set[tuple[str, str]]:
+    """``(core module, what it reaches outside core)``, for every module under ``core``.
+
+    ``core`` is read as the package :data:`CORE`; a target is named relative
+    to :data:`PACKAGE_NAME`.
+    """
     edges = set()
     for path in sorted(core.rglob("*.py")):
-        for name in _imported(path):
-            if not name.startswith(f"{INDUSTRIAL}."):
+        rel = path.relative_to(core).with_suffix("").parts
+        is_package = rel[-1] == "__init__"
+        inner = ".".join(rel[:-1] if is_package else rel)
+        module = f"{CORE}.{inner}" if inner else CORE
+        package = module if is_package else module.rpartition(".")[0]
+        for name in _reached(path, package):
+            inside = name == CORE or name.startswith(f"{CORE}.")
+            if inside or not (name == PACKAGE_NAME or name.startswith(f"{PACKAGE_NAME}.")):
                 continue
-            target = name[len(INDUSTRIAL) + 1 :]
-            if _is_module(name):
-                rel = path.relative_to(core).with_suffix("").parts
-                edges.add((".".join(rel[:-1] if rel[-1] == "__init__" else rel), target))
+            edges.add((inner, name.removeprefix(f"{PACKAGE_NAME}.")))
     return edges
 
 
-def test_core_imports_a_domain_only_through_the_listed_edges():
-    assert _core_edges(PACKAGE / "core") == CORE_TO_INDUSTRIAL
+def test_core_reaches_outside_itself_only_through_the_listed_edges():
+    assert _core_edges(PACKAGE / "core") == CORE_EDGES
 
 
 def test_the_edge_scan_sees_every_way_core_can_reach_outside_itself(tmp_path):

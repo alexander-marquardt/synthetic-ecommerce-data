@@ -173,7 +173,7 @@ def test_png_dimensions_rejects_a_file_that_is_not_a_png(tmp_path):
 
 def test_stats_json_floats_are_written_at_six_significant_digits() -> None:
     """A float's last digits differ between platforms, so stats.json carries 6."""
-    from synthetic_ecommerce_data.core import cli
+    from synthetic_ecommerce_data import generate_cli as cli
 
     stats = {
         "achieved": 0.020049927429426802,
