@@ -157,3 +157,45 @@ def test_a_repeated_sku_and_a_key_with_two_names_are_refused(retail):
     problems = standard.check_catalog([one, two])
     assert any("is not unique" in p for p in problems)
     assert any("key 'color' names" in p for p in problems)
+
+
+def _entry(key: str, name: str) -> dict[str, str]:
+    return {"key": key, "name": name, "value": "x"}
+
+
+#: Defects only the catalog-level pass sees, or that it must pass on from
+#: check_document: plant(one, two) -> the one problem check_catalog reports.
+CATALOG_PLANTS = {
+    "a document's own defect": (
+        lambda one, two: one.pop("product_type"),
+        lambda one, two: f"{one['product_id']}: lacks 'product_type'",
+    ),
+    "a repeated product_id": (
+        lambda one, two: two.update(product_id=one["product_id"]),
+        lambda one, two: f"product_id {one['product_id']} is not unique (2 times)",
+    ),
+    "a variant-level key with a second name": (
+        lambda one, two: (
+            one["attributes"].append(_entry("fit_note", "Fit note")),
+            two["variants"][0]["attributes"].append(_entry("fit_note", "Fit remark")),
+        ),
+        lambda one, two: "key 'fit_note' names ['Fit note', 'Fit remark']",
+    ),
+    "a key that shadows a product field": (
+        lambda one, two: one["attributes"].append(_entry("brand", "Brand")),
+        lambda one, two: "key 'brand' shadows a top-level field",
+    ),
+    "a key that shadows a variant field": (
+        lambda one, two: two["variants"][0]["attributes"].append(_entry("in_stock", "In stock")),
+        lambda one, two: "key 'in_stock' shadows a top-level field",
+    ),
+}
+
+
+@pytest.mark.parametrize("plant", sorted(CATALOG_PLANTS))
+def test_check_catalog_reports_each_catalog_level_defect(plant, retail):
+    one, two = deepcopy(retail[0]), deepcopy(retail[1])
+    assert standard.check_catalog([one, two]) == []
+    apply, expected = CATALOG_PLANTS[plant]
+    apply(one, two)
+    assert standard.check_catalog([one, two]) == [expected(one, two)]
