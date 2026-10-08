@@ -35,6 +35,7 @@ from distractors import (  # noqa: E402
     scores,
     table_markdown,
 )
+from real_classes import ROWS, class_docs  # noqa: E402
 from variants import FAMILIES, sku_report, style_docs  # noqa: E402
 
 #: family -> {style code: extra doc indexes beyond the first}.
@@ -44,7 +45,7 @@ EXTRA = {
     "Bedding": {"COVPRT": (1,)},
     "Beauty": {"LIPSAT": (10,), "FNDFTH": (20, 39)},
 }
-SAMPLES = 81
+SAMPLES = 136
 
 
 def samples() -> dict[str, list[dict]]:
@@ -61,15 +62,39 @@ def samples() -> dict[str, list[dict]]:
     out["Gift wrap"] = [GIFT_BAGS[i] for i in range(0, len(GIFT_BAGS), len(GIFT_PRINTS))]
     gift = next(row for row in TABLE if row.tail)
     out["Gift bag distractors"] = [x.doc for x in (*gift.distractors, *gift.tail)]
+    out["Observed failure classes 2 to 7"] = class_docs()
     return out
 
 
 def _planted() -> dict[str, tuple[str, str]]:
     return {
-        x.doc["product_id"]: (row.query, x.fixed_by)
-        for row in TABLE
-        for x in (*row.distractors, *row.tail)
+        **{
+            x.doc["product_id"]: (row.query, x.fixed_by)
+            for row in TABLE
+            for x in (*row.distractors, *row.tail)
+        },
+        **{
+            d["product_id"]: (row.query, fix)
+            for row in ROWS
+            for style, fix in row.distractors
+            for d in style.docs()
+        },
     }
+
+
+#: The fields a policy reads that the round 4 records do not carry.
+FACTS = ("product_type", "audience", "size_range", "neckline", "pattern", "leg_style", "style_id")
+
+
+def _facts(rec: dict) -> str:
+    """A line of the policy-facing fields, or nothing for a record without them."""
+    if "product_type" not in rec:
+        return ""
+    parts = [f"{k}: {rec[k]}" for k in FACTS if k in rec]
+    parts.append(f"sold {rec['sold_last_5_days']} in 5 days, bestseller #{rec['bestseller_rank']}")
+    if "was_price" in rec:
+        parts.append(f"was £{rec['was_price']:.2f}")
+    return f'<div class="vg">{escape(" · ".join(parts))}</div>'
 
 
 def card(rec: dict, planted: dict[str, tuple[str, str]]) -> str:
@@ -88,7 +113,7 @@ def card(rec: dict, planted: dict[str, tuple[str, str]]) -> str:
         f'<div class="path">{escape(" › ".join(rec["category_path"]))}</div>'
         f'<div class="vg">{escape(rec["variant_group"])} · {rec["sku_count"]} SKU'
         f"{'s' if rec['sku_count'] != 1 else ''} in this doc</div>"
-        f"{note}"
+        f"{_facts(rec)}{note}"
         f'<div class="desc">{escape(rec["description"])}</div>'
         f'<table class="attrs">{_attr_rows(rec)}</table>'
         f"{_sizes(rec)}"

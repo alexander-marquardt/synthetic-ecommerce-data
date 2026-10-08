@@ -919,6 +919,42 @@ never *gift*: the word lives only in their category. `corpus(duplicate_listing=T
 product id a second time under another category, which a search shows twice
 unless it collapses on `product_id`.
 
+### Observed failure classes 2 to 7, before and after on Elasticsearch
+
+`real_classes.py` rebuilds six query shapes observed by hand on a live retail
+site (every name invented, the brands from `house_styles.py`). Its records
+carry the fields a policy reads and a title never states: `product_type`,
+`audience` (adult, kids, baby), `size_range` (regular, petite, tall, plus),
+`neckline`, `pattern`, `leg_style`, a `was_price` on a sale item only,
+popularity (`sold_last_5_days`, `bestseller_rank`) and a `style_id` that a
+style's colourway docs share. The round 4 records above are unchanged and
+carry none of them.
+
+`es_proof.py --host URL` loads the round 4 corpus plus these records into a
+run-named index, runs each query twice, writes `real_classes_proof.json` and
+deletes the index. The baseline is BM25 over title (x2) and description
+times a popularity boost (`log1p(sold_last_5_days)`, x1.5 for the top 15
+bestsellers), with a search-time synonym `balloon => balloon, barrel`: it
+mimics the live site. The policy column is the fix approximated in raw
+Elasticsearch. A target is in bold. A test checks that the proof was taken
+over the current records, that no target is in a baseline top 3, that the
+policy top 3 is all targets, and that this table is the proof's.
+
+| # | Class | Query | Baseline top 5 (BM25 x popularity) | With the policy: top 5 | Policy (raw ES) |
+|---|---|---|---|---|---|
+| 2 | Sibling types share a head word | *mattress topper* | 1. Quilted Mattress Protector `PLT-MTPQLT-01`<br>2. Waterproof Mattress Protector `PLT-MTPWTP-01`<br>3. Deep Fill Mattress Topper Protector `PLT-MTPTOP-01`<br>4. Cool Touch Mattress Protector `PLT-MTPCOL-01`<br>5. Pocket Sprung Mattress `PLT-MTRPKT-01` | 1. **Memory Foam Mattress Topper `PLT-MTTMEM-01`**<br>2. **Hollowfibre Mattress Topper `PLT-MTTFIB-01`**<br>3. **Wool Mattress Topper `PLT-MTTWOL-01`**<br>4. Quilted Mattress Protector `PLT-MTPQLT-01`<br>5. Waterproof Mattress Protector `PLT-MTPWTP-01` | product_type = Mattress Topper x10; product_type = Mattress Protector or Mattress or Pillow Protector x0.2 |
+| 3 | Over-broad style synonym plus a bestseller boost | *balloon jeans* | 1. Mid Rise Barrel Jeans `PLT-BRLMID-01`<br>2. Mid Rise Barrel Jeans `PLT-BRLMID-02`<br>3. Mid Rise Barrel Jeans `PLT-BRLMID-03`<br>4. High Rise Barrel Jeans `PLT-BRLHIG-01`<br>5. Mid Rise Barrel Jeans `PLT-BRLMID-04` | 1. **Balloon Leg Jeans `PLT-BLNLEG-01`**<br>2. **High Waisted Balloon Jeans `PLT-BLNHIW-01`**<br>3. **Cropped Balloon Jeans `PLT-BLNCRP-01`**<br>4. Mid Rise Barrel Jeans `PLT-BRLMID-01`<br>5. High Rise Barrel Jeans `PLT-BRLHIG-01` | leg_style = balloon x10; collapse on style_id |
+| 4 | A neckline word matched as a keyword | *womens boat neck top* | 1. Womens High Neck Ribbed Top `PLT-HNRIBT-01`<br>2. Womens Crew Neck Cotton Top `PLT-CNCOTT-01`<br>3. Womens Round Neck Jersey Top `PLT-RNJERS-01`<br>4. Womens Tie Neck Top and Trousers Set `PLT-NTSETS-01`<br>5. Womens Square Neck Bodysuit `PLT-SQBODY-01` | 1. **Striped Boat Neck Top `PLT-BNTSTR-01`**<br>2. **Boat Neck Jersey Top `PLT-BNTJER-01`**<br>3. **Slash Neck Long Sleeve Top `PLT-SNTLNG-01`**<br>4. Womens High Neck Ribbed Top `PLT-HNRIBT-01`<br>5. Womens Crew Neck Cotton Top `PLT-CNCOTT-01` | filter product_type = Top; neckline = boat or slash x10 |
+| 5 | Product type, pattern and audience not enforced | *check contrast bomber jacket* | 1. Cord Bomber Jacket `PLT-BMBCRD-01`<br>2. Wool Blend Bomber Jacket `PLT-BMBWOL-01`<br>3. Check Suit Jacket `PLT-SUITCK-01`<br>4. Boys' Bomber Jacket (2-8 Yrs) `PLT-KIDBMB-01`<br>5. Baby Bomber Jacket (3-36 Mths) `PLT-BABBMB-01` | 1. **Check Bomber Jacket with Contrast Collar `PLT-CKBCON-01`**<br>2. **Wool Check Bomber Jacket `PLT-CKBWOL-01`**<br>3. **Padded Check Bomber `PLT-CKBPAD-01`**<br>4. Cord Bomber Jacket `PLT-BMBCRD-01`<br>5. Wool Blend Bomber Jacket `PLT-BMBWOL-01` | filter product_type = Bomber Jacket; filter audience = adult; pattern = check x5 |
+| 6 | Size range and sale state not extracted | *petite sale* | 1. Tapered Trousers `PLT-TAPTRS-01`<br>2. Wide Leg Trousers `PLT-WIDTRS-01`<br>3. Straight Leg Jeans `PLT-STRJNS-01`<br>4. Slim Jeans `PLT-SLMJNS-01`<br>5. **Petite Straight Jeans `PLT-PETJNS-01`** | 1. **Petite Straight Jeans `PLT-PETJNS-01`**<br>2. **Petite Wrap Midi Dress `PLT-PETDRS-01`**<br>3. **Petite Wide Leg Trousers `PLT-PETTRS-01`** | filter size_range = petite; filter on sale (price < was_price) |
+| 7 | Sale word ignored | *womens sale dresses* | 1. Womens Linen Midi Dress `PLT-FPLINN-01`<br>2. Womens Smocked Mini Dress `PLT-FPSMOK-01`<br>3. Womens Jersey T-Shirt Dress `PLT-FPTEES-01`<br>4. Womens Satin Slip Dress `PLT-FPSLIP-01`<br>5. Womens High Neck Ribbed Top `PLT-HNRIBT-01` | 1. **Womens Tiered Maxi Dress `PLT-SDMAXI-01`**<br>2. **Womens Wrap Dress `PLT-SDWRAP-01`**<br>3. **Womens Shirt Dress `PLT-SDSHRT-01`**<br>4. **Petite Wrap Midi Dress `PLT-PETDRS-01`** | filter product_type = Dress; filter audience = adult; filter on sale (price < was_price) |
+
+The cross-cutting patterns show in the table: the barrel bestseller fills the
+balloon baseline once per colourway (five docs share `PLT-BRLMID`) until the
+policy collapses on `style_id`; kids and baby bombers enter an adult query;
+and popularity lifts every distractor above a better text match. Class 8
+(food words) is not planted: the live site now redirects it.
+
 ## The built catalog is committed, in `golden-catalog/`
 
 `sip-generate build` is reproducible, but its output is checked in anyway, at

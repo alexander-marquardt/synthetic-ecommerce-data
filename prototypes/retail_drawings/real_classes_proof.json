@@ -1,1 +1,277 @@
-{"docs": 0, "rows": []}
+{
+ "elasticsearch": "9.3.0",
+ "docs": 503,
+ "fingerprint": "c5fc51b946af8c088df49c15ba442e6dfd040eaddcaae7e8288ecb58d4e62116",
+ "rows": [
+  {
+   "query": "mattress topper",
+   "baseline": [
+    {
+     "product_id": "PLT-MTPQLT-01",
+     "title": "Quilted Mattress Protector"
+    },
+    {
+     "product_id": "PLT-MTPWTP-01",
+     "title": "Waterproof Mattress Protector"
+    },
+    {
+     "product_id": "PLT-MTPTOP-01",
+     "title": "Deep Fill Mattress Topper Protector"
+    },
+    {
+     "product_id": "PLT-MTPCOL-01",
+     "title": "Cool Touch Mattress Protector"
+    },
+    {
+     "product_id": "PLT-MTRPKT-01",
+     "title": "Pocket Sprung Mattress"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-MTTMEM-01",
+     "title": "Memory Foam Mattress Topper"
+    },
+    {
+     "product_id": "PLT-MTTFIB-01",
+     "title": "Hollowfibre Mattress Topper"
+    },
+    {
+     "product_id": "PLT-MTTWOL-01",
+     "title": "Wool Mattress Topper"
+    },
+    {
+     "product_id": "PLT-MTPQLT-01",
+     "title": "Quilted Mattress Protector"
+    },
+    {
+     "product_id": "PLT-MTPWTP-01",
+     "title": "Waterproof Mattress Protector"
+    }
+   ]
+  },
+  {
+   "query": "balloon jeans",
+   "baseline": [
+    {
+     "product_id": "PLT-BRLMID-01",
+     "title": "Mid Rise Barrel Jeans"
+    },
+    {
+     "product_id": "PLT-BRLMID-02",
+     "title": "Mid Rise Barrel Jeans"
+    },
+    {
+     "product_id": "PLT-BRLMID-03",
+     "title": "Mid Rise Barrel Jeans"
+    },
+    {
+     "product_id": "PLT-BRLHIG-01",
+     "title": "High Rise Barrel Jeans"
+    },
+    {
+     "product_id": "PLT-BRLMID-04",
+     "title": "Mid Rise Barrel Jeans"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-BLNLEG-01",
+     "title": "Balloon Leg Jeans"
+    },
+    {
+     "product_id": "PLT-BLNHIW-01",
+     "title": "High Waisted Balloon Jeans"
+    },
+    {
+     "product_id": "PLT-BLNCRP-01",
+     "title": "Cropped Balloon Jeans"
+    },
+    {
+     "product_id": "PLT-BRLMID-01",
+     "title": "Mid Rise Barrel Jeans"
+    },
+    {
+     "product_id": "PLT-BRLHIG-01",
+     "title": "High Rise Barrel Jeans"
+    }
+   ]
+  },
+  {
+   "query": "womens boat neck top",
+   "baseline": [
+    {
+     "product_id": "PLT-HNRIBT-01",
+     "title": "Womens High Neck Ribbed Top"
+    },
+    {
+     "product_id": "PLT-CNCOTT-01",
+     "title": "Womens Crew Neck Cotton Top"
+    },
+    {
+     "product_id": "PLT-RNJERS-01",
+     "title": "Womens Round Neck Jersey Top"
+    },
+    {
+     "product_id": "PLT-NTSETS-01",
+     "title": "Womens Tie Neck Top and Trousers Set"
+    },
+    {
+     "product_id": "PLT-SQBODY-01",
+     "title": "Womens Square Neck Bodysuit"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-BNTSTR-01",
+     "title": "Striped Boat Neck Top"
+    },
+    {
+     "product_id": "PLT-BNTJER-01",
+     "title": "Boat Neck Jersey Top"
+    },
+    {
+     "product_id": "PLT-SNTLNG-01",
+     "title": "Slash Neck Long Sleeve Top"
+    },
+    {
+     "product_id": "PLT-HNRIBT-01",
+     "title": "Womens High Neck Ribbed Top"
+    },
+    {
+     "product_id": "PLT-CNCOTT-01",
+     "title": "Womens Crew Neck Cotton Top"
+    }
+   ]
+  },
+  {
+   "query": "check contrast bomber jacket",
+   "baseline": [
+    {
+     "product_id": "PLT-BMBCRD-01",
+     "title": "Cord Bomber Jacket"
+    },
+    {
+     "product_id": "PLT-BMBWOL-01",
+     "title": "Wool Blend Bomber Jacket"
+    },
+    {
+     "product_id": "PLT-SUITCK-01",
+     "title": "Check Suit Jacket"
+    },
+    {
+     "product_id": "PLT-KIDBMB-01",
+     "title": "Boys' Bomber Jacket (2-8 Yrs)"
+    },
+    {
+     "product_id": "PLT-BABBMB-01",
+     "title": "Baby Bomber Jacket (3-36 Mths)"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-CKBCON-01",
+     "title": "Check Bomber Jacket with Contrast Collar"
+    },
+    {
+     "product_id": "PLT-CKBWOL-01",
+     "title": "Wool Check Bomber Jacket"
+    },
+    {
+     "product_id": "PLT-CKBPAD-01",
+     "title": "Padded Check Bomber"
+    },
+    {
+     "product_id": "PLT-BMBCRD-01",
+     "title": "Cord Bomber Jacket"
+    },
+    {
+     "product_id": "PLT-BMBWOL-01",
+     "title": "Wool Blend Bomber Jacket"
+    }
+   ]
+  },
+  {
+   "query": "petite sale",
+   "baseline": [
+    {
+     "product_id": "PLT-TAPTRS-01",
+     "title": "Tapered Trousers"
+    },
+    {
+     "product_id": "PLT-WIDTRS-01",
+     "title": "Wide Leg Trousers"
+    },
+    {
+     "product_id": "PLT-STRJNS-01",
+     "title": "Straight Leg Jeans"
+    },
+    {
+     "product_id": "PLT-SLMJNS-01",
+     "title": "Slim Jeans"
+    },
+    {
+     "product_id": "PLT-PETJNS-01",
+     "title": "Petite Straight Jeans"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-PETJNS-01",
+     "title": "Petite Straight Jeans"
+    },
+    {
+     "product_id": "PLT-PETDRS-01",
+     "title": "Petite Wrap Midi Dress"
+    },
+    {
+     "product_id": "PLT-PETTRS-01",
+     "title": "Petite Wide Leg Trousers"
+    }
+   ]
+  },
+  {
+   "query": "womens sale dresses",
+   "baseline": [
+    {
+     "product_id": "PLT-FPLINN-01",
+     "title": "Womens Linen Midi Dress"
+    },
+    {
+     "product_id": "PLT-FPSMOK-01",
+     "title": "Womens Smocked Mini Dress"
+    },
+    {
+     "product_id": "PLT-FPTEES-01",
+     "title": "Womens Jersey T-Shirt Dress"
+    },
+    {
+     "product_id": "PLT-FPSLIP-01",
+     "title": "Womens Satin Slip Dress"
+    },
+    {
+     "product_id": "PLT-HNRIBT-01",
+     "title": "Womens High Neck Ribbed Top"
+    }
+   ],
+   "policy": [
+    {
+     "product_id": "PLT-SDMAXI-01",
+     "title": "Womens Tiered Maxi Dress"
+    },
+    {
+     "product_id": "PLT-SDWRAP-01",
+     "title": "Womens Wrap Dress"
+    },
+    {
+     "product_id": "PLT-SDSHRT-01",
+     "title": "Womens Shirt Dress"
+    },
+    {
+     "product_id": "PLT-PETDRS-01",
+     "title": "Petite Wrap Midi Dress"
+    }
+   ]
+  }
+ ]
+}
