@@ -588,7 +588,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "type seam: registered() no longer imports breadth",
         "core/typespec.py",
-        "        from . import breadth  # noqa: F401, PLC0415\n",
+        "        from synthetic_ecommerce_data.domains.industrial import breadth  # noqa: F401, PLC0415\n",
         "",
         "tests/test_type_seam.py::test_registration_brings_in_the_yaml_rows_without_any_type_module",
         "",
@@ -799,7 +799,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: a breadth row file named for another key is read",
-        "domains/industrial/breadth.py",
+        "core/breadth.py",
         "        if f\"{raw['key']}.yaml\" != entry.name:",
         "        if False:",
         "tests/test_type_registration.py::test_a_row_file_named_for_another_key_is_refused",
