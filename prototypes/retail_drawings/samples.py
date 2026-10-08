@@ -7,10 +7,59 @@ and, for clothing and footwear, ``size_uk``, ``size_eu`` and ``size_us``
 derived from ONE size chart per type, so the three systems never disagree.
 
 Every brand name is invented. ``drawing`` holds the kit inputs the preview
-renders the picture from.
+renders the picture from. Every record names its ``department`` from the
+closed list :data:`DEPARTMENTS`; garments carry the structured attributes of
+:data:`GARMENT_KEYS` (neckline, sleeve length, rise, leg fit, length, waist,
+audience). Round 2's records live in ``samples_round2``.
 """
 
 from __future__ import annotations
+
+#: The closed list a record's ``department`` values come from.
+DEPARTMENTS = ("clothing", "footwear", "lingerie", "home", "food", "beauty", "gifts")
+
+#: Structured garment attributes: key -> (display name, closed list of values).
+GARMENT_KEYS = {
+    "neckline": (
+        "Neckline",
+        ("Crew", "V-Neck", "Boat Neck", "Scoop", "Square", "Roll Neck", "Collared"),
+    ),
+    "sleeve_length": ("Sleeve length", ("Sleeveless", "Short", "Three-Quarter", "Long")),
+    "rise": ("Rise", ("Low", "Mid", "High")),
+    "leg_fit": (
+        "Leg fit",
+        (
+            "Skinny",
+            "Slim",
+            "Straight",
+            "Bootcut",
+            "Flared",
+            "Wide Leg",
+            "Barrel",
+            "Balloon",
+            "Carrot",
+            "Cigarette",
+        ),
+    ),
+    "length": ("Length", ("Petite", "Regular", "Long")),
+    "waist": ("Waist", ("Standard", "Elasticated", "Drawstring", "Paperbag")),
+    "audience": ("Audience", ("Womens", "Mens", "Girls", "Boys", "Baby")),
+}
+
+
+def garment(**values: str) -> list[dict]:
+    """The garment attributes, in :data:`GARMENT_KEYS` order, each from its closed list."""
+    out = []
+    for key, (name, allowed) in GARMENT_KEYS.items():
+        if key in values:
+            if values[key] not in allowed:
+                raise ValueError(f"{key}={values[key]!r} is not one of {allowed}")
+            out.append(attr(key, name, values[key]))
+    unknown = set(values) - set(GARMENT_KEYS)
+    if unknown:
+        raise ValueError(f"unknown garment attributes {sorted(unknown)}")
+    return out
+
 
 # --------------------------------------------------------------------------
 # Size charts: one row per size, (UK, EU, US)
@@ -91,14 +140,18 @@ def many(key: str, name: str, values: list[str]) -> list[dict]:
     return [attr(key, name, v) for v in values]
 
 
-def clothing_attrs(colour, pattern, fit, who, fabric, extra=()) -> list[dict]:
+def clothing_attrs(colour, pattern, fit, who, fabric, extra=(), **garment_values) -> list[dict]:
+    """Colour, pattern, fit and fabric, then the structured garment attributes.
+
+    ``who`` is the audience; ``fit`` may be ``None`` where ``leg_fit`` says it.
+    """
     return [
         attr("colour", "Colour", colour),
         attr("pattern", "Pattern", pattern),
-        attr("fit", "Fit / Cut", fit),
-        attr("who", "Who it's for", who),
+        *([attr("fit", "Fit / Cut", fit)] if fit else []),
         attr("fabric", "Fabric", fabric),
         *extra,
+        *garment(audience=who, **garment_values),
     ]
 
 
@@ -117,9 +170,9 @@ def food_attrs(size, unit_code, storage, dietary, allergens, flavour, serves=Non
 
 
 def drawing(
-    shape, pattern="solid", base="#cccccc", accent="#333333", label=None, third="#f2d14b"
+    shape, pattern="solid", base="#cccccc", accent="#333333", label=None, third="#f2d14b", **params
 ) -> dict:
-    return {
+    out = {
         "shape": shape,
         "pattern": pattern,
         "base": base,
@@ -127,6 +180,9 @@ def drawing(
         "third": third,
         "label": label,
     }
+    if params:
+        out["params"] = params
+    return out
 
 
 C = COLOURS
@@ -144,7 +200,15 @@ CLOTHING = [
         "category_path": ["Women", "Tops", "T-Shirts"],
         "price": 14.00,
         **sizes(WOMENS, "6", "20"),
-        "attributes": clothing_attrs("Navy / Ecru", "Stripe", "Regular", "Womens", "100% Cotton"),
+        "attributes": clothing_attrs(
+            "Navy / Ecru",
+            "Stripe",
+            "Regular",
+            "Womens",
+            "100% Cotton",
+            neckline="Crew",
+            sleeve_length="Short",
+        ),
         "drawing": drawing("tshirt", "stripe", C["Ecru"], C["Navy"]),
     },
     {
@@ -155,8 +219,16 @@ CLOTHING = [
         "category_path": ["Men", "Tops", "T-Shirts"],
         "price": 9.50,
         **sizes(LETTER, "S", "XXL"),
-        "attributes": clothing_attrs("Olive", "Plain", "Relaxed", "Mens", "100% Organic Cotton"),
-        "drawing": drawing("tshirt", "solid", C["Olive"]),
+        "attributes": clothing_attrs(
+            "Olive",
+            "Plain",
+            "Relaxed",
+            "Mens",
+            "100% Organic Cotton",
+            neckline="Crew",
+            sleeve_length="Short",
+        ),
+        "drawing": drawing("top", "solid", C["Olive"], neckline="crew", sleeve="short"),
     },
     {
         "title": "Pinstripe Button-Through Blouse",
@@ -167,7 +239,13 @@ CLOTHING = [
         "price": 26.00,
         **sizes(WOMENS, "8", "18"),
         "attributes": clothing_attrs(
-            "Sky Blue / White", "Stripe", "Regular", "Womens", "Cotton Poplin"
+            "Sky Blue / White",
+            "Stripe",
+            "Regular",
+            "Womens",
+            "Cotton Poplin",
+            neckline="Collared",
+            sleeve_length="Long",
         ),
         "drawing": drawing("blouse", "stripe", C["White"], C["Sky Blue"]),
     },
@@ -185,7 +263,10 @@ CLOTHING = [
             "Fit and Flare",
             "Womens",
             "Viscose",
-            [attr("length", "Length", "Midi")],
+            [attr("hem_length", "Hem length", "Midi")],
+            neckline="Scoop",
+            sleeve_length="Sleeveless",
+            length="Regular",
         ),
         "drawing": drawing("dress", "leopard", C["Leopard"], C["Black"]),
     },
@@ -198,7 +279,13 @@ CLOTHING = [
         "price": 16.00,
         **sizes(WOMENS, "6", "18"),
         "attributes": clothing_attrs(
-            "Red / White", "Gingham", "High Waist", "Womens", "Cotton Seersucker"
+            "Red / White",
+            "Gingham",
+            "Relaxed",
+            "Womens",
+            "Cotton Seersucker",
+            rise="High",
+            waist="Paperbag",
         ),
         "drawing": drawing("shorts", "gingham", C["White"], C["Red"]),
     },
@@ -213,12 +300,15 @@ CLOTHING = [
         "attributes": clothing_attrs(
             "Indigo",
             "Plain",
-            "Bootcut",
+            None,
             "Womens",
             "98% Cotton, 2% Elastane",
-            [attr("leg_length", "Leg length", "Regular")],
+            rise="Mid",
+            leg_fit="Bootcut",
+            length="Regular",
+            waist="Standard",
         ),
-        "drawing": drawing("jeans_bootcut", "solid", C["Indigo"]),
+        "drawing": drawing("jeans_bootcut", "solid", C["Indigo"], rise="mid"),
     },
     {
         "title": "Straight Leg Jeans",
@@ -231,12 +321,15 @@ CLOTHING = [
         "attributes": clothing_attrs(
             "Black",
             "Plain",
-            "Straight",
+            None,
             "Womens",
             "100% Cotton Denim",
-            [attr("leg_length", "Leg length", "Long")],
+            rise="High",
+            leg_fit="Straight",
+            length="Long",
+            waist="Standard",
         ),
-        "drawing": drawing("jeans_straight", "solid", C["Black"]),
+        "drawing": drawing("jeans_straight", "solid", C["Black"], rise="high"),
     },
     {
         "title": "Tartan Pleated Mini Skirt",
@@ -246,7 +339,9 @@ CLOTHING = [
         "category_path": ["Women", "Skirts", "Mini Skirts"],
         "price": 22.00,
         **sizes(WOMENS, "6", "16"),
-        "attributes": clothing_attrs("Red / Green", "Tartan", "A-Line", "Womens", "Brushed Twill"),
+        "attributes": clothing_attrs(
+            "Red / Green", "Tartan", "A-Line", "Womens", "Brushed Twill", waist="Standard"
+        ),
         "drawing": drawing("skirt", "tartan", C["Red"], C["Green"], third="#f2d14b"),
     },
     {
@@ -263,14 +358,16 @@ CLOTHING = [
             "Regular",
             "Womens",
             "Cotton Gabardine",
-            [attr("length", "Length", "Knee")],
+            [attr("hem_length", "Hem length", "Knee")],
+            sleeve_length="Long",
+            length="Regular",
         ),
         "drawing": drawing("coat", "solid", C["Stone"]),
     },
     {
         "title": "Lace-Up Running Trainers",
         "brand": "Stridewell",
-        "department": ["footwear", "clothing"],
+        "department": ["footwear"],
         "collections": ["new"],
         "category_path": ["Women", "Shoes", "Trainers"],
         "price": 45.00,
@@ -299,7 +396,7 @@ CLOTHING = [
     {
         "title": "Polka Dot Non-Wired Bra",
         "brand": "Bramblewood",
-        "department": ["clothing"],
+        "department": ["lingerie"],
         "collections": [],
         "category_path": ["Women", "Lingerie", "Bras"],
         "price": 18.00,
@@ -317,6 +414,7 @@ FOOD = [
     {
         "title": "Semi-Skimmed Milk 2 Litres",
         "brand": "Meadowgate Dairy",
+        "department": ["food"],
         "category_path": ["Food", "Dairy", "Milk"],
         "price": 1.65,
         "attributes": food_attrs(2, "LTR", "Chilled", ["Vegetarian"], ["Milk"], "Plain"),
@@ -325,6 +423,7 @@ FOOD = [
     {
         "title": "Smooth Spanish Red Wine 75cl",
         "brand": "Vine & Valley",
+        "department": ["food"],
         "category_path": ["Food", "Drinks", "Wine", "Red Wine"],
         "price": 7.50,
         "attributes": food_attrs(
@@ -335,6 +434,7 @@ FOOD = [
     {
         "title": "Extra Virgin Olive Oil 500ml",
         "brand": "Olivar Grove",
+        "department": ["food"],
         "category_path": ["Food", "Cupboard", "Oils & Vinegars"],
         "price": 5.25,
         "attributes": food_attrs(500, "MLT", "Cupboard", ["Vegan", "Gluten Free"], [], "Fruity"),
@@ -343,6 +443,7 @@ FOOD = [
     {
         "title": "Strawberry Conserve 340g",
         "brand": "Copper Hill Preserves",
+        "department": ["food"],
         "category_path": ["Food", "Cupboard", "Jams & Spreads"],
         "price": 2.10,
         "attributes": food_attrs(340, "GRM", "Cupboard", ["Vegetarian", "Vegan"], [], "Strawberry"),
@@ -351,6 +452,7 @@ FOOD = [
     {
         "title": "Baked Beans in Tomato Sauce 415g",
         "brand": "Pantry Mill",
+        "department": ["food"],
         "category_path": ["Food", "Cupboard", "Tinned Food"],
         "price": 0.85,
         "attributes": food_attrs(415, "GRM", "Cupboard", ["Vegan", "Gluten Free"], [], "Tomato", 2),
@@ -359,6 +461,7 @@ FOOD = [
     {
         "title": "Honey Oat Crunch Cereal 500g",
         "brand": "Goldfield Farms",
+        "department": ["food"],
         "category_path": ["Food", "Cupboard", "Cereals"],
         "price": 2.75,
         "attributes": food_attrs(
@@ -369,6 +472,7 @@ FOOD = [
     {
         "title": "All Butter Shortbread Fingers Gift Tin 300g",
         "brand": "Thistle & Wren",
+        "department": ["food", "gifts"],
         "collections": ["christmas", "gifts"],
         "category_path": ["Food", "Biscuits & Sweets", "Biscuits"],
         "price": 6.00,
@@ -382,6 +486,7 @@ FOOD = [
     {
         "title": "Sea Salt & Cider Vinegar Crisps 150g",
         "brand": "Crunchworth",
+        "department": ["food"],
         "category_path": ["Food", "Cupboard", "Crisps & Snacks"],
         "price": 1.90,
         "attributes": food_attrs(150, "GRM", "Cupboard", ["Vegan"], [], "Salt & Vinegar"),
@@ -390,6 +495,7 @@ FOOD = [
     {
         "title": "Beef Lasagne Ready Meal 400g",
         "brand": "Hearth & Table",
+        "department": ["food"],
         "category_path": ["Food", "Ready Meals", "Italian"],
         "price": 3.50,
         "attributes": food_attrs(
@@ -400,6 +506,7 @@ FOOD = [
     {
         "title": "Sweet Strawberries 400g",
         "brand": "Goldfield Farms",
+        "department": ["food"],
         "collections": ["summer"],
         "category_path": ["Food", "Fresh Produce", "Fruit", "Berries"],
         "price": 2.50,
@@ -409,6 +516,7 @@ FOOD = [
     {
         "title": "Greek Style Natural Yogurt 500g",
         "brand": "Meadowgate Dairy",
+        "department": ["food"],
         "category_path": ["Food", "Dairy", "Yogurts"],
         "price": 1.45,
         "attributes": food_attrs(
@@ -419,6 +527,7 @@ FOOD = [
     {
         "title": "Seeded Wholemeal Loaf 800g",
         "brand": "Crofter's Bakehouse",
+        "department": ["food"],
         "category_path": ["Food", "Bakery", "Bread"],
         "price": 1.40,
         "attributes": food_attrs(
@@ -429,6 +538,7 @@ FOOD = [
     {
         "title": "Iced Rich Fruit Christmas Cake 900g",
         "brand": "Crofter's Bakehouse",
+        "department": ["food"],
         "collections": ["christmas", "gifts"],
         "category_path": ["Food", "Bakery", "Cakes", "Celebration Cakes"],
         "price": 12.00,
@@ -446,6 +556,7 @@ FOOD = [
     {
         "title": "Easy Peeler Clementines 600g",
         "brand": "Goldfield Farms",
+        "department": ["food"],
         "collections": ["christmas"],
         "category_path": ["Food", "Fresh Produce", "Fruit", "Citrus"],
         "price": 1.80,
@@ -455,14 +566,29 @@ FOOD = [
 ]
 
 
+PREFIX = {
+    "clothing": "APP",
+    "footwear": "APP",
+    "lingerie": "APP",
+    "food": "FOD",
+    "home": "HOM",
+    "beauty": "BTY",
+    "gifts": "GFT",
+}
+
+
 def records() -> list[dict]:
-    """Every sample record, with IDs and the food department filled in."""
+    """Every sample record (round 1, then round 2), with IDs filled in."""
+    from samples_round2 import ROUND2
+
     out = []
-    for i, rec in enumerate(CLOTHING + FOOD, 1):
+    for i, rec in enumerate(CLOTHING + FOOD + ROUND2, 1):
         rec = dict(rec)
-        rec.setdefault("department", ["food"])
         rec.setdefault("collections", [])
-        prefix = "APP" if rec["department"][0] in ("clothing", "footwear") else "FOD"
+        bad = [d for d in rec["department"] if d not in DEPARTMENTS]
+        if bad:
+            raise ValueError(f"{rec['title']}: department {bad} is not in {DEPARTMENTS}")
+        prefix = PREFIX[rec["department"][0]]
         rec = {
             "product_id": f"{prefix}-PEEK-{i:04d}",
             "sku": f"{prefix}{i:06d}",

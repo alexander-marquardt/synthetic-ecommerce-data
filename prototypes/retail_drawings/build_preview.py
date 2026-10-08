@@ -23,17 +23,24 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
+import kit_garments  # noqa: E402,F401 -- registers the trousers and top shapes
+import kit_home  # noqa: E402,F401 -- registers the home and beauty shapes
 from kit import Fill, render  # noqa: E402
 from samples import records  # noqa: E402
 
 SHOWN = (
+    "audience",
     "colour",
     "pattern",
     "fit",
-    "who",
-    "fabric",
+    "leg_fit",
+    "rise",
     "length",
-    "leg_length",
+    "waist",
+    "neckline",
+    "sleeve_length",
+    "fabric",
+    "hem_length",
     "pack_size",
     "storage",
     "dietary",
@@ -41,27 +48,36 @@ SHOWN = (
     "flavour",
     "serves",
 )
-UNIT = {"LTR": "L", "MLT": "ml", "GRM": "g", "KGM": "kg", "C62": ""}
+UNIT = {"LTR": "L", "MLT": "ml", "GRM": "g", "KGM": "kg", "C62": "", "CMT": " cm", "GM2": " gsm"}
+GARMENT = {"audience", "leg_fit", "rise", "length", "waist", "neckline", "sleeve_length"}
 
 
 def drawing_svg(rec: dict) -> str:
     d = rec["drawing"]
     fill = Fill(d["pattern"], d["base"], d["accent"], d["third"])
-    return render(d["shape"], fill, label=d["label"], brand=rec["brand"], uid=rec["product_id"])
+    return render(
+        d["shape"],
+        fill,
+        label=d["label"],
+        brand=rec["brand"],
+        uid=rec["product_id"],
+        params=d.get("params"),
+    )
 
 
 def _attr_rows(rec: dict) -> str:
     grouped: dict[str, tuple[str, list[str]]] = {}
     for a in rec["attributes"]:
-        value = a["value"] + (
-            UNIT.get(a.get("unit_code", ""), "") if a["key"] == "pack_size" else ""
-        )
+        value = a["value"] + (UNIT.get(a.get("unit_code", ""), "") if a["key"] != "serves" else "")
         grouped.setdefault(a["key"], (a["name"], []))[1].append(value)
     rows = []
-    for key in SHOWN:
+    for key in [*SHOWN, *(k for k in grouped if k not in SHOWN)]:
         if key in grouped:
             name, values = grouped[key]
-            rows.append(f"<tr><th>{escape(name)}</th><td>{escape(', '.join(values))}</td></tr>")
+            cls = ' class="g"' if key in GARMENT else ""
+            rows.append(
+                f"<tr{cls}><th>{escape(name)}</th><td>{escape(', '.join(values))}</td></tr>"
+            )
     return "".join(rows)
 
 
@@ -106,9 +122,41 @@ h1{font-size:20px;margin:0 0 4px} p.note{margin:0 0 18px;color:#5b6570;font-size
 .path{color:#7a838c;font-size:11px;margin-bottom:6px}
 table{border-collapse:collapse;width:100%;margin-top:4px}
 th{text-align:left;color:#7a838c;font-weight:400;padding:1px 6px 1px 0;white-space:nowrap;vertical-align:top}
-td{padding:1px 0}
+td{padding:1px 0} tr.g td{color:#1f4f8a;font-weight:700}
+h2{font-size:16px;margin:26px 0 10px}
 .sizes{border-top:1px solid #eee;margin-top:6px}.sizes th{font-weight:700;color:#2b3440;width:24px}
 """
+
+
+SECTIONS = (
+    (
+        "Jeans and trousers: every leg fit and rise",
+        lambda r: "trousers" in r["drawing"]["shape"] or "jeans" in r["drawing"]["shape"],
+    ),
+    (
+        "Tops: necklines, sleeve lengths and knits",
+        lambda r: r["drawing"]["shape"] in ("top", "tshirt", "blouse"),
+    ),
+    (
+        "More clothing, footwear and lingerie",
+        lambda r: r["department"][0] in ("clothing", "footwear", "lingerie"),
+    ),
+    ("Home", lambda r: r["department"][0] == "home"),
+    ("Beauty and gifts", lambda r: r["department"][0] in ("beauty", "gifts")),
+    ("Food", lambda r: True),
+)
+
+
+def _sections(recs: list[dict]) -> str:
+    left, out = list(recs), []
+    for title, wanted in SECTIONS:
+        mine = [r for r in left if wanted(r)]
+        left = [r for r in left if not wanted(r)]
+        if mine:
+            out.append(
+                f'<h2>{escape(title)}</h2><div class="grid">{"".join(card(r) for r in mine)}</div>'
+            )
+    return "".join(out)
 
 
 def page(recs: list[dict]) -> str:
@@ -118,8 +166,10 @@ def page(recs: list[dict]) -> str:
         f"<style>{CSS}</style></head><body>"
         "<h1>Retail drawings: sneak peek</h1>"
         f'<p class="note">{len(recs)} sample records in the #125 output shape. Drawings come from the '
-        "parametric SVG kit (shape + fill + label + brand tag). All brands are invented.</p>"
-        f'<div class="grid">{"".join(card(r) for r in recs)}</div>'
+        "parametric SVG kit (shape + fill + label + brand tag + params). Round 2 adds every leg fit "
+        "and rise, necklines and sleeve lengths, home and beauty. Structured garment attributes are "
+        "in blue. All brands, shades and fragrance names are invented.</p>"
+        f"{_sections(recs)}"
         "</body></html>"
     )
 
