@@ -1,4 +1,17 @@
 {
+ "settings": {
+  "analysis": {
+   "normalizer": {
+    "value_folded": {
+     "type": "custom",
+     "filter": [
+      "lowercase",
+      "asciifolding"
+     ]
+    }
+   }
+  }
+ },
  "mappings": {
   "properties": {
    "product_id": {
@@ -53,7 +66,13 @@
       "type": "keyword"
      },
      "value": {
-      "type": "keyword"
+      "type": "keyword",
+      "fields": {
+       "normalized": {
+        "type": "keyword",
+        "normalizer": "value_folded"
+       }
+      }
      },
      "unit_code": {
       "type": "keyword"
@@ -100,7 +119,13 @@
         "type": "keyword"
        },
        "value": {
-        "type": "keyword"
+        "type": "keyword",
+        "fields": {
+         "normalized": {
+          "type": "keyword",
+          "normalizer": "value_folded"
+         }
+        }
        },
        "unit_code": {
         "type": "keyword"

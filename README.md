@@ -907,7 +907,7 @@ requirement-query before/after tables are the industrial side
 | `flat.jsonl` | about 30 MB — one document per SKU |
 | `nested.jsonl` | about 18 MB — one document per product, nested variants and key-value attributes |
 | `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
-| `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
+| `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape; the nested one maps `attributes.value` with a `value.normalized` keyword sub-field (lowercase + asciifolding) for Prism's `value_normalized_field` (elastic/prism#10648) |
 | `images.jsonl` | 4.0 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
 | `stats.json` | the measured defect rates, and the config that produced them |
 
