@@ -897,6 +897,28 @@ re-pinning releases, re-deriving the CI subset and the customer-facing
 requirement-query before/after tables are the industrial side
 (elastic/prism-industrial-products), a separate round.
 
+## Planted distractors (retail prototype)
+
+The retail prototype in `prototypes/retail_drawings/` plants ordinary products
+that win a query's top results on text alone, so a demo can show what a policy
+fixes. `distractors.py` holds the table; `distractors.check()` refuses a
+distractor that cannot outrank the best intended product (BM25 over title plus
+description). A class's *tail* is further products the query matches that need
+not outrank. Every name is invented.
+
+| Class | Query → intended | Distractors that outrank without a policy | Fixed by |
+|---|---|---|---|
+| Print, flavour and scent words | *lemon* → fresh lemons | lemon-print dress, lemon cake, lemon shower gel, lemon cleaners | department or persona boost |
+| Complements and accessories | *jeans* → a pair of jeans | jeans belt, denim jacket, jeans hanger, a jeans & tee set | category intent; product-type demotion |
+| Bedding types | *duvet* → a duvet | duvet covers, duvet sets | type-exact intent |
+| Gift words on gift-packed products | *gift bag* → a gift bag (gift wrap) | 3 beauty bundles named "... Gift Bag", a wash bag, a make-up bag with a gift badge, a hospital bag kit, 2 gift sets "with Limited Edition ... Bag", a travel and a summer bag set; tail: 2 wallet gift sets, 2 hampers, 2 letterbox gifts, a plant "in Hessian Gift Bag", a "Gift Boxed" keyring | category boost: Gift Wrap |
+
+The real gift bags (three sizes of three prints, `GFT-*`) say *bag* once and
+never *gift*: the word lives only in their category. `corpus(duplicate_listing=True)`
+(or `build_preview4.py --duplicate-listing --ndjson PATH`) publishes one
+product id a second time under another category, which a search shows twice
+unless it collapses on `product_id`.
+
 ## The built catalog is committed, in `golden-catalog/`
 
 `sip-generate build` is reproducible, but its output is checked in anyway, at
