@@ -174,9 +174,11 @@ def test_every_distractor_outranks_the_best_intended_product_on_text() -> None:
 
 def test_the_table_holds_the_three_issue_classes_and_the_gift_bag_class() -> None:
     assert [(r.query, len(r.distractors), len(r.tail)) for r in dz.TABLE] == [
-        ("lemon", 5, 0),
+        ("lemon", 7, 0),
+        ("oranges", 4, 0),
         ("jeans", 4, 0),
         ("duvet", 4, 0),
+        ("dinosaur", 3, 0),
         ("gift bag", 10, 8),
     ]
 
@@ -318,8 +320,9 @@ def test_every_brand_has_a_house_style_and_every_sample_draws() -> None:
     recs = [r for rs in sections.values() for r in rs]
     assert len(recs) == build_preview4.SAMPLES
     assert {k: len(v) for k, v in sections.items()} == {
-        "Jeans": 12, "Bras": 10, "Bedding": 8, "Beauty": 6, "Planted distractors": 14,
-        "Gift wrap": 1, "Gift bag distractors": 18, "Observed failure classes": 123,
+        "Jeans": 12, "Bras": 10, "Bedding": 8, "Beauty": 6, "Planted distractors": 25,
+        "Print range": 91, "Gift wrap": 1, "Gift bag distractors": 18,
+        "Observed failure classes": 123,
     }  # fmt: skip
     for r in recs:
         assert ET.fromstring(drawing_svg(r)).tag.endswith("svg")

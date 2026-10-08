@@ -19,6 +19,7 @@ import house_styles as hs  # noqa: E402
 import kit  # noqa: E402
 import kit_home  # noqa: E402,F401 -- registers table_lamp
 import kit_more  # noqa: E402,F401 -- registers chairbed
+import prints  # noqa: E402
 import real_classes as rc  # noqa: E402
 
 CLASS_DOCS = rc.class_docs()
@@ -90,7 +91,12 @@ def test_every_class_record_carries_the_policy_fields_from_the_closed_lists() ->
 def test_the_round_4_records_are_unchanged_and_carry_none_of_the_new_fields() -> None:
     base = dz.corpus()
     assert CORPUS[: len(base)] == base
-    assert all(not (NEW_FIELDS & d.keys()) for d in base)
+    # The print range (gen#125) is built from class-model styles, so it carries the
+    # new fields; every other round-4 record still carries none.
+    ranged = {d["product_id"] for d in prints.docs()}
+    round_4 = [d for d in base if d["product_id"] not in ranged]
+    assert len(round_4) == len(base) - len(ranged)
+    assert all(not (NEW_FIELDS & d.keys()) for d in round_4)
     optional = {"was_price", "size_range", "neckline", "pattern", "leg_style"}
     assert all(NEW_FIELDS - optional <= d.keys() for d in CLASS_DOCS)
     ids = [d["product_id"] for d in CORPUS]
@@ -364,20 +370,22 @@ def test_the_committed_proof_holds_the_claim_over_the_current_records() -> None:
 
 def test_the_committed_color_search_preselects_the_navy_skus_and_counts_products() -> None:
     got = PROOF["color_search"]
-    tee = _style("PLT-CRWTEE")
-    navy = [s["sku"] for s in tee["skus"] if s["color"] == "Navy" and s["in_stock"]]
-    assert len(navy) == 4
-    # The nested filter returns the product once, with the SKUs that matched.
-    assert [h["product_id"] for h in got["nested"]] == ["PLT-CRWTEE"]
-    assert [s["sku"] for s in got["nested"][0]["matched_skus"]] == navy
-    assert {s["color"] for s in got["nested"][0]["matched_skus"]} == {"Navy"}
-    # Plain text finds the product too, but names no SKU: nothing to preselect.
-    assert "PLT-CRWTEE" in [h["product_id"] for h in got["baseline"]]
+    by_id = {d["product_id"]: d for d in CORPUS}
+    # The nested filter returns each product once, with exactly its in-stock Navy SKUs.
+    ids = [h["product_id"] for h in got["nested"]]
+    assert len(ids) == len(set(ids)) == 5
+    for h in got["nested"]:
+        skus = by_id[h["product_id"]]["skus"]
+        navy = [s["sku"] for s in skus if s["color"] == "Navy" and s["in_stock"]]
+        assert navy and [s["sku"] for s in h["matched_skus"]] == navy, h["product_id"]
+    # Plain text finds tees too, but names no SKU: nothing to preselect.
     assert all(h["matched_skus"] == [] for h in got["baseline"])
-    # The facet counts SKUs and, through reverse_nested, products.
+    # The facet counts SKUs and, through reverse_nested, products. Since the print
+    # range (gen#125), "tee" matches its navy tees as well as the ruling's PLT-CRWTEE.
     assert got["facet"] == [
-        {"color": "Navy", "skus": 4, "products": 1},
-        {"color": "White", "skus": 4, "products": 1},
+        {"color": "Navy", "skus": 48, "products": 10},
+        {"color": "White", "skus": 9, "products": 2},
+        {"color": "Grey", "skus": 5, "products": 1},
         {"color": "Heather Grey", "skus": 3, "products": 1},
     ]
 

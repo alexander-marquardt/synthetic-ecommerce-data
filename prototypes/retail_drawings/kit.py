@@ -30,21 +30,70 @@ PAPER = "#fbfaf6"
 LW = 3.0  # outline width
 LW_DETAIL = 1.6  # seams, slots, lace marks
 FONT = "Helvetica, Arial, sans-serif"
-PATTERNS = ("solid", "stripe", "gingham", "tartan", "leopard", "polka")
+PATTERNS = ("solid", "stripe", "gingham", "tartan", "leopard", "polka", "print")
+#: How a ``print`` fill lays its motif out (gen#125, see :mod:`motifs`).
+PLACEMENTS = ("all-over", "placement", "scatter")
+#: The largest motif a repeat tile holds, as a share of its edge: an all-over
+#: half-drop touches beyond 0.7, and a scatter stays sparse.
+MOTIF_SHARE_OF_TILE = {"all-over": 0.7, "scatter": 0.35}
+#: Placement -> the (fewest, most) copies of the motif one repeat draws: one
+#: placement graphic, the all-over half-drop's two, a scatter's three to six.
+MOTIF_COUNTS = {"placement": (1, 1), "all-over": (2, 2), "scatter": (3, 6)}
 
 
 @dataclass(frozen=True)
 class Fill:
-    """What the product's main surface is painted with."""
+    """What the product's main surface is painted with.
+
+    A ``print`` is a motif (any :data:`SHAPES` entry, see :mod:`motifs`) on a
+    ground: ``base`` is the ground color, ``accent`` the motif's color,
+    ``placement`` one of :data:`PLACEMENTS`, ``scale`` the motif's size (a
+    repeat: as a fraction of the 400-unit sheet; a placement: the share of the
+    surface's print area its drawn box covers, see
+    :func:`motifs.placement_scale`) and ``spacing`` the repeat tile's edge in
+    sheet units (all-over, scatter; 0 for a placement print). Every one of
+    them comes from the record, so two prints that look different always
+    differ in the data.
+    """
 
     pattern: str = "solid"
     base: str = "#cccccc"
     accent: str = "#333333"
     third: str = "#f2d14b"  # tartan's thin over-check
+    motif: str | None = None
+    placement: str | None = None
+    scale: float = 0.0
+    spacing: float = 0.0
+    #: The copies of the motif one repeat draws (:data:`MOTIF_COUNTS`); the
+    #: title's noun is singular iff it is 1 (:func:`prints.title`).
+    count: int = 1
 
     def __post_init__(self) -> None:
         if self.pattern not in PATTERNS:
             raise ValueError(f"unknown pattern {self.pattern!r}; one of {PATTERNS}")
+        if self.pattern != "print":
+            if self.motif is not None or self.placement is not None:
+                raise ValueError(f"a {self.pattern!r} fill carries no motif or placement")
+            return
+        if not self.motif:
+            raise ValueError("a print fill names its motif")
+        if self.placement not in PLACEMENTS:
+            raise ValueError(f"unknown placement {self.placement!r}; one of {PLACEMENTS}")
+        if not 0 < self.scale <= 1:
+            raise ValueError(f"print scale {self.scale!r} is not in (0, 1]")
+        if self.placement == "placement" and self.spacing:
+            raise ValueError("a placement print has one motif and no repeat spacing")
+        least, most_copies = MOTIF_COUNTS[self.placement]
+        if not least <= self.count <= most_copies:
+            raise ValueError(
+                f"a {self.placement} print draws {least}-{most_copies} copies, not {self.count}"
+            )
+        most = MOTIF_SHARE_OF_TILE.get(self.placement)
+        if most is not None and self.scale * SIZE > most * self.spacing:
+            raise ValueError(
+                f"a {self.scale * SIZE:g}-unit motif is too large for a {self.spacing:g}-unit "
+                f"{self.placement} tile (at most {most:g} of the tile, or the repeat overlaps)"
+            )
 
 
 # --------------------------------------------------------------------------
@@ -134,10 +183,14 @@ def _panel(
 
 
 def pattern_defs(fill: Fill, pid: str) -> str:
-    """The ``<pattern>`` element for ``fill`` (empty for a solid color)."""
+    """The ``<pattern>`` element for ``fill`` (empty for a solid color or a placement print)."""
     b, a, t = fill.base, fill.accent, fill.third
     if fill.pattern == "solid":
         return ""
+    if fill.pattern == "print":
+        import motifs  # deferred: motifs draws with this kit's shapes
+
+        return motifs.print_defs(fill, pid)
     if fill.pattern == "stripe":
         tile, body = (
             22,
@@ -605,7 +658,7 @@ def _render_styled(shape, draw, paint, defs, fill, label, brand, uid, params, st
     """:func:`render` in a brand's house style (see ``house_styles``)."""
     import house_styles as hs  # deferred: house_styles is an optional layer over the kit
 
-    inner = "".join(draw(paint, fill, label, **(params or {})))
+    inner = "".join(draw(paint, fill, label, **(params or {}))) + _print_overlay(shape, fill)
     if shape in OFFSET_Y:
         inner = f'<g transform="translate(0 {OFFSET_Y[shape]})">{inner}</g>'
     sheet_defs, sheet, overlay = hs.dress(style, brand, uid)
@@ -619,6 +672,22 @@ def _render_styled(shape, draw, paint, defs, fill, label, brand, uid, params, st
         "</svg>",
     ]
     return "".join(p for p in parts if p)
+
+
+def _paint(fill: Fill, pid: str) -> str:
+    """The surface's fill attribute: the color itself, or the ``<pattern>`` it tiles."""
+    if fill.pattern == "solid" or fill.placement == "placement":
+        return fill.base
+    return f"url(#{pid})"
+
+
+def _print_overlay(shape: str, fill: Fill) -> str:
+    """A placement print's one large motif, drawn over the surface (else empty)."""
+    if fill.placement != "placement":
+        return ""
+    import motifs  # deferred: motifs draws with this kit's shapes
+
+    return motifs.overlay(shape, fill)
 
 
 def register(shapes: dict, offsets: dict | None = None) -> None:
@@ -647,7 +716,7 @@ def render(
     draw = SHAPES[shape]
     pid = f"fill-{uid}"
     defs = pattern_defs(fill, pid)
-    paint = fill.base if fill.pattern == "solid" else f"url(#{pid})"
+    paint = _paint(fill, pid)
     if style is not None:
         return _render_styled(
             shape, draw, paint, defs, fill, label, brand or "", uid, params, style
@@ -659,6 +728,7 @@ def render(
         f'<rect x="6" y="6" width="{SIZE - 12}" height="{SIZE - 12}" fill="none" stroke="{INK}" stroke-width="1"/>',
         f'<g transform="translate(0 {OFFSET_Y[shape]})">' if shape in OFFSET_Y else "",
         *draw(paint, fill, label, **(params or {})),
+        _print_overlay(shape, fill),
         "</g>" if shape in OFFSET_Y else "",
         *(_brand_tag(brand) if brand else []),
         "</svg>",
