@@ -38,7 +38,7 @@ def test_the_distribution_is_synthetic_ecommerce_data():
 
 def test_the_new_commands_and_the_deprecated_old_ones_are_installed():
     assert _project()["scripts"] == {
-        "ecom-generate": "synthetic_ecommerce_data.core.cli:main",
+        "ecom-generate": "synthetic_ecommerce_data.generate_cli:main",
         "ecom-render": "synthetic_ecommerce_data.cli:main",
         "sip-generate": "synthetic_industrial_products:sip_generate",
         "sip-render": "synthetic_industrial_products:sip_render",

@@ -140,16 +140,70 @@ def _module_of(path: Path) -> str:
     return ".".join(parts[:-1] if parts[-1] == "__init__" else parts)
 
 
-def test_core_imports_a_domain_only_through_the_listed_edges():
+def _core_edges(core: Path) -> set[tuple[str, str]]:
     edges = set()
-    for path in sorted((PACKAGE / "core").rglob("*.py")):
+    for path in sorted(core.rglob("*.py")):
         for name in _imported(path):
             if not name.startswith(f"{INDUSTRIAL}."):
                 continue
             target = name[len(INDUSTRIAL) + 1 :]
             if _is_module(name):
-                edges.add((_module_of(path), target))
-    assert edges == CORE_TO_INDUSTRIAL
+                rel = path.relative_to(core).with_suffix("").parts
+                edges.add((".".join(rel[:-1] if rel[-1] == "__init__" else rel), target))
+    return edges
+
+
+def test_core_imports_a_domain_only_through_the_listed_edges():
+    assert _core_edges(PACKAGE / "core") == CORE_TO_INDUSTRIAL
+
+
+def test_the_edge_scan_sees_every_way_core_can_reach_outside_itself(tmp_path):
+    """Each plant is a way to depend on a domain that a prefix match misses."""
+    core = tmp_path / "core"
+    core.mkdir()
+    plants = {
+        # A relative import, and the domain package itself rather than a module in it.
+        "relative": "from ..domains import industrial\n",
+        # A name imported from the domain package, not a module.
+        "package_level": "from synthetic_ecommerce_data.domains.industrial import SOMETHING\n",
+        # Another domain than the industrial one.
+        "other_domain": "import synthetic_ecommerce_data.domains.retail.catalog\n",
+        # A module named in a string, as resources.files() and a package scan take it.
+        "string": 'PACKAGE = "synthetic_ecommerce_data.domains.industrial.data"\n',
+        # The application layer above core.
+        "app": "from synthetic_ecommerce_data.prism import field_map\n",
+        # Core importing core is no edge, by either spelling.
+        "inside": "from . import noise\nfrom synthetic_ecommerce_data.core import emit\n",
+    }
+    for name, text in plants.items():
+        (core / f"{name}.py").write_text(text, encoding="utf-8")
+    assert _core_edges(core) == {
+        ("relative", "domains.industrial"),
+        ("package_level", "domains.industrial"),
+        ("other_domain", "domains.retail.catalog"),
+        ("string", "domains.industrial.data"),
+        ("app", "prism.field_map"),
+    }
+
+
+def test_the_generate_command_composes_the_domains_outside_core():
+    """``ecom-generate`` wires a domain to core, so it cannot live in core."""
+    assert _is_module("synthetic_ecommerce_data.generate_cli")
+    assert not (PACKAGE / "core" / "cli.py").exists()
+    done = subprocess.run(
+        [
+            sys.executable,
+            "-W",
+            "ignore::DeprecationWarning",
+            "-c",
+            "import synthetic_industrial_products.catalog.cli as old\n"
+            "print(old.__name__)\n",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert done.stdout.split() == ["synthetic_ecommerce_data.generate_cli"], done.stderr
 
 
 def test_a_pre_rename_path_resolves_to_the_moved_module():
