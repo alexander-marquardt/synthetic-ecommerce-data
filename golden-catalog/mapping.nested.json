@@ -53,6 +53,9 @@
    "image_detail_url": {
     "type": "keyword"
    },
+   "ingredients": {
+    "type": "text"
+   },
    "variant_count": {
     "type": "integer"
    },
@@ -117,6 +120,9 @@
      },
      "image_detail_url": {
       "type": "keyword"
+     },
+     "ingredients": {
+      "type": "text"
      },
      "attributes": {
       "type": "nested",
