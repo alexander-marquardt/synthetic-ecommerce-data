@@ -10,9 +10,9 @@ and, with ``--out``, writes the standard nested documents as JSONL.
 
 :func:`build` keeps the hand-authored styles first, as templates: the round 4
 preview's 328 (:func:`build_preview4.samples`), then the deep-SKU jeans and bras
-only the scaled catalog carries (:mod:`scale_rows`), then the toys, garden, gifts
-and cleaning styles that give every department its share (:mod:`breadth_rows`); both
-are data only.
+only the scaled catalog carries (:mod:`scale_rows`), then the toys, garden, gifts,
+cleaning, food and beauty styles that give every department its share
+(:mod:`breadth_rows`); both are data only.
 It derives further styles until the SKUs reach the target.
 A derived style copies one template and changes, deterministically from the seed:
 
@@ -100,9 +100,9 @@ EXTRA_BRANDS: dict[str, tuple[str, ...]] = {
     "Beauty": ("Brightwater Botanics", "Orrin Skin"),
     "Food & Drink": ("Mossgill Dairy", "Wheatsheaf Lane", "Barrowby Kitchen"),
     "Footwear": ("Cobbleway", "Treadmoor"),
-    "Garden": ("Rookery Garden Co.", "Wychmoor Growers"),
-    "Gifts": ("Ribbonvale", "Quillon & Fray"),
-    "Toys": ("Pipwick Toys", "Bramblekin"),
+    "Garden": ("Rookery Garden Co.",),
+    "Gifts": ("Ribbonvale",),
+    "Toys": ("Pipwick Toys",),
     "Cleaning & Janitorial": ("Clearbrook Household", "Soapwell"),
 }
 
