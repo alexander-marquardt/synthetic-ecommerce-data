@@ -762,6 +762,38 @@ def test_every_style_attribute_its_skus_carry_lists_exactly_their_values(ceiling
     assert wrong == []
 
 
+def test_no_title_or_description_names_a_value_no_sku_carries(ceiling):
+    """A word naming a value of a SKU-carried attribute (a shoe's ``upper_material``) in the
+    title or description must be a value some SKU of that style holds: a ballet pump drawn
+    in patent only is not "Leather" (gen#148). Every SKU-carried key is compared, not a fixed
+    list. The color names are not the material ("Black Leather" is a color) and nor is the
+    sole ("a rubber sole" on a suede boot), so both are cut from the text first."""
+    vocab: dict[str, set[str]] = collections.defaultdict(set)
+    for r in ceiling.records:
+        for a in r["attributes"]:
+            if any(a["key"] in s for s in r["skus"]):
+                vocab[a["key"]].update(p.strip() for p in str(a["value"]).split(","))
+    checked = 0
+    wrong = []
+    for r in ceiling.records:
+        text = f"{r['title']} {r['description']}"
+        for c in r.get("color_options", ()):
+            text = text.replace(c["color"], " ")
+        text = re.sub(r"\b[\w-]+ (?:outsole|sole)s?\b", " ", text, flags=re.IGNORECASE)
+        for key, words in vocab.items():
+            held = {str(s[key]).lower() for s in r["skus"] if key in s}
+            if not held:
+                continue
+            checked += 1
+            wrong += [
+                (r["product_id"], key, v, sorted(held), r["title"])
+                for v in sorted(words)
+                if v.lower() not in held and scale._has_word(text, v)
+            ]
+    assert checked >= 240
+    assert wrong == []
+
+
 #: The nouns a title or description counts a style's SKUs in ("in 12 washes", "three
 #: sizes"), each with the SKU key it counts. A count of a key the SKUs do not carry
 #: ("40 Washes" on a laundry liquid counts loads) is not a SKU count and is skipped.

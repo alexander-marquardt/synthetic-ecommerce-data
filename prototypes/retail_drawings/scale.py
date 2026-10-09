@@ -273,7 +273,9 @@ def _part_swaps(old: str, new: str) -> dict[str, str]:
 def _sku_values(rec: dict, skus: list[dict], swaps: dict[str, dict[str, str]]) -> None:
     """Each SKU takes the values ``derive`` drew for a key it carries (``swaps``), then
     each style attribute whose key the SKUs carry lists only the parts they still hold:
-    a shoe kept in its suede colors alone no longer says "patent, suede" (gen#145)."""
+    a shoe kept in its suede colors alone no longer says "patent, suede" (gen#145), and a
+    title or description that names a dropped part names the first kept one instead
+    ("Soft leather ballet flats" -> "Soft patent ballet flats", gen#148)."""
     for s in skus:
         for key, swap in swaps.items():
             if key in s:
@@ -281,7 +283,12 @@ def _sku_values(rec: dict, skus: list[dict], swaps: dict[str, dict[str, str]]) -
     for a in rec["attributes"]:
         held = {str(s[a["key"]]).lower() for s in skus if a["key"] in s}
         if held:
-            a["value"] = ", ".join(p for p in _parts(str(a["value"])) if p.lower() in held)
+            parts = _parts(str(a["value"]))
+            kept = [p for p in parts if p.lower() in held]
+            a["value"] = ", ".join(kept)
+            for dropped in (p for p in parts if kept and p.lower() not in held):
+                for field in ("title", "description"):
+                    rec[field] = _swap(rec[field], dropped, kept[0])
 
 
 def _swap(text: str, old: str, new: str) -> str:
