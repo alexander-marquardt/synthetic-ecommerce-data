@@ -107,6 +107,28 @@ def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):
         assert [a["key"] for a in r["attributes"]] == [a["key"] for a in t["attributes"]]
 
 
+def test_only_a_value_free_of_the_leaf_the_unit_and_a_longer_word_may_vary():
+    def entry(key: str, value: str, **extra: Any) -> dict[str, Any]:
+        return {"key": key, "name": key.title(), "value": value, **extra}
+
+    rec = {
+        "category_path": ["Women", "Jeans", "Skinny Jeans"],
+        "category_leaf": "Skinny Jeans",
+        "product_type": "Jeans",
+        "title": "The Harrow Skinny Jeans, 2pk",
+        "description": "A rinse wash skinny fit.",
+        "attributes": [
+            entry("leg_fit", "Skinny"),
+            entry("wash", "Rinse"),
+            entry("pack", "2"),
+            entry("inside_leg", "30", unit_code="INH"),
+            entry("audience", "Womens"),
+        ],
+    }
+    pools = {("Skinny Jeans", a["key"]): (a["value"], a["value"] + "x") for a in rec["attributes"]}
+    assert scale.variable_keys(rec, pools) == ["wash"]
+
+
 def test_a_changed_value_is_rewritten_in_the_title(pairs):
     rewritten = 0
     for r, t in pairs:

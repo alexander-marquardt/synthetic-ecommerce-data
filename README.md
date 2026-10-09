@@ -1121,6 +1121,26 @@ served under `/images/retail` once the SVGs are rendered. Every record states
 its own `product_type` and `category_leaf` (the jeans, bra, bedding, beauty
 and planted single-SKU records gained theirs in the record builders).
 
+### The retail catalog at a size: `scale.py --skus N`
+
+`prototypes/retail_drawings/scale.py --skus 20000 --out retail.jsonl` builds the
+retail catalog to a target SKU count, writes it in the standard, and prints a
+report:
+- the coverage (styles, SKUs per department, products per leaf, attribute fill
+  per type, image ids and distinct drawings);
+- the distinctness (duplicate titles, clones, and same-leaf near-duplicate
+  listings on a sample);
+- the `check_catalog` problem count, the build time and the peak memory.
+
+The 328 authored styles come first. Further styles are derived from them,
+deterministically by `--seed`. Each derived style gets a new range name and a
+brand from its type's pool, takes its leaf's attribute values and a subset of
+the template's colorways, and keeps the template's own size run. The module
+docstring has the rules. Today's templates run out at 30,150 SKUs, and the CLI
+exits 2 past that. Raise the ceiling with data: more brands per type, more
+title-visible values per leaf, and more templates.
+`tests/test_retail_scale.py` holds it at 20K SKUs.
+
 ## The built catalog is committed, in `golden-catalog/`
 
 `ecom-generate build` is reproducible, but its output is checked in anyway, at
