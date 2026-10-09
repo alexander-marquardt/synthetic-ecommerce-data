@@ -885,10 +885,6 @@ COLLISIONS = (
      "industrial_keys": ["thread_size", "thread_type", "thread_direction"],
      "note": "bedding threads per square inch (a unitless count) vs a screw thread's "
              "size (1/4-20: diameter and pitch) and its type; one key each, never merged"},
-    {"word": "honey",
-     "senses": ["skus.color", "product_type"],
-     "note": "a lipstick shade (Wild Honey, color family brown) vs a food; the food "
-             "carries no color field and the shade is never a product type"},
     {"word": "cup", "query": "cups",
      "senses": [PATH_SEPARATOR.join(DRINKWARE), PATH_SEPARATOR.join(BRAS)],
      "meanings": {"Home": "drinkware: a cup, a mug, a travel cup or a set of cups",
