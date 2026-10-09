@@ -418,7 +418,7 @@ FAMILIES: tuple[Family, ...] = (
             F("Salted Caramel Hot Chocolate", "#c48a3a", "M")),
            ("Pantry Mill", "Hearth & Table", "Brewhollow Roasters"), 0.004),
     # Overlaps: the words a food shares with a scent
-    Family("CLN", ("Cleaning & Janitorial", "Kitchen", "Kitchen Cleaners"), "{line} {flavor} Multi-Surface Cleaner",
+    Family("CLN", ("Cleaning", "Kitchen & Surfaces", "Kitchen Cleaners"), "{line} {flavor} Multi-Surface Cleaner",
            "Kitchen Cleaner", "bottle", "Cleaner", _A, "", 1.5, ("500ml", "750ml"),
            (F("Lemon", "#f2d14b"), F("Orange", "#f2a14b"), F("Mint", "#3a8f6a"), F("Lavender", "#9a7ab6")),
            ("Clearbrook Household", "Soapwell"), 0.004, axis="scent", department="Cleaning & Janitorial"),
