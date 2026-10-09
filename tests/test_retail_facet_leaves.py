@@ -153,7 +153,8 @@ def test_a_bra_keeps_each_fact_its_old_leaf_implied(pairs):
         ]
         attrs = doc["attributes"]
         got = [[a["value"] for a in attrs if a["key"] == k] for k in facet_leaves.BRA_KEYS]
-        assert got == want, rec["product_id"]
+        # The leaf's facts are all there; the text may state more (the next test).
+        assert all(set(w) <= set(g) for g, w in zip(got, want, strict=True)), rec["product_id"]
 
 
 def test_a_bra_fibre_content_moves_to_composition(pairs):
@@ -219,3 +220,25 @@ def test_no_facet_has_two_values_that_differ_only_in_case_or_hyphenation(rows):
 def test_wiring_has_one_non_wired_spelling(rows):
     wiring = {v for r in rows for v in r["facets"].get("wiring", ())}
     assert wiring == {"Underwired", "Non-Wired"}
+
+
+def _longest_named(text: str, vocab: set[str]) -> set[str]:
+    named = {v for v in vocab if _named(text, v)}
+    return {v for v in named if not any(v != w and _named(w, v) for w in named)}
+
+
+def test_a_bra_carries_every_value_its_title_names(pairs, values):
+    """The leaf is not the only place a bra states a shape, padding, back or fabric: a "Lace
+    Demi Cup Bra" sits under Demi Cup Bras, so only the title says Lace. A key the document
+    lacks is never judged by ``text_contradictions``, so this reads the missing ones."""
+    checked = 0
+    for rec, doc in pairs:
+        if rec["product_type"] != "Bra":
+            continue
+        text = rec["title"]  # a description denies ("non padded") or lists fibres
+        for key in facet_leaves.BRA_KEYS:
+            have = {a["value"] for a in doc["attributes"] if a["key"] == key}
+            named = _longest_named(text, values[key])
+            assert named <= have, (rec["product_id"], rec["title"], key, named - have)
+            checked += bool(named)
+    assert checked
