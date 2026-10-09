@@ -1065,7 +1065,7 @@ The planted cases are:
 `butter_block` (a foil-wrapped block) and `lidded_tub` (ice cream, a spread), in
 `kit_grocery.py`. The build makes one drawing per style. A pack's label is the
 title's product noun (`grocery.pack_label`), and its panel also carries the range
-name and a band of the style's flavor colours (`kit._panel` reads them from the
+name and a band of the style's flavor colors (`kit._panel` reads them from the
 drawing's `line` and `chips` params). The range-name text tells siblings of a family
 apart; the flavor band is not seen by the grid-clone gate (it reads the leaf, hero picture and price).
 The grocery styles are held to the honesty tests of the main catalog and to a
