@@ -140,9 +140,25 @@ def enclose(motif: Mark, enclosure: str) -> Mark:
 # --------------------------------------------------------------------------
 
 
-def draw_mark(page: svg.Svg, mark: Mark, centre: Point, size: float, ink: str, paper: str) -> None:
-    """``mark`` on ``page``, its unit box ``size`` units across centred on ``centre``."""
+def draw_mark(
+    page: svg.Svg,
+    mark: Mark,
+    centre: Point,
+    size: float,
+    ink: str,
+    paper: str,
+    *,
+    ink_inherited: bool = False,
+) -> None:
+    """``mark`` on ``page``, its unit box ``size`` units across centred on ``centre``.
+
+    ``ink_inherited``: the caller's ``<g fill=ink>`` already paints the solid
+    ink shapes, so they omit their own ``fill`` (bytes: a drawing has a size cap).
+    """
     half = size / 2
+
+    def solid(colour: str) -> dict[str, str]:
+        return {} if ink_inherited and colour == ink else {"fill": colour}
 
     def at(p: Point) -> Point:
         return (centre[0] + p[0] * half, centre[1] + p[1] * half)
@@ -150,7 +166,7 @@ def draw_mark(page: svg.Svg, mark: Mark, centre: Point, size: float, ink: str, p
     for shape in mark:
         colour = paper if shape.cut else ink
         if isinstance(shape, Disc):
-            page.circle(*at((shape.cx, shape.cy)), shape.r * half, fill=colour)
+            page.circle(*at((shape.cx, shape.cy)), shape.r * half, **solid(colour))
         elif isinstance(shape, Ring):
             page.circle(
                 *at((shape.cx, shape.cy)),
@@ -160,7 +176,7 @@ def draw_mark(page: svg.Svg, mark: Mark, centre: Point, size: float, ink: str, p
                 stroke_width=svg.num(shape.w * half),
             )
         elif isinstance(shape, Poly):
-            page.polygon([at(p) for p in shape.points], fill=colour)
+            page.polygon([at(p) for p in shape.points], **solid(colour))
         else:
             page.polyline(
                 [at(p) for p in shape.points],
@@ -293,8 +309,19 @@ def fit_size(text: str, room: float, start: float) -> float:
     return min(start, room / (text_width(text, 1.0) or 1.0))
 
 
-def wordmark(page: svg.Svg, text: str, x: float, baseline: float, size: float, ink: str) -> None:
+def wordmark(
+    page: svg.Svg,
+    text: str,
+    x: float,
+    baseline: float,
+    size: float,
+    ink: str,
+    *,
+    ink_inherited: bool = False,
+) -> None:
     """``text`` left-aligned at ``x``, its width pinned to :func:`text_width`.
+
+    ``ink_inherited``: the plate's ``<g fill=ink>`` paints it, so no ``fill``.
 
     ``size`` is written at one decimal, and the width is that written size's,
     so a viewer reading both draws the glyphs at their own width.
@@ -304,12 +331,12 @@ def wordmark(page: svg.Svg, text: str, x: float, baseline: float, size: float, i
         x,
         baseline,
         text,
-        fill=ink,
         font_family=FONT_FAMILY,
         font_size=svg.num(size),
         font_weight=FONT_WEIGHT,
         textLength=svg.num(text_width(text, size)),
         lengthAdjust="spacingAndGlyphs",
+        **({} if ink_inherited else {"fill": ink}),
     )
 
 
@@ -485,9 +512,11 @@ def plate(
     """
     placed = lockup(name, box, mark_size=mark_size, gap=gap, max_size=max_size, min_size=min_size)
     mx0, my0, mx1, my1 = placed.mark
-    page.add("<g>")
-    draw_mark(page, mark, ((mx0 + mx1) / 2, (my0 + my1) / 2), mark_size, ink, paper)
+    page.add(f'<g fill="{ink}">')
+    draw_mark(
+        page, mark, ((mx0 + mx1) / 2, (my0 + my1) / 2), mark_size, ink, paper, ink_inherited=True
+    )
     for line in placed.placed:
-        wordmark(page, line.text, line.x, line.baseline, placed.size, ink)
+        wordmark(page, line.text, line.x, line.baseline, placed.size, ink, ink_inherited=True)
     page.add("</g>")
     return placed
