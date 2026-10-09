@@ -74,6 +74,32 @@ def test_every_food_sku_states_each_allergen_once_and_free_from_contradicts_noth
     assert bad == []
 
 
+def test_no_flat_sku_contains_or_may_contain_what_it_is_free_from() -> None:
+    """The flat file inherits a product's entries a variant lacks: it must not
+    inherit another flavor's allergen into a SKU that states itself free from it."""
+    bad = []
+    for row in grocery.flat(list(docs())):
+        if "Food & Drink" not in values(row["attributes"], "department"):
+            continue
+        has, may, free = (
+            values(row["attributes"], k) for k in ("contains", "may_contain", "free_from")
+        )
+        if has & may or free & (has | may) or has | may | free != ALL:
+            bad.append(row["sku"])
+    assert bad == []
+
+
+def test_a_flat_sku_states_its_own_variants_allergens() -> None:
+    """Fruit Gums (GRC-SWT-0002-001) are free from milk: the Toffee next to it is not."""
+    rows = {r["sku"]: r for r in grocery.flat(list(docs()))}
+    nested = {v["sku"]: v for d in docs() for v in d["variants"]}
+    for sku, row in rows.items():
+        for key in ("contains", "may_contain"):
+            assert values(row["attributes"], key) == values(nested[sku]["attributes"], key), sku
+    assert "Milk" not in values(rows["GRC-SWT-0002-001"]["attributes"], "contains")
+    assert "Milk" in values(rows["GRC-SWT-0002-001"]["attributes"], "free_from")
+
+
 def test_a_product_is_free_from_an_allergen_only_when_every_variant_is() -> None:
     bad = []
     for d in filter(food, docs()):
@@ -188,6 +214,23 @@ def test_a_word_a_food_shares_with_another_department(
 ) -> None:
     assert find(food_leaf, **food_want)
     assert find(other_leaf, **other_want)
+
+
+def test_pizza_is_chilled_with_a_vegan_and_a_cheese_style() -> None:
+    pizzas = [d for d in docs() if d["category_path"][-2:] == ["Chilled", "Pizza"]]
+    assert pizzas
+    assert find("Pizza", flavor="Vegan Garden", dietary="Vegan")
+    assert find("Pizza", flavor="Four Cheese", contains="Milk")
+    assert not find("Pizza", flavor="Four Cheese", dietary="Vegan")
+    assert all(
+        "Gluten" in values(v["attributes"], "contains") for d in pizzas for v in d["variants"]
+    )
+
+
+def test_a_honey_jar_is_labelled_honey() -> None:
+    honey = [d for d in grocery.build(2000) if d["category_leaf"] == "Jam & Honey"]
+    labels = {r["drawing"]["label"]: r["skus"][0]["flavor"] for r in honey}
+    assert {lab for lab, flavor in labels.items() if "Honey" in flavor} == {"Honey"}
 
 
 def test_milk_names_a_dairy_milk_a_milk_chocolate_and_a_body_milk() -> None:
