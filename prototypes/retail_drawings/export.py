@@ -31,6 +31,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+import facet_leaves
 from audience import audience_of
 from build_preview4 import samples
 
@@ -227,10 +228,21 @@ def _variant(rec: dict, sku: dict) -> dict[str, Any]:
     }
 
 
-def standard_document(rec: dict) -> dict[str, Any]:
-    """One build record as the standard's nested product document."""
+def standard_document(rec: dict, *, collapse: bool = True) -> dict[str, Any]:
+    """One build record as the standard's nested product document.
+
+    A jean's fit and a bra's style leaf collapse into facets (:mod:`facet_leaves`). With
+    ``collapse=False`` the document keeps the record's leaf and facts: the shape
+    :func:`scale.build` checks a derived style's text against, so the seeded derivation, and
+    with it every image id, is what it was before the collapse."""
     variants = [_variant(rec, sku) for sku in rec["skus"]]
     path = list(rec["category_path"])
+    attributes = _product_attributes(rec)
+    added, replaced = facet_leaves.leaf_facets(rec, attributes) if collapse else ([], set())
+    if replaced:
+        path = facet_leaves.collapsed_path(path, rec["product_type"])
+        attributes = [e for e in attributes if e["key"] not in replaced]
+        attributes += [_entry(key, name, None, value) for key, name, value in added]
     doc: dict[str, Any] = {
         "product_id": rec["product_id"],
         "product_type": PRODUCT_TYPE_FOLDS.get(rec["product_type"], rec["product_type"]),
@@ -241,13 +253,13 @@ def standard_document(rec: dict) -> dict[str, Any]:
         doc["series"] = rec["product_line"]
     return doc | {
         "category_path": path,
-        "category_leaf": rec["category_leaf"],
+        "category_leaf": path[-1],
         "category_depth": len(path),
         "image_id": variants[0]["image_id"],
         "image_url": variants[0]["image_url"],
         "image_detail_url": variants[0]["image_detail_url"],
         **({"ingredients": rec["ingredients"]} if "ingredients" in rec else {}),
-        "attributes": _product_attributes(rec),
+        "attributes": attributes,
         "variant_count": len(variants),
         "variants": variants,
     }

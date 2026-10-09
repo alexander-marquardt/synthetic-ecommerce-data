@@ -111,7 +111,8 @@ def test_the_purpose_nodes_are_the_only_children_of_bras(rows):
 def test_every_jean_has_a_leg_fit_and_every_bra_a_bra_shape(rows):
     for r in rows:
         if r["product_type"] in ("Jeans", "Trousers"):
-            assert len(r["facets"].get("leg_fit", ())) == 1, r["product_id"]
+            fits = r["facets"].get("leg_fit", [])
+            assert fits and fits[1:] in ([], [facet_leaves.CROPPED]), r["product_id"]
         if r["product_type"] == "Bra":
             assert len(r["facets"].get("bra_shape", ())) == 1, r["product_id"]
 
@@ -146,9 +147,13 @@ def test_a_bra_keeps_each_fact_its_old_leaf_implied(pairs):
     for rec, doc in pairs:
         if rec["product_type"] != "Bra":
             continue
-        want = facet_leaves.BRA_LEAVES[rec["category_path"][-1]]
-        got = {a["key"]: a["value"] for a in doc["attributes"]}
-        assert tuple(got.get(k) for k in facet_leaves.BRA_KEYS) == want, rec["product_id"]
+        want = [
+            [f] if isinstance(f, str) else list(f or ())
+            for f in facet_leaves.BRA_LEAVES[rec["category_path"][-1]]
+        ]
+        attrs = doc["attributes"]
+        got = [[a["value"] for a in attrs if a["key"] == k] for k in facet_leaves.BRA_KEYS]
+        assert got == want, rec["product_id"]
 
 
 def test_a_bra_fibre_content_moves_to_composition(pairs):
@@ -166,7 +171,19 @@ def test_a_jean_keeps_the_fit_its_old_leaf_named(pairs):
         leaf = rec["category_path"][-1]
         fit = [a["value"] for a in doc["attributes"] if a["key"] == "leg_fit"]
         if rec["product_type"] in ("Jeans", "Trousers") and leaf != rec["product_type"]:
-            assert fit == [leaf.rsplit(" ", 1)[0]], (rec["product_id"], leaf)
+            assert fit[:1] == [leaf.rsplit(" ", 1)[0]], (rec["product_id"], leaf)
+
+
+def test_a_jean_whose_text_says_cropped_is_also_cropped(pairs):
+    cropped = 0
+    for rec, doc in pairs:
+        if rec["product_type"] not in ("Jeans", "Trousers"):
+            continue
+        fits = [a["value"] for a in doc["attributes"] if a["key"] == "leg_fit"]
+        said = _named(f"{rec['title']} {rec.get('description', '')}", "Cropped")
+        assert ("Cropped" in fits) == said, (rec["product_id"], fits)
+        cropped += said and fits[0] != "Cropped"
+    assert cropped  # a cropped balloon or barrel jean, filed under its own fit
 
 
 def test_titles_and_image_ids_are_the_build_records(pairs):
@@ -177,7 +194,7 @@ def test_titles_and_image_ids_are_the_build_records(pairs):
         assert doc["product_type"] == rec["product_type"]
         if rec["product_type"] in ("Jeans", "Trousers"):
             fits = [a["value"] for a in doc["attributes"] if a["key"] == "leg_fit"]
-            assert len(fits) == 1 and _named(rec["title"], fits[0]), (rec["product_id"], fits)
+            assert fits and _named(rec["title"], fits[0]), (rec["product_id"], fits)
 
 
 def test_the_kind_node_is_the_product_type(rows):
