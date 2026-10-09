@@ -1029,6 +1029,22 @@ The planted cases are:
 `tests/test_grocery_154.py` pins each case. The new pack shapes are `bar` and
 `bag`, in `kit_grocery.py`. The build makes one drawing per style.
 
+The grocery styles are also the LAST templates of the main retail build
+(`scale.templates()`, so `scale.py`, `image_release.py --skus N` and the flat export
+carry them: Food & Drink at grocery depth in the one catalog, their drawings in the
+same image archive). A build under the other templates' 27,928 SKUs is what it was.
+No style is derived from a grocery style, whose allergen, dietary and ingredient facts
+are its own. The main build's 55 Food & Drink styles (61 SKUs: honey, jam, tea, coffee,
+chutney, ...) stay, since the failure classes and the proof corpus pin them; no title or
+product id repeats between them and the grocery styles. The main build's one honey jar
+(`PLT-HONBLS`) stays and is derived from no further; grocery plants the other honeys. The ceiling is 6,830 styles, 90,046 SKUs
+and 7,974 images; Food & Drink is 3,442 styles and 10,163 SKUs (10,136 under the
+`Food & Drink` category tree, 27 under the older `Food` one). The 15% grid-clone gate
+(`scale.grid_clones`) is held over the non-grocery styles only (15.04% at 3,525 styles):
+a grocery family draws one pack shape at a few prices, so 3,191 of its 3,305 styles share
+a tile (largest group 33). That is pinned apart in the tests, so a fix lowers it.
+`tests/test_retail_grocery_in_scale_154.py` pins it.
+
 ### Observed failure classes 2 to 15, before and after on Elasticsearch
 
 `real_classes.py` rebuilds thirteen query shapes observed by hand on a live
@@ -1202,7 +1218,7 @@ report:
   15%), and the distinct prices per leaf (min and median);
 - the `check_catalog` problem count, the build time and the peak memory.
 
-The 927 templates come first: the 328 authored styles, then 136 deep-SKU jeans,
+The 4,232 templates come first: the 328 authored styles, then 136 deep-SKU jeans,
 bras and shoes that only the scaled catalog carries (`scale_rows.py`), then 184 toys,
 garden, gifts, cleaning, food, beauty and home styles that hold every department at
 half its fair share of styles or more (`breadth_rows.py`), then 279 styles that
@@ -1210,7 +1226,8 @@ three failure classes need (`distractor_rows.py`; `baseline_rank.py` ranks a bui
 without a policy, and `tests/test_retail_distractors.py` holds the result): mattress
 protectors, mattresses and pillow protectors that out-sell the toppers; bestselling
 barrel-leg jeans whose text says balloon; 150 petite styles with a minority on sale,
-and 60 sale styles that never say petite. Further styles are
+and 60 sale styles that never say petite, then the 3,305 grocery styles (below, `grocery.py`,
+gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
 also differs from its template and from every sibling in a value its title shows
@@ -1227,10 +1244,11 @@ hold. Its price is
 re-drawn inside its leaf's band, as a function of the values it changed (a
 premium material costs more). A draw whose title or description contradicts an
 attribute is refused, and `check_catalog` refuses such text too. The module
-docstring has the rules. Today's templates run out at 80,004 SKUs (3,525 styles),
-and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
+docstring has the rules. Today's templates run out at 90,046 SKUs (6,830 styles;
+80,004 and 3,525 before the grocery styles joined), and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
 values per leaf, more colorways, and more templates.
-`tests/test_retail_scale.py` holds it at the templates' SKUs plus 4,500 (its
+`--flat PATH` also writes the flat file (one document per SKU, `ingredients` top-level on a
+food SKU). `tests/test_retail_scale.py` holds it at the templates' SKUs plus 4,500 (its
 `TARGET`, pinned to the template total so new templates never empty the
 derived-style sample), and holds the ceiling's grid clones at 15% or under too.
 

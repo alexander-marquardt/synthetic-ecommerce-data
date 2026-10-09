@@ -69,43 +69,53 @@ def test_the_main_food_styles_are_kept_and_no_title_or_id_repeats(templates):
     main = templates[:MAIN_TEMPLATES]
     kept = _food(main)
     assert (len(kept), sum(r["sku_count"] for r in kept)) == (MAIN_FOOD_STYLES, MAIN_FOOD_SKUS)
-    titles = collections.Counter(r["title"] for r in templates)
+    groc = templates[MAIN_TEMPLATES:]
+    assert {r["title"] for r in main} & {r["title"] for r in groc} == set()
+    assert {r["product_id"] for r in main} & {r["product_id"] for r in groc} == set()
     ids = collections.Counter(r["product_id"] for r in templates)
-    assert [t for t, n in titles.items() if n > 1] == []
     assert [i for i, n in ids.items() if n > 1] == []
 
 
 def test_honey_is_planted_once_by_the_main_build_and_never_derived_twice(built):
     """The main build's one honey jar stays; grocery plants the rest; no style derives from either
     grocery or that jar a second time."""
-    assert [r["product_id"] for r in built.records[:MAIN_TEMPLATES] if r["category_leaf"] == "Honey"] == [
-        "PLT-HONBLS"
-    ]
+    assert [
+        r["product_id"] for r in built.records[:MAIN_TEMPLATES] if r["category_leaf"] == "Honey"
+    ] == ["PLT-HONBLS"]
     assert [p for p, t in built.template_of.items() if t == "PLT-HONBLS"] == []
 
 
 def test_derived_styles_never_come_from_a_grocery_style(built):
     assert len(built.template_of) > 0
     assert [p for p, t in built.template_of.items() if t.startswith("GRC-")] == []
-    assert not [r for r in built.records[len(built.records) - len(built.template_of):] if r["product_id"].startswith("GRC-")]
+    assert not [
+        r
+        for r in built.records[len(built.records) - len(built.template_of) :]
+        if r["product_id"].startswith("GRC-")
+    ]
 
 
 def test_the_flat_export_carries_food_and_drink_with_ingredients_top_level(built):
     docs = scale.documents(built)
     rows = scale.flat(docs)
     assert len(rows) == built.skus
-    food = [r for r in rows if r["department"] == "Food & Drink"]
-    assert len(food) >= GROCERY_SKUS
+    food = [r for r in rows if r["category_path"][0] == "Food & Drink"]
+    assert len(food) == sum(
+        r["sku_count"] for r in built.records if r["category_path"][0] == "Food & Drink"
+    )
+    assert len(food) > 10_000
     with_list = [r for r in food if r.get("ingredients")]
     assert len(with_list) > 9_000
     assert all(isinstance(r["ingredients"], list) for r in with_list)
-    assert {"contains", "free_from"} <= {k for r in food for k in r}
+    assert {"contains", "free_from"} <= {k for r in food for k in r["facets"]}
 
 
 def test_the_image_release_ships_the_grocery_drawings(built):
     files = image_release.image_files(built.records)
     members = {path for path, _ in files}
-    grocery_skus = [s for r in built.records if r["product_id"].startswith("GRC-") for s in r["skus"]]
+    grocery_skus = [
+        s for r in built.records if r["product_id"].startswith("GRC-") for s in r["skus"]
+    ]
     assert len(grocery_skus) == GROCERY_SKUS
     by_id = {r["product_id"]: r for r in built.records}
     missing = [
