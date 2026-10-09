@@ -770,12 +770,12 @@ CLEANING = (
         "Scented with vanilla.",
         _spray("Cream", "#ffffff"), _scent("Vanilla"), label="Gel", colorless=True),
     # Growth round 4: a new fragrance in each leaf, so every row in it may take one more.
-    Row("LDRLIQ", "Spring Meadow Laundry Liquid 1.4L", "Freshfold", _CJ, _LAUND,
+    Row("LDRMEA", "Spring Meadow Laundry Liquid 1.4L", "Freshfold", _CJ, _LAUND,
         "Laundry Detergent", 7.5, "bottle",
         "A concentrated non-biological liquid for 40 washes, gentle on sensitive skin. "
         "Scented with spring meadow.",
         _spray("Aqua", "#ffffff"), _scent("Spring Meadow"), label="Laundry", colorless=True),
-    Row("LDRPOD", "Ocean Breeze Laundry Capsules", "Pantry Mill", _CJ, _LAUND,
+    Row("LDRCAP", "Ocean Breeze Laundry Capsules", "Pantry Mill", _CJ, _LAUND,
         "Laundry Detergent", 8.0, "tub",
         "Three-chamber capsules in a child-lock tub: one per load, straight into the drum. "
         "Scented with ocean breeze.",
@@ -785,7 +785,7 @@ CLEANING = (
         "A light conditioner that softens towels and cuts creasing, for 33 loads. "
         "Scented with jasmine.",
         _spray("White", "#b9a3d0"), _scent("Jasmine"), label="Softener", colorless=True),
-    Row("LOOGEL", "Pine Thick Toilet Gel 750ml", "Freshfold", _CJ, _LOO, "Toilet Cleaner",
+    Row("LOOTGL", "Pine Thick Toilet Gel 750ml", "Freshfold", _CJ, _LOO, "Toilet Cleaner",
         1.8, "bottle",
         "An angled-neck gel that clings under the rim and lifts limescale overnight. "
         "Scented with pine.",
