@@ -161,13 +161,14 @@ def test_few_styles_share_a_results_grid_tile_at_the_ceiling(ceiling):
     assert rate <= CEILING_GRID_CLONES, f"{shared} of {len(main)} styles ({rate:.1%})"
 
 
-#: The grocery grid-clone share the ceiling build may reach. Gate in the fix commit (gen#154).
-GROCERY_GRID_CLONES = 0.50
+#: The grocery grid-clone share the ceiling build may reach. Measured 0 of 3,305 (0.0%) with a
+#: 2-point margin; it was 96.6% (gen#154).
+GROCERY_GRID_CLONES = 0.02
 
 
 def test_grocery_styles_mostly_draw_a_tile_of_their_own(ceiling):
-    """A grocery style's tile is its leaf, its hero picture and its price. The picture names the
-    range, the flavor's colour and the flavors of the style, so siblings do not share it.
+    """A grocery style's tile is its leaf, hero picture and price. The picture names the range,
+    the flavor's colour and the style's flavors, so siblings do not share it.
 
     Guard: this test. Metric: the grocery grid-clone share, in the failure message."""
     groc = [r for r in ceiling.records if r["product_id"].startswith(scale.GROCERY_PREFIX)]

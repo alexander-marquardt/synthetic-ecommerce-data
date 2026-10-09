@@ -208,7 +208,7 @@ FAMILIES: tuple[Family, ...] = (
            (F("Margherita", "#c8312e", "GM"), F("Pepperoni", "#8c3b2a", "GMx"), F("Vegan Garden", "#7ab648", "G"),
             F("Four Cheese", "#f2c14b", "GM"), F("Ham & Pineapple", "#d9a441", "GMx")),
            _MEAL, 0.02, per_style=(2, 4)),
-    Family("ICE", _p("Frozen", "Ice Cream"), "{line} Ice Cream", "Ice Cream", "tub", "Ice Cream", _Z, "DE",
+    Family("ICE", _p("Frozen", "Ice Cream"), "{line} Ice Cream", "Ice Cream", "lidded_tub", "Ice Cream", _Z, "DE",
            3.0, ("500ml", "900ml"),
            (F("Vanilla", "#f2e6c8", "ME"), F("Mint Choc Chip", "#9bd3b0", "MS"), F("Honeycomb", "#d9a441", "Mh"),
             F("Lemon Sorbet", "#f2d14b"), F("Coconut Dairy Free", "#efe8d8"), F("Salted Caramel", "#c48a3a", "M")),

@@ -164,6 +164,39 @@ def _word(text: str, cx: float, cy: float, width: float, max_size: float, color:
     )
 
 
+#: The grocery marks of the pack being drawn (:data:`MARK_KEYS` from its params): the range
+#: name and the flavor colours. :func:`_drawn` sets it, :func:`_panel` reads it.
+_MARKS: dict[str, str] = {}
+MARK_KEYS = ("line", "chips")
+
+
+def _marked(x: float, y: float, w: float, h: float, text: str, max_size: float) -> list[str]:
+    """The panel's contents with marks: the word, the range name, and a band of flavor colours."""
+    cx, out = x + w / 2, []
+    out.append(_word(text, cx, y + h * 0.36, w - 14, min(max_size * 0.8, h * 0.34)))
+    if _MARKS.get("line"):
+        out.append(_word(_MARKS["line"], cx, y + h * 0.62, w - 14, 13, "#5a5f66"))
+    chips = _MARKS["chips"].split(",") if _MARKS.get("chips") else []
+    step = (w - 8) / len(chips) if chips else 0
+    for i, c in enumerate(chips):
+        out.append(
+            f'<rect x="{x + 4 + i * step:.1f}" y="{y + h - 10:g}" width="{step:.1f}" height="7" '
+            f'fill="{c}" stroke="{INK}" stroke-width="1"/>'
+        )
+    return out
+
+
+def _drawn(draw, paint: str, fill: Fill, label: str | None, params: dict | None) -> list[str]:
+    """``draw`` called with the shape's own params; the grocery marks ride to :func:`_panel`."""
+    own = {k: v for k, v in (params or {}).items() if k not in MARK_KEYS}
+    _MARKS.clear()
+    _MARKS.update({k: v for k, v in (params or {}).items() if k in MARK_KEYS})
+    try:
+        return draw(paint, fill, label, **own)
+    finally:
+        _MARKS.clear()
+
+
 def _panel(
     x: float, y: float, w: float, h: float, text: str | None, max_size: float = 56, rx: float = 6
 ) -> list[str]:
@@ -172,7 +205,9 @@ def _panel(
         f'<rect x="{x:g}" y="{y:g}" width="{w:g}" height="{h:g}" rx="{rx:g}" '
         f'fill="#ffffff" stroke="{INK}" stroke-width="{LW_DETAIL}"/>'
     ]
-    if text:
+    if text and _MARKS:
+        out += _marked(x, y, w, h, text, max_size)
+    elif text:
         out.append(_word(text, x + w / 2, y + h / 2, w - 14, max_size))
     return out
 
@@ -658,7 +693,7 @@ def _render_styled(shape, draw, paint, defs, fill, label, brand, uid, params, st
     """:func:`render` in a brand's house style (see ``house_styles``)."""
     import house_styles as hs  # deferred: house_styles is an optional layer over the kit
 
-    inner = "".join(draw(paint, fill, label, **(params or {}))) + _print_overlay(shape, fill)
+    inner = "".join(_drawn(draw, paint, fill, label, params)) + _print_overlay(shape, fill)
     if shape in OFFSET_Y:
         inner = f'<g transform="translate(0 {OFFSET_Y[shape]})">{inner}</g>'
     sheet_defs, sheet, overlay = hs.dress(style, brand, uid)
@@ -727,7 +762,7 @@ def render(
         f'<rect width="{SIZE}" height="{SIZE}" fill="{PAPER}"/>',
         f'<rect x="6" y="6" width="{SIZE - 12}" height="{SIZE - 12}" fill="none" stroke="{INK}" stroke-width="1"/>',
         f'<g transform="translate(0 {OFFSET_Y[shape]})">' if shape in OFFSET_Y else "",
-        *draw(paint, fill, label, **(params or {})),
+        *_drawn(draw, paint, fill, label, params),
         _print_overlay(shape, fill),
         "</g>" if shape in OFFSET_Y else "",
         *(_brand_tag(brand) if brand else []),

@@ -80,6 +80,16 @@ PILE_PACK = {"Single": "loose", "4 pack": "net", "1kg": "bag"}
 UNIONED = frozenset({"contains", "may_contain"})
 #: A flavor whose pack label differs from its family's: the honey jar reads Honey, not Jam.
 LABELS = {("JAM", "Clear Honey"): "Honey", ("JAM", "Set Honey"): "Honey"}
+#: A flavor whose pack is not its family's: butter is a foil-wrapped block, a spread a tub.
+SHAPES = {
+    ("BUT", "Salted Butter"): "butter_block",
+    ("BUT", "Unsalted Butter"): "butter_block",
+    ("BUT", "Spreadable Butter"): "lidded_tub",
+    ("BUT", "Plant Spread"): "lidded_tub",
+}
+#: Where a title's noun phrase ends (the honesty test's rule: "Tuna in Spring Water" is tuna).
+_CUT = re.compile(r",|\d| for | with | of | in | to ")
+LABEL_CHARS = 14
 
 _PACK = re.compile(r"^(?:(\d+) x )?([\d.]+) ?(g|kg|ml|L|pint)$")
 _COUNT = re.compile(r"^(\d+) (pack|bags)$")
@@ -179,14 +189,34 @@ def _description(fam: Family, flavors: list[F], packs: list[dict], skus: list[di
     return " ".join(out)
 
 
-def _drawing(fam: Family, flavor: F, pid: str, pack: dict) -> dict:
+def pack_label(title: str, head: str) -> str:
+    """The word a pack carries: the title's product noun phrase after the range name, cut where
+    the phrase ends, its last two words when they fit :data:`LABEL_CHARS` ("Cereal Bars", "Tikka
+    Masala"). It ends in the title's product noun, never a category fragment."""
+    words = _CUT.split(title.removeprefix(head).strip())[0].split()
+    label = words[-1]
+    if len(words) > 1 and words[-2] not in ("&", "and"):
+        two = f"{words[-2]} {label}"
+        label = two if len(two) <= LABEL_CHARS else label
+    return label
+
+
+def _drawing(
+    fam: Family, flavors: list[F], pid: str, pack: dict, title: str, head: str
+) -> dict:
+    """One style's drawing: the first flavor's colour, the title's noun, and the marks that make
+    a sibling's picture differ: the range name and a band of the style's flavor colours."""
+    flavor = flavors[0]
     color = (flavor.name, "solid", flavor.hex, "#ffffff")
+    marks = {"line": head, "chips": ",".join(f.hex for f in flavors)}
+    shape = SHAPES.get((fam.code, flavor.name), fam.shape)
     if fam.shape == "produce_pile":
         grams = pack.get("net_weight_g")
         count = None if grams else pack["units_per_pack"]
         params = pile_params(FRUIT[flavor.name], pid, PILE_PACK[pack["pack_size"]], grams, count)
-        return drawing(fam.shape, color, fam.label, **params)
-    return drawing(fam.shape, color, LABELS.get((fam.code, flavor.name), fam.label))
+        return drawing(shape, color, pack_label(title, head), **params)
+    label = LABELS.get((fam.code, flavor.name)) or pack_label(title, head)
+    return drawing(shape, color, label, **marks)
 
 
 def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs: list[str],
@@ -235,7 +265,7 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
         title=title, brand=brand, brand_owner=OWNERS[brand], department=[fam.department],
         product_type=fam.product_type, category_path=list(fam.path), category_leaf=fam.path[-1],
         description=_description(fam, flavors, parsed, skus), attributes=attrs,
-        drawing=_drawing(fam, flavors[0], pid, parsed[0]), collections=[], currency="GBP",
+        drawing=_drawing(fam, flavors, pid, parsed[0], title, head), collections=[], currency="GBP",
         audience="baby" if fam.code == "BAB" else "adult",
         sold_last_5_days=5 + h % 90, rating=round(3.8 + (h >> 8) % 11 / 10, 1),
         review_count=3 + (h >> 16) % 400, price_min=min(prices), price_max=max(prices), **extra,
