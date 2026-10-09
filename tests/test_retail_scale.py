@@ -36,10 +36,12 @@ AUTHORED = 328
 BREADTH_ROWS = 184
 #: The distractor rows (``distractor_rows``): the failure classes' products.
 DISTRACTOR_ROWS = 279
-TEMPLATES = AUTHORED + SCALE_ROWS + BREADTH_ROWS + DISTRACTOR_ROWS
+#: The grocery styles (``grocery.build()``, gen#154), last: no style derives from one.
+GROCERY_ROWS = 3_305
+TEMPLATES = AUTHORED + SCALE_ROWS + BREADTH_ROWS + DISTRACTOR_ROWS + GROCERY_ROWS
 #: The SKUs the templates alone hold. A build at or under it takes no seeded draw, so
 #: every derived-style test (``pairs``) would pass on an empty list.
-TEMPLATE_SKUS = 27_928
+TEMPLATE_SKUS = 37_970
 #: The derived styles :data:`TARGET` must hold so the ``pairs`` tests read a real sample:
 #: round 2's 19K build held 166 (seed 0), and adding templates must not shrink it.
 MIN_DERIVED = 150
@@ -51,7 +53,7 @@ DERIVED_SKUS = 4_500
 TARGET = TEMPLATE_SKUS + DERIVED_SKUS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (3_525, 80_004)
+CAPACITY = (6_830, 90_046)
 #: The grid-clone share the ceiling build may reach (:func:`scale.grid_clones`). Round 2
 #: measured 14.4%: the rest is the headroom the 50K and 100K rounds may spend.
 CEILING_GRID_CLONES = 0.152
@@ -138,8 +140,9 @@ def test_a_derived_style_adds_no_duplicate_title_and_no_twin(built, pairs):
 def test_few_styles_share_a_results_grid_tile_with_another(built):
     """What a results grid shows is the leaf, the hero picture and the price: a style that
     shares all three with another reads as a clone whatever its brand and range name."""
-    report = scale.grid_clones(built.records)
-    assert report["styles"] == len(built.records)
+    main = scale.derivable(built.records)
+    report = scale.grid_clones(main)
+    assert report["styles"] == len(main)
     assert report["grid_clone_rate"] <= 0.15
 
 
@@ -150,11 +153,22 @@ def test_few_styles_share_a_results_grid_tile_at_the_ceiling(ceiling):
     Guard: a template or pool change that clones tiles past the cap fails here. Metric: the
     ceiling's grid-clone share, in the failure message.
     """
-    tiles = collections.Counter(scale.grid_tile(r) for r in ceiling.records)
+    main = scale.derivable(ceiling.records)
+    tiles = collections.Counter(scale.grid_tile(r) for r in main)
     shared = sum(n for n in tiles.values() if n > 1)
-    rate = shared / len(ceiling.records)
-    assert scale.grid_clones(ceiling.records)["grid_clones"] == shared
-    assert rate <= CEILING_GRID_CLONES, f"{shared} of {len(ceiling.records)} styles ({rate:.1%})"
+    rate = shared / len(main)
+    assert scale.grid_clones(main)["grid_clones"] == shared
+    assert rate <= CEILING_GRID_CLONES, f"{shared} of {len(main)} styles ({rate:.1%})"
+
+
+def test_grocery_tiles_are_measured_apart_from_the_clothing_gate(ceiling):
+    """The 15% gate is for styles a shopper tells apart by picture and price; a grocery family
+    draws one pack shape at a few price points, so its styles share a tile (the brand's label
+    and flavor differ below the tile). Held apart and pinned so a fix lowers it, and so the
+    main styles' gate above is not read over the grocery ones (gen#154)."""
+    groc = [r for r in ceiling.records if r["product_id"].startswith(scale.GROCERY_PREFIX)]
+    report = scale.grid_clones(groc)
+    assert (report["styles"], report["grid_clones"], report["largest_group"]) == (3_305, 3_191, 33)
 
 
 def test_grid_clones_count_every_style_of_a_shared_tile():

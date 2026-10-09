@@ -68,7 +68,7 @@ price with another.
 
 **Capacity.** Signatures bound the build: per template, the shown values its leaf
 offers times its color families. With today's templates every template is
-exhausted at 80,004 SKUs (3,525 styles). Past that, the CLI reports
+exhausted at 90,046 SKUs (6,830 styles; 80,004 and 3,525 without the grocery styles). Past that, the CLI reports
 ``reached_target: false`` and exits 2. To grow it, add data, not code: more values
 per leaf that the title shows, more colorways, and more templates, deep-SKU ones
 above all.
@@ -103,6 +103,7 @@ if str(HERE) not in sys.path:
 
 import breadth_rows  # noqa: E402
 import distractor_rows  # noqa: E402
+import grocery  # noqa: E402
 import scale_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from export import drawing_spec, image_id, standard_document  # noqa: E402
@@ -192,11 +193,28 @@ class Scaled:
         return sum(r["sku_count"] for r in self.records)
 
 
+#: A grocery style's product id prefix (:mod:`grocery`): the templates no style derives from.
+GROCERY_PREFIX = "GRC-"
+
+
 def templates() -> list[dict]:
     """The authored styles, then :mod:`scale_rows`, :mod:`breadth_rows` and
-    :mod:`distractor_rows`, in build order."""
+    :mod:`distractor_rows`, then the :mod:`grocery` styles (gen#154), in build order.
+
+    Grocery is last, so a build under the other templates' SKUs is what it was. The main
+    build's own 55 Food & Drink styles stay (the failure classes and the Elasticsearch proof
+    corpus pin them); no title or product id repeats between the two."""
     authored = (r for recs in samples().values() for r in recs)
-    return [*authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs()]
+    return [
+        *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
+        *grocery.build(),
+    ]  # fmt: skip
+
+
+def derivable(tpls: list[dict]) -> list[dict]:
+    """The templates a derived style may come from: not a grocery style, whose allergen,
+    dietary and ingredient facts are the grocery build's own and would not follow a re-draw."""
+    return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)]
 
 
 def _words(text: str) -> str:
@@ -516,14 +534,15 @@ def build(skus: int, seed: int = 0) -> Scaled:
             return Scaled(records, {})
         records.append(r)
     rng = random.Random(seed)
-    pools = value_pools(tpls)
-    owners = {r["brand"]: r["brand_owner"] for r in tpls if "brand_owner" in r}
-    brands = brand_pools(tpls)
-    plan = _plan(tpls, rng)
+    base = derivable(tpls)
+    pools = value_pools(base)
+    owners = {r["brand"]: r["brand_owner"] for r in base if "brand_owner" in r}
+    brands = brand_pools(base)
+    plan = _plan(base, rng)
     weights = _department_weights(plan)
     used = {twin_key(r) for r in tpls}
     titles = {r["title"] for r in tpls}
-    ctx = _Context(pools, text_pools(standard_document(r) for r in tpls), _bands(tpls), {})
+    ctx = _Context(pools, text_pools(standard_document(r) for r in base), _bands(base), {})
     template_of: dict[str, str] = {}
     total = sum(r["sku_count"] for r in records)
     serial = 0
@@ -821,8 +840,10 @@ def documents(scaled: Scaled) -> list[dict[str, Any]]:
 
 
 def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """One flat document per SKU. Stub: the red commit fails on it."""
-    return []
+    """One flat document per SKU, the file a loader takes as ``catalog.ndjson``
+    (:func:`grocery.flat`: a grocery SKU states its own allergens, and carries its own
+    ``ingredients`` top-level)."""
+    return grocery.flat(docs)
 
 
 def _target(text: str) -> int:
@@ -846,6 +867,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--out", type=Path, help="write the standard nested documents here, one JSON per line"
     )
+    ap.add_argument("--flat", type=Path, help="write one flat document per SKU here (:func:`flat`)")
     ap.add_argument("--report", type=Path, help="write the report JSON here as well as to stdout")
     args = ap.parse_args(argv)
     start = time.perf_counter()
@@ -857,6 +879,10 @@ def main(argv: list[str] | None = None) -> int:
         with args.out.open("w", encoding="utf-8") as handle:
             for d in docs:
                 handle.write(json.dumps(d, ensure_ascii=False, sort_keys=True) + "\n")
+    if args.flat:
+        with args.flat.open("w", encoding="utf-8") as handle:
+            for row in flat(docs):
+                handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
     report = {
         "target_skus": args.skus,
         "reached_target": scaled.skus >= args.skus,
