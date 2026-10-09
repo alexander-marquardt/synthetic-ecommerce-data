@@ -30,13 +30,13 @@ A derived style copies one template and changes, deterministically from the seed
   template that draws it ("Cherry" -> ``cherries``, :func:`_redraw_motif`), the
   title's plural follows ("Lemons Print" -> "Oranges Print"), and the description
   is rebuilt from the product noun after "Graphic" or "Print" in the title, with
-  no colour words. Count and placement are frozen;
+  no color words. Count and placement are frozen;
 - its **colorways**, a hero color, then a subset of the template's other colors;
-  a style whose title names its colour (see below) carries that hero colourway
+  a style whose title names its color (see below) carries that hero colorway
   alone. Its SKUs are the template's own size run times those colors, hero first
   (:func:`variants.product`): no SKU is invented. Each SKU's price is the
   template's times the style's price ratio (see below). A description's
-  "Shown in cream" names the hero, the colour the picture shows;
+  "Shown in cream" names the hero, the color the picture shows;
 - its rating, review count and sales, redrawn; a bestseller rank and the
   Bestseller badge stay with the authored styles.
 
@@ -297,7 +297,7 @@ def _plural(word: str) -> str:
 
 def _redraw_motif(rec: dict, old: str, new: str) -> None:
     """The motif ``old`` -> ``new`` in the picture, the title's plural ("Lemons Print") and
-    the description, which is rebuilt: the template's names the old motif and its colours.
+    the description, which is rebuilt: the template's names the old motif and its colors.
 
     The new text names the product noun after "Graphic" or "Print" in the title, and the
     count and placement the drawing keeps."""
@@ -350,7 +350,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
                 rec["drawing"]["label"] = _swap(rec["drawing"]["label"], old, new)
             if a["key"] == "motif" and "motif" in rec["drawing"]:
                 _redraw_motif(rec, old, new)
-    if colors:  # "Shown in cream" names the colour the picture shows: the hero
+    if colors:  # "Shown in cream" names the color the picture shows: the hero
         names = "|".join(re.escape(c["color"]) for c in tpl.get("color_options", ()))
         rec["description"] = re.sub(
             rf"\b(shown in )(?:{names})\b",
@@ -527,7 +527,7 @@ def _draw(tpl: dict, serial: int, ctx: _Context, brands: list[str], owners: dict
     left or ATTEMPTS draws all repeat a title or contradict their text.
 
     A style whose title-shown values the template or an earlier sibling already shows
-    differs in its hero colour alone, so its title names it: "…, Sage"."""
+    differs in its hero color alone, so its title names it: "…, Sage"."""
     leaf = tpl["category_leaf"]
     keys = variable_keys(tpl, ctx.pools)
     shown = shown_keys(tpl, keys)
@@ -543,7 +543,7 @@ def _draw(tpl: dict, serial: int, ctx: _Context, brands: list[str], owners: dict
         values = dict(zip(shown, sig[0], strict=True))
         values |= {k: rng.choice(ctx.pools[(leaf, k)]) for k in keys if k not in shown}
         colors = _colors(tpl, sig[1], rng)
-        if sig[0] in taken:  # the title names the colour: the style IS that colour
+        if sig[0] in taken:  # the title names the color: the style IS that color
             colors = colors[:1]
         brand, name = rng.choice(brands), rng.choice(RANGE_NAMES)
         changes = {k: (old[k], v) for k, v in values.items() if v != old[k]}
