@@ -26,7 +26,7 @@ import export  # noqa: E402
 import scale  # noqa: E402
 
 #: Today's ceiling (styles, SKUs): the same pin as ``test_retail_scale.CAPACITY``.
-CEILING_SKUS = 80_004
+CEILING_SKUS = 90_046
 #: Words of an object, a food or a plant that are not a color. A color value holding one
 #: is a fashion name where a color word belongs.
 DENYLIST = frozenset({

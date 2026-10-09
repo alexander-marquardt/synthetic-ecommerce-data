@@ -36,10 +36,12 @@ AUTHORED = 328
 BREADTH_ROWS = 184
 #: The distractor rows (``distractor_rows``): the failure classes' products.
 DISTRACTOR_ROWS = 279
-TEMPLATES = AUTHORED + SCALE_ROWS + BREADTH_ROWS + DISTRACTOR_ROWS
+#: The grocery styles (``grocery.build()``, gen#154), last: no style derives from one.
+GROCERY_ROWS = 3_305
+TEMPLATES = AUTHORED + SCALE_ROWS + BREADTH_ROWS + DISTRACTOR_ROWS + GROCERY_ROWS
 #: The SKUs the templates alone hold. A build at or under it takes no seeded draw, so
 #: every derived-style test (``pairs``) would pass on an empty list.
-TEMPLATE_SKUS = 27_928
+TEMPLATE_SKUS = 37_970
 #: The derived styles :data:`TARGET` must hold so the ``pairs`` tests read a real sample:
 #: round 2's 19K build held 166 (seed 0), and adding templates must not shrink it.
 MIN_DERIVED = 150
@@ -51,7 +53,7 @@ DERIVED_SKUS = 4_500
 TARGET = TEMPLATE_SKUS + DERIVED_SKUS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (3_525, 80_004)
+CAPACITY = (6_830, 90_046)
 #: The grid-clone share the ceiling build may reach (:func:`scale.grid_clones`). Round 2
 #: measured 14.4%: the rest is the headroom the 50K and 100K rounds may spend.
 CEILING_GRID_CLONES = 0.152
@@ -60,6 +62,11 @@ DEPARTMENTS = 10
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's 2.6%
 #: (gen#136), rounded up to the 20K build's 2.8%. Growth must not dilute it.
 CEILING_NEAR_DUPLICATES = 0.028
+#: The grocery styles' own near-duplicate share (``scale.distinctness`` over the GRC- styles,
+#: 500-style seeded sample): measured 3.6% at the ceiling, capped at 4.0%. Flavors of one
+#: family share most of a listing by design, so this is higher than the 2.8% above (the
+#: whole catalog reads 4.2%, the non-grocery styles 2.0%); the cap stops it growing silently.
+CEILING_GROCERY_NEAR_DUPLICATES = 0.040
 
 
 @pytest.fixture(scope="module")
@@ -138,8 +145,9 @@ def test_a_derived_style_adds_no_duplicate_title_and_no_twin(built, pairs):
 def test_few_styles_share_a_results_grid_tile_with_another(built):
     """What a results grid shows is the leaf, the hero picture and the price: a style that
     shares all three with another reads as a clone whatever its brand and range name."""
-    report = scale.grid_clones(built.records)
-    assert report["styles"] == len(built.records)
+    main = scale.derivable(built.records)
+    report = scale.grid_clones(main)
+    assert report["styles"] == len(main)
     assert report["grid_clone_rate"] <= 0.15
 
 
@@ -150,11 +158,25 @@ def test_few_styles_share_a_results_grid_tile_at_the_ceiling(ceiling):
     Guard: a template or pool change that clones tiles past the cap fails here. Metric: the
     ceiling's grid-clone share, in the failure message.
     """
-    tiles = collections.Counter(scale.grid_tile(r) for r in ceiling.records)
+    main = scale.derivable(ceiling.records)
+    tiles = collections.Counter(scale.grid_tile(r) for r in main)
     shared = sum(n for n in tiles.values() if n > 1)
-    rate = shared / len(ceiling.records)
-    assert scale.grid_clones(ceiling.records)["grid_clones"] == shared
-    assert rate <= CEILING_GRID_CLONES, f"{shared} of {len(ceiling.records)} styles ({rate:.1%})"
+    rate = shared / len(main)
+    assert scale.grid_clones(main)["grid_clones"] == shared
+    assert rate <= CEILING_GRID_CLONES, f"{shared} of {len(main)} styles ({rate:.1%})"
+
+
+def test_grocery_tiles_are_measured_apart_from_the_clothing_gate(ceiling):
+    """The 15% gate is for styles a shopper tells apart by picture and price; a grocery family
+    draws one pack shape at a few price points, so its styles share a tile (the brand's label
+    and flavor differ below the tile). Held apart and capped so a fix lowers it, and so the
+    main styles' gate above is not read over the grocery ones (gen#154)."""
+    groc = [r for r in ceiling.records if r["product_id"].startswith(scale.GROCERY_PREFIX)]
+    report = scale.grid_clones(groc)
+    # A cap (measured 3,191 clones, largest group 33), so a fix lowers it and nothing raises it.
+    assert report["styles"] == 3_305
+    assert report["grid_clones"] <= 3_191
+    assert report["largest_group"] <= 33
 
 
 def test_grid_clones_count_every_style_of_a_shared_tile():
@@ -585,7 +607,106 @@ def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(tmp_path):
     assert got["reached_target"] is False
     assert got["standard_problems"] == 0
     assert (got["coverage"]["styles"], got["coverage"]["skus"]) == CAPACITY
-    assert got["distinctness"]["near_duplicate_rate"] <= CEILING_NEAR_DUPLICATES
+
+
+def test_the_derivable_styles_hold_the_near_duplicate_share_at_the_ceiling(ceiling):
+    """The share is read over the non-grocery styles, as the other population gates are
+    (``scale.derivable``): a grocery family's flavors share most of a listing by design and
+    are capped apart in ``test_the_grocery_styles_hold_their_own_near_duplicate_cap``."""
+    main = scale.derivable(ceiling.records)
+    rate = scale.distinctness(main)["near_duplicate_rate"]
+    assert rate <= CEILING_NEAR_DUPLICATES, f"{rate:.1%} of a sample of {len(main)} styles"
+
+
+def test_the_grocery_styles_hold_their_own_near_duplicate_cap(ceiling):
+    """Guard: grocery's near-duplicate share (measured 3.6%) stays under
+    :data:`CEILING_GROCERY_NEAR_DUPLICATES` (4.0%), so it cannot grow silently."""
+    groc = _grocery(ceiling.records)
+    rate = scale.distinctness(groc)["near_duplicate_rate"]
+    assert rate <= CEILING_GROCERY_NEAR_DUPLICATES, f"{rate:.1%} of a sample of {len(groc)}"
+
+
+def _grocery(records):
+    return [r for r in records if r["product_id"].startswith(scale.GROCERY_PREFIX)]
+
+
+def _held(style, key):
+    """The lowercased values of ``key`` over a style's SKUs (a list-valued key is flattened)."""
+    return {
+        str(x).lower()
+        for s in style["skus"]
+        if key in s
+        for x in (s[key] if isinstance(s[key], (list, tuple)) else [s[key]])
+    }
+
+
+#: Grocery keys whose style attribute is the INTERSECTION of the SKUs' lists (what every SKU
+#: is free from, may contain, or is suitable for), not the union the clothing keys use.
+GROCERY_INTERSECTION_KEYS = ("free_from", "dietary", "may_contain")
+
+
+def test_grocery_style_attributes_list_the_values_of_their_skus(ceiling):
+    """Like-for-like with the clothing union test above. Grocery attributes are one entry per
+    value (not comma-joined) and some SKU keys are lists, so values are grouped by key. The one
+    exception: the allergen keys (:data:`GROCERY_INTERSECTION_KEYS`) hold the values EVERY SKU
+    shares, asserted as exactly that intersection."""
+    checked = 0
+    wrong = []
+    for r in _grocery(ceiling.records):
+        style: dict[str, set[str]] = collections.defaultdict(set)
+        for a in r["attributes"]:
+            style[a["key"]].update(v.strip().lower() for v in str(a["value"]).split(","))
+        for key, values in style.items():
+            held = _held(r, key)
+            if not held:
+                continue
+            checked += 1
+            if key in GROCERY_INTERSECTION_KEYS:
+                lists = [_held({"skus": [s]}, key) for s in r["skus"] if key in s]
+                held = set.intersection(*lists)
+            if values != held:
+                wrong.append((r["product_id"], key, sorted(values), sorted(held)))
+    assert checked >= 15_000
+    assert wrong == []
+
+
+#: Grocery keys a title or description may name beyond the SKUs' own values, each with the
+#: measured number of styles-words (ceiling, seed 0) and why. The text names the PRODUCT
+#: ("Coconut Milk", "milk chocolate"), which is not a claim about one SKU's selector or
+#: allergen list. Every other SKU-carried key (dietary) is held strictly.
+GROCERY_NAMED_EXCEPTIONS = {
+    "flavor": 1_885,
+    "free_from": 2_613,
+    "may_contain": 646,
+    "contains": 558,
+    "pack_size": 85,
+}
+
+
+def test_no_grocery_title_or_description_names_a_value_no_sku_carries(ceiling):
+    """Like-for-like with the clothing test above, over grocery. The keys in
+    :data:`GROCERY_NAMED_EXCEPTIONS` are measured and capped (an ingredient or product word is
+    not an allergen or selector claim); any other SKU-carried key must have none."""
+    groc = _grocery(ceiling.records)
+    vocab: dict[str, set[str]] = collections.defaultdict(set)
+    for r in groc:
+        for a in r["attributes"]:
+            if any(a["key"] in s for s in r["skus"]):
+                vocab[a["key"]].update(p.strip() for p in str(a["value"]).split(","))
+    checked = 0
+    wrong: collections.Counter[str] = collections.Counter()
+    for r in groc:
+        text = f"{r['title']} {r['description']}"
+        for key, words in vocab.items():
+            held = _held(r, key)
+            if not held:
+                continue
+            checked += 1
+            unheld = (v for v in words if v.lower() not in held)
+            wrong[key] += sum(1 for v in unheld if scale._has_word(text, v))
+    assert checked >= 15_000
+    assert {k: n for k, n in wrong.items() if n and k not in GROCERY_NAMED_EXCEPTIONS} == {}
+    assert {k: n for k, n in wrong.items() if n > GROCERY_NAMED_EXCEPTIONS.get(k, 0)} == {}
 
 
 def test_no_department_falls_under_half_its_fair_share_of_styles(ceiling):
@@ -595,9 +716,9 @@ def test_no_department_falls_under_half_its_fair_share_of_styles(ceiling):
     Guard: a template change that starves a department fails here. Metric: the smallest
     department's share of the fair split, in the failure message.
     """
-    styles = collections.Counter(scale._department(r) for r in ceiling.records)
+    styles = collections.Counter(scale._department(r) for r in scale.derivable(ceiling.records))
     assert len(styles) == DEPARTMENTS, sorted(styles)
-    fair = len(ceiling.records) / DEPARTMENTS
+    fair = sum(styles.values()) / DEPARTMENTS
     smallest, n = min(styles.items(), key=lambda kv: kv[1])
     assert n >= fair / 2, f"{smallest}: {n} styles, {n / fair:.0%} of a fair {fair:.0f}"
 
@@ -668,7 +789,7 @@ def test_a_scale_only_bra_describes_its_own_straps_and_fastening():
 def test_the_invented_names_are_new_and_never_repeat():
     """An extra brand already on a template adds nothing to its pool, and a repeated
     range name gives two styles the same head."""
-    tpl_brands = {t["brand"] for t in scale.templates()}
+    tpl_brands = {t["brand"] for t in scale.derivable(scale.templates())}
     extra = [b for pool in scale.EXTRA_BRANDS.values() for b in pool]
     assert len(extra) == len(set(extra))
     assert sorted(set(extra) & tpl_brands) == []
@@ -725,13 +846,13 @@ SAID_BY_WORD: dict[tuple[str, str], set[str]] = {
 
 def test_no_title_or_description_says_a_value_its_own_skus_contradict(ceiling):
     values: dict[str, set[str]] = collections.defaultdict(set)
-    for r in ceiling.records:
+    for r in scale.derivable(ceiling.records):
         for a in r["attributes"]:
             if a["key"] in SAID_ATTRIBUTES:
                 values[a["key"]].add(str(a["value"]))
     checked = 0
     wrong = []
-    for r in ceiling.records:
+    for r in scale.derivable(ceiling.records):
         own = {a["key"]: str(a["value"]) for a in r["attributes"]}
         text = f"{r['title']} {r['description']}"
         for key in SAID_ATTRIBUTES:
@@ -757,7 +878,7 @@ def test_every_style_attribute_its_skus_carry_lists_exactly_their_values(ceiling
     not a fixed list, so a key that becomes SKU-carried later is covered too."""
     checked = 0
     wrong = []
-    for r in ceiling.records:
+    for r in scale.derivable(ceiling.records):
         for a in r["attributes"]:
             sku_values = {str(s[a["key"]]).lower() for s in r["skus"] if a["key"] in s}
             if not sku_values:
@@ -777,13 +898,13 @@ def test_no_title_or_description_names_a_value_no_sku_carries(ceiling):
     list. The color names are not the material ("Black Leather" is a color) and nor is the
     sole ("a rubber sole" on a suede boot), so both are cut from the text first."""
     vocab: dict[str, set[str]] = collections.defaultdict(set)
-    for r in ceiling.records:
+    for r in scale.derivable(ceiling.records):
         for a in r["attributes"]:
             if any(a["key"] in s for s in r["skus"]):
                 vocab[a["key"]].update(p.strip() for p in str(a["value"]).split(","))
     checked = 0
     wrong = []
-    for r in ceiling.records:
+    for r in scale.derivable(ceiling.records):
         text = f"{r['title']} {r['description']}"
         for c in r.get("color_options", ()):
             text = text.replace(c["color"], " ")
