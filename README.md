@@ -1178,8 +1178,9 @@ attribute is refused, and `check_catalog` refuses such text too. The module
 docstring has the rules. Today's templates run out at 52,022 SKUs (2,659 styles),
 and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
 values per leaf, more colorways, and more templates.
-`tests/test_retail_scale.py` holds it at 19K SKUs, and holds the ceiling's grid
-clones at 15% or under too.
+`tests/test_retail_scale.py` holds it at the templates' SKUs plus 4,000 (its
+`TARGET`, pinned to the template total so new templates never empty the
+derived-style sample), and holds the ceiling's grid clones at 15% or under too.
 
 ## The built catalog is committed, in `golden-catalog/`
 
