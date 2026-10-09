@@ -10,16 +10,16 @@
    "Food & Drink": 10169
   },
   "grocery": {
-   "skus": 10067,
-   "styles": 3379
+   "skus": 10859,
+   "styles": 3775
   },
-  "images": 8080,
+  "images": 8476,
   "non_grocery": {
    "skus": 80004,
    "styles": 3525
   },
-  "skus": 90231,
-  "styles": 6928
+  "skus": 91023,
+  "styles": 7324
  },
  "departments": {
   "Beauty": 194,
@@ -78,6 +78,10 @@
    "skus": 72,
    "styles": 24
   },
+  "BTH": {
+   "skus": 90,
+   "styles": 45
+  },
   "BUT": {
    "skus": 134,
    "styles": 67
@@ -122,6 +126,14 @@
    "skus": 363,
    "styles": 28
   },
+  "DSH": {
+   "skus": 90,
+   "styles": 45
+  },
+  "FLR": {
+   "skus": 144,
+   "styles": 72
+  },
   "FRE": {
    "skus": 90,
    "styles": 45
@@ -134,6 +146,10 @@
    "skus": 134,
    "styles": 67
   },
+  "GLS": {
+   "skus": 90,
+   "styles": 45
+  },
   "GNB": {
    "skus": 36,
    "styles": 12
@@ -141,6 +157,10 @@
   "HOT": {
    "skus": 36,
    "styles": 18
+  },
+  "HWS": {
+   "skus": 144,
+   "styles": 72
   },
   "ICE": {
    "skus": 226,
@@ -153,6 +173,10 @@
   "JUI": {
    "skus": 224,
    "styles": 112
+  },
+  "LDY": {
+   "skus": 90,
+   "styles": 45
   },
   "LEM": {
    "skus": 54,
@@ -214,6 +238,10 @@
    "skus": 324,
    "styles": 32
   },
+  "SGL": {
+   "skus": 144,
+   "styles": 72
+  },
   "SPR": {
    "skus": 180,
    "styles": 90
@@ -252,7 +280,7 @@
   }
  },
  "grocery_values": {
-  "checked": 12468,
+  "checked": 13260,
   "named_but_not_carried": {
    "contains": 576,
    "flavor": 1854,
@@ -262,15 +290,15 @@
   }
  },
  "near_duplicates": {
-  "grocery": 0.0352,
+  "grocery": 0.0315,
   "grocery_grid_clones": 4,
   "non_grocery": 0.02,
   "non_grocery_grid_clone_rate": 0.1504
  },
  "templates": {
   "all": {
-   "skus": 38155,
-   "styles": 4330
+   "skus": 38947,
+   "styles": 4726
   },
   "authored": {
    "skus": 6861,
@@ -290,8 +318,8 @@
    "styles": 279
   },
   "grocery": {
-   "skus": 10067,
-   "styles": 3379
+   "skus": 10859,
+   "styles": 3775
   },
   "main_food": {
    "skus": 61,
