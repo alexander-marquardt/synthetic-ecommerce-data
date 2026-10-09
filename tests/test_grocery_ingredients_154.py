@@ -24,8 +24,8 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import grocery  # noqa: E402
-from grocery_rows import FAMILIES  # noqa: E402
 from grocery_ingredients import facet_value  # noqa: E402
+from grocery_rows import FAMILIES  # noqa: E402
 
 #: Phrases that hold an allergen word without the allergen, removed before matching.
 NOT_ALLERGEN = re.compile(
