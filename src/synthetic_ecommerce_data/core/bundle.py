@@ -177,17 +177,18 @@ def write_archive(files: list[tuple[str, bytes]], archive: Path) -> str:
     return hashlib.sha256(packed.getvalue()).hexdigest()
 
 
-def write_files(files: list[tuple[str, bytes]], out_dir: Path) -> None:
+def write_files(files: list[tuple[str, bytes]], out_dir: Path, root: str | None = None) -> None:
     """Write the drawings under ``out_dir``, replacing any previous set there.
 
-    The bundle's own folder is cleared first, so a drawing a regeneration
-    dropped does not linger beside the new set.
+    The bundle's own folder (``root``: the industrial :data:`..emit.IMAGE_ROOT`
+    unless a domain names its own, as the retail release does) is cleared
+    first, so a drawing a regeneration dropped does not linger beside the new set.
     """
     import shutil  # noqa: PLC0415
 
     from synthetic_ecommerce_data.core.emit import IMAGE_ROOT  # noqa: PLC0415
 
-    shutil.rmtree(out_dir / IMAGE_ROOT, ignore_errors=True)
+    shutil.rmtree(out_dir / (root or IMAGE_ROOT), ignore_errors=True)
     for path, data in files:
         target = out_dir / path
         target.parent.mkdir(parents=True, exist_ok=True)
