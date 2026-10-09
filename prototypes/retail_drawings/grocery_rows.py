@@ -21,7 +21,7 @@ copied. The leaf of a bare-noun family (Oranges, Lemons, Apples, Beer's Lager) i
 that share only the WORD (a chocolate orange, a beer battered haddock, a ginger beer).
 
 A flavor's ``codes`` are the allergens it contains: P peanuts, T tree nuts,
-M milk, G gluten, S soy, E egg. Two lower-case flags mark animal ingredients:
+M milk, G gluten, S soy, E egg, F fish. Two lower-case flags mark animal ingredients:
 ``h`` is not vegan but is vegetarian (honey, gelatine), and ``x`` is not
 vegetarian (meat, fish). A family's ``may`` is a weighted choice of a style's
 may-contain codes: the factory's traces.
@@ -33,7 +33,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-ALLERGENS = {"P": "Peanuts", "T": "Tree Nuts", "M": "Milk", "G": "Gluten", "S": "Soy", "E": "Egg"}
+ALLERGENS = {"P": "Peanuts", "T": "Tree Nuts", "M": "Milk", "G": "Gluten", "S": "Soy", "E": "Egg", "F": "Fish"}
 
 
 @dataclass(frozen=True)
@@ -238,7 +238,7 @@ FAMILIES: tuple[Family, ...] = (
     Family("TIN", _p("Food Cupboard", "Tinned"), "{line} {flavor}", "Tinned Food", "tin", "Tinned", _A, "AB", 0.8,
            ("400g", "4 x 400g"),
            (F("Chopped Tomatoes", "#c8312e"), F("Baked Beans", "#d9822b"), F("Coconut Milk", "#efe8d8"),
-            F("Chickpeas", "#d9b97a"), F("Tuna in Spring Water", "#3b6fb6", "x"), F("Peach Slices", "#f2a14b")),
+            F("Chickpeas", "#d9b97a"), F("Tuna in Spring Water", "#3b6fb6", "xF"), F("Peach Slices", "#f2a14b")),
            _CUP, 0.04),
     Family("PAS", _p("Food Cupboard", "Pasta"), "{line} {flavor}", "Pasta", "bag", "Pasta", _A, "A", 0.9,
            ("500g", "1kg"),
@@ -318,7 +318,7 @@ FAMILIES: tuple[Family, ...] = (
     Family("APP", _FRUIT + ("Apples & Pears", "Apples"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
            _C, "A", 0.6, ("Single", "4 pack", "1kg"),
            (F("Gala Apples", "#c8312e"), F("Bramley Apples", "#7ab648"), F("Braeburn Apples", "#b8432e"),
-            F("Pink Lady Apples", "#d9566a")),
+            F("Fuji Apples", "#d9566a")),
            _FRESH, 0.008, axis="variety"),
     Family("VEG", _p("Fruit & Vegetables", "Fresh Vegetables"), "{line} {flavor}", "Fresh Vegetables", "punnet", "Veg", _C, "A", 0.8,
            ("250g", "500g"),
@@ -333,8 +333,8 @@ FAMILIES: tuple[Family, ...] = (
            ("Barrowby Kitchen", "Goldfield Farms"), 0.025),
     Family("FSH", _p("Meat & Fish", "Fish"), "{line} {flavor}", "Fish", "tray", "Fish", _C, "AB", 3.5,
            ("240g", "400g"),
-           (F("Salmon Fillets", "#f29a7b", "x"), F("Cod Loins", "#f4f0e6", "x"), F("Smoked Mackerel", "#c48a3a", "x"),
-            F("Lemon & Pepper Haddock", "#f2d14b", "x")),
+           (F("Salmon Fillets", "#f29a7b", "xF"), F("Cod Loins", "#f4f0e6", "xF"), F("Smoked Mackerel", "#c48a3a", "xF"),
+            F("Lemon & Pepper Haddock", "#f2d14b", "xF")),
            ("Barrowby Kitchen", "Goldfield Farms"), 0.015),
     # Class "beer": the Beer node holds five leaves (each beer has an ABV attribute, a title
     # states it for about half) and the word "beer" also names a soft drink, a batter, a loaf.
@@ -352,17 +352,31 @@ FAMILIES: tuple[Family, ...] = (
     Family("BSO", _BEER + ("Sour Beer",), "{line} {flavor}{abv}", "Beer", "tin", "Sour Beer", _A, "CD", 2.4,
            ("330ml", "440ml", "4 x 440ml"),
            (F("Tropical Pineapple Sour Beer", "#f2c14e", "G", 4.8), F("Raspberry Sour Beer", "#c8312e", "G", 4.5),
-            F("Passion Fruit Sour Beer", "#f2a14b", "G", 5.0), F("Salted Gose Sour Beer", "#e8d8a8", "G", 4.2)),
+            F("Passion Fruit Sour Beer", "#f2a14b", "G", 5.0), F("Salted Gose Sour Beer", "#e8d8a8", "G", 4.2),
+            F("Blackcurrant Sour Beer", "#5a1f4a", "G", 4.6), F("Mango Sour Beer", "#f2b13e", "G", 4.4),
+            F("Cherry Sour Beer", "#a3214a", "G", 5.2), F("Lemon & Lime Sour Beer", "#cfe05a", "G", 4.0)),
            _BREW, 0.008),
     Family("BFR", _BEER + ("Fruit Beer",), "{line} {flavor}{abv}", "Beer", "bottle", "Fruit Beer", _A, "CD", 2.2,
            ("330ml", "500ml"),
            (F("Raspberry Fruit Beer", "#a3214a", "G", 2.5), F("Cherry Fruit Beer", "#8c1f35", "G", 4.0),
-            F("Blood Orange Fruit Beer", "#c8432e", "G", 3.6), F("Peach Fruit Beer", "#f2a07b", "G", 3.2)),
+            F("Blood Orange Fruit Beer", "#c8432e", "G", 3.6), F("Peach Fruit Beer", "#f2a07b", "G", 3.2),
+            F("Strawberry Fruit Beer", "#d9364a", "G", 2.8), F("Apricot Fruit Beer", "#f2b05a", "G", 3.4),
+            F("Blackcurrant Fruit Beer", "#4a1f4a", "G", 3.9), F("Elderflower Fruit Beer", "#e8e0a8", "G", 3.0),
+            F("Pineapple Fruit Beer", "#f2d14b", "G", 3.3), F("Plum Fruit Beer", "#6a2a5a", "G", 3.8),
+            F("Pear Fruit Beer", "#c8d86a", "G", 2.9), F("Mango Fruit Beer", "#f2b13e", "G", 3.5),
+            F("Gooseberry Fruit Beer", "#a8c85a", "G", 3.1), F("Lychee Fruit Beer", "#f2d8d0", "G", 3.2),
+            F("Damson Fruit Beer", "#3a1f4a", "G", 4.1), F("Rhubarb Fruit Beer", "#d9566a", "G", 3.0)),
            _BREW, 0.006),
     Family("BAF", _BEER + ("Alcohol Free",), "{line} {flavor}{abv}", "Beer", "tin", "Alcohol Free", _A, "BC", 1.4,
            ("330ml", "440ml", "4 x 440ml"),
            (F("Alcohol Free Lager", "#e8b04a", "G", 0.0), F("Alcohol Free Pale Ale", "#c8802e", "G", 0.5),
-            F("Low Alcohol Pilsner", "#f0d060", "G", 0.5), F("Alcohol Free Wheat Beer", "#e0a040", "G", 0.3)),
+            F("Low Alcohol Pilsner", "#f0d060", "G", 0.5), F("Alcohol Free Wheat Beer", "#e0a040", "G", 0.3),
+            F("Alcohol Free Amber Ale", "#a8501f", "G", 0.5), F("Alcohol Free Stout", "#2a1810", "G", 0.0),
+            F("Low Alcohol Golden Ale", "#d9a030", "G", 0.4), F("Alcohol Free Citrus Lager", "#f0d060", "G", 0.0),
+            F("Alcohol Free Session IPA", "#c8802e", "G", 0.5), F("Alcohol Free Dark Lager", "#5a3020", "G", 0.5),
+            F("Low Alcohol Amber Lager", "#b86a24", "G", 0.5), F("Alcohol Free Hazy Pale Ale", "#e0a040", "G", 0.3),
+            F("Alcohol Free Blonde Ale", "#e8c050", "G", 0.5), F("Low Alcohol Pale Lager", "#f0d060", "G", 0.5),
+            F("Alcohol Free Porter", "#3a2418", "G", 0.0), F("Alcohol Free Lime Lager", "#d9e05a", "G", 0.0)),
            _BREW, 0.006),
     Family("GNB", _p("Drinks", "Soft Drinks"), "{line} {flavor}", "Soft Drink", "bottle", "Ginger Beer", _A, "DE",
            1.1, ("330ml", "6 x 330ml", "1L"),
@@ -370,8 +384,8 @@ FAMILIES: tuple[Family, ...] = (
            _DRINK, 0.004),
     Family("BBF", _p("Frozen", "Battered Fish"), "{line} {flavor}", "Battered Fish", "box", "Battered Fish", _Z,
            "CD", 3.8, ("280g", "4 x 140g"),
-           (F("Beer Battered Scottish Haddock", "#d8a548", "Gx"), F("Beer Battered Cod Fillets", "#e0b058", "Gx"),
-            F("Crispy Battered Haddock", "#d8a548", "Gx")),
+           (F("Beer Battered Scottish Haddock", "#d8a548", "GxF"), F("Beer Battered Cod Fillets", "#e0b058", "GxF"),
+            F("Crispy Battered Haddock", "#d8a548", "GxF")),
            ("Barrowby Kitchen", "Goldfield Farms"), 0.008),
     Family("VIN", _p("Food Cupboard", "Vinegar"), "{line} {flavor}", "Vinegar", "bottle", "Vinegar", _A, "A", 1.2,
            ("250ml", "500ml"),

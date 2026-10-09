@@ -1000,8 +1000,8 @@ whose SKUs are flavor x pack size: `python3 prototypes/retail_drawings/grocery.p
 --skus 10000 --out DIR` writes `nested.jsonl` and `flat.jsonl`, both in the output
 standard. At 10K it holds 10,067 SKUs in 3,379 styles over 48 food leaves, plus a
 kitchen-cleaner leaf and a body-lotion leaf for the overlaps. Each SKU states
-`contains` and `may_contain` over six allergens (peanuts, tree nuts,
-milk, gluten, soy, egg), its `dietary` labels (Vegan, Vegetarian, Gluten Free,
+`contains` and `may_contain` over seven allergens (peanuts, tree nuts,
+milk, gluten, soy, egg, fish), its `dietary` labels (Vegan, Vegetarian, Gluten Free,
 Nut Free, Organic), `pack_size`, `units_per_pack` and its net weight or volume.
 
 Food SKUs also carry a top-level `ingredients` list (5 to 20 invented items in label

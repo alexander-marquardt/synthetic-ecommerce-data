@@ -16,7 +16,7 @@ flavor; any other style carries several, as a selector. Each SKU states, from it
 flavor and pack:
 
 - ``contains`` (the allergens its ingredients name) and ``may_contain`` (factory
-  traces) over the six allergens of :data:`grocery_rows.ALLERGENS`. "Free from X" is a
+  traces) over the seven allergens of :data:`grocery_rows.ALLERGENS`. "Free from X" is a
   query over these two, not a fact, so there is no ``free_from``;
 - ``dietary``: Vegan (no milk, no egg, no animal ingredient), Vegetarian (no meat or
   fish), Gluten Free and Nut Free (the allergen neither contained nor traced), and
@@ -73,7 +73,7 @@ STORAGE_TEXT = {
 FRUIT = {"Unwaxed Lemons": "lemon", "Lemons": "lemon", "Meyer Lemons": "lemon",
          "Oranges": "orange", "Blood Oranges": "orange", "Orange Segments": "orange",
          "Easy Peelers": "clementine", "Gala Apples": "apple", "Bramley Apples": "apple",
-         "Braeburn Apples": "apple", "Pink Lady Apples": "apple"}  # fmt: skip
+         "Braeburn Apples": "apple", "Fuji Apples": "apple"}  # fmt: skip
 #: A pack word -> how a fruit pile shows it.
 PILE_PACK = {"Single": "loose", "4 pack": "net", "1kg": "bag"}
 
