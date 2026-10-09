@@ -138,7 +138,7 @@ def test_the_cups_claim_is_that_a_bra_leads_the_baseline_and_a_cup_may_too() -> 
     by_id = {d["product_id"]: d for d in CORPUS}
     cups = next(r for r in PROOF["rows"] if r["query"] == "cups")
     top3 = [by_id[h["product_id"]] for h in cups["baseline"][:3]]
-    assert any(getattr(_cups(), "baseline_holds").is_intended(d) for d in top3)
+    assert any(_cups().baseline_holds.is_intended(d) for d in top3)
 
 
 def test_a_cups_baseline_top_3_without_a_bra_is_refused() -> None:

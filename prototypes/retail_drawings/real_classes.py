@@ -324,7 +324,8 @@ def verdicts(proof: dict, catalog: list[dict]) -> list[str]:
     """Every way ``proof`` fails the claim; empty when it holds over ``catalog``.
 
     The claim: the proof was taken over ``catalog``; per row, no target in the
-    baseline top 3 and only targets in the policy top 3.
+    baseline top 3 (a row with ``baseline_holds`` claims that sense is in it instead) and only
+    targets in the policy top 3.
     """
     by_id = {d["product_id"]: d for d in catalog}
     out = []
@@ -338,7 +339,11 @@ def verdicts(proof: dict, catalog: list[dict]) -> list[str]:
             continue
         base = [by_id[h["product_id"]] for h in rec["baseline"][:3] if h["product_id"] in by_id]
         pol = [by_id[h["product_id"]] for h in rec["policy"][:3] if h["product_id"] in by_id]
-        if any(row.is_intended(d) for d in base):
+        if row.baseline_holds is not None:
+            if not any(row.baseline_holds.is_intended(d) for d in base):
+                held = row.baseline_holds.intended
+                out.append(f"{row.query!r}: the baseline top 3 holds no {held}")
+        elif any(row.is_intended(d) for d in base):
             out.append(f"{row.query!r}: a target is in the baseline top 3")
         if len(pol) != 3 or not all(row.is_intended(d) for d in pol):
             out.append(f"{row.query!r}: the policy top 3 is not all targets")
