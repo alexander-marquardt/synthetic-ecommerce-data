@@ -2,9 +2,10 @@
 
 :func:`scale.templates` builds these after :mod:`scale_rows`. The authored styles and
 the deep-SKU rows left a general-retail catalog thin outside clothing and lingerie: at
-the ceiling, toys, garden, gifts and cleaning held under 1% of the styles each. These
-rows give each thin department leaves of its own, so that no department falls under
-half its fair share of the ceiling's styles (``tests/test_retail_scale.py`` pins it).
+the ceiling, toys, garden, gifts and cleaning held under 1% of the styles each, and
+food and beauty under 5%. These rows give each thin department leaves of its own, so
+that no department falls under half its fair share of the ceiling's styles
+(``tests/test_retail_scale.py`` pins it).
 
 A row adds capacity through a title-visible value its leaf varies (:func:`scale.value_pools`):
 a fabric, a fragrance, a variety, an occasion. Every value of a leaf's pool fits every
@@ -27,6 +28,9 @@ OWNERS = {
     "Thistle & Wren": "third_party", "Fenwold Nursery": "third_party",
     "Lanternby": "third_party", "Calderby & Lune": "third_party",
     "Pantry Mill": "own", "Freshfold": "third_party",
+    "Hearth & Table": "own", "Kettleby Tea Co.": "third_party",
+    "Brewhollow Roasters": "third_party", "Mirefield Naturals": "third_party",
+    "Hollin Hair": "third_party",
 }  # fmt: skip
 
 
@@ -465,6 +469,10 @@ CLEANING = (
         "A refill for any trigger bottle, in a bottle made from recycled plastic. "
         "Scented with mint.",
         _spray("Aqua"), _scent("Mint"), label="Refill", colorless=True),
+    Row("GLSWIP", "Eucalyptus Glass Cleaning Wipes, Pack of 40", "Freshfold", _CJ, _GLASS,
+        "Glass Cleaner", 2.5, "tub",
+        "Lint-free wipes for screens, mirrors and car windows. Scented with eucalyptus.",
+        _spray("Teal", "#ffffff"), _scent("Eucalyptus"), label="Wipes", colorless=True),
     Row("DSHSOP", "Aloe Vera Dish Soap 500ml", "Pantry Mill", _CJ, _DISH, "Dish Soap", 1.5,
         "bottle",
         "A gentle soap that cuts grease and is kind to hands. Scented with aloe vera.",
@@ -486,6 +494,11 @@ CLEANING = (
         "Laundry Detergent", 8.5, "bottle",
         "A concentrated bio liquid for stains at low temperatures. Scented with spring meadow.",
         _spray("Blue", "#ffffff"), _scent("Spring Meadow"), label="Laundry", colorless=True),
+    Row("LDRPOD", "Lavender Laundry Pods, 30 Washes", "Freshfold", _CJ, _LAUND,
+        "Laundry Detergent", 7.0, "tub",
+        "Dissolving pods for a full drum at 30 degrees, in a child-lock tub. "
+        "Scented with lavender.",
+        _spray("Lilac", "#ffffff"), _scent("Lavender"), label="Pods", colorless=True),
     Row("SFTLAV", "Lavender Fabric Softener, 50 Washes", "Pantry Mill", _CJ, _SOFTEN,
         "Fabric Softener", 3.5, "bottle",
         "A softener that keeps towels fluffy and cuts creases. Scented with lavender.",
@@ -505,8 +518,108 @@ CLEANING = (
         _spray("Aqua", "#ffffff"), _scent("Ocean Breeze"), label="Tablets", colorless=True),
 )  # fmt: skip
 
+# --------------------------------------------------------------------------
+# Food & Drink: the tea's blend or the coffee's origin varies; the pack is drawn.
+# --------------------------------------------------------------------------
+
+_TEA = ("Food & Drink", "Tea & Coffee", "Tea")
+_COFFEE = ("Food & Drink", "Tea & Coffee", "Coffee")
+_FD = "Food & Drink"
+
+
+def _blend(v: str) -> tuple[tuple[str, str, str], ...]:
+    return (("blend", "Blend", v),)
+
+
+def _origin(v: str) -> tuple[tuple[str, str, str], ...]:
+    return (("origin", "Origin", v),)
+
+
+FOOD = (
+    Row("TEABRK", "English Breakfast Tea, 80 Bags", "Hearth & Table", _FD, _TEA, "Tea", 3.5,
+        "box", "Round bags in a recyclable box, for a strong cup with or without milk.",
+        (cw("Red", "#9e2a2b", "solid", "#efe8d8"),), _blend("English Breakfast"), label="Tea",
+        colorless=True),
+    Row("TEAASM", "Assam Loose Leaf Tea Caddy", "Kettleby Tea Co.", _FD, _TEA, "Tea", 7.0,
+        "tin", "A 125 g caddy of whole leaf with a tight lid. Brew 4 minutes in boiled water.",
+        (cw("Black", "#2a2a2e", "solid", "#d4af37"),), _blend("Assam"), label="Tea",
+        colorless=True),
+    Row("TEAJAS", "Jasmine Green Tea Gift Tin", "Kettleby Tea Co.", _FD, _TEA, "Tea", 9.0,
+        "tin", "Twenty silk pyramid bags in a printed tin, gift ready with a ribbon.",
+        (cw("Teal", "#1c7c7d", "solid", "#efe8d8"),), _blend("Jasmine Green"), label="Tea",
+        colorless=True),
+    Row("COFCOL", "Colombian Ground Coffee, 227g", "Pantry Mill", _FD, _COFFEE, "Coffee", 4.0,
+        "tin", "Medium roast, ground for a French press or a filter machine. Reseal after use.",
+        (cw("Brown", "#5a3a26", "solid", "#d4af37"),), _origin("Colombian"), label="Coffee",
+        colorless=True),
+    Row("COFETH", "Ethiopian Coffee Beans, 1kg", "Brewhollow Roasters", _FD, _COFFEE, "Coffee",
+        16.0, "box",
+        "Whole beans, roasted in small batches and packed with a one-way valve.",
+        (cw("Cream", "#efe8d8", "solid", "#5a3a26"),), _origin("Ethiopian"), label="Coffee",
+        colorless=True),
+    Row("COFBRZ", "Brazilian Coffee Pods, Pack of 30", "Brewhollow Roasters", _FD, _COFFEE,
+        "Coffee", 7.5, "box_wide",
+        "Compostable pods for most pod machines, a smooth medium roast.",
+        (cw("Black", "#2a2a2e", "solid", "#c98a2e"),), _origin("Brazilian"), label="Coffee",
+        colorless=True),
+)  # fmt: skip
+
+# --------------------------------------------------------------------------
+# Beauty: the hair type and the ingredient vary; the hand wash's fragrance varies.
+# --------------------------------------------------------------------------
+
+_SHAMPOO = ("Beauty", "Hair Care", "Shampoo")
+_CONDIT = ("Beauty", "Hair Care", "Conditioner")
+_HANDWASH = ("Beauty", "Bath & Body", "Hand Wash")
+
+
+def _hair(hair: str, ingredient: str) -> tuple[tuple[str, str, str], ...]:
+    return (("hair_type", "Hair type", hair), ("ingredient", "Ingredient", ingredient))
+
+
+BEAUTY = (
+    Row("SHPARG", "Argan Oil Shampoo for Dry Hair", "Mirefield Naturals", "Beauty", _SHAMPOO,
+        "Shampoo", 6.0, "bottle",
+        "A sulfate-free daily wash in a pump bottle, made without silicones.",
+        (cw("Amber", "#c98a2e", "solid", "#ffffff"),), _hair("Dry", "Argan Oil"),
+        (("250ml", 6.0), ("500ml", 10.0)), "Shampoo", colorless=True),
+    Row("SHPROS", "Rosemary Shampoo for Curly Hair", "Hollin Hair", "Beauty", _SHAMPOO,
+        "Shampoo", 8.0, "bottle",
+        "A low-lather wash that cleans the scalp and leaves the lengths soft.",
+        (cw("Sage", "#9bb08f", "solid", "#2a2a2e"),), _hair("Curly", "Rosemary"),
+        label="Shampoo", colorless=True),
+    Row("CNDARG", "Argan Oil Conditioner for Dry Hair", "Mirefield Naturals", "Beauty",
+        _CONDIT, "Conditioner", 6.0, "bottle",
+        "A rinse-out cream for the mid-lengths and ends. Leave on for one minute.",
+        (cw("Cream", "#efe8d8", "solid", "#c98a2e"),), _hair("Dry", "Argan Oil"),
+        (("250ml", 6.0), ("500ml", 10.0)), "Conditioner", colorless=True),
+    Row("CNDCOC", "Coconut Conditioner for Curly Hair", "Hollin Hair", "Beauty", _CONDIT,
+        "Conditioner", 8.0, "bottle",
+        "A thick cream that defines the curl pattern and cuts frizz between washes.",
+        (cw("White", "#ffffff", "solid", "#7a5a3a"),), _hair("Curly", "Coconut"),
+        label="Conditioner", colorless=True),
+    Row("HWSFIG", "Fig Leaf Hand Wash 300ml", "Mirefield Naturals", "Beauty", _HANDWASH,
+        "Hand Wash", 5.0, "bottle",
+        "A gentle pump wash with plant glycerin, for kitchen or bathroom. Scented with fig leaf.",
+        (cw("Green", "#4f7a3a", "solid", "#ffffff"),), _scent("Fig Leaf"), label="Hand Wash",
+        colorless=True),
+    Row("HWSROS", "Rose & Geranium Hand Wash 500ml", "Hollin Hair", "Beauty", _HANDWASH,
+        "Hand Wash", 7.0, "bottle",
+        "A refillable glass pump bottle of hand wash. Scented with rose & geranium.",
+        (cw("Pink", "#e27d9f", "solid", "#2a2a2e"),), _scent("Rose & Geranium"),
+        label="Hand Wash", colorless=True),
+    Row("HWSALM", "Sweet Almond Hand Wash Refill 1L", "Mirefield Naturals", "Beauty", _HANDWASH,
+        "Hand Wash", 9.0, "bottle",
+        "A recycled bottle with enough to refill a pump bottle four times. "
+        "Scented with sweet almond.",
+        (cw("Cream", "#efe8d8", "solid", "#7a5a3a"),), _scent("Sweet Almond"), label="Refill",
+        colorless=True),
+)  # fmt: skip
+
 #: Every breadth row, by department.
-DEPARTMENTS = {"Toys": TOYS, "Garden": GARDEN, "Gifts": GIFTS, _CJ: CLEANING}
+DEPARTMENTS = {
+    "Toys": TOYS, "Garden": GARDEN, "Gifts": GIFTS, _CJ: CLEANING, _FD: FOOD, "Beauty": BEAUTY,
+}  # fmt: skip
 
 
 def docs() -> list[dict]:

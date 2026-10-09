@@ -33,11 +33,11 @@ TARGET = 20_000
 #: then the breadth rows (``breadth_rows``).
 SCALE_ROWS = 62
 AUTHORED = 328
-BREADTH_ROWS = 71
+BREADTH_ROWS = 86
 TEMPLATES = AUTHORED + SCALE_ROWS + BREADTH_ROWS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (3_265, 66_250)
+CAPACITY = (3_248, 64_854)
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's 2.6%
 #: (gen#136), rounded up to the 20K build's 2.8%. Growth must not dilute it.
 CEILING_NEAR_DUPLICATES = 0.028
