@@ -535,9 +535,7 @@ LENS_COLOR = "#ffffff"
 
 def _has_lens(svg: bytes) -> bool:
     return any(
-        e.tag.endswith("circle")
-        and e.attrib.get("fill") == LENS_COLOR
-        and "stroke" not in e.attrib
+        e.tag.endswith("circle") and e.attrib.get("fill") == LENS_COLOR and "stroke" not in e.attrib
         for e in ET.fromstring(svg)
     )
 

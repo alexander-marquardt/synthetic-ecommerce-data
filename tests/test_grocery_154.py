@@ -59,7 +59,7 @@ def test_the_flat_file_is_one_document_per_sku_with_the_retail_flat_keys() -> No
     rows = grocery.flat(list(docs()))
     retail_keys = set(export.flat_documents()[0])
     assert len(rows) == SKUS
-    assert {k for r in rows for k in r} == retail_keys
+    assert {k for r in rows for k in r} == retail_keys | {"ingredients"}
 
 
 def test_every_food_sku_states_each_allergen_once_and_free_from_contradicts_nothing() -> None:

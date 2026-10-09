@@ -116,7 +116,7 @@ def test_a_tap_drill_for_m12_is_found_by_m12(docs):
         ("M3x0.5, M4x0.7, M3x0.5", ["M3 thread, 0.5 mm pitch", "M4 thread, 0.7 mm pitch"]),
         ("M1.6x0.35 Dia./Thread Size", ["M1.6 thread, 0.35 mm pitch"]),
         # Already split by the analyzer: nothing to add.
-        ("M12 x 1.75, 1/4\"-20, #10-32", []),
+        ('M12 x 1.75, 1/4"-20, #10-32', []),
     ],
 )
 def test_thread_parts_names_each_glued_size_once(text, parts):

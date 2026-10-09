@@ -113,9 +113,7 @@ def test_the_core_modules_are_in_core():
 
 
 def test_the_industrial_modules_are_in_the_industrial_domain():
-    missing = [
-        m for m in INDUSTRIAL_MODULES if not _is_module(f"{INDUSTRIAL}.{m}")
-    ]
+    missing = [m for m in INDUSTRIAL_MODULES if not _is_module(f"{INDUSTRIAL}.{m}")]
     assert missing == []
 
 
@@ -231,8 +229,7 @@ def test_the_generate_command_composes_the_domains_outside_core():
             "-W",
             "ignore::DeprecationWarning",
             "-c",
-            "import synthetic_industrial_products.catalog.cli as old\n"
-            "print(old.__name__)\n",
+            "import synthetic_industrial_products.catalog.cli as old\nprint(old.__name__)\n",
         ],
         capture_output=True,
         text=True,
