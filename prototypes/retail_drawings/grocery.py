@@ -312,7 +312,8 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     ``facets.ingredients`` (the SKU's label list as ``facet_value`` forms; the
     top-level ``ingredients`` keeps the label text), ``facets.contains``,
     ``facets.may_contain`` and ``facets.dietary``, each a keyword list.
-    ``contains``, ``may_contain`` and ``dietary`` are warnings and claims, not description (:data:`WARNINGS`): they stay out of ``text``, so a "peanut"
+    ``contains``, ``may_contain`` and ``dietary`` are warnings and claims, not description
+    (:data:`WARNINGS`): they stay out of ``text``, so a "peanut"
     query cannot match a product through its allergen warning. ``contains`` and
     ``may_contain`` also leave the flat ``attributes`` and ``attribute_names`` (a
     searchable surface); they live in their facets only. ``dietary`` stays in both.
