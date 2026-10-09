@@ -26,7 +26,7 @@ import export  # noqa: E402
 import scale  # noqa: E402
 
 #: Today's ceiling (styles, SKUs): the same pin as ``test_retail_scale.CAPACITY``.
-CEILING_SKUS = 76_417
+CEILING_SKUS = 76_850
 #: Words of an object, a food or a plant that are not a color. A color value holding one
 #: is a fashion name where a color word belongs.
 DENYLIST = frozenset({
@@ -37,7 +37,7 @@ DENYLIST = frozenset({
     "moss", "forest", "ochre", "amber", "brick", "rust", "terracotta", "tobacco", "pearl",
     "oyster", "stone", "slate", "pewter", "smoke", "ice", "brass", "mink", "fawn", "sand",
     "kraft", "calico", "tabby", "champagne", "cognac", "chestnut", "claret", "poppy",
-    "orchid", "heather", "petal", "sprig", "star", "confetti", "candy", "breton", "glaze",
+    "orchid", "petal", "sprig", "star", "confetti", "candy", "breton", "glaze",
     "porcelain", "bare", "linen", "petrol", "midnight", "sky", "duck", "egg", "dove",
     "cloud", "storm", "glacier", "citrus", "cinder", "kiln", "post", "box", "tea", "shell",
     "oxblood", "celadon", "rosewood", "mauve", "coral reef", "glow", "haze", "pop", "field",
@@ -88,9 +88,8 @@ def test_the_lemon_tee_is_yellow_and_still_named_lemon_in_its_title(ceiling):
     tee = next(r for r in ceiling.records if r["title"] == "Lemon Crew Neck Tee")
     assert {s["color"] for s in tee["skus"]} == {"Yellow"}
     assert [c["color"] for c in tee["color_options"]] == ["Yellow"]
-    assert [a["value"] for a in export.standard_document(tee)["attributes"] if a["key"] == "color"] == [
-        "Yellow"
-    ]
+    facet = [a["value"] for a in export.standard_document(tee)["attributes"] if a["key"] == "color"]
+    assert facet == ["Yellow"]
 
 
 def test_two_shades_of_one_color_stay_apart_by_a_tone():
@@ -107,7 +106,10 @@ def test_the_mapping_never_names_a_denied_word_or_a_non_color(ceiling):
 
 
 def test_a_style_keeps_every_color_the_template_authored(ceiling):
-    """A mapping that merged two shades of a style would drop SKUs: the ceiling is pinned."""
+    """A mapping that merged two shades of a style would drop SKUs: the ceiling is pinned.
+
+    The pin moved from 76,417 with the plain names (#150): a SKU grid is drawn by color name.
+    """
     assert ceiling.skus == CEILING_SKUS
     for r in ceiling.records:
         colors = [c["color"] for c in r.get("color_options", ())]
