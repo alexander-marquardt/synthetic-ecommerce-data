@@ -168,25 +168,40 @@ CONTRADICTIONS = {
 
 @pytest.mark.parametrize("plant", sorted(CONTRADICTIONS))
 def test_a_title_or_description_contradicting_an_attribute_is_refused(plant, retail):
+    """The plant is a derived copy beside its template, as the scaled build makes one: the
+    template keeps the old value in the leaf's pool."""
     pid, key, value, named = CONTRADICTIONS[plant]
-    docs = deepcopy(retail)
-    doc = next(d for d in docs if d["product_id"] == pid)
+    doc = _copy(next(d for d in retail if d["product_id"] == pid), "PLANT-1")
     _set(doc, key, value)
-    problems = standard.check_catalog(docs)
+    problems = standard.check_catalog([*retail, doc])
     assert len(problems) == 1, problems
-    assert problems[0].startswith(f"{pid}: ") and named in problems[0] and key in problems[0]
+    assert problems[0].startswith("PLANT-1: ") and named in problems[0] and key in problems[0]
+
+
+def _copy(doc: dict[str, Any], pid: str) -> dict[str, Any]:
+    out = deepcopy(doc)
+    out["product_id"] = pid
+    for n, v in enumerate(out["variants"]):
+        v["sku"] = f"{pid}-{n}"
+    return out
 
 
 def test_a_value_named_inside_another_attribute_or_beside_its_own_is_no_contradiction(retail):
-    """"Leather Penny Loafers" on a rubber sole names the upper's value; a text naming the
+    """ "Leather Penny Loafers" on a rubber sole names the upper's value; a text naming the
     doc's own value too ("cotton and linen") is a blend, not a contradiction."""
-    docs = deepcopy(retail)
-    shoe = next(d for d in docs if d["product_id"] == "FTW-KTRHLT")
-    shoe["variants"][0]["description"] += " Lace-up look."
+    shoe = _copy(next(d for d in retail if d["product_id"] == "FTW-KTRHLT"), "PLANT-1")
     _set(shoe, "closure", "Lace-Up")
+    shoe["title"] = "Kids' Lace-Up Trainers"
     for v in shoe["variants"]:
-        v["description"] = shoe["variants"][0]["description"]
-    assert standard.check_catalog(docs) == []
+        v["title"] = shoe["title"]
+        v["description"] += " Laces sit under the straps: a lace-up look."
+    loafer = next(d for d in retail if d["product_id"] == "FTW-WLOAFP")
+    assert {"Leather Penny Loafers", "Rubber"} <= {loafer["title"], *_values(loafer, "sole")}
+    assert standard.check_catalog([*retail, shoe]) == []
+
+
+def _values(doc: dict[str, Any], key: str) -> list[str]:
+    return [e["value"] for e in doc["attributes"] if e["key"] == key]
 
 
 def test_industrial_text_is_exempt_from_the_contradiction_check():
