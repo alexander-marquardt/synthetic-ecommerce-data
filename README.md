@@ -1000,27 +1000,37 @@ whose SKUs are flavor x pack size: `python3 prototypes/retail_drawings/grocery.p
 --skus 10000 --out DIR` writes `nested.jsonl` and `flat.jsonl`, both in the output
 standard. At 10K it holds 10,042 SKUs in 3,305 styles over 37 food leaves, plus a
 kitchen-cleaner leaf and a body-lotion leaf for the overlaps. Each SKU states
-`contains`, `may_contain` and `free_from` over six allergens (peanuts, tree nuts,
+`contains` and `may_contain` over six allergens (peanuts, tree nuts,
 milk, gluten, soy, egg), its `dietary` labels (Vegan, Vegetarian, Gluten Free,
 Nut Free, Organic), `pack_size`, `units_per_pack` and its net weight or volume.
 
 Food SKUs also carry a top-level `ingredients` list (5 to 20 invented items in label
-order, never in conflict with `contains` and `free_from`); the flat file carries
-each SKU's own list. A product's list is the base recipe all its flavors share, so it
+order, never in conflict with `contains`, which names the allergens the list holds a source
+of); the flat file carries each SKU's own list. A product's list is the base recipe all its flavors share, so it
 may be shorter than 5. Fresh whole fruit and vegetables carry no list: the field is
 optional. A pizza is chilled and always contains gluten (a Vegan Garden style and a
 Four Cheese style are pinned), and a honey jar is drawn with a Honey label.
 
-At product level, `free_from` and `dietary` are the intersection over the
-product's variants, so a product listed as free from peanuts is free from them
-in every variant. Open Food Facts (ODbL) inspired only the shape: the category
+At product level, `contains` and `may_contain` are the union over the product's
+variants and `dietary` the intersection. There is no `free_from` field: "free from
+peanuts" is a query (exclude peanuts from `contains`, and from `may_contain` when
+strict), not data.
+
+The flat file exposes four food facts as facets, because a hard filter can only
+target a facet: `facets.ingredients` (the SKU's label list), `facets.contains` (the
+allergens its ingredients name), `facets.may_contain` (factory traces) and
+`facets.dietary` (pack claims: Vegan, Vegetarian, Gluten Free, Nut Free, Organic),
+each a keyword list. `contains`, `may_contain` and `dietary` are warnings and claims,
+not description, so they stay out of the flat `text`: a "peanut" query cannot match a
+product only through an allergen warning
+(`tests/test_grocery_ingredients_154.py`). Open Food Facts (ODbL) inspired only the shape: the category
 tree, the allergen and label model, and rough distributions. Every name is
 invented.
 
 The planted cases are:
 
 - chocolate that contains peanuts, chocolate that may contain them, and chocolate
-  that is free from them;
+  that does neither (the "free from peanuts" query);
 - Nut Free chocolate and Vegan chocolate;
 - lemon, orange and mint as a food and as a cleaner scent;
 - honey and coconut as a food and as a body milk scent;
@@ -1180,7 +1190,12 @@ build, `golden-catalog/nested.jsonl` and the retail export, and over planted
 defects. A variant's `price` is in its `currency` (ISO 4217), never converted:
 industrial writes `USD` and keeps `price_usd` beside it for its loader, retail
 writes `GBP`. Availability is the `in_stock` yes/no; `stock`, the count, is
-written only by a domain that models one (industrial).
+written only by a domain that models one (industrial). A field marked optional
+(`series`, `ingredients`, `description`, `price_usd`, `stock`) is absent, never null,
+on a document that has none; the grocery's food-only `ingredients` is one. A domain
+may keep an entry out of the flat `text` while it stays a facet
+(`standard.flat_documents(..., text_skip=...)`; the grocery's allergen warnings and
+dietary claims).
 
 `prototypes/retail_drawings/export.py` turns the 328-style build into that
 standard: `skus` become `variants`, each SKU option a variant-level attribute

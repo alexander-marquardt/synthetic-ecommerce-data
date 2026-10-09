@@ -62,6 +62,11 @@ DEPARTMENTS = 10
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's 2.6%
 #: (gen#136), rounded up to the 20K build's 2.8%. Growth must not dilute it.
 CEILING_NEAR_DUPLICATES = 0.028
+#: The grocery styles' own near-duplicate share (``scale.distinctness`` over the GRC- styles,
+#: 500-style seeded sample): measured 3.6% at the ceiling, capped at 4.0%. Flavors of one
+#: family share most of a listing by design, so this is higher than the 2.8% above (the
+#: whole catalog reads 4.2%, the non-grocery styles 2.0%); the cap stops it growing silently.
+CEILING_GROCERY_NEAR_DUPLICATES = 0.040
 
 
 @pytest.fixture(scope="module")
@@ -611,10 +616,100 @@ def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(tmp_path):
 def test_the_derivable_styles_hold_the_near_duplicate_share_at_the_ceiling(ceiling):
     """The share is read over the non-grocery styles, as the other population gates are
     (``scale.derivable``): a grocery family's flavors share most of a listing by design and
-    are gated in tests/test_grocery*."""
+    are capped apart in ``test_the_grocery_styles_hold_their_own_near_duplicate_cap``."""
     main = scale.derivable(ceiling.records)
     rate = scale.distinctness(main)["near_duplicate_rate"]
     assert rate <= CEILING_NEAR_DUPLICATES, f"{rate:.1%} of a sample of {len(main)} styles"
+
+
+def test_the_grocery_styles_hold_their_own_near_duplicate_cap(ceiling):
+    """Guard: grocery's near-duplicate share (measured 3.6%) stays under
+    :data:`CEILING_GROCERY_NEAR_DUPLICATES` (4.0%), so it cannot grow silently."""
+    groc = _grocery(ceiling.records)
+    rate = scale.distinctness(groc)["near_duplicate_rate"]
+    assert rate <= CEILING_GROCERY_NEAR_DUPLICATES, f"{rate:.1%} of a sample of {len(groc)}"
+
+
+def _grocery(records):
+    return [r for r in records if r["product_id"].startswith(scale.GROCERY_PREFIX)]
+
+
+def _held(style, key):
+    """The lowercased values of ``key`` over a style's SKUs (a list-valued key is flattened)."""
+    return {
+        str(x).lower()
+        for s in style["skus"]
+        if key in s
+        for x in (s[key] if isinstance(s[key], (list, tuple)) else [s[key]])
+    }
+
+
+#: Grocery keys whose style attribute is the INTERSECTION of the SKUs' lists (what every SKU
+#: is free from, may contain, or is suitable for), not the union the clothing keys use.
+GROCERY_INTERSECTION_KEYS = ("dietary", "may_contain")
+
+
+def test_grocery_style_attributes_list_the_values_of_their_skus(ceiling):
+    """Like-for-like with the clothing union test above. Grocery attributes are one entry per
+    value (not comma-joined) and some SKU keys are lists, so values are grouped by key. The one
+    exception: the allergen keys (:data:`GROCERY_INTERSECTION_KEYS`) hold the values EVERY SKU
+    shares, asserted as exactly that intersection."""
+    checked = 0
+    wrong = []
+    for r in _grocery(ceiling.records):
+        style: dict[str, set[str]] = collections.defaultdict(set)
+        for a in r["attributes"]:
+            style[a["key"]].update(v.strip().lower() for v in str(a["value"]).split(","))
+        for key, values in style.items():
+            held = _held(r, key)
+            if not held:
+                continue
+            checked += 1
+            if key in GROCERY_INTERSECTION_KEYS:
+                lists = [_held({"skus": [s]}, key) for s in r["skus"] if key in s]
+                held = set.intersection(*lists)
+            if values != held:
+                wrong.append((r["product_id"], key, sorted(values), sorted(held)))
+    assert checked >= 11_000
+    assert wrong == []
+
+
+#: Grocery keys a title or description may name beyond the SKUs' own values, each with the
+#: measured number of styles-words (ceiling, seed 0) and why. The text names the PRODUCT
+#: ("Coconut Milk", "milk chocolate"), which is not a claim about one SKU's selector or
+#: allergen list. Every other SKU-carried key (dietary) is held strictly.
+GROCERY_NAMED_EXCEPTIONS = {
+    "flavor": 1_885,
+    "may_contain": 646,
+    "contains": 558,
+    "pack_size": 85,
+}
+
+
+def test_no_grocery_title_or_description_names_a_value_no_sku_carries(ceiling):
+    """Like-for-like with the clothing test above, over grocery. The keys in
+    :data:`GROCERY_NAMED_EXCEPTIONS` are measured and capped (an ingredient or product word is
+    not an allergen or selector claim); any other SKU-carried key must have none."""
+    groc = _grocery(ceiling.records)
+    vocab: dict[str, set[str]] = collections.defaultdict(set)
+    for r in groc:
+        for a in r["attributes"]:
+            if any(a["key"] in s for s in r["skus"]):
+                vocab[a["key"]].update(p.strip() for p in str(a["value"]).split(","))
+    checked = 0
+    wrong: collections.Counter[str] = collections.Counter()
+    for r in groc:
+        text = f"{r['title']} {r['description']}"
+        for key, words in vocab.items():
+            held = _held(r, key)
+            if not held:
+                continue
+            checked += 1
+            unheld = (v for v in words if v.lower() not in held)
+            wrong[key] += sum(1 for v in unheld if scale._has_word(text, v))
+    assert checked >= 11_000
+    assert {k: n for k, n in wrong.items() if n and k not in GROCERY_NAMED_EXCEPTIONS} == {}
+    assert {k: n for k, n in wrong.items() if n > GROCERY_NAMED_EXCEPTIONS.get(k, 0)} == {}
 
 
 def test_no_department_falls_under_half_its_fair_share_of_styles(ceiling):
