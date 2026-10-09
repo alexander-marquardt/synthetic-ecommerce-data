@@ -1139,6 +1139,37 @@ retail has `price`, `currency` and `in_stock` where industrial has
 
     uv run python prototypes/retail_drawings/export.py OUTDIR   # nested.jsonl, flat.jsonl
 
+### The retail catalog at a size: `scale.py --skus N`
+
+`prototypes/retail_drawings/scale.py --skus 20000 --out retail.jsonl` builds the
+retail catalog to a target SKU count, writes it in the standard, and prints a
+report:
+- the coverage (styles, SKUs per department, products per leaf, attribute fill
+  per type, image ids and distinct drawings);
+- the distinctness (duplicate titles, clones, and same-leaf near-duplicate
+  listings on a sample);
+- the grid clones: the share of styles that share their leaf, hero picture and
+  price with another style, which is what a results grid shows (the gate: at most
+  15%), and the distinct prices per leaf (min and median);
+- the `check_catalog` problem count, the build time and the peak memory.
+
+The 328 authored styles come first. Further styles are derived from them,
+deterministically by `--seed`, and a smaller build is a prefix of a larger one.
+Each derived style gets a new range name and a brand from its type's pool. It
+also differs from its template and from every sibling in a value its title shows
+or in its hero color family: a rename alone is not a style. When only the hero
+color sets it apart, its title ends with that color ("..., Dark Indigo"). A
+changed motif is redrawn in the picture and the title, and the description is
+rebuilt around it; a "Shown in" color names the hero. It takes a subset
+of the template's colorways and keeps the template's size run. Its price is
+re-drawn inside its leaf's band, as a function of the values it changed (a
+premium material costs more). A draw whose title or description contradicts an
+attribute is refused, and `check_catalog` refuses such text too. The module
+docstring has the rules. Today's templates run out at 13,794 SKUs (849 styles),
+and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
+values per leaf, more colorways, and more templates.
+`tests/test_retail_scale.py` holds it at 13K SKUs.
+
 ## The built catalog is committed, in `golden-catalog/`
 
 `ecom-generate build` is reproducible, but its output is checked in anyway, at
@@ -1630,6 +1661,8 @@ the content digest and file count printed and written beside it as
 `.content-sha256`. Images are keyed per style and colorway, never per SKU:
 every size of one color shares an image, drawn in that color's swatch (base,
 pattern and accent). The 328-style build is 629 images for 6,861 SKUs.
+`--skus N` releases the scaled build instead (`scale.py`'s, the 20K catalog's
+input): `--skus 13000` is 1,099 images for 13,039 SKUs.
 There is no committed manifest to check against (the retail build is code, not
 a committed catalog); the command refuses an `image_id` that names two
 different drawings instead. `tests/test_retail_image_release.py` pins the

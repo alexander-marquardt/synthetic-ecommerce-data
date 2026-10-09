@@ -61,7 +61,8 @@ def retail() -> list[dict[str, Any]]:
 
 @pytest.mark.parametrize("source", sorted(SOURCES))
 def test_every_domain_meets_the_standard(source):
-    problems = standard.check_catalog(SOURCES[source]())
+    retail = source.startswith("retail")
+    problems = standard.check_catalog(SOURCES[source](), text_agrees=retail)
     assert problems == [], f"{len(problems)} problems, e.g. {problems[:8]}"
 
 
@@ -260,6 +261,67 @@ def _problems(doc: dict[str, Any]) -> list[str]:
         return standard.check_document(doc)
     except Exception as exc:  # noqa: BLE001 -- the raise IS the finding, reported as one
         return [f"check_document raised {exc!r}"]
+
+
+def _set(doc: dict[str, Any], key: str, value: str) -> None:
+    for entry in doc["attributes"]:
+        if entry["key"] == key:
+            entry["value"] = value
+
+
+#: A doc, an attribute changed under its text, the problem's words (gen#125 review).
+CONTRADICTIONS = {
+    # the old wording stays: "two hook and loop straps" on a lace-up trainer
+    "a description naming another closure": ("FTW-KTRHLT", "closure", "Lace-Up", "'Hook & Loop'"),
+    # the title and the description both name the old closure: one problem per attribute
+    "a title naming another closure": ("FTW-KSNDHL", "closure", "Buckle", "'Hook & Loop'"),
+}
+
+
+@pytest.mark.parametrize("plant", sorted(CONTRADICTIONS))
+def test_a_title_or_description_contradicting_an_attribute_is_refused(plant, retail):
+    """The plant is a derived copy beside its template, as the scaled build makes one: the
+    template keeps the old value in the leaf's pool."""
+    pid, key, value, named = CONTRADICTIONS[plant]
+    doc = _copy(next(d for d in retail if d["product_id"] == pid), "PLANT-1")
+    _set(doc, key, value)
+    problems = standard.check_catalog([*retail, doc])
+    assert len(problems) == 1, problems
+    assert problems[0].startswith("PLANT-1: ") and named in problems[0] and key in problems[0]
+
+
+def _copy(doc: dict[str, Any], pid: str) -> dict[str, Any]:
+    out = deepcopy(doc)
+    out["product_id"] = pid
+    for n, v in enumerate(out["variants"]):
+        v["sku"] = f"{pid}-{n}"
+    return out
+
+
+def test_a_value_named_inside_another_attribute_or_beside_its_own_is_no_contradiction(retail):
+    """ "Leather Penny Loafers" on a rubber sole names the upper's value; a text naming the
+    doc's own value too ("cotton and linen") is a blend, not a contradiction."""
+    shoe = _copy(next(d for d in retail if d["product_id"] == "FTW-KTRHLT"), "PLANT-1")
+    _set(shoe, "closure", "Lace-Up")
+    shoe["title"] = "Kids' Lace-Up Trainers"
+    for v in shoe["variants"]:
+        v["title"] = shoe["title"]
+        v["description"] += " Laces sit under the straps: a lace-up look."
+    loafer = next(d for d in retail if d["product_id"] == "FTW-WLOAFP")
+    assert {"Leather Penny Loafers", "Rubber"} <= {loafer["title"], *_values(loafer, "sole")}
+    assert standard.check_catalog([*retail, shoe]) == []
+
+
+def _values(doc: dict[str, Any], key: str) -> list[str]:
+    return [e["value"] for e in doc["attributes"] if e["key"] == key]
+
+
+def test_industrial_text_is_exempt_from_the_contradiction_check():
+    """Its descriptions name a second standard or grade by design (a Grade 8 nut for a
+    Grade 5 bolt); the check guards the retail build's derived text."""
+    docs = _industrial()
+    assert standard.check_catalog(docs, text_agrees=False) == []
+    assert standard.check_catalog(docs) != []
 
 
 def test_a_repeated_sku_and_a_key_with_two_names_are_refused(retail):

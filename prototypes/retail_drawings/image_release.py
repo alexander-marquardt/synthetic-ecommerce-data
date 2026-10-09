@@ -3,7 +3,11 @@
 Usage::
 
     uv run python prototypes/retail_drawings/image_release.py \\
-        --out out/retail-images --archive out/retail-images.tar.gz
+        --out out/retail-images --archive out/retail-images.tar.gz [--skus 20000]
+
+Without ``--skus`` it releases the 328 authored styles; with it, the scaled
+build that reaches that SKU count (:func:`scale.build`, the 20K catalog's input),
+whose derived styles each name their own images.
 
 The retail counterpart of ``ecom-generate images`` (:mod:`synthetic_ecommerce_data.core.bundle`),
 in the same package shape, so the installer that fetches the industrial
@@ -37,6 +41,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 import export  # noqa: E402
+import scale  # noqa: E402
 from build_preview import drawing_svg  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 
@@ -69,8 +74,11 @@ def render(rec: dict, sku: dict) -> bytes:
     return drawing_svg(rec | {"drawing": colorway_drawing(rec, sku)}).encode()
 
 
-def records() -> list[dict]:
-    """Every build record, in the export's order."""
+def records(skus: int | None = None) -> list[dict]:
+    """Every build record, in the export's order: the 328 authored styles, or with ``skus``
+    the scaled build that reaches that SKU count (:func:`scale.build`, e.g. the 20K catalog)."""
+    if skus is not None:
+        return scale.build(skus).records
     return [rec for recs in samples().values() for rec in recs]
 
 
@@ -100,8 +108,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="image_release.py", description=__doc__.split("\n")[0])
     parser.add_argument("--out", type=Path, default=Path("out/retail-images"))
     parser.add_argument("--archive", type=Path, default=None)
+    parser.add_argument("--skus", type=scale._target, default=None)
     args = parser.parse_args(argv)
-    recs = records()
+    recs = records(args.skus)
     files = image_files(recs)
     skus = sum(len(rec["skus"]) for rec in recs)
     bundle.write_files(files, args.out, root=export.IMAGE_ROOT)

@@ -37,6 +37,8 @@ RETAIL_SKUS = 6861
 #: One image per style and colorway: 274 colored styles' colors, plus one
 #: image for each of the 54 styles sold in no color.
 RETAIL_IMAGES = 629
+#: The scaled build ``image_release.py --skus`` releases (``tests/test_retail_scale.py``'s target).
+SCALED_SKUS = 13_000
 #: The demo serves the images folder at this prefix; a URL less it is the member.
 URL_PREFIX = "/images/"
 
@@ -105,6 +107,35 @@ def test_an_image_id_naming_two_drawings_is_refused(monkeypatch):
     monkeypatch.setattr(export, "image_id", lambda rec, sku: f"bedding/{rec['product_id']}/one")
     with pytest.raises(ValueError, match="names 2 different drawings"):
         image_release.image_files([rec])
+
+
+def test_the_scaled_release_ships_an_image_for_every_image_id_its_export_names():
+    """``records(N)`` is ``scale.build(N)``: the 13K export names an ``image_id`` per derived
+    style and colorway too, and every one of them is a packaged file."""
+    import scale  # noqa: PLC0415
+
+    named = {v["image_id"] for d in scale.documents(scale.build(SCALED_SKUS))
+             for v in d["variants"]}  # fmt: skip
+    recs = image_release.records(SCALED_SKUS)
+    members = {path for path, _ in image_release.image_files(recs)}
+    missing = sorted(i for i in named if image_release.member_path(i) not in members)
+    assert missing == []
+    assert len(members) == len(named) > RETAIL_IMAGES
+    assert sum(len(r["skus"]) for r in recs) >= SCALED_SKUS
+
+
+def test_the_command_takes_a_sku_target(tmp_path):
+    recs = image_release.records(7_000)
+    skus = sum(len(r["skus"]) for r in recs)
+    images = len(image_release.image_files(recs))
+    run = subprocess.run(
+        [sys.executable, str(RETAIL / "image_release.py"), "--skus", "7000",
+         "--out", str(tmp_path / "out")],
+        capture_output=True, text=True, check=False, cwd=ROOT,
+    )  # fmt: skip
+    assert run.returncode == 0, run.stderr
+    assert f"{images} images for {skus} SKUs" in run.stdout
+    assert skus >= 7_000 > RETAIL_SKUS
 
 
 def test_the_command_writes_the_industrial_package_shape(tmp_path, files):
