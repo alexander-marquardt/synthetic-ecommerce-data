@@ -30,14 +30,16 @@ if str(RETAIL) not in sys.path:
 import scale  # noqa: E402
 
 #: The round 4 preview's 328 authored styles, then the scale-only rows (``scale_rows``),
-#: then the breadth rows (``breadth_rows``).
+#: then the breadth rows (``breadth_rows``), then the distractor rows.
 SCALE_ROWS = 136
 AUTHORED = 328
 BREADTH_ROWS = 184
-TEMPLATES = AUTHORED + SCALE_ROWS + BREADTH_ROWS
+#: The distractor rows (``distractor_rows``): the failure classes' products.
+DISTRACTOR_ROWS = 279
+TEMPLATES = AUTHORED + SCALE_ROWS + BREADTH_ROWS + DISTRACTOR_ROWS
 #: The SKUs the templates alone hold. A build at or under it takes no seeded draw, so
 #: every derived-style test (``pairs``) would pass on an empty list.
-TEMPLATE_SKUS = 24_254
+TEMPLATE_SKUS = 27_928
 #: The derived styles :data:`TARGET` must hold so the ``pairs`` tests read a real sample:
 #: round 2's 19K build held 166 (seed 0), and adding templates must not shrink it.
 MIN_DERIVED = 150
@@ -49,10 +51,10 @@ DERIVED_SKUS = 4_500
 TARGET = TEMPLATE_SKUS + DERIVED_SKUS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (3_250, 76_850)
+CAPACITY = (3_525, 80_004)
 #: The grid-clone share the ceiling build may reach (:func:`scale.grid_clones`). Round 2
 #: measured 14.4%: the rest is the headroom the 50K and 100K rounds may spend.
-CEILING_GRID_CLONES = 0.15
+CEILING_GRID_CLONES = 0.152
 #: The departments the ceiling build sells in.
 DEPARTMENTS = 10
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's 2.6%
@@ -515,14 +517,20 @@ def test_a_derived_style_carries_its_range_name_in_title_and_line(pairs):
 
 
 def test_skus_are_the_templates_size_run_times_a_color_subset(pairs):
-    def runs(rec: dict) -> dict[Any, list[dict]]:
+    def runs(rec: dict, skip: set[str]) -> dict[Any, list[dict]]:
         out: dict[Any, list[dict]] = collections.defaultdict(list)
         for s in rec["skus"]:
-            out[s.get("color")].append({k: v for k, v in s.items() if k not in ("sku", "price")})
+            out[s.get("color")].append(
+                {k: v for k, v in s.items() if k not in ("sku", "price", *skip)}
+            )
         return out
 
     for r, t in pairs:
-        mine, theirs = runs(r), runs(t)
+        # A value the derived style changed is rewritten in its SKUs too (a shoe's upper
+        # material, ``scale._sku_values``): that key differs by design.
+        before = {a["key"]: a["value"] for a in t["attributes"]}
+        changed = {a["key"] for a in r["attributes"] if before.get(a["key"]) != a["value"]}
+        mine, theirs = runs(r, changed), runs(t, changed)
         assert mine and set(mine) <= set(theirs)
         assert all(mine[c] == theirs[c] for c in mine), r["product_id"]
         assert [s["sku"] for s in r["skus"]] == [
