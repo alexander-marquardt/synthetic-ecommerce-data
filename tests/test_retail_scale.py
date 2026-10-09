@@ -240,8 +240,8 @@ def test_a_changed_value_is_redrawn_in_the_picture(pairs):
         motif = {a["value"].lower(): a["value"] for a in t["attributes"] if a["key"] == "motif"}
         mine = _string_fields(r["drawing"])
         for p, v in _string_fields(t["drawing"]).items():
-            if p in ("base", "accent", "third", "pattern") or p not in mine:
-                continue  # the hero swatch and the motif's ink: see the motif test
+            if p in ("base", "accent", "third", "pattern", "label") or p not in mine:
+                continue  # the hero swatch, the motif's ink and a duvet's tog: see their tests
             was = next(iter(motif)) if p == "motif" else v.lower()
             if was in changed:
                 want = drawn[changed[was]] if p == "motif" else changed[was]
@@ -522,7 +522,7 @@ def test_a_color_titled_style_carries_only_its_title_color_in_every_sku(pairs):
         seen += 1
         assert {s.get("color") for s in r["skus"]} == {hero}, r["product_id"]
         assert [c["color"] for c in r["color_options"]] == [hero], r["product_id"]
-        sizes = {s.get("size") for s in t["skus"]}
+        sizes = {s.get("size") for s in t["skus"] if s.get("color") == hero}
         assert {s.get("size") for s in r["skus"]} == sizes, r["product_id"]
     assert seen >= 100
 
