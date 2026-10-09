@@ -103,6 +103,16 @@ FITS: dict[str, dict] = {
         "legs": [(131, 196), (140, 192), (141, 192), (141, 192)],
         "hem_y": 314,
     },
+    # Tapered: room at the thigh, narrowing steadily to the ankle.
+    "tapered": {"hip": 123, "legs": [(121, 197), (137, 192), (147, 189), (155, 188)]},
+    # Relaxed: loose and straight from the hip, a wide gap-free hem.
+    "relaxed": {"hip": 120, "legs": [(115, 197), (117, 196), (118, 196), (119, 196)]},
+    # Mom: roomy hip and thigh, a gentle taper to an ankle-length hem.
+    "mom": {"hip": 121, "legs": [(117, 196), (130, 193), (138, 191), (144, 190)], "hem_y": 340},
+    # Boyfriend: slouchy and a little tapered, the hem rolled up.
+    "boyfriend": {"hip": 121, "legs": [(118, 196), (125, 194), (130, 193), (134, 192)], "cuff": True},
+    # Kick flare: slim to the calf, then a small flare at a cropped hem.
+    "kick_flare": {"hip": 127, "legs": [(131, 196), (141, 192), (137, 193), (119, 196)], "hem_y": 336},
 }
 
 

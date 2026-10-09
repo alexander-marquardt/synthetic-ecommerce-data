@@ -490,6 +490,78 @@ def m_crown(c: str) -> list[str]:
     return [f'<path d="M-.8,.6 L-.8,-.5 L-.4,0 L0,-.7 L.4,0 L.8,-.5 L.8,.6 Z" fill="{c}"/>']
 
 
+# The marks of the brands the breadth and scale-only templates add (breadth_rows,
+# scale_rows), one per brand.
+
+
+def m_bean(c: str) -> list[str]:
+    return [
+        f'<ellipse cx="0" cy="0" rx=".55" ry=".85" fill="{c}" transform="rotate(25)"/>',
+        _stroke("M-.1,-.75 Q.25,0 -.1,.75", 0.12, "#ffffff"),
+    ]
+
+
+def m_rivet_pair(c: str) -> list[str]:
+    return [_ring(x, 0, 0.36, 0.12, c) for x in (-0.45, 0.45)] + [
+        _dot(x, 0, 0.12, c) for x in (-0.45, 0.45)
+    ]
+
+
+def m_sprout(c: str) -> list[str]:
+    return [
+        _stroke("M0,.85 L0,-.1", 0.12, c),
+        f'<path d="M0,-.1 Q-.75,-.2 -.7,-.8 Q-.1,-.75 0,-.1 Z" fill="{c}"/>',
+        f'<path d="M0,.15 Q.75,.05 .7,-.55 Q.1,-.5 0,.15 Z" fill="{c}"/>',
+    ]
+
+
+def m_fold(c: str) -> list[str]:
+    return [
+        f'<path d="M-.8,-.8 L.8,-.8 L.8,.2 L-.2,.8 L-.8,.8 Z" fill="{c}"/>',
+        '<path d="M.8,.2 L-.2,.2 L-.2,.8 Z" fill="#ffffff"/>',
+    ]
+
+
+def m_comb(c: str) -> list[str]:
+    teeth = " ".join(f"M{_n(x)},-.1 L{_n(x)},.75" for x in (-0.6, -0.3, 0, 0.3, 0.6))
+    return [
+        f'<rect x="-.8" y="-.6" width="1.6" height=".5" rx=".12" fill="{c}"/>',
+        _stroke(teeth, 0.11, c),
+    ]
+
+
+def m_teapot(c: str) -> list[str]:
+    return [
+        f'<path d="M-.55,.6 Q-.7,-.35 0,-.35 Q.7,-.35 .55,.6 Z" fill="{c}"/>',
+        _stroke("M.5,0 L.9,-.4", 0.12, c),
+        _ring(-0.65, 0.1, 0.22, 0.1, c),
+        _dot(0, -0.5, 0.12, c),
+    ]
+
+
+def m_droplet_leaf(c: str) -> list[str]:
+    return [
+        f'<path d="M0,-.85 Q.65,0 .45,.45 Q0,.95 -.45,.45 Q-.65,0 0,-.85 Z" fill="{c}"/>',
+        _stroke("M0,.6 L0,-.3 M0,.15 L.2,-.05 M0,.35 L-.2,.15", 0.08, "#ffffff"),
+    ]
+
+
+def m_puddle(c: str) -> list[str]:
+    return [
+        f'<ellipse cx="0" cy=".45" rx=".85" ry=".28" fill="{c}"/>',
+        _ring(0, 0.45, 0.45, 0.08, "#ffffff"),
+        _dot(0, -0.45, 0.2, c),
+    ]
+
+
+def m_bubbles(c: str) -> list[str]:
+    return [
+        _ring(-0.3, 0.25, 0.45, 0.1, c),
+        _ring(0.4, -0.25, 0.32, 0.1, c),
+        _dot(0.35, 0.55, 0.14, c),
+    ]
+
+
 #: Mark name -> drawing in unit space (-1..1), painted in the brand color.
 MARKS = {
     name[2:]: fn for name, fn in list(globals().items()) if name.startswith("m_") and callable(fn)
@@ -939,6 +1011,16 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     "Rookery Garden Co.":   H("#f0f5ec", "none",     "heavy",   "#3f6b35", "#1f3319", 1.0,  True,  "round", "ladder",            "mark_only",   "bottom_left",   "flag",     "serif",    700, "title",     2.0),
     "Ribbonvale":           H("#fbeff3", "dots",     "thin",    "#c0336b", "#3e1a2a", 0.9,  False, "sharp", "bell",              "mark_only",   "top_left",      "outline",  "mono",     400, "smallcaps", 0.5, True),
     "Clearbrook Household": H("#eef6fb", "grid",     "rounded", "#2f7fb5", "#1a3448", 1.0,  False, "sharp", "cross_ring",        "mark_only",   "bottom_right",  "tab",      "sans",     700, "caps",      1.0),
+    # The brands of the breadth and scale-only templates (breadth_rows, scale_rows).
+    "Calderwick Denim":     H("#eef1f6", "diagonal", "ticks",   "#2c4a7a", "#17243a", 1.25, True,  "sharp", "rivet_pair",        "badge",       "bottom_right",  "none",     "mono",     700, "lower",     2.5),
+    "Kettleby Tea Co.":     H("#f7f3e8", "lines",    "rounded", "#5e7a3a", "#2a3519", 0.85, False, "round", "teapot",            "mark_above",  "top_right",     "none",     "serif",    700, "smallcaps", 1.5, True),
+    "Brewhollow Roasters":  H("#f3ece4", "grid",     "none",    "#6b3f24", "#2e1a10", 1.3,  True,  "round", "bean",              "band_bottom", "bottom_centre", "none",     "humanist", 400, "caps",      3.0),
+    "Fenwold Nursery":      H("#eff6ea", "hatch",    "double",  "#4a7d2c", "#203616", 1.05, False, "sharp", "sprout",            "pill",        "top_right",     "none",     "serif",    400, "lower",     0.5),
+    "Hollin Hair":          H("#f8eff4", "lines",    "none",    "#8a3f6e", "#3a1a2e", 0.8,  True,  "round", "comb",              "mark_only",   "top_left",      "stamp",    "humanist", 400, "caps",      2.5, True),
+    "Mirefield Naturals":   H("#f0f6f1", "diagonal", "thin",    "#3a8a6a", "#183a2c", 0.95, False, "sharp", "droplet_leaf",      "mark_only",   "top_right",     "flag",     "mono",     400, "title",     1.5),
+    "Puddlecombe Toys":     H("#eaf4fb", "dots",     "ticks",   "#2a86c4", "#16344a", 1.25, False, "round", "puddle",            "mark_only",   "bottom_right",  "plain",    "sans",     700, "smallcaps", 2.0, True),
+    "Freshfold":            H("#f4f8fb", "hatch",    "rounded", "#4a90a8", "#1e3a44", 0.9,  True,  "sharp", "fold",              "mark_only",   "bottom_left",   "underline", "serif",   700, "caps",      1.5),
+    "Soapwell":             H("#f2f0fa", "none",     "double",  "#6a5ac0", "#26204a", 1.15, True,  "round", "bubbles",           "mark_only",   "top_left",      "rect",     "sans",     400, "title",     2.5),
 }
 # fmt: on
 

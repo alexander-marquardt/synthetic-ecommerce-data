@@ -1,4 +1,4 @@
-"""The retail catalog at any size: a target SKU count, reached from the 328 templates (gen#125).
+"""The retail catalog at any size: a target SKU count, reached from the templates (gen#125).
 
 Usage::
 
@@ -8,8 +8,12 @@ prints the coverage and distinctness report as JSON, checks every document
 against the output standard (:func:`synthetic_ecommerce_data.core.standard.check_catalog`)
 and, with ``--out``, writes the standard nested documents as JSONL.
 
-:func:`build` keeps the 328 hand-authored styles (:func:`build_preview4.samples`)
-first, as templates, and derives further styles until the SKUs reach the target.
+:func:`build` keeps the hand-authored styles first, as templates: the round 4
+preview's 328 (:func:`build_preview4.samples`), then the deep-SKU jeans and bras
+only the scaled catalog carries (:mod:`scale_rows`), then the toys, garden, gifts,
+cleaning, food and beauty styles that give every department its share
+(:mod:`breadth_rows`); both are data only.
+It derives further styles until the SKUs reach the target.
 A derived style copies one template and changes, deterministically from the seed:
 
 - its **range name** (:data:`RANGE_NAMES`): the ``product_line``, the template's
@@ -26,12 +30,13 @@ A derived style copies one template and changes, deterministically from the seed
   template that draws it ("Cherry" -> ``cherries``, :func:`_redraw_motif`), the
   title's plural follows ("Lemons Print" -> "Oranges Print"), and the description
   is rebuilt from the product noun after "Graphic" or "Print" in the title, with
-  no colour words. Count and placement are frozen;
-- its **colorways**, a hero color, then a subset of the template's other colors.
-  Its SKUs are the template's own size run times those colors, hero first
+  no color words. Count and placement are frozen;
+- its **colorways**, a hero color, then a subset of the template's other colors;
+  a style whose title names its color (see below) carries that hero colorway
+  alone. Its SKUs are the template's own size run times those colors, hero first
   (:func:`variants.product`): no SKU is invented. Each SKU's price is the
   template's times the style's price ratio (see below). A description's
-  "Shown in cream" names the hero, the colour the picture shows;
+  "Shown in cream" names the hero, the color the picture shows;
 - its rating, review count and sales, redrawn; a bestseller rank and the
   Bestseller badge stay with the authored styles.
 
@@ -60,7 +65,7 @@ price with another.
 
 **Capacity.** Signatures bound the build: per template, the shown values its leaf
 offers times its color families. With today's templates every template is
-exhausted at 13,794 SKUs (849 styles). Past that, the CLI reports
+exhausted at 44,923 SKUs (2,357 styles). Past that, the CLI reports
 ``reached_target: false`` and exits 2. To grow it, add data, not code: more values
 per leaf that the title shows, more colorways, and more templates, deep-SKU ones
 above all.
@@ -69,8 +74,8 @@ Images: a derived style keeps its template's drawing (params and a changed motif
 aside), so the distinct drawings (:func:`coverage` ``images.distinct_drawings``)
 stay near the template count. ``export.image_id`` still embeds the product id, so
 ``images.image_ids`` is one per product and colorway, and
-``image_release.py --skus N`` renders this build's images (1,099 for the 13,039
-SKUs of ``--skus 13000``).
+``image_release.py --skus N`` renders this build's images (1,348 for the 20,002
+SKUs of ``--skus 20000``).
 """
 
 from __future__ import annotations
@@ -93,6 +98,8 @@ HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
+import breadth_rows  # noqa: E402
+import scale_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from export import drawing_spec, image_id, standard_document  # noqa: E402
 from variants import product  # noqa: E402
@@ -127,7 +134,7 @@ EXTRA_BRANDS: dict[str, tuple[str, ...]] = {
     "Garden": ("Rookery Garden Co.",),
     "Gifts": ("Ribbonvale",),
     "Toys": ("Pipwick Toys",),
-    "Cleaning & Janitorial": ("Clearbrook Household",),
+    "Cleaning & Janitorial": ("Clearbrook Household", "Soapwell"),
 }
 
 #: The share of derived styles per department; the rest split by template count.
@@ -166,8 +173,9 @@ class Scaled:
 
 
 def templates() -> list[dict]:
-    """The 328 hand-authored styles, in build order."""
-    return [r for recs in samples().values() for r in recs]
+    """The authored styles, then :mod:`scale_rows`, then :mod:`breadth_rows`, in build order."""
+    authored = (r for recs in samples().values() for r in recs)
+    return [*authored, *scale_rows.docs(), *breadth_rows.docs()]
 
 
 def _words(text: str) -> str:
@@ -289,7 +297,7 @@ def _plural(word: str) -> str:
 
 def _redraw_motif(rec: dict, old: str, new: str) -> None:
     """The motif ``old`` -> ``new`` in the picture, the title's plural ("Lemons Print") and
-    the description, which is rebuilt: the template's names the old motif and its colours.
+    the description, which is rebuilt: the template's names the old motif and its colors.
 
     The new text names the product noun after "Graphic" or "Print" in the title, and the
     count and placement the drawing keeps."""
@@ -342,7 +350,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
                 rec["drawing"]["label"] = _swap(rec["drawing"]["label"], old, new)
             if a["key"] == "motif" and "motif" in rec["drawing"]:
                 _redraw_motif(rec, old, new)
-    if colors:  # "Shown in cream" names the colour the picture shows: the hero
+    if colors:  # "Shown in cream" names the color the picture shows: the hero
         names = "|".join(re.escape(c["color"]) for c in tpl.get("color_options", ()))
         rec["description"] = re.sub(
             rf"\b(shown in )(?:{names})\b",
@@ -519,7 +527,7 @@ def _draw(tpl: dict, serial: int, ctx: _Context, brands: list[str], owners: dict
     left or ATTEMPTS draws all repeat a title or contradict their text.
 
     A style whose title-shown values the template or an earlier sibling already shows
-    differs in its hero colour alone, so its title names it: "…, Sage"."""
+    differs in its hero color alone, so its title names it: "…, Sage"."""
     leaf = tpl["category_leaf"]
     keys = variable_keys(tpl, ctx.pools)
     shown = shown_keys(tpl, keys)
@@ -535,7 +543,7 @@ def _draw(tpl: dict, serial: int, ctx: _Context, brands: list[str], owners: dict
         values = dict(zip(shown, sig[0], strict=True))
         values |= {k: rng.choice(ctx.pools[(leaf, k)]) for k in keys if k not in shown}
         colors = _colors(tpl, sig[1], rng)
-        if sig[0] in taken:  # the title names the colour: the style IS that colour
+        if sig[0] in taken:  # the title names the color: the style IS that color
             colors = colors[:1]
         brand, name = rng.choice(brands), rng.choice(RANGE_NAMES)
         changes = {k: (old[k], v) for k, v in values.items() if v != old[k]}
