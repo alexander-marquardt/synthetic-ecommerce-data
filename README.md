@@ -373,6 +373,12 @@ their product families, market weight, house style and title voice.
   of its ink, so brands that share an ink also differ in background. Every
   (ink, paper, frame) triple is unique and every ink is at least 3:1 against
   its paper (the lowest is 4.4:1).
+* **Brand mark** (#132). Each brand declares a `motif` and an `enclosure`
+  (`core/brands.py`): fifteen machine-shop motifs
+  (`domains/industrial/drawing/brand_marks.py`) in three enclosures (bare, in
+  a ring, knocked out of a badge), one pair per brand. That is room for 45
+  brands, exactly the book; a new motif that passes the distinguishability
+  test ([Images](#images)) adds room for three more.
 
 **Every name is invented, and each was checked.** Method: a web search for
 `"<name>"` and a second for `"<name>" tools OR industrial OR company`; a name
@@ -1458,8 +1464,9 @@ suite: the contract test reads the new sizes.
 
 ## Images
 
-**One drawing per SKU, drawn from that SKU's own values, with no text in it.**
-The rulings are on elastic/prism-industrial-products#103 (2026-09-26 to -28).
+**One drawing per SKU, drawn from that SKU's own values, with no text in it but
+its brand's name.** The rulings are on elastic/prism-industrial-products#103
+(2026-09-26 to -28); the brand plate is #132 (2026-10-08).
 How the code does it -- record to figure to SVG bytes, the registry, the
 provenance ladder, the publish gate, and a checklist for adding a type -- is in
 [docs/drawings.md](docs/drawings.md).
@@ -1470,12 +1477,23 @@ FIXED plain shapes** (sphere, cylinder, block, disc, tube, bracket --
 published values. The "drawn from its own dimensions" rule above does not
 apply to them: they are filler to give a facet something to show, not a
 figure meant to survive a close look (maintainer, 2026-09-30). They still go
-through the same no-text allow-list, house style and material/finish fill as
+through the same text allow-list, brand plate, house style and material/finish fill as
 every other drawing -- only the GEOMETRY is fixed.
 
 * **One image per SKU**, so two lengths of one screw look different, and a
   grouped view can switch the picture when a variant is selected.
-* **No text of any kind** -- no dimension, callout, label, brand name or SKU.
+* **A brand plate under the figure** (#132): the brand's mark beside its
+  name, in a strip at the foot of the sheet (`core/drawing/sheet.py`,
+  `PLATE_BOX`). The figure is drawn in the sheet above it, so the plate never
+  covers a dimension, a head or a thread of any type; an engineering
+  drawing's maker sits in its title block the same way. Legible at the
+  Studio grid tile (180 px for the 300-unit sheet, 0.6 px a unit): no
+  name's capitals render under 10 px tall there. The full name is set beside
+  the mark, on two lines beside it, split around it, or under it, whichever
+  comes first at that size; a name none of them fits is refused, never
+  shortened. The plate is 56 units tall, so the figure has the 236 units
+  above it. Every SKU of a brand carries the same plate.
+* **No other text** -- no dimension, callout, label or SKU.
   The words are on the record (title, description, attributes); the drawing
   reflects the specifications **visually**: a longer length of cut is drawn
   longer, a finer thread with more crests, a flat head is a cone and a button
@@ -1483,23 +1501,28 @@ every other drawing -- only the GEOMETRY is fixed.
   The gate is an **allow-list**, not a list of text forms
   (`drawing.svg_problems`):
   - every element must be one the figures emit (`svg, rect, defs, pattern, g,
-    path, circle`), and there is no nested `<svg>`;
+    path, circle`, and the plate's `text`), and there is no nested `<svg>`;
+  - the `<text>` elements' words, joined, must be a brand's wordmark, and
+    the font attributes appear on `<text>` only;
   - every attribute must be one they use, and every attribute VALUE must fit
     its grammar: a paint is a color, `none` or a same-file hatch reference,
     never an external or `data:` URL;
   - every id is a hatch pattern's own;
-  - no element may carry character data;
+  - no element but `<text>` may carry character data;
   - no comment, processing instruction, doctype or entity reference may
-    appear.
+    appear, but the `&amp;` of a name like `Lark & Lathe`.
 
   One thing no structural check can catch: a glyph's outline drawn as a plain
   path is indistinguishable from any other outline. The review's plants
   -- `<title>`, `<desc>`, `aria-label`, a comment, `<metadata>`,
   `<foreignObject>`, an embedded raster, `@font-face`, a glyph path from any
   font -- each red `tests/test_sku_drawings.py`.
-* **Brands visibly different**, by house style: each brand owns one (ink,
-  frame) pair and an independent paper tint -- twelve inks, six papers, four
-  frames -- consistent within a brand, never random per product ([Brands](#brands)).
+* **Brands visibly different**, by house style and by mark: each brand owns
+  one (ink, frame) pair and an independent paper tint -- twelve inks, six
+  papers, four frames -- and one mark, consistent within a brand, never
+  random per product ([Brands](#brands)). Any two brands' marks, rasterised
+  at the tile's 19 px, differ in at least 24 pixels
+  (`tests/test_brand_marks.py`; the closest pair measures 25).
 * **A part longer than its type's extent is drawn BROKEN**, not shrunk: the
   shank is shortened between two drafting break lines, head and thread end
   kept, to a height that still grows with the true length. The screw and bolt
@@ -1544,8 +1567,9 @@ small to read is not drawn larger, it is shown through a **magnifier**
   that glass enlarges the part at least 2.5 times; otherwise it is a larger
   HANDLE-LESS lens -- the same thin ring and white interior -- sized to the
   sheet's width at an 8-unit side margin (the smallest that clears every brand
-  frame by at least a unit). That lens is WIDTH-BOUND, so it cannot grow further:
-  at the rule's extreme (a part drawn 40 x 50) it enlarges only ~x2.42, below
+  frame by at least a unit), or to the 236-unit figure area above the brand
+  plate where that is tighter. It cannot grow further: at the rule's extreme
+  (a part drawn 40 x 50) it is height-bound and enlarges only ~x2.05, below
   the x2.5 the handled glass guarantees;
 * the whole glyph is horizontally centred and as large as fits; the space above
   it equals the space below the part, with a 14-unit gap between them;
@@ -1573,9 +1597,10 @@ What `tests/test_sku_drawings.py` proves over the committed catalog:
   * a lens appears on exactly the SKUs drawn at most 1/5 of the sheet's width
     and 1/6 of its height, over every committed SKU;
   * the handle-less lens is used exactly where the handled glass cannot reach
-    x2.5; the committed catalog's lowest enlargement is pinned at x2.52 (its
+    x2.5; the committed catalog's lowest enlargement is pinned at x2.12 (its
     measured minimum, rounded down), and the rule's extreme (40 x 50) at
-    x2.41 to x2.5 -- below x2.5 because the lens is width-bound;
+    x2.05 to x2.5 -- below x2.5 because the lens is height-bound in the
+    236-unit figure area above the brand plate (#132);
   * the handle-less lens clears the brand frame (8 units in, frames at 6 with
     strokes at most 2 wide);
   * each dimension binds on its own (planted: 41 x 5 and 5 x 50.5 plain,
