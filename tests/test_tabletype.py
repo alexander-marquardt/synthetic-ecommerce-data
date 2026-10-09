@@ -2,7 +2,7 @@
 what its price ladder orders, and which lengths its drawing is given.
 
 The table here is made up and belongs to no product: these gates are about
-:mod:`synthetic_industrial_products.catalog.tabletype`, not about a type.
+:mod:`synthetic_ecommerce_data.domains.industrial.tabletype`, not about a type.
 """
 
 from __future__ import annotations
@@ -14,11 +14,12 @@ import pkgutil
 
 import pytest
 
-from synthetic_industrial_products.catalog import price, tabletype, typespec
-from synthetic_industrial_products.catalog.config import GeneratorConfig
-from synthetic_industrial_products.catalog.generate import Generator
-from synthetic_industrial_products.catalog.tabletype import TableType, Variant
-from synthetic_industrial_products.drawing.model import Figure
+from synthetic_ecommerce_data.core import price, typespec
+from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.core.drawing.model import Figure
+from synthetic_ecommerce_data.domains.industrial import tabletype
+from synthetic_ecommerce_data.domains.industrial.generate import Generator
+from synthetic_ecommerce_data.domains.industrial.tabletype import TableType, Variant
 
 MM = 25.4
 

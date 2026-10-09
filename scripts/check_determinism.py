@@ -6,7 +6,7 @@
 
 elastic/prism-industrial-products#129 requires that the 100K build is
 deterministic, verified by two builds with identical digests. This script is
-that check. It runs ``sip-generate build`` twice, each in a FRESH interpreter
+that check. It runs ``ecom-generate build`` twice, each in a FRESH interpreter
 with a different ``PYTHONHASHSEED``, so a set or dict iteration order that leaks
 into the output shows up as a differing file. Then it compares the sha256 of
 every file either build wrote. With ``--images`` it also builds the drawings
@@ -36,8 +36,8 @@ import sys
 import tempfile
 from pathlib import Path
 
-from synthetic_industrial_products.catalog.cli import field_map_target
-from synthetic_industrial_products.catalog.generate import GeneratorConfig
+from synthetic_ecommerce_data.domains.industrial.generate import GeneratorConfig
+from synthetic_ecommerce_data.generate_cli import field_map_target
 
 #: Two different hash seeds: the point is that the output must not depend on it.
 HASH_SEEDS = ("1", "987")
@@ -66,7 +66,7 @@ def compare(left: Path, right: Path) -> list[str]:
     return sorted(name for name in a.keys() | b.keys() if a.get(name) != b.get(name))
 
 
-#: What ``sip-generate build`` writes into ``--out``, and what ``images --archive`` adds.
+#: What ``ecom-generate build`` writes into ``--out``, and what ``images --archive`` adds.
 CATALOG_FILES = (
     "nested.jsonl",
     "flat.jsonl",
@@ -97,7 +97,7 @@ def missing(found: dict[str, str], expected: set[str]) -> list[str]:
 def _sip_generate(args: list[str], hash_seed: str) -> None:
     env = {**os.environ, "PYTHONHASHSEED": hash_seed}
     code = (
-        "import sys; from synthetic_industrial_products.catalog.cli import main; "
+        "import sys; from synthetic_ecommerce_data.generate_cli import main; "
         "sys.exit(main(sys.argv[1:]))"
     )
     done = subprocess.run(
@@ -105,7 +105,8 @@ def _sip_generate(args: list[str], hash_seed: str) -> None:
     )
     if done.returncode != 0:
         raise SystemExit(
-            f"sip-generate {' '.join(args)} failed ({done.returncode}):\n{done.stdout}{done.stderr}"
+            f"ecom-generate {' '.join(args)} failed ({done.returncode}):\n"
+            f"{done.stdout}{done.stderr}"
         )
 
 

@@ -1,4 +1,17 @@
 {
+ "settings": {
+  "analysis": {
+   "normalizer": {
+    "value_folded": {
+     "type": "custom",
+     "filter": [
+      "lowercase",
+      "asciifolding"
+     ]
+    }
+   }
+  }
+ },
  "mappings": {
   "properties": {
    "product_id": {
@@ -40,6 +53,9 @@
    "image_detail_url": {
     "type": "keyword"
    },
+   "ingredients": {
+    "type": "text"
+   },
    "variant_count": {
     "type": "integer"
    },
@@ -53,7 +69,13 @@
       "type": "keyword"
      },
      "value": {
-      "type": "keyword"
+      "type": "keyword",
+      "fields": {
+       "normalized": {
+        "type": "keyword",
+        "normalizer": "value_folded"
+       }
+      }
      },
      "unit_code": {
       "type": "keyword"
@@ -75,6 +97,15 @@
      "description": {
       "type": "text"
      },
+     "price": {
+      "type": "double"
+     },
+     "currency": {
+      "type": "keyword"
+     },
+     "in_stock": {
+      "type": "boolean"
+     },
      "price_usd": {
       "type": "double"
      },
@@ -90,6 +121,9 @@
      "image_detail_url": {
       "type": "keyword"
      },
+     "ingredients": {
+      "type": "text"
+     },
      "attributes": {
       "type": "nested",
       "properties": {
@@ -100,7 +134,13 @@
         "type": "keyword"
        },
        "value": {
-        "type": "keyword"
+        "type": "keyword",
+        "fields": {
+         "normalized": {
+          "type": "keyword",
+          "normalizer": "value_folded"
+         }
+        }
        },
        "unit_code": {
         "type": "keyword"

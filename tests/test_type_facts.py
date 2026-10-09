@@ -20,8 +20,9 @@ from pathlib import Path
 import pytest
 
 import type_facts
-from synthetic_industrial_products.catalog import conformance, typespec
-from synthetic_industrial_products.catalog.generate import all_type_keys
+from synthetic_ecommerce_data.core import typespec
+from synthetic_ecommerce_data.domains.industrial import conformance
+from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys
 from test_catalog_facts import untitled_keys, wrong_claims
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"

@@ -19,12 +19,12 @@ import dataclasses
 
 import pytest
 
-from synthetic_industrial_products.catalog import emit
-from synthetic_industrial_products.catalog.brands import BRAND_BOOK, FRAMES, INKS
-from synthetic_industrial_products.catalog.config import SMALL
-from synthetic_industrial_products.catalog.generate import BRANDS, generate
-from synthetic_industrial_products.render.attrs import UnsupportedFeatureError
-from synthetic_industrial_products.render.marking import (
+from synthetic_ecommerce_data.core import emit
+from synthetic_ecommerce_data.core.brands import BRAND_BOOK, FRAMES, INKS
+from synthetic_ecommerce_data.core.config import SMALL
+from synthetic_ecommerce_data.domains.industrial.generate import BRANDS, generate
+from synthetic_ecommerce_data.domains.industrial.render.attrs import UnsupportedFeatureError
+from synthetic_ecommerce_data.domains.industrial.render.marking import (
     BRAND_INK,
     DIRECTION_ATTRIBUTES,
     FINISH_ATTRIBUTES,
@@ -46,7 +46,7 @@ def _published(names) -> set[str]:
     (elastic/prism-industrial-products#103) are drawn only by the catalog's
     per-SKU renderer, whose palette ``tests/test_sku_drawings.py`` sweeps.
     """
-    from synthetic_industrial_products.render.kinds import TYPE_KIND
+    from synthetic_ecommerce_data.domains.industrial.render.kinds import TYPE_KIND
 
     wanted = set(names)
     return {
@@ -58,17 +58,17 @@ def _published(names) -> set[str]:
     }
 
 
-# --- the outline colour, and reading it backwards -------------------------
+# --- the outline color, and reading it backwards -------------------------
 
 
-def test_every_brand_the_generator_uses_has_an_outline_colour():
-    """A brand with no colour makes a drawing that refuses rather than renders.
+def test_every_brand_the_generator_uses_has_an_outline_color():
+    """A brand with no color makes a drawing that refuses rather than renders.
 
     Taken from the generator's own brand list, so a brand added there fails
     here the day it is added rather than the day someone renders it.
     """
     assert set(BRANDS) <= set(BRAND_INK)
-    assert set(BRAND_INK) == set(BRANDS), "a colour for a brand nothing sells is dead text"
+    assert set(BRAND_INK) == set(BRANDS), "a color for a brand nothing sells is dead text"
 
 
 def test_no_ink_lies_on_another_inks_blend_to_the_paper():
@@ -76,9 +76,9 @@ def test_no_ink_lies_on_another_inks_blend_to_the_paper():
 
     Every stroke is antialiased, so a line drawn in one ink puts pixels at
     every blend between that ink and the paper. Two inks can therefore be
-    different colours and still be indistinguishable in the pixels --
+    different colors and still be indistinguishable in the pixels --
     measured, the first palette here put sixteen of one brand's pixels inside
-    another brand's colour on one card. Checked over the PALETTE: brands now
+    another brand's color on one card. Checked over the PALETTE: brands now
     share inks (the (ink, frame) pair is what names a brand), so the
     separation that matters is between the inks two brands can be told
     apart by.
@@ -88,8 +88,8 @@ def test_no_ink_lies_on_another_inks_blend_to_the_paper():
     import numpy as np
     from matplotlib.colors import to_rgb
 
-    def separation(colour: str, other: str) -> float:
-        start = np.array(to_rgb(colour))
+    def separation(color: str, other: str) -> float:
+        start = np.array(to_rgb(color))
         target = np.array(to_rgb(other))
         blend = start + (np.ones(3) - start) * np.linspace(0, 1, 201)[:, None]
         return float(np.min(np.max(np.abs(blend - target), axis=1)))
@@ -107,7 +107,7 @@ def test_every_brands_ink_is_its_brand_book_ink():
         assert BRAND_INK[book.name] == INKS[book.ink]
 
 
-def test_a_colour_no_brand_claims_does_not_resolve_to_the_nearest_one():
+def test_a_color_no_brand_claims_does_not_resolve_to_the_nearest_one():
     """The control for the round trip above.
 
     A ``brand_for_house_style`` that returned the first brand whatever it was
@@ -115,7 +115,7 @@ def test_a_colour_no_brand_claims_does_not_resolve_to_the_nearest_one():
     inverse is a lookup and not a guess: an ink no brand uses, and a real ink
     with a frame no brand pairs it with, both refuse.
     """
-    from synthetic_industrial_products.drawing.style import (
+    from synthetic_ecommerce_data.core.drawing.style import (
         UnknownStyleError,
         brand_for_house_style,
     )
@@ -159,7 +159,7 @@ def test_no_two_coatings_share_a_tint_and_no_two_materials_share_a_hatch():
     """A channel that maps two values to one appearance is a channel with a lie in it.
 
     TiAlN and AlTiN are the near miss worth naming: both are violet-greys in
-    life, and giving them one colour because they look alike would make the
+    life, and giving them one color because they look alike would make the
     drawing say the two coatings are the same thing.
     """
     assert len(set(FINISH_TINT.values())) == len(FINISH_TINT)
@@ -238,7 +238,7 @@ def test_the_marking_reads_nothing_but_the_brand_and_the_line_attributes():
 
     A hash of the id would produce exactly as much variety as this encoding
     and would assert nothing -- and worse, a reader who sees two mills in
-    different colours concludes the difference is real. The signature is
+    different colors concludes the difference is real. The signature is
     frozen and built from two arguments, so this is asserted by showing that
     two lines with the same brand and attributes mark identically however much
     else about them differs.

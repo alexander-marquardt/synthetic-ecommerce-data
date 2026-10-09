@@ -34,7 +34,7 @@ LOG = RAW / "requests.jsonl"
 #: project, so the census can be rerun by anyone without impersonating it.
 USER_AGENT = (
     "prism-demo-research/1.0 "
-    "(+https://github.com/alexander-marquardt/synthetic-industrial-products)"
+    "(+https://github.com/alexander-marquardt/synthetic-ecommerce-data)"
 )
 CDX = "https://web.archive.org/cdx/search/cdx"
 WAYBACK = "https://web.archive.org/web/{ts}id_/{url}"

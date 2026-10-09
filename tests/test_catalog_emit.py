@@ -13,12 +13,12 @@ import json
 
 import pytest
 
-from synthetic_industrial_products.catalog import emit
-from synthetic_industrial_products.catalog.config import SMALL
-from synthetic_industrial_products.catalog.generate import generate
-from synthetic_industrial_products.catalog.taxonomy import product_type_for_image
-from synthetic_industrial_products.catalog.vocab import STANDARDS_NAME
-from synthetic_industrial_products.render import UnknownProductError, renderer_for
+from synthetic_ecommerce_data.core import emit
+from synthetic_ecommerce_data.core.config import SMALL
+from synthetic_ecommerce_data.domains.industrial.generate import generate
+from synthetic_ecommerce_data.domains.industrial.render import UnknownProductError, renderer_for
+from synthetic_ecommerce_data.domains.industrial.taxonomy import product_type_for_image
+from synthetic_ecommerce_data.domains.industrial.vocab import STANDARDS_NAME
 
 CATALOG = generate(SMALL)
 
@@ -243,7 +243,7 @@ def test_the_nested_shape_carries_the_same_urls_as_the_flat_one():
 
 
 def test_a_malformed_image_id_is_refused():
-    from synthetic_industrial_products.catalog import taxonomy
+    from synthetic_ecommerce_data.domains.industrial import taxonomy
 
     for bad in ("end_mill_square", "", "/", "end_mill_square/X", "a/b/c", "x/y/z/w"):
         with pytest.raises(taxonomy.ImageIdError):

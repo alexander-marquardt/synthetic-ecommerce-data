@@ -37,8 +37,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from synthetic_industrial_products.catalog.bundle import flat_facets, records  # noqa: E402
-from synthetic_industrial_products.drawing import draw_product  # noqa: E402
+from synthetic_ecommerce_data.core.bundle import flat_facets, records  # noqa: E402
+from synthetic_ecommerce_data.core.drawing import draw_product  # noqa: E402
 
 
 def _load(catalog: Path) -> list[dict]:
@@ -201,7 +201,7 @@ def main() -> int:
     body = [
         "<!doctype html><meta charset=utf-8><title>Per-SKU drawings</title>",
         '<body style="font:13px system-ui;margin:16px">',
-        "<h2>Per-SKU drawings: no text in any drawing; captions are the page's</h2>",
+        "<h2>Per-SKU drawings: no text but the brand plate; captions are the page's</h2>",
         *_screw_lengths(products),
         *_washers(products),
         *_brands_across_a_type(products),

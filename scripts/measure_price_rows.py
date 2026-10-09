@@ -9,10 +9,10 @@ import itertools
 import statistics
 from collections import defaultdict
 
-from synthetic_industrial_products.catalog import brands, price
-from synthetic_industrial_products.catalog.config import GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate
-from synthetic_industrial_products.catalog.price_report import collect, price_rows, tier_order
+from synthetic_ecommerce_data.core import brands, price
+from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.domains.industrial.generate import generate
+from synthetic_ecommerce_data.domains.industrial.price_report import collect, price_rows, tier_order
 
 cat = generate(GeneratorConfig())
 col = collect(cat)
