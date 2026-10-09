@@ -1159,8 +1159,8 @@ report:
   15%), and the distinct prices per leaf (min and median);
 - the `check_catalog` problem count, the build time and the peak memory.
 
-The 578 templates come first: the 328 authored styles, then 74 deep-SKU jeans
-and bras that only the scaled catalog carries (`scale_rows.py`), then 176 toys,
+The 648 templates come first: the 328 authored styles, then 136 deep-SKU jeans,
+bras and shoes that only the scaled catalog carries (`scale_rows.py`), then 184 toys,
 garden, gifts, cleaning, food, beauty and home styles that hold every department at
 half its fair share of styles or more (`breadth_rows.py`). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
@@ -1177,10 +1177,10 @@ colorway alone. Its price is
 re-drawn inside its leaf's band, as a function of the values it changed (a
 premium material costs more). A draw whose title or description contradicts an
 attribute is refused, and `check_catalog` refuses such text too. The module
-docstring has the rules. Today's templates run out at 52,022 SKUs (2,659 styles),
+docstring has the rules. Today's templates run out at 76,417 SKUs (3,242 styles),
 and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
 values per leaf, more colorways, and more templates.
-`tests/test_retail_scale.py` holds it at the templates' SKUs plus 4,000 (its
+`tests/test_retail_scale.py` holds it at the templates' SKUs plus 4,500 (its
 `TARGET`, pinned to the template total so new templates never empty the
 derived-style sample), and holds the ceiling's grid clones at 15% or under too.
 

@@ -423,6 +423,20 @@ GARDEN = (
         "A tree with its branches spread flat on canes, ready to tie against a sunny wall.",
         (cw("Green", "#3a6b30", "solid", "#c8312e"),), _var("Egremont Russet"), label="Apple",
         colorless=True),
+    # Round 4 (gen#125): at the 75K ceiling, garden held 155 styles against a half share of 154.
+    Row("TULP20", "Yellow Triumph Tulip Bulbs, Pack of 20", "Thistle & Wren", "Garden", _TULIP,
+        "Bulbs", 8.0, "tulip",
+        "Sturdy bulbs for pots and borders, flowering in mid spring. Plant in fall, 15 cm deep.",
+        (cw("Yellow", "#f2c641", "solid", "#4f7a3a"),), _flower("Triumph"), colorless=True),
+    Row("STRP08", "Symphony Strawberry Plants, Pack of 8", "Fenwold Nursery", "Garden", _BERRY,
+        "Plant", 11.0, "strawberry",
+        "Young plants in 9 cm pots for a bed or a container, cropping from midsummer.",
+        (cw("Red", "#c32b2b", "solid", "#4f7a3a"),), _var("Symphony"), colorless=True),
+    Row("APLHLF", "Discovery Apple Tree, Half Standard", "Thistle & Wren", "Garden", _APPLE,
+        "Plant", 38.0, "potted_tree",
+        "A tree with a clear stem of about 1.2 m, for a lawn or a large border.",
+        (cw("Green", "#457a35", "solid", "#c8312e"),), _var("Discovery"), label="Apple",
+        colorless=True),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
@@ -755,6 +769,32 @@ CLEANING = (
         "A gel pot for a hallway or a small room that lasts about four weeks. "
         "Scented with vanilla.",
         _spray("Cream", "#ffffff"), _scent("Vanilla"), label="Gel", colorless=True),
+    # Growth round 4: a new fragrance in each leaf, so every row in it may take one more.
+    Row("LDRMEA", "Spring Meadow Laundry Liquid 1.4L", "Freshfold", _CJ, _LAUND,
+        "Laundry Detergent", 7.5, "bottle",
+        "A concentrated non-biological liquid for 40 washes, gentle on sensitive skin. "
+        "Scented with spring meadow.",
+        _spray("Aqua", "#ffffff"), _scent("Spring Meadow"), label="Laundry", colorless=True),
+    Row("LDRCAP", "Ocean Breeze Laundry Capsules", "Pantry Mill", _CJ, _LAUND,
+        "Laundry Detergent", 8.0, "tub",
+        "Three-chamber capsules in a child-lock tub: one per load, straight into the drum. "
+        "Scented with ocean breeze.",
+        _spray("Blue", "#ffffff"), _scent("Ocean Breeze"), label="Capsules", colorless=True),
+    Row("SFTJAS", "Jasmine Fabric Conditioner 1L", "Pantry Mill", _CJ, _SOFTEN,
+        "Fabric Softener", 2.5, "bottle",
+        "A light conditioner that softens towels and cuts creasing, for 33 loads. "
+        "Scented with jasmine.",
+        _spray("White", "#b9a3d0"), _scent("Jasmine"), label="Softener", colorless=True),
+    Row("LOOTGL", "Pine Thick Toilet Gel 750ml", "Freshfold", _CJ, _LOO, "Toilet Cleaner",
+        1.8, "bottle",
+        "An angled-neck gel that clings under the rim and lifts limescale overnight. "
+        "Scented with pine.",
+        _spray("Green", "#ffffff"), _scent("Pine"), label="Toilet", colorless=True),
+    Row("AIRAER", "Orange Blossom Air Freshener Aerosol 300ml", "Pantry Mill", _CJ, _AIR,
+        "Air Freshener", 1.5, "bottle",
+        "A quick burst for a kitchen or a bathroom that clears cooking smells. "
+        "Scented with orange blossom.",
+        _spray("Yellow", "#2a2a2e"), _scent("Orange Blossom"), label="Aerosol", colorless=True),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
