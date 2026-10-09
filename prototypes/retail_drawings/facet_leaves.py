@@ -121,6 +121,9 @@ BRA_LEAVES: dict[str, tuple[str, Facet, Facet, Facet]] = {
     "Post-Surgery Bras": ("Full Cup", None, None, None),
 }
 
+#: Stub (red commit): no fabric value moves yet.
+FABRIC_MOVES: dict[str, tuple[str | None, str | None]] = {}
+
 
 def _vocabulary() -> dict[str, set[str]]:
     """Every value of each :data:`BRA_KEYS` key that some leaf implies."""
