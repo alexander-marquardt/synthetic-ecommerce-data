@@ -362,6 +362,9 @@ class ClassRow:
     distractors: tuple[tuple[Style, str], ...]
     #: Queries in the word's other sense: the policy must still return that sense.
     controls: tuple[Control, ...] = ()
+    #: Set when a target may share the baseline top 3 (a word whose other sense also leads):
+    #: the claim for the row is then that this sense is in that top 3, not that no target is.
+    baseline_holds: Control | None = None
 
 
 #: Who makes a brand: the retailer ("own") or another house ("third_party").

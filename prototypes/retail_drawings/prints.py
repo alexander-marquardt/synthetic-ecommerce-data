@@ -395,9 +395,7 @@ LINES: tuple[Line, ...] = (
                  ("Enamel Mug", "White", WHITE, "A camping style enamel mug with a steel rim."),
                  ("Reactive Glaze Mug", "Sage", SAGE, "A mug with a pooling reactive glaze."),
                  ("Ribbed Mug", "Stone", STONE, "A ribbed stoneware mug."),
-                 # A Mug line item says "Mug": titled "Espresso Cup" it led the bare "cups"
-                 # baseline once the cups class (class 15) joined, burying its bras claim.
-                 ("Espresso Mug", "Black", BLACK, "A small mug for a strong espresso."),
+                 ("Espresso Cup", "Black", BLACK, "A small cup for a strong espresso."),
                  ("Footed Mug", "Grey", GREY, "A mug on a small foot, 300ml."),
                  ("Matte Mug", "Charcoal", "#4a4d52", "A matte stoneware mug."),
                  ("Porcelain Mug", "White", WHITE, "A fine porcelain mug."),
