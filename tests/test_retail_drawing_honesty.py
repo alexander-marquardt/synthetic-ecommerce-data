@@ -86,11 +86,8 @@ LABEL_DEBT: frozenset[tuple[str, str]] = frozenset({
 
 @pytest.fixture(scope="module")
 def records() -> list[dict[str, Any]]:
-    """The non-grocery styles (``scale.derivable``). The grocery styles still owe two things,
-    listed in the grocery-fold PR as a follow-up (gen#154): 106 butter and ice-cream styles
-    drawn as a ``tub`` whose title names no tub noun, and 1,974 styles (23 type/label pairs
-    such as Tinned, Snacks, Veg) whose label is a category fragment, not the title's noun."""
-    return scale.derivable(scale.build(CEILING_SKUS).records)
+    """Every style, grocery included: the one catalog is drawn by the one set of honesty rules."""
+    return scale.build(CEILING_SKUS).records
 
 
 def _noun(title: str) -> str:
