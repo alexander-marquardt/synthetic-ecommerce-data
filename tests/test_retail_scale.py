@@ -1,4 +1,4 @@
-"""The retail size parameter (gen#125): a target SKU count, reached from the 350 templates.
+"""The retail size parameter (gen#125): a target SKU count, reached from the templates.
 
 ``prototypes/retail_drawings/scale.py`` derives styles from the hand-authored
 ones until the SKUs reach the target. These tests hold it at the first load
@@ -29,12 +29,12 @@ import scale  # noqa: E402
 
 #: The first load: about 20K SKUs, about 1,000 styles.
 TARGET = 20_000
-#: The round 4 preview's 328 authored styles, then the 22 scale-only rows (``scale_rows``).
-TEMPLATES = 350
-SCALE_ROWS = 22
+#: The round 4 preview's 328 authored styles, then the scale-only rows (``scale_rows``).
+SCALE_ROWS = 42
+TEMPLATES = 328 + SCALE_ROWS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (2_044, 43_072)
+CAPACITY = (2_142, 53_494)
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's 2.6%
 #: (gen#136), rounded up to the 20K build's 2.8%. Growth must not dilute it.
 CEILING_NEAR_DUPLICATES = 0.028
@@ -245,6 +245,22 @@ def test_every_scale_only_row_opens_a_leaf_or_a_title_value_its_leaf_lacked():
         )
         assert (r["category_leaf"], value) not in seen, r["product_id"]
         seen.add((r["category_leaf"], value))
+
+
+def test_a_scale_only_bra_describes_its_own_straps_and_fastening():
+    """A front-fastening, sleep or bandeau bra has no three-row hook and eye back."""
+    rows = scale.scale_rows
+    bras = [s for s in rows.FAMILIES["Bras"] if isinstance(s, rows.Bra)]
+    own = [s for s in bras if s.fitting != rows.HOOK_BACK]
+    assert len(own) == 10
+    for s in bras:
+        (doc,) = rows.style_docs("Bras", s)
+        assert f"with {s.fitting}, in " in doc["description"], s.code
+    front = [s for s in own if s.kind in ("Front Fastening", "Sleep")]
+    for s in front:
+        (doc,) = rows.style_docs("Bras", s)
+        assert "hook and eye" not in doc["description"], s.code
+    assert len(front) == 3
 
 
 def test_the_invented_names_are_new_and_never_repeat():

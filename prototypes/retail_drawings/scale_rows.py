@@ -10,8 +10,11 @@ Each row adds capacity to :mod:`scale` in one of two ways:
 
 - a leaf's title-visible value it lacked: a mid rise skinny, a non-wired plunge.
   The leaf's other templates may then take it too (:func:`scale.value_pools`);
-- a new leaf: cigarette and balloon jeans, push-up, longline, multiway and lace
-  plunge bras.
+- a new leaf: cigarette and balloon jeans; push-up, longline, multiway, lace
+  plunge, bralette, front fastening, sleep, racerback, halterneck, triangle,
+  padded, demi cup, lace full cup, bandeau, smoothing and high apex bras.
+
+A :class:`Bra` row names its own straps and fastening in the description.
 
 ``Calderwick Denim`` is a third invented denim label: as a template brand it
 joins the jeans brand pool only (:func:`scale.brand_pools`).
@@ -19,7 +22,26 @@ joins the jeans brand pool only (:func:`scale.brand_pools`).
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from variants import WASHES, BraStyle, JeanStyle, cw, style_docs
+
+#: :class:`variants.BraStyle`'s straps and fastening, as its description words them.
+HOOK_BACK = "adjustable straps and a three-row hook and eye back"
+
+
+@dataclass(frozen=True)
+class Bra(BraStyle):
+    """A :class:`variants.BraStyle` whose description names its own straps and fastening:
+    a front-fastening, sleep or bandeau bra has no three-row hook and eye back."""
+
+    fitting: str = HOOK_BACK
+
+    def doc(self) -> dict:
+        rec = super().doc()
+        return {**rec, "description": rec["description"].replace(HOOK_BACK, self.fitting)}
+
+
 
 _W = tuple(WASHES)
 _BLACK, _WHITE, _NUDE = cw("Black", "#2a2a2e"), cw("White", "#ffffff"), cw("Almond", "#d9b79a")
@@ -79,6 +101,61 @@ BRAS = (
              (_BLACK, _WHITE, cw("Wine", "#5e1a2c")), 25.0),
     BraStyle("RUDSTON", "Rudston", "Saltmarsh", "Sports", (30, 42), ("B", "G"),
              (_BLACK, cw("Navy", "#26365c")), 32.0, fabric="Recycled Polyester, Elastane"),
+    # A wiring the leaf lacked.
+    Bra("ORMESBY", "Ormesby", "Saltmarsh", "Push-Up", (30, 38), ("A", "E"),
+        (_NUDE, _BLACK, _WHITE, cw("Berry", "#8c2a4f")), 22.0, wired=False),
+    Bra("CARNBREA", "Carnbrea", "Saltmarsh", "Longline", (30, 40), ("A", "F"),
+        (cw("Sage", "#9bb08f"), _BLACK, _NUDE, cw("Oat", "#d8ccb4")), 24.0, wired=False),
+    Bra("LINDALE", "Lindale", "Bramblewood", "Lace Plunge", (28, 38), ("AA", "E"),
+        (cw("Blush", "#e8b9b3"), _BLACK, _WHITE, cw("Midnight", "#1f2440")), 21.0, wired=False),
+    Bra("WYNCOTE", "Wyncote", "Saltmarsh", "Lace Balcony", (30, 38), ("A", "F"),
+        (cw("Ivory", "#f3ecd9"), _BLACK, cw("Forest", "#2f4a3a")), 23.0, wired=False),
+    # A new leaf.
+    Bra("FERNLEA", "Fernlea", "Bramblewood", "Bralette", (30, 40), ("A", "F"),
+        (_BLACK, cw("Ivory", "#f3ecd9"), cw("Dusty Rose", "#c99a9a"), cw("Sage", "#9bb08f"),
+         cw("Lavender", "#b8a9d6")), 18.0, wired=False,
+        fitting="adjustable straps and a two-row hook and eye back"),
+    Bra("HESKETH", "Hesketh", "Saltmarsh", "Front Fastening", (32, 44), ("B", "G"),
+        (_WHITE, _BLACK, _NUDE), 26.0, fitting="adjustable straps and a front clasp"),
+    Bra("TREGONY", "Tregony", "Bramblewood", "Front Fastening", (32, 46), ("B", "H"),
+        (_NUDE, _BLACK, cw("Navy", "#26365c")), 22.0, wired=False, fabric="Cotton, Elastane",
+        fitting="adjustable straps and a front clasp"),
+    Bra("MOSSLEY", "Mossley", "Saltmarsh", "Sleep", (32, 44), ("A", "G"),
+        (cw("Grey Marl", "#9a9ca0"), _BLACK, cw("Blush", "#e8b9b3"), cw("Navy", "#26365c")),
+        15.0, wired=False, fabric="Modal, Elastane",
+        fitting="wide soft straps and a pull-on fit with no fastening"),
+    Bra("CRANWELL", "Cranwell", "Bramblewood", "Racerback", (30, 40), ("A", "G"),
+        (_BLACK, _NUDE, _WHITE), 24.0,
+        fitting="straps that clip into a racerback and a two-row hook and eye back"),
+    Bra("DINSDALE", "Dinsdale", "Saltmarsh", "Racerback", (30, 40), ("A", "E"),
+        (cw("Grey Marl", "#9a9ca0"), _BLACK, cw("Teal", "#2e7d7a")), 20.0, wired=False,
+        fabric="Cotton, Elastane",
+        fitting="straps that clip into a racerback and a two-row hook and eye back"),
+    Bra("POLWENNA", "Polwenna", "Bramblewood", "Halterneck", (30, 38), ("A", "F"),
+        (_BLACK, cw("Champagne", "#e6d3b3"), cw("Emerald", "#1f6b4f")), 27.0,
+        fitting="a halterneck strap that fastens at the neck and a three-row hook and eye "
+                "back"),
+    Bra("IVELET", "Ivelet", "Bramblewood", "Triangle", (28, 36), ("AA", "D"),
+        (cw("Coral", "#ef7b62"), _BLACK, _WHITE, cw("Lilac", "#b9a3d0")), 16.0, wired=False,
+        fitting="thin adjustable straps and a two-row hook and eye back"),
+    Bra("KIRKHAM", "Kirkham", "Saltmarsh", "Padded", (30, 40), ("A", "E"),
+        (cw("Mocha", "#7b5a45"), _BLACK, _NUDE, _WHITE), 22.0),
+    Bra("LOWTHER", "Lowther", "Bramblewood", "Padded", (30, 40), ("A", "E"),
+        (cw("Rose", "#d98a96"), _BLACK, _NUDE), 19.0, wired=False),
+    Bra("RYDAL", "Rydal", "Bramblewood", "Demi Cup", (30, 38), ("A", "F"),
+        (cw("Wine", "#5e1a2c"), _BLACK, cw("Ivory", "#f3ecd9")), 25.0),
+    Bra("WHARRAM", "Wharram", "Saltmarsh", "Lace Full Cup", (32, 46), ("B", "J"),
+        (cw("Ivory", "#f3ecd9"), _BLACK, cw("Navy", "#26365c"), cw("Plum", "#6b3a5a")), 29.0),
+    Bra("HAWKRIDGE", "Hawkridge", "Bramblewood", "Lace Full Cup", (32, 44), ("B", "G"),
+        (_BLACK, _WHITE, cw("Fawn", "#c4a484")), 25.0, wired=False),
+    Bra("TREEN", "Treen", "Bramblewood", "Bandeau", (30, 38), ("A", "E"),
+        (_NUDE, _BLACK, _WHITE), 17.0, wired=False,
+        fitting="a strapless band with a silicone grip and a three-row hook and eye back"),
+    Bra("SKELWITH", "Skelwith", "Saltmarsh", "Smoothing", (32, 44), ("B", "H"),
+        (cw("Latte", "#c8a98a"), _BLACK, _WHITE), 28.0,
+        fitting="wide adjustable straps and a four-row hook and eye back"),
+    Bra("NETHERCOTE", "Nethercote", "Bramblewood", "High Apex", (30, 40), ("C", "HH"),
+        (_BLACK, cw("Claret", "#7a1f35"), _NUDE, cw("Petrol", "#1f4f5a")), 30.0),
 )  # fmt: skip
 
 #: family -> its scale-only styles, in build order.
