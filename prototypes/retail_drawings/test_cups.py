@@ -131,3 +131,18 @@ def test_a_control_whose_policy_top_3_leaves_its_sense_is_refused() -> None:
     cups = next(r for r in bad["rows"] if r["query"] == "cups")
     bad["controls"][0]["policy"][1] = cups["policy"][0]
     assert rc.verdicts(bad, CORPUS) == ["'d cup bra' (control): the policy top 3 is not all a bra"]
+
+
+def test_the_cups_claim_is_that_a_bra_leads_the_baseline_and_a_cup_may_too() -> None:
+    assert getattr(_cups(), "baseline_holds", None) is not None
+    by_id = {d["product_id"]: d for d in CORPUS}
+    cups = next(r for r in PROOF["rows"] if r["query"] == "cups")
+    top3 = [by_id[h["product_id"]] for h in cups["baseline"][:3]]
+    assert any(getattr(_cups(), "baseline_holds").is_intended(d) for d in top3)
+
+
+def test_a_cups_baseline_top_3_without_a_bra_is_refused() -> None:
+    bad = copy.deepcopy(PROOF)
+    cups = next(r for r in bad["rows"] if r["query"] == "cups")
+    cups["baseline"][:3] = cups["policy"][:3]
+    assert rc.verdicts(bad, CORPUS) == ["'cups': the baseline top 3 holds no a bra"]
