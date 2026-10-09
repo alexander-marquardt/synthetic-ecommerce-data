@@ -33,8 +33,10 @@ from build_preview4 import samples
 
 from synthetic_ecommerce_data.core.entry import split
 
-#: Served beside the industrial bundle under one images mount (``/images/<root>``).
-IMAGE_BASE_URL = "/images/retail"
+#: The image package's top-level folder (:mod:`image_release`), served beside the
+#: industrial bundle's under one images mount, so a URL is ``/images/<root>/<path>``.
+IMAGE_ROOT = "retail"
+IMAGE_BASE_URL = f"/images/{IMAGE_ROOT}"
 
 #: SKU option -> (key, name, unit): one variant-level entry each; a unit splits it.
 OPTIONS: dict[str, tuple[str, str, str | None]] = {
