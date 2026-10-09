@@ -32,13 +32,13 @@ import scale  # noqa: E402
 TARGET = 19_000
 #: The round 4 preview's 328 authored styles, then the scale-only rows (``scale_rows``),
 #: then the breadth rows (``breadth_rows``).
-SCALE_ROWS = 62
+SCALE_ROWS = 74
 AUTHORED = 328
-BREADTH_ROWS = 151
+BREADTH_ROWS = 176
 TEMPLATES = AUTHORED + SCALE_ROWS + BREADTH_ROWS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (2_357, 44_923)
+CAPACITY = (2_659, 52_022)
 #: The grid-clone share the ceiling build may reach (:func:`scale.grid_clones`). Round 2
 #: measured 14.4%: the rest is the headroom the 50K and 100K rounds may spend.
 CEILING_GRID_CLONES = 0.15
@@ -93,7 +93,9 @@ def test_the_templates_come_first_and_a_small_target_takes_a_prefix(built):
 
 
 def test_the_build_is_deterministic_by_seed():
-    a, b, c = scale.build(16_000, seed=3), scale.build(16_000, seed=3), scale.build(16_000, seed=4)
+    # TARGET, not a smaller size: the templates alone hold 16,977 SKUs, and a build of
+    # templates only takes no seeded draw.
+    a, b, c = scale.build(TARGET, seed=3), scale.build(TARGET, seed=3), scale.build(TARGET, seed=4)
     assert a.records == b.records
     assert [r["title"] for r in a.records] != [r["title"] for r in c.records]
 
@@ -272,12 +274,13 @@ def _string_fields(drawing: dict[str, Any]) -> dict[str, str]:
     return out
 
 
-def test_a_changed_value_is_redrawn_in_the_picture(pairs):
+def test_a_changed_value_is_redrawn_in_the_picture(ceiling_pairs):
     """Every string field of the drawing, top level and ``params``, follows a changed value:
-    a graphic tee carries its ``motif`` at the top level, not in ``params``."""
+    a graphic tee carries its ``motif`` at the top level, not in ``params``. It reads the
+    ceiling: at 19K the templates leave too few derived styles to reach a motif."""
     redrawn = top_level = 0
     drawn = _motif_drawn()  # the drawn motif may not be the value: Cherry draws cherries
-    for r, t in pairs:
+    for r, t in ceiling_pairs:
         changed = {old.lower(): new for old, new in _changed(r, t).values()}
         motif = {a["value"].lower(): a["value"] for a in t["attributes"] if a["key"] == "motif"}
         mine = _string_fields(r["drawing"])
@@ -601,7 +604,7 @@ def test_a_scale_only_bra_describes_its_own_straps_and_fastening():
     rows = scale.scale_rows
     bras = [s for s in rows.FAMILIES["Bras"] if isinstance(s, rows.Bra)]
     own = [s for s in bras if s.fitting != rows.HOOK_BACK]
-    assert len(own) == 14
+    assert len(own) == 16
     for s in bras:
         (doc,) = rows.style_docs("Bras", s)
         assert f"with {s.fitting}, in " in doc["description"], s.code
@@ -656,7 +659,10 @@ def test_a_duvets_drawn_tog_is_its_tog_attribute(built):
 #: text names another record's value of the key (a "Herbal" title on an Assam, a "Spiral"
 #: description on a Bush) contradicts its own SKUs. Add a key here when a new template
 #: names one.
-SAID_ATTRIBUTES = ("blend", "form", "variety", "fruit", "origin", "power", "charm", "flower_form")
+SAID_ATTRIBUTES = (
+    "blend", "form", "variety", "fruit", "origin", "power", "charm", "flower_form", "flavor",
+    "pasta_shape", "fabric",
+)  # fmt: skip
 #: Words that say a value without being it: (key, word) -> the values the word is true of.
 #: Herbal teas are the blends that hold no tea leaf; a cone is clipped to a point and a
 #: spiral is trained round a cane.
