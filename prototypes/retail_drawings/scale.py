@@ -11,7 +11,7 @@ and, with ``--out``, writes the standard nested documents as JSONL.
 :func:`build` keeps the hand-authored styles first, as templates: the round 4
 preview's 328 (:func:`build_preview4.samples`), then the deep-SKU jeans and bras
 only the scaled catalog carries (:mod:`scale_rows`), then the toys, garden, gifts,
-cleaning, food and beauty styles that give every department its share
+cleaning, food, beauty and home styles that give every department its share
 (:mod:`breadth_rows`); both are data only.
 It derives further styles until the SKUs reach the target.
 A derived style copies one template and changes, deterministically from the seed:
@@ -65,7 +65,7 @@ price with another.
 
 **Capacity.** Signatures bound the build: per template, the shown values its leaf
 offers times its color families. With today's templates every template is
-exhausted at 44,923 SKUs (2,357 styles). Past that, the CLI reports
+exhausted at 52,022 SKUs (2,659 styles). Past that, the CLI reports
 ``reached_target: false`` and exits 2. To grow it, add data, not code: more values
 per leaf that the title shows, more colorways, and more templates, deep-SKU ones
 above all.

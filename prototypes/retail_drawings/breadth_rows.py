@@ -784,6 +784,15 @@ def _origin(v: str) -> tuple[tuple[str, str, str], ...]:
     return (("origin", "Origin", v),)
 
 
+def _shape(v: str) -> tuple[tuple[str, str, str], ...]:
+    return (("pasta_shape", "Pasta shape", v),)
+
+
+_CRISPS = ("Food & Drink", "Snacks", "Crisps")
+_OIL = ("Food & Drink", "Pantry", "Olive Oil")
+_PASTA = ("Food & Drink", "Pantry", "Pasta")
+
+
 FOOD = (
     Row("TEABRK", "English Breakfast Tea, 80 Bags", "Hearth & Table", _FD, _TEA, "Tea", 3.5,
         "box", "Round bags in a recyclable box, for a strong cup with or without milk.",
@@ -870,6 +879,55 @@ FOOD = (
         4.0, "jar", "A ploughman's chutney in a 340 g jar, boxed with a recipe card.",
         (cw("Brown", "#7a5a3a", "solid", "#d4af37"),), _flavor("Apple and Ale"),
         label="Chutney", colorless=True),
+    # Growth round 3: crisps by flavor, olive oil by origin, pasta by shape.
+    Row("CRSSEA", "Sea Salt Hand Cooked Crisps", "Pantry Mill", _FD, _CRISPS, "Crisps", 1.6,
+        "crisps_bag", "Thick-cut potatoes cooked in small batches, in a sharing bag.",
+        (cw("Navy", "#26365c", "solid", "#efe8d8"),), _flavor("Sea Salt"),
+        (("150g", 1.6), ("6 x 25g", 2.2)), "Crisps", colorless=True),
+    Row("CRSCHO", "Cheese & Onion Crinkle Cut Crisps", "Freshfold", _FD, _CRISPS, "Crisps", 1.5,
+        "crisps_bag", "Ridged crisps with a crunch that holds a dip, in a sharing bag.",
+        (cw("Green", "#4f7a3a", "solid", "#efe8d8"),), _flavor("Cheese & Onion"),
+        (("150g", 1.5), ("6 x 25g", 2.0)), "Crisps", colorless=True),
+    Row("CRSVIN", "Salt & Vinegar Lattice Crisps", "Hearth & Table", _FD, _CRISPS, "Crisps",
+        1.8, "crisps_bag", "Lattice-cut potato crisps, cooked in sunflower oil.",
+        (cw("Teal", "#1c7c7d", "solid", "#efe8d8"),), _flavor("Salt & Vinegar"),
+        label="Crisps", colorless=True),
+    Row("CRSPAP", "Smoked Paprika Ridged Crisps", "Pantry Mill", _FD, _CRISPS, "Crisps", 1.7,
+        "crisps_bag", "Deep ridged crisps for a party bowl, in a resealable bag.",
+        (cw("Red", "#9e2a2b", "solid", "#efe8d8"),), _flavor("Smoked Paprika"),
+        label="Crisps", colorless=True),
+    Row("OILGRK", "Greek Extra Virgin Olive Oil", "Hearth & Table", _FD, _OIL, "Olive Oil",
+        6.0, "bottle", "Cold pressed from a single harvest, for dressings and dipping bread.",
+        (cw("Green", "#4f7a3a", "solid", "#d4af37"),), _origin("Greek"),
+        (("500ml", 6.0), ("1L", 10.5)), "Olive Oil", colorless=True),
+    Row("OILSPA", "Spanish Extra Virgin Olive Oil", "Pantry Mill", _FD, _OIL, "Olive Oil", 5.0,
+        "bottle", "A fruity first pressing in a dark glass bottle that keeps out the light.",
+        (cw("Black", "#2a2a2e", "solid", "#d4af37"),), _origin("Spanish"),
+        (("500ml", 5.0), ("1L", 9.0)), "Olive Oil", colorless=True),
+    Row("OILITA", "Italian Extra Virgin Olive Oil Tin", "Freshfold", _FD, _OIL, "Olive Oil",
+        12.0, "tin", "A 750 ml tin of peppery oil, picked early in the season.",
+        (cw("Red", "#9e2a2b", "solid", "#efe8d8"),), _origin("Italian"), label="Olive Oil",
+        colorless=True),
+    Row("OILPOR", "Portuguese Extra Virgin Olive Oil", "Hearth & Table", _FD, _OIL, "Olive Oil",
+        7.0, "bottle", "A mild, buttery oil for cooking and finishing, in a 500 ml bottle.",
+        (cw("Teal", "#1c7c7d", "solid", "#d4af37"),), _origin("Portuguese"), label="Olive Oil",
+        colorless=True),
+    Row("PSTPEN", "Penne Durum Wheat Pasta", "Pantry Mill", _FD, _PASTA, "Pasta", 1.0, "box",
+        "Bronze die cut for a rough surface that holds the sauce. Cooks in 11 minutes.",
+        (cw("Blue", "#3f6fb5", "solid", "#efe8d8"),), _shape("Penne"),
+        (("500g", 1.0), ("1kg", 1.8)), "Pasta", colorless=True),
+    Row("PSTFUS", "Fusilli Durum Wheat Pasta", "Hearth & Table", _FD, _PASTA, "Pasta", 1.2,
+        "box", "Slow dried at a low heat for a firm bite. Cooks in 10 minutes.",
+        (cw("Red", "#9e2a2b", "solid", "#efe8d8"),), _shape("Fusilli"),
+        (("500g", 1.2), ("1kg", 2.1)), "Pasta", colorless=True),
+    Row("PSTRIG", "Rigatoni Organic Pasta", "Freshfold", _FD, _PASTA, "Pasta", 1.6, "box",
+        "Made from organic durum wheat semolina and water, nothing else.",
+        (cw("Green", "#4f7a3a", "solid", "#efe8d8"),), _shape("Rigatoni"), label="Pasta",
+        colorless=True),
+    Row("PSTFAR", "Farfalle Durum Wheat Pasta", "Pantry Mill", _FD, _PASTA, "Pasta", 1.1, "box",
+        "A 500 g box for a family pasta bake. Cooks in 12 minutes.",
+        (cw("Yellow", "#f2d14b", "solid", "#2a2a2e"),), _shape("Farfalle"), label="Pasta",
+        colorless=True),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
@@ -924,9 +982,80 @@ BEAUTY = (
         colorless=True),
 )  # fmt: skip
 
+# --------------------------------------------------------------------------
+# Home (growth round 3): the cushion's or towel's fabric and the basket's material
+# vary; the shape is drawn in the hero color.
+# --------------------------------------------------------------------------
+
+_CUSH = ("Home", "Soft Furnishings", "Cushions")
+_TOWEL = ("Home", "Bathroom", "Bath Towels")
+_BASKET = ("Home", "Storage", "Storage Baskets")
+_TWL = (("Hand Towel", 8.0), ("Bath Towel", 14.0), ("Bath Sheet", 22.0))
+
+HOME = (
+    Row("CSHVEL", "Velvet Piped Cushion", "Hearth & Table", "Home", _CUSH, "Cushion", 18.0,
+        "cushion", "A square cushion with a piped edge and a feather pad. Zip opening.",
+        (cw("Teal", "#1c7c7d"), cw("Mustard", "#d4a32a"), cw("Blush", "#e8b9b3"),
+         cw("Navy", "#26365c")), _fab("Velvet"), (("45 x 45cm", 18.0), ("55 x 55cm", 24.0))),
+    Row("CSHLIN", "Linen Fringed Cushion", "Lanternby", "Home", _CUSH, "Cushion", 22.0,
+        "cushion", "A square cushion with a knotted fringe and a hollowfibre pad.",
+        (cw("Oat", "#d8c9a8"), cw("Sage", "#9bb08f"), cw("Rust", "#a4502a")), _fab("Linen"),
+        (("45 x 45cm", 22.0), ("55 x 55cm", 28.0))),
+    Row("CSHBOU", "Boucle Bolster Cushion", "Calderby & Lune", "Home", _CUSH, "Cushion", 26.0,
+        "cushion", "A long round bolster with gathered ends, for a sofa arm or a bed.",
+        (cw("Cream", "#efe8d8"), cw("Taupe", "#8b7d6b"), cw("Charcoal", "#3b3b3e")),
+        _fab("Boucle"), label="Bolster"),
+    Row("CSHCHN", "Chenille Oblong Cushion", "Hearth & Table", "Home", _CUSH, "Cushion", 20.0,
+        "cushion", "A 30 x 50 cm cushion with a feather pad, for a chair or a window seat.",
+        (cw("Ochre", "#c9873a"), cw("Forest", "#2f5a3a"), cw("Dove Grey", "#b5b5b0")),
+        _fab("Chenille")),
+    Row("CSHCRD", "Corduroy Pleated Cushion", "Lanternby", "Home", _CUSH, "Cushion", 24.0,
+        "cushion", "A round cushion pleated to a covered button at its centre.",
+        (cw("Terracotta", "#c46a4a"), cw("Olive", "#6b6b3a"), cw("Ivory", "#f3ecd9")),
+        _fab("Corduroy")),
+    Row("TWLORG", "Organic Cotton Bath Towel", "Hearth & Table", "Home", _TOWEL, "Towel", 8.0,
+        "bath_towel", "A soft, absorbent towel with a hanging loop. Machine wash at 40.",
+        (cw("White", "#ffffff"), cw("Sage", "#9bb08f"), cw("Slate", "#5a6470"),
+         cw("Blush", "#e8b9b3")), _fab("Organic Cotton"), _TWL),
+    Row("TWLBAM", "Bamboo Bath Towel", "Calderby & Lune", "Home", _TOWEL, "Towel", 10.0,
+        "bath_towel", "A silky, quick-drying towel with a woven border and a hanging loop.",
+        (cw("Ivory", "#f3ecd9"), cw("Charcoal", "#3b3b3e"), cw("Duck Egg", "#a9c9c4")),
+        _fab("Bamboo"), (("Hand Towel", 10.0), ("Bath Towel", 18.0), ("Bath Sheet", 28.0))),
+    Row("TWLTRK", "Turkish Cotton Bath Towel", "Lanternby", "Home", _TOWEL, "Towel", 9.0,
+        "bath_towel", "A heavy towel woven with long loops, with a hanging loop. Machine wash.",
+        (cw("Navy", "#26365c"), cw("White", "#ffffff"), cw("Mustard", "#d4a32a"),
+         cw("Stone", "#c9bfae")), _fab("Turkish Cotton"),
+        (("Hand Towel", 9.0), ("Bath Towel", 16.0), ("Bath Sheet", 25.0))),
+    Row("TWLZRO", "Zero Twist Cotton Bath Towel", "Hearth & Table", "Home", _TOWEL, "Towel",
+        11.0, "bath_towel", "A light, fluffy towel that dries fast. Tumble dry low.",
+        (cw("Pale Pink", "#f2c9cf"), cw("Teal", "#1c7c7d"), cw("Cloud Grey", "#cfd1d3")),
+        _fab("Zero Twist Cotton"),
+        (("Hand Towel", 11.0), ("Bath Towel", 19.0), ("Bath Sheet", 30.0))),
+    Row("BSKSEA", "Seagrass Lidded Storage Basket", "Lanternby", "Home", _BASKET,
+        "Storage Basket", 22.0, "box_wide",
+        "A woven basket with a fitted lid and two handles, for blankets or toys.",
+        (cw("Natural", "#c9a96e"), cw("Black", "#2a2a2e")), _mat("Seagrass"),
+        (("Medium", 22.0), ("Large", 30.0))),
+    Row("BSKRAT", "Rattan Round Storage Basket", "Calderby & Lune", "Home", _BASKET,
+        "Storage Basket", 26.0, "box_wide",
+        "A round woven basket with cut-out handles, for a shelf or a bathroom floor.",
+        (cw("Honey", "#c48a3a"), cw("Natural", "#c9a96e")), _mat("Rattan"),
+        (("Small", 18.0), ("Medium", 26.0))),
+    Row("BSKHYA", "Water Hyacinth Storage Basket", "Hearth & Table", "Home", _BASKET,
+        "Storage Basket", 24.0, "box_wide",
+        "A chunky woven basket on a metal frame that keeps its shape, with rope handles.",
+        (cw("Natural", "#c9a96e"), cw("Grey Wash", "#9a9a94")), _mat("Water Hyacinth"),
+        (("Medium", 24.0), ("Large", 32.0))),
+    Row("BSKFLT", "Felt Storage Basket", "Lanternby", "Home", _BASKET, "Storage Basket", 14.0,
+        "box_wide", "A soft folding basket with stitched loop handles, for a cube shelf.",
+        (cw("Grey Marl", "#9a9ca0"), cw("Charcoal", "#3b3b3e"), cw("Oat", "#d8c9a8")),
+        _mat("Felt")),
+)  # fmt: skip
+
 #: Every breadth row, by department.
 DEPARTMENTS = {
     "Toys": TOYS, "Garden": GARDEN, "Gifts": GIFTS, _CJ: CLEANING, _FD: FOOD, "Beauty": BEAUTY,
+    "Home": HOME,
 }  # fmt: skip
 
 

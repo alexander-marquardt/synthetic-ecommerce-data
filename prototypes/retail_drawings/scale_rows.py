@@ -14,7 +14,8 @@ Each row adds capacity to :mod:`scale` in one of two ways:
   flare jeans (each a :data:`kit_garments.FITS` outline); push-up, longline,
   multiway, lace plunge, bralette, front fastening, sleep, racerback,
   halterneck, triangle, padded, demi cup, lace full cup, bandeau, smoothing,
-  high apex, embroidered balcony, lace bralette, low back and post-surgery bras.
+  high apex, embroidered balcony, lace bralette, low back, post-surgery, moulded
+  cup, spacer cup, side support, seamless, contour and cross back bras.
 
 A :class:`Bra` row names its own straps and fastening in the description.
 
@@ -211,6 +212,33 @@ BRAS = (
     Bra("STAITHES", "Staithes", "Saltmarsh", "Post-Surgery", (32, 44), ("A", "F"),
         (cw("Soft Grey", "#b9bbbe"), _NUDE, _BLACK), 22.0, wired=False, fabric="Cotton, Elastane",
         fitting="soft wide straps, a front hook and eye fastening and pocketed cups"),
+    # Growth round 3: six leaves, each wired and non-wired.
+    Bra("LASTINGHAM", "Lastingham", "Bramblewood", "Moulded Cup", (30, 40), ("A", "F"),
+        (_BLACK, _NUDE, _WHITE, cw("Mink", "#8a7266")), 21.0),
+    Bra("CROPTON", "Cropton", "Saltmarsh", "Moulded Cup", (30, 42), ("A", "E"),
+        (_NUDE, _BLACK, cw("Dusky Pink", "#c99a9e")), 18.0, wired=False),
+    Bra("GOATHLAND", "Goathland", "Saltmarsh", "Spacer Cup", (30, 44), ("A", "G"),
+        (_BLACK, _NUDE, cw("Navy", "#26365c"), cw("Ivory", "#f3ecd9")), 26.0),
+    Bra("LEVISHAM", "Levisham", "Bramblewood", "Spacer Cup", (30, 40), ("A", "F"),
+        (cw("Sage", "#9bb08f"), _BLACK, _WHITE), 22.0, wired=False),
+    Bra("HACKNESS", "Hackness", "Saltmarsh", "Side Support", (32, 46), ("C", "H"),
+        (_BLACK, _WHITE, _NUDE, cw("Plum", "#6b3a5a")), 28.0),
+    Bra("EBBERSTON", "Ebberston", "Bramblewood", "Side Support", (32, 44), ("C", "G"),
+        (_NUDE, _BLACK, cw("Teal", "#2e7d7a")), 25.0, wired=False),
+    Bra("GROSMONT", "Grosmont", "Bramblewood", "Seamless", (30, 40), ("A", "F"),
+        (_NUDE, _BLACK, _WHITE, cw("Latte", "#c8a98a")), 20.0),
+    Bra("EGTONBRIDGE", "Egtonbridge", "Saltmarsh", "Seamless", (30, 42), ("A", "E"),
+        (_BLACK, cw("Soft Grey", "#b9bbbe"), _NUDE), 16.0, wired=False),
+    Bra("DANBYDALE", "Danbydale", "Saltmarsh", "Contour", (30, 42), ("A", "G"),
+        (_BLACK, _NUDE, cw("Claret", "#7a1f35"), _WHITE), 24.0),
+    Bra("CASTLETON", "Castleton", "Bramblewood", "Contour", (30, 40), ("A", "F"),
+        (cw("Rose", "#d98a96"), _BLACK, _NUDE), 19.0, wired=False),
+    Bra("SLEIGHTS", "Sleights", "Bramblewood", "Cross Back", (30, 40), ("A", "F"),
+        (_BLACK, cw("Cobalt", "#2b4fa8"), _WHITE), 23.0,
+        fitting="adjustable straps that cross at the back and a two-row hook and eye"),
+    Bra("HAWSKER", "Hawsker", "Saltmarsh", "Cross Back", (30, 42), ("A", "E"),
+        (cw("Coral", "#ef7b62"), _BLACK, _NUDE, cw("Grey Marl", "#9a9ca0")), 18.0, wired=False,
+        fitting="adjustable straps that cross at the back and a two-row hook and eye"),
 )  # fmt: skip
 
 #: family -> its scale-only styles, in build order.
