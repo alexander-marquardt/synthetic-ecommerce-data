@@ -30,11 +30,11 @@ import scale  # noqa: E402
 #: The first load: about 20K SKUs, about 1,000 styles.
 TARGET = 20_000
 #: The round 4 preview's 328 authored styles, then the scale-only rows (``scale_rows``).
-SCALE_ROWS = 42
+SCALE_ROWS = 62
 TEMPLATES = 328 + SCALE_ROWS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (2_142, 53_494)
+CAPACITY = (2_305, 65_271)
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's 2.6%
 #: (gen#136), rounded up to the 20K build's 2.8%. Growth must not dilute it.
 CEILING_NEAR_DUPLICATES = 0.028
@@ -252,7 +252,7 @@ def test_a_scale_only_bra_describes_its_own_straps_and_fastening():
     rows = scale.scale_rows
     bras = [s for s in rows.FAMILIES["Bras"] if isinstance(s, rows.Bra)]
     own = [s for s in bras if s.fitting != rows.HOOK_BACK]
-    assert len(own) == 10
+    assert len(own) == 14
     for s in bras:
         (doc,) = rows.style_docs("Bras", s)
         assert f"with {s.fitting}, in " in doc["description"], s.code
