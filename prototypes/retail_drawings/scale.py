@@ -1,4 +1,4 @@
-"""The retail catalog at any size: a target SKU count, reached from the 350 templates (gen#125).
+"""The retail catalog at any size: a target SKU count, reached from the templates (gen#125).
 
 Usage::
 
@@ -8,7 +8,7 @@ prints the coverage and distinctness report as JSON, checks every document
 against the output standard (:func:`synthetic_ecommerce_data.core.standard.check_catalog`)
 and, with ``--out``, writes the standard nested documents as JSONL.
 
-:func:`build` keeps the 350 hand-authored styles first, as templates: the round 4
+:func:`build` keeps the hand-authored styles first, as templates: the round 4
 preview's 328 (:func:`build_preview4.samples`), then the deep-SKU jeans and bras
 only the scaled catalog carries (:mod:`scale_rows`, data only).
 It derives further styles until the SKUs reach the target.
@@ -40,9 +40,9 @@ department by a Zipf weight, so leaf sizes keep a long tail. A template whose
 draws keep colliding is exhausted and leaves the pool.
 
 **Capacity.** Twins bound the build: per template, its type's brands times the
-title-visible values its leaf offers. With today's templates every template is
-exhausted at 2,044 styles and 43,072 SKUs. Past that, the CLI reports ``reached_target: false``
-and exits 2. To grow it, add data, not code: more brands per type
+title-visible values its leaf offers. Every template is exhausted at the ceiling
+``tests/test_retail_scale.py`` pins (``CAPACITY``). Past that, the CLI reports
+``reached_target: false`` and exits 2. To grow it, add data, not code: more brands per type
 (:data:`EXTRA_BRANDS`, or templates with new brands), more values per leaf that
 the title shows, and more templates, deep-SKU ones above all.
 
