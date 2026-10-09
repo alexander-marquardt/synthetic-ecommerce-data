@@ -1238,11 +1238,12 @@ every other drawing -- only the GEOMETRY is fixed.
   `PLATE_BOX`). The figure is drawn in the sheet above it, so the plate never
   covers a dimension, a head or a thread of any type; an engineering
   drawing's maker sits in its title block the same way. Legible at the
-  Studio grid tile (180 px for the 300-unit sheet, 0.6 px a unit): no name
-  renders under 10 px there. A name too long for one line at that size is
-  set on two; one too long for two would be set as its first word, the full
-  name staying in the catalog (no brand needs that today; the smallest is
-  two lines at 10.7 px). Every SKU of a brand carries the same plate.
+  Studio grid tile (180 px for the 300-unit sheet, 0.6 px a unit): no
+  name's capitals render under 10 px tall there. The full name is set beside
+  the mark, on two lines beside it, split around it, or under it, whichever
+  comes first at that size; a name none of them fits is refused, never
+  shortened. The plate is 56 units tall, so the figure has the 236 units
+  above it. Every SKU of a brand carries the same plate.
 * **No other text** -- no dimension, callout, label or SKU.
   The words are on the record (title, description, attributes); the drawing
   reflects the specifications **visually**: a longer length of cut is drawn
@@ -1317,8 +1318,9 @@ small to read is not drawn larger, it is shown through a **magnifier**
   that glass enlarges the part at least 2.5 times; otherwise it is a larger
   HANDLE-LESS lens -- the same thin ring and white interior -- sized to the
   sheet's width at an 8-unit side margin (the smallest that clears every brand
-  frame by at least a unit). That lens is WIDTH-BOUND, so it cannot grow further:
-  at the rule's extreme (a part drawn 40 x 50) it enlarges only ~x2.42, below
+  frame by at least a unit), or to the 236-unit figure area above the brand
+  plate where that is tighter. It cannot grow further: at the rule's extreme
+  (a part drawn 40 x 50) it is height-bound and enlarges only ~x2.05, below
   the x2.5 the handled glass guarantees;
 * the whole glyph is horizontally centred and as large as fits; the space above
   it equals the space below the part, with a 14-unit gap between them;
@@ -1346,10 +1348,10 @@ What `tests/test_sku_drawings.py` proves over the committed catalog:
   * a lens appears on exactly the SKUs drawn at most 1/5 of the sheet's width
     and 1/6 of its height, over every committed SKU;
   * the handle-less lens is used exactly where the handled glass cannot reach
-    x2.5; the committed catalog's lowest enlargement is pinned at x2.36 (its
+    x2.5; the committed catalog's lowest enlargement is pinned at x2.12 (its
     measured minimum, rounded down), and the rule's extreme (40 x 50) at
-    x2.31 to x2.5 -- below x2.5 because the lens is height-bound in the
-    256-unit figure area above the brand plate (#132);
+    x2.05 to x2.5 -- below x2.5 because the lens is height-bound in the
+    236-unit figure area above the brand plate (#132);
   * the handle-less lens clears the brand frame (8 units in, frames at 6 with
     strokes at most 2 wide);
   * each dimension binds on its own (planted: 41 x 5 and 5 x 50.5 plain,

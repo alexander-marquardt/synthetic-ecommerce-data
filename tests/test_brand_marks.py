@@ -94,9 +94,8 @@ def _cap_px(line: dict[str, str]) -> float:
 
 
 def test_every_brand_has_a_declared_mark_and_no_two_share_one():
-    assert set(brands.MOTIFS) == set(brand_marks.MOTIFS)
-    assert set(brands.ENCLOSURES) == set(brand_mark.ENCLOSURES)
-    pairs = {(brands.motif_of(b), brands.enclosure_of(b)) for b in brands.BY_NAME}
+    assert set(brand_marks.MARKS_BY_BRAND) == set(brands.BY_NAME)
+    pairs = set(brand_marks.MARKS_BY_BRAND.values())
     assert len(pairs) == len(brands.BY_NAME)
     assert all(m in brand_marks.MOTIFS and e in brand_mark.ENCLOSURES for m, e in pairs)
 
