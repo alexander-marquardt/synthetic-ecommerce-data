@@ -92,7 +92,7 @@ def test_no_flat_sku_contains_what_another_flavor_of_its_style_contains() -> Non
         if "Food & Drink" not in values(row["attributes"], "department"):
             continue
         for key in ("contains", "may_contain"):
-            if values(row["attributes"], key) != values(nested[row["sku"]]["attributes"], key):
+            if set(row["facets"].get(key, [])) != values(nested[row["sku"]]["attributes"], key):
                 bad.append((row["sku"], key))
     assert bad == []
 
@@ -103,8 +103,20 @@ def test_a_flat_sku_states_its_own_variants_allergens() -> None:
     nested = {v["sku"]: v for d in docs() for v in d["variants"]}
     for sku, row in rows.items():
         for key in ("contains", "may_contain"):
-            assert values(row["attributes"], key) == values(nested[sku]["attributes"], key), sku
-    assert "Milk" not in values(rows["GRC-SWT-0002-001"]["attributes"], "contains")
+            assert set(row["facets"].get(key, [])) == values(nested[sku]["attributes"], key), sku
+    assert "Milk" not in rows["GRC-SWT-0002-001"]["facets"].get("contains", [])
+
+
+def test_an_allergen_warning_is_a_facet_only_never_a_flat_attribute() -> None:
+    """The attributes are a searchable surface in the industrial field map: an allergen
+    warning there would let a "peanut" query match through it. ``contains`` and
+    ``may_contain`` live in their facets only; ``dietary`` (a pack claim) stays."""
+    rows = grocery.flat(list(docs()))
+    for row in rows:
+        assert not {e["key"] for e in row["attributes"]} & {"contains", "may_contain"}, row["sku"]
+        assert not {"Contains", "May contain"} & set(row["attribute_names"]), row["sku"]
+    assert any(r["facets"].get("may_contain") for r in rows)
+    assert any(e["key"] == "dietary" for r in rows for e in r["attributes"])
 
 
 #: The four food facts a hard filter must reach: only a facet can be a hard filter.

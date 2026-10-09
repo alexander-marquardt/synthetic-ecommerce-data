@@ -313,7 +313,9 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     ``ingredients``), ``facets.contains``, ``facets.may_contain`` and ``facets.dietary``,
     each a keyword list. ``contains``, ``may_contain`` and ``dietary`` are warnings and
     claims, not description (:data:`WARNINGS`): they stay out of ``text``, so a "peanut"
-    query cannot match a product through its allergen warning.
+    query cannot match a product through its allergen warning. ``contains`` and
+    ``may_contain`` also leave the flat ``attributes`` and ``attribute_names`` (a
+    searchable surface); they live in their facets only. ``dietary`` stays in both.
     """
     out = []
     for doc in docs:
@@ -322,6 +324,10 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
             kept = [e for e in doc["attributes"] if e["key"] not in UNIONED - own]
             one = doc | {"attributes": kept, "variants": [variant]}
             for row in standard.flat_documents(one, NUMERIC_FACTS, text_skip=WARNINGS):
+                # An allergen warning is a facet only: the attributes are a searchable
+                # surface in the industrial field map, so it must not stay in them.
+                row["attributes"] = [e for e in row["attributes"] if e["key"] not in UNIONED]
+                row["attribute_names"] = sorted({e["name"] for e in row["attributes"]})
                 if row.get("ingredients"):
                     row["facets"]["ingredients"] = list(row["ingredients"])
                 out.append(row)

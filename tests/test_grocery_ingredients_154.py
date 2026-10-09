@@ -80,6 +80,13 @@ def values(entries: list[dict], key: str) -> set[str]:
     return {e["value"] for e in entries if e["key"] == key}
 
 
+def stated(item: dict, key: str) -> set[str]:
+    """An allergen list: a flat row keeps it in its facet only, a nested entry in its attributes."""
+    if "facets" in item:
+        return set(item["facets"].get(key, []))
+    return values(item["attributes"], key)
+
+
 def listed(doc: dict) -> bool:
     return doc["product_type"] not in NO_LIST
 
@@ -121,8 +128,8 @@ def test_an_allergen_source_is_listed_iff_the_allergen_is_contained(level: str) 
     products = {d["product_id"] for d in docs()} if level == "nested" else set()
     bad = []
     for name, item in items:
-        has = values(item["attributes"], "contains")
-        traces = values(item["attributes"], "may_contain")
+        has = stated(item, "contains")
+        traces = stated(item, "may_contain")
         named = sources(item.get("ingredients", []))
         # A product lists the base recipe only: a flavor's own allergen source is absent.
         wrong = named - has if name in products else named ^ has
@@ -133,7 +140,8 @@ def test_an_allergen_source_is_listed_iff_the_allergen_is_contained(level: str) 
 
 def test_no_text_names_a_traced_allergen_unless_the_ingredients_do() -> None:
     """A "peanut" query must not reach a product only through an allergen warning: a
-    word of a may_contain allergen is in no title or search text unless the SKU's own
+    word of a may_contain allergen is in no title, search text or flat attribute (a
+    searchable surface) unless the SKU's own
     ingredients name that allergen. The category path is the product's identity, not a
     warning (a toffee popcorn under "Nuts & Popcorn" may trace tree nuts), so its words
     are taken out of the text first."""
@@ -143,9 +151,14 @@ def test_no_text_names_a_traced_allergen_unless_the_ingredients_do() -> None:
             continue
         named = sources(r["ingredients"])
         path = " ".join(r["category_path"])
-        for allergen in values(r["attributes"], "may_contain") - named:
-            for where in ("title", "text"):
-                text = r[where].replace(path, " ") if where == "text" else r[where]
+        for allergen in stated(r, "may_contain") - named:
+            surfaces = {
+                "title": r["title"],
+                "text": r["text"].replace(path, " "),
+                "attributes": " ".join(e["value"] for e in r["attributes"]),
+                "attribute_names": " ".join(r["attribute_names"]),
+            }
+            for where, text in surfaces.items():
                 if re.search(WORDS[allergen], NOT_ALLERGEN.sub(" ", text.lower())):
                     bad.append((r["sku"], where, allergen))
     assert bad == []
@@ -210,13 +223,8 @@ def test_the_lists_are_invented_ordered_and_realistic() -> None:
 
 def test_chocolate_without_peanuts_still_has_both_sides() -> None:
     skus = [r for r in flat() if r["category_leaf"] == "Chocolate Bars"]
-    free = [
-        r
-        for r in skus
-        if "Peanuts"
-        not in values(r["attributes"], "contains") | values(r["attributes"], "may_contain")
-    ]
-    has = [r for r in skus if "Peanuts" in values(r["attributes"], "contains")]
+    free = [r for r in skus if "Peanuts" not in stated(r, "contains") | stated(r, "may_contain")]
+    has = [r for r in skus if "Peanuts" in stated(r, "contains")]
     assert free
     assert has
     assert all(sources(r.get("ingredients", [])) & {"Peanuts"} == set() for r in free)
