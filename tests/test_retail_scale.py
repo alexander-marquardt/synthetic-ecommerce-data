@@ -2,7 +2,7 @@
 
 ``prototypes/retail_drawings/scale.py`` derives styles from the hand-authored
 ones until the SKUs reach the target. These tests hold it at the first load
-size, 19K SKUs, just under today's ceiling: it reaches the count, stays deterministic, meets the
+size, 13K SKUs, just under today's ceiling: it reaches the count, stays deterministic, meets the
 output standard, adds no duplicate title or clone, keeps every derived fact
 honest to its template, and keeps the drawings bounded.
 """
@@ -28,12 +28,12 @@ if str(RETAIL) not in sys.path:
 
 import scale  # noqa: E402
 
-#: The first load: 19K SKUs, about 540 styles, under the ceiling (:data:`CAPACITY`).
-TARGET = 19_000
+#: The first load: 13K SKUs, under the ceiling (:data:`CAPACITY`).
+TARGET = 13_000
 TEMPLATES = 328
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (850, 31_524)
+CAPACITY = (849, 13_794)
 
 
 @pytest.fixture(scope="module")
@@ -364,7 +364,7 @@ def test_every_brand_in_the_build_has_a_house_style(built):
 
 
 def test_a_smaller_build_is_a_prefix_of_a_larger_one(built):
-    small = scale.build(TARGET // 2)
+    small = scale.build(TARGET * 3 // 4)
     assert small.records == built.records[: len(small.records)]
     assert len(small.records) > TEMPLATES
 

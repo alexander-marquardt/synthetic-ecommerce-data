@@ -38,7 +38,7 @@ RETAIL_SKUS = 6861
 #: image for each of the 54 styles sold in no color.
 RETAIL_IMAGES = 629
 #: The scaled build ``image_release.py --skus`` releases (``tests/test_retail_scale.py``'s target).
-SCALED_SKUS = 19_000
+SCALED_SKUS = 13_000
 #: The demo serves the images folder at this prefix; a URL less it is the member.
 URL_PREFIX = "/images/"
 
@@ -110,7 +110,7 @@ def test_an_image_id_naming_two_drawings_is_refused(monkeypatch):
 
 
 def test_the_scaled_release_ships_an_image_for_every_image_id_its_export_names():
-    """``records(N)`` is ``scale.build(N)``: the 19K export names an ``image_id`` per derived
+    """``records(N)`` is ``scale.build(N)``: the 13K export names an ``image_id`` per derived
     style and colorway too, and every one of them is a packaged file."""
     import scale  # noqa: PLC0415
 

@@ -1165,10 +1165,10 @@ of the template's colorways and keeps the template's size run. Its price is
 re-drawn inside its leaf's band, as a function of the values it changed (a
 premium material costs more). A draw whose title or description contradicts an
 attribute is refused, and `check_catalog` refuses such text too. The module
-docstring has the rules. Today's templates run out at 31,524 SKUs (850 styles),
+docstring has the rules. Today's templates run out at 13,794 SKUs (849 styles),
 and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
 values per leaf, more colorways, and more templates.
-`tests/test_retail_scale.py` holds it at 19K SKUs.
+`tests/test_retail_scale.py` holds it at 13K SKUs.
 
 ## The built catalog is committed, in `golden-catalog/`
 
@@ -1662,7 +1662,7 @@ the content digest and file count printed and written beside it as
 every size of one color shares an image, drawn in that color's swatch (base,
 pattern and accent). The 328-style build is 629 images for 6,861 SKUs.
 `--skus N` releases the scaled build instead (`scale.py`'s, the 20K catalog's
-input): `--skus 19000` is 1,493 images for 19,142 SKUs.
+input): `--skus 13000` is 1,099 images for 13,039 SKUs.
 There is no committed manifest to check against (the retail build is code, not
 a committed catalog); the command refuses an `image_id` that names two
 different drawings instead. `tests/test_retail_image_release.py` pins the
