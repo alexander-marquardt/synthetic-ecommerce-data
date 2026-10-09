@@ -67,7 +67,7 @@ price with another.
 
 **Capacity.** Signatures bound the build: per template, the shown values its leaf
 offers times its color families. With today's templates every template is
-exhausted at 52,022 SKUs (2,659 styles). Past that, the CLI reports
+exhausted at 76,417 SKUs (3,242 styles). Past that, the CLI reports
 ``reached_target: false`` and exits 2. To grow it, add data, not code: more values
 per leaf that the title shows, more colorways, and more templates, deep-SKU ones
 above all.
@@ -258,21 +258,28 @@ def twin_key(rec: dict) -> tuple:
 
 
 def _swap(text: str, old: str, new: str) -> str:
-    """``old`` -> ``new`` as a whole word in any case, each occurrence keeping its case:
+    """``old`` -> ``new`` as a whole word in any case, each occurrence keeping its case
+    and an "a"/"an" before it agreeing with ``new`` (:func:`_article`):
     lower stays lower, a capital first letter stays capital, otherwise ``new`` as given.
     Its words match across a space or a hyphen, and ``&`` and "and" match each other, so
     "Hook & Loop" rewrites "hook and loop"."""
     body = re.sub(r"(?<![A-Za-z])and(?![A-Za-z])", r"\\&", re.escape(old))
     body = body.replace(r"\&", "(?:&|and)").replace(r"\-", r"[\s-]").replace(r"\ ", r"[\s-]+")
-    pattern = r"(?<![A-Za-z0-9])" + body + r"(?![A-Za-z0-9])"
+    pattern = r"(?:(?<![A-Za-z0-9])([Aa]n?) )?(?<![A-Za-z0-9])(" + body + r")(?![A-Za-z0-9])"
 
     def cased(m: re.Match[str]) -> str:
-        hit = m.group(0)
+        article, hit = m.group(1), m.group(2)
         if hit.islower():
-            return new.lower()
-        if hit[0].isupper() and (len(hit) == 1 or hit[1:].islower()):
-            return new[0].upper() + new[1:]
-        return new
+            word = new.lower()
+        elif hit[0].isupper() and (len(hit) == 1 or hit[1:].islower()):
+            word = new[0].upper() + new[1:]
+        else:
+            word = new
+        if article is None:
+            return word
+        # An article just before the word agrees with the word that replaces it.
+        fixed = _article(word)
+        return f"{fixed.capitalize() if article[0].isupper() else fixed} {word}"
 
     return re.sub(pattern, cased, text, flags=re.IGNORECASE)
 
