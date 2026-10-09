@@ -148,7 +148,8 @@ TOYS = (
         "A chunky racing car with rubber tires and a driver who lifts out. For ages 18 months "
         "and up.",
         (cw("Red", "#c8312e"), cw("Blue", "#3f6fb5")), _mat("Wooden"), audience=_KIDS),
-    Row("CARPOL", "Die-Cast Police Car", "Puddlecombe Toys", "Toys", _CARS, "Toy Vehicle", 6.0, "car",
+    Row("CARPOL", "Die-Cast Police Car", "Puddlecombe Toys", "Toys", _CARS, "Toy Vehicle", 6.0,
+        "car",
         "A pocket-size police car with opening doors and a pull-back motor. For ages 3 and up.",
         (cw("White", "#ffffff", "solid", "#26365c"),), _mat("Die-Cast"), audience=_KIDS),
     Row("CARVIN", "Recycled Plastic Vintage Car", "Little Fernby", "Toys", _CARS, "Toy Vehicle",
@@ -206,6 +207,14 @@ def _var(v: str) -> tuple[tuple[str, str, str], ...]:
     return (("variety", "Variety", v),)
 
 
+def _flower(v: str) -> tuple[tuple[str, str, str], ...]:
+    """A tulip's flower form: a variety would change the drawn color, a form does not."""
+    return (("flower_form", "Flower form", v),)
+
+
+#: One drawing color for every mushroom kit: a variety changes the cap color.
+_MUSH_DRAWN = cw("Natural", "#e6dcc8", "solid", "#7a5a3a")
+
 _HEIGHTS = (("60 cm", 25.0), ("90 cm", 40.0), ("1.2 m", 65.0))
 _XMAS_FT = (("5 ft", 45.0), ("6 ft", 55.0), ("7 ft", 70.0))
 
@@ -224,23 +233,27 @@ GARDEN = (
         "A young bay tree in a 2-liter nursery pot, ready to clip or plant out.",
         (cw("Black", "#2a2a2e", "solid", "#4f7a3a"),), _form("Bush"), label="Bay",
         colorless=True),
-    Row("TULP10", "Queen of Night Tulip Bulbs, Pack of 10", "Fenwold Nursery", "Garden", _TULIP,
+    Row("TULP10", "Purple Parrot Tulip Bulbs, Pack of 10", "Fenwold Nursery", "Garden", _TULIP,
         "Bulbs", 5.0, "tulip",
         "Top-size bulbs for planting in fall, 15 cm deep, for flowers in late spring.",
-        (cw("Deep Purple", "#4b2238", "solid", "#4f7a3a"),),
-        _var("Queen of Night"), colorless=True),
-    Row("TULP25", "Ballerina Tulip Bulbs, Pack of 25", "Thistle & Wren", "Garden", _TULIP,
-        "Bulbs", 10.0, "tulip",
+        (cw("Purple", "#4b2238", "solid", "#4f7a3a"),), _flower("Parrot"), colorless=True),
+    Row("TULP25", "Apricot Lily-Flowered Tulip Bulbs, Pack of 25", "Thistle & Wren", "Garden",
+        _TULIP, "Bulbs", 10.0, "tulip",
         "A bag of bulbs for a border or a row of pots. Plant in fall for flowers in May.",
-        (cw("Tangerine", "#f08a24", "solid", "#4f7a3a"),), _var("Ballerina"), colorless=True),
-    Row("TULTIN", "Purissima Tulip Bulbs in a Gift Tin", "Fenwold Nursery", "Garden", _TULIP,
+        (cw("Apricot", "#f2a65a", "solid", "#4f7a3a"),), _flower("Lily-Flowered"),
+        colorless=True),
+    Row("TULTIN", "White Fringed Tulip Bulbs in a Gift Tin", "Fenwold Nursery", "Garden", _TULIP,
         "Bulbs", 12.0, "tulip",
         "Twelve bulbs in a printed tin with planting notes, a gift for any gardener.",
-        (cw("Ivory", "#f4efe2", "solid", "#4f7a3a"),), _var("Purissima"), colorless=True),
-    Row("TULPOT", "Negrita Tulips in a Ceramic Pot", "Thistle & Wren", "Garden", _TULIP,
+        (cw("White", "#f4efe2", "solid", "#4f7a3a"),), _flower("Fringed"), colorless=True),
+    Row("TULPOT", "Pink Double Early Tulips in a Ceramic Pot", "Thistle & Wren", "Garden", _TULIP,
         "Bulbs", 16.0, "tulip",
         "Bulbs pre-planted in a glazed pot, shooting already: water and wait for buds.",
-        (cw("Purple", "#6b2340", "solid", "#4f7a3a"),), _var("Negrita"), colorless=True),
+        (cw("Pink", "#e27d9f", "solid", "#4f7a3a"),), _flower("Double Early"), colorless=True),
+    Row("TULP50", "Red Single Late Tulip Bulbs, Pack of 50", "Fenwold Nursery", "Garden", _TULIP,
+        "Bulbs", 18.0, "tulip",
+        "A sack of bulbs for a long border or a cutting bed. Plant in fall, 15 cm deep.",
+        (cw("Red", "#c8312e", "solid", "#4f7a3a"),), _flower("Single Late"), colorless=True),
     Row("STRP06", "Elsanta Strawberry Plants, Pack of 6", "Fenwold Nursery", "Garden", _BERRY,
         "Plant", 9.0, "strawberry",
         "Young plants in 9 cm pots for beds, bags or hanging baskets, fruiting in their "
@@ -257,15 +270,15 @@ GARDEN = (
     Row("MUSKIT", "Pearl Oyster Mushroom Growing Kit", "Thistle & Wren", "Garden", _MUSH,
         "Growing Kit", 18.0, "mushroom",
         "A ready-seeded box: open the front, mist twice a day, and pick in about ten days.",
-        (cw("Cream", "#efe8d8", "solid", "#7a5a3a"),), _var("Pearl Oyster"), colorless=True),
+        (_MUSH_DRAWN,), _var("Pearl Oyster"), colorless=True),
     Row("MUSLOG", "Shiitake Mushroom Log", "Fenwold Nursery", "Garden", _MUSH, "Growing Kit",
         28.0, "mushroom",
         "A seeded hardwood log for a shady corner, cropping in spring and fall for years.",
-        (cw("Brown", "#7a5a3a", "solid", "#efe8d8"),), _var("Shiitake"), colorless=True),
+        (_MUSH_DRAWN,), _var("Shiitake"), colorless=True),
     Row("MUSBAG", "Lion's Mane Mushroom Grow Bag", "Thistle & Wren", "Garden", _MUSH,
         "Growing Kit", 14.0, "mushroom",
         "A grow bag that crops on a kitchen counter, out of direct sun. Two flushes or more.",
-        (cw("White", "#ffffff", "solid", "#7a5a3a"),), _var("Lion's Mane"), colorless=True),
+        (_MUSH_DRAWN,), _var("Lion's Mane"), colorless=True),
     Row("XMSCUT", "Cut Nordmann Fir Christmas Tree", "Thistle & Wren", "Garden", _XMAS,
         "Christmas Tree", 45.0, "christmas_tree",
         "Freshly cut and netted, with a fresh-cut base that drinks water in the stand.",
@@ -343,12 +356,14 @@ GIFTS = (
     Row("WRPRLL", "Birthday Wrapping Paper Roll, 4 m", "Lanternby", "Gifts", _WRAP,
         "Wrapping Paper", 4.0, "wrapping_paper",
         "A roll of thick printed paper with a grid on the back for straight cuts.",
-        (cw("Confetti", "#ffffff", "polka", "#d6267a"), cw("Pastel Spot", "#8fb8de", "polka", "#f2d14b")),
+        (cw("Confetti", "#ffffff", "polka", "#d6267a"),
+         cw("Pastel Spot", "#8fb8de", "polka", "#f2d14b")),
         _occ("Birthday")),
     Row("WRPSHT", "Christmas Wrapping Paper, 3 Sheets", "Calderby & Lune", "Gifts", _WRAP,
         "Wrapping Paper", 5.0, "wrapping_paper",
         "Three folded sheets with matching tags, printed on recycled paper.",
-        (cw("Red Stripe", "#ffffff", "stripe", "#c8312e"), cw("Gold Star", "#1f2e4a", "polka", "#d4af37")),
+        (cw("Red Stripe", "#ffffff", "stripe", "#c8312e"),
+         cw("Gold Star", "#1f2e4a", "polka", "#d4af37")),
         _occ("Christmas")),
     Row("WRPKRF", "Baby Shower Kraft Wrap and Ribbon Set", "Lanternby", "Gifts", _WRAP,
         "Wrapping Paper", 7.0, "wrapping_paper",
@@ -415,9 +430,15 @@ _LOO = ("Cleaning", "Bathroom", "Toilet Cleaners")
 _CJ = "Cleaning & Janitorial"
 
 
+#: The bottle colors a cleaning row draws in.
+_BOTTLE_HEX = {
+    "Teal": "#1c7c7d", "Lilac": "#b9a3d0", "Blue": "#3f6fb5", "Green": "#4f7a3a",
+    "White": "#ffffff", "Pink": "#f2a1b8", "Aqua": "#8fd1d0",
+}  # fmt: skip
+
+
 def _spray(c: str, accent: str = "#2a2a2e") -> tuple[Color, ...]:
-    return (cw(c, {"Teal": "#1c7c7d", "Lilac": "#b9a3d0", "Blue": "#3f6fb5", "Green": "#4f7a3a",
-                   "White": "#ffffff", "Pink": "#f2a1b8", "Aqua": "#8fd1d0"}[c], "solid", accent),)  # fmt: skip
+    return (cw(c, _BOTTLE_HEX[c], "solid", accent),)
 
 
 CLEANING = (
