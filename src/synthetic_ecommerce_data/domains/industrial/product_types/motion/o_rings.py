@@ -215,8 +215,6 @@ SPEC = TypeSpec(
     # cross-sections and almost none of the inside diameters.
     key_attributes=("Width",),
     title_attributes=("Size",),
-    default_lines=38,
-    default_skus=66,
     use_lines=(
         "Seats in a gland and seals by squeezing between two surfaces.",
         # No standard's number: a record whose Dash Number is left out has no

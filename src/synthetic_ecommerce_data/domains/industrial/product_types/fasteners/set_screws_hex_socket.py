@@ -380,8 +380,6 @@ SPEC = TypeSpec(
         | {"ASTM F912", "ASTM F880"}
     ),
     key_attributes=("Dia./Thread Size",),
-    default_lines=260,
-    default_skus=485,
     use_lines=(
         "Driven with a hex key.",
         "Holds a collar, pulley or gear on its shaft from inside a tapped hole.",
