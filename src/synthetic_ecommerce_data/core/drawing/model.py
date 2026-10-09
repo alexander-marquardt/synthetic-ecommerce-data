@@ -19,7 +19,7 @@ Point = tuple[float, float]
 #: edge view): a paler fill, no hatch. ``hole`` is a bore or an arbor: the
 #: paper shows through. ``dark`` is a recess (a socket, a drive). ``line`` is
 #: line work only (flutes, thread crests). ``handle`` and ``grip`` take their
-#: colour from the shape itself.
+#: color from the shape itself.
 ROLES = ("part", "plain", "hole", "dark", "line", "handle", "grip")
 
 

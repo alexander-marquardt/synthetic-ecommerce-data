@@ -74,7 +74,7 @@ def test_every_bundled_record_classifies(sku):
 
 def test_a_record_with_no_identifying_attribute_is_refused():
     with pytest.raises(kinds.UnknownProductError):
-        kinds.classify({"sku": "A", "Colour": "red"})
+        kinds.classify({"sku": "A", "Color": "red"})
 
 
 def test_a_record_that_looks_like_two_things_is_refused_not_resolved():

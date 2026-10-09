@@ -21,7 +21,7 @@ product type alone, so the file is the same file whatever the record says --
 
 :func:`render_line` draws **one product line**. Same twelve shapes, re-styled from
 that line's own published attributes by :mod:`.marking`: the outline in the
-brand's colour, the fill in the coating's, the section hatched for the
+brand's color, the fill in the coating's, the section hatched for the
 material, the flutes drawn at the published count and leaning the published
 way, and a stamp setting every published value verbatim. These are what the
 catalog's 500 lines show, and two of them differ if and only if the two
@@ -158,9 +158,9 @@ def _hatched(ax, patch, mark: Marking):
     """Lay the material's section hatch over a patch already on the axes.
 
     Drawn as its own overlay rather than as the patch's own ``hatch`` so the
-    hatch has a colour of its own. Matplotlib takes a patch's hatch colour from
-    its edge colour, and the edge here is the brand's -- a hatch at full
-    outline weight and full outline colour buries the part it describes.
+    hatch has a color of its own. Matplotlib takes a patch's hatch color from
+    its edge color, and the edge here is the brand's -- a hatch at full
+    outline weight and full outline color buries the part it describes.
     """
     if not mark.hatch:
         return patch
@@ -179,7 +179,7 @@ def _hatched(ax, patch, mark: Marking):
 
 
 def _bar(ax, half_width, y0, y1, mark, *, coated=True, fill=None, hatched=True, zorder=2):
-    """A rectangular section of the part, in this line's colours.
+    """A rectangular section of the part, in this line's colors.
 
     ``coated`` says whether the coating tint reaches this section. It does not
     on a tool's shank -- a coating is applied to the cutting portion and the
@@ -1011,7 +1011,7 @@ def _stamp_detail(fig, mark: Marking) -> None:
     Names included, because the detail profile has the width for them. This is
     the record's ``line``-scope half set out in full, which is what makes the
     encoding legible without a legend: a reader who wants to know why two
-    drawings differ reads the block rather than decoding the colours.
+    drawings differ reads the block rather than decoding the colors.
     """
     if not mark.rows:
         return
