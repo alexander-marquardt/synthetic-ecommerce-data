@@ -558,10 +558,13 @@ def _handled_k(width: float, height: float) -> float:
     """What the handled glass would enlarge the part by, from the glyph's own extents."""
     import math
 
-    from synthetic_ecommerce_data.core.drawing.sheet import _glyph_extent
+    from synthetic_ecommerce_data.core.drawing.sheet import FIGURE_HEIGHT, _glyph_extent
 
+    # The glyph stacks over the part in the figure area above the brand plate
+    # (#132), not in the whole 300-unit sheet: a hard-coded 300 passed while
+    # no committed SKU fell between the two budgets, and failed once one did.
     _, left, right, bottom = _glyph_extent(1.0, floor=False)
-    radius = min((200 - 24) / (right - left), (300 - 24 - 14 - height) / (-left + bottom))
+    radius = min((200 - 24) / (right - left), (FIGURE_HEIGHT - 24 - 14 - height) / (-left + bottom))
     return 0.92 * 2 * radius / math.hypot(width, height)
 
 
@@ -593,19 +596,20 @@ def test_the_lens_appears_exactly_when_the_rule_says():
 #: a hex socket set screw (1/4-20 x 3/4" flat point), drawn at an extent no
 #: wider than its 1" size needs; widening the extent to lift it would draw
 #: every set screw smaller.
-#: Measured again for the brand plate (#132): the figure area above the plate
-#: is 256 units tall, not 300, so the tallest lenses are height-bound now.
-CATALOG_MIN_ENLARGEMENT = 2.36
+#: Measured again for the brand plate (#132): the figure area above the 56-unit
+#: plate is 236 units tall, not 300, so the tallest lenses are height-bound
+#: and the floor is now a 5/16" screw pin chain shackle (x2.12).
+CATALOG_MIN_ENLARGEMENT = 2.12
 
 #: What the handle-less lens gives at the rule's extreme, a part drawn a full
 #: 40 x 50 (1/5 x 1/6 of the sheet). BELOW x2.5, and stated rather than hidden:
 #: the lens was width-bound at the 8-unit margin that clears the brand frame
-#: (~x2.41); since the plate (#132) it is height-bound in the 256-unit figure
+#: (~x2.41); since the plate (#132) it is height-bound in the 236-unit figure
 #: area, so no larger lens fits.
-EXTREME_ENLARGEMENT = 2.31
+EXTREME_ENLARGEMENT = 2.05
 
-#: Two committed SKUs the handle-less lens must serve: an in-between screw (an
-#: M6x1 x 10mm socket head) and a hairline drill (a 1/16" jobber). Re-picked on
+#: Two committed SKUs the handle-less lens must serve: an in-between screw (a
+#: 1/4-20 x 1/2" socket head) and a hairline drill (a 1/16" jobber). Re-picked on
 #: every regeneration; the test fails if either is gone. Re-picked for
 #: alexander-marquardt/synthetic-ecommerce-data#39 (Corner Radius/Neck
 #: Length applied once instead of twice, which moved every SKU code): the
@@ -616,8 +620,11 @@ EXTREME_ENLARGEMENT = 2.31
 #: committed SKU, in catalog order, that matches the description and is drawn
 #: under the handle-less lens. Re-picked for #132: the smaller figure area
 #: draws the 1/16" jobber (``HAIRLINE_DRILL``) under the handled glass now,
-#: so the drill pinned here is the first jobber still drawn handle-less.
-PINNED_HANDLE_LESS = ("2334357307", "3818077553")
+#: so the drill pinned here is a jobber still drawn handle-less (a 5/64").
+#: The 56-unit plate moved the M6x1 x 10mm screw (``2334357307``) under the
+#: handled glass too; the screw is now the first socket head still drawn
+#: handle-less (measured over the golden catalog with ``sheet.magnifier``).
+PINNED_HANDLE_LESS = ("2334468134", "3818077553")
 #: A hairline drill (a 1/16" jobber), by name, for the stroke test below.
 HAIRLINE_DRILL = "3818559508"
 
@@ -626,7 +633,7 @@ def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only
     """Handled glass when it reaches x2.5; otherwise the larger handle-less lens.
 
     Over every committed SKU the rule applies to. The floor is the catalog's
-    measured minimum; at the rule's extreme the handle-less lens gives ~x2.42.
+    measured minimum; at the rule's extreme the handle-less lens gives ~x2.05.
     """
     from synthetic_ecommerce_data.core.drawing.sheet import magnifier
 

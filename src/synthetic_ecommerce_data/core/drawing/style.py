@@ -24,8 +24,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from synthetic_ecommerce_data.core import brands
-from synthetic_ecommerce_data.core.drawing.brand_mark import Mark
-from synthetic_ecommerce_data.domains.industrial.drawing.brand_marks import mark_of
+from synthetic_ecommerce_data.core.drawing.brand_mark import Mark, mark_for
 from synthetic_ecommerce_data.domains.industrial.render.marking import FINISH_TINT
 
 #: What a part is coloured when the record publishes no finish: the colour of
@@ -170,7 +169,7 @@ def house_style(brand: str) -> HouseStyle:
         paper=brands.paper_of(brand),
         frame=brands.frame_of(brand),
         name=brand,
-        mark=mark_of(brand),
+        mark=mark_for(brand),
     )
 
 

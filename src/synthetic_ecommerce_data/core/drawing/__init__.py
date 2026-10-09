@@ -11,9 +11,8 @@ Rulings this implements (elastic/prism-industrial-products#103, 2026-09-26 to
   specifications visually -- proportions, geometry, flute count, head style,
   thread density -- and the words stay on the record, where they can change
   without re-rendering. The one exception (#132) is the brand plate under
-  the figure: the brand's mark and its name, or the name's first word where
-  the full name would render under 10 px at the Studio tile
-  (:data:`.sheet.MIN_NAME_PX`).
+  the figure: the brand's mark and its full name, whose capitals render at
+  least 10 px tall at the Studio tile (:data:`.sheet.MIN_NAME_PX`).
 * **Brands visibly different**, by house style (:mod:`.style`) and by the
   brand's mark (:mod:`...domains.industrial.drawing.brand_marks`), never by
   chance.
@@ -63,8 +62,8 @@ __all__ = [
 #:
 #: THE ONE TEXT ALLOWED (#132, revising the no-text ruling for the brand mark
 #: only): ``<text>`` elements whose words, joined by a space, are one brand's
-#: wordmark (:func:`.sheet.wordmark_of`: its name on one or two lines, or its
-#: first word). Its face, weight and width adjustment are fixed values; any
+#: wordmark (:func:`.sheet.wordmark_of`: its full name, on one line or two).
+#: Its face, weight and width adjustment are fixed values; any
 #: other character data, and any ``<text>`` that spells something else, is
 #: refused. Which brand's wordmark a drawing carries is the drawing tests'
 #: check (``tests/test_brand_marks.py``): the gate does not know the brand.
