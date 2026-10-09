@@ -68,7 +68,7 @@ price with another.
 
 **Capacity.** Signatures bound the build: per template, the shown values its leaf
 offers times its color families. With today's templates every template is
-exhausted at 90,046 SKUs (6,830 styles; 80,004 and 3,525 without the grocery styles).
+exhausted at 90,071 SKUs (6,904 styles; 80,004 and 3,525 without the grocery styles).
 Past that, the CLI reports
 ``reached_target: false`` and exits 2. To grow it, add data, not code: more values
 per leaf that the title shows, more colorways, and more templates, deep-SKU ones

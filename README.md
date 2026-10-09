@@ -998,10 +998,10 @@ proof corpus.
 `grocery.py` (data in `grocery_rows.py`, gen#154) builds Food & Drink styles
 whose SKUs are flavor x pack size: `python3 prototypes/retail_drawings/grocery.py
 --skus 10000 --out DIR` writes `nested.jsonl` and `flat.jsonl`, both in the output
-standard. At 10K it holds 10,042 SKUs in 3,305 styles over 37 food leaves, plus a
+standard. At 10K it holds 10,067 SKUs in 3,379 styles over 48 food leaves, plus a
 kitchen-cleaner leaf and a body-lotion leaf for the overlaps. Each SKU states
-`contains` and `may_contain` over six allergens (peanuts, tree nuts,
-milk, gluten, soy, egg), its `dietary` labels (Vegan, Vegetarian, Gluten Free,
+`contains` and `may_contain` over seven allergens (peanuts, tree nuts,
+milk, gluten, soy, egg, fish), its `dietary` labels (Vegan, Vegetarian, Gluten Free,
 Nut Free, Organic), `pack_size`, `units_per_pack` and its net weight or volume.
 
 Food SKUs also carry a top-level `ingredients` list (5 to 20 invented items in label
@@ -1034,7 +1034,24 @@ The planted cases are:
 - Nut Free chocolate and Vegan chocolate;
 - lemon, orange and mint as a food and as a cleaner scent;
 - honey and coconut as a food and as a body milk scent;
-- milk as dairy milk, milk chocolate and a body milk.
+- milk as dairy milk, milk chocolate and a body milk;
+- the failure class "oranges" (`tests/test_grocery_beer_oranges_161.py`): the leaf
+  `Food & Drink > Fruit & Vegetables > Fresh Fruit > Citrus Fruit > Oranges` holds oranges,
+  blood oranges, orange segments and easy peelers (no "orange" in the title: a type match),
+  while a chocolate orange, a cranberry & orange panettone, orange shortbread, orange
+  drinking chocolate, chocolate & orange cookies, a marmalade and a juice carry the word
+  in other categories; Lemons and Apples have bare-noun leaves too (no banana: the kit has
+  no banana to draw);
+- the failure class "beer": `Food & Drink > Beer, Wine & Spirits > Beer` with five leaves
+  (Lager, Pale Ale, Sour Beer, Fruit Beer, Alcohol Free). Every beer has an `abv`
+  attribute and a volume in ml, about half the titles end in the strength (" 4.8%"), a
+  lager need not say "beer", and every beer contains gluten. The word is also a ginger or
+  root beer (soft drinks), a beer battered haddock or cod (frozen, gluten, not
+  vegetarian), a malted beer loaf, a cider vinegar and a wine gum;
+- one category path per product: `category_path` and `category_leaf` (nested and flat) are
+  the retailer's breadcrumb, and a product sits under exactly one (the `grocery_rows`
+  docstring has the rule; Open Food Facts names the nodes, its multi-valued tags are not
+  copied).
 
 `tests/test_grocery_154.py` pins each case. The new pack shapes are `bar`, `bag`,
 `butter_block` (a foil-wrapped block) and `lidded_tub` (ice cream, a spread), in
@@ -1054,12 +1071,12 @@ No style is derived from a grocery style, whose allergen, dietary and ingredient
 are its own. The main build's 55 Food & Drink styles (61 SKUs: honey, jam, tea, coffee,
 chutney, ...) stay, since the failure classes and the proof corpus pin them; no title or
 product id repeats between them and the grocery styles. The main build's one honey jar
-(`PLT-HONBLS`) stays and is derived from no further; grocery plants the other honeys. The ceiling is 6,830 styles, 90,046 SKUs
-and 7,974 images; Food & Drink is 3,442 styles and 10,163 SKUs (10,136 under the
+(`PLT-HONBLS`) stays and is derived from no further; grocery plants the other honeys. The ceiling is 6,904 styles, 90,071 SKUs
+and 8,048 images; Food & Drink is 3,516 styles and 10,188 SKUs (10,161 under the
 `Food & Drink` category tree, 27 under the older `Food` one). The 15% grid-clone gate
 (`scale.grid_clones`) is held over the non-grocery styles only (15.04% at 3,525 styles):
-a grocery family draws one pack shape at a few prices, so 3,191 of its 3,305 styles share
-a tile (largest group 33). That is pinned apart in the tests, so a fix lowers it.
+grocery has its own cap (`GROCERY_GRID_CLONES`, 2%): its styles draw a tile of their own
+since gen#160 (0 of 3,379 share one).
 `tests/test_retail_grocery_in_scale_154.py` pins it.
 
 ### Observed failure classes 2 to 15, before and after on Elasticsearch
@@ -1248,7 +1265,7 @@ three failure classes need (`distractor_rows.py`; `baseline_rank.py` ranks a bui
 without a policy, and `tests/test_retail_distractors.py` holds the result): mattress
 protectors, mattresses and pillow protectors that out-sell the toppers; bestselling
 barrel-leg jeans whose text says balloon; 150 petite styles with a minority on sale,
-and 60 sale styles that never say petite, then the 3,305 grocery styles (below, `grocery.py`,
+and 60 sale styles that never say petite, then the 3,379 grocery styles (below, `grocery.py`,
 gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
@@ -1266,7 +1283,7 @@ hold. Its price is
 re-drawn inside its leaf's band, as a function of the values it changed (a
 premium material costs more). A draw whose title or description contradicts an
 attribute is refused, and `check_catalog` refuses such text too. The module
-docstring has the rules. Today's templates run out at 90,046 SKUs (6,830 styles;
+docstring has the rules. Today's templates run out at 90,071 SKUs (6,904 styles;
 80,004 and 3,525 before the grocery styles joined), and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
 values per leaf, more colorways, and more templates.
 `--flat PATH` also writes the flat file (one document per SKU, `ingredients` top-level on a
