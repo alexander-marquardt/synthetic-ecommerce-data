@@ -1,7 +1,7 @@
 {
  "elasticsearch": "9.3.0",
  "docs": 294,
- "fingerprint": "fc5d73416c2427c643817f8efc2cd73bd5808aea74d73f686823a39ef7a1e5fd",
+ "fingerprint": "831c8968d7b63cd7ac261cf3c794eaf088d63aa2db0b7bf0e2242f39bcefe652",
  "rows": [
   {
    "query": "mattress topper",
@@ -41,12 +41,12 @@
      "title": "Wool Mattress Topper"
     },
     {
-     "product_id": "PLT-MTPQLT",
-     "title": "Quilted Mattress Protector"
+     "product_id": "BED-TOPMEM",
+     "title": "Memory Foam 5cm Mattress Topper"
     },
     {
-     "product_id": "PLT-MTPWTP",
-     "title": "Waterproof Mattress Protector"
+     "product_id": "PLT-MTPQLT",
+     "title": "Quilted Mattress Protector"
     }
    ]
   },

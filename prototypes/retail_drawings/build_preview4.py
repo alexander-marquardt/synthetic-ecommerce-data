@@ -90,8 +90,8 @@ FACTS = ("product_type", "audience", "size_range", "neckline", "pattern", "leg_s
 
 
 def _facts(rec: dict) -> str:
-    """A line of the policy-facing fields, or nothing for a record without them."""
-    if "product_type" not in rec:
+    """A line of the policy-facing fields, or nothing for an unranked record (no rating)."""
+    if "rating" not in rec:
         return ""
     show = {k: ", ".join(v) if isinstance(v, list) else v for k, v in rec.items() if k in FACTS}
     parts = [f"{k}: {show[k]}" for k in FACTS if k in rec]
