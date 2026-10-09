@@ -650,3 +650,45 @@ def test_a_duvets_drawn_tog_is_its_tog_attribute(built):
         duvets += 1
         assert r["drawing"]["label"].lower() == f"{tog} tog".lower(), r["product_id"]
     assert duvets >= 2
+
+
+#: The attribute keys whose value is a word a title or description may say. A record whose
+#: text names another record's value of the key (a "Herbal" title on an Assam, a "Spiral"
+#: description on a Bush) contradicts its own SKUs. Add a key here when a new template
+#: names one.
+SAID_ATTRIBUTES = ("blend", "form", "variety", "fruit", "origin", "power", "charm", "flower_form")
+#: Words that say a value without being it: (key, word) -> the values the word is true of.
+#: Herbal teas are the blends that hold no tea leaf; a cone is clipped to a point and a
+#: spiral is trained round a cane.
+SAID_BY_WORD: dict[tuple[str, str], set[str]] = {
+    ("blend", "herbal"): {"Peppermint", "Rooibos"},
+    ("form", "point"): {"Cone"},
+    ("form", "cane"): {"Spiral"},
+}
+
+
+def test_no_title_or_description_says_a_value_its_own_skus_contradict(ceiling):
+    values: dict[str, set[str]] = collections.defaultdict(set)
+    for r in ceiling.records:
+        for a in r["attributes"]:
+            if a["key"] in SAID_ATTRIBUTES:
+                values[a["key"]].add(str(a["value"]))
+    checked = 0
+    wrong = []
+    for r in ceiling.records:
+        own = {a["key"]: str(a["value"]) for a in r["attributes"]}
+        text = f"{r['title']} {r['description']}"
+        for key in SAID_ATTRIBUTES:
+            if key not in own:
+                continue
+            checked += 1
+            wrong += [
+                (r["product_id"], key, v, r["title"])
+                for v in values[key] - {own[key]}
+                if scale._has_word(text, v) and not scale._has_word(own[key], v)
+            ]
+        for (key, word), true_of in SAID_BY_WORD.items():
+            if key in own and scale._has_word(text, word) and own[key] not in true_of:
+                wrong.append((r["product_id"], key, word, r["title"]))
+    assert checked >= 300
+    assert wrong == []
