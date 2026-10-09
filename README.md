@@ -1132,14 +1132,17 @@ report:
   listings on a sample);
 - the `check_catalog` problem count, the build time and the peak memory.
 
-The 328 authored styles come first. Further styles are derived from them,
-deterministically by `--seed`. Each derived style gets a new range name and a
-brand from its type's pool, takes its leaf's attribute values and a subset of
-the template's colorways, and keeps the template's own size run. The module
-docstring has the rules. Today's templates run out at 30,150 SKUs, and the CLI
-exits 2 past that. Raise the ceiling with data: more brands per type, more
-title-visible values per leaf, and more templates.
-`tests/test_retail_scale.py` holds it at 20K SKUs.
+The 350 templates come first: the 328 authored styles, then 22 deep-SKU jeans
+and bras that only the scaled catalog carries (`scale_rows.py`). Further styles
+are derived from them, deterministically by `--seed`. Each derived style gets a
+new range name and a brand from its type's pool, takes its leaf's attribute
+values and a subset of the template's colorways, and keeps the template's own
+size run. The module docstring has the rules. Today's templates run out at
+2,044 styles and 43,072 SKUs, and the CLI exits 2 past that. Raise the ceiling
+with data: more templates (deep-SKU ones first, each opening a leaf or a
+title-visible value its leaf lacks), more title-visible values per leaf, and
+more invented brands per type (`EXTRA_BRANDS`, each new to the catalog).
+`tests/test_retail_scale.py` holds it at 20K SKUs and pins the ceiling.
 
 ## The built catalog is committed, in `golden-catalog/`
 
