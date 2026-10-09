@@ -66,8 +66,15 @@ SIZE_KEYS = ("size", "size_uk", "size_eu", "size_us", "length", "inside_leg", "w
 
 
 def swatch(color: Color, family: str | None = None) -> dict:
-    """A color option: its name, swatch hex and pattern (and family, if it has one)."""
+    """A color option: its name, swatch hex and pattern (and accent and family, if it has them).
+
+    The accent is a drawing input only (a stripe's second color, a trim): :func:`product`
+    moves it off ``color_options`` into the drawing's ``accents``, where a color's
+    image (``image_release.color_drawing``) reads it.
+    """
     out = {"color": color[0], "hex": color[2], "pattern": color[1]}
+    if color[3]:
+        out["accent"] = color[3]
     if family is not None:
         out["family"] = family
     return out
@@ -98,7 +105,14 @@ def product(product_id: str, skus: list[dict], swatches: dict[str, dict], **fiel
     out |= {"sku_count": len(rows), "skus": rows}
     colors = _distinct(s["color"] for s in rows if "color" in s)
     if colors:
-        out["color_options"] = [swatches[c] for c in colors]
+        options = [swatches[c] for c in colors]
+        out["color_options"] = [{k: v for k, v in o.items() if k != "accent"} for o in options]
+        # The drawing is drawn in its first color; a color whose accent differs
+        # is recorded on the drawing, which the search index never sees.
+        drawn = out.get("drawing", {}).get("accent")
+        accents = {o["color"]: o["accent"] for o in options if o.get("accent", drawn) != drawn}
+        if accents:
+            out["drawing"] = out["drawing"] | {"accents": accents}
     sizes = {k: _distinct(s[k] for s in rows if k in s) for k in SIZE_KEYS}
     sizes = {k: v for k, v in sizes.items() if v}
     if sizes:

@@ -1116,8 +1116,9 @@ standard: `skus` become `variants`, each SKU option a variant-level attribute
 entry (a measurement split into `value`, `unit_code` and `value_canonical`);
 department, color and size options, the offer flags, rating and the other
 retail-only fields become product-level entries; `image_id` is
-`<product type>/<product id>/<drawing spec digest>`, one per distinct drawing,
-served under `/images/retail` once the SVGs are rendered. Every record states
+`<product type>/<product id>/<drawing spec digest>`, one per style and
+colorway, served under `/images/retail` from the image release
+([The retail image release](#the-retail-image-release)). Every record states
 its own `product_type` and `category_leaf` (the jeans, bra, bedding, beauty
 and planted single-SKU records gained theirs in the record builders). A
 percent (ABV, discount) is a plain number with `(%)` in its name: prism
@@ -1614,6 +1615,26 @@ uv run python scripts/contact_sheet.py --catalog golden-catalog --out out/contac
 writes an HTML contact sheet of real catalog SKUs -- one screw across its
 lengths for two brands, flat washers across sizes, materials and brands, and
 twenty SKUs of every type -- for judging the drawings by eye.
+
+### The retail image release
+
+```sh
+uv run python prototypes/retail_drawings/image_release.py --out out/retail-images --archive out/retail-images.tar.gz
+```
+
+renders every image the retail export references and packages it in the
+industrial bundle's shape, so the same installer takes it: members
+`retail/<image_id>.svg` under the archive's own `retail/` folder, every
+`image_url` that member under `/images/`, the same deterministic archive, and
+the content digest and file count printed and written beside it as
+`.content-sha256`. Images are keyed per style and colorway, never per SKU:
+every size of one color shares an image, drawn in that color's swatch (base,
+pattern and accent). The 328-style build is 629 images for 6,861 SKUs.
+There is no committed manifest to check against (the retail build is code, not
+a committed catalog); the command refuses an `image_id` that names two
+different drawings instead. `tests/test_retail_image_release.py` pins the
+keying, that every document's image URL resolves to a packaged file, and the
+package shape.
 
 ### The older renderers in `domains/industrial/render/`
 
