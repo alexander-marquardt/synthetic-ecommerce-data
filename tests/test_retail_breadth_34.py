@@ -45,6 +45,48 @@ def test_no_other_template_uses_a_breadth_leaf() -> None:
     assert sorted(set(_leaves()) & other) == []
 
 
+#: Branches this tier adds on purpose, each under a node the catalog already has.
+NEW_BRANCHES = frozenset({
+    ("Beauty", "Fragrance"),
+    ("Beauty", "Make-Up", "Eyes"),
+    ("Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Berries"),
+    ("Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Stone Fruit"),
+    ("Garden", "Seeds"),
+    ("Home", "DIY & Tools"),
+})
+
+
+def _existing_nodes() -> set[tuple[str, ...]]:
+    """Every node (every prefix of a path) used by a template that is not a breadth row."""
+    mine = {r.code for r in ROWS}
+    nodes: set[tuple[str, ...]] = set()
+    for d in scale.templates():
+        if d["product_id"].removeprefix("BRD-") in mine:
+            continue
+        path = tuple(d["category_path"])
+        nodes.update(path[:i] for i in range(1, len(path) + 1))
+    return nodes
+
+
+def test_a_new_leaf_sits_inside_the_existing_tree_not_beside_it() -> None:
+    """A leaf's parent is an existing node or a listed new branch (whose own parent exists),
+    and the leaf is not placed beside a node named for its own product type (a Cherries leaf
+    under Fruit & Vegetables, next to Fresh Fruit, belongs inside Fresh Fruit)."""
+    nodes = _existing_nodes()
+    unknown_parent = sorted(
+        r.path for r in ROWS if r.path[:-1] not in nodes | NEW_BRANCHES
+    )
+    orphan_branch = sorted(b for b in NEW_BRANCHES if b[:-1] not in nodes)
+    beside = sorted(
+        (r.path, r.product_type)
+        for r in ROWS
+        if (*r.path[:-1], r.product_type) in nodes
+    )
+    assert unknown_parent == []
+    assert orphan_branch == []
+    assert beside == []
+
+
 def test_no_node_sits_directly_under_a_parent_of_the_same_name() -> None:
     pairs = {p: zip(p, p[1:], strict=False) for p in _leaves()}
     same = [p for p, z in pairs.items() if any(a.lower() == b.lower() for a, b in z)]
@@ -64,12 +106,17 @@ def test_titles_and_codes_are_unique_and_every_row_builds_a_valid_document() -> 
         assert doc["drawing"].get("label") is None, row.code
 
 
-def test_a_unit_free_attribute_key_names_no_unit() -> None:
-    """A unit-free value (a material, a variety) has no unit in its key; a size is a SKU field."""
-    bad = [
-        (r.code, k)
-        for r in ROWS
-        for k, _, _ in r.attrs
-        if any(u in k.split("_") for u in ("mm", "cm", "ml", "kg", "g", "l", "in", "ft"))
-    ]
+def test_a_unit_free_key_names_no_unit_and_a_unit_key_ends_in_its_unit() -> None:
+    """A material or a variety has no unit in its key; a measured figure ends in it
+    (``head_weight_oz``, unit code ONZ); a size is a SKU field."""
+    units = {"ONZ": "oz"}
+    tokens = ("mm", "cm", "ml", "kg", "g", "l", "in", "ft", "oz")
+    bad = []
+    for r in ROWS:
+        for a in r.attrs:
+            key, code = a[0], (a[3] if len(a) > 3 else None)
+            if code is None and any(u in key.split("_") for u in tokens):
+                bad.append((r.code, key))
+            if code is not None and not key.endswith("_" + units[code]):
+                bad.append((r.code, key))
     assert bad == []

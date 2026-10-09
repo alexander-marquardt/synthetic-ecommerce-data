@@ -52,7 +52,7 @@ class Row:
     shape: str
     description: str
     colors: tuple[Color, ...]
-    attrs: tuple[tuple[str, str, str], ...] = ()
+    attrs: tuple[tuple, ...] = ()
     sizes: tuple[tuple[str, float], ...] = ()
     label: str | None = None
     audience: str = "adult"
@@ -79,7 +79,7 @@ class Row:
             department=[self.department], product_type=self.product_type,
             category_path=list(self.path), category_leaf=self.path[-1],
             description=self.description,
-            attributes=[attr(k, n, v) for k, n, v in self.attrs],
+            attributes=[attr(*a) for a in self.attrs],
             drawing=drawing(self.shape, self.colors[0], self.label, **dict(self.params)),
             collections=[], currency="GBP", audience=self.audience,
             sold_last_5_days=5 + h % 90, rating=round(3.8 + (h >> 8) % 11 / 10, 1),
@@ -1105,6 +1105,11 @@ def _a1(key: str, name: str, v: str) -> tuple[tuple[str, str, str], ...]:
     return ((key, name, v),)
 
 
+def _head_oz(oz: int) -> tuple[tuple[str, str, str, str, float], ...]:
+    """A hammer head's weight: the unit is in the key (``_oz``), the canonical value in grams."""
+    return (("head_weight_oz", "Head weight", str(oz), "ONZ", oz * 28.349523125),)
+
+
 def _in(hex_: str, accent: str = "#2a2a2e", name: str = "Grey") -> tuple[Color, ...]:
     return (cw(name, hex_, "solid", accent),)
 
@@ -1112,6 +1117,7 @@ def _in(hex_: str, accent: str = "#2a2a2e", name: str = "Grey") -> tuple[Color, 
 _HW = "Home"
 _KD = ("Home", "Kitchen & Dining")
 _DIY = ("Home", "DIY & Tools")
+_FRUIT = ("Food & Drink", "Fruit & Vegetables", "Fresh Fruit")
 
 BREADTH_34 = (
     Row("CUTSET", "Stainless Steel Cutlery Set, 16 Piece", "Hearth & Table", _HW,
@@ -1155,11 +1161,12 @@ BREADTH_34 = (
         (*_DIY, "Claw Hammers"), "Claw Hammer", 11.0, "hammer",
         "A forged steel head with a curved claw, on a handle with a rubber grip.",
         _in("#7a7d82", "#c8312e", "Silver"),
-        _a1("handle_material", "Handle material", "Fiberglass")),
+        (*_a1("handle_material", "Handle material", "Fiberglass"), *_head_oz(16))),
     Row("HAMWOD", "Wooden Handle Claw Hammer", "Lanternby", _HW,
         (*_DIY, "Claw Hammers"), "Claw Hammer", 9.0, "hammer",
         "A forged steel head with a straight claw, on a smooth ash handle.",
-        _in("#7a7d82", "#a8793f", "Silver"), _a1("handle_material", "Handle material", "Wood")),
+        _in("#7a7d82", "#a8793f", "Silver"),
+        (*_a1("handle_material", "Handle material", "Wood"), *_head_oz(20))),
     Row("SCRDSET", "Slotted and Phillips Screwdriver Set", "Calderby & Lune", _HW,
         (*_DIY, "Screwdriver Sets"), "Screwdriver Set", 13.0, "screwdriver",
         "Six screwdrivers with magnetic tips and a soft grip handle, in a roll-up pouch.",
@@ -1188,7 +1195,7 @@ BREADTH_34 = (
         "Six chunky dinosaurs with painted detail, sized for small hands. For ages 3 and up.",
         (cw("Green", "#6f8f4a"),), _mat("Plastic"), audience=_KIDS),
     Row("DAISYP", "Marguerite Daisy Plant", "Fenwold Nursery", "Garden",
-        ("Garden", "Bedding Plants", "Daisies"), "Bedding Plant", 5.0, "daisy",
+        ("Garden", "Plants", "Daisies"), "Bedding Plant", 5.0, "daisy",
         "A compact plant covered in white flowers from spring to autumn, in a 12 cm pot.",
         (cw("White", "#ffffff", "solid", "#f2d14b"),), _a1("variety", "Variety", "Marguerite"),
         colorless=True),
@@ -1203,7 +1210,7 @@ BREADTH_34 = (
         (cw("Orange", "#e07a1f", "solid", "#4f7a3a"),), _a1("variety", "Variety", "Nantes"),
         colorless=True),
     Row("CHERRY", "Fresh Morello Cherries", "Freshfold", _FD,
-        ("Food & Drink", "Fruit & Vegetables", "Cherries"), "Fresh Fruit", 3.5, "cherries",
+        (*_FRUIT, "Stone Fruit", "Cherries"), "Fresh Fruit", 3.5, "cherries",
         "Sharp, deep red cherries picked in summer, good for pies and compotes.",
         (cw("Red", "#9e1b2a", "solid", "#4f7a3a"),), _a1("variety", "Variety", "Morello"),
         (("250 g", 3.5), ("500 g", 6.0)), colorless=True),
@@ -1212,7 +1219,7 @@ BREADTH_34 = (
         "Light ring doughnuts rolled in sugar, baked in store each morning.",
         (cw("Tan", "#d9a05b", "solid", "#ffffff"),), _flavor("Sugar"), colorless=True),
     Row("STRBRY", "Fresh British Strawberries", "Freshfold", _FD,
-        ("Food & Drink", "Fruit & Vegetables", "Strawberries"), "Fresh Fruit", 2.5,
+        (*_FRUIT, "Berries", "Strawberries"), "Fresh Fruit", 2.5,
         "strawberry",
         "Sweet, juicy strawberries picked at the height of summer, packed in a recyclable punnet.",
         (cw("Red", "#c8312e", "solid", "#4f7a3a"),), _a1("variety", "Variety", "Elsanta"),
