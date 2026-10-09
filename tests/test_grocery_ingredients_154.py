@@ -24,6 +24,7 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import grocery  # noqa: E402
+from grocery_rows import FAMILIES  # noqa: E402
 from grocery_ingredients import facet_value  # noqa: E402
 
 #: Phrases that hold an allergen word without the allergen, removed before matching.
@@ -49,7 +50,8 @@ ANIMAL = re.compile(
     r"\b(?:honey|beeswax|chicken|beef|pork|bacon|ham|pepperoni|tuna|salmon|cod|mackerel|haddock)\b"
 )
 MEAT = re.compile(r"\b(?:chicken|beef|pork|bacon|ham|pepperoni|tuna|salmon|cod|mackerel|haddock)\b")
-NO_LIST = {"Fresh Fruit", "Fresh Vegetables", "Kitchen Cleaner", "Body Lotion"}
+#: Produce, and every non-food family (a cleaner, a body lotion, a hand wash): no label list.
+NO_LIST = {"Fresh Fruit", "Fresh Vegetables"} | {f.product_type for f in FAMILIES if not f.food}
 
 
 @cache
