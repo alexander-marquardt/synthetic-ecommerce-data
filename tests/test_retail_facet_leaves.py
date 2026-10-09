@@ -242,3 +242,63 @@ def test_a_bra_carries_every_value_its_title_names(pairs, values):
             assert named <= have, (rec["product_id"], rec["title"], key, named - have)
             checked += bool(named)
     assert checked
+
+
+#: Fabric values that name only a fibre. A shopper filters these under Composition; ``Linen``
+#: and ``Cotton`` are left out because a bra's lace-or-cotton cup and a linen cushion are
+#: fabrics a shopper names (the issue keeps them in ``fabric``).
+FIBRE_ONLY = {
+    "Organic Cotton", "Turkish Cotton", "Zero Twist Cotton", "Bamboo", "Polyester", "Elastane",
+    "Recycled Polyester", "Recycled Polyamide", "Modal", "Viscose", "Wool", "Silk", "Nylon",
+}  # fmt: skip
+
+
+def _values(doc, key):
+    return [a["value"] for a in doc["attributes"] if a["key"] == key]
+
+
+def test_no_fabric_holds_fibre_content(built, docs):
+    """``fabric`` is a fabric or weave a shopper names, never a percentage, a comma-joined
+    fibre list or a fibre alone, on any product type (gen#166)."""
+    bad = {
+        (d["product_type"], v)
+        for d in docs
+        for v in _values(d, "fabric")
+        if "%" in v or "," in v or v in FIBRE_ONLY
+    }
+    assert not bad
+    assert any(_values(d, "fabric") for d in docs)
+
+
+#: Each non-bra ``fabric`` value that is not itself a fabric -> (its fabric, its composition).
+MOVED = {
+    "100% Cotton": (None, "100% Cotton"),
+    "70% Cotton, 28% Polyester, 2% Elastane": (None, "70% Cotton, 28% Polyester, 2% Elastane"),
+    "92% Cotton, 6% Polyester, 2% Elastane": (None, "92% Cotton, 6% Polyester, 2% Elastane"),
+    "98% Cotton, 2% Elastane": (None, "98% Cotton, 2% Elastane"),
+    "Bamboo": (None, "Bamboo"),
+    "Organic Cotton": (None, "Organic Cotton"),
+    "Turkish Cotton": (None, "Turkish Cotton"),
+    "Zero Twist Cotton": (None, "Zero Twist Cotton"),
+    "100% Cotton Oxford": ("Oxford", "100% Cotton"),
+    "Brushed Cotton Flannel": ("Flannel", "Cotton"),
+    "Mid Weight Denim": ("Denim", None),
+    "Washed Linen": ("Linen", None),
+}
+
+
+def test_fibre_content_moves_to_composition_on_every_type(built, docs):
+    """A non-bra record's fibre content is its document's composition, and the fabric it
+    held keeps only the fabric or weave ("100% Cotton Oxford" is an Oxford shirt)."""
+    moved = collections.Counter()
+    for rec, doc in zip(built.records, docs, strict=True):
+        old = [a["value"] for a in rec["attributes"] if a["key"] == "fabric"]
+        if rec["product_type"] == "Bra" or not old:
+            continue
+        fabric, composition = MOVED.get(old[0], (old[0], None))
+        assert _values(doc, "fabric") == ([fabric] if fabric else []), rec["product_id"]
+        assert _values(doc, "composition") == ([composition] if composition else [])
+        moved[rec["product_type"]] += bool(composition)
+    assert {v for r in built.records for a in r["attributes"] if a["key"] == "fabric"
+            for v in [a["value"]] if r["product_type"] != "Bra"} >= set(MOVED)
+    assert {t for t, n in moved.items() if n} == {"Jeans", "Shirt", "Towel", "Soft Toy"}

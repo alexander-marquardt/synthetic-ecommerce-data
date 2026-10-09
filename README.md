@@ -1270,10 +1270,13 @@ trousers at `<Root>/Trousers`, its fit in `leg_fit` alone (the failure-class row
 is folded into it). A bra sits at `Women/Lingerie/Bras`, unless it is a Sports, Nursing, Sleep
 or Post-Surgery bra, whose node stays; its old style leaf is split into `bra_shape`,
 `padding`, `back_style` and `fabric` (`facet_leaves.BRA_LEAVES`), and the fibre content a bra's
-`fabric` held moves to `composition`. Only the document changes (`export.standard_document`):
+`fabric` held moves to `composition`. On every other type `fabric` keeps only a fabric or weave
+(Denim, Linen, Velvet, Oxford); fibre content ("98% Cotton, 2% Elastane", Bamboo, Organic
+Cotton) moves to `composition` (`facet_leaves.FABRIC_MOVES`). Only the document changes (`export.standard_document`):
 the build record keeps its leaf, so the derivation and every image id are what they were, and a
 title keeps its words ("Skinny Jeans"). `tests/test_retail_facet_leaves.py` refuses a node
-under Jeans, Trousers or Bras that names one of those values, a jean without a `leg_fit` or a
+under Jeans, Trousers or Bras that names one of those values, a `fabric` holding a percentage,
+a comma-joined fibre list or a fibre alone, a jean without a `leg_fit` or a
 bra without a `bra_shape`, and a facet with two values that differ only in case or hyphenation.
 
 `prototypes/retail_drawings/scale.py --skus 20000 --out retail.jsonl` builds the
