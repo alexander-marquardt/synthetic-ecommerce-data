@@ -1171,7 +1171,9 @@ color sets it apart, its title ends with that color ("..., Dark Indigo"), and
 that hero is its only colorway. A
 changed motif is redrawn in the picture and the title, and the description is
 rebuilt around it; a "Shown in" color names the hero. It takes a subset
-of the template's colorways and keeps the template's size run. Its price is
+of the template's colorways and keeps the template's size run, and a count of
+colorways its text states ("in 12 washes") is its own: "in one wash" for a
+colorway alone. Its price is
 re-drawn inside its leaf's band, as a function of the values it changed (a
 premium material costs more). A draw whose title or description contradicts an
 attribute is refused, and `check_catalog` refuses such text too. The module

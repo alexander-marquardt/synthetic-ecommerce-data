@@ -36,7 +36,9 @@ A derived style copies one template and changes, deterministically from the seed
   alone. Its SKUs are the template's own size run times those colors, hero first
   (:func:`variants.product`): no SKU is invented. Each SKU's price is the
   template's times the style's price ratio (see below). A description's
-  "Shown in cream" names the hero, the color the picture shows;
+  "Shown in cream" names the hero, the color the picture shows, and its count
+  of colorways ("in 12 washes", "in three prints") is the style's own, "one wash"
+  when it has one (:func:`_restate_color_count`);
 - its rating, review count and sales, redrawn; a bestseller rank and the
   Bestseller badge stay with the authored styles.
 
@@ -158,6 +160,22 @@ ATTEMPTS = 40
 
 #: Fields :func:`variants.product` derives from the SKUs; never copied.
 DERIVED_FIELDS = ("product_id", "price", "sku_count", "skus", "color_options", "size_options")
+
+#: The plural nouns a template's text counts its colorways in ("in 12 washes", "in three
+#: prints"), each with its singular. A derived style keeps a subset of the colorways, so
+#: :func:`_restate_color_count` rewrites the count to the style's own (gen#143).
+COLOR_COUNT_NOUNS = {
+    "washes": "wash", "prints": "print", "colors": "color", "colorways": "colorway",
+    "shades": "shade",
+}  # fmt: skip
+#: The counts a template spells out ("three prints"); index i is the word for i.
+NUMBER_WORDS = (
+    "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+    "eleven", "twelve",
+)  # fmt: skip
+_COLOR_COUNT = re.compile(
+    rf"\b(\d+|{'|'.join(NUMBER_WORDS[2:])})\s+({'|'.join(COLOR_COUNT_NOUNS)})\b", re.IGNORECASE
+)
 
 
 @dataclass
@@ -316,6 +334,24 @@ def _redraw_motif(rec: dict, old: str, new: str) -> None:
         rec["description"] = f"{lead}: {_plural(low)} {spread} {on}."
 
 
+def _restate_color_count(text: str, n: int) -> str:
+    """``text`` with each colorway count ("in 12 washes", "in three prints") made ``n``:
+    "one wash" for a single colorway, else ``n`` in the template's own form (digits
+    or a word). A title-cased noun ("3 Washes") stays title-cased ("One Wash")."""
+
+    def restate(m: re.Match[str]) -> str:
+        plural = m.group(2)
+        if n == 1:
+            phrase = f"one {COLOR_COUNT_NOUNS[plural.lower()]}"
+            return phrase.title() if plural[0].isupper() else phrase
+        if m.group(1).isdigit() or n >= len(NUMBER_WORDS):
+            return f"{n} {plural}"
+        word = NUMBER_WORDS[n]
+        return f"{word.capitalize() if m.group(1)[0].isupper() else word} {plural}"
+
+    return _COLOR_COUNT.sub(restate, text)
+
+
 def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
            colors: list[str], owners: dict[str, str], rng: random.Random,
            ratio: float = 1.0) -> dict:  # fmt: skip
@@ -375,6 +411,10 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
     skus = [{k: v for k, v in s.items() if k != "sku"} for s in tpl["skus"]
             if "color" not in s or s["color"] in rank]  # fmt: skip
     skus.sort(key=lambda s: rank.get(s.get("color"), 0))
+    if colors:
+        kept = len({s["color"] for s in skus if "color" in s})
+        rec["title"] = _restate_color_count(rec["title"], kept)
+        rec["description"] = _restate_color_count(rec["description"], kept)
     for s in skus:
         s["price"] = price_point(s["price"] * ratio)
     out = product(pid, skus, swatches, **rec)
