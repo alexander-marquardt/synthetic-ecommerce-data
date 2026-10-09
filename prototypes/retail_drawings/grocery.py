@@ -25,8 +25,11 @@ flavor and pack:
 
 At product level, ``contains`` and ``may_contain`` are the union over the variants,
 and ``free_from`` and ``dietary`` the intersection. A product that is "free from
-peanuts" is therefore free from them in every variant. A non-food overlap style (a
-cleaner, a body milk) carries a ``scent`` and none of the food facts.
+peanuts" is therefore free from them in every variant. ``ingredients`` is the base
+recipe every variant shares (the intersection, so at most 20 and possibly under 5); a
+SKU carries its flavor's full 5 to 20 list. Fresh fruit and vegetables carry none. A
+non-food overlap style (a cleaner, a body milk) carries a ``scent`` and none of the
+food facts.
 
 One drawing per style (``export.image_id``): a pack shape from the kit, or
 :mod:`kit_grocery`'s ``bar`` and ``bag``.
@@ -51,6 +54,7 @@ if str(HERE) not in sys.path:
 import kit_grocery  # noqa: E402,F401 -- registers bar and bag
 from departments import check as check_departments  # noqa: E402
 from export import NUMERIC_FACTS, standard_document  # noqa: E402
+from grocery_ingredients import ingredients, shared  # noqa: E402
 from grocery_rows import ALLERGENS, ANCHORS, FAMILIES, LINES, OWNERS, F, Family  # noqa: E402
 from kit_produce import pile_params  # noqa: E402
 from variants import attr, drawing, product  # noqa: E402
@@ -71,6 +75,11 @@ FRUIT = {"Unwaxed Lemons": "lemon", "Oranges": "orange", "Easy Peelers": "clemen
          "Gala Apples": "apple", "Bramley Apples": "apple"}  # fmt: skip
 #: A pack word -> how a fruit pile shows it.
 PILE_PACK = {"Single": "loose", "4 pack": "net", "1kg": "bag"}
+
+#: Product entries that are a union over the flavors, so a flat SKU must not inherit them.
+UNIONED = frozenset({"contains", "may_contain"})
+#: A flavor whose pack label differs from its family's: the honey jar reads Honey, not Jam.
+LABELS = {("JAM", "Clear Honey"): "Honey", ("JAM", "Set Honey"): "Honey"}
 
 _PACK = re.compile(r"^(?:(\d+) x )?([\d.]+) ?(g|kg|ml|L|pint)$")
 _COUNT = re.compile(r"^(\d+) (pack|bags)$")
@@ -177,7 +186,7 @@ def _drawing(fam: Family, flavor: F, pid: str, pack: dict) -> dict:
         count = None if grams else pack["units_per_pack"]
         params = pile_params(FRUIT[flavor.name], pid, PILE_PACK[pack["pack_size"]], grams, count)
         return drawing(fam.shape, color, fam.label, **params)
-    return drawing(fam.shape, color, fam.label)
+    return drawing(fam.shape, color, LABELS.get((fam.code, flavor.name), fam.label))
 
 
 def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs: list[str],
@@ -195,6 +204,8 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
             food = {**facts, "dietary": dietary(flavor, facts, organic)}
         for pack in parsed:
             sku = {fam.axis: flavor.name, **pack, **{k: v for k, v in food.items() if v}}
+            if listed := ingredients(fam.code, flavor.name, pid) if fam.food else None:
+                sku["ingredients"] = listed
             skus.append(sku | {"price": _price(fam, pack, first, fi, brand), "in_stock": True})
     head = f"{line} Organic" if organic else line
     title = fam.title.format(line=head, flavor=flavors[0].name)
@@ -215,6 +226,8 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
             attr("storage", "Storage", fam.storage),
             attr("nutrition_grade", "Nutrition grade", f"Grade {grade}"),
         ]
+    base = shared([s["ingredients"] for s in skus]) if "ingredients" in skus[0] else None
+    extra = {"ingredients": base} if base is not None else {}
     h = zlib.crc32(pid.encode())
     prices = [s["price"] for s in skus]
     return product(
@@ -225,7 +238,7 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
         drawing=_drawing(fam, flavors[0], pid, parsed[0]), collections=[], currency="GBP",
         audience="baby" if fam.code == "BAB" else "adult",
         sold_last_5_days=5 + h % 90, rating=round(3.8 + (h >> 8) % 11 / 10, 1),
-        review_count=3 + (h >> 16) % 400, price_min=min(prices), price_max=max(prices),
+        review_count=3 + (h >> 16) % 400, price_min=min(prices), price_max=max(prices), **extra,
     )  # fmt: skip
 
 
@@ -290,8 +303,22 @@ def documents(recs: list[dict]) -> list[dict[str, Any]]:
 
 
 def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """One flat document per SKU (:func:`synthetic_ecommerce_data.core.standard.flat_documents`)."""
-    return [row for doc in docs for row in standard.flat_documents(doc, NUMERIC_FACTS)]
+    """One flat document per SKU (:func:`synthetic_ecommerce_data.core.standard.flat_documents`).
+
+    The standard fills a key a variant does not state from its product's entries. For
+    ``contains`` and ``may_contain`` the product states the UNION over its flavors, so a
+    SKU with none of its own would inherit another flavor's (Fruit Gums "Contains: Milk"
+    beside "Free from: Milk", because the Toffee in the style has milk). Each SKU is
+    flattened with the product's entries for those two keys left out when it states none.
+    """
+    out = []
+    for doc in docs:
+        for variant in doc["variants"]:
+            own = {e["key"] for e in variant["attributes"]}
+            kept = [e for e in doc["attributes"] if e["key"] not in UNIONED - own]
+            one = doc | {"attributes": kept, "variants": [variant]}
+            out += standard.flat_documents(one, NUMERIC_FACTS)
+    return out
 
 
 def report(recs: list[dict]) -> dict[str, Any]:

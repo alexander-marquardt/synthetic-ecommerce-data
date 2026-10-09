@@ -1004,6 +1004,13 @@ kitchen-cleaner leaf and a body-lotion leaf for the overlaps. Each SKU states
 milk, gluten, soy, egg), its `dietary` labels (Vegan, Vegetarian, Gluten Free,
 Nut Free, Organic), `pack_size`, `units_per_pack` and its net weight or volume.
 
+Food SKUs also carry a top-level `ingredients` list (5 to 20 invented items in label
+order, never in conflict with `contains` and `free_from`); the flat file carries
+each SKU's own list. A product's list is the base recipe all its flavors share, so it
+may be shorter than 5. Fresh whole fruit and vegetables carry no list: the field is
+optional. A pizza is chilled and always contains gluten (a Vegan Garden style and a
+Four Cheese style are pinned), and a honey jar is drawn with a Honey label.
+
 At product level, `free_from` and `dietary` are the intersection over the
 product's variants, so a product listed as free from peanuts is free from them
 in every variant. Open Food Facts (ODbL) inspired only the shape: the category
