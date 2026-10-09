@@ -36,6 +36,12 @@ SCALE_ROWS = 74
 AUTHORED = 328
 BREADTH_ROWS = 176
 TEMPLATES = AUTHORED + SCALE_ROWS + BREADTH_ROWS
+#: The SKUs the templates alone hold. A build at or under it takes no seeded draw, so
+#: every derived-style test (``pairs``) would pass on an empty list.
+TEMPLATE_SKUS = 16_977
+#: The derived styles :data:`TARGET` must hold so the ``pairs`` tests read a real sample:
+#: round 2's 19K build held 166 (seed 0), and adding templates must not shrink it.
+MIN_DERIVED = 150
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
 CAPACITY = (2_659, 52_022)
@@ -81,6 +87,13 @@ def test_the_size_parameter_reaches_the_target_sku_count(built):
     assert built.skus - built.records[-1]["sku_count"] < TARGET
     assert len(built.records) > TEMPLATES
     assert len(built.template_of) == len(built.records) - TEMPLATES
+
+
+def test_the_target_leaves_the_derived_style_tests_a_sample(built, pairs):
+    """New templates raise :data:`TEMPLATE_SKUS`; the pin fails until it is updated, and
+    the floor fails if :data:`TARGET` is left behind it."""
+    assert sum(t["sku_count"] for t in scale.templates()) == TEMPLATE_SKUS
+    assert len(pairs) >= MIN_DERIVED, (len(pairs), MIN_DERIVED)
 
 
 def test_the_templates_come_first_and_a_small_target_takes_a_prefix(built):
