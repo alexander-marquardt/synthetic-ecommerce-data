@@ -10,7 +10,7 @@ four leaves, and every style is typed ``Shirt``::
     Men/Tops/Shirts/Denim Shirts       Women/Tops/Shirts/Denim Shirts
 
 Three styles per leaf and audience, so 24 in all, each in :data:`SIZES` and one or two colors.
-:func:`scale.templates` builds them after the grocery styles and :func:`scale.derivable`
+:func:`scale.templates` builds them just before the grocery styles and :func:`scale.derivable`
 leaves them out, so the seeded derivation (and every product id and image id it makes) is
 what it was; a build to the old ceiling is cut a few derived styles short of it instead.
 Every row is a :class:`class_model.Style`; a title says "Shirt", never "Tee".
