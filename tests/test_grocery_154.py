@@ -30,8 +30,8 @@ import kit  # noqa: E402
 from grocery_ingredients import facet_value  # noqa: E402
 from grocery_rows import ALLERGENS  # noqa: E402
 
-STYLES = 3305
-SKUS = 10_042
+STYLES = 3379
+SKUS = 10_067
 ALL = set(ALLERGENS.values())
 
 
@@ -255,9 +255,9 @@ def test_nut_free_and_vegan_chocolate() -> None:
 @pytest.mark.parametrize(
     ("food_leaf", "food_want", "other_leaf", "other_want"),
     [
-        ("Fruit", {"variety": "Unwaxed Lemons"}, "Kitchen Cleaners", {"scent": "Lemon"}),
+        ("Lemons", {"variety": "Unwaxed Lemons"}, "Kitchen Cleaners", {"scent": "Lemon"}),
         ("Jam & Honey", {"flavor": "Lemon Curd"}, "Kitchen Cleaners", {"scent": "Lemon"}),
-        ("Fruit", {"variety": "Oranges"}, "Kitchen Cleaners", {"scent": "Orange"}),
+        ("Oranges", {"variety": "Oranges"}, "Kitchen Cleaners", {"scent": "Orange"}),
         ("Juice", {"flavor": "Smooth Orange"}, "Kitchen Cleaners", {"scent": "Orange"}),
         ("Jam & Honey", {"flavor": "Clear Honey"}, "Body Lotion", {"scent": "Honey"}),
         ("Tinned", {"flavor": "Coconut Milk"}, "Body Lotion", {"scent": "Coconut"}),

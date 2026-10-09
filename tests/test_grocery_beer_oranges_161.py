@@ -72,7 +72,8 @@ def test_the_oranges_leaf_holds_oranges_blood_oranges_segments_and_easy_peelers(
 def test_easy_peelers_are_a_type_match_with_no_orange_word_in_the_title() -> None:
     peelers = [d for d in under(ORANGES) if "Easy Peelers" in d["title"]]
     assert peelers
-    assert not [d for d in peelers if "orange" in f"{d['title']} {d['description']}".lower()]
+    text = [f"{d['title']} {v['description']}".lower() for d in peelers for v in d["variants"]]
+    assert text and not [t for t in text if "orange" in t]
 
 
 @pytest.mark.parametrize(
@@ -106,7 +107,10 @@ def test_the_word_orange_names_more_products_outside_the_leaf_than_inside_it() -
 def test_other_fresh_produce_has_a_bare_noun_leaf_too(leaf: str, variety: str) -> None:
     held = [d for d in docs() if d["category_leaf"] == leaf]
     assert held
-    assert all(d["category_path"][:3] == ["Food & Drink", "Fruit & Vegetables", "Fresh Fruit"] for d in held)
+    assert all(
+        d["category_path"][:3] == ["Food & Drink", "Fruit & Vegetables", "Fresh Fruit"]
+        for d in held
+    )
     assert any(variety in values(v["attributes"], "variety") for d in held for v in d["variants"])
 
 
@@ -142,8 +146,8 @@ def test_a_beer_abv_is_a_flat_number_and_the_volume_is_in_ml() -> None:
     assert rows
     for r in rows:
         assert "abv" in r["facets_num"], r["sku"]
-        assert r["facets_num"]["net_volume"] > 0 or values(r["attributes"], "net_volume")
-        assert any(e["key"] == "net_volume" and e["unit"] == "MLT" for e in r["attributes"])
+        assert r["facets_num"]["net_volume"] > 0, r["sku"]
+        assert any(e["key"] == "net_volume" and e["unit_code"] == "MLT" for e in r["attributes"])
 
 
 def test_a_beer_contains_gluten_and_a_lager_need_not_say_beer() -> None:
