@@ -509,3 +509,30 @@ def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(tmp_path):
     assert got["reached_target"] is False
     assert got["standard_problems"] == 0
     assert (got["coverage"]["styles"], got["coverage"]["skus"]) == CAPACITY
+
+
+def test_a_color_titled_style_carries_only_its_title_color_in_every_sku(pairs):
+    """A listing whose title names a colour IS that colour: every SKU of a style titled
+    "…, Sage" is Sage, in all its sizes."""
+    seen = 0
+    for r, t in pairs:
+        hero = (r.get("color_options") or [{}])[0].get("color")
+        if not (hero and r["title"].endswith(f", {hero}")):
+            continue
+        seen += 1
+        assert {s.get("color") for s in r["skus"]} == {hero}, r["product_id"]
+        assert [c["color"] for c in r["color_options"]] == [hero], r["product_id"]
+        sizes = {s.get("size") for s in t["skus"]}
+        assert {s.get("size") for s in r["skus"]} == sizes, r["product_id"]
+    assert seen >= 100
+
+
+def test_a_duvets_drawn_tog_is_its_tog_attribute(built):
+    duvets = 0
+    for r in built.records:
+        tog = next((str(a["value"]) for a in r["attributes"] if a["key"] == "tog"), None)
+        if tog is None:
+            continue
+        duvets += 1
+        assert r["drawing"]["label"].lower() == f"{tog} tog".lower(), r["product_id"]
+    assert duvets >= 2
