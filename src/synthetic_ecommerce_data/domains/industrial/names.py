@@ -133,7 +133,8 @@ NAME_EXCEPTIONS: dict[str, str] = {
     "Wheel Dia.": "a grinding wheel face diameter; the census carries no abrasive family",
     "Pin Dia.": "a cotter pin diameter; the census carries no cotter pin family",
     # Not in TYPE_SPECIFIC: "Dowel" is not a qualifying noun, so only the census gate applies.
-    "Dowel Dia.": "a dowel pin diameter; the census carries no dowel pin family",
+    "Dowel Dia. (in)": "a dowel pin diameter, inch; the census carries no dowel pin family",
+    "Dowel Dia. (mm)": "a dowel pin diameter, metric; the census carries no dowel pin family",
     "Backing Material": "component material: a flap disc's backing plate",
     "Handle Grip Material": "component material: a hammer's grip, beside Handle Material",
     "Face Type": "hammer striking-face form; the census carries no hammer family",

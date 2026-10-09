@@ -371,8 +371,8 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
 #: Quantities whose ratio is over the continuity threshold but whose product
 #: count is under the floor, so the floor alone keeps them faceted. A dowel pin
 #: diameter was pooled with every other ``Diameter`` (and under the floor's
-#: reach never); on its own key (the 2026-10-07 label ruling) it has 60 products.
-NUMERIC_HELD_BY_FLOOR = ("Dowel Dia.",)
+#: reach never); on its own key (the 2026-10-07 label ruling) it has 60 products, split by unit into two labels of which only the metric one is over the threshold.
+NUMERIC_HELD_BY_FLOOR = ("Dowel Dia. (mm)",)
 
 
 def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
