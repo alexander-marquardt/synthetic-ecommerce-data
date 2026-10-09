@@ -148,10 +148,13 @@ YELLOW, WHITE, ORANGE = "#f2d14b", "#ffffff", "#f08a24"
 #: Pack counts: the record states each once, and the drawing shows that many fruits.
 LEMON_PACK, ORANGE_PACK = 4, 5
 
+#: The one food tree: the grocery build's ``Food & Drink`` nodes (never a second root).
+CITRUS_FRUIT = ("Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Citrus Fruit")
+
 #: Intended products that are not part of a variant family.
 LEMONS = product(
     "LEMONS", f"Unwaxed Lemons, Pack of {LEMON_PACK}", "Goldfield Farms", "Food & Drink",
-    ("Food", "Fresh Produce", "Fruit", "Citrus", "Lemons"), 1.25,
+    (*CITRUS_FRUIT, "Lemons"), 1.25,
     "Fresh unwaxed lemons for zesting, juicing and baking, grown in sunny groves.",
     drawing("produce_pile", cw("Lemon", YELLOW), "Lemons",
             **pile_params("lemon", "PLT-LEMONS", "bag", count=LEMON_PACK)),
@@ -159,7 +162,7 @@ LEMONS = product(
 )  # fmt: skip
 ORANGES = product(
     "ORANGS", f"Valencia Oranges, Pack of {ORANGE_PACK}", "Goldfield Farms", "Food & Drink",
-    ("Food", "Fresh Produce", "Fruit", "Citrus", "Oranges"), 1.6,
+    (*CITRUS_FRUIT, "Oranges"), 1.6,
     "Juicy Valencia oranges for squeezing at breakfast, picked ripe and full of juice.",
     drawing("produce_pile", cw("Orange", ORANGE), "Oranges",
             **pile_params("orange", "PLT-ORANGS", "net", count=ORANGE_PACK)),
@@ -179,11 +182,11 @@ LEMON = (
     Distractor(prints.doc("PLT-DUVA-LEMON"), "department boost: Food & Drink above Home"),
     Distractor(product(
         "LEMCAK", "Lemon Drizzle Cake", "Crofter's Bakehouse", "Food & Drink",
-        ("Food", "Bakery", "Cakes"), 3.5,
+        ("Food & Drink", "Bakery", "Cakes"), 3.5,
         "A lemon sponge soaked in lemon syrup and topped with lemon icing. Serves 8.",
         drawing("cake", cw("Lemon", "#f6e08a"), "Lemon"),
         (("flavour", "Flavour", "Lemon"),),
-    ), "category intent: Fresh Produce above Bakery"),
+    ), "category intent: Fresh Fruit above Bakery"),
     Distractor(product(
         "LEMGEL", "Lemon & Bergamot Shower Gel 250ml", "Velling Apothecary", "Beauty",
         ("Beauty", "Bath & Body", "Shower Gel"), 6.0,
@@ -422,28 +425,28 @@ GIFT_TAIL = (
     ), _BOOST + "Wallet Gift Sets"),
     Distractor(product(
         "GTTEAH", "Afternoon Tea Gift Hamper", "Hearth & Table", "Food & Drink",
-        ("Food", "Hampers & Gifts", "Hampers"), 45.0,
+        ("Food & Drink", "Chocolate & Sweets", "Chocolate Boxes"), 45.0,
         "Tea, shortbread, jam and a fruit cake in a wicker hamper. A gift to share.",
         drawing("box_wide", cw("Wicker", "#c8a46a"), "Hamper"), (("serves", "Serves", "4"),),
-    ), _BOOST + "Hampers"),
+    ), _BOOST + "Chocolate Boxes"),
     Distractor(product(
         "GTCHSE", "Cheese & Chutney Gift Hamper", "Copper Hill Preserves", "Food & Drink",
-        ("Food", "Hampers & Gifts", "Hampers"), 38.0,
+        ("Food & Drink", "Chocolate & Sweets", "Chocolate Boxes"), 38.0,
         "Three cheeses, a chutney and oat crackers, packed as a gift.",
         drawing("box_wide", cw("Kraft", "#c9a77c"), "Hamper"), (("serves", "Serves", "4"),),
-    ), _BOOST + "Hampers"),
+    ), _BOOST + "Chocolate Boxes"),
     Distractor(product(
         "GTBROW", "Letterbox Brownie Gift", "Crofter's Bakehouse", "Food & Drink",
-        ("Food", "Hampers & Gifts", "Letterbox Gifts"), 20.0,
+        ("Food & Drink", "Bakery", "Cakes"), 20.0,
         "Twelve brownie squares that fit through the letterbox. A gift by post.",
         drawing("box_wide", cw("Cocoa", "#5a3426"), "Brownies"), (("pieces", "Pieces", "12"),),
-    ), _BOOST + "Letterbox Gifts"),
+    ), _BOOST + "Cakes"),
     Distractor(product(
         "GTTEAL", "Letterbox Tea Gift", "Hearth & Table", "Food & Drink",
-        ("Food", "Hampers & Gifts", "Letterbox Gifts"), 16.0,
+        ("Food & Drink", "Drinks", "Tea"), 16.0,
         "Four loose-leaf teas and a tea strainer in a slim letterbox box.",
         drawing("box_wide", cw("Teal", "#1c7c7d"), "Tea"), (("pieces", "Pieces", "5"),),
-    ), _BOOST + "Letterbox Gifts"),
+    ), _BOOST + "Tea"),
     Distractor(product(
         "GTOLIV", "Olive Tree in Hessian Gift Bag", "Thistle & Wren", "Garden",
         ("Garden", "Plants", "Gift Plants"), 30.0,
@@ -470,11 +473,11 @@ DUPLICATE_PATH = ("Gifts", "Gifts for Her", "Beauty Gifts")
 #: ``_score_table()``. Either way, add its line to the README's class table.
 TABLE = (
     Row("Print, flavour and scent words", "lemon", "fresh lemons",
-        lambda d: d["category_path"][:2] == ["Food", "Fresh Produce"]
+        lambda d: d["category_path"][:3] == ["Food & Drink", "Fruit & Vegetables", "Fresh Fruit"]
         and "lemon" in tokens(d["title"]),
         "department or persona boost", LEMON),
     Row("Fruit words as prints and colors", "oranges", "fresh oranges",
-        lambda d: d["category_path"][:2] == ["Food", "Fresh Produce"]
+        lambda d: d["category_path"][:3] == ["Food & Drink", "Fruit & Vegetables", "Fresh Fruit"]
         and "orange" in tokens(d["title"]),
         "department or persona boost", ORANGE_WORD),
     Row("Complements and accessories", "jeans", "a pair of jeans",
