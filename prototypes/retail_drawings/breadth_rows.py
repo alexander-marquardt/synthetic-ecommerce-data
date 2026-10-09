@@ -755,6 +755,32 @@ CLEANING = (
         "A gel pot for a hallway or a small room that lasts about four weeks. "
         "Scented with vanilla.",
         _spray("Cream", "#ffffff"), _scent("Vanilla"), label="Gel", colorless=True),
+    # Growth round 4: a new fragrance in each leaf, so every row in it may take one more.
+    Row("LDRLIQ", "Spring Meadow Laundry Liquid 1.4L", "Freshfold", _CJ, _LAUND,
+        "Laundry Detergent", 7.5, "bottle",
+        "A concentrated non-biological liquid for 40 washes, gentle on sensitive skin. "
+        "Scented with spring meadow.",
+        _spray("Aqua", "#ffffff"), _scent("Spring Meadow"), label="Laundry", colorless=True),
+    Row("LDRPOD", "Ocean Breeze Laundry Capsules", "Pantry Mill", _CJ, _LAUND,
+        "Laundry Detergent", 8.0, "tub",
+        "Three-chamber capsules in a child-lock tub: one per load, straight into the drum. "
+        "Scented with ocean breeze.",
+        _spray("Blue", "#ffffff"), _scent("Ocean Breeze"), label="Capsules", colorless=True),
+    Row("SFTJAS", "Jasmine Fabric Conditioner 1L", "Pantry Mill", _CJ, _SOFTEN,
+        "Fabric Softener", 2.5, "bottle",
+        "A light conditioner that softens towels and cuts creasing, for 33 loads. "
+        "Scented with jasmine.",
+        _spray("White", "#b9a3d0"), _scent("Jasmine"), label="Softener", colorless=True),
+    Row("LOOGEL", "Pine Thick Toilet Gel 750ml", "Freshfold", _CJ, _LOO, "Toilet Cleaner",
+        1.8, "bottle",
+        "An angled-neck gel that clings under the rim and lifts limescale overnight. "
+        "Scented with pine.",
+        _spray("Green", "#ffffff"), _scent("Pine"), label="Toilet", colorless=True),
+    Row("AIRAER", "Orange Blossom Air Freshener Aerosol 300ml", "Pantry Mill", _CJ, _AIR,
+        "Air Freshener", 1.5, "bottle",
+        "A quick burst for a kitchen or a bathroom that clears cooking smells. "
+        "Scented with orange blossom.",
+        _spray("Yellow", "#2a2a2e"), _scent("Orange Blossom"), label="Aerosol", colorless=True),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
