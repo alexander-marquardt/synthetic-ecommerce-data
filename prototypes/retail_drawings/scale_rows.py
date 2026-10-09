@@ -10,8 +10,9 @@ Each row adds capacity to :mod:`scale` in one of two ways:
 
 - a leaf's title-visible value it lacked: a mid rise skinny, a non-wired plunge.
   The leaf's other templates may then take it too (:func:`scale.value_pools`);
-- a new leaf: cigarette, balloon, tapered, relaxed, mom, boyfriend and kick
-  flare jeans (each a :data:`kit_garments.FITS` outline); push-up, longline,
+- a new leaf: cigarette, balloon, tapered, relaxed, mom, boyfriend, kick flare,
+  super skinny, jegging, baggy, culotte, athletic and cropped jeans (each a
+  :data:`kit_garments.FITS` outline); push-up, longline,
   multiway, lace plunge, bralette, front fastening, sleep, racerback,
   halterneck, triangle, padded, demi cup, lace full cup, bandeau, smoothing,
   high apex, embroidered balcony, lace bralette, low back, post-surgery, moulded
@@ -122,6 +123,49 @@ JEANS = (
               ("Rinse", "Indigo", "Mid Wash", "Black", "White"), _W_LEGS, 6, 22, 38.0),
     JeanStyle("MALHAM", "Malham", "Ferrowick Denim", "Womens", "Kick Flare", "Mid",
               ("Dark Indigo", "Vintage Blue", "Ecru"), _W_LEGS, 6, 20, 36.0),
+    # Growth round 4: six new leaves, each a new kit_garments.FITS outline.
+    JeanStyle("CONISTONE", "Conistone", "Calderwick Denim", "Womens", "Super Skinny", "High",
+              ("Rinse", "Dark Indigo", "Indigo", "Black", "Washed Black"), _W_LEGS, 6, 22, 28.0,
+              "92% Cotton, 6% Polyester, 2% Elastane"),
+    JeanStyle("KILNSEY", "Kilnsey", "Ottery Denim", "Womens", "Super Skinny", "Mid",
+              ("Indigo", "Mid Wash", "Light Wash", "Black", "Grey"), _W_LEGS, 6, 20, 26.0,
+              "92% Cotton, 6% Polyester, 2% Elastane"),
+    JeanStyle("ARNCLIFFE", "Arncliffe", "Ferrowick Denim", "Womens", "Jegging", "High",
+              ("Rinse", "Indigo", "Mid Wash", "Black"), _W_LEGS, 6, 24, 24.0,
+              "70% Cotton, 28% Polyester, 2% Elastane"),
+    JeanStyle("LITTONDALE", "Littondale", "Calderwick Denim", "Womens", "Jegging", "Mid",
+              ("Dark Indigo", "Vintage Blue", "Washed Black", "Grey"), ("Petite", "Regular"),
+              6, 22, 22.0, "70% Cotton, 28% Polyester, 2% Elastane"),
+    JeanStyle("BUCKDEN", "Buckden", "Ferrowick Denim", "Mens", "Baggy", "Mid",
+              ("Rinse", "Mid Wash", "Light Wash", "Washed Black", "Grey"), _M_LEGS, 28, 40, 42.0,
+              "100% Cotton"),
+    JeanStyle("STARBOTTON", "Starbotton", "Ottery Denim", "Womens", "Baggy", "Low",
+              ("Light Wash", "Vintage Blue", "Ecru", "Black"), _W_LEGS, 6, 20, 40.0,
+              "100% Cotton"),
+    JeanStyle("HUBBERHOLME", "Hubberholme", "Calderwick Denim", "Mens", "Baggy", "Low",
+              ("Indigo", "Bleach Wash", "Black"), (*_M_LEGS, "Extra Long"), 28, 38, 44.0,
+              "100% Cotton"),
+    JeanStyle("YOCKENTHWAITE", "Yockenthwaite", "Ottery Denim", "Womens", "Culotte", "High",
+              ("Indigo", "Mid Wash", "Ecru", "Black", "White"), ("Regular",), 6, 22, 34.0),
+    JeanStyle("CRAY", "Cray", "Ferrowick Denim", "Womens", "Culotte", "Mid",
+              ("Light Wash", "Vintage Blue", "Washed Black"), ("Regular",), 6, 20, 32.0,
+              "100% Cotton"),
+    JeanStyle("CRAKEHALL", "Crakehall", "Ferrowick Denim", "Mens", "Athletic", "Mid",
+              ("Rinse", "Dark Indigo", "Indigo", "Mid Wash", "Black", "Grey"), _M_LEGS, 30, 42,
+              38.0),
+    JeanStyle("PATRICKBROMPTON", "Patrickbrompton", "Calderwick Denim", "Mens", "Athletic",
+              "Low", ("Dark Indigo", "Vintage Blue", "Washed Black", "Grey"), _M_LEGS, 30, 40,
+              36.0),
+    JeanStyle("HUNTON", "Hunton", "Ottery Denim", "Mens", "Athletic", "High",
+              ("Rinse", "Mid Wash", "Black"), (*_M_LEGS, "Extra Long"), 30, 42, 40.0),
+    JeanStyle("CONSTABLEBURTON", "Constableburton", "Calderwick Denim", "Womens", "Cropped",
+              "High", ("Indigo", "Mid Wash", "Light Wash", "Ecru", "White"), ("Petite", "Regular"),
+              6, 22, 32.0),
+    JeanStyle("FINGHALL", "Finghall", "Ottery Denim", "Womens", "Cropped", "Mid",
+              ("Rinse", "Vintage Blue", "Bleach Wash", "Black"), ("Petite", "Regular"), 6, 20,
+              30.0, "100% Cotton"),
+    JeanStyle("SPENNITHORNE", "Spennithorne", "Ferrowick Denim", "Womens", "Cropped", "Low",
+              ("Mid Wash", "Light Wash", "Grey"), ("Regular",), 6, 18, 29.0),
 )  # fmt: skip
 
 BRAS = (
