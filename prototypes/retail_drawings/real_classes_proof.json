@@ -1,7 +1,7 @@
 {
  "elasticsearch": "9.3.0",
  "docs": 294,
- "fingerprint": "d7087e4fda8a9210a142c3bd920761c5265584ff7163b689113340a3d7dbc3f8",
+ "fingerprint": "fc5d73416c2427c643817f8efc2cd73bd5808aea74d73f686823a39ef7a1e5fd",
  "rows": [
   {
    "query": "mattress topper",
@@ -551,6 +551,10 @@
    "query": "cups",
    "baseline": [
     {
+     "product_id": "PLT-MUG7",
+     "title": "Espresso Cup"
+    },
+    {
      "product_id": "PLT-CUPMLD",
      "title": "Moulded Cup T-Shirt Bra"
     },
@@ -561,10 +565,6 @@
     {
      "product_id": "PLT-CUPFUL",
      "title": "Smooth Full Cup Bra B-G"
-    },
-    {
-     "product_id": "PLT-MUG7",
-     "title": "Espresso Cup"
     },
     {
      "product_id": "PLT-DRKTRV",
@@ -617,8 +617,8 @@
      "title": "Padded Balcony Bra"
     },
     {
-     "product_id": "PLT-OFRBRA",
-     "title": "Seamless Smoothing Bra"
+     "product_id": "PLT-MUG7",
+     "title": "Espresso Cup"
     }
    ],
    "policy": [
@@ -639,8 +639,8 @@
      "title": "Padded Balcony Bra"
     },
     {
-     "product_id": "PLT-OFRBRA",
-     "title": "Seamless Smoothing Bra"
+     "product_id": "PLT-MUG7",
+     "title": "Espresso Cup"
     }
    ]
   }
