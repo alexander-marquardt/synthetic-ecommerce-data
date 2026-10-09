@@ -15,17 +15,16 @@ and its may-contain codes. A style whose family title names the flavor carries o
 flavor; any other style carries several, as a selector. Each SKU states, from its own
 flavor and pack:
 
-- ``contains``, ``may_contain`` and ``free_from`` over the six allergens of
-  :data:`grocery_rows.ALLERGENS`. ``free_from`` holds an allergen only when it is in
-  neither of the other two;
+- ``contains`` (the allergens its ingredients name) and ``may_contain`` (factory
+  traces) over the six allergens of :data:`grocery_rows.ALLERGENS`. "Free from X" is a
+  query over these two, not a fact, so there is no ``free_from``;
 - ``dietary``: Vegan (no milk, no egg, no animal ingredient), Vegetarian (no meat or
   fish), Gluten Free and Nut Free (the allergen neither contained nor traced), and
   Organic (the style's flag, which its title also states);
 - ``pack_size``, ``units_per_pack`` and the net weight or volume.
 
-At product level, ``contains`` and ``may_contain`` are the union over the variants,
-and ``free_from`` and ``dietary`` the intersection. A product that is "free from
-peanuts" is therefore free from them in every variant. ``ingredients`` is the base
+At product level, ``contains`` and ``may_contain`` are the union over the variants
+and ``dietary`` the intersection. ``ingredients`` is the base
 recipe every variant shares (the intersection, so at most 20 and possibly under 5); a
 SKU carries its flavor's full 5 to 20 list. Fresh fruit and vegetables carry none. A
 non-food overlap style (a cleaner, a body milk) carries a ``scent`` and none of the
@@ -54,7 +53,7 @@ if str(HERE) not in sys.path:
 import kit_grocery  # noqa: E402,F401 -- registers bar and bag
 from departments import check as check_departments  # noqa: E402
 from export import NUMERIC_FACTS, standard_document  # noqa: E402
-from grocery_ingredients import ingredients, shared  # noqa: E402
+from grocery_ingredients import facet_value, ingredients, shared  # noqa: E402
 from grocery_rows import ALLERGENS, ANCHORS, FAMILIES, LINES, OWNERS, F, Family  # noqa: E402
 from kit_produce import pile_params  # noqa: E402
 from variants import attr, drawing, product  # noqa: E402
@@ -78,6 +77,8 @@ PILE_PACK = {"Single": "loose", "4 pack": "net", "1kg": "bag"}
 
 #: Product entries that are a union over the flavors, so a flat SKU must not inherit them.
 UNIONED = frozenset({"contains", "may_contain"})
+#: Entries that are an allergen warning or a pack claim: facets, but never search text.
+WARNINGS = frozenset({"contains", "may_contain", "dietary"})
 #: A flavor whose pack label differs from its family's: the honey jar reads Honey, not Jam.
 LABELS = {("JAM", "Clear Honey"): "Honey", ("JAM", "Set Honey"): "Honey"}
 
@@ -116,14 +117,13 @@ def _price(fam: Family, pack: dict, first: dict, flavor_i: int, brand: str) -> f
 
 
 def allergens(fam: Family, flavor: F, may_codes: str) -> dict[str, list[str]]:
-    """One variant's ``contains``, ``may_contain`` and ``free_from``, in ALLERGENS order."""
+    """One variant's ``contains`` and ``may_contain``, in ALLERGENS order."""
     have = set(fam.base) | {c for c in flavor.codes if c.isupper()}
     may = set(may_codes) - have
     pick = lambda codes: [ALLERGENS[c] for c in ALLERGENS if c in codes]  # noqa: E731
     return {
         "contains": pick(have),
         "may_contain": pick(may),
-        "free_from": pick(set(ALLERGENS) - have - may),
     }
 
 
@@ -217,9 +217,6 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
         attrs += [attr("contains", "Contains", a) for a in contains]
         attrs += [attr("may_contain", "May contain", a) for a in may]
         attrs += [
-            attr("free_from", "Free from", a) for a in _common(s.get("free_from", []) for s in skus)
-        ]
-        attrs += [
             attr("dietary", "Dietary", d) for d in _common(s.get("dietary", []) for s in skus)
         ]
         attrs += [
@@ -308,8 +305,18 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     The standard fills a key a variant does not state from its product's entries. For
     ``contains`` and ``may_contain`` the product states the UNION over its flavors, so a
     SKU with none of its own would inherit another flavor's (Fruit Gums "Contains: Milk"
-    beside "Free from: Milk", because the Toffee in the style has milk). Each SKU is
-    flattened with the product's entries for those two keys left out when it states none.
+    though the Toffee in the style has milk). Each SKU is flattened with the product's
+    entries for those two keys left out when it states none.
+
+    The four food facts are facets, because only a facet can be a hard filter:
+    ``facets.ingredients`` (the SKU's label list as ``facet_value`` forms; the
+    top-level ``ingredients`` keeps the label text), ``facets.contains``,
+    ``facets.may_contain`` and ``facets.dietary``, each a keyword list.
+    ``contains``, ``may_contain`` and ``dietary`` are warnings and claims, not description
+    (:data:`WARNINGS`): they stay out of ``text``, so a "peanut"
+    query cannot match a product through its allergen warning. ``contains`` and
+    ``may_contain`` also leave the flat ``attributes`` and ``attribute_names`` (a
+    searchable surface); they live in their facets only. ``dietary`` stays in both.
     """
     out = []
     for doc in docs:
@@ -317,7 +324,16 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
             own = {e["key"] for e in variant["attributes"]}
             kept = [e for e in doc["attributes"] if e["key"] not in UNIONED - own]
             one = doc | {"attributes": kept, "variants": [variant]}
-            out += standard.flat_documents(one, NUMERIC_FACTS)
+            for row in standard.flat_documents(one, NUMERIC_FACTS, text_skip=WARNINGS):
+                # An allergen warning is a facet only: the attributes are a searchable
+                # surface in the industrial field map, so it must not stay in them.
+                row["attributes"] = [e for e in row["attributes"] if e["key"] not in UNIONED]
+                row["attribute_names"] = sorted({e["name"] for e in row["attributes"]})
+                if row.get("ingredients"):
+                    row["facets"]["ingredients"] = list(
+                        dict.fromkeys(facet_value(i) for i in row["ingredients"])
+                    )
+                out.append(row)
     return out
 
 
