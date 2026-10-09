@@ -993,6 +993,42 @@ closure. The boots row above is checked over the round 4 corpus plus
 footwear (`footwear_rows.catalog()`). Footwear is not in the Elasticsearch
 proof corpus.
 
+### Grocery
+
+`grocery.py` (data in `grocery_rows.py`, gen#154) builds Food & Drink styles
+whose SKUs are flavor x pack size: `python3 prototypes/retail_drawings/grocery.py
+--skus 10000 --out DIR` writes `nested.jsonl` and `flat.jsonl`, both in the output
+standard. At 10K it holds 10,042 SKUs in 3,305 styles over 37 food leaves, plus a
+kitchen-cleaner leaf and a body-lotion leaf for the overlaps. Each SKU states
+`contains`, `may_contain` and `free_from` over six allergens (peanuts, tree nuts,
+milk, gluten, soy, egg), its `dietary` labels (Vegan, Vegetarian, Gluten Free,
+Nut Free, Organic), `pack_size`, `units_per_pack` and its net weight or volume.
+
+Food SKUs also carry a top-level `ingredients` list (5 to 20 invented items in label
+order, never in conflict with `contains` and `free_from`); the flat file carries
+each SKU's own list. A product's list is the base recipe all its flavors share, so it
+may be shorter than 5. Fresh whole fruit and vegetables carry no list: the field is
+optional. A pizza is chilled and always contains gluten (a Vegan Garden style and a
+Four Cheese style are pinned), and a honey jar is drawn with a Honey label.
+
+At product level, `free_from` and `dietary` are the intersection over the
+product's variants, so a product listed as free from peanuts is free from them
+in every variant. Open Food Facts (ODbL) inspired only the shape: the category
+tree, the allergen and label model, and rough distributions. Every name is
+invented.
+
+The planted cases are:
+
+- chocolate that contains peanuts, chocolate that may contain them, and chocolate
+  that is free from them;
+- Nut Free chocolate and Vegan chocolate;
+- lemon, orange and mint as a food and as a cleaner scent;
+- honey and coconut as a food and as a body milk scent;
+- milk as dairy milk, milk chocolate and a body milk.
+
+`tests/test_grocery_154.py` pins each case. The new pack shapes are `bar` and
+`bag`, in `kit_grocery.py`. The build makes one drawing per style.
+
 ### Observed failure classes 2 to 15, before and after on Elasticsearch
 
 `real_classes.py` rebuilds thirteen query shapes observed by hand on a live
