@@ -184,7 +184,7 @@ GROCERY_GRID_CLONES = 0.02
 
 def test_grocery_styles_mostly_draw_a_tile_of_their_own(ceiling):
     """A grocery style's tile is its leaf, hero picture and price. The picture names the range,
-    the flavor's colour and the style's flavors; the range-name text tells siblings apart,
+    the flavor's color and the style's flavors; the range-name text tells siblings apart,
     and the flavor band is not seen by the gate.
 
     Guard: this test. Metric: the grocery grid-clone share, in the failure message."""
