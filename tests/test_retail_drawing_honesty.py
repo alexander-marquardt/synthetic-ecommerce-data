@@ -41,17 +41,14 @@ LABEL_DEBT: frozenset[tuple[str, str]] = frozenset({
         ("Air Freshener", "Diffuser"),
         ("Air Freshener", "Gel"),
         ("Air Freshener", "Reeds"),
-        ("Bathroom Cleaner", "Bathroom"),
         ("Cake", "Lemon"),
         ("Car Boot Organiser", "Boot Tidy"),
         ("Chutney", "Chutney"),
         ("Coffee", "Coffee"),
         ("Cushion", "Bolster"),
-        ("Dish Soap", "Dish"),
         ("Duvet", "10.5 Tog"),
         ("Duvet", "13.5 Tog"),
         ("Fabric Softener", "Softener"),
-        ("Floor Cleaner", "Lemon"),
         ("Foundation", "Serum"),
         ("Gift Bag", "Small"),
         ("Gift Set", "Bath"),
@@ -60,9 +57,7 @@ LABEL_DEBT: frozenset[tuple[str, str]] = frozenset({
         ("Gift Set", "Lip"),
         ("Gift Set", "Skin"),
         ("Gift Set", "Summer"),
-        ("Glass Cleaner", "Glass"),
         ("Jam", "Jam"),
-        ("Laundry Detergent", "Laundry"),
         ("Letterbox Gift", "Brownies"),
         ("Letterbox Gift", "Tea"),
         ("Make-Up Bag", "Top Gift"),
@@ -75,7 +70,6 @@ LABEL_DEBT: frozenset[tuple[str, str]] = frozenset({
         ("Scented Candle", "Candle"),
         ("Shoe Care Kit", "Polish"),
         ("Shower Gel", "Lemon"),
-        ("Surface Cleaner", "Lemon"),
         ("Tea", "Tea"),
         ("Toy Vehicle", "Fire"),
         ("Toy Vehicle", "Tow"),
@@ -162,3 +156,27 @@ def test_a_label_is_the_titles_product_noun_not_a_category_fragment(records):
     owed = _label_pairs(records)
     assert sorted(owed - LABEL_DEBT) == [], "a label that is not the title's noun"
     assert sorted(LABEL_DEBT - owed) == [], "paid off: remove it from LABEL_DEBT"
+
+
+#: Shapes that draw something to drink from, never a bottle of cleaner.
+DRINKWARE = frozenset({"mug", "tumbler", "cup", "travel_cup", "glass"})
+
+
+def test_a_cleaner_is_not_drawn_as_drinkware_and_no_label_is_a_path_segment(records):
+    """The cleaning family (#151): never drinkware, and labeled by its noun."""
+    cleaning = [r for r in records if r["category_path"][0] == "Cleaning"]
+    assert len(cleaning) > 400
+    drinkware = [
+        f"{r['title']!r}: {r['drawing']['shape']}"
+        for r in cleaning
+        if r["drawing"]["shape"] in DRINKWARE
+    ]
+    fragments = [
+        f"{r['title']!r}: {r['drawing']['label']!r} in {r['category_path']}"
+        for r in cleaning
+        if r["drawing"].get("label") in r["category_path"]
+        # a label equal to the whole leaf is the product's own noun only when the title says it
+        and r["drawing"]["label"].split()[-1].lower().rstrip("s") != _noun(r["title"])
+    ]
+    assert drinkware == []
+    assert fragments == []
