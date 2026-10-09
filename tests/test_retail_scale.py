@@ -804,3 +804,62 @@ def test_no_title_or_description_states_a_count_its_own_skus_contradict(build, r
                 wrong.append((r["product_id"], m.group(0), have))
     assert checked >= 200
     assert wrong == []
+
+
+#: A counted noun after a single "1"/"one": the plural of a count that is one.
+SINGULAR_PLURALS = ("lengths", "washes", "prints", "colors", "colorways", "shades", "sizes")
+#: Words whose article follows the sound, not the letter ("an hour", "a uniform").
+ARTICLE_EXCEPTIONS = {"hour", "honest", "heir", "uniform", "unit", "union", "one", "european"}
+
+
+@pytest.mark.parametrize("build", ["built", "ceiling"])
+def test_no_title_or_description_counts_one_of_a_plural(build, request):
+    """"1 leg lengths": a template with a single length printed a plural after the 1."""
+    pattern = re.compile(rf"\b(?:1|one)\s+(?:\w+\s+)?(?:{'|'.join(SINGULAR_PLURALS)})\b", re.I)
+    hits = [
+        (r["product_id"], m.group(0))
+        for r in request.getfixturevalue(build).records
+        for m in pattern.finditer(f"{r['title']} {r['description']}")
+    ]
+    assert not hits, hits[:5]
+
+
+@pytest.mark.parametrize("build", ["built", "ceiling"])
+def test_every_article_agrees_with_the_word_after_it(build, request):
+    """"an pointed toe", "a almond toe": a swapped value left its old article behind."""
+    pattern = re.compile(r"\b(an?)\s+([a-z]+)", re.I)
+    wrong = []
+    for r in request.getfixturevalue(build).records:
+        for m in pattern.finditer(f"{r['title']} {r['description']}"):
+            art, word = m.group(1).lower(), m.group(2).lower()
+            if word in ARTICLE_EXCEPTIONS:
+                continue
+            if art != scale._article(word):
+                wrong.append((r["product_id"], m.group(0)))
+    assert not wrong, wrong[:5]
+
+
+@pytest.mark.parametrize(
+    ("text", "old", "new", "swapped"),
+    [
+        ("Courts with an pointed toe", "pointed", "almond", "Courts with an almond toe"),
+        ("Courts with a round toe", "round", "almond", "Courts with an almond toe"),
+        ("A round toe", "round", "pointed", "A pointed toe"),
+        ("An almond toe", "almond", "round", "A round toe"),
+    ],
+)
+def test_swap_makes_the_article_agree_with_the_new_word(text, old, new, swapped):
+    assert scale._swap(text, old, new) == swapped
+
+
+def test_jeggings_are_drawn_apart_from_skinny_jeans():
+    from kit_garments import FITS  # noqa: PLC0415
+
+    assert FITS["jegging"] != FITS["skinny"]
+
+
+def test_the_readme_states_the_derived_sku_pin():
+    readme = (ROOT / "README.md").read_text()
+    m = re.search(r"plus\s+([\d,]+)\s+\(its", readme)
+    assert m, "README no longer states the derived-SKU pin next to test_retail_scale.py"
+    assert int(m.group(1).replace(",", "")) == DERIVED_SKUS

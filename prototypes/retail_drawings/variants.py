@@ -228,7 +228,8 @@ class JeanStyle:
             "description": (
                 f"The {self.line} is our {self.rise.lower()} rise {self.leg_fit.lower()} fit, "
                 f"cut from {self.fabric.lower()} denim with five pockets and a zip fly, in "
-                f"{len(self.washes)} washes and {len(self.lengths)} leg lengths."
+                f"{len(self.washes)} washes and "
+                f"{len(self.lengths)} leg {'length' if len(self.lengths) == 1 else 'lengths'}."
             ),
             "attributes": [
                 attr("pattern", "Pattern", "Plain"),
