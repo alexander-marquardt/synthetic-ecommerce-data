@@ -185,8 +185,7 @@ def test_beer_carries_abv_as_an_attribute_and_only_some_titles_state_it() -> Non
     assert len(beers) == 3
     for d in beers:
         abv = [a for a in d["attributes"] if a["key"] == "abv"]
-        assert abv == [{"key": "abv", "name": "ABV", "value": str(d["abv"]),
-                        "unit_code": "P1", "value_canonical": d["abv"]}]  # fmt: skip
+        assert abv == [{"key": "abv", "name": "ABV (%)", "value": str(d["abv"])}]
         assert d["unit_measure"] == "ml" and d["unit_size"] > 0
     assert sum(f"{d['abv']}%" in d["title"] for d in beers) == 2
     targets, distractors = _codes(_row("beer"))
