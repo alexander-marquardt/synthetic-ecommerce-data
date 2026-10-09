@@ -208,7 +208,9 @@ class JeanStyle:
             "title": self.title,
             "brand": self.brand,
             "department": list(self.department),
+            "product_type": "Jeans",
             "category_path": [who, "Jeans", f"{self.leg_fit} Jeans"],
+            "category_leaf": f"{self.leg_fit} Jeans",
             "description": (
                 f"The {self.line} is our {self.rise.lower()} rise {self.leg_fit.lower()} fit, "
                 f"cut from {self.fabric.lower()} denim with five pockets and a zip fly, in "
@@ -217,7 +219,7 @@ class JeanStyle:
             "attributes": [
                 attr("pattern", "Pattern", "Plain"),
                 attr("fabric", "Fabric", self.fabric),
-                attr("line", "Named fit", self.line),
+                attr("line", "Line", self.line),
                 attr("leg_fit", "Leg fit", self.leg_fit),
                 attr("rise", "Rise", self.rise),
                 attr("audience", "Audience", self.audience),
@@ -359,7 +361,9 @@ class BraStyle:
             "title": self.title,
             "brand": self.brand,
             "department": list(self.department),
+            "product_type": "Bra",
             "category_path": ["Women", "Lingerie", "Bras", f"{self.kind} Bras"],
+            "category_leaf": f"{self.kind} Bras",
             "description": (
                 f"The {self.line} {self.kind.lower()} bra: {wire}, with adjustable straps and a "
                 f"three-row hook and eye back, in {self.fabric.lower()}."
@@ -424,6 +428,16 @@ BEDS = ("Single", "Double", "King", "Super King")
 PILLOWS = ("Standard Pillow", "King Pillow", "Square Pillow")
 
 
+#: Each shallow row's product type, by code: stated here, never derived from a title.
+SHALLOW_PRODUCT_TYPES: dict[str, str] = {
+    "DUVHOL": "Duvet", "DUVDWN": "Duvet", "COVPER": "Duvet Cover", "COVPRT": "Duvet Cover",
+    "PILMIC": "Pillow", "PCSPER": "Pillowcase", "TOPMEM": "Mattress Topper",
+    "PROQLT": "Mattress Protector", "LIPSAT": "Lipstick", "LIPMAT": "Lipstick",
+    "BALTNT": "Lip Balm", "FNDFTH": "Foundation", "FNDSRM": "Foundation",
+    "TNTMST": "Moisturiser",
+}  # fmt: skip
+
+
 @dataclass(frozen=True)
 class ShallowRow:
     code: str
@@ -457,7 +471,9 @@ class ShallowRow:
             "title": self.title,
             "brand": self.brand,
             "department": list(self.department),
+            "product_type": SHALLOW_PRODUCT_TYPES[self.code],
             "category_path": list(self.path),
+            "category_leaf": self.path[-1],
             "description": self.description,
             "attributes": [attr(k, n, v) for k, n, v in self.extra],
             "drawing": drawing(self.shape, self.colors[0], self.label),
@@ -489,7 +505,7 @@ BEDDING = (
     ShallowRow("COVPER", "Bedding", "Percale 200 Thread Count Duvet Cover", "Brackenmere Home",
                ("Home", "Bedding", "Duvet Covers"), 30.0, "duvet",
                "Crisp cotton percale with a hidden button closure and corner ties.",
-               _PLAIN, BEDS, (("thread_count", "Thread count", "200"),)),
+               _PLAIN, BEDS, (("thread_count", "Thread Count", "200"),)),
     ShallowRow("COVPRT", "Bedding", "Printed Cotton Duvet Cover", "Brackenmere Home",
                ("Home", "Bedding", "Duvet Covers"), 34.0, "duvet",
                "Soft washed cotton in a woven print, with a button closure.",

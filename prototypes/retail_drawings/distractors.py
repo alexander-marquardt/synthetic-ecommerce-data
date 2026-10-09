@@ -93,6 +93,22 @@ class Row:
     tail: tuple[Distractor, ...] = ()
 
 
+#: Each single-SKU product's type, by code: stated, never derived from its title.
+PRODUCT_TYPES: dict[str, str] = {
+    "LEMONS": "Lemons", "ORANGS": "Oranges", "DINTOY": "Toy Figure", "LEMCAK": "Cake",
+    "LEMGEL": "Shower Gel", "LEMFLR": "Floor Cleaner", "LEMSPR": "Surface Cleaner",
+    "JNSBLT": "Belt", "JNSJKT": "Denim Jacket", "JNSHNG": "Hanger", "JNSSET": "Outfit Set",
+    "DUVCOV": "Duvet Cover", "DUVSET": "Duvet Set", "DUVSSK": "Duvet Cover",
+    "GBBATH": "Gift Set", "GBSKIN": "Gift Set", "GBHAIR": "Gift Set", "GBWASH": "Wash Bag",
+    "GBMKUP": "Make-Up Bag", "GBHOSP": "Hospital Bag", "GBGLOW": "Gift Set",
+    "GBLIPC": "Gift Set", "GBTRVL": "Travel Set", "GBSUMR": "Gift Set",
+    "GTWALL": "Gift Set", "GTCARD": "Gift Set", "GTTEAH": "Hamper", "GTCHSE": "Hamper",
+    "GTBROW": "Letterbox Gift", "GTTEAL": "Letterbox Gift", "GTOLIV": "Plant",
+    "GTKEYR": "Keyring", "BOOTORG": "Car Boot Organiser", "BOOTPOL": "Shoe Care Kit",
+    "BOOTSOK": "Boot Socks",
+}  # fmt: skip
+
+
 def product(
     code: str,
     title: str,
@@ -103,6 +119,7 @@ def product(
     description: str,
     draw: dict,
     attrs: tuple[tuple[str, str, str], ...] = (),
+    product_type: str | None = None,
 ) -> dict:
     """One single-SKU product doc in the variant model's shape (:func:`variants.product`).
 
@@ -117,7 +134,9 @@ def product(
         swatches[named["color"]] = swatch((named["color"], draw["pattern"], draw["base"], ""))
     return style_product(
         f"PLT-{code}", [sku], swatches,
-        title=title, brand=brand, department=[department], category_path=list(path),
+        title=title, brand=brand, department=[department],
+        product_type=product_type or PRODUCT_TYPES[code],
+        category_path=list(path), category_leaf=path[-1],
         description=description,
         attributes=[attr(k, n, v) for k, n, v in attrs if k != "color"],
         drawing=draw, collections=[], currency="GBP",
@@ -296,7 +315,7 @@ def gift_bags() -> list[dict]:
     return [style_product(
         "GFT-KRAFT", skus, {c[0]: swatch(c) for c in GIFT_PRINTS},
         title=title, brand="Lanternby", department=check_departments(["Gifts"], title),
-        category_path=list(GIFT_WRAP),
+        product_type="Gift Bag", category_path=list(GIFT_WRAP), category_leaf=GIFT_WRAP[-1],
         description="A sturdy kraft paper carrier with twisted rope handles, a card base and "
         "a matching tag, in three prints and three sizes. Folds flat to store.",
         attributes=[], drawing=drawing("gift_bag", GIFT_PRINTS[0], GIFT_SIZES[0][0]),

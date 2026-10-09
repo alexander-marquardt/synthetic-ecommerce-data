@@ -284,8 +284,8 @@ class Style:
                 attr("units_per_pack", "Units per pack", self.units_per_pack, "C62")
             )
         if self.abv is not None:
-            # P1 is UN/CEFACT's percent.
-            rec["attributes"].append(attr("abv", "ABV", self.abv, "P1"))
+            # A plain number, the percent in its name: prism spells no percent unit.
+            rec["attributes"].append(attr("abv", "ABV (%)", self.abv))
         rec["attributes"] += [attr(k, name, v) for k, name, v in self.extra]
         swatches = {} if self.colorless else {
             c[0]: swatch(c, SHADE_FAMILY[c[0]]) for c, _ in self.colors
