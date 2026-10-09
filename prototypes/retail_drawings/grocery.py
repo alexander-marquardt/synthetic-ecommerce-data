@@ -16,7 +16,7 @@ flavor; any other style carries several, as a selector. Each SKU states, from it
 flavor and pack:
 
 - ``contains`` (the allergens its ingredients name) and ``may_contain`` (factory
-  traces) over the six allergens of :data:`grocery_rows.ALLERGENS`. "Free from X" is a
+  traces) over the seven allergens of :data:`grocery_rows.ALLERGENS`. "Free from X" is a
   query over these two, not a fact, so there is no ``free_from``;
 - ``dietary``: Vegan (no milk, no egg, no animal ingredient), Vegetarian (no meat or
   fish), Gluten Free and Nut Free (the allergen neither contained nor traced), and
@@ -70,8 +70,10 @@ STORAGE_TEXT = {
     "frozen": "Keep frozen.",
 }
 #: A fresh fruit variety -> the kit fruit that draws it (``kit_produce.FRUIT``).
-FRUIT = {"Unwaxed Lemons": "lemon", "Oranges": "orange", "Easy Peelers": "clementine",
-         "Gala Apples": "apple", "Bramley Apples": "apple"}  # fmt: skip
+FRUIT = {"Unwaxed Lemons": "lemon", "Lemons": "lemon", "Meyer Lemons": "lemon",
+         "Oranges": "orange", "Blood Oranges": "orange", "Orange Segments": "orange",
+         "Easy Peelers": "clementine", "Gala Apples": "apple", "Bramley Apples": "apple",
+         "Braeburn Apples": "apple", "Fuji Apples": "apple"}  # fmt: skip
 #: A pack word -> how a fruit pile shows it.
 PILE_PACK = {"Single": "loose", "4 pack": "net", "1kg": "bag"}
 
@@ -94,7 +96,7 @@ LABEL_CHARS = 14
 #: Words that modify the noun after them: a label never starts on one ("Free Penne").
 DANGLING = frozenset({"Free", "Low", "No", "Reduced", "Light"})
 #: Phrases kept whole past :data:`LABEL_CHARS`: "Selection" alone names no product.
-WHOLE = frozenset({"Chocolate Selection"})
+WHOLE = frozenset({"Chocolate Selection", "Chocolate Orange"})
 
 _PACK = re.compile(r"^(?:(\d+) x )?([\d.]+) ?(g|kg|ml|L|pint)$")
 _COUNT = re.compile(r"^(\d+) (pack|bags)$")
@@ -222,6 +224,15 @@ def _drawing(fam: Family, flavors: list[F], pid: str, pack: dict, title: str, he
     return drawing(shape, color, label, **marks)
 
 
+def _abv_text(pid: str, flavor: F) -> str:
+    """A beer's strength as a title suffix (" 4.8%") for about half the styles, else "".
+    It trails the noun: :func:`pack_label` cuts a label at the first digit. Real titles are
+    inconsistent here (some state it, some leave it to the can), so the choice is the id's."""
+    if flavor.abv is None or zlib.crc32(f"abv:{pid}".encode()) % 2:
+        return ""
+    return f" {flavor.abv:g}%"
+
+
 def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs: list[str],
           may_codes: str, organic: bool, grade: str) -> dict:  # fmt: skip
     """One style's record (the retail build's shape, for :func:`export.standard_document`)."""
@@ -241,9 +252,11 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
                 sku["ingredients"] = listed
             skus.append(sku | {"price": _price(fam, pack, first, fi, brand), "in_stock": True})
     head = f"{line} Organic" if organic else line
-    title = fam.title.format(line=head, flavor=flavors[0].name)
+    title = fam.title.format(line=head, flavor=flavors[0].name, abv=_abv_text(pid, flavors[0]))
     attrs = [attr(fam.axis, fam.axis.capitalize(), f.name) for f in flavors]
     attrs += [attr("pack_size", "Pack size", p) for p in packs]
+    if flavors[0].abv is not None:  # a beer's strength: always an attribute, in some titles
+        attrs.append(attr("abv", "ABV (%)", flavors[0].abv))
     if fam.food:
         contains = _union(s.get("contains", []) for s in skus)
         may = [a for a in _union(s.get("may_contain", []) for s in skus) if a not in contains]

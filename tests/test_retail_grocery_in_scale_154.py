@@ -25,8 +25,8 @@ import image_release  # noqa: E402
 import scale  # noqa: E402
 
 #: The grocery styles and SKUs (``tests/test_grocery_154.py``'s 10K build).
-GROCERY_STYLES = 3_305
-GROCERY_SKUS = 10_042
+GROCERY_STYLES = 3_379
+GROCERY_SKUS = 10_067
 #: The main build's own Food & Drink styles (honey, jam, tea, coffee, chutney, ...): kept.
 MAIN_FOOD_STYLES = 55
 MAIN_FOOD_SKUS = 61

@@ -37,11 +37,11 @@ BREADTH_ROWS = 184
 #: The distractor rows (``distractor_rows``): the failure classes' products.
 DISTRACTOR_ROWS = 279
 #: The grocery styles (``grocery.build()``, gen#154), last: no style derives from one.
-GROCERY_ROWS = 3_305
+GROCERY_ROWS = 3_379
 TEMPLATES = AUTHORED + SCALE_ROWS + BREADTH_ROWS + DISTRACTOR_ROWS + GROCERY_ROWS
 #: The SKUs the templates alone hold. A build at or under it takes no seeded draw, so
 #: every derived-style test (``pairs``) would pass on an empty list.
-TEMPLATE_SKUS = 37_970
+TEMPLATE_SKUS = 37_995
 #: The derived styles :data:`TARGET` must hold so the ``pairs`` tests read a real sample:
 #: round 2's 19K build held 166 (seed 0), and adding templates must not shrink it.
 MIN_DERIVED = 150
@@ -53,7 +53,7 @@ DERIVED_SKUS = 4_500
 TARGET = TEMPLATE_SKUS + DERIVED_SKUS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (6_830, 90_046)
+CAPACITY = (6_904, 90_071)
 #: The grid-clone share the ceiling build may reach (:func:`scale.grid_clones`). Round 2
 #: measured 14.4%: the rest is the headroom the 50K and 100K rounds may spend.
 CEILING_GRID_CLONES = 0.152
@@ -166,7 +166,7 @@ def test_few_styles_share_a_results_grid_tile_at_the_ceiling(ceiling):
     assert rate <= CEILING_GRID_CLONES, f"{shared} of {len(main)} styles ({rate:.1%})"
 
 
-#: The grocery grid-clone share the ceiling build may reach. Measured 0 of 3,305 (0.0%) with a
+#: The grocery grid-clone share the ceiling build may reach. Measured 0 of 3,379 (0.0%) with a
 #: 2-point margin; it was 96.6% (gen#154).
 GROCERY_GRID_CLONES = 0.02
 
@@ -179,9 +179,9 @@ def test_grocery_styles_mostly_draw_a_tile_of_their_own(ceiling):
     Guard: this test. Metric: the grocery grid-clone share, in the failure message."""
     groc = [r for r in ceiling.records if r["product_id"].startswith(scale.GROCERY_PREFIX)]
     report = scale.grid_clones(groc)
-    assert report["styles"] == 3_305
+    assert report["styles"] == 3_379
     rate = report["grid_clones"] / report["styles"]
-    assert rate <= GROCERY_GRID_CLONES, f"{report['grid_clones']} of 3305 styles ({rate:.1%})"
+    assert rate <= GROCERY_GRID_CLONES, f"{report['grid_clones']} of 3379 styles ({rate:.1%})"
 
 
 def test_grid_clones_count_every_style_of_a_shared_tile():
@@ -624,11 +624,15 @@ def test_the_derivable_styles_hold_the_near_duplicate_share_at_the_ceiling(ceili
 
 
 def test_the_grocery_styles_hold_their_own_near_duplicate_cap(ceiling):
-    """Guard: grocery's near-duplicate share (measured 3.6%) stays under
-    :data:`CEILING_GROCERY_NEAR_DUPLICATES` (4.0%), so it cannot grow silently."""
+    """Guard: grocery's near-duplicate share (measured 3.8%) stays under
+    :data:`CEILING_GROCERY_NEAR_DUPLICATES` (4.0%), so it cannot grow silently.
+
+    Read over EVERY grocery style, not the default 500 sample: the sample's draw moves with
+    the style count, and adding 74 beer and orange styles moved it from 3.6% to 5.0% while the
+    whole population stayed at 3.8% (sampling noise of about one point at this size)."""
     groc = _grocery(ceiling.records)
-    rate = scale.distinctness(groc)["near_duplicate_rate"]
-    assert rate <= CEILING_GROCERY_NEAR_DUPLICATES, f"{rate:.1%} of a sample of {len(groc)}"
+    rate = scale.distinctness(groc, sample=len(groc))["near_duplicate_rate"]
+    assert rate <= CEILING_GROCERY_NEAR_DUPLICATES, f"{rate:.1%} of all {len(groc)} styles"
 
 
 def _grocery(records):
@@ -681,9 +685,10 @@ def test_grocery_style_attributes_list_the_values_of_their_skus(ceiling):
 #: allergen list. Every other SKU-carried key (dietary) is held strictly.
 GROCERY_NAMED_EXCEPTIONS = {
     "flavor": 1_885,
-    "may_contain": 646,
-    "contains": 558,
-    "pack_size": 85,
+    "variety": 27,  # a variety that is the head noun of another: "Oranges" in "Blood Oranges"
+    "may_contain": 691,
+    "contains": 576,
+    "pack_size": 110,
 }
 
 
