@@ -10,9 +10,11 @@ Each row adds capacity to :mod:`scale` in one of two ways:
 
 - a leaf's title-visible value it lacked: a mid rise skinny, a non-wired plunge.
   The leaf's other templates may then take it too (:func:`scale.value_pools`);
-- a new leaf: cigarette and balloon jeans; push-up, longline, multiway, lace
-  plunge, bralette, front fastening, sleep, racerback, halterneck, triangle,
-  padded, demi cup, lace full cup, bandeau, smoothing and high apex bras.
+- a new leaf: cigarette, balloon, tapered, relaxed, mom, boyfriend and kick
+  flare jeans (each a :data:`kit_garments.FITS` outline); push-up, longline,
+  multiway, lace plunge, bralette, front fastening, sleep, racerback,
+  halterneck, triangle, padded, demi cup, lace full cup, bandeau, smoothing,
+  high apex, embroidered balcony, lace bralette, low back and post-surgery bras.
 
 A :class:`Bra` row names its own straps and fastening in the description.
 
@@ -78,6 +80,45 @@ JEANS = (
     JeanStyle("HADDOW", "Haddow", "Ferrowick Denim", "Mens", "Slim", "Low",
               ("Rinse", "Dark Indigo", "Mid Wash", "Black", "Grey", "Ecru"), _M_LEGS,
               28, 38, 35.0),
+    # A rise the leaf lacked.
+    JeanStyle("ASKERN", "Askern", "Ottery Denim", "Womens", "Bootcut", "Low",
+              ("Dark Indigo", "Mid Wash", "Vintage Blue", "Black"), (*_W_LEGS, "Extra Long"),
+              6, 20, 32.0),
+    JeanStyle("LUMLEY", "Lumley", "Calderwick Denim", "Womens", "Flared", "Low",
+              ("Rinse", "Mid Wash", "Light Wash", "Washed Black"),
+              ("Regular", "Long", "Extra Long"), 6, 18, 39.0),
+    JeanStyle("COTHERSTONE", "Cotherstone", "Ferrowick Denim", "Womens", "Wide Leg", "Low",
+              ("Light Wash", "Bleach Wash", "Ecru", "Black"), ("Regular", "Long"), 6, 20, 37.0),
+    JeanStyle("RIPLEY", "Ripley", "Ottery Denim", "Womens", "Balloon", "Mid",
+              ("Vintage Blue", "Ecru", "Washed Black"), ("Petite", "Regular"), 6, 18, 42.0,
+              "100% Cotton"),
+    # A new leaf (a new kit_garments.FITS key).
+    JeanStyle("COXWOLD", "Coxwold", "Ferrowick Denim", "Mens", "Tapered", "Mid",
+              ("Rinse", "Dark Indigo", "Mid Wash", "Washed Black", "Grey"), _M_LEGS, 28, 40, 38.0),
+    JeanStyle("HUTTON", "Hutton", "Calderwick Denim", "Womens", "Tapered", "High",
+              ("Indigo", "Mid Wash", "Black", "Ecru"), _W_LEGS, 6, 22, 33.0),
+    JeanStyle("BAINBRIDGE", "Bainbridge", "Ottery Denim", "Mens", "Tapered", "Low",
+              ("Dark Indigo", "Vintage Blue", "Black"), _M_LEGS, 28, 38, 34.0),
+    JeanStyle("KETTLEWELL", "Kettlewell", "Ottery Denim", "Mens", "Relaxed", "Mid",
+              ("Rinse", "Indigo", "Mid Wash", "Light Wash", "Black"), (*_M_LEGS, "Extra Long"),
+              30, 42, 40.0, "100% Cotton"),
+    JeanStyle("GRASSINGTON", "Grassington", "Ferrowick Denim", "Womens", "Relaxed", "High",
+              ("Mid Wash", "Vintage Blue", "Light Wash", "Ecru"), _W_LEGS, 6, 24, 36.0),
+    JeanStyle("HAWES", "Hawes", "Ottery Denim", "Womens", "Mom", "High",
+              ("Vintage Blue", "Mid Wash", "Light Wash", "Bleach Wash", "Black"), _W_LEGS,
+              6, 22, 35.0, "100% Cotton"),
+    JeanStyle("REETH", "Reeth", "Calderwick Denim", "Womens", "Mom", "Mid",
+              ("Indigo", "Mid Wash", "Washed Black"), ("Regular", "Long"), 6, 20, 30.0),
+    JeanStyle("MUKER", "Muker", "Ferrowick Denim", "Womens", "Boyfriend", "Mid",
+              ("Light Wash", "Mid Wash", "Vintage Blue", "Grey"), _W_LEGS, 6, 22, 34.0,
+              "100% Cotton"),
+    JeanStyle("THWAITE", "Thwaite", "Ottery Denim", "Womens", "Boyfriend", "Low",
+              ("Bleach Wash", "Light Wash", "Black"), ("Petite", "Regular"), 6, 18, 31.0,
+              "100% Cotton"),
+    JeanStyle("ASKRIGG", "Askrigg", "Calderwick Denim", "Womens", "Kick Flare", "High",
+              ("Rinse", "Indigo", "Mid Wash", "Black", "White"), _W_LEGS, 6, 22, 38.0),
+    JeanStyle("MALHAM", "Malham", "Ferrowick Denim", "Womens", "Kick Flare", "Mid",
+              ("Dark Indigo", "Vintage Blue", "Ecru"), _W_LEGS, 6, 20, 36.0),
 )  # fmt: skip
 
 BRAS = (
@@ -156,6 +197,20 @@ BRAS = (
         fitting="wide adjustable straps and a four-row hook and eye back"),
     Bra("NETHERCOTE", "Nethercote", "Bramblewood", "High Apex", (30, 40), ("C", "HH"),
         (_BLACK, cw("Claret", "#7a1f35"), _NUDE, cw("Petrol", "#1f4f5a")), 30.0),
+    Bra("ALDBROUGH", "Aldbrough", "Bramblewood", "Embroidered Balcony", (30, 40), ("A", "G"),
+        (cw("Teal", "#2e7d7a"), _BLACK, cw("Ivory", "#f3ecd9"), cw("Blush", "#e8b9b3")), 28.0),
+    Bra("GLAISDALE", "Glaisdale", "Saltmarsh", "Lace Bralette", (30, 38), ("A", "E"),
+        (cw("Burgundy", "#6e1f2f"), _BLACK, _WHITE, cw("Sky", "#a9c8e6")), 17.0, wired=False,
+        fitting="adjustable straps and a two-row hook and eye back"),
+    Bra("SANDSEND", "Sandsend", "Saltmarsh", "Low Back", (30, 38), ("A", "F"),
+        (cw("Caramel", "#b07a45"), _BLACK, _WHITE), 27.0,
+        fitting="adjustable straps and a low back band with a two-row hook and eye"),
+    Bra("RUNSWICK", "Runswick", "Saltmarsh", "Strapless", (30, 38), ("A", "D"),
+        (cw("Latte", "#c8a98a"), _BLACK, _WHITE), 20.0, wired=False,
+        fitting="a silicone-gripped band, detachable straps and a three-row hook and eye back"),
+    Bra("STAITHES", "Staithes", "Saltmarsh", "Post-Surgery", (32, 44), ("A", "F"),
+        (cw("Soft Grey", "#b9bbbe"), _NUDE, _BLACK), 22.0, wired=False, fabric="Cotton, Elastane",
+        fitting="soft wide straps, a front hook and eye fastening and pocketed cups"),
 )  # fmt: skip
 
 #: family -> its scale-only styles, in build order.
