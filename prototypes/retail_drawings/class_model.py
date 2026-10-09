@@ -164,6 +164,9 @@ class Style:
     not_made: tuple[tuple[str, str], ...] = ()
     #: A motif print's drawing fields (motif, placement, scale, spacing), see :mod:`prints`.
     motif_print: tuple[tuple[str, object], ...] = ()
+    #: The pooled review count; set only where a row must out-sell another (otherwise
+    #: a digest of the code).
+    reviews: int | None = None
 
     def __post_init__(self) -> None:
         if self.lengths and self.size_range is not None:
@@ -237,6 +240,8 @@ class Style:
         # Pooled per style: one rating and count, one popularity over every color.
         h = _digest(self.code)
         rating, reviews = round(3.6 + (h % 14) / 10, 1), 5 + (h >> 8) % 1700
+        if self.reviews is not None:
+            reviews = self.reviews
         skus = self.skus()
         prices = [s["price"] for s in skus]
         lead = self.colors[0][0]

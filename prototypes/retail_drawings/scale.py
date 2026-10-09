@@ -68,7 +68,7 @@ price with another.
 
 **Capacity.** Signatures bound the build: per template, the shown values its leaf
 offers times its color families. With today's templates every template is
-exhausted at 76,417 SKUs (3,242 styles). Past that, the CLI reports
+exhausted at 80,004 SKUs (3,525 styles). Past that, the CLI reports
 ``reached_target: false`` and exits 2. To grow it, add data, not code: more values
 per leaf that the title shows, more colorways, and more templates, deep-SKU ones
 above all.
@@ -102,6 +102,7 @@ if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
 import breadth_rows  # noqa: E402
+import distractor_rows  # noqa: E402
 import scale_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from export import drawing_spec, image_id, standard_document  # noqa: E402
@@ -192,9 +193,10 @@ class Scaled:
 
 
 def templates() -> list[dict]:
-    """The authored styles, then :mod:`scale_rows`, then :mod:`breadth_rows`, in build order."""
+    """The authored styles, then :mod:`scale_rows`, :mod:`breadth_rows` and
+    :mod:`distractor_rows`, in build order."""
     authored = (r for recs in samples().values() for r in recs)
-    return [*authored, *scale_rows.docs(), *breadth_rows.docs()]
+    return [*authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs()]
 
 
 def _words(text: str) -> str:
