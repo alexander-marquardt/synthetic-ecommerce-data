@@ -279,7 +279,9 @@ def _number(entry: Mapping[str, Any], numeric_keys: frozenset[str]) -> float | N
 
 
 def flat_documents(
-    doc: Mapping[str, Any], numeric_keys: frozenset[str] = frozenset()
+    doc: Mapping[str, Any],
+    numeric_keys: frozenset[str] = frozenset(),
+    text_skip: frozenset[str] = frozenset(),
 ) -> list[dict[str, Any]]:
     """The flat one-document-per-SKU shape of one nested document, the shape
     industrial's ``emit.flat_documents`` writes and prism-industrial-products loads.
@@ -289,7 +291,8 @@ def flat_documents(
     list of colors gives way to the SKU's one color), then the variant's. From those
     entries: ``attribute_names``, ``facets`` (key -> values), ``facets_num`` (key ->
     the first value that is a number, :func:`_number`) and the searchable ``text``.
-    Product fields the document lacks (``series``) stay absent, never null.
+    Product fields the document lacks (``series``) stay absent, never null. A key in
+    ``text_skip`` is still a facet and an attribute, but its values stay out of ``text``.
     """
     product = {k: doc[k] for k in _FLAT_PRODUCT_FIELDS if k in doc}
     out: list[dict[str, Any]] = []
@@ -316,7 +319,11 @@ def flat_documents(
                 "attribute_names": sorted({e["name"] for e in entries}),
                 "facets": facets,
                 "facets_num": numeric,
-                "text": " ".join(w for w in [*words, *(e["value"] for e in entries)] if w),
+                "text": " ".join(
+                    w
+                    for w in [*words, *(e["value"] for e in entries if e["key"] not in text_skip)]
+                    if w
+                ),
             }
         )
     return out

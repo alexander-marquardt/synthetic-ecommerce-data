@@ -134,15 +134,19 @@ def test_an_allergen_source_is_listed_iff_the_allergen_is_contained(level: str) 
 def test_no_text_names_a_traced_allergen_unless_the_ingredients_do() -> None:
     """A "peanut" query must not reach a product only through an allergen warning: a
     word of a may_contain allergen is in no title or search text unless the SKU's own
-    ingredients name that allergen."""
+    ingredients name that allergen. The category path is the product's identity, not a
+    warning (a toffee popcorn under "Nuts & Popcorn" may trace tree nuts), so its words
+    are taken out of the text first."""
     bad = []
     for r in flat():
         if "ingredients" not in r:
             continue
         named = sources(r["ingredients"])
+        path = " ".join(r["category_path"])
         for allergen in values(r["attributes"], "may_contain") - named:
             for where in ("title", "text"):
-                if re.search(WORDS[allergen], NOT_ALLERGEN.sub(" ", r[where].lower())):
+                text = r[where].replace(path, " ") if where == "text" else r[where]
+                if re.search(WORDS[allergen], NOT_ALLERGEN.sub(" ", text.lower())):
                     bad.append((r["sku"], where, allergen))
     assert bad == []
 
