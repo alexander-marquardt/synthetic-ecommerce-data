@@ -1,10 +1,11 @@
 """The retail size parameter (gen#125): a target SKU count, reached from the templates.
 
 ``prototypes/retail_drawings/scale.py`` derives styles from the hand-authored
-ones until the SKUs reach the target. These tests hold it at the first load
-size, 19K SKUs, and at the ceiling where every template is exhausted: it reaches the
-count, stays deterministic, meets the output standard, adds no duplicate title or
-clone, keeps every derived fact honest to its template, and keeps the drawings bounded.
+ones until the SKUs reach the target. These tests hold it at :data:`TARGET`, the
+templates plus about 4K SKUs of derived styles, and at the ceiling where every
+template is exhausted: it reaches the count, stays deterministic, meets the output
+standard, adds no duplicate title or clone, keeps every derived fact honest to its
+template, and keeps the drawings bounded.
 """
 
 from __future__ import annotations
@@ -28,17 +29,26 @@ if str(RETAIL) not in sys.path:
 
 import scale  # noqa: E402
 
-#: The first load: 19K SKUs, under the ceiling (:data:`CAPACITY`).
-TARGET = 19_000
 #: The round 4 preview's 328 authored styles, then the scale-only rows (``scale_rows``),
 #: then the breadth rows (``breadth_rows``).
-SCALE_ROWS = 62
+SCALE_ROWS = 74
 AUTHORED = 328
-BREADTH_ROWS = 151
+BREADTH_ROWS = 176
 TEMPLATES = AUTHORED + SCALE_ROWS + BREADTH_ROWS
+#: The SKUs the templates alone hold. A build at or under it takes no seeded draw, so
+#: every derived-style test (``pairs``) would pass on an empty list.
+TEMPLATE_SKUS = 16_977
+#: The derived styles :data:`TARGET` must hold so the ``pairs`` tests read a real sample:
+#: round 2's 19K build held 166 (seed 0), and adding templates must not shrink it.
+MIN_DERIVED = 150
+#: The sample build: the templates, then derived styles to about 4K SKUs past them (166
+#: styles, seed 0), under the ceiling (:data:`CAPACITY`). It moves with
+#: :data:`TEMPLATE_SKUS`, so new templates never empty it.
+DERIVED_SKUS = 4_000
+TARGET = TEMPLATE_SKUS + DERIVED_SKUS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (2_357, 44_923)
+CAPACITY = (2_659, 52_022)
 #: The grid-clone share the ceiling build may reach (:func:`scale.grid_clones`). Round 2
 #: measured 14.4%: the rest is the headroom the 50K and 100K rounds may spend.
 CEILING_GRID_CLONES = 0.15
@@ -83,6 +93,13 @@ def test_the_size_parameter_reaches_the_target_sku_count(built):
     assert len(built.template_of) == len(built.records) - TEMPLATES
 
 
+def test_the_target_leaves_the_derived_style_tests_a_sample(built, pairs):
+    """New templates raise :data:`TEMPLATE_SKUS`; the pin fails until it is updated, and
+    the floor fails if :data:`TARGET` is left behind it."""
+    assert sum(t["sku_count"] for t in scale.templates()) == TEMPLATE_SKUS
+    assert len(pairs) >= MIN_DERIVED, (len(pairs), MIN_DERIVED)
+
+
 def test_the_templates_come_first_and_a_small_target_takes_a_prefix(built):
     ids = [t["product_id"] for t in scale.templates()]
     assert [r["product_id"] for r in built.records[:TEMPLATES]] == ids
@@ -93,7 +110,8 @@ def test_the_templates_come_first_and_a_small_target_takes_a_prefix(built):
 
 
 def test_the_build_is_deterministic_by_seed():
-    a, b, c = scale.build(16_000, seed=3), scale.build(16_000, seed=3), scale.build(16_000, seed=4)
+    # TARGET, not a fixed size: a build at or under TEMPLATE_SKUS takes no seeded draw.
+    a, b, c = scale.build(TARGET, seed=3), scale.build(TARGET, seed=3), scale.build(TARGET, seed=4)
     assert a.records == b.records
     assert [r["title"] for r in a.records] != [r["title"] for r in c.records]
 
@@ -149,7 +167,7 @@ def test_a_leaf_a_derived_style_joins_never_holds_a_single_price(ceiling, ceilin
     call); a derived style is never priced as its template, so its leaf gains a price."""
     per_leaf = scale.prices_per_leaf(ceiling.records)
     derived = {r["category_leaf"] for r, _ in ceiling_pairs}
-    assert len(derived) >= 100  # 110 at the ceiling, seed 0 (57 at TARGET)
+    assert len(derived) >= 100  # 122 at the ceiling, seed 0 (56 at TARGET)
     assert [leaf for leaf in derived if per_leaf["distinct"][leaf] < 2] == []
     assert [r["product_id"] for r, t in ceiling_pairs if r["price"] == t["price"]] == []
 
@@ -272,12 +290,13 @@ def _string_fields(drawing: dict[str, Any]) -> dict[str, str]:
     return out
 
 
-def test_a_changed_value_is_redrawn_in_the_picture(pairs):
+def test_a_changed_value_is_redrawn_in_the_picture(ceiling_pairs):
     """Every string field of the drawing, top level and ``params``, follows a changed value:
-    a graphic tee carries its ``motif`` at the top level, not in ``params``."""
+    a graphic tee carries its ``motif`` at the top level, not in ``params``. It reads the
+    ceiling, whose derived styles start with TARGET's: 88 motif styles to TARGET's 3."""
     redrawn = top_level = 0
     drawn = _motif_drawn()  # the drawn motif may not be the value: Cherry draws cherries
-    for r, t in pairs:
+    for r, t in ceiling_pairs:
         changed = {old.lower(): new for old, new in _changed(r, t).values()}
         motif = {a["value"].lower(): a["value"] for a in t["attributes"] if a["key"] == "motif"}
         mine = _string_fields(r["drawing"])
@@ -357,7 +376,7 @@ def test_a_style_that_changes_no_shown_value_carries_its_hero_color_in_its_title
 ):
     """A style whose title-shown values equal its template's or an earlier sibling's differs
     from it in the hero color alone: its title says so, in the listing convention "…, Navy".
-    The ceiling build holds 1,073 such styles (seed 0); :data:`TARGET` holds 83."""
+    The ceiling build holds 1,246 such styles (seed 0); :data:`TARGET` holds 91."""
     taken: dict[str, set[tuple]] = collections.defaultdict(set)
     for t in scale.templates():
         taken[t["product_id"]].add(_signature(t, t)[0])
@@ -601,7 +620,7 @@ def test_a_scale_only_bra_describes_its_own_straps_and_fastening():
     rows = scale.scale_rows
     bras = [s for s in rows.FAMILIES["Bras"] if isinstance(s, rows.Bra)]
     own = [s for s in bras if s.fitting != rows.HOOK_BACK]
-    assert len(own) == 14
+    assert len(own) == 16
     for s in bras:
         (doc,) = rows.style_docs("Bras", s)
         assert f"with {s.fitting}, in " in doc["description"], s.code
@@ -626,8 +645,8 @@ def test_the_invented_names_are_new_and_never_repeat():
 
 def test_a_color_titled_style_carries_only_its_title_color_in_every_sku(ceiling_pairs):
     """A listing whose title names a color IS that color: every SKU of a style titled
-    "…, Sage" is Sage, in all its sizes. The ceiling build holds 1,073 such styles (seed 0);
-    :data:`TARGET` holds 83."""
+    "…, Sage" is Sage, in all its sizes. The ceiling build holds 1,246 such styles (seed 0);
+    :data:`TARGET` holds 91."""
     seen = 0
     for r, t in ceiling_pairs:
         hero = (r.get("color_options") or [{}])[0].get("color")
@@ -656,7 +675,10 @@ def test_a_duvets_drawn_tog_is_its_tog_attribute(built):
 #: text names another record's value of the key (a "Herbal" title on an Assam, a "Spiral"
 #: description on a Bush) contradicts its own SKUs. Add a key here when a new template
 #: names one.
-SAID_ATTRIBUTES = ("blend", "form", "variety", "fruit", "origin", "power", "charm", "flower_form")
+SAID_ATTRIBUTES = (
+    "blend", "form", "variety", "fruit", "origin", "power", "charm", "flower_form", "flavor",
+    "pasta_shape", "fabric",
+)  # fmt: skip
 #: Words that say a value without being it: (key, word) -> the values the word is true of.
 #: Herbal teas are the blends that hold no tea leaf; a cone is clipped to a point and a
 #: spiral is trained round a cane.
