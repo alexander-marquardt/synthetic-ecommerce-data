@@ -364,6 +364,132 @@ def m_leaf_pair(c: str) -> list[str]:
     ]
 
 
+# The marks of the brands the scaled build adds (scale.EXTRA_BRANDS, gen#125).
+
+
+def m_arch(c: str) -> list[str]:
+    return [
+        f'<path d="M-.7,.8 L-.7,-.1 A.7,.7 0 0 1 .7,-.1 L.7,.8 Z" fill="{c}"/>',
+        '<path d="M-.3,.8 L-.3,.1 A.3,.3 0 0 1 .3,.1 L.3,.8 Z" fill="#ffffff"/>',
+    ]
+
+
+def m_bar_trio(c: str) -> list[str]:
+    return [
+        f'<rect x="{_n(x)}" y="{_n(0.8 - h)}" width=".38" height="{_n(h)}" fill="{c}"/>'
+        for x, h in ((-0.8, 0.8), (-0.19, 1.3), (0.42, 1.6))
+    ]
+
+
+def m_cross_ring(c: str) -> list[str]:
+    return [_ring(0, 0, 0.8, 0.12, c), _stroke("M0,-.45 L0,.45 M-.45,0 L.45,0", 0.18, c)]
+
+
+def m_dot_ring(c: str) -> list[str]:
+    return [
+        _dot(0.7 * math.cos(k * math.pi / 4), 0.7 * math.sin(k * math.pi / 4), 0.14, c)
+        for k in range(8)
+    ]
+
+
+def m_half_moons(c: str) -> list[str]:
+    return [
+        f'<path d="M-.85,{_n(y)} A.85,.85 0 0 1 .85,{_n(y)} Z" fill="{c}"/>' for y in (-0.05, 0.75)
+    ]
+
+
+def m_keyhole(c: str) -> list[str]:
+    return [_ring(0, 0, 0.84, 0.1, c), _dot(0, -0.2, 0.24, c),
+            f'<path d="M-.14,-.1 L.14,-.1 L.24,.5 L-.24,.5 Z" fill="{c}"/>']  # fmt: skip
+
+
+def m_ladder(c: str) -> list[str]:
+    rungs = " ".join(f"M-.4,{_n(y)} L.4,{_n(y)}" for y in (-0.5, -0.1, 0.3, 0.7))
+    return [_stroke(f"M-.4,-.85 L-.4,.85 M.4,-.85 L.4,.85 {rungs}", 0.12, c, "miter")]
+
+
+def m_triangle_pair(c: str) -> list[str]:
+    return [
+        f'<path d="M-.9,.6 L-.3,-.6 L.3,.6 Z" fill="{c}"/>',
+        f'<path d="M-.1,.6 L.5,-.6 L1,.6 Z" fill="none" stroke="{c}" stroke-width=".1"/>',
+    ]
+
+
+def m_square_dot(c: str) -> list[str]:
+    return [
+        f'<rect x="-.78" y="-.78" width="1.56" height="1.56" fill="none" stroke="{c}" stroke-width=".14"/>',
+        _dot(0, 0, 0.32, c),
+    ]
+
+
+def m_wheat_ear(c: str) -> list[str]:
+    grain = "M0,0 Q.2,-.14 .36,0 Q.2,.14 0,0 Z"
+    out = [_stroke("M0,.9 L0,-.8", 0.08, c)]
+    for y in (-0.55, -0.2, 0.15):
+        out += [f'<path d="{grain}" fill="{c}" transform="translate(0 {_n(y)}) rotate(-50)"/>',
+                f'<path d="{grain}" fill="{c}" transform="translate(0 {_n(y)}) rotate(-130)"/>']  # fmt: skip
+    return out
+
+
+def m_bell(c: str) -> list[str]:
+    return [
+        f'<path d="M-.6,.5 Q-.6,-.7 0,-.7 Q.6,-.7 .6,.5 L.75,.62 L-.75,.62 Z" fill="{c}"/>',
+        _dot(0, 0.8, 0.14, c),
+    ]
+
+
+def m_diamond_dot(c: str) -> list[str]:
+    return [
+        f'<path d="{_diamond(0, 0, 0.88)}" fill="none" stroke="{c}" stroke-width=".12"/>',
+        _dot(0, 0, 0.22, c),
+    ]
+
+
+def m_pinwheel(c: str) -> list[str]:
+    blade = "M0,0 L.8,0 L0,-.6 Z"
+    return [f'<path d="{blade}" fill="{c}" transform="rotate({a})"/>' for a in (0, 90, 180, 270)]
+
+
+def m_ring_pair(c: str) -> list[str]:
+    return [_ring(-0.34, 0, 0.5, 0.14, c), _dot(0.48, 0, 0.36, c)]
+
+
+def m_striped_disc(c: str) -> list[str]:
+    stripes = " ".join(f"M-.8,{_n(y)} L.8,{_n(y)}" for y in (-0.48, -0.16, 0.16, 0.48))
+    return [_ring(0, 0, 0.82, 0.08, c), _stroke(stripes, 0.14, c).replace("round", "butt", 1)]
+
+
+def m_arrow_up(c: str) -> list[str]:
+    return [
+        f'<path d="M0,-.9 L.7,-.1 L.26,-.1 L.26,.85 L-.26,.85 L-.26,-.1 L-.7,-.1 Z" fill="{c}"/>'
+    ]
+
+
+def m_hourglass(c: str) -> list[str]:
+    return [
+        f'<path d="M-.6,-.85 L.6,-.85 L0,0 Z" fill="{c}"/>',
+        f'<path d="M-.6,.85 L.6,.85 L0,0 Z" fill="none" stroke="{c}" stroke-width=".1"/>',
+    ]
+
+
+def m_fan(c: str) -> list[str]:
+    ribs = " ".join(
+        f"M0,.6 L{_n(0.9 * math.cos(a))},{_n(0.6 - 0.9 * math.sin(a))}"
+        for a in (math.pi * k / 6 for k in range(1, 6))
+    )
+    return [_stroke(ribs, 0.1, c), _dot(0, 0.6, 0.14, c)]
+
+
+def m_steps(c: str) -> list[str]:
+    return [
+        f'<path d="M-.85,.85 L-.85,.3 L-.3,.3 L-.3,-.25 L.25,-.25 L.25,-.8 L.85,-.8 L.85,.85 Z" fill="{c}"/>'
+    ]
+
+
+def m_crown(c: str) -> list[str]:
+    return [f'<path d="M-.8,.6 L-.8,-.5 L-.4,0 L0,-.7 L.4,0 L.8,-.5 L.8,.6 Z" fill="{c}"/>']
+
+
 #: Mark name -> drawing in unit space (-1..1), painted in the brand color.
 MARKS = {
     name[2:]: fn for name, fn in list(globals().items()) if name.startswith("m_") and callable(fn)
@@ -792,6 +918,27 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     "Crofter's Bakehouse":  H("#f6efe2", "lines",    "rounded", "#9c6b30", "#4a3520", 1.1,  False, "round", "venn",              "mark_only",   "top_right",     "outline",  "serif",    400, "smallcaps", 0.0),
     "Brackenmere Home":     H("#f3f1ea", "diagonal", "double",  "#4f6b4a", "#2a3328", 1.0,  False, "sharp", "quad_squares",      "mark_only",   "top_right",     "underline", "serif",   400, "caps",      3.0),
     "Pewley Table":         H("#ffffff", "grid",     "thin",    "#2f5e8c", "#22344a", 0.9,  False, "round", "target",            "mark_only",   "top_left",      "stamp",    "sans",     400, "caps",      2.0),
+    # The brands the scaled build adds (scale.EXTRA_BRANDS): lockups, then marks alone.
+    "Marrowgate":           H("#f4f2ee", "dots",     "heavy",   "#3d4f7a", "#1e2638", 1.2,  False, "sharp", "arch",              "mark_right",  "top_right",     "none",     "serif",    700, "caps",      2.0),
+    "Pellbrook":            H("#eef4f0", "none",     "thin",    "#2e7d5b", "#1f3a2e", 0.9,  True,  "round", "ring_pair",         "band_bottom", "bottom_centre", "none",     "sans",     400, "caps",      3.0),
+    "Osier & Vane":         H("#f6f0e8", "grid",     "rounded", "#8a4b2f", "#3a2418", 1.0,  False, "round", "fan",               "mark_above",  "top_left",      "none",     "humanist", 700, "smallcaps", 1.0),
+    "Tallow Street":        H("#f2f2f2", "diagonal", "none",    "#444444", "#141414", 1.35, False, "sharp", "bar_trio",          "badge",       "top_left",      "none",     "mono",     400, "caps",      1.0),
+    "Dovecote Lane":        H("#fbf3f6", "none",     "double",  "#a05a7a", "#40263a", 0.75, True,  "round", "half_moons",        "pill",        "top_centre",    "none",     "serif",    400, "title",     1.0, True),
+    "Larchwood Living":     H("#f1efe6", "lines",    "heavy",   "#5a6b3a", "#2c331d", 1.1,  False, "round", "triangle_pair",     "mark_left",   "bottom_right",  "none",     "sans",     400, "title",     0.0),
+    "Brightwater Botanics": H("#eef7f5", "dots",     "double",  "#2a8c82", "#1b3f3b", 0.9,  False, "round", "dot_ring",          "band_top",    "top_centre",    "none",     "humanist", 400, "caps",      2.5),
+    "Mossgill Dairy":       H("#f3f8ee", "none",     "ticks",   "#4f8a3a", "#25401c", 1.2,  True,  "sharp", "wheat_ear",         "mark_right",  "bottom_left",   "none",     "humanist", 700, "lower",     0.5),
+    "Cobbleway":            H("#f5efe8", "hatch",    "thin",    "#7a4a2a", "#33241a", 1.35, False, "sharp", "steps",             "mark_above",  "bottom_left",   "none",     "mono",     700, "title",     0.0),
+    "Pipwick Toys":         H("#fff4e0", "dots",     "rounded", "#e06a1f", "#2b3a5a", 1.2,  True,  "round", "pinwheel",          "pill",        "bottom_left",   "none",     "sans",     700, "lower",     1.5),
+    "Hushwell":             H("#f3f1f8", "none",     "rounded", "#6a5a9a", "#2e2846", 0.8,  False, "round", "hourglass",         "mark_only",   "bottom_left",   "tab",      "humanist", 400, "lower",     2.0),
+    "Emberly Home":         H("#fbf2ec", "diagonal", "heavy",   "#b5502f", "#3d2219", 1.1,  True,  "sharp", "keyhole",           "mark_only",   "top_right",     "plain",    "sans",     700, "title",     0.0),
+    "Cobble & Kiln":        H("#f2efe9", "grid",     "double",  "#6e5a48", "#2d251e", 1.3,  False, "sharp", "square_dot",        "mark_only",   "bottom_left",   "stamp",    "mono",     700, "lower",     0.0),
+    "Orrin Skin":           H("#fdf3ef", "none",     "thin",    "#c46b5a", "#3a2420", 0.75, True,  "round", "diamond_dot",       "mark_only",   "bottom_right",  "outline",  "sans",     400, "smallcaps", 3.0),
+    "Wheatsheaf Lane":      H("#fbf6e6", "lines",    "ticks",   "#b08a2a", "#3b3018", 1.0,  False, "sharp", "crown",             "mark_only",   "top_left",      "tab",      "sans",     400, "lower",     1.0),
+    "Barrowby Kitchen":     H("#f6efe6", "dots",     "heavy",   "#9a3b2b", "#3a1e18", 1.2,  True,  "round", "striped_disc",      "mark_only",   "bottom_right",  "rect",     "humanist", 700, "caps",      0.5),
+    "Treadmoor":            H("#eef0f2", "hatch",    "none",    "#3a4a5a", "#161e26", 1.35, True,  "sharp", "arrow_up",          "mark_only",   "top_right",     "underline", "humanist", 700, "title",    1.5),
+    "Rookery Garden Co.":   H("#f0f5ec", "none",     "heavy",   "#3f6b35", "#1f3319", 1.0,  True,  "round", "ladder",            "mark_only",   "bottom_left",   "flag",     "serif",    700, "title",     2.0),
+    "Ribbonvale":           H("#fbeff3", "dots",     "thin",    "#c0336b", "#3e1a2a", 0.9,  False, "sharp", "bell",              "mark_only",   "top_left",      "outline",  "mono",     400, "smallcaps", 0.5, True),
+    "Clearbrook Household": H("#eef6fb", "grid",     "rounded", "#2f7fb5", "#1a3448", 1.0,  False, "sharp", "cross_ring",        "mark_only",   "bottom_right",  "tab",      "sans",     700, "caps",      1.0),
 }
 # fmt: on
 

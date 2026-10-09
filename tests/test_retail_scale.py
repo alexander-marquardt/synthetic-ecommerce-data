@@ -28,12 +28,12 @@ if str(RETAIL) not in sys.path:
 
 import scale  # noqa: E402
 
-#: The first load: 19K SKUs, about 630 styles, under the ceiling (:data:`CAPACITY`).
+#: The first load: 19K SKUs, about 540 styles, under the ceiling (:data:`CAPACITY`).
 TARGET = 19_000
 TEMPLATES = 328
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (651, 19_794)
+CAPACITY = (850, 31_524)
 
 
 @pytest.fixture(scope="module")
@@ -107,7 +107,7 @@ def test_a_leaf_a_derived_style_joins_never_holds_a_single_price(built, pairs):
     call); a derived style is never priced as its template, so its leaf gains a price."""
     per_leaf = scale.prices_per_leaf(built.records)
     derived = {r["category_leaf"] for r, _ in pairs}
-    assert len(derived) >= 50
+    assert len(derived) >= 45  # 47 at TARGET, seed 0: Zipf keeps most styles in head leaves
     assert [leaf for leaf in derived if per_leaf["distinct"][leaf] < 2] == []
     assert [r["product_id"] for r, t in pairs if r["price"] == t["price"]] == []
 
@@ -234,14 +234,18 @@ def test_a_changed_value_is_redrawn_in_the_picture(pairs):
     """Every string field of the drawing, top level and ``params``, follows a changed value:
     a graphic tee carries its ``motif`` at the top level, not in ``params``."""
     redrawn = top_level = 0
+    drawn = _motif_drawn()  # the drawn motif may not be the value: Cherry draws cherries
     for r, t in pairs:
         changed = {old.lower(): new for old, new in _changed(r, t).values()}
+        motif = {a["value"].lower(): a["value"] for a in t["attributes"] if a["key"] == "motif"}
         mine = _string_fields(r["drawing"])
         for p, v in _string_fields(t["drawing"]).items():
             if p in ("base", "accent", "third", "pattern") or p not in mine:
                 continue  # the hero swatch and the motif's ink: see the motif test
-            if v.lower() in changed:
-                assert mine[p].lower() == changed[v.lower()].lower(), (r["product_id"], p)
+            was = next(iter(motif)) if p == "motif" else v.lower()
+            if was in changed:
+                want = drawn[changed[was]] if p == "motif" else changed[was]
+                assert mine[p].lower() == want.lower(), (r["product_id"], p)
                 redrawn += 1
                 top_level += not isinstance(p, tuple)
             else:
@@ -320,6 +324,33 @@ def test_a_style_that_changes_no_shown_value_carries_its_hero_color_in_its_title
             colored.append(r["product_id"])
         taken[t["product_id"]].add(shown)
     assert len(colored) >= 100
+
+
+def test_a_redrawn_print_motif_takes_its_plural_and_article():
+    """A print's title says its motif in the plural, and a vowel motif takes "an": no build
+    style at :data:`TARGET` reaches either, so the record is made here."""
+    import copy  # noqa: PLC0415
+
+    tpl = next(t for t in scale.templates() if t["product_id"] == "PLT-TTW-STRAWBERRY")
+    rec = copy.deepcopy(tpl)
+    scale._redraw_motif(rec, "Strawberry", "Orange")
+    assert rec["title"] == "Oranges Print Tea Towels, Set of 2"
+    assert rec["description"] == "An orange print: oranges scattered on tea towels."
+    assert rec["drawing"]["motif"] == "orange"
+    assert rec["drawing"]["count"] == tpl["drawing"]["count"]
+
+
+def test_a_shown_in_color_is_the_hero_the_picture_draws(pairs):
+    """A sofa drawn in its Sage hero but described "Shown in cream" contradicts its picture:
+    a derived description names its own hero."""
+    shown = 0
+    for r, t in pairs:
+        if not re.search(r"\bshown in\b", t["description"], re.IGNORECASE):
+            continue
+        shown += 1
+        hero = r["color_options"][0]["color"]
+        assert f"shown in {hero.lower()}" in r["description"].lower(), r["description"]
+    assert shown >= 1
 
 
 def test_every_brand_in_the_build_has_a_house_style(built):
@@ -473,7 +504,7 @@ def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(tmp_path):
         capture_output=True, text=True, check=False,
     )  # fmt: skip
     assert done.returncode == 2, done.stderr[-2000:]
-    assert "short: 19794 SKUs of 100000" in done.stderr
+    assert f"short: {CAPACITY[1]} SKUs of 100000" in done.stderr
     got = json.loads(report.read_text(encoding="utf-8"))
     assert got["reached_target"] is False
     assert got["standard_problems"] == 0
