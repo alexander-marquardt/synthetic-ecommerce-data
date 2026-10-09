@@ -87,8 +87,6 @@ class TableType:
     draw: Callable[[Mapping[str, float]], Figure]
     extent: tuple[float, float]
     share: float
-    default_lines: int
-    default_skus: int
     series: str
     use_lines: tuple[str, ...] = ()
     unit: str = "mm"
@@ -252,8 +250,6 @@ def spec(table: TableType) -> TypeSpec:
         claims=claims,
         may_claim=frozenset({table.standard}),
         key_attributes=(table.columns[0],),
-        default_lines=table.default_lines,
-        default_skus=table.default_skus,
         use_lines=table.use_lines,
     )
 

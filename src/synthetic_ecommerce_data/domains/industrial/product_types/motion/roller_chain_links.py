@@ -193,8 +193,6 @@ TABLE = TableType(
     # The largest drawn: a 160 link is 3.901 in wide and 5.252 in tall.
     extent=(3.95, 5.3),
     share=0.020,
-    default_lines=52,
-    default_skus=94,
     series="RL",
     unit="in",
     use_lines=(

@@ -122,3 +122,23 @@ def test_no_doc_restates_a_figure_the_build_measures(stats: dict, path: str) -> 
         f"`figures` (or `skus` / `lines`) in golden-catalog/stats.json instead; "
         f"{REBUILD} rewrites them there"
     )
+
+
+def test_no_per_type_size_is_typed_by_hand() -> None:
+    """A type's lines and SKUs are ``stats.json``'s (``type_facts.default_size``).
+
+    A ``default_lines`` / ``default_skus`` field or a ``SHARED_SIZE`` table
+    typed again would put every type PR back on the same lines (#103).
+    """
+    pattern = re.compile(r"\bdefault_lines\b|\bdefault_skus\b|\bSHARED_SIZE\b")
+    paths = [
+        *(ROOT / "src").rglob("*.py"),
+        *(ROOT / "tests").glob("*.py"),
+        ROOT / "docs" / "adding-a-type.md",
+    ]
+    offenders = sorted(
+        str(path.relative_to(ROOT))
+        for path in paths
+        if path.name != Path(__file__).name and pattern.search(path.read_text("utf-8"))
+    )
+    assert offenders == [], f"typed-by-hand per-type sizes in {offenders}; read stats.json"

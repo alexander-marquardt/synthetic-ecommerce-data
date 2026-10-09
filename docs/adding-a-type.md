@@ -135,16 +135,6 @@ its published attributes. `set_screws_hex_socket` does both.
    `TypeSpec` (#61). The tests read them from there, so no test file and no
    shared table is edited. `register` writes each one into its table and
    refuses a key that a table also lists:
-   * `default_lines` and `default_skus`: the type's product lines and SKUs in
-     the regenerated catalog, counting only its documents whose
-     `spec_quality` is not `fast_and_cheap`. `tests/catalog_size.py` sums
-     them, and `test_each_types_declared_size_is_its_size_in_the_committed_catalog`
-     holds each type to its count. This prints the pair for `KEY`:
-
-     ```sh
-     KEY=<type_key> python3 -c "import json, os; k = os.environ['KEY']; q = lambda f: sum(d['product_type'] == k and d['spec_quality'] != 'fast_and_cheap' for d in map(json.loads, open(f'golden-catalog/{f}'))); print(f'default_lines={q(\"nested.jsonl\")}, default_skus={q(\"flat.jsonl\")}')"
-     ```
-
    * `claims`: the standards a line claims, as
      `claims(facts, *, metric, provenance, standard)`; `conformance.applicable`
      calls it. Leave it unset for a type that claims nothing.
@@ -246,9 +236,9 @@ The output must stay byte-identical.
    `conformance._shared_claims` (when it claims a standard),
    `price.KEY_ATTRIBUTES`, `noise.THREADED`, `noise.FASTENERS` and
    `noise.UNIT_PRIMARY`, and a row in each table of `tests/type_facts.py`
-   (`SHARED_MAY_CLAIM`, `SHARED_TITLE_KEY`, `SHARED_SIZE`). These become
+   (`SHARED_MAY_CLAIM`, `SHARED_TITLE_KEY`). These become
    `claims`, `key_attributes`, `threaded`, `fastener`, `unit_primary`,
-   `may_claim` and `default_lines`/`default_skus` (step 5 of
+   and `may_claim` (step 5 of
    [A new type](#a-new-type)). For a breadth type, the entry is its row file
    `data/breadth_categories/<type_key>.yaml`.
 2. Move each entry into the module's `SPEC`, and delete it from the shared
@@ -265,13 +255,13 @@ on their own.
 
 Use a table type (`domains/industrial/tabletype.py`, #101) when a type does not parameterise easily: a dozen real sizes from one published chart, a few materials, a few packs. Examples: `domains/industrial/product_types/fasteners/cotter_pins.py` and `retaining_rings_external.py`. A type exists once, so delete its breadth row file in the same PR.
 
-* **Fields.** `columns` (the published name of each chart column, the size first) and `rows` (one real size per row, rising); `variants` (material, finish, price factor, cheapest first at 1.0); `packs`; `base_price`, `size_slope`, `pack_slope`; `draw` and `extent`; `share`, `default_lines`, `default_skus`; `unit` (`"mm"`, or `"in"` for an inch chart). `spec(TABLE)` refuses a table that breaks an order.
+* **Fields.** `columns` (the published name of each chart column, the size first) and `rows` (one real size per row, rising); `variants` (material, finish, price factor, cheapest first at 1.0); `packs`; `base_price`, `size_slope`, `pack_slope`; `draw` and `extent`; `share`; `unit` (`"mm"`, or `"in"` for an inch chart). `spec(TABLE)` refuses a table that breaks an order.
 * **Facts.** Publish only what the chart gives, and cite the chart and the day it was read in the module docstring. Say so if the standard itself was not read. A column the chart lacks (a cotter pin's length) is not published.
 * **A column another type publishes.** Use that type's name and spelling (a sprocket's `Pitch` is the roller chain's). Every column is a length of this type only: the unit-mixing defect reads a type's own lengths, so a name that is a length here and not there moves nothing there. `others_moved_from_the_golden` in `tests/type_gates.py` is the gate.
 * **Attributes the table cannot state.** A `Variant` is a material. For a style with its own columns (a turnbuckle's end fittings, a shackle's body), wrap the `make` of `spec(TABLE)` with `dataclasses.replace` and add the attributes there, as `turnbuckles.py` does. The type is still a table type: `tabletype.tables()` records it by its key, so nothing else is written. A measurement two types publish under one name carries one unit in both (`Load Capacity` is in lbf): `tests/test_nested_entry_contract.py` is the gate.
 * **Price.** A declared estimate, not a measurement: `base_price` is the first row in the first material and pack, a larger size costs more, a later material costs its factor, and a larger pack costs more in total and less a piece. There is no census row, no borrowed model, no noise and no fit.
 * **Drawing.** `draw(values)` gets each column's length in inches from the SKU's own record and returns a `Figure` scaled from them. It carries no text; a proportion no column gives is a named constant in the module.
-* **Share.** Two rules, both at the default build, where a type's product count is its `default_lines` and its SKU count its `default_skus`:
+* **Share.** Two rules, both at the default build, where a type's product count is its `lines_by_type` and its SKU count its `skus_by_type` in `golden-catalog/stats.json`:
   * **At least 5 SKUs per table row.** A size column no other type publishes has a dispersion of rows / SKUs, and a dozen sizes over too few SKUs reads as a continuum to the facet rule (at 13 products the sizes measured 0.44 to 0.48 against the 0.50 threshold).
   * **At least 40 products.** `smallest_faceted` in `prism/derive.py` pins the faceted quantity on the fewest products (a roller chain's Roller Dia., on 30), with ties broken by attribute key order. A type at 40 or more never takes that pin, so it is one shared line fewer to edit.
   * A share of 0.016 gives 42 products and suits a table of up to about 13 rows. A 20-row table needs about 60 products, a share of about 0.023.

@@ -367,8 +367,6 @@ SPEC = TypeSpec(
     key_attributes=("Thread Size",),
     threaded="Thread Size",
     fastener=True,
-    default_lines=256,
-    default_skus=469,
     use_lines=(
         "The nylon insert grips the thread, so the nut resists loosening under vibration.",
         "Threads onto a bolt or a screw of the same size.",
