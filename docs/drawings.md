@@ -64,9 +64,9 @@ Step by step:
    it at true scale near the bottom with an enlarged copy inside a lens.
 6. **Style.** `core/drawing/style.py` supplies the brand's house style (`ink`,
    `paper`, `frame`, from the brand book in `core/brands.py`), the part fill
-   (the published finish's colour, else the bare material's) and the section
+   (the published finish's color, else the bare material's) and the section
    hatch (the material's). A brand, finish or material with no entry raises
-   `UnknownStyleError` instead of falling back to a default colour.
+   `UnknownStyleError` instead of falling back to a default color.
 7. **SVG bytes.** `core/drawing/svg.py` is the writer. It uses no figure library
    and no XML library: `Svg` keeps an ordered list of element strings plus a
    `<defs>` map, and `to_bytes()` joins them into UTF-8 bytes. The module
@@ -261,7 +261,7 @@ and `bracket`. Each YAML row names its shape with `shape:`. A shape function
 discards the record (`del record`) and returns the same geometry every time, with its own fixed
 extent in `BREADTH_SHAPES`. Brand, material and finish still apply, because
 they come from `paint()` and not from the figure, so the outline is fixed but
-the colours are not. Two SKUs of one breadth product therefore draw
+the colors are not. Two SKUs of one breadth product therefore draw
 identically, and `tests/test_sku_drawings.py` exempts breadth from the
 "siblings must differ" and "nominal stays rare" checks.
 
@@ -352,11 +352,11 @@ pinned by a test.
    requires `FIGURES` and `VOCAB` to have the same keys AND the generated
    `SMALL` catalog to draw every `VOCAB` type. This checklist covers the
    drawing only; the type's generator comes first.
-4. **Give every published `Material` and `Finish` a colour and a hatch**
+4. **Give every published `Material` and `Finish` a color and a hatch**
    (`core/drawing/style.py` `MATERIAL_FILL`, `MATERIAL_HATCH`, `EXTRA_FINISH_TINT`,
    and `domains/industrial/render/marking.py` `FINISH_TINT`), or
    drawing raises `UnknownStyleError`.
-   `test_every_published_finish_and_material_has_a_colour_and_a_hatch` sweeps
+   `test_every_published_finish_and_material_has_a_color_and_a_hatch` sweeps
    the data.
 5. **Do not widen the allow-list casually.** A new element or attribute in
    `svg_problems()` reopens a route for text. If one is truly needed, add a
@@ -374,7 +374,7 @@ pinned by a test.
 
 A new **breadth** category needs no figure code: add a row file
 `data/breadth_categories/<key>.yaml` with one of the six `shape:` values, give any new
-`Material`/`Finish` a colour and hatch (step 4), regenerate `golden-catalog/`,
+`Material`/`Finish` a color and hatch (step 4), regenerate `golden-catalog/`,
 and commit it. No pinned count moves: the golden test's expected size
 (`tests/catalog_size.py`) reads one line and `breadth.sku_count(row)` SKUs
 from each row.

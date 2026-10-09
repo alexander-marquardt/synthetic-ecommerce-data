@@ -79,7 +79,7 @@ def test_a_record_nothing_can_draw_is_skipped_and_counted(tmp_path, capsys):
     happened so a regeneration script cannot read a clean exit over it.
     """
     jsonl = tmp_path / "mystery.jsonl"
-    jsonl.write_text(json.dumps({"sku": "A", "Colour": "red"}) + "\n", encoding="utf-8")
+    jsonl.write_text(json.dumps({"sku": "A", "Color": "red"}) + "\n", encoding="utf-8")
     assert main(["batch", str(jsonl), "--out", str(tmp_path), "--profile", "card"]) == 0
     assert not list(tmp_path.glob("*.png"))
     assert "UnknownProductError" in capsys.readouterr().out
@@ -96,7 +96,7 @@ def test_a_batch_carries_on_past_the_record_it_cannot_draw(tmp_path):
     jsonl.write_text(
         "\n".join(
             [
-                json.dumps({"sku": "MYSTERY", "Colour": "red"}),
+                json.dumps({"sku": "MYSTERY", "Color": "red"}),
                 *(json.dumps(BUNDLED[sku]) for sku in ("26VW40", "2DY27", "57KY59")),
             ]
         )
@@ -124,7 +124,7 @@ def test_the_batch_report_separates_the_two_kinds_of_drawing(tmp_path):
 def test_without_keep_going_the_first_refusal_stops_the_run(tmp_path):
     """The behaviour issue #2 reported, kept available and kept out of the CLI."""
     with pytest.raises(UnknownProductError):
-        render_all([{"sku": "A", "Colour": "red"}], tmp_path, [CARD])
+        render_all([{"sku": "A", "Color": "red"}], tmp_path, [CARD])
 
 
 def test_a_refusal_and_a_failure_are_counted_apart(tmp_path):
@@ -134,7 +134,7 @@ def test_a_refusal_and_a_failure_are_counted_apart(tmp_path):
     those is no image rather than a guessed one -- so a run that meets some
     must still be able to succeed, or the exit status stops meaning anything.
     """
-    report = render_all([{"sku": "A", "Colour": "red"}], tmp_path, [CARD], keep_going=True)
+    report = render_all([{"sku": "A", "Color": "red"}], tmp_path, [CARD], keep_going=True)
     assert report.refused == {"UnknownProductError": 1}
     assert report.failed == {}
 

@@ -54,6 +54,10 @@ from synthetic_ecommerce_data.domains.industrial.taxonomy import (
 IMAGE_ROOT = "industrial"
 DEFAULT_IMAGE_BASE_URL = f"/images/{IMAGE_ROOT}"
 
+#: The ISO 4217 code of every industrial price. The nested standard's ``price`` is
+#: in ``currency`` (:mod:`.standard`); ``price_usd`` stays beside it for the loader.
+CURRENCY = "USD"
+
 
 class UnresolvedImageError(Exception):
     """A catalog image id is not its SKU's own, so no URL can be built for it.
@@ -234,6 +238,9 @@ def nested_document(
                 "sku": child.sku,
                 "title": child.title,
                 "description": child.description,
+                "price": child.price_usd,
+                "currency": CURRENCY,
+                "in_stock": child.stock > 0,
                 "price_usd": child.price_usd,
                 "stock": child.stock,
                 "image_id": child.image_id,
@@ -376,6 +383,9 @@ NESTED_MAPPING: dict[str, Any] = {
                     "sku": {"type": "keyword"},
                     "title": {"type": "text"},
                     "description": {"type": "text"},
+                    "price": {"type": "double"},
+                    "currency": {"type": "keyword"},
+                    "in_stock": {"type": "boolean"},
                     "price_usd": {"type": "double"},
                     "stock": {"type": "integer"},
                     "image_id": {"type": "keyword"},

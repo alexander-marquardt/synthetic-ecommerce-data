@@ -94,6 +94,15 @@
      "description": {
       "type": "text"
      },
+     "price": {
+      "type": "double"
+     },
+     "currency": {
+      "type": "keyword"
+     },
+     "in_stock": {
+      "type": "boolean"
+     },
      "price_usd": {
       "type": "double"
      },
