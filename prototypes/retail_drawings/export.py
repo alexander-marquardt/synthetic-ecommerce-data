@@ -75,7 +75,6 @@ FACTS: dict[str, tuple[str, str, str | None]] = {
     "leg_style": ("leg_style", "Leg style", None),
     "rise": ("rise", "Rise", None),
     "pattern": ("pattern", "Pattern", None),
-    "abv": ("abv", "ABV", "P1"),
     "units_per_pack": ("units_per_pack", "Units per pack", "C62"),
     "offer": ("offer", "Offer", None),
     "online_only": ("online_only", "Online only", None),
@@ -87,8 +86,13 @@ FACTS: dict[str, tuple[str, str, str | None]] = {
     "sold_last_5_days": ("sold_last_5_days", "Sold in the last 5 days", "C62"),
     "bestseller_rank": ("bestseller_rank", "Bestseller rank", None),
     "was_price": ("was_price", "Was price", None),
-    "discount_pct": ("discount", "Discount", "P1"),
+    # A percent is a plain number with "(%)" in its name: prism spells no percent
+    # unit (the build record names ABV the same way, class_model.py).
+    "discount_pct": ("discount", "Discount (%)", None),
 }
+#: The unitless facts that are numbers: the flat document's ``facets_num`` holds
+#: them, so "4 stars and up" or a was-price range is a range filter.
+NUMERIC_FACTS = frozenset({"rating", "bestseller_rank", "was_price", "abv", "discount"})
 #: ``unit_size`` in ``unit_measure``: a pack's net content, keyed by its kind.
 NET_CONTENT = {"ml": ("net_volume", "Net volume", "MLT"), "g": ("net_weight", "Net weight", "GRM")}
 #: Top-level fields that become standard columns rather than entries.
@@ -96,9 +100,10 @@ COLUMNS = frozenset({"product_id", "product_type", "title", "brand", "category_p
                      "category_leaf", "description", "attributes", "currency", "skus",
                      "product_line", "color_options", "size_options", "unit_size",
                      "unit_measure"})  # fmt: skip
-#: Fields left out: the standard derives them from the variants, or (the drawing)
-#: they are the render's input, reached through ``image_id``.
-DROPPED = frozenset({"price", "price_min", "price_max", "sku_count", "drawing"})
+#: Fields left out: the standard derives them from the variants, (the drawing)
+#: they are the render's input, reached through ``image_id``, or (``abv``) the
+#: record's own ``attributes`` already carry them as an entry.
+DROPPED = frozenset({"price", "price_min", "price_max", "sku_count", "drawing", "abv"})
 
 
 def _spelling(value: Any) -> str:
@@ -208,11 +213,14 @@ def documents() -> list[dict[str, Any]]:
 
 
 def flat_documents() -> list[dict[str, Any]]:
-    """Stub."""
-    return [row for doc in documents() for row in standard.flat_documents(doc)]
+    """The whole retail build, one flat document per SKU: the shape industrial's
+    loader reads (:func:`synthetic_ecommerce_data.core.standard.flat_documents`)."""
+    return [row for doc in documents() for row in standard.flat_documents(doc, NUMERIC_FACTS)]
 
 
 def main(argv: list[str] | None = None) -> int:
+    """``python prototypes/retail_drawings/export.py OUTDIR``: write ``nested.jsonl``
+    and ``flat.jsonl`` (the file a loader takes as ``catalog.ndjson``) into OUTDIR."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("outdir", type=Path)
     args = ap.parse_args(argv)

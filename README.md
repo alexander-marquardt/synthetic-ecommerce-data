@@ -1119,7 +1119,24 @@ retail-only fields become product-level entries; `image_id` is
 `<product type>/<product id>/<drawing spec digest>`, one per distinct drawing,
 served under `/images/retail` once the SVGs are rendered. Every record states
 its own `product_type` and `category_leaf` (the jeans, bra, bedding, beauty
-and planted single-SKU records gained theirs in the record builders).
+and planted single-SKU records gained theirs in the record builders). A
+percent (ABV, discount) is a plain number with `(%)` in its name: prism
+spells no percent unit, so `P1` is not a unit code here and the validator
+refuses it.
+
+The retail build also writes industrial's **flat** shape, one document per
+SKU, which is what elastic/prism-industrial-products loads (as its
+`catalog.ndjson`, from `golden-catalog/flat.jsonl`); no loader reads the
+nested shape yet. `standard.flat_documents()` projects a nested document to
+it: the SKU's own attributes replace the product's under the same key, and
+`facets_num` holds every measured value and the facts the domain names as
+numbers (retail's rating, bestseller rank, was price, ABV and discount), so
+those can be range-filtered. The keys and types are industrial's except that
+retail has `price`, `currency` and `in_stock` where industrial has
+`price_usd` and `stock`, and no `dimension_provenance` or `spec_quality`
+(`tests/test_output_standard.py` pins that list). To write both files:
+
+    uv run python prototypes/retail_drawings/export.py OUTDIR   # nested.jsonl, flat.jsonl
 
 ## The built catalog is committed, in `golden-catalog/`
 

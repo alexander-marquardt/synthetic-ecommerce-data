@@ -251,7 +251,15 @@ def test_the_validator_refuses_each_planted_defect_with_its_own_problem(plant, r
         .replace("PATH", repr(doc["category_path"]))
         .replace("IMAGE", first["image_id"])
     )
-    assert standard.check_document(doc) == [expected]
+    assert _problems(doc) == [expected]
+
+
+def _problems(doc: dict[str, Any]) -> list[str]:
+    """check_document's report; a validator that raises on a defect fails to report it."""
+    try:
+        return standard.check_document(doc)
+    except Exception as exc:  # noqa: BLE001 -- the raise IS the finding, reported as one
+        return [f"check_document raised {exc!r}"]
 
 
 def test_a_repeated_sku_and_a_key_with_two_names_are_refused(retail):
@@ -381,15 +389,17 @@ def test_the_retail_flat_document_has_industrials_keys_and_types(retail_flat):
 
 def test_rating_rank_and_was_price_are_numbers_in_the_flat_document(retail_flat):
     dress = _first(retail_flat, "product_id", "PLT-PETDRS")
-    assert {k: dress["facets_num"][k] for k in ("rating", "bestseller_rank", "was_price")} == {
+    numbers = ("rating", "bestseller_rank", "was_price", "discount")
+    assert {k: dress["facets_num"].get(k) for k in numbers} == {
         "rating": 3.9,
         "bestseller_rank": 119.0,
         "was_price": 40.0,
+        "discount": 30.0,
     }
-    assert dress["facets_num"]["discount"] == 30.0
     assert (dress["currency"], dress["facets"]["rating"]) == ("GBP", ["3.9"])
     jeans = _first(retail_flat, "product_id", "JEA-HARROW")
-    assert jeans["facets_num"]["inside_leg_length"] == 28.0
+    # a measured value in its own unit (inches), as industrial's facets_num holds it
+    assert jeans["facets_num"].get("inside_leg_length") == 28.0
     assert "size_uk" not in jeans["facets_num"]
 
 
