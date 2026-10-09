@@ -30,13 +30,13 @@ import export  # noqa: E402 -- the prototype's own directory is its import root
 import image_release  # noqa: E402
 from build_preview import drawing_svg  # noqa: E402
 from build_preview4 import samples  # noqa: E402
+from retail_figures import committed  # noqa: E402
 from variants import FAMILIES  # noqa: E402
 
-#: The 328-style build (``tests/test_output_standard.py`` pins the same two).
-RETAIL_SKUS = 6861
-#: One image per style and colorway: 274 colored styles' colors, plus one
-#: image for each of the 54 styles sold in no color.
-RETAIL_IMAGES = 629
+#: The authored-styles build, as ``golden-retail/stats.json`` measures it (gen#162).
+RETAIL_SKUS = committed()["templates"]["authored"]["skus"]
+#: One image per style and colorway, plus one image for each style sold in no color.
+RETAIL_IMAGES = committed()["templates"]["authored_images"]
 #: The scaled build ``image_release.py --skus`` releases (``tests/test_retail_scale.py``'s target).
 SCALED_SKUS = 19_000
 #: The demo serves the images folder at this prefix; a URL less it is the member.

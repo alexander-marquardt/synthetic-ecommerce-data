@@ -2,7 +2,7 @@
 
 Alex's report: "Lemon Rim Block, Twin Pack" (Toilet Cleaner) was a yellow drinking cup
 (the ``tub`` shape) whose label read "Toilet", a fragment of its category. At the ceiling
-build (3,242 styles, seed 0), these four faults sat in the drawings:
+build (seed 0, at the time), these four faults sat in the drawings:
 
 * every toilet cleaner drew as a ``tub`` or a plain ``bottle`` and said "Toilet";
 * five drinking vessels (two mugs, a tumbler, a cup, a travel cup) drew as a ``tin``;
