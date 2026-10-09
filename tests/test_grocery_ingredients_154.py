@@ -27,7 +27,7 @@ import grocery  # noqa: E402
 
 #: Phrases that hold an allergen word without the allergen, removed before matching.
 NOT_ALLERGEN = re.compile(
-    r"cocoa butter|shea butter|coconut (?:milk|cream)|cream of tartar|"
+    r"cocoa butter|shea butter|sunflower lecithin|coconut (?:milk|cream)|cream of tartar|"
     r"(?:rice|maize|corn|potato|tapioca|chickpea|coconut|buckwheat) (?:flour|starch)|buckwheat"
 )
 WORDS = {
@@ -85,11 +85,13 @@ def listed(doc: dict) -> bool:
 
 
 def test_a_food_product_and_each_of_its_skus_lists_five_to_twenty_ingredients() -> None:
+    """The product list is the shared base recipe, so it may be under 5; a SKU's never is."""
     bad = []
     for d in docs():
         for where, item in [(d["product_id"], d), *((v["sku"], v) for v in d["variants"])]:
             lst = item.get("ingredients")
-            if listed(d) != (lst is not None) or (lst and not 5 <= len(lst) <= 20):
+            low = 5 if item is not d else 1
+            if listed(d) != (lst is not None) or (lst and not low <= len(lst) <= 20):
                 bad.append(where)
             if lst and (
                 len(set(lst)) != len(lst) or not all(isinstance(i, str) and i for i in lst)
@@ -116,12 +118,15 @@ def test_an_allergen_source_is_listed_iff_the_allergen_is_contained(level: str) 
         items += [(d["product_id"], d) for d in docs() if listed(d)]
     else:
         items = [(r["sku"], r) for r in flat() if "ingredients" in r]
+    products = {d["product_id"] for d in docs()} if level == "nested" else set()
     bad = []
     for name, item in items:
         has = values(item["attributes"], "contains")
         traces = values(item["attributes"], "may_contain")
         named = sources(item.get("ingredients", []))
-        if named != has or named & traces:
+        # A product lists the base recipe only: a flavor's own allergen source is absent.
+        wrong = named - has if name in products else named ^ has
+        if wrong or named & traces:
             bad.append((name, sorted(named ^ has)))
     assert bad == []
 
@@ -150,8 +155,8 @@ def test_a_vegan_sku_lists_no_animal_ingredient_and_a_vegetarian_no_meat() -> No
     assert bad == []
 
 
-def test_a_product_lists_the_same_ingredients_in_every_variant_but_its_flavors() -> None:
-    """Pack size never changes a list; a flavor adds its own items to the shared ones."""
+def test_a_product_lists_the_ingredients_every_one_of_its_variants_lists() -> None:
+    """Pack size never changes a list; the product list is exactly the items all share."""
     bad = []
     for d in docs():
         if not listed(d):
@@ -161,9 +166,11 @@ def test_a_product_lists_the_same_ingredients_in_every_variant_but_its_flavors()
             flavor = tuple(values(v["attributes"], "flavor"))
             if by_flavor.setdefault(flavor, v.get("ingredients", [])) != v.get("ingredients", []):
                 bad.append(v["sku"])
-        for v in d["variants"]:
-            if any(i not in d.get("ingredients", []) for i in v.get("ingredients", [])):
-                bad.append(v["sku"])
+        lists = [v["ingredients"] for v in d["variants"]]
+        if d["ingredients"] != [i for i in lists[0] if all(i in lst for lst in lists)]:
+            bad.append(d["product_id"])
+        if any(i not in v["ingredients"] for v in d["variants"] for i in d["ingredients"]):
+            bad.append(d["product_id"])
     assert bad == []
 
 
@@ -184,7 +191,10 @@ def test_the_lists_are_invented_ordered_and_realistic() -> None:
     assert peanut.get("ingredients", [])[0] == "sugar"
     assert "sunflower oil" in {i for d in docs() if listed(d) for i in d.get("ingredients", [])}
     assert all(
-        not re.search(r"[A-Z]", i) for d in docs() if listed(d) for i in d.get("ingredients", [])
+        not re.search(r"[A-Z]", i)
+        for d in docs()
+        for item in [d, *d["variants"]]
+        for i in item.get("ingredients", [])
     )
 
 
