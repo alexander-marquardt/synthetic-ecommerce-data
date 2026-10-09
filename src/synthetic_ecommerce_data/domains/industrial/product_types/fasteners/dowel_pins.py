@@ -346,8 +346,6 @@ SPEC = TypeSpec(
     may_claim=frozenset({"ISO 2338", "ISO 8734", "ASME B18.8.2", "ISO 3506-1"}),
     key_attributes=(DIA_IN, DIA_MM),
     unit_primary=DIA_IN,
-    default_lines=36,
-    default_skus=60,
     use_lines=(
         "Locates two mating parts in reamed holes so they reassemble in the same place.",
         "Pressed into a hole as a pivot, stop or alignment pin.",

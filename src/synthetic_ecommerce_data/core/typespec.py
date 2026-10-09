@@ -175,10 +175,6 @@ class TypeSpec:
     #: The length attribute a unit equivalent is written for
     #: (:data:`.noise.UNIT_PRIMARY`).
     unit_primary: str | None = None
-    #: The product lines and SKUs the default build makes of the type,
-    #: counted from a fresh build; the size tests sum them (``catalog_size``).
-    default_lines: int = 0
-    default_skus: int = 0
     #: A breadth type's row, in place of every modelled field above.
     breadth: BreadthRow | None = None
     #: The dotted module the spec was found in, filled in by :func:`discover`.

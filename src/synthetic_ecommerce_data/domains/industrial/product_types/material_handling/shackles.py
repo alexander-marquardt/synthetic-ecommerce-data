@@ -208,8 +208,6 @@ ANCHOR_TABLE = TableType(
     draw=draw_anchor,
     extent=(6.55, 8.3),
     share=0.034,
-    default_lines=74,
-    default_skus=132,
     series="SK",
     use_lines=(
         "Joins a sling, hook or wire rope eye to a lifting point; the pin unscrews by hand.",

@@ -819,7 +819,7 @@ MUTATIONS: list[Mutation] = [
             "a type's facts are declared once",
             root=".",
         )
-        for read in ("may_claim", "title_key", "default_size")
+        for read in ("may_claim", "title_key")
     ),
     *(
         Mutation(
@@ -836,12 +836,6 @@ MUTATIONS: list[Mutation] = [
         for field, old, param in (
             ("may_claim", "        if value is None:", "may_claim-None-may_claim"),
             ("key_attributes", "        if value is None:", "key_attributes-unset1-title_key"),
-            (
-                "default_lines",
-                "        if spec.default_lines <= 0:",
-                "default_lines-0-default_size",
-            ),
-            ("default_skus", "        if spec.default_skus <= 0:", "default_skus-0-default_size"),
         )
     ),
     # ---- merge_pr.sh merges only a checked tree (#54) ----------------------

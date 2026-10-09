@@ -85,8 +85,6 @@ TABLE = TableType(
     draw=draw,
     extent=(1.1, 4.2),
     share=0.015,
-    default_lines=39,
-    default_skus=67,
     series="CP",
     use_lines=(
         "Passed through a cross-drilled hole and spread to hold a castle nut or clevis pin.",
