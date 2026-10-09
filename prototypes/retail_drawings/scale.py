@@ -68,7 +68,8 @@ price with another.
 
 **Capacity.** Signatures bound the build: per template, the shown values its leaf
 offers times its color families. With today's templates every template is
-exhausted at 90,046 SKUs (6,830 styles; 80,004 and 3,525 without the grocery styles). Past that, the CLI reports
+exhausted at 90,046 SKUs (6,830 styles; 80,004 and 3,525 without the grocery styles).
+Past that, the CLI reports
 ``reached_target: false`` and exits 2. To grow it, add data, not code: more values
 per leaf that the title shows, more colorways, and more templates, deep-SKU ones
 above all.
@@ -203,7 +204,10 @@ def templates() -> list[dict]:
 
     Grocery is last, so a build under the other templates' SKUs is what it was. The main
     build's own 55 Food & Drink styles stay (the failure classes and the Elasticsearch proof
-    corpus pin them); no title or product id repeats between the two."""
+    corpus pin them); no title or product id repeats between the two.
+
+    The population gates in tests/test_retail_scale.py run over :func:`derivable`; grocery is
+    gated in tests/test_grocery*."""
     authored = (r for recs in samples().values() for r in recs)
     return [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),

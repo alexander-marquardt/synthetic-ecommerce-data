@@ -599,7 +599,15 @@ def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(tmp_path):
     assert got["reached_target"] is False
     assert got["standard_problems"] == 0
     assert (got["coverage"]["styles"], got["coverage"]["skus"]) == CAPACITY
-    assert got["distinctness"]["near_duplicate_rate"] <= CEILING_NEAR_DUPLICATES
+
+
+def test_the_derivable_styles_hold_the_near_duplicate_share_at_the_ceiling(ceiling):
+    """The share is read over the non-grocery styles, as the other population gates are
+    (``scale.derivable``): a grocery family's flavors share most of a listing by design and
+    are gated in tests/test_grocery*."""
+    main = scale.derivable(ceiling.records)
+    rate = scale.distinctness(main)["near_duplicate_rate"]
+    assert rate <= CEILING_NEAR_DUPLICATES, f"{rate:.1%} of a sample of {len(main)} styles"
 
 
 def test_no_department_falls_under_half_its_fair_share_of_styles(ceiling):
@@ -609,9 +617,9 @@ def test_no_department_falls_under_half_its_fair_share_of_styles(ceiling):
     Guard: a template change that starves a department fails here. Metric: the smallest
     department's share of the fair split, in the failure message.
     """
-    styles = collections.Counter(scale._department(r) for r in ceiling.records)
+    styles = collections.Counter(scale._department(r) for r in scale.derivable(ceiling.records))
     assert len(styles) == DEPARTMENTS, sorted(styles)
-    fair = len(ceiling.records) / DEPARTMENTS
+    fair = sum(styles.values()) / DEPARTMENTS
     smallest, n = min(styles.items(), key=lambda kv: kv[1])
     assert n >= fair / 2, f"{smallest}: {n} styles, {n / fair:.0%} of a fair {fair:.0f}"
 
@@ -682,7 +690,7 @@ def test_a_scale_only_bra_describes_its_own_straps_and_fastening():
 def test_the_invented_names_are_new_and_never_repeat():
     """An extra brand already on a template adds nothing to its pool, and a repeated
     range name gives two styles the same head."""
-    tpl_brands = {t["brand"] for t in scale.templates()}
+    tpl_brands = {t["brand"] for t in scale.derivable(scale.templates())}
     extra = [b for pool in scale.EXTRA_BRANDS.values() for b in pool]
     assert len(extra) == len(set(extra))
     assert sorted(set(extra) & tpl_brands) == []
@@ -739,13 +747,13 @@ SAID_BY_WORD: dict[tuple[str, str], set[str]] = {
 
 def test_no_title_or_description_says_a_value_its_own_skus_contradict(ceiling):
     values: dict[str, set[str]] = collections.defaultdict(set)
-    for r in ceiling.records:
+    for r in scale.derivable(ceiling.records):
         for a in r["attributes"]:
             if a["key"] in SAID_ATTRIBUTES:
                 values[a["key"]].add(str(a["value"]))
     checked = 0
     wrong = []
-    for r in ceiling.records:
+    for r in scale.derivable(ceiling.records):
         own = {a["key"]: str(a["value"]) for a in r["attributes"]}
         text = f"{r['title']} {r['description']}"
         for key in SAID_ATTRIBUTES:
@@ -771,7 +779,7 @@ def test_every_style_attribute_its_skus_carry_lists_exactly_their_values(ceiling
     not a fixed list, so a key that becomes SKU-carried later is covered too."""
     checked = 0
     wrong = []
-    for r in ceiling.records:
+    for r in scale.derivable(ceiling.records):
         for a in r["attributes"]:
             sku_values = {str(s[a["key"]]).lower() for s in r["skus"] if a["key"] in s}
             if not sku_values:
@@ -791,13 +799,13 @@ def test_no_title_or_description_names_a_value_no_sku_carries(ceiling):
     list. The color names are not the material ("Black Leather" is a color) and nor is the
     sole ("a rubber sole" on a suede boot), so both are cut from the text first."""
     vocab: dict[str, set[str]] = collections.defaultdict(set)
-    for r in ceiling.records:
+    for r in scale.derivable(ceiling.records):
         for a in r["attributes"]:
             if any(a["key"] in s for s in r["skus"]):
                 vocab[a["key"]].update(p.strip() for p in str(a["value"]).split(","))
     checked = 0
     wrong = []
-    for r in ceiling.records:
+    for r in scale.derivable(ceiling.records):
         text = f"{r['title']} {r['description']}"
         for c in r.get("color_options", ()):
             text = text.replace(c["color"], " ")
