@@ -4,9 +4,9 @@ Every food product and food SKU carries a top-level ``ingredients`` list of 5 to
 strings, in descending-weight order as on a label. The lists are tested against the
 allergen entries, nested and flat: an ingredient names an allergen source IFF the
 allergen is in ``contains``; ``may_contain`` (traces) never appears in a list; a
-free-from SKU lists no such source. Fresh whole fruit and vegetables and the two
-non-food leaves carry no list. The word lists below are this module's own, not the
-generator's, so a wrong list cannot pass by agreeing with itself.
+SKU that does not contain an allergen lists no such source. Fresh whole fruit and
+vegetables and the two non-food leaves carry no list. The word lists below are this
+module's own, not the generator's, so a wrong list cannot pass by agreeing with itself.
 """
 
 from __future__ import annotations
@@ -100,15 +100,15 @@ def test_a_food_product_and_each_of_its_skus_lists_five_to_twenty_ingredients() 
     assert bad == []
 
 
-def test_the_flat_file_carries_ingredients_top_level_and_not_as_an_attribute() -> None:
+def test_the_flat_file_carries_ingredients_top_level_and_as_a_facet_not_an_attribute() -> None:
     rows = list(flat())
     food = [r for r in rows if "ingredients" in r]
     assert len(food) == sum(len(d["variants"]) for d in docs() if listed(d))
     assert food
     for r in rows:
         assert "ingredients" not in {e["key"] for e in r["attributes"]}
-        assert "ingredients" not in r["facets"]
         assert "ingredients" not in r["attribute_names"]
+        assert r["facets"].get("ingredients") == r.get("ingredients")
 
 
 @pytest.mark.parametrize("level", ["nested", "flat"])
@@ -131,13 +131,19 @@ def test_an_allergen_source_is_listed_iff_the_allergen_is_contained(level: str) 
     assert bad == []
 
 
-def test_a_free_from_sku_lists_no_source_of_that_allergen() -> None:
-    bad = [
-        r["sku"]
-        for r in flat()
-        if "ingredients" in r
-        and sources(r.get("ingredients", [])) & values(r["attributes"], "free_from")
-    ]
+def test_no_text_names_a_traced_allergen_unless_the_ingredients_do() -> None:
+    """A "peanut" query must not reach a product only through an allergen warning: a
+    word of a may_contain allergen is in no title or search text unless the SKU's own
+    ingredients name that allergen."""
+    bad = []
+    for r in flat():
+        if "ingredients" not in r:
+            continue
+        named = sources(r["ingredients"])
+        for allergen in values(r["attributes"], "may_contain") - named:
+            for where in ("title", "text"):
+                if re.search(WORDS[allergen], NOT_ALLERGEN.sub(" ", r[where].lower())):
+                    bad.append((r["sku"], where, allergen))
     assert bad == []
 
 
@@ -200,7 +206,12 @@ def test_the_lists_are_invented_ordered_and_realistic() -> None:
 
 def test_chocolate_without_peanuts_still_has_both_sides() -> None:
     skus = [r for r in flat() if r["category_leaf"] == "Chocolate Bars"]
-    free = [r for r in skus if "Peanuts" in values(r["attributes"], "free_from")]
+    free = [
+        r
+        for r in skus
+        if "Peanuts"
+        not in values(r["attributes"], "contains") | values(r["attributes"], "may_contain")
+    ]
     has = [r for r in skus if "Peanuts" in values(r["attributes"], "contains")]
     assert free
     assert has

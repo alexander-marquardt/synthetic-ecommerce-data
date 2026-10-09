@@ -62,54 +62,94 @@ def test_the_flat_file_is_one_document_per_sku_with_the_retail_flat_keys() -> No
     assert {k for r in rows for k in r} == retail_keys | {"ingredients"}
 
 
-def test_every_food_sku_states_each_allergen_once_and_free_from_contradicts_nothing() -> None:
+def test_no_free_from_anywhere() -> None:
+    """ "Free from X" is a query (exclude X from contains, and from may_contain when
+    strict), not data: no entry, flat fact or option carries it."""
+    assert "free_from" not in export.OPTIONS
+    keys = {e["key"] for d in docs() for item in (d, *d["variants"]) for e in item["attributes"]}
+    assert "free_from" not in keys
+    flat_keys = {k for r in grocery.flat(list(docs())) for k in r["facets"]}
+    assert "free_from" not in flat_keys
+    assert "Free from" not in {n for r in grocery.flat(list(docs())) for n in r["attribute_names"]}
+
+
+def test_every_food_sku_states_an_allergen_at_most_once_and_never_both_ways() -> None:
     bad = []
     for d in filter(food, docs()):
         for v in d["variants"]:
-            has, may, free = (
-                values(v["attributes"], k) for k in ("contains", "may_contain", "free_from")
-            )
-            if has & may or free & (has | may) or has | may | free != ALL:
+            has, may = (values(v["attributes"], k) for k in ("contains", "may_contain"))
+            if has & may or not has | may <= ALL:
                 bad.append(v["sku"])
     assert bad == []
 
 
-def test_no_flat_sku_contains_or_may_contain_what_it_is_free_from() -> None:
+def test_no_flat_sku_contains_what_another_flavor_of_its_style_contains() -> None:
     """The flat file inherits a product's entries a variant lacks: it must not
-    inherit another flavor's allergen into a SKU that states itself free from it."""
+    inherit another flavor's allergen into a SKU that states none of its own."""
+    nested = {v["sku"]: v for d in docs() for v in d["variants"]}
     bad = []
     for row in grocery.flat(list(docs())):
         if "Food & Drink" not in values(row["attributes"], "department"):
             continue
-        has, may, free = (
-            values(row["attributes"], k) for k in ("contains", "may_contain", "free_from")
-        )
-        if has & may or free & (has | may) or has | may | free != ALL:
-            bad.append(row["sku"])
+        for key in ("contains", "may_contain"):
+            if values(row["attributes"], key) != values(nested[row["sku"]]["attributes"], key):
+                bad.append((row["sku"], key))
     assert bad == []
 
 
 def test_a_flat_sku_states_its_own_variants_allergens() -> None:
-    """Fruit Gums (GRC-SWT-0002-001) are free from milk: the Toffee next to it is not."""
+    """Fruit Gums (GRC-SWT-0002-001) hold no milk: the Toffee next to it does."""
     rows = {r["sku"]: r for r in grocery.flat(list(docs()))}
     nested = {v["sku"]: v for d in docs() for v in d["variants"]}
     for sku, row in rows.items():
         for key in ("contains", "may_contain"):
             assert values(row["attributes"], key) == values(nested[sku]["attributes"], key), sku
     assert "Milk" not in values(rows["GRC-SWT-0002-001"]["attributes"], "contains")
-    assert "Milk" in values(rows["GRC-SWT-0002-001"]["attributes"], "free_from")
 
 
-def test_a_product_is_free_from_an_allergen_only_when_every_variant_is() -> None:
+#: The four food facts a hard filter must reach: only a facet can be a hard filter.
+FOOD_FACETS = ("ingredients", "contains", "may_contain", "dietary")
+#: The facts that are warnings or claims, not description: they stay out of the text.
+WARNINGS = frozenset({"contains", "may_contain", "dietary"})
+
+
+def test_every_food_fact_is_a_flat_facet_equal_to_what_the_sku_states() -> None:
+    """``facets.<name>`` is a keyword list: the label list, the allergens, the traces and
+    the pack claims, each as the SKU states it (an empty list is absent)."""
+    nested = {v["sku"]: v for d in docs() for v in d["variants"]}
+    seen = {name: 0 for name in FOOD_FACETS}
+    for row in grocery.flat(list(docs())):
+        own = nested[row["sku"]]
+        for name in FOOD_FACETS:
+            want = (
+                own.get("ingredients", [])
+                if name == "ingredients"
+                else [e["value"] for e in own["attributes"] if e["key"] == name]
+            )
+            assert row["facets"].get(name, []) == want, (row["sku"], name)
+            seen[name] += bool(want)
+    assert all(seen.values()), seen
+
+
+def test_the_facet_values_are_the_closed_vocabularies() -> None:
+    rows = grocery.flat(list(docs()))
+    pool = lambda name: {v for r in rows for v in r["facets"].get(name, [])}  # noqa: E731
+    assert pool("contains") == ALL
+    assert pool("may_contain") <= ALL
+    assert pool("dietary") == {"Vegan", "Vegetarian", "Gluten Free", "Nut Free", "Organic"}
+    assert len(pool("ingredients")) > 100
+
+
+def test_an_allergen_or_a_claim_never_feeds_the_search_text() -> None:
+    """A "peanut" query must not match a product through an allergen warning, nor a
+    "gluten" one through a "Gluten Free" claim: the flat ``text`` is the title, brand,
+    series, category path and the values of every entry except these three."""
     bad = []
-    for d in filter(food, docs()):
-        free = values(d["attributes"], "free_from")
-        if any(free - values(v["attributes"], "free_from") for v in d["variants"]):
-            bad.append(d["product_id"])
-        if free & values(d["attributes"], "contains") | free & values(
-            d["attributes"], "may_contain"
-        ):
-            bad.append(d["product_id"])
+    for row in grocery.flat(list(docs())):
+        words = [row["title"], row["brand"], row.get("series"), *row["category_path"]]
+        words += [e["value"] for e in row["attributes"] if e["key"] not in WARNINGS]
+        if row["text"] != " ".join(w for w in words if w):
+            bad.append(row["sku"])
     assert bad == []
 
 
@@ -187,7 +227,6 @@ def find(leaf: str, **want: str) -> list[dict]:
 def test_chocolate_with_and_without_peanuts() -> None:
     assert find("Chocolate Bars", contains="Peanuts")
     assert find("Chocolate Bars", may_contain="Peanuts")
-    assert find("Chocolate Bars", free_from="Peanuts")
 
 
 def test_nut_free_and_vegan_chocolate() -> None:
