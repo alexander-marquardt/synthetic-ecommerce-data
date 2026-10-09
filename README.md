@@ -944,6 +944,13 @@ as round produce). A style that uses one anywhere else fails that test, and the
 failure names the row. A new kind gets its own shape in `kit_more.py`, whose
 docstring lists every shape and its params.
 
+`tests/test_retail_drawing_honesty.py` holds the ceiling build to the same rule:
+the toilet cleaners draw as an angled-neck bottle or a hanging rim block (two units
+for a twin pack, shapes in `kit_cleaning.py`), a `tub` only holds a tub of something,
+a mug or cup draws as a `mug`, and a label is the title's product noun. The label
+pairs not yet fixed are `LABEL_DEBT` there: it may only shrink. A changed drawing is a
+new image digest, so the retail image bundle is re-released after the merge.
+
 | Class | Query → intended | Distractors that outrank without a policy | Fixed by |
 |---|---|---|---|
 | Print, flavour and scent words | *lemon* → fresh lemons | lemons-print dress, a lemon-colored tee, lemons-print duvet cover, lemon cake, lemon shower gel, lemon cleaners | department or persona boost |

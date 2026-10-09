@@ -57,6 +57,7 @@ class Row:
     label: str | None = None
     audience: str = "adult"
     colorless: bool = False
+    params: tuple[tuple[str, str], ...] = ()
 
     def skus(self) -> list[dict]:
         sizes = [{"size": s, "price": p} for s, p in self.sizes] or [{"price": self.price}]
@@ -79,7 +80,7 @@ class Row:
             category_path=list(self.path), category_leaf=self.path[-1],
             description=self.description,
             attributes=[attr(k, n, v) for k, n, v in self.attrs],
-            drawing=drawing(self.shape, self.colors[0], self.label),
+            drawing=drawing(self.shape, self.colors[0], self.label, **dict(self.params)),
             collections=[], currency="GBP", audience=self.audience,
             sold_last_5_days=5 + h % 90, rating=round(3.8 + (h >> 8) % 11 / 10, 1),
             review_count=3 + (h >> 16) % 400,
@@ -687,9 +688,9 @@ CLEANING = (
         "Scented with wild jasmine.",
         _spray("Pink", "#ffffff"), _scent("Wild Jasmine"), label="Softener", colorless=True),
     Row("LOOGEL", "Pine Thick Toilet Cleaner 750ml", "Pantry Mill", _CJ, _LOO, "Toilet Cleaner",
-        1.8, "bottle",
+        1.8, "angled_bottle",
         "An angled-neck bottle of thick gel that clings under the rim. Scented with pine.",
-        _spray("Green", "#ffffff"), _scent("Pine"), label="Toilet", colorless=True),
+        _spray("Green", "#ffffff"), _scent("Pine"), label="Cleaner", colorless=True),
     Row("LOOTAB", "Ocean Breeze Toilet Cleaning Tablets, Pack of 8", "Freshfold", _CJ, _LOO,
         "Toilet Cleaner", 3.0, "tub",
         "Drop-in tablets that fizz away limescale overnight. Scented with ocean breeze.",
@@ -741,14 +742,15 @@ CLEANING = (
         "Scented with cotton flower.",
         _spray("Purple", "#ffffff"), _scent("Cotton Flower"), label="Beads", colorless=True),
     Row("LOOBLK", "Lemon Rim Block, Twin Pack", "Pantry Mill", _CJ, _LOO, "Toilet Cleaner",
-        2.0, "tub",
+        2.0, "rim_block",
         "Hang-on rim blocks that clean and freshen with every flush. Scented with lemon.",
-        _spray("Yellow", "#ffffff"), _scent("Lemon"), label="Toilet", colorless=True),
+        _spray("Yellow", "#ffffff"), _scent("Lemon"), label="Rim Block",
+        colorless=True, params=(("units", "2"),)),
     Row("LOOBLE", "Lavender Toilet Bleach 750ml", "Freshfold", _CJ, _LOO, "Toilet Cleaner",
-        1.5, "bottle",
+        1.5, "angled_bottle",
         "A thick bleach for under the rim that kills germs in five minutes. "
         "Scented with lavender.",
-        _spray("Lilac", "#ffffff"), _scent("Lavender"), label="Toilet", colorless=True),
+        _spray("Lilac", "#ffffff"), _scent("Lavender"), label="Bleach", colorless=True),
     Row("AIRSPR", "Fresh Linen Room Spray 300ml", "Freshfold", _CJ, _AIR, "Air Freshener",
         3.0, "trigger_spray",
         "A fine room mist that freshens soft furnishings and stale air. "
@@ -786,10 +788,10 @@ CLEANING = (
         "Scented with jasmine.",
         _spray("White", "#b9a3d0"), _scent("Jasmine"), label="Softener", colorless=True),
     Row("LOOTGL", "Pine Thick Toilet Gel 750ml", "Freshfold", _CJ, _LOO, "Toilet Cleaner",
-        1.8, "bottle",
+        1.8, "angled_bottle",
         "An angled-neck gel that clings under the rim and lifts limescale overnight. "
         "Scented with pine.",
-        _spray("Green", "#ffffff"), _scent("Pine"), label="Toilet", colorless=True),
+        _spray("Green", "#ffffff"), _scent("Pine"), label="Gel", colorless=True),
     Row("AIRAER", "Orange Blossom Air Freshener Aerosol 300ml", "Pantry Mill", _CJ, _AIR,
         "Air Freshener", 1.5, "bottle",
         "A quick burst for a kitchen or a bathroom that clears cooking smells. "
