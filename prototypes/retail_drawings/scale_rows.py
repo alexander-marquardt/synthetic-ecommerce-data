@@ -22,6 +22,12 @@ Each row adds capacity to :mod:`scale` in one of two ways:
 
 A :class:`Bra` row names its own straps and fastening in the description.
 
+:data:`FOOTWEAR` rows (:class:`footwear_rows.FootwearStyle`) bring a closure, toe or
+lining their leaf lacked, shown in the title: a pointed toe ankle boot, a side zip
+chukka, a fleece lined welly. Each keeps its leaf's one upper material: a derived
+style rewrites the style's ``upper_material`` but not its SKUs', so a second material
+in a leaf would give a "Suede" title leather SKUs.
+
 ``Calderwick Denim`` is a third invented denim label: as a template brand it
 joins the jeans brand pool only (:func:`scale.brand_pools`).
 """
@@ -30,6 +36,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from footwear_rows import SLIPPERS_WOMEN, FootwearStyle, run, sh
 from variants import WASHES, BraStyle, JeanStyle, cw, style_docs
 
 #: :class:`variants.BraStyle`'s straps and fastening, as its description words them.
@@ -371,10 +378,100 @@ BRAS = (
         fitting="wide padded adjustable straps and a three-row hook and eye back"),
 )  # fmt: skip
 
+_FW, _FM, _FK = "women", "men", "kids"
+_W_SIZES = run("3", "8")
+_W_HALVES = run("3", "8", 7.5)
+
+#: Growth round 4: each row a closure, toe or lining its leaf lacked, in its title.
+FOOTWEAR = (
+    FootwearStyle("WANKPT", "Pointed Toe Suede Ankle Boots", "Larkmoor", _FW, "ankle_boot", 69.0,
+                  "Sleek suede ankle boots with a pointed toe, a slim heel and an inside zip.",
+                  (sh("Black Suede", "#26262a", "black", "suede"),
+                   sh("Chocolate Suede", "#5a3a2a", "brown", "suede"),
+                   sh("Burgundy Suede", "#6e1f2f", "red", "suede")),
+                  _W_SIZES, "Zip", "Rubber", toe="Pointed", heel_mm=70),
+    FootwearStyle("WANKSQ", "Square Toe Suede Ankle Boots", "Wrenfield", _FW, "ankle_boot", 59.0,
+                  "Suede ankle boots with a square toe on a low block heel, with an inside zip.",
+                  (sh("Black Suede", "#26262a", "black", "suede"),
+                   sh("Sand Suede", "#c8b08a", "cream", "suede"),
+                   sh("Khaki Suede", "#6b6b3f", "green", "suede")),
+                  _W_SIZES, "Zip", "Rubber", toe="Square"),
+    FootwearStyle("WKNEPT", "Pointed Toe Leather Knee High Boots", "Larkmoor", _FW, "knee_boot",
+                  115.0, "Tall leather boots with a pointed toe, a slim block heel and a "
+                  "full-length inside zip.",
+                  (sh("Black Leather", "#232326", "black", "leather"),
+                   sh("Cognac", "#9a5a2a", "brown", "leather"),
+                   sh("Oxblood", "#5a1a1f", "red", "leather")),
+                  _W_SIZES, "Zip", "Rubber", toe="Pointed"),
+    FootwearStyle("MCHKZP", "Suede Side Zip Chukka Boots", "Calderby & Lune", _FM, "chukka", 75.0,
+                  "Suede chukka boots that fasten with a side zip, on a cushioned rubber sole.",
+                  (sh("Sand Suede", "#c8b08a", "cream", "suede"),
+                   sh("Navy Suede", "#26365c", "navy", "suede"),
+                   sh("Brown Suede", "#6b4430", "brown", "suede")),
+                  run("6", "12", chart="men"), "Zip", "Rubber"),
+    FootwearStyle("WBROAL", "Leather Almond Toe Brogues", "Larkmoor", _FW, "brogue", 55.0,
+                  "Leather brogues with an almond toe, punched detailing and a leather sole.",
+                  (sh("Black", "#2a2a2e", "black", "leather"),
+                   sh("Tan", "#b07a45", "brown", "leather"), sh("Oxblood", "#5a1a1f", "red", "leather")),
+                  _W_HALVES, "Lace-Up", "Leather", toe="Almond"),
+    FootwearStyle("WLOASQ", "Leather Square Toe Loafers", "Wrenfield", _FW, "loafer", 45.0,
+                  "Leather loafers with a square toe, a snaffle trim and a low block heel.",
+                  (sh("Black", "#2a2a2e", "black", "leather"),
+                   sh("Cream", "#efe4cf", "cream", "leather"), sh("Chocolate", "#5a3a2a", "brown", "leather")),
+                  _W_HALVES, "Slip-On", "Rubber", toe="Square"),
+    FootwearStyle("WKITAS", "Leather Ankle Strap Kitten Heels", "Wrenfield", _FW, "kitten", 39.0,
+                  "Pointed leather shoes on a low kitten heel, with a slim ankle strap.",
+                  (sh("Black Leather", "#232326", "black", "leather"),
+                   sh("Nude", "#d9b8a0", "cream", "leather"),
+                   sh("Red", "#b3202e", "red", "leather")),
+                  _W_SIZES, "Ankle Strap", "Leather", toe="Pointed"),
+    FootwearStyle("KWLKHL", "Kids' Hook & Loop Walking Boots", "Little Fernby", _FK,
+                  "walking_boot", 30.0,
+                  "Nubuck walking boots for kids with a waterproof membrane, two hook and loop "
+                  "straps and a deep lug sole.",
+                  (sh("Navy", "#26365c", "navy", "nubuck"), sh("Grey", "#7d7f84", "grey", "nubuck"),
+                   sh("Plum", "#6b3a5a", "pink", "nubuck")),
+                  run("8 Infant", "5 Junior", chart="kids"), "Hook & Loop", "Rubber lug",
+                  junior_price=36.0, lining="Waterproof membrane",
+                  extra=(("waterproof", "Waterproof", "Yes"),)),
+    FootwearStyle("WWELFL", "Fleece Lined Short Wellies", "Thistle & Wren", _FW, "welly", 32.0,
+                  "Ankle-height rubber wellies lined in soft fleece, on a grippy sole.",
+                  (sh("Navy", "#26365c", "navy", "rubber"),
+                   sh("Black", "#1f1f22", "black", "rubber"), sh("Pink", "#e88aa8", "pink", "rubber")),
+                  _W_SIZES, "Pull-On", "Rubber", lining="Fleece",
+                  extra=(("waterproof", "Waterproof", "Yes"),)),
+    FootwearStyle("WSLMUF", "Fleece Lined Mule Slippers", "Hollinwray Knits", _FW, "slipper",
+                  19.0, "Backless suede mule slippers lined in cosy fleece, on a soft rubber sole.",
+                  (sh("Oatmeal", "#d8ccb4", "cream", "suede"),
+                   sh("Grey", "#9a9a9e", "grey", "suede"), sh("Sage", "#9bae8f", "green", "suede")),
+                  tuple(SLIPPERS_WOMEN), "Slip-On", "Rubber", lining="Fleece"),
+    FootwearStyle("WCRTAL", "Almond Toe Court Shoes", "Wrenfield", _FW, "court", 42.0,
+                  "Courts with an almond toe on a mid stiletto heel, with a padded insole.",
+                  (sh("Black Patent", "#141416", "black", "patent"),
+                   sh("Navy Patent", "#1f2a4a", "navy", "patent"),
+                   sh("Taupe Suede", "#8f8174", "grey", "suede")),
+                  _W_HALVES, "Slip-On", "Leather", toe="Almond", heel_mm=75),
+    FootwearStyle("WBLKSB", "Block Heel Slingback Shoes", "Larkmoor", _FW, "block_heel", 42.0,
+                  "Almond-toe slingbacks on a steady block heel, with an elasticated back strap.",
+                  (sh("Black Suede", "#26262a", "black", "suede"),
+                   sh("Camel Leather", "#b5835a", "brown", "leather"),
+                   sh("Cream Leather", "#efe4cf", "cream", "leather")),
+                  _W_SIZES, "Slingback", "Rubber", toe="Almond"),
+    FootwearStyle("WBALPT", "Pointed Toe Ballet Pumps", "Larkmoor", _FW, "ballet", 32.0,
+                  "Pointed ballet flats with a cushioned insole and a flexible sole. Folds flat.",
+                  (sh("Black", "#2a2a2e", "black", "leather"),
+                   sh("Leopard", "#c9a26b", "multi", "suede", "leopard", "#3a2a1c"),
+                   sh("Nude Patent", "#d8b49a", "cream", "patent")),
+                  _W_SIZES, "Slip-On", "Leather", toe="Pointed"),
+)  # fmt: skip
+
 #: family -> its scale-only styles, in build order.
 FAMILIES: dict[str, tuple] = {"Jeans": JEANS, "Bras": BRAS}
 
 
 def docs() -> list[dict]:
-    """Every scale-only style's document, after the authored ones in :func:`scale.templates`."""
-    return [d for fam, styles in FAMILIES.items() for s in styles for d in style_docs(fam, s)]
+    """Every scale-only style's document, after the authored ones in :func:`scale.templates`:
+    the jeans and bras, then :data:`FOOTWEAR` (a shoe's colors are shades, so its document
+    is its own :meth:`footwear_rows.FootwearStyle.doc`)."""
+    garments = [d for fam, styles in FAMILIES.items() for s in styles for d in style_docs(fam, s)]
+    return [*garments, *(s.doc() for s in FOOTWEAR)]

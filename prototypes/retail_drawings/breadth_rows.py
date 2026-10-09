@@ -423,6 +423,20 @@ GARDEN = (
         "A tree with its branches spread flat on canes, ready to tie against a sunny wall.",
         (cw("Green", "#3a6b30", "solid", "#c8312e"),), _var("Egremont Russet"), label="Apple",
         colorless=True),
+    # Round 4 (gen#125): at the 75K ceiling, garden held 155 styles against a half share of 154.
+    Row("TULP20", "Yellow Triumph Tulip Bulbs, Pack of 20", "Thistle & Wren", "Garden", _TULIP,
+        "Bulbs", 8.0, "tulip",
+        "Sturdy bulbs for pots and borders, flowering in mid spring. Plant in fall, 15 cm deep.",
+        (cw("Yellow", "#f2c641", "solid", "#4f7a3a"),), _flower("Triumph"), colorless=True),
+    Row("STRP08", "Symphony Strawberry Plants, Pack of 8", "Fenwold Nursery", "Garden", _BERRY,
+        "Plant", 11.0, "strawberry",
+        "Young plants in 9 cm pots for a bed or a container, cropping from midsummer.",
+        (cw("Red", "#c32b2b", "solid", "#4f7a3a"),), _var("Symphony"), colorless=True),
+    Row("APLHLF", "Discovery Apple Tree, Half Standard", "Thistle & Wren", "Garden", _APPLE,
+        "Plant", 38.0, "potted_tree",
+        "A tree with a clear stem of about 1.2 m, for a lawn or a large border.",
+        (cw("Green", "#457a35", "solid", "#c8312e"),), _var("Discovery"), label="Apple",
+        colorless=True),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
