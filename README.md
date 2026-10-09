@@ -1036,8 +1036,15 @@ The planted cases are:
 - honey and coconut as a food and as a body milk scent;
 - milk as dairy milk, milk chocolate and a body milk.
 
-`tests/test_grocery_154.py` pins each case. The new pack shapes are `bar` and
-`bag`, in `kit_grocery.py`. The build makes one drawing per style.
+`tests/test_grocery_154.py` pins each case. The new pack shapes are `bar`, `bag`,
+`butter_block` (a foil-wrapped block) and `lidded_tub` (ice cream, a spread), in
+`kit_grocery.py`. The build makes one drawing per style. A pack's label is the
+title's product noun (`grocery.pack_label`), and its panel also carries the range
+name and a band of the style's flavor colours (`kit._panel` reads them from the
+drawing's `line` and `chips` params). The range-name text tells siblings of a family
+apart; the flavor band is not seen by the grid-clone gate (it reads the leaf, hero picture and price).
+The grocery styles are held to the honesty tests of the main catalog and to a
+grid-clone cap (`GROCERY_GRID_CLONES`).
 
 The grocery styles are also the LAST templates of the main retail build
 (`scale.templates()`, so `scale.py`, `image_release.py --skus N` and the flat export

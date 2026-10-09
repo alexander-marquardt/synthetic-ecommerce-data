@@ -166,17 +166,22 @@ def test_few_styles_share_a_results_grid_tile_at_the_ceiling(ceiling):
     assert rate <= CEILING_GRID_CLONES, f"{shared} of {len(main)} styles ({rate:.1%})"
 
 
-def test_grocery_tiles_are_measured_apart_from_the_clothing_gate(ceiling):
-    """The 15% gate is for styles a shopper tells apart by picture and price; a grocery family
-    draws one pack shape at a few price points, so its styles share a tile (the brand's label
-    and flavor differ below the tile). Held apart and capped so a fix lowers it, and so the
-    main styles' gate above is not read over the grocery ones (gen#154)."""
+#: The grocery grid-clone share the ceiling build may reach. Measured 0 of 3,305 (0.0%) with a
+#: 2-point margin; it was 96.6% (gen#154).
+GROCERY_GRID_CLONES = 0.02
+
+
+def test_grocery_styles_mostly_draw_a_tile_of_their_own(ceiling):
+    """A grocery style's tile is its leaf, hero picture and price. The picture names the range,
+    the flavor's colour and the style's flavors; the range-name text tells siblings apart,
+    and the flavor band is not seen by the gate.
+
+    Guard: this test. Metric: the grocery grid-clone share, in the failure message."""
     groc = [r for r in ceiling.records if r["product_id"].startswith(scale.GROCERY_PREFIX)]
     report = scale.grid_clones(groc)
-    # A cap (measured 3,191 clones, largest group 33), so a fix lowers it and nothing raises it.
     assert report["styles"] == 3_305
-    assert report["grid_clones"] <= 3_191
-    assert report["largest_group"] <= 33
+    rate = report["grid_clones"] / report["styles"]
+    assert rate <= GROCERY_GRID_CLONES, f"{report['grid_clones']} of 3305 styles ({rate:.1%})"
 
 
 def test_grid_clones_count_every_style_of_a_shared_tile():
