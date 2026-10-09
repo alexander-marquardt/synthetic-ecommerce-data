@@ -262,8 +262,7 @@ def test_a_declared_size_no_line_reaches_is_a_problem(flat_docs: list[dict]) -> 
         for doc in flat_docs
         if not (
             doc["product_type"] == "set_screws_hex_socket"
-            and doc["facets"]["dia_thread_size"][0].split("x")[0].rsplit("-", 1)[0]
-            in ("M24", "1")
+            and doc["facets"]["dia_thread_size"][0].split("x")[0].rsplit("-", 1)[0] in ("M24", "1")
         )
     ]
     assert _coverage_problems(dropped) == [
@@ -285,8 +284,7 @@ def test_a_declared_standard_no_line_was_built_to_is_swept_whole(flat_docs: list
         for doc in flat_docs
         if not (
             doc["product_type"] == "set_screws_hex_socket"
-            and ("Point Type", "Dog Point")
-            in [(a["name"], a["value"]) for a in doc["attributes"]]
+            and ("Point Type", "Dog Point") in [(a["name"], a["value"]) for a in doc["attributes"]]
         )
     ]
     assert _coverage_problems(dropped) == [

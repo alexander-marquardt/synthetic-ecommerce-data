@@ -16,9 +16,11 @@ BRITISH = re.compile("colo" + "u" + "r", re.IGNORECASE)
 
 
 def test_no_tracked_file_spells_color_the_british_way() -> None:
-    names = subprocess.run(
-        ["git", "-C", str(ROOT), "ls-files", "-z"], capture_output=True, check=True
-    ).stdout.decode().split("\0")
+    names = (
+        subprocess.run(["git", "-C", str(ROOT), "ls-files", "-z"], capture_output=True, check=True)
+        .stdout.decode()
+        .split("\0")
+    )
     hits = []
     for name in filter(None, names):
         if BRITISH.search(name):

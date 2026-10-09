@@ -203,7 +203,7 @@ def test_a_single_word_too_wide_beside_the_mark_is_set_under_it():
 
 
 def test_a_name_whose_halves_do_not_both_fit_beside_the_mark_runs_under_it():
-    """"Salt Meadow" is too wide beside the mark: "Salt" sits beside it, the rest below."""
+    """ "Salt Meadow" is too wide beside the mark: "Salt" sits beside it, the rest below."""
     lines = _drawn_lines(_drawing_of("Salt Meadow Works"))
     mark = sheet.plate_lockup("Salt Meadow Works").mark
     assert [line["text"] for line in lines] == ["Salt", "Meadow Works"]

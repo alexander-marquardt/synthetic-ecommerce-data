@@ -27,7 +27,7 @@ import grocery  # noqa: E402
 
 #: Phrases that hold an allergen word without the allergen, removed before matching.
 NOT_ALLERGEN = re.compile(
-    r"cocoa butter|shea butter|coconut (?:milk|cream)|cream of tartar|"
+    r"cocoa butter|shea butter|sunflower lecithin|coconut (?:milk|cream)|cream of tartar|"
     r"(?:rice|maize|corn|potato|tapioca|chickpea|coconut|buckwheat) (?:flour|starch)|buckwheat"
 )
 WORDS = {

@@ -145,16 +145,27 @@ GROUP_PAGE = """
 def test_a_group_row_is_priced_at_its_regular_price_and_holds_no_size():
     (row,) = parse.group_rows(GROUP_PAGE, "20151120064326", "page")
     assert (row.sku, row.brand, row.price, row.pack, row.clearance) == (
-        "4FHY6", "GRAINGER APPROVED", 19.01, 5, True,
+        "4FHY6",
+        "GRAINGER APPROVED",
+        19.01,
+        5,
+        True,
     )
     assert row.key == pytest.approx(0.75)
-    assert row.held == (("Material", "Steel"), ("Package Quantity", "5"),
-                        ("Type", "With Nylon Insert"))
+    assert row.held == (
+        ("Material", "Steel"),
+        ("Package Quantity", "5"),
+        ("Type", "With Nylon Insert"),
+    )
 
 
 def test_a_group_page_that_is_not_nylon_insert_gives_no_rows():
-    assert parse.group_rows(GROUP_PAGE.replace("With Nylon Insert", "Conical Top Lock"),
-                            "20151120064326", "page") is None
+    assert (
+        parse.group_rows(
+            GROUP_PAGE.replace("With Nylon Insert", "Conical Top Lock"), "20151120064326", "page"
+        )
+        is None
+    )
 
 
 def _listed(sku: str, description: str, price: str) -> str:
@@ -167,20 +178,24 @@ def _listed(sku: str, description: str, price: str) -> str:
 
 
 def test_both_list_description_styles_read_as_one_spec():
-    page = _listed(
-        "3KE72",
-        "Socket Set Screw, Alloy Steel, Plain Finish, Cup Point, Hex Socket, "
-        "Drive Size 1/8 In, Thread Size 1/4-20, Length 3/8 In, Package Qty 100",
-        "9.98",
-    ) + _listed(
-        "5MMU5",
-        "Socket Set Screw, Standard, Alloy Steel, Finish Plain, Thread Size 1/4-28, "
-        "Point Type Cup, Drive Type Hex Socket, Overall Length 3/8\", Package Quantity 100",
-        "11.20",
-    ) + _listed(
-        "9ABC1",
-        "Slotted Set Screw, Nylon, Natural Finish, Thread Size 1/4-20, Length 3/8 In",
-        "4.00",
+    page = (
+        _listed(
+            "3KE72",
+            "Socket Set Screw, Alloy Steel, Plain Finish, Cup Point, Hex Socket, "
+            "Drive Size 1/8 In, Thread Size 1/4-20, Length 3/8 In, Package Qty 100",
+            "9.98",
+        )
+        + _listed(
+            "5MMU5",
+            "Socket Set Screw, Standard, Alloy Steel, Finish Plain, Thread Size 1/4-28, "
+            'Point Type Cup, Drive Type Hex Socket, Overall Length 3/8", Package Quantity 100',
+            "11.20",
+        )
+        + _listed(
+            "9ABC1",
+            "Slotted Set Screw, Nylon, Natural Finish, Thread Size 1/4-20, Length 3/8 In",
+            "4.00",
+        )
     )
     rows = parse.list_rows(page, "20150408043348", "page")
     assert [r.sku for r in rows] == ["3KE72", "5MMU5"]
@@ -196,8 +211,19 @@ def test_one_brand_gives_no_brand_spread():
 
 
 def _screw(brand: str, material: str, price: float) -> object:
-    return parse.Row("X", brand, "20150408043348", "page", price, False, 100, "pack", 0.25,
-                     0.375, (("Material", material),))
+    return parse.Row(
+        "X",
+        brand,
+        "20150408043348",
+        "page",
+        price,
+        False,
+        100,
+        "pack",
+        0.25,
+        0.375,
+        (("Material", material),),
+    )
 
 
 def test_specs_shared_in_one_material_only_give_no_brand_spread():
@@ -205,8 +231,8 @@ def test_specs_shared_in_one_material_only_give_no_brand_spread():
     assert parse.brand_spread(one_line) == {
         "n_specs_with_2plus_brands": 1,
         "not_measured": "every spec two brands share is Nylon (2 brands); no other material "
-                        "is offered by two brands, so a spread, brand index or house-label "
-                        "ratio would describe that one line, not the type",
+        "is offered by two brands, so a spread, brand index or house-label "
+        "ratio would describe that one line, not the type",
     }
     two_lines = one_line + [_screw("A", "Alloy Steel", 10.0), _screw("B", "Alloy Steel", 12.0)]
     spread = parse.brand_spread(two_lines)

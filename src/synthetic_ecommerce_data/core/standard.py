@@ -50,6 +50,7 @@ PRODUCT_FIELDS: dict[str, tuple[str, bool]] = {
     "image_id": (_STR, True),
     "image_url": (_STR, True),
     "image_detail_url": (_STR, True),
+    "ingredients": (_LIST, False),
     "attributes": (_LIST, True),
     "variant_count": (_INT, True),
     "variants": (_LIST, True),
@@ -68,6 +69,7 @@ VARIANT_FIELDS: dict[str, tuple[str, bool]] = {
     "image_id": (_STR, True),
     "image_url": (_STR, True),
     "image_detail_url": (_STR, True),
+    "ingredients": (_LIST, False),
     "attributes": (_LIST, True),
 }
 
@@ -327,6 +329,7 @@ _FLAT_PRODUCT_FIELDS = (
     "category_leaf",
     "dimension_provenance",
     "spec_quality",
+    "ingredients",
 )
 #: The variant columns a flat document carries, in industrial's order.
 _FLAT_VARIANT_FIELDS = (
@@ -338,4 +341,5 @@ _FLAT_VARIANT_FIELDS = (
     "image_id",
     "image_url",
     "image_detail_url",
+    "ingredients",
 )
