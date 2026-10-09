@@ -135,7 +135,8 @@ def product(
     return style_product(
         f"PLT-{code}", [sku], swatches,
         title=title, brand=brand, department=[department],
-        product_type=product_type or PRODUCT_TYPES[code], category_path=list(path), category_leaf=path[-1],
+        product_type=product_type or PRODUCT_TYPES[code],
+        category_path=list(path), category_leaf=path[-1],
         description=description,
         attributes=[attr(k, n, v) for k, n, v in attrs if k != "color"],
         drawing=draw, collections=[], currency="GBP",

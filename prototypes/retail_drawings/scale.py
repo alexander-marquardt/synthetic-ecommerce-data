@@ -25,12 +25,19 @@ A derived style copies one template and changes, deterministically from the seed
   path or the type ("Skinny" in "Skinny Jeans"), when its key is
   :data:`FROZEN_KEYS`, when it has a unit, or when the title or description holds
   it inside a longer word ("5" in "5pk"). A changed value is rewritten in the
-  title, the description, the drawing params and the same-named top-level field;
-- its **colorways**, a subset of the template's colors. Its SKUs are the
-  template's own size run times those colors (:func:`variants.product`): no
-  SKU is invented;
-- its rating, review count and sales, redrawn; a bestseller rank stays with the
-  authored styles.
+  title, the description, the drawing params and the same-named top-level field.
+  A changed ``motif`` is redrawn: the drawing takes the motif and inks of a
+  template that draws it ("Cherry" -> ``cherries``, :func:`_redraw_motif`), the
+  title's plural follows ("Lemons Print" -> "Oranges Print"), and the description
+  is rebuilt from the product noun after "Graphic" or "Print" in the title, with
+  no colour words. Count and placement are frozen;
+- its **colorways**, a hero color, then a subset of the template's other colors.
+  Its SKUs are the template's own size run times those colors, hero first
+  (:func:`variants.product`): no SKU is invented. Each SKU's price is the
+  template's times the style's price ratio (see below). A description's
+  "Shown in cream" names the hero, the colour the picture shows;
+- its rating, review count and sales, redrawn; a bestseller rank and the
+  Bestseller badge stay with the authored styles.
 
 Two styles are clones when they share the leaf, the brand, the attributes (the
 range name aside) and the title without the range name (:func:`clone_key`).
@@ -41,17 +48,33 @@ Departments get styles by :data:`DEPARTMENT_SHARE`, and leaves within a
 department by a Zipf weight, so leaf sizes keep a long tail. A template whose
 draws keep colliding is exhausted and leaves the pool.
 
-**Capacity.** Twins bound the build: per template, its type's brands times the
-title-visible values its leaf offers. Every template is exhausted at the ceiling
-``tests/test_retail_scale.py`` pins (``CAPACITY``). Past that, the CLI reports
-``reached_target: false`` and exits 2. To grow it, add data, not code: more brands per type
-(:data:`EXTRA_BRANDS`, or templates with new brands), more values per leaf that
-the title shows, and more templates, deep-SKU ones above all.
+**A style, not a rename.** A derived style takes a :func:`signature` (the values of
+the keys its title shows, and its hero color family) that neither its template nor
+any sibling has. When its title-shown values are ones the template or an earlier
+sibling already shows, the hero color alone sets it apart, so its title ends with
+it in the listing convention ("The Elmsett High Rise Straight Jeans, Dark Indigo").
+Its price is re-drawn: the template's, times :func:`price_factor`
+of the values it changed, times a seeded :data:`JITTER`, inside the leaf's
+:data:`PRICE_BAND`, on a :func:`price_point`, never the template's own. A value
+another attribute of the record shares never varies ("Leather" on a leather-soled
+leather loafer). A draw whose title or description contradicts an attribute
+(:func:`synthetic_ecommerce_data.core.standard.text_contradictions`) is refused.
+:func:`grid_clones` measures what is left: styles sharing leaf, hero picture and
+price with another.
 
-Images: a derived style keeps its template's drawing (params aside), so the
-distinct drawings (:func:`coverage` ``images.distinct_drawings``) stay near the
-template count. ``export.image_id`` still embeds the product id, so
-``images.image_ids`` is one per product and colorway.
+**Capacity.** Signatures bound the build: per template, the shown values its leaf
+offers times its color families. With today's templates every template is
+exhausted at 91,443 SKUs (1,821 styles). Past that, the CLI reports
+``reached_target: false`` and exits 2. To grow it, add data, not code: more values
+per leaf that the title shows, more colorways, and more templates, deep-SKU ones
+above all.
+
+Images: a derived style keeps its template's drawing (params and a changed motif
+aside), so the distinct drawings (:func:`coverage` ``images.distinct_drawings``)
+stay near the template count. ``export.image_id`` still embeds the product id, so
+``images.image_ids`` is one per product and colorway, and
+``image_release.py --skus N`` renders this build's images (1,493 for the 19,142
+SKUs of ``--skus 19000``).
 """
 
 from __future__ import annotations
@@ -59,13 +82,14 @@ from __future__ import annotations
 import argparse
 import collections
 import copy
+import functools
 import json
 import random
 import re
 import resource
 import sys
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -78,6 +102,12 @@ import scale_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from export import drawing_spec, image_id, standard_document  # noqa: E402
 from variants import product  # noqa: E402
+
+from synthetic_ecommerce_data.core.standard import (  # noqa: E402
+    text_contradictions,
+    words,
+)
+from synthetic_ecommerce_data.core.standard import value_pools as text_pools  # noqa: E402
 
 #: Invented range names; a derived style's ``product_line`` and title head.
 RANGE_NAMES = (
@@ -112,9 +142,12 @@ DEPARTMENT_SHARE = {
     "Home": 0.20, "Beauty": 0.08,
 }  # fmt: skip
 
-#: Keys whose value never changes: who it is for, its name, its size range, and
-#: the pattern the drawing shows.
-FROZEN_KEYS = frozenset({"audience", "line", "size_range", "pattern"})
+#: Keys whose value never changes: who it is for, its name, its size range, the
+#: pattern the drawing shows, and how many motifs it prints where (the drawing's
+#: ``count`` and ``placement``, which the description's wording follows).
+FROZEN_KEYS = frozenset(
+    {"audience", "line", "size_range", "pattern", "motif_count", "print_placement"}
+)
 
 #: Leaf weight within a department: 1 / rank ** ZIPF_S.
 ZIPF_S = 1.0
@@ -145,7 +178,7 @@ def templates() -> list[dict]:
 
 
 def _words(text: str) -> str:
-    return " " + re.sub(r"[^a-z0-9]+", " ", text.lower()) + " "
+    return words(text)
 
 
 def _has_word(text: str, value: str) -> bool:
@@ -166,10 +199,11 @@ def variable_keys(rec: dict, pools: dict[tuple[str, str], tuple[str, ...]]) -> l
     """The attribute keys a style derived from ``rec`` may change (see the module doc)."""
     names = " ".join([*rec["category_path"], rec["category_leaf"], rec["product_type"]])
     counts = collections.Counter(a["key"] for a in rec["attributes"])
+    shared = collections.Counter(str(a["value"]).lower() for a in rec["attributes"])
     out = []
     for a in rec["attributes"]:
         key, value = a["key"], str(a["value"])
-        if key in FROZEN_KEYS or "unit_code" in a or counts[key] > 1:
+        if key in FROZEN_KEYS or "unit_code" in a or counts[key] > 1 or shared[value.lower()] > 1:
             continue
         if len(pools.get((rec["category_leaf"], key), ())) < 2 or _has_word(names, value):
             continue
@@ -206,7 +240,12 @@ def twin_key(rec: dict) -> tuple:
 
 def _swap(text: str, old: str, new: str) -> str:
     """``old`` -> ``new`` as a whole word in any case, each occurrence keeping its case:
-    lower stays lower, a capital first letter stays capital, otherwise ``new`` as given."""
+    lower stays lower, a capital first letter stays capital, otherwise ``new`` as given.
+    Its words match across a space or a hyphen, and ``&`` and "and" match each other, so
+    "Hook & Loop" rewrites "hook and loop"."""
+    body = re.sub(r"(?<![A-Za-z])and(?![A-Za-z])", r"\\&", re.escape(old))
+    body = body.replace(r"\&", "(?:&|and)").replace(r"\-", r"[\s-]").replace(r"\ ", r"[\s-]+")
+    pattern = r"(?<![A-Za-z0-9])" + body + r"(?![A-Za-z0-9])"
 
     def cased(m: re.Match[str]) -> str:
         hit = m.group(0)
@@ -216,7 +255,7 @@ def _swap(text: str, old: str, new: str) -> str:
             return new[0].upper() + new[1:]
         return new
 
-    return re.sub(rf"\b{re.escape(old)}\b", cased, text, flags=re.IGNORECASE)
+    return re.sub(pattern, cased, text, flags=re.IGNORECASE)
 
 
 def _title(tpl: dict, name: str) -> str:
@@ -228,13 +267,65 @@ def _title(tpl: dict, name: str) -> str:
     return f"{name} {tpl['title']}"
 
 
+#: The drawing fields that follow a changed ``motif``; ``count`` and ``placement`` never
+#: change (:data:`FROZEN_KEYS`).
+MOTIF_FIELDS = ("motif", "accent", "third")
+
+
+@functools.cache
+def _motif_inks() -> dict[str, dict[str, Any]]:
+    """A ``motif`` attribute value -> the drawing's ``motif``, ``accent`` and ``third`` of the
+    first template that draws it ("Cherry" -> ``cherries`` in cherry red)."""
+    out: dict[str, dict[str, Any]] = {}
+    for t in templates():
+        for a in t["attributes"]:
+            if a["key"] == "motif" and "motif" in t["drawing"]:
+                out.setdefault(str(a["value"]), {k: t["drawing"][k] for k in MOTIF_FIELDS})
+    return out
+
+
+def _article(word: str) -> str:
+    return "an" if word[:1].lower() in "aeiou" else "a"
+
+
+def _plural(word: str) -> str:
+    if re.search(r"[^aeiou]y$", word):
+        return word[:-1] + "ies"
+    return word + ("es" if re.search(r"(s|x|z|ch|sh)$", word) else "s")
+
+
+def _redraw_motif(rec: dict, old: str, new: str) -> None:
+    """The motif ``old`` -> ``new`` in the picture, the title's plural ("Lemons Print") and
+    the description, which is rebuilt: the template's names the old motif and its colours.
+
+    The new text names the product noun after "Graphic" or "Print" in the title, and the
+    count and placement the drawing keeps."""
+    d = rec["drawing"]
+    d.update(_motif_inks()[new])
+    rec["title"] = _swap(rec["title"], _plural(old), _plural(new))
+    m = re.search(r"\b(?:Graphic|Print)\s+([^,]+)", rec["title"])
+    noun = (m.group(1) if m else rec["title"].split()[-1]).strip().lower()
+    on = noun if re.search(r"[^s]s$", noun) else f"{_article(noun)} {noun}"
+    low = new.lower()
+    if d.get("count") == 1:
+        rec["description"] = f"A big {low} graphic on {on}."
+    else:
+        spread = "scattered on" if d.get("placement") == "scatter" else "all over"
+        lead = f"{_article(low).capitalize()} {low} print"
+        rec["description"] = f"{lead}: {_plural(low)} {spread} {on}."
+
+
 def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
-           colors: list[str], owners: dict[str, str], rng: random.Random) -> dict:  # fmt: skip
-    """One style from ``tpl``: the given range name, brand, attribute values and colors."""
+           colors: list[str], owners: dict[str, str], rng: random.Random,
+           ratio: float = 1.0) -> dict:  # fmt: skip
+    """One style from ``tpl``: the given range name, brand, attribute values and colors
+    (the first is the hero), each SKU's price times ``ratio`` on a price point."""
     rec = {k: copy.deepcopy(v) for k, v in tpl.items() if k not in DERIVED_FIELDS}
     rec.pop("price_min", None)
     rec.pop("price_max", None)
     rec.pop("bestseller_rank", None)
+    if "badges" in rec:
+        rec["badges"] = [b for b in rec["badges"] if b != "Bestseller"]
     old_line = _line(tpl)
     rec["title"] = _title(tpl, name)
     if old_line:
@@ -254,6 +345,16 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
             for p, v in params.items():
                 if isinstance(v, str) and v.lower() == old.lower():
                     params[p] = new.lower() if v == old.lower() else new
+            if a["key"] == "motif" and "motif" in rec["drawing"]:
+                _redraw_motif(rec, old, new)
+    if colors:  # "Shown in cream" names the colour the picture shows: the hero
+        names = "|".join(re.escape(c["color"]) for c in tpl.get("color_options", ()))
+        rec["description"] = re.sub(
+            rf"\b(shown in )(?:{names})\b",
+            lambda m: m.group(1) + colors[0].lower(),
+            rec["description"],
+            flags=re.IGNORECASE,
+        )
     if brand != tpl["brand"]:
         rec["title"] = rec["title"].replace(tpl["brand"], brand)
         rec["description"] = rec["description"].replace(tpl["brand"], brand)
@@ -267,9 +368,12 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
     if "sold_last_5_days" in rec:
         rec["sold_last_5_days"] = int(rng.lognormvariate(3.5, 1.2))
     swatches = {c["color"]: c for c in tpl.get("color_options", ())}
-    keep = set(colors)
+    rank = {c: i for i, c in enumerate(colors)}
     skus = [{k: v for k, v in s.items() if k != "sku"} for s in tpl["skus"]
-            if "color" not in s or s["color"] in keep]  # fmt: skip
+            if "color" not in s or s["color"] in rank]  # fmt: skip
+    skus.sort(key=lambda s: rank.get(s.get("color"), 0))
+    for s in skus:
+        s["price"] = price_point(s["price"] * ratio)
     out = product(pid, skus, swatches, **rec)
     if "price_min" in tpl:
         out["price_min"] = min(s["price"] for s in out["skus"])
@@ -330,6 +434,7 @@ def build(skus: int, seed: int = 0) -> Scaled:
     weights = _department_weights(plan)
     used = {twin_key(r) for r in tpls}
     titles = {r["title"] for r in tpls}
+    ctx = _Context(pools, text_pools(standard_document(r) for r in tpls), _bands(tpls), {})
     template_of: dict[str, str] = {}
     total = sum(r["sku_count"] for r in records)
     serial = 0
@@ -340,7 +445,7 @@ def build(skus: int, seed: int = 0) -> Scaled:
         leaf = rng.choices(leaves, [1 / (i + 1) ** ZIPF_S for i in range(len(leaves))])[0]
         tpl = rng.choice(plan[dept][leaf])
         pool = brands[(dept, tpl["product_type"])]
-        made = _draw(tpl, serial, pools, pool, owners, used, titles, rng)
+        made = _draw(tpl, serial, ctx, pool, owners, used, titles, rng)
         if made is None:
             plan[dept][leaf].remove(tpl)
             if not plan[dept][leaf]:
@@ -355,20 +460,103 @@ def build(skus: int, seed: int = 0) -> Scaled:
     return Scaled(records, template_of)
 
 
-def _draw(tpl: dict, serial: int, pools: dict, brands: list[str], owners: dict[str, str],
+@dataclass
+class _Context:
+    pools: dict[tuple[str, str], tuple[str, ...]]
+    text_pools: dict[tuple[str, str], set[str]]
+    bands: dict[str, tuple[float, float]]
+    #: template product id -> the signatures (:func:`signature`) no style has taken yet
+    open: dict[str, list[tuple]]
+    #: template product id -> the title-shown values its own title and its styles' show
+    shown: dict[str, set[tuple]] = field(default_factory=dict)
+
+
+def _bands(tpls: list[dict]) -> dict[str, tuple[float, float]]:
+    prices: dict[str, list[float]] = collections.defaultdict(list)
+    for r in tpls:
+        prices[r["category_leaf"]].append(r["price"])
+    lo, hi = PRICE_BAND
+    return {leaf: (lo * min(p), hi * max(p)) for leaf, p in prices.items()}
+
+
+def _family(swatch: dict | None) -> str | None:
+    return None if swatch is None else str(swatch.get("family", swatch["color"]))
+
+
+def shown_keys(tpl: dict, keys: list[str]) -> list[str]:
+    """The variable keys whose value the template's title shows."""
+    values = {a["key"]: str(a["value"]) for a in tpl["attributes"]}
+    return [k for k in keys if _has_word(tpl["title"], values[k])]
+
+
+def signature(rec: dict, shown: list[str]) -> tuple:
+    """What tells a style from its template and siblings at a glance: the values of the
+    title-shown keys and the hero color family."""
+    values = {a["key"]: str(a["value"]) for a in rec["attributes"]}
+    return (tuple(values[k] for k in shown), _family((rec.get("color_options") or [None])[0]))
+
+
+def _signatures(tpl: dict, shown: list[str], pools: dict) -> list[tuple]:
+    """Every signature a style derived from ``tpl`` may take, the template's own aside."""
+    leaf = tpl["category_leaf"]
+    combos: list[tuple] = [()]
+    for k in shown:
+        combos = [(*c, v) for c in combos for v in pools[(leaf, k)]]
+    families = list(dict.fromkeys(_family(c) for c in tpl.get("color_options", ()))) or [None]
+    mine = signature(tpl, shown)
+    return [(c, f) for c in combos for f in families if (c, f) != mine]
+
+
+def _colors(tpl: dict, family: str | None, rng: random.Random) -> list[str]:
+    """A hero color of ``family``, then a seeded subset of the rest in template order."""
+    swatches = tpl.get("color_options", ())
+    if not swatches:
+        return []
+    hero = rng.choice([c["color"] for c in swatches if _family(c) == family])
+    rest = [c["color"] for c in swatches if c["color"] != hero]
+    keep = set(rng.sample(rest, rng.randint(0, len(rest))))
+    return [hero, *(c for c in rest if c in keep)]
+
+
+def _draw(tpl: dict, serial: int, ctx: _Context, brands: list[str], owners: dict[str, str],
           used: set, titles: set, rng: random.Random) -> dict | None:  # fmt: skip
-    """A new style from ``tpl``, or None when ATTEMPTS draws all repeat one."""
-    keys = variable_keys(tpl, pools)
-    colors = [c["color"] for c in tpl.get("color_options", ())]
+    """A new style from ``tpl`` with a signature no style of it has, or None when none is
+    left or ATTEMPTS draws all repeat a title or contradict their text.
+
+    A style whose title-shown values the template or an earlier sibling already shows
+    differs in its hero colour alone, so its title names it: "…, Sage"."""
+    leaf = tpl["category_leaf"]
+    keys = variable_keys(tpl, ctx.pools)
+    shown = shown_keys(tpl, keys)
+    left = ctx.open.setdefault(tpl["product_id"], _signatures(tpl, shown, ctx.pools))
     pid = f"{tpl['product_id'].split('-')[0]}-{serial + 1:06d}"
+    old = {a["key"]: str(a["value"]) for a in tpl["attributes"]}
+    taken = ctx.shown.setdefault(tpl["product_id"], {tuple(old[k] for k in shown)})
+    lo, hi = ctx.bands[leaf]
     for _ in range(ATTEMPTS):
-        brand = rng.choice(brands)
-        values = {k: rng.choice(pools[(tpl["category_leaf"], k)]) for k in keys}
-        pick = sorted(rng.sample(range(len(colors)), rng.randint(1, len(colors)))) if colors else []
-        name = rng.choice(RANGE_NAMES)
-        rec = derive(tpl, pid, name, brand, values, [colors[i] for i in pick], owners, rng)
+        if not left:
+            return None
+        sig = rng.choice(left)
+        values = dict(zip(shown, sig[0], strict=True))
+        values |= {k: rng.choice(ctx.pools[(leaf, k)]) for k in keys if k not in shown}
+        colors = _colors(tpl, sig[1], rng)
+        brand, name = rng.choice(brands), rng.choice(RANGE_NAMES)
+        changes = {k: (old[k], v) for k, v in values.items() if v != old[k]}
+        price = tpl["price"] * price_factor(changes) * rng.uniform(*JITTER)
+        target = price_point(min(max(price, lo), hi), lo, hi)
+        if target == tpl["price"]:  # a re-drawn price is never the template's own
+            up = target + _step(target)
+            target = up if up <= hi else price_point(target - _step(target), lo, hi)
+        ratio = target / tpl["price"]
+        rec = derive(tpl, pid, name, brand, values, colors, owners, rng, ratio)
+        if sig[0] in taken and colors:
+            rec["title"] = f"{rec['title']}, {colors[0]}"
         if twin_key(rec) in used or rec["title"] in titles:
             continue
+        if text_contradictions(standard_document(rec), ctx.text_pools):
+            continue
+        left.remove(sig)
+        taken.add(sig[0])
         used.add(twin_key(rec))
         titles.add(rec["title"])
         return rec
@@ -417,6 +605,88 @@ def coverage(recs: list[dict]) -> dict[str, Any]:
     }
 
 
+#: A derived style's price stays in [low * the leaf's cheapest template, high * its dearest].
+PRICE_BAND = (0.75, 1.35)
+
+
+#: A derived style's seeded spread around its template's price, before the band.
+JITTER = (0.85, 1.2)
+
+#: The price weight of a word in a value: a premium material costs more, a cheap one less.
+#: A value's weight is the product of its words' (1.0 when none is listed).
+PREMIUM = {
+    "cashmere": 1.6, "silk": 1.4, "goose": 1.3, "merino": 1.3, "leather": 1.3,
+    "down": 1.25, "suede": 1.25, "wool": 1.2, "egyptian": 1.2, "velvet": 1.15,
+    "linen": 1.15, "organic": 1.1, "canvas": 0.9, "faux": 0.85, "rubber": 0.85,
+    "nylon": 0.85, "microfibre": 0.85, "synthetic": 0.8, "polyester": 0.8,
+    "acrylic": 0.8, "hollowfibre": 0.8, "plastic": 0.8,
+}  # fmt: skip
+
+
+def _weight(value: str) -> float:
+    out = 1.0
+    for w in words(value).split():
+        out *= PREMIUM.get(w, 1.0)
+    return out
+
+
+def price_factor(changes: dict[str, tuple[str, str]]) -> float:
+    """The price multiplier of attribute changes ``key -> (old, new)``: each new value's
+    :data:`PREMIUM` weight over the old one's."""
+    out = 1.0
+    for old, new in changes.values():
+        out *= _weight(new) / _weight(old)
+    return out
+
+
+def _step(price: float) -> float:
+    return 0.05 if price < 5 else 0.5 if price < 20 else 1.0 if price < 100 else 5.0
+
+
+def price_point(price: float, lo: float | None = None, hi: float | None = None) -> float:
+    """``price`` on the nearest retail price point (5p under £5, 50p under £20, £1 under
+    £100, then £5), moved one point inward when that leaves ``[lo, hi]``."""
+    step = _step(price)
+    n = round(price / step)
+    if lo is not None and n * step < lo - 1e-9:
+        n += 1
+    if hi is not None and n * step > hi + 1e-9:
+        n -= 1
+    return round(max(n, 1) * step, 2)
+
+
+def grid_tile(rec: dict) -> tuple:
+    """What a results grid shows of a style: its leaf, its hero picture and its price."""
+    hero = rec["skus"][0]
+    spec = json.dumps(drawing_spec(rec, hero), sort_keys=True)
+    return (rec["category_leaf"], spec, hero["price"])
+
+
+def grid_clones(recs: list[dict]) -> dict[str, Any]:
+    """The styles that share their grid tile (:func:`grid_tile`) with another style."""
+    tiles = collections.Counter(grid_tile(r) for r in recs)
+    shared = sum(n for n in tiles.values() if n > 1)
+    return {
+        "styles": len(recs),
+        "grid_clones": shared,
+        "grid_clone_rate": round(shared / len(recs), 4),
+        "largest_group": max(tiles.values()),
+    }
+
+
+def prices_per_leaf(recs: list[dict]) -> dict[str, Any]:
+    """Distinct style prices per leaf: each leaf's count, then the min and the median."""
+    prices: dict[str, set[float]] = collections.defaultdict(set)
+    for r in recs:
+        prices[r["category_leaf"]].add(r["price"])
+    counts = sorted(len(v) for v in prices.values())
+    return {
+        "distinct": {leaf: len(v) for leaf, v in sorted(prices.items())},
+        "min": counts[0],
+        "median": counts[len(counts) // 2],
+    }
+
+
 def listing_tokens(rec: dict) -> frozenset[str]:
     """The words a shopper and the index read on a listing: the brand and the title."""
     return frozenset(_words(f"{rec['brand']} {rec['title']}").split())
@@ -459,13 +729,20 @@ def documents(scaled: Scaled) -> list[dict[str, Any]]:
     return [standard_document(r) for r in scaled.records]
 
 
+def _target(text: str) -> int:
+    value = int(text)
+    if value < 1:
+        raise argparse.ArgumentTypeError("--skus must be at least 1")
+    return value
+
+
 def main(argv: list[str] | None = None) -> int:
     from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: PLC0415
 
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument(
         "--skus",
-        type=int,
+        type=_target,
         required=True,
         help="target SKU count; the build stops at the first style past it",
     )
@@ -491,6 +768,10 @@ def main(argv: list[str] | None = None) -> int:
         "coverage": coverage(scaled.records),
         "distinctness": distinctness(scaled.records, seed=args.seed),
         "templates_distinctness": distinctness(templates(), seed=args.seed),
+        "grid_clones": grid_clones(scaled.records),
+        "prices_per_leaf": {
+            k: v for k, v in prices_per_leaf(scaled.records).items() if k != "distinct"
+        },  # fmt: skip
         "standard_problems": len(problems),
         "build_seconds": round(built, 2),
     }

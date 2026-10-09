@@ -105,7 +105,7 @@ SPAN_FOR_NAME: dict[str, tuple[Fraction, Fraction]] = {
 }
 
 #: The size of one unit in its kind's canonical unit: millimetres, grams, degrees,
-#: one, rpm, pound-force, millilitres and percent. ``value_canonical = magnitude x size``.
+#: one, rpm, pound-force and millilitres. ``value_canonical = magnitude x size``.
 CANONICAL_PER_UNIT: dict[str, Fraction] = {
     "INH": Fraction(127, 5),
     "FOT": Fraction(1524, 5),
@@ -116,11 +116,11 @@ CANONICAL_PER_UNIT: dict[str, Fraction] = {
     "C62": Fraction(1),
     "RPM": Fraction(1),
     "C78": Fraction(1),
-    # Retail (gen#125): centimetres, millilitres, grams and percent.
+    # Retail (gen#125): centimetres, millilitres and grams. No percent (P1): prism
+    # spells no such unit, so a percent is a plain number whose name says "(%)".
     "CMT": Fraction(10),
     "MLT": Fraction(1),
     "GRM": Fraction(1),
-    "P1": Fraction(1),
 }
 
 #: Units that count something PER a size, so ``value_canonical = size / magnitude``.

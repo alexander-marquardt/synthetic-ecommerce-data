@@ -1,7 +1,7 @@
 {
  "elasticsearch": "9.3.0",
  "docs": 294,
- "fingerprint": "961ed3e53594bf8f1d4cccfbf4446e0c3b19407888f5cdf194430dae1006253d",
+ "fingerprint": "831c8968d7b63cd7ac261cf3c794eaf088d63aa2db0b7bf0e2242f39bcefe652",
  "rows": [
   {
    "query": "mattress topper",
@@ -551,6 +551,10 @@
    "query": "cups",
    "baseline": [
     {
+     "product_id": "PLT-MUG7",
+     "title": "Espresso Cup"
+    },
+    {
      "product_id": "PLT-CUPMLD",
      "title": "Moulded Cup T-Shirt Bra"
     },
@@ -565,13 +569,13 @@
     {
      "product_id": "PLT-DRKTRV",
      "title": "Leakproof Travel Cup"
-    },
-    {
-     "product_id": "PLT-CUPHLD",
-     "title": "Car Cup Holder Organiser"
     }
    ],
    "policy": [
+    {
+     "product_id": "PLT-MUG7",
+     "title": "Espresso Cup"
+    },
     {
      "product_id": "PLT-DRKTRV",
      "title": "Leakproof Travel Cup"
@@ -587,10 +591,6 @@
     {
      "product_id": "PLT-MUG-APPLE",
      "title": "Apple Graphic Mug"
-    },
-    {
-     "product_id": "PLT-MUG11",
-     "title": "Travel Mug"
     }
    ]
   }
@@ -617,8 +617,8 @@
      "title": "Padded Balcony Bra"
     },
     {
-     "product_id": "PLT-OFRBRA",
-     "title": "Seamless Smoothing Bra"
+     "product_id": "PLT-MUG7",
+     "title": "Espresso Cup"
     }
    ],
    "policy": [
@@ -639,8 +639,8 @@
      "title": "Padded Balcony Bra"
     },
     {
-     "product_id": "PLT-OFRBRA",
-     "title": "Seamless Smoothing Bra"
+     "product_id": "PLT-MUG7",
+     "title": "Espresso Cup"
     }
    ]
   }
