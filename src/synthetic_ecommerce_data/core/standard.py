@@ -1,6 +1,16 @@
-"""The one output standard every domain's nested documents meet (gen#125).
+"""The one output standard every domain's documents meet (gen#125), in two shapes.
 
-A domain emits one document per product, its SKUs nested in ``variants``, and
+Who reads each shape:
+
+- **flat**, one document per SKU (:func:`flat_documents`; industrial writes it as
+  ``golden-catalog/flat.jsonl`` with ``emit.flat_documents``): the shape
+  elastic/prism-industrial-products loads, as its ``catalog.ndjson``. A loader of
+  the industrial file reads the retail one: same keys and types, but retail states
+  ``price`` in ``currency`` and ``in_stock`` where industrial has ``price_usd`` and
+  ``stock`` (the exact list: ``tests/test_output_standard.py``, ``*_ONLY_FLAT``).
+- **nested**, one document per product, below: no loader reads it yet.
+
+A domain emits one nested document per product, its SKUs nested in ``variants``, and
 every fact a shopper can narrow on as a nested ``{key, name, value[, unit_code,
 value_canonical]}`` attribute entry, at product or variant level. The fields are
 :data:`PRODUCT_FIELDS` and :data:`VARIANT_FIELDS`; :data:`.emit.NESTED_MAPPING`
@@ -127,7 +137,8 @@ def _image(where: str, row: Mapping[str, Any]) -> list[str]:
     return [
         f"{where}: {field} {row.get(field)!r} is not {image_id}.svg"
         for field in ("image_url", "image_detail_url")
-        if not str(row.get(field, "")).endswith(f"/{image_id}.svg")
+        # absent or not a string is _fields' one problem, not a second one here
+        if isinstance(row.get(field), str) and not row[field].endswith(f"/{image_id}.svg")
     ]
 
 
@@ -156,8 +167,10 @@ def check_document(doc: Mapping[str, Any]) -> list[str]:
         out += _image(at, variant)
         if _typed(variant.get("price"), _NUM) and variant["price"] <= 0:
             out.append(f"{at}: price {variant['price']!r} is not positive")
-        if not CURRENCY_PATTERN.fullmatch(str(variant.get("currency"))):
-            out.append(f"{at}: currency {variant.get('currency')!r} is not an ISO 4217 code")
+        currency = variant.get("currency")
+        # absent or not a string is _fields' one problem, not a second one here
+        if isinstance(currency, str) and not CURRENCY_PATTERN.fullmatch(currency):
+            out.append(f"{at}: currency {currency!r} is not an ISO 4217 code")
         out += [e for entry in variant.get("attributes") or () for e in check_entry(at, entry)]
     return out
 
@@ -244,3 +257,85 @@ def check_catalog(docs: Iterable[Mapping[str, Any]], *, text_agrees: bool = True
         pools = value_pools(docs)
         out += [p for doc in docs for p in text_contradictions(doc, pools)]
     return out
+
+
+#: A plain decimal, the only value a unitless entry in ``numeric_keys`` reads as a number.
+_DECIMAL = re.compile(r"^[0-9]+(?:\.[0-9]+)?$")
+
+
+def _number(entry: Mapping[str, Any], numeric_keys: frozenset[str]) -> float | None:
+    """The entry's value as a number in its own unit: a measured entry's magnitude
+    (``28`` inches, as industrial's ``facets_num`` holds it), or a unitless one the
+    domain names numeric (a rating). ``None`` for anything else (a UK size "4")."""
+    value = str(entry.get("value"))
+    if entry.get("unit_code") is not None:
+        return float(canonical(value, "C62"))  # C62 is one: the magnitude itself
+    if entry.get("key") in numeric_keys and _DECIMAL.fullmatch(value):
+        return float(value)
+    return None
+
+
+def flat_documents(
+    doc: Mapping[str, Any], numeric_keys: frozenset[str] = frozenset()
+) -> list[dict[str, Any]]:
+    """The flat one-document-per-SKU shape of one nested document, the shape
+    industrial's ``emit.flat_documents`` writes and prism-industrial-products loads.
+
+    A SKU's document is its variant's columns under its product's, its attributes
+    the product's entries less the keys the variant states for itself (the style's
+    list of colors gives way to the SKU's one color), then the variant's. From those
+    entries: ``attribute_names``, ``facets`` (key -> values), ``facets_num`` (key ->
+    the first value that is a number, :func:`_number`) and the searchable ``text``.
+    Product fields the document lacks (``series``) stay absent, never null.
+    """
+    product = {k: doc[k] for k in _FLAT_PRODUCT_FIELDS if k in doc}
+    out: list[dict[str, Any]] = []
+    for variant in doc["variants"]:
+        own = {e["key"] for e in variant["attributes"]}
+        entries = [e for e in doc["attributes"] if e["key"] not in own] + variant["attributes"]
+        facets: dict[str, list[str]] = {}
+        numeric: dict[str, float] = {}
+        for entry in entries:
+            facets.setdefault(entry["key"], []).append(entry["value"])
+            number = _number(entry, numeric_keys)
+            if number is not None:
+                numeric.setdefault(entry["key"], number)
+        words = [variant["title"], doc["brand"], doc.get("series"), *doc["category_path"]]
+        out.append(
+            {"sku": variant["sku"], "product_id": doc["product_id"]}
+            | {"product_type": doc["product_type"], "title": variant["title"]}
+            | {k: variant[k] for k in ("description",) if k in variant}
+            | {"parent_title": doc["title"]}
+            | product
+            | {k: variant[k] for k in _FLAT_VARIANT_FIELDS if k in variant}
+            | {
+                "attributes": entries,
+                "attribute_names": sorted({e["name"] for e in entries}),
+                "facets": facets,
+                "facets_num": numeric,
+                "text": " ".join(w for w in [*words, *(e["value"] for e in entries)] if w),
+            }
+        )
+    return out
+
+
+#: The product columns a flat document repeats, in industrial's order.
+_FLAT_PRODUCT_FIELDS = (
+    "brand",
+    "series",
+    "category_path",
+    "category_leaf",
+    "dimension_provenance",
+    "spec_quality",
+)
+#: The variant columns a flat document carries, in industrial's order.
+_FLAT_VARIANT_FIELDS = (
+    "price",
+    "currency",
+    "in_stock",
+    "price_usd",
+    "stock",
+    "image_id",
+    "image_url",
+    "image_detail_url",
+)

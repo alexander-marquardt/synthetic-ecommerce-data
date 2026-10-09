@@ -150,3 +150,9 @@ def test_bouquet_records_carry_their_foliage() -> None:
         "Classic Red Rose Bouquet": None,
         "White Rose Bouquet with Gold Foliage": "#d4af37",
     }
+
+
+def test_round_produce_stays_registered_as_honest_nowhere() -> None:
+    """Without its empty entry a round_produce use would pass unchecked."""
+    assert HONEST_FOR["round_produce"] == ()
+    assert not _honest("round_produce", "Food > Fruit & Veg > Fruit")
