@@ -31,24 +31,25 @@ import scale  # noqa: E402
 
 #: The round 4 preview's 328 authored styles, then the scale-only rows (``scale_rows``),
 #: then the breadth rows (``breadth_rows``).
-SCALE_ROWS = 74
+SCALE_ROWS = 136
 AUTHORED = 328
-BREADTH_ROWS = 176
+BREADTH_ROWS = 184
 TEMPLATES = AUTHORED + SCALE_ROWS + BREADTH_ROWS
 #: The SKUs the templates alone hold. A build at or under it takes no seeded draw, so
 #: every derived-style test (``pairs``) would pass on an empty list.
-TEMPLATE_SKUS = 16_977
+TEMPLATE_SKUS = 24_254
 #: The derived styles :data:`TARGET` must hold so the ``pairs`` tests read a real sample:
 #: round 2's 19K build held 166 (seed 0), and adding templates must not shrink it.
 MIN_DERIVED = 150
-#: The sample build: the templates, then derived styles to about 4K SKUs past them (166
+#: The sample build: the templates, then derived styles to about 4.5K SKUs past them (182
 #: styles, seed 0), under the ceiling (:data:`CAPACITY`). It moves with
-#: :data:`TEMPLATE_SKUS`, so new templates never empty it.
-DERIVED_SKUS = 4_000
+#: :data:`TEMPLATE_SKUS`, so new templates never empty it. Round 4's deep-SKU templates
+#: left 4K at 148 styles, so it went up by 500.
+DERIVED_SKUS = 4_500
 TARGET = TEMPLATE_SKUS + DERIVED_SKUS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (2_659, 52_022)
+CAPACITY = (3_242, 76_417)
 #: The grid-clone share the ceiling build may reach (:func:`scale.grid_clones`). Round 2
 #: measured 14.4%: the rest is the headroom the 50K and 100K rounds may spend.
 CEILING_GRID_CLONES = 0.15
@@ -604,8 +605,14 @@ def test_every_scale_only_row_opens_a_leaf_or_a_title_value_its_leaf_lacked():
     leaves = {t["category_leaf"] for t in authored}
     seen: set[tuple[str, str]] = set()
     for r in rows:
-        title = {(a["key"], str(a["value"])) for a in r["attributes"]
-                 if a["key"] in ("rise", "wiring")}  # fmt: skip
+        if r["product_id"].startswith("FTW-"):  # a closure, toe or lining the title shows
+            title = {(a["key"], str(a["value"])) for a in r["attributes"]
+                     if a["key"] in ("closure", "toe", "lining")
+                     and scale._has_word(r["title"], str(a["value"]))
+                     and (r["category_leaf"], a["key"], str(a["value"])) not in have}  # fmt: skip
+        else:
+            title = {(a["key"], str(a["value"])) for a in r["attributes"]
+                     if a["key"] in ("rise", "wiring")}  # fmt: skip
         assert len(title) == 1, r["product_id"]
         ((key, value),) = title
         assert r["category_leaf"] not in leaves or (r["category_leaf"], key, value) not in have, (
@@ -615,12 +622,31 @@ def test_every_scale_only_row_opens_a_leaf_or_a_title_value_its_leaf_lacked():
         seen.add((r["category_leaf"], value))
 
 
+#: The ``scale_rows.FOOTWEAR`` rows (growth round 4).
+FOOTWEAR_ROWS = 13
+
+
+def test_a_scale_only_shoe_comes_in_a_material_its_leaf_already_sells():
+    """A derived shoe rewrites its style's material but not its SKUs' (#145), so a new
+    footwear row keeps to a material its leaf's authored styles carry."""
+    rows = getattr(scale.scale_rows, "FOOTWEAR", ())
+    assert len(rows) == FOOTWEAR_ROWS
+    sold: dict[str, set[str]] = collections.defaultdict(set)
+    for t in scale.templates()[:AUTHORED]:
+        sold[t["category_leaf"]] |= {
+            s["upper_material"] for s in t["skus"] if "upper_material" in s
+        }
+    for s in rows:
+        d = s.doc()
+        assert {k["upper_material"] for k in d["skus"]} <= sold[d["category_leaf"]], d["product_id"]
+
+
 def test_a_scale_only_bra_describes_its_own_straps_and_fastening():
     """A front-fastening, sleep or bandeau bra has no three-row hook and eye back."""
     rows = scale.scale_rows
     bras = [s for s in rows.FAMILIES["Bras"] if isinstance(s, rows.Bra)]
     own = [s for s in bras if s.fitting != rows.HOOK_BACK]
-    assert len(own) == 16
+    assert len(own) == 26
     for s in bras:
         (doc,) = rows.style_docs("Bras", s)
         assert f"with {s.fitting}, in " in doc["description"], s.code
@@ -677,7 +703,7 @@ def test_a_duvets_drawn_tog_is_its_tog_attribute(built):
 #: names one.
 SAID_ATTRIBUTES = (
     "blend", "form", "variety", "fruit", "origin", "power", "charm", "flower_form", "flavor",
-    "pasta_shape", "fabric",
+    "pasta_shape", "fabric", "toe", "lining",
 )  # fmt: skip
 #: Words that say a value without being it: (key, word) -> the values the word is true of.
 #: Herbal teas are the blends that hold no tea leaf; a cone is clipped to a point and a
