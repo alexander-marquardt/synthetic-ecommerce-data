@@ -396,7 +396,7 @@ GIFTS = (
         (cw("Red", "#c8312e"), cw("White", "#ffffff")), (("finish", "Finish", "Painted"),)),
     Row("DECSNO", "Glitter Glass Snowflake Decoration", "Lanternby", "Gifts", _DECOR,
         "Christmas Decoration", 7.0, "snowflake",
-        "A flat glass snowflake that catches the tree lights, on a silver thread.",
+        "A flat glass snowflake that catches the tree lights, on a fine hanging thread.",
         (cw("Ice", "#dbe9f2"),), (("finish", "Finish", "Glitter"),)),
     Row("DECFLT", "Gilded Felt Snowflake Decoration", "Calderby & Lune", "Gifts", _DECOR,
         "Christmas Decoration", 5.0, "snowflake",
