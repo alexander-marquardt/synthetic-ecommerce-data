@@ -1159,22 +1159,27 @@ report:
   15%), and the distinct prices per leaf (min and median);
 - the `check_catalog` problem count, the build time and the peak memory.
 
-The 328 authored styles come first. Further styles are derived from them,
-deterministically by `--seed`, and a smaller build is a prefix of a larger one.
+The 541 templates come first: the 328 authored styles, then 62 deep-SKU jeans
+and bras that only the scaled catalog carries (`scale_rows.py`), then 151 toys,
+garden, gifts, cleaning, food and beauty styles that hold every department at
+half its fair share of styles or more (`breadth_rows.py`). Further styles are
+derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
 also differs from its template and from every sibling in a value its title shows
 or in its hero color family: a rename alone is not a style. When only the hero
-color sets it apart, its title ends with that color ("..., Dark Indigo"). A
+color sets it apart, its title ends with that color ("..., Dark Indigo"), and
+that hero is its only colorway. A
 changed motif is redrawn in the picture and the title, and the description is
 rebuilt around it; a "Shown in" color names the hero. It takes a subset
 of the template's colorways and keeps the template's size run. Its price is
 re-drawn inside its leaf's band, as a function of the values it changed (a
 premium material costs more). A draw whose title or description contradicts an
 attribute is refused, and `check_catalog` refuses such text too. The module
-docstring has the rules. Today's templates run out at 13,794 SKUs (849 styles),
+docstring has the rules. Today's templates run out at 44,923 SKUs (2,357 styles),
 and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
 values per leaf, more colorways, and more templates.
-`tests/test_retail_scale.py` holds it at 13K SKUs.
+`tests/test_retail_scale.py` holds it at 19K SKUs, and holds the ceiling's grid
+clones at 15% or under too.
 
 ## The built catalog is committed, in `golden-catalog/`
 
@@ -1687,7 +1692,7 @@ the content digest and file count printed and written beside it as
 every size of one color shares an image, drawn in that color's swatch (base,
 pattern and accent). The 328-style build is 629 images for 6,861 SKUs.
 `--skus N` releases the scaled build instead (`scale.py`'s, the 20K catalog's
-input): `--skus 13000` is 1,099 images for 13,039 SKUs.
+input): `--skus 20000` is 1,348 images for 20,002 SKUs.
 There is no committed manifest to check against (the retail build is code, not
 a committed catalog); the command refuses an `image_id` that names two
 different drawings instead. `tests/test_retail_image_release.py` pins the
