@@ -24,13 +24,17 @@ module does not name is a KeyError, never a silent skip.
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import re
+from pathlib import Path
 from typing import Any
 
 from build_preview4 import samples
 
+from synthetic_ecommerce_data.core import standard
+from synthetic_ecommerce_data.core.emit import write_jsonl
 from synthetic_ecommerce_data.core.entry import split
 
 #: Served beside the industrial bundle under one images mount (``/images/<root>``).
@@ -201,3 +205,23 @@ def standard_document(rec: dict) -> dict[str, Any]:
 def documents() -> list[dict[str, Any]]:
     """The whole retail build, one standard document per style, in build order."""
     return [standard_document(rec) for recs in samples().values() for rec in recs]
+
+
+def flat_documents() -> list[dict[str, Any]]:
+    """Stub."""
+    return [row for doc in documents() for row in standard.flat_documents(doc)]
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("outdir", type=Path)
+    args = ap.parse_args(argv)
+    args.outdir.mkdir(parents=True, exist_ok=True)
+    nested = write_jsonl(iter(documents()), args.outdir / "nested.jsonl")
+    flat = write_jsonl(iter(flat_documents()), args.outdir / "flat.jsonl")
+    print(f"wrote {nested} nested and {flat} flat documents to {args.outdir}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

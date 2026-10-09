@@ -184,3 +184,10 @@ def check_catalog(docs: Iterable[Mapping[str, Any]]) -> list[str]:
     shadow = set(names_by_key) & (set(PRODUCT_FIELDS) | set(VARIANT_FIELDS))
     out += [f"key {k!r} shadows a top-level field" for k in sorted(shadow)]
     return out
+
+
+def flat_documents(
+    doc: Mapping[str, Any], numeric_keys: frozenset[str] = frozenset()
+) -> list[dict[str, Any]]:
+    """Stub: the flat one-document-per-SKU projection of a nested document."""
+    return []
