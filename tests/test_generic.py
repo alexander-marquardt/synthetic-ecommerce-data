@@ -8,8 +8,8 @@ kind of thing that stays true right up until somebody adds a helpful label.
 
 Two independent proofs are asserted here, each with its own control:
 
-* **Nothing on the image is drawn in the dimension colour.** Every callout
-  primitive in :mod:`~synthetic_industrial_products.render.canvas` draws in
+* **Nothing on the image is drawn in the dimension color.** Every callout
+  primitive in :mod:`~synthetic_ecommerce_data.domains.industrial.render.canvas` draws in
   ``DIM`` and nothing else does, so a callout cannot appear without ``DIM``
   pixels appearing. The control is
   :func:`test_the_same_check_finds_the_callouts_on_a_dimensioned_drawing`: the
@@ -31,12 +31,12 @@ import numpy as np
 import pytest
 from matplotlib.text import Text
 
-from helpers import colour_mask, figure_pixels
-from synthetic_industrial_products.catalog import taxonomy
-from synthetic_industrial_products.records import DRAWABLE
-from synthetic_industrial_products.render import CARD, DETAIL, endmill, generic, kinds
-from synthetic_industrial_products.render.canvas import DIM
-from synthetic_industrial_products.render.profiles import CARD_CSS, DETAIL_CSS, SCALE
+from helpers import color_mask, figure_pixels
+from synthetic_ecommerce_data.domains.industrial import taxonomy
+from synthetic_ecommerce_data.domains.industrial.records import DRAWABLE
+from synthetic_ecommerce_data.domains.industrial.render import CARD, DETAIL, endmill, generic, kinds
+from synthetic_ecommerce_data.domains.industrial.render.canvas import DIM
+from synthetic_ecommerce_data.domains.industrial.render.profiles import CARD_CSS, DETAIL_CSS, SCALE
 
 #: Anything that looks like a measurement: a diameter sign, a number with a
 #: unit, a fraction, a thread designation, a degree.
@@ -50,7 +50,7 @@ def _texts(fig) -> list[str]:
 
 
 def _dim_pixels(fig) -> int:
-    return int(colour_mask(figure_pixels(fig), DIM, tol=0.10).sum())
+    return int(color_mask(figure_pixels(fig), DIM, tol=0.10).sum())
 
 
 @pytest.mark.parametrize("profile", [CARD, DETAIL], ids=lambda p: p.name)
@@ -58,7 +58,7 @@ def _dim_pixels(fig) -> int:
 def test_a_generic_image_carries_no_dimension_callout(image_id, profile):
     """Not an estimated one, not a typical one, none."""
     fig, _ = generic.build(image_id, profile)
-    assert _dim_pixels(fig) == 0, f"{image_id} {profile.name} draws in the dimension colour"
+    assert _dim_pixels(fig) == 0, f"{image_id} {profile.name} draws in the dimension color"
 
 
 def test_the_same_check_finds_the_callouts_on_a_dimensioned_drawing():
@@ -76,7 +76,7 @@ def test_the_same_check_finds_the_callouts_on_a_dimensioned_drawing():
 def test_no_text_on_a_generic_image_looks_like_a_measurement(image_id, profile):
     """The second, independent reading of the same property.
 
-    A callout that somehow avoided the dimension colour would still have to put
+    A callout that somehow avoided the dimension color would still have to put
     a value on the page, and this is what looks for one.
     """
     fig, _ = generic.build(image_id, profile)
@@ -166,7 +166,7 @@ def _two_records(type_key: str) -> tuple[dict, dict]:
     Built from the type's whole VOCABULARY rather than from a fixture, so an
     attribute added to the catalog is covered here without anyone remembering.
     """
-    from synthetic_industrial_products.catalog.vocab import names_for
+    from synthetic_ecommerce_data.domains.industrial.vocab import names_for
 
     first: dict[str, str] = {"sku": "AAA11"}
     second: dict[str, str] = {"sku": "ZZZ99"}

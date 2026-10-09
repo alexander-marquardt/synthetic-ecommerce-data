@@ -51,11 +51,11 @@ import pytest
 
 from catalog_size import DEPTH_SKUS
 from published import published_attributes
-from synthetic_industrial_products.catalog.entry import published
-from synthetic_industrial_products.catalog.naming import DELIMITER, TIGHT_DELIMITER
+from synthetic_ecommerce_data.core.entry import published
+from synthetic_ecommerce_data.core.naming import DELIMITER, TIGHT_DELIMITER
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
-REBUILD = "uv run sip-generate build --out golden-catalog"
+REBUILD = "uv run ecom-generate build --out golden-catalog"
 
 #: A character that could be part of the same value as the one either side of
 #: it -- digits, fraction and decimal marks, unit marks, letters.
@@ -90,7 +90,7 @@ def _states(text: str, value: str) -> bool:
 #:
 #: ``committed`` is ``golden-catalog/``, the artifact anyone can read without
 #: running a build. Asserting against it is what stops a careless
-#: ``sip-generate build && git commit -a`` from a broken generator sailing
+#: ``ecom-generate build && git commit -a`` from a broken generator sailing
 #: through, and it is why ``test_catalog_golden`` states its headline numbers
 #: that way too.
 #:
@@ -112,9 +112,9 @@ def catalog(request) -> tuple[list[dict], list[dict]]:
 
         return read("flat.jsonl"), read("nested.jsonl")
 
-    from synthetic_industrial_products.catalog import emit
-    from synthetic_industrial_products.catalog.config import GeneratorConfig
-    from synthetic_industrial_products.catalog.generate import generate
+    from synthetic_ecommerce_data.core import emit
+    from synthetic_ecommerce_data.core.config import GeneratorConfig
+    from synthetic_ecommerce_data.domains.industrial.generate import generate
 
     built = generate(GeneratorConfig())
     return list(emit.iter_flat(built)), list(emit.iter_nested(built))
@@ -369,9 +369,9 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
       which lands mid-word. Reconstructed on this catalog by
       ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **25
       of 9,611** titles (43 of 9,576 before every product type drew from its
-      own stream, alexander-marquardt/synthetic-industrial-products#48; 49 of
+      own stream, alexander-marquardt/synthetic-ecommerce-data#48; 49 of
       9,690 before Corner Radius/Neck Length applied once instead of twice
-      moved the catalog, alexander-marquardt/synthetic-industrial-products#39;
+      moved the catalog, alexander-marquardt/synthetic-ecommerce-data#39;
       67 of 4,689
       before the catalog grew), ending ``...Solid Carbide, U`` or
       ``...SGL Sq En``.
@@ -443,7 +443,7 @@ def test_an_over_long_title_sheds_a_whole_segment_rather_than_being_cut() -> Non
     and one that does not sheds from the end until it does. Without the first
     assertion a ``build_title`` that dropped everything would also pass.
     """
-    from synthetic_industrial_products.catalog.naming import (
+    from synthetic_ecommerce_data.core.naming import (
         DELIMITER,
         Segment,
         build_title,
@@ -505,11 +505,11 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
     first secondary its record publishes and a ball end mill's end is
     "Ball End", and 43 of 9,576 (79 over the cap) once Corner Radius and Neck
     Length are applied once instead of twice
-    (alexander-marquardt/synthetic-industrial-products#39) -- a presence-rate
+    (alexander-marquardt/synthetic-ecommerce-data#39) -- a presence-rate
     fix, not a title change, but it shifts the shared RNG stream every later
     draw reads from, titles included -- and 25 of 9,611 (39 over the cap) once
     every product type draws from its own stream
-    (alexander-marquardt/synthetic-industrial-products#48): the same item
+    (alexander-marquardt/synthetic-ecommerce-data#48): the same item
     families run over the cap, ball-nose end mills and socket cap screws
     first, but fewer of their drawn variants do. Stating it as a test rather
     than as prose is what stops the next regeneration inheriting a number
@@ -519,7 +519,7 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
     grammar: the segments and the delimiters are the production ones, and only
     the trimming rule is the old one.
     """
-    from synthetic_industrial_products.catalog import generate as generate_module
+    from synthetic_ecommerce_data.domains.industrial import generate as generate_module
 
     real = generate_module.build_title
     assembled: dict[str, tuple[str, int]] = {}
@@ -540,7 +540,7 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         generate_module.build_title = real
 
     # The breadth categories (:mod:`.catalog.breadth`,
-    # alexander-marquardt/synthetic-industrial-products#34) build their titles
+    # alexander-marquardt/synthetic-ecommerce-data#34) build their titles
     # directly with ``naming.build_title`` (imported into ``breadth``'s own
     # namespace), never through the ``generate`` module's binding this spy
     # patches -- and they use a deliberately different, simpler grammar

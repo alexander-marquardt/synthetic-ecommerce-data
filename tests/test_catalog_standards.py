@@ -11,9 +11,9 @@ from __future__ import annotations
 
 import pytest
 
-from synthetic_industrial_products.catalog import standards
-from synthetic_industrial_products.dimensions import parse_thread
-from synthetic_industrial_products.records import FIXTURES
+from synthetic_ecommerce_data.core.dimensions import parse_thread
+from synthetic_ecommerce_data.domains.industrial import standards
+from synthetic_ecommerce_data.domains.industrial.records import FIXTURES
 
 
 def test_the_published_number_ten_flat_head_is_reproduced_exactly():

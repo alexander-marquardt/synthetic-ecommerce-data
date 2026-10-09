@@ -1,5 +1,5 @@
 # The committed build output is compared by sha256 against a fresh
-# `sip-generate build` (tests/test_catalog_golden.py). Any end-of-line
+# `ecom-generate build` (tests/test_catalog_golden.py). Any end-of-line
 # translation on checkout would change those bytes and red the test on a
 # checkout that is in fact correct, so these files are stored and checked out
 # verbatim.

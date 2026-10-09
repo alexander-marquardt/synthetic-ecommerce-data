@@ -1,0 +1,480 @@
+"""More deep-SKU templates for the scaled retail catalog (gen#125): data only.
+
+:func:`scale.templates` builds these after the 328 authored styles
+(:func:`build_preview4.samples`). They stay out of the round 4 preview, so its
+pinned 328 samples and its generated files do not change. The rows use the
+authored style classes (:class:`variants.JeanStyle`, :class:`variants.BraStyle`),
+so their size runs and colorways follow the same rules.
+
+Each row adds capacity to :mod:`scale` in one of two ways:
+
+- a leaf's title-visible value it lacked: a mid rise skinny, a non-wired plunge.
+  The leaf's other templates may then take it too (:func:`scale.value_pools`);
+- a new leaf: cigarette, balloon, tapered, relaxed, mom, boyfriend, kick flare,
+  super skinny, jegging, baggy, culotte, athletic and cropped jeans (each a
+  :data:`kit_garments.FITS` outline); push-up, longline,
+  multiway, lace plunge, bralette, front fastening, sleep, racerback,
+  halterneck, triangle, padded, demi cup, lace full cup, bandeau, smoothing,
+  high apex, embroidered balcony, lace bralette, low back, post-surgery, moulded
+  cup, spacer cup, side support, seamless, contour, cross back, balconette, full
+  support, lace longline, lace demi, convertible, strappy, deep plunge, lightly
+  lined, unlined, mesh, satin, everyday, cotton and wide strap bras.
+
+A :class:`Bra` row names its own straps and fastening in the description.
+
+:data:`FOOTWEAR` rows (:class:`footwear_rows.FootwearStyle`) bring a closure, toe or
+lining their leaf lacked, shown in the title: a pointed toe ankle boot, a side zip
+chukka, a fleece lined welly. Each keeps its leaf's one upper material: a derived
+style rewrites the style's ``upper_material`` but not its SKUs', so a second material
+in a leaf would give a "Suede" title leather SKUs.
+
+``Calderwick Denim`` is a third invented denim label: as a template brand it
+joins the jeans brand pool only (:func:`scale.brand_pools`).
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from footwear_rows import SLIPPERS_WOMEN, FootwearStyle, run, sh
+from variants import WASHES, BraStyle, JeanStyle, cw, style_docs
+
+#: :class:`variants.BraStyle`'s straps and fastening, as its description words them.
+HOOK_BACK = "adjustable straps and a three-row hook and eye back"
+
+
+@dataclass(frozen=True)
+class Bra(BraStyle):
+    """A :class:`variants.BraStyle` whose description names its own straps and fastening:
+    a front-fastening, sleep or bandeau bra has no three-row hook and eye back."""
+
+    fitting: str = HOOK_BACK
+
+    def doc(self) -> dict:
+        rec = super().doc()
+        return {**rec, "description": rec["description"].replace(HOOK_BACK, self.fitting)}
+
+
+
+_W = tuple(WASHES)
+_BLACK, _WHITE, _NUDE = cw("Black", "#2a2a2e"), cw("White", "#ffffff"), cw("Almond", "#d9b79a")
+_W_LEGS = ("Petite", "Regular", "Long")
+_M_LEGS = ("Short", "Regular", "Long")
+
+JEANS = (
+    JeanStyle("WINSCAR", "Winscar", "Calderwick Denim", "Womens", "Skinny", "Mid", _W[:6],
+              _W_LEGS, 6, 22, 30.0),
+    JeanStyle("HOLTBY", "Holtby", "Ferrowick Denim", "Mens", "Straight", "Low",
+              ("Rinse", "Indigo", "Mid Wash", "Black", "Grey"), _M_LEGS, 28, 40, 36.0),
+    JeanStyle("ELLERBY", "Ellerby", "Calderwick Denim", "Womens", "Wide Leg", "Mid",
+              ("Indigo", "Mid Wash", "Light Wash", "Black", "Ecru"), _W_LEGS, 6, 24, 38.0),
+    JeanStyle("GARSDALE", "Garsdale", "Ottery Denim", "Womens", "Bootcut", "High",
+              ("Rinse", "Indigo", "Mid Wash", "Black"), (*_W_LEGS, "Extra Long"), 6, 22, 34.0),
+    JeanStyle("MUNSLOW", "Munslow", "Calderwick Denim", "Womens", "Barrel", "Mid",
+              ("Mid Wash", "Light Wash", "Ecru", "Washed Black"), ("Regular", "Long"),
+              6, 18, 44.0, "100% Cotton"),
+    JeanStyle("STAINBY", "Stainby", "Ottery Denim", "Womens", "Slim", "High",
+              ("Dark Indigo", "Indigo", "Vintage Blue", "Black", "Grey"), _W_LEGS, 6, 22, 29.0),
+    JeanStyle("TARNSIDE", "Tarnside", "Ferrowick Denim", "Womens", "Flared", "Mid",
+              ("Indigo", "Mid Wash", "Black", "White"), ("Regular", "Long", "Extra Long"),
+              8, 20, 40.0),
+    JeanStyle("KESWOLD", "Keswold", "Calderwick Denim", "Womens", "Carrot", "High",
+              ("Mid Wash", "Light Wash", "Bleach Wash", "Ecru"), _W_LEGS, 6, 20, 42.0,
+              "100% Cotton"),
+    JeanStyle("RAVELIN", "Ravelin", "Ottery Denim", "Womens", "Cigarette", "High",
+              ("Rinse", "Dark Indigo", "Black", "Ecru"), _W_LEGS, 6, 20, 36.0),
+    JeanStyle("BROCKHURST", "Brockhurst", "Ferrowick Denim", "Womens", "Cigarette", "Mid",
+              ("Indigo", "Mid Wash", "Washed Black"), ("Petite", "Regular"), 6, 18, 34.0),
+    JeanStyle("PENNARD", "Pennard", "Calderwick Denim", "Womens", "Balloon", "High",
+              ("Mid Wash", "Light Wash", "Ecru"), ("Regular", "Long"), 6, 18, 46.0,
+              "100% Cotton"),
+    JeanStyle("HADDOW", "Haddow", "Ferrowick Denim", "Mens", "Slim", "Low",
+              ("Rinse", "Dark Indigo", "Mid Wash", "Black", "Grey", "Ecru"), _M_LEGS,
+              28, 38, 35.0),
+    # A rise the leaf lacked.
+    JeanStyle("ASKERN", "Askern", "Ottery Denim", "Womens", "Bootcut", "Low",
+              ("Dark Indigo", "Mid Wash", "Vintage Blue", "Black"), (*_W_LEGS, "Extra Long"),
+              6, 20, 32.0),
+    JeanStyle("LUMLEY", "Lumley", "Calderwick Denim", "Womens", "Flared", "Low",
+              ("Rinse", "Mid Wash", "Light Wash", "Washed Black"),
+              ("Regular", "Long", "Extra Long"), 6, 18, 39.0),
+    JeanStyle("COTHERSTONE", "Cotherstone", "Ferrowick Denim", "Womens", "Wide Leg", "Low",
+              ("Light Wash", "Bleach Wash", "Ecru", "Black"), ("Regular", "Long"), 6, 20, 37.0),
+    JeanStyle("RIPLEY", "Ripley", "Ottery Denim", "Womens", "Balloon", "Mid",
+              ("Vintage Blue", "Ecru", "Washed Black"), ("Petite", "Regular"), 6, 18, 42.0,
+              "100% Cotton"),
+    # A new leaf (a new kit_garments.FITS key).
+    JeanStyle("COXWOLD", "Coxwold", "Ferrowick Denim", "Mens", "Tapered", "Mid",
+              ("Rinse", "Dark Indigo", "Mid Wash", "Washed Black", "Grey"), _M_LEGS, 28, 40, 38.0),
+    JeanStyle("HUTTON", "Hutton", "Calderwick Denim", "Womens", "Tapered", "High",
+              ("Indigo", "Mid Wash", "Black", "Ecru"), _W_LEGS, 6, 22, 33.0),
+    JeanStyle("BAINBRIDGE", "Bainbridge", "Ottery Denim", "Mens", "Tapered", "Low",
+              ("Dark Indigo", "Vintage Blue", "Black"), _M_LEGS, 28, 38, 34.0),
+    JeanStyle("KETTLEWELL", "Kettlewell", "Ottery Denim", "Mens", "Relaxed", "Mid",
+              ("Rinse", "Indigo", "Mid Wash", "Light Wash", "Black"), (*_M_LEGS, "Extra Long"),
+              30, 42, 40.0, "100% Cotton"),
+    JeanStyle("GRASSINGTON", "Grassington", "Ferrowick Denim", "Womens", "Relaxed", "High",
+              ("Mid Wash", "Vintage Blue", "Light Wash", "Ecru"), _W_LEGS, 6, 24, 36.0),
+    JeanStyle("HAWES", "Hawes", "Ottery Denim", "Womens", "Mom", "High",
+              ("Vintage Blue", "Mid Wash", "Light Wash", "Bleach Wash", "Black"), _W_LEGS,
+              6, 22, 35.0, "100% Cotton"),
+    JeanStyle("REETH", "Reeth", "Calderwick Denim", "Womens", "Mom", "Mid",
+              ("Indigo", "Mid Wash", "Washed Black"), ("Regular", "Long"), 6, 20, 30.0),
+    JeanStyle("MUKER", "Muker", "Ferrowick Denim", "Womens", "Boyfriend", "Mid",
+              ("Light Wash", "Mid Wash", "Vintage Blue", "Grey"), _W_LEGS, 6, 22, 34.0,
+              "100% Cotton"),
+    JeanStyle("THWAITE", "Thwaite", "Ottery Denim", "Womens", "Boyfriend", "Low",
+              ("Bleach Wash", "Light Wash", "Black"), ("Petite", "Regular"), 6, 18, 31.0,
+              "100% Cotton"),
+    JeanStyle("ASKRIGG", "Askrigg", "Calderwick Denim", "Womens", "Kick Flare", "High",
+              ("Rinse", "Indigo", "Mid Wash", "Black", "White"), _W_LEGS, 6, 22, 38.0),
+    JeanStyle("MALHAM", "Malham", "Ferrowick Denim", "Womens", "Kick Flare", "Mid",
+              ("Dark Indigo", "Vintage Blue", "Ecru"), _W_LEGS, 6, 20, 36.0),
+    # Growth round 4: six new leaves, each a new kit_garments.FITS outline.
+    JeanStyle("CONISTONE", "Conistone", "Calderwick Denim", "Womens", "Super Skinny", "High",
+              ("Rinse", "Dark Indigo", "Indigo", "Black", "Washed Black"), _W_LEGS, 6, 22, 28.0,
+              "92% Cotton, 6% Polyester, 2% Elastane"),
+    JeanStyle("KILNSEY", "Kilnsey", "Ottery Denim", "Womens", "Super Skinny", "Mid",
+              ("Indigo", "Mid Wash", "Light Wash", "Black", "Grey"), _W_LEGS, 6, 20, 26.0,
+              "92% Cotton, 6% Polyester, 2% Elastane"),
+    JeanStyle("ARNCLIFFE", "Arncliffe", "Ferrowick Denim", "Womens", "Jegging", "High",
+              ("Rinse", "Indigo", "Mid Wash", "Black"), _W_LEGS, 6, 24, 24.0,
+              "70% Cotton, 28% Polyester, 2% Elastane"),
+    JeanStyle("LITTONDALE", "Littondale", "Calderwick Denim", "Womens", "Jegging", "Mid",
+              ("Dark Indigo", "Vintage Blue", "Washed Black", "Grey"), ("Petite", "Regular"),
+              6, 22, 22.0, "70% Cotton, 28% Polyester, 2% Elastane"),
+    JeanStyle("BUCKDEN", "Buckden", "Ferrowick Denim", "Mens", "Baggy", "Mid",
+              ("Rinse", "Mid Wash", "Light Wash", "Washed Black", "Grey"), _M_LEGS, 28, 40, 42.0,
+              "100% Cotton"),
+    JeanStyle("STARBOTTON", "Starbotton", "Ottery Denim", "Womens", "Baggy", "Low",
+              ("Light Wash", "Vintage Blue", "Ecru", "Black"), _W_LEGS, 6, 20, 40.0,
+              "100% Cotton"),
+    JeanStyle("HUBBERHOLME", "Hubberholme", "Calderwick Denim", "Mens", "Baggy", "High",
+              ("Indigo", "Bleach Wash", "Black"), (*_M_LEGS, "Extra Long"), 28, 38, 44.0,
+              "100% Cotton"),
+    JeanStyle("YOCKENTHWAITE", "Yockenthwaite", "Ottery Denim", "Womens", "Culotte", "High",
+              ("Indigo", "Mid Wash", "Ecru", "Black", "White"), ("Regular",), 6, 22, 34.0),
+    JeanStyle("CRAY", "Cray", "Ferrowick Denim", "Womens", "Culotte", "Mid",
+              ("Light Wash", "Vintage Blue", "Washed Black"), ("Regular",), 6, 20, 32.0,
+              "100% Cotton"),
+    JeanStyle("CRAKEHALL", "Crakehall", "Ferrowick Denim", "Mens", "Athletic", "Mid",
+              ("Rinse", "Dark Indigo", "Indigo", "Mid Wash", "Black", "Grey"), _M_LEGS, 30, 42,
+              38.0),
+    JeanStyle("PATRICKBROMPTON", "Patrickbrompton", "Calderwick Denim", "Mens", "Athletic",
+              "Low", ("Dark Indigo", "Vintage Blue", "Washed Black", "Grey"), _M_LEGS, 30, 40,
+              36.0),
+    JeanStyle("HUNTON", "Hunton", "Ottery Denim", "Mens", "Athletic", "High",
+              ("Rinse", "Mid Wash", "Black"), (*_M_LEGS, "Extra Long"), 30, 42, 40.0),
+    JeanStyle("CONSTABLEBURTON", "Constableburton", "Calderwick Denim", "Womens", "Cropped",
+              "High", ("Indigo", "Mid Wash", "Light Wash", "Ecru", "White"), ("Petite", "Regular"),
+              6, 22, 32.0),
+    JeanStyle("FINGHALL", "Finghall", "Ottery Denim", "Womens", "Cropped", "Mid",
+              ("Rinse", "Vintage Blue", "Bleach Wash", "Black"), ("Petite", "Regular"), 6, 20,
+              30.0, "100% Cotton"),
+    JeanStyle("SPENNITHORNE", "Spennithorne", "Ferrowick Denim", "Womens", "Cropped", "Low",
+              ("Mid Wash", "Light Wash", "Grey"), ("Regular",), 6, 18, 29.0),
+)  # fmt: skip
+
+BRAS = (
+    BraStyle("WENSLEY", "Wensley", "Bramblewood", "Plunge", (30, 40), ("A", "E"),
+             (_BLACK, _NUDE, cw("Rose", "#d98a96")), 20.0, wired=False),
+    BraStyle("COVERACK", "Coverack", "Saltmarsh", "T-Shirt", (30, 42), ("A", "F"),
+             (_BLACK, _WHITE, _NUDE, cw("Grey Marl", "#9a9ca0")), 18.0, wired=False),
+    BraStyle("ASHWELL", "Ashwell", "Saltmarsh", "Full Cup", (32, 46), ("B", "H"),
+             (_BLACK, _WHITE, _NUDE), 24.0, wired=False, fabric="Cotton, Elastane"),
+    BraStyle("DUNHOLME", "Dunholme", "Bramblewood", "Balcony", (30, 40), ("A", "E"),
+             (_BLACK, _NUDE, cw("Claret", "#7a1f35")), 22.0, wired=False),
+    BraStyle("FENBRIDGE", "Fenbridge", "Saltmarsh", "Minimiser", (34, 46), ("C", "G"),
+             (_BLACK, _NUDE), 24.0, wired=False),
+    BraStyle("KELSALL", "Kelsall", "Bramblewood", "Push-Up", (30, 38), ("A", "D"),
+             (_BLACK, _WHITE, _NUDE, cw("Scarlet", "#b3202c")), 26.0),
+    BraStyle("MORVAH", "Morvah", "Bramblewood", "Longline", (30, 40), ("A", "F"),
+             (_BLACK, cw("Ivory", "#f3ecd9")), 30.0),
+    BraStyle("THIRLBY", "Thirlby", "Saltmarsh", "Multiway", (30, 40), ("A", "F"),
+             (_BLACK, _WHITE, _NUDE), 26.0),
+    BraStyle("HAVERIGG", "Haverigg", "Bramblewood", "Lace Plunge", (28, 38), ("AA", "F"),
+             (_BLACK, _WHITE, cw("Wine", "#5e1a2c")), 25.0),
+    BraStyle("RUDSTON", "Rudston", "Saltmarsh", "Sports", (30, 42), ("B", "G"),
+             (_BLACK, cw("Navy", "#26365c")), 32.0, fabric="Recycled Polyester, Elastane"),
+    # A wiring the leaf lacked.
+    Bra("ORMESBY", "Ormesby", "Saltmarsh", "Push-Up", (30, 38), ("A", "E"),
+        (_NUDE, _BLACK, _WHITE, cw("Berry", "#8c2a4f")), 22.0, wired=False),
+    Bra("CARNBREA", "Carnbrea", "Saltmarsh", "Longline", (30, 40), ("A", "F"),
+        (cw("Sage", "#9bb08f"), _BLACK, _NUDE, cw("Oat", "#d8ccb4")), 24.0, wired=False),
+    Bra("LINDALE", "Lindale", "Bramblewood", "Lace Plunge", (28, 38), ("AA", "E"),
+        (cw("Blush", "#e8b9b3"), _BLACK, _WHITE, cw("Midnight", "#1f2440")), 21.0, wired=False),
+    Bra("WYNCOTE", "Wyncote", "Saltmarsh", "Lace Balcony", (30, 38), ("A", "F"),
+        (cw("Ivory", "#f3ecd9"), _BLACK, cw("Forest", "#2f4a3a")), 23.0, wired=False),
+    # A new leaf.
+    Bra("FERNLEA", "Fernlea", "Bramblewood", "Bralette", (30, 40), ("A", "F"),
+        (_BLACK, cw("Ivory", "#f3ecd9"), cw("Dusty Rose", "#c99a9a"), cw("Sage", "#9bb08f"),
+         cw("Lavender", "#b8a9d6")), 18.0, wired=False,
+        fitting="adjustable straps and a two-row hook and eye back"),
+    Bra("HESKETH", "Hesketh", "Saltmarsh", "Front Fastening", (32, 44), ("B", "G"),
+        (_WHITE, _BLACK, _NUDE), 26.0, fitting="adjustable straps and a front clasp"),
+    Bra("TREGONY", "Tregony", "Bramblewood", "Front Fastening", (32, 46), ("B", "H"),
+        (_NUDE, _BLACK, cw("Navy", "#26365c")), 22.0, wired=False, fabric="Cotton, Elastane",
+        fitting="adjustable straps and a front clasp"),
+    Bra("MOSSLEY", "Mossley", "Saltmarsh", "Sleep", (32, 44), ("A", "G"),
+        (cw("Grey Marl", "#9a9ca0"), _BLACK, cw("Blush", "#e8b9b3"), cw("Navy", "#26365c")),
+        15.0, wired=False, fabric="Modal, Elastane",
+        fitting="wide soft straps and a pull-on fit with no fastening"),
+    Bra("CRANWELL", "Cranwell", "Bramblewood", "Racerback", (30, 40), ("A", "G"),
+        (_BLACK, _NUDE, _WHITE), 24.0,
+        fitting="straps that clip into a racerback and a two-row hook and eye back"),
+    Bra("DINSDALE", "Dinsdale", "Saltmarsh", "Racerback", (30, 40), ("A", "E"),
+        (cw("Grey Marl", "#9a9ca0"), _BLACK, cw("Teal", "#2e7d7a")), 20.0, wired=False,
+        fabric="Cotton, Elastane",
+        fitting="straps that clip into a racerback and a two-row hook and eye back"),
+    Bra("POLWENNA", "Polwenna", "Bramblewood", "Halterneck", (30, 38), ("A", "F"),
+        (_BLACK, cw("Champagne", "#e6d3b3"), cw("Emerald", "#1f6b4f")), 27.0,
+        fitting="a halterneck strap that fastens at the neck and a three-row hook and eye "
+                "back"),
+    Bra("IVELET", "Ivelet", "Bramblewood", "Triangle", (28, 36), ("AA", "D"),
+        (cw("Coral", "#ef7b62"), _BLACK, _WHITE, cw("Lilac", "#b9a3d0")), 16.0, wired=False,
+        fitting="thin adjustable straps and a two-row hook and eye back"),
+    Bra("KIRKHAM", "Kirkham", "Saltmarsh", "Padded", (30, 40), ("A", "E"),
+        (cw("Mocha", "#7b5a45"), _BLACK, _NUDE, _WHITE), 22.0),
+    Bra("LOWTHER", "Lowther", "Bramblewood", "Padded", (30, 40), ("A", "E"),
+        (cw("Rose", "#d98a96"), _BLACK, _NUDE), 19.0, wired=False),
+    Bra("RYDAL", "Rydal", "Bramblewood", "Demi Cup", (30, 38), ("A", "F"),
+        (cw("Wine", "#5e1a2c"), _BLACK, cw("Ivory", "#f3ecd9")), 25.0),
+    Bra("WHARRAM", "Wharram", "Saltmarsh", "Lace Full Cup", (32, 46), ("B", "J"),
+        (cw("Ivory", "#f3ecd9"), _BLACK, cw("Navy", "#26365c"), cw("Plum", "#6b3a5a")), 29.0),
+    Bra("HAWKRIDGE", "Hawkridge", "Bramblewood", "Lace Full Cup", (32, 44), ("B", "G"),
+        (_BLACK, _WHITE, cw("Fawn", "#c4a484")), 25.0, wired=False),
+    Bra("TREEN", "Treen", "Bramblewood", "Bandeau", (30, 38), ("A", "E"),
+        (_NUDE, _BLACK, _WHITE), 17.0, wired=False,
+        fitting="a strapless band with a silicone grip and a three-row hook and eye back"),
+    Bra("SKELWITH", "Skelwith", "Saltmarsh", "Smoothing", (32, 44), ("B", "H"),
+        (cw("Latte", "#c8a98a"), _BLACK, _WHITE), 28.0,
+        fitting="wide adjustable straps and a four-row hook and eye back"),
+    Bra("NETHERCOTE", "Nethercote", "Bramblewood", "High Apex", (30, 40), ("C", "HH"),
+        (_BLACK, cw("Claret", "#7a1f35"), _NUDE, cw("Petrol", "#1f4f5a")), 30.0),
+    Bra("ALDBROUGH", "Aldbrough", "Bramblewood", "Embroidered Balcony", (30, 40), ("A", "G"),
+        (cw("Teal", "#2e7d7a"), _BLACK, cw("Ivory", "#f3ecd9"), cw("Blush", "#e8b9b3")), 28.0),
+    Bra("GLAISDALE", "Glaisdale", "Saltmarsh", "Lace Bralette", (30, 38), ("A", "E"),
+        (cw("Burgundy", "#6e1f2f"), _BLACK, _WHITE, cw("Sky", "#a9c8e6")), 17.0, wired=False,
+        fitting="adjustable straps and a two-row hook and eye back"),
+    Bra("SANDSEND", "Sandsend", "Saltmarsh", "Low Back", (30, 38), ("A", "F"),
+        (cw("Caramel", "#b07a45"), _BLACK, _WHITE), 27.0,
+        fitting="adjustable straps and a low back band with a two-row hook and eye"),
+    Bra("RUNSWICK", "Runswick", "Saltmarsh", "Strapless", (30, 38), ("A", "D"),
+        (cw("Latte", "#c8a98a"), _BLACK, _WHITE), 20.0, wired=False,
+        fitting="a silicone-gripped band, detachable straps and a three-row hook and eye back"),
+    Bra("STAITHES", "Staithes", "Saltmarsh", "Post-Surgery", (32, 44), ("A", "F"),
+        (cw("Soft Grey", "#b9bbbe"), _NUDE, _BLACK), 22.0, wired=False, fabric="Cotton, Elastane",
+        fitting="soft wide straps, a front hook and eye fastening and pocketed cups"),
+    # Growth round 3: six leaves, each wired and non-wired.
+    Bra("LASTINGHAM", "Lastingham", "Bramblewood", "Moulded Cup", (30, 40), ("A", "F"),
+        (_BLACK, _NUDE, _WHITE, cw("Mink", "#8a7266")), 21.0),
+    Bra("CROPTON", "Cropton", "Saltmarsh", "Moulded Cup", (30, 42), ("A", "E"),
+        (_NUDE, _BLACK, cw("Dusky Pink", "#c99a9e")), 18.0, wired=False),
+    Bra("GOATHLAND", "Goathland", "Saltmarsh", "Spacer Cup", (30, 44), ("A", "G"),
+        (_BLACK, _NUDE, cw("Navy", "#26365c"), cw("Ivory", "#f3ecd9")), 26.0),
+    Bra("LEVISHAM", "Levisham", "Bramblewood", "Spacer Cup", (30, 40), ("A", "F"),
+        (cw("Sage", "#9bb08f"), _BLACK, _WHITE), 22.0, wired=False),
+    Bra("HACKNESS", "Hackness", "Saltmarsh", "Side Support", (32, 46), ("C", "H"),
+        (_BLACK, _WHITE, _NUDE, cw("Plum", "#6b3a5a")), 28.0),
+    Bra("EBBERSTON", "Ebberston", "Bramblewood", "Side Support", (32, 44), ("C", "G"),
+        (_NUDE, _BLACK, cw("Teal", "#2e7d7a")), 25.0, wired=False),
+    Bra("GROSMONT", "Grosmont", "Bramblewood", "Seamless", (30, 40), ("A", "F"),
+        (_NUDE, _BLACK, _WHITE, cw("Latte", "#c8a98a")), 20.0),
+    Bra("EGTONBRIDGE", "Egtonbridge", "Saltmarsh", "Seamless", (30, 42), ("A", "E"),
+        (_BLACK, cw("Soft Grey", "#b9bbbe"), _NUDE), 16.0, wired=False),
+    Bra("DANBYDALE", "Danbydale", "Saltmarsh", "Contour", (30, 42), ("A", "G"),
+        (_BLACK, _NUDE, cw("Claret", "#7a1f35"), _WHITE), 24.0),
+    Bra("CASTLETON", "Castleton", "Bramblewood", "Contour", (30, 40), ("A", "F"),
+        (cw("Rose", "#d98a96"), _BLACK, _NUDE), 19.0, wired=False),
+    Bra("SLEIGHTS", "Sleights", "Bramblewood", "Cross Back", (30, 40), ("A", "F"),
+        (_BLACK, cw("Cobalt", "#2b4fa8"), _WHITE), 23.0,
+        fitting="adjustable straps that cross at the back and a two-row hook and eye"),
+    Bra("HAWSKER", "Hawsker", "Saltmarsh", "Cross Back", (30, 42), ("A", "E"),
+        (cw("Coral", "#ef7b62"), _BLACK, _NUDE, cw("Grey Marl", "#9a9ca0")), 18.0, wired=False,
+        fitting="adjustable straps that cross at the back and a two-row hook and eye"),
+    # Growth round 4: the wiring six leaves lacked.
+    Bra("OSMOTHERLEY", "Osmotherley", "Bramblewood", "Multiway", (30, 40), ("A", "E"),
+        (_NUDE, _BLACK, _WHITE), 22.0, wired=False,
+        fitting="detachable straps that wear five ways and a three-row hook and eye back"),
+    Bra("HUTTONLEHOLE", "Huttonlehole", "Saltmarsh", "Halterneck", (30, 40), ("A", "E"),
+        (_BLACK, cw("Champagne", "#e6d3b3"), cw("Navy", "#26365c")), 21.0, wired=False,
+        fitting="a halterneck strap that fastens at the neck and a three-row hook and eye "
+                "back"),
+    Bra("SINNINGTON", "Sinnington", "Saltmarsh", "Demi Cup", (30, 40), ("A", "E"),
+        (_BLACK, cw("Blush", "#e8b9b3"), _WHITE), 19.0, wired=False),
+    Bra("LOCKTON", "Lockton", "Bramblewood", "Smoothing", (32, 44), ("B", "G"),
+        (cw("Latte", "#c8a98a"), _BLACK, cw("Soft Grey", "#b9bbbe")), 24.0, wired=False,
+        fitting="wide adjustable straps and a four-row hook and eye back"),
+    Bra("RIEVAULX", "Rievaulx", "Saltmarsh", "Embroidered Balcony", (30, 40), ("A", "F"),
+        (cw("Ivory", "#f3ecd9"), _BLACK, cw("Teal", "#2e7d7a")), 24.0, wired=False),
+    Bra("HELMSLEY", "Helmsley", "Bramblewood", "Low Back", (30, 38), ("A", "E"),
+        (_BLACK, _NUDE, _WHITE), 23.0, wired=False,
+        fitting="adjustable straps and a low back band with a two-row hook and eye"),
+    # Growth round 4: fourteen leaves, each wired and non-wired.
+    Bra("AMPLEFORTH", "Ampleforth", "Bramblewood", "Balconette", (30, 42), ("A", "G"),
+        (_BLACK, _NUDE, cw("Wine", "#5e1a2c"), _WHITE), 24.0),
+    Bra("COXWOLDE", "Coxwolde", "Saltmarsh", "Balconette", (30, 40), ("A", "F"),
+        (cw("Blush", "#e8b9b3"), _BLACK, _NUDE), 20.0, wired=False),
+    Bra("KILBURNE", "Kilburne", "Saltmarsh", "Full Support", (32, 46), ("C", "J"),
+        (_BLACK, _WHITE, _NUDE, cw("Navy", "#26365c")), 30.0),
+    Bra("NUNNINGTON", "Nunnington", "Bramblewood", "Full Support", (34, 46), ("C", "H"),
+        (_NUDE, _BLACK, cw("Plum", "#6b3a5a")), 27.0, wired=False, fabric="Cotton, Elastane"),
+    Bra("BYLAND", "Byland", "Bramblewood", "Lace Longline", (30, 40), ("A", "F"),
+        (_BLACK, cw("Ivory", "#f3ecd9"), cw("Emerald", "#1f6b4f")), 32.0),
+    Bra("OLDSTEAD", "Oldstead", "Saltmarsh", "Lace Longline", (30, 40), ("A", "E"),
+        (cw("Champagne", "#e6d3b3"), _BLACK, cw("Lilac", "#b9a3d0")), 26.0, wired=False),
+    Bra("HOVINGHAM", "Hovingham", "Saltmarsh", "Lace Demi", (30, 40), ("A", "G"),
+        (_BLACK, cw("Burgundy", "#6e1f2f"), _WHITE, cw("Sky", "#a9c8e6")), 26.0),
+    Bra("SLINGSBY", "Slingsby", "Bramblewood", "Lace Demi", (30, 38), ("A", "E"),
+        (cw("Rose", "#d98a96"), _BLACK, _WHITE), 21.0, wired=False),
+    Bra("TERRINGTON", "Terrington", "Bramblewood", "Convertible", (30, 42), ("A", "G"),
+        (_NUDE, _BLACK, _WHITE, cw("Mocha", "#7b5a45")), 27.0,
+        fitting="detachable straps that convert to a halterneck or a cross back and a "
+                "three-row hook and eye back"),
+    Bra("WELBURN", "Welburn", "Saltmarsh", "Convertible", (30, 40), ("A", "F"),
+        (_BLACK, _NUDE, cw("Mink", "#8a7266")), 22.0, wired=False,
+        fitting="detachable straps that convert to a halterneck or a cross back and a "
+                "three-row hook and eye back"),
+    Bra("BULMER", "Bulmer", "Saltmarsh", "Strappy", (30, 40), ("A", "F"),
+        (_BLACK, cw("Scarlet", "#b3202c"), cw("Midnight", "#1f2440")), 26.0,
+        fitting="strappy cage straps across the neckline and a two-row hook and eye back"),
+    Bra("SHERIFFHUTTON", "Sheriffhutton", "Bramblewood", "Strappy", (30, 38), ("A", "E"),
+        (_BLACK, cw("Coral", "#ef7b62"), _WHITE, cw("Lavender", "#b8a9d6")), 20.0, wired=False,
+        fitting="strappy cage straps across the neckline and a two-row hook and eye back"),
+    Bra("CRAYKE", "Crayke", "Bramblewood", "Deep Plunge", (30, 40), ("A", "F"),
+        (_BLACK, _NUDE, cw("Berry", "#8c2a4f"), _WHITE), 25.0),
+    Bra("HUSTHWAITE", "Husthwaite", "Saltmarsh", "Deep Plunge", (30, 38), ("A", "E"),
+        (_NUDE, _BLACK, cw("Dusty Rose", "#c99a9a")), 21.0, wired=False),
+    Bra("BRANDSBY", "Brandsby", "Saltmarsh", "Lightly Lined", (30, 44), ("A", "H"),
+        (_BLACK, _WHITE, _NUDE, cw("Grey Marl", "#9a9ca0")), 22.0),
+    Bra("STILLINGTON", "Stillington", "Bramblewood", "Lightly Lined", (30, 42), ("A", "F"),
+        (_NUDE, _BLACK, cw("Sage", "#9bb08f")), 18.0, wired=False),
+    Bra("EASINGWOLD", "Easingwold", "Bramblewood", "Unlined", (30, 42), ("A", "H"),
+        (_BLACK, _NUDE, cw("Petrol", "#1f4f5a"), _WHITE), 23.0),
+    Bra("TOLLERTON", "Tollerton", "Saltmarsh", "Unlined", (30, 40), ("A", "F"),
+        (cw("Oat", "#d8ccb4"), _BLACK, _NUDE), 17.0, wired=False),
+    Bra("ALNE", "Alne", "Saltmarsh", "Mesh", (30, 40), ("A", "G"),
+        (_BLACK, _WHITE, cw("Cobalt", "#2b4fa8"), _NUDE), 22.0),
+    Bra("TOPCLIFFE", "Topcliffe", "Bramblewood", "Mesh", (30, 38), ("A", "E"),
+        (_BLACK, cw("Fawn", "#c4a484"), cw("Teal", "#2e7d7a")), 18.0, wired=False),
+    Bra("DISHFORTH", "Dishforth", "Bramblewood", "Satin", (30, 40), ("A", "G"),
+        (cw("Champagne", "#e6d3b3"), _BLACK, cw("Claret", "#7a1f35"), _NUDE), 26.0),
+    Bra("ASENBY", "Asenby", "Saltmarsh", "Satin", (30, 38), ("A", "E"),
+        (_BLACK, cw("Ivory", "#f3ecd9"), cw("Caramel", "#b07a45")), 21.0, wired=False),
+    Bra("SKIPWITH", "Skipwith", "Saltmarsh", "Everyday", (30, 44), ("A", "G"),
+        (_NUDE, _BLACK, _WHITE, cw("Latte", "#c8a98a")), 16.0),
+    Bra("RICCALL", "Riccall", "Bramblewood", "Everyday", (30, 44), ("A", "F"),
+        (_BLACK, _NUDE, cw("Soft Grey", "#b9bbbe"), _WHITE), 14.0, wired=False),
+    Bra("ESCRICK", "Escrick", "Bramblewood", "Cotton", (30, 42), ("A", "F"),
+        (_WHITE, _BLACK, cw("Navy", "#26365c")), 18.0, fabric="Cotton, Elastane"),
+    Bra("STILLINGFLEET", "Stillingfleet", "Saltmarsh", "Cotton", (30, 42), ("A", "E"),
+        (cw("Grey Marl", "#9a9ca0"), _WHITE, _BLACK, cw("Blush", "#e8b9b3")), 15.0,
+        wired=False, fabric="Cotton, Elastane"),
+    Bra("NABURN", "Naburn", "Saltmarsh", "Wide Strap", (32, 46), ("B", "H"),
+        (_BLACK, _NUDE, _WHITE), 25.0,
+        fitting="wide padded adjustable straps and a three-row hook and eye back"),
+    Bra("DEIGHTON", "Deighton", "Bramblewood", "Wide Strap", (32, 44), ("B", "G"),
+        (_NUDE, _BLACK, cw("Mocha", "#7b5a45")), 21.0, wired=False,
+        fitting="wide padded adjustable straps and a three-row hook and eye back"),
+)  # fmt: skip
+
+_FW, _FM, _FK = "women", "men", "kids"
+_W_SIZES = run("3", "8")
+_W_HALVES = run("3", "8", 7.5)
+
+#: Growth round 4: each row a closure, toe or lining its leaf lacked, in its title.
+FOOTWEAR = (
+    FootwearStyle("WANKPT", "Pointed Toe Suede Ankle Boots", "Larkmoor", _FW, "ankle_boot", 69.0,
+                  "Sleek suede ankle boots with a pointed toe, a slim heel and an inside zip.",
+                  (sh("Black Suede", "#26262a", "black", "suede"),
+                   sh("Chocolate Suede", "#5a3a2a", "brown", "suede"),
+                   sh("Burgundy Suede", "#6e1f2f", "red", "suede")),
+                  _W_SIZES, "Zip", "Rubber", toe="Pointed", heel_mm=70),
+    FootwearStyle("WANKSQ", "Square Toe Suede Ankle Boots", "Wrenfield", _FW, "ankle_boot", 59.0,
+                  "Suede ankle boots with a square toe on a low block heel, with an inside zip.",
+                  (sh("Black Suede", "#26262a", "black", "suede"),
+                   sh("Sand Suede", "#c8b08a", "cream", "suede"),
+                   sh("Khaki Suede", "#6b6b3f", "green", "suede")),
+                  _W_SIZES, "Zip", "Rubber", toe="Square"),
+    FootwearStyle("WKNEPT", "Pointed Toe Leather Knee High Boots", "Larkmoor", _FW, "knee_boot",
+                  115.0, "Tall leather boots with a pointed toe, a slim block heel and a "
+                  "full-length inside zip.",
+                  (sh("Black Leather", "#232326", "black", "leather"),
+                   sh("Cognac", "#9a5a2a", "brown", "leather"),
+                   sh("Oxblood", "#5a1a1f", "red", "leather")),
+                  _W_SIZES, "Zip", "Rubber", toe="Pointed"),
+    FootwearStyle("MCHKZP", "Suede Side Zip Chukka Boots", "Calderby & Lune", _FM, "chukka", 75.0,
+                  "Suede chukka boots that fasten with a side zip, on a cushioned rubber sole.",
+                  (sh("Sand Suede", "#c8b08a", "cream", "suede"),
+                   sh("Navy Suede", "#26365c", "navy", "suede"),
+                   sh("Brown Suede", "#6b4430", "brown", "suede")),
+                  run("6", "12", chart="men"), "Zip", "Rubber"),
+    FootwearStyle("WBROAL", "Leather Almond Toe Brogues", "Larkmoor", _FW, "brogue", 55.0,
+                  "Leather brogues with an almond toe, punched detailing and a leather sole.",
+                  (sh("Black", "#2a2a2e", "black", "leather"),
+                   sh("Tan", "#b07a45", "brown", "leather"),
+                   sh("Oxblood", "#5a1a1f", "red", "leather")),
+                  _W_HALVES, "Lace-Up", "Leather", toe="Almond"),
+    FootwearStyle("WLOASQ", "Leather Square Toe Loafers", "Wrenfield", _FW, "loafer", 45.0,
+                  "Leather loafers with a square toe, a snaffle trim and a low block heel.",
+                  (sh("Black", "#2a2a2e", "black", "leather"),
+                   sh("Cream", "#efe4cf", "cream", "leather"),
+                   sh("Chocolate", "#5a3a2a", "brown", "leather")),
+                  _W_HALVES, "Slip-On", "Rubber", toe="Square"),
+    FootwearStyle("WKITAS", "Leather Ankle Strap Kitten Heels", "Wrenfield", _FW, "kitten", 39.0,
+                  "Pointed leather shoes on a low kitten heel, with a slim ankle strap.",
+                  (sh("Black Leather", "#232326", "black", "leather"),
+                   sh("Nude", "#d9b8a0", "cream", "leather"),
+                   sh("Red", "#b3202e", "red", "leather")),
+                  _W_SIZES, "Ankle Strap", "Leather", toe="Pointed"),
+    FootwearStyle("KWLKHL", "Kids' Hook & Loop Walking Boots", "Little Fernby", _FK,
+                  "walking_boot", 30.0,
+                  "Nubuck walking boots for kids with a waterproof membrane, two hook and loop "
+                  "straps and a deep lug sole.",
+                  (sh("Navy", "#26365c", "navy", "nubuck"), sh("Grey", "#7d7f84", "grey", "nubuck"),
+                   sh("Plum", "#6b3a5a", "pink", "nubuck")),
+                  run("8 Infant", "5 Junior", chart="kids"), "Hook & Loop", "Rubber lug",
+                  junior_price=36.0, lining="Waterproof membrane",
+                  extra=(("waterproof", "Waterproof", "Yes"),)),
+    FootwearStyle("WWELFL", "Fleece Lined Short Wellies", "Thistle & Wren", _FW, "welly", 32.0,
+                  "Ankle-height rubber wellies lined in soft fleece, on a grippy sole.",
+                  (sh("Navy", "#26365c", "navy", "rubber"),
+                   sh("Black", "#1f1f22", "black", "rubber"),
+                   sh("Pink", "#e88aa8", "pink", "rubber")),
+                  _W_SIZES, "Pull-On", "Rubber", lining="Fleece",
+                  extra=(("waterproof", "Waterproof", "Yes"),)),
+    FootwearStyle("WSLMUF", "Fleece Lined Mule Slippers", "Hollinwray Knits", _FW, "slipper",
+                  19.0, "Backless suede mule slippers lined in cosy fleece, on a soft rubber sole.",
+                  (sh("Oatmeal", "#d8ccb4", "cream", "suede"),
+                   sh("Grey", "#9a9a9e", "grey", "suede"), sh("Sage", "#9bae8f", "green", "suede")),
+                  tuple(SLIPPERS_WOMEN), "Slip-On", "Rubber", lining="Fleece"),
+    FootwearStyle("WCRTAL", "Almond Toe Court Shoes", "Wrenfield", _FW, "court", 42.0,
+                  "Courts with an almond toe on a mid stiletto heel, with a padded insole.",
+                  (sh("Black Patent", "#141416", "black", "patent"),
+                   sh("Navy Patent", "#1f2a4a", "navy", "patent"),
+                   sh("Taupe Suede", "#8f8174", "grey", "suede")),
+                  _W_HALVES, "Slip-On", "Leather", toe="Almond", heel_mm=75),
+    FootwearStyle("WBLKSB", "Block Heel Slingback Shoes", "Larkmoor", _FW, "block_heel", 42.0,
+                  "Almond-toe slingbacks on a steady block heel, with an elasticated back strap.",
+                  (sh("Black Suede", "#26262a", "black", "suede"),
+                   sh("Camel Leather", "#b5835a", "brown", "leather"),
+                   sh("Cream Leather", "#efe4cf", "cream", "leather")),
+                  _W_SIZES, "Slingback", "Rubber", toe="Almond"),
+    FootwearStyle("WBALPT", "Pointed Toe Ballet Pumps", "Larkmoor", _FW, "ballet", 32.0,
+                  "Pointed ballet flats with a cushioned insole and a flexible sole. Folds flat.",
+                  (sh("Black", "#2a2a2e", "black", "leather"),
+                   sh("Leopard", "#c9a26b", "multi", "suede", "leopard", "#3a2a1c"),
+                   sh("Nude Patent", "#d8b49a", "cream", "patent")),
+                  _W_SIZES, "Slip-On", "Leather", toe="Pointed"),
+)  # fmt: skip
+
+#: family -> its scale-only styles, in build order.
+FAMILIES: dict[str, tuple] = {"Jeans": JEANS, "Bras": BRAS}
+
+
+def docs() -> list[dict]:
+    """Every scale-only style's document, after the authored ones in :func:`scale.templates`:
+    the jeans and bras, then :data:`FOOTWEAR` (a shoe's colors are shades, so its document
+    is its own :meth:`footwear_rows.FootwearStyle.doc`)."""
+    garments = [d for fam, styles in FAMILIES.items() for s in styles for d in style_docs(fam, s)]
+    return [*garments, *(s.doc() for s in FOOTWEAR)]

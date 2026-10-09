@@ -1,0 +1,28 @@
+# One breadth row (alexander-marquardt/synthetic-ecommerce-data#34); one file
+# per row, so two PRs that add or remove rows never touch the same file (#48).
+# The schema and the generic loop that reads it are in catalog/breadth.py.
+key: rigid_shaft_couplings
+category:
+- Motion Control & Fluid Power
+- Couplings
+- Rigid Shaft Couplings
+family: motion
+shape: cylinder
+item: Rigid Shaft Coupling
+descriptor_attr: null
+size_attr: Bore Dia.
+size_values:
+- 1/4 in
+- 3/8 in
+- 1/2 in
+- 5/8 in
+attributes:
+  Material:
+  - Steel
+  - Aluminum
+  Style:
+  - Clamp-Style
+  - Set Screw
+price_range: [10.0, 60.0]
+skus: 2
+reason: breadth diversity; power-transmission category gap

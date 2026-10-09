@@ -1,6 +1,6 @@
 """What every table-driven type's test module asks of its build (#101).
 
-A table type (:mod:`synthetic_industrial_products.catalog.tabletype`) states
+A table type (:mod:`synthetic_ecommerce_data.domains.industrial.tabletype`) states
 its sizes, materials and packs, and declares a price ladder nobody measured.
 So its gates are about ORDER and about the table, never about a price level:
 each helper here takes the type's build and the table as the test module
@@ -13,12 +13,12 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Mapping, Sequence
 
-from synthetic_industrial_products.catalog import brands, emit
-from synthetic_industrial_products.catalog.config import GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate
-from synthetic_industrial_products.dimensions import parse_length
-from synthetic_industrial_products.drawing import FIGURES, draw_sku
-from synthetic_industrial_products.drawing.figures import Drawn
+from synthetic_ecommerce_data.core import brands, emit
+from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.core.dimensions import parse_length
+from synthetic_ecommerce_data.core.drawing import FIGURES, draw_sku
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
+from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 MM = 25.4
 PACK = "Package Quantity"
