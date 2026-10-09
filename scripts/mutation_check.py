@@ -3189,6 +3189,14 @@ MUTATIONS: list[Mutation] = [
                 "the purpose nodes stay",
             ),
             (
+                "a title's own bra facet is dropped",
+                "facet_leaves.py",
+                "for key, value in stated_bra_facets(rec[\"title\"])",
+                "for key, value in []",
+                "tests/test_retail_facet_leaves.py -k every_value_its_title_names",
+                "a bra carries what its title says",
+            ),
+            (
                 "leg_style is not folded into leg_fit",
                 "facet_leaves.py",
                 '        fit = fit or LEG_STYLE_FITS.get(have.get("leg_style", ""))\n',
