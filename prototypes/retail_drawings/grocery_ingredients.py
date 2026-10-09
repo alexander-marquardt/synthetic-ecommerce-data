@@ -23,7 +23,7 @@ import re
 import zlib
 
 #: Families whose products are sold loose or whole and carry no ingredients list.
-NO_LIST = frozenset({"FRU", "VEG"})
+NO_LIST = frozenset({"ORA", "LEM", "APP", "VEG"})
 
 _MARK = re.compile(r"\{(\d+)-(\d+)\}")
 _VAT = "vitamin d3, vitamin a, calcium, riboflavin"
@@ -34,6 +34,9 @@ TAIL: dict[str, str] = {
     "CHX": "emulsifier (soya lecithin), natural flavoring",
     "SWT": "natural flavoring, color (anthocyanins)",
     "BIS": "salt, raising agent (sodium bicarbonate), natural flavoring",
+    "ORB": "salt, raising agent (sodium bicarbonate), natural flavoring",
+    "CHO": "emulsifier (soya lecithin), natural flavoring",
+    "PAN": "salt, preservative (potassium sorbate), natural flavoring",
     "CRS": "antioxidant (rosemary extract)",
     "CBR": "emulsifier (sunflower lecithin), natural flavoring",
     "CER": "salt, vitamins (niacin, b6, folic acid)",
@@ -244,6 +247,56 @@ HEAD: dict[tuple[str, str], str] = {
     ("FSH", "Cod Loins"): "cod ({85-92}%), water, salt, stabiliser (sodium triphosphate), antioxidant (ascorbic acid)",
     ("FSH", "Smoked Mackerel"): "mackerel, salt, oak smoke, sugar, sunflower oil",
     ("FSH", "Lemon & Pepper Haddock"): "haddock, lemon juice, black pepper, rapeseed oil, salt, lemon zest",
+    ("BRD", "Malted Beer"): "wheat flour, water, beer (water, barley malt), malted barley flour, treacle, rapeseed oil",
+    # Beer: every list names barley malt, the source of its gluten.
+    ("BLG", "Premium Lager"): "water, barley malt, maize, hops, hop extract, yeast",
+    ("BLG", "Helles Lager"): "water, pilsner malt, caramalt, hop pellets, hop extract, yeast",
+    ("BLG", "Pilsner"): "water, pilsner malt (barley), saaz hops, malted barley, hop extract, yeast",
+    ("BLG", "Golden Table Beer"): "water, barley malt, caramalt, english hops, hop extract, yeast",
+    ("BLG", "Export Lager"): "water, barley malt, rice, hops, hop extract, yeast",
+    ("BPA", "Session Pale Ale"): "water, pale malt (barley), crystal malt, citra hops, hop extract, yeast",
+    ("BPA", "American Pale Ale"): "water, pale malt (barley), crystal malt, cascade hops, centennial hops, yeast",
+    ("BPA", "Hazy Pale Ale"): "water, pale malt (barley), oats, wheat malt, mosaic hops, yeast",
+    ("BPA", "Hazy Wheat Beer"): "water, wheat malt, barley malt, coriander seed, orange peel, hops, yeast",
+    ("BSO", "Tropical Pineapple Sour Beer"): "water, barley malt, wheat malt, pineapple juice ({3-6}%), passion fruit juice, lactic acid, hops, yeast",
+    ("BSO", "Raspberry Sour Beer"): "water, barley malt, wheat malt, raspberry puree ({4-8}%), lactic acid, hops, yeast",
+    ("BSO", "Passion Fruit Sour Beer"): "water, barley malt, wheat malt, passion fruit juice ({4-8}%), lactic acid, hops, yeast",
+    ("BSO", "Salted Gose Sour Beer"): "water, wheat malt, barley malt, sea salt, coriander seed, lactic acid, hops, yeast",
+    ("BFR", "Raspberry Fruit Beer"): "water, barley malt, raspberry juice ({8-12}%), sugar, hops, yeast",
+    ("BFR", "Cherry Fruit Beer"): "water, barley malt, cherry juice ({8-12}%), sugar, hops, yeast",
+    ("BFR", "Blood Orange Fruit Beer"): "water, barley malt, blood orange juice ({8-12}%), sugar, hops, yeast",
+    ("BFR", "Peach Fruit Beer"): "water, barley malt, peach puree ({8-12}%), sugar, hops, yeast",
+    ("BAF", "Alcohol Free Lager"): "water, barley malt, maize, hops, hop extract, yeast",
+    ("BAF", "Alcohol Free Pale Ale"): "water, pale malt (barley), crystal malt, citra hops, hop extract, yeast",
+    ("BAF", "Low Alcohol Pilsner"): "water, pilsner malt (barley), saaz hops, malted barley, hop extract, yeast",
+    ("BAF", "Alcohol Free Wheat Beer"): "water, wheat malt, barley malt, coriander seed, hops, yeast",
+    # The word beer, not the drink.
+    ("GNB", "Ginger Beer"): "carbonated water, sugar, ginger extract ({1-2}%), lemon juice from concentrate, citric acid, natural flavoring",
+    ("GNB", "Fiery Ginger Beer"): "carbonated water, sugar, ginger extract ({3-5}%), chilli extract, lemon juice from concentrate, citric acid",
+    ("GNB", "Root Beer"): "carbonated water, sugar, caramel color, sarsaparilla extract, vanilla extract, natural flavoring",
+    ("BBF", "Beer Battered Scottish Haddock"): "haddock ({45-55}%), wheat flour, water, beer (water, barley malt), rapeseed oil, maize starch, salt, raising agents (diphosphates, sodium carbonates)",
+    ("BBF", "Beer Battered Cod Fillets"): "cod ({45-55}%), wheat flour, water, beer (water, barley malt), rapeseed oil, maize starch, salt, raising agents (diphosphates, sodium carbonates)",
+    ("BBF", "Crispy Battered Haddock"): "haddock ({45-55}%), wheat flour, water, rapeseed oil, maize starch, salt, raising agents (diphosphates, sodium carbonates)",
+    ("VIN", "Cider Vinegar"): "cider vinegar, apple juice concentrate, water, acidity regulator (acetic acid), natural cloudiness",
+    ("VIN", "Raw Cider Vinegar"): "unfiltered cider vinegar, apple juice concentrate, water, the mother, acidity regulator (acetic acid)",
+    ("VIN", "Balsamic Vinegar"): "wine vinegar, grape must ({20-30}%), concentrated grape juice, water, color (caramel)",
+    ("VIN", "White Wine Vinegar"): "white wine vinegar, water, grape must, acidity regulator (acetic acid), natural flavoring",
+    ("WGM", "Wine Gums"): "glucose syrup, sugar, gelatine, wine flavoring, acid (citric acid), color (anthocyanins)",
+    ("WGM", "Sour Wine Gums"): "glucose syrup, sugar, gelatine, citric acid, wine flavoring, color (anthocyanins)",
+    ("WGM", "Vegan Wine Gums"): "glucose syrup, sugar, modified maize starch, wine flavoring, citric acid, color (anthocyanins)",
+    # The word orange, not the fruit.
+    ("CHO", "Milk Chocolate Orange"): "sugar, cocoa butter, whole milk powder, cocoa mass, orange oil, orange flakes ({2-4}%)",
+    ("CHO", "Dark Chocolate Orange"): "cocoa mass ({50-60}%), sugar, cocoa butter, orange oil, orange flakes ({2-4}%)",
+    ("PAN", "Cranberry & Orange Panettone"): "wheat flour, sugar, butter, egg yolk, candied orange peel ({5-9}%), dried cranberries ({4-8}%), yeast",
+    ("PAN", "Lemon & Orange Panettone"): "wheat flour, sugar, butter, egg yolk, candied orange peel ({4-7}%), candied lemon peel ({3-5}%), yeast",
+    ("PAN", "Cherry & Orange Christmas Pudding"): "vine fruit ({30-40}%), sugar, vegetable suet, wheat flour, glace cherries ({4-8}%), orange peel, egg",
+    ("PAN", "Chocolate Panettone"): "wheat flour, sugar, butter, egg yolk, chocolate chips ({10-15}%), yeast",
+    ("ORB", "Orange Shortbread"): "wheat flour, butter, sugar, orange peel ({1-3}%), orange oil",
+    ("ORB", "Chocolate & Orange Cookies"): "wheat flour, sugar, butter, dark chocolate chips ({12-18}%), egg, orange oil",
+    ("ORB", "Orange Cream Sandwich Biscuits"): "wheat flour, sugar, palm oil, butter, orange flavoring, emulsifier (soya lecithin)",
+    ("HOT", "Orange Drinking Chocolate"): "sugar, cocoa powder ({18-25}%), skimmed milk powder, orange oil, natural flavoring, salt",
+    ("HOT", "Classic Drinking Chocolate"): "sugar, cocoa powder ({18-25}%), skimmed milk powder, natural flavoring, salt",
+    ("HOT", "Salted Caramel Hot Chocolate"): "sugar, cocoa powder ({15-20}%), skimmed milk powder, caramel pieces, sea salt, natural flavoring",
 }  # fmt: skip
 
 

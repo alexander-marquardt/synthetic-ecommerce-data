@@ -11,6 +11,15 @@ UK sample of chocolate, about half contain milk, about 40% may contain nuts and
 most grade E. No name, brand or ingredient list comes from it. Every brand is a
 :mod:`house_styles` row.
 
+One category path per product. A family's ``path`` is the retailer's breadcrumb
+(``Food & Drink > Fruit & Vegetables > Fresh Fruit > Citrus Fruit > Oranges``) and every
+product of the family sits under that one path, never under several. Open Food Facts
+tags a product with many categories at once: that is a classification, not a store
+tree, so only its node NAMES and depth guide the tree here and no multi-valued tag is
+copied. The leaf of a bare-noun family (Oranges, Lemons, Apples, Beer's Lager) is what a
+"query names a category" policy boosts; the failure classes it must beat are the families
+that share only the WORD (a chocolate orange, a beer battered haddock, a ginger beer).
+
 A flavor's ``codes`` are the allergens it contains: P peanuts, T tree nuts,
 M milk, G gluten, S soy, E egg. Two lower-case flags mark animal ingredients:
 ``h`` is not vegan but is vegetarian (honey, gelatine), and ``x`` is not
@@ -34,6 +43,7 @@ class F:
     name: str
     hex: str
     codes: str = ""
+    abv: float | None = None  # a beer's strength: an attribute, and in only some titles
 
 
 @dataclass(frozen=True)
@@ -98,6 +108,7 @@ _CUP = ("Pantry Mill", "Olivar Grove", "Copper Hill Preserves", "Hearth & Table"
 _DRINK = ("Vine & Valley", "Freshfold", "Pantry Mill")
 _FRESH = ("Goldfield Farms", "Freshfold", "Pantry Mill")
 _FD = "Food & Drink"
+_BREW = ("Vine & Valley", "Freshfold", "Pantry Mill")
 _A, _C, _Z = "ambient", "chilled", "frozen"
 _NUTS = ((3, ""), (4, "T"), (3, "PT"), (1, "PTM"))  # a chocolate factory's traces
 _CEREAL = ((4, ""), (2, "T"), (1, "PT"))
@@ -105,6 +116,10 @@ _CEREAL = ((4, ""), (2, "T"), (1, "PT"))
 
 def _p(*parts: str) -> tuple[str, ...]:
     return (_FD, *parts)
+
+
+_FRUIT = _p("Fruit & Vegetables", "Fresh Fruit")
+_BEER = _p("Beer, Wine & Spirits", "Beer")
 
 
 FAMILIES: tuple[Family, ...] = (
@@ -164,7 +179,8 @@ FAMILIES: tuple[Family, ...] = (
     Family("BRD", _p("Bakery", "Bread"), "{line} {flavor} Loaf", "Bread", "loaf", "Bread", _A, "AB", 1.1,
            ("400g", "800g"),
            (F("White", "#efd9a8", "G"), F("Wholemeal", "#b07a3c", "G"), F("Seeded", "#9a6a44", "G"),
-            F("Sourdough", "#c9a96e", "G"), F("Gluten Free Brown", "#a8784a", "E")),
+            F("Sourdough", "#c9a96e", "G"), F("Gluten Free Brown", "#a8784a", "E"),
+            F("Malted Beer", "#8a5a30", "G")),
            _BAKE, 0.015, may=((3, "S"), (1, "ST"))),
     Family("CAK", _p("Bakery", "Cakes"), "{line} {flavor} Cake", "Cake", "cake", "Cake", _A, "E", 2.5,
            ("400g", "6 pack"),
@@ -288,12 +304,23 @@ FAMILIES: tuple[Family, ...] = (
             F("Orange Shortbread", "#f2a14b")),
            _BAKE, 0.01),
     # Fresh
-    Family("FRU", _p("Fresh", "Fruit"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit", _C, "A", 0.6,
-           ("Single", "4 pack", "1kg"),
-           (F("Unwaxed Lemons", "#f2d14b"), F("Oranges", "#f2a14b"), F("Easy Peelers", "#f29a3b"),
-            F("Gala Apples", "#c8312e"), F("Bramley Apples", "#7ab648")),
-           _FRESH, 0.03, axis="variety"),
-    Family("VEG", _p("Fresh", "Vegetables"), "{line} {flavor}", "Fresh Vegetables", "punnet", "Veg", _C, "A", 0.8,
+    # Fresh fruit: one bare-noun leaf each, so a query that names the leaf can be routed to it.
+    # "Easy Peelers" holds no "orange" in its title: a type match, not a word match.
+    Family("ORA", _FRUIT + ("Citrus Fruit", "Oranges"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 0.6, ("Single", "4 pack", "1kg"),
+           (F("Oranges", "#f2a14b"), F("Blood Oranges", "#c8432e"), F("Orange Segments", "#f29a3b"),
+            F("Easy Peelers", "#f39c33")),
+           _FRESH, 0.012, axis="variety"),
+    Family("LEM", _FRUIT + ("Citrus Fruit", "Lemons"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 0.6, ("Single", "4 pack", "1kg"),
+           (F("Unwaxed Lemons", "#f2d14b"), F("Lemons", "#f2e04b"), F("Meyer Lemons", "#f4c95a")),
+           _FRESH, 0.006, axis="variety"),
+    Family("APP", _FRUIT + ("Apples & Pears", "Apples"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 0.6, ("Single", "4 pack", "1kg"),
+           (F("Gala Apples", "#c8312e"), F("Bramley Apples", "#7ab648"), F("Braeburn Apples", "#b8432e"),
+            F("Pink Lady Apples", "#d9566a")),
+           _FRESH, 0.008, axis="variety"),
+    Family("VEG", _p("Fruit & Vegetables", "Fresh Vegetables"), "{line} {flavor}", "Fresh Vegetables", "punnet", "Veg", _C, "A", 0.8,
            ("250g", "500g"),
            (F("Cherry Tomatoes", "#c8312e"), F("Baby Carrots", "#d9822b"), F("Mint", "#3a8f6a"),
             F("Button Mushrooms", "#e8e4d8"), F("Green Beans", "#5a9a3a")),
@@ -309,6 +336,73 @@ FAMILIES: tuple[Family, ...] = (
            (F("Salmon Fillets", "#f29a7b", "x"), F("Cod Loins", "#f4f0e6", "x"), F("Smoked Mackerel", "#c48a3a", "x"),
             F("Lemon & Pepper Haddock", "#f2d14b", "x")),
            ("Barrowby Kitchen", "Goldfield Farms"), 0.015),
+    # Class "beer": the Beer node holds five leaves (each beer has an ABV attribute, a title
+    # states it for about half) and the word "beer" also names a soft drink, a batter, a loaf.
+    Family("BLG", _BEER + ("Lager",), "{line} {flavor}{abv}", "Beer", "tin", "Lager", _A, "CD", 1.6,
+           ("330ml", "440ml", "4 x 440ml"),
+           (F("Premium Lager", "#e8b04a", "G", 4.6), F("Helles Lager", "#f2c14e", "G", 4.8),
+            F("Pilsner", "#f0d060", "G", 5.0), F("Golden Table Beer", "#d9a441", "G", 2.8),
+            F("Export Lager", "#c8902e", "G", 4.2)),
+           _BREW, 0.014),
+    Family("BPA", _BEER + ("Pale Ale",), "{line} {flavor}{abv}", "Beer", "bottle", "Pale Ale", _A, "CD", 1.9,
+           ("330ml", "500ml", "4 x 500ml"),
+           (F("Session Pale Ale", "#c8802e", "G", 3.8), F("American Pale Ale", "#b86a24", "G", 5.2),
+            F("Hazy Pale Ale", "#e0a040", "G", 5.5), F("Hazy Wheat Beer", "#e8b04a", "G", 5.5)),
+           _BREW, 0.012),
+    Family("BSO", _BEER + ("Sour Beer",), "{line} {flavor}{abv}", "Beer", "tin", "Sour Beer", _A, "CD", 2.4,
+           ("330ml", "440ml", "4 x 440ml"),
+           (F("Tropical Pineapple Sour Beer", "#f2c14e", "G", 4.8), F("Raspberry Sour Beer", "#c8312e", "G", 4.5),
+            F("Passion Fruit Sour Beer", "#f2a14b", "G", 5.0), F("Salted Gose Sour Beer", "#e8d8a8", "G", 4.2)),
+           _BREW, 0.008),
+    Family("BFR", _BEER + ("Fruit Beer",), "{line} {flavor}{abv}", "Beer", "bottle", "Fruit Beer", _A, "CD", 2.2,
+           ("330ml", "500ml"),
+           (F("Raspberry Fruit Beer", "#a3214a", "G", 2.5), F("Cherry Fruit Beer", "#8c1f35", "G", 4.0),
+            F("Blood Orange Fruit Beer", "#c8432e", "G", 3.6), F("Peach Fruit Beer", "#f2a07b", "G", 3.2)),
+           _BREW, 0.006),
+    Family("BAF", _BEER + ("Alcohol Free",), "{line} {flavor}{abv}", "Beer", "tin", "Alcohol Free", _A, "BC", 1.4,
+           ("330ml", "440ml", "4 x 440ml"),
+           (F("Alcohol Free Lager", "#e8b04a", "G", 0.0), F("Alcohol Free Pale Ale", "#c8802e", "G", 0.5),
+            F("Low Alcohol Pilsner", "#f0d060", "G", 0.5), F("Alcohol Free Wheat Beer", "#e0a040", "G", 0.3)),
+           _BREW, 0.006),
+    Family("GNB", _p("Drinks", "Soft Drinks"), "{line} {flavor}", "Soft Drink", "bottle", "Ginger Beer", _A, "DE",
+           1.1, ("330ml", "6 x 330ml", "1L"),
+           (F("Ginger Beer", "#d9b97a"), F("Fiery Ginger Beer", "#c98b2b"), F("Root Beer", "#5a3020")),
+           _DRINK, 0.004),
+    Family("BBF", _p("Frozen", "Battered Fish"), "{line} {flavor}", "Battered Fish", "box", "Battered Fish", _Z,
+           "CD", 3.8, ("280g", "4 x 140g"),
+           (F("Beer Battered Scottish Haddock", "#d8a548", "Gx"), F("Beer Battered Cod Fillets", "#e0b058", "Gx"),
+            F("Crispy Battered Haddock", "#d8a548", "Gx")),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.008),
+    Family("VIN", _p("Food Cupboard", "Vinegar"), "{line} {flavor}", "Vinegar", "bottle", "Vinegar", _A, "A", 1.2,
+           ("250ml", "500ml"),
+           (F("Cider Vinegar", "#d9b97a"), F("Raw Cider Vinegar", "#c8a050"), F("Balsamic Vinegar", "#3b2416"),
+            F("White Wine Vinegar", "#f2e6c8")),
+           _CUP, 0.004),
+    Family("WGM", _p("Chocolate & Sweets", "Sweets"), "{line} {flavor}", "Sweets", "bag", "Wine Gums", _A, "E",
+           1.0, ("150g", "300g"),
+           (F("Wine Gums", "#8c1f35", "h"), F("Sour Wine Gums", "#c8312e", "h"), F("Vegan Wine Gums", "#7a1f4a")),
+           _SNACK, 0.003, may=((3, ""), (1, "M"))),
+    # Class "oranges": the word names a flavour in a bar, a bake, a biscuit and a drink, in
+    # categories other than Oranges.
+    Family("CHO", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} {flavor}", "Chocolate Bar", "bar",
+           "Chocolate Orange", _A, "DE", 1.8, ("100g", "175g"),
+           (F("Milk Chocolate Orange", "#d9822b", "M"), F("Dark Chocolate Orange", "#8a4a1c")),
+           _CHOC, 0.008, base="S", may=_NUTS),
+    Family("PAN", _p("Bakery", "Festive Bakes"), "{line} {flavor}", "Festive Bake", "cake", "Festive Bake", _A,
+           "DE", 4.0, ("500g", "750g"),
+           (F("Cranberry & Orange Panettone", "#d9a441", "GME"), F("Lemon & Orange Panettone", "#f2c14b", "GME"),
+            F("Cherry & Orange Christmas Pudding", "#4a2a1a", "GE"), F("Chocolate Panettone", "#7a4a2a", "GME")),
+           _BAKE, 0.006, may=((2, ""), (1, "T"))),
+    Family("ORB", _p("Biscuits & Snacks", "Biscuits"), "{line} {flavor}", "Biscuits", "box", "Biscuits", _A, "DE",
+           1.5, ("150g", "250g"),
+           (F("Orange Shortbread", "#efd9a8", "GM"), F("Chocolate & Orange Cookies", "#7a4a2a", "GME"),
+            F("Orange Cream Sandwich Biscuits", "#f2a14b", "GMS")),
+           _SNACK, 0.006, may=((3, ""), (1, "T"))),
+    Family("HOT", _p("Drinks", "Hot Chocolate"), "{line} {flavor}", "Hot Chocolate", "jar", "Drinking Chocolate",
+           _A, "CD", 2.6, ("250g", "400g"),
+           (F("Orange Drinking Chocolate", "#d9822b", "M"), F("Classic Drinking Chocolate", "#5a3a26", "M"),
+            F("Salted Caramel Hot Chocolate", "#c48a3a", "M")),
+           ("Pantry Mill", "Hearth & Table", "Brewhollow Roasters"), 0.004),
     # Overlaps: the words a food shares with a scent
     Family("CLN", ("Cleaning & Janitorial", "Kitchen", "Kitchen Cleaners"), "{line} {flavor} Multi-Surface Cleaner",
            "Kitchen Cleaner", "bottle", "Cleaner", _A, "", 1.5, ("500ml", "750ml"),
@@ -327,8 +421,25 @@ ANCHORS: tuple[tuple[str, tuple[str, ...], str], ...] = (
     ("CHB", ("Milk", "Dark 70%"), "PT"),  # may contain peanuts
     ("CHB", ("Dark 70%", "Mint Dark", "Orange Dark", "Coconut Dark"), ""),  # vegan, nut free
     ("CHB", ("Milk", "Salted Caramel Milk", "White"), ""),  # milk chocolate, nut free
-    ("FRU", ("Unwaxed Lemons",), ""),
-    ("FRU", ("Oranges",), ""),
+    ("LEM", ("Unwaxed Lemons",), ""),
+    ("ORA", ("Oranges",), ""),
+    ("ORA", ("Blood Oranges",), ""),
+    ("ORA", ("Orange Segments",), ""),
+    ("ORA", ("Easy Peelers",), ""),
+    ("APP", ("Gala Apples",), ""),
+    ("BLG", ("Premium Lager",), ""),
+    ("BSO", ("Tropical Pineapple Sour Beer",), ""),
+    ("BAF", ("Alcohol Free Lager",), ""),
+    ("GNB", ("Ginger Beer",), ""),
+    ("BBF", ("Beer Battered Scottish Haddock",), ""),
+    ("BBF", ("Beer Battered Cod Fillets",), ""),
+    ("VIN", ("Cider Vinegar",), ""),
+    ("WGM", ("Wine Gums",), ""),
+    ("CHO", ("Milk Chocolate Orange",), ""),
+    ("PAN", ("Cranberry & Orange Panettone",), ""),
+    ("ORB", ("Orange Shortbread",), ""),
+    ("ORB", ("Chocolate & Orange Cookies",), ""),
+    ("HOT", ("Orange Drinking Chocolate",), ""),
     ("JAM", ("Clear Honey",), ""),
     ("JAM", ("Lemon Curd",), ""),
     ("JUI", ("Smooth Orange",), ""),
