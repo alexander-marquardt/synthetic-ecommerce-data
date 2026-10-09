@@ -742,6 +742,24 @@ COUNT_PHRASE = re.compile(
 )
 
 
+@pytest.mark.parametrize(
+    ("text", "n", "restated"),
+    [
+        ("in 12 washes and 4 leg lengths.", 1, "in one wash and 4 leg lengths."),
+        ("in 12 washes and 4 leg lengths.", 3, "in 3 washes and 4 leg lengths."),
+        ("in three prints and three sizes", 2, "in two prints and three sizes"),
+        ("in three prints and three sizes", 1, "in one print and three sizes"),
+        ("Three Prints", 2, "Two Prints"),
+        ("3 Washes", 1, "One Wash"),
+        ("in four colors", 13, "in 13 colors"),
+        ("five pockets, 40 minutes", 1, "five pockets, 40 minutes"),
+    ],
+)
+def test_a_colorway_count_is_restated_in_the_templates_form(text, n, restated):
+    """The derived builds reach only "one wash" and "N washes"; these reach the rest."""
+    assert scale._restate_color_count(text, n) == restated
+
+
 @pytest.mark.parametrize("build", ["built", "ceiling"])
 def test_no_title_or_description_states_a_count_its_own_skus_contradict(build, request):
     """gen#143: a derived jeans style kept its template's "in 4 washes" with one colorway."""
