@@ -49,7 +49,7 @@ class Disc:
     cx: float
     cy: float
     r: float
-    #: Drawn in the paper colour: a hole knocked out of what is under it.
+    #: Drawn in the paper color: a hole knocked out of what is under it.
     cut: bool = False
 
 
@@ -157,30 +157,30 @@ def draw_mark(
     """
     half = size / 2
 
-    def solid(colour: str) -> dict[str, str]:
-        return {} if ink_inherited and colour == ink else {"fill": colour}
+    def solid(color: str) -> dict[str, str]:
+        return {} if ink_inherited and color == ink else {"fill": color}
 
     def at(p: Point) -> Point:
         return (centre[0] + p[0] * half, centre[1] + p[1] * half)
 
     for shape in mark:
-        colour = paper if shape.cut else ink
+        color = paper if shape.cut else ink
         if isinstance(shape, Disc):
-            page.circle(*at((shape.cx, shape.cy)), shape.r * half, **solid(colour))
+            page.circle(*at((shape.cx, shape.cy)), shape.r * half, **solid(color))
         elif isinstance(shape, Ring):
             page.circle(
                 *at((shape.cx, shape.cy)),
                 shape.r * half,
                 fill="none",
-                stroke=colour,
+                stroke=color,
                 stroke_width=svg.num(shape.w * half),
             )
         elif isinstance(shape, Poly):
-            page.polygon([at(p) for p in shape.points], **solid(colour))
+            page.polygon([at(p) for p in shape.points], **solid(color))
         else:
             page.polyline(
                 [at(p) for p in shape.points],
-                stroke=colour,
+                stroke=color,
                 stroke_width=svg.num(shape.w * half),
                 stroke_linecap="round",
                 stroke_linejoin="round",

@@ -625,7 +625,7 @@ def test_the_invented_names_are_new_and_never_repeat():
 
 
 def test_a_color_titled_style_carries_only_its_title_color_in_every_sku(ceiling_pairs):
-    """A listing whose title names a colour IS that colour: every SKU of a style titled
+    """A listing whose title names a color IS that color: every SKU of a style titled
     "…, Sage" is Sage, in all its sizes. The ceiling build holds 1,073 such styles (seed 0);
     :data:`TARGET` holds 83."""
     seen = 0
