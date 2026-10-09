@@ -24,6 +24,7 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import grocery  # noqa: E402
+from grocery_ingredients import facet_value  # noqa: E402
 
 #: Phrases that hold an allergen word without the allergen, removed before matching.
 NOT_ALLERGEN = re.compile(
@@ -115,7 +116,8 @@ def test_the_flat_file_carries_ingredients_top_level_and_as_a_facet_not_an_attri
     for r in rows:
         assert "ingredients" not in {e["key"] for e in r["attributes"]}
         assert "ingredients" not in r["attribute_names"]
-        assert r["facets"].get("ingredients") == r.get("ingredients")
+        want = list(dict.fromkeys(facet_value(i) for i in r.get("ingredients", [])))
+        assert r["facets"].get("ingredients", []) == want
 
 
 @pytest.mark.parametrize("level", ["nested", "flat"])
