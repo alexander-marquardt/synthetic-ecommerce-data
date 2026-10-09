@@ -43,6 +43,7 @@ WORDS = {
     "Gluten": r"\b(?:wheat|barley|rye|oats?|spelt|semolina|malt|couscous|flour|rusk)\b",
     "Soy": r"\b(?:soy|soya|lecithin|tofu|edamame|miso)\b",
     "Egg": r"\b(?:eggs?|albumen|mayonnaise)\b",
+    "Fish": r"\b(?:fish|cod|haddock|salmon|mackerel|tuna|anchov(?:y|ies)|sardines?)\b",
 }
 ANIMAL = re.compile(
     r"\b(?:honey|beeswax|chicken|beef|pork|bacon|ham|pepperoni|tuna|salmon|cod|mackerel|haddock)\b"

@@ -11,6 +11,7 @@ the rule that a product has exactly one category path.
 
 from __future__ import annotations
 
+import json
 import re
 import sys
 from functools import cache
@@ -74,6 +75,11 @@ def test_easy_peelers_are_a_type_match_with_no_orange_word_in_the_title() -> Non
     assert peelers
     text = [f"{d['title']} {v['description']}".lower() for d in peelers for v in d["variants"]]
     assert text and not [t for t in text if "orange" in t]
+    # Every other field too (the product type, the attributes, a variant's title and
+    # description): only the category path and leaf may name the fruit.
+    skip = {"category_path", "category_leaf"}
+    whole = [json.dumps({k: x for k, x in d.items() if k not in skip}).lower() for d in peelers]
+    assert not [t for t in whole if "orange" in t]
 
 
 @pytest.mark.parametrize(
@@ -188,6 +194,18 @@ def test_beer_battered_fish_contains_gluten_and_is_not_vegetarian() -> None:
         for v in d["variants"]:
             assert "Gluten" in values(v["attributes"], "contains")
             assert not {"Vegan", "Vegetarian"} & values(v["attributes"], "dietary")
+
+
+def test_every_fish_product_contains_fish_and_nothing_else_does() -> None:
+    """Fish is one of the 14 UK/EU allergens: fish, battered fish and tinned tuna state it."""
+    fishy = re.compile(r"haddock|cod\b|salmon|mackerel|tuna", re.I)
+    seen = 0
+    for d in docs():
+        for v in d["variants"]:
+            has = "Fish" in values(v["attributes"], "contains")
+            assert has == bool(fishy.search(v["title"])), v["sku"]
+            seen += has
+    assert seen > 0
 
 
 def test_the_word_beer_names_products_outside_the_beer_category() -> None:
