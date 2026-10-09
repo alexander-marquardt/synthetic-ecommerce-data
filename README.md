@@ -1255,6 +1255,16 @@ retail has `price`, `currency` and `in_stock` where industrial has
 
 ### The retail catalog at a size: `scale.py --skus N`
 
+**The audience facet and the spelling of a facet**. The tree keeps its Women, Men
+and Kids roots, and every SKU of a worn department (Clothing, Footwear, Lingerie & Nightwear),
+or under a Women, Men, Kids or Baby root, also carries exactly one `audience`: `Womens`, `Mens`,
+`Girls`, `Boys`, `Baby` or `Unisex` (`audience.py`; a template's own value wins, `Kids/Girls`
+is Girls, `Kids/Boys` is Boys, the rest of Kids is Unisex). A product type has one name:
+"Tee" is written "T-Shirt" (`export.PRODUCT_TYPE_FOLDS`; the image ids keep the authored type,
+so none is re-rendered), and `pattern` and `rise` are written in Title Case.
+`tests/test_retail_audience.py` refuses a facet with two values that differ only in case.
+"Cleaning & Janitorial" is a department, not a root: its kitchen cleaners sit under `Cleaning`.
+
 `prototypes/retail_drawings/scale.py --skus 20000 --out retail.jsonl` builds the
 retail catalog to a target SKU count, writes it in the standard, and prints a
 report:
@@ -1276,7 +1286,9 @@ three failure classes need (`distractor_rows.py`; `baseline_rank.py` ranks a bui
 without a policy, and `tests/test_retail_distractors.py` holds the result): mattress
 protectors, mattresses and pillow protectors that out-sell the toppers; bestselling
 barrel-leg jeans whose text says balloon; 150 petite styles with a minority on sale,
-and 60 sale styles that never say petite, then the grocery styles (below, `grocery.py`,
+and 60 sale styles that never say petite, then the shirts (`shirt_rows.py`: Oxford,
+Flannel, Linen and Denim, for Mens and Womens, under `Tops/Shirts`, typed `Shirt`;
+no derived style copies one), then the grocery styles (below, `grocery.py`,
 gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
