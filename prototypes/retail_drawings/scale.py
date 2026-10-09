@@ -21,11 +21,17 @@ A derived style copies one template and changes, deterministically from the seed
   path or the type ("Skinny" in "Skinny Jeans"), when its key is
   :data:`FROZEN_KEYS`, when it has a unit, or when the title or description holds
   it inside a longer word ("5" in "5pk"). A changed value is rewritten in the
-  title, the description, the drawing params and the same-named top-level field;
+  title, the description, the drawing params and the same-named top-level field.
+  A changed ``motif`` is redrawn: the drawing takes the motif and inks of a
+  template that draws it ("Cherry" -> ``cherries``, :func:`_redraw_motif`), the
+  title's plural follows ("Lemons Print" -> "Oranges Print"), and the description
+  is rebuilt from the product noun after "Graphic" or "Print" in the title, with
+  no colour words. Count and placement are frozen;
 - its **colorways**, a hero color, then a subset of the template's other colors.
   Its SKUs are the template's own size run times those colors, hero first
   (:func:`variants.product`): no SKU is invented. Each SKU's price is the
-  template's times the style's price ratio (see below);
+  template's times the style's price ratio (see below). A description's
+  "Shown in cream" names the hero, the colour the picture shows;
 - its rating, review count and sales, redrawn; a bestseller rank and the
   Bestseller badge stay with the authored styles.
 
@@ -40,7 +46,10 @@ draws keep colliding is exhausted and leaves the pool.
 
 **A style, not a rename.** A derived style takes a :func:`signature` (the values of
 the keys its title shows, and its hero color family) that neither its template nor
-any sibling has. Its price is re-drawn: the template's, times :func:`price_factor`
+any sibling has. When its title-shown values are ones the template or an earlier
+sibling already shows, the hero color alone sets it apart, so its title ends with
+it in the listing convention ("The Elmsett High Rise Straight Jeans, Dark Indigo").
+Its price is re-drawn: the template's, times :func:`price_factor`
 of the values it changed, times a seeded :data:`JITTER`, inside the leaf's
 :data:`PRICE_BAND`, on a :func:`price_point`, never the template's own. A value
 another attribute of the record shares never varies ("Leather" on a leather-soled
@@ -51,15 +60,17 @@ price with another.
 
 **Capacity.** Signatures bound the build: per template, the shown values its leaf
 offers times its color families. With today's templates every template is
-exhausted at 19,794 SKUs (651 styles). Past that, the CLI reports
+exhausted at 31,524 SKUs (850 styles). Past that, the CLI reports
 ``reached_target: false`` and exits 2. To grow it, add data, not code: more values
 per leaf that the title shows, more colorways, and more templates, deep-SKU ones
 above all.
 
-Images: a derived style keeps its template's drawing (params aside), so the
-distinct drawings (:func:`coverage` ``images.distinct_drawings``) stay near the
-template count. ``export.image_id`` still embeds the product id, so
-``images.image_ids`` is one per product and colorway.
+Images: a derived style keeps its template's drawing (params and a changed motif
+aside), so the distinct drawings (:func:`coverage` ``images.distinct_drawings``)
+stay near the template count. ``export.image_id`` still embeds the product id, so
+``images.image_ids`` is one per product and colorway, and
+``image_release.py --skus N`` renders this build's images (1,493 for the 19,142
+SKUs of ``--skus 19000``).
 """
 
 from __future__ import annotations
@@ -67,13 +78,14 @@ from __future__ import annotations
 import argparse
 import collections
 import copy
+import functools
 import json
 import random
 import re
 import resource
 import sys
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -124,9 +136,12 @@ DEPARTMENT_SHARE = {
     "Home": 0.20, "Beauty": 0.08,
 }  # fmt: skip
 
-#: Keys whose value never changes: who it is for, its name, its size range, and
-#: the pattern the drawing shows.
-FROZEN_KEYS = frozenset({"audience", "line", "size_range", "pattern"})
+#: Keys whose value never changes: who it is for, its name, its size range, the
+#: pattern the drawing shows, and how many motifs it prints where (the drawing's
+#: ``count`` and ``placement``, which the description's wording follows).
+FROZEN_KEYS = frozenset(
+    {"audience", "line", "size_range", "pattern", "motif_count", "print_placement"}
+)
 
 #: Leaf weight within a department: 1 / rank ** ZIPF_S.
 ZIPF_S = 1.0
@@ -245,6 +260,54 @@ def _title(tpl: dict, name: str) -> str:
     return f"{name} {tpl['title']}"
 
 
+#: The drawing fields that follow a changed ``motif``; ``count`` and ``placement`` never
+#: change (:data:`FROZEN_KEYS`).
+MOTIF_FIELDS = ("motif", "accent", "third")
+
+
+@functools.cache
+def _motif_inks() -> dict[str, dict[str, Any]]:
+    """A ``motif`` attribute value -> the drawing's ``motif``, ``accent`` and ``third`` of the
+    first template that draws it ("Cherry" -> ``cherries`` in cherry red)."""
+    out: dict[str, dict[str, Any]] = {}
+    for t in templates():
+        for a in t["attributes"]:
+            if a["key"] == "motif" and "motif" in t["drawing"]:
+                out.setdefault(str(a["value"]), {k: t["drawing"][k] for k in MOTIF_FIELDS})
+    return out
+
+
+def _article(word: str) -> str:
+    return "an" if word[:1].lower() in "aeiou" else "a"
+
+
+def _plural(word: str) -> str:
+    if re.search(r"[^aeiou]y$", word):
+        return word[:-1] + "ies"
+    return word + ("es" if re.search(r"(s|x|z|ch|sh)$", word) else "s")
+
+
+def _redraw_motif(rec: dict, old: str, new: str) -> None:
+    """The motif ``old`` -> ``new`` in the picture, the title's plural ("Lemons Print") and
+    the description, which is rebuilt: the template's names the old motif and its colours.
+
+    The new text names the product noun after "Graphic" or "Print" in the title, and the
+    count and placement the drawing keeps."""
+    d = rec["drawing"]
+    d.update(_motif_inks()[new])
+    rec["title"] = _swap(rec["title"], _plural(old), _plural(new))
+    m = re.search(r"\b(?:Graphic|Print)\s+([^,]+)", rec["title"])
+    noun = (m.group(1) if m else rec["title"].split()[-1]).strip().lower()
+    on = noun if re.search(r"[^s]s$", noun) else f"{_article(noun)} {noun}"
+    low = new.lower()
+    if d.get("count") == 1:
+        rec["description"] = f"A big {low} graphic on {on}."
+    else:
+        spread = "scattered on" if d.get("placement") == "scatter" else "all over"
+        lead = f"{_article(low).capitalize()} {low} print"
+        rec["description"] = f"{lead}: {_plural(low)} {spread} {on}."
+
+
 def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
            colors: list[str], owners: dict[str, str], rng: random.Random,
            ratio: float = 1.0) -> dict:  # fmt: skip
@@ -275,6 +338,16 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
             for p, v in params.items():
                 if isinstance(v, str) and v.lower() == old.lower():
                     params[p] = new.lower() if v == old.lower() else new
+            if a["key"] == "motif" and "motif" in rec["drawing"]:
+                _redraw_motif(rec, old, new)
+    if colors:  # "Shown in cream" names the colour the picture shows: the hero
+        names = "|".join(re.escape(c["color"]) for c in tpl.get("color_options", ()))
+        rec["description"] = re.sub(
+            rf"\b(shown in )(?:{names})\b",
+            lambda m: m.group(1) + colors[0].lower(),
+            rec["description"],
+            flags=re.IGNORECASE,
+        )
     if brand != tpl["brand"]:
         rec["title"] = rec["title"].replace(tpl["brand"], brand)
         rec["description"] = rec["description"].replace(tpl["brand"], brand)
@@ -387,6 +460,8 @@ class _Context:
     bands: dict[str, tuple[float, float]]
     #: template product id -> the signatures (:func:`signature`) no style has taken yet
     open: dict[str, list[tuple]]
+    #: template product id -> the title-shown values its own title and its styles' show
+    shown: dict[str, set[tuple]] = field(default_factory=dict)
 
 
 def _bands(tpls: list[dict]) -> dict[str, tuple[float, float]]:
@@ -439,13 +514,17 @@ def _colors(tpl: dict, family: str | None, rng: random.Random) -> list[str]:
 def _draw(tpl: dict, serial: int, ctx: _Context, brands: list[str], owners: dict[str, str],
           used: set, titles: set, rng: random.Random) -> dict | None:  # fmt: skip
     """A new style from ``tpl`` with a signature no style of it has, or None when none is
-    left or ATTEMPTS draws all repeat a title or contradict their text."""
+    left or ATTEMPTS draws all repeat a title or contradict their text.
+
+    A style whose title-shown values the template or an earlier sibling already shows
+    differs in its hero colour alone, so its title names it: "…, Sage"."""
     leaf = tpl["category_leaf"]
     keys = variable_keys(tpl, ctx.pools)
     shown = shown_keys(tpl, keys)
     left = ctx.open.setdefault(tpl["product_id"], _signatures(tpl, shown, ctx.pools))
     pid = f"{tpl['product_id'].split('-')[0]}-{serial + 1:06d}"
     old = {a["key"]: str(a["value"]) for a in tpl["attributes"]}
+    taken = ctx.shown.setdefault(tpl["product_id"], {tuple(old[k] for k in shown)})
     lo, hi = ctx.bands[leaf]
     for _ in range(ATTEMPTS):
         if not left:
@@ -463,11 +542,14 @@ def _draw(tpl: dict, serial: int, ctx: _Context, brands: list[str], owners: dict
             target = up if up <= hi else price_point(target - _step(target), lo, hi)
         ratio = target / tpl["price"]
         rec = derive(tpl, pid, name, brand, values, colors, owners, rng, ratio)
+        if sig[0] in taken and colors:
+            rec["title"] = f"{rec['title']}, {colors[0]}"
         if twin_key(rec) in used or rec["title"] in titles:
             continue
         if text_contradictions(standard_document(rec), ctx.text_pools):
             continue
         left.remove(sig)
+        taken.add(sig[0])
         used.add(twin_key(rec))
         titles.add(rec["title"])
         return rec
