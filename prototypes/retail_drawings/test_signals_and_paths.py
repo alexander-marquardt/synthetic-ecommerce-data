@@ -328,11 +328,11 @@ def test_thread_is_a_bedding_count_here_and_a_pitch_in_industrial() -> None:
         assert count == {"key": "thread_count", "name": "Thread Count", "value": "400"}
 
 
-def test_honey_is_a_lipstick_shade_and_a_food() -> None:
-    honey = _collision("honey")
-    assert honey["senses"] == ["skus.color", "product_type"]
+def test_honey_is_a_food_and_no_lipstick_shade_carries_the_word() -> None:
+    """The lipstick's "Wild Honey" is the plain color Tan (gen#150): one sense is left."""
+    assert [c for c in rc.COLLISIONS if c["word"] == "honey"] == []
     shades = [d for d in CLASS_DOCS if any("honey" in c.lower() for c in _colors(d))]
     food = [d for d in CLASS_DOCS if d["product_type"] == "Honey"]
-    assert {d["department"][0] for d in shades} == {"Beauty"}
+    assert shades == []
     assert len(food) == 1 and food[0]["department"] == ["Food & Drink"]
     assert _colors(food[0]) == set() and "color_options" not in food[0]

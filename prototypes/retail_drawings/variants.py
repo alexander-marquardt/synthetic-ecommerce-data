@@ -27,13 +27,18 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from colorwords import plain
 from departments import check as check_departments
 
 Color = tuple[str, str, str, str]  # (name, pattern, base hex, accent hex)
 
 
 def cw(name: str, base: str, pattern: str = "solid", accent: str = "#333333") -> Color:
-    return (name, pattern, base, accent)
+    """A color: its plain shopper-facing word (``colorwords.plain``), pattern, hex and accent.
+
+    ``name`` is the authored fashion shade ("Lemon"); the color is "Yellow".
+    """
+    return (plain(name), pattern, base, accent)
 
 
 def attr(key: str, name: str, value, unit_code: str | None = None, canonical=None) -> dict:

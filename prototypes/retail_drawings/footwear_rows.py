@@ -29,6 +29,7 @@ from dataclasses import dataclass
 
 import distractors as dz
 from class_model import BRAND_OWNER, COLOR_FAMILIES, _digest
+from colorwords import plain
 from departments import check as check_departments
 from real_classes import badges
 from variants import Color, attr, cw, drawing, product, swatch
@@ -519,7 +520,7 @@ BOOTS = dz.Row(
             "Thick knitted boot socks with a fold-over cuff that shows above welly boots. "
             "Warm in boots all winter.",
             drawing("boot_sock", cw("Oat", "#d9cdb4", "stripe", "#8a6b4a")),
-            (("color", "Color", "Oat"),),
+            (("color", "Color", plain("Oat")),),
         ), "department boost: Footwear above Clothing"),
     ),
 )  # fmt: skip

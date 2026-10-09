@@ -21,6 +21,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 import prints
+from colorwords import plain
 from departments import check as check_departments
 from kit_produce import pile_params
 from variants import attr, cw, docs, drawing, swatch
@@ -261,7 +262,7 @@ DUVET = (
         "A plain cotton duvet cover with a button closure. Fits over any duvet; duvet sold "
         "separately.",
         drawing("duvet", cw("Oyster", "#e4ddd0")),
-        (("color", "Color", "Oyster"),),
+        (("color", "Color", plain("Oyster")),),
     ), "type-exact intent: Duvets, not Duvet Covers"),
     Distractor(product(
         "DUVSET", "Duvet Cover Set with Pillowcases", "Brackenmere Home", "Home",
@@ -355,7 +356,7 @@ GIFT = (
         ("Beauty", "Accessories", "Wash Bags"), 14.0,
         "A roomy wash bag in waffle cotton with a wipe-clean lining. The wash bag that packs flat.",
         drawing("pouch", cw("Sea Green", "#7fb3a8", "solid", "#1c7c7d"), "Wash"),
-        (("color", "Color", "Sea Green"),),
+        (("color", "Color", plain("Sea Green")),),
     ), _BOOST + "Wash Bags (only *bag* matches)"),
     Distractor(product(
         "GBMKUP", "Quilted Make-Up Bag", "Kestlewood Cosmetics", "Beauty",

@@ -29,7 +29,7 @@ COLOR_WORDS = frozenset({
 #: Words that qualify a color: a tone, a finish, a material, a pattern or a denim wash.
 MODIFIERS = frozenset({
     "Bright", "Brushed", "Burnt", "Dark", "Dusky", "Dusty", "Hot", "Light", "Pale", "Sheer",
-    "Soft", "Vintage", "Warm", "Velvet", "Washed", "Marl",
+    "Soft", "Heather", "Vintage", "Warm", "Velvet", "Washed", "Marl",
     "Leather", "Suede", "Patent", "Lace", "Check", "Gingham", "Polka", "Dot", "Spot",
     "Print", "Stripe", "Leopard", "/",
 })  # fmt: skip
@@ -80,13 +80,14 @@ PLAIN = {
     "Chestnut": "Brown", "Cognac": "Brown", "Hazelnut": "Brown", "Oak": "Brown",
     "Tabby": "Brown", "Tobacco": "Brown", "Toffee": "Brown", "Mink": "Taupe",
     "Velvet Taupe": "Taupe", "Almond": "Beige", "Bare Linen": "Beige", "Calico": "Beige",
-    "Fawn": "Beige", "Latte": "Light Brown", "Oat": "Light Beige", "Oatmeal": "Beige", "Sand": "Beige",
-    "Sand Suede": "Beige Suede", "Stone": "Light Grey", "Champagne": "Cream",
+    "Fawn": "Beige", "Latte": "Light Brown", "Oat": "Light Beige", "Oatmeal": "Beige",
+    "Sand": "Beige",
+    "Sand Suede": "Beige Suede", "Stone": "Beige", "Champagne": "Cream",
     "Glaze": "Cream", "Oyster": "Cream", "Pearl": "Cream", "Porcelain": "Cream",
     "Kraft": "Tan Stripe", "Velvet Nude": "Nude", "Nude Shell": "Nude",
     # grey, metal
     "Slate": "Dark Grey", "Smoke": "Grey", "Pewter": "Dark Grey", "Storm Grey": "Dark Grey",
-    "Dove Grey": "Light Grey", "Heather Grey": "Light Grey", "Brass": "Gold",
+    "Dove Grey": "Light Grey", "Brass": "Gold",
     "Stripe": "Multi Stripe", "Gingham": "Red Gingham", "Ticking Stripe": "Blue Stripe",
     "Leopard": "Brown Leopard", "Forest": "Dark Green",
 }  # fmt: skip
@@ -98,7 +99,7 @@ def plain(name: str) -> str:
 
 
 def is_plain(value: str) -> bool:
-    """Whether ``value`` is a shade code, a denim wash or made only of color words and qualifiers."""
+    """Whether ``value`` is a shade code, a denim wash or only color words and qualifiers."""
     if SHADE_CODE.match(value) or value in DENIM_WASHES:
         return True
     words = value.split()

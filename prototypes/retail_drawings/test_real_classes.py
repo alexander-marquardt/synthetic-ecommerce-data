@@ -276,7 +276,7 @@ def test_beauty_shades_are_the_sku_colors_of_one_product_with_a_unit_size() -> N
         ("PLT-BTYLIP", 1.9, "g"),
     ]
     lip = _style("PLT-BTYLIP")
-    assert _colors(lip) == ["Wild Honey", "Mocha Kiss", "Cherry Pop"] and lip["sku_count"] == 3
+    assert _colors(lip) == ["Tan", "Brown", "Red"] and lip["sku_count"] == 3
     assert {d["brand"] for d in beauty} == {"Kestlewood Cosmetics"}
     row_codes = {s.code for r in rc.ROWS for s in (*r.targets, *(x for x, _ in r.distractors))}
     assert {s.code for s in rc.BEAUTY} == {"BTYLIP", "BTYFND"} and not row_codes & {"BTYLIP"}

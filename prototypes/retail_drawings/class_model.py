@@ -12,6 +12,7 @@ import re
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from colorwords import plain
 from departments import check as check_departments
 from variants import Color, attr, drawing, product, swatch
 
@@ -37,7 +38,7 @@ COLOR_FAMILIES = ("black", "white", "grey", "blue", "navy", "brown", "cream", "g
 PATH_SEPARATOR = "/"
 #: The metal finishes a ``metal`` style's colors are.
 FINISHES = ("Rose Gold", "Yellow Gold", "White Gold", "Silver")
-SHADE_FAMILY = {
+_AUTHORED_SHADE_FAMILY = {
     "Black": "black", "Washed Black": "black",
     "White": "white",
     "Charcoal": "grey", "Grey": "grey", "Heather Grey": "grey", "Grey Check": "grey",
@@ -60,6 +61,8 @@ SHADE_FAMILY = {
     "Rose Gold": "gold", "Yellow Gold": "gold", "White Gold": "silver", "Silver": "silver",
     "Stripe": "multi",
 }  # fmt: skip
+#: Keyed by the plain word ``cw`` gives a shade ("Lemon" is "Yellow"), as ``color[0]`` reads.
+SHADE_FAMILY = {plain(shade): family for shade, family in _AUTHORED_SHADE_FAMILY.items()}
 #: The inside-leg axis of a legwear product page, and the size range each serves.
 INSIDE_LEGS = ("Extra Short", "Short/Petite", "Regular", "Long", "Extra Long")
 LENGTH_RANGE = {"Extra Short": "petite", "Short/Petite": "petite", "Regular": "regular",
