@@ -17,6 +17,8 @@ so :func:`export.standard_document` collapses those leaves here:
   "Padded Balcony Bra") is added too (:func:`stated_bra_facets`).
   The fibre content that ``fabric`` held on a bra ("Recycled Polyamide,
   Elastane") moves to ``composition``.
+- on every other type, ``fabric`` keeps only a fabric or weave; fibre content moves to
+  ``composition`` the same way (:data:`FABRIC_MOVES`).
 
 Only the document changes. The build record, its drawing and so its image id keep the old
 leaf, so the seeded derivation and every image id are what they were. Titles keep their
@@ -121,6 +123,26 @@ BRA_LEAVES: dict[str, tuple[str, Facet, Facet, Facet]] = {
     "Post-Surgery Bras": ("Full Cup", None, None, None),
 }
 
+#: Every other product type's ``fabric`` value that is not a fabric a shopper names ->
+#: (fabric, composition) of the document. A fibre content ("98% Cotton, 2% Elastane", a
+#: cotton grade, Bamboo) moves whole to ``composition`` and leaves no fabric; a value that
+#: joins a weave to a fibre or a finish ("100% Cotton Oxford", "Washed Linen") splits.
+#: Boucle, Chenille, Corduroy, Faux Fur, Knitted, Linen, Plush and Velvet are fabrics and stay.
+FABRIC_MOVES: dict[str, tuple[str | None, str | None]] = {
+    "100% Cotton": (None, "100% Cotton"),
+    "70% Cotton, 28% Polyester, 2% Elastane": (None, "70% Cotton, 28% Polyester, 2% Elastane"),
+    "92% Cotton, 6% Polyester, 2% Elastane": (None, "92% Cotton, 6% Polyester, 2% Elastane"),
+    "98% Cotton, 2% Elastane": (None, "98% Cotton, 2% Elastane"),
+    "Bamboo": (None, "Bamboo"),
+    "Organic Cotton": (None, "Organic Cotton"),
+    "Turkish Cotton": (None, "Turkish Cotton"),
+    "Zero Twist Cotton": (None, "Zero Twist Cotton"),
+    "100% Cotton Oxford": ("Oxford", "100% Cotton"),
+    "Brushed Cotton Flannel": ("Flannel", "Cotton"),
+    "Mid Weight Denim": ("Denim", None),
+    "Washed Linen": ("Linen", None),
+}
+
 
 def _vocabulary() -> dict[str, set[str]]:
     """Every value of each :data:`BRA_KEYS` key that some leaf implies."""
@@ -165,6 +187,16 @@ def _fit_of_leaf(leaf: str, node: str) -> str | None:
     return leaf[: -len(suffix)] if leaf.endswith(suffix) else None
 
 
+def _fabric_facets(have: dict[str, str]) -> tuple[list[tuple[str, str, str]], set[str]]:
+    """The fabric and composition a fibre-content ``fabric`` splits into, as (key, name,
+    value), and the key it replaces. Neither for a value that is already a fabric."""
+    if have.get("fabric") not in FABRIC_MOVES:
+        return [], set()
+    fabric, composition = FABRIC_MOVES[have["fabric"]]
+    pairs = ((("fabric", "Fabric"), fabric), (COMPOSITION, composition))
+    return [(*pair, value) for pair, value in pairs if value], {"fabric"}
+
+
 def leaf_facets(
     rec: dict[str, Any], entries: list[dict[str, Any]]
 ) -> tuple[list[tuple[str, str, str]], set[str]]:
@@ -180,7 +212,8 @@ def leaf_facets(
         text = words(f"{rec['title']} {rec.get('description', '')}")
         if fits and CROPPED not in fits and f" {CROPPED.lower()} " in text:
             fits.append(CROPPED)
-        return [("leg_fit", "Leg fit", f) for f in fits], {"leg_fit", "leg_style"}
+        moved, keys = _fabric_facets(have)
+        return [("leg_fit", "Leg fit", f) for f in fits] + moved, {"leg_fit", "leg_style"} | keys
     if ptype == "Bra":
         out = [
             (key, BRA_KEYS[key], value)
@@ -196,4 +229,4 @@ def leaf_facets(
         if "fabric" in have:
             out.append((*COMPOSITION, have["fabric"]))
         return out, {"bra_style", "fabric"}
-    return [], set()
+    return _fabric_facets(have)
