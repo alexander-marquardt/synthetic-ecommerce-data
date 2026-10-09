@@ -206,8 +206,11 @@ def templates() -> list[dict]:
     build's own 55 Food & Drink styles stay (the failure classes and the Elasticsearch proof
     corpus pin them); no title or product id repeats between the two.
 
-    The population gates in tests/test_retail_scale.py run over :func:`derivable`; grocery is
-    gated in tests/test_grocery*."""
+    The population gates in tests/test_retail_scale.py run over :func:`derivable`; grocery has
+    its own in that module (``test_the_grocery_styles_hold_their_own_near_duplicate_cap``,
+    ``test_grocery_tiles_are_measured_apart_from_the_clothing_gate``,
+    ``test_grocery_style_attributes_list_the_values_of_their_skus``,
+    ``test_no_grocery_title_or_description_names_a_value_no_sku_carries``)."""
     authored = (r for recs in samples().values() for r in recs)
     return [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
