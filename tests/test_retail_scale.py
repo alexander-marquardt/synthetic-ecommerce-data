@@ -34,11 +34,14 @@ TARGET = 19_000
 #: then the breadth rows (``breadth_rows``).
 SCALE_ROWS = 62
 AUTHORED = 328
-BREADTH_ROWS = 86
+BREADTH_ROWS = 151
 TEMPLATES = AUTHORED + SCALE_ROWS + BREADTH_ROWS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (1_821, 91_443)
+CAPACITY = (2_366, 89_114)
+#: The grid-clone share the ceiling build may reach (:func:`scale.grid_clones`). Round 2
+#: measured 14.1%: the rest is the headroom the 50K and 100K rounds may spend.
+CEILING_GRID_CLONES = 0.15
 #: The departments the ceiling build sells in.
 DEPARTMENTS = 10
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's 2.6%
@@ -56,6 +59,21 @@ def pairs(built) -> list[tuple[dict[str, Any], dict[str, Any]]]:
     """(derived style, its template) for every derived style."""
     by_id = {t["product_id"]: t for t in scale.templates()}
     return [(r, by_id[built.template_of[r["product_id"]]]) for r in built.records[TEMPLATES:]]
+
+
+@pytest.fixture(scope="module")
+def ceiling() -> scale.Scaled:
+    """Every template exhausted: the build where most derived styles exist."""
+    return scale.build(CAPACITY[1] * 2)
+
+
+@pytest.fixture(scope="module")
+def ceiling_pairs(ceiling) -> list[tuple[dict[str, Any], dict[str, Any]]]:
+    """(derived style, its template) for every derived style of the ceiling build."""
+    by_id = {t["product_id"]: t for t in scale.templates()}
+    return [
+        (r, by_id[ceiling.template_of[r["product_id"]]]) for r in ceiling.records[TEMPLATES:]
+    ]
 
 
 def test_the_size_parameter_reaches_the_target_sku_count(built):
@@ -104,6 +122,20 @@ def test_few_styles_share_a_results_grid_tile_with_another(built):
     assert report["grid_clone_rate"] <= 0.15
 
 
+def test_few_styles_share_a_results_grid_tile_at_the_ceiling(ceiling):
+    """Growth multiplies siblings that share a picture: the ceiling, not only the first
+    load, holds the grid-clone share under :data:`CEILING_GRID_CLONES`.
+
+    Guard: a template or pool change that clones tiles past the cap fails here. Metric: the
+    ceiling's grid-clone share, in the failure message.
+    """
+    tiles = collections.Counter(scale.grid_tile(r) for r in ceiling.records)
+    shared = sum(n for n in tiles.values() if n > 1)
+    rate = shared / len(ceiling.records)
+    assert scale.grid_clones(ceiling.records)["grid_clones"] == shared
+    assert rate <= CEILING_GRID_CLONES, f"{shared} of {len(ceiling.records)} styles ({rate:.1%})"
+
+
 def test_grid_clones_count_every_style_of_a_shared_tile():
     tpls = scale.templates()
     twin = dict(tpls[0], product_id="X-1", brand="Elsewhere")
@@ -112,14 +144,14 @@ def test_grid_clones_count_every_style_of_a_shared_tile():
     assert report["grid_clone_rate"] == round(2 / 3, 4)
 
 
-def test_a_leaf_a_derived_style_joins_never_holds_a_single_price(built, pairs):
+def test_a_leaf_a_derived_style_joins_never_holds_a_single_price(ceiling, ceiling_pairs):
     """An authored leaf may hold one price (four pyjamas at one price is the author's
     call); a derived style is never priced as its template, so its leaf gains a price."""
-    per_leaf = scale.prices_per_leaf(built.records)
-    derived = {r["category_leaf"] for r, _ in pairs}
-    assert len(derived) >= 45  # 47 at TARGET, seed 0: Zipf keeps most styles in head leaves
+    per_leaf = scale.prices_per_leaf(ceiling.records)
+    derived = {r["category_leaf"] for r, _ in ceiling_pairs}
+    assert len(derived) >= 100  # 110 at the ceiling, seed 0 (44 at TARGET)
     assert [leaf for leaf in derived if per_leaf["distinct"][leaf] < 2] == []
-    assert [r["product_id"] for r, t in pairs if r["price"] == t["price"]] == []
+    assert [r["product_id"] for r, t in ceiling_pairs if r["price"] == t["price"]] == []
 
 
 def test_a_derived_style_differs_from_its_template_and_siblings_in_a_visible_attribute(
@@ -280,15 +312,16 @@ def _motif_words(value: str, drawn: str) -> set[str]:
     return {low, drawn, f"{low}s", f"{low}es", f"{low[:-1]}ies"}
 
 
-def test_a_motif_style_draws_and_describes_its_own_motif(pairs):
+def test_a_motif_style_draws_and_describes_its_own_motif(ceiling_pairs):
     """The picture draws the motif, count and placement the attributes name, and the
     description never names the template's motif once the style changed it ("Cherry Graphic
-    Mug" -> an orange one must not say "a big pair of cherries")."""
+    Mug" -> an orange one must not say "a big pair of cherries"). The ceiling build holds
+    89 derived motif styles (seed 0); :data:`TARGET` holds 3."""
     from build_preview import drawing_svg  # noqa: PLC0415
 
     drawn = _motif_drawn()
     styles = changed = 0
-    for r, t in pairs:
+    for r, t in ceiling_pairs:
         if "motif" not in r["drawing"]:
             continue
         styles += 1
@@ -315,25 +348,28 @@ def test_a_motif_style_draws_and_describes_its_own_motif(pairs):
         assert stale == [], (r["product_id"], r["description"])
         assert scale._has_word(r["description"], mine["motif"]), (r["product_id"], r["description"])
         assert not re.search(r"\b[Aa] [aeiou]", r["description"]), r["description"]
-    assert styles >= 20
-    assert changed >= 10
+    assert styles >= 80  # 89 at the ceiling, seed 0
+    assert changed >= 75  # 85
 
 
-def test_a_style_that_changes_no_shown_value_carries_its_hero_color_in_its_title(pairs):
+def test_a_style_that_changes_no_shown_value_carries_its_hero_color_in_its_title(
+    ceiling_pairs,
+):
     """A style whose title-shown values equal its template's or an earlier sibling's differs
-    from it in the hero color alone: its title says so, in the listing convention "…, Navy"."""
+    from it in the hero color alone: its title says so, in the listing convention "…, Navy".
+    The ceiling build holds 1,082 such styles (seed 0); :data:`TARGET` holds 49."""
     taken: dict[str, set[tuple]] = collections.defaultdict(set)
     for t in scale.templates():
         taken[t["product_id"]].add(_signature(t, t)[0])
     colored = []
-    for r, t in pairs:
+    for r, t in ceiling_pairs:
         shown = _signature(r, t)[0]
         if shown in taken[t["product_id"]]:
             hero = (r.get("color_options") or [{}])[0].get("color")
             assert hero and r["title"].endswith(f", {hero}"), (r["product_id"], r["title"])
             colored.append(r["product_id"])
         taken[t["product_id"]].add(shown)
-    assert len(colored) >= 100
+    assert len(colored) >= 1_000
 
 
 def test_a_redrawn_print_motif_takes_its_plural_and_article():
@@ -350,11 +386,12 @@ def test_a_redrawn_print_motif_takes_its_plural_and_article():
     assert rec["drawing"]["count"] == tpl["drawing"]["count"]
 
 
-def test_a_shown_in_color_is_the_hero_the_picture_draws(pairs):
+def test_a_shown_in_color_is_the_hero_the_picture_draws(ceiling_pairs):
     """A sofa drawn in its Sage hero but described "Shown in cream" contradicts its picture:
-    a derived description names its own hero."""
+    a derived description names its own hero. One derived style says it, at the ceiling and
+    at :data:`TARGET` alike (seed 0)."""
     shown = 0
-    for r, t in pairs:
+    for r, t in ceiling_pairs:
         if not re.search(r"\bshown in\b", t["description"], re.IGNORECASE):
             continue
         shown += 1
@@ -373,10 +410,11 @@ def test_every_brand_in_the_build_has_a_house_style(built):
     assert sorted(brands - set(house_styles.HOUSE_STYLES)) == []
 
 
-def test_a_smaller_build_is_a_prefix_of_a_larger_one(built):
-    small = scale.build(TARGET // 2)
-    assert small.records == built.records[: len(small.records)]
-    assert len(small.records) > TEMPLATES
+def test_a_smaller_build_is_a_prefix_of_a_larger_one(built, ceiling):
+    """The first load and the ceiling are prefixes of one sequence, derived styles included:
+    a load can grow without renaming a style it already shipped."""
+    assert len(built.records) > TEMPLATES
+    assert built.records == ceiling.records[: len(built.records)]
 
 
 def test_a_derived_style_carries_no_bestseller_badge(pairs):
@@ -522,14 +560,13 @@ def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(tmp_path):
     assert got["distinctness"]["near_duplicate_rate"] <= CEILING_NEAR_DUPLICATES
 
 
-def test_no_department_falls_under_half_its_fair_share_of_styles():
+def test_no_department_falls_under_half_its_fair_share_of_styles(ceiling):
     """A general retailer sells in every department: at the ceiling, each holds at least
     half of an even split of the styles (``breadth_rows`` keeps it there).
 
     Guard: a template change that starves a department fails here. Metric: the smallest
     department's share of the fair split, in the failure message.
     """
-    ceiling = scale.build(100_000)
     styles = collections.Counter(scale._department(r) for r in ceiling.records)
     assert len(styles) == DEPARTMENTS, sorted(styles)
     fair = len(ceiling.records) / DEPARTMENTS
