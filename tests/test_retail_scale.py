@@ -2,9 +2,9 @@
 
 ``prototypes/retail_drawings/scale.py`` derives styles from the hand-authored
 ones until the SKUs reach the target. These tests hold it at the first load
-size, 19K SKUs, just under today's ceiling: it reaches the count, stays deterministic, meets the
-output standard, adds no duplicate title or clone, keeps every derived fact
-honest to its template, and keeps the drawings bounded.
+size, 19K SKUs, and at the ceiling where every template is exhausted: it reaches the
+count, stays deterministic, meets the output standard, adds no duplicate title or
+clone, keeps every derived fact honest to its template, and keeps the drawings bounded.
 """
 
 from __future__ import annotations
@@ -38,9 +38,9 @@ BREADTH_ROWS = 151
 TEMPLATES = AUTHORED + SCALE_ROWS + BREADTH_ROWS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (2_366, 89_114)
+CAPACITY = (2_357, 44_923)
 #: The grid-clone share the ceiling build may reach (:func:`scale.grid_clones`). Round 2
-#: measured 14.1%: the rest is the headroom the 50K and 100K rounds may spend.
+#: measured 14.4%: the rest is the headroom the 50K and 100K rounds may spend.
 CEILING_GRID_CLONES = 0.15
 #: The departments the ceiling build sells in.
 DEPARTMENTS = 10
@@ -149,7 +149,7 @@ def test_a_leaf_a_derived_style_joins_never_holds_a_single_price(ceiling, ceilin
     call); a derived style is never priced as its template, so its leaf gains a price."""
     per_leaf = scale.prices_per_leaf(ceiling.records)
     derived = {r["category_leaf"] for r, _ in ceiling_pairs}
-    assert len(derived) >= 100  # 110 at the ceiling, seed 0 (44 at TARGET)
+    assert len(derived) >= 100  # 110 at the ceiling, seed 0 (57 at TARGET)
     assert [leaf for leaf in derived if per_leaf["distinct"][leaf] < 2] == []
     assert [r["product_id"] for r, t in ceiling_pairs if r["price"] == t["price"]] == []
 
@@ -282,8 +282,8 @@ def test_a_changed_value_is_redrawn_in_the_picture(pairs):
         motif = {a["value"].lower(): a["value"] for a in t["attributes"] if a["key"] == "motif"}
         mine = _string_fields(r["drawing"])
         for p, v in _string_fields(t["drawing"]).items():
-            if p in ("base", "accent", "third", "pattern") or p not in mine:
-                continue  # the hero swatch and the motif's ink: see the motif test
+            if p in ("base", "accent", "third", "pattern", "label") or p not in mine:
+                continue  # the hero swatch, the motif's ink and a duvet's tog: see their tests
             was = next(iter(motif)) if p == "motif" else v.lower()
             if was in changed:
                 want = drawn[changed[was]] if p == "motif" else changed[was]
@@ -316,7 +316,7 @@ def test_a_motif_style_draws_and_describes_its_own_motif(ceiling_pairs):
     """The picture draws the motif, count and placement the attributes name, and the
     description never names the template's motif once the style changed it ("Cherry Graphic
     Mug" -> an orange one must not say "a big pair of cherries"). The ceiling build holds
-    89 derived motif styles (seed 0); :data:`TARGET` holds 3."""
+    88 derived motif styles (seed 0); :data:`TARGET` holds 3."""
     from build_preview import drawing_svg  # noqa: PLC0415
 
     drawn = _motif_drawn()
@@ -348,8 +348,8 @@ def test_a_motif_style_draws_and_describes_its_own_motif(ceiling_pairs):
         assert stale == [], (r["product_id"], r["description"])
         assert scale._has_word(r["description"], mine["motif"]), (r["product_id"], r["description"])
         assert not re.search(r"\b[Aa] [aeiou]", r["description"]), r["description"]
-    assert styles >= 80  # 89 at the ceiling, seed 0
-    assert changed >= 75  # 85
+    assert styles >= 80  # 88 at the ceiling, seed 0
+    assert changed >= 75  # 86
 
 
 def test_a_style_that_changes_no_shown_value_carries_its_hero_color_in_its_title(
@@ -357,7 +357,7 @@ def test_a_style_that_changes_no_shown_value_carries_its_hero_color_in_its_title
 ):
     """A style whose title-shown values equal its template's or an earlier sibling's differs
     from it in the hero color alone: its title says so, in the listing convention "…, Navy".
-    The ceiling build holds 1,082 such styles (seed 0); :data:`TARGET` holds 49."""
+    The ceiling build holds 1,073 such styles (seed 0); :data:`TARGET` holds 83."""
     taken: dict[str, set[tuple]] = collections.defaultdict(set)
     for t in scale.templates():
         taken[t["product_id"]].add(_signature(t, t)[0])
@@ -622,3 +622,31 @@ def test_the_invented_names_are_new_and_never_repeat():
     assert len(scale.RANGE_NAMES) == len(set(scale.RANGE_NAMES))
     words = {w for b in tpl_brands | set(extra) for w in b.split()}
     assert sorted(set(scale.RANGE_NAMES) & words) == []
+
+
+def test_a_color_titled_style_carries_only_its_title_color_in_every_sku(ceiling_pairs):
+    """A listing whose title names a colour IS that colour: every SKU of a style titled
+    "…, Sage" is Sage, in all its sizes. The ceiling build holds 1,073 such styles (seed 0);
+    :data:`TARGET` holds 83."""
+    seen = 0
+    for r, t in ceiling_pairs:
+        hero = (r.get("color_options") or [{}])[0].get("color")
+        if not (hero and r["title"].endswith(f", {hero}")):
+            continue
+        seen += 1
+        assert {s.get("color") for s in r["skus"]} == {hero}, r["product_id"]
+        assert [c["color"] for c in r["color_options"]] == [hero], r["product_id"]
+        sizes = {s.get("size") for s in t["skus"] if s.get("color") == hero}
+        assert {s.get("size") for s in r["skus"]} == sizes, r["product_id"]
+    assert seen >= 100
+
+
+def test_a_duvets_drawn_tog_is_its_tog_attribute(built):
+    duvets = 0
+    for r in built.records:
+        tog = next((str(a["value"]) for a in r["attributes"] if a["key"] == "tog"), None)
+        if tog is None:
+            continue
+        duvets += 1
+        assert r["drawing"]["label"].lower() == f"{tog} tog".lower(), r["product_id"]
+    assert duvets >= 2

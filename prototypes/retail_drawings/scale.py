@@ -31,8 +31,9 @@ A derived style copies one template and changes, deterministically from the seed
   title's plural follows ("Lemons Print" -> "Oranges Print"), and the description
   is rebuilt from the product noun after "Graphic" or "Print" in the title, with
   no colour words. Count and placement are frozen;
-- its **colorways**, a hero color, then a subset of the template's other colors.
-  Its SKUs are the template's own size run times those colors, hero first
+- its **colorways**, a hero color, then a subset of the template's other colors;
+  a style whose title names its colour (see below) carries that hero colourway
+  alone. Its SKUs are the template's own size run times those colors, hero first
   (:func:`variants.product`): no SKU is invented. Each SKU's price is the
   template's times the style's price ratio (see below). A description's
   "Shown in cream" names the hero, the colour the picture shows;
@@ -64,7 +65,7 @@ price with another.
 
 **Capacity.** Signatures bound the build: per template, the shown values its leaf
 offers times its color families. With today's templates every template is
-exhausted at 89,114 SKUs (2,366 styles). Past that, the CLI reports
+exhausted at 44,923 SKUs (2,357 styles). Past that, the CLI reports
 ``reached_target: false`` and exits 2. To grow it, add data, not code: more values
 per leaf that the title shows, more colorways, and more templates, deep-SKU ones
 above all.
@@ -73,8 +74,8 @@ Images: a derived style keeps its template's drawing (params and a changed motif
 aside), so the distinct drawings (:func:`coverage` ``images.distinct_drawings``)
 stay near the template count. ``export.image_id`` still embeds the product id, so
 ``images.image_ids`` is one per product and colorway, and
-``image_release.py --skus N`` renders this build's images (1,493 for the 19,142
-SKUs of ``--skus 19000``).
+``image_release.py --skus N`` renders this build's images (1,348 for the 20,002
+SKUs of ``--skus 20000``).
 """
 
 from __future__ import annotations
@@ -345,6 +346,8 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
             for p, v in params.items():
                 if isinstance(v, str) and v.lower() == old.lower():
                     params[p] = new.lower() if v == old.lower() else new
+            if isinstance(rec["drawing"].get("label"), str):  # a duvet's "13.5 Tog"
+                rec["drawing"]["label"] = _swap(rec["drawing"]["label"], old, new)
             if a["key"] == "motif" and "motif" in rec["drawing"]:
                 _redraw_motif(rec, old, new)
     if colors:  # "Shown in cream" names the colour the picture shows: the hero
@@ -540,6 +543,8 @@ def _draw(tpl: dict, serial: int, ctx: _Context, brands: list[str], owners: dict
         values = dict(zip(shown, sig[0], strict=True))
         values |= {k: rng.choice(ctx.pools[(leaf, k)]) for k in keys if k not in shown}
         colors = _colors(tpl, sig[1], rng)
+        if sig[0] in taken:  # the title names the colour: the style IS that colour
+            colors = colors[:1]
         brand, name = rng.choice(brands), rng.choice(RANGE_NAMES)
         changes = {k: (old[k], v) for k, v in values.items() if v != old[k]}
         price = tpl["price"] * price_factor(changes) * rng.uniform(*JITTER)

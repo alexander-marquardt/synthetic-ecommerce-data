@@ -1,8 +1,9 @@
 """A minimal SVG writer: shapes in, a small deterministic file out.
 
-Why not matplotlib. The catalog's drawings carry NO text of any kind (maintainer
-ruling on elastic/prism-industrial-products#103, 2026-09-28): no dimensions, no
-callouts, no labels, no brand name, no SKU. Everything a shopper reads is on the
+Why not matplotlib. The catalog's drawings carry NO text but the brand's
+wordmark (maintainer ruling on elastic/prism-industrial-products#103,
+2026-09-28, revised for the brand mark on 2026-10-08, synthetic-ecommerce-data#132):
+no dimensions, no callouts, no labels, no SKU. Everything a shopper reads is on the
 record -- title, description and attributes -- so text in the picture is
 redundant, and it would pin a drawing to wording that can change. What is left
 is line work and fills, and for that a figure library costs more than it gives:
@@ -18,6 +19,7 @@ a tenth of a unit is well under a display pixel at any size a card is shown at.
 from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
+from html import escape
 
 #: The drawing's coordinate box. Portrait, the card's 150 x 220 box at the same
 #: aspect near enough; the page scales it.
@@ -91,6 +93,11 @@ class Svg:
 
     def circle(self, cx: float, cy: float, r: float, **attrs: str) -> None:
         self.add(f'<circle cx="{num(cx)}" cy="{num(cy)}" r="{num(r)}"{_attrs(attrs)}/>')
+
+    def text(self, x: float, y: float, content: str, **attrs: str) -> None:
+        """A ``<text>`` element: the brand wordmark is the only text a drawing carries (#132)."""
+        body = escape(content, quote=False)
+        self.add(f'<text x="{num(x)}" y="{num(y)}"{_attrs(attrs)}>{body}</text>')
 
     def lines(self, segments: Iterable[tuple[Point, Point]], **attrs: str) -> None:
         """Many unconnected segments as ONE path element -- the cheap way to hatch."""
