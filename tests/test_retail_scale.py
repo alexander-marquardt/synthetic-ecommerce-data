@@ -29,12 +29,15 @@ import scale  # noqa: E402
 
 #: The first load: about 20K SKUs, about 1,000 styles.
 TARGET = 20_000
-#: The round 4 preview's 328 authored styles, then the scale-only rows (``scale_rows``).
+#: The round 4 preview's 328 authored styles, then the scale-only rows (``scale_rows``),
+#: then the breadth rows (``breadth_rows``).
 SCALE_ROWS = 62
-TEMPLATES = 328 + SCALE_ROWS
+AUTHORED = 328
+BREADTH_ROWS = 71
+TEMPLATES = AUTHORED + SCALE_ROWS + BREADTH_ROWS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (2_305, 65_271)
+CAPACITY = (3_265, 66_250)
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's 2.6%
 #: (gen#136), rounded up to the 20K build's 2.8%. Growth must not dilute it.
 CEILING_NEAR_DUPLICATES = 0.028
@@ -229,7 +232,7 @@ def test_every_scale_only_row_opens_a_leaf_or_a_title_value_its_leaf_lacked():
     """A ``scale_rows`` template adds capacity only through what the authored styles lack."""
     rows = scale.scale_rows.docs()
     assert len(rows) == SCALE_ROWS
-    authored = scale.templates()[: TEMPLATES - SCALE_ROWS]
+    authored = scale.templates()[:AUTHORED]
     have = {
         (t["category_leaf"], a["key"], str(a["value"])) for t in authored for a in t["attributes"]
     }
