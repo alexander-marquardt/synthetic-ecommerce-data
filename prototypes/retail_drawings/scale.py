@@ -315,7 +315,6 @@ def build(skus: int, seed: int = 0) -> Scaled:
         if sum(x["sku_count"] for x in records) >= skus:
             return Scaled(records, {})
         records.append(r)
-    return Scaled(records, {})  # red stub: no style is derived yet
     rng = random.Random(seed)
     pools = value_pools(tpls)
     owners = {r["brand"]: r["brand_owner"] for r in tpls if "brand_owner" in r}
