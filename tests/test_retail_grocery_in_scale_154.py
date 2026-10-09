@@ -23,16 +23,19 @@ if str(RETAIL) not in sys.path:
 import grocery  # noqa: E402
 import image_release  # noqa: E402
 import scale  # noqa: E402
+from retail_figures import committed  # noqa: E402
 
+#: The measured totals (``golden-retail/stats.json``, gen#162): never typed here.
+FIGURES = committed()["templates"]
 #: The grocery styles and SKUs (``tests/test_grocery_154.py``'s 10K build).
-GROCERY_STYLES = 3_379
-GROCERY_SKUS = 10_067
+GROCERY_STYLES = FIGURES["grocery"]["styles"]
+GROCERY_SKUS = FIGURES["grocery"]["skus"]
 #: The main build's own Food & Drink styles (honey, jam, tea, coffee, chutney, ...): kept.
-MAIN_FOOD_STYLES = 55
-MAIN_FOOD_SKUS = 61
-#: The templates before grocery, and the SKUs they hold (``tests/test_retail_scale.py``'s).
-MAIN_TEMPLATES = 927
-MAIN_TEMPLATE_SKUS = 27_928
+MAIN_FOOD_STYLES = FIGURES["main_food"]["styles"]
+MAIN_FOOD_SKUS = FIGURES["main_food"]["skus"]
+#: The templates before grocery, and the SKUs they hold.
+MAIN_TEMPLATES = FIGURES["before_grocery"]["styles"]
+MAIN_TEMPLATE_SKUS = FIGURES["before_grocery"]["skus"]
 
 
 @pytest.fixture(scope="module")

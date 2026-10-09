@@ -41,8 +41,7 @@ REBUILD = "python3 prototypes/retail_drawings/retail_figures.py"
 #: More SKUs than the templates can reach, so ``scale.build`` runs to its ceiling.
 EXHAUST = 10_000_000
 
-#: Grocery keys whose title or description may name a value no SKU carries (an ingredient or
-#: product word is not an allergen or selector claim), and the keys the invariant holds strictly.
+#: Grocery keys whose style attribute is the INTERSECTION of the SKUs' lists, not the union.
 GROCERY_INTERSECTION_KEYS = ("dietary", "may_contain")
 
 
