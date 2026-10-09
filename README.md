@@ -1265,6 +1265,17 @@ so none is re-rendered), and `pattern` and `rise` are written in Title Case.
 `tests/test_retail_audience.py` refuses a facet with two values that differ only in case.
 "Cleaning & Janitorial" is a department, not a root: its kitchen cleaners sit under `Cleaning`.
 
+**A fit or a bra style is a filter, not a leaf**. A jean sits at `<Root>/Jeans` and a pair of
+trousers at `<Root>/Trousers`, its fit in `leg_fit` alone (the failure-class rows' `leg_style`
+is folded into it). A bra sits at `Women/Lingerie/Bras`, unless it is a Sports, Nursing, Sleep
+or Post-Surgery bra, whose node stays; its old style leaf is split into `bra_shape`,
+`padding`, `back_style` and `fabric` (`facet_leaves.BRA_LEAVES`), and the fibre content a bra's
+`fabric` held moves to `composition`. Only the document changes (`export.standard_document`):
+the build record keeps its leaf, so the derivation and every image id are what they were, and a
+title keeps its words ("Skinny Jeans"). `tests/test_retail_facet_leaves.py` refuses a node
+under Jeans, Trousers or Bras that names one of those values, a jean without a `leg_fit` or a
+bra without a `bra_shape`, and a facet with two values that differ only in case or hyphenation.
+
 `prototypes/retail_drawings/scale.py --skus 20000 --out retail.jsonl` builds the
 retail catalog to a target SKU count, writes it in the standard, and prints a
 report:

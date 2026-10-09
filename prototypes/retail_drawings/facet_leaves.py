@@ -7,7 +7,8 @@ so :func:`export.standard_document` collapses those leaves here:
 
 - a jean or a pair of trousers sits at ``<Root>/Jeans`` or ``<Root>/Trousers``, its fit in
   ``leg_fit`` alone. ``leg_style`` named the same thing in lower case on the failure-class
-  rows (``barrel``, ``wide``), so it is folded into ``leg_fit`` (:data:`LEG_STYLE_FITS`);
+  rows (``barrel``, ``wide``), so it is folded into ``leg_fit`` (:data:`LEG_STYLE_FITS`). A
+  jean whose text says it is cropped also carries ``Cropped`` (:data:`CROPPED`);
 - a bra sits at ``Women/Lingerie/Bras``, unless it is a purpose bra (:data:`PURPOSE_BRAS`),
   whose node stays. ``bra_style`` is split into ``bra_shape``, ``padding``, ``back_style``
   and ``fabric``, each the value the old leaf implied (:data:`BRA_LEAVES`). Every bra has a
@@ -24,6 +25,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from synthetic_ecommerce_data.core.standard import words
+
 #: The kind nodes whose fit leaves collapse into them, by product type.
 FIT_NODES = {"Jeans": "Jeans", "Trousers": "Trousers"}
 #: The bra node, and the purpose nodes that stay under it.
@@ -39,6 +42,10 @@ LEG_STYLE_FITS = {
     "tapered": "Tapered",
     "wide": "Wide Leg",
 }
+#: The one fit a jean of another fit is also cut in: a cropped balloon jean ("curving back in
+#: at a cropped ankle") was filed under Balloon Jeans, but a "Cropped" filter must find it, and
+#: once every fit shares the Jeans leaf its text would otherwise contradict its ``leg_fit``.
+CROPPED = "Cropped"
 
 #: The keys a bra leaf's facets are written to, with their display names.
 BRA_KEYS = {
@@ -51,16 +58,19 @@ BRA_KEYS = {
 COMPOSITION = ("composition", "Composition")
 
 #: Bra leaf (``<x> Bras``, or a purpose node) -> (bra_shape, padding, back_style, fabric).
-#: ``None`` is a facet the leaf did not imply. A shape written for a leaf that named none is
-#: the shape that kind of bra is cut in: a moulded or everyday cup is a T-Shirt bra, a
-#: strapless or multiway one a Balcony, a halter or low back a Plunge, the rest a Full Cup.
-BRA_LEAVES: dict[str, tuple[str, str | None, str | None, str | None]] = {
+#: ``None`` is a facet the leaf did not imply; a tuple is several values (a convertible bra's
+#: straps convert to a halterneck or a cross back, and its text says so). A shape written
+#: for a leaf that named none is the shape that kind of bra is cut in: a moulded or everyday
+#: cup is a T-Shirt bra, a strapless or multiway one a Balcony, a halter or low back a
+#: Plunge, the rest a Full Cup.
+Facet = str | tuple[str, ...] | None
+BRA_LEAVES: dict[str, tuple[str, Facet, Facet, Facet]] = {
     "Balconette Bras": ("Balcony", None, None, None),
     "Balcony Bras": ("Balcony", None, None, None),
     "Bandeau Bras": ("Bandeau", None, "Strapless", None),
     "Bralette Bras": ("Bralette", None, None, None),
     "Contour Bras": ("T-Shirt", "Moulded", None, None),
-    "Convertible Bras": ("Balcony", None, "Multiway", None),
+    "Convertible Bras": ("Balcony", None, ("Multiway", "Halterneck", "Cross Back"), None),
     "Cotton Bras": ("Full Cup", None, None, "Cotton"),
     "Cross Back Bras": ("Full Cup", None, "Cross Back", None),
     "Deep Plunge Bras": ("Plunge", None, None, None),
@@ -135,12 +145,16 @@ def leaf_facets(
         fit = have.get("leg_fit")
         fit = fit or LEG_STYLE_FITS.get(have.get("leg_style", ""))
         fit = fit or _fit_of_leaf(path[-1], FIT_NODES[ptype])
-        return ([("leg_fit", "Leg fit", fit)] if fit else []), {"leg_fit", "leg_style"}
+        fits = [fit] if fit else []
+        text = words(f"{rec['title']} {rec.get('description', '')}")
+        if fits and CROPPED not in fits and f" {CROPPED.lower()} " in text:
+            fits.append(CROPPED)
+        return [("leg_fit", "Leg fit", f) for f in fits], {"leg_fit", "leg_style"}
     if ptype == "Bra":
         out = [
             (key, BRA_KEYS[key], value)
-            for key, value in zip(BRA_KEYS, BRA_LEAVES[path[-1]], strict=True)
-            if value is not None
+            for key, facet in zip(BRA_KEYS, BRA_LEAVES[path[-1]], strict=True)
+            for value in ((facet,) if isinstance(facet, str) else facet or ())
         ]
         if "fabric" in have:
             out.append((*COMPOSITION, have["fabric"]))
