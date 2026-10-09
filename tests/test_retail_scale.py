@@ -85,10 +85,162 @@ def test_a_derived_style_adds_no_duplicate_title_and_no_twin(built, pairs):
     )
 
 
-def test_near_duplicate_listings_stay_rare(built):
-    report = scale.distinctness(built.records, sample=500)
-    assert report["near_duplicate_sample"] == 500
-    assert report["near_duplicate_rate"] <= 0.05
+def test_few_styles_share_a_results_grid_tile_with_another(built):
+    """What a results grid shows is the leaf, the hero picture and the price: a style that
+    shares all three with another reads as a clone whatever its brand and range name."""
+    report = scale.grid_clones(built.records)
+    assert report["styles"] == len(built.records)
+    assert report["grid_clone_rate"] <= 0.15
+
+
+def test_grid_clones_count_every_style_of_a_shared_tile():
+    tpls = scale.templates()
+    twin = dict(tpls[0], product_id="X-1", brand="Elsewhere")
+    report = scale.grid_clones([tpls[0], twin, tpls[1]])
+    assert (report["grid_clones"], report["largest_group"]) == (2, 2)
+    assert report["grid_clone_rate"] == round(2 / 3, 4)
+
+
+def test_no_leaf_with_several_styles_has_a_single_price(built):
+    per_leaf = scale.prices_per_leaf(built.records)
+    styles = collections.Counter(r["category_leaf"] for r in built.records)
+    assert [leaf for leaf, n in per_leaf["distinct"].items() if styles[leaf] >= 4 and n < 2] == []
+    assert per_leaf["median"] >= 3
+
+
+def test_a_derived_style_differs_from_its_template_and_siblings_in_a_visible_attribute(
+    built, pairs
+):
+    """A range name and a brand alone are not a style: each derived style changes a value
+    the title shows, or the hero colour family, against its template and every sibling."""
+    by_tpl: dict[str, set[tuple]] = collections.defaultdict(set)
+    for t in scale.templates():
+        by_tpl[t["product_id"]].add(_signature(t, t))
+    same = []
+    for r, t in pairs:
+        sig = _signature(r, t)
+        if sig in by_tpl[t["product_id"]]:
+            same.append((r["product_id"], r["title"]))
+        by_tpl[t["product_id"]].add(sig)
+    assert same == []
+
+
+def _signature(rec: dict[str, Any], tpl: dict[str, Any]) -> tuple:
+    shown = [a["key"] for a in tpl["attributes"]
+             if a["key"] != "line" and scale._has_word(tpl["title"], str(a["value"]))]  # fmt: skip
+    values = {a["key"]: str(a["value"]) for a in rec["attributes"]}
+    hero = (rec.get("color_options") or [{}])[0]
+    return (tuple(values[k] for k in shown), hero.get("family", hero.get("color")))
+
+
+def test_a_derived_price_is_redrawn_inside_its_leafs_band(built, pairs):
+    lo_f, hi_f = scale.PRICE_BAND
+    band: dict[str, list[float]] = collections.defaultdict(list)
+    for t in scale.templates():
+        band[t["category_leaf"]].append(t["price"])
+    for r, _ in pairs:
+        prices = band[r["category_leaf"]]
+        assert lo_f * min(prices) <= r["price"] <= hi_f * max(prices), r["product_id"]
+        assert r["price"] == min(s["price"] for s in r["skus"])
+    moved = sum(r["price"] != t["price"] for r, t in pairs)
+    assert moved >= 0.8 * len(pairs)
+
+
+def test_a_premium_value_costs_more_and_a_cheaper_one_less():
+    up = scale.price_factor({"upper_material": ("Synthetic", "Leather")})
+    down = scale.price_factor({"upper_material": ("Leather", "Synthetic")})
+    assert down < 1.0 < up
+    assert scale.price_factor({}) == 1.0
+    assert scale.price_factor({"wash": ("Rinse", "Stone")}) == 1.0
+
+
+def test_a_price_point_is_a_retail_one():
+    assert [scale.price_point(p) for p in (1.13, 7.3, 18.2, 41.6, 263.0)] == [
+        1.15, 7.5, 18.0, 42.0, 265.0
+    ]
+
+
+def test_a_value_another_attribute_shares_never_varies():
+    """A leather sole on a leather loafer: a swap cannot tell whose word "Leather" is."""
+
+    def entry(key: str, value: str) -> dict[str, Any]:
+        return {"key": key, "name": key.title(), "value": value}
+
+    rec = {
+        "category_path": ["Women", "Shoes", "Loafers"],
+        "category_leaf": "Loafers",
+        "product_type": "Loafers",
+        "title": "Leather Penny Loafers",
+        "description": "Hand-finished leather loafers with a round toe.",
+        "attributes": [entry("upper_material", "Leather"), entry("sole", "Leather"),
+                       entry("toe", "Round")],  # fmt: skip
+    }
+    pools = {("Loafers", k): (v, v + "x") for k, v in
+             (("upper_material", "Leather"), ("sole", "Leather"), ("toe", "Round"))}  # fmt: skip
+    assert scale.variable_keys(rec, pools) == ["toe"]
+
+
+def test_a_swap_reads_the_and_spelling_of_an_ampersand():
+    text = "Easy-on trainers with two hook and loop straps."
+    assert scale._swap(text, "Hook & Loop", "Lace-Up") == "Easy-on trainers with two lace-up straps."
+    assert scale._swap("Kids' Hook & Loop Trainers", "Hook & Loop", "Buckle") == (
+        "Kids' Buckle Trainers"
+    )
+
+
+def _changed(r: dict[str, Any], t: dict[str, Any]) -> dict[str, tuple[str, str]]:
+    new = {a["key"]: str(a["value"]) for a in r["attributes"]}
+    return {
+        a["key"]: (str(a["value"]), new[a["key"]])
+        for a in t["attributes"]
+        if a["key"] != "line" and new[a["key"]] != str(a["value"])
+    }
+
+
+def test_a_changed_value_is_rewritten_in_the_description(pairs):
+    rewritten = 0
+    for r, t in pairs:
+        for old, new in _changed(r, t).values():
+            if not scale._has_word(t["description"], old):
+                continue
+            assert scale._has_word(r["description"], new), (r["product_id"], r["description"])
+            assert not scale._has_word(r["description"], old), (r["product_id"], old)
+            rewritten += 1
+    assert rewritten >= 20
+
+
+def test_a_changed_value_is_redrawn_in_the_picture(pairs):
+    redrawn = 0
+    for r, t in pairs:
+        changed = {old.lower(): new for old, new in _changed(r, t).values()}
+        mine = r["drawing"].get("params") or {}
+        for p, v in (t["drawing"].get("params") or {}).items():
+            if isinstance(v, str) and v.lower() in changed:
+                assert str(mine[p]).lower() == changed[v.lower()].lower(), (r["product_id"], p)
+                redrawn += 1
+            else:
+                assert mine[p] == v, (r["product_id"], p)
+    assert redrawn >= 20
+
+
+def test_a_smaller_build_is_a_prefix_of_a_larger_one(built):
+    small = scale.build(TARGET // 2)
+    assert small.records == built.records[: len(small.records)]
+    assert len(small.records) > TEMPLATES
+
+
+def test_a_derived_style_carries_no_bestseller_badge(pairs):
+    assert [r["product_id"] for r, _ in pairs if "Bestseller" in r.get("badges", ())] == []
+    assert any(r.get("badges") for r, _ in pairs)
+
+
+def test_the_cli_refuses_a_target_below_one():
+    done = subprocess.run(
+        [sys.executable, str(RETAIL / "scale.py"), "--skus", "0"],
+        capture_output=True, text=True, check=False,
+    )  # fmt: skip
+    assert done.returncode == 2
+    assert "--skus must be at least 1" in done.stderr
 
 
 def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):
@@ -158,7 +310,7 @@ def test_skus_are_the_templates_size_run_times_a_color_subset(pairs):
     def runs(rec: dict) -> dict[Any, list[dict]]:
         out: dict[Any, list[dict]] = collections.defaultdict(list)
         for s in rec["skus"]:
-            out[s.get("color")].append({k: v for k, v in s.items() if k != "sku"})
+            out[s.get("color")].append({k: v for k, v in s.items() if k not in ("sku", "price")})
         return out
 
     for r, t in pairs:
