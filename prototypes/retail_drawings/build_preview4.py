@@ -26,6 +26,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 import footwear_rows  # noqa: E402
+import kit_cleaning  # noqa: E402,F401 -- registers rim_block, angled_bottle
 import kit_footwear  # noqa: E402,F401 -- registers shoe, boot_sock
 import kit_more  # noqa: E402,F401 -- registers the own-kind shapes (bouquet, socks, bed_frame, ...)
 import kit_round4  # noqa: E402,F401 -- registers belt, hanger, outfit_set, trigger_spray
