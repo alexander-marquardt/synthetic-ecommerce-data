@@ -282,3 +282,20 @@ def shared(lists: list[list[str]]) -> list[str]:
     """A product's list: the items every variant lists (the base recipe), in the first
     variant's order. Never longer than a variant's list, so never over 20."""
     return [i for i in lists[0] if all(i in lst for lst in lists[1:])]
+
+
+_PERCENT = re.compile(r"\s*\(\d+(?:\.\d+)?%\)")
+
+
+def facet_value(item: str) -> str:
+    """The filterable form of one label ingredient: lower-case, the percentage dropped
+    ("Roasted Peanuts (94%)" -> "roasted peanuts"), the last word singularised when it
+    is a regular plural ("red peppers" -> "red pepper", "cherries" -> "cherry"). A word
+    ending in ss, us, is or ses is left alone ("molasses", "hummus")."""
+    text = _PERCENT.sub("", item).strip().lower()
+    head, sep, last = text.rpartition(" ")
+    if last.endswith("ies") and len(last) > 4:
+        last = last[:-3] + "y"
+    elif last.endswith("s") and not last.endswith(("ss", "us", "is", "ses")) and len(last) > 3:
+        last = last[:-1]
+    return head + sep + last

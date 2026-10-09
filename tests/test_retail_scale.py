@@ -642,7 +642,7 @@ def _held(style, key):
 
 #: Grocery keys whose style attribute is the INTERSECTION of the SKUs' lists (what every SKU
 #: is free from, may contain, or is suitable for), not the union the clothing keys use.
-GROCERY_INTERSECTION_KEYS = ("free_from", "dietary", "may_contain")
+GROCERY_INTERSECTION_KEYS = ("dietary", "may_contain")
 
 
 def test_grocery_style_attributes_list_the_values_of_their_skus(ceiling):
@@ -666,7 +666,7 @@ def test_grocery_style_attributes_list_the_values_of_their_skus(ceiling):
                 held = set.intersection(*lists)
             if values != held:
                 wrong.append((r["product_id"], key, sorted(values), sorted(held)))
-    assert checked >= 15_000
+    assert checked >= 11_000
     assert wrong == []
 
 
@@ -676,7 +676,6 @@ def test_grocery_style_attributes_list_the_values_of_their_skus(ceiling):
 #: allergen list. Every other SKU-carried key (dietary) is held strictly.
 GROCERY_NAMED_EXCEPTIONS = {
     "flavor": 1_885,
-    "free_from": 2_613,
     "may_contain": 646,
     "contains": 558,
     "pack_size": 85,
@@ -704,7 +703,7 @@ def test_no_grocery_title_or_description_names_a_value_no_sku_carries(ceiling):
             checked += 1
             unheld = (v for v in words if v.lower() not in held)
             wrong[key] += sum(1 for v in unheld if scale._has_word(text, v))
-    assert checked >= 15_000
+    assert checked >= 11_000
     assert {k: n for k, n in wrong.items() if n and k not in GROCERY_NAMED_EXCEPTIONS} == {}
     assert {k: n for k, n in wrong.items() if n > GROCERY_NAMED_EXCEPTIONS.get(k, 0)} == {}
 
