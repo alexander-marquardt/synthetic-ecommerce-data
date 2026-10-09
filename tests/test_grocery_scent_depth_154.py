@@ -121,3 +121,12 @@ def test_the_core_styles_do_not_move_when_scent_depth_is_dropped() -> None:
         grocery.FAMILIES = saved
     assert alone == core
     assert len(full) > len(core)
+
+
+def test_a_scent_style_describes_its_own_product_not_a_multi_surface_spray() -> None:
+    nouns = {f.code: f.noun for f in grocery_rows.FAMILIES if getattr(f, "depth", False)}
+    assert nouns
+    for r in records():
+        noun = nouns.get(r["product_id"].split("-")[1])
+        if noun:
+            assert noun in r["description"] and "multi-surface" not in r["description"]
