@@ -31,6 +31,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from audience import audience_of
 from build_preview4 import samples
 
 from synthetic_ecommerce_data.core import standard
@@ -41,6 +42,15 @@ from synthetic_ecommerce_data.core.entry import split
 #: industrial bundle's under one images mount, so a URL is ``/images/<root>/<path>``.
 IMAGE_ROOT = "retail"
 IMAGE_BASE_URL = f"/images/{IMAGE_ROOT}"
+
+#: Product-level keys written in Title Case whatever the authored row spelled ("plain" and
+#: "Plain" were two buckets of one facet).
+TITLE_CASED = frozenset({"pattern", "rise"})
+
+#: Authored product types that are one concept with another, written as the second: "Tee" is a
+#: "T-Shirt", the name of its category node. Only the document's ``product_type`` is folded;
+#: the image id keeps the authored type, so the 561 tees keep their ``tee/...`` image ids.
+PRODUCT_TYPE_FOLDS = {"Tee": "T-Shirt"}
 
 #: SKU option -> (key, name, unit): one variant-level entry each; a unit splits it.
 OPTIONS: dict[str, tuple[str, str, str | None]] = {
@@ -172,9 +182,29 @@ def _product_attributes(rec: dict) -> list[dict[str, Any]]:
         facts += _entries(OPTIONS[option], values)
     if "unit_size" in rec:
         facts.append(_entry(*NET_CONTENT[rec["unit_measure"]], rec["unit_size"]))
+    who = audience_of(rec)
+    if who is not None:
+        facts.append(_entry("audience", "Audience", None, who))
     for e in facts:
         if (e["key"], e["value"]) not in have:
             have.add((e["key"], e["value"]))
+            out.append(e)
+    return _title_cased(out)
+
+
+def _title_cased(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """``entries`` with the :data:`TITLE_CASED` keys in Title Case, a repeat dropped.
+
+    The authored rows spell ``pattern`` and ``rise`` both ways ("plain", "Plain"), which split
+    one facet's bucket in two; every other facet already has one spelling
+    (``tests/test_retail_audience.py`` checks them all)."""
+    out: list[dict[str, Any]] = []
+    seen: set[tuple[str, Any]] = set()
+    for e in entries:
+        if e["key"] in TITLE_CASED and isinstance(e["value"], str):
+            e = e | {"value": e["value"].title()}
+        if (e["key"], e["value"]) not in seen:
+            seen.add((e["key"], e["value"]))
             out.append(e)
     return out
 
@@ -203,7 +233,7 @@ def standard_document(rec: dict) -> dict[str, Any]:
     path = list(rec["category_path"])
     doc: dict[str, Any] = {
         "product_id": rec["product_id"],
-        "product_type": rec["product_type"],
+        "product_type": PRODUCT_TYPE_FOLDS.get(rec["product_type"], rec["product_type"]),
         "title": rec["title"],
         "brand": rec["brand"],
     }
