@@ -35,7 +35,8 @@ from synthetic_ecommerce_data.core.entry import CANONICAL_PER_UNIT, RECIPROCAL_P
 
 _STR, _INT, _NUM, _BOOL, _LIST = "str", "int", "number", "bool", "list"
 
-#: Product-level fields: name -> (type, required).
+#: Product-level fields: name -> (type, required). A new field is also added to emit.py's
+#: NESTED_MAPPING and FLAT_MAPPING and to the flat tuples below (_FLAT_PRODUCT_FIELDS).
 PRODUCT_FIELDS: dict[str, tuple[str, bool]] = {
     "product_id": (_STR, True),
     "product_type": (_STR, True),
@@ -50,6 +51,7 @@ PRODUCT_FIELDS: dict[str, tuple[str, bool]] = {
     "image_id": (_STR, True),
     "image_url": (_STR, True),
     "image_detail_url": (_STR, True),
+    "ingredients": (_LIST, False),
     "attributes": (_LIST, True),
     "variant_count": (_INT, True),
     "variants": (_LIST, True),
@@ -68,6 +70,7 @@ VARIANT_FIELDS: dict[str, tuple[str, bool]] = {
     "image_id": (_STR, True),
     "image_url": (_STR, True),
     "image_detail_url": (_STR, True),
+    "ingredients": (_LIST, False),
     "attributes": (_LIST, True),
 }
 
@@ -327,6 +330,7 @@ _FLAT_PRODUCT_FIELDS = (
     "category_leaf",
     "dimension_provenance",
     "spec_quality",
+    "ingredients",
 )
 #: The variant columns a flat document carries, in industrial's order.
 _FLAT_VARIANT_FIELDS = (
@@ -338,4 +342,5 @@ _FLAT_VARIANT_FIELDS = (
     "image_id",
     "image_url",
     "image_detail_url",
+    "ingredients",
 )

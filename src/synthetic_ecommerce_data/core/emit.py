@@ -366,6 +366,7 @@ NESTED_MAPPING: dict[str, Any] = {
             "image_id": {"type": "keyword"},
             "image_url": {"type": "keyword"},
             "image_detail_url": {"type": "keyword"},
+            "ingredients": {"type": "text"},
             "variant_count": {"type": "integer"},
             "attributes": {
                 "type": "nested",
@@ -391,6 +392,7 @@ NESTED_MAPPING: dict[str, Any] = {
                     "image_id": {"type": "keyword"},
                     "image_url": {"type": "keyword"},
                     "image_detail_url": {"type": "keyword"},
+                    "ingredients": {"type": "text"},
                     "attributes": {
                         "type": "nested",
                         "properties": {
@@ -443,6 +445,7 @@ FLAT_MAPPING: dict[str, Any] = {
             "image_id": {"type": "keyword"},
             "image_url": {"type": "keyword"},
             "image_detail_url": {"type": "keyword"},
+            "ingredients": {"type": "text"},
             "attribute_names": {"type": "keyword"},
             "attributes": {
                 "type": "object",
