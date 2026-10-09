@@ -986,5 +986,8 @@ ROWS = (
              Policy(route=PATH_SEPARATOR.join(DRINKWARE), unless=BRA_WORDS,
                     unless_text="bra, demi, balcony or a cup size"),
              CUPS, NOT_CUPS,
-             controls=(Control("d cup bra", "a bra", _is_bra),)),
+             controls=(Control("d cup bra", "a bra", _is_bra),),
+             # An espresso cup is a cup, so it may lead the bare baseline too: the claim is
+             # that the bras are in the baseline top 3, not that no drinkware is.
+             baseline_holds=Control("cups", "a bra", _is_bra)),
 )  # fmt: skip

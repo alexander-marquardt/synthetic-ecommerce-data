@@ -1,7 +1,7 @@
 {
  "elasticsearch": "9.3.0",
  "docs": 294,
- "fingerprint": "0b8228be4dcec534b7bdb956f6515943f4f4d96905bd000efad5f39c7bace03c",
+ "fingerprint": "d7087e4fda8a9210a142c3bd920761c5265584ff7163b689113340a3d7dbc3f8",
  "rows": [
   {
    "query": "mattress topper",
@@ -563,15 +563,19 @@
      "title": "Smooth Full Cup Bra B-G"
     },
     {
-     "product_id": "PLT-DRKTRV",
-     "title": "Leakproof Travel Cup"
+     "product_id": "PLT-MUG7",
+     "title": "Espresso Cup"
     },
     {
-     "product_id": "PLT-CUPHLD",
-     "title": "Car Cup Holder Organiser"
+     "product_id": "PLT-DRKTRV",
+     "title": "Leakproof Travel Cup"
     }
    ],
    "policy": [
+    {
+     "product_id": "PLT-MUG7",
+     "title": "Espresso Cup"
+    },
     {
      "product_id": "PLT-DRKTRV",
      "title": "Leakproof Travel Cup"
@@ -587,10 +591,6 @@
     {
      "product_id": "PLT-MUG-APPLE",
      "title": "Apple Graphic Mug"
-    },
-    {
-     "product_id": "PLT-MUG11",
-     "title": "Travel Mug"
     }
    ]
   }
