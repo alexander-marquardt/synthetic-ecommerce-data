@@ -1057,7 +1057,7 @@ times a popularity boost (`log1p(sold_last_5_days)`, x1.5 for the top 15
 bestsellers), with a search-time synonym `balloon => balloon, barrel`: it
 mimics the live site. The policy column is the fix approximated in raw
 Elasticsearch. A target is in bold. A test checks that the proof was taken
-over the current records, that no target is in a baseline top 3, that the
+over the current records, that no target is in a baseline top 3 (class 15 instead claims that a bra is: an espresso cup is a cup and may lead too), that the
 policy top 3 is all targets, and that this table is the proof's.
 
 | # | Class | Query | Baseline top 5 (BM25 x popularity) | With the policy: top 5 | Policy (raw ES) |
@@ -1074,8 +1074,8 @@ policy top 3 is all targets, and that this table is the proof's.
 | 12 | A type word that is also a color and a line name | *face cream* | 1. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>2. Nourishing Face Oil `PLT-FCEOIL`<br>3. Loose Face Powder `PLT-PWDLSE`<br>4. Tinted Face Gel `PLT-TNTGEL`<br>5. Velvetmere Cream Body Oil Spray `PLT-VLCOIL` | 1. **Daily Hydrating Face Cream `PLT-FCDAYC`**<br>2. **Calming Face Cream `PLT-FCCALM`**<br>3. **Rich Night Cream `PLT-FCNGHT`**<br>4. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>5. Nourishing Face Oil `PLT-FCEOIL` | route to Beauty/Skincare/Face Creams (recalled, boosted) |
 | 13 | A size word not applied (mild) | *single bed* | 1. Single Cube Chairbed `PLT-CHRCUB`<br>2. Ottoman Storage Bed `PLT-BDOTTO`<br>3. Upholstered Sleigh Bed `PLT-BDSLGH`<br>4. Panelled Wooden Bed `PLT-BDPANL`<br>5. Two Seater Sofa Bed `PLT-SOFBED` | 1. **Metal Spindle Bed `PLT-BDMETL`**<br>2. **Shaker Wooden Bed Frame `PLT-BDSHKR`**<br>3. **Upholstered Bed Frame `PLT-BDUPHL`**<br>4. Single Cube Chairbed `PLT-CHRCUB`<br>5. Memory Foam Mattress Topper `PLT-MTTMEM` | filter an in-stock SKU with bed_size = Single (3 ft); product_type = Bed x10 |
 | 14 | A two-word color split into words | *rose gold* | 1. Blush Rose & Gold Eucalyptus Bouquet `PLT-BQBLSH`<br>2. White Rose Bouquet with Gold Foliage `PLT-BQWHGF`<br>3. Gold Plated Rose Quartz Hoop Earrings `PLT-RQHOOP`<br>4. Classic Red Rose Bouquet `PLT-BQREDR`<br>5. Orange Rose Bouquet `PLT-BQORNG` | 1. **Cubic Zirconia Stud Earrings `PLT-RGSTUD`**<br>2. **Slim Mesh Strap Watch `PLT-RGMESH`**<br>3. **Wireless Charging Pad `PLT-RGCHRG`**<br>4. **Glow Powder Highlighter `PLT-RGHLIT`**<br>5. **Touch Dimmable Table Lamp `PLT-RGLAMP`** | filter an in-stock SKU with color = Rose Gold |
-| 15 | One word, a sense in two departments | *cups* | 1. Moulded Cup T-Shirt Bra `PLT-CUPMLD`<br>2. Lace Demi Cup Bra A-E `PLT-CUPDEM`<br>3. Smooth Full Cup Bra B-G `PLT-CUPFUL`<br>4. **Leakproof Travel Cup `PLT-DRKTRV`**<br>5. Car Cup Holder Organiser `PLT-CUPHLD` | 1. **Leakproof Travel Cup `PLT-DRKTRV`**<br>2. **Set of 4 Espresso Cups `PLT-DRKSET`**<br>3. **Fine Bone China Cup and Saucer `PLT-DRKSAU`**<br>4. **Apple Graphic Mug `PLT-MUG-APPLE`**<br>5. **Travel Mug `PLT-MUG11`** | route to Home/Kitchen & Dining/Drinkware (recalled, boosted); off when the query says bra, demi, balcony or a cup size |
-| 15 (control) | The other sense stays reachable: a bra | *d cup bra* | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. **Seamless Smoothing Bra `PLT-OFRBRA`** | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. **Seamless Smoothing Bra `PLT-OFRBRA`** | the same policy, off for this query |
+| 15 | One word, a sense in two departments | *cups* | 1. **Espresso Cup `PLT-MUG7`**<br>2. Moulded Cup T-Shirt Bra `PLT-CUPMLD`<br>3. Lace Demi Cup Bra A-E `PLT-CUPDEM`<br>4. Smooth Full Cup Bra B-G `PLT-CUPFUL`<br>5. **Leakproof Travel Cup `PLT-DRKTRV`** | 1. **Espresso Cup `PLT-MUG7`**<br>2. **Leakproof Travel Cup `PLT-DRKTRV`**<br>3. **Set of 4 Espresso Cups `PLT-DRKSET`**<br>4. **Fine Bone China Cup and Saucer `PLT-DRKSAU`**<br>5. **Apple Graphic Mug `PLT-MUG-APPLE`** | route to Home/Kitchen & Dining/Drinkware (recalled, boosted); off when the query says bra, demi, balcony or a cup size |
+| 15 (control) | The other sense stays reachable: a bra | *d cup bra* | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. Espresso Cup `PLT-MUG7` | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. Espresso Cup `PLT-MUG7` | the same policy, off for this query |
 
 Class 15 is a word with a sense in two departments: a bare *cups* is
 drinkware in Home, and the cup of a bra (or a cup size) in Lingerie. Bras
@@ -1116,10 +1116,28 @@ standard: `skus` become `variants`, each SKU option a variant-level attribute
 entry (a measurement split into `value`, `unit_code` and `value_canonical`);
 department, color and size options, the offer flags, rating and the other
 retail-only fields become product-level entries; `image_id` is
-`<product type>/<product id>/<drawing spec digest>`, one per distinct drawing,
-served under `/images/retail` once the SVGs are rendered. Every record states
+`<product type>/<product id>/<drawing spec digest>`, one per style and
+colorway, served under `/images/retail` from the image release
+([The retail image release](#the-retail-image-release)). Every record states
 its own `product_type` and `category_leaf` (the jeans, bra, bedding, beauty
-and planted single-SKU records gained theirs in the record builders).
+and planted single-SKU records gained theirs in the record builders). A
+percent (ABV, discount) is a plain number with `(%)` in its name: prism
+spells no percent unit, so `P1` is not a unit code here and the validator
+refuses it.
+
+The retail build also writes industrial's **flat** shape, one document per
+SKU, which is what elastic/prism-industrial-products loads (as its
+`catalog.ndjson`, from `golden-catalog/flat.jsonl`); no loader reads the
+nested shape yet. `standard.flat_documents()` projects a nested document to
+it: the SKU's own attributes replace the product's under the same key, and
+`facets_num` holds every measured value and the facts the domain names as
+numbers (retail's rating, bestseller rank, was price, ABV and discount), so
+those can be range-filtered. The keys and types are industrial's except that
+retail has `price`, `currency` and `in_stock` where industrial has
+`price_usd` and `stock`, and no `dimension_provenance` or `spec_quality`
+(`tests/test_output_standard.py` pins that list). To write both files:
+
+    uv run python prototypes/retail_drawings/export.py OUTDIR   # nested.jsonl, flat.jsonl
 
 ### The retail catalog at a size: `scale.py --skus N`
 
@@ -1625,6 +1643,26 @@ uv run python scripts/contact_sheet.py --catalog golden-catalog --out out/contac
 writes an HTML contact sheet of real catalog SKUs -- one screw across its
 lengths for two brands, flat washers across sizes, materials and brands, and
 twenty SKUs of every type -- for judging the drawings by eye.
+
+### The retail image release
+
+```sh
+uv run python prototypes/retail_drawings/image_release.py --out out/retail-images --archive out/retail-images.tar.gz
+```
+
+renders every image the retail export references and packages it in the
+industrial bundle's shape, so the same installer takes it: members
+`retail/<image_id>.svg` under the archive's own `retail/` folder, every
+`image_url` that member under `/images/`, the same deterministic archive, and
+the content digest and file count printed and written beside it as
+`.content-sha256`. Images are keyed per style and colorway, never per SKU:
+every size of one color shares an image, drawn in that color's swatch (base,
+pattern and accent). The 328-style build is 629 images for 6,861 SKUs.
+There is no committed manifest to check against (the retail build is code, not
+a committed catalog); the command refuses an `image_id` that names two
+different drawings instead. `tests/test_retail_image_release.py` pins the
+keying, that every document's image URL resolves to a packaged file, and the
+package shape.
 
 ### The older renderers in `domains/industrial/render/`
 
