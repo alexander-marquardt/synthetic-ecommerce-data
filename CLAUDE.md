@@ -3,6 +3,7 @@ One line per directive; the detail is behind each pointer. This file loads on ev
 - README.md is about 95 KB and docs/adding-a-type.md about 49 KB: `grep -n '^## '` for the section you need and read only that range.
 - Run the tests your change touches, not the whole suite (about 27 minutes serially; CI runs it): [README → Contributing](README.md#contributing).
 - A test that outlives the per-test timeout fails rather than growing; raise it for that test alone with `@pytest.mark.timeout(<s>)` (README → Contributing).
+- US spelling (`color`, `colorway`); `tests/test_us_spelling.py` refuses the British spelling in any tracked file.
 - Lint as CI does: `uv run --locked ruff check .`.
 - Add or move a product type: [docs/adding-a-type.md](docs/adding-a-type.md).
 - Until #127 merges, the shared core (`src/synthetic_ecommerce_data/core/`) lives on branch `extract-core-125`: base core work on it, not on `main`.

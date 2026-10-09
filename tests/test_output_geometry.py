@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from helpers import colour_mask
+from helpers import color_mask
 from synthetic_ecommerce_data.domains.industrial.records import DRAWABLE
 from synthetic_ecommerce_data.domains.industrial.render import CARD, DETAIL, render_record
 from synthetic_ecommerce_data.domains.industrial.render.canvas import INK
@@ -57,13 +57,13 @@ def test_the_subject_is_centred_in_the_card(sku, tmp_path):
     The prototype centred the axes' *data*, so the tool drifted sideways by
     however much room the dimension text claimed on one side. Only the black
     ink is measured here: dimension arrows and their labels are deliberately
-    lopsided and are drawn in other colours.
+    lopsided and are drawn in other colors.
     """
     import matplotlib.image as mpimg
 
     path = render_record(DRAWABLE[sku], tmp_path / f"{sku}.png", CARD)
     image = mpimg.imread(path)[..., :3]
-    black = colour_mask(image, INK, tol=0.15)
+    black = color_mask(image, INK, tol=0.15)
     columns = np.nonzero(black.any(axis=0))[0]
     assert columns.size, "no silhouette found"
     centre = (columns.min() + columns.max()) / 2

@@ -179,7 +179,7 @@ def test_every_brand_has_a_house_style_and_they_differ():
     assert len({s.frame for s in styles.values()}) == 4
 
 
-def test_every_published_finish_and_material_has_a_colour_and_a_hatch():
+def test_every_published_finish_and_material_has_a_color_and_a_hatch():
     """Swept from the data: a value with no style would refuse to draw."""
     finishes, materials = set(), set()
     for line, child in CATALOG.all_skus():
@@ -530,13 +530,13 @@ def test_the_reviews_cross_product_case_reads_the_right_way_round():
 
 # --- the magnifier (ruling on elastic/prism-industrial-products#103, v8) ----------
 
-LENS_COLOUR = "#ffffff"
+LENS_COLOR = "#ffffff"
 
 
 def _has_lens(svg: bytes) -> bool:
     return any(
         e.tag.endswith("circle")
-        and e.attrib.get("fill") == LENS_COLOUR
+        and e.attrib.get("fill") == LENS_COLOR
         and "stroke" not in e.attrib
         for e in ET.fromstring(svg)
     )
@@ -729,7 +729,7 @@ def test_the_lens_shows_the_same_part_enlarged():
         lens_at = next(
             i
             for i, e in enumerate(after)
-            if e.attrib.get("fill") == LENS_COLOUR and "stroke" not in e.attrib
+            if e.attrib.get("fill") == LENS_COLOR and "stroke" not in e.attrib
         )
         large = after[lens_at + 1 : lens_at + 1 + len(small)]
         assert [e.tag for e in large] == [e.tag for e in small], variant["sku"]
