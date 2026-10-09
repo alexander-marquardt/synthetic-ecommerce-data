@@ -113,6 +113,18 @@ FITS: dict[str, dict] = {
     "boyfriend": {"hip": 121, "legs": [(118, 196), (125, 194), (130, 193), (134, 192)], "cuff": True},
     # Kick flare: slim to the calf, then a small flare at a cropped hem.
     "kick_flare": {"hip": 127, "legs": [(131, 196), (141, 192), (137, 193), (119, 196)], "hem_y": 336},
+    # Super skinny: narrower than skinny at every point, down to a sprayed-on ankle.
+    "super_skinny": {"hip": 129, "legs": [(140, 193), (158, 185), (164, 183), (167, 182)]},
+    # Jegging: skinny through the leg, cut at the ankle bone.
+    "jegging": {"hip": 130, "legs": [(138, 194), (155, 186), (160, 184), (163, 183)], "hem_y": 348},
+    # Baggy: the widest straight leg, the hem stacked on the shoe.
+    "baggy": {"hip": 114, "legs": [(105, 197), (100, 197), (98, 197), (97, 197)], "cuff": True},
+    # Culotte: wide from the hip, cropped at mid calf.
+    "culotte": {"hip": 119, "legs": [(108, 196), (98, 196), (92, 196), (88, 196)], "hem_y": 296},
+    # Athletic: room at the seat and thigh, then a steep taper to the ankle.
+    "athletic": {"hip": 119, "legs": [(113, 197), (132, 193), (143, 190), (149, 189)]},
+    # Cropped: a straight leg that stops above the ankle.
+    "cropped": {"hip": 125, "legs": [(125, 197), (128, 196), (129, 196), (130, 196)], "hem_y": 322},
 }
 
 
