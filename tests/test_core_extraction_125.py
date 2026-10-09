@@ -73,20 +73,15 @@ _I = "domains.industrial"
 
 #: ``(core module, what it reaches outside core)``, relative to the package:
 #: the seams the move-only step could not cut without a redesign. Shrinks
-#: only. 20 edges: 18 imports, and 2 module paths named in a string. The
+#: only. 19 edges: 17 imports, and 2 module paths named in a string. The
 #: ``ecom-generate`` command's 3 imports (breadth, generate, measure) and its
-#: prism imports left core with it, to ``generate_cli``. The one edge added
-#: since, ``drawing.style`` -> ``drawing.brand_marks`` (#132), is the brand
-#: book's twin: the book (``core/brands.py``) still names each industrial
-#: brand's motif, so the house style builds the mark from the domain's motif
-#: table. Both leave core together when the brand book moves to the domain.
+#: prism imports left core with it, to ``generate_cli``.
 CORE_EDGES = frozenset(
     {
         ("brands", f"{_I}.vocab"),
         ("drawing", f"{_I}.drawing.figures"),
         ("drawing", f"{_I}.render.marking"),
         ("drawing.style", f"{_I}.render.marking"),
-        ("drawing.style", f"{_I}.drawing.brand_marks"),
         ("emit", f"{_I}.render.kinds"),
         ("emit", f"{_I}.taxonomy"),
         ("entry", f"{_I}.series"),

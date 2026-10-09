@@ -36,13 +36,20 @@ GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 #: THE STUDIO GRID TILE: the 200 x 300 sheet shown 180 px tall, 0.6 px a unit.
 #: Stated here, not read from the code under test, so the code cannot move it.
 TILE_PX_PER_UNIT = 180 / svg.HEIGHT
-#: The legibility ruling (#132): no brand name renders under 10 px at the tile.
+#: The legibility ruling (#132): no brand name's CAPITALS render under 10 px
+#: tall at the tile. The measure is the cap height, not the font size.
 MIN_NAME_PX = 10.0
+#: The wordmark face's cap height and descender, as shares of its font size:
+#: Arial Bold's 0.716 (Helvetica-Bold's capitals are 0.718, so a viewer that
+#: substitutes it draws them taller). Stated here, not read from the code.
+FACE_CAP_HEIGHT, FACE_DESCENDER = 0.716, 0.21
 #: The distinguishability ruling (#55, #132): two marks differ in at least this
 #: many pixels at the tile. The code's own floor may be stricter, never looser.
 RULED_DIFFERING_PIXELS = 24
 #: Float noise allowed at a box edge (a width summed from advances).
 EPS = 1e-9
+#: A drawn coordinate is written at one decimal (``svg.num``).
+DRAWN_EPS = 0.05 + EPS
 
 
 @functools.cache
@@ -64,6 +71,25 @@ def _texts(data: bytes) -> list[str]:
     return [e.text or "" for e in ET.fromstring(data).iter() if e.tag.endswith("}text")]
 
 
+def _drawn_lines(data: bytes) -> list[dict[str, str]]:
+    """Each ``<text>`` the drawing carries: its attributes, and its words as ``text``."""
+    return [
+        {**e.attrib, "text": e.text or ""}
+        for e in ET.fromstring(data).iter()
+        if e.tag.endswith("}text")
+    ]
+
+
+def _ink_box(line: dict[str, str]) -> tuple[float, float, float, float]:
+    """A drawn line's box: capitals up from the baseline, descenders below it."""
+    x, y, size = float(line["x"]), float(line["y"]), float(line["font-size"])
+    return (x, y - FACE_CAP_HEIGHT * size, x + float(line["textLength"]), y + FACE_DESCENDER * size)
+
+
+def _cap_px(line: dict[str, str]) -> float:
+    return float(line["font-size"]) * FACE_CAP_HEIGHT * TILE_PX_PER_UNIT
+
+
 # --- the mark ----------------------------------------------------------------
 
 
@@ -73,6 +99,22 @@ def test_every_brand_has_a_declared_mark_and_no_two_share_one():
     pairs = {(brands.motif_of(b), brands.enclosure_of(b)) for b in brands.BY_NAME}
     assert len(pairs) == len(brands.BY_NAME)
     assert all(m in brand_marks.MOTIFS and e in brand_mark.ENCLOSURES for m, e in pairs)
+
+
+def test_the_industrial_domain_fills_the_core_mark_slot():
+    """Core draws what the domain registered (``brand_mark.use_marks``), importing no domain."""
+    unfilled = [b for b in brands.BY_NAME if brand_mark.mark_for(b) != brand_marks.mark_of(b)]
+    assert unfilled == []
+
+
+def test_an_unfilled_mark_slot_is_an_error_not_a_blank_plate(monkeypatch):
+    monkeypatch.setattr(brand_mark, "_MARK_OF", None)
+    raised = False
+    try:
+        brand_mark.mark_for("Dravenholt")
+    except LookupError:
+        raised = True
+    assert raised
 
 
 def test_the_tile_mark_size_is_the_plate_mark_at_the_tile():
@@ -101,37 +143,85 @@ def test_differing_pixels_counts_the_pixels_only_one_mark_inks():
 # --- the name ----------------------------------------------------------------
 
 
-def test_every_brands_name_renders_at_least_10px_on_the_tile():
-    small = {b: round(sheet.plate_lockup(b).size * TILE_PX_PER_UNIT, 2) for b in brands.BY_NAME}
-    assert {b: px for b, px in small.items() if px < MIN_NAME_PX} == {}
+def test_every_brands_name_has_a_10px_cap_height_on_the_tile():
+    """The capitals AS DRAWN, in every brand's drawing, are at least 10 px tall at the tile."""
+    short = {
+        (brand, line["text"]): round(_cap_px(line), 2)
+        for brand in brands.BY_NAME
+        for line in _drawn_lines(_drawing_of(brand))
+        if _cap_px(line) < MIN_NAME_PX
+    }
+    assert short == {}
 
 
-def test_every_brands_lockup_stays_inside_the_plate():
+def test_every_wordmark_is_drawn_at_its_own_width():
+    """A name squeezed by ``textLength`` is as hard to read as a small one."""
+    squeezed = {
+        (brand, line["text"]): line["textLength"]
+        for brand in brands.BY_NAME
+        for line in _drawn_lines(_drawing_of(brand))
+        if abs(
+            float(line["textLength"])
+            - brand_mark.text_width(line["text"], float(line["font-size"]))
+        )
+        > DRAWN_EPS
+    }
+    assert squeezed == {}
+
+
+def test_every_brands_name_is_drawn_inside_the_plate_and_clear_of_its_mark():
     x0, y0, x1, y1 = sheet.PLATE_BOX
+    bad = []
     for brand in brands.BY_NAME:
-        placed = sheet.plate_lockup(brand)
-        for box in (placed.mark, placed.name):
-            assert x0 - EPS <= box[0] and y0 - EPS <= box[1], (brand, box)
-            assert box[2] <= x1 + EPS and box[3] <= y1 + EPS, (brand, box)
-        assert placed.name[0] >= placed.mark[2], brand
+        mark = sheet.plate_lockup(brand).mark
+        boxes = [_ink_box(line) for line in _drawn_lines(_drawing_of(brand))]
+        for box in (mark, *boxes):
+            inside = x0 - DRAWN_EPS <= box[0] and y0 - DRAWN_EPS <= box[1]
+            if not (inside and box[2] <= x1 + DRAWN_EPS and box[3] <= y1 + DRAWN_EPS):
+                bad.append((brand, "outside", box))
+        for box in boxes:
+            clear = box[0] >= mark[2] - DRAWN_EPS or box[1] >= mark[3] - DRAWN_EPS
+            if not clear:
+                bad.append((brand, "on the mark", box))
+    assert bad == []
 
 
-def test_a_name_too_long_for_one_line_is_set_on_two():
-    placed = sheet.plate_lockup("Harrowgate Precision Works")
-    assert placed.lines == ("Harrowgate", "Precision Works")
-    assert placed.size * TILE_PX_PER_UNIT >= MIN_NAME_PX
+def test_a_two_word_name_too_wide_for_one_line_is_set_on_two_beside_the_mark():
+    lines = _drawn_lines(_drawing_of("Varrick Precision"))
+    mark = sheet.plate_lockup("Varrick Precision").mark
+    assert [line["text"] for line in lines] == ["Varrick", "Precision"]
+    assert all(_ink_box(line)[0] >= mark[2] - DRAWN_EPS for line in lines)
+    assert min(_cap_px(line) for line in lines) >= MIN_NAME_PX
 
 
-def test_a_name_too_long_for_two_lines_is_set_as_its_first_word():
-    """Two lines would set it under 10 px at the tile: the wordmark is its first word."""
-    placed = sheet.plate_lockup("Saltmarsh Meadowland Works")
-    assert placed.lines == ("Saltmarsh",)
-    assert placed.size * TILE_PX_PER_UNIT >= MIN_NAME_PX
+def test_a_single_word_too_wide_beside_the_mark_is_set_under_it():
+    """Kessingmoor at a 10 px cap height is wider than the room beside the mark."""
+    lines = _drawn_lines(_drawing_of("Kessingmoor"))
+    mark = sheet.plate_lockup("Kessingmoor").mark
+    assert [line["text"] for line in lines] == ["Kessingmoor"]
+    assert _ink_box(lines[0])[1] >= mark[3] - DRAWN_EPS
+    assert _cap_px(lines[0]) >= MIN_NAME_PX
 
 
-def test_a_name_whose_first_word_does_not_fit_is_refused():
-    with pytest.raises(ValueError, match="fits"):
-        sheet.plate_lockup("Brackenthorpefabricationsworks Limited")
+def test_a_name_whose_halves_do_not_both_fit_beside_the_mark_runs_under_it():
+    """"Salt Meadow" is too wide beside the mark: "Salt" sits beside it, the rest below."""
+    lines = _drawn_lines(_drawing_of("Salt Meadow Works"))
+    mark = sheet.plate_lockup("Salt Meadow Works").mark
+    assert [line["text"] for line in lines] == ["Salt", "Meadow Works"]
+    assert _ink_box(lines[0])[0] >= mark[2] - DRAWN_EPS
+    assert _ink_box(lines[1])[1] >= mark[3] - DRAWN_EPS
+    assert min(_cap_px(line) for line in lines) >= MIN_NAME_PX
+
+
+def test_a_name_no_layout_sets_legibly_is_refused():
+    """No first-word fallback: the catalog's brand would not be the drawing's."""
+    refused = []
+    for name in ("Saltmarsh Meadowland Works", "Brackenthorpefabricationsworks"):
+        try:
+            sheet.plate_lockup(name)
+        except ValueError:
+            refused.append(name)
+    assert refused == ["Saltmarsh Meadowland Works", "Brackenthorpefabricationsworks"]
 
 
 # --- the figure keeps out of the plate ---------------------------------------

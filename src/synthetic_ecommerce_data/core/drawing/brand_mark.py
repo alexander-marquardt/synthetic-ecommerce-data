@@ -30,7 +30,7 @@ function of the brand alone, so every SKU of a brand carries the same one.
 from __future__ import annotations
 
 import math
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
 
 import numpy as np
@@ -93,6 +93,18 @@ def _scaled(shape: Shape, k: float) -> Shape:
     if isinstance(shape, Stroke):
         return replace(shape, points=tuple((x * k, y * k) for x, y in shape.points), w=shape.w * k)
     return replace(shape, points=tuple((x * k, y * k) for x, y in shape.points))
+
+
+_MARK_OF: Callable[[str], Mark] | None = None
+
+
+def use_marks(mark_of: Callable[[str], Mark]) -> None:
+    """Red stub (#132)."""
+
+
+def mark_for(brand: str) -> Mark:
+    """Red stub (#132)."""
+    return ()
 
 
 def enclose(motif: Mark, enclosure: str) -> Mark:
