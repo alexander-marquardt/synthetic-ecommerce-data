@@ -1,11 +1,12 @@
 """The industrial brands' marks: fifteen machine-shop motifs, each in three enclosures.
 
 A brand's mark is a function of the brand alone (synthetic-ecommerce-data#132):
-the brand book declares its ``motif`` and ``enclosure``
-(:data:`...core.brands.BRAND_BOOK`), :func:`mark_of` builds it from the shapes
-below with the shared core's :func:`...core.drawing.brand_mark.enclose`, and
-the sheet sets it beside the brand's name in the plate under the figure
-(:mod:`...core.drawing.sheet`).
+:data:`MARKS_BY_BRAND` declares its motif and enclosure, :func:`mark_of`
+builds it from the shapes below with the shared core's
+:func:`...core.drawing.brand_mark.enclose`, and the sheet sets it with the
+brand's name in the plate under the figure (:mod:`...core.drawing.sheet`).
+Core reaches :func:`mark_of` only through its mark slot, which this
+domain's ``drawing/__init__.py`` fills (``brand_mark.use_marks``).
 
 THE DISTINGUISHABILITY RULE (#55, made a test in
 ``tests/test_brand_marks.py``): any two brands' marks, rasterised at
@@ -20,7 +21,6 @@ shapes: at 19 px across, a hairline or a small gap does not survive.
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.core import brands
 from synthetic_ecommerce_data.core.drawing.brand_mark import (
     Disc,
     Mark,
@@ -97,6 +97,61 @@ MOTIFS: dict[str, Mark] = {
 }
 
 
+#: Each brand's mark: (motif, enclosure). Fifteen motifs in three enclosures,
+#: in brand-book order (motif by position modulo fifteen, enclosure by
+#: position over fifteen). The PAIR is unique per brand
+#: (``test_every_brand_has_a_declared_mark_and_no_two_share_one``). Domain
+#: data, so it lives here, not in the shared brand book.
+MARKS_BY_BRAND: dict[str, tuple[str, str]] = {
+    "Dravenholt": ("gear", "bare"),
+    "Hollisdane": ("hex_nut", "bare"),
+    "Varnstrom": ("bolt_circle", "bare"),
+    "Druvanholm": ("chevrons", "bare"),
+    "Estrimore": ("crosshair", "bare"),
+    "Iron Heron": ("torx", "bare"),
+    "Kessingmoor": ("ibeam", "bare"),
+    "Ingleward": ("arrow", "bare"),
+    "Tervasko": ("delta", "bare"),
+    "Vellinhorst": ("twin_discs", "bare"),
+    "Quillon Carbide": ("spark", "bare"),
+    "Tessaly Cutters": ("slant_bars", "bare"),
+    "Orrinford": ("plus", "bare"),
+    "Kaldermark": ("checker", "bare"),
+    "Pellanor": ("speed_bars", "bare"),
+    "Wendlow Tool": ("gear", "ring"),
+    "Varrick Precision": ("hex_nut", "ring"),
+    "Lark & Lathe": ("bolt_circle", "ring"),
+    "Rivenhall": ("chevrons", "ring"),
+    "Caddernook": ("crosshair", "ring"),
+    "Pellwarren": ("torx", "ring"),
+    "Cobbet & Pryce": ("ibeam", "ring"),
+    "Lintmoor": ("arrow", "ring"),
+    "Morvennick": ("delta", "ring"),
+    "Selvanock": ("twin_discs", "ring"),
+    "Tall Mast": ("spark", "ring"),
+    "Grisenne": ("slant_bars", "ring"),
+    "Braddlestow": ("plus", "ring"),
+    "Tannerby": ("checker", "ring"),
+    "Brennavik": ("speed_bars", "ring"),
+    "Salt Meadow Works": ("gear", "badge"),
+    "Ashcombe Forge": ("hex_nut", "badge"),
+    "Pennock & Hale": ("bolt_circle", "badge"),
+    "Brindlecote": ("chevrons", "badge"),
+    "Ivenhoft": ("crosshair", "badge"),
+    "Lantern Rock": ("torx", "badge"),
+    "Quarrenby": ("ibeam", "badge"),
+    "Quennick": ("arrow", "badge"),
+    "Lorcastle": ("delta", "badge"),
+    "Spindlewick": ("twin_discs", "badge"),
+    "Tin Kestrel": ("spark", "badge"),
+    "Harnell": ("slant_bars", "badge"),
+    "Quellmarsh": ("plus", "badge"),
+    "Crennick Works": ("checker", "badge"),
+    "Stone Wicket": ("speed_bars", "badge"),
+}
+
+
 def mark_of(brand: str) -> Mark:
     """``brand``'s mark: its declared motif in its declared enclosure."""
-    return enclose(MOTIFS[brands.motif_of(brand)], brands.enclosure_of(brand))
+    motif, enclosure = MARKS_BY_BRAND[brand]
+    return enclose(MOTIFS[motif], enclosure)
