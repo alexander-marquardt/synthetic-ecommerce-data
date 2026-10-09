@@ -10,8 +10,8 @@
 # ``tests/test_prism_field_map_drift.py`` fails if this file and a fresh
 # derivation disagree. Editing this file alone reds that test; changing the
 # generator without rebuilding reds it too, which is the point -- the catalog
-# publishes 122 distinct attribute names and a hand-maintained list
-# of 122 declarations drifts from the data the first time either side moves.
+# publishes 124 distinct attribute names and a hand-maintained list
+# of 124 declarations drifts from the data the first time either side moves.
 #
 # WHICH ATTRIBUTES BECOME FACETS
 # -----------------------------------------------------------------------------
@@ -66,9 +66,9 @@
 #
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
-#   attributes declared      122
+#   attributes declared      124
 #   offered as facets        99  (0 numeric ranges, 99 terms)
-#   declared, not faceted    23
+#   declared, not faceted    25
 # =============================================================================
 
 field_map_version: 1
@@ -331,22 +331,34 @@ fields:
   - name: dia_tolerance
     type: terms
     source: facets.dia_tolerance
-  # Diameter -- a discrete standard set: 11 distinct values over 141 product-value pairs is 0.08 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 243 documents across 7 product type(s); 11 distinct values
+  # Diameter -- a discrete standard set: 9 distinct values over 139 product-value pairs is 0.06 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 241 documents across 7 product type(s); 9 distinct values
   - name: diameter
     type: terms
     source: facets.diameter
+  # Diameter -- present on 1% of its product types' documents (floor 50%)
+  #   present on 2 documents across 1 product type(s); 2 distinct values
+  - name: diameter_mm
+    type: terms
+    source: facets.diameter_mm
+    facet: false
   # Dimension Type -- present on 29% of its product types' documents (floor 50%)
   #   present on 3396 documents across 30 product type(s); 4 distinct values
   - name: dimension_type
     type: terms
     source: facets.dimension_type
     facet: false
-  # Dowel Dia. -- a discrete list: 25 distinct values over 36 product-value pairs is 0.69 per product, at or above the 0.50 continuity threshold but on 36 products, fewer than the 250 the continuity test needs as evidence
-  #   present on 60 documents across 1 product type(s); 25 distinct values
+  # Dowel Dia. -- present on 48% of its product types' documents (floor 50%)
+  #   present on 29 documents across 1 product type(s); 14 distinct values
   - name: dowel_dia
     type: terms
     source: facets.dowel_dia
+    facet: false
+  # Dowel Dia. -- a discrete list: 11 distinct values over 17 product-value pairs is 0.65 per product, at or above the 0.50 continuity threshold but on 17 products, fewer than the 250 the continuity test needs as evidence
+  #   present on 31 documents across 1 product type(s); 11 distinct values
+  - name: dowel_dia_mm
+    type: terms
+    source: facets.dowel_dia_mm
   # Drive Size -- a discrete standard set: 41 distinct values over 991 product-value pairs is 0.04 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
   #   present on 1842 documents across 5 product type(s); 41 distinct values
   - name: drive_size

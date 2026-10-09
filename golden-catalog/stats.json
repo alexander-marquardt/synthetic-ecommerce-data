@@ -2083,13 +2083,13 @@
    "largest_product_type": "bearing_radial_ball"
   },
   "dispersion": {
-   "quantitative_attributes": 57,
+   "quantitative_attributes": 59,
    "faceted_attributes": 54,
    "faceted_low": 0.0043,
-   "faceted_high": 0.6944,
+   "faceted_high": 0.6471,
    "densest_faceted": "Dowel Dia.",
-   "smallest_faceted": "Roller Dia.",
-   "smallest_faceted_products": 30,
+   "smallest_faceted": "Dowel Dia.",
+   "smallest_faceted_products": 17,
    "drive_size_cardinality": 41,
    "drive_size_present": 1842,
    "held_by_floor": [

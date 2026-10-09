@@ -483,7 +483,10 @@ def dispersion_figures(rows: Iterable[dict[str, Any]]) -> dict[str, Any]:
     if quantitative:
         # The widest quantity: a real continuum that MIN_PRESENCE, not the
         # ratio, keeps off a slider. Its share is over its OWN types' documents.
-        widest = max(quantitative, key=lambda s: s.dispersion)
+        # Over attributes with RANGE_MIN_DOCS products: a unit's own key can
+        # hold a couple of defect values, and a floor decides those alone.
+        evidenced = [s for s in quantitative if s.products >= RANGE_MIN_DOCS] or quantitative
+        widest = max(evidenced, key=lambda s: s.dispersion)
         figures |= {
             "min_presence_arm": widest.name,
             "min_presence_arm_dispersion": round(widest.dispersion, 4),

@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping
+from dataclasses import replace
 from fractions import Fraction
 from typing import Any, NamedTuple
 
@@ -268,6 +269,10 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
         style = gen._style(system)
         child = ChildDraft(system=system)
         child.primary = gen._length("Dowel Dia.", diameter_in, style)
+        if metric:
+            # One unit per key: inch lines keep ``dowel_dia``, metric lines
+            # publish the same labelled quantity under ``dowel_dia_mm``.
+            child.primary = replace(child.primary, key="dowel_dia_mm")
         length_attr = gen._length("Length", length_in, style)
         child.attrs = [child.primary, length_attr]
         child.secondary = {"other_length": length_attr}
