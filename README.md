@@ -1035,6 +1035,13 @@ The planted cases are:
 - Nut Free chocolate and Vegan chocolate;
 - lemon, orange and mint as a food and as a cleaner scent;
 - honey and coconut as a food and as a body milk scent;
+- "lemon" and "honey" as a scent in dozens of SKUs, not one: lemon-scented dish soap, glass,
+  floor, bathroom and laundry cleaners, hand wash and shower gel, and honey-scented hand wash
+  and shower gel. Each carries `scent` as its own attribute (never a flavor) beside its
+  product type, on the leaf the hand-written rows use, so a policy routes on the pair. These
+  "depth" families are drawn from their own stream, so no core style moves
+  (`tests/test_grocery_scent_depth_154.py`). The hand-written breadth rows still key their
+  scent as `fragrance`, not `scent`;
 - milk as dairy milk, milk chocolate and a body milk;
 - the failure class "oranges" (`tests/test_grocery_beer_oranges_161.py`): the leaf
   `Food & Drink > Fruit & Vegetables > Fresh Fruit > Citrus Fruit > Oranges` holds oranges,
