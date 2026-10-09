@@ -228,17 +228,15 @@ def _variant(rec: dict, sku: dict) -> dict[str, Any]:
     }
 
 
-def standard_document(rec: dict, *, collapse: bool = True) -> dict[str, Any]:
+def standard_document(rec: dict) -> dict[str, Any]:
     """One build record as the standard's nested product document.
 
-    A jean's fit and a bra's style leaf collapse into facets (:mod:`facet_leaves`). With
-    ``collapse=False`` the document keeps the record's leaf and facts: the shape
-    :func:`scale.build` checks a derived style's text against, so the seeded derivation, and
-    with it every image id, is what it was before the collapse."""
+    A jean's fit and a bra's style leaf collapse into facets (:mod:`facet_leaves`); the record
+    keeps its leaf, so its drawing and image id do not move."""
     variants = [_variant(rec, sku) for sku in rec["skus"]]
     path = list(rec["category_path"])
     attributes = _product_attributes(rec)
-    added, replaced = facet_leaves.leaf_facets(rec, attributes) if collapse else ([], set())
+    added, replaced = facet_leaves.leaf_facets(rec, attributes)
     if replaced:
         path = facet_leaves.collapsed_path(path, rec["product_type"])
         attributes = [e for e in attributes if e["key"] not in replaced]

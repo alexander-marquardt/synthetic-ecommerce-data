@@ -556,9 +556,7 @@ def build(skus: int, seed: int = 0) -> Scaled:
     weights = _department_weights(plan)
     used = {twin_key(r) for r in tpls}
     titles = {r["title"] for r in tpls}
-    # The record-shaped documents: the collapse (facet_leaves) moves no draw.
-    authored = (standard_document(r, collapse=False) for r in base)
-    ctx = _Context(pools, text_pools(authored), _bands(base), {})
+    ctx = _Context(pools, text_pools(standard_document(r) for r in base), _bands(base), {})
     template_of: dict[str, str] = {}
     total = sum(r["sku_count"] for r in records)
     serial = 0
@@ -679,7 +677,7 @@ def _draw(tpl: dict, serial: int, ctx: _Context, brands: list[str], owners: dict
             rec["title"] = f"{rec['title']}, {colors[0]}"
         if twin_key(rec) in used or rec["title"] in titles:
             continue
-        if text_contradictions(standard_document(rec, collapse=False), ctx.text_pools):
+        if text_contradictions(standard_document(rec), ctx.text_pools):
             continue
         left.remove(sig)
         taken.add(sig[0])

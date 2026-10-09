@@ -3167,6 +3167,85 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: a jean's fit and a bra's style are facets, not leaves ----
+    *(
+        Mutation(f"facet leaves: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a jean keeps its fit leaf",
+                "facet_leaves.py",
+                "        return path[:-1]\n    if product_type",
+                "        return path\n    if product_type",
+                "tests/test_retail_facet_leaves.py -k end_at_their_kind_node",
+                "a fit is not a category leaf",
+            ),
+            (
+                "a purpose bra loses its node",
+                "facet_leaves.py",
+                "return path if path[-1] in PURPOSE_BRAS else path[:-1]",
+                "return path[:-1]",
+                "tests/test_retail_facet_leaves.py -k purpose_nodes_are_the_only_children",
+                "the purpose nodes stay",
+            ),
+            (
+                "leg_style is not folded into leg_fit",
+                "facet_leaves.py",
+                '        fit = fit or LEG_STYLE_FITS.get(have.get("leg_style", ""))\n',
+                "",
+                "tests/test_retail_facet_leaves.py -k every_jean_has_a_leg_fit",
+                "every jean has a leg_fit",
+            ),
+            (
+                "wide trousers are written Wide",
+                "facet_leaves.py",
+                '    "wide": "Wide Leg",',
+                '    "wide": "Wide",',
+                "tests/test_retail_facet_leaves.py -k keeps_the_fit_its_old_leaf_named",
+                "the fit is the old leaf's",
+            ),
+            (
+                "bra_style stays beside the split facets",
+                "facet_leaves.py",
+                'return out, {"bra_style", "fabric"}',
+                'return out, {"fabric"}',
+                "tests/test_retail_facet_leaves.py -k bra_style_and_leg_style_are_gone",
+                "bra_style is gone",
+            ),
+            (
+                "a bra's fibre content is dropped",
+                "facet_leaves.py",
+                "            out.append((*COMPOSITION, have[\"fabric\"]))\n",
+                "            pass\n",
+                "tests/test_retail_facet_leaves.py -k fibre_content_moves_to_composition",
+                "the fibre content moves to composition",
+            ),
+            (
+                "one bra spells Lightly Lined with a hyphen",
+                "facet_leaves.py",
+                '"Spacer Cup Bras": ("T-Shirt", "Lightly Lined", None, None),',
+                '"Spacer Cup Bras": ("T-Shirt", "Lightly-Lined", None, None),',
+                "tests/test_retail_facet_leaves.py -k differ_only_in_case_or_hyphenation",
+                "one spelling per facet value",
+            ),
+            (
+                "a convertible bra is only Multiway",
+                "facet_leaves.py",
+                '("Multiway", "Halterneck", "Cross Back")',
+                '"Multiway"',
+                "tests/test_retail_audience.py -k cleaning_root",
+                "no text contradicts a bra facet",
+            ),
+            (
+                "a cropped balloon jean is not Cropped",
+                "facet_leaves.py",
+                "            fits.append(CROPPED)\n",
+                "            pass\n",
+                "tests/test_retail_facet_leaves.py -k text_says_cropped",
+                "a jean whose text says cropped is cropped",
+            ),
+        ]
+    ),
 ]
 
 
