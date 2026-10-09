@@ -107,7 +107,10 @@ def test_the_flat_export_carries_food_and_drink_with_ingredients_top_level(built
     with_list = [r for r in food if r.get("ingredients")]
     assert len(with_list) > 9_000
     assert all(isinstance(r["ingredients"], list) for r in with_list)
-    assert {"contains", "free_from"} <= {k for r in food for k in r["facets"]}
+    assert {"ingredients", "contains", "may_contain", "dietary"} <= {
+        k for r in food for k in r["facets"]
+    }
+    assert "free_from" not in {k for r in rows for k in r["facets"]}
 
 
 def test_the_image_release_ships_the_grocery_drawings(built):

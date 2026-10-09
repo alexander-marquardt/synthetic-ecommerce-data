@@ -72,7 +72,6 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "net_volume_ml": ("net_volume", "Net volume", "MLT"),
     "contains": ("contains", "Contains", None),
     "may_contain": ("may_contain", "May contain", None),
-    "free_from": ("free_from", "Free from", None),
     "dietary": ("dietary", "Dietary", None),
 }
 #: The SKU fields that are columns of the variant, not options.

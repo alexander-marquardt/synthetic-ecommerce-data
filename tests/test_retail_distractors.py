@@ -121,6 +121,6 @@ def test_the_classes_that_already_failed_still_fail_without_a_policy(index) -> N
     assert not [d for d in bomber if d["product_type"] == "Bomber Jacket"
                 and d.get("pattern") == "check"]  # fmt: skip
     cups = br.rank(index, "cups", 3)
-    # The grocery fold moved the baseline (a Mug now leads the Bras): the class fails while
-    # any off-intent product, a bra's cup, is in the top 3.
+    # Asserts only: a Bra is still in the top 3, so the class still fails (the grocery fold
+    # put a Mug first, so the exact list is not pinned).
     assert "Bra" in [d["product_type"] for d in cups]
