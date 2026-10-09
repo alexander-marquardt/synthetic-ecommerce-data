@@ -91,6 +91,10 @@ SHAPES = {
 #: Where a title's noun phrase ends (the honesty test's rule: "Tuna in Spring Water" is tuna).
 _CUT = re.compile(r",|\d| for | with | of | in | to ")
 LABEL_CHARS = 14
+#: Words that modify the noun after them: a label never starts on one ("Free Penne").
+DANGLING = frozenset({"Free", "Low", "No", "Reduced", "Light"})
+#: Phrases kept whole past :data:`LABEL_CHARS`: "Selection" alone names no product.
+WHOLE = frozenset({"Chocolate Selection"})
 
 _PACK = re.compile(r"^(?:(\d+) x )?([\d.]+) ?(g|kg|ml|L|pint)$")
 _COUNT = re.compile(r"^(\d+) (pack|bags)$")
@@ -192,18 +196,17 @@ def _description(fam: Family, flavors: list[F], packs: list[dict], skus: list[di
 def pack_label(title: str, head: str) -> str:
     """The word a pack carries: the title's product noun phrase after the range name, cut where
     the phrase ends, its last two words when they fit :data:`LABEL_CHARS` ("Cereal Bars", "Tikka
-    Masala"). It ends in the title's product noun, never a category fragment."""
+    Masala"). It ends in the title's product noun, never a category fragment, and never starts
+    on a modifier: "Gluten Free Penne" is "Penne", "Chocolate Selection" stays whole."""
     words = _CUT.split(title.removeprefix(head).strip())[0].split()
     label = words[-1]
-    if len(words) > 1 and words[-2] not in ("&", "and"):
+    if len(words) > 1 and words[-2] not in {"&", "and"} | DANGLING:
         two = f"{words[-2]} {label}"
-        label = two if len(two) <= LABEL_CHARS else label
+        label = two if len(two) <= LABEL_CHARS or two in WHOLE else label
     return label
 
 
-def _drawing(
-    fam: Family, flavors: list[F], pid: str, pack: dict, title: str, head: str
-) -> dict:
+def _drawing(fam: Family, flavors: list[F], pid: str, pack: dict, title: str, head: str) -> dict:
     """One style's drawing: the first flavor's colour, the title's noun, and the marks that make
     a sibling's picture differ: the range name and a band of the style's flavor colours."""
     flavor = flavors[0]
