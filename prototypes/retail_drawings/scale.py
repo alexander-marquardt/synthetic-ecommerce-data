@@ -410,6 +410,52 @@ def coverage(recs: list[dict]) -> dict[str, Any]:
     }
 
 
+#: A derived style's price stays in [low * the leaf's cheapest template, high * its dearest].
+PRICE_BAND = (0.75, 1.35)
+
+
+def price_factor(changes: dict[str, tuple[str, str]]) -> float:
+    """The price multiplier of attribute changes ``key -> (old, new)``."""
+    return 1.0
+
+
+def price_point(price: float) -> float:
+    """``price`` on a retail price point."""
+    return price
+
+
+def grid_tile(rec: dict) -> tuple:
+    """What a results grid shows of a style: its leaf, its hero picture and its price."""
+    hero = rec["skus"][0]
+    spec = json.dumps(drawing_spec(rec, hero), sort_keys=True)
+    return (rec["category_leaf"], spec, hero["price"])
+
+
+def grid_clones(recs: list[dict]) -> dict[str, Any]:
+    """The styles that share their grid tile (:func:`grid_tile`) with another style."""
+    tiles = collections.Counter(grid_tile(r) for r in recs)
+    shared = sum(n for n in tiles.values() if n > 1)
+    return {
+        "styles": len(recs),
+        "grid_clones": shared,
+        "grid_clone_rate": round(shared / len(recs), 4),
+        "largest_group": max(tiles.values()),
+    }
+
+
+def prices_per_leaf(recs: list[dict]) -> dict[str, Any]:
+    """Distinct style prices per leaf: each leaf's count, then the min and the median."""
+    prices: dict[str, set[float]] = collections.defaultdict(set)
+    for r in recs:
+        prices[r["category_leaf"]].add(r["price"])
+    counts = sorted(len(v) for v in prices.values())
+    return {
+        "distinct": {leaf: len(v) for leaf, v in sorted(prices.items())},
+        "min": counts[0],
+        "median": counts[len(counts) // 2],
+    }
+
+
 def listing_tokens(rec: dict) -> frozenset[str]:
     """The words a shopper and the index read on a listing: the brand and the title."""
     return frozenset(_words(f"{rec['brand']} {rec['title']}").split())

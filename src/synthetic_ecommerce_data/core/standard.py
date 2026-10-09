@@ -162,7 +162,7 @@ def check_document(doc: Mapping[str, Any]) -> list[str]:
     return out
 
 
-def check_catalog(docs: Iterable[Mapping[str, Any]]) -> list[str]:
+def check_catalog(docs: Iterable[Mapping[str, Any]], *, text_agrees: bool = True) -> list[str]:
     """Every way a catalog breaks the standard: each document's problems, then the ids
     that repeat and the keys that name two attributes or shadow a top-level field."""
     out: list[str] = []

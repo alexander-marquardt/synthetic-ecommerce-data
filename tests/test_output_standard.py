@@ -60,7 +60,8 @@ def retail() -> list[dict[str, Any]]:
 
 @pytest.mark.parametrize("source", sorted(SOURCES))
 def test_every_domain_meets_the_standard(source):
-    problems = standard.check_catalog(SOURCES[source]())
+    retail = source.startswith("retail")
+    problems = standard.check_catalog(SOURCES[source](), text_agrees=retail)
     assert problems == [], f"{len(problems)} problems, e.g. {problems[:8]}"
 
 
@@ -148,6 +149,52 @@ def test_the_validator_refuses_each_planted_defect(plant, retail):
     assert standard.check_document(doc) == []
     PLANTS[plant](doc)
     assert standard.check_document(doc) != []
+
+
+def _set(doc: dict[str, Any], key: str, value: str) -> None:
+    for entry in doc["attributes"]:
+        if entry["key"] == key:
+            entry["value"] = value
+
+
+#: A doc, an attribute changed under its text, the problem's words (gen#125 review).
+CONTRADICTIONS = {
+    # the old wording stays: "two hook and loop straps" on a lace-up trainer
+    "a description naming another closure": ("FTW-KTRHLT", "closure", "Lace-Up", "'Hook & Loop'"),
+    # the title and the description both name the old closure: one problem per attribute
+    "a title naming another closure": ("FTW-KSNDHL", "closure", "Buckle", "'Hook & Loop'"),
+}
+
+
+@pytest.mark.parametrize("plant", sorted(CONTRADICTIONS))
+def test_a_title_or_description_contradicting_an_attribute_is_refused(plant, retail):
+    pid, key, value, named = CONTRADICTIONS[plant]
+    docs = deepcopy(retail)
+    doc = next(d for d in docs if d["product_id"] == pid)
+    _set(doc, key, value)
+    problems = standard.check_catalog(docs)
+    assert len(problems) == 1, problems
+    assert problems[0].startswith(f"{pid}: ") and named in problems[0] and key in problems[0]
+
+
+def test_a_value_named_inside_another_attribute_or_beside_its_own_is_no_contradiction(retail):
+    """"Leather Penny Loafers" on a rubber sole names the upper's value; a text naming the
+    doc's own value too ("cotton and linen") is a blend, not a contradiction."""
+    docs = deepcopy(retail)
+    shoe = next(d for d in docs if d["product_id"] == "FTW-KTRHLT")
+    shoe["variants"][0]["description"] += " Lace-up look."
+    _set(shoe, "closure", "Lace-Up")
+    for v in shoe["variants"]:
+        v["description"] = shoe["variants"][0]["description"]
+    assert standard.check_catalog(docs) == []
+
+
+def test_industrial_text_is_exempt_from_the_contradiction_check():
+    """Its descriptions name a second standard or grade by design (a Grade 8 nut for a
+    Grade 5 bolt); the check guards the retail build's derived text."""
+    docs = _industrial()
+    assert standard.check_catalog(docs, text_agrees=False) == []
+    assert standard.check_catalog(docs) != []
 
 
 def test_a_repeated_sku_and_a_key_with_two_names_are_refused(retail):
