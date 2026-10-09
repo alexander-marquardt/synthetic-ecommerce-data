@@ -332,8 +332,8 @@ def test_not_every_brand_makes_every_type():
 
 
 def _contrast(ink: str, paper: str) -> float:
-    def lum(colour: str) -> float:
-        channels = [int(colour[i : i + 2], 16) / 255 for i in (1, 3, 5)]
+    def lum(color: str) -> float:
+        channels = [int(color[i : i + 2], 16) / 255 for i in (1, 3, 5)]
         linear = [c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in channels]
         return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
 

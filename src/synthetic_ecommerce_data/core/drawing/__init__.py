@@ -75,10 +75,10 @@ _ID = re.compile(r"^h[0-9-]*s[0-9.]+d?[0-9a-f]{6}$")
 #: outline drawn as a plain ``<path d="...">`` is indistinguishable from any
 #: other outline; only the figures' own code keeps letters out of a path.
 _NUMBER = r"-?(?:\d+\.?\d*|\.\d+)"
-_COLOUR = r"#[0-9a-f]{6}"
+_COLOR = r"#[0-9a-f]{6}"
 _VALUE_GRAMMAR: dict[str, re.Pattern[str]] = {
-    "fill": re.compile(rf"^(?:{_COLOUR}|none|url\(#h[0-9-]*s[0-9.]+d?[0-9a-f]{{6}}\))$"),
-    "stroke": re.compile(rf"^{_COLOUR}$"),
+    "fill": re.compile(rf"^(?:{_COLOR}|none|url\(#h[0-9-]*s[0-9.]+d?[0-9a-f]{{6}}\))$"),
+    "stroke": re.compile(rf"^{_COLOR}$"),
     "d": re.compile(r"^[MLHVZlhvz0-9 .\-]+$"),
     "transform": re.compile(rf"^rotate\({_NUMBER} {_NUMBER} {_NUMBER}\)$"),
     "viewBox": re.compile(rf"^{_NUMBER} {_NUMBER} {_NUMBER} {_NUMBER}$"),
@@ -98,7 +98,7 @@ def svg_problems(svg: bytes) -> list[str]:
         problems.append("a comment, declaration, doctype or processing instruction")
     if b"&" in svg:
         # The figures write no entity or character reference; one in a value
-        # could spell a colour the grammar then accepts, or anything else.
+        # could spell a color the grammar then accepts, or anything else.
         problems.append("an entity or character reference")
     builder = ET.TreeBuilder(insert_comments=True, insert_pis=True)
     parser = ET.XMLParser(target=builder)

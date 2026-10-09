@@ -108,7 +108,7 @@ def centred_diameter_callout(ax, y, diameter, label, sub, overhang, lift, fontsi
     -- and it is what a round subject needs. A side-placed label on a disc has
     to clear the disc before it starts, so on a 150-pixel-wide card the two
     labels a washer needs run off both edges; centred, they cannot, whatever
-    the value's length. Both texts sit on a paper-coloured box so they stay
+    the value's length. Both texts sit on a paper-colored box so they stay
     legible where they cross the subject.
     """
     _diameter_arrow(ax, y, diameter, overhang, zorder=Z_DIM)
