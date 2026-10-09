@@ -71,6 +71,9 @@
    "image_detail_url": {
     "type": "keyword"
    },
+   "ingredients": {
+    "type": "text"
+   },
    "attribute_names": {
     "type": "keyword"
    },
