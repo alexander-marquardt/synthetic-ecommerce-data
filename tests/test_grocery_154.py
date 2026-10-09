@@ -343,3 +343,31 @@ def test_a_product_states_the_union_of_its_skus_allergens_and_the_common_diet() 
         union_seen += any(p["contains"] != contains for p in per)
         diet_seen += any(p["dietary"] != diet for p in per)
     assert union_seen and diet_seen, (union_seen, diet_seen)
+
+
+def test_no_label_starts_on_a_dangling_modifier_and_each_names_its_product() -> None:
+    """ "Gluten Free Penne" draws "Penne", not "Free Penne"; a chocolate box is not "Selection"."""
+    built = grocery.build(grocery.TARGET)
+    labels = {(r["title"], r["drawing"]["label"]) for r in built}
+    assert labels
+    for title, label in labels:
+        assert label.split()[0] not in grocery.DANGLING, (title, label)
+        assert label != "Selection", title
+    by_title = dict(labels)
+    penne = [t for t in by_title if t.endswith("Gluten Free Penne")]
+    milk = [t for t in by_title if t.endswith("Lactose Free Milk")]
+    box = [t for t in by_title if t.endswith("Chocolate Selection")]
+    assert penne and milk and box
+    assert {by_title[t] for t in penne} == {"Penne"}
+    assert {by_title[t] for t in milk} == {"Milk"}
+    assert {by_title[t] for t in box} == {"Chocolate Selection"}
+    for title, label in labels:  # the label's last word is a word of the title: its noun
+        assert label.split()[-1].lower() in title.lower(), (title, label)
+
+
+def test_butter_is_a_block_or_tub_never_a_bag_and_ice_cream_a_tub_never_a_bottle() -> None:
+    shapes = {(r["category_leaf"], r["drawing"]["shape"]) for r in grocery.build(grocery.TARGET)}
+    butter = {s for leaf, s in shapes if leaf == "Butter & Spreads"}
+    ice = {s for leaf, s in shapes if leaf == "Ice Cream"}
+    assert butter == {"butter_block", "lidded_tub"}
+    assert ice == {"lidded_tub"}
