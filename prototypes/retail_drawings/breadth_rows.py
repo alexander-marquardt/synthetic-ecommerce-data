@@ -1,0 +1,493 @@
+"""Breadth templates for the scaled retail catalog (gen#125): data only.
+
+:func:`scale.templates` builds these after :mod:`scale_rows`. The authored styles and
+the deep-SKU rows left a general-retail catalog thin outside clothing and lingerie: at
+the ceiling, toys, garden, gifts and cleaning held under 1% of the styles each. These
+rows give each thin department leaves of its own, so that no department falls under
+half its fair share of the ceiling's styles (``tests/test_retail_scale.py`` pins it).
+
+A row adds capacity through a title-visible value its leaf varies (:func:`scale.value_pools`):
+a fabric, a fragrance, a variety, an occasion. Every value of a leaf's pool fits every
+template of that leaf, so a derived style stays coherent: a knitted whale and a corduroy
+cat are both soft toys, and a variety is a variety of the leaf's one plant. The drawing
+shows what never varies (the animal, the bottle, the tree).
+"""
+
+from __future__ import annotations
+
+import zlib
+from dataclasses import dataclass
+
+from departments import check as check_departments
+from variants import Color, attr, cw, drawing, product, swatch
+
+#: Who makes each brand these rows carry: the retailer ("own") or another house.
+OWNERS = {
+    "Little Fernby": "own", "Puddlecombe Toys": "third_party",
+    "Thistle & Wren": "third_party", "Fenwold Nursery": "third_party",
+    "Lanternby": "third_party", "Calderby & Lune": "third_party",
+    "Pantry Mill": "own", "Freshfold": "third_party",
+}  # fmt: skip
+
+
+@dataclass(frozen=True)
+class Row:
+    """One style: its colors times its sizes are its SKUs (one SKU each when it has none).
+
+    A ``colorless`` row's SKUs carry no color (a plant, a cleaner); its drawing still
+    takes ``colors[0]``. A size is ``(name, price)``: a bigger size costs more.
+    """
+
+    code: str
+    title: str
+    brand: str
+    department: str
+    path: tuple[str, ...]
+    product_type: str
+    price: float
+    shape: str
+    description: str
+    colors: tuple[Color, ...]
+    attrs: tuple[tuple[str, str, str], ...] = ()
+    sizes: tuple[tuple[str, float], ...] = ()
+    label: str | None = None
+    audience: str = "adult"
+    colorless: bool = False
+
+    def skus(self) -> list[dict]:
+        sizes = [{"size": s, "price": p} for s, p in self.sizes] or [{"price": self.price}]
+        colors = self.colors[:1] if self.colorless else self.colors
+        return [
+            {**({} if self.colorless else {"color": c[0]}), **s, "in_stock": True}
+            for c in colors
+            for s in sizes
+        ]
+
+    def doc(self) -> dict:
+        check_departments([self.department], self.code)
+        h = zlib.crc32(self.code.encode())
+        skus = self.skus()
+        swatches = {c[0]: swatch(c) for c in self.colors}
+        return product(
+            f"BRD-{self.code}", skus, swatches,
+            title=self.title, brand=self.brand, brand_owner=OWNERS[self.brand],
+            department=[self.department], product_type=self.product_type,
+            category_path=list(self.path), category_leaf=self.path[-1],
+            description=self.description,
+            attributes=[attr(k, n, v) for k, n, v in self.attrs],
+            drawing=drawing(self.shape, self.colors[0], self.label),
+            collections=[], currency="GBP", audience=self.audience,
+            sold_last_5_days=5 + h % 90, rating=round(3.8 + (h >> 8) % 11 / 10, 1),
+            review_count=3 + (h >> 16) % 400,
+            price_min=min(s["price"] for s in skus), price_max=max(s["price"] for s in skus),
+        )  # fmt: skip
+
+
+def _fab(v: str) -> tuple[tuple[str, str, str], ...]:
+    return (("fabric", "Fabric", v),)
+
+
+def _mat(v: str) -> tuple[tuple[str, str, str], ...]:
+    return (("material", "Material", v),)
+
+
+# --------------------------------------------------------------------------
+# Toys: the animal or vehicle is drawn; the fabric, material or power varies.
+# --------------------------------------------------------------------------
+
+_SOFT = ("Toys", "Soft Toys", "Cuddly Animals")
+_BATH = ("Toys", "Baby & Toddler", "Bath Toys")
+_CARS = ("Toys", "Vehicles", "Toy Vehicles")
+_FIG = ("Toys", "Figures & Playsets", "Animal Figures")
+_LIGHT = ("Toys", "Nursery", "Night Lights")
+_KIDS = "kids"
+
+TOYS = (
+    Row("SFTCAT", "Plush Cat Soft Toy", "Little Fernby", "Toys", _SOFT, "Soft Toy", 14.0, "cat",
+        "A floppy plush cat with stitched eyes and a long tail, soft enough for bedtime. "
+        "Surface washable.",
+        (cw("Ginger", "#d9822b"), cw("Grey", "#9a9a9a"), cw("Black", "#2a2a2e")),
+        _fab("Plush"), audience=_KIDS),
+    Row("SFTOWL", "Knitted Owl Soft Toy", "Puddlecombe Toys", "Toys", _SOFT, "Soft Toy", 16.0,
+        "bird",
+        "A round knitted owl with felt wings and embroidered eyes, small enough for a cot. "
+        "Hand wash.",
+        (cw("Oat", "#d8c9a8"), cw("Sage", "#9bb08f")), _fab("Knitted"), audience=_KIDS),
+    Row("SFTWHL", "Corduroy Whale Soft Toy", "Little Fernby", "Toys", _SOFT, "Soft Toy", 18.0,
+        "whale",
+        "A long whale with a squashy body and a stitched smile, filled with recycled fiber. "
+        "Machine washable at 30 degrees.",
+        (cw("Navy", "#26365c"), cw("Sky Blue", "#8fb8de")), _fab("Corduroy"), audience=_KIDS),
+    Row("SFTDIN", "Faux Fur Dinosaur Soft Toy", "Puddlecombe Toys", "Toys", _SOFT, "Soft Toy",
+        20.0, "dinosaur",
+        "A big-footed dinosaur with soft spines down its back, made for hugging. "
+        "Surface washable.",
+        (cw("Moss Green", "#6f8f4a"), cw("Lilac", "#b9a3d0")), _fab("Faux Fur"), audience=_KIDS),
+    Row("SFTBIR", "Organic Cotton Bird Soft Toy", "Little Fernby", "Toys", _SOFT, "Soft Toy",
+        12.0, "bird",
+        "A small bird with a crinkly tummy and a ribbon loop, safe from birth. "
+        "Machine washable at 30 degrees.",
+        (cw("Mustard", "#d1a03c"), cw("Coral", "#ef7b62")), _fab("Organic Cotton"),
+        audience=_KIDS),
+    Row("BTHWHL", "Silicone Whale Bath Squirter", "Little Fernby", "Toys", _BATH, "Bath Toy",
+        7.0, "whale",
+        "A whale that fills and squirts from its blowhole. It opens in two for cleaning, "
+        "so no water sits inside.",
+        (cw("Teal", "#1c7c7d"), cw("Yellow", "#f2d14b")), _mat("Silicone"), audience=_KIDS),
+    Row("BTHDCK", "Natural Rubber Bath Duck", "Puddlecombe Toys", "Toys", _BATH, "Bath Toy",
+        6.0, "bird",
+        "A sealed bath duck that floats upright and never fills with water. "
+        "For babies from 3 months.",
+        (cw("Yellow", "#f2d14b"), cw("Pink", "#f2a1b8")), _mat("Natural Rubber"), audience=_KIDS),
+    Row("BTHBOT", "Recycled Plastic Whale Bath Set", "Little Fernby", "Toys", _BATH, "Bath Toy",
+        12.0, "whale",
+        "A floating whale with three stacking cups that pour, sieve and sprinkle. "
+        "Dishwasher safe.",
+        (cw("Blue", "#3f6fb5"),), _mat("Recycled Plastic"), audience=_KIDS),
+    Row("CARRCE", "Wooden Racing Car", "Little Fernby", "Toys", _CARS, "Toy Vehicle", 9.0, "car",
+        "A chunky racing car with rubber tires and a driver who lifts out. For ages 18 months "
+        "and up.",
+        (cw("Red", "#c8312e"), cw("Blue", "#3f6fb5")), _mat("Wooden"), audience=_KIDS),
+    Row("CARPOL", "Die-Cast Police Car", "Puddlecombe Toys", "Toys", _CARS, "Toy Vehicle", 6.0, "car",
+        "A pocket-size police car with opening doors and a pull-back motor. For ages 3 and up.",
+        (cw("White", "#ffffff", "solid", "#26365c"),), _mat("Die-Cast"), audience=_KIDS),
+    Row("CARVIN", "Recycled Plastic Vintage Car", "Little Fernby", "Toys", _CARS, "Toy Vehicle",
+        11.0, "car",
+        "A rounded vintage car with a seat for a small figure and wheels that never come off.",
+        (cw("Mint", "#a8d8c2"), cw("Cream", "#efe8d8")), _mat("Recycled Plastic"),
+        audience=_KIDS),
+    Row("CARTOW", "Wooden Tow Truck", "Puddlecombe Toys", "Toys", _CARS, "Toy Vehicle", 15.0, "car",
+        "A tow truck with a working hook and winch that lifts a second car. "
+        "For ages 2 and up.",
+        (cw("Yellow", "#f2d14b"),), _mat("Wooden"), label="Tow", audience=_KIDS),
+    Row("FIGCAT", "Resin Cat Figure", "Puddlecombe Toys", "Toys", _FIG, "Toy Figure", 5.0,
+        "cat",
+        "A sitting cat figure sized for small hands, finished in water-based paint.",
+        (cw("Tabby", "#b07a43"),), _mat("Resin"), audience=_KIDS),
+    Row("FIGWHL", "Wooden Whale Figure", "Little Fernby", "Toys", _FIG, "Toy Figure", 6.0,
+        "whale", "A smooth whale figure with a rounded tail, for play in the bath or on the rug.",
+        (cw("Navy", "#26365c"),), _mat("Wooden"), audience=_KIDS),
+    Row("FIGBRD", "Rubber Bird Figure", "Puddlecombe Toys", "Toys", _FIG, "Toy Figure", 4.0,
+        "bird", "A robin figure with a flat base so it stands up, soft enough to chew.",
+        (cw("Red", "#c8312e", "solid", "#7a4a2a"),), _mat("Rubber"), audience=_KIDS),
+    Row("LGTSTR", "Rechargeable Star Night Light", "Little Fernby", "Toys", _LIGHT, "Night Light",
+        22.0, "star",
+        "A soft-glow star that dims over 30 minutes, then stays on low all night.",
+        (cw("Warm White", "#fbefc9"), cw("Pink", "#f2a1b8")), (("power", "Power", "Rechargeable"),),
+        audience=_KIDS),
+    Row("LGTWHL", "Plug-In Whale Night Light", "Puddlecombe Toys", "Toys", _LIGHT, "Night Light",
+        18.0, "whale",
+        "A silicone whale that glows when tapped and changes color with a second tap.",
+        (cw("Blue", "#8fb8de"),), (("power", "Power", "Plug-In"),), audience=_KIDS),
+    Row("LGTCAT", "Battery-Powered Cat Night Light", "Little Fernby", "Toys", _LIGHT,
+        "Night Light", 15.0, "cat",
+        "A sleeping cat lamp with a timer that switches it off after one hour.",
+        (cw("White", "#ffffff"),), (("power", "Power", "Battery-Powered"),), audience=_KIDS),
+)  # fmt: skip
+
+# --------------------------------------------------------------------------
+# Garden: one plant per leaf, so its every variety fits every template.
+# --------------------------------------------------------------------------
+
+_TREES = ("Garden", "Plants", "Bay Trees")
+_TULIP = ("Garden", "Bulbs", "Tulip Bulbs")
+_BERRY = ("Garden", "Grow Your Own", "Strawberry Plants")
+_MUSH = ("Garden", "Grow Your Own", "Mushroom Kits")
+_XMAS = ("Garden", "Christmas Trees", "Real Christmas Trees")
+_APPLE = ("Garden", "Fruit Trees", "Apple Trees")
+_POT = cw("Terracotta", "#b5603a", "solid", "#4f7a3a")
+
+
+def _form(v: str) -> tuple[tuple[str, str, str], ...]:
+    return (("form", "Form", v),)
+
+
+def _var(v: str) -> tuple[tuple[str, str, str], ...]:
+    return (("variety", "Variety", v),)
+
+
+_HEIGHTS = (("60 cm", 25.0), ("90 cm", 40.0), ("1.2 m", 65.0))
+_XMAS_FT = (("5 ft", 45.0), ("6 ft", 55.0), ("7 ft", 70.0))
+
+GARDEN = (
+    Row("BAYSTD", "Standard Bay Tree in Terracotta Pot", "Thistle & Wren", "Garden", _TREES,
+        "Plant", 25.0, "potted_tree",
+        "A clipped bay tree, hardy outdoors and handy in the kitchen. Water weekly in summer.",
+        (_POT,), _form("Standard"), _HEIGHTS, "Bay", colorless=True),
+    Row("BAYZNC", "Pyramid Bay Tree in Zinc Planter", "Fenwold Nursery", "Garden", _TREES,
+        "Plant", 30.0, "potted_tree",
+        "A bay tree clipped to shape, in a galvanized planter with drainage holes.",
+        (cw("Zinc", "#9aa3a8", "solid", "#4f7a3a"),), _form("Pyramid"),
+        (("60 cm", 30.0), ("90 cm", 48.0)), "Bay", colorless=True),
+    Row("BAYPAT", "Bush Bay Tree for Patios", "Thistle & Wren", "Garden", _TREES, "Plant", 18.0,
+        "potted_tree",
+        "A young bay tree in a 2-liter nursery pot, ready to clip or plant out.",
+        (cw("Black", "#2a2a2e", "solid", "#4f7a3a"),), _form("Bush"), label="Bay",
+        colorless=True),
+    Row("TULP10", "Queen of Night Tulip Bulbs, Pack of 10", "Fenwold Nursery", "Garden", _TULIP,
+        "Bulbs", 5.0, "tulip",
+        "Top-size bulbs for planting in fall, 15 cm deep, for flowers in late spring.",
+        (cw("Deep Purple", "#4b2238", "solid", "#4f7a3a"),),
+        _var("Queen of Night"), colorless=True),
+    Row("TULP25", "Ballerina Tulip Bulbs, Pack of 25", "Thistle & Wren", "Garden", _TULIP,
+        "Bulbs", 10.0, "tulip",
+        "A bag of bulbs for a border or a row of pots. Plant in fall for flowers in May.",
+        (cw("Tangerine", "#f08a24", "solid", "#4f7a3a"),), _var("Ballerina"), colorless=True),
+    Row("TULTIN", "Purissima Tulip Bulbs in a Gift Tin", "Fenwold Nursery", "Garden", _TULIP,
+        "Bulbs", 12.0, "tulip",
+        "Twelve bulbs in a printed tin with planting notes, a gift for any gardener.",
+        (cw("Ivory", "#f4efe2", "solid", "#4f7a3a"),), _var("Purissima"), colorless=True),
+    Row("TULPOT", "Negrita Tulips in a Ceramic Pot", "Thistle & Wren", "Garden", _TULIP,
+        "Bulbs", 16.0, "tulip",
+        "Bulbs pre-planted in a glazed pot, shooting already: water and wait for buds.",
+        (cw("Purple", "#6b2340", "solid", "#4f7a3a"),), _var("Negrita"), colorless=True),
+    Row("STRP06", "Elsanta Strawberry Plants, Pack of 6", "Fenwold Nursery", "Garden", _BERRY,
+        "Plant", 9.0, "strawberry",
+        "Young plants in 9 cm pots for beds, bags or hanging baskets, fruiting in their "
+        "first summer.",
+        (cw("Red", "#c8312e", "solid", "#4f7a3a"),), _var("Elsanta"), colorless=True),
+    Row("STRP12", "Honeoye Strawberry Plants, Pack of 12", "Thistle & Wren", "Garden", _BERRY,
+        "Plant", 15.0, "strawberry",
+        "Bare-root runners to plant 30 cm apart in a sunny bed, cropping from June.",
+        (cw("Red", "#b8322f", "solid", "#4f7a3a"),), _var("Honeoye"), colorless=True),
+    Row("STRBSK", "Florence Strawberry Hanging Basket", "Fenwold Nursery", "Garden", _BERRY,
+        "Plant", 20.0, "strawberry",
+        "A 30 cm basket planted with five plants, with a chain to hang it by the door.",
+        (cw("Red", "#c8102e", "solid", "#4f7a3a"),), _var("Florence"), colorless=True),
+    Row("MUSKIT", "Pearl Oyster Mushroom Growing Kit", "Thistle & Wren", "Garden", _MUSH,
+        "Growing Kit", 18.0, "mushroom",
+        "A ready-seeded box: open the front, mist twice a day, and pick in about ten days.",
+        (cw("Cream", "#efe8d8", "solid", "#7a5a3a"),), _var("Pearl Oyster"), colorless=True),
+    Row("MUSLOG", "Shiitake Mushroom Log", "Fenwold Nursery", "Garden", _MUSH, "Growing Kit",
+        28.0, "mushroom",
+        "A seeded hardwood log for a shady corner, cropping in spring and fall for years.",
+        (cw("Brown", "#7a5a3a", "solid", "#efe8d8"),), _var("Shiitake"), colorless=True),
+    Row("MUSBAG", "Lion's Mane Mushroom Grow Bag", "Thistle & Wren", "Garden", _MUSH,
+        "Growing Kit", 14.0, "mushroom",
+        "A grow bag that crops on a kitchen counter, out of direct sun. Two flushes or more.",
+        (cw("White", "#ffffff", "solid", "#7a5a3a"),), _var("Lion's Mane"), colorless=True),
+    Row("XMSCUT", "Cut Nordmann Fir Christmas Tree", "Thistle & Wren", "Garden", _XMAS,
+        "Christmas Tree", 45.0, "christmas_tree",
+        "Freshly cut and netted, with a fresh-cut base that drinks water in the stand.",
+        (cw("Green", "#2f6b3c"),), _var("Nordmann Fir"), _XMAS_FT, colorless=True),
+    Row("XMSPOT", "Pot-Grown Fraser Fir Christmas Tree", "Fenwold Nursery", "Garden", _XMAS,
+        "Christmas Tree", 40.0, "christmas_tree",
+        "Grown in its pot, roots and all: keep it watered indoors, then plant it out in "
+        "January.",
+        (cw("Green", "#3e7a4a"),), _var("Fraser Fir"), (("4 ft", 40.0), ("5 ft", 55.0)),
+        colorless=True),
+    Row("XMSMIN", "Mini Norway Spruce Christmas Tree", "Thistle & Wren", "Garden", _XMAS,
+        "Christmas Tree", 15.0, "christmas_tree",
+        "A tabletop tree about 60 cm tall in a jute-wrapped pot, for a desk or windowsill.",
+        (cw("Green", "#4f7a3a"),), _var("Norway Spruce"), colorless=True),
+    Row("APLBSH", "Gala Apple Tree, Patio Bush", "Fenwold Nursery", "Garden", _APPLE, "Plant",
+        30.0, "potted_tree",
+        "A self-fertile tree on dwarfing roots that stays under 2 m in a large pot.",
+        (cw("Green", "#4f7a3a", "solid", "#c8312e"),), _var("Gala"), label="Apple",
+        colorless=True),
+    Row("APLBAR", "Bramley Apple Tree, Bare Root", "Thistle & Wren", "Garden", _APPLE, "Plant",
+        24.0, "potted_tree",
+        "A two-year tree, lifted in winter and sent bare root, to plant from November "
+        "to March.",
+        (cw("Green", "#3e7a4a", "solid", "#c8312e"),), _var("Bramley"), label="Apple",
+        colorless=True),
+    Row("APLCRD", "Braeburn Apple Tree, Cordon", "Fenwold Nursery", "Garden", _APPLE, "Plant",
+        28.0, "potted_tree",
+        "A single trained stem for a fence or wall, cropping in a narrow space.",
+        (cw("Green", "#2f6b3c", "solid", "#c8312e"),), _var("Braeburn"), label="Apple",
+        colorless=True),
+)  # fmt: skip
+
+# --------------------------------------------------------------------------
+# Gifts: the frame, the paper, the charm or the decoration is drawn.
+# --------------------------------------------------------------------------
+
+_FRAMES = ("Gifts", "Keepsakes", "Photo Frames")
+_WRAP = ("Gifts", "Gift Wrap", "Wrapping Paper")
+_CHARM = ("Gifts", "Keepsakes", "Charm Keyrings")
+_DECOR = ("Gifts", "Christmas Gifts", "Tree Decorations")
+_CANDLE = ("Gifts", "Home Fragrance", "Scented Candles")
+
+
+def _occ(v: str) -> tuple[tuple[str, str, str], ...]:
+    return (("occasion", "Occasion", v),)
+
+
+def _charm(v: str) -> tuple[tuple[str, str, str], ...]:
+    return (("charm", "Charm", v),)
+
+
+def _scent(v: str) -> tuple[tuple[str, str, str], ...]:
+    return (("fragrance", "Fragrance", v),)
+
+
+_SILVER, _OAK = cw("Silver", "#c0c0c0"), cw("Oak", "#b08a5a")
+
+GIFTS = (
+    Row("FRMSLV", "Silver-Plated Wedding Photo Frame", "Calderby & Lune", "Gifts", _FRAMES,
+        "Photo Frame", 22.0, "photo_frame",
+        "An engraved frame for a 5 x 7 in photo, with a velvet back and a fold-out stand.",
+        (_SILVER,), _occ("Wedding"), (("5 x 7 in", 22.0), ("8 x 10 in", 32.0))),
+    Row("FRMOAK", "Solid Oak New Baby Photo Frame", "Lanternby", "Gifts", _FRAMES,
+        "Photo Frame", 18.0, "photo_frame",
+        "A deep oak frame with a cream mount and a printed message, gift boxed.",
+        (_OAK, cw("White", "#ffffff")), _occ("New Baby")),
+    Row("FRMGLS", "Glass Anniversary Photo Frame", "Calderby & Lune", "Gifts", _FRAMES,
+        "Photo Frame", 15.0, "photo_frame",
+        "Two glass panes that hold a 6 x 4 in photo between them, with a chrome stand.",
+        (cw("Clear", "#e8f0f2"),), _occ("Anniversary")),
+    Row("FRMMLT", "Graduation Multi-Photo Frame", "Lanternby", "Gifts", _FRAMES, "Photo Frame",
+        28.0, "photo_frame",
+        "A wall frame with five apertures, for a run of photos from one big day.",
+        (cw("Black", "#2a2a2e"), _OAK), _occ("Graduation")),
+    Row("WRPRLL", "Birthday Wrapping Paper Roll, 4 m", "Lanternby", "Gifts", _WRAP,
+        "Wrapping Paper", 4.0, "wrapping_paper",
+        "A roll of thick printed paper with a grid on the back for straight cuts.",
+        (cw("Confetti", "#ffffff", "polka", "#d6267a"), cw("Pastel Spot", "#8fb8de", "polka", "#f2d14b")),
+        _occ("Birthday")),
+    Row("WRPSHT", "Christmas Wrapping Paper, 3 Sheets", "Calderby & Lune", "Gifts", _WRAP,
+        "Wrapping Paper", 5.0, "wrapping_paper",
+        "Three folded sheets with matching tags, printed on recycled paper.",
+        (cw("Red Stripe", "#ffffff", "stripe", "#c8312e"), cw("Gold Star", "#1f2e4a", "polka", "#d4af37")),
+        _occ("Christmas")),
+    Row("WRPKRF", "Baby Shower Kraft Wrap and Ribbon Set", "Lanternby", "Gifts", _WRAP,
+        "Wrapping Paper", 7.0, "wrapping_paper",
+        "Two sheets of kraft paper, a printed sheet and 3 m of cotton ribbon.",
+        (cw("Kraft", "#c9a77a", "stripe", "#ffffff"),), _occ("Baby Shower")),
+    Row("CHMENM", "Enamel Fox Charm Keyring", "Lanternby", "Gifts", _CHARM, "Keyring", 8.0,
+        "keyring", "A hard enamel charm on a split ring with a short chain, on a gift card.",
+        (cw("Rust", "#a8502e"),), _charm("Fox")),
+    Row("CHMPWT", "Pewter Hare Charm Keyring", "Calderby & Lune", "Gifts", _CHARM, "Keyring",
+        12.0, "keyring", "A cast pewter charm on a leather tab, boxed with a care card.",
+        (cw("Pewter", "#8a8d8f"),), _charm("Hare")),
+    Row("CHMWOD", "Wooden Owl Charm Keyring", "Lanternby", "Gifts", _CHARM, "Keyring", 6.0,
+        "keyring", "A laser-cut wooden charm, oiled and threaded on a cotton cord.",
+        (cw("Natural", "#d8c9a8"),), _charm("Owl")),
+    Row("CHMSLV", "Sterling Silver Bee Charm Keyring", "Calderby & Lune", "Gifts", _CHARM,
+        "Keyring", 35.0, "keyring",
+        "A hallmarked silver charm on a polished ring, in a lined gift box.",
+        (_SILVER,), _charm("Bee")),
+    Row("DECSTR", "Glitter Glass Star Decoration", "Lanternby", "Gifts", _DECOR,
+        "Christmas Decoration", 6.0, "star",
+        "A mouth-blown glass star with a ribbon loop, about 10 cm across.",
+        (cw("Gold", "#d4af37"), cw("Silver", "#c0c0c0")), (("finish", "Finish", "Glitter"),)),
+    Row("DECWST", "Painted Wooden Star Decoration Set", "Calderby & Lune", "Gifts", _DECOR,
+        "Christmas Decoration", 9.0, "star",
+        "Six flat wooden stars on jute loops, for a tree, a garland or a gift.",
+        (cw("Red", "#c8312e"), cw("White", "#ffffff")), (("finish", "Finish", "Painted"),)),
+    Row("DECSNO", "Glitter Glass Snowflake Decoration", "Lanternby", "Gifts", _DECOR,
+        "Christmas Decoration", 7.0, "snowflake",
+        "A flat glass snowflake that catches the tree lights, on a silver thread.",
+        (cw("Ice", "#dbe9f2"),), (("finish", "Finish", "Glitter"),)),
+    Row("DECFLT", "Gilded Felt Snowflake Decoration", "Calderby & Lune", "Gifts", _DECOR,
+        "Christmas Decoration", 5.0, "snowflake",
+        "A hand-cut felt snowflake with stitched edges, light enough for any branch.",
+        (cw("Cream", "#efe8d8"), cw("Red", "#c8312e")), (("finish", "Finish", "Gilded"),)),
+    Row("CNDJAR", "Fig and Cedar Scented Candle", "Lanternby", "Gifts", _CANDLE,
+        "Scented Candle", 18.0, "jar",
+        "A soy wax candle in a reusable glass jar, about 40 hours of burn time.",
+        (cw("Smoke", "#6f6a66"),), _scent("Fig and Cedar"), (("Medium", 18.0), ("Large", 28.0)),
+        "Candle"),
+    Row("CNDTIN", "Sea Salt Travel Tin Candle", "Calderby & Lune", "Gifts", _CANDLE,
+        "Scented Candle", 8.0, "tin",
+        "A small candle in a lidded tin, about 15 hours of burn time, for a bag or a desk.",
+        (cw("Sand", "#d9c7a3"),), _scent("Sea Salt"), label="Candle"),
+    Row("CNDTRW", "Amber Woods Three-Wick Candle", "Lanternby", "Gifts", _CANDLE,
+        "Scented Candle", 32.0, "jar",
+        "A wide candle with three cotton wicks that fills a room, about 50 hours of burn time.",
+        (cw("Amber", "#c98a2e"),), _scent("Amber Woods"), label="Candle"),
+    Row("CNDLIN", "Fresh Linen Candle Gift Set", "Calderby & Lune", "Gifts", _CANDLE,
+        "Scented Candle", 24.0, "jar",
+        "Three votive candles in frosted glass, boxed with a ribbon for giving.",
+        (cw("White", "#ffffff"),), _scent("Fresh Linen"), label="Candle"),
+)  # fmt: skip
+
+# --------------------------------------------------------------------------
+# Cleaning: the fragrance varies; the bottle or the spray is drawn.
+# --------------------------------------------------------------------------
+
+_BATHRM = ("Cleaning", "Bathroom", "Bathroom Cleaners")
+_GLASS = ("Cleaning", "Kitchen & Surfaces", "Glass Cleaners")
+_DISH = ("Cleaning", "Kitchen & Surfaces", "Dish Soap")
+_LAUND = ("Cleaning", "Laundry", "Laundry Detergent")
+_SOFTEN = ("Cleaning", "Laundry", "Fabric Softener")
+_LOO = ("Cleaning", "Bathroom", "Toilet Cleaners")
+_CJ = "Cleaning & Janitorial"
+
+
+def _spray(c: str, accent: str = "#2a2a2e") -> tuple[Color, ...]:
+    return (cw(c, {"Teal": "#1c7c7d", "Lilac": "#b9a3d0", "Blue": "#3f6fb5", "Green": "#4f7a3a",
+                   "White": "#ffffff", "Pink": "#f2a1b8", "Aqua": "#8fd1d0"}[c], "solid", accent),)  # fmt: skip
+
+
+CLEANING = (
+    Row("BTHSPR", "Eucalyptus Bathroom Cleaner Spray 500ml", "Pantry Mill", _CJ, _BATHRM,
+        "Bathroom Cleaner", 2.5, "trigger_spray",
+        "Lifts limescale and soap scum from tiles, taps and glass. Scented with eucalyptus.",
+        _spray("Teal"), _scent("Eucalyptus"), colorless=True),
+    Row("BTHSHW", "Lavender Daily Shower Spray 750ml", "Freshfold", _CJ, _BATHRM,
+        "Bathroom Cleaner", 3.5, "trigger_spray",
+        "A no-rinse spray for after each shower that keeps screens and tiles clear. "
+        "Scented with lavender.",
+        _spray("Lilac"), _scent("Lavender"), colorless=True),
+    Row("BTHMLD", "Pine Mold and Mildew Remover 500ml", "Pantry Mill", _CJ, _BATHRM,
+        "Bathroom Cleaner", 3.0, "trigger_spray",
+        "A thick spray for grout and sealant: leave ten minutes, then rinse. "
+        "Scented with pine.",
+        _spray("Green"), _scent("Pine"), colorless=True),
+    Row("GLSSPR", "Ocean Breeze Glass Cleaner 500ml", "Freshfold", _CJ, _GLASS, "Glass Cleaner",
+        2.0, "trigger_spray",
+        "A streak-free spray for windows, mirrors and glass tables. Scented with ocean breeze.",
+        _spray("Blue"), _scent("Ocean Breeze"), colorless=True),
+    Row("GLSREF", "Mint Glass Cleaner Refill 1L", "Pantry Mill", _CJ, _GLASS, "Glass Cleaner",
+        3.0, "bottle",
+        "A refill for any trigger bottle, in a bottle made from recycled plastic. "
+        "Scented with mint.",
+        _spray("Aqua"), _scent("Mint"), label="Refill", colorless=True),
+    Row("DSHSOP", "Aloe Vera Dish Soap 500ml", "Pantry Mill", _CJ, _DISH, "Dish Soap", 1.5,
+        "bottle",
+        "A gentle soap that cuts grease and is kind to hands. Scented with aloe vera.",
+        _spray("Green"), _scent("Aloe Vera"), label="Dish", colorless=True),
+    Row("DSHCON", "Green Tea Concentrated Dish Soap 1L", "Freshfold", _CJ, _DISH, "Dish Soap",
+        2.8, "bottle",
+        "A concentrated soap: a few drops do a sink of dishes. Scented with green tea.",
+        _spray("Green", "#ffffff"), _scent("Green Tea"), label="Dish", colorless=True),
+    Row("DSHPMP", "Pomegranate Dish Soap Pump 400ml", "Pantry Mill", _CJ, _DISH, "Dish Soap",
+        2.2, "bottle",
+        "A pump bottle for the side of the sink, refillable. Scented with pomegranate.",
+        _spray("Pink"), _scent("Pomegranate"), label="Dish", colorless=True),
+    Row("LDRLIQ", "Fresh Cotton Laundry Detergent, 40 Washes", "Freshfold", _CJ, _LAUND,
+        "Laundry Detergent", 6.0, "bottle",
+        "A non-bio liquid that cleans at 20 degrees, gentle on sensitive skin. "
+        "Scented with fresh cotton.",
+        _spray("White", "#3f6fb5"), _scent("Fresh Cotton"), label="Laundry", colorless=True),
+    Row("LDRCON", "Spring Meadow Bio Laundry Detergent, 60 Washes", "Pantry Mill", _CJ, _LAUND,
+        "Laundry Detergent", 8.5, "bottle",
+        "A concentrated bio liquid for stains at low temperatures. Scented with spring meadow.",
+        _spray("Blue", "#ffffff"), _scent("Spring Meadow"), label="Laundry", colorless=True),
+    Row("SFTLAV", "Lavender Fabric Softener, 50 Washes", "Pantry Mill", _CJ, _SOFTEN,
+        "Fabric Softener", 3.5, "bottle",
+        "A softener that keeps towels fluffy and cuts creases. Scented with lavender.",
+        _spray("Lilac", "#ffffff"), _scent("Lavender"), label="Softener", colorless=True),
+    Row("SFTSEN", "Wild Jasmine Fabric Softener, 33 Washes", "Freshfold", _CJ, _SOFTEN,
+        "Fabric Softener", 2.8, "bottle",
+        "A softener with plant-based ingredients, in a recycled bottle. "
+        "Scented with wild jasmine.",
+        _spray("Pink", "#ffffff"), _scent("Wild Jasmine"), label="Softener", colorless=True),
+    Row("LOOGEL", "Pine Thick Toilet Cleaner 750ml", "Pantry Mill", _CJ, _LOO, "Toilet Cleaner",
+        1.8, "bottle",
+        "An angled-neck bottle of thick gel that clings under the rim. Scented with pine.",
+        _spray("Green", "#ffffff"), _scent("Pine"), label="Toilet", colorless=True),
+    Row("LOOTAB", "Ocean Breeze Toilet Cleaning Tablets, Pack of 8", "Freshfold", _CJ, _LOO,
+        "Toilet Cleaner", 3.0, "tub",
+        "Drop-in tablets that fizz away limescale overnight. Scented with ocean breeze.",
+        _spray("Aqua", "#ffffff"), _scent("Ocean Breeze"), label="Tablets", colorless=True),
+)  # fmt: skip
+
+#: Every breadth row, by department.
+DEPARTMENTS = {"Toys": TOYS, "Garden": GARDEN, "Gifts": GIFTS, _CJ: CLEANING}
+
+
+def docs() -> list[dict]:
+    """Every breadth row's catalog document, department by department."""
+    return [r.doc() for rows in DEPARTMENTS.values() for r in rows]
