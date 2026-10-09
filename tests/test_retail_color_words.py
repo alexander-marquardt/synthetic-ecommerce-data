@@ -24,9 +24,10 @@ if str(RETAIL) not in sys.path:
 import colorwords  # noqa: E402
 import export  # noqa: E402
 import scale  # noqa: E402
+from retail_figures import committed  # noqa: E402
 
-#: Today's ceiling (styles, SKUs): the same pin as ``test_retail_scale.CAPACITY``.
-CEILING_SKUS = 90_071
+#: Today's ceiling SKUs, as ``golden-retail/stats.json`` measures it (gen#162).
+CEILING_SKUS = committed()["ceiling"]["skus"]
 #: Words of an object, a food or a plant that are not a color. A color value holding one
 #: is a fashion name where a color word belongs.
 DENYLIST = frozenset({
@@ -108,7 +109,7 @@ def test_the_mapping_never_names_a_denied_word_or_a_non_color(ceiling):
 def test_a_style_keeps_every_color_the_template_authored(ceiling):
     """A mapping that merged two shades of a style would drop SKUs: the ceiling is pinned.
 
-    The pin moved from 76,417 with the plain names (#150): a SKU grid is drawn by color name.
+    The pin moved with the plain names (#150): a SKU grid is drawn by color name.
     """
     assert ceiling.skus == CEILING_SKUS
     for r in ceiling.records:

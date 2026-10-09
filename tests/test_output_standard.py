@@ -25,9 +25,18 @@ ROOT = Path(__file__).resolve().parents[1]
 RETAIL = ROOT / "prototypes" / "retail_drawings"
 GOLDEN_NESTED = ROOT / "golden-catalog" / "nested.jsonl"
 
-#: The retail build's size: one document per style (``build_preview4.SAMPLES``).
-RETAIL_DOCS = 328
-RETAIL_SKUS = 6861
+def _retail_figures() -> dict[str, Any]:
+    if str(RETAIL) not in sys.path:
+        sys.path.insert(0, str(RETAIL))
+    import retail_figures  # noqa: PLC0415 -- the prototype's own directory is its import root
+
+    return retail_figures.committed()
+
+
+#: The retail build's size: one document per style (``build_preview4.SAMPLES``), read from
+#: the measured totals (``golden-retail/stats.json``, gen#162).
+RETAIL_DOCS = _retail_figures()["templates"]["authored"]["styles"]
+RETAIL_SKUS = _retail_figures()["templates"]["authored"]["skus"]
 
 
 def _retail() -> list[dict[str, Any]]:

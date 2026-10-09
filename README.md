@@ -998,7 +998,8 @@ proof corpus.
 `grocery.py` (data in `grocery_rows.py`, gen#154) builds Food & Drink styles
 whose SKUs are flavor x pack size: `python3 prototypes/retail_drawings/grocery.py
 --skus 10000 --out DIR` writes `nested.jsonl` and `flat.jsonl`, both in the output
-standard. At 10K it holds 10,067 SKUs in 3,379 styles over 48 food leaves, plus a
+standard. Its styles, SKUs and each family's share are `templates.grocery` and
+`grocery_families` in `golden-retail/stats.json` (below); it covers the food leaves, plus a
 kitchen-cleaner leaf and a body-lotion leaf for the overlaps. Each SKU states
 `contains` and `may_contain` over seven allergens (peanuts, tree nuts,
 milk, gluten, soy, egg, fish), its `dietary` labels (Vegan, Vegetarian, Gluten Free,
@@ -1066,18 +1067,27 @@ grid-clone cap (`GROCERY_GRID_CLONES`).
 The grocery styles are also the LAST templates of the main retail build
 (`scale.templates()`, so `scale.py`, `image_release.py --skus N` and the flat export
 carry them: Food & Drink at grocery depth in the one catalog, their drawings in the
-same image archive). A build under the other templates' 27,928 SKUs is what it was.
+same image archive). A build under the other templates' SKUs (`templates.before_grocery`) is what it was.
 No style is derived from a grocery style, whose allergen, dietary and ingredient facts
-are its own. The main build's 55 Food & Drink styles (61 SKUs: honey, jam, tea, coffee,
+are its own. The main build's own Food & Drink styles (`templates.main_food`: honey, jam, tea, coffee,
 chutney, ...) stay, since the failure classes and the proof corpus pin them; no title or
 product id repeats between them and the grocery styles. The main build's one honey jar
-(`PLT-HONBLS`) stays and is derived from no further; grocery plants the other honeys. The ceiling is 6,904 styles, 90,071 SKUs
-and 8,048 images; Food & Drink is 3,516 styles and 10,188 SKUs (10,161 under the
-`Food & Drink` category tree, 27 under the older `Food` one). The 15% grid-clone gate
-(`scale.grid_clones`) is held over the non-grocery styles only (15.04% at 3,525 styles):
-grocery has its own cap (`GROCERY_GRID_CLONES`, 2%): its styles draw a tile of their own
-since gen#160 (0 of 3,379 share one).
+(`PLT-HONBLS`) stays and is derived from no further; grocery plants the other honeys. The ceiling's styles, SKUs and images, Food & Drink's
+share of them (by category tree) and the grid-clone and near-duplicate rates are
+`ceiling` and `near_duplicates` in `golden-retail/stats.json`. The 15% grid-clone gate
+(`scale.grid_clones`) is held over the non-grocery styles only: grocery has its own cap
+(`GROCERY_GRID_CLONES`, 2%): its styles draw a tile of their own since gen#160.
 `tests/test_retail_grocery_in_scale_154.py` pins it.
+
+**The retail totals are build output (gen#162).** The build's measured totals (styles, SKUs,
+per-department and per-grocery-family counts, the grocery attribute-value counts and the
+near-duplicate rate) are in `golden-retail/stats.json`, which
+`python3 prototypes/retail_drawings/retail_figures.py` rewrites (seed 0, every template
+exhausted). The tests read them there and `tests/test_retail_figures_162.py` refuses a test,
+this README or a docstring that restates one, so a grocery or type PR changes them only in that
+file: after merging `main`, rebuild it, never keep either side of a conflict in it. The
+invariants keep their own asserts: no twins in a family, every allergen derived from the
+ingredients, the near-duplicate and grid-clone caps.
 
 ### Observed failure classes 2 to 15, before and after on Elasticsearch
 
@@ -1257,15 +1267,16 @@ report:
   15%), and the distinct prices per leaf (min and median);
 - the `check_catalog` problem count, the build time and the peak memory.
 
-The 4,232 templates come first: the 328 authored styles, then 136 deep-SKU jeans,
-bras and shoes that only the scaled catalog carries (`scale_rows.py`), then 184 toys,
+The templates (`templates` in `golden-retail/stats.json`) come first: the authored
+styles, then the deep-SKU jeans,
+bras and shoes that only the scaled catalog carries (`scale_rows.py`), then the toys,
 garden, gifts, cleaning, food, beauty and home styles that hold every department at
-half its fair share of styles or more (`breadth_rows.py`), then 279 styles that
+half its fair share of styles or more (`breadth_rows.py`), then the styles that
 three failure classes need (`distractor_rows.py`; `baseline_rank.py` ranks a build
 without a policy, and `tests/test_retail_distractors.py` holds the result): mattress
 protectors, mattresses and pillow protectors that out-sell the toppers; bestselling
 barrel-leg jeans whose text says balloon; 150 petite styles with a minority on sale,
-and 60 sale styles that never say petite, then the 3,379 grocery styles (below, `grocery.py`,
+and 60 sale styles that never say petite, then the grocery styles (below, `grocery.py`,
 gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
@@ -1283,8 +1294,8 @@ hold. Its price is
 re-drawn inside its leaf's band, as a function of the values it changed (a
 premium material costs more). A draw whose title or description contradicts an
 attribute is refused, and `check_catalog` refuses such text too. The module
-docstring has the rules. Today's templates run out at 90,071 SKUs (6,904 styles;
-80,004 and 3,525 before the grocery styles joined), and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
+docstring has the rules. Today's templates run out at `ceiling` in
+`golden-retail/stats.json` (with and without the grocery styles), and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
 values per leaf, more colorways, and more templates.
 `--flat PATH` also writes the flat file (one document per SKU, `ingredients` top-level on a
 food SKU). `tests/test_retail_scale.py` holds it at the templates' SKUs plus 4,500 (its
@@ -1800,7 +1811,8 @@ industrial bundle's shape, so the same installer takes it: members
 the content digest and file count printed and written beside it as
 `.content-sha256`. Images are keyed per style and colorway, never per SKU:
 every size of one color shares an image, drawn in that color's swatch (base,
-pattern and accent). The 328-style build is 629 images for 6,861 SKUs.
+pattern and accent). The authored-styles build is `templates.authored_images` images for
+`templates.authored` SKUs (`golden-retail/stats.json`).
 `--skus N` releases the scaled build instead (`scale.py`'s, the 20K catalog's
 input): `--skus 20000` is 1,348 images for 20,002 SKUs.
 There is no committed manifest to check against (the retail build is code, not
