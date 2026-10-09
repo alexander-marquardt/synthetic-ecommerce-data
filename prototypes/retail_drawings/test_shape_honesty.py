@@ -28,9 +28,15 @@ import kit_more  # noqa: E402,F401 -- registers the shapes below
 #: Generic shape -> the category paths (``" > "`` joined, matched as a
 #: prefix) where it draws the product honestly.
 HONEST_FOR: dict[str, tuple[str, ...]] = {
-    "box": ("Food",),
+    "box": ("Food & Drink",),
     # A storage organiser is a fabric box with compartments, so a wide box is its kind.
-    "box_wide": ("Food > Hampers & Gifts", "Home > Storage"),
+    # A boxed food gift sits at the food node nearest its contents (one food tree).
+    "box_wide": (
+        "Food & Drink > Chocolate & Sweets > Chocolate Boxes",
+        "Food & Drink > Bakery > Cakes",
+        "Food & Drink > Drinks > Tea",
+        "Home > Storage",
+    ),
     # Still generic, honest nowhere now: loose fruit draws as its own
     # ``produce_pile`` (kit_produce.py), so any round_produce use fails.
     "round_produce": (),
@@ -49,7 +55,7 @@ HONEST_FOR: dict[str, tuple[str, ...]] = {
         "Women > Knitwear > Jumpers",
     ),
     # A kind's own shape lent to a neighbour the audit also caught.
-    "cake": ("Food > Bakery > Cakes",),
+    "cake": ("Food & Drink > Bakery > Cakes",),
     "gift_bag": ("Beauty > Gift Sets", "Gifts > Gift Wrap"),
     "moisturiser_jar": ("Beauty > Skincare",),
     "mattress_topper": ("Home > Bedding > Mattress Toppers",),

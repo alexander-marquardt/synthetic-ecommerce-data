@@ -221,8 +221,8 @@ def test_the_gift_bag_distractors_hold_the_observed_mix() -> None:
     assert sum("with Limited Edition" in t and t.endswith("Bag") for t in beauty) == 2
     tail = sorted(x.doc["category_path"][-1] for x in gift.tail)
     assert tail == sorted(
-        ["Wallet Gift Sets", "Wallet Gift Sets", "Hampers", "Hampers", "Letterbox Gifts",
-         "Letterbox Gifts", "Gift Plants", "Keyrings"]
+        ["Wallet Gift Sets", "Wallet Gift Sets", "Chocolate Boxes", "Chocolate Boxes", "Cakes",
+         "Tea", "Gift Plants", "Keyrings"]
     )  # fmt: skip
     titles = [x.doc["title"] for x in gift.tail]
     assert sum(" in " in t and t.endswith("Gift Bag") for t in titles) == 1

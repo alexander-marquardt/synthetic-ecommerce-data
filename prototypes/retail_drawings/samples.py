@@ -419,7 +419,7 @@ FOOD = [
         "title": "Semi-Skimmed Milk 2 Litres",
         "brand": "Meadowgate Dairy",
         "department": ["food"],
-        "category_path": ["Food", "Dairy", "Milk"],
+        "category_path": ["Food & Drink", "Dairy & Alternatives", "Milk"],
         "price": 1.65,
         "attributes": food_attrs(2, "LTR", "Chilled", ["Vegetarian"], ["Milk"], "Plain"),
         "drawing": drawing("carton", "solid", "#3f8fd2", label="Milk"),
@@ -428,7 +428,7 @@ FOOD = [
         "title": "Smooth Spanish Red Wine 75cl",
         "brand": "Vine & Valley",
         "department": ["food"],
-        "category_path": ["Food", "Drinks", "Wine", "Red Wine"],
+        "category_path": ["Food & Drink", "Beer, Wine & Spirits"],
         "price": 7.50,
         "attributes": food_attrs(
             750, "MLT", "Cupboard", ["Vegan"], ["Sulphites"], "Cherry & Spice"
@@ -439,7 +439,7 @@ FOOD = [
         "title": "Extra Virgin Olive Oil 500ml",
         "brand": "Olivar Grove",
         "department": ["food"],
-        "category_path": ["Food", "Cupboard", "Oils & Vinegars"],
+        "category_path": ["Food & Drink", "Pantry", "Olive Oil"],
         "price": 5.25,
         "attributes": food_attrs(500, "MLT", "Cupboard", ["Vegan", "Gluten Free"], [], "Fruity"),
         "drawing": drawing("bottle", "solid", "#8a9a2c", label="Oil"),
@@ -448,7 +448,7 @@ FOOD = [
         "title": "Strawberry Conserve 340g",
         "brand": "Copper Hill Preserves",
         "department": ["food"],
-        "category_path": ["Food", "Cupboard", "Jams & Spreads"],
+        "category_path": ["Food & Drink", "Food Cupboard", "Jam & Honey"],
         "price": 2.10,
         "attributes": food_attrs(340, "GRM", "Cupboard", ["Vegetarian", "Vegan"], [], "Strawberry"),
         "drawing": drawing("jar", "solid", "#b8242f", "#e6e1d8", label="Jam"),
@@ -457,7 +457,7 @@ FOOD = [
         "title": "Baked Beans in Tomato Sauce 415g",
         "brand": "Pantry Mill",
         "department": ["food"],
-        "category_path": ["Food", "Cupboard", "Tinned Food"],
+        "category_path": ["Food & Drink", "Food Cupboard", "Tinned"],
         "price": 0.85,
         "attributes": food_attrs(415, "GRM", "Cupboard", ["Vegan", "Gluten Free"], [], "Tomato", 2),
         "drawing": drawing("tin", "solid", "#2f7fb5", label="Beans"),
@@ -466,7 +466,7 @@ FOOD = [
         "title": "Honey Oat Crunch Cereal 500g",
         "brand": "Goldfield Farms",
         "department": ["food"],
-        "category_path": ["Food", "Cupboard", "Cereals"],
+        "category_path": ["Food & Drink", "Breakfast", "Cereals"],
         "price": 2.75,
         "attributes": food_attrs(
             500, "GRM", "Cupboard", ["Vegetarian"], ["Oats", "Gluten"], "Honey"
@@ -478,7 +478,7 @@ FOOD = [
         "brand": "Thistle & Wren",
         "department": ["food", "gifts"],
         "collections": ["christmas", "gifts"],
-        "category_path": ["Food", "Biscuits & Sweets", "Biscuits"],
+        "category_path": ["Food & Drink", "Biscuits & Snacks", "Biscuits"],
         "price": 6.00,
         "attributes": food_attrs(
             300, "GRM", "Cupboard", ["Vegetarian"], ["Wheat", "Milk"], "Butter"
@@ -491,7 +491,7 @@ FOOD = [
         "title": "Sea Salt & Cider Vinegar Crisps 150g",
         "brand": "Crunchworth",
         "department": ["food"],
-        "category_path": ["Food", "Cupboard", "Crisps & Snacks"],
+        "category_path": ["Food & Drink", "Biscuits & Snacks", "Crisps"],
         "price": 1.90,
         "attributes": food_attrs(150, "GRM", "Cupboard", ["Vegan"], [], "Salt & Vinegar"),
         "drawing": drawing("crisps_bag", "solid", "#3aa3a0", label="Crisps"),
@@ -500,7 +500,7 @@ FOOD = [
         "title": "Beef Lasagne Ready Meal 400g",
         "brand": "Hearth & Table",
         "department": ["food"],
-        "category_path": ["Food", "Ready Meals", "Italian"],
+        "category_path": ["Food & Drink", "Chilled", "Ready Meals"],
         "price": 3.50,
         "attributes": food_attrs(
             400, "GRM", "Chilled", [], ["Wheat", "Milk", "Egg", "Celery"], "Beef & Tomato", 1
@@ -512,7 +512,7 @@ FOOD = [
         "brand": "Goldfield Farms",
         "department": ["food"],
         "collections": ["summer"],
-        "category_path": ["Food", "Fresh Produce", "Fruit", "Berries"],
+        "category_path": ["Food & Drink", "Fruit & Vegetables", "Fresh Fruit"],
         "price": 2.50,
         "attributes": food_attrs(400, "GRM", "Chilled", ["Vegan", "Gluten Free"], [], "Strawberry"),
         "drawing": drawing("punnet", "solid", "#2f6b3c", label="Strawberries"),
@@ -521,7 +521,7 @@ FOOD = [
         "title": "Greek Style Natural Yogurt 500g",
         "brand": "Meadowgate Dairy",
         "department": ["food"],
-        "category_path": ["Food", "Dairy", "Yogurts"],
+        "category_path": ["Food & Drink", "Dairy & Alternatives", "Yogurt"],
         "price": 1.45,
         "attributes": food_attrs(
             500, "GRM", "Chilled", ["Vegetarian", "Gluten Free"], ["Milk"], "Natural"
@@ -532,7 +532,7 @@ FOOD = [
         "title": "Seeded Wholemeal Loaf 800g",
         "brand": "Crofter's Bakehouse",
         "department": ["food"],
-        "category_path": ["Food", "Bakery", "Bread"],
+        "category_path": ["Food & Drink", "Bakery", "Bread"],
         "price": 1.40,
         "attributes": food_attrs(
             800, "GRM", "Cupboard", ["Vegan"], ["Wheat", "Gluten", "Sesame"], "Malted Seeds"
@@ -544,7 +544,7 @@ FOOD = [
         "brand": "Crofter's Bakehouse",
         "department": ["food"],
         "collections": ["christmas", "gifts"],
-        "category_path": ["Food", "Bakery", "Cakes", "Celebration Cakes"],
+        "category_path": ["Food & Drink", "Bakery", "Cakes"],
         "price": 12.00,
         "attributes": food_attrs(
             900,
@@ -562,7 +562,7 @@ FOOD = [
         "brand": "Goldfield Farms",
         "department": ["food"],
         "collections": ["christmas"],
-        "category_path": ["Food", "Fresh Produce", "Fruit", "Citrus"],
+        "category_path": ["Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Citrus Fruit"],
         "price": 1.80,
         "attributes": food_attrs(
             CLEMENTINE_GRAMS, "GRM", "Fresh", ["Vegan", "Gluten Free"], [], "Sweet Citrus"
