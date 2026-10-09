@@ -173,7 +173,7 @@ def _description(fam: Family, flavors: list[F], packs: list[dict], skus: list[di
     names = [f.name for f in flavors]
     sizes = ", ".join(p["pack_size"] for p in packs)
     if not fam.food:
-        noun = (
+        noun = fam.noun or (
             "multi-surface spray that cuts through grease"
             if fam.axis == "scent" and fam.department.startswith("Cleaning")
             else "light body milk that absorbs quickly"
@@ -297,7 +297,9 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
     """The grocery records: the anchors, then each family's share of ``skus``."""
     rng = random.Random(f"grocery:{seed}")
     fams = {f.code: f for f in FAMILIES}
-    total = sum(f.weight for f in FAMILIES)
+    # A depth family is sized against the core families' weight and drawn from its own stream,
+    # so adding one never moves a core family's budget, ids or draws (gen#154).
+    total = sum(f.weight for f in FAMILIES if not f.depth)
     budget = {f.code: max(1, round(skus * f.weight / total)) for f in FAMILIES}
     held: Counter[str] = Counter()
     titles: set[str] = set()
@@ -322,8 +324,11 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
         packs = list(fam.packs)
         add(fam, LINES[n % len(LINES)], fam.brands[n % len(fam.brands)], flavors, packs, may, False)
 
-    for fam in FAMILIES:
+    depth_rng = random.Random(f"grocery-depth:{seed}")
+    for fam in sorted(FAMILIES, key=lambda f: f.depth):
         misses = 0
+        if fam.depth:
+            rng = depth_rng
         while held[fam.code] < budget[fam.code] and misses < ATTEMPTS:
             if _single(fam):
                 flavors = [rng.choice(fam.flavors)]

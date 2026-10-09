@@ -67,6 +67,8 @@ class Family:
     axis: str = "flavor"  # or "scent" (a non-food), "variety" (fresh produce)
     department: str = "Food & Drink"
     params: tuple[tuple[str, str], ...] = ()
+    noun: str = ""  # a non-food's description noun; "" keeps the overlap rows' own
+    depth: bool = False  # built after the core families from its own stream (see ``grocery.build``)
 
     @property
     def food(self) -> bool:
@@ -121,6 +123,17 @@ def _p(*parts: str) -> tuple[str, ...]:
 _FRUIT = _p("Fruit & Vegetables", "Fresh Fruit")
 _BEER = _p("Beer, Wine & Spirits", "Beer")
 
+
+_HOME_SCENTS = (
+    F("Lemon", "#f2d14b"), F("Orange", "#f2a14b"), F("Pine", "#3f7a4a"), F("Lavender", "#9a7ab6"),
+    F("Fresh Linen", "#cfe3ee"),
+)
+_HOME_BRANDS = ("Clearbrook Household", "Soapwell", "Pantry Mill", "Freshfold")
+_BODY_SCENTS = (
+    F("Honey", "#e0a030"), F("Lemon", "#f2d14b"), F("Coconut", "#efe8d8"), F("Almond", "#c9a96e"),
+    F("Lavender", "#9a7ab6"),
+)
+_BODY_BRANDS = ("Brightwater Botanics", "Velling Apothecary", "Orrin Skin")
 
 FAMILIES: tuple[Family, ...] = (
     # Chocolate & Sweets
@@ -426,6 +439,31 @@ FAMILIES: tuple[Family, ...] = (
            "Body Milk", _A, "", 4.0, ("250ml", "400ml"),
            (F("Honey", "#e0a030"), F("Coconut", "#efe8d8"), F("Shea", "#e8dcc0"), F("Almond", "#c9a96e")),
            ("Brightwater Botanics", "Velling Apothecary", "Orrin Skin"), 0.004, axis="scent", department="Beauty"),
+    # Scent depth (gen#154): the demo word "lemon" is a scent in dozens of household SKUs, as it
+    # is a fruit and a flavor; "honey" a scent in dozens of body-care SKUs. Each family is one
+    # leaf with its own scent list and the same ``scent`` attribute the Kitchen Cleaner uses,
+    # so one policy routes on the attribute and the product type. Drawn from their own stream.
+    Family("DSH", ("Cleaning", "Kitchen & Surfaces", "Dish Soap"), "{line} {flavor} Dish Soap", "Dish Soap", "bottle",
+           "Dish Soap", _A, "", 1.2, ("500ml", "1L"), _HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",
+           department="Cleaning & Janitorial", noun="washing-up liquid that cuts through grease", depth=True),
+    Family("GLS", ("Cleaning", "Kitchen & Surfaces", "Glass Cleaners"), "{line} {flavor} Glass Cleaner", "Glass Cleaner",
+           "bottle", "Glass Cleaner", _A, "", 1.6, ("500ml", "750ml"), _HOME_SCENTS, _HOME_BRANDS, 0.01,
+           axis="scent", department="Cleaning & Janitorial", noun="streak-free spray for windows and mirrors", depth=True),
+    Family("FLR", ("Cleaning", "Floor Care", "Floor Cleaners"), "{line} {flavor} Floor Cleaner", "Floor Cleaner",
+           "bottle", "Floor Cleaner", _A, "", 2.0, ("1L", "2L"), _HOME_SCENTS, _HOME_BRANDS, 0.016, axis="scent",
+           department="Cleaning & Janitorial", noun="concentrated cleaner for sealed floors", depth=True),
+    Family("BTH", ("Cleaning", "Bathroom", "Bathroom Cleaners"), "{line} {flavor} Bathroom Cleaner", "Bathroom Cleaner",
+           "bottle", "Bathroom Cleaner", _A, "", 1.8, ("500ml", "750ml"), _HOME_SCENTS, _HOME_BRANDS, 0.01,
+           axis="scent", department="Cleaning & Janitorial", noun="spray that removes limescale and soap scum", depth=True),
+    Family("LDY", ("Cleaning", "Laundry", "Laundry Detergent"), "{line} {flavor} Laundry Liquid", "Laundry Detergent",
+           "bottle", "Laundry Liquid", _A, "", 4.0, ("1.5L", "3L"), _HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",
+           department="Cleaning & Janitorial", noun="liquid detergent for every wash", depth=True),
+    Family("HWS", ("Beauty", "Bath & Body", "Hand Wash"), "{line} {flavor} Hand Wash", "Hand Wash", "bottle",
+           "Hand Wash", _A, "", 1.8, ("250ml", "500ml"), _BODY_SCENTS, _BODY_BRANDS, 0.016, axis="scent",
+           department="Beauty", noun="gentle liquid hand wash", depth=True),
+    Family("SGL", ("Beauty", "Bath & Body", "Shower Gel"), "{line} {flavor} Shower Gel", "Shower Gel", "bottle",
+           "Shower Gel", _A, "", 2.5, ("250ml", "500ml"), _BODY_SCENTS, _BODY_BRANDS, 0.016, axis="scent",
+           department="Beauty", noun="creamy shower gel", depth=True),
 )  # fmt: skip
 
 #: The styles every build plants first, so each demo case exists at any size:

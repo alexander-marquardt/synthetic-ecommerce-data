@@ -3167,6 +3167,45 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: scent depth for "lemon" and "honey" (gen#154) ----
+    *(
+        Mutation(f"scent depth: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a depth family is sized against the whole weight, so every core budget moves",
+                "grocery.py",
+                "sum(f.weight for f in FAMILIES if not f.depth)",
+                "sum(f.weight for f in FAMILIES)",
+                "tests/test_grocery_scent_depth_154.py -k core_styles_do_not_move",
+                "adding a scent family leaves the core grocery styles as built",
+            ),
+            (
+                "a floor cleaner is too small a family to show a lemon",
+                "grocery_rows.py",
+                '_HOME_BRANDS, 0.016, axis="scent",\n           department="Cleaning & Janitorial", noun="concentrated',
+                '_HOME_BRANDS, 0.001, axis="scent",\n           department="Cleaning & Janitorial", noun="concentrated',
+                "tests/test_grocery_scent_depth_154.py -k lemon_is_a_scent",
+                "lemon is a scent in dozens of SKUs of each type",
+            ),
+            (
+                "a dish soap holds its scent as a flavor",
+                "grocery_rows.py",
+                '_HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",\n           department="Cleaning & Janitorial", noun="washing-up',
+                '_HOME_SCENTS, _HOME_BRANDS, 0.01, axis="flavor",\n           department="Cleaning & Janitorial", noun="washing-up',
+                "tests/test_grocery_scent_depth_154.py -k told_apart_by_attribute",
+                "a scented SKU carries scent, never flavor",
+            ),
+            (
+                "a depth description falls back to the multi-surface spray",
+                "grocery.py",
+                "noun = fam.noun or (",
+                "noun = (",
+                "tests/test_grocery_scent_depth_154.py -k describes_its_own_product",
+                "a scent style describes its own product",
+            ),
+        ]
+    ),
     # ---- retail: a jean's fit and a bra's style are facets, not leaves ----
     *(
         Mutation(f"facet leaves: {name}", file, old, new, test, "", prop,
