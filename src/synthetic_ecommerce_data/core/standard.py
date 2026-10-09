@@ -175,9 +175,66 @@ def check_document(doc: Mapping[str, Any]) -> list[str]:
     return out
 
 
-def check_catalog(docs: Iterable[Mapping[str, Any]]) -> list[str]:
+def words(text: str) -> str:
+    """``text`` as space-padded lower-case words, ``&`` read as "and": " hook and loop "."""
+    return " " + re.sub(r"[^a-z0-9]+", " ", text.lower().replace("&", " and ")).strip() + " "
+
+
+def _names(padded: str, value: str) -> bool:
+    phrase = words(value).strip()
+    return bool(phrase) and f" {phrase} " in padded
+
+
+def value_pools(docs: Iterable[Mapping[str, Any]]) -> dict[tuple[str, str], set[str]]:
+    """(leaf, key) -> the worded values the leaf's product attributes carry: the values a
+    title or description can contradict. A number or a measured value is never one."""
+    pools: dict[tuple[str, str], set[str]] = {}
+    for doc in docs:
+        for entry in doc.get("attributes") or ():
+            value = str(entry.get("value"))
+            if "unit_code" not in entry and re.search(r"[A-Za-z]", value):
+                pools.setdefault((str(doc.get("category_leaf")), str(entry.get("key"))), set()).add(
+                    value
+                )
+    return pools
+
+
+def text_contradictions(
+    doc: Mapping[str, Any], pools: Mapping[tuple[str, str], set[str]]
+) -> list[str]:
+    """Each attribute the title or a description contradicts: the text names another value
+    of the key's leaf pool and none of the document's own. A word inside another of the
+    document's values ("Leather" on a rubber-soled leather loafer) contradicts nothing."""
+    attrs = [e for e in doc.get("attributes") or () if isinstance(e, dict)]
+    own: dict[str, set[str]] = {}
+    for e in attrs:
+        own.setdefault(str(e.get("key")), set()).add(str(e.get("value")))
+    every = sorted({v for vs in own.values() for v in vs}, key=len, reverse=True)
+    texts = [str(doc.get("title") or "")]
+    texts += [str(v.get("description")) for v in doc.get("variants") or () if v.get("description")]
+    out = []
+    for key, mine in own.items():
+        pool = pools.get((str(doc.get("category_leaf")), key), set()) - mine
+        for text in dict.fromkeys(texts):
+            padded = words(text)
+            if not pool or any(_names(padded, v) for v in mine):
+                continue
+            for v in every:
+                padded = padded.replace(words(v), " | ") if re.search(r"[A-Za-z]", v) else padded
+            named = sorted(v for v in pool if _names(padded, v))
+            if named:
+                out.append(f"{doc.get('product_id')}: its text names {named[0]!r} but {key} is "
+                           f"{sorted(mine)}: {text[:80]!r}")  # fmt: skip
+                break
+    return out
+
+
+def check_catalog(docs: Iterable[Mapping[str, Any]], *, text_agrees: bool = True) -> list[str]:
     """Every way a catalog breaks the standard: each document's problems, then the ids
-    that repeat and the keys that name two attributes or shadow a top-level field."""
+    that repeat and the keys that name two attributes or shadow a top-level field, and,
+    with ``text_agrees``, every title or description that contradicts an attribute
+    (:func:`text_contradictions`, against the catalog's own :func:`value_pools`)."""
+    docs = list(docs)
     out: list[str] = []
     ids: dict[str, int] = {}
     names_by_key: dict[str, set[str]] = {}
@@ -196,6 +253,9 @@ def check_catalog(docs: Iterable[Mapping[str, Any]]) -> list[str]:
     out += [f"key {k!r} names {sorted(v)}" for k, v in sorted(names_by_key.items()) if len(v) > 1]
     shadow = set(names_by_key) & (set(PRODUCT_FIELDS) | set(VARIANT_FIELDS))
     out += [f"key {k!r} shadows a top-level field" for k in sorted(shadow)]
+    if text_agrees:
+        pools = value_pools(docs)
+        out += [p for doc in docs for p in text_contradictions(doc, pools)]
     return out
 
 
