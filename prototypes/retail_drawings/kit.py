@@ -165,13 +165,13 @@ def _word(text: str, cx: float, cy: float, width: float, max_size: float, color:
 
 
 #: The grocery marks of the pack being drawn (:data:`MARK_KEYS` from its params): the range
-#: name and the flavor colours. :func:`_drawn` sets it, :func:`_panel` reads it.
+#: name and the flavor colors. :func:`_drawn` sets it, :func:`_panel` reads it.
 _MARKS: dict[str, str] = {}
 MARK_KEYS = ("line", "chips")
 
 
 def _marked(x: float, y: float, w: float, h: float, text: str, max_size: float) -> list[str]:
-    """The panel's contents with marks: the word, the range name, and a band of flavor colours."""
+    """The panel's contents with marks: the word, the range name, and a band of flavor colors."""
     cx, out = x + w / 2, []
     out.append(_word(text, cx, y + h * 0.36, w - 14, min(max_size * 0.8, h * 0.34)))
     if _MARKS.get("line"):
