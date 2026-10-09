@@ -88,11 +88,15 @@ def test_a_scented_sku_is_told_apart_by_attribute_not_by_title() -> None:
 
 
 def test_the_scent_leaves_are_the_breadth_rows_leaves() -> None:
-    """A scent family sits on the leaf the hand-written breadth rows already use, so a shopper
+    """A scent family sits on the leaf the hand-written rows already use, so a shopper
     finds one Dish Soap leaf and not two."""
-    import breadth_rows
+    import scale
 
-    paths = {tuple(d["category_path"]) for d in breadth_rows.docs()}
+    paths = {
+        tuple(r["category_path"])
+        for r in scale.templates()
+        if not r["product_id"].startswith(scale.GROCERY_PREFIX)
+    }
     wanted = {
         tuple(f.path)
         for f in grocery_rows.FAMILIES
