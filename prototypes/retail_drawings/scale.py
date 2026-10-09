@@ -60,7 +60,7 @@ price with another.
 
 **Capacity.** Signatures bound the build: per template, the shown values its leaf
 offers times its color families. With today's templates every template is
-exhausted at 31,524 SKUs (850 styles). Past that, the CLI reports
+exhausted at 13,794 SKUs (849 styles). Past that, the CLI reports
 ``reached_target: false`` and exits 2. To grow it, add data, not code: more values
 per leaf that the title shows, more colorways, and more templates, deep-SKU ones
 above all.
@@ -69,8 +69,8 @@ Images: a derived style keeps its template's drawing (params and a changed motif
 aside), so the distinct drawings (:func:`coverage` ``images.distinct_drawings``)
 stay near the template count. ``export.image_id`` still embeds the product id, so
 ``images.image_ids`` is one per product and colorway, and
-``image_release.py --skus N`` renders this build's images (1,493 for the 19,142
-SKUs of ``--skus 19000``).
+``image_release.py --skus N`` renders this build's images (1,099 for the 13,039
+SKUs of ``--skus 13000``).
 """
 
 from __future__ import annotations
