@@ -402,7 +402,10 @@ def test_the_widest_dispersion_is_a_continuum_kept_off_by_min_presence(decided) 
     now. If a regeneration drops either count back below its floor, this
     reds rather than quietly changing the control.
     """
-    quantitative = [s for s, _ in decided.values() if s.is_numeric]
+    # Over attributes with the evidence RANGE_MIN_DOCS asks for: a unit's own
+    # key can hold a handful of defect values (``diameter_mm``: 2 documents),
+    # whose dispersion says nothing and which a floor decides by itself.
+    quantitative = [s for s, _ in decided.values() if s.is_numeric and s.products >= RANGE_MIN_DOCS]
     widest = max(quantitative, key=lambda s: s.dispersion)
     assert widest.name == MEASURED_DISPERSION["min_presence_arm"]
     assert round(widest.dispersion, 4) == MEASURED_DISPERSION["min_presence_arm_dispersion"]

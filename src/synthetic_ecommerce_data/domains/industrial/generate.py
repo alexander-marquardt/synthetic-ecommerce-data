@@ -221,6 +221,23 @@ def _weighted(rng: random.Random, table) -> object:
     return rng.choices(values, weights=weights, k=1)[0]
 
 
+#: Keys that hold ONE unit each, the unit as a ``_mm`` suffix on the metric one.
+UNIT_SPLIT_KEYS = frozenset({"diameter", "dowel_dia"})
+
+
+def _unit_key(attribute: Attribute, system: str) -> str | None:
+    """The key a value restated in *system* is published under.
+
+    A key in :data:`UNIT_SPLIT_KEYS` holds one unit, so a restated value moves
+    to the key of its unit (``diameter`` / ``diameter_mm``); any other key
+    travels with the value, as it always did.
+    """
+    base = attribute.facet_key.removesuffix("_mm")
+    if base not in UNIT_SPLIT_KEYS:
+        return attribute.key
+    return f"{base}_mm" if system == "mm" else base
+
+
 @dataclass
 class ChildDraft:
     """A child before the shared post-pass touches it."""
@@ -1351,9 +1368,10 @@ class Generator:
                 # quantities (a sprocket's Pitch, a tap's) is told apart by it,
                 # and a restated value under the name's default key would join
                 # the other type's facet.
+                key = _unit_key(attribute, other)
                 out[index] = replace(
                     length_attribute(attribute.name, self._publish(attribute.value_num, style)),
-                    key=attribute.key,
+                    key=key,
                 )
                 self._bump("defect_unit_mixing")
         return out
