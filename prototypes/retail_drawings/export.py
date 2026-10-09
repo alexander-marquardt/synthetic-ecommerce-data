@@ -61,6 +61,19 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "dimensions": ("dimensions", "Dimensions", None),
     "length_cm": ("item_length", "Item length", "CMT"),
     "width_cm": ("item_width", "Item width", "CMT"),
+    # The grocery build's flavor x pack SKUs (grocery.py, gen#154); a list option
+    # (an allergen list, the dietary labels) is one entry per value.
+    "flavor": ("flavor", "Flavor", None),
+    "scent": ("scent", "Scent", None),
+    "variety": ("variety", "Variety", None),
+    "pack_size": ("pack_size", "Pack size", None),
+    "units_per_pack": ("units_per_pack", "Units per pack", "C62"),
+    "net_weight_g": ("net_weight", "Net weight", "GRM"),
+    "net_volume_ml": ("net_volume", "Net volume", "MLT"),
+    "contains": ("contains", "Contains", None),
+    "may_contain": ("may_contain", "May contain", None),
+    "free_from": ("free_from", "Free from", None),
+    "dietary": ("dietary", "Dietary", None),
 }
 #: The SKU fields that are columns of the variant, not options.
 SKU_COLUMNS = frozenset({"sku", "price", "in_stock"})
@@ -180,7 +193,7 @@ def _variant(rec: dict, sku: dict) -> dict[str, Any]:
         "image_id": image,
         "image_url": _url(image),
         "image_detail_url": _url(image),
-        "attributes": [_entry(*OPTIONS[k], sku[k]) for k in options],
+        "attributes": [e for k in options for e in _entries(OPTIONS[k], sku[k])],
     }
 
 
