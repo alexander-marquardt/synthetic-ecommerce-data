@@ -1,4 +1,4 @@
-"""The retail size parameter (gen#125): a target SKU count, reached from the 328 templates.
+"""The retail size parameter (gen#125): a target SKU count, reached from the 350 templates.
 
 ``prototypes/retail_drawings/scale.py`` derives styles from the hand-authored
 ones until the SKUs reach the target. These tests hold it at the first load
@@ -29,10 +29,15 @@ import scale  # noqa: E402
 
 #: The first load: about 20K SKUs, about 1,000 styles.
 TARGET = 20_000
-TEMPLATES = 328
+#: The round 4 preview's 328 authored styles, then the 22 scale-only rows (``scale_rows``).
+TEMPLATES = 350
+SCALE_ROWS = 22
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (1_866, 30_150)
+CAPACITY = (2_044, 43_072)
+#: The near-duplicate share the ceiling build may reach: the 30K ceiling's 2.6%
+#: (gen#136), rounded up to the 20K build's 2.8%. Growth must not dilute it.
+CEILING_NEAR_DUPLICATES = 0.028
 
 
 @pytest.fixture(scope="module")
@@ -64,7 +69,7 @@ def test_the_templates_come_first_and_a_small_target_takes_a_prefix(built):
 
 
 def test_the_build_is_deterministic_by_seed():
-    a, b, c = scale.build(9_000, seed=3), scale.build(9_000, seed=3), scale.build(9_000, seed=4)
+    a, b, c = scale.build(16_000, seed=3), scale.build(16_000, seed=3), scale.build(16_000, seed=4)
     assert a.records == b.records
     assert [r["title"] for r in a.records] != [r["title"] for r in c.records]
 
@@ -212,8 +217,43 @@ def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(tmp_path):
         capture_output=True, text=True, check=False,
     )  # fmt: skip
     assert done.returncode == 2, done.stderr[-2000:]
-    assert "short: 30150 SKUs of 100000" in done.stderr
+    assert f"short: {CAPACITY[1]} SKUs of 100000" in done.stderr
     got = json.loads(report.read_text(encoding="utf-8"))
     assert got["reached_target"] is False
     assert got["standard_problems"] == 0
     assert (got["coverage"]["styles"], got["coverage"]["skus"]) == CAPACITY
+    assert got["distinctness"]["near_duplicate_rate"] <= CEILING_NEAR_DUPLICATES
+
+
+def test_every_scale_only_row_opens_a_leaf_or_a_title_value_its_leaf_lacked():
+    """A ``scale_rows`` template adds capacity only through what the authored styles lack."""
+    rows = scale.scale_rows.docs()
+    assert len(rows) == SCALE_ROWS
+    authored = scale.templates()[: TEMPLATES - SCALE_ROWS]
+    have = {
+        (t["category_leaf"], a["key"], str(a["value"])) for t in authored for a in t["attributes"]
+    }
+    leaves = {t["category_leaf"] for t in authored}
+    seen: set[tuple[str, str]] = set()
+    for r in rows:
+        title = {(a["key"], str(a["value"])) for a in r["attributes"]
+                 if a["key"] in ("rise", "wiring")}  # fmt: skip
+        assert len(title) == 1, r["product_id"]
+        ((key, value),) = title
+        assert r["category_leaf"] not in leaves or (r["category_leaf"], key, value) not in have, (
+            r["product_id"]
+        )
+        assert (r["category_leaf"], value) not in seen, r["product_id"]
+        seen.add((r["category_leaf"], value))
+
+
+def test_the_invented_names_are_new_and_never_repeat():
+    """An extra brand already on a template adds nothing to its pool, and a repeated
+    range name gives two styles the same head."""
+    tpl_brands = {t["brand"] for t in scale.templates()}
+    extra = [b for pool in scale.EXTRA_BRANDS.values() for b in pool]
+    assert len(extra) == len(set(extra))
+    assert sorted(set(extra) & tpl_brands) == []
+    assert len(scale.RANGE_NAMES) == len(set(scale.RANGE_NAMES))
+    words = {w for b in tpl_brands | set(extra) for w in b.split()}
+    assert sorted(set(scale.RANGE_NAMES) & words) == []

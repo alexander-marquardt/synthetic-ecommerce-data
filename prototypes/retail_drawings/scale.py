@@ -1,4 +1,4 @@
-"""The retail catalog at any size: a target SKU count, reached from the 328 templates (gen#125).
+"""The retail catalog at any size: a target SKU count, reached from the 350 templates (gen#125).
 
 Usage::
 
@@ -8,8 +8,10 @@ prints the coverage and distinctness report as JSON, checks every document
 against the output standard (:func:`synthetic_ecommerce_data.core.standard.check_catalog`)
 and, with ``--out``, writes the standard nested documents as JSONL.
 
-:func:`build` keeps the 328 hand-authored styles (:func:`build_preview4.samples`)
-first, as templates, and derives further styles until the SKUs reach the target.
+:func:`build` keeps the 350 hand-authored styles first, as templates: the round 4
+preview's 328 (:func:`build_preview4.samples`), then the deep-SKU jeans and bras
+only the scaled catalog carries (:mod:`scale_rows`, data only).
+It derives further styles until the SKUs reach the target.
 A derived style copies one template and changes, deterministically from the seed:
 
 - its **range name** (:data:`RANGE_NAMES`): the ``product_line``, the template's
@@ -39,7 +41,7 @@ draws keep colliding is exhausted and leaves the pool.
 
 **Capacity.** Twins bound the build: per template, its type's brands times the
 title-visible values its leaf offers. With today's templates every template is
-exhausted at about 30K SKUs. Past that, the CLI reports ``reached_target: false``
+exhausted at 2,044 styles and 43,072 SKUs. Past that, the CLI reports ``reached_target: false``
 and exits 2. To grow it, add data, not code: more brands per type
 (:data:`EXTRA_BRANDS`, or templates with new brands), more values per leaf that
 the title shows, and more templates, deep-SKU ones above all.
@@ -69,6 +71,7 @@ HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
+import scale_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from export import drawing_spec, image_id, standard_document  # noqa: E402
 from variants import product  # noqa: E402
@@ -133,8 +136,8 @@ class Scaled:
 
 
 def templates() -> list[dict]:
-    """The 328 hand-authored styles, in build order."""
-    return [r for recs in samples().values() for r in recs]
+    """The authored styles, then :mod:`scale_rows`, in build order."""
+    return [*(r for recs in samples().values() for r in recs), *scale_rows.docs()]
 
 
 def _words(text: str) -> str:
