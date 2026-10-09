@@ -714,3 +714,49 @@ def test_no_title_or_description_says_a_value_its_own_skus_contradict(ceiling):
                 wrong.append((r["product_id"], key, word, r["title"]))
     assert checked >= 300
     assert wrong == []
+
+
+#: The nouns a title or description counts a style's SKUs in ("in 12 washes", "three
+#: sizes"), each with the SKU key it counts. A count of a key the SKUs do not carry
+#: ("40 Washes" on a laundry liquid counts loads) is not a SKU count and is skipped.
+#: Add a noun here when a new template counts one.
+COUNTED_NOUNS = {
+    "wash": "color", "washes": "color", "color": "color", "colors": "color",
+    "colorway": "color", "colorways": "color", "print": "color", "prints": "color",
+    "shade": "color", "shades": "color", "size": "size", "sizes": "size",
+    "fit": "fit", "fits": "fit", "length": "length", "lengths": "length",
+}  # fmt: skip
+NUMBER_WORDS = {
+    "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8,
+    "nine": 9, "ten": 10, "eleven": 11, "twelve": 12,
+}  # fmt: skip
+#: Words that may stand between the count and the noun and still count it: "4 leg
+#: lengths". Any other word makes it a different phrase: "2 Orange print" is a pack of
+#: two in one print.
+COUNT_QUALIFIERS = ("leg",)
+#: "in 12 washes", "in 4 leg lengths": a count, an optional qualifier, a counted noun.
+COUNT_PHRASE = re.compile(
+    rf"\b(\d+|{'|'.join(NUMBER_WORDS)})\s+(?:(?:{'|'.join(COUNT_QUALIFIERS)})\s+)?"
+    rf"({'|'.join(COUNTED_NOUNS)})\b",
+    re.I,
+)
+
+
+@pytest.mark.parametrize("build", ["built", "ceiling"])
+def test_no_title_or_description_states_a_count_its_own_skus_contradict(build, request):
+    """gen#143: a derived jeans style kept its template's "in 4 washes" with one colorway."""
+    checked = 0
+    wrong = []
+    for r in request.getfixturevalue(build).records:
+        for m in COUNT_PHRASE.finditer(f"{r['title']} {r['description']}"):
+            key = COUNTED_NOUNS[m.group(2).lower()]
+            if not any(key in s for s in r["skus"]):
+                continue
+            checked += 1
+            said = m.group(1).lower()
+            n = int(said) if said.isdigit() else NUMBER_WORDS[said]
+            have = len({s.get(key) for s in r["skus"]})
+            if n != have:
+                wrong.append((r["product_id"], m.group(0), have))
+    assert checked >= 200
+    assert wrong == []
