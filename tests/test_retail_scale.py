@@ -38,6 +38,8 @@ TEMPLATES = AUTHORED + SCALE_ROWS + BREADTH_ROWS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
 CAPACITY = (3_248, 64_854)
+#: The departments the ceiling build sells in.
+DEPARTMENTS = 10
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's 2.6%
 #: (gen#136), rounded up to the 20K build's 2.8%. Growth must not dilute it.
 CEILING_NEAR_DUPLICATES = 0.028
@@ -226,6 +228,21 @@ def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(tmp_path):
     assert got["standard_problems"] == 0
     assert (got["coverage"]["styles"], got["coverage"]["skus"]) == CAPACITY
     assert got["distinctness"]["near_duplicate_rate"] <= CEILING_NEAR_DUPLICATES
+
+
+def test_no_department_falls_under_half_its_fair_share_of_styles():
+    """A general retailer sells in every department: at the ceiling, each holds at least
+    half of an even split of the styles (``breadth_rows`` keeps it there).
+
+    Guard: a template change that starves a department fails here. Metric: the smallest
+    department's share of the fair split, in the failure message.
+    """
+    ceiling = scale.build(100_000)
+    styles = collections.Counter(scale._department(r) for r in ceiling.records)
+    assert len(styles) == DEPARTMENTS, sorted(styles)
+    fair = len(ceiling.records) / DEPARTMENTS
+    smallest, n = min(styles.items(), key=lambda kv: kv[1])
+    assert n >= fair / 2, f"{smallest}: {n} styles, {n / fair:.0%} of a fair {fair:.0f}"
 
 
 def test_every_scale_only_row_opens_a_leaf_or_a_title_value_its_leaf_lacked():
