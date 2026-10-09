@@ -195,14 +195,14 @@ LEMON = (
         "LEMFLR", "Lemon Floor Cleaner 1L", "Pantry Mill", "Cleaning & Janitorial",
         ("Cleaning", "Floor Care", "Floor Cleaners"), 2.2,
         "A lemon fresh floor cleaner with real lemon oil that leaves floors smelling of lemon.",
-        drawing("bottle", cw("Lemon", "#f7e27a"), "Lemon"),
+        drawing("bottle", cw("Lemon", "#f7e27a"), "Cleaner"),
         (("fragrance", "Fragrance", "Lemon"),),
     ), "department boost: Food & Drink above Cleaning & Janitorial"),
     Distractor(product(
         "LEMSPR", "Lemon Multi-Surface Cleaner Spray", "Pantry Mill", "Cleaning & Janitorial",
         ("Cleaning", "Kitchen & Surfaces", "Multi-Surface Sprays"), 1.9,
         "Lemon scented spray that cuts through grease. Lemon fresh kitchens in seconds.",
-        drawing("trigger_spray", cw("Lemon", YELLOW, "solid", "#2f6b3c"), "Lemon"),
+        drawing("trigger_spray", cw("Lemon", YELLOW, "solid", "#2f6b3c"), "Spray"),
         (("fragrance", "Fragrance", "Lemon"),),
     ), "department boost: Food & Drink above Cleaning & Janitorial"),
 )  # fmt: skip

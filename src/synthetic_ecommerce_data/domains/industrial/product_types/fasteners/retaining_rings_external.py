@@ -112,8 +112,6 @@ TABLE = TableType(
     draw=draw,
     extent=(3.0, 4.65),
     share=0.015,
-    default_lines=39,
-    default_skus=82,
     series="RR",
     use_lines=(
         "Snaps into a groove on a shaft to hold a bearing, gear or pulley against a shoulder.",
