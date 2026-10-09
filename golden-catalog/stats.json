@@ -337,7 +337,8 @@
   "dowel_pins": [
    "Dia. Tolerance",
    "Dimension Type",
-   "Dowel Dia.",
+   "Dowel Dia. (in)",
+   "Dowel Dia. (mm)",
    "Finish",
    "Hardness",
    "Item",
@@ -986,8 +987,8 @@
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.0168228,
-   "numerator": 194,
+   "achieved": 0.0165626,
+   "numerator": 191,
    "denominator": 11532,
    "note": "over records with a readable dimension",
    "band": null
@@ -1923,8 +1924,8 @@
   "Decimal Inch": 75
  },
  "unit_suffix_distribution": {
-  "in": 23425,
-  "mm": 15415
+  "in": 23426,
+  "mm": 15414
  },
  "standards_present": 6080,
  "standards_multivalued": 1578,
@@ -2083,13 +2084,13 @@
    "largest_product_type": "bearing_radial_ball"
   },
   "dispersion": {
-   "quantitative_attributes": 59,
+   "quantitative_attributes": 58,
    "faceted_attributes": 54,
    "faceted_low": 0.0043,
-   "faceted_high": 0.6471,
-   "densest_faceted": "Dowel Dia.",
-   "smallest_faceted": "Dowel Dia.",
-   "smallest_faceted_products": 17,
+   "faceted_high": 0.6667,
+   "densest_faceted": "Dowel Dia. (mm)",
+   "smallest_faceted": "Dowel Dia. (mm)",
+   "smallest_faceted_products": 18,
    "drive_size_cardinality": 41,
    "drive_size_present": 1842,
    "held_by_floor": [

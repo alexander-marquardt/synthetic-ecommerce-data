@@ -46,7 +46,7 @@ DEFAULT_SKU_FLOOR = 40
 
 #: The dimensional standards this type's lines claim, and the dimensions it publishes.
 DIMENSIONAL = {"ISO 2338", "ISO 8734", "ASME B18.8.2"}
-DIMENSIONS = ("Dowel Dia.", "Length", "Dia. Tolerance")
+DIMENSIONS = ("Dowel Dia. (in)", "Dowel Dia. (mm)", "Length", "Dia. Tolerance")
 
 #: A build large enough to reach every diameter of every table.
 LARGE_LINES = 39000
@@ -130,9 +130,15 @@ def _mm(attribute: dict) -> float:
     return float(attribute["value_canonical"])
 
 
+def _dia(values: dict[str, dict]) -> dict:
+    """The record's diameter, under its unit's label."""
+    (name,) = [n for n in ("Dowel Dia. (in)", "Dowel Dia. (mm)") if n in values]
+    return values[name]
+
+
 def _inch_size(doc: dict) -> str:
     """The B18.8.2 nominal size a record's diameter is, as the table writes it."""
-    inches = Fraction(_mm(_values(doc)["Dowel Dia."]) / MM).limit_denominator(64)
+    inches = Fraction(_mm(_dia(_values(doc))) / MM).limit_denominator(64)
     return str(inches)
 
 
@@ -235,7 +241,7 @@ def test_every_diameter_of_every_table_reaches_a_document(large_docs):
         if standard == "ASME B18.8.2":
             built[standard].add(_inch_size(doc))
         else:
-            built[standard].add(round(_mm(_values(doc)["Dowel Dia."]), 3))
+            built[standard].add(round(_mm(_dia(_values(doc))), 3))
     assert built["ISO 2338"] == {float(d) for d in ISO_2338_RANGE}
     assert built["ISO 8734"] == {float(d) for d in ISO_8734_RANGE}
     assert built["ASME B18.8.2"] == set(B18_8_2_LENGTHS)
@@ -249,7 +255,7 @@ def test_every_metric_length_is_a_nominal_length_inside_its_tables_range(large_d
         if standard == "ASME B18.8.2":
             continue
         values = _values(doc)
-        d = round(_mm(values["Dowel Dia."]), 3)
+        d = round(_mm(_dia(values)), 3)
         length = round(_mm(values["Length"]), 3)
         low, high = (ISO_2338_RANGE if standard == "ISO 2338" else ISO_8734_RANGE)[d]
         checked += 1
