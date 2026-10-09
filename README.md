@@ -1130,16 +1130,24 @@ report:
   per type, image ids and distinct drawings);
 - the distinctness (duplicate titles, clones, and same-leaf near-duplicate
   listings on a sample);
+- the grid clones: the share of styles that share their leaf, hero picture and
+  price with another style, which is what a results grid shows (the gate: at most
+  15%), and the distinct prices per leaf (min and median);
 - the `check_catalog` problem count, the build time and the peak memory.
 
 The 328 authored styles come first. Further styles are derived from them,
-deterministically by `--seed`. Each derived style gets a new range name and a
-brand from its type's pool, takes its leaf's attribute values and a subset of
-the template's colorways, and keeps the template's own size run. The module
-docstring has the rules. Today's templates run out at 30,150 SKUs, and the CLI
-exits 2 past that. Raise the ceiling with data: more brands per type, more
-title-visible values per leaf, and more templates.
-`tests/test_retail_scale.py` holds it at 20K SKUs.
+deterministically by `--seed`, and a smaller build is a prefix of a larger one.
+Each derived style gets a new range name and a brand from its type's pool. It
+also differs from its template and from every sibling in a value its title shows
+or in its hero color family: a rename alone is not a style. It takes a subset
+of the template's colorways and keeps the template's size run. Its price is
+re-drawn inside its leaf's band, as a function of the values it changed (a
+premium material costs more). A draw whose title or description contradicts an
+attribute is refused, and `check_catalog` refuses such text too. The module
+docstring has the rules. Today's templates run out at 19,794 SKUs (651 styles),
+and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
+values per leaf, more colorways, and more templates.
+`tests/test_retail_scale.py` holds it at 19K SKUs.
 
 ## The built catalog is committed, in `golden-catalog/`
 

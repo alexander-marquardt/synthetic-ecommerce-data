@@ -2,7 +2,7 @@
 
 ``prototypes/retail_drawings/scale.py`` derives styles from the hand-authored
 ones until the SKUs reach the target. These tests hold it at the first load
-size, about 20K SKUs: it reaches the count, stays deterministic, meets the
+size, 19K SKUs, just under today's ceiling: it reaches the count, stays deterministic, meets the
 output standard, adds no duplicate title or clone, keeps every derived fact
 honest to its template, and keeps the drawings bounded.
 """
@@ -27,12 +27,12 @@ if str(RETAIL) not in sys.path:
 
 import scale  # noqa: E402
 
-#: The first load: about 20K SKUs, about 1,000 styles.
-TARGET = 20_000
+#: The first load: 19K SKUs, about 630 styles, under the ceiling (:data:`CAPACITY`).
+TARGET = 19_000
 TEMPLATES = 328
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; update this pin then.
-CAPACITY = (1_866, 30_150)
+CAPACITY = (651, 19_794)
 
 
 @pytest.fixture(scope="module")
@@ -101,18 +101,21 @@ def test_grid_clones_count_every_style_of_a_shared_tile():
     assert report["grid_clone_rate"] == round(2 / 3, 4)
 
 
-def test_no_leaf_with_several_styles_has_a_single_price(built):
+def test_a_leaf_a_derived_style_joins_never_holds_a_single_price(built, pairs):
+    """An authored leaf may hold one price (four pyjamas at one price is the author's
+    call); a derived style is never priced as its template, so its leaf gains a price."""
     per_leaf = scale.prices_per_leaf(built.records)
-    styles = collections.Counter(r["category_leaf"] for r in built.records)
-    assert [leaf for leaf, n in per_leaf["distinct"].items() if styles[leaf] >= 4 and n < 2] == []
-    assert per_leaf["median"] >= 3
+    derived = {r["category_leaf"] for r, _ in pairs}
+    assert len(derived) >= 50
+    assert [leaf for leaf in derived if per_leaf["distinct"][leaf] < 2] == []
+    assert [r["product_id"] for r, t in pairs if r["price"] == t["price"]] == []
 
 
 def test_a_derived_style_differs_from_its_template_and_siblings_in_a_visible_attribute(
     built, pairs
 ):
     """A range name and a brand alone are not a style: each derived style changes a value
-    the title shows, or the hero colour family, against its template and every sibling."""
+    the title shows, or the hero color family, against its template and every sibling."""
     by_tpl: dict[str, set[tuple]] = collections.defaultdict(set)
     for t in scale.templates():
         by_tpl[t["product_id"]].add(_signature(t, t))
@@ -156,7 +159,11 @@ def test_a_premium_value_costs_more_and_a_cheaper_one_less():
 
 def test_a_price_point_is_a_retail_one():
     assert [scale.price_point(p) for p in (1.13, 7.3, 18.2, 41.6, 263.0)] == [
-        1.15, 7.5, 18.0, 42.0, 265.0
+        1.15,
+        7.5,
+        18.0,
+        42.0,
+        265.0,
     ]
 
 
@@ -172,8 +179,11 @@ def test_a_value_another_attribute_shares_never_varies():
         "product_type": "Loafers",
         "title": "Leather Penny Loafers",
         "description": "Hand-finished leather loafers with a round toe.",
-        "attributes": [entry("upper_material", "Leather"), entry("sole", "Leather"),
-                       entry("toe", "Round")],  # fmt: skip
+        "attributes": [
+            entry("upper_material", "Leather"),
+            entry("sole", "Leather"),
+            entry("toe", "Round"),
+        ],  # fmt: skip
     }
     pools = {("Loafers", k): (v, v + "x") for k, v in
              (("upper_material", "Leather"), ("sole", "Leather"), ("toe", "Round"))}  # fmt: skip
@@ -182,7 +192,9 @@ def test_a_value_another_attribute_shares_never_varies():
 
 def test_a_swap_reads_the_and_spelling_of_an_ampersand():
     text = "Easy-on trainers with two hook and loop straps."
-    assert scale._swap(text, "Hook & Loop", "Lace-Up") == "Easy-on trainers with two lace-up straps."
+    assert (
+        scale._swap(text, "Hook & Loop", "Lace-Up") == "Easy-on trainers with two lace-up straps."
+    )
     assert scale._swap("Kids' Hook & Loop Trainers", "Hook & Loop", "Buckle") == (
         "Kids' Buckle Trainers"
     )
@@ -364,7 +376,7 @@ def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(tmp_path):
         capture_output=True, text=True, check=False,
     )  # fmt: skip
     assert done.returncode == 2, done.stderr[-2000:]
-    assert "short: 30150 SKUs of 100000" in done.stderr
+    assert "short: 19794 SKUs of 100000" in done.stderr
     got = json.loads(report.read_text(encoding="utf-8"))
     assert got["reached_target"] is False
     assert got["standard_problems"] == 0
