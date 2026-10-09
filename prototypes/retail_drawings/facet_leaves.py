@@ -13,7 +13,9 @@ so :func:`export.standard_document` collapses those leaves here:
   whose node stays. ``bra_style`` is split into ``bra_shape``, ``padding``, ``back_style``
   and ``fabric``, each the value the old leaf implied (:data:`BRA_LEAVES`). Every bra has a
   ``bra_shape``: a leaf that named none (Cotton, Racerback) takes the shape that kind of bra
-  is cut in. The fibre content that ``fabric`` held on a bra ("Recycled Polyamide,
+  is cut in. A value the bra's title names that its leaf did not ("Lace Demi Cup Bra",
+  "Padded Balcony Bra") is added too (:func:`stated_bra_facets`).
+  The fibre content that ``fabric`` held on a bra ("Recycled Polyamide,
   Elastane") moves to ``composition``.
 
 Only the document changes. The build record, its drawing and so its image id keep the old
@@ -120,6 +122,35 @@ BRA_LEAVES: dict[str, tuple[str, Facet, Facet, Facet]] = {
 }
 
 
+def _vocabulary() -> dict[str, set[str]]:
+    """Every value of each :data:`BRA_KEYS` key that some leaf implies."""
+    vocab: dict[str, set[str]] = {key: set() for key in BRA_KEYS}
+    for row in BRA_LEAVES.values():
+        for key, facet in zip(BRA_KEYS, row, strict=True):
+            vocab[key] |= {facet} if isinstance(facet, str) else set(facet or ())
+    return vocab
+
+
+BRA_VOCABULARY = _vocabulary()
+
+
+def stated_bra_facets(text: str) -> list[tuple[str, str]]:
+    """The (key, value) pairs ``text`` names: a bra under Demi Cup Bras whose title says
+    "Lace" is lace, whatever its leaf. The longest value wins ("Push-Up" over "Up"). Only a
+    title is read: a description says "a non padded full cup bra" or "in cotton, elastane"
+    (fibre content, not the fabric), so it names a value to deny it or to list a fibre."""
+    padded = words(text)
+    out = []
+    for key, vocab in BRA_VOCABULARY.items():
+        named = {v for v in vocab if f" {words(v).strip()} " in padded}
+        out += [
+            (key, v)
+            for v in sorted(named)
+            if not any(v != w and f" {words(v).strip()} " in words(w) for w in named)
+        ]
+    return out
+
+
 def collapsed_path(path: list[str], product_type: str) -> list[str]:
     """``path`` with a jean's or trousers' fit leaf, or a bra's non-purpose leaf, dropped."""
     if len(path) >= 2 and path[-2] == FIT_NODES.get(product_type):
@@ -155,6 +186,12 @@ def leaf_facets(
             (key, BRA_KEYS[key], value)
             for key, facet in zip(BRA_KEYS, BRA_LEAVES[path[-1]], strict=True)
             for value in ((facet,) if isinstance(facet, str) else facet or ())
+        ]
+        implied = {(key, value) for key, _, value in out}
+        out += [
+            (key, BRA_KEYS[key], value)
+            for key, value in stated_bra_facets(rec["title"])
+            if (key, value) not in implied
         ]
         if "fabric" in have:
             out.append((*COMPOSITION, have["fabric"]))
