@@ -820,6 +820,11 @@ def documents(scaled: Scaled) -> list[dict[str, Any]]:
     return [standard_document(r) for r in scaled.records]
 
 
+def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """One flat document per SKU. Stub: the red commit fails on it."""
+    return []
+
+
 def _target(text: str) -> int:
     value = int(text)
     if value < 1:
