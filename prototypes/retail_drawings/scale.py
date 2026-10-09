@@ -10,7 +10,9 @@ and, with ``--out``, writes the standard nested documents as JSONL.
 
 :func:`build` keeps the hand-authored styles first, as templates: the round 4
 preview's 328 (:func:`build_preview4.samples`), then the deep-SKU jeans and bras
-only the scaled catalog carries (:mod:`scale_rows`, data only).
+only the scaled catalog carries (:mod:`scale_rows`), then the toys, garden, gifts
+and cleaning styles that give every department its share (:mod:`breadth_rows`); both
+are data only.
 It derives further styles until the SKUs reach the target.
 A derived style copies one template and changes, deterministically from the seed:
 
@@ -71,6 +73,7 @@ HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
+import breadth_rows  # noqa: E402
 import scale_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from export import drawing_spec, image_id, standard_document  # noqa: E402
@@ -97,10 +100,10 @@ EXTRA_BRANDS: dict[str, tuple[str, ...]] = {
     "Beauty": ("Brightwater Botanics", "Orrin Skin"),
     "Food & Drink": ("Mossgill Dairy", "Wheatsheaf Lane", "Barrowby Kitchen"),
     "Footwear": ("Cobbleway", "Treadmoor"),
-    "Garden": ("Rookery Garden Co.",),
-    "Gifts": ("Ribbonvale",),
-    "Toys": ("Pipwick Toys",),
-    "Cleaning & Janitorial": ("Clearbrook Household",),
+    "Garden": ("Rookery Garden Co.", "Wychmoor Growers"),
+    "Gifts": ("Ribbonvale", "Quillon & Fray"),
+    "Toys": ("Pipwick Toys", "Bramblekin"),
+    "Cleaning & Janitorial": ("Clearbrook Household", "Soapwell"),
 }
 
 #: The share of derived styles per department; the rest split by template count.
@@ -136,8 +139,9 @@ class Scaled:
 
 
 def templates() -> list[dict]:
-    """The authored styles, then :mod:`scale_rows`, in build order."""
-    return [*(r for recs in samples().values() for r in recs), *scale_rows.docs()]
+    """The authored styles, then :mod:`scale_rows`, then :mod:`breadth_rows`, in build order."""
+    authored = (r for recs in samples().values() for r in recs)
+    return [*authored, *scale_rows.docs(), *breadth_rows.docs()]
 
 
 def _words(text: str) -> str:
