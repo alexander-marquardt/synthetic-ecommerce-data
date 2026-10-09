@@ -96,25 +96,30 @@ HANDLE_ANGLE = 45.0  # degrees below the horizontal, toward the right
 #: sheet above :data:`FIGURE_HEIGHT`; its margins (:data:`MARGIN`,
 #: :data:`GLYPH_MARGIN`, :data:`LENS_MARGIN`) apply inside that area, so
 #: :func:`figure_boxes` never reaches the plate (``tests/test_brand_marks.py``).
-#: The cost: a type whose largest part is height-bound is drawn 220/264 of
+#: The cost: a type whose largest part is height-bound is drawn 200/264 of
 #: its former scale; a squat type (washers, discs) is width-bound and keeps it.
-FIGURE_HEIGHT = 256.0
+#: WHY 56 UNITS TALL: the full 32-unit mark (the distinguishability raster's
+#: size), a 2-unit gap, and one line under it at the least legible size,
+#: descenders included -- the layout a single word too wide to sit beside
+#: the mark (Kessingmoor) needs: 32 + 2 + 0.926 x 23.3 = 55.6.
+FIGURE_HEIGHT = 236.0
 #: The plate's box (x0, y0, x1, y1): inside every frame (drawn 6 units in,
 #: strokes at most 2 wide), clear of the rounded frame's corner arcs.
-PLATE_BOX = (14.0, 256.0, 186.0, 292.0)
+PLATE_BOX = (14.0, 236.0, 186.0, 292.0)
 #: The mark's side and the gap before the name, in sheet units.
 PLATE_MARK = 32.0
 PLATE_GAP = 6.0
 #: The Studio grid tile shows the sheet 180 px tall: 0.6 px a sheet unit. At
 #: it the mark is 19 px across.
 TILE_PX_PER_UNIT = 180 / svg.HEIGHT
-#: THE LEGIBILITY RULING (#132): no brand name renders under 10 px at the
-#: tile, so no name is set under 16.67 units. A name that fits neither on one
-#: line nor on two at that size is set as its first word; the full name stays
-#: in the catalog (see :func:`...brand_mark.lockup`). Today the smallest is
-#: two lines at 17.9 units, 10.7 px; no brand falls back to its first word.
+#: THE LEGIBILITY RULING (#132): no brand name's CAPITALS render under 10 px
+#: tall at the tile, so no name is set under 10 / (0.716 x 0.6) = 23.28
+#: units, rounded up to the drawing's one decimal: 23.3. A name is set in the
+#: first layout of :func:`...brand_mark.lockup` that reaches that size, and
+#: one that none does raises: there is no shortened wordmark.
 MIN_NAME_PX = 10.0
-NAME_MAX, NAME_MIN = 20.0, MIN_NAME_PX / TILE_PX_PER_UNIT
+NAME_MAX = 26.0
+NAME_MIN = math.ceil(MIN_NAME_PX / (brand_mark.CAP_HEIGHT * TILE_PX_PER_UNIT) * 10) / 10
 
 
 def type_scale(extent: tuple[float, float]) -> float:
