@@ -46,8 +46,6 @@ TABLE = TableType(
     draw=_draw,
     extent=(1.0, 1.0),
     share=0.001,
-    default_lines=1,
-    default_skus=1,
     series="MU",
 )
 
