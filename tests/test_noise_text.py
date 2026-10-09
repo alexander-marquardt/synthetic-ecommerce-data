@@ -21,6 +21,12 @@ from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import parse_length
 from synthetic_ecommerce_data.domains.industrial.generate import generate
+from synthetic_ecommerce_data.domains.industrial.product_types.fasteners.dowel_pins import (
+    DIA_IN as DOWEL_DIA_IN,
+)
+from synthetic_ecommerce_data.domains.industrial.product_types.fasteners.dowel_pins import (
+    DIA_MM as DOWEL_DIA_MM,
+)
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 MM = 25.4
@@ -242,12 +248,16 @@ def test_unit_equivalents_are_a_minority_within_their_bound(docs):
         "bearing_radial_ball": "Bore Dia.",
         "wheel_depressed_center": "Diameter",
         "abrasive_flap_disc": "Diameter",
-        "dowel_pins": "Diameter",
+        "dowel_pins": (DOWEL_DIA_IN, DOWEL_DIA_MM),
     }
+    seen: set[str] = set()
     eligible = carrying = 0
     for doc in docs:
-        name = primary.get(doc["product_type"])
-        value = _values(doc).get(name) if name else None
+        names = primary.get(doc["product_type"], ())
+        names = (names,) if isinstance(names, str) else names
+        values = _values(doc)
+        seen.update(n for n in names if n in values)
+        value = next((values[n] for n in names if n in values), None)
         if value is None:
             continue
         try:
@@ -256,6 +266,8 @@ def test_unit_equivalents_are_a_minority_within_their_bound(docs):
             continue
         eligible += 1
         carrying += any(m.group("eq_value") for m in noise_sentences(doc["description"]))
+    labels = {n for v in primary.values() for n in ((v,) if isinstance(v, str) else v)}
+    assert seen == labels, f"mapped labels no document carries: {sorted(labels - seen)}"
     share = carrying / eligible
     assert 0.15 <= share <= 0.20, (carrying, eligible, round(share, 3))
 
