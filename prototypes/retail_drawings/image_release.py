@@ -69,7 +69,7 @@ def render(rec: dict, sku: dict) -> bytes:
     return drawing_svg(rec | {"drawing": colorway_drawing(rec, sku)}).encode()
 
 
-def records() -> list[dict]:
+def records(skus: int | None = None) -> list[dict]:
     """Every build record, in the export's order."""
     return [rec for recs in samples().values() for rec in recs]
 
@@ -100,8 +100,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="image_release.py", description=__doc__.split("\n")[0])
     parser.add_argument("--out", type=Path, default=Path("out/retail-images"))
     parser.add_argument("--archive", type=Path, default=None)
+    parser.add_argument("--skus", type=int, default=None)
     args = parser.parse_args(argv)
-    recs = records()
+    recs = records(args.skus)
     files = image_files(recs)
     skus = sum(len(rec["skus"]) for rec in recs)
     bundle.write_files(files, args.out, root=export.IMAGE_ROOT)

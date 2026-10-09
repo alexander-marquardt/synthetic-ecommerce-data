@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import collections
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -221,18 +222,114 @@ def test_a_changed_value_is_rewritten_in_the_description(pairs):
     assert rewritten >= 20
 
 
+def _string_fields(drawing: dict[str, Any]) -> dict[str, str]:
+    """Every string field of a drawing, ``params`` included: ``("params", p)`` or the key."""
+    out: dict[Any, str] = {k: v for k, v in drawing.items() if isinstance(v, str)}
+    out |= {("params", p): v for p, v in (drawing.get("params") or {}).items()
+            if isinstance(v, str)}  # fmt: skip
+    return out
+
+
 def test_a_changed_value_is_redrawn_in_the_picture(pairs):
-    redrawn = 0
+    """Every string field of the drawing, top level and ``params``, follows a changed value:
+    a graphic tee carries its ``motif`` at the top level, not in ``params``."""
+    redrawn = top_level = 0
     for r, t in pairs:
         changed = {old.lower(): new for old, new in _changed(r, t).values()}
-        mine = r["drawing"].get("params") or {}
-        for p, v in (t["drawing"].get("params") or {}).items():
-            if isinstance(v, str) and v.lower() in changed:
-                assert str(mine[p]).lower() == changed[v.lower()].lower(), (r["product_id"], p)
+        mine = _string_fields(r["drawing"])
+        for p, v in _string_fields(t["drawing"]).items():
+            if p in ("base", "accent", "third", "pattern") or p not in mine:
+                continue  # the hero swatch and the motif's ink: see the motif test
+            if v.lower() in changed:
+                assert mine[p].lower() == changed[v.lower()].lower(), (r["product_id"], p)
                 redrawn += 1
+                top_level += not isinstance(p, tuple)
             else:
                 assert mine[p] == v, (r["product_id"], p)
     assert redrawn >= 20
+    assert top_level >= 1, "no style changed a top-level drawing field: the motif goes untested"
+
+
+def _motif_drawn() -> dict[str, str]:
+    """A ``motif`` attribute value -> the drawing motif its templates draw (Cherry: cherries)."""
+    out: dict[str, str] = {}
+    for t in scale.templates():
+        for a in t["attributes"]:
+            if a["key"] == "motif":
+                motif = t["drawing"]["motif"]
+                assert out.setdefault(str(a["value"]), motif) == motif
+    return out
+
+
+def _motif_words(value: str, drawn: str) -> set[str]:
+    low = value.lower()
+    return {low, drawn, f"{low}s", f"{low}es", f"{low[:-1]}ies"}
+
+
+def test_a_motif_style_draws_and_describes_its_own_motif(pairs):
+    """The picture draws the motif, count and placement the attributes name, and the
+    description never names the template's motif once the style changed it ("Cherry Graphic
+    Mug" -> an orange one must not say "a big pair of cherries")."""
+    from build_preview import drawing_svg  # noqa: PLC0415
+
+    drawn = _motif_drawn()
+    styles = changed = 0
+    for r, t in pairs:
+        if "motif" not in r["drawing"]:
+            continue
+        styles += 1
+        mine = {a["key"]: str(a["value"]) for a in r["attributes"]}
+        theirs = {a["key"]: str(a["value"]) for a in t["attributes"]}
+        d = r["drawing"]
+        assert (d["motif"], str(d["count"]), d["placement"]) == (
+            drawn[mine["motif"]],
+            mine["motif_count"],
+            mine["print_placement"],
+        ), (r["product_id"], r["title"])
+        # Count and placement shape the text ("one big", "scattered"): they never vary.
+        assert (mine["motif_count"], mine["print_placement"]) == (
+            theirs["motif_count"],
+            theirs["print_placement"],
+        ), r["product_id"]
+        if mine["motif"] == theirs["motif"]:
+            continue
+        changed += 1
+        old = t["drawing"]["motif"]
+        assert drawing_svg(r) != drawing_svg(r | {"drawing": d | {"motif": old}}), r["product_id"]
+        stale = [w for w in _motif_words(theirs["motif"], old)
+                 if scale._has_word(r["description"], w)]  # fmt: skip
+        assert stale == [], (r["product_id"], r["description"])
+        assert scale._has_word(r["description"], mine["motif"]), (r["product_id"], r["description"])
+        assert not re.search(r"\b[Aa] [aeiou]", r["description"]), r["description"]
+    assert styles >= 20
+    assert changed >= 10
+
+
+def test_a_style_that_changes_no_shown_value_carries_its_hero_color_in_its_title(pairs):
+    """A style whose title-shown values equal its template's or an earlier sibling's differs
+    from it in the hero color alone: its title says so, in the listing convention "…, Navy"."""
+    taken: dict[str, set[tuple]] = collections.defaultdict(set)
+    for t in scale.templates():
+        taken[t["product_id"]].add(_signature(t, t)[0])
+    colored = []
+    for r, t in pairs:
+        shown = _signature(r, t)[0]
+        if shown in taken[t["product_id"]]:
+            hero = (r.get("color_options") or [{}])[0].get("color")
+            assert hero and r["title"].endswith(f", {hero}"), (r["product_id"], r["title"])
+            colored.append(r["product_id"])
+        taken[t["product_id"]].add(shown)
+    assert len(colored) >= 100
+
+
+def test_every_brand_in_the_build_has_a_house_style(built):
+    """A brand the build adds (:data:`scale.EXTRA_BRANDS`) draws in its own declared style:
+    without a row, rendering its image raises ``KeyError``."""
+    import house_styles  # noqa: PLC0415
+
+    brands = {r["brand"] for r in built.records}
+    brands |= {b for pool in scale.EXTRA_BRANDS.values() for b in pool}
+    assert sorted(brands - set(house_styles.HOUSE_STYLES)) == []
 
 
 def test_a_smaller_build_is_a_prefix_of_a_larger_one(built):
