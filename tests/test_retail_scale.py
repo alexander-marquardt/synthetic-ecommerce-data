@@ -742,6 +742,26 @@ def test_no_title_or_description_says_a_value_its_own_skus_contradict(ceiling):
     assert wrong == []
 
 
+def test_every_style_attribute_its_skus_carry_lists_exactly_their_values(ceiling):
+    """A style attribute whose key its SKUs also carry (a shoe's ``upper_material``)
+    lists exactly the values those SKUs hold, comma-joined: a derived shoe titled
+    "Leather" whose SKUs all say canvas is refused (gen#145). Every key is compared,
+    not a fixed list, so a key that becomes SKU-carried later is covered too."""
+    checked = 0
+    wrong = []
+    for r in ceiling.records:
+        for a in r["attributes"]:
+            sku_values = {str(s[a["key"]]).lower() for s in r["skus"] if a["key"] in s}
+            if not sku_values:
+                continue
+            checked += 1
+            style_values = {v.strip().lower() for v in str(a["value"]).split(",")}
+            if style_values != sku_values:
+                wrong.append((r["product_id"], a["key"], a["value"], sorted(sku_values)))
+    assert checked >= 240
+    assert wrong == []
+
+
 #: The nouns a title or description counts a style's SKUs in ("in 12 washes", "three
 #: sizes"), each with the SKU key it counts. A count of a key the SKUs do not carry
 #: ("40 Washes" on a laundry liquid counts loads) is not a SKU count and is skipped.

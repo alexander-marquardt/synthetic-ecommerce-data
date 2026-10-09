@@ -25,7 +25,8 @@ A derived style copies one template and changes, deterministically from the seed
   path or the type ("Skinny" in "Skinny Jeans"), when its key is
   :data:`FROZEN_KEYS`, when it has a unit, or when the title or description holds
   it inside a longer word ("5" in "5pk"). A changed value is rewritten in the
-  title, the description, the drawing params and the same-named top-level field.
+  title, the description, the drawing params, the same-named top-level field and
+  every SKU that carries its key (a shoe's ``upper_material``, :func:`_sku_values`).
   A changed ``motif`` is redrawn: the drawing takes the motif and inks of a
   template that draws it ("Cherry" -> ``cherries``, :func:`_redraw_motif`), the
   title's plural follows ("Lemons Print" -> "Oranges Print"), and the description
@@ -257,6 +258,32 @@ def twin_key(rec: dict) -> tuple:
     return (leaf, brand, title)
 
 
+def _parts(value: str) -> list[str]:
+    """A comma-joined attribute value's parts: "patent, suede" -> ["patent", "suede"]."""
+    return [p.strip() for p in value.split(",")]
+
+
+def _part_swaps(old: str, new: str) -> dict[str, str]:
+    """Each part of ``old`` (lowercased) -> the part of ``new`` at its place, which a SKU
+    holding that part takes; a shorter ``new`` gives its last part to the rest."""
+    o, n = _parts(old), _parts(new)
+    return {p.lower(): n[min(i, len(n) - 1)] for i, p in enumerate(o)}
+
+
+def _sku_values(rec: dict, skus: list[dict], swaps: dict[str, dict[str, str]]) -> None:
+    """Each SKU takes the values ``derive`` drew for a key it carries (``swaps``), then
+    each style attribute whose key the SKUs carry lists only the parts they still hold:
+    a shoe kept in its suede colors alone no longer says "patent, suede" (gen#145)."""
+    for s in skus:
+        for key, swap in swaps.items():
+            if key in s:
+                s[key] = swap.get(str(s[key]).lower(), s[key])
+    for a in rec["attributes"]:
+        held = {str(s[a["key"]]).lower() for s in skus if a["key"] in s}
+        if held:
+            a["value"] = ", ".join(p for p in _parts(str(a["value"])) if p.lower() in held)
+
+
 def _swap(text: str, old: str, new: str) -> str:
     """``old`` -> ``new`` as a whole word in any case, each occurrence keeping its case
     and an "a"/"an" before it agreeing with ``new`` (:func:`_article`):
@@ -375,12 +402,14 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
     if old_line:
         rec["description"] = _swap(rec["description"], old_line, name)
     rec["product_line"] = name
+    sku_swaps: dict[str, dict[str, str]] = {}  # a changed key the SKUs carry: see _sku_values
     for a in rec["attributes"]:
         if a["key"] == "line":
             a["value"] = name
         if a["key"] in values and values[a["key"]] != str(a["value"]):
             old, new = str(a["value"]), values[a["key"]]
             a["value"] = new
+            sku_swaps[a["key"]] = _part_swaps(old, new)
             rec["title"] = _swap(rec["title"], old, new)
             rec["description"] = _swap(rec["description"], old, new)
             if rec.get(a["key"]) == old:
@@ -418,6 +447,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
     skus = [{k: v for k, v in s.items() if k != "sku"} for s in tpl["skus"]
             if "color" not in s or s["color"] in rank]  # fmt: skip
     skus.sort(key=lambda s: rank.get(s.get("color"), 0))
+    _sku_values(rec, skus, sku_swaps)
     if colors:
         kept = len({s["color"] for s in skus if "color" in s})
         rec["title"] = _restate_color_count(rec["title"], kept)

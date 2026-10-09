@@ -1173,7 +1173,9 @@ changed motif is redrawn in the picture and the title, and the description is
 rebuilt around it; a "Shown in" color names the hero. It takes a subset
 of the template's colorways and keeps the template's size run, and a count of
 colorways its text states ("in 12 washes") is its own: "in one wash" for a
-colorway alone. Its price is
+colorway alone. A changed value its SKUs also carry (a shoe's `upper_material`)
+is rewritten on every SKU, and the style lists only the values its kept SKUs
+hold. Its price is
 re-drawn inside its leaf's band, as a function of the values it changed (a
 premium material costs more). A draw whose title or description contradicts an
 attribute is refused, and `check_catalog` refuses such text too. The module
