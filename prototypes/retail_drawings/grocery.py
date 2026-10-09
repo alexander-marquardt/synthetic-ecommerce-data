@@ -53,7 +53,7 @@ if str(HERE) not in sys.path:
 import kit_grocery  # noqa: E402,F401 -- registers bar and bag
 from departments import check as check_departments  # noqa: E402
 from export import NUMERIC_FACTS, standard_document  # noqa: E402
-from grocery_ingredients import ingredients, shared  # noqa: E402
+from grocery_ingredients import facet_value, ingredients, shared  # noqa: E402
 from grocery_rows import ALLERGENS, ANCHORS, FAMILIES, LINES, OWNERS, F, Family  # noqa: E402
 from kit_produce import pile_params  # noqa: E402
 from variants import attr, drawing, product  # noqa: E402
@@ -309,9 +309,10 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     entries for those two keys left out when it states none.
 
     The four food facts are facets, because only a facet can be a hard filter:
-    ``facets.ingredients`` (the SKU's label list, a copy of its top-level
-    ``ingredients``), ``facets.contains``, ``facets.may_contain`` and ``facets.dietary``,
-    each a keyword list. ``contains``, ``may_contain`` and ``dietary`` are warnings and
+    ``facets.ingredients`` (the SKU's label list as ``facet_value`` forms; the
+    top-level ``ingredients`` keeps the label text), ``facets.contains``,
+    ``facets.may_contain`` and ``facets.dietary``, each a keyword list. ``contains``, ``may_contain`` and
+    ``dietary`` are warnings and
     claims, not description (:data:`WARNINGS`): they stay out of ``text``, so a "peanut"
     query cannot match a product through its allergen warning. ``contains`` and
     ``may_contain`` also leave the flat ``attributes`` and ``attribute_names`` (a
@@ -329,7 +330,9 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 row["attributes"] = [e for e in row["attributes"] if e["key"] not in UNIONED]
                 row["attribute_names"] = sorted({e["name"] for e in row["attributes"]})
                 if row.get("ingredients"):
-                    row["facets"]["ingredients"] = list(row["ingredients"])
+                    row["facets"]["ingredients"] = list(
+                        dict.fromkeys(facet_value(i) for i in row["ingredients"])
+                    )
                 out.append(row)
     return out
 

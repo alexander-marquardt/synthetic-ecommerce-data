@@ -27,6 +27,7 @@ if str(RETAIL) not in sys.path:
 import export  # noqa: E402
 import grocery  # noqa: E402
 import kit  # noqa: E402
+from grocery_ingredients import facet_value  # noqa: E402
 from grocery_rows import ALLERGENS  # noqa: E402
 
 STYLES = 3305
@@ -134,7 +135,7 @@ def test_every_food_fact_is_a_flat_facet_equal_to_what_the_sku_states() -> None:
         own = nested[row["sku"]]
         for name in FOOD_FACETS:
             want = (
-                own.get("ingredients", [])
+                list(dict.fromkeys(facet_value(i) for i in own.get("ingredients", [])))
                 if name == "ingredients"
                 else [e["value"] for e in own["attributes"] if e["key"] == name]
             )
@@ -155,7 +156,12 @@ def test_the_facet_values_are_the_closed_vocabularies() -> None:
 def test_an_allergen_or_a_claim_never_feeds_the_search_text() -> None:
     """A "peanut" query must not match a product through an allergen warning, nor a
     "gluten" one through a "Gluten Free" claim: the flat ``text`` is the title, brand,
-    series, category path and the values of every entry except these three."""
+    series, category path and the values of every entry except these three.
+
+    One exemption, stated so a new path-only hit shows: 150 Tree Nuts SKUs (98 under
+    "Nuts & Popcorn", 52 under "Nut Butters & Spreads") carry the word "Nuts" in the text
+    only through the category path. That is the product's identity, not a warning, and the
+    check compares the text to the path-built string, so it does not flag them."""
     bad = []
     for row in grocery.flat(list(docs())):
         words = [row["title"], row["brand"], row.get("series"), *row["category_path"]]
@@ -302,3 +308,38 @@ def test_the_cli_writes_the_nested_and_flat_files(tmp_path: Path) -> None:
     nested = (tmp_path / "nested.jsonl").read_text().splitlines()
     flat = (tmp_path / "flat.jsonl").read_text().splitlines()
     assert (len(nested), len(flat)) == (report["styles"], report["skus"])
+
+
+@pytest.mark.parametrize(
+    ("label", "want"),
+    [
+        ("Roasted Peanuts (94%)", "roasted peanut"),
+        ("natural flavorings", "natural flavoring"),
+        ("carrots", "carrot"),
+        ("red peppers", "red pepper"),
+        ("cherries", "cherry"),
+        ("molasses", "molasses"),
+        ("hummus", "hummus"),
+        ("Butter (80%)", "butter"),
+        ("emulsifier (soya lecithin)", "emulsifier (soya lecithin)"),
+    ],
+)
+def test_facet_value_strips_the_percentage_and_the_regular_plural(label: str, want: str) -> None:
+    assert facet_value(label) == want
+
+
+def test_a_product_states_the_union_of_its_skus_allergens_and_the_common_diet() -> None:
+    """Product ``contains`` is the union over its SKUs, ``may_contain`` the union minus
+    ``contains``, ``dietary`` the intersection (a variant lacking a label drops it)."""
+    union_seen = diet_seen = 0
+    for d in filter(food, docs()):
+        per = [{k: set(values(v["attributes"], k)) for k in WARNINGS} for v in d["variants"]]
+        contains = set.union(*(p["contains"] for p in per))
+        may = set.union(*(p["may_contain"] for p in per)) - contains
+        diet = set.intersection(*(p["dietary"] for p in per))
+        assert values(d["attributes"], "contains") == contains, d["product_id"]
+        assert values(d["attributes"], "may_contain") == may, d["product_id"]
+        assert values(d["attributes"], "dietary") == diet, d["product_id"]
+        union_seen += any(p["contains"] != contains for p in per)
+        diet_seen += any(p["dietary"] != diet for p in per)
+    assert union_seen and diet_seen, (union_seen, diet_seen)
