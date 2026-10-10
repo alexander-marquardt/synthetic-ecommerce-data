@@ -1219,7 +1219,7 @@ BREADTH_34 = (
         "Light ring doughnuts rolled in sugar, baked in store each morning.",
         (cw("Tan", "#d9a05b", "solid", "#ffffff"),), _flavor("Sugar"), colorless=True),
     Row("STRBRY", "Fresh British Strawberries", "Freshfold", _FD,
-        (*_FRUIT, "Berries", "Strawberries"), "Fresh Fruit", 2.5,
+        (*_FRUIT, "Berries", "Strawberry Punnets"), "Fresh Fruit", 2.5,
         "strawberry",
         "Sweet, juicy strawberries picked at the height of summer, packed in a recyclable punnet.",
         (cw("Red", "#c8312e", "solid", "#4f7a3a"),), _a1("variety", "Variety", "Elsanta"),
