@@ -490,6 +490,25 @@ def m_crown(c: str) -> list[str]:
     return [f'<path d="M-.8,.6 L-.8,-.5 L-.4,0 L0,-.7 L.4,0 L.8,-.5 L.8,.6 Z" fill="{c}"/>']
 
 
+def m_grapes(c: str) -> list[str]:
+    dots = [(-0.4, -0.3), (0.0, -0.3), (0.4, -0.3), (-0.2, 0.1), (0.2, 0.1), (0.0, 0.5)]
+    return [f'<circle cx="{x}" cy="{y}" r=".24" fill="{c}"/>' for x, y in dots]
+
+
+def m_cask(c: str) -> list[str]:
+    return [
+        f'<path d="M-.55,-.8 Q-.9,0 -.55,.8 L.55,.8 Q.9,0 .55,-.8 Z" fill="{c}"/>',
+        _stroke("M-.8,-.3 L.8,-.3 M-.8,.3 L.8,.3", 0.1, "#ffffff"),
+    ]
+
+
+def m_orchard_leaf(c: str) -> list[str]:
+    return [
+        f'<path d="M-.7,.7 Q-.8,-.6 .7,-.7 Q.8,.6 -.7,.7 Z" fill="{c}"/>',
+        _stroke("M-.55,.55 L.45,-.45", 0.1, "#ffffff"),
+    ]
+
+
 # The marks of the brands the breadth and scale-only templates add (breadth_rows,
 # scale_rows), one per brand.
 
@@ -983,9 +1002,9 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     "Ferrowick Denim":      H("#f6efe6", "none",     "thin",    "#8a5a2b", "#2e2219", 1.2,  False, "sharp", "hex_trio",          "mark_only",   "top_left",      "rect",     "mono",     700, "caps",      1.0),
     "Meadowgate Dairy":     H("#f2f8f1", "none",     "rounded", "#3f8f4a", "#24402a", 1.0,  False, "round", "scallops",          "mark_only",   "top_left",      "outline",  "humanist", 400, "title",     0.0),
     "Vine & Valley":        H("#f8f0f2", "lines",    "double",  "#7b2340", "#3b1a26", 0.9,  False, "round", "dot_triangle",      "mark_only",   "top_left",      "stamp",    "serif",    400, "smallcaps", 1.0),
-    "Hollowbrook Cellars":  H("#f6f1ea", "none",     "heavy",   "#5a2a3a", "#2a1a20", 1.1,  True,  "sharp", "peaks",             "mark_only",   "bottom_left",   "rect",     "serif",    700, "caps",      2.0),
-    "Stonepine Estate":     H("#eef2ec", "lines",    "thin",    "#3f5a3a", "#1f2a1c", 0.9,  False, "sharp", "crown",             "mark_only",   "top_right",     "outline",  "serif",    400, "smallcaps", 1.5),
-    "Orchardgate Cider Co.": H("#f9f3df", "dots",    "ticks",   "#a8742a", "#3a2a14", 1.0,  False, "round", "scallops",          "mark_only",   "bottom_right",  "tab",      "humanist", 700, "title",     0.5),
+    "Hollowbrook Cellars":  H("#f6f1ea", "none",     "heavy",   "#5a2a3a", "#2a1a20", 1.1,  True,  "sharp", "cask",             "mark_only",   "bottom_left",   "rect",     "serif",    700, "caps",      2.0),
+    "Stonepine Estate":     H("#eef2ec", "lines",    "thin",    "#3f5a3a", "#1f2a1c", 0.9,  False, "sharp", "grapes",             "mark_only",   "top_right",     "outline",  "serif",    400, "smallcaps", 1.5),
+    "Orchardgate Cider Co.": H("#f9f3df", "dots",    "ticks",   "#a8742a", "#3a2a14", 1.0,  False, "round", "orchard_leaf",          "mark_only",   "bottom_right",  "tab",      "humanist", 700, "title",     0.5),
     "Olivar Grove":         H("#f5f5e9", "none",     "ticks",   "#6b7a2a", "#33391a", 1.0,  False, "round", "three_drops",       "mark_only",   "top_right",     "rect",     "serif",    700, "caps",      2.0),
     "Copper Hill Preserves": H("#fbf1e7", "none",    "double",  "#b5562b", "#4a2a1a", 1.0,  False, "round", "peaks",             "mark_only",   "top_left",      "flag",     "serif",    400, "title",     0.0),
     "Pantry Mill":          H("#f4efe4", "hatch",    "heavy",   "#3b5b7a", "#2b3440", 1.2,  False, "sharp", "squares_circle",    "mark_only",   "top_left",      "underline", "mono",    400, "caps",      2.0),
