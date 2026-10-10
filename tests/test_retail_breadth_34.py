@@ -160,6 +160,7 @@ def test_a_bigger_set_of_one_leaf_costs_more() -> None:
         sets = [r for r in rows if _is_set(r)]
         if len(sets) < 2:
             continue
+        assert all(_attr(r, "piece_count") for r in sets), rows[0].path
         by_count = sorted(sets, key=lambda r: int(_attr(r, "piece_count")["value"]))
         prices = [r.price for r in by_count]
         assert prices == sorted(set(prices)), by_count[0].path
@@ -175,7 +176,7 @@ def test_piece_counts_fill_several_buckets_and_include_a_hundred_piece_set() -> 
 
 def test_every_cordless_drill_carries_a_voltage_its_title_names() -> None:
     drills = [r for r in ROWS if r.product_type == "Cordless Drill"]
-    assert len(drills) >= 2
+    assert len(drills) >= 4
     volts = set()
     for r in drills:
         a = _attr(r, "voltage_v")
@@ -184,12 +185,37 @@ def test_every_cordless_drill_carries_a_voltage_its_title_names() -> None:
         assert f"{a['value']} V " in r.title, r.code
         volts.add(int(a["value"]))
     assert volts <= {12, 18, 20, 40}
-    assert len(volts) >= 2
+    assert len(volts) >= 4, "a voltage facet needs at least four values"
 
 
-def test_no_other_row_carries_a_voltage() -> None:
-    odd = [r.code for r in ROWS if _attr(r, "voltage_v") and r.product_type != "Cordless Drill"]
+#: Product types allowed a voltage; a new battery tool is added here, not rejected.
+VOLTAGE_TYPES = frozenset({"Cordless Drill"})
+
+
+def test_a_voltage_sits_only_on_a_product_type_that_may_carry_one() -> None:
+    odd = [r.code for r in ROWS if _attr(r, "voltage_v") and r.product_type not in VOLTAGE_TYPES]
     assert odd == []
+
+
+def _listed_pieces(row: breadth_rows.Row) -> int | None:
+    """The sum of the quantities in the description's "Includes 4 a, 4 b and 4 c." sentence."""
+    m = re.match(r"Includes (.+?)\.(?: |$)", row.description)
+    if not m:
+        return None
+    parts = re.split(r", | and ", m.group(1))
+    if not all(re.match(r"\d+ \S", p) for p in parts):
+        return None
+    return sum(int(p.split()[0]) for p in parts)
+
+
+def test_every_product_that_states_a_piece_count_lists_exactly_that_many_pieces() -> None:
+    """Held for every row with a piece count, in the title, the attribute and the listed contents."""
+    stated = [r for r in ROWS if _attr(r, "piece_count") or _title_count(r)]
+    assert len(stated) >= 8
+    for r in stated:
+        listed = _listed_pieces(r)
+        assert listed is not None, f"{r.code}: the description does not list the contents"
+        assert listed == int(_attr(r, "piece_count")["value"]) == _title_count(r), r.code
 
 
 def test_the_attributes_are_deterministic_and_reach_the_standard() -> None:
