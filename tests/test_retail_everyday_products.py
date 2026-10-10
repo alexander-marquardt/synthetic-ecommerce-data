@@ -38,6 +38,22 @@ TYPES = {
 }
 
 
+#: name -> (lowest, highest) plausible price of one variant, in pounds: what a shopper would find
+#: on a shelf for the pack sizes generated (a 75cl bottle to a 1.5L one, a tube, a pack of fruit).
+BANDS = {
+    "champagne": (10.0, 150.0),
+    "red wine": (3.0, 60.0),
+    "white wine": (3.0, 60.0),
+    "rose wine": (3.0, 60.0),
+    "sparkling wine": (3.0, 60.0),
+    "cider": (0.8, 20.0),
+    "hand cream": (0.8, 30.0),
+    "eye cream": (2.0, 60.0),
+    "limes": (0.3, 12.0),
+    "strawberries": (0.8, 12.0),
+}
+
+
 @cache
 def docs() -> tuple[dict, ...]:
     return tuple(grocery.documents(grocery.build(600)))
@@ -54,7 +70,10 @@ def test_the_type_is_generated_with_its_attributes(name: str) -> None:
         have = {e["key"]: e["value"] for e in d["attributes"]}
         for key in keys:
             assert have.get(key), f"{d['title']}: {key} is empty"
-        assert d["variants"] and all(v["price"] > 0 for v in d["variants"])
+        assert d["variants"]
+        low, high = BANDS[name]
+        for v in d["variants"]:
+            assert low <= v["price"] <= high, f"{d['title']}: {v['price']} outside {low}-{high}"
 
 
 def test_a_wine_states_a_volume_and_a_strength() -> None:
