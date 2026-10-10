@@ -206,8 +206,10 @@ def world(tmp_path: Path) -> dict:
         # The planted worlds run with name resolution blocked: a red here is
         # the script's, never the network's (#178).
         **_NO_NAME_RESOLUTION,
+        # ... and build from uv's cache, the checkout having been synced once.
+        UV_OFFLINE="1",
     )
-    for name in ("NO_PROXY", "no_proxy", "UV_OFFLINE"):
+    for name in ("NO_PROXY", "no_proxy"):
         env.pop(name, None)
     # The suite may itself run under GEN_LOCAL_CI=1; a case opts in on its own.
     env.pop("GEN_LOCAL_CI", None)
