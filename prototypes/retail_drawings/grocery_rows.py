@@ -71,6 +71,7 @@ class Family:
     noun: str = ""  # a non-food's description noun; "" keeps the overlap rows' own
     axis_name: str = ""  # the axis attribute's display name when it is not the capitalised key
     fits: str = ""  # a non-food's closing sentence, "{x}" the lower-cased axis value (else "Scented with")
+    item_g: float = 0.0  # a per-item fruit's typical weight of one item, g: prices a weight pack beside count packs
     depth: bool = False  # built after the core families from its own stream (see ``grocery.build``)
 
     @property
@@ -219,7 +220,7 @@ FAMILIES: tuple[Family, ...] = (
            ("400g", "6 pack"),
            (F("Lemon Drizzle", "#f2d14b", "GME"), F("Chocolate Fudge", "#5a3a26", "GMES"),
             F("Coffee & Walnut", "#a8784a", "GMET"), F("Carrot", "#d9822b", "GME"), F("Victoria Sponge", "#f2e6c8", "GME")),
-           _BAKE, 0.015, may=((2, ""), (2, "TP"))),
+           _BAKE, 0.015, item_g=60, may=((2, ""), (2, "TP"))),
     # Dairy & Alternatives, Cheese
     Family("MLK", _p("Dairy & Alternatives", "Milk"), "{line} {flavor} Milk", "Milk", "carton", "Milk", _C, "AB",
            1.0, ("1 pint", "2 pint", "4 pint"),
@@ -343,16 +344,16 @@ FAMILIES: tuple[Family, ...] = (
            _C, "A", 0.6, ("Single", "4 pack", "1kg"),
            (F("Oranges", "#f2a14b"), F("Blood Oranges", "#c8432e"), F("Orange Segments", "#f29a3b"),
             F("Easy Peelers", "#f39c33")),
-           _FRESH, 0.012, axis="variety"),
+           _FRESH, 0.012, item_g=200, axis="variety"),
     Family("LEM", _FRUIT + ("Citrus Fruit", "Lemons"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
            _C, "A", 0.6, ("Single", "4 pack", "1kg"),
            (F("Unwaxed Lemons", "#f2d14b"), F("Lemons", "#f2e04b"), F("Meyer Lemons", "#f4c95a")),
-           _FRESH, 0.006, axis="variety"),
+           _FRESH, 0.006, item_g=120, axis="variety"),
     Family("APP", _FRUIT + ("Apples & Pears", "Apples"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
            _C, "A", 0.6, ("Single", "4 pack", "1kg"),
            (F("Gala Apples", "#c8312e"), F("Bramley Apples", "#7ab648"), F("Braeburn Apples", "#b8432e"),
             F("Fuji Apples", "#d9566a")),
-           _FRESH, 0.008, axis="variety"),
+           _FRESH, 0.008, item_g=180, axis="variety"),
     Family("VEG", _p("Fruit & Vegetables", "Fresh Vegetables"), "{line} {flavor}", "Fresh Vegetables", "punnet", "Veg", _C, "A", 0.8,
            ("250g", "500g"),
            (F("Cherry Tomatoes", "#c8312e"), F("Baby Carrots", "#d9822b"), F("Mint", "#3a8f6a"),
@@ -553,7 +554,7 @@ FAMILIES: tuple[Family, ...] = (
            _C, "A", 0.6, ("Single", "4 pack", "1kg"),
            (_o("Limes", "#7ab63a", "Brazil"), _o("Unwaxed Limes", "#8cc24a", "Mexico"),
             _o("Key Limes", "#a8c84a", "Peru")),
-           _FRESH, 0.003, axis="variety", depth=True),
+           _FRESH, 0.003, item_g=70, axis="variety", depth=True),
     Family("STR", _FRUIT + ("Berries", "Strawberries"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
            _C, "A", 2.2, ("250g", "400g", "800g"),
            (_o("Ripe Strawberries", "#c8312e", "United Kingdom"), _o("Large Strawberries", "#c8312e", "United Kingdom"),

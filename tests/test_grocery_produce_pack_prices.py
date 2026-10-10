@@ -39,15 +39,27 @@ def test_every_pack_price_is_plausible(fam) -> None:
         for brand in fam.brands:
             for pack in _packs(fam):
                 price = grocery._price(fam, pack, first, i, brand)
-                assert MIN_PACK_PRICE <= price <= MAX_PACK_PRICE, (fam.code, pack["pack_size"], price)
+                size = pack["pack_size"]
+                assert MIN_PACK_PRICE <= price <= MAX_PACK_PRICE, (fam.code, size, price)
 
 
-@pytest.mark.parametrize("fam", PRODUCE, ids=lambda f: f.code)
+def _mixed(fam) -> bool:
+    packs = _packs(fam)
+    weighed = ["net_weight_g" in p for p in packs]
+    return any(weighed) and not all(weighed)
+
+
+MIXED = [f for f in grocery_rows.FAMILIES if _mixed(f)]
+
+
+def test_the_mixed_families_include_the_produce_that_sells_by_the_kilogram() -> None:
+    assert {"LIM", "LEM", "ORA"} <= {f.code for f in MIXED}
+
+
+@pytest.mark.parametrize("fam", MIXED, ids=lambda f: f.code)
 def test_price_per_kg_agrees_between_count_and_weight_packs(fam) -> None:
     packs = _packs(fam)
-    if not any("net_weight_g" in p for p in packs) or all("net_weight_g" in p for p in packs):
-        pytest.skip("not a mixed count and weight family")
-    assert getattr(fam, "item_g", 0) > 0, f"{fam.code} mixes count and weight packs but declares no item_g"
+    assert getattr(fam, "item_g", 0) > 0, f"{fam.code} mixes pack kinds, declares no item_g"
     first = packs[0]
     brand = fam.brands[0]
     per_kg = []
