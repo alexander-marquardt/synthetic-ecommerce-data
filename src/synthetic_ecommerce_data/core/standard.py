@@ -232,11 +232,33 @@ def text_contradictions(
     return out
 
 
-def check_catalog(docs: Iterable[Mapping[str, Any]], *, text_agrees: bool = True) -> list[str]:
+def mixed_class_keys(docs: Iterable[Mapping[str, Any]]) -> list[str]:
+    """One problem per key that carries a ``unit_code`` on some entries and none on others,
+    across every document and variant. The Engine refuses to start on such a key
+    (``AmbiguousClassKeyError``): one attribute key has one class."""
+    counts: dict[str, list[int]] = {}
+    for doc in docs:
+        for row in (doc, *(doc.get("variants") or ())):
+            for entry in row.get("attributes") or ():
+                if isinstance(entry, dict):
+                    classed = entry.get("unit_code") is not None
+                    counts.setdefault(str(entry.get("key")), [0, 0])[classed] += 1
+    return [
+        f"key {k!r} has a unit_code on {c[1]} entries and none on {c[0]}"
+        for k, c in sorted(counts.items())
+        if all(c)
+    ]
+
+
+def check_catalog(
+    docs: Iterable[Mapping[str, Any]], *, text_agrees: bool = True, one_class_per_key: bool = False
+) -> list[str]:
     """Every way a catalog breaks the standard: each document's problems, then the ids
     that repeat and the keys that name two attributes or shadow a top-level field, and,
     with ``text_agrees``, every title or description that contradicts an attribute
-    (:func:`text_contradictions`, against the catalog's own :func:`value_pools`)."""
+    (:func:`text_contradictions`, against the catalog's own :func:`value_pools`), and,
+    with ``one_class_per_key``, every key that mixes classed and unclassed entries
+    (:func:`mixed_class_keys`)."""
     docs = list(docs)
     out: list[str] = []
     ids: dict[str, int] = {}
@@ -256,6 +278,8 @@ def check_catalog(docs: Iterable[Mapping[str, Any]], *, text_agrees: bool = True
     out += [f"key {k!r} names {sorted(v)}" for k, v in sorted(names_by_key.items()) if len(v) > 1]
     shadow = set(names_by_key) & (set(PRODUCT_FIELDS) | set(VARIANT_FIELDS))
     out += [f"key {k!r} shadows a top-level field" for k in sorted(shadow)]
+    if one_class_per_key:
+        out += mixed_class_keys(docs)
     if text_agrees:
         pools = value_pools(docs)
         out += [p for doc in docs for p in text_contradictions(doc, pools)]

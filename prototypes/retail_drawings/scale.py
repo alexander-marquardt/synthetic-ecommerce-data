@@ -905,7 +905,7 @@ def main(argv: list[str] | None = None) -> int:
     scaled = build(args.skus, args.seed)
     docs = documents(scaled)
     built = time.perf_counter() - start
-    problems = check_catalog(docs)
+    problems = check_catalog(docs, one_class_per_key=True)
     if args.out:
         with args.out.open("w", encoding="utf-8") as handle:
             for d in docs:
