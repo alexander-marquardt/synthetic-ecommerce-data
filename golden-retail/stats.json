@@ -2,24 +2,24 @@
  "ceiling": {
   "derived_styles": 2614,
   "food_and_drink": {
-   "skus": 10201,
-   "styles": 3523
+   "skus": 10712,
+   "styles": 3779
   },
   "food_and_drink_tree": {
    "Food": 27,
-   "Food & Drink": 10174
+   "Food & Drink": 10685
   },
   "grocery": {
-   "skus": 10859,
-   "styles": 3775
+   "skus": 11488,
+   "styles": 4090
   },
-  "images": 8618,
+  "images": 8933,
   "non_grocery": {
    "skus": 82273,
    "styles": 3572
   },
-  "skus": 93292,
-  "styles": 7371
+  "skus": 93921,
+  "styles": 7686
  },
  "departments": {
   "Beauty": 200,
@@ -94,6 +94,10 @@
    "skus": 272,
    "styles": 44
   },
+  "CDR": {
+   "skus": 90,
+   "styles": 30
+  },
   "CER": {
    "skus": 270,
    "styles": 90
@@ -130,6 +134,10 @@
    "skus": 90,
    "styles": 45
   },
+  "ECR": {
+   "skus": 46,
+   "styles": 23
+  },
   "FLR": {
    "skus": 144,
    "styles": 72
@@ -153,6 +161,10 @@
   "GNB": {
    "skus": 36,
    "styles": 12
+  },
+  "HCR": {
+   "skus": 72,
+   "styles": 36
   },
   "HOT": {
    "skus": 36,
@@ -181,6 +193,10 @@
   "LEM": {
    "skus": 54,
    "styles": 18
+  },
+  "LIM": {
+   "skus": 27,
+   "styles": 9
   },
   "MEA": {
    "skus": 224,
@@ -246,6 +262,10 @@
    "skus": 180,
    "styles": 90
   },
+  "STR": {
+   "skus": 42,
+   "styles": 14
+  },
   "SWT": {
    "skus": 360,
    "styles": 51
@@ -266,6 +286,10 @@
    "skus": 36,
    "styles": 18
   },
+  "WCH": {
+   "skus": 36,
+   "styles": 18
+  },
   "WGM": {
    "skus": 28,
    "styles": 14
@@ -274,31 +298,47 @@
    "skus": 180,
    "styles": 90
   },
+  "WRD": {
+   "skus": 108,
+   "styles": 54
+  },
+  "WRS": {
+   "skus": 46,
+   "styles": 23
+  },
+  "WSP": {
+   "skus": 54,
+   "styles": 54
+  },
+  "WWH": {
+   "skus": 108,
+   "styles": 54
+  },
   "YOG": {
    "skus": 272,
    "styles": 44
   }
  },
  "grocery_values": {
-  "checked": 13260,
+  "checked": 14146,
   "named_but_not_carried": {
    "contains": 576,
-   "flavor": 1854,
+   "flavor": 1915,
    "may_contain": 691,
-   "pack_size": 110,
-   "variety": 27
+   "pack_size": 140,
+   "variety": 32
   }
  },
  "near_duplicates": {
-  "grocery": 0.0315,
+  "grocery": 0.0357,
   "grocery_grid_clones": 4,
   "non_grocery": 0.024,
   "non_grocery_grid_clone_rate": 0.1327
  },
  "templates": {
   "all": {
-   "skus": 38990,
-   "styles": 4757
+   "skus": 39619,
+   "styles": 5072
   },
   "authored": {
    "skus": 6861,
@@ -318,8 +358,8 @@
    "styles": 279
   },
   "grocery": {
-   "skus": 10859,
-   "styles": 3775
+   "skus": 11488,
+   "styles": 4090
   },
   "main_food": {
    "skus": 66,
