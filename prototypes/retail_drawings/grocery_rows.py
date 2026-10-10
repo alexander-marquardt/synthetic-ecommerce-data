@@ -44,6 +44,7 @@ class F:
     hex: str
     codes: str = ""
     abv: float | None = None  # a beer's strength: an attribute, and in only some titles
+    extras: tuple[tuple[str, str, str], ...] = ()  # more (key, name, value) attributes: grape, origin
 
 
 @dataclass(frozen=True)
@@ -68,6 +69,9 @@ class Family:
     department: str = "Food & Drink"
     params: tuple[tuple[str, str], ...] = ()
     noun: str = ""  # a non-food's description noun; "" keeps the overlap rows' own
+    axis_name: str = ""  # the axis attribute's display name when it is not the capitalised key
+    fits: str = ""  # a non-food's closing sentence, "{x}" the lower-cased axis value (else "Scented with")
+    item_g: float = 0.0  # a per-item fruit's typical weight of one item, g: prices a weight pack beside count packs
     depth: bool = False  # built after the core families from its own stream (see ``grocery.build``)
 
     @property
@@ -86,6 +90,8 @@ OWNERS = {
     "Clearbrook Household": "third_party", "Soapwell": "third_party",
     "Brightwater Botanics": "third_party", "Velling Apothecary": "third_party",
     "Orrin Skin": "third_party",
+    "Hollowbrook Cellars": "third_party", "Stonepine Estate": "third_party",
+    "Orchardgate Cider Co.": "third_party",
 }  # fmt: skip
 
 #: Range names: invented place words, the head of a style's title.
@@ -122,6 +128,28 @@ def _p(*parts: str) -> tuple[str, ...]:
 
 _FRUIT = _p("Fruit & Vegetables", "Fresh Fruit")
 _BEER = _p("Beer, Wine & Spirits", "Beer")
+_WINE = _p("Beer, Wine & Spirits", "Wine")
+_CIDER = _p("Beer, Wine & Spirits", "Cider")
+_SPIRITS = _p("Beer, Wine & Spirits", "Spirits")
+_FORTIFIED = _p("Beer, Wine & Spirits", "Wine", "Fortified Wine")
+_CELLAR = ("Hollowbrook Cellars", "Stonepine Estate", "Vine & Valley")
+_SKIN_BRANDS = ("Velling Apothecary", "Orrin Skin", "Brightwater Botanics")
+
+
+def _w(name: str, hex_: str, abv: float, grape: str, country: str, style: str) -> F:
+    """One wine: its grape, country and style (red, white, rosé, sparkling) are attributes."""
+    return F(name, hex_, "", abv, (("grape", "Grape", grape), ("country", "Country", country),
+                                   ("wine_style", "Wine style", style)))  # fmt: skip
+
+
+def _s(name: str, hex_: str, abv: float, country: str, style: str, codes: str = "") -> F:
+    """One spirit or mead: its country and style are attributes beside the strength."""
+    return F(name, hex_, codes, abv, (("country", "Country", country), ("spirit_style", "Style", style)))
+
+
+def _o(name: str, hex_: str, origin: str) -> F:
+    """One fresh-produce variety with its country of origin."""
+    return F(name, hex_, "", None, (("origin", "Origin", origin),))
 
 
 _HOME_SCENTS = (
@@ -199,7 +227,7 @@ FAMILIES: tuple[Family, ...] = (
            ("400g", "6 pack"),
            (F("Lemon Drizzle", "#f2d14b", "GME"), F("Chocolate Fudge", "#5a3a26", "GMES"),
             F("Coffee & Walnut", "#a8784a", "GMET"), F("Carrot", "#d9822b", "GME"), F("Victoria Sponge", "#f2e6c8", "GME")),
-           _BAKE, 0.015, may=((2, ""), (2, "TP"))),
+           _BAKE, 0.015, item_g=60, may=((2, ""), (2, "TP"))),
     # Dairy & Alternatives, Cheese
     Family("MLK", _p("Dairy & Alternatives", "Milk"), "{line} {flavor} Milk", "Milk", "carton", "Milk", _C, "AB",
            1.0, ("1 pint", "2 pint", "4 pint"),
@@ -323,16 +351,16 @@ FAMILIES: tuple[Family, ...] = (
            _C, "A", 0.6, ("Single", "4 pack", "1kg"),
            (F("Oranges", "#f2a14b"), F("Blood Oranges", "#c8432e"), F("Orange Segments", "#f29a3b"),
             F("Easy Peelers", "#f39c33")),
-           _FRESH, 0.012, axis="variety"),
+           _FRESH, 0.012, item_g=200, axis="variety"),
     Family("LEM", _FRUIT + ("Citrus Fruit", "Lemons"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
            _C, "A", 0.6, ("Single", "4 pack", "1kg"),
            (F("Unwaxed Lemons", "#f2d14b"), F("Lemons", "#f2e04b"), F("Meyer Lemons", "#f4c95a")),
-           _FRESH, 0.006, axis="variety"),
+           _FRESH, 0.006, item_g=120, axis="variety"),
     Family("APP", _FRUIT + ("Apples & Pears", "Apples"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
            _C, "A", 0.6, ("Single", "4 pack", "1kg"),
            (F("Gala Apples", "#c8312e"), F("Bramley Apples", "#7ab648"), F("Braeburn Apples", "#b8432e"),
             F("Fuji Apples", "#d9566a")),
-           _FRESH, 0.008, axis="variety"),
+           _FRESH, 0.008, item_g=180, axis="variety"),
     Family("VEG", _p("Fruit & Vegetables", "Fresh Vegetables"), "{line} {flavor}", "Fresh Vegetables", "punnet", "Veg", _C, "A", 0.8,
            ("250g", "500g"),
            (F("Cherry Tomatoes", "#c8312e"), F("Baby Carrots", "#d9822b"), F("Mint", "#3a8f6a"),
@@ -464,6 +492,197 @@ FAMILIES: tuple[Family, ...] = (
     Family("SGL", ("Beauty", "Bath & Body", "Shower Gel"), "{line} {flavor} Shower Gel", "Shower Gel", "bottle",
            "Shower Gel", _A, "", 2.5, ("250ml", "500ml"), _BODY_SCENTS, _BODY_BRANDS, 0.016, axis="scent",
            department="Beauty", noun="creamy shower gel", depth=True),
+    # Everyday drinks and skincare the demo asks for by name (gen#176). Depth families: drawn
+    # from their own stream, so the core families' ids and draws do not move.
+    Family("WRD", _WINE + ("Red Wine",), "{line} {flavor}{abv}", "Wine", "bottle", "Red Wine", _A, "CD", 6.5,
+           ("750ml", "1.5L"),
+           (_w("Malbec Red Wine", "#6a1f3a", 13.5, "Malbec", "Argentina", "Red"),
+            _w("Merlot Red Wine", "#7a2a3a", 13.0, "Merlot", "Chile", "Red"),
+            _w("Rioja Tempranillo Red Wine", "#5a1a2a", 13.5, "Tempranillo", "Spain", "Red"),
+            _w("Cabernet Sauvignon Red Wine", "#4a1a2e", 14.0, "Cabernet Sauvignon", "Australia", "Red"),
+            _w("Pinot Noir Red Wine", "#8a3a4a", 12.5, "Pinot Noir", "France", "Red"),
+            _w("Shiraz Red Wine", "#5a1a3a", 14.5, "Shiraz", "South Africa", "Red"),
+            _w("Chianti Sangiovese Red Wine", "#7a2a2a", 13.0, "Sangiovese", "Italy", "Red")),
+           _CELLAR, 0.012, depth=True),
+    Family("WWH", _WINE + ("White Wine",), "{line} {flavor}{abv}", "Wine", "bottle", "White Wine", _A, "CD", 6.0,
+           ("750ml", "1.5L"),
+           (_w("Sauvignon Blanc White Wine", "#d8d878", 12.5, "Sauvignon Blanc", "New Zealand", "White"),
+            _w("Chardonnay White Wine", "#e0c868", 13.0, "Chardonnay", "France", "White"),
+            _w("Pinot Grigio White Wine", "#e8e098", 12.0, "Pinot Grigio", "Italy", "White"),
+            _w("Riesling White Wine", "#d8e088", 11.5, "Riesling", "Germany", "White"),
+            _w("Albarino White Wine", "#e0d880", 12.5, "Albarino", "Spain", "White"),
+            _w("Chenin Blanc White Wine", "#e0c070", 13.0, "Chenin Blanc", "South Africa", "White")),
+           _CELLAR, 0.012, depth=True),
+    Family("WRS", _WINE + ("Rosé Wine",), "{line} {flavor}{abv}", "Wine", "bottle", "Rosé Wine", _A, "CD", 6.0,
+           ("750ml", "1.5L"),
+           (_w("Provence Style Rosé Wine", "#f0b0b0", 12.5, "Grenache", "France", "Rosé"),
+            _w("Zinfandel Blush Rosé Wine", "#e88aa0", 10.5, "Zinfandel", "United States", "Rosé"),
+            _w("Pinot Grigio Blush Rosé Wine", "#f2b8a0", 11.5, "Pinot Grigio", "Italy", "Rosé"),
+            _w("Garnacha Rosé Wine", "#e8788a", 13.0, "Garnacha", "Spain", "Rosé")),
+           _CELLAR, 0.005, depth=True),
+    Family("WSP", _WINE + ("Sparkling Wine",), "{line} {flavor}{abv}", "Wine", "bottle", "Sparkling Wine", _A, "CD", 8.0,
+           ("750ml",),
+           (_w("Prosecco Sparkling Wine", "#e8e098", 11.0, "Glera", "Italy", "Sparkling"),
+            _w("Cava Brut Sparkling Wine", "#e0d890", 11.5, "Macabeo", "Spain", "Sparkling"),
+            _w("Sparkling Rosé Wine", "#f0a0a8", 11.0, "Pinot Noir", "Italy", "Sparkling"),
+            _w("English Sparkling Wine", "#e8e0a0", 12.0, "Chardonnay", "United Kingdom", "Sparkling"),
+            _w("Crémant Sparkling Wine", "#ece0a2", 12.0, "Chenin Blanc", "France", "Sparkling")),
+           _CELLAR, 0.006, depth=True),
+    Family("WCH", _WINE + ("Champagne",), "{line} {flavor}{abv}", "Champagne", "bottle", "Champagne", _A, "CD", 24.0,
+           ("750ml", "1.5L"),
+           (_w("Brut Champagne", "#e8d88a", 12.0, "Chardonnay", "France", "Sparkling"),
+            _w("Rosé Champagne", "#f0a8a8", 12.0, "Pinot Noir", "France", "Sparkling"),
+            _w("Blanc de Blancs Champagne", "#f0e090", 12.0, "Chardonnay", "France", "Sparkling"),
+            _w("Demi Sec Champagne", "#e8d070", 12.0, "Pinot Meunier", "France", "Sparkling")),
+           ("Hollowbrook Cellars", "Stonepine Estate"), 0.004, depth=True),
+    Family("CDR", _CIDER, "{line} {flavor}{abv}", "Cider", "bottle", "Cider", _A, "CD", 1.9,
+           ("500ml", "4 x 440ml", "2L"),
+           (F("Farmhouse Cider", "#d8b04a", "", 4.5, (("cider_style", "Cider style", "Traditional"),)),
+            F("Medium Cider", "#d8a83a", "", 4.5, (("cider_style", "Cider style", "Medium"),)),
+            F("Sweet Cider", "#d09a2e", "", 4.0, (("cider_style", "Cider style", "Sweet"),)),
+            F("Scrumpy Cider", "#b88a2a", "", 6.0, (("cider_style", "Cider style", "Traditional"),)),
+            F("Pear Cider", "#d8d078", "", 4.0, (("cider_style", "Cider style", "Fruit"),)),
+            F("Strawberry & Lime Cider", "#e87a7a", "", 4.0, (("cider_style", "Cider style", "Fruit"),)),
+            F("Alcohol Free Cider", "#d8b04a", "", 0.0, (("cider_style", "Cider style", "Alcohol Free"),))),
+           ("Orchardgate Cider Co.", "Vine & Valley", "Freshfold"), 0.010, depth=True),
+    Family("HCR", ("Beauty", "Skincare", "Hand Creams"), "{line} Hand Cream for {flavor}", "Hand Cream",
+           "moisturiser_jar", "Hand Cream", _A, "", 3.5, ("50ml", "100ml"),
+           (F("Dry Skin", "#f4efe6"), F("Cracked Skin", "#efe4d6"), F("Sensitive Skin", "#eef1ea"),
+            F("Everyday Care", "#f2ecdf")),
+           _SKIN_BRANDS, 0.008, axis="skin_concern", axis_name="Skin concern", department="Beauty",
+           noun="nourishing hand cream", fits="Made for {x}.", depth=True),
+    Family("ECR", ("Beauty", "Skincare", "Eye Creams"), "{line} Eye Cream for {flavor}", "Eye Cream",
+           "moisturiser_jar", "Eye Cream", _A, "", 9.0, ("15ml", "30ml"),
+           (F("Dark Circles", "#efe8dc"), F("Puffiness", "#eaf0ee"), F("Fine Lines", "#f2ebe0"),
+            F("Dry Skin", "#f4efe6")),
+           _SKIN_BRANDS, 0.005, axis="skin_concern", axis_name="Skin concern", department="Beauty",
+           noun="light eye cream", fits="Made for {x}.", depth=True),
+    Family("LIM", _FRUIT + ("Citrus Fruit", "Limes"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 0.6, ("Single", "4 pack", "1kg"),
+           (_o("Limes", "#7ab63a", "Brazil"), _o("Unwaxed Limes", "#8cc24a", "Mexico"),
+            _o("Key Limes", "#a8c84a", "Peru")),
+           _FRESH, 0.003, item_g=70, axis="variety", depth=True),
+    Family("STR", _FRUIT + ("Berries", "Strawberries"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 2.2, ("250g", "400g", "800g"),
+           (_o("Ripe Strawberries", "#c8312e", "United Kingdom"), _o("Large Strawberries", "#c8312e", "United Kingdom"),
+            _o("Spanish Strawberries", "#d03a36", "Spain"), _o("Sweet Strawberries", "#d9364a", "Morocco")),
+           _FRESH, 0.0045, axis="variety", depth=True),
+    # Sibling families (gen#177): spirits, fortified wine, perry and mead, the other citrus and
+    # berries, foot and body cream. Depth families, so the core families' draws do not move.
+    Family("SWH", _SPIRITS + ("Whisky",), "{line} {flavor}{abv}", "Whisky", "bottle", "Whisky", _A, "CD", 18.0,
+           ("700ml", "1L"),
+           (_s("Blended Scotch Whisky", "#b8741f", 40.0, "Scotland", "Blended"),
+            _s("Single Malt Scotch Whisky", "#a8641a", 40.0, "Scotland", "Single Malt"),
+            _s("Bourbon Whiskey", "#a85a1a", 40.0, "United States", "Bourbon"),
+            _s("Irish Whiskey", "#c88a2a", 40.0, "Ireland", "Blended")),
+           _CELLAR, 0.005, depth=True),
+    Family("SGN", _SPIRITS + ("Gin",), "{line} {flavor}{abv}", "Gin", "bottle", "Gin", _A, "CD", 16.0,
+           ("700ml", "1L"),
+           (_s("London Dry Gin", "#d6e6ee", 40.0, "United Kingdom", "London Dry"),
+            _s("Pink Gin", "#f0b8c0", 37.5, "United Kingdom", "Flavoured"),
+            _s("Sloe Gin", "#7a2a4a", 26.0, "United Kingdom", "Liqueur"),
+            _s("Navy Strength Gin", "#cfe0ea", 57.0, "United Kingdom", "Navy Strength")),
+           _CELLAR, 0.005, depth=True),
+    Family("SVD", _SPIRITS + ("Vodka",), "{line} {flavor}{abv}", "Vodka", "bottle", "Vodka", _A, "CD", 14.0,
+           ("700ml", "1L"),
+           (_s("Premium Vodka", "#dfe9ee", 40.0, "Poland", "Plain"),
+            _s("Triple Distilled Vodka", "#e3edf0", 40.0, "Sweden", "Plain"),
+            _s("Lemon Vodka", "#f0e68a", 37.5, "Poland", "Flavoured"),
+            _s("Vanilla Vodka", "#efe3c0", 37.5, "Sweden", "Flavoured")),
+           _CELLAR, 0.004, depth=True),
+    Family("SRM", _SPIRITS + ("Rum",), "{line} {flavor}{abv}", "Rum", "bottle", "Rum", _A, "CD", 17.0,
+           ("700ml", "1L"),
+           (_s("White Rum", "#e6eaea", 37.5, "Barbados", "White"),
+            _s("Gold Rum", "#c8902a", 40.0, "Jamaica", "Gold"),
+            _s("Dark Rum", "#5a2e1a", 40.0, "Guyana", "Dark"),
+            _s("Spiced Rum", "#8a4a22", 35.0, "Caribbean", "Spiced")),
+           _CELLAR, 0.004, depth=True),
+    Family("STQ", _SPIRITS + ("Tequila",), "{line} {flavor}{abv}", "Tequila", "bottle", "Tequila", _A, "CD", 21.0,
+           ("700ml", "1L"),
+           (_s("Blanco Tequila", "#e2eceb", 38.0, "Mexico", "Blanco"),
+            _s("Reposado Tequila", "#d8b45a", 38.0, "Mexico", "Reposado"),
+            _s("Anejo Tequila", "#b8782a", 40.0, "Mexico", "Anejo")),
+           _CELLAR, 0.003, depth=True),
+    Family("FPT", _FORTIFIED + ("Port",), "{line} {flavor}{abv}", "Fortified Wine", "bottle", "Port", _A, "CD", 10.0,
+           ("750ml", "1.5L"),
+           (_w("Ruby Port", "#6a1a2e", 19.5, "Touriga Nacional", "Portugal", "Fortified"),
+            _w("Tawny Port", "#9a4a2a", 20.0, "Touriga Franca", "Portugal", "Fortified"),
+            _w("Late Bottled Vintage Port", "#5a1a2a", 20.0, "Tinta Roriz", "Portugal", "Fortified"),
+            _w("White Port", "#e0c868", 19.0, "Malvasia Fina", "Portugal", "Fortified")),
+           _CELLAR, 0.004, depth=True),
+    Family("FSY", _FORTIFIED + ("Sherry",), "{line} {flavor}{abv}", "Fortified Wine", "bottle", "Sherry", _A, "CD", 7.5,
+           ("750ml", "1.5L"),
+           (_w("Fino Sherry", "#e8d88a", 15.0, "Palomino", "Spain", "Fortified"),
+            _w("Medium Sherry", "#c8903a", 17.5, "Palomino", "Spain", "Fortified"),
+            _w("Cream Sherry", "#8a4a22", 17.5, "Pedro Ximenez", "Spain", "Fortified"),
+            _w("Amontillado Sherry", "#b87a2a", 18.0, "Palomino", "Spain", "Fortified")),
+           _CELLAR, 0.004, depth=True),
+    Family("FVM", _FORTIFIED + ("Vermouth",), "{line} {flavor}{abv}", "Fortified Wine", "bottle", "Vermouth", _A, "CD", 7.0,
+           ("750ml", "1L"),
+           (_w("Rosso Vermouth", "#7a2a1a", 15.0, "Trebbiano", "Italy", "Fortified"),
+            _w("Bianco Vermouth", "#e8dc9a", 15.0, "Trebbiano", "Italy", "Fortified"),
+            _w("Extra Dry Vermouth", "#e6e2b0", 18.0, "Ugni Blanc", "France", "Fortified")),
+           _CELLAR, 0.003, depth=True),
+    Family("PRY", _p("Beer, Wine & Spirits", "Perry"), "{line} {flavor}{abv}", "Perry", "bottle", "Perry", _A, "CD", 2.2,
+           ("500ml", "4 x 440ml", "2L"),
+           (F("Traditional Perry", "#dad48a", "", 5.5, (("cider_style", "Cider style", "Traditional"),)),
+            F("Medium Perry", "#d8d27a", "", 5.0, (("cider_style", "Cider style", "Medium"),)),
+            F("Sparkling Perry", "#e6e29a", "", 5.0, (("cider_style", "Cider style", "Sparkling"),)),
+            F("Elderflower Perry", "#e8e4aa", "", 4.0, (("cider_style", "Cider style", "Fruit"),))),
+           ("Orchardgate Cider Co.", "Vine & Valley", "Freshfold"), 0.004, depth=True),
+    Family("MED", _p("Beer, Wine & Spirits", "Mead"), "{line} {flavor}{abv}", "Mead", "bottle", "Mead", _A, "CD", 9.0,
+           ("500ml", "750ml"),
+           (_s("Traditional Mead", "#d8a830", 12.5, "United Kingdom", "Traditional", "h"),
+            _s("Sweet Honey Mead", "#e0b040", 14.0, "United Kingdom", "Sweet", "h"),
+            _s("Spiced Mead", "#b87a2a", 12.0, "United Kingdom", "Spiced", "h"),
+            _s("Berry Mead", "#a8403a", 11.0, "United Kingdom", "Fruit", "h")),
+           _CELLAR, 0.003, depth=True),
+    Family("GRF", _FRUIT + ("Citrus Fruit", "Grapefruit"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 0.7, ("Single", "4 pack", "1kg"),
+           (_o("Ruby Red Grapefruit", "#e8665a", "South Africa"), _o("Pink Grapefruit", "#f09a8a", "Israel"),
+            _o("White Grapefruit", "#f2dc6a", "Spain")),
+           _FRESH, 0.003, item_g=350, axis="variety", depth=True),
+    Family("MAN", _FRUIT + ("Citrus Fruit", "Mandarins"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 0.4, ("Single", "4 pack", "1kg"),
+           (_o("Mandarins", "#f39c33", "Spain"), _o("Easy Peel Mandarins", "#f5a43a", "Israel"),
+            _o("Baby Mandarins", "#f2a03a", "Peru")),
+           _FRESH, 0.003, item_g=80, axis="variety", depth=True),
+    Family("CLM", _FRUIT + ("Citrus Fruit", "Clementines"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 0.4, ("Single", "4 pack", "1kg"),
+           (_o("Clementines", "#f39c33", "Spain"), _o("Seedless Clementines", "#f5a03a", "Morocco"),
+            _o("Spanish Clementines", "#f29a30", "Spain")),
+           _FRESH, 0.003, item_g=75, axis="variety", depth=True),
+    Family("SAT", _FRUIT + ("Citrus Fruit", "Satsumas"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 0.4, ("Single", "4 pack", "1kg"),
+           (_o("Satsumas", "#f4a23a", "Spain"), _o("Seedless Satsumas", "#f5a83e", "South Africa"),
+            _o("Easy Peel Satsumas", "#f2a03a", "Peru")),
+           _FRESH, 0.003, item_g=80, axis="variety", depth=True),
+    Family("RSP", _FRUIT + ("Berries", "Raspberries"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 2.5, ("150g", "300g"),
+           (_o("Ripe Raspberries", "#c8283e", "United Kingdom"), _o("Sweet Raspberries", "#c42a44", "Spain"),
+            _o("Large Raspberries", "#c8304a", "Morocco")),
+           _FRESH, 0.003, axis="variety", depth=True),
+    Family("BLU", _FRUIT + ("Berries", "Blueberries"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 2.0, ("150g", "300g"),
+           (_o("Plump Blueberries", "#3a4a8a", "Spain"), _o("Sweet Blueberries", "#3a4a82", "Peru"),
+            _o("Large Blueberries", "#3e4e8e", "Chile")),
+           _FRESH, 0.003, axis="variety", depth=True),
+    Family("BLK", _FRUIT + ("Berries", "Blackberries"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 2.0, ("150g", "300g"),
+           (_o("Juicy Blackberries", "#2e1a3a", "United Kingdom"), _o("Sweet Blackberries", "#2a1a38", "Mexico"),
+            _o("Large Blackberries", "#321e3e", "Serbia")),
+           _FRESH, 0.003, axis="variety", depth=True),
+    Family("FTC", ("Beauty", "Skincare", "Foot Creams"), "{line} Foot Cream for {flavor}", "Foot Cream",
+           "moisturiser_jar", "Foot Cream", _A, "", 3.5, ("75ml", "150ml"),
+           (F("Dry Skin", "#f4efe6"), F("Cracked Heels", "#efe4d6"), F("Tired Feet", "#e6f0ea"),
+            F("Everyday Care", "#f2ecdf")),
+           _SKIN_BRANDS, 0.005, axis="skin_concern", axis_name="Skin concern", department="Beauty",
+           noun="softening foot cream", fits="Made for {x}.", depth=True),
+    Family("BCR", ("Beauty", "Body Care", "Body Creams"), "{line} {flavor} Body Cream", "Body Cream",
+           "moisturiser_jar", "Body Cream", _A, "", 4.5, ("250ml", "400ml"),
+           (F("Shea", "#e8dcc0"), F("Cocoa Butter", "#d8c4a0"), F("Almond", "#c9a96e"), F("Oat", "#ece3cf")),
+           _SKIN_BRANDS, 0.005, axis="scent", department="Beauty",
+           noun="rich body cream for dry skin", depth=True),
 )  # fmt: skip
 
 #: The styles every build plants first, so each demo case exists at any size:

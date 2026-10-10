@@ -27,6 +27,8 @@ from kit_produce import pile_params
 from variants import attr, cw, docs, drawing, swatch
 from variants import product as style_product
 
+from synthetic_ecommerce_data.core.entry import canonical
+
 MIN_DISTRACTORS, MAX_DISTRACTORS = 3, 10
 
 # ==========================================================================
@@ -110,6 +112,12 @@ PRODUCT_TYPES: dict[str, str] = {
 }  # fmt: skip
 
 
+def _unit(rest: list[str]) -> tuple:
+    """``attr``'s arguments after the name: the value, and for a measured one its unit
+    and the canonical the core computes for it."""
+    return (rest[0], rest[1], canonical(rest[0], rest[1])) if len(rest) > 1 else (rest[0],)
+
+
 def product(
     code: str,
     title: str,
@@ -124,10 +132,11 @@ def product(
 ) -> dict:
     """One single-SKU product doc in the variant model's shape (:func:`variants.product`).
 
-    A ``color`` in ``attrs`` is the SKU's color, its swatch the drawing's base.
+    A ``color`` in ``attrs`` is the SKU's color, its swatch the drawing's base. An attr is
+    ``(key, name, value)``, or ``(key, name, value, unit_code)`` for a measured one.
     """
     check_departments([department], title)
-    named = {k: v for k, _, v in attrs}
+    named = {k: rest[0] for k, _, *rest in attrs}
     sku: dict = {"price": price, "in_stock": True}
     swatches = {}
     if "color" in named:
@@ -139,7 +148,7 @@ def product(
         product_type=product_type or PRODUCT_TYPES[code],
         category_path=list(path), category_leaf=path[-1],
         description=description,
-        attributes=[attr(k, n, v) for k, n, v in attrs if k != "color"],
+        attributes=[attr(k, n, *_unit(rest)) for k, n, *rest in attrs if k != "color"],
         drawing=draw, collections=[], currency="GBP",
     )  # fmt: skip
 
@@ -449,7 +458,7 @@ GIFT_TAIL = (
         ("Garden", "Plants", "Gift Plants"), 30.0,
         "A young olive tree, about 60 cm tall, potted and wrapped in hessian for giving.",
         drawing("potted_tree", cw("Hessian", "#b89b6e", "solid", "#6b5a3a"), "Olive"),
-        (("height", "Height", "60 cm"),),
+        (("height", "Height", "60", "CMT"),),
     ), _BOOST + "Gift Plants"),
     Distractor(product(
         "GTKEYR", "Gift Boxed Brass Keyring", "Calderby & Lune", "Gifts",

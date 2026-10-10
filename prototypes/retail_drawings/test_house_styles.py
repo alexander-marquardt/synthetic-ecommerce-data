@@ -65,7 +65,7 @@ def test_any_two_brands_differ_in_at_least_five_levers() -> None:
 def test_about_half_the_brands_use_a_full_lockup() -> None:
     lockups = sum(s.layout != "mark_only" for s in hs.HOUSE_STYLES.values())
     assert lockups == 28
-    assert len(hs.HOUSE_STYLES) == 56
+    assert len(hs.HOUSE_STYLES) == 59
 
 
 def test_marks_are_large_enough_to_see_and_within_the_cap() -> None:
