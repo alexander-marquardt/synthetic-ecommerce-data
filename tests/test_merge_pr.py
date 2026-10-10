@@ -10,7 +10,9 @@ go first on ``PATH``:
 * ``uv`` runs the real one, and while the build runs it can move ``main`` or
   the PR head on the origin (``FAKE_UV_MOVE``), write a file the build does
   not (``FAKE_UV_STRAY``), or skip the build (``FAKE_UV_SKIP_BUILD``). That
-  is how a case makes something change mid-run.
+  is how a case makes something change mid-run. With ``FAKE_UV_DNS_DOWN`` it
+  also plays a network whose lookups fail: a build that is not offline
+  (``UV_OFFLINE=1``) stops on the error uv printed when that happened (#178).
 
 The script's own checks are narrowed to one test (``MERGE_PR_CHECKS``): what is
 under test is the script's order of operations, not the suite.
@@ -19,6 +21,7 @@ under test is the script's order of operations, not the suite.
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -100,6 +103,15 @@ _FAKE_UV = (
     + _MOVE
     + r"""
 if [[ " $* " == *" build "* ]]; then
+  if [ -n "${FAKE_UV_DNS_DOWN:-}" ] && [ "${UV_OFFLINE:-}" != 1 ]; then
+    cat >&2 <<'MSG'
+  x Failed to build `synthetic-ecommerce-data`
+  |-> Failed to resolve requirements from `build-system.requires`
+  |-> Failed to fetch: `https://pypi.org/simple/hatchling/`
+  |-> dns error: failed to lookup address information: nodename nor servname provided, or not known
+MSG
+    exit 2
+  fi
   if [ -n "${FAKE_UV_MOVE:-}" ] && [ ! -e "$FAKE_GH_LOG.moved" ]; then
     touch "$FAKE_GH_LOG.moved"
     move "$FAKE_UV_MOVE"
@@ -128,6 +140,26 @@ _IDENTITY = {
 }
 
 _STATS = "golden-catalog/stats.json"
+
+#: Name resolution that fails, as a dropped lookup does (#178). The stand-in uv
+#: stops a build that is not offline with the error uv printed then
+#: (``FAKE_UV_DNS_DOWN``), and every proxy variable points at a host that
+#: cannot resolve (``.invalid`` is reserved for that), so a real uv that does
+#: reach for an index fails the same way.
+_NO_NAME_RESOLUTION = {
+    "FAKE_UV_DNS_DOWN": "1",
+    **{
+        name: "http://dns-blocked.invalid:3128"
+        for name in (
+            "HTTP_PROXY",
+            "HTTPS_PROXY",
+            "ALL_PROXY",
+            "http_proxy",
+            "https_proxy",
+            "all_proxy",
+        )
+    },
+}
 
 
 def _git(cwd: Path, *args: str) -> str:
@@ -171,7 +203,14 @@ def world(tmp_path: Path) -> dict:
         MERGE_PR_CI_POLL="0",
         MERGE_PR_RETRY_SLEEP="0",
         MERGE_PR_LOG_DIR=str(tmp_path),
+        # The planted worlds run with name resolution blocked: a red here is
+        # the script's, never the network's (#178).
+        **_NO_NAME_RESOLUTION,
+        # ... and build from uv's cache, the checkout having been synced once.
+        UV_OFFLINE="1",
     )
+    for name in ("NO_PROXY", "no_proxy"):
+        env.pop(name, None)
     # The suite may itself run under GEN_LOCAL_CI=1; a case opts in on its own.
     env.pop("GEN_LOCAL_CI", None)
     return {
@@ -333,6 +372,21 @@ def test_a_merge_waits_for_every_check_on_the_pushed_tree(
     assert refusal.format(sha=pushed) in result.stderr, result.stderr[-800:]
     assert "NOT merged" in result.stderr
     assert _ci_reads(world) == [pushed]
+    assert not _merged(world)
+
+
+def test_a_build_the_network_stops_says_so_apart_from_the_build_refusing(world: dict) -> None:
+    """Online, a dropped lookup stops the build; the script names the network (#178)."""
+    head = _open_pr(world, _GREEN)
+    result = _run(world, head, _GREEN_CHECK, UV_OFFLINE="0")
+    assert result.returncode != 0
+    # The word, not the substring: the throwaway path the script names holds this test's name.
+    lines = [line for line in result.stderr.splitlines() if re.search(r"\bnetwork\b", line, re.I)]
+    assert len(lines) == 1, result.stderr[-800:]
+    assert "the build refuses the merged tree" not in lines[0]
+    assert "the build refuses the merged tree" in result.stderr
+    assert "dns error" in result.stderr, "uv's own message is still printed"
+    assert _branch(world) == head
     assert not _merged(world)
 
 
