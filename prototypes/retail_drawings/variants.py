@@ -67,7 +67,7 @@ def drawing(shape: str, color: Color, label: str | None = None, **params) -> dic
 
 #: The SKU fields that are a size, one per size system, in selector order.
 SIZE_KEYS = ("size", "size_uk", "size_eu", "size_us", "length", "inside_leg", "waist",
-             "bed_size", "width")  # fmt: skip
+             "bed_size", "width", "height")  # fmt: skip
 
 
 def swatch(color: Color, family: str | None = None) -> dict:

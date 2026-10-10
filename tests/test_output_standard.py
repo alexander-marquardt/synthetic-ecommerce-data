@@ -71,7 +71,9 @@ def retail() -> list[dict[str, Any]]:
 @pytest.mark.parametrize("source", sorted(SOURCES))
 def test_every_domain_meets_the_standard(source):
     retail = source.startswith("retail")
-    problems = standard.check_catalog(SOURCES[source](), text_agrees=retail)
+    problems = standard.check_catalog(
+        SOURCES[source](), text_agrees=retail, one_class_per_key=retail
+    )
     assert problems == [], f"{len(problems)} problems, e.g. {problems[:8]}"
 
 
