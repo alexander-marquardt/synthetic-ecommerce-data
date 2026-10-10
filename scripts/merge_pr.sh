@@ -148,10 +148,11 @@ IFS=$'\t' read -r state cross head_ref head_sha base_ref <<<"$fields"
 
 work=$(mktemp -d "${TMPDIR:-/tmp}/merge-pr-$pr.XXXXXX")
 checks_log=$(mktemp "${TMPDIR:-/tmp}/merge-pr-$pr-checks.XXXXXX")
+build_log=$(mktemp "${TMPDIR:-/tmp}/merge-pr-$pr-build.XXXXXX")
 keep_work=1
 # shellcheck disable=SC2329  # invoked by the EXIT trap
 cleanup() {
-  rm -f "$checks_log"
+  rm -f "$checks_log" "$build_log"
   if [ "$keep_work" -eq 0 ]; then rm -rf "$work"; else echo "merge_pr.sh: left $work for inspection" >&2; fi
 }
 trap cleanup EXIT
@@ -188,8 +189,17 @@ fi
 
 # 2. Rebuild the committed catalog on the merged tree. Two types on one
 #    part-number block are refused here, naming both.
-uv run -q --locked --directory "$work" ecom-generate build --out golden-catalog >/dev/null ||
+build_rc=0
+uv run -q --locked --directory "$work" ecom-generate build --out golden-catalog \
+  >/dev/null 2>"$build_log" || build_rc=$?
+cat "$build_log" >&2
+if [ "$build_rc" -ne 0 ]; then
+  # A dropped lookup is not the tree's fault (#178): say so apart from the refusal.
+  if grep -qiE 'dns error|failed to (lookup|fetch)|error sending request|network connectivity' "$build_log"; then
+    echo "merge_pr.sh: the build failed on the network, not on the tree; retry when it is reachable (UV_OFFLINE=1 builds from uv's cache)" >&2
+  fi
   die "the build refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
+fi
 if [ -n "$conflicted" ]; then
   while IFS= read -r path; do
     if grep -q '^<<<<<<< ' "$work/$path"; then
