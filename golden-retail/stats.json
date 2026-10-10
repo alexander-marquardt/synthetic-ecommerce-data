@@ -13,12 +13,12 @@
    "skus": 10859,
    "styles": 3775
   },
-  "images": 8565,
+  "images": 8618,
   "non_grocery": {
-   "skus": 80246,
+   "skus": 82273,
    "styles": 3572
   },
-  "skus": 91265,
+  "skus": 93292,
   "styles": 7371
  },
  "departments": {
@@ -292,8 +292,8 @@
  "near_duplicates": {
   "grocery": 0.0315,
   "grocery_grid_clones": 4,
-  "non_grocery": 0.034,
-  "non_grocery_grid_clone_rate": 0.1249
+  "non_grocery": 0.024,
+  "non_grocery_grid_clone_rate": 0.1327
  },
  "templates": {
   "all": {
