@@ -1306,7 +1306,7 @@ The templates (`templates` in `golden-retail/stats.json`) come first: the author
 styles, then the deep-SKU jeans,
 bras and shoes that only the scaled catalog carries (`scale_rows.py`), then the toys,
 garden, gifts, cleaning, food, beauty and home styles that hold every department at
-half its fair share of styles or more (`breadth_rows.py`), then one or two plain products in each of a first increment of new leaves (`BREADTH_34`, gen#34: cutlery sets, dinner sets, claw hammers, perfume, seeds, cherries, oven cleaners; more leaves are further rows there, and `tests/test_retail_breadth_34.py` holds that each is a leaf no other template uses), then the styles that
+half its fair share of styles or more (`breadth_rows.py`), then one or two plain products in each of a first increment of new leaves (`BREADTH_34`, gen#34: cutlery sets, dinner sets, claw hammers, perfume, seeds, cherries, oven cleaners; every set carries a `piece_count` (a C62 count, agreeing with its title and rising with its price) and every cordless drill a `voltage_v` (unit code VLT), gen#173; more leaves are further rows there, and `tests/test_retail_breadth_34.py` holds that each is a leaf no other template uses), then the styles that
 three failure classes need (`distractor_rows.py`; `baseline_rank.py` ranks a build
 without a policy, and `tests/test_retail_distractors.py` holds the result): mattress
 protectors, mattresses and pillow protectors that out-sell the toppers; bestselling

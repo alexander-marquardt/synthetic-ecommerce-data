@@ -1034,3 +1034,17 @@ def test_the_readme_states_the_derived_sku_pin():
     m = re.search(r"plus\s+([\d,]+)\s+\(its", readme)
     assert m, "README no longer states the derived-SKU pin next to test_retail_scale.py"
     assert int(m.group(1).replace(",", "")) == DERIVED_SKUS
+
+
+def test_no_drawn_style_reads_as_another_of_its_leaf(ceiling):
+    """A drawn style never shares ``NEAR_DUPLICATE_JACCARD`` of its brand-and-title words with
+    an earlier style of its leaf, so the share holds as templates are added (it was a seeded
+    sample of the whole build, which moved by a point whenever the sample shifted)."""
+    seen: dict[str, list[frozenset[str]]] = collections.defaultdict(list)
+    for r in ceiling.records:
+        words = scale.listing_tokens(r)
+        if r["product_id"] in ceiling.template_of:
+            near = [o for o in seen[r["category_leaf"]]
+                    if len(words & o) / len(words | o) >= scale.NEAR_DUPLICATE_JACCARD]  # fmt: skip
+            assert not near, r["title"]
+        seen[r["category_leaf"]].append(words)
