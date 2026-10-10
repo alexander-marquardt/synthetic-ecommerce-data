@@ -142,9 +142,9 @@ def _w(name: str, hex_: str, abv: float, grape: str, country: str, style: str) -
                                    ("wine_style", "Wine style", style)))  # fmt: skip
 
 
-def _s(name: str, hex_: str, abv: float, country: str, style: str) -> F:
+def _s(name: str, hex_: str, abv: float, country: str, style: str, codes: str = "") -> F:
     """One spirit or mead: its country and style are attributes beside the strength."""
-    return F(name, hex_, "", abv, (("country", "Country", country), ("spirit_style", "Style", style)))
+    return F(name, hex_, codes, abv, (("country", "Country", country), ("spirit_style", "Style", style)))
 
 
 def _o(name: str, hex_: str, origin: str) -> F:
@@ -632,10 +632,10 @@ FAMILIES: tuple[Family, ...] = (
            ("Orchardgate Cider Co.", "Vine & Valley", "Freshfold"), 0.004, depth=True),
     Family("MED", _p("Beer, Wine & Spirits", "Mead"), "{line} {flavor}{abv}", "Mead", "bottle", "Mead", _A, "CD", 9.0,
            ("500ml", "750ml"),
-           (_s("Traditional Mead", "#d8a830", 12.5, "United Kingdom", "Traditional"),
-            _s("Sweet Honey Mead", "#e0b040", 14.0, "United Kingdom", "Sweet"),
-            _s("Spiced Mead", "#b87a2a", 12.0, "United Kingdom", "Spiced"),
-            _s("Berry Mead", "#a8403a", 11.0, "United Kingdom", "Fruit")),
+           (_s("Traditional Mead", "#d8a830", 12.5, "United Kingdom", "Traditional", "h"),
+            _s("Sweet Honey Mead", "#e0b040", 14.0, "United Kingdom", "Sweet", "h"),
+            _s("Spiced Mead", "#b87a2a", 12.0, "United Kingdom", "Spiced", "h"),
+            _s("Berry Mead", "#a8403a", 11.0, "United Kingdom", "Fruit", "h")),
            _CELLAR, 0.003, depth=True),
     Family("GRF", _FRUIT + ("Citrus Fruit", "Grapefruit"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
            _C, "A", 0.7, ("Single", "4 pack", "1kg"),
