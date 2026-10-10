@@ -24,6 +24,7 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import grocery  # noqa: E402
+from grocery_ingredients import NO_LIST as generator_no_list  # noqa: E402
 from grocery_ingredients import facet_value  # noqa: E402
 from grocery_rows import FAMILIES  # noqa: E402
 
@@ -50,8 +51,12 @@ ANIMAL = re.compile(
     r"\b(?:honey|beeswax|chicken|beef|pork|bacon|ham|pepperoni|tuna|salmon|cod|mackerel|haddock)\b"
 )
 MEAT = re.compile(r"\b(?:chicken|beef|pork|bacon|ham|pepperoni|tuna|salmon|cod|mackerel|haddock)\b")
-#: Produce, and every non-food family (a cleaner, a body lotion, a hand wash): no label list.
-NO_LIST = {"Fresh Fruit", "Fresh Vegetables"} | {f.product_type for f in FAMILIES if not f.food}
+#: Produce, wine and cider (the generator's NO_LIST), and every non-food family (a cleaner, a
+#: body lotion, a hand wash): no label list.
+NO_LIST = (
+    {"Fresh Fruit", "Fresh Vegetables"}
+    | {f.product_type for f in FAMILIES if not f.food or f.code in generator_no_list}
+)
 
 
 @cache
