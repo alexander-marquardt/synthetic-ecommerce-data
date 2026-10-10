@@ -831,7 +831,7 @@ The second is the one that bites, and the two weaker ways of asking it both
 leak. Titles carry the brand about a third of the time and their labels in one
 of several abbreviations, so on the catalog this replaced, asking only that a
 line's titles differ as whole strings left **1,913** SKUs naming nothing of
-their own, and a bare substring test left **1,932** — 19 of those passing on a
+their own, and a bare substring test left 19 more of them passing on a
 coincidence rather than on a value.
 
 The coincidence outlives a catalog that has otherwise been repaired, which is
@@ -1227,7 +1227,11 @@ Every domain's nested documents meet one output standard (gen#125):
 ones `emit.NESTED_MAPPING` declares) and `check_catalog()` validates a catalog
 against it; `tests/test_output_standard.py` runs it over a fresh industrial
 build, `golden-catalog/nested.jsonl` and the retail export, and over planted
-defects. A variant's `price` is in its `currency` (ISO 4217), never converted:
+defects. One attribute key has one class: `check_catalog(..., one_class_per_key=True)`
+(on for retail, in `scale.py` and the test) refuses a key that carries a `unit_code` on
+some entries and none on others, which the Engine refuses to start on. A measured value
+(`5 ft`, which the core reads as a length) goes under its own key (a tree's `height`),
+never under `size`. A variant's `price` is in its `currency` (ISO 4217), never converted:
 industrial writes `USD` and keeps `price_usd` beside it for its loader, retail
 writes `GBP`. Availability is the `in_stock` yes/no; `stock`, the count, is
 written only by a domain that models one (industrial). A field marked optional
@@ -1307,7 +1311,7 @@ The templates (`templates` in `golden-retail/stats.json`) come first: the author
 styles, then the deep-SKU jeans,
 bras and shoes that only the scaled catalog carries (`scale_rows.py`), then the toys,
 garden, gifts, cleaning, food, beauty and home styles that hold every department at
-half its fair share of styles or more (`breadth_rows.py`), then one or two plain products in each of a first increment of new leaves (`BREADTH_34`, gen#34: cutlery sets, dinner sets, claw hammers, perfume, seeds, cherries, oven cleaners; more leaves are further rows there, and `tests/test_retail_breadth_34.py` holds that each is a leaf no other template uses), then the styles that
+half its fair share of styles or more (`breadth_rows.py`), then one or two plain products in each of a first increment of new leaves (`BREADTH_34`, gen#34: cutlery sets, dinner sets, claw hammers, perfume, seeds, cherries, oven cleaners; every set carries a `piece_count` (a C62 count, agreeing with its title and rising with its price) and every cordless drill a `voltage_v` (unit code VLT), gen#173; more leaves are further rows there, and `tests/test_retail_breadth_34.py` holds that each is a leaf no other template uses), then the styles that
 three failure classes need (`distractor_rows.py`; `baseline_rank.py` ranks a build
 without a policy, and `tests/test_retail_distractors.py` holds the result): mattress
 protectors, mattresses and pillow protectors that out-sell the toppers; bestselling
