@@ -179,6 +179,11 @@ GitHub button: this repository has no branch protection, so a green from an
 older `main` can merge and turn `main` red. The script merges current `main`
 in, rebuilds `golden-catalog/` and merges only when the drift, golden and seam
 tests pass on that tree.
+`tests/test_merge_pr.py` builds its planted worlds with `UV_OFFLINE=1` and name
+resolution blocked, so it needs uv's cache (warm once `uv sync` has run in this
+checkout) but not the network. When a real merge's build fails on a dropped
+lookup, the script says "the build failed on the network" apart from the build
+refusing the tree; rerun it.
 GitHub Actions is billing-blocked here, so run CI locally: `scripts/merge_pr.sh
 --local-ci <PR number>` (the default when `GEN_LOCAL_CI=1`) runs every job of
 `.github/workflows/*.yml` on that merged tree, prints each job's verdict and
