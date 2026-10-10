@@ -186,6 +186,11 @@ def _spec(name: str, scope: str, presence: float = 1.0, kind: str = "keyword") -
     return AttrSpec(name=name, scope=scope, presence=presence, kind=kind)
 
 
+#: One label, so one machine key, per unit system: the unit is in BOTH labels,
+#: so neither reads as the default (``dowel_dia_in`` / ``dowel_dia_mm``).
+DIA_IN = "Dowel Dia. (in)"
+DIA_MM = "Dowel Dia. (mm)"
+
 VOCAB = (
     _spec("Item", "line"),
     _spec("Type", "line"),
@@ -195,7 +200,8 @@ VOCAB = (
     _spec("Dia. Tolerance", "line"),
     _spec("Hardness", "line", 0.6),
     _spec("Rockwell Hardness", "line", 0.6),
-    _spec("Diameter", "sku", kind="length"),
+    _spec(DIA_IN, "sku", kind="length"),
+    _spec(DIA_MM, "sku", kind="length"),
     _spec("Length", "sku", kind="length"),
 )
 
@@ -203,7 +209,7 @@ VOCAB = (
 def provenance(standard: str) -> str:
     """Every published dimension of a line is its standard's table's."""
     return table_provenance(
-        *((name, standard) for name in ("Diameter", "Length", "Dia. Tolerance"))
+        *((name, standard) for name in (DIA_IN, DIA_MM, "Length", "Dia. Tolerance"))
     )
 
 
@@ -267,7 +273,7 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     for length_in in offered:
         style = gen._style(system)
         child = ChildDraft(system=system)
-        child.primary = gen._length("Diameter", diameter_in, style)
+        child.primary = gen._length(DIA_MM if metric else DIA_IN, diameter_in, style)
         length_attr = gen._length("Length", length_in, style)
         child.attrs = [child.primary, length_attr]
         child.secondary = {"other_length": length_attr}
@@ -284,7 +290,7 @@ def _value(record: Mapping[str, str], name: str) -> float | None:
 
 def figure(record: dict[str, str]) -> Drawn:
     """A side view with chamfered ends, and an end view of the pin's face."""
-    diameter = _value(record, "Diameter")
+    diameter = _value(record, DIA_MM if DIA_MM in record else DIA_IN)
     length = _value(record, "Length")
     d = diameter or 0.25
     length = length or 4 * d
@@ -338,8 +344,8 @@ SPEC = TypeSpec(
     price=screw_socket_head.PRICE,
     claims=claims,
     may_claim=frozenset({"ISO 2338", "ISO 8734", "ASME B18.8.2", "ISO 3506-1"}),
-    key_attributes=("Diameter",),
-    unit_primary="Diameter",
+    key_attributes=(DIA_IN, DIA_MM),
+    unit_primary=DIA_IN,
     use_lines=(
         "Locates two mating parts in reamed holes so they reassemble in the same place.",
         "Pressed into a hole as a pivot, stop or alignment pin.",

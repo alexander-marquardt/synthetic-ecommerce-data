@@ -10,8 +10,8 @@
 # ``tests/test_prism_field_map_drift.py`` fails if this file and a fresh
 # derivation disagree. Editing this file alone reds that test; changing the
 # generator without rebuilding reds it too, which is the point -- the catalog
-# publishes 119 distinct attribute names and a hand-maintained list
-# of 119 declarations drifts from the data the first time either side moves.
+# publishes 123 distinct attribute names and a hand-maintained list
+# of 123 declarations drifts from the data the first time either side moves.
 #
 # WHICH ATTRIBUTES BECOME FACETS
 # -----------------------------------------------------------------------------
@@ -66,9 +66,9 @@
 #
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
-#   attributes declared      119
-#   offered as facets        96  (0 numeric ranges, 96 terms)
-#   declared, not faceted    23
+#   attributes declared      123
+#   offered as facets        99  (0 numeric ranges, 99 terms)
+#   declared, not faceted    24
 # =============================================================================
 
 field_map_version: 1
@@ -331,8 +331,8 @@ fields:
   - name: dia_tolerance
     type: terms
     source: facets.dia_tolerance
-  # Diameter -- a discrete standard set: 62 distinct values over 914 product-value pairs is 0.07 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1582 documents across 10 product type(s); 62 distinct values
+  # Diameter -- a discrete standard set: 9 distinct values over 140 product-value pairs is 0.06 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 243 documents across 7 product type(s); 9 distinct values
   - name: diameter
     type: terms
     source: facets.diameter
@@ -342,6 +342,17 @@ fields:
     type: terms
     source: facets.dimension_type
     facet: false
+  # Dowel Dia. (in) -- present on 47% of its product types' documents (floor 50%)
+  #   present on 28 documents across 1 product type(s); 13 distinct values
+  - name: dowel_dia_in
+    type: terms
+    source: facets.dowel_dia_in
+    facet: false
+  # Dowel Dia. (mm) -- a discrete list: 12 distinct values over 18 product-value pairs is 0.67 per product, at or above the 0.50 continuity threshold but on 18 products, fewer than the 250 the continuity test needs as evidence
+  #   present on 32 documents across 1 product type(s); 12 distinct values
+  - name: dowel_dia_mm
+    type: terms
+    source: facets.dowel_dia_mm
   # Drive Size -- a discrete standard set: 41 distinct values over 991 product-value pairs is 0.04 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
   #   present on 1842 documents across 5 product type(s); 41 distinct values
   - name: drive_size
@@ -639,6 +650,11 @@ fields:
   - name: package_quantity
     type: terms
     source: facets.package_quantity
+  # Pin Dia. -- a discrete standard set: 12 distinct values over 67 product-value pairs is 0.18 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 67 documents across 1 product type(s); 12 distinct values
+  - name: pin_dia
+    type: terms
+    source: facets.pin_dia
   # Point Angle -- a discrete standard set: 6 distinct values over 231 product-value pairs is 0.03 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
   #   present on 423 documents across 1 product type(s); 6 distinct values
   - name: point_angle
@@ -796,6 +812,11 @@ fields:
   - name: type
     type: terms
     source: facets.type
+  # Wheel Dia. -- a discrete standard set: 24 distinct values over 670 product-value pairs is 0.04 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1212 documents across 1 product type(s); 24 distinct values
+  - name: wheel_dia
+    type: terms
+    source: facets.wheel_dia
   # Width -- a discrete standard set: 174 distinct values over 786 product-value pairs is 0.22 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
   #   present on 1319 documents across 4 product type(s); 174 distinct values
   - name: width

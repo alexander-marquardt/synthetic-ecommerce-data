@@ -368,6 +368,15 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
     assert 0 < len(faceted) < len(quantitative)
 
 
+#: Quantities whose ratio is over the continuity threshold but whose product
+#: count is under the floor, so the floor alone keeps them faceted. A dowel pin
+#: diameter was pooled with every other ``Diameter`` (and under the floor's
+#: reach never); on its own key (the 2026-10-07 label ruling) it has 60 products,
+#: split by unit into two labels of which only the metric one is over the
+#: threshold.
+NUMERIC_HELD_BY_FLOOR = ("Dowel Dia. (mm)",)
+
+
 def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
     """The band, over the attributes it is actually a band over."""
     faceted = [s for s, d in decided.values() if s.is_numeric and d.facet]
@@ -377,7 +386,8 @@ def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
     assert round(high, 4) == MEASURED_DISPERSION["faceted_high"]
     densest = max(faceted, key=lambda s: s.dispersion)
     assert densest.name == MEASURED_DISPERSION["densest_faceted"]
-    assert high < RANGE_DISPERSION, "the band must sit below the threshold"
+    over = sorted(s.name for s in faceted if s.dispersion >= RANGE_DISPERSION)
+    assert over == sorted(NUMERIC_HELD_BY_FLOOR), "the band must sit below the threshold"
 
 
 def test_the_widest_dispersion_is_a_continuum_kept_off_by_min_presence(decided) -> None:
@@ -394,7 +404,10 @@ def test_the_widest_dispersion_is_a_continuum_kept_off_by_min_presence(decided) 
     now. If a regeneration drops either count back below its floor, this
     reds rather than quietly changing the control.
     """
-    quantitative = [s for s, _ in decided.values() if s.is_numeric]
+    # Over attributes with the evidence RANGE_MIN_DOCS asks for: a unit's own
+    # key can hold a handful of defect values (``diameter_mm``: 2 documents),
+    # whose dispersion says nothing and which a floor decides by itself.
+    quantitative = [s for s, _ in decided.values() if s.is_numeric and s.products >= RANGE_MIN_DOCS]
     widest = max(quantitative, key=lambda s: s.dispersion)
     assert widest.name == MEASURED_DISPERSION["min_presence_arm"]
     assert round(widest.dispersion, 4) == MEASURED_DISPERSION["min_presence_arm_dispersion"]
@@ -450,7 +463,10 @@ def test_the_product_floor_decides_only_the_attributes_it_names(decided) -> None
     assert smallest.name == MEASURED_DISPERSION["smallest_faceted"]
     assert smallest.products == MEASURED_DISPERSION["smallest_faceted_products"]
     assert smallest.products < RANGE_MIN_DOCS
-    assert [s.name for s in faceted if s.dispersion >= RANGE_DISPERSION] == []
+    assert sorted(s.name for s in faceted if s.dispersion >= RANGE_DISPERSION) == sorted(
+        NUMERIC_HELD_BY_FLOOR
+    )
+    assert all(s.products < RANGE_MIN_DOCS for s in faceted if s.name in NUMERIC_HELD_BY_FLOOR)
 
     held = [
         s
