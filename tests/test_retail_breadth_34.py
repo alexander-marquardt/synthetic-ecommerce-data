@@ -209,7 +209,7 @@ def _listed_pieces(row: breadth_rows.Row) -> int | None:
 
 
 def test_every_product_that_states_a_piece_count_lists_exactly_that_many_pieces() -> None:
-    """Held for every row with a piece count, in the title, the attribute and the listed contents."""
+    """For every row with a piece count: title, attribute and listed contents agree."""
     stated = [r for r in ROWS if _attr(r, "piece_count") or _title_count(r)]
     assert len(stated) >= 8
     for r in stated:
