@@ -1120,6 +1120,54 @@ def _pieces(n: int) -> tuple[tuple[str, str, str, str], ...]:
     return (("piece_count", "Piece count", str(n), "C62"),)
 
 
+class Contents(tuple):
+    """What a set holds, as ``(quantity, name)`` pairs: the one source of its piece count,
+    the "N Piece" in its title and the first sentence of its description."""
+
+    __slots__ = ()
+
+    def __new__(cls, *items: tuple[int, str]) -> Contents:
+        return super().__new__(cls, items)
+
+    @property
+    def n(self) -> int:
+        return sum(q for q, _ in self)
+
+    @property
+    def sentence(self) -> str:
+        parts = [f"{q} {name}" for q, name in self]
+        head = ", ".join(parts[:-1])
+        return f"Includes {head + ' and ' if head else ''}{parts[-1]}."
+
+    def title(self, name: str) -> str:
+        return f"{name}, {self.n} Piece"
+
+    def text(self, rest: str) -> str:
+        return f"{self.sentence} {rest}"
+
+    @property
+    def attrs(self) -> tuple[tuple[str, str, str, str], ...]:
+        return _pieces(self.n)
+
+
+_CUT16 = Contents((4, "knives"), (4, "forks"), (4, "dessert spoons"), (4, "teaspoons"))
+_CUT24 = Contents((6, "knives"), (6, "forks"), (6, "dessert spoons"), (6, "teaspoons"))
+_DIN12 = Contents((4, "dinner plates"), (4, "side plates"), (4, "bowls"))
+_DIN16 = Contents((4, "dinner plates"), (4, "side plates"), (4, "bowls"), (4, "mugs"))
+_SCR6 = Contents((3, "slotted screwdrivers"), (3, "Phillips screwdrivers"))
+_BIT32 = Contents((8, "slotted bits"), (8, "Phillips bits"), (8, "Torx bits"), (8, "hex bits"))
+_BIT100 = Contents(
+    (24, "slotted bits"), (24, "Phillips bits"), (24, "Torx bits"), (24, "hex bits"),
+    (2, "holders"), (1, "bit extender"), (1, "case"),
+)
+_SKT40 = Contents((38, "metric sockets"), (1, "ratchet"), (1, "extension bar"))
+_SKT94 = Contents(
+    (44, "metric sockets"), (44, "imperial sockets"), (2, "ratchets"), (2, "extension bars"),
+    (2, "bit adaptors"),
+)
+_DINO6 = Contents((6, "dinosaurs"))
+
+
 def _in(hex_: str, accent: str = "#2a2a2e", name: str = "Grey") -> tuple[Color, ...]:
     return (cw(name, hex_, "solid", accent),)
 
@@ -1130,27 +1178,26 @@ _DIY = ("Home", "DIY & Tools")
 _FRUIT = ("Food & Drink", "Fruit & Vegetables", "Fresh Fruit")
 
 BREADTH_34 = (
-    Row("CUTSET", "Stainless Steel Cutlery Set, 16 Piece", "Hearth & Table", _HW,
+    Row("CUTSET", _CUT16.title("Stainless Steel Cutlery Set"), "Hearth & Table", _HW,
         (*_KD, "Cutlery Sets"), "Cutlery Set", 18.0, "cutlery_set",
-        "Four knives, forks, dessert spoons and teaspoons with a plain polished handle. "
-        "Dishwasher safe.",
+        _CUT16.text("A plain polished handle. Dishwasher safe."),
         _in("#b9bcc0", "#7a7d82", "Silver"),
-        (*_a1("material", "Material", "Stainless Steel"), *_pieces(16))),
-    Row("CUTBAM", "Bamboo Handle Cutlery Set, 24 Piece", "Lanternby", _HW,
+        (*_a1("material", "Material", "Stainless Steel"), *_CUT16.attrs)),
+    Row("CUTBAM", _CUT24.title("Bamboo Handle Cutlery Set"), "Lanternby", _HW,
         (*_KD, "Cutlery Sets"), "Cutlery Set", 32.0, "cutlery_set",
-        "Six place settings with a bamboo handle and a satin steel head. Hand wash.",
+        _CUT24.text("A bamboo handle and a satin steel head. Hand wash."),
         _in("#c9a46a", "#7a7d82", "Brown"),
-        (*_a1("material", "Material", "Bamboo"), *_pieces(24))),
-    Row("DINPOR", "White Porcelain Dinner Set, 12 Piece", "Hearth & Table", _HW,
+        (*_a1("material", "Material", "Bamboo"), *_CUT24.attrs)),
+    Row("DINPOR", _DIN12.title("White Porcelain Dinner Set"), "Hearth & Table", _HW,
         (*_KD, "Dinner Sets"), "Dinner Set", 38.0, "dinner_set",
-        "Four dinner plates, side plates and bowls with a rolled rim. Oven and microwave safe.",
+        _DIN12.text("A rolled rim. Oven and microwave safe."),
         _in("#f4f1ea", "#b9b4a6", "White"),
-        (*_a1("material", "Material", "Porcelain"), *_pieces(12))),
-    Row("DINSTO", "Speckled Stoneware Dinner Set, 16 Piece", "Calderby & Lune", _HW,
+        (*_a1("material", "Material", "Porcelain"), *_DIN12.attrs)),
+    Row("DINSTO", _DIN16.title("Speckled Stoneware Dinner Set"), "Calderby & Lune", _HW,
         (*_KD, "Dinner Sets"), "Dinner Set", 56.0, "dinner_set",
-        "Four of each plate and bowl and mug, glazed by hand so no two speckle alike.",
+        _DIN16.text("Glazed by hand so no two speckle alike."),
         _in("#d8cdb8", "#6b5b45", "Cream"),
-        (*_a1("material", "Material", "Stoneware"), *_pieces(16))),
+        (*_a1("material", "Material", "Stoneware"), *_DIN16.attrs)),
     Row("STRJAR", "Glass Storage Jar with Lid", "Lanternby", _HW,
         (*_KD, "Storage Jars"), "Storage Jar", 6.0, "jar",
         "A clear jar with an airtight clip lid, for flour, pasta or biscuits.",
@@ -1181,11 +1228,11 @@ BREADTH_34 = (
         "A forged steel head with a straight claw, on a smooth ash handle.",
         _in("#7a7d82", "#a8793f", "Silver"),
         (*_a1("handle_material", "Handle material", "Wood"), *_head_oz(20))),
-    Row("SCRDSET", "Slotted and Phillips Screwdriver Set, 6 Piece", "Calderby & Lune", _HW,
+    Row("SCRDSET", _SCR6.title("Slotted and Phillips Screwdriver Set"), "Calderby & Lune", _HW,
         (*_DIY, "Screwdriver Sets"), "Screwdriver Set", 13.0, "screwdriver",
-        "Six screwdrivers with magnetic tips and a soft grip handle, in a roll-up pouch.",
+        _SCR6.text("Magnetic tips and a soft grip handle, in a roll-up pouch."),
         _in("#c8312e", "#2a2a2e", "Red"),
-        (*_a1("tip_type", "Tip type", "Slotted and Phillips"), *_pieces(6))),
+        (*_a1("tip_type", "Tip type", "Slotted and Phillips"), *_SCR6.attrs)),
     Row("DRLCRD", "18 V Cordless Drill Driver with Two Batteries", "Calderby & Lune", _HW,
         (*_DIY, "Cordless Drills"), "Cordless Drill", 59.0, "drill",
         "A two-speed drill driver with a keyless chuck, a work light and a fast charger.",
@@ -1196,26 +1243,36 @@ BREADTH_34 = (
         "A light one-hand drill driver with a keyless chuck, a work light and a one-hour charger.",
         _in("#2a5f9e", "#2a2a2e", "Blue"),
         (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(12))),
-    Row("BITSML", "Screwdriver Bit Set, 32 Piece", "Calderby & Lune", _HW,
+    Row("DRLCMB", "20 V Cordless Combi Drill Driver with Hammer Action", "Calderby & Lune", _HW,
+        (*_DIY, "Combi Drills"), "Cordless Drill", 79.0, "drill",
+        "A three-mode drill driver with a hammer setting, a keyless chuck and a fast charger.",
+        _in("#c8312e", "#2a2a2e", "Red"),
+        (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(20))),
+    Row("DRLHMR", "40 V Cordless Brushless Hammer Drill", "Calderby & Lune", _HW,
+        (*_DIY, "Hammer Drills"), "Cordless Drill", 129.0, "drill",
+        "A brushless hammer drill with a side handle, a depth rod and a rapid charger.",
+        _in("#2a2a2e", "#c8312e", "Black"),
+        (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(40))),
+    Row("BITSML", _BIT32.title("Screwdriver Bit Set"), "Calderby & Lune", _HW,
         (*_DIY, "Bit Sets"), "Bit Set", 9.0, "screwdriver",
-        "Slotted, Phillips, Torx and hex bits with a magnetic holder, in a snap-shut case.",
+        _BIT32.text("A magnetic holder, in a snap-shut case."),
         _in("#2a2a2e", "#c8312e", "Black"),
-        (*_a1("drive_type", "Drive type", "Mixed"), *_pieces(32))),
-    Row("BITLRG", "Screwdriver Bit Set, 100 Piece", "Calderby & Lune", _HW,
+        (*_a1("drive_type", "Drive type", "Mixed"), *_BIT32.attrs)),
+    Row("BITLRG", _BIT100.title("Screwdriver Bit Set"), "Calderby & Lune", _HW,
         (*_DIY, "Bit Sets"), "Bit Set", 19.0, "screwdriver",
-        "A hundred bits in slotted, Phillips, Torx and hex, with two holders and a bit extender.",
+        _BIT100.text("Stored in a snap-shut case."),
         _in("#2a2a2e", "#c8312e", "Black"),
-        (*_a1("drive_type", "Drive type", "Mixed"), *_pieces(100))),
-    Row("SKTSML", "Socket Set, 40 Piece", "Calderby & Lune", _HW,
+        (*_a1("drive_type", "Drive type", "Mixed"), *_BIT100.attrs)),
+    Row("SKTSML", _SKT40.title("Socket Set"), "Calderby & Lune", _HW,
         (*_DIY, "Socket Sets"), "Socket Set", 22.0, "box",
-        "Metric sockets with a ratchet and an extension bar, in a molded case.",
+        _SKT40.text("In a molded case."),
         _in("#7a7d82", "#c8312e", "Silver"),
-        (*_a1("material", "Material", "Chrome Vanadium"), *_pieces(40))),
-    Row("SKTLRG", "Socket Set, 94 Piece", "Calderby & Lune", _HW,
+        (*_a1("material", "Material", "Chrome Vanadium"), *_SKT40.attrs)),
+    Row("SKTLRG", _SKT94.title("Socket Set"), "Calderby & Lune", _HW,
         (*_DIY, "Socket Sets"), "Socket Set", 45.0, "box",
-        "Metric and imperial sockets, bit adaptors, two ratchets and extension bars, in a case.",
+        _SKT94.text("In a molded case."),
         _in("#7a7d82", "#c8312e", "Silver"),
-        (*_a1("material", "Material", "Chrome Vanadium"), *_pieces(94))),
+        (*_a1("material", "Material", "Chrome Vanadium"), *_SKT94.attrs)),
     Row("PERJAS", "Midnight Jasmine Eau de Parfum", "Mirefield Naturals", "Beauty",
         ("Beauty", "Fragrance", "Perfume"), "Perfume", 28.0, "fragrance",
         "A warm floral with jasmine and a trace of vanilla, in a glass bottle with a cap.",
@@ -1231,10 +1288,10 @@ BREADTH_34 = (
         "A soft pencil that glides on and stays put all day. Twist up, no sharpening.",
         (cw("Black", "#2a2a2e"), cw("Brown", "#5a3a26"), cw("Navy", "#26365c")),
         _a1("finish", "Finish", "Matte")),
-    Row("DINOFG", "Plastic Dinosaur Figure Set, 6 Piece", "Puddlecombe Toys", "Toys",
+    Row("DINOFG", _DINO6.title("Plastic Dinosaur Figure Set"), "Puddlecombe Toys", "Toys",
         ("Toys", "Figures & Playsets", "Dinosaur Figures"), "Toy Figure", 8.0, "dinosaur",
-        "Six chunky dinosaurs with painted detail, sized for small hands. For ages 3 and up.",
-        (cw("Green", "#6f8f4a"),), (*_mat("Plastic"), *_pieces(6)), audience=_KIDS),
+        _DINO6.text("Chunky, with painted detail, sized for small hands. For ages 3 and up."),
+        (cw("Green", "#6f8f4a"),), (*_mat("Plastic"), *_DINO6.attrs), audience=_KIDS),
     Row("DAISYP", "Marguerite Daisy Plant", "Fenwold Nursery", "Garden",
         ("Garden", "Plants", "Daisies"), "Bedding Plant", 5.0, "daisy",
         "A compact plant covered in white flowers from spring to autumn, in a 12 cm pot.",
