@@ -557,6 +557,8 @@ def build(skus: int, seed: int = 0) -> Scaled:
     used = {twin_key(r) for r in tpls}
     titles = {r["title"] for r in tpls}
     ctx = _Context(pools, text_pools(standard_document(r) for r in base), _bands(base), {})
+    for r in tpls:
+        ctx.authored.setdefault(r["category_leaf"], []).append(r)
     template_of: dict[str, str] = {}
     total = sum(r["sku_count"] for r in records)
     serial = 0
@@ -591,6 +593,10 @@ class _Context:
     open: dict[str, list[tuple]]
     #: template product id -> the title-shown values its own title and its styles' show
     shown: dict[str, set[tuple]] = field(default_factory=dict)
+    #: leaf -> the listing words (:func:`listing_tokens`) of every style drawn or authored there
+    listed: dict[str, list[frozenset[str]]] = field(default_factory=dict)
+    #: leaf -> the authored styles there, which a drawn style must also differ from
+    authored: dict[str, list[dict]] = field(default_factory=dict)
 
 
 def _bands(tpls: list[dict]) -> dict[str, tuple[float, float]]:
@@ -679,6 +685,13 @@ def _draw(tpl: dict, serial: int, ctx: _Context, brands: list[str], owners: dict
             continue
         if text_contradictions(standard_document(rec), ctx.text_pools):
             continue
+        words = listing_tokens(rec)
+        seen = ctx.listed.get(leaf)
+        if seen is None:
+            seen = ctx.listed[leaf] = [listing_tokens(t) for t in ctx.authored.get(leaf, ())]
+        if any(len(words & o) / len(words | o) >= NEAR_DUPLICATE_JACCARD for o in seen):
+            continue  # a listing a shopper reads as another style's
+        seen.append(words)
         left.remove(sig)
         taken.add(sig[0])
         used.add(twin_key(rec))
@@ -811,13 +824,17 @@ def prices_per_leaf(recs: list[dict]) -> dict[str, Any]:
     }
 
 
+#: The word overlap (Jaccard, over brand and title) at which two same-leaf listings read as one.
+NEAR_DUPLICATE_JACCARD = 0.8
+
+
 def listing_tokens(rec: dict) -> frozenset[str]:
     """The words a shopper and the index read on a listing: the brand and the title."""
     return frozenset(_words(f"{rec['brand']} {rec['title']}").split())
 
 
 def distinctness(
-    recs: list[dict], sample: int = 500, seed: int = 0, jaccard: float = 0.8
+    recs: list[dict], sample: int = 500, seed: int = 0, jaccard: float = NEAR_DUPLICATE_JACCARD
 ) -> dict[str, Any]:
     """Duplicate titles and clones over all styles (excess copies: a pair is 1), and on a
     seeded sample the share of styles with a same-leaf listing at ``jaccard`` or above."""
@@ -888,7 +905,7 @@ def main(argv: list[str] | None = None) -> int:
     scaled = build(args.skus, args.seed)
     docs = documents(scaled)
     built = time.perf_counter() - start
-    problems = check_catalog(docs)
+    problems = check_catalog(docs, one_class_per_key=True)
     if args.out:
         with args.out.open("w", encoding="utf-8") as handle:
             for d in docs:
