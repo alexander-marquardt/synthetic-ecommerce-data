@@ -39,7 +39,9 @@ class Row:
     """One style: its colors times its sizes are its SKUs (one SKU each when it has none).
 
     A ``colorless`` row's SKUs carry no color (a plant, a cleaner); its drawing still
-    takes ``colors[0]``. A size is ``(name, price)``: a bigger size costs more.
+    takes ``colors[0]``. A size is ``(name, price)``: a bigger size costs more. It is
+    stored under ``size_key``: a measured one (``5 ft``, which the core classes as a length)
+    goes under its own key (``height``), so ``size`` never mixes classed and unclassed values.
     """
 
     code: str
@@ -58,9 +60,10 @@ class Row:
     audience: str = "adult"
     colorless: bool = False
     params: tuple[tuple[str, str], ...] = ()
+    size_key: str = "size"
 
     def skus(self) -> list[dict]:
-        sizes = [{"size": s, "price": p} for s, p in self.sizes] or [{"price": self.price}]
+        sizes = [{self.size_key: s, "price": p} for s, p in self.sizes] or [{"price": self.price}]
         colors = self.colors[:1] if self.colorless else self.colors
         return [
             {**({} if self.colorless else {"color": c[0]}), **s, "in_stock": True}
@@ -350,13 +353,14 @@ GARDEN = (
     Row("XMSCUT", "Cut Nordmann Fir Christmas Tree", "Thistle & Wren", "Garden", _XMAS,
         "Christmas Tree", 45.0, "christmas_tree",
         "Freshly cut and netted, with a fresh-cut base that drinks water in the stand.",
-        (cw("Green", "#2f6b3c"),), _var("Nordmann Fir"), _XMAS_FT, colorless=True),
+        (cw("Green", "#2f6b3c"),), _var("Nordmann Fir"), _XMAS_FT, colorless=True,
+        size_key="height"),
     Row("XMSPOT", "Pot-Grown Fraser Fir Christmas Tree", "Fenwold Nursery", "Garden", _XMAS,
         "Christmas Tree", 40.0, "christmas_tree",
         "Grown in its pot, roots and all: keep it watered indoors, then plant it out in "
         "January.",
         (cw("Green", "#3e7a4a"),), _var("Fraser Fir"), (("4 ft", 40.0), ("5 ft", 55.0)),
-        colorless=True),
+        colorless=True, size_key="height"),
     Row("XMSMIN", "Mini Norway Spruce Christmas Tree", "Thistle & Wren", "Garden", _XMAS,
         "Christmas Tree", 15.0, "christmas_tree",
         "A tabletop tree about 60 cm tall in a jute-wrapped pot, for a desk or windowsill.",
@@ -409,7 +413,7 @@ GARDEN = (
         "Christmas Tree", 60.0, "christmas_tree",
         "Cut to order and delivered on a chosen day in December, with a stand fitted.",
         (cw("Green", "#2c5e3a"),), _var("Noble Fir"), (("6 ft", 60.0), ("7 ft", 78.0)),
-        colorless=True),
+        colorless=True, size_key="height"),
     Row("XMSBLU", "Potted Blue Spruce Tabletop Tree", "Thistle & Wren", "Garden", _XMAS,
         "Christmas Tree", 22.0, "christmas_tree",
         "A small living tree in a 3-liter pot, for a table or a porch through the season.",

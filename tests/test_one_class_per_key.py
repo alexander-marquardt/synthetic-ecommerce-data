@@ -41,12 +41,27 @@ def _mixed_keys(docs: list[dict[str, Any]]) -> dict[str, tuple[int, int]]:
 
 def test_no_retail_key_mixes_unit_classed_and_unclassed_values():
     mixed = _mixed_keys(_template_documents())
-    assert mixed == {}, f"keys with both classed and unclassed entries (classed, unclassed): {mixed}"
+    assert mixed == {}, f"keys with classed and unclassed entries, (classed, unclassed): {mixed}"
+
+
+def test_the_validator_refuses_a_key_that_mixes_classed_and_unclassed_entries():
+    from synthetic_ecommerce_data.core import standard  # noqa: PLC0415
+
+    docs = _template_documents()[:2]
+    assert standard.check_catalog(docs, one_class_per_key=True) == []
+    classed = {"key": "probe", "name": "Probe", "value": "5", "unit_code": "FOT"}
+    docs[0]["attributes"].append({**classed, "value_canonical": 1524.0})
+    docs[1]["variants"][0]["attributes"].append({"key": "probe", "name": "Probe", "value": "M"})
+    expected = "key 'probe' has a unit_code on 1 entries and none on 1"
+    assert standard.check_catalog(docs, one_class_per_key=True) == [expected]
+    assert standard.check_catalog(docs) == [], "the check is opt-in: industrial keys mix today"
 
 
 def test_a_christmas_trees_height_is_a_height_not_a_size():
     docs = [d for d in _template_documents() if d["category_leaf"] == "Real Christmas Trees"]
     assert docs
-    for doc in docs:
-        keys = {e["key"] for v in doc["variants"] for e in v["attributes"]}
-        assert "height" in keys and "size" not in keys, (doc["product_id"], sorted(keys))
+    keys = {
+        d["product_id"]: {e["key"] for v in d["variants"] for e in v["attributes"]} for d in docs
+    }
+    assert all("size" not in ks for ks in keys.values()), keys
+    assert {"height"} in keys.values(), keys

@@ -1222,7 +1222,11 @@ Every domain's nested documents meet one output standard (gen#125):
 ones `emit.NESTED_MAPPING` declares) and `check_catalog()` validates a catalog
 against it; `tests/test_output_standard.py` runs it over a fresh industrial
 build, `golden-catalog/nested.jsonl` and the retail export, and over planted
-defects. A variant's `price` is in its `currency` (ISO 4217), never converted:
+defects. One attribute key has one class: `check_catalog(..., one_class_per_key=True)`
+(on for retail, in `scale.py` and the test) refuses a key that carries a `unit_code` on
+some entries and none on others, which the Engine refuses to start on. A measured value
+(`5 ft`, which the core reads as a length) goes under its own key (a tree's `height`),
+never under `size`. A variant's `price` is in its `currency` (ISO 4217), never converted:
 industrial writes `USD` and keeps `price_usd` beside it for its loader, retail
 writes `GBP`. Availability is the `in_stock` yes/no; `stock`, the count, is
 written only by a domain that models one (industrial). A field marked optional
