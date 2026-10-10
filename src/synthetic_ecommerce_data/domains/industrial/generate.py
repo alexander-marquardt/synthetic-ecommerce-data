@@ -125,7 +125,7 @@ KEY_DIMENSIONS: dict[str, tuple[str, ...]] = {
     # A bearing is named by its number AND its bore: the bore is what a
     # shopper fits it to (the review of the 100K catalog, 2026-09-29).
     "bearing_radial_ball": ("Bearing Number", "Bore Dia."),
-    "wheel_depressed_center": ("Diameter",),
+    "wheel_depressed_center": ("Wheel Dia.",),
     "abrasive_flap_disc": ("Diameter",),
     # Not a dimension, but it names what the screw IS, so it leads. Last in
     # the title, the value's trailing "Point" reads as a cut "Point Type".
@@ -219,6 +219,11 @@ def _weighted(rng: random.Random, table) -> object:
     values = [value for value, _ in table]
     weights = [weight for _, weight in table]
     return rng.choices(values, weights=weights, k=1)[0]
+
+
+#: Keys that hold ONE unit each: a restated value would put the other unit
+#: under them, so the unit-mixing defect leaves them alone.
+UNIT_SPLIT_KEYS = frozenset({"diameter", "dowel_dia_in", "dowel_dia_mm"})
 
 
 @dataclass
@@ -1351,11 +1356,12 @@ class Generator:
                 # quantities (a sprocket's Pitch, a tap's) is told apart by it,
                 # and a restated value under the name's default key would join
                 # the other type's facet.
-                out[index] = replace(
-                    length_attribute(attribute.name, self._publish(attribute.value_num, style)),
-                    key=attribute.key,
-                )
-                self._bump("defect_unit_mixing")
+                if attribute.facet_key not in UNIT_SPLIT_KEYS:
+                    out[index] = replace(
+                        length_attribute(attribute.name, self._publish(attribute.value_num, style)),
+                        key=attribute.key,
+                    )
+                    self._bump("defect_unit_mixing")
         return out
 
     #: A (brand, type)'s title style, drawn ONCE per pair: "unlabelled" names

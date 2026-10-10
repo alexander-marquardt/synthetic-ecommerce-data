@@ -41,7 +41,7 @@ SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
 
 DIMENSIONAL = {"ISO 1234"}
 #: The chart's ``d``, ``c`` and ``b`` under the names they are published as.
-COLUMNS = ("Diameter", "Head Dia.", "Head Height")
+COLUMNS = ("Pin Dia.", "Head Dia.", "Head Height")
 #: ``(d, c, b)`` in millimetres: twelve of the chart's sizes.
 ROWS = {
     (1.0, 1.8, 3.0), (1.2, 2.0, 3.0), (1.6, 2.8, 3.2), (2.0, 3.6, 4.0),
@@ -177,7 +177,7 @@ def test_a_size_off_the_table_is_a_row_rewritten_by_an_injected_defect():
     size the table lacks."""
     docs = table_gates.docs(table_gates.catalog(KEY, LARGE_LINES, defects=True))
     sizes = {row[0] for row in ROWS}
-    read = [float(table_gates.values(doc)["Diameter"]["value_canonical"]) for doc in docs]
+    read = [float(table_gates.values(doc)["Pin Dia."]["value_canonical"]) for doc in docs]
     assert sorted({round(size, 2) for size in read} - sizes) == []
     rewritten = [size for size in read if size not in sizes]
     assert len(rewritten) == 5, rewritten
@@ -193,7 +193,7 @@ def test_no_length_is_published(large_docs):
 
 
 def test_larger_dearer_material_and_bigger_pack_each_cost_more(large_docs):
-    wrong, compared = table_gates.price_order(large_docs, KEY, "Diameter", MATERIALS)
+    wrong, compared = table_gates.price_order(large_docs, KEY, "Pin Dia.", MATERIALS)
     assert wrong == [], f"{len(wrong)} wrong, e.g. {wrong[:4]}"
     assert min(compared.values()) > 20, f"too few pairs compared: {compared}"
 

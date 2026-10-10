@@ -64,7 +64,7 @@ SHARED_TITLE_KEY: dict[str, tuple[str, ...]] = {
     "screw_low_head": ("Dia./Thread Size",), "bolt_hex": ("Dia./Thread Size",),
     "washer_flat": ("Size",), "nut_hex": ("Thread Size",),
     "hex_key": ("Size",), "bearing_radial_ball": ("Bearing Number", "Bore Dia."),
-    "wheel_depressed_center": ("Diameter",), "abrasive_flap_disc": ("Diameter",),
+    "wheel_depressed_center": ("Wheel Dia.",), "abrasive_flap_disc": ("Diameter",),
     "hammer_ball_pein": ("Head Weight",), "kit_assortment": ("Number of Pieces",),
 }  # fmt: skip
 

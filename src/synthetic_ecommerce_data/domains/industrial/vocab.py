@@ -343,7 +343,7 @@ _BEARING = (
 _WHEEL = (
     _spec("Item", "line"),
     _spec("Type", "line"),
-    _spec("Diameter", "line", kind="length"),
+    _spec("Wheel Dia.", "line", kind="length"),
     _spec("Thickness", "line", kind="length"),
     _spec("Arbor Hole", "line", 0.95, kind="length"),
     _spec("Connector Type", "line", 0.6),

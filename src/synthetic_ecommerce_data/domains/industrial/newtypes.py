@@ -653,7 +653,7 @@ def build_wheel(gen: Generator, type_key: str, category: tuple[str, ...]) -> Lin
     draft.line_attrs = [
         keyword_attribute("Item", item),
         keyword_attribute("Type", shape),
-        length_attribute("Diameter", gen._publish(dia, style)),
+        length_attribute("Wheel Dia.", gen._publish(dia, style)),
         length_attribute("Thickness", gen._publish(thickness, style)),
         length_attribute("Arbor Hole", gen._publish(arbor, style)),
         keyword_attribute("Connector Type", "5/8-11 Hub" if hub else "Arbor"),

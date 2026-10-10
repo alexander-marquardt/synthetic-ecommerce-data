@@ -122,7 +122,7 @@ UNIT_PRIMARY: RegistryTable[str, str] = RegistryTable(
         "drill_jobber": "Size",
         "hex_key": "Size",
         "bearing_radial_ball": "Bore Dia.",
-        "wheel_depressed_center": "Diameter",
+        "wheel_depressed_center": "Wheel Dia.",
         "abrasive_flap_disc": "Diameter",
     }
 )
@@ -222,6 +222,9 @@ def unit_equivalent(type_key: str, values: Mapping[str, str]) -> str | None:
     """``12mm (approx. 15/32")`` / ``1/2" (approx. 12.7mm)`` -- the other system, rounded."""
     name = UNIT_PRIMARY.get(type_key)
     value = values.get(name) if name else None
+    if value is None and name and name.endswith("(in)"):
+        # A unit-split label: the type's other unit system publishes its twin.
+        value = values.get(name.removesuffix("(in)") + "(mm)")
     size_in = _inches(value)
     if value is None or size_in is None or size_in <= 0:
         return None
