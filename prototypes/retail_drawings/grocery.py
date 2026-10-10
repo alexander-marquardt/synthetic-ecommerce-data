@@ -123,14 +123,19 @@ def parse_pack(label: str) -> dict[str, Any]:
     raise ValueError(f"unknown pack {label!r}")
 
 
-def _size(pack: dict[str, Any]) -> float:
+def _size(pack: dict[str, Any], item_g: float = 0.0) -> float:
+    """A pack's size for pricing. A count pack of a family that declares ``item_g`` counts in
+    grams (items x item weight), so a "1kg" pack sits beside "Single" as about 14 limes."""
+    if item_g and "net_weight_g" not in pack:
+        return pack["units_per_pack"] * item_g
     return float(pack.get("net_weight_g") or pack.get("net_volume_ml") or pack["units_per_pack"])
 
 
 def _price(fam: Family, pack: dict, first: dict, flavor_i: int, brand: str) -> float:
     """The family's first-pack price, scaled by pack size (economies of scale), the
     flavor's step and the brand's tier, on a 5p point ending in 9 above a pound."""
-    p = fam.price * (_size(pack) / _size(first)) ** 0.8 * (1 + 0.05 * (flavor_i % 3))
+    ratio = _size(pack, fam.item_g) / _size(first, fam.item_g)
+    p = fam.price * ratio**0.8 * (1 + 0.05 * (flavor_i % 3))
     p *= 0.92 if OWNERS[brand] == "own" else 1.1
     p = max(0.35, round(p * 20) / 20)
     return round(p - 0.01, 2) if p >= 1 and round(p * 100) % 10 == 0 else p

@@ -25,16 +25,40 @@ SKIN = ["Beauty", "Skincare"]
 
 #: leaf path -> (the title word, the attribute keys every style of the leaf states)
 TYPES = {
-    "champagne": (DRINKS + ["Wine", "Champagne"], "Champagne", ("grape", "country", "wine_style", "abv", "pack_size")),
-    "red wine": (DRINKS + ["Wine", "Red Wine"], "Wine", ("grape", "country", "wine_style", "abv", "pack_size")),
-    "white wine": (DRINKS + ["Wine", "White Wine"], "Wine", ("grape", "country", "wine_style", "abv", "pack_size")),
-    "rose wine": (DRINKS + ["Wine", "Rosé Wine"], "Rosé", ("grape", "country", "wine_style", "abv", "pack_size")),
-    "sparkling wine": (DRINKS + ["Wine", "Sparkling Wine"], "Sparkling", ("grape", "country", "wine_style", "abv", "pack_size")),
+    "champagne": (
+        DRINKS + ["Wine", "Champagne"],
+        "Champagne",
+        ("grape", "country", "wine_style", "abv", "pack_size"),
+    ),
+    "red wine": (
+        DRINKS + ["Wine", "Red Wine"],
+        "Wine",
+        ("grape", "country", "wine_style", "abv", "pack_size"),
+    ),
+    "white wine": (
+        DRINKS + ["Wine", "White Wine"],
+        "Wine",
+        ("grape", "country", "wine_style", "abv", "pack_size"),
+    ),
+    "rose wine": (
+        DRINKS + ["Wine", "Rosé Wine"],
+        "Rosé",
+        ("grape", "country", "wine_style", "abv", "pack_size"),
+    ),
+    "sparkling wine": (
+        DRINKS + ["Wine", "Sparkling Wine"],
+        "Sparkling",
+        ("grape", "country", "wine_style", "abv", "pack_size"),
+    ),
     "cider": (DRINKS + ["Cider"], "Cider", ("cider_style", "abv", "pack_size")),
     "hand cream": (SKIN + ["Hand Creams"], "Hand Cream", ("skin_concern", "pack_size")),
     "eye cream": (SKIN + ["Eye Creams"], "Eye Cream", ("skin_concern", "pack_size")),
     "limes": (FRUIT + ["Citrus Fruit", "Limes"], "Lime", ("variety", "origin", "pack_size")),
-    "strawberries": (FRUIT + ["Berries", "Strawberries"], "Strawberr", ("variety", "origin", "pack_size")),
+    "strawberries": (
+        FRUIT + ["Berries", "Strawberries"],
+        "Strawberr",
+        ("variety", "origin", "pack_size"),
+    ),
 }
 
 
