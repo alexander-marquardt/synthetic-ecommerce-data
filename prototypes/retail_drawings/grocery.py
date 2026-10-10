@@ -76,10 +76,21 @@ FRUIT = {"Unwaxed Lemons": "lemon", "Lemons": "lemon", "Meyer Lemons": "lemon",
          "Braeburn Apples": "apple", "Fuji Apples": "apple",
          "Limes": "lime", "Unwaxed Limes": "lime", "Key Limes": "lime",
          "Ripe Strawberries": "strawberry", "Large Strawberries": "strawberry",
-         "Spanish Strawberries": "strawberry", "Sweet Strawberries": "strawberry"}  # fmt: skip
+         "Spanish Strawberries": "strawberry", "Sweet Strawberries": "strawberry",
+         "Ruby Red Grapefruit": "grapefruit", "Pink Grapefruit": "grapefruit",
+         "White Grapefruit": "grapefruit", "Mandarins": "mandarin",
+         "Easy Peel Mandarins": "mandarin", "Baby Mandarins": "mandarin",
+         "Clementines": "clementine", "Seedless Clementines": "clementine",
+         "Spanish Clementines": "clementine", "Satsumas": "satsuma",
+         "Seedless Satsumas": "satsuma", "Easy Peel Satsumas": "satsuma",
+         "Ripe Raspberries": "raspberry", "Sweet Raspberries": "raspberry",
+         "Large Raspberries": "raspberry", "Plump Blueberries": "blueberry",
+         "Sweet Blueberries": "blueberry", "Large Blueberries": "blueberry",
+         "Juicy Blackberries": "blackberry", "Sweet Blackberries": "blackberry",
+         "Large Blackberries": "blackberry"}  # fmt: skip
 #: A pack word -> how a fruit pile shows it.
 PILE_PACK = {"Single": "loose", "4 pack": "net", "1kg": "bag",
-             "250g": "bag", "400g": "bag", "800g": "bag"}  # fmt: skip
+             "150g": "bag", "250g": "bag", "300g": "bag", "400g": "bag", "800g": "bag"}  # fmt: skip
 
 #: Product entries that are a union over the flavors, so a flat SKU must not inherit them.
 UNIONED = frozenset({"contains", "may_contain"})
