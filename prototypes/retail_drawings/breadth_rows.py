@@ -52,7 +52,7 @@ class Row:
     shape: str
     description: str
     colors: tuple[Color, ...]
-    attrs: tuple[tuple[str, str, str], ...] = ()
+    attrs: tuple[tuple, ...] = ()
     sizes: tuple[tuple[str, float], ...] = ()
     label: str | None = None
     audience: str = "adult"
@@ -79,7 +79,7 @@ class Row:
             department=[self.department], product_type=self.product_type,
             category_path=list(self.path), category_leaf=self.path[-1],
             description=self.description,
-            attributes=[attr(k, n, v) for k, n, v in self.attrs],
+            attributes=[attr(*a) for a in self.attrs],
             drawing=drawing(self.shape, self.colors[0], self.label, **dict(self.params)),
             collections=[], currency="GBP", audience=self.audience,
             sold_last_5_days=5 + h % 90, rating=round(3.8 + (h >> 8) % 11 / 10, 1),
@@ -1094,6 +1094,149 @@ HOME = (
         _mat("Felt")),
 )  # fmt: skip
 
+# --------------------------------------------------------------------------
+# gen#34, first increment: one or two plain products in each of 20 new leaves, so more
+# shopper queries (cutlery, dinner set, claw hammer, cherries, oven cleaner) land on a
+# category at all. Each leaf has no derived styles unless its two rows differ in a value.
+# --------------------------------------------------------------------------
+
+
+def _a1(key: str, name: str, v: str) -> tuple[tuple[str, str, str], ...]:
+    return ((key, name, v),)
+
+
+def _head_oz(oz: int) -> tuple[tuple[str, str, str, str, float], ...]:
+    """A hammer head's weight: the unit is in the key (``_oz``), the canonical value in grams."""
+    return (("head_weight_oz", "Head weight", str(oz), "ONZ", oz * 28.349523125),)
+
+
+def _in(hex_: str, accent: str = "#2a2a2e", name: str = "Grey") -> tuple[Color, ...]:
+    return (cw(name, hex_, "solid", accent),)
+
+
+_HW = "Home"
+_KD = ("Home", "Kitchen & Dining")
+_DIY = ("Home", "DIY & Tools")
+_FRUIT = ("Food & Drink", "Fruit & Vegetables", "Fresh Fruit")
+
+BREADTH_34 = (
+    Row("CUTSET", "Stainless Steel Cutlery Set, 16 Piece", "Hearth & Table", _HW,
+        (*_KD, "Cutlery Sets"), "Cutlery Set", 18.0, "cutlery_set",
+        "Four knives, forks, dessert spoons and teaspoons with a plain polished handle. "
+        "Dishwasher safe.",
+        _in("#b9bcc0", "#7a7d82", "Silver"), _a1("material", "Material", "Stainless Steel")),
+    Row("CUTBAM", "Bamboo Handle Cutlery Set, 24 Piece", "Lanternby", _HW,
+        (*_KD, "Cutlery Sets"), "Cutlery Set", 32.0, "cutlery_set",
+        "Six place settings with a bamboo handle and a satin steel head. Hand wash.",
+        _in("#c9a46a", "#7a7d82", "Brown"), _a1("material", "Material", "Bamboo")),
+    Row("DINPOR", "White Porcelain Dinner Set, 12 Piece", "Hearth & Table", _HW,
+        (*_KD, "Dinner Sets"), "Dinner Set", 38.0, "dinner_set",
+        "Four dinner plates, side plates and bowls with a rolled rim. Oven and microwave safe.",
+        _in("#f4f1ea", "#b9b4a6", "White"), _a1("material", "Material", "Porcelain")),
+    Row("DINSTO", "Speckled Stoneware Dinner Set, 16 Piece", "Calderby & Lune", _HW,
+        (*_KD, "Dinner Sets"), "Dinner Set", 56.0, "dinner_set",
+        "Four of each plate and bowl and mug, glazed by hand so no two speckle alike.",
+        _in("#d8cdb8", "#6b5b45", "Cream"), _a1("material", "Material", "Stoneware")),
+    Row("STRJAR", "Glass Storage Jar with Lid", "Lanternby", _HW,
+        (*_KD, "Storage Jars"), "Storage Jar", 6.0, "jar",
+        "A clear jar with an airtight clip lid, for flour, pasta or biscuits.",
+        _in("#cfe3e6", "#7a7d82", "Clear"), _a1("material", "Material", "Glass"),
+        (("0.5 L", 6.0), ("1 L", 8.0), ("2 L", 11.0))),
+    Row("LNCBOX", "Leakproof Lunch Box", "Hearth & Table", _HW,
+        (*_KD, "Lunch Boxes"), "Lunch Box", 9.0, "box",
+        "A lunch box with three compartments and a locking lid. Dishwasher safe.",
+        (cw("Green", "#4f7a3a", "solid", "#efe8d8"), cw("Navy", "#26365c", "solid", "#efe8d8")),
+        _a1("material", "Material", "Recycled Plastic")),
+    Row("APRCTN", "Cotton Kitchen Apron with Pocket", "Hearth & Table", _HW,
+        (*_KD, "Aprons"), "Apron", 12.0, "apron",
+        "An adjustable neck strap, a wide front pocket and ties that wrap around twice.",
+        (cw("Sage", "#9bb08f"), cw("Navy", "#26365c"), cw("Rust", "#a4502a")),
+        _fab("Cotton")),
+    Row("BCHTWL", "Cotton Velour Beach Towel", "Calderby & Lune", _HW,
+        ("Home", "Bathroom", "Beach Towels"), "Beach Towel", 14.0, "beach_towel",
+        "A large striped towel with a soft velour face and a looped terry back.",
+        (cw("Blue", "#3f6fb5", "solid", "#ffffff"), cw("Coral", "#ef7b62", "solid", "#ffffff")),
+        _fab("Cotton")),
+    Row("HAMCLW", "Fiberglass Handle Claw Hammer", "Calderby & Lune", _HW,
+        (*_DIY, "Claw Hammers"), "Claw Hammer", 11.0, "hammer",
+        "A forged steel head with a curved claw, on a handle with a rubber grip.",
+        _in("#7a7d82", "#c8312e", "Silver"),
+        (*_a1("handle_material", "Handle material", "Fiberglass"), *_head_oz(16))),
+    Row("HAMWOD", "Wooden Handle Claw Hammer", "Lanternby", _HW,
+        (*_DIY, "Claw Hammers"), "Claw Hammer", 9.0, "hammer",
+        "A forged steel head with a straight claw, on a smooth ash handle.",
+        _in("#7a7d82", "#a8793f", "Silver"),
+        (*_a1("handle_material", "Handle material", "Wood"), *_head_oz(20))),
+    Row("SCRDSET", "Slotted and Phillips Screwdriver Set", "Calderby & Lune", _HW,
+        (*_DIY, "Screwdriver Sets"), "Screwdriver Set", 13.0, "screwdriver",
+        "Six screwdrivers with magnetic tips and a soft grip handle, in a roll-up pouch.",
+        _in("#c8312e", "#2a2a2e", "Red"), _a1("tip_type", "Tip type", "Slotted and Phillips")),
+    Row("DRLCRD", "Cordless Drill Driver with Two Batteries", "Calderby & Lune", _HW,
+        (*_DIY, "Cordless Drills"), "Cordless Drill", 59.0, "drill",
+        "A two-speed drill driver with a keyless chuck, a work light and a fast charger.",
+        _in("#2f6f4f", "#2a2a2e", "Green"), _a1("battery_type", "Battery type", "Lithium-Ion")),
+    Row("PERJAS", "Midnight Jasmine Eau de Parfum", "Mirefield Naturals", "Beauty",
+        ("Beauty", "Fragrance", "Perfume"), "Perfume", 28.0, "fragrance",
+        "A warm floral with jasmine and a trace of vanilla, in a glass bottle with a cap.",
+        _in("#d9c2e8", "#2a2a2e", "Purple"), _a1("fragrance_family", "Fragrance family", "Floral"),
+        (("30 ml", 28.0), ("50 ml", 38.0))),
+    Row("PERCIT", "Citrus Grove Eau de Toilette", "Mirefield Naturals", "Beauty",
+        ("Beauty", "Fragrance", "Perfume"), "Perfume", 22.0, "fragrance",
+        "A bright citrus with bergamot and neroli, in a clear glass bottle with a cap.",
+        _in("#f2e29b", "#2a2a2e", "Yellow"), _a1("fragrance_family", "Fragrance family", "Citrus"),
+        (("30 ml", 22.0), ("50 ml", 30.0))),
+    Row("EYLBLK", "Waterproof Eyeliner Pencil", "Hollin Hair", "Beauty",
+        ("Beauty", "Make-Up", "Eyes", "Eyeliners"), "Eyeliner", 5.0, "eyeliner",
+        "A soft pencil that glides on and stays put all day. Twist up, no sharpening.",
+        (cw("Black", "#2a2a2e"), cw("Brown", "#5a3a26"), cw("Navy", "#26365c")),
+        _a1("finish", "Finish", "Matte")),
+    Row("DINOFG", "Plastic Dinosaur Figure Set", "Puddlecombe Toys", "Toys",
+        ("Toys", "Figures & Playsets", "Dinosaur Figures"), "Toy Figure", 8.0, "dinosaur",
+        "Six chunky dinosaurs with painted detail, sized for small hands. For ages 3 and up.",
+        (cw("Green", "#6f8f4a"),), _mat("Plastic"), audience=_KIDS),
+    Row("DAISYP", "Marguerite Daisy Plant", "Fenwold Nursery", "Garden",
+        ("Garden", "Plants", "Daisies"), "Bedding Plant", 5.0, "daisy",
+        "A compact plant covered in white flowers from spring to autumn, in a 12 cm pot.",
+        (cw("White", "#ffffff", "solid", "#f2d14b"),), _a1("variety", "Variety", "Marguerite"),
+        colorless=True),
+    Row("SEEDPM", "Giant Pumpkin Seeds", "Fenwold Nursery", "Garden",
+        ("Garden", "Seeds", "Pumpkin Seeds"), "Seeds", 2.5, "pumpkin",
+        "A packet of ten seeds for large orange pumpkins. Sow indoors in spring.",
+        (cw("Orange", "#e07a1f", "solid", "#4f7a3a"),), _a1("variety", "Variety", "Atlantic Giant"),
+        colorless=True),
+    Row("SEEDCR", "Nantes Carrot Seeds", "Fenwold Nursery", "Garden",
+        ("Garden", "Seeds", "Carrot Seeds"), "Seeds", 2.0, "carrot",
+        "A packet of about 500 seeds for sweet, blunt roots. Sow straight into the ground.",
+        (cw("Orange", "#e07a1f", "solid", "#4f7a3a"),), _a1("variety", "Variety", "Nantes"),
+        colorless=True),
+    Row("CHERRY", "Fresh Morello Cherries", "Freshfold", _FD,
+        (*_FRUIT, "Stone Fruit", "Cherries"), "Fresh Fruit", 3.5, "cherries",
+        "Sharp, deep red cherries picked in summer, good for pies and compotes.",
+        (cw("Red", "#9e1b2a", "solid", "#4f7a3a"),), _a1("variety", "Variety", "Morello"),
+        (("250 g", 3.5), ("500 g", 6.0)), colorless=True),
+    Row("DNUTSG", "Sugar Ring Doughnuts, Pack of 4", "Pantry Mill", _FD,
+        ("Food & Drink", "Bakery", "Doughnuts"), "Doughnut", 2.0, "doughnut",
+        "Light ring doughnuts rolled in sugar, baked in store each morning.",
+        (cw("Tan", "#d9a05b", "solid", "#ffffff"),), _flavor("Sugar"), colorless=True),
+    Row("STRBRY", "Fresh British Strawberries", "Freshfold", _FD,
+        (*_FRUIT, "Berries", "Strawberries"), "Fresh Fruit", 2.5,
+        "strawberry",
+        "Sweet, juicy strawberries picked at the height of summer, packed in a recyclable punnet.",
+        (cw("Red", "#c8312e", "solid", "#4f7a3a"),), _a1("variety", "Variety", "Elsanta"),
+        (("400 g", 2.5), ("800 g", 4.5)), colorless=True),
+    Row("OVNSPR", "Heavy Duty Oven Cleaner Spray 500ml", "Pantry Mill", _CJ,
+        ("Cleaning", "Kitchen & Surfaces", "Oven Cleaners"), "Oven Cleaner", 3.5,
+        "trigger_spray",
+        "A foaming spray that loosens baked-on grease from oven walls, racks and hobs.",
+        _spray("Yellow"), _a1("form", "Form", "Foam Spray"), colorless=True),
+    Row("LMSSPR", "Limescale Remover Spray 500ml", "Freshfold", _CJ,
+        ("Cleaning", "Bathroom", "Limescale Removers"), "Limescale Remover", 3.0,
+        "trigger_spray",
+        "A fast spray for kettles, taps and shower heads: leave a few minutes, then rinse.",
+        _spray("Aqua"), _a1("form", "Form", "Spray"), colorless=True),
+)  # fmt: skip
+
+
 #: Every breadth row, by department.
 DEPARTMENTS = {
     "Toys": TOYS, "Garden": GARDEN, "Gifts": GIFTS, _CJ: CLEANING, _FD: FOOD, "Beauty": BEAUTY,
@@ -1103,4 +1246,4 @@ DEPARTMENTS = {
 
 def docs() -> list[dict]:
     """Every breadth row's catalog document, department by department."""
-    return [r.doc() for rows in DEPARTMENTS.values() for r in rows]
+    return [r.doc() for r in (*(r for rows in DEPARTMENTS.values() for r in rows), *BREADTH_34)]
