@@ -826,7 +826,7 @@ The second is the one that bites, and the two weaker ways of asking it both
 leak. Titles carry the brand about a third of the time and their labels in one
 of several abbreviations, so on the catalog this replaced, asking only that a
 line's titles differ as whole strings left **1,913** SKUs naming nothing of
-their own, and a bare substring test left **1,932** — 19 of those passing on a
+their own, and a bare substring test left 19 more of them passing on a
 coincidence rather than on a value.
 
 The coincidence outlives a catalog that has otherwise been repaired, which is
