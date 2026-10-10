@@ -73,9 +73,13 @@ STORAGE_TEXT = {
 FRUIT = {"Unwaxed Lemons": "lemon", "Lemons": "lemon", "Meyer Lemons": "lemon",
          "Oranges": "orange", "Blood Oranges": "orange", "Orange Segments": "orange",
          "Easy Peelers": "clementine", "Gala Apples": "apple", "Bramley Apples": "apple",
-         "Braeburn Apples": "apple", "Fuji Apples": "apple"}  # fmt: skip
+         "Braeburn Apples": "apple", "Fuji Apples": "apple",
+         "Limes": "lime", "Unwaxed Limes": "lime", "Key Limes": "lime",
+         "Ripe Strawberries": "strawberry", "Large Strawberries": "strawberry",
+         "Spanish Strawberries": "strawberry", "Sweet Strawberries": "strawberry"}  # fmt: skip
 #: A pack word -> how a fruit pile shows it.
-PILE_PACK = {"Single": "loose", "4 pack": "net", "1kg": "bag"}
+PILE_PACK = {"Single": "loose", "4 pack": "net", "1kg": "bag",
+             "250g": "bag", "400g": "bag", "800g": "bag"}  # fmt: skip
 
 #: Product entries that are a union over the flavors, so a flat SKU must not inherit them.
 UNIONED = frozenset({"contains", "may_contain"})
@@ -119,14 +123,19 @@ def parse_pack(label: str) -> dict[str, Any]:
     raise ValueError(f"unknown pack {label!r}")
 
 
-def _size(pack: dict[str, Any]) -> float:
+def _size(pack: dict[str, Any], item_g: float = 0.0) -> float:
+    """A pack's size for pricing. A count pack of a family that declares ``item_g`` counts in
+    grams (items x item weight), so a "1kg" pack sits beside "Single" as about 14 limes."""
+    if item_g and "net_weight_g" not in pack:
+        return pack["units_per_pack"] * item_g
     return float(pack.get("net_weight_g") or pack.get("net_volume_ml") or pack["units_per_pack"])
 
 
 def _price(fam: Family, pack: dict, first: dict, flavor_i: int, brand: str) -> float:
     """The family's first-pack price, scaled by pack size (economies of scale), the
     flavor's step and the brand's tier, on a 5p point ending in 9 above a pound."""
-    p = fam.price * (_size(pack) / _size(first)) ** 0.8 * (1 + 0.05 * (flavor_i % 3))
+    ratio = _size(pack, fam.item_g) / _size(first, fam.item_g)
+    p = fam.price * ratio**0.8 * (1 + 0.05 * (flavor_i % 3))
     p *= 0.92 if OWNERS[brand] == "own" else 1.1
     p = max(0.35, round(p * 20) / 20)
     return round(p - 0.01, 2) if p >= 1 and round(p * 100) % 10 == 0 else p
@@ -178,6 +187,8 @@ def _description(fam: Family, flavors: list[F], packs: list[dict], skus: list[di
             if fam.axis == "scent" and fam.department.startswith("Cleaning")
             else "light body milk that absorbs quickly"
         )
+        if fam.fits:
+            return f"A {noun}, in {sizes}. {fam.fits.format(x=names[0].lower())}"
         return f"A {noun}, in {sizes}. Scented with {names[0].lower()}."
     if len(names) > 1:
         head = f"{fam.product_type} in {len(names)} flavors: {', '.join(names)}. In {sizes}."
@@ -253,10 +264,12 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
             skus.append(sku | {"price": _price(fam, pack, first, fi, brand), "in_stock": True})
     head = f"{line} Organic" if organic else line
     title = fam.title.format(line=head, flavor=flavors[0].name, abv=_abv_text(pid, flavors[0]))
-    attrs = [attr(fam.axis, fam.axis.capitalize(), f.name) for f in flavors]
+    attrs = [attr(fam.axis, fam.axis_name or fam.axis.capitalize(), f.name) for f in flavors]
     attrs += [attr("pack_size", "Pack size", p) for p in packs]
     if flavors[0].abv is not None:  # a beer's strength: always an attribute, in some titles
         attrs.append(attr("abv", "ABV (%)", flavors[0].abv))
+    for key, name, value in dict.fromkeys(x for f in flavors for x in f.extras):
+        attrs.append(attr(key, name, value))  # a wine's grape and country, a fruit's origin
     if fam.food:
         contains = _union(s.get("contains", []) for s in skus)
         may = [a for a in _union(s.get("may_contain", []) for s in skus) if a not in contains]
@@ -310,9 +323,11 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
         grade = rng.choice(fam.grades) if fam.grades else ""
         rec = style(fam, f"GRC-{fam.code}-{held[fam.code + '#'] + 1:04d}", line, brand, flavors,
                     packs, may, organic, grade)  # fmt: skip
-        if rec["title"] in titles:
+        # A depth family's twin is the same title bar the strength suffix: one drawing, two ids.
+        key = re.sub(r" [\d.]+%$", "", rec["title"]) if fam.depth else rec["title"]
+        if key in titles:
             return False
-        titles.add(rec["title"])
+        titles.add(key)
         held[fam.code + "#"] += 1
         held[fam.code] += rec["sku_count"]
         recs.append(rec)
