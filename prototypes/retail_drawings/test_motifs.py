@@ -414,7 +414,7 @@ def test_the_lemons_and_the_clementines_draw_their_pack() -> None:
 def test_a_pile_is_the_same_on_every_build_and_differs_between_products() -> None:
     assert jitter("PLT-ORNAVL", 0) == jitter("PLT-ORNAVL", 0)
     assert jitter("PLT-ORNAVL", 0) != jitter("PLT-ORBLOD", 0)
-    assert set(FRUIT) == {"orange", "clementine", "lemon", "apple"}
+    assert set(FRUIT) == {"orange", "clementine", "lemon", "apple", "lime", "strawberry"}
 
 
 # --------------------------------------------------------------------------
