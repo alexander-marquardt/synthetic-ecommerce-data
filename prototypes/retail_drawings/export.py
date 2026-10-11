@@ -40,6 +40,7 @@ from synthetic_ecommerce_data.core.emit import write_jsonl
 from synthetic_ecommerce_data.core.entry import split
 from synthetic_ecommerce_data.core.merchandising import SEED as MERCHANDISING_SEED
 from synthetic_ecommerce_data.core.merchandising import blend, log_signal, merchandising_score
+from synthetic_ecommerce_data.core.variant_axes import profile, variant_axes
 
 #: The image package's top-level folder (:mod:`image_release`), served beside the
 #: industrial bundle's under one images mount, so a URL is ``/images/<root>/<path>``.
@@ -252,6 +253,17 @@ def merchandising(rec: dict) -> int:
     return merchandising_score(MERCHANDISING_SEED, rec["product_id"], signal)
 
 
+def _variant_axes(attributes: list[dict[str, Any]], variants: list[dict[str, Any]]) -> list[str]:
+    """The style's ordered ``variant_axes`` (:mod:`..core.variant_axes`): over each SKU's
+    attributes as its flat document states them (the style's, less what the SKU restates)."""
+    profiles = []
+    for variant in variants:
+        own = {e["key"] for e in variant["attributes"]}
+        kept = [e for e in attributes if e["key"] not in own]
+        profiles.append(profile(kept + variant["attributes"]))
+    return variant_axes(profiles)
+
+
 def standard_document(rec: dict) -> dict[str, Any]:
     """One build record as the standard's nested product document.
 
@@ -282,6 +294,7 @@ def standard_document(rec: dict) -> dict[str, Any]:
         "image_detail_url": variants[0]["image_detail_url"],
         **({"ingredients": rec["ingredients"]} if "ingredients" in rec else {}),
         "merchandising_score": merchandising(rec),
+        "variant_axes": _variant_axes(attributes, variants),
         "attributes": attributes,
         "variant_count": len(variants),
         "variants": variants,

@@ -41,6 +41,7 @@ from synthetic_ecommerce_data.core.entry import (
 from synthetic_ecommerce_data.core.merchandising import SEED as MERCHANDISING_SEED
 from synthetic_ecommerce_data.core.merchandising import log_signal, merchandising_score
 from synthetic_ecommerce_data.core.model import Attribute, Catalog, ProductLine, Sku
+from synthetic_ecommerce_data.core.variant_axes import variant_axes
 from synthetic_ecommerce_data.domains.industrial.taxonomy import (
     ImageIdError,
     product_type_for_image,
@@ -231,6 +232,19 @@ def line_merchandising_score(line: ProductLine) -> int:
     )
 
 
+def line_variant_axes(catalog: Catalog, line: ProductLine) -> list[str]:
+    """The line's ordered ``variant_axes`` (:mod:`..core.variant_axes`), by facet key."""
+    return variant_axes(
+        [
+            {
+                a.facet_key: tuple(sorted(set(a.values or (a.value,))))
+                for a in catalog.merged_attributes(line, child)
+            }
+            for child in line.children
+        ]
+    )
+
+
 def nested_document(
     catalog: Catalog,
     line: ProductLine,
@@ -251,6 +265,7 @@ def nested_document(
         "image_url": image_url(line.image_id, base_url),
         "image_detail_url": image_url(line.image_id, base_url),
         "merchandising_score": line_merchandising_score(line),
+        "variant_axes": line_variant_axes(catalog, line),
         "attributes": _attribute_entries(line.attributes),
         "variant_count": len(line.children),
         "variants": [
@@ -279,6 +294,7 @@ def flat_documents(
     base_url: str = DEFAULT_IMAGE_BASE_URL,
 ) -> Iterator[dict[str, Any]]:
     score = float(line_merchandising_score(line))
+    axes = line_variant_axes(catalog, line)
     for child in line.children:
         merged = catalog.merged_attributes(line, child)
         facets: dict[str, list[str]] = {}
@@ -310,6 +326,7 @@ def flat_documents(
             "category_leaf": line.category[-1],
             "dimension_provenance": line.dimension_provenance,
             "spec_quality": line.spec_quality,
+            "variant_axes": list(axes),
             "price_usd": child.price_usd,
             "stock": child.stock,
             "image_id": child.image_id,
@@ -390,6 +407,7 @@ NESTED_MAPPING: dict[str, Any] = {
             "image_detail_url": {"type": "keyword"},
             "ingredients": {"type": "text"},
             "merchandising_score": {"type": "integer"},
+            "variant_axes": {"type": "keyword"},
             "variant_count": {"type": "integer"},
             "attributes": {
                 "type": "nested",
@@ -463,6 +481,7 @@ FLAT_MAPPING: dict[str, Any] = {
             "category_leaf": {"type": "keyword"},
             "dimension_provenance": {"type": "keyword"},
             "spec_quality": {"type": "keyword"},
+            "variant_axes": {"type": "keyword"},
             "price_usd": {"type": "double"},
             "stock": {"type": "integer"},
             "image_id": {"type": "keyword"},
