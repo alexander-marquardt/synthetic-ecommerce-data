@@ -1269,6 +1269,27 @@ retail has `price`, `currency` and `in_stock` where industrial has
 
     uv run python prototypes/retail_drawings/export.py OUTDIR   # nested.jsonl, flat.jsonl
 
+### The merchandising score
+
+Every product, Retail and Industrial, carries `merchandising_score`: an integer 0 to 100, the
+retailer's own blended ranking preference (gen#182). The nested product has it top-level
+(optional in the standard, range-checked by `check_catalog`); every flat document has it as
+`facets_num.merchandising_score`, so a field map can point at it. It is a ranking signal, not a
+shopper facet: it is in no `facets`, `attributes` or `text`.
+
+`src/synthetic_ecommerce_data/core/merchandising.py` derives it from a SHA-256 of the
+product's id and the product's own signal, so it draws nothing from the generator's stream (no
+other value of a build moved), the same seed gives the same scores, and a product scores the
+same in a one-type build, any subset and the whole catalog (gen#183). Half the score follows the product's signal
+and half is an independent draw, so boosting on it reorders a page that popularity alone
+ranked. Of the products whose signal is weak, one in five is a "strategic push" scoring 80 or
+more: a few percent of the catalog, high score on weak popularity. Retail's signal blends
+`sold_last_5_days`, `rating` and `discount` (`export.merchandising`); a style with none of
+them (round 4's) takes the independent draw alone and is never a push. Industrial models
+neither margin nor popularity, so a line's signal is its SKUs' mean `stock`, and every SKU of
+a line shares the line's score. `tests/test_merchandising_score_182.py` pins determinism, the
+range, full coverage, a rank-correlation band against popularity and the push share.
+
 ### The retail catalog at a size: `scale.py --skus N`
 
 **The audience facet and the spelling of a facet**. The tree keeps its Women, Men

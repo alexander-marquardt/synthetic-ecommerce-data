@@ -38,6 +38,8 @@ from build_preview4 import samples
 from synthetic_ecommerce_data.core import standard
 from synthetic_ecommerce_data.core.emit import write_jsonl
 from synthetic_ecommerce_data.core.entry import split
+from synthetic_ecommerce_data.core.merchandising import SEED as MERCHANDISING_SEED
+from synthetic_ecommerce_data.core.merchandising import blend, log_signal, merchandising_score
 
 #: The image package's top-level folder (:mod:`image_release`), served beside the
 #: industrial bundle's under one images mount, so a URL is ``/images/<root>/<path>``.
@@ -230,6 +232,26 @@ def _variant(rec: dict, sku: dict) -> dict[str, Any]:
     }
 
 
+#: The sales (``sold_last_5_days``) at which the volume signal reaches 1.0 (past the p95).
+SALES_CEILING = 250
+
+
+def merchandising(rec: dict) -> int:
+    """The record's 0-100 ``merchandising_score`` (:mod:`..core.merchandising`).
+
+    Its signal blends what the record states of its popularity: sales (weight 6), the rating
+    (1) and the discount (2). A record that states none (round 4's) has no signal."""
+    sold, rating, off = (rec.get(k) for k in ("sold_last_5_days", "rating", "discount_pct"))
+    signal = blend(
+        [
+            (6.0, None if sold is None else log_signal(sold, SALES_CEILING)),
+            (1.0, None if rating is None else min(1.0, max(0.0, (rating - 3.0) / 2.0))),
+            (2.0, None if off is None else min(off / 50.0, 1.0)),
+        ]
+    )
+    return merchandising_score(MERCHANDISING_SEED, rec["product_id"], signal)
+
+
 def standard_document(rec: dict) -> dict[str, Any]:
     """One build record as the standard's nested product document.
 
@@ -259,6 +281,7 @@ def standard_document(rec: dict) -> dict[str, Any]:
         "image_url": variants[0]["image_url"],
         "image_detail_url": variants[0]["image_detail_url"],
         **({"ingredients": rec["ingredients"]} if "ingredients" in rec else {}),
+        "merchandising_score": merchandising(rec),
         "attributes": attributes,
         "variant_count": len(variants),
         "variants": variants,
