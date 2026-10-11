@@ -192,6 +192,9 @@ class Catalog:
     lines: tuple[ProductLine, ...]
     #: The configuration that produced it, for the report.
     stats: dict[str, Any] = field(default_factory=dict)
+    #: The seed of the build, for what is derived from it afterwards (the
+    #: merchandising score, :mod:`.merchandising`); 0 for a hand-made catalog.
+    seed: int = 0
 
     @property
     def sku_count(self) -> int:

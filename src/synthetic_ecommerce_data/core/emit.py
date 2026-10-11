@@ -38,6 +38,7 @@ from synthetic_ecommerce_data.core.dimensions import _METRIC_THREAD
 from synthetic_ecommerce_data.core.entry import (
     sanitize as sanitize,  # re-exported: tests and readers call emit.sanitize
 )
+from synthetic_ecommerce_data.core.merchandising import log_signal, merchandising_score
 from synthetic_ecommerce_data.core.model import Attribute, Catalog, ProductLine, Sku
 from synthetic_ecommerce_data.domains.industrial.taxonomy import (
     ImageIdError,
@@ -212,6 +213,20 @@ def _searchable_text(line: ProductLine, child: Sku, attributes: tuple[Attribute,
     return " ".join(part for part in parts if part)
 
 
+#: The stock (units) at which a line's volume signal reaches 1.0: a SKU's largest stock draw.
+STOCK_CEILING = 900
+
+
+def line_merchandising_score(catalog: Catalog, line: ProductLine) -> int:
+    """The line's 0-100 ``merchandising_score`` (:mod:`..core.merchandising`).
+
+    The catalog models neither margin nor popularity, so the line's volume signal is the mean
+    stock of its SKUs, the one volume figure it states. Every SKU of a line shares the
+    score: a retailer pushes a line, not one of its sizes. The seed is the build's own."""
+    mean_stock = sum(child.stock for child in line.children) / len(line.children)
+    return merchandising_score(catalog.seed, line.product_id, log_signal(mean_stock, STOCK_CEILING))
+
+
 def nested_document(
     catalog: Catalog,
     line: ProductLine,
@@ -231,6 +246,7 @@ def nested_document(
         "image_id": line.image_id,
         "image_url": image_url(line.image_id, base_url),
         "image_detail_url": image_url(line.image_id, base_url),
+        "merchandising_score": line_merchandising_score(catalog, line),
         "attributes": _attribute_entries(line.attributes),
         "variant_count": len(line.children),
         "variants": [
@@ -258,6 +274,7 @@ def flat_documents(
     line: ProductLine,
     base_url: str = DEFAULT_IMAGE_BASE_URL,
 ) -> Iterator[dict[str, Any]]:
+    score = float(line_merchandising_score(catalog, line))
     for child in line.children:
         merged = catalog.merged_attributes(line, child)
         facets: dict[str, list[str]] = {}
@@ -268,6 +285,7 @@ def flat_documents(
             facets.setdefault(key, []).extend(values)
             if attribute.value_num is not None:
                 numeric.setdefault(key, attribute.value_num)
+        numeric["merchandising_score"] = score
         yield {
             "sku": child.sku,
             "product_id": line.product_id,
@@ -367,6 +385,7 @@ NESTED_MAPPING: dict[str, Any] = {
             "image_url": {"type": "keyword"},
             "image_detail_url": {"type": "keyword"},
             "ingredients": {"type": "text"},
+            "merchandising_score": {"type": "integer"},
             "variant_count": {"type": "integer"},
             "attributes": {
                 "type": "nested",
