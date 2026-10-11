@@ -59,6 +59,9 @@
    "merchandising_score": {
     "type": "integer"
    },
+   "variant_axes": {
+    "type": "keyword"
+   },
    "variant_count": {
     "type": "integer"
    },

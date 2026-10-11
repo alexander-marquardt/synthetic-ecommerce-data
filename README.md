@@ -1290,6 +1290,22 @@ neither margin nor popularity, so a line's signal is its SKUs' mean `stock`, and
 a line shares the line's score. `tests/test_merchandising_score_182.py` pins determinism, the
 range, full coverage, a rank-correlation band against popularity and the push share.
 
+### Variant axes
+
+Every product, Retail and Industrial, states `variant_axes` (gen#47): the ordered list of the
+attribute keys a shopper selects on the product page, coarsest first (`["color", "size_uk"]`,
+`["length"]`), `[]` for a single SKU. It is top-level on the nested product and on every flat
+document, the same on every SKU of a `product_id`, and each key is the one the flat document
+stores the attribute under (`facets`), so a consumer looks up each hit's values by key. It
+carries no display names: a consumer's field map names each key.
+
+`core/variant_axes.py` derives it from the SKUs the generator emitted: the attributes that vary
+across the product, less the *derived* ones (a nut's width across flats follows its thread size,
+a color family follows the color), in the generator's own order. What remains names exactly one
+SKU. `tests/test_variant_axes_47.py` pins the issue's five invariants on both builds, each with a
+planted failure. Not every combination exists, so a consumer limits a dropdown to the
+combinations the product's SKUs offer.
+
 ### The retail catalog at a size: `scale.py --skus N`
 
 **The audience facet and the spelling of a facet**. The tree keeps its Women, Men
