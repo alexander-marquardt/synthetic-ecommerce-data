@@ -52,6 +52,8 @@ PRODUCT_FIELDS: dict[str, tuple[str, bool]] = {
     "image_url": (_STR, True),
     "image_detail_url": (_STR, True),
     "ingredients": (_LIST, False),
+    #: The retailer's own 0-100 ranking preference (:mod:`.merchandising`).
+    "merchandising_score": (_INT, False),
     "attributes": (_LIST, True),
     "variant_count": (_INT, True),
     "variants": (_LIST, True),
@@ -156,6 +158,9 @@ def check_document(doc: Mapping[str, Any]) -> list[str]:
         elif doc.get("category_leaf") != path[-1] or doc.get("category_depth") != len(path):
             out.append(f"{where}: category_leaf/category_depth do not match {path!r}")
     out += _image(where, doc)
+    score = doc.get("merchandising_score")
+    if _typed(score, _INT) and not 0 <= score <= 100:
+        out.append(f"{where}: merchandising_score {score!r} is outside 0-100")
     out += [e for entry in doc.get("attributes") or () for e in check_entry(where, entry)]
     variants = doc.get("variants")
     if not isinstance(variants, list) or not variants:
@@ -330,6 +335,8 @@ def flat_documents(
             number = _number(entry, numeric_keys)
             if number is not None:
                 numeric.setdefault(entry["key"], number)
+        if "merchandising_score" in doc:
+            numeric["merchandising_score"] = float(doc["merchandising_score"])
         words = [variant["title"], doc["brand"], doc.get("series"), *doc["category_path"]]
         out.append(
             {"sku": variant["sku"], "product_id": doc["product_id"]}
