@@ -54,6 +54,9 @@ PRODUCT_FIELDS: dict[str, tuple[str, bool]] = {
     "ingredients": (_LIST, False),
     #: The retailer's own 0-100 ranking preference (:mod:`.merchandising`).
     "merchandising_score": (_INT, False),
+    #: The attribute keys a shopper selects on the product page, coarsest first
+    #: (:mod:`.variant_axes`); ``[]`` for a single SKU.
+    "variant_axes": (_LIST, False),
     "attributes": (_LIST, True),
     "variant_count": (_INT, True),
     "variants": (_LIST, True),
@@ -368,6 +371,7 @@ _FLAT_PRODUCT_FIELDS = (
     "category_leaf",
     "dimension_provenance",
     "spec_quality",
+    "variant_axes",
     "ingredients",
 )
 #: The variant columns a flat document carries, in industrial's order.
