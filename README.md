@@ -1277,9 +1277,10 @@ retailer's own blended ranking preference (gen#182). The nested product has it t
 `facets_num.merchandising_score`, so a field map can point at it. It is a ranking signal, not a
 shopper facet: it is in no `facets`, `attributes` or `text`.
 
-`src/synthetic_ecommerce_data/core/merchandising.py` derives it from a SHA-256 of the seed and
-the product's id, so it draws nothing from the generator's stream (no other value of a build
-moved) and the same seed gives the same scores. Half the score follows the product's signal
+`src/synthetic_ecommerce_data/core/merchandising.py` derives it from a SHA-256 of the
+product's id and the product's own signal, so it draws nothing from the generator's stream (no
+other value of a build moved), the same seed gives the same scores, and a product scores the
+same in a one-type build, any subset and the whole catalog (gen#183). Half the score follows the product's signal
 and half is an independent draw, so boosting on it reorders a page that popularity alone
 ranked. Of the products whose signal is weak, one in five is a "strategic push" scoring 80 or
 more: a few percent of the catalog, high score on weak popularity. Retail's signal blends
