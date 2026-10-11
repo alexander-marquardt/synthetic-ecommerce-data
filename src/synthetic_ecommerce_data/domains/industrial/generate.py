@@ -2292,4 +2292,4 @@ def generate(config: GeneratorConfig | None = None, types: Iterable[str] | None 
     chosen = known if types is None else sorted(set(types))
     counters: dict[str, int] = {}
     lines = [line for key in chosen for line in Generator(cfg, key, counters).build()]
-    return Catalog(lines=tuple(lines), stats=dict(counters), seed=cfg.seed)
+    return Catalog(lines=tuple(lines), stats=dict(counters))

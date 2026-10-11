@@ -6,8 +6,12 @@ launch. The score is that blended preference, published as the integer
 on its flat documents (gen#182), so a business-signal boost can point at it.
 
 It is derived, never drawn from the generator's stream, so adding it moves no other
-value of a build: a SHA-256 of ``seed``, the product's key and a salt gives each
+value of a build: a SHA-256 of :data:`SEED`, the product's key and a salt gives each
 product its own uniform draws (:func:`unit`), which are the same on every run.
+
+It is a function of the product alone: its key (a ``product_id``, which the build's
+seed already fixed) and its own signal. Nothing about the rest of the build enters
+it, so a product scores the same in a one-type build, a subset and the whole catalog.
 
 * **Loosely correlated.** The score is a mix of the product's ``signal`` (0-1, from
   the volume the domain does model, see :func:`log_signal`) and an independent draw,
@@ -25,6 +29,10 @@ from __future__ import annotations
 import hashlib
 import math
 
+#: The salt-seed of every score. Fixed, not the build's: the build's seed already
+#: reaches the score through the ``product_id``, and a seed read from the catalog
+#: would make a product's score depend on what it was built and wrapped with.
+SEED = 0
 #: The share of the score that follows the signal; the rest is independent.
 SIGNAL_WEIGHT = 0.5
 #: A signal below this is "weak popularity".

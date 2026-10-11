@@ -16,6 +16,7 @@ import pytest
 
 from synthetic_ecommerce_data.core import emit, merchandising
 from synthetic_ecommerce_data.core.config import SMALL
+from synthetic_ecommerce_data.core.model import Catalog
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 
@@ -118,9 +119,37 @@ INDUSTRIAL = generate(SMALL)
 def test_industrial_is_deterministic_per_seed():
     first = [d["merchandising_score"] for d in emit.iter_nested(INDUSTRIAL)]
     assert first == [d["merchandising_score"] for d in emit.iter_nested(generate(SMALL))]
-    assert INDUSTRIAL.seed == SMALL.seed
     reseeded = generate(dataclasses.replace(SMALL, seed=SMALL.seed + 1))
     assert first != [d["merchandising_score"] for d in emit.iter_nested(reseeded)]
+
+
+def _scores_by_sku(catalog) -> dict[str, float]:
+    return {d["sku"]: d["facets_num"]["merchandising_score"] for d in emit.iter_flat(catalog)}
+
+
+def test_industrial_score_is_the_products_own_in_every_build_that_holds_it():
+    """A SKU scores the same alone, in two different subsets and in the whole build,
+    and with its lines rewrapped in a bare ``Catalog`` as the golden-slice gates do:
+    nothing about the rest of the build enters it (gen#183)."""
+    whole = generate(SMALL)
+    types = sorted({line.type_key for line in whole.lines})
+    key = types[0]
+    full = _scores_by_sku(whole)
+    builds = {
+        "alone": generate(SMALL, [key]),
+        "with the next type": generate(SMALL, [key, types[1]]),
+        "with the last type": generate(SMALL, [key, types[-1]]),
+        "rewrapped": Catalog(lines=tuple(line for line in whole.lines if line.type_key == key)),
+    }
+    for name, build in builds.items():
+        part = _scores_by_sku(build)
+        assert part, f"the {name} build is empty"
+        moved = {
+            sku: (full.get(sku), score) for sku, score in part.items() if full.get(sku) != score
+        }
+        assert not moved, (
+            f"{name}: {len(moved)} SKU(s) score differently, e.g. {list(moved.items())[:3]}"
+        )
 
 
 def test_industrial_every_product_and_flat_document_carries_it_in_range():
@@ -138,7 +167,7 @@ def test_industrial_every_product_and_flat_document_carries_it_in_range():
 
 def test_industrial_score_follows_stock_loosely_with_a_few_pushes():
     lines = INDUSTRIAL.lines
-    scores = [emit.line_merchandising_score(INDUSTRIAL, line) for line in lines]
+    scores = [emit.line_merchandising_score(line) for line in lines]
     stock = [sum(c.stock for c in line.children) / len(line.children) for line in lines]
     rho = spearman([float(s) for s in scores], stock)
     assert CORRELATION_BAND[0] <= rho <= CORRELATION_BAND[1], rho

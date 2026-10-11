@@ -38,6 +38,7 @@ from build_preview4 import samples
 from synthetic_ecommerce_data.core import standard
 from synthetic_ecommerce_data.core.emit import write_jsonl
 from synthetic_ecommerce_data.core.entry import split
+from synthetic_ecommerce_data.core.merchandising import SEED as MERCHANDISING_SEED
 from synthetic_ecommerce_data.core.merchandising import blend, log_signal, merchandising_score
 
 #: The image package's top-level folder (:mod:`image_release`), served beside the
@@ -231,9 +232,6 @@ def _variant(rec: dict, sku: dict) -> dict[str, Any]:
     }
 
 
-#: The seed of the retail merchandising score (:func:`merchandising`): a record carries no
-#: build seed, and its ``product_id`` is already the build's own.
-MERCHANDISING_SEED = 0
 #: The sales (``sold_last_5_days``) at which the volume signal reaches 1.0 (past the p95).
 SALES_CEILING = 250
 
