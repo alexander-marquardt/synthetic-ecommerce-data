@@ -13,8 +13,6 @@ import re
 import sys
 from pathlib import Path
 
-import pytest
-
 RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
 if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
@@ -159,16 +157,37 @@ def test_every_drawing_param_says_what_the_attributes_say() -> None:
             assert _spelled(held[0]) == _spelled(value), (doc["product_id"], param)
 
 
-@pytest.mark.parametrize(("shape", "params", "cls", "n"), [
-    ("chest_of_drawers", {"drawers": "5", "form": "tall"}, "drawer", 5),
-    ("chest_of_drawers", {"drawers": "6", "form": "wide"}, "drawer", 6),
-    ("wardrobe", {"doors": "3", "mirrored": "yes", "door": "hinged"}, "door", 3),
-    ("bookcase", {"shelves": "5", "style": "standard"}, "shelf", 5),
-    ("dining_chair", {"style": "cantilever", "count": "2"}, "chair", 2),
-])  # fmt: skip
-def test_a_drawn_count_is_the_count_in_the_params(shape, params, cls, n) -> None:
-    svg = kit.render(shape, FILL, params=params)
-    assert len(re.findall(rf'class="{cls}"', svg)) == n
+#: shape -> drawn mark -> the attributes whose sum it equals (a chair set's ``count`` is a param).
+MARKS = {"dining_table": {"seat": ("seat_count",)},
+         "side_table": {"drawer": ("drawer_count",)},
+         "chest_of_drawers": {"drawer": ("drawer_count",)},
+         "wardrobe": {"door": ("door_count",)},
+         "bookcase": {"shelf": ("shelf_count", "cube_count")},
+         "dining_chair": {"chair": ()}}  # fmt: skip
+
+
+def test_every_record_draws_the_counts_its_attributes_say() -> None:
+    """Render every record and count the marks in the SVG: the drawing is the data."""
+    checked = 0
+    for doc in _docs():
+        d = doc["drawing"]
+        svg = kit.render(d["shape"], FILL, params=d["params"])
+        attrs = {a["key"]: int(a["value"]) for a in doc["attributes"] if str(a["value"]).isdigit()}
+        for cls, keys in MARKS.get(d["shape"], {}).items():
+            drawn = len(re.findall(rf'class="{cls}"', svg))
+            want = sum(attrs.get(k, 0) for k in keys)
+            if cls == "chair":
+                want = int(d["params"]["count"])
+            assert drawn == want, (doc["product_id"], cls, drawn, want)
+            checked += drawn > 0
+    assert checked >= 20  # every shape above, not a loop over nothing
+
+
+def test_the_issue_queries_for_an_oak_dining_table_have_a_matching_title() -> None:
+    titles = [d["title"].lower() for d in _docs() if d["drawing"]["shape"] == "dining_table"]
+    assert any("oak" in t and "6 seater" in t for t in titles)  # oak dining table 6 seater
+    assert any("oak" in t and "extending" in t for t in titles)  # extending oak dining table
+    assert any("walnut" in t for t in titles)  # walnut stays in the range
 
 
 def test_styles_that_differ_on_a_drawn_param_draw_differently() -> None:

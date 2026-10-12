@@ -129,19 +129,19 @@ def _table(code, title, brand, shape, seats, extending, top, colors, sizes, text
 
 
 DINING = (
-    _table("DTSQ2", "Square 2 Seater Oak Dining Table", "Brackenmere Home", "square", 2, False,
-           "Oak", (NATURAL, WHITE), (_table_size(70, 70, 149.0), _table_size(80, 80, 179.0)),
-           "A small square table for two in solid oak, sized for a kitchen corner or a "
+    _table("DTSQ2", "Square 2 Seater Walnut Dining Table", "Brackenmere Home", "square", 2, False,
+           "Walnut", (DARK_BROWN, BLACK), (_table_size(70, 70, 149.0), _table_size(80, 80, 179.0)),
+           "A small square table for two in solid walnut, sized for a kitchen corner or a "
            "dining room nook."),
     _table("DTRD4", "Round 4 Seater Oak Dining Table", "Hearth & Table", "round", 4, False,
            "Oak", (NATURAL, DARK_BROWN, WHITE),
            (_table_size(100, 100, 299.0), _table_size(110, 110, 349.0)),
            "A round oak top on a single pedestal, so four chairs tuck in with no leg in the way. "
            "A warm centerpiece for a dining room."),
-    _table("DTEX6", "6 Seater Extending Walnut Dining Table", "Calderby & Lune", "rectangular", 6,
-           True, "Walnut", (DARK_BROWN, BLACK),
+    _table("DTEX6", "6 Seater Extending Oak Dining Table", "Calderby & Lune", "rectangular", 6,
+           True, "Oak", (NATURAL, DARK_BROWN),
            (_table_size(90, 160, 599.0), _table_size(90, 180, 699.0)),
-           "A rectangular walnut top with a leaf that slides out from the center, for six at "
+           "A rectangular oak top with a leaf that slides out from the center, for six at "
            "dinner and more when guests come. Made for the dining room."),
     _table("DTOV6", "Oval 6 Seater Glass Top Dining Table", "Lanternby", "oval", 6, False,
            "Glass", (BLACK, NATURAL), (_table_size(100, 180, 449.0),),
@@ -299,8 +299,8 @@ BOOKS = (
               "for plants and paperbacks in the living room."),
     _bookcase("BKCB4", "4 Cube Storage Unit", "Brackenmere Home", "cube", 4, "Oak",
               (WHITE, NATURAL, GREY), (_height(77, 59.0),),
-              "A square cube storage unit with four open cubes, for books, toys or fabric boxes "
-              "in a living room or a playroom corner."),
+              "A square cube storage unit with four open cubes, two of them holding fabric boxes, "
+              "for books and toys in a living room or a playroom corner."),
     _bookcase("BKGD4", "4 Shelf Glass-Door Bookcase", "Calderby & Lune", "glass_door", 4,
               "Walnut", (DARK_BROWN, WHITE), (_height(180, 349.0), _height(200, 399.0)),
               "A walnut bookcase behind two glass doors that keep the dust off four shelves of "
