@@ -83,6 +83,37 @@ jobs:
           python3 scripts/check_commit_msg.py
           --range "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
 
+  file-size:
+    # The file-size budget (elastic/prism#11683; docs/file-size-budget.md): a
+    # file over the cap in scripts/file_size_cap.txt may not grow unless the
+    # PR body carries ``File-Size-Exception: `<path>` - <reason>``. The body
+    # is read only when something grew: the first run passes, or exits 4 for
+    # a growth a body line could clear. merge_pr.sh --local-ci runs this job
+    # with the base set to current main and gh signed in, so the body is the
+    # PR's as it is at merge time. On GitHub the body is not readable here
+    # (the local runner takes no token expression), so a declared growth is
+    # judged by --local-ci.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The gate reads each over-cap file's size at the merge base.
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: No file over the size cap grew without its File-Size-Exception line
+        run: |
+          base="${{ github.event.pull_request.base.sha }}"
+          status=0
+          python3 scripts/file_size_gate.py --base "$base" --no-body-is-advisory || status=$?
+          [ "$status" -eq 4 ] || exit "$status"
+          body="$(mktemp)"
+          gh pr view "${GITHUB_HEAD_REF:-$(git rev-parse --abbrev-ref HEAD)}" \
+            --json body --jq .body > "$body"
+          python3 scripts/file_size_gate.py --base "$base" --pr-body-file "$body"
+
   # The published-assets job is gone with the asset host it checked: the
   # drawings are rebuilt from the committed catalog into a pinned bundle
   # (ecom-generate images), never hosted from here, and
