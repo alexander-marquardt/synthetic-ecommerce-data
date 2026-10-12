@@ -143,10 +143,10 @@ def _one_chair(style: str, paint: str, fill: Fill) -> list[str]:
         ]
     if style == "bench":
         return [
-            *_legs([86, 314], 230, 330, wood, 14), *_legs([110, 290], 230, 312, _shade(wood, 0.12), 10),
-            _path("M66,196 L334,196 L346,228 L54,228 Z", paint),
-            _path("M54,228 L346,228 L346,242 L54,242 Z", _shade(paint, 0.18), LW_DETAIL),
-            _grain(66, 196, 268, 32, fill.base),
+            *_legs([86, 314], 236, 336, "#4a3a2e", 14), *_legs([112, 288], 236, 316, "#3a2d24", 10),
+            _path("M66,190 Q200,176 334,190 Q352,192 350,214 L346,244 L54,244 L50,214 Q48,192 66,190 Z", paint),
+            _line("M60,226 L340,226", 1.0, ' stroke-dasharray="4 3" stroke-opacity=".6"'),
+            _line("M76,204 Q200,192 324,204", 1.0, ' stroke-dasharray="4 3" stroke-opacity=".6"'),
         ]
     raise ValueError(f"unknown chair style {style!r}; one of {CHAIR_STYLES}")
 
@@ -255,15 +255,19 @@ def bookcase(paint: str, fill: Fill, label: str | None, shelves: str = "4", styl
         cols = 2 if n <= 4 else 3
         rows = math.ceil(n / cols) if n > 4 else n // 2 if n % 2 == 0 else n
         cols = math.ceil(n / rows)
-        w, h = 90 * cols, 300
-        x0 = 200 - w / 2
-        out = [_rect(x0, 50, w, h, paint)]
+        w, h = 90 * cols, 90 * rows
+        x0, y0 = 200 - w / 2, 200 - h / 2
+        out = [_rect(x0, y0, w, h, paint)]
         for i in range(n):
             r, c = divmod(i, cols)
-            x, y = x0 + 8 + c * (w - 16) / cols, 58 + r * (h - 16) / rows
-            out.append(_rect(x + 4, y + 4, (w - 16) / cols - 8, (h - 16) / rows - 8, _shade(paint, 0.3), LW_DETAIL, cls="shelf"))
-            if i % 2 == 0:
-                out.append(_rect(x + 12, y + (h - 16) / rows - 40, (w - 16) / cols - 24, 28, "#d8c9a8", 1.2))
+            cw, ch = (w - 16) / cols, (h - 16) / rows
+            x, y = x0 + 8 + c * cw, y0 + 8 + r * ch
+            out += [
+                _rect(x + 4, y + 4, cw - 8, ch - 8, _tint(paint, 0.6), LW_DETAIL, cls="shelf"),
+                _rect(x + 10, y + 10, cw - 20, ch - 20, _tint(paint, 0.3), 1.0),
+            ]
+            if i % 2 == 0:  # a fabric box fills most of the cell, a handle cut-out on its front
+                out += [_rect(x + 9, y + 24, cw - 18, ch - 32, "#d8c9a8", 1.4, rx=3), _rect(x + cw / 2 - 12, y + 36, 24, 8, "#8a7a5a", 1.0, rx=4)]
         return out
     out = [_rect(110, 40, 180, 320, paint), _rect(122, 52, 156, 296, _shade(paint, 0.3), LW_DETAIL)]
     gap = 296 / n
