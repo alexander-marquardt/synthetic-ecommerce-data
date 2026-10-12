@@ -31,6 +31,8 @@ OWNERS = {
     "Hearth & Table": "own", "Kettleby Tea Co.": "third_party",
     "Brewhollow Roasters": "third_party", "Mirefield Naturals": "third_party",
     "Hollin Hair": "third_party",
+    # The lighting rows (lighting_rows.py, gen#197) also sell these two home brands.
+    "Brackenmere Home": "own", "Harbour & Pine": "third_party",
 }  # fmt: skip
 
 

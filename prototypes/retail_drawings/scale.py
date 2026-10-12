@@ -105,6 +105,7 @@ if str(HERE) not in sys.path:
 import breadth_rows  # noqa: E402
 import distractor_rows  # noqa: E402
 import grocery  # noqa: E402
+import lighting_rows  # noqa: E402
 import scale_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
@@ -151,11 +152,14 @@ DEPARTMENT_SHARE = {
 }  # fmt: skip
 
 #: Keys whose value never changes: who it is for, its name, its size range, the
-#: pattern the drawing shows, and how many motifs it prints where (the drawing's
-#: ``count`` and ``placement``, which the description's wording follows).
+#: pattern the drawing shows, how many motifs it prints where (the drawing's
+#: ``count`` and ``placement``, which the description's wording follows), and a
+#: light's build (gen#197): a wall light's ``ip_rating`` (a bathroom light's text says
+#: where it may go) and what a lampshade's ring fits (``fitting``).
 FROZEN_KEYS = frozenset(
-    {"audience", "line", "size_range", "pattern", "motif_count", "print_placement"}
-)
+    {"audience", "line", "size_range", "pattern", "motif_count", "print_placement",
+     "ip_rating", "fitting"}
+)  # fmt: skip
 
 #: Leaf weight within a department: 1 / rank ** ZIPF_S.
 ZIPF_S = 1.0
@@ -203,9 +207,9 @@ SHIRT_IDS = frozenset(f"PLT-{s.code}" for s in shirt_rows.STYLES)
 
 
 def templates() -> list[dict]:
-    """The authored styles, then :mod:`scale_rows`, :mod:`breadth_rows` and
-    :mod:`distractor_rows` and :mod:`shirt_rows`, then the :mod:`grocery` styles (gen#154), in
-    build order.
+    """The authored styles, then :mod:`scale_rows`, :mod:`breadth_rows`,
+    :mod:`distractor_rows`, :mod:`shirt_rows` and :mod:`lighting_rows` (gen#197), then the
+    :mod:`grocery` styles (gen#154), in build order.
 
     Grocery is last, so a build under the other templates' SKUs is what it was. The main
     build's own 55 Food & Drink styles stay (the failure classes and the Elasticsearch proof
@@ -219,7 +223,7 @@ def templates() -> list[dict]:
     authored = (r for recs in samples().values() for r in recs)
     return [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
-        *shirt_rows.docs(), *grocery.build(),
+        *shirt_rows.docs(), *lighting_rows.docs(), *grocery.build(),
     ]  # fmt: skip
 
 
