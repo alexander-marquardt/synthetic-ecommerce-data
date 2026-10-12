@@ -1172,7 +1172,7 @@ can preselect Navy and show its swatch. The plain text query also finds tees,
 but its response names no SKU: nothing to preselect. Since the print range
 (`prints.py`) added its men's and women's tees, "tee" matches ten products
 with a Navy SKU, the ruling's `PLT-CRWTEE` among them: the facet over
-the result reads Navy 48 SKUs / 10 products, White 9 / 2, Grey 5 / 1, Heather
+the result reads (SKUs / products) Navy 48 / 10, White 9 / 2, Grey 5 / 1, Heather
 Grey 3 / 1.
 
 `es_proof.py --host URL` loads the round 4 corpus plus these records into a
@@ -1359,7 +1359,11 @@ protectors, mattresses and pillow protectors that out-sell the toppers; bestsell
 barrel-leg jeans whose text says balloon; 150 petite styles with a minority on sale,
 and 60 sale styles that never say petite, then the shirts (`shirt_rows.py`: Oxford,
 Flannel, Linen and Denim, for Mens and Womens, under `Tops/Shirts`, typed `Shirt`;
-no derived style copies one), then the grocery styles (below, `grocery.py`,
+no derived style copies one), then the living-room seating (`sofa_rows.py`, gen#196:
+sofas sold as 2, 2.5, 3 and 4 seaters, left- and right-hand corner and chaise sofas,
+modular, recliner and sofa-bed sofas, armchairs and footstools, each drawn by its own
+shape in `kit_seating.py`; no derived style copies one, and
+`tests/test_retail_seating_196.py` holds the range), then the grocery styles (below, `grocery.py`,
 gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It

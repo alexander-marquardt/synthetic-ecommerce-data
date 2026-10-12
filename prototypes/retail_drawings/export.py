@@ -82,6 +82,8 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "variety": ("variety", "Variety", None),
     "skin_concern": ("skin_concern", "Skin concern", None),
     "pack_size": ("pack_size", "Pack size", None),
+    # A recliner sofa's manual or power recline (sofa_rows.py, gen#196).
+    "recline": ("recline", "Recline", None),
     "units_per_pack": ("units_per_pack", "Units per pack", "C62"),
     "net_weight_g": ("net_weight", "Net weight", "GRM"),
     "net_volume_ml": ("net_volume", "Net volume", "MLT"),
