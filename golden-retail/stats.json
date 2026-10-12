@@ -13,13 +13,13 @@
    "skus": 12128,
    "styles": 4386
   },
-  "images": 9229,
+  "images": 9367,
   "non_grocery": {
    "skus": 82273,
    "styles": 3572
   },
-  "skus": 94561,
-  "styles": 7982
+  "skus": 94718,
+  "styles": 8030
  },
  "departments": {
   "Beauty": 200,
@@ -413,8 +413,8 @@
  },
  "templates": {
   "all": {
-   "skus": 40259,
-   "styles": 5368
+   "skus": 40416,
+   "styles": 5416
   },
   "authored": {
    "skus": 6861,
@@ -422,8 +422,8 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 28131,
-   "styles": 982
+   "skus": 28288,
+   "styles": 1030
   },
   "breadth_rows": {
    "skus": 358,
@@ -448,6 +448,10 @@
   "shirt_rows": {
    "skus": 160,
    "styles": 24
+  },
+  "sofa_rows": {
+   "skus": 157,
+   "styles": 48
   }
  }
 }

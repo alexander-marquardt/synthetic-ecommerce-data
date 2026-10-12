@@ -107,6 +107,7 @@ import distractor_rows  # noqa: E402
 import grocery  # noqa: E402
 import scale_rows  # noqa: E402
 import shirt_rows  # noqa: E402
+import sofa_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from export import drawing_spec, image_id, standard_document  # noqa: E402
 from variants import product  # noqa: E402
@@ -200,12 +201,14 @@ GROCERY_PREFIX = "GRC-"
 
 
 SHIRT_IDS = frozenset(f"PLT-{s.code}" for s in shirt_rows.STYLES)
+#: The seating styles (:mod:`sofa_rows`, gen#196), left out of the derivation as the shirts are.
+SOFA_IDS = frozenset(f"BRD-{r.code}" for r in sofa_rows.ROWS)
 
 
 def templates() -> list[dict]:
     """The authored styles, then :mod:`scale_rows`, :mod:`breadth_rows` and
-    :mod:`distractor_rows` and :mod:`shirt_rows`, then the :mod:`grocery` styles (gen#154), in
-    build order.
+    :mod:`distractor_rows`, :mod:`shirt_rows` and :mod:`sofa_rows`, then the :mod:`grocery`
+    styles (gen#154), in build order.
 
     Grocery is last, so a build under the other templates' SKUs is what it was. The main
     build's own 55 Food & Drink styles stay (the failure classes and the Elasticsearch proof
@@ -219,16 +222,17 @@ def templates() -> list[dict]:
     authored = (r for recs in samples().values() for r in recs)
     return [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
-        *shirt_rows.docs(), *grocery.build(),
+        *shirt_rows.docs(), *sofa_rows.docs(), *grocery.build(),
     ]  # fmt: skip
 
 
 def derivable(tpls: list[dict]) -> list[dict]:
     """The templates a derived style may come from: not a grocery style, whose allergen,
     dietary and ingredient facts are the grocery build's own and would not follow a re-draw, nor
-    a shirt (:mod:`shirt_rows`), left out so the seeded derivation is what it was."""
+    a shirt (:mod:`shirt_rows`) or a seating style (:mod:`sofa_rows`), left out so the seeded
+    derivation is what it was."""
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
-            and r["product_id"] not in SHIRT_IDS]  # fmt: skip
+            and r["product_id"] not in SHIRT_IDS | SOFA_IDS]  # fmt: skip
 
 
 def _words(text: str) -> str:
