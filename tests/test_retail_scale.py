@@ -629,10 +629,15 @@ def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(tmp_path):
 def test_the_derivable_styles_hold_the_near_duplicate_share_at_the_ceiling(ceiling):
     """The share is read over the non-grocery styles, as the other population gates are
     (``scale.derivable``): a grocery family's flavors share most of a listing by design and
-    are capped apart in ``test_the_grocery_styles_hold_their_own_near_duplicate_cap``."""
+    are capped apart in ``test_the_grocery_styles_hold_their_own_near_duplicate_cap``.
+
+    Read over EVERY style, as the grocery gate is: the 500 sample's draw moves with the style
+    count, and adding the gen#198 tableware rows moved it up by more than half a point while the
+    whole population fell, with no new row among the sampled pairs."""
     main = scale.derivable(ceiling.records)
-    rate = scale.distinctness(main)["near_duplicate_rate"]
-    assert rate <= CEILING_NEAR_DUPLICATES, f"{rate:.1%} of a sample of {len(main)} styles"
+    rate = scale.distinctness(main, sample=len(main))["near_duplicate_rate"]
+    assert rate == FIGURES["near_duplicates"]["non_grocery"]
+    assert rate <= CEILING_NEAR_DUPLICATES, f"{rate:.1%} of all {len(main)} styles"
 
 
 def test_the_grocery_styles_hold_their_own_near_duplicate_cap(ceiling):
