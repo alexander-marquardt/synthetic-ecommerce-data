@@ -9,3 +9,4 @@ One line per directive; the detail is behind each pointer. This file loads on ev
 - Until #127 merges, the shared core (`src/synthetic_ecommerce_data/core/`) lives on branch `extract-core-125`: base core work on it, not on `main`.
 - Merge with `scripts/merge_pr.sh <PR>`, never the GitHub button: README → Contributing.
 - No AI or bot credit in a commit message; the commit-msg hook and CI refuse it: README → Contributing.
+- A file over 1,750 lines may not grow (`scripts/file_size_gate.py`, core's gate): split it, or add a `File-Size-Exception:` line to the PR body: [docs/file-size-budget.md](docs/file-size-budget.md).

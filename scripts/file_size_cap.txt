@@ -1,0 +1,14 @@
+# The line cap of the file-size gate (elastic/prism#11683): the one number it
+# checks in, in elastic/prism's format (core's scripts/file_size_cap.txt).
+#
+# scripts/file_size_gate.py refuses a measured file over this many lines that
+# has more lines than at the merge base, unless the PR body carries
+# `File-Size-Exception: `<path>` - <reason>`. Raising the number below needs
+# `File-Size-Exception: cap - <reason>`. No per-file size is listed: the merge
+# base records each one, so every file over the cap today is held at its size
+# today, and a file under it may grow up to it. The rule and what the gate
+# cannot see: docs/file-size-budget.md.
+#
+# 1750 is core's cap, kept so the two repositories share one number.
+
+cap 1750

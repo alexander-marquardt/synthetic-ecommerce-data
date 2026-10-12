@@ -82,7 +82,7 @@ GENERATED=(
 #: them. A pull request's commit must carry each REQUIRED_CI check, green; a
 #: SKIPPED_BY_DESIGN_CI check (a push-only job) may also be skipped. Pinned to
 #: the workflow by tests/test_merge_pr.py.
-REQUIRED_CI=(tests commit-messages)
+REQUIRED_CI=(tests commit-messages file-size)
 SKIPPED_BY_DESIGN_CI=(main-merged-tree)
 
 die() {
