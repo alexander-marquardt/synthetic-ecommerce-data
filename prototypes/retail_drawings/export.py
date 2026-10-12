@@ -82,6 +82,9 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "variety": ("variety", "Variety", None),
     "skin_concern": ("skin_concern", "Skin concern", None),
     "pack_size": ("pack_size", "Pack size", None),
+    # A table lamp's shade color and a lampshade's diameter (lighting_rows.py, gen#197).
+    "shade_color": ("shade_color", "Shade color", None),
+    "diameter_cm": ("diameter", "Diameter", "CMT"),
     "units_per_pack": ("units_per_pack", "Units per pack", "C62"),
     "net_weight_g": ("net_weight", "Net weight", "GRM"),
     "net_volume_ml": ("net_volume", "Net volume", "MLT"),
@@ -157,9 +160,14 @@ def _slug(text: str) -> str:
 
 
 def drawing_spec(rec: dict, sku: dict) -> dict:
-    """What one SKU's image draws: its product's drawing in the SKU's color swatch."""
+    """What one SKU's image draws: its product's drawing in the SKU's color swatch, and the
+    SKU's own value of each drawing param it carries (a lamp's ``finish``, a lampshade's
+    ``diameter_cm``: gen#197). A SKU that carries no param key adds nothing, so its image id
+    is what it was."""
     swatch = next((c for c in rec.get("color_options", ()) if c["color"] == sku.get("color")), None)
-    return {"drawing": rec["drawing"], "swatch": swatch}
+    spec = {"drawing": rec["drawing"], "swatch": swatch}
+    own = {k: str(sku[k]) for k in rec["drawing"].get("params") or {} if k in sku}
+    return spec | {"params": own} if own else spec
 
 
 def image_id(rec: dict, sku: dict) -> str:
