@@ -30,7 +30,9 @@ RISES = ("low", "mid", "high")
 # every color x size it is sold in is a SKU nested in it (stock and price are per SKU)
 # --------------------------------------------------------------------------
 
-#: The color facet: a marketing shade ("Washed Black") rolls up to a family.
+#: The family a marketing shade ("Washed Black") rolls up to. It stays on the swatch, where
+#: the scaled build's style signature reads it (``scale.py``), and is no facet: PRISM's
+#: vocabulary groups do that grouping, where a merchandiser can see it (gen#186).
 COLOR_FAMILIES = ("black", "white", "grey", "blue", "navy", "brown", "cream", "green",
                    "red", "pink", "orange", "yellow", "gold", "silver", "multi")  # fmt: skip
 #: Joins a category path into one keyword per ancestor (as industrial does);
@@ -211,8 +213,7 @@ class Style:
         """
         out = []
         for color, _ in self.colors:
-            tag = {} if self.colorless else {
-                "color": color[0], "color_family": SHADE_FAMILY[color[0]]}  # fmt: skip
+            tag = {} if self.colorless else {"color": color[0]}
             if self.metal:
                 tag["finish"] = color[0].lower()
             out += [{**tag, **row} for row in self._sizes(color)]

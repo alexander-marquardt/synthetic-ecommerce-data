@@ -59,7 +59,6 @@ PRODUCT_TYPE_FOLDS = {"Tee": "T-Shirt"}
 #: SKU option -> (key, name, unit): one variant-level entry each; a unit splits it.
 OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "color": ("color", "Color", None),
-    "color_family": ("color_family", "Color family", None),
     "size": ("size", "Size", None),
     "size_uk": ("size_uk", "Size (UK)", None),
     "size_eu": ("size_eu", "Size (EU)", None),
@@ -182,8 +181,6 @@ def _product_attributes(rec: dict) -> list[dict[str, Any]]:
             raise KeyError(f"{rec['product_id']}: no standard home for {field!r}")
     facts = [e for f, spec in FACTS.items() if f in rec for e in _entries(spec, rec[f])]
     facts += [_entry("color", "Color", None, c["color"]) for c in rec.get("color_options", ())]
-    families = dict.fromkeys(c["family"] for c in rec.get("color_options", ()) if "family" in c)
-    facts += [_entry("color_family", "Color family", None, f) for f in families]
     for option, values in rec.get("size_options", {}).items():
         facts += _entries(OPTIONS[option], values)
     if "unit_size" in rec:

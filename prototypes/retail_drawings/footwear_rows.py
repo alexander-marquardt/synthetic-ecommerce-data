@@ -204,13 +204,13 @@ class FootwearStyle:
         """Color x width x size; a later width only in :attr:`wide` (when named)."""
         chart = CHARTS[self.chart]
         out = []
-        for color, family, material in self.colors:
+        for color, _, material in self.colors:
             for width in self.widths:
                 for s in self.sizes:
                     if width != self.widths[0] and self.wide and s not in self.wide:
                         continue
                     uk, eu, us = chart[s]
-                    row = {"color": color[0], "color_family": family, "upper_material": material}
+                    row = {"color": color[0], "upper_material": material}
                     row |= {"size": s} if self.kind == "slipper" else {}
                     row |= {"size_uk": uk, "size_eu": eu, "size_us": us, "width": width,
                             "price": self._price(s),
