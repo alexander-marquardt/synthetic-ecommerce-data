@@ -1,7 +1,7 @@
 """No retail document carries ``color_family`` (gen#186).
 
 ``color_family`` was each SKU's shade lowercased through a fixed table ("Navy Stripe" ->
-"navy"). PRISM showed it beside ``color`` as a second facet, Colour family, listing the
+"navy"). PRISM showed it beside ``color`` as a second color facet, listing the
 same products twice. Grouping shades into a family is a PRISM vocabulary group, which a
 merchandiser can see and change, so the generator does not bake one in.
 
