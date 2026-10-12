@@ -86,14 +86,32 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> 
     assert missing == {}
 
 
-def test_a_handed_style_draws_its_return_on_the_side_its_orientation_names() -> None:
-    wrong = {
-        r.code: (hand, dict(r.params).get("side"))
-        for r in ROWS
-        for hand in _attr(r, "orientation")
-        if dict(r.params).get("side") != hand.split()[0].lower()
-    }
+def test_a_handed_style_draws_its_return_on_the_side_its_orientation_names(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The blocks that come forward of the seats (z < 0) are the return or the chaise; they
+    must lie left of the sofa's center for a left hand and right of it for a right hand."""
+    wrong = {}
+    seen = 0
+    for r in ROWS:
+        for hand in _attr(r, "orientation"):
+            want = hand.split()[0].lower()
+            boxes = _boxes(r, monkeypatch)
+            center = (min(b.x0 for b in boxes) + max(b.x1 for b in boxes)) / 2
+            forward = [b for b in boxes if b.z0 < 0]
+            assert forward, r.code
+            seen += 1
+            got = {"left" if (b.x0 + b.x1) / 2 < center else "right" for b in forward}
+            if got != {want}:
+                wrong[r.code] = (hand, sorted(got))
+    assert seen >= 4
     assert wrong == {}
+
+
+def test_the_corner_and_chaise_drawings_are_both_handed(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Both the corner sofa and the chaise sofa appear among the checked hands."""
+    shapes = {r.shape for r in ROWS if _attr(r, "orientation")}
+    assert {"corner_sofa", "chaise_sofa"} <= shapes
 
 
 def test_a_sofa_drawn_by_seat_count_draws_the_seats_its_record_states() -> None:
@@ -166,3 +184,48 @@ def test_every_seating_style_reaches_the_100k_build_and_meets_the_standard() -> 
     assert sorted(f"BRD-{r.code}" for r in ROWS if f"BRD-{r.code}" not in got) == []
     mine = [d for d in docs if d["product_id"] in scale.SOFA_IDS]
     assert check_catalog(mine, one_class_per_key=True) == []
+
+
+def test_a_line_names_one_brand_across_the_retail_rows() -> None:
+    brands: dict[str, set[str]] = collections.defaultdict(set)
+    for r in ROWS:
+        for line in _attr(r, "line"):
+            brands[line].add(r.brand)
+    assert {line: sorted(b) for line, b in brands.items() if len(b) > 1} == {}
+
+
+def _drawn_after(a: kit_seating.Box, b: kit_seating.Box) -> bool:
+    """Whether ``a`` must be painted after ``b``: it sits on ``b``, else it is nearer, else it
+    is further left. The first axis on which the two are apart decides (y, then z, then x)."""
+    for lo_a, hi_a, lo_b, hi_b, flip in (
+        (a.y0, a.y1, b.y0, b.y1, False),
+        (a.z0, a.z1, b.z0, b.z1, True),
+        (a.x0, a.x1, b.x0, b.x1, True),
+    ):
+        if lo_a >= hi_b:
+            return not flip
+        if lo_b >= hi_a:
+            return flip
+    return False
+
+
+@pytest.mark.parametrize("row", BLOCKED, ids=lambda r: r.code)
+def test_the_painters_order_draws_the_nearer_higher_and_left_block_later(
+    row: sofa_rows.Row, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The oracle does not call ``_before``: of two blocks whose outlines overlap, the one
+    that is higher (larger y), else nearer (smaller z), else further left is drawn later."""
+    boxes = _boxes(row, monkeypatch)
+    place = {id(b): i for i, b in enumerate(kit_seating._order(boxes))}
+    wrong = 0
+    checked = 0
+    for a in boxes:
+        for b in boxes:
+            if a is b or not kit_seating._overlap(a, b):
+                continue
+            if not _drawn_after(a, b):
+                continue
+            checked += 1
+            wrong += place[id(a)] < place[id(b)]
+    assert checked
+    assert wrong == 0, f"{row.code}: {wrong} pairs drawn in the wrong order"
