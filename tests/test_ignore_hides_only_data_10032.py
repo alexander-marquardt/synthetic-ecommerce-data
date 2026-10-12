@@ -14,9 +14,13 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+from file_size_gate import pinned_files  # noqa: E402  (the path is set up just above)
 
 ROOT = Path(__file__).resolve().parent.parent
 IGNORE = ROOT / ".ignore"
@@ -24,7 +28,11 @@ IGNORE = ROOT / ".ignore"
 # YAML is here because policies, vocabularies and customization are YAML.
 CODE_SUFFIXES = (".py", ".sh", ".md", ".toml", ".yaml", ".yml")
 # Protected files hidden on purpose, each with its reason.
-ALLOWED_HIDDEN: dict[str, str] = {}
+ALLOWED_HIDDEN: dict[str, str] = {
+    # The vendored core gate, listed in its pin so the two cannot drift.
+    f"vendor/prism/{path}": "core's file-size gate, a byte-for-byte copy: edit it in core"
+    for path in pinned_files()
+}
 
 
 def _hidden(*exclude: str, root: Path = ROOT) -> list[str]:
