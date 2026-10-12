@@ -12,7 +12,7 @@ plate           a plate in three-quarter view, its rim and well,    kind, diamet
                 drawn to scale over a dimension line
 bowl            a bowl from the side, its rim showing the inside    kind
 cutlery_piece   one piece, or a pack's count fanned from one point  piece, handle, count
-kitchen_knife   a knife lying flat, its blade drawn to scale; a     kind, blade
+kitchen_knife   a knife lying flat, its blade drawn to scale; a     kind, blade, blade_max
                 block set draws the block and its handles
 drinking_glass  a glass in the record's tint: stemmed or tumbler    kind
 kitchen_utensil one utensil standing up, or a set in its pot        kind, material
@@ -394,13 +394,15 @@ def _knife(x0: float, y: float, kind: str, blade_cm: float, paint: str, fill: Fi
 
 
 def kitchen_knife(
-    paint: str, fill: Fill, label: str | None, kind: str = "chef's", blade: str = "20"
+    paint: str, fill: Fill, label: str | None, kind: str = "chef's", blade: str = "20",
+    blade_max: str = "",
 ) -> list[str]:
     """A kitchen knife lying flat, the handle in the record's color, the blade to scale.
 
     A chef's knife has a deep curved blade, a santoku a sheepsfoot tip and dimples, a
     bread knife a long serrated edge with a round end, a paring knife a short point. The
-    dimension line names the blade's length. ``kind="block"`` draws a knife block set."""
+    dimension line names the blade's length, or the range ``blade``-``blade_max`` when the
+    style is sold in several (one image serves every length). ``kind="block"`` draws a knife block set."""
     if kind == "block":
         return _knife_block(paint, fill)
     cm = _num(blade, 20.0)
@@ -408,7 +410,9 @@ def kitchen_knife(
     x0 = (400 - (116 + bl)) / 2
     out = [_shadow(200, 236, 150), *_knife(x0, 220, kind, cm, paint, fill)]
     # a paring knife's short line would hide under "8 cm blade": its chip says "8 cm"
-    text = f"{cm:g} cm blade" if 10 + 7 * len(f"{cm:g} cm blade") + 20 <= bl else f"{cm:g} cm"
+    hi = _num(blade_max, cm) if blade_max else cm
+    span = f"{cm:g}-{hi:g}" if hi != cm else f"{cm:g}"
+    text = f"{span} cm blade" if 10 + 7 * len(f"{span} cm blade") + 20 <= bl else f"{span} cm"
     out += _dim(x0 + 116, 290, x0 + 116 + bl, 290, text)
     return out
 

@@ -235,8 +235,12 @@ def _blades(*pairs: tuple[int, float]) -> tuple[tuple[str, float], ...]:
 
 
 def _kn(code, title, brand, desc, colors, attrs, blades, kind) -> Row:  # fmt: skip
+    # the image is shared by every blade length of a color, so a style sold in several
+    # lengths states its range ("15-23 cm"), never one length the SKU may not sell
+    lo, hi = blades[0][0], blades[-1][0]
+    span = (("blade_max", hi),) if hi != lo else ()
     return _tw(code, title, brand, "Kitchen Knives", "Kitchen Knife", "kitchen_knife", desc,
-               colors, attrs, blades, (("kind", kind), ("blade", blades[0][0])),
+               colors, attrs, blades, (("kind", kind), ("blade", lo), *span),
                size_key="blade_length_cm", unit="CMT", axis_name="Blade length")  # fmt: skip
 
 

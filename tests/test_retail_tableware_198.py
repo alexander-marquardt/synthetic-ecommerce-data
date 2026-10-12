@@ -165,3 +165,26 @@ def test_every_drawn_kind_is_one_its_shape_knows() -> None:
         ):
             fallen.append((d["product_id"], params[KIND_PARAM[shape]]))
     assert fallen == []
+
+
+def test_a_knifes_image_states_no_blade_length_its_sku_does_not_sell() -> None:
+    """One image serves every blade length of a color, so its chip names the length only
+    when the style sells one, and otherwise the style's whole range."""
+    import re
+
+    fill = kit.Fill("solid", "#123456", "#654321")
+    checked = 0
+    for d in _of("Kitchen Knife"):
+        lengths = sorted({int(s["blade_length_cm"]) for s in d["skus"] if "blade_length_cm" in s})
+        if not lengths:
+            continue
+        svg = kit.render("kitchen_knife", fill, uid="k", params=d["drawing"]["params"])
+        chips = re.findall(r">(\d+(?:-\d+)? cm)(?: blade)?<", svg)
+        assert len(chips) == 1, (d["product_id"], chips)
+        stated = [int(n) for n in chips[0].removesuffix(" cm").split("-")]
+        want = [lengths[0]] if len(lengths) == 1 else [lengths[0], lengths[-1]]
+        assert stated == want, (d["product_id"], chips, lengths)
+        for s in d["skus"]:
+            assert int(s["blade_length_cm"]) in range(stated[0], stated[-1] + 1), s["sku_id"]
+            checked += 1
+    assert checked >= 20
