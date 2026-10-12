@@ -30,3 +30,15 @@ repos:
         entry: python3 scripts/check_commit_msg.py
         language: system
         stages: [commit-msg]
+      # The file-size cap at commit time (elastic/prism#11683), core's hook
+      # run on this tree: it names each File-Size-Exception line the PR body
+      # will need, and prints nothing when nothing grew. It refuses only when
+      # PRISM_PR_BODY_FILE names a body that lacks a line, or an agent commit
+      # (AGENT_TMP set) has no body. docs/file-size-budget.md.
+      - id: file-size-warning
+        name: file-size cap at commit
+        entry: python3 scripts/file_size_gate.py --base origin/main --warn-at-commit
+        language: system
+        pass_filenames: false
+        always_run: true
+        verbose: true
