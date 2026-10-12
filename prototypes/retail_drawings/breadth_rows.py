@@ -31,6 +31,8 @@ OWNERS = {
     "Hearth & Table": "own", "Kettleby Tea Co.": "third_party",
     "Brewhollow Roasters": "third_party", "Mirefield Naturals": "third_party",
     "Hollin Hair": "third_party",
+    # The furniture rows (furniture_rows.py, gen#199) also sell this furniture brand.
+    "Brackenmere Home": "own",
 }  # fmt: skip
 
 
@@ -1347,5 +1349,10 @@ DEPARTMENTS = {
 
 
 def docs() -> list[dict]:
-    """Every breadth row's catalog document, department by department."""
-    return [r.doc() for r in (*(r for rows in DEPARTMENTS.values() for r in rows), *BREADTH_34)]
+    """Every breadth row's catalog document, department by department, then the furniture
+    (:mod:`furniture_rows`, imported here: it builds on :class:`Row`, so a top-level import
+    would be a cycle)."""
+    import furniture_rows
+
+    rows = (*(r for rows in DEPARTMENTS.values() for r in rows), *BREADTH_34)
+    return [*(r.doc() for r in rows), *furniture_rows.docs()]
