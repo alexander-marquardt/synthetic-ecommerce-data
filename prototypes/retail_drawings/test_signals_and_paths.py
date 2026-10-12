@@ -202,8 +202,8 @@ def test_oranges_has_flavour_and_color_distractors_and_a_type_only_true_hit() ->
     assert "orange" not in (peel["title"] + peel["description"]).lower()
     flavours = [_one(c) for c in distractors if _one(c)["department"] == ["Food & Drink"]]
     assert len(flavours) == 4 and sum(d["new_in"] for d in flavours) == 3
-    colored = [_one(c) for c in distractors
-               if any(s.get("color_family") == "orange" for s in _one(c)["skus"])]  # fmt: skip
+    swatches = {c: _one(c).get("color_options", ()) for c in distractors}
+    colored = [_one(c) for c, sw in swatches.items() if any(o["family"] == "orange" for o in sw)]
     assert {d["department"][0] for d in colored} == {"Clothing", "Garden"}
 
 
