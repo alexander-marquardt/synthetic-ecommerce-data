@@ -31,6 +31,8 @@ OWNERS = {
     "Hearth & Table": "own", "Kettleby Tea Co.": "third_party",
     "Brewhollow Roasters": "third_party", "Mirefield Naturals": "third_party",
     "Hollin Hair": "third_party",
+    # The mop rows (household_rows.py, gen#200) sell the cleaning department's extra brands.
+    "Clearbrook Household": "third_party", "Soapwell": "third_party",
 }  # fmt: skip
 
 
@@ -1030,7 +1032,8 @@ BEAUTY = (
 
 # --------------------------------------------------------------------------
 # Home (growth round 3): the cushion's or towel's fabric and the basket's material
-# vary; the shape is drawn in the hero color.
+# vary; the shape is drawn in the hero color. A basket draws as a ``storage_box``
+# (kit_household.py, gen#200) whose ``material`` param follows a derived material.
 # --------------------------------------------------------------------------
 
 _CUSH = ("Home", "Soft Furnishings", "Cushions")
@@ -1078,24 +1081,28 @@ HOME = (
         _fab("Zero Twist Cotton"),
         (("Hand Towel", 11.0), ("Bath Towel", 19.0), ("Bath Sheet", 30.0))),
     Row("BSKSEA", "Seagrass Lidded Storage Basket", "Lanternby", "Home", _BASKET,
-        "Storage Basket", 22.0, "box_wide",
+        "Storage Basket", 22.0, "storage_box",
         "A woven basket with a fitted lid and two handles, for blankets or toys.",
         (cw("Natural", "#c9a96e"), cw("Black", "#2a2a2e")), _mat("Seagrass"),
-        (("Medium", 22.0), ("Large", 30.0))),
+        (("Medium", 22.0), ("Large", 30.0)),
+        params=(("form", "box"), ("lid", "yes"), ("material", "seagrass"))),
     Row("BSKRAT", "Rattan Round Storage Basket", "Calderby & Lune", "Home", _BASKET,
-        "Storage Basket", 26.0, "box_wide",
+        "Storage Basket", 26.0, "storage_box",
         "A round woven basket with cut-out handles, for a shelf or a bathroom floor.",
         (cw("Honey", "#c48a3a"), cw("Natural", "#c9a96e")), _mat("Rattan"),
-        (("Small", 18.0), ("Medium", 26.0))),
+        (("Small", 18.0), ("Medium", 26.0)),
+        params=(("form", "round"), ("lid", "no"), ("material", "rattan"))),
     Row("BSKHYA", "Water Hyacinth Storage Basket", "Hearth & Table", "Home", _BASKET,
-        "Storage Basket", 24.0, "box_wide",
+        "Storage Basket", 24.0, "storage_box",
         "A chunky woven basket on a metal frame that keeps its shape, with rope handles.",
         (cw("Natural", "#c9a96e"), cw("Grey Wash", "#9a9a94")), _mat("Water Hyacinth"),
-        (("Medium", 24.0), ("Large", 32.0))),
+        (("Medium", 24.0), ("Large", 32.0)),
+        params=(("form", "box"), ("lid", "no"), ("material", "water hyacinth"))),
     Row("BSKFLT", "Felt Storage Basket", "Lanternby", "Home", _BASKET, "Storage Basket", 14.0,
-        "box_wide", "A soft folding basket with stitched loop handles, for a cube shelf.",
+        "storage_box", "A soft folding basket with stitched loop handles, for a cube shelf.",
         (cw("Grey Marl", "#9a9ca0"), cw("Charcoal", "#3b3b3e"), cw("Oat", "#d8c9a8")),
-        _mat("Felt")),
+        _mat("Felt"),
+        params=(("form", "box"), ("lid", "no"), ("material", "felt"))),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
@@ -1161,12 +1168,20 @@ _DIN16 = Contents((4, "dinner plates"), (4, "side plates"), (4, "bowls"), (4, "m
 _SCR6 = Contents((3, "slotted screwdrivers"), (3, "Phillips screwdrivers"))
 _BIT32 = Contents((8, "slotted bits"), (8, "Phillips bits"), (8, "Torx bits"), (8, "hex bits"))
 _BIT100 = Contents(
-    (24, "slotted bits"), (24, "Phillips bits"), (24, "Torx bits"), (24, "hex bits"),
-    (2, "holders"), (1, "bit extender"), (1, "case"),
+    (24, "slotted bits"),
+    (24, "Phillips bits"),
+    (24, "Torx bits"),
+    (24, "hex bits"),
+    (2, "holders"),
+    (1, "bit extender"),
+    (1, "case"),
 )
 _SKT40 = Contents((38, "metric sockets"), (1, "ratchet"), (1, "extension bar"))
 _SKT94 = Contents(
-    (44, "metric sockets"), (44, "imperial sockets"), (2, "ratchets"), (2, "extension bars"),
+    (44, "metric sockets"),
+    (44, "imperial sockets"),
+    (2, "ratchets"),
+    (2, "extension bars"),
     (2, "bit adaptors"),
 )
 _DINO6 = Contents((6, "dinosaurs"))

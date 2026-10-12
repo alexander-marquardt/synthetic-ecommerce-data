@@ -75,6 +75,9 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "dimensions": ("dimensions", "Dimensions", None),
     "length_cm": ("item_length", "Item length", "CMT"),
     "width_cm": ("item_width", "Item width", "CMT"),
+    # A pan's diameter and a bin's or a box's capacity (household_rows.py, gen#200).
+    "diameter_cm": ("diameter", "Diameter", "CMT"),
+    "capacity_l": ("capacity", "Capacity", "LTR"),
     # The grocery build's flavor x pack SKUs (grocery.py, gen#154); a list option
     # (an allergen list, the dietary labels) is one entry per value.
     "flavor": ("flavor", "Flavor", None),
