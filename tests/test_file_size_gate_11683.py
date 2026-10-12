@@ -140,7 +140,7 @@ def test_this_tree_is_judged(capsys) -> None:
 
 _GH_STUB = """#!/bin/sh
 case "$1" in
-  pr) cat "$GH_STUB_BODY" ;;
+  pr) [ "$2 $4 $5 $6 $7" = "view --json body --jq .body" ] || exit 2; cat "$GH_STUB_BODY" ;;
   api) cat "$GH_STUB_HTML" ;;
   *) exit 2 ;;
 esac
