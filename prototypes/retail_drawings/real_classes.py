@@ -11,8 +11,8 @@ fields a policy reads and a title never states:
 - ``was_price``, present only on a sale item (``price < was_price``);
 - popularity: ``sold_last_5_days`` and ``bestseller_rank`` (1 = best);
 - the variant structure (:meth:`Style.doc`, gen#125 ruling): one document per
-  style, its color x size SKUs nested in ``skus`` (each with ``color`` and
-  ``color_family``), ``color_options`` and ``size_options`` derived from them,
+  style, its color x size SKUs nested in ``skus`` (each with its ``color``),
+  ``color_options`` and ``size_options`` derived from them,
   a pooled rating, ``price_min``/``price_max``, and a legwear ``size_range``
   derived by :func:`derive_size_range`.
 
@@ -171,7 +171,6 @@ SKUS = {
     "properties": {
         "sku": {"type": "keyword"},
         "color": {"type": "keyword"},
-        "color_family": {"type": "keyword"},
         "finish": {"type": "keyword"},
         "size": {"type": "keyword"},
         "waist": {"type": "keyword"},

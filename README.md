@@ -1117,10 +1117,14 @@ them.
 Every record, round 4's included, is one document per STYLE (the gen#125
 ruling, built by `variants.product`): a product with a color selector and a
 size selector. Every color x size combination the style is sold in is a SKU
-nested in `skus`, with its own `sku` id (`<product_id>-001` on), `color` (and
-`color_family`), size per size system, `price` and `in_stock`. The product's
-`color_options` (one swatch per color: `color`, `hex`, `pattern`, `family`)
-and `size_options` are derived from its SKUs, never authored, so they cannot
+nested in `skus`, with its own `sku` id (`<product_id>-001` on), `color`,
+size per size system, `price` and `in_stock`. No document carries a color
+family (gen#186): it listed the same products as `color` under a second
+facet, and grouping shades ("navy" covering Navy and Navy Check) is a PRISM
+vocabulary group, which a merchandiser can see and change. The product's
+`color_options` (one swatch per color: `color`, `hex`, `pattern`, `family`;
+that `family` stays in the build, where the scaled catalog reads it to tell
+styles apart, and is not exported) and `size_options` are derived from its SKUs, never authored, so they cannot
 disagree with them; `sku_count` is the number of SKUs. Products = styles,
 SKUs = nested rows: the crew-neck tee `PLT-CRWTEE` in Navy and White (S to XL)
 and Heather Grey (S to L) is ONE product holding 11 SKUs. Rating, review count
@@ -1301,7 +1305,7 @@ carries no display names: a consumer's field map names each key.
 
 `core/variant_axes.py` derives it from the SKUs the generator emitted: the attributes that vary
 across the product, less the *derived* ones (a nut's width across flats follows its thread size,
-a color family follows the color), in the generator's own order. What remains names exactly one
+a UK size follows the US size), in the generator's own order. What remains names exactly one
 SKU. `tests/test_variant_axes_47.py` pins the issue's five invariants on both builds, each with a
 planted failure. Not every combination exists, so a consumer limits a dropdown to the
 combinations the product's SKUs offer.
