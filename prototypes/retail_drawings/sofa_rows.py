@@ -289,9 +289,9 @@ RECLINER_ROWS = (
               (BROWN, BLACK, TAN), True, "Adjustable"),
     _recliner("RCRUS2", "Rusholme", "Larchwood Living", "Leather", 2, 158, 1199.0,
               (BROWN, BLACK), True, "Adjustable"),
-    _recliner("RCHAL3", "Halsey", "Emberly Home", "Faux Leather", 3, 204, 999.0,
+    _recliner("RCMOR3", "Morland", "Emberly Home", "Faux Leather", 3, 204, 999.0,
               (BLACK, GREY), False, "Fixed"),
-    _recliner("RCPEN2", "Penley", "Cobble & Kiln", "Chenille", 2, 162, 899.0,
+    _recliner("RCKEN2", "Kenwick", "Cobble & Kiln", "Chenille", 2, 162, 899.0,
               (CHARCOAL, OAT, SAGE), True, "Fixed"),
 )  # fmt: skip
 
