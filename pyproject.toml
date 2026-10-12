@@ -79,6 +79,9 @@ timeout = 300
 [tool.ruff]
 line-length = 100
 src = ["src", "tests"]
+# elastic/prism's file-size gate, vendored byte for byte (vendor/prism/PIN.txt):
+# core lints it under core's rules, and a fix here would break the pin.
+extend-exclude = ["vendor"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]

@@ -11,10 +11,12 @@ repos:
     hooks:
       # The golden catalog is written byte-for-byte by ``ecom-generate build``
       # and compared by sha256; a byte a hook added would red the golden test.
+      # vendor/ is core's code byte for byte, pinned by git blob id
+      # (vendor/prism/PIN.txt): a fixed byte would break the pin.
       - id: end-of-file-fixer
-        exclude: ^golden-catalog/
+        exclude: ^(golden-catalog|vendor)/
       - id: trailing-whitespace
-        exclude: ^golden-catalog/
+        exclude: ^(golden-catalog|vendor)/
       - id: check-yaml
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.5
