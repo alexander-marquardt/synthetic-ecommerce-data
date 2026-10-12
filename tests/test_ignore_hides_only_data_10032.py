@@ -73,7 +73,7 @@ def test_every_allowed_hidden_file_is_still_hidden() -> None:
 
 
 PLANTED = {
-    "data/vocab/colour.yaml": "a: 1\n",
+    "data/vocab/color.yaml": "a: 1\n",
     "customization.yaml": "a: 1\n",
     "data/policies/p.yml": "a: 1\n",
     "data/notes.txt": "x\n",
@@ -95,9 +95,9 @@ def _planted_repo(tmp_path: Path) -> Path:
 @pytest.mark.parametrize(
     ("pattern", "expected"),
     [
-        ("data/vocab/*.yaml", ["data/vocab/colour.yaml"]),
+        ("data/vocab/*.yaml", ["data/vocab/color.yaml"]),
         ("customization.yaml", ["customization.yaml"]),
-        ("*.yaml", ["customization.yaml", "data/vocab/colour.yaml"]),
+        ("*.yaml", ["customization.yaml", "data/vocab/color.yaml"]),
         ("data/policies/", ["data/policies/p.yml"]),
         ("src/pkg/data/", ["src/pkg/data/LOUD.YAML", "src/pkg/data/mod.py"]),
     ],
