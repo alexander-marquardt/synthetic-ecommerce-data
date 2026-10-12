@@ -21,6 +21,7 @@ import kit_home  # noqa: E402,F401 -- registers table_lamp
 import kit_more  # noqa: E402,F401 -- registers chairbed
 import prints  # noqa: E402
 import real_classes as rc  # noqa: E402
+from class_model import SHADE_FAMILY  # noqa: E402
 
 CLASS_DOCS = rc.class_docs()
 CORPUS = rc.corpus()
@@ -171,14 +172,15 @@ def test_a_style_carries_one_swatch_per_sku_color_with_its_family() -> None:
     colorless = [d for d in CLASS_DOCS if "color_options" not in d]
     assert len(colorless) == 32  # food and furniture: no color facet, no swatches
     for d in colorless:
-        assert _colors(d) == [] and not any("color_family" in s for s in d["skus"]), d["product_id"]
+        assert _colors(d) == [], d["product_id"]
     for d in (d for d in CLASS_DOCS if "color_options" in d):
         assert [o["color"] for o in d["color_options"]] == _colors(d), d["product_id"]
-        family = {s["color"]: s["color_family"] for s in d["skus"]}
         for o in d["color_options"]:
-            assert o["family"] == family[o["color"]] and o["family"] in rc.COLOR_FAMILIES
+            assert o["family"] == SHADE_FAMILY[o["color"]] in rc.COLOR_FAMILIES
         # The tile draws the lead color: the first swatch.
         assert d["color_options"][0]["hex"] == d["drawing"]["base"], d["product_id"]
+    # The family stays on the swatch; no SKU carries it (gen#186).
+    assert not any("color_family" in s for d in CLASS_DOCS for s in d["skus"])
 
 
 def test_rating_and_review_count_are_pooled_once_per_style() -> None:
@@ -197,7 +199,7 @@ def test_legwear_skus_are_waist_by_inside_leg_with_stock_per_color() -> None:
     mid = _style("PLT-BRLMID")
     assert len(mid["skus"]) == mid["sku_count"] == 5 * 10 * 5
     assert {tuple(sorted(s)) for s in mid["skus"]} == {
-        ("color", "color_family", "in_stock", "inside_leg", "price", "sku", "waist")
+        ("color", "in_stock", "inside_leg", "price", "sku", "waist")
     }
     assert [s["sku"] for s in mid["skus"]] == [f"PLT-BRLMID-{n:03d}" for n in range(1, 251)]
     per_color = {c: [s for s in mid["skus"] if s["color"] == c] for c in _colors(mid)}
@@ -243,7 +245,7 @@ def test_size_range_is_the_set_of_in_stock_lengths_across_the_style() -> None:
 
 def test_bedding_skus_are_bed_sizes_labelled_with_their_dimension_and_priced_each() -> None:
     topper = _style("PLT-MTTMEM")
-    white = {"color": "White", "color_family": "white"}
+    white = {"color": "White"}
     stock = {"in_stock": True}
     assert topper["skus"] == [
         {"sku": "PLT-MTTMEM-001", **white, "bed_size": "Single (3 ft)", "price": 60.0, **stock},
@@ -289,7 +291,7 @@ def test_the_index_maps_the_skus_as_nested_and_the_variant_facets_as_keywords() 
     for key in ("size_range", "rise"):
         assert props[key] == {"type": "keyword"}
     # Color is per SKU: a color filter or facet goes through the nested rows.
-    for key in ("sku", "color", "color_family", "finish", "size", "bed_size"):
+    for key in ("sku", "color", "finish", "size", "bed_size"):
         assert props["skus"]["properties"][key] == {"type": "keyword"}, key
     assert not {"color", "color_family", "color_shade"} & props.keys()
 
