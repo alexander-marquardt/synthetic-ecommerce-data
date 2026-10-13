@@ -75,6 +75,9 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "dimensions": ("dimensions", "Dimensions", None),
     "length_cm": ("item_length", "Item length", "CMT"),
     "width_cm": ("item_width", "Item width", "CMT"),
+    # A pan's diameter and a bin's or a box's capacity (household_rows.py, gen#200).
+    "diameter_cm": ("diameter", "Diameter", "CMT"),
+    "capacity_l": ("capacity", "Capacity", "LTR"),
     # A mirror's glass and a bookcase's height (furniture_rows.py, gen#199).
     "height_cm": ("item_height", "Item height", "CMT"),
     "blade_length_cm": ("blade_length", "Blade length", "CMT"),
