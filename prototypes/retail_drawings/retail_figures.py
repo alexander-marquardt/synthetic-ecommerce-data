@@ -28,6 +28,7 @@ HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
+import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import distractor_rows  # noqa: E402
@@ -38,6 +39,7 @@ import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import scale  # noqa: E402
 import scale_rows  # noqa: E402
+import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
 import toys_rows  # noqa: E402
@@ -106,6 +108,7 @@ def measure() -> dict[str, Any]:
         "breadth_rows": breadth_rows.docs(),
         "distractor_rows": distractor_rows.docs(),
         "shirt_rows": shirt_rows.docs(),
+        "accessory_rows": accessory_rows.docs(),
         "household_rows": household_rows.docs(),
         "lowerbody_rows": lowerbody_rows.docs(),
         "lighting_rows": lighting_rows.docs(),
@@ -113,6 +116,7 @@ def measure() -> dict[str, Any]:
         "appliance_rows": appliance_rows.docs(),
         "underwear_rows": underwear_rows.docs(),
         "toys_rows": toys_rows.docs(),
+        "seasonal_rows": seasonal_rows.docs(),
         "grocery": grocery.build(),
     }
     ceiling = scale.build(EXHAUST)
