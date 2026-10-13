@@ -89,7 +89,7 @@ def _stitch(d: str) -> str:
 
 
 def _gem(cx: float, cy: float, r: float, stone: str) -> list[str]:
-    """A cut gem in ``stone`` colour: a kite with facet lines."""
+    """A cut gem in ``stone`` color: a kite with facet lines."""
     c = STONES.get(stone.lower(), NEUTRAL_STONE) if stone else NEUTRAL_STONE
     top, mid, bot = cy - r * 0.8, cy - r * 0.2, cy + r
     d = f"M{cx - r:.1f},{mid:.1f} L{cx - r * 0.55:.1f},{top:.1f} L{cx + r * 0.55:.1f},{top:.1f} L{cx + r:.1f},{mid:.1f} L{cx:.1f},{bot:.1f} Z"

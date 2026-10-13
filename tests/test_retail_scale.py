@@ -48,9 +48,11 @@ AUTHORED = FIGURES["templates"]["authored"]["styles"]
 BREADTH_ROWS = FIGURES["templates"]["breadth_rows"]["styles"]
 DISTRACTOR_ROWS = FIGURES["templates"]["distractor_rows"]["styles"]
 SHIRT_ROWS = FIGURES["templates"]["shirt_rows"]["styles"]
+ACCESSORY_ROWS = FIGURES["templates"]["accessory_rows"]["styles"]
 GROCERY_ROWS = FIGURES["templates"]["grocery"]["styles"]
 TEMPLATES = (
-    AUTHORED + SCALE_ROWS + BREADTH_ROWS + DISTRACTOR_ROWS + SHIRT_ROWS + GROCERY_ROWS
+    AUTHORED + SCALE_ROWS + BREADTH_ROWS + DISTRACTOR_ROWS + SHIRT_ROWS + ACCESSORY_ROWS
+    + GROCERY_ROWS
 )
 #: The SKUs the templates alone hold. A build at or under it takes no seeded draw, so
 #: every derived-style test (``pairs``) would pass on an empty list.

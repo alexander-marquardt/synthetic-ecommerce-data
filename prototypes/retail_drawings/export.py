@@ -76,6 +76,11 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "length_cm": ("item_length", "Item length", "CMT"),
     "width_cm": ("item_width", "Item width", "CMT"),
     "blade_length_cm": ("blade_length", "Blade length", "CMT"),
+    # Bags, umbrellas and jewelry (accessory_rows.py, gen#207): a backpack's capacity, an
+    # umbrella's canopy, a necklace's length (item_length), a jewelry SKU's metal.
+    "capacity_l": ("capacity", "Capacity", "LTR"),
+    "canopy_cm": ("canopy_diameter", "Canopy diameter", "CMT"),
+    "metal": ("metal", "Metal", None),
     # The grocery build's flavor x pack SKUs (grocery.py, gen#154); a list option
     # (an allergen list, the dietary labels) is one entry per value.
     "flavor": ("flavor", "Flavor", None),
