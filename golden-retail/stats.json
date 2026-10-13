@@ -1,6 +1,6 @@
 {
  "ceiling": {
-  "derived_styles": 4516,
+  "derived_styles": 4517,
   "food_and_drink": {
    "skus": 11329,
    "styles": 4082
@@ -13,12 +13,12 @@
    "skus": 12128,
    "styles": 4386
   },
-  "images": 14750,
+  "images": 14810,
   "non_grocery": {
-   "skus": 92065,
+   "skus": 93735,
    "styles": 5567
   },
-  "skus": 108686,
+  "skus": 110356,
   "styles": 10277
  },
  "departments": {
@@ -408,13 +408,13 @@
  "near_duplicates": {
   "grocery": 0.0337,
   "grocery_grid_clones": 4,
-  "non_grocery": 0.0178,
-  "non_grocery_grid_clone_rate": 0.1351
+  "non_grocery": 0.0174,
+  "non_grocery_grid_clone_rate": 0.1286
  },
  "templates": {
   "all": {
-   "skus": 48041,
-   "styles": 5761
+   "skus": 48040,
+   "styles": 5760
   },
   "appliance_rows": {
    "skus": 124,
@@ -426,8 +426,8 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 35913,
-   "styles": 1375
+   "skus": 35912,
+   "styles": 1374
   },
   "breadth_rows": {
    "skus": 664,
@@ -458,8 +458,8 @@
    "styles": 63
   },
   "plain_rows": {
-   "skus": 22,
-   "styles": 9
+   "skus": 21,
+   "styles": 8
   },
   "scale_rows": {
    "skus": 17078,
