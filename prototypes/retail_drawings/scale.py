@@ -207,7 +207,8 @@ TOY_IDS = frozenset(f"BRD-{r.code}" for r in toys_rows.ROWS)
 
 def templates() -> list[dict]:
     """The authored styles, then :mod:`scale_rows`, :mod:`breadth_rows` and
-    :mod:`distractor_rows`, :mod:`shirt_rows` and :mod:`toys_rows`, then the :mod:`grocery` styles (gen#154), in
+    :mod:`distractor_rows`, :mod:`shirt_rows` and :mod:`toys_rows`,
+    then the :mod:`grocery` styles (gen#154), in
     build order.
 
     Grocery is last, so a build under the other templates' SKUs is what it was. The main
