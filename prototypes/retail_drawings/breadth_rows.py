@@ -4,7 +4,7 @@
 the deep-SKU rows left a general-retail catalog thin outside clothing and lingerie: at
 the ceiling, toys, garden, gifts and cleaning held under 1% of the styles each, and
 food and beauty under 5%. These rows give each thin department leaves of its own, so
-that no department falls under half its fair share of the ceiling's styles
+that every department holds at least :data:`DEPARTMENT_FLOOR` styles at the ceiling
 (``tests/test_retail_scale.py`` pins it).
 
 A row adds capacity through a title-visible value its leaf varies (:func:`scale.value_pools`):
@@ -444,6 +444,17 @@ GARDEN = (
         "A tree with a clear stem of about 1.2 m, for a lawn or a large border.",
         (cw("Green", "#457a35", "solid", "#c8312e"),), _var("Discovery"), label="Apple",
         colorless=True),
+    # gen#198: with the Food & Drink and air freshener rows, these keep Garden and Cleaning
+    # over half their fair share of styles once the tableware rows grew Home
+    # (tests/test_retail_scale.py).
+    Row("APLJAZ", "Jazz Apple Tree, Patio Bush", "Fenwold Nursery", "Garden", _APPLE, "Plant",
+        30.0, "potted_tree", "A compact tree on a dwarfing root for a large pot on a sunny patio.",
+        (cw("Green", "#457a35", "solid", "#c8312e"),), _var("Jazz"), label="Apple",
+        colorless=True),
+    Row("APLFIE", "Fiesta Apple Tree, Bare Root", "Thistle & Wren", "Garden", _APPLE, "Plant",
+        24.0, "potted_tree", "Lifted in winter and sent bare root, to plant before spring.",
+        (cw("Green", "#457a35", "solid", "#c8312e"),), _var("Fiesta"), label="Apple",
+        colorless=True),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
@@ -803,6 +814,14 @@ CLEANING = (
         "A quick burst for a kitchen or a bathroom that clears cooking smells. "
         "Scented with orange blossom.",
         _spray("Yellow", "#2a2a2e"), _scent("Orange Blossom"), label="Aerosol", colorless=True),
+    Row("AIRSEA", "Sea Salt Reed Diffuser 100ml", "Pantry Mill", _CJ, _AIR, "Air Freshener",
+        8.0, "jar", "A glass bottle with eight rattan reeds; turn the reeds weekly. "
+        "Scented with sea salt.",
+        _spray("Aqua", "#b08a5a"), _scent("Sea Salt"), label="Reeds", colorless=True),
+    Row("AIRBRG", "Bergamot Room Spray 300ml", "Freshfold", _CJ, _AIR, "Air Freshener", 4.0,
+        "bottle", "A fine mist for a hallway or a living room that lasts for hours. "
+        "Scented with bergamot.",
+        _spray("Lilac", "#2a2a2e"), _scent("Bergamot"), label="Room Spray", colorless=True),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
@@ -975,6 +994,28 @@ FOOD = (
     Row("PSTFAR", "Farfalle Durum Wheat Pasta", "Pantry Mill", _FD, _PASTA, "Pasta", 1.1, "box",
         "A 500 g box for a family pasta bake. Cooks in 12 minutes.",
         (cw("Yellow", "#f2d14b", "solid", "#2a2a2e"),), _shape("Farfalle"), label="Pasta",
+        colorless=True),
+    # gen#198: the tableware rows grew Home, so these lift Food & Drink back over half its
+    # fair share of styles (tests/test_retail_scale.py), as the round 2 food rows did.
+    Row("PSTLIN", "Linguine Durum Wheat Pasta", "Freshfold", _FD, _PASTA, "Pasta", 1.3, "box",
+        "Flat ribbons that carry a seafood or pesto sauce. Cooks in 9 minutes.",
+        (cw("Orange", "#e07a1f", "solid", "#efe8d8"),), _shape("Linguine"), label="Pasta",
+        colorless=True),
+    Row("PSTCON", "Conchiglie Durum Wheat Pasta", "Hearth & Table", _FD, _PASTA, "Pasta", 1.1,
+        "box", "Ridged shells that scoop up a chunky sauce. Cooks in 11 minutes.",
+        (cw("Navy", "#26365c", "solid", "#efe8d8"),), _shape("Conchiglie"),
+        (("500g", 1.1), ("1kg", 1.9)), "Pasta", colorless=True),
+    Row("OILCRO", "Croatian Extra Virgin Olive Oil", "Freshfold", _FD, _OIL, "Olive Oil", 9.0,
+        "bottle", "A green, peppery oil from Istrian groves, in a 500 ml bottle.",
+        (cw("Green", "#4f7a3a", "solid", "#d4af37"),), _origin("Croatian"), label="Olive Oil",
+        colorless=True),
+    Row("OILTUN", "Tunisian Extra Virgin Olive Oil", "Pantry Mill", _FD, _OIL, "Olive Oil", 6.0,
+        "bottle", "A smooth, fruity oil for dressings and baking, in a 500 ml bottle.",
+        (cw("Yellow", "#f2d14b", "solid", "#2a2a2e"),), _origin("Tunisian"), label="Olive Oil",
+        colorless=True),
+    Row("OILSIC", "Sicilian Extra Virgin Olive Oil", "Hearth & Table", _FD, _OIL, "Olive Oil",
+        10.0, "bottle", "A grassy, artichoke-sharp oil for bread and salads, in a 500 ml bottle.",
+        (cw("Green", "#4f7a3a", "solid", "#d4af37"),), _origin("Sicilian"), label="Olive Oil",
         colorless=True),
 )  # fmt: skip
 
@@ -1341,6 +1382,14 @@ BREADTH_34 = (
 )  # fmt: skip
 
 
+#: The fewest derivable styles any department holds at the ceiling build (gen#220). It is a
+#: count of the department's own, not a share of the total: a batch that grows one department
+#: (the Home types of gen#196-#217) moves no other department's standing, so it needs no
+#: filler rows elsewhere. The smallest department at the ceiling holds 180 (Food & Drink);
+#: dropping half of any thin department's rows here leaves it with 64 to 116.
+DEPARTMENT_FLOOR = 150
+
+
 #: Every breadth row, by department.
 DEPARTMENTS = {
     "Toys": TOYS, "Garden": GARDEN, "Gifts": GIFTS, _CJ: CLEANING, _FD: FOOD, "Beauty": BEAUTY,
@@ -1349,10 +1398,12 @@ DEPARTMENTS = {
 
 
 def docs() -> list[dict]:
-    """Every breadth row's catalog document, department by department, then the furniture
-    (:mod:`furniture_rows`, imported here: it builds on :class:`Row`, so a top-level import
-    would be a cycle)."""
+    """Every breadth row's catalog document, department by department, then the tableware
+    and kitchen utensil rows (:mod:`tableware_rows`, gen#198), then the furniture
+    (:mod:`furniture_rows`, gen#199); both build on :class:`Row`, so each is imported here
+    (deferred: a top-level import would be a cycle)."""
     import furniture_rows
+    import tableware_rows
 
-    rows = (*(r for rows in DEPARTMENTS.values() for r in rows), *BREADTH_34)
+    rows = (*(r for rows in DEPARTMENTS.values() for r in rows), *BREADTH_34, *tableware_rows.ROWS)
     return [*(r.doc() for r in rows), *furniture_rows.docs()]

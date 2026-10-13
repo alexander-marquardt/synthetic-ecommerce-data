@@ -73,6 +73,7 @@ case "$1 $2" in
       missing) ;;
     esac
     printf 'commit-messages\tcompleted\tsuccess\n'
+    printf 'file-size\tcompleted\tsuccess\n'
     printf 'main-merged-tree\tcompleted\tskipped\n'
     ;;
   "pr merge")
@@ -357,7 +358,7 @@ def test_a_check_run_in_which_no_test_passed_is_not_green(world: dict) -> None:
         ("missing", "missing: tests"),
         ("pending", "still running: tests"),
         # CI ran on the PR head, never on the merge the script pushed.
-        ("head-only", "missing: tests commit-messages"),
+        ("head-only", "missing: tests commit-messages file-size"),
     ],
     ids=["red", "skipped", "missing", "pending", "head-only"],
 )
@@ -621,7 +622,8 @@ def _workflow(**commands: str) -> dict[str, str]:
 
 
 _ALL_GREEN = _workflow(
-    tests="echo suite", **{"commit-messages": "echo msgs", "main-merged-tree": "echo drift"}
+    tests="echo suite",
+    **{"commit-messages": "echo msgs", "file-size": "echo size", "main-merged-tree": "echo drift"},
 )
 
 
@@ -629,7 +631,7 @@ def test_local_ci_runs_every_job_logs_each_and_merges_without_asking_github(worl
     head = _open_pr(world, {**_GREEN, **_ALL_GREEN})
     done = _run(world, head, _GREEN_CHECK, "--local-ci", "--label", "lbl")
     assert done.returncode == 0, done.stderr
-    for job in ("tests", "commit-messages", "main-merged-tree"):
+    for job in ("tests", "commit-messages", "file-size", "main-merged-tree"):
         assert f"local CI {job}: PASS" in done.stdout
         assert (world["log"].parent / f"lbl-{job}.log").is_file()
     assert "suite" in (world["log"].parent / "lbl-tests.log").read_text()
@@ -638,7 +640,9 @@ def test_local_ci_runs_every_job_logs_each_and_merges_without_asking_github(worl
 
 
 def test_a_failing_local_job_refuses_the_merge_but_the_others_still_run(world: dict) -> None:
-    plant = _workflow(tests="echo suite", **{"commit-messages": "echo bad >&2; exit 3"})
+    plant = _workflow(
+        tests="echo suite", **{"commit-messages": "echo bad >&2; exit 3", "file-size": "true"}
+    )
     head = _open_pr(world, {**_GREEN, **plant})
     done = _run(world, head, _GREEN_CHECK, "--local-ci", "--label", "lbl")
     assert done.returncode != 0
@@ -650,7 +654,7 @@ def test_a_failing_local_job_refuses_the_merge_but_the_others_still_run(world: d
 
 
 def test_a_failing_local_job_fails_a_dry_run_too(world: dict) -> None:
-    plant = _workflow(tests="exit 1", **{"commit-messages": "true"})
+    plant = _workflow(tests="exit 1", **{"commit-messages": "true", "file-size": "true"})
     head = _open_pr(world, {**_GREEN, **plant})
     done = _run(world, head, _GREEN_CHECK, "--dry-run", "--local-ci")
     assert done.returncode != 0

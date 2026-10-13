@@ -154,8 +154,11 @@ DEPARTMENT_SHARE = {
 #: Keys whose value never changes: who it is for, its name, its size range, the
 #: pattern the drawing shows, and how many motifs it prints where (the drawing's
 #: ``count`` and ``placement``, which the description's wording follows).
+#: A tableware kind (gen#198) fixes the drawn profile and the measured size beside it, so a
+#: 27 cm dinner plate never becomes a side plate.
 FROZEN_KEYS = frozenset(
-    {"audience", "line", "size_range", "pattern", "motif_count", "print_placement"}
+    {"audience", "line", "size_range", "pattern", "motif_count", "print_placement",
+     "plate_type", "bowl_type", "cutlery_type", "knife_type", "glass_type", "utensil_type"}
 )
 
 #: Leaf weight within a department: 1 / rank ** ZIPF_S.
