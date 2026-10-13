@@ -36,6 +36,7 @@ import lighting_rows  # noqa: E402
 import scale  # noqa: E402
 import scale_rows  # noqa: E402
 import shirt_rows  # noqa: E402
+import sofa_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 
 STATS = HERE.parents[1] / "golden-retail" / "stats.json"
@@ -101,6 +102,7 @@ def measure() -> dict[str, Any]:
         "distractor_rows": distractor_rows.docs(),
         "shirt_rows": shirt_rows.docs(),
         "lighting_rows": lighting_rows.docs(),
+        "sofa_rows": sofa_rows.docs(),
         "grocery": grocery.build(),
     }
     ceiling = scale.build(EXHAUST)
@@ -145,7 +147,7 @@ def measure() -> dict[str, Any]:
             "named_but_not_carried": dict(sorted((k, n) for k, n in wrong.items() if n)),
         },
         "near_duplicates": {
-            "non_grocery": scale.distinctness(main)["near_duplicate_rate"],
+            "non_grocery": scale.distinctness(main, sample=len(main))["near_duplicate_rate"],
             "grocery": scale.distinctness(groc, sample=len(groc))["near_duplicate_rate"],
             "non_grocery_grid_clone_rate": scale.grid_clones(main)["grid_clone_rate"],
             "grocery_grid_clones": scale.grid_clones(groc)["grid_clones"],
