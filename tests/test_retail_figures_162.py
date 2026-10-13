@@ -52,6 +52,27 @@ QUOTING = (
 TUNING = ("ATTEMPTS",)
 
 
+#: Sections of a quoting file that report the INDUSTRIAL build. Their figures (a bearing count of
+#: 11,340) are not retail totals and may equal one by chance, so the guard does not read them;
+#: a retail PR must never bend its data to dodge such a collision. Keyed by file, by heading line.
+INDUSTRIAL_SECTIONS = {"README.md": ("### The 100K catalog",)}
+
+
+def _scoped(path: str, text: str) -> str:
+    """``text`` with each industrial section blanked, line for line so a line number stays true.
+
+    A section runs from its heading to the next heading of any level. A heading that is no longer
+    there fails, so a renamed section cannot silently widen or narrow what the guard reads."""
+    lines = text.split("\n")
+    for heading in INDUSTRIAL_SECTIONS.get(path, ()):
+        assert heading in lines, f"{path}: the industrial section {heading!r} is gone; update it"
+        start = lines.index(heading)
+        after = range(start + 1, len(lines))
+        end = next((i for i in after if lines[i].startswith("#")), len(lines))
+        lines[start:end] = [""] * (end - start)
+    return "\n".join(lines)
+
+
 @pytest.fixture(scope="module")
 def stats() -> dict:
     return retail_figures.committed()
@@ -115,7 +136,7 @@ def test_the_per_family_counts_add_up(stats: dict) -> None:
 
 @pytest.mark.parametrize("path", QUOTING)
 def test_no_test_or_doc_restates_a_total_the_build_measures(stats: dict, path: str) -> None:
-    text = (ROOT / path).read_text("utf-8")
+    text = _scoped(path, (ROOT / path).read_text("utf-8"))
     quoted = sorted(
         f"{figure} ({match.group(0)!r}, line {text.count(chr(10), 0, match.start()) + 1})"
         for figure, pattern in _quotations(stats).items()
@@ -145,3 +166,18 @@ def test_the_guard_catches_a_restated_total(stats: dict) -> None:
         )
     ]
     assert missed == []
+
+
+def test_an_industrial_section_is_not_read_but_a_retail_figure_still_is(stats: dict) -> None:
+    """An industrial figure equal to a retail total is let through; a stale retail one is not."""
+    total = f"{stats['ceiling']['skus']:,}"
+    doc = f"# R\n\nRetail text.\n\n### The 100K catalog\n\n{total} bearings\n\n## Brands\n\n"
+    patterns = _quotations(stats)
+
+    def hits(text: str) -> list[str]:
+        return [k for k, p in patterns.items() if re.search(p, text, re.MULTILINE)]
+
+    scoped = _scoped("README.md", doc)
+    assert hits(doc) and hits(scoped) == []
+    assert scoped.count("\n") == doc.count("\n")
+    assert hits(_scoped("README.md", doc + f"The ceiling is {total} SKUs.")) != []

@@ -102,11 +102,18 @@ def plain(name: str) -> str:
     return PLAIN.get(name, name)
 
 
+#: Words that are a color only as the half of a two-word one (Duck Egg, Rose Quartz): alone they
+#: are a bird, a food or a stone.
+HALF_WORDS = frozenset({"Duck", "Egg", "Quartz"})
+
+
 def is_plain(value: str) -> bool:
     """Whether ``value`` is a shade code, a denim wash or only color words and qualifiers."""
     if SHADE_CODE.match(value) or value in DENIM_WASHES:
         return True
     words = value.split()
+    if len(words) == 1 and words[0] in HALF_WORDS:
+        return False
     return bool(words) and all(w in COLOR_WORDS or w in MODIFIERS for w in words) and any(
         w in COLOR_WORDS for w in words
     )

@@ -2969,8 +2969,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the wheel pin's 100K record is loosened by hand",
                 "core/price.py",
-                "    _WHEEL_SPREAD_ROW: (3.534, 3.09),",
-                "    _WHEEL_SPREAD_ROW: (3.534, 3.45),",
+                "    _WHEEL_SPREAD_ROW: (4.381, 2.903),",
+                "    _WHEEL_SPREAD_ROW: (4.381, 3.25),",
                 "figure_its_build_produces",
                 "a record is the build's figure",
             ),
@@ -3010,8 +3010,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the wheel pin quotes a tier figure no build measures",
                 "core/price.py",
-                "the brand tiers alone give 1.85 on the default",
-                "the brand tiers alone give 1.75 on the default",
+                "the brand tiers alone give 1.49 on the default",
+                "the brand tiers alone give 1.39 on the default",
                 "tiers_alone_give",
                 "a pin's stated cause is measured",
             ),
