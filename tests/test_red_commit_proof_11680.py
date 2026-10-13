@@ -29,7 +29,10 @@ BROKEN_IMPORT = "import not_a_real_module_11680\n\n\ndef test_red():\n    assert
 RAISES = "def test_red():\n    raise ValueError('not an assertion')\n"
 PARAM = (
     "import pytest\n\n\n"
-    "@pytest.mark.parametrize('left, right', [(1, 2), (3, 3)])\n"
+    "@pytest.mark.parametrize(\n"
+    "    'left, right',\n"
+    "    [pytest.param(1, 2, id='one, two'), pytest.param(3, 3, id='same')],\n"
+    ")\n"
     "def test_case(left, right):\n    assert left == right\n"
 )
 
@@ -165,7 +168,7 @@ def test_each_parametrized_case_is_judged_by_its_own_id(repo: Path) -> None:
     _commit(
         repo,
         PARAM,
-        "param\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_case[1, 2]",
+        "param\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_case[one, two]",
     )
     done = _prove(repo, base)
     assert done.returncode == 0, done.stdout + done.stderr
@@ -177,7 +180,7 @@ def test_a_passing_parametrized_case_is_refused(repo: Path) -> None:
     _commit(
         repo,
         PARAM,
-        "param\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_case[3, 3]",
+        "param\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_case[same]",
     )
     done = _prove(repo, base)
     assert done.returncode == 1, done.stdout + done.stderr
