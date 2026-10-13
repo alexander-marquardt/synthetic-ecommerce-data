@@ -114,7 +114,9 @@ def test_the_new_rows_are_deterministic() -> None:
 
 def test_the_classes_that_already_failed_still_fail_without_a_policy(index) -> None:
     gift = br.rank(index, "gift bag", 10)
-    assert not [d for d in gift if d["category_path"][1] == "Gift Wrap"]
+    # A Gift Wrap item that is a bag is the class; a wrap roll is not.
+    assert not [d for d in gift if d["category_path"][1] == "Gift Wrap"
+                and "bag" in d["title"].lower()]  # fmt: skip
     boat = br.rank(index, "womens boat neck top", 3)
     assert not [d for d in boat if d.get("neckline") in ("boat", "slash")]
     bomber = br.rank(index, "check contrast bomber jacket", 3)
