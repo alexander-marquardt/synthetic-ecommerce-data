@@ -34,6 +34,7 @@ import export  # noqa: E402
 import grocery  # noqa: E402
 import scale  # noqa: E402
 import scale_rows  # noqa: E402
+import appliance_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 
@@ -99,6 +100,7 @@ def measure() -> dict[str, Any]:
         "breadth_rows": breadth_rows.docs(),
         "distractor_rows": distractor_rows.docs(),
         "shirt_rows": shirt_rows.docs(),
+        "appliance_rows": appliance_rows.docs(),
         "grocery": grocery.build(),
     }
     ceiling = scale.build(EXHAUST)

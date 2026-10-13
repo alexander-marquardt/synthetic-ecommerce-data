@@ -105,6 +105,7 @@ if str(HERE) not in sys.path:
 import breadth_rows  # noqa: E402
 import distractor_rows  # noqa: E402
 import grocery  # noqa: E402
+import appliance_rows  # noqa: E402
 import scale_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
@@ -203,6 +204,9 @@ GROCERY_PREFIX = "GRC-"
 
 
 SHIRT_IDS = frozenset(f"PLT-{s.code}" for s in shirt_rows.STYLES)
+#: The small appliance styles (:mod:`appliance_rows`, gen#202), left out of the derivation as
+#: the shirts are.
+APPLIANCE_IDS = frozenset(f"BRD-{r.code}" for r in appliance_rows.ROWS)
 
 
 def templates() -> list[dict]:
@@ -222,7 +226,7 @@ def templates() -> list[dict]:
     authored = (r for recs in samples().values() for r in recs)
     return [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
-        *shirt_rows.docs(), *grocery.build(),
+        *shirt_rows.docs(), *appliance_rows.docs(), *grocery.build(),
     ]  # fmt: skip
 
 
@@ -231,7 +235,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
     dietary and ingredient facts are the grocery build's own and would not follow a re-draw, nor
     a shirt (:mod:`shirt_rows`), left out so the seeded derivation is what it was."""
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
-            and r["product_id"] not in SHIRT_IDS]  # fmt: skip
+            and r["product_id"] not in SHIRT_IDS | APPLIANCE_IDS]  # fmt: skip
 
 
 def _words(text: str) -> str:
