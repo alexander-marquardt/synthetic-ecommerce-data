@@ -1370,7 +1370,9 @@ clothes airers and mops, each drawn by `kit_household.py` with the count its rec
 and `tests/test_retail_household_200.py` holds them), then the lower-body styles (`lowerbody_rows.py`,
 gen#206: leggings, joggers, shorts, cycling shorts, tracksuits and skirts, each drawn by `kit_lowerbody.py`
 with the marks its record states (pockets, cargo pockets, belt loops, pieces, tiers, a pad); no derived
-style copies one, and `tests/test_retail_lowerbody_206.py` holds them), then the grocery styles (below, `grocery.py`,
+style copies one, and `tests/test_retail_lowerbody_206.py` holds them), then the small appliances (`appliance_rows.py`, gen#202:
+desk, pedestal, tower, ceiling and handheld fans, heaters, kettles
+and toasters, each drawn by `kit_appliances.py`; none is derived from), then the grocery styles (below, `grocery.py`,
 gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
