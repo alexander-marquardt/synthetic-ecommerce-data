@@ -40,6 +40,8 @@ OWNERS = {
     "Cobble & Kiln": "third_party",
     # The mop rows (household_rows.py, gen#200) sell the cleaning department's extra brands.
     "Clearbrook Household": "third_party", "Soapwell": "third_party",
+    # The toy rows (toys_rows.py, gen#201) sell the toy department's extra brand.
+    "Pipwick Toys": "third_party",
 }  # fmt: skip
 
 

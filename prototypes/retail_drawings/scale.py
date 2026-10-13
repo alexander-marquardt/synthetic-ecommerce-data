@@ -112,6 +112,7 @@ import lowerbody_rows  # noqa: E402
 import scale_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
+import toys_rows  # noqa: E402
 import underwear_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from export import drawing_spec, image_id, standard_document  # noqa: E402
@@ -223,6 +224,8 @@ FURNITURE_IDS = frozenset(f"BRD-{r.code}" for r in furniture_rows.ROWS)
 #: The household styles (:mod:`household_rows`, gen#200), left out of the derivation as the
 #: shirts are.
 HOUSEHOLD_IDS = frozenset(f"BRD-{r.code}" for r in household_rows.ROWS)
+#: The toy styles (:mod:`toys_rows`, gen#201), left out of the derivation as the shirts are.
+TOY_IDS = frozenset(f"BRD-{r.code}" for r in toys_rows.ROWS)
 #: The lower-body styles (:mod:`lowerbody_rows`, gen#206), left out the same way.
 LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 
@@ -230,8 +233,8 @@ LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 def templates() -> list[dict]:
     """The authored styles, then :mod:`scale_rows`, :mod:`breadth_rows` and
     :mod:`distractor_rows`, :mod:`shirt_rows`, :mod:`sofa_rows`, :mod:`household_rows`,
-    :mod:`appliance_rows`, :mod:`underwear_rows` and :mod:`lowerbody_rows`, then the :mod:`grocery`
-    styles (gen#154), in build order.
+    :mod:`appliance_rows`, :mod:`underwear_rows`, :mod:`toys_rows` and :mod:`lowerbody_rows`,
+    then the :mod:`grocery` styles (gen#154), in build order.
 
     Grocery is last, so a build under the other templates' SKUs is what it was. The main
     build's own 55 Food & Drink styles stay (the failure classes and the Elasticsearch proof
@@ -246,7 +249,8 @@ def templates() -> list[dict]:
     return [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
         *shirt_rows.docs(), *sofa_rows.docs(), *household_rows.docs(), *appliance_rows.docs(),
-        *underwear_rows.docs(), *lowerbody_rows.docs(), *grocery.build(),
+        *underwear_rows.docs(), *toys_rows.docs(), *lowerbody_rows.docs(),
+        *grocery.build(),
     ]  # fmt: skip
 
 
@@ -255,11 +259,11 @@ def derivable(tpls: list[dict]) -> list[dict]:
     dietary and ingredient facts are the grocery build's own and would not follow a re-draw, nor
     a shirt (:mod:`shirt_rows`), a seating style (:mod:`sofa_rows`), a piece of furniture
     (:mod:`furniture_rows`), a household style (:mod:`household_rows`), an appliance
-    (:mod:`appliance_rows`), an underwear style (:mod:`underwear_rows`) or a lower-body style
-    (:mod:`lowerbody_rows`), left out so the
+    (:mod:`appliance_rows`), an underwear style (:mod:`underwear_rows`), a toy
+    (:mod:`toys_rows`) or a lower-body style (:mod:`lowerbody_rows`), left out so the
     seeded derivation is what it was."""
-    left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | LOWER_IDS | APPLIANCE_IDS
-                | UNDERWEAR_IDS)
+    left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
+                | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out]  # fmt: skip
 

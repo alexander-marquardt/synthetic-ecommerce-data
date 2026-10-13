@@ -22,6 +22,7 @@ if str(RETAIL) not in sys.path:
 
 import colorwords  # noqa: E402
 import export  # noqa: E402
+import image_release  # noqa: E402
 import kit  # noqa: E402
 import kit_lowerbody  # noqa: E402
 import lowerbody_rows  # noqa: E402
@@ -169,7 +170,7 @@ def test_a_skirt_states_the_shape_and_the_length_it_draws() -> None:
     for row in skirts:
         p = dict(row.params)
         assert _attr(row, "skirt_shape") == [SHAPE_NAMES[p["shape"]]], row.code
-        assert _attr(row, "garment_length") == [p["length"].title()], row.code
+        assert _attr(row, "garment_length") == [p["hem"].title()], row.code
     assert {dict(r.params)["shape"] for r in skirts} == set(kit_lowerbody.SKIRT_SHAPES)
     assert {_attr(r, "garment_length")[0] for r in skirts} == {"Mini", "Midi", "Maxi"}
 
@@ -233,3 +234,26 @@ def test_every_lower_body_style_reaches_the_100k_build_and_meets_the_standard() 
     mine = [d for d in docs if d["product_id"] in scale.LOWER_IDS]
     assert len(mine) == len(ROWS)
     assert check_catalog(mine, one_class_per_key=True) == []
+
+
+def test_no_sku_key_shares_a_name_with_a_drawing_param() -> None:
+    """A SKU's own value of a drawing param key replaces the drawing's (``export.drawing_spec``),
+    so a SKU field (a leg-length axis ``length``) named like a param (a skirt's hem) would
+    redraw the style from its size axis. A skirt's hem param is ``hem`` because its SKUs carry
+    ``length``."""
+    for rec in lowerbody_rows.docs():
+        params = set(rec["drawing"].get("params") or {})
+        for sku in rec["skus"]:
+            assert not params & set(sku), (rec["product_id"], params & set(sku))
+
+
+def test_every_length_a_lower_body_row_can_carry_is_drawable() -> None:
+    """Each SKU of each row, with the SKU's own values laid over the drawing as the image
+    release does, draws without error, and a skirt's SKU draws what its row draws whatever
+    leg length the SKU carries."""
+    for rec in lowerbody_rows.docs():
+        for sku in rec["skus"]:
+            svg = image_release.render(rec, sku)
+            if rec["drawing"]["shape"] == "skirt":
+                bare = {k: v for k, v in sku.items() if k != "length"}
+                assert svg == image_release.render(rec, bare), (rec["product_id"], sku["sku"])
