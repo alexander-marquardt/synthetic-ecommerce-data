@@ -75,9 +75,17 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "dimensions": ("dimensions", "Dimensions", None),
     "length_cm": ("item_length", "Item length", "CMT"),
     "width_cm": ("item_width", "Item width", "CMT"),
+    # A pan's diameter and a bin's or a box's capacity (household_rows.py, gen#200).
+    "diameter_cm": ("diameter", "Diameter", "CMT"),
+    "capacity_l": ("capacity", "Capacity", "LTR"),
     # A mirror's glass and a bookcase's height (furniture_rows.py, gen#199).
     "height_cm": ("item_height", "Item height", "CMT"),
     "blade_length_cm": ("blade_length", "Blade length", "CMT"),
+    # A building set's sizes, a board game's editions and a craft kit's themes
+    # (toys_rows.py, gen#201).
+    "piece_count": ("piece_count", "Piece count", "C62"),
+    "edition": ("edition", "Edition", None),
+    "theme": ("theme", "Theme", None),
     # The grocery build's flavor x pack SKUs (grocery.py, gen#154); a list option
     # (an allergen list, the dietary labels) is one entry per value.
     "flavor": ("flavor", "Flavor", None),
@@ -85,9 +93,8 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "variety": ("variety", "Variety", None),
     "skin_concern": ("skin_concern", "Skin concern", None),
     "pack_size": ("pack_size", "Pack size", None),
-    # A table lamp's shade color and a lampshade's diameter (lighting_rows.py, gen#197).
+    # A table lamp's shade color; a lampshade's diameter is the household pan's (gen#197).
     "shade_color": ("shade_color", "Shade color", None),
-    "diameter_cm": ("diameter", "Diameter", "CMT"),
     # A recliner sofa's manual or power recline (sofa_rows.py, gen#196).
     "recline": ("recline", "Recline", None),
     "units_per_pack": ("units_per_pack", "Units per pack", "C62"),
@@ -96,6 +103,13 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "contains": ("contains", "Contains", None),
     "may_contain": ("may_contain", "May contain", None),
     "dietary": ("dietary", "Dietary", None),
+    # A fan's blade size or span, a kettle's capacity, a heater's wattage and fins, a toaster's
+    # slots (appliance_rows.py, gen#202). A wattage is a plain number named in watts.
+    "blade_size_in": ("blade_size", "Blade size", "INH"),
+    "blade_span_cm": ("blade_span", "Blade span", "CMT"),
+    "wattage": ("wattage", "Wattage (W)", None),
+    "fin_count": ("fin_count", "Fin count", "C62"),
+    "slots": ("slots", "Slots", "C62"),
 }
 #: The SKU fields that are columns of the variant, not options.
 SKU_COLUMNS = frozenset({"sku", "price", "in_stock", "ingredients"})
