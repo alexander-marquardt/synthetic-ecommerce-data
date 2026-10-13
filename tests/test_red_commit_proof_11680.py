@@ -151,6 +151,35 @@ def test_prose_in_the_trailer_is_refused(repo: Path) -> None:
     done = _prove(repo, base)
     assert done.returncode == 1, done.stdout + done.stderr
     assert "REFUSED" in done.stdout
+    assert "must name tests as path.py::name; it names the, new, test" in done.stdout
+
+
+def test_a_trailer_that_names_nothing_never_runs_the_whole_suite(repo: Path) -> None:
+    base = _base(repo)
+    _commit(repo, GREEN, "empty\n\nRefs #1\n\nRed-Test: ,")
+    done = _prove(repo, base)
+    assert done.returncode == 1, done.stdout + done.stderr
+    assert "it names no test id" in done.stdout
+
+
+def test_a_file_whose_name_starts_with_none_is_not_a_none_trailer(repo: Path) -> None:
+    base = _base(repo)
+    (repo / "none_tests.py").write_text(RED, encoding="utf-8")
+    _commit(repo, None, "none\n\nRefs #1\n\nRed-Test: none_tests.py::test_red")
+    done = _prove(repo, base)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "PROVEN" in done.stdout and "none_tests.py::test_red" in done.stdout
+
+
+def test_commits_are_judged_oldest_first(repo: Path) -> None:
+    base = _base(repo)
+    _commit(repo, RED, "first\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_red")
+    first = _git(repo, "rev-parse", "--short=9", "HEAD")
+    _commit(repo, RED, "second\n\nRefs #2\n\nRed-Test: tests/test_x.py::test_red")
+    second = _git(repo, "rev-parse", "--short=9", "HEAD")
+    done = _prove(repo, base)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert done.stdout.index(first) < done.stdout.index(second)
 
 
 def test_a_trailer_naming_one_red_and_one_passing_test_is_refused(repo: Path) -> None:
@@ -211,6 +240,7 @@ def test_an_empty_range_is_not_a_pass(repo: Path) -> None:
     done = _prove(repo, _base(repo))
     assert done.returncode == 2, done.stdout + done.stderr
     assert "no commits" in done.stderr
+    assert done.returncode == _prove(repo, "no-such-ref").returncode
 
 
 def test_the_judged_tree_is_the_commits_not_the_checkouts(repo: Path) -> None:
