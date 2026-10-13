@@ -74,6 +74,7 @@ class Row:
     colorless: bool = False
     params: tuple[tuple[str, str], ...] = ()
     size_key: str = "size"
+    fixed_color: str = ""
 
     def skus(self) -> list[dict]:
         sizes = [{self.size_key: s, "price": p} for s, p in self.sizes] or [{"price": self.price}]
