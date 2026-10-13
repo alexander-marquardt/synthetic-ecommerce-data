@@ -18,3 +18,7 @@ prototypes/retail_drawings/*.ndjson
 
 # Lock file, written by uv
 uv.lock
+
+# elastic/prism's file-size gate, vendored byte for byte (vendor/prism/PIN.txt).
+# Never the place to edit: change it in core and resync (docs/file-size-budget.md).
+vendor/

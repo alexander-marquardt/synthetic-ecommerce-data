@@ -145,7 +145,7 @@ def measure() -> dict[str, Any]:
             "named_but_not_carried": dict(sorted((k, n) for k, n in wrong.items() if n)),
         },
         "near_duplicates": {
-            "non_grocery": scale.distinctness(main)["near_duplicate_rate"],
+            "non_grocery": scale.distinctness(main, sample=len(main))["near_duplicate_rate"],
             "grocery": scale.distinctness(groc, sample=len(groc))["near_duplicate_rate"],
             "non_grocery_grid_clone_rate": scale.grid_clones(main)["grid_clone_rate"],
             "grocery_grid_clones": scale.grid_clones(groc)["grid_clones"],
