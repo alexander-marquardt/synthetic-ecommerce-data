@@ -37,6 +37,7 @@ import grocery  # noqa: E402
 import household_rows  # noqa: E402
 import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
+import main_colors  # noqa: E402
 import scale  # noqa: E402
 import scale_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
@@ -117,6 +118,8 @@ def measure() -> dict[str, Any]:
         "underwear_rows": underwear_rows.docs(),
         "toys_rows": toys_rows.docs(),
         "seasonal_rows": seasonal_rows.docs(),
+        "plain_rows": [r for r in main_colors.author_plain(scale.templates(baseline=False))
+                       if r["product_id"] in {p[1] for p in main_colors.PLAIN_STYLES}],
         "grocery": grocery.build(),
     }
     ceiling = scale.build(EXHAUST)

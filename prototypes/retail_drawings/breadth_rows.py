@@ -1286,7 +1286,7 @@ BREADTH_34 = (
         _fab("Cotton")),
     Row("BCHTWL", "Cotton Velour Beach Towel", "Calderby & Lune", _HW,
         ("Home", "Bathroom", "Beach Towels"), "Beach Towel", 14.0, "beach_towel",
-        "A large striped towel with a soft velour face and a looped terry back.",
+        "A large plain towel with a soft velour face and a looped terry back.",
         (cw("Blue", "#3f6fb5", "solid", "#ffffff"), cw("Coral", "#ef7b62", "solid", "#ffffff")),
         _fab("Cotton")),
     Row("HAMCLW", "Fiberglass Handle Claw Hammer", "Calderby & Lune", _HW,
