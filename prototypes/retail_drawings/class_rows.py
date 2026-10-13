@@ -222,7 +222,7 @@ CHECK = (
           pattern="check", size_range="regular"),
     Style("CKBWOL", "Wool Check Bomber Jacket", "Bramblewood", "Clothing",
           (*COATS, "Bomber Jackets"), 75.0,
-          "A bomber in a soft check wool with contrast black ribbing.",
+          "A bomber in a soft check wool with contrast ribbing.",
           "Bomber Jacket", "coat", one(cw("Grey Check", "#9a9a9a", "gingham", BLACK), 11),
           pattern="check", size_range="regular"),
     Style("CKBPAD", "Padded Check Bomber", "Harbour & Pine", "Clothing",

@@ -97,12 +97,8 @@ def test_sale_items_outside_petite_never_say_petite(ceiling) -> None:
 
 def test_a_petite_sale_search_without_a_policy_shows_nothing_both_petite_and_on_sale(index) -> None:
     top = br.rank(index, "petite sale", 10)
-    # Without a policy the ranker cannot honour the pair. A derived style that happens to be
-    # both (one seeded draw in the ceiling build) may reach the ten; it never leads them, and
-    # the sale state does not drive the order (gen#275 moved the draw).
-    both = [d for d in top if d.get("was_price") and "petite" in d.get("size_range", ())]
-    assert len(both) <= 1 and top[0] not in both
-    assert sum(not d.get("was_price") for d in top) >= 9
+    assert not [d for d in top if d.get("was_price") and "petite" in d.get("size_range", ())]
+    assert sum(not d.get("was_price") for d in top) == 10
 
 
 def test_the_new_rows_are_deterministic() -> None:
