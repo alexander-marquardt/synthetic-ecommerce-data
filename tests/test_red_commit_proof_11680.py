@@ -19,6 +19,7 @@ from pathlib import Path
 from types import ModuleType
 
 import pytest
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 PROOF = ROOT / "scripts" / "red_commit_proof.py"
@@ -125,6 +126,7 @@ def test_a_collection_error_is_not_a_red_test(repo: Path) -> None:
     done = _prove(repo, base)
     assert done.returncode == 1, done.stdout + done.stderr
     assert "REFUSED" in done.stdout and "tests/test_x.py::test_red" in done.stdout
+    assert "collection failed" in done.stdout
 
 
 def test_an_exception_that_is_not_an_assertion_is_refused(repo: Path) -> None:
@@ -241,3 +243,70 @@ B = "tests/test_b.py::u"
 )
 def test_the_trailer_tokens(values: list[str], expected: list[str]) -> None:
     assert _proof().declared_tests(values) == expected
+
+
+def test_the_commits_own_packages_are_the_ones_imported(repo: Path, tmp_path: Path) -> None:
+    """A stale copy of a package on the caller's path must not stand in for the commit's."""
+    stale = tmp_path / "stale"
+    (stale / "pkg").mkdir(parents=True)
+    (stale / "pkg" / "__init__.py").write_text("VALUE = 1\n", encoding="utf-8")
+    base = _base(repo)
+    (repo / "src" / "pkg").mkdir(parents=True)
+    (repo / "src" / "pkg" / "__init__.py").write_text("VALUE = 2\n", encoding="utf-8")
+    _commit(
+        repo,
+        "from pkg import VALUE\n\n\ndef test_red():\n    assert VALUE == 1\n",
+        "pkg\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_red",
+    )
+    env = {**os.environ, "PYTHONPATH": str(stale)}
+    done = subprocess.run(
+        [sys.executable, str(PROOF), "--repo", str(repo), "--range", f"{base}..HEAD"],
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=300,
+    )
+    assert done.returncode == 0, done.stdout + done.stderr
+
+
+def test_a_run_that_writes_no_outcomes_is_not_judged_rather_than_passed(repo: Path) -> None:
+    base = _base(repo)
+    stuck = "raise RuntimeError('no tests can start')\n"
+    (repo / "conftest.py").write_text(stuck, encoding="utf-8")
+    _commit(repo, RED, "stuck\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_red")
+    done = _prove(repo, base)
+    assert done.returncode == 3, done.stdout + done.stderr
+    assert "NOT JUDGED" in done.stdout and "wrote no outcomes" in done.stdout
+
+
+def test_a_run_past_the_time_limit_is_not_judged(
+    repo: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    base = _base(repo)
+    _commit(
+        repo,
+        "import time\n\n\ndef test_red():\n    time.sleep(60)\n    assert 1 == 2\n",
+        "slow\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_red",
+    )
+    proof = _proof()
+    monkeypatch.setattr(proof, "TIMEOUT_SECS", 2)
+    assert proof.main(["--repo", str(repo), "--range", f"{base}..HEAD"]) == 3
+    assert "ran longer than 2 s" in capsys.readouterr().out
+
+
+def test_the_workflow_runs_the_proof_over_the_pull_requests_commits() -> None:
+    workflow = yaml.safe_load((ROOT / ".github" / "workflows" / "ci.yaml").read_text())
+    job = workflow["jobs"]["red-commit-proof"]
+    assert job["if"] == "github.event_name == 'pull_request'"
+    assert job["steps"][0]["with"] == {"fetch-depth": 0}, "the base must be reachable"
+    command = " ".join(step["run"] for step in job["steps"] if "run" in step)
+    assert "scripts/red_commit_proof.py" in command
+    assert "github.event.pull_request.base.sha" in command
+    assert "github.event.pull_request.head.sha" in command
+
+
+def test_the_documented_commands_name_files_that_exist() -> None:
+    doc = (ROOT / "docs" / "red-commit-and-mutants.md").read_text(encoding="utf-8")
+    for path in ("scripts/red_commit_proof.py", "vendor/prism/scripts/mutant_run.py"):
+        assert path in doc
+        assert (ROOT / path).is_file(), path

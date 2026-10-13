@@ -10,3 +10,4 @@ One line per directive; the detail is behind each pointer. This file loads on ev
 - Merge with `scripts/merge_pr.sh <PR>`, never the GitHub button: README → Contributing.
 - No AI or bot credit in a commit message; the commit-msg hook and CI refuse it: README → Contributing.
 - A file over 1,750 lines may not grow (`scripts/file_size_gate.py`, core's gate): split it, or add a `File-Size-Exception:` line to the PR body: [docs/file-size-budget.md](docs/file-size-budget.md).
+- A fix starts with a red commit (`Red-Test:` trailer, proven by CI's `red-commit-proof` job), and its changed lines get mutants from core's vendored runner: [docs/red-commit-and-mutants.md](docs/red-commit-and-mutants.md).
