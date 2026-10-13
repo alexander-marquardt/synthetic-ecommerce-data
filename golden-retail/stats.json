@@ -2,24 +2,24 @@
  "ceiling": {
   "derived_styles": 3476,
   "food_and_drink": {
-   "skus": 11329,
-   "styles": 4082
+   "skus": 11341,
+   "styles": 4093
   },
   "food_and_drink_tree": {
-   "Food": 27,
-   "Food & Drink": 11302
+   "Food": 35,
+   "Food & Drink": 11306
   },
   "grocery": {
    "skus": 12128,
    "styles": 4386
   },
-  "images": 12121,
+  "images": 12188,
   "non_grocery": {
-   "skus": 83611,
+   "skus": 83895,
    "styles": 4521
   },
-  "skus": 97937,
-  "styles": 9185
+  "skus": 98336,
+  "styles": 9222
  },
  "departments": {
   "Beauty": 200,
@@ -409,12 +409,12 @@
   "grocery": 0.0337,
   "grocery_grid_clones": 4,
   "non_grocery": 0.0206,
-  "non_grocery_grid_clone_rate": 0.1411
+  "non_grocery_grid_clone_rate": 0.1378
  },
  "templates": {
   "all": {
-   "skus": 42645,
-   "styles": 5709
+   "skus": 42760,
+   "styles": 5746
   },
   "appliance_rows": {
    "skus": 124,
@@ -426,8 +426,8 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 30517,
-   "styles": 1323
+   "skus": 30632,
+   "styles": 1360
   },
   "breadth_rows": {
    "skus": 664,
@@ -450,12 +450,16 @@
    "styles": 28
   },
   "main_food": {
-   "skus": 72,
-   "styles": 63
+   "skus": 84,
+   "styles": 74
   },
   "scale_rows": {
    "skus": 17078,
    "styles": 136
+  },
+  "seasonal_rows": {
+   "skus": 115,
+   "styles": 37
   },
   "shirt_rows": {
    "skus": 160,
