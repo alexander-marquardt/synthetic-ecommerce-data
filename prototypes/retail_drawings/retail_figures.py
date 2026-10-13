@@ -35,8 +35,8 @@ import export  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
 import lighting_rows  # noqa: E402
-import main_colors  # noqa: E402
 import lowerbody_rows  # noqa: E402
+import main_colors  # noqa: E402
 import scale  # noqa: E402
 import scale_rows  # noqa: E402
 import shirt_rows  # noqa: E402

@@ -69,7 +69,8 @@ PLAIN_STYLES = (
      "Thick knitted boot socks with a fold-over cuff that shows above welly boots.",
      None, ("Light Beige", "#d9cdb4", "beige")),
     ("GFT-KRAFT", "GFT-KRAFTPL", "Plain Paper Bag with Rope Handles",
-     "A sturdy paper carrier with twisted rope handles, a card base and a matching tag, in three sizes. Folds flat to store.",
+     "A sturdy paper carrier with twisted rope handles, a card base and a matching tag, "
+     "in three sizes. Folds flat to store.",
      None, ("Tan", "#c8a87a", "brown")),
     ("PLT-GBMKUP", "PLT-GBMKPL", "Zip Make-Up Bag",
      "A make-up bag with a gold zip and a wipe-clean lining.",
@@ -108,7 +109,8 @@ def author_plain(tpls: list[dict]) -> list[dict]:
         if attrs is not None:
             fields["attributes"] = attrs
         swatch = {name: {"color": name, "hex": hexv, "pattern": "solid", "family": family}}
-        out.append(scale.product(pid, skus, swatch, **{k: v for k, v in fields.items() if k != "product_id"}))
+        fields.pop("product_id", None)
+        out.append(scale.product(pid, skus, swatch, **fields))
     return out
 
 
@@ -154,7 +156,8 @@ def missing(tpls: list[dict]) -> dict[tuple[str, str], list[str]]:
 def stale_exceptions(tpls: list[dict]) -> list[str]:
     """Excepted types that already offer all six main colors in every audience."""
     types = colored_types(tpls)
-    return [t for t in EXCEPTIONS if t in types and all(c in offered(types[t]) for c in MAIN_COLORS)]
+    return [t for t in EXCEPTIONS
+            if t in types and all(c in offered(types[t]) for c in MAIN_COLORS)]
 
 
 def _material_skus(rec: dict) -> bool:
@@ -173,7 +176,9 @@ def _names(rec: dict, color: str) -> bool:
     return bool(re.search(rf"\b{color.lower()}\b", f"{rec['title']} {rec['description']}".lower()))
 
 
-PATTERN_WORDS = re.compile(r"\b(check|checked|stripe|striped|plaid|gingham|spot|spotted|polka)\b", re.I)
+PATTERN_WORDS = re.compile(
+    r"\b(check|checked|stripe|striped|plaid|gingham|spot|spotted|polka)\b", re.I
+)
 
 
 def _printed(rec: dict) -> bool:
