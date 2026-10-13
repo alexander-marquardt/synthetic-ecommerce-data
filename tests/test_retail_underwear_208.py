@@ -212,3 +212,10 @@ def test_every_underwear_style_reaches_the_100k_build_and_meets_the_standard() -
     mine = [d for d in docs if d["product_id"] in scale.UNDERWEAR_IDS]
     assert len(mine) == len(ROWS)
     assert check_catalog(mine, one_class_per_key=True) == []
+
+
+def test_kids_sizes_use_the_spelling_the_other_kids_rows_use() -> None:
+    """A second spelling of a kids size would split the ``size`` facet."""
+    import prints
+
+    assert underwear_rows.KIDS == prints.KIDS_SIZES

@@ -96,7 +96,7 @@ UK_PLUS = ("8", "10", "12", "14", "16", "18", "20", "22")
 BAND = ("S/M", "M/L", "L/XL")
 LETTER = ("XS", "S", "M", "L", "XL")
 LETTER_M = ("S", "M", "L", "XL", "XXL")
-KIDS = ("3-4 Years", "5-6 Years", "7-8 Years", "9-10 Years")
+KIDS = ("3-4 Yrs", "5-6 Yrs", "7-8 Yrs", "9-10 Yrs")
 WAISTS = ("30", "32", "34", "36", "38", "40")
 
 BLACK = cw("Black", "#2f2f35", "solid", "#8f989f")
