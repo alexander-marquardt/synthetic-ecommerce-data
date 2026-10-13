@@ -1,6 +1,6 @@
 {
- "lines": 6327,
- "skus": 11614,
+ "lines": 6336,
+ "skus": 11577,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "ball_stock_precision": 1,
@@ -73,7 +73,7 @@
   "v_belts": 1,
   "washer_flat": 135,
   "wedge_anchors": 1,
-  "wheel_depressed_center": 670,
+  "wheel_depressed_center": 679,
   "zerk_grease_fittings": 1
  },
  "skus_by_type": {
@@ -148,9 +148,706 @@
   "v_belts": 2,
   "washer_flat": 225,
   "wedge_anchors": 2,
-  "wheel_depressed_center": 1212,
+  "wheel_depressed_center": 1175,
   "zerk_grease_fittings": 2
  },
+ "skus_per_product_by_type": {
+  "abrasive_flap_disc": {
+   "products": 129,
+   "median": 1,
+   "max": 5,
+   "histogram": {
+    "1": 68,
+    "2": 34,
+    "3": 18,
+    "4": 3,
+    "5": 6
+   }
+  },
+  "ball_stock_precision": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "ball_stock_rubber": {
+   "products": 1,
+   "median": 1,
+   "max": 1,
+   "histogram": {
+    "1": 1
+   }
+  },
+  "ball_valves": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "bar_stock_hex": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "bar_stock_round": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "bar_stock_square": {
+   "products": 1,
+   "median": 1,
+   "max": 1,
+   "histogram": {
+    "1": 1
+   }
+  },
+  "bearing_radial_ball": {
+   "products": 679,
+   "median": 1,
+   "max": 3,
+   "histogram": {
+    "1": 347,
+    "2": 161,
+    "3": 171
+   }
+  },
+  "bench_vises": {
+   "products": 1,
+   "median": 1,
+   "max": 1,
+   "histogram": {
+    "1": 1
+   }
+  },
+  "blind_rivets": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "bolt_hex": {
+   "products": 235,
+   "median": 2,
+   "max": 5,
+   "histogram": {
+    "1": 100,
+    "2": 67,
+    "3": 30,
+    "4": 27,
+    "5": 11
+   }
+  },
+  "bronze_sleeve_bushings": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "c_clamps": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "cap_nuts_acorn": {
+   "products": 1,
+   "median": 1,
+   "max": 1,
+   "histogram": {
+    "1": 1
+   }
+  },
+  "carriage_bolts": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "center_punches": {
+   "products": 1,
+   "median": 1,
+   "max": 1,
+   "histogram": {
+    "1": 1
+   }
+  },
+  "cold_chisels": {
+   "products": 1,
+   "median": 1,
+   "max": 1,
+   "histogram": {
+    "1": 1
+   }
+  },
+  "combination_wrenches": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "compression_springs": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "cotter_pins": {
+   "products": 39,
+   "median": 1,
+   "max": 5,
+   "histogram": {
+    "1": 22,
+    "2": 9,
+    "3": 6,
+    "4": 1,
+    "5": 1
+   }
+  },
+  "coupling_nuts": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "cut_resistant_gloves": {
+   "products": 1,
+   "median": 1,
+   "max": 1,
+   "histogram": {
+    "1": 1
+   }
+  },
+  "dowel_pins": {
+   "products": 36,
+   "median": 1.0,
+   "max": 5,
+   "histogram": {
+    "1": 23,
+    "2": 6,
+    "3": 5,
+    "5": 2
+   }
+  },
+  "drill_bushings": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "drill_jobber": {
+   "products": 286,
+   "median": 1.0,
+   "max": 5,
+   "histogram": {
+    "1": 147,
+    "2": 68,
+    "3": 47,
+    "4": 14,
+    "5": 10
+   }
+  },
+  "end_mill_ball": {
+   "products": 286,
+   "median": 2.0,
+   "max": 5,
+   "histogram": {
+    "1": 124,
+    "2": 80,
+    "3": 56,
+    "4": 14,
+    "5": 12
+   }
+  },
+  "end_mill_square": {
+   "products": 498,
+   "median": 1.0,
+   "max": 5,
+   "histogram": {
+    "1": 265,
+    "2": 109,
+    "3": 75,
+    "4": 35,
+    "5": 14
+   }
+  },
+  "er_collets": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "eye_bolts": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "flange_nuts": {
+   "products": 1,
+   "median": 1,
+   "max": 1,
+   "histogram": {
+    "1": 1
+   }
+  },
+  "flat_gaskets": {
+   "products": 1,
+   "median": 1,
+   "max": 1,
+   "histogram": {
+    "1": 1
+   }
+  },
+  "foam_ear_plugs": {
+   "products": 1,
+   "median": 1,
+   "max": 1,
+   "histogram": {
+    "1": 1
+   }
+  },
+  "hammer_ball_pein": {
+   "products": 98,
+   "median": 2.0,
+   "max": 5,
+   "histogram": {
+    "1": 47,
+    "2": 31,
+    "3": 10,
+    "4": 5,
+    "5": 5
+   }
+  },
+  "hand_files": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "hex_bit_sockets": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "hex_key": {
+   "products": 630,
+   "median": 1.0,
+   "max": 5,
+   "histogram": {
+    "1": 345,
+    "2": 138,
+    "3": 102,
+    "4": 32,
+    "5": 13
+   }
+  },
+  "hex_pipe_nipples": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "hose_clamps": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "key_stock": {
+   "products": 42,
+   "median": 1.0,
+   "max": 4,
+   "histogram": {
+    "1": 22,
+    "2": 14,
+    "3": 4,
+    "4": 2
+   }
+  },
+  "kit_assortment": {
+   "products": 59,
+   "median": 1,
+   "max": 1,
+   "histogram": {
+    "1": 59
+   }
+  },
+  "lag_screws": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "lock_nuts_nylon_insert": {
+   "products": 256,
+   "median": 1.0,
+   "max": 5,
+   "histogram": {
+    "1": 137,
+    "2": 66,
+    "3": 27,
+    "4": 11,
+    "5": 15
+   }
+  },
+  "nut_hex": {
+   "products": 662,
+   "median": 2.0,
+   "max": 5,
+   "histogram": {
+    "1": 323,
+    "2": 172,
+    "3": 99,
+    "4": 40,
+    "5": 28
+   }
+  },
+  "o_rings": {
+   "products": 38,
+   "median": 1.5,
+   "max": 5,
+   "histogram": {
+    "1": 19,
+    "2": 12,
+    "3": 6,
+    "5": 1
+   }
+  },
+  "pillow_block_bearings": {
+   "products": 43,
+   "median": 2,
+   "max": 5,
+   "histogram": {
+    "1": 20,
+    "2": 10,
+    "3": 6,
+    "4": 3,
+    "5": 4
+   }
+  },
+  "retaining_rings_external": {
+   "products": 39,
+   "median": 2,
+   "max": 5,
+   "histogram": {
+    "1": 13,
+    "2": 13,
+    "3": 10,
+    "4": 2,
+    "5": 1
+   }
+  },
+  "rigid_casters": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "rigid_shaft_couplings": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "roll_pins": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "roller_chain": {
+   "products": 40,
+   "median": 1.0,
+   "max": 4,
+   "histogram": {
+    "1": 21,
+    "2": 11,
+    "3": 7,
+    "4": 1
+   }
+  },
+  "roller_chain_links": {
+   "products": 52,
+   "median": 1.0,
+   "max": 5,
+   "histogram": {
+    "1": 29,
+    "2": 11,
+    "3": 7,
+    "4": 3,
+    "5": 2
+   }
+  },
+  "roller_chain_sprockets": {
+   "products": 54,
+   "median": 2.0,
+   "max": 5,
+   "histogram": {
+    "1": 26,
+    "2": 16,
+    "3": 7,
+    "4": 2,
+    "5": 3
+   }
+  },
+  "safety_glasses": {
+   "products": 1,
+   "median": 1,
+   "max": 1,
+   "histogram": {
+    "1": 1
+   }
+  },
+  "screw_button_head": {
+   "products": 130,
+   "median": 2.0,
+   "max": 5,
+   "histogram": {
+    "1": 64,
+    "2": 32,
+    "3": 21,
+    "4": 5,
+    "5": 8
+   }
+  },
+  "screw_flat_head": {
+   "products": 180,
+   "median": 1.0,
+   "max": 5,
+   "histogram": {
+    "1": 98,
+    "2": 33,
+    "3": 31,
+    "4": 10,
+    "5": 8
+   }
+  },
+  "screw_low_head": {
+   "products": 104,
+   "median": 1.0,
+   "max": 5,
+   "histogram": {
+    "1": 53,
+    "2": 30,
+    "3": 12,
+    "4": 4,
+    "5": 5
+   }
+  },
+  "screw_socket_head": {
+   "products": 309,
+   "median": 2,
+   "max": 5,
+   "histogram": {
+    "1": 149,
+    "2": 83,
+    "3": 53,
+    "4": 15,
+    "5": 9
+   }
+  },
+  "set_screws_hex_socket": {
+   "products": 260,
+   "median": 1.0,
+   "max": 5,
+   "histogram": {
+    "1": 134,
+    "2": 64,
+    "3": 36,
+    "4": 15,
+    "5": 11
+   }
+  },
+  "shackles": {
+   "products": 74,
+   "median": 1.0,
+   "max": 5,
+   "histogram": {
+    "1": 38,
+    "2": 22,
+    "3": 8,
+    "4": 4,
+    "5": 2
+   }
+  },
+  "shaft_collars": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "studs_double_end": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "t_slot_nuts": {
+   "products": 1,
+   "median": 1,
+   "max": 1,
+   "histogram": {
+    "1": 1
+   }
+  },
+  "tap_spiral_point": {
+   "products": 179,
+   "median": 1,
+   "max": 5,
+   "histogram": {
+    "1": 90,
+    "2": 48,
+    "3": 25,
+    "4": 12,
+    "5": 4
+   }
+  },
+  "thread_pitch_gages": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "threaded_rod": {
+   "products": 1,
+   "median": 3,
+   "max": 3,
+   "histogram": {
+    "3": 1
+   }
+  },
+  "timing_pulleys": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "turnbuckles": {
+   "products": 42,
+   "median": 2.0,
+   "max": 5,
+   "histogram": {
+    "1": 16,
+    "2": 14,
+    "3": 7,
+    "4": 3,
+    "5": 2
+   }
+  },
+  "u_bolts": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "v_belts": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "washer_flat": {
+   "products": 135,
+   "median": 1,
+   "max": 5,
+   "histogram": {
+    "1": 78,
+    "2": 31,
+    "3": 20,
+    "4": 5,
+    "5": 1
+   }
+  },
+  "wedge_anchors": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
+  "wheel_depressed_center": {
+   "products": 679,
+   "median": 2,
+   "max": 5,
+   "histogram": {
+    "1": 335,
+    "2": 226,
+    "3": 95,
+    "4": 12,
+    "5": 11
+   }
+  },
+  "zerk_grease_fittings": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  }
+ },
+ "products_disagreeing_on_a_product_constant": 0,
  "attribute_names_by_type": {
   "abrasive_flap_disc": [
    "Abrasive Material",
@@ -946,7 +1643,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 140537,
+ "total_attribute_entries": 140009,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -978,36 +1675,36 @@
   {
    "name": "declared system contradicts value units",
    "target": 0.0323,
-   "achieved": 0.0266213,
-   "numerator": 133,
-   "denominator": 4996,
+   "achieved": 0.0294545,
+   "numerator": 142,
+   "denominator": 4821,
    "note": "over records carrying both",
    "band": null
   },
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.0165626,
+   "achieved": 0.0166159,
    "numerator": 191,
-   "denominator": 11532,
+   "denominator": 11495,
    "note": "over records with a readable dimension",
    "band": null
   },
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.471112,
-   "numerator": 6295,
-   "denominator": 13362,
+   "achieved": 0.472946,
+   "numerator": 6302,
+   "denominator": 13325,
    "note": "over title dimension tokens",
    "band": null
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.107993,
+   "achieved": 0.108293,
    "numerator": 1443,
-   "denominator": 13362,
+   "denominator": 13325,
    "note": "over title dimension tokens",
    "band": null
   },
@@ -1016,7 +1713,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 11614,
+   "denominator": 11577,
    "note": "over titles",
    "band": null
   },
@@ -1025,7 +1722,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 11614,
+   "denominator": 11577,
    "note": "deliberate: the corpus measures 0.1089",
    "band": null
   },
@@ -1034,16 +1731,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 11614,
+   "denominator": 11577,
    "note": "deliberate: the corpus measures 0.7353",
    "band": null
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 12.1007,
-   "numerator": 140537,
-   "denominator": 11614,
+   "achieved": 12.0937,
+   "numerator": 140009,
+   "denominator": 11577,
    "note": "count, not a rate",
    "band": null
   },
@@ -1554,8 +2251,8 @@
   {
    "name": "price p50 (USD): wheel_depressed_center",
    "target": 9.51,
-   "achieved": 9.68,
-   "numerator": 1212,
+   "achieved": 8.85,
+   "numerator": 1175,
    "denominator": 217,
    "note": "shown price; denom is the census n",
    "band": [
@@ -1566,8 +2263,8 @@
   {
    "name": "price p90/p10: wheel_depressed_center",
    "target": 9.99656,
-   "achieved": 10.2969,
-   "numerator": 1212,
+   "achieved": 10.8629,
+   "numerator": 1175,
    "denominator": 217,
    "note": "shown price; denom is the census n",
    "band": [
@@ -1578,9 +2275,9 @@
   {
    "name": "price larger size costs more: wheel_depressed_center",
    "target": 0.808,
-   "achieved": 0.811769,
-   "numerator": 11105,
-   "denominator": 13680,
+   "achieved": 0.8079,
+   "numerator": 9715,
+   "denominator": 12025,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.728,
@@ -1842,10 +2539,10 @@
   {
    "name": "price brand spread, same spec (median max/min): wheel_depressed_center",
    "target": 1.2838,
-   "achieved": 3.5339,
+   "achieved": 4.38059,
    "numerator": 24,
    "denominator": 12,
-   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec; PINNED SHORTFALL, above band: with every noise off, the brand tiers alone give 1.85 on the default build against a band top of 1.71, because 3 of the 12 wheel brands are economy (0.54 of the rest) and the row's 3 sampled brands take one on 13 of its 24 specs (a spec is a diameter in one abrasive), where the census measures its house label on 4 of its 12. The group noise that makes up the p90/p10 is drawn per brand and spreads the sampled brands of one spec further, to 3.53x apart on the default build and 3.09x apart at 100K (#66)",
+   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec; PINNED SHORTFALL, above band: with every noise off, the brand tiers alone give 1.49 on the default build, inside the band top of 1.71, so the excess is the group noise; the tiers still reach for it because 3 of the 12 wheel brands are economy (0.54 of the rest) and the row's 3 sampled brands take one on 12 of its 24 specs (a spec is a diameter in one abrasive), where the census measures its house label on 4 of its 12. The group noise that makes up the p90/p10 is drawn per brand and spreads the sampled brands of one spec further, to 4.38x apart on the default build and 2.90x apart at 100K (#66)",
    "band": [
     0.96285,
     1.70745
@@ -1865,77 +2562,77 @@
   },
   {
    "name": "price ending .99",
-   "target": 0.00613369,
-   "achieved": 0.00571973,
-   "numerator": 66,
-   "denominator": 11539,
+   "target": 0.00606462,
+   "achieved": 0.00547731,
+   "numerator": 63,
+   "denominator": 11502,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.00209964,
-    0.0101678
+    0.00211048,
+    0.0100188
    ]
   },
   {
    "name": "price ending .00",
-   "target": 0.0847655,
-   "achieved": 0.0809429,
+   "target": 0.0849938,
+   "achieved": 0.0812033,
    "numerator": 934,
-   "denominator": 11539,
+   "denominator": 11502,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0676727,
-    0.101858
+    0.067857,
+    0.102131
    ]
   },
   {
    "name": "price ending .50",
-   "target": 0.0569544,
-   "achieved": 0.0543375,
-   "numerator": 627,
-   "denominator": 11539,
+   "target": 0.0570488,
+   "achieved": 0.0543384,
+   "numerator": 625,
+   "denominator": 11502,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0410025,
-    0.0729063
+    0.0410688,
+    0.0730288
    ]
   },
   {
    "name": "price ending other .x5",
-   "target": 0.217834,
-   "achieved": 0.21345,
-   "numerator": 2463,
-   "denominator": 11539,
+   "target": 0.217986,
+   "achieved": 0.213615,
+   "numerator": 2457,
+   "denominator": 11502,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.196381,
-    0.239287
+    0.196555,
+    0.239417
    ]
   }
  ],
  "measurement_system_names": {
-  "Dimension Type": 3379,
-  "Measurement System": 1111,
-  "System of Measurement": 506
+  "Measurement System": 1047,
+  "Dimension Type": 3293,
+  "System of Measurement": 481
  },
  "measurement_system_values": {
-  "Inch": 278,
-  "Fractional Inch": 2710,
-  "Metric": 1933,
-  "Decimal Inch": 75
+  "Fractional Inch": 2568,
+  "Inch": 242,
+  "Metric": 1940,
+  "Decimal Inch": 71
  },
  "unit_suffix_distribution": {
-  "in": 23426,
+  "in": 23340,
   "mm": 15414
  },
- "standards_present": 6080,
- "standards_multivalued": 1578,
- "standards_total_values": 7926,
+ "standards_present": 6062,
+ "standards_multivalued": 1579,
+ "standards_total_values": 7914,
  "multivalued_attribute_names": {
-  "Standards": 1578,
+  "Standards": 1579,
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 11614,
+  "n_skus_checked": 11577,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
@@ -2073,12 +2770,12 @@
    "brands": 45
   },
   "drawings": {
-   "count": 11614,
-   "bytes": 30256221,
+   "count": 11577,
+   "bytes": 29818220,
    "geometry": {
     "nominal": 75,
-    "partial": 2353,
-    "record": 9186
+    "partial": 2328,
+    "record": 9174
    },
    "largest_bytes": 7789,
    "largest_product_type": "bearing_radial_ball"

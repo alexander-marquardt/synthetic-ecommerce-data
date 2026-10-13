@@ -317,6 +317,20 @@ Run the same command on the `--lines 39000` build's `stats.json` for the
 large figures. A much lower fill means the module models too little of the
 spec space: add series or combinations; never raise the share to hide it.
 
+### Product-constant and variant attributes
+
+A product is what search groups by (a screw of one type, maker and material); its SKUs
+are the versions that differ by size. The split is the `scope` of each attribute in the
+type's vocabulary (`vocab.py`): `line` is product-constant (brand-level properties:
+material, finish, grade, head or point style), `sku` is the variant (the size ladder
+and pack quantity). The measurement system, under all three spellings (so `dimension_type`
+too), is product-constant in every type: a product is metric or inch, never both.
+`product_constant_names(type_key)` and `variant_names(type_key)` read the declaration.
+Builders put a `line`-scope attribute on the line, and a draw that makes it per SKU
+splits the product: `tests/test_product_constant.py` holds the default build to it,
+and `ecom-generate build` refuses a catalog that breaks it or leaves
+`variants_per_product` (the report prints the SKUs per product by type).
+
 ### SKU floor
 
 `DEFAULT_SKU_FLOOR` in the type's gate file is two thirds of the type's
