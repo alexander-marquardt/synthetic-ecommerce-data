@@ -100,7 +100,6 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     # slots (appliance_rows.py, gen#202). A wattage is a plain number named in watts.
     "blade_size_in": ("blade_size", "Blade size", "INH"),
     "blade_span_cm": ("blade_span", "Blade span", "CMT"),
-    "capacity_l": ("capacity", "Capacity", "LTR"),
     "wattage": ("wattage", "Wattage (W)", None),
     "fin_count": ("fin_count", "Fin count", "C62"),
     "slots": ("slots", "Slots", "C62"),
