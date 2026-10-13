@@ -391,7 +391,7 @@ def test_the_fresh_oranges_draw_as_many_fruits_as_their_weight_holds() -> None:
 def test_a_style_passes_its_weight_into_the_pile_once() -> None:
     def doc(grams: float) -> dict:
         return Style("PILE", "Navel Oranges", "Goldfield Farms", "Food & Drink",
-                     ("Food", "Fresh Produce"), 1.0, "Oranges.", "Oranges", "produce_pile",
+                     ("Food & Drink", "Fresh Produce"), 1.0, "Oranges.", "Oranges", "produce_pile",
                      ((cw("Pack", "#f08a24"), 1),), params=(("fruit", "orange"),),
                      unit=(grams, "g"), colorless=True).doc()  # fmt: skip
 

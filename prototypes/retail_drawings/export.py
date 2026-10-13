@@ -11,7 +11,7 @@ emits, and :func:`synthetic_ecommerce_data.core.standard.check_catalog` passes i
   :func:`~synthetic_ecommerce_data.core.entry.split`;
 - ``price`` stays the GBP amount, ``currency`` says GBP; ``in_stock`` stays the
   yes/no (the build models no stock count, so no ``stock`` is written);
-- the retail-only top-level facts (department, color and size options, offer
+- the retail-only top-level facts (color and size options, offer
   flags, rating, ...) become product-level attribute entries (:data:`FACTS`);
 - ``image_id`` is ``<product type>/<product id>/<drawing spec digest>``: one
   image per distinct drawing (a SKU's drawing is its product's with the SKU's
@@ -125,7 +125,6 @@ SKU_COLUMNS = frozenset({"sku", "price", "in_stock", "ingredients"})
 
 #: Top-level retail fact -> (key, name, unit): product-level entries, one per value.
 FACTS: dict[str, tuple[str, str, str | None]] = {
-    "department": ("department", "Department", None),
     "collections": ("collection", "Collection", None),
     "sub_collection": ("sub_collection", "Sub-collection", None),
     "audience": ("age_group", "Age group", None),
@@ -161,8 +160,11 @@ COLUMNS = frozenset({"product_id", "product_type", "title", "brand", "category_p
                      "unit_measure", "ingredients"})  # fmt: skip
 #: Fields left out: the standard derives them from the variants, (the drawing)
 #: they are the render's input, reached through ``image_id``, or (``abv``) the
-#: record's own ``attributes`` already carry them as an entry.
-DROPPED = frozenset({"price", "price_min", "price_max", "sku_count", "drawing", "abv"})
+#: record's own ``attributes`` already carry them as an entry, or (``department``, gen#281) the
+#: store's department is the top level of ``category_path``, which the downstream reads.
+DROPPED = frozenset(
+    {"price", "price_min", "price_max", "sku_count", "drawing", "abv", "department"}
+)
 
 
 def _spelling(value: Any) -> str:

@@ -4,6 +4,11 @@ A department sits where a word's meaning flips (*lemon* is food, a scent or a
 cleaner), so a policy can target it. The list is shared by the retail and
 industrial domains; this module only names it and refuses anything else.
 Audience (womens, kids, baby) is an attribute, never a department.
+
+Since gen#281 this list classifies the BUILD records only (brand pools, department floors,
+the worn-department audience rule): no document states it, because its values mixed audience
+(Clothing) with product kind (Footwear). The store's department is the top level of the
+document's ``category_path`` (eleven roots, ``tests/test_retail_departments_281.py``).
 """
 
 from __future__ import annotations

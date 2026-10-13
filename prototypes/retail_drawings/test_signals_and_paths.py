@@ -141,11 +141,11 @@ def test_every_doc_has_a_full_category_path_of_clean_shopper_terms() -> None:
 def test_the_index_projects_every_ancestor_as_its_own_joined_value() -> None:
     orange = rc.index_doc(_one("ORBLOD"))
     assert orange["category_path_joined"] == [
-        "Food",
-        "Food/Fresh Produce",
-        "Food/Fresh Produce/Fruit",
-        "Food/Fresh Produce/Fruit/Citrus",
-        "Food/Fresh Produce/Fruit/Citrus/Oranges",
+        "Food & Drink",
+        "Food & Drink/Fresh Produce",
+        "Food & Drink/Fresh Produce/Fruit",
+        "Food & Drink/Fresh Produce/Fruit/Citrus",
+        "Food & Drink/Fresh Produce/Fruit/Citrus/Oranges",
     ]
     for d in CORPUS:
         joined = rc.index_doc(d)["category_path_joined"]
@@ -250,7 +250,7 @@ def test_the_single_bed_policy_is_a_nested_size_filter_and_a_type_boost() -> Non
 def test_a_routed_policy_recalls_and_boosts_the_named_category_node() -> None:
     body = rc.policy_body(_row("oranges"))
     fs = body["query"]["function_score"]
-    node = "Food/Fresh Produce/Fruit/Citrus/Oranges"
+    node = "Food & Drink/Fresh Produce/Fruit/Citrus/Oranges"
     assert fs["query"]["bool"]["should"][1] == {
         "constant_score": {"filter": {"term": {"category_path_joined": node}}}
     }
