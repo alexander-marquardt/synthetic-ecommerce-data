@@ -1286,6 +1286,14 @@ retail has `price`, `currency` and `in_stock` where industrial has
 
     uv run python prototypes/retail_drawings/export.py OUTDIR   # nested.jsonl, flat.jsonl
 
+**The Combined loader takes every SKU of it.** The loader projects the flat export before it
+writes (`combined_catalog.py` in elastic/prism-industrial-products) and refuses a SKU whose
+`size` is in no size system, or whose bare `length` or `width` would be renamed onto a
+`garment_length` or `fit_width` the SKU already writes (gen#279: a handbag's `Mini`, and a
+skirt's Petite/Regular/Long axis, now `fit_length`). `tests/test_retail_combined_loader_279.py`
+runs both checks over every authored SKU. A new size shape or a new rename in the projection is a
+row added to its mirror there; a key a SKU axis shares with a style attribute is named apart.
+
 ### The merchandising score
 
 Every product, Retail and Industrial, carries `merchandising_score`: an integer 0 to 100, the
