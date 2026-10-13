@@ -20,8 +20,8 @@ role_play     a play kitchen, a tool bench, a doctor's case, a shop till   kind,
               or a tea set
 craft_kit     a paint tin, a bead tray, slime tubs, yarn and needles or a  kind, counts
               pencil tin
-ride_on       a balance bike, a scooter, a trike or a ride-on car, each    kind, wheels
-              wheel a ``class="wheel"`` group
+ride_on       a balance bike, a scooter, a trike or a ride-on car, each    kind, wheels,
+              wheel a ``class="wheel"`` group                              wheel_size_in
 ============  ===========================================================  ==================
 
 Every shape also takes ``character``: the motif (:mod:`motifs`) of the style's invented
@@ -1050,6 +1050,20 @@ def craft_kit(
 # --------------------------------------------------------------------------
 
 
+#: The wheel sizes (inches) a bike or a trike is sold in, and the drawing's scale at the
+#: smallest and the largest: a 10 inch bike draws smaller than a 14 inch one (gen#271).
+WHEEL_SCALE = {10: 0.8, 14: 1.0}
+
+
+def _size_scale(wheel_size_in: str) -> float:
+    """The drawing's scale for a wheel size in inches: 1.0 when it states none."""
+    inches = _n(wheel_size_in, 0)
+    if not inches:
+        return 1.0
+    (lo, s_lo), (hi, s_hi) = sorted(WHEEL_SCALE.items())
+    return round(s_lo + (s_hi - s_lo) * (min(max(inches, lo), hi) - lo) / (hi - lo), 3)
+
+
 def ride_on(
     paint: str,
     fill: Fill,
@@ -1057,10 +1071,24 @@ def ride_on(
     kind: str = "balance_bike",
     wheels: str = "2",
     character: str = "",
+    wheel_size_in: str = "",
 ) -> list[str]:
     """A ``balance_bike`` (no pedals), a ``scooter`` (a deck and a T-bar; two wheels, or
     three with two at the front), a ``trike`` with its push handle, or a ride-on ``car``
-    whose far wheels show behind its body; every wheel a ``class="wheel"`` group."""
+    whose far wheels show behind its body; every wheel a ``class="wheel"`` group.
+    ``wheel_size_in`` scales the whole drawing about its ground line, so each size of a
+    bike is its own picture."""
+    body = _ride_on_body(paint, fill, label, kind, wheels, character)
+    scale = _size_scale(wheel_size_in)
+    if scale == 1.0:
+        return body
+    return [f'<g transform="translate(200 350) scale({scale}) translate(-200 -350)">',
+            *body, "</g>"]  # fmt: skip
+
+
+def _ride_on_body(
+    paint: str, fill: Fill, label: str | None, kind: str, wheels: str, character: str
+) -> list[str]:
     n = _n(wheels, 2)
     out = [_shadow(200, 350, 170)]
     if kind == "scooter":

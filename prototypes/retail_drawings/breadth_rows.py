@@ -74,6 +74,9 @@ class Row:
     colorless: bool = False
     params: tuple[tuple[str, str], ...] = ()
     size_key: str = "size"
+    #: Why this style keeps its one color when it is a toy vehicle or a ride-on (gen#271):
+    #: the color is what the product is (a police livery, a taxi, a fire engine, bare wood).
+    #: Empty for a free-paint style, which :func:`paint_range` gives the full range.
     fixed_color: str = ""
 
     def skus(self) -> list[dict]:
@@ -111,6 +114,27 @@ def _fab(v: str) -> tuple[tuple[str, str, str], ...]:
 
 def _mat(v: str) -> tuple[tuple[str, str, str], ...]:
     return (("material", "Material", v),)
+
+
+#: The paint range of a toy vehicle or a ride-on whose color is a free choice (gen#271): the
+#: shared color vocabulary's plain words, each its own SKU and its own drawing.
+PAINTS = (
+    cw("Red", "#c8312e", "solid", "#f4f1ea"), cw("Blue", "#3f6fb5", "solid", "#f4f1ea"),
+    cw("Green", "#5f9a4a", "solid", "#f4f1ea"), cw("Yellow", "#f2c94c", "solid", "#2f2f35"),
+    cw("Orange", "#e07a1f", "solid", "#2f2f35"), cw("Pink", "#f2a1b8", "solid", "#2f2f35"),
+    cw("Purple", "#7b4fa0", "solid", "#f4f1ea"), cw("Black", "#2a2a2e", "solid", "#f4f1ea"),
+    cw("White", "#f4f1ea", "solid", "#9a9ca0"), cw("Silver", "#c0c0c0", "solid", "#2f2f35"),
+)  # fmt: skip
+#: How many colors a free-paint toy vehicle or ride-on is sold in (the issue: about 8 to 10).
+PAINT_COUNT = 10
+
+
+def paint_range(*authored: Color) -> tuple[Color, ...]:
+    """``authored`` colors first (the first stays the hero), then the shared paints this
+    style does not have yet, up to :data:`PAINT_COUNT`."""
+    have = {c[0] for c in authored}
+    more = [c for c in PAINTS if c[0] not in have]
+    return (*authored, *more)[: max(PAINT_COUNT, len(authored))]
 
 
 # --------------------------------------------------------------------------
@@ -169,20 +193,22 @@ TOYS = (
     Row("CARRCE", "Wooden Racing Car", "Little Fernby", "Toys", _CARS, "Toy Vehicle", 9.0, "car",
         "A chunky racing car with rubber tires and a driver who lifts out. For ages 18 months "
         "and up.",
-        (cw("Red", "#c8312e"), cw("Blue", "#3f6fb5")), _mat("Wooden"), audience=_KIDS),
+        paint_range(cw("Red", "#c8312e"), cw("Blue", "#3f6fb5")), _mat("Wooden"),
+        audience=_KIDS),
     Row("CARPOL", "Die-Cast Police Car", "Puddlecombe Toys", "Toys", _CARS, "Toy Vehicle", 6.0,
         "car",
         "A pocket-size police car with opening doors and a pull-back motor. For ages 3 and up.",
-        (cw("White", "#ffffff", "solid", "#26365c"),), _mat("Die-Cast"), audience=_KIDS),
+        (cw("White", "#ffffff", "solid", "#26365c"),), _mat("Die-Cast"), audience=_KIDS,
+        fixed_color="the police livery: white with a navy stripe is what makes it a police car"),
     Row("CARVIN", "Recycled Plastic Vintage Car", "Little Fernby", "Toys", _CARS, "Toy Vehicle",
         11.0, "car",
         "A rounded vintage car with a seat for a small figure and wheels that never come off.",
-        (cw("Mint", "#a8d8c2"), cw("Cream", "#efe8d8")), _mat("Recycled Plastic"),
+        paint_range(cw("Mint", "#a8d8c2"), cw("Cream", "#efe8d8")), _mat("Recycled Plastic"),
         audience=_KIDS),
     Row("CARTOW", "Wooden Tow Truck", "Puddlecombe Toys", "Toys", _CARS, "Toy Vehicle", 15.0, "car",
         "A tow truck with a working hook and winch that lifts a second car. "
         "For ages 2 and up.",
-        (cw("Yellow", "#f2d14b"),), _mat("Wooden"), label="Tow", audience=_KIDS),
+        paint_range(cw("Yellow", "#f2d14b")), _mat("Wooden"), label="Tow", audience=_KIDS),
     Row("FIGCAT", "Resin Cat Figure", "Puddlecombe Toys", "Toys", _FIG, "Toy Figure", 5.0,
         "cat",
         "A sitting cat figure sized for small hands, finished in water-based paint.",
@@ -238,13 +264,13 @@ TOYS = (
     Row("CARBMB", "Bamboo Fire Engine with Ladder", "Little Fernby", "Toys", _CARS,
         "Toy Vehicle", 18.0, "car",
         "A fire engine with a ladder that turns and extends. For ages 2 and up.",
-        (cw("Red", "#c8312e"), cw("Yellow", "#f2d14b")), _mat("Bamboo"), label="Fire",
-        audience=_KIDS),
+        (cw("Red", "#c8312e"),), _mat("Bamboo"), label="Fire", audience=_KIDS,
+        fixed_color="a fire engine is red: the color is what makes it a fire engine"),
     Row("CARTIN", "Die-Cast London Taxi", "Little Fernby", "Toys", _CARS, "Toy Vehicle", 4.5,
         "car", "A pocket-size taxi with a light on its roof and a pull-back motor. For ages 3 "
         "and up.",
-        (cw("Black", "#2a2a2e"), cw("Yellow", "#f2d14b"), cw("Silver", "#c0c0c0")),
-        _mat("Die-Cast"), label="Taxi", audience=_KIDS),
+        (cw("Black", "#2a2a2e"),), _mat("Die-Cast"), label="Taxi", audience=_KIDS,
+        fixed_color="a London taxi is black: the color is what makes it a London taxi"),
     Row("FIGFLT", "Felt Stegosaurus Figure", "Puddlecombe Toys", "Toys", _FIG, "Toy Figure", 7.0,
         "dinosaur", "A dinosaur figure with a long tail and a flat base, sized for small hands.",
         (cw("Moss Green", "#6f8f4a"), cw("Ochre", "#c8902e")), _mat("Felt"), audience=_KIDS),

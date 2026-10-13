@@ -1,9 +1,9 @@
-"""Toy vehicles and ride-ons come in a full colour range, bikes in sizes (gen#271).
+"""Toy vehicles and ride-ons come in a full color range, bikes in sizes (gen#271).
 
 A toy car, a scooter, a trike or a ride-on whose paint is a free choice is sold in about
-ten colours, each its own SKU with its own drawing. A product whose colour IS what it is
+ten colors, each its own SKU with its own drawing. A product whose color IS what it is
 (the police car's livery, the London taxi, a red fire engine, unpainted wood) keeps one
-colour and says why in the row's ``fixed_color`` field, so it is never a silent omission.
+color and says why in the row's ``fixed_color`` field, so it is never a silent omission.
 A bike is sold in sizes: its wheel size is a SKU axis, and the drawing scales with it.
 """
 
@@ -30,7 +30,7 @@ LEAVES = {"Toy Vehicles", "Ride-On Toys"}
 MIN_COLORS = 8
 MIN_BIKE_SIZES = 3
 
-#: The styles whose colour is what the product is. A hand-kept census: a style joins it
+#: The styles whose color is what the product is. A hand-kept census: a style joins it
 #: with a reason on its row, and this list says so in review.
 FIXED = {"CARPOL", "CARBMB", "CARTIN", "RIDWDB", "RIDSC2"}
 
@@ -44,7 +44,7 @@ def _bike(row) -> bool:
 
 
 def short_of_colors(rows) -> list[str]:
-    """The free-paint styles with fewer than :data:`MIN_COLORS` colours."""
+    """The free-paint styles with fewer than :data:`MIN_COLORS` colors."""
     return sorted(r.code for r in rows if not r.fixed_color and len(r.colors) < MIN_COLORS)
 
 
@@ -84,7 +84,7 @@ def test_a_fixed_color_style_keeps_one_color_and_says_why() -> None:
 
 
 def test_a_style_cut_to_three_colors_is_caught() -> None:
-    """The hand mutant of the acceptance: one style down to 3 colours reds the guard."""
+    """The hand mutant of the acceptance: one style down to 3 colors reds the guard."""
     rows = vehicle_rows()
     target = next(r for r in rows if not r.fixed_color)
     mutant = [dataclasses.replace(target, colors=target.colors[:3]) if r is target else r
