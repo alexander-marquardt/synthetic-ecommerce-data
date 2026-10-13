@@ -132,3 +132,34 @@ def test_mutant_womens_shirts_without_red_are_caught():
     lacking = main_colors.missing(raw)
     assert lacking[("Shirt", "Women")] == ["Red"]
     assert ("Shirt", "Men") not in lacking
+
+
+def _non_plain_exports(tpls: list[dict]) -> dict[str, str]:
+    """Pattern a plain-authored style, or a style that gained a color, exports when it is not
+    plain: a check relabelled plain must not keep the source's ``Pattern: Check``."""
+    raw = {r["product_id"]: r for r in scale.templates(baseline=False)}
+    authored = {p[1] for p in main_colors.PLAIN_STYLES}
+    out = {}
+    for r in tpls:
+        pid = r["product_id"]
+        old = raw.get(pid)
+        gained = old is not None and {c["color"] for c in r.get("color_options", ())} > {
+            c["color"] for c in old.get("color_options", ())
+        }
+        if (pid in authored or gained) and r.get("pattern") not in (None, "plain"):
+            out[pid] = r["pattern"]
+    return out
+
+
+def test_an_authored_plain_style_and_a_style_that_gained_a_color_export_a_plain_pattern(tpls):
+    assert {p[1] for p in main_colors.PLAIN_STYLES} <= {r["product_id"] for r in tpls}
+    assert _non_plain_exports(tpls) == {}
+
+
+def test_mutant_a_plain_style_copying_a_check_pattern_is_caught(tpls):
+    """The suit jacket's plain twin keeping the source's ``check`` is named by the helper."""
+    mutant = copy.deepcopy(tpls)
+    for r in mutant:
+        if r["product_id"] == "PLT-SUITPL":
+            r["pattern"] = "check"
+    assert _non_plain_exports(mutant) == {"PLT-SUITPL": "check"}

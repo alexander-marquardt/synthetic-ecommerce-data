@@ -112,6 +112,7 @@ import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
 import scale_rows  # noqa: E402
+import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
 import toys_rows  # noqa: E402
@@ -231,6 +232,8 @@ FURNITURE_IDS = frozenset(f"BRD-{r.code}" for r in furniture_rows.ROWS)
 HOUSEHOLD_IDS = frozenset(f"BRD-{r.code}" for r in household_rows.ROWS)
 #: The toy styles (:mod:`toys_rows`, gen#201), left out of the derivation as the shirts are.
 TOY_IDS = frozenset(f"BRD-{r.code}" for r in toys_rows.ROWS)
+#: The seasonal, color and character styles (:mod:`seasonal_rows`, gen#195): templates only.
+SEASONAL_IDS = frozenset(f"BRD-{r.code}" for r in seasonal_rows.ROWS)
 #: The lower-body styles (:mod:`lowerbody_rows`, gen#206), left out the same way.
 LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 
@@ -259,6 +262,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
         *shirt_rows.docs(), *sofa_rows.docs(), *household_rows.docs(), *appliance_rows.docs(),
         *underwear_rows.docs(), *toys_rows.docs(), *lowerbody_rows.docs(), *lighting_rows.docs(),
+        *seasonal_rows.docs(),
     ]  # fmt: skip
     if baseline:
         body = main_colors.author_plain(body)
@@ -277,7 +281,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
     (gen#125): a derived copy of it would hand the no-policy baseline the neckline, so it
     stays a template."""
     left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
-                | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS)
+                | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | SEASONAL_IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out
             and r.get("neckline") not in ("boat", "slash")]  # fmt: skip
