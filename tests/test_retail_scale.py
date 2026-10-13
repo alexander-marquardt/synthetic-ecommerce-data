@@ -43,8 +43,9 @@ FIGURES = committed()
 #: then the breadth rows (``breadth_rows``), then the distractor rows (``distractor_rows``:
 #: the failure classes' products), then the shirts (``shirt_rows``), then the seating
 #: (``sofa_rows``, gen#196), then the household styles (``household_rows``, gen#200), then the
-#: grocery styles (``grocery.build()``, gen#154), last: no style derives from a shirt, a
-#: seating style, a household style or a grocery style.
+#: lower-body styles (``lowerbody_rows``, gen#206), then the grocery styles
+#: (``grocery.build()``, gen#154), last: no style derives from a shirt, a seating style, a
+#: household style, a lower-body style or a grocery style.
 SCALE_ROWS = FIGURES["templates"]["scale_rows"]["styles"]
 AUTHORED = FIGURES["templates"]["authored"]["styles"]
 BREADTH_ROWS = FIGURES["templates"]["breadth_rows"]["styles"]
@@ -52,6 +53,7 @@ DISTRACTOR_ROWS = FIGURES["templates"]["distractor_rows"]["styles"]
 SHIRT_ROWS = FIGURES["templates"]["shirt_rows"]["styles"]
 SOFA_ROWS = FIGURES["templates"]["sofa_rows"]["styles"]
 HOUSEHOLD_ROWS = FIGURES["templates"]["household_rows"]["styles"]
+LOWERBODY_ROWS = FIGURES["templates"]["lowerbody_rows"]["styles"]
 GROCERY_ROWS = FIGURES["templates"]["grocery"]["styles"]
 TEMPLATES = (
     AUTHORED
@@ -61,6 +63,7 @@ TEMPLATES = (
     + SHIRT_ROWS
     + SOFA_ROWS
     + HOUSEHOLD_ROWS
+    + LOWERBODY_ROWS
     + GROCERY_ROWS
 )
 #: The SKUs the templates alone hold. A build at or under it takes no seeded draw, so

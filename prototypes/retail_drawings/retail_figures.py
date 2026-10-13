@@ -33,6 +33,7 @@ import distractor_rows  # noqa: E402
 import export  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
+import lowerbody_rows  # noqa: E402
 import scale  # noqa: E402
 import scale_rows  # noqa: E402
 import shirt_rows  # noqa: E402
@@ -102,6 +103,7 @@ def measure() -> dict[str, Any]:
         "distractor_rows": distractor_rows.docs(),
         "shirt_rows": shirt_rows.docs(),
         "household_rows": household_rows.docs(),
+        "lowerbody_rows": lowerbody_rows.docs(),
         "sofa_rows": sofa_rows.docs(),
         "grocery": grocery.build(),
     }
