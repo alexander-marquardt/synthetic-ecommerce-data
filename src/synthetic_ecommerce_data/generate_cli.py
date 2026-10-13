@@ -46,6 +46,7 @@ from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial.breadth import SPEC_QUALITY
 from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys, generate
 from synthetic_ecommerce_data.domains.industrial.measure import measure
+from synthetic_ecommerce_data.domains.industrial.product_split import distribution_problems
 
 
 def _check_images(catalog, referenced: set[str]) -> list[str]:
@@ -134,6 +135,16 @@ def _print_report(stats: dict) -> None:
     print()
     print("lines by type:", json.dumps(stats["lines_by_type"]))
     print("skus by type: ", json.dumps(stats["skus_by_type"]))
+    print("skus per product by type:")
+    for key, row in stats["skus_per_product_by_type"].items():
+        print(
+            f"  {key:<34}{row['products']:>6} products  median {row['median']:>3}"
+            f"  max {row['max']}"
+        )
+    print(
+        "products whose SKUs disagree on a product-constant attribute:",
+        stats["products_disagreeing_on_a_product_constant"],
+    )
     print("measurement-system spellings:", json.dumps(stats["measurement_system_names"]))
     print(
         f"multi-valued attribute: {stats['standards_present']} records carry it, "
@@ -324,6 +335,18 @@ def main(argv: list[str] | None = None) -> int:
     if problems:
         for problem in problems:
             print(f"image audit FAILED: {problem}", file=sys.stderr)
+        return 1
+    # A product's SKUs agree on its product-constant attributes, and the SKUs per product
+    # follow ``variants_per_product`` (gen#63); a catalog that breaks either is not written.
+    split_problems = distribution_problems(stats["skus_per_product_by_type"], config)
+    if stats["products_disagreeing_on_a_product_constant"]:
+        split_problems.append(
+            f"{stats['products_disagreeing_on_a_product_constant']} product(s) have SKUs "
+            "that disagree on a product-constant attribute"
+        )
+    if split_problems:
+        for problem in split_problems:
+            print(f"product audit FAILED: {problem}", file=sys.stderr)
         return 1
     # render.jsonl is every SKU in the shape ``ecom-render batch`` reads.
     render = emit.write_jsonl(emit.render_records(catalog), out / "render.jsonl")
