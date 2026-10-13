@@ -31,6 +31,8 @@ OWNERS = {
     "Hearth & Table": "own", "Kettleby Tea Co.": "third_party",
     "Brewhollow Roasters": "third_party", "Mirefield Naturals": "third_party",
     "Hollin Hair": "third_party",
+    # The toy rows (toys_rows.py, gen#201) sell the toy department's extra brand.
+    "Pipwick Toys": "third_party",
 }  # fmt: skip
 
 
