@@ -4,7 +4,7 @@ The catalog held trousers and jeans but no leggings, joggers, shorts, cycling sh
 tracksuits or skirts, so a search for any of them found trousers or a dress. Each type here
 is a leaf with its own drawing (:mod:`kit_lowerbody`), its shopper attributes as structured
 entries, and SKUs over the color, the size and, where the type varies on it, a third axis:
-a leg or skirt length (``inside_leg``, ``length``) or how a tracksuit is sold (``sold_as``).
+a leg or skirt length (``inside_leg``, ``fit_length``) or how a tracksuit is sold (``sold_as``).
 
 What a drawing shows is what the record states: ``pockets`` Yes draws two ``pocket`` groups,
 ``cargo_pockets`` Yes (or the Cargo shorts style) two ``cargo-pocket`` groups, a Belted
@@ -55,7 +55,7 @@ class LRow(Row):
         out = Row.doc(replace(self, params=tuple(p for p in self.params if p[0] != "shape")))
         out["drawing"]["params"] = dict(self.params)
         out.update(dict(self.facts))
-        if self.axis_key in ("inside_leg", "length"):
+        if self.axis_key in ("inside_leg", "fit_length"):
             served = {LENGTH_RANGE[v] for v, _ in self.axis}
             out["size_range"] = [r for r in SIZE_RANGES if r in served]
         return out
@@ -404,13 +404,14 @@ def _sk(
 _SKT = ("Women", "Skirts")
 
 
-# The drawing param is ``hem``, not ``length``: a skirt's SKUs carry ``length`` (the
-# Petite/Regular/Long axis), and a SKU's own value of a drawing param key replaces the
-# drawing's (export.drawing_spec).
+# The drawing param is ``hem``: a SKU's own value of a drawing param key replaces the drawing's
+# (export.drawing_spec). The SKU axis is ``fit_length`` (the Petite/Regular/Long fit), not
+# ``length``: the Combined projection renames a bare ``length`` to ``garment_length``, which a
+# skirt's style already states (gen#279).
 def _skrow(code, title, brand, price, desc, colors, attrs, shape, length, pattern="plain"):
     return LRow(code, title, brand, CL_, _SKT, "Skirt", price, "skirt", desc, colors, attrs,
                 _sizes(price), params=(("shape", shape), ("hem", length)),
-                axis_key="length", axis=_legs(), facts=_facts(None, pattern))  # fmt: skip
+                axis_key="fit_length", axis=_legs(), facts=_facts(None, pattern))  # fmt: skip
 
 
 SKIRTS = (
