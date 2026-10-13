@@ -343,7 +343,8 @@ def test_a_changed_value_is_rewritten_in_the_description(pairs):
             if not scale._has_word(t["description"], old):
                 continue
             assert scale._has_word(r["description"], new), (r["product_id"], r["description"])
-            assert not scale._has_word(r["description"], old), (r["product_id"], old)
+            if not scale._has_word(new, old):  # "Jasmine" -> "Wild Jasmine" still says it
+                assert not scale._has_word(r["description"], old), (r["product_id"], old)
             rewritten += 1
     assert rewritten >= 20
 
@@ -637,13 +638,14 @@ def test_the_cli_writes_the_report_and_the_documents(tmp_path):
 
 
 def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(tmp_path):
+    PAST = CAPACITY[1] + 20000  # the ceiling moves with the data: a fixed target fell under it
     report = tmp_path / "report.json"
     done = subprocess.run(
-        [sys.executable, str(RETAIL / "scale.py"), "--skus", "100000", "--report", str(report)],
+        [sys.executable, str(RETAIL / "scale.py"), "--skus", str(PAST), "--report", str(report)],
         capture_output=True, text=True, check=False,
     )  # fmt: skip
     assert done.returncode == 2, done.stderr[-2000:]
-    assert f"short: {CAPACITY[1]} SKUs of 100000" in done.stderr
+    assert f"short: {CAPACITY[1]} SKUs of {PAST}" in done.stderr
     got = json.loads(report.read_text(encoding="utf-8"))
     assert got["reached_target"] is False
     assert got["standard_problems"] == 0
