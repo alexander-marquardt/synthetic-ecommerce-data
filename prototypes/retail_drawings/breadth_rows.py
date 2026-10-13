@@ -631,7 +631,7 @@ GIFTS = (
 # --------------------------------------------------------------------------
 
 _BATHRM = ("Cleaning", "Bathroom", "Bathroom Cleaners")
-_GLASS = ("Cleaning", "Kitchen & Surfaces", "Glass Cleaners")
+_GLASS = ("Cleaning", "Kitchen & Surfaces", "Cleaners", "Glass Cleaners")
 _DISH = ("Cleaning", "Kitchen & Surfaces", "Dish Soap")
 _LAUND = ("Cleaning", "Laundry", "Laundry Detergent")
 _SOFTEN = ("Cleaning", "Laundry", "Fabric Softener")
@@ -866,7 +866,7 @@ def _shape(v: str) -> tuple[tuple[str, str, str], ...]:
     return (("pasta_shape", "Pasta shape", v),)
 
 
-_CRISPS = ("Food & Drink", "Snacks", "Crisps")
+_CRISPS = ("Food & Drink", "Biscuits & Snacks", "Crisps")
 _OIL = ("Food & Drink", "Pantry", "Olive Oil")
 _PASTA = ("Food & Drink", "Pantry", "Pasta")
 
@@ -1300,47 +1300,47 @@ BREADTH_34 = (
         _in("#7a7d82", "#a8793f", "Silver"),
         (*_a1("handle_material", "Handle material", "Wood"), *_head_oz(20))),
     Row("SCRDSET", _SCR6.title("Slotted and Phillips Screwdriver Set"), "Calderby & Lune", _HW,
-        (*_DIY, "Screwdriver Sets"), "Screwdriver Set", 13.0, "screwdriver",
+        (*_DIY, "Tool Sets", "Screwdriver Sets"), "Screwdriver Set", 13.0, "screwdriver",
         _SCR6.text("Magnetic tips and a soft grip handle, in a roll-up pouch."),
         _in("#c8312e", "#2a2a2e", "Red"),
         (*_a1("tip_type", "Tip type", "Slotted and Phillips"), *_SCR6.attrs)),
     Row("DRLCRD", "18 V Cordless Drill Driver with Two Batteries", "Calderby & Lune", _HW,
-        (*_DIY, "Cordless Drills"), "Cordless Drill", 59.0, "drill",
+        (*_DIY, "Drills", "Cordless Drills"), "Cordless Drill", 59.0, "drill",
         "A two-speed drill driver with a keyless chuck, a work light and a fast charger.",
         _in("#2f6f4f", "#2a2a2e", "Green"),
         (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18))),
     Row("DRLCMP", "12 V Compact Cordless Drill Driver", "Calderby & Lune", _HW,
-        (*_DIY, "Cordless Drills"), "Cordless Drill", 39.0, "drill",
+        (*_DIY, "Drills", "Cordless Drills"), "Cordless Drill", 39.0, "drill",
         "A light one-hand drill driver with a keyless chuck, a work light and a one-hour charger.",
         _in("#2a5f9e", "#2a2a2e", "Blue"),
         (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(12))),
     Row("DRLCMB", "20 V Cordless Combi Drill Driver with Hammer Action", "Calderby & Lune", _HW,
-        (*_DIY, "Combi Drills"), "Cordless Drill", 79.0, "drill",
+        (*_DIY, "Drills", "Combi Drills"), "Cordless Drill", 79.0, "drill",
         "A three-mode drill driver with a hammer setting, a keyless chuck and a fast charger.",
         _in("#c8312e", "#2a2a2e", "Red"),
         (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(20))),
     Row("DRLHMR", "40 V Cordless Brushless Hammer Drill", "Calderby & Lune", _HW,
-        (*_DIY, "Hammer Drills"), "Cordless Drill", 129.0, "drill",
+        (*_DIY, "Drills", "Hammer Drills"), "Cordless Drill", 129.0, "drill",
         "A brushless hammer drill with a side handle, a depth rod and a rapid charger.",
         _in("#2a2a2e", "#c8312e", "Black"),
         (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(40))),
     Row("BITSML", _BIT32.title("Screwdriver Bit Set"), "Calderby & Lune", _HW,
-        (*_DIY, "Bit Sets"), "Bit Set", 9.0, "screwdriver",
+        (*_DIY, "Tool Sets", "Bit Sets"), "Bit Set", 9.0, "screwdriver",
         _BIT32.text("A magnetic holder, in a snap-shut case."),
         _in("#2a2a2e", "#c8312e", "Black"),
         (*_a1("drive_type", "Drive type", "Mixed"), *_BIT32.attrs)),
     Row("BITLRG", _BIT100.title("Screwdriver Bit Set"), "Calderby & Lune", _HW,
-        (*_DIY, "Bit Sets"), "Bit Set", 19.0, "screwdriver",
+        (*_DIY, "Tool Sets", "Bit Sets"), "Bit Set", 19.0, "screwdriver",
         _BIT100.text("Stored in a snap-shut case."),
         _in("#2a2a2e", "#c8312e", "Black"),
         (*_a1("drive_type", "Drive type", "Mixed"), *_BIT100.attrs)),
     Row("SKTSML", _SKT40.title("Socket Set"), "Calderby & Lune", _HW,
-        (*_DIY, "Socket Sets"), "Socket Set", 22.0, "box",
+        (*_DIY, "Tool Sets", "Socket Sets"), "Socket Set", 22.0, "box",
         _SKT40.text("In a molded case."),
         _in("#7a7d82", "#c8312e", "Silver"),
         (*_a1("material", "Material", "Chrome Vanadium"), *_SKT40.attrs)),
     Row("SKTLRG", _SKT94.title("Socket Set"), "Calderby & Lune", _HW,
-        (*_DIY, "Socket Sets"), "Socket Set", 45.0, "box",
+        (*_DIY, "Tool Sets", "Socket Sets"), "Socket Set", 45.0, "box",
         _SKT94.text("In a molded case."),
         _in("#7a7d82", "#c8312e", "Silver"),
         (*_a1("material", "Material", "Chrome Vanadium"), *_SKT94.attrs)),
@@ -1394,7 +1394,7 @@ BREADTH_34 = (
         (cw("Red", "#c8312e", "solid", "#4f7a3a"),), _a1("variety", "Variety", "Elsanta"),
         (("400 g", 2.5), ("800 g", 4.5)), colorless=True),
     Row("OVNSPR", "Heavy Duty Oven Cleaner Spray 500ml", "Pantry Mill", _CJ,
-        ("Cleaning", "Kitchen & Surfaces", "Oven Cleaners"), "Oven Cleaner", 3.5,
+        ("Cleaning", "Kitchen & Surfaces", "Cleaners", "Oven Cleaners"), "Oven Cleaner", 3.5,
         "trigger_spray",
         "A foaming spray that loosens baked-on grease from oven walls, racks and hobs.",
         _spray("Yellow"), _a1("form", "Form", "Foam Spray"), colorless=True),

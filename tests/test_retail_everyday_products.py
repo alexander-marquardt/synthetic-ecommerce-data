@@ -56,8 +56,8 @@ TYPES = {
         ("grape", "country", "wine_style", "abv", "pack_size"),
     ),
     "cider": (DRINKS + ["Cider"], "Cider", ("cider_style", "abv", "pack_size")),
-    "hand cream": (SKIN + ["Hand Creams"], "Hand Cream", ("skin_concern", "pack_size")),
-    "eye cream": (SKIN + ["Eye Creams"], "Eye Cream", ("skin_concern", "pack_size")),
+    "hand cream": (SKIN + ["Creams", "Hand Creams"], "Hand Cream", ("skin_concern", "pack_size")),
+    "eye cream": (SKIN + ["Creams", "Eye Creams"], "Eye Cream", ("skin_concern", "pack_size")),
     "limes": (FRUIT + ["Citrus Fruit", "Limes"], "Lime", ("variety", "origin", "pack_size")),
     "strawberries": (
         FRUIT + ["Berries", "Strawberries"],
@@ -81,7 +81,7 @@ TYPES = {
     "raspberries": (BERRIES + ["Raspberries"], "Raspberr", ("variety", "origin", "pack_size")),
     "blueberries": (BERRIES + ["Blueberries"], "Blueberr", ("variety", "origin", "pack_size")),
     "blackberries": (BERRIES + ["Blackberries"], "Blackberr", ("variety", "origin", "pack_size")),
-    "foot cream": (SKIN + ["Foot Creams"], "Foot Cream", ("skin_concern", "pack_size")),
+    "foot cream": (SKIN + ["Creams", "Foot Creams"], "Foot Cream", ("skin_concern", "pack_size")),
     "body cream": (["Beauty", "Body Care", "Body Creams"], "Body Cream", ("scent", "pack_size")),
 }
 

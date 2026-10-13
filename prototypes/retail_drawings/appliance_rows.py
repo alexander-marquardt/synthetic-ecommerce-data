@@ -110,7 +110,8 @@ NAVY = cw("Navy", "#26365c", "solid", "#8f989f")
 # Desk fans: color x blade size; the head draws its blade count.
 # --------------------------------------------------------------------------
 
-_DF = (*_HC, "Desk Fans")
+_FANS = (*_HC, "Fans")
+_DF = (*_FANS, "Desk Fans")
 
 
 def _df(power: str, speeds: int, osc: bool, db: int, blades: int, watts: int,
@@ -157,7 +158,7 @@ DESK_FANS = (
 # Pedestal fans: color only; the blade size and height range are product entries.
 # --------------------------------------------------------------------------
 
-_PF = (*_HC, "Pedestal Fans")
+_PF = (*_FANS, "Pedestal Fans")
 
 
 def _pf(size: int, lo: int, hi: int, remote: bool, timer: bool, speeds: int, watts: int,
@@ -197,7 +198,7 @@ PEDESTAL_FANS = (
 # Tower fans: color only; the column draws to its height, a bladeless fan as an open loop.
 # --------------------------------------------------------------------------
 
-_TF = (*_HC, "Tower Fans")
+_TF = (*_FANS, "Tower Fans")
 
 
 def _tf(height: int, remote: bool, timer: bool, modes: tuple[str, ...], bladeless: bool,
@@ -241,7 +242,7 @@ TOWER_FANS = (
 # Ceiling fans: finish x blade span; the finish is the SKU's color in a fan's words.
 # --------------------------------------------------------------------------
 
-_CF = (*_HC, "Ceiling Fans")
+_CF = (*_FANS, "Ceiling Fans")
 
 
 def _cf(blades: int, light: bool, reversible: bool, remote: bool, cord: bool,
@@ -293,7 +294,7 @@ CEILING_FANS = (
 # Handheld fans: color only; a neck fan draws as its band, with no blades.
 # --------------------------------------------------------------------------
 
-_HF = (*_HC, "Handheld Fans")
+_HF = (*_FANS, "Handheld Fans")
 
 
 def _hf(power: str, foldable: bool, neck: bool, speeds: int, blades: int = 0) -> tuple:
