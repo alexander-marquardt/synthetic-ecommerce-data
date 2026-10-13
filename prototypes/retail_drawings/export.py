@@ -75,6 +75,11 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "dimensions": ("dimensions", "Dimensions", None),
     "length_cm": ("item_length", "Item length", "CMT"),
     "width_cm": ("item_width", "Item width", "CMT"),
+    # A building set's sizes, a board game's editions and a craft kit's themes
+    # (toys_rows.py, gen#201).
+    "piece_count": ("piece_count", "Piece count", "C62"),
+    "edition": ("edition", "Edition", None),
+    "theme": ("theme", "Theme", None),
     # The grocery build's flavor x pack SKUs (grocery.py, gen#154); a list option
     # (an allergen list, the dietary labels) is one entry per value.
     "flavor": ("flavor", "Flavor", None),
