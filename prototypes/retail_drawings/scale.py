@@ -239,7 +239,8 @@ def templates(baseline: bool = True) -> list[dict]:
     """The authored styles, then :mod:`scale_rows`, :mod:`breadth_rows` and
     :mod:`distractor_rows`, :mod:`shirt_rows`, :mod:`sofa_rows`, :mod:`household_rows`,
     :mod:`appliance_rows`, :mod:`underwear_rows`, :mod:`toys_rows`, :mod:`lowerbody_rows`
-    and :mod:`lighting_rows` (gen#197), then the plain styles of :mod:`main_colors`, then the :mod:`grocery` styles (gen#154), in build order.
+    and :mod:`lighting_rows` (gen#197), then the plain styles of :mod:`main_colors`,
+    then the :mod:`grocery` styles (gen#154), in build order.
 
     ``baseline`` adds the plain styles a pattern-only (type, audience) needs and each group's
     missing main colors (:mod:`main_colors`, gen#275).

@@ -36,7 +36,7 @@ def test_every_type_and_audience_offers_the_main_colors_or_declares_why_not(tpls
         if k[0] not in main_colors.EXCEPTIONS
     }
     lacking = {k: c for k, c in lacking.items() if c}
-    assert not lacking, f"(type, audience) without a main color and no declared exception: {lacking}"
+    assert not lacking, f"(type, audience) lacking a main color, no exception: {lacking}"
 
 
 @pytest.mark.parametrize("audience", ["Men", "Women"])
@@ -76,7 +76,8 @@ def test_every_added_color_is_copied_from_a_solid_color_of_a_plain_style():
 
 
 def test_a_style_without_a_solid_color_cannot_take_one():
-    pattern_only = next(r for r in scale.templates(baseline=False) if r["product_id"] == "PLT-SUITCK")
+    raw = scale.templates(baseline=False)
+    pattern_only = next(r for r in raw if r["product_id"] == "PLT-SUITCK")
     with pytest.raises(ValueError):
         main_colors._add(pattern_only, ["Red"])
 
@@ -100,7 +101,8 @@ def test_the_baseline_adds_colors_and_removes_none():
     raw = scale.templates(baseline=False)
     full = scale.templates()
     plain = {p[1] for p in main_colors.PLAIN_STYLES}
-    assert [r["product_id"] for r in raw] == [r["product_id"] for r in full if r["product_id"] not in plain]
+    kept = [r["product_id"] for r in full if r["product_id"] not in plain]
+    assert [r["product_id"] for r in raw] == kept
     by_id = {r["product_id"]: r for r in full}
     for a in raw:
         b = by_id[a["product_id"]]
@@ -116,7 +118,8 @@ def test_mutant_shirts_without_red_are_caught():
         if r["product_type"] == "Shirt":
             r["color_options"] = [c for c in r["color_options"] if c["color"] != "Red"]
     assert "Red" in main_colors.missing(raw)[("Shirt", "Men")]
-    assert not [k for k in main_colors.missing(main_colors.complete(main_colors.author_plain(raw))) if k[0] == "Shirt"]
+    restored = main_colors.complete(main_colors.author_plain(raw))
+    assert not [k for k in main_colors.missing(restored) if k[0] == "Shirt"]
 
 
 def test_mutant_womens_shirts_without_red_are_caught():
