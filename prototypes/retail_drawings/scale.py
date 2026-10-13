@@ -102,6 +102,7 @@ HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
+import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import distractor_rows  # noqa: E402
@@ -111,6 +112,7 @@ import household_rows  # noqa: E402
 import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import scale_rows  # noqa: E402
+import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
 import toys_rows  # noqa: E402
@@ -214,6 +216,9 @@ GROCERY_PREFIX = "GRC-"
 
 
 SHIRT_IDS = frozenset(f"PLT-{s.code}" for s in shirt_rows.STYLES)
+#: The bag, umbrella and jewelry styles (:mod:`accessory_rows`, gen#207), left out of the
+#: derivation as the shirts are.
+ACCESSORY_IDS = frozenset(f"BRD-{r.code}" for r in accessory_rows.ROWS)
 #: The underwear and nightwear styles (:mod:`underwear_rows`, gen#208), left out of the
 #: derivation as the shirts are.
 UNDERWEAR_IDS = frozenset(f"BRD-{r.code}" for r in underwear_rows.ROWS)
@@ -230,6 +235,8 @@ FURNITURE_IDS = frozenset(f"BRD-{r.code}" for r in furniture_rows.ROWS)
 HOUSEHOLD_IDS = frozenset(f"BRD-{r.code}" for r in household_rows.ROWS)
 #: The toy styles (:mod:`toys_rows`, gen#201), left out of the derivation as the shirts are.
 TOY_IDS = frozenset(f"BRD-{r.code}" for r in toys_rows.ROWS)
+#: The seasonal, color and character styles (:mod:`seasonal_rows`, gen#195): templates only.
+SEASONAL_IDS = frozenset(f"BRD-{r.code}" for r in seasonal_rows.ROWS)
 #: The lower-body styles (:mod:`lowerbody_rows`, gen#206), left out the same way.
 LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 
@@ -252,8 +259,9 @@ def templates() -> list[dict]:
     authored = (r for recs in samples().values() for r in recs)
     return [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
-        *shirt_rows.docs(), *sofa_rows.docs(), *household_rows.docs(), *appliance_rows.docs(),
-        *underwear_rows.docs(), *toys_rows.docs(), *lowerbody_rows.docs(), *lighting_rows.docs(),
+        *shirt_rows.docs(), *accessory_rows.docs(), *sofa_rows.docs(), *household_rows.docs(),
+        *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
+        *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
         *grocery.build(),
     ]  # fmt: skip
 
@@ -261,13 +269,13 @@ def templates() -> list[dict]:
 def derivable(tpls: list[dict]) -> list[dict]:
     """The templates a derived style may come from: not a grocery style, whose allergen,
     dietary and ingredient facts are the grocery build's own and would not follow a re-draw, nor
-    a shirt (:mod:`shirt_rows`), a seating style (:mod:`sofa_rows`), a piece of furniture
-    (:mod:`furniture_rows`), a household style (:mod:`household_rows`), an appliance
-    (:mod:`appliance_rows`), an underwear style (:mod:`underwear_rows`), a toy
-    (:mod:`toys_rows`) or a lower-body style (:mod:`lowerbody_rows`), left out so the
-    seeded derivation is what it was."""
+    a shirt (:mod:`shirt_rows`), an accessory style (:mod:`accessory_rows`), a seating
+    style (:mod:`sofa_rows`), a piece of furniture (:mod:`furniture_rows`), a household
+    style (:mod:`household_rows`), an appliance (:mod:`appliance_rows`),
+    an underwear style (:mod:`underwear_rows`), a toy (:mod:`toys_rows`) or a lower-body
+    style (:mod:`lowerbody_rows`), left out so the seeded derivation is what it was."""
     left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
-                | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS)
+                | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SEASONAL_IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out]  # fmt: skip
 

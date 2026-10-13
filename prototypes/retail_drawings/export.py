@@ -81,6 +81,10 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     # A mirror's glass and a bookcase's height (furniture_rows.py, gen#199).
     "height_cm": ("item_height", "Item height", "CMT"),
     "blade_length_cm": ("blade_length", "Blade length", "CMT"),
+    # Bags, umbrellas and jewelry (accessory_rows.py, gen#207): a backpack's capacity, an
+    # umbrella's canopy, a necklace's length (item_length), a jewelry SKU's metal.
+    "canopy_cm": ("canopy_diameter", "Canopy diameter", "CMT"),
+    "metal": ("metal", "Metal", None),
     # A building set's sizes, a board game's editions and a craft kit's themes
     # (toys_rows.py, gen#201).
     "piece_count": ("piece_count", "Piece count", "C62"),
