@@ -132,7 +132,9 @@ def _hrow(code, title, brand, price, desc, colors, attrs, sizes, style, flap, st
                 sizes, params=(("style", style), ("flap", flap), ("strap", strap)))
 
 
-_MINI_SMALL = _sizes(("Mini", 28.0), ("Small", 34.0))
+#: A bag size is a letter size, as every other bag states it: "Mini" matches no size system the
+#: Combined loader declares (gen#279), so the crossbody that is cut small sells Small and Medium.
+_SMALL_MED_COMPACT = _sizes(("Small", 28.0), ("Medium", 34.0))
 _SMALL_MED = _sizes(("Small", 30.0), ("Medium", 38.0))
 
 HANDBAGS = (
@@ -146,7 +148,7 @@ HANDBAGS = (
           "A leather crossbody bag with a zip top and a metal chain strap that you can wear "
           "across the body or on the shoulder.",
           (BLACK, RED, CREAM),
-          _hb("Leather", "Zip", "Chain", "Crossbody"), _MINI_SMALL, "crossbody", "open", "chain"),
+          _hb("Leather", "Zip", "Chain", "Crossbody"), _SMALL_MED_COMPACT, "crossbody", "open", "chain"),
     _hrow("HBGXBC", "Canvas Crossbody Bag", _T, 24.0,
           "A hard-wearing canvas crossbody bag with a front flap, a zipped back pocket and an "
           "adjustable webbing strap.",
