@@ -227,6 +227,15 @@ def test_a_none_trailer_and_a_commit_without_one_run_nothing(repo: Path) -> None
     assert "PROVEN" not in done.stdout and "REFUSED" not in done.stdout
 
 
+def test_a_none_reason_that_wraps_onto_a_second_line_is_still_none(repo: Path) -> None:
+    base = _base(repo)
+    wrapped = "docs\n\nRefs #1\n\nRed-Test: none \u2014 a reason long enough\n  that it wraps"
+    _commit(repo, RAISES, wrapped)
+    done = _prove(repo, base)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "REFUSED" not in done.stdout
+
+
 def test_the_fix_after_the_red_commit_is_not_judged(repo: Path) -> None:
     base = _base(repo)
     _commit(repo, RED, "red\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_red")
