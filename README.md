@@ -2,6 +2,17 @@
 
 Write-up: [Generating a synthetic industrial product catalog for search demos](https://alexmarquardt.com/data-generation/synthetic-industrial-product-catalog/).
 
+![Four search results for "car" in a demo search UI: a checked car coat, a car boot organiser, and a wooden racing car in red and in blue. Every picture is a generated drawing.](docs/images/search-car-cards.png)
+
+**The pictures are drawn by code.** Each is written straight to SVG, from the
+SKU's own attributes, by a small writer in this repository: no image model and
+no photographs. A drawing is deterministic and costs nothing per variant, and it
+is parameterised by product type, brand house style and attributes (colour,
+pattern, size). Measured on an Apple M3 Pro laptop, `draw_product` drew every
+SKU of `golden-catalog/` at roughly 7,000 drawings a
+second (0.14 ms each, one core; three runs, 6,900 to 7,400 per second).
+That times the industrial drawing step only, with the records already loaded.
+
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
 extraction in search: modelled depth types plus
@@ -1697,16 +1708,7 @@ suite: the contract test reads the new sizes.
 
 ## Images
 
-![Four search results for "car" in a demo search UI: a checked car coat, a car boot organiser, and a wooden racing car in red and in blue. Every picture is a generated drawing.](docs/images/search-car-cards.png)
-
-**The pictures are drawn by code.** Each is written straight to SVG, from the
-SKU's own attributes, by a small writer in this repository: no image model and
-no photographs. A drawing is deterministic and costs nothing per variant, and it
-is parameterised by product type, brand house style and attributes (colour,
-pattern, size). Measured on an Apple M3 Pro laptop, `draw_product` drew every
-SKU of `golden-catalog/` at roughly 7,000 drawings a
-second (0.14 ms each, one core; three runs, 6,900 to 7,400 per second).
-That times the industrial drawing step only, with the records already loaded.
+The picture and the drawing speed are at the [top of this page](#synthetic-ecommerce-data).
 
 **One drawing per SKU, drawn from that SKU's own values, with no text in it but
 its brand's name.** The rulings are on elastic/prism-industrial-products#103
