@@ -2,7 +2,7 @@
 
 ``leggings(length, rise, pocket)``, ``joggers(fit, cuff, rise, pocket, cargo)``,
 ``shorts(length, style, pocket)``, ``cycling_shorts(length, rise, pad, pocket)``,
-``tracksuit(top, pieces, fit)`` and ``skirt(shape, length)``. Every param is something a
+``tracksuit(top, pieces, fit)`` and ``skirt(shape, hem)``. Every param is something a
 shopper filters on, and every count the record states is a count the drawing marks: a
 ``pocket`` group per pocket, a ``belt-loop`` group per loop, a ``piece`` group per piece of a
 tracksuit, a ``tier`` group per ruffle of a tiered skirt. The rise is stamped on the
@@ -380,10 +380,11 @@ def _panel(paint: str, top: float, bot: float, half_top: float, half_bot: float,
     return f"M{xl:.1f},{top:.1f} L{xr:.1f},{top:.1f} L{hr:.1f},{bot:.1f}{hem} Z"
 
 
-def skirt(paint: str, fill: Fill, label: str | None, shape: str = "a_line", length: str = "midi") -> list[str]:
+def skirt(paint: str, fill: Fill, label: str | None, shape: str = "a_line", hem: str = "midi") -> list[str]:
     """A skirt in one of :data:`SKIRT_SHAPES` at mini, midi or maxi length: an A-line flare,
     knife pleats, a straight pencil with a slit, a wrap with an overlap and a tie, three
     ruffled tiers, or a short pleated tennis skirt."""
+    length = hem  # the drawing param is ``hem``: ``length`` is a skirt SKU's leg-length axis
     hem = SKIRT_HEM["mini" if shape == "tennis" else length]
     bt, bb = 64, 90
     out: list[str] = []

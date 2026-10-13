@@ -81,6 +81,11 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     # A mirror's glass and a bookcase's height (furniture_rows.py, gen#199).
     "height_cm": ("item_height", "Item height", "CMT"),
     "blade_length_cm": ("blade_length", "Blade length", "CMT"),
+    # A building set's sizes, a board game's editions and a craft kit's themes
+    # (toys_rows.py, gen#201).
+    "piece_count": ("piece_count", "Piece count", "C62"),
+    "edition": ("edition", "Edition", None),
+    "theme": ("theme", "Theme", None),
     # The grocery build's flavor x pack SKUs (grocery.py, gen#154); a list option
     # (an allergen list, the dietary labels) is one entry per value.
     "flavor": ("flavor", "Flavor", None),

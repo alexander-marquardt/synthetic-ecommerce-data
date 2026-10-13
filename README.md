@@ -1374,8 +1374,7 @@ style copies one, and `tests/test_retail_lowerbody_206.py` holds them), then the
 desk, pedestal, tower, ceiling and handheld fans, heaters, kettles
 and toasters, each drawn by `kit_appliances.py`; none is derived from), then the underwear and nightwear (`underwear_rows.py`, gen#208: knickers,
 tights, vests, slips, shapewear, dressing gowns and boxers with a pack axis,
-drawn by `kit_underwear.py`; none is derived), then the grocery styles (below, `grocery.py`,
-gen#154). Further styles are
+drawn by `kit_underwear.py`; none is derived), then the toys (`toys_rows.py`, gen#201: building sets, jigsaws, board games, dolls, wooden toys, role play toys, arts and crafts kits and ride-ons, drawn by `kit_toys.py`; every style carries an `age_range` and most a `toy_type`, four invented character ranges (`line`) each span several kinds, and a counted mark in the drawing equals the count the record states, `tests/test_retail_toys_201.py`; no derived style copies one), then the grocery styles (below, `grocery.py`,gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
 also differs from its template and from every sibling in a value its title shows

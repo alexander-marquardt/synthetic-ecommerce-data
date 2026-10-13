@@ -404,9 +404,12 @@ def _sk(
 _SKT = ("Women", "Skirts")
 
 
+# The drawing param is ``hem``, not ``length``: a skirt's SKUs carry ``length`` (the
+# Petite/Regular/Long axis), and a SKU's own value of a drawing param key replaces the
+# drawing's (export.drawing_spec).
 def _skrow(code, title, brand, price, desc, colors, attrs, shape, length, pattern="plain"):
     return LRow(code, title, brand, CL_, _SKT, "Skirt", price, "skirt", desc, colors, attrs,
-                _sizes(price), params=(("shape", shape), ("length", length)),
+                _sizes(price), params=(("shape", shape), ("hem", length)),
                 axis_key="length", axis=_legs(), facts=_facts(None, pattern))  # fmt: skip
 
 
