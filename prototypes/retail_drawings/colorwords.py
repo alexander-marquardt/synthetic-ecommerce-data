@@ -89,7 +89,7 @@ PLAIN = {
     "Slate": "Dark Grey", "Smoke": "Grey", "Pewter": "Dark Grey", "Storm Grey": "Dark Grey",
     "Dove Grey": "Light Grey", "Brass": "Gold",
     "Stripe": "Multi Stripe", "Gingham": "Red Gingham", "Ticking Stripe": "Blue Stripe",
-    "Leopard": "Brown Leopard", "Forest": "Dark Green",
+    "Leopard": "Brown Leopard", "Forest": "Dark Green", "Bottle Green": "Dark Green",
 }  # fmt: skip
 
 

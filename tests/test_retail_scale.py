@@ -11,6 +11,7 @@ template, and keeps the drawings bounded.
 from __future__ import annotations
 
 import collections
+import copy
 import json
 import re
 import subprocess
@@ -27,6 +28,7 @@ RETAIL = ROOT / "prototypes" / "retail_drawings"
 if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
+import breadth_rows  # noqa: E402
 import scale  # noqa: E402
 from retail_figures import (  # noqa: E402
     GROCERY_INTERSECTION_KEYS,
@@ -39,19 +41,21 @@ from retail_figures import held as values_held  # noqa: E402
 FIGURES = committed()
 #: The round 4 preview's authored styles, then the scale-only rows (``scale_rows``),
 #: then the breadth rows (``breadth_rows``), then the distractor rows (``distractor_rows``:
-#: the failure classes' products), then the shirts (``shirt_rows``), then the lighting rows
-#: (``lighting_rows``, gen#197), then the grocery styles (``grocery.build()``, gen#154),
-#: last: no style derives from a shirt or a grocery style.
+#: the failure classes' products), then the shirts (``shirt_rows``), then the seating
+#: (``sofa_rows``, gen#196), then the lighting rows (``lighting_rows``, gen#197), then the
+#: grocery styles (``grocery.build()``, gen#154), last: no style derives from a shirt, a
+#: seating style or a grocery style.
 SCALE_ROWS = FIGURES["templates"]["scale_rows"]["styles"]
 AUTHORED = FIGURES["templates"]["authored"]["styles"]
 BREADTH_ROWS = FIGURES["templates"]["breadth_rows"]["styles"]
 DISTRACTOR_ROWS = FIGURES["templates"]["distractor_rows"]["styles"]
 SHIRT_ROWS = FIGURES["templates"]["shirt_rows"]["styles"]
+SOFA_ROWS = FIGURES["templates"]["sofa_rows"]["styles"]
 LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
 GROCERY_ROWS = FIGURES["templates"]["grocery"]["styles"]
 TEMPLATES = (
-    AUTHORED + SCALE_ROWS + BREADTH_ROWS + DISTRACTOR_ROWS + SHIRT_ROWS + LIGHTING_ROWS
-    + GROCERY_ROWS
+    AUTHORED + SCALE_ROWS + BREADTH_ROWS + DISTRACTOR_ROWS + SHIRT_ROWS + SOFA_ROWS
+    + LIGHTING_ROWS + GROCERY_ROWS
 )
 #: The SKUs the templates alone hold. A build at or under it takes no seeded draw, so
 #: every derived-style test (``pairs``) would pass on an empty list.
@@ -632,10 +636,15 @@ def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(tmp_path):
 def test_the_derivable_styles_hold_the_near_duplicate_share_at_the_ceiling(ceiling):
     """The share is read over the non-grocery styles, as the other population gates are
     (``scale.derivable``): a grocery family's flavors share most of a listing by design and
-    are capped apart in ``test_the_grocery_styles_hold_their_own_near_duplicate_cap``."""
+    are capped apart in ``test_the_grocery_styles_hold_their_own_near_duplicate_cap``.
+
+    Read over EVERY style, as the grocery gate is: the 500 sample's draw moves with the style
+    count, and adding the gen#198 tableware rows moved it up by more than half a point while the
+    whole population fell, with no new row among the sampled pairs."""
     main = scale.derivable(ceiling.records)
-    rate = scale.distinctness(main)["near_duplicate_rate"]
-    assert rate <= CEILING_NEAR_DUPLICATES, f"{rate:.1%} of a sample of {len(main)} styles"
+    rate = scale.distinctness(main, sample=len(main))["near_duplicate_rate"]
+    assert rate == FIGURES["near_duplicates"]["non_grocery"]
+    assert rate <= CEILING_NEAR_DUPLICATES, f"{rate:.1%} of all {len(main)} styles"
 
 
 def test_the_grocery_styles_hold_their_own_near_duplicate_cap(ceiling):
@@ -703,20 +712,57 @@ def test_no_grocery_title_or_description_names_a_value_no_sku_carries(ceiling):
     assert {k: n for k, n in wrong.items() if n > GROCERY_NAMED_EXCEPTIONS.get(k, 0)} == {}
 
 
-def test_no_department_falls_under_a_third_of_its_fair_share_of_styles(ceiling):
+def styles_by_department(records: list[dict[str, Any]]) -> collections.Counter[str]:
+    """Derivable styles per department, the count the department floor reads."""
+    return collections.Counter(scale._department(r) for r in scale.derivable(records))
+
+
+def starved(styles: collections.Counter[str]) -> dict[str, int]:
+    """The departments under ``breadth_rows.DEPARTMENT_FLOOR``, with their counts. Each is
+    held to the floor alone, so another department's growth never moves it."""
+    return {d: n for d, n in sorted(styles.items()) if n < breadth_rows.DEPARTMENT_FLOOR}
+
+
+def test_every_department_holds_its_floor_of_styles(ceiling):
     """A general retailer sells in every department: at the ceiling, each holds at least
-    a third of an even split of the styles (``breadth_rows`` keeps it there). It was half
-    until the lighting rows (gen#197) put 537 derived styles into Home: Food & Drink held
-    44% of the new split, so the bound moved to a third rather than the departments' rows.
+    ``breadth_rows.DEPARTMENT_FLOOR`` styles (``breadth_rows`` keeps it there).
 
     Guard: a template change that starves a department fails here. Metric: the smallest
-    department's share of the fair split, in the failure message.
+    department's count against the floor, in the failure message.
     """
-    styles = collections.Counter(scale._department(r) for r in scale.derivable(ceiling.records))
+    styles = styles_by_department(ceiling.records)
     assert len(styles) == DEPARTMENTS, sorted(styles)
-    fair = sum(styles.values()) / DEPARTMENTS
     smallest, n = min(styles.items(), key=lambda kv: kv[1])
-    assert n >= fair / 3, f"{smallest}: {n} styles, {n / fair:.0%} of a fair {fair:.0f}"
+    floor = breadth_rows.DEPARTMENT_FLOOR
+    assert starved(styles) == {}, f"{smallest}: {n} styles, under the floor of {floor}"
+
+
+#: The Home templates :func:`test_growing_one_department_never_starves_another` adds: a
+#: batch the size of the Home types the open batches plan (gen#196-#217).
+SYNTHETIC_HOME = 200
+
+
+def test_growing_one_department_never_starves_another(ceiling, monkeypatch):
+    """A batch that adds templates to one department leaves every other department's floor
+    where it was (gen#220): each Home batch failed the old rule (half an even split of the
+    total, which the batch itself inflates) and padded unrelated departments with filler rows.
+    The build here adds :data:`SYNTHETIC_HOME` Home templates (copies of today's under new ids
+    and titles) before the grocery styles, at the ceiling."""
+    tpls = scale.templates()
+    home = [r for r in scale.derivable(tpls) if scale._department(r) == "Home"]
+    extra = []
+    for i in range(SYNTHETIC_HOME):
+        r = copy.deepcopy(home[i % len(home)])
+        r["product_id"] += f"-SYN{i}"
+        r["title"] += f" Set {i + 2}"
+        extra.append(r)
+    grocery = [r for r in tpls if r["product_id"].startswith(scale.GROCERY_PREFIX)]
+    rest = [r for r in tpls if not r["product_id"].startswith(scale.GROCERY_PREFIX)]
+    monkeypatch.setattr(scale, "templates", lambda: [*rest, *extra, *grocery])
+    grown = styles_by_department(scale.build(CAPACITY[1] * 4).records)
+    before = styles_by_department(ceiling.records)
+    assert grown["Home"] >= before["Home"] + SYNTHETIC_HOME
+    assert starved(grown) == {}
 
 
 def test_every_scale_only_row_opens_a_leaf_or_a_title_value_its_leaf_lacked():

@@ -9,10 +9,18 @@ from __future__ import annotations
 
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BRITISH = re.compile("colo" + "u" + "r", re.IGNORECASE)
+
+sys.path.insert(0, str(ROOT / "scripts"))
+from file_size_gate import pinned_files  # noqa: E402  (the path is set up just above)
+
+#: Core's vendored gate is a byte-for-byte copy (vendor/prism/PIN.txt), so a
+#: word in it is respelt in core, never here; each path is exempt by name.
+VENDORED = {f"vendor/prism/{path}" for path in pinned_files()}
 
 
 def test_no_tracked_file_spells_color_the_british_way() -> None:
@@ -21,6 +29,8 @@ def test_no_tracked_file_spells_color_the_british_way() -> None:
     ).stdout.decode().split("\0")
     hits = []
     for name in filter(None, names):
+        if name in VENDORED:
+            continue
         if BRITISH.search(name):
             hits.append(name)
             continue

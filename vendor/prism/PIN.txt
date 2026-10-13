@@ -1,0 +1,21 @@
+# elastic/prism files vendored under vendor/prism/, byte for byte (elastic/prism#11683).
+#
+# scripts/file_size_gate.py runs core's file-size gate on this tree. This
+# repository's CI cannot read the private core repository, so the gate and its
+# import closure are copied here rather than fetched, at the commit below.
+# Every line after it is `git ls-tree <commit> -- <paths>` run in core,
+# verbatim: tests/test_file_size_gate_11683.py refuses a vendored file whose
+# git blob id is not the one listed, and a file under vendor/prism/ that is
+# not listed. Never edit a vendored file here: change it in core, then
+# resync (docs/file-size-budget.md -> "Resync the vendored gate").
+commit 1228c5cceb277758d380cb3d4b554ddc1d394b34
+100755 blob fd3fd4a69fa7933ad9e70dceedd8926394d0237b	.github/scripts/check_closing_keywords.py
+100644 blob 1db6c4e69d51ab3a6a30a0cab79ad96cc5c24a13	.github/scripts/check_docs_impact.py
+100644 blob 5a163fa98ae8146cf2724ef851a2f4eb19e14d9a	.github/scripts/check_review_verdict.py
+100644 blob eba756a0ea8c3b3e9cf09e06aa3b3d247952d057	.github/scripts/churn_metric.py
+100644 blob bcea5251d5d8acc2732203f0339cfdc2248d6676	.github/scripts/efficiency_ratchet.py
+100755 blob a2d0171ae9ff67715dd62e0f6adc5b70658b60d0	scripts/check_file_size.py
+100644 blob 35fe9bb9977da6a7f523ff2b31468ccc795196e1	scripts/generated_paths.py
+100644 blob f42baf49469759b8e341fc4cafaf1c2656f2c5dc	scripts/pr_body_draft.py
+100644 blob 444f79e27a2a8797ab8a4c5b77520c71a8cfc7e3	scripts/queue_churn.py
+100644 blob c99a879cda72f2ef4a4a03761685432f5bfcb042	scripts/working_tree_subject.py
