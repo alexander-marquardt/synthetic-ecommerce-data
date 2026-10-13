@@ -29,9 +29,9 @@ from retail_figures import committed  # noqa: E402
 #: Today's ceiling SKUs, as ``golden-retail/stats.json`` measures it (gen#162).
 CEILING_SKUS = committed()["ceiling"]["skus"]
 #: Words of an object, a food or a plant that are not a color. A color value holding one
-#: is a fashion name where a color word belongs.
-#: Shopper color words (gen#195) that are also a food, a stone or a fabric: each is a plain
-#: color value of its own now (see ``tests/test_retail_seasonal_195.py``), so they are not here.
+#: is a fashion name where a color word belongs. Shopper color words (gen#195) that are also a
+#: food, a stone or a fabric are a plain color value of their own now (see
+#: ``tests/test_retail_seasonal_195.py``), so they are not here.
 DENYLIST = frozenset({
     "lemon", "lime", "cherry", "peach", "chocolate", "coffee", "plum",
     "mustard", "cocoa", "honey", "toffee", "latte", "mocha", "espresso",

@@ -90,3 +90,8 @@ def test_each_character_type_has_an_invented_line_and_every_range_has_a_cake_or_
     assert set(lines) == CHARACTER_TYPES, sorted(set(lines) ^ CHARACTER_TYPES)
     assert lines["Pyjamas"] == RANGES and lines["Soft Toy"] == RANGES
     assert lines["Cake"] | lines["Sweets"] == RANGES
+
+
+def test_a_half_word_alone_is_not_a_plain_color_but_its_two_word_color_is():
+    assert not any(colorwords.is_plain(w) for w in ("Duck", "Egg", "Quartz"))
+    assert colorwords.is_plain("Duck Egg") and colorwords.is_plain("Rose Quartz")
