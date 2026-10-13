@@ -608,17 +608,36 @@ def clothes_airer(
         step = (base - top - 20) / n
         out += [rack(80, 290, top + 30 + i * step, 40, 6) for i in range(n)]
         return out
-    # folding and heated: a wing airer, the heated one tiered and plugged in
-    out = [
-        _shadow(200, 344, 160),
-        _line("M90,330 L250,170 M310,330 L150,170", 6, stroke=paint),
-        _line("M90,330 L250,170 M310,330 L150,170", 1.2),
-    ]
-    step = 120 / n
-    out += [rack(70, 300, 170 - i * step, 30, 8) for i in range(n)]
+    # folding and heated: a wing airer seen from one end, so its gull-wing profile shows:
+    # a flat middle, two wings raised on hinges, and the drying bars running back from the
+    # front profile to the back one. Crossed legs hold it up; each further tier is a flat
+    # rack between the legs, and the heated one is plugged in.
+    dx, dy = 14.0, -40.0
+    front = [(40.0, 125.0), (125.0, 200.0), (245.0, 200.0), (320.0, 125.0)]
+    back = [(x + dx, y + dy) for x, y in front]
+    bar = _shade(fill.base, 0.45)
+    out = [_shadow(200, 344, 150)]
+    for (x0, y0), (x1, y1) in (((125, 200), (245, 330)), ((245, 200), (125, 330))):
+        out += [_line(f"M{x0 + dx},{y0 + dy} L{x1 + dx},{y1 + dy}", 5, stroke=_shade(fill.base, 0.2)),
+                _line(f"M{x0 + dx},{y0 + dy} L{x1 + dx},{y1 + dy}", 1)]  # fmt: skip
+    wing = []
+    for (ax, ay), (bx, by), bars in zip(front[:-1], front[1:], (5, 6, 5), strict=True):
+        for i in range(bars + 1):
+            t = i / bars
+            x, y = ax + (bx - ax) * t, ay + (by - ay) * t
+            wing.append(_line(f"M{x:.1f},{y:.1f} L{x + dx:.1f},{y + dy:.1f}", 2.4, stroke=bar))
+    for prof in (back, front):
+        d = "M" + " L".join(f"{x:.0f},{y:.0f}" for x, y in prof)
+        wing += [_path(d, "none", 5, stroke=paint), _path(d, "none", 1.2, stroke=INK)]
+    out.append(_group("tier", wing))
+    for x0, y0, x1, y1 in ((125, 200, 245, 330), (245, 200, 125, 330)):
+        out += [_line(f"M{x0},{y0} L{x1},{y1}", 6, stroke=paint), _line(f"M{x0},{y0} L{x1},{y1}", 1.2),
+                _ell(x1, y1 + 4, 10, 5, BLACK, LW_DETAIL)]  # fmt: skip
+    for i in range(1, n):
+        out.append(rack(105, 265, 200 + i * 110 / n, 40, 6))
     if kind == "heated":
-        out += [_line("M300,300 Q350,320 340,350", 3, stroke=BLACK), _rect(330, 346, 22, 16, "#ffffff", 3, LW_DETAIL),
-                f'<circle cx="104" cy="{150 - (n - 1) * step:.0f}" r="5" fill="#e0533a" stroke="{INK}" stroke-width="1"/>']  # fmt: skip
+        out += [_line("M320,125 Q360,240 340,350", 3, stroke=BLACK), _rect(330, 346, 22, 16, "#ffffff", 3, LW_DETAIL),
+                _ell(60, 143, 5, 5, "#e0533a", 1)]  # fmt: skip
     return out
 
 

@@ -184,7 +184,7 @@ FRYING_PANS = (
         _cm((20, 28.0), (26, 38.0)), params=_fpp("skillet", "pre-seasoned"),
         size_key="diameter_cm"),
     Row("FRYENS", "Enameled Cast Iron Skillet", _H, _HW, _FP, "Frying Pan", 45.0, "frying_pan",
-        "A cast iron skillet with a colored enamel outside and a matte black enamel inside, "
+        "A cast iron skillet with a colored enamel outside and a matte enamel inside, "
         "on every hob, induction included.",
         (cw("Red", "#b8322b", "solid", "#2f2f35"), cw("Green", "#3f6b4a", "solid", "#2f2f35")),
         _fp("Skillet", "Cast Iron", "Enamel", YES, 250), _cm((20, 45.0), (26, 59.0)),
@@ -228,7 +228,7 @@ CASSEROLES = (
         params=(("form", "round"), ("material", "cast iron")), size_key="capacity_l"),
     Row("CASOVL", "Cast Iron Oval Casserole", _H, _HW, _CS, "Casserole Dish", 69.0, "casserole",
         "A long oval casserole that takes a whole chicken or a joint, on any hob and in the "
-        "oven. Black enamel inside.",
+        "oven, with a smooth glazed inside.",
         (BLACK, GREY), _cs("Cast Iron", "Oval", 250, YES), _litres((4.7, 69.0), (6.3, 85.0)),
         params=(("form", "oval"), ("material", "cast iron")), size_key="capacity_l"),
     Row("CASSTO", "Stoneware Oval Casserole Dish with Lid", _L, _HW, _CS, "Casserole Dish", 28.0,
@@ -275,7 +275,7 @@ KITCHEN_BINS = (
         _litres((40, 35.0), (50, 42.0)), params=(("kind", "touch-top"),), size_key="capacity_l"),
     Row("BINSNS", "Sensor Kitchen Bin", _C, _HW, _KB, "Kitchen Bin", 59.0, "kitchen_bin",
         "A hands-free bin whose lid opens when a hand passes over the sensor and closes after "
-        "three seconds. Runs on batteries or a USB lead.",
+        "three seconds. Runs on batteries or by USB lead.",
         (SILVER, BLACK), _kb("Sensor", "Stainless Steel"), _litres((42, 59.0), (58, 75.0)),
         params=(("kind", "sensor"),), size_key="capacity_l"),
     Row("BINRC2", "Recycling Pedal Bin with 2 Compartments", _H, _HW, _KB, "Kitchen Bin", 45.0,
@@ -284,7 +284,7 @@ KITCHEN_BINS = (
         (SILVER, GREY), (*_kb("Recycling", "Stainless Steel", 2), _l(40)),
         params=(("kind", "recycling"), ("compartments", "2"))),
     Row("BINRC3", "Recycling Bin with 3 Compartments", _L, _HW, _KB, "Kitchen Bin", 55.0,
-        "kitchen_bin", "Three 15 l compartments with their own lids, for paper, plastic and "
+        "kitchen_bin", "Three 15 l compartments, each with a lid, for paper, plastic and "
         "glass, in a recycled plastic body.",
         (GREY, WHITE), (*_kb("Recycling", "Recycled Plastic", 3), _l(45)),
         params=(("kind", "recycling"), ("compartments", "3"))),
@@ -360,12 +360,12 @@ LAUNDRY_BASKETS = (
         (WHITE, GREY, cw("Blue", "#3f6fb5")), _lb("Basket", "Plastic", 40),
         params=(("kind", "basket"), ("material", "plastic"))),
     Row("LDBFLD", "Folding Fabric Laundry Basket", _L, _HW, _LB, "Laundry Basket", 12.0,
-        "laundry_basket", "A pop-up basket on a wire rim that folds flat to a disc, with two "
+        "laundry_basket", "A pop-up fabric tub on a wire rim that folds flat to a disc, with two "
         "carry handles, 45 l.",
         (GREY, cw("Navy", "#26365c"), cw("Beige", "#d8c9a8")), _lb("Folding", "Fabric", 45),
         params=(("kind", "folding"), ("material", "fabric"))),
-    Row("LDBTWO", "Two-Compartment Seagrass Laundry Hamper", _C, _HW, _LB, "Laundry Basket",
-        65.0, "laundry_basket", "A wide hamper with two lidded sections, to sort lights from "
+    Row("LDBTWO", "Two-Compartment Seagrass Laundry Sorter", _C, _HW, _LB, "Laundry Basket",
+        65.0, "laundry_basket", "A wide sorter with two lidded sections, to sort lights from "
         "darks as you go, 80 l in all.",
         (NATURAL,), _lb("Two-Compartment", "Seagrass", 80, 2),
         params=(("kind", "two-compartment"), ("material", "seagrass"))),
@@ -400,7 +400,7 @@ CLOTHES_AIRERS = (
         "pence, on two tiers with 14 m of drying space.",
         (SILVER,), _ca("Heated", 14, 2), params=(("kind", "heated"), ("tiers", "2"))),
     Row("AIRWAL", "Wall-Mounted Clothes Airer", _L, _HW, _CA, "Clothes Airer", 24.0,
-        "clothes_airer", "Four bars that fold down from a wall plate over a bath or in a "
+        "clothes_airer", "Four bars that fold down from a wall plate over a bath or in the "
         "utility room, with 6 m of drying space.",
         (WHITE,), _ca("Wall-Mounted", 6, 1), params=(("kind", "wall-mounted"), ("tiers", "1"))),
 )  # fmt: skip

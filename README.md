@@ -1359,7 +1359,11 @@ protectors, mattresses and pillow protectors that out-sell the toppers; bestsell
 barrel-leg jeans whose text says balloon; 150 petite styles with a minority on sale,
 and 60 sale styles that never say petite, then the shirts (`shirt_rows.py`: Oxford,
 Flannel, Linen and Denim, for Mens and Womens, under `Tops/Shirts`, typed `Shirt`;
-no derived style copies one), then the grocery styles (below, `grocery.py`,
+no derived style copies one), then the household styles (`household_rows.py`, gen#200:
+saucepans, frying pans, casserole dishes, kitchen bins, storage boxes, laundry baskets,
+clothes airers and mops, each drawn by `kit_household.py` with the count its record states
+(pans in a set, bin lids, basket compartments, airer tiers); no derived style copies one,
+and `tests/test_retail_household_200.py` holds them), then the grocery styles (below, `grocery.py`,
 gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
