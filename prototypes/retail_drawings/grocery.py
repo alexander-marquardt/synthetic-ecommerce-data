@@ -54,7 +54,16 @@ import kit_grocery  # noqa: E402,F401 -- registers bar and bag
 from departments import check as check_departments  # noqa: E402
 from export import NUMERIC_FACTS, standard_document  # noqa: E402
 from grocery_ingredients import facet_value, ingredients, shared  # noqa: E402
-from grocery_rows import ALLERGENS, ANCHORS, FAMILIES, LINES, OWNERS, F, Family  # noqa: E402
+from grocery_rows import (  # noqa: E402
+    ALLERGENS,
+    ANCHORS,
+    CUT_NOTES,
+    FAMILIES,
+    LINES,
+    OWNERS,
+    F,
+    Family,
+)
 from kit_produce import pile_params  # noqa: E402
 from variants import attr, drawing, product  # noqa: E402
 
@@ -205,7 +214,10 @@ def _description(fam: Family, flavors: list[F], packs: list[dict], skus: list[di
         head = f"{fam.product_type} in {len(names)} flavors: {', '.join(names)}. In {sizes}."
     else:
         head = f"{names[0]}, in {sizes}."
-    out = [head, STORAGE_TEXT[fam.storage]]
+    out = [head]
+    if len(names) == 1 and (fam.code, names[0]) in CUT_NOTES:
+        out.append(CUT_NOTES[fam.code, names[0]])
+    out.append(STORAGE_TEXT[fam.storage])
     contains = _union(s.get("contains", []) for s in skus)
     may = [a for a in _union(s.get("may_contain", []) for s in skus) if a not in contains]
     if contains:

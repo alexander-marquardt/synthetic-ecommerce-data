@@ -1,5 +1,18 @@
 # synthetic-ecommerce-data
 
+Write-up: [Generating a synthetic industrial product catalog for search demos](https://alexmarquardt.com/data-generation/synthetic-industrial-product-catalog/).
+
+![Four search results for "car" in a demo search UI: a checked car coat, a car boot organiser, and a wooden racing car in red and in blue. Every picture is a generated drawing.](docs/images/search-car-cards.png)
+
+**The pictures are drawn by code.** Each is written straight to SVG, from the
+SKU's own attributes, by a small writer in this repository: no image model and
+no photographs. A drawing is deterministic and costs nothing per variant, and it
+is parameterised by product type, brand house style and attributes (color,
+pattern, size). Measured on an Apple M3 Pro laptop, `draw_product` drew every
+SKU of `golden-catalog/` at roughly 7,000 drawings a
+second (0.14 ms each, one core; three runs, 6,900 to 7,400 per second).
+That times the industrial drawing step only, with the records already loaded.
+
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
 extraction in search: modelled depth types plus
@@ -1357,7 +1370,7 @@ three failure classes need (`distractor_rows.py`; `baseline_rank.py` ranks a bui
 without a policy, and `tests/test_retail_distractors.py` holds the result): mattress
 protectors, mattresses and pillow protectors that out-sell the toppers; bestselling
 barrel-leg jeans whose text says balloon; 150 petite styles with a minority on sale,
-and 60 sale styles that never say petite, then the shirts (`shirt_rows.py`: Oxford,
+and 60 sale styles that never say petite, and the steak class (gen#264: seven steak-knife styles, a steak plate, board and cast-iron weight that lead `steak`, with the beef steaks and tinned tuna steaks the grocery build adds as families `STK` and `TUS`), then the shirts (`shirt_rows.py`: Oxford,
 Flannel, Linen and Denim, for Mens and Womens, under `Tops/Shirts`, typed `Shirt`;
 no derived style copies one), then the living-room seating (`sofa_rows.py`, gen#196:
 sofas sold as 2, 2.5, 3 and 4 seaters, left- and right-hand corner and chaise sofas,
@@ -1700,6 +1713,8 @@ source file. After a refresh that changes the block, rebuild and rerun the
 suite: the contract test reads the new sizes.
 
 ## Images
+
+The picture and the drawing speed are at the [top of this page](#synthetic-ecommerce-data).
 
 **One drawing per SKU, drawn from that SKU's own values, with no text in it but
 its brand's name.** The rulings are on elastic/prism-industrial-products#103
