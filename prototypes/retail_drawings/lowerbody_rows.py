@@ -311,7 +311,7 @@ CYCLING = (
     LRow("CYSWPK", "Padded Cycling Shorts with Pockets", "Saltmarsh", CL_, _WC,
          "Cycling Shorts", 38.0, "cycling_shorts", "Knee length padded shorts with a mid rise "
          "and a pocket on each leg for a phone or keys.", (BLACK, GREY),
-         _cy("Recycled Polyester", "Knee Length", "Padded", YES), _sizes(38.0),
+         _cy("Compression", "Knee Length", "Padded", YES), _sizes(38.0),
          params=_cyp("knee", "mid", "yes", "yes"), facts=_facts("Mid", "plain")),
     LRow("CYMPAD", "Men's Padded Cycling Shorts", "Saltmarsh", CL_, _MC, "Cycling Shorts",
          34.0, "cycling_shorts", "Cycling shorts with a mid rise and a multi-density padded "
@@ -325,7 +325,7 @@ CYCLING = (
     LRow("CYMKNE", "Men's Knee Length Padded Cycling Shorts with Pocket", "Bramblewood", CL_, _MC,
          "Cycling Shorts", 40.0, "cycling_shorts", "Longer padded cycling shorts with a high "
          "rise and a rear pocket.", (BLACK, GREEN),
-         _cy("Recycled Polyester", "Knee Length", "Padded", YES), _sizes(40.0),
+         _cy("Compression", "Knee Length", "Padded", YES), _sizes(40.0),
          params=_cyp("knee", "high", "yes", "yes"), facts=_facts("High", "plain")),
 )  # fmt: skip
 
@@ -429,7 +429,7 @@ SKIRTS = (
            _sk("Tiered", "Maxi", "Cotton", "Elastic", tiers=3), "tiered", "maxi", "stripe"),
     _skrow("SKTTNS", "Tennis Skirt with Built-In Shorts", SW, 20.0,
            "A short skirt with built-in shorts, for the court and the gym.",
-           (WHITE, BLACK, NAVY), _sk("Tennis", "Mini", "Polyester", "Elastic", "Polyester"),
+           (WHITE, BLACK, NAVY), _sk("Tennis", "Mini", "Tricot", "Elastic", "Polyester"),
            "tennis", "mini"),
     _skrow("SKTDNM", "Denim Mini Skirt", "Wrenfield", 22.0,
            "A flared denim skirt with a zip front, cut well above the knee.",

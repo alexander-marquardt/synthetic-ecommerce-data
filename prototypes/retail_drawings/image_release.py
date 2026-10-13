@@ -59,10 +59,14 @@ def colorway_drawing(rec: dict, sku: dict) -> dict:
     The product's own drawing is drawn in its first color, so its first
     colorway's image is that drawing unchanged. A color whose accent differs
     is in the drawing's ``accents`` (``variants.product`` puts it there, off
-    ``color_options``). A SKU with no color draws the drawing as is.
+    ``color_options``). A SKU with no color draws the drawing as is. A SKU's
+    own value of a drawing param (a lamp's ``finish``) replaces the product's.
     """
     drawing = {k: v for k, v in rec["drawing"].items() if k != "accents"}
-    swatch = export.drawing_spec(rec, sku)["swatch"]
+    spec = export.drawing_spec(rec, sku)
+    if "params" in spec:  # the SKU's own finish, shade color or diameter (gen#197)
+        drawing["params"] = drawing.get("params", {}) | spec["params"]
+    swatch = spec["swatch"]
     if swatch is None:
         return drawing
     accent = rec["drawing"].get("accents", {}).get(swatch["color"], drawing["accent"])
