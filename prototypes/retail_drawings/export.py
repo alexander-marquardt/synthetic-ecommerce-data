@@ -131,7 +131,6 @@ FACTS: dict[str, tuple[str, str, str | None]] = {
     "units_per_pack": ("units_per_pack", "Units per pack", "C62"),
     "offer": ("offer", "Offer", None),
     "online_only": ("online_only", "Online only", None),
-    "new_in": ("new_in", "New in", None),
     "trending": ("trending", "Trending", None),
     "badges": ("badge", "Badge", None),
     "rating": ("rating", "Rating", None),
