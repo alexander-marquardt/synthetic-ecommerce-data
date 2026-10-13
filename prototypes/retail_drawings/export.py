@@ -83,7 +83,6 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "blade_length_cm": ("blade_length", "Blade length", "CMT"),
     # Bags, umbrellas and jewelry (accessory_rows.py, gen#207): a backpack's capacity, an
     # umbrella's canopy, a necklace's length (item_length), a jewelry SKU's metal.
-    "capacity_l": ("capacity", "Capacity", "LTR"),
     "canopy_cm": ("canopy_diameter", "Canopy diameter", "CMT"),
     "metal": ("metal", "Metal", None),
     # A building set's sizes, a board game's editions and a craft kit's themes
