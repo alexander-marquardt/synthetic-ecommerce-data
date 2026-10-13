@@ -29,17 +29,19 @@ from retail_figures import committed  # noqa: E402
 #: Today's ceiling SKUs, as ``golden-retail/stats.json`` measures it (gen#162).
 CEILING_SKUS = committed()["ceiling"]["skus"]
 #: Words of an object, a food or a plant that are not a color. A color value holding one
-#: is a fashion name where a color word belongs.
+#: is a fashion name where a color word belongs. Shopper color words (gen#195) that are also a
+#: food, a stone or a fabric are a plain color value of their own now (see
+#: ``tests/test_retail_seasonal_195.py``), so they are not here.
 DENYLIST = frozenset({
-    "lemon", "lime", "cherry", "mint", "peach", "chocolate", "coffee", "berry", "plum",
-    "olive", "mustard", "cocoa", "honey", "caramel", "toffee", "latte", "mocha", "espresso",
-    "hazelnut", "walnut", "oak", "oat", "oatmeal", "almond", "ginger", "apple", "melba",
+    "lemon", "lime", "cherry", "peach", "chocolate", "coffee", "plum",
+    "mustard", "cocoa", "honey", "toffee", "latte", "mocha", "espresso",
+    "hazelnut", "walnut", "oak", "oat", "almond", "ginger", "apple", "melba",
     "watermelon", "wine", "fig", "jam", "damson", "mulberry", "bramble", "sage", "leaf",
-    "moss", "forest", "ochre", "amber", "brick", "rust", "terracotta", "tobacco", "pearl",
-    "oyster", "stone", "slate", "pewter", "smoke", "ice", "brass", "mink", "fawn", "sand",
-    "kraft", "calico", "tabby", "champagne", "cognac", "chestnut", "claret", "poppy",
+    "moss", "forest", "ochre", "brick", "terracotta", "tobacco", "pearl",
+    "oyster", "slate", "pewter", "smoke", "ice", "brass", "mink", "fawn", "sand",
+    "kraft", "calico", "tabby", "cognac", "chestnut", "claret", "poppy",
     "orchid", "petal", "sprig", "star", "confetti", "candy", "breton", "glaze",
-    "porcelain", "bare", "linen", "petrol", "midnight", "sky", "duck", "egg", "dove",
+    "porcelain", "bare", "linen", "petrol", "midnight", "sky", "dove",
     "cloud", "storm", "glacier", "citrus", "cinder", "kiln", "post", "box", "tea", "shell",
     "oxblood", "celadon", "rosewood", "mauve", "coral reef", "glow", "haze", "pop", "field",
 })  # fmt: skip
