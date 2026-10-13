@@ -32,10 +32,10 @@ from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 ROWS = underwear_rows.ROWS
 
 #: Each type and every key attribute the issue lists for it (its table), by the export key.
-#: Size, colour and pack count are pinned as well as the drawn attributes: a table that left
+#: Size, color and pack count are pinned as well as the drawn attributes: a table that left
 #: the size keys out let a missing size through on the household review. Size is ``size``
-#: everywhere but boxers, which sell by ``waist``. Pattern is a colorway (the colour value
-#: names it), so the colour key carries it. Audience is on every record.
+#: everywhere but boxers, which sell by ``waist``. Pattern is a colorway (the color value
+#: names it), so the color key carries it. Audience is on every record.
 KEYS = {
     "Knickers": {"cut", "fabric", "pack_size", "size", "color", "audience"},
     "Tights": {"denier", "finish", "size", "pack_size", "color", "control_top", "audience"},
@@ -137,7 +137,7 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> 
 
 
 @pytest.mark.parametrize("ptype", sorted(VARIANT_KEYS))
-def test_every_sku_states_its_size_colour_and_pack(ptype: str) -> None:
+def test_every_sku_states_its_size_color_and_pack(ptype: str) -> None:
     short = {}
     for row in (r for r in ROWS if r.product_type == ptype):
         doc = export.standard_document(row.doc())
