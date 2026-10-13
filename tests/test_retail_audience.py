@@ -52,15 +52,18 @@ def rows(docs):
     return scale.flat(docs)
 
 
-def _worn(row: dict) -> bool:
+def _worn(row: dict, department_of: dict[str, str]) -> bool:
+    """Sold to a person: under a people root, or in a worn build department (the build record's
+    own ``department``, which no document states: gen#281)."""
     return (
         row["category_path"][0] in audience.PEOPLE_ROOTS
-        or row["facets"]["department"][0] in audience.WORN_DEPARTMENTS
+        or department_of[row["product_id"]] in audience.WORN_DEPARTMENTS
     )
 
 
-def test_every_worn_sku_has_exactly_one_audience(rows):
-    worn = [r for r in rows if _worn(r)]
+def test_every_worn_sku_has_exactly_one_audience(rows, built):
+    department_of = {r["product_id"]: r["department"][0] for r in built.records}
+    worn = [r for r in rows if _worn(r, department_of)]
     assert worn
     bad = collections.Counter(
         tuple(r["facets"].get("audience", ())) for r in worn
@@ -81,7 +84,7 @@ def test_the_audience_follows_the_category_root(rows):
     assert got[("Kids", "Girls")] == {"Girls"}
     assert got[("Kids", "Boys")] == {"Boys"}
     assert got[("Kids", "Shoes")] == {"Unisex"}
-    assert got[("Baby", "")] == {"Baby"}
+    assert got[("Kids", "Baby")] == {"Baby"}
 
 
 def test_an_audience_is_never_added_to_a_style_that_has_one(built):
@@ -145,14 +148,12 @@ def test_a_shirt_is_a_template_no_derived_style_copies(built):
     assert not ids & set(built.template_of.values())
 
 
-def test_the_cleaning_root_is_one_and_every_department_is_on_the_list(docs):
+def test_the_cleaning_root_is_one_and_every_build_department_is_on_the_list(docs, built):
     roots = {d["category_path"][0] for d in docs}
     assert "Cleaning & Janitorial" not in roots
     assert "Cleaning" in roots
-    for d in docs:
-        entries = [a["value"] for a in d["attributes"] if a["key"] == "department"]
-        assert entries
-        departments.check(entries, d["product_id"])
+    for r in built.records:
+        departments.check(r["department"], r["product_id"])
     assert not standard.check_catalog(docs)
 
 

@@ -150,11 +150,10 @@ def measure() -> dict[str, Any]:
             "non_grocery": _count(main),
             "grocery": _count(groc),
             "food_and_drink": _count(food),
-            "food_and_drink_tree": {
-                tree: sum(
-                    r["sku_count"] for r in food if r["category_path"][0] == tree
-                )
-                for tree in sorted({r["category_path"][0] for r in food})
+            # The store's departments are the top level of the category tree (gen#281).
+            "top_levels": {
+                root: _count([r for r in ceiling.records if r["category_path"][0] == root])
+                for root in sorted({r["category_path"][0] for r in ceiling.records})
             },
         },
         "departments": dict(sorted(departments.items())),

@@ -128,6 +128,16 @@ def test_the_exported_field_list_has_no_department_entry() -> None:
     assert "department" not in {key for key, _, _ in export.FACTS.values()}
 
 
+def test_the_committed_ceiling_figures_name_exactly_the_declared_departments() -> None:
+    """The 110K export's per-top-level counts (``golden-retail/stats.json``, rebuilt by
+    ``retail_figures.py``) cover every declared department and no other."""
+    from retail_figures import committed
+
+    figures = committed()["ceiling"]
+    assert set(figures["top_levels"]) == DEPARTMENTS
+    assert sum(t["skus"] for t in figures["top_levels"].values()) == figures["skus"]
+
+
 def _has_department(doc: dict[str, Any]) -> bool:
     entries = doc["attributes"] + [e for v in doc["variants"] for e in v["attributes"]]
     return any(e["key"] == "department" for e in entries)

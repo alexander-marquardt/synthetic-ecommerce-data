@@ -13,10 +13,12 @@ repos:
       # and compared by sha256; a byte a hook added would red the golden test.
       # vendor/ is core's code byte for byte, pinned by git blob id
       # (vendor/prism/PIN.txt): a fixed byte would break the pin.
+      # The retail previews are written by their builders and compared byte for
+      # byte by test_the_committed_samples_and_preview_are_what_the_builder_writes.
       - id: end-of-file-fixer
-        exclude: ^(golden-catalog|vendor)/
+        exclude: ^(golden-catalog|vendor)/|^prototypes/retail_drawings/preview4?\.html$
       - id: trailing-whitespace
-        exclude: ^(golden-catalog|vendor)/
+        exclude: ^(golden-catalog|vendor)/|^prototypes/retail_drawings/preview4?\.html$
       - id: check-yaml
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.5
