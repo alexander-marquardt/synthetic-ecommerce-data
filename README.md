@@ -1172,7 +1172,7 @@ can preselect Navy and show its swatch. The plain text query also finds tees,
 but its response names no SKU: nothing to preselect. Since the print range
 (`prints.py`) added its men's and women's tees, "tee" matches ten products
 with a Navy SKU, the ruling's `PLT-CRWTEE` among them: the facet over
-the result reads Navy 48 SKUs / 10 products, White 9 / 2, Grey 5 / 1, Heather
+the result reads (SKUs / products) Navy 48 / 10, White 9 / 2, Grey 5 / 1, Heather
 Grey 3 / 1.
 
 `es_proof.py --host URL` loads the round 4 corpus plus these records into a
@@ -1352,15 +1352,26 @@ The templates (`templates` in `golden-retail/stats.json`) come first: the author
 styles, then the deep-SKU jeans,
 bras and shoes that only the scaled catalog carries (`scale_rows.py`), then the toys,
 garden, gifts, cleaning, food, beauty and home styles that hold every department at
-half its fair share of styles or more (`breadth_rows.py`), then one or two plain products in each of a first increment of new leaves (`BREADTH_34`, gen#34: cutlery sets, dinner sets, claw hammers, perfume, seeds, cherries, oven cleaners; every set carries a `piece_count` (a C62 count, agreeing with its title and rising with its price) and every cordless drill a `voltage_v` (unit code VLT), gen#173; more leaves are further rows there, and `tests/test_retail_breadth_34.py` holds that each is a leaf no other template uses), then the styles that
+at least its floor of styles (`breadth_rows.py`, below), then one or two plain products in each of a first increment of new leaves (`BREADTH_34`, gen#34: cutlery sets, dinner sets, claw hammers, perfume, seeds, cherries, oven cleaners; every set carries a `piece_count` (a C62 count, agreeing with its title and rising with its price) and every cordless drill a `voltage_v` (unit code VLT), gen#173; more leaves are further rows there, and `tests/test_retail_breadth_34.py` holds that each is a leaf no other template uses), then the furniture (`furniture_rows.py`, gen#199: dining tables by seat count and top outline with their sizes in `item_width` and `item_length`, dining chairs sold single or as a set with `units_per_pack`, coffee and side tables, bookcases with their height in `item_height`, wardrobes, chests of drawers and mirrors, each drawn by its own shape in `kit_furniture.py`; no derived style copies one, and `tests/test_retail_furniture_199.py` holds the range), then the styles that
 three failure classes need (`distractor_rows.py`; `baseline_rank.py` ranks a build
 without a policy, and `tests/test_retail_distractors.py` holds the result): mattress
 protectors, mattresses and pillow protectors that out-sell the toppers; bestselling
 barrel-leg jeans whose text says balloon; 150 petite styles with a minority on sale,
 and 60 sale styles that never say petite, then the shirts (`shirt_rows.py`: Oxford,
 Flannel, Linen and Denim, for Mens and Womens, under `Tops/Shirts`, typed `Shirt`;
-no derived style copies one), then the toys (`toys_rows.py`, gen#201: building sets, jigsaws, board games, dolls, wooden toys, role play toys, arts and crafts kits and ride-ons, drawn by `kit_toys.py`; every style carries an `age_range` and most a `toy_type`, four invented character ranges (`line`) each span several kinds, and a counted mark in the drawing equals the count the record states, `tests/test_retail_toys_201.py`; no derived style copies one), then the grocery styles (below, `grocery.py`,
-gen#154). Further styles are
+no derived style copies one), then the living-room seating (`sofa_rows.py`, gen#196:
+sofas sold as 2, 2.5, 3 and 4 seaters, left- and right-hand corner and chaise sofas,
+modular, recliner and sofa-bed sofas, armchairs and footstools, each drawn by its own
+shape in `kit_seating.py`; no derived style copies one, and
+`tests/test_retail_seating_196.py` holds the range), then the household styles (`household_rows.py`, gen#200:
+saucepans, frying pans, casserole dishes, kitchen bins, storage boxes, laundry baskets,
+clothes airers and mops, each drawn by `kit_household.py` with the count its record states
+(pans in a set, bin lids, basket compartments, airer tiers); no derived style copies one,
+and `tests/test_retail_household_200.py` holds them), then the small appliances (`appliance_rows.py`, gen#202:
+desk, pedestal, tower, ceiling and handheld fans, heaters, kettles
+and toasters, each drawn by `kit_appliances.py`; none is derived from), then the underwear and nightwear (`underwear_rows.py`, gen#208: knickers,
+tights, vests, slips, shapewear, dressing gowns and boxers with a pack axis,
+drawn by `kit_underwear.py`; none is derived), then the toys (`toys_rows.py`, gen#201: building sets, jigsaws, board games, dolls, wooden toys, role play toys, arts and crafts kits and ride-ons, drawn by `kit_toys.py`; every style carries an `age_range` and most a `toy_type`, four invented character ranges (`line`) each span several kinds, and a counted mark in the drawing equals the count the record states, `tests/test_retail_toys_201.py`; no derived style copies one), then the grocery styles (below, `grocery.py`,gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
 also differs from its template and from every sibling in a value its title shows
@@ -1384,6 +1395,17 @@ values per leaf, more colorways, and more templates.
 food SKU). `tests/test_retail_scale.py` holds it at the templates' SKUs plus 4,500 (its
 `TARGET`, pinned to the template total so new templates never empty the
 derived-style sample), and holds the ceiling's grid clones at 15% or under too.
+
+**Each department has a floor of its own** (gen#220). At the ceiling, every department holds
+at least `breadth_rows.DEPARTMENT_FLOOR` derivable styles (150; the smallest today is Food &
+Drink at 180). It is a count per department, not a share of the total, so a batch PR that adds
+types to one department (the Home, Clothing and other type batches, gen#196-#217) never lowers
+another department's standing: do not add rows to an unrelated department to pass it.
+`test_every_department_holds_its_floor_of_styles` holds the floor, and
+`test_growing_one_department_never_starves_another` builds the ceiling with 200 more Home
+templates and holds every other department at its floor. A batch that removes or narrows a
+department's own rows below the floor still fails: raise that department with rows of its
+own.
 
 ## The built catalog is committed, in `golden-catalog/`
 
