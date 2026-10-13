@@ -39,6 +39,7 @@ import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import scale  # noqa: E402
 import scale_rows  # noqa: E402
+import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
 import toys_rows  # noqa: E402
@@ -115,6 +116,7 @@ def measure() -> dict[str, Any]:
         "appliance_rows": appliance_rows.docs(),
         "underwear_rows": underwear_rows.docs(),
         "toys_rows": toys_rows.docs(),
+        "seasonal_rows": seasonal_rows.docs(),
         "grocery": grocery.build(),
     }
     ceiling = scale.build(EXHAUST)
