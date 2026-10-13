@@ -32,16 +32,20 @@ ROWS = household_rows.ROWS
 
 #: Each type and the key attributes a shopper filters or searches it on (the issue's table).
 KEYS = {
-    "Saucepan": {"material", "lid", "hob_type", "oven_safe", "set_or_single"},
-    "Frying Pan": {"pan_type", "material", "coating", "induction_safe", "oven_safe"},
-    "Casserole Dish": {"material", "shape", "oven_safe", "hob_safe"},
+    "Saucepan": {"material", "lid", "hob_type", "oven_safe", "set_or_single", "diameter",
+                 "capacity"},
+    "Frying Pan": {"pan_type", "material", "coating", "induction_safe", "oven_safe", "diameter"},
+    "Casserole Dish": {"material", "shape", "oven_safe", "hob_safe", "capacity"},
     "Kitchen Bin": {"bin_type", "capacity", "compartments", "material"},
-    "Storage Box": {"storage_type", "material", "lid", "transparent", "stackable"},
+    "Storage Box": {"storage_type", "material", "lid", "transparent", "stackable", "capacity"},
     "Laundry Basket": {"laundry_basket_type", "capacity", "compartments", "material"},
     "Clothes Airer": {"airer_type", "drying_length", "tiers"},
     # A flat or sponge mop has no bucket, so only the bucket styles state a capacity.
     "Mop and Bucket": {"mop_type", "refill_heads"},
 }  # fmt: skip
+
+#: A saucepan set sells by its pieces (``piece_count``), so it has no diameter or capacity.
+SET_EXEMPT = {"diameter", "capacity"}
 
 #: The marked group each counted shape draws once per counted piece, and the attribute
 #: that states the count. A single-compartment bin or basket is one undivided body, so it
@@ -90,9 +94,26 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> 
         doc = export.standard_document(row.doc())
         keys = {e["key"] for e in doc["attributes"]}
         keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
-        if KEYS[ptype] - keys:
-            missing[row.code] = sorted(KEYS[ptype] - keys)
+        want = KEYS[ptype] - (SET_EXEMPT if "Set" in _attr(row, "set_or_single") else set())
+        if want - keys:
+            missing[row.code] = sorted(want - keys)
     assert missing == {}
+
+
+def test_a_single_saucepans_capacity_rises_with_its_diameter() -> None:
+    singles = [
+        r for r in ROWS if r.product_type == "Saucepan" and "Single" in _attr(r, "set_or_single")
+    ]
+    assert singles
+    bad = {}
+    for row in singles:
+        pairs = sorted(
+            {(float(s["diameter_cm"]), float(s.get("capacity_l", "nan"))) for s in row.skus()}
+        )
+        caps = [c for _, c in pairs]
+        if len(pairs) < 2 or not all(a < b for a, b in zip(caps, caps[1:], strict=False)):
+            bad[row.code] = pairs
+    assert bad == {}
 
 
 def test_a_set_of_saucepans_states_its_piece_count() -> None:
@@ -102,9 +123,7 @@ def test_a_set_of_saucepans_states_its_piece_count() -> None:
             if _attr(r, "piece_count") != [dict(r.params)["count"]]} == {}  # fmt: skip
 
 
-@pytest.mark.parametrize(
-    "row", [r for r in ROWS if r.shape in COUNTED], ids=lambda r: r.code
-)
+@pytest.mark.parametrize("row", [r for r in ROWS if r.shape in COUNTED], ids=lambda r: r.code)
 def test_the_drawing_shows_the_count_its_record_states(row: household_rows.Row) -> None:
     """Pans in a set, a recycling bin's lids, a hamper's openings and an airer's racks: the
     drawing has one marked group per piece the record states."""
