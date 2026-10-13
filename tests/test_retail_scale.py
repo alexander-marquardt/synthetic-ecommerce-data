@@ -39,16 +39,24 @@ from retail_figures import held as values_held  # noqa: E402
 FIGURES = committed()
 #: The round 4 preview's authored styles, then the scale-only rows (``scale_rows``),
 #: then the breadth rows (``breadth_rows``), then the distractor rows (``distractor_rows``:
-#: the failure classes' products), then the shirts (``shirt_rows``), then the grocery styles
-#: (``grocery.build()``, gen#154), last: no style derives from a shirt or a grocery style.
+#: the failure classes' products), then the shirts (``shirt_rows``), then the household styles
+#: (``household_rows``, gen#200), then the grocery styles (``grocery.build()``, gen#154), last:
+#: no style derives from a shirt, a household style or a grocery style.
 SCALE_ROWS = FIGURES["templates"]["scale_rows"]["styles"]
 AUTHORED = FIGURES["templates"]["authored"]["styles"]
 BREADTH_ROWS = FIGURES["templates"]["breadth_rows"]["styles"]
 DISTRACTOR_ROWS = FIGURES["templates"]["distractor_rows"]["styles"]
 SHIRT_ROWS = FIGURES["templates"]["shirt_rows"]["styles"]
+HOUSEHOLD_ROWS = FIGURES["templates"]["household_rows"]["styles"]
 GROCERY_ROWS = FIGURES["templates"]["grocery"]["styles"]
 TEMPLATES = (
-    AUTHORED + SCALE_ROWS + BREADTH_ROWS + DISTRACTOR_ROWS + SHIRT_ROWS + GROCERY_ROWS
+    AUTHORED
+    + SCALE_ROWS
+    + BREADTH_ROWS
+    + DISTRACTOR_ROWS
+    + SHIRT_ROWS
+    + HOUSEHOLD_ROWS
+    + GROCERY_ROWS
 )
 #: The SKUs the templates alone hold. A build at or under it takes no seeded draw, so
 #: every derived-style test (``pairs``) would pass on an empty list.
