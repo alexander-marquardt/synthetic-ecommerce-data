@@ -118,7 +118,6 @@ def run_named(
     shutil.copyfile(runner.PLUGIN_SOURCE, scratch / f"{runner.PLUGIN_MODULE}.py")
     report = scratch / "outcomes.jsonl"
     env = dict(os.environ)
-    env["PYTHONDONTWRITEBYTECODE"] = "1"
     env[runner.REPORT_ENV] = str(report)
     # The tree's own packages first: the editable install points at the checkout
     # that started this script, not at the commit being judged.
@@ -207,9 +206,10 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     listed = _git(args.repo, "rev-list", "--reverse", "--no-merges", args.spec, check=False)
     shas = listed.stdout.split()
-    if listed.returncode != 0 or not shas:
+    if not shas:
         print(
-            f"red_commit_proof: {args.spec!r} resolves to no commits; nothing was checked",
+            f"red_commit_proof: {args.spec!r} resolves to no commits; nothing was checked"
+            f" {listed.stderr.strip()}",
             file=sys.stderr,
         )
         return 2
