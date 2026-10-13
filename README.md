@@ -1352,7 +1352,7 @@ The templates (`templates` in `golden-retail/stats.json`) come first: the author
 styles, then the deep-SKU jeans,
 bras and shoes that only the scaled catalog carries (`scale_rows.py`), then the toys,
 garden, gifts, cleaning, food, beauty and home styles that hold every department at
-half its fair share of styles or more (`breadth_rows.py`), then one or two plain products in each of a first increment of new leaves (`BREADTH_34`, gen#34: cutlery sets, dinner sets, claw hammers, perfume, seeds, cherries, oven cleaners; every set carries a `piece_count` (a C62 count, agreeing with its title and rising with its price) and every cordless drill a `voltage_v` (unit code VLT), gen#173; more leaves are further rows there, and `tests/test_retail_breadth_34.py` holds that each is a leaf no other template uses), then the furniture (`furniture_rows.py`, gen#199: dining tables by seat count and top outline with their sizes in `item_width` and `item_length`, dining chairs sold single or as a set with `units_per_pack`, coffee and side tables, bookcases with their height in `item_height`, wardrobes, chests of drawers and mirrors, each drawn by its own shape in `kit_furniture.py`; no derived style copies one, and `tests/test_retail_furniture_199.py` holds the range), then the styles that
+at least its floor of styles (`breadth_rows.py`, below), then one or two plain products in each of a first increment of new leaves (`BREADTH_34`, gen#34: cutlery sets, dinner sets, claw hammers, perfume, seeds, cherries, oven cleaners; every set carries a `piece_count` (a C62 count, agreeing with its title and rising with its price) and every cordless drill a `voltage_v` (unit code VLT), gen#173; more leaves are further rows there, and `tests/test_retail_breadth_34.py` holds that each is a leaf no other template uses), then the furniture (`furniture_rows.py`, gen#199: dining tables by seat count and top outline with their sizes in `item_width` and `item_length`, dining chairs sold single or as a set with `units_per_pack`, coffee and side tables, bookcases with their height in `item_height`, wardrobes, chests of drawers and mirrors, each drawn by its own shape in `kit_furniture.py`; no derived style copies one, and `tests/test_retail_furniture_199.py` holds the range), then the styles that
 three failure classes need (`distractor_rows.py`; `baseline_rank.py` ranks a build
 without a policy, and `tests/test_retail_distractors.py` holds the result): mattress
 protectors, mattresses and pillow protectors that out-sell the toppers; bestselling
@@ -1384,6 +1384,17 @@ values per leaf, more colorways, and more templates.
 food SKU). `tests/test_retail_scale.py` holds it at the templates' SKUs plus 4,500 (its
 `TARGET`, pinned to the template total so new templates never empty the
 derived-style sample), and holds the ceiling's grid clones at 15% or under too.
+
+**Each department has a floor of its own** (gen#220). At the ceiling, every department holds
+at least `breadth_rows.DEPARTMENT_FLOOR` derivable styles (150; the smallest today is Food &
+Drink at 180). It is a count per department, not a share of the total, so a batch PR that adds
+types to one department (the Home, Clothing and other type batches, gen#196-#217) never lowers
+another department's standing: do not add rows to an unrelated department to pass it.
+`test_every_department_holds_its_floor_of_styles` holds the floor, and
+`test_growing_one_department_never_starves_another` builds the ceiling with 200 more Home
+templates and holds every other department at its floor. A batch that removes or narrows a
+department's own rows below the floor still fails: raise that department with rows of its
+own.
 
 ## The built catalog is committed, in `golden-catalog/`
 
