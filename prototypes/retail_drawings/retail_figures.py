@@ -28,6 +28,7 @@ HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
+import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import distractor_rows  # noqa: E402
@@ -108,6 +109,7 @@ def measure() -> dict[str, Any]:
         "breadth_rows": breadth_rows.docs(),
         "distractor_rows": distractor_rows.docs(),
         "shirt_rows": shirt_rows.docs(),
+        "accessory_rows": accessory_rows.docs(),
         "household_rows": household_rows.docs(),
         "lowerbody_rows": lowerbody_rows.docs(),
         "lighting_rows": lighting_rows.docs(),
