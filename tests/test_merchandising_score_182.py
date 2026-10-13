@@ -179,7 +179,7 @@ def test_industrial_score_follows_stock_loosely_with_a_few_pushes():
 
 @pytest.fixture(scope="module")
 def retail():
-    scaled = scale.build(30000)
+    scaled = scale.build(40000)  # the sample floors below: templates carry more SKUs each (gen#275)
     records = scaled.records
     return records, [export.standard_document(r) for r in records]
 

@@ -48,7 +48,8 @@ FIGURES = committed()
 #: the lighting rows (``lighting_rows``, gen#197), then the seasonal, color and character rows
 #: (``seasonal_rows``, gen#195), then the grocery styles (``grocery.build()``, gen#154), last: no
 #: style derives from a shirt, a seating style, a household style, an appliance, an underwear style,
-#: a toy, a lower-body style, a lighting style, a seasonal style or a grocery style.
+#: a toy, a lower-body style, a lighting style, a seasonal style or a grocery style. The plain
+#: styles of ``main_colors`` (gen#275) sit between the seasonal rows and the grocery styles.
 SCALE_ROWS = FIGURES["templates"]["scale_rows"]["styles"]
 AUTHORED = FIGURES["templates"]["authored"]["styles"]
 BREADTH_ROWS = FIGURES["templates"]["breadth_rows"]["styles"]
@@ -62,6 +63,7 @@ APPLIANCE_ROWS = FIGURES["templates"]["appliance_rows"]["styles"]
 TOYS_ROWS = FIGURES["templates"]["toys_rows"]["styles"]
 SEASONAL_ROWS = FIGURES["templates"]["seasonal_rows"]["styles"]
 LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
+PLAIN_ROWS = FIGURES["templates"]["plain_rows"]["styles"]
 GROCERY_ROWS = FIGURES["templates"]["grocery"]["styles"]
 UNDERWEAR_ROWS = FIGURES["templates"]["underwear_rows"]["styles"]
 TEMPLATES = (
@@ -79,6 +81,7 @@ TEMPLATES = (
     + LOWERBODY_ROWS
     + LIGHTING_ROWS
     + SEASONAL_ROWS
+    + PLAIN_ROWS
     + GROCERY_ROWS
 )
 #: The SKUs the templates alone hold. A build at or under it takes no seeded draw, so
@@ -348,7 +351,8 @@ def test_a_changed_value_is_rewritten_in_the_description(pairs):
             if not scale._has_word(t["description"], old):
                 continue
             assert scale._has_word(r["description"], new), (r["product_id"], r["description"])
-            assert not scale._has_word(r["description"], old), (r["product_id"], old)
+            if not scale._has_word(new, old):  # "Jasmine" -> "Wild Jasmine" still says it
+                assert not scale._has_word(r["description"], old), (r["product_id"], old)
             rewritten += 1
     assert rewritten >= 20
 
@@ -642,13 +646,14 @@ def test_the_cli_writes_the_report_and_the_documents(tmp_path):
 
 
 def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(tmp_path):
+    PAST = CAPACITY[1] + 20000  # the ceiling moves with the data: a fixed target fell under it
     report = tmp_path / "report.json"
     done = subprocess.run(
-        [sys.executable, str(RETAIL / "scale.py"), "--skus", "100000", "--report", str(report)],
+        [sys.executable, str(RETAIL / "scale.py"), "--skus", str(PAST), "--report", str(report)],
         capture_output=True, text=True, check=False,
     )  # fmt: skip
     assert done.returncode == 2, done.stderr[-2000:]
-    assert f"short: {CAPACITY[1]} SKUs of 100000" in done.stderr
+    assert f"short: {CAPACITY[1]} SKUs of {PAST}" in done.stderr
     got = json.loads(report.read_text(encoding="utf-8"))
     assert got["reached_target"] is False
     assert got["standard_problems"] == 0
