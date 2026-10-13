@@ -107,6 +107,7 @@ import distractor_rows  # noqa: E402
 import furniture_rows  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
+import lowerbody_rows  # noqa: E402
 import scale_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
@@ -214,6 +215,8 @@ FURNITURE_IDS = frozenset(f"BRD-{r.code}" for r in furniture_rows.ROWS)
 #: The household styles (:mod:`household_rows`, gen#200), left out of the derivation as the
 #: shirts are.
 HOUSEHOLD_IDS = frozenset(f"BRD-{r.code}" for r in household_rows.ROWS)
+#: The lower-body styles (:mod:`lowerbody_rows`, gen#206), left out the same way.
+LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 
 
 def templates() -> list[dict]:
@@ -233,7 +236,8 @@ def templates() -> list[dict]:
     authored = (r for recs in samples().values() for r in recs)
     return [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
-        *shirt_rows.docs(), *sofa_rows.docs(), *household_rows.docs(), *grocery.build(),
+        *shirt_rows.docs(), *sofa_rows.docs(), *household_rows.docs(), *lowerbody_rows.docs(),
+        *grocery.build(),
     ]  # fmt: skip
 
 
@@ -241,9 +245,10 @@ def derivable(tpls: list[dict]) -> list[dict]:
     """The templates a derived style may come from: not a grocery style, whose allergen,
     dietary and ingredient facts are the grocery build's own and would not follow a re-draw, nor
     a shirt (:mod:`shirt_rows`), a seating style (:mod:`sofa_rows`), a piece of furniture
-    (:mod:`furniture_rows`) or a household style (:mod:`household_rows`), left out so the
+    (:mod:`furniture_rows`), a household style (:mod:`household_rows`) or a lower-body style
+    (:mod:`lowerbody_rows`), left out so the
     seeded derivation is what it was."""
-    left_out = SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS
+    left_out = SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | LOWER_IDS
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out]  # fmt: skip
 
