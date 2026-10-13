@@ -31,6 +31,9 @@ OWNERS = {
     "Hearth & Table": "own", "Kettleby Tea Co.": "third_party",
     "Brewhollow Roasters": "third_party", "Mirefield Naturals": "third_party",
     "Hollin Hair": "third_party",
+    # The appliance rows (appliance_rows.py, gen#202) sell the home department's extra brands.
+    "Larchwood Living": "third_party", "Emberly Home": "third_party",
+    "Cobble & Kiln": "third_party",
 }  # fmt: skip
 
 
