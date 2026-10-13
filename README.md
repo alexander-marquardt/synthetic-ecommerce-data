@@ -1359,12 +1359,7 @@ protectors, mattresses and pillow protectors that out-sell the toppers; bestsell
 barrel-leg jeans whose text says balloon; 150 petite styles with a minority on sale,
 and 60 sale styles that never say petite, then the shirts (`shirt_rows.py`: Oxford,
 Flannel, Linen and Denim, for Mens and Womens, under `Tops/Shirts`, typed `Shirt`;
-no derived style copies one), then the toys (`toys_rows.py`, gen#201: building sets,
-jigsaws, board games, dolls, wooden toys, role play toys, arts and crafts kits and
-ride-ons, drawn by `kit_toys.py`; every style carries an `age_range` and most a
-`toy_type`, four invented character ranges (`line`) each span several kinds, and a
-counted mark in the drawing equals the count the record states,
-`tests/test_retail_toys_201.py`; no derived style copies one), then the grocery styles (below, `grocery.py`,
+no derived style copies one), then the toys (`toys_rows.py`, gen#201: building sets, jigsaws, board games, dolls, wooden toys, role play toys, arts and crafts kits and ride-ons, drawn by `kit_toys.py`; every style carries an `age_range` and most a `toy_type`, four invented character ranges (`line`) each span several kinds, and a counted mark in the drawing equals the count the record states, `tests/test_retail_toys_201.py`; no derived style copies one), then the grocery styles (below, `grocery.py`,
 gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
