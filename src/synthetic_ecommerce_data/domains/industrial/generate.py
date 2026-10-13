@@ -1241,7 +1241,9 @@ class Generator:
         self._bump("standards_values", len(values))
         return multi_attribute(STANDARDS_NAME, values)
 
-    def _measurement_system(self, system: str, name: str) -> tuple[Attribute | None, bool]:
+    def _measurement_system(
+        self, system: str, name: str, *, count: bool = True
+    ) -> tuple[Attribute | None, bool]:
         """The measurement-system attribute, under the spelling its LINE uses.
 
         The spelling is chosen once per product line, not once per record. A
@@ -1267,10 +1269,12 @@ class Generator:
         )
         if contradicts:
             value = "Fractional Inch" if system == "mm" else "Metric"
-            self._bump("defect_system_contradicts")
+            if count:
+                self._bump("defect_system_contradicts")
         else:
             value = truthful
-        self._bump("measurement_system_present")
+        if count:
+            self._bump("measurement_system_present")
         return keyword_attribute(name, value), contradicts
 
     def _inject_defects(self, child: ChildDraft, attrs: list[Attribute]) -> list[Attribute]:
@@ -1981,12 +1985,24 @@ class Generator:
         # answered one SKU at a time.
         built: list[tuple[str, list[Attribute], float, int]] = []
         titles: list[Title] = []
+        line_system: tuple[tuple[Attribute | None, bool]] | None = None
+        if len({c.system for c in draft.children}) > 1:
+            raise ValueError(f"{type_key}: a product's SKUs are in one measurement system")
         for child in draft.children:
             attrs = self._apply_sparsity(type_key, list(child.attrs), "sku")
             if not attrs and not child.zero_axis:
                 continue
             attrs = self._inject_defects(child, attrs)
-            system_attr, _ = self._measurement_system(child.system, system_name)
+            # The measurement system is the PRODUCT's (gen#63): the first SKU's draw
+            # decides whether it is published, its value and whether it contradicts
+            # the units, and every SKU of the line carries that one attribute. The
+            # later SKUs still take their draws (uncounted), so no other value in
+            # the build moves.
+            drawn = self._measurement_system(
+                child.system, system_name, count=line_system is None
+            )
+            line_system = line_system or (drawn,)
+            (system_attr, _) = line_system[0]
             if system_attr is not None and not child.zero_axis:
                 attrs = [*attrs, system_attr]
             # Each SKU is different from every other SKU of its brand and type.
