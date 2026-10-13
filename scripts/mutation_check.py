@@ -3287,6 +3287,30 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: the Combined loader takes every authored SKU (gen#279) ----
+    # Every name starts "combined loader:", so `--only "combined loader:"` re-runs them.
+    *(
+        Mutation(f"combined loader: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a crossbody bag is sold in a Mini size, which is no size system",
+                "accessory_rows.py",
+                '_sizes(("Small", 28.0), ("Medium", 34.0))',
+                '_sizes(("Mini", 28.0), ("Small", 34.0))',
+                "tests/test_retail_combined_loader_279.py -k has_a_size_the_combined_loader_refuses",
+                "every size is in a size system the loader declares",
+            ),
+            (
+                "a skirt's fit axis is the bare length the loader renames onto garment_length",
+                "lowerbody_rows.py",
+                'axis_key="fit_length", axis=_legs()',
+                'axis_key="length", axis=_legs()',
+                "tests/test_retail_combined_loader_279.py -k writes_a_renamed_key_twice",
+                "no SKU writes a renamed key twice",
+            ),
+        ]
+    ),
 ]
 
 
