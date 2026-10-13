@@ -42,6 +42,8 @@ OWNERS = {
     "Clearbrook Household": "third_party", "Soapwell": "third_party",
     # The toy rows (toys_rows.py, gen#201) sell the toy department's extra brand.
     "Pipwick Toys": "third_party",
+    # The seasonal rows (seasonal_rows.py, gen#195) sell a make-up brand.
+    "Kestlewood Cosmetics": "third_party",
 }  # fmt: skip
 
 

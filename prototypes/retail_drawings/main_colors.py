@@ -103,6 +103,7 @@ def author_plain(tpls: list[dict]) -> list[dict]:
         fields |= {"title": title, "description": desc}
         fields["drawing"] = {**fields["drawing"], "pattern": "solid", "base": hexv}
         fields["drawing"].pop("accents", None)
+        fields["pattern"] = "plain"  # the source may be a check: a plain style exports a plain pattern
         if attrs is not None:
             fields["attributes"] = attrs
         swatch = {name: {"color": name, "hex": hexv, "pattern": "solid", "family": family}}
