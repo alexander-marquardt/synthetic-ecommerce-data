@@ -265,8 +265,8 @@ def derivable(tpls: list[dict]) -> list[dict]:
     dietary and ingredient facts are the grocery build's own and would not follow a re-draw, nor
     a shirt (:mod:`shirt_rows`), an accessory style (:mod:`accessory_rows`), a seating
     style (:mod:`sofa_rows`), a piece of furniture (:mod:`furniture_rows`), a household
-    style (:mod:`household_rows`), an appliance (:mod:`appliance_rows`), an underwear style (:mod:`underwear_rows`) or a toy
-    (:mod:`toys_rows`), left out so the
+    style (:mod:`household_rows`), an appliance (:mod:`appliance_rows`),
+    an underwear style (:mod:`underwear_rows`) or a toy (:mod:`toys_rows`), left out so the
     seeded derivation is what it was."""
     left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
                 | UNDERWEAR_IDS | TOY_IDS | ACCESSORY_IDS)
