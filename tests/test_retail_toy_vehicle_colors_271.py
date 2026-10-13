@@ -23,6 +23,7 @@ if str(RETAIL) not in sys.path:
 import breadth_rows  # noqa: E402
 import colorwords  # noqa: E402
 import export  # noqa: E402
+import kit  # noqa: E402
 import toys_rows  # noqa: E402
 
 #: The leaves the issue names: toy cars and every ride-on (bikes, scooters, trikes).
@@ -139,6 +140,13 @@ def test_the_drawing_scales_with_the_wheel_size() -> None:
     assert None not in specs
     assert len(specs) >= MIN_BIKE_SIZES
     assert len({repr(v) for v in specs.values()}) == len(specs)
+    drawn = {size: kit.render(spec["drawing"]["shape"], kit.Fill("solid", "#123456", "#654321"),
+                              params=spec["drawing"]["params"] | spec.get("params", {}))
+             for size, spec in specs.items()}  # fmt: skip
+    assert len(set(drawn.values())) == len(drawn)
+    sizes = sorted(drawn, key=int)
+    scales = [float((re.search(r"scale\(([\d.]+)\)", drawn[z]) or [0, 1.0])[1]) for z in sizes]
+    assert scales == sorted(set(scales)), "a bigger wheel size draws bigger"
 
 
 def test_every_color_name_is_a_shared_vocabulary_word_with_one_spelling() -> None:
