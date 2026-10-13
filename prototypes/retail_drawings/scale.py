@@ -239,9 +239,10 @@ def templates(baseline: bool = True) -> list[dict]:
     """The authored styles, then :mod:`scale_rows`, :mod:`breadth_rows` and
     :mod:`distractor_rows`, :mod:`shirt_rows`, :mod:`sofa_rows`, :mod:`household_rows`,
     :mod:`appliance_rows`, :mod:`underwear_rows`, :mod:`toys_rows`, :mod:`lowerbody_rows`
-    and :mod:`lighting_rows` (gen#197), then the :mod:`grocery` styles (gen#154), in build order.
+    and :mod:`lighting_rows` (gen#197), then the plain styles of :mod:`main_colors`, then the :mod:`grocery` styles (gen#154), in build order.
 
-    ``baseline`` adds each type's missing main colors (:mod:`main_colors`, gen#275).
+    ``baseline`` adds the plain styles a pattern-only (type, audience) needs and each group's
+    missing main colors (:mod:`main_colors`, gen#275).
 
     Grocery is last, so a build under the other templates' SKUs is what it was. The main
     build's own 55 Food & Drink styles stay (the failure classes and the Elasticsearch proof
@@ -253,12 +254,14 @@ def templates(baseline: bool = True) -> list[dict]:
     ``test_grocery_style_attributes_list_the_values_of_their_skus``,
     ``test_no_grocery_title_or_description_names_a_value_no_sku_carries``)."""
     authored = (r for recs in samples().values() for r in recs)
-    tpls = [
+    body = [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
         *shirt_rows.docs(), *sofa_rows.docs(), *household_rows.docs(), *appliance_rows.docs(),
         *underwear_rows.docs(), *toys_rows.docs(), *lowerbody_rows.docs(), *lighting_rows.docs(),
-        *grocery.build(),
     ]  # fmt: skip
+    if baseline:
+        body = main_colors.author_plain(body)
+    tpls = [*body, *grocery.build()]
     return main_colors.complete(tpls) if baseline else tpls
 
 
@@ -269,11 +272,14 @@ def derivable(tpls: list[dict]) -> list[dict]:
     (:mod:`furniture_rows`), a household style (:mod:`household_rows`), an appliance
     (:mod:`appliance_rows`), an underwear style (:mod:`underwear_rows`), a toy
     (:mod:`toys_rows`) or a lower-body style (:mod:`lowerbody_rows`), left out so the
-    seeded derivation is what it was."""
+    seeded derivation is what it was. A boat or slash neck top is a failure-class row too
+    (gen#125): a derived copy of it would hand the no-policy baseline the neckline, so it
+    stays a template."""
     left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
                 | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
-            and r["product_id"] not in left_out]  # fmt: skip
+            and r["product_id"] not in left_out
+            and r.get("neckline") not in ("boat", "slash")]  # fmt: skip
 
 
 def _words(text: str) -> str:
@@ -481,6 +487,10 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
     rec.pop("price_min", None)
     rec.pop("price_max", None)
     rec.pop("bestseller_rank", None)
+    # A derived style's price is redrawn, so the template's was_price is not its own; a petite
+    # copy that kept it would let a no-policy baseline satisfy "petite sale", the pair only a
+    # policy may honour (gen#125, gen#275).
+    rec.pop("was_price", None)
     if "badges" in rec:
         rec["badges"] = [b for b in rec["badges"] if b != "Bestseller"]
     old_line = _line(tpl)

@@ -55,6 +55,63 @@ EXCEPTIONS = {
 }
 
 
+#: Plain styles authored where a (type, audience) group holds only pattern styles, so a plain
+#: color never relabels a check, stripe or spot: (source style, new id, title, description,
+#: attributes or None to keep the source's, (color, hex, family)).
+PLAIN_STYLES = (
+    ("PLT-SUITCK", "PLT-SUITPL", "Single Breasted Suit Jacket",
+     "A single breasted suit jacket in a plain wool blend that matches our trousers.",
+     None, ("Charcoal", "#4a4d52", "grey")),
+    ("PLT-CARCHK", "PLT-CARPL", "Car Coat",
+     "A car coat, jacket length, with a contrast collar.",
+     None, ("Camel", "#c19a6b", "brown")),
+    ("PLT-BOOTSOK", "PLT-BOOTPL", "Knitted Boot Socks",
+     "Thick knitted boot socks with a fold-over cuff that shows above welly boots.",
+     None, ("Light Beige", "#d9cdb4", "beige")),
+    ("GFT-KRAFT", "GFT-KRAFTPL", "Plain Paper Bag with Rope Handles",
+     "A sturdy paper carrier with twisted rope handles, a card base and a matching tag, in three sizes. Folds flat to store.",
+     None, ("Tan", "#c8a87a", "brown")),
+    ("PLT-GBMKUP", "PLT-GBMKPL", "Zip Make-Up Bag",
+     "A make-up bag with a gold zip and a wipe-clean lining.",
+     [], ("Grey", "#9a9a9a", "grey")),
+    ("BRD-WRPRLL", "BRD-WRPRPL", "Plain Birthday Wrapping Paper Roll, 4 m",
+     "A roll of thick paper with a grid on the back for straight cuts.",
+     None, ("Cream", "#f4efe2", "cream")),
+    ("FTW-KWELPD", "FTW-KWELPL", "Kids' Wellies",
+     "Bright rubber wellies with easy pull-on handles and a grippy sole.",
+     None, ("Navy", "#26365c", "navy")),
+    ("PLT-KIDBMB", "PLT-KIDBPL", "Boys' Plain Bomber Jacket (2-8 Yrs)",
+     "A plain bomber jacket for boys with ribbed cuffs.",
+     None, ("Navy", "#26365c", "navy")),
+    ("BRD-BCHTWL", "BRD-BCHTPL", "Plain Cotton Velour Beach Towel",
+     "A large towel with a soft velour face and a looped terry back.",
+     None, ("Coral", "#e8765f", "orange")),
+)
+
+
+def author_plain(tpls: list[dict]) -> list[dict]:
+    """``tpls`` plus the plain styles of :data:`PLAIN_STYLES`: each a copy of its source with
+    one solid color, its own title and description, and a solid drawing."""
+    import scale  # lazy: scale imports this module
+
+    by_id = {r["product_id"]: r for r in tpls}
+    out = list(tpls)
+    for src, pid, title, desc, attrs, (name, hexv, family) in PLAIN_STYLES:
+        rec = copy.deepcopy(by_id[src])
+        first = rec["color_options"][0]["color"]
+        skus = [{**{k: v for k, v in s.items() if k != "sku"}, "color": name}
+                for s in rec["skus"] if s["color"] == first]  # fmt: skip
+        fields = {k: v for k, v in rec.items() if k not in scale.DERIVED_FIELDS}
+        fields |= {"title": title, "description": desc}
+        fields["drawing"] = {**fields["drawing"], "pattern": "solid", "base": hexv}
+        fields["drawing"].pop("accents", None)
+        if attrs is not None:
+            fields["attributes"] = attrs
+        swatch = {name: {"color": name, "hex": hexv, "pattern": "solid", "family": family}}
+        out.append(scale.product(pid, skus, swatch, **{k: v for k, v in fields.items() if k != "product_id"}))
+    return out
+
+
 def colored_types(tpls: list[dict]) -> dict[str, list[dict]]:
     """product_type -> its styles, for every type with a color selector."""
     out: dict[str, list[dict]] = {}
@@ -68,14 +125,36 @@ def offered(styles: list[dict]) -> set[str]:
     return {c["color"] for r in styles for c in r["color_options"]}
 
 
-def missing(tpls: list[dict]) -> dict[str, list[str]]:
-    """product_type -> the main colors it lacks (an excepted type is left out)."""
+def audience(rec: dict) -> str:
+    """Who the style is sold to: the first category_path step (Men, Women, Kids...)."""
+    path = rec["category_path"]
+    return path if isinstance(path, str) else path[0]
+
+
+def groups(tpls: list[dict]) -> dict[tuple[str, str], list[dict]]:
+    """(product_type, audience) -> its styles, for every type with a color selector. A type
+    sold to men and to women is two groups: "red shirt" has to find one for each."""
+    out: dict[tuple[str, str], list[dict]] = {}
+    for r in tpls:
+        if r.get("color_options"):
+            out.setdefault((r["product_type"], audience(r)), []).append(r)
+    return out
+
+
+def missing(tpls: list[dict]) -> dict[tuple[str, str], list[str]]:
+    """(product_type, audience) -> the main colors it lacks (an excepted type is left out)."""
     out = {}
-    for ptype, styles in colored_types(tpls).items():
+    for (ptype, aud), styles in groups(tpls).items():
         lacks = [c for c in MAIN_COLORS if c not in offered(styles)]
         if lacks and ptype not in EXCEPTIONS:
-            out[ptype] = lacks
+            out[(ptype, aud)] = lacks
     return out
+
+
+def stale_exceptions(tpls: list[dict]) -> list[str]:
+    """Excepted types that already offer all six main colors in every audience."""
+    types = colored_types(tpls)
+    return [t for t in EXCEPTIONS if t in types and all(c in offered(types[t]) for c in MAIN_COLORS)]
 
 
 def _material_skus(rec: dict) -> bool:
@@ -94,9 +173,18 @@ def _names(rec: dict, color: str) -> bool:
     return bool(re.search(rf"\b{color.lower()}\b", f"{rec['title']} {rec['description']}".lower()))
 
 
+PATTERN_WORDS = re.compile(r"\b(check|checked|stripe|striped|plaid|gingham|spot|spotted|polka)\b", re.I)
+
+
 def _printed(rec: dict) -> bool:
+    """Whether the style cannot take a plain color: a printed drawing, a pattern named in its
+    text, or no solid color among its own (a plain copy would relabel a pattern)."""
     d = rec.get("drawing") or {}
-    return d.get("pattern") == "print" or "motif" in d or "placement" in d
+    if d.get("pattern") == "print" or "motif" in d or "placement" in d:
+        return True
+    if PATTERN_WORDS.search(f"{rec['title']} {rec['description']}"):
+        return True
+    return not any(c["pattern"] == "solid" for c in rec["color_options"])
 
 
 def _names_own_color(rec: dict) -> bool:
@@ -113,10 +201,11 @@ def _add(rec: dict, colors: list[str]) -> dict:
     import scale  # lazy: scale imports this module
 
     rec = copy.deepcopy(rec)
-    base = next((c for c in rec["color_options"] if c["pattern"] == "solid"
-                 and not re.search(r"suede|leather|patent|lace", c["color"], re.I)),
-                next((c for c in rec["color_options"] if c["pattern"] == "solid"),
-                     rec["color_options"][0]))  # fmt: skip
+    solid = [c for c in rec["color_options"] if c["pattern"] == "solid"]
+    if not solid:
+        raise ValueError(f"{rec['product_id']}: no solid color to copy")
+    base = next((c for c in solid if not re.search(r"suede|leather|patent|lace", c["color"], re.I)),
+                solid[0])
     swatches = {c["color"]: c for c in rec["color_options"]}
     skus = [{k: v for k, v in s.items() if k != "sku"} for s in rec["skus"]]
     seed = [s for s in skus if s.get("color") == base["color"]]
@@ -146,18 +235,18 @@ def _add(rec: dict, colors: list[str]) -> dict:
 def complete(tpls: list[dict]) -> list[dict]:
     """``tpls`` with every missing main color added, in the same order."""
     by_id = {r["product_id"]: r for r in tpls}
-    for ptype, lacks in missing(tpls).items():
+    for (ptype, aud), lacks in missing(tpls).items():
         # A printed drawing takes no solid fill, so it never gets a color. Of the rest, the
         # best tier (no per-SKU material, text names no main color or color of its own)
         # takes the colors in rotation; a style whose text names a missing main color takes
         # that color itself, or the text-agrees gate reads the word as naming a value the
         # style lacks once the type offers it.
         styles = sorted(
-            (r for r in colored_types(tpls)[ptype] if not _printed(r)),
+            (r for r in groups(tpls)[(ptype, aud)] if not _printed(r)),
             key=lambda r: r["product_id"],
         )
         if not styles:
-            raise ValueError(f"{ptype}: every style is a printed drawing, none takes a solid color")
+            raise ValueError(f"{ptype} ({aud}): no style takes a plain color; author one")
         tier = lambda r: (_material_skus(r), _names_main_color(r), _names_own_color(r))  # noqa: E731
         best = [r for r in styles if tier(r) == min(tier(x) for x in styles)]
         picks: dict[str, list[str]] = {}
