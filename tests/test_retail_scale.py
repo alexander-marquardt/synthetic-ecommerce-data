@@ -44,7 +44,8 @@ FIGURES = committed()
 #: the failure classes' products), then the shirts (``shirt_rows``), then the seating
 #: (``sofa_rows``, gen#196), then the household styles (``household_rows``, gen#200), then the
 #: appliances (``appliance_rows``, gen#202), then the underwear (``underwear_rows``, gen#208), then
-#: the toys (``toys_rows``, gen#201), then the lighting rows (``lighting_rows``, gen#197), then
+#: the toys (``toys_rows``, gen#201), then the lighting rows (``lighting_rows``, gen#197),
+#: then the seasonal, color and character rows (``seasonal_rows``, gen#195), then
 #: the grocery styles (``grocery.build()``, gen#154), last:
 #: no style derives from a shirt, a seating style, a household style, an appliance, an underwear
 #: style, a toy, a lighting style or a grocery style.
@@ -57,6 +58,7 @@ SOFA_ROWS = FIGURES["templates"]["sofa_rows"]["styles"]
 HOUSEHOLD_ROWS = FIGURES["templates"]["household_rows"]["styles"]
 APPLIANCE_ROWS = FIGURES["templates"]["appliance_rows"]["styles"]
 TOYS_ROWS = FIGURES["templates"]["toys_rows"]["styles"]
+SEASONAL_ROWS = FIGURES["templates"]["seasonal_rows"]["styles"]
 LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
 GROCERY_ROWS = FIGURES["templates"]["grocery"]["styles"]
 UNDERWEAR_ROWS = FIGURES["templates"]["underwear_rows"]["styles"]
@@ -72,6 +74,7 @@ TEMPLATES = (
     + UNDERWEAR_ROWS
     + TOYS_ROWS
     + LIGHTING_ROWS
+    + SEASONAL_ROWS
     + GROCERY_ROWS
 )
 #: The SKUs the templates alone hold. A build at or under it takes no seeded draw, so
