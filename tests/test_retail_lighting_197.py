@@ -9,6 +9,8 @@ and a derived style that changes a drawn attribute redraws it.
 from __future__ import annotations
 
 import collections
+import hashlib
+import json
 import random
 import re
 import sys
@@ -107,13 +109,39 @@ def test_each_sku_draws_its_own_second_axis_and_gets_its_own_image(pid: str) -> 
     assert len(image_release.image_files([rec])) == len(rec["skus"])
 
 
+def _legacy_image_id(rec: dict, sku: dict) -> str:
+    """The image id before SKU params existed: the digest of the drawing and swatch alone."""
+    swatch = next((c for c in rec.get("color_options", ()) if c["color"] == sku.get("color")), None)
+    blob = json.dumps(
+        {"drawing": rec["drawing"], "swatch": swatch}, sort_keys=True, ensure_ascii=False
+    )
+    digest = hashlib.sha256(blob.encode()).hexdigest()[:12]
+    return f"{export._slug(rec['product_type'])}/{rec['product_id']}/{digest}"
+
+
 def test_a_sku_that_carries_no_drawing_param_keeps_its_image_id() -> None:
-    """The SKU's own param values join the image spec only when it carries one, so no other
-    template's image id moves."""
-    others = [t for t in scale.templates() if t["product_id"] not in IDS]
-    for t in others:
+    """The rule: a SKU whose product's drawing params it carries none of, in any template
+    (whether or not that template's drawing declares params), has a spec with no ``params``
+    and the image id it had before SKU params existed. A template that declares params
+    (a heater's ``fin_count``) is held to it on its param-less SKUs."""
+    checked = 0
+    for t in scale.templates():
+        declared = t["drawing"].get("params") or {}
         for s in t["skus"]:
+            if any(k in s for k in declared):
+                continue
+            checked += 1
             assert "params" not in export.drawing_spec(t, s), s["sku"]
+            assert export.image_id(t, s) == _legacy_image_id(t, s), s["sku"]
+    assert checked
+
+
+def test_a_lighting_sku_stripped_of_its_param_values_keeps_the_legacy_image_id() -> None:
+    for rec in (d for d in DOCS if d["product_id"] in IDS):
+        declared = rec["drawing"].get("params") or {}
+        for s in rec["skus"]:
+            bare = {k: v for k, v in s.items() if k not in declared}
+            assert export.image_id(rec, bare) == _legacy_image_id(rec, bare), s["sku"]
 
 
 def test_lighting_styles_are_templates_a_derived_style_may_come_from() -> None:
