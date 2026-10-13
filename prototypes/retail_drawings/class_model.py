@@ -142,7 +142,6 @@ class Style:
     #: with its price and dimensions; a bed need not come in every size.
     bed_frame: tuple[str, ...] = ()
     #: Signals a tile shows as badges (see :func:`badges`).
-    new_in: bool = False
     trending: bool = False
     online_only: bool = False
     #: An offer with no was-price (a multi-buy); a was-price is always an offer.
@@ -271,7 +270,6 @@ class Style:
             "price_max": max(prices),
             "offer": self.was_price is not None or self.multibuy,
             "online_only": self.online_only,
-            "new_in": self.new_in,
             "trending": self.trending,
         }
         size_range = self.size_ranges()
