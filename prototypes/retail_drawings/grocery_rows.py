@@ -163,6 +163,18 @@ _BODY_SCENTS = (
 )
 _BODY_BRANDS = ("Brightwater Botanics", "Velling Apothecary", "Orrin Skin")
 
+#: A beef cut's own description sentence, by (family code, flavor name): what the cut is and how
+#: it cooks, so the six cuts do not share one template (gen#269). Words the SKUs do not carry
+#: (a weight, a price) stay out.
+CUT_NOTES = {
+    ("STK", "Sirloin Steak"): "A lean cut from the back with a thin edge of fat, best seared hot and left to rest.",
+    ("STK", "Ribeye Steak"): "A well marbled cut from the rib that stays juicy, cooked quickly in a hot pan or on the grill.",
+    ("STK", "Fillet Steak"): "The most tender cut, from the tenderloin, with a mild flavour; cook it briefly and rare to medium.",
+    ("STK", "Rump Steak"): "A full flavoured cut from the hindquarter with a firm bite, good marinated and sliced across the grain.",
+    ("STK", "Striploin Steak"): "A cut from the loin with a firm texture and a strip of fat along one side that crisps as it cooks.",
+    ("STK", "Minute Steaks"): "Thin cuts of topside that cook through in a minute or two a side, for a quick supper or a sandwich.",
+}
+
 FAMILIES: tuple[Family, ...] = (
     # Chocolate & Sweets
     Family("CHB", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} Chocolate Bar", "Chocolate Bar",
@@ -683,6 +695,21 @@ FAMILIES: tuple[Family, ...] = (
            (F("Shea", "#e8dcc0"), F("Cocoa Butter", "#d8c4a0"), F("Almond", "#c9a96e"), F("Oat", "#ece3cf")),
            _SKIN_BRANDS, 0.005, axis="scent", department="Beauty",
            noun="rich body cream for dry skin", depth=True),
+    # The "steak" class (gen#264): the true answers, and a tin that shares only the word.
+    # Depth families, last in the list, so no earlier family's draw moves. A steak is a
+    # packaged cut under the existing Packaged Meat node (no Beef leaf is needed: a policy
+    # that routes "steak" to food routes it to Meat & Fish); its title names the cut, says
+    # "steak" once and runs to five words or more ("Ashcombe British Beef Ribeye Steak"), as a
+    # butcher's title does: the text match then favors the short "Steak Knife" titles.
+    Family("STK", _p("Meat & Fish", "Packaged Meat"), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"),
+           (F("Sirloin Steak", "#a8322e", "x"), F("Ribeye Steak", "#9c2a2a", "x"), F("Fillet Steak", "#b8403a", "x"),
+            F("Rump Steak", "#a63a30", "x"), F("Striploin Steak", "#a02e2c", "x"), F("Minute Steaks", "#c04a42", "x")),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.004, depth=True),
+    Family("TUS", _p("Food Cupboard", "Tinned"), "{line} {flavor}", "Tinned Food", "tin", "Tinned", _A, "AB", 1.6,
+           ("145g", "3 x 145g"),
+           (F("Tuna Steaks in Brine", "#3b6fb6", "xF"), F("Tuna Steaks in Sunflower Oil", "#d9a441", "xF")),
+           _CUP, 0.002, depth=True),
 )  # fmt: skip
 
 #: The styles every build plants first, so each demo case exists at any size:

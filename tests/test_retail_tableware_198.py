@@ -119,7 +119,7 @@ def test_a_tableware_shape_paints_the_records_color_and_pattern(shape: str) -> N
     assert "url(#fill-b)" in striped
 
 
-@pytest.mark.parametrize("shape", kit_tableware.SHAPES)
+@pytest.mark.parametrize("shape", KIND_PARAM)
 def test_two_rows_that_differ_on_the_drawn_kind_draw_differently(shape: str) -> None:
     param = KIND_PARAM[shape]
     by_kind: dict[str, dict] = {}
@@ -130,6 +130,12 @@ def test_two_rows_that_differ_on_the_drawn_kind_draw_differently(shape: str) -> 
     fill = kit.Fill("solid", "#123456", "#654321")
     drawn = {kit.render(shape, fill, uid="k", params=p) for p in by_kind.values()}
     assert len(drawn) == len(by_kind)
+
+
+def test_every_tableware_shape_has_a_kind_param_or_is_the_one_kindless_shape() -> None:
+    """``grill_press`` (the steak weight, gen#264) draws one thing, so it has no kind param;
+    any other shape without one is a gap in :data:`KIND_PARAM`."""
+    assert set(kit_tableware.SHAPES) - set(KIND_PARAM) == {"grill_press"}
 
 
 def test_the_rows_are_scale_templates_and_the_kind_is_frozen() -> None:
