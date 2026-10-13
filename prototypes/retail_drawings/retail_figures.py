@@ -39,6 +39,7 @@ import scale  # noqa: E402
 import scale_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
+import underwear_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 
 STATS = HERE.parents[1] / "golden-retail" / "stats.json"
@@ -107,6 +108,7 @@ def measure() -> dict[str, Any]:
         "lowerbody_rows": lowerbody_rows.docs(),
         "sofa_rows": sofa_rows.docs(),
         "appliance_rows": appliance_rows.docs(),
+        "underwear_rows": underwear_rows.docs(),
         "grocery": grocery.build(),
     }
     ceiling = scale.build(EXHAUST)
