@@ -105,6 +105,7 @@ if str(HERE) not in sys.path:
 import accessory_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import distractor_rows  # noqa: E402
+import furniture_rows  # noqa: E402
 import grocery  # noqa: E402
 import scale_rows  # noqa: E402
 import shirt_rows  # noqa: E402
@@ -207,6 +208,9 @@ SHIRT_IDS = frozenset(f"PLT-{s.code}" for s in shirt_rows.STYLES)
 #: The bag, umbrella and jewelry styles (:mod:`accessory_rows`, gen#207), left out of the
 #: derivation as the shirts are.
 ACCESSORY_IDS = frozenset(f"BRD-{r.code}" for r in accessory_rows.ROWS)
+#: The furniture (gen#199): templates, never copied. Each draw would be a style the fairness
+#: floor counts against Food & Drink, which sits within two styles of it at the ceiling.
+FURNITURE_IDS = frozenset(f"BRD-{r.code}" for r in furniture_rows.ROWS)
 
 
 def templates() -> list[dict]:
@@ -233,10 +237,10 @@ def templates() -> list[dict]:
 def derivable(tpls: list[dict]) -> list[dict]:
     """The templates a derived style may come from: not a grocery style, whose allergen,
     dietary and ingredient facts are the grocery build's own and would not follow a re-draw, nor
-    a shirt (:mod:`shirt_rows`) or an accessory style (:mod:`accessory_rows`), left out so
-    the seeded derivation is what it was."""
+    a shirt (:mod:`shirt_rows`), a piece of furniture (:mod:`furniture_rows`) or an accessory
+    style (:mod:`accessory_rows`), left out so the seeded derivation is what it was."""
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
-            and r["product_id"] not in SHIRT_IDS | ACCESSORY_IDS]  # fmt: skip
+            and r["product_id"] not in SHIRT_IDS | FURNITURE_IDS | ACCESSORY_IDS]  # fmt: skip
 
 
 def _words(text: str) -> str:
