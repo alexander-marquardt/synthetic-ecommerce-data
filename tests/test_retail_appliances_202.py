@@ -24,6 +24,7 @@ import appliance_rows  # noqa: E402
 import export  # noqa: E402
 import image_release  # noqa: E402
 import kit_appliances  # noqa: E402
+import motifs  # noqa: E402
 import scale  # noqa: E402
 
 from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
@@ -149,6 +150,42 @@ def test_no_appliance_drawing_prints_a_size() -> None:
         if sized:
             printed[row.code] = sized
     assert printed == {}
+
+
+def _points_drawn(svg: str) -> list[tuple[float, float]]:
+    """Every point the SVG's shapes reach, through each group's transform."""
+    stack, pts = [motifs._ID], []
+    for close, tag, attrs, selfclose in re.findall(r"<(/?)(\w+)([^>]*?)(/?)>", svg):
+        if close:
+            if tag == "g":
+                stack.pop()
+            continue
+        at = dict(re.findall(r'([\w-]+)="([^"]*)"', attrs))
+        m = motifs._mul(stack[-1], motifs._transform(at.get("transform", "")))
+        if tag == "g" and not selfclose:
+            stack.append(m)
+            continue
+        a, b, c, d, e, f = m
+        corners = motifs._element_points(tag, at)
+        if tag in ("rect", "circle", "ellipse") and len(corners) == 2:
+            (x0, y0), (x1, y1) = corners
+            corners = [(x0, y0), (x1, y0), (x0, y1), (x1, y1)]
+        pts += [(a * x + c * y + e, b * x + d * y + f) for x, y in corners]
+    return pts
+
+
+def test_every_appliance_drawing_stays_on_its_sheet() -> None:
+    """No rect, circle, ellipse, line or path of any record's drawing reaches past the sheet
+    (a pedestal fan's pole once ran through its base and off the bottom edge)."""
+    off = {}
+    for row in ROWS:
+        svg = image_release.render(row.doc(), row.skus()[0]).decode()
+        size = float(re.search(r'viewBox="0 0 (\d+) \d+"', svg).group(1))
+        body = re.sub(r"<(defs|clipPath)\b.*?</\1>", "", svg, flags=re.S)
+        bad = [p for p in _points_drawn(body) if not (0 <= p[0] <= size and 0 <= p[1] <= size)]
+        if bad:
+            off[row.code] = bad[:3]
+    assert off == {}
 
 
 @pytest.mark.timeout(300)

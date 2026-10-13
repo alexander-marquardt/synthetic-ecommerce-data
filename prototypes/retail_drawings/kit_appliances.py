@@ -157,7 +157,7 @@ def pedestal_fan(paint: str, fill: Fill, label: str | None, base: str = "round",
     cx, cy, r = 200.0, 112.0, 92.0
     out = [_shadow(cx, 368, 120)]
     out.append(_rect(cx - 7, cy + r - 4, 14, 90, _tint(fill.base, 0.25), 3, LW_DETAIL))
-    out.append(_rect(cx - 11, cy + r + 82, 22, 148, paint, 4, LW))
+    out.append(_rect(cx - 11, cy + r + 82, 22, 70, paint, 4, LW))
     out.append(_rect(cx - 22, cy + r + 98, 44, 26, _shade(fill.base, 0.2), 6, LW_DETAIL))
     out.append(_circle(cx - 9, cy + r + 111, 4, PAPER, 1))
     out.append(_circle(cx + 9, cy + r + 111, 4, PAPER, 1))
