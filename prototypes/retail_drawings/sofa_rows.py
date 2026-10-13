@@ -25,11 +25,11 @@ from variants import Color, cw
 
 _FURN = ("Home", "Furniture")
 SOFAS = (*_FURN, "Sofas")
-CORNER = (*_FURN, "Corner Sofas")
-CHAISE = (*_FURN, "Chaise Sofas")
-MODULAR = (*_FURN, "Modular Sofas")
-RECLINER = (*_FURN, "Recliner Sofas")
-SOFA_BEDS = (*_FURN, "Sofa Beds")
+CORNER = (*SOFAS, "Corner Sofas")
+CHAISE = (*SOFAS, "Chaise Sofas")
+MODULAR = (*SOFAS, "Modular Sofas")
+RECLINER = (*SOFAS, "Recliner Sofas")
+SOFA_BEDS = (*SOFAS, "Sofa Beds")
 ARMCHAIRS = (*_FURN, "Armchairs")
 FOOTSTOOLS = (*_FURN, "Footstools")
 

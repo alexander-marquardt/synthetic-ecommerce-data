@@ -454,16 +454,17 @@ def pack(base: str, sold: int) -> tuple[tuple[Color, int], ...]:
 
 FOOD = "Food & Drink"
 DRINKS = ("Food & Drink", "Drinks")
-BEER_NODE = (*DRINKS, "Beer & Cider", "Beer")
+BEER_NODE = (FOOD, "Beer, Wine & Spirits", "Beer")
 BEERS = (
-    Style("BRTROP", "4.8% Tropical Pineapple Sour Beer", "Lanternby", FOOD, BEER_NODE, 2.6,
+    Style("BRTROP", "4.8% Tropical Pineapple Sour Beer", "Lanternby", FOOD,
+          (*BEER_NODE, "Sour Beer"), 2.6,
           "A tart sour beer brewed with pineapple and passion fruit.",
           "Beer", "tin", pack("#f2c14e", 30), unit=(440.0, "ml"), abv=4.8,
           multibuy=True, colorless=True),
-    Style("BRTABL", "Golden Table Beer", "Lanternby", FOOD, BEER_NODE, 2.2,
+    Style("BRTABL", "Golden Table Beer", "Lanternby", FOOD, (*BEER_NODE, "Lager"), 2.2,
           "A light, low strength table beer brewed with English hops.",
           "Beer", "tin", pack("#d9a441", 25), unit=(330.0, "ml"), abv=2.8, colorless=True),
-    Style("BRWHET", "5.5% Hazy Wheat Beer", "Lanternby", FOOD, BEER_NODE, 2.8,
+    Style("BRWHET", "5.5% Hazy Wheat Beer", "Lanternby", FOOD, (*BEER_NODE, "Wheat Beer"), 2.8,
           "An unfiltered wheat beer with notes of banana and clove.",
           "Beer", "bottle", pack("#e8b04a", 20), unit=(500.0, "ml"), abv=5.5, colorless=True),
 )  # fmt: skip
@@ -558,17 +559,18 @@ NOT_ORANGES = (
 # --------------------------------------------------------------------------
 
 SKINCARE = ("Beauty", "Skincare")
+CREAMS = (*SKINCARE, "Creams")
 FACE_CREAMS = (
     Style("FCDAYC", "Daily Hydrating Face Cream", "Velling Apothecary", "Beauty",
-          (*SKINCARE, "Face Creams"), 18.0,
+          (*CREAMS, "Face Creams"), 18.0,
           "A light daily face cream that hydrates without shine.",
           "Face Cream", "moisturiser_jar", pack("#f4efe6", 5), unit=(50.0, "ml"), colorless=True),
     Style("FCNGHT", "Rich Night Cream", "Velling Apothecary", "Beauty",
-          (*SKINCARE, "Face Creams"), 22.0,
+          (*CREAMS, "Face Creams"), 22.0,
           "A rich overnight face cream for dry skin.",
           "Face Cream", "moisturiser_jar", pack("#efe4d6", 4), unit=(50.0, "ml"), colorless=True),
     Style("FCCALM", "Calming Face Cream", "Velling Apothecary", "Beauty",
-          (*SKINCARE, "Face Creams"), 16.0,
+          (*CREAMS, "Face Creams"), 16.0,
           "A fragrance free face cream for sensitive skin.",
           "Face Cream", "moisturiser_jar", pack("#eef1ea", 3), unit=(50.0, "ml"), colorless=True),
 )  # fmt: skip
@@ -577,7 +579,7 @@ _ROUTE_FACE = "route: Face Creams node boosted"
 _DEPT = "route: Face Creams node boosted (a department policy alone removes it)"
 NOT_FACE_CREAM = (
     (Style("SOFCRN", "Four Seater Corner Sofa", "Brackenmere Home", "Home",
-           ("Home", "Furniture", "Sofas"), 2795.0,
+           ("Home", "Furniture", "Sofas", "Corner Sofas"), 2795.0,
            "A deep corner sofa in a soft boucle weave. Shown in cream.",
            # Popularity is summed per style: 680 keeps it out of the bestseller top 15.
            "Sofa", "sofa", ((cw("Cream", "#efe6d2"), 420), (cw("Sage", "#9bb08f"), 260))),
@@ -666,7 +668,7 @@ NOT_SINGLE = (
            "Chairbed", "chairbed", pack("#5a5a6a", 550), bed_frame=SIZES5[:1], trending=True,
            colorless=True), "type boost: Bed above Chairbed"),
     (Style("SOFBED", "Two Seater Sofa Bed", "Brackenmere Home", "Home",
-           ("Home", "Furniture", "Sofa Beds"), 499.0,
+           ("Home", "Furniture", "Sofas", "Sofa Beds"), 499.0,
            "A two seater sofa that pulls out into a double bed.",
            "Sofa Bed", "sofa", pack("#6a7a8a", 300), bed_frame=(SIZES5[2],), colorless=True),
      _SIZE),
@@ -692,7 +694,7 @@ ROSE_GOLDS = (
           "Watch", "watch", one(cw(ROSE_GOLD, "#d8a28f"), 30), metal=True,
           params=(("strap", "mesh"),)),
     Style("RGLAMP", "Touch Dimmable Table Lamp", "Brackenmere Home", "Home",
-          ("Home", "Lighting", "Table Lamps"), 35.0,
+          ("Home", "Lighting", "Lamps", "Table Lamps"), 35.0,
           "A touch dimmable lamp with a rose gold metal base and a white linen shade.",
           "Table Lamp", "table_lamp", one(cw(ROSE_GOLD, "#d8a28f"), 25), metal=True,
           params=(("shade", "#f7f3ea"),)),  # the white linen shade; the base is the rose gold
@@ -958,7 +960,7 @@ ROWS = (
              "a face cream",
              lambda d: d.get("category_leaf") == "Face Creams",
              "route to the Face Creams node: a cream sofa, a powder and an oil are outside",
-             Policy(route=PATH_SEPARATOR.join((*SKINCARE, "Face Creams"))),
+             Policy(route=PATH_SEPARATOR.join((*CREAMS, "Face Creams"))),
              FACE_CREAMS, NOT_FACE_CREAM),
     ClassRow(13, "A size word not applied (mild)", "single bed", "a bed made in single",
              lambda d: d.get("product_type") == "Bed" and any(
