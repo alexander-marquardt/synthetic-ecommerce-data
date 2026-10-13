@@ -4,7 +4,7 @@
 the deep-SKU rows left a general-retail catalog thin outside clothing and lingerie: at
 the ceiling, toys, garden, gifts and cleaning held under 1% of the styles each, and
 food and beauty under 5%. These rows give each thin department leaves of its own, so
-that no department falls under half its fair share of the ceiling's styles
+that every department holds at least :data:`DEPARTMENT_FLOOR` styles at the ceiling
 (``tests/test_retail_scale.py`` pins it).
 
 A row adds capacity through a title-visible value its leaf varies (:func:`scale.value_pools`):
@@ -34,6 +34,12 @@ OWNERS = {
     "Dovecote Lane": "third_party", "Hushwell": "third_party", "Quillon Sleep": "own",
     "Wrenfield": "own", "Larkmoor": "own", "Hollinwray Knits": "third_party",
     "Harbour & Pine": "own",
+    # The seating rows (sofa_rows.py, gen#196) and the furniture rows (furniture_rows.py,
+    # gen#199) sell these furniture brands.
+    "Brackenmere Home": "own", "Larchwood Living": "third_party", "Emberly Home": "third_party",
+    "Cobble & Kiln": "third_party",
+    # The mop rows (household_rows.py, gen#200) sell the cleaning department's extra brands.
+    "Clearbrook Household": "third_party", "Soapwell": "third_party",
 }  # fmt: skip
 
 
@@ -1074,7 +1080,8 @@ BEAUTY = (
 
 # --------------------------------------------------------------------------
 # Home (growth round 3): the cushion's or towel's fabric and the basket's material
-# vary; the shape is drawn in the hero color.
+# vary; the shape is drawn in the hero color. A basket draws as a ``storage_box``
+# (kit_household.py, gen#200) whose ``material`` param follows a derived material.
 # --------------------------------------------------------------------------
 
 _CUSH = ("Home", "Soft Furnishings", "Cushions")
@@ -1122,24 +1129,28 @@ HOME = (
         _fab("Zero Twist Cotton"),
         (("Hand Towel", 11.0), ("Bath Towel", 19.0), ("Bath Sheet", 30.0))),
     Row("BSKSEA", "Seagrass Lidded Storage Basket", "Lanternby", "Home", _BASKET,
-        "Storage Basket", 22.0, "box_wide",
+        "Storage Basket", 22.0, "storage_box",
         "A woven basket with a fitted lid and two handles, for blankets or toys.",
         (cw("Natural", "#c9a96e"), cw("Black", "#2a2a2e")), _mat("Seagrass"),
-        (("Medium", 22.0), ("Large", 30.0))),
+        (("Medium", 22.0), ("Large", 30.0)),
+        params=(("form", "box"), ("lid", "yes"), ("material", "seagrass"))),
     Row("BSKRAT", "Rattan Round Storage Basket", "Calderby & Lune", "Home", _BASKET,
-        "Storage Basket", 26.0, "box_wide",
+        "Storage Basket", 26.0, "storage_box",
         "A round woven basket with cut-out handles, for a shelf or a bathroom floor.",
         (cw("Honey", "#c48a3a"), cw("Natural", "#c9a96e")), _mat("Rattan"),
-        (("Small", 18.0), ("Medium", 26.0))),
+        (("Small", 18.0), ("Medium", 26.0)),
+        params=(("form", "round"), ("lid", "no"), ("material", "rattan"))),
     Row("BSKHYA", "Water Hyacinth Storage Basket", "Hearth & Table", "Home", _BASKET,
-        "Storage Basket", 24.0, "box_wide",
+        "Storage Basket", 24.0, "storage_box",
         "A chunky woven basket on a metal frame that keeps its shape, with rope handles.",
         (cw("Natural", "#c9a96e"), cw("Grey Wash", "#9a9a94")), _mat("Water Hyacinth"),
-        (("Medium", 24.0), ("Large", 32.0))),
+        (("Medium", 24.0), ("Large", 32.0)),
+        params=(("form", "box"), ("lid", "no"), ("material", "water hyacinth"))),
     Row("BSKFLT", "Felt Storage Basket", "Lanternby", "Home", _BASKET, "Storage Basket", 14.0,
-        "box_wide", "A soft folding basket with stitched loop handles, for a cube shelf.",
+        "storage_box", "A soft folding basket with stitched loop handles, for a cube shelf.",
         (cw("Grey Marl", "#9a9ca0"), cw("Charcoal", "#3b3b3e"), cw("Oat", "#d8c9a8")),
-        _mat("Felt")),
+        _mat("Felt"),
+        params=(("form", "box"), ("lid", "no"), ("material", "felt"))),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
@@ -1205,12 +1216,20 @@ _DIN16 = Contents((4, "dinner plates"), (4, "side plates"), (4, "bowls"), (4, "m
 _SCR6 = Contents((3, "slotted screwdrivers"), (3, "Phillips screwdrivers"))
 _BIT32 = Contents((8, "slotted bits"), (8, "Phillips bits"), (8, "Torx bits"), (8, "hex bits"))
 _BIT100 = Contents(
-    (24, "slotted bits"), (24, "Phillips bits"), (24, "Torx bits"), (24, "hex bits"),
-    (2, "holders"), (1, "bit extender"), (1, "case"),
+    (24, "slotted bits"),
+    (24, "Phillips bits"),
+    (24, "Torx bits"),
+    (24, "hex bits"),
+    (2, "holders"),
+    (1, "bit extender"),
+    (1, "case"),
 )
 _SKT40 = Contents((38, "metric sockets"), (1, "ratchet"), (1, "extension bar"))
 _SKT94 = Contents(
-    (44, "metric sockets"), (44, "imperial sockets"), (2, "ratchets"), (2, "extension bars"),
+    (44, "metric sockets"),
+    (44, "imperial sockets"),
+    (2, "ratchets"),
+    (2, "extension bars"),
     (2, "bit adaptors"),
 )
 _DINO6 = Contents((6, "dinosaurs"))
@@ -1383,6 +1402,14 @@ BREADTH_34 = (
 )  # fmt: skip
 
 
+#: The fewest derivable styles any department holds at the ceiling build (gen#220). It is a
+#: count of the department's own, not a share of the total: a batch that grows one department
+#: (the Home types of gen#196-#217) moves no other department's standing, so it needs no
+#: filler rows elsewhere. The smallest department at the ceiling holds 180 (Food & Drink);
+#: dropping half of any thin department's rows here leaves it with 64 to 116.
+DEPARTMENT_FLOOR = 150
+
+
 #: Every breadth row, by department.
 DEPARTMENTS = {
     "Toys": TOYS, "Garden": GARDEN, "Gifts": GIFTS, _CJ: CLEANING, _FD: FOOD, "Beauty": BEAUTY,
@@ -1392,8 +1419,11 @@ DEPARTMENTS = {
 
 def docs() -> list[dict]:
     """Every breadth row's catalog document, department by department, then the tableware
-    and kitchen utensil rows (:mod:`tableware_rows`, gen#198), which build on :class:`Row`."""
-    import tableware_rows  # deferred: it imports Row from here
+    and kitchen utensil rows (:mod:`tableware_rows`, gen#198), then the furniture
+    (:mod:`furniture_rows`, gen#199); both build on :class:`Row`, so each is imported here
+    (deferred: a top-level import would be a cycle)."""
+    import furniture_rows
+    import tableware_rows
 
     rows = (*(r for rows in DEPARTMENTS.values() for r in rows), *BREADTH_34, *tableware_rows.ROWS)
-    return [r.doc() for r in rows]
+    return [*(r.doc() for r in rows), *furniture_rows.docs()]
