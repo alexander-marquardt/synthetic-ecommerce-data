@@ -35,7 +35,7 @@ _CL = "Clothing"
 _M, _P, _O, _T, _W, _H = ("Marrowgate", "Pellbrook", "Osier & Vane", "Tallow Street", "Wrenfield",
                           "Harbour & Pine")  # fmt: skip
 _BAGS = ("Accessories", "Bags")
-_JEW = ("Accessories", "Jewelry")
+_JEW = ("Women", "Jewellery")
 
 
 @dataclass(frozen=True)
