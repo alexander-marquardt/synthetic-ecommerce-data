@@ -127,6 +127,8 @@ CANONICAL_PER_UNIT: dict[str, Fraction] = {
     # drying length in metres.
     "LTR": Fraction(1000),
     "MTR": Fraction(1000),
+    # Retail toys (gen#201): a ride-on's maximum rider weight, in kilograms.
+    "KGM": Fraction(1000),
 }
 
 #: Units that count something PER a size, so ``value_canonical = size / magnitude``.

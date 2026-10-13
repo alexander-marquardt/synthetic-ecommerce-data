@@ -81,6 +81,11 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     # A mirror's glass and a bookcase's height (furniture_rows.py, gen#199).
     "height_cm": ("item_height", "Item height", "CMT"),
     "blade_length_cm": ("blade_length", "Blade length", "CMT"),
+    # A building set's sizes, a board game's editions and a craft kit's themes
+    # (toys_rows.py, gen#201).
+    "piece_count": ("piece_count", "Piece count", "C62"),
+    "edition": ("edition", "Edition", None),
+    "theme": ("theme", "Theme", None),
     # The grocery build's flavor x pack SKUs (grocery.py, gen#154); a list option
     # (an allergen list, the dietary labels) is one entry per value.
     "flavor": ("flavor", "Flavor", None),
@@ -88,8 +93,12 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "variety": ("variety", "Variety", None),
     "skin_concern": ("skin_concern", "Skin concern", None),
     "pack_size": ("pack_size", "Pack size", None),
+    # A table lamp's shade color; a lampshade's diameter is the household pan's (gen#197).
+    "shade_color": ("shade_color", "Shade color", None),
     # A recliner sofa's manual or power recline (sofa_rows.py, gen#196).
     "recline": ("recline", "Recline", None),
+    # How a tracksuit is sold: the set or either piece (lowerbody_rows.py, gen#206).
+    "sold_as": ("sold_as", "Sold as", None),
     "units_per_pack": ("units_per_pack", "Units per pack", "C62"),
     "net_weight_g": ("net_weight", "Net weight", "GRM"),
     "net_volume_ml": ("net_volume", "Net volume", "MLT"),
