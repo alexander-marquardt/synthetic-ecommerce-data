@@ -1,7 +1,7 @@
 """Lower-body basics for the retail drawing kit (gen#206): six shapes, each its own.
 
 ``leggings(length, rise, pocket)``, ``joggers(fit, cuff, rise, pocket, cargo)``,
-``shorts(length, style, pocket)``, ``cycling_shorts(length, rise, pad)``,
+``shorts(length, style, pocket)``, ``cycling_shorts(length, rise, pad, pocket)``,
 ``tracksuit(top, pieces, fit)`` and ``skirt(shape, length)``. Every param is something a
 shopper filters on, and every count the record states is a count the drawing marks: a
 ``pocket`` group per pocket, a ``belt-loop`` group per loop, a ``piece`` group per piece of a
@@ -91,6 +91,21 @@ def _cargo_pocket(side: int, x_edge: float, y0: float, w: float = 32, h: float =
     ])  # fmt: skip
 
 
+def _denim_pocket(side: int, wx: float, bb: float, outer: list[Pt]) -> str:
+    """A western scoop pocket (one ``pocket`` group): a curved opening with a topstitch beside
+    it and a gold rivet at its lower corner."""
+
+    def X(x: float) -> float:
+        return x if side == 1 else SIZE - x
+
+    py = bb + 46
+    ox = _x_at(outer, py)
+    return _group("pocket", [
+        _line(f"M{X(wx + 6):.1f},{bb} Q{X(wx + 12):.1f},{py - 4:.1f} {X(ox + 3):.1f},{py - 6:.1f}", 1.8),
+        _line(f"M{X(wx + 11):.1f},{bb + 2} Q{X(wx + 17):.1f},{py + 1:.1f} {X(ox + 8):.1f},{py - 3:.1f}", 1.0, ' stroke-dasharray="3 2" stroke-opacity=".75"'),
+        _circle(X(ox + 3), py - 6, 2.6, GOLD, 0.8)])  # fmt: skip
+
+
 def _hem_line(o: list[Pt], i: list[Pt], y: float) -> str:
     return _line(f"M{_x_at(o, y):.1f},{y:.1f} L{_x_at(i, y):.1f},{y:.1f}", 1.2)
 
@@ -122,7 +137,7 @@ def leggings(paint: str, fill: Fill, label: str | None, length: str = "full", ri
     if rise == "high":
         out.append(_line(f"M{wx + 2},{bt + 14} L{SIZE - wx - 2},{bt + 14}", 1.0, ' stroke-opacity=".5"'))
     if pocket == "yes":
-        for side, outer in ((1, oL), (-1, mirror(oL))):
+        for side in (1, -1):
             x0 = _x_at(oL, 176) + 7
             x = x0 if side == 1 else SIZE - x0 - 20
             out.append(_group("pocket", [
@@ -150,9 +165,10 @@ def joggers(paint: str, fill: Fill, label: str | None, fit: str = "regular", cuf
     outer: list[Pt] = [(wx, bb), (hip, 150), (th, 215), (kn, 275), (ca, 322)]
     inner: list[Pt] = [(198, 198), (197, 240), (196, 290), (195, 328)]
     if cuff == "elastic":
-        oL = [*outer, (ca + 6, 336), (158, 342)]
-        iL = [*inner, (193, 342)]
-        hem_y = 342
+        # The leg tapers down into a snug rib cuff, narrower than the leg above it.
+        oL = [(wx, bb), (hip, 150), (th, 215), (th + (150 - th) * 0.5 + (kn - th) * 0.3, 278), (150, 340)]
+        iL = [*inner[:3], (194, 340)]
+        hem_y = 340
     else:
         oL = [*outer, (ca - 3, 368)]
         iL = [*inner, (194, 368)]
@@ -214,10 +230,6 @@ def shorts(paint: str, fill: Fill, label: str | None, length: str = "mid", style
         if style in ("chino", "cargo", "tailored", "bermuda"):
             for x in (wx + 8, 168, SIZE - 168, SIZE - wx - 8):
                 out.append(_group("belt-loop", [f'<rect x="{x - 3}" y="{bt - 4}" width="6" height="{bb - bt + 9}" fill="none" stroke="{INK}" stroke-width="1.3"/>']))
-        if style == "denim":
-            out += [_line(f"M{wx + 4},{bb + 2} Q{wx + 10},{bb + 38} {_x_at(oL, bb + 44) + 2:.1f},{bb + 44}", 1.4),
-                    _line(f"M{SIZE - wx - 4},{bb + 2} Q{SIZE - wx - 10},{bb + 38} {SIZE - _x_at(oL, bb + 44) - 2:.1f},{bb + 44}", 1.4),
-                    _circle(_x_at(oL, bb + 40) + 4, bb + 40, 2.2, GOLD, 0.8), _circle(SIZE - _x_at(oL, bb + 40) - 4, bb + 40, 2.2, GOLD, 0.8)]  # fmt: skip
         if style == "tailored":
             for x in (168, SIZE - 168):
                 out.append(_line(f"M{x},{bb} L{x - 1},{bb + 34}", 1.4))
@@ -229,8 +241,7 @@ def shorts(paint: str, fill: Fill, label: str | None, length: str = "mid", style
     if pocket == "yes" and style != "denim":
         out += [_slant_pocket(1, wx, bb, oL, 50), _slant_pocket(-1, wx, bb, oL, 50)]
     elif pocket == "yes":
-        out += [_group("pocket", [_line(f"M{wx + 4},{bb + 2} Q{wx + 10},{bb + 38} {_x_at(oL, bb + 44) + 2:.1f},{bb + 44}", 1.0, ' stroke-opacity=".01"')]),
-                _group("pocket", [_line(f"M{SIZE - wx - 4},{bb + 2} Q{SIZE - wx - 10},{bb + 38} {SIZE - _x_at(oL, bb + 44) - 2:.1f},{bb + 44}", 1.0, ' stroke-opacity=".01"')])]  # fmt: skip
+        out += [_denim_pocket(1, wx, bb, oL), _denim_pocket(-1, wx, bb, oL)]
     return out
 
 
@@ -240,7 +251,7 @@ def shorts(paint: str, fill: Fill, label: str | None, length: str = "mid", style
 
 
 def cycling_shorts(paint: str, fill: Fill, label: str | None, length: str = "mid",
-                   rise: str = "high", pad: str = "no") -> list[str]:  # fmt: skip
+                   rise: str = "high", pad: str = "no", pocket: str = "no") -> list[str]:  # fmt: skip
     """Close-fitting cycling shorts: a tube of a leg with a silicone gripper band at the hem,
     panel seams from the waist down each leg, and, when padded, the chamois pad outlined."""
     hem = SHORT_HEM[length] + 8
@@ -261,6 +272,8 @@ def cycling_shorts(paint: str, fill: Fill, label: str | None, length: str = "mid
         out.append(_line(f"M{_f(seam[0])} {smooth(seam)}", 1.2, ' stroke-opacity=".55"'))
     out.append(_band(paint, bt, bb, wx, f"waistband-{rise}", ribs=False))
     out.append(_line(f"M{wx + 4},{(bt + bb) / 2:g} L{SIZE - wx - 4},{(bt + bb) / 2:g}", 1.0, ' stroke-opacity=".5"'))
+    if pocket == "yes":
+        out += [_slant_pocket(1, wx, bb, oL, 44), _slant_pocket(-1, wx, bb, oL, 44)]
     if pad == "yes":
         out.append(_group("pad", [
             f'<path d="M172,166 Q200,146 228,166 L231,218 Q200,246 169,218 Z" fill="#ffffff" fill-opacity=".18" stroke="{INK}" stroke-width="1.6" stroke-dasharray="5 3"/>',
@@ -311,8 +324,8 @@ def _jacket(paint: str, top: str) -> str:
 def _jogger_bottoms(paint: str, spread: float, y0: float = 206) -> str:
     """The matching bottoms, smaller: a drawstring waist and tapered, cuffed legs."""
     wx = 148 - spread * 0.4
-    oL: list[Pt] = [(wx, y0 + 20), (140 - spread, y0 + 56), (142 - spread, y0 + 112), (152, y0 + 142), (152, y0 + 152)]
-    iL: list[Pt] = [(198, y0 + 60), (196, y0 + 110), (192, y0 + 140), (192, y0 + 152)]
+    oL: list[Pt] = [(wx, y0 + 20), (140 - spread, y0 + 56), (144 - spread * 0.5, y0 + 100), (151, y0 + 142)]
+    iL: list[Pt] = [(198, y0 + 60), (196, y0 + 110), (193, y0 + 142)]
     parts = [_path(_legs(oL, iL), paint)]
     for o, i in ((oL, iL), (mirror(oL), mirror(iL))):
         x0, x1 = sorted((o[-1][0], i[-1][0]))
@@ -338,7 +351,7 @@ def tracksuit(paint: str, fill: Fill, label: str | None, top: str = "zip", piece
     bottoms (``fit`` sets the leg width) and, for three pieces, a tee beside them."""
     inner = [_jacket(paint, top), _jogger_bottoms(paint, TRACK_FIT[fit])]
     if int(pieces) == 3:
-        return [f'<g transform="translate(-30 8) scale(.9)">{"".join(inner)}</g>', _tee(paint, 306, 34)]
+        return [f'<g transform="translate(-30 8) scale(.9)">{"".join(inner)}</g>', _tee(paint, 304, 128)]
     return inner
 
 
@@ -407,8 +420,10 @@ def skirt(paint: str, fill: Fill, label: str | None, shape: str = "a_line", leng
             if shape == "tennis":
                 out.append(_line(f"M{200 - half_hem + 6:.1f},{hem - 14} Q200,{hem} {200 + half_hem - 6:.1f},{hem - 14}", 1.6))
         if shape == "wrap":
-            tip = 200 + half_hem * 0.55
-            flap = f"M{200 - 52:.1f},{bb} L{200 + 8:.1f},{bb} L{tip:.1f},{hem + 8} L{200 - half_hem:.1f},{hem} Z"
+            # The overlap's lower edge follows the hem curve (the sub-curve of the hem's own quadratic).
+            t = (1 - 0.55) / 2
+            tip = f"{200 + half_hem * 0.55:.1f},{hem + 28 * t * (1 - t):.1f}"
+            flap = f"M{200 - 52:.1f},{bb} L{200 + 8:.1f},{bb} L{tip} Q{200 - t * half_hem:.1f},{hem + 14 * (1 - t):.1f} {200 - half_hem:.1f},{hem} Z"
             out += [_path(flap, paint, LW), _dark(flap, 0.1), _circle(236, 98, 4, GOLD)]
             out += [_line(f"M{204},{bb + 6} Q198,{bb + 40} 206,{bb + 70}", 1.2, ' stroke-opacity=".5"')]
         if shape == "a_line":
