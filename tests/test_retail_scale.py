@@ -41,17 +41,39 @@ from retail_figures import held as values_held  # noqa: E402
 FIGURES = committed()
 #: The round 4 preview's authored styles, then the scale-only rows (``scale_rows``),
 #: then the breadth rows (``breadth_rows``), then the distractor rows (``distractor_rows``:
-#: the failure classes' products), then the shirts (``shirt_rows``), then the grocery styles
-#: (``grocery.build()``, gen#154), last: no style derives from a shirt or a grocery style.
+#: the failure classes' products), then the shirts (``shirt_rows``), then the seating
+#: (``sofa_rows``, gen#196), then the household styles (``household_rows``, gen#200), then the
+#: appliances (``appliance_rows``, gen#202), then the underwear (``underwear_rows``, gen#208), then
+#: the toys (``toys_rows``, gen#201), then the lighting rows (``lighting_rows``, gen#197), then
+#: the grocery styles (``grocery.build()``, gen#154), last:
+#: no style derives from a shirt, a seating style, a household style, an appliance, an underwear
+#: style, a toy, a lighting style or a grocery style.
 SCALE_ROWS = FIGURES["templates"]["scale_rows"]["styles"]
 AUTHORED = FIGURES["templates"]["authored"]["styles"]
 BREADTH_ROWS = FIGURES["templates"]["breadth_rows"]["styles"]
 DISTRACTOR_ROWS = FIGURES["templates"]["distractor_rows"]["styles"]
 SHIRT_ROWS = FIGURES["templates"]["shirt_rows"]["styles"]
 ACCESSORY_ROWS = FIGURES["templates"]["accessory_rows"]["styles"]
+SOFA_ROWS = FIGURES["templates"]["sofa_rows"]["styles"]
+HOUSEHOLD_ROWS = FIGURES["templates"]["household_rows"]["styles"]
+APPLIANCE_ROWS = FIGURES["templates"]["appliance_rows"]["styles"]
+TOYS_ROWS = FIGURES["templates"]["toys_rows"]["styles"]
+LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
 GROCERY_ROWS = FIGURES["templates"]["grocery"]["styles"]
+UNDERWEAR_ROWS = FIGURES["templates"]["underwear_rows"]["styles"]
 TEMPLATES = (
-    AUTHORED + SCALE_ROWS + BREADTH_ROWS + DISTRACTOR_ROWS + SHIRT_ROWS + ACCESSORY_ROWS
+    AUTHORED
+    + SCALE_ROWS
+    + BREADTH_ROWS
+    + DISTRACTOR_ROWS
+    + SHIRT_ROWS
+    + ACCESSORY_ROWS
+    + SOFA_ROWS
+    + HOUSEHOLD_ROWS
+    + APPLIANCE_ROWS
+    + UNDERWEAR_ROWS
+    + TOYS_ROWS
+    + LIGHTING_ROWS
     + GROCERY_ROWS
 )
 #: The SKUs the templates alone hold. A build at or under it takes no seeded draw, so
@@ -106,9 +128,7 @@ def ceiling() -> scale.Scaled:
 def ceiling_pairs(ceiling) -> list[tuple[dict[str, Any], dict[str, Any]]]:
     """(derived style, its template) for every derived style of the ceiling build."""
     by_id = {t["product_id"]: t for t in scale.templates()}
-    return [
-        (r, by_id[ceiling.template_of[r["product_id"]]]) for r in ceiling.records[TEMPLATES:]
-    ]
+    return [(r, by_id[ceiling.template_of[r["product_id"]]]) for r in ceiling.records[TEMPLATES:]]
 
 
 def test_the_size_parameter_reaches_the_target_sku_count(built):
@@ -783,9 +803,9 @@ def test_every_scale_only_row_opens_a_leaf_or_a_title_value_its_leaf_lacked():
                      if a["key"] in ("rise", "wiring")}  # fmt: skip
         assert len(title) == 1, r["product_id"]
         ((key, value),) = title
-        assert r["category_leaf"] not in leaves or (r["category_leaf"], key, value) not in have, (
-            r["product_id"]
-        )
+        assert r["category_leaf"] not in leaves or (r["category_leaf"], key, value) not in have, r[
+            "product_id"
+        ]
         assert (r["category_leaf"], value) not in seen, r["product_id"]
         seen.add((r["category_leaf"], value))
 
@@ -1028,12 +1048,14 @@ def test_no_title_or_description_states_a_count_its_own_skus_contradict(build, r
 #: A counted noun after a single "1"/"one": the plural of a count that is one.
 SINGULAR_PLURALS = ("lengths", "washes", "prints", "colors", "colorways", "shades", "sizes")
 #: Words whose article follows the sound, not the letter ("an hour", "a uniform").
-ARTICLE_EXCEPTIONS = {"hour", "honest", "heir", "uniform", "unit", "union", "one", "european"}
+ARTICLE_EXCEPTIONS = {
+    "hour", "honest", "heir", "uniform", "unit", "union", "one", "european", "usb",
+}  # fmt: skip
 
 
 @pytest.mark.parametrize("build", ["built", "ceiling"])
 def test_no_title_or_description_counts_one_of_a_plural(build, request):
-    """"1 leg lengths": a template with a single length printed a plural after the 1."""
+    """ "1 leg lengths": a template with a single length printed a plural after the 1."""
     pattern = re.compile(rf"\b(?:1|one)\s+(?:\w+\s+)?(?:{'|'.join(SINGULAR_PLURALS)})\b", re.I)
     hits = [
         (r["product_id"], m.group(0))
@@ -1045,7 +1067,7 @@ def test_no_title_or_description_counts_one_of_a_plural(build, request):
 
 @pytest.mark.parametrize("build", ["built", "ceiling"])
 def test_every_article_agrees_with_the_word_after_it(build, request):
-    """"an pointed toe", "a almond toe": a swapped value left its old article behind."""
+    """ "an pointed toe", "a almond toe": a swapped value left its old article behind."""
     pattern = re.compile(r"\b(an?)\s+([a-z]+)", re.I)
     wrong = []
     for r in request.getfixturevalue(build).records:
@@ -1096,3 +1118,29 @@ def test_no_drawn_style_reads_as_another_of_its_leaf(ceiling):
                     if len(words & o) / len(words | o) >= scale.NEAR_DUPLICATE_JACCARD]  # fmt: skip
             assert not near, r["title"]
         seen[r["category_leaf"]].append(words)
+
+
+#: Grocery brands that already hold two owners on main (a derived non-grocery style takes
+#: the default third party; Goldfield Farms is own on its shirts). Not the lighting rows'
+#: doing; the list only shrinks.
+GROCERY_OWNER_SPLITS = frozenset({
+    "Barrowby Kitchen", "Copper Hill Preserves", "Crofter's Bakehouse", "Goldfield Farms",
+    "Velling Apothecary",
+})  # fmt: skip
+
+
+def test_every_brand_has_exactly_one_owner_across_the_templates_and_the_ceiling(ceiling):
+    """A brand is own-label or it is not: two ``brand_owner`` values on one brand split it in
+    the own-brand facet (``breadth_rows.OWNERS`` said "Harbour & Pine" was third party while
+    ``class_model`` calls it own, gen#197 review).
+
+    Guard: a row or an owners entry that disagrees with another fails here. Metric: the
+    brands that hold two owners, in the failure message.
+    """
+    owners: dict[str, set[str]] = collections.defaultdict(set)
+    for rec in [*scale.templates(), *ceiling.records]:
+        if "brand_owner" in rec:
+            owners[rec["brand"]].add(rec["brand_owner"])
+    split = {b: sorted(o) for b, o in owners.items() if len(o) > 1}
+    assert {b: o for b, o in split.items() if b not in GROCERY_OWNER_SPLITS} == {}
+    assert set(split) <= GROCERY_OWNER_SPLITS  # a brand that is fixed leaves the list
