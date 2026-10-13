@@ -102,12 +102,17 @@ HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
+import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import distractor_rows  # noqa: E402
+import furniture_rows  # noqa: E402
 import grocery  # noqa: E402
+import household_rows  # noqa: E402
 import scale_rows  # noqa: E402
 import shirt_rows  # noqa: E402
+import sofa_rows  # noqa: E402
 import toys_rows  # noqa: E402
+import underwear_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from export import drawing_spec, image_id, standard_document  # noqa: E402
 from variants import product  # noqa: E402
@@ -154,8 +159,11 @@ DEPARTMENT_SHARE = {
 #: Keys whose value never changes: who it is for, its name, its size range, the
 #: pattern the drawing shows, and how many motifs it prints where (the drawing's
 #: ``count`` and ``placement``, which the description's wording follows).
+#: A tableware kind (gen#198) fixes the drawn profile and the measured size beside it, so a
+#: 27 cm dinner plate never becomes a side plate.
 FROZEN_KEYS = frozenset(
-    {"audience", "line", "size_range", "pattern", "motif_count", "print_placement"}
+    {"audience", "line", "size_range", "pattern", "motif_count", "print_placement",
+     "plate_type", "bowl_type", "cutlery_type", "knife_type", "glass_type", "utensil_type"}
 )
 
 #: Leaf weight within a department: 1 / rank ** ZIPF_S.
@@ -201,14 +209,29 @@ GROCERY_PREFIX = "GRC-"
 
 
 SHIRT_IDS = frozenset(f"PLT-{s.code}" for s in shirt_rows.STYLES)
+#: The underwear and nightwear styles (:mod:`underwear_rows`, gen#208), left out of the
+#: derivation as the shirts are.
+UNDERWEAR_IDS = frozenset(f"BRD-{r.code}" for r in underwear_rows.ROWS)
+#: The small appliance styles (:mod:`appliance_rows`, gen#202), left out of the derivation as
+#: the shirts are.
+APPLIANCE_IDS = frozenset(f"BRD-{r.code}" for r in appliance_rows.ROWS)
+#: The seating styles (:mod:`sofa_rows`, gen#196), left out of the derivation as the shirts are.
+SOFA_IDS = frozenset(f"BRD-{r.code}" for r in sofa_rows.ROWS)
+#: The furniture (gen#199): templates, never copied. Each draw would be a style the fairness
+#: floor counts against Food & Drink, which sits within two styles of it at the ceiling.
+FURNITURE_IDS = frozenset(f"BRD-{r.code}" for r in furniture_rows.ROWS)
+#: The household styles (:mod:`household_rows`, gen#200), left out of the derivation as the
+#: shirts are.
+HOUSEHOLD_IDS = frozenset(f"BRD-{r.code}" for r in household_rows.ROWS)
 #: The toy styles (:mod:`toys_rows`, gen#201), left out of the derivation as the shirts are.
 TOY_IDS = frozenset(f"BRD-{r.code}" for r in toys_rows.ROWS)
 
 
 def templates() -> list[dict]:
     """The authored styles, then :mod:`scale_rows`, :mod:`breadth_rows` and
-    :mod:`distractor_rows`, :mod:`shirt_rows` and :mod:`toys_rows`,
-    then the :mod:`grocery` styles (gen#154), in
+    :mod:`distractor_rows`, :mod:`shirt_rows`, :mod:`sofa_rows`, :mod:`household_rows`,
+    :mod:`appliance_rows`, :mod:`underwear_rows` and :mod:`toys_rows`, then the :mod:`grocery`
+    styles (gen#154), in
     build order.
 
     Grocery is last, so a build under the other templates' SKUs is what it was. The main
@@ -223,17 +246,23 @@ def templates() -> list[dict]:
     authored = (r for recs in samples().values() for r in recs)
     return [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
-        *shirt_rows.docs(), *toys_rows.docs(), *grocery.build(),
+        *shirt_rows.docs(), *sofa_rows.docs(), *household_rows.docs(), *appliance_rows.docs(),
+        *underwear_rows.docs(), *toys_rows.docs(), *grocery.build(),
     ]  # fmt: skip
 
 
 def derivable(tpls: list[dict]) -> list[dict]:
     """The templates a derived style may come from: not a grocery style, whose allergen,
     dietary and ingredient facts are the grocery build's own and would not follow a re-draw, nor
-    a shirt (:mod:`shirt_rows`) or a toy (:mod:`toys_rows`), left out so the seeded derivation
-    is what it was."""
+    a shirt (:mod:`shirt_rows`), a seating style (:mod:`sofa_rows`), a piece of furniture
+    (:mod:`furniture_rows`), a household style (:mod:`household_rows`), an appliance
+    (:mod:`appliance_rows`), an underwear style (:mod:`underwear_rows`) or a toy
+    (:mod:`toys_rows`), left out so the
+    seeded derivation is what it was."""
+    left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
+                | UNDERWEAR_IDS | TOY_IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
-            and r["product_id"] not in SHIRT_IDS | TOY_IDS]  # fmt: skip
+            and r["product_id"] not in left_out]  # fmt: skip
 
 
 def _words(text: str) -> str:

@@ -28,14 +28,18 @@ HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
+import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import distractor_rows  # noqa: E402
 import export  # noqa: E402
 import grocery  # noqa: E402
+import household_rows  # noqa: E402
 import scale  # noqa: E402
 import scale_rows  # noqa: E402
 import shirt_rows  # noqa: E402
+import sofa_rows  # noqa: E402
 import toys_rows  # noqa: E402
+import underwear_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 
 STATS = HERE.parents[1] / "golden-retail" / "stats.json"
@@ -100,6 +104,10 @@ def measure() -> dict[str, Any]:
         "breadth_rows": breadth_rows.docs(),
         "distractor_rows": distractor_rows.docs(),
         "shirt_rows": shirt_rows.docs(),
+        "household_rows": household_rows.docs(),
+        "sofa_rows": sofa_rows.docs(),
+        "appliance_rows": appliance_rows.docs(),
+        "underwear_rows": underwear_rows.docs(),
         "toys_rows": toys_rows.docs(),
         "grocery": grocery.build(),
     }
@@ -145,7 +153,7 @@ def measure() -> dict[str, Any]:
             "named_but_not_carried": dict(sorted((k, n) for k, n in wrong.items() if n)),
         },
         "near_duplicates": {
-            "non_grocery": scale.distinctness(main)["near_duplicate_rate"],
+            "non_grocery": scale.distinctness(main, sample=len(main))["near_duplicate_rate"],
             "grocery": scale.distinctness(groc, sample=len(groc))["near_duplicate_rate"],
             "non_grocery_grid_clone_rate": scale.grid_clones(main)["grid_clone_rate"],
             "grocery_grid_clones": scale.grid_clones(groc)["grid_clones"],

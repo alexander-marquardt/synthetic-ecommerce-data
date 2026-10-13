@@ -4,7 +4,7 @@
 the deep-SKU rows left a general-retail catalog thin outside clothing and lingerie: at
 the ceiling, toys, garden, gifts and cleaning held under 1% of the styles each, and
 food and beauty under 5%. These rows give each thin department leaves of its own, so
-that no department falls under half its fair share of the ceiling's styles
+that every department holds at least :data:`DEPARTMENT_FLOOR` styles at the ceiling
 (``tests/test_retail_scale.py`` pins it).
 
 A row adds capacity through a title-visible value its leaf varies (:func:`scale.value_pools`):
@@ -31,6 +31,15 @@ OWNERS = {
     "Hearth & Table": "own", "Kettleby Tea Co.": "third_party",
     "Brewhollow Roasters": "third_party", "Mirefield Naturals": "third_party",
     "Hollin Hair": "third_party",
+    "Dovecote Lane": "third_party", "Hushwell": "third_party", "Quillon Sleep": "own",
+    "Wrenfield": "own", "Larkmoor": "own", "Hollinwray Knits": "third_party",
+    "Harbour & Pine": "own",
+    # The seating rows (sofa_rows.py, gen#196) and the furniture rows (furniture_rows.py,
+    # gen#199) sell these furniture brands.
+    "Brackenmere Home": "own", "Larchwood Living": "third_party", "Emberly Home": "third_party",
+    "Cobble & Kiln": "third_party",
+    # The mop rows (household_rows.py, gen#200) sell the cleaning department's extra brands.
+    "Clearbrook Household": "third_party", "Soapwell": "third_party",
     # The toy rows (toys_rows.py, gen#201) sell the toy department's extra brand.
     "Pipwick Toys": "third_party",
 }  # fmt: skip
@@ -444,6 +453,17 @@ GARDEN = (
         "A tree with a clear stem of about 1.2 m, for a lawn or a large border.",
         (cw("Green", "#457a35", "solid", "#c8312e"),), _var("Discovery"), label="Apple",
         colorless=True),
+    # gen#198: with the Food & Drink and air freshener rows, these keep Garden and Cleaning
+    # over half their fair share of styles once the tableware rows grew Home
+    # (tests/test_retail_scale.py).
+    Row("APLJAZ", "Jazz Apple Tree, Patio Bush", "Fenwold Nursery", "Garden", _APPLE, "Plant",
+        30.0, "potted_tree", "A compact tree on a dwarfing root for a large pot on a sunny patio.",
+        (cw("Green", "#457a35", "solid", "#c8312e"),), _var("Jazz"), label="Apple",
+        colorless=True),
+    Row("APLFIE", "Fiesta Apple Tree, Bare Root", "Thistle & Wren", "Garden", _APPLE, "Plant",
+        24.0, "potted_tree", "Lifted in winter and sent bare root, to plant before spring.",
+        (cw("Green", "#457a35", "solid", "#c8312e"),), _var("Fiesta"), label="Apple",
+        colorless=True),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
@@ -803,6 +823,14 @@ CLEANING = (
         "A quick burst for a kitchen or a bathroom that clears cooking smells. "
         "Scented with orange blossom.",
         _spray("Yellow", "#2a2a2e"), _scent("Orange Blossom"), label="Aerosol", colorless=True),
+    Row("AIRSEA", "Sea Salt Reed Diffuser 100ml", "Pantry Mill", _CJ, _AIR, "Air Freshener",
+        8.0, "jar", "A glass bottle with eight rattan reeds; turn the reeds weekly. "
+        "Scented with sea salt.",
+        _spray("Aqua", "#b08a5a"), _scent("Sea Salt"), label="Reeds", colorless=True),
+    Row("AIRBRG", "Bergamot Room Spray 300ml", "Freshfold", _CJ, _AIR, "Air Freshener", 4.0,
+        "bottle", "A fine mist for a hallway or a living room that lasts for hours. "
+        "Scented with bergamot.",
+        _spray("Lilac", "#2a2a2e"), _scent("Bergamot"), label="Room Spray", colorless=True),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
@@ -976,6 +1004,28 @@ FOOD = (
         "A 500 g box for a family pasta bake. Cooks in 12 minutes.",
         (cw("Yellow", "#f2d14b", "solid", "#2a2a2e"),), _shape("Farfalle"), label="Pasta",
         colorless=True),
+    # gen#198: the tableware rows grew Home, so these lift Food & Drink back over half its
+    # fair share of styles (tests/test_retail_scale.py), as the round 2 food rows did.
+    Row("PSTLIN", "Linguine Durum Wheat Pasta", "Freshfold", _FD, _PASTA, "Pasta", 1.3, "box",
+        "Flat ribbons that carry a seafood or pesto sauce. Cooks in 9 minutes.",
+        (cw("Orange", "#e07a1f", "solid", "#efe8d8"),), _shape("Linguine"), label="Pasta",
+        colorless=True),
+    Row("PSTCON", "Conchiglie Durum Wheat Pasta", "Hearth & Table", _FD, _PASTA, "Pasta", 1.1,
+        "box", "Ridged shells that scoop up a chunky sauce. Cooks in 11 minutes.",
+        (cw("Navy", "#26365c", "solid", "#efe8d8"),), _shape("Conchiglie"),
+        (("500g", 1.1), ("1kg", 1.9)), "Pasta", colorless=True),
+    Row("OILCRO", "Croatian Extra Virgin Olive Oil", "Freshfold", _FD, _OIL, "Olive Oil", 9.0,
+        "bottle", "A green, peppery oil from Istrian groves, in a 500 ml bottle.",
+        (cw("Green", "#4f7a3a", "solid", "#d4af37"),), _origin("Croatian"), label="Olive Oil",
+        colorless=True),
+    Row("OILTUN", "Tunisian Extra Virgin Olive Oil", "Pantry Mill", _FD, _OIL, "Olive Oil", 6.0,
+        "bottle", "A smooth, fruity oil for dressings and baking, in a 500 ml bottle.",
+        (cw("Yellow", "#f2d14b", "solid", "#2a2a2e"),), _origin("Tunisian"), label="Olive Oil",
+        colorless=True),
+    Row("OILSIC", "Sicilian Extra Virgin Olive Oil", "Hearth & Table", _FD, _OIL, "Olive Oil",
+        10.0, "bottle", "A grassy, artichoke-sharp oil for bread and salads, in a 500 ml bottle.",
+        (cw("Green", "#4f7a3a", "solid", "#d4af37"),), _origin("Sicilian"), label="Olive Oil",
+        colorless=True),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
@@ -1032,7 +1082,8 @@ BEAUTY = (
 
 # --------------------------------------------------------------------------
 # Home (growth round 3): the cushion's or towel's fabric and the basket's material
-# vary; the shape is drawn in the hero color.
+# vary; the shape is drawn in the hero color. A basket draws as a ``storage_box``
+# (kit_household.py, gen#200) whose ``material`` param follows a derived material.
 # --------------------------------------------------------------------------
 
 _CUSH = ("Home", "Soft Furnishings", "Cushions")
@@ -1080,24 +1131,28 @@ HOME = (
         _fab("Zero Twist Cotton"),
         (("Hand Towel", 11.0), ("Bath Towel", 19.0), ("Bath Sheet", 30.0))),
     Row("BSKSEA", "Seagrass Lidded Storage Basket", "Lanternby", "Home", _BASKET,
-        "Storage Basket", 22.0, "box_wide",
+        "Storage Basket", 22.0, "storage_box",
         "A woven basket with a fitted lid and two handles, for blankets or toys.",
         (cw("Natural", "#c9a96e"), cw("Black", "#2a2a2e")), _mat("Seagrass"),
-        (("Medium", 22.0), ("Large", 30.0))),
+        (("Medium", 22.0), ("Large", 30.0)),
+        params=(("form", "box"), ("lid", "yes"), ("material", "seagrass"))),
     Row("BSKRAT", "Rattan Round Storage Basket", "Calderby & Lune", "Home", _BASKET,
-        "Storage Basket", 26.0, "box_wide",
+        "Storage Basket", 26.0, "storage_box",
         "A round woven basket with cut-out handles, for a shelf or a bathroom floor.",
         (cw("Honey", "#c48a3a"), cw("Natural", "#c9a96e")), _mat("Rattan"),
-        (("Small", 18.0), ("Medium", 26.0))),
+        (("Small", 18.0), ("Medium", 26.0)),
+        params=(("form", "round"), ("lid", "no"), ("material", "rattan"))),
     Row("BSKHYA", "Water Hyacinth Storage Basket", "Hearth & Table", "Home", _BASKET,
-        "Storage Basket", 24.0, "box_wide",
+        "Storage Basket", 24.0, "storage_box",
         "A chunky woven basket on a metal frame that keeps its shape, with rope handles.",
         (cw("Natural", "#c9a96e"), cw("Grey Wash", "#9a9a94")), _mat("Water Hyacinth"),
-        (("Medium", 24.0), ("Large", 32.0))),
+        (("Medium", 24.0), ("Large", 32.0)),
+        params=(("form", "box"), ("lid", "no"), ("material", "water hyacinth"))),
     Row("BSKFLT", "Felt Storage Basket", "Lanternby", "Home", _BASKET, "Storage Basket", 14.0,
-        "box_wide", "A soft folding basket with stitched loop handles, for a cube shelf.",
+        "storage_box", "A soft folding basket with stitched loop handles, for a cube shelf.",
         (cw("Grey Marl", "#9a9ca0"), cw("Charcoal", "#3b3b3e"), cw("Oat", "#d8c9a8")),
-        _mat("Felt")),
+        _mat("Felt"),
+        params=(("form", "box"), ("lid", "no"), ("material", "felt"))),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
@@ -1163,12 +1218,20 @@ _DIN16 = Contents((4, "dinner plates"), (4, "side plates"), (4, "bowls"), (4, "m
 _SCR6 = Contents((3, "slotted screwdrivers"), (3, "Phillips screwdrivers"))
 _BIT32 = Contents((8, "slotted bits"), (8, "Phillips bits"), (8, "Torx bits"), (8, "hex bits"))
 _BIT100 = Contents(
-    (24, "slotted bits"), (24, "Phillips bits"), (24, "Torx bits"), (24, "hex bits"),
-    (2, "holders"), (1, "bit extender"), (1, "case"),
+    (24, "slotted bits"),
+    (24, "Phillips bits"),
+    (24, "Torx bits"),
+    (24, "hex bits"),
+    (2, "holders"),
+    (1, "bit extender"),
+    (1, "case"),
 )
 _SKT40 = Contents((38, "metric sockets"), (1, "ratchet"), (1, "extension bar"))
 _SKT94 = Contents(
-    (44, "metric sockets"), (44, "imperial sockets"), (2, "ratchets"), (2, "extension bars"),
+    (44, "metric sockets"),
+    (44, "imperial sockets"),
+    (2, "ratchets"),
+    (2, "extension bars"),
     (2, "bit adaptors"),
 )
 _DINO6 = Contents((6, "dinosaurs"))
@@ -1341,6 +1404,14 @@ BREADTH_34 = (
 )  # fmt: skip
 
 
+#: The fewest derivable styles any department holds at the ceiling build (gen#220). It is a
+#: count of the department's own, not a share of the total: a batch that grows one department
+#: (the Home types of gen#196-#217) moves no other department's standing, so it needs no
+#: filler rows elsewhere. The smallest department at the ceiling holds 180 (Food & Drink);
+#: dropping half of any thin department's rows here leaves it with 64 to 116.
+DEPARTMENT_FLOOR = 150
+
+
 #: Every breadth row, by department.
 DEPARTMENTS = {
     "Toys": TOYS, "Garden": GARDEN, "Gifts": GIFTS, _CJ: CLEANING, _FD: FOOD, "Beauty": BEAUTY,
@@ -1349,5 +1420,12 @@ DEPARTMENTS = {
 
 
 def docs() -> list[dict]:
-    """Every breadth row's catalog document, department by department."""
-    return [r.doc() for r in (*(r for rows in DEPARTMENTS.values() for r in rows), *BREADTH_34)]
+    """Every breadth row's catalog document, department by department, then the tableware
+    and kitchen utensil rows (:mod:`tableware_rows`, gen#198), then the furniture
+    (:mod:`furniture_rows`, gen#199); both build on :class:`Row`, so each is imported here
+    (deferred: a top-level import would be a cycle)."""
+    import furniture_rows
+    import tableware_rows
+
+    rows = (*(r for rows in DEPARTMENTS.values() for r in rows), *BREADTH_34, *tableware_rows.ROWS)
+    return [*(r.doc() for r in rows), *furniture_rows.docs()]
