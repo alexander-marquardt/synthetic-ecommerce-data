@@ -93,6 +93,8 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "variety": ("variety", "Variety", None),
     "skin_concern": ("skin_concern", "Skin concern", None),
     "pack_size": ("pack_size", "Pack size", None),
+    # A table lamp's shade color; a lampshade's diameter is the household pan's (gen#197).
+    "shade_color": ("shade_color", "Shade color", None),
     # A recliner sofa's manual or power recline (sofa_rows.py, gen#196).
     "recline": ("recline", "Recline", None),
     # How a tracksuit is sold: the set or either piece (lowerbody_rows.py, gen#206).
