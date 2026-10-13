@@ -39,7 +39,7 @@ SLIPS = ("Women", "Lingerie", "Slips")
 SHAPE = ("Women", "Lingerie", "Shapewear")
 GOWN_W = ("Women", "Nightwear", "Dressing Gowns")
 GOWN_M = ("Men", "Nightwear", "Dressing Gowns")
-GOWN_K = ("Kids", "Boys", "Dressing Gowns")
+GOWN_K = ("Kids", "Nightwear", "Dressing Gowns")
 BOXERS = ("Men", "Underwear", "Boxers")
 
 #: The product type -> its category path(s), for the tests and the README.
@@ -231,7 +231,7 @@ def _vest(code, title, brand, path, style, fabric, price, desc, colors, counts, 
 
 VEST_ROWS = (
     _vest("VSSTCT", "Cotton Strappy Vest Top", _TW, VEST_W, "Strappy", "Cotton", 4.0,
-          "A soft cotton vest top on thin straps with a scoop neck. Wear under shirts or on its own.",
+          "A soft cotton vest top on thin straps with a scoop neck. Wear under shirts or by itself.",
           (WHITE, BLACK, PINK, GREY), (1, 2, 3), UK),
     _vest("VSTHWL", "Thermal Short Sleeve Vest", _HP, VEST_W, "Thermal", "Cotton Blend", 7.0,
           "A warm thermal vest with short sleeves and a brushed inside. A first layer for cold days.",
@@ -307,8 +307,8 @@ SHAPE_ROWS = (
     _shape("SWBDFM", "Firm Control Bodysuit", _DH, "Bodysuit", "Firm", "No", 28.0,
            "A firm control bodysuit with side panels that smooth the waist and hips, and a popper gusset.",
            (NUDE, BLACK)),
-    _shape("SWBFMD", "Medium Control Plunge Bodysuit", _HW, "Bra-Friendly Bodysuit", "Medium", "No", 26.0,
-           "A medium control bodysuit with a plunge front and wide-set straps that sit clear of a bra.",
+    _shape("SWBFMD", "Medium Control Bra-Friendly Bodysuit", _HW, "Bra-Friendly Bodysuit", "Medium", "No", 26.0,
+           "A medium control bra-friendly bodysuit with a plunge front and wide-set straps that sit clear of a bra.",
            (NUDE, BLACK, BEIGE)),
     _shape("SWSHLT", "Light Control Smoothing Shorts", _WF, "Shorts", "Light", "Yes", 16.0,
            "Seamless smoothing shorts with light control that stay put under dresses.",
