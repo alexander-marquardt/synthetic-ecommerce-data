@@ -127,9 +127,13 @@ def offered(styles: list[dict]) -> set[str]:
 
 
 def audience(rec: dict) -> str:
-    """Who the style is sold to: the first category_path step (Men, Women, Kids...)."""
+    """Who the style is sold to: the first category_path step (Men, Women, Kids...), except that
+    Baby, a node under Kids since gen#281, is still an audience of its own: its colors are
+    counted apart from the children's, as they were when it was a root."""
     path = rec["category_path"]
-    return path if isinstance(path, str) else path[0]
+    if isinstance(path, str):
+        return path
+    return "Baby" if path[:2] == ["Kids", "Baby"] else path[0]
 
 
 def groups(tpls: list[dict]) -> dict[tuple[str, str], list[dict]]:

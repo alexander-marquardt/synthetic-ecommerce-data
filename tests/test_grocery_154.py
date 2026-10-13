@@ -47,7 +47,7 @@ def values(entries: list[dict], key: str) -> set[str]:
 
 
 def food(doc: dict) -> bool:
-    return values(doc["attributes"], "department") == {"Food & Drink"}
+    return doc["category_path"][0] == "Food & Drink"
 
 
 def test_the_build_holds_its_exact_counts() -> None:
@@ -92,7 +92,7 @@ def test_no_flat_sku_contains_what_another_flavor_of_its_style_contains() -> Non
     nested = {v["sku"]: v for d in docs() for v in d["variants"]}
     bad = []
     for row in grocery.flat(list(docs())):
-        if "Food & Drink" not in values(row["attributes"], "department"):
+        if row["category_path"][0] != "Food & Drink":
             continue
         for key in ("contains", "may_contain"):
             if set(row["facets"].get(key, [])) != values(nested[row["sku"]]["attributes"], key):

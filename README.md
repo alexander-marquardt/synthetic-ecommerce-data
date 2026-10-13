@@ -1261,8 +1261,8 @@ dietary claims).
 `prototypes/retail_drawings/export.py` turns the 328-style build into that
 standard: `skus` become `variants`, each SKU option a variant-level attribute
 entry (a measurement split into `value`, `unit_code` and `value_canonical`);
-department, color and size options, the offer flags, rating and the other
-retail-only fields become product-level entries; `image_id` is
+color and size options, the offer flags, rating and the other
+retail-only fields become product-level entries (no `department`: see below); `image_id` is
 `<product type>/<product id>/<drawing spec digest>`, one per style and
 colorway, served under `/images/retail` from the image release
 ([The retail image release](#the-retail-image-release)). Every record states
@@ -1335,13 +1335,28 @@ combinations the product's SKUs offer.
 
 **The audience facet and the spelling of a facet**. The tree keeps its Women, Men
 and Kids roots, and every SKU of a worn department (Clothing, Footwear, Lingerie & Nightwear),
-or under a Women, Men, Kids or Baby root, also carries exactly one `audience`: `Womens`, `Mens`,
+or under a Women, Men or Kids root, also carries exactly one `audience`: `Womens`, `Mens`,
 `Girls`, `Boys`, `Baby` or `Unisex` (`audience.py`; a template's own value wins, `Kids/Girls`
-is Girls, `Kids/Boys` is Boys, the rest of Kids is Unisex). A product type has one name:
+is Girls, `Kids/Boys` is Boys, `Kids/Baby` is Baby, the rest of Kids is Unisex). A product type has one name:
 "Tee" is written "T-Shirt" (`export.PRODUCT_TYPE_FOLDS`; the image ids keep the authored type,
 so none is re-rendered), and `pattern` and `rise` are written in Title Case.
 `tests/test_retail_audience.py` refuses a facet with two values that differ only in case.
 "Cleaning & Janitorial" is a department, not a root: its kitchen cleaners sit under `Cleaning`.
+
+**The store's department is the top level of `category_path`, and no document states one**
+(gen#281). The retail tree has exactly eleven roots: Women, Men, Kids, Food & Drink, Home,
+Beauty, Cleaning, Toys, Gifts, Garden and Accessories. Food sits under Food & Drink, Baby
+under Kids (`Kids > Baby > ...`) and Electricals under Home (`Home > Electricals > ...`), each
+with its subtree intact; a product still sits in one place. The documents carry no
+`department` attribute or flat column (its values mixed audience, Clothing, with product kind,
+Footwear): the one fact it held that no other attribute does, the safety boot's Workwear & PPE,
+is carried by its `safety_rating` and `toe_cap`. A consumer reads the department from
+`category_path[0]`. The build records keep a `department` of their own (`departments.py`'s
+closed list), an internal classification the ceiling build's brand pools, floors and share
+read; `export.DROPPED` keeps it out of every document.
+`tests/test_retail_departments_281.py` holds the root list at every layer, and
+`golden-retail/stats.json` records the ceiling's styles and SKUs per top level
+(`ceiling.top_levels`).
 
 **A fit or a bra style is a filter, not a leaf**. A jean sits at `<Root>/Jeans` and a pair of
 trousers at `<Root>/Trousers`, its fit in `leg_fit` alone (the failure-class rows' `leg_style`
