@@ -649,8 +649,10 @@ def wooden_toy(
 ) -> list[str]:
     """``stacking`` rings on a peg, a ``sorter`` cube and its shapes, a ``train`` on its
     track, a ``puzzle`` board and its pieces (each piece a ``class="piece"`` group, as many
-    as ``counts`` holds), or a ``pull_along`` whale or dog on wheels."""
+    as ``counts`` holds), or a ``pull_along`` whale or dog on wheels. A Natural colorway
+    (``fill.base`` is the wood color) is unpainted, so its body shows the wood's grain."""
     out = [_shadow(200, 344, 170)]
+    natural = fill.base.lower() == WOOD
     if kind == "stacking":
         rings, bases = (_counts(counts, (5, 1)) + [1])[:2]
         out.append(_rect(196, 112, 8, 200, WOOD, 3, LW_DETAIL))
@@ -756,6 +758,7 @@ def wooden_toy(
             ]
             for i, x in enumerate((90, 160, 230)):
                 out += [_rect(x, 210, 72, 66, paint if i % 2 == 0 else _tint(fill.base, 0.2), 14)]
+                out += [_grain(x, 210, 72, 66)] if natural else []
             out += [_ell(318, 196, 42, 34, paint), _path("M300,170 Q290,214 312,226 Q322,196 316,172 Z", _shade(fill.base, 0.3), LW_DETAIL),
                     _ell(354, 204, 7, 7, BLACK, 1), f'<circle cx="330" cy="188" r="4" fill="{INK}"/>',
                     _path("M92,226 Q62,200 70,176", "none", 6, stroke=paint)]  # fmt: skip
@@ -764,6 +767,7 @@ def wooden_toy(
                     _path("M60,230 Q60,150 170,146 Q290,142 320,218 Q326,260 280,282 L110,282 Q60,280 60,230 Z", paint),
                     _path("M320,214 L366,170 Q372,206 352,222 Q376,236 368,268 Z", paint),
                     _path("M80,250 Q180,268 300,250", "none", 1.4, ' stroke-opacity=".6"'),
+                    *([_grain(90, 150, 210, 90)] if natural else []),
                     f'<circle cx="112" cy="206" r="6" fill="{INK}"/>',
                     _line("M150,148 Q144,118 160,104 M150,148 Q160,120 180,114", 2.4, stroke="#2f8fc4")]  # fmt: skip
     return [*out, *_badge(character)]
@@ -1074,11 +1078,11 @@ def ride_on(
                 _rect(62, 56, 28, 18, BLACK, 8, LW_DETAIL), _rect(180, 56, 28, 18, BLACK, 8, LW_DETAIL)]  # fmt: skip
         return [*out, *_badge(character, 350, 120)]
     if kind == "trike":
-        out += [_line("M300,250 L330,60", 6, stroke="#2f2f35"), _path("M316,64 Q330,40 356,56", "none", 8, stroke="#2f2f35"),
+        out += [_line("M304,290 L330,60", 6, stroke="#2f2f35"), _path("M316,64 Q330,40 356,56", "none", 8, stroke="#2f2f35"),
                 _wheel(296, 300, 38, _shade(BLACK, 0.2), STEEL, 6), _wheel(110, 290, 58, BLACK, STEEL, 8),
                 _path("M120,180 L140,180 L250,280 L330,300 L330,312 L240,300 L130,200 Z", paint),
                 _wheel(330, 306, 38, BLACK, STEEL, 6),
-                _rect(206, 196, 76, 20, "#2f2f35", 9), _path("M206,196 Q200,150 230,150 L246,196 Z", "#2f2f35", LW_DETAIL),
+                _line("M244,214 L244,272", 8, stroke="#2f2f35"), _rect(206, 196, 76, 20, "#2f2f35", 9), _path("M206,196 Q200,150 230,150 L246,196 Z", "#2f2f35", LW_DETAIL),
                 _line("M110,290 L120,170", 7, stroke=paint if fill.pattern == "solid" else "#9a9ca0"), _rect(86, 160, 72, 12, "#2f2f35", 6, LW_DETAIL),
                 _rect(96, 280, 34, 10, "#2f2f35", 3, 1.2)]  # fmt: skip
         return [*out, *_badge(character)]

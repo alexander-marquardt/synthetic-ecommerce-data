@@ -35,6 +35,8 @@ import kit_toys  # noqa: F401 -- registers building_set, jigsaw, board_game, dol
 from breadth_rows import Contents, Row
 from variants import cw
 
+from synthetic_ecommerce_data.core.entry import canonical
+
 _T = "Toys"
 _P, _L, _K = "Pipwick Toys", "Little Fernby", "Puddlecombe Toys"
 BABY, TODDLER, KIDS, ADULT = "baby", "toddler", "kids", "adult"
@@ -495,7 +497,7 @@ CRAFT_KITS = (
          (PINK,), (*_craft("Bead Kit", "6+ years"), *_BEADS.attrs),
          _themes(14.0, "Mermaids", "Rainbows"), audience=KIDS, colorless=True,
          params=_cp("bead", _BEADS), size_key="theme"),
-    TRow("CRFSLM", _SLIME.title("Make Your Own Slime Kit"), _K, _T, _CRF, "Arts and Crafts Kit",
+    TRow("CRFSLM", _SLIME.title("Slime Making Kit"), _K, _T, _CRF, "Arts and Crafts Kit",
          13.0, "craft_kit",
          _SLIME.text("Mix, stretch and sparkle: glue-free slime base with glitter to stir "
                      "in. Adult supervision needed. For ages 8 and up."),
@@ -528,7 +530,8 @@ _RID = (_T, "Outdoor Toys", "Ride-On Toys")
 def _ride(kind: str, age: str, kg: int, inches: int, wheels: int, line: str | None = None,
           brand: str = _P) -> tuple:  # fmt: skip
     return (_kind(kind), _age(age), ("max_weight_kg", "Maximum weight", str(kg), "KGM",
-            kg * 1000.0), ("wheel_size_in", "Wheel size", str(inches), "INH", inches * 25.4),
+            canonical(str(kg), "KGM")), ("wheel_size_in", "Wheel size", str(inches), "INH",
+            canonical(str(inches), "INH")),
             _count("wheel_count", "Wheel count", wheels), *(_line(line, brand) if line else ()))  # fmt: skip
 
 
