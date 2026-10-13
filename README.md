@@ -7,7 +7,7 @@ Write-up: [Generating a synthetic industrial product catalog for search demos](h
 **The pictures are drawn by code.** Each is written straight to SVG, from the
 SKU's own attributes, by a small writer in this repository: no image model and
 no photographs. A drawing is deterministic and costs nothing per variant, and it
-is parameterised by product type, brand house style and attributes (colour,
+is parameterised by product type, brand house style and attributes (color,
 pattern, size). Measured on an Apple M3 Pro laptop, `draw_product` drew every
 SKU of `golden-catalog/` at roughly 7,000 drawings a
 second (0.14 ms each, one core; three runs, 6,900 to 7,400 per second).
