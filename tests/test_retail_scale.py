@@ -44,10 +44,10 @@ FIGURES = committed()
 #: the failure classes' products), then the shirts (``shirt_rows``), then the seating
 #: (``sofa_rows``, gen#196), then the household styles (``household_rows``, gen#200), then the
 #: appliances (``appliance_rows``, gen#202), then the underwear (``underwear_rows``, gen#208), then
-#: the toys (``toys_rows``, gen#201), then the lighting rows (``lighting_rows``, gen#197), then
-#: the grocery styles (``grocery.build()``, gen#154), last:
-#: no style derives from a shirt, a seating style, a household style, an appliance, an underwear
-#: style, a toy, a lighting style or a grocery style.
+#: the toys (``toys_rows``, gen#201), then the lower-body styles (``lowerbody_rows``, gen#206), then
+#: the lighting rows (``lighting_rows``, gen#197), then the grocery styles (``grocery.build()``,
+#: gen#154), last: no style derives from a shirt, a seating style, a household style, an appliance,
+#: an underwear style, a toy, a lower-body style, a lighting style or a grocery style.
 SCALE_ROWS = FIGURES["templates"]["scale_rows"]["styles"]
 AUTHORED = FIGURES["templates"]["authored"]["styles"]
 BREADTH_ROWS = FIGURES["templates"]["breadth_rows"]["styles"]
@@ -56,6 +56,7 @@ SHIRT_ROWS = FIGURES["templates"]["shirt_rows"]["styles"]
 ACCESSORY_ROWS = FIGURES["templates"]["accessory_rows"]["styles"]
 SOFA_ROWS = FIGURES["templates"]["sofa_rows"]["styles"]
 HOUSEHOLD_ROWS = FIGURES["templates"]["household_rows"]["styles"]
+LOWERBODY_ROWS = FIGURES["templates"]["lowerbody_rows"]["styles"]
 APPLIANCE_ROWS = FIGURES["templates"]["appliance_rows"]["styles"]
 TOYS_ROWS = FIGURES["templates"]["toys_rows"]["styles"]
 LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
@@ -73,6 +74,7 @@ TEMPLATES = (
     + APPLIANCE_ROWS
     + UNDERWEAR_ROWS
     + TOYS_ROWS
+    + LOWERBODY_ROWS
     + LIGHTING_ROWS
     + GROCERY_ROWS
 )

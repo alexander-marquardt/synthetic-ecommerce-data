@@ -37,7 +37,7 @@ ROWS = accessory_rows.ROWS
 #: ``item_length``, ``size_uk``/``size_us``) are pinned as well as the descriptive ones.
 KEYS = {
     "Handbag": {"bag_style", "material", "closure", "color"},
-    "Backpack": {"use", "capacity", "material", "pockets", "waterproof", "color"},
+    "Backpack": {"use", "capacity", "material", "pocket_count", "waterproof", "color"},
     "Tote Bag": {"size", "material", "closure", "pocket", "color"},
     "Purse": {"purse_type", "material", "closure", "rfid_blocking", "color"},
     "Umbrella": {"umbrella_type", "canopy_diameter", "automatic_open", "windproof",
@@ -79,7 +79,7 @@ def _conditional(row: accessory_rows.ARow) -> set[str]:
 #: the drawing must show when the record states none (a plain ring draws no band; a necklace
 #: that is not layered draws its one chain).
 COUNTED = {
-    "backpack": ("pocket", "pockets", 1),
+    "backpack": ("pocket", "pocket_count", 1),
     "tote_bag": ("pocket", "pocket", 0),
     "purse": ("slot", "card_slots", 0),
     "umbrella": ("rib", "ribs", 0),

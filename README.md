@@ -1367,7 +1367,10 @@ shape in `kit_seating.py`; no derived style copies one, and
 saucepans, frying pans, casserole dishes, kitchen bins, storage boxes, laundry baskets,
 clothes airers and mops, each drawn by `kit_household.py` with the count its record states
 (pans in a set, bin lids, basket compartments, airer tiers); no derived style copies one,
-and `tests/test_retail_household_200.py` holds them), then the small appliances (`appliance_rows.py`, gen#202:
+and `tests/test_retail_household_200.py` holds them), then the lower-body styles (`lowerbody_rows.py`,
+gen#206: leggings, joggers, shorts, cycling shorts, tracksuits and skirts, each drawn by `kit_lowerbody.py`
+with the marks its record states (pockets, cargo pockets, belt loops, pieces, tiers, a pad); no derived
+style copies one, and `tests/test_retail_lowerbody_206.py` holds them), then the small appliances (`appliance_rows.py`, gen#202:
 desk, pedestal, tower, ceiling and handheld fans, heaters, kettles
 and toasters, each drawn by `kit_appliances.py`; none is derived from), then the underwear and nightwear (`underwear_rows.py`, gen#208: knickers,
 tights, vests, slips, shapewear, dressing gowns and boxers with a pack axis,

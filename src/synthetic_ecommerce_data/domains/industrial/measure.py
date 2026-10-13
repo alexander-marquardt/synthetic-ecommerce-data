@@ -22,6 +22,10 @@ from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
 from synthetic_ecommerce_data.core.model import Catalog
 from synthetic_ecommerce_data.domains.industrial.price_report import price_comparisons
+from synthetic_ecommerce_data.domains.industrial.product_split import (
+    skus_per_product,
+    split_products,
+)
 from synthetic_ecommerce_data.domains.industrial.vocab import (
     MEASUREMENT_SYSTEM_NAMES,
     STANDARDS_NAME,
@@ -307,6 +311,8 @@ def measure(catalog: Catalog, config: GeneratorConfig | None = None) -> dict[str
         "skus": catalog.sku_count,
         "lines_by_type": dict(by_type),
         "skus_by_type": dict(skus_by_type),
+        "skus_per_product_by_type": skus_per_product(catalog),
+        "products_disagreeing_on_a_product_constant": len(split_products(catalog)),
         "attribute_names_by_type": {k: sorted(v) for k, v in names_by_type.items()},
         "total_attribute_entries": sum(attrs_per_record),
         "comparisons": comparisons,

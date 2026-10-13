@@ -22,6 +22,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from fractions import Fraction
 
+import audience
 import kit_accessories  # noqa: F401 -- registers handbag, backpack, tote_bag, ...
 from breadth_rows import OWNERS, Row
 from variants import cw
@@ -34,6 +35,9 @@ for _brand, _owner in {"Marrowgate": "third_party", "Pellbrook": "third_party",
 _CL = "Clothing"
 _M, _P, _O, _T, _W, _H = ("Marrowgate", "Pellbrook", "Osier & Vane", "Tallow Street", "Wrenfield",
                           "Harbour & Pine")  # fmt: skip
+#: A bag, purse or umbrella sits under no people root, so its audience is declared here, the way
+#: every worn SKU has one (:mod:`audience`).
+WOMENS, UNISEX = audience.WOMENS, audience.UNISEX
 _BAGS = ("Accessories", "Bags")
 _JEW = ("Women", "Jewellery")
 
@@ -63,6 +67,11 @@ class ARow(Row):
 
 def _a(key: str, name: str, v: str) -> tuple[str, str, str]:
     return (key, name, v)
+
+
+def _who(attrs: tuple, who: str) -> tuple:
+    """``attrs`` plus the audience facet this row's SKUs carry."""
+    return (*attrs, _a("audience", "Audience", who))
 
 
 def _count(key: str, name: str, n: int) -> tuple[str, str, str, str]:
@@ -119,7 +128,7 @@ def _hb(material: str, closure: str, strap: str | None, style: str, *more: tuple
 
 
 def _hrow(code, title, brand, price, desc, colors, attrs, sizes, style, flap, strap="leather") -> ARow:  # fmt: skip
-    return ARow(code, title, brand, _CL, _HB, "Handbag", price, "handbag", desc, colors, attrs,
+    return ARow(code, title, brand, _CL, _HB, "Handbag", price, "handbag", desc, colors, _who(attrs, WOMENS),
                 sizes, params=(("style", style), ("flap", flap), ("strap", strap)))
 
 
@@ -187,13 +196,13 @@ _BP = (*_BAGS, "Backpacks")
 
 def _bp(use: str, material: str, pockets: int, waterproof: bool, laptop: float | None) -> tuple:
     return (_a("use", "Use", use), _a("material", "Material", material),
-            _count("pockets", "Pockets", pockets),
+            _count("pocket_count", "Pocket count", pockets),
             _a("waterproof", "Waterproof", "Yes" if waterproof else "No"),
             *((_inch("laptop_size", "Laptop size", laptop),) if laptop else ()))  # fmt: skip
 
 
 def _brow(code, title, brand, price, desc, colors, attrs, caps, use, pockets) -> ARow:  # fmt: skip
-    return ARow(code, title, brand, _CL, _BP, "Backpack", price, "backpack", desc, colors, attrs,
+    return ARow(code, title, brand, _CL, _BP, "Backpack", price, "backpack", desc, colors, _who(attrs, UNISEX),
                 caps, params=(("use", use), ("pockets", str(pockets))), size_key="capacity_l")
 
 
@@ -244,7 +253,7 @@ def _tb(size: str, material: str, closure: str, pocket: bool, *more: tuple) -> t
 
 
 def _trow(code, title, brand, price, desc, colors, attrs, gusset, pocket) -> ARow:  # fmt: skip
-    return ARow(code, title, brand, _CL, _TB, "Tote Bag", price, "tote_bag", desc, colors, attrs,
+    return ARow(code, title, brand, _CL, _TB, "Tote Bag", price, "tote_bag", desc, colors, _who(attrs, UNISEX),
                 params=(("gusset", gusset), ("pocket", "yes" if pocket else "no")))
 
 
@@ -291,7 +300,7 @@ def _pu(kind: str, material: str, rfid: bool, closure: str, slots: int = 0) -> t
 
 
 def _prow(code, title, brand, price, desc, colors, attrs, kind, closure, slots=0) -> ARow:  # fmt: skip
-    return ARow(code, title, brand, _CL, _PU, "Purse", price, "purse", desc, colors, attrs,
+    return ARow(code, title, brand, _CL, _PU, "Purse", price, "purse", desc, colors, _who(attrs, WOMENS),
                 params=(("type", kind), ("closure", closure), ("slots", str(slots))))
 
 
@@ -345,7 +354,7 @@ def _um(kind: str, auto: bool, windproof: bool, uv: bool, ribs: int, *more: tupl
 
 
 def _urow(code, title, brand, price, desc, colors, attrs, canopy, state, handle, ribs) -> ARow:  # fmt: skip
-    return ARow(code, title, brand, _CL, _UM, "Umbrella", price, "umbrella", desc, colors, attrs,
+    return ARow(code, title, brand, _CL, _UM, "Umbrella", price, "umbrella", desc, colors, _who(attrs, UNISEX),
                 canopy, params=(("state", state), ("handle", handle), ("ribs", str(ribs))),
                 size_key="canopy_cm")
 
