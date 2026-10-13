@@ -11,12 +11,14 @@ shape           draws                                               params
 plate           a plate in three-quarter view, its rim and well,    kind, diameter, finish
                 drawn to scale over a dimension line
 bowl            a bowl from the side, its rim showing the inside    kind
-cutlery_piece   one piece, or a pack's count fanned from one point  piece, handle, count
+cutlery_piece   one piece, or a pack's count fanned from one point  piece, handle, count, edge
 kitchen_knife   a knife lying flat, its blade drawn to scale; a     kind, blade, blade_max
                 block set draws the block and its handles
 drinking_glass  a glass in the record's tint: stemmed or tumbler    kind
 kitchen_utensil one utensil standing up, or a set in its pot        kind, material
 chopping_board  a board in three-quarter view with a handle hole    material
+grill_press     a cast-iron steak weight: a ribbed slab under a     --
+                wooden bar handle
 colander        a perforated bowl on a foot ring, with handles      material
 ==============  ==================================================  =======================
 
@@ -211,6 +213,7 @@ def bowl(paint: str, fill: Fill, label: str | None, kind: str = "cereal") -> lis
 PIECES = {
     "dinner knife": ("knife", 290, 1.0),
     "steak knife": ("steak", 280, 1.0),
+    "steak knife and fork": ("steak", 280, 1.0),
     "dinner fork": ("fork", 285, 1.0),
     "dessert spoon": ("spoon", 255, 0.9),
     "teaspoon": ("spoon", 200, 0.68),
@@ -218,7 +221,7 @@ PIECES = {
 }
 
 
-def _cutlery_head(head: str, top: float, s: float, metal: str) -> list[str]:
+def _cutlery_head(head: str, top: float, s: float, metal: str, edge: str = "serrated") -> list[str]:
     """The working end of one piece, its tip at ``top``, centred on x = 0."""
     if head == "fork":
         w, tine = 19 * s, 56 * s
@@ -252,6 +255,14 @@ def _cutlery_head(head: str, top: float, s: float, metal: str) -> list[str]:
                 3,
                 0.8,
             ),
+        ]
+    if head == "steak" and edge == "straight":  # a plain pointed blade, no teeth
+        return [
+            _path(
+                f"M2,{top:.1f} Q12,{top + 40:.1f} 11,{top + 140:.1f} L-11,{top + 140:.1f} L-11,{top + 30:.1f} Q-8,{top + 14:.1f} 2,{top:.1f} Z",
+                metal,
+            ),
+            _highlight(f"M-5,{top + 34:.1f} L-5,{top + 128:.1f}", 3, 0.7),
         ]
     if head == "steak":
         teeth = " ".join(f"L{-11 + (i % 2) * 4:.1f},{top + 30 + i * 8:.1f}" for i in range(14))
@@ -299,26 +310,30 @@ def _cutlery_handle(handle: str, y0: float, y1: float, paint: str, fill: Fill) -
 
 
 def cutlery_piece(paint: str, fill: Fill, label: str | None, piece: str = "dinner fork",
-                  handle: str = "plain", count: str = "1") -> list[str]:  # fmt: skip
+                  handle: str = "plain", count: str = "1",
+                  edge: str = "serrated") -> list[str]:  # fmt: skip
     """One piece of cutlery standing up, in the record's finish; a pack fans its count.
 
     The piece's head (tines, a spoon's bowl, a rounded or a serrated pointed blade) and
     its length on the sheet tell the pieces apart: a teaspoon is short, a serving spoon
-    long. A wooden handle is wood with two rivets; a hammered one carries its dimples."""
+    long. A wooden handle is wood with two rivets; a hammered one carries its dimples. A
+    steak knife's ``edge`` is serrated (teeth) or straight (plain). A ``steak knife and
+    fork`` set fans its knives and forks alternately, ``count`` pieces in all."""
     head, length, s = PIECES.get(piece, PIECES["dinner fork"])
     n = max(1, min(int(_num(count, 1)), 8))
     pivot_y = 340.0
-    top = pivot_y - length
-    neck = top + (
-        140 if head in ("knife", "steak") else 56 * s + 62 * s if head == "fork" else 36 * s * 2.3
-    )
     metal = paint
     step = 34 / max(n - 1, 1) if n > 1 else 0
     steps = [-(n - 1) * step / 2 + i * step for i in range(n)]
     out = [_shadow(200, pivot_y + 10, 70 + 10 * n)]
-    for angle in steps:
+    for i, angle in enumerate(steps):
+        h, ln, sc = ("fork", 285, 1.0) if piece == "steak knife and fork" and i % 2 else (head, length, s)
+        top = pivot_y - ln
+        neck = top + (
+            140 if h in ("knife", "steak") else 56 * sc + 62 * sc if h == "fork" else 36 * sc * 2.3
+        )
         parts = [
-            *_cutlery_head(head, top, s, metal),
+            *_cutlery_head(h, top, sc, metal, edge),
             *_cutlery_handle(handle, neck, pivot_y, paint, fill),
         ]
         out.append(
@@ -827,6 +842,29 @@ def colander(
     return out
 
 
+def grill_press(paint: str, fill: Fill, label: str | None) -> list[str]:
+    """A cast-iron steak weight (grill press): a ribbed slab seen from above and in front,
+    a wooden bar handle on two posts. The slab is the record's color."""
+    face = "M64,236 L250,190 L340,240 L154,290 Z"
+    edge_l = _path("M64,236 L154,290 L154,314 L64,260 Z", _shade(fill.base, 0.3))
+    edge_r = _path("M154,290 L340,240 L340,264 L154,314 Z", _shade(fill.base, 0.2))
+    ribs = " ".join(
+        f"M{64 + (250 - 64) * t:.1f},{236 + (190 - 236) * t:.1f} L{154 + (340 - 154) * t:.1f},{290 + (240 - 290) * t:.1f}"
+        for t in (i / 7 for i in range(1, 7))
+    )
+    return [
+        _shadow(200, 330, 150),
+        edge_l,
+        edge_r,
+        _path(face, paint, extra=' class="slab"'),
+        _line(ribs, 2.2, ' stroke-opacity=".55"', _shade(fill.base, 0.5)),
+        _path("M168,246 L168,186 L186,186 L186,242 Z", STEEL),
+        _path("M232,234 L232,174 L250,174 L250,230 Z", STEEL),
+        _path("M156,172 Q208,148 262,166 L262,184 Q208,168 156,190 Z", WOOD, extra=' class="handle"'),
+        _highlight(f"M{110},{240} L{200},{214}", 4, 0.4),
+    ]
+
+
 register({
     "plate": plate,
     "bowl": bowl,
@@ -836,8 +874,9 @@ register({
     "kitchen_utensil": kitchen_utensil,
     "chopping_board": chopping_board,
     "colander": colander,
+    "grill_press": grill_press,
 })  # fmt: skip
 
 #: The shapes this module adds, in its table's order.
 SHAPES = ("plate", "bowl", "cutlery_piece", "kitchen_knife", "drinking_glass",
-          "kitchen_utensil", "chopping_board", "colander")  # fmt: skip
+          "kitchen_utensil", "chopping_board", "colander", "grill_press")  # fmt: skip

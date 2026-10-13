@@ -2,24 +2,24 @@
  "ceiling": {
   "derived_styles": 4517,
   "food_and_drink": {
-   "skus": 11329,
-   "styles": 4082
+   "skus": 11383,
+   "styles": 4109
   },
   "food_and_drink_tree": {
    "Food": 27,
-   "Food & Drink": 11302
+   "Food & Drink": 11356
   },
   "grocery": {
-   "skus": 12128,
-   "styles": 4386
+   "skus": 12182,
+   "styles": 4413
   },
-  "images": 14810,
+  "images": 14867,
   "non_grocery": {
-   "skus": 93735,
-   "styles": 5567
+   "skus": 92780,
+   "styles": 5577
   },
-  "skus": 110356,
-  "styles": 10277
+  "skus": 109455,
+  "styles": 10314
  },
  "departments": {
   "Beauty": 212,
@@ -29,7 +29,7 @@
   "Footwear": 494,
   "Garden": 219,
   "Gifts": 349,
-  "Home": 1655,
+  "Home": 1665,
   "Lingerie & Nightwear": 617,
   "Toys": 320
  },
@@ -326,6 +326,10 @@
    "skus": 36,
    "styles": 18
   },
+  "STK": {
+   "skus": 36,
+   "styles": 18
+  },
   "STQ": {
    "skus": 28,
    "styles": 14
@@ -353,6 +357,10 @@
   "TIN": {
    "skus": 358,
    "styles": 179
+  },
+  "TUS": {
+   "skus": 18,
+   "styles": 9
   },
   "VEG": {
    "skus": 180,
@@ -396,7 +404,7 @@
   }
  },
  "grocery_values": {
-  "checked": 14988,
+  "checked": 15078,
   "named_but_not_carried": {
    "contains": 576,
    "flavor": 1932,
@@ -406,15 +414,15 @@
   }
  },
  "near_duplicates": {
-  "grocery": 0.0337,
+  "grocery": 0.034,
   "grocery_grid_clones": 4,
   "non_grocery": 0.0174,
-  "non_grocery_grid_clone_rate": 0.1286
+  "non_grocery_grid_clone_rate": 0.1343
  },
  "templates": {
   "all": {
-   "skus": 48040,
-   "styles": 5760
+   "skus": 48101,
+   "styles": 5797
   },
   "appliance_rows": {
    "skus": 124,
@@ -426,20 +434,20 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 35912,
-   "styles": 1374
+   "skus": 35919,
+   "styles": 1384
   },
   "breadth_rows": {
    "skus": 664,
    "styles": 310
   },
   "distractor_rows": {
-   "skus": 3674,
-   "styles": 279
+   "skus": 3684,
+   "styles": 289
   },
   "grocery": {
-   "skus": 12128,
-   "styles": 4386
+   "skus": 12182,
+   "styles": 4413
   },
   "household_rows": {
    "skus": 147,
