@@ -65,6 +65,9 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "size_us": ("size_us", "Size (US)", None),
     "length": ("length", "Length", None),
     "inside_leg": ("inside_leg", "Inside leg", None),
+    # A skirt's Petite/Regular/Long fit; not ``length``, which the Combined projection renames to
+    # the style's ``garment_length`` (gen#279).
+    "fit_length": ("fit_length", "Fit length", None),
     "inside_leg_in": ("inside_leg_length", "Inside leg length", "INH"),
     "waist": ("waist", "Waist", None),
     "bed_size": ("bed_size", "Bed size", None),
