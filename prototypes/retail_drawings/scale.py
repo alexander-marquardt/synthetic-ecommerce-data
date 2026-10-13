@@ -110,6 +110,7 @@ import grocery  # noqa: E402
 import household_rows  # noqa: E402
 import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
+import main_colors  # noqa: E402
 import scale_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
@@ -234,11 +235,13 @@ TOY_IDS = frozenset(f"BRD-{r.code}" for r in toys_rows.ROWS)
 LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 
 
-def templates() -> list[dict]:
+def templates(baseline: bool = True) -> list[dict]:
     """The authored styles, then :mod:`scale_rows`, :mod:`breadth_rows` and
     :mod:`distractor_rows`, :mod:`shirt_rows`, :mod:`sofa_rows`, :mod:`household_rows`,
     :mod:`appliance_rows`, :mod:`underwear_rows`, :mod:`toys_rows`, :mod:`lowerbody_rows`
     and :mod:`lighting_rows` (gen#197), then the :mod:`grocery` styles (gen#154), in build order.
+
+    ``baseline`` adds each type's missing main colors (:mod:`main_colors`, gen#275).
 
     Grocery is last, so a build under the other templates' SKUs is what it was. The main
     build's own 55 Food & Drink styles stay (the failure classes and the Elasticsearch proof
@@ -250,12 +253,13 @@ def templates() -> list[dict]:
     ``test_grocery_style_attributes_list_the_values_of_their_skus``,
     ``test_no_grocery_title_or_description_names_a_value_no_sku_carries``)."""
     authored = (r for recs in samples().values() for r in recs)
-    return [
+    tpls = [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
         *shirt_rows.docs(), *sofa_rows.docs(), *household_rows.docs(), *appliance_rows.docs(),
         *underwear_rows.docs(), *toys_rows.docs(), *lowerbody_rows.docs(), *lighting_rows.docs(),
         *grocery.build(),
     ]  # fmt: skip
+    return main_colors.complete(tpls) if baseline else tpls
 
 
 def derivable(tpls: list[dict]) -> list[dict]:
