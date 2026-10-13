@@ -11,6 +11,8 @@ butter_block    a foil-wrapped block of butter, the foil folded       --
                 at the end and peeled back to show the butter
 lidded_tub      a tapering tub with a snap-on lid and a thumb         --
                 tab (ice cream, a spread)
+steak_tray      a black tray under film holding one cut of meat:      --
+                a fat rim, marbling and a label on the tray (a steak)
 ==============  ===================================================  ======
 
 Each paints the record's fill on the pack's main surface and carries the product
@@ -78,4 +80,24 @@ def lidded_tub(paint: str, fill: Fill, label: str | None) -> list[str]:
     ]
 
 
-register({"bar": bar, "bag": bag, "butter_block": butter_block, "lidded_tub": lidded_tub})
+def steak_tray(paint: str, fill: Fill, label: str | None) -> list[str]:
+    """A black tray under film holding one steak: its fat rim, marbling and a label panel.
+
+    The meat is the record's fill; the rim is a lighter tone of it and the marbling a pale
+    streak, so a sirloin, a ribeye and a minute steak differ by color and by their label."""
+    fat = _mix(fill.base, "#fff4e6", 0.7)
+    meat = "M92,246 C88,214 138,198 192,202 C250,196 312,210 310,248 C308,284 252,298 196,294 C140,296 96,282 92,246 Z"
+    return [
+        _path("M52,190 L348,190 L328,326 L72,326 Z", "#3a3d42"),
+        f'<rect x="38" y="156" width="324" height="44" rx="14" fill="{_mix("#3a3d42", "#ffffff", 0.25)}" stroke="{INK}" stroke-width="{LW}"/>',
+        _path("M62,206 L338,206 L324,316 L76,316 Z", _mix("#f4efe6", "#ffffff", 0.4), 1.4),
+        _path(meat, fat, extra=' class="steak"'),
+        _path("M104,246 C102,222 142,210 192,214 C246,208 298,220 296,248 C294,276 248,286 196,282 C146,284 106,272 104,246 Z", paint, 1.4, ' class="lean"'),
+        _line("M134,238 Q160,226 188,236 M214,230 Q246,222 272,238 M150,262 Q184,252 214,262 M232,258 Q256,252 276,262", 2.2, ' stroke-opacity=".55"', _mix(fill.base, "#fff4e6", 0.8)),
+        _line("M72,170 L340,170", 1.2, ' stroke-opacity=".5"', "#ffffff"),
+        *_panel(206, 268, 130, 46, label, 30),
+    ]
+
+
+register({"bar": bar, "bag": bag, "butter_block": butter_block, "lidded_tub": lidded_tub,
+          "steak_tray": steak_tray})
