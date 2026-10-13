@@ -4,7 +4,8 @@ On the 76K-SKU build, "mattress topper", "balloon jeans" and "petite sale" did n
 fail without a policy: the catalog lacked the products that win. Each test holds that
 the distractors exist, out-signal the true answers, and win the no-policy baseline
 (:mod:`baseline_rank`: BM25 times popularity). The four classes that already failed
-(gift bag, boat neck, bomber, cups) are held too, so growing the catalog cannot undo them.
+(gift bag, boat neck, bomber, cups) are held too, and so is "steak" (gen#264: steak knives
+lead, beef steaks follow), so growing the catalog cannot undo them.
 """
 
 from __future__ import annotations
@@ -101,6 +102,44 @@ def test_a_petite_sale_search_without_a_policy_shows_nothing_both_petite_and_on_
     assert sum(not d.get("was_price") for d in top) == 10
 
 
+def _steak_knife(doc: dict) -> bool:
+    return doc["title"].lower().startswith(("steak knife", "steak knives"))
+
+
+def _beef_steaks(catalog: list[dict]) -> list[dict]:
+    return [d for d in catalog if d["product_type"] == "Meat" and "steak" in d["title"].lower()
+            and d["category_path"][:2] == ["Food & Drink", "Meat & Fish"]]  # fmt: skip
+
+
+def test_the_steak_rows_are_the_distractors_and_the_true_answers(ceiling) -> None:
+    knives = [d for d in ceiling if d["product_type"] == "Cutlery" and _steak_knife(d)]
+    assert len(knives) >= 6
+    assert sum(len(d["title"].split()) <= 5 for d in knives) >= 2
+    assert all(d["description"].lower().count("steak") >= 1 for d in knives)
+    steaks = _beef_steaks(ceiling)
+    cuts = {c for c in ("sirloin", "ribeye", "fillet", "rump", "striploin", "minute")
+            if any(c in d["title"].lower() for d in steaks)}  # fmt: skip
+    assert len(cuts) == 6, cuts
+    assert len(steaks) >= 6
+    # Honest text: a steak title runs to four words or more and says "steak" once.
+    assert all(len(d["title"].split()) >= 4 and d["title"].lower().count("steak") == 1
+               for d in steaks)  # fmt: skip
+    assert {d["product_id"] for d in dr.docs() if "steak" in d["title"].lower()} >= \
+        {f"PLT-DSK{n:02d}" for n in range(1, 11)}  # fmt: skip
+    tuna = [d for d in ceiling if "tuna steak" in d["title"].lower()]
+    assert tuna and all(d["category_path"][:3] == ["Food & Drink", "Food Cupboard", "Tinned"]
+                        for d in tuna)  # fmt: skip
+
+
+def test_a_steak_search_without_a_policy_leads_with_knives(index) -> None:
+    top = br.rank(index, "steak", 20)
+    first = top[0]
+    assert first["department"] != ["Food & Drink"] and first["product_type"] == "Cutlery"
+    assert _steak_knife(first)
+    # Steaks are in the top 20, so a policy has somewhere to send the shopper.
+    assert [d for d in top if d["product_type"] == "Meat"]
+
+
 def test_the_new_rows_are_deterministic() -> None:
     assert [s.doc() for s in dr.STYLES] == [s.doc() for s in dr.STYLES]
     assert dr.docs() == dr.docs()
@@ -124,3 +163,5 @@ def test_the_classes_that_already_failed_still_fail_without_a_policy(index) -> N
     # Asserts only: a Bra is still in the top 3, so the class still fails (the grocery fold
     # put a Mug first, so the exact list is not pinned).
     assert "Bra" in [d["product_type"] for d in cups]
+    steak = br.rank(index, "steak", 1)
+    assert steak[0]["category_path"][0] != "Food & Drink"
