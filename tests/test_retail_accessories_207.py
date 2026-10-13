@@ -204,3 +204,26 @@ def test_the_jute_tote_description_names_the_closure_it_states() -> None:
 def test_every_polka_dot_umbrella_sku_is_polka_dot() -> None:
     row = next(r for r in ROWS if r.code == "UMBPOL")
     assert [c[1] for c in row.colors] == ["polka"] * len(row.colors)
+
+
+#: The audience each accessory type declares (bags and purses are a woman's, a backpack, a
+#: tote and an umbrella are for anyone, jewelry takes it from its ``Women`` path).
+AUDIENCE = {
+    "Handbag": "Womens", "Purse": "Womens",
+    "Backpack": "Unisex", "Tote Bag": "Unisex", "Umbrella": "Unisex",
+    "Necklace": "Womens", "Bracelet": "Womens", "Ring": "Womens",
+}  # fmt: skip
+
+
+@pytest.mark.timeout(300)
+def test_every_accessory_type_declares_its_pinned_audience() -> None:
+    """``test_every_worn_sku_has_exactly_one_audience`` only checks a value exists; this pins
+    which one, read off the built SKUs, so a flipped type goes red."""
+    assert set(AUDIENCE) == set(KEYS)
+    built = scale.build(10_000_000)
+    got: dict[str, set[str]] = collections.defaultdict(set)
+    for doc in scale.documents(built):
+        if doc["product_id"] in scale.ACCESSORY_IDS:
+            for sku in scale.flat([doc]):
+                got[sku["product_type"]] |= set(sku["facets"]["audience"])
+    assert {t: sorted(a) for t, a in got.items()} == {t: [a] for t, a in AUDIENCE.items()}
