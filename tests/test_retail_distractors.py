@@ -22,6 +22,8 @@ if str(RETAIL) not in sys.path:
 
 import baseline_rank as br  # noqa: E402
 import distractor_rows as dr  # noqa: E402
+import kit  # noqa: E402
+import kit_tableware  # noqa: E402
 import scale  # noqa: E402
 
 
@@ -132,6 +134,9 @@ def test_the_steak_rows_are_the_distractors_and_the_true_answers(ceiling) -> Non
 
 
 def test_a_steak_search_without_a_policy_leads_with_knives(index) -> None:
+    """A knife must lead on purpose: it is the planted demo collision (a food noun modifying a
+    tool), which a policy later redirects to the beef node. If a beef steak led here, the
+    collision would not exist and the policy would have nothing to fix."""
     top = br.rank(index, "steak", 20)
     first = top[0]
     assert first["department"] != ["Food & Drink"] and first["product_type"] == "Cutlery"
@@ -165,3 +170,63 @@ def test_the_classes_that_already_failed_still_fail_without_a_policy(index) -> N
     assert "Bra" in [d["product_type"] for d in cups]
     steak = br.rank(index, "steak", 1)
     assert steak[0]["category_path"][0] != "Food & Drink"
+
+
+_FILL = kit.Fill("solid", "#123456", "#654321")
+
+
+def _cutlery(**params: str) -> str:
+    base = {"piece": "steak knife", "handle": "wooden", "count": "1", "edge": "serrated"}
+    return kit.render("cutlery_piece", _FILL, uid="c", params={**base, **params})
+
+
+def test_the_steak_tray_paints_the_records_color_and_shows_its_label() -> None:
+    svg = kit.render("steak_tray", _FILL, label="Ribeye", uid="t")
+    assert "#123456" in svg and "Ribeye" in svg
+    assert 'class="lean"' in svg
+    striped = kit.render("steak_tray", kit.Fill("stripe", "#abcdef", "#fedcba"), uid="s")
+    assert "url(#fill-s)" in striped
+
+
+def test_the_grill_press_is_a_slab_in_the_records_color_with_a_handle() -> None:
+    svg = kit.render("grill_press", _FILL, uid="g")
+    assert 'class="slab"' in svg and 'class="handle"' in svg and "#123456" in svg
+
+
+def test_a_straight_edge_steak_knife_draws_differently_from_a_serrated_one() -> None:
+    assert _cutlery(edge="straight") != _cutlery(edge="serrated")
+    # Each steak-knife row's drawn edge is the edge its attribute states.
+    for s in dr.STEAK_KNIVES:
+        stated = {k: v for k, _, v in s.extra}["edge"].lower()
+        assert dict(s.params)["edge"] == stated, s.code
+
+
+def test_a_knife_and_fork_set_fans_forks_among_its_knives() -> None:
+    fork = kit_tableware._cutlery_head("fork", 340 - 285, 1.0, "#123456")[0]
+    both = _cutlery(piece="steak knife and fork", count="4")
+    knives = _cutlery(piece="steak knife", count="4")
+    assert fork in both and fork not in knives
+    assert both.count('class="piece"') == 4
+
+
+def test_the_steak_knife_rows_state_what_they_draw() -> None:
+    for s in dr.STEAK_KNIVES:
+        attrs = {k: v for k, _, v in s.extra}
+        # The handle attribute names the handle drawn; a black one is "Black", not "Plain".
+        assert attrs["handle"].lower() == dict(s.params)["handle"], s.code
+        if "Black" in s.title:
+            assert attrs["handle"] == "Black", s.code
+        # The title's set size is the pack the row sells.
+        if "Set of" in s.title:
+            assert f"Set of {s.units_per_pack}" in s.title, s.code
+
+
+def test_each_beef_cut_has_its_own_description(ceiling) -> None:
+    cuts = ("Sirloin", "Ribeye", "Fillet", "Rump", "Striploin", "Minute")
+    by_cut: dict[str, set[str]] = {}
+    for d in _beef_steaks(ceiling):
+        cut = next(c for c in cuts if c in d["title"])
+        by_cut.setdefault(cut, set()).add(d["description"].split(". ")[1])
+    assert set(by_cut) == set(cuts)
+    assert all(len(v) == 1 for v in by_cut.values()), by_cut
+    assert len({next(iter(v)) for v in by_cut.values()}) == 6

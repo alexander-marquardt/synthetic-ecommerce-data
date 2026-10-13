@@ -163,6 +163,18 @@ _BODY_SCENTS = (
 )
 _BODY_BRANDS = ("Brightwater Botanics", "Velling Apothecary", "Orrin Skin")
 
+#: A beef cut's own description sentence, by (family code, flavor name): what the cut is and how
+#: it cooks, so the six cuts do not share one template (gen#269). Words the SKUs do not carry
+#: (a weight, a price) stay out.
+CUT_NOTES = {
+    ("STK", "Sirloin Steak"): "A lean cut from the back with a thin edge of fat, best seared hot and left to rest.",
+    ("STK", "Ribeye Steak"): "A well marbled cut from the rib that stays juicy, cooked quickly in a hot pan or on the grill.",
+    ("STK", "Fillet Steak"): "The most tender cut, from the tenderloin, with a mild flavour; cook it briefly and rare to medium.",
+    ("STK", "Rump Steak"): "A full flavoured cut from the hindquarter with a firm bite, good marinated and sliced across the grain.",
+    ("STK", "Striploin Steak"): "A cut from the loin with a firm texture and a strip of fat along one side that crisps as it cooks.",
+    ("STK", "Minute Steaks"): "Thin cuts of topside that cook through in a minute or two a side, for a quick supper or a sandwich.",
+}
+
 FAMILIES: tuple[Family, ...] = (
     # Chocolate & Sweets
     Family("CHB", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} Chocolate Bar", "Chocolate Bar",

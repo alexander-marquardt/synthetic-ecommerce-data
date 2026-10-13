@@ -84,7 +84,8 @@ def _quotations(stats: dict) -> dict[str, str]:
                 text = f"{value * 100:.{places}f}"
                 patterns[f"{name}@{places}"] = rf"(?<![\d.]){re.escape(text)}\s*%"
         elif value >= 1000:
-            plain = rf"(?<![\d.,_]){value}(?![\d,_])"
+            # A standard's number is not a total: "ISO 4014" is a bolt standard (the README).
+            plain = rf"(?<!ISO )(?<!DIN )(?<![\d.,_]){value}(?![\d,_])"
             grouped = rf"(?<![\d.,_]){value:,}(?!\d)|(?<![\d.,_]){value:_}(?!\d)"
             patterns[name] = f"{plain}|{grouped}"
         else:
