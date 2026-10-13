@@ -1,6 +1,6 @@
 """Who a garment, shoe, lingerie or accessory is for: ``facets.audience`` on every such SKU.
 
-The category tree keeps its Women / Men / Kids roots, and the audience is an attribute
+The category tree keeps its Women / Men / Kids roots (Baby is a node under Kids), and the audience is an attribute
 beside it: ``Womens``, ``Mens``, ``Girls``, ``Boys``, ``Baby`` or ``Unisex``. A search for
 "mens jeans" then filters ``audience`` and ``product_type`` rather than leaning on the
 path, and a kids' style is no longer the one kind of garment with no audience value.
@@ -12,7 +12,7 @@ filled in here, from the category path, by :func:`export.standard_document`:
 - ``Kids/Girls/...`` is Girls and ``Kids/Boys/...`` is Boys; every other ``Kids/...`` node
   (shoes, tops, nightwear, school uniform) is sold to both, so it is Unisex, unless the
   style's own age group is baby, which is Baby;
-- ``Baby/...`` is Baby.
+- ``Kids/Baby/...`` is Baby.
 
 A template's own value always wins, and exactly one value is written (a SKU is never both).
 """
@@ -25,7 +25,7 @@ WOMENS, MENS, GIRLS, BOYS, BABY, UNISEX = "Womens", "Mens", "Girls", "Boys", "Ba
 #: Every value of ``facets.audience``.
 AUDIENCES = (WOMENS, MENS, GIRLS, BOYS, BABY, UNISEX)
 #: The roots of the category tree that sell to a person: each SKU under one has an audience.
-PEOPLE_ROOTS = ("Women", "Men", "Kids", "Baby")
+PEOPLE_ROOTS = ("Women", "Men", "Kids")
 #: The departments whose SKUs are worn: each has an audience, wherever its path sits.
 WORN_DEPARTMENTS = ("Clothing", "Footwear", "Lingerie & Nightwear")
 
@@ -37,12 +37,12 @@ def audience_of_path(path: list[str] | tuple[str, ...], age_group: str = "adult"
         return WOMENS
     if root == "Men":
         return MENS
-    if root == "Baby":
-        return BABY
     if root == "Kids":
         if age_group == "baby":
             return BABY
-        return {"Girls": GIRLS, "Boys": BOYS}.get(path[1] if len(path) > 1 else "", UNISEX)
+        return {"Girls": GIRLS, "Boys": BOYS, "Baby": BABY}.get(
+            path[1] if len(path) > 1 else "", UNISEX
+        )
     return None
 
 
