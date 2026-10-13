@@ -292,7 +292,7 @@ type from `skus_by_type` in its `stats.json`:
 The mix is not the one a proportional scale would give, and that is the
 uniqueness rule at work: a type whose spec space is small (ISO 7089 fixes a
 washer's nine sizes; a hammer is its head weight and handle) runs out of
-SKUs its makers have not already made, so it grows less. It was 28,300
+SKUs its makers have not already made, so it grows less. It was about 28 thousand
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
 **122,324 SKUs over 70,776 products** (`skus` and `lines` in `stats.json`),
@@ -1172,7 +1172,7 @@ can preselect Navy and show its swatch. The plain text query also finds tees,
 but its response names no SKU: nothing to preselect. Since the print range
 (`prints.py`) added its men's and women's tees, "tee" matches ten products
 with a Navy SKU, the ruling's `PLT-CRWTEE` among them: the facet over
-the result reads Navy 48 SKUs / 10 products, White 9 / 2, Grey 5 / 1, Heather
+the result reads (SKUs / products) Navy 48 / 10, White 9 / 2, Grey 5 / 1, Heather
 Grey 3 / 1.
 
 `es_proof.py --host URL` loads the round 4 corpus plus these records into a
@@ -1359,9 +1359,23 @@ protectors, mattresses and pillow protectors that out-sell the toppers; bestsell
 barrel-leg jeans whose text says balloon; 150 petite styles with a minority on sale,
 and 60 sale styles that never say petite, then the shirts (`shirt_rows.py`: Oxford,
 Flannel, Linen and Denim, for Mens and Womens, under `Tops/Shirts`, typed `Shirt`;
-no derived style copies one), then the bags, umbrellas and jewelry (`accessory_rows.py`,
-gen#207; likewise copied by no derived style), then the grocery styles (below, `grocery.py`,
-gen#154). Further styles are
+no derived style copies one), then the living-room seating (`sofa_rows.py`, gen#196:
+sofas sold as 2, 2.5, 3 and 4 seaters, left- and right-hand corner and chaise sofas,
+modular, recliner and sofa-bed sofas, armchairs and footstools, each drawn by its own
+shape in `kit_seating.py`; no derived style copies one, and
+`tests/test_retail_seating_196.py` holds the range), then the household styles (`household_rows.py`, gen#200:
+saucepans, frying pans, casserole dishes, kitchen bins, storage boxes, laundry baskets,
+clothes airers and mops, each drawn by `kit_household.py` with the count its record states
+(pans in a set, bin lids, basket compartments, airer tiers); no derived style copies one,
+and `tests/test_retail_household_200.py` holds them), then the small appliances (`appliance_rows.py`, gen#202:
+desk, pedestal, tower, ceiling and handheld fans, heaters, kettles
+and toasters, each drawn by `kit_appliances.py`; none is derived from), then the underwear and nightwear (`underwear_rows.py`, gen#208: knickers,
+tights, vests, slips, shapewear, dressing gowns and boxers with a pack axis,
+drawn by `kit_underwear.py`; none is derived), then the toys (`toys_rows.py`, gen#201: building sets, jigsaws, board games, dolls, wooden toys, role play toys, arts and crafts kits and ride-ons, drawn by `kit_toys.py`; every style carries an `age_range` and most a `toy_type`, four invented character ranges (`line`) each span several kinds, and a counted mark in the drawing equals the count the record states, `tests/test_retail_toys_201.py`; no derived style copies one), then the lighting (`lighting_rows.py`, gen#197: floor,
+table, desk, ceiling and wall lights and lampshades under `Home/Lighting`, each typed by
+its name; a SKU is a color times a finish, a shade color or a diameter, and its image draws
+that SKU's own value), then the bags, umbrellas and jewelry (`accessory_rows.py`,
+gen#207; likewise copied by no derived style), then the grocery styles (below, `grocery.py`, gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
 also differs from its template and from every sibling in a value its title shows
