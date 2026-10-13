@@ -93,8 +93,8 @@ def _gingham(name: str, accent: str) -> Color:
 FLOOR_LAMPS = (
     Row("LTFARC", "Arc Floor Lamp with Dome Shade", "Brackenmere Home", "Home", FLOOR,
         "Floor Lamp", 139.0, "floor_lamp",
-        "An arc floor lamp that reaches over a sofa from a weighted marble base. The metal "
-        "dome shade takes an E27 bulb and a foot switch turns it on.",
+        "An arc floor lamp with a metal shade. It takes an E27 bulb and a foot switch turns "
+        "it on.",
         (BLACK, WHITE, FOREST),
         (_a("style", "Style", "Arc"), _cm("height", "Height", 190),
          _a("shade_material", "Shade material", "Metal"), _a("switch", "Switch", "Foot"),
@@ -103,8 +103,7 @@ FLOOR_LAMPS = (
         params=_p(style="arc", finish="brass"), size_key="finish"),
     Row("LTFTRI", "Tripod Floor Lamp with Linen Drum Shade", "Lanternby", "Home", FLOOR,
         "Floor Lamp", 99.0, "floor_lamp",
-        "A tripod floor lamp on three splayed legs, with a linen drum shade and an inline "
-        "switch on the cable.",
+        "A tripod floor lamp with a linen drum shade and an inline switch on the cable.",
         (NATURAL, WHITE, GREY),
         (_a("style", "Style", "Tripod"), _cm("height", "Height", 155),
          _a("shade_material", "Shade material", "Linen"), _a("switch", "Switch", "Inline"),
@@ -113,8 +112,8 @@ FLOOR_LAMPS = (
         params=_p(style="tripod", finish="oak"), size_key="finish"),
     Row("LTFUPL", "Dimmable Uplighter Floor Lamp", "Calderby & Lune", "Home", FLOOR,
         "Floor Lamp", 89.0, "floor_lamp",
-        "An uplighter that washes the ceiling with light from a frosted glass bowl. The "
-        "integrated LED dims on a dimmer switch.",
+        "An uplighter with a glass bowl shade. It takes an integrated LED bulb and is "
+        "dimmable, with a dimmer switch on the cable.",
         (WHITE, CREAM),
         (_a("style", "Style", "Uplighter"), _cm("height", "Height", 180),
          _a("shade_material", "Shade material", "Glass"), _a("switch", "Switch", "Dimmer"),
@@ -124,8 +123,8 @@ FLOOR_LAMPS = (
         params=_p(style="uplighter", finish="satin nickel"), size_key="finish"),
     Row("LTFTSK", "Task Floor Lamp for Reading", "Harbour & Pine", "Home", FLOOR,
         "Floor Lamp", 69.0, "floor_lamp",
-        "A task floor lamp with a tilting metal head that points light onto a book or a "
-        "chair. An inline switch sits on the cable; it takes an E14 bulb.",
+        "A task floor lamp with a metal shade. An inline switch sits on the cable; it takes "
+        "an E14 bulb.",
         (BLACK, WHITE, MUSTARD),
         (_a("style", "Style", "Task"), _cm("height", "Height", 140),
          _a("shade_material", "Shade material", "Metal"), _a("switch", "Switch", "Inline"),
@@ -134,8 +133,7 @@ FLOOR_LAMPS = (
         params=_p(style="task", finish="chrome"), size_key="finish"),
     Row("LTFMAC", "Mother-and-Child Floor Lamp", "Brackenmere Home", "Home", FLOOR,
         "Floor Lamp", 119.0, "floor_lamp",
-        "A mother-and-child floor lamp: a bowl that lights the ceiling and a reading light on "
-        "its own arm, each with its own switch. Glass shades and a foot switch.",
+        "A mother-and-child floor lamp with glass shades and a foot switch.",
         (WHITE, BLACK),
         (_a("style", "Style", "Mother-and-Child"), _cm("height", "Height", 178),
          _a("shade_material", "Shade material", "Glass"), _a("switch", "Switch", "Foot"),
@@ -151,8 +149,8 @@ FLOOR_LAMPS = (
 TABLE_LAMPS = (
     Row("LTTBED", "Bedside Table Lamp with Drum Shade", "Lanternby", "Home", TABLE,
         "Table Lamp", 39.0, "table_lamp",
-        "A slim bedside lamp on a round metal base, with a drum shade that softens the bulb. "
-        "Plug-in, with a switch on the cable.",
+        "A bedside table lamp on a metal base, with a drum shade that softens the bulb. It is "
+        "plug-in.",
         (BRASS, BLACK, WHITE),
         (_a("style", "Style", "Bedside"), _cm("height", "Height", 40),
          _a("base_material", "Base material", "Metal"), _a("power", "Power", "Plug-In")),
@@ -161,7 +159,7 @@ TABLE_LAMPS = (
         size_key="shade_color"),
     Row("LTTCER", "Ceramic Table Lamp with Linen Shade", "Brackenmere Home", "Home", TABLE,
         "Table Lamp", 65.0, "table_lamp",
-        "A glazed ceramic gourd base on a wooden plinth, with a linen drum shade. Plug-in.",
+        "A table lamp with a linen drum shade. It is plug-in.",
         (SAGE, TEAL, CREAM),
         (_a("style", "Style", "Ceramic"), _cm("height", "Height", 56),
          _a("base_material", "Base material", "Ceramic"), _a("power", "Power", "Plug-In")),
@@ -170,8 +168,7 @@ TABLE_LAMPS = (
         size_key="shade_color"),
     Row("LTTTCH", "Touch Table Lamp with USB Port", "Calderby & Lune", "Home", TABLE,
         "Table Lamp", 45.0, "table_lamp",
-        "Tap the base to switch it on and step through three brightness levels. A USB port "
-        "in the base charges a phone overnight.",
+        "A touch table lamp that dims. A USB port in the base charges a phone overnight.",
         (COPPER, BRASS, SILVER),
         (_a("style", "Style", "Touch"), _cm("height", "Height", 38),
          _a("base_material", "Base material", "Metal"), _a("power", "Power", "Plug-In"),
@@ -181,8 +178,7 @@ TABLE_LAMPS = (
         size_key="shade_color"),
     Row("LTTMSH", "Rechargeable Mushroom Table Lamp", "Harbour & Pine", "Home", TABLE,
         "Table Lamp", 49.0, "table_lamp",
-        "A mushroom lamp in frosted glass that charges by USB and runs for eight hours "
-        "between charges, so it goes on a table with no socket near it. Dimmable.",
+        "A mushroom table lamp with a glass base. It is rechargeable. Dimmable.",
         (BLUSH, SAGE, AMBER, WHITE),
         (_a("style", "Style", "Mushroom"), _cm("height", "Height", 30),
          _a("base_material", "Base material", "Glass"), _a("power", "Power", "Rechargeable"),
@@ -199,22 +195,21 @@ TABLE_LAMPS = (
 DESK_LAMPS = (
     Row("LTDADJ", "Adjustable LED Desk Lamp with USB Port", "Brackenmere Home", "Home", DESK,
         "Desk Lamp", 39.0, "desk_lamp",
-        "A desk lamp on a sprung, jointed arm that holds where it is set. The LED dims and "
-        "tunes from warm to cool, and a USB port charges a phone.",
+        "An adjustable desk lamp with a 2700-6500K LED light and a USB port that charges a "
+        "phone.",
         (BLACK, WHITE, SAGE),
         (_a("arm", "Arm", "Adjustable"), _a("color_temperature", "Color temperature", "2700-6500K"),
          _yes("dimmable", "Dimmable"), _yes("usb_port", "USB port")),
         params=_p(arm="adjustable", base="round")),
     Row("LTDGNK", "Gooseneck LED Desk Lamp", "Lanternby", "Home", DESK,
         "Desk Lamp", 25.0, "desk_lamp",
-        "A gooseneck desk lamp that bends to point its warm LED light where it is needed.",
+        "A gooseneck desk lamp with a 3000K LED light.",
         (BLACK, SILVER, NAVY),
         (_a("arm", "Arm", "Gooseneck"), _a("color_temperature", "Color temperature", "3000K")),
         params=_p(arm="gooseneck", base="round")),
     Row("LTDCLP", "Clamp-On LED Desk Lamp", "Calderby & Lune", "Home", DESK,
         "Desk Lamp", 29.0, "desk_lamp",
-        "A clamp-on desk lamp that grips a desk or a shelf edge up to 5 cm thick, leaving the "
-        "desk clear. Daylight LED.",
+        "A clamp-on desk lamp with a 5000K LED light.",
         (WHITE, BLACK, MUSTARD),
         (_a("arm", "Arm", "Clamp-On"), _a("color_temperature", "Color temperature", "5000K"),
          _yes("dimmable", "Dimmable")),
@@ -222,7 +217,7 @@ DESK_LAMPS = (
     Row("LTDWCP", "LED Desk Lamp with Wireless Charging Pad", "Harbour & Pine", "Home", DESK,
         "Desk Lamp", 49.0, "desk_lamp",
         "A desk lamp whose wide base is a wireless charging pad for a phone, with a USB port "
-        "beside it. The LED dims and tunes from warm to cool.",
+        "beside it and a 2700-6500K LED light.",
         (BLACK, WHITE),
         (_a("arm", "Arm", "Adjustable"), _a("color_temperature", "Color temperature", "2700-6500K"),
          _yes("dimmable", "Dimmable"), _yes("usb_port", "USB port"),
@@ -237,8 +232,7 @@ DESK_LAMPS = (
 CEILING_LIGHTS = (
     Row("LTCPND", "Glass Dome Pendant Light", "Brackenmere Home", "Home", CEILING,
         "Ceiling Light", 59.0, "ceiling_light",
-        "A pendant light with a hand-blown glass dome on a 120 cm cable, cut to the drop you "
-        "want. Takes an E27 bulb.",
+        "A pendant, 1 light, with a glass shade. Takes an E27 bulb.",
         (CLEAR, SMOKE, FOREST),
         (_a("fixture_type", "Fixture type", "Pendant"), _lights(1), _cm("diameter", "Diameter", 30),
          _cm("drop_length", "Drop length", 120), _a("shade_material", "Shade material", "Glass"),
@@ -247,18 +241,16 @@ CEILING_LIGHTS = (
         params=_p(kind="pendant", lights="1", finish="brass"), size_key="finish"),
     Row("LTCPN3", "3 Light Cluster Pendant", "Lanternby", "Home", CEILING,
         "Ceiling Light", 99.0, "ceiling_light",
-        "Three metal shades hung at staggered drops from one long ceiling plate, over a "
-        "dining table or a kitchen island. Each takes an E27 bulb.",
+        "A pendant, 3 light, with metal shades. Takes an E27 bulb in each.",
         (BLACK, WHITE, MUSTARD),
         (_a("fixture_type", "Fixture type", "Pendant"), _lights(3), _cm("diameter", "Diameter", 45),
          _cm("drop_length", "Drop length", 100), _a("shade_material", "Shade material", "Metal"),
          _a("bulb_fitting", "Bulb fitting", "E27")),
         _each(99.0, "Brass", "Copper", "Chrome"),
         params=_p(kind="pendant", lights="3", finish="brass"), size_key="finish"),
-    Row("LTCFLS", "Flush Ceiling Light for Low Ceilings", "Lanternby", "Home", CEILING,
+    Row("LTCFLS", "Flush Ceiling Light", "Lanternby", "Home", CEILING,
         "Ceiling Light", 45.0, "ceiling_light",
-        "A flush ceiling light that sits tight to the ceiling, for a hallway or a room with a "
-        "low ceiling. Opal glass diffuser over two E27 bulbs.",
+        "A flush ceiling light, 2 light, with a glass diffuser. Takes an E27 bulb in each.",
         (WHITE, CREAM),
         (_a("fixture_type", "Fixture type", "Flush"), _lights(2), _cm("diameter", "Diameter", 35),
          _a("shade_material", "Shade material", "Glass"),
@@ -267,8 +259,8 @@ CEILING_LIGHTS = (
         params=_p(kind="flush", lights="2", finish="chrome"), size_key="finish"),
     Row("LTCSMF", "Semi-Flush Ceiling Light, 3 Light", "Calderby & Lune", "Home", CEILING,
         "Ceiling Light", 79.0, "ceiling_light",
-        "A semi-flush ceiling light hung close to the ceiling on three short rods, with a linen "
-        "bowl shade over three E14 bulbs.",
+        "A semi-flush ceiling light, 3 light, with a linen bowl shade. Takes an E14 bulb in "
+        "each.",
         (WHITE, GREY, NATURAL),
         (_a("fixture_type", "Fixture type", "Semi-Flush"), _lights(3),
          _cm("diameter", "Diameter", 45), _a("shade_material", "Shade material", "Linen"),
@@ -277,8 +269,7 @@ CEILING_LIGHTS = (
         params=_p(kind="semi-flush", lights="3", finish="antique brass"), size_key="finish"),
     Row("LTCCHD", "5 Light Chandelier with Fabric Shades", "Harbour & Pine", "Home", CEILING,
         "Ceiling Light", 189.0, "ceiling_light",
-        "A chandelier with five curved arms, each under a small fabric shade over an E14 "
-        "candle bulb. Comes with chain to hang it at the height you want.",
+        "A chandelier, 5 light, with fabric shades. Takes an E14 bulb in each.",
         (WHITE, BLACK),
         (_a("fixture_type", "Fixture type", "Chandelier"), _lights(5),
          _cm("diameter", "Diameter", 60), _a("shade_material", "Shade material", "Fabric"),
@@ -287,8 +278,7 @@ CEILING_LIGHTS = (
         params=_p(kind="chandelier", lights="5", finish="antique brass"), size_key="finish"),
     Row("LTCSPT", "4 Light Spotlight Bar", "Brackenmere Home", "Home", CEILING,
         "Ceiling Light", 55.0, "ceiling_light",
-        "A spotlight bar with four heads that each tilt and turn, to light a kitchen worktop "
-        "or a picture wall. Takes GU10 bulbs.",
+        "A spotlight bar, 4 light, with metal heads. Takes a GU10 bulb in each.",
         (WHITE, BLACK),
         (_a("fixture_type", "Fixture type", "Spotlight Bar"), _lights(4),
          _a("shade_material", "Shade material", "Metal"),
@@ -304,8 +294,8 @@ CEILING_LIGHTS = (
 WALL_LIGHTS = (
     Row("LTWSCN", "Bathroom Wall Light, IP44", "Brackenmere Home", "Home", WALL,
         "Wall Light", 49.0, "wall_light",
-        "A sconce with an opal glass shade, rated IP44 for a bathroom wall near a basin. "
-        "Hardwired, on a wall switch.",
+        "A sconce with an opal glass shade, rated IP44 for a bathroom wall near a basin. It "
+        "is hardwired.",
         (WHITE,),
         (_a("fixture_type", "Fixture type", "Sconce"), _a("power", "Power", "Hardwired"),
          _a("switch", "Switch", "Wall Switch"), _a("ip_rating", "IP rating", "IP44")),
@@ -313,8 +303,7 @@ WALL_LIGHTS = (
         params=_p(kind="sconce", power="hardwired", finish="chrome"), size_key="finish"),
     Row("LTWSWG", "Plug-In Swing Arm Wall Light", "Lanternby", "Home", WALL,
         "Wall Light", 59.0, "wall_light",
-        "A swing arm wall light that folds out over a bed or a chair. It plugs into a socket, "
-        "so no electrician is needed; the switch is on the cable.",
+        "A swing arm wall light. It is plug-in.",
         (BLACK,),
         (_a("fixture_type", "Fixture type", "Swing Arm"), _a("power", "Power", "Plug-In"),
          _a("switch", "Switch", "Inline"), _a("ip_rating", "IP rating", "IP20")),
@@ -322,18 +311,16 @@ WALL_LIGHTS = (
         params=_p(kind="swing arm", power="plug-in", finish="matte black"), size_key="finish"),
     Row("LTWPIC", "LED Picture Light", "Calderby & Lune", "Home", WALL,
         "Wall Light", 69.0, "wall_light",
-        "A picture light whose slim hood throws an even LED wash down over a painting or a "
-        "mirror. Hardwired, on a wall switch.",
+        "A picture light with a warm LED lamp. It is hardwired.",
         (BRASS,),
         (_a("fixture_type", "Fixture type", "Picture Light"), _a("power", "Power", "Hardwired"),
          _a("switch", "Switch", "Wall Switch"), _a("ip_rating", "IP rating", "IP20")),
-        _each(69.0, "Antique Brass", "Brass", "Chrome"),
+        _each(69.0, "Antique Brass", "Brass"),
         params=_p(kind="picture light", power="hardwired", finish="antique brass"),
         size_key="finish"),
     Row("LTWRCH", "Rechargeable Wall Light with Touch Dimmer", "Harbour & Pine", "Home", WALL,
         "Wall Light", 39.0, "wall_light",
-        "A sconce that runs on a battery charged by USB, so it hangs anywhere with no wiring. "
-        "Touch the shade to dim it.",
+        "A sconce. It is rechargeable.",
         (WHITE,),
         (_a("fixture_type", "Fixture type", "Sconce"), _a("power", "Power", "Rechargeable"),
          _a("switch", "Switch", "Touch"), _a("ip_rating", "IP rating", "IP20")),

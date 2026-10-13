@@ -703,7 +703,7 @@ def test_no_grocery_title_or_description_names_a_value_no_sku_carries(ceiling):
     assert {k: n for k, n in wrong.items() if n > GROCERY_NAMED_EXCEPTIONS.get(k, 0)} == {}
 
 
-def test_no_department_falls_under_half_its_fair_share_of_styles(ceiling):
+def test_no_department_falls_under_a_third_of_its_fair_share_of_styles(ceiling):
     """A general retailer sells in every department: at the ceiling, each holds at least
     a third of an even split of the styles (``breadth_rows`` keeps it there). It was half
     until the lighting rows (gen#197) put 537 derived styles into Home: Food & Drink held
@@ -1055,3 +1055,29 @@ def test_no_drawn_style_reads_as_another_of_its_leaf(ceiling):
                     if len(words & o) / len(words | o) >= scale.NEAR_DUPLICATE_JACCARD]  # fmt: skip
             assert not near, r["title"]
         seen[r["category_leaf"]].append(words)
+
+
+#: Grocery brands that already hold two owners on main (a derived non-grocery style takes
+#: the default third party; Goldfield Farms is own on its shirts). Not the lighting rows'
+#: doing; the list only shrinks.
+GROCERY_OWNER_SPLITS = frozenset({
+    "Barrowby Kitchen", "Copper Hill Preserves", "Crofter's Bakehouse", "Goldfield Farms",
+    "Velling Apothecary",
+})  # fmt: skip
+
+
+def test_every_brand_has_exactly_one_owner_across_the_templates_and_the_ceiling(ceiling):
+    """A brand is own-label or it is not: two ``brand_owner`` values on one brand split it in
+    the own-brand facet (``breadth_rows.OWNERS`` said "Harbour & Pine" was third party while
+    ``class_model`` calls it own, gen#197 review).
+
+    Guard: a row or an owners entry that disagrees with another fails here. Metric: the
+    brands that hold two owners, in the failure message.
+    """
+    owners: dict[str, set[str]] = collections.defaultdict(set)
+    for rec in [*scale.templates(), *ceiling.records]:
+        if "brand_owner" in rec:
+            owners[rec["brand"]].add(rec["brand_owner"])
+    split = {b: sorted(o) for b, o in owners.items() if len(o) > 1}
+    assert {b: o for b, o in split.items() if b not in GROCERY_OWNER_SPLITS} == {}
+    assert set(split) <= GROCERY_OWNER_SPLITS  # a brand that is fixed leaves the list

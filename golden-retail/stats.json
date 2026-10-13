@@ -13,12 +13,12 @@
    "skus": 12128,
    "styles": 4386
   },
-  "images": 11020,
+  "images": 11004,
   "non_grocery": {
-   "skus": 83374,
+   "skus": 82958,
    "styles": 4109
   },
-  "skus": 95662,
+  "skus": 95246,
   "styles": 8519
  },
  "departments": {
@@ -409,11 +409,11 @@
   "grocery": 0.0337,
   "grocery_grid_clones": 4,
   "non_grocery": 0.024,
-  "non_grocery_grid_clone_rate": 0.1207
+  "non_grocery_grid_clone_rate": 0.1214
  },
  "templates": {
   "all": {
-   "skus": 40429,
+   "skus": 40428,
    "styles": 5396
   },
   "authored": {
@@ -422,7 +422,7 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 28301,
+   "skus": 28300,
    "styles": 1010
   },
   "breadth_rows": {
@@ -438,7 +438,7 @@
    "styles": 4386
   },
   "lighting_rows": {
-   "skus": 170,
+   "skus": 169,
    "styles": 28
   },
   "main_food": {

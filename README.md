@@ -292,7 +292,7 @@ type from `skus_by_type` in its `stats.json`:
 The mix is not the one a proportional scale would give, and that is the
 uniqueness rule at work: a type whose spec space is small (ISO 7089 fixes a
 washer's nine sizes; a hammer is its head weight and handle) runs out of
-SKUs its makers have not already made, so it grows less. It was 28,300
+SKUs its makers have not already made, so it grows less. It was about 28 thousand
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
 **122,324 SKUs over 70,776 products** (`skus` and `lines` in `stats.json`),

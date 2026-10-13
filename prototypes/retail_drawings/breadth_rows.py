@@ -32,7 +32,7 @@ OWNERS = {
     "Brewhollow Roasters": "third_party", "Mirefield Naturals": "third_party",
     "Hollin Hair": "third_party",
     # The lighting rows (lighting_rows.py, gen#197) also sell these two home brands.
-    "Brackenmere Home": "own", "Harbour & Pine": "third_party",
+    "Brackenmere Home": "own", "Harbour & Pine": "own",
 }  # fmt: skip
 
 
