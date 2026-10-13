@@ -26,9 +26,9 @@ import kit_accessories  # noqa: F401 -- registers handbag, backpack, tote_bag, .
 from breadth_rows import OWNERS, Row
 from variants import cw
 
-for _brand, _owner in {"Marrowgate": "own", "Pellbrook": "third_party",
-                       "Osier & Vane": "third_party", "Tallow Street": "own",
-                       "Wrenfield": "third_party", "Harbour & Pine": "own"}.items():  # fmt: skip
+for _brand, _owner in {"Marrowgate": "third_party", "Pellbrook": "third_party",
+                       "Osier & Vane": "third_party", "Tallow Street": "third_party",
+                       "Wrenfield": "own", "Harbour & Pine": "own"}.items():  # fmt: skip
     OWNERS.setdefault(_brand, _owner)
 
 _CL = "Clothing"
@@ -257,10 +257,9 @@ TOTES = (
           "A canvas tote with an outside patch pocket for your keys and a pocket inside.",
           (CREAM, GREEN), _tb("Medium", "Canvas", "Open", True), "standard", True),
     _trow("TTBJUT", "Natural Jute Tote Bag", _O, 14.0,
-          "A woven jute tote with a cotton lining and a magnetic fastening, made for the beach "
+          "A woven jute tote with a cotton lining and a zip fastening, made for the beach "
           "and the market.",
-          (NATURAL, cw("Navy Stripe", "#d8c8a0", "stripe", "#26365c")),
-          _tb("Large", "Jute", "Zip", False, _a("pattern", "Pattern", "Striped")), "wide", False),
+          (NATURAL, BLACK), _tb("Large", "Jute", "Zip", False), "wide", False),
     _trow("TTBNYL", "Foldable Nylon Tote Bag", _W, 8.0,
           "A lightweight nylon tote that folds into a small pouch, for the bottom of a "
           "handbag.",
@@ -375,7 +374,8 @@ UMBRELLAS = (
     _urow("UMBPOL", "Polka Dot Stick Umbrella", _M, 22.0,
           "A stick umbrella with a polka dot canopy, a curved handle and an automatic open "
           "button.",
-          (POLKA, GINGHAM), _um("Stick", True, False, False, 8, _a("pattern", "Pattern", "Polka Dot")),
+          (POLKA, cw("Navy Polka Dot", "#26365c", "polka", "#ffffff")),
+          _um("Stick", True, False, False, 8, _a("pattern", "Pattern", "Polka Dot")),
           _num((95, 22.0),), "open", "curved", 8),
     _urow("UMBSTR", "Striped Windproof Stick Umbrella", _W, 24.0,
           "A striped stick umbrella with a vented canopy and sixteen ribs that hold in a "

@@ -178,3 +178,29 @@ def test_every_accessory_style_reaches_the_100k_build_and_meets_the_standard() -
     mine = [d for d in docs if d["product_id"] in scale.ACCESSORY_IDS]
     assert len(mine) == len(ROWS)
     assert check_catalog(mine, one_class_per_key=True) == []
+
+
+@pytest.mark.timeout(300)
+def test_every_brand_has_exactly_one_owner_across_templates_and_derived_styles() -> None:
+    """``OWNERS.setdefault`` hides a clash, and a derived style takes ``third_party`` for a
+    brand the base does not own, so the owner is read off the built records. Scoped to the
+    brands these rows sell: other families' clashes are not this change's."""
+    records = scale.build(100_000).records
+    owners: dict[str, set[str]] = collections.defaultdict(set)
+    for rec in [*scale.templates(), *records]:
+        if "brand_owner" in rec:
+            owners[rec["brand"]].add(rec["brand_owner"])
+    mine = {r.brand for r in ROWS}
+    assert mine <= set(owners)
+    assert {b: sorted(o) for b, o in owners.items() if b in mine and len(o) != 1} == {}
+
+
+def test_the_jute_tote_description_names_the_closure_it_states() -> None:
+    row = next(r for r in ROWS if r.code == "TTBJUT")
+    assert "zip" in row.description.lower() and "magnetic" not in row.description.lower()
+    assert all(c[1] == "solid" for c in row.colors), "no style-level pattern: a SKU is solid"
+
+
+def test_every_polka_dot_umbrella_sku_is_polka_dot() -> None:
+    row = next(r for r in ROWS if r.code == "UMBPOL")
+    assert [c[1] for c in row.colors] == ["polka"] * len(row.colors)
