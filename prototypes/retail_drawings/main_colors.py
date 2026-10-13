@@ -84,9 +84,6 @@ PLAIN_STYLES = (
     ("PLT-KIDBMB", "PLT-KIDBPL", "Boys' Plain Bomber Jacket (2-8 Yrs)",
      "A plain bomber jacket for boys with ribbed cuffs.",
      None, ("Navy", "#26365c", "navy")),
-    ("BRD-BCHTWL", "BRD-BCHTPL", "Plain Cotton Velour Beach Towel",
-     "A large towel with a soft velour face and a looped terry back.",
-     None, ("Coral", "#e8765f", "orange")),
 )
 
 
