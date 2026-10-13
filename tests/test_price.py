@@ -246,7 +246,7 @@ def test_a_pin_reason_quotes_the_figures_the_pin_records():
     retyped (it read 6.8 once the figure was 3.24)."""
     name = BRAND_ROW.format("wheel_depressed_center")
     quoted = re.findall(r"(\d+(?:\.\d+)?)x apart", price.PINNED_SHORTFALLS[name])
-    assert quoted == [f"{f:.2f}" for f in _recorded(name)] == ["3.53", "3.09"]
+    assert quoted == [f"{f:.2f}" for f in _recorded(name)] == ["4.38", "2.90"]
 
 
 def _recorded(name: str) -> tuple[float, float]:
@@ -276,7 +276,7 @@ def test_a_pin_may_land_no_further_out_than_its_figure_for_that_build(price_rows
 
 def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
     """The wheel's group noise 10% louder spreads one spec's brands from
-    3.53x to 3.91x apart: further above the band but still on its side, so
+    4.38x to 4.90x apart: further above the band but still on its side, so
     only the recorded figure can catch it."""
     name = BRAND_ROW.format("wheel_depressed_center")
     model = price.MODELS["wheel_depressed_center"]
@@ -287,7 +287,7 @@ def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
         for row in price_report.price_comparisons(generate(GeneratorConfig()))
         if row.name == name
     ]
-    assert round(row.achieved, 2) == 3.91
+    assert round(row.achieved, 2) == 4.90
     assert row.achieved > row.band[1]
     assert not price_report.pin_holds(row, 0)
 

@@ -2542,7 +2542,7 @@
    "achieved": 4.38059,
    "numerator": 24,
    "denominator": 12,
-   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec; PINNED SHORTFALL, above band: with every noise off, the brand tiers alone give 1.85 on the default build against a band top of 1.71, because 3 of the 12 wheel brands are economy (0.54 of the rest) and the row's 3 sampled brands take one on 13 of its 24 specs (a spec is a diameter in one abrasive), where the census measures its house label on 4 of its 12. The group noise that makes up the p90/p10 is drawn per brand and spreads the sampled brands of one spec further, to 3.53x apart on the default build and 3.09x apart at 100K (#66)",
+   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec; PINNED SHORTFALL, above band: with every noise off, the brand tiers alone give 1.49 on the default build, inside the band top of 1.71, so the excess is the group noise; the tiers still reach for it because 3 of the 12 wheel brands are economy (0.54 of the rest) and the row's 3 sampled brands take one on 12 of its 24 specs (a spec is a diameter in one abrasive), where the census measures its house label on 4 of its 12. The group noise that makes up the p90/p10 is drawn per brand and spreads the sampled brands of one spec further, to 4.38x apart on the default build and 2.90x apart at 100K (#66)",
    "band": [
     0.96285,
     1.70745
