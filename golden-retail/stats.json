@@ -13,13 +13,13 @@
    "skus": 12128,
    "styles": 4386
   },
-  "images": 9792,
+  "images": 10191,
   "non_grocery": {
    "skus": 81698,
    "styles": 3985
   },
-  "skus": 95375,
-  "styles": 8439
+  "skus": 95930,
+  "styles": 8600
  },
  "departments": {
   "Beauty": 200,
@@ -409,12 +409,16 @@
   "grocery": 0.0337,
   "grocery_grid_clones": 4,
   "non_grocery": 0.0233,
-  "non_grocery_grid_clone_rate": 0.1518
+  "non_grocery_grid_clone_rate": 0.1483
  },
  "templates": {
   "all": {
-   "skus": 41827,
-   "styles": 5471
+   "skus": 42382,
+   "styles": 5632
+  },
+  "appliance_rows": {
+   "skus": 124,
+   "styles": 37
   },
   "authored": {
    "skus": 6861,
@@ -422,12 +426,12 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 29699,
-   "styles": 1085
+   "skus": 30254,
+   "styles": 1246
   },
   "breadth_rows": {
-   "skus": 537,
-   "styles": 274
+   "skus": 664,
+   "styles": 310
   },
   "distractor_rows": {
    "skus": 3674,
@@ -436,6 +440,10 @@
   "grocery": {
    "skus": 12128,
    "styles": 4386
+  },
+  "household_rows": {
+   "skus": 147,
+   "styles": 40
   },
   "main_food": {
    "skus": 72,
@@ -448,6 +456,10 @@
   "shirt_rows": {
    "skus": 160,
    "styles": 24
+  },
+  "sofa_rows": {
+   "skus": 157,
+   "styles": 48
   },
   "underwear_rows": {
    "skus": 1389,
