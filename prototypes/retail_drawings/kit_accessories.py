@@ -249,7 +249,7 @@ def tote_bag(
     paint: str, fill: Fill, label: str | None, gusset: str = "standard", pocket: str = "no"
 ) -> list[str]:
     """A tote: two parallel handles (one behind the open top, one in front), the opening
-    deepening with the ``gusset`` (flat, standard or wide); ``pocket`` adds a patch pocket."""
+    deepening with the ``gusset`` (flat, standard or wide); ``pocket`` adds a patch pocket (one ``class="pocket"`` group)."""
     g = GUSSET_DEPTH.get(gusset.lower(), 20)
     dark = _shade(fill.base, 0.3)
     top = 178
@@ -263,8 +263,10 @@ def tote_bag(
         _highlight(f"M96,{top + 60} L88,330", 4, 0.3),
     ]  # fmt: skip
     if pocket.lower() in ("yes", "true", "1"):
-        out += [_path("M206,252 L286,252 L288,324 Q288,330 282,330 L210,330 Q204,330 204,324 Z", _tint(fill.base, 0.12) if fill.pattern == "solid" else paint, 2),
-                _stitch("M210,262 L282,262")]  # fmt: skip
+        out.append(_group("pocket", [
+            _path("M206,252 L286,252 L288,324 Q288,330 282,330 L210,330 Q204,330 204,324 Z", _tint(fill.base, 0.12) if fill.pattern == "solid" else paint, 2),
+            _stitch("M210,262 L282,262"),
+        ]))  # fmt: skip
     if label:
         out += _panel(150, 360, 100, 28, label, 16)
     return out
