@@ -31,6 +31,9 @@ OWNERS = {
     "Hearth & Table": "own", "Kettleby Tea Co.": "third_party",
     "Brewhollow Roasters": "third_party", "Mirefield Naturals": "third_party",
     "Hollin Hair": "third_party",
+    "Dovecote Lane": "third_party", "Hushwell": "third_party", "Quillon Sleep": "own",
+    "Wrenfield": "own", "Larkmoor": "own", "Hollinwray Knits": "third_party",
+    "Harbour & Pine": "own",
 }  # fmt: skip
 
 
