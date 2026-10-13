@@ -32,7 +32,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import kit_toys  # noqa: F401 -- registers building_set, jigsaw, board_game, doll, ...
-from breadth_rows import Contents, Row
+from breadth_rows import Contents, Row, paint_range
 from variants import cw
 
 from synthetic_ecommerce_data.core.entry import canonical
@@ -527,49 +527,72 @@ CRAFT_KITS = (
 _RID = (_T, "Outdoor Toys", "Ride-On Toys")
 
 
-def _ride(kind: str, age: str, kg: int, inches: int, wheels: int, line: str | None = None,
-          brand: str = _P) -> tuple:  # fmt: skip
+def _ride(kind: str, age: str, kg: int, inches: int | None, wheels: int,
+          line: str | None = None, brand: str = _P) -> tuple:  # fmt: skip
+    """A ride-on's attributes. ``inches`` is a fixed wheel size (a scooter's, a ride-on car's);
+    a bike or a trike sells its wheel size as a SKU axis instead (:func:`_wheel_sizes`), so
+    it passes ``None`` and the size is stated once."""
+    fixed = (("wheel_size", "Wheel size", str(inches), "INH", canonical(str(inches), "INH")),
+             ) if inches else ()  # fmt: skip
     return (_kind(kind), _age(age), ("max_weight_kg", "Maximum weight", str(kg), "KGM",
-            canonical(str(kg), "KGM")), ("wheel_size_in", "Wheel size", str(inches), "INH",
-            canonical(str(inches), "INH")),
+            canonical(str(kg), "KGM")), *fixed,
             _count("wheel_count", "Wheel count", wheels), *(_line(line, brand) if line else ()))  # fmt: skip
 
 
-def _rpm(kind: str, wheels: int, line: str | None = None) -> tuple[tuple[str, str], ...]:
-    return (("kind", kind), ("wheels", str(wheels)), *_char(line))
+def _rpm(kind: str, wheels: int, line: str | None = None,
+         inches: int | None = None) -> tuple[tuple[str, str], ...]:
+    """The drawing's params; a bike or a trike names its default wheel size, which each SKU's
+    own ``wheel_size_in`` replaces, so each size is its own picture."""
+    return (("kind", kind), ("wheels", str(wheels)), *_char(line),
+            *((("wheel_size_in", str(inches)),) if inches else ()))  # fmt: skip
 
+
+def _wheel_sizes(*pairs: tuple[int, float]) -> tuple[tuple[str, float], ...]:
+    """A bike's or a trike's SKU sizes: wheel diameter in inches, and the price at it."""
+    return tuple((str(n), p) for n, p in pairs)
+
+
+_FIXED_WOOD = "natural birch plywood, left unpainted: the wood is the color"
+_FIXED_RANGE = "the range livery: the Moonmoth Rangers navy and badge are what mark the range"
 
 RIDE_ONS = (
-    TRow("RIDBAL", "12 Inch Balance Bike", _P, _T, _RID, "Ride-On Toy", 50.0, "ride_on",
+    TRow("RIDBAL", "Balance Bike with Air Tires", _P, _T, _RID, "Ride-On Toy", 50.0, "ride_on",
          "A light balance bike with no pedals, so a child learns to steer and balance first. "
-         "Air tires and a seat that rises as they grow. For ages 2 and up.",
-         (RED, BLUE, GREEN), _ride("Balance Bike", "2+ years", 25, 12, 2), audience=TODDLER,
-         params=_rpm("balance_bike", 2)),
+         "Air tires and a seat that rises as they grow. In three wheel sizes: 10, 12 and 14 "
+         "inch. For ages 2 and up.",
+         paint_range(RED, BLUE, GREEN), _ride("Balance Bike", "2+ years", 25, None, 2),
+         _wheel_sizes((10, 45.0), (12, 50.0), (14, 58.0)), audience=TODDLER,
+         params=_rpm("balance_bike", 2, inches=12), size_key="wheel_size_in"),
     TRow("RIDWDB", "Wooden Balance Bike", _L, _T, _RID, "Ride-On Toy", 60.0, "ride_on",
-         "A birch plywood balance bike with rubber tires and a padded seat. For ages 3 and "
-         "up.", (NATURAL,), _ride("Balance Bike", "3+ years", 30, 12, 2), audience=KIDS,
-         params=_rpm("balance_bike", 2)),
+         "A birch plywood balance bike with rubber tires and a padded seat. In three wheel "
+         "sizes: 10, 12 and 14 inch. For ages 3 and up.", (NATURAL,),
+         _ride("Balance Bike", "3+ years", 30, None, 2),
+         _wheel_sizes((10, 55.0), (12, 60.0), (14, 68.0)), audience=KIDS,
+         params=_rpm("balance_bike", 2, inches=12), size_key="wheel_size_in",
+         fixed_color=_FIXED_WOOD),
     TRow("RIDSC3", "Three-Wheel Kids' Scooter with Light-Up Wheels", _K, _T, _RID,
          "Ride-On Toy", 30.0, "ride_on",
          "Two wheels at the front for a steady ride, lean-to-steer, and wheels that glow as "
          "they roll. Folds flat. For ages 3 and up.",
-         (PINK, BLUE, GREEN), _ride("Scooter", "3+ years", 50, 5, 3), audience=KIDS,
+         paint_range(PINK, BLUE, GREEN), _ride("Scooter", "3+ years", 50, 5, 3), audience=KIDS,
          params=_rpm("scooter", 3)),
     TRow("RIDSC2", "Moonmoth Rangers Folding Scooter", _P, _T, _RID, "Ride-On Toy", 35.0,
          "ride_on", "A two-wheel scooter with an adjustable bar, a rear brake and the "
          "Rangers' badge on the deck. Folds flat. For ages 5 and up.",
          (NAVY,), _ride("Scooter", "5+ years", 50, 6, 2, "Moonmoth Rangers"), audience=KIDS,
-         params=_rpm("scooter", 2, "Moonmoth Rangers")),
+         params=_rpm("scooter", 2, "Moonmoth Rangers"), fixed_color=_FIXED_RANGE),
     TRow("RIDTRK", "Toddler Trike with Push Handle", _L, _T, _RID, "Ride-On Toy", 55.0,
          "ride_on", "A trike with a parent push handle that comes off as the child learns to "
-         "pedal, a seat belt and a storage bin. For ages 18 months and up.",
-         (RED, TEAL), _ride("Trike", "18+ months", 20, 10, 3), audience=TODDLER,
-         params=_rpm("trike", 3)),
+         "pedal, a seat belt and a storage bin. In two wheel sizes: 10 and 12 inch. For ages "
+         "18 months and up.",
+         paint_range(RED, TEAL), _ride("Trike", "18+ months", 20, None, 3),
+         _wheel_sizes((10, 55.0), (12, 62.0)), audience=TODDLER,
+         params=_rpm("trike", 3, inches=10), size_key="wheel_size_in"),
     TRow("RIDCAR", "Push-Along Ride-On Car with Horn", _K, _T, _RID, "Ride-On Toy", 35.0,
          "ride_on", "A low ride-on car that little feet push along, with a horn that toots and "
          "a storage space under the seat. For ages 12 months and up.",
-         (RED, PINK, YELLOW), _ride("Ride-On Car", "12+ months", 25, 6, 4), audience=TODDLER,
-         params=_rpm("car", 4)),
+         paint_range(RED, PINK, YELLOW), _ride("Ride-On Car", "12+ months", 25, 6, 4),
+         audience=TODDLER, params=_rpm("car", 4)),
 )  # fmt: skip
 
 ROWS = (*BUILDING_SETS, *JIGSAWS, *BOARD_GAMES, *DOLLS, *WOODEN_TOYS, *ROLE_PLAY, *CRAFT_KITS,
