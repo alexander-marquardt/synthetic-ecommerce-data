@@ -164,7 +164,6 @@ class FootwearStyle:
     lining: str | None = None
     product_line: str | None = None
     was_price: float | None = None
-    new_in: bool = False
     trending: bool = False
     online_only: bool = False
     #: Also sold as personal protective equipment (department Workwear & PPE).
@@ -262,7 +261,6 @@ class FootwearStyle:
             "price_max": max(prices),
             "offer": self.was_price is not None,
             "online_only": self.online_only,
-            "new_in": self.new_in,
             "trending": self.trending,
         }
         if self.was_price is not None:
@@ -304,7 +302,7 @@ WOMENS = (
                    sh("Coral Glow", "#f07d5e", "orange", "mesh"),
                    sh("Glacier Blue", "#8fc1e3", "blue", "mesh")),
                   W_RUN, "Lace-Up", "EVA foam", widths=STD_WIDE, wide=run("4", "8", 7.5),
-                  product_line="Cloudrise", new_in=True, extra=(("drop", "Heel drop", "8mm"),)),
+                  product_line="Cloudrise", extra=(("drop", "Heel drop", "8mm"),)),
     FootwearStyle("WANKBL", "Suede Block Heel Ankle Boots", "Calderby & Lune", _W, "ankle_boot",
                   79.0, "Soft suede ankle boots on a stacked block heel, with an inside zip.",
                   (sh("Black Suede", "#26262a", "black", "suede"),
@@ -395,7 +393,7 @@ MENS = (
                   (sh("Black Ice", "#24262b", "black", "mesh"), sh("Citrus Lime", "#b7cf3a", "green", "mesh"),
                    sh("Storm Grey", "#70757c", "grey", "mesh"), sh("Cobalt", "#2b56b5", "blue", "mesh")),
                   M_RUN, "Lace-Up", "EVA foam", widths=STD_WIDE, wide=run("7", "12", 11.5, "men"),
-                  product_line="Cloudrise", new_in=True, extra=(("drop", "Heel drop", "8mm"),)),
+                  product_line="Cloudrise", extra=(("drop", "Heel drop", "8mm"),)),
     FootwearStyle("MCHLSD", "Suede Chelsea Boots", "Harbour & Pine", _M, "chelsea", 69.0,
                   "Suede Chelsea boots with elastic side panels, a pull tab and a crepe-look sole.",
                   (sh("Tan Suede", "#b5835a", "brown", "suede"), sh("Navy Suede", "#2c3a5e", "navy", "suede"),
