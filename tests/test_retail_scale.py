@@ -509,7 +509,9 @@ def test_a_smaller_build_is_a_prefix_of_a_larger_one(built, ceiling):
 
 def test_a_derived_style_carries_no_bestseller_badge(pairs):
     assert [r["product_id"] for r, _ in pairs if "Bestseller" in r.get("badges", ())] == []
-    assert any(r.get("badges") for r, _ in pairs)
+    # Non-vacuous: some derived style comes from a template that carries Bestseller,
+    # so the strip had something to remove.
+    assert any("Bestseller" in t.get("badges", ()) for _, t in pairs)
 
 
 def test_the_cli_refuses_a_target_below_one():
