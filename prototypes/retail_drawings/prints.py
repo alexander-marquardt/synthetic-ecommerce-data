@@ -342,7 +342,7 @@ LINES: tuple[Line, ...] = (
                        "leaves on white. The lemon print is back for summer."),
          ), ADULT_SIZES),
     Line("BEDK", "bedding", "kids", "core", "duvet", "Duvet Set", "Little Fernby", "Home",
-         ("Home", "Kids' Bedding", "Bedding Sets"), 20.0, (
+         ("Home", "Bedding", "Kids' Bedding"), 20.0, (
              ("Kids' Cotton Bedding Set", cw("White", WHITE), "A single cover and pillowcase in cotton."),
              ("Kids' Brushed Cotton Bedding Set", cw("Pink", PINK), "Brushed cotton for cold nights."),
              ("Kids' Seersucker Bedding Set", cw("Navy", NAVY), "A puckered seersucker set."),
