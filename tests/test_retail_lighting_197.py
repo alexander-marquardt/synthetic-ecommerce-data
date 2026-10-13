@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import collections
 import random
+import re
 import sys
 from pathlib import Path
 
@@ -148,3 +149,127 @@ def test_a_safety_rating_and_a_shade_fitting_never_vary() -> None:
     for d in DOCS:
         variable = scale.variable_keys(d, pools)
         assert "ip_rating" not in variable and "fitting" not in variable, d["product_id"]
+
+#: A phrase a lighting description may carry only while its style holds the attribute value
+#: it implies: phrase -> the ``(key, value)`` pairs that make it true (one of them must
+#: hold). ``scale.derive`` rewrites the attribute word itself ("tripod" -> "arc"), but not
+#: the phrases that only that value explains, so a derived style must not keep one.
+FORM_BOUND_PHRASES = {
+    r"\bsplayed legs?\b|\blegs\b": (("style", "Tripod"),),
+    r"\bcurved arms?\b|\bcandle bulb\b|\bhang it at the height\b": (
+        ("fixture_type", "Chandelier"),),
+    r"\bwashes the ceiling\b|\blights the ceiling\b": (("style", "Uplighter"),),
+    r"\btilting\b|\bonto a book\b": (("style", "Task"),),
+    r"\breading light on its own arm\b|\beach with its own switch\b": (
+        ("style", "Mother-and-Child"),),
+    r"\btap the base\b|\bbrightness levels\b": (("style", "Touch"),),
+    r"\bsits tight to the ceiling\b|\blow ceiling\b": (("fixture_type", "Flush"),),
+    r"\bshort rods\b|\bclose to the ceiling\b": (("fixture_type", "Semi-Flush"),),
+    r"\bsprung\b|\bjointed arm\b": (("arm", "Adjustable"),),
+    r"\bbends\b": (("arm", "Gooseneck"),),
+    r"\bgrips\b|\bshelf edge\b": (("arm", "Clamp-On"),),
+    r"\bheads that each tilt\b|\bworktop\b": (("fixture_type", "Spotlight Bar"),),
+    r"\bcharged? by usb\b|\bno socket\b|\bruns on a battery\b|\bno wiring\b|\bbetween charges\b": (
+        ("power", "Rechargeable"),),
+    r"\bplugs into\b|\bno electrician\b": (("power", "Plug-In"),),
+    r"\b(?:two|three|four|five)\b": tuple(
+        ("light_count", str(n)) for n in (2, 3, 4, 5)
+    ),
+}  # fmt: skip
+
+#: A switch word that opens a sentence ("Inline the shade to dim it", from "Touch the shade
+#: to dim it" after the switch value changed) has lost its grammar.
+SWITCH_WORD_OPENING = (
+    r"(?:^|[.;:] )(?:Inline|Foot|Dimmer|Touch|Wall Switch) (?:the|to|a|an) "
+)
+
+
+def _contradictions(rec: dict) -> list[str]:
+    """The form-bound phrases (and broken sentences) of a lighting style's description that
+    its own attributes do not support."""
+    held = {(a["key"], str(a["value"])) for a in rec["attributes"]}
+    text = rec["description"]
+    bad = [
+        m.group(0)
+        for pattern, supports in FORM_BOUND_PHRASES.items()
+        for m in re.finditer(pattern, text, flags=re.IGNORECASE)
+        if not held & set(supports)
+    ]
+    bad += [m.group(0) for m in re.finditer(SWITCH_WORD_OPENING, text)]
+    return bad
+
+
+@pytest.fixture(scope="module")
+def derived_lighting() -> list[dict]:
+    built = scale.build(10**6)
+    ids = {d["product_id"] for d in DOCS}
+    return [
+        r for r in built.records
+        if built.template_of.get(r["product_id"]) in ids and r["product_type"] != "Lampshade"
+    ]  # fmt: skip
+
+
+def test_the_ceiling_derives_lighting_styles_to_check(derived_lighting: list[dict]) -> None:
+    assert len(derived_lighting) > 300
+
+
+def test_no_derived_lighting_description_says_what_its_attributes_contradict(
+    derived_lighting: list[dict],
+) -> None:
+    """Guard: a form-bound phrase in a lighting row that ``scale.derive`` cannot rewrite
+    fails here. Metric: how many of the derived styles carry one, in the message."""
+    wrong = {r["product_id"]: _contradictions(r) for r in derived_lighting}
+    wrong = {k: v for k, v in wrong.items() if v}
+    assert not wrong, f"{len(wrong)} of {len(derived_lighting)}: {list(wrong.items())[:5]}"
+
+
+@pytest.mark.parametrize(
+    ("description", "attributes"),
+    [
+        ("A task floor lamp on three splayed legs.", [("style", "Task")]),
+        ("A pendant with five curved arms.", [("fixture_type", "Pendant"), ("light_count", "1")]),
+        ("It charges by USB, so it has no socket near it.", [("power", "Plug-In")]),
+        ("A pendant that sits tight to the ceiling.", [("fixture_type", "Pendant")]),
+        ("A swing arm that runs on a battery, with no wiring. Inline the shade to dim it.",
+         [("power", "Hardwired")]),
+    ],
+)  # fmt: skip
+def test_the_phrase_table_catches_the_reviewed_contradictions(
+    description: str, attributes: list[tuple[str, str]]
+) -> None:
+    rec = {
+        "description": description,
+        "attributes": [{"key": k, "value": v} for k, v in attributes],
+    }
+    assert _contradictions(rec)
+
+
+def test_a_description_its_attributes_support_passes() -> None:
+    rec = {
+        "description": "A tripod floor lamp on splayed legs.",
+        "attributes": [{"key": "style", "value": "Tripod"}],
+    }
+    assert _contradictions(rec) == []
+
+
+def _highest_joint(style: str) -> float:
+    """The smallest ``cy`` of the joints a floor lamp of ``style`` draws: its head's height."""
+    import kit_lighting
+
+    svg = "".join(kit_lighting.floor_lamp("#2f2f33", None, None, style=style))
+    return min(float(y) for y in re.findall(r'<circle cx="[\d.]+" cy="([\d.]+)"', svg))
+
+
+def test_a_task_floor_lamp_reaches_as_high_as_an_arc_one_not_a_desk_lamp() -> None:
+    """The task lamp's head sat at y 118, a desk lamp's height, so its thumbnail read as one
+    in a floor-lamp grid. Guard: its head must sit above y 100 of the 400 px sheet (a desk
+    lamp's sits near 150)."""
+    assert _highest_joint("task") < 100
+
+
+def test_a_picture_light_offers_only_the_finishes_its_brass_hood_can_show() -> None:
+    """The hood is drawn in the record fill (Brass), so a Chrome SKU would show a brass hood
+    under a chrome label. Guard: the picture light lists no Chrome finish."""
+    pic = next(d for d in DOCS if d["product_id"] == "BRD-LTWPIC")
+    finishes = {s["finish"] for s in pic["skus"]}
+    assert finishes == {"Antique Brass", "Brass"}

@@ -160,9 +160,9 @@ def floor_lamp(paint: str, fill: Fill, label: str | None, style: str = "arc", fi
         out.append(f'<ellipse cx="200" cy="100" rx="82" ry="10" fill="{_tint(paint, 0.4) if paint.startswith("#") else BULB}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>')
         return out
     if style == "task":
-        out = [*_base(150, 46, metal), *_rod("M150,350 L150,176 L232,118", metal, 7)]
-        out += [_circle(150, 176, 7, metal), _circle(232, 118, 6, metal)]
-        return out + _cone(232, 118, 52, 80, 92, paint)
+        out = [*_base(150, 46, metal), *_rod("M150,350 L150,110 L232,64", metal, 7)]
+        out += [_circle(150, 110, 7, metal), _circle(232, 64, 6, metal)]
+        return out + _cone(232, 64, 52, 80, 92, paint)
     if style == "mother-and-child":
         out = [*_base(190, 52, metal), *_rod("M190,350 L190,128 M190,236 L238,196 L262,160", metal, 6)]
         out += [_glow("M118,104 L262,104 L320,30 L60,30 Z")]
