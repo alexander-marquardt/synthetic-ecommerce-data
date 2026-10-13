@@ -1152,10 +1152,10 @@ SKU. `size_range` is a list; for legwear it is derived from the in-stock lengths
 `size_range` filter of class 6 means "has an in-stock petite SKU".
 
 Every class doc also carries the tile signals: `offer` (a was-price, or a
-multi-buy with none), `discount_pct` (derived, sale docs only), `new_in`,
+multi-buy with none), `discount_pct` (derived, sale docs only),
 `trending`, `online_only`, a `brand_owner` (own or third party; third-party
 brands lead the offers, some with a `sub_collection` label such as "The
-Active Edit"), and `badges` in one order (New In, Bestseller for the top 15,
+Active Edit"), and `badges` in one order (Bestseller for the top 15,
 Trending, Online Only). Every doc has a full `category_path` of clean shopper
 terms (at least three levels, no merchandising bucket such as Sale or Petite,
 no leaf that is also a parent, one depth per node name) and its
