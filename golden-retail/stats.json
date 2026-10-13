@@ -13,13 +13,13 @@
    "skus": 12128,
    "styles": 4386
   },
-  "images": 10052,
+  "images": 10191,
   "non_grocery": {
    "skus": 81698,
    "styles": 3985
   },
-  "skus": 94541,
-  "styles": 8556
+  "skus": 95930,
+  "styles": 8600
  },
  "departments": {
   "Beauty": 200,
@@ -413,8 +413,8 @@
  },
  "templates": {
   "all": {
-   "skus": 40993,
-   "styles": 5588
+   "skus": 42382,
+   "styles": 5632
   },
   "appliance_rows": {
    "skus": 124,
@@ -426,8 +426,8 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 28865,
-   "styles": 1202
+   "skus": 30254,
+   "styles": 1246
   },
   "breadth_rows": {
    "skus": 664,
@@ -460,6 +460,10 @@
   "sofa_rows": {
    "skus": 157,
    "styles": 48
+  },
+  "underwear_rows": {
+   "skus": 1389,
+   "styles": 44
   }
  }
 }

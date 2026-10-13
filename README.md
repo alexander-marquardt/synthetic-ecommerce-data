@@ -1369,7 +1369,9 @@ clothes airers and mops, each drawn by `kit_household.py` with the count its rec
 (pans in a set, bin lids, basket compartments, airer tiers); no derived style copies one,
 and `tests/test_retail_household_200.py` holds them), then the small appliances (`appliance_rows.py`, gen#202:
 desk, pedestal, tower, ceiling and handheld fans, heaters, kettles
-and toasters, each drawn by `kit_appliances.py`; none is derived from), then the grocery styles (below, `grocery.py`,
+and toasters, each drawn by `kit_appliances.py`; none is derived from), then the underwear and nightwear (`underwear_rows.py`, gen#208: knickers,
+tights, vests, slips, shapewear, dressing gowns and boxers with a pack axis,
+drawn by `kit_underwear.py`; none is derived), then the grocery styles (below, `grocery.py`,
 gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
