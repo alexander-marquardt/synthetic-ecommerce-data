@@ -33,9 +33,11 @@ import breadth_rows  # noqa: E402
 import distractor_rows  # noqa: E402
 import export  # noqa: E402
 import grocery  # noqa: E402
+import household_rows  # noqa: E402
 import scale  # noqa: E402
 import scale_rows  # noqa: E402
 import shirt_rows  # noqa: E402
+import sofa_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 
 STATS = HERE.parents[1] / "golden-retail" / "stats.json"
@@ -100,6 +102,8 @@ def measure() -> dict[str, Any]:
         "breadth_rows": breadth_rows.docs(),
         "distractor_rows": distractor_rows.docs(),
         "shirt_rows": shirt_rows.docs(),
+        "household_rows": household_rows.docs(),
+        "sofa_rows": sofa_rows.docs(),
         "appliance_rows": appliance_rows.docs(),
         "grocery": grocery.build(),
     }

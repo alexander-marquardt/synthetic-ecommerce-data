@@ -123,8 +123,10 @@ CANONICAL_PER_UNIT: dict[str, Fraction] = {
     "GRM": Fraction(1),
     # Retail breadth (gen#173): a tool's battery voltage, in volts.
     "VLT": Fraction(1),
-    # Retail appliances (gen#202): a kettle's capacity in litres.
+    # Retail household (gen#200): a bin's or a pan's capacity in litres, an airer's
+    # drying length in metres.
     "LTR": Fraction(1000),
+    "MTR": Fraction(1000),
 }
 
 #: Units that count something PER a size, so ``value_canonical = size / magnitude``.
