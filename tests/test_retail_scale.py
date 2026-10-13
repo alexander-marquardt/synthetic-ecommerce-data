@@ -42,17 +42,31 @@ FIGURES = committed()
 #: The round 4 preview's authored styles, then the scale-only rows (``scale_rows``),
 #: then the breadth rows (``breadth_rows``), then the distractor rows (``distractor_rows``:
 #: the failure classes' products), then the shirts (``shirt_rows``), then the seating
-#: (``sofa_rows``, gen#196), then the grocery styles (``grocery.build()``, gen#154), last: no
-#: style derives from a shirt, a seating style or a grocery style.
+#: (``sofa_rows``, gen#196), then the household styles (``household_rows``, gen#200), then the
+#: appliances (``appliance_rows``, gen#202), then the underwear (``underwear_rows``, gen#208), then
+#: the grocery styles (``grocery.build()``, gen#154), last: no style derives from a shirt, a seating
+#: style, a household style, an appliance, an underwear style or a grocery style.
 SCALE_ROWS = FIGURES["templates"]["scale_rows"]["styles"]
 AUTHORED = FIGURES["templates"]["authored"]["styles"]
 BREADTH_ROWS = FIGURES["templates"]["breadth_rows"]["styles"]
 DISTRACTOR_ROWS = FIGURES["templates"]["distractor_rows"]["styles"]
 SHIRT_ROWS = FIGURES["templates"]["shirt_rows"]["styles"]
 SOFA_ROWS = FIGURES["templates"]["sofa_rows"]["styles"]
+HOUSEHOLD_ROWS = FIGURES["templates"]["household_rows"]["styles"]
+APPLIANCE_ROWS = FIGURES["templates"]["appliance_rows"]["styles"]
 GROCERY_ROWS = FIGURES["templates"]["grocery"]["styles"]
+UNDERWEAR_ROWS = FIGURES["templates"]["underwear_rows"]["styles"]
 TEMPLATES = (
-    AUTHORED + SCALE_ROWS + BREADTH_ROWS + DISTRACTOR_ROWS + SHIRT_ROWS + SOFA_ROWS + GROCERY_ROWS
+    AUTHORED
+    + SCALE_ROWS
+    + BREADTH_ROWS
+    + DISTRACTOR_ROWS
+    + SHIRT_ROWS
+    + SOFA_ROWS
+    + HOUSEHOLD_ROWS
+    + APPLIANCE_ROWS
+    + UNDERWEAR_ROWS
+    + GROCERY_ROWS
 )
 #: The SKUs the templates alone hold. A build at or under it takes no seeded draw, so
 #: every derived-style test (``pairs``) would pass on an empty list.
@@ -106,9 +120,7 @@ def ceiling() -> scale.Scaled:
 def ceiling_pairs(ceiling) -> list[tuple[dict[str, Any], dict[str, Any]]]:
     """(derived style, its template) for every derived style of the ceiling build."""
     by_id = {t["product_id"]: t for t in scale.templates()}
-    return [
-        (r, by_id[ceiling.template_of[r["product_id"]]]) for r in ceiling.records[TEMPLATES:]
-    ]
+    return [(r, by_id[ceiling.template_of[r["product_id"]]]) for r in ceiling.records[TEMPLATES:]]
 
 
 def test_the_size_parameter_reaches_the_target_sku_count(built):
@@ -783,9 +795,9 @@ def test_every_scale_only_row_opens_a_leaf_or_a_title_value_its_leaf_lacked():
                      if a["key"] in ("rise", "wiring")}  # fmt: skip
         assert len(title) == 1, r["product_id"]
         ((key, value),) = title
-        assert r["category_leaf"] not in leaves or (r["category_leaf"], key, value) not in have, (
-            r["product_id"]
-        )
+        assert r["category_leaf"] not in leaves or (r["category_leaf"], key, value) not in have, r[
+            "product_id"
+        ]
         assert (r["category_leaf"], value) not in seen, r["product_id"]
         seen.add((r["category_leaf"], value))
 
@@ -1033,7 +1045,7 @@ ARTICLE_EXCEPTIONS = {"hour", "honest", "heir", "uniform", "unit", "union", "one
 
 @pytest.mark.parametrize("build", ["built", "ceiling"])
 def test_no_title_or_description_counts_one_of_a_plural(build, request):
-    """"1 leg lengths": a template with a single length printed a plural after the 1."""
+    """ "1 leg lengths": a template with a single length printed a plural after the 1."""
     pattern = re.compile(rf"\b(?:1|one)\s+(?:\w+\s+)?(?:{'|'.join(SINGULAR_PLURALS)})\b", re.I)
     hits = [
         (r["product_id"], m.group(0))
@@ -1045,7 +1057,7 @@ def test_no_title_or_description_counts_one_of_a_plural(build, request):
 
 @pytest.mark.parametrize("build", ["built", "ceiling"])
 def test_every_article_agrees_with_the_word_after_it(build, request):
-    """"an pointed toe", "a almond toe": a swapped value left its old article behind."""
+    """ "an pointed toe", "a almond toe": a swapped value left its old article behind."""
     pattern = re.compile(r"\b(an?)\s+([a-z]+)", re.I)
     wrong = []
     for r in request.getfixturevalue(build).records:
