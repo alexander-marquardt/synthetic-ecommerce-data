@@ -4,7 +4,7 @@
 the deep-SKU rows left a general-retail catalog thin outside clothing and lingerie: at
 the ceiling, toys, garden, gifts and cleaning held under 1% of the styles each, and
 food and beauty under 5%. These rows give each thin department leaves of its own, so
-that no department falls under half its fair share of the ceiling's styles
+that every department holds at least :data:`DEPARTMENT_FLOOR` styles at the ceiling
 (``tests/test_retail_scale.py`` pins it).
 
 A row adds capacity through a title-visible value its leaf varies (:func:`scale.value_pools`):
@@ -1378,6 +1378,14 @@ BREADTH_34 = (
         "A fast spray for kettles, taps and shower heads: leave a few minutes, then rinse.",
         _spray("Aqua"), _a1("form", "Form", "Spray"), colorless=True),
 )  # fmt: skip
+
+
+#: The fewest derivable styles any department holds at the ceiling build (gen#220). It is a
+#: count of the department's own, not a share of the total: a batch that grows one department
+#: (the Home types of gen#196-#217) moves no other department's standing, so it needs no
+#: filler rows elsewhere. The smallest department at the ceiling holds 180 (Food & Drink);
+#: dropping half of any thin department's rows here leaves it with 64 to 116.
+DEPARTMENT_FLOOR = 150
 
 
 #: Every breadth row, by department.
