@@ -1207,8 +1207,8 @@ policy top 3 is all targets, and that this table is the proof's.
 | 6 | Size range and sale state not extracted | *petite sale* | 1. Tapered Trousers `PLT-TAPTRS`<br>2. Wide Leg Trousers `PLT-WIDTRS`<br>3. Straight Leg Jeans `PLT-STRJNS`<br>4. Slim Jeans `PLT-SLMJNS`<br>5. **Petite Straight Jeans `PLT-PETJNS`** | 1. **Petite Straight Jeans `PLT-PETJNS`**<br>2. **Petite Wrap Midi Dress `PLT-PETDRS`**<br>3. **Petite Wide Leg Trousers `PLT-PETTRS`** | filter size_range = petite; filter on sale (price < was_price) |
 | 7 | Sale word ignored | *womens sale dresses* | 1. Womens Linen Midi Dress `PLT-FPLINN`<br>2. Womens Smocked Mini Dress `PLT-FPSMOK`<br>3. Womens Jersey T-Shirt Dress `PLT-FPTEES`<br>4. Womens Satin Slip Dress `PLT-FPSLIP`<br>5. Womens High Neck Ribbed Top `PLT-HNRIBT` | 1. **Womens Wrap Dress `PLT-SDWRAP`**<br>2. **Womens Tiered Maxi Dress `PLT-SDMAXI`**<br>3. **Womens Shirt Dress `PLT-SDSHRT`**<br>4. **Petite Wrap Midi Dress `PLT-PETDRS`** | filter product_type = Dress; filter audience = adult; filter on sale (price < was_price) |
 | 9 | Pack count only in title spellings | *5 pack socks* | 1. Cotton Rich Socks 7 Pack `PLT-SK7PKC`<br>2. Striped Socks 3 Pack `PLT-SK3PKS`<br>3. Kids' School Socks 5 Pack (6-16 Yrs) `PLT-SK5KID`<br>4. **Bamboo Socks, Pack of 5 `PLT-SK5BMB`**<br>5. Wool Walking Socks `PLT-SK1WAL` | 1. **Bamboo Socks, Pack of 5 `PLT-SK5BMB`**<br>2. **Sports Trainer Socks 5 Pack `PLT-SK5SPT`**<br>3. **Cotton Rich Ankle Socks 5pk `PLT-SK5PKC`** | filter units_per_pack = 5; filter audience = adult |
-| 10 | A food word inside compounds and modifiers | *beer* | 1. Fiery Ginger Beer `PLT-GNGBER`<br>2. Cloudy Root Beer `PLT-RTBEER`<br>3. Beer Battered Haddock Fillets `PLT-BBHADD`<br>4. Malted Beer Bread `PLT-BRBRED`<br>5. Beer Battered Chunky Chips `PLT-BBCHIP` | 1. **Golden Table Beer `PLT-BRTABL`**<br>2. **4.8% Tropical Pineapple Sour Beer `PLT-BRTROP`**<br>3. **5.5% Hazy Wheat Beer `PLT-BRWHET`**<br>4. Fiery Ginger Beer `PLT-GNGBER`<br>5. Cloudy Root Beer `PLT-RTBEER` | route to Food/Drinks/Beer & Cider/Beer (recalled, boosted) |
-| 11 | A fruit plural read as a flavour and a color | *oranges* | 1. Cranberry & Orange Panettone `PLT-PANCRO`<br>2. Chocolate & Orange Cookies `PLT-CKCORA`<br>3. Orange Hot Chocolate `PLT-HCORNG`<br>4. Orange Rose Bouquet `PLT-BQORNG`<br>5. Orange Graphic Tee `PLT-TEEW-ORANGE` | 1. **Blood Oranges `PLT-ORBLOD`**<br>2. **Navel Oranges `PLT-ORNAVL`**<br>3. **Seedless Easy Peelers `PLT-OREASY`**<br>4. **Valencia Oranges, Pack of 5 `PLT-ORANGS`**<br>5. Cranberry & Orange Panettone `PLT-PANCRO` | route to Food/Fresh Produce/Fruit/Citrus/Oranges (recalled, boosted) |
+| 10 | A food word inside compounds and modifiers | *beer* | 1. Fiery Ginger Beer `PLT-GNGBER`<br>2. Cloudy Root Beer `PLT-RTBEER`<br>3. Beer Battered Haddock Fillets `PLT-BBHADD`<br>4. Malted Beer Bread `PLT-BRBRED`<br>5. Beer Battered Chunky Chips `PLT-BBCHIP` | 1. **Golden Table Beer `PLT-BRTABL`**<br>2. **4.8% Tropical Pineapple Sour Beer `PLT-BRTROP`**<br>3. **5.5% Hazy Wheat Beer `PLT-BRWHET`**<br>4. Fiery Ginger Beer `PLT-GNGBER`<br>5. Cloudy Root Beer `PLT-RTBEER` | route to Food & Drink/Drinks/Beer & Cider/Beer (recalled, boosted) |
+| 11 | A fruit plural read as a flavour and a color | *oranges* | 1. Cranberry & Orange Panettone `PLT-PANCRO`<br>2. Chocolate & Orange Cookies `PLT-CKCORA`<br>3. Orange Hot Chocolate `PLT-HCORNG`<br>4. Orange Rose Bouquet `PLT-BQORNG`<br>5. Orange Graphic Tee `PLT-TEEW-ORANGE` | 1. **Blood Oranges `PLT-ORBLOD`**<br>2. **Navel Oranges `PLT-ORNAVL`**<br>3. **Seedless Easy Peelers `PLT-OREASY`**<br>4. **Valencia Oranges, Pack of 5 `PLT-ORANGS`**<br>5. Cranberry & Orange Panettone `PLT-PANCRO` | route to Food & Drink/Fresh Produce/Fruit/Citrus/Oranges (recalled, boosted) |
 | 12 | A type word that is also a color and a line name | *face cream* | 1. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>2. Nourishing Face Oil `PLT-FCEOIL`<br>3. Loose Face Powder `PLT-PWDLSE`<br>4. Tinted Face Gel `PLT-TNTGEL`<br>5. Velvetmere Cream Body Oil Spray `PLT-VLCOIL` | 1. **Daily Hydrating Face Cream `PLT-FCDAYC`**<br>2. **Calming Face Cream `PLT-FCCALM`**<br>3. **Rich Night Cream `PLT-FCNGHT`**<br>4. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>5. Nourishing Face Oil `PLT-FCEOIL` | route to Beauty/Skincare/Face Creams (recalled, boosted) |
 | 13 | A size word not applied (mild) | *single bed* | 1. Single Cube Chairbed `PLT-CHRCUB`<br>2. Ottoman Storage Bed `PLT-BDOTTO`<br>3. Upholstered Sleigh Bed `PLT-BDSLGH`<br>4. Panelled Wooden Bed `PLT-BDPANL`<br>5. Two Seater Sofa Bed `PLT-SOFBED` | 1. **Metal Spindle Bed `PLT-BDMETL`**<br>2. **Shaker Wooden Bed Frame `PLT-BDSHKR`**<br>3. **Upholstered Bed Frame `PLT-BDUPHL`**<br>4. Single Cube Chairbed `PLT-CHRCUB`<br>5. Memory Foam Mattress Topper `PLT-MTTMEM` | filter an in-stock SKU with bed_size = Single (3 ft); product_type = Bed x10 |
 | 14 | A two-word color split into words | *rose gold* | 1. Blush Rose & Gold Eucalyptus Bouquet `PLT-BQBLSH`<br>2. White Rose Bouquet with Gold Foliage `PLT-BQWHGF`<br>3. Gold Plated Rose Quartz Hoop Earrings `PLT-RQHOOP`<br>4. Classic Red Rose Bouquet `PLT-BQREDR`<br>5. Orange Rose Bouquet `PLT-BQORNG` | 1. **Cubic Zirconia Stud Earrings `PLT-RGSTUD`**<br>2. **Slim Mesh Strap Watch `PLT-RGMESH`**<br>3. **Wireless Charging Pad `PLT-RGCHRG`**<br>4. **Glow Powder Highlighter `PLT-RGHLIT`**<br>5. **Touch Dimmable Table Lamp `PLT-RGLAMP`** | filter an in-stock SKU with color = Rose Gold |
@@ -1261,8 +1261,8 @@ dietary claims).
 `prototypes/retail_drawings/export.py` turns the 328-style build into that
 standard: `skus` become `variants`, each SKU option a variant-level attribute
 entry (a measurement split into `value`, `unit_code` and `value_canonical`);
-department, color and size options, the offer flags, rating and the other
-retail-only fields become product-level entries; `image_id` is
+color and size options, the offer flags, rating and the other
+retail-only fields become product-level entries (no `department`: see below); `image_id` is
 `<product type>/<product id>/<drawing spec digest>`, one per style and
 colorway, served under `/images/retail` from the image release
 ([The retail image release](#the-retail-image-release)). Every record states
@@ -1335,13 +1335,28 @@ combinations the product's SKUs offer.
 
 **The audience facet and the spelling of a facet**. The tree keeps its Women, Men
 and Kids roots, and every SKU of a worn department (Clothing, Footwear, Lingerie & Nightwear),
-or under a Women, Men, Kids or Baby root, also carries exactly one `audience`: `Womens`, `Mens`,
+or under a Women, Men or Kids root, also carries exactly one `audience`: `Womens`, `Mens`,
 `Girls`, `Boys`, `Baby` or `Unisex` (`audience.py`; a template's own value wins, `Kids/Girls`
-is Girls, `Kids/Boys` is Boys, the rest of Kids is Unisex). A product type has one name:
+is Girls, `Kids/Boys` is Boys, `Kids/Baby` is Baby, the rest of Kids is Unisex). A product type has one name:
 "Tee" is written "T-Shirt" (`export.PRODUCT_TYPE_FOLDS`; the image ids keep the authored type,
 so none is re-rendered), and `pattern` and `rise` are written in Title Case.
 `tests/test_retail_audience.py` refuses a facet with two values that differ only in case.
 "Cleaning & Janitorial" is a department, not a root: its kitchen cleaners sit under `Cleaning`.
+
+**The store's department is the top level of `category_path`, and no document states one**
+(gen#281). The retail tree has exactly eleven roots: Women, Men, Kids, Food & Drink, Home,
+Beauty, Cleaning, Toys, Gifts, Garden and Accessories. Food sits under Food & Drink, Baby
+under Kids (`Kids > Baby > ...`) and Electricals under Home (`Home > Electricals > ...`), each
+with its subtree intact; a product still sits in one place. The documents carry no
+`department` attribute or flat column (its values mixed audience, Clothing, with product kind,
+Footwear): the one fact it held that no other attribute does, the safety boot's Workwear & PPE,
+is carried by its `safety_rating` and `toe_cap`. A consumer reads the department from
+`category_path[0]`. The build records keep a `department` of their own (`departments.py`'s
+closed list), an internal classification the ceiling build's brand pools, floors and share
+read; `export.DROPPED` keeps it out of every document.
+`tests/test_retail_departments_281.py` holds the root list at every layer, and
+`golden-retail/stats.json` records the ceiling's styles and SKUs per top level
+(`ceiling.top_levels`).
 
 **A fit or a bra style is a filter, not a leaf**. A jean sits at `<Root>/Jeans` and a pair of
 trousers at `<Root>/Trousers`, its fit in `leg_fit` alone (the failure-class rows' `leg_style`

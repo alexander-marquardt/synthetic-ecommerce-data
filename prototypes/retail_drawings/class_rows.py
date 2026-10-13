@@ -260,7 +260,7 @@ BOMBER = (
            "Bomber Jacket", "coat", one(cw("Navy", NAVY), 600), audience="kids",
            pattern="plain", size_range="regular"), "audience adult by default"),
     (Style("BABBMB", "Baby Bomber Jacket (3-36 Mths)", "Little Fernby", "Clothing",
-           ("Baby", "Coats & Jackets", "Bomber Jackets"), 20.0,
+           ("Kids", "Baby", "Coats & Jackets", "Bomber Jackets"), 20.0,
            "A soft padded bomber jacket for babies, with contrast ribbing.",
            "Bomber Jacket", "coat", one(cw("Olive", OLIVE), 420), audience="baby",
            pattern="plain"), "audience adult by default"),
@@ -453,7 +453,7 @@ def pack(base: str, sold: int) -> tuple[tuple[Color, int], ...]:
 # --------------------------------------------------------------------------
 
 FOOD = "Food & Drink"
-DRINKS = ("Food", "Drinks")
+DRINKS = ("Food & Drink", "Drinks")
 BEER_NODE = (*DRINKS, "Beer & Cider", "Beer")
 BEERS = (
     Style("BRTROP", "4.8% Tropical Pineapple Sour Beer", "Lanternby", FOOD, BEER_NODE, 2.6,
@@ -481,17 +481,17 @@ NOT_BEER = (
            "Root Beer", "tin", pack("#5a3020", 420), unit=(330.0, "ml"), colorless=True),
      _ROUTE_BEER),
     (Style("BBHADD", "Beer Battered Haddock Fillets", "Saltmarsh", FOOD,
-           ("Food", "Fish & Seafood", "Battered Fish"), 4.5,
+           ("Food & Drink", "Fish & Seafood", "Battered Fish"), 4.5,
            "Two haddock fillets in a crisp beer batter. Oven bake from frozen.",
            "Battered Fish", "box", pack("#d8a548", 600), unit=(280.0, "g"), colorless=True),
      _ROUTE_BEER),
     (Style("BBCHIP", "Beer Battered Chunky Chips", "Hearth & Table", FOOD,
-           ("Food", "Frozen Food", "Chips & Potatoes"), 2.0,
+           ("Food & Drink", "Frozen Food", "Chips & Potatoes"), 2.0,
            "Thick cut chips in a light beer batter, crisp from the oven.",
            "Chips", "box", pack("#e6b85c", 520), unit=(900.0, "g"), colorless=True),
      _ROUTE_BEER),
     (Style("BRBRED", "Malted Beer Bread", "Crofter's Bakehouse", FOOD,
-           ("Food", "Bakery", "Bread"), 1.6,
+           ("Food & Drink", "Bakery", "Bread"), 1.6,
            "A soft malted loaf baked with a dark beer.",
            "Bread", "loaf", pack("#8a5a30", 300), unit=(400.0, "g"), colorless=True),
      _ROUTE_BEER),
@@ -502,7 +502,7 @@ NOT_BEER = (
 # and a color in clothing and flowers; one true hit has no "orange" in it
 # --------------------------------------------------------------------------
 
-CITRUS = ("Food", "Fresh Produce", "Fruit", "Citrus")
+CITRUS = ("Food & Drink", "Fresh Produce", "Fruit", "Citrus")
 ORANGES = (
     Style("ORBLOD", "Blood Oranges", "Goldfield Farms", FOOD, (*CITRUS, "Oranges"), 2.0,
           "Ruby fleshed blood oranges, sweet with a berry note. A short season.",
@@ -522,12 +522,12 @@ ORANGES = (
 _ROUTE_ORANGE = "route: Oranges node boosted and recalled"
 NOT_ORANGES = (
     (Style("PANCRO", "Cranberry & Orange Panettone", "Crofter's Bakehouse", FOOD,
-           ("Food", "Bakery", "Panettone"), 8.0,
+           ("Food & Drink", "Bakery", "Panettone"), 8.0,
            "A tall, light panettone with cranberries and candied orange peel.",
            "Panettone", "panettone", pack("#d9a35a", 610), unit=(750.0, "g"),
            colorless=True), _ROUTE_ORANGE),
     (Style("CKCORA", "Chocolate & Orange Cookies", "Crofter's Bakehouse", FOOD,
-           ("Food", "Biscuits & Snacks", "Cookies"), 2.5,
+           ("Food & Drink", "Biscuits & Snacks", "Cookies"), 2.5,
            "Chunky cookies with dark chocolate and orange oil.",
            "Cookies", "box", pack("#6b3a20", 560), unit=(200.0, "g"), colorless=True),
      _ROUTE_ORANGE),
@@ -537,7 +537,7 @@ NOT_ORANGES = (
            "Hot Chocolate", "tub", pack("#5a3020", 480), unit=(250.0, "g"),
            colorless=True), _ROUTE_ORANGE),
     (Style("XPCHOR", "Cherry & Orange Christmas Pudding", "Hearth & Table", FOOD,
-           ("Food", "Desserts", "Christmas Puddings"), 9.0,
+           ("Food & Drink", "Desserts", "Christmas Puddings"), 9.0,
            "A rich fruit pudding with cherries and orange zest, matured for a month.",
            "Christmas Pudding", "pudding", pack("#5a2a1a", 450), unit=(800.0, "g"),
            colorless=True), _ROUTE_ORANGE),
@@ -697,7 +697,7 @@ ROSE_GOLDS = (
           "Table Lamp", "table_lamp", one(cw(ROSE_GOLD, "#d8a28f"), 25), metal=True,
           params=(("shade", "#f7f3ea"),)),  # the white linen shade; the base is the rose gold
     Style("RGCHRG", "Wireless Charging Pad", "Harbour & Pine", "Home",
-          ("Electricals", "Phone Accessories", "Wireless Chargers"), 22.0,
+          ("Home", "Electricals", "Phone Accessories", "Wireless Chargers"), 22.0,
           "A slim wireless charging pad with a rose gold metal rim.",
           "Wireless Charger", "charging_pad", one(cw(ROSE_GOLD, "#d8a28f"), 20), metal=True),
     Style("RGHLIT", "Glow Powder Highlighter", "Velling Apothecary", "Beauty",
@@ -807,7 +807,7 @@ NOT_CUPS = (
            "Fifty foil baking cups for cupcakes and muffins.",
            "Cupcake Cases", "cupcake", one(cw("Silver", "#c0c0c0"), 90)), _TAIL),
     (Style("CUPHLD", "Car Cup Holder Organiser", "Harbour & Pine", "Home",
-           ("Electricals", "Car Accessories", "Cup Holders"), 9.0,
+           ("Home", "Electricals", "Car Accessories", "Cup Holders"), 9.0,
            "A cup holder insert that holds two cups and a phone.",
            "Cup Holder", "tray", one(cw("Black", BLACK), 70)), _TAIL),
     (Style("CUPTRO", "Engraved Trophy Cup", "Wrenfield", "Gifts",
@@ -858,7 +858,7 @@ OFFERS = (
 
 #: Not a query row: the food sense of a word that is also a lipstick shade.
 HONEY = Style("HONBLS", "Clear Blossom Honey", "Copper Hill Preserves", FOOD,
-              ("Food", "Food Cupboard", "Honey & Spreads", "Honey"), 4.0,
+              ("Food & Drink", "Food Cupboard", "Honey & Spreads", "Honey"), 4.0,
               "A clear, mild blossom honey for tea and toast.",
               "Honey", "jar", pack("#e0a030", 120), unit=(340.0, "g"),
               colorless=True)  # fmt: skip
