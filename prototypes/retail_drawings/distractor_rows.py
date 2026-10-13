@@ -22,7 +22,8 @@ the products that win a query without a policy:
   true answers are beef steaks in the grocery build (``grocery_rows``, families ``STK`` and
   ``TUS``): their titles name the cut and run to five words or more, the knives' lead with
   "Steak Knife" and two are two or four words long, so BM25's length norm puts a knife first.
-  Their sales are modest, no higher than a steak's: the short title decides, nothing is stuffed.
+  Their sales are modest (a knife sells somewhat more than a typical steak): the short title
+  decides, nothing is stuffed.
 
 Every row is a :class:`class_model.Style`, ``reviews`` pinned where a row must out-sell
 another. Names and codes are invented; a row's numbers come from its position, never from
@@ -254,8 +255,8 @@ def _cutlery(code: str, title: str, count: int, handle: str, edge: str, color, s
 
 
 #: The steak knives. Two titles are short ("Steak Knife", "Steak Knife Set of 6"), the rest
-#: longer. Sales are modest and no higher than a steak's (a knife set sells 60 to 120 in five
-#: days, a grocery steak 5 to 94), so the title's length, not popularity, puts a knife first.
+#: longer. Sales are modest (a knife sells 60 to 120 in five days; a grocery steak 5 to 94, so
+#: a knife sells somewhat more), so the title's length, not popularity, decides.
 STEAK_KNIVES = (
     _cutlery("DSK01", "Steak Knife", 1, "wooden", "serrated", STEEL, 90, 5.5,
              "A single steak knife with a pointed serrated blade and a riveted wooden handle, "
@@ -270,13 +271,13 @@ STEAK_KNIVES = (
     _cutlery("DSK04", "Steak Knife Set of 6 with Straight Edge Blades", 6, "wooden", "straight",
              STEEL, 80, 28.0, "Six steak knives with a plain straight edge that slices a "
              "steak cleanly and can be sharpened, and wooden handles. Hand wash."),
-    _cutlery("DSK05", "Steak Knife Set of 12 with Black Handles", 12, "plain", "serrated", CAST,
+    _cutlery("DSK05", "Steak Knife Set of 12 with Black Handles", 12, "black", "serrated", CAST,
              60, 42.0, "Twelve steak knives with serrated blades and black handles, enough "
              "for a table of guests all eating steak. Dishwasher safe."),
-    _cutlery("DSK06", "Steak Knife and Fork Set of 4", 8, "wooden", "serrated", STEEL, 100, 26.0,
+    _cutlery("DSK06", "Steak Knife and Fork Set of 8", 8, "wooden", "serrated", STEEL, 100, 26.0,
              "Four steak knives and four forks with wooden handles: a full steak dinner for "
              "four. Hand wash.", "steak knife and fork"),
-    _cutlery("DSK07", "Steak Knife Set of 6 with Black Straight Edge Blades", 6, "plain",
+    _cutlery("DSK07", "Steak Knife Set of 6 with Black Straight Edge Blades", 6, "black",
              "straight", CAST, 70, 30.0, "Six steak knives with black handles and a straight "
              "edge, for cutting steak cooked rare. Dishwasher safe."),
 )

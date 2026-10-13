@@ -879,6 +879,4 @@ register({
 
 #: The shapes this module adds, in its table's order.
 SHAPES = ("plate", "bowl", "cutlery_piece", "kitchen_knife", "drinking_glass",
-          "kitchen_utensil", "chopping_board", "colander")  # fmt: skip
-# ``grill_press`` is registered above and drawn by the steak rows; it has no kind param,
-# so the drawn-kind test over SHAPES does not apply to it.
+          "kitchen_utensil", "chopping_board", "colander", "grill_press")  # fmt: skip
