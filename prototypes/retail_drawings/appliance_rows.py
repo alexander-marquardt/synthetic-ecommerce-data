@@ -305,12 +305,12 @@ def _hf(power: str, foldable: bool, neck: bool, speeds: int, blades: int = 0) ->
 HANDHELD_FANS = (
     Row("HFNREC", "Rechargeable Handheld Fan with Desk Stand", _L, _HW, _HF, "Handheld Fan", 12.0,
         "handheld_fan", "A pocket fan with 3 speeds and a battery that runs up to 8 hours, "
-        "charged over a USB-C cable. It stands on its base on a desk.",
+        "charged over USB-C. It stands on its base on a desk.",
         (PINK, WHITE, DUCK_EGG), _hf("Rechargeable", False, False, 3, 5),
         params=(("kind", "handheld"), ("blades", "5"))),
     Row("HFNFLD", "Foldable Rechargeable Handheld Fan", _H, _HW, _HF, "Handheld Fan", 15.0,
         "handheld_fan", "A fan whose head folds flat against its handle to fit a bag, with "
-        "4 speeds and a battery that charges over a USB-C cable.",
+        "4 speeds and a battery that charges over USB-C.",
         (MINT, CREAM, NAVY), _hf("Rechargeable", True, False, 4, 4),
         params=(("kind", "handheld"), ("blades", "4"), ("fold", "yes"))),
     Row("HFNBAT", "Battery Mini Handheld Fan", _K, _HW, _HF, "Handheld Fan", 5.0,
