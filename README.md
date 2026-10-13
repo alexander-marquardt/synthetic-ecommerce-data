@@ -1363,7 +1363,15 @@ no derived style copies one), then the living-room seating (`sofa_rows.py`, gen#
 sofas sold as 2, 2.5, 3 and 4 seaters, left- and right-hand corner and chaise sofas,
 modular, recliner and sofa-bed sofas, armchairs and footstools, each drawn by its own
 shape in `kit_seating.py`; no derived style copies one, and
-`tests/test_retail_seating_196.py` holds the range), then the grocery styles (below, `grocery.py`,
+`tests/test_retail_seating_196.py` holds the range), then the household styles (`household_rows.py`, gen#200:
+saucepans, frying pans, casserole dishes, kitchen bins, storage boxes, laundry baskets,
+clothes airers and mops, each drawn by `kit_household.py` with the count its record states
+(pans in a set, bin lids, basket compartments, airer tiers); no derived style copies one,
+and `tests/test_retail_household_200.py` holds them), then the small appliances (`appliance_rows.py`, gen#202:
+desk, pedestal, tower, ceiling and handheld fans, heaters, kettles
+and toasters, each drawn by `kit_appliances.py`; none is derived from), then the underwear and nightwear (`underwear_rows.py`, gen#208: knickers,
+tights, vests, slips, shapewear, dressing gowns and boxers with a pack axis,
+drawn by `kit_underwear.py`; none is derived), then the grocery styles (below, `grocery.py`,
 gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It

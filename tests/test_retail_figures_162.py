@@ -47,6 +47,10 @@ QUOTING = (
     "tests/test_retail_scale.py",
 )
 
+#: Constants that tune the build, not totals it measures: a small total that happens to equal
+#: one (gen#200's 40 household styles and ``ATTEMPTS = 40``) is a collision, not a quotation.
+TUNING = ("ATTEMPTS",)
+
 
 @pytest.fixture(scope="module")
 def stats() -> dict:
@@ -86,7 +90,8 @@ def _quotations(stats: dict) -> dict[str, str]:
         else:
             noun = r"(?:authored\s+|deep-SKU\s+|grocery\s+)?(?:styles?|SKUs?|images?)\b"
             patterns[name] = (
-                rf"^[A-Z][A-Z_]+\s*=\s*{value}\b|(?<![\d.,_]){value}\s+{noun}"
+                rf"^(?!(?:{'|'.join(TUNING)})\b)[A-Z][A-Z_]+\s*=\s*{value}\b"
+                rf"|(?<![\d.,_]){value}\s+{noun}"
             )
     return patterns
 
