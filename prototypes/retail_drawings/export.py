@@ -96,6 +96,13 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "contains": ("contains", "Contains", None),
     "may_contain": ("may_contain", "May contain", None),
     "dietary": ("dietary", "Dietary", None),
+    # A fan's blade size or span, a kettle's capacity, a heater's wattage and fins, a toaster's
+    # slots (appliance_rows.py, gen#202). A wattage is a plain number named in watts.
+    "blade_size_in": ("blade_size", "Blade size", "INH"),
+    "blade_span_cm": ("blade_span", "Blade span", "CMT"),
+    "wattage": ("wattage", "Wattage (W)", None),
+    "fin_count": ("fin_count", "Fin count", "C62"),
+    "slots": ("slots", "Slots", "C62"),
 }
 #: The SKU fields that are columns of the variant, not options.
 SKU_COLUMNS = frozenset({"sku", "price", "in_stock", "ingredients"})
@@ -165,9 +172,14 @@ def _slug(text: str) -> str:
 
 
 def drawing_spec(rec: dict, sku: dict) -> dict:
-    """What one SKU's image draws: its product's drawing in the SKU's color swatch."""
+    """What one SKU's image draws: its product's drawing in the SKU's color swatch, and the
+    SKU's own value of each drawing param it carries (a lamp's ``finish``, a lampshade's
+    ``diameter_cm``: gen#197). A SKU that carries no param key adds nothing, so its image id
+    is what it was."""
     swatch = next((c for c in rec.get("color_options", ()) if c["color"] == sku.get("color")), None)
-    return {"drawing": rec["drawing"], "swatch": swatch}
+    spec = {"drawing": rec["drawing"], "swatch": swatch}
+    own = {k: str(sku[k]) for k in rec["drawing"].get("params") or {} if k in sku}
+    return spec | {"params": own} if own else spec
 
 
 def image_id(rec: dict, sku: dict) -> str:

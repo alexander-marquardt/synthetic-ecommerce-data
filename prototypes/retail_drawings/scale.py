@@ -102,6 +102,7 @@ HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
+import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import distractor_rows  # noqa: E402
 import furniture_rows  # noqa: E402
@@ -206,6 +207,9 @@ GROCERY_PREFIX = "GRC-"
 
 
 SHIRT_IDS = frozenset(f"PLT-{s.code}" for s in shirt_rows.STYLES)
+#: The small appliance styles (:mod:`appliance_rows`, gen#202), left out of the derivation as
+#: the shirts are.
+APPLIANCE_IDS = frozenset(f"BRD-{r.code}" for r in appliance_rows.ROWS)
 #: The seating styles (:mod:`sofa_rows`, gen#196), left out of the derivation as the shirts are.
 SOFA_IDS = frozenset(f"BRD-{r.code}" for r in sofa_rows.ROWS)
 #: The furniture (gen#199): templates, never copied. Each draw would be a style the fairness
@@ -233,7 +237,8 @@ def templates() -> list[dict]:
     authored = (r for recs in samples().values() for r in recs)
     return [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
-        *shirt_rows.docs(), *sofa_rows.docs(), *household_rows.docs(), *grocery.build(),
+        *shirt_rows.docs(), *sofa_rows.docs(), *household_rows.docs(), *appliance_rows.docs(),
+        *grocery.build(),
     ]  # fmt: skip
 
 
@@ -243,7 +248,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
     a shirt (:mod:`shirt_rows`), a seating style (:mod:`sofa_rows`), a piece of furniture
     (:mod:`furniture_rows`) or a household style (:mod:`household_rows`), left out so the
     seeded derivation is what it was."""
-    left_out = SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS
+    left_out = SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out]  # fmt: skip
 
