@@ -163,7 +163,8 @@ _PF = (*_HC, "Pedestal Fans")
 def _pf(size: int, lo: int, hi: int, remote: bool, timer: bool, speeds: int, watts: int,
         blades: int) -> tuple:
     return (_inch("blade_size", "Blade size", size), _cm("min_height", "Minimum height", lo),
-            _cm("max_height", "Maximum height", hi), _yn("remote_control", "Remote control", remote),
+            _cm("max_height", "Maximum height", hi),
+            _yn("remote_control", "Remote control", remote),
             _yn("timer", "Timer", timer), _count("speed_settings", "Speed settings", speeds),
             _watts(watts), _yn("oscillating", "Oscillating", True),
             _count("blade_count", "Blade count", blades))  # fmt: skip
@@ -333,7 +334,8 @@ _HT = (*_HC, "Heaters")
 
 def _ht(kind: str, thermostat: bool, timer: bool, settings: int) -> tuple:
     return (_a("heater_type", "Heater type", kind), _yn("thermostat", "Thermostat", thermostat),
-            _yn("timer", "Timer", timer), _count("heat_settings", "Heat settings", settings))  # fmt: skip
+            _yn("timer", "Timer", timer),
+            _count("heat_settings", "Heat settings", settings))  # fmt: skip
 
 
 def _fins(*pairs: tuple[int, int]) -> tuple:
@@ -410,7 +412,8 @@ KETTLES = (
         (CREAM, MINT, RED, BLACK), _kt("Standard", "Stainless Steel", "Matte", 2200),
         _sizes((1.7, 59.0),), params=_ktp("dome", "steel"), size_key="capacity_l"),
     Row("KTLGLS", "Glass Kettle with LED Light", _L, _HW, _KT, "Kettle", 35.0, "kettle",
-        "A clear borosilicate glass kettle whose LED lights the water as it boils, with a gloss trim "
+        "A clear borosilicate glass kettle whose LED lights the water as it boils, with a gloss "
+        "trim "
         "on its handle and lid.",
         (BLACK, WHITE), _kt("Standard", "Glass", "Gloss", 3000),
         _sizes((1.7, 35.0),), params=_ktp("jug", "glass"), size_key="capacity_l"),
@@ -458,7 +461,8 @@ TOASTERS = (
         params=(("slots", "2"),), size_key="slots"),
     Row("TSTLNG", "Long Slot Toaster", _W, _HW, _TS, "Toaster", 39.0, "toaster",
         "A toaster whose slots run its whole length, for sourdough and long loaves, in a "
-        "matte finish with 7 browning settings. Each long slot takes one long slice or two small ones.",
+        "matte finish with 7 browning settings. Each long slot takes one long slice or two "
+        "small ones.",
         (BLACK, GREY), _ts(True, "Matte", 7), _sizes((2, 39.0), (4, 55.0)),
         params=(("slots", "2"), ("long", "yes")), size_key="slots"),
 )  # fmt: skip

@@ -212,7 +212,7 @@ def ceiling_fan(paint: str, fill: Fill, label: str | None, blades: str = "5", li
     n = _int(blades, 5)
     cx, cy, R, squash = 200.0, 168.0, 175.0, 0.36
     blade_fill = WOOD if _yes(wood) else paint
-    out = [_line(f"M40,22 L360,22", 2, ' stroke-opacity=".5"')]
+    out = [_line("M40,22 L360,22", 2, ' stroke-opacity=".5"')]
     out.append(_path(f"M{cx - 30},22 Q{cx},48 {cx + 30},22 Z", paint, LW_DETAIL))
     out.append(_rect(cx - 5, 40, 10, cy - 58, _shade(fill.base, 0.15), 2, LW_DETAIL))
 
