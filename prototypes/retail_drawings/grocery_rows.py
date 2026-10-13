@@ -683,6 +683,21 @@ FAMILIES: tuple[Family, ...] = (
            (F("Shea", "#e8dcc0"), F("Cocoa Butter", "#d8c4a0"), F("Almond", "#c9a96e"), F("Oat", "#ece3cf")),
            _SKIN_BRANDS, 0.005, axis="scent", department="Beauty",
            noun="rich body cream for dry skin", depth=True),
+    # The "steak" class (gen#264): the true answers, and a tin that shares only the word.
+    # Depth families, last in the list, so no earlier family's draw moves. A steak is a
+    # packaged cut under the existing Packaged Meat node (no Beef leaf is needed: a policy
+    # that routes "steak" to food routes it to Meat & Fish); its title names the cut, says
+    # "steak" once and runs to five words or more ("Ashcombe British Beef Ribeye Steak"), as a
+    # butcher's title does: the text match then favors the short "Steak Knife" titles.
+    Family("STK", _p("Meat & Fish", "Packaged Meat"), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"),
+           (F("Sirloin Steak", "#a8322e", "x"), F("Ribeye Steak", "#9c2a2a", "x"), F("Fillet Steak", "#b8403a", "x"),
+            F("Rump Steak", "#a63a30", "x"), F("Striploin Steak", "#a02e2c", "x"), F("Minute Steaks", "#c04a42", "x")),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.004, depth=True),
+    Family("TUS", _p("Food Cupboard", "Tinned"), "{line} {flavor}", "Tinned Food", "tin", "Tinned", _A, "AB", 1.6,
+           ("145g", "3 x 145g"),
+           (F("Tuna Steaks in Brine", "#3b6fb6", "xF"), F("Tuna Steaks in Sunflower Oil", "#d9a441", "xF")),
+           _CUP, 0.002, depth=True),
 )  # fmt: skip
 
 #: The styles every build plants first, so each demo case exists at any size:
