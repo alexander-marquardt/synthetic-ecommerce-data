@@ -55,6 +55,7 @@ AUTHORED = FIGURES["templates"]["authored"]["styles"]
 BREADTH_ROWS = FIGURES["templates"]["breadth_rows"]["styles"]
 DISTRACTOR_ROWS = FIGURES["templates"]["distractor_rows"]["styles"]
 SHIRT_ROWS = FIGURES["templates"]["shirt_rows"]["styles"]
+ACCESSORY_ROWS = FIGURES["templates"]["accessory_rows"]["styles"]
 SOFA_ROWS = FIGURES["templates"]["sofa_rows"]["styles"]
 HOUSEHOLD_ROWS = FIGURES["templates"]["household_rows"]["styles"]
 LOWERBODY_ROWS = FIGURES["templates"]["lowerbody_rows"]["styles"]
@@ -71,6 +72,7 @@ TEMPLATES = (
     + BREADTH_ROWS
     + DISTRACTOR_ROWS
     + SHIRT_ROWS
+    + ACCESSORY_ROWS
     + SOFA_ROWS
     + HOUSEHOLD_ROWS
     + APPLIANCE_ROWS
