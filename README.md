@@ -292,7 +292,7 @@ type from `skus_by_type` in its `stats.json`:
 The mix is not the one a proportional scale would give, and that is the
 uniqueness rule at work: a type whose spec space is small (ISO 7089 fixes a
 washer's nine sizes; a hammer is its head weight and handle) runs out of
-SKUs its makers have not already made, so it grows less. It was 28,300
+SKUs its makers have not already made, so it grows less. It was about 28 thousand
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
 **122,324 SKUs over 70,776 products** (`skus` and `lines` in `stats.json`),
@@ -1371,7 +1371,10 @@ and `tests/test_retail_household_200.py` holds them), then the small appliances 
 desk, pedestal, tower, ceiling and handheld fans, heaters, kettles
 and toasters, each drawn by `kit_appliances.py`; none is derived from), then the underwear and nightwear (`underwear_rows.py`, gen#208: knickers,
 tights, vests, slips, shapewear, dressing gowns and boxers with a pack axis,
-drawn by `kit_underwear.py`; none is derived), then the toys (`toys_rows.py`, gen#201: building sets, jigsaws, board games, dolls, wooden toys, role play toys, arts and crafts kits and ride-ons, drawn by `kit_toys.py`; every style carries an `age_range` and most a `toy_type`, four invented character ranges (`line`) each span several kinds, and a counted mark in the drawing equals the count the record states, `tests/test_retail_toys_201.py`; no derived style copies one), then the grocery styles (below, `grocery.py`,gen#154). Further styles are
+drawn by `kit_underwear.py`; none is derived), then the toys (`toys_rows.py`, gen#201: building sets, jigsaws, board games, dolls, wooden toys, role play toys, arts and crafts kits and ride-ons, drawn by `kit_toys.py`; every style carries an `age_range` and most a `toy_type`, four invented character ranges (`line`) each span several kinds, and a counted mark in the drawing equals the count the record states, `tests/test_retail_toys_201.py`; no derived style copies one), then the lighting (`lighting_rows.py`, gen#197: floor,
+table, desk, ceiling and wall lights and lampshades under `Home/Lighting`, each typed by
+its name; a SKU is a color times a finish, a shade color or a diameter, and its image draws
+that SKU's own value), then the grocery styles (below, `grocery.py`, gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
 also differs from its template and from every sibling in a value its title shows
