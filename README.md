@@ -1360,7 +1360,7 @@ barrel-leg jeans whose text says balloon; 150 petite styles with a minority on s
 and 60 sale styles that never say petite, then the shirts (`shirt_rows.py`: Oxford,
 Flannel, Linen and Denim, for Mens and Womens, under `Tops/Shirts`, typed `Shirt`;
 no derived style copies one), then the underwear and nightwear (`underwear_rows.py`, gen#208: knickers,
-tights, vests, slips, shapewear, dressing gowns and boxers, 44 styles and 1389 SKUs with a pack axis,
+tights, vests, slips, shapewear, dressing gowns and boxers with a pack axis,
 drawn by `kit_underwear.py`; none is derived), then the grocery styles (below, `grocery.py`,
 gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
