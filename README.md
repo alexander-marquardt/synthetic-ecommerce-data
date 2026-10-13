@@ -1359,7 +1359,9 @@ protectors, mattresses and pillow protectors that out-sell the toppers; bestsell
 barrel-leg jeans whose text says balloon; 150 petite styles with a minority on sale,
 and 60 sale styles that never say petite, then the shirts (`shirt_rows.py`: Oxford,
 Flannel, Linen and Denim, for Mens and Womens, under `Tops/Shirts`, typed `Shirt`;
-no derived style copies one), then the grocery styles (below, `grocery.py`,
+no derived style copies one), then the small appliances (`appliance_rows.py`, gen#202:
+desk, pedestal, tower, ceiling and handheld fans, heaters, kettles
+and toasters, each drawn by `kit_appliances.py`; none is derived from), then the grocery styles (below, `grocery.py`,
 gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
