@@ -28,13 +28,13 @@ HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
+import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import distractor_rows  # noqa: E402
 import export  # noqa: E402
 import grocery  # noqa: E402
 import scale  # noqa: E402
 import scale_rows  # noqa: E402
-import appliance_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 
