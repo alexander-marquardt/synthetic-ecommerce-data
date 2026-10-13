@@ -53,6 +53,10 @@ NEW_BRANCHES = frozenset({
     ("Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Stone Fruit"),
     ("Garden", "Seeds"),
     ("Home", "DIY & Tools"),
+    # gen#283: a type nests under its generic category, which these leaves are the first of
+    ("Home", "DIY & Tools", "Drills"),
+    ("Home", "DIY & Tools", "Tool Sets"),
+    ("Cleaning", "Kitchen & Surfaces", "Cleaners"),
 })
 
 
@@ -76,7 +80,7 @@ def test_a_new_leaf_sits_inside_the_existing_tree_not_beside_it() -> None:
     unknown_parent = sorted(
         r.path for r in ROWS if r.path[:-1] not in nodes | NEW_BRANCHES
     )
-    orphan_branch = sorted(b for b in NEW_BRANCHES if b[:-1] not in nodes)
+    orphan_branch = sorted(b for b in NEW_BRANCHES if b[:-1] not in nodes | NEW_BRANCHES)
     beside = sorted(
         (r.path, r.product_type)
         for r in ROWS

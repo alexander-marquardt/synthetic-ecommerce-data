@@ -65,7 +65,9 @@ def test_every_type_has_three_styles_from_three_brands_in_its_own_leaf() -> None
         leaf, shape, _, _ = TYPES[ptype]
         assert len(recs) >= 3, ptype
         assert len({r["brand"] for r in recs}) >= 3, ptype
-        assert {tuple(r["category_path"]) for r in recs} == {("Home", "Lighting", leaf)}, ptype
+        generic = {"Lamps": "Lamps", "Lights": "Lights"}.get(leaf.split()[-1])  # gen#283
+        want = ("Home", "Lighting", *([generic] if generic else []), leaf)
+        assert {tuple(r["category_path"]) for r in recs} == {want}, ptype
         assert {r["drawing"]["shape"] for r in recs} == {shape}, ptype
         assert all(shape in kit.SHAPES for r in recs)
 

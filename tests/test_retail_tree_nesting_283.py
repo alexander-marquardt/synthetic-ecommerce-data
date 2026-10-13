@@ -68,7 +68,7 @@ MOVED: dict[tuple[str, ...], tuple[str, ...]] = {
     **_under(DIY, "Tool Sets", "Bit Sets", "Screwdriver Sets", "Socket Sets"),
     **_under(SKINCARE, "Creams", "Eye Creams", "Face Creams", "Foot Creams", "Hand Creams"),
     **_under(SURFACES, "Cleaners", "Glass Cleaners", "Kitchen Cleaners", "Oven Cleaners"),
-    ("Home", "Kids' Bedding", "Bedding Sets"): ("Home", "Bedding", "Kids' Bedding", "Bedding Sets"),
+    ("Home", "Kids' Bedding", "Bedding Sets"): ("Home", "Bedding", "Kids' Bedding"),
     (*DAIRY, "Plant Milk"): (*DAIRY, "Milk", "Plant Milk"),
     ("Food & Drink", "Snacks", "Crisps"): ("Food & Drink", "Biscuits & Snacks", "Crisps"),
 }
