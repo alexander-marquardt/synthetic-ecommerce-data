@@ -321,8 +321,8 @@ fields:
   - name: decimal_equivalent
     type: terms
     source: facets.decimal_equivalent
-  # Dia./Thread Size -- 48 distinct values over 1218 product-value pairs is 0.04 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 2329 documents across 6 product type(s); 48 distinct values
+  # Dia./Thread Size -- 48 distinct values over 1219 product-value pairs is 0.04 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 2312 documents across 6 product type(s); 48 distinct values
   - name: dia_thread_size
     type: terms
     source: facets.dia_thread_size
@@ -337,7 +337,7 @@ fields:
     type: terms
     source: facets.diameter
   # Dimension Type -- present on 29% of its product types' documents (floor 50%)
-  #   present on 3399 documents across 36 product type(s); 4 distinct values
+  #   present on 3362 documents across 36 product type(s); 4 distinct values
   - name: dimension_type
     type: terms
     source: facets.dimension_type
@@ -353,13 +353,13 @@ fields:
   - name: dowel_dia_mm
     type: terms
     source: facets.dowel_dia_mm
-  # Drive Size -- a discrete standard set: 41 distinct values over 991 product-value pairs is 0.04 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1842 documents across 5 product type(s); 41 distinct values
+  # Drive Size -- a discrete standard set: 41 distinct values over 993 product-value pairs is 0.04 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1862 documents across 5 product type(s); 41 distinct values
   - name: drive_size
     type: terms
     source: facets.drive_size
   # Drive Type -- single-valued: clicking it cannot narrow the result set
-  #   present on 1842 documents across 5 product type(s); 1 distinct values
+  #   present on 1862 documents across 5 product type(s); 1 distinct values
   - name: drive_type
     type: terms
     source: facets.drive_type
@@ -395,8 +395,8 @@ fields:
   - name: face_type
     type: terms
     source: facets.face_type
-  # Finish -- 17 distinct values over 3762 product-value pairs is 0.00 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 7046 documents across 40 product type(s); 17 distinct values
+  # Finish -- 17 distinct values over 3772 product-value pairs is 0.00 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 7021 documents across 40 product type(s); 17 distinct values
   - name: finish
     type: terms
     source: facets.finish
@@ -416,7 +416,7 @@ fields:
     type: terms
     source: facets.for_shaft_diameter
   # Grade -- 13 distinct values over 1210 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 2238 documents across 5 product type(s); 13 distinct values
+  #   present on 2201 documents across 5 product type(s); 13 distinct values
   - name: grade
     type: terms
     source: facets.grade
@@ -455,18 +455,18 @@ fields:
   - name: hardness
     type: terms
     source: facets.hardness
-  # Head Dia. -- a discrete standard set: 83 distinct values over 1030 product-value pairs is 0.08 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1911 documents across 6 product type(s); 83 distinct values
+  # Head Dia. -- a discrete standard set: 82 distinct values over 1029 product-value pairs is 0.08 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1894 documents across 6 product type(s); 82 distinct values
   - name: head_dia
     type: terms
     source: facets.head_dia
-  # Head Height -- a discrete standard set: 90 distinct values over 1034 product-value pairs is 0.09 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1911 documents across 6 product type(s); 90 distinct values
+  # Head Height -- a discrete standard set: 84 distinct values over 1027 product-value pairs is 0.08 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1894 documents across 6 product type(s); 84 distinct values
   - name: head_height
     type: terms
     source: facets.head_height
-  # Head Type -- 6 distinct values over 959 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 1846 documents across 6 product type(s); 6 distinct values
+  # Head Type -- 6 distinct values over 960 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 1829 documents across 6 product type(s); 6 distinct values
   - name: head_type
     type: terms
     source: facets.head_type
@@ -516,13 +516,13 @@ fields:
   - name: inside_width
     type: terms
     source: facets.inside_width
-  # Item -- 87 distinct values over 6512 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 11887 documents across 79 product type(s); 87 distinct values
+  # Item -- 87 distinct values over 6513 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 11870 documents across 79 product type(s); 87 distinct values
   - name: item
     type: terms
     source: facets.item
-  # Length -- a discrete standard set: 90 distinct values over 2488 product-value pairs is 0.04 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 2556 documents across 24 product type(s); 90 distinct values
+  # Length -- a discrete standard set: 89 distinct values over 2471 product-value pairs is 0.04 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 2539 documents across 24 product type(s); 89 distinct values
   - name: length
     type: terms
     source: facets.length
@@ -536,8 +536,8 @@ fields:
   - name: length_through_bore
     type: terms
     source: facets.length_through_bore
-  # Length under Head -- a discrete standard set: 57 distinct values over 1507 product-value pairs is 0.04 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1507 documents across 4 product type(s); 57 distinct values
+  # Length under Head -- a discrete standard set: 61 distinct values over 1500 product-value pairs is 0.04 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 1500 documents across 4 product type(s); 61 distinct values
   - name: length_under_head
     type: terms
     source: facets.length_under_head
@@ -564,8 +564,8 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 28 distinct values over 5513 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 10142 documents across 77 product type(s); 28 distinct values
+  # Material -- 28 distinct values over 5514 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 10125 documents across 77 product type(s); 28 distinct values
   - name: material
     type: terms
     source: facets.material
@@ -581,13 +581,13 @@ fields:
     type: terms
     source: facets.max_rpm
   # Measurement System -- present on 9% of its product types' documents (floor 50%)
-  #   present on 1081 documents across 36 product type(s); 4 distinct values
+  #   present on 1080 documents across 36 product type(s); 4 distinct values
   - name: measurement_system
     type: terms
     source: facets.measurement_system
     facet: false
-  # Meets/Exceeds -- present on 40% of its product types' documents (floor 50%)
-  #   present on 734 documents across 5 product type(s); 12 distinct values
+  # Meets/Exceeds -- present on 39% of its product types' documents (floor 50%)
+  #   present on 733 documents across 5 product type(s); 12 distinct values
   - name: meets_exceeds
     type: terms
     source: facets.meets_exceeds
@@ -644,8 +644,8 @@ fields:
   - name: overall_width
     type: terms
     source: facets.overall_width
-  # Package Quantity -- a discrete standard set: 9 distinct values over 1434 product-value pairs is 0.01 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 2627 documents across 10 product type(s); 9 distinct values
+  # Package Quantity -- a discrete standard set: 13 distinct values over 2393 product-value pairs is 0.01 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 4454 documents across 15 product type(s); 13 distinct values
   - name: package_quantity
     type: terms
     source: facets.package_quantity
@@ -670,8 +670,8 @@ fields:
   - name: point_type
     type: terms
     source: facets.point_type
-  # Rockwell Hardness -- present on 41% of its product types' documents (floor 50%)
-  #   present on 775 documents across 6 product type(s); 5 distinct values
+  # Rockwell Hardness -- present on 42% of its product types' documents (floor 50%)
+  #   present on 811 documents across 6 product type(s); 5 distinct values
   - name: rockwell_hardness
     type: terms
     source: facets.rockwell_hardness
@@ -722,8 +722,8 @@ fields:
   - name: sizes_included
     type: terms
     source: facets.sizes_included
-  # Standards -- 67 distinct values over 4289 product-value pairs is 0.02 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 6062 documents across 28 product type(s); 67 distinct values
+  # Standards -- 67 distinct values over 4279 product-value pairs is 0.02 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 6040 documents across 28 product type(s); 67 distinct values
   - name: standards
     type: terms
     source: facets.standards
@@ -738,7 +738,7 @@ fields:
     type: terms
     source: facets.style
   # System of Measurement -- present on 4% of its product types' documents (floor 50%)
-  #   present on 492 documents across 35 product type(s); 4 distinct values
+  #   present on 485 documents across 35 product type(s); 4 distinct values
   - name: system_of_measurement
     type: terms
     source: facets.system_of_measurement
@@ -770,13 +770,13 @@ fields:
     type: terms
     source: facets.thread_dia
   # Thread Direction -- single-valued: clicking it cannot narrow the result set
-  #   present on 2665 documents across 9 product type(s); 1 distinct values
+  #   present on 2700 documents across 9 product type(s); 1 distinct values
   - name: thread_direction
     type: terms
     source: facets.thread_direction
     facet: false
-  # Thread Length -- a discrete standard set: 227 distinct values over 1604 product-value pairs is 0.14 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 2069 documents across 6 product type(s); 227 distinct values
+  # Thread Length -- a discrete standard set: 243 distinct values over 1619 product-value pairs is 0.15 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 2052 documents across 6 product type(s); 243 distinct values
   - name: thread_length
     type: terms
     source: facets.thread_length
@@ -791,8 +791,8 @@ fields:
   - name: thread_size
     type: terms
     source: facets.thread_size
-  # Thread Type -- 4 distinct values over 1743 product-value pairs is 0.00 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 3346 documents across 9 product type(s); 4 distinct values
+  # Thread Type -- 4 distinct values over 1695 product-value pairs is 0.00 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 3222 documents across 9 product type(s); 4 distinct values
   - name: thread_type
     type: terms
     source: facets.thread_type
@@ -806,8 +806,8 @@ fields:
   - name: tip_style
     type: terms
     source: facets.tip_style
-  # Type -- 32 distinct values over 4280 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 7748 documents across 21 product type(s); 32 distinct values
+  # Type -- 32 distinct values over 4281 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 7731 documents across 21 product type(s); 32 distinct values
   - name: type
     type: terms
     source: facets.type
@@ -821,8 +821,8 @@ fields:
   - name: width
     type: terms
     source: facets.width
-  # Width Across Flats -- a discrete standard set: 180 distinct values over 1969 product-value pairs is 0.09 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 2220 documents across 3 product type(s); 180 distinct values
+  # Width Across Flats -- a discrete standard set: 179 distinct values over 1968 product-value pairs is 0.09 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 2183 documents across 3 product type(s); 179 distinct values
   - name: width_across_flats
     type: terms
     source: facets.width_across_flats
