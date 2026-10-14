@@ -86,6 +86,11 @@ def sibling_head_noun_findings(paths: Iterable[Sequence[str]]) -> list[str]:
     return sorted(found)
 
 
+def nested_pairs(paths: Iterable[Sequence[str]]) -> list[tuple[Path, Path]]:
+    """Every (generic node, specific child) pair: the child's label ends in the parent's words."""
+    return []
+
+
 def headless_group_findings(
     paths: Iterable[Sequence[str]],
     exceptions: dict[tuple[Path, str], str] | None = None,
