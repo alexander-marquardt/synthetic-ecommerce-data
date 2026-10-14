@@ -18,4 +18,15 @@ from typing import Any
 
 def shared_name_findings(docs: Iterable[dict[str, Any]]) -> list[str]:
     """One line per document that gives one display name to two different keys."""
-    return []
+    found = []
+    for doc in docs:
+        entries = [*doc.get("attributes", ())]
+        for variant in doc.get("variants", ()):
+            entries.extend(variant.get("attributes", ()))
+        keys: dict[str, set[str]] = {}
+        for entry in entries:
+            keys.setdefault(entry["name"], set()).add(entry["key"])
+        for name, held in sorted(keys.items()):
+            if len(held) > 1:
+                found.append(f"{doc.get('product_id')}: {name!r} names {sorted(held)}")
+    return found

@@ -55,6 +55,16 @@ have no single base value: `tree nuts`, `gluten`, `fish`
 (`grocery_ingredients.ALLERGEN_GROUPS`). Singular and plural spellings are the vocabulary's
 job (elastic/prism#12043), not the data's. The mapping is `grocery_ingredients.ALLERGEN_BASE`.
 
+## One display name per key on a document (gen#256)
+
+A skirt once exported `garment_length` (name "Length": Mini, Midi, Maxi) and a SKU axis
+`length` (name "Length": Petite, Regular, Long), so a facet panel showed two facets with one
+label. The axis has been `fit_length` ("Fit length", `export.OPTIONS`) since #280.
+`name_guard.shared_name_findings` now refuses the class for every type: a document, nested or
+flat, may not give one display name to two different keys.
+`tests/test_retail_attribute_names_unique_256.py` feeds it the old skirt and runs it over the
+ceiling build (no finding).
+
 ## Not done in this increment
 
 The non-grocery decoy classes (color on a part, accessory or toy, audience sibling, color
