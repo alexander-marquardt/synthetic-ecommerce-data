@@ -60,6 +60,7 @@ MATERIAL_FILL: dict[str, str] = {
     "Cast Iron": "#8a8d8f",
     "Bronze": "#b08d57",
     "Rubber": "#3a3a3a",
+    "Urethane": "#c9572b",
     "HPPE": "#9aa08a",
     "PU Foam": "#f2b134",
     # The O-ring compounds (#53): black nitrile and EPDM, brown FKM and the
@@ -120,6 +121,7 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Cast Iron": Hatch((0, 60), 4.0, dots=True),
     "Bronze": Hatch((60, 120), 3.0),
     "Rubber": Hatch((15,), 2.5, dots=True),
+    "Urethane": Hatch((), 6.0, dots=True),
     "HPPE": Hatch((), 6.0, dots=True),
     "PU Foam": Hatch((), 5.0, dots=True),
     # The O-ring compounds: the elastomers' dotted single line, a new angle each.
