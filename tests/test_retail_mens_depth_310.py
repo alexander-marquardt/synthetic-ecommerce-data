@@ -33,6 +33,20 @@ FLOORS = {
     "suits, blazers and tailoring": ((("Men", "Suits & Tailoring"),), 60),
     "underwear and socks": ((("Men", "Underwear"), ("Men", "Socks")), 60),
 }
+#: group -> the floor of products that are NOT decoys: the ranking needs real products to choose
+#: between, so the floors above may not be met by decoys alone.
+REAL_FLOORS = {
+    "trousers and chinos": 60,
+    "shirts": 100,
+    "polo shirts": 30,
+    "coats and jackets": 45,
+    "suits, blazers and tailoring": 40,
+    "underwear and socks": 45,
+}
+#: Types whose products carry a sleeve length, and words that name a material in a leaf name.
+SLEEVE_TYPES = ("Shirt", "Polo Shirt", "Coat", "Jacket", "Suit Jacket")
+MATERIAL_WORDS = ("wool", "linen", "leather", "silk", "cashmere", "down", "fur", "suede",
+                  "denim", "flannel", "cotton")
 #: The product types that carry decoys, and the five-plus-two classes each carries.
 TYPES = ("Trousers", "Shirt", "Polo Shirt", "Coat", "Jacket", "Suit Jacket", "Boxers", "Socks")
 CLASSES = (1, 2, 3, 4, 5, 6, 7)
@@ -51,9 +65,11 @@ def templates() -> list[dict]:
 
 
 @pytest.fixture(scope="module")
-def decoys() -> list[tuple]:
-    return [(d, next(r for r in mens_depth_rows.docs() if r["product_id"] == f"BRD-{d.code}"))
-            for d in mens_depth_rows.TABLE]
+def decoys(templates) -> list[tuple]:
+    """Each decoy with its SHIPPED template: ``scale.templates()`` has already run
+    ``main_colors.complete``, which is what the catalogue ships (not the module's raw docs)."""
+    by_id = {r["product_id"]: r for r in templates}
+    return [(d, by_id[f"BRD-{d.code}"]) for d in mens_depth_rows.TABLE]
 
 
 def _under(rec: dict, prefixes) -> bool:
@@ -62,9 +78,26 @@ def _under(rec: dict, prefixes) -> bool:
 
 @pytest.mark.parametrize("group", FLOORS)
 def test_every_group_meets_its_product_floor(templates, group):
+    """The floor counts DECOYS too: a decoy is a real product with SKUs and a leaf. The
+    non-decoy floor below holds without them."""
     prefixes, floor = FLOORS[group]
     n = len({r["product_id"] for r in templates if _under(r, prefixes)})
     assert n >= floor, f"{group}: {n} products, floor {floor}"
+
+
+@pytest.mark.parametrize("group", REAL_FLOORS)
+def test_every_group_meets_a_floor_without_its_decoys(templates, group):
+    prefixes, _ = FLOORS[group]
+    decoy_ids = {f"BRD-{d.code}" for d in mens_depth_rows.TABLE}
+    n = len({r["product_id"] for r in templates
+             if _under(r, prefixes) and r["product_id"] not in decoy_ids})
+    assert n >= REAL_FLOORS[group], f"{group}: {n} non-decoy products"
+
+
+@pytest.mark.parametrize("ptype", ("Shirt", "Coat", "Jacket", "Socks"))
+def test_a_types_decoys_spread_over_sibling_leaves(decoys, ptype):
+    leaves = {tuple(rec["category_path"]) for d, rec in decoys if d.ptype == ptype}
+    assert len(leaves) >= 2, leaves
 
 
 def test_no_mens_knitwear_is_added_here(templates):
@@ -103,6 +136,29 @@ def test_a_decoy_is_a_product_of_its_type_and_true_in_its_fields(decoys):
         colors = {s["color"] for s in rec["skus"]}
         assert colors == {d.color}, (d.code, colors)
         assert rec["category_path"][0] == "Men", d.code
+
+
+def test_a_decoy_sits_in_a_leaf_its_fields_agree_with(decoys):
+    """A material named in the leaf is the product's material: no Wool-Free Coat in Wool Coats."""
+    for d, rec in decoys:
+        leaf = " ".join(rec["category_path"]).lower()
+        material = " ".join(a["value"].lower() for a in rec["attributes"] if a["key"] == "material")
+        for word in MATERIAL_WORDS:
+            if word in leaf:
+                assert word in material, (d.code, rec["category_path"], material)
+        if d.klass == 4:
+            assert d.word.split("-")[0].lower() not in leaf, (d.code, rec["category_path"])
+
+
+def test_a_decoy_carries_a_sleeve_length_where_one_applies(decoys):
+    for d, rec in decoys:
+        has = any(a["key"] == "sleeve_length" for a in rec["attributes"])
+        assert has == (d.ptype in SLEEVE_TYPES), (d.code, d.ptype)
+
+
+def test_no_class_5_name_is_a_well_known_product():
+    names = {r["title"].lower() for r in mens_depth_rows.docs()}
+    assert not any("oyster bay" in t for t in names)
 
 
 def test_class_1_and_6_name_a_main_color_that_is_not_the_products(decoys):
