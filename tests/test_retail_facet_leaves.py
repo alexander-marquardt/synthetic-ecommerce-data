@@ -284,8 +284,8 @@ MOVED = {
     "Brushed Cotton Flannel": ("Flannel", "Cotton"),
     "Mid Weight Denim": ("Denim", None),
     "Washed Linen": ("Linen", None),
-    "Cotton Blend": (None, "Cotton Blend"),
-    "Polyester Blend": (None, "Polyester Blend"),
+    "Cotton Blend": ("Cotton", "Cotton Blend"),
+    "Polyester Blend": ("Suiting", "Polyester Blend"),
     "Cotton Jersey": ("Jersey", "Cotton"),
 }
 
@@ -314,4 +314,4 @@ def test_no_fabric_is_a_blend_or_a_use_word(docs):
     fabrics = {v for d in docs for v in _values(d, "fabric")}
     assert fabrics & {"Cotton Blend", "Polyester Blend", "Cotton Jersey", "Sports", "Cargo",
                       "Compression", "Leather-Look"} == set()
-    assert {"Faux Leather", "Jersey", "Twill", "Knitted"} <= fabrics
+    assert {"Faux Leather", "Jersey", "Twill", "Knitted", "Suiting"} <= fabrics
