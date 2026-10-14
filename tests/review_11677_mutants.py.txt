@@ -1,0 +1,30 @@
+TESTS = ["tests/test_prepush_gate_11677.py"]
+PYTEST_ARGS = ["--noconftest", "-q", "-p", "no:cacheprovider", "-x"]
+P = "scripts/prepush.py"
+MUTANTS = [
+    (P, "    if rc == 4:\n", "    if rc == 5:\n", "file-size growth warning needs exit 4"),
+    (P, "if rc == 0 and passed == 0:", "if rc == 0 and passed == -1:", "scan set with no test run passes"),
+    (P, "found = re.search(r\"(\\d+) passed\", out)", "found = re.search(r\"(\\d+) failed\", out)", "scan count read from the wrong word"),
+    (P, "    if rc != 0:\n        say(f\"prepush-gate: cannot judge", "    if rc == 0:\n        say(f\"prepush-gate: cannot judge", "missing origin/main is judged"),
+    (P, "if args.hook and to_ref == ZEROS:", "if args.hook and to_ref == \"x\":", "branch delete judged"),
+    (P, "wip = args.hook and branch.startswith(\"wip/\")", "wip = args.hook and branch.startswith(\"wipx/\")", "wip push judged as a branch"),
+    (P, "    if wip:\n        if failed:", "    if False:\n        if failed:", "wip push gets no wip verdict"),
+    (P, "elif branch != \"main\":", "elif branch != \"mainx\":", "main asks for a pull request"),
+    (P, "if count is None:", "if count is not None:", "lookup failure not blocking"),
+    (P, "elif count == 0:\n                blocking = False", "elif count == 0:\n                blocking = True", "no pull request still blocks"),
+    (P, "if args.hook and to_ref and to_ref != head:", "if args.hook and to_ref and to_ref == head:", "pushed commit not compared with the checkout"),
+    (P, "if failed and not blocking:", "if failed and blocking:", "advisory verdict for a blocking branch"),
+    (P, "    if not blocking:\n        return finish(0, [], f\"PREPUSH PASS (advisory", "    if blocking:\n        return finish(0, [], f\"PREPUSH PASS (advisory", "advisory pass prints no packet"),
+    (P, "    if args.only:\n        return finish", "    if not args.only:\n        return finish", "only run prints a packet"),
+    (P, "if rc != 0 or not out.strip().isdigit():", "if rc != 0 and not out.strip().isdigit():", "pull request lookup failure read as a count"),
+    (P, "return 127, f\"{argv[0]}: command not found, so this row could not run\\n\"", "return 0, \"\"", "missing tool reads as a pass"),
+    (P, "    return Result(\"PASS\" if rc == 0 else \"FAIL\", f\"ruff check . on {ctx.head[:7]}\", out)", "    return Result(\"PASS\", f\"ruff check . on {ctx.head[:7]}\", out)", "lint never fails"),
+    (P, "        if result.verdict == \"FAIL\":\n            failed.append(name)", "        if result.verdict == \"WARN\":\n            failed.append(name)", "failed row not counted"),
+    (P, "        elif result.verdict == \"WARN\":\n            unjudged.append", "        elif result.verdict == \"FAIL\":\n            unjudged.append", "warning not listed as unjudged"),
+    (P, "    body_file = args.pr_body_file or env.get(\"PRISM_PR_BODY_FILE\") or None\n", "    body_file = None\n", "body file never read"),
+    (P, "unknown = [name for name in args.only if name not in ROW_NAMES]", "unknown = []", "unknown row accepted"),
+    (P, "subject = to_ref if wip and to_ref else \"HEAD\"", "subject = \"HEAD\"", "wip snapshot judged as the checkout"),
+    (".pre-commit-config.yaml", "        entry: bash scripts/prepush.sh --hook\n", "        entry: bash scripts/prepush.sh\n", "hook runs by-hand mode"),
+    (".pre-commit-config.yaml", "default_install_hook_types: [pre-commit, commit-msg, pre-push]", "default_install_hook_types: [pre-commit, commit-msg]", "pre-push hook not installed"),
+    (".pre-commit-config.yaml", "      - id: check-yaml\n        stages: [pre-commit]\n", "      - id: check-yaml\n", "check-yaml runs at push"),
+]

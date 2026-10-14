@@ -104,10 +104,13 @@ FRUIT = {"Unwaxed Lemons": "lemon", "Lemons": "lemon", "Meyer Lemons": "lemon",
          "Large Raspberries": "raspberry", "Plump Blueberries": "blueberry",
          "Sweet Blueberries": "blueberry", "Large Blueberries": "blueberry",
          "Juicy Blackberries": "blackberry", "Sweet Blackberries": "blackberry",
-         "Large Blackberries": "blackberry"}  # fmt: skip
+         "Large Blackberries": "blackberry",
+         "Red Seedless Grapes": "grape", "Green Seedless Grapes": "grape",
+         "Black Seedless Grapes": "grape", "Sweet Red Grapes": "grape",
+         "Crisp Green Grapes": "grape", "Midnight Black Grapes": "grape"}  # fmt: skip
 #: A pack word -> how a fruit pile shows it.
-PILE_PACK = {"Single": "loose", "4 pack": "net", "1kg": "bag",
-             "150g": "bag", "250g": "bag", "300g": "bag", "400g": "bag", "800g": "bag"}  # fmt: skip
+PILE_PACK = {"Single": "loose", "4 pack": "net", "1kg": "bag", "150g": "bag", "250g": "bag",
+             "300g": "bag", "400g": "bag", "500g": "bag", "800g": "bag"}  # fmt: skip
 
 #: Product entries that are a union over the flavors, so a flat SKU must not inherit them.
 UNIONED = frozenset({"contains", "may_contain"})
@@ -190,6 +193,8 @@ def dietary(flavor: F, facts: dict[str, list[str]], organic: bool) -> list[str]:
         out.append("Vegetarian")
     if "Gluten" not in traced:
         out.append("Gluten Free")
+    if "Milk" not in traced:
+        out.append("Dairy Free")
     if not {"Peanuts", "Tree Nuts"} & traced:
         out.append("Nut Free")
     if organic:
@@ -470,6 +475,14 @@ def report(recs: list[dict]) -> dict[str, Any]:
     }
 
 
+def coverage_report(recs: list[dict]) -> dict[str, Any]:
+    """The share of the food rows (one per SKU) with ``facets.contains`` filled (gen#296)."""
+    rows = [r for r in flat(documents(recs)) if r["category_path"][0] == "Food & Drink"]
+    filled = sum(bool(r["facets"].get("contains")) for r in rows)
+    return {"food_rows": len(rows), "contains_filled": filled,
+            "contains_share": round(filled / len(rows), 4) if rows else 0.0}
+
+
 def ingredient_report(recs: list[dict]) -> dict[str, Any]:
     """The distinct label values and base ingredients of ``recs`` (gen#295), and the label
     values the base table has no row for: the build prints them, it never guesses a base."""
@@ -493,7 +506,7 @@ def main(argv: list[str] | None = None) -> int:
     docs = documents(recs)
     problems = standard.check_catalog(docs)
     print(json.dumps({**report(recs), **ingredient_report(recs),
-                      "standard_problems": len(problems)}, indent=1))
+                      **coverage_report(recs), "standard_problems": len(problems)}, indent=1))
     if args.out:
         args.out.mkdir(parents=True, exist_ok=True)
         write_jsonl(iter(docs), args.out / "nested.jsonl")
