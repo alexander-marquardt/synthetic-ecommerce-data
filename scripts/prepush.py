@@ -11,9 +11,10 @@
 Why it exists. Every mechanical red CI would find cost a CI round and a fix round of
 an agent's context. The rows are the commands of the jobs in
 ``.github/workflows/ci.yaml`` that take seconds and need no network: ``commit-messages``,
-``lint`` and ``file-size`` as the workflow runs them, and ``tree-scans``, the tests that
-read every tracked file. ``tests/test_prepush_gate_11677.py`` proves each row's command is
-one its named CI job runs. What stays with CI, by name: the whole suite (about 27
+``lint`` and ``file-size``, and ``tree-scans``, the tests that read every tracked file.
+Each row's argv is read from the workflow (``scripts/local_ci_jobs.py``), never copied;
+``tests/test_prepush_gate_11677.py`` fails on a workflow job or step that is neither a row
+nor in ``LEFT_TO_CI``. What stays with CI, by name: the whole suite (about 27
 minutes), the golden catalog and the merged-tree checks (``scripts/merge_pr.sh``).
 
 The shape is elastic/prism's ``scripts/prepush.sh`` (its job list is not copied):
@@ -46,6 +47,7 @@ from __future__ import annotations
 import argparse
 import os
 import re
+import shlex
 import subprocess  # noqa: S404  # runs git, gh, uv and the repo's own scripts, argv lists, never a shell
 import sys
 from collections.abc import Callable
@@ -69,10 +71,113 @@ SCAN_TESTS = (
     "tests/test_vendored_core_pin_11683.py",
 )
 
-COMMIT_MESSAGES_COMMAND = "python3 scripts/check_commit_msg.py --range"
-LINT_COMMAND = "uv run --locked ruff check ."
-FILE_SIZE_COMMAND = "python3 scripts/file_size_gate.py --base"
-SCANS_COMMAND = "uv run --locked pytest"
+#: Where the CI jobs are read from; ``PREPUSH_WORKFLOWS`` replaces it, for this gate's tests.
+WORKFLOWS = ROOT / ".github" / "workflows"
+
+#: Each command a row runs, found in the workflow and not copied here: key -> (CI job, the
+#: text that picks the command's line out of the job's ``run:`` steps). The argv a row runs IS
+#: that line, so a stricter CI flag, or ``--locked``, reaches the gate with no edit here.
+CI_COMMANDS: dict[str, tuple[str, str]] = {
+    "commit-messages": ("commit-messages", "check_commit_msg.py"),
+    "lint": ("tests", "ruff check"),
+    "file-size": ("file-size", "--no-body-is-advisory"),
+    "file-size-body": ("file-size", "--pr-body-file"),
+    "tree-scans": ("tests", "pytest"),
+}
+
+#: What the gate does not run, by CI job id (or ``job/step name``), and why. A job or step of
+#: ``ci.yaml`` that is neither claimed by a row nor listed here fails the drift test, so a new
+#: cheap job cannot go unnoticed.
+LEFT_TO_CI: dict[str, str] = {
+    "main-merged-tree": "the merged-tree checks; scripts/merge_pr.sh --local-ci runs them",
+}
+
+
+class CannotJudge(Exception):
+    """The workflow cannot be read into commands: the gate says so and exits 3."""
+
+
+def workflows_dir() -> Path:
+    return Path(os.environ.get("PREPUSH_WORKFLOWS") or WORKFLOWS)
+
+
+def _jobs(workflows: Path) -> dict[str, dict]:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    try:
+        import local_ci_jobs  # noqa: PLC0415  # needs pyyaml; imported where it is used
+    except ImportError as error:
+        raise CannotJudge(f"cannot read the workflows ({error}); use `uv run --locked`") from error
+    try:
+        return local_ci_jobs.load_jobs(workflows)
+    except (local_ci_jobs.NoLocalEquivalent, OSError) as error:
+        raise CannotJudge(f"cannot read {workflows}: {error}") from error
+
+
+def _run_steps(job: dict) -> list[dict]:
+    return [step for step in job.get("steps", []) if "run" in step]
+
+
+def _statement(run: str, needle: str) -> list[str] | None:
+    """The first command of ``run`` whose line holds ``needle``, as argv, up to a shell operator."""
+    for line in run.replace("\\\n", " ").splitlines():
+        if needle in line:
+            tokens = shlex.split(line, comments=True)
+            for stop, token in enumerate(tokens):
+                if token in ("||", "&&", ";", "|", ">"):
+                    return tokens[:stop]
+            return tokens
+    return None
+
+
+def ci_commands(workflows: Path = WORKFLOWS) -> dict[str, list[str]]:
+    """Every ``CI_COMMANDS`` key to the argv its CI job runs (placeholders not yet filled)."""
+    jobs = _jobs(workflows)
+    found: dict[str, list[str]] = {}
+    for key, (job_id, needle) in CI_COMMANDS.items():
+        if job_id not in jobs:
+            raise CannotJudge(f"{key}: no CI job {job_id!r} in {workflows}")
+        for step in _run_steps(jobs[job_id]):
+            argv = _statement(step["run"], needle)
+            if argv:
+                found[key] = argv
+                break
+        else:
+            raise CannotJudge(f"{key}: no step of CI job {job_id!r} runs a line with {needle!r}")
+    return found
+
+
+def unaccounted(workflows: Path = WORKFLOWS) -> list[str]:
+    """Jobs and run steps of the workflows that no row claims and ``LEFT_TO_CI`` does not name."""
+    jobs = _jobs(workflows)
+    row_jobs = {job_id for job_id, _ in CI_COMMANDS.values()}
+    out: list[str] = []
+    for job_id, job in jobs.items():
+        if job_id in LEFT_TO_CI:
+            continue
+        if job_id not in row_jobs:
+            out.append(job_id)
+            continue
+        needles = [needle for owner, needle in CI_COMMANDS.values() if owner == job_id]
+        for step in _run_steps(job):
+            name = f"{job_id}/{step.get('name', step['run'].strip()[:40])}"
+            claimed = any(_statement(step["run"], needle) for needle in needles)
+            if not claimed and name not in LEFT_TO_CI:
+                out.append(name)
+    return out
+
+
+_EXPRESSION = re.compile(r"\$\{\{\s*(.*?)\s*\}\}")
+
+
+def fill(argv: list[str], values: dict[str, str]) -> list[str]:
+    """Replace the workflow's ``${{ }}`` expressions and ``$var`` words with this run's values."""
+
+    def one(token: str) -> str:
+        if token in values:
+            return values[token]
+        return _EXPRESSION.sub(lambda m: values.get(m.group(1), m.group(0)), token)
+
+    return [one(token) for token in argv]
 
 
 @dataclass
@@ -90,6 +195,17 @@ class Context:
     head: str
     merge_base: str
     body_file: str | None
+    #: ``ci_commands()``: the argv each CI command runs, read from the workflow.
+    ci: dict[str, list[str]]
+
+    def argv(self, key: str) -> list[str]:
+        values = {
+            "github.event.pull_request.base.sha": self.merge_base,
+            "github.event.pull_request.head.sha": self.head,
+            "$base": BASE_REF,
+            "$body": self.body_file or "",
+        }
+        return fill(self.ci[key], values)
 
 
 Row = Callable[[Context], Result]
@@ -121,26 +237,22 @@ def git(root: Path, *args: str) -> tuple[int, str]:
 def row_commit_messages(ctx: Context) -> Result:
     span = f"{ctx.merge_base}..{ctx.head}"
     _, count = git(ctx.root, "rev-list", "--count", span)
-    rc, out = run(
-        ["python3", "scripts/check_commit_msg.py", "--range", span],
-        ctx.root,
-    )
+    rc, out = run(ctx.argv("commit-messages"), ctx.root)
     judged = f"{count} commit message(s) in {span[:7]}..{ctx.head[:7]}"
     return Result("PASS" if rc == 0 else "FAIL", judged, out)
 
 
 def row_lint(ctx: Context) -> Result:
-    rc, out = run(["uv", "run", "--locked", "ruff", "check", "."], ctx.root)
+    rc, out = run(ctx.argv("lint"), ctx.root)
     return Result("PASS" if rc == 0 else "FAIL", f"ruff check . on {ctx.head[:7]}", out)
 
 
 def row_file_size(ctx: Context) -> Result:
-    argv = ["python3", "scripts/file_size_gate.py", "--base", BASE_REF]
     if ctx.body_file:
-        rc, out = run([*argv, "--pr-body-file", ctx.body_file], ctx.root)
+        rc, out = run(ctx.argv("file-size-body"), ctx.root)
         judged = f"against {BASE_REF}, PR body {ctx.body_file}"
         return Result("PASS" if rc == 0 else "FAIL", judged, out)
-    rc, out = run([*argv, "--no-body-is-advisory"], ctx.root)
+    rc, out = run(ctx.argv("file-size"), ctx.root)
     if rc == 4:
         # A file over the cap grew and a body line could clear it: only the PR body can say.
         note = (
@@ -155,7 +267,7 @@ def row_file_size(ctx: Context) -> Result:
 
 def row_tree_scans(ctx: Context) -> Result:
     tests = scan_tests()
-    rc, out = run(["uv", "run", "--locked", "pytest", "-p", "no:cacheprovider", *tests], ctx.root)
+    rc, out = run([*ctx.argv("tree-scans"), "-p", "no:cacheprovider", *tests], ctx.root)
     found = re.search(r"(\d+) passed", out)
     passed = int(found.group(1)) if found else 0
     judged = f"{passed} passed in {' '.join(tests)}"
@@ -165,12 +277,12 @@ def row_tree_scans(ctx: Context) -> Result:
     return Result("PASS" if rc == 0 else "FAIL", judged, out)
 
 
-#: name, the CI job whose command it runs, that command, the row.
-ROWS: tuple[tuple[str, str, str, Row], ...] = (
-    ("commit-messages", "commit-messages", COMMIT_MESSAGES_COMMAND, row_commit_messages),
-    ("lint", "tests", LINT_COMMAND, row_lint),
-    ("file-size", "file-size", FILE_SIZE_COMMAND, row_file_size),
-    ("tree-scans", "tests", SCANS_COMMAND, row_tree_scans),
+#: name, the ``CI_COMMANDS`` key whose command it runs, the row.
+ROWS: tuple[tuple[str, str, Row], ...] = (
+    ("commit-messages", "commit-messages", row_commit_messages),
+    ("lint", "lint", row_lint),
+    ("file-size", "file-size", row_file_size),
+    ("tree-scans", "tree-scans", row_tree_scans),
 )
 ROW_NAMES = [name for name, *_ in ROWS]
 
@@ -199,6 +311,9 @@ def packet(head: str, merge_base: str, passed: list[tuple[str, str]], unjudged: 
     lines += [f"- {text}" for text in unjudged]
     lines += [
         "",
+        "Left to CI: the whole suite (golden catalog included)"
+        + "".join(f"; {key} ({why})" for key, why in LEFT_TO_CI.items()),
+        "",
         "Claims, each with the command that showed it: <FILL: claim and command>",
         "Repro commands: <FILL: commands a reviewer can re-run>",
         "Planted mutants: <FILL: mutants and how many were killed>",
@@ -214,7 +329,7 @@ def judged_rows(
     passed: list[tuple[str, str]] = []
     unjudged: list[str] = []
     failed: list[str] = []
-    for name, _job, _command, row in ROWS:
+    for name, _key, row in ROWS:
         if name not in selected:
             continue
         result = row(ctx)
@@ -246,8 +361,15 @@ def parse(argv: list[str]) -> argparse.Namespace:
 def main(argv: list[str]) -> int:
     args = parse(argv)
     if args.list:
-        for name, job, command, _row in ROWS:
-            print(f"{name}\t{job}\t{command}")
+        try:
+            commands = ci_commands(workflows_dir())
+        except CannotJudge as error:
+            print(f"prepush: {error}", file=sys.stderr)
+            return 3
+        for name, key, _row in ROWS:
+            print(f"{name}\t{CI_COMMANDS[key][0]}\t{' '.join(commands[key])}")
+        for key, why in LEFT_TO_CI.items():
+            print(f"(left to CI)\t{key}\t{why}")
         return 0
     if args.list_scans:
         print("\n".join(scan_tests()))
@@ -293,7 +415,12 @@ def main(argv: list[str]) -> int:
         return finish(3, ["origin/main"])
 
     body_file = args.pr_body_file or env.get("PRISM_PR_BODY_FILE") or None
-    ctx = Context(root, head, merge_base, body_file)
+    try:
+        ci = ci_commands(workflows_dir())
+    except CannotJudge as error:
+        say(f"prepush-gate: cannot judge: {error}")
+        return finish(3, ["workflows"])
+    ctx = Context(root, head, merge_base, body_file, ci)
     selected = args.only or list(ROW_NAMES)
     blocking = True
     reason = ""
