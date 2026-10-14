@@ -29,6 +29,8 @@ COLOR_WORDS = frozenset({
     # its own, never folded into a plainer one. A two-word color is one value.
     "Amber", "Aubergine", "Berry", "Caramel", "Champagne", "Duck", "Egg", "Mint", "Oatmeal",
     "Olive", "Quartz", "Raspberry", "Rust", "Stone", "Tortoiseshell",
+    # The near-white shade typed before a garment (gen#302): "Off White" is one value.
+    "Off",
 })  # fmt: skip
 #: Words that qualify a color: a tone, a finish, a material, a pattern or a denim wash.
 MODIFIERS = frozenset({
@@ -104,7 +106,7 @@ def plain(name: str) -> str:
 
 #: Words that are a color only as the half of a two-word one (Duck Egg, Rose Quartz): alone they
 #: are a bird, a food or a stone.
-HALF_WORDS = frozenset({"Duck", "Egg", "Quartz"})
+HALF_WORDS = frozenset({"Duck", "Egg", "Quartz", "Off"})
 
 
 def is_plain(value: str) -> bool:
