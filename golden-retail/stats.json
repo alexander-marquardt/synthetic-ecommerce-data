@@ -9,12 +9,12 @@
    "skus": 12416,
    "styles": 4518
   },
-  "images": 16264,
+  "images": 16263,
   "non_grocery": {
    "skus": 91901,
    "styles": 5592
   },
-  "skus": 115888,
+  "skus": 115887,
   "styles": 11059,
   "top_levels": {
    "Accessories": {
@@ -50,7 +50,7 @@
     "styles": 174
    },
    "Men": {
-    "skus": 19098,
+    "skus": 19097,
     "styles": 994
    },
    "Sports & Outdoors": {
@@ -531,7 +531,7 @@
    "styles": 53
   },
   "all": {
-   "skus": 55236,
+   "skus": 55235,
    "styles": 6525
   },
   "appliance_rows": {
@@ -544,7 +544,7 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 42820,
+   "skus": 42819,
    "styles": 2007
   },
   "breadth_rows": {

@@ -283,7 +283,7 @@ def templates(baseline: bool = True) -> list[dict]:
     if baseline:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
-    return main_colors.complete(tpls) if baseline else tpls
+    return main_colors.complete(tpls, mens_depth_rows.decoy_ids()) if baseline else tpls
 
 
 def derivable(tpls: list[dict]) -> list[dict]:
