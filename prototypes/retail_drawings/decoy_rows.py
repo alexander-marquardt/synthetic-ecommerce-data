@@ -296,7 +296,7 @@ TABLE = (
        "A glass carafe for red wine.", "Red", 2, "red wine", 800),
     # -- guards: a real product whose name holds a color word (5)
     _d("XU01", "tea", "Green Tea, 40 Bags", "Sencha green tea in round bags, 40 to a box.",
-       "Green", 5, "green tea", 90, true_hit=True),
+       "Green", 5, "green tea", 900, true_hit=True),
     _d("XU02", "spice", "Black Pepper, Whole Peppercorns",
        "Whole black peppercorns for a grinder.", "Black", 5, "black pepper", 90, true_hit=True),
     _d("XU03", "cake", "Red Velvet Cake", "A red velvet sponge with cream cheese icing. Serves 8.",
