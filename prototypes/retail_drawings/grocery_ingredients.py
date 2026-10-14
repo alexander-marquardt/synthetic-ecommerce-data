@@ -34,6 +34,9 @@ _VAT = "vitamin d3, vitamin a, calcium, riboflavin"
 TAIL: dict[str, str] = {
     "CHB": "emulsifier (soya lecithin), natural flavouring",
     "CHX": "emulsifier (soya lecithin), natural flavouring",
+    "PNT": "emulsifier (soya lecithin), natural flavouring",
+    "PNH": "emulsifier (soya lecithin), natural flavouring",
+    "PNF": "emulsifier (soya lecithin), natural flavouring",
     "SWT": "natural flavouring, color (anthocyanins)",
     "BIS": "salt, raising agent (sodium bicarbonate), natural flavouring",
     "ORB": "salt, raising agent (sodium bicarbonate), natural flavouring",
@@ -65,6 +68,20 @@ HEAD: dict[tuple[str, str], str] = {
     ("CHB", "Almond Dark"): "cocoa mass ({55-70}%), sugar, cocoa butter, toasted almonds ({8-14}%)",
     ("CHB", "Lemon White"): "sugar, cocoa butter, whole milk powder, freeze-dried lemon, lemon oil",
     ("CHB", "Raspberry Dark"): "cocoa mass ({55-70}%), sugar, cocoa butter, freeze-dried raspberry ({3-6}%)",
+    ("PNT", "Chocolate Peanut Butter Cups"): "sugar, cocoa butter, whole milk powder, peanut paste ({18-26}%), cocoa mass, roasted peanuts",
+    ("PNT", "Milk Chocolate with Crunchy Peanuts"): "sugar, cocoa butter, whole milk powder, roasted peanuts ({15-25}%), cocoa mass",
+    ("PNT", "Chocolate Coated Peanuts"): "roasted peanuts ({45-60}%), sugar, cocoa butter, whole milk powder, cocoa mass",
+    ("PNT", "Peanut Caramel Chocolate Bar"): "sugar, cocoa butter, whole milk powder, roasted peanuts ({10-18}%), cocoa mass, caramel pieces",
+    ("PNT", "Dark Chocolate Peanut Clusters"): "cocoa mass ({55-70}%), roasted peanuts ({20-30}%), sugar, cocoa butter",
+    ("PNT", "Chocolate Peanut Brittle"): "sugar, roasted peanuts ({25-35}%), cocoa butter, whole milk powder, cocoa mass, salt",
+    ("PNH", "Milk Chocolate Praline Bar"): "sugar, cocoa butter, whole milk powder, peanut paste ({12-20}%), cocoa mass, vanilla extract",
+    ("PNH", "Triple Chocolate Biscuit Bar"): "sugar, wheat flour, cocoa butter, whole milk powder, cocoa mass, peanut paste ({6-10}%)",
+    ("PNH", "Dark Chocolate Crunch Bar"): "cocoa mass ({55-70}%), sugar, cocoa butter, roasted peanuts ({5-9}%), salt",
+    ("PNF", "Peanut-Free Milk Chocolate Bar"): "sugar, cocoa butter, whole milk powder, cocoa mass, whey powder|lactose",
+    ("PNF", "Peanut-Free Dark Chocolate Bar"): "cocoa mass ({55-70}%), sugar, cocoa butter, vanilla extract",
+    ("PNF", "No Peanuts Hazelnut Milk Chocolate Bar"): "sugar, cocoa butter, whole milk powder, cocoa mass, hazelnut paste ({8-15}%)",
+    ("PNF", "No Peanuts Orange Dark Chocolate Bar"): "cocoa mass ({55-70}%), sugar, cocoa butter, orange oil",
+    ("PNF", "Peanut-Free Salted Caramel Chocolate Bar"): "sugar, cocoa butter, whole milk powder, cocoa mass, salted caramel pieces, sea salt",
     ("CHX", "Classic Milk"): "sugar, cocoa butter, whole milk powder, cocoa mass, glucose syrup",
     ("CHX", "Praline"): "sugar, cocoa butter, whole milk powder, hazelnut praline ({10-20}%), cocoa mass",
     ("CHX", "Dark Truffle"): "sugar, cocoa mass, cocoa butter, double cream, butter, glucose syrup",
@@ -624,6 +641,21 @@ def unmapped(values) -> list[str]:  # noqa: ANN001
     return sorted(set(values) - set(BASE))
 
 
-#: Allergens that name a group of ingredients (no single base ingredient): their own canonical
-#: value for ``facets.contains`` and ``facets.may_contain`` (gen#294). Filled with the fix.
-ALLERGEN_GROUPS: frozenset[str] = frozenset()
+#: The allergen a ``contains`` / ``may_contain`` value names -> its canonical facet value
+#: (gen#294). The same value ``facets.ingredient_base`` holds for that ingredient (``peanuts``,
+#: ``milk``, ``eggs``, ``soya``). Singular and plural spellings are the vocabulary's job, not
+#: the data's (elastic/prism#12043).
+ALLERGEN_BASE: dict[str, str] = {
+    "Peanuts": "peanuts", "Tree Nuts": "tree nuts", "Milk": "milk", "Gluten": "gluten",
+    "Soy": "soya", "Egg": "eggs", "Fish": "fish",
+}
+
+#: Allergens that name a group of ingredients (almonds, hazelnuts ...; wheat, barley, rye, oats;
+#: salmon, tuna ...), so no single base ingredient is theirs: their own value, in the same
+#: lower-case form, and the only values of ``facets.contains`` the base table has no row for.
+ALLERGEN_GROUPS: frozenset[str] = frozenset({"tree nuts", "gluten", "fish"})
+
+
+def allergen_value(allergen: str) -> str:
+    """The canonical facet value of one allergen name (``Soy`` -> ``soya``)."""
+    return ALLERGEN_BASE[allergen]

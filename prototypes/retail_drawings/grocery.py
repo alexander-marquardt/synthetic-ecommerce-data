@@ -53,11 +53,19 @@ if str(HERE) not in sys.path:
 import kit_grocery  # noqa: E402,F401 -- registers bar and bag
 from departments import check as check_departments  # noqa: E402
 from export import NUMERIC_FACTS, standard_document  # noqa: E402
-from grocery_ingredients import base_value, facet_value, ingredients, shared, unmapped  # noqa: E402
+from grocery_ingredients import (  # noqa: E402
+    allergen_value,
+    base_value,
+    facet_value,
+    ingredients,
+    shared,
+    unmapped,
+)
 from grocery_rows import (  # noqa: E402
     ALLERGENS,
     ANCHORS,
     CUT_NOTES,
+    DECOY_ANCHORS,
     FAMILIES,
     LINES,
     OWNERS,
@@ -362,6 +370,14 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
         packs = list(fam.packs)
         add(fam, LINES[n % len(LINES)], fam.brands[n % len(fam.brands)], flavors, packs, may, False)
 
+    # The text-match decoys (gen#294) draw from a stream of their own, so no other draw moves.
+    core_rng, rng = rng, random.Random(f"grocery-decoys:{seed}")
+    for code, names, may, offset in DECOY_ANCHORS:
+        fam = fams[code]
+        flavors = [next(f for f in fam.flavors if f.name == name) for name in names]
+        add(fam, LINES[offset % len(LINES)], fam.brands[offset % len(fam.brands)],
+            flavors, list(fam.packs), may, False)
+    rng = core_rng
     depth_rng = random.Random(f"grocery-depth:{seed}")
     for fam in sorted(FAMILIES, key=lambda f: f.depth):
         misses = 0
@@ -427,6 +443,9 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
                     row["facets"]["ingredient_base"] = list(
                         dict.fromkeys(base_value(v) for v in row["facets"]["ingredients"])
                     )
+                for key in UNIONED:
+                    if key in row["facets"]:
+                        row["facets"][key] = [allergen_value(v) for v in row["facets"][key]]
                 out.append(row)
     return out
 
