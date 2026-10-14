@@ -41,7 +41,6 @@ EXCEPTIONS = {
     "Earrings": "precious metal: the color is the metal",
     "Cutlery": "stainless steel and plated metal: the color is the metal",
     "Cutlery Set": "stainless steel: the color is the metal",
-    "Claw Hammer": "forged steel tool: the color is the raw metal",
     "Socket Set": "chrome vanadium steel: the color is the raw metal",
     "Bit Set": "hardened steel bits: the color is the metal finish",
     "Trophy": "cast metal: the color is the plating",

@@ -71,12 +71,8 @@ _LEAVES: dict[str, tuple[CategoryPath, ...]] = {
         ("Fasteners", "Washers & Shims", "Flat & Square Flat Washers", "Flat Washers"),
     ),
     "hammer_ball_pein": (
-        (
-            "Hand Tools",
-            "Hammers, Striking & Demolition Tools",
-            "Hammers & Mallets",
-            "Ball Pein & Cross Pein Hammers",
-        ),
+        # One node for every hammer kind (#305); see SHARED_LEAVES.
+        ("Hand Tools", "Hammers"),
     ),
     "abrasive_flap_disc": (("Abrasives", "Coated & Non-Woven Abrasives", "Discs", "Flap Discs"),),
     # elastic/prism-industrial-products#103, stage 1. Depth runs to five, as
@@ -117,8 +113,16 @@ END_MILL_MATERIALS: dict[str, tuple[str, ...]] = {
 }
 
 
+#: Leaves that hold several product types, each one a kind of the node (#305): every hammer
+#: kind is its own ``product_type`` under the one ``Hammers`` node. The rule that a leaf is one
+#: type's own two-word plural (``test_every_leaf_is_its_types_own_self_describing_plural``)
+#: holds for every leaf not named here.
+SHARED_LEAVES: frozenset[CategoryPath] = frozenset({("Hand Tools", "Hammers")})
+
+
 def all_paths() -> tuple[CategoryPath, ...]:
-    return tuple(path for paths in LEAVES.values() for path in paths)
+    """Every distinct category path, in type order (a shared leaf once)."""
+    return tuple(dict.fromkeys(path for paths in LEAVES.values() for path in paths))
 
 
 def tree_depths() -> set[int]:
