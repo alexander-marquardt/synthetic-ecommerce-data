@@ -282,8 +282,8 @@ _WASHER = (
     _spec("Thickness", "sku", kind="length"),
 )
 
-#: Ball pein hammers. Deliberately the most distant vocabulary in the catalog.
-_HAMMER = (
+#: Every hammer kind (hammers.py). Deliberately the most distant vocabulary in the catalog.
+HAMMER_VOCAB = (
     _spec("Item", "line"),
     _spec("Material", "line"),
     _spec("Handle Material", "line"),
@@ -402,7 +402,7 @@ _VOCAB: dict[str, tuple[AttrSpec, ...]] = {
     "screw_low_head": _SOCKET_SCREW,
     "bolt_hex": _HEX_BOLT,
     "washer_flat": _WASHER,
-    "hammer_ball_pein": _HAMMER,
+    "hammer_ball_pein": HAMMER_VOCAB,
     "abrasive_flap_disc": _FLAP_DISC,
     "nut_hex": _NUT,
     "bearing_radial_ball": _BEARING,

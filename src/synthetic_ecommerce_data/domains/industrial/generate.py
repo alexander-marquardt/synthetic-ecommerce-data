@@ -62,6 +62,7 @@ from synthetic_ecommerce_data.domains.industrial import (
     breadth,
     compat,
     conformance,
+    hammers,
     series,
     standards,
     taxonomy,
@@ -104,16 +105,6 @@ WASHER_FINISHES: dict[str, tuple[str, ...]] = {
     "316 Stainless Steel": ("Plain",),
     "Brass": ("Plain",),
     "Nylon": ("Plain",),
-}
-
-#: Ball pein hammer handles, and the grips each is sold with: a wood handle
-#: is sold bare, a fiberglass or steel one with a grip or without.
-HAMMER_HANDLES: tuple[str, ...] = ("Hickory", "Ash", "Fiberglass", "Steel")
-HAMMER_GRIPS: dict[str, tuple[str, ...]] = {
-    "Hickory": ("None",),
-    "Ash": ("None",),
-    "Fiberglass": ("Rubber", "Vinyl", "None"),
-    "Steel": ("Rubber", "Vinyl", "None"),
 }
 
 #: The attribute a type's titles must name when its variant axis is not its
@@ -1146,44 +1137,8 @@ class Generator:
         return draft
 
     def _build_hammer(self, type_key: str, category: tuple[str, ...]) -> LineDraft:
-        rng = self.rng
-        brand = brands.pick_brand(rng, type_key, self._exhausted)
-        handle = rng.choice(HAMMER_HANDLES)
-        item = "Ball Pein Hammer"
-        draft = LineDraft(
-            item=item,
-            brand=brand,
-            series=f"BP{rng.randint(10, 99)}",
-            category=category,
-            provenance="generated; no dimensional standard applies",
-        )
-        draft.line_attrs = [
-            keyword_attribute("Item", item),
-            keyword_attribute("Material", "Forged Steel"),
-            keyword_attribute("Handle Material", handle),
-            keyword_attribute("Handle Grip Material", rng.choice(HAMMER_GRIPS[handle])),
-            keyword_attribute("Face Type", "Ball Pein"),
-        ]
-        draft.descriptors = [("Handle Material", handle)]
-
-        weights = list(series.HAMMER_HEAD_OUNCES)
-        rng.shuffle(weights)
-        count = min(self._variant_count(), len(weights))
-        for ounces in sorted(weights[:count]):
-            style = self._style("in")
-            child = ChildDraft(system="in")
-            oal_in = float(series.snap_imperial(10.0 + ounces * 0.16, 16))
-            child.primary = numeric_attribute("Head Weight", f"{ounces} oz", float(ounces))
-            overall = self._length("Overall Length", oal_in, style)
-            child.attrs = [
-                child.primary,
-                overall,
-                self._length("Face Dia.", 0.6 + ounces * 0.02, style),
-                self._length("Handle Length", oal_in - 1.5, style),
-            ]
-            child.secondary = {"other_length": overall}
-            draft.children.append(child)
-        return draft
+        """The ball pein hammer; every other hammer kind is a type module (hammers.py)."""
+        return hammers.build(hammers.BALL_PEIN)(self, type_key, category)
 
     def _build_flap_disc(self, type_key: str, category: tuple[str, ...]) -> LineDraft:
         rng = self.rng

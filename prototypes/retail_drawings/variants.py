@@ -222,7 +222,7 @@ class JeanStyle:
         ]  # fmt: skip
 
     def doc(self) -> dict:
-        who = "Women" if self.audience == "Womens" else "Men"
+        who = "Womens" if self.audience == "Womens" else "Mens"
         return {
             "title": self.title,
             "brand": self.brand,
@@ -382,7 +382,7 @@ class BraStyle:
             "brand": self.brand,
             "department": list(self.department),
             "product_type": "Bra",
-            "category_path": ["Women", "Lingerie", "Bras", f"{self.kind} Bras"],
+            "category_path": ["Womens", "Lingerie", "Bras", f"{self.kind} Bras"],
             "category_leaf": f"{self.kind} Bras",
             "description": (
                 f"The {self.line} {self.kind.lower()} bra: {wire}, with adjustable straps and a "

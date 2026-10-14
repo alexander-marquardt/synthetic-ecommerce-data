@@ -41,7 +41,6 @@ EXCEPTIONS = {
     "Earrings": "precious metal: the color is the metal",
     "Cutlery": "stainless steel and plated metal: the color is the metal",
     "Cutlery Set": "stainless steel: the color is the metal",
-    "Claw Hammer": "forged steel tool: the color is the raw metal",
     "Socket Set": "chrome vanadium steel: the color is the raw metal",
     "Bit Set": "hardened steel bits: the color is the metal finish",
     "Trophy": "cast metal: the color is the plating",
@@ -127,7 +126,7 @@ def offered(styles: list[dict]) -> set[str]:
 
 
 def audience(rec: dict) -> str:
-    """Who the style is sold to: the first category_path step (Men, Women, Kids...), except that
+    """Who the style is sold to: the first category_path step (Mens, Womens, Kids...), except that
     Baby, a node under Kids since gen#281, is still an audience of its own: its colors are
     counted apart from the children's, as they were when it was a root."""
     path = rec["category_path"]

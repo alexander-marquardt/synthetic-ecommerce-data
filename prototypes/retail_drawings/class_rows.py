@@ -91,7 +91,7 @@ MATTRESS = (
 # bestseller boost
 # --------------------------------------------------------------------------
 
-WJEANS = ("Women", "Jeans")
+WJEANS = ("Womens", "Jeans")
 BALLOON = (
     Style("BLNLEG", "Balloon Leg Jeans", "Ferrowick Denim", "Clothing",
           (*WJEANS, "Balloon Jeans"), 45.0,
@@ -136,7 +136,7 @@ BARREL = (
            leg_style="barrel", pattern="plain", lengths=("Regular",),
            params=(("fit", "barrel"), ("rise", "mid"))), _EXACT),
     (Style("BRLTRS", "Barrel Leg Trousers", "Larkmoor", "Clothing",
-           ("Women", "Trousers", "Barrel Trousers"), 32.0,
+           ("Womens", "Trousers", "Barrel Trousers"), 32.0,
            "Twill barrel trousers that wear like jeans, with a pressed crease.",
            "Trousers", "trousers", one(cw("Khaki", OLIVE), 480),
            leg_style="barrel", pattern="plain", lengths=LEGS3,
@@ -147,7 +147,7 @@ BARREL = (
 # 4. "womens boat neck top": the word "neck" matched as a keyword
 # --------------------------------------------------------------------------
 
-TOPS = ("Women", "Tops")
+TOPS = ("Womens", "Tops")
 BOAT = (
     Style("BNTSTR", "Striped Boat Neck Top", "Harbour & Pine", "Clothing",
           (*TOPS, "Long Sleeve Tops"), 24.0,
@@ -202,7 +202,7 @@ NECK = (
            neckline="square", pattern="plain", size_range="regular",
            params=(("neckline", "square"), ("sleeve", "sleeveless"))), "type = Top"),
     (Style("NTSETS", "Womens Tie Neck Top and Trousers Set", "Wrenfield", "Clothing",
-           ("Women", "Co-ords", "Sets"), 48.0,
+           ("Womens", "Co-ords", "Sets"), 48.0,
            "A womens co-ord: a tie neck top and matching wide trousers.",
            "Co-ord Set", "outfit_set", one(cw("Sage", "#9bb08f"), 430),
            pattern="plain", size_range="regular", params=(("tee", "#9bb08f"),)), "type = Top"),
@@ -213,7 +213,7 @@ NECK = (
 # audience not defaulted
 # --------------------------------------------------------------------------
 
-COATS = ("Women", "Coats & Jackets")
+COATS = ("Womens", "Coats & Jackets")
 CHECK = (
     Style("CKBCON", "Check Bomber Jacket with Contrast Collar", "Calderby & Lune", "Clothing",
           (*COATS, "Bomber Jackets"), 69.0,
@@ -272,12 +272,12 @@ BOMBER = (
 
 PETITE = (
     Style("PETDRS", "Petite Wrap Midi Dress", "Larkmoor", "Clothing",
-          ("Women", "Dresses", "Wrap Dresses"), 28.0,
+          ("Womens", "Dresses", "Wrap Dresses"), 28.0,
           "A wrap midi dress cut shorter in the body and hem for petite frames.",
           "Dress", "dress", one(cw("Navy Print", NAVY, "polka", WHITE), 4), was_price=40.0,
           size_range="petite", pattern="print"),
     Style("PETTRS", "Petite Wide Leg Trousers", "Wrenfield", "Clothing",
-          ("Women", "Trousers", "Wide Leg Trousers"), 22.0,
+          ("Womens", "Trousers", "Wide Leg Trousers"), 22.0,
           "Wide leg trousers with a shorter inside leg for petite heights.",
           "Trousers", "trousers", one(cw("Black", BLACK), 3), was_price=32.0,
           lengths=("Extra Short", "Short/Petite"), pattern="plain", leg_style="wide",
@@ -293,7 +293,7 @@ PETITE = (
 _SALE = "size range petite and on sale, as filters"
 BESTSELLERS = (
     (Style("TAPTRS", "Tapered Trousers", "Wrenfield", "Clothing",
-           ("Women", "Trousers", "Tapered Trousers"), 30.0,
+           ("Womens", "Trousers", "Tapered Trousers"), 30.0,
            "Our bestselling tapered trousers. Also cut in petite and tall.",
            "Trousers", "trousers", one(cw("Navy", NAVY), 960),
            lengths=LEGS3, pattern="plain", leg_style="tapered",
@@ -305,7 +305,7 @@ BESTSELLERS = (
            lengths=LEGS3, pattern="plain", leg_style="straight",
            params=(("fit", "straight"), ("rise", "high"))), _SALE),
     (Style("WIDTRS", "Wide Leg Trousers", "Larkmoor", "Clothing",
-           ("Women", "Trousers", "Wide Leg Trousers"), 34.0,
+           ("Womens", "Trousers", "Wide Leg Trousers"), 34.0,
            "Fluid wide leg trousers with a pressed crease. Also cut in petite.",
            "Trousers", "trousers", one(cw("Black", BLACK), 800),
            lengths=("Short/Petite", "Regular"), pattern="plain", leg_style="wide",
@@ -323,7 +323,7 @@ BESTSELLERS = (
 # 7. "womens sale dresses": "sale" ignored, so the full-price bestsellers win
 # --------------------------------------------------------------------------
 
-DRESSES = ("Women", "Dresses")
+DRESSES = ("Womens", "Dresses")
 SALE_DRESSES = (
     Style("SDWRAP", "Womens Wrap Dress", "Larkmoor", "Clothing",
           (*DRESSES, "Wrap Dresses"), 27.0,
@@ -378,7 +378,7 @@ FULL_PRICE = (
 # bestselling 7 pack and a single pair win
 # --------------------------------------------------------------------------
 
-SOCKS = ("Men", "Socks")
+SOCKS = ("Mens", "Socks")
 FIVE_PACKS = (
     Style("SK5PKC", "Cotton Rich Ankle Socks 5pk", "Harbour & Pine", "Clothing",
           (*SOCKS, "Ankle Socks"), 10.0, "Cushioned ankle socks in soft cotton rich yarn.",
@@ -543,7 +543,7 @@ NOT_ORANGES = (
            "Christmas Pudding", "pudding", pack("#5a2a1a", 450), unit=(800.0, "g"),
            colorless=True), _ROUTE_ORANGE),
     (Style("JMPCBL", "Chunky Cable Knit Jumper", "Harbour & Pine", "Clothing",
-           ("Women", "Knitwear", "Jumpers"), 45.0,
+           ("Womens", "Knitwear", "Jumpers"), 45.0,
            "A chunky cable knit jumper in a burnt orange wool blend.",
            "Jumper", "top", one(cw("Burnt Orange", "#c4622d"), 690), pattern="plain",
            params=(("neckline", "crew"), ("sleeve", "long"), ("kind", "jumper"))), _ROUTE_ORANGE),
@@ -615,7 +615,7 @@ NOT_FACE_CREAM = (
            "Duvet Cover", "duvet", ((cw("White", WHITE), 300), (cw("Cream", "#efe6d2"), 260)),
            bed_sized=True, extra=(("thread_count", "Thread Count", "400"),)), _DEPT),
     (Style("CRDRIB", "Ribbed Cardigan", "Larkmoor", "Clothing",
-           ("Women", "Knitwear", "Cardigans"), 32.0,
+           ("Womens", "Knitwear", "Cardigans"), 32.0,
            "A soft ribbed cardigan in cream or oat, with horn effect buttons.",
            "Cardigan", "cardigan",
            ((cw("Cream", "#efe6d2"), 420), (cw("Oat", "#d8cbb2"), 200)), pattern="plain",
@@ -681,7 +681,7 @@ NOT_SINGLE = (
 # --------------------------------------------------------------------------
 
 ROSE_GOLD = "Rose Gold"
-JEWELLERY = ("Women", "Jewellery", "Earrings")
+JEWELLERY = ("Womens", "Jewellery", "Earrings")
 BOUQUETS = ("Garden", "Flowers", "Bouquets")
 ROSE_GOLDS = (
     Style("RGSTUD", "Cubic Zirconia Stud Earrings", "Wrenfield", "Clothing", JEWELLERY, 18.0,
@@ -689,7 +689,7 @@ ROSE_GOLDS = (
           "Earrings", "earrings", one(cw(ROSE_GOLD, "#d8a28f"), 40), metal=True,
           params=(("kind", "stud"),)),
     Style("RGMESH", "Slim Mesh Strap Watch", "Calderby & Lune", "Clothing",
-          ("Women", "Watches", "Bracelet Watches"), 69.0,
+          ("Womens", "Watches", "Bracelet Watches"), 69.0,
           "A slim watch with a fine mesh strap and a rose gold tone case.",
           "Watch", "watch", one(cw(ROSE_GOLD, "#d8a28f"), 30), metal=True,
           params=(("strap", "mesh"),)),
@@ -733,7 +733,7 @@ NOT_ROSE_GOLD = (
            extra=(("stone", "Stone", "rose quartz"),)), _COLOR),
     # The other finishes of a metal good: the color filter keeps them out.
     (Style("LKWTCH", "Link Bracelet Watch", "Larkmoor", "Clothing",
-           ("Women", "Watches", "Bracelet Watches"), 79.0,
+           ("Womens", "Watches", "Bracelet Watches"), 79.0,
            "A link bracelet watch with a sunray dial, in yellow gold, white gold or silver tone.",
            "Watch", "watch",
            ((cw("Yellow Gold", "#d4af37"), 90), (cw("White Gold", "#e5e4e2"), 60),
@@ -748,7 +748,7 @@ NOT_ROSE_GOLD = (
 # --------------------------------------------------------------------------
 
 DRINKWARE = ("Home", "Kitchen & Dining", "Drinkware")
-BRAS = ("Women", "Lingerie", "Bras")
+BRAS = ("Womens", "Lingerie", "Bras")
 LINGERIE = "Lingerie & Nightwear"
 
 
@@ -835,24 +835,24 @@ def _is_bra(d: dict) -> bool:
 
 OFFERS = (
     Style("OFRTEE", "Active Training Tee", "Stridewell", "Clothing",
-          ("Women", "Sportswear", "Sports Tees"), 15.0,
+          ("Womens", "Sportswear", "Sports Tees"), 15.0,
           "A quick drying training tee with mesh panels.",
           "T-Shirt", "tshirt", one(cw("Black", BLACK), 210), was_price=25.0,
           size_range="regular", pattern="plain", online_only=True,
           sub_collection="The Active Edit"),
     Style("OFRBLS", "Pleated Crepe Blouse", "Calderby & Lune", "Clothing",
-          ("Women", "Shirts & Blouses", "Blouses"), 41.0,
+          ("Womens", "Shirts & Blouses", "Blouses"), 41.0,
           "A fluid crepe blouse with a pleated yoke.",
           "Blouse", "blouse", one(cw("Ecru", ECRU), 160), was_price=59.0,
           size_range="regular", pattern="plain", online_only=True,
           sub_collection="The Weekend Edit"),
     Style("OFRBRA", "Seamless Smoothing Bra", "Thistle & Wren", "Lingerie & Nightwear",
-          ("Women", "Lingerie", "Bras", "T-Shirt Bras"), 15.0,
+          ("Womens", "Lingerie", "Bras", "T-Shirt Bras"), 15.0,
           "A seamless non wired bra with smooth moulded cups.",
           "Bra", "bra", one(cw("Black", BLACK), 140), was_price=22.0, pattern="plain",
           online_only=True),
     Style("OFRPJS", "Cotton Pyjama Shorts", "Thistle & Wren", "Lingerie & Nightwear",
-          ("Women", "Nightwear", "Pyjama Bottoms"), 12.0,
+          ("Womens", "Nightwear", "Pyjama Bottoms"), 12.0,
           "Soft cotton jersey pyjama shorts with a drawstring waist.",
           "Pyjama Shorts", "shorts", one(cw("Pink", "#f3c6cf"), 120), was_price=18.0,
           pattern="plain", online_only=True),
@@ -869,7 +869,7 @@ HONEY = Style("HONBLS", "Clear Blossom Honey", "Copper Hill Preserves", FOOD,
 #: 11 SKUs (navy and white in S-XL, heather grey in S-L). The color query of
 #: :mod:`es_proof` ("navy tee") measures a nested color filter on it.
 CREW_TEE = Style("CRWTEE", "Mens Crew Neck Cotton Tee", "Harbour & Pine", "Clothing",
-                 ("Men", "Tops", "T-Shirts"), 14.0,
+                 ("Mens", "Tops", "T-Shirts"), 14.0,
                  "A regular fit tee in soft combed cotton jersey, with a ribbed collar.",
                  "T-Shirt", "top",
                  ((cw("Navy", NAVY), 12), (cw("White", WHITE), 9),

@@ -41,11 +41,11 @@ SHADES = ("Cream", "Ivory", "Off White")
 
 _SIZES = ("XS", "S", "M", "L", "XL")
 _C = "Clothing"
-_JUMP = ("Women", "Knitwear", "Jumpers")
-_CARDI = ("Women", "Knitwear", "Cardigans")
-_DRESS = ("Women", "Dresses", "Midi Dresses")
-_TOP = ("Women", "Tops", "Long Sleeve Tops")
-_BLOUSE = ("Women", "Shirts & Blouses", "Blouses")
+_JUMP = ("Womens", "Knitwear", "Jumpers")
+_CARDI = ("Womens", "Knitwear", "Cardigans")
+_DRESS = ("Womens", "Dresses", "Midi Dresses")
+_TOP = ("Womens", "Tops", "Long Sleeve Tops")
+_BLOUSE = ("Womens", "Shirts & Blouses", "Blouses")
 
 
 def _row(code: str, title: str, brand: str, path: tuple[str, ...], ptype: str, shape: str,

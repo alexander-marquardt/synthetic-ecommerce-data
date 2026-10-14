@@ -345,8 +345,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "remove the one name a screw and a hammer legitimately share",
         "domains/industrial/vocab.py",
-        '_HAMMER = (\n    _spec("Item", "line"),',
-        '_HAMMER = (\n    _spec("Item ", "line"),',
+        'HAMMER_VOCAB = (\n    _spec("Item", "line"),',
+        'HAMMER_VOCAB = (\n    _spec("Item ", "line"),',
         "tests/test_catalog_vocab.py",
         "B",
         "unrelated product types share no vocabulary",

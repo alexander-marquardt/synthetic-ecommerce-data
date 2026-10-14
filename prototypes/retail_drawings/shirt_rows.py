@@ -1,13 +1,13 @@
 """The shirts: Oxford, Flannel, Linen and Denim, for Mens and Womens (data only).
 
 Until now a search for "shirt" found only T-shirt bras and shirt dresses, because the tree
-held blouses and T-shirts but no shirt. The Women and Men trees each get ``Tops/Shirts`` with
+held blouses and T-shirts but no shirt. The Womens and Mens trees each get ``Tops/Shirts`` with
 four leaves, and every style is typed ``Shirt``::
 
-    Men/Tops/Shirts/Oxford Shirts      Women/Tops/Shirts/Oxford Shirts
-    Men/Tops/Shirts/Flannel Shirts     Women/Tops/Shirts/Flannel Shirts
-    Men/Tops/Shirts/Linen Shirts       Women/Tops/Shirts/Linen Shirts
-    Men/Tops/Shirts/Denim Shirts       Women/Tops/Shirts/Denim Shirts
+    Mens/Tops/Shirts/Oxford Shirts      Womens/Tops/Shirts/Oxford Shirts
+    Mens/Tops/Shirts/Flannel Shirts     Womens/Tops/Shirts/Flannel Shirts
+    Mens/Tops/Shirts/Linen Shirts       Womens/Tops/Shirts/Linen Shirts
+    Mens/Tops/Shirts/Denim Shirts       Womens/Tops/Shirts/Denim Shirts
 
 Three styles per leaf and audience, so 24 in all, each in :data:`SIZES` and one or two colors.
 :func:`scale.templates` builds them just before the grocery styles and :func:`scale.derivable`
@@ -92,7 +92,7 @@ def _style(root: str, who: str, leaf: str, fabric: str, n: int, row: tuple) -> S
 
 STYLES = tuple(
     _style(root, who, leaf, fabric, n, row)
-    for root, who in (("Men", "Mens"), ("Women", "Womens"))
+    for root, who in (("Mens", "Mens"), ("Womens", "Womens"))
     for leaf, ((fabric, rows),) in _ROWS.items()
     for n, row in enumerate(rows)
 )
