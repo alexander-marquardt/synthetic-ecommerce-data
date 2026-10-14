@@ -28,7 +28,7 @@ import export  # noqa: E402
 import grocery  # noqa: E402
 import kit  # noqa: E402
 from grocery_ingredients import allergen_value, facet_value  # noqa: E402
-from grocery_rows import ALLERGENS  # noqa: E402
+from grocery_rows import ALLERGENS, DIETARY  # noqa: E402
 from retail_figures import committed  # noqa: E402
 
 #: The measured totals (``golden-retail/stats.json``, gen#162): never typed here.
@@ -163,7 +163,7 @@ def test_the_facet_values_are_the_closed_vocabularies() -> None:
     pool = lambda name: {v for r in rows for v in r["facets"].get(name, [])}  # noqa: E731
     assert pool("contains") == canon(ALL)
     assert pool("may_contain") <= canon(ALL)
-    assert pool("dietary") == {"Vegan", "Vegetarian", "Gluten Free", "Nut Free", "Organic"}
+    assert pool("dietary") == set(DIETARY)
     assert len(pool("ingredients")) > 100
 
 

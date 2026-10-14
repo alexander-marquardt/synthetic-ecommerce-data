@@ -19,9 +19,9 @@ the products that win a query without a policy:
 - **"steak"** (gen#264). A food noun used as the modifier of a tool or serving item: the
   steak knives (:data:`STEAK_KNIVES`), a steak plate, a steak board and a cast-iron steak
   weight (:data:`STEAK_WARE`) win the text match, and a tin of tuna steaks shares the word. The
-  true answers are beef steaks in the grocery build (``grocery_rows``, families ``STK`` and
-  ``TUS``): their titles name the cut and run to five words or more, the knives' lead with
-  "Steak Knife" and two are two or four words long, so BM25's length norm puts a knife first.
+  true answers are beef steaks in the grocery build (``grocery_rows``, families ``SKS`` to
+  ``SKW`` and ``TUS``): their titles name the cut and run to five words or more, the knives' lead
+  with "Steak Knife" and two are two or four words long, so BM25's length norm puts a knife first.
   Their sales are modest (a knife sells somewhat more than a typical steak): the short title
   decides, nothing is stuffed.
 
@@ -310,4 +310,3 @@ STYLES = (*MORE_TOPPERS, *PROTECTORS, *MATTRESSES, *PILLOW_PROTECTORS, *BARRELS,
 def docs() -> list[dict]:
     """Every row's catalog document, in the order of :data:`STYLES`."""
     return [s.doc() for s in STYLES]
-

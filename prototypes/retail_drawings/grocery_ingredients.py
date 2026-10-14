@@ -25,7 +25,7 @@ import zlib
 #: Families whose products are sold loose or whole, or are wine and cider (no label list), and carry no ingredients list.
 NO_LIST = frozenset({"ORA", "LEM", "APP", "VEG", "LIM", "STR", "WRD", "WWH", "WRS", "WSP", "WCH", "CDR",
                      "SWH", "SGN", "SVD", "SRM", "STQ", "FPT", "FSY", "FVM", "PRY", "MED",
-                     "GRF", "MAN", "CLM", "SAT", "RSP", "BLU", "BLK"})
+                     "GRF", "MAN", "CLM", "SAT", "RSP", "BLU", "BLK", "GRP"})
 
 _MARK = re.compile(r"\{(\d+)-(\d+)\}")
 _VAT = "vitamin d3, vitamin a, calcium, riboflavin"
@@ -262,12 +262,22 @@ HEAD: dict[tuple[str, str], str] = {
     ("MEA", "Pork Sausages"): "pork ({70-80}%), water, wheat rusk, salt, spices, dextrose, antioxidant (ascorbic acid)",
     ("MEA", "Smoked Bacon"): "pork belly, salt, sugar, preservative (sodium nitrite), antioxidant (sodium ascorbate)",
     ("MEA", "Lemon & Herb Chicken Thighs"): "chicken thighs ({80-88}%), lemon juice, rapeseed oil, herbs (parsley, thyme), salt, garlic",
-    ("STK", "Sirloin Steak"): "beef sirloin ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
-    ("STK", "Ribeye Steak"): "beef ribeye ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
-    ("STK", "Fillet Steak"): "beef fillet ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
-    ("STK", "Rump Steak"): "beef rump ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
-    ("STK", "Striploin Steak"): "beef striploin ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
-    ("STK", "Minute Steaks"): "beef topside ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SKS", "Sirloin Steak"): "beef sirloin ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SKR", "Ribeye Steak"): "beef ribeye ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SKU", "Rump Steak"): "beef rump ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SKF", "Fillet Steak"): "beef fillet ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SKC", "Chuck Steak"): "beef chuck ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SKT", "T-Bone Steak"): "beef t-bone ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SKL", "Flank Steak"): "beef flank ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SKW", "Skirt Steak"): "beef skirt ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SSA", "Steak Sauce"): "tomatoes, barley malt vinegar, sugar, dates, molasses, salt, spices",
+    ("SSA", "Peppercorn Steak Sauce"): "tomatoes, barley malt vinegar, sugar, black pepper, molasses, salt, spices",
+    ("SSN", "Steak Seasoning"): "sea salt, black pepper, garlic, smoked paprika, onion powder",
+    ("SSN", "Smoky Steak Rub"): "smoked paprika, sea salt, sugar, black pepper, onion powder",
+    ("GJU", "Red Grape Juice"): "concentrated grape juice ({90-99}%), water, vitamin c, antioxidant (ascorbic acid), citric acid",
+    ("GJU", "White Grape Juice"): "concentrated grape juice ({90-99}%), water, vitamin c, citric acid, natural flavoring",
+    ("GCH", "Grape Fruit Chews"): "glucose syrup, sugar, gelatine, concentrated grape juice ({2-5}%), citric acid, natural flavoring",
+    ("GCH", "Grape Jellies"): "glucose syrup, sugar, modified maize starch, concentrated grape juice ({2-5}%), citric acid, natural flavoring",
     ("TUS", "Tuna Steaks in Brine"): "yellowfin tuna ({70-75}%), water, sea salt, acidity regulator (citric acid), antioxidant (ascorbic acid)",
     ("TUS", "Tuna Steaks in Sunflower Oil"): "yellowfin tuna ({70-75}%), sunflower oil, sea salt, water, antioxidant (ascorbic acid)",
     ("FSH", "Salmon Fillets"): "salmon ({93-97}%), sea salt, sunflower oil, black pepper, lemon juice",
@@ -537,7 +547,7 @@ lemon verbena: lemon verbena
 lemongrass: lemongrass
 liquorice: liquorice root
 sarsaparilla: sarsaparilla extract
-beef: beef; beef fat; beef fillet; beef ribeye; beef rump; beef sirloin; beef striploin; beef topside
+beef: beef; beef chuck; beef fat; beef fillet; beef flank; beef ribeye; beef rump; beef sirloin; beef skirt; beef t-bone
 chicken: chicken breast; chicken thigh; cooked chicken; cooked chicken breast
 pork: pork; pork belly
 ham: cooked ham
