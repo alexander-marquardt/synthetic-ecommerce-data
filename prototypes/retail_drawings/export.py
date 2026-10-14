@@ -122,6 +122,11 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     # A balance bike's and a trike's wheel size (toys_rows.py, gen#271): its own attribute,
     # never the garment ``size``, whose S/M/L is another kind of value.
     "wheel_size_in": ("wheel_size", "Wheel size", "INH"),
+    # A tent's berth, a mat's thickness and a dumbbell's or kettlebell's weight
+    # (sports_rows.py, gen#265).
+    "berth": ("berth", "Berth", "C62"),
+    "thickness_mm": ("thickness", "Thickness", "MMT"),
+    "weight_kg": ("weight", "Weight", "KGM"),
 }
 #: The SKU fields that are columns of the variant, not options.
 SKU_COLUMNS = frozenset({"sku", "price", "in_stock", "ingredients"})
