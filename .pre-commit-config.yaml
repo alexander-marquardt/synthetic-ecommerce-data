@@ -9,6 +9,8 @@ default_install_hook_types: [pre-commit, commit-msg, pre-push]
 # ``prepush-gate`` at the end of this file, which runs the cheap rows of CI
 # (lint, commit messages, file size, the scans over tracked files); running the
 # whitespace and lint hooks at the push stage as well would be the same work twice.
+# A hook's own manifest lists ``pre-push`` among its stages and outranks
+# ``default_stages``, so each hook from a remote repository names ``stages`` itself.
 default_stages: [pre-commit]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -22,9 +24,12 @@ repos:
       # byte by test_the_committed_samples_and_preview_are_what_the_builder_writes.
       - id: end-of-file-fixer
         exclude: ^(golden-catalog|vendor)/|^prototypes/retail_drawings/preview4?\.html$
+        stages: [pre-commit]
       - id: trailing-whitespace
         exclude: ^(golden-catalog|vendor)/|^prototypes/retail_drawings/preview4?\.html$
+        stages: [pre-commit]
       - id: check-yaml
+        stages: [pre-commit]
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.5
     hooks:
@@ -32,6 +37,7 @@ repos:
       # this repository yet (see the note in .github/workflows/ci.yaml), and a
       # format hook would reformat every file a change touches.
       - id: ruff-check
+        stages: [pre-commit]
   - repo: local
     hooks:
       - id: no-ai-attribution
