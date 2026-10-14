@@ -40,7 +40,7 @@ MAIN = ("Red", "Blue", "Green", "Yellow", "Black", "White")
 #: The invented brands of class 7: each holds a color or category word.
 BRANDS = ("Black Curlew", "Yellow Plover", "Jacket Wren")
 #: Other categories' nouns a class-2 title may borrow.
-CATEGORY_NOUNS = ("dress", "jumper", "coat", "blazer", "shirt", "trouser", "sock", "vest", "hanger")
+CATEGORY_NOUNS = ("dress", "jumper", "coat", "blazer", "shirt", "trouser", "sock", "boot", "boxer")
 AUDIENCE_WORDS = ("women", "boyfriend", "kids", "boys", "girls", "mini-me")
 NEAR_WHITE = ("ivory", "cream", "off white")
 
@@ -110,7 +110,10 @@ def test_class_1_and_6_name_a_main_color_that_is_not_the_products(decoys):
         if d.klass in (1, 6):
             assert d.word in MAIN and d.word != d.color, d.code
             assert d.word.lower() in rec["title"].lower(), d.code
-            assert d.color.lower() not in rec["title"].lower().replace(d.word.lower(), ""), d.code
+        if d.klass == 1:
+            assert d.color.lower() in rec["title"].lower(), d.code
+        if d.klass == 6:
+            assert d.color.lower() not in rec["title"].lower(), d.code
 
 
 def test_class_6_sits_in_a_short_title_and_names_its_range(decoys):
@@ -121,13 +124,16 @@ def test_class_6_sits_in_a_short_title_and_names_its_range(decoys):
 
 
 def test_class_2_borrows_another_categorys_noun_and_class_3_an_audience_word(decoys):
+    own = {"Trousers": "chinos", "Shirt": "shirt", "Polo Shirt": "polo", "Coat": "coat",
+           "Jacket": "jacket", "Suit Jacket": "blazer", "Boxers": "boxers", "Socks": "socks"}
     for d, rec in decoys:
         t = rec["title"].lower()
         if d.klass == 2:
-            assert any(w in t for w in CATEGORY_NOUNS), d.code
+            assert d.word in CATEGORY_NOUNS and d.word in t, d.code
+            assert d.word not in own[d.ptype], d.code
         if d.klass == 3:
             assert any(w in t for w in AUDIENCE_WORDS), d.code
-            assert rec["audience"] in ("adult", "Mens") or rec["category_path"][0] == "Men"
+            assert rec["category_path"][0] == "Men", d.code
 
 
 def test_class_4_names_a_feature_the_material_lacks(decoys):
