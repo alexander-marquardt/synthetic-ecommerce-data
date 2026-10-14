@@ -617,13 +617,20 @@ def test_every_leaf_is_its_types_own_self_describing_plural(catalog):
     ``Square End Mill`` and never ``Square``), and a leaf of one word cannot
     say what the product is out of context (``Cobalt``, ``Square``).
     """
+    shared_leaves = taxonomy.SHARED_LEAVES
     for type_key, paths in taxonomy.LEAVES.items():
         assert len(paths) == 1, (type_key, paths)
+        if paths[0] in shared_leaves:
+            continue
         leaf = paths[0][-1]
         assert leaf.endswith("s"), (type_key, leaf)
         assert len(leaf.split()) >= 2, (type_key, leaf)
-    leaves = [paths[0][-1] for paths in taxonomy.LEAVES.values()]
-    assert len(leaves) == len(set(leaves)), "two product types share a leaf name"
+    own = [p[0][-1] for p in taxonomy.LEAVES.values() if p[0] not in shared_leaves]
+    assert len(own) == len(set(own)), "two product types share a leaf name"
+    # A shared leaf (#305) is the node of several kinds, and only a declared one may be.
+    shared = [p[0] for p in taxonomy.LEAVES.values() if p[0] in shared_leaves]
+    assert set(shared) == shared_leaves
+    assert len(shared) >= 6
     assert {line.category for line in catalog.lines} == set(taxonomy.all_paths())
 
 
