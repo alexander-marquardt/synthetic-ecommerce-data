@@ -390,3 +390,17 @@ def facet_value(item: str) -> str:
     elif last.endswith("s") and not last.endswith(("ss", "us", "is", "ses")) and len(last) > 3:
         last = last[:-1]
     return head + sep + last
+
+
+#: Label value (:func:`facet_value` form) -> its base ingredient (gen#295). Empty until the table lands.
+BASE: dict[str, str] = {}
+
+
+def base_value(item: str) -> str:
+    """The base ingredient of one label row: its table row, else its own value."""
+    return facet_value(item)
+
+
+def unmapped(values) -> list[str]:  # noqa: ANN001
+    """The label values with no row in :data:`BASE`, sorted."""
+    return sorted(set(values) - set(BASE))
