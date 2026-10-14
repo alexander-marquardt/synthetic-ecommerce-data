@@ -314,7 +314,7 @@ def test_a_value_another_attribute_shares_never_varies():
         return {"key": key, "name": key.title(), "value": value}
 
     rec = {
-        "category_path": ["Women", "Shoes", "Loafers"],
+        "category_path": ["Womens", "Shoes", "Loafers"],
         "category_leaf": "Loafers",
         "product_type": "Loafers",
         "title": "Leather Penny Loafers",
@@ -553,7 +553,7 @@ def test_only_a_value_free_of_the_leaf_the_unit_and_a_longer_word_may_vary():
         return {"key": key, "name": key.title(), "value": value, **extra}
 
     rec = {
-        "category_path": ["Women", "Jeans", "Skinny Jeans"],
+        "category_path": ["Womens", "Jeans", "Skinny Jeans"],
         "category_leaf": "Skinny Jeans",
         "product_type": "Jeans",
         "title": "The Harrow Skinny Jeans, 2pk",

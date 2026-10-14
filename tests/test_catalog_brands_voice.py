@@ -189,6 +189,15 @@ DISTINCT_SPEC_FLOOR = {
     "washer_flat": 0.15,
     "roller_chain": 0.30,
     "hammer_ball_pein": 0.70,
+    # The six kinds added by #305, measured at 100K: claw 0.81, framing 0.78, ball pein 0.74,
+    # dead blow 0.74, sledge 0.73, rubber mallet 0.70, club 0.69. A hammer is a handle, a
+    # grip, a face and a few weights, so makers overlap more than for a fastener.
+    "hammer_claw": 0.65,
+    "hammer_framing": 0.65,
+    "hammer_club": 0.65,
+    "hammer_sledge": 0.65,
+    "hammer_rubber_mallet": 0.65,
+    "hammer_dead_blow": 0.65,
     "bolt_hex": 0.75,
     "abrasive_flap_disc": 0.75,
     "kit_assortment": 0.80,

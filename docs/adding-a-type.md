@@ -631,6 +631,21 @@ command, never by hand arithmetic:
 #62 renames the large build and generates its figures; until it lands, its
 table gets a row for each deepened type.
 
+## Several kinds under one node (the hammers, #305)
+
+A leaf is normally one type's own two-word plural. The exception is a node a shopper
+names as one thing and then narrows by kind: `Hand Tools > Hammers` holds seven kinds
+(`hammer_ball_pein`, `hammer_claw`, `hammer_framing`, `hammer_club`, `hammer_sledge`,
+`hammer_rubber_mallet`, `hammer_dead_blow`), each its own `product_type` with the same
+attributes (head weight, handle material, face diameter, overall length). To add a kind:
+add a `HammerKind` to `domains/industrial/hammers.py` and a three-line module under
+`product_types/hand_tools/` named for the key (`SPEC = hammers.spec(hammers.<KIND>)`).
+A node that holds several types is declared in `taxonomy.SHARED_LEAVES`, which relaxes the
+one-type-per-leaf and two-word rules for that node alone. A `product_type` is a snake_case
+id (`hammer_claw`), never a display name (`Claw Hammer`);
+`tests/test_hammers_305.py` refuses a hammer that is not under the node and a leaf whose
+products mix the two formats.
+
 ## The commands
 
 ```sh

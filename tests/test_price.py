@@ -21,7 +21,13 @@ from synthetic_ecommerce_data.core.dimensions import (
     parse_thread,
 )
 from synthetic_ecommerce_data.core.model import Attribute, Catalog
-from synthetic_ecommerce_data.domains.industrial import breadth, newtypes, price_report, tabletype
+from synthetic_ecommerce_data.domains.industrial import (
+    breadth,
+    hammers,
+    newtypes,
+    price_report,
+    tabletype,
+)
 from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
 from synthetic_ecommerce_data.domains.industrial.measure import measure
 from synthetic_ecommerce_data.domains.industrial.price_report import (
@@ -927,11 +933,12 @@ def test_tying_every_pair_breaks_the_equal_price_row(scored):
 
 #: The types whose placeholder model keeps the level the catalog had,
 #: declared ``measured=False``: the ball-pein hammer's archived pages are
-#: script shells. The price census has no key stock at all, so its model is
+#: script shells, and the other hammer kinds (#305) have no census row either.
+#: The price census has no key stock at all, so its model is
 #: hand-set from surveyed listings (#108). Every table type (#101) joins them,
 #: read from the registry and not listed: its price is a declared ladder
 #: nobody measured. No row scores any of them.
-NOT_MEASURED = frozenset({"hammer_ball_pein", "key_stock", *tabletype.tables()})
+NOT_MEASURED = frozenset({*hammers.KINDS, "key_stock", *tabletype.tables()})
 
 
 def test_the_rows_score_every_priced_type_but_the_declared_exceptions(scored):
