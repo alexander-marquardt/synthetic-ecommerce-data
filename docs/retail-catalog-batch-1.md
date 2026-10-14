@@ -84,9 +84,28 @@ flat, may not give one display name to two different keys.
 `tests/test_retail_attribute_names_unique_256.py` feeds it the old skirt and runs it over the
 ceiling build (no finding).
 
+## Text-match decoys for the colour, category and audience queries (gen#294, classes 1 to 5)
+
+`prototypes/retail_drawings/decoy_rows.py` holds `TABLE`: one row per planted product, with its
+class (1 colour names a part, 2 type names an accessory or a toy, 3 audience names a sibling
+version, 4 a colour word that is also a product or a shade, 5 guard) and the query it targets. The
+proof and this section read that table, so no count is kept by hand. Each decoy keeps its own
+colour, category path and audience; only the title and description carry the misleading word.
+Titles are short and sales and reviews above typical. The ids are left out of `scale.derivable()`
+and out of the colour completion of `main_colors`, so a copy or a completion never gives a decoy
+the query's colour.
+
+Queries covered: red sofa, blue sofa, red bra, blue shirt, black trainers, mens puffer jacket
+(with two true men's puffer jackets, the leaf is new), boys grey socks, face cream, gold top and red
+wine; guard rows for green tea, black pepper and red velvet cake.
+`tests/test_retail_text_match_decoys_294.py` holds, on the 10**6-SKU build: without interpretation
+at least three decoys in the baseline top 10 and one in the top 3 for every query, and with
+interpretation (the intended colour, type and audience read from the fields) no decoy is a hit.
+The with-persona run on a loaded catalogue is the ingest batch's check, not this PR's.
+
 ## Not done in this increment
 
-The non-grocery decoy classes (color on a part, accessory or toy, audience sibling, color
-word as a product, cups), the ingredient decoys of class 7, the oranges re-tune, #298 (the
-Chocolate node), #299 (Juice children and the label-collision guard) and #181 (neckline) are not
-built yet; issues #294, #298, #299 and #181 stay open.
+The remaining decoy classes (cups, d cup bra, the ingredient decoys of class 7, the oranges
+re-tune, the pink lady apples guard), #298 (the Chocolate node), #299 (Juice children and the
+label-collision guard) and #181 (neckline) are not built yet; issues #294, #298, #299 and #181
+stay open.
