@@ -1,7 +1,7 @@
 """A jean's fit and a bra's shape are filters, not category leaves.
 
-The build sorted every jean into a fit leaf (``Women/Jeans/Skinny Jeans``, about 25 of them)
-and every bra into one of about 50 style leaves (``Women/Lingerie/Bras/Lace Plunge Bras``). A
+The build sorted every jean into a fit leaf (``Womens/Jeans/Skinny Jeans``, about 25 of them)
+and every bra into one of about 50 style leaves (``Womens/Lingerie/Bras/Lace Plunge Bras``). A
 retailer's tree stops at the kind of garment and lets a shopper filter the fit or the shape,
 so :func:`export.standard_document` collapses those leaves here:
 
@@ -9,7 +9,7 @@ so :func:`export.standard_document` collapses those leaves here:
   ``leg_fit`` alone. ``leg_style`` named the same thing in lower case on the failure-class
   rows (``barrel``, ``wide``), so it is folded into ``leg_fit`` (:data:`LEG_STYLE_FITS`). A
   jean whose text says it is cropped also carries ``Cropped`` (:data:`CROPPED`);
-- a bra sits at ``Women/Lingerie/Bras``, unless it is a purpose bra (:data:`PURPOSE_BRAS`),
+- a bra sits at ``Womens/Lingerie/Bras``, unless it is a purpose bra (:data:`PURPOSE_BRAS`),
   whose node stays. ``bra_style`` is split into ``bra_shape``, ``padding``, ``back_style``
   and ``fabric``, each the value the old leaf implied (:data:`BRA_LEAVES`). Every bra has a
   ``bra_shape``: a leaf that named none (Cotton, Racerback) takes the shape that kind of bra

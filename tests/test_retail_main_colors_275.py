@@ -39,7 +39,7 @@ def test_every_type_and_audience_offers_the_main_colors_or_declares_why_not(tpls
     assert not lacking, f"(type, audience) lacking a main color, no exception: {lacking}"
 
 
-@pytest.mark.parametrize("audience", ["Men", "Women"])
+@pytest.mark.parametrize("audience", ["Mens", "Womens"])
 def test_red_shirt_finds_a_red_shirt_for_each_audience(tpls, audience):
     shirts = main_colors.groups(tpls)[("Shirt", audience)]
     assert main_colors.MAIN_COLORS.keys() <= main_colors.offered(shirts)
@@ -117,21 +117,21 @@ def test_mutant_shirts_without_red_are_caught():
     for r in raw:
         if r["product_type"] == "Shirt":
             r["color_options"] = [c for c in r["color_options"] if c["color"] != "Red"]
-    assert "Red" in main_colors.missing(raw)[("Shirt", "Men")]
+    assert "Red" in main_colors.missing(raw)[("Shirt", "Mens")]
     restored = main_colors.complete(main_colors.author_plain(raw))
     assert not [k for k in main_colors.missing(restored) if k[0] == "Shirt"]
 
 
 def test_mutant_womens_shirts_without_red_are_caught():
     """Red dropped from the women's shirts only: the per-type guard is blind to it (the
-    men's shirts still hold red), the per-audience guard names Women."""
+    men's shirts still hold red), the per-audience guard names Womens."""
     raw = copy.deepcopy(scale.templates())
     for r in raw:
-        if r["product_type"] == "Shirt" and main_colors.audience(r) == "Women":
+        if r["product_type"] == "Shirt" and main_colors.audience(r) == "Womens":
             r["color_options"] = [c for c in r["color_options"] if c["color"] != "Red"]
     lacking = main_colors.missing(raw)
-    assert lacking[("Shirt", "Women")] == ["Red"]
-    assert ("Shirt", "Men") not in lacking
+    assert lacking[("Shirt", "Womens")] == ["Red"]
+    assert ("Shirt", "Mens") not in lacking
 
 
 def _non_plain_exports(tpls: list[dict]) -> dict[str, str]:
