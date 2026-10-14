@@ -622,3 +622,8 @@ def base_value(item: str) -> str:
 def unmapped(values) -> list[str]:  # noqa: ANN001
     """The label values with no row in :data:`BASE`, sorted: the build reports them."""
     return sorted(set(values) - set(BASE))
+
+
+#: Allergens that name a group of ingredients (no single base ingredient): their own canonical
+#: value for ``facets.contains`` and ``facets.may_contain`` (gen#294). Filled with the fix.
+ALLERGEN_GROUPS: frozenset[str] = frozenset()
