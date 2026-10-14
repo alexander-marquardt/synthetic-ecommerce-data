@@ -1039,7 +1039,7 @@ The flat file exposes four food facts as facets, because a hard filter can only
 target a facet: `facets.ingredients` (the SKU's label list), `facets.contains` (the
 allergens its ingredients name), `facets.may_contain` (factory traces) and
 `facets.dietary` (pack claims: Vegan, Vegetarian, Gluten Free, Nut Free, Organic),
-each a keyword list. `contains`, `may_contain` and `dietary` are warnings and claims,
+each a keyword list (`facets.ingredient_base` is the normalised head of each: [docs/retail-catalog-batch-1.md](docs/retail-catalog-batch-1.md)). `contains`, `may_contain` and `dietary` are warnings and claims,
 not description, so they stay out of the flat `text`: a "peanut" query cannot match a
 product only through an allergen warning
 (`tests/test_grocery_ingredients_154.py`). Open Food Facts (ODbL) inspired only the shape: the category
