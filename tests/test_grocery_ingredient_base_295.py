@@ -111,7 +111,7 @@ def test_a_value_with_no_row_is_reported_and_keeps_its_own_value() -> None:
     assert gi.base_value("Dragon Fruit (12%)") == "dragon fruit"
 
 
-def test_the_label_text_is_written_in_british_spelling() -> None:
+def test_the_label_text_is_written_in_us_spelling() -> None:
     labels = {i for r in flat() for i in r.get("ingredients", ())}
-    assert not [i for i in labels if "flavoring" in i]
-    assert any("flavouring" in i for i in labels)
+    assert not [i for i in labels if "flavouring" in i]
+    assert any("flavoring" in i for i in labels)
