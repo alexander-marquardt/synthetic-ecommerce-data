@@ -21,8 +21,7 @@ juice" are *oranges*, "sea salt" is *salt*, "emulsifier (soya lecithin)" is *soy
 - **Counts.** 425 distinct label values (`facets.ingredients`), 197 distinct base
   values (`facets.ingredient_base`); `grocery.py` prints both as
   `ingredients_distinct` and `ingredient_base_distinct`.
-- **Spelling.** The label text uses British spelling ("natural flavouring"). An additive
-  class such as "color (annatto)" keeps the US spelling, because
+- **Spelling.** The label text keeps the US spelling ("natural flavoring"), as the repo does;
   `tests/test_us_spelling.py` refuses the British one in any tracked file.
 
 ## Text-match decoys: "chocolate without peanuts" (gen#294, class 8)
@@ -58,6 +57,6 @@ job (elastic/prism#12043), not the data's. The mapping is `grocery_ingredients.A
 
 ## Not done in this increment
 
-The non-grocery decoy classes (colour on a part, accessory or toy, audience sibling, colour
+The non-grocery decoy classes (color on a part, accessory or toy, audience sibling, color
 word as a product, cups), the ingredient decoys of class 7, the oranges re-tune, #296 and
 #181 are not built yet; issue #294 stays open.
