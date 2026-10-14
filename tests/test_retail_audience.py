@@ -33,6 +33,8 @@ import shirt_rows  # noqa: E402
 from synthetic_ecommerce_data.core import standard  # noqa: E402
 
 SHIRT_LEAVES = {"Oxford Shirts", "Flannel Shirts", "Linen Shirts", "Denim Shirts"}
+#: Mens shirts also have the formal, check and short sleeve leaves (gen#310).
+MENS_SHIRT_LEAVES = SHIRT_LEAVES | {"Formal Shirts", "Check Shirts", "Short Sleeve Shirts"}
 #: Product types folded into another (:data:`export.PRODUCT_TYPE_FOLDS`).
 FOLDED = {"Tee": "T-Shirt"}
 
@@ -134,7 +136,7 @@ def test_shirts_sit_under_tops_for_mens_and_womens(rows):
         placed[head[0]].add(leaf)
         assert "Shirt" in r["title"] and "Tee" not in r["title"]
         assert r["facets"]["audience"] == {"Men": ["Mens"], "Women": ["Womens"]}[head[0]]
-    assert placed == {"Men": SHIRT_LEAVES, "Women": SHIRT_LEAVES}
+    assert placed == {"Men": MENS_SHIRT_LEAVES, "Women": SHIRT_LEAVES}
 
 
 def test_there_are_twenty_to_thirty_shirt_styles():
