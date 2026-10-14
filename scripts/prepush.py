@@ -148,7 +148,7 @@ def row_file_size(ctx: Context) -> Result:
             "say whether a File-Size-Exception line declares it. Re-run with "
             "--pr-body-file <draft body>.\n"
         )
-        return Result("WARN", "NOT JUDGED: a growth needs the PR body (--pr-body-file)", note)
+        return Result("WARN", "a growth needs the PR body (--pr-body-file)", note)
     judged = f"against {BASE_REF}, nothing grew past the cap"
     return Result("PASS" if rc == 0 else "FAIL", judged, out)
 
@@ -225,7 +225,7 @@ def judged_rows(
             for line in tail:
                 say(f"        {line}")
         elif result.verdict == "WARN":
-            unjudged.append(f"{name}: {result.judged}")
+            unjudged.append(f"{name}: NOT JUDGED, {result.judged}")
             for line in result.output.rstrip().splitlines()[-TAIL_LINES:]:
                 say(f"        {line}")
         else:
@@ -313,7 +313,7 @@ def main(argv: list[str]) -> int:
         f"{BASE_REF} ({merge_base[:12]})")
 
     passed, unjudged, failed = judged_rows(selected, ctx, say)
-    if args.hook and not wip and to_ref and to_ref != head:
+    if args.hook and to_ref and to_ref != head:
         failed.append("pushed-commit")
         say(f"    FAIL  pushed-commit  (this gate judges the checkout at {head[:12]}, "
             f"but the push sends {to_ref[:12]}; check that commit out, or push the branch "
