@@ -180,3 +180,15 @@ def test_ingredient_decoys_hold_the_word_only_in_the_ingredients(
 def test_lavender_ingredient_decoy_reaches_the_baseline_top_10(index: br.Index) -> None:
     top = [d["product_id"] for d in br.rank(index, "lavender", 10)]
     assert any(i in dr.BY_ID and dr.BY_ID[i].cls == 7 for i in top), top
+
+
+@pytest.mark.parametrize("query", GUARDS)
+def test_a_guard_holds_every_word_of_its_query_and_ranks_first(
+    index: br.Index, query: str
+) -> None:
+    """A guard that loses its color word, or that no longer leads its own query, is no guard."""
+    rows = [d for d in dr.TABLE if d.query == query]
+    assert len(rows) == 1, query
+    words = set(query.split())
+    assert words <= set(rows[0].title.lower().replace(",", " ").split()), (query, rows[0].title)
+    assert br.rank(index, query, 1)[0]["product_id"] == f"PLT-D{rows[0].code}", query
