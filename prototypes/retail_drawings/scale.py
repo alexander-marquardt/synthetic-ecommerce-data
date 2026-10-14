@@ -113,6 +113,7 @@ import household_rows  # noqa: E402
 import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
+import mens_depth_rows  # noqa: E402
 import scale_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
@@ -247,6 +248,8 @@ SEASONAL_IDS = frozenset(f"BRD-{r.code}" for r in seasonal_rows.ROWS)
 COLORGROUP_IDS = colorgroup_rows.product_ids()
 #: The lower-body styles (:mod:`lowerbody_rows`, gen#206), left out the same way.
 LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
+#: The Mens clothing depth (:mod:`mens_depth_rows`, gen#310): templates only.
+MENS_DEPTH_IDS = mens_depth_rows.product_ids()
 
 
 def templates(baseline: bool = True) -> list[dict]:
@@ -275,7 +278,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *household_rows.docs(),
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
-        *colorgroup_rows.docs(),
+        *colorgroup_rows.docs(), *mens_depth_rows.docs(),
     ]  # fmt: skip
     if baseline:
         body = main_colors.author_plain(body)
@@ -295,7 +298,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
     the no-policy baseline the neckline, so it stays a template."""
     left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
                 | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
-                | SEASONAL_IDS | COLORGROUP_IDS)
+                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out
             and r.get("neckline") not in ("boat", "slash")]  # fmt: skip
