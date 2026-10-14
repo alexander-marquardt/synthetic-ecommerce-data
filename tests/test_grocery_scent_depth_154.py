@@ -123,6 +123,24 @@ def test_the_core_styles_do_not_move_when_scent_depth_is_dropped() -> None:
     assert len(full) > len(core)
 
 
+def test_a_decoy_anchor_whose_family_is_absent_from_the_build_is_skipped() -> None:
+    """A build without the depth families plants no decoy for them and does not raise."""
+    keep = tuple(f for f in grocery_rows.FAMILIES if not getattr(f, "depth", False))
+    absent = {c for c, *_ in grocery_rows.DECOY_ANCHORS} - {f.code for f in keep}
+    assert absent
+    saved = grocery.FAMILIES
+    grocery.FAMILIES = keep
+    try:
+        try:
+            alone = grocery.build(grocery.TARGET)
+        except KeyError as err:
+            raise AssertionError(f"a decoy anchor looked up an absent family: {err}") from err
+    finally:
+        grocery.FAMILIES = saved
+    assert alone
+    assert not {r["product_id"].split("-")[1] for r in alone} & absent
+
+
 def test_a_scent_style_describes_its_own_product_not_a_multi_surface_spray() -> None:
     nouns = {f.code: f.noun for f in grocery_rows.FAMILIES if getattr(f, "depth", False)}
     assert nouns
