@@ -126,7 +126,10 @@ BRA_LEAVES: dict[str, tuple[str, Facet, Facet, Facet]] = {
 #: Every other product type's ``fabric`` value that is not a fabric a shopper names ->
 #: (fabric, composition) of the document. A fibre content ("98% Cotton, 2% Elastane", a
 #: cotton grade, Bamboo) moves whole to ``composition`` and leaves no fabric; a value that
-#: joins a weave to a fibre or a finish ("100% Cotton Oxford", "Washed Linen") splits.
+#: joins a weave to a fibre or a finish ("100% Cotton Oxford", "Washed Linen", "Cotton Jersey")
+#: splits. A blend names fibres, so it is the composition and the fabric is the one the row
+#: states: a cotton blend is a cotton, the tailored shorts' polyester blend is the suiting
+#: their text names (gen#258).
 #: Boucle, Chenille, Corduroy, Faux Fur, Knitted, Linen, Plush and Velvet are fabrics and stay.
 FABRIC_MOVES: dict[str, tuple[str | None, str | None]] = {
     "100% Cotton": (None, "100% Cotton"),
@@ -141,6 +144,9 @@ FABRIC_MOVES: dict[str, tuple[str | None, str | None]] = {
     "Brushed Cotton Flannel": ("Flannel", "Cotton"),
     "Mid Weight Denim": ("Denim", None),
     "Washed Linen": ("Linen", None),
+    "Cotton Blend": ("Cotton", "Cotton Blend"),
+    "Polyester Blend": ("Suiting", "Polyester Blend"),
+    "Cotton Jersey": ("Jersey", "Cotton"),
 }
 
 

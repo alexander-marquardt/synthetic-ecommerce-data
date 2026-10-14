@@ -60,7 +60,7 @@ def _band(paint: str, bt: float, bb: float, wx: float, cls: str, ribs: bool = Tr
 
 
 def _cords(bb: float, cy: float) -> list[str]:
-    """A drawstring tied at the centre of the band, the two ends hanging with a knot each."""
+    """A drawstring tied at the center of the band, the two ends hanging with a knot each."""
     return [
         _line(f"M196,{cy} Q186,{bb + 30} 178,{bb + 52} M204,{cy} Q214,{bb + 30} 222,{bb + 52}", 2.4),
         _circle(178, bb + 54, 3.5), _circle(222, bb + 54, 3.5),
