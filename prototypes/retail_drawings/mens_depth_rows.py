@@ -177,6 +177,17 @@ def _row(code, title, brand, kind: Kind, path, desc, colors, attrs, *, price, pa
     )  # fmt: skip
 
 
+def _an(phrase: str) -> str:
+    """The phrase, lowercased, behind its own article ("an organic cotton", "a slim")."""
+    word = phrase.lower()
+    return f"{'an' if word[:1] in 'aeiou' else 'a'} {word}"
+
+
+def _case(material: str) -> str:
+    """The catalogue's spelling of a blend: "Linen blend", never "Linen Blend"."""
+    return material.replace(" Blend", " blend")
+
+
 def _a(key: str, name: str, v: str) -> tuple[str, str, str]:
     return (key, name, v)
 
@@ -333,9 +344,10 @@ def _floor_rows() -> list[LRow]:
             colors = _colors(i, leaf.palette)
             if leaf.pattern == "check":
                 colors = tuple(cw(f"{c[0]} Check", c[2], "gingham", "#2a2a2e") for c in colors)
-            desc = (f"A {fabric.lower()} {kind.noun.lower()} cut to a {fit.lower()} fit "
+            fit_an = _an(fit or "regular")
+            desc = (f"{_an(fabric).capitalize()} {kind.noun.lower()} cut to {fit_an} fit "
                     f"{_TAIL[leaf.kind]}.")  # fmt: skip
-            attrs = [_a("fit", "Fit", fit or "Regular"), _a("material", "Material", fabric)]
+            attrs = [_a("fit", "Fit", fit or "Regular"), _a("material", "Material", _case(fabric))]
             if leaf.sleeve:
                 attrs.append(_a("sleeve_length", "Sleeve length", leaf.sleeve))
             if detail and "Collar" in detail or detail in ("Western Yoke",):
@@ -398,11 +410,12 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
         tag = "".join(w[0] for w in ptype.split()) + str(k)
 
         def add(klass, i, title, desc, true, word, query, policy="generic", kind=kind, tag=tag,
-                ptype=ptype, material=None):  # noqa: PLR0913
+                ptype=ptype, material=None, extra=()):  # noqa: PLR0913
             code = f"MD{tag}{klass}{i}"
             brand = word if klass == 7 else _BRANDS[(i + klass) % len(_BRANDS)]
             attrs = (_a("fit", "Fit", "Regular"),
-                     _a("material", "Material", material or kind.material))  # fmt: skip
+                     _a("material", "Material", _case(material or kind.material)))  # fmt: skip
+            attrs += extra
             if ptype == "Socks":
                 attrs += (("units_per_pack", "Units per pack", "3", "C62"),)
             rows.append(_row(code, title, brand, kind, kind.path, desc, (_col(true),), attrs,
@@ -450,7 +463,8 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
                 true6 = "Navy"
             add(6, i, f"Mens {r} {noun}",
                 f"From the {r} range, named after a place on a hill walk; the {noun.lower()} "
-                f"itself is {true6.lower()}.", true6, word, f"{word.lower()} {noun.lower()}")  # fmt: skip
+                f"itself is {true6.lower()}.", true6, word, f"{word.lower()} {noun.lower()}",
+                extra=(_a("range", "Range", r),))  # fmt: skip
             # 7: an invented brand holding a color or category word.
             brand = NEW_BRANDS[i]
             add(7, i, f"Mens {brand} {noun}",
