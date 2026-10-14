@@ -46,7 +46,7 @@ KEYS = {
                    "color"},
     "Role Play Toy": {"toy_type", "age_range", "age_group", "material", "color"},
     "Arts and Crafts Kit": {"toy_type", "age_range", "age_group", "piece_count", "theme"},
-    "Ride-On Toy": {"toy_type", "age_range", "age_group", "max_weight_kg", "wheel_size_in",
+    "Ride-On Toy": {"toy_type", "age_range", "age_group", "max_weight_kg", "wheel_size",
                     "wheel_count", "color"},
 }  # fmt: skip
 
