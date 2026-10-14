@@ -324,6 +324,21 @@ def m_slanted_blades(c: str) -> list[str]:
     ]
 
 
+def m_twin_arcs(c: str) -> list[str]:
+    return [_stroke("M-.85,.2 A.85,.85 0 0 1 .05,-.65", 0.15, c),
+            _stroke("M-.05,.65 A.85,.85 0 0 0 .85,-.2", 0.15, c), _dot(0, 0, 0.14, c)]
+
+
+def m_notched_square(c: str) -> list[str]:
+    return [f'<path d="M-.75,-.75 L.75,-.75 L.75,.75 L-.75,.75 Z M-.25,-.75 L-.25,-.25 L.25,-.25 '
+            f'L.25,-.75 Z" fill="{c}" fill-rule="evenodd"/>']
+
+
+def m_comet(c: str) -> list[str]:
+    return [_dot(.45, -.35, .3, c), _stroke("M.2,-.1 L-.8,.7", 0.14, c),
+            _stroke("M.05,-.35 L-.7,.2", 0.1, c)]
+
+
 def m_rainbow(c: str) -> list[str]:
     return [
         _stroke(f"M{_n(-r)},.5 A{_n(r)},{_n(r)} 0 0 1 {_n(r)},.5", 0.16, c) for r in (0.9, 0.6, 0.3)
@@ -1069,6 +1084,11 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     "Black Curlew":         H("#f2f2f0", "diagonal", "thin",    "#1a1a1a", "#262626", 1.2,  False, "sharp", "stacked_bars",      "mark_left",   "bottom_left",   "none",     "sans",     700, "smallcaps", 1.5),
     "Yellow Plover":        H("#fffbe6", "lines",    "ticks",   "#d9a400", "#3a3000", 0.85, True,  "round", "half_disc",         "badge",       "bottom_centre", "none",     "humanist", 400, "caps",      0.5, True),
     "Jacket Wren":          H("#eef3ee", "grid",     "double",  "#3f6b4f", "#1e3327", 1.05, False, "round", "slanted_blades",    "mark_only",   "top_right",     "stamp",    "mono",     400, "title",     1.0),
+    # Invented brands of the knitwear depth (gen#309): a color or category word in the name, each a
+    # full lockup so the drawing's logo text is the brand.
+    "White Heron":          H("#f1f4f8", "dots",     "rounded", "#3d5a80", "#1b2a40", 0.95, False, "round", "twin_arcs",         "mark_above",  "top_centre",    "none",     "serif",    700, "title",     2.3),
+    "Red Kite":             H("#fbf1ee", "hatch",    "heavy",   "#b3382c", "#401410", 1.1,  True,  "sharp", "comet",             "pill",        "bottom_right",  "none",     "sans",     400, "lower",     0.8),
+    "Cardigan Finch":       H("#f5f1e6", "none",     "ticks",   "#7a5c2e", "#33260f", 1.0,  False, "round", "notched_square",    "mark_right",  "top_left",      "none",     "humanist", 700, "caps",      1.7),
 }
 # fmt: on
 
