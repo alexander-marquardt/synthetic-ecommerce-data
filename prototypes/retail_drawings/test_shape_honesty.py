@@ -42,11 +42,11 @@ HONEST_FOR: dict[str, tuple[str, ...]] = {
         "Beauty > Travel & Minis",
     ),
     "top": (
-        "Men > Tops",
-        "Women > Tops > T-Shirts",
-        "Women > Tops > Jersey Tops",
-        "Women > Tops > Long Sleeve Tops",
-        "Women > Knitwear > Jumpers",
+        "Mens > Tops",
+        "Womens > Tops > T-Shirts",
+        "Womens > Tops > Jersey Tops",
+        "Womens > Tops > Long Sleeve Tops",
+        "Womens > Knitwear > Jumpers",
     ),
     # A kind's own shape lent to a neighbour the audit also caught.
     "cake": ("Food & Drink > Bakery > Cakes",),

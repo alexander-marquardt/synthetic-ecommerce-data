@@ -30,8 +30,8 @@ import scale  # noqa: E402
 #: The store's departments, and the only values the top level of a retail ``category_path`` takes.
 DEPARTMENTS = frozenset(
     {
-        "Women",
-        "Men",
+        "Womens",
+        "Mens",
         "Kids",
         "Food & Drink",
         "Home",

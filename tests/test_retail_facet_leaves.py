@@ -1,9 +1,9 @@
 """A jean's fit and a bra's shape are filters, not category leaves (``facet_leaves``).
 
-The build filed every jean under a fit leaf (``Women/Jeans/Skinny Jeans``) and every bra
+The build filed every jean under a fit leaf (``Womens/Jeans/Skinny Jeans``) and every bra
 under one of about 50 style leaves, so a "skinny" or "plunge" filter was a tree walk and the
 same fact lived twice. Those leaves collapse into ``<Root>/Jeans``, ``<Root>/Trousers`` and
-``Women/Lingerie/Bras`` (its purpose nodes stay), and their facts are the facets the
+``Womens/Lingerie/Bras`` (its purpose nodes stay), and their facts are the facets the
 downstream attribute markers read: ``leg_fit``, ``rise``, ``length``, ``wiring``,
 ``bra_shape``, ``padding``, ``back_style`` and ``fabric``.
 
@@ -97,12 +97,12 @@ def test_jeans_and_trousers_end_at_their_kind_node(rows):
     assert set(ends) == {("Jeans", "Jeans"), ("Trousers", "Trousers")}
     roots = {(r["category_path"][0], r["product_type"]) for r in rows
              if r["product_type"] in ("Jeans", "Trousers")}  # fmt: skip
-    assert {("Women", "Jeans"), ("Men", "Jeans"), ("Women", "Trousers")} <= roots
+    assert {("Womens", "Jeans"), ("Mens", "Jeans"), ("Womens", "Trousers")} <= roots
 
 
 def test_the_purpose_nodes_are_the_only_children_of_bras(rows):
     paths = {tuple(r["category_path"]) for r in rows if r["product_type"] == "Bra"}
-    base = ("Women", "Lingerie", "Bras")
+    base = ("Womens", "Lingerie", "Bras")
     assert base in paths
     assert {p[len(base):] for p in paths} == {()} | {(n,) for n in facet_leaves.PURPOSE_BRAS}
     assert all(p[: len(base)] == base for p in paths)
