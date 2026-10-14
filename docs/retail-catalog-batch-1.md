@@ -185,3 +185,15 @@ with-persona run, is the ingest batch's check, not this PR's.
 
 #298 (the Chocolate node), #299 (Juice children and the label-collision guard) and #181
 (neckline) are not built yet; their issues stay open.
+
+Of #294 this increment lands the generated decoy table, the class 7 rows, four guards and the
+proofs for cups, "d cup bra" and oranges on the rows `class_rows.py` already plants. #294 stays
+open for: the Iowa proof on a loaded catalogue with the counts quoted; the persona top-10 check
+(no decoy with the Retail-and-Industrial persona); the guards that are missing (red onion has no product; red wine is a decoy query here; white wine and
+brown rice already exist); the class 7
+decoys of lemons, strawberries and coconut reaching the top 10 (only lavender does); and the
+oranges re-tune on the loaded catalogue (flavour decoys, variety titles on the fresh-orange rows).
+
+A decoy can appear on the page of a neighbouring query: "black pepper" ranks trainers and a shirt
+with black parts at 2 to 4, "pink lady apples" has a pink bra at 2 and "green tea" has Thai Green
+Curry at 6. These are true text matches, left in on purpose.

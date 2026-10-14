@@ -3364,6 +3364,22 @@ MUTATIONS: list[Mutation] = [
                 "tests/test_retail_text_match_decoys_294.py -k docs_table_is_generated",
                 "the docs table is generated",
             ),
+            (
+                "a guard loses its color word",
+                "decoy_rows.py",
+                '"Green Tea, 40 Bags"',
+                '"Tea, 40 Bags"',
+                "tests/test_retail_text_match_decoys_294.py -k guard_holds_every_word",
+                "a guard holds its query's words and ranks first",
+            ),
+            (
+                "a decoy's ingredient has no base row",
+                "grocery_ingredients.py",
+                "lentils: lentil\n",
+                "",
+                "tests/test_grocery_ingredient_base_295.py -k scale_build_with_the_decoys",
+                "every label of the scale build has a base row",
+            ),
         ]
     ),
 ]
