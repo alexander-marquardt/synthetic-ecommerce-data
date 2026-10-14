@@ -33,6 +33,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+#: The dietary labels a SKU may carry: one closed list (gen#296).
+DIETARY: tuple[str, ...] = ("Vegan", "Vegetarian", "Gluten Free", "Dairy Free", "Nut Free", "Organic")
+
 ALLERGENS = {"P": "Peanuts", "T": "Tree Nuts", "M": "Milk", "G": "Gluten", "S": "Soy", "E": "Egg", "F": "Fish"}
 
 
@@ -127,6 +130,7 @@ def _p(*parts: str) -> tuple[str, ...]:
 
 
 _FRUIT = _p("Fruit & Vegetables", "Fresh Fruit")
+_STEAK = _p("Meat & Fish", "Fresh Meat", "Steak")
 _BEER = _p("Beer, Wine & Spirits", "Beer")
 _WINE = _p("Beer, Wine & Spirits", "Wine")
 _CIDER = _p("Beer, Wine & Spirits", "Cider")
@@ -167,12 +171,14 @@ _BODY_BRANDS = ("Brightwater Botanics", "Velling Apothecary", "Orrin Skin")
 #: it cooks, so the six cuts do not share one template (gen#269). Words the SKUs do not carry
 #: (a weight, a price) stay out.
 CUT_NOTES = {
-    ("STK", "Sirloin Steak"): "A lean cut from the back with a thin edge of fat, best seared hot and left to rest.",
-    ("STK", "Ribeye Steak"): "A well marbled cut from the rib that stays juicy, cooked quickly in a hot pan or on the grill.",
-    ("STK", "Fillet Steak"): "The most tender cut, from the tenderloin, with a mild flavour; cook it briefly and rare to medium.",
-    ("STK", "Rump Steak"): "A full flavoured cut from the hindquarter with a firm bite, good marinated and sliced across the grain.",
-    ("STK", "Striploin Steak"): "A cut from the loin with a firm texture and a strip of fat along one side that crisps as it cooks.",
-    ("STK", "Minute Steaks"): "Thin cuts of topside that cook through in a minute or two a side, for a quick supper or a sandwich.",
+    ("SKS", "Sirloin Steak"): "A lean cut from the back with a thin edge of fat, best seared hot and left to rest.",
+    ("SKR", "Ribeye Steak"): "A well marbled cut from the rib that stays juicy, cooked quickly in a hot pan or on the grill.",
+    ("SKF", "Fillet Steak"): "The most tender cut, from the tenderloin, with a mild flavour; cook it briefly and rare to medium.",
+    ("SKU", "Rump Steak"): "A full flavoured cut from the hindquarter with a firm bite, good marinated and sliced across the grain.",
+    ("SKC", "Chuck Steak"): "A richly flavoured cut from the shoulder with connective tissue, best braised slowly or cooked low and long.",
+    ("SKT", "T-Bone Steak"): "A cut across the loin with the bone between a strip and a small fillet, grilled hot for a crust.",
+    ("SKL", "Flank Steak"): "A lean, long-grained cut from the belly muscle, marinated, seared quickly and sliced thinly across the grain.",
+    ("SKW", "Skirt Steak"): "A thin, beefy cut from the diaphragm with a loose grain, cooked fast over a high heat for fajitas.",
 }
 
 FAMILIES: tuple[Family, ...] = (
@@ -695,17 +701,58 @@ FAMILIES: tuple[Family, ...] = (
            (F("Shea", "#e8dcc0"), F("Cocoa Butter", "#d8c4a0"), F("Almond", "#c9a96e"), F("Oat", "#ece3cf")),
            _SKIN_BRANDS, 0.005, axis="scent", department="Beauty",
            noun="rich body cream for dry skin", depth=True),
-    # The "steak" class (gen#264): the true answers, and a tin that shares only the word.
-    # Depth families, last in the list, so no earlier family's draw moves. A steak is a
-    # packaged cut under the existing Packaged Meat node (no Beef leaf is needed: a policy
-    # that routes "steak" to food routes it to Meat & Fish); its title names the cut, says
-    # "steak" once and runs to five words or more ("Ashcombe British Beef Ribeye Steak"), as a
-    # butcher's title does: the text match then favors the short "Steak Knife" titles.
-    Family("STK", _p("Meat & Fish", "Packaged Meat"), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
-           ("227g", "2 x 225g"),
-           (F("Sirloin Steak", "#a8322e", "x"), F("Ribeye Steak", "#9c2a2a", "x"), F("Fillet Steak", "#b8403a", "x"),
-            F("Rump Steak", "#a63a30", "x"), F("Striploin Steak", "#a02e2c", "x"), F("Minute Steaks", "#c04a42", "x")),
-           ("Barrowby Kitchen", "Goldfield Farms"), 0.004, depth=True),
+    # The "steak" class (gen#264, gen#296): a fresh-meat Steak PARENT with one child per cut, so a
+    # shopper's "steak" names the parent and "sirloin steak" its child. Each label names the
+    # product on its own ("Skirt Steak", never "Skirt", which is also a garment). The cuts are
+    # depth families, last in the list, so no earlier family's draw moves; a style's title names
+    # the cut, says "steak" once and runs to five words or more ("Ashcombe British Beef Ribeye
+    # Steak"), as a butcher's title does: the text match then favors the short "Steak Knife"
+    # titles. Steak knives, sauce and seasoning stay in their own categories as the decoys.
+    Family("SKS", _STEAK + ("Sirloin Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Sirloin Steak", "#a8322e", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKR", _STEAK + ("Ribeye Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Ribeye Steak", "#9c2a2a", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKU", _STEAK + ("Rump Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Rump Steak", "#a63a30", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKF", _STEAK + ("Fillet Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Fillet Steak", "#b8403a", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKC", _STEAK + ("Chuck Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Chuck Steak", "#8e2a28", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKT", _STEAK + ("T-Bone Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("T-Bone Steak", "#a02e2c", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKL", _STEAK + ("Flank Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Flank Steak", "#b0382f", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKW", _STEAK + ("Skirt Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Skirt Steak", "#9a2c32", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    # Decoys for "steak" in the grocery tree: a sauce and a seasoning (gen#296).
+    Family("SSA", _p("Food Cupboard", "Sauces & Condiments"), "{line} {flavor}", "Sauce", "bottle", "Sauce", _A, "CD", 1.9,
+           ("250ml", "500ml"), (F("Steak Sauce", "#5a3a26", "G"), F("Peppercorn Steak Sauce", "#4a3020", "G")),
+           _CUP, 0.0015, depth=True),
+    Family("SSN", _p("Food Cupboard", "Herbs & Spices"), "{line} {flavor}", "Seasoning", "jar", "Seasoning", _A, "A", 1.6,
+           ("50g", "100g"), (F("Steak Seasoning", "#7a4a2a"), F("Smoky Steak Rub", "#6a3a22")),
+           _CUP, 0.0015, depth=True),
+    # Fresh grapes (gen#296): one bare-noun leaf under Fresh Fruit, so a query that names it can
+    # be routed; the grape juice and grape sweets below share only the word.
+    Family("GRP", _FRUIT + ("Grapes",), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 2.2, ("250g", "500g", "1kg"),
+           (_o("Red Seedless Grapes", "#a3243b", "South Africa"), _o("Green Seedless Grapes", "#a8c84a", "Spain"),
+            _o("Black Seedless Grapes", "#3a1f4a", "Chile"), _o("Sweet Red Grapes", "#b02a44", "Peru"),
+            _o("Crisp Green Grapes", "#b4d254", "Egypt"), _o("Midnight Black Grapes", "#2e1a40", "South Africa")),
+           _FRESH, 0.008, axis="variety", depth=True),
+    Family("GJU", _p("Drinks", "Juice"), "{line} {flavor}", "Juice", "carton", "Juice", _C, "C", 1.9,
+           ("1L", "1.75L"), (F("Red Grape Juice", "#6a1a3a"), F("White Grape Juice", "#d9d27a")),
+           _DRINK, 0.002, depth=True),
+    Family("GCH", _p("Chocolate & Sweets", "Sweets"), "{line} {flavor}", "Sweets", "bag", "Sweets", _A, "E", 1.2,
+           ("150g", "300g"), (F("Grape Fruit Chews", "#6a2a7a", "h"), F("Grape Jellies", "#7a3a8a")),
+           _SNACK, 0.001, depth=True),
     Family("TUS", _p("Food Cupboard", "Tinned"), "{line} {flavor}", "Tinned Food", "tin", "Tinned", _A, "AB", 1.6,
            ("145g", "3 x 145g"),
            (F("Tuna Steaks in Brine", "#3b6fb6", "xF"), F("Tuna Steaks in Sunflower Oil", "#d9a441", "xF")),
