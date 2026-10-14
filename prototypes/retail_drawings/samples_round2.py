@@ -472,7 +472,7 @@ HOME = [
         "Ceramic Gourd Table Lamp",
         "Lanternby",
         ["home"],
-        ["Home", "Lighting", "Table Lamps"],
+        ["Home", "Lighting", "Lamps", "Table Lamps"],
         42.00,
         home_attrs(
             "Ochre / Linen",
