@@ -4,7 +4,8 @@
 hierarchy filter on ``Sofas`` dropped the corner sofas that were most of the red ones. The tree
 nests them (``Sofas > Corner Sofas``), and three rules in ``tree_guard.py`` keep it nested:
 
-* (a) no node has a sibling whose label is its head noun;
+* (a) no node has a sibling whose label is a word-suffix of its own (``Sofas`` beside ``Corner
+  Sofas``, ``Skinny Jeans`` beside ``Super Skinny Jeans``);
 * (b) three or more siblings with one head noun sit under a parent that names it, or declare why
   not;
 * (c) a product whose title names a more specific node of its department sits in that node.
@@ -31,10 +32,10 @@ import tree_guard  # noqa: E402
 
 CEILING = 10_000_000  # more SKUs than the templates reach, so ``scale.build`` runs to its ceiling
 
-#: The least number of types nested under a generic category the built tree holds. #284 moved 34;
-#: the floor sits a little under, so a sibling PR that renames one does not red it, and a build
-#: that un-nests the tree does.
-NESTED_FLOOR = 30
+#: The least number of (generic, specific) pairs the shipped tree holds. It has 96 today, 34 of
+#: them made by #284. The floor sits a little under, so a sibling PR that renames one does not red
+#: it, and a build that un-nests the tree does.
+NESTED_FLOOR = 90
 
 
 @pytest.fixture(scope="module")
