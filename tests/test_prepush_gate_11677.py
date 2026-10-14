@@ -279,6 +279,16 @@ def test_no_origin_main_is_a_failure_that_names_the_fix(repo: Path) -> None:
     assert not _row(out, "PASS", "lint"), out
 
 
+def test_a_tool_that_is_not_installed_fails_its_row_and_names_it(repo: Path) -> None:
+    _commit(repo, "feat: nothing")
+    stub = repo.parent / "bin"
+    done = _gate(repo, PATH=f"{stub}{os.pathsep}/usr/bin{os.pathsep}/bin")
+    out = _out(done)
+    assert done.returncode == 1, out
+    assert _row(out, "FAIL", "lint"), out
+    assert "uv: command not found" in out
+
+
 def test_only_runs_the_one_row_named(repo: Path) -> None:
     done = _gate(repo, "--only", "lint")
     out = _out(done)
@@ -433,5 +443,17 @@ def test_pre_commit_installs_a_pre_push_hook_that_runs_the_gate() -> None:
 
 
 def test_the_other_hooks_stay_at_the_commit_stage() -> None:
-    """Without ``default_stages`` every whitespace and lint hook would run again at push."""
-    assert _precommit().get("default_stages") == ["pre-commit"]
+    """Each hook names its stage: a hook's manifest ``stages`` outranks ``default_stages``.
+
+    ``end-of-file-fixer`` and ``ruff-check`` list ``pre-push`` in their own manifests, so
+    without an explicit ``stages`` here they would run again at every push, next to the gate.
+    """
+    config = _precommit()
+    assert config.get("default_stages") == ["pre-commit"]
+    at_push = [
+        hook["id"]
+        for repo in config["repos"]
+        for hook in repo["hooks"]
+        if hook["id"] != "prepush-gate" and "pre-push" in hook.get("stages", ["pre-push"])
+    ]
+    assert at_push == []
