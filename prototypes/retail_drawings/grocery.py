@@ -53,7 +53,7 @@ if str(HERE) not in sys.path:
 import kit_grocery  # noqa: E402,F401 -- registers bar and bag
 from departments import check as check_departments  # noqa: E402
 from export import NUMERIC_FACTS, standard_document  # noqa: E402
-from grocery_ingredients import facet_value, ingredients, shared  # noqa: E402
+from grocery_ingredients import base_value, facet_value, ingredients, shared, unmapped  # noqa: E402
 from grocery_rows import (  # noqa: E402
     ALLERGENS,
     ANCHORS,
@@ -399,7 +399,9 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
     The four food facts are facets, because only a facet can be a hard filter:
     ``facets.ingredients`` (the SKU's label list as ``facet_value`` forms; the
-    top-level ``ingredients`` keeps the label text), ``facets.contains``,
+    top-level ``ingredients`` keeps the label text), ``facets.ingredient_base`` (the
+    base ingredient of each of those, from the committed table
+    ``grocery_ingredients.BASE``, gen#295), ``facets.contains``,
     ``facets.may_contain`` and ``facets.dietary``, each a keyword list.
     ``contains``, ``may_contain`` and ``dietary`` are warnings and claims, not description
     (:data:`WARNINGS`): they stay out of ``text``, so a "peanut"
@@ -421,6 +423,9 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 if row.get("ingredients"):
                     row["facets"]["ingredients"] = list(
                         dict.fromkeys(facet_value(i) for i in row["ingredients"])
+                    )
+                    row["facets"]["ingredient_base"] = list(
+                        dict.fromkeys(base_value(v) for v in row["facets"]["ingredients"])
                     )
                 out.append(row)
     return out
@@ -444,6 +449,19 @@ def report(recs: list[dict]) -> dict[str, Any]:
     }
 
 
+def ingredient_report(recs: list[dict]) -> dict[str, Any]:
+    """The distinct label values and base ingredients of ``recs`` (gen#295), and the label
+    values the base table has no row for: the build prints them, it never guesses a base."""
+    rows = flat(documents(recs))
+    labels = {v for r in rows for v in r["facets"].get("ingredients", ())}
+    bases = {v for r in rows for v in r["facets"].get("ingredient_base", ())}
+    return {
+        "ingredients_distinct": len(labels),
+        "ingredient_base_distinct": len(bases),
+        "ingredients_unmapped": unmapped(labels),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--skus", type=int, default=TARGET)
@@ -453,7 +471,8 @@ def main(argv: list[str] | None = None) -> int:
     recs = build(args.skus, args.seed)
     docs = documents(recs)
     problems = standard.check_catalog(docs)
-    print(json.dumps({**report(recs), "standard_problems": len(problems)}, indent=1))
+    print(json.dumps({**report(recs), **ingredient_report(recs),
+                      "standard_problems": len(problems)}, indent=1))
     if args.out:
         args.out.mkdir(parents=True, exist_ok=True)
         write_jsonl(iter(docs), args.out / "nested.jsonl")

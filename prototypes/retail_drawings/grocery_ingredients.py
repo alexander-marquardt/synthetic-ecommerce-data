@@ -32,15 +32,15 @@ _VAT = "vitamin d3, vitamin a, calcium, riboflavin"
 
 #: Family code -> the small print every flavor of the family ends with.
 TAIL: dict[str, str] = {
-    "CHB": "emulsifier (soya lecithin), natural flavoring",
-    "CHX": "emulsifier (soya lecithin), natural flavoring",
-    "SWT": "natural flavoring, color (anthocyanins)",
-    "BIS": "salt, raising agent (sodium bicarbonate), natural flavoring",
-    "ORB": "salt, raising agent (sodium bicarbonate), natural flavoring",
-    "CHO": "emulsifier (soya lecithin), natural flavoring",
-    "PAN": "salt, preservative (potassium sorbate), natural flavoring",
+    "CHB": "emulsifier (soya lecithin), natural flavouring",
+    "CHX": "emulsifier (soya lecithin), natural flavouring",
+    "SWT": "natural flavouring, color (anthocyanins)",
+    "BIS": "salt, raising agent (sodium bicarbonate), natural flavouring",
+    "ORB": "salt, raising agent (sodium bicarbonate), natural flavouring",
+    "CHO": "emulsifier (soya lecithin), natural flavouring",
+    "PAN": "salt, preservative (potassium sorbate), natural flavouring",
     "CRS": "antioxidant (rosemary extract)",
-    "CBR": "emulsifier (sunflower lecithin), natural flavoring",
+    "CBR": "emulsifier (sunflower lecithin), natural flavouring",
     "CER": "salt, vitamins (niacin, b6, folic acid)",
     "BRD": "yeast, salt, preservative (calcium propionate)",
     "CAK": "raising agents (diphosphates, sodium carbonates), salt",
@@ -74,7 +74,7 @@ HEAD: dict[tuple[str, str], str] = {
     ("SWT", "Fruit Gums"): "glucose syrup, sugar, modified maize starch, fruit juice from concentrate ({1-3}%), glazing agent (beeswax)",
     ("SWT", "Lemon Sherbets"): "sugar, glucose syrup, dextrose, lemon oil, sodium bicarbonate",
     ("SWT", "Mint Imperials"): "sugar, glucose syrup, peppermint oil, maize starch, citric acid",
-    ("SWT", "Fizzy Cola"): "glucose syrup, sugar, modified maize starch, cola flavoring, glazing agent (beeswax)",
+    ("SWT", "Fizzy Cola"): "glucose syrup, sugar, modified maize starch, cola flavouring, glazing agent (beeswax)",
     ("SWT", "Toffee"): "sugar, glucose syrup, condensed skimmed milk, butter ({4-8}%), salt",
     ("SWT", "Vegan Jellies"): "glucose syrup, sugar, modified maize starch, fruit juice from concentrate, citric acid",
     ("BIS", "Chocolate Chip"): "wheat flour, sugar, butter, milk chocolate chips ({10-16}%), emulsifier (soya lecithin)",
@@ -87,13 +87,13 @@ HEAD: dict[tuple[str, str], str] = {
     ("CRS", "Cheese & Onion"): "potatoes, sunflower oil|rapeseed oil|palm oil, cheese powder ({3-6}%), onion powder, whey powder, sea salt",
     ("CRS", "Salt & Vinegar"): "potatoes, sunflower oil|rapeseed oil|palm oil, salt, white wine vinegar powder, acidity regulator (sodium diacetate)",
     ("CRS", "Sweet Chilli"): "potatoes, sunflower oil|rapeseed oil|palm oil, sugar, chilli powder, paprika extract, sea salt",
-    ("CRS", "Smoky Bacon"): "potatoes, sunflower oil|rapeseed oil|palm oil, smoked paprika, yeast extract, sea salt, smoke flavoring",
+    ("CRS", "Smoky Bacon"): "potatoes, sunflower oil|rapeseed oil|palm oil, smoked paprika, yeast extract, sea salt, smoke flavouring",
     ("CRS", "Sour Cream & Chive"): "potatoes, sunflower oil|rapeseed oil|palm oil, sour cream powder ({2-4}%), chives, sea salt, whey powder",
-    ("NUT", "Salted Peanuts"): "peanuts ({88-94}%), sunflower oil, sea salt, rice flour, natural flavoring",
+    ("NUT", "Salted Peanuts"): "peanuts ({88-94}%), sunflower oil, sea salt, rice flour, natural flavouring",
     ("NUT", "Honey Roast Cashews"): "cashew nuts ({55-65}%), honey ({8-14}%), sugar, sunflower oil, sea salt",
     ("NUT", "Mixed Nuts"): "peanuts, almonds, cashew nuts, hazelnuts, brazil nuts, sunflower oil, sea salt",
-    ("NUT", "Sweet & Salty Popcorn"): "popcorn kernels ({50-60}%), sugar, sunflower oil, sea salt, natural flavoring",
-    ("NUT", "Coconut Chips"): "coconut chips ({85-92}%), sugar, sea salt, sunflower oil, natural flavoring",
+    ("NUT", "Sweet & Salty Popcorn"): "popcorn kernels ({50-60}%), sugar, sunflower oil, sea salt, natural flavouring",
+    ("NUT", "Coconut Chips"): "coconut chips ({85-92}%), sugar, sea salt, sunflower oil, natural flavouring",
     ("NUT", "Toffee Popcorn"): "popcorn kernels, sugar, butter, glucose syrup, sunflower oil, skimmed milk powder, salt",
     ("CBR", "Oat & Honey"): "rolled oats ({30-40}%), glucose syrup, honey ({5-10}%), sunflower oil, sugar",
     ("CBR", "Chocolate Chip"): "rolled oats, glucose syrup, milk chocolate chips ({8-14}%), sugar, soya flour",
@@ -110,7 +110,7 @@ HEAD: dict[tuple[str, str], str] = {
     ("OAT", "Original"): "rolled oats, oat bran, oat flour, sugar, salt",
     ("OAT", "Golden Syrup"): "rolled oats, golden syrup ({6-10}%), sugar, oat bran, salt",
     ("OAT", "Apple & Blueberry"): "rolled oats, dried apple ({4-8}%), blueberry pieces ({2-4}%), sugar, cinnamon",
-    ("OAT", "Gluten Free Oat"): "gluten free rolled oats, gluten free oat bran, sugar, salt, natural flavoring",
+    ("OAT", "Gluten Free Oat"): "gluten free rolled oats, gluten free oat bran, sugar, salt, natural flavouring",
     ("BRD", "White"): "wheat flour, water, rapeseed oil, sugar, ascorbic acid",
     ("BRD", "Wholemeal"): "wholemeal wheat flour, water, wheat bran, rapeseed oil, sugar",
     ("BRD", "Seeded"): "wheat flour, water, sunflower seeds, linseed, pumpkin seeds, rapeseed oil",
@@ -138,14 +138,14 @@ HEAD: dict[tuple[str, str], str] = {
     ("YOG", "Vanilla"): "whole milk, sugar, skimmed milk powder, vanilla extract, maize starch",
     ("BUT", "Salted Butter"): "pasteurised cream, water, salt, lactic culture, color (carotenes)",
     ("BUT", "Unsalted Butter"): "pasteurised cream, water, lactic culture, color (carotenes), vitamin a",
-    ("BUT", "Spreadable Butter"): "butter ({75-80}%), rapeseed oil, water, salt, natural flavoring",
+    ("BUT", "Spreadable Butter"): "butter ({75-80}%), rapeseed oil, water, salt, natural flavouring",
     ("BUT", "Plant Spread"): "sunflower oil, water, rapeseed oil, palm oil, salt, emulsifier (sunflower lecithin), vitamin d",
     ("CHE", "Mature Cheddar"): "pasteurised cows' milk, salt, starter culture, vegetable rennet, color (annatto)",
     ("CHE", "Red Leicester"): "pasteurised cows' milk, salt, starter culture, vegetable rennet, color (annatto)",
     ("CHE", "Wensleydale & Cranberry"): "pasteurised cows' milk, cranberries ({8-12}%), sugar, salt, starter culture",
     ("CHE", "Blue Stilton"): "pasteurised cows' milk, salt, starter culture, vegetable rennet, penicillium roqueforti",
     ("CHE", "Smoked Applewood"): "pasteurised cows' milk, salt, starter culture, vegetable rennet, smoked paprika",
-    ("CHE", "Vegan Cheddar Style"): "coconut oil ({20-24}%), potato starch, water, sea salt, olive extract, natural flavoring",
+    ("CHE", "Vegan Cheddar Style"): "coconut oil ({20-24}%), potato starch, water, sea salt, olive extract, natural flavouring",
     ("RDY", "Chicken Tikka Masala"): "cooked chicken breast ({22-28}%), water, tomato, cream ({6-9}%), onion, yoghurt, rapeseed oil, ginger, garlic, ground coriander, cumin, sugar, salt, turmeric, chilli powder",
     ("RDY", "Beef Lasagne"): "beef ({18-24}%), water, tomato, cooked lasagne pasta (water, durum wheat semolina), milk, onion, carrot, cheddar cheese, butter, wheat flour, salt, garlic, oregano",
     ("RDY", "Vegetable Chilli"): "kidney beans, tomato, water, onion, red pepper, sweetcorn, rapeseed oil, garlic, cumin, chilli powder, salt",
@@ -180,12 +180,12 @@ HEAD: dict[tuple[str, str], str] = {
     ("PAS", "Egg Tagliatelle"): "durum wheat semolina, pasteurised egg ({20-25}%)",
     ("PAS", "Gluten Free Penne"): "maize flour, rice flour, maize starch, emulsifier (mono- and diglycerides of fatty acids)",
     ("PAS", "Lemon & Pepper Linguine"): "durum wheat semolina, lemon powder, black pepper, parsley",
-    ("RIC", "Basmati Rice"): "cooked basmati rice ({80-90}%), water, sunflower oil, salt, natural flavoring",
-    ("RIC", "Long Grain Rice"): "cooked long grain rice ({80-90}%), water, sunflower oil, salt, natural flavoring",
-    ("RIC", "Brown Rice"): "cooked brown rice ({80-90}%), water, sunflower oil, salt, natural flavoring",
+    ("RIC", "Basmati Rice"): "cooked basmati rice ({80-90}%), water, sunflower oil, salt, natural flavouring",
+    ("RIC", "Long Grain Rice"): "cooked long grain rice ({80-90}%), water, sunflower oil, salt, natural flavouring",
+    ("RIC", "Brown Rice"): "cooked brown rice ({80-90}%), water, sunflower oil, salt, natural flavouring",
     ("RIC", "Coconut Jasmine Rice"): "cooked jasmine rice ({70-80}%), water, coconut extract, sunflower oil, salt",
     ("RIC", "Quinoa"): "cooked quinoa ({80-90}%), water, sunflower oil, salt, lemon juice",
-    ("RIC", "Couscous"): "durum wheat semolina, water, sunflower oil, sea salt, natural flavoring",
+    ("RIC", "Couscous"): "durum wheat semolina, water, sunflower oil, sea salt, natural flavouring",
     ("SAU", "Tomato Ketchup"): "tomatoes, spirit vinegar, sugar, salt, spice extracts",
     ("SAU", "Mayonnaise"): "rapeseed oil ({60-70}%), water, pasteurised egg yolk ({5-8}%), spirit vinegar, salt, mustard, sugar",
     ("SAU", "Brown Sauce"): "tomatoes, barley malt vinegar, sugar, dates, molasses, salt, spices",
@@ -211,27 +211,27 @@ HEAD: dict[tuple[str, str], str] = {
     ("WLD", "Coconut & Lemongrass Paste"): "water, coconut extract ({20-26}%), lemongrass ({6-9}%), galangal, sunflower oil, garlic, sugar, salt, lime juice",
     ("WLD", "Miso Paste"): "soya beans ({40-50}%), water, rice, salt, koji",
     ("TEA", "English Breakfast"): "black tea (assam), black tea (kenya), black tea (ceylon), black tea (rwanda), black tea (malawi)",
-    ("TEA", "Earl Grey"): "black tea (ceylon), black tea (assam), bergamot flavoring ({1-2}%), cornflower petals, orange peel",
-    ("TEA", "Peppermint"): "peppermint leaves, spearmint leaves, natural mint flavoring, liquorice root, lemon balm",
-    ("TEA", "Lemon & Ginger"): "ginger root, lemon peel, lemongrass, natural lemon flavoring, liquorice root",
-    ("TEA", "Green"): "green tea (sencha), green tea (gunpowder), jasmine petals, lemon verbena, natural flavoring",
-    ("TEA", "Honey & Vanilla Rooibos"): "rooibos, honey granules ({3-5}%), vanilla pieces, natural flavoring, cinnamon",
+    ("TEA", "Earl Grey"): "black tea (ceylon), black tea (assam), bergamot flavouring ({1-2}%), cornflower petals, orange peel",
+    ("TEA", "Peppermint"): "peppermint leaves, spearmint leaves, natural mint flavouring, liquorice root, lemon balm",
+    ("TEA", "Lemon & Ginger"): "ginger root, lemon peel, lemongrass, natural lemon flavouring, liquorice root",
+    ("TEA", "Green"): "green tea (sencha), green tea (gunpowder), jasmine petals, lemon verbena, natural flavouring",
+    ("TEA", "Honey & Vanilla Rooibos"): "rooibos, honey granules ({3-5}%), vanilla pieces, natural flavouring, cinnamon",
     ("COF", "Medium Roast Instant"): "freeze-dried arabica coffee, freeze-dried robusta coffee, roasted coffee granules, natural coffee aroma, coffee oil",
     ("COF", "Dark Roast Ground"): "dark roasted arabica coffee (brazil), dark roasted arabica coffee (colombia), dark roasted robusta coffee (vietnam), roasted coffee (honduras), roasted coffee (peru)",
     ("COF", "Decaf Instant"): "decaffeinated arabica coffee, decaffeinated robusta coffee, roasted coffee granules, natural coffee aroma, coffee oil",
-    ("COF", "Hazelnut Flavored Ground"): "roasted arabica coffee (brazil), roasted arabica coffee (colombia), roasted robusta coffee (vietnam), natural flavorings, coffee oil",
+    ("COF", "Hazelnut Flavored Ground"): "roasted arabica coffee (brazil), roasted arabica coffee (colombia), roasted robusta coffee (vietnam), natural flavourings, coffee oil",
     ("COF", "Colombian Ground"): "roasted arabica coffee (huila), roasted arabica coffee (narino), roasted arabica coffee (cauca), roasted arabica coffee (tolima), roasted arabica coffee (santander)",
-    ("SFT", "Cloudy Lemonade"): "carbonated water, sugar, lemon juice from concentrate ({4-8}%), citric acid, natural flavoring",
-    ("SFT", "Orange Crush"): "carbonated water, orange juice from concentrate ({5-10}%), sugar, citric acid, natural flavoring, color (carotenes)",
-    ("SFT", "Cola"): "carbonated water, sugar, color (caramel e150d), phosphoric acid, natural flavoring, caffeine",
-    ("SFT", "Ginger Beer"): "carbonated water, sugar, ginger extract ({1-2}%), citric acid, natural flavoring",
-    ("SFT", "Elderflower Presse"): "carbonated water, apple juice from concentrate, sugar, elderflower extract, citric acid, natural flavoring",
-    ("SFT", "Sparkling Mint Water"): "carbonated water, mint extract, lime juice, citric acid, natural flavoring",
-    ("JUI", "Smooth Orange"): "orange juice, orange puree, orange oil, orange flavoring, vitamin c",
+    ("SFT", "Cloudy Lemonade"): "carbonated water, sugar, lemon juice from concentrate ({4-8}%), citric acid, natural flavouring",
+    ("SFT", "Orange Crush"): "carbonated water, orange juice from concentrate ({5-10}%), sugar, citric acid, natural flavouring, color (carotenes)",
+    ("SFT", "Cola"): "carbonated water, sugar, color (caramel e150d), phosphoric acid, natural flavouring, caffeine",
+    ("SFT", "Ginger Beer"): "carbonated water, sugar, ginger extract ({1-2}%), citric acid, natural flavouring",
+    ("SFT", "Elderflower Presse"): "carbonated water, apple juice from concentrate, sugar, elderflower extract, citric acid, natural flavouring",
+    ("SFT", "Sparkling Mint Water"): "carbonated water, mint extract, lime juice, citric acid, natural flavouring",
+    ("JUI", "Smooth Orange"): "orange juice, orange puree, orange oil, orange flavouring, vitamin c",
     ("JUI", "Orange with Bits"): "orange juice from concentrate, orange pulp, orange juice cells, orange oil, vitamin c",
     ("JUI", "Apple"): "apple juice from concentrate, apple puree, malic acid, vitamin c, antioxidant (ascorbic acid)",
-    ("JUI", "Pineapple"): "pineapple juice from concentrate, pineapple puree, citric acid, vitamin c, natural flavoring",
-    ("JUI", "Coconut Water"): "coconut water ({95-99}%), coconut water concentrate, vitamin c, citric acid, natural flavoring",
+    ("JUI", "Pineapple"): "pineapple juice from concentrate, pineapple puree, citric acid, vitamin c, natural flavouring",
+    ("JUI", "Coconut Water"): "coconut water ({95-99}%), coconut water concentrate, vitamin c, citric acid, natural flavouring",
     ("BAB", "Apple & Pear"): "apple puree ({50-60}%), pear puree ({25-35}%), water, rice flour, vitamin c",
     ("BAB", "Sweet Potato & Carrot"): "sweet potato ({40-50}%), carrot ({30-40}%), water, sunflower oil, vitamin c",
     ("BAB", "Banana & Mango"): "banana puree, mango puree, water, apple juice, vitamin c",
@@ -309,19 +309,19 @@ HEAD: dict[tuple[str, str], str] = {
     ("BAF", "Alcohol Free Porter"): "water, pale malt (barley), brown malt, chocolate malt, hops, yeast",
     ("BAF", "Alcohol Free Lime Lager"): "water, barley malt, maize, lime juice, hops, hop extract, yeast",
     # The word beer, not the drink.
-    ("GNB", "Ginger Beer"): "carbonated water, sugar, ginger extract ({1-2}%), lemon juice from concentrate, citric acid, natural flavoring",
+    ("GNB", "Ginger Beer"): "carbonated water, sugar, ginger extract ({1-2}%), lemon juice from concentrate, citric acid, natural flavouring",
     ("GNB", "Fiery Ginger Beer"): "carbonated water, sugar, ginger extract ({3-5}%), chilli extract, lemon juice from concentrate, citric acid",
-    ("GNB", "Root Beer"): "carbonated water, sugar, caramel color, sarsaparilla extract, vanilla extract, natural flavoring",
+    ("GNB", "Root Beer"): "carbonated water, sugar, caramel color, sarsaparilla extract, vanilla extract, natural flavouring",
     ("BBF", "Beer Battered Scottish Haddock"): "haddock ({45-55}%), wheat flour, water, beer (water, barley malt), rapeseed oil, maize starch, salt, raising agents (diphosphates, sodium carbonates)",
     ("BBF", "Beer Battered Cod Fillets"): "cod ({45-55}%), wheat flour, water, beer (water, barley malt), rapeseed oil, maize starch, salt, raising agents (diphosphates, sodium carbonates)",
     ("BBF", "Crispy Battered Haddock"): "haddock ({45-55}%), wheat flour, water, rapeseed oil, maize starch, salt, raising agents (diphosphates, sodium carbonates)",
     ("VIN", "Cider Vinegar"): "cider vinegar, apple juice concentrate, water, acidity regulator (acetic acid), natural cloudiness",
     ("VIN", "Raw Cider Vinegar"): "unfiltered cider vinegar, apple juice concentrate, water, the mother, acidity regulator (acetic acid)",
     ("VIN", "Balsamic Vinegar"): "wine vinegar, grape must ({20-30}%), concentrated grape juice, water, color (caramel)",
-    ("VIN", "White Wine Vinegar"): "white wine vinegar, water, grape must, acidity regulator (acetic acid), natural flavoring",
-    ("WGM", "Wine Gums"): "glucose syrup, sugar, gelatine, wine flavoring, acid (citric acid), color (anthocyanins)",
-    ("WGM", "Sour Wine Gums"): "glucose syrup, sugar, gelatine, citric acid, wine flavoring, color (anthocyanins)",
-    ("WGM", "Vegan Wine Gums"): "glucose syrup, sugar, modified maize starch, wine flavoring, citric acid, color (anthocyanins)",
+    ("VIN", "White Wine Vinegar"): "white wine vinegar, water, grape must, acidity regulator (acetic acid), natural flavouring",
+    ("WGM", "Wine Gums"): "glucose syrup, sugar, gelatine, wine flavouring, acid (citric acid), color (anthocyanins)",
+    ("WGM", "Sour Wine Gums"): "glucose syrup, sugar, gelatine, citric acid, wine flavouring, color (anthocyanins)",
+    ("WGM", "Vegan Wine Gums"): "glucose syrup, sugar, modified maize starch, wine flavouring, citric acid, color (anthocyanins)",
     # The word orange, not the fruit.
     ("CHO", "Milk Chocolate Orange"): "sugar, cocoa butter, whole milk powder, cocoa mass, orange oil, orange flakes ({2-4}%)",
     ("CHO", "Dark Chocolate Orange"): "cocoa mass ({50-60}%), sugar, cocoa butter, orange oil, orange flakes ({2-4}%)",
@@ -331,10 +331,10 @@ HEAD: dict[tuple[str, str], str] = {
     ("PAN", "Chocolate Panettone"): "wheat flour, sugar, butter, egg yolk, chocolate chips ({10-15}%), yeast",
     ("ORB", "Orange Shortbread"): "wheat flour, butter, sugar, orange peel ({1-3}%), orange oil",
     ("ORB", "Chocolate & Orange Cookies"): "wheat flour, sugar, butter, dark chocolate chips ({12-18}%), egg, orange oil",
-    ("ORB", "Orange Cream Sandwich Biscuits"): "wheat flour, sugar, palm oil, butter, orange flavoring, emulsifier (soya lecithin)",
-    ("HOT", "Orange Drinking Chocolate"): "sugar, cocoa powder ({18-25}%), skimmed milk powder, orange oil, natural flavoring, salt",
-    ("HOT", "Classic Drinking Chocolate"): "sugar, cocoa powder ({18-25}%), skimmed milk powder, natural flavoring, salt",
-    ("HOT", "Salted Caramel Hot Chocolate"): "sugar, cocoa powder ({15-20}%), skimmed milk powder, caramel pieces, sea salt, natural flavoring",
+    ("ORB", "Orange Cream Sandwich Biscuits"): "wheat flour, sugar, palm oil, butter, orange flavouring, emulsifier (soya lecithin)",
+    ("HOT", "Orange Drinking Chocolate"): "sugar, cocoa powder ({18-25}%), skimmed milk powder, orange oil, natural flavouring, salt",
+    ("HOT", "Classic Drinking Chocolate"): "sugar, cocoa powder ({18-25}%), skimmed milk powder, natural flavouring, salt",
+    ("HOT", "Salted Caramel Hot Chocolate"): "sugar, cocoa powder ({15-20}%), skimmed milk powder, caramel pieces, sea salt, natural flavouring",
 }  # fmt: skip
 
 
@@ -392,15 +392,233 @@ def facet_value(item: str) -> str:
     return head + sep + last
 
 
-#: Label value (:func:`facet_value` form) -> its base ingredient (gen#295). Empty until the table lands.
-BASE: dict[str, str] = {}
+#: Base ingredient -> the label values (``facet_value`` forms, the ``facets.ingredients`` strings) it is the
+#: head of (gen#295). The committed table behind ``facets.ingredient_base``: no heuristic. One number form:
+#: the plural for a countable (peanuts, oranges), the mass noun otherwise (salt, sugar). A label value with
+#: no row keeps its own value and is reported by :func:`unmapped`. Several forms of one ingredient read as
+#: one: "orange peel" and "orange juice" are both oranges, "emulsifier (soya lecithin)" is soya.
+_BASE_ROWS = """
+almonds: almond; roasted almond; toasted almond
+brazil nuts: brazil nut
+cashews: cashew nut; roasted cashew nut
+hazelnuts: hazelnut; hazelnut paste; hazelnut praline
+peanuts: peanut; peanut paste; peanut piece; roasted peanut
+walnuts: walnut
+coconut: coconut; coconut chip; coconut extract; coconut milk; coconut oil; coconut water; coconut water concentrate; desiccated coconut
+oranges: orange peel; candied orange peel; orange flake; orange flavouring; orange juice; orange juice cell; orange juice from concentrate; orange oil; orange pulp; orange puree; seville orange; blood orange juice
+lemons: candied lemon peel; freeze-dried lemon; lemon curd; lemon curd filling; lemon juice; lemon juice from concentrate; lemon oil; lemon peel; lemon powder; lemon zest; natural lemon flavouring
+limes: kaffir lime peel; lime juice
+lime leaves: lime leaf
+honey: acacia honey; clover honey; heather honey; honey; honey granule; honeycomb piece; orange blossom honey; wildflower honey
+cocoa: cocoa butter; cocoa mass; cocoa mass (70% cocoa solids); cocoa powder
+chocolate: chocolate chip; dark chocolate chip; milk chocolate; milk chocolate chip
+milk: milk; whole milk; condensed skimmed milk; skimmed milk powder; whole milk powder; milk protein concentrate; pasteurised cows' milk; pasteurised semi-skimmed cows' milk; pasteurised skimmed cows' milk; pasteurised whole cows' milk
+cream: cream; double cream; pasteurised cream; cream powder; sour cream powder
+cheese: cheddar cheese; cheese powder; edam cheese; emmental cheese; mozzarella cheese
+butter: butter
+whey: whey powder
+lactose: lactose
+lactase: lactase enzyme
+yoghurt: yoghurt; live yoghurt culture
+eggs: egg; egg white; egg yolk; pasteurised egg; pasteurised egg yolk
+wheat: wheat bran; wheat flour; wheat malt; wheat rusk; wholegrain wheat; wholemeal wheat flour; durum wheat semolina; cooked lasagne pasta (water, durum wheat semolina); cooked macaroni (water, durum wheat semolina)
+barley: barley malt; barley malt extract; barley malt vinegar; malted barley; malted barley flour; caramalt; crystal malt; pale malt (barley); pilsner malt; pilsner malt (barley)
+beer: beer (water, barley malt)
+oats: oat; oat bran; oat flour; rolled oat; wholegrain oat; gluten free oat; gluten free oat bran; gluten free rolled oat
+rice: rice; rice flour; brown rice flour; cooked basmati rice; cooked brown rice; cooked jasmine rice; cooked long grain rice; puffed rice
+maize: maize; maize flour; maize grit; maize starch; modified maize starch; popcorn kernel
+sweetcorn: sweetcorn; sweetcorn kernel
+rye: rye flour
+quinoa: cooked quinoa
+soya: soya bean; soya flour; hulled soya bean; edamame soya bean; emulsifier (soya lecithin)
+sunflower: emulsifier (sunflower lecithin)
+sunflower seeds: sunflower seed
+tomatoes: tomato; tomatoe; tomato juice; tomato puree
+potatoes: potatoe; potato starch
+sweet potatoes: sweet potato
+peppers: red pepper
+black pepper: black pepper
+paprika: paprika extract; smoked paprika
+chillies: chilli; chilli extract; chilli powder; red chilli
+sugar: sugar; icing sugar; caramelised sugar; sugar crystal
+glucose: dextrose; glucose syrup
+syrup: golden syrup
+treacle: treacle
+molasses: molasses
+fudge: fudge piece
+tapioca: tapioca starch
+caramel: caramel color; caramel piece; caramel sauce; salted caramel piece; color (caramel); color (caramel e150d)
+apples: apple juice; apple juice concentrate; apple juice from concentrate; apple puree; dried apple
+apricots: apricot puree
+bananas: banana puree
+blackcurrants: blackcurrant juice
+blueberries: blueberry piece
+cranberries: cranberry; dried cranberry
+cherries: cherry juice; glace cherry
+damsons: damson puree
+dates: date
+gooseberries: gooseberry puree
+grapes: concentrated grape juice; grape must
+mangoes: mango; mango puree
+passion fruit: passion fruit juice
+peaches: peache; peach puree
+pears: pear juice; pear puree
+pineapples: pineapple; pineapple juice; pineapple juice from concentrate; pineapple puree
+plums: plum puree
+raspberries: raspberry; raspberry juice; raspberry puree; freeze-dried raspberry
+strawberries: strawberry; strawberry jam; strawberry juice
+raisins: raisin
+vine fruit: vine fruit
+lychees: lychee juice
+rhubarb: rhubarb juice
+fruit juice: fruit juice from concentrate
+elderflower: elderflower cordial; elderflower extract
+cornflower: cornflower petal
+jasmine: jasmine petal
+olives: olive extract
+aubergines: aubergine
+broccoli: broccoli floret
+carrots: carrot
+chickpeas: chickpea
+courgettes: courgette
+peas: garden pea
+green beans: green bean
+haricot beans: haricot bean
+kidney beans: kidney bean
+onions: onion; onion powder
+shallots: shallot
+pumpkin seeds: pumpkin seed
+poppy seeds: poppy seed
+linseed: linseed
+psyllium: psyllium husk
+bamboo shoots: bamboo shoot
+curry paste: green curry paste
+mustard: mustard; mustard powder
+herbs: herbs (parsley, thyme)
+basil: basil
+caraway: caraway
+chives: chive
+cinnamon: cinnamon
+coriander: coriander; coriander seed; ground coriander
+cumin: cumin
+galangal: galangal
+garlic: garlic
+ginger: ginger; ginger extract; ginger root; ground ginger
+nutmeg: nutmeg
+oregano: oregano
+parsley: parsley
+turmeric: turmeric
+spice: spice; spice extract
+mint: mint; mint extract; natural mint flavouring
+peppermint: peppermint leave; peppermint oil
+spearmint: spearmint leave
+vanilla: vanilla extract; vanilla piece; vanillin
+bergamot: bergamot flavouring
+rooibos: rooibo
+lemon balm: lemon balm
+lemon verbena: lemon verbena
+lemongrass: lemongrass
+liquorice: liquorice root
+sarsaparilla: sarsaparilla extract
+beef: beef; beef fat; beef fillet; beef ribeye; beef rump; beef sirloin; beef striploin; beef topside
+chicken: chicken breast; chicken thigh; cooked chicken; cooked chicken breast
+pork: pork; pork belly
+ham: cooked ham
+pepperoni: pepperoni
+cod: cod
+haddock: haddock
+mackerel: mackerel
+salmon: salmon
+tuna: yellowfin tuna
+coffee: coffee extract; coffee oil; natural coffee aroma; dark roasted arabica coffee (brazil); dark roasted arabica coffee (colombia); dark roasted robusta coffee (vietnam); decaffeinated arabica coffee; decaffeinated robusta coffee; freeze-dried arabica coffee; freeze-dried robusta coffee; roasted arabica coffee (brazil); roasted arabica coffee (cauca); roasted arabica coffee (colombia); roasted arabica coffee (huila); roasted arabica coffee (narino); roasted arabica coffee (santander); roasted arabica coffee (tolima); roasted coffee (honduras); roasted coffee (peru); roasted coffee granule; roasted robusta coffee (vietnam)
+black tea: black tea (assam); black tea (ceylon); black tea (kenya); black tea (malawi); black tea (rwanda)
+green tea: green tea (gunpowder); green tea (sencha)
+hops: cascade hop; centennial hop; citra hop; english hop; fuggle hop; goldings hop; hop; hop extract; hop pellet; mosaic hop; saaz hop
+water: water; spring water; carbonated water
+salt: salt; sea salt
+yeast: yeast; yeast extract
+sourdough: sourdough culture
+the mother: the mother
+starter culture: starter culture; lactic culture
+koji: koji
+rennet: vegetable rennet
+suet: vegetable suet
+vinegar: cider vinegar; unfiltered cider vinegar; spirit vinegar; white wine vinegar; white wine vinegar powder; wine vinegar
+wine: wine flavouring
+cola: cola flavouring
+smoke: oak smoke; smoke flavouring
+natural flavouring: natural flavouring
+natural cloudiness: natural cloudiness
+palm oil: palm oil
+rapeseed oil: rapeseed oil
+sunflower oil: sunflower oil
+vegetable oil: vegetable oil
+dairy free topping: dairy free topping (coconut oil, potato starch)
+citric acid: acid (citric acid); acidity regulator (citric acid); citric acid
+acetic acid: acidity regulator (acetic acid)
+dipotassium phosphate: acidity regulator (dipotassium phosphate)
+sodium citrate: acidity regulator (sodium citrate)
+sodium diacetate: acidity regulator (sodium diacetate)
+ascorbic acid: antioxidant (ascorbic acid); ascorbic acid
+rosemary: antioxidant (rosemary extract)
+sodium ascorbate: antioxidant (sodium ascorbate)
+annatto: color (annatto)
+anthocyanins: color (anthocyanins)
+carotenes: color (carotenes)
+mono- and diglycerides of fatty acids: emulsifier (mono- and diglycerides of fatty acids)
+calcium chloride: firming agent (calcium chloride)
+pectin: gelling agent (pectin); stabiliser (pectin)
+gellan gum: stabiliser (gellan gum)
+guar gum: guar gum; stabiliser (guar gum)
+locust bean gum: stabiliser (locust bean gum)
+sodium triphosphate: stabiliser (sodium triphosphate)
+xanthan gum: xanthan gum
+gelatine: gelatine
+beeswax: glazing agent (beeswax)
+calcium propionate: preservative (calcium propionate)
+potassium sorbate: preservative (potassium sorbate)
+sodium nitrite: preservative (sodium nitrite)
+sodium bicarbonate: raising agent (sodium bicarbonate); sodium bicarbonate
+diphosphates: raising agents (diphosphates, sodium carbonates)
+sodium carbonates: raising agents (sodium carbonates)
+malic acid: malic acid
+lactic acid: lactic acid
+phosphoric acid: phosphoric acid
+penicillium roqueforti: penicillium roqueforti
+vitamins: vitamins (b12, d2); vitamins (niacin, b6, folic acid)
+vitamin a: vitamin a
+vitamin c: vitamin c
+vitamin d: vitamin d; vitamin d3
+niacin: niacin
+riboflavin: riboflavin
+thiamin: thiamin
+iron: iron
+calcium: calcium; calcium carbonate
+caffeine: caffeine
+"""
+
+
+def _rows() -> dict[str, str]:
+    out: dict[str, str] = {}
+    for line in _BASE_ROWS.strip().splitlines():
+        base, _, labels = line.partition(": ")
+        for label in labels.split("; "):
+            if label in out:
+                raise ValueError(f"label {label!r} has two base rows ({out[label]!r}, {base!r})")
+            out[label] = base
+    return out
+
+
+BASE: dict[str, str] = _rows()
 
 
 def base_value(item: str) -> str:
-    """The base ingredient of one label row: its table row, else its own value."""
-    return facet_value(item)
+    """The base ingredient of one label row (its raw text or its ``facet_value`` form): its row in
+    :data:`BASE`, else its own filterable value."""
+    value = facet_value(item)
+    return BASE.get(value, value)
 
 
 def unmapped(values) -> list[str]:  # noqa: ANN001
-    """The label values with no row in :data:`BASE`, sorted."""
+    """The label values with no row in :data:`BASE`, sorted: the build reports them."""
     return sorted(set(values) - set(BASE))
