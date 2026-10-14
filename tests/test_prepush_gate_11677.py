@@ -336,7 +336,17 @@ def test_the_hook_blocks_when_it_cannot_tell_whether_a_pull_request_is_open(repo
     done = _gate(repo, "--hook", **_hook("issue-1", repo), FAKE_GH_PRS="fail")
     out = _out(done)
     assert done.returncode == 1, out
-    assert "pull request" in out
+    assert "could not look up an open pull request" in out
+
+
+def test_the_hook_blocks_when_the_pull_request_lookup_answers_with_something_else(
+    repo: Path,
+) -> None:
+    _plant_lint_error(repo)
+    done = _gate(repo, "--hook", **_hook("issue-1", repo), FAKE_GH_PRS="no such thing")
+    out = _out(done)
+    assert done.returncode == 1, out
+    assert "could not look up an open pull request" in out
 
 
 def test_the_hook_blocks_a_push_to_main_without_asking_for_a_pull_request(repo: Path) -> None:
