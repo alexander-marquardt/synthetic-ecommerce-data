@@ -24,8 +24,8 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import grocery  # noqa: E402
+from grocery_ingredients import ALLERGEN_BASE, facet_value  # noqa: E402
 from grocery_ingredients import NO_LIST as generator_no_list  # noqa: E402
-from grocery_ingredients import facet_value  # noqa: E402
 from grocery_rows import FAMILIES  # noqa: E402
 
 #: Phrases that hold an allergen word without the allergen, removed before matching.
@@ -89,10 +89,15 @@ def values(entries: list[dict], key: str) -> set[str]:
     return {e["value"] for e in entries if e["key"] == key}
 
 
+#: The allergen name behind each canonical facet value (gen#294).
+ALLERGEN_NAME = {v: k for k, v in ALLERGEN_BASE.items()}
+
+
 def stated(item: dict, key: str) -> set[str]:
     """An allergen list: a flat row keeps it in its facet only, a nested entry in its attributes."""
     if "facets" in item:
-        return set(item["facets"].get(key, []))
+        # The facet holds the canonical value (gen#294): read it back as the allergen name.
+        return {ALLERGEN_NAME[v] for v in item["facets"].get(key, [])}
     return values(item["attributes"], key)
 
 
