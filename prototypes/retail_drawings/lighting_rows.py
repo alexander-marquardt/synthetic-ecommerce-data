@@ -36,11 +36,13 @@ from breadth_rows import Row
 from variants import Color, cw
 
 _LIGHT = ("Home", "Lighting")
-FLOOR = (*_LIGHT, "Floor Lamps")
-TABLE = (*_LIGHT, "Table Lamps")
-DESK = (*_LIGHT, "Desk Lamps")
-CEILING = (*_LIGHT, "Ceiling Lights")
-WALL = (*_LIGHT, "Wall Lights")
+_LAMPS = (*_LIGHT, "Lamps")
+_LIGHTS = (*_LIGHT, "Lights")
+FLOOR = (*_LAMPS, "Floor Lamps")
+TABLE = (*_LAMPS, "Table Lamps")
+DESK = (*_LAMPS, "Desk Lamps")
+CEILING = (*_LIGHTS, "Ceiling Lights")
+WALL = (*_LIGHTS, "Wall Lights")
 SHADES = (*_LIGHT, "Lampshades")
 
 def _a(key: str, name: str, value: str) -> tuple[str, str, str]:
