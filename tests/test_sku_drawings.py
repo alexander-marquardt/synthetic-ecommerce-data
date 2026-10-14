@@ -624,7 +624,11 @@ EXTREME_ENLARGEMENT = 2.05
 #: The 56-unit plate moved the M6x1 x 10mm screw (``2334357307``) under the
 #: handled glass too; the screw is now the first socket head still drawn
 #: handle-less (measured over the golden catalog with ``sheet.magnifier``).
-PINNED_HANDLE_LESS = ("2334468134", "3818077553")
+#: Re-picked for alexander-marquardt/synthetic-ecommerce-data#65: the socket
+#: screws' ``Package Quantity`` row takes a presence draw from their stream,
+#: so ``2334468134`` is drawn under the handled glass now and the screw is
+#: ``2334249296``.
+PINNED_HANDLE_LESS = ("2334249296", "3818077553")
 #: A hairline drill (a 1/16" jobber), by name, for the stroke test below.
 HAIRLINE_DRILL = "3818559508"
 
