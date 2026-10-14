@@ -12,6 +12,11 @@ Every added type carries three decoys of each of seven classes, 168 in all. Unti
 (`decoy_rows.TABLE`) merges they are registered in `mens_depth_rows.TABLE`, with the class, the
 misleading word, the query it targets and the policy that repairs it.
 
+A decoy sits in a leaf its fields agree with (a "Wool-Free Coat" is not in Wool Coats), spread
+over the type's sibling leaves, and carries the sleeve length of its leaf. Its color field is its
+one true color: `main_colors.complete` skips decoys, and the real Socks rows offer Yellow. The
+product floors count decoys; the tests also hold a floor without them.
+
 | Class | Decoy | Example |
 |---|---|---|
 | 1 color | a trim names another color | "Mens White Chinos with Red Stripes" is white |

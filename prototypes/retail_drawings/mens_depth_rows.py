@@ -87,6 +87,9 @@ _PALETTE = ("Navy", "Black", "White", "Blue", "Grey", "Green", "Red", "Khaki", "
 _TAILORED = ("Navy", "Charcoal", "Black", "Grey", "Blue", "Brown", "Green", "Burgundy", "Red",
              "White", "Yellow", "Stone")  # fmt: skip
 
+#: Socks: yellow is among the first picks, so complete() never has to give a decoy the gap.
+_SOCKS = ("Yellow", "Navy", "Black", "White", "Blue", "Green", "Red", "Grey", "Charcoal", "Khaki")
+
 LETTER = ("S", "M", "L", "XL", "XXL")
 WAIST = ("28", "30", "32", "34", "36", "38")
 CHEST = ("S", "M", "L", "XL", "XXL")
@@ -126,7 +129,8 @@ class Kind:
     params: tuple = ()
     borrow: tuple[str, ...] = ()  # class 2: another category's noun, three of them
     absent: tuple[str, ...] = ()  # class 4: a feature named, three of them
-    path: tuple[str, ...] = ()  # where the decoys sit
+    path: tuple[str, ...] = ()  # where a class-4 decoy sits: a leaf named for no material
+    spread: tuple[tuple[str, ...], ...] = ()  # the leaves the other decoys spread over
 
 
 _SR = ("size_range", ["regular"])
@@ -139,7 +143,9 @@ KINDS = {
     "Shirt": Kind("Shirt", "Shirt", "blouse", CHEST, "size", _C, 22.0, "Polyester",
                   facts=(("neckline", "collared"), _SR), borrow=("dress", "blazer", "coat"),
                   absent=("Silk-Feel", "Linen-Look", "Cashmere-Feel"),
-                  path=("Men", "Tops", "Shirts", "Oxford Shirts")),
+                  path=("Men", "Tops", "Shirts", "Formal Shirts"),
+                  spread=(("Men", "Tops", "Shirts", "Formal Shirts"),
+                          ("Men", "Tops", "Shirts", "Short Sleeve Shirts"))),
     "Polo Shirt": Kind("Polo Shirt", "Polo Shirt", "tshirt", CHEST, "size", _C, 16.0, "Cotton",
                        facts=(("neckline", "collared"), _SR), borrow=("shirt", "jumper", "blazer"),
                        absent=("Wool-Free", "Cashmere-Feel", "Leather-Look"),
@@ -147,11 +153,16 @@ KINDS = {
     "Coat": Kind("Coat", "Coat", "coat", CHEST, "size", _C, 70.0, "Polyester", facts=(_SR,),
                  borrow=("shirt", "blazer", "jumper"),
                  absent=("Wool-Free", "Down-Free", "Fur-Free"),
-                 path=("Men", "Coats & Jackets", "Wool Coats")),
+                 path=("Men", "Coats & Jackets", "Trench Coats"),
+                 spread=(("Men", "Coats & Jackets", "Trench Coats"),
+                         ("Men", "Coats & Jackets", "Pea Coats"))),
     "Jacket": Kind("Jacket", "Jacket", "coat", CHEST, "size", _C, 48.0, "Nylon", facts=(_SR,),
                    borrow=("shirt", "jumper", "trouser"),
                    absent=("Leather-Look", "Down-Free", "Suede-Feel"),
-                   path=("Men", "Coats & Jackets", "Bomber Jackets")),
+                   path=("Men", "Coats & Jackets", "Waterproof Jackets"),
+                   spread=(("Men", "Coats & Jackets", "Bomber Jackets"),
+                           ("Men", "Coats & Jackets", "Puffer Jackets"),
+                           ("Men", "Coats & Jackets", "Waterproof Jackets"))),
     "Suit Jacket": Kind("Suit Jacket", "Blazer", "coat", CHEST, "size", _C, 60.0, "Polyester",
                         facts=(_SR,), borrow=("jumper", "shirt", "coat"),
                         absent=("Wool-Free", "Silk-Feel", "Linen-Look"),
@@ -163,7 +174,9 @@ KINDS = {
     "Socks": Kind("Socks", "Socks", "socks", ("One Size",), "size", _C, 9.0, "Cotton",
                   params=(("pairs", "3"),), borrow=("trouser", "jumper", "boxer"),
                   absent=("Wool-Free", "Cashmere-Feel", "Silk-Feel"),
-                  path=("Men", "Socks", "Everyday Socks")),
+                  path=("Men", "Socks", "Everyday Socks"),
+                  spread=(("Men", "Socks", "Everyday Socks"), ("Men", "Socks", "Ankle Socks"),
+                          ("Men", "Socks", "Sports Socks"))),
 }  # fmt: skip
 
 
@@ -307,14 +320,17 @@ _LEAVES = (
          "{f} {fit}"),
     Leaf("SK", ("Men", "Socks", "Ankle Socks"), "Socks", 4,
          ("Cotton Rich", "Bamboo", "Sports Cushioned", "Organic Cotton"), ("",), ("",),
-         "{f} Ankle Socks"),
+         "{f} Ankle Socks", palette=_SOCKS),
     Leaf("SE", ("Men", "Socks", "Everyday Socks"), "Socks", 4,
          ("Combed Cotton", "Merino Blend", "Ribbed Cotton", "Soft Top"), ("",), ("",),
-         "{f} Everyday Socks"),
+         "{f} Everyday Socks", palette=_SOCKS),
     Leaf("SP", ("Men", "Socks", "Sports Socks"), "Socks", 4,
          ("Arch Support", "Padded Sole", "Moisture Wicking", "Running"), ("",), ("",),
-         "{f} Sports Socks"),
+         "{f} Sports Socks", palette=_SOCKS),
 )  # fmt: skip
+
+#: leaf path -> its sleeve length: a decoy takes its leaf's.
+_SLEEVE = {leaf.path: leaf.sleeve for leaf in _LEAVES}
 
 _TAIL = {
     "Trousers": "with a belt loop waist and two side pockets",
@@ -394,7 +410,7 @@ class Decoy:
 _TRIMS = ("Stripes", "Piping", "Contrast Stitching")
 _MAIN_WORDS = ("Red", "Blue", "Green", "Yellow", "Black", "White")
 _TRUE = ("White", "Black", "Navy", "Grey", "Stone", "Khaki")
-_FANCY = ("Moonbeam", "Candlelight", "Oyster Bay", "Morning Mist", "Sandcastle", "Soft Dune")
+_FANCY = ("Moonbeam", "Candlelight", "Moss Lantern", "Morning Mist", "Sandcastle", "Soft Dune")
 _SHADES = ("Ivory", "Cream", "Off White")
 _RANGES = ("Red Tarn", "Blue Quarry", "Green Hollow", "Yellow Ridge", "Black Dene", "White Marsh")
 _AUDIENCE = ("Women's-Style Cut", "Boyfriend Fit", "Mini-Me Kids' Style")
@@ -418,7 +434,13 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
             attrs += extra
             if ptype == "Socks":
                 attrs += (("units_per_pack", "Units per pack", "3", "C62"),)
-            rows.append(_row(code, title, brand, kind, kind.path, desc, (_col(true),), attrs,
+            path = kind.path if klass == 4 or not kind.spread else kind.spread[
+                (klass + i) % len(kind.spread)]
+            if _SLEEVE.get(path):
+                attrs += (_a("sleeve_length", "Sleeve length", _SLEEVE[path]),)
+            if ptype == "Polo Shirt":
+                attrs += (_a("collar", "Collar", "Polo"),)
+            rows.append(_row(code, title, brand, kind, path, desc, (_col(true),), attrs,
                              price=round(kind.base_price + 1.5 * i + klass, 2)))
             table.append(Decoy(code, ptype, klass, word, true, query, policy))
 
@@ -484,6 +506,11 @@ TABLE: tuple[Decoy, ...] = tuple(_TABLE)
 def docs() -> list[dict]:
     """Every row's catalog document, floor rows then decoys."""
     return [r.doc() for r in ROWS]
+
+
+def decoy_ids() -> frozenset[str]:
+    """The decoys' product ids: ``main_colors.complete`` leaves them as authored."""
+    return frozenset(f"BRD-{d.code}" for d in TABLE)
 
 
 def product_ids() -> frozenset[str]:
