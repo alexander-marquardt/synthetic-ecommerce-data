@@ -2,20 +2,20 @@
  "ceiling": {
   "derived_styles": 4539,
   "food_and_drink": {
-   "skus": 11390,
-   "styles": 4116
+   "skus": 11436,
+   "styles": 4139
   },
   "grocery": {
-   "skus": 12182,
-   "styles": 4413
+   "skus": 12228,
+   "styles": 4436
   },
-  "images": 15281,
+  "images": 15304,
   "non_grocery": {
    "skus": 93723,
    "styles": 5599
   },
-  "skus": 111139,
-  "styles": 10443,
+  "skus": 111185,
+  "styles": 10466,
   "top_levels": {
    "Accessories": {
     "skus": 161,
@@ -30,8 +30,8 @@
     "styles": 489
    },
    "Food & Drink": {
-    "skus": 11390,
-    "styles": 4116
+    "skus": 11436,
+    "styles": 4139
    },
    "Garden": {
     "skus": 260,
@@ -328,6 +328,18 @@
    "skus": 224,
    "styles": 112
   },
+  "PNF": {
+   "skus": 10,
+   "styles": 5
+  },
+  "PNH": {
+   "skus": 12,
+   "styles": 6
+  },
+  "PNT": {
+   "skus": 24,
+   "styles": 12
+  },
   "PRY": {
    "skus": 36,
    "styles": 12
@@ -450,17 +462,17 @@
   }
  },
  "grocery_values": {
-  "checked": 15078,
+  "checked": 15170,
   "named_but_not_carried": {
-   "contains": 576,
-   "flavor": 1932,
+   "contains": 578,
+   "flavor": 1958,
    "may_contain": 691,
    "pack_size": 162,
    "variety": 49
   }
  },
  "near_duplicates": {
-  "grocery": 0.034,
+  "grocery": 0.0338,
   "grocery_grid_clones": 4,
   "non_grocery": 0.0173,
   "non_grocery_grid_clone_rate": 0.1359
@@ -471,8 +483,8 @@
    "styles": 53
   },
   "all": {
-   "skus": 48798,
-   "styles": 5904
+   "skus": 48844,
+   "styles": 5927
   },
   "appliance_rows": {
    "skus": 124,
@@ -496,8 +508,8 @@
    "styles": 289
   },
   "grocery": {
-   "skus": 12182,
-   "styles": 4413
+   "skus": 12228,
+   "styles": 4436
   },
   "household_rows": {
    "skus": 147,

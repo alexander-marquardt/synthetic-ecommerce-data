@@ -710,6 +710,27 @@ FAMILIES: tuple[Family, ...] = (
            ("145g", "3 x 145g"),
            (F("Tuna Steaks in Brine", "#3b6fb6", "xF"), F("Tuna Steaks in Sunflower Oil", "#d9a441", "xF")),
            _CUP, 0.002, depth=True),
+    # The "chocolate without peanuts" class (gen#294): text search ignores "without", so a chocolate
+    # that holds the word "peanut" wins, and so does one that says "peanut-free". Planted by
+    # ``DECOY_ANCHORS`` only (a depth family's budget is spent by them); the ingredient fields
+    # (``facets.ingredient_base``, ``contains``, ``may_contain``) are the truth the policy reads.
+    Family("PNT", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} {flavor}", "Chocolate Bar",
+           "bar", "Chocolate", _A, "DE", 1.8, ("100g", "200g"),
+           (F("Chocolate Peanut Butter Cups", "#a06a30", "MP"), F("Milk Chocolate with Crunchy Peanuts", "#8a5a3c", "MP"),
+            F("Chocolate Coated Peanuts", "#7a4a2a", "MP"), F("Peanut Caramel Chocolate Bar", "#b07a3c", "MP"),
+            F("Dark Chocolate Peanut Clusters", "#3b2416", "P"), F("Chocolate Peanut Brittle", "#c48a3a", "MP")),
+           _CHOC, 0.001, base="S", depth=True),
+    Family("PNH", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} {flavor}", "Chocolate Bar",
+           "bar", "Chocolate", _A, "DE", 1.6, ("100g", "200g"),
+           (F("Milk Chocolate Praline Bar", "#9a6a44", "MP"), F("Triple Chocolate Biscuit Bar", "#6a3a22", "GMP"),
+            F("Dark Chocolate Crunch Bar", "#3b2416", "P")),
+           _CHOC, 0.001, base="S", depth=True),
+    Family("PNF", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} {flavor}", "Chocolate Bar",
+           "bar", "Chocolate", _A, "DE", 1.7, ("100g", "200g"),
+           (F("Peanut-Free Milk Chocolate Bar", "#8a5a3c", "M"), F("Peanut-Free Dark Chocolate Bar", "#3b2416"),
+            F("No Peanuts Hazelnut Milk Chocolate Bar", "#9a6a44", "MT"), F("No Peanuts Orange Dark Chocolate Bar", "#d9822b"),
+            F("Peanut-Free Salted Caramel Chocolate Bar", "#c48a3a", "M")),
+           _CHOC, 0.001, base="S", depth=True),
 )  # fmt: skip
 
 #: The styles every build plants first, so each demo case exists at any size:
@@ -748,4 +769,17 @@ ANCHORS: tuple[tuple[str, tuple[str, ...], str], ...] = (
     ("CLN", ("Mint",), ""),
     ("BOD", ("Honey",), ""),
     ("BOD", ("Coconut",), ""),
+)
+
+
+#: The text-match decoys of the grocery build (gen#294), planted after :data:`ANCHORS` from the
+#: depth stream (so no core family's draw moves): (family, its flavors, may-contain codes, the
+#: range-name offset). Two ranges per peanut-in-title flavor, so a title and a brand repeat nowhere.
+DECOY_ANCHORS: tuple[tuple[str, tuple[str, ...], str, int], ...] = (
+    *(("PNT", (f.name,), "", 60 + 7 * k + j) for j in range(2) for k, f in enumerate(
+        next(f for f in FAMILIES if f.code == "PNT").flavors)),
+    *(("PNH", (f.name,), "", 90 + 5 * k + j) for j in range(2) for k, f in enumerate(
+        next(f for f in FAMILIES if f.code == "PNH").flavors)),
+    *(("PNF", (f.name,), "", 120 + 5 * k) for k, f in enumerate(
+        next(f for f in FAMILIES if f.code == "PNF").flavors)),
 )
