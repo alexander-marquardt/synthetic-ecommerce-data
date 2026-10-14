@@ -220,7 +220,7 @@ def text_contradictions(
     own: dict[str, set[str]] = {}
     for e in attrs:
         own.setdefault(str(e.get("key")), set()).add(str(e.get("value")))
-    # The brand is the document's own value too: "Black Curlew" names a brand, not a colour.
+    # The brand is the document's own value too: "Black Curlew" names a brand, not a color.
     values = {v for vs in own.values() for v in vs}
     if doc.get("brand"):
         values.add(str(doc["brand"]))
