@@ -38,7 +38,10 @@ INTENT = {
     "gold top": ("Gold", {"Top", "Tee"}, None, None),
     "red wine": (None, {"Wine"}, None, "Red Wine"),
 }
-GUARDS = ("green tea", "black pepper", "red velvet cake")
+GUARDS = ("green tea", "black pepper", "red velvet cake", "pink lady apples")
+#: Class 7: query -> the word the decoys hold in the ingredients and not in the title.
+INGREDIENT_QUERIES = {"oranges": "orange", "lemons": "lemon", "strawberries": "strawberry",
+                      "coconut": "coconut", "lavender": "lavender"}
 
 
 @pytest.fixture(scope="module")
@@ -114,3 +117,66 @@ def test_decoys_are_templates_never_copied_or_colour_completed() -> None:
     tpls = scale.templates()
     assert dr.IDS and not dr.IDS & {r["product_id"] for r in scale.derivable(tpls)}
     assert not dr.IDS & {r["product_id"] for g in main_colors.groups(tpls).values() for r in g}
+
+
+def test_docs_table_is_generated_from_the_table() -> None:
+    """The docs hold :func:`decoy_rows.table_markdown` verbatim, so no count is kept by hand."""
+    doc = (ROOT / "docs" / "retail-catalog-batch-1.md").read_text()
+    assert dr.table_markdown() in doc
+    assert len(dr.table_markdown().splitlines()) == len(dr.TABLE) + 2
+
+
+def _is_bra(doc: dict) -> bool:
+    return "Bras" in doc["category_path"]
+
+
+def test_cups_without_interpretation_leads_with_bras(index: br.Index, ceiling: list[dict]) -> None:
+    """Class 6: bra titles say "Cup", so a bare "cups" opens on bras; routed to the drinkware
+    node no bra is left, and "d cup bra" stays in lingerie both ways."""
+    top = br.rank(index, "cups", 10)
+    assert sum(_is_bra(d) for d in top) >= 3 and any(_is_bra(d) for d in top[:3])
+    routed = [d for d in ceiling if "Drinkware" in d["category_path"]]
+    assert routed and not any(_is_bra(d) for d in routed)
+    bras = br.rank(index, "d cup bra", 10)
+    assert sum(_is_bra(d) for d in bras) >= 3 and _is_bra(bras[0])
+
+
+def test_oranges_without_interpretation_leads_with_flavour_decoys(index: br.Index) -> None:
+    """The orange flavour of a bake, a biscuit or a drink beats the fruit; the fruit node is
+    Citrus Fruit > Oranges."""
+    top = br.rank(index, "oranges", 10)
+    flavour = [d for d in top if "Food & Drink" in d["department"]
+               and "Oranges" not in d["category_path"]]
+    assert len(flavour) >= 3 and any(d in flavour for d in top[:3])
+
+
+def test_pink_lady_apples_guard_leads_both_ways(index: br.Index, ceiling: list[dict]) -> None:
+    assert br.rank(index, "pink lady apples", 1)[0]["product_id"] == "PLT-DXU04"
+    doc = {r["product_id"]: r for r in ceiling}["PLT-DXU04"]
+    assert "Apples" in doc["category_path"]
+
+
+@pytest.mark.parametrize("query", sorted(INGREDIENT_QUERIES))
+def test_ingredient_decoys_hold_the_word_only_in_the_ingredients(
+    index: br.Index, ceiling: list[dict], query: str
+) -> None:
+    """Class 7: the word is on the label and in the description, never in the title, and the
+    interpreted query (the fresh category) keeps none of them. The prototype baseline reads the
+    title and the description, not the ingredients, so only the rows that win on the description
+    are in its top 10; the live search reads the ingredients too (the ingest batch's check)."""
+    word = INGREDIENT_QUERIES[query]
+    by_id = {r["product_id"]: r for r in ceiling}
+    rows = {pid: d for pid, d in dr.BY_ID.items() if d.query == query}
+    assert len(rows) >= 3 and all(d.cls == 7 for d in rows.values()), query
+    for pid, row in rows.items():
+        doc = by_id[pid]
+        assert word not in row.title.lower(), (pid, row.title)
+        assert any(word in i for i in doc["ingredients"]), pid
+        assert word in doc["description"].lower(), pid
+        assert "Fresh Fruit" not in doc["category_path"], pid
+        assert pid in {d["product_id"] for d in br.rank(index, query, 1000)}, pid
+
+
+def test_lavender_ingredient_decoy_reaches_the_baseline_top_10(index: br.Index) -> None:
+    top = [d["product_id"] for d in br.rank(index, "lavender", 10)]
+    assert any(i in dr.BY_ID and dr.BY_ID[i].cls == 7 for i in top), top
