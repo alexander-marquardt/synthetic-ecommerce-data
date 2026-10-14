@@ -119,6 +119,9 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "wattage": ("wattage", "Wattage (W)", None),
     "fin_count": ("fin_count", "Fin count", "C62"),
     "slots": ("slots", "Slots", "C62"),
+    # A balance bike's and a trike's wheel size (toys_rows.py, gen#271): its own attribute,
+    # never the garment ``size``, whose S/M/L is another kind of value.
+    "wheel_size_in": ("wheel_size", "Wheel size", "INH"),
 }
 #: The SKU fields that are columns of the variant, not options.
 SKU_COLUMNS = frozenset({"sku", "price", "in_stock", "ingredients"})
