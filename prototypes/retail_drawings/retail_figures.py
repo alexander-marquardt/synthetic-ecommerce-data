@@ -37,6 +37,7 @@ import distractor_rows  # noqa: E402
 import export  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
+import knitwear_rows  # noqa: E402
 import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
@@ -126,6 +127,7 @@ def measure() -> dict[str, Any]:
         "seasonal_rows": seasonal_rows.docs(),
         "colorgroup_rows": colorgroup_rows.docs(),
         "mens_depth_rows": mens_depth_rows.docs(),
+        "knitwear_rows": knitwear_rows.docs(),
         "plain_rows": [r for r in main_colors.author_plain(scale.templates(baseline=False))
                        if r["product_id"] in {p[1] for p in main_colors.PLAIN_STYLES}],
         "grocery": grocery.build(),
