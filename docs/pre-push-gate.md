@@ -6,9 +6,12 @@ plus a fix round of an agent's context (elastic/prism#11677, lever #10005 of #10
 
 ## Rows
 
-Each row is a command a job in `.github/workflows/ci.yaml` runs;
-`python3 scripts/prepush.py --list` prints the row, its CI job and its command, and
-`tests/test_prepush_gate_11677.py` proves each command is in its named job.
+Each row runs the command a job in `.github/workflows/ci.yaml` runs, read from the
+workflow by `scripts/local_ci_jobs.py` when the gate starts (no copy is kept here), so a
+stricter CI flag or `--locked` reaches the gate with no edit. `python3 scripts/prepush.py --list`
+prints each row, its CI job and the command it runs, then what is left to CI.
+`tests/test_prepush_gate_11677.py` fails when a job or step of the workflow is neither
+claimed by a row nor named in `LEFT_TO_CI` in `scripts/prepush.py`.
 
 | Row | CI job | What it judges |
 |---|---|---|
@@ -18,7 +21,8 @@ Each row is a command a job in `.github/workflows/ci.yaml` runs;
 | `tree-scans` | `tests` (Tests step) | the tests that read every tracked file: US spelling, the `.ignore` patterns, the vendored core pin (`python3 scripts/prepush.py --list-scans`) |
 
 Left to CI, by name: the whole suite (about 27 minutes), and the golden catalog and the
-merged-tree checks, which `scripts/merge_pr.sh` runs on the merged tree.
+merged-tree checks (the `main-merged-tree` job), which `scripts/merge_pr.sh` runs on the
+merged tree. The review packet repeats this list.
 
 ## Running it
 
