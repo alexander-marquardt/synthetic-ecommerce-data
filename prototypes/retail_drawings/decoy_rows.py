@@ -126,6 +126,30 @@ KINDS = {
                   "Seasoning", "jar", "Copper Hill Preserves", 2.4, colorless=True),
     "cake": Kind("Food & Drink", ("Food & Drink", "Bakery", "Cakes"), "Cake", "cake",
                  "Crofter's Bakehouse", 4.5, colorless=True),
+    "apples": Kind("Food & Drink", ("Food & Drink", "Fruit & Vegetables", "Fresh Fruit",
+                                    "Apples & Pears", "Apples"), "Fruit", "produce_pile",
+                   "Pantry Mill", 2.2, params=(("fruit", "apple"),), colorless=True, units_per_pack=4),
+    "yoghurt": Kind("Food & Drink", ("Food & Drink", "Dairy & Alternatives", "Yogurt"), "Yogurt",
+                    "tub", "Pantry Mill", 2.0, colorless=True),
+    "cereal_bar": Kind("Food & Drink", ("Food & Drink", "Biscuits & Snacks", "Snack Bars"),
+                       "Snack Bar", "box", "Copper Hill Preserves", 2.6, colorless=True),
+    "curry": Kind("Food & Drink", ("Food & Drink", "Chilled", "Ready Meals"), "Ready Meal",
+                  "tray", "Crofter's Bakehouse", 4.0, colorless=True),
+    "fish": Kind("Food & Drink", ("Food & Drink", "Meat & Fish", "Fish"), "Fish", "tray",
+                 "Crofter's Bakehouse", 5.0, colorless=True),
+    "biscuit": Kind("Food & Drink", ("Food & Drink", "Biscuits & Snacks", "Biscuits"), "Biscuit",
+                    "box", "Pantry Mill", 2.4, colorless=True),
+    "sauce": Kind("Food & Drink", ("Food & Drink", "Food Cupboard", "Sauces & Condiments"),
+                  "Sauce", "bottle", "Copper Hill Preserves", 2.1, colorless=True),
+    "lav_candle": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"), "Scented Candle",
+                       "jar", "Lanternby", 16.0, extra=(("fragrance", "Fragrance", "Lavender"),)),
+    "lotion": Kind("Beauty", ("Beauty", "Bath & Body", "Body Lotion"), "Body Lotion", "bottle",
+                   "Velling Apothecary", 8.0, colorless=True),
+    "bath_salts": Kind("Beauty", ("Beauty", "Bath & Body", "Bath Salts"), "Bath Salts", "jar",
+                       "Velling Apothecary", 6.0, colorless=True),
+    "surface_spray": Kind("Cleaning & Janitorial",
+                          ("Cleaning", "Kitchen & Surfaces", "Cleaners", "Surface Sprays"),
+                          "Surface Spray", "bottle", "Calderby & Lune", 3.0, colorless=True),
 }
 
 
@@ -142,6 +166,8 @@ class Decoy:
     brand: str | None = None
     #: A true hit or a guard product, not a decoy (class 0).
     true_hit: bool = False
+    #: Class 7: the label list, where the query word appears and the title does not name it.
+    ingredients: tuple[str, ...] = ()
 
     def style(self) -> Style:
         k = KINDS[self.kind]
@@ -274,6 +300,59 @@ TABLE = (
        "Whole black peppercorns for a grinder.", "Black", 5, "black pepper", 90, true_hit=True),
     _d("XU03", "cake", "Red Velvet Cake", "A red velvet sponge with cream cheese icing. Serves 8.",
        "Red", 5, "red velvet cake", 90, true_hit=True),
+    # -- pink lady apples: the guard holds the pink and the apple together (5)
+    _d("XU04", "apples", "Pink Lady Apples", "Crisp pink lady apples, sold loose by the kilo.",
+       "Red", 5, "pink lady apples", 90, true_hit=True),
+    # -- class 7: the query word is only an ingredient (title names a different product)
+    _d("XI01", "tea", "Earl Grey Tea, 40 Bags",
+       "Black tea scented with bergamot and dried orange peel, orange peel in every bag.",
+       "Black", 7, "oranges", 950,
+       ingredients=("black tea", "orange peel (6%)", "bergamot flavouring")),
+    _d("XI02", "tea", "Afternoon Blend Tea",
+       "Black tea with orange peel and cornflower petals; the orange peel is dried in strips.",
+       "Black", 7, "oranges", 920, ingredients=("black tea", "orange peel", "cornflower petals")),
+    _d("XI03", "cake", "Rich Fruit Cake",
+       "A moist fruit cake with orange peel, sultanas and cherries. Orange peel throughout.",
+       "Brown", 7, "oranges", 900, ingredients=("sultanas", "orange peel (5%)", "wheat flour")),
+    _d("XI04", "sauce", "Cranberry Sauce",
+       "A tart cranberry sauce with orange zest and a little orange juice.", "Red", 7, "oranges",
+       880, ingredients=("cranberries", "sugar", "orange zest", "orange juice")),
+    _d("XI05", "surface_spray", "Kitchen Surface Spray",
+       "A lemon scented spray for worktops; lemon fragrance, lemon oil and lemon extract.",
+       "Yellow", 7, "lemons", 940, ingredients=("water", "lemon oil", "lemon extract")),
+    _d("XI06", "fish", "Baked Cod Fillets",
+       "Cod fillets baked with lemon juice and herbs, lemon zest and a squeeze of lemon.",
+       "White", 7, "lemons", 900, ingredients=("cod", "lemon juice", "lemon zest", "parsley")),
+    _d("XI07", "cake", "Sponge Cake",
+       "A light sponge with lemon zest and lemon juice in the batter and a lemon glaze.",
+       "Yellow", 7, "lemons", 860, ingredients=("flour", "lemon zest", "lemon juice", "sugar")),
+    _d("XI08", "yoghurt", "Fruit Yoghurt Pots",
+       "Yoghurt pots with strawberry puree and strawberry pieces: strawberry in every pot.",
+       "Pink", 7, "strawberries", 950, ingredients=("yoghurt", "strawberry puree", "sugar")),
+    _d("XI09", "cereal_bar", "Oat Bar Multipack",
+       "Oat bars with strawberry pieces and strawberry flavour, a strawberry bar for lunchboxes.",
+       "Pink", 7, "strawberries", 920, ingredients=("oats", "strawberry pieces", "honey")),
+    _d("XI10", "biscuit", "Cream Biscuits",
+       "Sandwich biscuits with a strawberry cream filling, strawberry jam and strawberry pieces.",
+       "Pink", 7, "strawberries", 880, ingredients=("flour", "strawberry jam", "sugar")),
+    _d("XI11", "curry", "Thai Green Curry",
+       "A green curry with chicken, coconut milk and lime leaf: coconut milk in a creamy sauce.",
+       "Green", 7, "coconut", 950, ingredients=("chicken", "coconut milk", "green curry paste")),
+    _d("XI12", "lotion", "Nourishing Body Lotion",
+       "A rich body lotion made with coconut oil, shea butter and coconut extract.",
+       "White", 7, "coconut", 920, ingredients=("water", "coconut oil", "shea butter")),
+    _d("XI13", "curry", "Chickpea Dhal",
+       "Lentils and chickpeas simmered in coconut milk with turmeric, coconut cream to finish.",
+       "Yellow", 7, "coconut", 880, ingredients=("lentils", "coconut milk", "turmeric")),
+    _d("XI14", "biscuit", "All Butter Shortbread",
+       "Crumbly shortbread baked with dried lavender, lavender flowers and lavender sugar.",
+       "Cream", 7, "lavender", 950, ingredients=("flour", "butter", "lavender flowers")),
+    _d("XI15", "bath_salts", "Relaxing Bath Salts",
+       "Mineral bath salts with lavender oil and dried lavender buds to soak in.", "Purple", 7,
+       "lavender", 920, ingredients=("sea salt", "lavender oil", "lavender buds")),
+    _d("XI16", "lav_candle", "Soy Wax Candle",
+       "A soy wax candle poured with lavender essential oil, a calming lavender scent.", "Cream", 7,
+       "lavender", 880, ingredients=("soy wax", "lavender essential oil")),
 )
 
 STYLES = tuple(d.style() for d in TABLE)
@@ -285,4 +364,24 @@ BY_ID = {f"PLT-D{d.code}": d for d in TABLE}
 
 def docs() -> list[dict]:
     """Every row's catalog document, in the order of :data:`TABLE`."""
-    return [s.doc() for s in STYLES]
+    out = []
+    for style, row in zip(STYLES, TABLE, strict=True):
+        doc = style.doc()
+        if row.ingredients:
+            doc["ingredients"] = list(row.ingredients)
+        out.append(doc)
+    return out
+
+
+CLASSES = {0: "a true hit, kept for the proof", 1: "colour names a part", 2: "type names an accessory or a toy",
+           3: "audience names a sibling version", 4: "colour word is also a product or a shade",
+           5: "guard: a real product whose name holds a colour word", 7: "word only in the ingredients"}
+
+
+def table_markdown() -> str:
+    """The docs table: one line per row, generated from :data:`TABLE`."""
+    lines = ["| Query | Class | Product id | Title | Kind |", "|---|---|---|---|---|"]
+    for pid, d in BY_ID.items():
+        role = "true hit" if d.true_hit else "decoy"
+        lines.append(f"| {d.query} | {d.cls} {CLASSES[d.cls]} | {pid} | {d.title} | {role} |")
+    return "\n".join(lines)

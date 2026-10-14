@@ -84,28 +84,104 @@ flat, may not give one display name to two different keys.
 `tests/test_retail_attribute_names_unique_256.py` feeds it the old skirt and runs it over the
 ceiling build (no finding).
 
-## Text-match decoys for the colour, category and audience queries (gen#294, classes 1 to 5)
+## Text-match decoys for the colour, category and audience queries (gen#294)
 
 `prototypes/retail_drawings/decoy_rows.py` holds `TABLE`: one row per planted product, with its
 class (1 colour names a part, 2 type names an accessory or a toy, 3 audience names a sibling
-version, 4 a colour word that is also a product or a shade, 5 guard) and the query it targets. The
-proof and this section read that table, so no count is kept by hand. Each decoy keeps its own
-colour, category path and audience; only the title and description carry the misleading word.
-Titles are short and sales and reviews above typical. The ids are left out of `scale.derivable()`
-and out of the colour completion of `main_colors`, so a copy or a completion never gives a decoy
-the query's colour.
+version, 4 a colour word that is also a product or a shade, 5 guard, 7 the word is only an
+ingredient) and the query it targets. The proof and the table below read that table, so no count
+is kept by hand. Each decoy keeps its own colour, category path and audience; only the title and
+description carry the misleading word. Titles are short and sales and reviews above typical. The
+ids are left out of `scale.derivable()` and out of the colour completion of `main_colors`, so a
+copy or a completion never gives a decoy the query's colour.
 
-Queries covered: red sofa, blue sofa, red bra, blue shirt, black trainers, mens puffer jacket
-(with two true men's puffer jackets, the leaf is new), boys grey socks, face cream, gold top and red
-wine; guard rows for green tea, black pepper and red velvet cake.
-`tests/test_retail_text_match_decoys_294.py` holds, on the 10**6-SKU build: without interpretation
-at least three decoys in the baseline top 10 and one in the top 3 for every query, and with
-interpretation (the intended colour, type and audience read from the fields) no decoy is a hit.
-The with-persona run on a loaded catalogue is the ingest batch's check, not this PR's.
+Queries covered by rows: red sofa, blue sofa, red bra, blue shirt, black trainers, mens puffer
+jacket (with two true men's puffer jackets, the leaf is new), boys grey socks, face cream, gold
+top and red wine; guard rows for green tea, black pepper, red velvet cake and pink lady apples;
+class 7 rows for oranges, lemons, strawberries, coconut and lavender (the word is in the
+`ingredients` and the description, not in the title).
+
+Queries covered by rows that already exist (`class_rows.py`, no new row): cups (class 6: bras whose
+titles say "Cup" lead a bare "cups", the drinkware node keeps none; "d cup bra" stays in
+lingerie both ways) and oranges (the orange flavour of a bake, a biscuit or a drink leads the
+fruit). `tests/test_retail_text_match_decoys_294.py` holds, on the 10**6-SKU build: without
+interpretation at least three decoys in the baseline top 10 and one in the top 3 for every colour,
+category and audience query, and with interpretation (the intended colour, type and audience read
+from the fields) no decoy is a hit. The prototype baseline reads the title and the description,
+not the ingredients, so for class 7 only the rows that win on the description (lavender) reach its
+top 10; the live search reads the ingredients too, and that run on a loaded catalogue, like the
+with-persona run, is the ingest batch's check, not this PR's.
+
+| Query | Class | Product id | Title | Kind |
+|---|---|---|---|---|
+| red sofa | 1 colour names a part | PLT-DXS01 | Blue 3 Seater Sofa with Red Piping | decoy |
+| red sofa | 1 colour names a part | PLT-DXS02 | Grey Sofa with Red Scatter Cushions | decoy |
+| red sofa | 1 colour names a part | PLT-DXS03 | Navy Corner Sofa, Contrast Red Stitching | decoy |
+| red sofa | 1 colour names a part | PLT-DXS04 | Grey Sofa with Red Legs | decoy |
+| red sofa | 2 type names an accessory or a toy | PLT-DXS05 | Red Sofa Cushion | decoy |
+| red sofa | 2 type names an accessory or a toy | PLT-DXS06 | Red Sofa Cushion Cover, Set of 2 | decoy |
+| red sofa | 2 type names an accessory or a toy | PLT-DXS07 | Dolls House Red Sofa | decoy |
+| blue sofa | 1 colour names a part | PLT-DXS11 | Red 3 Seater Sofa with Blue Piping | decoy |
+| blue sofa | 1 colour names a part | PLT-DXS12 | Cream Sofa with Blue Scatter Cushions | decoy |
+| blue sofa | 1 colour names a part | PLT-DXS13 | Grey Corner Sofa, Contrast Blue Stitching | decoy |
+| blue sofa | 2 type names an accessory or a toy | PLT-DXS14 | Blue Sofa Cushion | decoy |
+| blue sofa | 2 type names an accessory or a toy | PLT-DXS15 | Dolls House Blue Sofa | decoy |
+| red bra | 1 colour names a part | PLT-DXB01 | Black Bra with Red Lace Trim | decoy |
+| red bra | 1 colour names a part | PLT-DXB02 | White Bra with Red Bow | decoy |
+| red bra | 1 colour names a part | PLT-DXB03 | Pink Bra with Red Straps | decoy |
+| red bra | 1 colour names a part | PLT-DXB04 | Navy Bra with Red Stitching | decoy |
+| blue shirt | 1 colour names a part | PLT-DXH01 | White Shirt with Blue Collar and Cuffs | decoy |
+| blue shirt | 1 colour names a part | PLT-DXH02 | Black Shirt with Blue Buttons | decoy |
+| blue shirt | 1 colour names a part | PLT-DXH03 | Grey Shirt with Blue Check Pocket | decoy |
+| blue shirt | 2 type names an accessory or a toy | PLT-DXH04 | Blue Shirt Hangers, Pack of 10 | decoy |
+| blue shirt | 2 type names an accessory or a toy | PLT-DXH05 | Blue Shirt Dress | decoy |
+| black trainers | 1 colour names a part | PLT-DXT01 | White Trainers with Black Sole | decoy |
+| black trainers | 1 colour names a part | PLT-DXT02 | Grey Trainers with Black Laces | decoy |
+| black trainers | 1 colour names a part | PLT-DXT03 | Red Trainers with Black Stripe | decoy |
+| black trainers | 2 type names an accessory or a toy | PLT-DXT04 | Black Trainer Cleaning Kit | decoy |
+| mens puffer jacket | 0 a true hit, kept for the proof | PLT-DXP01 | Mens Puffer Jacket | true hit |
+| mens puffer jacket | 0 a true hit, kept for the proof | PLT-DXP02 | Mens Hooded Puffer Jacket | true hit |
+| mens puffer jacket | 3 audience names a sibling version | PLT-DXP03 | Kids Mini-Me Puffer Jacket | decoy |
+| mens puffer jacket | 3 audience names a sibling version | PLT-DXP04 | Boys Mini-Me Mens Puffer Jacket | decoy |
+| mens puffer jacket | 3 audience names a sibling version | PLT-DXP05 | Womens Puffer Jacket, Mens-Style Fit | decoy |
+| mens puffer jacket | 3 audience names a sibling version | PLT-DXP06 | Womens Boyfriend Puffer Jacket | decoy |
+| boys grey socks | 3 audience names a sibling version | PLT-DXK01 | Grey Socks 5 Pack | decoy |
+| boys grey socks | 3 audience names a sibling version | PLT-DXK02 | Grey Ankle Socks 5 Pack | decoy |
+| boys grey socks | 3 audience names a sibling version | PLT-DXK03 | Grey Boot Socks, Boys Style | decoy |
+| boys grey socks | 0 a true hit, kept for the proof | PLT-DXK04 | Boys Grey Socks 5 Pack | true hit |
+| face cream | 4 colour word is also a product or a shade | PLT-DXF01 | Cream Face Cloths 4 Pack | decoy |
+| face cream | 4 colour word is also a product or a shade | PLT-DXF02 | Cream Face Towel | decoy |
+| face cream | 4 colour word is also a product or a shade | PLT-DXF04 | Cream Cushion Cover with Face Print | decoy |
+| gold top | 4 colour word is also a product or a shade | PLT-DXG01 | Gold Top Handle Bag | decoy |
+| gold top | 4 colour word is also a product or a shade | PLT-DXG02 | Gold Top Zip Clutch Bag | decoy |
+| gold top | 1 colour names a part | PLT-DXG03 | Brown Top Handle Bag with Gold Hardware | decoy |
+| gold top | 0 a true hit, kept for the proof | PLT-DXG04 | Gold Sequin Top | true hit |
+| red wine | 2 type names an accessory or a toy | PLT-DXW01 | Red Wine Glasses, Set of 4 | decoy |
+| red wine | 4 colour word is also a product or a shade | PLT-DXW02 | Red Wine Scented Candle | decoy |
+| red wine | 2 type names an accessory or a toy | PLT-DXW03 | Red Wine Stain Remover | decoy |
+| red wine | 2 type names an accessory or a toy | PLT-DXW04 | Red Wine Carafe | decoy |
+| green tea | 5 guard: a real product whose name holds a colour word | PLT-DXU01 | Green Tea, 40 Bags | true hit |
+| black pepper | 5 guard: a real product whose name holds a colour word | PLT-DXU02 | Black Pepper, Whole Peppercorns | true hit |
+| red velvet cake | 5 guard: a real product whose name holds a colour word | PLT-DXU03 | Red Velvet Cake | true hit |
+| pink lady apples | 5 guard: a real product whose name holds a colour word | PLT-DXU04 | Pink Lady Apples | true hit |
+| oranges | 7 word only in the ingredients | PLT-DXI01 | Earl Grey Tea, 40 Bags | decoy |
+| oranges | 7 word only in the ingredients | PLT-DXI02 | Afternoon Blend Tea | decoy |
+| oranges | 7 word only in the ingredients | PLT-DXI03 | Rich Fruit Cake | decoy |
+| oranges | 7 word only in the ingredients | PLT-DXI04 | Cranberry Sauce | decoy |
+| lemons | 7 word only in the ingredients | PLT-DXI05 | Kitchen Surface Spray | decoy |
+| lemons | 7 word only in the ingredients | PLT-DXI06 | Baked Cod Fillets | decoy |
+| lemons | 7 word only in the ingredients | PLT-DXI07 | Sponge Cake | decoy |
+| strawberries | 7 word only in the ingredients | PLT-DXI08 | Fruit Yoghurt Pots | decoy |
+| strawberries | 7 word only in the ingredients | PLT-DXI09 | Oat Bar Multipack | decoy |
+| strawberries | 7 word only in the ingredients | PLT-DXI10 | Cream Biscuits | decoy |
+| coconut | 7 word only in the ingredients | PLT-DXI11 | Thai Green Curry | decoy |
+| coconut | 7 word only in the ingredients | PLT-DXI12 | Nourishing Body Lotion | decoy |
+| coconut | 7 word only in the ingredients | PLT-DXI13 | Chickpea Dhal | decoy |
+| lavender | 7 word only in the ingredients | PLT-DXI14 | All Butter Shortbread | decoy |
+| lavender | 7 word only in the ingredients | PLT-DXI15 | Relaxing Bath Salts | decoy |
+| lavender | 7 word only in the ingredients | PLT-DXI16 | Soy Wax Candle | decoy |
 
 ## Not done in this increment
 
-The remaining decoy classes (cups, d cup bra, the ingredient decoys of class 7, the oranges
-re-tune, the pink lady apples guard), #298 (the Chocolate node), #299 (Juice children and the
-label-collision guard) and #181 (neckline) are not built yet; issues #294, #298, #299 and #181
-stay open.
+#298 (the Chocolate node), #299 (Juice children and the label-collision guard) and #181
+(neckline) are not built yet; their issues stay open.
