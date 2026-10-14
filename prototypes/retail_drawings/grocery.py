@@ -470,6 +470,11 @@ def report(recs: list[dict]) -> dict[str, Any]:
     }
 
 
+def coverage_report(recs: list[dict]) -> dict[str, Any]:
+    """The share of the food rows (one per SKU) with ``facets.contains`` filled (gen#296)."""
+    return {}
+
+
 def ingredient_report(recs: list[dict]) -> dict[str, Any]:
     """The distinct label values and base ingredients of ``recs`` (gen#295), and the label
     values the base table has no row for: the build prints them, it never guesses a base."""

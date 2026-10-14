@@ -33,6 +33,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+#: The dietary labels a SKU may carry: one closed list (gen#296).
+DIETARY: tuple[str, ...] = ("Vegan", "Vegetarian", "Gluten Free", "Nut Free", "Organic")
+
 ALLERGENS = {"P": "Peanuts", "T": "Tree Nuts", "M": "Milk", "G": "Gluten", "S": "Soy", "E": "Egg", "F": "Fish"}
 
 
