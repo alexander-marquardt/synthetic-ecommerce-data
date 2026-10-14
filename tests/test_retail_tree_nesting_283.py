@@ -32,9 +32,10 @@ import tree_guard  # noqa: E402
 
 CEILING = 10_000_000  # more SKUs than the templates reach, so ``scale.build`` runs to its ceiling
 
-#: The least number of (generic, specific) pairs the shipped tree holds. It has 96 today, 34 of
-#: them made by #284. The floor sits a little under, so a sibling PR that renames one does not red
-#: it, and a build that un-nests the tree does.
+#: The least number of (generic, specific) pairs the shipped tree holds. It has 96 today (29 of the
+#: 34 nestings made by #284 are among them; the four named tests below cover the rest). The floor
+#: sits a little under, so a sibling PR that renames one does not red it, and a build that
+#: un-nests the tree does.
 NESTED_FLOOR = 90
 
 
@@ -59,6 +60,28 @@ def test_the_tree_holds_its_nested_types(paths: set[tuple[str, ...]]) -> None:
     """The rules above say what may not sit beside a generic node; this says the types are
     nested under it (rather than dropped), without pinning which ones."""
     assert len(tree_guard.nested_pairs(paths)) >= NESTED_FLOOR
+
+
+#: Four shapes the count above can miss (a sibling PR may drop one pair and leave the total over
+#: the floor), each named so a regression fails by name. They pin a shape, not a spelling list.
+def _pairs_under(paths: set[tuple[str, ...]], generic: str) -> list[str]:
+    return [kid[-1] for parent, kid in tree_guard.nested_pairs(paths) if parent[-1] == generic]
+
+
+def test_lights_keep_their_specific_children(paths: set[tuple[str, ...]]) -> None:
+    assert _pairs_under(paths, "Lights"), "Lights was un-nested: no 'X Lights' sits under it"
+
+
+def test_bit_sets_sit_in_tool_sets(paths: set[tuple[str, ...]]) -> None:
+    assert ("Home", "DIY & Tools", "Tool Sets", "Bit Sets") in paths
+
+
+def test_sofa_beds_sit_in_sofas(paths: set[tuple[str, ...]]) -> None:
+    assert ("Home", "Furniture", "Sofas", "Sofa Beds") in paths
+
+
+def test_crisps_sit_in_biscuits_and_snacks(paths: set[tuple[str, ...]]) -> None:
+    assert ("Food & Drink", "Biscuits & Snacks", "Crisps") in paths
 
 
 def test_three_siblings_with_one_head_noun_sit_under_a_parent_that_names_it(
