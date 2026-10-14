@@ -2927,8 +2927,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the kit p90/p10 pin's 100K record is loosened by hand",
                 "core/price.py",
-                "    _KIT_SPREAD_ROW: (4.015, 3.901),",
-                "    _KIT_SPREAD_ROW: (4.015, 3.5),",
+                "    _KIT_SPREAD_ROW: (4.032, 3.917),",
+                "    _KIT_SPREAD_ROW: (4.032, 3.5),",
                 "figure_its_build_produces",
                 "a record is the build's figure",
             ),
@@ -2969,8 +2969,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the wheel pin's 100K record is loosened by hand",
                 "core/price.py",
-                "    _WHEEL_SPREAD_ROW: (4.381, 2.903),",
-                "    _WHEEL_SPREAD_ROW: (4.381, 3.25),",
+                "    _WHEEL_SPREAD_ROW: (4.303, 2.842),",
+                "    _WHEEL_SPREAD_ROW: (4.303, 3.25),",
                 "figure_its_build_produces",
                 "a record is the build's figure",
             ),
