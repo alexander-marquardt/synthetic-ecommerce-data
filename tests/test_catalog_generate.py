@@ -151,7 +151,10 @@ def test_a_variant_can_lack_an_attribute_its_siblings_carry(catalog):
 
 def test_the_category_tree_is_used_and_is_three_to_five_deep(catalog):
     depths = {len(line.category) for line in catalog.lines}
-    assert depths <= {3, 4, 5}
+    # The one shared leaf, Hand Tools > Hammers (#305), is two levels: the combined tree puts
+    # the catalog's own root above it.
+    assert depths <= {2, 3, 4, 5}
+    assert {d for d in depths if d == 2} <= {len(p) for p in taxonomy.SHARED_LEAVES}
     assert depths == taxonomy.tree_depths()
 
 
