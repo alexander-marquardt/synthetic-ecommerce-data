@@ -41,6 +41,7 @@ DEPARTMENTS = frozenset(
         "Gifts",
         "Garden",
         "Accessories",
+        "Sports & Outdoors",
     }
 )
 #: The roots the build once had -> the first two nodes their subtree now starts with.
