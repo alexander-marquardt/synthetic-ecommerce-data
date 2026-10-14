@@ -4,7 +4,8 @@
 hierarchy filter on ``Sofas`` dropped the corner sofas that were most of the red ones. The tree
 nests them (``Sofas > Corner Sofas``), and three rules in ``tree_guard.py`` keep it nested:
 
-* (a) no node has a sibling whose label is its head noun;
+* (a) no node has a sibling whose label is a word-suffix of its own (``Sofas`` beside ``Corner
+  Sofas``, ``Skinny Jeans`` beside ``Super Skinny Jeans``);
 * (b) three or more siblings with one head noun sit under a parent that names it, or declare why
   not;
 * (c) a product whose title names a more specific node of its department sits in that node.
@@ -31,52 +32,19 @@ import tree_guard  # noqa: E402
 
 CEILING = 10_000_000  # more SKUs than the templates reach, so ``scale.build`` runs to its ceiling
 
-FURNITURE = ("Home", "Furniture")
-LIGHTING = ("Home", "Lighting")
-COOLING = ("Home", "Heating & Cooling")
-DIY = ("Home", "DIY & Tools")
-SKINCARE = ("Beauty", "Skincare")
-SURFACES = ("Cleaning", "Kitchen & Surfaces")
-DAIRY = ("Food & Drink", "Dairy & Alternatives")
-
-
-def _under(
-    parent: tuple[str, ...], generic: str, *labels: str
-) -> dict[tuple[str, ...], tuple[str, ...]]:
-    """``parent/label`` -> ``parent/generic/label`` for each label."""
-    return {(*parent, label): (*parent, generic, label) for label in labels}
-
-
-#: Every type that moved: the path it had beside its generic category -> where it nests now.
-MOVED: dict[tuple[str, ...], tuple[str, ...]] = {
-    **_under(
-        FURNITURE,
-        "Sofas",
-        "Corner Sofas",
-        "Chaise Sofas",
-        "Modular Sofas",
-        "Recliner Sofas",
-        "Sofa Beds",
-    ),
-    **_under(FURNITURE, "Tables", "Coffee Tables", "Dining Tables", "Side Tables"),
-    **_under(LIGHTING, "Lamps", "Desk Lamps", "Floor Lamps", "Table Lamps"),
-    **_under(LIGHTING, "Lights", "Ceiling Lights", "Wall Lights"),
-    **_under(
-        COOLING, "Fans", "Ceiling Fans", "Desk Fans", "Handheld Fans", "Pedestal Fans", "Tower Fans"
-    ),
-    **_under(DIY, "Drills", "Combi Drills", "Cordless Drills", "Hammer Drills"),
-    **_under(DIY, "Tool Sets", "Bit Sets", "Screwdriver Sets", "Socket Sets"),
-    **_under(SKINCARE, "Creams", "Eye Creams", "Face Creams", "Foot Creams", "Hand Creams"),
-    **_under(SURFACES, "Cleaners", "Glass Cleaners", "Kitchen Cleaners", "Oven Cleaners"),
-    ("Home", "Kids' Bedding", "Bedding Sets"): ("Home", "Bedding", "Kids' Bedding"),
-    (*DAIRY, "Plant Milk"): (*DAIRY, "Milk", "Plant Milk"),
-    ("Food & Drink", "Snacks", "Crisps"): ("Food & Drink", "Biscuits & Snacks", "Crisps"),
-}
+#: The least number of (generic, specific) pairs the shipped tree holds. It has 96 today (29 of the
+#: 34 nestings made by #284 are among them; the four named tests below cover the rest). The floor
+#: sits a little under, so a sibling PR that renames one does not red it, and a build that
+#: un-nests the tree does.
+NESTED_FLOOR = 90
 
 
 @pytest.fixture(scope="module")
 def records() -> list[dict]:
-    return scale.build(CEILING).records
+    """The SHIPPED documents, not the build records: a jean's fit and a bra's style are leaves of
+    the record (it keeps them so its drawing and image id do not move) and facets of the document
+    (``facet_leaves``), so the tree a retailer loads is the document's."""
+    return scale.documents(scale.build(CEILING))
 
 
 @pytest.fixture(scope="module")
@@ -86,6 +54,34 @@ def paths(records: list[dict]) -> set[tuple[str, ...]]:
 
 def test_no_node_has_a_sibling_that_is_its_head_noun(paths: set[tuple[str, ...]]) -> None:
     assert tree_guard.sibling_head_noun_findings(paths) == []
+
+
+def test_the_tree_holds_its_nested_types(paths: set[tuple[str, ...]]) -> None:
+    """The rules above say what may not sit beside a generic node; this says the types are
+    nested under it (rather than dropped), without pinning which ones."""
+    assert len(tree_guard.nested_pairs(paths)) >= NESTED_FLOOR
+
+
+#: Four shapes the count above can miss (a sibling PR may drop one pair and leave the total over
+#: the floor), each named so a regression fails by name. They pin a shape, not a spelling list.
+def _pairs_under(paths: set[tuple[str, ...]], generic: str) -> list[str]:
+    return [kid[-1] for parent, kid in tree_guard.nested_pairs(paths) if parent[-1] == generic]
+
+
+def test_lights_keep_their_specific_children(paths: set[tuple[str, ...]]) -> None:
+    assert _pairs_under(paths, "Lights"), "Lights was un-nested: no 'X Lights' sits under it"
+
+
+def test_bit_sets_sit_in_tool_sets(paths: set[tuple[str, ...]]) -> None:
+    assert ("Home", "DIY & Tools", "Tool Sets", "Bit Sets") in paths
+
+
+def test_sofa_beds_sit_in_sofas(paths: set[tuple[str, ...]]) -> None:
+    assert ("Home", "Furniture", "Sofas", "Sofa Beds") in paths
+
+
+def test_crisps_sit_in_biscuits_and_snacks(paths: set[tuple[str, ...]]) -> None:
+    assert ("Food & Drink", "Biscuits & Snacks", "Crisps") in paths
 
 
 def test_three_siblings_with_one_head_noun_sit_under_a_parent_that_names_it(
@@ -111,18 +107,6 @@ def test_each_product_keeps_one_tree_location(records: list[dict]) -> None:
         places[r["product_id"]].add(tuple(r["category_path"]))
     assert {pid: sorted(p) for pid, p in places.items() if len(p) != 1} == {}
     assert len(places) == len(records)  # no product id is built twice
-
-
-@pytest.mark.parametrize(
-    ("old", "new"),
-    sorted(MOVED.items()),
-    ids=["/".join(new).replace(" ", "_") for _, new in sorted(MOVED.items())],
-)
-def test_a_type_is_nested_under_its_generic_category(
-    old: tuple[str, ...], new: tuple[str, ...], paths: set[tuple[str, ...]]
-) -> None:
-    assert old not in paths
-    assert new in paths
 
 
 # --- the guard itself: a tree broken on purpose must fail ---------------------------------
@@ -151,6 +135,62 @@ def test_the_mutant_with_corner_sofas_beside_sofas_fails_rule_a() -> None:
 
 def test_the_nested_tree_passes_rule_a() -> None:
     assert tree_guard.sibling_head_noun_findings(NESTED) == []
+
+
+JEANS = [
+    ("Women", "Jeans", "Skinny Jeans"),
+    ("Women", "Jeans", "Super Skinny Jeans"),
+    ("Women", "Jeans", "Straight Jeans"),
+]
+BRAS = [
+    ("Women", "Lingerie", "Bras", "Plunge Bras"),
+    ("Women", "Lingerie", "Bras", "Deep Plunge Bras"),
+    ("Women", "Lingerie", "Bras", "Lace Plunge Bras"),
+    ("Women", "Lingerie", "Bras", "Demi Bras"),
+]
+
+
+def test_a_multi_word_generic_sibling_fails_rule_a() -> None:
+    assert tree_guard.sibling_head_noun_findings(JEANS) == [
+        "Women > Jeans: 'Skinny Jeans' sits beside 'Super Skinny Jeans'"
+    ]
+    assert tree_guard.sibling_head_noun_findings(BRAS) == [
+        "Women > Lingerie > Bras: 'Plunge Bras' sits beside 'Deep Plunge Bras'",
+        "Women > Lingerie > Bras: 'Plunge Bras' sits beside 'Lace Plunge Bras'",
+    ]
+
+
+def test_a_label_that_merely_shares_words_is_not_a_generic_sibling() -> None:
+    """Only a word-SUFFIX is the generic parent: 'Skinny Jeans' is not 'Skinny Fit Jeans'' parent,
+    and 'Plunge Bras' does not make 'Plunge Bralette' its child."""
+    paths = [
+        ("Women", "Jeans", "Skinny Jeans"),
+        ("Women", "Jeans", "Skinny Fit Jeans"),
+        ("Women", "Lingerie", "Plunge Bras"),
+        ("Women", "Lingerie", "Plunge Bralettes"),
+    ]
+    assert tree_guard.sibling_head_noun_findings(paths) == []
+
+
+def test_the_multi_word_pairs_pass_once_nested() -> None:
+    nested = [
+        ("Women", "Jeans", "Skinny Jeans"),
+        ("Women", "Jeans", "Skinny Jeans", "Super Skinny Jeans"),
+        ("Women", "Lingerie", "Bras", "Plunge Bras", "Deep Plunge Bras"),
+    ]
+    assert tree_guard.sibling_head_noun_findings(nested) == []
+    assert tree_guard.nested_pairs(nested) == [
+        (("Women", "Jeans"), ("Women", "Jeans", "Skinny Jeans")),
+        (
+            ("Women", "Jeans", "Skinny Jeans"),
+            ("Women", "Jeans", "Skinny Jeans", "Super Skinny Jeans"),
+        ),
+        (("Women", "Lingerie", "Bras"), ("Women", "Lingerie", "Bras", "Plunge Bras")),
+        (
+            ("Women", "Lingerie", "Bras", "Plunge Bras"),
+            ("Women", "Lingerie", "Bras", "Plunge Bras", "Deep Plunge Bras"),
+        ),
+    ]
 
 
 def test_three_lamps_without_a_lamps_parent_fail_rule_b() -> None:

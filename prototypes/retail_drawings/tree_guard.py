@@ -6,8 +6,8 @@ sofa saw only the plain sofas. A retailer nests the type: ``Home > Furniture > S
 Sofas``, so the generic node includes every sofa and the specific query still narrows to its own
 child. Three rules over the built tree keep it that way:
 
-* (a) :func:`sibling_head_noun_findings` -- no node has a sibling whose label is the node's head
-  noun (``Sofas`` beside ``Corner Sofas``).
+* (a) :func:`sibling_head_noun_findings` -- no node has a sibling whose label is a word-suffix of
+  its own (``Sofas`` beside ``Corner Sofas``, ``Skinny Jeans`` beside ``Super Skinny Jeans``).
 * (b) :func:`headless_group_findings` -- three or more siblings that share a head noun
   (``Desk Lamps``, ``Floor Lamps``, ``Table Lamps``) sit under a parent that names that noun, or
   carry a declared exception in :data:`EXCEPTIONS` with its reason.
@@ -73,17 +73,40 @@ def children(tree: set[Path]) -> dict[Path, list[Path]]:
     return by_parent
 
 
+def is_specific_of(label: str, generic: str) -> bool:
+    """``label`` is a more specific form of ``generic``: its words end in the generic's words and
+    it has more of them (``Corner Sofas`` of ``Sofas``, ``Super Skinny Jeans`` of ``Skinny Jeans``).
+    """
+    specific, plain = words(label), words(generic)
+    return bool(plain) and len(specific) > len(plain) and specific[-len(plain) :] == plain
+
+
 def sibling_head_noun_findings(paths: Iterable[Sequence[str]]) -> list[str]:
-    """Rule (a): ``parent: 'Sofas' sits beside 'Corner Sofas'`` for each such pair."""
+    """Rule (a): ``parent: 'Sofas' sits beside 'Corner Sofas'`` for each such pair.
+
+    A node whose label is a word-suffix of a sibling's label is that sibling's generic parent,
+    whether it is one word (``Sofas``) or several (``Skinny Jeans`` for ``Super Skinny Jeans``).
+    """
     found = []
     for parent, kids in children(nodes(paths)).items():
         for kid in kids:
-            noun = head_noun(kid[-1])
             for other in kids:
-                if other != kid and words(other[-1]) == [noun]:
+                if other != kid and is_specific_of(kid[-1], other[-1]):
                     where = " > ".join(parent) or "(root)"
                     found.append(f"{where}: {other[-1]!r} sits beside {kid[-1]!r}")
     return sorted(found)
+
+
+def nested_pairs(paths: Iterable[Sequence[str]]) -> list[tuple[Path, Path]]:
+    """Every (generic node, specific child) pair: the child's label ends in the parent's words."""
+    pairs = [
+        (parent, kid)
+        for parent, kids in children(nodes(paths)).items()
+        if parent
+        for kid in kids
+        if is_specific_of(kid[-1], parent[-1])
+    ]
+    return sorted(pairs)
 
 
 def headless_group_findings(
