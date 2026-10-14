@@ -115,3 +115,23 @@ def test_the_label_text_is_written_in_us_spelling() -> None:
     labels = {i for r in flat() for i in r.get("ingredients", ())}
     assert not [i for i in labels if "flavouring" in i]
     assert any("flavoring" in i for i in labels)
+
+
+@cache
+def scaled_unmapped() -> list[str]:
+    """The label values the base table lacks, over the scale build with the decoys (gen#294)."""
+    import scale  # noqa: PLC0415
+
+    return grocery.ingredient_report(scale.build(10**6).records)["ingredients_unmapped"]
+
+
+def test_the_scale_build_with_the_decoys_has_no_unmapped_label() -> None:
+    assert scaled_unmapped() == []
+
+
+def test_no_row_names_a_label_neither_build_writes() -> None:
+    import scale  # noqa: PLC0415
+
+    rows = grocery.flat(grocery.documents(scale.build(10**6).records))
+    written = {v for r in rows for v in r["facets"].get("ingredients", ())}
+    assert sorted(set(gi.BASE) - written) == []
