@@ -9,13 +9,13 @@
    "skus": 12182,
    "styles": 4413
   },
-  "images": 15217,
+  "images": 15281,
   "non_grocery": {
    "skus": 93723,
    "styles": 5599
   },
-  "skus": 110983,
-  "styles": 10426,
+  "skus": 111139,
+  "styles": 10443,
   "top_levels": {
    "Accessories": {
     "skus": 161,
@@ -52,6 +52,10 @@
    "Men": {
     "skus": 14800,
     "styles": 504
+   },
+   "Sports & Outdoors": {
+    "skus": 156,
+    "styles": 17
    },
    "Toys": {
     "skus": 711,
@@ -467,8 +471,8 @@
    "styles": 53
   },
   "all": {
-   "skus": 48642,
-   "styles": 5887
+   "skus": 48798,
+   "styles": 5904
   },
   "appliance_rows": {
    "skus": 124,
@@ -480,8 +484,8 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 36460,
-   "styles": 1474
+   "skus": 36616,
+   "styles": 1491
   },
   "breadth_rows": {
    "skus": 686,
@@ -530,6 +534,10 @@
   "sofa_rows": {
    "skus": 157,
    "styles": 48
+  },
+  "sports_rows": {
+   "skus": 156,
+   "styles": 17
   },
   "toys_rows": {
    "skus": 155,
