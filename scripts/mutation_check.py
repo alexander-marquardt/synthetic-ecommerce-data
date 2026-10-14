@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-SRC = REPO / "src" / "synthetic_industrial_products"
+SRC = REPO / "src" / "synthetic_ecommerce_data"
 
 
 @dataclass(frozen=True)
@@ -58,14 +58,14 @@ class Mutation:
     #: generator package; the PRISM customization is a second package, and the
     #: committed field map has to be mutable from here too -- a drift test that
     #: is only ever proven from the DERIVATION side is not proven at all.
-    root: str = "src/synthetic_industrial_products"
+    root: str = "src/synthetic_ecommerce_data"
 
 
 MUTATIONS: list[Mutation] = [
     # ---- the generic images carry no dimension, both directions ----------
     Mutation(
         "put a diameter callout on a generic drawing",
-        "render/generic.py",
+        "domains/industrial/render/generic.py",
         "    _bar(ax, half, body_bottom, cut_top, mark)",
         '    _bar(ax, half, body_bottom, cut_top, mark)\n    cv.diameter_callout(\n        ax, -0.2, half * 2, "Ø1/4\\"", "milling", side=1, overhang=0.02, gap=0.02\n    )',
         "tests/test_generic.py",
@@ -73,8 +73,8 @@ MUTATIONS: list[Mutation] = [
         "a generic drawing carries no dimension",
     ),
     Mutation(
-        "stop DIM being a distinct colour, blinding the whole measurement",
-        "render/canvas.py",
+        "stop DIM being a distinct color, blinding the whole measurement",
+        "domains/industrial/render/canvas.py",
         'DIM = "#b03a2e"',
         'DIM = "white"',
         "tests/test_generic.py",
@@ -84,7 +84,7 @@ MUTATIONS: list[Mutation] = [
     # ---- the generic image is not derived from the record, both ways ------
     Mutation(
         "print the SKU on the generic image, as the old fallback did",
-        "render/generic.py",
+        "domains/industrial/render/generic.py",
         "    return render(drawing_for_record(record), path, profile)",
         '    fig, ax = build(drawing_for_record(record), profile)\n    ax.text(0, BOTTOM - 0.04, str(record.get("sku", "")), ha="center", color=cv.MUTED)\n    return cv.save(fig, path, profile)',
         "tests/test_generic.py",
@@ -93,7 +93,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "make a dimensioned drawing ignore its diameter, blinding the control",
-        "render/endmill.py",
+        "domains/industrial/render/endmill.py",
         '        cut_d=parse_length(require(record, "Milling Dia.")),',
         '        cut_d=parse_length(\'1/4"\') if require(record, "Milling Dia.") else None,',
         "tests/test_generic.py",
@@ -103,7 +103,7 @@ MUTATIONS: list[Mutation] = [
     # ---- End Mill Style is read, both directions -------------------------
     Mutation(
         "draw every end mill with a square end, whatever the record says",
-        "render/endmill.py",
+        "domains/industrial/render/endmill.py",
         '    published = str(require(record, "End Mill Style")).strip().lower()\n    try:\n        return END_STYLES[published]',
         '    published = str(require(record, "End Mill Style")).strip().lower()\n    try:\n        return "square" if published else END_STYLES[published]',
         "tests/test_endmill.py tests/test_derivation.py",
@@ -112,7 +112,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "draw every GENERIC end mill with a ball nose, whatever it is of",
-        "render/generic.py",
+        "domains/industrial/render/generic.py",
         "    body_bottom = BOTTOM + (half if ball else 0.0)",
         "    ball = True\n    body_bottom = BOTTOM + (half if ball else 0.0)",
         "tests/test_generic.py",
@@ -122,7 +122,7 @@ MUTATIONS: list[Mutation] = [
     # ---- a hex head is drawn hexagonal, both directions -------------------
     Mutation(
         "draw a hex head's end view as a circle",
-        "render/fastener.py",
+        "domains/industrial/render/fastener.py",
         "    if geom.hex_headed:\n        # Six flats, to the published across-flats dimension.",
         "    if False:\n        # Six flats, to the published across-flats dimension.",
         "tests/test_fastener.py",
@@ -131,7 +131,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "draw EVERY head's end view as a hexagon",
-        "render/fastener.py",
+        "domains/industrial/render/fastener.py",
         'HEX_HEADED = {"hex", "hex head", "hexagon"}',
         "HEX_HEADED = CYLINDRICAL | COUNTERSUNK",
         "tests/test_fastener.py",
@@ -141,7 +141,7 @@ MUTATIONS: list[Mutation] = [
     # ---- the length dimension spans the published length, both ways -------
     Mutation(
         "measure a cylindrical head's length OVER the head",
-        "render/fastener.py",
+        "domains/industrial/render/fastener.py",
         "        return self.length.inches\n\n    @property\n    def length_witness_radius",
         "        return self.total_height\n\n    @property\n    def length_witness_radius",
         "tests/test_fastener.py",
@@ -150,7 +150,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "measure a countersunk head's length UNDER the head",
-        "render/fastener.py",
+        "domains/industrial/render/fastener.py",
         "        return self.length.inches\n\n    @property\n    def length_witness_radius",
         "        return self.shank_length\n\n    @property\n    def length_witness_radius",
         "tests/test_fastener.py",
@@ -160,7 +160,7 @@ MUTATIONS: list[Mutation] = [
     # ---- the flute slope is the helix, both directions --------------------
     Mutation(
         "draw the flute rise from the diameter, not the circumference",
-        "render/endmill.py",
+        "domains/industrial/render/endmill.py",
         "        return self.helix_lead / 2.0",
         "        return self.cut_d.inches / math.tan(math.radians(self.helix_deg))",
         "tests/test_endmill.py",
@@ -169,7 +169,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "draw the flute rise as a WHOLE lead instead of half of one",
-        "render/endmill.py",
+        "domains/industrial/render/endmill.py",
         "        return self.helix_lead / 2.0",
         "        return self.helix_lead",
         "tests/test_endmill.py",
@@ -179,7 +179,7 @@ MUTATIONS: list[Mutation] = [
     # ---- every published attribute reaches the drawing, both directions ---
     Mutation(
         "ignore which hand the record says the helix is, while still listing it",
-        "render/endmill.py",
+        "domains/industrial/render/endmill.py",
         "        hand=HANDS.get(hand_raw, 1),",
         "        hand=1,",
         "tests/test_endmill.py",
@@ -188,7 +188,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "drop an attribute from the drawing AND from the sheet",
-        "render/endmill.py",
+        "domains/industrial/render/endmill.py",
         '        ("Coolant Fed", record.get("Coolant Fed", "")),\n',
         "",
         "tests/test_derivation.py",
@@ -197,7 +197,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "declare an attribute NOT DRAWN that the drawing does draw",
-        "render/attrs.py",
+        "domains/industrial/render/attrs.py",
         "NOT_DRAWN: dict[str, str] = {\n    # The measurement-system attribute",
         'NOT_DRAWN: dict[str, str] = {\n    "Helix Angle": "a claim that nothing in the drawing depends on it",\n    # The measurement-system attribute',
         "tests/test_derivation.py",
@@ -207,7 +207,7 @@ MUTATIONS: list[Mutation] = [
     # ---- a renderer refuses rather than defaulting, both directions -------
     Mutation(
         "default a drill's shank diameter to its nominal size",
-        "render/drill.py",
+        "domains/industrial/render/drill.py",
         '        shank_d=parse_length(require(record, "Shank Dia.")),',
         '        shank_d=parse_length(record.get("Shank Dia.") or record["Size"]),',
         "tests/test_refusals.py",
@@ -216,7 +216,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "clamp a self-contradictory washer instead of refusing it",
-        "render/washer.py",
+        "domains/industrial/render/washer.py",
         "    if geom.inside_d.inches >= geom.outside_d.inches:",
         "    if False:",
         "tests/test_refusals.py",
@@ -232,17 +232,17 @@ MUTATIONS: list[Mutation] = [
     # reads its attribute, validates it, and then draws something else. Every
     # A-direction mutation below is that shape.
     Mutation(
-        "make reading a colour back resolve to whichever brand comes first",
-        "drawing/style.py",
+        "make reading a color back resolve to whichever brand comes first",
+        "core/drawing/style.py",
         "        if brands.ink_of(brand).lower() == lowered and brands.frame_of(brand) == frame:\n            return brand",
         "        if lowered or brands.ink_of(brand).lower() == lowered and brands.frame_of(brand) == frame:\n            return brand",
         "tests/test_marking.py -k brand",
         "B",
-        "the outline colour is the brand, and reads back as the brand",
+        "the outline color is the brand, and reads back as the brand",
     ),
     Mutation(
         "let a brand stock the same spec twice",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "            if key in self._drawn_specs or self._differs_only_by_a_drop(",
         "            if False and self._differs_only_by_a_drop(",
         "tests/test_catalog_brands_voice.py -k same_product",
@@ -251,7 +251,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let a product of a brand drop its template's use line",
-        "catalog/voice.py",
+        "core/voice.py",
         "        0: USE_LINES.get(type_key, GENERIC_USE_LINES)[voice.use_style],",
         "        0: USE_LINES.get(type_key, GENERIC_USE_LINES)[voice.use_style] if len(facts) % 2 else None,",
         "tests/test_catalog_brands_voice.py -k one_template",
@@ -260,7 +260,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let the series walk rewrite any value equal to the series",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "                if attribute.name in self.IDENTIFIER_ATTRIBUTES and attribute.value == old:",
         "                if attribute.value == old:",
         "tests/test_catalog_brands_voice.py -k series_walk",
@@ -269,7 +269,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "leave a product line without an image",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "            image_id=children[0].image_id,\n            drawing=drawing_for(type_key),\n        )",
         '            image_id="",\n            drawing=drawing_for(type_key),\n        )',
         "tests/test_catalog_generate.py tests/test_catalog_emit.py",
@@ -278,7 +278,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "publish a URL for a drawing nothing renders",
-        "catalog/taxonomy.py",
+        "domains/industrial/taxonomy.py",
         '    "washer_flat": "washer_flat",',
         '    "washer_flat": "washer_flat_plain",',
         "tests/test_catalog_emit.py tests/test_generic.py",
@@ -307,7 +307,7 @@ MUTATIONS: list[Mutation] = [
     # ---- formats: the never-round rule, both directions ------------------
     Mutation(
         "round a magnitude that has no fractional spelling",
-        "catalog/formats.py",
+        "core/formats.py",
         'raise UnpublishableMagnitude(\n        f"{inches} in is not a multiple of 1/{_INCH_DENOMINATORS[-1]}; "\n        "it has no fractional spelling and will not be rounded into one"\n    )',
         "return Fraction(round(inches * 64), 64)",
         "tests/test_catalog_formats.py",
@@ -316,7 +316,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "refuse a magnitude that DOES have a fractional spelling",
-        "catalog/formats.py",
+        "core/formats.py",
         "    for denominator in _INCH_DENOMINATORS:",
         "    for denominator in ():",
         "tests/test_catalog_formats.py",
@@ -325,7 +325,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "drop the caller's decimal precision",
-        "catalog/formats.py",
+        "core/formats.py",
         'places = style.places if shape == style.shape else (4 if style.system == "in" else 2)',
         'places = 4 if style.system == "in" else 2',
         "tests/test_catalog_formats.py",
@@ -335,7 +335,7 @@ MUTATIONS: list[Mutation] = [
     # ---- vocab: disjointness, both directions ----------------------------
     Mutation(
         "leak a hammer attribute into the screw vocabulary",
-        "catalog/vocab.py",
+        "domains/industrial/vocab.py",
         '    _spec("Rockwell Hardness", "line", 0.48),',
         '    _spec("Rockwell Hardness", "line", 0.48),\n    _spec("Handle Material", "line", 0.5),',
         "tests/test_catalog_vocab.py tests/test_catalog_generate.py",
@@ -344,7 +344,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "remove the one name a screw and a hammer legitimately share",
-        "catalog/vocab.py",
+        "domains/industrial/vocab.py",
         '_HAMMER = (\n    _spec("Item", "line"),',
         '_HAMMER = (\n    _spec("Item ", "line"),',
         "tests/test_catalog_vocab.py",
@@ -354,7 +354,7 @@ MUTATIONS: list[Mutation] = [
     # ---- series: geometry coherence, both directions ---------------------
     Mutation(
         "let the cut run past the end of the tool",
-        "catalog/series.py",
+        "domains/industrial/series.py",
         "        if self.length_of_cut_in >= self.overall_length_in:",
         "        if False:",
         "tests/test_catalog_series.py",
@@ -363,7 +363,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "refuse a tool whose geometry is fine",
-        "catalog/series.py",
+        "domains/industrial/series.py",
         "        if self.length_of_cut_in >= self.overall_length_in:",
         "        if self.length_of_cut_in < self.overall_length_in:",
         "tests/test_catalog_series.py",
@@ -372,7 +372,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "reorder the measured flute marginal",
-        "catalog/series.py",
+        "domains/industrial/series.py",
         "    (4, 0.42),\n    (2, 0.375),",
         "    (4, 0.375),\n    (2, 0.42),",
         "tests/test_catalog_series.py",
@@ -382,7 +382,7 @@ MUTATIONS: list[Mutation] = [
     # ---- standards: the published value, both directions -----------------
     Mutation(
         "read the actual head diameter where the standard publishes the theoretical one",
-        "catalog/standards.py",
+        "domains/industrial/standards.py",
         '            head_dia_in=row["head_diameter_in"],\n            head_height_in=row["head_height_in"],\n            threads_per_inch=row["threads_per_inch"],\n            pitch_mm=None,\n            drive_size_in=row["hex_socket_across_flats_in"],\n            major_dia_in=INCH_MAJOR_DIA[size],\n        )\n    raise StandardsDataError(f"{standard!r} is not a flat head cap screw standard")',
         '            head_dia_in=row["head_diameter_actual_in"],\n            head_height_in=row["head_height_in"],\n            threads_per_inch=row["threads_per_inch"],\n            pitch_mm=None,\n            drive_size_in=row["hex_socket_across_flats_in"],\n            major_dia_in=INCH_MAJOR_DIA[size],\n        )\n    raise StandardsDataError(f"{standard!r} is not a flat head cap screw standard")',
         "tests/test_catalog_standards.py",
@@ -391,7 +391,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "convert an inch standard as though it were metric",
-        "catalog/standards.py",
+        "domains/industrial/standards.py",
         '            head_dia_in=row["head_diameter_in"],\n            head_height_in=row["head_height_in"],\n            threads_per_inch=row["threads_per_inch"],\n            pitch_mm=None,\n            drive_size_in=row["hex_socket_across_flats_in"],\n            major_dia_in=INCH_MAJOR_DIA[size],\n        )\n    raise StandardsDataError(f"{standard!r} is not a flat head cap screw standard")',
         '            head_dia_in=row["head_diameter_in"] / MM_PER_INCH,\n            head_height_in=row["head_height_in"],\n            threads_per_inch=row["threads_per_inch"],\n            pitch_mm=None,\n            drive_size_in=row["hex_socket_across_flats_in"],\n            major_dia_in=INCH_MAJOR_DIA[size],\n        )\n    raise StandardsDataError(f"{standard!r} is not a flat head cap screw standard")',
         "tests/test_catalog_standards.py",
@@ -400,7 +400,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "back-fill a size the standard does not define",
-        "catalog/standards.py",
+        "domains/industrial/standards.py",
         '    return tuple(row["size"] for row in rows(standard) if row.get("present_in_source"))',
         '    return tuple(row["size"] for row in rows(standard))',
         "tests/test_catalog_standards.py",
@@ -410,7 +410,7 @@ MUTATIONS: list[Mutation] = [
     # ---- noncopy: the guarantee, both directions -------------------------
     Mutation(
         "make the non-copying check always say 'not a copy'",
-        "catalog/noncopy.py",
+        "core/noncopy.py",
         "    return fingerprint(attributes) in reference_tuple_hashes()",
         "    return False",
         "tests/test_catalog_noncopy.py",
@@ -419,7 +419,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "make the non-copying check always say 'copy'",
-        "catalog/noncopy.py",
+        "core/noncopy.py",
         "    return fingerprint(attributes) in reference_tuple_hashes()",
         "    return True",
         "tests/test_catalog_noncopy.py",
@@ -428,7 +428,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "salt the fingerprint so nothing can ever match",
-        "catalog/noncopy.py",
+        "core/noncopy.py",
         '    canonical = json.dumps(pairs_of(attributes), separators=(",", ":"), ensure_ascii=False)',
         '    canonical = json.dumps(pairs_of(attributes), separators=(",", ":"), ensure_ascii=False) + "salt"',
         "tests/test_catalog_noncopy.py",
@@ -437,7 +437,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let a part number take a letter, the shape every reference SKU has",
-        "catalog/typespec.py",
+        "core/typespec.py",
         '    return f"{block:04d}{(sequence * _PART_STRIDE) % SEQUENCE_SPACE:06d}"',
         '    return f"{block:04d}{(sequence * _PART_STRIDE) % SEQUENCE_SPACE:05d}X"',
         "tests/test_catalog_noncopy.py",
@@ -446,12 +446,40 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let two types share a part-number block",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "        if block in owner:",
         "        if False:",
         "tests/test_type_seam.py",
         "",
         "two types on one block are refused, naming both",
+    ),
+    # ---- roller chain: the strand count moves the price (#36) ----
+    Mutation(
+        "roller chain: a double strand chain prices as a single strand one",
+        "domains/industrial/product_types/motion/roller_chain.py",
+        "STRANDS[2]: 1.9,",
+        "STRANDS[2]: 1.0,",
+        "tests/test_type_roller_chain.py",
+        "more_strands_cost_more_in_every_same_spec_set",
+        "more strands cost more in every same-spec set",
+    ),
+    Mutation(
+        "roller chain: a triple strand chain prices under a double strand one",
+        "domains/industrial/product_types/motion/roller_chain.py",
+        "STRANDS[3]: 2.8}",
+        "STRANDS[3]: 1.5}",
+        "tests/test_type_roller_chain.py",
+        "more_strands_cost_more_in_every_same_spec_set",
+        "more strands cost more in every same-spec set",
+    ),
+    Mutation(
+        "roller chain: one brand's strand counts draw their price noise apart",
+        "core/price.py",
+        "        and (model is None or attribute.name != model.option_attribute)",
+        "        and (model is None or attribute.name != object())",
+        "tests/test_type_roller_chain.py",
+        "more_strands_cost_more_in_every_same_spec_set",
+        "more strands cost more in every same-spec set",
     ),
     # ---- the type seam: a table read registers the type modules (#54) ----
     # Every name starts "type seam:", so `--only "type seam:"` re-runs the
@@ -459,7 +487,7 @@ MUTATIONS: list[Mutation] = [
     # ``@cache`` on ``registered()`` already makes a no-op on every later read.
     Mutation(
         "type seam: RegistryTable.__getitem__ skips the registration hook",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "    def __getitem__(self, key: _K) -> _V:\n        ensure_registered()\n",
         "    def __getitem__(self, key: _K) -> _V:\n",
         "tests/test_type_seam.py::test_every_read_of_a_table_registers_before_it_answers[__getitem__]",
@@ -468,7 +496,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: RegistryTable.get skips the registration hook",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "    def get(self, key: _K, default: Any = None) -> Any:  # type: ignore[override]\n        ensure_registered()\n",
         "    def get(self, key: _K, default: Any = None) -> Any:  # type: ignore[override]\n",
         "tests/test_type_seam.py::test_every_read_of_a_table_registers_before_it_answers[get]",
@@ -477,7 +505,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: RegistryTable.__contains__ skips the registration hook",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "    def __contains__(self, key: object) -> bool:\n        ensure_registered()\n",
         "    def __contains__(self, key: object) -> bool:\n",
         "tests/test_type_seam.py::test_every_read_of_a_table_registers_before_it_answers[__contains__]",
@@ -486,7 +514,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: RegistryTable.__iter__ skips the registration hook",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "    def __iter__(self) -> Iterator[_K]:\n        ensure_registered()\n",
         "    def __iter__(self) -> Iterator[_K]:\n",
         "tests/test_type_seam.py::test_every_read_of_a_table_registers_before_it_answers[__iter__]",
@@ -495,7 +523,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: RegistryTable.__len__ skips the registration hook",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "    def __len__(self) -> int:\n        ensure_registered()\n",
         "    def __len__(self) -> int:\n",
         "tests/test_type_seam.py::test_every_read_of_a_table_registers_before_it_answers[__len__]",
@@ -504,7 +532,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: RegistryTable.keys skips the registration hook",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "    def keys(self) -> KeysView[_K]:\n        ensure_registered()\n",
         "    def keys(self) -> KeysView[_K]:\n",
         "tests/test_type_seam.py::test_every_read_of_a_table_registers_before_it_answers[keys]",
@@ -513,7 +541,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: RegistryTable.values skips the registration hook",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "    def values(self) -> ValuesView[_V]:\n        ensure_registered()\n",
         "    def values(self) -> ValuesView[_V]:\n",
         "tests/test_type_seam.py::test_every_read_of_a_table_registers_before_it_answers[values]",
@@ -522,7 +550,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: RegistryTable.items skips the registration hook",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "    def items(self) -> ItemsView[_K, _V]:\n        ensure_registered()\n",
         "    def items(self) -> ItemsView[_K, _V]:\n",
         "tests/test_type_seam.py::test_every_read_of_a_table_registers_before_it_answers[items]",
@@ -531,7 +559,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: ensure_registered ignores a registration already running",
-        "catalog/typespec.py",
+        "core/typespec.py",
         '    if _REGISTRATION["running"]:\n        raise RegistrationReadError(',
         "    if False:\n        raise RegistrationReadError(",
         "tests/test_type_seam.py::"
@@ -541,7 +569,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: breadth.rows() skips ensure_registered",
-        "catalog/breadth.py",
+        "domains/industrial/breadth.py",
         "    typespec.ensure_registered()\n    return _ROWS\n",
         "    return _ROWS\n",
         "tests/test_type_seam.py::test_the_breadth_rows_include_the_type_modules_rows_on_a_first_read",
@@ -550,17 +578,17 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: breadth registers the type modules at import again",
-        "catalog/breadth.py",
+        "domains/industrial/breadth.py",
         "\n\nregister()\n\n",
         "\n\nregister()\ntypespec.ensure_registered()\n\n",
-        "tests/test_a_type_module_imported_first.py::test_a_type_module_imported_first_still_registers[synthetic_industrial_products.product_types.raw_materials.ball_stock_precision]",
+        "tests/test_a_type_module_imported_first.py::test_a_type_module_imported_first_still_registers[synthetic_ecommerce_data.domains.industrial.product_types.raw_materials.ball_stock_precision]",
         "",
         "a type module or discovery can be a process's first import",
     ),
     Mutation(
         "type seam: registered() no longer imports breadth",
-        "catalog/typespec.py",
-        "        from . import breadth  # noqa: F401, PLC0415\n",
+        "core/typespec.py",
+        "        from synthetic_ecommerce_data.domains.industrial import breadth  # noqa: F401, PLC0415\n",
         "",
         "tests/test_type_seam.py::test_registration_brings_in_the_yaml_rows_without_any_type_module",
         "",
@@ -568,7 +596,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: _type_kinds omits the type modules' modelled types",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         '        *((key, "modelled") for key in typespec.modelled()),\n',
         "",
         "tests/test_type_seam.py::test_every_type_is_built_once",
@@ -577,7 +605,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: a type module's share is not the fallback weight",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "            weight = cfg.type_weights.get(key, own.share if own else None)",
         "            weight = cfg.type_weights.get(key)",
         "tests/test_type_seam.py::test_a_type_modules_share_sizes_its_type[screw_socket_head]",
@@ -586,7 +614,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: register skips DRAWING",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "    taxonomy.DRAWING[spec.key] = spec.key\n",
         "",
         "tests/test_type_seam.py::test_a_modelled_module_is_registered_into_every_table[screw_socket_head]",
@@ -595,7 +623,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: register skips STANDARDS_FAMILY",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "    vocab.STANDARDS_FAMILY[spec.key] = spec.standards_family\n",
         "",
         "tests/test_type_seam.py::test_a_modelled_module_is_registered_into_every_table[screw_socket_head]",
@@ -604,7 +632,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: register skips USE_LINES",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "    if spec.use_lines:\n        voice.USE_LINES[spec.key] = spec.use_lines\n",
         "",
         "tests/test_type_seam.py::test_a_modelled_module_is_registered_into_every_table[screw_socket_head]",
@@ -613,7 +641,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: a modelled spec missing a field is not refused",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "    if missing:\n        raise TypeModuleError",
         "    if False:\n        raise TypeModuleError",
         "tests/test_type_seam.py -k missing_a_field_is_refused",
@@ -622,7 +650,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: an unset share is not refused",
-        "catalog/typespec.py",
+        "core/typespec.py",
         '            ("share", spec.share > 0),',
         '            ("share", True),',
         'tests/test_type_seam.py -k "missing_a_field_is_refused and share"',
@@ -631,7 +659,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: an unset extent is not refused",
-        "catalog/typespec.py",
+        "core/typespec.py",
         '            ("extent", all(side > 0 for side in spec.extent)),',
         '            ("extent", True),',
         'tests/test_type_seam.py -k "missing_a_field_is_refused and extent"',
@@ -640,7 +668,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: a breadth spec whose row has another key is not refused",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "        if spec.breadth.key != spec.key:",
         "        if False:",
         "tests/test_type_seam.py::test_a_breadth_spec_whose_row_has_another_key_is_refused",
@@ -649,7 +677,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: a type module row repeating a YAML row is not refused",
-        "catalog/breadth.py",
+        "domains/industrial/breadth.py",
         "    if any(existing.key == row.key for existing in _ROWS):",
         "    if False:",
         "tests/test_type_seam.py::test_a_type_module_row_that_repeats_a_yaml_row_is_refused",
@@ -659,7 +687,7 @@ MUTATIONS: list[Mutation] = [
     # The round-2 review's four (#54).
     Mutation(
         "type seam: first_free_block returns start even when it is taken",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "        if block not in taken:\n            return block\n",
         "        if True:\n            return block\n",
         (
@@ -667,20 +695,20 @@ MUTATIONS: list[Mutation] = [
             "tests/test_type_seam.py::test_the_block_command_names_the_owner_and_a_really_free_block",
         ),
         "",
-        "sip-generate block names a block no type uses",
+        "ecom-generate block names a block no type uses",
     ),
     Mutation(
-        "type seam: sip-generate block finds no owner of a taken block",
-        "catalog/cli.py",
+        "type seam: ecom-generate block finds no owner of a taken block",
+        "generate_cli.py",
         "    owners = sorted(other for other, block in used.items() if block == derived)\n",
         "    owners: list[str] = []\n",
         "tests/test_type_seam.py::test_the_block_command_names_the_owner_and_a_really_free_block",
         "",
-        "sip-generate block names a block no type uses",
+        "ecom-generate block names a block no type uses",
     ),
     Mutation(
         "type seam: a half-zero extent is not refused",
-        "catalog/typespec.py",
+        "core/typespec.py",
         '            ("extent", all(side > 0 for side in spec.extent)),',
         '            ("extent", any(side > 0 for side in spec.extent)),',
         'tests/test_type_seam.py -k "missing_a_field_is_refused and extent"',
@@ -691,7 +719,7 @@ MUTATIONS: list[Mutation] = [
         # Was "_discovered_blocks drops the row fallback"; the row's block now
         # reaches DECLARED_BLOCKS with the row, and this is how it is lost.
         "type seam: a breadth module's block on its row is overwritten by the spec's unset one",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "    if spec.part_number_block is not None:\n        DECLARED_BLOCKS[spec.key]",
         "    if True:\n        DECLARED_BLOCKS[spec.key]",
         "tests/test_type_seam.py::test_a_breadth_modules_declared_block_is_its_block[row]",
@@ -700,7 +728,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: a table read during registration is answered, not refused",
-        "catalog/typespec.py",
+        "core/typespec.py",
         '    if _REGISTRATION["running"]:\n        raise',
         '    if _REGISTRATION["running"]:\n        return\n        raise',
         (
@@ -715,7 +743,7 @@ MUTATIONS: list[Mutation] = [
     # A type states its per-type entries on its TypeSpec, once (#48, #61).
     Mutation(
         "type seam: applicable never reads a type module's CLAIMS rule",
-        "catalog/conformance.py",
+        "domains/industrial/conformance.py",
         "    rule = CLAIMS.get(type_key)",
         "    rule = None",
         (
@@ -729,7 +757,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: register leaves a spec's claims out of CLAIMS",
-        "catalog/typespec.py",
+        "core/typespec.py",
         '        "conformance.CLAIMS": (conformance.CLAIMS, spec.claims),\n',
         "        # CLAIMS left out\n",
         "tests/test_type_registration.py::"
@@ -739,7 +767,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: register writes no spec field into the shared tables",
-        "catalog/typespec.py",
+        "core/typespec.py",
         "            table[spec.key] = value",
         "            pass",
         "tests/test_type_registration.py::"
@@ -750,7 +778,7 @@ MUTATIONS: list[Mutation] = [
     *(
         Mutation(
             f"type seam: a {table} entry in both the shared table and the spec is not refused",
-            "catalog/typespec.py",
+            "core/typespec.py",
             "        if value is not None and dict.__contains__(table, spec.key):",
             "        if False:",
             "tests/test_type_registration.py::"
@@ -762,7 +790,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: a modelled spec with no key_attributes is not refused",
-        "catalog/typespec.py",
+        "core/typespec.py",
         '            ("key_attributes", bool(spec.key_attributes)),',
         '            ("key_attributes", True),',
         "tests/test_type_registration.py::test_a_modelled_type_without_a_key_dimension_is_refused",
@@ -771,7 +799,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: a breadth row file named for another key is read",
-        "catalog/breadth.py",
+        "core/breadth.py",
         "        if f\"{raw['key']}.yaml\" != entry.name:",
         "        if False:",
         "tests/test_type_registration.py::test_a_row_file_named_for_another_key_is_refused",
@@ -791,7 +819,7 @@ MUTATIONS: list[Mutation] = [
             "a type's facts are declared once",
             root=".",
         )
-        for read in ("may_claim", "title_key", "default_size")
+        for read in ("may_claim", "title_key")
     ),
     *(
         Mutation(
@@ -808,12 +836,6 @@ MUTATIONS: list[Mutation] = [
         for field, old, param in (
             ("may_claim", "        if value is None:", "may_claim-None-may_claim"),
             ("key_attributes", "        if value is None:", "key_attributes-unset1-title_key"),
-            (
-                "default_lines",
-                "        if spec.default_lines <= 0:",
-                "default_lines-0-default_size",
-            ),
-            ("default_skus", "        if spec.default_skus <= 0:", "default_skus-0-default_size"),
         )
     ),
     # ---- merge_pr.sh merges only a checked tree (#54) ----------------------
@@ -896,8 +918,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: the rebuild runs unlocked",
-                'uv run -q --locked --directory "$work" sip-generate',
-                'uv run -q --directory "$work" sip-generate',
+                'uv run -q --locked --directory "$work" ecom-generate',
+                'uv run -q --directory "$work" ecom-generate',
                 "tests/test_merge_pr.py::test_a_stale_lock_is_refused_not_relocked_and_committed",
                 "the rebuild commits only the generated files",
             ),
@@ -969,7 +991,7 @@ MUTATIONS: list[Mutation] = [
     # ---- generate: the measured rates, both directions -------------------
     Mutation(
         "make every tool line a matching-shank line",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "        shanks_match = rng.random() < cfg.shank_equals_cutting_dia",
         "        shanks_match = True",
         "tests/test_catalog_generate.py",
@@ -978,7 +1000,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "make no tool line a matching-shank line",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "        shanks_match = rng.random() < cfg.shank_equals_cutting_dia",
         "        shanks_match = False",
         "tests/test_catalog_generate.py",
@@ -987,7 +1009,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "stop injecting the angle-carries-a-length-unit defect",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "        if self.rng.random() >= self.config.scaled_defect(\n            self.config.defect_angle_carries_length_unit\n        ):\n            return line_attrs",
         "        if True:\n            return line_attrs",
         "tests/test_catalog_generate.py",
@@ -996,7 +1018,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "inject the angle defect into every line",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "        if self.rng.random() >= self.config.scaled_defect(\n            self.config.defect_angle_carries_length_unit\n        ):\n            return line_attrs",
         "        if False:\n            return line_attrs",
         "tests/test_catalog_generate.py",
@@ -1031,7 +1053,7 @@ MUTATIONS: list[Mutation] = [
     # so a row can no longer be satisfied by a test it does not name.
     Mutation(
         "cut an over-long title at the cap instead of shedding a whole segment",
-        "catalog/naming.py",
+        "core/naming.py",
         "    kept = len(segments)\n"
         "    text = assemble(kept)\n"
         "    while kept > 0 and len(text) > cap:\n"
@@ -1044,7 +1066,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "truncate a title's LABEL, the defect the published-string test guards",
-        "catalog/naming.py",
+        "core/naming.py",
         '        return f"{self.value} {self.label}"',
         '        return f"{self.value} {self.label[:-1]}"',
         "tests/test_catalog_titles.py -k mid_word",
@@ -1053,7 +1075,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "stop counting titles, so the zero-truncation rate has an empty denominator",
-        "catalog/measure.py",
+        "domains/industrial/measure.py",
         "            titles += 1",
         "            titles += 0",
         "tests/test_catalog_generate.py -k truncated",
@@ -1070,7 +1092,7 @@ MUTATIONS: list[Mutation] = [
     # free to fragment.
     Mutation(
         "spell a whole number of millimetres two ways",
-        "catalog/formats.py",
+        "core/formats.py",
         'METRIC_CANONICAL = LengthStyle("mm", "mm", "integer")',
         'METRIC_CANONICAL = LengthStyle("mm", "mm", "decimal", places=2)',
         "tests/test_catalog_coverage.py -k one_spelling",
@@ -1079,7 +1101,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "publish imperial dimensions with a trailing 'in' instead of the double-prime",
-        "catalog/formats.py",
+        "core/formats.py",
         'IMPERIAL_CANONICAL = LengthStyle("in", \'"\', "fraction")',
         'IMPERIAL_CANONICAL = LengthStyle("in", " in", "fraction")',
         "tests/test_catalog_formats.py -k canonical_spellings_are_the_ones",
@@ -1088,7 +1110,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "never leave a title dimension token unlabelled",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "                if middle < cfg.title_token_unlabelled:",
         "                if False:",
         "tests/test_catalog_generate.py",
@@ -1097,7 +1119,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "always leave a title dimension token unlabelled",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "                if middle < cfg.title_token_unlabelled:",
         "                if True:",
         "tests/test_catalog_generate.py",
@@ -1106,7 +1128,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "use one spelling of the measurement-system attribute everywhere",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "        system_name = str(_weighted(rng, MEASUREMENT_SYSTEM_NAMES))",
         '        system_name = "Dimension Type"',
         "tests/test_catalog_generate.py",
@@ -1115,7 +1137,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let a child redefine a name its line already carries",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         '            keyword_attribute("Item", item),\n            keyword_attribute("End Mill Style", style_name),',
         '            keyword_attribute("Item", item),\n            keyword_attribute("Milling Dia.", "0"),\n            keyword_attribute("End Mill Style", style_name),',
         "tests/test_catalog_generate.py",
@@ -1124,7 +1146,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "make the catalog non-deterministic",
-        "catalog/typespec.py",
+        "core/typespec.py",
         '    return random.Random(f"{seed}:{type_key}")',
         "    return random.Random()",
         "tests/test_catalog_generate.py",
@@ -1133,7 +1155,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "ignore the defect-rate knob",
-        "catalog/config.py",
+        "core/config.py",
         "    def scaled_defect(self, rate: float) -> float:\n        return max(0.0, min(1.0, rate * self.defect_scale))",
         "    def scaled_defect(self, rate: float) -> float:\n        return rate",
         "tests/test_catalog_generate.py",
@@ -1142,7 +1164,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "ignore the sparsity knob",
-        "catalog/config.py",
+        "core/config.py",
         "        return max(0.0, min(1.0, presence * self.sparsity_scale))",
         "        return presence",
         "tests/test_catalog_generate.py",
@@ -1152,7 +1174,7 @@ MUTATIONS: list[Mutation] = [
     # ---- model / emit: the document shape --------------------------------
     Mutation(
         "carry a null unit code instead of omitting it",
-        "catalog/entry.py",
+        "core/entry.py",
         '    if match is None or unit is None:\n        return {"value": published}',
         '    if match is None or unit is None:\n        return {"value": published, "unit_code": None}',
         "tests/test_catalog_emit.py",
@@ -1161,7 +1183,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "read an inch tap's thread count as millimetres",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         'else Attribute("Threads per Inch", str(pitch), bare_unit="TPI")',
         'else Attribute("Threads per Inch", str(pitch), bare_unit="MMT")',
         "tests/test_catalog_emit.py tests/test_nested_entry_contract.py",
@@ -1172,7 +1194,7 @@ MUTATIONS: list[Mutation] = [
         # elastic/prism#9877: a TPI entry's canonical is its pitch length,
         # 127/5 / n mm. The count itself is the wrong number this plants.
         "store a thread count's canonical as the bare count, not its pitch length",
-        "catalog/entry.py",
+        "core/entry.py",
         "        return float(RECIPROCAL_PER_UNIT[unit] / exact)",
         "        return float(exact)",
         (
@@ -1185,7 +1207,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "read the angle defect's inch mark as an inch again",
-        "catalog/entry.py",
+        "core/entry.py",
         '        unit = UNIT_FOR_NAME.get(name) or UNIT_FOR_SUFFIX[match["suffix"]]',
         '        unit = UNIT_FOR_SUFFIX[match["suffix"]]',
         (
@@ -1198,7 +1220,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "fix the inch-marked Helix Angle but leave Point Angle an inch",
-        "catalog/entry.py",
+        "core/entry.py",
         '    "Point Angle": "DD",\n',
         "",
         "tests/test_nested_entry_contract.py -k share_one_unit_dimension",
@@ -1207,7 +1229,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "read a length keyed into an angle field as degrees",
-        "catalog/entry.py",
+        "core/entry.py",
         '        if UNIT_FOR_NAME.get(name) == "DD" and not _within_span(name, match["number"]):\n'
         '            return {"value": published}\n',
         "",
@@ -1221,7 +1243,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "collapse a multi-valued attribute to a single entry",
-        "catalog/model.py",
+        "core/model.py",
         "        values = self.values if self.values is not None else (self.value,)",
         "        values = (self.value,)",
         "tests/test_catalog_emit.py tests/test_catalog_generate.py",
@@ -1230,7 +1252,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "un-nest the nested attributes",
-        "catalog/emit.py",
+        "core/emit.py",
         '            "attributes": {\n                "type": "nested",',
         '            "attributes": {\n                "type": "object",',
         "tests/test_catalog_emit.py",
@@ -1239,7 +1261,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "nest the flat shape's attributes",
-        "catalog/emit.py",
+        "core/emit.py",
         '            "attributes": {\n                "type": "object",\n                "properties": {\n                    "key": {"type": "keyword"},\n                    "name": {"type": "keyword"},\n                    "value": {"type": "keyword"},\n                    "unit_code": {"type": "keyword"},\n                    "value_canonical": {"type": "double"},\n                },\n            },\n            "facets": {"type": "object", "dynamic": True},',
         '            "attributes": {\n                "type": "nested",\n                "properties": {\n                    "key": {"type": "keyword"},\n                    "name": {"type": "keyword"},\n                    "value": {"type": "keyword"},\n                    "unit_code": {"type": "keyword"},\n                    "value_canonical": {"type": "double"},\n                },\n            },\n            "facets": {"type": "object", "dynamic": True},',
         "tests/test_catalog_emit.py",
@@ -1248,7 +1270,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let a facet field fall back to dynamic text mapping",
-        "catalog/emit.py",
+        "core/emit.py",
         '{"facet_values": {"path_match": "facets.*", "mapping": {"type": "keyword"}}}',
         '{"facet_values": {"path_match": "facets.*", "mapping": {"type": "text"}}}',
         "tests/test_catalog_emit.py",
@@ -1257,7 +1279,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "leave a dot in a sanitised field name",
-        "catalog/entry.py",
+        "core/entry.py",
         '    return _NON_WORD.sub("_", name.strip().lower()).strip("_")',
         "    return name.strip().lower()",
         "tests/test_catalog_emit.py",
@@ -1266,7 +1288,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "drop attribute values out of the searchable text",
-        "catalog/emit.py",
+        "core/emit.py",
         "    parts = [child.title, line.brand, line.series, *line.category]",
         '    parts = [child.title, line.brand, line.series]\n    return " ".join(part for part in parts if part)\n    parts = []',
         "tests/test_catalog_emit.py",
@@ -1466,7 +1488,7 @@ MUTATIONS: list[Mutation] = [
     # ---- the structural-collision guard ---------------------------------
     Mutation(
         "let a catalog attribute claim a structural field name",
-        "catalog/entry.py",
+        "core/entry.py",
         '        "attribute_names",\n        "fulltext",',
         '        "attribute_names",\n        "fulltext",\n        "item",',
         "tests/test_prism_field_map_drift.py",
@@ -1483,7 +1505,7 @@ MUTATIONS: list[Mutation] = [
     # are asserted against the committed bytes rather than the fresh build.
     Mutation(
         "move the image host without regenerating the catalog",
-        "catalog/emit.py",
+        "core/emit.py",
         'IMAGE_ROOT = "industrial"',
         'IMAGE_ROOT = "moved"',
         "tests/test_catalog_golden.py::test_committed_file_matches_a_fresh_build",
@@ -1492,7 +1514,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "emit an eighth file the build does not commit",
-        "catalog/cli.py",
+        "generate_cli.py",
         '    (out / "mapping.flat.json").write_text(',
         '    (out / "mapping.extra.json").write_text("{}\\n", encoding="utf-8")\n'
         '    (out / "mapping.flat.json").write_text(',
@@ -1502,12 +1524,43 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "change the default seed and leave the catalog on the old one",
-        "catalog/config.py",
+        "core/config.py",
         "    seed: int = 20260917",
         "    seed: int = 20260918",
         "tests/test_catalog_golden.py::test_stats_reports_the_catalog_that_was_committed",
         "",
         "the committed catalog is the DEFAULT configuration",
+    ),
+    # ---- figures: the measured figures are build output (#103) -----------
+    # A figure the build miscounts reds the rebuild comparison; a doc that
+    # quotes one again reds the docs scan.
+    Mutation(
+        "figures: brands counted as product types",
+        "generate_cli.py",
+        '"brands": len({doc["brand"] for doc in flat}),',
+        '"brands": len({doc["product_type"] for doc in flat}),',
+        "tests/test_catalog_golden.py::test_committed_file_matches_a_fresh_build",
+        "",
+        "the measured figures are the committed catalog's",
+    ),
+    Mutation(
+        "figures: the dispersion band's densest end taken over every quantity",
+        "prism/derive.py",
+        "        densest = max(faceted, key=lambda s: s.dispersion)",
+        "        densest = max(quantitative, key=lambda s: s.dispersion)",
+        "tests/test_catalog_golden.py::test_committed_file_matches_a_fresh_build",
+        "",
+        "the measured figures are the committed catalog's",
+    ),
+    Mutation(
+        "figures: the README quotes the brand count again",
+        "README.md",
+        "[breadth categories](#catalog-breadth), one product each, from invented",
+        "[breadth categories](#catalog-breadth), one product each, from 45 invented",
+        "tests/test_measured_figures.py::test_no_doc_restates_a_figure_the_build_measures",
+        "",
+        "no doc restates a measured figure",
+        root=".",
     ),
     # ---- the headline invariants, mutated in the COMMITTED DATA ----------
     Mutation(
@@ -1544,10 +1597,10 @@ MUTATIONS: list[Mutation] = [
     # ``test_flat_holds_one_document_per_sku`` passed for the correct reason
     # while the table read it as proof. ``51RE59`` is CRE-G246-0001's own
     # second variant, so the mutation now really does publish one sku twice.
-    # The alexander-marquardt/synthetic-industrial-products#39 regeneration
+    # The alexander-marquardt/synthetic-ecommerce-data#39 regeneration
     # (Corner Radius/Neck Length applied once instead of twice) is what took
     # the previous anchor sku, ``6DT18``, out of the catalog.
-    # alexander-marquardt/synthetic-industrial-products#48 renumbered every
+    # alexander-marquardt/synthetic-ecommerce-data#48 renumbered every
     # sku as a part number, so the golden rows re-anchor on the first committed
     # product line with more than one variant, TAN-FD580-1609-0003; its second
     # variant, ``1609562324``, is the sku this row duplicates.
@@ -1584,7 +1637,7 @@ MUTATIONS: list[Mutation] = [
     # ---- Length Under Head is DRAWN, both directions ---------------------
     Mutation(
         "draw the length-under-head dimension against the whole screw",
-        "render/fastener.py",
+        "domains/industrial/render/fastener.py",
         "        span = geom.length_under_head.inches",
         "        span = geom.total_height",
         (
@@ -1596,7 +1649,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "print the value in the attribute table and draw no dimension for it",
-        "render/fastener.py",
+        "domains/industrial/render/fastener.py",
         "    if geom.length_under_head is not None:\n        # The whole shank",
         "    if False:\n        # The whole shank",
         (
@@ -1610,7 +1663,7 @@ MUTATIONS: list[Mutation] = [
     # ---- a record whose lengths disagree is refused, both directions ------
     Mutation(
         "draw a screw whose published lengths contradict each other",
-        "render/fastener.py",
+        "domains/industrial/render/fastener.py",
         "        if drift > UNDER_HEAD_TOLERANCE_IN:",
         "        if False:",
         "tests/test_fastener.py -k contradict",
@@ -1619,7 +1672,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "tighten the tolerance past the precision the catalog publishes at",
-        "render/fastener.py",
+        "domains/industrial/render/fastener.py",
         "UNDER_HEAD_TOLERANCE_IN = 0.01",
         "UNDER_HEAD_TOLERANCE_IN = 0.0",
         "tests/test_fastener.py -k rounding",
@@ -1629,7 +1682,7 @@ MUTATIONS: list[Mutation] = [
     # ---- the head style decides the SHAPE, both directions ---------------
     Mutation(
         "draw a button head as the cylinder a socket head cap screw has",
-        "render/fastener.py",
+        "domains/industrial/render/fastener.py",
         "    @property\n    def domed(self) -> bool:\n        return self.head_style.strip().lower() in DOMED",
         "    @property\n    def domed(self) -> bool:\n        return False",
         (
@@ -1641,7 +1694,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "dome every head that is not countersunk, so socket and button agree again",
-        "render/fastener.py",
+        "domains/industrial/render/fastener.py",
         "    @property\n    def domed(self) -> bool:\n        return self.head_style.strip().lower() in DOMED",
         "    @property\n    def domed(self) -> bool:\n        return not self.countersunk",
         "tests/test_fastener.py -k each_head_style",
@@ -1651,7 +1704,7 @@ MUTATIONS: list[Mutation] = [
     # ---- and it decides which line drawing a LINE gets, both directions ---
     Mutation(
         "give the low head drawing a full socket head's height",
-        "render/generic.py",
+        "domains/industrial/render/generic.py",
         "    head_half, head_h = 0.105, 0.062",
         "    head_half, head_h = 0.105, 0.115",
         (
@@ -1669,7 +1722,7 @@ MUTATIONS: list[Mutation] = [
     # measurement in test_generic.py was rewritten for them.
     Mutation(
         "draw the button head's dome as the plain rectangle a bar head has",
-        "render/generic.py",
+        "domains/industrial/render/generic.py",
         "                dome_profile(head_half, head_h, seat),",
         "                [(-head_half, seat), (-head_half, _HEAD_TOP), "
         "(head_half, _HEAD_TOP), (head_half, seat)],",
@@ -1682,7 +1735,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "dome the socket head cap screw, so the shape no longer names the style",
-        "render/generic.py",
+        "domains/industrial/render/generic.py",
         "    _bar(ax, head_half, seat, _HEAD_TOP, mark)\n    # The socket, drawn as the opening",
         "    _hatched(\n        ax,\n        ax.add_patch(\n            Polygon(\n"
         "                dome_profile(head_half, head_h, seat),\n                closed=True,\n"
@@ -1699,7 +1752,7 @@ MUTATIONS: list[Mutation] = [
     # ---- the button head is drawn LOWER than a socket head, both ways -----
     Mutation(
         "draw the button head taller than the socket head cap screw",
-        "render/generic.py",
+        "domains/industrial/render/generic.py",
         "    head_half, head_h = 0.112, 0.056",
         "    head_half, head_h = 0.112, 0.200",
         'tests/test_generic.py -k "drawn_lower"',
@@ -1708,7 +1761,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "flatten the socket head cap screw to the button head's height",
-        "render/generic.py",
+        "domains/industrial/render/generic.py",
         "    head_half, head_h = 0.105, 0.115",
         "    head_half, head_h = 0.105, 0.056",
         'tests/test_generic.py -k "drawn_lower"',
@@ -1718,7 +1771,7 @@ MUTATIONS: list[Mutation] = [
     # ---- and WIDER than one, both ways -----------------------------------
     Mutation(
         "give the button head the socket head cap screw's own width",
-        "render/generic.py",
+        "domains/industrial/render/generic.py",
         "    head_half, head_h = 0.112, 0.056",
         "    head_half, head_h = 0.105, 0.056",
         'tests/test_generic.py -k "drawn_wider"',
@@ -1727,7 +1780,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "widen the socket head cap screw past the button head",
-        "render/generic.py",
+        "domains/industrial/render/generic.py",
         "    head_half, head_h = 0.105, 0.115",
         "    head_half, head_h = 0.130, 0.115",
         'tests/test_generic.py -k "drawn_wider"',
@@ -1737,7 +1790,7 @@ MUTATIONS: list[Mutation] = [
     # ---- the dome arc is the cap the two numbers name, both directions ----
     Mutation(
         "take the rim angle with asin, which draws the minor arc on a tall dome",
-        "render/fastener.py",
+        "domains/industrial/render/fastener.py",
         "    half_angle = math.atan2(r_head, radius - rise)",
         "    half_angle = math.asin(min(1.0, r_head / radius))",
         'tests/test_fastener.py -k "dome"',
@@ -1746,7 +1799,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "strike the dome about the chord's own half-width instead of the sphere",
-        "render/fastener.py",
+        "domains/industrial/render/fastener.py",
         "    radius = (r_head * r_head + rise * rise) / (2 * rise)",
         "    radius = r_head",
         'tests/test_fastener.py -k "dome"',
@@ -1755,7 +1808,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "flatten the socket head cap screw to a low head's height",
-        "render/generic.py",
+        "domains/industrial/render/generic.py",
         "    head_half, head_h = 0.105, 0.115",
         "    head_half, head_h = 0.105, 0.062",
         (
@@ -1768,7 +1821,7 @@ MUTATIONS: list[Mutation] = [
     # ---- the catalog publishes the attribute at all, both directions ------
     Mutation(
         "publish the length under head on the countersunk line only",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         '                *([] if flat else [self._length("Length under Head", length_in, style)]),',
         '                *([self._length("Length under Head", length_in, style)] if flat else []),',
         "tests/test_catalog_generate.py -k length_under_head",
@@ -1777,7 +1830,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "publish length-less-head-height under the countersunk head again",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         '                *([] if flat else [self._length("Length under Head", length_in, style)]),',
         '                self._length("Length under Head", length_in - (head.head_height_in if flat else 0), style),',  # noqa: E501
         (
@@ -1790,7 +1843,7 @@ MUTATIONS: list[Mutation] = [
     # ---- cross-references and near-miss threads ----------------------------
     Mutation(
         "print the key-to-screw table one screw size off",
-        "catalog/compat.py",
+        "domains/industrial/compat.py",
         "            table[size] = (nominal_key_in(head.drive_size_in, metric), standard)",
         "            table[size] = (nominal_key_in(head.drive_size_in * 1.25, metric), standard)",
         (
@@ -1802,7 +1855,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "name the coarse thread's drill on its fine sibling",
-        "catalog/compat.py",
+        "domains/industrial/compat.py",
         '    "M12x1.5": 10.5,',
         '    "M12x1.5": 10.2,',
         (
@@ -1814,7 +1867,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "leave the cross-reference out of the searchable text",
-        "catalog/emit.py",
+        "core/emit.py",
         "    parts.append(child.compatibility)\n",
         "",
         "tests/test_compatibility_text.py -k every_compatibility_sentence_holds",
@@ -1823,7 +1876,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "leave a metric designation's diameter out of the searchable text",
-        "catalog/emit.py",
+        "core/emit.py",
         """        parts.extend(f"M{m.group('dia')}" for value in values if (m := _METRIC_THREAD.match(value)))""",
         """        parts.extend(f"M{m.group('dia')}" for value in values if (m := _METRIC_THREAD.match(value)) and False)""",
         "tests/test_compatibility_text.py -k searchable_by_its_diameter",
@@ -1833,7 +1886,7 @@ MUTATIONS: list[Mutation] = [
     # ---- a record's facts are real (the review of the 100K catalog) -------------
     Mutation(
         "jitter a bearing's rating again",
-        "catalog/newtypes.py",
+        "domains/industrial/newtypes.py",
         "    dynamic = int(round(dynamic_kn * LBF_PER_KN, -1))",
         "    dynamic = int(round(dynamic_kn * LBF_PER_KN * rng.uniform(0.9, 1.1), -1))",
         "tests/test_catalog_facts.py -k rated_by_its_table",
@@ -1841,8 +1894,54 @@ MUTATIONS: list[Mutation] = [
         "every fact a record states is real",
     ),
     Mutation(
+        "give a large-bore bearing an outside diameter ISO 15 does not list",
+        "domains/industrial/newtypes.py",
+        '    ("6310", 50, 110, 27),',
+        '    ("6310", 50, 105, 27),',
+        "tests/test_catalog_facts.py -k iso_15_boundary",
+        "A",
+        "every fact a record states is real",
+    ),
+    Mutation(
+        "narrow the bearing bores back to the 10-35 mm ladder",
+        "domains/industrial/newtypes.py",
+        "    table = _BEARINGS_INCH if inch else _BEARINGS_METRIC",
+        "    table = _BEARINGS_INCH if inch else tuple(r for r in _BEARINGS_METRIC "
+        "if 10 <= r[1] <= 35)",
+        "tests/test_price.py -k bearing_bores_alone",
+        "A",
+        "bearing bores span the series miniature through large bore (#64)",
+    ),
+    Mutation(
+        "rate a bearing from a second maker's slower speed basis again",
+        "domains/industrial/newtypes.py",
+        '    "609": (3.90, 1.66, 43000),',
+        '    "609": (3.90, 1.66, 31000),',
+        "tests/test_catalog_facts.py -k rating_order_by_bore",
+        "A",
+        "every metric bearing is rated by one maker, in series order (#64)",
+    ),
+    Mutation(
+        "give a larger bore a higher load rating than the next size up",
+        "domains/industrial/newtypes.py",
+        '    "6212": (55.3, 36.0, 8000),',
+        '    "6212": (60.3, 36.0, 8000),',
+        "tests/test_catalog_facts.py -k rating_order_by_bore",
+        "A",
+        "every metric bearing is rated by one maker, in series order (#64)",
+    ),
+    Mutation(
+        "leave a number the maker rates out of the table again",
+        "domains/industrial/newtypes.py",
+        '    ("6316", 80, 170, 39),\n',
+        "",
+        "tests/test_catalog_facts.py -k every_one_the_maker_rates",
+        "A",
+        "every metric bearing is rated by one maker, in series order (#64)",
+    ),
+    Mutation(
         "let a washer claim a socket head cap screw's standard",
-        "catalog/conformance.py",
+        "domains/industrial/conformance.py",
         '        out.extend(("ISO 7089", "DIN 125-A"))',
         '        out.extend(("ISO 7089", "DIN 125-A", "DIN 912"))',
         "tests/test_catalog_facts.py -k claimed_standard_applies",
@@ -1851,7 +1950,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "zinc-plate a stainless socket screw",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         '    "18-8 Stainless Steel": (("Plain",), "B80"),',
         '    "18-8 Stainless Steel": (("Plain", "Zinc Plated"), "B80"),',
         "tests/test_catalog_facts.py -k finish_or_hardness",
@@ -1860,7 +1959,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "snap an end mill's shank below its cutter",
-        "catalog/series.py",
+        "domains/industrial/series.py",
         "    larger = [s for s in METRIC_SHANKS if s > dia_mm + 1e-9]",
         "    larger = [s for s in METRIC_SHANKS if s > dia_mm * 0.7]",
         "tests/test_catalog_facts.py -k shank_is_thinner",
@@ -1869,7 +1968,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "re-draw the title style per SKU",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "        return style\n\n    def _dimension_segments",
         "        return self.TITLE_STYLES[int(self.rng.random() * 3)]\n\n    def _dimension_segments",
         "tests/test_catalog_facts.py -k titles_a_type_one_way",
@@ -1878,7 +1977,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "drop the key dimension from secondary-style titles",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         '        if style == "secondary":\n            # The pair\'s secondary dimension',
         '        if style == "secondary":\n            segments = []\n            # The pair\'s secondary dimension',
         "tests/test_catalog_facts.py -k names_its_key_dimension",
@@ -1887,7 +1986,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "count the measurement-system spelling as a difference again",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "    NOT_SUBSTANCE = IDENTIFIER_ATTRIBUTES | METADATA_ATTRIBUTES",
         "    NOT_SUBSTANCE = IDENTIFIER_ATTRIBUTES",
         "tests/test_catalog_brands_voice.py -k no_two_skus_of_the_100k_catalog",
@@ -1897,7 +1996,7 @@ MUTATIONS: list[Mutation] = [
     # ---- the review of 7dac659: standards, end shape, shanks, title style -----
     Mutation(
         "let a heavy hex nut claim the regular nut's standard again",
-        "catalog/newtypes.py",
+        "domains/industrial/newtypes.py",
         '        return flats + (2.0 if metric else 1 / 8), height * 1.1, ""',
         "        return flats + (2.0 if metric else 1 / 8), height * 1.1, "
         "_FINISHED_STANDARD[(system, fine)]",
@@ -1907,7 +2006,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let a fine-pitch metric nut claim the coarse-thread ISO 4032",
-        "catalog/newtypes.py",
+        "domains/industrial/newtypes.py",
         '    ("mm", True): "ISO 8673",',
         '    ("mm", True): "ISO 4032",',
         "tests/test_catalog_facts.py -k nut_claims_only_the_standard",
@@ -1916,7 +2015,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "derive a jam nut's height again while it claims its standard",
-        "catalog/newtypes.py",
+        "domains/industrial/newtypes.py",
         "        jam = table.get(_nominal(thread))\n        if jam is None:\n"
         '            return flats, height * 0.6, ""',
         '        jam = height * 0.6\n        if jam is None:\n            return flats, height * 0.6, ""',
@@ -1926,7 +2025,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let an inch R-series bearing claim the metric ABMA 20 again",
-        "catalog/conformance.py",
+        "domains/industrial/conformance.py",
         '        if metric:\n            out.extend(("ISO 15", "ISO 492", "ABMA 20"))',
         '        out.extend(("ISO 15", "ISO 492", "ABMA 20") if metric else ("ABMA 20",))',
         "tests/test_catalog_facts.py -k inch_bearing_claims_no_metric",
@@ -1935,7 +2034,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "title every end mill Sq End, ball nose included",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         '                        value=f"{abbreviate_value(end.value)} {END_SHAPE_WORD[shape]} End",',
         '                        value=f"{abbreviate_value(end.value)} Sq End",',
         "tests/test_catalog_facts.py -k mills_own_end_shape",
@@ -1944,7 +2043,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let an oversize shank grow to any stocked size again",
-        "catalog/series.py",
+        "domains/industrial/series.py",
         "    return max(dia * MAX_SHANK_RATIO, min(larger))",
         "    return max(larger)",
         "tests/test_catalog_facts.py -k shank_is_oversize",
@@ -1953,7 +2052,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let an oversize shank reach four times its cutter",
-        "catalog/series.py",
+        "domains/industrial/series.py",
         "MAX_SHANK_RATIO = 3.0",
         "MAX_SHANK_RATIO = 4.0",
         "tests/test_catalog_facts.py -k shank_is_oversize",
@@ -1962,7 +2061,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "cap an oversize shank at twice its cutter again",
-        "catalog/series.py",
+        "domains/industrial/series.py",
         "MAX_SHANK_RATIO = 3.0",
         "MAX_SHANK_RATIO = 2.0",
         "tests/test_catalog_facts.py -k census_wide_shank_ratios",
@@ -1971,7 +2070,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "cap an oversize shank just below the census's 2.667x band",
-        "catalog/series.py",
+        "domains/industrial/series.py",
         "MAX_SHANK_RATIO = 3.0",
         "MAX_SHANK_RATIO = 2.5",
         "tests/test_catalog_facts.py -k census_wide_shank_ratios",
@@ -1980,7 +2079,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "drop the 6 mm shank for small metric cutters",
-        "catalog/series.py",
+        "domains/industrial/series.py",
         "    if dia_mm < SMALL_METRIC_SHANK_MM - 1e-9:\n        return SMALL_METRIC_SHANK_MM\n",
         "",
         "tests/test_catalog_facts.py -k sits_on_6mm",
@@ -1989,7 +2088,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "stop writing a glued size's parts in the spec clause",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "        details.extend(thread_parts(f\"{title.text} {', '.join(details)}\"))\n",
         "",
         "tests/test_glued_thread_sizes.py -k also_written_in_parts",
@@ -1998,7 +2097,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "stop writing the tap drill's threads in parts",
-        "catalog/compat.py",
+        "domains/industrial/compat.py",
         '    return f"Tap drill for {named} threads{thread_gloss(named)}."',
         '    return f"Tap drill for {named} threads."',
         "tests/test_glued_thread_sizes.py -k m12_is_found_by_m12",
@@ -2007,7 +2106,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "stop writing the sibling sizes in parts",
-        "catalog/noise.py",
+        "core/noise.py",
         '    return f"Also available in {named} sizes{thread_gloss(named)}."',
         '    return f"Also available in {named} sizes."',
         "tests/test_glued_thread_sizes.py -k also_written_in_parts",
@@ -2016,7 +2115,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "write a part the designation does not carry",
-        "catalog/naming.py",
+        "core/naming.py",
         "        part = f\"M{m['dia']} thread, {m['pitch']} mm pitch\"",
         "        part = f\"M{m['dia']} thread, {m['dia']} mm pitch\"",
         "tests/test_glued_thread_sizes.py -k part_is_a_glued_size",
@@ -2025,7 +2124,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "choose labelled or secondary per SKU inside a labelled-or-secondary pair",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         '        if style == "secondary":\n            # The pair\'s secondary dimension',
         '        if style != "unlabelled" and self.rng.random() < 0.5:\n'
         "            # The pair's secondary dimension",
@@ -2035,7 +2134,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "drop a secondary pair's secondary on some SKUs that publish it",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         '            if attribute is not None:\n                self._bump("title_token_not_primary")',
         "            if attribute is not None and self.rng.random() < 0.7:\n"
         '                self._bump("title_token_not_primary")',
@@ -2046,7 +2145,7 @@ MUTATIONS: list[Mutation] = [
     # ---- the copy's noise is true, and moves no attribute ---------------------
     Mutation(
         "claim high speed steel cuts stainless",
-        "catalog/noise.py",
+        "core/noise.py",
         '    "High Speed Steel": ("aluminum", "brass", "mild steel"),',
         '    "High Speed Steel": ("aluminum", "brass", "mild steel", "stainless steel"),',
         "tests/test_noise_text.py -k every_noise_sentence_is_true",
@@ -2055,7 +2154,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "name the record's own diameter as one it does not fit",
-        "catalog/noise.py",
+        "core/noise.py",
         "        near = [series[j] for j in (i - 1, i + 1) if 0 <= j < len(series)]",
         "        near = [series[j] for j in (i, i + 1) if 0 <= j < len(series)]",
         "tests/test_noise_text.py -k every_noise_sentence_is_true",
@@ -2064,7 +2163,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "write unit equivalents on half the records",
-        "catalog/noise.py",
+        "core/noise.py",
         '    "unit_equivalent": 0.175,',
         '    "unit_equivalent": 0.5,',
         "tests/test_noise_text.py -k minority_within_their_bound",
@@ -2073,7 +2172,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let the noise into the title",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "                    title=title.text,\n                    description=self._build_description(draft, title, attrs, extra),",
         '                    title=title.text + (" " + noise_text if noise_text else ""),\n                    description=self._build_description(draft, title, attrs, extra),',
         "tests/test_noise_text.py -k never_moves_an_attribute",
@@ -2082,7 +2181,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "count one piece too many in every kit",
-        "catalog/newtypes.py",
+        "domains/industrial/newtypes.py",
         "    pieces = kit.per_size * len(contents)",
         "    pieces = kit.per_size * len(contents) + 1",
         "tests/test_noise_text.py -k piece_count_is_its_contents",
@@ -2091,7 +2190,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "publish the socket's toleranced across-flats as its drive size",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         '                child.attrs.append(self._length("Drive Size", key_in, style))',
         '                child.attrs.append(self._length("Drive Size", head.drive_size_in, style))',
         "tests/test_compatibility_text.py -k nominal_key",
@@ -2100,7 +2199,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "build no fine-pitch line",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         '        if not fine or self._rotate(f"fine:{key}", period) != period - 1:',
         "        if True:",
         "tests/test_compatibility_text.py -k pitch_to_choose",
@@ -2109,7 +2208,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "leave a fine-pitch line's thread type saying coarse",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         '            _retype(draft, "Metric Fine" if metric else "UNF")\n            draft.provenance = FINE_PITCH_BOLT_STANDARD[standard]',
         "            draft.provenance = FINE_PITCH_BOLT_STANDARD[standard]",
         "tests/test_compatibility_text.py -k its_thread_type_says_which",
@@ -2119,7 +2218,7 @@ MUTATIONS: list[Mutation] = [
     # ---- the sizes the reference distributor asks for exist, both directions ----------
     Mutation(
         "drop 25 mm back out of the metric cutting series",
-        "catalog/series.py",
+        "domains/industrial/series.py",
         "    15.0,\n    16.0,\n    20.0,\n    25.0,\n)",
         "    15.0,\n    16.0,\n    20.0,\n)",
         "tests/test_catalog_coverage.py",
@@ -2128,7 +2227,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "freeze the coverage rotation, so which sizes exist is luck again",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "        index = self._rotations.get(key, 0)\n        self._rotations[key] = index + 1\n        return index",
         "        self._rotations[key] = self._rotations.get(key, 0) + 1\n        return 0",
         "tests/test_catalog_coverage.py",
@@ -2138,7 +2237,7 @@ MUTATIONS: list[Mutation] = [
     # ---- 7/16 exists, and its lengths are the standard's, both ways -------
     Mutation(
         "record 7/16 as absent from the hex bolt standard",
-        "data/fastener_standards.json",
+        "domains/industrial/data/fastener_standards.json",
         '"size": "7/16",\n        "present_in_source": true,\n        "width_across_flats_in": 0.625,',
         '"size": "7/16",\n        "present_in_source": false,\n        "width_across_flats_in": 0.625,',
         "tests/test_catalog_coverage.py",
@@ -2147,7 +2246,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "offer lengths the standard does not, by scaling the run",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "        return ordered[start : start + count]",
         "        return [value * 1.5 for value in ordered[start : start + count]]",
         "tests/test_catalog_coverage.py",
@@ -2157,7 +2256,7 @@ MUTATIONS: list[Mutation] = [
     # ---- a grading belongs to one measurement system, both directions ----
     Mutation(
         "grade every bolt on the inch scale, metric ones included",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         'grades = INCH_GRADES if head.published_unit == "in" else METRIC_GRADES',
         "grades = INCH_GRADES",
         "tests/test_catalog_coverage.py",
@@ -2166,7 +2265,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "grade every bolt on the metric scale, inch ones included",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         'grades = INCH_GRADES if head.published_unit == "in" else METRIC_GRADES',
         "grades = METRIC_GRADES",
         "tests/test_catalog_coverage.py",
@@ -2176,7 +2275,7 @@ MUTATIONS: list[Mutation] = [
     # ---- the parametric query resolves, both directions -------------------
     Mutation(
         "take the zinc finish off the hex bolt rotation",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         'HEX_BOLT_FINISHES: tuple[str, ...] = ("Zinc Plated", "Plain", "Hot Dip Galvanized")',
         'HEX_BOLT_FINISHES: tuple[str, ...] = ("Plain", "Hot Dip Galvanized")',
         "tests/test_catalog_coverage.py",
@@ -2185,7 +2284,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "take Grade 8 off the inch grading rotation",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         'INCH_GRADES: tuple[str, ...] = ("Grade 5", "Grade 8")',
         'INCH_GRADES: tuple[str, ...] = ("Grade 5",)',
         "tests/test_catalog_coverage.py",
@@ -2202,7 +2301,7 @@ MUTATIONS: list[Mutation] = [
     # and the check ran only on the inch half that was not broken.
     Mutation(
         "let every hex bolt standard start its wheels at the same position",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "        phase = step + step // len(sizes) + HEX_BOLT_PHASE.index(standard)",
         "        phase = step + step // len(sizes)",
         "tests/test_catalog_coverage.py -k locked",
@@ -2211,7 +2310,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let the size, grading and finish wheels turn in step",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "        phase = step + step // len(sizes) + HEX_BOLT_PHASE.index(standard)",
         "        phase = step",
         "tests/test_catalog_coverage.py -k locked",
@@ -2247,7 +2346,7 @@ MUTATIONS: list[Mutation] = [
     # ---- every offered fastener size reaches a line, both directions ------
     Mutation(
         "toss a coin for a screw line's measurement system instead of alternating",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         '        metric = self._rotate(f"system:{type_key}", 2) == 0',
         "        metric = rng.random() < 0.5",
         "tests/test_catalog_coverage.py",
@@ -2256,7 +2355,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "draw a screw line's size at random instead of rotating",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         '        size = sizes[self._rotate(f"size:{type_key}:{standard}", len(sizes))]',
         "        size = rng.choice(sizes)",
         "tests/test_catalog_coverage.py",
@@ -2266,7 +2365,7 @@ MUTATIONS: list[Mutation] = [
     # ---- no two SKUs of a line share a title, both directions -------------
     Mutation(
         "stop repairing the titles that tell a shopper nothing",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "        if identifying is None or len(published) < 2:\n            return titles",
         "        return titles",
         "tests/test_catalog_titles.py",
@@ -2275,7 +2374,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "repair only exact duplicates, the way the first version did",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "            alone = [\n                value\n                for name, value in mine.items()",
         "            alone = [\n                value\n                for name, value in [*mine.items(), (None, title.text)]",
         "tests/test_catalog_titles.py",
@@ -2285,7 +2384,7 @@ MUTATIONS: list[Mutation] = [
     # ---- the description is a tier of its own, both directions ------------
     Mutation(
         "put the line title back in the description field",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "        return f\"{title.text} - {', '.join(details)}. {middle}{tail}\"",
         '        return f"{draft.brand} {draft.series} -- {draft.item}"',
         "tests/test_catalog_titles.py",
@@ -2294,7 +2393,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "leave the SKU's own attributes out of the description",
-        "catalog/generate.py",
+        "domains/industrial/generate.py",
         "        named = title.attribute_names()\n        details: list[str] = []",
         "        named = {a.name for a in attributes}\n        details: list[str] = []",
         "tests/test_catalog_titles.py",
@@ -2304,7 +2403,7 @@ MUTATIONS: list[Mutation] = [
     # ---- a title names a value, not a substring of one, both directions ---
     Mutation(
         "ask whether the title CONTAINS the value instead of states it",
-        "catalog/naming.py",
+        "core/naming.py",
         "    if not value:\n        return False\n    at = text.find(value)",
         "    if not value:\n        return False\n    return value in text\n    at = text.find(value)",
         "tests/test_catalog_titles.py",
@@ -2313,7 +2412,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "treat every title as already naming everything, so nothing is repaired",
-        "catalog/naming.py",
+        "core/naming.py",
         "    if not value:\n        return False\n    at = text.find(value)",
         "    if not value:\n        return False\n    return True\n    at = text.find(value)",
         "tests/test_catalog_titles.py",
@@ -2323,7 +2422,7 @@ MUTATIONS: list[Mutation] = [
     # ---- a published value is a token, not prose, both directions ---------
     Mutation(
         "let the stamp break a published value at its hyphen",
-        "render/marking.py",
+        "domains/industrial/render/marking.py",
         "        return tuple(textwrap.wrap(text, width=columns, break_on_hyphens=False)) if text else ()",
         "        return tuple(textwrap.wrap(text, width=columns, break_on_hyphens=True)) if text else ()",
         "tests/test_marking.py -k hyphen",
@@ -2333,7 +2432,7 @@ MUTATIONS: list[Mutation] = [
     # ---- elastic/prism-industrial-products#103: the census name gate ------
     Mutation(
         "let a product noun qualify a generic concept",
-        "catalog/names.py",
+        "domains/industrial/names.py",
         "        if noun is not None and name not in TYPE_SPECIFIC:",
         "        if False and noun is not None and name not in TYPE_SPECIFIC:",
         "tests/test_attribute_names.py -k planted",
@@ -2342,7 +2441,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "publish a name the census and the reference list never saw",
-        "catalog/vocab.py",
+        "domains/industrial/vocab.py",
         '    _spec("Tip Style", "line"),\n    _spec("Material", "line", 0.85),',
         '    _spec("Widget Material", "line"),\n    _spec("Material", "line", 0.85),',
         "tests/test_attribute_names.py -k declared",
@@ -2352,16 +2451,134 @@ MUTATIONS: list[Mutation] = [
     # ---- the per-SKU drawings carry no text, and every channel is real ----
     Mutation(
         "print the SKU's size on its drawing",
-        "drawing/svg.py",
+        "core/drawing/svg.py",
         '        tail = "</svg>"',
         '        tail = \'<text x="10" y="290">1/4"</text></svg>\'',
         "tests/test_sku_drawings.py -k no_drawing_carries_any_text",
         "A",
-        "no drawing carries any text",
+        "no drawing carries any text but its brand's wordmark",
+    ),
+    # ---- the brand plate (#132): legible, distinct, and the only text -----
+    Mutation(
+        "plate: hold the name to a 10 px font size, not a 10 px cap height",
+        "core/drawing/sheet.py",
+        "NAME_MIN = math.ceil(MIN_NAME_PX / (brand_mark.CAP_HEIGHT * TILE_PX_PER_UNIT) * 10) / 10",
+        "NAME_MIN = MIN_NAME_PX / TILE_PX_PER_UNIT",
+        "tests/test_brand_marks.py -k 10px_cap_height",
+        "A",
+        "no brand name's capitals render under 10 px at the tile",
+    ),
+    Mutation(
+        "plate: claim the face's capitals are taller than Arial Bold's",
+        "core/drawing/brand_mark.py",
+        "CAP_HEIGHT, DESCENDER = 0.716, 0.21",
+        "CAP_HEIGHT, DESCENDER = 0.8, 0.21",
+        "tests/test_brand_marks.py -k 10px_cap_height",
+        "A",
+        "no brand name's capitals render under 10 px at the tile",
+    ),
+    Mutation(
+        "plate: take the first layout whatever size it sets the name at",
+        "core/drawing/brand_mark.py",
+        "        if found is not None and found.size >= min_size:",
+        "        if found is not None:",
+        (
+            "tests/test_brand_marks.py -k no_layout_sets_legibly",
+            "tests/test_brand_marks.py -k 10px_cap_height",
+        ),
+        "B",
+        "no brand name's capitals render under 10 px at the tile",
+    ),
+    Mutation(
+        "plate: drop the split-under layout",
+        "core/drawing/brand_mark.py",
+        'LAYOUTS: tuple[str, ...] = ("beside", "two_beside", "split_under", "under")',
+        'LAYOUTS: tuple[str, ...] = ("beside", "two_beside", "under")',
+        "tests/test_brand_marks.py -k halves_do_not_both_fit",
+        "B",
+        "no brand name's capitals render under 10 px at the tile",
+    ),
+    Mutation(
+        "let a two-line name's descender hang below the plate",
+        "core/drawing/brand_mark.py",
+        "        first = min(cy + block / 2 + DESCENDER * size, y1) - DESCENDER * size - block",
+        "        first = cy + block / 2 - block",
+        "tests/test_brand_marks.py -k inside_the_plate",
+        "A",
+        "the plate's name stays inside the plate",
+    ),
+    Mutation(
+        "count the pixels either mark inks, not the ones only one inks",
+        "core/drawing/brand_mark.py",
+        "    return int(np.count_nonzero(mark_bitmap(a, px) ^ mark_bitmap(b, px)))",
+        "    return int(np.count_nonzero(mark_bitmap(a, px) | mark_bitmap(b, px)))",
+        "tests/test_brand_marks.py -k counts_the_pixels",
+        "A",
+        "two brands' marks differ visibly",
+    ),
+    Mutation(
+        "draw two brands with one mark",
+        "domains/industrial/drawing/brand_marks.py",
+        '    "checker": (\n        Poly(((-0.9, -0.9), (0, -0.9), (0, 0), (-0.9, 0))),\n        Poly(((0, 0), (0.9, 0), (0.9, 0.9), (0, 0.9))),\n    ),',
+        '    "checker": (Poly(((-0.3, -0.95), (0.3, -0.95), (0.3, -0.3), (0.95, -0.3), (0.95, 0.3), (0.3, 0.3), (0.3, 0.95), (-0.3, 0.95), (-0.3, 0.3), (-0.95, 0.3), (-0.95, -0.3), (-0.3, -0.3))),),',
+        "tests/test_brand_marks.py -k differ_visibly",
+        "B",
+        "two brands' marks differ visibly",
+    ),
+    Mutation(
+        "let the gate pass any words in a <text>",
+        "core/drawing/__init__.py",
+        '    if words and " ".join(words) not in _wordmarks():',
+        "    if False:",
+        (
+            'tests/test_brand_marks.py -k "gate_refuses and size"',
+            'tests/test_brand_marks.py -k "gate_refuses and half"',
+        ),
+        "A",
+        "a drawing's only text is a brand's wordmark",
+    ),
+    Mutation(
+        "let a font attribute sit on any element",
+        "core/drawing/__init__.py",
+        '            if name not in ALLOWED_ATTRIBUTES or (name in _TEXT_ONLY and local != "text"):',
+        "            if name not in ALLOWED_ATTRIBUTES:",
+        (
+            'tests/test_brand_marks.py -k "gate_refuses and font"',
+            'tests/test_brand_marks.py -k "gate_refuses and circle"',
+        ),
+        "A",
+        "a drawing's only text is a brand's wordmark",
+    ),
+    Mutation(
+        "let a character reference spell the ampersand",
+        "core/drawing/__init__.py",
+        '    if b"&" in svg.replace(b"&amp;", b""):',
+        '    if b"&" in svg.replace(b"&amp;", b"").replace(b"&#38;", b""):',
+        'tests/test_brand_marks.py -k "gate_refuses and ampersand"',
+        "A",
+        "a drawing's only text is a brand's wordmark",
+    ),
+    Mutation(
+        "let the figure area run into the plate",
+        "core/drawing/sheet.py",
+        "    aw, ah = svg.WIDTH - 2 * MARGIN, FIGURE_HEIGHT - 2 * MARGIN",
+        "    aw, ah = svg.WIDTH - 2 * MARGIN, svg.HEIGHT - 2 * MARGIN",
+        "tests/test_brand_marks.py -k reaches_the_plate",
+        "A",
+        "no figure reaches the plate",
+    ),
+    Mutation(
+        "let the handled glass size itself to the whole sheet, plate and all",
+        "core/drawing/sheet.py",
+        "    by_height = (FIGURE_HEIGHT - 2 * GLYPH_MARGIN - GLYPH_GAP - height) / (-left1 + bottom1)",
+        "    by_height = (svg.HEIGHT - 2 * GLYPH_MARGIN - GLYPH_GAP - height) / (-left1 + bottom1)",
+        "tests/test_sku_drawings.py -k lens_enlarges_at_least_the_measured_floor",
+        "A",
+        "no figure reaches the plate",
     ),
     Mutation(
         "draw every brand in one ink",
-        "drawing/style.py",
+        "core/drawing/style.py",
         "    ink = brands.ink_of(brand)\n",
         '    ink = brands.ink_of(brand) and "#1b1b1b"\n',
         "tests/test_sku_drawings.py -k brand",
@@ -2370,7 +2587,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "draw a screw without reading its length",
-        "drawing/figures.py",
+        "domains/industrial/drawing/figures.py",
         "    fig = Figure(size_in=visible if broken else total)",
         "    fig = Figure(size_in=visible if broken else total)\n    total = hh + 4 * major",
         "tests/test_sku_drawings.py -k published_length",
@@ -2379,7 +2596,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "draw every product at one fixed scale instead of its type's",
-        "drawing/__init__.py",
+        "core/drawing/__init__.py",
         "    return type_scale(extent)",
         "    return 60.0",
         "tests/test_sku_drawings.py -k true_proportion",
@@ -2388,7 +2605,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "magnify a part that is small in only one dimension",
-        "drawing/sheet.py",
+        "core/drawing/sheet.py",
         "    if width > svg.WIDTH * MAGNIFY_WIDTH_SHARE or height > svg.HEIGHT * MAGNIFY_HEIGHT_SHARE:",
         "    if width > svg.WIDTH * MAGNIFY_WIDTH_SHARE and height > svg.HEIGHT * MAGNIFY_HEIGHT_SHARE:",
         "tests/test_sku_drawings.py -k ONE_dimension",
@@ -2397,7 +2614,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "draw the lens's part at true scale instead of enlarged",
-        "drawing/sheet.py",
+        "core/drawing/sheet.py",
         "    _figure_at(page, figure, house, fill, hatch_id, scale * mag.k, mag.lens)",
         "    _figure_at(page, figure, house, fill, hatch_id, scale, mag.lens)",
         "tests/test_sku_drawings.py -k same_part_enlarged",
@@ -2406,7 +2623,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "draw the magnifier in black",
-        "drawing/sheet.py",
+        "core/drawing/sheet.py",
         "    _glyph(page, mag, house.ink)",
         '    _glyph(page, mag, "#000000")',
         "tests/test_sku_drawings.py -k brand_ink",
@@ -2415,7 +2632,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "always use the handled glass, even where it cannot reach x2.5",
-        "drawing/sheet.py",
+        "core/drawing/sheet.py",
         "    if k >= MIN_ENLARGEMENT:",
         "    if True:",
         "tests/test_sku_drawings.py -k handle_less_only",
@@ -2424,7 +2641,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "draw outlines at the old hairline weight",
-        "drawing/sheet.py",
+        "core/drawing/sheet.py",
         "MIN_STROKE = 2.3",
         "MIN_STROKE = 1.6",
         "tests/test_sku_drawings.py -k minimum_stroke",
@@ -2433,8 +2650,8 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "pin the magnifier to the top instead of balancing the sheet",
-        "drawing/sheet.py",
-        "    top = (svg.HEIGHT - (glyph_h + GLYPH_GAP + height)) / 2",
+        "core/drawing/sheet.py",
+        "    top = (FIGURE_HEIGHT - (glyph_h + GLYPH_GAP + height)) / 2",
         "    top = GLYPH_MARGIN",
         "tests/test_sku_drawings.py -k space_above",
         "A",
@@ -2442,16 +2659,16 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let a drawing carry a title element",
-        "drawing/__init__.py",
-        '    {"svg", "rect", "defs", "pattern", "g", "path", "circle"}',
-        '    {"svg", "rect", "defs", "pattern", "g", "path", "circle", "title"}',
+        "core/drawing/__init__.py",
+        '    {"svg", "rect", "defs", "pattern", "g", "path", "circle", "text"}',
+        '    {"svg", "rect", "defs", "pattern", "g", "path", "circle", "text", "title"}',
         "tests/test_sku_drawings.py -k title",
         "A",
         "no drawing carries any text",
     ),
     Mutation(
         "accept a census name in another casing",
-        "catalog/names.py",
+        "domains/industrial/names.py",
         "        if canonical is not None and canonical != name:",
         "        if False and canonical is not None and canonical != name:",
         "tests/test_attribute_names.py -k another_casing",
@@ -2460,7 +2677,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let a paint reference any url",
-        "drawing/__init__.py",
+        "core/drawing/__init__.py",
         '            elif name != "id" and not (_VALUE_GRAMMAR.get(name) or _NUMERIC).match(value):',
         "            elif False:",
         "tests/test_sku_drawings.py -k paint",
@@ -2477,15 +2694,31 @@ MUTATIONS: list[Mutation] = [
         for name, file, old, new, test, prop in [
             (
                 "price falls with the key dimension",
-                "catalog/price.py",
+                "core/price.py",
                 "        log_p += model.slope * math.log(key / model.anchor_key)",
                 "        log_p -= model.slope * math.log(key / model.anchor_key)",
                 "within_its_band_or_pinned_at_the_default_size",
                 "larger costs more",
             ),
             (
+                "the roller chain prices at three times its fitted anchor",
+                "domains/industrial/product_types/motion/roller_chain.py",
+                "    116.0,",
+                "    348.0,",
+                "within_its_band_or_pinned_at_the_default_size",
+                "a deepened breadth category keeps its census level",
+            ),
+            (
+                "a deepened breadth category is scored by no row",
+                "domains/industrial/price_report.py",
+                "    for type_key, (n, p10, p50, p90) in DEEPENED_CENSUS.items():",
+                "    for type_key, (n, p10, p50, p90) in {}.items():",
+                "row_names_are_the_rows_the_default_build_scores",
+                "a deepened breadth category keeps its census level",
+            ),
+            (
                 "price falls with length",
-                "catalog/price.py",
+                "core/price.py",
                 "        log_p += model.length_slope * math.log(length / model.anchor_length)",
                 "        log_p -= model.length_slope * math.log(length / model.anchor_length)",
                 "within_its_band_or_pinned_at_the_default_size",
@@ -2493,7 +2726,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "a pack of more costs less",
-                "catalog/price.py",
+                "core/price.py",
                 "        log_p += model.pack_slope * math.log(pack / model.pack_ref)",
                 "        log_p -= model.pack_slope * math.log(pack / model.pack_ref)",
                 "within_its_band_or_pinned_at_the_default_size",
@@ -2501,7 +2734,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "the brand tier is dropped",
-                "catalog/price.py",
+                "core/price.py",
                 "    log_p += math.log(model.tiers[tier])",
                 "    log_p += 0.0",
                 "tiers_price_in_order",
@@ -2509,7 +2742,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "the brand tier is dropped (band rows)",
-                "catalog/price.py",
+                "core/price.py",
                 "    log_p += math.log(model.tiers[tier])",
                 "    log_p += 0.0",
                 "within_its_band_or_pinned_at_the_default_size",
@@ -2517,7 +2750,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "every SKU draws its type's first ending class",
-                "catalog/price.py",
+                "core/price.py",
                 "    return with_ending(noisy(draw), ending_for(model.endings, ending_u))",
                 "    return with_ending(noisy(draw), ending_for(model.endings, 0.0))",
                 "within_its_band_or_pinned_at_the_default_size",
@@ -2525,7 +2758,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "group noise is off",
-                "catalog/price.py",
+                "core/price.py",
                 "    offset = draw.struct + model.group_sigma * _z(draw.group_u)",
                 "    offset = draw.struct + 0.0 * _z(draw.group_u)",
                 "within_its_band_or_pinned_at_the_default_size",
@@ -2533,7 +2766,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "group noise is tripled",
-                "catalog/price.py",
+                "core/price.py",
                 "    offset = draw.struct + model.group_sigma * _z(draw.group_u)",
                 "    offset = draw.struct + 3 * model.group_sigma * _z(draw.group_u)",
                 "within_its_band_or_pinned_at_the_default_size",
@@ -2541,7 +2774,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "SKU noise is off",
-                "catalog/price.py",
+                "core/price.py",
                 " + model.sku_sigma * _z(draw.sku_u)",
                 " + 0.0 * _z(draw.sku_u)",
                 "within_its_band_or_pinned_at_the_default_size",
@@ -2549,7 +2782,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "SKU noise is tripled",
-                "catalog/price.py",
+                "core/price.py",
                 " + model.sku_sigma * _z(draw.sku_u)",
                 " + 3 * model.sku_sigma * _z(draw.sku_u)",
                 "within_its_band_or_pinned_at_the_default_size",
@@ -2557,7 +2790,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "size noise is off",
-                "catalog/price.py",
+                "core/price.py",
                 "        offset += model.size_sigma * _z(draw.size_u)",
                 "        offset += 0.0 * _z(draw.size_u)",
                 "within_its_band_or_pinned_at_the_default_size",
@@ -2565,7 +2798,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "the tap list-price ladder is off",
-                "catalog/price.py",
+                "core/price.py",
                 "    offset = log_offset(draw)\n    if model.price_step:",
                 "    offset = log_offset(draw)\n    if False:",
                 "within_its_band_or_pinned_at_the_default_size",
@@ -2573,7 +2806,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "group noise is drawn per SKU, not per group page",
-                "catalog/generate.py",
+                "domains/industrial/generate.py",
                 "            seed, type_key, brand, (a for a in line_attributes if a.name in always)",
                 "            seed, type_key, brand + sku, (a for a in line_attributes if a.name in always)",
                 "within_its_band_or_pinned_at_the_default_size",
@@ -2581,7 +2814,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "a breadth curve skips its census p50",
-                "catalog/price.py",
+                "core/price.py",
                 "        log_p = p10 + (p50 - p10) * position * 2",
                 "        log_p = p10 + (p90 - p10) * position",
                 "'measured_breadth_categorys_p50 and not foam_ear_plugs'",
@@ -2589,7 +2822,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "a breadth curve reads its census figures in the wrong order",
-                "catalog/price.py",
+                "core/price.py",
                 "    p10, p50, p90 = (math.log(v) for v in measured)",
                 "    p10, p90, p50 = (math.log(v) for v in measured)",
                 "'measured_breadth_categorys_p50 and not foam_ear_plugs'",
@@ -2597,7 +2830,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "a breadth SKU ignores its brand tier",
-                "catalog/price.py",
+                "core/price.py",
                 "math.exp(log_p) * TIER_FACTORS[tier]",
                 "math.exp(log_p)",
                 "breadth_skus_tier_scales",
@@ -2605,7 +2838,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "the p50 band is x0.1 to x10",
-                "catalog/price_report.py",
+                "domains/industrial/price_report.py",
                 "P50_BAND = (0.8, 1.25)",
                 "P50_BAND = (0.1, 10.0)",
                 "scaling_every_price",
@@ -2613,7 +2846,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "the p90/p10 band is x0.1 to x10",
-                "catalog/price_report.py",
+                "domains/industrial/price_report.py",
                 "\nSPREAD_BAND = (0.75, 1.33)",
                 "\nSPREAD_BAND = (0.1, 10.0)",
                 "widening_or_narrowing",
@@ -2621,7 +2854,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "the order band is +/-0.8",
-                "catalog/price_report.py",
+                "domains/industrial/price_report.py",
                 "MONOTONE_BAND = 0.08",
                 "MONOTONE_BAND = 0.8",
                 "swapping_a_products_first",
@@ -2629,7 +2862,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "the order band is +/-0.8 (length rows)",
-                "catalog/price_report.py",
+                "domains/industrial/price_report.py",
                 "MONOTONE_BAND = 0.08",
                 "MONOTONE_BAND = 0.8",
                 "falls_with_length",
@@ -2637,7 +2870,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "bands span 30 census standard errors",
-                "catalog/price_report.py",
+                "domains/industrial/price_report.py",
                 "CENSUS_SES = 3.0",
                 "CENSUS_SES = 30.0",
                 "dropping_the_99",
@@ -2645,7 +2878,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "the equal-price band is 10x wider",
-                "catalog/price_report.py",
+                "domains/industrial/price_report.py",
                 "    width = CENSUS_SES * math.sqrt(share * (1 - share) / census.n_pairs)",
                 "    width = 10 * CENSUS_SES * math.sqrt(share * (1 - share) / census.n_pairs)",
                 "breaking_every_tie",
@@ -2653,7 +2886,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "the brand-spread band is x0.1 to x100",
-                "catalog/price_report.py",
+                "domains/industrial/price_report.py",
                 "BRAND_SPREAD_BAND = (0.75, 1.33)",
                 "BRAND_SPREAD_BAND = (0.1, 100.0)",
                 "brand_spread_band_is_x075_to_x133",
@@ -2661,7 +2894,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "the economy band is x0.1 to x10",
-                "catalog/price_report.py",
+                "domains/industrial/price_report.py",
                 "ECONOMY_BAND = (0.75, 1.33)",
                 "ECONOMY_BAND = (0.1, 10.0)",
                 "economy_brands_priced_as_dear",
@@ -2669,7 +2902,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "a pin may worsen by half",
-                "catalog/price.py",
+                "core/price.py",
                 "PIN_TOLERANCE = 0.02",
                 "PIN_TOLERANCE = 0.5",
                 "a_pin_whose_shortfall_worsens",
@@ -2677,7 +2910,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "a below-band pin holds wherever it lands",
-                "catalog/price_report.py",
+                "domains/industrial/price_report.py",
                 "        return recorded / (1 + PIN_TOLERANCE) <= row.achieved < row.band[0]",
                 "        return True",
                 "a_pin_whose_shortfall_worsens",
@@ -2685,7 +2918,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "the 2x band floor is 0.5",
-                "catalog/price_report.py",
+                "domains/industrial/price_report.py",
                 "TWICE_BAND_FLOOR = 0.02",
                 "TWICE_BAND_FLOOR = 0.5",
                 "twice_band_floor",
@@ -2693,7 +2926,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "the kit p90/p10 pin's 100K record is loosened by hand",
-                "catalog/price.py",
+                "core/price.py",
                 "    _KIT_SPREAD_ROW: (4.015, 3.901),",
                 "    _KIT_SPREAD_ROW: (4.015, 3.5),",
                 "figure_its_build_produces",
@@ -2703,7 +2936,7 @@ MUTATIONS: list[Mutation] = [
             # Every name also starts "price: kit:", so `--only "kit:"` re-runs these.
             (
                 "kit: a kit draws group noise again",
-                "catalog/price.py",
+                "core/price.py",
                 '"kit_assortment": _model("kit_assortment", 100.9, 100.0, 0.000, 0.022),',
                 '"kit_assortment": _model("kit_assortment", 100.9, 100.0, 0.300, 0.022),',
                 "tracks_its_contents_at_both_builds",
@@ -2711,7 +2944,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "kit: a kit is priced on its piece count, not its contents",
-                "catalog/price.py",
+                "core/price.py",
                 "        return kit_contents(attributes)",
                 "        return KEYS[type_key](attributes)",
                 "tracks_its_contents_at_both_builds",
@@ -2719,7 +2952,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "kit: a kit's pieces are priced at their part's shown price, packs and all",
-                "catalog/price.py",
+                "core/price.py",
                 "    return total * pieces.value_num / len(values) * each / shown",
                 "    return total * pieces.value_num / len(values)",
                 "kits_contents_are_its_pieces",
@@ -2727,27 +2960,354 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "kit: a kit costs the mean of its pieces, not their sum",
-                "catalog/price.py",
+                "core/price.py",
                 "    return total * pieces.value_num / len(values) * each / shown",
                 "    return total / len(values) * each / shown",
                 "holding_more_of_the_same_sizes",
                 "a kit holding more of the same sizes costs more",
             ),
             (
-                "the bearing pin's 100K record is loosened by hand",
-                "catalog/price.py",
-                '"price p90/p10: bearing_radial_ball": (4.493, 4.783),',
-                '"price p90/p10: bearing_radial_ball": (4.493, 4.40),',
+                "the wheel pin's 100K record is loosened by hand",
+                "core/price.py",
+                "    _WHEEL_SPREAD_ROW: (4.381, 2.903),",
+                "    _WHEEL_SPREAD_ROW: (4.381, 3.25),",
                 "figure_its_build_produces",
                 "a record is the build's figure",
             ),
             (
                 "a pin reads its default figure at 100K",
-                "catalog/price_report.py",
+                "domains/industrial/price_report.py",
                 "    recorded = PINNED_FIGURES[row.name][build]",
                 "    recorded = PINNED_FIGURES[row.name][0]",
                 "a_pin_may_land_no_further_out",
                 "a pin holds each build to its own figure",
+            ),
+            (
+                "a wheel spec reads Material, which a wheel never publishes",
+                "core/price.py",
+                'MATERIAL_ATTRIBUTES: dict[str, str] = {"wheel_depressed_center": '
+                '"Abrasive Material"}',
+                "MATERIAL_ATTRIBUTES: dict[str, str] = {}",
+                "spec_holds_a_material_or_names_why_not",
+                "every brand-census spec holds a material",
+            ),
+            (
+                "a material is read off Material for every type",
+                "core/price.py",
+                '    name = MATERIAL_ATTRIBUTES.get(type_key, "Material")',
+                '    name = "Material"',
+                "wheel_spec_holds_its_abrasive",
+                "a wheel's material is its abrasive",
+            ),
+            (
+                "the material guard counts an empty material as held",
+                "domains/industrial/price_report.py",
+                "    held = {spec[0] for spec in collected.specs if spec[2]}",
+                "    held = {spec[0] for spec in collected.specs}",
+                "never_publishes_is_caught",
+                "a type whose specs hold no material is caught",
+            ),
+            (
+                "the wheel pin quotes a tier figure no build measures",
+                "core/price.py",
+                "the brand tiers alone give 1.49 on the default",
+                "the brand tiers alone give 1.39 on the default",
+                "tiers_alone_give",
+                "a pin's stated cause is measured",
+            ),
+        ]
+    ),
+    # ---- table: the table-driven types (#101) ------------------------------
+    # Every name starts "table:", so `--only "table:"` re-runs them. A table
+    # type's price is a declared ladder nobody measured, so what is planted is
+    # a broken ORDER, never a wrong level.
+    *(
+        Mutation(f"table: {name}", file, old, new, test, direction, prop)
+        for name, file, old, new, test, direction, prop in [
+            (
+                "a larger size costs no more",
+                "domains/industrial/tabletype.py",
+                "            slope=self.size_slope,",
+                "            slope=0.0,",
+                "tests/test_tabletype.py -k a_larger_size_costs_more",
+                "",
+                "a larger size costs more",
+            ),
+            (
+                "a bigger pack costs the same in total",
+                "domains/industrial/tabletype.py",
+                "            pack_slope=self.pack_slope,",
+                "            pack_slope=0.0,",
+                "tests/test_tabletype.py -k a_bigger_pack_costs_more",
+                "A",
+                "a bigger pack costs more in total and less a piece",
+            ),
+            (
+                "a bigger pack costs the same a piece",
+                "domains/industrial/tabletype.py",
+                "            pack_slope=self.pack_slope,",
+                "            pack_slope=1.0,",
+                "tests/test_tabletype.py -k a_bigger_pack_costs_more",
+                "B",
+                "a bigger pack costs more in total and less a piece",
+            ),
+            (
+                "a table's material ladder is not read",
+                "core/price.py",
+                "    factors = MATERIAL_FACTORS if model.materials is None else model.materials",
+                "    factors = MATERIAL_FACTORS",
+                "tests/test_tabletype.py -k tables_own_factor",
+                "",
+                "a material costs the table's own factor",
+            ),
+            (
+                "a table price claims to be measured",
+                "domains/industrial/tabletype.py",
+                "            measured=False,",
+                "            measured=True,",
+                "tests/test_tabletype.py -k claims_no_measurement",
+                "",
+                "a table price claims no measurement",
+            ),
+            (
+                "falling sizes are accepted",
+                "domains/industrial/tabletype.py",
+                "        (sizes == sorted(set(sizes)) and sizes[0] > 0,",
+                "        (sizes[0] > 0,",
+                "tests/test_tabletype.py -k would_break_an_order",
+                "",
+                "a table that breaks an order is refused",
+            ),
+            (
+                "a ladder whose cheapest material is not the base is accepted",
+                "domains/industrial/tabletype.py",
+                "        (factors == sorted(factors) and factors[0] == 1.0,",
+                "        (factors == sorted(factors),",
+                "tests/test_tabletype.py -k cheapest_material_is_not_the_base",
+                "",
+                "a table that breaks an order is refused",
+            ),
+            (
+                "an inch table is read as millimetres",
+                "domains/industrial/tabletype.py",
+                '        return MM_PER_INCH if self.unit == "mm" else 1.0',
+                "        return MM_PER_INCH",
+                "tests/test_tabletype.py -k an_inch_tables_rows_are_inches",
+                "",
+                "an inch table is in inches",
+            ),
+            (
+                "an inch table is published in the metric style",
+                "domains/industrial/tabletype.py",
+                "        style = gen._style(table.unit)",
+                '        style = gen._style("mm")',
+                "tests/test_tabletype.py -k an_inch_table_is_built_in_inches",
+                "",
+                "an inch table is in inches",
+            ),
+            (
+                "a table type is not recorded as one",
+                "domains/industrial/tabletype.py",
+                "    _MADE.setdefault(table.key, table)",
+                '    _MADE.setdefault(table.key + "?", table)',
+                "tests/test_tabletype.py -k is_a_recorded_table_type",
+                "",
+                "the table types are found, not listed",
+            ),
+            (
+                "a missing column is drawn at the row's size, not the SKU's",
+                "domains/industrial/tabletype.py",
+                "own.get(name, nearest[name] * scale)",
+                "own.get(name, nearest[name])",
+                "tests/test_tabletype.py -k nearest_rows_proportion",
+                "",
+                "a drawing is scaled from the record",
+            ),
+            (
+                "a cotter pin's eye is drawn from its diameter, not its row",
+                "domains/industrial/product_types/fasteners/cotter_pins.py",
+                "    radius = c / 2",
+                "    radius = d",
+                "tests/test_type_cotter_pins.py -k scaled_from_its_row",
+                "",
+                "a drawing is scaled from the record",
+            ),
+            (
+                "a retaining ring's edge is drawn at one thickness",
+                "domains/industrial/product_types/fasteners/retaining_rings_external.py",
+                '    fig.rect(edge, -outer, edge + thickness, outer, "plain")',
+                '    fig.rect(edge, -outer, edge + 0.05, outer, "plain")',
+                "tests/test_type_retaining_rings_external.py -k scaled_from_its_row",
+                "",
+                "a drawing is scaled from the record",
+            ),
+            (
+                "a cotter pin row is typed wrong",
+                "domains/industrial/product_types/fasteners/cotter_pins.py",
+                "    (2.0, 3.6, 4.0),",
+                "    (2.0, 3.8, 4.0),",
+                "tests/test_type_cotter_pins.py -k every_row_of_the_table_is_built",
+                "",
+                "every built size is a row of the table",
+            ),
+            (
+                "stainless retaining rings cost what steel ones do",
+                "domains/industrial/product_types/fasteners/retaining_rings_external.py",
+                '        Variant("Stainless Steel", "Plain", 2.6),',
+                '        Variant("Stainless Steel", "Plain", 1.0),',
+                "tests/test_type_retaining_rings_external.py -k larger_dearer_material",
+                "",
+                "a dearer material costs more",
+            ),
+        ]
+    ),
+    # ---- retail: scent depth for "lemon" and "honey" (gen#154) ----
+    *(
+        Mutation(f"scent depth: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a depth family is sized against the whole weight, so every core budget moves",
+                "grocery.py",
+                "sum(f.weight for f in FAMILIES if not f.depth)",
+                "sum(f.weight for f in FAMILIES)",
+                "tests/test_grocery_scent_depth_154.py -k core_styles_do_not_move",
+                "adding a scent family leaves the core grocery styles as built",
+            ),
+            (
+                "a floor cleaner is too small a family to show a lemon",
+                "grocery_rows.py",
+                '_HOME_BRANDS, 0.016, axis="scent",\n           department="Cleaning & Janitorial", noun="concentrated',
+                '_HOME_BRANDS, 0.001, axis="scent",\n           department="Cleaning & Janitorial", noun="concentrated',
+                "tests/test_grocery_scent_depth_154.py -k lemon_is_a_scent",
+                "lemon is a scent in dozens of SKUs of each type",
+            ),
+            (
+                "a dish soap holds its scent as a flavor",
+                "grocery_rows.py",
+                '_HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",\n           department="Cleaning & Janitorial", noun="washing-up',
+                '_HOME_SCENTS, _HOME_BRANDS, 0.01, axis="flavor",\n           department="Cleaning & Janitorial", noun="washing-up',
+                "tests/test_grocery_scent_depth_154.py -k told_apart_by_attribute",
+                "a scented SKU carries scent, never flavor",
+            ),
+            (
+                "a depth description falls back to the multi-surface spray",
+                "grocery.py",
+                "noun = fam.noun or (",
+                "noun = (",
+                "tests/test_grocery_scent_depth_154.py -k describes_its_own_product",
+                "a scent style describes its own product",
+            ),
+        ]
+    ),
+    # ---- retail: a jean's fit and a bra's style are facets, not leaves ----
+    *(
+        Mutation(f"facet leaves: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a jean keeps its fit leaf",
+                "facet_leaves.py",
+                "        return path[:-1]\n    if product_type",
+                "        return path\n    if product_type",
+                "tests/test_retail_facet_leaves.py -k end_at_their_kind_node",
+                "a fit is not a category leaf",
+            ),
+            (
+                "a purpose bra loses its node",
+                "facet_leaves.py",
+                "return path if path[-1] in PURPOSE_BRAS else path[:-1]",
+                "return path[:-1]",
+                "tests/test_retail_facet_leaves.py -k purpose_nodes_are_the_only_children",
+                "the purpose nodes stay",
+            ),
+            (
+                "a title's own bra facet is dropped",
+                "facet_leaves.py",
+                "for key, value in stated_bra_facets(rec[\"title\"])",
+                "for key, value in []",
+                "tests/test_retail_facet_leaves.py -k every_value_its_title_names",
+                "a bra carries what its title says",
+            ),
+            (
+                "leg_style is not folded into leg_fit",
+                "facet_leaves.py",
+                '        fit = fit or LEG_STYLE_FITS.get(have.get("leg_style", ""))\n',
+                "",
+                "tests/test_retail_facet_leaves.py -k every_jean_has_a_leg_fit",
+                "every jean has a leg_fit",
+            ),
+            (
+                "wide trousers are written Wide",
+                "facet_leaves.py",
+                '    "wide": "Wide Leg",',
+                '    "wide": "Wide",',
+                "tests/test_retail_facet_leaves.py -k keeps_the_fit_its_old_leaf_named",
+                "the fit is the old leaf's",
+            ),
+            (
+                "bra_style stays beside the split facets",
+                "facet_leaves.py",
+                'return out, {"bra_style", "fabric"}',
+                'return out, {"fabric"}',
+                "tests/test_retail_facet_leaves.py -k bra_style_and_leg_style_are_gone",
+                "bra_style is gone",
+            ),
+            (
+                "a bra's fibre content is dropped",
+                "facet_leaves.py",
+                "            out.append((*COMPOSITION, have[\"fabric\"]))\n",
+                "            pass\n",
+                "tests/test_retail_facet_leaves.py -k fibre_content_moves_to_composition",
+                "the fibre content moves to composition",
+            ),
+            (
+                "one bra spells Lightly Lined with a hyphen",
+                "facet_leaves.py",
+                '"Spacer Cup Bras": ("T-Shirt", "Lightly Lined", None, None),',
+                '"Spacer Cup Bras": ("T-Shirt", "Lightly-Lined", None, None),',
+                "tests/test_retail_facet_leaves.py -k differ_only_in_case_or_hyphenation",
+                "one spelling per facet value",
+            ),
+            (
+                "a convertible bra is only Multiway",
+                "facet_leaves.py",
+                '("Multiway", "Halterneck", "Cross Back")',
+                '"Multiway"',
+                "tests/test_retail_audience.py -k cleaning_root",
+                "no text contradicts a bra facet",
+            ),
+            (
+                "a cropped balloon jean is not Cropped",
+                "facet_leaves.py",
+                "            fits.append(CROPPED)\n",
+                "            pass\n",
+                "tests/test_retail_facet_leaves.py -k text_says_cropped",
+                "a jean whose text says cropped is cropped",
+            ),
+        ]
+    ),
+    # ---- retail: the Combined loader takes every authored SKU (gen#279) ----
+    # Every name starts "combined loader:", so `--only "combined loader:"` re-runs them.
+    *(
+        Mutation(f"combined loader: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a crossbody bag is sold in a Mini size, which is no size system",
+                "accessory_rows.py",
+                '_sizes(("Small", 28.0), ("Medium", 34.0))',
+                '_sizes(("Mini", 28.0), ("Small", 34.0))',
+                "tests/test_retail_combined_loader_279.py -k has_a_size_the_combined_loader_refuses",
+                "every size is in a size system the loader declares",
+            ),
+            (
+                "a skirt's fit axis is the bare length the loader renames onto garment_length",
+                "lowerbody_rows.py",
+                'axis_key="fit_length", axis=_legs()',
+                'axis_key="length", axis=_legs()',
+                "tests/test_retail_combined_loader_279.py -k writes_a_renamed_key_twice",
+                "no SKU writes a renamed key twice",
             ),
         ]
     ),
@@ -2759,7 +3319,7 @@ MUTATIONS: list[Mutation] = [
         for name, file, old, new, test, prop in [
             (
                 "the pack grows with the size",
-                "catalog/price.py",
+                "core/price.py",
                 "    quantile = 1.0 - (rank + u) / sizes",
                 "    quantile = (rank + u) / sizes",
                 "never_grows_with_the_size",
@@ -2767,7 +3327,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "every line of a size takes one pack",
-                "catalog/price.py",
+                "core/price.py",
                 "    quantile = 1.0 - (rank + u) / sizes",
                 "    quantile = 1.0 - (rank + 0.5) / sizes",
                 "even_spread_over_the_sizes",
@@ -2775,7 +3335,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "the bolt's pack does not enter its price",
-                "catalog/price.py",
+                "core/price.py",
                 '            pack_slope=PACK_SLOPES["bolt_hex"],',
                 "            pack_slope=0.0,",
                 "prices_its_pack_on_the_census_slope",
@@ -2783,7 +3343,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "a census pack count drifts",
-                "catalog/price.py",
+                "core/price.py",
                 "        100: 76,",
                 "        100: 77,",
                 "each_pack_count_is_the_census_count",

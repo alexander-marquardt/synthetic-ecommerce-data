@@ -9,12 +9,16 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
-      # The golden catalog is written byte-for-byte by ``sip-generate build``
+      # The golden catalog is written byte-for-byte by ``ecom-generate build``
       # and compared by sha256; a byte a hook added would red the golden test.
+      # vendor/ is core's code byte for byte, pinned by git blob id
+      # (vendor/prism/PIN.txt): a fixed byte would break the pin.
+      # The retail previews are written by their builders and compared byte for
+      # byte by test_the_committed_samples_and_preview_are_what_the_builder_writes.
       - id: end-of-file-fixer
-        exclude: ^golden-catalog/
+        exclude: ^(golden-catalog|vendor)/|^prototypes/retail_drawings/preview4?\.html$
       - id: trailing-whitespace
-        exclude: ^golden-catalog/
+        exclude: ^(golden-catalog|vendor)/|^prototypes/retail_drawings/preview4?\.html$
       - id: check-yaml
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.5
@@ -30,3 +34,16 @@ repos:
         entry: python3 scripts/check_commit_msg.py
         language: system
         stages: [commit-msg]
+      # The file-size cap at commit time (elastic/prism#11683), core's hook
+      # run on this tree: it names each File-Size-Exception line the PR body
+      # will need, and prints nothing when nothing grew. It refuses only when
+      # PRISM_PR_BODY_FILE names a body that lacks a line, or an agent commit
+      # (AGENT_TMP set) has no body. docs/file-size-budget.md.
+      - id: file-size-warning
+        name: file-size cap at commit
+        entry: python3 scripts/file_size_gate.py --base origin/main --warn-at-commit
+        language: system
+        pass_filenames: false
+        always_run: true
+        verbose: true
+        stages: [pre-commit]

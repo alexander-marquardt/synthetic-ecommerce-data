@@ -3,11 +3,11 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from helpers import colour_mask, figure_pixels, within_axes
-from synthetic_industrial_products.dimensions import parse_length
-from synthetic_industrial_products.records import FIXTURES
-from synthetic_industrial_products.render import CARD, DETAIL, fastener
-from synthetic_industrial_products.render import canvas as cv
+from helpers import color_mask, figure_pixels, within_axes
+from synthetic_ecommerce_data.core.dimensions import parse_length
+from synthetic_ecommerce_data.domains.industrial.records import FIXTURES
+from synthetic_ecommerce_data.domains.industrial.render import CARD, DETAIL, fastener
+from synthetic_ecommerce_data.domains.industrial.render import canvas as cv
 
 REC = FIXTURES["26LD37"]
 
@@ -226,13 +226,13 @@ def test_the_thread_form_comes_from_the_designation(tmp_path):
 
 def test_the_screw_is_scaled_from_its_own_head_diameter():
     """A squat part fills the card's width; the frame follows the part, not a constant."""
-    from helpers import colour_mask, figure_pixels
-    from synthetic_industrial_products.render.canvas import INK
-    from synthetic_industrial_products.render.fastener import FILL_H
+    from helpers import color_mask, figure_pixels
+    from synthetic_ecommerce_data.domains.industrial.render.canvas import INK
+    from synthetic_ecommerce_data.domains.industrial.render.fastener import FILL_H
 
     fig, _ax, _geom = fastener.build(REC, CARD)
     image = figure_pixels(fig)
-    columns = np.nonzero(colour_mask(image, INK, tol=0.15).any(axis=0))[0]
+    columns = np.nonzero(color_mask(image, INK, tol=0.15).any(axis=0))[0]
     assert columns.size
     assert (columns.max() - columns.min()) / image.shape[1] == pytest.approx(FILL_H, abs=0.02)
 
@@ -331,7 +331,7 @@ def _elevation_dimension_spans(record: dict, profile=DETAIL) -> list[float]:
     artists that get rasterised -- rather than off the figure's text, which is
     where the attribute table lives. A span measured in pixels instead cannot
     be separated from the diameter callouts' labels, which are set in the same
-    colour and cross the same columns.
+    color and cross the same columns.
     """
     _fig, ax, _geom = fastener.build(record, profile)
     spans = []
@@ -346,10 +346,10 @@ def _elevation_dimension_spans(record: dict, profile=DETAIL) -> list[float]:
 
 
 def _dimension_ink(record: dict, profile=DETAIL) -> int:
-    """Pixels of the dimension colour inside the elevation's own axes box."""
+    """Pixels of the dimension color inside the elevation's own axes box."""
     fig, ax, _geom = fastener.build(record, profile)
     image = figure_pixels(fig)
-    return int((colour_mask(image, cv.DIM, tol=0.10) & within_axes(fig, ax, image.shape[:2])).sum())
+    return int((color_mask(image, cv.DIM, tol=0.10) & within_axes(fig, ax, image.shape[:2])).sum())
 
 
 def test_the_length_under_head_dimension_spans_the_value_the_record_publishes():

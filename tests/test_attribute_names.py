@@ -1,6 +1,6 @@
 """Every attribute name the generator publishes passes the census gate.
 
-The gate is :func:`synthetic_industrial_products.catalog.names.name_problems`.
+The gate is :func:`synthetic_ecommerce_data.domains.industrial.names.name_problems`.
 It replaced a rule that forced one name per product type per concept -- see that
 module's docstring and the audit on elastic/prism-industrial-products#103.
 The planted regressions below are the reason to trust it: a gate that has never
@@ -15,10 +15,10 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_industrial_products.catalog import names, taxonomy
-from synthetic_industrial_products.catalog.config import SMALL
-from synthetic_industrial_products.catalog.generate import generate
-from synthetic_industrial_products.catalog.vocab import (
+from synthetic_ecommerce_data.core.config import SMALL
+from synthetic_ecommerce_data.domains.industrial import names, taxonomy
+from synthetic_ecommerce_data.domains.industrial.generate import generate
+from synthetic_ecommerce_data.domains.industrial.vocab import (
     MEASUREMENT_SYSTEM_NAMES,
     STANDARDS_NAME,
     VOCAB,
@@ -164,7 +164,7 @@ def test_every_category_leaf_ends_in_its_own_product_noun():
 def test_the_head_noun_rule_bites():
     # "Tap" is registered but not at the HEAD; "Handle" (the head) is not
     # registered at all -- neither the breadth categories
-    # (alexander-marquardt/synthetic-industrial-products#34) nor anything
+    # (alexander-marquardt/synthetic-ecommerce-data#34) nor anything
     # before them use it, so this stays a genuine negative control.
     leaf = "tap handles"
     assert not any(

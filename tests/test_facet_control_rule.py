@@ -21,15 +21,17 @@ test:
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import pytest
 
-from synthetic_industrial_products.catalog import emit
-from synthetic_industrial_products.catalog.breadth import SPEC_QUALITY
-from synthetic_industrial_products.catalog.config import GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate
-from synthetic_industrial_products.prism.derive import (
+from synthetic_ecommerce_data.core import emit
+from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.domains.industrial.breadth import SPEC_QUALITY
+from synthetic_ecommerce_data.domains.industrial.generate import generate
+from synthetic_ecommerce_data.prism.derive import (
     IDENTIFIER_DISPERSION,
-    MEASURED_DISPERSION,
     MIN_PRESENCE,
     RANGE_DISPERSION,
     RANGE_MIN_DOCS,
@@ -37,7 +39,15 @@ from synthetic_industrial_products.prism.derive import (
     decide,
     measure,
 )
-from synthetic_industrial_products.prism.field_map import render
+from synthetic_ecommerce_data.prism.field_map import render
+
+#: The rule's figures on the default build, as ``ecom-generate build`` wrote
+#: them (#103). The tests below re-derive each one from a fresh build; the
+#: golden test holds the committed file to a rebuild, so a figure that moves
+#: reds there, naming the command that rewrites it.
+MEASURED_DISPERSION: dict = json.loads(
+    (Path(__file__).resolve().parents[1] / "golden-catalog" / "stats.json").read_text("utf-8")
+)["figures"]["dispersion"]
 
 
 @pytest.fixture(scope="module")
@@ -141,7 +151,7 @@ def test_every_attribute_that_is_quantitative_still_says_so(flat_rows: list[dict
     assert len(quantitative) >= 25, len(quantitative)
     # Neck Length is the one real continuum on this catalog: its values never
     # repeat, and applying its census presence rate once instead of twice
-    # (alexander-marquardt/synthetic-industrial-products#39) raised its
+    # (alexander-marquardt/synthetic-ecommerce-data#39) raised its
     # document count well past RANGE_MIN_DOCS, so dispersion alone now calls
     # it continuous. It still is not OFFERED as a range -- MIN_PRESENCE keeps
     # it off faceting entirely, since it is rare even among end mills (see
@@ -348,9 +358,23 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
     """
     quantitative = [s for s, _ in decided.values() if s.is_numeric]
     faceted = [s for s, d in decided.values() if s.is_numeric and d.facet]
-    # 38 since the set screws' Point Dia. (#53), which is not faceted.
-    assert len(quantitative) == 38
-    assert len(faceted) == 35
+    # Exact counts from the build's figures, so a type that adds a quantity
+    # moves them in its regenerated stats.json, not on these lines (#103).
+    # The golden test reds when either count moves; the last line keeps the
+    # derivation non-empty and keeps a quantity off a facet (Neck Length,
+    # which the test below names).
+    assert len(quantitative) == MEASURED_DISPERSION["quantitative_attributes"]
+    assert len(faceted) == MEASURED_DISPERSION["faceted_attributes"]
+    assert 0 < len(faceted) < len(quantitative)
+
+
+#: Quantities whose ratio is over the continuity threshold but whose product
+#: count is under the floor, so the floor alone keeps them faceted. A dowel pin
+#: diameter was pooled with every other ``Diameter`` (and under the floor's
+#: reach never); on its own key (the 2026-10-07 label ruling) it has 60 products,
+#: split by unit into two labels of which only the metric one is over the
+#: threshold.
+NUMERIC_HELD_BY_FLOOR = ("Dowel Dia. (mm)",)
 
 
 def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
@@ -362,7 +386,8 @@ def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
     assert round(high, 4) == MEASURED_DISPERSION["faceted_high"]
     densest = max(faceted, key=lambda s: s.dispersion)
     assert densest.name == MEASURED_DISPERSION["densest_faceted"]
-    assert high < RANGE_DISPERSION, "the band must sit below the threshold"
+    over = sorted(s.name for s in faceted if s.dispersion >= RANGE_DISPERSION)
+    assert over == sorted(NUMERIC_HELD_BY_FLOOR), "the band must sit below the threshold"
 
 
 def test_the_widest_dispersion_is_a_continuum_kept_off_by_min_presence(decided) -> None:
@@ -372,14 +397,17 @@ def test_the_widest_dispersion_is_a_continuum_kept_off_by_min_presence(decided) 
     room to spare. It used to be the catalog's real example of
     ``RANGE_MIN_DOCS`` -- too few documents to trust the dispersion statistic
     -- but applying its census presence rate once instead of twice
-    (alexander-marquardt/synthetic-industrial-products#39) raised its
+    (alexander-marquardt/synthetic-ecommerce-data#39) raised its
     document count from 48 to 388, clearing that floor too. It is still not
     offered as a range: it is rare even among end mills, the only product
     types that carry it, so ``MIN_PRESENCE`` is the floor that decides it
     now. If a regeneration drops either count back below its floor, this
     reds rather than quietly changing the control.
     """
-    quantitative = [s for s, _ in decided.values() if s.is_numeric]
+    # Over attributes with the evidence RANGE_MIN_DOCS asks for: a unit's own
+    # key can hold a handful of defect values (``diameter_mm``: 2 documents),
+    # whose dispersion says nothing and which a floor decides by itself.
+    quantitative = [s for s, _ in decided.values() if s.is_numeric and s.products >= RANGE_MIN_DOCS]
     widest = max(quantitative, key=lambda s: s.dispersion)
     assert widest.name == MEASURED_DISPERSION["min_presence_arm"]
     assert round(widest.dispersion, 4) == MEASURED_DISPERSION["min_presence_arm_dispersion"]
@@ -425,8 +453,8 @@ def test_drive_size_is_the_saturated_ladder_the_rule_names(decided) -> None:
 def test_the_product_floor_decides_only_the_attributes_it_names(decided) -> None:
     """``RANGE_MIN_DOCS`` decides only the attributes ``MEASURED_DISPERSION`` names.
 
-    Many faceted quantities sit under the floor (the smallest is a kit's
-    piece count), but every one of them has a ratio under the continuity
+    Many faceted quantities sit under the floor (the smallest is the shaft a
+    retaining ring fits), but every one of them has a ratio under the continuity
     threshold, so the floor and the ratio agree. On the terms side the
     pinned list is every facet the floor keeps offered against the ratio.
     """
@@ -435,7 +463,10 @@ def test_the_product_floor_decides_only_the_attributes_it_names(decided) -> None
     assert smallest.name == MEASURED_DISPERSION["smallest_faceted"]
     assert smallest.products == MEASURED_DISPERSION["smallest_faceted_products"]
     assert smallest.products < RANGE_MIN_DOCS
-    assert [s.name for s in faceted if s.dispersion >= RANGE_DISPERSION] == []
+    assert sorted(s.name for s in faceted if s.dispersion >= RANGE_DISPERSION) == sorted(
+        NUMERIC_HELD_BY_FLOOR
+    )
+    assert all(s.products < RANGE_MIN_DOCS for s in faceted if s.name in NUMERIC_HELD_BY_FLOOR)
 
     held = [
         s
@@ -448,7 +479,7 @@ def test_the_product_floor_decides_only_the_attributes_it_names(decided) -> None
 
 # ---------------------------------------------------------------------------
 # A facet or an identifier: a property of the values, not of the catalog's size
-# (alexander-marquardt/synthetic-industrial-products#31, #28)
+# (alexander-marquardt/synthetic-ecommerce-data#31, #28)
 # ---------------------------------------------------------------------------
 # The retired rule withheld a terms attribute with more than 25 distinct values.
 # 25 is a count, and a count does not grow with the catalog: Thread Size, a
@@ -460,12 +491,20 @@ RETIRED_TERMS_CAP = 25
 
 #: What the default build gains under the relative rule: every one is a terms
 #: attribute the retired cap withheld for its count alone. Measured on the
-#: default build and on ``--lines 39000`` (111,499 SKUs); the same seven at both.
+#: default build and on ``--lines 39000`` (122,324 SKUs): the same ten at both,
+#: and the large build gains an eleventh, an O-ring's Inside Dia. Tolerance.
+#: The O-rings (#53) brought the ninth and tenth: their Dash Number (41 values)
+#: and Material, which their four compounds took from 23 values to 27.
+#: A roller chain's ANSI Number is the eighth: 27 values (the ``-2`` and ``-3``
+#: strand suffixes included) that repeat across its lines.
 NEWLY_OFFERED = frozenset(
     {
+        "ansi_number",
         "bearing_number",
+        "dash_number",
         "dia_thread_size",
         "item",
+        "material",
         "sizes_included",
         "standards",
         "thread_size",
@@ -677,7 +716,7 @@ def test_every_decision_is_the_same_at_every_catalog_size(controls_by_size) -> N
     moved = {key: by for key, by in seen.items() if len(set(by.values())) > 1}
     assert moved == {}
     sizes = sorted(controls_by_size)
-    for key in ("sizes_included", "bore", "overall_length"):
+    for key in ("sizes_included", "bore_dia", "overall_length"):
         assert [controls_by_size[lines][key] for lines in sizes] == ["list"] * len(sizes), key
     assert [controls_by_size[lines]["list_number"] for lines in sizes] == ["withheld"] * len(sizes)
 
@@ -734,7 +773,7 @@ def test_a_declared_identifier_is_withheld_whatever_its_dispersion() -> None:
 
 def test_derive_reads_the_generators_identifier_declaration() -> None:
     """One source for which attributes are identifiers: the generator's own set."""
-    from synthetic_industrial_products.catalog.generate import Generator
-    from synthetic_industrial_products.prism import derive
+    from synthetic_ecommerce_data.domains.industrial.generate import Generator
+    from synthetic_ecommerce_data.prism import derive
 
     assert derive.IDENTIFIER_ATTRIBUTES is Generator.IDENTIFIER_ATTRIBUTES

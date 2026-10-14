@@ -1,0 +1,24 @@
+# Honored by ripgrep and the agent Grep tool. Bulk data and generated output:
+# a match inside these costs tokens and is never the place to edit. Opt out
+# when you must search them: `rg -uu PATTERN` (or --no-ignore).
+# The rule is elastic/prism's (#10025, ported by elastic/prism#10032):
+# https://github.com/elastic/prism/blob/main/contributing/agent-orchestration.md
+# tests/test_ignore_hides_only_data_10032.py fails if a pattern here hides no
+# tracked file, or hides hand-written code.
+
+# The committed build output (README → "The built catalog is committed")
+golden-catalog/
+
+# Golden slices of that build, one per type
+tests/data/golden_slices/
+
+# Prototype previews and their sample records, written by build_preview*.py
+prototypes/retail_drawings/*.html
+prototypes/retail_drawings/*.ndjson
+
+# Lock file, written by uv
+uv.lock
+
+# elastic/prism's file-size gate, vendored byte for byte (vendor/prism/PIN.txt).
+# Never the place to edit: change it in core and resync (docs/file-size-budget.md).
+vendor/

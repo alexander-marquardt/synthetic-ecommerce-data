@@ -8,7 +8,7 @@ type a kit holds, run the fit again so the kit factor is fitted on the new parts
 
 The census gives each type a slope, an endings mix, a p50, a p90/p10, a
 larger-costs-more share and, for some, a length slope and share and a
-same-spec brand spread (:mod:`synthetic_industrial_products.catalog.price`).
+same-spec brand spread (:mod:`synthetic_ecommerce_data.core.price`).
 The slopes, tiers and endings go into the model as they are; this script
 solves the rest, holding the key, length, material, tier and pack terms the
 builds draw.
@@ -71,7 +71,7 @@ the fit.
 
 Neither noise term nor the anchor moves any draw: each build is made once,
 and every candidate is scored by recomputing prices from the recorded draws
-(:class:`~synthetic_industrial_products.catalog.price.Draw`). The hammer has no
+(:class:`~synthetic_ecommerce_data.core.price.Draw`). The hammer has no
 census prices and is not fitted.
 """
 
@@ -87,11 +87,11 @@ from pathlib import Path
 
 import numpy as np
 
-from synthetic_industrial_products.catalog import brands, price
-from synthetic_industrial_products.catalog.config import HUNDRED_K_LINES, GeneratorConfig
-from synthetic_industrial_products.catalog.generate import Generator, generate
-from synthetic_industrial_products.catalog.model import Catalog
-from synthetic_industrial_products.catalog.price_report import (
+from synthetic_ecommerce_data.core import brands, price
+from synthetic_ecommerce_data.core.config import HUNDRED_K_LINES, GeneratorConfig
+from synthetic_ecommerce_data.core.model import Catalog
+from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
+from synthetic_ecommerce_data.domains.industrial.price_report import (
     BRAND_ROW,
     EQUAL_ROW,
     LENGTH_ROW,
@@ -112,15 +112,14 @@ from synthetic_industrial_products.catalog.price_report import (
 )
 
 REPO = Path(__file__).resolve().parent.parent
-PRICE_PY = REPO / "src" / "synthetic_industrial_products" / "catalog" / "price.py"
-SOCKET_PY = (
-    REPO
-    / "src"
-    / "synthetic_industrial_products"
-    / "product_types"
-    / "fasteners"
-    / "screw_socket_head.py"
-)
+PRICE_PY = REPO / "src" / "synthetic_ecommerce_data" / "catalog" / "price.py"
+_FASTENERS = REPO / "src" / "synthetic_ecommerce_data" / "product_types" / "fasteners"
+#: The types whose model their own module declares, between its fit markers.
+MODULE_PY = {
+    "screw_socket_head": _FASTENERS / "screw_socket_head.py",
+    "lock_nuts_nylon_insert": _FASTENERS / "lock_nuts_nylon_insert.py",
+    "set_screws_hex_socket": _FASTENERS / "set_screws_hex_socket.py",
+}
 #: The largest sigma the fit tries.
 MAX_SIGMA = 3.0
 STEPS = 30
@@ -156,7 +155,7 @@ def record_draws(config: GeneratorConfig) -> tuple[Catalog, dict[str, Recorded]]
         model = draw.model
         key = price.price_key(type_key, facts)
         length = price.length_of(facts) if type_key in price.LENGTH_HELD else None
-        material = facts["Material"].value if "Material" in facts else ""
+        material = price.material_of(type_key, facts) or ""
         recorded[sku] = Recorded(
             draw,
             math.log(key / model.anchor_key) if key else 0.0,
@@ -625,6 +624,26 @@ def _literal(type_key: str, model: price.PriceModel) -> str:
     )
 
 
+def _module_body(type_key: str, model: price.PriceModel) -> str:
+    """The literals a type module declares between its fit markers."""
+    census_length = price.LENGTH_CENSUS.get(type_key)
+    return (
+        f"    anchor={model.anchor:.4g},\n    anchor_key={model.anchor_key!r},\n"
+        + (
+            f'    slope=CENSUS["{type_key}"].slope,\n'
+            if model.slope == price.CENSUS[type_key].slope
+            else f"    slope={model.slope!r},\n"
+        )
+        + (
+            f"    length_slope={model.length_slope!r},\n"
+            if census_length and model.length_slope != census_length.slope
+            else ""
+        )
+        + f"    group_sigma={model.group_sigma:.3f},\n    sku_sigma={model.sku_sigma:.3f},"
+        + (f"\n    size_sigma={model.size_sigma!r}," if model.size_sigma else "")
+    )
+
+
 def _between_markers(path: Path, begin: str, body: str) -> None:
     text = path.read_text()
     pattern = re.compile(rf"(?m)^(\s*# @fit-begin{begin}\n).*?(^\s*# @fit-end)", re.S)
@@ -726,20 +745,11 @@ def main() -> int:
             + f"  {', '.join(flags) or 'ok'}"
         )
 
-    table = "\n".join(_literal(k, m) for k, m in fitted.items() if k != "screw_socket_head")
-    socket = fitted["screw_socket_head"]
-    socket_body = (
-        f"    anchor={socket.anchor:.4g},\n    anchor_key={socket.anchor_key!r},\n"
-        + (
-            '    slope=CENSUS["screw_socket_head"].slope,\n'
-            if socket.slope == price.CENSUS["screw_socket_head"].slope
-            else f"    slope={socket.slope!r},\n"
-        )
-        + f"    group_sigma={socket.group_sigma:.3f},\n    sku_sigma={socket.sku_sigma:.3f},"
-        + (f"\n    size_sigma={socket.size_sigma!r}," if socket.size_sigma else "")
-    )
+    table = "\n".join(_literal(k, m) for k, m in fitted.items() if k not in MODULE_PY)
+    bodies = {k: _module_body(k, fitted[k]) for k in MODULE_PY}
     print("\n# price.py, between the fit markers:\n" + table)
-    print("\n# screw_socket_head.py, between its fit markers:\n" + socket_body)
+    for k in MODULE_PY:
+        print(f"\n# {MODULE_PY[k].name}, between its fit markers:\n" + bodies[k])
     if unpinned or stale:
         for name in sorted(unpinned):
             print(f"OUT of band and not pinned: {name}", file=sys.stderr)
@@ -752,7 +762,8 @@ def main() -> int:
         return 1
     if args.write:
         _between_markers(PRICE_PY, "", table)
-        _between_markers(SOCKET_PY, " screw_socket_head", socket_body)
+        for k, path in MODULE_PY.items():
+            _between_markers(path, f" {k}", bodies[k])
     return 0
 
 

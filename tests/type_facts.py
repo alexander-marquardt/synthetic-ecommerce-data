@@ -2,8 +2,8 @@
 
 A type declared in its own module states them on its ``TypeSpec``:
 ``may_claim`` (every standard a record may claim), ``key_attributes`` (the
-key dimension every title names) and ``default_lines`` / ``default_skus``
-(its size in the default build). Adding a type edits nothing here.
+key dimension every title names).
+Its size in the default build is read from ``stats.json``. Adding a type edits nothing here.
 
 The rows below are the types still declared in the shared tables
 (``taxonomy``, ``vocab``, ``newtypes``). A row for a type that has a module
@@ -18,11 +18,15 @@ that returns a standard the type's records may not carry still reds.
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable
+from pathlib import Path
 from typing import TypeVar
 
-from synthetic_industrial_products.catalog import typespec
+from synthetic_ecommerce_data.core import typespec
+from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys
 
+STATS = Path(__file__).resolve().parents[1] / "golden-catalog" / "stats.json"
 _V = TypeVar("_V")
 
 
@@ -59,24 +63,10 @@ SHARED_TITLE_KEY: dict[str, tuple[str, ...]] = {
     "screw_flat_head": ("Dia./Thread Size",), "screw_button_head": ("Dia./Thread Size",),
     "screw_low_head": ("Dia./Thread Size",), "bolt_hex": ("Dia./Thread Size",),
     "washer_flat": ("Size",), "nut_hex": ("Thread Size",),
-    "hex_key": ("Size",), "bearing_radial_ball": ("Bearing Number", "Bore"),
-    "wheel_depressed_center": ("Diameter",), "abrasive_flap_disc": ("Diameter",),
+    "hex_key": ("Size",), "bearing_radial_ball": ("Bearing Number", "Bore Dia."),
+    "wheel_depressed_center": ("Wheel Dia.",), "abrasive_flap_disc": ("Diameter",),
     "hammer_ball_pein": ("Head Weight",), "kit_assortment": ("Number of Pieces",),
 }  # fmt: skip
-
-#: Each shared-table type's (product lines, SKUs) in the default build,
-#: counted from a fresh build's documents whose ``spec_quality`` is not the
-#: breadth one. Restated when a change moves a type's count.
-SHARED_SIZE: dict[str, tuple[int, int]] = {
-    "abrasive_flap_disc": (129, 232), "bearing_radial_ball": (660, 1126),
-    "bolt_hex": (235, 450), "drill_jobber": (286, 530), "end_mill_ball": (286, 568),
-    "end_mill_square": (498, 918), "hammer_ball_pein": (98, 184), "hex_key": (630, 1120),
-    "kit_assortment": (59, 59), "nut_hex": (662, 1264), "screw_button_head": (130, 263),
-    "screw_flat_head": (181, 327), "screw_low_head": (103, 189),
-    "tap_spiral_point": (179, 329), "washer_flat": (135, 225),
-    "wheel_depressed_center": (670, 1212),
-}  # fmt: skip
-
 
 def _merged(
     shared: dict[str, _V], read: Callable[[typespec.TypeSpec], _V | None], fields: str
@@ -103,18 +93,23 @@ def may_claim() -> dict[str, frozenset[str]]:
 
 
 def title_key() -> dict[str, tuple[str, ...]]:
-    """Every modelled type's title key: its key dimension."""
-    return _merged(SHARED_TITLE_KEY, lambda spec: spec.key_attributes or None, "key_attributes")
+    """Every modelled type's title key: its key dimension, or the attribute
+    its module names in place of it (``title_attributes``)."""
+    return _merged(
+        SHARED_TITLE_KEY,
+        lambda spec: spec.title_attributes or spec.key_attributes or None,
+        "key_attributes",
+    )
 
 
 def default_size() -> dict[str, tuple[int, int]]:
-    """Every modelled type's (product lines, SKUs) in the default build."""
+    """Every modelled type's (product lines, SKUs) in the default build.
 
-    def read(spec: typespec.TypeSpec) -> tuple[int, int] | None:
-        if spec.default_lines <= 0:
-            raise TypeFactsError(f"type module {spec.module} declares no default_lines")
-        if spec.default_skus <= 0:
-            raise TypeFactsError(f"type module {spec.module} declares no default_skus")
-        return (spec.default_lines, spec.default_skus)
-
-    return _merged(SHARED_SIZE, read, "default_lines")
+    Read from ``golden-catalog/stats.json``, which the build writes, so a
+    type's size is never typed by hand and a type PR does not edit it (#103).
+    """
+    stats = json.loads(STATS.read_text("utf-8"))
+    return {
+        key: (stats["lines_by_type"][key], stats["skus_by_type"][key])
+        for key in (*all_type_keys("modelled"), *all_type_keys("new"))
+    }
