@@ -373,6 +373,8 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
     # The text-match decoys (gen#294) draw from a stream of their own, so no other draw moves.
     core_rng, rng = rng, random.Random(f"grocery-decoys:{seed}")
     for code, names, may, offset in DECOY_ANCHORS:
+        if code not in fams:  # a build without this (depth) family plants no decoy for it
+            continue
         fam = fams[code]
         flavors = [next(f for f in fam.flavors if f.name == name) for name in names]
         add(fam, LINES[offset % len(LINES)], fam.brands[offset % len(fam.brands)],
