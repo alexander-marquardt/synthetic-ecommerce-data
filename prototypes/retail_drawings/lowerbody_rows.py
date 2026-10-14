@@ -127,7 +127,7 @@ GREEN_CHECK = cw("Green Check", "#3f7a4a", "gingham", "#efe8d8")
 # Leggings: length, rise, fit, fabric, lining and pockets are drawn or stated.
 # --------------------------------------------------------------------------
 
-_LG = ("Women", "Leggings")
+_LG = ("Womens", "Leggings")
 
 
 def _lg(
@@ -202,7 +202,7 @@ def _jrow(code, title, brand, path, price, desc, colors, attrs, params, rise) ->
                 facts=_facts(rise, "plain"))  # fmt: skip
 
 
-_MJ, _WJ = ("Men", "Joggers"), ("Women", "Joggers")
+_MJ, _WJ = ("Mens", "Joggers"), ("Womens", "Joggers")
 JOGGERS = (
     _jrow("JGGSLM", "Slim Fit Fleece Joggers with Cuffed Hems", SW, _MJ, 24.0,
           "Tapered fleece joggers with a ribbed cuff at the ankle and a drawstring waist.",
@@ -244,7 +244,7 @@ def _shp(length: str, style: str, pocket: str = "yes") -> tuple[tuple[str, str],
     return (("length", length), ("style", style), ("pocket", pocket))
 
 
-_WS, _MS = ("Women", "Shorts"), ("Men", "Shorts")
+_WS, _MS = ("Womens", "Shorts"), ("Mens", "Shorts")
 SHORTS = (
     LRow("SHTDNW", "Denim Shorts", "Wrenfield", CL_, _WS, "Shorts", 22.0, "shorts",
          "Frayed-hem denim shorts with a zip fly and five pockets.", (LIGHT_WASH, MID_WASH),
@@ -297,8 +297,8 @@ def _cyp(length: str, rise: str, pad: str, pocket: str) -> tuple[tuple[str, str]
     return (("length", length), ("rise", rise), ("pad", pad), ("pocket", pocket))
 
 
-_WC = ("Women", "Sportswear", "Cycling Shorts")
-_MC = ("Men", "Sportswear", "Cycling Shorts")
+_WC = ("Womens", "Sportswear", "Cycling Shorts")
+_MC = ("Mens", "Sportswear", "Cycling Shorts")
 CYCLING = (
     LRow("CYSWPD", "Padded Cycling Shorts", SW, CL_, _WC, "Cycling Shorts", 30.0,
          "cycling_shorts", "High rise cycling shorts with a padded chamois and flat seams, for "
@@ -353,7 +353,7 @@ def _trow(code, title, brand, path, price, desc, colors, attrs, params, sizes=No
                 facts=_facts(None, "plain"))  # fmt: skip
 
 
-_WT, _MT = ("Women", "Tracksuits"), ("Men", "Tracksuits")
+_WT, _MT = ("Womens", "Tracksuits"), ("Mens", "Tracksuits")
 _BT, _GT = ("Kids", "Boys", "Tracksuits"), ("Kids", "Girls", "Tracksuits")
 TRACKSUITS = (
     _trow("TSTMFL", "Hooded Fleece Tracksuit", SW, _MT, 48.0,
@@ -402,7 +402,7 @@ def _sk(
             _a("lining", "Lining", lining), *extra)  # fmt: skip
 
 
-_SKT = ("Women", "Skirts")
+_SKT = ("Womens", "Skirts")
 
 
 # The drawing param is ``hem``: a SKU's own value of a drawing param key replaces the drawing's
