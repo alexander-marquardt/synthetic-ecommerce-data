@@ -116,6 +116,7 @@ import scale_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
+import sports_rows  # noqa: E402
 import toys_rows  # noqa: E402
 import underwear_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
@@ -220,6 +221,9 @@ SHIRT_IDS = frozenset(f"PLT-{s.code}" for s in shirt_rows.STYLES)
 #: The bag, umbrella and jewelry styles (:mod:`accessory_rows`, gen#207), left out of the
 #: derivation as the shirts are.
 ACCESSORY_IDS = frozenset(f"BRD-{r.code}" for r in accessory_rows.ROWS)
+#: The camping and fitness styles (:mod:`sports_rows`, gen#265), left out of the derivation as
+#: the accessories are: the Sports & Outdoors department grows by authored rows.
+SPORTS_IDS = frozenset(f"BRD-{r.code}" for r in sports_rows.ROWS)
 #: The underwear and nightwear styles (:mod:`underwear_rows`, gen#208), left out of the
 #: derivation as the shirts are.
 UNDERWEAR_IDS = frozenset(f"BRD-{r.code}" for r in underwear_rows.ROWS)
@@ -264,7 +268,8 @@ def templates(baseline: bool = True) -> list[dict]:
     authored = (r for recs in samples().values() for r in recs)
     body = [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
-        *shirt_rows.docs(), *accessory_rows.docs(), *sofa_rows.docs(), *household_rows.docs(),
+        *shirt_rows.docs(), *accessory_rows.docs(), *sports_rows.docs(), *sofa_rows.docs(),
+        *household_rows.docs(),
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
     ]  # fmt: skip
@@ -285,7 +290,8 @@ def derivable(tpls: list[dict]) -> list[dict]:
     or slash neck top is a failure-class row too (gen#125): a derived copy of it would hand
     the no-policy baseline the neckline, so it stays a template."""
     left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
-                | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SEASONAL_IDS)
+                | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
+                | SEASONAL_IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out
             and r.get("neckline") not in ("boat", "slash")]  # fmt: skip
