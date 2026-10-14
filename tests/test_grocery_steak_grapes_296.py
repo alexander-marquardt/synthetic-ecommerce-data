@@ -115,6 +115,31 @@ def test_the_dietary_labels_come_from_one_closed_list() -> None:
     assert {"Dairy Free", "Vegan", "Gluten Free"} <= seen
 
 
+def _traced(facets: dict) -> set[str]:
+    return {a.lower() for k in ("contains", "may_contain") for a in facets.get(k, ())}
+
+
+def test_dairy_free_means_no_milk_contained_or_traced() -> None:
+    rows = [r for r in grocery.flat(grocery.documents(list(_recs())))
+            if r["category_path"][0] == "Food & Drink"]
+    with_milk, without_milk = 0, 0
+    for r in rows:
+        f = r["facets"]
+        milk = "milk" in _traced(f)
+        labelled = "Dairy Free" in f.get("dietary", ())
+        assert labelled != milk, (r["title"], f)
+        with_milk += milk
+        without_milk += not milk
+    assert with_milk and without_milk
+
+
+def test_an_egg_row_without_milk_is_still_dairy_free() -> None:
+    rows = [r for r in grocery.flat(grocery.documents(list(_recs())))
+            if "eggs" in r["facets"].get("contains", ()) and "milk" not in _traced(r["facets"])]
+    assert rows
+    assert all("Dairy Free" in r["facets"].get("dietary", ()) for r in rows)
+
+
 def test_the_coverage_report_gives_the_share_of_rows_with_contains_filled() -> None:
     report = grocery.coverage_report(list(_recs()))
     assert set(report) == {"food_rows", "contains_filled", "contains_share"}
