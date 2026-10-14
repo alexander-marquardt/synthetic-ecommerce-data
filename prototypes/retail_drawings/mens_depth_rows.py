@@ -30,15 +30,15 @@ the query it targets and the policy that repairs it; ``tests/test_retail_mens_de
 the three per class per type and their truth. (gen PR #306 holds the shared ``decoy_rows.TABLE``;
 until it merges these rows are registered here, and move to it afterwards.)
 
-1. **colour**: "Mens White Chinos with Red Stripes" is white.
+1. **color**: "Mens White Chinos with Red Stripes" is white.
 2. **category word**: "Mens Dress Shirt", "Mens Jumper Knit Polo Shirt".
 3. **audience word**: "Mens Boyfriend Fit Chinos".
 4. **feature absent**: "Mens Wool-Free Coat" has no wool.
 5. **shade in the description only**: "Mens Moonbeam Chinos" are Ivory.
 6. **incidental word in a short title** (a range name): "Mens Red Tarn Chinos" are not red.
-7. **invented brand** holding a colour or category word: "Black Curlew", "Yellow Plover",
+7. **invented brand** holding a color or category word: "Black Curlew", "Yellow Plover",
    "Jacket Wren", each with its own house style (``house_styles.py``) so the drawing's logo reads
-   the brand's name; the garment is drawn in its true colour.
+   the brand's name; the garment is drawn in its true color.
 
 The rows are templates only: :func:`scale.derivable` leaves them out (``scale.MENS_DEPTH_IDS``),
 so the seeded derivation is what it was.
@@ -61,7 +61,7 @@ from variants import cw
 #: The shop's own brands these rows sell, owned as the rest of the clothing tree states.
 _BRANDS = ("Harbour & Pine", "Larkmoor", "Wrenfield", "Calderby & Lune", "Bramblewood")
 OWNERS.update({b: BRAND_OWNER[b] for b in _BRANDS})
-#: The invented class-7 brands: a colour or a category word in the name (not real shops).
+#: The invented class-7 brands: a color or a category word in the name (not real shops).
 NEW_BRANDS = ("Black Curlew", "Yellow Plover", "Jacket Wren")
 OWNERS.update(dict.fromkeys(NEW_BRANDS, "third_party"))
 

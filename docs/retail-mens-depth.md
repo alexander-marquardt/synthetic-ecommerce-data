@@ -14,14 +14,14 @@ misleading word, the query it targets and the policy that repairs it.
 
 | Class | Decoy | Example |
 |---|---|---|
-| 1 colour | a trim names another colour | "Mens White Chinos with Red Stripes" is white |
+| 1 color | a trim names another color | "Mens White Chinos with Red Stripes" is white |
 | 2 category word | another category's noun as a modifier | "Mens Shirt Collar Blazer" |
 | 3 audience word | a sibling cut | "Mens Boyfriend Fit Chinos" |
 | 4 feature absent | a feature named and missing | "Mens Wool-Free Coat" |
 | 5 shade in the description | a fancy title, the shade in the text | "Mens Moonbeam Chinos" are Ivory |
 | 6 incidental word | a range name, carried as a `range` attribute | "Mens Red Tarn Chinos" are not red |
-| 7 invented brand | a brand holding a colour or category word | "Black Curlew", "Yellow Plover", "Jacket Wren" |
+| 7 invented brand | a brand holding a color or category word | "Black Curlew", "Yellow Plover", "Jacket Wren" |
 
 The three class 7 brands each have a house style whose lockup text is the brand name. The text
 agreement check (`standard.text_contradictions`) treats the document's brand as its own value, so
-a brand such as "Black Curlew" is not read as naming a colour.
+a brand such as "Black Curlew" is not read as naming a color.
