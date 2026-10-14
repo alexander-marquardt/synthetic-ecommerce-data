@@ -23,6 +23,8 @@ MUTANTS = [
     (P, "        elif result.verdict == \"WARN\":\n            unjudged.append", "        elif result.verdict == \"FAIL\":\n            unjudged.append", "warning not listed as unjudged"),
     (P, "    body_file = args.pr_body_file or env.get(\"PRISM_PR_BODY_FILE\") or None\n", "    body_file = None\n", "body file never read"),
     (P, "unknown = [name for name in args.only if name not in ROW_NAMES]", "unknown = []", "unknown row accepted"),
+    (P, "subject = to_ref if wip and to_ref else \"HEAD\"", "subject = \"HEAD\"", "wip snapshot judged as the checkout"),
+    (P, "if args.hook and not wip and to_ref and to_ref != head:", "if args.hook and to_ref and to_ref != head:", "wip snapshot fails the pushed-commit row"),
     (".pre-commit-config.yaml", "        entry: bash scripts/prepush.sh --hook\n", "        entry: bash scripts/prepush.sh\n", "hook runs by-hand mode"),
     (".pre-commit-config.yaml", "default_install_hook_types: [pre-commit, commit-msg, pre-push]", "default_install_hook_types: [pre-commit, commit-msg]", "pre-push hook not installed"),
     (".pre-commit-config.yaml", "      - id: check-yaml\n        stages: [pre-commit]\n", "      - id: check-yaml\n", "check-yaml runs at push"),

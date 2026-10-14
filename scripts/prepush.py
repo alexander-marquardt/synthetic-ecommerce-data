@@ -281,8 +281,12 @@ def main(argv: list[str]) -> int:
     if args.hook and to_ref == ZEROS:
         return finish(0, [], "prepush-gate: NOT JUDGED (branch delete)")
 
-    _, head = git(root, "rev-parse", "HEAD")
-    rc, merge_base = git(root, "merge-base", BASE_REF, "HEAD")
+    # A wip/ backup sends a snapshot commit that is not the checkout's HEAD (agent_wip_push
+    # makes one), and its commit messages are what the rule reads: judge the commit sent.
+    wip = args.hook and branch.startswith("wip/")
+    subject = to_ref if wip and to_ref else "HEAD"
+    _, head = git(root, "rev-parse", subject)
+    rc, merge_base = git(root, "merge-base", BASE_REF, subject)
     if rc != 0:
         say(f"prepush-gate: cannot judge: no {BASE_REF} to measure the branch against. "
             f"Run `{FETCH_HINT}`, then push again.")
@@ -294,7 +298,6 @@ def main(argv: list[str]) -> int:
     blocking = True
     reason = ""
     if args.hook:
-        wip = branch.startswith("wip/")
         if wip:
             selected = ["commit-messages"]
         elif branch != "main":
@@ -310,13 +313,13 @@ def main(argv: list[str]) -> int:
         f"{BASE_REF} ({merge_base[:12]})")
 
     passed, unjudged, failed = judged_rows(selected, ctx, say)
-    if args.hook and to_ref and to_ref != head:
+    if args.hook and not wip and to_ref and to_ref != head:
         failed.append("pushed-commit")
         say(f"    FAIL  pushed-commit  (this gate judges the checkout at {head[:12]}, "
             f"but the push sends {to_ref[:12]}; check that commit out, or push the branch "
             "you stand on)")
 
-    if args.hook and branch.startswith("wip/"):
+    if wip:
         if failed:
             return finish(1, failed, "PREPUSH FAIL (wip backup: the commit-message rule blocks)")
         return finish(0, [], "PREPUSH NOT JUDGED (wip backup): only the commit-message rule ran")
