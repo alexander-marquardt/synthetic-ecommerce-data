@@ -1,16 +1,56 @@
-# synthetic-industrial-products
+# synthetic-ecommerce-data
+
+Write-up: [Generating a synthetic industrial product catalog for search demos](https://alexmarquardt.com/data-generation/synthetic-industrial-product-catalog/).
+
+![Four search results for "car" in a demo search UI: a checked car coat, a car boot organiser, and a wooden racing car in red and in blue. Every picture is a generated drawing.](docs/images/search-car-cards.png)
+
+**The pictures are drawn by code.** Each is written straight to SVG, from the
+SKU's own attributes, by a small writer in this repository: no image model and
+no photographs. A drawing is deterministic and costs nothing per variant, and it
+is parameterised by product type, brand house style and attributes (color,
+pattern, size). Measured on an Apple M3 Pro laptop, `draw_product` drew every
+SKU of `golden-catalog/` at roughly 7,000 drawings a
+second (0.14 ms each, one core; three runs, 6,900 to 7,400 per second).
+That times the industrial drawing step only, with the records already loaded.
 
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
-extraction in search: 10,691 SKUs over 5,850 products in 20 depth types plus
-47 [breadth categories](#catalog-breadth), one product each -- from 45
-invented brands -- and, with one flag, about 100,000 SKUs
+extraction in search: modelled depth types plus
+[breadth categories](#catalog-breadth), one product each, from invented
+brands -- and, with one flag, about 100,000 SKUs
 ([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
 
-The SKU and product counts are `skus` and `lines` in
-`golden-catalog/stats.json` (per type: `skus_by_type`, `lines_by_type`). The
-type counts are
-`uv run python -c "from synthetic_industrial_products.catalog.generate import all_type_keys as k; print(len(k('modelled')) + len(k('new')), len(k('breadth')))"`.
+The default build's figures are build output, in `golden-catalog/stats.json`:
+`skus` and `lines` (per type: `skus_by_type`, `lines_by_type`), and under
+`figures` the type and brand counts (`catalog`), the drawings' count and bytes
+(`drawings`) and the facet rule's figures (`dispersion`).
+`uv run ecom-generate build --out golden-catalog` rewrites them, and no doc
+restates one (`tests/test_measured_figures.py`), so a pull request that adds a
+type changes them only in the file the merge script rebuilds (#103).
+
+**Renamed from `synthetic-industrial-products`** (#125), so that one generator
+can build catalogs beyond industrial supply. The distribution is
+`synthetic-ecommerce-data`, the package `synthetic_ecommerce_data`, and the
+commands `ecom-generate` and `ecom-render`. For one release cycle the old names
+still work and are deprecated: `import synthetic_industrial_products...`
+resolves to the same modules with a `DeprecationWarning`, and `sip-generate`
+and `sip-render` run the new commands after a note on stderr. The output is
+byte-identical under either name.
+
+**Layout** (#125 step 2). `src/synthetic_ecommerce_data/core/` holds the
+domain-neutral machinery: the model and attribute entries, config, formats
+and dimensions, brands, copy noise, titles and voice, price, emit, the image
+bundle, the non-copying check, the breadth row table and the drawing
+framework. `src/synthetic_ecommerce_data/domains/industrial/` holds
+everything industrial: the generator, the types, vocabularies, standards,
+taxonomy, figures, renderers, census measurement and data. The commands
+compose a domain with core, so they stay at the top level beside `prism/`:
+`generate_cli.py` (`ecom-generate`) and the per-record `cli.py`
+(`ecom-render`). Some core modules still hold industrial tables next to their
+machinery; every way core reaches outside itself (an import, relative or
+absolute, or a module named in a string) is listed in
+`tests/test_core_extraction_125.py`, and that list only shrinks. Old `synthetic_industrial_products.catalog.*`
+import paths resolve to the moved modules.
 
 **Every product in this repository is synthetic.** No record here describes a
 real product offered by any retailer, and no retailer's catalog content is
@@ -57,7 +97,7 @@ line:
 | | |
 |---|---|
 | **Fasteners** | dimensions are **standards-derived**. Each line carries the standard designation its dimensions came from — `ASME B18.3`, `ASME B18.3.2`, `ASME B18.3.3A`, `ASME B18.3.1G`, `ISO 4762`, `ISO 10642`, `ISO 7380-1`, `DIN 7984`, `ISO 4014`, `ISO 4017`, `DIN 933`, `ISO 7089`. |
-| **Newer types** (hex nuts, radial ball bearings, depressed-center wheels, hex keys; elastic/prism-industrial-products#103) | dimensions are **generated** from conventional sizes -- nut widths across flats, the 60/62/63 bearing series boundary sizes, stocked wheel diameters, hex key sizes. They follow the familiar ladders but were not extracted from an open dataset, so the provenance field says "generated". The one standard claimed is a hex nut's, and only where every row of its line IS that standard's row -- see [Facts a record states are real](#facts-a-record-states-are-real). |
+| **Newer types** (hex nuts, radial ball bearings, depressed-center wheels, hex keys; elastic/prism-industrial-products#103) | dimensions are **generated** from conventional sizes -- nut widths across flats, the 60/62/63 bearing series boundary sizes (ISO 15's bore, outside diameter and width per diameter series, 5 mm through 100 mm bore, checked against a table restated in `tests/test_catalog_facts.py`), stocked wheel diameters, hex key sizes. They follow the familiar ladders but were not extracted from an open dataset, so the provenance field says "generated". The one standard claimed is a hex nut's, and only where every row of its line IS that standard's row -- see [Facts a record states are real](#facts-a-record-states-are-real). |
 | **Cutting tools** | dimensions are **generated** from the conventional series. No open dimensional source for end mills exists, so nothing here claims a standard, and the provenance field says so in words. The metric series carries 11, 15 and 25 mm, which are ordinary stocked sizes and were missing — an artifact of how the list was first written, not a statement about the market. |
 
 That asymmetry is deliberate. A cap screw's head is fixed by a published
@@ -82,7 +122,7 @@ hand:
   is ASME B1.1, and each entry is really its own designation — `#10-32` states
   32 threads per inch in the name.
 
-`src/synthetic_industrial_products/data/fastener_standards.json` is that
+`src/synthetic_ecommerce_data/domains/industrial/data/fastener_standards.json` is that
 extraction, unmodified, and carries its own provenance block naming each
 repository, its licence and the commit it was read at. Only the sizes this
 catalog offers were taken; the upstream compilations are not redistributed.
@@ -140,7 +180,7 @@ visibly end a head height apart.
 | | |
 |---|---|
 | **Ships** | the generator, the extracted standards tables, hashes of the reference tuples, and the built catalog itself — checked in at `golden-catalog/`, see [The built catalog is committed](#the-built-catalog-is-committed-in-golden-catalog) |
-| **Never ships** | the reference corpus of captured pages, and the rendered drawings — both reproducible, see `.gitignore`. The drawings are rebuilt from the committed catalog into a pinned bundle (`sip-generate images`, see [Images](#images)); `images.jsonl` records each one's sha256, and nothing else about them is committed |
+| **Never ships** | the reference corpus of captured pages, and the rendered drawings — both reproducible, see `.gitignore`. The drawings are rebuilt from the committed catalog into a pinned bundle (`ecom-generate images`, see [Images](#images)); `images.jsonl` records each one's sha256, and nothing else about them is committed |
 
 ## Contributing
 
@@ -152,6 +192,15 @@ GitHub button: this repository has no branch protection, so a green from an
 older `main` can merge and turn `main` red. The script merges current `main`
 in, rebuilds `golden-catalog/` and merges only when the drift, golden and seam
 tests pass on that tree.
+`tests/test_merge_pr.py` builds its planted worlds with `UV_OFFLINE=1` and name
+resolution blocked, so it needs uv's cache (warm once `uv sync` has run in this
+checkout) but not the network. When a real merge's build fails on a dropped
+lookup, the script says "the build failed on the network" apart from the build
+refusing the tree; rerun it.
+GitHub Actions is billing-blocked here, so run CI locally: `scripts/merge_pr.sh
+--local-ci <PR number>` (the default when `GEN_LOCAL_CI=1`) runs every job of
+`.github/workflows/*.yml` on that merged tree, prints each job's verdict and
+log path, and refuses the merge unless all pass; no GitHub check is read.
 
 Install both hook types once per clone: `pre-commit install` (the config sets
 `default_install_hook_types: [pre-commit, commit-msg]`). The commit-msg hook
@@ -165,25 +214,37 @@ look-alike letters, invisible and bidirectional characters, and a phrase
 wrapped across two lines are all caught. The pre-commit hooks run `ruff check` and the whitespace
 fixers, which leave `golden-catalog/` alone.
 
-Run the test suite with plain `uv run pytest`, with no `-n`: the project does
-not install `pytest-xdist`.
+Run the test suite with `uv run pytest`. The whole suite takes about 27
+minutes serially, or about 22 on two workers with `uv run pytest -n 2`
+(`pytest-xdist` is a dev dependency; it needs about 4.3 GB at peak), so for a change run the modules that name what you changed, and leave the whole
+suite to CI. Only some product types have a `tests/test_type_<type_key>.py` (for example `test_type_o_rings.py`, `test_type_shackles.py`); the rest are covered by shared modules such as `test_type_facts.py` and `test_type_registration.py` and by tests named for the feature. The grep finds the tests that name a type or module:
+
+```sh
+uv run pytest $(grep -l '<changed module or type key>' tests/test_*.py)
+```
+
+Every test has a 300-second limit, fixture setup included (`timeout` under
+`[tool.pytest.ini_options]` in `pyproject.toml`, enforced by `pytest-timeout`).
+A test that hangs, or grows its memory without end, fails at that limit instead
+of holding the machine. A test that is slow for a reason raises its own limit
+with `@pytest.mark.timeout(<seconds>)`; the default does not move.
 
 ## Generating a catalog
 
 ```sh
 uv sync
-uv run sip-generate build --out out/catalog
-uv run sip-generate report                      # the measured-vs-target table only
+uv run ecom-generate build --out out/catalog
+uv run ecom-generate report                      # the measured-vs-target table only
 ```
 
 Everything is parameterised, because the point of the catalog is to be dialled
 until something breaks:
 
 ```sh
-uv run sip-generate build --lines 900               # a bigger or smaller catalog (THE size knob)
-uv run sip-generate build --sparsity 0.4             # raggeder attribute coverage
-uv run sip-generate build --defects 0.0              # a catalog with no contradictions
-uv run sip-generate build --seed 7                   # a different catalog
+uv run ecom-generate build --lines 900               # a bigger or smaller catalog (THE size knob)
+uv run ecom-generate build --sparsity 0.4             # raggeder attribute coverage
+uv run ecom-generate build --defects 0.0              # a catalog with no contradictions
+uv run ecom-generate build --seed 7                   # a different catalog
 ```
 
 The generator is deterministic: one seed produces one catalog, byte for byte.
@@ -212,8 +273,8 @@ section for why).
 ### The 100K catalog
 
 ```sh
-uv run sip-generate build --lines 39000 --out out/catalog-100k
-uv run sip-generate images --catalog out/catalog-100k --out out/images-100k --archive out/images-100k.tar.gz
+uv run ecom-generate build --lines 39000 --out out/catalog-100k
+uv run ecom-generate images --catalog out/catalog-100k --out out/images-100k --archive out/images-100k.tar.gz
 ```
 
 `--lines 39000` (`config.HUNDRED_K_LINES`) is the value that lands at about
@@ -228,36 +289,52 @@ type from `skus_by_type` in its `stats.json`:
 | end_mill_ball | 8,110 | | hammer_ball_pein | 861 |
 | drill_jobber | 7,307 | | abrasive_flap_disc | 2,460 |
 | tap_spiral_point | 3,512 | | nut_hex | 12,044 |
-| screw_socket_head | 7,727 | | bearing_radial_ball | 7,516 |
+| screw_socket_head | 7,727 | | bearing_radial_ball | 11,340 |
 | screw_flat_head | 4,752 | | wheel_depressed_center | 11,495 |
 | screw_button_head | 3,439 | | hex_key | 6,466 |
 | screw_low_head | 2,692 | | bolt_hex | 5,934 |
 | kit_assortment | 695 | | lock_nuts_nylon_insert | 4,513 |
 | set_screws_hex_socket | 7,061 | | dowel_pins | 1,004 |
-| | | | 47 breadth categories | 83 (1-3 each) |
+| cotter_pins | 803 | | retaining_rings_external | 694 |
+| roller_chain | 509 | | turnbuckles | 385 |
+| shackles | 373 | | pillow_block_bearings | 269 |
+| roller_chain_sprockets | 200 | | roller_chain_links | 769 |
+| o_rings | 1,040 | | key_stock | 965 |
+| the breadth categories | 75 (1-3 each) | | | |
 
 The mix is not the one a proportional scale would give, and that is the
 uniqueness rule at work: a type whose spec space is small (ISO 7089 fixes a
 washer's nine sizes; a hammer is its head weight and handle) runs out of
-SKUs its makers have not already made, so it grows less. It was 28,300
+SKUs its makers have not already made, so it grows less. It was about 28 thousand
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
-**112,501 SKUs over 65,017 products** (`skus` and `lines` in `stats.json`),
-4,513 of them lock nuts over 2,714 products, 7,061 set screws over 3,786 and
-1,004 dowel pins over 535. `lock_nuts_nylon_insert`, `set_screws_hex_socket`
-and `dowel_pins` became deep types (#53), each with its own share of
-`--lines`, and took none from the others (the dowel pins' breadth row and its
-2 SKUs left the breadth set), so every
-other type's SKU count is the one measured on `95a9ed0` (the set screws' small
+**122,324 SKUs over 70,776 products** (`skus` and `lines` in `stats.json`),
+4,513 of them lock nuts over 2,714 products, 7,061 set screws over 3,786,
+1,004 dowel pins over 535, 509 roller chains over 328, 803 cotter pins over
+463 and 694 external retaining rings over 413 (the last two are the first
+table types, #101). The next five table types add 1,996 SKUs over 1,237
+products and moved no other type: 385 turnbuckles over 244, 373 shackles over
+246, 269 pillow block bearings over 168, 200 roller chain sprockets over 129
+and 769 roller chain links over 450. O-rings are 1,040 over 565:
+`o_rings` was a breadth category of 2 SKUs; deepened from the AS568 table
+(#53), it took no SKU from any other type. Key stock is 965 bars over 560
+(#108, a new type with its own share), and moved none either. Bearings widened from 27 numbers to 75 (#64), so fewer bearing
+lines repeat a number a maker already sells: 11,340 bearings where there were
+7,516, and no other type moved. `lock_nuts_nylon_insert`,
+`set_screws_hex_socket`, `dowel_pins` and `roller_chain` became deep types
+(#53), each with its own share of `--lines`, as each table type has, and took
+none from the others (the dowel pins', the roller chain's and the two table
+types' breadth rows and their SKUs left the breadth set), so every
+other type's SKU count but the bearings' is the one measured on `95a9ed0` (the set screws' small
 sockets add a true sentence to some hex key copy, not a SKU), when
 the build gave 99,929 SKUs over 57,985 products. On `95a9ed0`: SKUs that are
 not different (the rule below): 0. Every bearing number is a real table entry
 with its own bore, OD and width. Product names: 0 clashes catalog-wide.
 Every must-stock example is stocked. (Those four are the 100K tests in
-`tests/test_catalog_brands_voice.py`.) Since dowel pins,
+`tests/test_catalog_brands_voice.py`.) Since key stock,
 `scripts/check_determinism.py --lines 39000`: all 7 emitted files
 byte-identical across two builds. The drawings, built with the second command
-above: 112,501 drawings, 231.7 MB unpacked, a 25.9 MB `images.tar.gz`, every
+above: 122,324 drawings, 261.3 MB unpacked, a 28.2 MB `images.tar.gz`, every
 sha256 matching `images.jsonl` (the counts the command prints). The 100K
 catalog is still not published while the spec is iterated at the default
 size.
@@ -268,7 +345,7 @@ serves that one, from a pinned release, and the 100K build is a capability
 kept tested (`tests/test_catalog_brands_voice.py` builds it) rather than a
 published artifact.
 
-What moves at 100K, measured against the census targets (`sip-generate
+What moves at 100K, measured against the census targets (`ecom-generate
 report`), with the default catalog beside it:
 
 | measured property | target | 100K |
@@ -297,7 +374,7 @@ label mix differs from the census's 0.66 / 0.28 / 0.06.
 
 ## Brands
 
-Forty-five manufacturers, all invented, in one table (`catalog/brands.py`):
+Forty-five manufacturers, all invented, in one table (`core/brands.py`):
 their product families, market weight, house style and title voice.
 
 * **A long tail, not ten equal houses.** Three broad-line houses make
@@ -314,6 +391,12 @@ their product families, market weight, house style and title voice.
   of its ink, so brands that share an ink also differ in background. Every
   (ink, paper, frame) triple is unique and every ink is at least 3:1 against
   its paper (the lowest is 4.4:1).
+* **Brand mark** (#132). Each brand declares a `motif` and an `enclosure`
+  (`core/brands.py`): fifteen machine-shop motifs
+  (`domains/industrial/drawing/brand_marks.py`) in three enclosures (bare, in
+  a ring, knocked out of a badge), one pair per brand. That is room for 45
+  brands, exactly the book; a new motif that passes the distinguishability
+  test ([Images](#images)) adds room for three more.
 
 **Every name is invented, and each was checked.** Method: a web search for
 `"<name>"` and a second for `"<name>" tools OR industrial OR company`; a name
@@ -344,12 +427,18 @@ shared tables):
 
 * **Bearing ratings** are a table per bearing number
   (`newtypes.BEARING_RATINGS`): dynamic and static load and the limiting
-  speed of the open bearing -- SKF's published figures for 60/62/63,
+  speed of the open bearing -- every metric row from one maker on one basis,
+  SKF's deep groove ball bearing product pages
+  (`skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings/productid-<number>`,
+  retrieved 2026-10-07), since two makers' speed ratings put side by side
+  invert the series' order at the seam (a number SKF does not publish open,
+  628, is not stocked, never patched), and within a diameter series no larger
+  bore is rated higher in speed or lower in load (`tests/test_catalog_facts.py`);
   distributor listings for the inch R series -- with a contact seal at 70% of
   the open speed. No jitter: two bearings of one number are rated alike,
   whoever makes them, and a rating never makes two SKUs different. (A formula
   had put a 6000 at 3,110 lbf against a published 1,068.)
-* **Standards** are a truth table by what the line IS (`catalog/conformance.py`):
+* **Standards** are a truth table by what the line IS (`domains/industrial/conformance.py`):
   a socket head cap screw may claim ISO 4762 / DIN 912 / ASME B18.3 / ASTM
   A574, a flat washer ISO 7089 / DIN 125-A, a metric radial bearing ISO 15 /
   ISO 492 / ABMA 20, and so on; a line with nothing applicable claims
@@ -440,7 +529,7 @@ allowed): flat washers 0.15, hammers 0.72, bolts 0.76, flap discs 0.79, kits
 ## Brand voice: titles and descriptions
 
 A brand's catalog section reads uniformly, and two brands read slightly
-differently (`catalog/voice.py`).
+differently (`core/voice.py`).
 
 * **The title's core is the census structure** -- `<Item>, <key dim> <role>,
   <material>, <coating>, <flutes>...`. A type whose variant axis is not its
@@ -471,7 +560,7 @@ the M12 taps and the drill that makes an M12x1.75 hole. The facets are what
 separate them. A catalog whose text named only each product's own attributes
 answered every size query with one product type on its words alone, and the
 facets had nothing to do. Two changes make the search realistically ambiguous
-without stating anything false (`catalog/compat.py`):
+without stating anything false (`domains/industrial/compat.py`):
 
 * **One cross-reference sentence**, in the description AND in the searchable
   `text`, never as an attribute (a hex key does not acquire a thread size, so
@@ -529,7 +618,7 @@ A distributor's copy mentions sizes a product does NOT fit, the siblings it
 is also sold in, the unit a shopper might have typed, what it pairs with and
 what it cuts. Every one of those words is searchable, so a query matches more
 than the products it names, and the policies and facets are what narrow the
-page back down (`catalog/noise.py`). Every sentence is TRUE of its record --
+page back down (`core/noise.py`). Every sentence is TRUE of its record --
 read from its own published values, its siblings, or a table -- and the
 attributes are never touched, so the facets can always separate the noise out.
 
@@ -615,7 +704,7 @@ whose sparsity leaves one without an attribute its siblings carry.
 **Attribute names are the census's generic ones.** A concept is one name across
 types -- `Material` on an end mill, a drill and a screw alike -- because that is
 how the reference census names it (160 of 496 records), and on a nested index
-every per-type spelling would be a facet of its own. `catalog/names.py` is the
+every per-type spelling would be a facet of its own. `domains/industrial/names.py` is the
 gate: every name is census-verbatim, on the names-only reference spec-table
 list (`reference-statistics/R1_reference_spec_table_names.json`), or a justified
 exception. No name may contain the record's OWN product noun, a noun of its
@@ -642,16 +731,22 @@ of elastic/prism#9935:
 ```
 
 * `key` is required: the machine name the Engine discovers an attribute by,
-  `sanitize(name)`, namespaced as `attr_<key>` when it is a column's name (see
-  below). `name` is the display name.
+  namespaced as `attr_<key>` when it is a column's name (see below). It is
+  `sanitize(name)` unless the type declares its own: a roller chain's `Pitch`
+  (the distance between pin centres) has the key `chain_pitch`, apart from a
+  metric tap's `Thread Pitch` (its thread pitch), whose key is `thread_pitch`.
+  One quantity has one display label and two quantities never share one, so a
+  name has one key catalog-wide. So read `key`,
+  never derive it from `name`. `name` is the display name.
 * A **measured** value is fully split. `value` is the bare magnitude with no
   unit marker and no thousands separator, `unit_code` (UN/CEFACT: `INH`, `MMT`,
+  `FOT` for a chain's length in feet,
   `DD`, `ONZ`, `LBR`, `C78`, `RPM`, `TPI`, and `C62` for a count) is the only
   place the unit lives, and `value_canonical` is the magnitude in the kind's
   canonical unit (millimetres, grams, degrees, one, rpm, pound-force), computed
   exactly and rounded to a float once.
 * Thread spacing is published under two keys, as real catalogs publish it: a
-  metric tap's `Pitch` (`pitch`, `MMT`, `0.5`) and an inch tap's `Threads per
+  metric tap's `Thread Pitch` (`thread_pitch`, `MMT`, `0.5`) and an inch tap's `Threads per
   Inch` (`threads_per_inch`, `TPI`, `32`). `TPI` is a LENGTH written as a count
   per inch (ruled on elastic/prism#9877): `value` stays the count and
   `value_canonical` is the pitch in millimetres, `127/5 / n`, so `32` TPI is
@@ -672,7 +767,9 @@ magnitude would quietly differ from the string actually published. A defective
 spelling never changes what an attribute measures: `Helix Angle = 42"`, the
 modelled defect of an inch mark keyed for a degree mark, becomes `42` `DD`
 (`catalog.entry.UNIT_FOR_NAME`). The flat facet keeps the messy `42"`; the
-entry keeps the magnitude and drops the bad mark (elastic/prism#9284, #79). Read
+entry keeps the magnitude and drops the bad mark (elastic/prism#9284, #79). The
+flat `facets_num` carries that same number, taken from the same rule
+(`entry.split`), so the two numeric shapes agree (#120). Read
 as an inch, it put a length under an angle key. The same defect also writes
 `1"`, `1-1/4"`, `2"` and `1-5/8"`: lengths keyed into an angle field, a
 unit-type error rather than a mis-keyed degree mark. An attribute fixed to `DD`
@@ -747,7 +844,7 @@ The second is the one that bites, and the two weaker ways of asking it both
 leak. Titles carry the brand about a third of the time and their labels in one
 of several abbreviations, so on the catalog this replaced, asking only that a
 line's titles differ as whole strings left **1,913** SKUs naming nothing of
-their own, and a bare substring test left **1,932** — 19 of those passing on a
+their own, and a bare substring test left 19 more of them passing on a
 coincidence rather than on a value.
 
 The coincidence outlives a catalog that has otherwise been repaired, which is
@@ -769,7 +866,7 @@ why a title built around it read the same on every SKU of the line.
 
 ### Two shapes, one catalog
 
-`sip-generate build` writes both serialisations from the same generated
+`ecom-generate build` writes both serialisations from the same generated
 objects, so any difference between what they return is a property of the shape
 and not of the data.
 
@@ -777,7 +874,7 @@ and not of the data.
 |---|---|
 | `nested.jsonl` | parent + nested SKUs + nested key-value attributes. The target shape: the only one in which "how many *products* have this value" is answerable, via `reverse_nested`. |
 | `flat.jsonl` | one document per SKU, attributes denormalised. Loadable today. Its attribute array is a plain `object`, so `name` and `value` become two independent multi-valued fields and the correlation between them is lost. |
-| `render.jsonl` | the same SKUs in the shape `sip-render batch` already reads, for the per-record dimensioned renderer. The catalog's cards do not use it: every product and variant carries an `image_id` naming its own product line's drawing. |
+| `render.jsonl` | the same SKUs in the shape `ecom-render batch` already reads, for the per-record dimensioned renderer. The catalog's cards do not use it: every product and variant carries an `image_id` naming its own product line's drawing. |
 | `images.jsonl` | one row per image — one per product line — with its product type, the shape it is drawn as, its path under the image base URL at both profiles, and how many products point at it |
 | `stats.json` | what was generated, measured against the statistics it reproduces |
 
@@ -793,7 +890,7 @@ them here would hide the problem a field map exists to solve.
 
 ## Catalog breadth
 
-alexander-marquardt/synthetic-industrial-products#34: the 20 depth types give
+alexander-marquardt/synthetic-ecommerce-data#34: the 20 depth types give
 this catalog DEPTH -- hundreds of products in each -- but not BREADTH. A
 comparison the issue makes: a real industrial storefront returns 51 items
 across 9 categories for `1/2 ball` (tooling balls, rubber balls, ball stock in
@@ -802,12 +899,12 @@ three materials, gage balls, ...); this catalog's twelve original types return
 description noise (above) adds hits WITHIN a type and cannot add a category.
 
 **One row per breadth category, 1-3 SKUs each, one generic loop.** Most rows
-are in one table, `src/synthetic_industrial_products/data/breadth_categories/`,
+are in one table, `src/synthetic_ecommerce_data/domains/industrial/data/breadth_categories/`,
 one file per row so two pull requests never edit the same file; a type in
 its own module declares the same row there (`ball_stock_precision`, see
 [How to add a product type](docs/adding-a-type.md)). For each row: a category path, a shape name, an item noun, 3-5
 line-scoped attributes with short value lists, one size (variant) attribute,
-and a one-line reason naming the customer query it joins. `catalog/breadth.py`
+and a one-line reason naming the customer query it joins. `domains/industrial/breadth.py`
 turns a row into a product line, reusing the catalog's brand machinery
 (`brands.pick_brand`), its description grammar
 (`Generator._build_description`) and its noise generator (`noise.sentences`)
@@ -848,9 +945,530 @@ re-pinning releases, re-deriving the CI subset and the customer-facing
 requirement-query before/after tables are the industrial side
 (elastic/prism-industrial-products), a separate round.
 
+## Planted distractors (retail prototype)
+
+The retail prototype in `prototypes/retail_drawings/` plants ordinary products
+that win a query's top results on text alone, so a demo can show what a policy
+fixes. `distractors.py` holds the table; `distractors.check()` refuses a
+distractor that cannot outrank the best intended product (BM25 over title plus
+description). A class's *tail* is further products the query matches that need
+not outrank. Every name is invented.
+
+Every product is drawn as its own kind: a bouquet as roses in a paper cone,
+socks as socks, a bed as a bed. A generic shape (`box`, `box_wide`,
+`round_produce`, `pouch`, `top`) is allowed only in the categories listed in
+`HONEST_FOR` in `test_shape_honesty.py` (packaged food in a box, loose produce
+as round produce). A style that uses one anywhere else fails that test, and the
+failure names the row. A new kind gets its own shape in `kit_more.py`, whose
+docstring lists every shape and its params.
+
+`tests/test_retail_drawing_honesty.py` holds the ceiling build to the same rule:
+the toilet cleaners draw as an angled-neck bottle or a hanging rim block (two units
+for a twin pack, shapes in `kit_cleaning.py`), a `tub` only holds a tub of something,
+a mug or cup draws as a `mug`, and a label is the title's product noun. The label
+pairs not yet fixed are `LABEL_DEBT` there: it may only shrink. A changed drawing is a
+new image digest, so the retail image bundle is re-released after the merge.
+
+| Class | Query → intended | Distractors that outrank without a policy | Fixed by |
+|---|---|---|---|
+| Print, flavour and scent words | *lemon* → fresh lemons | lemons-print dress, a lemon-colored tee, lemons-print duvet cover, lemon cake, lemon shower gel, lemon cleaners | department or persona boost |
+| Fruit words as prints and colors | *oranges* → fresh oranges | orange graphic tee, a bright orange tee, oranges-print tea towels, orange graphic mug | department or persona boost |
+| Complements and accessories | *jeans* → a pair of jeans | jeans belt, denim jacket, jeans hanger, a jeans & tee set | category intent; product-type demotion |
+| Bedding types | *duvet* → a duvet | duvet covers, duvet sets (one a kids' dinosaurs print) | type-exact intent |
+| Motif words on kids' clothes | *dinosaur* → a dinosaur toy | kids' dinosaur graphic tee and sweatshirt, kids' dinosaurs-print pyjamas | department boost: Toys |
+| Complements and accessories | *boots* → a pair of boots | car boot organiser, boot polish & brush kit, welly boot socks | category intent: Boots; product-type demotion; department boost |
+| Gift words on gift-packed products | *gift bag* → a gift bag (gift wrap) | 3 beauty bundles named "... Gift Bag", a wash bag, a make-up bag with a gift badge, a hospital bag kit, 2 gift sets "with Limited Edition ... Bag", a travel and a summer bag set; tail: 2 wallet gift sets, 2 hampers, 2 letterbox gifts, a plant "in Hessian Gift Bag", a "Gift Boxed" keyring | category boost: Gift Wrap |
+
+The print distractors come from the print range (`prints.py`), whose titles
+follow one naming rule: the motif's noun is singular iff one copy is drawn. A
+placement graphic draws one (*Wrench Graphic Tee*); a scatter (3 to 6 copies
+per repeat) or an all-over half-drop says the plural (*Wrenches Print Tee*,
+*Oranges Print Tea Towels*). One field, the print's count, drives the drawing,
+the title and the `motif_count` attribute; `motif` is always the singular lemma.
+Every fruit and tool motif is sold in both numbers, and no category path is
+more than 25% prints.
+
+The real gift bag (one product, `GFT-KRAFT`, whose nine SKUs are three sizes
+of three prints) says *bag* once and never *gift*: the word lives only in its
+category. `corpus(duplicate_listing=True)`
+(or `build_preview4.py --duplicate-listing --ndjson PATH`) publishes one
+product id a second time under another category, which a search shows twice
+unless it collapses on `product_id`.
+
+### Footwear
+
+`footwear_rows.py` holds thirty-one shoe styles (sixteen women's, ten men's,
+five kids'), one document per style with its color x width x size SKUs
+nested. A size is three fields, `size_uk`, `size_eu` and `size_us`, read from
+one chart row of the audience, so they never disagree; half sizes exist only
+where a shoe is cut in them, and a wide fit only in the sizes it names. Each
+color names its upper material, which both the `upper_material` facet and the
+drawing read. `kit_footwear.py` draws the shoe from the side in seventeen
+kinds (court, kitten and block heels, ballet pumps, loafers, brogues,
+trainers, running shoes, slippers, sandals, ankle, Chelsea, chukka, knee-high,
+walking and safety boots, wellies), with the material's texture and the
+closure. The boots row above is checked over the round 4 corpus plus
+footwear (`footwear_rows.catalog()`). Footwear is not in the Elasticsearch
+proof corpus.
+
+### Grocery
+
+`grocery.py` (data in `grocery_rows.py`, gen#154) builds Food & Drink styles
+whose SKUs are flavor x pack size: `python3 prototypes/retail_drawings/grocery.py
+--skus 10000 --out DIR` writes `nested.jsonl` and `flat.jsonl`, both in the output
+standard. Its styles, SKUs and each family's share are `templates.grocery` and
+`grocery_families` in `golden-retail/stats.json` (below); it covers the food leaves, plus a
+kitchen-cleaner leaf and a body-lotion leaf for the overlaps. Each SKU states
+`contains` and `may_contain` over seven allergens (peanuts, tree nuts,
+milk, gluten, soy, egg, fish), its `dietary` labels (Vegan, Vegetarian, Gluten Free,
+Nut Free, Organic), `pack_size`, `units_per_pack` and its net weight or volume.
+
+Food SKUs also carry a top-level `ingredients` list (5 to 20 invented items in label
+order, never in conflict with `contains`, which names the allergens the list holds a source
+of); the flat file carries each SKU's own list. A product's list is the base recipe all its flavors share, so it
+may be shorter than 5. Fresh whole fruit and vegetables carry no list: the field is
+optional. A pizza is chilled and always contains gluten (a Vegan Garden style and a
+Four Cheese style are pinned), and a honey jar is drawn with a Honey label.
+
+At product level, `contains` and `may_contain` are the union over the product's
+variants and `dietary` the intersection. There is no `free_from` field: "free from
+peanuts" is a query (exclude peanuts from `contains`, and from `may_contain` when
+strict), not data.
+
+The flat file exposes four food facts as facets, because a hard filter can only
+target a facet: `facets.ingredients` (the SKU's label list), `facets.contains` (the
+allergens its ingredients name), `facets.may_contain` (factory traces) and
+`facets.dietary` (pack claims: Vegan, Vegetarian, Gluten Free, Nut Free, Organic),
+each a keyword list (`facets.ingredient_base` is the normalised head of each: [docs/retail-catalog-batch-1.md](docs/retail-catalog-batch-1.md)). `contains`, `may_contain` and `dietary` are warnings and claims,
+not description, so they stay out of the flat `text`: a "peanut" query cannot match a
+product only through an allergen warning
+(`tests/test_grocery_ingredients_154.py`). Open Food Facts (ODbL) inspired only the shape: the category
+tree, the allergen and label model, and rough distributions. Every name is
+invented.
+
+The planted cases are:
+
+- chocolate that contains peanuts, chocolate that may contain them, and chocolate
+  that does neither (the "free from peanuts" query);
+- Nut Free chocolate and Vegan chocolate;
+- lemon, orange and mint as a food and as a cleaner scent;
+- honey and coconut as a food and as a body milk scent;
+- "lemon" and "honey" as a scent in dozens of SKUs, not one: lemon-scented dish soap, glass,
+  floor, bathroom and laundry cleaners, hand wash and shower gel, and honey-scented hand wash
+  and shower gel. Each carries `scent` as its own attribute (never a flavor) beside its
+  product type, on the leaf the hand-written rows use, so a policy routes on the pair. These
+  "depth" families are drawn from their own stream, so no core style moves
+  (`tests/test_grocery_scent_depth_154.py`). The hand-written breadth rows still key their
+  scent as `fragrance`, not `scent`;
+- milk as dairy milk, milk chocolate and a body milk;
+- the failure class "oranges" (`tests/test_grocery_beer_oranges_161.py`): the leaf
+  `Food & Drink > Fruit & Vegetables > Fresh Fruit > Citrus Fruit > Oranges` holds oranges,
+  blood oranges, orange segments and easy peelers (no "orange" in the title: a type match),
+  while a chocolate orange, a cranberry & orange panettone, orange shortbread, orange
+  drinking chocolate, chocolate & orange cookies, a marmalade and a juice carry the word
+  in other categories; Lemons and Apples have bare-noun leaves too (no banana: the kit has
+  no banana to draw);
+- the failure class "beer": `Food & Drink > Beer, Wine & Spirits > Beer` with five leaves
+  (Lager, Pale Ale, Sour Beer, Fruit Beer, Alcohol Free). Every beer has an `abv`
+  attribute and a volume in ml, about half the titles end in the strength (" 4.8%"), a
+  lager need not say "beer", and every beer contains gluten. The word is also a ginger or
+  root beer (soft drinks), a beer battered haddock or cod (frozen, gluten, not
+  vegetarian), a malted beer loaf, a cider vinegar and a wine gum;
+- one category path per product: `category_path` and `category_leaf` (nested and flat) are
+  the retailer's breadcrumb, and a product sits under exactly one (the `grocery_rows`
+  docstring has the rule; Open Food Facts names the nodes, its multi-valued tags are not
+  copied).
+
+`tests/test_grocery_154.py` pins each case. The new pack shapes are `bar`, `bag`,
+`butter_block` (a foil-wrapped block) and `lidded_tub` (ice cream, a spread), in
+`kit_grocery.py`. The build makes one drawing per style. A pack's label is the
+title's product noun (`grocery.pack_label`), and its panel also carries the range
+name and a band of the style's flavor colors (`kit._panel` reads them from the
+drawing's `line` and `chips` params). The range-name text tells siblings of a family
+apart; the flavor band is not seen by the grid-clone gate (it reads the leaf, hero picture and price).
+The grocery styles are held to the honesty tests of the main catalog and to a
+grid-clone cap (`GROCERY_GRID_CLONES`).
+
+The grocery styles are also the LAST templates of the main retail build
+(`scale.templates()`, so `scale.py`, `image_release.py --skus N` and the flat export
+carry them: Food & Drink at grocery depth in the one catalog, their drawings in the
+same image archive). A build under the other templates' SKUs (`templates.before_grocery`) is what it was.
+No style is derived from a grocery style, whose allergen, dietary and ingredient facts
+are its own. The main build's own Food & Drink styles (`templates.main_food`: honey, jam, tea, coffee,
+chutney, ...) stay, since the failure classes and the proof corpus pin them; no title or
+product id repeats between them and the grocery styles. The main build's one honey jar
+(`PLT-HONBLS`) stays and is derived from no further; grocery plants the other honeys. The ceiling's styles, SKUs and images, Food & Drink's
+share of them (by category tree) and the grid-clone and near-duplicate rates are
+`ceiling` and `near_duplicates` in `golden-retail/stats.json`. The 15% grid-clone gate
+(`scale.grid_clones`) is held over the non-grocery styles only: grocery has its own cap
+(`GROCERY_GRID_CLONES`, 2%): its styles draw a tile of their own since gen#160.
+`tests/test_retail_grocery_in_scale_154.py` pins it.
+
+**The retail totals are build output (gen#162).** The build's measured totals (styles, SKUs,
+per-department and per-grocery-family counts, the grocery attribute-value counts and the
+near-duplicate rate) are in `golden-retail/stats.json`, which
+`python3 prototypes/retail_drawings/retail_figures.py` rewrites (seed 0, every template
+exhausted). The tests read them there and `tests/test_retail_figures_162.py` refuses a test,
+this README or a docstring that restates one, so a grocery or type PR changes them only in that
+file: after merging `main`, rebuild it, never keep either side of a conflict in it. The
+invariants keep their own asserts: no twins in a family, every allergen derived from the
+ingredients, the near-duplicate and grid-clone caps.
+
+### Observed failure classes 2 to 15, before and after on Elasticsearch
+
+`real_classes.py` rebuilds thirteen query shapes observed by hand on a live
+retail site (every name invented, the brands from `house_styles.py`). The
+record model (`Style`, `Policy`, `ClassRow`, the closed lists) is in
+`class_model.py` and the rows themselves are data in `class_rows.py`. Its records
+carry the fields a policy reads and a title never states: `product_type`,
+`audience` (adult, kids, baby), `size_range` (regular, petite, tall, plus),
+`neckline`, `pattern`, `leg_style`, a `was_price` on a sale item only,
+popularity (`sold_last_5_days`, `bestseller_rank`) and a pooled `rating` and
+`review_count`. The round 4 records above are unchanged and carry none of
+them.
+
+Every record, round 4's included, is one document per STYLE (the gen#125
+ruling, built by `variants.product`): a product with a color selector and a
+size selector. Every color x size combination the style is sold in is a SKU
+nested in `skus`, with its own `sku` id (`<product_id>-001` on), `color`,
+size per size system, `price` and `in_stock`. No document carries a color
+family (gen#186): it listed the same products as `color` under a second
+facet, and grouping shades ("navy" covering Navy and Navy Check) is a PRISM
+vocabulary group, which a merchandiser can see and change. The product's
+`color_options` (one swatch per color: `color`, `hex`, `pattern`, `family`;
+that `family` stays in the build, where the scaled catalog reads it to tell
+styles apart, and is not exported) and `size_options` are derived from its SKUs, never authored, so they cannot
+disagree with them; `sku_count` is the number of SKUs. Products = styles,
+SKUs = nested rows: the crew-neck tee `PLT-CRWTEE` in Navy and White (S to XL)
+and Heather Grey (S to L) is ONE product holding 11 SKUs. Rating, review count
+and popularity are the style's: `sold_last_5_days` is the sales of every
+color, summed. Legwear SKUs are color x waist x `inside_leg` with `in_stock`
+per SKU, and jeans and trousers carry `rise`. Bedding SKUs are bed sizes whose
+label carries the dimension ("Double (4 ft 6)"), each with its own price.
+Beauty shades are the SKU colors of one product with `unit_size` in g or ml.
+`price_min` and `price_max` come from the SKUs, and `price` is the cheapest
+SKU. `size_range` is a list; for legwear it is derived from the in-stock lengths
+(Extra Short and Short/Petite give `petite`), never declared, so the flat
+`size_range` filter of class 6 means "has an in-stock petite SKU".
+
+Every class doc also carries the tile signals: `offer` (a was-price, or a
+multi-buy with none), `discount_pct` (derived, sale docs only),
+`trending`, `online_only`, a `brand_owner` (own or third party; third-party
+brands lead the offers, some with a `sub_collection` label such as "The
+Active Edit"), and `badges` in one order (Bestseller for the top 15,
+Trending, Online Only). Every doc has a full `category_path` of clean shopper
+terms (at least three levels, no merchandising bucket such as Sale or Petite,
+no leaf that is also a parent, one depth per node name) and its
+`category_leaf`; the index adds `category_path_joined`, every ancestor joined
+with "/", so a policy can route to a node. Food and furniture are colorless
+(no color facet, no swatches); beer carries `abv` as an attribute; beds carry
+nested SKUs from the shared five-size bed vocabulary with `width_cm` and
+`length_cm`. The SKUs of a metal good (jewellery, watches, lighting, tech)
+carry a `finish` equal to their color (Rose Gold, Yellow Gold, White Gold,
+Silver).
+
+Classes 10 to 12 are fixed by a route: the node's docs are recalled even when
+their text misses (an easy peeler that never says "orange") and boosted.
+Class 13 (mild) filters one in-stock nested SKU on `bed_size`. Class 14 reads
+"rose gold" as ONE color value, as a color vocabulary filled by a terms
+aggregation over the color field holds it, and filters one in-stock nested
+SKU on it: rose bouquets with gold foliage and gold-plated rose quartz drop
+out.
+
+A color filter or facet goes through the nested SKUs: a product matches when
+at least one in-stock SKU has the color, and the facet counts products
+(`reverse_nested`), not SKUs. `es_proof.py` also runs the ruling's color
+search (`real_classes.COLOR_QUERY`, "tee" with color Navy) and records it under
+`color_search` in the proof. The nested filter returns each matching tee
+once, and its `inner_hits` name exactly that tee's in-stock Navy SKUs, so a UI
+can preselect Navy and show its swatch. The plain text query also finds tees,
+but its response names no SKU: nothing to preselect. Since the print range
+(`prints.py`) added its men's and women's tees, "tee" matches ten products
+with a Navy SKU, the ruling's `PLT-CRWTEE` among them: the facet over
+the result reads (SKUs / products) Navy 48 / 10, White 9 / 2, Grey 5 / 1, Heather
+Grey 3 / 1.
+
+`es_proof.py --host URL` loads the round 4 corpus plus these records into a
+run-named index, runs each query twice, writes `real_classes_proof.json` and
+deletes the index. The baseline is BM25 over title (x2) and description
+times a popularity boost (`log1p(sold_last_5_days)`, x1.5 for the top 15
+bestsellers), with a search-time synonym `balloon => balloon, barrel`: it
+mimics the live site. The policy column is the fix approximated in raw
+Elasticsearch. A target is in bold. A test checks that the proof was taken
+over the current records, that no target is in a baseline top 3 (class 15 instead claims that a bra is: an espresso cup is a cup and may lead too), that the
+policy top 3 is all targets, and that this table is the proof's.
+
+| # | Class | Query | Baseline top 5 (BM25 x popularity) | With the policy: top 5 | Policy (raw ES) |
+|---|---|---|---|---|---|
+| 2 | Sibling types share a head word | *mattress topper* | 1. Quilted Mattress Protector `PLT-MTPQLT`<br>2. Waterproof Mattress Protector `PLT-MTPWTP`<br>3. Deep Fill Mattress Topper Protector `PLT-MTPTOP`<br>4. Cool Touch Mattress Protector `PLT-MTPCOL`<br>5. Pocket Sprung Mattress `PLT-MTRPKT` | 1. **Memory Foam Mattress Topper `PLT-MTTMEM`**<br>2. **Hollowfibre Mattress Topper `PLT-MTTFIB`**<br>3. **Wool Mattress Topper `PLT-MTTWOL`**<br>4. Memory Foam 5cm Mattress Topper `BED-TOPMEM`<br>5. Quilted Mattress Protector `PLT-MTPQLT` | product_type = Mattress Topper x10; product_type = Mattress Protector or Mattress or Pillow Protector x0.2 |
+| 3 | Over-broad style synonym plus a bestseller boost | *balloon jeans* | 1. Mid Rise Barrel Jeans `PLT-BRLMID`<br>2. High Rise Barrel Jeans `PLT-BRLHIG`<br>3. Girls' Barrel Jeans (6-16 Yrs) `PLT-BRLKID`<br>4. Barrel Leg Trousers `PLT-BRLTRS`<br>5. Straight Leg Jeans `PLT-STRJNS` | 1. **Balloon Leg Jeans `PLT-BLNLEG`**<br>2. **Cropped Balloon Jeans `PLT-BLNCRP`**<br>3. **High Waisted Balloon Jeans `PLT-BLNHIW`**<br>4. Mid Rise Barrel Jeans `PLT-BRLMID`<br>5. High Rise Barrel Jeans `PLT-BRLHIG` | leg_style = balloon x10 |
+| 4 | A neckline word matched as a keyword | *womens boat neck top* | 1. Womens High Neck Ribbed Top `PLT-HNRIBT`<br>2. Womens Crew Neck Cotton Top `PLT-CNCOTT`<br>3. Womens Round Neck Jersey Top `PLT-RNJERS`<br>4. Womens Tie Neck Top and Trousers Set `PLT-NTSETS`<br>5. Womens Collared Jersey Top `PLT-COLTOP` | 1. **Striped Boat Neck Top `PLT-BNTSTR`**<br>2. **Boat Neck Jersey Top `PLT-BNTJER`**<br>3. **Slash Neck Long Sleeve Top `PLT-SNTLNG`**<br>4. Womens High Neck Ribbed Top `PLT-HNRIBT`<br>5. Womens Crew Neck Cotton Top `PLT-CNCOTT` | filter product_type = Top; neckline = boat or slash x10 |
+| 5 | Product type, pattern and audience not enforced | *check contrast bomber jacket* | 1. Cord Bomber Jacket `PLT-BMBCRD`<br>2. Wool Blend Bomber Jacket `PLT-BMBWOL`<br>3. Check Suit Jacket `PLT-SUITCK`<br>4. Boys' Bomber Jacket (2-8 Yrs) `PLT-KIDBMB`<br>5. Baby Bomber Jacket (3-36 Mths) `PLT-BABBMB` | 1. **Check Bomber Jacket with Contrast Collar `PLT-CKBCON`**<br>2. **Wool Check Bomber Jacket `PLT-CKBWOL`**<br>3. **Padded Check Bomber `PLT-CKBPAD`**<br>4. Cord Bomber Jacket `PLT-BMBCRD`<br>5. Wool Blend Bomber Jacket `PLT-BMBWOL` | filter product_type = Bomber Jacket; filter audience = adult; pattern = check x5 |
+| 6 | Size range and sale state not extracted | *petite sale* | 1. Tapered Trousers `PLT-TAPTRS`<br>2. Wide Leg Trousers `PLT-WIDTRS`<br>3. Straight Leg Jeans `PLT-STRJNS`<br>4. Slim Jeans `PLT-SLMJNS`<br>5. **Petite Straight Jeans `PLT-PETJNS`** | 1. **Petite Straight Jeans `PLT-PETJNS`**<br>2. **Petite Wrap Midi Dress `PLT-PETDRS`**<br>3. **Petite Wide Leg Trousers `PLT-PETTRS`** | filter size_range = petite; filter on sale (price < was_price) |
+| 7 | Sale word ignored | *womens sale dresses* | 1. Womens Linen Midi Dress `PLT-FPLINN`<br>2. Womens Smocked Mini Dress `PLT-FPSMOK`<br>3. Womens Jersey T-Shirt Dress `PLT-FPTEES`<br>4. Womens Satin Slip Dress `PLT-FPSLIP`<br>5. Womens High Neck Ribbed Top `PLT-HNRIBT` | 1. **Womens Wrap Dress `PLT-SDWRAP`**<br>2. **Womens Tiered Maxi Dress `PLT-SDMAXI`**<br>3. **Womens Shirt Dress `PLT-SDSHRT`**<br>4. **Petite Wrap Midi Dress `PLT-PETDRS`** | filter product_type = Dress; filter audience = adult; filter on sale (price < was_price) |
+| 9 | Pack count only in title spellings | *5 pack socks* | 1. Cotton Rich Socks 7 Pack `PLT-SK7PKC`<br>2. Striped Socks 3 Pack `PLT-SK3PKS`<br>3. Kids' School Socks 5 Pack (6-16 Yrs) `PLT-SK5KID`<br>4. **Bamboo Socks, Pack of 5 `PLT-SK5BMB`**<br>5. Wool Walking Socks `PLT-SK1WAL` | 1. **Bamboo Socks, Pack of 5 `PLT-SK5BMB`**<br>2. **Sports Trainer Socks 5 Pack `PLT-SK5SPT`**<br>3. **Cotton Rich Ankle Socks 5pk `PLT-SK5PKC`** | filter units_per_pack = 5; filter audience = adult |
+| 10 | A food word inside compounds and modifiers | *beer* | 1. Fiery Ginger Beer `PLT-GNGBER`<br>2. Cloudy Root Beer `PLT-RTBEER`<br>3. Beer Battered Haddock Fillets `PLT-BBHADD`<br>4. Malted Beer Bread `PLT-BRBRED`<br>5. Beer Battered Chunky Chips `PLT-BBCHIP` | 1. **Golden Table Beer `PLT-BRTABL`**<br>2. **4.8% Tropical Pineapple Sour Beer `PLT-BRTROP`**<br>3. **5.5% Hazy Wheat Beer `PLT-BRWHET`**<br>4. Fiery Ginger Beer `PLT-GNGBER`<br>5. Cloudy Root Beer `PLT-RTBEER` | route to Food & Drink/Beer, Wine & Spirits/Beer (recalled, boosted) |
+| 11 | A fruit plural read as a flavour and a color | *oranges* | 1. Cranberry & Orange Panettone `PLT-PANCRO`<br>2. Chocolate & Orange Cookies `PLT-CKCORA`<br>3. Orange Hot Chocolate `PLT-HCORNG`<br>4. Orange Rose Bouquet `PLT-BQORNG`<br>5. Orange Graphic Tee `PLT-TEEW-ORANGE` | 1. **Blood Oranges `PLT-ORBLOD`**<br>2. **Navel Oranges `PLT-ORNAVL`**<br>3. **Seedless Easy Peelers `PLT-OREASY`**<br>4. **Valencia Oranges, Pack of 5 `PLT-ORANGS`**<br>5. Cranberry & Orange Panettone `PLT-PANCRO` | route to Food & Drink/Fresh Produce/Fruit/Citrus/Oranges (recalled, boosted) |
+| 12 | A type word that is also a color and a line name | *face cream* | 1. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>2. Nourishing Face Oil `PLT-FCEOIL`<br>3. Loose Face Powder `PLT-PWDLSE`<br>4. Tinted Face Gel `PLT-TNTGEL`<br>5. Velvetmere Cream Body Oil Spray `PLT-VLCOIL` | 1. **Daily Hydrating Face Cream `PLT-FCDAYC`**<br>2. **Calming Face Cream `PLT-FCCALM`**<br>3. **Rich Night Cream `PLT-FCNGHT`**<br>4. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>5. Nourishing Face Oil `PLT-FCEOIL` | route to Beauty/Skincare/Creams/Face Creams (recalled, boosted) |
+| 13 | A size word not applied (mild) | *single bed* | 1. Single Cube Chairbed `PLT-CHRCUB`<br>2. Ottoman Storage Bed `PLT-BDOTTO`<br>3. Upholstered Sleigh Bed `PLT-BDSLGH`<br>4. Panelled Wooden Bed `PLT-BDPANL`<br>5. Two Seater Sofa Bed `PLT-SOFBED` | 1. **Metal Spindle Bed `PLT-BDMETL`**<br>2. **Shaker Wooden Bed Frame `PLT-BDSHKR`**<br>3. **Upholstered Bed Frame `PLT-BDUPHL`**<br>4. Single Cube Chairbed `PLT-CHRCUB`<br>5. Memory Foam Mattress Topper `PLT-MTTMEM` | filter an in-stock SKU with bed_size = Single (3 ft); product_type = Bed x10 |
+| 14 | A two-word color split into words | *rose gold* | 1. Blush Rose & Gold Eucalyptus Bouquet `PLT-BQBLSH`<br>2. White Rose Bouquet with Gold Foliage `PLT-BQWHGF`<br>3. Gold Plated Rose Quartz Hoop Earrings `PLT-RQHOOP`<br>4. Classic Red Rose Bouquet `PLT-BQREDR`<br>5. Orange Rose Bouquet `PLT-BQORNG` | 1. **Cubic Zirconia Stud Earrings `PLT-RGSTUD`**<br>2. **Slim Mesh Strap Watch `PLT-RGMESH`**<br>3. **Wireless Charging Pad `PLT-RGCHRG`**<br>4. **Glow Powder Highlighter `PLT-RGHLIT`**<br>5. **Touch Dimmable Table Lamp `PLT-RGLAMP`** | filter an in-stock SKU with color = Rose Gold |
+| 15 | One word, a sense in two departments | *cups* | 1. **Espresso Cup `PLT-MUG7`**<br>2. Moulded Cup T-Shirt Bra `PLT-CUPMLD`<br>3. Lace Demi Cup Bra A-E `PLT-CUPDEM`<br>4. Smooth Full Cup Bra B-G `PLT-CUPFUL`<br>5. **Leakproof Travel Cup `PLT-DRKTRV`** | 1. **Espresso Cup `PLT-MUG7`**<br>2. **Leakproof Travel Cup `PLT-DRKTRV`**<br>3. **Set of 4 Espresso Cups `PLT-DRKSET`**<br>4. **Fine Bone China Cup and Saucer `PLT-DRKSAU`**<br>5. **Apple Graphic Mug `PLT-MUG-APPLE`** | route to Home/Kitchen & Dining/Drinkware (recalled, boosted); off when the query says bra, demi, balcony or a cup size |
+| 15 (control) | The other sense stays reachable: a bra | *d cup bra* | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. Espresso Cup `PLT-MUG7` | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. Espresso Cup `PLT-MUG7` | the same policy, off for this query |
+
+Class 15 is a word with a sense in two departments: a bare *cups* is
+drinkware in Home, and the cup of a bra (or a cup size) in Lingerie. Bras
+titled "... Cup Bra" outsell the drinkware, and most drinkware says "Mug" or
+"Tumbler", so without a policy the bras win. The policy routes a bare cup(s)
+to the Drinkware node (recalling a mug that never says cup) and is off when
+the query holds a bra word (`class_rows.BRA_WORDS`: bra, demi, balcony, a cup
+size such as "D cup", "34DD" or "A-E"). Its control row, *d cup bra*, runs
+with the same policy on and must still return bras: `ClassRow.controls` holds
+such queries, and the proof records them under `controls`. The collision is
+also a row of `class_rows.COLLISIONS`, with both meanings and the shopper
+each one belongs to.
+
+The cross-cutting patterns show in the table: the barrel bestseller leads
+the balloon baseline (one tile however many colors it has: no collapse is
+needed when a style is one document); kids and baby bombers enter an adult query;
+and popularity lifts every distractor above a better text match. Class 9 is
+an on-stage demo case: the pack count is a style attribute
+(`units_per_pack`, a numeric count in `C62`, as industrial states a package
+quantity) and the titles spell it "5 Pack", "5pk" and "Pack of 5", so the
+"5pk" pack never matches the text. Class 8 (food words) is not planted: the
+live site now redirects it.
+
+### The output standard, and the retail export
+
+Every domain's nested documents meet one output standard (gen#125):
+`src/synthetic_ecommerce_data/core/standard.py` names its fields (exactly the
+ones `emit.NESTED_MAPPING` declares) and `check_catalog()` validates a catalog
+against it; `tests/test_output_standard.py` runs it over a fresh industrial
+build, `golden-catalog/nested.jsonl` and the retail export, and over planted
+defects. One attribute key has one class: `check_catalog(..., one_class_per_key=True)`
+(on for retail, in `scale.py` and the test) refuses a key that carries a `unit_code` on
+some entries and none on others, which the Engine refuses to start on. A measured value
+(`5 ft`, which the core reads as a length) goes under its own key (a tree's `height`),
+never under `size`. A variant's `price` is in its `currency` (ISO 4217), never converted:
+industrial writes `USD` and keeps `price_usd` beside it for its loader, retail
+writes `GBP`. Availability is the `in_stock` yes/no; `stock`, the count, is
+written only by a domain that models one (industrial). A field marked optional
+(`series`, `ingredients`, `description`, `price_usd`, `stock`) is absent, never null,
+on a document that has none; the grocery's food-only `ingredients` is one. A domain
+may keep an entry out of the flat `text` while it stays a facet
+(`standard.flat_documents(..., text_skip=...)`; the grocery's allergen warnings and
+dietary claims).
+
+`prototypes/retail_drawings/export.py` turns the 328-style build into that
+standard: `skus` become `variants`, each SKU option a variant-level attribute
+entry (a measurement split into `value`, `unit_code` and `value_canonical`);
+color and size options, the offer flags, rating and the other
+retail-only fields become product-level entries (no `department`: see below); `image_id` is
+`<product type>/<product id>/<drawing spec digest>`, one per style and
+colorway, served under `/images/retail` from the image release
+([The retail image release](#the-retail-image-release)). Every record states
+its own `product_type` and `category_leaf` (the jeans, bra, bedding, beauty
+and planted single-SKU records gained theirs in the record builders). A
+percent (ABV, discount) is a plain number with `(%)` in its name: prism
+spells no percent unit, so `P1` is not a unit code here and the validator
+refuses it.
+
+The retail build also writes industrial's **flat** shape, one document per
+SKU, which is what elastic/prism-industrial-products loads (as its
+`catalog.ndjson`, from `golden-catalog/flat.jsonl`); no loader reads the
+nested shape yet. `standard.flat_documents()` projects a nested document to
+it: the SKU's own attributes replace the product's under the same key, and
+`facets_num` holds every measured value and the facts the domain names as
+numbers (retail's rating, bestseller rank, was price, ABV and discount), so
+those can be range-filtered. The keys and types are industrial's except that
+retail has `price`, `currency` and `in_stock` where industrial has
+`price_usd` and `stock`, and no `dimension_provenance` or `spec_quality`
+(`tests/test_output_standard.py` pins that list). To write both files:
+
+    uv run python prototypes/retail_drawings/export.py OUTDIR   # nested.jsonl, flat.jsonl
+
+**The Combined loader takes every SKU of it.** The loader projects the flat export before it
+writes (`combined_catalog.py` in elastic/prism-industrial-products) and refuses a SKU whose
+`size` is in no size system, or whose bare `length` or `width` would be renamed onto a
+`garment_length` or `fit_width` the SKU already writes (gen#279: a handbag's `Mini`, and a
+skirt's Petite/Regular/Long axis, now `fit_length`). `tests/test_retail_combined_loader_279.py`
+runs both checks over every authored SKU. A new size shape or a new rename in the projection is a
+row added to its mirror there; a key a SKU axis shares with a style attribute is named apart.
+
+### The merchandising score
+
+Every product, Retail and Industrial, carries `merchandising_score`: an integer 0 to 100, the
+retailer's own blended ranking preference (gen#182). The nested product has it top-level
+(optional in the standard, range-checked by `check_catalog`); every flat document has it as
+`facets_num.merchandising_score`, so a field map can point at it. It is a ranking signal, not a
+shopper facet: it is in no `facets`, `attributes` or `text`.
+
+`src/synthetic_ecommerce_data/core/merchandising.py` derives it from a SHA-256 of the
+product's id and the product's own signal, so it draws nothing from the generator's stream (no
+other value of a build moved), the same seed gives the same scores, and a product scores the
+same in a one-type build, any subset and the whole catalog (gen#183). Half the score follows the product's signal
+and half is an independent draw, so boosting on it reorders a page that popularity alone
+ranked. Of the products whose signal is weak, one in five is a "strategic push" scoring 80 or
+more: a few percent of the catalog, high score on weak popularity. Retail's signal blends
+`sold_last_5_days`, `rating` and `discount` (`export.merchandising`); a style with none of
+them (round 4's) takes the independent draw alone and is never a push. Industrial models
+neither margin nor popularity, so a line's signal is its SKUs' mean `stock`, and every SKU of
+a line shares the line's score. `tests/test_merchandising_score_182.py` pins determinism, the
+range, full coverage, a rank-correlation band against popularity and the push share.
+
+### Variant axes
+
+Every product, Retail and Industrial, states `variant_axes` (gen#47): the ordered list of the
+attribute keys a shopper selects on the product page, coarsest first (`["color", "size_uk"]`,
+`["length"]`), `[]` for a single SKU. It is top-level on the nested product and on every flat
+document, the same on every SKU of a `product_id`, and each key is the one the flat document
+stores the attribute under (`facets`), so a consumer looks up each hit's values by key. It
+carries no display names: a consumer's field map names each key.
+
+`core/variant_axes.py` derives it from the SKUs the generator emitted: the attributes that vary
+across the product, less the *derived* ones (a nut's width across flats follows its thread size,
+a UK size follows the US size), in the generator's own order. What remains names exactly one
+SKU. `tests/test_variant_axes_47.py` pins the issue's five invariants on both builds, each with a
+planted failure. Not every combination exists, so a consumer limits a dropdown to the
+combinations the product's SKUs offer.
+
+### The retail catalog at a size: `scale.py --skus N`
+
+**The audience facet and the spelling of a facet**. The tree keeps its Women, Men
+and Kids roots, and every SKU of a worn department (Clothing, Footwear, Lingerie & Nightwear),
+or under a Women, Men or Kids root, also carries exactly one `audience`: `Womens`, `Mens`,
+`Girls`, `Boys`, `Baby` or `Unisex` (`audience.py`; a template's own value wins, `Kids/Girls`
+is Girls, `Kids/Boys` is Boys, `Kids/Baby` is Baby, the rest of Kids is Unisex). A product type has one name:
+"Tee" is written "T-Shirt" (`export.PRODUCT_TYPE_FOLDS`; the image ids keep the authored type,
+so none is re-rendered), and `pattern` and `rise` are written in Title Case.
+`tests/test_retail_audience.py` refuses a facet with two values that differ only in case.
+"Cleaning & Janitorial" is a department, not a root: its kitchen cleaners sit under `Cleaning`.
+
+**The store's department is the top level of `category_path`, and no document states one**
+(gen#281). The retail tree has exactly twelve roots: Women, Men, Kids, Food & Drink, Home,
+Beauty, Cleaning, Toys, Gifts, Garden, Accessories and Sports & Outdoors (gen#265). Food sits under Food & Drink, Baby
+under Kids (`Kids > Baby > ...`) and Electricals under Home (`Home > Electricals > ...`), each
+with its subtree intact; a product still sits in one place. The documents carry no
+`department` attribute or flat column (its values mixed audience, Clothing, with product kind,
+Footwear): the one fact it held that no other attribute does, the safety boot's Workwear & PPE,
+is carried by its `safety_rating` and `toe_cap`. A consumer reads the department from
+`category_path[0]`. The build records keep a `department` of their own (`departments.py`'s
+closed list), an internal classification the ceiling build's brand pools, floors and share
+read; `export.DROPPED` keeps it out of every document.
+
+**A type sits under its generic category** (gen#283). `Sofas` holds `Corner Sofas`, `Recliner Sofas`,
+`Modular Sofas`, `Chaise Sofas` and `Sofa Beds`, so a filter on `Home/Furniture/Sofas` takes every sofa
+and "corner sofa" can still narrow to its own child. The same holds for `Tables` (coffee, dining, side),
+`Lighting > Lamps` and `Lighting > Lights`, `Fans`, `Drills`, `Tool Sets`, `Skincare > Creams`,
+`Kitchen & Surfaces > Cleaners`, `Milk > Plant Milk`, `Biscuits & Snacks > Crisps`, `Bedding > Kids' Bedding`
+and `Beer, Wine & Spirits > Beer`. `prototypes/retail_drawings/tree_guard.py` states three rules and
+`tests/test_retail_tree_nesting_283.py` runs them over the shipped documents, not the build
+records: (a) no node has a sibling whose label is a word-suffix of another's (`Sofas` beside `Corner Sofas`,
+`Skinny Jeans` beside `Super Skinny Jeans`); (b) three or more siblings that share a head noun sit under a parent that names it, or are listed in the guard's `EXCEPTIONS` with a reason; (c) a product whose
+title names a more specific node of its own department sits in that node. Two siblings (`Bath Towels`,
+`Beach Towels`) need no parent. A product still sits in exactly one place.
+`tests/test_retail_departments_281.py` holds the root list at every layer, and
+`golden-retail/stats.json` records the ceiling's styles and SKUs per top level
+(`ceiling.top_levels`).
+
+**A fit or a bra style is a filter, not a leaf**. A jean sits at `<Root>/Jeans` and a pair of
+trousers at `<Root>/Trousers`, its fit in `leg_fit` alone (the failure-class rows' `leg_style`
+is folded into it). A bra sits at `Women/Lingerie/Bras`, unless it is a Sports, Nursing, Sleep
+or Post-Surgery bra, whose node stays; its old style leaf is split into `bra_shape`,
+`padding`, `back_style` and `fabric` (`facet_leaves.BRA_LEAVES`), and the fibre content a bra's
+`fabric` held moves to `composition`. On every other type `fabric` keeps only a fabric or weave
+(Denim, Linen, Velvet, Oxford); fibre content ("98% Cotton, 2% Elastane", Bamboo, Organic
+Cotton) moves to `composition` (`facet_leaves.FABRIC_MOVES`); so does a blend, which names fibres:
+"Cotton Blend" leaves Cotton as the fabric and "Cotton Jersey" leaves Jersey (gen#258). A fabric has
+one name (Faux Leather, not also Leather-Look), and a use, a pocket style or a fit is never a
+fabric: sports leggings are Knitted with a Compression `leg_fit`, cargo joggers are Twill with
+cargo pockets, and cycling shorts carry the Compression `leg_fit` and no fabric. Only the document changes (`export.standard_document`):
+the build record keeps its leaf, so the derivation and every image id are what they were, and a
+title keeps its words ("Skinny Jeans"). `tests/test_retail_facet_leaves.py` refuses a node
+under Jeans, Trousers or Bras that names one of those values, a `fabric` holding a percentage,
+a comma-joined fibre list or a fibre alone, a jean without a `leg_fit` or a
+bra without a `bra_shape`, and a facet with two values that differ only in case or hyphenation.
+
+`prototypes/retail_drawings/scale.py --skus 20000 --out retail.jsonl` builds the
+retail catalog to a target SKU count, writes it in the standard, and prints a
+report:
+- the coverage (styles, SKUs per department, products per leaf, attribute fill
+  per type, image ids and distinct drawings);
+- the distinctness (duplicate titles, clones, and same-leaf near-duplicate
+  listings on a sample);
+- the grid clones: the share of styles that share their leaf, hero picture and
+  price with another style, which is what a results grid shows (the gate: at most
+  15%), and the distinct prices per leaf (min and median);
+- the `check_catalog` problem count, the build time and the peak memory.
+
+The templates (`templates` in `golden-retail/stats.json`) come first: the authored
+styles, then the deep-SKU jeans,
+bras and shoes that only the scaled catalog carries (`scale_rows.py`), then the toys,
+garden, gifts, cleaning, food, beauty and home styles that hold every department at
+at least its floor of styles (`breadth_rows.py`, below), then one or two plain products in each of a first increment of new leaves (`BREADTH_34`, gen#34: cutlery sets, dinner sets, claw hammers, perfume, seeds, cherries, oven cleaners; every set carries a `piece_count` (a C62 count, agreeing with its title and rising with its price) and every cordless drill a `voltage_v` (unit code VLT), gen#173; more leaves are further rows there, and `tests/test_retail_breadth_34.py` holds that each is a leaf no other template uses), then the furniture (`furniture_rows.py`, gen#199: dining tables by seat count and top outline with their sizes in `item_width` and `item_length`, dining chairs sold single or as a set with `units_per_pack`, coffee and side tables, bookcases with their height in `item_height`, wardrobes, chests of drawers and mirrors, each drawn by its own shape in `kit_furniture.py`; no derived style copies one, and `tests/test_retail_furniture_199.py` holds the range), then the styles that
+three failure classes need (`distractor_rows.py`; `baseline_rank.py` ranks a build
+without a policy, and `tests/test_retail_distractors.py` holds the result): mattress
+protectors, mattresses and pillow protectors that out-sell the toppers; bestselling
+barrel-leg jeans whose text says balloon; 150 petite styles with a minority on sale,
+and 60 sale styles that never say petite, and the steak class (gen#264: seven steak-knife styles, a steak plate, board and cast-iron weight that lead `steak`, with the beef steaks and tinned tuna steaks the grocery build adds as families `STK` and `TUS`), then the shirts (`shirt_rows.py`: Oxford,
+Flannel, Linen and Denim, for Mens and Womens, under `Tops/Shirts`, typed `Shirt`;
+no derived style copies one), then the living-room seating (`sofa_rows.py`, gen#196:
+sofas sold as 2, 2.5, 3 and 4 seaters, left- and right-hand corner and chaise sofas,
+modular, recliner and sofa-bed sofas, armchairs and footstools, each drawn by its own
+shape in `kit_seating.py`; no derived style copies one, and
+`tests/test_retail_seating_196.py` holds the range), then the household styles (`household_rows.py`, gen#200:
+saucepans, frying pans, casserole dishes, kitchen bins, storage boxes, laundry baskets,
+clothes airers and mops, each drawn by `kit_household.py` with the count its record states
+(pans in a set, bin lids, basket compartments, airer tiers); no derived style copies one,
+and `tests/test_retail_household_200.py` holds them), then the lower-body styles (`lowerbody_rows.py`,
+gen#206: leggings, joggers, shorts, cycling shorts, tracksuits and skirts, each drawn by `kit_lowerbody.py`
+with the marks its record states (pockets, cargo pockets, belt loops, pieces, tiers, a pad); no derived
+style copies one, and `tests/test_retail_lowerbody_206.py` holds them), then the small appliances (`appliance_rows.py`, gen#202:
+desk, pedestal, tower, ceiling and handheld fans, heaters, kettles
+and toasters, each drawn by `kit_appliances.py`; none is derived from), then the underwear and nightwear (`underwear_rows.py`, gen#208: knickers,
+tights, vests, slips, shapewear, dressing gowns and boxers with a pack axis,
+drawn by `kit_underwear.py`; none is derived), then the toys (`toys_rows.py`, gen#201: building sets, jigsaws, board games, dolls, wooden toys, role play toys, arts and crafts kits and ride-ons, drawn by `kit_toys.py`; every style carries an `age_range` and most a `toy_type`, four invented character ranges (`line`) each span several kinds, and a counted mark in the drawing equals the count the record states, `tests/test_retail_toys_201.py`; a toy vehicle or ride-on whose paint is a free choice is sold in ten colors, one SKU and drawing each, a bike or trike in wheel sizes (the `wheel_size` axis, drawn to scale), and a style whose color is its identity (a police car, a taxi, a fire engine, bare wood) keeps one and says why in its `fixed_color`, `tests/test_retail_toy_vehicle_colors_271.py`; no derived style copies one), then the lighting (`lighting_rows.py`, gen#197: floor,
+table, desk, ceiling and wall lights and lampshades under `Home/Lighting` (`Lamps`, `Lights`), each typed by
+its name; a SKU is a color times a finish, a shade color or a diameter, and its image draws
+that SKU's own value), then the bags, umbrellas and jewelry (`accessory_rows.py`,
+gen#207; likewise copied by no derived style), then the Sports & Outdoors styles (`sports_rows.py`, gen#265, first increment: tents, sleeping bags and camping chairs under `Camping`, yoga mats, dumbbells, kettlebells and foam rollers under `Yoga & Fitness`; drawn by `kit_sports.py`, a SKU axis in its unit (`berth`, `thickness`, `weight`, `item_length`), the six main colors on every type, copied by no derived style, `tests/test_retail_sports_265.py`), then the grocery styles (below, `grocery.py`, gen#154). Further styles are
+derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
+Each derived style gets a new range name and a brand from its type's pool. It
+also differs from its template and from every sibling in a value its title shows
+or in its hero color family: a rename alone is not a style. When only the hero
+color sets it apart, its title ends with that color ("..., Dark Indigo"), and
+that hero is its only colorway. A
+changed motif is redrawn in the picture and the title, and the description is
+rebuilt around it; a "Shown in" color names the hero. It takes a subset
+of the template's colorways and keeps the template's size run, and a count of
+colorways its text states ("in 12 washes") is its own: "in one wash" for a
+colorway alone. A changed value its SKUs also carry (a shoe's `upper_material`)
+is rewritten on every SKU, and the style lists only the values its kept SKUs
+hold. Its price is
+re-drawn inside its leaf's band, as a function of the values it changed (a
+premium material costs more). A draw whose title or description contradicts an
+attribute is refused, and `check_catalog` refuses such text too. The module
+docstring has the rules. Today's templates run out at `ceiling` in
+`golden-retail/stats.json` (with and without the grocery styles), and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
+values per leaf, more colorways, and more templates.
+`--flat PATH` also writes the flat file (one document per SKU, `ingredients` top-level on a
+food SKU). `tests/test_retail_scale.py` holds it at the templates' SKUs plus 4,500 (its
+`TARGET`, pinned to the template total so new templates never empty the
+derived-style sample), and holds the ceiling's grid clones at 15% or under too.
+
+**Each department has a floor of its own** (gen#220). At the ceiling, every department holds
+at least `breadth_rows.DEPARTMENT_FLOOR` derivable styles (150; the smallest today is Food &
+Drink at 180). It is a count per department, not a share of the total, so a batch PR that adds
+types to one department (the Home, Clothing and other type batches, gen#196-#217) never lowers
+another department's standing: do not add rows to an unrelated department to pass it.
+`test_every_department_holds_its_floor_of_styles` holds the floor, and
+`test_growing_one_department_never_starves_another` builds the ceiling with 200 more Home
+templates and holds every other department at its floor. A batch that removes or narrows a
+department's own rows below the floor still fails: raise that department with rows of its
+own.
+
 ## The built catalog is committed, in `golden-catalog/`
 
-`sip-generate build` is reproducible, but its output is checked in anyway, at
+`ecom-generate build` is reproducible, but its output is checked in anyway, at
 `golden-catalog/`:
 
 | file | |
@@ -858,7 +1476,7 @@ requirement-query before/after tables are the industrial side
 | `flat.jsonl` | about 30 MB — one document per SKU |
 | `nested.jsonl` | about 18 MB — one document per product, nested variants and key-value attributes |
 | `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
-| `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape |
+| `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape; the nested one maps `attributes.value` with a `value.normalized` keyword sub-field (lowercase + asciifolding) for Prism's `value_normalized_field` (elastic/prism#10648) |
 | `images.jsonl` | 4.0 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
 | `stats.json` | the measured defect rates, and the config that produced them |
 
@@ -878,7 +1496,7 @@ looks like, opens a file rather than running a build.
 ### Regenerating it
 
 ```sh
-uv run sip-generate build --out golden-catalog
+uv run ecom-generate build --out golden-catalog
 ```
 
 That is the whole command — the default configuration, the default seed. Then
@@ -918,7 +1536,7 @@ regenerate-and-commit from a broken build is still red.
 The search requirements the catalog is used against come with example
 queries, and each one must find a product that exists: an example judged
 against an empty result proves nothing about the search. So the generator
-carries a **must-stock list** (`catalog/muststock.py`, maintainer ruling on
+carries a **must-stock list** (`domains/industrial/muststock.py`, maintainer ruling on
 elastic/prism-industrial-products#103): one entry per requirement example, naming
 the product type(s) it may be and the published values a SKU must carry --
 `Milling Dia.` `1/2"` with `Length of Cut` `1"`, a `bolt_hex` in `7/16-14`
@@ -949,7 +1567,7 @@ product row per SKU.
 
 ```sh
 # 1. build the catalog and regenerate the field map from it
-uv run sip-generate build --out out/catalog
+uv run ecom-generate build --out out/catalog
 
 # 2. load the flat shape into a LOCAL TEST cluster
 python scripts/load_prism_catalog.py --host http://127.0.0.1:9201
@@ -971,7 +1589,7 @@ faceting, and "no product has that value" looks exactly like "the field map is
 wrong".
 
 So `data/field_weights/synthetic_industrial_flat.yaml` is **generated** from
-the emitted documents, as a step of `sip-generate build`, and
+the emitted documents, as a step of `ecom-generate build`, and
 `tests/test_prism_field_map_drift.py` fails if the committed file and a fresh
 derivation disagree. Editing either side alone reds it; both directions are
 planted in `scripts/mutation_check.py`.
@@ -1136,24 +1754,38 @@ suite: the contract test reads the new sizes.
 
 ## Images
 
-**One drawing per SKU, drawn from that SKU's own values, with no text in it.**
-The rulings are on elastic/prism-industrial-products#103 (2026-09-26 to -28).
+The picture and the drawing speed are at the [top of this page](#synthetic-ecommerce-data).
+
+**One drawing per SKU, drawn from that SKU's own values, with no text in it but
+its brand's name.** The rulings are on elastic/prism-industrial-products#103
+(2026-09-26 to -28); the brand plate is #132 (2026-10-08).
 How the code does it -- record to figure to SVG bytes, the registry, the
 provenance ladder, the publish gate, and a checklist for adding a type -- is in
 [docs/drawings.md](docs/drawings.md).
 
 **Exception: the [breadth categories](#catalog-breadth) draw one of six
 FIXED plain shapes** (sphere, cylinder, block, disc, tube, bracket --
-`drawing/breadth_shapes.py`), never scaled or dimensioned from the SKU's own
+`domains/industrial/drawing/breadth_shapes.py`), never scaled or dimensioned from the SKU's own
 published values. The "drawn from its own dimensions" rule above does not
 apply to them: they are filler to give a facet something to show, not a
 figure meant to survive a close look (maintainer, 2026-09-30). They still go
-through the same no-text allow-list, house style and material/finish fill as
+through the same text allow-list, brand plate, house style and material/finish fill as
 every other drawing -- only the GEOMETRY is fixed.
 
 * **One image per SKU**, so two lengths of one screw look different, and a
   grouped view can switch the picture when a variant is selected.
-* **No text of any kind** -- no dimension, callout, label, brand name or SKU.
+* **A brand plate under the figure** (#132): the brand's mark beside its
+  name, in a strip at the foot of the sheet (`core/drawing/sheet.py`,
+  `PLATE_BOX`). The figure is drawn in the sheet above it, so the plate never
+  covers a dimension, a head or a thread of any type; an engineering
+  drawing's maker sits in its title block the same way. Legible at the
+  Studio grid tile (180 px for the 300-unit sheet, 0.6 px a unit): no
+  name's capitals render under 10 px tall there. The full name is set beside
+  the mark, on two lines beside it, split around it, or under it, whichever
+  comes first at that size; a name none of them fits is refused, never
+  shortened. The plate is 56 units tall, so the figure has the 236 units
+  above it. Every SKU of a brand carries the same plate.
+* **No other text** -- no dimension, callout, label or SKU.
   The words are on the record (title, description, attributes); the drawing
   reflects the specifications **visually**: a longer length of cut is drawn
   longer, a finer thread with more crests, a flat head is a cone and a button
@@ -1161,42 +1793,47 @@ every other drawing -- only the GEOMETRY is fixed.
   The gate is an **allow-list**, not a list of text forms
   (`drawing.svg_problems`):
   - every element must be one the figures emit (`svg, rect, defs, pattern, g,
-    path, circle`), and there is no nested `<svg>`;
+    path, circle`, and the plate's `text`), and there is no nested `<svg>`;
+  - the `<text>` elements' words, joined, must be a brand's wordmark, and
+    the font attributes appear on `<text>` only;
   - every attribute must be one they use, and every attribute VALUE must fit
-    its grammar: a paint is a colour, `none` or a same-file hatch reference,
+    its grammar: a paint is a color, `none` or a same-file hatch reference,
     never an external or `data:` URL;
   - every id is a hatch pattern's own;
-  - no element may carry character data;
+  - no element but `<text>` may carry character data;
   - no comment, processing instruction, doctype or entity reference may
-    appear.
+    appear, but the `&amp;` of a name like `Lark & Lathe`.
 
   One thing no structural check can catch: a glyph's outline drawn as a plain
   path is indistinguishable from any other outline. The review's plants
   -- `<title>`, `<desc>`, `aria-label`, a comment, `<metadata>`,
   `<foreignObject>`, an embedded raster, `@font-face`, a glyph path from any
   font -- each red `tests/test_sku_drawings.py`.
-* **Brands visibly different**, by house style: each brand owns one (ink,
-  frame) pair and an independent paper tint -- twelve inks, six papers, four
-  frames -- consistent within a brand, never random per product ([Brands](#brands)).
+* **Brands visibly different**, by house style and by mark: each brand owns
+  one (ink, frame) pair and an independent paper tint -- twelve inks, six
+  papers, four frames -- and one mark, consistent within a brand, never
+  random per product ([Brands](#brands)). Any two brands' marks, rasterised
+  at the tile's 19 px, differ in at least 24 pixels
+  (`tests/test_brand_marks.py`; the closest pair measures 25).
 * **A part longer than its type's extent is drawn BROKEN**, not shrunk: the
   shank is shortened between two drafting break lines, head and thread end
   kept, to a height that still grows with the true length. The screw and bolt
   extents are the pre-100K ones, so one 14-5/8" outlier no longer draws every
   socket screw 2.5x smaller.
-* **Finish and material** are the part's fill (the finish's colour, else the
+* **Finish and material** are the part's fill (the finish's color, else the
   bare material's) and its section hatch.
 * **Small SVG**, written directly rather than through a figure library:
-  measured on the committed catalog, 10,691 drawings, 21.1 MB unpacked
-  (1.98 KB a drawing on average), and a 2.23 MB `images.tar.gz` (the count,
-  bytes and archive size `uv run sip-generate images --catalog golden-catalog
-  --out /tmp/img --archive /tmp/img.tar.gz` prints). Every root
+  about 2 KB a drawing. `figures.drawings` in `golden-catalog/stats.json` has
+  the committed catalog's count, total and largest bytes and the largest's
+  type; `uv run ecom-generate images --catalog golden-catalog --out /tmp/img
+  --archive /tmp/img.tar.gz` prints them with the archive's size. Every root
   declares `width="200" height="300"` beside its viewBox: an `<img>` sized only
   by max-width/max-height in a flex item that does not grow renders a
   viewBox-only SVG at 0 x 0.
 
 The drawing is a pure function of `(product type, brand, published attributes)`
-(`src/synthetic_industrial_products/drawing/`). For the six kinds the
-dimensioned renderer in `render/` also draws (end mills, drills, taps, screws
+(`src/synthetic_ecommerce_data/core/drawing/`). For the six kinds the
+dimensioned renderer in `domains/industrial/render/` also draws (end mills, drills, taps, screws
 and bolts, washers, flap discs) it reads the SKU's geometry through the same
 `geometry_from_record` functions, so the two cannot disagree about what a
 record says; the other depth types read their few values inline, and the breadth
@@ -1204,7 +1841,7 @@ shapes read none.
 
 **Sizes are visible.** The scale is one constant per product type: sheet units
 per inch are the usable sheet over the type's largest drawn extent, declared
-per type in `drawing/figures.py`. There is no exception to it: a part too
+per type in `domains/industrial/drawing/figures.py`. There is no exception to it: a part too
 small to read is not drawn larger, it is shown through a **magnifier**
 (maintainer ruling on elastic/prism-industrial-products#103, 2026-09-28):
 
@@ -1222,8 +1859,9 @@ small to read is not drawn larger, it is shown through a **magnifier**
   that glass enlarges the part at least 2.5 times; otherwise it is a larger
   HANDLE-LESS lens -- the same thin ring and white interior -- sized to the
   sheet's width at an 8-unit side margin (the smallest that clears every brand
-  frame by at least a unit). That lens is WIDTH-BOUND, so it cannot grow further:
-  at the rule's extreme (a part drawn 40 x 50) it enlarges only ~x2.42, below
+  frame by at least a unit), or to the 236-unit figure area above the brand
+  plate where that is tighter. It cannot grow further: at the rule's extreme
+  (a part drawn 40 x 50) it is height-bound and enlarges only ~x2.05, below
   the x2.5 the handled glass guarantees;
 * the whole glyph is horizontally centred and as large as fits; the space above
   it equals the space below the part, with a 14-unit gap between them;
@@ -1232,9 +1870,9 @@ small to read is not drawn larger, it is shown through a **magnifier**
   type's scale -- is visible with or without a lens. Interior detail lines
   (flutes, threads, hatch) are texture and keep their finer weight.
 
-On the committed catalog 1,631 SKUs are too small to see: 475 get the handled
-glass (x2.53 to x15.63) and 1,156 the handle-less lens (x2.46 to x4.05), as the
-command in [docs/drawings.md](docs/drawings.md#scale-the-magnifier-and-no-text) prints. The
+How many committed SKUs are too small to see, how many of them get the handled
+glass and how many the handle-less lens, with each lens's enlargement range, is
+what the command in [docs/drawings.md](docs/drawings.md#scale-the-magnifier-and-no-text) prints. The
 lowest enlargement any committed lens gives is x2.46, a width-bound
 handle-less lens (below); no committed part reaches
 the rule's 40 x 50 extreme. No drawing
@@ -1251,9 +1889,10 @@ What `tests/test_sku_drawings.py` proves over the committed catalog:
   * a lens appears on exactly the SKUs drawn at most 1/5 of the sheet's width
     and 1/6 of its height, over every committed SKU;
   * the handle-less lens is used exactly where the handled glass cannot reach
-    x2.5; the committed catalog's lowest enlargement is pinned at x2.52 (its
+    x2.5; the committed catalog's lowest enlargement is pinned at x2.12 (its
     measured minimum, rounded down), and the rule's extreme (40 x 50) at
-    x2.41 to x2.5 -- below x2.5 because the lens is width-bound;
+    x2.05 to x2.5 -- below x2.5 because the lens is height-bound in the
+    236-unit figure area above the brand plate (#132);
   * the handle-less lens clears the brand frame (8 units in, frames at 6 with
     strokes at most 2 wide);
   * each dimension binds on its own (planted: 41 x 5 and 5 x 50.5 plain,
@@ -1292,7 +1931,7 @@ The URL is relative on purpose: the demo serves the bundle's folder itself
 (elastic/prism#9770), and nothing points at a third-party host.
 
 ```sh
-uv run sip-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz
+uv run ecom-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz
 ```
 
 rebuilds every drawing from the **committed** catalog (`nested.jsonl`, with each
@@ -1311,7 +1950,7 @@ with no per-deployment mount. A test pins that every member is exactly its
 **The pin is of the content, not the compressed bytes.** gzip output depends on
 the zlib build, so the archive's own sha256 is only stable on one toolchain.
 What a customization pins is the **content digest**: the sha256 of the sorted
-`<member path>\t<file sha256>` lines, printed by `sip-generate images` and
+`<member path>\t<file sha256>` lines, printed by `ecom-generate images` and
 written beside the archive as `.content-sha256`. It is derivable from the
 committed `images.jsonl` alone (`bundle.manifest_digest`), and the installer
 recomputes it after unpacking. `out/` is ignored by git, and a test asserts it,
@@ -1325,10 +1964,33 @@ writes an HTML contact sheet of real catalog SKUs -- one screw across its
 lengths for two brands, flat washers across sizes, materials and brands, and
 twenty SKUs of every type -- for judging the drawings by eye.
 
-### The older renderers in `render/`
+### The retail image release
 
-`render/` still holds the matplotlib renderers: the twelve type drawings, the
-per-line marking, and the per-record **dimensioned** drawings (`sip-render`).
+```sh
+uv run python prototypes/retail_drawings/image_release.py --out out/retail-images --archive out/retail-images.tar.gz
+```
+
+renders every image the retail export references and packages it in the
+industrial bundle's shape, so the same installer takes it: members
+`retail/<image_id>.svg` under the archive's own `retail/` folder, every
+`image_url` that member under `/images/`, the same deterministic archive, and
+the content digest and file count printed and written beside it as
+`.content-sha256`. Images are keyed per style and colorway, never per SKU:
+every size of one color shares an image, drawn in that color's swatch (base,
+pattern and accent). The authored-styles build is `templates.authored_images` images for
+`templates.authored` SKUs (`golden-retail/stats.json`).
+`--skus N` releases the scaled build instead (`scale.py`'s, the 20K catalog's
+input): `--skus 20000` is 1,348 images for 20,002 SKUs.
+There is no committed manifest to check against (the retail build is code, not
+a committed catalog); the command refuses an `image_id` that names two
+different drawings instead. `tests/test_retail_image_release.py` pins the
+keying, that every document's image URL resolves to a packaged file, and the
+package shape.
+
+### The older renderers in `domains/industrial/render/`
+
+`domains/industrial/render/` still holds the matplotlib renderers: the twelve type drawings, the
+per-line marking, and the per-record **dimensioned** drawings (`ecom-render`).
 They carry text -- callouts and stamps -- and the catalog no longer uses any of
 them; their geometry parsing is what the catalog's drawings read. Retiring them
 -- extracting the shared geometry first -- is #27.
@@ -1343,7 +2005,7 @@ not look like a real one, and does not exercise a search engine like one.
 
 Each rate is measured, and each defect class is reproduced against **its own
 denominator** — the records that actually carry the attribute pair it needs,
-which is how the source statistics measure them. `sip-generate report` prints
+which is how the source statistics measure them. `ecom-generate report` prints
 the achieved figures beside their targets, so the claim is checkable rather
 than asserted.
 
@@ -1361,7 +2023,7 @@ than asserted.
 | image id is shared, not the product's own | 0.7353 | **0.0000, deliberately** |
 | attributes per record (mean) | 13.12 | 12.3887 |
 
-Measured on `95a9ed0` with `uv run sip-generate build` (the default catalog,
+Measured on `95a9ed0` with `uv run ecom-generate build` (the default catalog,
 identical to `golden-catalog/`).
 
 Two notes on reading that table honestly. The angle defect is **clustered**:
@@ -1397,7 +2059,7 @@ not quietly become a limitation.
 Prices are generated from a measured price census
 (`reference-statistics/P2_price_census.json`: priced SKUs on archived pages
 of a large US industrial distributor), not from a flat multiplier. The
-census figures are restated in `catalog/price.py`, because the census file
+census figures are restated in `core/price.py`, because the census file
 does not ship in the wheel, and `tests/test_price.py` checks every restated
 figure against the file.
 
@@ -1413,7 +2075,7 @@ figure against the file.
 | pack quantity (hex nuts) | census pack slope |
 | group noise, one draw per census-style page (one brand, the line attributes a page holds equal) | fitted sigma |
 | SKU noise, one draw per SKU | fitted sigma |
-| size noise, one draw per spec that every brand shares (taps and socket screws only, `price.SIZE_NOISE`, each with its reason) | fitted sigma |
+| size noise, one draw per spec that every brand shares (taps, socket screws and set screws only, `price.SIZE_NOISE`, each with its reason) | fitted sigma |
 
 **A kit is priced from what it holds** (`price.CONTENTS_PRICED`). Its key is
 not one dimension but its contents' price (`price.kit_contents`): each size
@@ -1437,13 +2099,10 @@ run again before its result is kept.
 The price is then rounded to an ending (.99, .00, .50 ...) drawn from the
 type's census endings mix; taps also snap to a fitted list-price ladder.
 Finish does not enter the price. The types the census has no prices for are
-declared `measured=False`: the ball-pein hammer, the nylon-insert lock nuts
-and the hex socket set screws. Their figures are hand-set, NOT MEASURED,
-each module's comment saying where they come from, and they do not keep the
-level the catalog had before: their median prices on the golden catalog are
-72.62, 2.28 and 2.48 USD, against 65.17, 1.86 and 1.80 under the uniform
-multiplier (+11%, +23%, +38%). No band holds them until #69 gives them
-census-backed price bands. This prints a type's SKU count, median, minimum
+declared `measured=False`: the ball-pein hammer, whose archived pages are script
+shells; its figures are hand-set, NOT MEASURED, and no band holds them. The
+nylon-insert lock nuts and the hex socket set screws are fitted to their own
+census entries (#69) and scored like the other census types. This prints a type's SKU count, median, minimum
 and maximum; feed it `git show ba90b5e:golden-catalog/flat.jsonl` (the last
 uniform-multiplier catalog) for the earlier figures:
 
@@ -1452,16 +2111,39 @@ python3 -c "import json, statistics as s, sys; p = [r['price_usd'] for r in map(
 ```
 
 The button, flat and low-head socket screws price as the socket head
-screw does (`price.BORROWS`). A breadth category the census measures is
+screw does (`price.BORROWS`). The census has no O-rings, so they borrow
+the flat washer's model (`TypeSpec.borrows`), keyed on the cross-section
+and held to the inside-diameter span the washer model was fitted over
+(`price.MEASURED_SPANS`: ISO 7089 M3 to M20, 0.126" to 0.827"); their
+prices are generated, not measured. Keyed on the inside diameter instead,
+even clamped to that span, the washer's noise put a simulated largest ring at
+195 to 285 USD. A breadth category the census measures is
 priced across its census p10, p50 and p90 (`price.BREADTH_CENSUS`); any
-other breadth row draws from its own `price_range`.
+other breadth row draws from its own `price_range`. A measured breadth
+category deepened into a modelled type keeps its census row
+(`price.DEEPENED_CENSUS`, the roller chain's 71 prices), and its own fitted
+model is held to that row's p50 and p90/p10 bands at both sizes. The census
+has no within-page pairs for it, so its slopes are GENERATED, not measured:
+the roller chain's on pitch (1.2) and on length (0.93). So is what its strand
+count multiplies the price by (`roller_chain.STRAND_FACTORS`: double 1.9x and
+triple 2.8x the single strand chain; the census's 71 prices are not split by
+strand count). One brand's single, double and triple strand chains share
+their price noise (`PriceModel.option_attribute`), so the multiplier is what
+separates them: in every chain number offered in more than one strand count
+in one material and length, the median price rises with the strand count (10
+such sets on the golden catalog, 13 at `--lines 39000`; a #40 steel 10 ft
+chain's medians there are 162.00, 341.25 and 502.00 USD).
 
-**How it is checked.** `sip-generate report` prints one row per measured
+**How it is checked.** `ecom-generate report` prints one row per measured
 figure: each type's p50 and p90/p10, the share of within-page size pairs
 whose larger size costs more, longer costs more (bolts and socket screws),
 equal prices across a size pair (taps), how often a smaller SKU of one
 product costs twice the larger, the same-spec brand spread, economy brands
-against the rest, and the .99/.00/.50 endings. Each row has a band
+against the rest, and the .99/.00/.50 endings. A spec is the census's: the
+key dimension in one material (`price.material_of`). A wheel publishes its
+material as its abrasive (`price.MATERIAL_ATTRIBUTES`), and
+`test_every_brand_census_types_spec_holds_a_material_or_names_why_not` fails
+a type whose specs hold no material. Each row has a band
 (`price_report.P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and three census
 standard errors where the census sample is small: `share_band`,
 `brand_spread_band`). Every row is scored at the default size and at 100K
@@ -1478,7 +2160,7 @@ entries of `golden-catalog/stats.json` whose `name` starts with `price `
 python3 -c "import json; r = [c for c in json.load(open('golden-catalog/stats.json'))['comparisons'] if c['name'].startswith('price ')]; print(len(r), 'rows,', sum(c['band'][0] <= c['achieved'] <= c['band'][1] for c in r), 'in band')"
 ```
 
-It prints `61 rows, 58 in band`; the other three are the pins.
+It prints `72 rows, 70 in band`; the other two are the pins.
 `uv run python scripts/fit_price_model.py` prints every row at both sizes
 side by side (about 2 minutes).
 
@@ -1487,9 +2169,8 @@ reason and the issue that fixes it, and stays bounded:
 
 | row | kind | why | bound |
 |---|---|---|---|
-| bearing p90/p10 | pin, below band | catalog bores span far less than the census's, and the census's own small brand spread leaves no group noise to make up the rest (widen the bore range: #64) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
-| wheel brand spread | pin, above band | catalog diameters span too little for the key term to give the census's p90/p10, so group noise makes up the rest, and it is drawn per brand, which spreads the brands of one spec apart (#66) | as above |
-| kit p90/p10 | pin, below band | a kit is priced from its contents, and the catalog's kit kinds hold about $36 to $130 of parts, so with material and tier its prices span about 4x against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629; group noise loud enough to make up the rest would spread a kit's price about 79x on its own, so a kit draws none (widen the kit range: #76) | as above |
+| wheel brand spread | pin, above band | the brand tiers alone, every noise off, put it above band: 3 of the 12 wheel brands are economy, and the row's sampled brands take one on more than half its specs, where the census measures its house label on 4 of its 12; the per-brand group noise then spreads one spec's brands further (#66) | no further above than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
+| kit p90/p10 | pin, below band | a kit is priced from its contents, and the catalog's kit kinds hold about $36 to $130 of parts, so with material and tier its prices span about 4x against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629; group noise loud enough to make up the rest would spread a kit's price about 79x on its own, so a kit draws none (widen the kit range: #76) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
 
 The full reasons are `price.PINNED_SHORTFALLS`, and `stats.json` carries
 them in each row's `note`. A pin is never a wider band: a row that leaves its

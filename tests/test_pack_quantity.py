@@ -9,9 +9,10 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_industrial_products.catalog import price, price_report
-from synthetic_industrial_products.catalog.config import GeneratorConfig
-from synthetic_industrial_products.catalog.generate import generate
+from synthetic_ecommerce_data.core import price
+from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.domains.industrial import price_report
+from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 CENSUS_FILE = (
     Path(__file__).resolve().parent.parent / "reference-statistics" / "P2_price_census.json"

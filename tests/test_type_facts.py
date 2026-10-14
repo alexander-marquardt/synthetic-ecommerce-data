@@ -20,8 +20,9 @@ from pathlib import Path
 import pytest
 
 import type_facts
-from synthetic_industrial_products.catalog import conformance, typespec
-from synthetic_industrial_products.catalog.generate import all_type_keys
+from synthetic_ecommerce_data.core import typespec
+from synthetic_ecommerce_data.domains.industrial import conformance
+from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys
 from test_catalog_facts import untitled_keys, wrong_claims
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
@@ -41,8 +42,6 @@ def _planted(**changes) -> typespec.TypeSpec:
         module=f"planted.{PLANTED}",
         may_claim=frozenset({"ISO 4762", "DIN 912", "ASME B18.3", "ASTM A574"}),
         key_attributes=("Dia./Thread Size",),
-        default_lines=3,
-        default_skus=7,
     )
     return dataclasses.replace(base, **changes)
 
@@ -76,7 +75,6 @@ def test_a_planted_type_is_held_to_the_facts_it_declares(monkeypatch: pytest.Mon
     _plant(monkeypatch, _planted())
     assert type_facts.may_claim().get(PLANTED) == _planted().may_claim
     assert type_facts.title_key().get(PLANTED) == ("Dia./Thread Size",)
-    assert type_facts.default_size().get(PLANTED) == (3, 7)
 
     docs = [dict(doc, product_type=PLANTED) for doc in _socket_screw_docs(80)]
     assert len(docs) == 80
@@ -110,8 +108,6 @@ def test_every_modelled_type_declares_its_facts_once() -> None:
     [
         ("may_claim", None, "may_claim"),
         ("key_attributes", (), "title_key"),
-        ("default_lines", 0, "default_size"),
-        ("default_skus", 0, "default_size"),
     ],
 )
 def test_a_type_module_that_declares_no_fact_is_refused_naming_it(
@@ -122,7 +118,7 @@ def test_a_type_module_that_declares_no_fact_is_refused_naming_it(
         getattr(type_facts, read)()
 
 
-@pytest.mark.parametrize("read", ["may_claim", "title_key", "default_size"])
+@pytest.mark.parametrize("read", ["may_claim", "title_key"])
 def test_a_shared_row_for_a_type_with_its_own_module_is_refused(
     monkeypatch: pytest.MonkeyPatch, read: str
 ) -> None:

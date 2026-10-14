@@ -17,10 +17,18 @@ from __future__ import annotations
 
 import pytest
 
-from synthetic_industrial_products.dimensions import DimensionParseError
-from synthetic_industrial_products.records import BUNDLED
-from synthetic_industrial_products.render import CARD, drill, endmill, flapdisc, hammer, tap, washer
-from synthetic_industrial_products.render.attrs import (
+from synthetic_ecommerce_data.core.dimensions import DimensionParseError
+from synthetic_ecommerce_data.domains.industrial.records import BUNDLED
+from synthetic_ecommerce_data.domains.industrial.render import (
+    CARD,
+    drill,
+    endmill,
+    flapdisc,
+    hammer,
+    tap,
+    washer,
+)
+from synthetic_ecommerce_data.domains.industrial.render.attrs import (
     ImpossibleGeometryError,
     MissingAttributeError,
     UnsupportedFeatureError,
@@ -153,7 +161,7 @@ def test_the_refused_records_still_get_an_image():
     """
     import tempfile
 
-    from synthetic_industrial_products.render import draw_record
+    from synthetic_ecommerce_data.domains.industrial.render import draw_record
 
     with tempfile.TemporaryDirectory() as directory:
         for sku in ("2DY27", "56FL37", "77HW11", "44LU90"):

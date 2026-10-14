@@ -10,7 +10,9 @@ go first on ``PATH``:
 * ``uv`` runs the real one, and while the build runs it can move ``main`` or
   the PR head on the origin (``FAKE_UV_MOVE``), write a file the build does
   not (``FAKE_UV_STRAY``), or skip the build (``FAKE_UV_SKIP_BUILD``). That
-  is how a case makes something change mid-run.
+  is how a case makes something change mid-run. With ``FAKE_UV_DNS_DOWN`` it
+  also plays a network whose lookups fail: a build that is not offline
+  (``UV_OFFLINE=1``) stops on the error uv printed when that happened (#178).
 
 The script's own checks are narrowed to one test (``MERGE_PR_CHECKS``): what is
 under test is the script's order of operations, not the suite.
@@ -19,6 +21,7 @@ under test is the script's order of operations, not the suite.
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -26,10 +29,12 @@ from pathlib import Path
 import pytest
 import yaml
 
-from synthetic_industrial_products.catalog import cli
+from synthetic_ecommerce_data import generate_cli as cli
 
 REPO = Path(__file__).resolve().parent.parent
 SCRIPT = REPO / "scripts" / "merge_pr.sh"
+JOBS_SCRIPT = REPO / "scripts" / "local_ci_jobs.py"
+WORKFLOWS = REPO / ".github" / "workflows"
 
 #: Moves ``refs/heads/$1`` on the origin by one empty commit: another PR
 #: landing on main, or a builder pushing to the PR branch.
@@ -68,6 +73,7 @@ case "$1 $2" in
       missing) ;;
     esac
     printf 'commit-messages\tcompleted\tsuccess\n'
+    printf 'file-size\tcompleted\tsuccess\n'
     printf 'main-merged-tree\tcompleted\tskipped\n'
     ;;
   "pr merge")
@@ -98,6 +104,15 @@ _FAKE_UV = (
     + _MOVE
     + r"""
 if [[ " $* " == *" build "* ]]; then
+  if [ -n "${FAKE_UV_DNS_DOWN:-}" ] && [ "${UV_OFFLINE:-}" != 1 ]; then
+    cat >&2 <<'MSG'
+  x Failed to build `synthetic-ecommerce-data`
+  |-> Failed to resolve requirements from `build-system.requires`
+  |-> Failed to fetch: `https://pypi.org/simple/hatchling/`
+  |-> dns error: failed to lookup address information: nodename nor servname provided, or not known
+MSG
+    exit 2
+  fi
   if [ -n "${FAKE_UV_MOVE:-}" ] && [ ! -e "$FAKE_GH_LOG.moved" ]; then
     touch "$FAKE_GH_LOG.moved"
     move "$FAKE_UV_MOVE"
@@ -127,6 +142,26 @@ _IDENTITY = {
 
 _STATS = "golden-catalog/stats.json"
 
+#: Name resolution that fails, as a dropped lookup does (#178). The stand-in uv
+#: stops a build that is not offline with the error uv printed then
+#: (``FAKE_UV_DNS_DOWN``), and every proxy variable points at a host that
+#: cannot resolve (``.invalid`` is reserved for that), so a real uv that does
+#: reach for an index fails the same way.
+_NO_NAME_RESOLUTION = {
+    "FAKE_UV_DNS_DOWN": "1",
+    **{
+        name: "http://dns-blocked.invalid:3128"
+        for name in (
+            "HTTP_PROXY",
+            "HTTPS_PROXY",
+            "ALL_PROXY",
+            "http_proxy",
+            "https_proxy",
+            "all_proxy",
+        )
+    },
+}
+
 
 def _git(cwd: Path, *args: str) -> str:
     return subprocess.run(
@@ -151,6 +186,7 @@ def world(tmp_path: Path) -> dict:
     subprocess.run(["git", "clone", "-q", str(origin), str(checkout)], check=True)
     # The script under test is this tree's, not the HEAD commit's.
     shutil.copy2(SCRIPT, checkout / "scripts" / "merge_pr.sh")
+    shutil.copy2(JOBS_SCRIPT, checkout / "scripts" / "local_ci_jobs.py")
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
     for name, text in (("gh", _FAKE_GH), ("uv", _FAKE_UV)):
@@ -167,7 +203,17 @@ def world(tmp_path: Path) -> dict:
         MERGE_PR_CI_TIMEOUT="0",
         MERGE_PR_CI_POLL="0",
         MERGE_PR_RETRY_SLEEP="0",
+        MERGE_PR_LOG_DIR=str(tmp_path),
+        # The planted worlds run with name resolution blocked: a red here is
+        # the script's, never the network's (#178).
+        **_NO_NAME_RESOLUTION,
+        # ... and build from uv's cache, the checkout having been synced once.
+        UV_OFFLINE="1",
     )
+    for name in ("NO_PROXY", "no_proxy"):
+        env.pop(name, None)
+    # The suite may itself run under GEN_LOCAL_CI=1; a case opts in on its own.
+    env.pop("GEN_LOCAL_CI", None)
     return {
         "origin": origin,
         "checkout": checkout,
@@ -312,7 +358,7 @@ def test_a_check_run_in_which_no_test_passed_is_not_green(world: dict) -> None:
         ("missing", "missing: tests"),
         ("pending", "still running: tests"),
         # CI ran on the PR head, never on the merge the script pushed.
-        ("head-only", "missing: tests commit-messages"),
+        ("head-only", "missing: tests commit-messages file-size"),
     ],
     ids=["red", "skipped", "missing", "pending", "head-only"],
 )
@@ -327,6 +373,21 @@ def test_a_merge_waits_for_every_check_on_the_pushed_tree(
     assert refusal.format(sha=pushed) in result.stderr, result.stderr[-800:]
     assert "NOT merged" in result.stderr
     assert _ci_reads(world) == [pushed]
+    assert not _merged(world)
+
+
+def test_a_build_the_network_stops_says_so_apart_from_the_build_refusing(world: dict) -> None:
+    """Online, a dropped lookup stops the build; the script names the network (#178)."""
+    head = _open_pr(world, _GREEN)
+    result = _run(world, head, _GREEN_CHECK, UV_OFFLINE="0")
+    assert result.returncode != 0
+    # The word, not the substring: the throwaway path the script names holds this test's name.
+    lines = [line for line in result.stderr.splitlines() if re.search(r"\bnetwork\b", line, re.I)]
+    assert len(lines) == 1, result.stderr[-800:]
+    assert "the build refuses the merged tree" not in lines[0]
+    assert "the build refuses the merged tree" in result.stderr
+    assert "dns error" in result.stderr, "uv's own message is still printed"
+    assert _branch(world) == head
     assert not _merged(world)
 
 
@@ -545,3 +606,149 @@ def test_main_merged_tree_job_is_red_on_a_broken_main(tmp_path: Path, path: str,
         check=False,
     )
     assert result.returncode != 0, "main-merged-tree is green on a broken main"
+
+
+# -- --local-ci: the workflows' jobs run here, GitHub is not asked -----------
+
+
+def _workflow(**commands: str) -> dict[str, str]:
+    """A planted workflow whose jobs run ``commands`` (job id -> shell)."""
+    jobs = "".join(
+        f"  {job}:\n    runs-on: ubuntu-latest\n    steps:\n"
+        f"      - uses: actions/checkout@v4\n      - name: run it\n        run: {run!r}\n"
+        for job, run in commands.items()
+    )
+    return {".github/workflows/ci.yaml": f"name: CI\non: [pull_request]\njobs:\n{jobs}"}
+
+
+_ALL_GREEN = _workflow(
+    tests="echo suite",
+    **{"commit-messages": "echo msgs", "file-size": "echo size", "main-merged-tree": "echo drift"},
+)
+
+
+def test_local_ci_runs_every_job_logs_each_and_merges_without_asking_github(world: dict) -> None:
+    head = _open_pr(world, {**_GREEN, **_ALL_GREEN})
+    done = _run(world, head, _GREEN_CHECK, "--local-ci", "--label", "lbl")
+    assert done.returncode == 0, done.stderr
+    for job in ("tests", "commit-messages", "file-size", "main-merged-tree"):
+        assert f"local CI {job}: PASS" in done.stdout
+        assert (world["log"].parent / f"lbl-{job}.log").is_file()
+    assert "suite" in (world["log"].parent / "lbl-tests.log").read_text()
+    assert _ci_reads(world) == [], "GitHub's checks were read"
+    assert _merged(world)
+
+
+def test_a_failing_local_job_refuses_the_merge_but_the_others_still_run(world: dict) -> None:
+    plant = _workflow(
+        tests="echo suite", **{"commit-messages": "echo bad >&2; exit 3", "file-size": "true"}
+    )
+    head = _open_pr(world, {**_GREEN, **plant})
+    done = _run(world, head, _GREEN_CHECK, "--local-ci", "--label", "lbl")
+    assert done.returncode != 0
+    assert "local CI commit-messages: FAIL" in done.stdout
+    assert "local CI tests: PASS" in done.stdout
+    assert "bad" in (world["log"].parent / "lbl-commit-messages.log").read_text()
+    assert not _merged(world)
+    assert _ci_reads(world) == []
+
+
+def test_a_failing_local_job_fails_a_dry_run_too(world: dict) -> None:
+    plant = _workflow(tests="exit 1", **{"commit-messages": "true", "file-size": "true"})
+    head = _open_pr(world, {**_GREEN, **plant})
+    done = _run(world, head, _GREEN_CHECK, "--dry-run", "--local-ci")
+    assert done.returncode != 0
+    assert "local CI tests: FAIL" in done.stdout
+    assert not _merged(world)
+
+
+def test_a_required_check_missing_from_the_workflows_refuses(world: dict) -> None:
+    head = _open_pr(world, {**_GREEN, **_workflow(tests="true")})
+    done = _run(world, head, _GREEN_CHECK, "--local-ci")
+    assert done.returncode != 0
+    assert "commit-messages is not a job" in done.stderr
+    assert not _merged(world)
+
+
+def test_a_workflow_job_with_no_local_equivalent_refuses(world: dict) -> None:
+    odd = {
+        ".github/workflows/ci.yaml": "name: CI\non: [pull_request]\njobs:\n"
+        "  tests:\n    runs-on: x\n    steps:\n      - uses: some/deploy@v1\n"
+    }
+    head = _open_pr(world, {**_GREEN, **odd})
+    done = _run(world, head, _GREEN_CHECK, "--local-ci")
+    assert done.returncode != 0
+    assert "no local equivalent" in done.stderr
+    assert not _merged(world)
+
+
+def test_gen_local_ci_makes_it_the_default(world: dict) -> None:
+    head = _open_pr(world, {**_GREEN, **_ALL_GREEN})
+    done = _run(world, head, _GREEN_CHECK, GEN_LOCAL_CI="1")
+    assert done.returncode == 0, done.stderr
+    assert "local CI tests: PASS" in done.stdout
+    assert _ci_reads(world) == []
+
+
+def test_without_the_flag_or_the_variable_github_is_still_what_is_waited_for(world: dict) -> None:
+    head = _open_pr(world, _GREEN)
+    done = _run(world, head, _GREEN_CHECK)
+    assert done.returncode == 0, done.stderr
+    assert "local CI" not in done.stdout
+    assert _ci_reads(world)
+
+
+# -- the one parser: every workflow job has a local equivalent ---------------
+
+
+def _jobs_cli(*args: str, workflows: Path = WORKFLOWS) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        ["python3", str(JOBS_SCRIPT), "--workflows", str(workflows), *args],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+def test_every_job_of_the_real_workflows_has_a_local_equivalent() -> None:
+    declared = []
+    for path in sorted(WORKFLOWS.glob("*.y*ml")):
+        declared += list(yaml.safe_load(path.read_text())["jobs"])
+    listed = _jobs_cli("--list")
+    assert listed.returncode == 0, listed.stderr
+    assert listed.stdout.split() == declared
+    for job in declared:
+        emitted = _jobs_cli("--emit", job, "--base", "BBB", "--head", "HHH")
+        assert emitted.returncode == 0, emitted.stderr
+        assert "uv run" in emitted.stdout or "python3" in emitted.stdout
+    msgs = _jobs_cli("--emit", "commit-messages", "--base", "BBB", "--head", "HHH")
+    assert "BBB..HHH" in msgs.stdout
+
+
+def test_the_local_jobs_are_the_pull_request_checks_a_merge_requires() -> None:
+    required = [line.split()[1] for line in _printed("--print-ci") if line.startswith("required")]
+    assert set(required) <= set(_jobs_cli("--list").stdout.split())
+
+
+def test_a_new_workflow_job_nobody_can_run_locally_fails_the_parser(tmp_path: Path) -> None:
+    (tmp_path / "extra.yml").write_text(
+        "on: push\njobs:\n  deploy:\n    runs-on: x\n    steps:\n      - uses: some/deploy@v1\n"
+    )
+    assert _jobs_cli("--list", workflows=tmp_path).returncode != 0
+    (tmp_path / "extra.yml").write_text(
+        "on: push\njobs:\n  odd:\n    runs-on: x\n    steps:\n"
+        "      - run: echo ${{ secrets.TOKEN }}\n"
+    )
+    assert _jobs_cli("--list", workflows=tmp_path).returncode != 0
+
+
+def test_a_step_if_and_settings_the_parser_cannot_honour_refuse(tmp_path: Path) -> None:
+    plants = [
+        "jobs:\n  a:\n    steps:\n      - run: echo x\n        if: false\n",
+        "env:\n  X: 1\njobs:\n  a:\n    steps:\n      - run: echo x\n",
+        "defaults:\n  run:\n    shell: sh\njobs:\n  a:\n    steps:\n      - run: echo x\n",
+        "jobs:\n  a:\n    continue-on-error: true\n    steps:\n      - run: echo x\n",
+    ]
+    for plant in plants:
+        (tmp_path / "w.yml").write_text(plant)
+        assert _jobs_cli("--list", workflows=tmp_path).returncode != 0, plant

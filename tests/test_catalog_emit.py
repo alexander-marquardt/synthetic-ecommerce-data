@@ -13,12 +13,12 @@ import json
 
 import pytest
 
-from synthetic_industrial_products.catalog import emit
-from synthetic_industrial_products.catalog.config import SMALL
-from synthetic_industrial_products.catalog.generate import generate
-from synthetic_industrial_products.catalog.taxonomy import product_type_for_image
-from synthetic_industrial_products.catalog.vocab import STANDARDS_NAME
-from synthetic_industrial_products.render import UnknownProductError, renderer_for
+from synthetic_ecommerce_data.core import emit
+from synthetic_ecommerce_data.core.config import SMALL
+from synthetic_ecommerce_data.domains.industrial.generate import generate
+from synthetic_ecommerce_data.domains.industrial.render import UnknownProductError, renderer_for
+from synthetic_ecommerce_data.domains.industrial.taxonomy import product_type_for_image
+from synthetic_ecommerce_data.domains.industrial.vocab import STANDARDS_NAME
 
 CATALOG = generate(SMALL)
 
@@ -89,12 +89,12 @@ def test_a_metric_tap_publishes_pitch_in_mm_and_an_inch_tap_threads_per_inch_in_
             if "Thread Size" not in entries or doc["product_type"] != "tap_spiral_point":
                 continue
             metric = entries["Thread Size"]["value"].startswith("M")
-            names = ("Pitch", "Threads per Inch")
+            names = ("Thread Pitch", "Threads per Inch")
             ours, theirs = names if metric else names[::-1]
             assert theirs not in entries, entries
             if ours in entries:
                 assert entries[ours]["unit_code"] == ("MMT" if metric else "TPI"), entries
-                assert entries[ours]["key"] == ("pitch" if metric else "threads_per_inch")
+                assert entries[ours]["key"] == ("thread_pitch" if metric else "threads_per_inch")
                 seen.add(metric)
     assert seen == {True, False}, "the sample needs both a metric and an inch tap"
 
@@ -243,7 +243,7 @@ def test_the_nested_shape_carries_the_same_urls_as_the_flat_one():
 
 
 def test_a_malformed_image_id_is_refused():
-    from synthetic_industrial_products.catalog import taxonomy
+    from synthetic_ecommerce_data.domains.industrial import taxonomy
 
     for bad in ("end_mill_square", "", "/", "end_mill_square/X", "a/b/c", "x/y/z/w"):
         with pytest.raises(taxonomy.ImageIdError):

@@ -25,3 +25,4 @@ __pycache__/
 .venv/
 .v/
 .DS_Store
+.agent/

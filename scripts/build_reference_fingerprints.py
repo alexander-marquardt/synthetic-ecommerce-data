@@ -29,7 +29,7 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 OUT_PATH = (
-    REPO_ROOT / "src" / "synthetic_industrial_products" / "data" / "reference_fingerprints.json"
+    REPO_ROOT / "src" / "synthetic_ecommerce_data" / "data" / "reference_fingerprints.json"
 )
 
 
@@ -81,7 +81,7 @@ def build(stats_dir: Path) -> dict:
     # live test compares against them directly; their hashes go in as well so
     # the two checks cannot drift apart.
     sys.path.insert(0, str(REPO_ROOT / "src"))
-    from synthetic_industrial_products.records import FIXTURES  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.industrial.records import FIXTURES  # noqa: PLC0415
 
     for record in FIXTURES.values():
         found.append(record)

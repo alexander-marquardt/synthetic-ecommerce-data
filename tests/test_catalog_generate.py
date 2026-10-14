@@ -15,11 +15,12 @@ from dataclasses import replace
 
 import pytest
 
-from synthetic_industrial_products.catalog import taxonomy, typespec
-from synthetic_industrial_products.catalog.config import SMALL, GeneratorConfig
-from synthetic_industrial_products.catalog.generate import all_type_keys, generate
-from synthetic_industrial_products.catalog.measure import measure
-from synthetic_industrial_products.catalog.vocab import (
+from synthetic_ecommerce_data.core import typespec
+from synthetic_ecommerce_data.core.config import SMALL, GeneratorConfig
+from synthetic_ecommerce_data.domains.industrial import taxonomy
+from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys, generate
+from synthetic_ecommerce_data.domains.industrial.measure import measure
+from synthetic_ecommerce_data.domains.industrial.vocab import (
     MEASUREMENT_SYSTEM_NAMES,
     STANDARDS_NAME,
     VOCAB,
@@ -31,7 +32,7 @@ def _without_breadth(catalog):
 
     Breadth is a constant ~50-category addition, deliberately independent of
     every depth knob (``lines``, ``variants_per_product``, ``new_type_share``)
-    -- that is the whole point of it (alexander-marquardt/synthetic-industrial-products#34).
+    -- that is the whole point of it (alexander-marquardt/synthetic-ecommerce-data#34).
     A test of what those knobs do to the DEPTH-scaling machinery has to look
     past it, the same way it already looks past ``must_stock``'s fixed lines.
     """
@@ -88,7 +89,7 @@ def _modelled_share(config) -> float:
 
 def test_the_catalog_is_the_size_it_was_asked_for(stats, config):
     # Breadth (:mod:`.breadth`) adds a fixed ~50 lines on top, independent of
-    # every depth knob -- alexander-marquardt/synthetic-industrial-products#34.
+    # every depth knob -- alexander-marquardt/synthetic-ecommerce-data#34.
     asked = (
         round(config.lines * _modelled_share(config))
         + sum(config.new_type_products.values())
@@ -381,7 +382,7 @@ def _fastener_types() -> tuple[str, ...]:
     catalog is checked the day it appears rather than the day someone
     remembers to add it here.
     """
-    from synthetic_industrial_products.catalog.vocab import names_for
+    from synthetic_ecommerce_data.domains.industrial.vocab import names_for
 
     return tuple(key for key in VOCAB if {"Length", "Length under Head"} <= set(names_for(key)))
 
@@ -419,7 +420,7 @@ def test_the_length_under_head_is_the_stocked_length_and_a_countersunk_screw_has
     its "x 3/4" is its ``Length``. Publishing length-less-head-height for it
     put values no distributor lists -- 12.56mm, 1.3910" -- in the facet.
     """
-    from synthetic_industrial_products.dimensions import DimensionParseError, parse_length
+    from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
 
     same = flat = 0
     for line, child in catalog.all_skus():
@@ -479,7 +480,7 @@ def test_a_button_head_and_a_low_head_have_the_head_their_standard_gives_them(ca
     diameter at half its height. If the generator were scaling one head table
     for all four styles, every one of these comparisons would come out equal.
     """
-    from synthetic_industrial_products.dimensions import parse_length
+    from synthetic_ecommerce_data.core.dimensions import parse_length
 
     heads: dict[tuple[str, str], tuple[float, float]] = {}
     for line, child in catalog.all_skus():
@@ -648,7 +649,7 @@ def end_mill_lines():
     Not the ``catalog``/``stats`` fixtures above: their default type mix
     leaves too few end mills to measure a ~20% presence rate without sampling
     noise swallowing a real defect
-    (alexander-marquardt/synthetic-industrial-products#39).
+    (alexander-marquardt/synthetic-ecommerce-data#39).
     """
     config = GeneratorConfig(
         lines=1500,

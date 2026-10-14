@@ -23,10 +23,10 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from prism_synthetic_industrial import FLAT_INDEX  # noqa: E402
-from synthetic_industrial_products.catalog import emit  # noqa: E402
-from synthetic_industrial_products.catalog.config import GeneratorConfig  # noqa: E402
-from synthetic_industrial_products.catalog.generate import generate  # noqa: E402
-from synthetic_industrial_products.prism.index import (  # noqa: E402
+from synthetic_ecommerce_data.core import emit  # noqa: E402
+from synthetic_ecommerce_data.core.config import GeneratorConfig  # noqa: E402
+from synthetic_ecommerce_data.domains.industrial.generate import generate  # noqa: E402
+from synthetic_ecommerce_data.prism.index import (  # noqa: E402
     flat_index_body,
     projected_documents,
 )

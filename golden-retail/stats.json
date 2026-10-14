@@ -1,0 +1,563 @@
+{
+ "ceiling": {
+  "derived_styles": 4539,
+  "food_and_drink": {
+   "skus": 11436,
+   "styles": 4139
+  },
+  "grocery": {
+   "skus": 12228,
+   "styles": 4436
+  },
+  "images": 15304,
+  "non_grocery": {
+   "skus": 93723,
+   "styles": 5599
+  },
+  "skus": 111185,
+  "styles": 10466,
+  "top_levels": {
+   "Accessories": {
+    "skus": 161,
+    "styles": 34
+   },
+   "Beauty": {
+    "skus": 901,
+    "styles": 481
+   },
+   "Cleaning": {
+    "skus": 767,
+    "styles": 489
+   },
+   "Food & Drink": {
+    "skus": 11436,
+    "styles": 4139
+   },
+   "Garden": {
+    "skus": 260,
+    "styles": 220
+   },
+   "Gifts": {
+    "skus": 499,
+    "styles": 330
+   },
+   "Home": {
+    "skus": 5846,
+    "styles": 1816
+   },
+   "Kids": {
+    "skus": 2685,
+    "styles": 174
+   },
+   "Men": {
+    "skus": 14800,
+    "styles": 504
+   },
+   "Sports & Outdoors": {
+    "skus": 156,
+    "styles": 17
+   },
+   "Toys": {
+    "skus": 711,
+    "styles": 437
+   },
+   "Women": {
+    "skus": 72963,
+    "styles": 1825
+   }
+  }
+ },
+ "departments": {
+  "Beauty": 212,
+  "Cleaning & Janitorial": 215,
+  "Clothing": 1249,
+  "Food & Drink": 229,
+  "Footwear": 494,
+  "Garden": 219,
+  "Gifts": 323,
+  "Home": 1659,
+  "Lingerie & Nightwear": 615,
+  "Toys": 384
+ },
+ "grocery_families": {
+  "APP": {
+   "skus": 72,
+   "styles": 24
+  },
+  "BAB": {
+   "skus": 90,
+   "styles": 45
+  },
+  "BAF": {
+   "skus": 54,
+   "styles": 18
+  },
+  "BBF": {
+   "skus": 72,
+   "styles": 36
+  },
+  "BCR": {
+   "skus": 46,
+   "styles": 23
+  },
+  "BFR": {
+   "skus": 54,
+   "styles": 27
+  },
+  "BIS": {
+   "skus": 372,
+   "styles": 34
+  },
+  "BLG": {
+   "skus": 126,
+   "styles": 42
+  },
+  "BLK": {
+   "skus": 28,
+   "styles": 14
+  },
+  "BLU": {
+   "skus": 28,
+   "styles": 14
+  },
+  "BOD": {
+   "skus": 36,
+   "styles": 18
+  },
+  "BPA": {
+   "skus": 108,
+   "styles": 36
+  },
+  "BRD": {
+   "skus": 134,
+   "styles": 67
+  },
+  "BSO": {
+   "skus": 72,
+   "styles": 24
+  },
+  "BTH": {
+   "skus": 90,
+   "styles": 45
+  },
+  "BUT": {
+   "skus": 134,
+   "styles": 67
+  },
+  "CAK": {
+   "skus": 134,
+   "styles": 67
+  },
+  "CBR": {
+   "skus": 272,
+   "styles": 44
+  },
+  "CDR": {
+   "skus": 90,
+   "styles": 30
+  },
+  "CER": {
+   "skus": 270,
+   "styles": 90
+  },
+  "CHB": {
+   "skus": 807,
+   "styles": 55
+  },
+  "CHE": {
+   "skus": 268,
+   "styles": 134
+  },
+  "CHO": {
+   "skus": 72,
+   "styles": 36
+  },
+  "CHX": {
+   "skus": 270,
+   "styles": 90
+  },
+  "CLM": {
+   "skus": 27,
+   "styles": 9
+  },
+  "CLN": {
+   "skus": 36,
+   "styles": 18
+  },
+  "COF": {
+   "skus": 224,
+   "styles": 112
+  },
+  "CRS": {
+   "skus": 363,
+   "styles": 28
+  },
+  "DSH": {
+   "skus": 90,
+   "styles": 45
+  },
+  "ECR": {
+   "skus": 46,
+   "styles": 23
+  },
+  "FLR": {
+   "skus": 144,
+   "styles": 72
+  },
+  "FPT": {
+   "skus": 36,
+   "styles": 18
+  },
+  "FRE": {
+   "skus": 90,
+   "styles": 45
+  },
+  "FRV": {
+   "skus": 134,
+   "styles": 67
+  },
+  "FSH": {
+   "skus": 134,
+   "styles": 67
+  },
+  "FSY": {
+   "skus": 36,
+   "styles": 18
+  },
+  "FTC": {
+   "skus": 46,
+   "styles": 23
+  },
+  "FVM": {
+   "skus": 28,
+   "styles": 14
+  },
+  "GLS": {
+   "skus": 90,
+   "styles": 45
+  },
+  "GNB": {
+   "skus": 36,
+   "styles": 12
+  },
+  "GRF": {
+   "skus": 27,
+   "styles": 9
+  },
+  "HCR": {
+   "skus": 72,
+   "styles": 36
+  },
+  "HOT": {
+   "skus": 36,
+   "styles": 18
+  },
+  "HWS": {
+   "skus": 144,
+   "styles": 72
+  },
+  "ICE": {
+   "skus": 226,
+   "styles": 31
+  },
+  "JAM": {
+   "skus": 268,
+   "styles": 134
+  },
+  "JUI": {
+   "skus": 224,
+   "styles": 112
+  },
+  "LDY": {
+   "skus": 90,
+   "styles": 45
+  },
+  "LEM": {
+   "skus": 54,
+   "styles": 18
+  },
+  "LIM": {
+   "skus": 27,
+   "styles": 9
+  },
+  "MAN": {
+   "skus": 27,
+   "styles": 9
+  },
+  "MEA": {
+   "skus": 224,
+   "styles": 112
+  },
+  "MED": {
+   "skus": 28,
+   "styles": 14
+  },
+  "MLK": {
+   "skus": 270,
+   "styles": 89
+  },
+  "NUT": {
+   "skus": 268,
+   "styles": 134
+  },
+  "OAT": {
+   "skus": 180,
+   "styles": 60
+  },
+  "ORA": {
+   "skus": 108,
+   "styles": 36
+  },
+  "ORB": {
+   "skus": 54,
+   "styles": 27
+  },
+  "PAN": {
+   "skus": 54,
+   "styles": 27
+  },
+  "PAS": {
+   "skus": 268,
+   "styles": 134
+  },
+  "PIZ": {
+   "skus": 180,
+   "styles": 32
+  },
+  "PLM": {
+   "skus": 224,
+   "styles": 112
+  },
+  "PNF": {
+   "skus": 10,
+   "styles": 5
+  },
+  "PNH": {
+   "skus": 12,
+   "styles": 6
+  },
+  "PNT": {
+   "skus": 24,
+   "styles": 12
+  },
+  "PRY": {
+   "skus": 36,
+   "styles": 12
+  },
+  "RDY": {
+   "skus": 268,
+   "styles": 134
+  },
+  "RIC": {
+   "skus": 225,
+   "styles": 75
+  },
+  "RSP": {
+   "skus": 28,
+   "styles": 14
+  },
+  "SAT": {
+   "skus": 27,
+   "styles": 9
+  },
+  "SAU": {
+   "skus": 314,
+   "styles": 157
+  },
+  "SFT": {
+   "skus": 324,
+   "styles": 32
+  },
+  "SGL": {
+   "skus": 144,
+   "styles": 72
+  },
+  "SGN": {
+   "skus": 46,
+   "styles": 23
+  },
+  "SPR": {
+   "skus": 180,
+   "styles": 90
+  },
+  "SRM": {
+   "skus": 36,
+   "styles": 18
+  },
+  "STK": {
+   "skus": 36,
+   "styles": 18
+  },
+  "STQ": {
+   "skus": 28,
+   "styles": 14
+  },
+  "STR": {
+   "skus": 42,
+   "styles": 14
+  },
+  "SVD": {
+   "skus": 36,
+   "styles": 18
+  },
+  "SWH": {
+   "skus": 46,
+   "styles": 23
+  },
+  "SWT": {
+   "skus": 360,
+   "styles": 51
+  },
+  "TEA": {
+   "skus": 270,
+   "styles": 26
+  },
+  "TIN": {
+   "skus": 358,
+   "styles": 179
+  },
+  "TUS": {
+   "skus": 18,
+   "styles": 9
+  },
+  "VEG": {
+   "skus": 180,
+   "styles": 90
+  },
+  "VIN": {
+   "skus": 36,
+   "styles": 18
+  },
+  "WCH": {
+   "skus": 36,
+   "styles": 18
+  },
+  "WGM": {
+   "skus": 28,
+   "styles": 14
+  },
+  "WLD": {
+   "skus": 180,
+   "styles": 90
+  },
+  "WRD": {
+   "skus": 108,
+   "styles": 54
+  },
+  "WRS": {
+   "skus": 46,
+   "styles": 23
+  },
+  "WSP": {
+   "skus": 54,
+   "styles": 54
+  },
+  "WWH": {
+   "skus": 108,
+   "styles": 54
+  },
+  "YOG": {
+   "skus": 272,
+   "styles": 44
+  }
+ },
+ "grocery_values": {
+  "checked": 15170,
+  "named_but_not_carried": {
+   "contains": 578,
+   "flavor": 1958,
+   "may_contain": 691,
+   "pack_size": 162,
+   "variety": 49
+  }
+ },
+ "near_duplicates": {
+  "grocery": 0.0338,
+  "grocery_grid_clones": 4,
+  "non_grocery": 0.0173,
+  "non_grocery_grid_clone_rate": 0.1359
+ },
+ "templates": {
+  "accessory_rows": {
+   "skus": 274,
+   "styles": 53
+  },
+  "all": {
+   "skus": 48844,
+   "styles": 5927
+  },
+  "appliance_rows": {
+   "skus": 124,
+   "styles": 37
+  },
+  "authored": {
+   "skus": 6861,
+   "styles": 328
+  },
+  "authored_images": 629,
+  "before_grocery": {
+   "skus": 36616,
+   "styles": 1491
+  },
+  "breadth_rows": {
+   "skus": 686,
+   "styles": 310
+  },
+  "distractor_rows": {
+   "skus": 3684,
+   "styles": 289
+  },
+  "grocery": {
+   "skus": 12228,
+   "styles": 4436
+  },
+  "household_rows": {
+   "skus": 147,
+   "styles": 40
+  },
+  "lighting_rows": {
+   "skus": 169,
+   "styles": 28
+  },
+  "lowerbody_rows": {
+   "skus": 1180,
+   "styles": 43
+  },
+  "main_food": {
+   "skus": 83,
+   "styles": 74
+  },
+  "plain_rows": {
+   "skus": 21,
+   "styles": 8
+  },
+  "scale_rows": {
+   "skus": 17078,
+   "styles": 136
+  },
+  "seasonal_rows": {
+   "skus": 114,
+   "styles": 37
+  },
+  "shirt_rows": {
+   "skus": 160,
+   "styles": 24
+  },
+  "sofa_rows": {
+   "skus": 157,
+   "styles": 48
+  },
+  "sports_rows": {
+   "skus": 156,
+   "styles": 17
+  },
+  "toys_rows": {
+   "skus": 155,
+   "styles": 49
+  },
+  "underwear_rows": {
+   "skus": 1389,
+   "styles": 44
+  }
+ }
+}

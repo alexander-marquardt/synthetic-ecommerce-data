@@ -28,10 +28,11 @@ from typing import Any
 import pytest
 
 from industrial_units import Unit, pinned
-from synthetic_industrial_products.catalog import emit, series
-from synthetic_industrial_products.catalog.config import SMALL, GeneratorConfig
-from synthetic_industrial_products.catalog.entry import published, split
-from synthetic_industrial_products.catalog.generate import generate
+from synthetic_ecommerce_data.core import emit
+from synthetic_ecommerce_data.core.config import SMALL, GeneratorConfig
+from synthetic_ecommerce_data.core.entry import published, split
+from synthetic_ecommerce_data.domains.industrial import series
+from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 GOLDEN_NESTED = Path(__file__).resolve().parents[1] / "golden-catalog" / "nested.jsonl"
 
@@ -52,11 +53,14 @@ MAGNITUDE_WITH_UNIT = re.compile(
 #: never written here: ``TPI`` is a reciprocal LENGTH by ruling (elastic/prism#9877),
 #: and a test that wrote its own size could overrule that unseen.
 #:
-#: ``LBR`` is the one code this catalog writes that the deployment does not declare
-#: (one row; elastic/prism-industrial-products#164), so its size is stated here.
+#: ``LBR`` and ``FOT`` are the codes this catalog writes that the deployment does
+#: not declare, so their sizes are stated here: ``LBR`` on one row
+#: (elastic/prism-industrial-products#164), ``FOT`` on a roller chain's
+#: ``Length`` (elastic/prism-industrial-products#170).
 UNITS: dict[str, Unit] = {
     **pinned(),
     "LBR": Unit("mass", Fraction(45359237, 100000)),
+    "FOT": Unit("length", Fraction(1524, 5)),
 }
 
 #: The entries the modelled angle defect (``Helix Angle = 42"``,
@@ -177,6 +181,10 @@ def test_a_measured_value_carries_magnitude_unit_code_and_value_canonical(entrie
 
 def test_the_lbr_size_stated_here_redeclares_no_pinned_unit():
     assert "LBR" not in pinned()
+
+
+def test_the_fot_size_stated_here_redeclares_no_pinned_unit():
+    assert "FOT" not in pinned()
 
 
 def _quantity(entry: dict[str, Any]) -> str | None:
@@ -317,7 +325,7 @@ SPLIT_ORACLE: tuple[tuple[str, str, str | None, dict[str, Any]], ...] = (
         None,
         {"value": "5.5", "unit_code": "MMT", "value_canonical": 5.5},
     ),
-    ("Pitch", "0.5", "MMT", {"value": "0.5", "unit_code": "MMT", "value_canonical": 0.5}),
+    ("Thread Pitch", "0.5", "MMT", {"value": "0.5", "unit_code": "MMT", "value_canonical": 0.5}),
     # A thread count's canonical is its pitch LENGTH (elastic/prism#9877): 127/5 / n
     # mm. 13 does not terminate, and is the nearest float to 127/65, like any value.
     (
@@ -382,7 +390,7 @@ SPLIT_ORACLE: tuple[tuple[str, str, str | None, dict[str, Any]], ...] = (
     ("Thread Size", "M10x1.5", None, {"value": "M10x1.5"}),
     ("Size", "M6", None, {"value": "M6"}),
     # A bare number whose unit nothing states stays text: no unit is guessed.
-    ("Pitch", "32", None, {"value": "32"}),
+    ("Thread Pitch", "32", None, {"value": "32"}),
 )
 
 
@@ -394,20 +402,21 @@ def test_split_gives_the_hand_worked_parts_of_each_published_spelling(
 
 
 #: The test's OWN reading of a published spelling, written apart from
-#: :mod:`~synthetic_industrial_products.catalog.entry` so the round trip below is
+#: :mod:`~synthetic_ecommerce_data.core.entry` so the round trip below is
 #: not judged by the function that produced the entries.
 _ORACLE_NUMBER = (
     r"(?:[0-9]+[ -][0-9]+/[0-9]+|[0-9]+/[0-9]+"
     r"|[0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?|\.[0-9]+)"
 )
 _ORACLE_SPELLING = re.compile(
-    rf"^(?P<number>{_ORACLE_NUMBER})(?:\s*(?P<suffix>lbf|lb|in\.|in|mm|oz|Degrees|\"))?$"
+    rf"^(?P<number>{_ORACLE_NUMBER})(?:\s*(?P<suffix>lbf|lb|in\.|in|mm|ft|oz|Degrees|\"))?$"
 )
 ORACLE_UNIT_FOR_SUFFIX = {
     '"': "INH",
     "in": "INH",
     "in.": "INH",
     "mm": "MMT",
+    "ft": "FOT",
     "Degrees": "DD",
     "oz": "ONZ",
     "lbf": "C78",
@@ -431,7 +440,7 @@ ORACLE_BARE_UNIT_FOR_KEY = {
     "number_of_pieces": "C62",
     "max_rpm": "RPM",
     "decimal_equivalent": "INH",
-    "pitch": "MMT",
+    "thread_pitch": "MMT",
     "threads_per_inch": "TPI",
 }
 

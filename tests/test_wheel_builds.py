@@ -11,7 +11,7 @@ ships, and hatchling refuses to add the same archive path twice::
     path: `prism_synthetic_industrial/data/customization.yaml`
 
 The failure is invisible from inside this repo and total from outside it: a
-consumer depending on ``synthetic-industrial-products @ git+https://...@<sha>``
+consumer depending on ``synthetic-ecommerce-data @ git+https://...@<sha>``
 cannot install the package at all.
 
 The build runs through hatchling's own builder rather than ``python -m build``
@@ -33,8 +33,8 @@ ROOT = Path(__file__).resolve().parent.parent
 REQUIRED_MEMBERS = (
     "prism_synthetic_industrial/data/customization.yaml",
     "prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml",
-    "synthetic_industrial_products/catalog/emit.py",
-    "synthetic_industrial_products/prism/derive.py",
+    "synthetic_ecommerce_data/core/emit.py",
+    "synthetic_ecommerce_data/prism/derive.py",
 )
 
 

@@ -1,7 +1,7 @@
 """Recognise the cross-reference sentences a record's copy carries.
 
 Written here, from the six sentence shapes, rather than imported from
-:mod:`synthetic_industrial_products.catalog.compat`: the tests that check the
+:mod:`synthetic_ecommerce_data.domains.industrial.compat`: the tests that check the
 sentences must not find them with the machinery that wrote them.
 """
 
@@ -21,7 +21,7 @@ COMPATIBILITY = re.compile(
 )
 
 
-#: The noise sentences (``catalog/noise.py``), one alternative per type.
+#: The noise sentences (``core/noise.py``), one alternative per type.
 NOISE = re.compile(
     r"Not for (?P<not_threads>.+?) threads\."
     r"|Will not fit (?P<not_socket>\S+) sockets\."

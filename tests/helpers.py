@@ -12,13 +12,13 @@ def figure_pixels(fig) -> np.ndarray:
     return np.asarray(fig.canvas.buffer_rgba())[..., :3] / 255.0
 
 
-def colour_mask(image: np.ndarray, colour: str, tol: float = 0.06) -> np.ndarray:
-    """Pixels within ``tol`` of ``colour`` on every channel.
+def color_mask(image: np.ndarray, color: str, tol: float = 0.06) -> np.ndarray:
+    """Pixels within ``tol`` of ``color`` on every channel.
 
     The tolerance is tight on purpose. At 0.12 a mid-grey antialiased edge
-    falls inside the flute colour's box and the mask stops meaning anything.
+    falls inside the flute color's box and the mask stops meaning anything.
     """
-    return np.all(np.abs(image - np.array(to_rgb(colour))) < tol, axis=-1)
+    return np.all(np.abs(image - np.array(to_rgb(color))) < tol, axis=-1)
 
 
 def rows_from_top(fig, ax, y_data: float) -> float:
@@ -42,7 +42,7 @@ def longest_row_runs(mask: np.ndarray) -> np.ndarray:
     """Length of the longest contiguous True run in each row.
 
     Letting a dimension arrow be told apart from the text beside it: both are
-    drawn in the dimension colour and share rows, but only the arrow is one
+    drawn in the dimension color and share rows, but only the arrow is one
     long unbroken run.
     """
     padded = np.pad(mask, ((0, 0), (1, 1)))
