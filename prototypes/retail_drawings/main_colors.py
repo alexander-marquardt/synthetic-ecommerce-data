@@ -126,7 +126,7 @@ def offered(styles: list[dict]) -> set[str]:
 
 
 def audience(rec: dict) -> str:
-    """Who the style is sold to: the first category_path step (Men, Women, Kids...), except that
+    """Who the style is sold to: the first category_path step (Mens, Womens, Kids...), except that
     Baby, a node under Kids since gen#281, is still an audience of its own: its colors are
     counted apart from the children's, as they were when it was a root."""
     path = rec["category_path"]
