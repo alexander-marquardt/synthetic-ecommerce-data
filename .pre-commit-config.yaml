@@ -1,10 +1,15 @@
 # Hooks for this repository, mirroring the sibling customization's
-# (elastic/prism-industrial-products) where they apply. Install BOTH hook types:
+# (elastic/prism-industrial-products) where they apply. Install all three hook types:
 #
-#     pre-commit install -t pre-commit -t commit-msg
+#     pre-commit install -t pre-commit -t commit-msg -t pre-push
 #
 # ``default_install_hook_types`` makes a plain ``pre-commit install`` do that.
-default_install_hook_types: [pre-commit, commit-msg]
+default_install_hook_types: [pre-commit, commit-msg, pre-push]
+# Every hook below runs at the COMMIT stage only. The push stage runs ONE hook,
+# ``prepush-gate`` at the end of this file, which runs the cheap rows of CI
+# (lint, commit messages, file size, the scans over tracked files); running the
+# whitespace and lint hooks at the push stage as well would be the same work twice.
+default_stages: [pre-commit]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -47,3 +52,16 @@ repos:
         always_run: true
         verbose: true
         stages: [pre-commit]
+      # scripts/prepush.py: this repository's cheap CI jobs on the branch, before
+      # review (elastic/prism#11677). Its docstring and docs/pre-push-gate.md say
+      # what it runs and when it blocks (only a branch with an open pull request,
+      # or main). A deliberate skip is ``SKIP=prepush-gate git push``.
+      - id: prepush-gate
+        name: pre-push gate (see verdict below)
+        entry: bash scripts/prepush.sh --hook
+        language: system
+        pass_filenames: false
+        always_run: true
+        require_serial: true
+        verbose: true
+        stages: [pre-push]

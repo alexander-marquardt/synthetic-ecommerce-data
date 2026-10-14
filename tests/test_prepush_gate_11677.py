@@ -105,7 +105,8 @@ def _gate(repo: Path, *argv: str, **env: str) -> subprocess.CompletedProcess[str
     stub.mkdir(exist_ok=True)
     (stub / "gh").write_text(_GH_STUB, encoding="utf-8")
     (stub / "gh").chmod(0o755)
-    (repo.parent / "body.html").write_text("", encoding="utf-8")
+    if not (repo.parent / "body.html").exists():
+        (repo.parent / "body.html").write_text("", encoding="utf-8")
     base_env = {
         key: value
         for key, value in os.environ.items()
