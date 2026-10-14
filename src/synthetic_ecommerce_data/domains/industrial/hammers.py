@@ -39,10 +39,6 @@ HAMMER_GRIPS: dict[str, tuple[str, ...]] = {
 
 PROVENANCE = "generated; no dimensional standard applies"
 
-#: The largest drawn extent, in inches, of any hammer kind (a sledge on its
-#: 40 in handle sets the height).
-EXTENT = (5.8, 18.25)
-
 
 @dataclass(frozen=True)
 class HammerKind:
@@ -66,6 +62,9 @@ class HammerKind:
     #: Shown price (USD) of a standard-tier hammer at 16 oz.
     price: float
     use_lines: tuple[str, ...]
+    #: The largest drawn ``(width, height)`` in inches of any product of the kind, with a
+    #: little headroom (``tests/test_sku_drawings.py`` holds every drawing to it).
+    extent: tuple[float, float] = (5.8, 18.25)
     #: The standard the kind claims (``ASME B107.400`` is for ball pein hammers).
     standard: str = ""
 
@@ -133,7 +132,7 @@ def spec(kind: HammerKind) -> TypeSpec:
         standards_family="hand_tool",
         vocab=HAMMER_VOCAB,
         figure=figure,
-        extent=EXTENT,
+        extent=kind.extent,
         make=build(kind),
         share=0.012,
         price=price_model(kind),
@@ -181,6 +180,7 @@ CLAW = HammerKind(
         "Drives nails with the face and pulls them with the curved claw.",
         "The general carpentry hammer for trim, repairs and light framing.",
     ),
+    extent=(4.4, 14.6),
 )
 
 FRAMING = HammerKind(
@@ -201,6 +201,7 @@ FRAMING = HammerKind(
         "A long, heavy hammer for driving framing nails in a few swings.",
         "The milled face grips the nail head; the straight claw pries and pulls.",
     ),
+    extent=(5.1, 18.0),
 )
 
 CLUB = HammerKind(
@@ -221,6 +222,7 @@ CLUB = HammerKind(
         "A short-handled lump hammer for striking chisels, drills and stakes.",
         "Drives masonry nails and breaks brick with a heavy head on a short handle.",
     ),
+    extent=(6.9, 13.2),
 )
 
 SLEDGE = HammerKind(
@@ -241,6 +243,7 @@ SLEDGE = HammerKind(
         "Swung with both hands to drive stakes and break up masonry.",
         "A heavy head on a long handle, for demolition and driving posts.",
     ),
+    extent=(11.0, 36.6),
 )
 
 RUBBER_MALLET = HammerKind(
@@ -261,6 +264,7 @@ RUBBER_MALLET = HammerKind(
         "Taps parts, tiles and pavers into place without marking them.",
         "A soft face for assembling flat-pack furniture and seating trim.",
     ),
+    extent=(8.3, 14.0),
 )
 
 DEAD_BLOW = HammerKind(
@@ -281,6 +285,7 @@ DEAD_BLOW = HammerKind(
         "A shot-filled head that does not rebound, for seating parts without marring.",
         "Strikes with full force and no bounce on machine setups and assemblies.",
     ),
+    extent=(7.1, 16.0),
 )
 
 KINDS: dict[str, HammerKind] = {
