@@ -55,8 +55,38 @@ have no single base value: `tree nuts`, `gluten`, `fish`
 (`grocery_ingredients.ALLERGEN_GROUPS`). Singular and plural spellings are the vocabulary's
 job (elastic/prism#12043), not the data's. The mapping is `grocery_ingredients.ALLERGEN_BASE`.
 
+## Grapes, a Steak parent and allergen coverage (gen#296)
+
+- **Grapes.** `Food & Drink > Fruit & Vegetables > Fresh Fruit > Grapes` (family `GRP`: red,
+  green and black seedless and sweet varieties, 250g, 500g and 1kg packs). The grape-flavoured
+  products stay elsewhere as the natural decoys: red and white grape juice under Juice (`GJU`)
+  and grape chews and jellies under Sweets (`GCH`).
+- **Steak.** `Food & Drink > Meat & Fish > Fresh Meat > Steak` is a parent with eight children,
+  one per cut, each named so it reads on its own: Sirloin Steak, Ribeye Steak, Rump Steak,
+  Fillet Steak, Chuck Steak, T-Bone Steak, Flank Steak, Skirt Steak (families `SKS` to `SKW`,
+  which replace the single `STK` family; Striploin and Minute Steaks are not kept). "Skirt"
+  alone would be a garment. Steak knives (distractor rows), steak sauce (`SSA`, Sauces &
+  Condiments) and steak seasoning (`SSN`, Herbs & Spices) stay in their own categories.
+- **Dietary** comes from one closed list, `grocery_rows.DIETARY`: Vegan, Vegetarian, Gluten Free,
+  Dairy Free, Nut Free, Organic. `Dairy Free` is new: no milk contained or traced.
+- **Allergen coverage.** `grocery.py` prints `food_rows`, `contains_filled` and `contains_share`
+  (`grocery.coverage_report`), the share of food rows whose `facets.contains` is filled.
+- Proof: `tests/test_grocery_steak_grapes_296.py` (counts, children, a decoy in the plain top 10
+  for "grapes" and for "steak").
+
+## One display name per key on a document (gen#256)
+
+A skirt once exported `garment_length` (name "Length": Mini, Midi, Maxi) and a SKU axis
+`length` (name "Length": Petite, Regular, Long), so a facet panel showed two facets with one
+label. The axis has been `fit_length` ("Fit length", `export.OPTIONS`) since #280.
+`name_guard.shared_name_findings` now refuses the class for every type: a document, nested or
+flat, may not give one display name to two different keys.
+`tests/test_retail_attribute_names_unique_256.py` feeds it the old skirt and runs it over the
+ceiling build (no finding).
+
 ## Not done in this increment
 
 The non-grocery decoy classes (color on a part, accessory or toy, audience sibling, color
-word as a product, cups), the ingredient decoys of class 7, the oranges re-tune, #296 and
-#181 are not built yet; issue #294 stays open.
+word as a product, cups), the ingredient decoys of class 7, the oranges re-tune, #298 (the
+Chocolate node), #299 (Juice children and the label-collision guard) and #181 (neckline) are not
+built yet; issues #294, #298, #299 and #181 stay open.

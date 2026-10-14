@@ -46,7 +46,8 @@ FIGURES = committed()
 #: appliances (``appliance_rows``, gen#202), then the underwear (``underwear_rows``, gen#208), then
 #: the toys (``toys_rows``, gen#201), then the lower-body styles (``lowerbody_rows``, gen#206), then
 #: the lighting rows (``lighting_rows``, gen#197), then the seasonal, color and character rows
-#: (``seasonal_rows``, gen#195), then the grocery styles (``grocery.build()``, gen#154), last: no
+#: (``seasonal_rows``, gen#195), then the near-white apparel and main-color bras
+#: (``colorgroup_rows``, gen#302), then the grocery styles (``grocery.build()``, gen#154), last: no
 #: style derives from a shirt, a seating style, a household style, an appliance, an underwear style,
 #: a toy, a lower-body style, a lighting style, a seasonal style or a grocery style. The plain
 #: styles of ``main_colors`` (gen#275) sit between the seasonal rows and the grocery styles.
@@ -63,6 +64,7 @@ LOWERBODY_ROWS = FIGURES["templates"]["lowerbody_rows"]["styles"]
 APPLIANCE_ROWS = FIGURES["templates"]["appliance_rows"]["styles"]
 TOYS_ROWS = FIGURES["templates"]["toys_rows"]["styles"]
 SEASONAL_ROWS = FIGURES["templates"]["seasonal_rows"]["styles"]
+COLORGROUP_ROWS = FIGURES["templates"]["colorgroup_rows"]["styles"]
 LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
 PLAIN_ROWS = FIGURES["templates"]["plain_rows"]["styles"]
 GROCERY_ROWS = FIGURES["templates"]["grocery"]["styles"]
@@ -83,6 +85,7 @@ TEMPLATES = (
     + LOWERBODY_ROWS
     + LIGHTING_ROWS
     + SEASONAL_ROWS
+    + COLORGROUP_ROWS
     + PLAIN_ROWS
     + GROCERY_ROWS
 )

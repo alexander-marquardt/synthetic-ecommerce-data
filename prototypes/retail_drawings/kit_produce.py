@@ -29,6 +29,7 @@ FRUIT = {
     "raspberry": ("strawberry", 5, 60),
     "blueberry": ("orange", 2, 44),
     "blackberry": ("strawberry", 8, 64),
+    "grape": ("orange", 5, 56),
 }
 MIN_FRUIT, MAX_FRUIT = 3, 7
 PACKS = ("loose", "net", "bag")
