@@ -1,0 +1,288 @@
+"""The hammer kinds: one builder, one vocabulary, one category (#305).
+
+Every hammer lives under ``Hand Tools > Hammers`` (the combined tree reads
+``Tools > Hand Tools > Hammers``) and is told from its siblings by its
+``product_type``, a snake_case id ``hammer_<kind>``. A kind is a
+:class:`HammerKind`: the draw it adds to the one builder, :func:`build`.
+
+The kinds and their sizes are the ones hardware listings carry. Head weights
+are in ounces (a 16 lb sledge is 256 oz) so a facet on ``Head Weight`` reads
+across every kind. The ball pein kind keeps the draws it always made, in the
+order it made them, so its products keep their ids.
+
+The price is GENERATED, not measured: the price census has no hammers.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any
+
+from synthetic_ecommerce_data.core.model import keyword_attribute, numeric_attribute
+from synthetic_ecommerce_data.core.price import PriceModel
+from synthetic_ecommerce_data.core.typespec import TypeSpec
+from synthetic_ecommerce_data.domains.industrial import series
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import hammer as figure
+from synthetic_ecommerce_data.domains.industrial.vocab import HAMMER_VOCAB
+
+#: The one node every hammer lives under.
+CATEGORY: tuple[str, ...] = ("Hand Tools", "Hammers")
+
+#: A handle, and the grips each is sold with: a wood handle is sold bare, a
+#: fiberglass or steel one with a grip or without.
+HAMMER_GRIPS: dict[str, tuple[str, ...]] = {
+    "Hickory": ("None",),
+    "Ash": ("None",),
+    "Fiberglass": ("Rubber", "Vinyl", "None"),
+    "Steel": ("Rubber", "Vinyl", "None"),
+}
+
+PROVENANCE = "generated; no dimensional standard applies"
+
+#: The largest drawn extent, in inches, of any hammer kind (a sledge on its
+#: 40 in handle sets the height).
+EXTENT = (5.8, 18.25)
+
+
+@dataclass(frozen=True)
+class HammerKind:
+    """What one kind draws: its noun, its head, its handles and its sizes."""
+
+    key: str
+    item: str
+    series: str
+    material: str
+    faces: tuple[str, ...]
+    handles: tuple[str, ...]
+    ounces: tuple[int, ...]
+    #: Overall length is ``oal_base + ounces * oal_per_oz`` inches; the face
+    #: is ``face_base + ounces * face_per_oz`` inches across.
+    oal_base: float
+    oal_per_oz: float
+    face_base: float
+    face_per_oz: float
+    #: What the head takes off the overall length to give the handle length.
+    head_trim: float
+    #: Shown price (USD) of a standard-tier hammer at 16 oz.
+    price: float
+    use_lines: tuple[str, ...]
+    #: The standard the kind claims (``ASME B107.400`` is for ball pein hammers).
+    standard: str = ""
+
+
+def build(kind: HammerKind):
+    """The builder of ``kind``: ``make(generator, type_key, category)``."""
+
+    def make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
+        # Imported here: generate imports the type tables, which discover the kinds.
+        from synthetic_ecommerce_data.core.brands import pick_brand
+        from synthetic_ecommerce_data.domains.industrial.generate import ChildDraft, LineDraft
+
+        rng = gen.rng
+        brand = pick_brand(rng, type_key, gen._exhausted)
+        handle = rng.choice(kind.handles)
+        draft = LineDraft(
+            item=kind.item,
+            brand=brand,
+            series=f"{kind.series}{rng.randint(10, 99)}",
+            category=category,
+            provenance=PROVENANCE,
+        )
+        face_type = kind.faces[0] if len(kind.faces) == 1 else None
+        draft.line_attrs = [
+            keyword_attribute("Item", kind.item),
+            keyword_attribute("Material", kind.material),
+            keyword_attribute("Handle Material", handle),
+            keyword_attribute("Handle Grip Material", rng.choice(HAMMER_GRIPS[handle])),
+            keyword_attribute("Face Type", face_type or rng.choice(kind.faces)),
+        ]
+        draft.descriptors = [("Handle Material", handle)]
+
+        weights = list(kind.ounces)
+        rng.shuffle(weights)
+        count = min(gen._variant_count(), len(weights))
+        for ounces in sorted(weights[:count]):
+            style = gen._style("in")
+            child = ChildDraft(system="in")
+            oal_in = float(series.snap_imperial(kind.oal_base + ounces * kind.oal_per_oz, 16))
+            child.primary = numeric_attribute("Head Weight", f"{ounces} oz", float(ounces))
+            overall = gen._length("Overall Length", oal_in, style)
+            child.attrs = [
+                child.primary,
+                overall,
+                gen._length("Face Dia.", kind.face_base + ounces * kind.face_per_oz, style),
+                gen._length("Handle Length", oal_in - kind.head_trim, style),
+            ]
+            child.secondary = {"other_length": overall}
+            draft.children.append(child)
+        return draft
+
+    return make
+
+
+def price_model(kind: HammerKind) -> PriceModel:
+    """GENERATED, NOT MEASURED: a hammer costs about its weight to the 0.6 power."""
+    return PriceModel(kind.price, 16.0, 0.6, 0.25, 0.12, measured=False)
+
+
+def spec(kind: HammerKind) -> TypeSpec:
+    """The type module's ``SPEC`` for ``kind``."""
+    return TypeSpec(
+        kind.key,
+        category=CATEGORY,
+        standards_family="hand_tool",
+        vocab=HAMMER_VOCAB,
+        figure=figure,
+        extent=EXTENT,
+        make=build(kind),
+        share=0.012,
+        price=price_model(kind),
+        may_claim=frozenset(),
+        key_attributes=("Head Weight",),
+        use_lines=kind.use_lines,
+    )
+
+
+#: The seven kinds, ball pein first (it predates the others and is built by
+#: ``generate``'s own table).
+BALL_PEIN = HammerKind(
+    key="hammer_ball_pein",
+    item="Ball Pein Hammer",
+    series="BP",
+    material="Forged Steel",
+    faces=("Ball Pein",),
+    handles=("Hickory", "Ash", "Fiberglass", "Steel"),
+    ounces=series.HAMMER_HEAD_OUNCES,
+    oal_base=10.0,
+    oal_per_oz=0.16,
+    face_base=0.6,
+    face_per_oz=0.02,
+    head_trim=1.5,
+    price=82.8,
+    use_lines=(),
+    standard="ASME B107.400",
+)
+
+CLAW = HammerKind(
+    key="hammer_claw",
+    item="Claw Hammer",
+    series="CH",
+    material="Forged Steel",
+    faces=("Smooth", "Milled"),
+    handles=("Hickory", "Ash", "Fiberglass", "Steel"),
+    ounces=(8, 10, 12, 13, 16, 20, 24),
+    oal_base=11.0,
+    oal_per_oz=0.14,
+    face_base=0.7,
+    face_per_oz=0.02,
+    head_trim=1.5,
+    price=24.0,
+    use_lines=(
+        "Drives nails with the face and pulls them with the curved claw.",
+        "The general carpentry hammer for trim, repairs and light framing.",
+    ),
+)
+
+FRAMING = HammerKind(
+    key="hammer_framing",
+    item="Framing Hammer",
+    series="FH",
+    material="Forged Steel",
+    faces=("Milled", "Smooth"),
+    handles=("Hickory", "Fiberglass", "Steel"),
+    ounces=(20, 22, 24, 28, 32),
+    oal_base=12.0,
+    oal_per_oz=0.18,
+    face_base=0.75,
+    face_per_oz=0.02,
+    head_trim=1.5,
+    price=42.0,
+    use_lines=(
+        "A long, heavy hammer for driving framing nails in a few swings.",
+        "The milled face grips the nail head; the straight claw pries and pulls.",
+    ),
+)
+
+CLUB = HammerKind(
+    key="hammer_club",
+    item="Club Hammer",
+    series="LH",
+    material="Forged Steel",
+    faces=("Smooth",),
+    handles=("Hickory", "Fiberglass"),
+    ounces=(32, 40, 48, 64),
+    oal_base=8.5,
+    oal_per_oz=0.04,
+    face_base=1.1,
+    face_per_oz=0.012,
+    head_trim=2.0,
+    price=30.0,
+    use_lines=(
+        "A short-handled lump hammer for striking chisels, drills and stakes.",
+        "Drives masonry nails and breaks brick with a heavy head on a short handle.",
+    ),
+)
+
+SLEDGE = HammerKind(
+    key="hammer_sledge",
+    item="Sledge Hammer",
+    series="SH",
+    material="Forged Steel",
+    faces=("Smooth",),
+    handles=("Hickory", "Fiberglass", "Steel"),
+    ounces=(80, 96, 128, 160),
+    oal_base=22.0,
+    oal_per_oz=0.09,
+    face_base=1.4,
+    face_per_oz=0.01,
+    head_trim=2.0,
+    price=48.0,
+    use_lines=(
+        "Swung with both hands to drive stakes and break up masonry.",
+        "A heavy head on a long handle, for demolition and driving posts.",
+    ),
+)
+
+RUBBER_MALLET = HammerKind(
+    key="hammer_rubber_mallet",
+    item="Rubber Mallet",
+    series="RM",
+    material="Rubber",
+    faces=("Flat",),
+    handles=("Hickory", "Fiberglass"),
+    ounces=(8, 12, 16, 24, 32),
+    oal_base=10.0,
+    oal_per_oz=0.12,
+    face_base=1.3,
+    face_per_oz=0.03,
+    head_trim=1.5,
+    price=14.0,
+    use_lines=(
+        "Taps parts, tiles and pavers into place without marking them.",
+        "A soft face for assembling flat-pack furniture and seating trim.",
+    ),
+)
+
+DEAD_BLOW = HammerKind(
+    key="hammer_dead_blow",
+    item="Dead Blow Hammer",
+    series="DB",
+    material="Urethane",
+    faces=("Flat",),
+    handles=("Steel", "Fiberglass"),
+    ounces=(16, 20, 24, 32, 48),
+    oal_base=11.0,
+    oal_per_oz=0.10,
+    face_base=1.2,
+    face_per_oz=0.015,
+    head_trim=1.5,
+    price=26.0,
+    use_lines=(
+        "A shot-filled head that does not rebound, for seating parts without marring.",
+        "Strikes with full force and no bounce on machine setups and assemblies.",
+    ),
+)
+
+KINDS: dict[str, HammerKind] = {
+    k.key: k for k in (BALL_PEIN, CLAW, FRAMING, CLUB, SLEDGE, RUBBER_MALLET, DEAD_BLOW)
+}
