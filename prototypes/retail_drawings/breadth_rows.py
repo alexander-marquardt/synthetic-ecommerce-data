@@ -1195,11 +1195,6 @@ def _a1(key: str, name: str, v: str) -> tuple[tuple[str, str, str], ...]:
     return ((key, name, v),)
 
 
-def _head_oz(oz: int) -> tuple[tuple[str, str, str, str, float], ...]:
-    """A hammer head's weight: the unit is in the key (``_oz``), the canonical value in grams."""
-    return (("head_weight_oz", "Head weight", str(oz), "ONZ", oz * 28.349523125),)
-
-
 def _volts(v: int) -> tuple[tuple[str, str, str, str, float], ...]:
     """A tool's battery voltage: the unit is in the key (``_v``), the canonical value in volts."""
     return (("voltage_v", "Voltage", str(v), "VLT", float(v)),)
@@ -1316,16 +1311,6 @@ BREADTH_34 = (
         "A large plain towel with a soft velour face and a looped terry back.",
         (cw("Blue", "#3f6fb5", "solid", "#ffffff"), cw("Coral", "#ef7b62", "solid", "#ffffff")),
         _fab("Cotton")),
-    Row("HAMCLW", "Fiberglass Handle Claw Hammer", "Calderby & Lune", _HW,
-        (*_DIY, "Claw Hammers"), "Claw Hammer", 11.0, "hammer",
-        "A forged steel head with a curved claw, on a handle with a rubber grip.",
-        _in("#7a7d82", "#c8312e", "Silver"),
-        (*_a1("handle_material", "Handle material", "Fiberglass"), *_head_oz(16))),
-    Row("HAMWOD", "Wooden Handle Claw Hammer", "Lanternby", _HW,
-        (*_DIY, "Claw Hammers"), "Claw Hammer", 9.0, "hammer",
-        "A forged steel head with a straight claw, on a smooth ash handle.",
-        _in("#7a7d82", "#a8793f", "Silver"),
-        (*_a1("handle_material", "Handle material", "Wood"), *_head_oz(20))),
     Row("SCRDSET", _SCR6.title("Slotted and Phillips Screwdriver Set"), "Calderby & Lune", _HW,
         (*_DIY, "Tool Sets", "Screwdriver Sets"), "Screwdriver Set", 13.0, "screwdriver",
         _SCR6.text("Magnetic tips and a soft grip handle, in a roll-up pouch."),
