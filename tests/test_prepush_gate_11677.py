@@ -363,6 +363,34 @@ def test_a_wip_push_with_an_ai_trailer_is_still_refused(repo: Path) -> None:
     assert _row(out, "FAIL", "commit-messages"), out
 
 
+def test_a_wip_backup_of_a_snapshot_commit_is_judged_on_the_snapshot_not_the_checkout(
+    repo: Path,
+) -> None:
+    """``agent_wip_push`` sends a snapshot commit, never the checkout's HEAD."""
+    _commit(repo, "feat: a clean change")
+    snapshot = _commit(repo, f"wip snapshot\n\n{AI_TRAILER}")
+    _git(repo, "reset", "-q", "--hard", "HEAD~1")
+    env = _hook("wip/task", repo)
+    env["PRE_COMMIT_TO_REF"] = snapshot
+    done = _gate(repo, "--hook", **env)
+    out = _out(done)
+    assert done.returncode == 1, out
+    assert _row(out, "FAIL", "commit-messages"), out
+    assert not _row(out, "FAIL", "pushed-commit"), out
+
+
+def test_a_clean_wip_snapshot_that_is_not_the_checkout_is_backed_up(repo: Path) -> None:
+    _commit(repo, "feat: a clean change")
+    snapshot = _commit(repo, "wip snapshot")
+    _git(repo, "reset", "-q", "--hard", "HEAD~1")
+    env = _hook("wip/task", repo)
+    env["PRE_COMMIT_TO_REF"] = snapshot
+    done = _gate(repo, "--hook", **env)
+    out = _out(done)
+    assert done.returncode == 0, out
+    assert "NOT JUDGED (wip backup)" in out
+
+
 def test_a_push_of_a_commit_other_than_the_checkout_is_not_judged_as_the_checkout(
     repo: Path,
 ) -> None:
