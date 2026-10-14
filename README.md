@@ -1377,7 +1377,11 @@ or Post-Surgery bra, whose node stays; its old style leaf is split into `bra_sha
 `padding`, `back_style` and `fabric` (`facet_leaves.BRA_LEAVES`), and the fibre content a bra's
 `fabric` held moves to `composition`. On every other type `fabric` keeps only a fabric or weave
 (Denim, Linen, Velvet, Oxford); fibre content ("98% Cotton, 2% Elastane", Bamboo, Organic
-Cotton) moves to `composition` (`facet_leaves.FABRIC_MOVES`). Only the document changes (`export.standard_document`):
+Cotton) moves to `composition` (`facet_leaves.FABRIC_MOVES`); so does a blend, which names fibres:
+"Cotton Blend" leaves Cotton as the fabric and "Cotton Jersey" leaves Jersey (gen#258). A fabric has
+one name (Faux Leather, not also Leather-Look), and a use, a pocket style or a fit is never a
+fabric: sports leggings are Knitted with a Compression `leg_fit`, cargo joggers are Twill with
+cargo pockets, and cycling shorts carry the Compression `leg_fit` and no fabric. Only the document changes (`export.standard_document`):
 the build record keeps its leaf, so the derivation and every image id are what they were, and a
 title keeps its words ("Skinny Jeans"). `tests/test_retail_facet_leaves.py` refuses a node
 under Jeans, Trousers or Bras that names one of those values, a `fabric` holding a percentage,

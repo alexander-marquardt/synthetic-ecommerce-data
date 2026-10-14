@@ -151,7 +151,7 @@ LEGGINGS = (
     LRow("LGGSPT", "High Waisted Sports Leggings with Pockets", SW, CL_, _LG, "Leggings", 28.0,
          "leggings", "Compression leggings in a sweat-wicking knit, with a high waistband and "
          "a side pocket on each leg that holds a phone.", (BLACK, NAVY, CHARCOAL),
-         _lg("Sports", "Compression", "Full Length", YES), _sizes(28.0),
+         _lg("Knitted", "Compression", "Full Length", YES), _sizes(28.0),
          params=_lgp("full", "high", "yes"), facts=_facts("High", "plain")),
     LRow("LGGFLC", "Fleece Lined Thermal Leggings", HK, CL_, _LG, "Leggings", 18.0,
          "leggings", "Opaque leggings brushed with fleece on the inside, for cold walks and "
@@ -164,9 +164,9 @@ LEGGINGS = (
          _lg("Faux Leather", "Regular", "Full Length", NO), _sizes(26.0),
          params=_lgp("full", "high", "no"), facts=_facts("High", "plain")),
     LRow("LGG78S", "7/8 Length Compression Leggings with Pockets", SW, CL_, _LG, "Leggings",
-         32.0, "leggings", "Shaping leggings that stop above the ankle, with a high waist and "
+         32.0, "leggings", "Shaping knit leggings that stop above the ankle, with a high waist and "
          "two side pockets.", (BLACK, TEAL, PURPLE),
-         _lg("Sports", "Compression", "7/8", YES), _sizes(32.0),
+         _lg("Knitted", "Compression", "7/8", YES), _sizes(32.0),
          params=_lgp("7_8", "high", "yes"), facts=_facts("High", "plain")),
     LRow("LGGCRP", "Striped Cropped Cotton Leggings", "Wrenfield", CL_, _LG, "Leggings", 12.0,
          "leggings", "Cropped leggings in a stretch cotton knit with a fine stripe, for summer.",
@@ -214,7 +214,7 @@ JOGGERS = (
           _jgp("regular", "open", "Mid", "no", "no"), "Mid"),
     _jrow("JGGCRG", "Cargo Joggers with Cuffed Hems", "Larkmoor", _MJ, 30.0,
           "Twill joggers with a patch pocket on each thigh and a ribbed cuff.",
-          (KHAKI, BLACK, NAVY), _jg("Regular", "Elasticated", "Cargo", YES, YES),
+          (KHAKI, BLACK, NAVY), _jg("Regular", "Elasticated", "Twill", YES, YES),
           _jgp("regular", "elastic", "Mid", "yes", "yes"), "Mid"),
     _jrow("JGGRLX", "Relaxed Fit Fleece Joggers", HK, _WJ, 26.0,
           "Roomy brushed fleece joggers with a high rise and a cuffed hem.",
@@ -226,7 +226,7 @@ JOGGERS = (
           _jgp("oversized", "open", "High", "yes", "no"), "High"),
     _jrow("JGGWCR", "Cargo Joggers with Pockets", "Larkmoor", _WJ, 32.0,
           "Relaxed twill joggers with patch pockets on the thigh and a snug cuffed ankle.",
-          (KHAKI, BLACK), _jg("Relaxed", "Elasticated", "Cargo", YES, YES),
+          (KHAKI, BLACK), _jg("Relaxed", "Elasticated", "Twill", YES, YES),
           _jgp("relaxed", "elastic", "Mid", "yes", "yes"), "Mid"),
 )  # fmt: skip
 
@@ -287,8 +287,9 @@ SHORTS = (
 # --------------------------------------------------------------------------
 
 
-def _cy(fabric: str, length: str, padding: str, pockets: str) -> tuple:
-    return (_a("fabric", "Fabric", fabric), _a("garment_length", "Length", length),
+def _cy(length: str, padding: str, pockets: str) -> tuple:
+    """Cycling shorts are all close fitting: a compression fit (``leg_fit``), no fabric."""
+    return (_a("leg_fit", "Leg fit", "Compression"), _a("garment_length", "Length", length),
             _a("padding", "Padding", padding), *_pockets(pockets))  # fmt: skip
 
 
@@ -301,31 +302,31 @@ _MC = ("Men", "Sportswear", "Cycling Shorts")
 CYCLING = (
     LRow("CYSWPD", "Padded Cycling Shorts", SW, CL_, _WC, "Cycling Shorts", 30.0,
          "cycling_shorts", "High rise cycling shorts with a padded chamois and flat seams, for "
-         "long rides.", (BLACK, NAVY), _cy("Compression", "Mid Length", "Padded", NO),
+         "long rides.", (BLACK, NAVY), _cy("Mid Length", "Padded", NO),
          _sizes(30.0), params=_cyp("mid", "high", "yes", "no"), facts=_facts("High", "plain")),
     LRow("CYSWCP", "Compression Cycling Shorts", SW, CL_, _WC, "Cycling Shorts", 22.0,
          "cycling_shorts", "Close fitting compression shorts with a silicone gripper at each "
          "hem, for spin class and training.", (BLACK, PURPLE, TEAL),
-         _cy("Compression", "Mini", "Unpadded", NO), _sizes(22.0),
+         _cy("Mini", "Unpadded", NO), _sizes(22.0),
          params=_cyp("mini", "high", "no", "no"), facts=_facts("High", "plain")),
     LRow("CYSWPK", "Padded Cycling Shorts with Pockets", "Saltmarsh", CL_, _WC,
          "Cycling Shorts", 38.0, "cycling_shorts", "Knee length padded shorts with a mid rise "
          "and a pocket on each leg for a phone or keys.", (BLACK, GREY),
-         _cy("Compression", "Knee Length", "Padded", YES), _sizes(38.0),
+         _cy("Knee Length", "Padded", YES), _sizes(38.0),
          params=_cyp("knee", "mid", "yes", "yes"), facts=_facts("Mid", "plain")),
     LRow("CYMPAD", "Men's Padded Cycling Shorts", "Saltmarsh", CL_, _MC, "Cycling Shorts",
          34.0, "cycling_shorts", "Cycling shorts with a mid rise and a multi-density padded "
-         "chamois.", (BLACK, NAVY, CHARCOAL), _cy("Compression", "Mid Length", "Padded", NO),
+         "chamois.", (BLACK, NAVY, CHARCOAL), _cy("Mid Length", "Padded", NO),
          _sizes(34.0), params=_cyp("mid", "mid", "yes", "no"), facts=_facts("Mid", "plain")),
     LRow("CYMCMP", "Men's Compression Cycling Shorts", SW, CL_, _MC, "Cycling Shorts", 24.0,
          "cycling_shorts", "Short compression shorts that wick sweat and hold the muscle, "
          "with no pad.", (BLACK, BLUE),
-         _cy("Compression", "Mini", "Unpadded", NO), _sizes(24.0),
+         _cy("Mini", "Unpadded", NO), _sizes(24.0),
          params=_cyp("mini", "mid", "no", "no"), facts=_facts("Mid", "plain")),
     LRow("CYMKNE", "Men's Knee Length Padded Cycling Shorts with Pocket", "Bramblewood", CL_, _MC,
          "Cycling Shorts", 40.0, "cycling_shorts", "Longer padded cycling shorts with a high "
          "rise and a rear pocket.", (BLACK, GREEN),
-         _cy("Compression", "Knee Length", "Padded", YES), _sizes(40.0),
+         _cy("Knee Length", "Padded", YES), _sizes(40.0),
          params=_cyp("knee", "high", "yes", "yes"), facts=_facts("High", "plain")),
 )  # fmt: skip
 
@@ -422,9 +423,9 @@ SKIRTS = (
            "Knife pleats in a fluid satin that catches the light, on an elastic waist.",
            (CHARCOAL, CREAM, GREEN), _sk("Pleated", "Midi", "Satin", "Elastic", "Polyester"),
            "pleated", "midi"),
-    _skrow("SKTPNC", "Leather-Look Pencil Skirt", "Larkmoor", 30.0,
+    _skrow("SKTPNC", "Faux Leather Pencil Skirt", "Larkmoor", 30.0,
            "A straight faux leather skirt with a back slit, cut to the knee.", (BLACK, BROWN),
-           _sk("Pencil", "Midi", "Leather-Look", "Zip", "Polyester"), "pencil", "midi"),
+           _sk("Pencil", "Midi", "Faux Leather", "Zip", "Polyester"), "pencil", "midi"),
     _skrow("SKTWRP", "Cotton Wrap Maxi Skirt", CL, 36.0,
            "A floor-skimming wrap skirt with an overlap and a tie at the waist.",
            (BEIGE, NAVY, TEAL), _sk("Wrap", "Maxi", "Cotton", "Tie"), "wrap", "maxi"),

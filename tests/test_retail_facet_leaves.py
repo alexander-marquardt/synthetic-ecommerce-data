@@ -284,6 +284,9 @@ MOVED = {
     "Brushed Cotton Flannel": ("Flannel", "Cotton"),
     "Mid Weight Denim": ("Denim", None),
     "Washed Linen": ("Linen", None),
+    "Cotton Blend": ("Cotton", "Cotton Blend"),
+    "Polyester Blend": ("Suiting", "Polyester Blend"),
+    "Cotton Jersey": ("Jersey", "Cotton"),
 }
 
 
@@ -301,4 +304,14 @@ def test_fibre_content_moves_to_composition_on_every_type(built, docs):
         moved[rec["product_type"]] += bool(composition)
     assert {v for r in built.records for a in r["attributes"] if a["key"] == "fabric"
             for v in [a["value"]] if r["product_type"] != "Bra"} >= set(MOVED)
-    assert {t for t, n in moved.items() if n} == {"Jeans", "Shirt", "Towel", "Soft Toy"}
+    assert {t for t, n in moved.items() if n} == {
+        "Jeans", "Shirt", "Towel", "Soft Toy", "Leggings", "Vest", "Shorts", "Boxers"}
+
+
+def test_no_fabric_is_a_blend_or_a_use_word(docs):
+    """A blend names fibres (composition); Sports, Cargo and Compression name a use, a pocket
+    or a fit (gen#258); Leather-Look is Faux Leather again."""
+    fabrics = {v for d in docs for v in _values(d, "fabric")}
+    assert fabrics & {"Cotton Blend", "Polyester Blend", "Cotton Jersey", "Sports", "Cargo",
+                      "Compression", "Leather-Look"} == set()
+    assert {"Faux Leather", "Jersey", "Twill", "Knitted", "Suiting"} <= fabrics

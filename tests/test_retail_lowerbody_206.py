@@ -42,7 +42,7 @@ KEYS = {
                 "color", "size", "inside_leg"},
     "Shorts": {"garment_length", "shorts_style", "rise", "fabric", "waist_type", "pockets",
                "color", "size"},
-    "Cycling Shorts": {"garment_length", "rise", "fabric", "padding", "pockets", "color",
+    "Cycling Shorts": {"garment_length", "rise", "leg_fit", "padding", "pockets", "color",
                        "size"},
     "Tracksuit": {"piece_count", "top_style", "leg_fit", "fabric", "audience", "color", "size",
                   "sold_as"},
@@ -206,7 +206,40 @@ def test_the_maternity_and_lined_leggings_state_it() -> None:
     legs = [r for r in ROWS if r.product_type == "Leggings"]
     assert {r.code for r in legs if _attr(r, "maternity") == ["Yes"]} == {"LGGMAT"}
     assert {r.code for r in legs if _attr(r, "lining") == ["Fleece"]} == {"LGGFLC"}
-    assert {_attr(r, "fabric")[0] for r in legs} >= {"Cotton Blend", "Sports", "Faux Leather"}
+    assert {_attr(r, "fabric")[0] for r in legs} >= {"Cotton Blend", "Knitted", "Faux Leather"}
+
+
+#: Words the lower-body rows once put in ``fabric`` that a shopper does not name as a fabric
+#: (a use, a fit, a pocket style) or that spell another fabric's name again (gen#258).
+NOT_FABRICS = {"Sports", "Compression", "Cargo", "Leather-Look"}
+
+
+def test_no_lower_body_fabric_is_a_use_a_fit_or_another_name_for_a_fabric() -> None:
+    """``Faux Leather`` is the one name (the bags and purses use it); ``Leather-Look`` was the
+    same fabric on a skirt, so one filter split it. A sports leggings' knit, a cargo jogger's
+    twill and a cycling short's compression fit are stated as what they are."""
+    fabrics = {a[2] for r in ROWS for a in r.attrs if a[0] == "fabric"}
+    assert fabrics & NOT_FABRICS == set()
+    skirt = next(r for r in ROWS if r.code == "SKTPNC")
+    assert _attr(skirt, "fabric") == ["Faux Leather"]
+    assert skirt.title == "Faux Leather Pencil Skirt"
+    assert {r.code: _attr(r, "fabric") for r in ROWS if r.code in {"JGGCRG", "JGGWCR"}} == {
+        "JGGCRG": ["Twill"], "JGGWCR": ["Twill"]}
+
+
+def test_a_cycling_short_is_compression_fit_not_a_compression_fabric() -> None:
+    shorts = [r for r in ROWS if r.product_type == "Cycling Shorts"]
+    assert shorts
+    for row in shorts:
+        assert _attr(row, "leg_fit") == ["Compression"], row.code
+        assert _attr(row, "fabric") == [], row.code
+
+
+def test_the_lower_body_modules_spell_center_the_us_way() -> None:
+    """The spelling test reads only the color word; a docstring said "centre" (gen#258)."""
+    british = re.compile("cent" + "re", re.IGNORECASE)
+    for name in ("kit_lowerbody.py", "lowerbody_rows.py"):
+        assert british.findall((RETAIL / name).read_text()) == [], name
 
 
 @pytest.mark.parametrize("row", ROWS, ids=lambda r: r.code)
