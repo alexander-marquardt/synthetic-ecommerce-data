@@ -67,6 +67,9 @@ class Fill:
     #: The copies of the motif one repeat draws (:data:`MOTIF_COUNTS`); the
     #: title's noun is singular iff it is 1 (:func:`prints.title`).
     count: int = 1
+    #: A named part drawn in one color, ``(part, #rrggbb)`` (:mod:`details`, gen#311): the part
+    #: a title names, e.g. ``("straps", "#d9342b")``; ``None`` draws no named part.
+    detail: tuple[str, str] | None = None
 
     def __post_init__(self) -> None:
         if self.pattern not in PATTERNS:
@@ -693,7 +696,8 @@ def _render_styled(shape, draw, paint, defs, fill, label, brand, uid, params, st
     """:func:`render` in a brand's house style (see ``house_styles``)."""
     import house_styles as hs  # deferred: house_styles is an optional layer over the kit
 
-    inner = "".join(_drawn(draw, paint, fill, label, params)) + _print_overlay(shape, fill)
+    drawn = _drawn(draw, paint, fill, label, params)
+    inner = "".join(drawn) + _print_overlay(shape, fill, drawn, paint, uid)
     if shape in OFFSET_Y:
         inner = f'<g transform="translate(0 {OFFSET_Y[shape]})">{inner}</g>'
     sheet_defs, sheet, overlay = hs.dress(style, brand, uid)
@@ -716,13 +720,19 @@ def _paint(fill: Fill, pid: str) -> str:
     return f"url(#{pid})"
 
 
-def _print_overlay(shape: str, fill: Fill) -> str:
-    """A placement print's one large motif, drawn over the surface (else empty)."""
-    if fill.placement != "placement":
-        return ""
-    import motifs  # deferred: motifs draws with this kit's shapes
+def _print_overlay(shape: str, fill: Fill, drawn: list[str], paint: str, uid: str) -> str:
+    """A placement print's one large motif, then a named part in its color, drawn over the
+    surface (else empty)."""
+    out = ""
+    if fill.placement == "placement":
+        import motifs  # deferred: motifs draws with this kit's shapes
 
-    return motifs.overlay(shape, fill)
+        out = motifs.overlay(shape, fill)
+    if fill.detail:
+        import details  # deferred: details reads this kit's elements
+
+        out += details.overlay(shape, fill, drawn, paint, uid)
+    return out
 
 
 def register(shapes: dict, offsets: dict | None = None) -> None:
@@ -756,14 +766,15 @@ def render(
         return _render_styled(
             shape, draw, paint, defs, fill, label, brand or "", uid, params, style
         )
+    drawn = _drawn(draw, paint, fill, label, params)
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" viewBox="0 0 {SIZE} {SIZE}">',
         f"<defs>{defs}</defs>" if defs else "",
         f'<rect width="{SIZE}" height="{SIZE}" fill="{PAPER}"/>',
         f'<rect x="6" y="6" width="{SIZE - 12}" height="{SIZE - 12}" fill="none" stroke="{INK}" stroke-width="1"/>',
         f'<g transform="translate(0 {OFFSET_Y[shape]})">' if shape in OFFSET_Y else "",
-        *_drawn(draw, paint, fill, label, params),
-        _print_overlay(shape, fill),
+        *drawn,
+        _print_overlay(shape, fill, drawn, paint, uid),
         "</g>" if shape in OFFSET_Y else "",
         *(_brand_tag(brand) if brand else []),
         "</svg>",
