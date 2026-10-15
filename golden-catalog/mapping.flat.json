@@ -80,6 +80,9 @@
    "ingredients": {
     "type": "text"
    },
+   "fibre_content": {
+    "type": "text"
+   },
    "attribute_names": {
     "type": "keyword"
    },

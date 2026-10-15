@@ -1347,9 +1347,18 @@ The generator derives no spelling variants of a node (mens, men's, men): the cat
 vocabularies own those.
 "Cleaning & Janitorial" is a department, not a root: its kitchen cleaners sit under `Cleaning`.
 
+**There is no top-level `Accessories` root** (gen#248). Every accessory leaf sits under a
+department as `<Department> > Accessories > <leaf>`: `Mens > Accessories > Belts`,
+`Beauty > Accessories > Wash Bags`, and the bags, purses and umbrellas under `Womens > Accessories`
+(`Bags > Handbags`, `Bags > Backpacks`, `Bags > Tote Bags`, `Purses & Wallets > Purses`,
+`Umbrellas`). A root would show as a separate department in the store's department filter. The
+unisex goods (backpack, tote, umbrella) stay one product in one place, under the department whose
+shoppers the generator targets for bags; the `audience` facet says `Unisex`, the path does not.
+`tests/test_retail_accessories_under_departments_248.py` guards it.
+
 **The store's department is the top level of `category_path`, and no document states one**
-(gen#281). The retail tree has exactly twelve roots: Womens, Mens, Kids, Food & Drink, Home,
-Beauty, Cleaning, Toys, Gifts, Garden, Accessories and Sports & Outdoors (gen#265). Food sits under Food & Drink, Baby
+(gen#281). The retail tree has exactly eleven roots: Womens, Mens, Kids, Food & Drink, Home,
+Beauty, Cleaning, Toys, Gifts, Garden and Sports & Outdoors (gen#265). Food sits under Food & Drink, Baby
 under Kids (`Kids > Baby > ...`) and Electricals under Home (`Home > Electricals > ...`), each
 with its subtree intact; a product still sits in one place. The documents carry no
 `department` attribute or flat column (its values mixed audience, Clothing, with product kind,
@@ -1378,10 +1387,10 @@ title names a more specific node of its own department sits in that node. Two si
 trousers at `<Root>/Trousers`, its fit in `leg_fit` alone (the failure-class rows' `leg_style`
 is folded into it). A bra sits at `Womens/Lingerie/Bras`, unless it is a Sports, Nursing, Sleep
 or Post-Surgery bra, whose node stays; its old style leaf is split into `bra_shape`,
-`padding`, `back_style` and `fabric` (`facet_leaves.BRA_LEAVES`), and the fibre content a bra's
-`fabric` held moves to `composition`. On every other type `fabric` keeps only a fabric or weave
-(Denim, Linen, Velvet, Oxford); fibre content ("98% Cotton, 2% Elastane", Bamboo, Organic
-Cotton) moves to `composition` (`facet_leaves.FABRIC_MOVES`); so does a blend, which names fibres:
+`padding`, `back_style` and `fabric` (`facet_leaves.BRA_LEAVES`). `fabric` is the fibre or weave a
+shopper names (Cotton, Linen, Denim, Oxford, Silk, Nylon), from one closed list. A grade or blend
+("98% Cotton, 2% Elastane") leaves its fibre as the fabric and becomes the document's
+`fibre_content`, a detail in no facet (`facet_leaves.FABRIC_MOVES`, gen#187; no `composition`). A blend names fibres:
 "Cotton Blend" leaves Cotton as the fabric and "Cotton Jersey" leaves Jersey (gen#258). A fabric has
 one name (Faux Leather, not also Leather-Look), and a use, a pocket style or a fit is never a
 fabric: sports leggings are Knitted with a Compression `leg_fit`, cargo joggers are Twill with
