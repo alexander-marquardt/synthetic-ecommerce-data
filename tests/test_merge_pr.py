@@ -522,12 +522,20 @@ def test_a_generated_file_the_rebuild_left_conflicted_is_refused(world: dict) ->
 # -- what the rebuild commits ------------------------------------------------
 
 
-def test_a_stale_lock_is_refused_not_relocked_and_committed(world: dict) -> None:
-    """``uv run`` would re-lock it, and the rebuild commit would carry ``uv.lock``."""
+@pytest.mark.parametrize("cache", ["inherited", "empty"])
+def test_a_stale_lock_is_refused_not_relocked_and_committed(
+    world: dict, tmp_path: Path, cache: str
+) -> None:
+    """``uv run`` would re-lock it, and the rebuild commit would carry ``uv.lock``.
+
+    ``empty`` runs the script on a cold uv cache, as a new machine or a CI runner
+    has one: the refusal must not depend on what the cache holds (#338).
+    """
     pyproject = (world["checkout"] / "pyproject.toml").read_text()
     stale_lock = pyproject.replace('"numpy>=1.26",', '"numpy>=1.26",\n    "pyyaml>=6.0.3",', 1)
     head = _open_pr(world, {"pyproject.toml": stale_lock})
-    result = _run(world, head, _GREEN_CHECK)
+    env = {"UV_CACHE_DIR": str(tmp_path / "cold-uv-cache")} if cache == "empty" else {}
+    result = _run(world, head, _GREEN_CHECK, **env)
     assert result.returncode != 0
     assert "--locked" in result.stderr, result.stderr[-800:]
     assert _branch(world) == head
