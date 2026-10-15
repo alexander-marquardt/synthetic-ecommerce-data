@@ -77,10 +77,9 @@ def test_discount_pct_is_derived_from_price_and_was_price_on_sale_docs_only() ->
 def test_every_class_doc_carries_the_offer_online_only_and_badge_flags() -> None:
     for d in CLASS_DOCS:
         assert isinstance(d["offer"], bool) and isinstance(d["online_only"], bool)
-        assert isinstance(d["new_in"], bool) and isinstance(d["trending"], bool)
+        assert isinstance(d["trending"], bool)
         assert d["brand_owner"] in rc.BRAND_OWNERS, d["brand"]
     assert sum(d["online_only"] for d in CLASS_DOCS) == 4
-    assert sum(d["new_in"] for d in CLASS_DOCS) == 6
     assert sum(d["trending"] for d in CLASS_DOCS) == 3
     # An offer with no was-price: a multi-buy, shown in Offers with no % off.
     assert [d["product_id"] for d in CLASS_DOCS if d["offer"] and "was_price" not in d] == [
@@ -100,12 +99,11 @@ def test_third_party_brands_are_over_represented_in_offers() -> None:
     assert all(d["brand_owner"] == "third_party" for d in edit)
 
 
-def test_badges_are_new_in_bestseller_and_trending_in_one_order() -> None:
+def test_badges_are_bestseller_trending_and_online_only_in_one_order() -> None:
     for d in CLASS_DOCS:
         want = [
             label
             for label, on in (
-                ("New In", d["new_in"]),
                 ("Bestseller", d["bestseller_rank"] <= rc.BESTSELLER_TOP),
                 ("Trending", d["trending"]),
                 ("Online Only", d["online_only"]),
@@ -143,11 +141,11 @@ def test_every_doc_has_a_full_category_path_of_clean_shopper_terms() -> None:
 def test_the_index_projects_every_ancestor_as_its_own_joined_value() -> None:
     orange = rc.index_doc(_one("ORBLOD"))
     assert orange["category_path_joined"] == [
-        "Food",
-        "Food/Fresh Produce",
-        "Food/Fresh Produce/Fruit",
-        "Food/Fresh Produce/Fruit/Citrus",
-        "Food/Fresh Produce/Fruit/Citrus/Oranges",
+        "Food & Drink",
+        "Food & Drink/Fresh Produce",
+        "Food & Drink/Fresh Produce/Fruit",
+        "Food & Drink/Fresh Produce/Fruit/Citrus",
+        "Food & Drink/Fresh Produce/Fruit/Citrus/Oranges",
     ]
     for d in CORPUS:
         joined = rc.index_doc(d)["category_path_joined"]
@@ -201,7 +199,7 @@ def test_oranges_has_flavour_and_color_distractors_and_a_type_only_true_hit() ->
     assert peel["category_leaf"] == "Oranges" and row.is_intended(peel)
     assert "orange" not in (peel["title"] + peel["description"]).lower()
     flavours = [_one(c) for c in distractors if _one(c)["department"] == ["Food & Drink"]]
-    assert len(flavours) == 4 and sum(d["new_in"] for d in flavours) == 3
+    assert len(flavours) == 4
     swatches = {c: _one(c).get("color_options", ()) for c in distractors}
     colored = [_one(c) for c, sw in swatches.items() if any(o["family"] == "orange" for o in sw)]
     assert {d["department"][0] for d in colored} == {"Clothing", "Garden"}
@@ -252,7 +250,7 @@ def test_the_single_bed_policy_is_a_nested_size_filter_and_a_type_boost() -> Non
 def test_a_routed_policy_recalls_and_boosts_the_named_category_node() -> None:
     body = rc.policy_body(_row("oranges"))
     fs = body["query"]["function_score"]
-    node = "Food/Fresh Produce/Fruit/Citrus/Oranges"
+    node = "Food & Drink/Fresh Produce/Fruit/Citrus/Oranges"
     assert fs["query"]["bool"]["should"][1] == {
         "constant_score": {"filter": {"term": {"category_path_joined": node}}}
     }

@@ -16,6 +16,15 @@ the products that win a query without a policy:
   petite lengths or sizes, of which only every fifth is discounted; :data:`SALE` are
   discounted regular-range items that say "petite" nowhere.
 
+- **"steak"** (gen#264). A food noun used as the modifier of a tool or serving item: the
+  steak knives (:data:`STEAK_KNIVES`), a steak plate, a steak board and a cast-iron steak
+  weight (:data:`STEAK_WARE`) win the text match, and a tin of tuna steaks shares the word. The
+  true answers are beef steaks in the grocery build (``grocery_rows``, families ``SKS`` to
+  ``SKW`` and ``TUS``): their titles name the cut and run to five words or more, the knives' lead
+  with "Steak Knife" and two are two or four words long, so BM25's length norm puts a knife first.
+  Their sales are modest (a knife sells somewhat more than a typical steak): the short title
+  decides, nothing is stuffed.
+
 Every row is a :class:`class_model.Style`, ``reviews`` pinned where a row must out-sell
 another. Names and codes are invented; a row's numbers come from its position, never from
 chance, so the build is deterministic.
@@ -27,7 +36,7 @@ from class_model import LEGS3, Style, one
 from variants import cw
 
 BED = ("Home", "Bedding")
-WJEANS = ("Women", "Jeans")
+WJEANS = ("Womens", "Jeans")
 DENIM, MID, LIGHT, BLACK, NAVY = "#4a6a94", "#5b7aa6", "#9fb4cf", "#2a2a2e", "#26365c"
 WHITE, STONE, OLIVE = "#ffffff", "#d9d3c7", "#6b6b3a"
 
@@ -125,7 +134,7 @@ KIDS_BARRELS = tuple(
 )
 BARREL_TROUSERS = tuple(
     Style(f"DBT{n:02d}", f"{fab} Barrel Leg Trousers", "Larkmoor", "Clothing",
-          ("Women", "Trousers", "Barrel Trousers"), _price(n, 24.0, 12),
+          ("Womens", "Trousers", "Barrel Trousers"), _price(n, 24.0, 12),
           f"{fab} barrel leg trousers with a balloon-shaped leg and a pressed crease.",
           "Trousers", "trousers", ((cw(*(("Khaki", OLIVE), ("Black", BLACK), ("Stone", STONE))[n]),
                                     1100 - n * 120),),
@@ -157,16 +166,17 @@ _FABRICS = ("Stretch", "Linen Blend", "Cotton Twill", "Pleated", "Pull-On", "Bel
 #: (noun, path, leg style, fit) of the petite-length legwear.
 _LEGWEAR = (("Straight Jeans", (*WJEANS, "Straight Jeans"), "straight", "straight"),
             ("Slim Jeans", (*WJEANS, "Slim Jeans"), "slim", "slim"),
-            ("Wide Leg Trousers", ("Women", "Trousers", "Wide Leg Trousers"), "wide", "wide_leg"),
-            ("Tapered Trousers", ("Women", "Trousers", "Tapered Trousers"), "tapered", "slim"),
-            ("Straight Trousers", ("Women", "Trousers", "Straight Trousers"), "straight",
-             "straight"), ("Slim Trousers", ("Women", "Trousers", "Slim Trousers"), "slim", "slim"))
+            ("Wide Leg Trousers", ("Womens", "Trousers", "Wide Leg Trousers"), "wide", "wide_leg"),
+            ("Tapered Trousers", ("Womens", "Trousers", "Tapered Trousers"), "tapered", "slim"),
+            ("Straight Trousers", ("Womens", "Trousers", "Straight Trousers"), "straight",
+             "straight"),
+            ("Slim Trousers", ("Womens", "Trousers", "Slim Trousers"), "slim", "slim"))
 #: (noun, path, shape) of the petite garments sized by number.
-_GARMENTS = (("Wrap Midi Dress", ("Women", "Dresses", "Wrap Dresses"), "dress"),
-             ("Shirt Dress", ("Women", "Dresses", "Shirt Dresses"), "dress"),
-             ("Maxi Dress", ("Women", "Dresses", "Maxi Dresses"), "dress"),
-             ("Jersey Top", ("Women", "Tops", "Jersey Tops"), "top"),
-             ("Long Sleeve Top", ("Women", "Tops", "Long Sleeve Tops"), "top"))
+_GARMENTS = (("Wrap Midi Dress", ("Womens", "Dresses", "Wrap Dresses"), "dress"),
+             ("Shirt Dress", ("Womens", "Dresses", "Shirt Dresses"), "dress"),
+             ("Maxi Dress", ("Womens", "Dresses", "Maxi Dresses"), "dress"),
+             ("Jersey Top", ("Womens", "Tops", "Jersey Tops"), "top"),
+             ("Long Sleeve Top", ("Womens", "Tops", "Long Sleeve Tops"), "top"))
 UK_SIZES = ("6", "8", "10", "12", "14", "16")
 
 
@@ -221,11 +231,83 @@ def _sale(n: int) -> Style:
 
 SALE = tuple(_sale(n) for n in range(60))
 
+# --------------------------------------------------------------------------
+# "steak"
+# --------------------------------------------------------------------------
+
+KD = ("Home", "Kitchen & Dining")
+STEEL = cw("Silver", "#cfd5da", "solid", "#8f989f")
+CAST = cw("Black", "#2f2f35", "solid", "#8f989f")
+WOODEN = cw("Natural", "#c9a46a", "solid", "#7d5634")
+
+
+def _cutlery(code: str, title: str, count: int, handle: str, edge: str, color, sold: int,
+             price: float, desc: str, piece: str = "steak knife") -> Style:  # fmt: skip
+    """A steak-knife row: ``count`` pieces, a blade ``edge`` and a ``handle``."""
+    kind = "Steak Knife and Fork" if "fork" in piece else "Steak Knife"
+    return Style(code, title, "Lanternby" if handle == "wooden" else "Hearth & Table", "Home",
+                 (*KD, "Cutlery"), price, desc, "Cutlery", "cutlery_piece", one(color, sold),
+                 units_per_pack=count, colorless=False,
+                 extra=(("cutlery_type", "Cutlery type", kind),
+                        ("material", "Material", "Stainless Steel 18/10"),
+                        ("handle", "Handle", handle.title()), ("edge", "Edge", edge.title())),
+                 params=(("piece", piece), ("handle", handle), ("count", str(count)),
+                         ("edge", edge)))  # fmt: skip
+
+
+#: The steak knives. Two titles are short ("Steak Knife", "Steak Knife Set of 6"), the rest
+#: longer. Sales are modest (a knife sells 60 to 120 in five days; a grocery steak 5 to 94, so
+#: a knife sells somewhat more), so the title's length, not popularity, decides.
+STEAK_KNIVES = (
+    _cutlery("DSK01", "Steak Knife", 1, "wooden", "serrated", STEEL, 90, 5.5,
+             "A single steak knife with a pointed serrated blade and a riveted wooden handle, "
+             "to replace one from a set. It cuts a sirloin or a ribeye without tearing it. "
+             "Hand wash."),
+    _cutlery("DSK02", "Steak Knives Set of 6", 6, "wooden", "serrated", STEEL, 120, 24.0,
+             "Six steak knives with a pointed serrated blade and a riveted wooden handle, "
+             "for cutting a rump or a fillet steak at the table. Hand wash."),
+    _cutlery("DSK03", "Steak Knife Set of 4 with Wooden Handles", 4, "wooden", "serrated", STEEL,
+             110, 18.0, "Four steak knives with serrated blades that stay sharp through a "
+             "steak dinner for two, and riveted wooden handles. Hand wash."),
+    _cutlery("DSK04", "Steak Knife Set of 6 with Straight Edge Blades", 6, "wooden", "straight",
+             STEEL, 80, 28.0, "Six steak knives with a plain straight edge that slices a "
+             "steak cleanly and can be sharpened, and wooden handles. Hand wash."),
+    _cutlery("DSK05", "Steak Knife Set of 12 with Black Handles", 12, "black", "serrated", CAST,
+             60, 42.0, "Twelve steak knives with serrated blades and black handles, enough "
+             "for a table of guests all eating steak. Dishwasher safe."),
+    _cutlery("DSK06", "Steak Knife and Fork Set of 8", 8, "wooden", "serrated", STEEL, 100, 26.0,
+             "Four steak knives and four forks with wooden handles: a full steak dinner for "
+             "four. Hand wash.", "steak knife and fork"),
+    _cutlery("DSK07", "Steak Knife Set of 6 with Black Straight Edge Blades", 6, "black",
+             "straight", CAST, 70, 30.0, "Six steak knives with black handles and a straight "
+             "edge, for cutting steak cooked rare. Dishwasher safe."),
+)
+
+#: Steak ware outside cutlery: a plate, a board and a cast-iron weight.
+STEAK_WARE = (
+    Style("DSK08", "Steak Plate Cast Iron Sizzler with Wooden Stand", "Calderby & Lune", "Home",
+          (*KD, "Plates"), 16.0, "A cast-iron plate that keeps a steak sizzling at the table, "
+          "on a wooden stand. Heat it first, then season it with oil after washing by hand.",
+          "Plate", "plate", one(CAST, 60),
+          extra=(("plate_type", "Plate type", "Serving Platter"),),
+          params=(("kind", "serving platter"), ("diameter", "30"), ("finish", "cast iron"))),
+    Style("DSK09", "Steak Serving Board with Juice Groove", "Lanternby", "Home",
+          (*KD, "Chopping Boards"), 19.0, "An acacia wood board for carving and serving a "
+          "steak, with a groove round the edge that catches the juices. Hand wash.",
+          "Chopping Board", "chopping_board", one(WOODEN, 50),
+          params=(("material", "wood"),)),
+    Style("DSK10", "Cast Iron Steak Weight", "Calderby & Lune", "Home", (*KD, "Kitchen Utensils"),
+          14.0, "A ribbed cast-iron grill press that keeps a steak flat in the pan so it sears "
+          "evenly, with a wooden handle that stays cool. Hand wash and oil after use.",
+          "Kitchen Utensil", "grill_press", one(CAST, 40),
+          extra=(("utensil_type", "Utensil type", "Grill Press"),)),
+)
+
 STYLES = (*MORE_TOPPERS, *PROTECTORS, *MATTRESSES, *PILLOW_PROTECTORS, *BARRELS,
-          *KIDS_BARRELS, *BARREL_TROUSERS, *MORE_BALLOONS, *PETITE, *SALE)
+          *KIDS_BARRELS, *BARREL_TROUSERS, *MORE_BALLOONS, *PETITE, *SALE,
+          *STEAK_KNIVES, *STEAK_WARE)
 
 
 def docs() -> list[dict]:
     """Every row's catalog document, in the order of :data:`STYLES`."""
     return [s.doc() for s in STYLES]
-

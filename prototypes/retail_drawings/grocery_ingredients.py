@@ -25,7 +25,7 @@ import zlib
 #: Families whose products are sold loose or whole, or are wine and cider (no label list), and carry no ingredients list.
 NO_LIST = frozenset({"ORA", "LEM", "APP", "VEG", "LIM", "STR", "WRD", "WWH", "WRS", "WSP", "WCH", "CDR",
                      "SWH", "SGN", "SVD", "SRM", "STQ", "FPT", "FSY", "FVM", "PRY", "MED",
-                     "GRF", "MAN", "CLM", "SAT", "RSP", "BLU", "BLK"})
+                     "GRF", "MAN", "CLM", "SAT", "RSP", "BLU", "BLK", "GRP"})
 
 _MARK = re.compile(r"\{(\d+)-(\d+)\}")
 _VAT = "vitamin d3, vitamin a, calcium, riboflavin"
@@ -34,6 +34,9 @@ _VAT = "vitamin d3, vitamin a, calcium, riboflavin"
 TAIL: dict[str, str] = {
     "CHB": "emulsifier (soya lecithin), natural flavoring",
     "CHX": "emulsifier (soya lecithin), natural flavoring",
+    "PNT": "emulsifier (soya lecithin), natural flavoring",
+    "PNH": "emulsifier (soya lecithin), natural flavoring",
+    "PNF": "emulsifier (soya lecithin), natural flavoring",
     "SWT": "natural flavoring, color (anthocyanins)",
     "BIS": "salt, raising agent (sodium bicarbonate), natural flavoring",
     "ORB": "salt, raising agent (sodium bicarbonate), natural flavoring",
@@ -65,6 +68,20 @@ HEAD: dict[tuple[str, str], str] = {
     ("CHB", "Almond Dark"): "cocoa mass ({55-70}%), sugar, cocoa butter, toasted almonds ({8-14}%)",
     ("CHB", "Lemon White"): "sugar, cocoa butter, whole milk powder, freeze-dried lemon, lemon oil",
     ("CHB", "Raspberry Dark"): "cocoa mass ({55-70}%), sugar, cocoa butter, freeze-dried raspberry ({3-6}%)",
+    ("PNT", "Chocolate Peanut Butter Cups"): "sugar, cocoa butter, whole milk powder, peanut paste ({18-26}%), cocoa mass, roasted peanuts",
+    ("PNT", "Milk Chocolate with Crunchy Peanuts"): "sugar, cocoa butter, whole milk powder, roasted peanuts ({15-25}%), cocoa mass",
+    ("PNT", "Chocolate Coated Peanuts"): "roasted peanuts ({45-60}%), sugar, cocoa butter, whole milk powder, cocoa mass",
+    ("PNT", "Peanut Caramel Chocolate Bar"): "sugar, cocoa butter, whole milk powder, roasted peanuts ({10-18}%), cocoa mass, caramel pieces",
+    ("PNT", "Dark Chocolate Peanut Clusters"): "cocoa mass ({55-70}%), roasted peanuts ({20-30}%), sugar, cocoa butter",
+    ("PNT", "Chocolate Peanut Brittle"): "sugar, roasted peanuts ({25-35}%), cocoa butter, whole milk powder, cocoa mass, salt",
+    ("PNH", "Milk Chocolate Praline Bar"): "sugar, cocoa butter, whole milk powder, peanut paste ({12-20}%), cocoa mass, vanilla extract",
+    ("PNH", "Triple Chocolate Biscuit Bar"): "sugar, wheat flour, cocoa butter, whole milk powder, cocoa mass, peanut paste ({6-10}%)",
+    ("PNH", "Dark Chocolate Crunch Bar"): "cocoa mass ({55-70}%), sugar, cocoa butter, roasted peanuts ({5-9}%), salt",
+    ("PNF", "Peanut-Free Milk Chocolate Bar"): "sugar, cocoa butter, whole milk powder, cocoa mass, whey powder|lactose",
+    ("PNF", "Peanut-Free Dark Chocolate Bar"): "cocoa mass ({55-70}%), sugar, cocoa butter, vanilla extract",
+    ("PNF", "No Peanuts Hazelnut Milk Chocolate Bar"): "sugar, cocoa butter, whole milk powder, cocoa mass, hazelnut paste ({8-15}%)",
+    ("PNF", "No Peanuts Orange Dark Chocolate Bar"): "cocoa mass ({55-70}%), sugar, cocoa butter, orange oil",
+    ("PNF", "Peanut-Free Salted Caramel Chocolate Bar"): "sugar, cocoa butter, whole milk powder, cocoa mass, salted caramel pieces, sea salt",
     ("CHX", "Classic Milk"): "sugar, cocoa butter, whole milk powder, cocoa mass, glucose syrup",
     ("CHX", "Praline"): "sugar, cocoa butter, whole milk powder, hazelnut praline ({10-20}%), cocoa mass",
     ("CHX", "Dark Truffle"): "sugar, cocoa mass, cocoa butter, double cream, butter, glucose syrup",
@@ -245,6 +262,24 @@ HEAD: dict[tuple[str, str], str] = {
     ("MEA", "Pork Sausages"): "pork ({70-80}%), water, wheat rusk, salt, spices, dextrose, antioxidant (ascorbic acid)",
     ("MEA", "Smoked Bacon"): "pork belly, salt, sugar, preservative (sodium nitrite), antioxidant (sodium ascorbate)",
     ("MEA", "Lemon & Herb Chicken Thighs"): "chicken thighs ({80-88}%), lemon juice, rapeseed oil, herbs (parsley, thyme), salt, garlic",
+    ("SKS", "Sirloin Steak"): "beef sirloin ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SKR", "Ribeye Steak"): "beef ribeye ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SKU", "Rump Steak"): "beef rump ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SKF", "Fillet Steak"): "beef fillet ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SKC", "Chuck Steak"): "beef chuck ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SKT", "T-Bone Steak"): "beef t-bone ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SKL", "Flank Steak"): "beef flank ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SKW", "Skirt Steak"): "beef skirt ({93-97}%), rapeseed oil, sea salt, black pepper, garlic",
+    ("SSA", "Steak Sauce"): "tomatoes, barley malt vinegar, sugar, dates, molasses, salt, spices",
+    ("SSA", "Peppercorn Steak Sauce"): "tomatoes, barley malt vinegar, sugar, black pepper, molasses, salt, spices",
+    ("SSN", "Steak Seasoning"): "sea salt, black pepper, garlic, smoked paprika, onion powder",
+    ("SSN", "Smoky Steak Rub"): "smoked paprika, sea salt, sugar, black pepper, onion powder",
+    ("GJU", "Red Grape Juice"): "concentrated grape juice ({90-99}%), water, vitamin c, antioxidant (ascorbic acid), citric acid",
+    ("GJU", "White Grape Juice"): "concentrated grape juice ({90-99}%), water, vitamin c, citric acid, natural flavoring",
+    ("GCH", "Grape Fruit Chews"): "glucose syrup, sugar, gelatine, concentrated grape juice ({2-5}%), citric acid, natural flavoring",
+    ("GCH", "Grape Jellies"): "glucose syrup, sugar, modified maize starch, concentrated grape juice ({2-5}%), citric acid, natural flavoring",
+    ("TUS", "Tuna Steaks in Brine"): "yellowfin tuna ({70-75}%), water, sea salt, acidity regulator (citric acid), antioxidant (ascorbic acid)",
+    ("TUS", "Tuna Steaks in Sunflower Oil"): "yellowfin tuna ({70-75}%), sunflower oil, sea salt, water, antioxidant (ascorbic acid)",
     ("FSH", "Salmon Fillets"): "salmon ({93-97}%), sea salt, sunflower oil, black pepper, lemon juice",
     ("FSH", "Cod Loins"): "cod ({85-92}%), water, salt, stabiliser (sodium triphosphate), antioxidant (ascorbic acid)",
     ("FSH", "Smoked Mackerel"): "mackerel, salt, oak smoke, sugar, sunflower oil",
@@ -382,3 +417,260 @@ def facet_value(item: str) -> str:
     elif last.endswith("s") and not last.endswith(("ss", "us", "is", "ses")) and len(last) > 3:
         last = last[:-1]
     return head + sep + last
+
+
+#: Base ingredient -> the label values (``facet_value`` forms, the ``facets.ingredients`` strings) it is the
+#: head of (gen#295). The committed table behind ``facets.ingredient_base``: no heuristic. One number form:
+#: the plural for a countable (peanuts, oranges), the mass noun otherwise (salt, sugar). A label value with
+#: no row keeps its own value and is reported by :func:`unmapped`. Several forms of one ingredient read as
+#: one: "orange peel" and "orange juice" are both oranges, "emulsifier (soya lecithin)" is soya.
+_BASE_ROWS = """
+almonds: almond; roasted almond; toasted almond
+brazil nuts: brazil nut
+cashews: cashew nut; roasted cashew nut
+hazelnuts: hazelnut; hazelnut paste; hazelnut praline
+peanuts: peanut; peanut paste; peanut piece; roasted peanut
+walnuts: walnut
+coconut: coconut; coconut chip; coconut extract; coconut milk; coconut oil; coconut water; coconut water concentrate; desiccated coconut
+oranges: orange peel; candied orange peel; orange flake; orange flavoring; orange juice; orange juice cell; orange juice from concentrate; orange oil; orange pulp; orange puree; seville orange; blood orange juice; orange zest
+lemons: candied lemon peel; freeze-dried lemon; lemon curd; lemon curd filling; lemon juice; lemon juice from concentrate; lemon oil; lemon peel; lemon powder; lemon zest; natural lemon flavoring; lemon extract
+limes: kaffir lime peel; lime juice
+lime leaves: lime leaf
+honey: acacia honey; clover honey; heather honey; honey; honey granule; honeycomb piece; orange blossom honey; wildflower honey
+cocoa: cocoa butter; cocoa mass; cocoa mass (70% cocoa solids); cocoa powder
+chocolate: chocolate chip; dark chocolate chip; milk chocolate; milk chocolate chip
+milk: milk; whole milk; condensed skimmed milk; skimmed milk powder; whole milk powder; milk protein concentrate; pasteurised cows' milk; pasteurised semi-skimmed cows' milk; pasteurised skimmed cows' milk; pasteurised whole cows' milk
+cream: cream; double cream; pasteurised cream; cream powder; sour cream powder
+cheese: cheddar cheese; cheese powder; edam cheese; emmental cheese; mozzarella cheese
+butter: butter
+whey: whey powder
+lactose: lactose
+lactase: lactase enzyme
+yoghurt: yoghurt; live yoghurt culture
+eggs: egg; egg white; egg yolk; pasteurised egg; pasteurised egg yolk
+wheat: wheat bran; wheat flour; wheat malt; wheat rusk; wholegrain wheat; wholemeal wheat flour; durum wheat semolina; cooked lasagne pasta (water, durum wheat semolina); cooked macaroni (water, durum wheat semolina)
+barley: barley malt; barley malt extract; barley malt vinegar; malted barley; malted barley flour; caramalt; crystal malt; pale malt (barley); pilsner malt; pilsner malt (barley)
+beer: beer (water, barley malt)
+oats: oat; oat bran; oat flour; rolled oat; wholegrain oat; gluten free oat; gluten free oat bran; gluten free rolled oat
+rice: rice; rice flour; brown rice flour; cooked basmati rice; cooked brown rice; cooked jasmine rice; cooked long grain rice; puffed rice
+maize: maize; maize flour; maize grit; maize starch; modified maize starch; popcorn kernel
+sweetcorn: sweetcorn; sweetcorn kernel
+rye: rye flour
+quinoa: cooked quinoa
+soya: soya bean; soya flour; hulled soya bean; edamame soya bean; emulsifier (soya lecithin)
+sunflower: emulsifier (sunflower lecithin)
+sunflower seeds: sunflower seed
+tomatoes: tomato; tomatoe; tomato juice; tomato puree
+potatoes: potatoe; potato starch
+sweet potatoes: sweet potato
+peppers: red pepper
+black pepper: black pepper
+paprika: paprika extract; smoked paprika
+chillies: chilli; chilli extract; chilli powder; red chilli
+sugar: sugar; icing sugar; caramelised sugar; sugar crystal
+glucose: dextrose; glucose syrup
+syrup: golden syrup
+treacle: treacle
+molasses: molasses
+fudge: fudge piece
+tapioca: tapioca starch
+caramel: caramel color; caramel piece; caramel sauce; salted caramel piece; color (caramel); color (caramel e150d)
+apples: apple juice; apple juice concentrate; apple juice from concentrate; apple puree; dried apple
+apricots: apricot puree
+bananas: banana puree
+blackcurrants: blackcurrant juice
+blueberries: blueberry piece
+cranberries: cranberry; dried cranberry
+cherries: cherry juice; glace cherry
+damsons: damson puree
+dates: date
+gooseberries: gooseberry puree
+grapes: concentrated grape juice; grape must
+mangoes: mango; mango puree
+passion fruit: passion fruit juice
+peaches: peache; peach puree
+pears: pear juice; pear puree
+pineapples: pineapple; pineapple juice; pineapple juice from concentrate; pineapple puree
+plums: plum puree
+raspberries: raspberry; raspberry juice; raspberry puree; freeze-dried raspberry
+strawberries: strawberry; strawberry jam; strawberry juice; strawberry piece; strawberry puree
+raisins: raisin
+vine fruit: vine fruit
+lychees: lychee juice
+rhubarb: rhubarb juice
+fruit juice: fruit juice from concentrate
+elderflower: elderflower cordial; elderflower extract
+cornflower: cornflower petal
+jasmine: jasmine petal
+olives: olive extract
+aubergines: aubergine
+broccoli: broccoli floret
+carrots: carrot
+chickpeas: chickpea
+courgettes: courgette
+peas: garden pea
+green beans: green bean
+haricot beans: haricot bean
+kidney beans: kidney bean
+onions: onion; onion powder
+shallots: shallot
+pumpkin seeds: pumpkin seed
+poppy seeds: poppy seed
+linseed: linseed
+psyllium: psyllium husk
+bamboo shoots: bamboo shoot
+curry paste: green curry paste
+mustard: mustard; mustard powder
+herbs: herbs (parsley, thyme)
+basil: basil
+caraway: caraway
+chives: chive
+cinnamon: cinnamon
+coriander: coriander; coriander seed; ground coriander
+cumin: cumin
+galangal: galangal
+garlic: garlic
+ginger: ginger; ginger extract; ginger root; ground ginger
+nutmeg: nutmeg
+oregano: oregano
+parsley: parsley
+turmeric: turmeric
+spice: spice; spice extract
+mint: mint; mint extract; natural mint flavoring
+peppermint: peppermint leave; peppermint oil
+spearmint: spearmint leave
+vanilla: vanilla extract; vanilla piece; vanillin
+bergamot: bergamot flavoring
+rooibos: rooibo
+lemon balm: lemon balm
+lemon verbena: lemon verbena
+lemongrass: lemongrass
+liquorice: liquorice root
+sarsaparilla: sarsaparilla extract
+beef: beef; beef chuck; beef fat; beef fillet; beef flank; beef ribeye; beef rump; beef sirloin; beef skirt; beef t-bone
+chicken: chicken breast; chicken thigh; cooked chicken; cooked chicken breast; chicken
+pork: pork; pork belly
+ham: cooked ham
+pepperoni: pepperoni
+cod: cod
+haddock: haddock
+mackerel: mackerel
+salmon: salmon
+tuna: yellowfin tuna
+coffee: coffee extract; coffee oil; natural coffee aroma; dark roasted arabica coffee (brazil); dark roasted arabica coffee (colombia); dark roasted robusta coffee (vietnam); decaffeinated arabica coffee; decaffeinated robusta coffee; freeze-dried arabica coffee; freeze-dried robusta coffee; roasted arabica coffee (brazil); roasted arabica coffee (cauca); roasted arabica coffee (colombia); roasted arabica coffee (huila); roasted arabica coffee (narino); roasted arabica coffee (santander); roasted arabica coffee (tolima); roasted coffee (honduras); roasted coffee (peru); roasted coffee granule; roasted robusta coffee (vietnam)
+black tea: black tea (assam); black tea (ceylon); black tea (kenya); black tea (malawi); black tea (rwanda); black tea
+green tea: green tea (gunpowder); green tea (sencha)
+hops: cascade hop; centennial hop; citra hop; english hop; fuggle hop; goldings hop; hop; hop extract; hop pellet; mosaic hop; saaz hop
+water: water; spring water; carbonated water
+salt: salt; sea salt
+yeast: yeast; yeast extract
+sourdough: sourdough culture
+the mother: the mother
+starter culture: starter culture; lactic culture
+koji: koji
+rennet: vegetable rennet
+suet: vegetable suet
+vinegar: cider vinegar; unfiltered cider vinegar; spirit vinegar; white wine vinegar; white wine vinegar powder; wine vinegar
+wine: wine flavoring
+cola: cola flavoring
+smoke: oak smoke; smoke flavoring
+natural flavoring: natural flavoring
+natural cloudiness: natural cloudiness
+palm oil: palm oil
+rapeseed oil: rapeseed oil
+sunflower oil: sunflower oil
+vegetable oil: vegetable oil
+dairy free topping: dairy free topping (coconut oil, potato starch)
+citric acid: acid (citric acid); acidity regulator (citric acid); citric acid
+acetic acid: acidity regulator (acetic acid)
+dipotassium phosphate: acidity regulator (dipotassium phosphate)
+sodium citrate: acidity regulator (sodium citrate)
+sodium diacetate: acidity regulator (sodium diacetate)
+ascorbic acid: antioxidant (ascorbic acid); ascorbic acid
+rosemary: antioxidant (rosemary extract)
+sodium ascorbate: antioxidant (sodium ascorbate)
+annatto: color (annatto)
+anthocyanins: color (anthocyanins)
+carotenes: color (carotenes)
+mono- and diglycerides of fatty acids: emulsifier (mono- and diglycerides of fatty acids)
+calcium chloride: firming agent (calcium chloride)
+pectin: gelling agent (pectin); stabiliser (pectin)
+gellan gum: stabiliser (gellan gum)
+guar gum: guar gum; stabiliser (guar gum)
+locust bean gum: stabiliser (locust bean gum)
+sodium triphosphate: stabiliser (sodium triphosphate)
+xanthan gum: xanthan gum
+gelatine: gelatine
+beeswax: glazing agent (beeswax)
+calcium propionate: preservative (calcium propionate)
+potassium sorbate: preservative (potassium sorbate)
+sodium nitrite: preservative (sodium nitrite)
+sodium bicarbonate: raising agent (sodium bicarbonate); sodium bicarbonate
+diphosphates: raising agents (diphosphates, sodium carbonates)
+sodium carbonates: raising agents (sodium carbonates)
+malic acid: malic acid
+lactic acid: lactic acid
+phosphoric acid: phosphoric acid
+penicillium roqueforti: penicillium roqueforti
+vitamins: vitamins (b12, d2); vitamins (niacin, b6, folic acid)
+vitamin a: vitamin a
+vitamin c: vitamin c
+vitamin d: vitamin d; vitamin d3
+niacin: niacin
+lavender: lavender bud; lavender essential oil; lavender flower; lavender oil
+lentils: lentil
+shea: shea butter
+soy wax: soy wax
+sultanas: sultana
+riboflavin: riboflavin
+thiamin: thiamin
+iron: iron
+calcium: calcium; calcium carbonate
+caffeine: caffeine
+"""
+
+
+def _rows() -> dict[str, str]:
+    out: dict[str, str] = {}
+    for line in _BASE_ROWS.strip().splitlines():
+        base, _, labels = line.partition(": ")
+        for label in labels.split("; "):
+            if label in out:
+                raise ValueError(f"label {label!r} has two base rows ({out[label]!r}, {base!r})")
+            out[label] = base
+    return out
+
+
+BASE: dict[str, str] = _rows()
+
+
+def base_value(item: str) -> str:
+    """The base ingredient of one label row (its raw text or its ``facet_value`` form): its row in
+    :data:`BASE`, else its own filterable value."""
+    value = facet_value(item)
+    return BASE.get(value, value)
+
+
+def unmapped(values) -> list[str]:  # noqa: ANN001
+    """The label values with no row in :data:`BASE`, sorted: the build reports them."""
+    return sorted(set(values) - set(BASE))
+
+
+#: The allergen a ``contains`` / ``may_contain`` value names -> its canonical facet value
+#: (gen#294). The same value ``facets.ingredient_base`` holds for that ingredient (``peanuts``,
+#: ``milk``, ``eggs``, ``soya``). Singular and plural spellings are the vocabulary's job, not
+#: the data's (elastic/prism#12043).
+ALLERGEN_BASE: dict[str, str] = {
+    "Peanuts": "peanuts", "Tree Nuts": "tree nuts", "Milk": "milk", "Gluten": "gluten",
+    "Soy": "soya", "Egg": "eggs", "Fish": "fish",
+}
+
+#: Allergens that name a group of ingredients (almonds, hazelnuts ...; wheat, barley, rye, oats;
+#: salmon, tuna ...), so no single base ingredient is theirs: their own value, in the same
+#: lower-case form, and the only values of ``facets.contains`` the base table has no row for.
+ALLERGEN_GROUPS: frozenset[str] = frozenset({"tree nuts", "gluten", "fish"})
+
+
+def allergen_value(allergen: str) -> str:
+    """The canonical facet value of one allergen name (``Soy`` -> ``soya``)."""
+    return ALLERGEN_BASE[allergen]

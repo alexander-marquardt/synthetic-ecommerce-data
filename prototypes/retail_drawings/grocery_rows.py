@@ -33,6 +33,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+#: The dietary labels a SKU may carry: one closed list (gen#296).
+DIETARY: tuple[str, ...] = ("Vegan", "Vegetarian", "Gluten Free", "Dairy Free", "Nut Free", "Organic")
+
 ALLERGENS = {"P": "Peanuts", "T": "Tree Nuts", "M": "Milk", "G": "Gluten", "S": "Soy", "E": "Egg", "F": "Fish"}
 
 
@@ -127,6 +130,7 @@ def _p(*parts: str) -> tuple[str, ...]:
 
 
 _FRUIT = _p("Fruit & Vegetables", "Fresh Fruit")
+_STEAK = _p("Meat & Fish", "Fresh Meat", "Steak")
 _BEER = _p("Beer, Wine & Spirits", "Beer")
 _WINE = _p("Beer, Wine & Spirits", "Wine")
 _CIDER = _p("Beer, Wine & Spirits", "Cider")
@@ -162,6 +166,20 @@ _BODY_SCENTS = (
     F("Lavender", "#9a7ab6"),
 )
 _BODY_BRANDS = ("Brightwater Botanics", "Velling Apothecary", "Orrin Skin")
+
+#: A beef cut's own description sentence, by (family code, flavor name): what the cut is and how
+#: it cooks, so the six cuts do not share one template (gen#269). Words the SKUs do not carry
+#: (a weight, a price) stay out.
+CUT_NOTES = {
+    ("SKS", "Sirloin Steak"): "A lean cut from the back with a thin edge of fat, best seared hot and left to rest.",
+    ("SKR", "Ribeye Steak"): "A well marbled cut from the rib that stays juicy, cooked quickly in a hot pan or on the grill.",
+    ("SKF", "Fillet Steak"): "The most tender cut, from the tenderloin, with a mild flavour; cook it briefly and rare to medium.",
+    ("SKU", "Rump Steak"): "A full flavoured cut from the hindquarter with a firm bite, good marinated and sliced across the grain.",
+    ("SKC", "Chuck Steak"): "A richly flavoured cut from the shoulder with connective tissue, best braised slowly or cooked low and long.",
+    ("SKT", "T-Bone Steak"): "A cut across the loin with the bone between a strip and a small fillet, grilled hot for a crust.",
+    ("SKL", "Flank Steak"): "A lean, long-grained cut from the belly muscle, marinated, seared quickly and sliced thinly across the grain.",
+    ("SKW", "Skirt Steak"): "A thin, beefy cut from the diaphragm with a loose grain, cooked fast over a high heat for fajitas.",
+}
 
 FAMILIES: tuple[Family, ...] = (
     # Chocolate & Sweets
@@ -234,7 +252,7 @@ FAMILIES: tuple[Family, ...] = (
            (F("Whole", "#3b6fb6", "M"), F("Semi Skimmed", "#3a8f6a", "M"), F("Skimmed", "#c8312e", "M"),
             F("Lactose Free", "#5a4a8a", "M")),
            _DAIRY, 0.03),
-    Family("PLM", _p("Dairy & Alternatives", "Plant Milk"), "{line} {flavor} Drink", "Plant Milk", "carton",
+    Family("PLM", _p("Dairy & Alternatives", "Milk", "Plant Milk"), "{line} {flavor} Drink", "Plant Milk", "carton",
            "Plant Milk", _A, "AB", 1.5, ("1L", "6 x 1L"),
            (F("Oat", "#d8c9a8", "G"), F("Almond", "#c9a96e", "T"), F("Soya", "#efe8d8", "S"), F("Coconut", "#f4f0e6"),
             F("Barista Oat", "#a8784a", "G")),
@@ -459,7 +477,7 @@ FAMILIES: tuple[Family, ...] = (
             F("Salted Caramel Hot Chocolate", "#c48a3a", "M")),
            ("Pantry Mill", "Hearth & Table", "Brewhollow Roasters"), 0.004),
     # Overlaps: the words a food shares with a scent
-    Family("CLN", ("Cleaning", "Kitchen & Surfaces", "Kitchen Cleaners"), "{line} {flavor} Multi-Surface Cleaner",
+    Family("CLN", ("Cleaning", "Kitchen & Surfaces", "Cleaners", "Kitchen Cleaners"), "{line} {flavor} Multi-Surface Cleaner",
            "Kitchen Cleaner", "bottle", "Cleaner", _A, "", 1.5, ("500ml", "750ml"),
            (F("Lemon", "#f2d14b"), F("Orange", "#f2a14b"), F("Mint", "#3a8f6a"), F("Lavender", "#9a7ab6")),
            ("Clearbrook Household", "Soapwell"), 0.004, axis="scent", department="Cleaning & Janitorial"),
@@ -474,7 +492,7 @@ FAMILIES: tuple[Family, ...] = (
     Family("DSH", ("Cleaning", "Kitchen & Surfaces", "Dish Soap"), "{line} {flavor} Dish Soap", "Dish Soap", "bottle",
            "Dish Soap", _A, "", 1.2, ("500ml", "1L"), _HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",
            department="Cleaning & Janitorial", noun="washing-up liquid that cuts through grease", depth=True),
-    Family("GLS", ("Cleaning", "Kitchen & Surfaces", "Glass Cleaners"), "{line} {flavor} Glass Cleaner", "Glass Cleaner",
+    Family("GLS", ("Cleaning", "Kitchen & Surfaces", "Cleaners", "Glass Cleaners"), "{line} {flavor} Glass Cleaner", "Glass Cleaner",
            "bottle", "Glass Cleaner", _A, "", 1.6, ("500ml", "750ml"), _HOME_SCENTS, _HOME_BRANDS, 0.01,
            axis="scent", department="Cleaning & Janitorial", noun="streak-free spray for windows and mirrors", depth=True),
     Family("FLR", ("Cleaning", "Floor Care", "Floor Cleaners"), "{line} {flavor} Floor Cleaner", "Floor Cleaner",
@@ -545,13 +563,13 @@ FAMILIES: tuple[Family, ...] = (
             F("Strawberry & Lime Cider", "#e87a7a", "", 4.0, (("cider_style", "Cider style", "Fruit"),)),
             F("Alcohol Free Cider", "#d8b04a", "", 0.0, (("cider_style", "Cider style", "Alcohol Free"),))),
            ("Orchardgate Cider Co.", "Vine & Valley", "Freshfold"), 0.010, depth=True),
-    Family("HCR", ("Beauty", "Skincare", "Hand Creams"), "{line} Hand Cream for {flavor}", "Hand Cream",
+    Family("HCR", ("Beauty", "Skincare", "Creams", "Hand Creams"), "{line} Hand Cream for {flavor}", "Hand Cream",
            "moisturiser_jar", "Hand Cream", _A, "", 3.5, ("50ml", "100ml"),
            (F("Dry Skin", "#f4efe6"), F("Cracked Skin", "#efe4d6"), F("Sensitive Skin", "#eef1ea"),
             F("Everyday Care", "#f2ecdf")),
            _SKIN_BRANDS, 0.008, axis="skin_concern", axis_name="Skin concern", department="Beauty",
            noun="nourishing hand cream", fits="Made for {x}.", depth=True),
-    Family("ECR", ("Beauty", "Skincare", "Eye Creams"), "{line} Eye Cream for {flavor}", "Eye Cream",
+    Family("ECR", ("Beauty", "Skincare", "Creams", "Eye Creams"), "{line} Eye Cream for {flavor}", "Eye Cream",
            "moisturiser_jar", "Eye Cream", _A, "", 9.0, ("15ml", "30ml"),
            (F("Dark Circles", "#efe8dc"), F("Puffiness", "#eaf0ee"), F("Fine Lines", "#f2ebe0"),
             F("Dry Skin", "#f4efe6")),
@@ -672,7 +690,7 @@ FAMILIES: tuple[Family, ...] = (
            (_o("Juicy Blackberries", "#2e1a3a", "United Kingdom"), _o("Sweet Blackberries", "#2a1a38", "Mexico"),
             _o("Large Blackberries", "#321e3e", "Serbia")),
            _FRESH, 0.003, axis="variety", depth=True),
-    Family("FTC", ("Beauty", "Skincare", "Foot Creams"), "{line} Foot Cream for {flavor}", "Foot Cream",
+    Family("FTC", ("Beauty", "Skincare", "Creams", "Foot Creams"), "{line} Foot Cream for {flavor}", "Foot Cream",
            "moisturiser_jar", "Foot Cream", _A, "", 3.5, ("75ml", "150ml"),
            (F("Dry Skin", "#f4efe6"), F("Cracked Heels", "#efe4d6"), F("Tired Feet", "#e6f0ea"),
             F("Everyday Care", "#f2ecdf")),
@@ -683,6 +701,83 @@ FAMILIES: tuple[Family, ...] = (
            (F("Shea", "#e8dcc0"), F("Cocoa Butter", "#d8c4a0"), F("Almond", "#c9a96e"), F("Oat", "#ece3cf")),
            _SKIN_BRANDS, 0.005, axis="scent", department="Beauty",
            noun="rich body cream for dry skin", depth=True),
+    # The "steak" class (gen#264, gen#296): a fresh-meat Steak PARENT with one child per cut, so a
+    # shopper's "steak" names the parent and "sirloin steak" its child. Each label names the
+    # product on its own ("Skirt Steak", never "Skirt", which is also a garment). The cuts are
+    # depth families, last in the list, so no earlier family's draw moves; a style's title names
+    # the cut, says "steak" once and runs to five words or more ("Ashcombe British Beef Ribeye
+    # Steak"), as a butcher's title does: the text match then favors the short "Steak Knife"
+    # titles. Steak knives, sauce and seasoning stay in their own categories as the decoys.
+    Family("SKS", _STEAK + ("Sirloin Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Sirloin Steak", "#a8322e", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKR", _STEAK + ("Ribeye Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Ribeye Steak", "#9c2a2a", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKU", _STEAK + ("Rump Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Rump Steak", "#a63a30", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKF", _STEAK + ("Fillet Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Fillet Steak", "#b8403a", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKC", _STEAK + ("Chuck Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Chuck Steak", "#8e2a28", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKT", _STEAK + ("T-Bone Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("T-Bone Steak", "#a02e2c", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKL", _STEAK + ("Flank Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Flank Steak", "#b0382f", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKW", _STEAK + ("Skirt Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Skirt Steak", "#9a2c32", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    # Decoys for "steak" in the grocery tree: a sauce and a seasoning (gen#296).
+    Family("SSA", _p("Food Cupboard", "Sauces & Condiments"), "{line} {flavor}", "Sauce", "bottle", "Sauce", _A, "CD", 1.9,
+           ("250ml", "500ml"), (F("Steak Sauce", "#5a3a26", "G"), F("Peppercorn Steak Sauce", "#4a3020", "G")),
+           _CUP, 0.0015, depth=True),
+    Family("SSN", _p("Food Cupboard", "Herbs & Spices"), "{line} {flavor}", "Seasoning", "jar", "Seasoning", _A, "A", 1.6,
+           ("50g", "100g"), (F("Steak Seasoning", "#7a4a2a"), F("Smoky Steak Rub", "#6a3a22")),
+           _CUP, 0.0015, depth=True),
+    # Fresh grapes (gen#296): one bare-noun leaf under Fresh Fruit, so a query that names it can
+    # be routed; the grape juice and grape sweets below share only the word.
+    Family("GRP", _FRUIT + ("Grapes",), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 2.2, ("250g", "500g", "1kg"),
+           (_o("Red Seedless Grapes", "#a3243b", "South Africa"), _o("Green Seedless Grapes", "#a8c84a", "Spain"),
+            _o("Black Seedless Grapes", "#3a1f4a", "Chile"), _o("Sweet Red Grapes", "#b02a44", "Peru"),
+            _o("Crisp Green Grapes", "#b4d254", "Egypt"), _o("Midnight Black Grapes", "#2e1a40", "South Africa")),
+           _FRESH, 0.008, axis="variety", depth=True),
+    Family("GJU", _p("Drinks", "Juice"), "{line} {flavor}", "Juice", "carton", "Juice", _C, "C", 1.9,
+           ("1L", "1.75L"), (F("Red Grape Juice", "#6a1a3a"), F("White Grape Juice", "#d9d27a")),
+           _DRINK, 0.002, depth=True),
+    Family("GCH", _p("Chocolate & Sweets", "Sweets"), "{line} {flavor}", "Sweets", "bag", "Sweets", _A, "E", 1.2,
+           ("150g", "300g"), (F("Grape Fruit Chews", "#6a2a7a", "h"), F("Grape Jellies", "#7a3a8a")),
+           _SNACK, 0.001, depth=True),
+    Family("TUS", _p("Food Cupboard", "Tinned"), "{line} {flavor}", "Tinned Food", "tin", "Tinned", _A, "AB", 1.6,
+           ("145g", "3 x 145g"),
+           (F("Tuna Steaks in Brine", "#3b6fb6", "xF"), F("Tuna Steaks in Sunflower Oil", "#d9a441", "xF")),
+           _CUP, 0.002, depth=True),
+    # The "chocolate without peanuts" class (gen#294): text search ignores "without", so a chocolate
+    # that holds the word "peanut" wins, and so does one that says "peanut-free". Planted by
+    # ``DECOY_ANCHORS`` only (a depth family's budget is spent by them); the ingredient fields
+    # (``facets.ingredient_base``, ``contains``, ``may_contain``) are the truth the policy reads.
+    Family("PNT", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} {flavor}", "Chocolate Bar",
+           "bar", "Chocolate", _A, "DE", 1.8, ("100g", "200g"),
+           (F("Chocolate Peanut Butter Cups", "#a06a30", "MP"), F("Milk Chocolate with Crunchy Peanuts", "#8a5a3c", "MP"),
+            F("Chocolate Coated Peanuts", "#7a4a2a", "MP"), F("Peanut Caramel Chocolate Bar", "#b07a3c", "MP"),
+            F("Dark Chocolate Peanut Clusters", "#3b2416", "P"), F("Chocolate Peanut Brittle", "#c48a3a", "MP")),
+           _CHOC, 0.001, base="S", depth=True),
+    Family("PNH", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} {flavor}", "Chocolate Bar",
+           "bar", "Chocolate", _A, "DE", 1.6, ("100g", "200g"),
+           (F("Milk Chocolate Praline Bar", "#9a6a44", "MP"), F("Triple Chocolate Biscuit Bar", "#6a3a22", "GMP"),
+            F("Dark Chocolate Crunch Bar", "#3b2416", "P")),
+           _CHOC, 0.001, base="S", depth=True),
+    Family("PNF", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} {flavor}", "Chocolate Bar",
+           "bar", "Chocolate", _A, "DE", 1.7, ("100g", "200g"),
+           (F("Peanut-Free Milk Chocolate Bar", "#8a5a3c", "M"), F("Peanut-Free Dark Chocolate Bar", "#3b2416"),
+            F("No Peanuts Hazelnut Milk Chocolate Bar", "#9a6a44", "MT"), F("No Peanuts Orange Dark Chocolate Bar", "#d9822b"),
+            F("Peanut-Free Salted Caramel Chocolate Bar", "#c48a3a", "M")),
+           _CHOC, 0.001, base="S", depth=True),
 )  # fmt: skip
 
 #: The styles every build plants first, so each demo case exists at any size:
@@ -721,4 +816,17 @@ ANCHORS: tuple[tuple[str, tuple[str, ...], str], ...] = (
     ("CLN", ("Mint",), ""),
     ("BOD", ("Honey",), ""),
     ("BOD", ("Coconut",), ""),
+)
+
+
+#: The text-match decoys of the grocery build (gen#294), planted after :data:`ANCHORS` from the
+#: depth stream (so no core family's draw moves): (family, its flavors, may-contain codes, the
+#: range-name offset). Two ranges per peanut-in-title flavor, so a title and a brand repeat nowhere.
+DECOY_ANCHORS: tuple[tuple[str, tuple[str, ...], str, int], ...] = (
+    *(("PNT", (f.name,), "", 60 + 7 * k + j) for j in range(2) for k, f in enumerate(
+        next(f for f in FAMILIES if f.code == "PNT").flavors)),
+    *(("PNH", (f.name,), "", 90 + 5 * k + j) for j in range(2) for k, f in enumerate(
+        next(f for f in FAMILIES if f.code == "PNH").flavors)),
+    *(("PNF", (f.name,), "", 120 + 5 * k) for k, f in enumerate(
+        next(f for f in FAMILIES if f.code == "PNF").flavors)),
 )

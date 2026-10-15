@@ -64,7 +64,6 @@ def badges(doc: dict) -> list[str]:
     return [
         label
         for label, on in (
-            ("New In", doc["new_in"]),
             ("Bestseller", doc["bestseller_rank"] <= BESTSELLER_TOP),
             ("Trending", doc["trending"]),
             ("Online Only", doc["online_only"]),
@@ -163,7 +162,7 @@ KEYWORDS = ("product_id", "product_type", "audience", "size_range",
             "category_path_joined",
             "brand_owner", "badges", "sub_collection", "product_line",
             "unit_measure")  # fmt: skip
-BOOLEANS = ("offer", "online_only", "new_in", "trending")
+BOOLEANS = ("offer", "online_only", "trending")
 FLOATS = ("price_min", "price_max", "rating", "discount_pct", "abv", "unit_size")
 #: Price and stock are per SKU, so a SKU match must stay inside one SKU.
 SKUS = {

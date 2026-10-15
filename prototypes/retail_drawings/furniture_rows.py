@@ -31,10 +31,11 @@ from variants import cw
 
 _HOME = "Home"
 _FURN = ("Home", "Furniture")
-DINING_TABLES = (*_FURN, "Dining Tables")
+TABLES = (*_FURN, "Tables")
+DINING_TABLES = (*TABLES, "Dining Tables")
 DINING_CHAIRS = (*_FURN, "Dining Chairs")
-COFFEE_TABLES = (*_FURN, "Coffee Tables")
-SIDE_TABLES = (*_FURN, "Side Tables")
+COFFEE_TABLES = (*TABLES, "Coffee Tables")
+SIDE_TABLES = (*TABLES, "Side Tables")
 BOOKCASES = (*_FURN, "Bookcases")
 WARDROBES = (*_FURN, "Wardrobes")
 CHESTS = (*_FURN, "Chests of Drawers")

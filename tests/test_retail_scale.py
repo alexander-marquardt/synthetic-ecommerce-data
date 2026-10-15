@@ -44,16 +44,31 @@ FIGURES = committed()
 #: the failure classes' products), then the shirts (``shirt_rows``), then the seating
 #: (``sofa_rows``, gen#196), then the household styles (``household_rows``, gen#200), then the
 #: appliances (``appliance_rows``, gen#202), then the underwear (``underwear_rows``, gen#208), then
-#: the grocery styles (``grocery.build()``, gen#154), last: no style derives from a shirt, a seating
-#: style, a household style, an appliance, an underwear style or a grocery style.
+#: the toys (``toys_rows``, gen#201), then the lower-body styles (``lowerbody_rows``, gen#206), then
+#: the lighting rows (``lighting_rows``, gen#197), then the seasonal, color and character rows
+#: (``seasonal_rows``, gen#195), then the near-white apparel and main-color bras
+#: (``colorgroup_rows``, gen#302), then the grocery styles (``grocery.build()``, gen#154), last: no
+#: style derives from a shirt, a seating style, a household style, an appliance, an underwear style,
+#: a toy, a lower-body style, a lighting style, a seasonal style or a grocery style. The plain
+#: styles of ``main_colors`` (gen#275) sit between the seasonal rows and the grocery styles.
 SCALE_ROWS = FIGURES["templates"]["scale_rows"]["styles"]
 AUTHORED = FIGURES["templates"]["authored"]["styles"]
 BREADTH_ROWS = FIGURES["templates"]["breadth_rows"]["styles"]
 DISTRACTOR_ROWS = FIGURES["templates"]["distractor_rows"]["styles"]
+DECOY_ROWS = FIGURES["templates"]["decoy_rows"]["styles"]
 SHIRT_ROWS = FIGURES["templates"]["shirt_rows"]["styles"]
+ACCESSORY_ROWS = FIGURES["templates"]["accessory_rows"]["styles"]
+SPORTS_ROWS = FIGURES["templates"]["sports_rows"]["styles"]
 SOFA_ROWS = FIGURES["templates"]["sofa_rows"]["styles"]
 HOUSEHOLD_ROWS = FIGURES["templates"]["household_rows"]["styles"]
+LOWERBODY_ROWS = FIGURES["templates"]["lowerbody_rows"]["styles"]
 APPLIANCE_ROWS = FIGURES["templates"]["appliance_rows"]["styles"]
+TOYS_ROWS = FIGURES["templates"]["toys_rows"]["styles"]
+SEASONAL_ROWS = FIGURES["templates"]["seasonal_rows"]["styles"]
+COLORGROUP_ROWS = FIGURES["templates"]["colorgroup_rows"]["styles"]
+MENS_DEPTH_ROWS = FIGURES["templates"]["mens_depth_rows"]["styles"]
+LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
+PLAIN_ROWS = FIGURES["templates"]["plain_rows"]["styles"]
 GROCERY_ROWS = FIGURES["templates"]["grocery"]["styles"]
 UNDERWEAR_ROWS = FIGURES["templates"]["underwear_rows"]["styles"]
 TEMPLATES = (
@@ -61,11 +76,21 @@ TEMPLATES = (
     + SCALE_ROWS
     + BREADTH_ROWS
     + DISTRACTOR_ROWS
+    + DECOY_ROWS
     + SHIRT_ROWS
+    + ACCESSORY_ROWS
+    + SPORTS_ROWS
     + SOFA_ROWS
     + HOUSEHOLD_ROWS
     + APPLIANCE_ROWS
     + UNDERWEAR_ROWS
+    + TOYS_ROWS
+    + LOWERBODY_ROWS
+    + LIGHTING_ROWS
+    + SEASONAL_ROWS
+    + COLORGROUP_ROWS
+    + MENS_DEPTH_ROWS
+    + PLAIN_ROWS
     + GROCERY_ROWS
 )
 #: The SKUs the templates alone hold. A build at or under it takes no seeded draw, so
@@ -293,7 +318,7 @@ def test_a_value_another_attribute_shares_never_varies():
         return {"key": key, "name": key.title(), "value": value}
 
     rec = {
-        "category_path": ["Women", "Shoes", "Loafers"],
+        "category_path": ["Womens", "Shoes", "Loafers"],
         "category_leaf": "Loafers",
         "product_type": "Loafers",
         "title": "Leather Penny Loafers",
@@ -335,7 +360,8 @@ def test_a_changed_value_is_rewritten_in_the_description(pairs):
             if not scale._has_word(t["description"], old):
                 continue
             assert scale._has_word(r["description"], new), (r["product_id"], r["description"])
-            assert not scale._has_word(r["description"], old), (r["product_id"], old)
+            if not scale._has_word(new, old):  # "Jasmine" -> "Wild Jasmine" still says it
+                assert not scale._has_word(r["description"], old), (r["product_id"], old)
             rewritten += 1
     assert rewritten >= 20
 
@@ -496,7 +522,9 @@ def test_a_smaller_build_is_a_prefix_of_a_larger_one(built, ceiling):
 
 def test_a_derived_style_carries_no_bestseller_badge(pairs):
     assert [r["product_id"] for r, _ in pairs if "Bestseller" in r.get("badges", ())] == []
-    assert any(r.get("badges") for r, _ in pairs)
+    # Non-vacuous: some derived style comes from a template that carries Bestseller,
+    # so the strip had something to remove.
+    assert any("Bestseller" in t.get("badges", ()) for _, t in pairs)
 
 
 def test_the_cli_refuses_a_target_below_one():
@@ -529,7 +557,7 @@ def test_only_a_value_free_of_the_leaf_the_unit_and_a_longer_word_may_vary():
         return {"key": key, "name": key.title(), "value": value, **extra}
 
     rec = {
-        "category_path": ["Women", "Jeans", "Skinny Jeans"],
+        "category_path": ["Womens", "Jeans", "Skinny Jeans"],
         "category_leaf": "Skinny Jeans",
         "product_type": "Jeans",
         "title": "The Harrow Skinny Jeans, 2pk",
@@ -629,13 +657,14 @@ def test_the_cli_writes_the_report_and_the_documents(tmp_path):
 
 
 def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(tmp_path):
+    PAST = CAPACITY[1] + 20000  # the ceiling moves with the data: a fixed target fell under it
     report = tmp_path / "report.json"
     done = subprocess.run(
-        [sys.executable, str(RETAIL / "scale.py"), "--skus", "100000", "--report", str(report)],
+        [sys.executable, str(RETAIL / "scale.py"), "--skus", str(PAST), "--report", str(report)],
         capture_output=True, text=True, check=False,
     )  # fmt: skip
     assert done.returncode == 2, done.stderr[-2000:]
-    assert f"short: {CAPACITY[1]} SKUs of 100000" in done.stderr
+    assert f"short: {CAPACITY[1]} SKUs of {PAST}" in done.stderr
     got = json.loads(report.read_text(encoding="utf-8"))
     assert got["reached_target"] is False
     assert got["standard_problems"] == 0
@@ -1040,7 +1069,9 @@ def test_no_title_or_description_states_a_count_its_own_skus_contradict(build, r
 #: A counted noun after a single "1"/"one": the plural of a count that is one.
 SINGULAR_PLURALS = ("lengths", "washes", "prints", "colors", "colorways", "shades", "sizes")
 #: Words whose article follows the sound, not the letter ("an hour", "a uniform").
-ARTICLE_EXCEPTIONS = {"hour", "honest", "heir", "uniform", "unit", "union", "one", "european"}
+ARTICLE_EXCEPTIONS = {
+    "hour", "honest", "heir", "uniform", "unit", "union", "one", "european", "usb",
+}  # fmt: skip
 
 
 @pytest.mark.parametrize("build", ["built", "ceiling"])
@@ -1108,3 +1139,29 @@ def test_no_drawn_style_reads_as_another_of_its_leaf(ceiling):
                     if len(words & o) / len(words | o) >= scale.NEAR_DUPLICATE_JACCARD]  # fmt: skip
             assert not near, r["title"]
         seen[r["category_leaf"]].append(words)
+
+
+#: Grocery brands that already hold two owners on main (a derived non-grocery style takes
+#: the default third party; Goldfield Farms is own on its shirts). Not the lighting rows'
+#: doing; the list only shrinks.
+GROCERY_OWNER_SPLITS = frozenset({
+    "Barrowby Kitchen", "Copper Hill Preserves", "Crofter's Bakehouse", "Goldfield Farms",
+    "Velling Apothecary",
+})  # fmt: skip
+
+
+def test_every_brand_has_exactly_one_owner_across_the_templates_and_the_ceiling(ceiling):
+    """A brand is own-label or it is not: two ``brand_owner`` values on one brand split it in
+    the own-brand facet (``breadth_rows.OWNERS`` said "Harbour & Pine" was third party while
+    ``class_model`` calls it own, gen#197 review).
+
+    Guard: a row or an owners entry that disagrees with another fails here. Metric: the
+    brands that hold two owners, in the failure message.
+    """
+    owners: dict[str, set[str]] = collections.defaultdict(set)
+    for rec in [*scale.templates(), *ceiling.records]:
+        if "brand_owner" in rec:
+            owners[rec["brand"]].add(rec["brand_owner"])
+    split = {b: sorted(o) for b, o in owners.items() if len(o) > 1}
+    assert {b: o for b, o in split.items() if b not in GROCERY_OWNER_SPLITS} == {}
+    assert set(split) <= GROCERY_OWNER_SPLITS  # a brand that is fixed leaves the list

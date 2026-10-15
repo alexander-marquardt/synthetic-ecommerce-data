@@ -201,6 +201,11 @@ _SOCKET_SCREW = (
     _spec("Thread Type", "line", 0.70),
     _spec("Rockwell Hardness", "line", 0.48),
     _spec("Meets/Exceeds", "line", 0.40),
+    # Unconditional, as on the hex bolt: the shown price is a pack's (every
+    # census socket screw is pack-sold, ``price.PACK_COUNTS``), so a record
+    # that left the pack unstated would show a price for a quantity it does
+    # not name (#65).
+    _spec("Package Quantity", "line", kind="count"),
     _spec("Dia./Thread Size", "sku"),
     _spec("Length", "sku", kind="length"),
     _spec("Length under Head", "sku", kind="length"),
@@ -251,6 +256,10 @@ _HEX_BOLT = (
     _spec("Grade", "line"),
     _spec("Thread Direction", "line", 0.60),
     _spec("Thread Type", "line", 0.66),
+    # Unconditional: the shown price is a pack's (98.8% of census bolts are
+    # pack-sold, ``price.PACK_COUNTS``), so every record states the pack it
+    # prices (#65).
+    _spec("Package Quantity", "line", kind="count"),
     _spec("Dia./Thread Size", "sku"),
     _spec("Length", "sku", kind="length"),
     _spec("Length under Head", "sku", kind="length"),
@@ -273,8 +282,8 @@ _WASHER = (
     _spec("Thickness", "sku", kind="length"),
 )
 
-#: Ball pein hammers. Deliberately the most distant vocabulary in the catalog.
-_HAMMER = (
+#: Every hammer kind (hammers.py). Deliberately the most distant vocabulary in the catalog.
+HAMMER_VOCAB = (
     _spec("Item", "line"),
     _spec("Material", "line"),
     _spec("Handle Material", "line"),
@@ -353,7 +362,7 @@ _WHEEL = (
     _spec("Application", "line", 0.6),
     _spec("Package Quantity", "line", 0.8, kind="count"),
     _spec("Grit", "sku", kind="count"),
-    _spec("Grade", "sku", 0.7),
+    _spec("Grade", "line", 0.7),
 )
 
 #: Hex keys. A product is one brand's arm length, tip and finish; its variants
@@ -393,7 +402,7 @@ _VOCAB: dict[str, tuple[AttrSpec, ...]] = {
     "screw_low_head": _SOCKET_SCREW,
     "bolt_hex": _HEX_BOLT,
     "washer_flat": _WASHER,
-    "hammer_ball_pein": _HAMMER,
+    "hammer_ball_pein": HAMMER_VOCAB,
     "abrasive_flap_disc": _FLAP_DISC,
     "nut_hex": _NUT,
     "bearing_radial_ball": _BEARING,
@@ -430,3 +439,29 @@ STANDARDS_FAMILY: RegistryTable[str, str] = RegistryTable(_STANDARDS_FAMILY)
 def names_for(type_key: str) -> frozenset[str]:
     """Every attribute name a product of this type may publish."""
     return frozenset(spec.name for spec in VOCAB[type_key])
+
+
+#: The measurement-system fact is one attribute under three spellings
+#: (:data:`MEASUREMENT_SYSTEM_NAMES`). It is product-constant in every type, which also
+#: settles ``dimension_type``, the facet key of the commonest spelling: a product is
+#: metric or inch, never both, and a builder fixes one system per line.
+MEASUREMENT_SYSTEM_SPELLINGS: frozenset[str] = frozenset(
+    name for name, _ in MEASUREMENT_SYSTEM_NAMES
+)
+
+
+def product_constant_names(type_key: str) -> frozenset[str]:
+    """The attribute names every SKU of one product of this type agrees on (gen#63).
+
+    The type's ``line``-scope vocabulary (brand-level properties: material, finish,
+    grade, head or point style, ...) and the measurement system. The rest of the
+    vocabulary (``sku`` scope: the size ladder, pack quantity) is :func:`variant_names`.
+    ``tests/test_product_constant.py`` holds the build to this declaration."""
+    return frozenset(s.name for s in VOCAB[type_key] if s.scope == "line") | (
+        MEASUREMENT_SYSTEM_SPELLINGS
+    )
+
+
+def variant_names(type_key: str) -> frozenset[str]:
+    """The attribute names the SKUs of one product of this type may differ on."""
+    return frozenset(s.name for s in VOCAB[type_key] if s.scope == "sku")

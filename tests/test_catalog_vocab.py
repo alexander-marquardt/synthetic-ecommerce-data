@@ -27,7 +27,11 @@ def test_every_type_has_a_category_leaf_and_every_leaf_a_type():
 
 def test_the_tree_is_three_to_five_levels_deep():
     """As the reference distributor's is: hex keys sit five levels down."""
-    assert taxonomy.tree_depths() == {3, 4, 5}
+    # The one shared leaf, Hand Tools > Hammers (#305), is two levels: the combined tree puts
+    # the catalog's own root above it, so a shopper reads Tools > Hand Tools > Hammers.
+    own = {len(p) for p in taxonomy.all_paths() if p not in taxonomy.SHARED_LEAVES}
+    assert own == {3, 4, 5}
+    assert taxonomy.tree_depths() == {2, 3, 4, 5}
 
 
 def test_no_category_path_is_duplicated():

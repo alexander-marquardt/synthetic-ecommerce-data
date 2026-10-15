@@ -91,7 +91,7 @@ def run(lo: str, hi: str, halves_to: float | None = None, chart: str = "women") 
 
 def chart_of(doc: dict) -> str:
     """The :data:`CHARTS` key a footwear doc's sizes are read from."""
-    root = doc["category_path"][0].lower()
+    root = {v: k for k, v in ROOTS.items()}[doc["category_path"][0]]
     return f"slippers_{root}" if "size" in doc["size_options"] else root
 
 
@@ -164,7 +164,6 @@ class FootwearStyle:
     lining: str | None = None
     product_line: str | None = None
     was_price: float | None = None
-    new_in: bool = False
     trending: bool = False
     online_only: bool = False
     #: Also sold as personal protective equipment (department Workwear & PPE).
@@ -245,7 +244,7 @@ class FootwearStyle:
             "brand": self.brand,
             "brand_owner": BRAND_OWNER[self.brand],
             "department": check_departments(dept, self.title),
-            "category_path": [self.gender.capitalize(), *nodes],
+            "category_path": [ROOTS[self.gender], *nodes],
             "category_leaf": nodes[-1],
             "description": self.description,
             "attributes": attrs,
@@ -262,7 +261,6 @@ class FootwearStyle:
             "price_max": max(prices),
             "offer": self.was_price is not None,
             "online_only": self.online_only,
-            "new_in": self.new_in,
             "trending": self.trending,
         }
         if self.was_price is not None:
@@ -284,6 +282,8 @@ W_WHOLE = run("3", "8")
 M_RUN = run("6", "13", 12, "men")
 M_DRESS = run("6", "12", 11, "men")
 INFANT_JUNIOR = run("4 Infant", "2 Junior", chart="kids")
+#: The category root of each footwear gender (gen#304: Mens and Womens, as Kids).
+ROOTS = {"women": "Womens", "men": "Mens", "kids": "Kids"}
 _W, _M, _K = "women", "men", "kids"
 
 WOMENS = (
@@ -304,7 +304,7 @@ WOMENS = (
                    sh("Coral Glow", "#f07d5e", "orange", "mesh"),
                    sh("Glacier Blue", "#8fc1e3", "blue", "mesh")),
                   W_RUN, "Lace-Up", "EVA foam", widths=STD_WIDE, wide=run("4", "8", 7.5),
-                  product_line="Cloudrise", new_in=True, extra=(("drop", "Heel drop", "8mm"),)),
+                  product_line="Cloudrise", extra=(("drop", "Heel drop", "8mm"),)),
     FootwearStyle("WANKBL", "Suede Block Heel Ankle Boots", "Calderby & Lune", _W, "ankle_boot",
                   79.0, "Soft suede ankle boots on a stacked block heel, with an inside zip.",
                   (sh("Black Suede", "#26262a", "black", "suede"),
@@ -395,7 +395,7 @@ MENS = (
                   (sh("Black Ice", "#24262b", "black", "mesh"), sh("Citrus Lime", "#b7cf3a", "green", "mesh"),
                    sh("Storm Grey", "#70757c", "grey", "mesh"), sh("Cobalt", "#2b56b5", "blue", "mesh")),
                   M_RUN, "Lace-Up", "EVA foam", widths=STD_WIDE, wide=run("7", "12", 11.5, "men"),
-                  product_line="Cloudrise", new_in=True, extra=(("drop", "Heel drop", "8mm"),)),
+                  product_line="Cloudrise", extra=(("drop", "Heel drop", "8mm"),)),
     FootwearStyle("MCHLSD", "Suede Chelsea Boots", "Harbour & Pine", _M, "chelsea", 69.0,
                   "Suede Chelsea boots with elastic side panels, a pull tab and a crepe-look sole.",
                   (sh("Tan Suede", "#b5835a", "brown", "suede"), sh("Navy Suede", "#2c3a5e", "navy", "suede"),
@@ -509,14 +509,14 @@ BOOTS = dz.Row(
         ), "category intent: Boots (a Home item never answers a footwear word)"),
         dz.Distractor(dz.product(
             "BOOTPOL", "Boot Polish & Brush Kit", "Calderby & Lune", "Footwear",
-            ("Men", "Shoes", "Shoe Care"), 12.0,
+            ("Mens", "Shoes", "Shoe Care"), 12.0,
             "Wax boot polish in black, brown and neutral with a horsehair brush. Feeds leather "
             "boots and keeps boots supple.",
             drawing("tin", cw("Black", "#2a2a2e", "solid", "#c9a24a"), "Polish"),
         ), "product-type demotion: shoe care below boots"),
         dz.Distractor(dz.product(
             "BOOTSOK", "Welly Boot Socks", "Hollinwray Knits", "Clothing",
-            ("Women", "Socks", "Boot Socks"), 9.0,
+            ("Womens", "Socks", "Boot Socks"), 9.0,
             "Thick knitted boot socks with a fold-over cuff that shows above welly boots. "
             "Warm in boots all winter.",
             drawing("boot_sock", cw("Oat", "#d9cdb4", "stripe", "#8a6b4a")),

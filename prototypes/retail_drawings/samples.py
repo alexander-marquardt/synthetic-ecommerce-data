@@ -199,7 +199,7 @@ CLOTHING = [
         "brand": "Harbour & Pine",
         "department": ["clothing"],
         "collections": ["summer", "new"],
-        "category_path": ["Women", "Tops", "T-Shirts"],
+        "category_path": ["Womens", "Tops", "T-Shirts"],
         "price": 14.00,
         **sizes(WOMENS, "6", "20"),
         "attributes": clothing_attrs(
@@ -218,7 +218,7 @@ CLOTHING = [
         "brand": "Wrenfield",
         "department": ["clothing"],
         "collections": [],
-        "category_path": ["Men", "Tops", "T-Shirts"],
+        "category_path": ["Mens", "Tops", "T-Shirts"],
         "price": 9.50,
         **sizes(LETTER, "S", "XXL"),
         "attributes": clothing_attrs(
@@ -237,7 +237,7 @@ CLOTHING = [
         "brand": "Larkmoor",
         "department": ["clothing"],
         "collections": [],
-        "category_path": ["Women", "Tops", "Blouses & Shirts"],
+        "category_path": ["Womens", "Tops", "Blouses & Shirts"],
         "price": 26.00,
         **sizes(WOMENS, "8", "18"),
         "attributes": clothing_attrs(
@@ -256,7 +256,7 @@ CLOTHING = [
         "brand": "Larkmoor",
         "department": ["clothing"],
         "collections": ["summer"],
-        "category_path": ["Women", "Dresses", "Sundresses"],
+        "category_path": ["Womens", "Dresses", "Sundresses"],
         "price": 35.00,
         **sizes(WOMENS, "6", "20"),
         "attributes": clothing_attrs(
@@ -277,7 +277,7 @@ CLOTHING = [
         "brand": "Harbour & Pine",
         "department": ["clothing"],
         "collections": ["summer", "sale"],
-        "category_path": ["Women", "Shorts"],
+        "category_path": ["Womens", "Shorts"],
         "price": 16.00,
         **sizes(WOMENS, "6", "18"),
         "attributes": clothing_attrs(
@@ -296,7 +296,7 @@ CLOTHING = [
         "brand": "Ottery Denim",
         "department": ["clothing"],
         "collections": [],
-        "category_path": ["Women", "Jeans", "Bootcut Jeans"],
+        "category_path": ["Womens", "Jeans", "Bootcut Jeans"],
         "price": 30.00,
         **sizes(WOMENS, "6", "20"),
         "attributes": clothing_attrs(
@@ -317,7 +317,7 @@ CLOTHING = [
         "brand": "Ottery Denim",
         "department": ["clothing"],
         "collections": ["new"],
-        "category_path": ["Women", "Jeans", "Straight Jeans"],
+        "category_path": ["Womens", "Jeans", "Straight Jeans"],
         "price": 30.00,
         **sizes(WOMENS, "6", "18"),
         "attributes": clothing_attrs(
@@ -338,7 +338,7 @@ CLOTHING = [
         "brand": "Thistle & Wren",
         "department": ["clothing"],
         "collections": ["christmas"],
-        "category_path": ["Women", "Skirts", "Mini Skirts"],
+        "category_path": ["Womens", "Skirts", "Mini Skirts"],
         "price": 22.00,
         **sizes(WOMENS, "6", "16"),
         "attributes": clothing_attrs(
@@ -351,7 +351,7 @@ CLOTHING = [
         "brand": "Wrenfield",
         "department": ["clothing"],
         "collections": [],
-        "category_path": ["Women", "Coats & Jackets", "Trench Coats"],
+        "category_path": ["Womens", "Coats & Jackets", "Trench Coats"],
         "price": 79.00,
         **sizes(WOMENS, "6", "20"),
         "attributes": clothing_attrs(
@@ -371,7 +371,7 @@ CLOTHING = [
         "brand": "Stridewell",
         "department": ["footwear"],
         "collections": ["new"],
-        "category_path": ["Women", "Shoes", "Trainers"],
+        "category_path": ["Womens", "Shoes", "Trainers"],
         "price": 45.00,
         **sizes(SHOES, "3", "8"),
         "attributes": clothing_attrs(
@@ -389,7 +389,7 @@ CLOTHING = [
         "brand": "Saltmarsh",
         "department": ["footwear"],
         "collections": ["summer"],
-        "category_path": ["Women", "Shoes", "Sandals"],
+        "category_path": ["Womens", "Shoes", "Sandals"],
         "price": 24.00,
         **sizes(SHOES, "3", "8"),
         "attributes": clothing_attrs("Tan", "Plain", "Wide Fit", "Womens", "Leather Upper"),
@@ -400,7 +400,7 @@ CLOTHING = [
         "brand": "Bramblewood",
         "department": ["lingerie"],
         "collections": [],
-        "category_path": ["Women", "Lingerie", "Bras"],
+        "category_path": ["Womens", "Lingerie", "Bras"],
         "price": 18.00,
         **sizes(
             BRA, "32A", "36E", only={f"{b}{c}" for b in (32, 34, 36) for c in ("B", "C", "D", "DD")}
@@ -419,7 +419,7 @@ FOOD = [
         "title": "Semi-Skimmed Milk 2 Litres",
         "brand": "Meadowgate Dairy",
         "department": ["food"],
-        "category_path": ["Food", "Dairy", "Milk"],
+        "category_path": ["Food & Drink", "Dairy", "Milk"],
         "price": 1.65,
         "attributes": food_attrs(2, "LTR", "Chilled", ["Vegetarian"], ["Milk"], "Plain"),
         "drawing": drawing("carton", "solid", "#3f8fd2", label="Milk"),
@@ -428,7 +428,7 @@ FOOD = [
         "title": "Smooth Spanish Red Wine 75cl",
         "brand": "Vine & Valley",
         "department": ["food"],
-        "category_path": ["Food", "Drinks", "Wine", "Red Wine"],
+        "category_path": ["Food & Drink", "Drinks", "Wine", "Red Wine"],
         "price": 7.50,
         "attributes": food_attrs(
             750, "MLT", "Cupboard", ["Vegan"], ["Sulphites"], "Cherry & Spice"
@@ -439,7 +439,7 @@ FOOD = [
         "title": "Extra Virgin Olive Oil 500ml",
         "brand": "Olivar Grove",
         "department": ["food"],
-        "category_path": ["Food", "Cupboard", "Oils & Vinegars"],
+        "category_path": ["Food & Drink", "Cupboard", "Oils & Vinegars"],
         "price": 5.25,
         "attributes": food_attrs(500, "MLT", "Cupboard", ["Vegan", "Gluten Free"], [], "Fruity"),
         "drawing": drawing("bottle", "solid", "#8a9a2c", label="Oil"),
@@ -448,7 +448,7 @@ FOOD = [
         "title": "Strawberry Conserve 340g",
         "brand": "Copper Hill Preserves",
         "department": ["food"],
-        "category_path": ["Food", "Cupboard", "Jams & Spreads"],
+        "category_path": ["Food & Drink", "Cupboard", "Jams & Spreads"],
         "price": 2.10,
         "attributes": food_attrs(340, "GRM", "Cupboard", ["Vegetarian", "Vegan"], [], "Strawberry"),
         "drawing": drawing("jar", "solid", "#b8242f", "#e6e1d8", label="Jam"),
@@ -457,7 +457,7 @@ FOOD = [
         "title": "Baked Beans in Tomato Sauce 415g",
         "brand": "Pantry Mill",
         "department": ["food"],
-        "category_path": ["Food", "Cupboard", "Tinned Food"],
+        "category_path": ["Food & Drink", "Cupboard", "Tinned Food"],
         "price": 0.85,
         "attributes": food_attrs(415, "GRM", "Cupboard", ["Vegan", "Gluten Free"], [], "Tomato", 2),
         "drawing": drawing("tin", "solid", "#2f7fb5", label="Beans"),
@@ -466,7 +466,7 @@ FOOD = [
         "title": "Honey Oat Crunch Cereal 500g",
         "brand": "Goldfield Farms",
         "department": ["food"],
-        "category_path": ["Food", "Cupboard", "Cereals"],
+        "category_path": ["Food & Drink", "Cupboard", "Cereals"],
         "price": 2.75,
         "attributes": food_attrs(
             500, "GRM", "Cupboard", ["Vegetarian"], ["Oats", "Gluten"], "Honey"
@@ -478,7 +478,7 @@ FOOD = [
         "brand": "Thistle & Wren",
         "department": ["food", "gifts"],
         "collections": ["christmas", "gifts"],
-        "category_path": ["Food", "Biscuits & Sweets", "Biscuits"],
+        "category_path": ["Food & Drink", "Biscuits & Sweets", "Biscuits"],
         "price": 6.00,
         "attributes": food_attrs(
             300, "GRM", "Cupboard", ["Vegetarian"], ["Wheat", "Milk"], "Butter"
@@ -491,7 +491,7 @@ FOOD = [
         "title": "Sea Salt & Cider Vinegar Crisps 150g",
         "brand": "Crunchworth",
         "department": ["food"],
-        "category_path": ["Food", "Cupboard", "Crisps & Snacks"],
+        "category_path": ["Food & Drink", "Cupboard", "Crisps & Snacks"],
         "price": 1.90,
         "attributes": food_attrs(150, "GRM", "Cupboard", ["Vegan"], [], "Salt & Vinegar"),
         "drawing": drawing("crisps_bag", "solid", "#3aa3a0", label="Crisps"),
@@ -500,7 +500,7 @@ FOOD = [
         "title": "Beef Lasagne Ready Meal 400g",
         "brand": "Hearth & Table",
         "department": ["food"],
-        "category_path": ["Food", "Ready Meals", "Italian"],
+        "category_path": ["Food & Drink", "Ready Meals", "Italian"],
         "price": 3.50,
         "attributes": food_attrs(
             400, "GRM", "Chilled", [], ["Wheat", "Milk", "Egg", "Celery"], "Beef & Tomato", 1
@@ -512,7 +512,7 @@ FOOD = [
         "brand": "Goldfield Farms",
         "department": ["food"],
         "collections": ["summer"],
-        "category_path": ["Food", "Fresh Produce", "Fruit", "Berries"],
+        "category_path": ["Food & Drink", "Fresh Produce", "Fruit", "Berries"],
         "price": 2.50,
         "attributes": food_attrs(400, "GRM", "Chilled", ["Vegan", "Gluten Free"], [], "Strawberry"),
         "drawing": drawing("punnet", "solid", "#2f6b3c", label="Strawberries"),
@@ -521,7 +521,7 @@ FOOD = [
         "title": "Greek Style Natural Yogurt 500g",
         "brand": "Meadowgate Dairy",
         "department": ["food"],
-        "category_path": ["Food", "Dairy", "Yogurts"],
+        "category_path": ["Food & Drink", "Dairy", "Yogurts"],
         "price": 1.45,
         "attributes": food_attrs(
             500, "GRM", "Chilled", ["Vegetarian", "Gluten Free"], ["Milk"], "Natural"
@@ -532,7 +532,7 @@ FOOD = [
         "title": "Seeded Wholemeal Loaf 800g",
         "brand": "Crofter's Bakehouse",
         "department": ["food"],
-        "category_path": ["Food", "Bakery", "Bread"],
+        "category_path": ["Food & Drink", "Bakery", "Bread"],
         "price": 1.40,
         "attributes": food_attrs(
             800, "GRM", "Cupboard", ["Vegan"], ["Wheat", "Gluten", "Sesame"], "Malted Seeds"
@@ -544,7 +544,7 @@ FOOD = [
         "brand": "Crofter's Bakehouse",
         "department": ["food"],
         "collections": ["christmas", "gifts"],
-        "category_path": ["Food", "Bakery", "Cakes", "Celebration Cakes"],
+        "category_path": ["Food & Drink", "Bakery", "Cakes", "Celebration Cakes"],
         "price": 12.00,
         "attributes": food_attrs(
             900,
@@ -562,7 +562,7 @@ FOOD = [
         "brand": "Goldfield Farms",
         "department": ["food"],
         "collections": ["christmas"],
-        "category_path": ["Food", "Fresh Produce", "Fruit", "Citrus"],
+        "category_path": ["Food & Drink", "Fresh Produce", "Fruit", "Citrus"],
         "price": 1.80,
         "attributes": food_attrs(
             CLEMENTINE_GRAMS, "GRM", "Fresh", ["Vegan", "Gluten Free"], [], "Sweet Citrus"

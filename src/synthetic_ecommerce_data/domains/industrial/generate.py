@@ -62,6 +62,7 @@ from synthetic_ecommerce_data.domains.industrial import (
     breadth,
     compat,
     conformance,
+    hammers,
     series,
     standards,
     taxonomy,
@@ -104,16 +105,6 @@ WASHER_FINISHES: dict[str, tuple[str, ...]] = {
     "316 Stainless Steel": ("Plain",),
     "Brass": ("Plain",),
     "Nylon": ("Plain",),
-}
-
-#: Ball pein hammer handles, and the grips each is sold with: a wood handle
-#: is sold bare, a fiberglass or steel one with a grip or without.
-HAMMER_HANDLES: tuple[str, ...] = ("Hickory", "Ash", "Fiberglass", "Steel")
-HAMMER_GRIPS: dict[str, tuple[str, ...]] = {
-    "Hickory": ("None",),
-    "Ash": ("None",),
-    "Fiberglass": ("Rubber", "Vinyl", "None"),
-    "Steel": ("Rubber", "Vinyl", "None"),
 }
 
 #: The attribute a type's titles must name when its variant axis is not its
@@ -283,6 +274,9 @@ class LineDraft:
     #: the line's dimensions are not already a standard's by provenance (the
     #: hex nut: :func:`.newtypes.nut_row`). Empty when no one standard fits.
     standard: str = ""
+    #: The title is the item alone: no brand, no qualifier, no segments (the incidental-word
+    #: text-match decoy of :mod:`.hammers`, whose short indexed title outranks real hits).
+    bare_title: bool = False
 
 
 #: The letters an end mill's series code starts with, per type. Both types
@@ -389,6 +383,22 @@ class Generator:
         index = self._rotations.get(key, 0)
         self._rotations[key] = index + 1
         return index
+
+    def _pack(
+        self, type_key: str, line: str, diameter_in: float, diameters: Iterable[float]
+    ) -> Attribute:
+        """A pack-sold line's ``Package Quantity`` (:func:`.price.pack_quantity`):
+        ranked by its diameter among every diameter its type offers, so the
+        pack falls as the size grows, and placed by its own draw, so no other
+        draw moves."""
+        offered = sorted({round(d, 4) for d in diameters})
+        quantity = price.pack_quantity(
+            price.BORROWS.get(type_key, type_key),
+            offered.index(round(diameter_in, 4)),
+            len(offered),
+            price.pack_draw(self.config.seed, type_key, line),
+        )
+        return numeric_attribute("Package Quantity", str(quantity), float(quantity))
 
     def _new_sku(self) -> str:
         """The type's next part number: its block, then a scrambled sequence.
@@ -860,6 +870,18 @@ class Generator:
         sizes = standards.available_sizes(standard)
         size = sizes[self._rotate(f"size:{type_key}:{standard}", len(sizes))]
         head = head_of(standard, size)
+        draft.line_attrs.append(
+            self._pack(
+                type_key,
+                f"{standard}:{size}:{brand}:{draft.series}",
+                head.major_dia_in,
+                (
+                    head_of(system_standard, offered_size).major_dia_in
+                    for system_standard in (line.metric_standard, line.inch_standard)
+                    for offered_size in standards.available_sizes(system_standard)
+                ),
+            )
+        )
         # Near-miss threads: every FINE_PERIOD-th line of a diameter that has a
         # fine pitch is built to it, so ``m12 socket cap screws`` finds M12x1.5
         # and M12x1.25 beside M12x1.75 and the pitch facet has a real choice.
@@ -1015,6 +1037,16 @@ class Generator:
             keyword_attribute(
                 "Thread Type", "UNC" if standard.startswith("ASME") else "Metric Coarse"
             ),
+            self._pack(
+                type_key,
+                f"{standard}:{size}:{brand}:{draft.series}",
+                head.major_dia_in,
+                (
+                    standards.hex_bolt(bolt_standard, offered_size).major_dia_in
+                    for bolt_standard in dict.fromkeys(HEX_BOLT_STANDARDS)
+                    for offered_size in standards.available_sizes(bolt_standard)
+                ),
+            ),
         ]
         draft.descriptors = [("Grade", grade)]
         # Near-miss threads, as on the socket screws. A fine-pitch hex bolt
@@ -1108,44 +1140,8 @@ class Generator:
         return draft
 
     def _build_hammer(self, type_key: str, category: tuple[str, ...]) -> LineDraft:
-        rng = self.rng
-        brand = brands.pick_brand(rng, type_key, self._exhausted)
-        handle = rng.choice(HAMMER_HANDLES)
-        item = "Ball Pein Hammer"
-        draft = LineDraft(
-            item=item,
-            brand=brand,
-            series=f"BP{rng.randint(10, 99)}",
-            category=category,
-            provenance="generated; no dimensional standard applies",
-        )
-        draft.line_attrs = [
-            keyword_attribute("Item", item),
-            keyword_attribute("Material", "Forged Steel"),
-            keyword_attribute("Handle Material", handle),
-            keyword_attribute("Handle Grip Material", rng.choice(HAMMER_GRIPS[handle])),
-            keyword_attribute("Face Type", "Ball Pein"),
-        ]
-        draft.descriptors = [("Handle Material", handle)]
-
-        weights = list(series.HAMMER_HEAD_OUNCES)
-        rng.shuffle(weights)
-        count = min(self._variant_count(), len(weights))
-        for ounces in sorted(weights[:count]):
-            style = self._style("in")
-            child = ChildDraft(system="in")
-            oal_in = float(series.snap_imperial(10.0 + ounces * 0.16, 16))
-            child.primary = numeric_attribute("Head Weight", f"{ounces} oz", float(ounces))
-            overall = self._length("Overall Length", oal_in, style)
-            child.attrs = [
-                child.primary,
-                overall,
-                self._length("Face Dia.", 0.6 + ounces * 0.02, style),
-                self._length("Handle Length", oal_in - 1.5, style),
-            ]
-            child.secondary = {"other_length": overall}
-            draft.children.append(child)
-        return draft
+        """The ball pein hammer; every other hammer kind is a type module (hammers.py)."""
+        return hammers.build(hammers.BALL_PEIN)(self, type_key, category)
 
     def _build_flap_disc(self, type_key: str, category: tuple[str, ...]) -> LineDraft:
         rng = self.rng
@@ -1241,7 +1237,9 @@ class Generator:
         self._bump("standards_values", len(values))
         return multi_attribute(STANDARDS_NAME, values)
 
-    def _measurement_system(self, system: str, name: str) -> tuple[Attribute | None, bool]:
+    def _measurement_system(
+        self, system: str, name: str, *, count: bool = True
+    ) -> tuple[Attribute | None, bool]:
         """The measurement-system attribute, under the spelling its LINE uses.
 
         The spelling is chosen once per product line, not once per record. A
@@ -1267,10 +1265,12 @@ class Generator:
         )
         if contradicts:
             value = "Fractional Inch" if system == "mm" else "Metric"
-            self._bump("defect_system_contradicts")
+            if count:
+                self._bump("defect_system_contradicts")
         else:
             value = truthful
-        self._bump("measurement_system_present")
+        if count:
+            self._bump("measurement_system_present")
         return keyword_attribute(name, value), contradicts
 
     def _inject_defects(self, child: ChildDraft, attrs: list[Attribute]) -> list[Attribute]:
@@ -1497,6 +1497,10 @@ class Generator:
         assert voice is not None, "a title is composed inside _finish_line"
         descriptive = voice.descriptive
         segments: list[Segment] = []
+        if draft.bare_title:
+            return build_title(
+                draft.item, (), cap=self.config.title_length_cap, tight_delimiter_at=None
+            )
 
         # The type's KEY dimension, when the variant axis is something else
         # (a bearing's closure, a wheel's grit): the census core of a title
@@ -1981,12 +1985,24 @@ class Generator:
         # answered one SKU at a time.
         built: list[tuple[str, list[Attribute], float, int]] = []
         titles: list[Title] = []
+        line_system: tuple[tuple[Attribute | None, bool]] | None = None
+        if len({c.system for c in draft.children}) > 1:
+            raise ValueError(f"{type_key}: a product's SKUs are in one measurement system")
         for child in draft.children:
             attrs = self._apply_sparsity(type_key, list(child.attrs), "sku")
             if not attrs and not child.zero_axis:
                 continue
             attrs = self._inject_defects(child, attrs)
-            system_attr, _ = self._measurement_system(child.system, system_name)
+            # The measurement system is the PRODUCT's (gen#63): the first SKU's draw
+            # decides whether it is published, its value and whether it contradicts
+            # the units, and every SKU of the line carries that one attribute. The
+            # later SKUs still take their draws (uncounted), so no other value in
+            # the build moves.
+            drawn = self._measurement_system(
+                child.system, system_name, count=line_system is None
+            )
+            line_system = line_system or (drawn,)
+            (system_attr, _) = line_system[0]
             if system_attr is not None and not child.zero_axis:
                 attrs = [*attrs, system_attr]
             # Each SKU is different from every other SKU of its brand and type.

@@ -1,9 +1,9 @@
 """A jean's fit and a bra's shape are filters, not category leaves (``facet_leaves``).
 
-The build filed every jean under a fit leaf (``Women/Jeans/Skinny Jeans``) and every bra
+The build filed every jean under a fit leaf (``Womens/Jeans/Skinny Jeans``) and every bra
 under one of about 50 style leaves, so a "skinny" or "plunge" filter was a tree walk and the
 same fact lived twice. Those leaves collapse into ``<Root>/Jeans``, ``<Root>/Trousers`` and
-``Women/Lingerie/Bras`` (its purpose nodes stay), and their facts are the facets the
+``Womens/Lingerie/Bras`` (its purpose nodes stay), and their facts are the facets the
 downstream attribute markers read: ``leg_fit``, ``rise``, ``length``, ``wiring``,
 ``bra_shape``, ``padding``, ``back_style`` and ``fabric``.
 
@@ -97,12 +97,12 @@ def test_jeans_and_trousers_end_at_their_kind_node(rows):
     assert set(ends) == {("Jeans", "Jeans"), ("Trousers", "Trousers")}
     roots = {(r["category_path"][0], r["product_type"]) for r in rows
              if r["product_type"] in ("Jeans", "Trousers")}  # fmt: skip
-    assert {("Women", "Jeans"), ("Men", "Jeans"), ("Women", "Trousers")} <= roots
+    assert {("Womens", "Jeans"), ("Mens", "Jeans"), ("Womens", "Trousers")} <= roots
 
 
 def test_the_purpose_nodes_are_the_only_children_of_bras(rows):
     paths = {tuple(r["category_path"]) for r in rows if r["product_type"] == "Bra"}
-    base = ("Women", "Lingerie", "Bras")
+    base = ("Womens", "Lingerie", "Bras")
     assert base in paths
     assert {p[len(base):] for p in paths} == {()} | {(n,) for n in facet_leaves.PURPOSE_BRAS}
     assert all(p[: len(base)] == base for p in paths)
@@ -157,12 +157,13 @@ def test_a_bra_keeps_each_fact_its_old_leaf_implied(pairs):
         assert all(set(w) <= set(g) for g, w in zip(got, want, strict=True)), rec["product_id"]
 
 
-def test_a_bra_fibre_content_moves_to_composition(pairs):
+def test_a_bra_keeps_its_fibre_content_as_a_detail_and_its_fibre_as_fabric(pairs):
     moved = 0
     for rec, doc in pairs:
         old = [a["value"] for a in rec["attributes"] if a["key"] == "fabric"]
         if rec["product_type"] == "Bra" and old:
-            assert [a["value"] for a in doc["attributes"] if a["key"] == "composition"] == old
+            assert doc["fibre_content"] == old[0]
+            assert BRA_FIBRES[old[0]] in _values(doc, "fabric")
             moved += 1
     assert moved
 
@@ -244,61 +245,97 @@ def test_a_bra_carries_every_value_its_title_names(pairs, values):
     assert checked
 
 
-#: Fabric values that name only a fibre. A shopper filters these under Composition; ``Linen``
-#: and ``Cotton`` are left out because a bra's lace-or-cotton cup and a linen cushion are
-#: fabrics a shopper names (the issue keeps them in ``fabric``).
-FIBRE_ONLY = {
-    "Organic Cotton", "Turkish Cotton", "Zero Twist Cotton", "Bamboo", "Polyester", "Elastane",
-    "Recycled Polyester", "Recycled Polyamide", "Modal", "Viscose", "Wool", "Silk", "Nylon",
+#: The closed list a ``fabric`` value comes from: the fibre or weave a shopper names (gen#187).
+SHOPPER_FABRICS = {
+    "Bamboo", "Boucle", "Chenille", "Corduroy", "Cotton", "Denim", "Faux Fur", "Faux Leather",
+    "Flannel", "Fleece", "Jersey", "Knitted", "Lace", "Lace Trim", "Linen", "Mesh", "Microfiber",
+    "Modal", "Nylon", "Oxford", "Plush", "Polyester", "Satin", "Seamless", "Shell", "Silk",
+    "Suiting", "Towelling", "Tricot", "Twill", "Velour", "Velvet", "Waffle",
 }  # fmt: skip
+#: A bra's old ``fabric`` (its fibre content) -> the fibre a shopper names.
+BRA_FIBRES = {
+    "Cotton, Elastane": "Cotton",
+    "Modal, Elastane": "Modal",
+    "Recycled Polyamide, Elastane": "Nylon",
+    "Recycled Polyester, Elastane": "Polyester",
+}
+#: A grade or a blend: never a ``fabric``.
+GRADES = {"Organic Cotton", "Turkish Cotton", "Zero Twist Cotton", "Elastane", "Viscose"}
 
 
 def _values(doc, key):
     return [a["value"] for a in doc["attributes"] if a["key"] == key]
 
 
-def test_no_fabric_holds_fibre_content(built, docs):
-    """``fabric`` is a fabric or weave a shopper names, never a percentage, a comma-joined
-    fibre list or a fibre alone, on any product type (gen#166)."""
-    bad = {
-        (d["product_type"], v)
-        for d in docs
-        for v in _values(d, "fabric")
-        if "%" in v or "," in v or v in FIBRE_ONLY
-    }
-    assert not bad
-    assert any(_values(d, "fabric") for d in docs)
+def test_every_fabric_comes_from_the_closed_shopper_list(docs):
+    """``fabric`` is a fibre or weave a shopper names, never a percentage, a comma-joined
+    fibre list or a grade, on any product type (gen#166, gen#187)."""
+    held = {v for d in docs for v in _values(d, "fabric")}
+    assert held <= SHOPPER_FABRICS, held - SHOPPER_FABRICS
+    assert not held & GRADES
+    assert {"Cotton", "Linen", "Denim", "Oxford", "Flannel", "Bamboo", "Silk"} <= held
 
 
-#: Each non-bra ``fabric`` value that is not itself a fabric -> (its fabric, its composition).
+def test_no_retail_document_has_a_composition_attribute(docs):
+    assert not {k for d in docs for k in (a["key"] for a in d["attributes"])} & {"composition"}
+    assert not {k for d in docs for v in d["variants"] for k in (a["key"] for a in v["attributes"])
+                } & {"composition"}  # fmt: skip
+
+
+#: Each non-bra ``fabric`` value that is not itself a shopper fabric -> (its fabric, its blend).
 MOVED = {
-    "100% Cotton": (None, "100% Cotton"),
-    "70% Cotton, 28% Polyester, 2% Elastane": (None, "70% Cotton, 28% Polyester, 2% Elastane"),
-    "92% Cotton, 6% Polyester, 2% Elastane": (None, "92% Cotton, 6% Polyester, 2% Elastane"),
-    "98% Cotton, 2% Elastane": (None, "98% Cotton, 2% Elastane"),
-    "Bamboo": (None, "Bamboo"),
-    "Organic Cotton": (None, "Organic Cotton"),
-    "Turkish Cotton": (None, "Turkish Cotton"),
-    "Zero Twist Cotton": (None, "Zero Twist Cotton"),
+    "100% Cotton": ("Cotton", "100% Cotton"),
+    "70% Cotton, 28% Polyester, 2% Elastane": ("Cotton", "70% Cotton, 28% Polyester, 2% Elastane"),
+    "92% Cotton, 6% Polyester, 2% Elastane": ("Cotton", "92% Cotton, 6% Polyester, 2% Elastane"),
+    "98% Cotton, 2% Elastane": ("Cotton", "98% Cotton, 2% Elastane"),
+    "Bamboo": ("Bamboo", None),
+    "Organic Cotton": ("Cotton", "Organic Cotton"),
+    "Turkish Cotton": ("Cotton", "Turkish Cotton"),
+    "Zero Twist Cotton": ("Cotton", "Zero Twist Cotton"),
     "100% Cotton Oxford": ("Oxford", "100% Cotton"),
     "Brushed Cotton Flannel": ("Flannel", "Cotton"),
     "Mid Weight Denim": ("Denim", None),
     "Washed Linen": ("Linen", None),
+    "Cotton Blend": ("Cotton", "Cotton Blend"),
+    "Polyester Blend": ("Suiting", "Polyester Blend"),
+    "Cotton Jersey": ("Jersey", "Cotton"),
+    "Silk Dupion": ("Silk", "Silk Dupion"),
 }
 
 
-def test_fibre_content_moves_to_composition_on_every_type(built, docs):
-    """A non-bra record's fibre content is its document's composition, and the fabric it
-    held keeps only the fabric or weave ("100% Cotton Oxford" is an Oxford shirt)."""
+def test_the_blend_is_a_detail_not_a_facet(built, docs):
+    """A non-bra record's fabric is the fibre or weave a shopper names, and the blend or grade
+    it held is the document's ``fibre_content``: a field, in no attribute and no facet."""
     moved = collections.Counter()
     for rec, doc in zip(built.records, docs, strict=True):
         old = [a["value"] for a in rec["attributes"] if a["key"] == "fabric"]
+        assert "fibre_content" not in {a["key"] for a in doc["attributes"]}
         if rec["product_type"] == "Bra" or not old:
             continue
-        fabric, composition = MOVED.get(old[0], (old[0], None))
-        assert _values(doc, "fabric") == ([fabric] if fabric else []), rec["product_id"]
-        assert _values(doc, "composition") == ([composition] if composition else [])
-        moved[rec["product_type"]] += bool(composition)
+        fabric, blend = MOVED.get(old[0], (old[0], None))
+        assert _values(doc, "fabric") == [fabric], rec["product_id"]
+        assert doc.get("fibre_content") == blend, rec["product_id"]
+        moved[rec["product_type"]] += bool(blend)
     assert {v for r in built.records for a in r["attributes"] if a["key"] == "fabric"
             for v in [a["value"]] if r["product_type"] != "Bra"} >= set(MOVED)
-    assert {t for t, n in moved.items() if n} == {"Jeans", "Shirt", "Towel", "Soft Toy"}
+    assert {t for t, n in moved.items() if n} == {
+        "Jeans", "Shirt", "Towel", "Soft Toy", "Leggings", "Vest", "Shorts", "Boxers", "Lampshade"}
+
+
+def test_the_flat_document_carries_the_blend_and_never_facets_it(docs):
+    from synthetic_ecommerce_data.core import standard
+
+    flat = [r for d in docs if d.get("fibre_content") for r in standard.flat_documents(d)]
+    assert flat
+    for row in flat:
+        assert row["fibre_content"] and "fibre_content" not in row["facets"]
+        assert "composition" not in row["facets"]
+
+
+def test_no_fabric_is_a_blend_or_a_use_word(docs):
+    """A blend names fibres (``fibre_content``); Sports, Cargo and Compression name a use, a
+    pocket or a fit (gen#258); Leather-Look is Faux Leather again."""
+    fabrics = {v for d in docs for v in _values(d, "fabric")}
+    assert fabrics & {"Cotton Blend", "Polyester Blend", "Cotton Jersey", "Sports", "Cargo",
+                      "Compression", "Leather-Look"} == set()
+    assert {"Faux Leather", "Jersey", "Twill", "Knitted", "Suiting"} <= fabrics

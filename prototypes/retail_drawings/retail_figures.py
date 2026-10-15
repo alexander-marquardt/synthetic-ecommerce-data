@@ -28,16 +28,26 @@ HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
+import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
+import colorgroup_rows  # noqa: E402
+import decoy_rows  # noqa: E402
 import distractor_rows  # noqa: E402
 import export  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
+import lighting_rows  # noqa: E402
+import lowerbody_rows  # noqa: E402
+import main_colors  # noqa: E402
+import mens_depth_rows  # noqa: E402
 import scale  # noqa: E402
 import scale_rows  # noqa: E402
+import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
+import sports_rows  # noqa: E402
+import toys_rows  # noqa: E402
 import underwear_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 
@@ -102,11 +112,22 @@ def measure() -> dict[str, Any]:
         "scale_rows": scale_rows.docs(),
         "breadth_rows": breadth_rows.docs(),
         "distractor_rows": distractor_rows.docs(),
+        "decoy_rows": decoy_rows.docs(),
         "shirt_rows": shirt_rows.docs(),
+        "accessory_rows": accessory_rows.docs(),
+        "sports_rows": sports_rows.docs(),
         "household_rows": household_rows.docs(),
+        "lowerbody_rows": lowerbody_rows.docs(),
+        "lighting_rows": lighting_rows.docs(),
         "sofa_rows": sofa_rows.docs(),
         "appliance_rows": appliance_rows.docs(),
         "underwear_rows": underwear_rows.docs(),
+        "toys_rows": toys_rows.docs(),
+        "seasonal_rows": seasonal_rows.docs(),
+        "colorgroup_rows": colorgroup_rows.docs(),
+        "mens_depth_rows": mens_depth_rows.docs(),
+        "plain_rows": [r for r in main_colors.author_plain(scale.templates(baseline=False))
+                       if r["product_id"] in {p[1] for p in main_colors.PLAIN_STYLES}],
         "grocery": grocery.build(),
     }
     ceiling = scale.build(EXHAUST)
@@ -137,11 +158,10 @@ def measure() -> dict[str, Any]:
             "non_grocery": _count(main),
             "grocery": _count(groc),
             "food_and_drink": _count(food),
-            "food_and_drink_tree": {
-                tree: sum(
-                    r["sku_count"] for r in food if r["category_path"][0] == tree
-                )
-                for tree in sorted({r["category_path"][0] for r in food})
+            # The store's departments are the top level of the category tree (gen#281).
+            "top_levels": {
+                root: _count([r for r in ceiling.records if r["category_path"][0] == root])
+                for root in sorted({r["category_path"][0] for r in ceiling.records})
             },
         },
         "departments": dict(sorted(departments.items())),
