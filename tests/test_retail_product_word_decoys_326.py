@@ -8,6 +8,7 @@ The department, category and color policies fix every row, and the docs table sa
 
 from __future__ import annotations
 
+import json
 import re
 import sys
 from pathlib import Path
@@ -21,11 +22,14 @@ if str(RETAIL) not in sys.path:
 
 import baseline_rank as br  # noqa: E402
 import decoy_product_words as dpw  # noqa: E402
+import export  # noqa: E402
 import house_styles  # noqa: E402
 import image_release  # noqa: E402
 import main_colors  # noqa: E402
 import scale  # noqa: E402
 from distractors import tokens  # noqa: E402
+
+from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 
 #: The nouns the issue names: each carries at least two class-8 decoys.
 MIN_NOUNS = ("dress", "shoe", "boot", "coat", "jacket", "jumper", "skirt", "suit", "bra",
@@ -125,6 +129,25 @@ def test_the_detail_is_the_only_color_the_title_names() -> None:
         words = {w.lower() for w in re.findall(r"[A-Za-z]+", row.title)}
         named = words & {c.lower() for c in dpw.COLORS}
         assert named == {row.detail.lower()}, (row.code, row.title)
+
+
+def test_a_detail_color_is_exempt_by_decoy_id_and_an_ordinary_product_is_not(
+    ceiling: list[dict],
+) -> None:
+    """Dress for Success, Red Laces (color Black) passes the standard as a declared decoy; the same
+    document under an ordinary id, naming Red with color Black, is still refused."""
+    detailed = [r for r in dpw.TABLE if r.detail]
+    assert detailed
+    docs = [export.standard_document(r) for r in ceiling]  # the pools the check reads
+    decoys = [d for d in docs if d["product_id"] in dpw.TEXT_EXEMPT]
+    assert len(decoys) == len(detailed)
+    assert check_catalog(docs, text_exempt=scale.TEXT_EXEMPT) == []
+    # the exemption is keyed on the id: leave the class-8 ids out and each of them is refused
+    refused = check_catalog(docs, text_exempt=scale.TEXT_EXEMPT - dpw.TEXT_EXEMPT)
+    assert {p.split(":")[0] for p in refused} == dpw.TEXT_EXEMPT, refused
+    ordinary = json.loads(json.dumps(decoys[0]).replace("PLT-", "ORDINARY-8-"))
+    refused = check_catalog([*docs, ordinary], text_exempt=scale.TEXT_EXEMPT)
+    assert [p for p in refused if p.startswith("ORDINARY-8")], refused
 
 
 def test_each_new_real_type_has_a_floor_of_its_own() -> None:

@@ -3621,6 +3621,25 @@ MUTATIONS: list[Mutation] = [
         "a class-8 row that names a detail color on purpose passes the text check by its id",
         root="prototypes/retail_drawings",
     ),
+    Mutation(
+        "product-word decoys: the standard's retail catalog test loses the exempt ids",
+        "scale.py",
+        "TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT",
+        "TEXT_EXEMPT = DECOY_IDS",
+        "tests/test_merchandising_score_182.py -k retail_every_product_carries_it",
+        "A",
+        "the full retail catalog passes the standard with the class-8 detail-color ids exempt",
+        root="prototypes/retail_drawings",
+    ),
+    Mutation(
+        "product-word decoys: an ordinary product naming another color is exempt too",
+        "core/standard.py",
+        'if doc.get("product_id") not in text_exempt',
+        "if True",
+        "tests/test_retail_product_word_decoys_326.py -k exempt_by_decoy",
+        "A",
+        "only a declared decoy id is exempt; an ordinary id naming Red with color Black is refused",
+    ),
     # ---- pack: bolts and socket screws publish the census pack (#65) ------
     *(
         Mutation(
