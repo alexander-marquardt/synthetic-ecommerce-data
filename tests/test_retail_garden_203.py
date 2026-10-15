@@ -4,8 +4,8 @@
 issue asked for: every type has its range (three styles from three brands), each style draws as
 its own shape, each key attribute is a structured entry in the export with its unit, a measured
 axis is on the SKUs, every type offers the six main colors, every type carries text-match decoys
-of three classes whose structured fields stay true (gen#294), the styles sit in the tree under the
-tree guard's rules, and they reach the scaled build.
+of five classes, three each, whose structured fields stay true (gen#294), the styles sit in the
+tree under the tree guard's rules, and they reach the scaled build.
 """
 
 from __future__ import annotations
@@ -238,7 +238,7 @@ def test_the_tree_nests_the_types_under_lawn_care_and_barbecues_and_grills() -> 
 
 
 # --------------------------------------------------------------------------
-# Text-match decoys (gen#294): three classes per type, every field true.
+# Text-match decoys (gen#294): at least three of each class per type, every field true.
 # --------------------------------------------------------------------------
 
 TARGETS = {
@@ -257,10 +257,23 @@ def _decoys(ptype: str) -> dict[str, list]:
     return out
 
 
+CLASSES = ("type", "absent", "incidental", "secondary", "shade")
+MAIN = ("red", "blue", "green", "yellow", "black", "white")
+
+
+def _colour_words(text: str) -> set[str]:
+    return {w for w in MAIN if re.search(rf"\b{w}\b", text.lower())}
+
+
+def _own(row) -> set[str]:
+    return {c[0].lower() for c in row.colors}
+
+
 @pytest.mark.parametrize("ptype", sorted(KEYS))
-def test_each_type_carries_a_decoy_of_each_of_three_classes(ptype: str) -> None:
+def test_each_type_carries_at_least_three_decoys_of_each_class(ptype: str) -> None:
     got = _decoys(ptype)
-    assert {k: len(v) for k, v in got.items()} == {"type": 1, "absent": 1, "incidental": 1}
+    assert set(got) <= set(CLASSES)
+    assert {k: len(got[k]) for k in CLASSES if len(got[k]) < 3} == {}
 
 
 @pytest.mark.parametrize("ptype", sorted(KEYS))
@@ -268,33 +281,58 @@ def test_a_sibling_or_incidental_decoy_is_not_the_type_and_its_title_holds_the_w
     ptype: str,
 ) -> None:
     got = _decoys(ptype)
-    (sibling,) = got["type"]
-    assert sibling.product_type != ptype and TARGETS[ptype] in sibling.title.lower()
-    (incidental,) = got["incidental"]
-    assert incidental.product_type != ptype
-    assert len(incidental.title.split()) <= 5, "the word sits where the text score weights it most"
+    for sibling in got["type"]:
+        assert sibling.product_type != ptype and TARGETS[ptype] in sibling.title.lower()
     first = TARGETS[ptype].split()[0] if ptype != "BBQ" else "bbq"
-    assert first in incidental.title.lower() or first in incidental.description.lower()
+    for incidental in got["incidental"]:
+        assert len(incidental.title.split()) <= 5, "a short title: the word weighs most"
+        assert first in incidental.title.lower() or first in incidental.description.lower()
+    real = [r for r in got["incidental"] if r.product_type == ptype]
+    assert len(real) >= 2, "a short title on a real product is the stronger lure"
+    for r in real:
+        assert _colour_words(r.title) and not _colour_words(r.title) & _own(r)
+    assert any(r.product_type != ptype for r in got["incidental"])
 
 
 @pytest.mark.parametrize("ptype", sorted(KEYS))
 def test_an_absent_decoy_names_a_power_source_it_lacks_and_is_the_type(ptype: str) -> None:
-    (row,) = _decoys(ptype)["absent"]
-    assert row.product_type == ptype
     word = {
         "Lawn Mower": "petrol",
         "Robot Mower": "gps",
         "Grass Trimmer": "cordless",
         "BBQ": "gas",
     }[ptype]
-    assert word in row.title.lower()
-    stated = " ".join(a[2].lower() for a in row.attrs) + " " + " ".join(v for _, v in row.params)
-    assert word not in stated
+    for row in _decoys(ptype)["absent"]:
+        assert row.product_type == ptype
+        assert word in row.title.lower()
+        stated = (
+            " ".join(a[2].lower() for a in row.attrs) + " " + " ".join(v for _, v in row.params)
+        )
+        assert word not in stated
+
+
+@pytest.mark.parametrize("ptype", sorted(KEYS))
+def test_a_secondary_colour_decoy_names_a_part_colour_and_keeps_its_own_main_colour(
+    ptype: str,
+) -> None:
+    for row in _decoys(ptype)["secondary"]:
+        assert row.product_type == ptype and len(row.colors) == 1
+        words = _colour_words(row.title)
+        assert _own(row) <= words and words - _own(row), row.code
+        assert " with " in row.title.lower(), "the other colour names a part"
+
+
+@pytest.mark.parametrize("ptype", sorted(KEYS))
+def test_a_shade_decoy_names_a_colour_only_in_its_description(ptype: str) -> None:
+    for row in _decoys(ptype)["shade"]:
+        assert row.product_type == ptype and len(row.colors) == 1
+        assert _colour_words(row.title) == set(), row.code
+        assert _colour_words(row.description) - _own(row), row.code
 
 
 def test_the_decoys_are_exempt_from_the_text_check_and_left_out_of_the_derivation() -> None:
     assert garden_rows.decoy_ids() <= scale.DECOY_IDS
-    assert len(garden_rows.decoy_ids()) == len(DECOY_CODES) == 12
+    assert len(garden_rows.decoy_ids()) == len(DECOY_CODES) >= 3 * len(CLASSES) * len(KEYS)
     kept = {r["product_id"] for r in scale.derivable(scale.templates())}
     assert {f"BRD-{r.code}" for r in ALL} == scale.GARDEN_IDS and not (scale.GARDEN_IDS & kept)
 
@@ -316,3 +354,38 @@ def test_every_garden_style_reaches_the_100k_build_and_meets_the_standard() -> N
     mine = [d for d in docs if d["product_id"] in scale.GARDEN_IDS]
     assert len(mine) == len(ALL)
     assert check_catalog(mine, one_class_per_key=True, text_exempt=scale.DECOY_IDS) == []
+
+
+# --------------------------------------------------------------------------
+# What the record states is what is drawn: shelves, the side burner, the drive lever.
+# --------------------------------------------------------------------------
+
+
+def _attr(row, key: str) -> str | None:
+    return next((a[2] for a in row.attrs if a[0] == key), None)
+
+
+def test_a_barbecue_draws_a_shelf_per_side_exactly_when_its_record_says_yes() -> None:
+    rows = [r for r in ALL if r.shape == "bbq"]
+    assert {_attr(r, "side_shelves") for r in rows} == {"Yes", "No"}
+    for row in rows:
+        want = 2 if _attr(row, "side_shelves") == "Yes" else 0
+        assert len(re.findall(r'<g class="shelf"', _svg(row))) == want, row.code
+
+
+def test_a_barbecue_draws_a_side_burner_exactly_when_its_record_says_yes() -> None:
+    rows = [r for r in ALL if r.shape == "bbq"]
+    assert "Yes" in {_attr(r, "side_burner") for r in rows}
+    for row in rows:
+        want = 1 if _attr(row, "side_burner") == "Yes" else 0
+        assert len(re.findall(r'<g class="side-burner"', _svg(row))) == want, row.code
+
+
+def test_a_self_drive_mower_draws_its_lever_and_arrow_and_a_push_mower_neither() -> None:
+    rows = [r for r in ALL if r.shape == "lawn_mower"]
+    assert {dict(r.params)["drive"] for r in rows} == {"push", "self"}
+    for row in rows:
+        want = 1 if dict(row.params)["drive"] == "self" else 0
+        svg = _svg(row)
+        assert len(re.findall(r'<g class="drive-lever"', svg)) == want, row.code
+        assert len(re.findall(r'<g class="drive-arrow"', svg)) == want, row.code
