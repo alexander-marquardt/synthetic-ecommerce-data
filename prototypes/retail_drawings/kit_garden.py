@@ -33,6 +33,10 @@ from kit_sports import POLE, _ell, _label, _rect
 
 #: The knob classes a drawing marks: one group each, so a test counts them against the record.
 KNOB_CLASS = "knob"
+SHELF_CLASS = "shelf"
+SIDE_BURNER_CLASS = "side-burner"
+DRIVE_LEVER_CLASS = "drive-lever"
+DRIVE_ARROW_CLASS = "drive-arrow"
 BATTERY_CLASS = "battery"
 FUEL_CLASS = "fuel-cap"
 CABLE_CLASS = "cable"
@@ -62,8 +66,8 @@ def lawn_mower(paint: str, fill: Fill, label: str | None, power: str = "cordless
     ]
     if drive == "self":
         out += [
-            _line("M340,106 L356,156", 5, stroke=POLE),
-            _line("M92,276 L132,276 M122,266 L132,276 L122,286", 3),
+            f'<g class="{DRIVE_LEVER_CLASS}">{_line("M340,106 L356,156", 5, stroke=POLE)}</g>',
+            f'<g class="{DRIVE_ARROW_CLASS}">{_line("M92,276 L132,276 M122,266 L132,276 L122,286", 3)}</g>',
         ]
     if power == "cordless":
         out += [
@@ -149,11 +153,14 @@ def _knobs(count: int, y: float, x0: float, x1: float) -> list[str]:
     return [f'<g class="{KNOB_CLASS}">{_ell(x0 + i * gap, y, 9, 9, GREASE, 2.4)}</g>' for i in range(count)]
 
 
-def bbq(paint: str, fill: Fill, label: str | None, kind: str = "kettle", burners: str = "3") -> list[str]:
+def bbq(paint: str, fill: Fill, label: str | None, kind: str = "kettle", burners: str = "3",
+        side_burner: str = "no") -> list[str]:  # fmt: skip
     """A barbecue. ``kettle`` is a dome on a bowl and three legs, ``barrel`` a horizontal drum on a
     stand with a chimney, ``kamado`` an egg on a cradle, ``portable`` a low bowl on short legs with a
-    carry handle, and ``gas`` a cabinet under a hood with side shelves and one knob per burner."""
+    carry handle, and ``gas`` a cabinet under a hood with side shelves and one knob per burner, and a
+    hob on the right shelf when ``side_burner`` is ``yes``."""
     kind = kind.lower()
+    side_burner = side_burner.lower() == "yes"
     dark = _shade(fill.base, 0.35)
     out = [_line("M20,346 L380,346", 4)]
     if kind == "barrel":
@@ -195,9 +202,10 @@ def bbq(paint: str, fill: Fill, label: str | None, kind: str = "kettle", burners
             _path("M96,150 Q96,98 200,98 Q304,98 304,150 L304,168 L96,168 Z", paint),
             _line("M170,120 L230,120", 6, stroke=POLE),
             _path("M92,168 L308,168 L308,276 L92,276 Z", dark),
-            _path("M30,184 L92,184 L92,198 L30,198 Z", paint, 2.4),
-            _path("M308,184 L370,184 L370,198 L308,198 Z", paint, 2.4),
+            f'<g class="{SHELF_CLASS}">{_path("M30,184 L92,184 L92,198 L30,198 Z", paint, 2.4)}</g>',
+            f'<g class="{SHELF_CLASS}">{_path("M308,184 L370,184 L370,198 L308,198 Z", paint, 2.4)}</g>',
             *_knobs(count, 188, 136, 264),
+            *([f'<g class="{SIDE_BURNER_CLASS}">{_ell(339, 176, 22, 7, GREASE, 2.4)}</g>'] if side_burner else []),
             _line("M100,218 L300,218 M100,246 L300,246", 1.6, ' stroke-opacity=".4"'),
         ]
     else:
