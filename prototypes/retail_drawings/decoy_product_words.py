@@ -268,6 +268,7 @@ class Row:
     decoy: bool = True
     brand: str | None = None
     sibling: str = ""  # a special policy is proved on this sibling query
+    target: str = ""  # the Sports & Outdoors product type whose word the title holds (gen#368)
     sold: int = 2000
 
     @property
@@ -885,6 +886,12 @@ TEXT_EXEMPT = frozenset(f"PLT-{r.code}" for r in TABLE if r.detail)
 STYLES = tuple(r.style() for r in ROWS)
 #: The product ids left out of the derivation and of the color completion.
 IDS = frozenset(f"PLT-{s.code}" for s in STYLES)
+#: The Sports & Outdoors types with no decoys yet, each with the issue that adds them (gen#368).
+SPORTS_EXEMPT = {
+    t: "decoys are tracked in #375"
+    for t in ("Tent", "Sleeping Bag", "Camping Chair", "Yoga Mat", "Dumbbell", "Kettlebell",
+              "Foam Roller")
+}  # fmt: skip
 #: product id -> its row (decoy or floor).
 BY_ID = {f"PLT-{r.code}": r for r in ROWS}
 
