@@ -3254,12 +3254,12 @@ MUTATIONS: list[Mutation] = [
                 "bra_style is gone",
             ),
             (
-                "a bra's fibre content is dropped",
-                "facet_leaves.py",
-                "            out.append((*COMPOSITION, have[\"fabric\"]))\n",
-                "            pass\n",
-                "tests/test_retail_facet_leaves.py -k fibre_content_moves_to_composition",
-                "the fibre content moves to composition",
+                "the fibre-content detail is dropped",
+                "export.py",
+                "        doc[\"fibre_content\"] = blend\n",
+                "        pass\n",
+                "tests/test_retail_facet_leaves.py -k blend_is_a_detail",
+                "the blend is a detail",
             ),
             (
                 "one bra spells Lightly Lined with a hyphen",
