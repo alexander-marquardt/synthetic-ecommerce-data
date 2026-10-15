@@ -32,17 +32,21 @@ ROWS = household_rows.ROWS
 
 #: Each type and the key attributes a shopper filters or searches it on (the issue's table).
 KEYS = {
-    "Saucepan": {"material", "lid", "hob_type", "oven_safe", "set_or_single", "diameter",
-                 "capacity"},
-    "Frying Pan": {"pan_type", "material", "coating", "induction_safe", "oven_safe", "diameter"},
-    "Casserole Dish": {"material", "shape", "oven_safe", "hob_safe", "capacity"},
+    "Saucepan": {"material", "coating", "lid_material", "hob_type", "oven_safe",
+                 "set_or_single", "diameter", "capacity"},
+    "Frying Pan": {"pan_type", "material", "coating", "hob_type", "oven_safe", "diameter"},
+    "Casserole Dish": {"material", "shape", "oven_safe", "hob_type", "capacity"},
     "Kitchen Bin": {"bin_type", "capacity", "compartments", "material"},
-    "Storage Box": {"storage_type", "material", "lid", "transparent", "stackable", "capacity"},
+    "Storage Box": {"storage_type", "material", "lid_type", "transparent", "stackable", "capacity"},
     "Laundry Basket": {"laundry_basket_type", "capacity", "compartments", "material"},
     "Clothes Airer": {"airer_type", "drying_length", "tiers"},
     # A flat or sponge mop has no bucket, so only the bucket styles state a capacity.
     "Mop and Bucket": {"mop_type", "refill_heads"},
 }  # fmt: skip
+
+#: Styles that leave a key off because they have nothing to state (gen#239): an oven-only
+#: dish has no hob type, and a bucket with no mop has no refill heads.
+NOT_APPLICABLE = {"CASSTO": {"hob_type"}, "CASGLS": {"hob_type"}, "MOPBKT": {"refill_heads"}}
 
 #: A saucepan set sells by its pieces (``piece_count``), so it has no diameter or capacity.
 SET_EXEMPT = {"diameter", "capacity"}
@@ -95,6 +99,7 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> 
         keys = {e["key"] for e in doc["attributes"]}
         keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
         want = KEYS[ptype] - (SET_EXEMPT if "Set" in _attr(row, "set_or_single") else set())
+        want -= NOT_APPLICABLE.get(row.code, set())
         if want - keys:
             missing[row.code] = sorted(want - keys)
     assert missing == {}
@@ -157,3 +162,43 @@ def test_every_household_style_reaches_the_100k_build_and_meets_the_standard() -
     mine = [d for d in docs if d["product_id"] in scale.HOUSEHOLD_IDS]
     assert len(mine) == len(ROWS)
     assert check_catalog(mine, one_class_per_key=True) == []
+
+
+def _values(key: str, ptypes: set[str]) -> set[str]:
+    return {v for r in ROWS if r.product_type in ptypes for v in _attr(r, key)}
+
+
+def test_no_style_states_the_retired_mixed_keys() -> None:
+    """``lid`` held a material on pans and a style on boxes; ``induction_safe`` and
+    ``hob_safe`` were two more names for ``hob_type`` (gen#239)."""
+    retired = {"lid", "induction_safe", "hob_safe"}
+    assert {r.code: sorted(retired & {a[0] for a in r.attrs}) for r in ROWS
+            if retired & {a[0] for a in r.attrs}} == {}  # fmt: skip
+
+
+def test_material_names_a_material_and_never_a_coating() -> None:
+    """A ``material = Aluminum`` filter must find every aluminum pan: the coating is its own
+    key, so ``Non-Stick Aluminum`` and ``Enamel`` are not materials."""
+    coatings = _values("coating", set(KEYS))
+    materials = _values("material", set(KEYS))
+    assert materials & coatings == set()
+    assert {m for m in materials if "non-stick" in m.lower()} == set()
+
+
+def test_a_lid_material_is_a_material_and_a_lid_type_is_a_style() -> None:
+    boxes = _values("lid_type", {"Storage Box"})
+    assert boxes == {"Clip Lid", "Lift-Off Lid", "No Lid"}
+    assert _values("lid_material", {"Saucepan"}) <= _values("material", set(KEYS))
+
+
+def test_hob_type_is_one_list_of_hobs_on_every_cookware_type() -> None:
+    cookware = {"Saucepan", "Frying Pan", "Casserole Dish"}
+    assert _values("hob_type", cookware) == {"Induction", "Gas", "Electric", "Ceramic"}
+    stated = {r.code for r in ROWS if r.product_type in cookware and _attr(r, "hob_type")}
+    assert {r.code for r in ROWS if r.product_type in cookware} - stated == {"CASSTO", "CASGLS"}
+
+
+def test_a_bucket_with_no_mop_states_no_refill_heads() -> None:
+    assert {r.code: _attr(r, "refill_heads") for r in ROWS if r.product_type == "Mop and Bucket"
+            and r.code != "MOPBKT" and not _attr(r, "refill_heads")} == {}
+    assert _attr(next(r for r in ROWS if r.code == "MOPBKT"), "refill_heads") == []
