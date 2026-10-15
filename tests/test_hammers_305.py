@@ -219,14 +219,15 @@ def _bm25_ranking(docs: list[dict], query: list[str]) -> list[dict]:
 
 @pytest.mark.parametrize("kind", sorted(KINDS))
 def test_an_incidental_word_decoy_is_in_the_top_three_for_each_of_its_queries(tools, kind) -> None:
-    """gen#320: in the no-policy proxy a decoy outranks the real hits, for the bare word and
-    for the word with the kind's item."""
+    """gen#320: in the no-policy proxy a decoy outranks the real hits, for the bare word
+    (a decoy of any kind) and for the word with the kind's item (a decoy of this kind)."""
+    every = {d["sku"] for k in KINDS for d in _incidental_docs(tools, k)}
     by_word: dict[str, set[str]] = collections.defaultdict(set)
     for d in _incidental_docs(tools, kind):
         by_word[INCIDENTAL.search(d["title"])["word"]].add(d["sku"])
     assert by_word
     for word, skus in by_word.items():
-        for query in (word, f"{word} {ITEM[kind]}"):
+        for query, wanted in ((word, every), (f"{word} {ITEM[kind]}", skus)):
             ranked = _bm25_ranking(tools, _tokens(query))
-            assert {d["sku"] for d in ranked[:3]} & skus, (
+            assert {d["sku"] for d in ranked[:3]} & wanted, (
                 query, [d["title"] for d in ranked[:3]])

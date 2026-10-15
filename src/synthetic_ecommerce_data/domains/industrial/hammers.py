@@ -58,7 +58,8 @@ PLACES: tuple[str, ...] = ("Creek", "Ridge", "Lane", "Hollow")
 #: title word that misleads a text search while its attributes stay true. The position in the period
 #: names the class: 0 a category word (another kind's noun as a range name: "Claw Hammer,
 #: Sledge Series"), 2 a material named but absent ("Claw Hammer, Hickory-Look" on a steel
-#: handle), 4 an incidental word in a short title ("Claw Hammer, Hickory Creek").
+#: handle), 4 an incidental word in a short title ("Claw Hammer, Hickory Creek"): the whole
+#: indexed title, with no brand, qualifier or size (gen#320, 5 words or fewer).
 DECOY_PERIOD = 6
 DECOY_CLASSES: dict[int, str] = {
     0: "category word",
@@ -67,23 +68,25 @@ DECOY_CLASSES: dict[int, str] = {
 }
 
 
-def decoy_item(gen: Any, kind: HammerKind, handle: str) -> str:
-    """The item as the title says it: plain, or with the line's decoy words after it.
+def decoy_item(gen: Any, kind: HammerKind, handle: str) -> tuple[str, bool]:
+    """The item as the title says it, and whether that is the whole title (class 4).
+
+    Plain, or with the line's decoy words after it.
 
     After, so a brand's title template (what opens the title) stays one per type.
     """
     slot = gen._rotate(f"hammer_decoy:{kind.key}", DECOY_PERIOD)
     if slot not in DECOY_CLASSES:
-        return kind.item
+        return kind.item, False
     if slot == 0:
         nouns = [n for k, n in KIND_NOUN.items() if k != kind.key]
         noun = nouns[gen._rotate(f"hammer_decoy_noun:{kind.key}", len(nouns))]
-        return f"{kind.item}, {noun} Series"
+        return f"{kind.item}, {noun} Series", False
     absent = next(h for h in ABSENT_HANDLES if h != handle)
     if slot == 2:
-        return f"{kind.item}, {absent}-Look"
+        return f"{kind.item}, {absent}-Look", False
     place = PLACES[gen._rotate(f"hammer_decoy_place:{kind.key}", len(PLACES))]
-    return f"{kind.item}, {absent} {place}"
+    return f"{kind.item}, {absent} {place}", True
 
 
 @dataclass(frozen=True)
@@ -126,12 +129,14 @@ def build(kind: HammerKind):
         rng = gen.rng
         brand = pick_brand(rng, type_key, gen._exhausted)
         handle = rng.choice(kind.handles)
+        item, bare = decoy_item(gen, kind, handle)
         draft = LineDraft(
-            item=decoy_item(gen, kind, handle),
+            item=item,
             brand=brand,
             series=f"{kind.series}{rng.randint(10, 99)}",
             category=category,
             provenance=PROVENANCE,
+            bare_title=bare,
         )
         face_type = kind.faces[0] if len(kind.faces) == 1 else None
         draft.line_attrs = [
@@ -146,6 +151,9 @@ def build(kind: HammerKind):
         weights = list(kind.ounces)
         rng.shuffle(weights)
         count = min(gen._variant_count(), len(weights))
+        if draft.bare_title:
+            # One SKU: a bare title cannot tell sibling SKUs apart (gen#320).
+            count = 1
         for ounces in sorted(weights[:count]):
             style = gen._style("in")
             child = ChildDraft(system="in")
