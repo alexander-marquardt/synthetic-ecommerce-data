@@ -1,7 +1,7 @@
 # A pattern is a `pattern`, not part of a `color` (gen#188)
 
 The authored shades carry pattern words ("Navy Stripe", "Grey Check", "Brown Leopard") and
-denim washes ("Light Wash", "Rinse"). A Colour facet listing them next to plain colours made a
+denim washes ("Light Wash", "Rinse"). A Color facet listing them next to plain colors made a
 "navy" filter miss a Navy Stripe shirt. The shades keep their words in the build (swatch names,
 image ids, titles, so a text search for "navy stripe shirt" still matches). The exported
 documents split them:
