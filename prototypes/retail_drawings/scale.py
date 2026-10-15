@@ -106,6 +106,7 @@ import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
+import decoy_apparel  # noqa: E402
 import decoy_product_words  # noqa: E402
 import decoy_rows  # noqa: E402
 import distractor_rows  # noqa: E402
@@ -254,6 +255,14 @@ LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 MENS_DEPTH_IDS = mens_depth_rows.product_ids()
 
 
+# Text-match decoys (gen#294, gen#311) are exempt from the output standard's text check: they
+# exist to confuse a plain text search (the maintainer ruling on #311).
+DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS
+# The class-8 product-word decoys (gen#326) name a detail color on purpose in some rows only:
+# those rows join the exemption, by id, and the rest of the class is checked like any product.
+TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT
+
+
 def templates(baseline: bool = True) -> list[dict]:
     """The authored styles, then :mod:`scale_rows`, :mod:`breadth_rows` and
     :mod:`distractor_rows`, :mod:`shirt_rows`, :mod:`sofa_rows`, :mod:`household_rows`,
@@ -283,6 +292,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
         *colorgroup_rows.docs(), *mens_depth_rows.docs(),
     ]  # fmt: skip
+    body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
     if baseline:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
@@ -302,7 +312,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
     left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
                 | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
                 | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | decoy_rows.IDS
-                | decoy_product_words.IDS)
+                | decoy_apparel.IDS | decoy_product_words.IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out
             and r.get("neckline") not in ("boat", "slash")]  # fmt: skip
@@ -986,8 +996,7 @@ def main(argv: list[str] | None = None) -> int:
     scaled = build(args.skus, args.seed)
     docs = documents(scaled)
     built = time.perf_counter() - start
-    problems = check_catalog(docs, one_class_per_key=True,
-                             text_exempt=decoy_product_words.TEXT_EXEMPT)
+    problems = check_catalog(docs, one_class_per_key=True, text_exempt=TEXT_EXEMPT)
     if args.out:
         with args.out.open("w", encoding="utf-8") as handle:
             for d in docs:

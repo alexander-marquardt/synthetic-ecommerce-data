@@ -19,6 +19,7 @@ from __future__ import annotations
 import copy
 import re
 
+import decoy_apparel
 import decoy_product_words
 import decoy_rows
 
@@ -137,7 +138,7 @@ def audience(rec: dict) -> str:
         return path
     return "Baby" if path[:2] == ["Kids", "Baby"] else path[0]
 
-_PLANTED = decoy_rows.IDS | decoy_product_words.IDS
+_PLANTED = decoy_rows.IDS | decoy_apparel.IDS | decoy_product_words.IDS
 
 
 def groups(tpls: list[dict]) -> dict[tuple[str, str], list[dict]]:

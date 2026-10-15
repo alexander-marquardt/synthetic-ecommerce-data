@@ -29,7 +29,6 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import breadth_rows  # noqa: E402
-import decoy_product_words  # noqa: E402
 import scale  # noqa: E402
 from retail_figures import (  # noqa: E402
     GROCERY_INTERSECTION_KEYS,
@@ -73,6 +72,7 @@ LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
 PLAIN_ROWS = FIGURES["templates"]["plain_rows"]["styles"]
 GROCERY_ROWS = FIGURES["templates"]["grocery"]["styles"]
 UNDERWEAR_ROWS = FIGURES["templates"]["underwear_rows"]["styles"]
+DECOY_APPAREL_ROWS = FIGURES["templates"]["decoy_apparel"]["styles"]
 TEMPLATES = (
     AUTHORED
     + SCALE_ROWS
@@ -93,6 +93,7 @@ TEMPLATES = (
     + SEASONAL_ROWS
     + COLORGROUP_ROWS
     + MENS_DEPTH_ROWS
+    + DECOY_APPAREL_ROWS
     + PLAIN_ROWS
     + GROCERY_ROWS
 )
@@ -182,9 +183,7 @@ def test_the_build_is_deterministic_by_seed():
 
 
 def test_the_20k_build_meets_the_output_standard(built):
-    assert check_catalog(
-        scale.documents(built), text_exempt=decoy_product_words.TEXT_EXEMPT
-    ) == []
+    assert check_catalog(scale.documents(built), text_exempt=scale.TEXT_EXEMPT) == []
 
 
 def test_a_derived_style_adds_no_duplicate_title_and_no_twin(built, pairs):

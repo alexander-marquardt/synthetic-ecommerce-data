@@ -332,6 +332,18 @@ MUTATIONS: list[Mutation] = [
         "",
         "a decimal is written to the precision asked for",
     ),
+    # ---- hammers: the incidental-word decoy's indexed title (gen#320) ------
+    # The ranking and word-count tests read the COMMITTED golden, so a source defect reds
+    # them only through the golden's drift test; this row proves that link holds.
+    Mutation(
+        "hammer decoy: an incidental-word decoy keeps its brand and size in the title",
+        "domains/industrial/hammers.py",
+        "            bare_title=bare,\n",
+        "            bare_title=False,\n",
+        "tests/test_catalog_golden.py",
+        "A",
+        "the short indexed title of the incidental-word decoy",
+    ),
     # ---- vocab: disjointness, both directions ----------------------------
     Mutation(
         "leak a hammer attribute into the screw vocabulary",
@@ -3254,12 +3266,12 @@ MUTATIONS: list[Mutation] = [
                 "bra_style is gone",
             ),
             (
-                "a bra's fibre content is dropped",
-                "facet_leaves.py",
-                "            out.append((*COMPOSITION, have[\"fabric\"]))\n",
-                "            pass\n",
-                "tests/test_retail_facet_leaves.py -k fibre_content_moves_to_composition",
-                "the fibre content moves to composition",
+                "the fibre-content detail is dropped",
+                "export.py",
+                "        doc[\"fibre_content\"] = blend\n",
+                "        pass\n",
+                "tests/test_retail_facet_leaves.py -k blend_is_a_detail",
+                "the blend is a detail",
             ),
             (
                 "one bra spells Lightly Lined with a hyphen",
@@ -3319,7 +3331,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "a decoy is color-completed",
                 "main_colors.py",
-                ' and r["product_id"] not in decoy_rows.IDS',
+                ' and r["product_id"] not in _PLANTED',
                 "",
                 "tests/test_retail_text_match_decoys_294.py -k never_copied_or_color_completed",
                 "no color completion gives a decoy the query's color",
@@ -3327,8 +3339,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a decoy is copied by the derivation",
                 "scale.py",
-                "| MENS_DEPTH_IDS | decoy_rows.IDS)",
-                "| MENS_DEPTH_IDS)",
+                "| MENS_DEPTH_IDS | decoy_rows.IDS\n",
+                "| MENS_DEPTH_IDS\n",
                 "tests/test_retail_text_match_decoys_294.py -k never_copied_or_color_completed",
                 "a decoy stays a template",
             ),
@@ -3382,6 +3394,93 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: text-match decoys on every clothing type (gen#311) ----
+    *(
+        Mutation(f"apparel decoys: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "an apparel decoy is color-completed",
+                "main_colors.py",
+                "decoy_rows.IDS | decoy_apparel.IDS",
+                "decoy_rows.IDS",
+                "tests/test_retail_apparel_decoys_311.py -k never_copied_or_color_completed",
+                "no color completion gives an apparel decoy the query's color",
+            ),
+            (
+                "an apparel decoy is copied by the derivation",
+                "scale.py",
+                "                | decoy_apparel.IDS | decoy_product_words.IDS)",
+                "                | decoy_product_words.IDS)",
+                "tests/test_retail_apparel_decoys_311.py -k never_copied_or_color_completed",
+                "an apparel decoy stays a template",
+            ),
+            (
+                "a class 4 decoy names a material the style holds",
+                "decoy_apparel.py",
+                "            if word not in held:\n",
+                "            if True:\n",
+                "tests/test_retail_apparel_decoys_311.py -k fields_contradict",
+                "the absent material is absent from every field",
+            ),
+            (
+                "a class 6 category word is one the path holds",
+                "decoy_apparel.py",
+                "            if not path_has(name.split()[0].lower()):\n",
+                "            if True:\n",
+                "tests/test_retail_apparel_decoys_311.py -k fields_contradict",
+                "a category-word range is not the product's own category",
+            ),
+            (
+                "the decoy exemption from the text check is removed",
+                "scale.py",
+                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS\n",
+                "DECOY_IDS = frozenset()\n",
+                "tests/test_retail_apparel_decoys_311.py -k misleading_color",
+                "a decoy naming only another color passes the standard by its id",
+            ),
+            (
+                "the decoy exemption widens to every id",
+                "scale.py",
+                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS\n",
+                'DECOY_IDS = type("All", (frozenset,), {"__contains__": lambda self, x: True})()\n',
+                "tests/test_retail_apparel_decoys_311.py -k two_tables",
+                "no real product is exempt from the text check",
+            ),
+            (
+                "a part is drawn without its color",
+                "details.py",
+                '<path d="{d}" fill="{color}" stroke="{INK}" stroke-width="1.6"',
+                '<path d="{d}" fill="#ffffff" stroke="{INK}" stroke-width="1.6"',
+                "tests/test_retail_apparel_decoys_311.py -k named_part_is_drawn",
+                "the named part carries the named color",
+            ),
+            (
+                "a hem band moves to the top of the garment",
+                "details.py",
+                'TORSO_HEM = band((0.0, 0.89, 1.0, 1.0), "torso")',
+                'TORSO_HEM = band((0.0, 0.0, 1.0, 0.11), "torso")',
+                "tests/test_retail_apparel_decoys_311.py -k sits_where_the_part_sits",
+                "a hem is drawn at the bottom of the garment",
+            ),
+            (
+                "a sole is drawn across the shoe's upper",
+                "details.py",
+                '"shoe": {"sole": marked("sole")},',
+                '"shoe": {"sole": band((0.0, 0.62, 1.0, 0.92), "all")},',
+                "tests/test_retail_apparel_decoys_311.py -k sits_where_the_part_sits",
+                "a sole is drawn on the kit's own sole path",
+            ),
+            (
+                "a hem band paints the sleeve cuffs",
+                "details.py",
+                'TORSO_HEM = band((0.0, 0.89, 1.0, 1.0), "torso")',
+                'TORSO_HEM = band((0.0, 0.89, 1.0, 1.0))',
+                "tests/test_retail_apparel_decoys_311.py -k torsos_and_does_not_color",
+                "a sleeve's cuff is not part of the hem",
+            ),
+        ]
+    ),
     # ---- retail: product-word decoys (gen#326) ----
     *(
         Mutation(f"product-word decoys: {name}", file, old, new, test, "", prop,
@@ -3398,15 +3497,15 @@ MUTATIONS: list[Mutation] = [
             (
                 "a class-8 decoy is copied by the derivation",
                 "scale.py",
-                "| decoy_rows.IDS\n                | decoy_product_words.IDS)",
-                "| decoy_rows.IDS)",
+                "| decoy_apparel.IDS | decoy_product_words.IDS)",
+                "| decoy_apparel.IDS)",
                 "tests/test_retail_product_word_decoys_326.py -k templates_no_derived",
                 "a decoy stays a template",
             ),
             (
                 "a class-8 decoy sells little, so it cannot lead",
                 "decoy_product_words.py",
-                "    sold: int = 850",
+                "    sold: int = 2000",
                 "    sold: int = 1",
                 "tests/test_retail_product_word_decoys_326.py -k baseline_top_10",
                 "the decoys reach the baseline top 10",
@@ -3437,6 +3536,16 @@ MUTATIONS: list[Mutation] = [
         "tests/test_retail_scale.py -k 20k_build_meets_the_output_standard",
         "A",
         "a decoy's misleading detail color is exempt from the text check, nothing else is",
+    ),
+    Mutation(
+        "product-word decoys: the detail-color rows lose their exemption",
+        "scale.py",
+        "TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT",
+        "TEXT_EXEMPT = DECOY_IDS",
+        "tests/test_retail_scale.py -k 20k_build_meets_the_output_standard",
+        "A",
+        "a class-8 row that names a detail color on purpose passes the text check by its id",
+        root="prototypes/retail_drawings",
     ),
     # ---- pack: bolts and socket screws publish the census pack (#65) ------
     *(
