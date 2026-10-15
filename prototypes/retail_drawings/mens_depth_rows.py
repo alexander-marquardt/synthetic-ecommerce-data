@@ -52,6 +52,7 @@ import zlib
 from dataclasses import dataclass
 from itertools import product as _product
 
+import kit_suits  # noqa: F401 -- registers suit_jacket, suit_trousers, waistcoat, dinner_suit, formal_accessory
 from breadth_rows import OWNERS
 from class_model import BRAND_OWNER
 from lowerbody_rows import LRow
@@ -131,6 +132,8 @@ class Kind:
     absent: tuple[str, ...] = ()  # class 4: a feature named, three of them
     path: tuple[str, ...] = ()  # where a class-4 decoy sits: a leaf named for no material
     spread: tuple[tuple[str, ...], ...] = ()  # the leaves the other decoys spread over
+    fitted: bool = True  # a garment has a fit; a tie does not
+    item: str | None = None  # a decoy of an accessory kind is still this accessory_type
 
 
 _SR = ("size_range", ["regular"])
@@ -163,10 +166,32 @@ KINDS = {
                    spread=(("Mens", "Coats & Jackets", "Bomber Jackets"),
                            ("Mens", "Coats & Jackets", "Puffer Jackets"),
                            ("Mens", "Coats & Jackets", "Waterproof Jackets"))),
-    "Suit Jacket": Kind("Suit Jacket", "Blazer", "coat", CHEST, "size", _C, 60.0, "Polyester",
-                        facts=(_SR,), borrow=("jumper", "shirt", "coat"),
+    "Suit Jacket": Kind("Suit Jacket", "Blazer", "suit_jacket", CHEST, "size", _C, 60.0, "Polyester",
+                        facts=(_SR,), params=(("fit", "regular"), ("lapel", "notch")),
+                        borrow=("jumper", "shirt", "coat"),
                         absent=("Wool-Free", "Silk-Feel", "Linen-Look"),
                         path=("Mens", "Suits & Tailoring", "Blazers")),
+    "Suit Trousers": Kind("Suit Trousers", "Suit Trousers", "suit_trousers", WAIST, "waist", _C,
+                          36.0, "Polyester", facts=(_SR,), params=(("fit", "regular"), ("leg", "regular")),
+                          borrow=("shirt", "jumper", "coat"),
+                          absent=("Wool-Free", "Silk-Feel", "Linen-Look"),
+                          path=("Mens", "Suits & Tailoring", "Suit Trousers")),
+    "Waistcoat": Kind("Waistcoat", "Waistcoat", "waistcoat", CHEST, "size", _C, 30.0, "Polyester",
+                      facts=(_SR,), params=(("fit", "regular"), ("buttons", "5")),
+                      borrow=("shirt", "jumper", "dress"),
+                      absent=("Wool-Free", "Silk-Feel", "Linen-Look"),
+                      path=("Mens", "Suits & Tailoring", "Waistcoats")),
+    "Dinner Suit": Kind("Dinner Suit", "Dinner Suit", "dinner_suit", CHEST, "size", _C, 120.0,
+                        "Polyester", facts=(_SR,), params=(("fit", "regular"), ("lapel", "shawl")),
+                        borrow=("shirt", "jumper", "dress"),
+                        absent=("Wool-Free", "Silk-Feel", "Linen-Look"),
+                        path=("Mens", "Suits & Tailoring", "Dinner Suits")),
+    "Formal Accessories": Kind("Formal Accessories", "Tie", "formal_accessory", ("One Size",),
+                               "size", _C, 12.0, "Polyester", params=(("item", "tie"),),
+                               borrow=("shirt", "jumper", "dress"),
+                               absent=("Leather-Look", "Cashmere-Feel", "Linen-Look"),
+                               path=("Mens", "Suits & Tailoring", "Formal Accessories"),
+                               fitted=False, item="Tie"),
     "Boxers": Kind("Boxers", "Boxers", "boxers", CHEST, "size", _LING, 5.0, "Cotton",
                    params=(("fit", "boxer"),), borrow=("shirt", "trouser", "sock"),
                    absent=("Silk-Feel", "Lace-Free", "Cashmere-Feel"),
@@ -243,10 +268,10 @@ _LEAVES = (
     Leaf("CG", ("Mens", "Trousers", "Cargo Trousers"), "Mens Trousers", 10,
          ("Ripstop", "Cotton Twill", "Washed Canvas", "Stretch Cotton", "Lightweight Nylon"),
          ("Relaxed", "Tapered"), ("",), "{f} {fit} Fit Cargo Trousers", extra_price=4.0),
-    Leaf("ST", ("Mens", "Suits & Tailoring", "Suit Trousers"), "Mens Trousers", 12,
+    Leaf("ST", ("Mens", "Suits & Tailoring", "Suit Trousers"), "Suit Trousers", 24,
          ("Wool Blend", "Birdseye", "Twill", "Stretch", "Herringbone", "Flannel"),
-         ("Slim", "Regular"), ("",), "{f} {fit} Fit Suit Trousers", palette=_TAILORED,
-         extra_price=14.0),
+         ("Slim", "Tailored", "Regular"), ("Short", "Regular", "Long"),
+         "{f} {fit} Fit {d} Leg Suit Trousers", palette=_TAILORED, extra_price=14.0),
     Leaf("SF", ("Mens", "Tops", "Shirts", "Formal Shirts"), "Shirt", 24,
          ("Poplin", "Twill", "Herringbone", "Easy Iron Cotton", "Stretch Cotton", "Pinpoint",
           "Brushed Twill"), ("Slim", "Regular", "Tailored"),
@@ -308,12 +333,25 @@ _LEAVES = (
          extra_price=6.0),
     Leaf("BL", ("Mens", "Suits & Tailoring", "Blazers"), "Suit Jacket", 20,
          ("Wool Blend", "Linen Blend", "Cotton Stretch", "Textured", "Herringbone",
-          "Unstructured", "Checked"), _FITS3, ("",), "{f} {fit} Fit Blazer", palette=_TAILORED,
-         sleeve="Long"),
-    Leaf("SJ", ("Mens", "Suits & Tailoring", "Suit Jackets"), "Suit Jacket", 12,
+          "Unstructured", "Checked"), _FITS3, ("Notch", "Peak"), "{f} {fit} Fit {d} Lapel Blazer",
+         palette=_TAILORED, sleeve="Long"),
+    Leaf("SJ", ("Mens", "Suits & Tailoring", "Suit Jackets"), "Suit Jacket", 24,
          ("Wool Blend", "Birdseye", "Twill", "Stretch", "Herringbone", "Tonic"),
-         ("Slim", "Regular"), ("",), "{f} {fit} Fit Suit Jacket", palette=_TAILORED,
-         sleeve="Long", extra_price=15.0),
+         ("Slim", "Tailored", "Regular"), ("Notch", "Peak"), "{f} {fit} Fit {d} Lapel Suit Jacket",
+         palette=_TAILORED, sleeve="Long", extra_price=15.0),
+    Leaf("WA", ("Mens", "Suits & Tailoring", "Waistcoats"), "Waistcoat", 18,
+         ("Wool Blend", "Herringbone", "Tweed", "Stretch", "Linen Blend", "Velvet"),
+         ("Slim", "Tailored", "Regular"), ("Four Button", "Five Button", "Six Button"),
+         "{f} {fit} Fit {d} Waistcoat", palette=_TAILORED, extra_price=4.0),
+    Leaf("DS", ("Mens", "Suits & Tailoring", "Dinner Suits"), "Dinner Suit", 14,
+         ("Wool Blend", "Barathea", "Mohair Blend", "Velvet", "Wool Crepe", "Stretch Wool"),
+         ("Slim", "Tailored", "Regular"), ("Peak", "Shawl"), "{f} {fit} Fit {d} Lapel Dinner Suit",
+         palette=("Black", "Navy", "White", "Red", "Blue", "Green", "Yellow", "Burgundy", "Charcoal"),
+         extra_price=20.0),
+    Leaf("FA", ("Mens", "Suits & Tailoring", "Formal Accessories"), "Formal Accessories", 20,
+         ("Silk", "Satin", "Wool", "Knitted", "Cotton", "Velvet"),
+         ("",), ("Tie", "Bow Tie", "Braces", "Cummerbund", "Pocket Square"), "{f} {d}",
+         palette=_TAILORED),
     Leaf("BX", ("Mens", "Underwear", "Boxers"), "Boxers", 24,
          ("Cotton Stretch", "Bamboo", "Organic Cotton", "Jersey", "Woven Cotton", "Modal",
           "Microfibre", "Recycled"), ("Trunks", "Boxer Shorts", "Briefs"), ("",),
@@ -338,10 +376,41 @@ _TAIL = {
     "Polo Shirt": "with a ribbed collar and a two button placket",
     "Coat": "with a full lining and two front pockets",
     "Jacket": "with a zip front and two side pockets",
-    "Suit Jacket": "with a notch lapel and two button fastening",
+    "Suit Jacket": "with a lapel, two flap pockets and a button fastening",
+    "Suit Trousers": "with a pleat front, belt loops and a pressed crease",
+    "Waistcoat": "with a V neck, a buttoned front and two welt pockets",
+    "Dinner Suit": "with satin faced lapels and a side stripe on the trousers, for evening wear",
+    "Formal Accessories": "for formal wear",
     "Boxers": "with a soft covered waistband",
     "Socks": "with a cushioned foot and a stretch top",
 }
+
+
+#: fit -> the shape param (the kit draws slim, tailored and regular); relaxed is a regular cut.
+_SUIT_FIT = {"Slim": "slim", "Tailored": "tailored", "Regular": "regular", "Relaxed": "regular"}
+_OCCASIONS = ("Business", "Wedding", "Formal", "Smart Casual")
+_BUTTONS = {"Four Button": "4", "Five Button": "5", "Six Button": "6"}
+
+
+def _suit(ptype: str, fit: str, detail: str, i: int) -> tuple[tuple, tuple]:
+    """The structured attributes (beyond fit and material) and the drawing params of a tailoring
+    product, each a choice the drawing shows: the lapel, the leg length, the buttons, the item."""
+    f = _SUIT_FIT.get(fit, "regular")
+    if ptype == "Suit Jacket":
+        lapel = detail or "Notch"
+        return ((_a("lapel", "Lapel", lapel), _a("buttons", "Buttons", ("Two Button", "Three Button")[i % 2]),
+                 _a("occasion", "Occasion", _OCCASIONS[i % 4])),
+                (("fit", f), ("lapel", lapel.lower())))  # fmt: skip
+    if ptype == "Suit Trousers":
+        return (_a("leg_length", "Leg length", detail),), (("fit", f), ("leg", detail.lower()))
+    if ptype == "Waistcoat":
+        return (_a("buttons", "Buttons", detail),), (("fit", f), ("buttons", _BUTTONS[detail]))
+    if ptype == "Dinner Suit":
+        return (_a("lapel", "Lapel", detail),), (("fit", f), ("lapel", detail.lower()))
+    if ptype == "Formal Accessories":
+        return ((_a("accessory_type", "Accessory type", detail),),
+                (("item", detail.lower().replace(" ", "_")),))  # fmt: skip
+    return (), ()
 
 
 def _floor_rows() -> list[LRow]:
@@ -361,9 +430,14 @@ def _floor_rows() -> list[LRow]:
             if leaf.pattern == "check":
                 colors = tuple(cw(f"{c[0]} Check", c[2], "gingham", "#2a2a2e") for c in colors)
             fit_an = _an(fit or "regular")
-            desc = (f"{_an(fabric).capitalize()} {kind.noun.lower()} cut to {fit_an} fit "
-                    f"{_TAIL[leaf.kind]}.")  # fmt: skip
-            attrs = [_a("fit", "Fit", fit or "Regular"), _a("material", "Material", _case(fabric))]
+            noun = detail.lower() if kind.item else kind.noun.lower()
+            cut = f" cut to {fit_an} fit" if kind.fitted else ""
+            desc = f"{_an(fabric).capitalize()} {noun}{cut} {_TAIL[leaf.kind]}."
+            attrs = [_a("material", "Material", _case(fabric))]
+            if kind.fitted:
+                attrs.insert(0, _a("fit", "Fit", fit or "Regular"))
+            suit_attrs, suit_params = _suit(kind.ptype, fit, detail, i)
+            attrs += suit_attrs
             if leaf.sleeve:
                 attrs.append(_a("sleeve_length", "Sleeve length", leaf.sleeve))
             if detail and "Collar" in detail or detail in ("Western Yoke",):
@@ -381,11 +455,60 @@ def _floor_rows() -> list[LRow]:
             elif kind.ptype == "Socks":
                 params = (("pairs", ("3", "5", "7")[i % 3]),)
                 attrs.append(("units_per_pack", "Units per pack", params[0][1], "C62"))
+            if suit_params:
+                params = suit_params
             facts = list(kind.facts)
             if leaf.pattern != "plain":
                 facts.append(("pattern", leaf.pattern))
             out.append(_row(f"MF{leaf.abbr}{i:03d}", title, brand, kind, leaf.path, desc, colors,
                             tuple(attrs), price=price, params=params, facts=tuple(facts)))
+    return out
+
+
+# --------------------------------------------------------------------------
+# Matching sets (gen#215): a jacket, trousers and waistcoat cut from one cloth.
+# --------------------------------------------------------------------------
+
+#: (set name, fabric, fit, brand, colors): one name is one cloth, so the three pieces of a set
+#: share the name (the ``suit_set`` attribute), the fabric, the fit, the brand and the colors.
+SETS = (
+    ("Ashdown", "Wool Blend", "Slim", 0, ("Navy", "Charcoal", "Black")),
+    ("Brindley", "Herringbone", "Regular", 1, ("Grey", "Navy", "White")),
+    ("Carrow", "Birdseye", "Tailored", 2, ("Blue", "Charcoal", "Green")),
+    ("Dunmere", "Stretch", "Slim", 3, ("Black", "Red", "Navy")),
+    ("Elmstead", "Twill", "Regular", 4, ("Brown", "Green", "Yellow")),
+    ("Fenwick", "Flannel", "Tailored", 0, ("Charcoal", "Grey", "Burgundy")),
+    ("Garrowby", "Wool Blend", "Regular", 1, ("Stone", "Navy", "Blue")),
+    ("Holloway", "Linen Blend", "Slim", 2, ("White", "Stone", "Blue")),
+    ("Ingleby", "Tweed", "Regular", 3, ("Brown", "Green", "Grey")),
+    ("Kestrel", "Stretch", "Tailored", 4, ("Navy", "Black", "Burgundy")),
+)  # fmt: skip
+#: piece -> (kind, leaf path, the detail its params take, the title's noun)
+_PIECES = (
+    ("J", "Suit Jacket", ("Mens", "Suits & Tailoring", "Suit Jackets"), "Notch", "Suit Jacket"),
+    ("T", "Suit Trousers", ("Mens", "Suits & Tailoring", "Suit Trousers"), "Regular", "Suit Trousers"),
+    ("W", "Waistcoat", ("Mens", "Suits & Tailoring", "Waistcoats"), "Five Button", "Waistcoat"),
+)  # fmt: skip
+
+
+def _set_rows() -> list[LRow]:
+    out: list[LRow] = []
+    for n, (name, fabric, fit, b, colors) in enumerate(SETS):
+        for code, ptype, path, detail, noun in _PIECES:
+            kind = KINDS[ptype]
+            attrs = [_a("fit", "Fit", fit), _a("material", "Material", _case(fabric)),
+                     _a("suit_set", "Suit set", name)]  # fmt: skip
+            extra, params = _suit(ptype, fit, detail, n)
+            attrs += extra
+            if ptype == "Suit Jacket":
+                attrs.append(_a("sleeve_length", "Sleeve length", "Long"))
+            desc = (f"{_an(fabric).capitalize()} {noun.lower()} cut to {_an(fit)} fit "
+                    f"{_TAIL[ptype]}. Part of the {name} suit: the jacket, trousers and waistcoat "
+                    f"match.")  # fmt: skip
+            price = round(kind.base_price + 15.0 + 2.0 * (n % 5), 2)
+            out.append(_row(f"MS{n}{code}", f"Mens {name} {fabric} {fit} Fit {noun}", _BRANDS[b],
+                            kind, path, desc, tuple(_col(c) for c in colors), tuple(attrs),
+                            price=price, params=params))  # fmt: skip
     return out
 
 
@@ -429,8 +552,11 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
                 ptype=ptype, material=None, extra=()):  # noqa: PLR0913
             code = f"MD{tag}{klass}{i}"
             brand = word if klass == 7 else _BRANDS[(i + klass) % len(_BRANDS)]
-            attrs = (_a("fit", "Fit", "Regular"),
-                     _a("material", "Material", _case(material or kind.material)))  # fmt: skip
+            attrs = (_a("material", "Material", _case(material or kind.material)),)
+            if kind.fitted:
+                attrs = (_a("fit", "Fit", "Regular"), *attrs)
+            if kind.item:
+                attrs += (_a("accessory_type", "Accessory type", kind.item),)
             attrs += extra
             if ptype == "Socks":
                 attrs += (("units_per_pack", "Units per pack", "3", "C62"),)
@@ -498,7 +624,7 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
 
 _DECOY_ROWS, _TABLE = _decoys()
 _FLOOR_ROWS = _floor_rows()
-ROWS: tuple[LRow, ...] = (*_FLOOR_ROWS, *_DECOY_ROWS)
+ROWS: tuple[LRow, ...] = (*_FLOOR_ROWS, *_set_rows(), *_DECOY_ROWS)
 #: Every decoy, with its class, word, query and policy: the docs table is generated from it.
 TABLE: tuple[Decoy, ...] = tuple(_TABLE)
 

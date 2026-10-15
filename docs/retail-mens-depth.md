@@ -30,3 +30,23 @@ product floors count decoys; the tests also hold a floor without them.
 The three class 7 brands each have a house style whose lockup text is the brand name. The text
 agreement check (`standard.text_contradictions`) treats the document's brand as its own value, so
 a brand such as "Black Curlew" is not read as naming a color.
+
+## Suits and tailoring (gen#215)
+
+`Mens/Suits & Tailoring` holds five product types, each drawn as its own shape by
+`prototypes/retail_drawings/kit_suits.py` (`suit_jacket`, `suit_trousers`, `waistcoat`,
+`dinner_suit`, `formal_accessory`), and each carrying its own decoys (the same seven classes):
+
+| Type (`product_type`) | Leaf | Key attributes (structured) | Shape params |
+|---|---|---|---|
+| Suit Jacket | Suit Jackets, Blazers | `fit`, `material`, `lapel`, `buttons`, `occasion` | `fit`, `lapel` |
+| Suit Trousers | Suit Trousers | `fit`, `material`, `leg_length` | `fit`, `leg` |
+| Waistcoat | Waistcoats | `fit`, `material`, `buttons` | `fit`, `buttons` |
+| Dinner Suit | Dinner Suits | `fit`, `material`, `lapel` | `fit`, `lapel` |
+| Formal Accessories | Formal Accessories | `material`, `accessory_type` (tie, bow tie, braces, cummerbund, pocket square) | `item` |
+
+A matching set is a jacket, trousers and waistcoat sharing one `suit_set` name, one brand, one
+cloth (`material`), one fit and the same colors (`mens_depth_rows.SETS`, ten sets). Not yet here:
+the women's trouser suit and the boys' suit (age sizes, two or three pieces), which need the
+Womens and Kids roots and their own decoy plan (`decoy_apparel.TYPES`), and the jacket length and
+trouser leg as SKU axes (the leg length is a style attribute for now).
