@@ -49,6 +49,7 @@ import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
 import sports_rows  # noqa: E402
 import toys_rows  # noqa: E402
+import swimwear_rows  # noqa: E402
 import underwear_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 
@@ -123,6 +124,7 @@ def measure() -> dict[str, Any]:
         "sofa_rows": sofa_rows.docs(),
         "appliance_rows": appliance_rows.docs(),
         "underwear_rows": underwear_rows.docs(),
+        "swimwear_rows": swimwear_rows.docs(),
         "toys_rows": toys_rows.docs(),
         "seasonal_rows": seasonal_rows.docs(),
         "colorgroup_rows": colorgroup_rows.docs(),
