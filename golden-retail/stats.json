@@ -50,8 +50,12 @@
     "styles": 177
    },
    "Men": {
-    "skus": 14232,
-    "styles": 512
+    "skus": 14,
+    "styles": 8
+   },
+   "Mens": {
+    "skus": 14218,
+    "styles": 504
    },
    "Sports & Outdoors": {
     "skus": 156,
@@ -62,8 +66,12 @@
     "styles": 439
    },
    "Women": {
-    "skus": 74542,
-    "styles": 1849
+    "skus": 47,
+    "styles": 12
+   },
+   "Womens": {
+    "skus": 74495,
+    "styles": 1837
    }
   }
  },

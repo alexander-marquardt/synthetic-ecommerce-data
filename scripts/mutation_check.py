@@ -2927,8 +2927,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the kit p90/p10 pin's 100K record is loosened by hand",
                 "core/price.py",
-                "    _KIT_SPREAD_ROW: (4.015, 3.901),",
-                "    _KIT_SPREAD_ROW: (4.015, 3.5),",
+                "    _KIT_SPREAD_ROW: (4.032, 3.917),",
+                "    _KIT_SPREAD_ROW: (4.032, 3.5),",
                 "figure_its_build_produces",
                 "a record is the build's figure",
             ),
@@ -2969,8 +2969,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the wheel pin's 100K record is loosened by hand",
                 "core/price.py",
-                "    _WHEEL_SPREAD_ROW: (4.381, 2.903),",
-                "    _WHEEL_SPREAD_ROW: (4.381, 3.25),",
+                "    _WHEEL_SPREAD_ROW: (4.303, 2.842),",
+                "    _WHEEL_SPREAD_ROW: (4.303, 3.25),",
                 "figure_its_build_produces",
                 "a record is the build's figure",
             ),
@@ -3379,6 +3379,46 @@ MUTATIONS: list[Mutation] = [
                 "",
                 "tests/test_grocery_ingredient_base_295.py -k scale_build_with_the_decoys",
                 "every label of the scale build has a base row",
+            ),
+        ]
+    ),
+    # ---- pack: bolts and socket screws publish the census pack (#65) ------
+    *(
+        Mutation(
+            f"pack: {name}", file, old, new, f"tests/test_pack_quantity.py -k {test}", "A", prop
+        )
+        for name, file, old, new, test, prop in [
+            (
+                "the pack grows with the size",
+                "core/price.py",
+                "    quantile = 1.0 - (rank + u) / sizes",
+                "    quantile = (rank + u) / sizes",
+                "never_grows_with_the_size",
+                "the pack falls as the size grows",
+            ),
+            (
+                "every line of a size takes one pack",
+                "core/price.py",
+                "    quantile = 1.0 - (rank + u) / sizes",
+                "    quantile = 1.0 - (rank + 0.5) / sizes",
+                "even_spread_over_the_sizes",
+                "the build publishes the census counts",
+            ),
+            (
+                "the bolt's pack does not enter its price",
+                "core/price.py",
+                '            pack_slope=PACK_SLOPES["bolt_hex"],',
+                "            pack_slope=0.0,",
+                "prices_its_pack_on_the_census_slope",
+                "the price is the pack's",
+            ),
+            (
+                "a census pack count drifts",
+                "core/price.py",
+                "        100: 76,",
+                "        100: 77,",
+                "each_pack_count_is_the_census_count",
+                "the counts are the census's",
             ),
         ]
     ),

@@ -91,7 +91,7 @@ def run(lo: str, hi: str, halves_to: float | None = None, chart: str = "women") 
 
 def chart_of(doc: dict) -> str:
     """The :data:`CHARTS` key a footwear doc's sizes are read from."""
-    root = doc["category_path"][0].lower()
+    root = {v: k for k, v in ROOTS.items()}[doc["category_path"][0]]
     return f"slippers_{root}" if "size" in doc["size_options"] else root
 
 
@@ -244,7 +244,7 @@ class FootwearStyle:
             "brand": self.brand,
             "brand_owner": BRAND_OWNER[self.brand],
             "department": check_departments(dept, self.title),
-            "category_path": [self.gender.capitalize(), *nodes],
+            "category_path": [ROOTS[self.gender], *nodes],
             "category_leaf": nodes[-1],
             "description": self.description,
             "attributes": attrs,
@@ -282,6 +282,8 @@ W_WHOLE = run("3", "8")
 M_RUN = run("6", "13", 12, "men")
 M_DRESS = run("6", "12", 11, "men")
 INFANT_JUNIOR = run("4 Infant", "2 Junior", chart="kids")
+#: The category root of each footwear gender (gen#304: Mens and Womens, as Kids).
+ROOTS = {"women": "Womens", "men": "Mens", "kids": "Kids"}
 _W, _M, _K = "women", "men", "kids"
 
 WOMENS = (
@@ -507,14 +509,14 @@ BOOTS = dz.Row(
         ), "category intent: Boots (a Home item never answers a footwear word)"),
         dz.Distractor(dz.product(
             "BOOTPOL", "Boot Polish & Brush Kit", "Calderby & Lune", "Footwear",
-            ("Men", "Shoes", "Shoe Care"), 12.0,
+            ("Mens", "Shoes", "Shoe Care"), 12.0,
             "Wax boot polish in black, brown and neutral with a horsehair brush. Feeds leather "
             "boots and keeps boots supple.",
             drawing("tin", cw("Black", "#2a2a2e", "solid", "#c9a24a"), "Polish"),
         ), "product-type demotion: shoe care below boots"),
         dz.Distractor(dz.product(
             "BOOTSOK", "Welly Boot Socks", "Hollinwray Knits", "Clothing",
-            ("Women", "Socks", "Boot Socks"), 9.0,
+            ("Womens", "Socks", "Boot Socks"), 9.0,
             "Thick knitted boot socks with a fold-over cuff that shows above welly boots. "
             "Warm in boots all winter.",
             drawing("boot_sock", cw("Oat", "#d9cdb4", "stripe", "#8a6b4a")),

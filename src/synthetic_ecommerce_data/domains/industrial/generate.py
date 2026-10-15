@@ -381,6 +381,22 @@ class Generator:
         self._rotations[key] = index + 1
         return index
 
+    def _pack(
+        self, type_key: str, line: str, diameter_in: float, diameters: Iterable[float]
+    ) -> Attribute:
+        """A pack-sold line's ``Package Quantity`` (:func:`.price.pack_quantity`):
+        ranked by its diameter among every diameter its type offers, so the
+        pack falls as the size grows, and placed by its own draw, so no other
+        draw moves."""
+        offered = sorted({round(d, 4) for d in diameters})
+        quantity = price.pack_quantity(
+            price.BORROWS.get(type_key, type_key),
+            offered.index(round(diameter_in, 4)),
+            len(offered),
+            price.pack_draw(self.config.seed, type_key, line),
+        )
+        return numeric_attribute("Package Quantity", str(quantity), float(quantity))
+
     def _new_sku(self) -> str:
         """The type's next part number: its block, then a scrambled sequence.
 
@@ -851,6 +867,18 @@ class Generator:
         sizes = standards.available_sizes(standard)
         size = sizes[self._rotate(f"size:{type_key}:{standard}", len(sizes))]
         head = head_of(standard, size)
+        draft.line_attrs.append(
+            self._pack(
+                type_key,
+                f"{standard}:{size}:{brand}:{draft.series}",
+                head.major_dia_in,
+                (
+                    head_of(system_standard, offered_size).major_dia_in
+                    for system_standard in (line.metric_standard, line.inch_standard)
+                    for offered_size in standards.available_sizes(system_standard)
+                ),
+            )
+        )
         # Near-miss threads: every FINE_PERIOD-th line of a diameter that has a
         # fine pitch is built to it, so ``m12 socket cap screws`` finds M12x1.5
         # and M12x1.25 beside M12x1.75 and the pitch facet has a real choice.
@@ -1005,6 +1033,16 @@ class Generator:
             keyword_attribute("Thread Direction", "Right Hand"),
             keyword_attribute(
                 "Thread Type", "UNC" if standard.startswith("ASME") else "Metric Coarse"
+            ),
+            self._pack(
+                type_key,
+                f"{standard}:{size}:{brand}:{draft.series}",
+                head.major_dia_in,
+                (
+                    standards.hex_bolt(bolt_standard, offered_size).major_dia_in
+                    for bolt_standard in dict.fromkeys(HEX_BOLT_STANDARDS)
+                    for offered_size in standards.available_sizes(bolt_standard)
+                ),
             ),
         ]
         draft.descriptors = [("Grade", grade)]

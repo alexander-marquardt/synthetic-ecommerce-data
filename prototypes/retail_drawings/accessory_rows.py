@@ -39,7 +39,7 @@ _M, _P, _O, _T, _W, _H = ("Marrowgate", "Pellbrook", "Osier & Vane", "Tallow Str
 #: every worn SKU has one (:mod:`audience`).
 WOMENS, UNISEX = audience.WOMENS, audience.UNISEX
 _BAGS = ("Accessories", "Bags")
-_JEW = ("Women", "Jewellery")
+_JEW = ("Womens", "Jewellery")
 
 
 @dataclass(frozen=True)
