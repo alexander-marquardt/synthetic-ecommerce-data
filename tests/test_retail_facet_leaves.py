@@ -297,10 +297,14 @@ MOVED = {
     "Mid Weight Denim": ("Denim", None),
     "Washed Linen": ("Linen", None),
     "Cotton Blend": ("Cotton", "Cotton Blend"),
-    "Polyester Blend": ("Suiting", "Polyester Blend"),
     "Cotton Jersey": ("Jersey", "Cotton"),
     "Silk Dupion": ("Silk", "Silk Dupion"),
 }
+
+
+#: A move that is a call on one product type's text, not a fact about the value (gen#291): the
+#: tailored shorts' "Polyester Blend" is the suiting their description names.
+TYPED_MOVED = {("Shorts", "Polyester Blend"): ("Suiting", "Polyester Blend")}
 
 
 def test_the_blend_is_a_detail_not_a_facet(built, docs):
@@ -312,12 +316,14 @@ def test_the_blend_is_a_detail_not_a_facet(built, docs):
         assert "fibre_content" not in {a["key"] for a in doc["attributes"]}
         if rec["product_type"] == "Bra" or not old:
             continue
-        fabric, blend = MOVED.get(old[0], (old[0], None))
+        fabric, blend = TYPED_MOVED.get(
+            (rec["product_type"], old[0]), MOVED.get(old[0], (old[0], None)))
         assert _values(doc, "fabric") == [fabric], rec["product_id"]
         assert doc.get("fibre_content") == blend, rec["product_id"]
         moved[rec["product_type"]] += bool(blend)
     assert {v for r in built.records for a in r["attributes"] if a["key"] == "fabric"
-            for v in [a["value"]] if r["product_type"] != "Bra"} >= set(MOVED)
+            for v in [a["value"]] if r["product_type"] != "Bra"} >= (
+        set(MOVED) | {value for _, value in TYPED_MOVED})
     assert {t for t, n in moved.items() if n} == {
         "Jeans", "Shirt", "Towel", "Soft Toy", "Leggings", "Vest", "Shorts", "Boxers", "Lampshade"}
 
@@ -337,5 +343,38 @@ def test_no_fabric_is_a_blend_or_a_use_word(docs):
     pocket or a fit (gen#258); Leather-Look is Faux Leather again."""
     fabrics = {v for d in docs for v in _values(d, "fabric")}
     assert fabrics & {"Cotton Blend", "Polyester Blend", "Cotton Jersey", "Sports", "Cargo",
-                      "Compression", "Leather-Look"} == set()
+                      "Compression"} == set()
+    assert {f for f in fabrics if LEATHER_LOOK.search(f)} == set()
     assert {"Faux Leather", "Jersey", "Twill", "Knitted", "Suiting"} <= fabrics
+
+
+#: "Leather-Look" and "Leather Look" are one phrase; a guard reads both spellings (gen#291).
+LEATHER_LOOK = re.compile(r"leather[\s-]*look", re.IGNORECASE)
+
+
+def test_a_faux_leather_product_is_never_titled_leather_look(built):
+    """``Faux Leather`` is the one name. A "Leather-Look" title is a class-4 decoy (a material
+    named but absent), whose fabric is anything else: a title that says it over a faux
+    leather fabric is the second name for the one fabric, in either spelling."""
+    named = [r for r in built.records if LEATHER_LOOK.search(r["title"])]
+    assert named
+    assert [
+        (r["product_id"], r["title"])
+        for r in named
+        if "Faux Leather" in [
+            a["value"] for a in r["attributes"] if a["key"] in ("fabric", "material")
+        ]
+    ] == []
+
+
+def test_a_fabric_move_is_keyed_by_product_type_and_value():
+    """A "Polyester Blend" on a type no move names stays as it is, so the closed-list guard
+    flags it; it is never silently Suiting because the tailored shorts' text said so."""
+    entries = [{"key": "fabric", "value": "Polyester Blend"}]
+    shorts = {"product_type": "Shorts", "category_path": ["Mens", "Shorts"], "title": "Shorts"}
+    skirt = {"product_type": "Skirt", "category_path": ["Womens", "Skirts"], "title": "Skirt"}
+    assert facet_leaves.fibre_content(entries, "Shorts") == "Polyester Blend"
+    assert facet_leaves.fibre_content(entries, "Skirt") is None
+    assert facet_leaves.leaf_facets(shorts, entries) == (
+        [("fabric", "Fabric", "Suiting")], {"fabric"})
+    assert facet_leaves.leaf_facets(skirt, entries) == ([], set())

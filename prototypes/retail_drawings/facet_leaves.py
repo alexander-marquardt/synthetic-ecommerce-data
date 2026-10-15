@@ -196,7 +196,7 @@ def _fit_of_leaf(leaf: str, node: str) -> str | None:
     return leaf[: -len(suffix)] if leaf.endswith(suffix) else None
 
 
-def fibre_content(entries: list[dict[str, Any]]) -> str | None:
+def fibre_content(entries: list[dict[str, Any]], product_type: str | None = None) -> str | None:
     """The blend or grade ``entries``' ``fabric`` held ("98% Cotton, 2% Elastane"), for the
     document's ``fibre_content`` detail; ``None`` when the fabric is already a shopper's."""
     for entry in entries:
