@@ -2,7 +2,8 @@
 
 The flag added nothing a shopper could use: on the served catalogue 337 of 9,337 retail
 products were ``yes``, so the top results all read ``no`` and the sidebar showed a "New in"
-facet with one value. It was no ranking signal either. ``offer`` stays.
+facet with one value. It was no ranking signal either. ``promotion`` stays (gen#189 replaced
+``offer`` with it).
 
 Checked at every layer a document passes through, as gen#186 does for ``color_family``: the
 build records, the nested standard documents, the flat per-SKU documents, the authored export
@@ -82,6 +83,6 @@ def test_the_authored_class_docs_carry_no_new_in_flag_or_badge() -> None:
     assert "new_in" not in rc.BOOLEANS
 
 
-def test_offer_is_kept() -> None:
-    assert "offer" in export.FACTS
-    assert any(d.get("offer") is True for d in rc.class_docs())
+def test_promotion_is_kept() -> None:
+    assert "promotion" in export.FACTS
+    assert any("promotion" in d for d in rc.class_docs())
