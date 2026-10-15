@@ -3524,8 +3524,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a decoy is copied by the derivation",
                 "scale.py",
-                "| MENS_DEPTH_IDS | decoy_rows.IDS\n",
-                "| MENS_DEPTH_IDS\n",
+                "| decoy_rows.IDS | decoy_apparel.IDS)",
+                "| decoy_apparel.IDS)",
                 "tests/test_retail_text_match_decoys_294.py -k never_copied_or_color_completed",
                 "a decoy stays a template",
             ),
@@ -3595,8 +3595,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "an apparel decoy is copied by the derivation",
                 "scale.py",
-                "                | decoy_apparel.IDS)",
-                "                )",
+                "| decoy_rows.IDS | decoy_apparel.IDS)",
+                "| decoy_rows.IDS)",
                 "tests/test_retail_apparel_decoys_311.py -k never_copied_or_color_completed",
                 "an apparel decoy stays a template",
             ),
