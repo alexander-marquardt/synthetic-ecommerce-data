@@ -1338,8 +1338,7 @@ or under a Womens, Mens or Kids root, also carries exactly one `audience`: `Wome
 `Girls`, `Boys`, `Baby` or `Unisex` (`audience.py`; a template's own value wins, `Kids/Girls`
 is Girls, `Kids/Boys` is Boys, `Kids/Baby` is Baby, the rest of Kids is Unisex). A product type has one name:
 "Tee" is written "T-Shirt" (`export.PRODUCT_TYPE_FOLDS`; the image ids keep the authored type,
-so none is re-rendered), `pattern` is written lower case and `rise` as `High`, `Mid` or `Low`
-(`export.VALUE_CASE`; the demo `check` policy reads the lower-case `pattern`).
+so none is re-rendered); `export.VALUE_CASE` writes `pattern` lower case and `rise` as `High`, `Mid` or `Low`.
 `tests/test_retail_audience.py` refuses a facet with two values that differ only in case.
 The roots are `Mens`, `Womens` and `Kids`, spelled as shoppers say them (gen#304; they were `Men` and
 `Women`): the department, read from the top level, moves with them, and
