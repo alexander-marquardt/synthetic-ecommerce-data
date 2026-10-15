@@ -34,6 +34,14 @@ TRACKSUIT_IDS = {f"BRD-TST{c}" for c in ("MFL", "MSH", "MHZ", "WFL", "WVL", "W3P
 SHAMPOO_IDS = {"BRD-SHPARG", "BRD-SHPROS"}
 
 
+# Example types the tests below use for a type that is NOT registered. A real type added in its own
+# spec file must never take one of these names, or it reds tests its writer did not touch.
+SPECIMEN_KAFTAN = ("Clothing", "Specimen Kaftan")
+SPECIMEN_ANORAK = ("Clothing", "Specimen Anorak")
+SPECIMEN_SERUM = ("Beauty", "Specimen Serum")
+SPECIMENS = (SPECIMEN_KAFTAN, SPECIMEN_ANORAK, SPECIMEN_SERUM)
+
+
 def _types(records: list[dict]) -> set[tuple[str, str]]:
     return {(str(r["department"][0]), str(r["product_type"])) for r in records}
 
@@ -263,8 +271,8 @@ def _real_types(tmp_path: Path) -> dict[str, type_registry.TypeSpec]:
     _, kaftan = _scaffold(tmp_path, "clothing", "specimen_kaftan", "Specimen Kaftan")
     row = replace(kaftan.rows[0], path=("Womens", "Tops", "Specimen Kaftans"))
     kaftan = replace(kaftan, rows=(row,))
-    _, beauty = _scaffold(tmp_path, "beauty", "hair_serum", "Hair Serum")
-    return {"specimen_kaftan": kaftan, "hair_serum": beauty}
+    _, beauty = _scaffold(tmp_path, "beauty", "serum_specimen", SPECIMEN_SERUM[1])
+    return {"specimen_kaftan": kaftan, "serum_specimen": beauty}
 
 
 def _register(monkeypatch: pytest.MonkeyPatch, added: dict[str, type_registry.TypeSpec]) -> None:
@@ -292,7 +300,7 @@ def test_a_real_scaffolded_clothing_and_beauty_type_pass_the_apparel_census(
     census.test_each_decoys_fields_contradict_its_misleading_word(rows, by_id)
     mine = {r.pid for r in rows if r.product_type == "Specimen Kaftan"}
     assert len(mine) >= 21 and mine <= da.IDS
-    assert not any(r.product_type == "Hair Serum" for r in rows)
+    assert not any(r.product_type == SPECIMEN_SERUM[1] for r in rows)
     table = da.table_markdown(rows)
     assert all(pid in table for pid in mine)
     now = {d["product_id"]: d for d in full}
@@ -407,23 +415,35 @@ def test_validate_refuses_a_malformed_apparel_declaration(name: str) -> None:
         type_registry.validate(replace(_base(department), **fields))
 
 
+def test_no_specimen_type_name_is_a_registered_or_built_type() -> None:
+    """A specimen name is an example of an unregistered type; a real type with that name would red
+    the tests that patch it in (the review of #358, Hair Serum). Held against the live registry
+    and the live build, so a new type's own spec file cannot collide."""
+    registered = {(sp.department, sp.product_type) for sp in type_registry.specs().values()}
+    built = _types(scale.templates(baseline=False))
+    taken = [x for x in SPECIMENS if x in registered or x in built]
+    assert not taken, f"a real type takes a specimen name, rename the specimen: {taken}"
+    # the literal "Specimen" prefix keeps a catalog type from taking one by accident
+    assert all(name.startswith("Specimen ") for _, name in SPECIMENS)
+
+
 # -- the guard is pinned (the review of #358, blocking 3) ----------------------------------------
 
 
 def test_a_type_registered_outside_a_spec_file_is_a_problem(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    built = _types(scale.templates(baseline=False)) | {("Beauty", "Hair Serum")}
+    built = _types(scale.templates(baseline=False)) | {SPECIMEN_SERUM}
     problems = type_registry.registration_problems(built)
-    assert len(problems) == 1 and "Hair Serum" in problems[0], problems
+    assert len(problems) == 1 and SPECIMEN_SERUM[1] in problems[0], problems
 
 
 def test_a_legacy_line_appended_for_a_new_type_is_a_problem(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """The bypass of the review: the type is built and its line is appended to the legacy list."""
-    built = _types(scale.templates(baseline=False)) | {("Beauty", "Hair Serum")}
-    legacy = type_registry.legacy_types() | {("Beauty", "Hair Serum")}
+    built = _types(scale.templates(baseline=False)) | {SPECIMEN_SERUM}
+    legacy = type_registry.legacy_types() | {SPECIMEN_SERUM}
     monkeypatch.setattr(type_registry, "legacy_types", lambda: legacy)
     problems = type_registry.registration_problems(built)
     assert len(problems) == 1 and "ceiling" in problems[0], problems
@@ -490,7 +510,7 @@ def test_the_build_refuses_a_spec_id_that_a_legacy_row_already_uses(
     )
     _, beauty = _scaffold(tmp_path, "beauty", "specimen_serum", "Specimen Serum")
     beauty = replace(beauty, rows=(replace(beauty.rows[0], code=taken.removeprefix("BRD-")),))
-    _register(monkeypatch, {"specimen_serum": beauty})
+    _register(monkeypatch, {"serum_specimen": beauty})
     with pytest.raises(type_registry.SpecError, match=taken):
         scale.templates()
 
