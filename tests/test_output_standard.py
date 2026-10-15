@@ -103,7 +103,7 @@ def test_industrial_states_usd_beside_its_price_usd():
 def test_sku_options_are_variant_attributes(retail):
     jeans = next(d for d in retail if d["product_id"] == "JEA-HARROW")
     first = {e["key"]: e for e in jeans["variants"][0]["attributes"]}
-    # a denim wash is a pattern of Blue, not a colour of its own (#188)
+    # a denim wash is a pattern of Blue, not a color of its own (#188)
     assert (first["color"]["value"], first["pattern"]["value"]) == ("Blue", "Rinse")
     assert first["size_uk"]["value"] == "4"
     assert first["inside_leg_length"] == {
@@ -129,7 +129,7 @@ def test_an_image_id_is_the_drawing_specs_and_stable(retail):
     assert [d["image_id"] for d in again] == [d["image_id"] for d in retail]
     jeans = next(d for d in retail if d["product_id"] == "JEA-HARROW")
     ids = {v["image_id"] for v in jeans["variants"]}
-    # one drawing per colour-and-wash pair: a size changes no picture
+    # one drawing per color-and-wash pair: a size changes no picture
     washes = {
         tuple(e["value"] for e in v["attributes"] if e["key"] in ("color", "pattern"))
         for v in jeans["variants"]
