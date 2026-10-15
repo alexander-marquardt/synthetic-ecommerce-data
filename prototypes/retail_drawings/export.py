@@ -163,9 +163,9 @@ NUMERIC_FACTS = frozenset({"rating", "bestseller_rank", "was_price", "abv", "dis
 #: ``unit_size`` in ``unit_measure``: a pack's net content, keyed by its kind.
 NET_CONTENT = {"ml": ("net_volume", "Net volume", "MLT"), "g": ("net_weight", "Net weight", "GRM")}
 #: Top-level fields that become standard columns rather than entries.
-COLUMNS = frozenset({"product_id", "product_type", "title", "brand", "category_path",
-                     "category_leaf", "description", "attributes", "currency", "skus",
-                     "product_line", "color_options", "size_options", "unit_size",
+COLUMNS = frozenset({"product_id", "product_type", "product_type_label", "title", "brand",
+                     "category_path", "category_leaf", "description", "attributes", "currency",
+                     "skus", "product_line", "color_options", "size_options", "unit_size",
                      "unit_measure", "ingredients"})  # fmt: skip
 #: Fields left out: the standard derives them from the variants, (the drawing)
 #: they are the render's input, reached through ``image_id``, or (``abv``) the
@@ -321,9 +321,12 @@ def standard_document(rec: dict) -> dict[str, Any]:
         path = facet_leaves.collapsed_path(path, rec["product_type"])
         attributes = [e for e in attributes if e["key"] not in replaced]
         attributes += [_entry(key, name, None, value) for key, name, value in added]
+    product_type = PRODUCT_TYPE_FOLDS.get(rec["product_type"], rec["product_type"])
     doc: dict[str, Any] = {
         "product_id": rec["product_id"],
-        "product_type": PRODUCT_TYPE_FOLDS.get(rec["product_type"], rec["product_type"]),
+        "product_type": product_type,
+        # A retail type is already a display name, so its label is that name (gen#331).
+        "product_type_label": product_type,
         "title": rec["title"],
         "brand": rec["brand"],
     }

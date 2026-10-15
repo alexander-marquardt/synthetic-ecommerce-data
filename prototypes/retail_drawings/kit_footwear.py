@@ -15,7 +15,7 @@ what to draw (:mod:`footwear_rows` puts all three in ``drawing.params``):
 * ``closure`` is the record's closure attribute: laces, a zip, a buckle strap,
   hook-and-loop straps, an ankle strap, a slingback or a pull tab.
 
-A heel block carries ``class="heel"`` (a flat or a sole unit has none), and
+The sole path carries ``class="sole"`` (``details`` redraws it for a named sole). A heel block carries ``class="heel"`` (a flat or a sole unit has none), and
 :func:`top` is the y of the collar's back top edge before the drawing is
 centred, so a test can tell a shoe from an ankle boot from a knee boot
 without parsing paths. Nothing is painted in the paper's color: a house style
@@ -247,7 +247,7 @@ def _leather_sole(k: Kind, base: str) -> list[str]:
     x, t = _tip(k)
     edge = "#3b2f27" if _dark(base) else "#6e4a30"
     d = f"M{_pt(x + 1, t)} {_under(k)} L{_pt(XB - 1, _sy(k)[1] + k.sole)} {_reverse_under(k, k.sole)} Z"
-    return [_path(d, edge, LW_DETAIL + 0.4)]
+    return [_path(d, edge, LW_DETAIL + 0.4, ' class="sole"')]
 
 
 def _reverse_under(k: Kind, dy: float) -> str:
@@ -281,7 +281,7 @@ def _unit_sole(k: Kind, base: str) -> list[str]:
         f"L{_pt(XB - 5, by - w)} L{_pt(XB - 5, G - 6)} Q{_pt(XB - 4, G)} {_pt(XB + 8, G)} "
         f"L{_pt(x - 80, G)} C{_pt(x - 30, G)} {_pt(x + 10, t + 6)} {_pt(x + 4, t - w)} Z"
     )
-    out = [_path(d, color, LW)]
+    out = [_path(d, color, LW, ' class="sole"')]
     s = k.sole_style
     if s == "cup":
         out += [

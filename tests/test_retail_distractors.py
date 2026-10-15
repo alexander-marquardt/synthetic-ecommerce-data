@@ -80,7 +80,11 @@ def test_the_barrels_out_sell_the_balloon_jeans_and_say_balloon() -> None:
 
 def test_a_balloon_jeans_search_without_a_policy_returns_barrels_first(index) -> None:
     top = br.rank(index, "balloon jeans", 10)
-    assert [d["leg_style"] for d in top].count("barrel") == 10
+    # a planted decoy (gen#311: a "Balloon Jeans" range or brand on a jeans) is meant to match the
+    # words; the real products among the first ten are all barrels
+    real = [d for d in top if d["product_id"] not in scale.DECOY_IDS]
+    assert len(real) >= 5
+    assert [d["leg_style"] for d in real].count("barrel") == len(real)
 
 
 def test_petite_is_a_substantial_set_with_a_minority_on_sale(ceiling) -> None:
