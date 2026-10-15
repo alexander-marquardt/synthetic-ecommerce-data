@@ -551,13 +551,13 @@
    "skus": 684,
    "styles": 308
   },
-  "colorgroup_rows": {
-   "skus": 1800,
-   "styles": 24
-  },
   "color_word_brand_rows": {
    "skus": 23,
    "styles": 23
+  },
+  "colorgroup_rows": {
+   "skus": 1800,
+   "styles": 24
   },
   "distractor_rows": {
    "skus": 3684,

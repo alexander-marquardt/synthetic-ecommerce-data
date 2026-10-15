@@ -31,8 +31,8 @@ if str(HERE) not in sys.path:
 import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
-import colorgroup_rows  # noqa: E402
 import color_word_brand_rows  # noqa: E402
+import colorgroup_rows  # noqa: E402
 import distractor_rows  # noqa: E402
 import export  # noqa: E402
 import grocery  # noqa: E402
