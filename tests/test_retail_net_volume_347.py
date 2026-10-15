@@ -28,7 +28,8 @@ MINIMUM = 3
 #: refused below, so the list cannot rot.
 EXCEPTIONS: dict[tuple[str, ...], str] = {}
 
-#: A volume a title states: "500ml", "1.5L", "1L".
+#: A volume a title states: "500ml", "1.5L", "1L". Deliberately not imported from
+#: ``net_volume.py``: this copy is the guard's independent oracle, so do not merge the two.
 TITLE_VOLUME = re.compile(r"\b(\d+(?:\.\d+)?) ?(ml|L)\b")
 
 
@@ -59,6 +60,23 @@ def test_a_type_that_carries_a_net_volume_offers_at_least_three() -> None:
         if len(vs) < MINIMUM and path not in EXCEPTIONS
     }
     assert not thin, f"{len(thin)} types offer fewer than {MINIMUM} net volumes: {thin}"
+
+
+@cache
+def per_family() -> dict[str, set[float]]:
+    """Net volumes by grocery family (the ``GRC-<family>-`` product id prefix). A path hides a
+    thin family behind a sibling that sells the third size, and a shopper searching one
+    product sees only that product's sizes."""
+    held: dict[str, set[float]] = defaultdict(set)
+    for d in docs():
+        if (found := volumes(d)) and (m := re.match(r"GRC-([A-Z0-9]+)-", d["product_id"])):
+            held[m.group(1)] |= found
+    return dict(held)
+
+
+def test_a_grocery_family_that_carries_a_net_volume_offers_at_least_three() -> None:
+    thin = {code: sorted(vs) for code, vs in per_family().items() if len(vs) < MINIMUM}
+    assert not thin, f"{len(thin)} families offer fewer than {MINIMUM} net volumes: {thin}"
 
 
 def test_a_declared_exception_is_still_thin_and_says_why() -> None:
