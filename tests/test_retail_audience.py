@@ -25,6 +25,7 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import audience  # noqa: E402
+import decoy_product_words  # noqa: E402
 import departments  # noqa: E402
 import export  # noqa: E402
 import scale  # noqa: E402
@@ -156,7 +157,7 @@ def test_the_cleaning_root_is_one_and_every_build_department_is_on_the_list(docs
     assert "Cleaning" in roots
     for r in built.records:
         departments.check(r["department"], r["product_id"])
-    assert not standard.check_catalog(docs)
+    assert not standard.check_catalog(docs, text_exempt=decoy_product_words.TEXT_EXEMPT)
 
 
 def test_the_document_json_round_trips_with_one_audience_entry_per_style(docs):

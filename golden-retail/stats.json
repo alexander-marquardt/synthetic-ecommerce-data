@@ -2,36 +2,36 @@
  "ceiling": {
   "derived_styles": 4534,
   "food_and_drink": {
-   "skus": 11640,
-   "styles": 4237
+   "skus": 11653,
+   "styles": 4250
   },
   "grocery": {
    "skus": 12416,
    "styles": 4518
   },
-  "images": 16329,
+  "images": 16442,
   "non_grocery": {
    "skus": 91901,
    "styles": 5592
   },
-  "skus": 116100,
-  "styles": 11125,
+  "skus": 116213,
+  "styles": 11238,
   "top_levels": {
    "Accessories": {
-    "skus": 164,
-    "styles": 37
+    "skus": 186,
+    "styles": 59
    },
    "Beauty": {
-    "skus": 893,
-    "styles": 483
+    "skus": 894,
+    "styles": 484
    },
    "Cleaning": {
     "skus": 769,
     "styles": 491
    },
    "Food & Drink": {
-    "skus": 11640,
-    "styles": 4237
+    "skus": 11653,
+    "styles": 4250
    },
    "Garden": {
     "skus": 260,
@@ -42,28 +42,28 @@
     "styles": 332
    },
    "Home": {
-    "skus": 5803,
-    "styles": 1841
+    "skus": 5864,
+    "styles": 1902
    },
    "Kids": {
-    "skus": 2752,
-    "styles": 177
+    "skus": 2756,
+    "styles": 181
    },
    "Mens": {
-    "skus": 19213,
-    "styles": 1002
+    "skus": 19218,
+    "styles": 1007
    },
    "Sports & Outdoors": {
-    "skus": 156,
-    "styles": 17
+    "skus": 160,
+    "styles": 21
    },
    "Toys": {
-    "skus": 717,
-    "styles": 439
+    "skus": 718,
+    "styles": 440
    },
    "Womens": {
-    "skus": 73243,
-    "styles": 1849
+    "skus": 73245,
+    "styles": 1851
    }
   }
  },
@@ -531,8 +531,8 @@
    "styles": 53
   },
   "all": {
-   "skus": 55448,
-   "styles": 6591
+   "skus": 55561,
+   "styles": 6704
   },
   "appliance_rows": {
    "skus": 124,
@@ -544,8 +544,8 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 43032,
-   "styles": 2073
+   "skus": 43145,
+   "styles": 2186
   },
   "breadth_rows": {
    "skus": 684,
@@ -554,6 +554,10 @@
   "colorgroup_rows": {
    "skus": 1800,
    "styles": 24
+  },
+  "decoy_product_words": {
+   "skus": 113,
+   "styles": 113
   },
   "decoy_rows": {
    "skus": 111,
@@ -580,8 +584,8 @@
    "styles": 43
   },
   "main_food": {
-   "skus": 99,
-   "styles": 90
+   "skus": 112,
+   "styles": 103
   },
   "mens_depth_rows": {
    "skus": 4702,
