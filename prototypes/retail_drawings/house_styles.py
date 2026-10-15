@@ -1081,6 +1081,15 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     "Yellow Plover":        H("#fffbe6", "lines",    "ticks",   "#d9a400", "#3a3000", 0.85, True,  "round", "half_disc",         "badge",       "bottom_centre", "none",     "humanist", 400, "caps",      0.5, True),
     "Blue Bull":            H("#eef2f8", "hatch",    "double",  "#1f4e9c", "#14284a", 1.1,  False, "round", "bull_horns",        "mark_right",  "top_right",     "none",     "serif",    700, "caps",      1.2),
     "Jacket Wren":          H("#eef3ee", "grid",     "double",  "#3f6b4f", "#1e3327", 1.05, False, "round", "slanted_blades",    "mark_only",   "top_right",     "stamp",    "mono",     400, "title",     1.0),
+    # The invented brands of the apparel decoys (decoy_apparel, gen#311, class 7).
+    "Red Plover":           H("#fbf1ee", "lines",    "thin",    "#b5382c", "#3a1a16", 1.0,  False, "round", "bell",              "mark_left",   "bottom_left",   "none",     "serif",    400, "title",     1.0),
+    "Blue Otter":           H("#eef3fa", "dots",     "double",  "#2f5d9a", "#182b48", 1.1,  False, "sharp", "fold",              "mark_above",  "top_left",      "none",     "sans",     700, "caps",      2.0),
+    "Green Stoat":          H("#eff6ee", "diagonal", "rounded", "#3f7d3a", "#1d3a1b", 1.2,  True,  "round", "sprout",            "band_top",    "top_centre",     "none",     "humanist", 400, "lower",     0.5),
+    "Yellow Wagtail":       H("#fcf7e3", "grid",     "heavy",   "#c49a1c", "#41330a", 1.0,  False, "sharp", "bubbles",           "pill",        "top_centre",    "none",     "mono",     400, "smallcaps", 1.5),
+    "Black Lapwing":        H("#f1f1f1", "none",     "none",    "#222222", "#111111", 1.3,  False, "sharp", "ladder",            "mark_right",  "top_right",     "none",     "sans",     700, "caps",      3.0),
+    "White Dormouse":       H("#ffffff", "hatch",    "ticks",   "#8a8a8a", "#2e2e2e", 0.9,  True,  "round", "steps",             "badge",       "bottom_centre", "none",     "serif",    400, "title",     0.0),
+    "Jumper Jay":           H("#f7eefa", "lines",    "thin",    "#8a3fa0", "#341a3e", 1.0,  False, "round", "puddle",            "band_bottom", "bottom_centre",      "none",     "humanist", 700, "title",     1.0),
+    "Coat Crake":           H("#f3efe8", "dots",     "double",  "#7a5a3a", "#30241a", 1.1,  False, "sharp", "comb",              "mark_only",   "bottom_left",   "stamp",    "mono",     700, "lower",     2.0),
 }
 # fmt: on
 

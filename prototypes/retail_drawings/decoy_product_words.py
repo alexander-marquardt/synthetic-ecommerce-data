@@ -48,7 +48,7 @@ OWNERS.update(dict.fromkeys(NEW_BRANDS, "third_party"))
 BRAND_OWNER.update(dict.fromkeys(NEW_BRANDS, "third_party"))
 
 _BR = (("kind", "brogue"), ("material", "leather"), ("closure", "Lace-Up"))
-_CARE = ("Accessories", "Shoe Care")
+_CARE = ("Mens", "Accessories", "Shoe Care")
 _STORE = ("Home", "Storage")
 _DIY = ("Home", "DIY & Car")
 _SOFT = ("Home", "Soft Furnishings")
@@ -122,7 +122,7 @@ NEW_KINDS = {
     ),
     "case": Kind(
         "Clothing",
-        ("Accessories", "Travel", "Travel Cases"),
+        ("Womens", "Accessories", "Travel", "Travel Cases"),
         "Travel Cases",
         "pouch",
         "Hearth & Table",
@@ -131,7 +131,7 @@ NEW_KINDS = {
     ),
     "waist": Kind(
         "Clothing",
-        ("Accessories", "Bags", "Waist Bags"),
+        ("Womens", "Accessories", "Bags", "Waist Bags"),
         "Waist Bags",
         "pouch",
         "Larkmoor",
@@ -140,7 +140,7 @@ NEW_KINDS = {
     ),
     "clip": Kind(
         "Clothing",
-        ("Accessories", "Keyrings", "Key Clips"),
+        ("Womens", "Accessories", "Keyrings", "Key Clips"),
         "Key Clips",
         "keyring",
         "Larkmoor",
@@ -268,7 +268,7 @@ class Row:
     decoy: bool = True
     brand: str | None = None
     sibling: str = ""  # a special policy is proved on this sibling query
-    sold: int = 850
+    sold: int = 2000
 
     @property
     def shape(self) -> str:
