@@ -11,7 +11,7 @@ emits, and :func:`synthetic_ecommerce_data.core.standard.check_catalog` passes i
   :func:`~synthetic_ecommerce_data.core.entry.split`;
 - ``price`` stays the GBP amount, ``currency`` says GBP; ``in_stock`` stays the
   yes/no (the build models no stock count, so no ``stock`` is written);
-- the retail-only top-level facts (color and size options, offer
+- the retail-only top-level facts (color and size options, the ``promotion`` and other
   flags, rating, ...) become product-level attribute entries (:data:`FACTS`);
 - ``image_id`` is ``<product type>/<product id>/<drawing spec digest>``: one
   image per distinct drawing (a SKU's drawing is its product's with the SKU's
@@ -34,6 +34,7 @@ from typing import Any
 import facet_leaves
 from audience import audience_of
 from build_preview4 import samples
+from promotion import CAMPAIGN  # noqa: F401 -- the seeded campaign, read through this module
 
 from synthetic_ecommerce_data.core import standard
 from synthetic_ecommerce_data.core.emit import write_jsonl
@@ -144,7 +145,8 @@ FACTS: dict[str, tuple[str, str, str | None]] = {
     "rise": ("rise", "Rise", None),
     "pattern": ("pattern", "Pattern", None),
     "units_per_pack": ("units_per_pack", "Units per pack", "C62"),
-    "offer": ("offer", "Offer", None),
+    # Every reduced product: "On sale", plus a campaign name (promotion.py, gen#189).
+    "promotion": ("promotion", "Sale", None),
     "online_only": ("online_only", "Online only", None),
     "trending": ("trending", "Trending", None),
     "badges": ("badge", "Badge", None),
