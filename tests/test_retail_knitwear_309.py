@@ -12,6 +12,8 @@ only adds to them, so a floor met here is met by the ceiling build.
 
 from __future__ import annotations
 
+import copy
+import re
 import sys
 from pathlib import Path
 
@@ -23,15 +25,16 @@ if str(RETAIL) not in sys.path:
 
 import house_styles  # noqa: E402
 import knitwear_rows  # noqa: E402
+import main_colors  # noqa: E402
 import scale  # noqa: E402
 
 #: root -> (floor of distinct knitwear products, floor without decoys), from the issue.
-FLOORS = {"Women": (150, 120), "Men": (100, 80)}
+FLOORS = {"Womens": (150, 120), "Mens": (100, 80)}
 #: The styles a root's knitwear carries (the `knit_style` attribute) and the materials.
 STYLES = {
-    "Women": ("Crew Neck", "V Neck", "Roll Neck", "Turtle Neck", "Cable Knit", "Half Zip",
+    "Womens": ("Crew Neck", "V Neck", "Roll Neck", "Turtle Neck", "Cable Knit", "Half Zip",
               "Boat Neck", "Button Front", "Longline", "Cropped", "Tank Top", "Slipover"),
-    "Men": ("Crew Neck", "V Neck", "Roll Neck", "Cable Knit", "Half Zip", "Quarter Zip",
+    "Mens": ("Crew Neck", "V Neck", "Roll Neck", "Cable Knit", "Half Zip", "Quarter Zip",
             "Button Front", "Zip Through", "Shawl Collar", "Slipover"),
 }
 MATERIALS = ("cashmere", "merino", "lambswool", "cotton", "wool blend", "recycled", "acrylic")
@@ -137,7 +140,7 @@ def test_white_jumpers_are_plentiful(knit, root):
 def test_every_row_is_unique_and_a_template(templates):
     docs = knitwear_rows.docs()
     assert docs
-    assert {r["category_path"][0] for r in docs} == {"Women", "Men"}
+    assert {r["category_path"][0] for r in docs} == {"Womens", "Mens"}
     assert {r["category_path"][1] for r in docs} == {"Knitwear"}
     assert len({r["product_id"] for r in docs}) == len(docs)
     assert len({r["title"] for r in docs}) == len(docs)
@@ -145,7 +148,7 @@ def test_every_row_is_unique_and_a_template(templates):
     assert {r["product_id"] for r in docs} == set(knitwear_rows.product_ids())
 
 
-@pytest.mark.parametrize("root", ("Women", "Men"))
+@pytest.mark.parametrize("root", ("Womens", "Mens"))
 @pytest.mark.parametrize("ptype", TYPES)
 @pytest.mark.parametrize("klass", CLASSES)
 def test_each_type_has_three_decoys_of_each_class_per_audience(root, ptype, klass):
@@ -225,6 +228,9 @@ def test_each_new_brand_has_its_own_house_style_and_lockup_text(brand):
     style = house_styles.HOUSE_STYLES.get(brand)
     assert style is not None
     assert style.layout != "mark_only"  # the lockup carries the brand's name
+    svg = "".join(house_styles.logo(style, brand))
+    texts = [t.lower() for t in re.findall(r"<text[^>]*>([^<]*)</text>", svg)]
+    assert texts == [brand.lower()]  # one text element, and it says the brand
     others = [s for b, s in house_styles.HOUSE_STYLES.items() if b != brand]
     assert style.mark not in {s.mark for s in others}
     assert house_styles.lockup_key(style) not in {house_styles.lockup_key(s) for s in others}
@@ -234,3 +240,43 @@ def test_the_table_lists_every_decoy_once(decoys):
     codes = [d.code for d in knitwear_rows.TABLE]
     assert len(codes) == len(set(codes))
     assert all(d.query and d.policy for d in knitwear_rows.TABLE)
+
+
+def test_complete_leaves_a_knitwear_decoy_its_one_color():
+    """The skip contract on a planted fixture: Womens jumpers lose Red, so ``complete`` must
+    add it, and a decoy whose text names red keeps its one true color (on the shipped data no
+    knitwear type misses a main color, so the skip is otherwise untested)."""
+    raw = copy.deepcopy(scale.templates(baseline=False))
+    decoys = knitwear_rows.decoy_ids()
+    for r in raw:
+        womens_jumper = r["product_type"] == "Jumper" and r["category_path"][0] == "Womens"
+        if r["product_id"] in decoys or not womens_jumper:
+            continue
+        r["color_options"] = [c for c in r["color_options"] if c["color"] != "Red"]
+    plain = main_colors.author_plain(raw)
+    assert "Red" in main_colors.missing(plain)[("Jumper", "Womens")]
+    before = {r["product_id"]: {c["color"] for c in r.get("color_options", ())} for r in plain}
+    kept = main_colors.complete(plain, decoys)
+    assert "Red" in {c["color"] for r in kept for c in r.get("color_options", ())
+                     if r["product_id"] not in decoys and r["product_type"] == "Jumper"}
+    for r in kept:
+        if r["product_id"] in decoys:
+            now = {c["color"] for c in r.get("color_options", ())}
+            assert now == before[r["product_id"]], r["product_id"]
+    # Without the skip the same fixture changes a decoy: the planted data bites.
+    bare = main_colors.complete(plain)
+    assert any({c["color"] for c in r.get("color_options", ())} != before[r["product_id"]]
+               for r in bare if r["product_id"] in decoys)
+
+
+def test_every_knitwear_product_has_two_to_four_colors():
+    decoys = knitwear_rows.decoy_ids()
+    rows = knitwear_rows.docs()
+    assert all(2 <= len(r["color_options"]) <= 4 for r in rows if r["product_id"] not in decoys)
+
+
+def test_class_4_descriptions_read_as_prose(decoys):
+    for d, rec in (x for x in decoys if x[0].klass == 4):
+        desc = rec["description"]
+        assert ", feel" not in desc and ", look" not in desc and ", free" not in desc, desc
+        assert d.word.lower() in desc.lower() and " finish" in desc, desc
