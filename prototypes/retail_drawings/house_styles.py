@@ -603,6 +603,17 @@ def m_bubbles(c: str) -> list[str]:
     ]
 
 
+def m_bull_horns(c: str) -> list[str]:
+    """A bull's head: a round muzzle between two upswept horns (Blue Bull, gen#326)."""
+    horns = "M-0.35,-0.1 C-0.95,-0.1 -0.95,-0.7 -0.6,-0.85 M0.35,-0.1 C0.95,-0.1 0.95,-0.7 0.6,-0.85"
+    return [
+        f'<path d="{horns}" fill="none" stroke="{c}" stroke-width=".16" stroke-linecap="round"/>',
+        _dot(0, 0.15, 0.5, c),
+        _dot(-0.2, 0.3, 0.08, "#ffffff"),
+        _dot(0.2, 0.3, 0.08, "#ffffff"),
+    ]
+
+
 #: Mark name -> drawing in unit space (-1..1), painted in the brand color.
 MARKS = {
     name[2:]: fn for name, fn in list(globals().items()) if name.startswith("m_") and callable(fn)
@@ -1068,6 +1079,7 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     # Invented brands of the Mens clothing depth (gen#310): a color or category word in the name.
     "Black Curlew":         H("#f2f2f0", "diagonal", "thin",    "#1a1a1a", "#262626", 1.2,  False, "sharp", "stacked_bars",      "mark_left",   "bottom_left",   "none",     "sans",     700, "smallcaps", 1.5),
     "Yellow Plover":        H("#fffbe6", "lines",    "ticks",   "#d9a400", "#3a3000", 0.85, True,  "round", "half_disc",         "badge",       "bottom_center", "none",     "humanist", 400, "caps",      0.5, True),
+    "Blue Bull":            H("#eef2f8", "hatch",    "double",  "#1f4e9c", "#14284a", 1.1,  False, "round", "bull_horns",        "mark_right",  "top_right",     "none",     "serif",    700, "caps",      1.2),
     "Jacket Wren":          H("#eef3ee", "grid",     "double",  "#3f6b4f", "#1e3327", 1.05, False, "round", "slanted_blades",    "mark_only",   "top_right",     "stamp",    "mono",     400, "title",     1.0),
     # The invented brands of the apparel decoys (decoy_apparel, gen#311, class 7).
     "Red Plover":           H("#fbf1ee", "lines",    "thin",    "#b5382c", "#3a1a16", 1.0,  False, "round", "bell",              "mark_left",   "bottom_left",   "none",     "serif",    400, "title",     1.0),
