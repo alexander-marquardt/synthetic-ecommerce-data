@@ -62,6 +62,7 @@ _AUTHORED_SHADE_FAMILY = {
     "Bright Orange": "orange", "Lemon": "yellow",
     "Rose Gold": "gold", "Yellow Gold": "gold", "White Gold": "silver", "Silver": "silver",
     "Stripe": "multi",
+    "Blue": "blue", "Green": "green", "Brown": "brown", "Gold": "gold",
 }  # fmt: skip
 #: Keyed by the plain word ``cw`` gives a shade ("Lemon" is "Yellow"), as ``color[0]`` reads.
 SHADE_FAMILY = {plain(shade): family for shade, family in _AUTHORED_SHADE_FAMILY.items()}
