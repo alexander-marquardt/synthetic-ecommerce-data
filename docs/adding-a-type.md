@@ -657,7 +657,7 @@ stays one per type, and their attributes stay true. The class names the word:
 | incidental word, short title (generic) | `Claw Hammer, Hickory Creek` (the whole indexed title: 5 words or fewer, no brand, qualifier or size; one SKU, gen#320) | the creek is a place name |
 
 `tests/test_hammers_305.py` pins at least three of each class per kind and that the
-handle never is the named material. The color classes do not apply: a hammer has no color.
+handle never is the named material. Only the flat `title` is short: `parent_title` and the nested title keep the brand form. One predicate, `hammers.is_incidental_decoy_title`, tells the class-4 title to the gates that read titles (the voice and the key-dimension gate exempt it). The color classes do not apply: a hammer has no color.
 
 ## The commands
 

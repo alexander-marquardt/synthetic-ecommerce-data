@@ -17,7 +17,10 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_ecommerce_data.domains.industrial.hammers import is_incidental_decoy_title
+from synthetic_ecommerce_data.domains.industrial.hammers import (
+    INCIDENTAL_PHRASE,
+    is_incidental_decoy_title,
+)
 
 ROOT = Path(__file__).resolve().parent.parent
 RETAIL = ROOT / "prototypes" / "retail_drawings"
@@ -125,7 +128,7 @@ CATEGORY_WORD = re.compile(
     r"\b(?P<noun>Ball Pein|Claw|Framing|Club|Sledge|Mallet|Dead Blow) Series\b"
 )
 MATERIAL_LOOK = re.compile(r"\b(?P<word>Hickory|Ash|Fiberglass)-Look\b")
-INCIDENTAL = re.compile(r"\b(?P<word>Hickory|Ash|Fiberglass) (?:Creek|Ridge|Lane|Hollow)\b")
+INCIDENTAL = INCIDENTAL_PHRASE
 OWN_NOUN = {
     "hammer_ball_pein": "Ball Pein", "hammer_claw": "Claw", "hammer_framing": "Framing",
     "hammer_club": "Club", "hammer_sledge": "Sledge", "hammer_rubber_mallet": "Mallet",
@@ -239,7 +242,7 @@ def test_an_incidental_word_decoy_is_in_the_top_three_for_each_of_its_queries(to
 def test_the_one_decoy_title_predicate_names_exactly_the_incidental_decoys(tools, kind) -> None:
     """gen#320: the predicate the facts and voice gates share accepts every incidental-word
     decoy title and no other title of the kind."""
-    docs = _lines(tools, kind).values()
-    named = {d["sku"] for d in docs if INCIDENTAL.search(d["title"]) and " -- " not in d["title"]}
-    assert named
+    docs = [d for d in tools if d["product_type"] == kind]
+    named = {d["sku"] for d in _incidental_docs(tools, kind)}
+    assert named and len(named) < len(docs)
     assert {d["sku"] for d in docs if is_incidental_decoy_title(d["title"])} == named
