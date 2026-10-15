@@ -8,7 +8,7 @@ How a volume reaches the catalogue, by where it is authored:
 | Authored as | Volume | Where |
 | --- | --- | --- |
 | A grocery family (`grocery_rows.Family.packs`) | One `net_volume` per SKU. A family listed in `PACKS_PER_STYLE` stocks more sizes across its range than any one style sells: each style takes that many packs, the window moving one pack per style, so the family spans every size while each style keeps its SKU count (and so the family's styles, flavors and random draws). | `grocery.stocked` |
-| A `class_model.Style` sold in several sizes | `volumes=((ml, price), ...)`: one SKU per colour and size, the price following the size. A style sold in one size keeps `unit=(ml, "ml")`. | `class_model.Style` |
+| A `class_model.Style` sold in several sizes | `volumes=((ml, price), ...)`: one SKU per color and size, the price following the size. A style sold in one size keeps `unit=(ml, "ml")`. | `class_model.Style` |
 | A `breadth_rows.Row` sold in several sizes | `sizes=((ml, price), ...)` with `size_key="net_volume_ml"`. | `breadth_rows.Row` |
 | A title that states a volume ("Glass Cleaner 500ml") | The title's volume becomes the record's `unit_size`, in one place. | `net_volume.state_title_volumes` |
 
