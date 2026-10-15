@@ -131,6 +131,11 @@ class Kind:
     absent: tuple[str, ...] = ()  # class 4: a feature named, three of them
     path: tuple[str, ...] = ()  # where a class-4 decoy sits: a leaf named for no material
     spread: tuple[tuple[str, ...], ...] = ()  # the leaves the other decoys spread over
+    decoy_attrs: tuple = ()  # attributes the decoys of classes 1-3 and 5-7 carry as the type's
+    decoy_params: tuple = ()  # the drawing params those decoys carry beyond ``params``
+    absent_noun: str = ""  # class 4: the noun of the leaf it sits in, when it is not ``noun``
+    absent_attrs: tuple = ()  # attributes a class 4 decoy carries instead of ``decoy_attrs``
+    absent_text: str = ""  # class 4 description, "{f}" the feature named; "" for the default
 
 
 _SR = ("size_range", ["regular"])
@@ -229,6 +234,7 @@ class Leaf:
     pattern: str = "plain"
     extra_price: float = 0.0
     stripe_accent: bool = False
+    waist: str | None = None  # the waist_type attribute, and the drawing's waist when "Elastic"
 
 
 _LEAVES = (
@@ -344,10 +350,12 @@ _TAIL = {
 }
 
 
-def _floor_rows() -> list[LRow]:
+def _floor_rows(leaves=None, kinds=None, tails=None, prefix: str = "MF") -> list[LRow]:
+    """The floor rows of ``leaves`` (this module's by default), coded ``<prefix><abbr><n>``."""
+    leaves, kinds, tails = leaves or _LEAVES, kinds or KINDS, tails or _TAIL
     out: list[LRow] = []
-    for leaf in _LEAVES:
-        kind = KINDS[leaf.kind]
+    for leaf in leaves:
+        kind = kinds[leaf.kind]
         combos: dict[str, tuple] = {}
         for fabric, fit, detail in _product(leaf.fabrics, leaf.fits, leaf.details):
             t = "Mens " + " ".join(leaf.title.format(f=fabric, fit=fit, d=detail).split())
@@ -362,10 +370,12 @@ def _floor_rows() -> list[LRow]:
                 colors = tuple(cw(f"{c[0]} Check", c[2], "gingham", "#2a2a2e") for c in colors)
             fit_an = _an(fit or "regular")
             desc = (f"{_an(fabric).capitalize()} {kind.noun.lower()} cut to {fit_an} fit "
-                    f"{_TAIL[leaf.kind]}.")  # fmt: skip
+                    f"{tails[leaf.kind]}.")  # fmt: skip
             attrs = [_a("fit", "Fit", fit or "Regular"), _a("material", "Material", _case(fabric))]
             if leaf.sleeve:
                 attrs.append(_a("sleeve_length", "Sleeve length", leaf.sleeve))
+            if leaf.waist:
+                attrs.append(_a("waist_type", "Waist type", leaf.waist))
             if detail and "Collar" in detail or detail in ("Western Yoke",):
                 attrs.append(_a("collar", "Collar", detail.replace(" Collar", "")))
             if kind.ptype == "Polo Shirt":
@@ -375,6 +385,8 @@ def _floor_rows() -> list[LRow]:
                 style = "tailored" if "Formal" in leaf.title or "Suit" in leaf.title else "jeans"
                 params = (("fit", _FIT_PARAM.get(fit, "straight")), ("rise", "mid"),
                           ("style", style))  # fmt: skip
+                if leaf.waist == "Elastic":
+                    params += (("waist", "elasticated"),)
             elif kind.ptype == "Boxers":
                 params = (("fit", {"Trunks": "trunks", "Boxer Shorts": "boxer",
                                    "Briefs": "brief"}[fit]),)  # fmt: skip
@@ -384,7 +396,7 @@ def _floor_rows() -> list[LRow]:
             facts = list(kind.facts)
             if leaf.pattern != "plain":
                 facts.append(("pattern", leaf.pattern))
-            out.append(_row(f"MF{leaf.abbr}{i:03d}", title, brand, kind, leaf.path, desc, colors,
+            out.append(_row(f"{prefix}{leaf.abbr}{i:03d}", title, brand, kind, leaf.path, desc, colors,
                             tuple(attrs), price=price, params=params, facts=tuple(facts)))
     return out
 
@@ -418,20 +430,22 @@ _BRAND_TRUE = {"Black Curlew": "White", "Yellow Plover": "Navy", "Jacket Wren": 
 _BRAND_QUERY = {"Black Curlew": "black", "Yellow Plover": "yellow", "Jacket Wren": "jacket"}
 
 
-def _decoys() -> tuple[list[LRow], list[Decoy]]:
+def _decoys(kinds=None, tails=None, prefix: str = "MD") -> tuple[list[LRow], list[Decoy]]:
+    """The decoys of ``kinds`` (this module's by default), coded ``<prefix><tag><class><n>``."""
+    kinds, tails = kinds or KINDS, tails or _TAIL
     rows: list[LRow] = []
     table: list[Decoy] = []
-    for k, (ptype, kind) in enumerate(KINDS.items()):
+    for k, (ptype, kind) in enumerate(kinds.items()):
         noun = kind.noun
         tag = "".join(w[0] for w in ptype.split()) + str(k)
 
         def add(klass, i, title, desc, true, word, query, policy="generic", kind=kind, tag=tag,
                 ptype=ptype, material=None, extra=()):  # noqa: PLR0913
-            code = f"MD{tag}{klass}{i}"
+            code = f"{prefix}{tag}{klass}{i}"
             brand = word if klass == 7 else _BRANDS[(i + klass) % len(_BRANDS)]
             attrs = (_a("fit", "Fit", "Regular"),
                      _a("material", "Material", _case(material or kind.material)))  # fmt: skip
-            attrs += extra
+            attrs += extra + (kind.absent_attrs if klass == 4 else kind.decoy_attrs)
             if ptype == "Socks":
                 attrs += (("units_per_pack", "Units per pack", "3", "C62"),)
             path = kind.path if klass == 4 or not kind.spread else kind.spread[
@@ -441,7 +455,8 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
             if ptype == "Polo Shirt":
                 attrs += (_a("collar", "Collar", "Polo"),)
             rows.append(_row(code, title, brand, kind, path, desc, (_col(true),), attrs,
-                             price=round(kind.base_price + 1.5 * i + klass, 2)))
+                             price=round(kind.base_price + 1.5 * i + klass, 2),
+                             params=kind.params + (() if klass == 4 else kind.decoy_params)))
             table.append(Decoy(code, ptype, klass, word, true, query, policy))
 
         for i in range(3):
@@ -451,7 +466,7 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
                 true = "Navy"
             # 1: a trim, a stripe or a print names the other color.
             add(1, i, f"Mens {true} {noun} with {w} {_TRIMS[i]}",
-                f"A {true.lower()} {noun.lower()} {_TAIL[ptype]}, finished with {w.lower()} "
+                f"A {true.lower()} {noun.lower()} {tails[ptype]}, finished with {w.lower()} "
                 f"{_TRIMS[i].lower()}.", true, w, f"{w.lower()} {noun.lower()}")  # fmt: skip
             # 2: another category's noun used as a modifier.
             b = kind.borrow[i]
@@ -468,14 +483,16 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
                 _TRUE[(k + i + 2) % 6], a, f"{a.split()[0].lower()} {noun.lower()}")  # fmt: skip
             # 4: a material or feature named, and absent.
             f = kind.absent[i]
-            add(4, i, f"Mens {f} {noun}",
-                f"A {noun.lower()} that is {f.lower().replace('-', ', ')}: made in "
+            n4 = kind.absent_noun or noun
+            add(4, i, f"Mens {f} {n4}",
+                kind.absent_text.format(f=f.lower()) if kind.absent_text else
+                f"A {n4.lower()} that is {f.lower().replace('-', ', ')}: made in "
                 f"{kind.material.lower()}.", _TRUE[(k + i + 3) % 6], f,
                 f"{f.split('-')[0].lower()} {noun.lower()}")  # fmt: skip
             # 5: the title gives a fancy name, the description the shade.
             s = _SHADES[i]
             add(5, i, f"Mens {_FANCY[(k + i) % 6]} {noun}",
-                f"A {noun.lower()} in soft {s.lower()}, {_TAIL[ptype]}.", s,
+                f"A {noun.lower()} in soft {s.lower()}, {tails[ptype]}.", s,
                 _FANCY[(k + i) % 6], f"{s.lower()} {noun.lower()}")  # fmt: skip
             # 6: an incidental word in a short title: a range name.
             r = _RANGES[(k + i * 2) % 6]

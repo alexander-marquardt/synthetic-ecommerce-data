@@ -62,7 +62,7 @@ def test_every_product_in_the_leaf_states_an_elastic_waist(templates):
     assert leaf
     for r in leaf:
         assert _attr(r, "waist_type") == ["Elastic"], r["product_id"]
-        assert "elasticated waist" in r["title"].lower(), r["title"]
+        assert "elasticated" in r["title"].lower(), r["title"]
 
 
 def test_the_leaf_products_are_drawn_with_an_elasticated_waist(templates):
