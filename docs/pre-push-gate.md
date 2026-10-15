@@ -22,7 +22,8 @@ claimed by a row nor named in `LEFT_TO_CI` in `scripts/prepush.py`.
 
 Left to CI, by name: the whole suite (about 27 minutes), and the golden catalog and the
 merged-tree checks (the `main-merged-tree` job), which `scripts/merge_pr.sh` runs on the
-merged tree. The review packet repeats this list.
+merged tree, and the `red-commit-proof` job, which needs the pull request's base and head
+(`docs/red-commit-and-mutants.md`). The review packet repeats this list.
 
 ## Running it
 
