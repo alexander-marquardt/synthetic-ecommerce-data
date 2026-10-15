@@ -3326,6 +3326,14 @@ MUTATIONS: list[Mutation] = [
                 "the needs rows stay templates",
             ),
             (
+                "the elastic-waist decoys are filed under cargo trousers",
+                "needs_rows.py",
+                'spread=(("Mens", "Trousers", "Elasticated Waist Trousers"),),',
+                "spread=(),",
+                "tests/test_retail_elasticated_waist_329.py -k decoy_is_a_mens_trouser_true_in_its_fields",
+                "a decoy sits in the leaf its title and fields name",
+            ),
+            (
                 "a product of the leaf states a drawstring waist, not an elastic one",
                 "needs_rows.py",
                 'waist="Elastic", extra_price=2.0)',

@@ -22,6 +22,7 @@ import needs_rows  # noqa: E402
 import scale  # noqa: E402
 
 LEAF = ("Mens", "Trousers", "Elasticated Waist Trousers")
+CARGO_LEAF = ("Mens", "Trousers", "Cargo Trousers")
 #: Distinct products in the leaf that are not decoys: the ranking needs real ones to choose from.
 REAL_FLOOR = 12
 MAIN = ("Red", "Blue", "Green", "Yellow", "Black", "White")
@@ -63,6 +64,8 @@ def test_every_product_in_the_leaf_states_an_elastic_waist(templates):
     for r in leaf:
         assert _attr(r, "waist_type") == ["Elastic"], r["product_id"]
         assert "elasticated" in r["title"].lower(), r["title"]
+    for r in _real_in_leaf(templates):
+        assert "elasticated waist" in r["title"].lower(), r["title"]
 
 
 def test_the_leaf_products_are_drawn_with_an_elasticated_waist(templates):
@@ -96,6 +99,9 @@ def test_a_decoy_is_a_mens_trouser_true_in_its_fields(decoys):
     for d, rec in decoys:
         assert rec["product_type"] == "Mens Trousers", d.code
         assert rec["category_path"][0] == "Mens", d.code
+        # A decoy's category stays true: class 4 is a belted cargo trouser, the rest are elastic.
+        want = CARGO_LEAF if d.klass == 4 else LEAF
+        assert tuple(rec["category_path"]) == want, d.code
         assert {s["color"] for s in rec["skus"]} == {d.color}, d.code
 
 
