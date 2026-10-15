@@ -6,13 +6,18 @@ value it reads as a field name, so every product also carries ``product_type_lab
 below. A retail product's ``product_type`` is already a display name, and its label is that
 name (``export.standard_document``).
 
-This is the one table. ``tests/test_product_type_label_331.py`` holds it to the types the
+This is the one table, filled from two places: the entries below, and the ``label`` of each
+type module's ``TypeSpec`` (``typespec.register`` writes it in; a key in both is refused). A
+new type declares its label on its own spec, so two PRs that each add a type edit no line in
+common here (#103). ``tests/test_product_type_label_331.py`` holds the table to the types the
 generator emits: none missing, none extra, no ``_`` in a label, no two types sharing one.
 """
 
 from __future__ import annotations
 
-PRODUCT_TYPE_LABELS: dict[str, str] = {
+from synthetic_ecommerce_data.core.typespec import RegistryTable
+
+_LABELS: dict[str, str] = {
     "abrasive_flap_disc": "Flap Disc",
     "ball_stock_precision": "Precision Ball",
     "ball_stock_rubber": "Rubber Ball",
@@ -93,6 +98,7 @@ PRODUCT_TYPE_LABELS: dict[str, str] = {
     "wheel_depressed_center": "Depressed-Center Wheel",
     "zerk_grease_fittings": "Zerk Grease Fitting",
 }
+PRODUCT_TYPE_LABELS: RegistryTable[str, str] = RegistryTable(_LABELS)
 
 
 def label_for(type_key: str) -> str:
