@@ -406,6 +406,7 @@ NESTED_MAPPING: dict[str, Any] = {
             "image_url": {"type": "keyword"},
             "image_detail_url": {"type": "keyword"},
             "ingredients": {"type": "text"},
+            "fibre_content": {"type": "text"},
             "merchandising_score": {"type": "integer"},
             "variant_axes": {"type": "keyword"},
             "variant_count": {"type": "integer"},
@@ -488,6 +489,7 @@ FLAT_MAPPING: dict[str, Any] = {
             "image_url": {"type": "keyword"},
             "image_detail_url": {"type": "keyword"},
             "ingredients": {"type": "text"},
+            "fibre_content": {"type": "text"},
             "attribute_names": {"type": "keyword"},
             "attributes": {
                 "type": "object",
