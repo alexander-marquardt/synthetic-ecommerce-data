@@ -126,7 +126,12 @@ its published attributes. `set_screws_hex_socket` does both.
    collides at today's 68 types. Another open pull request can take the same
    block; `scripts/merge_pr.sh` re-checks it on the merged tree.
 3. If the leaf's head noun is new, add it to `PRODUCT_NOUNS` in
-   `domains/industrial/names.py`.
+   `domains/industrial/names.py`. Also add the type's shopper-readable name
+   to `PRODUCT_TYPE_LABELS` in `domains/industrial/type_labels.py` (singular, except a
+   pair sold as a pair such as Safety Glasses; plain English, capitalised, no
+   `_`, unique): every product carries it as
+   `product_type_label` beside the unchanged id, and a type without one stops
+   the build (#331).
 4. Build the catalog and regenerate the committed one:
    `uv run ecom-generate build --out golden-catalog`. Only the new type's
    records, the totals in `stats.json` and the field-weights YAML should
@@ -770,6 +775,20 @@ sets the label, default the checkout's directory name; `MERGE_PR_LOG_DIR`
 moves the directory). The merge is refused unless every job passed. Step 6
 needs no GitHub check. `GEN_LOCAL_CI=1` in the environment makes `--local-ci`
 the default; `--dry-run` runs the local jobs too.
+
+**The suite runs on several workers (#348).** The whole suite took 47 to 54
+minutes on one core, and merges are serial (each changes `main` and the
+generated files), so that time was the rate pull requests landed. Every
+emitted step now runs pytest with `-n <workers> --dist loadgroup`
+(`scripts/local_ci_jobs.py --pytest-options` prints it), and a module's tests
+share one worker so its module-scoped catalog is built once
+(`tests/xdist_groups.py`; a module of independent tests sets
+`XDIST_SPREAD = True`). The worker count is one per core, or fewer when the
+memory available allows fewer at 4,500 MB a worker, and never below two;
+`LOCAL_CI_WORKERS=<n>` sets it (`0` is one process). The count is capped by
+memory: measured on the 48-core agent VM, 16 workers had taken 38 GB within three
+minutes, and an uncapped `-n auto` run took the host down. Run the merge chain on the agent VM, which has
+the cores and the memory, so it does not compete with a laptop's other work.
 
 That re-read narrows the race with another merge but cannot close it: GitHub
 has no compare-and-swap on the base. The `main-merged-tree` CI job runs the

@@ -272,10 +272,10 @@ def test_nut_free_and_vegan_chocolate() -> None:
     ("food_leaf", "food_want", "other_leaf", "other_want"),
     [
         ("Lemons", {"variety": "Unwaxed Lemons"}, "Kitchen Cleaners", {"scent": "Lemon"}),
-        ("Jam & Honey", {"flavor": "Lemon Curd"}, "Kitchen Cleaners", {"scent": "Lemon"}),
+        ("Jam", {"flavor": "Lemon Curd"}, "Kitchen Cleaners", {"scent": "Lemon"}),
         ("Oranges", {"variety": "Oranges"}, "Kitchen Cleaners", {"scent": "Orange"}),
         ("Juice", {"flavor": "Smooth Orange"}, "Kitchen Cleaners", {"scent": "Orange"}),
-        ("Jam & Honey", {"flavor": "Clear Honey"}, "Body Lotion", {"scent": "Honey"}),
+        ("Honey", {"flavor": "Clear Honey"}, "Body Lotion", {"scent": "Honey"}),
         ("Tinned", {"flavor": "Coconut Milk"}, "Body Lotion", {"scent": "Coconut"}),
         ("Chocolate Bars", {"flavor": "Mint Dark"}, "Kitchen Cleaners", {"scent": "Mint"}),
         ("Milk", {"flavor": "Whole"}, "Body Lotion", {"scent": "Coconut"}),
@@ -301,7 +301,7 @@ def test_pizza_is_chilled_with_a_vegan_and_a_cheese_style() -> None:
 
 
 def test_a_honey_jar_is_labelled_honey() -> None:
-    honey = [d for d in grocery.build(2000) if d["category_leaf"] == "Jam & Honey"]
+    honey = [d for d in grocery.build(2000) if d["category_leaf"] == "Honey"]
     labels = {r["drawing"]["label"]: r["skus"][0]["flavor"] for r in honey}
     assert {lab for lab, flavor in labels.items() if "Honey" in flavor} == {"Honey"}
 

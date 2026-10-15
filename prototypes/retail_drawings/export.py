@@ -47,9 +47,10 @@ from synthetic_ecommerce_data.core.variant_axes import profile, variant_axes
 IMAGE_ROOT = "retail"
 IMAGE_BASE_URL = f"/images/{IMAGE_ROOT}"
 
-#: Product-level keys written in Title Case whatever the authored row spelled ("plain" and
-#: "Plain" were two buckets of one facet).
-TITLE_CASED = frozenset({"pattern", "rise"})
+#: The one casing of a key's values whatever the authored row spelled ("plain" and "Plain"
+#: were two buckets of one facet, gen#255): the casing the catalogue repo reads, ``pattern``
+#: lower case and ``rise`` High/Mid/Low.
+VALUE_CASE = {"pattern": str.lower, "rise": str.title}
 
 #: Authored product types that are one concept with another, written as the second: "Tee" is a
 #: "T-Shirt", the name of its category node. Only the document's ``product_type`` is folded;
@@ -162,9 +163,9 @@ NUMERIC_FACTS = frozenset({"rating", "bestseller_rank", "was_price", "abv", "dis
 #: ``unit_size`` in ``unit_measure``: a pack's net content, keyed by its kind.
 NET_CONTENT = {"ml": ("net_volume", "Net volume", "MLT"), "g": ("net_weight", "Net weight", "GRM")}
 #: Top-level fields that become standard columns rather than entries.
-COLUMNS = frozenset({"product_id", "product_type", "title", "brand", "category_path",
-                     "category_leaf", "description", "attributes", "currency", "skus",
-                     "product_line", "color_options", "size_options", "unit_size",
+COLUMNS = frozenset({"product_id", "product_type", "product_type_label", "title", "brand",
+                     "category_path", "category_leaf", "description", "attributes", "currency",
+                     "skus", "product_line", "color_options", "size_options", "unit_size",
                      "unit_measure", "ingredients"})  # fmt: skip
 #: Fields left out: the standard derives them from the variants, (the drawing)
 #: they are the render's input, reached through ``image_id``, or (``abv``) the
@@ -237,11 +238,11 @@ def _product_attributes(rec: dict) -> list[dict[str, Any]]:
         if (e["key"], e["value"]) not in have:
             have.add((e["key"], e["value"]))
             out.append(e)
-    return _title_cased(out)
+    return _one_case(out)
 
 
-def _title_cased(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """``entries`` with the :data:`TITLE_CASED` keys in Title Case, a repeat dropped.
+def _one_case(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """``entries`` with each :data:`VALUE_CASE` key's value in its one casing, a repeat dropped.
 
     The authored rows spell ``pattern`` and ``rise`` both ways ("plain", "Plain"), which split
     one facet's bucket in two; every other facet already has one spelling
@@ -249,8 +250,8 @@ def _title_cased(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     seen: set[tuple[str, Any]] = set()
     for e in entries:
-        if e["key"] in TITLE_CASED and isinstance(e["value"], str):
-            e = e | {"value": e["value"].title()}
+        if e["key"] in VALUE_CASE and isinstance(e["value"], str):
+            e = e | {"value": VALUE_CASE[e["key"]](e["value"])}
         if (e["key"], e["value"]) not in seen:
             seen.add((e["key"], e["value"]))
             out.append(e)
@@ -320,9 +321,12 @@ def standard_document(rec: dict) -> dict[str, Any]:
         path = facet_leaves.collapsed_path(path, rec["product_type"])
         attributes = [e for e in attributes if e["key"] not in replaced]
         attributes += [_entry(key, name, None, value) for key, name, value in added]
+    product_type = PRODUCT_TYPE_FOLDS.get(rec["product_type"], rec["product_type"])
     doc: dict[str, Any] = {
         "product_id": rec["product_id"],
-        "product_type": PRODUCT_TYPE_FOLDS.get(rec["product_type"], rec["product_type"]),
+        "product_type": product_type,
+        # A retail type is already a display name, so its label is that name (gen#331).
+        "product_type_label": product_type,
         "title": rec["title"],
         "brand": rec["brand"],
     }

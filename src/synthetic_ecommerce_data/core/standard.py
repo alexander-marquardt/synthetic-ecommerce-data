@@ -40,6 +40,7 @@ _STR, _INT, _NUM, _BOOL, _LIST = "str", "int", "number", "bool", "list"
 PRODUCT_FIELDS: dict[str, tuple[str, bool]] = {
     "product_id": (_STR, True),
     "product_type": (_STR, True),
+    "product_type_label": (_STR, True),
     "title": (_STR, True),
     "brand": (_STR, True),
     "series": (_STR, False),
@@ -361,7 +362,8 @@ def flat_documents(
         words.append(doc.get("fibre_content"))
         out.append(
             {"sku": variant["sku"], "product_id": doc["product_id"]}
-            | {"product_type": doc["product_type"], "title": variant["title"]}
+            | {"product_type": doc["product_type"]}
+            | {"product_type_label": doc["product_type_label"], "title": variant["title"]}
             | {k: variant[k] for k in ("description",) if k in variant}
             | {"parent_title": doc["title"]}
             | product

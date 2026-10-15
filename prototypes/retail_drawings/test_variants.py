@@ -305,7 +305,9 @@ def test_every_doc_has_a_department_from_the_closed_list() -> None:
     for d in CORPUS:
         assert d["department"], d["title"]
         assert set(d["department"]) <= set(DEPARTMENTS), d["title"]
-    assert len(DEPARTMENTS) == 21
+    # The list is the single source: a new department adds to it and no test pins a count.
+    assert len(set(DEPARTMENTS)) == len(DEPARTMENTS)
+    assert "Sports & Outdoors" in DEPARTMENTS
 
 
 def test_an_unknown_or_missing_department_is_refused() -> None:
