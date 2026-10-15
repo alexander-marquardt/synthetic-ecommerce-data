@@ -3,7 +3,7 @@ wallpaper, greeting cards, diaries and picnic blankets.
 
 :mod:`decor_rows` holds the styles and :mod:`kit_decor` draws them. These checks hold what the
 issue asked for: every type has its range (three styles from three brands), each draws as its own
-shape with the params listed, each key attribute is a structured entry in the export, a coloured
+shape with the params listed, each key attribute is a structured entry in the export, a colored
 type offers the six main colors, every type carries text-match decoys whose fields tell the truth,
 and the rows are templates the derivation leaves alone.
 """
@@ -115,7 +115,7 @@ def test_a_card_sku_draws_its_own_design() -> None:
     assert len(drawn) == len(designs)
 
 
-def test_a_coloured_type_offers_the_six_main_colors() -> None:
+def test_a_colored_type_offers_the_six_main_colors() -> None:
     styles = {t: [r.doc() for r in rs] for t, rs in _by_type().items() if t != "Greeting Card"}
     lacking = {}
     for ptype, docs in styles.items():
