@@ -21,7 +21,6 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import accessory_rows  # noqa: E402
-import export  # noqa: E402
 import scale  # noqa: E402
 
 LEAVES = {
@@ -50,8 +49,8 @@ def test_no_build_record_has_a_top_level_accessories_root(built: scale.Scaled) -
     assert [p for p in _paths(built.records) if p[0] == "Accessories"] == []
 
 
-def test_the_authored_export_has_no_top_level_accessories_root() -> None:
-    assert [p for p in _paths(export.documents()) if p[0] == "Accessories"] == []
+def test_no_scaled_document_has_a_top_level_accessories_root(built: scale.Scaled) -> None:
+    assert [p for p in _paths(scale.documents(built)) if p[0] == "Accessories"] == []
 
 
 @pytest.mark.parametrize("leaf", sorted(LEAVES))
