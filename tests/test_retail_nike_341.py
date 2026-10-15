@@ -62,8 +62,8 @@ def test_nike_sportswear_is_joggers_sweatshirts_tees_and_sports_bras(nike) -> No
 
 
 def test_a_nike_style_offers_at_least_three_main_colors(nike) -> None:
-    short = {d["product_id"]: sorted(MAIN & set(d["color_options"])) for d in nike
-             if len(MAIN & set(d["color_options"])) < 3}
+    have = {d["product_id"]: {o["color"] for o in d["color_options"]} for d in nike}
+    short = {pid: sorted(MAIN & c) for pid, c in have.items() if len(MAIN & c) < 3}
     assert short == {}
 
 

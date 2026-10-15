@@ -45,4 +45,10 @@ def check(docs: Iterable[dict]) -> list[str]:
     """One line per document whose brand, title or description names a real brand that is not in
     :data:`ALLOWED`. An empty list is a catalogue that names only invented brands and the
     ruled-in exceptions."""
-    return []
+    found = []
+    for d in docs:
+        for field in ("brand", "title", "description"):
+            m = _REFUSED.search(str(d.get(field) or ""))
+            if m:
+                found.append(f"{d.get('product_id')}: {field} names the real brand {m.group(0)!r}")
+    return found
