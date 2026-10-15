@@ -39,6 +39,52 @@ HAMMER_GRIPS: dict[str, tuple[str, ...]] = {
 
 PROVENANCE = "generated; no dimensional standard applies"
 
+#: The noun a kind goes by, as another kind's range name borrows it (class 2 below).
+KIND_NOUN: dict[str, str] = {
+    "hammer_ball_pein": "Ball Pein",
+    "hammer_claw": "Claw",
+    "hammer_framing": "Framing",
+    "hammer_club": "Club",
+    "hammer_sledge": "Sledge",
+    "hammer_rubber_mallet": "Mallet",
+    "hammer_dead_blow": "Dead Blow",
+}
+
+#: Handles a title can name without the line having one (classes 4 and 6 below).
+ABSENT_HANDLES: tuple[str, ...] = ("Hickory", "Ash", "Fiberglass")
+PLACES: tuple[str, ...] = ("Creek", "Ridge", "Lane", "Hollow")
+
+#: Text-match decoys (gen#294): three lines in every ``DECOY_PERIOD`` of a kind carry a
+#: title word that misleads a text search while its attributes stay true. The position in the period
+#: names the class: 0 a category word (another kind's noun as a range name: "Claw Hammer,
+#: Sledge Series"), 2 a material named but absent ("Claw Hammer, Hickory-Look" on a steel
+#: handle), 4 an incidental word in a short title ("Claw Hammer, Hickory Creek").
+DECOY_PERIOD = 6
+DECOY_CLASSES: dict[int, str] = {
+    0: "category word",
+    2: "material named but absent",
+    4: "incidental word",
+}
+
+
+def decoy_item(gen: Any, kind: HammerKind, handle: str) -> str:
+    """The item as the title says it: plain, or with the line's decoy words after it.
+
+    After, so a brand's title template (what opens the title) stays one per type.
+    """
+    slot = gen._rotate(f"hammer_decoy:{kind.key}", DECOY_PERIOD)
+    if slot not in DECOY_CLASSES:
+        return kind.item
+    if slot == 0:
+        nouns = [n for k, n in KIND_NOUN.items() if k != kind.key]
+        noun = nouns[gen._rotate(f"hammer_decoy_noun:{kind.key}", len(nouns))]
+        return f"{kind.item}, {noun} Series"
+    absent = next(h for h in ABSENT_HANDLES if h != handle)
+    if slot == 2:
+        return f"{kind.item}, {absent}-Look"
+    place = PLACES[gen._rotate(f"hammer_decoy_place:{kind.key}", len(PLACES))]
+    return f"{kind.item}, {absent} {place}"
+
 
 @dataclass(frozen=True)
 class HammerKind:
@@ -81,7 +127,7 @@ def build(kind: HammerKind):
         brand = pick_brand(rng, type_key, gen._exhausted)
         handle = rng.choice(kind.handles)
         draft = LineDraft(
-            item=kind.item,
+            item=decoy_item(gen, kind, handle),
             brand=brand,
             series=f"{kind.series}{rng.randint(10, 99)}",
             category=category,
