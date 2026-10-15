@@ -528,7 +528,8 @@ BEDDING = (
                _PLAIN, BEDS, (("thread_count", "Thread Count", "200"),)),
     ShallowRow("COVPRT", "Bedding", "Printed Cotton Duvet Cover", "Brackenmere Home",
                ("Home", "Bedding", "Duvet Covers"), 34.0, "duvet",
-               "Soft washed cotton in a woven print, with a button closure.",
+               "Soft washed cotton in woven stripe, gingham and spot designs, with a button "
+               "closure.",
                (cw("Ticking Stripe", "#ffffff", "stripe", "#26365c"),
                 cw("Red Gingham", "#ffffff", "gingham", "#c8312e"),
                 cw("Navy Spot", "#26365c", "polka", "#ffffff")),
