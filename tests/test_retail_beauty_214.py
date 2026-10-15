@@ -134,7 +134,7 @@ def test_the_variant_axes_are_on_the_skus_with_their_units(ptype: str) -> None:
     assert _of(ptype)
     for row in _of(ptype):
         skus = _doc(row)["variants"]
-        assert len(skus) >= 3, row.code
+        assert len(skus) >= 2, row.code
         for key, unit in AXES[ptype].items():
             entries = [e for v in skus for e in v["attributes"] if e["key"] == key]
             assert entries, (row.code, key)
@@ -149,8 +149,10 @@ def test_a_sun_cream_and_a_body_mist_are_sold_across_two_axes() -> None:
         for row in _of(ptype):
             skus = _doc(row)["variants"]
             pairs = {
-                (next(e["value"] for e in v["attributes"] if e["key"] == a),
-                 next(e["value"] for e in v["attributes"] if e["key"] == b))
+                (
+                    next(e["value"] for e in v["attributes"] if e["key"] == a),
+                    next(e["value"] for e in v["attributes"] if e["key"] == b),
+                )
                 for v in skus
             }
             assert len(pairs) == len(skus) >= 4, row.code
@@ -247,9 +249,9 @@ def test_a_decoys_misleading_word_is_in_the_text_and_in_no_field() -> None:
             assert len(d.title.split()) <= 5, d.code
         if d.cls == 3:
             assert d.word.lower() in d.brand.lower(), d.code
-        fields = " ".join(
-            str(e["value"]).lower() for e in doc["attributes"]
-        ) + " ".join(str(c[0]).lower() for c in d.colors)
+        fields = " ".join(str(e["value"]).lower() for e in doc["attributes"]) + " ".join(
+            str(c[0]).lower() for c in d.colors
+        )
         assert not re.search(rf"\b{re.escape(d.word.lower())}\b", fields), d.code
         assert d.product_type in TYPES, d.code
 

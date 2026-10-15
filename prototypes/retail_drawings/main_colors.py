@@ -38,6 +38,7 @@ EXCEPTIONS = {
     "Lipstick": "cosmetic: shades, not paint colors",
     "Lip Balm": "cosmetic: sheer tints of the balm",
     "Eyeliner": "cosmetic: a small range of liner shades",
+    "Mascara": "cosmetic: black, brown and a few tinted shades",
     "Highlighter": "cosmetic: a glow shade of the pigment",
     "Perfume": "cosmetic: the color is the fragrance liquid's tint",
     "Watch": "metal case and strap finish: gold, silver, rose gold",
