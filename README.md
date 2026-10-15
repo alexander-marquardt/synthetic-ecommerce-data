@@ -1348,9 +1348,18 @@ The generator derives no spelling variants of a node (mens, men's, men): the cat
 vocabularies own those.
 "Cleaning & Janitorial" is a department, not a root: its kitchen cleaners sit under `Cleaning`.
 
+**There is no top-level `Accessories` root** (gen#248). Every accessory leaf sits under a
+department as `<Department> > Accessories > <leaf>`: `Mens > Accessories > Belts`,
+`Beauty > Accessories > Wash Bags`, and the bags, purses and umbrellas under `Womens > Accessories`
+(`Bags > Handbags`, `Bags > Backpacks`, `Bags > Tote Bags`, `Purses & Wallets > Purses`,
+`Umbrellas`). A root would show as a separate department in the store's department filter. The
+unisex goods (backpack, tote, umbrella) stay one product in one place, under the department whose
+shoppers the generator targets for bags; the `audience` facet says `Unisex`, the path does not.
+`tests/test_retail_accessories_under_departments_248.py` guards it.
+
 **The store's department is the top level of `category_path`, and no document states one**
-(gen#281). The retail tree has exactly twelve roots: Womens, Mens, Kids, Food & Drink, Home,
-Beauty, Cleaning, Toys, Gifts, Garden, Accessories and Sports & Outdoors (gen#265). Food sits under Food & Drink, Baby
+(gen#281). The retail tree has exactly eleven roots: Womens, Mens, Kids, Food & Drink, Home,
+Beauty, Cleaning, Toys, Gifts, Garden and Sports & Outdoors (gen#265). Food sits under Food & Drink, Baby
 under Kids (`Kids > Baby > ...`) and Electricals under Home (`Home > Electricals > ...`), each
 with its subtree intact; a product still sits in one place. The documents carry no
 `department` attribute or flat column (its values mixed audience, Clothing, with product kind,
