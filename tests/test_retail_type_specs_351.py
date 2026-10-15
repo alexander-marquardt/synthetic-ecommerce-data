@@ -94,6 +94,7 @@ def test_a_spec_type_has_no_row_outside_its_spec_file() -> None:
             r["product_id"] for r in scale.templates(baseline=False)
             if (r["department"][0], r["product_type"]) == (spec.department, spec.product_type)
             and r["product_id"] not in own
+            and r["product_id"] not in scale.DECOY_IDS  # gen#311 clones every apparel type
         ]  # fmt: skip
         assert not stray, f"{spec.key}: rows registered outside its spec: {stray}"
 
@@ -181,3 +182,71 @@ def test_the_scaffold_writes_a_spec_that_validates_and_builds(tmp_path: Path, ki
         capture_output=True, text=True, check=False, cwd=ROOT,
     )  # fmt: skip
     assert again.returncode != 0, "the scaffold overwrote an existing spec"
+
+
+def test_the_scaffold_refuses_a_bad_key(tmp_path: Path) -> None:
+    run = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "new_type.py"), "Bad-Key", "--kind", "beauty",
+         "--product-type", "Sample Thing", "--out", str(tmp_path)],
+        capture_output=True, text=True, check=False, cwd=ROOT,
+    )  # fmt: skip
+    assert run.returncode == 2
+    assert not list(tmp_path.iterdir()), "the scaffold wrote a file for a bad key"
+
+
+def _discover(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, files: dict[str, str]) -> dict:
+    """Run the discovery over a package holding only ``files`` (module name -> source)."""
+    for name, source in files.items():
+        (tmp_path / f"{name}.py").write_text(source, encoding="utf-8")
+    monkeypatch.setattr(type_registry.type_specs, "__path__", [str(tmp_path)])
+    for name in files:
+        monkeypatch.delitem(sys.modules, f"type_specs.{name}", raising=False)
+    try:
+        return type_registry.specs.__wrapped__()
+    finally:
+        for name in files:
+            sys.modules.pop(f"type_specs.{name}", None)
+
+
+def _scaffold_source(key: str, product_type: str) -> str:
+    mod_spec = importlib.util.spec_from_file_location("new_type", ROOT / "scripts" / "new_type.py")
+    mod = importlib.util.module_from_spec(mod_spec)
+    mod_spec.loader.exec_module(mod)
+    return mod.render(key, "beauty", product_type)
+
+
+def test_the_registry_refuses_a_spec_file_whose_key_is_not_its_name(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    with pytest.raises(type_registry.SpecError, match="name the file"):
+        _discover(tmp_path, monkeypatch, {"other_name": _scaffold_source("sample_a", "Sample A")})
+
+
+def test_the_registry_refuses_a_module_without_a_spec(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    with pytest.raises(type_registry.SpecError, match="declares no SPEC"):
+        _discover(tmp_path, monkeypatch, {"empty_one": "X = 1\n"})
+
+
+def test_the_registry_refuses_two_specs_for_one_product_type(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    files = {
+        "sample_a": _scaffold_source("sample_a", "Sample Thing"),
+        "sample_b": _scaffold_source("sample_b", "Sample Thing").replace("SAMPLE", "OTHERB"),
+    }
+    with pytest.raises(type_registry.SpecError, match="both declare"):
+        _discover(tmp_path, monkeypatch, files)
+
+
+def test_a_derivable_spec_leaves_only_its_decoys_out_of_the_derivation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    good = _good()
+    decoy = type_registry.Decoy(1, "red shampoo", "color", replace(good.rows[0], code="DCYSHP"))
+    spec = replace(good, derivable=True, decoys=(decoy,))
+    monkeypatch.setattr(type_registry, "specs", lambda: {spec.key: spec})
+    assert type_registry.left_out_ids() == {"BRD-DCYSHP"}
+    assert type_registry.decoy_ids() == {"BRD-DCYSHP"}
+    assert type_registry.left_out_ids() == type_registry.decoy_ids_of(spec)

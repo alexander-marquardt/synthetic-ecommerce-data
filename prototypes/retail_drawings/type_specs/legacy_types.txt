@@ -1,0 +1,303 @@
+# Retail product types still registered outside a spec file (gen#351), one `Department|Product type`
+# per line. The list only shrinks: moving a type into type_specs/<key>.py removes its line
+# (tests/test_retail_type_specs_351.py fails on a type that is in neither place, and on a line for
+# a type that is in a spec or is no longer built). Never add a line here: scripts/new_type.py.
+Beauty|Bath Salts
+Beauty|Body Cream
+Beauty|Body Lotion
+Beauty|Body Oil
+Beauty|Conditioner
+Beauty|Eye Cream
+Beauty|Eyeliner
+Beauty|Face Cream
+Beauty|Face Oil
+Beauty|Face Powder
+Beauty|Foot Cream
+Beauty|Foundation
+Beauty|Gift Set
+Beauty|Hand Cream
+Beauty|Hand Wash
+Beauty|Highlighter
+Beauty|Hospital Bag
+Beauty|Lip Balm
+Beauty|Lipstick
+Beauty|Make-Up Bag
+Beauty|Moisturiser
+Beauty|Perfume
+Beauty|Shower Gel
+Beauty|Skin Tint
+Beauty|Sun Cream
+Beauty|Travel Set
+Beauty|Wash Bag
+Cleaning & Janitorial|Air Freshener
+Cleaning & Janitorial|Bathroom Cleaner
+Cleaning & Janitorial|Dish Soap
+Cleaning & Janitorial|Fabric Softener
+Cleaning & Janitorial|Floor Cleaner
+Cleaning & Janitorial|Glass Cleaner
+Cleaning & Janitorial|Kitchen Cleaner
+Cleaning & Janitorial|Laundry Detergent
+Cleaning & Janitorial|Limescale Remover
+Cleaning & Janitorial|Mop and Bucket
+Cleaning & Janitorial|Oven Cleaner
+Cleaning & Janitorial|Surface Cleaner
+Cleaning & Janitorial|Surface Spray
+Cleaning & Janitorial|Toilet Cleaner
+Clothing|Backpack
+Clothing|Belt
+Clothing|Blouse
+Clothing|Bodysuit
+Clothing|Bomber Jacket
+Clothing|Boot Socks
+Clothing|Bracelet
+Clothing|Cardigan
+Clothing|Co-ord Set
+Clothing|Coat
+Clothing|Cycling Shorts
+Clothing|Denim Jacket
+Clothing|Dress
+Clothing|Earrings
+Clothing|Handbag
+Clothing|Jacket
+Clothing|Jeans
+Clothing|Joggers
+Clothing|Jumper
+Clothing|Leggings
+Clothing|Mens Trousers
+Clothing|Necklace
+Clothing|Outfit Set
+Clothing|Polo Shirt
+Clothing|Puffer Jacket
+Clothing|Purse
+Clothing|Ring
+Clothing|Shirt
+Clothing|Shorts
+Clothing|Skirt
+Clothing|Socks
+Clothing|Suit Jacket
+Clothing|Sweatshirt
+Clothing|T-Shirt
+Clothing|Tea Dress
+Clothing|Tee
+Clothing|Top
+Clothing|Tote Bag
+Clothing|Trousers
+Clothing|Umbrella
+Clothing|Watch
+Food & Drink|Baby Food
+Food & Drink|Battered Fish
+Food & Drink|Beer
+Food & Drink|Biscuit
+Food & Drink|Biscuits
+Food & Drink|Bread
+Food & Drink|Butter & Spreads
+Food & Drink|Cake
+Food & Drink|Cereal
+Food & Drink|Cereal Bar
+Food & Drink|Champagne
+Food & Drink|Cheese
+Food & Drink|Chips
+Food & Drink|Chocolate Bar
+Food & Drink|Chocolate Box
+Food & Drink|Christmas Pudding
+Food & Drink|Chutney
+Food & Drink|Cider
+Food & Drink|Coffee
+Food & Drink|Cookies
+Food & Drink|Crisps
+Food & Drink|Doughnut
+Food & Drink|Easy Peelers
+Food & Drink|Festive Bake
+Food & Drink|Fish
+Food & Drink|Fortified Wine
+Food & Drink|Free From Snack
+Food & Drink|Fresh Fruit
+Food & Drink|Fresh Vegetables
+Food & Drink|Frozen Vegetables
+Food & Drink|Fruit
+Food & Drink|Gin
+Food & Drink|Ginger Beer
+Food & Drink|Hamper
+Food & Drink|Honey
+Food & Drink|Hot Chocolate
+Food & Drink|Ice Cream
+Food & Drink|Jam
+Food & Drink|Jam & Honey
+Food & Drink|Juice
+Food & Drink|Lemons
+Food & Drink|Letterbox Gift
+Food & Drink|Mead
+Food & Drink|Meat
+Food & Drink|Milk
+Food & Drink|Nuts & Popcorn
+Food & Drink|Olive Oil
+Food & Drink|Oranges
+Food & Drink|Panettone
+Food & Drink|Pasta
+Food & Drink|Perry
+Food & Drink|Pizza
+Food & Drink|Plant Milk
+Food & Drink|Porridge
+Food & Drink|Ready Meal
+Food & Drink|Rice & Grains
+Food & Drink|Root Beer
+Food & Drink|Rum
+Food & Drink|Sauce
+Food & Drink|Seasoning
+Food & Drink|Snack Bar
+Food & Drink|Soft Drink
+Food & Drink|Spread
+Food & Drink|Sweets
+Food & Drink|Tea
+Food & Drink|Tequila
+Food & Drink|Tinned Food
+Food & Drink|Vinegar
+Food & Drink|Vodka
+Food & Drink|Whisky
+Food & Drink|Wine
+Food & Drink|World Food
+Food & Drink|Yogurt
+Footwear|Ankle Boots
+Footwear|Ballet Pumps
+Footwear|Block Heels
+Footwear|Brogues
+Footwear|Chelsea Boots
+Footwear|Chukka Boots
+Footwear|Court Shoes
+Footwear|Kitten Heels
+Footwear|Knee High Boots
+Footwear|Loafers
+Footwear|Running Shoes
+Footwear|Safety Boots
+Footwear|Sandals
+Footwear|School Shoes
+Footwear|Shoe Care Kit
+Footwear|Slippers
+Footwear|Trainers
+Footwear|Walking Boots
+Footwear|Wellies
+Garden|Bedding Plant
+Garden|Bouquet
+Garden|Bulbs
+Garden|Christmas Tree
+Garden|Growing Kit
+Garden|Plant
+Garden|Seeds
+Gifts|Christmas Decoration
+Gifts|Gift Bag
+Gifts|Gift Set
+Gifts|Keyring
+Gifts|Photo Frame
+Gifts|Scented Candle
+Gifts|Trophy
+Gifts|Wrapping Paper
+Home|Apron
+Home|Armchair
+Home|Beach Towel
+Home|Bed
+Home|Bit Set
+Home|Bookcase
+Home|Bowl
+Home|Car Boot Organiser
+Home|Casserole Dish
+Home|Ceiling Fan
+Home|Ceiling Light
+Home|Chairbed
+Home|Chaise Sofa
+Home|Chest of Drawers
+Home|Chopping Board
+Home|Clothes Airer
+Home|Coffee Table
+Home|Colander
+Home|Cordless Drill
+Home|Corner Sofa
+Home|Cup
+Home|Cup Holder
+Home|Cup Set
+Home|Cupcake Cases
+Home|Cushion
+Home|Cutlery
+Home|Cutlery Set
+Home|Desk Fan
+Home|Desk Lamp
+Home|Dining Chair
+Home|Dining Table
+Home|Dinner Set
+Home|Duvet
+Home|Duvet Cover
+Home|Duvet Set
+Home|Floor Lamp
+Home|Footstool
+Home|Frying Pan
+Home|Glassware
+Home|Handheld Fan
+Home|Hanger
+Home|Heater
+Home|Kettle
+Home|Kitchen Bin
+Home|Kitchen Knife
+Home|Kitchen Utensil
+Home|Lampshade
+Home|Laundry Basket
+Home|Lunch Box
+Home|Mattress
+Home|Mattress Protector
+Home|Mattress Topper
+Home|Mirror
+Home|Modular Sofa
+Home|Mug
+Home|Pedestal Fan
+Home|Pillow
+Home|Pillow Protector
+Home|Pillowcase
+Home|Plate
+Home|Recliner Sofa
+Home|Saucepan
+Home|Screwdriver Set
+Home|Side Table
+Home|Socket Set
+Home|Sofa
+Home|Sofa Bed
+Home|Storage Basket
+Home|Storage Box
+Home|Storage Jar
+Home|Table Lamp
+Home|Tea Towels
+Home|Toaster
+Home|Towel
+Home|Tower Fan
+Home|Travel Cup
+Home|Tumbler
+Home|Wall Light
+Home|Wardrobe
+Home|Wireless Charger
+Lingerie & Nightwear|Boxers
+Lingerie & Nightwear|Bra
+Lingerie & Nightwear|Dressing Gown
+Lingerie & Nightwear|Knickers
+Lingerie & Nightwear|Pyjama Shorts
+Lingerie & Nightwear|Pyjamas
+Lingerie & Nightwear|Shapewear
+Lingerie & Nightwear|Slip
+Lingerie & Nightwear|Tights
+Lingerie & Nightwear|Vest
+Sports & Outdoors|Camping Chair
+Sports & Outdoors|Dumbbell
+Sports & Outdoors|Foam Roller
+Sports & Outdoors|Kettlebell
+Sports & Outdoors|Sleeping Bag
+Sports & Outdoors|Tent
+Sports & Outdoors|Yoga Mat
+Toys|Arts and Crafts Kit
+Toys|Bath Toy
+Toys|Board Game
+Toys|Building Set
+Toys|Doll
+Toys|Jigsaw Puzzle
+Toys|Night Light
+Toys|Ride-On Toy
+Toys|Role Play Toy
+Toys|Soft Toy
+Toys|Toy Figure
+Toys|Toy Vehicle
+Toys|Wooden Toy
