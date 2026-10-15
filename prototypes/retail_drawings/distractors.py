@@ -233,7 +233,7 @@ DENIM = "#4a6a94"
 JEANS = (
     Distractor(product(
         "JNSBLT", "Leather Jeans Belt", "Ferrowick Denim", "Clothing",
-        ("Men", "Accessories", "Belts"), 22.0,
+        ("Mens", "Accessories", "Belts"), 22.0,
         "A wide leather belt cut for jeans, with a brass roller buckle that sits flat in "
         "jeans belt loops.",
         drawing("belt", cw("Tan", "#b07a45")),
@@ -241,7 +241,7 @@ JEANS = (
     ), "product-type demotion: accessories below jeans"),
     Distractor(product(
         "JNSJKT", "Belted Denim Jacket", "Harbour & Pine", "Clothing",
-        ("Women", "Coats & Jackets", "Denim Jackets"), 45.0,
+        ("Womens", "Coats & Jackets", "Denim Jackets"), 45.0,
         "Cut from the same rigid denim as our jeans, in a jeans blue mid wash. Wear it with "
         "jeans for double denim.",
         drawing("coat", cw("Mid Wash", DENIM)),

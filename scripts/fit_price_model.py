@@ -59,7 +59,9 @@ is flagged "re-record" with the figures to write by hand, at both builds:
 ``tests/test_price.py`` holds each record equal to its build's figure.
 
 **Slope cuts need a recorded reason.** Where the slope terms ALONE (the key
-term, and the length term) spread the shown price wider than the census
+term and the length term, with the pack term that rides on them: a pack
+that falls as the size grows narrows them as it does on the census's pages,
+:func:`.price.pack_quantity`) spread the shown price wider than the census
 p90/p10, the census slope cannot be the shown-price slope. The fit then
 lowers it, both slopes by one factor, until the whole model with no group
 noise lands on the census p90/p10, at whichever build the slopes alone spread
@@ -268,6 +270,12 @@ class TypeBuild:
     sizes: np.ndarray
     spec_starts: np.ndarray
 
+    @property
+    def pack(self) -> np.ndarray:
+        """The pack term: what the structure holds beyond the slopes, the
+        tier and the material."""
+        return self.rest - self.tier - self.material
+
 
 def type_build(type_key: str, collected: Collected, recorded: dict[str, Recorded]) -> TypeBuild:
     """``type_key``'s arrays in the build ``collected`` and ``recorded`` read."""
@@ -445,7 +453,10 @@ def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
         return _argmin(miss, 0.0, MAX_SIGMA)
 
     def alone(b: TypeBuild, slope: float, ls: float) -> float:
-        return _p90_p10(slope * b.log_key + ls * b.log_length)
+        # The pack term rides with the slopes: a pack that falls as the size
+        # grows is the census's own reason the shown price climbs slower than
+        # the per-piece slope.
+        return _p90_p10(slope * b.log_key + ls * b.log_length + b.pack)
 
     slope, ls = price.model_slope(type_key), length.slope if length else 0.0
     wide = max(builds, key=lambda b: alone(b, slope, ls))
@@ -566,13 +577,12 @@ def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
 
     # Each term's spread alone, at the default build; "all" at each build.
     b = builds[0]
-    pack = b.rest - b.tier - b.material
     spreads = {
         "key": _p90_p10(slope * b.log_key),
         "length": _p90_p10(ls * b.log_length),
         "tier": _p90_p10(b.tier),
         "material": _p90_p10(b.material),
-        "pack": _p90_p10(pack),
+        "pack": _p90_p10(b.pack),
         "group": _p90_p10(group * b.z_group),
         "sku": _p90_p10(sku * b.z_sku),
         "size": _p90_p10(size * b.z_size),
@@ -601,7 +611,7 @@ def _literal(type_key: str, model: price.PriceModel) -> str:
     if model.pack_attribute is not None:
         args += [
             f'pack_attribute="{model.pack_attribute}"',
-            "pack_slope=NUT_PACK_SLOPE",
+            f'pack_slope=PACK_SLOPES["{type_key}"]',
             f"pack_ref={model.pack_ref!r}",
         ]
     one_line = f'        "{type_key}": _model("{type_key}", {", ".join(args)}),'

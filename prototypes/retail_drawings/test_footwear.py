@@ -44,7 +44,7 @@ def _attrs(doc: dict) -> dict[str, str]:
 
 def test_thirty_one_styles_across_womens_mens_and_kids() -> None:
     assert len(DOCS) == len(fw.FOOTWEAR) == 31
-    assert Counter(d["category_path"][0] for d in DOCS) == {"Women": 16, "Men": 10, "Kids": 5}
+    assert Counter(d["category_path"][0] for d in DOCS) == {"Womens": 16, "Mens": 10, "Kids": 5}
     assert len(BY_ID) == 31
     assert all(d["department"][0] == "Footwear" for d in DOCS)
 
