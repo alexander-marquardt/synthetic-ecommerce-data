@@ -274,9 +274,10 @@ Use a table type (`domains/industrial/tabletype.py`, #101) when a type does not 
 * `tests/data/golden_slices/<key>.jsonl` (new, written by the test module)
 * `src/synthetic_ecommerce_data/domains/industrial/data/breadth_categories/<key>.yaml` (deleted, when the type had a breadth row)
 
-Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
+Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog` and, for the retail totals, `python3 prototypes/retail_drawings/retail_figures.py`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
 
 * `golden-catalog/*`
+* `golden-retail/stats.json` (the retail totals, gen#162; gen#343)
 * `src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml`
 
 Shared files, edited by hand:
@@ -741,9 +742,10 @@ scripts/merge_pr.sh <PR number>
 
 It clones the PR head into a temporary directory and merges current `main`
 into it. A conflict in a file the rebuild rewrites (`scripts/merge_pr.sh
---print-generated` lists the eight) is left for the rebuild; any other
+--print-generated` lists them) is left for the rebuild; any other
 conflict, `names.py` or a file under `golden-catalog/` that the build does not
-write, is handed back to you. It then rebuilds `golden-catalog/` with
+write, is handed back to you. It then rebuilds `golden-catalog/` and
+`golden-retail/stats.json` (about 40 s more) with
 `uv run --locked` (a stale `uv.lock` is refused, not re-locked), commits only
 the generated files, and runs the drift, golden and seam tests
 (`--print-checks` lists them), refusing a run in which no test passed. It

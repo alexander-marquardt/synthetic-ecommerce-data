@@ -126,7 +126,7 @@ MSG
   fi
   if [ -n "${FAKE_UV_SKIP_BUILD:-}" ]; then exit 0; fi
 fi
-if [[ " $* " == *" retail_figures.py "* ]]; then
+if [[ " $* " == *retail_figures.py* ]]; then
   # The retail rebuild takes about 40 s: only a case about it runs the real one.
   if [ -n "${FAKE_UV_RETAIL_FAIL:-}" ]; then echo "retail build: boom" >&2; exit 3; fi
   if [ -z "${FAKE_UV_RETAIL:-}" ]; then exit 0; fi
@@ -339,7 +339,7 @@ def _conflicting_retail_stats(world: dict) -> tuple[str, str]:
     assert '"images": 1' in true
     head = _open_pr(
         world,
-        {_RETAIL_STATS: true.replace('"images": 1', '"images": 21', 1)},
+        {**_GREEN, _RETAIL_STATS: true.replace('"images": 1', '"images": 21', 1)},
         on_main={_RETAIL_STATS: true.replace('"images": 1', '"images": 31', 1)},
     )
     return head, true
@@ -360,7 +360,9 @@ def test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild(world: dict) 
 def test_a_stale_retail_stats_is_rebuilt_on_the_merged_tree_and_pushed(world: dict) -> None:
     """No conflict, wrong totals: the auto-merge the script exists to catch, for retail."""
     true = (world["checkout"] / _RETAIL_STATS).read_text()
-    head = _open_pr(world, {_RETAIL_STATS: true.replace('"images": 1', '"images": 21', 1)})
+    head = _open_pr(
+        world, {**_GREEN, _RETAIL_STATS: true.replace('"images": 1', '"images": 21', 1)}
+    )
     result = _run(world, head, _GREEN_CHECK, FAKE_UV_RETAIL="1")
     assert result.returncode == 0, result.stdout + result.stderr
     pushed = _branch(world)
