@@ -406,6 +406,18 @@ MUTATIONS: list[Mutation] = [
         "",
         "a decimal is written to the precision asked for",
     ),
+    # ---- hammers: the incidental-word decoy's indexed title (gen#320) ------
+    # The ranking and word-count tests read the COMMITTED golden, so a source defect reds
+    # them only through the golden's drift test; this row proves that link holds.
+    Mutation(
+        "hammer decoy: an incidental-word decoy keeps its brand and size in the title",
+        "domains/industrial/hammers.py",
+        "            bare_title=bare,\n",
+        "            bare_title=False,\n",
+        "tests/test_catalog_golden.py",
+        "A",
+        "the short indexed title of the incidental-word decoy",
+    ),
     # ---- vocab: disjointness, both directions ----------------------------
     Mutation(
         "leak a hammer attribute into the screw vocabulary",
@@ -3328,12 +3340,12 @@ MUTATIONS: list[Mutation] = [
                 "bra_style is gone",
             ),
             (
-                "a bra's fibre content is dropped",
-                "facet_leaves.py",
-                "            out.append((*COMPOSITION, have[\"fabric\"]))\n",
-                "            pass\n",
-                "tests/test_retail_facet_leaves.py -k fibre_content_moves_to_composition",
-                "the fibre content moves to composition",
+                "the fibre-content detail is dropped",
+                "export.py",
+                "        doc[\"fibre_content\"] = blend\n",
+                "        pass\n",
+                "tests/test_retail_facet_leaves.py -k blend_is_a_detail",
+                "the blend is a detail",
             ),
             (
                 "one bra spells Lightly Lined with a hyphen",

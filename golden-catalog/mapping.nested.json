@@ -59,6 +59,9 @@
    "ingredients": {
     "type": "text"
    },
+   "fibre_content": {
+    "type": "text"
+   },
    "merchandising_score": {
     "type": "integer"
    },
