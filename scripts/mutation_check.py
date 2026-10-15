@@ -1759,6 +1759,37 @@ MUTATIONS: list[Mutation] = [
         "no doc restates a measured figure",
         root=".",
     ),
+    # ---- the Sports & Outdoors tree note (gen#290) ----
+    Mutation(
+        "sports note: a Not built row is deleted",
+        "docs/retail-sports-tree.md",
+        "| Bike pumps | Cycling | #368 |\n",
+        "",
+        "tests/test_retail_sports_tree_note_290.py::test_every_type_not_built_has_an_open_issue_or_a_reason",
+        "",
+        "every expected type has a Not built row",
+        root=".",
+    ),
+    Mutation(
+        "sports note: a leaf verdict claims a retailer tree",
+        "docs/retail-sports-tree.md",
+        "Dome Tents | berth, season_rating, hydrostatic_head, tent_type, material, color | tent capacity, season rating | none |",
+        "Dome Tents | berth, season_rating, hydrostatic_head, tent_type, material, color | tent capacity, season rating | matches the Decathlon tree |",
+        "tests/test_retail_sports_tree_note_290.py::test_a_leaf_never_claims_a_retailer_tree_that_was_not_compared",
+        "",
+        "a verdict is none or a checkable comparison",
+        root=".",
+    ),
+    Mutation(
+        "sports note: a disposition is a placeholder",
+        "docs/retail-sports-tree.md",
+        "| Bicycles | Cycling | #352 |",
+        "| Bicycles | Cycling | not reached |",
+        "tests/test_retail_sports_tree_note_290.py::test_every_type_not_built_has_an_open_issue_or_a_reason",
+        "",
+        "a Not built disposition is an issue or a reason",
+        root=".",
+    ),
     # ---- the headline invariants, mutated in the COMMITTED DATA ----------
     Mutation(
         "blank one card image url in the committed catalog",

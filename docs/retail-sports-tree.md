@@ -9,9 +9,11 @@ without a line here, or a line for a leaf that is gone, fails it.
 ## Leaves
 
 The shape is department > family > (group) > leaf. The guidance on gen#265 asked for the shape of
-large sports retailers' trees and for their leaves to be noted. **No leaf was checked against a
-retailer's tree**: the author of the first increment had no tree to compare with, so the last
-column reads `none` on every line rather than claiming a match. What does trace to a source is
+large sports retailers' trees and for their leaves to be noted. **No leaf was compared with a
+retailer's tree** (not compared, which is not the same as no mapping existing): the last column
+reads `none` on every line rather than claiming a match. A comparison, when made, is written
+`compared with <tree> (<page url>, <YYYY-MM-DD>)`; `tests/test_retail_sports_tree_note_290.py`
+refuses any other verdict. What does trace to a source is
 the filter: the guidance on gen#265 named tent capacity and season rating (camping), mat
 thickness (yoga) and weight (dumbbells), and those leaves carry them. A leaf whose filters have
 no guidance example says `none` there too.
@@ -24,7 +26,7 @@ no guidance example says `none` there too.
 | Sports & Outdoors > Camping > Camping Chairs | frame_material, max_load_kg, arms, color | none | none |
 | Sports & Outdoors > Yoga & Fitness > Yoga > Yoga Mats | thickness, material, surface, color | mat thickness | none |
 | Sports & Outdoors > Yoga & Fitness > Weights > Dumbbells | weight, head_shape, sold_as, material, color | dumbbell weight | none |
-| Sports & Outdoors > Yoga & Fitness > Weights > Kettlebells | weight, material, color | dumbbell weight | none |
+| Sports & Outdoors > Yoga & Fitness > Weights > Kettlebells | weight, material, color | none | none |
 | Sports & Outdoors > Yoga & Fitness > Foam Rollers | item_length, surface, material, color | none | none |
 
 Leaf depth is mixed on purpose for now: Dome Tents, Tunnel Tents, Yoga Mats, Dumbbells and
