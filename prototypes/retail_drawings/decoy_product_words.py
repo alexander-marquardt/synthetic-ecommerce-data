@@ -182,7 +182,7 @@ NEW_KINDS = {
     "bike_pump": Kind(
         "Sports & Outdoors",
         ("Sports & Outdoors", "Cycling", "Bike Pumps"),
-        "Bike Pumps",
+        "Bike Pump",
         "pump",
         "Stridewell",
         12.0,
@@ -850,11 +850,6 @@ _F = {
         ("Matt Emulsion, White", "White", "A white matt emulsion."),
         ("Satin Wood Paint", "Cream", "A cream satin paint for wood."),
         ("Masonry Paint", "Grey", "A grey paint for outside walls."),
-    ),
-    "bike_pump": (
-        ("Floor Pump with Gauge", "Red", "A red floor pump with a gauge."),
-        ("Mini Frame Pump", "Black", "A black pump that fits a frame."),
-        ("Track Pump", "Grey", "A grey track pump."),
     ),
     "foot_pump": (
         ("Airbed Foot Pump", "Grey", "A grey pump for airbeds."),

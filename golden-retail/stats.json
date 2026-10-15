@@ -9,13 +9,13 @@
    "skus": 12409,
    "styles": 4516
   },
-  "images": 17772,
+  "images": 17905,
   "non_grocery": {
    "skus": 91901,
    "styles": 5592
   },
-  "skus": 129929,
-  "styles": 12568,
+  "skus": 130198,
+  "styles": 12599,
   "top_levels": {
    "Beauty": {
     "skus": 894,
@@ -50,8 +50,8 @@
     "styles": 1372
    },
    "Sports & Outdoors": {
-    "skus": 160,
-    "styles": 21
+    "skus": 429,
+    "styles": 52
    },
    "Toys": {
     "skus": 718,
@@ -531,8 +531,8 @@
    "styles": 53
   },
   "all": {
-   "skus": 69277,
-   "styles": 8034
+   "skus": 69546,
+   "styles": 8065
   },
   "appliance_rows": {
    "skus": 124,
@@ -544,8 +544,8 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 56868,
-   "styles": 3518
+   "skus": 57137,
+   "styles": 3549
   },
   "breadth_rows": {
    "skus": 684,
@@ -560,8 +560,8 @@
    "styles": 1332
   },
   "decoy_product_words": {
-   "skus": 113,
-   "styles": 113
+   "skus": 110,
+   "styles": 110
   },
   "decoy_rows": {
    "skus": 111,
@@ -616,8 +616,8 @@
    "styles": 48
   },
   "sports_rows": {
-   "skus": 156,
-   "styles": 17
+   "skus": 428,
+   "styles": 51
   },
   "toys_rows": {
    "skus": 155,
