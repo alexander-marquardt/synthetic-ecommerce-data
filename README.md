@@ -951,7 +951,11 @@ that win a query's top results on text alone, so a demo can show what a policy
 fixes. `distractors.py` holds the table; `distractors.check()` refuses a
 distractor that cannot outrank the best intended product (BM25 over title plus
 description). A class's *tail* is further products the query matches that need
-not outrank. Every name is invented.
+not outrank. Every name is invented, except the real brands the maintainer has ruled in:
+Nike (gen#341; Apple, iPhone and iPad follow with gen#332). A real brand is text only: its name
+is in the title, the `brand` field and the description, and no drawing carries its logo, swoosh or
+trade dress. `real_brands.py` holds the allow-list and refuses every other real brand name
+([docs/retail-nike.md](docs/retail-nike.md)).
 
 Every product is drawn as its own kind: a bouquet as roses in a paper cone,
 socks as socks, a bed as a bed. A generic shape (`box`, `box_wide`,

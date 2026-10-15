@@ -382,7 +382,9 @@ _THIRD_PARTY = ("Kestlewood Cosmetics", "Stridewell", "Calderby & Lune", "Brambl
                 "Crunchworth", "Olivar Grove", "Pewley Table",
                 # Invented names that hold a color or category word (gen#311, class 7).
                 "Red Plover", "Blue Otter", "Green Stoat", "Yellow Wagtail", "Black Lapwing",
-                "White Dormouse", "Jumper Jay", "Coat Crake")  # fmt: skip
+                "White Dormouse", "Jumper Jay", "Coat Crake",
+                # A real brand, text only (real_brands.ALLOWED, gen#341); another house's make.
+                "Nike")  # fmt: skip
 _OWN = ("Harbour & Pine", "Larkmoor", "Wrenfield", "Little Fernby", "Quillon Sleep",
         "Ottery Denim", "Ferrowick Denim", "Goldfield Farms", "Crofter's Bakehouse",
         "Pantry Mill", "Hearth & Table", "Brackenmere Home", "Meadowgate Dairy",
