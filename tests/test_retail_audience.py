@@ -33,6 +33,8 @@ import shirt_rows  # noqa: E402
 from synthetic_ecommerce_data.core import standard  # noqa: E402
 
 SHIRT_LEAVES = {"Oxford Shirts", "Flannel Shirts", "Linen Shirts", "Denim Shirts"}
+#: Mens shirts also have the formal, check and short sleeve leaves (gen#310).
+MENS_SHIRT_LEAVES = SHIRT_LEAVES | {"Formal Shirts", "Check Shirts", "Short Sleeve Shirts"}
 #: Product types folded into another (:data:`export.PRODUCT_TYPE_FOLDS`).
 FOLDED = {"Tee": "T-Shirt"}
 
@@ -77,9 +79,13 @@ def test_the_audience_follows_the_category_root(rows):
     got = collections.defaultdict(set)
     for r in rows:
         path = r["category_path"]
-        if path[0] in audience.PEOPLE_ROOTS:
+        if path[0] in audience.PEOPLE_ROOTS and path[:2] != ["Womens", "Accessories"]:
             got[(path[0], path[1] if path[0] == "Kids" else "")].add(r["facets"]["audience"][0])
     assert got[("Womens", "")] == {"Womens"}
+    # gen#248: the unisex bags and umbrellas sit under Womens > Accessories and state Unisex.
+    shelf = [r for r in rows if r["category_path"][:2] == ["Womens", "Accessories"]]
+    accessories = {r["facets"]["audience"][0] for r in shelf}
+    assert accessories == {"Womens", "Unisex"}
     assert got[("Mens", "")] == {"Mens"}
     assert got[("Kids", "Girls")] == {"Girls"}
     assert got[("Kids", "Boys")] == {"Boys"}
@@ -134,7 +140,7 @@ def test_shirts_sit_under_tops_for_mens_and_womens(rows):
         placed[head[0]].add(leaf)
         assert "Shirt" in r["title"] and "Tee" not in r["title"]
         assert r["facets"]["audience"] == {"Mens": ["Mens"], "Womens": ["Womens"]}[head[0]]
-    assert placed == {"Mens": SHIRT_LEAVES, "Womens": SHIRT_LEAVES}
+    assert placed == {"Mens": MENS_SHIRT_LEAVES, "Womens": SHIRT_LEAVES}
 
 
 def test_there_are_twenty_to_thirty_shirt_styles():
