@@ -196,6 +196,21 @@ def test_trousers_draw_two_pockets_a_crease_and_the_fit_they_state() -> None:
         assert f'<g class="hem-{dict(row.params)["length"]}"' in svg, row.code
 
 
+def _leg_extent(**params) -> tuple[float, float]:
+    """The lowest point and the widest span of the legs' outline."""
+    svg = _svg(shape="school_trousers", **params)
+    d = re.search(r'<g class="leg-[a-z]+"><path d="([^"]+)"', svg).group(1)
+    pts = [float(n) for n in re.findall(r"-?\d+(?:\.\d+)?", d)]
+    xs, ys = pts[0::2], pts[1::2]
+    return max(ys), max(xs) - min(xs)
+
+
+def test_the_longer_length_hangs_lower_and_the_fit_sets_the_width_of_the_leg() -> None:
+    (regular_y, regular_w), (longer_y, _) = _leg_extent(), _leg_extent(length="longer")
+    assert longer_y > regular_y
+    assert _leg_extent(fit="slim")[1] < regular_w < _leg_extent(fit="plus")[1]
+
+
 def test_a_skirt_draws_the_folds_its_style_has() -> None:
     folds = {"pleated": 12, "kilt": 8, "a_line": 0}
     for style, n in folds.items():
