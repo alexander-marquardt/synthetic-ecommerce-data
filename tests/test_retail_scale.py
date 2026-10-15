@@ -70,6 +70,7 @@ LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
 PLAIN_ROWS = FIGURES["templates"]["plain_rows"]["styles"]
 GROCERY_ROWS = FIGURES["templates"]["grocery"]["styles"]
 UNDERWEAR_ROWS = FIGURES["templates"]["underwear_rows"]["styles"]
+DECOY_APPAREL_ROWS = FIGURES["templates"]["decoy_apparel"]["styles"]
 TEMPLATES = (
     AUTHORED
     + SCALE_ROWS
@@ -88,6 +89,7 @@ TEMPLATES = (
     + LIGHTING_ROWS
     + SEASONAL_ROWS
     + COLORGROUP_ROWS
+    + DECOY_APPAREL_ROWS
     + PLAIN_ROWS
     + GROCERY_ROWS
 )

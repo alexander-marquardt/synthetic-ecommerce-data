@@ -555,6 +555,10 @@
    "skus": 1800,
    "styles": 24
   },
+  "decoy_apparel": {
+   "skus": 13975,
+   "styles": 1332
+  },
   "decoy_rows": {
    "skus": 111,
    "styles": 66

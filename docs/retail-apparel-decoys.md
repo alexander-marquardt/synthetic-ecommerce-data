@@ -35,13 +35,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA00500 | Blouse | 5 shade spelled in the description only | Moonbeam Blouse | ivory | ivory blouse | generic |
 | PLT-DA00501 | Blouse | 5 shade spelled in the description only | Driftwood Blouse | taupe | taupe blouse | generic |
 | PLT-DA00502 | Blouse | 5 shade spelled in the description only | Dune Blouse | beige | beige blouse | generic |
-| PLT-DA00600 | Blouse | 6 incidental word in a range name | Green Park Blouse | green | green blouse | generic |
-| PLT-DA00601 | Blouse | 6 incidental word in a range name | Black Tor Blouse | black | black blouse | generic |
-| PLT-DA00602 | Blouse | 6 incidental word in a range name | Yellow Marsh Blouse | yellow | yellow blouse | generic |
-| PLT-DA00603 | Blouse | 6 incidental word in a range name | Skirt Point Blouse | skirt | skirt | generic |
-| PLT-DA00700 | Blouse | 7 invented brand holding a color or category word | Blue Otter Blouse | blue | blue blouse | generic |
-| PLT-DA00701 | Blouse | 7 invented brand holding a color or category word | White Dormouse Blouse | white | white blouse | generic |
-| PLT-DA00702 | Blouse | 7 invented brand holding a color or category word | Green Stoat Blouse | green | green blouse | generic |
+| PLT-DA00600 | Blouse | 6 incidental word in a range name | Green Park Blouse, Grey | green | green blouse | generic |
+| PLT-DA00601 | Blouse | 6 incidental word in a range name | Black Tor Blouse, Red | black | black blouse | generic |
+| PLT-DA00602 | Blouse | 6 incidental word in a range name | Yellow Marsh Blouse, White | yellow | yellow blouse | generic |
+| PLT-DA00603 | Blouse | 6 incidental word in a range name | Skirt Point Blouse, White | skirt | skirt | generic |
+| PLT-DA00700 | Blouse | 7 invented brand holding a color or category word | Blue Otter Blouse, Red | blue | blue blouse | generic |
+| PLT-DA00701 | Blouse | 7 invented brand holding a color or category word | White Dormouse Blouse, Pink | white | white blouse | generic |
+| PLT-DA00702 | Blouse | 7 invented brand holding a color or category word | Green Stoat Blouse, White | green | green blouse | generic |
 | PLT-DA01100 | Bodysuit | 1 color names a part | Pink Bodysuit, Yellow Lining | yellow | yellow bodysuit | generic |
 | PLT-DA01101 | Bodysuit | 1 color names a part | Cream Bodysuit, Red Stitching | red | red bodysuit | generic |
 | PLT-DA01102 | Bodysuit | 1 color names a part | Red Bodysuit, Yellow Collar | yellow | yellow bodysuit | generic |
@@ -57,13 +57,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA01500 | Bodysuit | 5 shade spelled in the description only | Moonbeam Bodysuit | ivory | ivory bodysuit | generic |
 | PLT-DA01501 | Bodysuit | 5 shade spelled in the description only | Driftwood Bodysuit | taupe | taupe bodysuit | generic |
 | PLT-DA01502 | Bodysuit | 5 shade spelled in the description only | Dune Bodysuit | beige | beige bodysuit | generic |
-| PLT-DA01600 | Bodysuit | 6 incidental word in a range name | Green Park Bodysuit | green | green bodysuit | generic |
-| PLT-DA01601 | Bodysuit | 6 incidental word in a range name | Yellow Marsh Bodysuit | yellow | yellow bodysuit | generic |
-| PLT-DA01602 | Bodysuit | 6 incidental word in a range name | Black Mill Bodysuit | black | black bodysuit | generic |
-| PLT-DA01603 | Bodysuit | 6 incidental word in a range name | Shirt Row Bodysuit | shirt | shirt | generic |
-| PLT-DA01700 | Bodysuit | 7 invented brand holding a color or category word | Coat Crake Bodysuit | coat | coat bodysuit | generic |
-| PLT-DA01701 | Bodysuit | 7 invented brand holding a color or category word | Green Stoat Bodysuit | green | green bodysuit | generic |
-| PLT-DA01702 | Bodysuit | 7 invented brand holding a color or category word | Black Lapwing Bodysuit | black | black bodysuit | generic |
+| PLT-DA01600 | Bodysuit | 6 incidental word in a range name | Green Park Bodysuit, Brown | green | green bodysuit | generic |
+| PLT-DA01601 | Bodysuit | 6 incidental word in a range name | Yellow Marsh Bodysuit, Black | yellow | yellow bodysuit | generic |
+| PLT-DA01602 | Bodysuit | 6 incidental word in a range name | Black Mill Bodysuit, Navy | black | black bodysuit | generic |
+| PLT-DA01603 | Bodysuit | 6 incidental word in a range name | Shirt Row Bodysuit, Green | shirt | shirt | generic |
+| PLT-DA01700 | Bodysuit | 7 invented brand holding a color or category word | Coat Crake Bodysuit, Cream | coat | coat bodysuit | generic |
+| PLT-DA01701 | Bodysuit | 7 invented brand holding a color or category word | Green Stoat Bodysuit, Blue | green | green bodysuit | generic |
+| PLT-DA01702 | Bodysuit | 7 invented brand holding a color or category word | Black Lapwing Bodysuit, Grey | black | black bodysuit | generic |
 | PLT-DA02100 | Bomber Jacket | 1 color names a part | Green Bomber Jacket, Red Collar | red | red bomber jacket | generic |
 | PLT-DA02101 | Bomber Jacket | 1 color names a part | Red Bomber Jacket, Green Zip | green | green bomber jacket | generic |
 | PLT-DA02102 | Bomber Jacket | 1 color names a part | Brown Bomber Jacket, Blue Trim | blue | blue bomber jacket | generic |
@@ -79,13 +79,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA02500 | Bomber Jacket | 5 shade spelled in the description only | Moonbeam Bomber Jacket | ivory | ivory bomber jacket | generic |
 | PLT-DA02501 | Bomber Jacket | 5 shade spelled in the description only | Driftwood Bomber Jacket | taupe | taupe bomber jacket | generic |
 | PLT-DA02502 | Bomber Jacket | 5 shade spelled in the description only | Dune Bomber Jacket | beige | beige bomber jacket | generic |
-| PLT-DA02600 | Bomber Jacket | 6 incidental word in a range name | Red Harbour Bomber Jacket | red | red bomber jacket | generic |
-| PLT-DA02601 | Bomber Jacket | 6 incidental word in a range name | Black Mill Bomber Jacket | black | black bomber jacket | generic |
-| PLT-DA02602 | Bomber Jacket | 6 incidental word in a range name | Blue Meadow Bomber Jacket | blue | blue bomber jacket | generic |
-| PLT-DA02603 | Bomber Jacket | 6 incidental word in a range name | Jumper Lane Bomber Jacket | jumper | jumper | generic |
-| PLT-DA02700 | Bomber Jacket | 7 invented brand holding a color or category word | White Dormouse Bomber Jacket | white | white bomber jacket | generic |
-| PLT-DA02701 | Bomber Jacket | 7 invented brand holding a color or category word | Yellow Wagtail Bomber Jacket | yellow | yellow bomber jacket | generic |
-| PLT-DA02702 | Bomber Jacket | 7 invented brand holding a color or category word | Red Plover Bomber Jacket | red | red bomber jacket | generic |
+| PLT-DA02600 | Bomber Jacket | 6 incidental word in a range name | Red Harbour Bomber Jacket, Grey | red | red bomber jacket | generic |
+| PLT-DA02601 | Bomber Jacket | 6 incidental word in a range name | Black Mill Bomber Jacket, Red | black | black bomber jacket | generic |
+| PLT-DA02602 | Bomber Jacket | 6 incidental word in a range name | Blue Meadow Bomber Jacket, White | blue | blue bomber jacket | generic |
+| PLT-DA02603 | Bomber Jacket | 6 incidental word in a range name | Jumper Lane Bomber Jacket, Cream | jumper | jumper | generic |
+| PLT-DA02700 | Bomber Jacket | 7 invented brand holding a color or category word | White Dormouse Bomber Jacket, Navy | white | white bomber jacket | generic |
+| PLT-DA02701 | Bomber Jacket | 7 invented brand holding a color or category word | Yellow Wagtail Bomber Jacket, Navy | yellow | yellow bomber jacket | generic |
+| PLT-DA02702 | Bomber Jacket | 7 invented brand holding a color or category word | Red Plover Bomber Jacket, Blue | red | red bomber jacket | generic |
 | PLT-DA03100 | Cardigan | 1 color names a part | Grey Cardigan, Yellow Stripes | yellow | yellow cardigan | generic |
 | PLT-DA03101 | Cardigan | 1 color names a part | Green Cardigan, White Trim | white | white cardigan | generic |
 | PLT-DA03102 | Cardigan | 1 color names a part | Red Cardigan, Yellow Trim | yellow | yellow cardigan | generic |
@@ -101,13 +101,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA03500 | Cardigan | 5 shade spelled in the description only | Moonbeam Cardigan | ivory | ivory cardigan | generic |
 | PLT-DA03501 | Cardigan | 5 shade spelled in the description only | Driftwood Cardigan | taupe | taupe cardigan | generic |
 | PLT-DA03502 | Cardigan | 5 shade spelled in the description only | Dune Cardigan | beige | beige cardigan | generic |
-| PLT-DA03600 | Cardigan | 6 incidental word in a range name | Green Park Cardigan | green | green cardigan | generic |
-| PLT-DA03601 | Cardigan | 6 incidental word in a range name | White Moor Cardigan | white | white cardigan | generic |
-| PLT-DA03602 | Cardigan | 6 incidental word in a range name | Red Harbour Cardigan | red | red cardigan | generic |
-| PLT-DA03603 | Cardigan | 6 incidental word in a range name | Skirt Point Cardigan | skirt | skirt | generic |
-| PLT-DA03700 | Cardigan | 7 invented brand holding a color or category word | Red Plover Cardigan | red | red cardigan | generic |
-| PLT-DA03701 | Cardigan | 7 invented brand holding a color or category word | Blue Otter Cardigan | blue | blue cardigan | generic |
-| PLT-DA03702 | Cardigan | 7 invented brand holding a color or category word | Yellow Wagtail Cardigan | yellow | yellow cardigan | generic |
+| PLT-DA03600 | Cardigan | 6 incidental word in a range name | Green Park Cardigan, Brown | green | green cardigan | generic |
+| PLT-DA03601 | Cardigan | 6 incidental word in a range name | White Moor Cardigan, Green | white | white cardigan | generic |
+| PLT-DA03602 | Cardigan | 6 incidental word in a range name | Red Harbour Cardigan, Pink | red | red cardigan | generic |
+| PLT-DA03603 | Cardigan | 6 incidental word in a range name | Skirt Point Cardigan, Cream | skirt | skirt | generic |
+| PLT-DA03700 | Cardigan | 7 invented brand holding a color or category word | Red Plover Cardigan, Black | red | red cardigan | generic |
+| PLT-DA03701 | Cardigan | 7 invented brand holding a color or category word | Blue Otter Cardigan, Red | blue | blue cardigan | generic |
+| PLT-DA03702 | Cardigan | 7 invented brand holding a color or category word | Yellow Wagtail Cardigan, White | yellow | yellow cardigan | generic |
 | PLT-DA04100 | Coat | 1 color names a part | Brown Coat, Blue Buttons | blue | blue coat | generic |
 | PLT-DA04101 | Coat | 1 color names a part | Brown Coat, White Stripes | white | white coat | generic |
 | PLT-DA04102 | Coat | 1 color names a part | Blue Coat, White Cuffs | white | white coat | generic |
@@ -123,13 +123,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA04500 | Coat | 5 shade spelled in the description only | Moonbeam Coat | ivory | ivory coat | generic |
 | PLT-DA04501 | Coat | 5 shade spelled in the description only | Driftwood Coat | taupe | taupe coat | generic |
 | PLT-DA04502 | Coat | 5 shade spelled in the description only | Dune Coat | beige | beige coat | generic |
-| PLT-DA04600 | Coat | 6 incidental word in a range name | Green Park Coat | green | green coat | generic |
-| PLT-DA04601 | Coat | 6 incidental word in a range name | Blue Meadow Coat | blue | blue coat | generic |
-| PLT-DA04602 | Coat | 6 incidental word in a range name | Black Mill Coat | black | black coat | generic |
-| PLT-DA04603 | Coat | 6 incidental word in a range name | Skirt Point Coat | skirt | skirt | generic |
-| PLT-DA04700 | Coat | 7 invented brand holding a color or category word | Green Stoat Coat | green | green coat | generic |
-| PLT-DA04701 | Coat | 7 invented brand holding a color or category word | Yellow Wagtail Coat | yellow | yellow coat | generic |
-| PLT-DA04702 | Coat | 7 invented brand holding a color or category word | Red Plover Coat | red | red coat | generic |
+| PLT-DA04600 | Coat | 6 incidental word in a range name | Green Park Coat, Black | green | green coat | generic |
+| PLT-DA04601 | Coat | 6 incidental word in a range name | Blue Meadow Coat, White | blue | blue coat | generic |
+| PLT-DA04602 | Coat | 6 incidental word in a range name | Black Mill Coat, Cream | black | black coat | generic |
+| PLT-DA04603 | Coat | 6 incidental word in a range name | Skirt Point Coat, Grey | skirt | skirt | generic |
+| PLT-DA04700 | Coat | 7 invented brand holding a color or category word | Green Stoat Coat, Blue | green | green coat | generic |
+| PLT-DA04701 | Coat | 7 invented brand holding a color or category word | Yellow Wagtail Coat, Cream | yellow | yellow coat | generic |
+| PLT-DA04702 | Coat | 7 invented brand holding a color or category word | Red Plover Coat, Navy | red | red coat | generic |
 | PLT-DA05100 | Co-ord Set | 1 color names a part | Navy Co-ord Set, Black Trim | black | black co-ord set | generic |
 | PLT-DA05101 | Co-ord Set | 1 color names a part | Grey Co-ord Set, White Lining | white | white co-ord set | generic |
 | PLT-DA05102 | Co-ord Set | 1 color names a part | Navy Co-ord Set, Green Stitching | green | green co-ord set | generic |
@@ -145,13 +145,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA05500 | Co-ord Set | 5 shade spelled in the description only | Moonbeam Co-ord Set | ivory | ivory co-ord set | generic |
 | PLT-DA05501 | Co-ord Set | 5 shade spelled in the description only | Driftwood Co-ord Set | taupe | taupe co-ord set | generic |
 | PLT-DA05502 | Co-ord Set | 5 shade spelled in the description only | Dune Co-ord Set | beige | beige co-ord set | generic |
-| PLT-DA05600 | Co-ord Set | 6 incidental word in a range name | Black Tor Co-ord Set | black | black co-ord set | generic |
-| PLT-DA05601 | Co-ord Set | 6 incidental word in a range name | Red Fern Co-ord Set | red | red co-ord set | generic |
-| PLT-DA05602 | Co-ord Set | 6 incidental word in a range name | White Moor Co-ord Set | white | white co-ord set | generic |
-| PLT-DA05603 | Co-ord Set | 6 incidental word in a range name | Jumper Lane Co-ord Set | jumper | jumper | generic |
-| PLT-DA05700 | Co-ord Set | 7 invented brand holding a color or category word | Blue Otter Co-ord Set | blue | blue co-ord set | generic |
-| PLT-DA05701 | Co-ord Set | 7 invented brand holding a color or category word | Yellow Wagtail Co-ord Set | yellow | yellow co-ord set | generic |
-| PLT-DA05702 | Co-ord Set | 7 invented brand holding a color or category word | White Dormouse Co-ord Set | white | white co-ord set | generic |
+| PLT-DA05600 | Co-ord Set | 6 incidental word in a range name | Black Tor Co-ord Set, Navy | black | black co-ord set | generic |
+| PLT-DA05601 | Co-ord Set | 6 incidental word in a range name | Red Fern Co-ord Set, Black | red | red co-ord set | generic |
+| PLT-DA05602 | Co-ord Set | 6 incidental word in a range name | White Moor Co-ord Set, Red | white | white co-ord set | generic |
+| PLT-DA05603 | Co-ord Set | 6 incidental word in a range name | Jumper Lane Co-ord Set, White | jumper | jumper | generic |
+| PLT-DA05700 | Co-ord Set | 7 invented brand holding a color or category word | Blue Otter Co-ord Set, Navy | blue | blue co-ord set | generic |
+| PLT-DA05701 | Co-ord Set | 7 invented brand holding a color or category word | Yellow Wagtail Co-ord Set, Blue | yellow | yellow co-ord set | generic |
+| PLT-DA05702 | Co-ord Set | 7 invented brand holding a color or category word | White Dormouse Co-ord Set, Grey | white | white co-ord set | generic |
 | PLT-DA06100 | Cycling Shorts | 1 color names a part | Green Cycling Shorts, Yellow Buttons | yellow | yellow cycling shorts | generic |
 | PLT-DA06101 | Cycling Shorts | 1 color names a part | Brown Cycling Shorts, Black Lining | black | black cycling shorts | generic |
 | PLT-DA06102 | Cycling Shorts | 1 color names a part | Pink Cycling Shorts, Black Buttons | black | black cycling shorts | generic |
@@ -167,13 +167,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA06500 | Cycling Shorts | 5 shade spelled in the description only | Moonbeam Cycling Shorts | ivory | ivory cycling shorts | generic |
 | PLT-DA06501 | Cycling Shorts | 5 shade spelled in the description only | Driftwood Cycling Shorts | taupe | taupe cycling shorts | generic |
 | PLT-DA06502 | Cycling Shorts | 5 shade spelled in the description only | Dune Cycling Shorts | beige | beige cycling shorts | generic |
-| PLT-DA06600 | Cycling Shorts | 6 incidental word in a range name | Blue Cove Cycling Shorts | blue | blue cycling shorts | generic |
-| PLT-DA06601 | Cycling Shorts | 6 incidental word in a range name | Green Park Cycling Shorts | green | green cycling shorts | generic |
-| PLT-DA06602 | Cycling Shorts | 6 incidental word in a range name | Black Tor Cycling Shorts | black | black cycling shorts | generic |
-| PLT-DA06603 | Cycling Shorts | 6 incidental word in a range name | Shirt Row Cycling Shorts | shirt | shirt | generic |
-| PLT-DA06700 | Cycling Shorts | 7 invented brand holding a color or category word | Red Plover Cycling Shorts | red | red cycling shorts | generic |
-| PLT-DA06701 | Cycling Shorts | 7 invented brand holding a color or category word | Yellow Wagtail Cycling Shorts | yellow | yellow cycling shorts | generic |
-| PLT-DA06702 | Cycling Shorts | 7 invented brand holding a color or category word | Coat Crake Cycling Shorts | coat | coat cycling shorts | generic |
+| PLT-DA06600 | Cycling Shorts | 6 incidental word in a range name | Blue Cove Cycling Shorts, White | blue | blue cycling shorts | generic |
+| PLT-DA06601 | Cycling Shorts | 6 incidental word in a range name | Green Park Cycling Shorts, Blue | green | green cycling shorts | generic |
+| PLT-DA06602 | Cycling Shorts | 6 incidental word in a range name | Black Tor Cycling Shorts, Grey | black | black cycling shorts | generic |
+| PLT-DA06603 | Cycling Shorts | 6 incidental word in a range name | Shirt Row Cycling Shorts, Blue | shirt | shirt | generic |
+| PLT-DA06700 | Cycling Shorts | 7 invented brand holding a color or category word | Red Plover Cycling Shorts, Grey | red | red cycling shorts | generic |
+| PLT-DA06701 | Cycling Shorts | 7 invented brand holding a color or category word | Yellow Wagtail Cycling Shorts, Cream | yellow | yellow cycling shorts | generic |
+| PLT-DA06702 | Cycling Shorts | 7 invented brand holding a color or category word | Coat Crake Cycling Shorts, Cream | coat | coat cycling shorts | generic |
 | PLT-DA07100 | Denim Jacket | 1 color names a part | Pink Denim Jacket, Red Piping | red | red denim jacket | generic |
 | PLT-DA07101 | Denim Jacket | 1 color names a part | Brown Denim Jacket, White Collar | white | white denim jacket | generic |
 | PLT-DA07102 | Denim Jacket | 1 color names a part | Pink Denim Jacket, Yellow Lining | yellow | yellow denim jacket | generic |
@@ -189,13 +189,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA07500 | Denim Jacket | 5 shade spelled in the description only | Moonbeam Denim Jacket | ivory | ivory denim jacket | generic |
 | PLT-DA07501 | Denim Jacket | 5 shade spelled in the description only | Driftwood Denim Jacket | taupe | taupe denim jacket | generic |
 | PLT-DA07502 | Denim Jacket | 5 shade spelled in the description only | Dune Denim Jacket | beige | beige denim jacket | generic |
-| PLT-DA07600 | Denim Jacket | 6 incidental word in a range name | Green Hollow Denim Jacket | green | green denim jacket | generic |
-| PLT-DA07601 | Denim Jacket | 6 incidental word in a range name | White Cliff Denim Jacket | white | white denim jacket | generic |
-| PLT-DA07602 | Denim Jacket | 6 incidental word in a range name | Red Harbour Denim Jacket | red | red denim jacket | generic |
-| PLT-DA07603 | Denim Jacket | 6 incidental word in a range name | Shirt Row Denim Jacket | shirt | shirt | generic |
-| PLT-DA07700 | Denim Jacket | 7 invented brand holding a color or category word | White Dormouse Denim Jacket | white | white denim jacket | generic |
-| PLT-DA07701 | Denim Jacket | 7 invented brand holding a color or category word | Red Plover Denim Jacket | red | red denim jacket | generic |
-| PLT-DA07702 | Denim Jacket | 7 invented brand holding a color or category word | Jumper Jay Denim Jacket | jumper | jumper denim jacket | generic |
+| PLT-DA07600 | Denim Jacket | 6 incidental word in a range name | Green Hollow Denim Jacket, Red | green | green denim jacket | generic |
+| PLT-DA07601 | Denim Jacket | 6 incidental word in a range name | White Cliff Denim Jacket, Red | white | white denim jacket | generic |
+| PLT-DA07602 | Denim Jacket | 6 incidental word in a range name | Red Harbour Denim Jacket, White | red | red denim jacket | generic |
+| PLT-DA07603 | Denim Jacket | 6 incidental word in a range name | Shirt Row Denim Jacket, Blue | shirt | shirt | generic |
+| PLT-DA07700 | Denim Jacket | 7 invented brand holding a color or category word | White Dormouse Denim Jacket, Brown | white | white denim jacket | generic |
+| PLT-DA07701 | Denim Jacket | 7 invented brand holding a color or category word | Red Plover Denim Jacket, Brown | red | red denim jacket | generic |
+| PLT-DA07702 | Denim Jacket | 7 invented brand holding a color or category word | Jumper Jay Denim Jacket, Red | jumper | jumper denim jacket | generic |
 | PLT-DA08100 | Dress | 1 color names a part | Cream Dress, Red Buttons | red | red dress | generic |
 | PLT-DA08101 | Dress | 1 color names a part | Brown Dress, White Trim | white | white dress | generic |
 | PLT-DA08102 | Dress | 1 color names a part | Blue Dress, White Collar | white | white dress | generic |
@@ -211,13 +211,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA08500 | Dress | 5 shade spelled in the description only | Moonbeam Dress | ivory | ivory dress | generic |
 | PLT-DA08501 | Dress | 5 shade spelled in the description only | Driftwood Dress | taupe | taupe dress | generic |
 | PLT-DA08502 | Dress | 5 shade spelled in the description only | Dune Dress | beige | beige dress | generic |
-| PLT-DA08600 | Dress | 6 incidental word in a range name | Red Harbour Dress | red | red dress | generic |
-| PLT-DA08601 | Dress | 6 incidental word in a range name | White Cliff Dress | white | white dress | generic |
-| PLT-DA08602 | Dress | 6 incidental word in a range name | Blue Meadow Dress | blue | blue dress | generic |
-| PLT-DA08603 | Dress | 6 incidental word in a range name | Boot Hill Dress | boot | boot | generic |
-| PLT-DA08700 | Dress | 7 invented brand holding a color or category word | Red Plover Dress | red | red dress | generic |
-| PLT-DA08701 | Dress | 7 invented brand holding a color or category word | White Dormouse Dress | white | white dress | generic |
-| PLT-DA08702 | Dress | 7 invented brand holding a color or category word | Blue Otter Dress | blue | blue dress | generic |
+| PLT-DA08600 | Dress | 6 incidental word in a range name | Red Harbour Dress, Grey | red | red dress | generic |
+| PLT-DA08601 | Dress | 6 incidental word in a range name | White Cliff Dress, Red | white | white dress | generic |
+| PLT-DA08602 | Dress | 6 incidental word in a range name | Blue Meadow Dress, White | blue | blue dress | generic |
+| PLT-DA08603 | Dress | 6 incidental word in a range name | Boot Hill Dress, Grey | boot | boot | generic |
+| PLT-DA08700 | Dress | 7 invented brand holding a color or category word | Red Plover Dress, Blue | red | red dress | generic |
+| PLT-DA08701 | Dress | 7 invented brand holding a color or category word | White Dormouse Dress, Blue | white | white dress | generic |
+| PLT-DA08702 | Dress | 7 invented brand holding a color or category word | Blue Otter Dress, Red | blue | blue dress | generic |
 | PLT-DA09100 | Joggers | 1 color names a part | Green Joggers, White Trim | white | white joggers | generic |
 | PLT-DA09101 | Joggers | 1 color names a part | Brown Joggers, White Pocket | white | white joggers | generic |
 | PLT-DA09102 | Joggers | 1 color names a part | Red Joggers, Blue Cuffs | blue | blue joggers | generic |
@@ -233,13 +233,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA09500 | Joggers | 5 shade spelled in the description only | Moonbeam Joggers | ivory | ivory joggers | generic |
 | PLT-DA09501 | Joggers | 5 shade spelled in the description only | Driftwood Joggers | taupe | taupe joggers | generic |
 | PLT-DA09502 | Joggers | 5 shade spelled in the description only | Dune Joggers | beige | beige joggers | generic |
-| PLT-DA09600 | Joggers | 6 incidental word in a range name | Green Park Joggers | green | green joggers | generic |
-| PLT-DA09601 | Joggers | 6 incidental word in a range name | White Moor Joggers | white | white joggers | generic |
-| PLT-DA09602 | Joggers | 6 incidental word in a range name | Black Tor Joggers | black | black joggers | generic |
-| PLT-DA09603 | Joggers | 6 incidental word in a range name | Shirt Row Joggers | shirt | shirt | generic |
-| PLT-DA09700 | Joggers | 7 invented brand holding a color or category word | Jumper Jay Joggers | jumper | jumper joggers | generic |
-| PLT-DA09701 | Joggers | 7 invented brand holding a color or category word | White Dormouse Joggers | white | white joggers | generic |
-| PLT-DA09702 | Joggers | 7 invented brand holding a color or category word | Coat Crake Joggers | coat | coat joggers | generic |
+| PLT-DA09600 | Joggers | 6 incidental word in a range name | Green Park Joggers, Pink | green | green joggers | generic |
+| PLT-DA09601 | Joggers | 6 incidental word in a range name | White Moor Joggers, Navy | white | white joggers | generic |
+| PLT-DA09602 | Joggers | 6 incidental word in a range name | Black Tor Joggers, White | black | black joggers | generic |
+| PLT-DA09603 | Joggers | 6 incidental word in a range name | Shirt Row Joggers, Pink | shirt | shirt | generic |
+| PLT-DA09700 | Joggers | 7 invented brand holding a color or category word | Jumper Jay Joggers, White | jumper | jumper joggers | generic |
+| PLT-DA09701 | Joggers | 7 invented brand holding a color or category word | White Dormouse Joggers, Cream | white | white joggers | generic |
+| PLT-DA09702 | Joggers | 7 invented brand holding a color or category word | Coat Crake Joggers, Red | coat | coat joggers | generic |
 | PLT-DA10100 | Jumper | 1 color names a part | Black Jumper, White Piping | white | white jumper | generic |
 | PLT-DA10101 | Jumper | 1 color names a part | Navy Jumper, Yellow Lining | yellow | yellow jumper | generic |
 | PLT-DA10102 | Jumper | 1 color names a part | Navy Jumper, White Lining | white | white jumper | generic |
@@ -255,13 +255,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA10500 | Jumper | 5 shade spelled in the description only | Moonbeam Jumper | ivory | ivory jumper | generic |
 | PLT-DA10501 | Jumper | 5 shade spelled in the description only | Driftwood Jumper | taupe | taupe jumper | generic |
 | PLT-DA10502 | Jumper | 5 shade spelled in the description only | Dune Jumper | beige | beige jumper | generic |
-| PLT-DA10600 | Jumper | 6 incidental word in a range name | Yellow Marsh Jumper | yellow | yellow jumper | generic |
-| PLT-DA10601 | Jumper | 6 incidental word in a range name | White Moor Jumper | white | white jumper | generic |
-| PLT-DA10602 | Jumper | 6 incidental word in a range name | Blue Cove Jumper | blue | blue jumper | generic |
-| PLT-DA10603 | Jumper | 6 incidental word in a range name | Sock Hop Jumper | sock | sock | generic |
-| PLT-DA10700 | Jumper | 7 invented brand holding a color or category word | Blue Otter Jumper | blue | blue jumper | generic |
-| PLT-DA10701 | Jumper | 7 invented brand holding a color or category word | Black Lapwing Jumper | black | black jumper | generic |
-| PLT-DA10702 | Jumper | 7 invented brand holding a color or category word | White Dormouse Jumper | white | white jumper | generic |
+| PLT-DA10600 | Jumper | 6 incidental word in a range name | Yellow Marsh Jumper, Navy | yellow | yellow jumper | generic |
+| PLT-DA10601 | Jumper | 6 incidental word in a range name | White Moor Jumper, Black | white | white jumper | generic |
+| PLT-DA10602 | Jumper | 6 incidental word in a range name | Blue Cove Jumper, Green | blue | blue jumper | generic |
+| PLT-DA10603 | Jumper | 6 incidental word in a range name | Sock Hop Jumper, Pink | sock | sock | generic |
+| PLT-DA10700 | Jumper | 7 invented brand holding a color or category word | Blue Otter Jumper, Grey | blue | blue jumper | generic |
+| PLT-DA10701 | Jumper | 7 invented brand holding a color or category word | Black Lapwing Jumper, Grey | black | black jumper | generic |
+| PLT-DA10702 | Jumper | 7 invented brand holding a color or category word | White Dormouse Jumper, Grey | white | white jumper | generic |
 | PLT-DA11100 | Leggings | 1 color names a part | Blue Leggings, White Stitching | white | white leggings | generic |
 | PLT-DA11101 | Leggings | 1 color names a part | Cream Leggings, Green Pocket | green | green leggings | generic |
 | PLT-DA11102 | Leggings | 1 color names a part | Pink Leggings, Red Lining | red | red leggings | generic |
@@ -277,13 +277,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA11500 | Leggings | 5 shade spelled in the description only | Moonbeam Leggings | ivory | ivory leggings | generic |
 | PLT-DA11501 | Leggings | 5 shade spelled in the description only | Driftwood Leggings | taupe | taupe leggings | generic |
 | PLT-DA11502 | Leggings | 5 shade spelled in the description only | Dune Leggings | beige | beige leggings | generic |
-| PLT-DA11600 | Leggings | 6 incidental word in a range name | Blue Cove Leggings | blue | blue leggings | generic |
-| PLT-DA11601 | Leggings | 6 incidental word in a range name | Black Tor Leggings | black | black leggings | generic |
-| PLT-DA11602 | Leggings | 6 incidental word in a range name | Yellow Marsh Leggings | yellow | yellow leggings | generic |
-| PLT-DA11603 | Leggings | 6 incidental word in a range name | Dress Circle Leggings | dress | dress | generic |
-| PLT-DA11700 | Leggings | 7 invented brand holding a color or category word | Red Plover Leggings | red | red leggings | generic |
-| PLT-DA11701 | Leggings | 7 invented brand holding a color or category word | Green Stoat Leggings | green | green leggings | generic |
-| PLT-DA11702 | Leggings | 7 invented brand holding a color or category word | Black Lapwing Leggings | black | black leggings | generic |
+| PLT-DA11600 | Leggings | 6 incidental word in a range name | Blue Cove Leggings, Black | blue | blue leggings | generic |
+| PLT-DA11601 | Leggings | 6 incidental word in a range name | Black Tor Leggings, Brown | black | black leggings | generic |
+| PLT-DA11602 | Leggings | 6 incidental word in a range name | Yellow Marsh Leggings, Grey | yellow | yellow leggings | generic |
+| PLT-DA11603 | Leggings | 6 incidental word in a range name | Dress Circle Leggings, Pink | dress | dress | generic |
+| PLT-DA11700 | Leggings | 7 invented brand holding a color or category word | Red Plover Leggings, Green | red | red leggings | generic |
+| PLT-DA11701 | Leggings | 7 invented brand holding a color or category word | Green Stoat Leggings, Black | green | green leggings | generic |
+| PLT-DA11702 | Leggings | 7 invented brand holding a color or category word | Black Lapwing Leggings, Green | black | black leggings | generic |
 | PLT-DA12100 | Outfit Set | 1 color names a part | Black Outfit Set, Green Stitching | green | green outfit set | generic |
 | PLT-DA12101 | Outfit Set | 1 color names a part | Grey Outfit Set, Yellow Piping | yellow | yellow outfit set | generic |
 | PLT-DA12102 | Outfit Set | 1 color names a part | Green Outfit Set, White Stripes | white | white outfit set | generic |
@@ -299,13 +299,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA12500 | Outfit Set | 5 shade spelled in the description only | Moonbeam Outfit Set | ivory | ivory outfit set | generic |
 | PLT-DA12501 | Outfit Set | 5 shade spelled in the description only | Driftwood Outfit Set | taupe | taupe outfit set | generic |
 | PLT-DA12502 | Outfit Set | 5 shade spelled in the description only | Dune Outfit Set | beige | beige outfit set | generic |
-| PLT-DA12600 | Outfit Set | 6 incidental word in a range name | Red Fern Outfit Set | red | red outfit set | generic |
-| PLT-DA12601 | Outfit Set | 6 incidental word in a range name | Blue Cove Outfit Set | blue | blue outfit set | generic |
-| PLT-DA12602 | Outfit Set | 6 incidental word in a range name | Red Harbour Outfit Set | red | red outfit set | generic |
-| PLT-DA12603 | Outfit Set | 6 incidental word in a range name | Jumper Lane Outfit Set | jumper | jumper | generic |
-| PLT-DA12700 | Outfit Set | 7 invented brand holding a color or category word | Blue Otter Outfit Set | blue | blue outfit set | generic |
-| PLT-DA12701 | Outfit Set | 7 invented brand holding a color or category word | Black Lapwing Outfit Set | black | black outfit set | generic |
-| PLT-DA12702 | Outfit Set | 7 invented brand holding a color or category word | Yellow Wagtail Outfit Set | yellow | yellow outfit set | generic |
+| PLT-DA12600 | Outfit Set | 6 incidental word in a range name | Red Fern Outfit Set, Cream | red | red outfit set | generic |
+| PLT-DA12601 | Outfit Set | 6 incidental word in a range name | Blue Cove Outfit Set, White | blue | blue outfit set | generic |
+| PLT-DA12602 | Outfit Set | 6 incidental word in a range name | Red Harbour Outfit Set, Brown | red | red outfit set | generic |
+| PLT-DA12603 | Outfit Set | 6 incidental word in a range name | Jumper Lane Outfit Set, Black | jumper | jumper | generic |
+| PLT-DA12700 | Outfit Set | 7 invented brand holding a color or category word | Blue Otter Outfit Set, Grey | blue | blue outfit set | generic |
+| PLT-DA12701 | Outfit Set | 7 invented brand holding a color or category word | Black Lapwing Outfit Set, Navy | black | black outfit set | generic |
+| PLT-DA12702 | Outfit Set | 7 invented brand holding a color or category word | Yellow Wagtail Outfit Set, Black | yellow | yellow outfit set | generic |
 | PLT-DA13100 | Puffer Jacket | 1 color names a part | Black Puffer Jacket, Yellow Lining | yellow | yellow puffer jacket | generic |
 | PLT-DA13101 | Puffer Jacket | 1 color names a part | Blue Puffer Jacket, Yellow Buttons | yellow | yellow puffer jacket | generic |
 | PLT-DA13102 | Puffer Jacket | 1 color names a part | White Puffer Jacket, Blue Pocket | blue | blue puffer jacket | generic |
@@ -321,13 +321,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA13500 | Puffer Jacket | 5 shade spelled in the description only | Moonbeam Puffer Jacket | ivory | ivory puffer jacket | generic |
 | PLT-DA13501 | Puffer Jacket | 5 shade spelled in the description only | Driftwood Puffer Jacket | taupe | taupe puffer jacket | generic |
 | PLT-DA13502 | Puffer Jacket | 5 shade spelled in the description only | Dune Puffer Jacket | beige | beige puffer jacket | generic |
-| PLT-DA13600 | Puffer Jacket | 6 incidental word in a range name | Red Harbour Puffer Jacket | red | red puffer jacket | generic |
-| PLT-DA13601 | Puffer Jacket | 6 incidental word in a range name | Blue Cove Puffer Jacket | blue | blue puffer jacket | generic |
-| PLT-DA13602 | Puffer Jacket | 6 incidental word in a range name | Yellow Marsh Puffer Jacket | yellow | yellow puffer jacket | generic |
-| PLT-DA13603 | Puffer Jacket | 6 incidental word in a range name | Skirt Point Puffer Jacket | skirt | skirt | generic |
-| PLT-DA13700 | Puffer Jacket | 7 invented brand holding a color or category word | Red Plover Puffer Jacket | red | red puffer jacket | generic |
-| PLT-DA13701 | Puffer Jacket | 7 invented brand holding a color or category word | Black Lapwing Puffer Jacket | black | black puffer jacket | generic |
-| PLT-DA13702 | Puffer Jacket | 7 invented brand holding a color or category word | Yellow Wagtail Puffer Jacket | yellow | yellow puffer jacket | generic |
+| PLT-DA13600 | Puffer Jacket | 6 incidental word in a range name | Red Harbour Puffer Jacket, Pink | red | red puffer jacket | generic |
+| PLT-DA13601 | Puffer Jacket | 6 incidental word in a range name | Blue Cove Puffer Jacket, White | blue | blue puffer jacket | generic |
+| PLT-DA13602 | Puffer Jacket | 6 incidental word in a range name | Yellow Marsh Puffer Jacket, Grey | yellow | yellow puffer jacket | generic |
+| PLT-DA13603 | Puffer Jacket | 6 incidental word in a range name | Skirt Point Puffer Jacket, Pink | skirt | skirt | generic |
+| PLT-DA13700 | Puffer Jacket | 7 invented brand holding a color or category word | Red Plover Puffer Jacket, Brown | red | red puffer jacket | generic |
+| PLT-DA13701 | Puffer Jacket | 7 invented brand holding a color or category word | Black Lapwing Puffer Jacket, Blue | black | black puffer jacket | generic |
+| PLT-DA13702 | Puffer Jacket | 7 invented brand holding a color or category word | Yellow Wagtail Puffer Jacket, Navy | yellow | yellow puffer jacket | generic |
 | PLT-DA14100 | Shirt | 1 color names a part | Brown Shirt, Black Lining | black | black shirt | generic |
 | PLT-DA14101 | Shirt | 1 color names a part | White Shirt, Green Stripes | green | green shirt | generic |
 | PLT-DA14102 | Shirt | 1 color names a part | Cream Shirt, Red Pocket | red | red shirt | generic |
@@ -343,13 +343,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA14500 | Shirt | 5 shade spelled in the description only | Moonbeam Shirt | ivory | ivory shirt | generic |
 | PLT-DA14501 | Shirt | 5 shade spelled in the description only | Driftwood Shirt | taupe | taupe shirt | generic |
 | PLT-DA14502 | Shirt | 5 shade spelled in the description only | Dune Shirt | beige | beige shirt | generic |
-| PLT-DA14600 | Shirt | 6 incidental word in a range name | Blue Meadow Shirt | blue | blue shirt | generic |
-| PLT-DA14601 | Shirt | 6 incidental word in a range name | Yellow Brook Shirt | yellow | yellow shirt | generic |
-| PLT-DA14602 | Shirt | 6 incidental word in a range name | Green Park Shirt | green | green shirt | generic |
-| PLT-DA14603 | Shirt | 6 incidental word in a range name | Jacket Quay Shirt | jacket | jacket | generic |
-| PLT-DA14700 | Shirt | 7 invented brand holding a color or category word | Coat Crake Shirt | coat | coat shirt | generic |
-| PLT-DA14701 | Shirt | 7 invented brand holding a color or category word | Green Stoat Shirt | green | green shirt | generic |
-| PLT-DA14702 | Shirt | 7 invented brand holding a color or category word | Blue Otter Shirt | blue | blue shirt | generic |
+| PLT-DA14600 | Shirt | 6 incidental word in a range name | Blue Meadow Shirt, Green | blue | blue shirt | generic |
+| PLT-DA14601 | Shirt | 6 incidental word in a range name | Yellow Brook Shirt, Black | yellow | yellow shirt | generic |
+| PLT-DA14602 | Shirt | 6 incidental word in a range name | Green Park Shirt, Brown | green | green shirt | generic |
+| PLT-DA14603 | Shirt | 6 incidental word in a range name | Jacket Quay Shirt, Red | jacket | jacket | generic |
+| PLT-DA14700 | Shirt | 7 invented brand holding a color or category word | Coat Crake Shirt, Blue | coat | coat shirt | generic |
+| PLT-DA14701 | Shirt | 7 invented brand holding a color or category word | Green Stoat Shirt, Blue | green | green shirt | generic |
+| PLT-DA14702 | Shirt | 7 invented brand holding a color or category word | Blue Otter Shirt, Grey | blue | blue shirt | generic |
 | PLT-DA15100 | Shorts | 1 color names a part | Pink Shorts, Yellow Cuffs | yellow | yellow shorts | generic |
 | PLT-DA15101 | Shorts | 1 color names a part | Grey Shorts, Blue Stripes | blue | blue shorts | generic |
 | PLT-DA15102 | Shorts | 1 color names a part | Green Shorts, White Trim | white | white shorts | generic |
@@ -365,13 +365,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA15500 | Shorts | 5 shade spelled in the description only | Moonbeam Shorts | ivory | ivory shorts | generic |
 | PLT-DA15501 | Shorts | 5 shade spelled in the description only | Driftwood Shorts | taupe | taupe shorts | generic |
 | PLT-DA15502 | Shorts | 5 shade spelled in the description only | Dune Shorts | beige | beige shorts | generic |
-| PLT-DA15600 | Shorts | 6 incidental word in a range name | Red Harbour Shorts | red | red shorts | generic |
-| PLT-DA15601 | Shorts | 6 incidental word in a range name | Black Tor Shorts | black | black shorts | generic |
-| PLT-DA15602 | Shorts | 6 incidental word in a range name | Yellow Marsh Shorts | yellow | yellow shorts | generic |
-| PLT-DA15603 | Shorts | 6 incidental word in a range name | Sock Hop Shorts | sock | sock | generic |
-| PLT-DA15700 | Shorts | 7 invented brand holding a color or category word | Black Lapwing Shorts | black | black shorts | generic |
-| PLT-DA15701 | Shorts | 7 invented brand holding a color or category word | White Dormouse Shorts | white | white shorts | generic |
-| PLT-DA15702 | Shorts | 7 invented brand holding a color or category word | White Dormouse Shorts | white | white shorts | generic |
+| PLT-DA15600 | Shorts | 6 incidental word in a range name | Red Harbour Shorts, Black | red | red shorts | generic |
+| PLT-DA15601 | Shorts | 6 incidental word in a range name | Black Tor Shorts, Blue | black | black shorts | generic |
+| PLT-DA15602 | Shorts | 6 incidental word in a range name | Yellow Marsh Shorts, Navy | yellow | yellow shorts | generic |
+| PLT-DA15603 | Shorts | 6 incidental word in a range name | Sock Hop Shorts, Red | sock | sock | generic |
+| PLT-DA15700 | Shorts | 7 invented brand holding a color or category word | Black Lapwing Shorts, Brown | black | black shorts | generic |
+| PLT-DA15701 | Shorts | 7 invented brand holding a color or category word | White Dormouse Shorts, Navy | white | white shorts | generic |
+| PLT-DA15702 | Shorts | 7 invented brand holding a color or category word | White Dormouse Shorts, Pink | white | white shorts | generic |
 | PLT-DA16100 | Skirt | 1 color names a part | Red Skirt, Blue Lining | blue | blue skirt | generic |
 | PLT-DA16101 | Skirt | 1 color names a part | Blue Skirt, Yellow Pocket | yellow | yellow skirt | generic |
 | PLT-DA16102 | Skirt | 1 color names a part | White Skirt, Blue Stitching | blue | blue skirt | generic |
@@ -387,13 +387,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA16500 | Skirt | 5 shade spelled in the description only | Moonbeam Skirt | ivory | ivory skirt | generic |
 | PLT-DA16501 | Skirt | 5 shade spelled in the description only | Driftwood Skirt | taupe | taupe skirt | generic |
 | PLT-DA16502 | Skirt | 5 shade spelled in the description only | Dune Skirt | beige | beige skirt | generic |
-| PLT-DA16600 | Skirt | 6 incidental word in a range name | Green Hollow Skirt | green | green skirt | generic |
-| PLT-DA16601 | Skirt | 6 incidental word in a range name | Red Fern Skirt | red | red skirt | generic |
-| PLT-DA16602 | Skirt | 6 incidental word in a range name | Black Tor Skirt | black | black skirt | generic |
-| PLT-DA16603 | Skirt | 6 incidental word in a range name | Coat Hook Skirt | coat | coat | generic |
-| PLT-DA16700 | Skirt | 7 invented brand holding a color or category word | Red Plover Skirt | red | red skirt | generic |
-| PLT-DA16701 | Skirt | 7 invented brand holding a color or category word | Coat Crake Skirt | coat | coat skirt | generic |
-| PLT-DA16702 | Skirt | 7 invented brand holding a color or category word | Jumper Jay Skirt | jumper | jumper skirt | generic |
+| PLT-DA16600 | Skirt | 6 incidental word in a range name | Green Hollow Skirt, Brown | green | green skirt | generic |
+| PLT-DA16601 | Skirt | 6 incidental word in a range name | Red Fern Skirt, Blue | red | red skirt | generic |
+| PLT-DA16602 | Skirt | 6 incidental word in a range name | Black Tor Skirt, Cream | black | black skirt | generic |
+| PLT-DA16603 | Skirt | 6 incidental word in a range name | Coat Hook Skirt, Cream | coat | coat | generic |
+| PLT-DA16700 | Skirt | 7 invented brand holding a color or category word | Red Plover Skirt, Brown | red | red skirt | generic |
+| PLT-DA16701 | Skirt | 7 invented brand holding a color or category word | Coat Crake Skirt, Brown | coat | coat skirt | generic |
+| PLT-DA16702 | Skirt | 7 invented brand holding a color or category word | Jumper Jay Skirt, Green | jumper | jumper skirt | generic |
 | PLT-DA17100 | Suit Jacket | 1 color names a part | Pink Suit Jacket, Blue Trim | blue | blue suit jacket | generic |
 | PLT-DA17101 | Suit Jacket | 1 color names a part | Cream Suit Jacket, Yellow Zip | yellow | yellow suit jacket | generic |
 | PLT-DA17102 | Suit Jacket | 1 color names a part | Navy Suit Jacket, Green Piping | green | green suit jacket | generic |
@@ -409,13 +409,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA17500 | Suit Jacket | 5 shade spelled in the description only | Moonbeam Suit Jacket | ivory | ivory suit jacket | generic |
 | PLT-DA17501 | Suit Jacket | 5 shade spelled in the description only | Driftwood Suit Jacket | taupe | taupe suit jacket | generic |
 | PLT-DA17502 | Suit Jacket | 5 shade spelled in the description only | Dune Suit Jacket | beige | beige suit jacket | generic |
-| PLT-DA17600 | Suit Jacket | 6 incidental word in a range name | Blue Meadow Suit Jacket | blue | blue suit jacket | generic |
-| PLT-DA17601 | Suit Jacket | 6 incidental word in a range name | Blue Cove Suit Jacket | blue | blue suit jacket | generic |
-| PLT-DA17602 | Suit Jacket | 6 incidental word in a range name | White Cliff Suit Jacket | white | white suit jacket | generic |
-| PLT-DA17603 | Suit Jacket | 6 incidental word in a range name | Jumper Lane Suit Jacket | jumper | jumper | generic |
-| PLT-DA17700 | Suit Jacket | 7 invented brand holding a color or category word | Green Stoat Suit Jacket | green | green suit jacket | generic |
-| PLT-DA17701 | Suit Jacket | 7 invented brand holding a color or category word | Blue Otter Suit Jacket | blue | blue suit jacket | generic |
-| PLT-DA17702 | Suit Jacket | 7 invented brand holding a color or category word | Red Plover Suit Jacket | red | red suit jacket | generic |
+| PLT-DA17600 | Suit Jacket | 6 incidental word in a range name | Blue Meadow Suit Jacket, Black | blue | blue suit jacket | generic |
+| PLT-DA17601 | Suit Jacket | 6 incidental word in a range name | Blue Cove Suit Jacket, Green | blue | blue suit jacket | generic |
+| PLT-DA17602 | Suit Jacket | 6 incidental word in a range name | White Cliff Suit Jacket, Green | white | white suit jacket | generic |
+| PLT-DA17603 | Suit Jacket | 6 incidental word in a range name | Jumper Lane Suit Jacket, Red | jumper | jumper | generic |
+| PLT-DA17700 | Suit Jacket | 7 invented brand holding a color or category word | Green Stoat Suit Jacket, Pink | green | green suit jacket | generic |
+| PLT-DA17701 | Suit Jacket | 7 invented brand holding a color or category word | Blue Otter Suit Jacket, Brown | blue | blue suit jacket | generic |
+| PLT-DA17702 | Suit Jacket | 7 invented brand holding a color or category word | Red Plover Suit Jacket, Brown | red | red suit jacket | generic |
 | PLT-DA18100 | Sweatshirt | 1 color names a part | Cream Sweatshirt, Yellow Lining | yellow | yellow sweatshirt | generic |
 | PLT-DA18101 | Sweatshirt | 1 color names a part | Red Sweatshirt, White Buttons | white | white sweatshirt | generic |
 | PLT-DA18102 | Sweatshirt | 1 color names a part | Green Sweatshirt, Black Cuffs | black | black sweatshirt | generic |
@@ -431,13 +431,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA18500 | Sweatshirt | 5 shade spelled in the description only | Moonbeam Sweatshirt | ivory | ivory sweatshirt | generic |
 | PLT-DA18501 | Sweatshirt | 5 shade spelled in the description only | Driftwood Sweatshirt | taupe | taupe sweatshirt | generic |
 | PLT-DA18502 | Sweatshirt | 5 shade spelled in the description only | Dune Sweatshirt | beige | beige sweatshirt | generic |
-| PLT-DA18600 | Sweatshirt | 6 incidental word in a range name | Yellow Brook Sweatshirt | yellow | yellow sweatshirt | generic |
-| PLT-DA18601 | Sweatshirt | 6 incidental word in a range name | Yellow Brook Sweatshirt | yellow | yellow sweatshirt | generic |
-| PLT-DA18602 | Sweatshirt | 6 incidental word in a range name | White Moor Sweatshirt | white | white sweatshirt | generic |
-| PLT-DA18603 | Sweatshirt | 6 incidental word in a range name | Jumper Lane Sweatshirt | jumper | jumper | generic |
-| PLT-DA18700 | Sweatshirt | 7 invented brand holding a color or category word | Red Plover Sweatshirt | red | red sweatshirt | generic |
-| PLT-DA18701 | Sweatshirt | 7 invented brand holding a color or category word | White Dormouse Sweatshirt | white | white sweatshirt | generic |
-| PLT-DA18702 | Sweatshirt | 7 invented brand holding a color or category word | Coat Crake Sweatshirt | coat | coat sweatshirt | generic |
+| PLT-DA18600 | Sweatshirt | 6 incidental word in a range name | Yellow Brook Sweatshirt, Black | yellow | yellow sweatshirt | generic |
+| PLT-DA18601 | Sweatshirt | 6 incidental word in a range name | Yellow Brook Sweatshirt, Blue | yellow | yellow sweatshirt | generic |
+| PLT-DA18602 | Sweatshirt | 6 incidental word in a range name | White Moor Sweatshirt, Green | white | white sweatshirt | generic |
+| PLT-DA18603 | Sweatshirt | 6 incidental word in a range name | Jumper Lane Sweatshirt, Green | jumper | jumper | generic |
+| PLT-DA18700 | Sweatshirt | 7 invented brand holding a color or category word | Red Plover Sweatshirt, Navy | red | red sweatshirt | generic |
+| PLT-DA18701 | Sweatshirt | 7 invented brand holding a color or category word | White Dormouse Sweatshirt, Pink | white | white sweatshirt | generic |
+| PLT-DA18702 | Sweatshirt | 7 invented brand holding a color or category word | Coat Crake Sweatshirt, Blue | coat | coat sweatshirt | generic |
 | PLT-DA19100 | T-Shirt | 1 color names a part | White T-Shirt, Yellow Zip | yellow | yellow t-shirt | generic |
 | PLT-DA19101 | T-Shirt | 1 color names a part | Blue T-Shirt, Yellow Stripes | yellow | yellow t-shirt | generic |
 | PLT-DA19102 | T-Shirt | 1 color names a part | Green T-Shirt, White Stitching | white | white t-shirt | generic |
@@ -453,13 +453,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA19500 | T-Shirt | 5 shade spelled in the description only | Moonbeam T-Shirt | ivory | ivory t-shirt | generic |
 | PLT-DA19501 | T-Shirt | 5 shade spelled in the description only | Driftwood T-Shirt | taupe | taupe t-shirt | generic |
 | PLT-DA19502 | T-Shirt | 5 shade spelled in the description only | Dune T-Shirt | beige | beige t-shirt | generic |
-| PLT-DA19600 | T-Shirt | 6 incidental word in a range name | Black Tor T-Shirt | black | black t-shirt | generic |
-| PLT-DA19601 | T-Shirt | 6 incidental word in a range name | Blue Meadow T-Shirt | blue | blue t-shirt | generic |
-| PLT-DA19602 | T-Shirt | 6 incidental word in a range name | Red Fern T-Shirt | red | red t-shirt | generic |
-| PLT-DA19603 | T-Shirt | 6 incidental word in a range name | Dress Circle T-Shirt | dress | dress | generic |
-| PLT-DA19700 | T-Shirt | 7 invented brand holding a color or category word | Red Plover T-Shirt | red | red t-shirt | generic |
-| PLT-DA19701 | T-Shirt | 7 invented brand holding a color or category word | Blue Otter T-Shirt | blue | blue t-shirt | generic |
-| PLT-DA19702 | T-Shirt | 7 invented brand holding a color or category word | Black Lapwing T-Shirt | black | black t-shirt | generic |
+| PLT-DA19600 | T-Shirt | 6 incidental word in a range name | Black Tor T-Shirt, Blue | black | black t-shirt | generic |
+| PLT-DA19601 | T-Shirt | 6 incidental word in a range name | Blue Meadow T-Shirt, White | blue | blue t-shirt | generic |
+| PLT-DA19602 | T-Shirt | 6 incidental word in a range name | Red Fern T-Shirt, Pink | red | red t-shirt | generic |
+| PLT-DA19603 | T-Shirt | 6 incidental word in a range name | Dress Circle T-Shirt, Grey | dress | dress | generic |
+| PLT-DA19700 | T-Shirt | 7 invented brand holding a color or category word | Red Plover T-Shirt, Grey | red | red t-shirt | generic |
+| PLT-DA19701 | T-Shirt | 7 invented brand holding a color or category word | Blue Otter T-Shirt, Black | blue | blue t-shirt | generic |
+| PLT-DA19702 | T-Shirt | 7 invented brand holding a color or category word | Black Lapwing T-Shirt, Blue | black | black t-shirt | generic |
 | PLT-DA20100 | Tea Dress | 1 color names a part | Blue Tea Dress, Red Piping | red | red tea dress | generic |
 | PLT-DA20101 | Tea Dress | 1 color names a part | Navy Tea Dress, Black Piping | black | black tea dress | generic |
 | PLT-DA20102 | Tea Dress | 1 color names a part | Brown Tea Dress, Yellow Trim | yellow | yellow tea dress | generic |
@@ -475,13 +475,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA20500 | Tea Dress | 5 shade spelled in the description only | Moonbeam Tea Dress | ivory | ivory tea dress | generic |
 | PLT-DA20501 | Tea Dress | 5 shade spelled in the description only | Driftwood Tea Dress | taupe | taupe tea dress | generic |
 | PLT-DA20502 | Tea Dress | 5 shade spelled in the description only | Dune Tea Dress | beige | beige tea dress | generic |
-| PLT-DA20600 | Tea Dress | 6 incidental word in a range name | Red Harbour Tea Dress | red | red tea dress | generic |
-| PLT-DA20601 | Tea Dress | 6 incidental word in a range name | White Cliff Tea Dress | white | white tea dress | generic |
-| PLT-DA20602 | Tea Dress | 6 incidental word in a range name | Green Park Tea Dress | green | green tea dress | generic |
-| PLT-DA20603 | Tea Dress | 6 incidental word in a range name | Shirt Row Tea Dress | shirt | shirt | generic |
-| PLT-DA20700 | Tea Dress | 7 invented brand holding a color or category word | Red Plover Tea Dress | red | red tea dress | generic |
-| PLT-DA20701 | Tea Dress | 7 invented brand holding a color or category word | Green Stoat Tea Dress | green | green tea dress | generic |
-| PLT-DA20702 | Tea Dress | 7 invented brand holding a color or category word | Blue Otter Tea Dress | blue | blue tea dress | generic |
+| PLT-DA20600 | Tea Dress | 6 incidental word in a range name | Red Harbour Tea Dress, Grey | red | red tea dress | generic |
+| PLT-DA20601 | Tea Dress | 6 incidental word in a range name | White Cliff Tea Dress, Brown | white | white tea dress | generic |
+| PLT-DA20602 | Tea Dress | 6 incidental word in a range name | Green Park Tea Dress, White | green | green tea dress | generic |
+| PLT-DA20603 | Tea Dress | 6 incidental word in a range name | Shirt Row Tea Dress, Navy | shirt | shirt | generic |
+| PLT-DA20700 | Tea Dress | 7 invented brand holding a color or category word | Red Plover Tea Dress, Pink | red | red tea dress | generic |
+| PLT-DA20701 | Tea Dress | 7 invented brand holding a color or category word | Green Stoat Tea Dress, Pink | green | green tea dress | generic |
+| PLT-DA20702 | Tea Dress | 7 invented brand holding a color or category word | Blue Otter Tea Dress, Black | blue | blue tea dress | generic |
 | PLT-DA21100 | Tee | 1 color names a part | Green Tee, Black Zip | black | black tee | generic |
 | PLT-DA21101 | Tee | 1 color names a part | Grey Tee, Red Collar | red | red tee | generic |
 | PLT-DA21102 | Tee | 1 color names a part | Grey Tee, Black Zip | black | black tee | generic |
@@ -497,13 +497,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA21500 | Tee | 5 shade spelled in the description only | Moonbeam Tee | ivory | ivory tee | generic |
 | PLT-DA21501 | Tee | 5 shade spelled in the description only | Driftwood Tee | taupe | taupe tee | generic |
 | PLT-DA21502 | Tee | 5 shade spelled in the description only | Dune Tee | beige | beige tee | generic |
-| PLT-DA21600 | Tee | 6 incidental word in a range name | Blue Cove Tee | blue | blue tee | generic |
-| PLT-DA21601 | Tee | 6 incidental word in a range name | Green Park Tee | green | green tee | generic |
-| PLT-DA21602 | Tee | 6 incidental word in a range name | Green Hollow Tee | green | green tee | generic |
-| PLT-DA21603 | Tee | 6 incidental word in a range name | Skirt Point Tee | skirt | skirt | generic |
-| PLT-DA21700 | Tee | 7 invented brand holding a color or category word | Red Plover Tee | red | red tee | generic |
-| PLT-DA21701 | Tee | 7 invented brand holding a color or category word | White Dormouse Tee | white | white tee | generic |
-| PLT-DA21702 | Tee | 7 invented brand holding a color or category word | Black Lapwing Tee | black | black tee | generic |
+| PLT-DA21600 | Tee | 6 incidental word in a range name | Blue Cove Tee, Brown | blue | blue tee | generic |
+| PLT-DA21601 | Tee | 6 incidental word in a range name | Green Park Tee, Cream | green | green tee | generic |
+| PLT-DA21602 | Tee | 6 incidental word in a range name | Green Hollow Tee, Grey | green | green tee | generic |
+| PLT-DA21603 | Tee | 6 incidental word in a range name | Skirt Point Tee, Brown | skirt | skirt | generic |
+| PLT-DA21700 | Tee | 7 invented brand holding a color or category word | Red Plover Tee, Brown | red | red tee | generic |
+| PLT-DA21701 | Tee | 7 invented brand holding a color or category word | White Dormouse Tee, Pink | white | white tee | generic |
+| PLT-DA21702 | Tee | 7 invented brand holding a color or category word | Black Lapwing Tee, Navy | black | black tee | generic |
 | PLT-DA22100 | Top | 1 color names a part | Grey Top, Red Buttons | red | red top | generic |
 | PLT-DA22101 | Top | 1 color names a part | Navy Top, Green Trim | green | green top | generic |
 | PLT-DA22102 | Top | 1 color names a part | Pink Top, White Lining | white | white top | generic |
@@ -519,13 +519,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA22500 | Top | 5 shade spelled in the description only | Moonbeam Top | ivory | ivory top | generic |
 | PLT-DA22501 | Top | 5 shade spelled in the description only | Driftwood Top | taupe | taupe top | generic |
 | PLT-DA22502 | Top | 5 shade spelled in the description only | Dune Top | beige | beige top | generic |
-| PLT-DA22600 | Top | 6 incidental word in a range name | Red Fern Top | red | red top | generic |
-| PLT-DA22601 | Top | 6 incidental word in a range name | Black Tor Top | black | black top | generic |
-| PLT-DA22602 | Top | 6 incidental word in a range name | White Cliff Top | white | white top | generic |
-| PLT-DA22603 | Top | 6 incidental word in a range name | Coat Hook Top | coat | coat | generic |
-| PLT-DA22700 | Top | 7 invented brand holding a color or category word | Blue Otter Top | blue | blue top | generic |
-| PLT-DA22701 | Top | 7 invented brand holding a color or category word | Green Stoat Top | green | green top | generic |
-| PLT-DA22702 | Top | 7 invented brand holding a color or category word | Red Plover Top | red | red top | generic |
+| PLT-DA22600 | Top | 6 incidental word in a range name | Red Fern Top, Blue | red | red top | generic |
+| PLT-DA22601 | Top | 6 incidental word in a range name | Black Tor Top, Brown | black | black top | generic |
+| PLT-DA22602 | Top | 6 incidental word in a range name | White Cliff Top, Pink | white | white top | generic |
+| PLT-DA22603 | Top | 6 incidental word in a range name | Coat Hook Top, Black | coat | coat | generic |
+| PLT-DA22700 | Top | 7 invented brand holding a color or category word | Blue Otter Top, White | blue | blue top | generic |
+| PLT-DA22701 | Top | 7 invented brand holding a color or category word | Green Stoat Top, Navy | green | green top | generic |
+| PLT-DA22702 | Top | 7 invented brand holding a color or category word | Red Plover Top, Blue | red | red top | generic |
 | PLT-DA23100 | Tracksuit | 1 color names a part | Grey Tracksuit, Green Stripes | green | green tracksuit | generic |
 | PLT-DA23101 | Tracksuit | 1 color names a part | Green Tracksuit, Red Zip | red | red tracksuit | generic |
 | PLT-DA23102 | Tracksuit | 1 color names a part | Red Tracksuit, White Stitching | white | white tracksuit | generic |
@@ -541,13 +541,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA23500 | Tracksuit | 5 shade spelled in the description only | Moonbeam Tracksuit | ivory | ivory tracksuit | generic |
 | PLT-DA23501 | Tracksuit | 5 shade spelled in the description only | Driftwood Tracksuit | taupe | taupe tracksuit | generic |
 | PLT-DA23502 | Tracksuit | 5 shade spelled in the description only | Dune Tracksuit | beige | beige tracksuit | generic |
-| PLT-DA23600 | Tracksuit | 6 incidental word in a range name | White Cliff Tracksuit | white | white tracksuit | generic |
-| PLT-DA23601 | Tracksuit | 6 incidental word in a range name | Blue Meadow Tracksuit | blue | blue tracksuit | generic |
-| PLT-DA23602 | Tracksuit | 6 incidental word in a range name | Red Harbour Tracksuit | red | red tracksuit | generic |
-| PLT-DA23603 | Tracksuit | 6 incidental word in a range name | Jacket Quay Tracksuit | jacket | jacket | generic |
-| PLT-DA23700 | Tracksuit | 7 invented brand holding a color or category word | Yellow Wagtail Tracksuit | yellow | yellow tracksuit | generic |
-| PLT-DA23701 | Tracksuit | 7 invented brand holding a color or category word | Black Lapwing Tracksuit | black | black tracksuit | generic |
-| PLT-DA23702 | Tracksuit | 7 invented brand holding a color or category word | White Dormouse Tracksuit | white | white tracksuit | generic |
+| PLT-DA23600 | Tracksuit | 6 incidental word in a range name | White Cliff Tracksuit, Red | white | white tracksuit | generic |
+| PLT-DA23601 | Tracksuit | 6 incidental word in a range name | Blue Meadow Tracksuit, Green | blue | blue tracksuit | generic |
+| PLT-DA23602 | Tracksuit | 6 incidental word in a range name | Red Harbour Tracksuit, Navy | red | red tracksuit | generic |
+| PLT-DA23603 | Tracksuit | 6 incidental word in a range name | Jacket Quay Tracksuit, Red | jacket | jacket | generic |
+| PLT-DA23700 | Tracksuit | 7 invented brand holding a color or category word | Yellow Wagtail Tracksuit, Navy | yellow | yellow tracksuit | generic |
+| PLT-DA23701 | Tracksuit | 7 invented brand holding a color or category word | Black Lapwing Tracksuit, Navy | black | black tracksuit | generic |
+| PLT-DA23702 | Tracksuit | 7 invented brand holding a color or category word | White Dormouse Tracksuit, Green | white | white tracksuit | generic |
 | PLT-DA24100 | Trousers | 1 color names a part | Pink Trousers, Green Stitching | green | green trousers | generic |
 | PLT-DA24101 | Trousers | 1 color names a part | Cream Trousers, Black Stripes | black | black trousers | generic |
 | PLT-DA24102 | Trousers | 1 color names a part | Navy Trousers, Red Zip | red | red trousers | generic |
@@ -563,13 +563,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA24500 | Trousers | 5 shade spelled in the description only | Moonbeam Trousers | ivory | ivory trousers | generic |
 | PLT-DA24501 | Trousers | 5 shade spelled in the description only | Driftwood Trousers | taupe | taupe trousers | generic |
 | PLT-DA24502 | Trousers | 5 shade spelled in the description only | Dune Trousers | beige | beige trousers | generic |
-| PLT-DA24600 | Trousers | 6 incidental word in a range name | White Moor Trousers | white | white trousers | generic |
-| PLT-DA24601 | Trousers | 6 incidental word in a range name | Red Fern Trousers | red | red trousers | generic |
-| PLT-DA24602 | Trousers | 6 incidental word in a range name | Blue Cove Trousers | blue | blue trousers | generic |
-| PLT-DA24603 | Trousers | 6 incidental word in a range name | Skirt Point Trousers | skirt | skirt | generic |
-| PLT-DA24700 | Trousers | 7 invented brand holding a color or category word | Yellow Wagtail Trousers | yellow | yellow trousers | generic |
-| PLT-DA24701 | Trousers | 7 invented brand holding a color or category word | Green Stoat Trousers | green | green trousers | generic |
-| PLT-DA24702 | Trousers | 7 invented brand holding a color or category word | White Dormouse Trousers | white | white trousers | generic |
+| PLT-DA24600 | Trousers | 6 incidental word in a range name | White Moor Trousers, Red | white | white trousers | generic |
+| PLT-DA24601 | Trousers | 6 incidental word in a range name | Red Fern Trousers, Cream | red | red trousers | generic |
+| PLT-DA24602 | Trousers | 6 incidental word in a range name | Blue Cove Trousers, Cream | blue | blue trousers | generic |
+| PLT-DA24603 | Trousers | 6 incidental word in a range name | Skirt Point Trousers, Navy | skirt | skirt | generic |
+| PLT-DA24700 | Trousers | 7 invented brand holding a color or category word | Yellow Wagtail Trousers, Grey | yellow | yellow trousers | generic |
+| PLT-DA24701 | Trousers | 7 invented brand holding a color or category word | Green Stoat Trousers, Cream | green | green trousers | generic |
+| PLT-DA24702 | Trousers | 7 invented brand holding a color or category word | White Dormouse Trousers, Blue | white | white trousers | generic |
 | PLT-DA25100 | Jeans | 1 color names a part | Green Jeans, Black Stitching | black | black jeans | generic |
 | PLT-DA25101 | Jeans | 1 color names a part | White Jeans, Green Trim | green | green jeans | generic |
 | PLT-DA25102 | Jeans | 1 color names a part | Cream Jeans, Blue Pocket | blue | blue jeans | generic |
@@ -630,27 +630,27 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA25509 | Jeans | 5 shade spelled in the description only | Seashell Jeans | coral | coral jeans | generic |
 | PLT-DA25510 | Jeans | 5 shade spelled in the description only | Biscuit Jeans | champagne | champagne jeans | generic |
 | PLT-DA25511 | Jeans | 5 shade spelled in the description only | Hearth Jeans | khaki | khaki jeans | generic |
-| PLT-DA25600 | Jeans | 6 incidental word in a range name | Yellow Marsh Jeans | yellow | yellow jeans | generic |
-| PLT-DA25601 | Jeans | 6 incidental word in a range name | Blue Cove Jeans | blue | blue jeans | generic |
-| PLT-DA25602 | Jeans | 6 incidental word in a range name | Red Fern Jeans | red | red jeans | generic |
-| PLT-DA25603 | Jeans | 6 incidental word in a range name | Blue Meadow Jeans | blue | blue jeans | generic |
-| PLT-DA25604 | Jeans | 6 incidental word in a range name | White Cliff Jeans | white | white jeans | generic |
-| PLT-DA25605 | Jeans | 6 incidental word in a range name | Yellow Brook Jeans | yellow | yellow jeans | generic |
-| PLT-DA25606 | Jeans | 6 incidental word in a range name | Blue Meadow Jeans | blue | blue jeans | generic |
-| PLT-DA25607 | Jeans | 6 incidental word in a range name | Red Fern Jeans | red | red jeans | generic |
-| PLT-DA25608 | Jeans | 6 incidental word in a range name | Green Hollow Jeans | green | green jeans | generic |
-| PLT-DA25609 | Jeans | 6 incidental word in a range name | Green Park Jeans | green | green jeans | generic |
-| PLT-DA25610 | Jeans | 6 incidental word in a range name | Blue Cove Jeans | blue | blue jeans | generic |
-| PLT-DA25611 | Jeans | 6 incidental word in a range name | Black Tor Jeans | black | black jeans | generic |
-| PLT-DA25612 | Jeans | 6 incidental word in a range name | Jacket Quay Jeans | jacket | jacket | generic |
-| PLT-DA25700 | Jeans | 7 invented brand holding a color or category word | Yellow Wagtail Jeans | yellow | yellow jeans | generic |
-| PLT-DA25701 | Jeans | 7 invented brand holding a color or category word | Red Plover Jeans | red | red jeans | generic |
-| PLT-DA25702 | Jeans | 7 invented brand holding a color or category word | Black Lapwing Jeans | black | black jeans | generic |
-| PLT-DA25703 | Jeans | 7 invented brand holding a color or category word | Coat Crake Jeans | coat | coat jeans | generic |
-| PLT-DA25704 | Jeans | 7 invented brand holding a color or category word | Jumper Jay Jeans | jumper | jumper jeans | generic |
-| PLT-DA25705 | Jeans | 7 invented brand holding a color or category word | White Dormouse Jeans | white | white jeans | generic |
-| PLT-DA25706 | Jeans | 7 invented brand holding a color or category word | Blue Otter Jeans | blue | blue jeans | generic |
-| PLT-DA25707 | Jeans | 7 invented brand holding a color or category word | Green Stoat Jeans | green | green jeans | generic |
+| PLT-DA25600 | Jeans | 6 incidental word in a range name | Yellow Marsh Jeans, Black | yellow | yellow jeans | generic |
+| PLT-DA25601 | Jeans | 6 incidental word in a range name | Blue Cove Jeans, Cream | blue | blue jeans | generic |
+| PLT-DA25602 | Jeans | 6 incidental word in a range name | Red Fern Jeans, Green | red | red jeans | generic |
+| PLT-DA25603 | Jeans | 6 incidental word in a range name | Blue Meadow Jeans, Green | blue | blue jeans | generic |
+| PLT-DA25604 | Jeans | 6 incidental word in a range name | White Cliff Jeans, Black | white | white jeans | generic |
+| PLT-DA25605 | Jeans | 6 incidental word in a range name | Yellow Brook Jeans, Pink | yellow | yellow jeans | generic |
+| PLT-DA25606 | Jeans | 6 incidental word in a range name | Blue Meadow Jeans, Grey | blue | blue jeans | generic |
+| PLT-DA25607 | Jeans | 6 incidental word in a range name | Red Fern Jeans, Green | red | red jeans | generic |
+| PLT-DA25608 | Jeans | 6 incidental word in a range name | Green Hollow Jeans, Pink | green | green jeans | generic |
+| PLT-DA25609 | Jeans | 6 incidental word in a range name | Green Park Jeans, Grey | green | green jeans | generic |
+| PLT-DA25610 | Jeans | 6 incidental word in a range name | Blue Cove Jeans, Pink | blue | blue jeans | generic |
+| PLT-DA25611 | Jeans | 6 incidental word in a range name | Black Tor Jeans, Brown | black | black jeans | generic |
+| PLT-DA25612 | Jeans | 6 incidental word in a range name | Jacket Quay Jeans, Grey | jacket | jacket | generic |
+| PLT-DA25700 | Jeans | 7 invented brand holding a color or category word | Yellow Wagtail Jeans, Red | yellow | yellow jeans | generic |
+| PLT-DA25701 | Jeans | 7 invented brand holding a color or category word | Red Plover Jeans, Brown | red | red jeans | generic |
+| PLT-DA25702 | Jeans | 7 invented brand holding a color or category word | Black Lapwing Jeans, Green | black | black jeans | generic |
+| PLT-DA25703 | Jeans | 7 invented brand holding a color or category word | Coat Crake Jeans, Grey | coat | coat jeans | generic |
+| PLT-DA25704 | Jeans | 7 invented brand holding a color or category word | Jumper Jay Jeans, Pink | jumper | jumper jeans | generic |
+| PLT-DA25705 | Jeans | 7 invented brand holding a color or category word | White Dormouse Jeans, Navy | white | white jeans | generic |
+| PLT-DA25706 | Jeans | 7 invented brand holding a color or category word | Blue Otter Jeans, Cream | blue | blue jeans | generic |
+| PLT-DA25707 | Jeans | 7 invented brand holding a color or category word | Green Stoat Jeans, Grey | green | green jeans | generic |
 | PLT-DA26100 | Socks | 1 color names a part | Green Socks, Blue Cuff | blue | blue socks | generic |
 | PLT-DA26101 | Socks | 1 color names a part | Blue Socks, White Trim | white | white socks | generic |
 | PLT-DA26102 | Socks | 1 color names a part | Black Socks, Yellow Cuff | yellow | yellow socks | generic |
@@ -666,13 +666,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA26500 | Socks | 5 shade spelled in the description only | Moonbeam Socks | ivory | ivory socks | generic |
 | PLT-DA26501 | Socks | 5 shade spelled in the description only | Driftwood Socks | taupe | taupe socks | generic |
 | PLT-DA26502 | Socks | 5 shade spelled in the description only | Dune Socks | beige | beige socks | generic |
-| PLT-DA26600 | Socks | 6 incidental word in a range name | Black Mill Socks | black | black socks | generic |
-| PLT-DA26601 | Socks | 6 incidental word in a range name | Red Fern Socks | red | red socks | generic |
-| PLT-DA26602 | Socks | 6 incidental word in a range name | Yellow Brook Socks | yellow | yellow socks | generic |
-| PLT-DA26603 | Socks | 6 incidental word in a range name | Dress Circle Socks | dress | dress | generic |
-| PLT-DA26700 | Socks | 7 invented brand holding a color or category word | Green Stoat Socks | green | green socks | generic |
-| PLT-DA26701 | Socks | 7 invented brand holding a color or category word | White Dormouse Socks | white | white socks | generic |
-| PLT-DA26702 | Socks | 7 invented brand holding a color or category word | Blue Otter Socks | blue | blue socks | generic |
+| PLT-DA26600 | Socks | 6 incidental word in a range name | Black Mill Socks, Pink | black | black socks | generic |
+| PLT-DA26601 | Socks | 6 incidental word in a range name | Red Fern Socks, Blue | red | red socks | generic |
+| PLT-DA26602 | Socks | 6 incidental word in a range name | Yellow Brook Socks, Pink | yellow | yellow socks | generic |
+| PLT-DA26603 | Socks | 6 incidental word in a range name | Dress Circle Socks, Green | dress | dress | generic |
+| PLT-DA26700 | Socks | 7 invented brand holding a color or category word | Green Stoat Socks, Brown | green | green socks | generic |
+| PLT-DA26701 | Socks | 7 invented brand holding a color or category word | White Dormouse Socks, Grey | white | white socks | generic |
+| PLT-DA26702 | Socks | 7 invented brand holding a color or category word | Blue Otter Socks, White | blue | blue socks | generic |
 | PLT-DA27100 | Boot Socks | 1 color names a part | Brown Boot Socks, Yellow Heel | yellow | yellow boot socks | generic |
 | PLT-DA27101 | Boot Socks | 1 color names a part | Red Boot Socks, Yellow Trim | yellow | yellow boot socks | generic |
 | PLT-DA27102 | Boot Socks | 1 color names a part | Grey Boot Socks, Yellow Cuff | yellow | yellow boot socks | generic |
@@ -688,13 +688,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA27500 | Boot Socks | 5 shade spelled in the description only | Moonbeam Boot Socks | ivory | ivory boot socks | generic |
 | PLT-DA27501 | Boot Socks | 5 shade spelled in the description only | Driftwood Boot Socks | taupe | taupe boot socks | generic |
 | PLT-DA27502 | Boot Socks | 5 shade spelled in the description only | Dune Boot Socks | beige | beige boot socks | generic |
-| PLT-DA27600 | Boot Socks | 6 incidental word in a range name | Green Hollow Boot Socks | green | green boot socks | generic |
-| PLT-DA27601 | Boot Socks | 6 incidental word in a range name | Blue Cove Boot Socks | blue | blue boot socks | generic |
-| PLT-DA27602 | Boot Socks | 6 incidental word in a range name | Green Park Boot Socks | green | green boot socks | generic |
-| PLT-DA27603 | Boot Socks | 6 incidental word in a range name | Skirt Point Boot Socks | skirt | skirt | generic |
-| PLT-DA27700 | Boot Socks | 7 invented brand holding a color or category word | Blue Otter Boot Socks | blue | blue boot socks | generic |
-| PLT-DA27701 | Boot Socks | 7 invented brand holding a color or category word | Red Plover Boot Socks | red | red boot socks | generic |
-| PLT-DA27702 | Boot Socks | 7 invented brand holding a color or category word | White Dormouse Boot Socks | white | white boot socks | generic |
+| PLT-DA27600 | Boot Socks | 6 incidental word in a range name | Green Hollow Boot Socks, Blue | green | green boot socks | generic |
+| PLT-DA27601 | Boot Socks | 6 incidental word in a range name | Blue Cove Boot Socks, Navy | blue | blue boot socks | generic |
+| PLT-DA27602 | Boot Socks | 6 incidental word in a range name | Green Park Boot Socks, Blue | green | green boot socks | generic |
+| PLT-DA27603 | Boot Socks | 6 incidental word in a range name | Skirt Point Boot Socks, Pink | skirt | skirt | generic |
+| PLT-DA27700 | Boot Socks | 7 invented brand holding a color or category word | Blue Otter Boot Socks, Brown | blue | blue boot socks | generic |
+| PLT-DA27701 | Boot Socks | 7 invented brand holding a color or category word | Red Plover Boot Socks, Grey | red | red boot socks | generic |
+| PLT-DA27702 | Boot Socks | 7 invented brand holding a color or category word | White Dormouse Boot Socks, Grey | white | white boot socks | generic |
 | PLT-DA28100 | Ankle Boots | 1 color names a part | Brown Ankle Boots, Black Trim | black | black ankle boots | generic |
 | PLT-DA28101 | Ankle Boots | 1 color names a part | Navy Ankle Boots, Green Heel | green | green ankle boots | generic |
 | PLT-DA28102 | Ankle Boots | 1 color names a part | Green Ankle Boots, Yellow Heel | yellow | yellow ankle boots | generic |
@@ -710,13 +710,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA28500 | Ankle Boots | 5 shade spelled in the description only | Moonbeam Ankle Boots | ivory | ivory ankle boots | generic |
 | PLT-DA28501 | Ankle Boots | 5 shade spelled in the description only | Driftwood Ankle Boots | taupe | taupe ankle boots | generic |
 | PLT-DA28502 | Ankle Boots | 5 shade spelled in the description only | Dune Ankle Boots | beige | beige ankle boots | generic |
-| PLT-DA28600 | Ankle Boots | 6 incidental word in a range name | Green Hollow Ankle Boots | green | green ankle boots | generic |
-| PLT-DA28601 | Ankle Boots | 6 incidental word in a range name | Red Fern Ankle Boots | red | red ankle boots | generic |
-| PLT-DA28602 | Ankle Boots | 6 incidental word in a range name | Black Tor Ankle Boots | black | black ankle boots | generic |
-| PLT-DA28603 | Ankle Boots | 6 incidental word in a range name | Coat Hook Ankle Boots | coat | coat | generic |
-| PLT-DA28700 | Ankle Boots | 7 invented brand holding a color or category word | Blue Otter Ankle Boots | blue | blue ankle boots | generic |
-| PLT-DA28701 | Ankle Boots | 7 invented brand holding a color or category word | Coat Crake Ankle Boots | coat | coat ankle boots | generic |
-| PLT-DA28702 | Ankle Boots | 7 invented brand holding a color or category word | Yellow Wagtail Ankle Boots | yellow | yellow ankle boots | generic |
+| PLT-DA28600 | Ankle Boots | 6 incidental word in a range name | Green Hollow Ankle Boots, Red | green | green ankle boots | generic |
+| PLT-DA28601 | Ankle Boots | 6 incidental word in a range name | Red Fern Ankle Boots, Navy | red | red ankle boots | generic |
+| PLT-DA28602 | Ankle Boots | 6 incidental word in a range name | Black Tor Ankle Boots, Cream | black | black ankle boots | generic |
+| PLT-DA28603 | Ankle Boots | 6 incidental word in a range name | Coat Hook Ankle Boots, Navy | coat | coat | generic |
+| PLT-DA28700 | Ankle Boots | 7 invented brand holding a color or category word | Blue Otter Ankle Boots, Black | blue | blue ankle boots | generic |
+| PLT-DA28701 | Ankle Boots | 7 invented brand holding a color or category word | Coat Crake Ankle Boots, Grey | coat | coat ankle boots | generic |
+| PLT-DA28702 | Ankle Boots | 7 invented brand holding a color or category word | Yellow Wagtail Ankle Boots, Red | yellow | yellow ankle boots | generic |
 | PLT-DA29100 | Ballet Pumps | 1 color names a part | Red Ballet Pumps, Blue Heel | blue | blue ballet pumps | generic |
 | PLT-DA29101 | Ballet Pumps | 1 color names a part | Red Ballet Pumps, Blue Eyelets | blue | blue ballet pumps | generic |
 | PLT-DA29102 | Ballet Pumps | 1 color names a part | Black Ballet Pumps, Blue Stitching | blue | blue ballet pumps | generic |
@@ -732,13 +732,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA29500 | Ballet Pumps | 5 shade spelled in the description only | Moonbeam Ballet Pumps | ivory | ivory ballet pumps | generic |
 | PLT-DA29501 | Ballet Pumps | 5 shade spelled in the description only | Driftwood Ballet Pumps | taupe | taupe ballet pumps | generic |
 | PLT-DA29502 | Ballet Pumps | 5 shade spelled in the description only | Dune Ballet Pumps | beige | beige ballet pumps | generic |
-| PLT-DA29600 | Ballet Pumps | 6 incidental word in a range name | White Moor Ballet Pumps | white | white ballet pumps | generic |
-| PLT-DA29601 | Ballet Pumps | 6 incidental word in a range name | Green Park Ballet Pumps | green | green ballet pumps | generic |
-| PLT-DA29602 | Ballet Pumps | 6 incidental word in a range name | Yellow Marsh Ballet Pumps | yellow | yellow ballet pumps | generic |
-| PLT-DA29603 | Ballet Pumps | 6 incidental word in a range name | Shirt Row Ballet Pumps | shirt | shirt | generic |
-| PLT-DA29700 | Ballet Pumps | 7 invented brand holding a color or category word | Black Lapwing Ballet Pumps | black | black ballet pumps | generic |
-| PLT-DA29701 | Ballet Pumps | 7 invented brand holding a color or category word | White Dormouse Ballet Pumps | white | white ballet pumps | generic |
-| PLT-DA29702 | Ballet Pumps | 7 invented brand holding a color or category word | Jumper Jay Ballet Pumps | jumper | jumper ballet pumps | generic |
+| PLT-DA29600 | Ballet Pumps | 6 incidental word in a range name | White Moor Ballet Pumps, Grey | white | white ballet pumps | generic |
+| PLT-DA29601 | Ballet Pumps | 6 incidental word in a range name | Green Park Ballet Pumps, White | green | green ballet pumps | generic |
+| PLT-DA29602 | Ballet Pumps | 6 incidental word in a range name | Yellow Marsh Ballet Pumps, Pink | yellow | yellow ballet pumps | generic |
+| PLT-DA29603 | Ballet Pumps | 6 incidental word in a range name | Shirt Row Ballet Pumps, Brown | shirt | shirt | generic |
+| PLT-DA29700 | Ballet Pumps | 7 invented brand holding a color or category word | Black Lapwing Ballet Pumps, Pink | black | black ballet pumps | generic |
+| PLT-DA29701 | Ballet Pumps | 7 invented brand holding a color or category word | White Dormouse Ballet Pumps, Cream | white | white ballet pumps | generic |
+| PLT-DA29702 | Ballet Pumps | 7 invented brand holding a color or category word | Jumper Jay Ballet Pumps, Cream | jumper | jumper ballet pumps | generic |
 | PLT-DA30100 | Block Heels | 1 color names a part | Brown Block Heels, Blue Heel | blue | blue block heels | generic |
 | PLT-DA30101 | Block Heels | 1 color names a part | Pink Block Heels, Black Heel | black | black block heels | generic |
 | PLT-DA30102 | Block Heels | 1 color names a part | Red Block Heels, Yellow Heel | yellow | yellow block heels | generic |
@@ -754,13 +754,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA30500 | Block Heels | 5 shade spelled in the description only | Moonbeam Block Heels | ivory | ivory block heels | generic |
 | PLT-DA30501 | Block Heels | 5 shade spelled in the description only | Driftwood Block Heels | taupe | taupe block heels | generic |
 | PLT-DA30502 | Block Heels | 5 shade spelled in the description only | Dune Block Heels | beige | beige block heels | generic |
-| PLT-DA30600 | Block Heels | 6 incidental word in a range name | Yellow Brook Block Heels | yellow | yellow block heels | generic |
-| PLT-DA30601 | Block Heels | 6 incidental word in a range name | Green Hollow Block Heels | green | green block heels | generic |
-| PLT-DA30602 | Block Heels | 6 incidental word in a range name | White Moor Block Heels | white | white block heels | generic |
-| PLT-DA30603 | Block Heels | 6 incidental word in a range name | Dress Circle Block Heels | dress | dress | generic |
-| PLT-DA30700 | Block Heels | 7 invented brand holding a color or category word | Red Plover Block Heels | red | red block heels | generic |
-| PLT-DA30701 | Block Heels | 7 invented brand holding a color or category word | Coat Crake Block Heels | coat | coat block heels | generic |
-| PLT-DA30702 | Block Heels | 7 invented brand holding a color or category word | Green Stoat Block Heels | green | green block heels | generic |
+| PLT-DA30600 | Block Heels | 6 incidental word in a range name | Yellow Brook Block Heels, Black | yellow | yellow block heels | generic |
+| PLT-DA30601 | Block Heels | 6 incidental word in a range name | Green Hollow Block Heels, Grey | green | green block heels | generic |
+| PLT-DA30602 | Block Heels | 6 incidental word in a range name | White Moor Block Heels, Grey | white | white block heels | generic |
+| PLT-DA30603 | Block Heels | 6 incidental word in a range name | Dress Circle Block Heels, Brown | dress | dress | generic |
+| PLT-DA30700 | Block Heels | 7 invented brand holding a color or category word | Red Plover Block Heels, Green | red | red block heels | generic |
+| PLT-DA30701 | Block Heels | 7 invented brand holding a color or category word | Coat Crake Block Heels, White | coat | coat block heels | generic |
+| PLT-DA30702 | Block Heels | 7 invented brand holding a color or category word | Green Stoat Block Heels, Pink | green | green block heels | generic |
 | PLT-DA31100 | Brogues | 1 color names a part | Black Brogues, White Lining | white | white brogues | generic |
 | PLT-DA31101 | Brogues | 1 color names a part | Cream Brogues, Blue Trim | blue | blue brogues | generic |
 | PLT-DA31102 | Brogues | 1 color names a part | Blue Brogues, White Eyelets | white | white brogues | generic |
@@ -776,13 +776,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA31500 | Brogues | 5 shade spelled in the description only | Moonbeam Brogues | ivory | ivory brogues | generic |
 | PLT-DA31501 | Brogues | 5 shade spelled in the description only | Driftwood Brogues | taupe | taupe brogues | generic |
 | PLT-DA31502 | Brogues | 5 shade spelled in the description only | Dune Brogues | beige | beige brogues | generic |
-| PLT-DA31600 | Brogues | 6 incidental word in a range name | Green Hollow Brogues | green | green brogues | generic |
-| PLT-DA31601 | Brogues | 6 incidental word in a range name | Red Harbour Brogues | red | red brogues | generic |
-| PLT-DA31602 | Brogues | 6 incidental word in a range name | Red Fern Brogues | red | red brogues | generic |
-| PLT-DA31603 | Brogues | 6 incidental word in a range name | Shirt Row Brogues | shirt | shirt | generic |
-| PLT-DA31700 | Brogues | 7 invented brand holding a color or category word | Yellow Wagtail Brogues | yellow | yellow brogues | generic |
-| PLT-DA31701 | Brogues | 7 invented brand holding a color or category word | Yellow Wagtail Brogues | yellow | yellow brogues | generic |
-| PLT-DA31702 | Brogues | 7 invented brand holding a color or category word | Red Plover Brogues | red | red brogues | generic |
+| PLT-DA31600 | Brogues | 6 incidental word in a range name | Green Hollow Brogues, Red | green | green brogues | generic |
+| PLT-DA31601 | Brogues | 6 incidental word in a range name | Red Harbour Brogues, Cream | red | red brogues | generic |
+| PLT-DA31602 | Brogues | 6 incidental word in a range name | Red Fern Brogues, Blue | red | red brogues | generic |
+| PLT-DA31603 | Brogues | 6 incidental word in a range name | Shirt Row Brogues, Blue | shirt | shirt | generic |
+| PLT-DA31700 | Brogues | 7 invented brand holding a color or category word | Yellow Wagtail Brogues, Cream | yellow | yellow brogues | generic |
+| PLT-DA31701 | Brogues | 7 invented brand holding a color or category word | Yellow Wagtail Brogues, Cream | yellow | yellow brogues | generic |
+| PLT-DA31702 | Brogues | 7 invented brand holding a color or category word | Red Plover Brogues, Brown | red | red brogues | generic |
 | PLT-DA32100 | Chelsea Boots | 1 color names a part | Grey Chelsea Boots, White Stitching | white | white chelsea boots | generic |
 | PLT-DA32101 | Chelsea Boots | 1 color names a part | Grey Chelsea Boots, Yellow Sole | yellow | yellow chelsea boots | generic |
 | PLT-DA32102 | Chelsea Boots | 1 color names a part | Green Chelsea Boots, White Heel | white | white chelsea boots | generic |
@@ -798,13 +798,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA32500 | Chelsea Boots | 5 shade spelled in the description only | Moonbeam Chelsea Boots | ivory | ivory chelsea boots | generic |
 | PLT-DA32501 | Chelsea Boots | 5 shade spelled in the description only | Driftwood Chelsea Boots | taupe | taupe chelsea boots | generic |
 | PLT-DA32502 | Chelsea Boots | 5 shade spelled in the description only | Dune Chelsea Boots | beige | beige chelsea boots | generic |
-| PLT-DA32600 | Chelsea Boots | 6 incidental word in a range name | Black Mill Chelsea Boots | black | black chelsea boots | generic |
-| PLT-DA32601 | Chelsea Boots | 6 incidental word in a range name | Blue Cove Chelsea Boots | blue | blue chelsea boots | generic |
-| PLT-DA32602 | Chelsea Boots | 6 incidental word in a range name | Yellow Brook Chelsea Boots | yellow | yellow chelsea boots | generic |
-| PLT-DA32603 | Chelsea Boots | 6 incidental word in a range name | Shirt Row Chelsea Boots | shirt | shirt | generic |
-| PLT-DA32700 | Chelsea Boots | 7 invented brand holding a color or category word | Black Lapwing Chelsea Boots | black | black chelsea boots | generic |
-| PLT-DA32701 | Chelsea Boots | 7 invented brand holding a color or category word | Black Lapwing Chelsea Boots | black | black chelsea boots | generic |
-| PLT-DA32702 | Chelsea Boots | 7 invented brand holding a color or category word | Yellow Wagtail Chelsea Boots | yellow | yellow chelsea boots | generic |
+| PLT-DA32600 | Chelsea Boots | 6 incidental word in a range name | Black Mill Chelsea Boots, White | black | black chelsea boots | generic |
+| PLT-DA32601 | Chelsea Boots | 6 incidental word in a range name | Blue Cove Chelsea Boots, Green | blue | blue chelsea boots | generic |
+| PLT-DA32602 | Chelsea Boots | 6 incidental word in a range name | Yellow Brook Chelsea Boots, Brown | yellow | yellow chelsea boots | generic |
+| PLT-DA32603 | Chelsea Boots | 6 incidental word in a range name | Shirt Row Chelsea Boots, Pink | shirt | shirt | generic |
+| PLT-DA32700 | Chelsea Boots | 7 invented brand holding a color or category word | Black Lapwing Chelsea Boots, Brown | black | black chelsea boots | generic |
+| PLT-DA32701 | Chelsea Boots | 7 invented brand holding a color or category word | Black Lapwing Chelsea Boots, Blue | black | black chelsea boots | generic |
+| PLT-DA32702 | Chelsea Boots | 7 invented brand holding a color or category word | Yellow Wagtail Chelsea Boots, Cream | yellow | yellow chelsea boots | generic |
 | PLT-DA33100 | Chukka Boots | 1 color names a part | Navy Chukka Boots, Red Stitching | red | red chukka boots | generic |
 | PLT-DA33101 | Chukka Boots | 1 color names a part | Green Chukka Boots, Yellow Sole | yellow | yellow chukka boots | generic |
 | PLT-DA33102 | Chukka Boots | 1 color names a part | Grey Chukka Boots, Green Trim | green | green chukka boots | generic |
@@ -820,13 +820,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA33500 | Chukka Boots | 5 shade spelled in the description only | Moonbeam Chukka Boots | ivory | ivory chukka boots | generic |
 | PLT-DA33501 | Chukka Boots | 5 shade spelled in the description only | Driftwood Chukka Boots | taupe | taupe chukka boots | generic |
 | PLT-DA33502 | Chukka Boots | 5 shade spelled in the description only | Dune Chukka Boots | beige | beige chukka boots | generic |
-| PLT-DA33600 | Chukka Boots | 6 incidental word in a range name | Red Harbour Chukka Boots | red | red chukka boots | generic |
-| PLT-DA33601 | Chukka Boots | 6 incidental word in a range name | Green Hollow Chukka Boots | green | green chukka boots | generic |
-| PLT-DA33602 | Chukka Boots | 6 incidental word in a range name | White Moor Chukka Boots | white | white chukka boots | generic |
-| PLT-DA33603 | Chukka Boots | 6 incidental word in a range name | Jacket Quay Chukka Boots | jacket | jacket | generic |
-| PLT-DA33700 | Chukka Boots | 7 invented brand holding a color or category word | White Dormouse Chukka Boots | white | white chukka boots | generic |
-| PLT-DA33701 | Chukka Boots | 7 invented brand holding a color or category word | Green Stoat Chukka Boots | green | green chukka boots | generic |
-| PLT-DA33702 | Chukka Boots | 7 invented brand holding a color or category word | Jumper Jay Chukka Boots | jumper | jumper chukka boots | generic |
+| PLT-DA33600 | Chukka Boots | 6 incidental word in a range name | Red Harbour Chukka Boots, Navy | red | red chukka boots | generic |
+| PLT-DA33601 | Chukka Boots | 6 incidental word in a range name | Green Hollow Chukka Boots, White | green | green chukka boots | generic |
+| PLT-DA33602 | Chukka Boots | 6 incidental word in a range name | White Moor Chukka Boots, Black | white | white chukka boots | generic |
+| PLT-DA33603 | Chukka Boots | 6 incidental word in a range name | Jacket Quay Chukka Boots, Pink | jacket | jacket | generic |
+| PLT-DA33700 | Chukka Boots | 7 invented brand holding a color or category word | White Dormouse Chukka Boots, Grey | white | white chukka boots | generic |
+| PLT-DA33701 | Chukka Boots | 7 invented brand holding a color or category word | Green Stoat Chukka Boots, Navy | green | green chukka boots | generic |
+| PLT-DA33702 | Chukka Boots | 7 invented brand holding a color or category word | Jumper Jay Chukka Boots, Cream | jumper | jumper chukka boots | generic |
 | PLT-DA34100 | Court Shoes | 1 color names a part | White Court Shoes, Red Heel | red | red court shoes | generic |
 | PLT-DA34101 | Court Shoes | 1 color names a part | Navy Court Shoes, Red Eyelets | red | red court shoes | generic |
 | PLT-DA34102 | Court Shoes | 1 color names a part | Green Court Shoes, Yellow Sole | yellow | yellow court shoes | generic |
@@ -842,13 +842,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA34500 | Court Shoes | 5 shade spelled in the description only | Moonbeam Court Shoes | ivory | ivory court shoes | generic |
 | PLT-DA34501 | Court Shoes | 5 shade spelled in the description only | Driftwood Court Shoes | taupe | taupe court shoes | generic |
 | PLT-DA34502 | Court Shoes | 5 shade spelled in the description only | Dune Court Shoes | beige | beige court shoes | generic |
-| PLT-DA34600 | Court Shoes | 6 incidental word in a range name | Red Fern Court Shoes | red | red court shoes | generic |
-| PLT-DA34601 | Court Shoes | 6 incidental word in a range name | Black Mill Court Shoes | black | black court shoes | generic |
-| PLT-DA34602 | Court Shoes | 6 incidental word in a range name | Green Park Court Shoes | green | green court shoes | generic |
-| PLT-DA34603 | Court Shoes | 6 incidental word in a range name | Boot Hill Court Shoes | boot | boot | generic |
-| PLT-DA34700 | Court Shoes | 7 invented brand holding a color or category word | Yellow Wagtail Court Shoes | yellow | yellow court shoes | generic |
-| PLT-DA34701 | Court Shoes | 7 invented brand holding a color or category word | Blue Otter Court Shoes | blue | blue court shoes | generic |
-| PLT-DA34702 | Court Shoes | 7 invented brand holding a color or category word | Jumper Jay Court Shoes | jumper | jumper court shoes | generic |
+| PLT-DA34600 | Court Shoes | 6 incidental word in a range name | Red Fern Court Shoes, Black | red | red court shoes | generic |
+| PLT-DA34601 | Court Shoes | 6 incidental word in a range name | Black Mill Court Shoes, Green | black | black court shoes | generic |
+| PLT-DA34602 | Court Shoes | 6 incidental word in a range name | Green Park Court Shoes, Pink | green | green court shoes | generic |
+| PLT-DA34603 | Court Shoes | 6 incidental word in a range name | Boot Hill Court Shoes, Pink | boot | boot | generic |
+| PLT-DA34700 | Court Shoes | 7 invented brand holding a color or category word | Yellow Wagtail Court Shoes, Brown | yellow | yellow court shoes | generic |
+| PLT-DA34701 | Court Shoes | 7 invented brand holding a color or category word | Blue Otter Court Shoes, Brown | blue | blue court shoes | generic |
+| PLT-DA34702 | Court Shoes | 7 invented brand holding a color or category word | Jumper Jay Court Shoes, Green | jumper | jumper court shoes | generic |
 | PLT-DA35100 | Kitten Heels | 1 color names a part | White Kitten Heels, Blue Eyelets | blue | blue kitten heels | generic |
 | PLT-DA35101 | Kitten Heels | 1 color names a part | Pink Kitten Heels, Green Heel | green | green kitten heels | generic |
 | PLT-DA35102 | Kitten Heels | 1 color names a part | Grey Kitten Heels, Yellow Trim | yellow | yellow kitten heels | generic |
@@ -864,13 +864,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA35500 | Kitten Heels | 5 shade spelled in the description only | Moonbeam Kitten Heels | ivory | ivory kitten heels | generic |
 | PLT-DA35501 | Kitten Heels | 5 shade spelled in the description only | Driftwood Kitten Heels | taupe | taupe kitten heels | generic |
 | PLT-DA35502 | Kitten Heels | 5 shade spelled in the description only | Dune Kitten Heels | beige | beige kitten heels | generic |
-| PLT-DA35600 | Kitten Heels | 6 incidental word in a range name | Red Harbour Kitten Heels | red | red kitten heels | generic |
-| PLT-DA35601 | Kitten Heels | 6 incidental word in a range name | Blue Cove Kitten Heels | blue | blue kitten heels | generic |
-| PLT-DA35602 | Kitten Heels | 6 incidental word in a range name | White Cliff Kitten Heels | white | white kitten heels | generic |
-| PLT-DA35603 | Kitten Heels | 6 incidental word in a range name | Shirt Row Kitten Heels | shirt | shirt | generic |
-| PLT-DA35700 | Kitten Heels | 7 invented brand holding a color or category word | Jumper Jay Kitten Heels | jumper | jumper kitten heels | generic |
-| PLT-DA35701 | Kitten Heels | 7 invented brand holding a color or category word | Yellow Wagtail Kitten Heels | yellow | yellow kitten heels | generic |
-| PLT-DA35702 | Kitten Heels | 7 invented brand holding a color or category word | Red Plover Kitten Heels | red | red kitten heels | generic |
+| PLT-DA35600 | Kitten Heels | 6 incidental word in a range name | Red Harbour Kitten Heels, Black | red | red kitten heels | generic |
+| PLT-DA35601 | Kitten Heels | 6 incidental word in a range name | Blue Cove Kitten Heels, Black | blue | blue kitten heels | generic |
+| PLT-DA35602 | Kitten Heels | 6 incidental word in a range name | White Cliff Kitten Heels, Cream | white | white kitten heels | generic |
+| PLT-DA35603 | Kitten Heels | 6 incidental word in a range name | Shirt Row Kitten Heels, Green | shirt | shirt | generic |
+| PLT-DA35700 | Kitten Heels | 7 invented brand holding a color or category word | Jumper Jay Kitten Heels, Green | jumper | jumper kitten heels | generic |
+| PLT-DA35701 | Kitten Heels | 7 invented brand holding a color or category word | Yellow Wagtail Kitten Heels, Red | yellow | yellow kitten heels | generic |
+| PLT-DA35702 | Kitten Heels | 7 invented brand holding a color or category word | Red Plover Kitten Heels, Green | red | red kitten heels | generic |
 | PLT-DA36100 | Knee High Boots | 1 color names a part | Pink Knee High Boots, Yellow Lining | yellow | yellow knee high boots | generic |
 | PLT-DA36101 | Knee High Boots | 1 color names a part | Pink Knee High Boots, White Eyelets | white | white knee high boots | generic |
 | PLT-DA36102 | Knee High Boots | 1 color names a part | Red Knee High Boots, Black Heel | black | black knee high boots | generic |
@@ -886,13 +886,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA36500 | Knee High Boots | 5 shade spelled in the description only | Moonbeam Knee High Boots | ivory | ivory knee high boots | generic |
 | PLT-DA36501 | Knee High Boots | 5 shade spelled in the description only | Driftwood Knee High Boots | taupe | taupe knee high boots | generic |
 | PLT-DA36502 | Knee High Boots | 5 shade spelled in the description only | Dune Knee High Boots | beige | beige knee high boots | generic |
-| PLT-DA36600 | Knee High Boots | 6 incidental word in a range name | White Cliff Knee High Boots | white | white knee high boots | generic |
-| PLT-DA36601 | Knee High Boots | 6 incidental word in a range name | Yellow Marsh Knee High Boots | yellow | yellow knee high boots | generic |
-| PLT-DA36602 | Knee High Boots | 6 incidental word in a range name | Blue Meadow Knee High Boots | blue | blue knee high boots | generic |
-| PLT-DA36603 | Knee High Boots | 6 incidental word in a range name | Dress Circle Knee High Boots | dress | dress | generic |
-| PLT-DA36700 | Knee High Boots | 7 invented brand holding a color or category word | White Dormouse Knee High Boots | white | white knee high boots | generic |
-| PLT-DA36701 | Knee High Boots | 7 invented brand holding a color or category word | Coat Crake Knee High Boots | coat | coat knee high boots | generic |
-| PLT-DA36702 | Knee High Boots | 7 invented brand holding a color or category word | Red Plover Knee High Boots | red | red knee high boots | generic |
+| PLT-DA36600 | Knee High Boots | 6 incidental word in a range name | White Cliff Knee High Boots, Grey | white | white knee high boots | generic |
+| PLT-DA36601 | Knee High Boots | 6 incidental word in a range name | Yellow Marsh Knee High Boots, Cream | yellow | yellow knee high boots | generic |
+| PLT-DA36602 | Knee High Boots | 6 incidental word in a range name | Blue Meadow Knee High Boots, Grey | blue | blue knee high boots | generic |
+| PLT-DA36603 | Knee High Boots | 6 incidental word in a range name | Dress Circle Knee High Boots, Black | dress | dress | generic |
+| PLT-DA36700 | Knee High Boots | 7 invented brand holding a color or category word | White Dormouse Knee High Boots, Green | white | white knee high boots | generic |
+| PLT-DA36701 | Knee High Boots | 7 invented brand holding a color or category word | Coat Crake Knee High Boots, Blue | coat | coat knee high boots | generic |
+| PLT-DA36702 | Knee High Boots | 7 invented brand holding a color or category word | Red Plover Knee High Boots, Green | red | red knee high boots | generic |
 | PLT-DA37100 | Loafers | 1 color names a part | White Loafers, Yellow Lining | yellow | yellow loafers | generic |
 | PLT-DA37101 | Loafers | 1 color names a part | Blue Loafers, Green Eyelets | green | green loafers | generic |
 | PLT-DA37102 | Loafers | 1 color names a part | Navy Loafers, Black Trim | black | black loafers | generic |
@@ -908,13 +908,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA37500 | Loafers | 5 shade spelled in the description only | Moonbeam Loafers | ivory | ivory loafers | generic |
 | PLT-DA37501 | Loafers | 5 shade spelled in the description only | Driftwood Loafers | taupe | taupe loafers | generic |
 | PLT-DA37502 | Loafers | 5 shade spelled in the description only | Dune Loafers | beige | beige loafers | generic |
-| PLT-DA37600 | Loafers | 6 incidental word in a range name | Blue Meadow Loafers | blue | blue loafers | generic |
-| PLT-DA37601 | Loafers | 6 incidental word in a range name | Blue Meadow Loafers | blue | blue loafers | generic |
-| PLT-DA37602 | Loafers | 6 incidental word in a range name | White Moor Loafers | white | white loafers | generic |
-| PLT-DA37603 | Loafers | 6 incidental word in a range name | Coat Hook Loafers | coat | coat | generic |
-| PLT-DA37700 | Loafers | 7 invented brand holding a color or category word | Black Lapwing Loafers | black | black loafers | generic |
-| PLT-DA37701 | Loafers | 7 invented brand holding a color or category word | Yellow Wagtail Loafers | yellow | yellow loafers | generic |
-| PLT-DA37702 | Loafers | 7 invented brand holding a color or category word | Jumper Jay Loafers | jumper | jumper loafers | generic |
+| PLT-DA37600 | Loafers | 6 incidental word in a range name | Blue Meadow Loafers, Pink | blue | blue loafers | generic |
+| PLT-DA37601 | Loafers | 6 incidental word in a range name | Blue Meadow Loafers, Navy | blue | blue loafers | generic |
+| PLT-DA37602 | Loafers | 6 incidental word in a range name | White Moor Loafers, Black | white | white loafers | generic |
+| PLT-DA37603 | Loafers | 6 incidental word in a range name | Coat Hook Loafers, Navy | coat | coat | generic |
+| PLT-DA37700 | Loafers | 7 invented brand holding a color or category word | Black Lapwing Loafers, Navy | black | black loafers | generic |
+| PLT-DA37701 | Loafers | 7 invented brand holding a color or category word | Yellow Wagtail Loafers, Brown | yellow | yellow loafers | generic |
+| PLT-DA37702 | Loafers | 7 invented brand holding a color or category word | Jumper Jay Loafers, Grey | jumper | jumper loafers | generic |
 | PLT-DA38100 | Running Shoes | 1 color names a part | Brown Running Shoes, Red Sole | red | red running shoes | generic |
 | PLT-DA38101 | Running Shoes | 1 color names a part | Blue Running Shoes, Yellow Heel | yellow | yellow running shoes | generic |
 | PLT-DA38102 | Running Shoes | 1 color names a part | Red Running Shoes, Black Heel | black | black running shoes | generic |
@@ -930,13 +930,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA38500 | Running Shoes | 5 shade spelled in the description only | Moonbeam Running Shoes | ivory | ivory running shoes | generic |
 | PLT-DA38501 | Running Shoes | 5 shade spelled in the description only | Driftwood Running Shoes | taupe | taupe running shoes | generic |
 | PLT-DA38502 | Running Shoes | 5 shade spelled in the description only | Dune Running Shoes | beige | beige running shoes | generic |
-| PLT-DA38600 | Running Shoes | 6 incidental word in a range name | Green Hollow Running Shoes | green | green running shoes | generic |
-| PLT-DA38601 | Running Shoes | 6 incidental word in a range name | Green Park Running Shoes | green | green running shoes | generic |
-| PLT-DA38602 | Running Shoes | 6 incidental word in a range name | Black Mill Running Shoes | black | black running shoes | generic |
-| PLT-DA38603 | Running Shoes | 6 incidental word in a range name | Jumper Lane Running Shoes | jumper | jumper | generic |
-| PLT-DA38700 | Running Shoes | 7 invented brand holding a color or category word | Red Plover Running Shoes | red | red running shoes | generic |
-| PLT-DA38701 | Running Shoes | 7 invented brand holding a color or category word | Coat Crake Running Shoes | coat | coat running shoes | generic |
-| PLT-DA38702 | Running Shoes | 7 invented brand holding a color or category word | Black Lapwing Running Shoes | black | black running shoes | generic |
+| PLT-DA38600 | Running Shoes | 6 incidental word in a range name | Green Hollow Running Shoes, Cream | green | green running shoes | generic |
+| PLT-DA38601 | Running Shoes | 6 incidental word in a range name | Green Park Running Shoes, Red | green | green running shoes | generic |
+| PLT-DA38602 | Running Shoes | 6 incidental word in a range name | Black Mill Running Shoes, Blue | black | black running shoes | generic |
+| PLT-DA38603 | Running Shoes | 6 incidental word in a range name | Jumper Lane Running Shoes, Black | jumper | jumper | generic |
+| PLT-DA38700 | Running Shoes | 7 invented brand holding a color or category word | Red Plover Running Shoes, Pink | red | red running shoes | generic |
+| PLT-DA38701 | Running Shoes | 7 invented brand holding a color or category word | Coat Crake Running Shoes, Green | coat | coat running shoes | generic |
+| PLT-DA38702 | Running Shoes | 7 invented brand holding a color or category word | Black Lapwing Running Shoes, Red | black | black running shoes | generic |
 | PLT-DA39100 | Safety Boots | 1 color names a part | Red Safety Boots, White Lining | white | white safety boots | generic |
 | PLT-DA39101 | Safety Boots | 1 color names a part | White Safety Boots, Red Heel | red | red safety boots | generic |
 | PLT-DA39102 | Safety Boots | 1 color names a part | Red Safety Boots, Yellow Heel | yellow | yellow safety boots | generic |
@@ -952,13 +952,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA39500 | Safety Boots | 5 shade spelled in the description only | Moonbeam Safety Boots | ivory | ivory safety boots | generic |
 | PLT-DA39501 | Safety Boots | 5 shade spelled in the description only | Driftwood Safety Boots | taupe | taupe safety boots | generic |
 | PLT-DA39502 | Safety Boots | 5 shade spelled in the description only | Dune Safety Boots | beige | beige safety boots | generic |
-| PLT-DA39600 | Safety Boots | 6 incidental word in a range name | White Moor Safety Boots | white | white safety boots | generic |
-| PLT-DA39601 | Safety Boots | 6 incidental word in a range name | Black Tor Safety Boots | black | black safety boots | generic |
-| PLT-DA39602 | Safety Boots | 6 incidental word in a range name | Red Fern Safety Boots | red | red safety boots | generic |
-| PLT-DA39603 | Safety Boots | 6 incidental word in a range name | Shirt Row Safety Boots | shirt | shirt | generic |
-| PLT-DA39700 | Safety Boots | 7 invented brand holding a color or category word | Coat Crake Safety Boots | coat | coat safety boots | generic |
-| PLT-DA39701 | Safety Boots | 7 invented brand holding a color or category word | Blue Otter Safety Boots | blue | blue safety boots | generic |
-| PLT-DA39702 | Safety Boots | 7 invented brand holding a color or category word | Yellow Wagtail Safety Boots | yellow | yellow safety boots | generic |
+| PLT-DA39600 | Safety Boots | 6 incidental word in a range name | White Moor Safety Boots, Navy | white | white safety boots | generic |
+| PLT-DA39601 | Safety Boots | 6 incidental word in a range name | Black Tor Safety Boots, Brown | black | black safety boots | generic |
+| PLT-DA39602 | Safety Boots | 6 incidental word in a range name | Red Fern Safety Boots, Blue | red | red safety boots | generic |
+| PLT-DA39603 | Safety Boots | 6 incidental word in a range name | Shirt Row Safety Boots, Blue | shirt | shirt | generic |
+| PLT-DA39700 | Safety Boots | 7 invented brand holding a color or category word | Coat Crake Safety Boots, Navy | coat | coat safety boots | generic |
+| PLT-DA39701 | Safety Boots | 7 invented brand holding a color or category word | Blue Otter Safety Boots, Grey | blue | blue safety boots | generic |
+| PLT-DA39702 | Safety Boots | 7 invented brand holding a color or category word | Yellow Wagtail Safety Boots, Brown | yellow | yellow safety boots | generic |
 | PLT-DA40100 | Sandals | 1 color names a part | Grey Sandals, White Heel | white | white sandals | generic |
 | PLT-DA40101 | Sandals | 1 color names a part | Cream Sandals, Yellow Eyelets | yellow | yellow sandals | generic |
 | PLT-DA40102 | Sandals | 1 color names a part | Red Sandals, Black Sole | black | black sandals | generic |
@@ -974,13 +974,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA40500 | Sandals | 5 shade spelled in the description only | Moonbeam Sandals | ivory | ivory sandals | generic |
 | PLT-DA40501 | Sandals | 5 shade spelled in the description only | Driftwood Sandals | taupe | taupe sandals | generic |
 | PLT-DA40502 | Sandals | 5 shade spelled in the description only | Dune Sandals | beige | beige sandals | generic |
-| PLT-DA40600 | Sandals | 6 incidental word in a range name | White Cliff Sandals | white | white sandals | generic |
-| PLT-DA40601 | Sandals | 6 incidental word in a range name | Blue Cove Sandals | blue | blue sandals | generic |
-| PLT-DA40602 | Sandals | 6 incidental word in a range name | White Moor Sandals | white | white sandals | generic |
-| PLT-DA40603 | Sandals | 6 incidental word in a range name | Jumper Lane Sandals | jumper | jumper | generic |
-| PLT-DA40700 | Sandals | 7 invented brand holding a color or category word | Yellow Wagtail Sandals | yellow | yellow sandals | generic |
-| PLT-DA40701 | Sandals | 7 invented brand holding a color or category word | White Dormouse Sandals | white | white sandals | generic |
-| PLT-DA40702 | Sandals | 7 invented brand holding a color or category word | White Dormouse Sandals | white | white sandals | generic |
+| PLT-DA40600 | Sandals | 6 incidental word in a range name | White Cliff Sandals, Black | white | white sandals | generic |
+| PLT-DA40601 | Sandals | 6 incidental word in a range name | Blue Cove Sandals, Navy | blue | blue sandals | generic |
+| PLT-DA40602 | Sandals | 6 incidental word in a range name | White Moor Sandals, Black | white | white sandals | generic |
+| PLT-DA40603 | Sandals | 6 incidental word in a range name | Jumper Lane Sandals, Cream | jumper | jumper | generic |
+| PLT-DA40700 | Sandals | 7 invented brand holding a color or category word | Yellow Wagtail Sandals, Grey | yellow | yellow sandals | generic |
+| PLT-DA40701 | Sandals | 7 invented brand holding a color or category word | White Dormouse Sandals, Navy | white | white sandals | generic |
+| PLT-DA40702 | Sandals | 7 invented brand holding a color or category word | White Dormouse Sandals, Red | white | white sandals | generic |
 | PLT-DA41100 | School Shoes | 1 color names a part | Blue School Shoes, Green Heel | green | green school shoes | generic |
 | PLT-DA41101 | School Shoes | 1 color names a part | Grey School Shoes, Green Eyelets | green | green school shoes | generic |
 | PLT-DA41102 | School Shoes | 1 color names a part | Black School Shoes, White Eyelets | white | white school shoes | generic |
@@ -996,13 +996,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA41500 | School Shoes | 5 shade spelled in the description only | Moonbeam School Shoes | ivory | ivory school shoes | generic |
 | PLT-DA41501 | School Shoes | 5 shade spelled in the description only | Driftwood School Shoes | taupe | taupe school shoes | generic |
 | PLT-DA41502 | School Shoes | 5 shade spelled in the description only | Dune School Shoes | beige | beige school shoes | generic |
-| PLT-DA41600 | School Shoes | 6 incidental word in a range name | White Cliff School Shoes | white | white school shoes | generic |
-| PLT-DA41601 | School Shoes | 6 incidental word in a range name | Yellow Brook School Shoes | yellow | yellow school shoes | generic |
-| PLT-DA41602 | School Shoes | 6 incidental word in a range name | Black Mill School Shoes | black | black school shoes | generic |
-| PLT-DA41603 | School Shoes | 6 incidental word in a range name | Jacket Quay School Shoes | jacket | jacket | generic |
-| PLT-DA41700 | School Shoes | 7 invented brand holding a color or category word | Jumper Jay School Shoes | jumper | jumper school shoes | generic |
-| PLT-DA41701 | School Shoes | 7 invented brand holding a color or category word | Red Plover School Shoes | red | red school shoes | generic |
-| PLT-DA41702 | School Shoes | 7 invented brand holding a color or category word | White Dormouse School Shoes | white | white school shoes | generic |
+| PLT-DA41600 | School Shoes | 6 incidental word in a range name | White Cliff School Shoes, Black | white | white school shoes | generic |
+| PLT-DA41601 | School Shoes | 6 incidental word in a range name | Yellow Brook School Shoes, Red | yellow | yellow school shoes | generic |
+| PLT-DA41602 | School Shoes | 6 incidental word in a range name | Black Mill School Shoes, Cream | black | black school shoes | generic |
+| PLT-DA41603 | School Shoes | 6 incidental word in a range name | Jacket Quay School Shoes, Grey | jacket | jacket | generic |
+| PLT-DA41700 | School Shoes | 7 invented brand holding a color or category word | Jumper Jay School Shoes, Grey | jumper | jumper school shoes | generic |
+| PLT-DA41701 | School Shoes | 7 invented brand holding a color or category word | Red Plover School Shoes, Navy | red | red school shoes | generic |
+| PLT-DA41702 | School Shoes | 7 invented brand holding a color or category word | White Dormouse School Shoes, Green | white | white school shoes | generic |
 | PLT-DA42100 | Slippers | 1 color names a part | Navy Slippers, White Eyelets | white | white slippers | generic |
 | PLT-DA42101 | Slippers | 1 color names a part | Black Slippers, White Eyelets | white | white slippers | generic |
 | PLT-DA42102 | Slippers | 1 color names a part | Red Slippers, Green Stitching | green | green slippers | generic |
@@ -1018,13 +1018,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA42500 | Slippers | 5 shade spelled in the description only | Moonbeam Slippers | ivory | ivory slippers | generic |
 | PLT-DA42501 | Slippers | 5 shade spelled in the description only | Driftwood Slippers | taupe | taupe slippers | generic |
 | PLT-DA42502 | Slippers | 5 shade spelled in the description only | Dune Slippers | beige | beige slippers | generic |
-| PLT-DA42600 | Slippers | 6 incidental word in a range name | White Moor Slippers | white | white slippers | generic |
-| PLT-DA42601 | Slippers | 6 incidental word in a range name | Black Tor Slippers | black | black slippers | generic |
-| PLT-DA42602 | Slippers | 6 incidental word in a range name | White Moor Slippers | white | white slippers | generic |
-| PLT-DA42603 | Slippers | 6 incidental word in a range name | Coat Hook Slippers | coat | coat | generic |
-| PLT-DA42700 | Slippers | 7 invented brand holding a color or category word | Blue Otter Slippers | blue | blue slippers | generic |
-| PLT-DA42701 | Slippers | 7 invented brand holding a color or category word | Jumper Jay Slippers | jumper | jumper slippers | generic |
-| PLT-DA42702 | Slippers | 7 invented brand holding a color or category word | Yellow Wagtail Slippers | yellow | yellow slippers | generic |
+| PLT-DA42600 | Slippers | 6 incidental word in a range name | White Moor Slippers, Pink | white | white slippers | generic |
+| PLT-DA42601 | Slippers | 6 incidental word in a range name | Black Tor Slippers, Green | black | black slippers | generic |
+| PLT-DA42602 | Slippers | 6 incidental word in a range name | White Moor Slippers, Pink | white | white slippers | generic |
+| PLT-DA42603 | Slippers | 6 incidental word in a range name | Coat Hook Slippers, Red | coat | coat | generic |
+| PLT-DA42700 | Slippers | 7 invented brand holding a color or category word | Blue Otter Slippers, Cream | blue | blue slippers | generic |
+| PLT-DA42701 | Slippers | 7 invented brand holding a color or category word | Jumper Jay Slippers, Cream | jumper | jumper slippers | generic |
+| PLT-DA42702 | Slippers | 7 invented brand holding a color or category word | Yellow Wagtail Slippers, Pink | yellow | yellow slippers | generic |
 | PLT-DA43100 | Trainers | 1 color names a part | Green Trainers, White Lining | white | white trainers | generic |
 | PLT-DA43101 | Trainers | 1 color names a part | Navy Trainers, Black Heel | black | black trainers | generic |
 | PLT-DA43102 | Trainers | 1 color names a part | Grey Trainers, Yellow Heel | yellow | yellow trainers | generic |
@@ -1040,13 +1040,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA43500 | Trainers | 5 shade spelled in the description only | Moonbeam Trainers | ivory | ivory trainers | generic |
 | PLT-DA43501 | Trainers | 5 shade spelled in the description only | Driftwood Trainers | taupe | taupe trainers | generic |
 | PLT-DA43502 | Trainers | 5 shade spelled in the description only | Dune Trainers | beige | beige trainers | generic |
-| PLT-DA43600 | Trainers | 6 incidental word in a range name | Yellow Brook Trainers | yellow | yellow trainers | generic |
-| PLT-DA43601 | Trainers | 6 incidental word in a range name | Red Harbour Trainers | red | red trainers | generic |
-| PLT-DA43602 | Trainers | 6 incidental word in a range name | Black Tor Trainers | black | black trainers | generic |
-| PLT-DA43603 | Trainers | 6 incidental word in a range name | Boot Hill Trainers | boot | boot | generic |
-| PLT-DA43700 | Trainers | 7 invented brand holding a color or category word | Yellow Wagtail Trainers | yellow | yellow trainers | generic |
-| PLT-DA43701 | Trainers | 7 invented brand holding a color or category word | Jumper Jay Trainers | jumper | jumper trainers | generic |
-| PLT-DA43702 | Trainers | 7 invented brand holding a color or category word | Yellow Wagtail Trainers | yellow | yellow trainers | generic |
+| PLT-DA43600 | Trainers | 6 incidental word in a range name | Yellow Brook Trainers, Black | yellow | yellow trainers | generic |
+| PLT-DA43601 | Trainers | 6 incidental word in a range name | Red Harbour Trainers, Navy | red | red trainers | generic |
+| PLT-DA43602 | Trainers | 6 incidental word in a range name | Black Tor Trainers, Blue | black | black trainers | generic |
+| PLT-DA43603 | Trainers | 6 incidental word in a range name | Boot Hill Trainers, Navy | boot | boot | generic |
+| PLT-DA43700 | Trainers | 7 invented brand holding a color or category word | Yellow Wagtail Trainers, Green | yellow | yellow trainers | generic |
+| PLT-DA43701 | Trainers | 7 invented brand holding a color or category word | Jumper Jay Trainers, Pink | jumper | jumper trainers | generic |
+| PLT-DA43702 | Trainers | 7 invented brand holding a color or category word | Yellow Wagtail Trainers, Green | yellow | yellow trainers | generic |
 | PLT-DA44100 | Walking Boots | 1 color names a part | White Walking Boots, Blue Eyelets | blue | blue walking boots | generic |
 | PLT-DA44101 | Walking Boots | 1 color names a part | Navy Walking Boots, White Heel | white | white walking boots | generic |
 | PLT-DA44102 | Walking Boots | 1 color names a part | Grey Walking Boots, Yellow Eyelets | yellow | yellow walking boots | generic |
@@ -1062,13 +1062,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA44500 | Walking Boots | 5 shade spelled in the description only | Moonbeam Walking Boots | ivory | ivory walking boots | generic |
 | PLT-DA44501 | Walking Boots | 5 shade spelled in the description only | Driftwood Walking Boots | taupe | taupe walking boots | generic |
 | PLT-DA44502 | Walking Boots | 5 shade spelled in the description only | Dune Walking Boots | beige | beige walking boots | generic |
-| PLT-DA44600 | Walking Boots | 6 incidental word in a range name | Green Park Walking Boots | green | green walking boots | generic |
-| PLT-DA44601 | Walking Boots | 6 incidental word in a range name | Red Fern Walking Boots | red | red walking boots | generic |
-| PLT-DA44602 | Walking Boots | 6 incidental word in a range name | Yellow Brook Walking Boots | yellow | yellow walking boots | generic |
-| PLT-DA44603 | Walking Boots | 6 incidental word in a range name | Sock Hop Walking Boots | sock | sock | generic |
-| PLT-DA44700 | Walking Boots | 7 invented brand holding a color or category word | Black Lapwing Walking Boots | black | black walking boots | generic |
-| PLT-DA44701 | Walking Boots | 7 invented brand holding a color or category word | Jumper Jay Walking Boots | jumper | jumper walking boots | generic |
-| PLT-DA44702 | Walking Boots | 7 invented brand holding a color or category word | Jumper Jay Walking Boots | jumper | jumper walking boots | generic |
+| PLT-DA44600 | Walking Boots | 6 incidental word in a range name | Green Park Walking Boots, Navy | green | green walking boots | generic |
+| PLT-DA44601 | Walking Boots | 6 incidental word in a range name | Red Fern Walking Boots, Navy | red | red walking boots | generic |
+| PLT-DA44602 | Walking Boots | 6 incidental word in a range name | Yellow Brook Walking Boots, Green | yellow | yellow walking boots | generic |
+| PLT-DA44603 | Walking Boots | 6 incidental word in a range name | Sock Hop Walking Boots, Brown | sock | sock | generic |
+| PLT-DA44700 | Walking Boots | 7 invented brand holding a color or category word | Black Lapwing Walking Boots, White | black | black walking boots | generic |
+| PLT-DA44701 | Walking Boots | 7 invented brand holding a color or category word | Jumper Jay Walking Boots, Black | jumper | jumper walking boots | generic |
+| PLT-DA44702 | Walking Boots | 7 invented brand holding a color or category word | Jumper Jay Walking Boots, Brown | jumper | jumper walking boots | generic |
 | PLT-DA45100 | Wellies | 1 color names a part | Pink Wellies, Green Sole | green | green wellies | generic |
 | PLT-DA45101 | Wellies | 1 color names a part | Cream Wellies, Black Sole | black | black wellies | generic |
 | PLT-DA45102 | Wellies | 1 color names a part | Cream Wellies, Yellow Heel | yellow | yellow wellies | generic |
@@ -1084,13 +1084,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA45500 | Wellies | 5 shade spelled in the description only | Moonbeam Wellies | ivory | ivory wellies | generic |
 | PLT-DA45501 | Wellies | 5 shade spelled in the description only | Driftwood Wellies | taupe | taupe wellies | generic |
 | PLT-DA45502 | Wellies | 5 shade spelled in the description only | Dune Wellies | beige | beige wellies | generic |
-| PLT-DA45600 | Wellies | 6 incidental word in a range name | Blue Cove Wellies | blue | blue wellies | generic |
-| PLT-DA45601 | Wellies | 6 incidental word in a range name | White Moor Wellies | white | white wellies | generic |
-| PLT-DA45602 | Wellies | 6 incidental word in a range name | Red Harbour Wellies | red | red wellies | generic |
-| PLT-DA45603 | Wellies | 6 incidental word in a range name | Coat Hook Wellies | coat | coat | generic |
-| PLT-DA45700 | Wellies | 7 invented brand holding a color or category word | Yellow Wagtail Wellies | yellow | yellow wellies | generic |
-| PLT-DA45701 | Wellies | 7 invented brand holding a color or category word | Black Lapwing Wellies | black | black wellies | generic |
-| PLT-DA45702 | Wellies | 7 invented brand holding a color or category word | Jumper Jay Wellies | jumper | jumper wellies | generic |
+| PLT-DA45600 | Wellies | 6 incidental word in a range name | Blue Cove Wellies, Black | blue | blue wellies | generic |
+| PLT-DA45601 | Wellies | 6 incidental word in a range name | White Moor Wellies, Navy | white | white wellies | generic |
+| PLT-DA45602 | Wellies | 6 incidental word in a range name | Red Harbour Wellies, Blue | red | red wellies | generic |
+| PLT-DA45603 | Wellies | 6 incidental word in a range name | Coat Hook Wellies, Pink | coat | coat | generic |
+| PLT-DA45700 | Wellies | 7 invented brand holding a color or category word | Yellow Wagtail Wellies, Navy | yellow | yellow wellies | generic |
+| PLT-DA45701 | Wellies | 7 invented brand holding a color or category word | Black Lapwing Wellies, Cream | black | black wellies | generic |
+| PLT-DA45702 | Wellies | 7 invented brand holding a color or category word | Jumper Jay Wellies, Navy | jumper | jumper wellies | generic |
 | PLT-DA46100 | Bra | 1 color names a part | Pink Bra, White Straps | white | white bra | generic |
 | PLT-DA46101 | Bra | 1 color names a part | Brown Bra, Blue Hooks | blue | blue bra | generic |
 | PLT-DA46102 | Bra | 1 color names a part | Black Bra, Yellow Trim | yellow | yellow bra | generic |
@@ -1136,24 +1136,24 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA46506 | Bra | 5 shade spelled in the description only | Pebble Bra | ecru | ecru bra | generic |
 | PLT-DA46507 | Bra | 5 shade spelled in the description only | Meadow Bra | mint | mint bra | generic |
 | PLT-DA46508 | Bra | 5 shade spelled in the description only | Harvest Bra | rust | rust bra | generic |
-| PLT-DA46600 | Bra | 6 incidental word in a range name | Yellow Marsh Bra | yellow | yellow bra | generic |
-| PLT-DA46601 | Bra | 6 incidental word in a range name | Green Park Bra | green | green bra | generic |
-| PLT-DA46602 | Bra | 6 incidental word in a range name | White Cliff Bra | white | white bra | generic |
-| PLT-DA46603 | Bra | 6 incidental word in a range name | Red Harbour Bra | red | red bra | generic |
-| PLT-DA46604 | Bra | 6 incidental word in a range name | Yellow Brook Bra | yellow | yellow bra | generic |
-| PLT-DA46605 | Bra | 6 incidental word in a range name | White Moor Bra | white | white bra | generic |
-| PLT-DA46606 | Bra | 6 incidental word in a range name | Black Tor Bra | black | black bra | generic |
-| PLT-DA46607 | Bra | 6 incidental word in a range name | Blue Meadow Bra | blue | blue bra | generic |
-| PLT-DA46608 | Bra | 6 incidental word in a range name | Black Mill Bra | black | black bra | generic |
-| PLT-DA46609 | Bra | 6 incidental word in a range name | Shirt Row Bra | shirt | shirt | generic |
-| PLT-DA46700 | Bra | 7 invented brand holding a color or category word | Blue Otter Bra | blue | blue bra | generic |
-| PLT-DA46701 | Bra | 7 invented brand holding a color or category word | White Dormouse Bra | white | white bra | generic |
-| PLT-DA46702 | Bra | 7 invented brand holding a color or category word | Coat Crake Bra | coat | coat bra | generic |
-| PLT-DA46703 | Bra | 7 invented brand holding a color or category word | Green Stoat Bra | green | green bra | generic |
-| PLT-DA46704 | Bra | 7 invented brand holding a color or category word | Red Plover Bra | red | red bra | generic |
-| PLT-DA46705 | Bra | 7 invented brand holding a color or category word | Yellow Wagtail Bra | yellow | yellow bra | generic |
-| PLT-DA46706 | Bra | 7 invented brand holding a color or category word | Black Lapwing Bra | black | black bra | generic |
-| PLT-DA46707 | Bra | 7 invented brand holding a color or category word | Jumper Jay Bra | jumper | jumper bra | generic |
+| PLT-DA46600 | Bra | 6 incidental word in a range name | Yellow Marsh Bra, Grey | yellow | yellow bra | generic |
+| PLT-DA46601 | Bra | 6 incidental word in a range name | Green Park Bra, Navy | green | green bra | generic |
+| PLT-DA46602 | Bra | 6 incidental word in a range name | White Cliff Bra, Cream | white | white bra | generic |
+| PLT-DA46603 | Bra | 6 incidental word in a range name | Red Harbour Bra, Brown | red | red bra | generic |
+| PLT-DA46604 | Bra | 6 incidental word in a range name | Yellow Brook Bra, Red | yellow | yellow bra | generic |
+| PLT-DA46605 | Bra | 6 incidental word in a range name | White Moor Bra, Blue | white | white bra | generic |
+| PLT-DA46606 | Bra | 6 incidental word in a range name | Black Tor Bra, Green | black | black bra | generic |
+| PLT-DA46607 | Bra | 6 incidental word in a range name | Blue Meadow Bra, Grey | blue | blue bra | generic |
+| PLT-DA46608 | Bra | 6 incidental word in a range name | Black Mill Bra, Red | black | black bra | generic |
+| PLT-DA46609 | Bra | 6 incidental word in a range name | Shirt Row Bra, Grey | shirt | shirt | generic |
+| PLT-DA46700 | Bra | 7 invented brand holding a color or category word | Blue Otter Bra, Brown | blue | blue bra | generic |
+| PLT-DA46701 | Bra | 7 invented brand holding a color or category word | White Dormouse Bra, Black | white | white bra | generic |
+| PLT-DA46702 | Bra | 7 invented brand holding a color or category word | Coat Crake Bra, Brown | coat | coat bra | generic |
+| PLT-DA46703 | Bra | 7 invented brand holding a color or category word | Green Stoat Bra, Brown | green | green bra | generic |
+| PLT-DA46704 | Bra | 7 invented brand holding a color or category word | Red Plover Bra, Pink | red | red bra | generic |
+| PLT-DA46705 | Bra | 7 invented brand holding a color or category word | Yellow Wagtail Bra, Blue | yellow | yellow bra | generic |
+| PLT-DA46706 | Bra | 7 invented brand holding a color or category word | Black Lapwing Bra, Green | black | black bra | generic |
+| PLT-DA46707 | Bra | 7 invented brand holding a color or category word | Jumper Jay Bra, Cream | jumper | jumper bra | generic |
 | PLT-DA47100 | Boxers | 1 color names a part | Grey Boxers, White Trim | white | white boxers | generic |
 | PLT-DA47101 | Boxers | 1 color names a part | Brown Boxers, Black Waistband | black | black boxers | generic |
 | PLT-DA47102 | Boxers | 1 color names a part | Pink Boxers, White Waistband | white | white boxers | generic |
@@ -1169,13 +1169,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA47500 | Boxers | 5 shade spelled in the description only | Moonbeam Boxers | ivory | ivory boxers | generic |
 | PLT-DA47501 | Boxers | 5 shade spelled in the description only | Driftwood Boxers | taupe | taupe boxers | generic |
 | PLT-DA47502 | Boxers | 5 shade spelled in the description only | Dune Boxers | beige | beige boxers | generic |
-| PLT-DA47600 | Boxers | 6 incidental word in a range name | White Cliff Boxers | white | white boxers | generic |
-| PLT-DA47601 | Boxers | 6 incidental word in a range name | Red Fern Boxers | red | red boxers | generic |
-| PLT-DA47602 | Boxers | 6 incidental word in a range name | Black Mill Boxers | black | black boxers | generic |
-| PLT-DA47603 | Boxers | 6 incidental word in a range name | Sock Hop Boxers | sock | sock | generic |
-| PLT-DA47700 | Boxers | 7 invented brand holding a color or category word | Coat Crake Boxers | coat | coat boxers | generic |
-| PLT-DA47701 | Boxers | 7 invented brand holding a color or category word | Blue Otter Boxers | blue | blue boxers | generic |
-| PLT-DA47702 | Boxers | 7 invented brand holding a color or category word | Black Lapwing Boxers | black | black boxers | generic |
+| PLT-DA47600 | Boxers | 6 incidental word in a range name | White Cliff Boxers, Green | white | white boxers | generic |
+| PLT-DA47601 | Boxers | 6 incidental word in a range name | Red Fern Boxers, Grey | red | red boxers | generic |
+| PLT-DA47602 | Boxers | 6 incidental word in a range name | Black Mill Boxers, Brown | black | black boxers | generic |
+| PLT-DA47603 | Boxers | 6 incidental word in a range name | Sock Hop Boxers, Pink | sock | sock | generic |
+| PLT-DA47700 | Boxers | 7 invented brand holding a color or category word | Coat Crake Boxers, Navy | coat | coat boxers | generic |
+| PLT-DA47701 | Boxers | 7 invented brand holding a color or category word | Blue Otter Boxers, Pink | blue | blue boxers | generic |
+| PLT-DA47702 | Boxers | 7 invented brand holding a color or category word | Black Lapwing Boxers, Blue | black | black boxers | generic |
 | PLT-DA48100 | Dressing Gown | 1 color names a part | Pink Dressing Gown, White Waistband | white | white dressing gown | generic |
 | PLT-DA48101 | Dressing Gown | 1 color names a part | Red Dressing Gown, Blue Piping | blue | blue dressing gown | generic |
 | PLT-DA48102 | Dressing Gown | 1 color names a part | Brown Dressing Gown, White Cuffs | white | white dressing gown | generic |
@@ -1191,13 +1191,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA48500 | Dressing Gown | 5 shade spelled in the description only | Moonbeam Dressing Gown | ivory | ivory dressing gown | generic |
 | PLT-DA48501 | Dressing Gown | 5 shade spelled in the description only | Driftwood Dressing Gown | taupe | taupe dressing gown | generic |
 | PLT-DA48502 | Dressing Gown | 5 shade spelled in the description only | Dune Dressing Gown | beige | beige dressing gown | generic |
-| PLT-DA48600 | Dressing Gown | 6 incidental word in a range name | Yellow Marsh Dressing Gown | yellow | yellow dressing gown | generic |
-| PLT-DA48601 | Dressing Gown | 6 incidental word in a range name | Red Harbour Dressing Gown | red | red dressing gown | generic |
-| PLT-DA48602 | Dressing Gown | 6 incidental word in a range name | White Cliff Dressing Gown | white | white dressing gown | generic |
-| PLT-DA48603 | Dressing Gown | 6 incidental word in a range name | Jumper Lane Dressing Gown | jumper | jumper | generic |
-| PLT-DA48700 | Dressing Gown | 7 invented brand holding a color or category word | Black Lapwing Dressing Gown | black | black dressing gown | generic |
-| PLT-DA48701 | Dressing Gown | 7 invented brand holding a color or category word | Green Stoat Dressing Gown | green | green dressing gown | generic |
-| PLT-DA48702 | Dressing Gown | 7 invented brand holding a color or category word | Coat Crake Dressing Gown | coat | coat dressing gown | generic |
+| PLT-DA48600 | Dressing Gown | 6 incidental word in a range name | Yellow Marsh Dressing Gown, Green | yellow | yellow dressing gown | generic |
+| PLT-DA48601 | Dressing Gown | 6 incidental word in a range name | Red Harbour Dressing Gown, Pink | red | red dressing gown | generic |
+| PLT-DA48602 | Dressing Gown | 6 incidental word in a range name | White Cliff Dressing Gown, Grey | white | white dressing gown | generic |
+| PLT-DA48603 | Dressing Gown | 6 incidental word in a range name | Jumper Lane Dressing Gown, Black | jumper | jumper | generic |
+| PLT-DA48700 | Dressing Gown | 7 invented brand holding a color or category word | Black Lapwing Dressing Gown, Pink | black | black dressing gown | generic |
+| PLT-DA48701 | Dressing Gown | 7 invented brand holding a color or category word | Green Stoat Dressing Gown, White | green | green dressing gown | generic |
+| PLT-DA48702 | Dressing Gown | 7 invented brand holding a color or category word | Coat Crake Dressing Gown, Green | coat | coat dressing gown | generic |
 | PLT-DA49100 | Knickers | 1 color names a part | White Knickers, Yellow Piping | yellow | yellow knickers | generic |
 | PLT-DA49101 | Knickers | 1 color names a part | Grey Knickers, Yellow Piping | yellow | yellow knickers | generic |
 | PLT-DA49102 | Knickers | 1 color names a part | Grey Knickers, Red Trim | red | red knickers | generic |
@@ -1213,13 +1213,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA49500 | Knickers | 5 shade spelled in the description only | Moonbeam Knickers | ivory | ivory knickers | generic |
 | PLT-DA49501 | Knickers | 5 shade spelled in the description only | Driftwood Knickers | taupe | taupe knickers | generic |
 | PLT-DA49502 | Knickers | 5 shade spelled in the description only | Dune Knickers | beige | beige knickers | generic |
-| PLT-DA49600 | Knickers | 6 incidental word in a range name | Blue Meadow Knickers | blue | blue knickers | generic |
-| PLT-DA49601 | Knickers | 6 incidental word in a range name | Yellow Brook Knickers | yellow | yellow knickers | generic |
-| PLT-DA49602 | Knickers | 6 incidental word in a range name | Green Park Knickers | green | green knickers | generic |
-| PLT-DA49603 | Knickers | 6 incidental word in a range name | Shirt Row Knickers | shirt | shirt | generic |
-| PLT-DA49700 | Knickers | 7 invented brand holding a color or category word | Yellow Wagtail Knickers | yellow | yellow knickers | generic |
-| PLT-DA49701 | Knickers | 7 invented brand holding a color or category word | Red Plover Knickers | red | red knickers | generic |
-| PLT-DA49702 | Knickers | 7 invented brand holding a color or category word | Blue Otter Knickers | blue | blue knickers | generic |
+| PLT-DA49600 | Knickers | 6 incidental word in a range name | Blue Meadow Knickers, Cream | blue | blue knickers | generic |
+| PLT-DA49601 | Knickers | 6 incidental word in a range name | Yellow Brook Knickers, Red | yellow | yellow knickers | generic |
+| PLT-DA49602 | Knickers | 6 incidental word in a range name | Green Park Knickers, Cream | green | green knickers | generic |
+| PLT-DA49603 | Knickers | 6 incidental word in a range name | Shirt Row Knickers, Grey | shirt | shirt | generic |
+| PLT-DA49700 | Knickers | 7 invented brand holding a color or category word | Yellow Wagtail Knickers, White | yellow | yellow knickers | generic |
+| PLT-DA49701 | Knickers | 7 invented brand holding a color or category word | Red Plover Knickers, Green | red | red knickers | generic |
+| PLT-DA49702 | Knickers | 7 invented brand holding a color or category word | Blue Otter Knickers, White | blue | blue knickers | generic |
 | PLT-DA50100 | Pyjama Shorts | 1 color names a part | Pink Pyjama Shorts, White Piping | white | white pyjama shorts | generic |
 | PLT-DA50101 | Pyjama Shorts | 1 color names a part | Brown Pyjama Shorts, Green Waistband | green | green pyjama shorts | generic |
 | PLT-DA50102 | Pyjama Shorts | 1 color names a part | Navy Pyjama Shorts, White Cuffs | white | white pyjama shorts | generic |
@@ -1235,13 +1235,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA50500 | Pyjama Shorts | 5 shade spelled in the description only | Moonbeam Pyjama Shorts | ivory | ivory pyjama shorts | generic |
 | PLT-DA50501 | Pyjama Shorts | 5 shade spelled in the description only | Driftwood Pyjama Shorts | taupe | taupe pyjama shorts | generic |
 | PLT-DA50502 | Pyjama Shorts | 5 shade spelled in the description only | Dune Pyjama Shorts | beige | beige pyjama shorts | generic |
-| PLT-DA50600 | Pyjama Shorts | 6 incidental word in a range name | White Moor Pyjama Shorts | white | white pyjama shorts | generic |
-| PLT-DA50601 | Pyjama Shorts | 6 incidental word in a range name | Black Mill Pyjama Shorts | black | black pyjama shorts | generic |
-| PLT-DA50602 | Pyjama Shorts | 6 incidental word in a range name | Green Hollow Pyjama Shorts | green | green pyjama shorts | generic |
-| PLT-DA50603 | Pyjama Shorts | 6 incidental word in a range name | Dress Circle Pyjama Shorts | dress | dress | generic |
-| PLT-DA50700 | Pyjama Shorts | 7 invented brand holding a color or category word | Green Stoat Pyjama Shorts | green | green pyjama shorts | generic |
-| PLT-DA50701 | Pyjama Shorts | 7 invented brand holding a color or category word | Jumper Jay Pyjama Shorts | jumper | jumper pyjama shorts | generic |
-| PLT-DA50702 | Pyjama Shorts | 7 invented brand holding a color or category word | White Dormouse Pyjama Shorts | white | white pyjama shorts | generic |
+| PLT-DA50600 | Pyjama Shorts | 6 incidental word in a range name | White Moor Pyjama Shorts, Brown | white | white pyjama shorts | generic |
+| PLT-DA50601 | Pyjama Shorts | 6 incidental word in a range name | Black Mill Pyjama Shorts, Navy | black | black pyjama shorts | generic |
+| PLT-DA50602 | Pyjama Shorts | 6 incidental word in a range name | Green Hollow Pyjama Shorts, Red | green | green pyjama shorts | generic |
+| PLT-DA50603 | Pyjama Shorts | 6 incidental word in a range name | Dress Circle Pyjama Shorts, Blue | dress | dress | generic |
+| PLT-DA50700 | Pyjama Shorts | 7 invented brand holding a color or category word | Green Stoat Pyjama Shorts, Black | green | green pyjama shorts | generic |
+| PLT-DA50701 | Pyjama Shorts | 7 invented brand holding a color or category word | Jumper Jay Pyjama Shorts, Red | jumper | jumper pyjama shorts | generic |
+| PLT-DA50702 | Pyjama Shorts | 7 invented brand holding a color or category word | White Dormouse Pyjama Shorts, Green | white | white pyjama shorts | generic |
 | PLT-DA51100 | Pyjamas | 1 color names a part | Pink Pyjamas, White Cuffs | white | white pyjamas | generic |
 | PLT-DA51101 | Pyjamas | 1 color names a part | White Pyjamas, Blue Trim | blue | blue pyjamas | generic |
 | PLT-DA51102 | Pyjamas | 1 color names a part | Black Pyjamas, Red Piping | red | red pyjamas | generic |
@@ -1257,13 +1257,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA51500 | Pyjamas | 5 shade spelled in the description only | Moonbeam Pyjamas | ivory | ivory pyjamas | generic |
 | PLT-DA51501 | Pyjamas | 5 shade spelled in the description only | Driftwood Pyjamas | taupe | taupe pyjamas | generic |
 | PLT-DA51502 | Pyjamas | 5 shade spelled in the description only | Dune Pyjamas | beige | beige pyjamas | generic |
-| PLT-DA51600 | Pyjamas | 6 incidental word in a range name | Yellow Brook Pyjamas | yellow | yellow pyjamas | generic |
-| PLT-DA51601 | Pyjamas | 6 incidental word in a range name | Yellow Marsh Pyjamas | yellow | yellow pyjamas | generic |
-| PLT-DA51602 | Pyjamas | 6 incidental word in a range name | Green Park Pyjamas | green | green pyjamas | generic |
-| PLT-DA51603 | Pyjamas | 6 incidental word in a range name | Dress Circle Pyjamas | dress | dress | generic |
-| PLT-DA51700 | Pyjamas | 7 invented brand holding a color or category word | Coat Crake Pyjamas | coat | coat pyjamas | generic |
-| PLT-DA51701 | Pyjamas | 7 invented brand holding a color or category word | Red Plover Pyjamas | red | red pyjamas | generic |
-| PLT-DA51702 | Pyjamas | 7 invented brand holding a color or category word | Green Stoat Pyjamas | green | green pyjamas | generic |
+| PLT-DA51600 | Pyjamas | 6 incidental word in a range name | Yellow Brook Pyjamas, Red | yellow | yellow pyjamas | generic |
+| PLT-DA51601 | Pyjamas | 6 incidental word in a range name | Yellow Marsh Pyjamas, White | yellow | yellow pyjamas | generic |
+| PLT-DA51602 | Pyjamas | 6 incidental word in a range name | Green Park Pyjamas, Red | green | green pyjamas | generic |
+| PLT-DA51603 | Pyjamas | 6 incidental word in a range name | Dress Circle Pyjamas, Brown | dress | dress | generic |
+| PLT-DA51700 | Pyjamas | 7 invented brand holding a color or category word | Coat Crake Pyjamas, Grey | coat | coat pyjamas | generic |
+| PLT-DA51701 | Pyjamas | 7 invented brand holding a color or category word | Red Plover Pyjamas, Black | red | red pyjamas | generic |
+| PLT-DA51702 | Pyjamas | 7 invented brand holding a color or category word | Green Stoat Pyjamas, Blue | green | green pyjamas | generic |
 | PLT-DA52100 | Shapewear | 1 color names a part | Cream Shapewear, Green Cuffs | green | green shapewear | generic |
 | PLT-DA52101 | Shapewear | 1 color names a part | Green Shapewear, Blue Piping | blue | blue shapewear | generic |
 | PLT-DA52102 | Shapewear | 1 color names a part | Pink Shapewear, Green Bow | green | green shapewear | generic |
@@ -1279,13 +1279,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA52500 | Shapewear | 5 shade spelled in the description only | Moonbeam Shapewear | ivory | ivory shapewear | generic |
 | PLT-DA52501 | Shapewear | 5 shade spelled in the description only | Driftwood Shapewear | taupe | taupe shapewear | generic |
 | PLT-DA52502 | Shapewear | 5 shade spelled in the description only | Dune Shapewear | beige | beige shapewear | generic |
-| PLT-DA52600 | Shapewear | 6 incidental word in a range name | Black Tor Shapewear | black | black shapewear | generic |
-| PLT-DA52601 | Shapewear | 6 incidental word in a range name | White Moor Shapewear | white | white shapewear | generic |
-| PLT-DA52602 | Shapewear | 6 incidental word in a range name | Blue Meadow Shapewear | blue | blue shapewear | generic |
-| PLT-DA52603 | Shapewear | 6 incidental word in a range name | Sock Hop Shapewear | sock | sock | generic |
-| PLT-DA52700 | Shapewear | 7 invented brand holding a color or category word | Red Plover Shapewear | red | red shapewear | generic |
-| PLT-DA52701 | Shapewear | 7 invented brand holding a color or category word | Coat Crake Shapewear | coat | coat shapewear | generic |
-| PLT-DA52702 | Shapewear | 7 invented brand holding a color or category word | Black Lapwing Shapewear | black | black shapewear | generic |
+| PLT-DA52600 | Shapewear | 6 incidental word in a range name | Black Tor Shapewear, Green | black | black shapewear | generic |
+| PLT-DA52601 | Shapewear | 6 incidental word in a range name | White Moor Shapewear, Black | white | white shapewear | generic |
+| PLT-DA52602 | Shapewear | 6 incidental word in a range name | Blue Meadow Shapewear, White | blue | blue shapewear | generic |
+| PLT-DA52603 | Shapewear | 6 incidental word in a range name | Sock Hop Shapewear, Blue | sock | sock | generic |
+| PLT-DA52700 | Shapewear | 7 invented brand holding a color or category word | Red Plover Shapewear, Green | red | red shapewear | generic |
+| PLT-DA52701 | Shapewear | 7 invented brand holding a color or category word | Coat Crake Shapewear, Red | coat | coat shapewear | generic |
+| PLT-DA52702 | Shapewear | 7 invented brand holding a color or category word | Black Lapwing Shapewear, Blue | black | black shapewear | generic |
 | PLT-DA53100 | Slip | 1 color names a part | Grey Slip, Red Waistband | red | red slip | generic |
 | PLT-DA53101 | Slip | 1 color names a part | Blue Slip, Yellow Trim | yellow | yellow slip | generic |
 | PLT-DA53102 | Slip | 1 color names a part | White Slip, Black Piping | black | black slip | generic |
@@ -1301,13 +1301,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA53500 | Slip | 5 shade spelled in the description only | Moonbeam Slip | ivory | ivory slip | generic |
 | PLT-DA53501 | Slip | 5 shade spelled in the description only | Driftwood Slip | taupe | taupe slip | generic |
 | PLT-DA53502 | Slip | 5 shade spelled in the description only | Dune Slip | beige | beige slip | generic |
-| PLT-DA53600 | Slip | 6 incidental word in a range name | White Moor Slip | white | white slip | generic |
-| PLT-DA53601 | Slip | 6 incidental word in a range name | Red Fern Slip | red | red slip | generic |
-| PLT-DA53602 | Slip | 6 incidental word in a range name | Black Mill Slip | black | black slip | generic |
-| PLT-DA53603 | Slip | 6 incidental word in a range name | Coat Hook Slip | coat | coat | generic |
-| PLT-DA53700 | Slip | 7 invented brand holding a color or category word | Jumper Jay Slip | jumper | jumper slip | generic |
-| PLT-DA53701 | Slip | 7 invented brand holding a color or category word | Blue Otter Slip | blue | blue slip | generic |
-| PLT-DA53702 | Slip | 7 invented brand holding a color or category word | Green Stoat Slip | green | green slip | generic |
+| PLT-DA53600 | Slip | 6 incidental word in a range name | White Moor Slip, Brown | white | white slip | generic |
+| PLT-DA53601 | Slip | 6 incidental word in a range name | Red Fern Slip, Green | red | red slip | generic |
+| PLT-DA53602 | Slip | 6 incidental word in a range name | Black Mill Slip, Blue | black | black slip | generic |
+| PLT-DA53603 | Slip | 6 incidental word in a range name | Coat Hook Slip, Navy | coat | coat | generic |
+| PLT-DA53700 | Slip | 7 invented brand holding a color or category word | Jumper Jay Slip, Grey | jumper | jumper slip | generic |
+| PLT-DA53701 | Slip | 7 invented brand holding a color or category word | Blue Otter Slip, Cream | blue | blue slip | generic |
+| PLT-DA53702 | Slip | 7 invented brand holding a color or category word | Green Stoat Slip, Grey | green | green slip | generic |
 | PLT-DA54100 | Tights | 1 color names a part | Cream Tights, Yellow Cuffs | yellow | yellow tights | generic |
 | PLT-DA54101 | Tights | 1 color names a part | Blue Tights, Green Piping | green | green tights | generic |
 | PLT-DA54102 | Tights | 1 color names a part | Navy Tights, Blue Stitching | blue | blue tights | generic |
@@ -1323,13 +1323,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA54500 | Tights | 5 shade spelled in the description only | Moonbeam Tights | ivory | ivory tights | generic |
 | PLT-DA54501 | Tights | 5 shade spelled in the description only | Driftwood Tights | taupe | taupe tights | generic |
 | PLT-DA54502 | Tights | 5 shade spelled in the description only | Dune Tights | beige | beige tights | generic |
-| PLT-DA54600 | Tights | 6 incidental word in a range name | Yellow Marsh Tights | yellow | yellow tights | generic |
-| PLT-DA54601 | Tights | 6 incidental word in a range name | White Moor Tights | white | white tights | generic |
-| PLT-DA54602 | Tights | 6 incidental word in a range name | Yellow Brook Tights | yellow | yellow tights | generic |
-| PLT-DA54603 | Tights | 6 incidental word in a range name | Jumper Lane Tights | jumper | jumper | generic |
-| PLT-DA54700 | Tights | 7 invented brand holding a color or category word | Jumper Jay Tights | jumper | jumper tights | generic |
-| PLT-DA54701 | Tights | 7 invented brand holding a color or category word | Red Plover Tights | red | red tights | generic |
-| PLT-DA54702 | Tights | 7 invented brand holding a color or category word | Coat Crake Tights | coat | coat tights | generic |
+| PLT-DA54600 | Tights | 6 incidental word in a range name | Yellow Marsh Tights, Black | yellow | yellow tights | generic |
+| PLT-DA54601 | Tights | 6 incidental word in a range name | White Moor Tights, Black | white | white tights | generic |
+| PLT-DA54602 | Tights | 6 incidental word in a range name | Yellow Brook Tights, Cream | yellow | yellow tights | generic |
+| PLT-DA54603 | Tights | 6 incidental word in a range name | Jumper Lane Tights, Green | jumper | jumper | generic |
+| PLT-DA54700 | Tights | 7 invented brand holding a color or category word | Jumper Jay Tights, Pink | jumper | jumper tights | generic |
+| PLT-DA54701 | Tights | 7 invented brand holding a color or category word | Red Plover Tights, White | red | red tights | generic |
+| PLT-DA54702 | Tights | 7 invented brand holding a color or category word | Coat Crake Tights, Grey | coat | coat tights | generic |
 | PLT-DA55100 | Vest | 1 color names a part | Brown Vest, Blue Waistband | blue | blue vest | generic |
 | PLT-DA55101 | Vest | 1 color names a part | Pink Vest, Green Cuffs | green | green vest | generic |
 | PLT-DA55102 | Vest | 1 color names a part | Brown Vest, Green Cuffs | green | green vest | generic |
@@ -1345,10 +1345,10 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA55500 | Vest | 5 shade spelled in the description only | Moonbeam Vest | ivory | ivory vest | generic |
 | PLT-DA55501 | Vest | 5 shade spelled in the description only | Driftwood Vest | taupe | taupe vest | generic |
 | PLT-DA55502 | Vest | 5 shade spelled in the description only | Dune Vest | beige | beige vest | generic |
-| PLT-DA55600 | Vest | 6 incidental word in a range name | Black Tor Vest | black | black vest | generic |
-| PLT-DA55601 | Vest | 6 incidental word in a range name | Red Harbour Vest | red | red vest | generic |
-| PLT-DA55602 | Vest | 6 incidental word in a range name | Black Mill Vest | black | black vest | generic |
-| PLT-DA55603 | Vest | 6 incidental word in a range name | Sock Hop Vest | sock | sock | generic |
-| PLT-DA55700 | Vest | 7 invented brand holding a color or category word | Coat Crake Vest | coat | coat vest | generic |
-| PLT-DA55701 | Vest | 7 invented brand holding a color or category word | Yellow Wagtail Vest | yellow | yellow vest | generic |
-| PLT-DA55702 | Vest | 7 invented brand holding a color or category word | Red Plover Vest | red | red vest | generic |
+| PLT-DA55600 | Vest | 6 incidental word in a range name | Black Tor Vest, Brown | black | black vest | generic |
+| PLT-DA55601 | Vest | 6 incidental word in a range name | Red Harbour Vest, Green | red | red vest | generic |
+| PLT-DA55602 | Vest | 6 incidental word in a range name | Black Mill Vest, Grey | black | black vest | generic |
+| PLT-DA55603 | Vest | 6 incidental word in a range name | Sock Hop Vest, Green | sock | sock | generic |
+| PLT-DA55700 | Vest | 7 invented brand holding a color or category word | Coat Crake Vest, Grey | coat | coat vest | generic |
+| PLT-DA55701 | Vest | 7 invented brand holding a color or category word | Yellow Wagtail Vest, Cream | yellow | yellow vest | generic |
+| PLT-DA55702 | Vest | 7 invented brand holding a color or category word | Red Plover Vest, Brown | red | red vest | generic |
