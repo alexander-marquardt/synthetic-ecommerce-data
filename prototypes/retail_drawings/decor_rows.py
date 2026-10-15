@@ -21,7 +21,7 @@ Diary            Gifts > Cards & Stationery  (color)          year, page layout,
 Picnic Blanket   Sports & Outdoors > Camping dimensions       waterproof backing
 ===============  ==========================  ===============  =====================================
 
-Every type holds at least three styles from at least three brands, all invented. A coloured type
+Every type holds at least three styles from at least three brands, all invented. A colored type
 offers the six main colors across its styles (gen#275); a greeting card is sold by design, not
 by color, so it carries none. A measured axis is on the SKUs alone, which the export states with
 its unit (``export.OPTIONS``). A card's SKU ``design`` is also its drawing's ``design`` param, so
