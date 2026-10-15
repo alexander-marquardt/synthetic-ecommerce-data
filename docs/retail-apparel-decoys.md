@@ -114,9 +114,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA04200 | Coat | 2 another category's noun as a modifier | Grey Blazer Coat | blazer | blazer | generic |
 | PLT-DA04201 | Coat | 2 another category's noun as a modifier | Green Tunic Coat | tunic | tunic | generic |
 | PLT-DA04202 | Coat | 2 another category's noun as a modifier | Brown Tunic Coat | tunic | tunic | generic |
-| PLT-DA04300 | Coat | 3 audience word of a sibling version | Pink Mens-Style Coat | mens | mens coat | generic |
-| PLT-DA04301 | Coat | 3 audience word of a sibling version | White Boys Fit Coat | boys | boys coat | generic |
-| PLT-DA04302 | Coat | 3 audience word of a sibling version | Black Mens Fit Coat | mens | mens coat | generic |
+| PLT-DA04300 | Coat | 3 audience word of a sibling version | Pink Womens-Style Coat | womens | womens coat | generic |
+| PLT-DA04301 | Coat | 3 audience word of a sibling version | White Girls Fit Coat | girls | girls coat | generic |
+| PLT-DA04302 | Coat | 3 audience word of a sibling version | Black Womens Fit Coat | womens | womens coat | generic |
 | PLT-DA04400 | Coat | 4 material or feature named but absent | Pink Leather-Look Coat | leather | leather coat | special: material claim |
 | PLT-DA04401 | Coat | 4 material or feature named but absent | Blue Suede-Look Coat | suede | suede coat | special: material claim |
 | PLT-DA04402 | Coat | 4 material or feature named but absent | Green Cashmere-Feel Coat | cashmere | cashmere coat | special: material claim |
@@ -397,12 +397,12 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA17100 | Suit Jacket | 1 color names a part | Pink Suit Jacket, Blue Trim | blue | blue suit jacket | generic |
 | PLT-DA17101 | Suit Jacket | 1 color names a part | Cream Suit Jacket, Yellow Zip | yellow | yellow suit jacket | generic |
 | PLT-DA17102 | Suit Jacket | 1 color names a part | Navy Suit Jacket, Green Piping | green | green suit jacket | generic |
-| PLT-DA17200 | Suit Jacket | 2 another category's noun as a modifier | Navy Hoodie Suit Jacket | hoodie | hoodie | generic |
-| PLT-DA17201 | Suit Jacket | 2 another category's noun as a modifier | Red Hoodie Suit Jacket | hoodie | hoodie | generic |
-| PLT-DA17202 | Suit Jacket | 2 another category's noun as a modifier | Pink Hoodie Suit Jacket | hoodie | hoodie | generic |
-| PLT-DA17300 | Suit Jacket | 3 audience word of a sibling version | Grey Mens-Style Suit Jacket | mens | mens suit jacket | generic |
-| PLT-DA17301 | Suit Jacket | 3 audience word of a sibling version | Grey Boys Fit Suit Jacket | boys | boys suit jacket | generic |
-| PLT-DA17302 | Suit Jacket | 3 audience word of a sibling version | Pink Boys Fit Suit Jacket | boys | boys suit jacket | generic |
+| PLT-DA17200 | Suit Jacket | 2 another category's noun as a modifier | Pink Poncho Suit Jacket | poncho | poncho | generic |
+| PLT-DA17201 | Suit Jacket | 2 another category's noun as a modifier | Navy Vest Suit Jacket | vest | vest | generic |
+| PLT-DA17202 | Suit Jacket | 2 another category's noun as a modifier | Red Vest Suit Jacket | vest | vest | generic |
+| PLT-DA17300 | Suit Jacket | 3 audience word of a sibling version | Grey Womens-Style Suit Jacket | womens | womens suit jacket | generic |
+| PLT-DA17301 | Suit Jacket | 3 audience word of a sibling version | Grey Girls Fit Suit Jacket | girls | girls suit jacket | generic |
+| PLT-DA17302 | Suit Jacket | 3 audience word of a sibling version | Pink Girls Fit Suit Jacket | girls | girls suit jacket | generic |
 | PLT-DA17400 | Suit Jacket | 4 material or feature named but absent | White Leather-Look Suit Jacket | leather | leather suit jacket | special: material claim |
 | PLT-DA17401 | Suit Jacket | 4 material or feature named but absent | Blue Suede-Look Suit Jacket | suede | suede suit jacket | special: material claim |
 | PLT-DA17402 | Suit Jacket | 4 material or feature named but absent | Pink Cashmere-Feel Suit Jacket | cashmere | cashmere suit jacket | special: material claim |
@@ -412,9 +412,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA17600 | Suit Jacket | 6 incidental word in a range name | Blue Meadow Suit Jacket | blue | blue suit jacket | generic |
 | PLT-DA17601 | Suit Jacket | 6 incidental word in a range name | Blue Cove Suit Jacket | blue | blue suit jacket | generic |
 | PLT-DA17602 | Suit Jacket | 6 incidental word in a range name | White Cliff Suit Jacket | white | white suit jacket | generic |
-| PLT-DA17603 | Suit Jacket | 6 incidental word in a range name | Jumper Lane Suit Jacket | jumper | jumper | generic |
+| PLT-DA17603 | Suit Jacket | 6 incidental word in a range name | Coat Hook Suit Jacket | coat | coat | generic |
 | PLT-DA17700 | Suit Jacket | 7 invented brand holding a color or category word | Green Stoat Suit Jacket | green | green suit jacket | generic |
-| PLT-DA17701 | Suit Jacket | 7 invented brand holding a color or category word | Blue Otter Suit Jacket | blue | blue suit jacket | generic |
+| PLT-DA17701 | Suit Jacket | 7 invented brand holding a color or category word | Black Lapwing Suit Jacket | black | black suit jacket | generic |
 | PLT-DA17702 | Suit Jacket | 7 invented brand holding a color or category word | Red Plover Suit Jacket | red | red suit jacket | generic |
 | PLT-DA18100 | Sweatshirt | 1 color names a part | Cream Sweatshirt, Yellow Lining | yellow | yellow sweatshirt | generic |
 | PLT-DA18101 | Sweatshirt | 1 color names a part | Red Sweatshirt, White Buttons | white | white sweatshirt | generic |
@@ -653,13 +653,13 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA25707 | Jeans | 7 invented brand holding a color or category word | Green Stoat Slim Jeans | green | green jeans | generic |
 | PLT-DA26100 | Socks | 1 color names a part | Green Socks, Blue Cuff | blue | blue socks | generic |
 | PLT-DA26101 | Socks | 1 color names a part | Blue Socks, White Trim | white | white socks | generic |
-| PLT-DA26102 | Socks | 1 color names a part | Black Socks, Yellow Cuff | yellow | yellow socks | generic |
+| PLT-DA26102 | Socks | 1 color names a part | White Socks, Yellow Cuff | yellow | yellow socks | generic |
 | PLT-DA26200 | Socks | 2 another category's noun as a modifier | Green Trainer Socks | trainer | trainer | generic |
 | PLT-DA26201 | Socks | 2 another category's noun as a modifier | Brown Slipper Socks | slipper | slipper | generic |
 | PLT-DA26202 | Socks | 2 another category's noun as a modifier | Black Boot Socks | boot | boot | generic |
-| PLT-DA26300 | Socks | 3 audience word of a sibling version | White Mini-Me Mens Socks | mens | mens socks | generic |
-| PLT-DA26301 | Socks | 3 audience word of a sibling version | Red Womens Fit Socks | womens | womens socks | generic |
-| PLT-DA26302 | Socks | 3 audience word of a sibling version | Green Girls Fit Socks | girls | girls socks | generic |
+| PLT-DA26300 | Socks | 3 audience word of a sibling version | White Womens-Style Socks | womens | womens socks | generic |
+| PLT-DA26301 | Socks | 3 audience word of a sibling version | Blue Womens Fit Socks | womens | womens socks | generic |
+| PLT-DA26302 | Socks | 3 audience word of a sibling version | Grey Womens-Style Socks | womens | womens socks | generic |
 | PLT-DA26400 | Socks | 4 material or feature named but absent | Green Leather-Look Socks | leather | leather socks | special: material claim |
 | PLT-DA26401 | Socks | 4 material or feature named but absent | Cream Suede-Look Socks | suede | suede socks | special: material claim |
 | PLT-DA26402 | Socks | 4 material or feature named but absent | Cream Cashmere-Feel Socks | cashmere | cashmere socks | special: material claim |
@@ -668,7 +668,7 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA26502 | Socks | 5 shade spelled in the description only | Dune Socks | beige | beige socks | generic |
 | PLT-DA26600 | Socks | 6 incidental word in a range name | Black Mill Socks | black | black socks | generic |
 | PLT-DA26601 | Socks | 6 incidental word in a range name | Red Fern Socks | red | red socks | generic |
-| PLT-DA26602 | Socks | 6 incidental word in a range name | Yellow Brook Socks | yellow | yellow socks | generic |
+| PLT-DA26602 | Socks | 6 incidental word in a range name | Yellow Marsh Socks | yellow | yellow socks | generic |
 | PLT-DA26603 | Socks | 6 incidental word in a range name | Dress Circle Socks | dress | dress | generic |
 | PLT-DA26700 | Socks | 7 invented brand holding a color or category word | Green Stoat Socks | green | green socks | generic |
 | PLT-DA26701 | Socks | 7 invented brand holding a color or category word | White Dormouse Socks | white | white socks | generic |

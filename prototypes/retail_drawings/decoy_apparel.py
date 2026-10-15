@@ -105,6 +105,9 @@ EXEMPT = {
     "Necklace": "jewellery: the color is the metal finish, not a printed or dyed color",
     "Ring": "jewellery: the color is the metal finish, not a printed or dyed color",
     "Watch": "a watch: the color is the metal finish, not a printed or dyed color",
+    "Polo Shirt": "a type of the Mens clothing depth (gen#310), which carries its own decoys",
+    "Jacket": "a type of the Mens clothing depth (gen#310), which carries its own decoys",
+    "Mens Trousers": "a type of the Mens clothing depth (gen#310), which carries its own decoys",
     "Shoe Care Kit": "a care product sold in the footwear department, not footwear",
 }
 
