@@ -1145,6 +1145,11 @@ color, summed. Legwear SKUs are color x waist x `inside_leg` with `in_stock`
 per SKU, and jeans and trousers carry `rise`. Bedding SKUs are bed sizes whose
 label carries the dimension ("Double (4 ft 6)"), each with its own price.
 Beauty shades are the SKU colors of one product with `unit_size` in g or ml.
+A product sold in one size states it as `unit_size`; one sold in several (a `Style` with
+`volumes`, a `Row` with `size_key="net_volume_ml"`, a grocery pack) carries a `net_volume` on
+each SKU. Either way a **Net volume** facet offers at least three volumes per type
+(`tests/test_retail_net_volume_347.py`, which also holds a title's "500ml" to its field), and
+a type that genuinely sells one size is declared in that test's `EXCEPTIONS` with its reason.
 `price_min` and `price_max` come from the SKUs, and `price` is the cheapest
 SKU. `size_range` is a list; for legwear it is derived from the in-stock lengths
 (Extra Short and Short/Petite give `petite`), never declared, so the flat
