@@ -13,6 +13,7 @@ import json
 import math
 import re
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pytest
@@ -24,9 +25,11 @@ if str(RETAIL) not in sys.path:
 
 import baseline_rank as br  # noqa: E402
 import decoy_apparel as da  # noqa: E402
+import decoy_rows  # noqa: E402
 import export  # noqa: E402
 import image_release  # noqa: E402
 import main_colors  # noqa: E402
+import mens_depth_rows  # noqa: E402
 import scale  # noqa: E402
 
 from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
@@ -221,3 +224,93 @@ def test_a_decoy_may_name_only_the_misleading_color_and_only_when_it_is_drawn(
         assert drawing["pattern"] == "stripe", (r.pid, drawing)
         assert drawing["accent"].lower() == da.DETAIL_HEX[r.word.title()].lower(), (r.pid, r.word)
         assert doc["color_options"][0]["color"] != r.word.title(), r.pid
+
+
+def _real_color(doc: dict) -> str:
+    return doc["color_options"][0]["color"].lower()
+
+
+def test_a_decoy_title_names_only_the_misleading_color(
+    rows: list[da.Row], by_id: dict[str, dict]
+) -> None:
+    """The maintainer ruling: "Bra with Red Straps" on a white bra, with no "White" in the title.
+    It holds for class 1 (a part), 6 (a range name) and 7 (a brand) alike."""
+    named = [r for r in rows if r.cls in (1, 6, 7) and r.word in MAIN]
+    assert len(named) >= 3 * len(da.TYPES)
+    for r in named:
+        real = _real_color(by_id[r.pid])
+        title = by_id[r.pid]["title"].lower()
+        assert real != r.word, (r.pid, real)
+        assert not re.search(rf"\b{real}\b", title), (r.pid, real, title)
+        assert re.search(rf"\b{r.word}\b", title), (r.pid, r.word, title)
+
+
+def _svg_parts(doc: dict) -> tuple[list[ET.Element], list[ET.Element]]:
+    """(the elements marked as a named part, every other drawn element outside defs and masks)."""
+    root = ET.fromstring(image_release.render(doc, doc["skus"][0]))
+    marked: list[ET.Element] = []
+    plain: list[ET.Element] = []
+
+    def walk(el: ET.Element, hidden: bool) -> None:
+        tag = el.tag.split("}")[-1]
+        hidden = hidden or tag in ("defs", "mask", "clipPath")
+        if not hidden and el.get("data-part"):
+            marked.append(el)
+        elif not hidden:
+            plain.append(el)
+        for child in el:
+            walk(child, hidden)
+
+    walk(root, False)
+    return marked, plain
+
+
+def test_the_named_part_is_drawn_in_the_named_color_and_nothing_else_is(
+    rows: list[da.Row], by_id: dict[str, dict]
+) -> None:
+    """The picture shows what the title says: the part the title names (class 1), or the type's
+    first part (classes 6 and 7, whose title names none), carries the named color, and no other
+    element of the drawing does: a stripe across the whole garment is not a named part."""
+    named = [r for r in rows if r.cls in (1, 6, 7) and r.word in MAIN]
+    for r in named:
+        doc = by_id[r.pid]
+        hexv = da.DETAIL_HEX[r.word.title()].lower()
+        marked, plain = _svg_parts(doc)
+        assert marked, (r.pid, doc["title"], "no element is marked as the named part")
+        if r.cls == 1:
+            part = doc["title"].split()[-1].lower()
+            assert {e.get("data-part") for e in marked} == {part}, (r.pid, doc["title"])
+        for e in marked:
+            assert hexv in (e.get("fill", "").lower(), e.get("stroke", "").lower()), (
+                r.pid,
+                e.attrib,
+            )
+        for e in plain:
+            assert hexv not in (e.get("fill", "").lower(), e.get("stroke", "").lower()), (
+                r.pid,
+                doc["title"],
+                e.attrib,
+            )
+
+
+def test_decoy_ids_are_the_two_tables_and_no_real_product_is_in_them(
+    ceiling: list[dict],
+) -> None:
+    """The exemption is keyed on the decoy tables: a real catalog id is outside it. Membership
+    is read with ``in``, the way ``check_catalog`` reads it."""
+    assert scale.DECOY_IDS == decoy_rows.IDS | da.IDS
+    real = [r["product_id"] for r in ceiling if r["product_id"] not in scale.DECOY_IDS]
+    assert len(real) > 5 * len(scale.DECOY_IDS)
+    assert not [i for i in real if i in scale.DECOY_IDS]
+    assert all(i in scale.DECOY_IDS for i in decoy_rows.IDS | da.IDS)
+
+
+def test_the_mens_types_the_census_exempts_hold_their_own_decoys() -> None:
+    """The exemption of Polo Shirt, Jacket and Mens Trousers is safe only while the Mens depth
+    table holds at least three decoys of each class 1 to 7 for each of them."""
+    mens = {t for t in da.EXEMPT if any(d.ptype == t for d in mens_depth_rows.TABLE)}
+    assert mens == {"Polo Shirt", "Jacket", "Mens Trousers"}
+    for ptype in mens:
+        for klass in range(1, 8):
+            n = sum(1 for d in mens_depth_rows.TABLE if d.ptype == ptype and d.klass == klass)
+            assert n >= 3, (ptype, klass, n)
