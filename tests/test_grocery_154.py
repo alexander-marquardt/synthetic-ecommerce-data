@@ -70,7 +70,9 @@ def test_every_document_meets_the_output_standard() -> None:
 
 def test_the_flat_file_is_one_document_per_sku_with_the_retail_flat_keys() -> None:
     rows = grocery.flat(list(docs()))
-    retail_keys = set(export.flat_documents()[0])
+    # fibre_content is a fabric detail (gen#187): food never carries a blend, and the
+    # first retail document (a garment) does, so it is not a key every row shares.
+    retail_keys = set(export.flat_documents()[0]) - {"fibre_content"}
     assert len(rows) == SKUS
     assert {k for r in rows for k in r} == retail_keys | {"ingredients"}
 

@@ -79,9 +79,13 @@ def test_the_audience_follows_the_category_root(rows):
     got = collections.defaultdict(set)
     for r in rows:
         path = r["category_path"]
-        if path[0] in audience.PEOPLE_ROOTS:
+        if path[0] in audience.PEOPLE_ROOTS and path[:2] != ["Womens", "Accessories"]:
             got[(path[0], path[1] if path[0] == "Kids" else "")].add(r["facets"]["audience"][0])
     assert got[("Womens", "")] == {"Womens"}
+    # gen#248: the unisex bags and umbrellas sit under Womens > Accessories and state Unisex.
+    shelf = [r for r in rows if r["category_path"][:2] == ["Womens", "Accessories"]]
+    accessories = {r["facets"]["audience"][0] for r in shelf}
+    assert accessories == {"Womens", "Unisex"}
     assert got[("Mens", "")] == {"Mens"}
     assert got[("Kids", "Girls")] == {"Girls"}
     assert got[("Kids", "Boys")] == {"Boys"}
@@ -156,7 +160,7 @@ def test_the_cleaning_root_is_one_and_every_build_department_is_on_the_list(docs
     assert "Cleaning" in roots
     for r in built.records:
         departments.check(r["department"], r["product_id"])
-    assert not standard.check_catalog(docs)
+    assert not standard.check_catalog(docs, text_exempt=scale.DECOY_IDS)
 
 
 def test_the_document_json_round_trips_with_one_audience_entry_per_style(docs):
