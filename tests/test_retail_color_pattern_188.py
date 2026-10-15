@@ -206,3 +206,22 @@ def test_a_style_whose_every_sku_splits_lists_no_plain(
             checked += 1
             assert "Plain" not in _values(by_id[r["product_id"]]["attributes"], "pattern")
     assert checked > 20
+
+
+def test_a_style_whose_every_sku_splits_lists_only_patterns_a_sku_states(
+    built: scale.Scaled, nested: list[dict[str, Any]]
+) -> None:
+    """The style's pattern list is the union of its SKUs' patterns: a drawn pattern no SKU
+    states (a Stripe on a style whose SKUs are all Check) is not listed."""
+    by_id = {d["product_id"]: d for d in nested}
+    unstated: dict[str, list[str]] = {}
+    for r in built.records:
+        splits = [colorwords.split(s["color"])[1] for s in r["skus"] if "color" in s]
+        if not (splits and all(splits)):
+            continue
+        doc = by_id[r["product_id"]]
+        stated = {p for v in doc["variants"] for p in _values(v["attributes"], "pattern")}
+        extra = sorted(set(_values(doc["attributes"], "pattern")) - stated)
+        if extra:
+            unstated[r["product_id"]] = extra
+    assert unstated == {}
