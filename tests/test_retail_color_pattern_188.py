@@ -162,3 +162,47 @@ def test_the_authored_export_splits_too() -> None:
     blob = json.dumps(export.documents(), ensure_ascii=False)
     color = r'"key": "color", "name": "Color", "value": "[^"]*'
     assert not re.search(color + "(Stripe|Check|Wash)", blob)
+
+
+def _drawn(record: dict[str, Any]) -> list[str]:
+    """The style's own drawn pattern as the document spells it, or Plain."""
+    drawn = record.get("pattern", "Plain")
+    return [str(v).title() for v in (drawn if isinstance(drawn, list) else [drawn])]
+
+
+def test_a_flat_sku_states_its_own_pattern_and_never_a_siblings(
+    built: scale.Scaled, nested: list[dict[str, Any]]
+) -> None:
+    """In a style where any SKU splits, a SKU's flat ``pattern`` is the split of its own
+    authored color, else the style's drawn pattern, else Plain: never the union of the style."""
+    from synthetic_ecommerce_data.core import standard
+
+    records = {r["product_id"]: r for r in built.records}
+    wrong: dict[str, Any] = {}
+    styles = 0
+    for doc in nested:
+        record = records[doc["product_id"]]
+        authored = {s["sku"]: s.get("color") for s in record["skus"]}
+        if not any(c and colorwords.split(c)[1] for c in authored.values()):
+            continue
+        styles += 1
+        for row in standard.flat_documents(doc, export.NUMERIC_FACTS):
+            split_pattern = colorwords.split(authored[row["sku"]] or "")[1]
+            want = [split_pattern.title()] if split_pattern else _drawn(record)
+            if row["facets"].get("pattern") != want:
+                wrong[row["sku"]] = (row["facets"].get("pattern"), want)
+    assert styles > 100
+    assert dict(list(wrong.items())[:5]) == {}, len(wrong)
+
+
+def test_a_style_whose_every_sku_splits_lists_no_plain(
+    built: scale.Scaled, nested: list[dict[str, Any]]
+) -> None:
+    by_id = {d["product_id"]: d for d in nested}
+    checked = 0
+    for r in built.records:
+        splits = [colorwords.split(s["color"])[1] for s in r["skus"] if "color" in s]
+        if splits and all(splits):
+            checked += 1
+            assert "Plain" not in _values(by_id[r["product_id"]]["attributes"], "pattern")
+    assert checked > 20
