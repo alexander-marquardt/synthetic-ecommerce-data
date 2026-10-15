@@ -187,3 +187,22 @@ def test_the_standard_reads_a_brand_as_a_name_not_a_claim(decoys):
     assert len(mine) >= 18
     for d in mine:
         assert standard.text_contradictions(d, pools) == [], d["title"]
+
+
+def test_a_built_decoy_offers_exactly_its_one_true_color(decoys):
+    """The completer adds main colors to a type that lacks them; a decoy whose color field is
+    its one true color takes none (Silver Sedge towel: Navy, not seven colors)."""
+    templates = scale.templates()
+    docs = scale.documents(scale.build(sum(len(r["skus"]) for r in templates)))
+    by_title = {d["title"]: d for d in docs}
+    true = {f"BRD-{row.code}": row.true_color for row in cw_rows.ROWS}
+    checked = 0
+    for r in decoys:
+        if not any(s.get("color") for s in r["skus"]):
+            continue  # a colorless product (food, drink, bulbs) has no color to offer
+        want = {true[r["product_id"]]}
+        doc = by_title[r["title"]]
+        got = {a["value"] for v in doc["variants"] for a in v["attributes"] if a["key"] == "color"}
+        assert got == want, r["title"]
+        checked += 1
+    assert checked >= 5
