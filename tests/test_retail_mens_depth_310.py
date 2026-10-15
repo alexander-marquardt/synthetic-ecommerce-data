@@ -26,12 +26,12 @@ import scale  # noqa: E402
 
 #: group -> (category path prefixes, the floor of distinct products), from the issue.
 FLOORS = {
-    "trousers and chinos": ((("Men", "Trousers"),), 80),
-    "shirts": ((("Men", "Tops", "Shirts"),), 120),
-    "polo shirts": ((("Men", "Tops", "Polo Shirts"),), 50),
-    "coats and jackets": ((("Men", "Coats & Jackets"),), 80),
-    "suits, blazers and tailoring": ((("Men", "Suits & Tailoring"),), 60),
-    "underwear and socks": ((("Men", "Underwear"), ("Men", "Socks")), 60),
+    "trousers and chinos": ((("Mens", "Trousers"),), 80),
+    "shirts": ((("Mens", "Tops", "Shirts"),), 120),
+    "polo shirts": ((("Mens", "Tops", "Polos"),), 50),
+    "coats and jackets": ((("Mens", "Coats & Jackets"),), 80),
+    "suits, blazers and tailoring": ((("Mens", "Suits & Tailoring"),), 60),
+    "underwear and socks": ((("Mens", "Underwear"), ("Mens", "Socks")), 60),
 }
 #: group -> the floor of products that are NOT decoys: the ranking needs real products to choose
 #: between, so the floors above may not be met by decoys alone.
@@ -48,7 +48,7 @@ SLEEVE_TYPES = ("Shirt", "Polo Shirt", "Coat", "Jacket", "Suit Jacket")
 MATERIAL_WORDS = ("wool", "linen", "leather", "silk", "cashmere", "down", "fur", "suede",
                   "denim", "flannel", "cotton")
 #: The product types that carry decoys, and the five-plus-two classes each carries.
-TYPES = ("Trousers", "Shirt", "Polo Shirt", "Coat", "Jacket", "Suit Jacket", "Boxers", "Socks")
+TYPES = ("Mens Trousers", "Shirt", "Polo Shirt", "Coat", "Jacket", "Suit Jacket", "Boxers", "Socks")
 CLASSES = (1, 2, 3, 4, 5, 6, 7)
 MAIN = ("Red", "Blue", "Green", "Yellow", "Black", "White")
 #: The invented brands of class 7: each holds a color or category word.
@@ -111,7 +111,7 @@ def test_no_mens_knitwear_is_added_here(templates):
 def test_every_row_is_mens_and_unique(templates):
     docs = mens_depth_rows.docs()
     assert docs
-    assert {r["category_path"][0] for r in docs} == {"Men"}
+    assert {r["category_path"][0] for r in docs} == {"Mens"}
     assert len({r["product_id"] for r in docs}) == len(docs)
     assert len({r["title"] for r in docs}) == len(docs)
     assert {r["product_id"] for r in docs} <= scale.MENS_DEPTH_IDS
@@ -135,7 +135,7 @@ def test_a_decoy_is_a_product_of_its_type_and_true_in_its_fields(decoys):
         assert rec["product_type"] == d.ptype, d.code
         colors = {s["color"] for s in rec["skus"]}
         assert colors == {d.color}, (d.code, colors)
-        assert rec["category_path"][0] == "Men", d.code
+        assert rec["category_path"][0] == "Mens", d.code
 
 
 def test_a_decoy_sits_in_a_leaf_its_fields_agree_with(decoys):
@@ -180,7 +180,7 @@ def test_class_6_sits_in_a_short_title_and_names_its_range(decoys):
 
 
 def test_class_2_borrows_another_categorys_noun_and_class_3_an_audience_word(decoys):
-    own = {"Trousers": "chinos", "Shirt": "shirt", "Polo Shirt": "polo", "Coat": "coat",
+    own = {"Mens Trousers": "chinos", "Shirt": "shirt", "Polo Shirt": "polo", "Coat": "coat",
            "Jacket": "jacket", "Suit Jacket": "blazer", "Boxers": "boxers", "Socks": "socks"}
     for d, rec in decoys:
         t = rec["title"].lower()
@@ -189,7 +189,7 @@ def test_class_2_borrows_another_categorys_noun_and_class_3_an_audience_word(dec
             assert d.word not in own[d.ptype], d.code
         if d.klass == 3:
             assert any(w in t for w in AUDIENCE_WORDS), d.code
-            assert rec["category_path"][0] == "Men", d.code
+            assert rec["category_path"][0] == "Mens", d.code
 
 
 def test_class_4_names_a_feature_the_material_lacks(decoys):

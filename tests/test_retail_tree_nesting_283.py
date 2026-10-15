@@ -138,25 +138,25 @@ def test_the_nested_tree_passes_rule_a() -> None:
 
 
 JEANS = [
-    ("Women", "Jeans", "Skinny Jeans"),
-    ("Women", "Jeans", "Super Skinny Jeans"),
-    ("Women", "Jeans", "Straight Jeans"),
+    ("Womens", "Jeans", "Skinny Jeans"),
+    ("Womens", "Jeans", "Super Skinny Jeans"),
+    ("Womens", "Jeans", "Straight Jeans"),
 ]
 BRAS = [
-    ("Women", "Lingerie", "Bras", "Plunge Bras"),
-    ("Women", "Lingerie", "Bras", "Deep Plunge Bras"),
-    ("Women", "Lingerie", "Bras", "Lace Plunge Bras"),
-    ("Women", "Lingerie", "Bras", "Demi Bras"),
+    ("Womens", "Lingerie", "Bras", "Plunge Bras"),
+    ("Womens", "Lingerie", "Bras", "Deep Plunge Bras"),
+    ("Womens", "Lingerie", "Bras", "Lace Plunge Bras"),
+    ("Womens", "Lingerie", "Bras", "Demi Bras"),
 ]
 
 
 def test_a_multi_word_generic_sibling_fails_rule_a() -> None:
     assert tree_guard.sibling_head_noun_findings(JEANS) == [
-        "Women > Jeans: 'Skinny Jeans' sits beside 'Super Skinny Jeans'"
+        "Womens > Jeans: 'Skinny Jeans' sits beside 'Super Skinny Jeans'"
     ]
     assert tree_guard.sibling_head_noun_findings(BRAS) == [
-        "Women > Lingerie > Bras: 'Plunge Bras' sits beside 'Deep Plunge Bras'",
-        "Women > Lingerie > Bras: 'Plunge Bras' sits beside 'Lace Plunge Bras'",
+        "Womens > Lingerie > Bras: 'Plunge Bras' sits beside 'Deep Plunge Bras'",
+        "Womens > Lingerie > Bras: 'Plunge Bras' sits beside 'Lace Plunge Bras'",
     ]
 
 
@@ -164,31 +164,31 @@ def test_a_label_that_merely_shares_words_is_not_a_generic_sibling() -> None:
     """Only a word-SUFFIX is the generic parent: 'Skinny Jeans' is not 'Skinny Fit Jeans'' parent,
     and 'Plunge Bras' does not make 'Plunge Bralette' its child."""
     paths = [
-        ("Women", "Jeans", "Skinny Jeans"),
-        ("Women", "Jeans", "Skinny Fit Jeans"),
-        ("Women", "Lingerie", "Plunge Bras"),
-        ("Women", "Lingerie", "Plunge Bralettes"),
+        ("Womens", "Jeans", "Skinny Jeans"),
+        ("Womens", "Jeans", "Skinny Fit Jeans"),
+        ("Womens", "Lingerie", "Plunge Bras"),
+        ("Womens", "Lingerie", "Plunge Bralettes"),
     ]
     assert tree_guard.sibling_head_noun_findings(paths) == []
 
 
 def test_the_multi_word_pairs_pass_once_nested() -> None:
     nested = [
-        ("Women", "Jeans", "Skinny Jeans"),
-        ("Women", "Jeans", "Skinny Jeans", "Super Skinny Jeans"),
-        ("Women", "Lingerie", "Bras", "Plunge Bras", "Deep Plunge Bras"),
+        ("Womens", "Jeans", "Skinny Jeans"),
+        ("Womens", "Jeans", "Skinny Jeans", "Super Skinny Jeans"),
+        ("Womens", "Lingerie", "Bras", "Plunge Bras", "Deep Plunge Bras"),
     ]
     assert tree_guard.sibling_head_noun_findings(nested) == []
     assert tree_guard.nested_pairs(nested) == [
-        (("Women", "Jeans"), ("Women", "Jeans", "Skinny Jeans")),
+        (("Womens", "Jeans"), ("Womens", "Jeans", "Skinny Jeans")),
         (
-            ("Women", "Jeans", "Skinny Jeans"),
-            ("Women", "Jeans", "Skinny Jeans", "Super Skinny Jeans"),
+            ("Womens", "Jeans", "Skinny Jeans"),
+            ("Womens", "Jeans", "Skinny Jeans", "Super Skinny Jeans"),
         ),
-        (("Women", "Lingerie", "Bras"), ("Women", "Lingerie", "Bras", "Plunge Bras")),
+        (("Womens", "Lingerie", "Bras"), ("Womens", "Lingerie", "Bras", "Plunge Bras")),
         (
-            ("Women", "Lingerie", "Bras", "Plunge Bras"),
-            ("Women", "Lingerie", "Bras", "Plunge Bras", "Deep Plunge Bras"),
+            ("Womens", "Lingerie", "Bras", "Plunge Bras"),
+            ("Womens", "Lingerie", "Bras", "Plunge Bras", "Deep Plunge Bras"),
         ),
     ]
 
@@ -240,6 +240,6 @@ def test_a_corner_sofa_titled_product_in_sofas_fails_rule_c() -> None:
 def test_a_title_naming_another_departments_node_is_not_misplaced() -> None:
     rows = [
         ("K-1", "Girls' Barrel Jeans (6-16 Yrs)", ("Kids", "Girls", "Jeans")),
-        ("W-1", "Barrel Jeans", ("Women", "Jeans", "Barrel Jeans")),
+        ("W-1", "Barrel Jeans", ("Womens", "Jeans", "Barrel Jeans")),
     ]
     assert tree_guard.misplaced_title_findings(rows) == []
