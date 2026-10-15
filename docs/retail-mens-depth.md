@@ -39,11 +39,13 @@ a brand such as "Black Curlew" is not read as naming a color.
 
 | Type (`product_type`) | Leaf | Key attributes (structured) | Shape params |
 |---|---|---|---|
-| Suit Jacket | Suit Jackets, Blazers | `fit`, `material`, `lapel`, `buttons`, `occasion` | `fit`, `lapel` |
+| Suit Jacket | Suit Jackets, Blazers | `fit`, `material`, `lapel`, `buttons`, `occasion` | `fit`, `lapel`, `buttons` (two or three) |
 | Suit Trousers | Suit Trousers | `fit`, `material`, `leg_length` | `fit`, `leg` |
 | Waistcoat | Waistcoats | `fit`, `material`, `buttons` | `fit`, `buttons` |
 | Dinner Suit | Dinner Suits | `fit`, `material`, `lapel` | `fit`, `lapel` |
 | Formal Accessories | Formal Accessories | `material`, `accessory_type` (tie, bow tie, braces, cummerbund, pocket square) | `item` |
+
+The kit draws three cuts (slim, tailored, regular), so a record of fit `Relaxed` is drawn regular.
 
 A matching set is a jacket, trousers and waistcoat sharing one `suit_set` name, one brand, one
 cloth (`material`), one fit and the same colors (`mens_depth_rows.SETS`, ten sets). Not yet here:

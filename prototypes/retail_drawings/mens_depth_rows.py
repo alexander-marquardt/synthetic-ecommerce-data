@@ -167,7 +167,7 @@ KINDS = {
                            ("Mens", "Coats & Jackets", "Puffer Jackets"),
                            ("Mens", "Coats & Jackets", "Waterproof Jackets"))),
     "Suit Jacket": Kind("Suit Jacket", "Blazer", "suit_jacket", CHEST, "size", _C, 60.0, "Polyester",
-                        facts=(_SR,), params=(("fit", "regular"), ("lapel", "notch")),
+                        facts=(_SR,), params=(("fit", "regular"), ("lapel", "notch"), ("buttons", "2")),
                         borrow=("jumper", "shirt", "coat"),
                         absent=("Wool-Free", "Silk-Feel", "Linen-Look"),
                         path=("Mens", "Suits & Tailoring", "Blazers")),
@@ -398,9 +398,10 @@ def _suit(ptype: str, fit: str, detail: str, i: int) -> tuple[tuple, tuple]:
     f = _SUIT_FIT.get(fit, "regular")
     if ptype == "Suit Jacket":
         lapel = detail or "Notch"
-        return ((_a("lapel", "Lapel", lapel), _a("buttons", "Buttons", ("Two Button", "Three Button")[i % 2]),
+        n = i % 2
+        return ((_a("lapel", "Lapel", lapel), _a("buttons", "Buttons", ("Two Button", "Three Button")[n]),
                  _a("occasion", "Occasion", _OCCASIONS[i % 4])),
-                (("fit", f), ("lapel", lapel.lower())))  # fmt: skip
+                (("fit", f), ("lapel", lapel.lower()), ("buttons", ("2", "3")[n])))  # fmt: skip
     if ptype == "Suit Trousers":
         return (_a("leg_length", "Leg length", detail),), (("fit", f), ("leg", detail.lower()))
     if ptype == "Waistcoat":
