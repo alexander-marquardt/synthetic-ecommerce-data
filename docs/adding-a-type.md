@@ -777,6 +777,20 @@ moves the directory). The merge is refused unless every job passed. Step 6
 needs no GitHub check. `GEN_LOCAL_CI=1` in the environment makes `--local-ci`
 the default; `--dry-run` runs the local jobs too.
 
+**The suite runs on several workers (#348).** The whole suite took 47 to 54
+minutes on one core, and merges are serial (each changes `main` and the
+generated files), so that time was the rate pull requests landed. Every
+emitted step now runs pytest with `-n <workers> --dist loadgroup`
+(`scripts/local_ci_jobs.py --pytest-options` prints it), and a module's tests
+share one worker so its module-scoped catalog is built once
+(`tests/xdist_groups.py`; a module of independent tests sets
+`XDIST_SPREAD = True`). The worker count is one per core, or fewer when the
+memory available allows fewer at 4,500 MB a worker, and never below two;
+`LOCAL_CI_WORKERS=<n>` sets it (`0` is one process). The count is capped by
+memory: measured on the 48-core agent VM, 16 workers had taken 38 GB within three
+minutes, and an uncapped `-n auto` run took the host down. Run the merge chain on the agent VM, which has
+the cores and the memory, so it does not compete with a laptop's other work.
+
 That re-read narrows the race with another merge but cannot close it: GitHub
 has no compare-and-swap on the base. The `main-merged-tree` CI job runs the
 same tests on every push to `main`, so a merge that raced, or skipped the
