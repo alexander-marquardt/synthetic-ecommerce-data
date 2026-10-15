@@ -352,8 +352,12 @@ def standard_document(rec: dict) -> dict[str, Any]:
     path = list(rec["category_path"])
     attributes = _product_attributes(rec)
     if _splits(rec) and all(colorwords.split(s["color"])[1] for s in rec["skus"]):
-        # Every SKU states its own split pattern: the style's drawn "Plain" describes none.
-        attributes = [e for e in attributes if (e["key"], e["value"]) != ("pattern", "Plain")]
+        # Every SKU states its own split pattern: the style lists the union of those, and a
+        # drawn pattern no SKU states (the "Plain" default, a "Striped" drawing) describes none.
+        stated = {e["value"] for v in variants for e in v["attributes"] if e["key"] == "pattern"}
+        attributes = [
+            e for e in attributes if e["key"] != "pattern" or e["value"] in stated
+        ]
     added, replaced = facet_leaves.leaf_facets(rec, attributes)
     if replaced:
         path = facet_leaves.collapsed_path(path, rec["product_type"])

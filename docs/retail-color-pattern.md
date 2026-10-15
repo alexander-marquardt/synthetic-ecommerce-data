@@ -22,7 +22,7 @@ when a style's SKUs differ by it.
 
 In a style where any SKU splits, every variant states its own `pattern` (its split pattern, else
 the style's drawn pattern, else "Plain"), so no SKU reads a sibling's pattern off the product's
-list, and a style whose every SKU splits lists no product-level "Plain".
+list, and a style whose every SKU splits lists only the patterns its SKUs state (no drawn "Plain" or other pattern no SKU carries).
 
 The ceiling build moved from 112,456 to 112,191 SKUs for two reasons: the split pattern entries
 are read by the text-contradiction guard (+85 SKUs) and two text edits cleared its refusals (-350
