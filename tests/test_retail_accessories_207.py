@@ -207,7 +207,7 @@ def test_every_polka_dot_umbrella_sku_is_polka_dot() -> None:
 
 
 #: The audience each accessory type declares (bags and purses are a woman's, a backpack, a
-#: tote and an umbrella are for anyone, jewelry takes it from its ``Women`` path).
+#: tote and an umbrella are for anyone, jewelry takes it from its ``Womens`` path).
 AUDIENCE = {
     "Handbag": "Womens", "Purse": "Womens",
     "Backpack": "Unisex", "Tote Bag": "Unisex", "Umbrella": "Unisex",

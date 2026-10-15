@@ -95,7 +95,7 @@ LEGWEAR = [
     wear(
         "High Rise Skinny Jeans",
         "Ottery Denim",
-        ["Women", "Jeans", "Skinny Jeans"],
+        ["Womens", "Jeans", "Skinny Jeans"],
         28.00,
         sizes(WOMENS, "6", "18"),
         legs("Indigo", "Plain", "Womens", DENIM, "High", "Skinny", "Petite"),
@@ -104,7 +104,7 @@ LEGWEAR = [
     wear(
         "Slim Fit Stretch Jeans",
         "Ferrowick Denim",
-        ["Men", "Jeans", "Slim Jeans"],
+        ["Mens", "Jeans", "Slim Jeans"],
         35.00,
         sizes(MENS_WAIST, "30", "38"),
         legs("Black", "Plain", "Mens", DENIM, "Mid", "Slim"),
@@ -113,7 +113,7 @@ LEGWEAR = [
     wear(
         "Low Rise Straight Leg Jeans",
         "Ottery Denim",
-        ["Women", "Jeans", "Straight Jeans"],
+        ["Womens", "Jeans", "Straight Jeans"],
         30.00,
         sizes(WOMENS, "6", "16"),
         legs("Mid Blue", "Plain", "Womens", "100% Cotton Denim", "Low", "Straight"),
@@ -123,7 +123,7 @@ LEGWEAR = [
     wear(
         "High Rise Flared Jeans",
         "Ottery Denim",
-        ["Women", "Jeans", "Flared Jeans"],
+        ["Womens", "Jeans", "Flared Jeans"],
         32.00,
         sizes(WOMENS, "6", "20"),
         legs("Light Blue", "Plain", "Womens", DENIM, "High", "Flared", "Long"),
@@ -132,7 +132,7 @@ LEGWEAR = [
     wear(
         "Barrel Leg Jeans",
         "Ferrowick Denim",
-        ["Women", "Jeans", "Barrel Jeans"],
+        ["Womens", "Jeans", "Barrel Jeans"],
         36.00,
         sizes(WOMENS, "6", "18"),
         legs("Ecru", "Plain", "Womens", "100% Cotton Denim", "Mid", "Barrel"),
@@ -142,7 +142,7 @@ LEGWEAR = [
     wear(
         "Wide Leg Tailored Trousers",
         "Calderby & Lune",
-        ["Women", "Trousers", "Wide Leg Trousers"],
+        ["Womens", "Trousers", "Wide Leg Trousers"],
         39.00,
         sizes(WOMENS, "6", "20"),
         legs("Stone", "Plain", "Womens", "Polyester, Viscose, Elastane", "High", "Wide Leg"),
@@ -151,7 +151,7 @@ LEGWEAR = [
     wear(
         "Balloon Leg Trousers with Elasticated Waist",
         "Larkmoor",
-        ["Women", "Trousers", "Balloon Trousers"],
+        ["Womens", "Trousers", "Balloon Trousers"],
         32.00,
         sizes(WOMENS, "6", "18"),
         legs("Olive", "Plain", "Womens", "Lyocell", "High", "Balloon", waist="Elasticated"),
@@ -161,7 +161,7 @@ LEGWEAR = [
     wear(
         "Pleat Front Carrot Leg Trousers",
         "Calderby & Lune",
-        ["Women", "Trousers", "Tapered Trousers"],
+        ["Womens", "Trousers", "Tapered Trousers"],
         35.00,
         sizes(WOMENS, "6", "18"),
         legs("Navy", "Plain", "Womens", "Wool Blend", "High", "Carrot"),
@@ -170,7 +170,7 @@ LEGWEAR = [
     wear(
         "Check Cropped Cigarette Trousers",
         "Calderby & Lune",
-        ["Women", "Trousers", "Cigarette Trousers"],
+        ["Womens", "Trousers", "Cigarette Trousers"],
         29.00,
         sizes(WOMENS, "6", "18"),
         legs("Black / Grey", "Check", "Womens", "Polyester, Viscose", "Mid", "Cigarette", "Petite"),
@@ -181,7 +181,7 @@ LEGWEAR = [
     wear(
         "Straight Leg Cotton Chinos",
         "Wrenfield",
-        ["Men", "Trousers", "Chinos"],
+        ["Mens", "Trousers", "Chinos"],
         30.00,
         sizes(MENS_WAIST, "28", "38"),
         legs("Olive", "Plain", "Mens", "98% Cotton, 2% Elastane", "Mid", "Straight", "Long"),
@@ -224,7 +224,7 @@ TOPS = [
     wear(
         "V-Neck Long Sleeve T-Shirt",
         "Wrenfield",
-        ["Men", "Tops", "T-Shirts"],
+        ["Mens", "Tops", "T-Shirts"],
         12.00,
         sizes(LETTER, "S", "XXL"),
         tops("Grey Marl", "Plain", "Regular", "Mens", "100% Cotton", "V-Neck", "Long"),
@@ -233,7 +233,7 @@ TOPS = [
     wear(
         "Crew Neck Sleeveless Running Vest",
         "Stridewell",
-        ["Men", "Sportswear", "Tops"],
+        ["Mens", "Sportswear", "Tops"],
         14.00,
         sizes(LETTER, "S", "XXL"),
         tops("Navy", "Plain", "Regular", "Mens", "Recycled Polyester", "Crew", "Sleeveless"),
@@ -242,7 +242,7 @@ TOPS = [
     wear(
         "Breton Stripe Boat Neck Top",
         "Harbour & Pine",
-        ["Women", "Tops", "Long Sleeve Tops"],
+        ["Womens", "Tops", "Long Sleeve Tops"],
         19.00,
         sizes(WOMENS, "6", "20"),
         tops(
@@ -259,7 +259,7 @@ TOPS = [
     wear(
         "Scoop Neck Vest Top",
         "Larkmoor",
-        ["Women", "Tops", "Vests & Camis"],
+        ["Womens", "Tops", "Vests & Camis"],
         8.00,
         sizes(WOMENS, "6", "20"),
         tops("Blush", "Plain", "Slim", "Womens", "Cotton, Elastane", "Scoop", "Sleeveless"),
@@ -269,7 +269,7 @@ TOPS = [
     wear(
         "Leopard Print Scoop Neck Top",
         "Larkmoor",
-        ["Women", "Tops", "Long Sleeve Tops"],
+        ["Womens", "Tops", "Long Sleeve Tops"],
         17.00,
         sizes(WOMENS, "6", "18"),
         tops(
@@ -286,7 +286,7 @@ TOPS = [
     wear(
         "Polka Dot Square Neck Top",
         "Harbour & Pine",
-        ["Women", "Tops", "Blouses & Shirts"],
+        ["Womens", "Tops", "Blouses & Shirts"],
         22.00,
         sizes(WOMENS, "6", "18"),
         tops("Black / White", "Polka Dot", "Regular", "Womens", "Crepe", "Square", "Short"),
@@ -305,7 +305,7 @@ TOPS = [
     wear(
         "Ribbed Roll Neck Jumper",
         "Hollinwray Knits",
-        ["Women", "Knitwear", "Jumpers"],
+        ["Womens", "Knitwear", "Jumpers"],
         29.00,
         sizes(WOMENS, "6", "20"),
         tops("Burgundy", "Plain", "Relaxed", "Womens", "Merino Wool Blend", "Roll Neck", "Long"),
@@ -315,7 +315,7 @@ TOPS = [
     wear(
         "Lambswool Crew Neck Jumper",
         "Hollinwray Knits",
-        ["Men", "Knitwear", "Jumpers"],
+        ["Mens", "Knitwear", "Jumpers"],
         39.00,
         sizes(LETTER, "S", "XXL"),
         tops("Green", "Plain", "Regular", "Mens", "100% Lambswool", "Crew", "Long"),
@@ -324,7 +324,7 @@ TOPS = [
     wear(
         "Button Through V-Neck Cardigan",
         "Hollinwray Knits",
-        ["Women", "Knitwear", "Cardigans"],
+        ["Womens", "Knitwear", "Cardigans"],
         27.00,
         sizes(WOMENS, "6", "20"),
         tops("Oatmeal", "Plain", "Regular", "Womens", "Cotton Blend", "V-Neck", "Long"),

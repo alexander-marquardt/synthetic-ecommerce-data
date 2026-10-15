@@ -8,15 +8,15 @@ as distinct products (a product is a style; its colors times its sizes are its S
 =============================  ======================================================  =====
 group                          leaves                                                  floor
 =============================  ======================================================  =====
-trousers and chinos            Men/Trousers: Chinos, Formal Trousers, Cargo Trousers       80
-shirts (with ``shirt_rows``)   Men/Tops/Shirts: the four shirt leaves, Formal, Check,     120
+trousers and chinos            Mens/Trousers: Chinos, Formal Trousers, Cargo Trousers      80
+shirts (with ``shirt_rows``)   Mens/Tops/Shirts: the four shirt leaves, Formal, Check,    120
                                Short Sleeve
-polo shirts                    Men/Tops/Polo Shirts                                        50
-coats and jackets              Men/Coats & Jackets: Wool, Trench, Pea, Puffer, Bomber,     80
+polo shirts                    Mens/Tops/Polos                                             50
+coats and jackets              Mens/Coats & Jackets: Wool, Trench, Pea, Puffer, Bomber,    80
                                Waterproof
-suits, blazers and tailoring   Men/Suits & Tailoring: Blazers, Suit Jackets, Suit          60
+suits, blazers and tailoring   Mens/Suits & Tailoring: Blazers, Suit Jackets, Suit         60
                                Trousers
-underwear and socks            Men/Underwear/Boxers, Men/Socks leaves (with the old ones)  60
+underwear and socks            Mens/Underwear/Boxers, Mens/Socks (with the old ones)       60
 =============================  ======================================================  =====
 
 Knitwear is gen#309's and is not added here. Every title reads as a shop's own ("Pure Linen
@@ -135,48 +135,48 @@ class Kind:
 
 _SR = ("size_range", ["regular"])
 KINDS = {
-    "Trousers": Kind("Trousers", "Chinos", "trousers", WAIST, "waist", _C, 22.0, "Cotton",
+    "Mens Trousers": Kind("Mens Trousers", "Chinos", "trousers", WAIST, "waist", _C, 22.0, "Cotton",
                      params=(("fit", "straight"), ("rise", "mid")),
                      borrow=("shirt", "blazer", "jumper"),
                      absent=("Linen-Look", "Leather-Look", "Wool-Free"),
-                     path=("Men", "Trousers", "Chinos")),
+                     path=("Mens", "Trousers", "Chinos")),
     "Shirt": Kind("Shirt", "Shirt", "blouse", CHEST, "size", _C, 22.0, "Polyester",
                   facts=(("neckline", "collared"), _SR), borrow=("dress", "blazer", "coat"),
                   absent=("Silk-Feel", "Linen-Look", "Cashmere-Feel"),
-                  path=("Men", "Tops", "Shirts", "Formal Shirts"),
-                  spread=(("Men", "Tops", "Shirts", "Formal Shirts"),
-                          ("Men", "Tops", "Shirts", "Short Sleeve Shirts"))),
+                  path=("Mens", "Tops", "Shirts", "Formal Shirts"),
+                  spread=(("Mens", "Tops", "Shirts", "Formal Shirts"),
+                          ("Mens", "Tops", "Shirts", "Short Sleeve Shirts"))),
     "Polo Shirt": Kind("Polo Shirt", "Polo Shirt", "tshirt", CHEST, "size", _C, 16.0, "Cotton",
                        facts=(("neckline", "collared"), _SR), borrow=("shirt", "jumper", "blazer"),
                        absent=("Wool-Free", "Cashmere-Feel", "Leather-Look"),
-                       path=("Men", "Tops", "Polo Shirts")),
+                       path=("Mens", "Tops", "Polos")),
     "Coat": Kind("Coat", "Coat", "coat", CHEST, "size", _C, 70.0, "Polyester", facts=(_SR,),
                  borrow=("shirt", "blazer", "jumper"),
                  absent=("Wool-Free", "Down-Free", "Fur-Free"),
-                 path=("Men", "Coats & Jackets", "Trench Coats"),
-                 spread=(("Men", "Coats & Jackets", "Trench Coats"),
-                         ("Men", "Coats & Jackets", "Pea Coats"))),
+                 path=("Mens", "Coats & Jackets", "Trench Coats"),
+                 spread=(("Mens", "Coats & Jackets", "Trench Coats"),
+                         ("Mens", "Coats & Jackets", "Pea Coats"))),
     "Jacket": Kind("Jacket", "Jacket", "coat", CHEST, "size", _C, 48.0, "Nylon", facts=(_SR,),
                    borrow=("shirt", "jumper", "trouser"),
                    absent=("Leather-Look", "Down-Free", "Suede-Feel"),
-                   path=("Men", "Coats & Jackets", "Waterproof Jackets"),
-                   spread=(("Men", "Coats & Jackets", "Bomber Jackets"),
-                           ("Men", "Coats & Jackets", "Puffer Jackets"),
-                           ("Men", "Coats & Jackets", "Waterproof Jackets"))),
+                   path=("Mens", "Coats & Jackets", "Waterproof Jackets"),
+                   spread=(("Mens", "Coats & Jackets", "Bomber Jackets"),
+                           ("Mens", "Coats & Jackets", "Puffer Jackets"),
+                           ("Mens", "Coats & Jackets", "Waterproof Jackets"))),
     "Suit Jacket": Kind("Suit Jacket", "Blazer", "coat", CHEST, "size", _C, 60.0, "Polyester",
                         facts=(_SR,), borrow=("jumper", "shirt", "coat"),
                         absent=("Wool-Free", "Silk-Feel", "Linen-Look"),
-                        path=("Men", "Suits & Tailoring", "Blazers")),
+                        path=("Mens", "Suits & Tailoring", "Blazers")),
     "Boxers": Kind("Boxers", "Boxers", "boxers", CHEST, "size", _LING, 5.0, "Cotton",
                    params=(("fit", "boxer"),), borrow=("shirt", "trouser", "sock"),
                    absent=("Silk-Feel", "Lace-Free", "Cashmere-Feel"),
-                   path=("Men", "Underwear", "Boxers")),
-    "Socks": Kind("Socks", "Socks", "socks", ("One Size",), "size", _C, 9.0, "Cotton",
+                   path=("Mens", "Underwear", "Boxers")),
+    "Socks": Kind("Socks", "Socks", "socks", ("S/M", "M/L", "L/XL"), "size", _C, 9.0, "Cotton",
                   params=(("pairs", "3"),), borrow=("trouser", "jumper", "boxer"),
                   absent=("Wool-Free", "Cashmere-Feel", "Silk-Feel"),
-                  path=("Men", "Socks", "Everyday Socks"),
-                  spread=(("Men", "Socks", "Everyday Socks"), ("Men", "Socks", "Ankle Socks"),
-                          ("Men", "Socks", "Sports Socks"))),
+                  path=("Mens", "Socks", "Everyday Socks"),
+                  spread=(("Mens", "Socks", "Everyday Socks"), ("Mens", "Socks", "Ankle Socks"),
+                          ("Mens", "Socks", "Sports Socks"))),
 }  # fmt: skip
 
 
@@ -232,99 +232,99 @@ class Leaf:
 
 
 _LEAVES = (
-    Leaf("CH", ("Men", "Trousers", "Chinos"), "Trousers", 36,
+    Leaf("CH", ("Mens", "Trousers", "Chinos"), "Mens Trousers", 36,
          ("Stretch Cotton", "Cotton Twill", "Garment Dyed", "Brushed Cotton", "Linen Blend",
           "Organic Cotton", "Washed Cotton", "Lightweight Cotton"),
          ("Skinny", "Slim", "Straight", "Tapered", "Relaxed"), ("",), "{f} {fit} Fit Chinos"),
-    Leaf("FT", ("Men", "Trousers", "Formal Trousers"), "Trousers", 20,
+    Leaf("FT", ("Mens", "Trousers", "Formal Trousers"), "Mens Trousers", 20,
          ("Wool Blend", "Twill", "Flannel", "Stretch Suiting", "Herringbone", "Crease Resistant",
           "Cotton Stretch"), ("Slim", "Regular", "Tapered"), ("",),
          "{f} {fit} Fit Formal Trousers", palette=_TAILORED, extra_price=10.0),
-    Leaf("CG", ("Men", "Trousers", "Cargo Trousers"), "Trousers", 10,
+    Leaf("CG", ("Mens", "Trousers", "Cargo Trousers"), "Mens Trousers", 10,
          ("Ripstop", "Cotton Twill", "Washed Canvas", "Stretch Cotton", "Lightweight Nylon"),
          ("Relaxed", "Tapered"), ("",), "{f} {fit} Fit Cargo Trousers", extra_price=4.0),
-    Leaf("ST", ("Men", "Suits & Tailoring", "Suit Trousers"), "Trousers", 12,
+    Leaf("ST", ("Mens", "Suits & Tailoring", "Suit Trousers"), "Mens Trousers", 12,
          ("Wool Blend", "Birdseye", "Twill", "Stretch", "Herringbone", "Flannel"),
          ("Slim", "Regular"), ("",), "{f} {fit} Fit Suit Trousers", palette=_TAILORED,
          extra_price=14.0),
-    Leaf("SF", ("Men", "Tops", "Shirts", "Formal Shirts"), "Shirt", 24,
+    Leaf("SF", ("Mens", "Tops", "Shirts", "Formal Shirts"), "Shirt", 24,
          ("Poplin", "Twill", "Herringbone", "Easy Iron Cotton", "Stretch Cotton", "Pinpoint",
           "Brushed Twill"), ("Slim", "Regular", "Tailored"),
          ("Cutaway Collar", "Classic Collar", "Spread Collar"),
          "{f} {fit} Fit {d} Shirt", palette=("White", "Blue", "Black", "Navy", "Grey", "Red",
                                              "Green", "Yellow", "Stone", "Burgundy"),
          sleeve="Long"),
-    Leaf("SO", ("Men", "Tops", "Shirts", "Oxford Shirts"), "Shirt", 14,
+    Leaf("SO", ("Mens", "Tops", "Shirts", "Oxford Shirts"), "Shirt", 14,
          ("Washed Oxford", "Pinpoint Oxford", "Royal Oxford", "Stretch Oxford",
           "Garment Dyed Oxford", "Brushed Oxford"), _FITS3,
          ("Button Down Collar", "Classic Collar"), "{f} {fit} Fit {d} Shirt", sleeve="Long"),
-    Leaf("SL", ("Men", "Tops", "Shirts", "Linen Shirts"), "Shirt", 14,
+    Leaf("SL", ("Mens", "Tops", "Shirts", "Linen Shirts"), "Shirt", 14,
          ("Pure Linen", "Linen Blend", "Washed Linen", "Cotton Linen", "Linen Viscose"), _FITS3,
          ("Grandad Collar", "Classic Collar", "Camp Collar"), "{f} {fit} Fit Shirt",
          sleeve="Long"),
-    Leaf("SN", ("Men", "Tops", "Shirts", "Flannel Shirts"), "Shirt", 10,
+    Leaf("SN", ("Mens", "Tops", "Shirts", "Flannel Shirts"), "Shirt", 10,
          ("Brushed Cotton", "Heavy Flannel", "Organic Flannel", "Soft Flannel"), _FITS3,
          ("Classic Collar", "Button Down Collar"), "{f} {fit} Fit Flannel Shirt", sleeve="Long"),
-    Leaf("SD", ("Men", "Tops", "Shirts", "Denim Shirts"), "Shirt", 10,
+    Leaf("SD", ("Mens", "Tops", "Shirts", "Denim Shirts"), "Shirt", 10,
          ("Mid Weight Denim", "Light Wash Denim", "Stonewashed Denim", "Chambray",
           "Stretch Denim"), _FITS3, ("Classic Collar", "Western Yoke"),
          "{f} {fit} Fit Denim Shirt", palette=("Blue", "Navy", "Black", "Grey", "Stone", "White",
                                                "Red", "Green", "Yellow"), sleeve="Long"),
-    Leaf("SC", ("Men", "Tops", "Shirts", "Check Shirts"), "Shirt", 14,
+    Leaf("SC", ("Mens", "Tops", "Shirts", "Check Shirts"), "Shirt", 14,
          ("Gingham", "Tattersall", "Windowpane", "Madras", "Buffalo", "Micro Check",
           "Brushed Check"), ("Slim", "Regular"), ("Classic Collar", "Button Down Collar"),
          "{f} {fit} Fit Shirt", sleeve="Long", pattern="check"),
-    Leaf("SS", ("Men", "Tops", "Shirts", "Short Sleeve Shirts"), "Shirt", 14,
+    Leaf("SS", ("Mens", "Tops", "Shirts", "Short Sleeve Shirts"), "Shirt", 14,
          ("Cotton Poplin", "Linen Blend", "Seersucker", "Printed Viscose", "Cotton Oxford",
           "Camp Collar Cotton"), _FITS3, ("Camp Collar", "Classic Collar"),
          "{f} {fit} Fit Short Sleeve Shirt", sleeve="Short"),
-    Leaf("PO", ("Men", "Tops", "Polo Shirts"), "Polo Shirt", 32,
+    Leaf("PO", ("Mens", "Tops", "Polos"), "Polo Shirt", 32,
          ("Pique Cotton", "Cotton Jersey", "Stretch Pique", "Organic Cotton", "Performance",
           "Linen Cotton", "Textured Cotton"), _FITS3,
          ("Tipped", "Plain", "Striped", "Button Down"), "{f} {fit} Fit {d} Polo Shirt",
          sleeve="Short"),
-    Leaf("WC", ("Men", "Coats & Jackets", "Wool Coats"), "Coat", 12,
+    Leaf("WC", ("Mens", "Coats & Jackets", "Wool Coats"), "Coat", 12,
          ("Wool Blend", "Pure Wool", "Wool Cashmere Blend", "Melton Wool"), ("Slim", "Regular"),
          ("Single Breasted", "Double Breasted", "Longline"), "{f} {d} Coat",
          palette=_TAILORED, sleeve="Long", extra_price=30.0),
-    Leaf("TC", ("Men", "Coats & Jackets", "Trench Coats"), "Coat", 8,
+    Leaf("TC", ("Mens", "Coats & Jackets", "Trench Coats"), "Coat", 8,
          ("Cotton Gabardine", "Showerproof", "Belted", "Lightweight"), ("Classic", "Slim Fit"),
          ("",), "{fit} {f} Trench Coat", palette=("Stone", "Navy", "Black", "Khaki", "Green",
                                                   "Red", "Blue", "Yellow"), sleeve="Long",
          extra_price=20.0),
-    Leaf("PC", ("Men", "Coats & Jackets", "Pea Coats"), "Coat", 6,
+    Leaf("PC", ("Mens", "Coats & Jackets", "Pea Coats"), "Coat", 6,
          ("Wool Blend", "Navy Melton", "Heavy Wool"), ("Classic", "Slim Fit"), ("",),
          "{fit} {f} Pea Coat", palette=_TAILORED, sleeve="Long", extra_price=25.0),
-    Leaf("PJ", ("Men", "Coats & Jackets", "Puffer Jackets"), "Jacket", 8,
+    Leaf("PJ", ("Mens", "Coats & Jackets", "Puffer Jackets"), "Jacket", 8,
          ("Lightweight", "Hooded", "Quilted", "Recycled Fill", "Water Repellent", "Down Fill",
           "Packable", "Longline"), ("",), ("",), "{f} Puffer Jacket", sleeve="Long",
          extra_price=12.0),
-    Leaf("BJ", ("Men", "Coats & Jackets", "Bomber Jackets"), "Jacket", 6,
+    Leaf("BJ", ("Mens", "Coats & Jackets", "Bomber Jackets"), "Jacket", 6,
          ("Classic", "Quilted", "Satin Finish", "Ripstop", "Reversible", "Padded"), ("",), ("",),
          "{f} Bomber Jacket", sleeve="Long"),
-    Leaf("WJ", ("Men", "Coats & Jackets", "Waterproof Jackets"), "Jacket", 8,
+    Leaf("WJ", ("Mens", "Coats & Jackets", "Waterproof Jackets"), "Jacket", 8,
          ("Lightweight", "Packable", "Hooded", "Breathable", "Taped Seam", "Insulated",
           "Mountain", "Rain Mac"), ("",), ("",), "{f} Waterproof Jacket", sleeve="Long",
          extra_price=6.0),
-    Leaf("BL", ("Men", "Suits & Tailoring", "Blazers"), "Suit Jacket", 20,
+    Leaf("BL", ("Mens", "Suits & Tailoring", "Blazers"), "Suit Jacket", 20,
          ("Wool Blend", "Linen Blend", "Cotton Stretch", "Textured", "Herringbone",
           "Unstructured", "Checked"), _FITS3, ("",), "{f} {fit} Fit Blazer", palette=_TAILORED,
          sleeve="Long"),
-    Leaf("SJ", ("Men", "Suits & Tailoring", "Suit Jackets"), "Suit Jacket", 12,
+    Leaf("SJ", ("Mens", "Suits & Tailoring", "Suit Jackets"), "Suit Jacket", 12,
          ("Wool Blend", "Birdseye", "Twill", "Stretch", "Herringbone", "Tonic"),
          ("Slim", "Regular"), ("",), "{f} {fit} Fit Suit Jacket", palette=_TAILORED,
          sleeve="Long", extra_price=15.0),
-    Leaf("BX", ("Men", "Underwear", "Boxers"), "Boxers", 24,
+    Leaf("BX", ("Mens", "Underwear", "Boxers"), "Boxers", 24,
          ("Cotton Stretch", "Bamboo", "Organic Cotton", "Jersey", "Woven Cotton", "Modal",
           "Microfibre", "Recycled"), ("Trunks", "Boxer Shorts", "Briefs"), ("",),
          "{f} {fit}"),
-    Leaf("SK", ("Men", "Socks", "Ankle Socks"), "Socks", 4,
+    Leaf("SK", ("Mens", "Socks", "Ankle Socks"), "Socks", 4,
          ("Cotton Rich", "Bamboo", "Sports Cushioned", "Organic Cotton"), ("",), ("",),
          "{f} Ankle Socks", palette=_SOCKS),
-    Leaf("SE", ("Men", "Socks", "Everyday Socks"), "Socks", 4,
+    Leaf("SE", ("Mens", "Socks", "Everyday Socks"), "Socks", 4,
          ("Combed Cotton", "Merino Blend", "Ribbed Cotton", "Soft Top"), ("",), ("",),
          "{f} Everyday Socks", palette=_SOCKS),
-    Leaf("SP", ("Men", "Socks", "Sports Socks"), "Socks", 4,
+    Leaf("SP", ("Mens", "Socks", "Sports Socks"), "Socks", 4,
          ("Arch Support", "Padded Sole", "Moisture Wicking", "Running"), ("",), ("",),
          "{f} Sports Socks", palette=_SOCKS),
 )  # fmt: skip
@@ -333,7 +333,7 @@ _LEAVES = (
 _SLEEVE = {leaf.path: leaf.sleeve for leaf in _LEAVES}
 
 _TAIL = {
-    "Trousers": "with a belt loop waist and two side pockets",
+    "Mens Trousers": "with a belt loop waist and two side pockets",
     "Shirt": "with a button front and a chest pocket",
     "Polo Shirt": "with a ribbed collar and a two button placket",
     "Coat": "with a full lining and two front pockets",
@@ -371,7 +371,7 @@ def _floor_rows() -> list[LRow]:
             if kind.ptype == "Polo Shirt":
                 attrs.append(_a("collar", "Collar", "Polo"))
             params = kind.params
-            if kind.ptype == "Trousers":
+            if kind.ptype == "Mens Trousers":
                 style = "tailored" if "Formal" in leaf.title or "Suit" in leaf.title else "jeans"
                 params = (("fit", _FIT_PARAM.get(fit, "straight")), ("rise", "mid"),
                           ("style", style))  # fmt: skip

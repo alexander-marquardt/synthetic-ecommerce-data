@@ -42,7 +42,7 @@ def templates() -> list[dict]:
 
 
 def _women(rec: dict) -> bool:
-    return rec["category_path"][0] == "Women"
+    return rec["category_path"][0] == "Womens"
 
 
 def test_off_white_is_a_plain_color_value():
@@ -84,7 +84,7 @@ def test_white_sits_next_to_the_shades_on_apparel(templates):
 
 
 def test_a_page_of_womens_jumpers_does_not_repeat_one_style(templates):
-    jumpers = [r for r in templates if r["category_path"][:3] == ["Women", "Knitwear", "Jumpers"]]
+    jumpers = [r for r in templates if r["category_path"][:3] == ["Womens", "Knitwear", "Jumpers"]]
     n = sum(len(r["skus"]) for r in jumpers)
     assert n >= MIN_JUMPER_SKUS, f"{n} jumper SKUs in {len(jumpers)} styles"
 

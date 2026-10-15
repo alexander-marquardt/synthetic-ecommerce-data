@@ -30,17 +30,17 @@ _DH, _HW, _TW, _QS, _WF, _LM, _HP, _HB = (
     "Hollinwray Knits", "Harbour & Pine",
 )  # fmt: skip
 
-KNICKERS = ("Women", "Lingerie", "Knickers")
-TIGHTS = ("Women", "Hosiery", "Tights")
-VEST_W = ("Women", "Lingerie", "Vests")
-VEST_M = ("Men", "Underwear", "Vests")
+KNICKERS = ("Womens", "Lingerie", "Knickers")
+TIGHTS = ("Womens", "Hosiery", "Tights")
+VEST_W = ("Womens", "Lingerie", "Vests")
+VEST_M = ("Mens", "Underwear", "Vests")
 VEST_K = ("Kids", "Girls", "Vests")
-SLIPS = ("Women", "Lingerie", "Slips")
-SHAPE = ("Women", "Lingerie", "Shapewear")
-GOWN_W = ("Women", "Nightwear", "Dressing Gowns")
-GOWN_M = ("Men", "Nightwear", "Dressing Gowns")
+SLIPS = ("Womens", "Lingerie", "Slips")
+SHAPE = ("Womens", "Lingerie", "Shapewear")
+GOWN_W = ("Womens", "Nightwear", "Dressing Gowns")
+GOWN_M = ("Mens", "Nightwear", "Dressing Gowns")
 GOWN_K = ("Kids", "Nightwear", "Dressing Gowns")
-BOXERS = ("Men", "Underwear", "Boxers")
+BOXERS = ("Mens", "Underwear", "Boxers")
 
 #: The product type -> its category path(s), for the tests and the README.
 TYPES = {

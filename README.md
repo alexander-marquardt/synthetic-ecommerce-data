@@ -1332,18 +1332,23 @@ combinations the product's SKUs offer.
 
 ### The retail catalog at a size: `scale.py --skus N`
 
-**The audience facet and the spelling of a facet**. The tree keeps its Women, Men
+**The audience facet and the spelling of a facet**. The tree keeps its Womens, Mens
 and Kids roots, and every SKU of a worn department (Clothing, Footwear, Lingerie & Nightwear),
-or under a Women, Men or Kids root, also carries exactly one `audience`: `Womens`, `Mens`,
+or under a Womens, Mens or Kids root, also carries exactly one `audience`: `Womens`, `Mens`,
 `Girls`, `Boys`, `Baby` or `Unisex` (`audience.py`; a template's own value wins, `Kids/Girls`
 is Girls, `Kids/Boys` is Boys, `Kids/Baby` is Baby, the rest of Kids is Unisex). A product type has one name:
 "Tee" is written "T-Shirt" (`export.PRODUCT_TYPE_FOLDS`; the image ids keep the authored type,
 so none is re-rendered), and `pattern` and `rise` are written in Title Case.
 `tests/test_retail_audience.py` refuses a facet with two values that differ only in case.
+The roots are `Mens`, `Womens` and `Kids`, spelled as shoppers say them (gen#304; they were `Men` and
+`Women`): the department, read from the top level, moves with them, and
+`tests/test_retail_mens_womens_roots_304.py` fails if a whole node `Men` or `Women` returns at any layer.
+The generator derives no spelling variants of a node (mens, men's, men): the catalogue repo's
+vocabularies own those.
 "Cleaning & Janitorial" is a department, not a root: its kitchen cleaners sit under `Cleaning`.
 
 **The store's department is the top level of `category_path`, and no document states one**
-(gen#281). The retail tree has exactly twelve roots: Women, Men, Kids, Food & Drink, Home,
+(gen#281). The retail tree has exactly twelve roots: Womens, Mens, Kids, Food & Drink, Home,
 Beauty, Cleaning, Toys, Gifts, Garden, Accessories and Sports & Outdoors (gen#265). Food sits under Food & Drink, Baby
 under Kids (`Kids > Baby > ...`) and Electricals under Home (`Home > Electricals > ...`), each
 with its subtree intact; a product still sits in one place. The documents carry no
@@ -1371,7 +1376,7 @@ title names a more specific node of its own department sits in that node. Two si
 
 **A fit or a bra style is a filter, not a leaf**. A jean sits at `<Root>/Jeans` and a pair of
 trousers at `<Root>/Trousers`, its fit in `leg_fit` alone (the failure-class rows' `leg_style`
-is folded into it). A bra sits at `Women/Lingerie/Bras`, unless it is a Sports, Nursing, Sleep
+is folded into it). A bra sits at `Womens/Lingerie/Bras`, unless it is a Sports, Nursing, Sleep
 or Post-Surgery bra, whose node stays; its old style leaf is split into `bra_shape`,
 `padding`, `back_style` and `fabric` (`facet_leaves.BRA_LEAVES`), and the fibre content a bra's
 `fabric` held moves to `composition`. On every other type `fabric` keeps only a fabric or weave
