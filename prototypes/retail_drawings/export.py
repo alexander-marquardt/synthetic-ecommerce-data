@@ -315,7 +315,7 @@ def standard_document(rec: dict) -> dict[str, Any]:
     variants = [_variant(rec, sku) for sku in rec["skus"]]
     path = list(rec["category_path"])
     attributes = _product_attributes(rec)
-    blend = facet_leaves.fibre_content(attributes)
+    blend = facet_leaves.fibre_content(attributes, rec["product_type"])
     added, replaced = facet_leaves.leaf_facets(rec, attributes)
     if replaced:
         path = facet_leaves.collapsed_path(path, rec["product_type"])
