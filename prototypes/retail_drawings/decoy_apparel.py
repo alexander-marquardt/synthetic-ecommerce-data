@@ -162,7 +162,7 @@ RANGES = {  # color word -> (range name, what it is named for)
     "yellow": (("Yellow Brook", "a brook lined with buttercups"),
                ("Yellow Marsh", "a salt marsh")),
     "black": (("Black Mill", "a disused mill"), ("Black Tor", "a granite tor")),
-    "white": (("White Cliff", "a chalk cliff"), ("White Moor", "a high moor")),
+    "white": (("White Cliff", "a chalk cliff"), ("White Moor", "an upland moor")),
 }  # fmt: skip
 CATEGORY_RANGES = (("Jumper Lane", "a village lane"), ("Coat Hook", "a headland"),
                    ("Shirt Row", "a terrace of cottages"), ("Dress Circle", "a theatre tier"),
@@ -228,7 +228,8 @@ def _clone(ex: dict, code: str, title: str, desc: str, color: str, hexv: str, fa
     if brand is not None:
         keep |= {"brand": brand, "brand_owner": BRAND_OWNER[brand]}
     keep["drawing"] = {k: v for k, v in keep["drawing"].items() if k != "accents"} | {
-        "pattern": "solid", "base": hexv, "accent": "#333333"}  # fmt: skip
+        "pattern": "solid", "base": hexv, "accent": "#333333",
+        "motif": None, "placement": None}  # fmt: skip
     return product(f"PLT-D{code}", skus, {color_tuple[0]: swatch(color_tuple, family)}, **keep)
 
 
@@ -254,10 +255,13 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
                                 desc=f"{c} {n} with {mod.lower()}-style detailing. Not a "
                                      f"{mod.lower()}.", query=mod.lower()))
     elif cls == 3:
+        # The text names the real audience too, as every #294 decoy does: the output standard
+        # refuses a text naming only another audience.
+        aud = next(a["value"] for a in ex["attributes"] if a["key"] == "audience")
         for phrase, word in AUDIENCE[ex["category_path"][0]]:
             for c in PRODUCT_COLORS:
-                out.append(dict(title=f"{c} {phrase} {noun}", word=word, color=c,
-                                desc=f"{c} {n} cut in a {phrase.lower()} fit.",
+                out.append(dict(title=f"{c} {aud} {noun}, {phrase}", word=word, color=c,
+                                desc=f"{c} {aud.lower()} {n}, cut in a {phrase.lower()} fit.",
                                 query=f"{word} {n}"))
     elif cls == 4:
         held = field_text(ex)
@@ -305,7 +309,8 @@ def build(body: list[dict]) -> list[Row]:
     pool: dict[str, list[dict]] = {}
     for d in sorted(body, key=lambda r: r["product_id"]):
         if (d["category_path"][0] in ROOTS and d["department"][0] in DEPARTMENTS
-                and d.get("color_options") and d["product_id"] not in IDS):
+                and d.get("color_options") and d["product_id"] not in IDS
+                and not d.get("leg_style")):
             pool.setdefault(d["product_type"], []).append(d)
     rows = []
     for ti, spec in enumerate(TYPES):
@@ -333,7 +338,15 @@ def build(body: list[dict]) -> list[Row]:
                 color = o["color"]
                 hexv = o.get("hex") or COLORS[color]
                 family = o.get("family") or SHADE_FAMILY.get(color, color.lower())
-                doc = _clone(ex, code, o["title"], o["desc"], color, hexv, family, o.get("brand"))
+                title = o["title"]
+                fit = next((a["value"] for a in ex["attributes"] if a["key"] == "leg_fit"), None)
+                if fit and fit.lower() not in title.lower() and spec.product_type in title:
+                    title = title.replace(spec.product_type, f"{fit} {spec.product_type}", 1)
+                if cls in (6, 7) and color.lower() not in title.lower():
+                    # The output standard refuses a title naming only another color's word;
+                    # naming the real color too is how every #294 decoy passes it.
+                    title = f"{title}, {color}"
+                doc = _clone(ex, code, title, o["desc"], color, hexv, family, o.get("brand"))
                 rows.append(Row(f"PLT-D{code}", spec.product_type, cls, o["word"], o["query"],
                                 POLICY.get(cls, "generic"), doc))
     return rows
