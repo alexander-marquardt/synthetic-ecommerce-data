@@ -3359,8 +3359,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the black-named drill is really black",
                 "color_word_brand_rows.py",
-                '_in("#e8741e", "#2a2a2e", "Orange"), (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18))',
-                '_in("#2a2a2e", "#e8741e", "Black"), (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18))',
+                '_in("#e8741e", "#2a2a2e", "Orange"),\n        (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18)),',
+                '_in("#2a2a2e", "#e8741e", "Black"),\n        (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18)),',
                 "tests/test_color_word_brands_312.py -k test_no_attribute_states_the_color_word",
                 "the color attribute differs from the color word",
                 "prototypes/retail_drawings",
