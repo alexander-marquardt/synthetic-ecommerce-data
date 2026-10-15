@@ -126,7 +126,11 @@ its published attributes. `set_screws_hex_socket` does both.
    collides at today's 68 types. Another open pull request can take the same
    block; `scripts/merge_pr.sh` re-checks it on the merged tree.
 3. If the leaf's head noun is new, add it to `PRODUCT_NOUNS` in
-   `domains/industrial/names.py`.
+   `domains/industrial/names.py`. Also add the type's shopper-readable name
+   to `PRODUCT_TYPE_LABELS` in `domains/industrial/type_labels.py` (singular,
+   plain English, no `_`, unique): every product carries it as
+   `product_type_label` beside the unchanged id, and a type without one stops
+   the build (#331).
 4. Build the catalog and regenerate the committed one:
    `uv run ecom-generate build --out golden-catalog`. Only the new type's
    records, the totals in `stats.json` and the field-weights YAML should

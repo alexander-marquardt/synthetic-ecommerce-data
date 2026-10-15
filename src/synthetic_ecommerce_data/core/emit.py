@@ -46,6 +46,7 @@ from synthetic_ecommerce_data.domains.industrial.taxonomy import (
     ImageIdError,
     product_type_for_image,
 )
+from synthetic_ecommerce_data.domains.industrial.type_labels import label_for
 
 #: Where a record's image is served from: the bundle's folder, as the demo
 #: serves it (elastic/prism#9770, the Studio images mount). Relative, so
@@ -253,6 +254,7 @@ def nested_document(
     return {
         "product_id": line.product_id,
         "product_type": line.type_key,
+        "product_type_label": label_for(line.type_key),
         "title": line.title,
         "brand": line.brand,
         "series": line.series,
@@ -310,6 +312,7 @@ def flat_documents(
             "sku": child.sku,
             "product_id": line.product_id,
             "product_type": line.type_key,
+            "product_type_label": label_for(line.type_key),
             "title": child.title,
             # The SKU's own copy, and the LINE's title beside it. They are two
             # different things and the description used to be the second: a
@@ -394,6 +397,7 @@ NESTED_MAPPING: dict[str, Any] = {
         "properties": {
             "product_id": {"type": "keyword"},
             "product_type": {"type": "keyword"},
+            "product_type_label": {"type": "keyword"},
             "title": {"type": "text"},
             "brand": {"type": "keyword"},
             "series": {"type": "keyword"},
@@ -472,6 +476,7 @@ FLAT_MAPPING: dict[str, Any] = {
             "sku": {"type": "keyword"},
             "product_id": {"type": "keyword"},
             "product_type": {"type": "keyword"},
+            "product_type_label": {"type": "keyword"},
             "title": {"type": "text"},
             "description": {"type": "text"},
             "parent_title": {"type": "text"},
