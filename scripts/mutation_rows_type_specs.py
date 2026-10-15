@@ -310,8 +310,17 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "scripts/new_type.py",
         'while f"BRD-{code}" in taken and n < 100:',
         "while False:",
-        'tests/test_retail_type_specs_351.py -k "no_registered_spec_uses or live_code"',
+        "tests/test_retail_type_specs_351.py -k no_registered_spec_uses",
         "a scaffolded code is one no spec builds",
+        ".",
+    ),
+    (
+        "the scaffold does not look at the registered specs",
+        "scripts/new_type.py",
+        "    return {i for s in type_registry.specs().values() for i in type_registry.ids_of(s)}",
+        "    return set()",
+        "tests/test_retail_type_specs_351.py -k live_code",
+        "the scaffold reads the codes of the registered specs",
         ".",
     ),
     (
