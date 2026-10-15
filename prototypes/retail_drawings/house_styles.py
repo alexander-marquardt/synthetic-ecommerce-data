@@ -1067,3 +1067,6 @@ def field_names() -> list[str]:
 
 def differing(a: HouseStyle, b: HouseStyle) -> int:
     return sum(x != y for x, y in zip(astuple(a), astuple(b), strict=True))
+
+
+import color_word_brand_styles  # noqa: E402,F401 -- gen#312: six marks and styles join the tables

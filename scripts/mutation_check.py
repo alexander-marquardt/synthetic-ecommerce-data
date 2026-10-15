@@ -3351,6 +3351,67 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: color-word brands beyond clothing (gen#312) ----
+    # Every name starts "color-word brands:", so `--only "color-word brands:"` re-runs them.
+    *(
+        Mutation(f"color-word brands: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in [
+            (
+                "the black-named drill is really black",
+                "color_word_brand_rows.py",
+                '_in("#e8741e", "#2a2a2e", "Orange"), (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18))',
+                '_in("#2a2a2e", "#e8741e", "Black"), (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18))',
+                "tests/test_color_word_brands_312.py -k test_no_attribute_states_the_color_word",
+                "the color attribute differs from the color word",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "a brand's wordmark is set in capitals, not as the brand field",
+                "color_word_brand_styles.py",
+                '"humanist", 700, "title",     0.5)',
+                '"humanist", 700, "caps",      0.5)',
+                "tests/test_color_word_brands_312.py -k test_a_drawing_lockup_text_equals_the_brand_field",
+                "the lockup text equals the brand",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "a title runs past five words",
+                "color_word_brand_rows.py",
+                '"Green Harrow Sweetcorn Kernels"',
+                '"Green Harrow Golden Sweetcorn Kernels in Water"',
+                "tests/test_color_word_brands_312.py -k test_the_color_word_sits_in_a_short_title",
+                "the color word sits in a short title",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "the garden loses its bulbs",
+                "color_word_brand_rows.py",
+                '_TULIP = ("Garden", "Bulbs", "Tulip Bulbs")',
+                '_TULIP = ("Home", "Bulbs", "Tulip Bulbs")',
+                "tests/test_color_word_brands_312.py -k test_each_department_has_at_least_three_decoys",
+                "each department has three decoys",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "the main-color completer reads the brand as a color claim",
+                "main_colors.py",
+                'rf"\\b{color.lower()}\\b", _text(rec)))',
+                'rf"\\b{color.lower()}\\b", f"{rec[\'title\']} {rec[\'description\']}".lower()))',
+                "tests/test_color_word_brands_312.py -k test_no_attribute_states_the_color_word",
+                "a color-word brand gets no SKU in its color",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "the standard reads the brand as a claim",
+                "core/standard.py",
+                '.replace(str(doc.get("brand") or "\\0"), " ")',
+                "",
+                "tests/test_color_word_brands_312.py -k test_the_standard_reads_a_brand_as_a_name",
+                "a brand is a name, not a claim",
+                "src/synthetic_ecommerce_data",
+            ),
+        ]
+    ),
 ]
 
 

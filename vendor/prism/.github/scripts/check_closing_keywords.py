@@ -264,7 +264,7 @@ Behaviour
 Exit 3 rather than exit 1 on purpose, and printed in those words: a red that
 means "the gate could not read its input" is a different thing for a human to
 act on than a red that means "your commit message closes something", and the
-checks list shows only the colour.
+checks list shows only the color.
 
 The referenced issue must be OPEN (#11221)
 ------------------------------------------

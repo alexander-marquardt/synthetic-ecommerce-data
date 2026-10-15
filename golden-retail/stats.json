@@ -555,6 +555,10 @@
    "skus": 1800,
    "styles": 24
   },
+  "color_word_brand_rows": {
+   "skus": 0,
+   "styles": 0
+  },
   "distractor_rows": {
    "skus": 3684,
    "styles": 289
