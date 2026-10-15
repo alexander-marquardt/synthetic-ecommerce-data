@@ -490,10 +490,10 @@ FAMILIES: tuple[Family, ...] = (
     # leaf with its own scent list and the same ``scent`` attribute the Kitchen Cleaner uses,
     # so one policy routes on the attribute and the product type. Drawn from their own stream.
     Family("DSH", ("Cleaning", "Kitchen & Surfaces", "Dish Soap"), "{line} {flavor} Dish Soap", "Dish Soap", "bottle",
-           "Dish Soap", _A, "", 1.2, ("500ml", "1L"), _HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",
+           "Dish Soap", _A, "", 1.2, ("500ml", "1L", "750ml"), _HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",
            department="Cleaning & Janitorial", noun="washing-up liquid that cuts through grease", depth=True),
     Family("GLS", ("Cleaning", "Kitchen & Surfaces", "Cleaners", "Glass Cleaners"), "{line} {flavor} Glass Cleaner", "Glass Cleaner",
-           "bottle", "Glass Cleaner", _A, "", 1.6, ("500ml", "750ml"), _HOME_SCENTS, _HOME_BRANDS, 0.01,
+           "bottle", "Glass Cleaner", _A, "", 1.6, ("500ml", "750ml", "1L"), _HOME_SCENTS, _HOME_BRANDS, 0.01,
            axis="scent", department="Cleaning & Janitorial", noun="streak-free spray for windows and mirrors", depth=True),
     Family("FLR", ("Cleaning", "Floor Care", "Floor Cleaners"), "{line} {flavor} Floor Cleaner", "Floor Cleaner",
            "bottle", "Floor Cleaner", _A, "", 2.0, ("1L", "2L", "750ml"), _HOME_SCENTS, _HOME_BRANDS, 0.016, axis="scent",
@@ -502,10 +502,10 @@ FAMILIES: tuple[Family, ...] = (
            "bottle", "Bathroom Cleaner", _A, "", 1.8, ("500ml", "750ml", "1L"), _HOME_SCENTS, _HOME_BRANDS, 0.01,
            axis="scent", department="Cleaning & Janitorial", noun="spray that removes limescale and soap scum", depth=True),
     Family("LDY", ("Cleaning", "Laundry", "Laundry Detergent"), "{line} {flavor} Laundry Liquid", "Laundry Detergent",
-           "bottle", "Laundry Liquid", _A, "", 4.0, ("1.5L", "3L"), _HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",
+           "bottle", "Laundry Liquid", _A, "", 4.0, ("1.5L", "3L", "4.5L"), _HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",
            department="Cleaning & Janitorial", noun="liquid detergent for every wash", depth=True),
     Family("HWS", ("Beauty", "Bath & Body", "Hand Wash"), "{line} {flavor} Hand Wash", "Hand Wash", "bottle",
-           "Hand Wash", _A, "", 1.8, ("250ml", "500ml"), _BODY_SCENTS, _BODY_BRANDS, 0.016, axis="scent",
+           "Hand Wash", _A, "", 1.8, ("250ml", "500ml", "1L"), _BODY_SCENTS, _BODY_BRANDS, 0.016, axis="scent",
            department="Beauty", noun="gentle liquid hand wash", depth=True),
     Family("SGL", ("Beauty", "Bath & Body", "Shower Gel"), "{line} {flavor} Shower Gel", "Shower Gel", "bottle",
            "Shower Gel", _A, "", 2.5, ("250ml", "500ml", "750ml"), _BODY_SCENTS, _BODY_BRANDS, 0.016, axis="scent",
@@ -734,7 +734,7 @@ FAMILIES: tuple[Family, ...] = (
            ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
     # Decoys for "steak" in the grocery tree: a sauce and a seasoning (gen#296).
     Family("SSA", _p("Food Cupboard", "Sauces & Condiments"), "{line} {flavor}", "Sauce", "bottle", "Sauce", _A, "CD", 1.9,
-           ("250ml", "500ml"), (F("Steak Sauce", "#5a3a26", "G"), F("Peppercorn Steak Sauce", "#4a3020", "G")),
+           ("250ml", "500ml", "350ml"), (F("Steak Sauce", "#5a3a26", "G"), F("Peppercorn Steak Sauce", "#4a3020", "G")),
            _CUP, 0.0015, depth=True),
     Family("SSN", _p("Food Cupboard", "Herbs & Spices"), "{line} {flavor}", "Seasoning", "jar", "Seasoning", _A, "A", 1.6,
            ("50g", "100g"), (F("Steak Seasoning", "#7a4a2a"), F("Smoky Steak Rub", "#6a3a22")),
@@ -748,7 +748,7 @@ FAMILIES: tuple[Family, ...] = (
             _o("Crisp Green Grapes", "#b4d254", "Egypt"), _o("Midnight Black Grapes", "#2e1a40", "South Africa")),
            _FRESH, 0.008, axis="variety", depth=True),
     Family("GJU", _p("Drinks", "Juice"), "{line} {flavor}", "Juice", "carton", "Juice", _C, "C", 1.9,
-           ("1L", "1.75L"), (F("Red Grape Juice", "#6a1a3a"), F("White Grape Juice", "#d9d27a")),
+           ("1L", "1.75L", "2L"), (F("Red Grape Juice", "#6a1a3a"), F("White Grape Juice", "#d9d27a")),
            _DRINK, 0.002, depth=True),
     Family("GCH", _p("Chocolate & Sweets", "Sweets"), "{line} {flavor}", "Sweets", "bag", "Sweets", _A, "E", 1.2,
            ("150g", "300g"), (F("Grape Fruit Chews", "#6a2a7a", "h"), F("Grape Jellies", "#7a3a8a")),
@@ -786,7 +786,7 @@ FAMILIES: tuple[Family, ...] = (
 #: (its SKU count, so the family's styles, flavors and draws). Sparkling wine sells one size
 #: per style: a piccolo, a bottle or a magnum.
 PACKS_PER_STYLE: dict[str, int] = {
-    **dict.fromkeys(("PLM", "ICE", "SAU", "JUI", "BFR", "VIN", "CLN", "BOD", "FLR", "BTH", "SGL", "WRD", "WWH", "WRS", "WCH", "HCR", "ECR", "SWH", "SGN", "SVD", "SRM", "STQ", "FPT", "FSY", "FVM", "MED", "FTC", "BCR"), 2),
+    **dict.fromkeys(("PLM", "ICE", "SAU", "JUI", "DSH", "GLS", "LDY", "HWS", "SSA", "GJU", "BFR", "VIN", "CLN", "BOD", "FLR", "BTH", "SGL", "WRD", "WWH", "WRS", "WCH", "HCR", "ECR", "SWH", "SGN", "SVD", "SRM", "STQ", "FPT", "FSY", "FVM", "MED", "FTC", "BCR"), 2),
     "WSP": 1,
 }
 
