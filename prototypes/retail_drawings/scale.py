@@ -110,6 +110,7 @@ import decoy_apparel  # noqa: E402
 import decoy_rows  # noqa: E402
 import distractor_rows  # noqa: E402
 import furniture_rows  # noqa: E402
+import garden_rows  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
 import lighting_rows  # noqa: E402
@@ -228,6 +229,9 @@ ACCESSORY_IDS = frozenset(f"BRD-{r.code}" for r in accessory_rows.ROWS)
 #: The camping and fitness styles (:mod:`sports_rows`, gen#265), left out of the derivation as
 #: the accessories are: the Sports & Outdoors department grows by authored rows.
 SPORTS_IDS = frozenset(f"BRD-{r.code}" for r in sports_rows.ROWS)
+#: The lawn mower, trimmer and barbecue styles and their decoys (:mod:`garden_rows`, gen#203),
+#: templates only: the Garden department grows by authored rows.
+GARDEN_IDS = frozenset(f"BRD-{r.code}" for r in garden_rows.ROWS)
 #: The underwear and nightwear styles (:mod:`underwear_rows`, gen#208), left out of the
 #: derivation as the shirts are.
 UNDERWEAR_IDS = frozenset(f"BRD-{r.code}" for r in underwear_rows.ROWS)
@@ -256,7 +260,7 @@ MENS_DEPTH_IDS = mens_depth_rows.product_ids()
 
 # Text-match decoys (gen#294, gen#311) are exempt from the output standard's text check: they
 # exist to confuse a plain text search (the maintainer ruling on #311).
-DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS
+DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()
 
 
 def templates(baseline: bool = True) -> list[dict]:
@@ -286,13 +290,15 @@ def templates(baseline: bool = True) -> list[dict]:
         *household_rows.docs(),
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
-        *colorgroup_rows.docs(), *mens_depth_rows.docs(),
+        *garden_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
     ]  # fmt: skip
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
     if baseline:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
-    return main_colors.complete(tpls, mens_depth_rows.decoy_ids()) if baseline else tpls
+    if not baseline:
+        return tpls
+    return main_colors.complete(tpls, mens_depth_rows.decoy_ids() | garden_rows.decoy_ids())
 
 
 def derivable(tpls: list[dict]) -> list[dict]:
@@ -307,7 +313,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
     the no-policy baseline the neckline, so it stays a template."""
     left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
                 | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
-                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | decoy_rows.IDS
+                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | GARDEN_IDS | decoy_rows.IDS
                 | decoy_apparel.IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out
