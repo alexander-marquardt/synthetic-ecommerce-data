@@ -3382,6 +3382,62 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: product-word decoys (gen#326) ----
+    *(
+        Mutation(f"product-word decoys: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a class-8 decoy is color-completed",
+                "main_colors.py",
+                "r[\"product_id\"] not in _PLANTED",
+                "r[\"product_id\"] not in decoy_rows.IDS",
+                "tests/test_retail_product_word_decoys_326.py -k templates_no_derived",
+                "no color completion gives a decoy the query's color",
+            ),
+            (
+                "a class-8 decoy is copied by the derivation",
+                "scale.py",
+                "| decoy_rows.IDS\n                | decoy_product_words.IDS)",
+                "| decoy_rows.IDS)",
+                "tests/test_retail_product_word_decoys_326.py -k templates_no_derived",
+                "a decoy stays a template",
+            ),
+            (
+                "a class-8 decoy sells little, so it cannot lead",
+                "decoy_product_words.py",
+                "    sold: int = 850",
+                "    sold: int = 1",
+                "tests/test_retail_product_word_decoys_326.py -k baseline_top_10",
+                "the decoys reach the baseline top 10",
+            ),
+            (
+                "a decoy's detail color is dropped from its drawing",
+                "decoy_product_words.py",
+                "params = k.params + (((self.detail_param, COLORS[self.detail]),) if self.detail else ())",
+                "params = k.params",
+                "tests/test_retail_product_word_decoys_326.py -k drawing_shows",
+                "the drawing renders the named detail",
+            ),
+            (
+                "the docs table drops the policy column",
+                "decoy_product_words.py",
+                "f\"| {r.policy} |\"",
+                "f\"| |\"",
+                "tests/test_retail_product_word_decoys_326.py -k docs_table",
+                "the docs table lists each row with its policy",
+            ),
+        ]
+    ),
+    Mutation(
+        "product-word decoys: the text check ignores the exempt list",
+        "core/standard.py",
+        'if doc.get("product_id") not in text_exempt',
+        "if True",
+        "tests/test_retail_scale.py -k 20k_build_meets_the_output_standard",
+        "A",
+        "a decoy's misleading detail color is exempt from the text check, nothing else is",
+    ),
     # ---- pack: bolts and socket screws publish the census pack (#65) ------
     *(
         Mutation(
