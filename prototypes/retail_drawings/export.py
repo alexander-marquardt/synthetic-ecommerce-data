@@ -49,6 +49,8 @@ IMAGE_BASE_URL = f"/images/{IMAGE_ROOT}"
 
 #: Product-level keys written in Title Case whatever the authored row spelled ("plain" and
 #: "Plain" were two buckets of one facet).
+#: The one seeded campaign: a reduced product in it also carries its name (gen#189).
+CAMPAIGN = "Christmas promotion"
 TITLE_CASED = frozenset({"pattern", "rise"})
 
 #: Authored product types that are one concept with another, written as the second: "Tee" is a
