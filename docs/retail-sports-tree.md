@@ -18,6 +18,14 @@ no guidance example says `none` there too.
 
 | Leaf | Filters (export keys) | Guidance example | Retailer tree |
 | --- | --- | --- | --- |
+| Sports & Outdoors > Camping > Tents > Dome Tents | berth, season_rating, hydrostatic_head, tent_type, material, color | tent capacity, season rating | none |
+| Sports & Outdoors > Camping > Tents > Tunnel Tents | berth, season_rating, hydrostatic_head, tent_type, material, color | tent capacity, season rating | none |
+| Sports & Outdoors > Camping > Sleeping Bags | season_rating, item_length, bag_shape, fill, material, color | season rating | none |
+| Sports & Outdoors > Camping > Camping Chairs | frame_material, max_load_kg, arms, color | none | none |
+| Sports & Outdoors > Yoga & Fitness > Yoga > Yoga Mats | thickness, material, surface, color | mat thickness | none |
+| Sports & Outdoors > Yoga & Fitness > Weights > Dumbbells | weight, head_shape, sold_as, material, color | dumbbell weight | none |
+| Sports & Outdoors > Yoga & Fitness > Weights > Kettlebells | weight, material, color | dumbbell weight | none |
+| Sports & Outdoors > Yoga & Fitness > Foam Rollers | item_length, surface, material, color | none | none |
 
 Leaf depth is mixed on purpose for now: Dome Tents, Tunnel Tents, Yoga Mats, Dumbbells and
 Kettlebells sit under a group (four levels), Sleeping Bags, Camping Chairs and Foam Rollers sit
@@ -33,3 +41,30 @@ carries a reason.
 
 | Type | Family | Disposition |
 | --- | --- | --- |
+| Bicycles | Cycling | #352 |
+| Bike helmets | Cycling | #352 |
+| Bike lights | Cycling | #352 |
+| Bike locks | Cycling | #352 |
+| Bike pumps | Cycling | #368 |
+| Camping stoves | Camping | #352 |
+| Lanterns | Camping | #368 |
+| Roll mats | Camping | #368 |
+| Yoga blocks | Yoga & Fitness | #368 |
+| Yoga straps | Yoga & Fitness | #368 |
+| Resistance bands | Yoga & Fitness | #368 |
+| Bats | Baseball | #368 |
+| Gloves | Baseball | #368 |
+| Balls | Baseball | #368 |
+| Batting helmets | Baseball | #368 |
+| Swimming goggles | Swimming | #368 |
+| Swim caps | Swimming | #368 |
+| Kickboards | Swimming | #368 |
+| Armbands | Swimming | #368 |
+| Footballs | Team and racket sports | #368 |
+| Tennis rackets | Team and racket sports | #368 |
+| Badminton sets | Team and racket sports | #368 |
+| Kayaks | Water sports | #352 |
+| Kick scooters | Wheeled sports | #352 |
+| Skateboards | Wheeled sports | #352 |
+| Swimsuits and trunks | Swimming | Clothing already has them: reused, not duplicated (gen#265) |
+| Balance bikes | Cycling | Stay in Toys (gen#265) |
