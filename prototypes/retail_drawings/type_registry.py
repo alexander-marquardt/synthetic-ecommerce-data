@@ -36,9 +36,9 @@ from lowerbody_rows import LRow
 from variants import cw
 
 __all__ = [
-    "ApparelPlan", "BRAND_OWNER", "Decoy", "LRow", "Row", "SpecError", "TypeSpec", "a", "count",
-    "cw", "decoy_ids", "docs", "left_out_ids", "legacy_types", "registration_problems", "sizes",
-    "specs", "validate",
+    "ApparelPlan", "BRAND_OWNER", "Decoy", "LRow", "Row", "SpecError", "TypeSpec", "a",
+    "check_unique_ids", "count", "cw", "decoy_ids", "docs", "left_out_ids", "legacy_types",
+    "registration_problems", "sizes", "specs", "validate",
 ]  # fmt: skip
 
 LEGACY_FILE = Path(__file__).resolve().parent / "type_specs" / "legacy_types.txt"
@@ -196,7 +196,29 @@ def specs() -> dict[str, TypeSpec]:
         other = seen.setdefault((spec.department, spec.product_type), spec.key)
         if other != spec.key:
             raise SpecError(f"{spec.key} and {other} both declare {spec.product_type}")
+    owner: dict[str, str] = {}
+    for spec in found.values():
+        for pid in sorted(ids_of(spec)):
+            if (other := owner.setdefault(pid, spec.key)) != spec.key:
+                raise SpecError(
+                    f"{other} and {spec.key} both build {pid}: give one row another code "
+                    "(the scaffold's --code)"
+                )
     return dict(sorted(found.items()))
+
+
+def check_unique_ids(docs: list[dict]) -> None:
+    """Raise :class:`SpecError` when two documents of the build share a product id. A spec
+    cannot see the rows still outside the registry, so the build asks once it has them all."""
+    seen: dict[str, str] = {}
+    for d in docs:
+        pid = d["product_id"]
+        if pid in seen:
+            raise SpecError(
+                f"{pid} is built twice ({seen[pid]!r} and {d['product_type']!r}): give the "
+                "new row another code (the scaffold's --code)"
+            )
+        seen[pid] = d["product_type"]
 
 
 def docs() -> list[dict]:
