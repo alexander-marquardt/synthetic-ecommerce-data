@@ -17,7 +17,7 @@ what to draw (:mod:`footwear_rows` puts all three in ``drawing.params``):
 
 The sole path carries ``class="sole"`` (``details`` redraws it for a named sole). A heel block carries ``class="heel"`` (a flat or a sole unit has none), and
 :func:`top` is the y of the collar's back top edge before the drawing is
-centred, so a test can tell a shoe from an ankle boot from a knee boot
+centered, so a test can tell a shoe from an ankle boot from a knee boot
 without parsing paths. Nothing is painted in the paper's color: a house style
 changes the paper, so a gap is left as a gap.
 

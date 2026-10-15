@@ -16,7 +16,7 @@ from the record, never from a random draw:
   ``spacing``, twice, as a half-drop repeat (:func:`print_defs`);
 * ``scatter``: a sparser tile holding the motif ``count`` times (3 to 6) at
   the fixed sizes and turns of :data:`SCATTER`;
-* ``placement``: one motif centred in the surface's print area
+* ``placement``: one motif centered in the surface's print area
   (:data:`PRINT_BOX`, :func:`overlay`), the graphic-tee look. Here ``scale``
   is the share of the print area the motif's drawn box covers
   (:func:`drawn_box`), so a thin hammer and a round orange at the same scale
@@ -99,7 +99,7 @@ def motif_svg(
     origin: tuple[float, float] | None = None,
 ) -> str:  # fmt: skip
     """The motif's 400-unit sheet drawn ``size`` units across, its ``origin`` (default the
-    sheet's centre) on (cx, cy), turned ``turn`` degrees."""
+    sheet's center) on (cx, cy), turned ``turn`` degrees."""
     motif(name)
     ox, oy = origin or (200, 200 - OFFSET_Y.get(name, 0))
     return (
@@ -237,7 +237,7 @@ SCATTER = ((0.2, 0.25, 1.0, -14), (0.7, 0.45, 0.7, 18), (0.35, 0.8, 0.55, 0),
            (0.8, 0.85, 0.6, -25), (0.6, 0.1, 0.5, 10), (0.05, 0.6, 0.65, 30))  # fmt: skip
 #: An all-over tile's half-drop: the same motif twice, upright.
 HALF_DROP = ((0.25, 0.25, 1.0, 0), (0.75, 0.75, 1.0, 0))
-#: A placement print's one graphic, centred.
+#: A placement print's one graphic, centered.
 ONE = ((0.5, 0.5, 1.0, 0),)
 if (len(SCATTER), len(HALF_DROP)) != (MOTIF_COUNTS["scatter"][1], MOTIF_COUNTS["all-over"][0]):
     raise ValueError("SCATTER and HALF_DROP must hold the copies kit.MOTIF_COUNTS allows")
@@ -281,7 +281,7 @@ def print_defs(fill: Fill, pid: str) -> str:
 
 
 #: Printable surface -> its placements and the print area (cx, cy, width, height) a
-#: placement print is centred in. A tee's is the chest between the armholes, from
+#: placement print is centered in. A tee's is the chest between the armholes, from
 #: below the neckband to above the hem.
 SURFACES: dict[str, tuple[tuple[str, ...], tuple[float, float, float, float] | None]] = {
     "tshirt": (PLACEMENTS, (200, 222, 156, 196)),
@@ -320,7 +320,7 @@ def check_surface(shape: str, placement: str) -> None:
 
 
 def overlay(shape: str, fill: Fill) -> str:
-    """A placement print's one motif, centred in ``shape``'s print area."""
+    """A placement print's one motif, centered in ``shape``'s print area."""
     check_surface(shape, "placement")
     k, (x0, y0, x1, y1) = placement_scale(shape, fill)
     cx, cy, _, _ = PRINT_BOX[shape]
