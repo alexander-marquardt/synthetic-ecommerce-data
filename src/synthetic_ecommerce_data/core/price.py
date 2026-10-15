@@ -255,7 +255,6 @@ KEY_ATTRIBUTES: RegistryTable[str, tuple[str, ...]] = RegistryTable({
     "abrasive_flap_disc": ("Diameter",),
     "bearing_radial_ball": ("Bore Dia.",),
     "bolt_hex": ("Dia./Thread Size",),
-    "drill_jobber": ("Decimal Equivalent", "Size"),
     "end_mill_ball": ("Milling Dia.",),
     "end_mill_square": ("Milling Dia.",),
     "hammer_ball_pein": ("Head Weight",),
@@ -266,7 +265,6 @@ KEY_ATTRIBUTES: RegistryTable[str, tuple[str, ...]] = RegistryTable({
     "screw_flat_head": ("Dia./Thread Size",),
     "screw_low_head": ("Dia./Thread Size",),
     "tap_spiral_point": ("Thread Size",),
-    "washer_flat": ("Inside Dia.",),
     "wheel_depressed_center": ("Wheel Dia.",),
 })  # fmt: skip
 
@@ -968,7 +966,6 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
             pack_slope=PACK_SLOPES["bolt_hex"],
             pack_ref=100.0,
         ),
-        "drill_jobber": _model("drill_jobber", 4.435, 0.25, 0.634, 0.182),
         "end_mill_ball": _model("end_mill_ball", 45.33, 0.375, 0.108, 0.246, slope=0.952),
         "end_mill_square": _model("end_mill_square", 32.86, 0.375, 0.230, 0.308, slope=0.653),
         "hex_key": _model("hex_key", 17.71, 0.25, 0.658, 0.216),
@@ -992,7 +989,6 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
             price_step=0.19,
             size_sigma=0.215,
         ),
-        "washer_flat": _model("washer_flat", 5.243, 0.375, 0.500, 0.701),
         "wheel_depressed_center": _model("wheel_depressed_center", 7.832, 4.5, 0.702, 0.306),
         # @fit-end
         # No census prices: the ball-pein hammer's archived pages are script

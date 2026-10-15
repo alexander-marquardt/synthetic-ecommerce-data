@@ -102,13 +102,11 @@ class GeneratorConfig:
         default_factory=lambda: {
             "end_mill_square": 0.19,
             "end_mill_ball": 0.11,
-            "drill_jobber": 0.11,
             "tap_spiral_point": 0.07,
             "screw_flat_head": 0.07,
             "screw_button_head": 0.05,
             "screw_low_head": 0.04,
             "bolt_hex": 0.09,
-            "washer_flat": 0.06,
             "hammer_ball_pein": 0.04,
             "abrasive_flap_disc": 0.05,
         }

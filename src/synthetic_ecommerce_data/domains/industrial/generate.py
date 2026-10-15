@@ -1190,13 +1190,11 @@ class Generator:
     _BUILDERS = {
         "end_mill_square": _build_end_mill,
         "end_mill_ball": _build_end_mill,
-        "drill_jobber": _build_drill,
         "tap_spiral_point": _build_tap,
         "screw_flat_head": _build_socket_screw,
         "screw_button_head": _build_socket_screw,
         "screw_low_head": _build_socket_screw,
         "bolt_hex": _build_hex_bolt,
-        "washer_flat": _build_washer,
         "hammer_ball_pein": _build_hammer,
         "abrasive_flap_disc": _build_flap_disc,
     }

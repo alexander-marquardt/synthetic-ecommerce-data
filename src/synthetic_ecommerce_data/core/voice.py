@@ -44,10 +44,6 @@ _USE_LINES: dict[str, tuple[str, ...]] = {
         "For contouring and profiling curved surfaces.",
         "Cuts radiused slots and contoured surfaces.",
     ),
-    "drill_jobber": (
-        "For hole-making in the shop.",
-        "Drills holes in general shop work.",
-    ),
     "tap_spiral_point": (
         "Pushes chips ahead of the tap.",
         "Cuts internal threads in through holes.",
@@ -67,10 +63,6 @@ _USE_LINES: dict[str, tuple[str, ...]] = {
     "bolt_hex": (
         "Tightened with a wrench, for machinery and structural assembly.",
         "Fastens parts with a nut or into a tapped hole.",
-    ),
-    "washer_flat": (
-        "Spreads the load under a bolt head or nut.",
-        "Protects the surface under a fastener and spreads its load.",
     ),
     "hammer_ball_pein": (
         "For peening, riveting and general metalwork.",

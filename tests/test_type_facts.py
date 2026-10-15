@@ -125,8 +125,8 @@ def test_a_shared_row_for_a_type_with_its_own_module_is_refused(
 ) -> None:
     """Moving a type into its module moves its rows: a row left behind would
     be a second declaration, and the two could disagree unseen."""
-    _plant(monkeypatch, _planted(key="washer_flat", module="planted.washer_flat"))
-    with pytest.raises(type_facts.TypeFactsError, match=r"washer_flat .*planted\.washer_flat"):
+    _plant(monkeypatch, _planted(key="bolt_hex", module="planted.bolt_hex"))
+    with pytest.raises(type_facts.TypeFactsError, match=r"bolt_hex .*planted\.bolt_hex"):
         getattr(type_facts, read)()
 
 

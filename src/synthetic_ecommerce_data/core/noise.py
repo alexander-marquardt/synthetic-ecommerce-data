@@ -108,8 +108,7 @@ THREADED: RegistryTable[str, str] = RegistryTable({
 CUTTING = ("end_mill_square", "end_mill_ball", "drill_jobber", "tap_spiral_point")
 FASTENERS: RegistryTable[str, bool] = RegistryTable(
     dict.fromkeys(
-        ("screw_flat_head", "screw_button_head", "screw_low_head", "bolt_hex", "nut_hex")
-        + ("washer_flat",),
+        ("screw_flat_head", "screw_button_head", "screw_low_head", "bolt_hex", "nut_hex"),
         True,
     )
 )
@@ -119,7 +118,6 @@ UNIT_PRIMARY: RegistryTable[str, str] = RegistryTable(
     {
         "end_mill_square": "Milling Dia.",
         "end_mill_ball": "Milling Dia.",
-        "drill_jobber": "Size",
         "hex_key": "Size",
         "bearing_radial_ball": "Bore Dia.",
         "wheel_depressed_center": "Wheel Dia.",

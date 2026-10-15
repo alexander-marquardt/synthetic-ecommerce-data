@@ -36,37 +36,54 @@ class TypeFactsError(Exception):
 
 #: The standards a record of each shared-table type may claim.
 SHARED_MAY_CLAIM: dict[str, frozenset[str]] = {
-    "screw_flat_head": frozenset({"ISO 10642", "ASME B18.3", "ISO 898-1", "ISO 3506-1"}),
-    "screw_button_head": frozenset({"ISO 7380-1", "ASME B18.3", "ISO 898-1", "ISO 3506-1"}),
-    "screw_low_head": frozenset({"DIN 7984", "ASME B18.3", "ISO 898-1", "ISO 3506-1"}),
-    "bolt_hex": frozenset({"ASME B18.2.1", "ISO 4014", "ISO 4017", "DIN 933", "ISO 8765",
-                           "ISO 8676", "DIN 961", "SAE J429", "ISO 898-1"}),
-    "nut_hex": frozenset({"ISO 4032", "ISO 4035", "ISO 8673", "ISO 8675", "ASME B18.2.2",
-                          "SAE J995", "ISO 898-2"}),
-    "washer_flat": frozenset({"ISO 7089", "DIN 125-A"}),
-    "end_mill_square": frozenset({"ISO 1641", "DIN 6527", "ANSI B94.19"}),
-    "end_mill_ball": frozenset({"ISO 1641", "DIN 6527", "ANSI B94.19"}),
-    "drill_jobber": frozenset({"DIN 338", "ASME B94.11M"}),
-    "tap_spiral_point": frozenset({"ISO 529", "ASME B94.9"}),
-    "hex_key": frozenset({"ISO 2936", "ASME B18.3"}),
+    "screw_flat_head": frozenset({"ASME B18.3", "ISO 10642", "ISO 3506-1", "ISO 898-1"}),
+    "screw_button_head": frozenset({"ASME B18.3", "ISO 3506-1", "ISO 7380-1", "ISO 898-1"}),
+    "screw_low_head": frozenset({"ASME B18.3", "DIN 7984", "ISO 3506-1", "ISO 898-1"}),
+    "bolt_hex": frozenset(
+        {
+            "ASME B18.2.1",
+            "DIN 933",
+            "DIN 961",
+            "ISO 4014",
+            "ISO 4017",
+            "ISO 8676",
+            "ISO 8765",
+            "ISO 898-1",
+            "SAE J429",
+        }
+    ),
+    "nut_hex": frozenset(
+        {"ASME B18.2.2", "ISO 4032", "ISO 4035", "ISO 8673", "ISO 8675", "ISO 898-2", "SAE J995"}
+    ),
+    "end_mill_square": frozenset({"ANSI B94.19", "DIN 6527", "ISO 1641"}),
+    "end_mill_ball": frozenset({"ANSI B94.19", "DIN 6527", "ISO 1641"}),
+    "tap_spiral_point": frozenset({"ASME B94.9", "ISO 529"}),
+    "hex_key": frozenset({"ASME B18.3", "ISO 2936"}),
     "hammer_ball_pein": frozenset({"ASME B107.400"}),
     "abrasive_flap_disc": frozenset({"EN 13743", "oSa Certified"}),
     "wheel_depressed_center": frozenset({"ANSI B7.1", "EN 12413", "oSa Certified"}),
-    "bearing_radial_ball": frozenset({"ISO 15", "ISO 492", "ABMA 20"}),
+    "bearing_radial_ball": frozenset({"ABMA 20", "ISO 15", "ISO 492"}),
     "kit_assortment": frozenset(),
-}  # fmt: skip
+}
 
 #: The key dimension every title of each shared-table type names.
 SHARED_TITLE_KEY: dict[str, tuple[str, ...]] = {
-    "end_mill_square": ("Milling Dia.",), "end_mill_ball": ("Milling Dia.",),
-    "drill_jobber": ("Size",), "tap_spiral_point": ("Thread Size",),
-    "screw_flat_head": ("Dia./Thread Size",), "screw_button_head": ("Dia./Thread Size",),
-    "screw_low_head": ("Dia./Thread Size",), "bolt_hex": ("Dia./Thread Size",),
-    "washer_flat": ("Size",), "nut_hex": ("Thread Size",),
-    "hex_key": ("Size",), "bearing_radial_ball": ("Bearing Number", "Bore Dia."),
-    "wheel_depressed_center": ("Wheel Dia.",), "abrasive_flap_disc": ("Diameter",),
-    "hammer_ball_pein": ("Head Weight",), "kit_assortment": ("Number of Pieces",),
-}  # fmt: skip
+    "end_mill_square": ("Milling Dia.",),
+    "end_mill_ball": ("Milling Dia.",),
+    "tap_spiral_point": ("Thread Size",),
+    "screw_flat_head": ("Dia./Thread Size",),
+    "screw_button_head": ("Dia./Thread Size",),
+    "screw_low_head": ("Dia./Thread Size",),
+    "bolt_hex": ("Dia./Thread Size",),
+    "nut_hex": ("Thread Size",),
+    "hex_key": ("Size",),
+    "bearing_radial_ball": ("Bearing Number", "Bore Dia."),
+    "wheel_depressed_center": ("Wheel Dia.",),
+    "abrasive_flap_disc": ("Diameter",),
+    "hammer_ball_pein": ("Head Weight",),
+    "kit_assortment": ("Number of Pieces",),
+}
+
 
 def _merged(
     shared: dict[str, _V], read: Callable[[typespec.TypeSpec], _V | None], fields: str

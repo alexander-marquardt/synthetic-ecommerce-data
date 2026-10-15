@@ -54,22 +54,11 @@ class Category:
 _LEAVES: dict[str, tuple[CategoryPath, ...]] = {
     "end_mill_square": (("Milling", "End Mills", "Square End Mills"),),
     "end_mill_ball": (("Milling", "End Mills", "Ball End Mills"),),
-    "drill_jobber": (
-        (
-            "Holemaking",
-            "Drilling & Drill Bits",
-            "Metalworking & Multipurpose Drill Bits",
-            "Jobber Length Drill Bits",
-        ),
-    ),
     "tap_spiral_point": (("Threading", "Taps", "Spiral Point Taps"),),
     "screw_flat_head": (("Fasteners", "Bolts, Screws & Cap Screws", "Flat Socket Cap Screws"),),
     "screw_button_head": (("Fasteners", "Bolts, Screws & Cap Screws", "Button Socket Cap Screws"),),
     "screw_low_head": (("Fasteners", "Bolts, Screws & Cap Screws", "Low Socket Cap Screws"),),
     "bolt_hex": (("Fasteners", "Bolts, Screws & Cap Screws", "Hex Head Bolts"),),
-    "washer_flat": (
-        ("Fasteners", "Washers & Shims", "Flat & Square Flat Washers", "Flat Washers"),
-    ),
     "hammer_ball_pein": (
         # One node for every hammer kind (#305); see SHARED_LEAVES.
         ("Hand Tools", "Hammers"),
@@ -151,13 +140,11 @@ def ancestors(path: CategoryPath) -> tuple[CategoryPath, ...]:
 _DRAWING: dict[str, str] = {
     "end_mill_square": "end_mill_square",
     "end_mill_ball": "end_mill_ball",
-    "drill_jobber": "drill_jobber",
     "tap_spiral_point": "tap_spiral_point",
     "screw_flat_head": "screw_flat_head",
     "screw_button_head": "screw_button_head",
     "screw_low_head": "screw_low_head",
     "bolt_hex": "bolt_hex",
-    "washer_flat": "washer_flat",
     "hammer_ball_pein": "hammer_ball_pein",
     "abrasive_flap_disc": "abrasive_flap_disc",
     "nut_hex": "nut_hex",

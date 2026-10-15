@@ -125,15 +125,11 @@ def _shared_claims(
             out.append("ISO 898-2")
         if not metric and grade.startswith("Grade"):
             out.append("SAE J995")
-    elif type_key == "washer_flat":
-        out.extend(("ISO 7089", "DIN 125-A"))
     elif type_key in ("end_mill_square", "end_mill_ball"):
         if metric:
             out.append("DIN 6527" if material == "Solid Carbide" else "ISO 1641")
         else:
             out.append("ANSI B94.19")
-    elif type_key == "drill_jobber":
-        out.append("DIN 338" if metric else "ASME B94.11M")
     elif type_key == "tap_spiral_point":
         out.append("ISO 529" if metric else "ASME B94.9")
     elif type_key == "hex_key":
