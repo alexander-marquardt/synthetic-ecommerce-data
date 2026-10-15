@@ -16,14 +16,30 @@ knob per burner, and the SKU axes are never printed on an image.
 
 ## Text-match decoys
 
-Each type carries three decoys (gen#294), listed in `garden_rows.DECOY_TABLE` with their class and
-the query they target. Their structured fields tell the truth.
+Each type carries fifteen decoys, three of each of five classes (gen#294), listed in
+`garden_rows.DECOY_TABLE` with their class and the query they target. Their structured fields tell
+the truth: the color field holds the product's one main color, and only a title or description
+carries the misleading word. Each is exempt from the text check and left out of the derivation.
 
 | Class | Example | Why it matches |
 |---|---|---|
-| type | "Vintage Lawn Mower Cushion", "BBQ Master Apron" | a sibling product holds the type word |
-| absent | "Petrol Free Electric Lawn Mower", "Charcoal BBQ, Not Gas" | a real product of the type names a power source or fuel it lacks |
-| incidental | "Freshly Mown Lawn Candle", "Fresh Cut Grass Candle" | a scent holds a word of the query |
+| type | "Vintage Lawn Mower Cushion", "BBQ Master Apron", "Robot Mower Chef Apron" | a sibling product holds the type word |
+| absent | "Petrol Free Electric Lawn Mower", "Charcoal BBQ, Not Gas", "GPS Free Robot Mower for Terraces" | a real product of the type names a power source or fuel it lacks |
+| incidental | "Freshly Mown Lawn Candle" (a scent), "Red Kite Lawn Mower" (a black mower), "Blue Moon BBQ" | a word of the query sits in a short title or a scent, not in the product's color |
+| secondary | "Green Lawn Mower with Red Wheels", "Red Portable BBQ with Black Legs" | the title names a part's color beside the product's own, so "red lawn mower" matches a green one |
+| shade | "Light Corded Lawn Mower" (a blue mower with "a bright red start switch"), "Family Kettle BBQ" | the description alone names another main color |
+
+## Units
+
+Most key attributes carry a UN/CEFACT unit code in the export (width, volts, litres, burners).
+Two do not: `lawn_area_m2` is exported as a plain number with no unit code (it is named in square
+metres), and a robot mower's maximum slope is a string with `%` in its name.
+
+## The drawing states what the record states
+
+A barbecue draws a `shelf` group per side when `side_shelves` is Yes (the gas styles; the barrel
+states No), a `side-burner` group when `side_burner` is Yes, and a self-drive mower a `drive-lever`
+and a `drive-arrow` group. A test reads each against the row.
 
 ## Not done yet
 
