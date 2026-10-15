@@ -74,6 +74,7 @@ from synthetic_ecommerce_data.domains.industrial.muststock import (
 )
 from synthetic_ecommerce_data.domains.industrial.newtypes import NEW_TYPES
 from synthetic_ecommerce_data.domains.industrial.taxonomy import drawing_for, image_id_for
+from synthetic_ecommerce_data.domains.industrial.type_labels import label_for
 from synthetic_ecommerce_data.domains.industrial.vocab import (
     MEASUREMENT_SYSTEM_NAMES,
     MEASUREMENT_SYSTEM_PRESENCE,
@@ -2103,6 +2104,7 @@ class Generator:
             # selected; the product has no drawing of its own to disagree.
             image_id=children[0].image_id,
             drawing=drawing_for(type_key),
+            type_label=label_for(type_key),
         )
 
     def _price_draw(
