@@ -59,7 +59,8 @@ def drawing_svg(rec: dict) -> str:
     # A motif print's fields (gen#125) ride on the drawing beside its colors.
     fill = Fill(d["pattern"], d["base"], d["accent"], d["third"], motif=d.get("motif"),
                 placement=d.get("placement"), scale=d.get("scale", 0.0),
-                spacing=d.get("spacing", 0.0), count=d.get("count", 1))  # fmt: skip
+                spacing=d.get("spacing", 0.0), count=d.get("count", 1),
+                detail=(d["detail"]["part"], d["detail"]["color"]) if d.get("detail") else None)  # fmt: skip
     return render(
         d["shape"],
         fill,

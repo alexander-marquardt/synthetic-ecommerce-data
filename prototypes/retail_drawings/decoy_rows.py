@@ -109,7 +109,7 @@ KINDS = {
                        "Hearth & Table", 6.0),
     "top": Kind("Clothing", ("Womens", "Tops", "Jersey Tops"), "Top", "top", "Larkmoor", 20.0,
                 sizes=UK, size_range="regular"),
-    "handbag": Kind("Clothing", ("Accessories", "Bags", "Handbags"), "Handbag", "handbag",
+    "handbag": Kind("Clothing", ("Womens", "Accessories", "Bags", "Handbags"), "Handbag", "handbag",
                     "Larkmoor", 34.0, params=(("style", "shoulder"), ("flap", "flap"),
                                                 ("strap", "leather")),
                     extra=(("audience", "Audience", "Womens"),)),
