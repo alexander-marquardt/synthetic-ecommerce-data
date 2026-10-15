@@ -25,7 +25,8 @@
 #      and commits only GENERATED. A file still conflicted, or any other change
 #      in the tree, is refused. uv runs --locked, so a stale uv.lock is
 #      refused rather than re-locked into the commit.
-#   3. runs the drift, golden and seam tests (CHECKS) on that tree, and
+#   3. runs the drift, golden and seam tests (CHECKS) on that tree, on several
+#      pytest workers (local_ci_jobs.py --pytest-options, #348), and
 #      refuses a run in which no test passed (pytest exits 0 on all-skipped).
 #   4. pushes the merged and rebuilt tree to the PR branch, if it differs from
 #      the PR head. Not forced: a head that moved refuses the push.
@@ -41,7 +42,10 @@
 #      each one's verdict, duration and log (outside the clone, named
 #      <label>-<job>.log in $MERGE_PR_LOG_DIR, default /tmp; --label sets the
 #      label, default the checkout's directory name) is printed; the merge is
-#      refused unless every job passed. No GitHub check is read.
+#      refused unless every job passed. No GitHub check is read. Each job's
+#      pytest runs on several workers, grouped by file (local_ci_jobs.py adds
+#      -n and --dist loadgroup; LOCAL_CI_WORKERS sets the count): the suite
+#      took 47 to 54 minutes on one core, and merges are serial (#348).
 #   6. squash-merges, re-checking before EVERY attempt that main has not moved
 #      since step 1 and that the PR head is still the checked commit.
 #
@@ -224,7 +228,11 @@ fi
 
 # 3. The checks, on exactly the tree that would be pushed. Pytest exits 0
 #    when every test is skipped, so a run must also have passed something.
-if ! uv run -q --locked --directory "$work" pytest -q -p no:cacheprovider \
+# On several workers (#348), with the options the local CI jobs get: one source.
+read -r -a parallel <<<"$(uv run -q --locked --directory "$here" python \
+  "$here/scripts/local_ci_jobs.py" --pytest-options)"
+[ "${#parallel[@]}" -gt 0 ] || die "scripts/local_ci_jobs.py --pytest-options printed nothing"
+if ! uv run -q --locked --directory "$work" pytest -q -p no:cacheprovider "${parallel[@]}" \
   --junitxml="$checks_log" "${CHECKS[@]}"; then
   die "#$pr is red on the merged tree; NOT pushed, NOT merged"
 fi
