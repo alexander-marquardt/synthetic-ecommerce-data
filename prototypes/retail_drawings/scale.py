@@ -117,6 +117,7 @@ import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
 import mens_depth_rows  # noqa: E402
 import scale_rows  # noqa: E402
+import school_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
@@ -228,6 +229,8 @@ ACCESSORY_IDS = frozenset(f"BRD-{r.code}" for r in accessory_rows.ROWS)
 #: The camping and fitness styles (:mod:`sports_rows`, gen#265), left out of the derivation as
 #: the accessories are: the Sports & Outdoors department grows by authored rows.
 SPORTS_IDS = frozenset(f"BRD-{r.code}" for r in sports_rows.ROWS)
+#: The school uniform styles (:mod:`school_rows`, gen#205): templates only, as the sports rows are.
+SCHOOL_IDS = frozenset(f"BRD-{r.code}" for r in school_rows.ROWS)
 #: The underwear and nightwear styles (:mod:`underwear_rows`, gen#208), left out of the
 #: derivation as the shirts are.
 UNDERWEAR_IDS = frozenset(f"BRD-{r.code}" for r in underwear_rows.ROWS)
@@ -282,8 +285,8 @@ def templates(baseline: bool = True) -> list[dict]:
     body = [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
         *decoy_rows.docs(),
-        *shirt_rows.docs(), *accessory_rows.docs(), *sports_rows.docs(), *sofa_rows.docs(),
-        *household_rows.docs(),
+        *shirt_rows.docs(), *accessory_rows.docs(), *sports_rows.docs(),
+        *school_rows.docs(), *sofa_rows.docs(), *household_rows.docs(),
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
         *colorgroup_rows.docs(), *mens_depth_rows.docs(),
@@ -306,7 +309,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
     or slash neck top is a failure-class row too (gen#125): a derived copy of it would hand
     the no-policy baseline the neckline, so it stays a template."""
     left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
-                | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
+                | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS | SCHOOL_IDS
                 | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | decoy_rows.IDS
                 | decoy_apparel.IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
