@@ -159,10 +159,10 @@ def fingerprint(catalog: list[dict]) -> str:
 SYNONYMS = ("balloon => balloon, barrel",)
 KEYWORDS = ("product_id", "product_type", "audience", "size_range",
             "neckline", "pattern", "leg_style", "rise", "category_path", "category_leaf",
-            "category_path_joined",
+            "promotion", "category_path_joined",
             "brand_owner", "badges", "sub_collection", "product_line",
             "unit_measure")  # fmt: skip
-BOOLEANS = ("offer", "online_only", "trending")
+BOOLEANS = ("online_only", "trending")
 FLOATS = ("price_min", "price_max", "rating", "discount_pct", "abv", "unit_size")
 #: Price and stock are per SKU, so a SKU match must stay inside one SKU.
 SKUS = {

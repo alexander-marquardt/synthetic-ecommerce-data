@@ -31,6 +31,7 @@ import distractors as dz
 from class_model import BRAND_OWNER, COLOR_FAMILIES, _digest
 from colorwords import plain
 from departments import check as check_departments
+from promotion import values as promotion_values
 from real_classes import badges
 from variants import Color, attr, cw, drawing, product, swatch
 
@@ -259,13 +260,13 @@ class FootwearStyle:
             "review_count": 5 + (h >> 8) % 1700,
             "price_min": min(prices),
             "price_max": max(prices),
-            "offer": self.was_price is not None,
             "online_only": self.online_only,
             "trending": self.trending,
         }
         if self.was_price is not None:
             rec["was_price"] = self.was_price
             rec["discount_pct"] = round(100 * (self.was_price - min(prices)) / self.was_price)
+            rec["promotion"] = promotion_values(f"FTW-{self.code}")
         if self.product_line is not None:
             rec["product_line"] = self.product_line
         swatches = {c[0]: swatch(c, family) for c, family, _ in self.colors}

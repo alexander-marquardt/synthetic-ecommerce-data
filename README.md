@@ -1150,8 +1150,8 @@ SKU. `size_range` is a list; for legwear it is derived from the in-stock lengths
 (Extra Short and Short/Petite give `petite`), never declared, so the flat
 `size_range` filter of class 6 means "has an in-stock petite SKU".
 
-Every class doc also carries the tile signals: `offer` (a was-price, or a
-multi-buy with none), `discount_pct` (derived, sale docs only),
+Every class doc also carries the tile signals: `promotion` (a was-price gives
+"On sale"; see below), `discount_pct` (derived, sale docs only),
 `trending`, `online_only`, a `brand_owner` (own or third party; third-party
 brands lead the offers, some with a `sub_collection` label such as "The
 Active Edit"), and `badges` in one order (Bestseller for the top 15,
@@ -1260,7 +1260,7 @@ dietary claims).
 `prototypes/retail_drawings/export.py` turns the 328-style build into that
 standard: `skus` become `variants`, each SKU option a variant-level attribute
 entry (a measurement split into `value`, `unit_code` and `value_canonical`);
-color and size options, the offer flags, rating and the other
+color and size options, the `promotion` and other flags, rating and the other
 retail-only fields become product-level entries (no `department`: see below); `image_id` is
 `<product type>/<product id>/<drawing spec digest>`, one per style and
 colorway, served under `/images/retail` from the image release
@@ -1270,6 +1270,18 @@ and planted single-SKU records gained theirs in the record builders). A
 percent (ABV, discount) is a plain number with `(%)` in its name: prism
 spells no percent unit, so `P1` is not a unit code here and the validator
 refuses it.
+
+**`promotion`, label "Sale" (gen#189).** It replaced the boolean `offer`
+("Offer: yes / no"). It is a multi-valued keyword, so a new campaign is a new
+value and needs no remapping. Every product with a `was_price` carries "On sale";
+a product in the seeded campaign (one reduced product in three, "Christmas
+promotion") also carries the campaign's name, which never replaces "On sale".
+A product with no `was_price` has no `promotion` entry at all, so the facet
+never shows a "Not on sale" row. `was_price` and `discount_pct` stay. Multi-buy
+is out of scope and becomes its own field later. The values and the rule are in
+`prototypes/retail_drawings/promotion.py`; `tests/test_retail_promotion_189.py`
+checks every layer. A loader that read `offer` (a facet config, a field map)
+reads `promotion` instead; the catalog is reloaded once with #186 to #189.
 
 The retail build also writes industrial's **flat** shape, one document per
 SKU, which is what elastic/prism-industrial-products loads (as its
@@ -1358,9 +1370,9 @@ shoppers the generator targets for bags; the `audience` facet says `Unisex`, the
 
 **The store's department is the top level of `category_path`, and no document states one**
 (gen#281). The retail tree has exactly eleven roots: Womens, Mens, Kids, Food & Drink, Home,
-Beauty, Cleaning, Toys, Gifts, Garden and Sports & Outdoors (gen#265). Food sits under Food & Drink, Baby
-under Kids (`Kids > Baby > ...`) and Electricals under Home (`Home > Electricals > ...`), each
-with its subtree intact; a product still sits in one place. The documents carry no
+Beauty, Cleaning, Toys, Gifts, Garden and Sports & Outdoors (gen#265). Food sits under Food &
+Drink, Baby under Kids (`Kids > Baby > ...`) and Electricals under Home (`Home > Electricals >
+...`), each with its subtree intact; a product still sits in one place. The documents carry no
 `department` attribute or flat column (its values mixed audience, Clothing, with product kind,
 Footwear): the one fact it held that no other attribute does, the safety boot's Workwear & PPE,
 is carried by its `safety_rating` and `toe_cap`. A consumer reads the department from
@@ -1443,7 +1455,7 @@ drawn by `kit_underwear.py`; none is derived), then the toys (`toys_rows.py`, ge
 table, desk, ceiling and wall lights and lampshades under `Home/Lighting` (`Lamps`, `Lights`), each typed by
 its name; a SKU is a color times a finish, a shade color or a diameter, and its image draws
 that SKU's own value), then the bags, umbrellas and jewelry (`accessory_rows.py`,
-gen#207; likewise copied by no derived style), then the Sports & Outdoors styles (`sports_rows.py`, gen#265, first increment: tents, sleeping bags and camping chairs under `Camping`, yoga mats, dumbbells, kettlebells and foam rollers under `Yoga & Fitness`; drawn by `kit_sports.py`, a SKU axis in its unit (`berth`, `thickness`, `weight`, `item_length`), the six main colors on every type, copied by no derived style, `tests/test_retail_sports_265.py`), then the near-white apparel and main-color bras (`colorgroup_rows.py`, gen#302, [docs/retail-color-group.md](docs/retail-color-group.md); copied by no derived style), then the grocery styles (below, `grocery.py`, gen#154). Further styles are
+gen#207; likewise copied by no derived style), then the Sports & Outdoors styles (`sports_rows.py`, gen#265: camping and yoga & fitness, drawn by `kit_sports.py`, copied by no derived style; leaves, filters and types not built in [docs/retail-sports-tree.md](docs/retail-sports-tree.md), `tests/test_retail_sports_265.py`), then the near-white apparel and main-color bras (`colorgroup_rows.py`, gen#302, [docs/retail-color-group.md](docs/retail-color-group.md); copied by no derived style), then the grocery styles (below, `grocery.py`, gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
 also differs from its template and from every sibling in a value its title shows
