@@ -58,7 +58,7 @@ PLACES: tuple[str, ...] = ("Creek", "Ridge", "Lane", "Hollow")
 #: title word that misleads a text search while its attributes stay true. The position in the period
 #: names the class: 0 a category word (another kind's noun as a range name: "Claw Hammer,
 #: Sledge Series"), 2 a material named but absent ("Claw Hammer, Hickory-Look" on a steel
-#: handle), 4 an incidental word in a short title ("Claw Hammer, Hickory Creek Range").
+#: handle), 4 an incidental word in a short title ("Claw Hammer, Hickory Creek").
 DECOY_PERIOD = 6
 DECOY_CLASSES: dict[int, str] = {
     0: "category word",
@@ -83,7 +83,7 @@ def decoy_item(gen: Any, kind: HammerKind, handle: str) -> str:
     if slot == 2:
         return f"{kind.item}, {absent}-Look"
     place = PLACES[gen._rotate(f"hammer_decoy_place:{kind.key}", len(PLACES))]
-    return f"{kind.item}, {absent} {place} Range"
+    return f"{kind.item}, {absent} {place}"
 
 
 @dataclass(frozen=True)
