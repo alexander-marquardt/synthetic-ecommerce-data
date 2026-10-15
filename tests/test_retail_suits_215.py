@@ -36,7 +36,11 @@ GENERIC = {"coat", "trousers", "box", "box_wide", "top"}
 MAIN = {"Red", "Blue", "Green", "Yellow", "Black", "White"}
 #: Each shape's params, the values the kit draws for each and the marker the drawing stamps.
 PARAMS = {
-    "suit_jacket": {"fit": ("slim", "tailored", "regular"), "lapel": ("notch", "peak", "shawl")},
+    "suit_jacket": {
+        "fit": ("slim", "tailored", "regular"),
+        "lapel": ("notch", "peak", "shawl"),
+        "buttons": ("2", "3"),
+    },
     "suit_trousers": {"fit": ("slim", "tailored", "regular"), "leg": ("short", "regular", "long")},
     "waistcoat": {"fit": ("slim", "tailored", "regular"), "buttons": ("4", "5", "6")},
     "dinner_suit": {"fit": ("slim", "tailored", "regular"), "lapel": ("peak", "shawl")},
@@ -44,6 +48,12 @@ PARAMS = {
 }
 MARKER = {"fit": "fit-{}", "lapel": "lapel-{}", "leg": "leg-{}", "buttons": "buttons-{}",
           "item": "item-{}"}  # fmt: skip
+
+#: The stamps the kit puts on a drawing; stripped, what is left is the geometry alone.
+STAMP = re.compile(r' class="(?:fit|lapel|leg|buttons|item)-[a-z_0-9]+"')
+#: What the record says -> the value the kit draws (Relaxed is cut as regular; the kit has no more).
+STATED = {"relaxed": "regular", "two_button": "2", "three_button": "3", "four_button": "4",
+          "five_button": "5", "six_button": "6"}  # fmt: skip
 
 DECOYS = mens_depth_rows.decoy_ids()
 ROWS = [r for r in mens_depth_rows.ROWS if f"BRD-{r.code}" not in DECOYS]
@@ -95,6 +105,31 @@ def test_a_param_changes_the_drawing_and_is_stamped_on_it(shape: str, param: str
         assert f'class="{MARKER[param].format(v)}"' in svg
 
 
+@pytest.mark.parametrize(("shape", "param"), [(s, p) for s, ps in PARAMS.items() for p in ps])
+def test_a_param_changes_the_geometry_not_only_the_stamp(shape: str, param: str) -> None:
+    values = PARAMS[shape][param]
+    bare = {v: STAMP.sub("", _svg(shape, **{param: v})) for v in values}
+    assert len(set(bare.values())) == len(values), "the stamp alone tells the values apart"
+
+
+def test_a_jacket_is_cut_closer_to_the_body_as_the_fit_narrows() -> None:
+    def body(fit: str) -> list[tuple[float, float]]:
+        svg = _svg("suit_jacket", fit=fit)
+        d = re.search(rf'class="fit-{fit}"><path d="([^"]+)"', svg).group(1)
+        return [(float(x), float(y)) for x, y in re.findall(r"[ML]([\d.]+),([\d.]+)", d)]
+
+    waist = {f: next(x for x, y in body(f) if y == 210.0) for f in ("slim", "tailored", "regular")}
+    hem = {f: next(x for x, y in body(f) if y == 330.0) for f in waist}
+    assert waist["slim"] > waist["tailored"] > waist["regular"]
+    assert hem["slim"] > hem["tailored"] > hem["regular"]
+
+
+def test_a_jacket_draws_as_many_buttons_as_it_states() -> None:
+    for n in (2, 3):
+        svg = _svg("suit_jacket", buttons=str(n))
+        assert svg.count('class="button"') == n
+
+
 @pytest.mark.parametrize("ptype", TYPES)
 def test_a_style_draws_what_its_record_states(ptype: str) -> None:
     shape, _ = TYPES[ptype]
@@ -104,6 +139,9 @@ def test_a_style_draws_what_its_record_states(ptype: str) -> None:
         for k, v in params.items():
             assert v in PARAMS[shape][k], (r.code, k, v)
         stated = {a[0]: a[2].lower().replace(" ", "_") for a in r.attrs}
+        for key in ("fit", "buttons"):
+            if key in params and key in stated:
+                assert STATED.get(stated[key], stated[key]) == params[key], (r.code, key)
         if "lapel" in params:
             assert stated["lapel"] == params["lapel"], r.code
         if "leg" in params:
@@ -152,3 +190,14 @@ def test_a_suit_jacket_names_its_fit_in_the_title_and_the_record() -> None:
     for r in _styles("Suit Jacket"):
         fit = dict((a[0], a[2]) for a in r.attrs)["fit"]
         assert re.search(rf"\b{fit}\b", r.title, re.I), r.title
+
+
+def test_a_decoy_accessory_states_its_accessory_type() -> None:
+    decoys = [
+        r
+        for r in mens_depth_rows.ROWS
+        if f"BRD-{r.code}" in DECOYS and r.product_type == "Formal Accessories"
+    ]
+    assert decoys
+    for r in decoys:
+        assert any(a[0] == "accessory_type" for a in r.attrs), r.code
