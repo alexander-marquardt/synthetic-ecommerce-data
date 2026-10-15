@@ -474,7 +474,7 @@ def _decoys(kinds=None, tails=None, prefix: str = "MD") -> tuple[list[LRow], lis
                    "dress": "Dress", "coat": "Coat Length", "trouser": "Trouser",
                    "sock": "Sock Soft", "boot": "Boot Cut", "boxer": "Boxer Print"}[b]
             add(2, i, f"Mens {mod} {noun}",
-                f"A {noun.lower()} named for its {b} detail; it is not a {b}.",
+                f"{_an(noun).capitalize()} named for its {b} detail; it is not a {b}.",
                 _TRUE[(k + i + 1) % 6], b, f"{b} {noun.lower()}")  # fmt: skip
             # 3: an audience word that names a sibling cut.
             a = _AUDIENCE[i]
@@ -486,13 +486,13 @@ def _decoys(kinds=None, tails=None, prefix: str = "MD") -> tuple[list[LRow], lis
             n4 = kind.absent_noun or noun
             add(4, i, f"Mens {f} {n4}",
                 kind.absent_text.format(f=f.lower()) if kind.absent_text else
-                f"A {n4.lower()} that is {f.lower().replace('-', ', ')}: made in "
+                f"{_an(n4).capitalize()} that is {f.lower().replace('-', ', ')}: made in "
                 f"{kind.material.lower()}.", _TRUE[(k + i + 3) % 6], f,
                 f"{f.split('-')[0].lower()} {noun.lower()}")  # fmt: skip
             # 5: the title gives a fancy name, the description the shade.
             s = _SHADES[i]
             add(5, i, f"Mens {_FANCY[(k + i) % 6]} {noun}",
-                f"A {noun.lower()} in soft {s.lower()}, {tails[ptype]}.", s,
+                f"{_an(noun).capitalize()} in soft {s.lower()}, {tails[ptype]}.", s,
                 _FANCY[(k + i) % 6], f"{s.lower()} {noun.lower()}")  # fmt: skip
             # 6: an incidental word in a short title: a range name.
             r = _RANGES[(k + i * 2) % 6]
