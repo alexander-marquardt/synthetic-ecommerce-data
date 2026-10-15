@@ -417,7 +417,7 @@ def _texture(material: str, area: str, base: str, k: Kind, uid: str) -> list[str
 # --------------------------------------------------------------------------
 
 
-#: The lace colour a record names (its ``lace`` drawing param), set while one shoe is drawn
+#: The lace color a record names (its ``lace`` drawing param), set while one shoe is drawn
 #: (gen#326: "Dress for Success Oxford, red laces" shows red laces on a black shoe).
 _LACE_OVERRIDE: list[str] = [""]
 

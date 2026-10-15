@@ -3,7 +3,7 @@
 A class-8 decoy has a title that holds the product word of a demo query ("dress", "sofa",
 "jumper", "tie") while the product is something else: Dress for Success shoes, a sofa cover,
 jumper cables, bow tie pasta. The structured fields tell the truth (category path, product type,
-colour, drawing). A title names at most the misleading colour ("Sofa Cushion, Blue Trim" is a
+color, drawing). A title names at most the misleading color ("Sofa Cushion, Blue Trim" is a
 cream cushion piped in blue; "Dress for Success, Red Laces" are black shoes with red laces) and
 the drawing renders that detail. The rows are generated from
 `prototypes/retail_drawings/decoy_product_words.py` and pinned by
@@ -11,10 +11,10 @@ the drawing renders that detail. The rows are generated from
 
 The fixing policy is the one that reads the structured fields: `category` (the noun's own node,
 for example Dresses, drops the row), `department` (a cross-department row sits in another root,
-so the All Departments persona drops it), `colour` (the brand rows in every colour but blue).
+so the All Departments persona drops it), `color` (the brand rows in every color but blue).
 Rows the English stemmer would match ("dressing" for dress, "coated" for coat) are not planted:
 the prototype search folds a plural only, and no row that does not rank is counted. Blue Bull is a
-class-7 colour-word brand on footwear with its own house style.
+class-7 color-word brand on footwear with its own house style.
 
 Each new real type carries a floor of three ordinary products, listed in `FLOOR`.
 
@@ -58,6 +58,6 @@ Each new real type carries a floor of three ordinary products, listed in `FLOOR`
 | black pumps | pump | PLT-DY37 | Black Bike Pump | Bike Pumps | department |
 | black pumps | pump | PLT-DY38 | Black Foot Pump | Foot Pumps | department |
 | black shoes | shoe | PLT-DY39 | Black Shoe String Pasta | Pasta | department |
-| blue trainers | brand | PLT-DY40 | Blue Bull Trainers | Trainers | colour |
-| blue boots | brand | PLT-DY41 | Blue Bull Chelsea Boots | Chelsea Boots | colour |
-| blue shoes | brand | PLT-DY42 | Blue Bull Court Shoes | Court Shoes | colour |
+| blue trainers | brand | PLT-DY40 | Blue Bull Trainers | Trainers | color |
+| blue boots | brand | PLT-DY41 | Blue Bull Chelsea Boots | Chelsea Boots | color |
+| blue shoes | brand | PLT-DY42 | Blue Bull Court Shoes | Court Shoes | color |
