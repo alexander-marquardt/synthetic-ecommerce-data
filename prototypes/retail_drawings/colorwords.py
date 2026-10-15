@@ -109,6 +109,11 @@ def plain(name: str) -> str:
 HALF_WORDS = frozenset({"Duck", "Egg", "Quartz", "Off"})
 
 
+def split(name: str) -> tuple[str, str | None]:
+    """An authored shade -> (plain color, pattern or None). Stub."""
+    return (name, None)
+
+
 def is_plain(value: str) -> bool:
     """Whether ``value`` is a shade code, a denim wash or only color words and qualifiers."""
     if SHADE_CODE.match(value) or value in DENIM_WASHES:
