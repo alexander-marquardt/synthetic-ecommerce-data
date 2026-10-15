@@ -59,6 +59,7 @@ DECOY_ROWS = FIGURES["templates"]["decoy_rows"]["styles"]
 SHIRT_ROWS = FIGURES["templates"]["shirt_rows"]["styles"]
 ACCESSORY_ROWS = FIGURES["templates"]["accessory_rows"]["styles"]
 SPORTS_ROWS = FIGURES["templates"]["sports_rows"]["styles"]
+DECOR_ROWS = FIGURES["templates"]["decor_rows"]["styles"]
 SOFA_ROWS = FIGURES["templates"]["sofa_rows"]["styles"]
 HOUSEHOLD_ROWS = FIGURES["templates"]["household_rows"]["styles"]
 LOWERBODY_ROWS = FIGURES["templates"]["lowerbody_rows"]["styles"]
@@ -81,6 +82,7 @@ TEMPLATES = (
     + SHIRT_ROWS
     + ACCESSORY_ROWS
     + SPORTS_ROWS
+    + DECOR_ROWS
     + SOFA_ROWS
     + HOUSEHOLD_ROWS
     + APPLIANCE_ROWS
