@@ -3822,6 +3822,93 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: promotion replaces the boolean offer (gen#189) ----
+    *(
+        Mutation(f"promotion: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a campaign replaces On sale",
+                "promotion.py",
+                "return [ON_SALE, CAMPAIGN] if in_campaign",
+                "return [CAMPAIGN] if in_campaign",
+                "tests/test_retail_promotion_189.py -k campaign_exists_and_every_carrier",
+                "a campaign value never replaces On sale",
+            ),
+            (
+                "every reduced product is in the campaign",
+                "promotion.py",
+                "CAMPAIGN_ONE_IN = 3",
+                "CAMPAIGN_ONE_IN = 1",
+                "tests/test_retail_promotion_189.py -k campaign_exists_and_every_carrier",
+                "the campaign is a subset of the reduced products",
+            ),
+            (
+                "no product is in the campaign",
+                "promotion.py",
+                "% CAMPAIGN_ONE_IN == 0",
+                "% CAMPAIGN_ONE_IN == 3",
+                "tests/test_retail_promotion_189.py -k campaign_exists_and_every_carrier",
+                "at least one campaign value exists",
+            ),
+            (
+                "a derived style keeps the promotion of a was-price it lost",
+                "scale.py",
+                '    rec.pop("promotion", None)  # it follows',
+                '    # it follows',
+                "tests/test_retail_promotion_189.py -k an_unreduced_document_has_no_promotion_key",
+                "no was-price, no promotion key",
+            ),
+            (
+                "a decoy clone keeps the promotion of a was-price it lost",
+                "decoy_apparel.py",
+                '"discount_pct", "promotion", "pattern",',
+                '"discount_pct", "pattern",',
+                "tests/test_retail_promotion_189.py -k a_decoy_clone_of_a_reduced_style",
+                "no was-price, no promotion key",
+            ),
+            (
+                "a footwear sale loses On sale",
+                "footwear_rows.py",
+                '            rec["promotion"] = promotion_values(f"FTW-{self.code}")',
+                '            rec["promotion"] = []',
+                "tests/test_retail_promotion_189.py -k every_reduced_document_carries_on_sale",
+                "every reduced product is On sale",
+            ),
+            (
+                "a class-row sale loses On sale",
+                "class_model.py",
+                '            rec["promotion"] = promotion_values(f"PLT-{self.code}")',
+                '            rec["promotion"] = []',
+                "tests/test_retail_promotion_189.py -k class_docs_and_their_mapping",
+                "every reduced class doc is On sale",
+            ),
+            (
+                "the facet label is Offer again",
+                "export.py",
+                '"promotion": ("promotion", "Sale", None),',
+                '"promotion": ("promotion", "Offer", None),',
+                "tests/test_retail_promotion_189.py -k labelled_sale",
+                "the shopper label is Sale",
+            ),
+            (
+                "a class doc keeps the boolean offer in its mapping",
+                "real_classes.py",
+                'BOOLEANS = ("online_only", "trending")',
+                'BOOLEANS = ("offer", "online_only", "trending")',
+                "tests/test_retail_promotion_189.py -k class_docs_and_their_mapping",
+                "offer is gone from the mapping",
+            ),
+            (
+                "the class mapping loses the promotion keyword",
+                "real_classes.py",
+                '"promotion", "category_path_joined"',
+                '"category_path_joined"',
+                "tests/test_retail_promotion_189.py -k class_docs_and_their_mapping",
+                "promotion is a keyword",
+            ),
+        ]
+    ),
 ]
 
 

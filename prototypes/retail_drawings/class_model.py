@@ -14,6 +14,7 @@ from dataclasses import dataclass
 
 from colorwords import plain
 from departments import check as check_departments
+from promotion import values as promotion_values
 from variants import Color, attr, drawing, product, swatch
 
 AUDIENCES = ("adult", "kids", "baby")
@@ -145,7 +146,8 @@ class Style:
     #: Signals a tile shows as badges (see :func:`badges`).
     trending: bool = False
     online_only: bool = False
-    #: An offer with no was-price (a multi-buy); a was-price is always an offer.
+    #: A multi-buy with no was-price. Out of scope of ``promotion`` (gen#189): it becomes its own
+    #: field later, so today it marks the style and changes no document.
     multibuy: bool = False
     #: A merchandising label on the tile ("The Active Edit"), never a category.
     sub_collection: str | None = None
@@ -269,7 +271,6 @@ class Style:
             "review_count": reviews,
             "price_min": min(prices),
             "price_max": max(prices),
-            "offer": self.was_price is not None or self.multibuy,
             "online_only": self.online_only,
             "trending": self.trending,
         }
@@ -286,6 +287,7 @@ class Style:
                 rec[key] = getattr(self, key)
         if self.was_price is not None:
             rec["discount_pct"] = round(100 * (self.was_price - min(prices)) / self.was_price)
+            rec["promotion"] = promotion_values(f"PLT-{self.code}")
         if self.units_per_pack is not None:
             # The count kind industrial uses for a package quantity (C62, one).
             rec["attributes"].append(
