@@ -14,7 +14,7 @@
    "skus": 92896,
    "styles": 5586
   },
-  "skus": 126431,
+  "skus": 126399,
   "styles": 11957,
   "top_levels": {
    "Accessories": {
@@ -46,12 +46,12 @@
     "styles": 1831
    },
    "Kids": {
-    "skus": 4259,
-    "styles": 325
+    "skus": 4229,
+    "styles": 320
    },
    "Mens": {
-    "skus": 16963,
-    "styles": 799
+    "skus": 17233,
+    "styles": 809
    },
    "Sports & Outdoors": {
     "skus": 156,
@@ -62,8 +62,8 @@
     "styles": 439
    },
    "Womens": {
-    "skus": 84243,
-    "styles": 2746
+    "skus": 83971,
+    "styles": 2741
    }
   }
  },
@@ -531,7 +531,7 @@
    "styles": 53
   },
   "all": {
-   "skus": 64788,
+   "skus": 64756,
    "styles": 7429
   },
   "appliance_rows": {
@@ -544,7 +544,7 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 52372,
+   "skus": 52340,
    "styles": 2911
   },
   "breadth_rows": {
@@ -556,7 +556,7 @@
    "styles": 24
   },
   "decoy_apparel": {
-   "skus": 13975,
+   "skus": 13943,
    "styles": 1332
   },
   "decoy_rows": {

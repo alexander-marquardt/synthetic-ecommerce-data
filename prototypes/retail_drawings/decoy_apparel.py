@@ -35,6 +35,7 @@ import re
 import zlib
 from dataclasses import dataclass
 
+from audience import audience_of_path
 from class_model import SHADE_FAMILY
 from decoy_rows import COLORS
 from variants import cw, product, swatch
@@ -221,7 +222,8 @@ def _clone(ex: dict, code: str, title: str, desc: str, color: str, hexv: str, fa
     sold = 500 + zlib.crc32(code.encode()) % 400
     prices = [s["price"] for s in skus]
     keep["attributes"] = [a for a in keep["attributes"]
-                          if a["key"] not in ("line", "pattern", "print", "color")]  # fmt: skip
+                          if a["key"] not in ("line", "pattern", "print", "color", "motif",
+                                               "motif_count", "print_placement")]  # fmt: skip
     keep |= {"title": title, "description": desc, "sold_last_5_days": sold,
              "review_count": 900 + sold, "offer": False, "trending": False,
              "price_min": min(prices), "price_max": max(prices)}  # fmt: skip
@@ -257,7 +259,9 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
     elif cls == 3:
         # The text names the real audience too, as every #294 decoy does: the output standard
         # refuses a text naming only another audience.
-        aud = next(a["value"] for a in ex["attributes"] if a["key"] == "audience")
+        # A style with no audience attribute gets the one export derives from its path.
+        aud = next((a["value"] for a in ex["attributes"] if a["key"] == "audience"),
+                   None) or audience_of_path(ex["category_path"])
         for phrase, word in AUDIENCE[ex["category_path"][0]]:
             for c in PRODUCT_COLORS:
                 out.append(dict(title=f"{c} {aud} {noun}, {phrase}", word=word, color=c,
@@ -267,9 +271,13 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
         held = field_text(ex)
         for phrase, word, sentence in ABSENT:
             if word not in held:
+                real = [str(a["value"]) for a in ex["attributes"]
+                        if a["key"].endswith("material") and re.search(r"[A-Za-z]", str(a["value"]))]
+                tail = f", {real[0].title()}" if real else ""  # the text names its real material too
+                more = f" Material: {', '.join(real)}." if real else ""
                 for c in PRODUCT_COLORS:
-                    out.append(dict(title=f"{c} {phrase} {noun}", word=word, color=c,
-                                    desc=f"{c} {n}. {sentence}", query=f"{word} {n}"))
+                    out.append(dict(title=f"{c} {phrase} {noun}{tail}", word=word, color=c,
+                                    desc=f"{c} {n}. {sentence}{more}", query=f"{word} {n}"))
     elif cls == 5:
         for fancy, shade, hexv, family in SHADES:
             out.append(dict(title=f"{fancy} {noun}", word=shade.lower(), color=shade, hex=hexv,
@@ -310,7 +318,7 @@ def build(body: list[dict]) -> list[Row]:
     for d in sorted(body, key=lambda r: r["product_id"]):
         if (d["category_path"][0] in ROOTS and d["department"][0] in DEPARTMENTS
                 and d.get("color_options") and d["product_id"] not in IDS
-                and not d.get("leg_style")):
+                and not (d["product_type"] == "Jeans" and d.get("leg_style"))):
             pool.setdefault(d["product_type"], []).append(d)
     rows = []
     for ti, spec in enumerate(TYPES):
