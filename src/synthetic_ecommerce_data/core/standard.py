@@ -220,7 +220,11 @@ def text_contradictions(
     own: dict[str, set[str]] = {}
     for e in attrs:
         own.setdefault(str(e.get("key")), set()).add(str(e.get("value")))
-    every = sorted({v for vs in own.values() for v in vs}, key=len, reverse=True)
+    # The brand is the document's own value too: "Black Curlew" names a brand, not a color.
+    values = {v for vs in own.values() for v in vs}
+    if doc.get("brand"):
+        values.add(str(doc["brand"]))
+    every = sorted(values, key=len, reverse=True)
     texts = [str(doc.get("title") or "")]
     texts += [str(v.get("description")) for v in doc.get("variants") or () if v.get("description")]
     out = []
