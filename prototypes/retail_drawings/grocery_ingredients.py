@@ -432,8 +432,8 @@ hazelnuts: hazelnut; hazelnut paste; hazelnut praline
 peanuts: peanut; peanut paste; peanut piece; roasted peanut
 walnuts: walnut
 coconut: coconut; coconut chip; coconut extract; coconut milk; coconut oil; coconut water; coconut water concentrate; desiccated coconut
-oranges: orange peel; candied orange peel; orange flake; orange flavoring; orange juice; orange juice cell; orange juice from concentrate; orange oil; orange pulp; orange puree; seville orange; blood orange juice
-lemons: candied lemon peel; freeze-dried lemon; lemon curd; lemon curd filling; lemon juice; lemon juice from concentrate; lemon oil; lemon peel; lemon powder; lemon zest; natural lemon flavoring
+oranges: orange peel; candied orange peel; orange flake; orange flavoring; orange juice; orange juice cell; orange juice from concentrate; orange oil; orange pulp; orange puree; seville orange; blood orange juice; orange zest
+lemons: candied lemon peel; freeze-dried lemon; lemon curd; lemon curd filling; lemon juice; lemon juice from concentrate; lemon oil; lemon peel; lemon powder; lemon zest; natural lemon flavoring; lemon extract
 limes: kaffir lime peel; lime juice
 lime leaves: lime leaf
 honey: acacia honey; clover honey; heather honey; honey; honey granule; honeycomb piece; orange blossom honey; wildflower honey
@@ -493,7 +493,7 @@ pears: pear juice; pear puree
 pineapples: pineapple; pineapple juice; pineapple juice from concentrate; pineapple puree
 plums: plum puree
 raspberries: raspberry; raspberry juice; raspberry puree; freeze-dried raspberry
-strawberries: strawberry; strawberry jam; strawberry juice
+strawberries: strawberry; strawberry jam; strawberry juice; strawberry piece; strawberry puree
 raisins: raisin
 vine fruit: vine fruit
 lychees: lychee juice
@@ -548,7 +548,7 @@ lemongrass: lemongrass
 liquorice: liquorice root
 sarsaparilla: sarsaparilla extract
 beef: beef; beef chuck; beef fat; beef fillet; beef flank; beef ribeye; beef rump; beef sirloin; beef skirt; beef t-bone
-chicken: chicken breast; chicken thigh; cooked chicken; cooked chicken breast
+chicken: chicken breast; chicken thigh; cooked chicken; cooked chicken breast; chicken
 pork: pork; pork belly
 ham: cooked ham
 pepperoni: pepperoni
@@ -558,7 +558,7 @@ mackerel: mackerel
 salmon: salmon
 tuna: yellowfin tuna
 coffee: coffee extract; coffee oil; natural coffee aroma; dark roasted arabica coffee (brazil); dark roasted arabica coffee (colombia); dark roasted robusta coffee (vietnam); decaffeinated arabica coffee; decaffeinated robusta coffee; freeze-dried arabica coffee; freeze-dried robusta coffee; roasted arabica coffee (brazil); roasted arabica coffee (cauca); roasted arabica coffee (colombia); roasted arabica coffee (huila); roasted arabica coffee (narino); roasted arabica coffee (santander); roasted arabica coffee (tolima); roasted coffee (honduras); roasted coffee (peru); roasted coffee granule; roasted robusta coffee (vietnam)
-black tea: black tea (assam); black tea (ceylon); black tea (kenya); black tea (malawi); black tea (rwanda)
+black tea: black tea (assam); black tea (ceylon); black tea (kenya); black tea (malawi); black tea (rwanda); black tea
 green tea: green tea (gunpowder); green tea (sencha)
 hops: cascade hop; centennial hop; citra hop; english hop; fuggle hop; goldings hop; hop; hop extract; hop pellet; mosaic hop; saaz hop
 water: water; spring water; carbonated water
@@ -617,6 +617,11 @@ vitamin a: vitamin a
 vitamin c: vitamin c
 vitamin d: vitamin d; vitamin d3
 niacin: niacin
+lavender: lavender bud; lavender essential oil; lavender flower; lavender oil
+lentils: lentil
+shea: shea butter
+soy wax: soy wax
+sultanas: sultana
 riboflavin: riboflavin
 thiamin: thiamin
 iron: iron
