@@ -205,7 +205,7 @@ def test_a_decoy_may_name_only_the_misleading_color_and_only_when_it_is_drawn(
 ) -> None:
     """The maintainer ruling on #311: the output standard's refusal of a text naming only another
     color stays for ordinary products; a decoy row is exempt by id, and its drawing shows the
-    named color (a stripe in it), so the title is true of the picture."""
+    named color on the named part, so the title is true of the picture."""
     named = [r for r in rows if r.cls in (1, 6, 7) and r.word in MAIN]
     assert len(named) >= 3 * len(da.TYPES)
     docs = [export.standard_document(by_id[r.pid]) for r in named]
@@ -217,12 +217,12 @@ def test_a_decoy_may_name_only_the_misleading_color_and_only_when_it_is_drawn(
     assert [p for p in refused if p.startswith("ORDINARY-1")], refused
     # and the exemption is keyed on the id: without it the decoys are refused
     assert check_catalog(docs) != []
-    # the other side: the drawing renders the named color as the accent
+    # the other side: the drawing carries the named part, in the named color
     for r in named:
         doc = by_id[r.pid]
         drawing = image_release.colorway_drawing(doc, doc["skus"][0])
-        assert drawing["pattern"] == "stripe", (r.pid, drawing)
-        assert drawing["accent"].lower() == da.DETAIL_HEX[r.word.title()].lower(), (r.pid, r.word)
+        assert drawing["detail"]["color"].lower() == da.DETAIL_HEX[r.word.title()].lower(), r.pid
+        assert drawing.get("pattern") != "stripe", r.pid
         assert doc["color_options"][0]["color"] != r.word.title(), r.pid
 
 
@@ -245,8 +245,13 @@ def test_a_decoy_title_names_only_the_misleading_color(
         assert re.search(rf"\b{r.word}\b", title), (r.pid, r.word, title)
 
 
-def _svg_parts(doc: dict) -> tuple[list[ET.Element], list[ET.Element]]:
-    """(the elements marked as a named part, every other drawn element outside defs and masks)."""
+def _svg_parts(
+    doc: dict, bare: bool = False
+) -> tuple[list[ET.Element], list[ET.Element]]:
+    """(the elements marked as a named part, every other drawn element outside defs and masks).
+    ``bare`` draws the same product without its named part."""
+    if bare:
+        doc = doc | {"drawing": {k: v for k, v in doc["drawing"].items() if k != "detail"}}
     root = ET.fromstring(image_release.render(doc, doc["skus"][0]))
     marked: list[ET.Element] = []
     plain: list[ET.Element] = []
@@ -285,12 +290,12 @@ def test_the_named_part_is_drawn_in_the_named_color_and_nothing_else_is(
                 r.pid,
                 e.attrib,
             )
+        # the kit's own fixed trim (a white collar, buttons) may hold the color; the named part
+        # must add nothing else of it, so every plain element holding it is also in the bare drawing
+        own = [sorted(e.attrib.items()) for e in _svg_parts(doc, bare=True)[1]]
         for e in plain:
-            assert hexv not in (e.get("fill", "").lower(), e.get("stroke", "").lower()), (
-                r.pid,
-                doc["title"],
-                e.attrib,
-            )
+            if hexv in (e.get("fill", "").lower(), e.get("stroke", "").lower()):
+                assert sorted(e.attrib.items()) in own, (r.pid, doc["title"], e.attrib)
 
 
 def test_decoy_ids_are_the_two_tables_and_no_real_product_is_in_them(
