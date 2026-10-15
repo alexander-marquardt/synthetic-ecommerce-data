@@ -245,6 +245,8 @@ HOUSEHOLD_IDS = frozenset(f"BRD-{r.code}" for r in household_rows.ROWS)
 TOY_IDS = frozenset(f"BRD-{r.code}" for r in toys_rows.ROWS)
 #: The seasonal, color and character styles (:mod:`seasonal_rows`, gen#195): templates only.
 SEASONAL_IDS = frozenset(f"BRD-{r.code}" for r in seasonal_rows.ROWS)
+#: The text-match decoys: the output standard does not judge their color word (gen#311).
+DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS
 #: The near-white apparel and main-color bras (:mod:`colorgroup_rows`, gen#302): templates only.
 COLORGROUP_IDS = colorgroup_rows.product_ids()
 #: The lower-body styles (:mod:`lowerbody_rows`, gen#206), left out the same way.
@@ -983,7 +985,7 @@ def main(argv: list[str] | None = None) -> int:
     scaled = build(args.skus, args.seed)
     docs = documents(scaled)
     built = time.perf_counter() - start
-    problems = check_catalog(docs, one_class_per_key=True)
+    problems = check_catalog(docs, one_class_per_key=True, decoy_ids=DECOY_IDS)
     if args.out:
         with args.out.open("w", encoding="utf-8") as handle:
             for d in docs:

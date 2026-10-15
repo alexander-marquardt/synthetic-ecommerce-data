@@ -179,7 +179,7 @@ def test_the_build_is_deterministic_by_seed():
 
 
 def test_the_20k_build_meets_the_output_standard(built):
-    assert check_catalog(scale.documents(built)) == []
+    assert check_catalog(scale.documents(built), decoy_ids=scale.DECOY_IDS) == []
 
 
 def test_a_derived_style_adds_no_duplicate_title_and_no_twin(built, pairs):

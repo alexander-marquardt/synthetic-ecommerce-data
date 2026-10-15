@@ -28,7 +28,7 @@ empty when it holds. ``tests/test_output_standard.py`` runs it over each domain.
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable, Mapping
+from collections.abc import Collection, Iterable, Mapping
 from typing import Any
 
 from synthetic_ecommerce_data.core.entry import CANONICAL_PER_UNIT, RECIPROCAL_PER_UNIT, canonical
@@ -210,12 +210,20 @@ def value_pools(docs: Iterable[Mapping[str, Any]]) -> dict[tuple[str, str], set[
     return pools
 
 
+#: The keys a text-match decoy's text may contradict (gen#311): its misleading color word.
+DECOY_SKIPPED_KEYS = ("color",)
+
+
 def text_contradictions(
-    doc: Mapping[str, Any], pools: Mapping[tuple[str, str], set[str]]
+    doc: Mapping[str, Any],
+    pools: Mapping[tuple[str, str], set[str]],
+    skip_keys: Collection[str] = (),
 ) -> list[str]:
     """Each attribute the title or a description contradicts: the text names another value
     of the key's leaf pool and none of the document's own. A word inside another of the
-    document's values ("Leather" on a rubber-soled leather loafer) contradicts nothing."""
+    document's values ("Leather" on a rubber-soled leather loafer) contradicts nothing.
+    ``skip_keys`` are keys not judged: a text-match decoy (gen#311) names only a misleading
+    color on purpose."""
     attrs = [e for e in doc.get("attributes") or () if isinstance(e, dict)]
     own: dict[str, set[str]] = {}
     for e in attrs:
@@ -225,6 +233,8 @@ def text_contradictions(
     texts += [str(v.get("description")) for v in doc.get("variants") or () if v.get("description")]
     out = []
     for key, mine in own.items():
+        if key in skip_keys:
+            continue
         pool = pools.get((str(doc.get("category_leaf")), key), set()) - mine
         for text in dict.fromkeys(texts):
             padded = words(text)
@@ -259,14 +269,19 @@ def mixed_class_keys(docs: Iterable[Mapping[str, Any]]) -> list[str]:
 
 
 def check_catalog(
-    docs: Iterable[Mapping[str, Any]], *, text_agrees: bool = True, one_class_per_key: bool = False
+    docs: Iterable[Mapping[str, Any]],
+    *,
+    text_agrees: bool = True,
+    one_class_per_key: bool = False,
+    decoy_ids: Collection[str] = (),
 ) -> list[str]:
     """Every way a catalog breaks the standard: each document's problems, then the ids
     that repeat and the keys that name two attributes or shadow a top-level field, and,
     with ``text_agrees``, every title or description that contradicts an attribute
     (:func:`text_contradictions`, against the catalog's own :func:`value_pools`), and,
     with ``one_class_per_key``, every key that mixes classed and unclassed entries
-    (:func:`mixed_class_keys`)."""
+    (:func:`mixed_class_keys`). The ``color`` of a document in ``decoy_ids`` is not judged
+    against its text: a text-match decoy names only a misleading color on purpose."""
     docs = list(docs)
     out: list[str] = []
     ids: dict[str, int] = {}
@@ -290,7 +305,13 @@ def check_catalog(
         out += mixed_class_keys(docs)
     if text_agrees:
         pools = value_pools(docs)
-        out += [p for doc in docs for p in text_contradictions(doc, pools)]
+        out += [
+            p
+            for doc in docs
+            for p in text_contradictions(
+                doc, pools, DECOY_SKIPPED_KEYS if doc.get("product_id") in decoy_ids else ()
+            )
+        ]
     return out
 
 

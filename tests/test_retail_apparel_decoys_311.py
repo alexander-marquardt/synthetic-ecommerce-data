@@ -23,6 +23,7 @@ if str(RETAIL) not in sys.path:
 
 import baseline_rank as br  # noqa: E402
 import decoy_apparel as da  # noqa: E402
+import decoy_rows  # noqa: E402
 import main_colors  # noqa: E402
 import scale  # noqa: E402
 
@@ -136,7 +137,9 @@ def test_class_6_and_7_name_a_short_title_and_class_7_names_a_brand(
     for r in rows:
         doc = by_id[r.pid]
         if r.cls in (6, 7):
-            assert len(doc["title"].split()) <= 5, (r.pid, doc["title"])
+            # a range or brand name, the type: no real color is appended (ruling on gen#311)
+            assert len(doc["title"].split()) <= 5, (
+                r.pid, doc["title"])
         if r.cls == 7:
             brands.add(doc["brand"])
             assert doc["brand"].lower() in doc["title"].lower(), (r.pid, doc["title"])
@@ -179,3 +182,40 @@ def test_sibling_color_queries_find_decoys_in_the_baseline_top_10(
     top = [d["product_id"] for d in br.rank(index, query, 10)]
     planted = [i for i in top if i in da.IDS]
     assert len(planted) >= 3 and any(i in da.IDS for i in top[:3]), (query, top)
+
+
+def _color_decoys(rows: list[da.Row]) -> list[da.Row]:
+    """The rows whose title names a main color word other than their own."""
+    return [r for r in rows if r.cls in (1, 6, 7) and r.word in MAIN]
+
+
+def test_a_color_decoy_draws_the_color_its_title_names(
+    rows: list[da.Row], by_id: dict[str, dict]
+) -> None:
+    named = _color_decoys(rows)
+    assert named
+    for r in named:
+        drawing = by_id[r.pid]["drawing"]
+        assert drawing["accent"] == da.DETAIL_HEX[r.word.title()], (r.pid, r.word, drawing)
+        assert drawing["base"] != drawing["accent"], r.pid
+
+
+def test_the_standard_refuses_a_color_naming_non_decoy_and_exempts_a_decoy(
+    rows: list[da.Row], ceiling: list[dict]
+) -> None:
+    from synthetic_ecommerce_data.core import standard
+
+    r = next(r for r in _color_decoys(rows) if r.cls == 7)
+    by = {x["product_id"]: x for x in ceiling}
+    rec = by[r.pid]
+    leaf = [scale.standard_document(x) for x in ceiling
+            if x["category_leaf"] == rec["category_leaf"]]
+    doc = scale.standard_document(rec)
+    plant = {**doc, "product_id": "PLANT-1"}  # the same text on a row that is no decoy
+    ids = decoy_rows.IDS | da.IDS
+    problems = standard.check_catalog([*leaf, plant], decoy_ids=ids)
+    assert any(p.startswith("PLANT-1: ") and "color" in p for p in problems), problems
+    assert not any(p.startswith(f"{r.pid}: ") for p in problems), problems
+    # without the exemption the same decoy is refused, as any other row is
+    bare = standard.check_catalog([*leaf, plant])
+    assert any(p.startswith(f"{r.pid}: ") and "color" in p for p in bare), bare

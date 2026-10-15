@@ -35,8 +35,10 @@ import re
 import zlib
 from dataclasses import dataclass
 
+from audience import audience_of_path
 from class_model import SHADE_FAMILY
 from decoy_rows import COLORS
+from facet_leaves import LEG_STYLE_FITS
 from variants import cw, product, swatch
 
 ROOTS = ("Womens", "Mens", "Kids")
@@ -47,6 +49,8 @@ BRANDS = (("Red Plover", "red"), ("Blue Otter", "blue"), ("Green Stoat", "green"
 #: The main colors a decoy is sold in, with the swatch hex of :mod:`decoy_rows`.
 PRODUCT_COLORS = ("Black", "White", "Navy", "Cream", "Grey", "Brown", "Pink", "Red", "Blue",
                   "Green")  # fmt: skip
+#: The visible detail color of a decoy that names a main color word in its title.
+DETAIL_HEX = COLORS | {"Yellow": "#f2d14b"}
 MAIN_WORDS = ("red", "blue", "green", "yellow", "black", "white")
 CLASSES = {
     1: "color names a part", 2: "another category's noun as a modifier",
@@ -203,7 +207,7 @@ def _in_path(word: str, doc: dict) -> bool:
 
 
 def _clone(ex: dict, code: str, title: str, desc: str, color: str, hexv: str, family: str,
-           brand: str | None = None) -> dict:
+           brand: str | None = None, accent: str = "#333333") -> dict:
     """``ex`` re-run through :func:`variants.product` in one color with a new title, description
     and (class 7) brand; its popularity is above the typical so the text score competes."""
     from class_model import BRAND_OWNER
@@ -221,14 +225,15 @@ def _clone(ex: dict, code: str, title: str, desc: str, color: str, hexv: str, fa
     sold = 500 + zlib.crc32(code.encode()) % 400
     prices = [s["price"] for s in skus]
     keep["attributes"] = [a for a in keep["attributes"]
-                          if a["key"] not in ("line", "pattern", "print", "color")]  # fmt: skip
+                          if a["key"] not in ("line", "pattern", "print", "color", "motif",
+                                               "motif_count", "print_placement")]  # fmt: skip
     keep |= {"title": title, "description": desc, "sold_last_5_days": sold,
              "review_count": 900 + sold, "offer": False, "trending": False,
              "price_min": min(prices), "price_max": max(prices)}  # fmt: skip
     if brand is not None:
         keep |= {"brand": brand, "brand_owner": BRAND_OWNER[brand]}
     keep["drawing"] = {k: v for k, v in keep["drawing"].items() if k != "accents"} | {
-        "pattern": "solid", "base": hexv, "accent": "#333333",
+        "pattern": "solid", "base": hexv, "accent": accent,
         "motif": None, "placement": None}  # fmt: skip
     return product(f"PLT-D{code}", skus, {color_tuple[0]: swatch(color_tuple, family)}, **keep)
 
@@ -247,7 +252,7 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
                     if c.lower() != sec:
                         out.append(dict(title=f"{c} {noun}, {sec.title()} {part}", word=sec,
                                         desc=f"{c} {n} with {sec} {part.lower()}.", color=c,
-                                        query=f"{sec} {n}"))
+                                        query=f"{sec} {n}", detail=sec))
     elif cls == 2:
         for mod in (m for m in MODS[fam] if not path_has(m.lower())):
             for c in PRODUCT_COLORS:
@@ -257,7 +262,9 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
     elif cls == 3:
         # The text names the real audience too, as every #294 decoy does: the output standard
         # refuses a text naming only another audience.
-        aud = next(a["value"] for a in ex["attributes"] if a["key"] == "audience")
+        # A style with no audience attribute gets the one export derives from its path.
+        aud = next((a["value"] for a in ex["attributes"] if a["key"] == "audience"),
+                   None) or audience_of_path(ex["category_path"])
         for phrase, word in AUDIENCE[ex["category_path"][0]]:
             for c in PRODUCT_COLORS:
                 out.append(dict(title=f"{c} {aud} {noun}, {phrase}", word=word, color=c,
@@ -267,9 +274,14 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
         held = field_text(ex)
         for phrase, word, sentence in ABSENT:
             if word not in held:
+                real = [str(a["value"]) for a in ex["attributes"]
+                        if a["key"].endswith("material")
+                        and re.search(r"[A-Za-z]", str(a["value"]))]  # fmt: skip
+                tail = f", {real[0].title()}" if real else ""  # names its real material too
+                more = f" Material: {', '.join(real)}." if real else ""
                 for c in PRODUCT_COLORS:
-                    out.append(dict(title=f"{c} {phrase} {noun}", word=word, color=c,
-                                    desc=f"{c} {n}. {sentence}", query=f"{word} {n}"))
+                    out.append(dict(title=f"{c} {phrase} {noun}{tail}", word=word, color=c,
+                                    desc=f"{c} {n}. {sentence}{more}", query=f"{word} {n}"))
     elif cls == 5:
         for fancy, shade, hexv, family in SHADES:
             out.append(dict(title=f"{fancy} {noun}", word=shade.lower(), color=shade, hex=hexv,
@@ -282,7 +294,7 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
                     if c.lower() != word:
                         out.append(dict(title=f"{name} {noun}", word=word, color=c,
                                         desc=f"{c} {n} from the {name} range, named for {gloss}.",
-                                        query=f"{word} {n}", kind="color"))
+                                        query=f"{word} {n}", kind="color", detail=word))
         for name, gloss in CATEGORY_RANGES:
             if not path_has(name.split()[0].lower()):
                 for c in PRODUCT_COLORS:
@@ -295,7 +307,8 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
                 for c in PRODUCT_COLORS:
                     if c.lower() != word:
                         out.append(dict(title=f"{brand} {noun}", word=word, color=c, brand=brand,
-                                        desc=f"{c} {n} by {brand}.", query=f"{word} {n}"))
+                                        desc=f"{c} {n} by {brand}.", query=f"{word} {n}",
+                                        detail=word if word in MAIN_WORDS else None))
     return out
 
 
@@ -310,7 +323,7 @@ def build(body: list[dict]) -> list[Row]:
     for d in sorted(body, key=lambda r: r["product_id"]):
         if (d["category_path"][0] in ROOTS and d["department"][0] in DEPARTMENTS
                 and d.get("color_options") and d["product_id"] not in IDS
-                and not d.get("leg_style")):
+                and not (d["product_type"] == "Jeans" and d.get("leg_style"))):
             pool.setdefault(d["product_type"], []).append(d)
     rows = []
     for ti, spec in enumerate(TYPES):
@@ -339,14 +352,18 @@ def build(body: list[dict]) -> list[Row]:
                 hexv = o.get("hex") or COLORS[color]
                 family = o.get("family") or SHADE_FAMILY.get(color, color.lower())
                 title = o["title"]
-                fit = next((a["value"] for a in ex["attributes"] if a["key"] == "leg_fit"), None)
+                fit = next((a["value"] for a in ex["attributes"] if a["key"] == "leg_fit"),
+                           None) or (
+                    LEG_STYLE_FITS.get(ex.get("leg_style")))
                 if fit and fit.lower() not in title.lower() and spec.product_type in title:
                     title = title.replace(spec.product_type, f"{fit} {spec.product_type}", 1)
-                if cls in (6, 7) and color.lower() not in title.lower():
-                    # The output standard refuses a title naming only another color's word;
-                    # naming the real color too is how every #294 decoy passes it.
-                    title = f"{title}, {color}"
-                doc = _clone(ex, code, title, o["desc"], color, hexv, family, o.get("brand"))
+                # The title may name only the misleading color (the maintainer's ruling on
+                # gen#311): the structured color stays the real one and the drawing shows the
+                # named color as a visible detail, so the check in standard.py exempts decoys.
+                detail = o.get("detail")
+                accent = DETAIL_HEX[detail.title()] if detail else "#333333"
+                doc = _clone(ex, code, title, o["desc"], color, hexv, family, o.get("brand"),
+                             accent)
                 rows.append(Row(f"PLT-D{code}", spec.product_type, cls, o["word"], o["query"],
                                 POLICY.get(cls, "generic"), doc))
     return rows
