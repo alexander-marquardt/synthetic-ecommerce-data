@@ -111,6 +111,11 @@ EXEMPT = {
     "Polo Shirt": "a type of the Mens clothing depth (gen#310), which carries its own decoys",
     "Jacket": "a type of the Mens clothing depth (gen#310), which carries its own decoys",
     "Mens Trousers": "a type of the Mens clothing depth (gen#310), which carries its own decoys",
+    "Backpack": "an accessory, not a garment: its text words are those of the accessories batch",
+    "Handbag": "an accessory, not a garment: its text words are those of the accessories batch",
+    "Purse": "an accessory, not a garment: its text words are those of the accessories batch",
+    "Tote Bag": "an accessory, not a garment: its text words are those of the accessories batch",
+    "Umbrella": "an accessory, not a garment: its text words are those of the accessories batch",
     "Shoe Care Kit": "a care product sold in the footwear department, not footwear",
 }
 
