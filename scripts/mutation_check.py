@@ -3382,6 +3382,63 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: text-match decoys on the clothing, footwear and lingerie types (gen#311) ----
+    *(
+        Mutation(f"apparel decoys: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "an apparel decoy is color-completed",
+                "main_colors.py",
+                "not in decoy_rows.IDS | decoy_apparel.IDS",
+                "not in decoy_rows.IDS",
+                "tests/test_retail_apparel_decoys_311.py -k decoys_are_templates_never_copied",
+                "no color completion gives an apparel decoy the query's color",
+            ),
+            (
+                "an apparel decoy is copied by the derivation",
+                "scale.py",
+                "| decoy_rows.IDS | decoy_apparel.IDS)",
+                "| decoy_rows.IDS)",
+                "tests/test_retail_apparel_decoys_311.py -k decoys_are_templates_never_copied",
+                "an apparel decoy stays a template",
+            ),
+            (
+                "an absent-material decoy names a material the style holds",
+                "decoy_apparel.py",
+                "            if word not in held:",
+                "            if True:",
+                "tests/test_retail_apparel_decoys_311.py -k each_decoys_fields_contradict",
+                "a class 4 decoy's word is held by none of its fields",
+            ),
+            (
+                "a color decoy draws a neutral detail",
+                "decoy_apparel.py",
+                'accent = DETAIL_HEX[detail.title()] if detail else "#333333"',
+                'accent = "#333333"',
+                "tests/test_retail_apparel_decoys_311.py -k draws_the_color_its_title_names",
+                "a decoy naming a color shows that color in its drawing",
+            ),
+            (
+                "class 6 drops its category-word row",
+                "decoy_apparel.py",
+                'return cls != 6 or (kind == "category") == (i == n - 1)',
+                "return True",
+                "tests/test_retail_apparel_decoys_311.py -k class_6_and_7",
+                "each type has a color-word and a category-word class 6 decoy",
+            ),
+        ]
+    ),
+    Mutation(
+        "apparel decoys: the decoy exemption is removed from the standard",
+        "src/synthetic_ecommerce_data/core/standard.py",
+        'DECOY_SKIPPED_KEYS if doc.get("product_id") in decoy_ids else ()',
+        "()",
+        "tests/test_retail_apparel_decoys_311.py -k standard_refuses_a_color_naming_non_decoy",
+        "",
+        "a decoy is exempt from the color check and a non-decoy is not",
+        root=".",
+    ),
     # ---- pack: bolts and socket screws publish the census pack (#65) ------
     *(
         Mutation(
