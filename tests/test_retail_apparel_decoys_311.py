@@ -246,9 +246,7 @@ def test_a_decoy_title_names_only_the_misleading_color(
         assert re.search(rf"\b{r.word}\b", title), (r.pid, r.word, title)
 
 
-def _svg_parts(
-    doc: dict, bare: bool = False
-) -> tuple[list[ET.Element], list[ET.Element]]:
+def _svg_parts(doc: dict, bare: bool = False) -> tuple[list[ET.Element], list[ET.Element]]:
     """(the elements marked as a named part, every other drawn element outside defs and masks).
     ``bare`` draws the same product without its named part."""
     if bare:
@@ -329,7 +327,7 @@ TOP = (-0.3, 0.25)  # a strap rises above the garment's body
 ZONE = {
     "hem": BOTTOM,
     "cuffs": BOTTOM,
-    "sole": (0.85, 1.0),  # under the shoe, not across its upper
+    "sole": (0.5, 1.0),  # under the shoe (a heel lifts the sole), not across its upper
     "waistband": TOP,
     "collar": TOP,
     "straps": TOP,
@@ -353,8 +351,12 @@ def _product(svg: str) -> str:
 def _garment_box(doc: dict) -> tuple[float, float, float, float]:
     bare = doc | {"drawing": {k: v for k, v in doc["drawing"].items() if k != "detail"}}
     # the kit's trim (lace scallops) is drawn with relative commands, which the box reader skips
-    body = [p for p in details._body([_product(_svg(bare))], "", "all") if " d=\"" not in p[3]
-            or not re.search(r"[mlcqzhva]", re.search(r' d="([^"]*)"', p[3]).group(1))]
+    body = [
+        p
+        for p in details._body([_product(_svg(bare))], "", "all")
+        if ' d="' not in p[3]
+        or not re.search(r"[mlcqzhva]", re.search(r' d="([^"]*)"', p[3]).group(1))
+    ]
     box = details._bbox(body)
     assert box, doc["title"]
     return box
@@ -382,6 +384,12 @@ def test_the_named_part_sits_where_the_part_sits_on_the_garment(
             lo, hi = ZONE[part]
             centre = ((box[1] + box[3]) / 2 - top) / (bottom - top)
             assert lo <= centre <= hi, (r.pid, doc["title"], part, round(centre, 2))
+            if part == "sole":  # drawn on the kit's own sole path, not on a band across the upper
+                bare = doc | {"drawing": {k: v for k, v in doc["drawing"].items() if k != "detail"}}
+                own = re.findall(
+                    r'class="sole"[^>]* d="([^"]*)"|<path d="([^"]*)"[^>]*class="sole"', _svg(bare)
+                )
+                assert re.search(r' d="([^"]*)"', el).group(1) in {a or b for a, b in own}, r.pid
             seen.add(part)
     assert seen == set(ZONE), set(ZONE) - seen
 
@@ -394,9 +402,10 @@ def test_a_hem_is_the_torsos_and_does_not_color_the_sleeve_cuffs(
     n = 0
     for r in (r for r in rows if r.cls in (1, 6, 7) and r.word in MAIN):
         doc = by_id[r.pid]
-        if "hem" not in details.parts_of(doc["drawing"]["shape"]) or doc["drawing"].get(
-            "detail", {}
-        ).get("part") != "hem":
+        if (
+            "hem" not in details.parts_of(doc["drawing"]["shape"])
+            or doc["drawing"].get("detail", {}).get("part") != "hem"
+        ):
             continue
         svg = _svg(doc)
         mask = re.search(r"<mask\b.*?</mask>", svg, flags=re.S)

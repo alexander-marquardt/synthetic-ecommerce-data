@@ -3443,6 +3443,30 @@ MUTATIONS: list[Mutation] = [
                 "tests/test_retail_apparel_decoys_311.py -k named_part_is_drawn",
                 "the named part carries the named color",
             ),
+            (
+                "a hem band moves to the top of the garment",
+                "details.py",
+                'TORSO_HEM = band((0.0, 0.89, 1.0, 1.0), "torso")',
+                'TORSO_HEM = band((0.0, 0.0, 1.0, 0.11), "torso")',
+                "tests/test_retail_apparel_decoys_311.py -k sits_where_the_part_sits",
+                "a hem is drawn at the bottom of the garment",
+            ),
+            (
+                "a sole is drawn across the shoe's upper",
+                "details.py",
+                '"shoe": {"sole": marked("sole")},',
+                '"shoe": {"sole": band((0.0, 0.62, 1.0, 0.92), "all")},',
+                "tests/test_retail_apparel_decoys_311.py -k sits_where_the_part_sits",
+                "a sole is drawn on the kit's own sole path",
+            ),
+            (
+                "a hem band paints the sleeve cuffs",
+                "details.py",
+                'TORSO_HEM = band((0.0, 0.89, 1.0, 1.0), "torso")',
+                'TORSO_HEM = band((0.0, 0.89, 1.0, 1.0))',
+                "tests/test_retail_apparel_decoys_311.py -k torsos_and_does_not_color",
+                "a sleeve's cuff is not part of the hem",
+            ),
         ]
     ),
     # ---- pack: bolts and socket screws publish the census pack (#65) ------
