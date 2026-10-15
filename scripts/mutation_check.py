@@ -3382,6 +3382,61 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: text-match decoys on every clothing type (gen#311) ----
+    *(
+        Mutation(f"apparel decoys: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "an apparel decoy is color-completed",
+                "main_colors.py",
+                "decoy_rows.IDS | decoy_apparel.IDS",
+                "decoy_rows.IDS",
+                "tests/test_retail_apparel_decoys_311.py -k never_copied_or_color_completed",
+                "no color completion gives an apparel decoy the query's color",
+            ),
+            (
+                "an apparel decoy is copied by the derivation",
+                "scale.py",
+                "decoy_rows.IDS | decoy_apparel.IDS)",
+                "decoy_rows.IDS)",
+                "tests/test_retail_apparel_decoys_311.py -k never_copied_or_color_completed",
+                "an apparel decoy stays a template",
+            ),
+            (
+                "a class 4 decoy names a material the style holds",
+                "decoy_apparel.py",
+                "            if word not in held:\n",
+                "            if True:\n",
+                "tests/test_retail_apparel_decoys_311.py -k fields_contradict",
+                "the absent material is absent from every field",
+            ),
+            (
+                "a class 6 category word is one the path holds",
+                "decoy_apparel.py",
+                "            if not path_has(name.split()[0].lower()):\n",
+                "            if True:\n",
+                "tests/test_retail_apparel_decoys_311.py -k fields_contradict",
+                "a category-word range is not the product's own category",
+            ),
+            (
+                "the decoy exemption from the text check is removed",
+                "scale.py",
+                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS\n",
+                "DECOY_IDS = frozenset()\n",
+                "tests/test_retail_apparel_decoys_311.py -k misleading_color",
+                "a decoy naming only another color passes the standard by its id",
+            ),
+            (
+                "a decoy names a detail color its drawing does not render",
+                "decoy_apparel.py",
+                'cw(color, hexv, "stripe", DETAIL_HEX[detail]) if detail',
+                'cw(color, hexv) if detail',
+                "tests/test_retail_apparel_decoys_311.py -k misleading_color",
+                "the drawing shows the color the title names",
+            ),
+        ]
+    ),
     # ---- pack: bolts and socket screws publish the census pack (#65) ------
     *(
         Mutation(

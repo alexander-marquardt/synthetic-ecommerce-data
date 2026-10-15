@@ -9,6 +9,7 @@ in the fields, and that the docs table lists every row.
 
 from __future__ import annotations
 
+import json
 import math
 import re
 import sys
@@ -23,8 +24,12 @@ if str(RETAIL) not in sys.path:
 
 import baseline_rank as br  # noqa: E402
 import decoy_apparel as da  # noqa: E402
+import export  # noqa: E402
+import image_release  # noqa: E402
 import main_colors  # noqa: E402
 import scale  # noqa: E402
+
+from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 
 DEPARTMENTS = {"Clothing", "Footwear", "Lingerie & Nightwear"}
 ROOTS = {"Womens", "Mens", "Kids"}
@@ -56,8 +61,10 @@ def index(ceiling: list[dict]) -> br.Index:
 
 def _live_types(ceiling: list[dict]) -> set[str]:
     return {
-        r["product_type"] for r in ceiling
-        if r["product_id"] not in da.IDS and r["department"][0] in DEPARTMENTS
+        r["product_type"]
+        for r in ceiling
+        if r["product_id"] not in da.IDS
+        and r["department"][0] in DEPARTMENTS
         and r["category_path"][0] in ROOTS
     }
 
@@ -65,8 +72,12 @@ def _live_types(ceiling: list[dict]) -> set[str]:
 def _text(doc: dict) -> str:
     """Every attribute value and every text SKU field, lowercased: what the fields say."""
     vals = [str(a["value"]) for a in doc["attributes"]]
-    vals += [str(v) for s in doc["skus"] for k, v in s.items()
-             if isinstance(v, str) and not k.startswith("size") and k != "sku"]
+    vals += [
+        str(v)
+        for s in doc["skus"]
+        for k, v in s.items()
+        if isinstance(v, str) and not k.startswith("size") and k != "sku"
+    ]
     return " ".join(vals).lower()
 
 
@@ -83,7 +94,7 @@ def test_every_clothing_footwear_and_lingerie_type_is_planned(ceiling: list[dict
     live = _live_types(ceiling)
     planned = {t.product_type for t in da.TYPES}
     assert planned, "no type is planned"
-    assert live - set(da.EXEMPT) == planned, (live - set(da.EXEMPT) ^ planned)
+    assert live - set(da.EXEMPT) == planned, live - set(da.EXEMPT) ^ planned
     assert set(da.EXEMPT) <= live | {"Belt", "Shoe Care Kit"}
     assert all(reason.strip() for reason in da.EXEMPT.values())
 
@@ -146,8 +157,13 @@ def test_class_6_and_7_name_a_short_title_and_class_7_names_a_brand(
 
 def test_large_types_carry_ten_percent_decoys(rows: list[da.Row], ceiling: list[dict]) -> None:
     for ptype, rs in _by_type(rows).items():
-        real = sum(1 for d in ceiling if d["product_type"] == ptype
-                   and d["product_id"] not in da.IDS and d["category_path"][0] in ROOTS)
+        real = sum(
+            1
+            for d in ceiling
+            if d["product_type"] == ptype
+            and d["product_id"] not in da.IDS
+            and d["category_path"][0] in ROOTS
+        )
         assert len(rs) >= math.ceil(real / 10), (ptype, len(rs), real)
 
 
@@ -179,3 +195,29 @@ def test_sibling_color_queries_find_decoys_in_the_baseline_top_10(
     top = [d["product_id"] for d in br.rank(index, query, 10)]
     planted = [i for i in top if i in da.IDS]
     assert len(planted) >= 3 and any(i in da.IDS for i in top[:3]), (query, top)
+
+
+def test_a_decoy_may_name_only_the_misleading_color_and_only_when_it_is_drawn(
+    rows: list[da.Row], by_id: dict[str, dict]
+) -> None:
+    """The maintainer ruling on #311: the output standard's refusal of a text naming only another
+    color stays for ordinary products; a decoy row is exempt by id, and its drawing shows the
+    named color (a stripe in it), so the title is true of the picture."""
+    named = [r for r in rows if r.cls in (1, 6, 7) and r.word in MAIN]
+    assert len(named) >= 3 * len(da.TYPES)
+    docs = [export.standard_document(by_id[r.pid]) for r in named]
+    assert check_catalog(docs, text_exempt=scale.DECOY_IDS) == []
+    # one side: a non-decoy row naming only another color is still refused
+    ordinary = json.loads(json.dumps(docs[0]).replace("PLT-D", "ORDINARY-1-"))
+    ordinary["description"] = ordinary["title"]  # the text names only the other color
+    refused = check_catalog([*docs, ordinary], text_exempt=scale.DECOY_IDS)
+    assert [p for p in refused if p.startswith("ORDINARY-1")], refused
+    # and the exemption is keyed on the id: without it the decoys are refused
+    assert check_catalog(docs) != []
+    # the other side: the drawing renders the named color as the accent
+    for r in named:
+        doc = by_id[r.pid]
+        drawing = image_release.colorway_drawing(doc, doc["skus"][0])
+        assert drawing["pattern"] == "stripe", (r.pid, drawing)
+        assert drawing["accent"].lower() == da.DETAIL_HEX[r.word.title()].lower(), (r.pid, r.word)
+        assert doc["color_options"][0]["color"] != r.word.title(), r.pid
