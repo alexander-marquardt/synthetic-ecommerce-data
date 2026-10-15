@@ -271,9 +271,26 @@ def _title_cased(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return out
 
 
+def _splits(rec: dict) -> bool:
+    """Whether any SKU of the style has a pattern split out of its authored color."""
+    return any(colorwords.split(s["color"])[1] for s in rec["skus"] if "color" in s)
+
+
+def _own_pattern(rec: dict, sku: dict) -> list[dict[str, Any]]:
+    """A SKU's pattern entry in a style where any SKU splits: its split pattern, else the
+    style's drawn pattern, else Plain. Every variant states its own, so a SKU never reads a
+    sibling's pattern off the style's list, and pattern joins ``variant_axes`` where it varies."""
+    pattern = colorwords.split(sku["color"])[1] if "color" in sku else None
+    if pattern is not None:
+        return [_entry(*FACTS["pattern"], pattern)]
+    drawn = rec.get("pattern", "Plain")
+    return _entries(FACTS["pattern"], drawn)
+
+
 def _variant(rec: dict, sku: dict) -> dict[str, Any]:
     image = image_id(rec, sku)
     options = [k for k in sku if k not in SKU_COLUMNS]
+    own = _own_pattern(rec, sku) if _splits(rec) else []
     return {
         "sku": sku["sku"],
         "title": rec["title"],
@@ -289,7 +306,9 @@ def _variant(rec: dict, sku: dict) -> dict[str, Any]:
             e
             for k in options
             for e in (_color_entries(sku[k]) if k == "color" else _entries(OPTIONS[k], sku[k]))
-        ],
+            if not (own and e["key"] == "pattern")
+        ]
+        + _title_cased(own),
     }
 
 
@@ -332,6 +351,9 @@ def standard_document(rec: dict) -> dict[str, Any]:
     variants = [_variant(rec, sku) for sku in rec["skus"]]
     path = list(rec["category_path"])
     attributes = _product_attributes(rec)
+    if _splits(rec) and all(colorwords.split(s["color"])[1] for s in rec["skus"]):
+        # Every SKU states its own split pattern: the style's drawn "Plain" describes none.
+        attributes = [e for e in attributes if (e["key"], e["value"]) != ("pattern", "Plain")]
     added, replaced = facet_leaves.leaf_facets(rec, attributes)
     if replaced:
         path = facet_leaves.collapsed_path(path, rec["product_type"])
