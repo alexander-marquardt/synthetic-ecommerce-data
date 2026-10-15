@@ -109,7 +109,7 @@ def test_class_4_names_an_elastic_that_is_not_the_waist_and_sits_elsewhere(decoy
             assert hit, rec["title"]
             seen.update(hit)
             assert tuple(rec["category_path"]) != LEAF, d.code
-            assert "elastic" not in _attr(rec, "waist_type"), d.code
+            assert "Elastic" not in _attr(rec, "waist_type"), d.code
             assert "elasticated waist" not in title, d.code
     assert seen == set(NOT_AT_THE_WAIST)
 
@@ -154,3 +154,4 @@ def test_every_row_is_a_template_no_derived_style_copies(templates):
     assert ids
     assert ids <= {r["product_id"] for r in templates}
     assert ids <= scale.NEEDS_IDS
+    assert not ids & {r["product_id"] for r in scale.derivable(templates)}
