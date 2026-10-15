@@ -112,3 +112,51 @@ def test_no_product_concept_is_spelled_in_both_formats(tools, retail) -> None:
     for t in types:
         spelled[re.sub(r"[^a-z0-9]+", "_", t.lower()).strip("_")].add(t)
     assert {k: v for k, v in spelled.items() if len(v) > 1} == {}
+
+
+# -- text-match decoys (gen#294 rule): every hammer kind carries them, attributes stay true ----
+
+#: What each decoy class puts in the title (the item), by its shape.
+CATEGORY_WORD = re.compile(r"^(?P<noun>[A-Z][A-Za-z ]+?) Series (?P<item>.+)$")
+MATERIAL_LOOK = re.compile(r"^(?P<word>Hickory|Ash|Fiberglass)-Look (?P<item>.+)$")
+INCIDENTAL = re.compile(
+    r"^(?P<word>Hickory|Ash|Fiberglass) (?:Creek|Ridge|Lane|Hollow) (?P<item>.+)$"
+)
+OWN_NOUN = {
+    "hammer_ball_pein": "Ball Pein", "hammer_claw": "Claw", "hammer_framing": "Framing",
+    "hammer_club": "Club", "hammer_sledge": "Sledge", "hammer_rubber_mallet": "Mallet",
+    "hammer_dead_blow": "Dead Blow",
+}
+
+
+def _lines(tools: list[dict], kind: str) -> dict[str, dict]:
+    """One doc per product of ``kind``, with its handle material."""
+    out: dict[str, dict] = {}
+    for d in tools:
+        if d["product_type"] == kind:
+            handle = next(a["value"] for a in d["attributes"] if a["name"] == "Handle Material")
+            out.setdefault(d["product_id"], {"title": d["parent_title"], "handle": handle})
+    return out
+
+
+@pytest.mark.parametrize("kind", sorted(KINDS))
+def test_each_kind_carries_three_decoys_of_each_class_and_their_attributes_stay_true(
+    tools, kind
+) -> None:
+    lines = _lines(tools, kind)
+    category, material, incidental = [], [], []
+    for line in lines.values():
+        item = line["title"].split(" -- ")[-1]
+        if (m := CATEGORY_WORD.match(item)) is not None:
+            category.append(m["noun"])
+        elif (m := MATERIAL_LOOK.match(item)) is not None:
+            material.append(m["word"])
+            assert m["word"] != line["handle"], line
+        elif (m := INCIDENTAL.match(item)) is not None:
+            incidental.append(m["word"])
+            assert m["word"] != line["handle"], line
+    assert len(category) >= 3 and len(material) >= 3 and len(incidental) >= 3, (
+        kind, len(category), len(material), len(incidental))
+    # The category word is ANOTHER kind's noun, never the kind's own.
+    assert OWN_NOUN[kind] not in category
+    assert set(category) <= set(OWN_NOUN.values())
