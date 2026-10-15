@@ -26,6 +26,7 @@ if str(RETAIL) not in sys.path:
 import baseline_rank as br  # noqa: E402
 import decoy_apparel as da  # noqa: E402
 import decoy_rows  # noqa: E402
+import details  # noqa: E402
 import export  # noqa: E402
 import image_release  # noqa: E402
 import main_colors  # noqa: E402
@@ -319,3 +320,92 @@ def test_the_mens_types_the_census_exempts_hold_their_own_decoys() -> None:
         for klass in range(1, 8):
             n = sum(1 for d in mens_depth_rows.TABLE if d.ptype == ptype and d.klass == klass)
             assert n >= 3, (ptype, klass, n)
+
+
+#: Where each named part sits on its garment: the share of the garment's height (from its top)
+#: that the part's own box lies in. A hem is at the bottom, a waistband at the top.
+BOTTOM = (0.75, 1.0)
+TOP = (-0.3, 0.25)  # a strap rises above the garment's body
+ZONE = {
+    "hem": BOTTOM,
+    "cuffs": BOTTOM,
+    "sole": (0.85, 1.0),  # under the shoe, not across its upper
+    "waistband": TOP,
+    "collar": TOP,
+    "straps": TOP,
+    "cuff": TOP,  # a boot sock's fold-over cuff
+}
+#: The shapes whose parts are not a band of the whole drawing (a pack's socks are rotated).
+NO_ZONE_SHAPES = {"socks"}
+
+
+def _svg(doc: dict) -> str:
+    out = image_release.render(doc, doc["skus"][0])
+    return out.decode() if isinstance(out, bytes) else out
+
+
+def _product(svg: str) -> str:
+    """The product group's elements, without defs and masks (a mask's shapes are no drawing)."""
+    body = svg.split('<g class="product"', 1)[1].split('<g class="brand">', 1)[0]
+    return re.sub(r"<mask\b.*?</mask>", "", body, flags=re.S)
+
+
+def _garment_box(doc: dict) -> tuple[float, float, float, float]:
+    bare = doc | {"drawing": {k: v for k, v in doc["drawing"].items() if k != "detail"}}
+    # the kit's trim (lace scallops) is drawn with relative commands, which the box reader skips
+    body = [p for p in details._body([_product(_svg(bare))], "", "all") if " d=\"" not in p[3]
+            or not re.search(r"[mlcqzhva]", re.search(r' d="([^"]*)"', p[3]).group(1))]
+    box = details._bbox(body)
+    assert box, doc["title"]
+    return box
+
+
+def test_the_named_part_sits_where_the_part_sits_on_the_garment(
+    rows: list[da.Row], by_id: dict[str, dict]
+) -> None:
+    """A hem is drawn at the bottom of the garment, a waistband or a collar at the top, a shoe's
+    sole at the bottom of the shoe: the part's own box lies in that share of the garment's height.
+    A color block anywhere else on the garment is not the named part."""
+    seen: set[str] = set()
+    for r in (r for r in rows if r.cls in (1, 6, 7) and r.word in MAIN):
+        doc = by_id[r.pid]
+        if doc["drawing"]["shape"] in NO_ZONE_SHAPES:
+            continue
+        _, top, _, bottom = _garment_box(doc)
+        placed = [p for p in details._flat([_product(_svg(doc))]) if " data-part=" in p[3]]
+        for tx, ty, sc, el in placed:
+            part = re.search(r' data-part="([^"]*)"', el).group(1)
+            if part not in ZONE:
+                continue
+            box = details._bbox([(tx, ty, sc, el)])
+            assert box, (r.pid, part)
+            lo, hi = ZONE[part]
+            centre = ((box[1] + box[3]) / 2 - top) / (bottom - top)
+            assert lo <= centre <= hi, (r.pid, doc["title"], part, round(centre, 2))
+            seen.add(part)
+    assert seen == set(ZONE), set(ZONE) - seen
+
+
+def test_a_hem_is_the_torsos_and_does_not_color_the_sleeve_cuffs(
+    rows: list[da.Row], by_id: dict[str, dict]
+) -> None:
+    """The hem band is cut by the garment's torso: every shape it is cut by crosses the middle
+    of the garment, so a sleeve (which reaches the same bottom) stays its own color."""
+    n = 0
+    for r in (r for r in rows if r.cls in (1, 6, 7) and r.word in MAIN):
+        doc = by_id[r.pid]
+        if "hem" not in details.parts_of(doc["drawing"]["shape"]) or doc["drawing"].get(
+            "detail", {}
+        ).get("part") != "hem":
+            continue
+        svg = _svg(doc)
+        mask = re.search(r"<mask\b.*?</mask>", svg, flags=re.S)
+        assert mask, (r.pid, "a hem is cut by a mask of the body")
+        box = details._bbox(details._flat([mask.group(0)]))
+        assert box
+        mid = (box[0] + box[2]) / 2
+        for placed in details._flat([mask.group(0)]):
+            b = details._bbox([placed])
+            assert b and b[0] <= mid <= b[2], (r.pid, doc["title"], b, mid)
+        n += 1
+    assert n >= 5
