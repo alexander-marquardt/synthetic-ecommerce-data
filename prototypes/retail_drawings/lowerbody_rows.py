@@ -81,8 +81,9 @@ def _legs() -> tuple[tuple[str, float], ...]:
     return _pairs(LEGS3, 0.04)
 
 
-def _facts(rise: str | None, pattern: str) -> tuple:
-    return (*((("rise", rise),) if rise else ()), ("pattern", pattern))
+def _facts(rise: str | None, pattern: str, was: float | None = None) -> tuple:
+    return (*((("rise", rise),) if rise else ()), ("pattern", pattern),
+            *((("was_price", was),) if was else ()))
 
 
 def _waist(*kinds: str) -> tuple:
@@ -409,10 +410,11 @@ _SKT = ("Womens", "Skirts")
 # (export.drawing_spec). The SKU axis is ``fit_length`` (the Petite/Regular/Long fit), not
 # ``length``: the Combined projection renames a bare ``length`` to ``garment_length``, which a
 # skirt's style already states (gen#279).
-def _skrow(code, title, brand, price, desc, colors, attrs, shape, length, pattern="plain"):
+def _skrow(code, title, brand, price, desc, colors, attrs, shape, length, pattern="plain",
+           was=None):
     return LRow(code, title, brand, CL_, _SKT, "Skirt", price, "skirt", desc, colors, attrs,
                 _sizes(price), params=(("shape", shape), ("hem", length)),
-                axis_key="fit_length", axis=_legs(), facts=_facts(None, pattern))  # fmt: skip
+                axis_key="fit_length", axis=_legs(), facts=_facts(None, pattern, was))  # fmt: skip
 
 
 SKIRTS = (
@@ -465,7 +467,7 @@ SKIRTS = (
     _skrow("SKTVOL", "Voile Tiered Maxi Skirt", CL, 36.0,
            "Three floaty tiers of fine voile on an elastic waist, lined in cotton.",
            (CREAM, PINK, TEAL), _sk("Tiered", "Maxi", "Voile", "Elastic", "Cotton", tiers=3),
-           "tiered", "maxi"),
+           "tiered", "maxi", was=50.0),
     _skrow("SKTMUS", "Muslin Wrap Maxi Skirt", CL, 32.0,
            "A soft, crinkled muslin wrap skirt that ties at the waist and falls to the ankle.",
            (CREAM, KHAKI, LILAC), _sk("Wrap", "Maxi", "Muslin", "Tie"), "wrap", "maxi"),
@@ -475,11 +477,11 @@ SKIRTS = (
     _skrow("SKTWOL", "Wool Pleated Midi Skirt", "Harbour & Pine", 44.0,
            "Knife pleats in a warm wool, lined in polyester and cut to mid calf.",
            (CHARCOAL, NAVY, GREY_MARL), _sk("Pleated", "Midi", "Wool", "Zip", "Polyester"),
-           "pleated", "midi"),
+           "pleated", "midi", was=60.0),
     _skrow("SKTDSU", "Cotton Midi Skirt with Suede Trim", "Harbour & Pine", 26.0,
            "A cotton A-line skirt with a suede trim on the waistband and a side zip.",
            (NAVY, KHAKI, BURGUNDY), _sk("A-Line", "Midi", "Cotton", "Zip", "Polyester"),
-           "a_line", "midi"),
+           "a_line", "midi", was=36.0),
     _skrow("SKTDCR", "Cotton Maxi Skirt with Crochet Hem", CL, 30.0,
            "A gathered cotton skirt finished with a crochet hem, on an elastic waist.",
            (WHITE, BLUE, PINK), _sk("A-Line", "Maxi", "Cotton", "Elastic"), "a_line", "maxi"),
@@ -490,7 +492,7 @@ SKIRTS = (
     _skrow("SKTDMU", "Cotton Midi Skirt Lined in Muslin", "Wrenfield", 29.0,
            "A cotton A-line skirt lined in soft muslin so that it never clings.",
            (GREEN, CREAM, BROWN), _sk("A-Line", "Midi", "Cotton", "Zip", "Cotton"),
-           "a_line", "midi"),
+           "a_line", "midi", was=40.0),
     _skrow("SKTDFS", "Cotton Wrap Midi Skirt with Faux Suede Belt", "Larkmoor", 31.0,
            "A cotton wrap skirt tied with a faux suede belt, cut to mid calf.",
            (KHAKI, RED, NAVY), _sk("Wrap", "Midi", "Cotton", "Tie"), "wrap", "midi"),
