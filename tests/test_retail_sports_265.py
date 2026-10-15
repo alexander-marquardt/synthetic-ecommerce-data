@@ -43,6 +43,24 @@ KEYS = {
     "Dumbbell": {"material", "head_shape", "sold_as", "weight", "color"},
     "Kettlebell": {"material", "weight", "color"},
     "Foam Roller": {"surface", "material", "item_length", "color"},
+    # Second increment (gen#368).
+    "Yoga Block": {"material", "sold_as", "item_height", "color"},
+    "Yoga Strap": {"material", "closure", "item_length", "color"},
+    "Resistance Band": {"material", "band_type", "resistance_level", "color"},
+    "Camping Lantern": {"power", "material", "brightness", "color"},
+    "Roll Mat": {"material", "fold", "thickness", "color"},
+    "Bike Pump": {"pump_type", "valve_type", "max_pressure", "color"},
+    "Baseball Bat": {"material", "barrel_diameter", "item_length", "color"},
+    "Baseball Glove": {"material", "position", "glove_size", "color"},
+    "Baseball": {"cover", "level", "sold_as", "color"},
+    "Batting Helmet": {"material", "ear_flaps", "head_circumference", "color"},
+    "Swim Goggles": {"lens", "anti_fog", "strap_material", "color"},
+    "Swim Cap": {"material", "latex_free", "color"},
+    "Kickboard": {"material", "grips", "item_length", "color"},
+    "Swim Armbands": {"material", "chambers", "max_load_kg", "color"},
+    "Football": {"cover", "construction", "ball_size", "color"},
+    "Tennis Racket": {"material", "head_size", "grip_size", "color"},
+    "Badminton Set": {"material", "net_included", "players", "color"},
 }
 
 #: The SKU axis of a type that has one, the export key it becomes and its unit code.
@@ -53,6 +71,23 @@ AXES = {
     "Dumbbell": ("weight_kg", "weight", "KGM"),
     "Kettlebell": ("weight_kg", "weight", "KGM"),
     "Foam Roller": ("length_cm", "item_length", "CMT"),
+    "Yoga Block": ("height_cm", "item_height", "CMT"),
+    "Yoga Strap": ("length_cm", "item_length", "CMT"),
+    "Roll Mat": ("thickness_mm", "thickness", "MMT"),
+    "Baseball Bat": ("length_cm", "item_length", "CMT"),
+    "Baseball Glove": ("glove_size_in", "glove_size", "INH"),
+    "Batting Helmet": ("head_cm", "head_circumference", "CMT"),
+    "Kickboard": ("length_cm", "item_length", "CMT"),
+    "Swim Armbands": ("max_load_kg", "max_load_kg", "KGM"),
+    "Football": ("ball_size", "ball_size", "C62"),
+    "Badminton Set": ("players", "players", "C62"),
+}
+
+#: A SKU axis that is a plain word or number, never a unit: the export key it becomes.
+PLAIN_AXES = {
+    "Resistance Band": ("resistance", "resistance_level"),
+    "Camping Lantern": ("brightness_lm", "brightness"),
+    "Tennis Racket": ("grip", "grip_size"),
 }
 
 
@@ -113,6 +148,17 @@ def test_a_measured_axis_is_on_every_sku_with_its_unit(ptype: str) -> None:
         assert all(isinstance(e["value_canonical"], float) for e in entries), row.code
 
 
+@pytest.mark.parametrize("ptype", sorted(PLAIN_AXES))
+def test_a_plain_axis_is_on_every_sku_as_an_entry_without_a_unit(ptype: str) -> None:
+    sku_key, export_key = PLAIN_AXES[ptype]
+    for row in (r for r in ROWS if r.product_type == ptype):
+        assert row.size_key == sku_key and len(row.sizes) >= 2, row.code
+        doc = export.standard_document(row.doc())
+        entries = [e for v in doc["variants"] for e in v["attributes"] if e["key"] == export_key]
+        assert len(entries) == len(row.skus()), row.code
+        assert all("unit_code" not in e for e in entries), row.code
+
+
 def test_a_tent_sells_each_berth_and_the_berths_grow_with_the_price() -> None:
     for row in (r for r in ROWS if r.product_type == "Tent"):
         berths = [int(b) for b, _ in row.sizes]
@@ -147,6 +193,23 @@ VARIANTS = [
     ("yoga_mat", {"state": "flat"}, {"state": "rolled"}),
     ("dumbbell", {"style": "hex"}, {"style": "round"}),
     ("foam_roller", {"texture": "smooth"}, {"texture": "grid"}),
+    ("yoga_block", {"material": "foam"}, {"material": "cork"}),
+    ("yoga_strap", {"buckle": "ring"}, {"buckle": "clip"}),
+    ("resistance_band", {"form": "loop"}, {"form": "tube"}),
+    ("lantern", {"style": "led"}, {"style": "collapsible"}),
+    ("roll_mat", {"form": "rolled"}, {"form": "folded"}),
+    ("bike_pump", {"style": "floor"}, {"style": "hand"}),
+    ("baseball_bat", {"material": "wood"}, {"material": "alloy"}),
+    ("baseball_glove", {"position": "infield"}, {"position": "outfield"}),
+    ("baseball", {"cover": "leather"}, {"cover": "synthetic"}),
+    ("batting_helmet", {"flaps": "single"}, {"flaps": "double"}),
+    ("swim_goggles", {"lens": "clear"}, {"lens": "mirrored"}),
+    ("swim_cap", {"material": "silicone"}, {"material": "lycra"}),
+    ("kickboard", {"grips": "none"}, {"grips": "cutouts"}),
+    ("swim_armbands", {"chambers": "two"}, {"chambers": "three"}),
+    ("football", {"panels": "classic"}, {"panels": "modern"}),
+    ("tennis_racket", {"strings": "open"}, {"strings": "dense"}),
+    ("badminton_set", {"players": "2"}, {"players": "4"}),
 ]
 
 
@@ -221,7 +284,9 @@ def test_the_department_sits_in_the_tree_under_the_guards_rules() -> None:
 
 def test_the_tree_has_camping_and_yoga_and_fitness_under_the_root() -> None:
     families = {p[1] for p in _paths()}
-    assert families == {"Camping", "Yoga & Fitness"}
+    assert families == {
+        "Camping", "Yoga & Fitness", "Cycling", "Baseball", "Swimming", "Team & Racket Sports"
+    }
     assert {p[-1] for p in _paths()} >= {"Dome Tents", "Tunnel Tents", "Sleeping Bags", "Dumbbells"}
     assert all(len(p) >= 3 for p in _paths())
 
