@@ -40,7 +40,7 @@ def _types(records: list[dict]) -> set[tuple[str, str]]:
 
 def _scaffold(tmp_path: Path, kind: str, key: str, ptype: str = "Sample Thing"):
     out = tmp_path / kind
-    out.mkdir()
+    out.mkdir(exist_ok=True)
     run = subprocess.run(
         [sys.executable, str(ROOT / "scripts" / "new_type.py"), key, "--kind", kind,
          "--product-type", ptype, "--out", str(out)],
@@ -77,14 +77,7 @@ def test_a_spec_decides_whether_the_build_may_derive_from_its_rows() -> None:
 def test_every_type_is_registered_through_a_spec_or_the_legacy_list() -> None:
     """The guard: a type in no spec file must be on the legacy list, which only shrinks."""
     built = _types(scale.templates(baseline=False))
-    through_specs = {(s.department, s.product_type) for s in type_registry.specs().values()}
-    legacy = type_registry.legacy_types()
-    elsewhere = sorted(built - through_specs - legacy)
-    assert not elsewhere, f"registered outside a spec file (use scripts/new_type.py): {elsewhere}"
-    both = legacy & through_specs
-    assert not both, f"migrated but still on the legacy list: {sorted(both)}"
-    assert not legacy - built, f"on the legacy list but no longer built: {sorted(legacy - built)}"
-    assert through_specs <= built
+    assert type_registry.registration_problems(built) == []
 
 
 def test_a_spec_type_has_no_row_outside_its_spec_file() -> None:
@@ -335,14 +328,28 @@ def test_an_exempt_clothing_spec_carries_a_reason_and_no_decoys(
 def test_adding_a_spec_type_moves_no_other_decoy_id(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """A spec type is numbered by its key, never by its place in the plan: adding one moves no
-    other decoy id."""
+    """A spec type is numbered by its key, never by its place in the plan: adding one that sorts
+    before another moves no decoy id."""
     import decoy_apparel as da
 
     before = da.IDS
     added = _real_types(tmp_path)
     _register(monkeypatch, added)
-    assert before < da.IDS
+    with_kaftan = da.IDS
+    assert before < with_kaftan
+    _, anorak = _scaffold(tmp_path, "clothing", "anorak", "Anorak")
+    _register(monkeypatch, {"anorak": anorak})
+    assert with_kaftan < da.IDS, "adding a type that sorts first moved a decoy id"
+
+
+def test_a_type_planned_twice_is_refused(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Tracksuit is planned in ``decoy_apparel``; its spec cannot plan it a second time."""
+    import decoy_apparel as da
+
+    twice = replace(type_registry.specs()["tracksuit"], apparel=type_registry.ApparelPlan())
+    _register(monkeypatch, {"tracksuit": twice})
+    with pytest.raises(type_registry.SpecError, match="already planned"):
+        _ = da.TYPES
 
 
 @pytest.mark.parametrize("kind", ["clothing", "beauty"])
@@ -351,6 +358,17 @@ def test_the_scaffold_output_passes_ruff(tmp_path: Path, kind: str) -> None:
     run = subprocess.run(
         [sys.executable, "-m", "ruff", "check", "--config", str(ROOT / "pyproject.toml"),
          str(path)],
+        capture_output=True, text=True, check=False, cwd=ROOT,
+    )  # fmt: skip
+    assert run.returncode == 0, run.stdout + run.stderr
+
+
+@pytest.mark.parametrize("kind", ["clothing", "beauty"])
+def test_the_scaffold_output_is_formatted(tmp_path: Path, kind: str) -> None:
+    path, _ = _scaffold(tmp_path, kind, f"sample_{kind}")
+    run = subprocess.run(
+        [sys.executable, "-m", "ruff", "format", "--check", "--config",
+         str(ROOT / "pyproject.toml"), str(path)],
         capture_output=True, text=True, check=False, cwd=ROOT,
     )  # fmt: skip
     assert run.returncode == 0, run.stdout + run.stderr
@@ -385,11 +403,6 @@ def test_validate_refuses_a_malformed_apparel_declaration(name: str) -> None:
 
 
 # -- the guard is pinned (the review of #358, blocking 3) ----------------------------------------
-
-
-def test_the_live_tree_has_no_registration_problem() -> None:
-    built = _types(scale.templates(baseline=False))
-    assert type_registry.registration_problems(built) == []
 
 
 def test_a_type_registered_outside_a_spec_file_is_a_problem(
