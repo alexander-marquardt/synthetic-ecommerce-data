@@ -2,8 +2,8 @@
 
 "red dress" must never meet a product that is not a dress but says so in its title: Dress for
 Success shoes, a doll in a red dress, a french dressing. The structured fields are the truth (the
-category path, the product type, the colour and the drawing); only the title carries the noun.
-The department, category and colour policies fix every row, and the docs table says which.
+category path, the product type, the color and the drawing); only the title carries the noun.
+The department, category and color policies fix every row, and the docs table says which.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ TRUE_NODE = {"dress": "Dresses", "shoe": "Shoes", "boot": "Boots", "coat": "Coat
              "jacket": "Coats & Jackets", "jumper": "Jumpers", "skirt": "Skirts",
              "suit": "Suits & Tailoring", "bra": "Bras", "trainer": "Trainers", "hat": "Hats",
              "belt": "Belts", "tie": "Ties", "sofa": "Sofas", "pump": "Pumps", "cap": "Caps"}
-POLICIES = ("category", "department", "colour")
+POLICIES = ("category", "department", "color")
 
 
 @pytest.fixture(scope="module")
@@ -118,7 +118,7 @@ def test_the_drawing_shows_the_true_product_and_the_named_detail(by_id: dict[str
             assert doc["drawing"]["base"] == dpw.COLORS[row.color], pid
 
 
-def test_the_detail_is_the_only_colour_the_title_names() -> None:
+def test_the_detail_is_the_only_color_the_title_names() -> None:
     detailed = [r for r in dpw.TABLE if r.detail]
     assert len(detailed) >= 2
     for row in detailed:
@@ -139,7 +139,7 @@ def test_the_baseline_top_10_holds_a_class_8_decoy(index: br.Index, query: str) 
     assert any(i in dpw.BY_ID and dpw.BY_ID[i].decoy for i in top), (query, top)
 
 
-def test_blue_bull_is_a_colour_word_brand_on_footwear_in_every_colour_but_blue(
+def test_blue_bull_is_a_color_word_brand_on_footwear_in_every_color_but_blue(
     by_id: dict[str, dict],
 ) -> None:
     rows = [r for r in dpw.TABLE if r.brand == "Blue Bull"]
@@ -157,7 +157,7 @@ def test_blue_bull_is_a_colour_word_brand_on_footwear_in_every_colour_but_blue(
     assert house_styles.lockup_key(style) not in {house_styles.lockup_key(s) for s in others}
 
 
-def test_the_rows_are_templates_no_derived_style_copies_or_colour_completes() -> None:
+def test_the_rows_are_templates_no_derived_style_copies_or_color_completes() -> None:
     tpls = scale.templates()
     assert dpw.IDS and not dpw.IDS & {r["product_id"] for r in scale.derivable(tpls)}
     assert not dpw.IDS & {r["product_id"] for g in main_colors.groups(tpls).values() for r in g}

@@ -1,15 +1,15 @@
 """Class-8 text-match decoys: a title holds the shopper's product noun (gen#326).
 
-The decoys of gen#294 and gen#311 mislead on a colour, an audience, a material or a modifier. The
+The decoys of gen#294 and gen#311 mislead on a color, an audience, a material or a modifier. The
 shopper's product word was still always right. Here it is not: "Dress for Success" black Oxford
 shoes with red laces, a doll in a red dress, a sofa cover, jumper cables, black bow tie pasta. A
 text search puts them beside the dresses, the sofas, the jumpers and the ties, and no text tuning
-separates them, because the noun is really in the title. The category, department and colour
+separates them, because the noun is really in the title. The category, department and color
 policies read the structured fields and drop them, and :data:`TABLE` says which one each row needs.
 
 Every decoy is a real product of its own type, with that type's normal attributes and a drawing of
 the actual product (the shapes of :mod:`kit_goods` and the existing kits). The structured fields
-are the truth: a title may name only a misleading colour ("Sofa Cushion, Blue Trim" is cream with
+are the truth: a title may name only a misleading color ("Sofa Cushion, Blue Trim" is cream with
 blue piping;  is black shoes with red laces), and then the
 drawing renders that detail (``trim`` and ``lace`` drawing params). A type this module needs and
 the build lacks (shoe care, sofa covers, garment storage, cable ties, jumper cables, bike pumps,
@@ -23,12 +23,12 @@ English stemmer (Red French Dressing, White Chocolate Coated Pretzels) are not c
 planted, as gen#326 asks. "Mushroom Caps" is not planted either: the kit has no edible mushroom
 to draw.
 
-**Blue Bull.** A class-7 colour-word brand on footwear (gen#326, maintainer addition): shoes in
-every colour except blue, so "blue trainers", "blue shoes" and "blue boots" match the brand. It
+**Blue Bull.** A class-7 color-word brand on footwear (gen#326, maintainer addition): shoes in
+every color except blue, so "blue trainers", "blue shoes" and "blue boots" match the brand. It
 has its own house style whose logo reads "Blue Bull".
 
 The rows are templates: :func:`scale.derivable` leaves them out and :mod:`main_colors` neither
-groups them nor completes their colours (:data:`IDS`).
+groups them nor completes their colors (:data:`IDS`).
 """
 
 from __future__ import annotations
@@ -261,8 +261,8 @@ class Row:
     color: str
     query: str = ""
     noun: str = ""  # the shopper's product noun the title holds ("" for a brand row)
-    policy: str = ""  # category | department | colour | special: <policy>
-    detail: str = ""  # the colour the title names for a detail the drawing renders
+    policy: str = ""  # category | department | color | special: <policy>
+    detail: str = ""  # the color the title names for a detail the drawing renders
     detail_param: str = ""  # the drawing param that carries it (lace, trim)
     cross: bool = False  # a department other than the noun's own
     decoy: bool = True
@@ -718,7 +718,7 @@ TABLE = (
         _DEP,
         cross=True,
     ),
-    # -- Blue Bull: a colour-word brand on footwear, every colour but blue (class 7)
+    # -- Blue Bull: a color-word brand on footwear, every color but blue (class 7)
     _d(
         40,
         "bb_trainer",
@@ -727,7 +727,7 @@ TABLE = (
         "White",
         "blue trainers",
         "",
-        "colour",
+        "color",
         brand="Blue Bull",
     ),
     _d(
@@ -738,7 +738,7 @@ TABLE = (
         "Black",
         "blue boots",
         "",
-        "colour",
+        "color",
         brand="Blue Bull",
     ),
     _d(
@@ -749,7 +749,7 @@ TABLE = (
         "Red",
         "blue shoes",
         "",
-        "colour",
+        "color",
         brand="Blue Bull",
     ),
 )
