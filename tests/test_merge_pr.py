@@ -522,6 +522,20 @@ def test_a_generated_file_the_rebuild_left_conflicted_is_refused(world: dict) ->
 # -- what the rebuild commits ------------------------------------------------
 
 
+def _without_dependencies(pyproject: str) -> str:
+    """The same project with no dependency at all, so ``uv.lock`` is stale.
+
+    ``uv run --locked`` has to re-resolve before it can call a lock stale, and
+    offline that resolve reads registry metadata only from uv's cache. With no
+    package left to look up, the resolve needs no registry and the refusal does
+    not depend on what the cache holds (#338). Adding a dependency would.
+    """
+    emptied = re.sub(r"^dependencies = \[.*?^\]", "dependencies = []", pyproject, flags=re.S | re.M)
+    emptied = re.sub(r"^dev = \[.*?^\]", "dev = []", emptied, flags=re.S | re.M)
+    assert emptied != pyproject and "matplotlib" not in emptied.split("[build-system]")[0]
+    return emptied
+
+
 @pytest.mark.parametrize("cache", ["inherited", "empty"])
 def test_a_stale_lock_is_refused_not_relocked_and_committed(
     world: dict, tmp_path: Path, cache: str
@@ -532,7 +546,7 @@ def test_a_stale_lock_is_refused_not_relocked_and_committed(
     has one: the refusal must not depend on what the cache holds (#338).
     """
     pyproject = (world["checkout"] / "pyproject.toml").read_text()
-    stale_lock = pyproject.replace('"numpy>=1.26",', '"numpy>=1.26",\n    "pyyaml>=6.0.3",', 1)
+    stale_lock = _without_dependencies(pyproject)
     head = _open_pr(world, {"pyproject.toml": stale_lock})
     env = {"UV_CACHE_DIR": str(tmp_path / "cold-uv-cache")} if cache == "empty" else {}
     result = _run(world, head, _GREEN_CHECK, **env)
