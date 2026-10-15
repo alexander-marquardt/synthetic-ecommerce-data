@@ -139,6 +139,9 @@ class Style:
     bed_sized: bool = False
     #: Beauty and food: (unit size, "g" or "ml") of every shade or product.
     unit: tuple[float, str] | None = None
+    #: Beauty and drinks sold in several sizes: (ml, price) of each, one SKU per color x size,
+    #: the volume a SKU option (gen#347). Not with :attr:`unit`, which is one size for all.
+    volumes: tuple[tuple[float, float], ...] = ()
     #: Furniture: the :data:`BED_SIZE_DIMS` sizes it is made in, one SKU each
     #: with its price and dimensions; a bed need not come in every size.
     bed_frame: tuple[str, ...] = ()
@@ -173,6 +176,8 @@ class Style:
     def __post_init__(self) -> None:
         if self.lengths and self.size_range is not None:
             raise ValueError(f"{self.code}: a legwear size_range is derived from its SKUs")
+        if self.volumes and self.unit is not None:
+            raise ValueError(f"{self.code}: a style states one unit or several volumes, not both")
         if self.bed_frame and not set(self.bed_frame) <= set(BED_SIZE_DIMS):
             raise ValueError(f"{self.code}: a bed size outside the shared vocabulary")
         if self.metal and not {c[0] for c, _ in self.colors} <= set(FINISHES):
@@ -200,6 +205,9 @@ class Style:
                  and _digest(self.code, color[0], w, leg) % 7 != 0}
                 for leg in self.lengths for w in waists
             ]  # fmt: skip
+        if self.volumes:
+            return [{"net_volume_ml": ml, "price": price, "in_stock": True}
+                    for ml, price in self.volumes]  # fmt: skip
         if self.bed_sized:
             step = round(self.price / 4)
             return [{"bed_size": b, "price": float(self.price + n * step), "in_stock": True}
