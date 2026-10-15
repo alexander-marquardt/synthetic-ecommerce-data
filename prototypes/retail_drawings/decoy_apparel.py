@@ -39,6 +39,7 @@ from dataclasses import dataclass
 
 import details
 import facet_leaves
+import real_brands
 from class_model import SHADE_FAMILY
 from decoy_rows import COLORS
 from variants import attr, cw, product, swatch
@@ -453,6 +454,7 @@ def build(body: list[dict]) -> list[Row]:
             and d["department"][0] in DEPARTMENTS
             and d.get("color_options")
             and d["product_id"] not in IDS
+            and d["brand"] not in real_brands.ALLOWED  # a real brand is never cloned (gen#341)
         ):
             pool.setdefault(d["product_type"], []).append(d)
     rows = []
