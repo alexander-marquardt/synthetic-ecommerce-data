@@ -261,7 +261,7 @@ CLASSES = ("type", "absent", "incidental", "secondary", "shade")
 MAIN = ("red", "blue", "green", "yellow", "black", "white")
 
 
-def _colour_words(text: str) -> set[str]:
+def _color_words(text: str) -> set[str]:
     return {w for w in MAIN if re.search(rf"\b{w}\b", text.lower())}
 
 
@@ -290,7 +290,7 @@ def test_a_sibling_or_incidental_decoy_is_not_the_type_and_its_title_holds_the_w
     real = [r for r in got["incidental"] if r.product_type == ptype]
     assert len(real) >= 2, "a short title on a real product is the stronger lure"
     for r in real:
-        assert _colour_words(r.title) and not _colour_words(r.title) & _own(r)
+        assert _color_words(r.title) and not _color_words(r.title) & _own(r)
     assert any(r.product_type != ptype for r in got["incidental"])
 
 
@@ -312,22 +312,22 @@ def test_an_absent_decoy_names_a_power_source_it_lacks_and_is_the_type(ptype: st
 
 
 @pytest.mark.parametrize("ptype", sorted(KEYS))
-def test_a_secondary_colour_decoy_names_a_part_colour_and_keeps_its_own_main_colour(
+def test_a_secondary_color_decoy_names_a_part_color_and_keeps_its_own_main_color(
     ptype: str,
 ) -> None:
     for row in _decoys(ptype)["secondary"]:
         assert row.product_type == ptype and len(row.colors) == 1
-        words = _colour_words(row.title)
+        words = _color_words(row.title)
         assert _own(row) <= words and words - _own(row), row.code
-        assert " with " in row.title.lower(), "the other colour names a part"
+        assert " with " in row.title.lower(), "the other color names a part"
 
 
 @pytest.mark.parametrize("ptype", sorted(KEYS))
-def test_a_shade_decoy_names_a_colour_only_in_its_description(ptype: str) -> None:
+def test_a_shade_decoy_names_a_color_only_in_its_description(ptype: str) -> None:
     for row in _decoys(ptype)["shade"]:
         assert row.product_type == ptype and len(row.colors) == 1
-        assert _colour_words(row.title) == set(), row.code
-        assert _colour_words(row.description) - _own(row), row.code
+        assert _color_words(row.title) == set(), row.code
+        assert _color_words(row.description) - _own(row), row.code
 
 
 def test_the_decoys_are_exempt_from_the_text_check_and_left_out_of_the_derivation() -> None:
