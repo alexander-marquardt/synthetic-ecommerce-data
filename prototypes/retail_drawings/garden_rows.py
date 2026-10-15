@@ -323,7 +323,7 @@ _REAL = {
     "Robot Mower": (
         ("DCRA01", "absent", "Robot Mower, No GPS Needed", "ROBWIR", "yellow", "A robot that follows a boundary wire, with no satellite signal to lose under trees."),
         ("DCRA02", "absent", "GPS Free Robot Mower for Terraces", "ROBCMP", "black", "A small wire-guided robot for a narrow terraced lawn."),
-        ("DCRI01", "incidental", "Black Pearl Robot Mower", "ROBWIR", "white", "A wire-guided robot that mows by night, named for the colour of its range."),
+        ("DCRI01", "incidental", "Black Pearl Robot Mower", "ROBWIR", "white", "A wire-guided robot that mows by night, named for the color of its range."),
         ("DCRI02", "incidental", "Blue Moon Robot Mower", "ROBCMP", "yellow", "A small robot for a town lawn, with a dial on its back."),
         ("DCRS01", "secondary", "White Robot Mower with Red Dome", "ROBWIR", "white", "A wire-guided robot with a domed cover and a rain sensor."),
         ("DCRS02", "secondary", "Yellow Robot Mower with Black Wheels", "ROBCMP", "yellow", "A compact robot that returns to its dock by itself."),
