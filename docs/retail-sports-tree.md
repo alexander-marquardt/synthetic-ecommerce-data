@@ -2,8 +2,9 @@
 
 The department is built by `prototypes/retail_drawings/sports_rows.py` (gen#265, first increment,
 PR #288; the remainder, gen#368, adds seventeen types: yoga blocks, straps and bands, lanterns,
-roll mats, bike pumps, baseball, swimming, team and racket sports). This note records, per leaf, what a shopper filters on and whether a reference
-retailer's tree was compared; and, per type not yet built, where it is scheduled.
+roll mats, bike pumps, baseball, swimming, team and racket sports). This note records, per leaf,
+what a shopper filters on and whether a reference retailer's tree was compared; and, per type not
+yet built, where it is scheduled.
 `tests/test_retail_sports_tree_note_290.py` keeps both tables equal to the rows: a new leaf
 without a line here, or a line for a leaf that is gone, fails it.
 

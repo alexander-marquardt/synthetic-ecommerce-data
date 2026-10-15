@@ -129,7 +129,9 @@ def test_every_style_draws_as_its_own_sports_shape() -> None:
 @pytest.mark.parametrize("ptype", sorted(KEYS))
 def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> None:
     missing = {}
-    for row in (r for r in ROWS if r.product_type == ptype):
+    rows = [r for r in ROWS if r.product_type == ptype]
+    assert rows, ptype
+    for row in rows:
         if KEYS[ptype] - _keys(row):
             missing[row.code] = sorted(KEYS[ptype] - _keys(row))
     assert missing == {}
@@ -138,7 +140,9 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> 
 @pytest.mark.parametrize("ptype", sorted(AXES))
 def test_a_measured_axis_is_on_every_sku_with_its_unit(ptype: str) -> None:
     sku_key, export_key, unit = AXES[ptype]
-    for row in (r for r in ROWS if r.product_type == ptype):
+    rows = [r for r in ROWS if r.product_type == ptype]
+    assert rows, ptype
+    for row in rows:
         assert row.size_key == sku_key, row.code
         assert row.sizes and all(sku_key in s for s in row.skus()), row.code
         doc = export.standard_document(row.doc())
@@ -151,7 +155,9 @@ def test_a_measured_axis_is_on_every_sku_with_its_unit(ptype: str) -> None:
 @pytest.mark.parametrize("ptype", sorted(PLAIN_AXES))
 def test_a_plain_axis_is_on_every_sku_as_an_entry_without_a_unit(ptype: str) -> None:
     sku_key, export_key = PLAIN_AXES[ptype]
-    for row in (r for r in ROWS if r.product_type == ptype):
+    rows = [r for r in ROWS if r.product_type == ptype]
+    assert rows, ptype
+    for row in rows:
         assert row.size_key == sku_key and len(row.sizes) >= 2, row.code
         doc = export.standard_document(row.doc())
         entries = [e for v in doc["variants"] for e in v["attributes"] if e["key"] == export_key]
