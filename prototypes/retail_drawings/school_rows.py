@@ -55,6 +55,11 @@ GREEN = cw("Green", "#3f6b4a")
 RED = cw("Red", "#9d2a2f")
 
 
+def _pack(n: int) -> str:
+    """A pack as the underwear and socks spell it: Single, 2 pack, 3 pack."""
+    return "Single" if n == 1 else f"{n} pack"
+
+
 def _a(key: str, name: str, v: str) -> tuple[str, str, str]:
     return (key, name, v)
 
@@ -86,7 +91,7 @@ def _trousers(code, title, brand, fit, fabric, adjustable, pack, price, desc, co
     return _row(code, title, brand, _TROUSERS, "School Trousers", price, "school_trousers", desc,
                 colors, (_a("fit", "Fit", fit), _a("fabric", "Fabric", fabric),
                          _a("adjustable_waist", "Adjustable waist", adjustable),
-                         _a("pack_size", "Pack size", f"{pack} Pack")), _FIT_PARAMS[fit])  # fmt: skip
+                         _a("pack_size", "Pack size", _pack(pack))), _FIT_PARAMS[fit])  # fmt: skip
 
 
 TROUSERS = (
@@ -286,7 +291,7 @@ def _shirt(code, title, brand, sleeve, fit, care, fabric, pack, price, desc, col
     return _row(code, title, brand, _SHIRTS, "School Shirt", price, "school_shirt", desc, colors,
                 (_a("sleeve_length", "Sleeve length", sleeve), _a("fit", "Fit", fit),
                  _a("easy_care", "Easy care", care), _a("fabric", "Fabric", fabric),
-                 _a("pack_size", "Pack size", f"{pack} Pack")),
+                 _a("pack_size", "Pack size", _pack(pack))),
                 (("sleeve", sleeve.lower()), ("pack", str(pack))))  # fmt: skip
 
 

@@ -142,8 +142,8 @@ def test_packs_are_sold_as_one_two_or_three() -> None:
     for row in ROWS:
         if row.product_type in ("School Trousers", "School Shirt"):
             packs[row.product_type].add(_attr(row, "pack_size"))
-    assert packs["School Trousers"] >= {"1 Pack", "2 Pack"}
-    assert packs["School Shirt"] >= {"1 Pack", "2 Pack", "3 Pack"}
+    assert packs["School Trousers"] >= {"Single", "2 pack"}
+    assert packs["School Shirt"] >= {"Single", "2 pack", "3 pack"}
 
 
 # --------------------------------------------------------------------------
@@ -223,7 +223,8 @@ def test_a_shirt_draws_a_collar_buttons_and_the_sleeve_and_pack_it_states() -> N
         sleeve = _attr(row, "sleeve_length").lower()
         assert dict(row.params)["sleeve"] == sleeve, row.code
         assert f'<g class="sleeve-{sleeve}"' in svg, row.code
-        packs = int(_attr(row, "pack_size")[0])
+        pack = _attr(row, "pack_size")
+        packs = 1 if pack == "Single" else int(pack[0])
         assert dict(row.params)["pack"] == str(packs), row.code
         assert _count(svg, "pack-item") == (packs if packs > 1 else 0), row.code
 
