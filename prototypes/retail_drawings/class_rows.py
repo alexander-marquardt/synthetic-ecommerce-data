@@ -582,7 +582,7 @@ NOT_FACE_CREAM = (
            ("Home", "Furniture", "Sofas", "Corner Sofas"), 2795.0,
            "A deep corner sofa in a soft boucle weave. Shown in cream.",
            # Popularity is summed per style: 680 keeps it out of the bestseller top 15.
-           "Sofa", "sofa", ((cw("Cream", "#efe6d2"), 420), (cw("Sage", "#9bb08f"), 260))),
+           "Corner Sofa", "sofa", ((cw("Cream", "#efe6d2"), 420), (cw("Sage", "#9bb08f"), 260))),
      _DEPT),
     (Style("PWDLSE", "Loose Face Powder", "Kestlewood Cosmetics", "Beauty",
            ("Beauty", "Make-Up", "Face", "Face Powder"), 24.0,
