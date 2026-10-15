@@ -274,6 +274,9 @@ class LineDraft:
     #: the line's dimensions are not already a standard's by provenance (the
     #: hex nut: :func:`.newtypes.nut_row`). Empty when no one standard fits.
     standard: str = ""
+    #: The title is the item alone: no brand, no qualifier, no segments (the incidental-word
+    #: text-match decoy of :mod:`.hammers`, whose short indexed title outranks real hits).
+    bare_title: bool = False
 
 
 #: The letters an end mill's series code starts with, per type. Both types
@@ -1494,6 +1497,10 @@ class Generator:
         assert voice is not None, "a title is composed inside _finish_line"
         descriptive = voice.descriptive
         segments: list[Segment] = []
+        if draft.bare_title:
+            return build_title(
+                draft.item, (), cap=self.config.title_length_cap, tight_delimiter_at=None
+            )
 
         # The type's KEY dimension, when the variant axis is something else
         # (a bearing's closure, a wheel's grit): the census core of a title

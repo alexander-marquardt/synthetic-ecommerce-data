@@ -332,6 +332,18 @@ MUTATIONS: list[Mutation] = [
         "",
         "a decimal is written to the precision asked for",
     ),
+    # ---- hammers: the incidental-word decoy's indexed title (gen#320) ------
+    # The ranking and word-count tests read the COMMITTED golden, so a source defect reds
+    # them only through the golden's drift test; this row proves that link holds.
+    Mutation(
+        "hammer decoy: an incidental-word decoy keeps its brand and size in the title",
+        "domains/industrial/hammers.py",
+        "            bare_title=bare,\n",
+        "            bare_title=False,\n",
+        "tests/test_catalog_golden.py",
+        "A",
+        "the short indexed title of the incidental-word decoy",
+    ),
     # ---- vocab: disjointness, both directions ----------------------------
     Mutation(
         "leak a hammer attribute into the screw vocabulary",
