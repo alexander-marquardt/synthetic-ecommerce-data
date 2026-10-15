@@ -104,6 +104,7 @@ if str(HERE) not in sys.path:
 
 import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
+import beauty_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
 import decoy_apparel  # noqa: E402
@@ -228,6 +229,10 @@ ACCESSORY_IDS = frozenset(f"BRD-{r.code}" for r in accessory_rows.ROWS)
 #: The camping and fitness styles (:mod:`sports_rows`, gen#265), left out of the derivation as
 #: the accessories are: the Sports & Outdoors department grows by authored rows.
 SPORTS_IDS = frozenset(f"BRD-{r.code}" for r in sports_rows.ROWS)
+#: The beauty depth styles and their text-match decoys (:mod:`beauty_rows`, gen#214): templates
+#: only, left out of the derivation; a decoy's text is exempt from the text-agrees check.
+BEAUTY_IDS = frozenset(f"BRD-{r.code}" for r in (*beauty_rows.ROWS, *beauty_rows.DECOYS))
+BEAUTY_DECOY_IDS = frozenset(f"BRD-{r.code}" for r in beauty_rows.DECOYS)
 #: The underwear and nightwear styles (:mod:`underwear_rows`, gen#208), left out of the
 #: derivation as the shirts are.
 UNDERWEAR_IDS = frozenset(f"BRD-{r.code}" for r in underwear_rows.ROWS)
@@ -256,7 +261,7 @@ MENS_DEPTH_IDS = mens_depth_rows.product_ids()
 
 # Text-match decoys (gen#294, gen#311) are exempt from the output standard's text check: they
 # exist to confuse a plain text search (the maintainer ruling on #311).
-DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS
+DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | BEAUTY_DECOY_IDS
 
 
 def templates(baseline: bool = True) -> list[dict]:
@@ -282,7 +287,8 @@ def templates(baseline: bool = True) -> list[dict]:
     body = [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
         *decoy_rows.docs(),
-        *shirt_rows.docs(), *accessory_rows.docs(), *sports_rows.docs(), *sofa_rows.docs(),
+        *shirt_rows.docs(), *accessory_rows.docs(), *sports_rows.docs(),
+        *beauty_rows.docs(), *sofa_rows.docs(),
         *household_rows.docs(),
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
@@ -307,6 +313,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
     the no-policy baseline the neckline, so it stays a template."""
     left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
                 | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
+                | BEAUTY_IDS
                 | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | decoy_rows.IDS
                 | decoy_apparel.IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)

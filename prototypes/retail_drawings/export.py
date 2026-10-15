@@ -127,6 +127,9 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "berth": ("berth", "Berth", "C62"),
     "thickness_mm": ("thickness", "Thickness", "MMT"),
     "weight_kg": ("weight", "Weight", "KGM"),
+    # A body mist's fragrance and a sun cream's SPF, each beside its size (beauty_rows.py, gen#214).
+    "fragrance": ("fragrance", "Fragrance", None),
+    "spf": ("spf", "SPF", None),
 }
 #: The SKU fields that are columns of the variant, not options.
 SKU_COLUMNS = frozenset({"sku", "price", "in_stock", "ingredients"})
