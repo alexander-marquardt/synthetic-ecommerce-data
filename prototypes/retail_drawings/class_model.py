@@ -379,7 +379,10 @@ class ClassRow:
 BRAND_OWNERS = ("own", "third_party")
 _THIRD_PARTY = ("Kestlewood Cosmetics", "Stridewell", "Calderby & Lune", "Bramblewood",
                 "Hollinwray Knits", "Lanternby", "Vine & Valley", "Thistle & Wren",
-                "Crunchworth", "Olivar Grove", "Pewley Table")  # fmt: skip
+                "Crunchworth", "Olivar Grove", "Pewley Table",
+                # Invented names that hold a color or category word (gen#311, class 7).
+                "Red Plover", "Blue Otter", "Green Stoat", "Yellow Wagtail", "Black Lapwing",
+                "White Dormouse", "Jumper Jay", "Coat Crake")  # fmt: skip
 _OWN = ("Harbour & Pine", "Larkmoor", "Wrenfield", "Little Fernby", "Quillon Sleep",
         "Ottery Denim", "Ferrowick Denim", "Goldfield Farms", "Crofter's Bakehouse",
         "Pantry Mill", "Hearth & Table", "Brackenmere Home", "Meadowgate Dairy",
