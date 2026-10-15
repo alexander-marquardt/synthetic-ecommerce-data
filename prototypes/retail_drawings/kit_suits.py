@@ -3,8 +3,9 @@
 ==================  =====================================================  =================
 shape               draws                                                  params
 ==================  =====================================================  =================
-suit_jacket         a single-breasted jacket, cut closer to the body        fit, lapel
-                    as the fit narrows, with a notch, peak or shawl lapel
+suit_jacket         a single-breasted jacket, cut closer to the body        fit, lapel, buttons
+                    as the fit narrows, with a notch, peak or shawl lapel,
+                    two or three buttons
 suit_trousers       tailored trousers with a pleat crease and belt loops,   fit, leg
                     the hem set by the leg length
 waistcoat           a V-neck waistcoat with a buttoned front               fit, buttons
@@ -31,6 +32,7 @@ LAPELS = ("notch", "peak", "shawl")
 LEGS = ("short", "regular", "long")
 ITEMS = ("tie", "bow_tie", "braces", "cummerbund", "pocket_square")
 BUTTON_COUNTS = ("4", "5", "6")
+JACKET_BUTTONS = ("2", "3")
 
 #: fit -> (waist x, hem x) of the jacket's LEFT side; the right side is the mirror image.
 _JACKET = {"slim": (142, 136), "tailored": (134, 126), "regular": (122, 116)}
@@ -69,7 +71,13 @@ def _lapel_paths(lapel: str, y0: float = 52.0) -> tuple[str, str]:
 
 
 def _jacket_body(
-    paint: str, fill: Fill, fit: str, lapel: str, top: float = 52.0, dinner: bool = False
+    paint: str,
+    fill: Fill,
+    fit: str,
+    lapel: str,
+    top: float = 52.0,
+    dinner: bool = False,
+    buttons: int = 2,
 ) -> list[str]:
     wx, hx = _JACKET[fit]
     cx = 128 if fit != "slim" else 134
@@ -83,11 +91,11 @@ def _jacket_body(
     out = [*_both(sleeve, sleeve_r, paint), _g(f"fit-{fit}", [_path(body, paint)])]
     out.append(_g(f"lapel-{lapel}", [_path(ll, facing, LW_DETAIL), _path(lr, facing, LW_DETAIL)]))
     out.append(_line(f"M200,{top + 124} L200,{bottom}"))
-    out += (
-        [_button(206, top + 150), _button(206, top + 198)]
-        if not dinner
-        else [_button(206, top + 150, 4, "#14161a")]
-    )
+    if dinner:
+        out.append(_button(206, top + 150, 4, "#14161a"))
+    else:
+        ys = (top + 150, top + 198) if buttons == 2 else (top + 138, top + 168, top + 198)
+        out.append(_g(f"buttons-{buttons}", [_button(206, y) for y in ys]))
     out += [
         _path(
             f"M{wx + 16},{top + 188} L{wx + 52},{top + 188} L{wx + 52},{top + 204} L{wx + 16},{top + 204} Z",
@@ -106,10 +114,19 @@ def _jacket_body(
 
 
 def suit_jacket(
-    paint: str, fill: Fill, label: str | None, fit: str = "regular", lapel: str = "notch"
+    paint: str,
+    fill: Fill,
+    label: str | None,
+    fit: str = "regular",
+    lapel: str = "notch",
+    buttons: str = "2",
 ) -> list[str]:
     return _jacket_body(
-        paint, fill, fit if fit in _JACKET else "regular", lapel if lapel in LAPELS else "notch"
+        paint,
+        fill,
+        fit if fit in _JACKET else "regular",
+        lapel if lapel in LAPELS else "notch",
+        buttons=3 if buttons == "3" else 2,
     )
 
 
