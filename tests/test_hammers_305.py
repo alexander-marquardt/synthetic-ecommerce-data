@@ -112,3 +112,76 @@ def test_no_product_concept_is_spelled_in_both_formats(tools, retail) -> None:
     for t in types:
         spelled[re.sub(r"[^a-z0-9]+", "_", t.lower()).strip("_")].add(t)
     assert {k: v for k, v in spelled.items() if len(v) > 1} == {}
+
+
+# -- text-match decoys (gen#294 rule): every hammer kind carries them, attributes stay true ----
+
+#: What each decoy class puts in the title (the item), by its shape.
+#: (A brand's voice may put a qualifier before the item, so each shape is searched for.)
+CATEGORY_WORD = re.compile(
+    r"\b(?P<noun>Ball Pein|Claw|Framing|Club|Sledge|Mallet|Dead Blow) Series\b"
+)
+MATERIAL_LOOK = re.compile(r"\b(?P<word>Hickory|Ash|Fiberglass)-Look\b")
+INCIDENTAL = re.compile(r"\b(?P<word>Hickory|Ash|Fiberglass) (?:Creek|Ridge|Lane|Hollow)\b")
+OWN_NOUN = {
+    "hammer_ball_pein": "Ball Pein", "hammer_claw": "Claw", "hammer_framing": "Framing",
+    "hammer_club": "Club", "hammer_sledge": "Sledge", "hammer_rubber_mallet": "Mallet",
+    "hammer_dead_blow": "Dead Blow",
+}
+
+
+def _lines(tools: list[dict], kind: str) -> dict[str, dict]:
+    """One doc per product of ``kind``, with its handle material."""
+    out: dict[str, dict] = {}
+    for d in tools:
+        if d["product_type"] == kind:
+            handle = next(a["value"] for a in d["attributes"] if a["name"] == "Handle Material")
+            out.setdefault(d["product_id"], {"title": d["parent_title"], "handle": handle})
+    return out
+
+
+@pytest.mark.parametrize("kind", sorted(KINDS))
+def test_each_kind_carries_three_decoys_of_each_class_and_their_attributes_stay_true(
+    tools, kind
+) -> None:
+    lines = _lines(tools, kind)
+    category, material, incidental = [], [], []
+    for line in lines.values():
+        item = line["title"].split(" -- ")[-1]
+        if (m := CATEGORY_WORD.search(item)) is not None:
+            category.append(m["noun"])
+        elif (m := MATERIAL_LOOK.search(item)) is not None:
+            material.append(m["word"])
+            assert m["word"] != line["handle"], line
+        elif (m := INCIDENTAL.search(item)) is not None:
+            incidental.append(m["word"])
+            assert m["word"] != line["handle"], line
+    assert len(category) >= 3 and len(material) >= 3 and len(incidental) >= 3, (
+        kind, len(category), len(material), len(incidental))
+    # The category word is ANOTHER kind's noun, never the kind's own.
+    assert OWN_NOUN[kind] not in category
+    assert set(category) <= set(OWN_NOUN.values())
+
+
+ITEM = {
+    "hammer_ball_pein": "Ball Pein Hammer", "hammer_claw": "Claw Hammer",
+    "hammer_framing": "Framing Hammer", "hammer_club": "Club Hammer",
+    "hammer_sledge": "Sledge Hammer", "hammer_rubber_mallet": "Rubber Mallet",
+    "hammer_dead_blow": "Dead Blow Hammer",
+}
+
+
+@pytest.mark.parametrize("kind", sorted(KINDS))
+def test_every_incidental_word_decoy_title_is_five_words_or_fewer(tools, kind) -> None:
+    """gen#294: the incidental word sits in a SHORT title, 5 words or fewer.
+
+    Counted from the kind's item to the end: a brand's voice may put a qualifier before
+    the item (``Workshop``, ``General Purpose``), which is the brand's, not the decoy's.
+    """
+    counts = []
+    for line in _lines(tools, kind).values():
+        item = line["title"].split(" -- ")[-1]
+        if INCIDENTAL.search(item):
+            counts.append(len(item[item.index(ITEM[kind]):].split()))
+    assert len(counts) >= 3
+    assert max(counts) <= 5, (kind, counts)
