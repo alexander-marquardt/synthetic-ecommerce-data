@@ -19,7 +19,7 @@ shades), #181 (neckline) and #275 (main colors).
   in every material.
 - **Neckline**: the existing facet's words (`crew`, `high`, `boat`, `collared`, `round`) plus
   `v-neck`. Roll neck, turtle neck, half zip and quarter zip are `high`.
-- **Colors**: three or four per product. Four products in five carry one of the white group:
+- **Colors**: two to four per product. Four products in five carry one of the white group:
   White, Cream, Ivory, Off White, Ecru, each its own color value. There is no color-group
   attribute; the group "white" is the consumer's vocabulary (gen#186). `main_colors.complete`
   adds the missing main colors.

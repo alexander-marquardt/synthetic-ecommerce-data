@@ -17,7 +17,7 @@ Men        jumpers: crew, V, roll, cable, half zip, quarter zip;                
 
 Every style is made in seven materials (cashmere, merino wool, lambswool, cotton, wool blend,
 recycled wool, acrylic blend); a second pass adds more fits so a page does not repeat one title.
-Colors: three or four per product, four of five with one of the white group (White, Cream,
+Colors: two to four per product, four of five with one of the white group (White, Cream,
 Ivory, Off White, Ecru) so "white jumper" shows the color-group story; ``main_colors.complete``
 adds the missing main colors. Each product carries its neckline (the existing facet's words,
 plus ``v-neck``) and a ``knit_style`` attribute.
@@ -63,6 +63,8 @@ NEW_BRANDS = ("White Heron", "Red Kite", "Cardigan Finch")
 OWNERS.update(dict.fromkeys(NEW_BRANDS, "third_party"))
 
 _C = "Clothing"
+#: Each style's own hex: the drawing keeps these, so Ecru here (#e4d9bd) is not ``variants.py``'s
+#: jeans-wash Ecru (#efe7d4) on purpose; a knit's Ecru is a warmer yarn shade.
 HEX = {
     **MAIN_COLORS, "White": "#ffffff", "Cream": "#efe4cf", "Ivory": "#f3ecd9",
     "Off White": "#f4f1ea", "Ecru": "#e4d9bd", "Oatmeal": "#d9ccb4", "Camel": "#b5835a",
@@ -74,11 +76,15 @@ HEX = {
 _WHITES_W = ("White", "Cream", "White", "Ivory", "Off White", "White", "Ecru", "Cream")
 _WHITES_M = ("White", "Cream", "White", "Ivory", "White", "Off White", "Cream", "Ecru")
 _OTHER = {
-    "Women": ("Navy", "Black", "Red", "Blue", "Green", "Rose", "Camel", "Oatmeal", "Grey Marl",
+    "Womens": ("Navy", "Black", "Red", "Blue", "Green", "Rose", "Camel", "Oatmeal", "Grey Marl",
               "Stone", "Yellow"),
-    "Men": ("Navy", "Black", "Grey Marl", "Blue", "Green", "Red", "Camel", "Oatmeal", "Charcoal",
+    "Mens": ("Navy", "Black", "Grey Marl", "Blue", "Green", "Red", "Camel", "Oatmeal", "Charcoal",
             "Burgundy", "Yellow"),
 }  # fmt: skip
+
+
+def _article(word: str) -> str:
+    return "an" if word[0] in "AEIOU" else "a"
 
 
 def _col(name: str):
@@ -117,13 +123,13 @@ STYLES = {
     "Slipover": Style("Slipover", "Knitted Slipover", _TOP, "v-neck", "v_neck", "Sleeveless", "a V neck and no sleeves, to wear over a shirt"),
 }  # fmt: skip
 GRID = {
-    "Women": ("Crew Neck", "V Neck", "Roll Neck", "Turtle Neck", "Cable Knit", "Half Zip",
+    "Womens": ("Crew Neck", "V Neck", "Roll Neck", "Turtle Neck", "Cable Knit", "Half Zip",
               "Boat Neck", "Button Front", "Longline", "Cropped", "Tank Top", "Slipover"),
-    "Men": ("Crew Neck", "V Neck", "Roll Neck", "Cable Knit", "Half Zip", "Quarter Zip",
+    "Mens": ("Crew Neck", "V Neck", "Roll Neck", "Cable Knit", "Half Zip", "Quarter Zip",
             "Button Front", "Zip Through", "Shawl Collar", "Slipover"),
 }  # fmt: skip
 #: Extra products beyond the full grid (a second fit on a digest-chosen cell).
-EXTRA = {"Women": 46, "Men": 25}
+EXTRA = {"Womens": 46, "Mens": 25}
 
 #: material -> (title words, the attribute value, base price).
 MATERIALS = {
@@ -137,12 +143,12 @@ MATERIALS = {
 }  # fmt: skip
 #: The fits a title names (a style's own word, such as Cropped, is not repeated as a fit).
 FITS = {
-    "Women": ("Classic", "Relaxed", "Slim", "Oversized", "Fitted", "Boxy"),
-    "Men": ("Classic", "Regular", "Slim", "Relaxed", "Tailored"),
+    "Womens": ("Classic", "Relaxed", "Slim", "Oversized", "Fitted", "Boxy"),
+    "Mens": ("Classic", "Regular", "Slim", "Relaxed", "Tailored"),
 }  # fmt: skip
 SIZES = {
-    "Women": ("XS", "S", "M", "L", "XL", "XXL"),
-    "Men": ("S", "M", "L", "XL", "XXL"),
+    "Womens": ("XS", "S", "M", "L", "XL", "XXL"),
+    "Mens": ("S", "M", "L", "XL", "XXL"),
 }  # fmt: skip
 _STYLE_PRICE = {_JUMP: 0.0, _CARDI: 6.0, _TOP: -8.0}
 _TYPE_NOUN = {_JUMP: "jumper", _CARDI: "cardigan", _TOP: "knit top"}
@@ -177,17 +183,23 @@ def _row(code, title, brand, root, st: Style, desc, colors, material, fit, *, pr
 
 
 def _colors(root: str, n: int):
-    """Three or four colors: a white-group shade on four products of five, then others."""
-    whites = _WHITES_W if root == "Women" else _WHITES_M
+    """Two to four colors: a white-group shade on four products of five, then others.
+
+    An index that lands on a color already picked moves on to the next unused one, so the
+    count is the one planned (a white-group product has three or four, the rest two or three).
+    """
+    whites = _WHITES_W if root == "Womens" else _WHITES_M
     other = _OTHER[root]
     picks: list[str] = []
     if n % 5 != 4:
         picks.append(whites[(3 * n) % len(whites)])
-    picks.append(other[(2 * n) % len(other)])
-    picks.append(other[(3 * n + 5) % len(other)])
-    if n % 3 == 0:
-        picks.append(other[(5 * n + 1) % len(other)])
-    return tuple(_col(c) for c in dict.fromkeys(picks))
+    plan = [2 * n, 3 * n + 5] + ([5 * n + 1] if n % 3 == 0 else [])
+    for start in plan:
+        i = start
+        while other[i % len(other)] in picks:
+            i += 1
+        picks.append(other[i % len(other)])
+    return tuple(_col(c) for c in picks)
 
 
 def _floor_rows() -> list[LRow]:
@@ -207,11 +219,11 @@ def _floor_rows() -> list[LRow]:
         for n, (s, m, fit, p) in enumerate(picks):
             st = STYLES[s]
             words, value, base = MATERIALS[m]
-            title = f"{'Womens' if root == 'Women' else 'Mens'} {words} {fit} {st.noun}"
+            title = f"{root} {words} {fit} {st.noun}"
             assert title not in seen, title
             seen.add(title)
             brand = _BRANDS[(n + len(s)) % len(_BRANDS)]
-            price = round(base + _STYLE_PRICE[st.ptype] + (4.0 if root == "Men" else 0.0)
+            price = round(base + _STYLE_PRICE[st.ptype] + (4.0 if root == "Mens" else 0.0)
                           + 2.0 * (n % 5), 2)
             desc = (f"{_an(value).capitalize()} {_TYPE_NOUN[st.ptype]} cut for {_an(fit)} fit, with "
                     f"{st.desc}.")  # fmt: skip
@@ -247,8 +259,8 @@ _FANCY = ("Moonbeam", "Candlelight", "Moss Lantern", "Morning Mist", "Sandcastle
 _SHADES = ("Ivory", "Cream", "Ecru", "Off White")
 _RANGES = ("Red Tarn", "Blue Quarry", "Green Hollow", "Yellow Ridge", "Black Dene", "White Marsh")
 _AUDIENCE = {
-    "Women": ("Boyfriend Fit", "Menswear-Style Cut", "Mini-Me Kids' Style"),
-    "Men": ("Women's-Style Cut", "Boyfriend Fit", "Mini-Me Kids' Style"),
+    "Womens": ("Boyfriend Fit", "Menswear-Style Cut", "Mini-Me Kids' Style"),
+    "Mens": ("Women's-Style Cut", "Boyfriend Fit", "Mini-Me Kids' Style"),
 }  # fmt: skip
 _BORROW = {  # (the noun a title borrows, the modifier phrase), three per type
     _JUMP: (("shirt", "Shirt Collar"), ("coat", "Coat Length"), ("blazer", "Blazer Style")),
@@ -272,8 +284,7 @@ _NOUN = {_JUMP: "Jumper", _CARDI: "Cardigan", _TOP: "Knit Top"}
 def _decoys() -> tuple[list[LRow], list[Decoy]]:
     rows: list[LRow] = []
     table: list[Decoy] = []
-    for r_i, root in enumerate(("Women", "Men")):
-        pre = "Womens" if root == "Women" else "Mens"
+    for r_i, root in enumerate(("Womens", "Mens")):
         for k, ptype in enumerate((_JUMP, _CARDI, _TOP)):
             noun = _NOUN[ptype]
             low = noun.lower()
@@ -296,27 +307,27 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
                 if true == w:
                     true = "Navy"
                 # 1: a trim, a stripe or a print names the other color.
-                add(1, i, f"{pre} {true} {noun} with {w} {_TRIMS[i]}",
+                add(1, i, f"{root} {true} {noun} with {w} {_TRIMS[i]}",
                     f"{_an(true).capitalize()} {low} {_TAIL[ptype]}, finished with {w.lower()} "
                     f"{_TRIMS[i].lower()}.", true, w, f"{w.lower()} {low}")  # fmt: skip
                 # 2: another category's noun used as a modifier.
                 b, mod = _BORROW[ptype][i]
-                add(2, i, f"{pre} {mod} {noun}",
+                add(2, i, f"{root} {mod} {noun}",
                     f"A {low} named for its {b} detail; it is not a {b}.",
                     _TRUE[(kk + i + 1) % 6], b, f"{b} {low}")  # fmt: skip
                 # 3: an audience word that names a sibling cut.
                 a = _AUDIENCE[root][i]
-                add(3, i, f"{pre} {a} {noun}",
-                    f"A {pre.lower().rstrip('s')}'s {low} in the {a.lower()}, sold in {pre.lower().rstrip('s')}'s sizes.",
+                add(3, i, f"{root} {a} {noun}",
+                    f"A {root.lower().rstrip('s')}'s {low} in the {a.lower()}, sold in {root.lower().rstrip('s')}'s sizes.",
                     _TRUE[(kk + i + 2) % 6], a, f"{a.split()[0].lower()} {low}")  # fmt: skip
                 # 4: a material or feature named, and absent.
                 f = _ABSENT[ptype][i]
-                add(4, i, f"{pre} {f} {noun}",
-                    f"A {low} that is {f.lower().replace('-', ', ')}: made in acrylic blend.",
+                add(4, i, f"{root} {f} {noun}",
+                    f"A {low} with {_article(f)} {f.lower()} finish, made in acrylic blend.",
                     _TRUE[(kk + i + 3) % 6], f, f"{f.split('-')[0].lower()} {low}")  # fmt: skip
                 # 5: the title gives a fancy name, the description the shade.
                 s = _SHADES[(kk + i) % 4]
-                add(5, i, f"{pre} {_FANCY[(kk + i) % 6]} {noun}",
+                add(5, i, f"{root} {_FANCY[(kk + i) % 6]} {noun}",
                     f"A {low} in soft {s.lower()}, {_TAIL[ptype]}.", s,
                     _FANCY[(kk + i) % 6], f"{s.lower()} {low}")  # fmt: skip
                 # 6: an incidental word in a short title: a range name.
@@ -325,13 +336,13 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
                 true6 = _TRUE[(kk + i + 4) % 6]
                 if true6 == word:
                     true6 = "Navy"
-                add(6, i, f"{pre} {rg} {noun}",
+                add(6, i, f"{root} {rg} {noun}",
                     f"From the {rg} range, named after a place on a hill walk; the {low} "
                     f"itself is {true6.lower()}.", true6, word, f"{word.lower()} {low}",
                     extra=(_a("range", "Range", rg),))  # fmt: skip
                 # 7: an invented brand holding a color or category word.
                 brand = NEW_BRANDS[i]
-                add(7, i, f"{pre} {brand} {noun}",
+                add(7, i, f"{root} {brand} {noun}",
                     f"{_an(_BRAND_TRUE[brand]).capitalize()} {low} from {brand}; the name is the "
                     f"brand's, not the color.", _BRAND_TRUE[brand], brand,
                     f"{_BRAND_QUERY[brand]} {low}")  # fmt: skip
