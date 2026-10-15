@@ -1137,6 +1137,37 @@ MUTATIONS: list[Mutation] = [
                 "the rebuild commits only the generated files",
             ),
             (
+                "merge_pr: the retail totals are not rebuilt",
+                "RETAIL_REBUILD=(python prototypes/retail_drawings/retail_figures.py)",
+                "RETAIL_REBUILD=(true)",
+                (
+                    "tests/test_merge_pr.py::"
+                    "test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild",
+                    "tests/test_merge_pr.py::"
+                    "test_a_stale_retail_stats_is_rebuilt_on_the_merged_tree_and_pushed",
+                ),
+                "the retail totals are rebuilt on the merged tree (gen#343)",
+            ),
+            (
+                "merge_pr: a failed retail rebuild is ignored",
+                '[ "$retail_rc" -eq 0 ] ||',
+                "true ||",
+                "tests/test_merge_pr.py::test_a_retail_rebuild_that_fails_refuses_the_merge",
+                "the retail totals are rebuilt on the merged tree (gen#343)",
+            ),
+            (
+                "merge_pr: the retail stats are not generated",
+                "  golden-retail/stats.json\n",
+                "",
+                (
+                    "tests/test_merge_pr.py::"
+                    "test_the_generated_files_are_exactly_what_the_build_writes",
+                    "tests/test_merge_pr.py::"
+                    "test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild",
+                ),
+                "a conflict only in the retail totals is resolved by the rebuild (gen#343)",
+            ),
+            (
                 "merge_pr: a check run in which no test passed is green",
                 '[ "$passed" -gt 0 ] ||',
                 "true ||",
