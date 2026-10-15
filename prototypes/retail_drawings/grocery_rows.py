@@ -13,7 +13,8 @@ most grade E. No name, brand or ingredient list comes from it. Every brand is a
 
 One category path per product. A family's ``path`` is the retailer's breadcrumb
 (``Food & Drink > Fruit & Vegetables > Fresh Fruit > Citrus Fruit > Oranges``) and every
-product of the family sits under that one path, never under several. Open Food Facts
+product of the family sits under that one path, never under several, and no other family or row
+reaches the same leaf label by another path (gen#330, ``tests/test_one_path_per_leaf_330.py``). Open Food Facts
 tags a product with many categories at once: that is a classification, not a store
 tree, so only its node NAMES and depth guide the tree here and no multi-valued tag is
 copied. The leaf of a bare-noun family (Oranges, Lemons, Apples, Beer's Lager) is what a
@@ -314,11 +315,17 @@ FAMILIES: tuple[Family, ...] = (
            (F("Tomato Ketchup", "#c8312e"), F("Mayonnaise", "#f4f0e6", "E"), F("Brown Sauce", "#5a3a26", "G"),
             F("Sweet Chilli Sauce", "#d9822b"), F("Mint Sauce", "#3a8f6a"), F("Honey & Mustard Dressing", "#d9a441", "h")),
            _CUP, 0.035),
-    Family("JAM", _p("Food Cupboard", "Jam & Honey"), "{line} {flavor}", "Jam & Honey", "jar", "Jam", _A, "D", 2.0,
+    # Honey is its own leaf (gen#330): a "honey" category route reaches every jar, and the
+    # one hand-authored honey (``class_rows.HONEY``) sits on the same path.
+    Family("JAM", _p("Food Cupboard", "Jam"), "{line} {flavor}", "Jam", "jar", "Jam", _A, "D", 2.0,
            ("340g", "454g"),
-           (F("Clear Honey", "#e0a030", "h"), F("Set Honey", "#d9a441", "h"), F("Strawberry Jam", "#b8322f"),
-            F("Lemon Curd", "#f2d14b", "ME"), F("Seville Orange Marmalade", "#d9822b"), F("Raspberry Jam", "#a3214a")),
-           _CUP, 0.03),
+           (F("Strawberry Jam", "#b8322f"), F("Lemon Curd", "#f2d14b", "ME"),
+            F("Seville Orange Marmalade", "#d9822b"), F("Raspberry Jam", "#a3214a")),
+           _CUP, 0.02),
+    Family("HON", _p("Food Cupboard", "Honey"), "{line} {flavor}", "Honey", "jar", "Honey", _A, "D", 3.5,
+           ("340g", "454g"),
+           (F("Clear Honey", "#e0a030", "h"), F("Set Honey", "#d9a441", "h")),
+           _CUP, 0.01),
     Family("SPR", _p("Food Cupboard", "Nut Butters & Spreads"), "{line} {flavor}", "Spread", "jar", "Spread", _A,
            "CE", 2.2, ("340g", "1kg"),
            (F("Smooth Peanut Butter", "#b07a3c", "P"), F("Crunchy Peanut Butter", "#a06a30", "P"),
@@ -806,7 +813,7 @@ ANCHORS: tuple[tuple[str, tuple[str, ...], str], ...] = (
     ("ORB", ("Orange Shortbread",), ""),
     ("ORB", ("Chocolate & Orange Cookies",), ""),
     ("HOT", ("Orange Drinking Chocolate",), ""),
-    ("JAM", ("Clear Honey",), ""),
+    ("HON", ("Clear Honey",), ""),
     ("JAM", ("Lemon Curd",), ""),
     ("JUI", ("Smooth Orange",), ""),
     ("TIN", ("Coconut Milk",), ""),
