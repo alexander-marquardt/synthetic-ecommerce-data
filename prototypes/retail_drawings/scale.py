@@ -106,6 +106,7 @@ import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
+import decoy_rows  # noqa: E402
 import distractor_rows  # noqa: E402
 import furniture_rows  # noqa: E402
 import grocery  # noqa: E402
@@ -274,6 +275,7 @@ def templates(baseline: bool = True) -> list[dict]:
     authored = (r for recs in samples().values() for r in recs)
     body = [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
+        *decoy_rows.docs(),
         *shirt_rows.docs(), *accessory_rows.docs(), *sports_rows.docs(), *sofa_rows.docs(),
         *household_rows.docs(),
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
@@ -298,7 +300,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
     the no-policy baseline the neckline, so it stays a template."""
     left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
                 | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
-                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS)
+                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | decoy_rows.IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out
             and r.get("neckline") not in ("boat", "slash")]  # fmt: skip
