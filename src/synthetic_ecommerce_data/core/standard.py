@@ -28,7 +28,7 @@ empty when it holds. ``tests/test_output_standard.py`` runs it over each domain.
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable, Mapping
+from collections.abc import Collection, Iterable, Mapping
 from typing import Any
 
 from synthetic_ecommerce_data.core.entry import CANONICAL_PER_UNIT, RECIPROCAL_PER_UNIT, canonical
@@ -265,14 +265,20 @@ def mixed_class_keys(docs: Iterable[Mapping[str, Any]]) -> list[str]:
 
 
 def check_catalog(
-    docs: Iterable[Mapping[str, Any]], *, text_agrees: bool = True, one_class_per_key: bool = False
+    docs: Iterable[Mapping[str, Any]],
+    *,
+    text_agrees: bool = True,
+    one_class_per_key: bool = False,
+    text_exempt: Collection[str] = (),
 ) -> list[str]:
     """Every way a catalog breaks the standard: each document's problems, then the ids
     that repeat and the keys that name two attributes or shadow a top-level field, and,
     with ``text_agrees``, every title or description that contradicts an attribute
     (:func:`text_contradictions`, against the catalog's own :func:`value_pools`), and,
     with ``one_class_per_key``, every key that mixes classed and unclassed entries
-    (:func:`mixed_class_keys`)."""
+    (:func:`mixed_class_keys`). ``text_exempt`` holds the ``product_id`` of documents whose
+    text may name a value their attributes do not hold: a text-match decoy, whose purpose is to
+    mislead a plain text search. The exemption is by id, never a looser rule."""
     docs = list(docs)
     out: list[str] = []
     ids: dict[str, int] = {}
@@ -296,7 +302,12 @@ def check_catalog(
         out += mixed_class_keys(docs)
     if text_agrees:
         pools = value_pools(docs)
-        out += [p for doc in docs for p in text_contradictions(doc, pools)]
+        out += [
+            p
+            for doc in docs
+            if doc.get("product_id") not in text_exempt
+            for p in text_contradictions(doc, pools)
+        ]
     return out
 
 
