@@ -439,11 +439,11 @@ def football(paint: str, fill: Fill, label: str | None, panels: str = "classic")
     dark = _shade(fill.base, 0.55)
     out = [_ell(200, 200, 120, 120, paint)]
     if panels.lower() == "modern":
-        out += [_line(f"M{x1},{y1} Q200,200 {x2},{y2}", 3, ' stroke-opacity=".7"') for x1, y1, x2, y2 in ((96, 130, 300, 110), (84, 250, 316, 270), (130, 96, 170, 306), (270, 96, 232, 306))]
+        out.append(_path("M200,142 L252,172 L252,228 L200,258 L148,228 L148,172 Z", _tint(fill.base, 0.35), 2.4))
+        out += [_line(f"M{a},{b} L{c},{d}", 2.4, ' stroke-opacity=".7"') for a, b, c, d in ((200, 142, 200, 84), (252, 172, 304, 142), (252, 228, 304, 258), (200, 258, 200, 316), (148, 228, 96, 258), (148, 172, 96, 142))]
     else:
         out += [_path("M200,150 L246,184 L228,236 L172,236 L154,184 Z", dark, 2.4)]
         out += [_line(f"M{a},{b} L{c},{d}", 2.4, ' stroke-opacity=".7"') for a, b, c, d in ((200, 150, 200, 88), (246, 184, 304, 164), (228, 236, 266, 292), (172, 236, 134, 292), (154, 184, 96, 164))]
-        out += [_path("M200,88 L226,80 L252,98 L238,118 Z", dark, 2), _path("M200,88 L174,80 L148,98 L162,118 Z", dark, 2)]
     out.append(_highlight("M112,150 Q126,118 166,100", 5, 0.5))
     return _label(out, label)
 
