@@ -14,6 +14,7 @@ import collections
 import re
 import sys
 import xml.dom.minidom
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pytest
@@ -24,6 +25,7 @@ if str(RETAIL) not in sys.path:
 
 import export  # noqa: E402
 import garden_rows  # noqa: E402
+import image_release  # noqa: E402
 import kit  # noqa: E402
 import kit_garden  # noqa: E402
 import main_colors  # noqa: E402
@@ -389,3 +391,72 @@ def test_a_self_drive_mower_draws_its_lever_and_arrow_and_a_push_mower_neither()
         svg = _svg(row)
         assert len(re.findall(r'<g class="drive-lever"', svg)) == want, row.code
         assert len(re.findall(r'<g class="drive-arrow"', svg)) == want, row.code
+
+
+# --------------------------------------------------------------------------
+# A decoy title names a color only when the drawing shows it (the #311 ruling).
+# --------------------------------------------------------------------------
+
+#: The decoys whose title names a color beside (or instead of) the product's own.
+NAMED = sorted(r.code for r in ALL if r.code in DECOY_CODES and _color_words(r.title) - _own(r))
+
+
+def _hex(word: str) -> str:
+    """The swatch of a main color, as the rows author it."""
+    return garden_rows._COLOR[word][2].lower()
+
+
+def _drawn_elements(doc: dict) -> tuple[list[ET.Element], list[ET.Element]]:
+    """(the elements marked as a named part, every other element outside defs and masks)."""
+    root = ET.fromstring(image_release.render(doc, doc["skus"][0]))
+    marked: list[ET.Element] = []
+    plain: list[ET.Element] = []
+
+    def walk(el: ET.Element, hidden: bool) -> None:
+        tag = el.tag.split("}")[-1]
+        hidden = hidden or tag in ("defs", "mask", "clipPath")
+        if not hidden and el.get("data-part"):
+            marked.append(el)
+        elif not hidden:
+            plain.append(el)
+        for child in el:
+            walk(child, hidden)
+
+    walk(root, False)
+    return marked, plain
+
+
+def _holds(el: ET.Element, hexv: str) -> bool:
+    return hexv in (el.get("fill", "").lower(), el.get("stroke", "").lower())
+
+
+def test_the_decoys_that_name_a_color_are_the_secondary_and_the_real_incidental_ones() -> None:
+    """Twelve secondary decoys (three per type) and eight short-title incidental ones on a real
+    product (two per type) name a color beside the product's own; the shade decoys, the scented
+    candles and the sibling products name none in a title."""
+    kinds = collections.Counter(garden_rows.DECOY_TABLE[c][0] for c in NAMED)
+    assert kinds == {"secondary": 12, "incidental": 8}
+
+
+@pytest.mark.parametrize("code", NAMED)
+def test_a_decoy_title_names_a_color_only_when_the_drawing_shows_it(code: str) -> None:
+    """The maintainer ruling on #311: a decoy may name the misleading color only when its drawing
+    carries that color on a part, and on nothing else, so the title is true of the picture."""
+    row = next(r for r in ALL if r.code == code)
+    doc = row.doc()
+    named = _color_words(row.title) - _own(row)
+    marked, plain = _drawn_elements(doc)
+    assert marked, (code, row.title, "no element is marked as the named part")
+    for word in named:
+        assert all(_holds(e, _hex(word)) for e in marked), (code, word)
+    if garden_rows.DECOY_TABLE[code][0] == "secondary":
+        parts = {e.get("data-part") for e in marked}
+        assert len(parts) == 1 and parts.pop().replace("-", " ") in row.title.lower(), code
+    # the kit's own fixed trim may hold the color; the named part adds nothing else of it
+    params = {k: v for k, v in doc["drawing"]["params"].items() if not k.startswith("part")}
+    bare = doc | {"drawing": doc["drawing"] | {"params": params}}
+    own = [sorted(e.attrib.items()) for e in _drawn_elements(bare)[1]]
+    for word in named:
+        for e in plain:
+            if _holds(e, _hex(word)):
+                assert sorted(e.attrib.items()) in own, (code, word, e.attrib)
