@@ -3541,7 +3541,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "a decoy is color-completed",
                 "main_colors.py",
-                ' and r["product_id"] not in decoy_rows.IDS',
+                ' and r["product_id"] not in _PLANTED',
                 "",
                 "tests/test_retail_text_match_decoys_294.py -k never_copied_or_color_completed",
                 "no color completion gives a decoy the query's color",
@@ -3620,8 +3620,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "an apparel decoy is copied by the derivation",
                 "scale.py",
-                "                | decoy_apparel.IDS)",
-                "                )",
+                "                | decoy_apparel.IDS | decoy_product_words.IDS)",
+                "                | decoy_product_words.IDS)",
                 "tests/test_retail_apparel_decoys_311.py -k never_copied_or_color_completed",
                 "an apparel decoy stays a template",
             ),
@@ -3690,6 +3690,91 @@ MUTATIONS: list[Mutation] = [
                 "a sleeve's cuff is not part of the hem",
             ),
         ]
+    ),
+    # ---- retail: product-word decoys (gen#326) ----
+    *(
+        Mutation(f"product-word decoys: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a class-8 decoy is color-completed",
+                "main_colors.py",
+                "r[\"product_id\"] not in _PLANTED",
+                "r[\"product_id\"] not in decoy_rows.IDS",
+                "tests/test_retail_product_word_decoys_326.py -k templates_no_derived",
+                "no color completion gives a decoy the query's color",
+            ),
+            (
+                "a class-8 decoy is copied by the derivation",
+                "scale.py",
+                "| decoy_apparel.IDS | decoy_product_words.IDS)",
+                "| decoy_apparel.IDS)",
+                "tests/test_retail_product_word_decoys_326.py -k templates_no_derived",
+                "a decoy stays a template",
+            ),
+            (
+                "a class-8 decoy sells little, so it cannot lead",
+                "decoy_product_words.py",
+                "    sold: int = 2000",
+                "    sold: int = 1",
+                "tests/test_retail_product_word_decoys_326.py -k baseline_top_10",
+                "the decoys reach the baseline top 10",
+            ),
+            (
+                "a decoy's detail color is dropped from its drawing",
+                "decoy_product_words.py",
+                "params = k.params + (((self.detail_param, COLORS[self.detail]),) if self.detail else ())",
+                "params = k.params",
+                "tests/test_retail_product_word_decoys_326.py -k drawing_shows",
+                "the drawing renders the named detail",
+            ),
+            (
+                "the docs table drops the policy column",
+                "decoy_product_words.py",
+                "f\"| {r.policy} |\"",
+                "f\"| |\"",
+                "tests/test_retail_product_word_decoys_326.py -k docs_table",
+                "the docs table lists each row with its policy",
+            ),
+        ]
+    ),
+    Mutation(
+        "product-word decoys: the text check ignores the exempt list",
+        "core/standard.py",
+        'if doc.get("product_id") not in text_exempt',
+        "if True",
+        "tests/test_retail_scale.py -k 20k_build_meets_the_output_standard",
+        "A",
+        "a decoy's misleading detail color is exempt from the text check, nothing else is",
+    ),
+    Mutation(
+        "product-word decoys: the detail-color rows lose their exemption",
+        "scale.py",
+        "TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT",
+        "TEXT_EXEMPT = DECOY_IDS",
+        "tests/test_retail_scale.py -k 20k_build_meets_the_output_standard",
+        "A",
+        "a class-8 row that names a detail color on purpose passes the text check by its id",
+        root="prototypes/retail_drawings",
+    ),
+    Mutation(
+        "product-word decoys: the standard's retail catalog test loses the exempt ids",
+        "scale.py",
+        "TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT",
+        "TEXT_EXEMPT = DECOY_IDS",
+        "tests/test_merchandising_score_182.py -k retail_every_product_carries_it",
+        "A",
+        "the full retail catalog passes the standard with the class-8 detail-color ids exempt",
+        root="prototypes/retail_drawings",
+    ),
+    Mutation(
+        "product-word decoys: an ordinary product naming another color is exempt too",
+        "core/standard.py",
+        'if doc.get("product_id") not in text_exempt',
+        "if True",
+        "tests/test_retail_product_word_decoys_326.py -k exempt_by_decoy",
+        "A",
+        "only a declared decoy id is exempt; an ordinary id naming Red with color Black is refused",
     ),
     # ---- pack: bolts and socket screws publish the census pack (#65) ------
     *(
