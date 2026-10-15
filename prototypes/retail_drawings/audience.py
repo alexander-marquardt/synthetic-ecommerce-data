@@ -8,7 +8,8 @@ leaning on the path, and a kids' style is no longer the one kind of garment with
 Most styles name their audience in a template attribute (the jeans, the bras). The rest are
 filled in here, from the category path, by :func:`export.standard_document`:
 
-- ``Womens/...`` is Womens and ``Mens/...`` is Mens;
+- ``Womens/...`` is Womens and ``Mens/...`` is Mens, except the unisex backpacks, totes and
+  umbrellas under ``Womens/Accessories`` (gen#248), whose template states Unisex;
 - ``Kids/Girls/...`` is Girls and ``Kids/Boys/...`` is Boys; every other ``Kids/...`` node
   (shoes, tops, nightwear, school uniform) is sold to both, so it is Unisex, unless the
   style's own age group is baby, which is Baby;

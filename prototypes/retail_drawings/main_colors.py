@@ -241,8 +241,10 @@ def _add(rec: dict, colors: list[str]) -> dict:
     return out
 
 
-def complete(tpls: list[dict]) -> list[dict]:
-    """``tpls`` with every missing main color added, in the same order."""
+def complete(tpls: list[dict], skip: frozenset[str] = frozenset()) -> list[dict]:
+    """``tpls`` with every missing main color added, in the same order. A style whose
+    product_id is in ``skip`` (a text-match decoy, whose color field is its one true color)
+    never takes a color, whatever its text names."""
     by_id = {r["product_id"]: r for r in tpls}
     for (ptype, aud), lacks in missing(tpls).items():
         # A printed drawing takes no solid fill, so it never gets a color. Of the rest, the
@@ -251,7 +253,8 @@ def complete(tpls: list[dict]) -> list[dict]:
         # that color itself, or the text-agrees gate reads the word as naming a value the
         # style lacks once the type offers it.
         styles = sorted(
-            (r for r in groups(tpls)[(ptype, aud)] if not _printed(r)),
+            (r for r in groups(tpls)[(ptype, aud)]
+             if not _printed(r) and r["product_id"] not in skip),
             key=lambda r: r["product_id"],
         )
         if not styles:
