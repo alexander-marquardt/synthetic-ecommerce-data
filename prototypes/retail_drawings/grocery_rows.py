@@ -253,7 +253,7 @@ FAMILIES: tuple[Family, ...] = (
             F("Lactose Free", "#5a4a8a", "M")),
            _DAIRY, 0.03),
     Family("PLM", _p("Dairy & Alternatives", "Milk", "Plant Milk"), "{line} {flavor} Drink", "Plant Milk", "carton",
-           "Plant Milk", _A, "AB", 1.5, ("1L", "6 x 1L", "500ml"),
+           "Plant Milk", _A, "AB", 1.5, ("1L", "500ml", "2L"),
            (F("Oat", "#d8c9a8", "G"), F("Almond", "#c9a96e", "T"), F("Soya", "#efe8d8", "S"), F("Coconut", "#f4f0e6"),
             F("Barista Oat", "#a8784a", "G")),
            _DAIRY, 0.025),
@@ -588,35 +588,35 @@ FAMILIES: tuple[Family, ...] = (
     # Sibling families (gen#177): spirits, fortified wine, perry and mead, the other citrus and
     # berries, foot and body cream. Depth families, so the core families' draws do not move.
     Family("SWH", _SPIRITS + ("Whisky",), "{line} {flavor}{abv}", "Whisky", "bottle", "Whisky", _A, "CD", 18.0,
-           ("700ml", "1L", "350ml"),
+           ("700ml", "1L", "1.5L"),
            (_s("Blended Scotch Whisky", "#b8741f", 40.0, "Scotland", "Blended"),
             _s("Single Malt Scotch Whisky", "#a8641a", 40.0, "Scotland", "Single Malt"),
             _s("Bourbon Whiskey", "#a85a1a", 40.0, "United States", "Bourbon"),
             _s("Irish Whiskey", "#c88a2a", 40.0, "Ireland", "Blended")),
            _CELLAR, 0.005, depth=True),
     Family("SGN", _SPIRITS + ("Gin",), "{line} {flavor}{abv}", "Gin", "bottle", "Gin", _A, "CD", 16.0,
-           ("700ml", "1L", "350ml"),
+           ("700ml", "1L", "1.5L"),
            (_s("London Dry Gin", "#d6e6ee", 40.0, "United Kingdom", "London Dry"),
             _s("Pink Gin", "#f0b8c0", 37.5, "United Kingdom", "Flavoured"),
             _s("Sloe Gin", "#7a2a4a", 26.0, "United Kingdom", "Liqueur"),
             _s("Navy Strength Gin", "#cfe0ea", 57.0, "United Kingdom", "Navy Strength")),
            _CELLAR, 0.005, depth=True),
     Family("SVD", _SPIRITS + ("Vodka",), "{line} {flavor}{abv}", "Vodka", "bottle", "Vodka", _A, "CD", 14.0,
-           ("700ml", "1L", "350ml"),
+           ("700ml", "1L", "1.5L"),
            (_s("Premium Vodka", "#dfe9ee", 40.0, "Poland", "Plain"),
             _s("Triple Distilled Vodka", "#e3edf0", 40.0, "Sweden", "Plain"),
             _s("Lemon Vodka", "#f0e68a", 37.5, "Poland", "Flavoured"),
             _s("Vanilla Vodka", "#efe3c0", 37.5, "Sweden", "Flavoured")),
            _CELLAR, 0.004, depth=True),
     Family("SRM", _SPIRITS + ("Rum",), "{line} {flavor}{abv}", "Rum", "bottle", "Rum", _A, "CD", 17.0,
-           ("700ml", "1L", "350ml"),
+           ("700ml", "1L", "1.5L"),
            (_s("White Rum", "#e6eaea", 37.5, "Barbados", "White"),
             _s("Gold Rum", "#c8902a", 40.0, "Jamaica", "Gold"),
             _s("Dark Rum", "#5a2e1a", 40.0, "Guyana", "Dark"),
             _s("Spiced Rum", "#8a4a22", 35.0, "Caribbean", "Spiced")),
            _CELLAR, 0.004, depth=True),
     Family("STQ", _SPIRITS + ("Tequila",), "{line} {flavor}{abv}", "Tequila", "bottle", "Tequila", _A, "CD", 21.0,
-           ("700ml", "1L", "350ml"),
+           ("700ml", "1L", "1.5L"),
            (_s("Blanco Tequila", "#e2eceb", 38.0, "Mexico", "Blanco"),
             _s("Reposado Tequila", "#d8b45a", 38.0, "Mexico", "Reposado"),
             _s("Anejo Tequila", "#b8782a", 40.0, "Mexico", "Anejo")),
@@ -779,6 +779,16 @@ FAMILIES: tuple[Family, ...] = (
             F("Peanut-Free Salted Caramel Chocolate Bar", "#c48a3a", "M")),
            _CHOC, 0.001, base="S", depth=True),
 )  # fmt: skip
+
+#: A family that stocks more sizes across its range than any one style sells (gen#347): the
+#: packs a style carries. Each style takes this many of the family's packs, the window moving
+#: one pack per style, so a shop's range spans every size and each style stays what it was
+#: (its SKU count, so the family's styles, flavors and draws). Sparkling wine sells one size
+#: per style: a piccolo, a bottle or a magnum.
+PACKS_PER_STYLE: dict[str, int] = {
+    **dict.fromkeys(("PLM", "ICE", "SAU", "JUI", "BFR", "VIN", "CLN", "BOD", "FLR", "BTH", "SGL", "WRD", "WWH", "WRS", "WCH", "HCR", "ECR", "SWH", "SGN", "SVD", "SRM", "STQ", "FPT", "FSY", "FVM", "MED", "FTC", "BCR"), 2),
+    "WSP": 1,
+}
 
 #: The styles every build plants first, so each demo case exists at any size:
 #: (family, the flavors it carries, its may-contain codes).
