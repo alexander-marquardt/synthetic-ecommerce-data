@@ -15,6 +15,7 @@ import collections
 import dataclasses
 import inspect
 import json
+from collections.abc import Mapping
 from pathlib import Path
 
 import pytest
@@ -148,3 +149,33 @@ def test_each_types_declared_size_is_its_size_in_the_committed_catalog() -> None
                 if doc["spec_quality"] != BREADTH_QUALITY:
                     counted[doc["product_type"]][slot] += 1
     assert {key: tuple(pair) for key, pair in counted.items()} == type_facts.default_size()
+
+
+def test_type_facts_holds_no_per_type_table() -> None:
+    """Every type's facts are on its own ``TypeSpec`` (#61): a table in
+    ``type_facts`` keyed by type key is a second place to edit for a new type."""
+    keys = set(all_type_keys())
+    tables = sorted(
+        name
+        for name, value in vars(type_facts).items()
+        if isinstance(value, Mapping) and keys & set(value)
+    )
+    assert tables == []
+
+
+def test_every_modelled_and_newer_type_is_declared_in_its_own_module() -> None:
+    """A type left in a shared table (``Generator._BUILDERS``, ``NEW_TYPES``)
+    is a type whose facts need a hand-kept row beside the derived ones."""
+    declared = set(all_type_keys("modelled")) | set(all_type_keys("new"))
+    assert sorted(declared - set(typespec.modelled())) == []
+
+
+def test_a_type_claims_a_standard_through_its_own_claim_rule_or_none() -> None:
+    """The ``conformance`` branch is derived too: a type that may claim a
+    standard declares ``claims`` on its spec, so ``conformance.applicable`` has
+    no per-type branch to edit and no type is claimed for by a shared one."""
+    unruled = sorted(
+        key for key, spec in typespec.modelled().items() if spec.may_claim and spec.claims is None
+    )
+    assert unruled == []
+    assert not hasattr(conformance, "_shared_claims")
