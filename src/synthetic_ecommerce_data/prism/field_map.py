@@ -141,6 +141,13 @@ def _structural_fields() -> list[str]:
   - name: product_type
     type: terms
     source: product_type
+  # The name a shopper reads for that family (gen#331): ``product_type`` is a snake_case id on
+  # an industrial product ("hammer_ball_pein"), which the catalogue repo keys its weights on.
+  # Declared, not offered: which of the two a facet shows is the catalogue repo's decision.
+  - name: product_type_label
+    type: terms
+    source: product_type_label
+    facet: false
 
   # --- searchable text ------------------------------------------------------
   # ``text`` concatenates the title, brand, series, category and EVERY
