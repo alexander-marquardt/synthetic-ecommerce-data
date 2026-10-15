@@ -182,6 +182,9 @@ class ProductLine:
     #: have a hundred drawings of it, each marked with its own line's
     #: published attributes.
     drawing: str = ""
+    #: The shopper-readable name of the type (gen#331), set by the domain that
+    #: builds the line, so the core never reaches into a domain's label table.
+    type_label: str = ""
 
     def attribute_names(self) -> frozenset[str]:
         return frozenset(a.name for a in self.attributes)
