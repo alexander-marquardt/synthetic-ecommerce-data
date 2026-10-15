@@ -3706,6 +3706,62 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: a garden decoy title names a color only when its drawing shows it (gen#203, the #311 ruling) ----
+    # Every name starts "garden decoy color:", so `--only "garden decoy color:"` re-runs them.
+    *(
+        Mutation(f"garden decoy color: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a named part is drawn in its default color",
+                "kit_garden.py",
+                "        return self.hex if self.part == name else default",
+                "        return default",
+                "tests/test_retail_garden_203.py -k a_decoy_title_names_a_color_only_when_the_drawing_shows_it",
+                "a title's color is drawn on its part",
+            ),
+            (
+                "a named part is not marked",
+                "kit_garden.py",
+                '        return el.replace("/>", f\' data-part="{name}"/>\', 1) if self.part == name else el',
+                "        return el",
+                "tests/test_retail_garden_203.py -k a_decoy_title_names_a_color_only_when_the_drawing_shows_it",
+                "a title's color is drawn on its part",
+            ),
+            (
+                "every part takes the color, not only the named one",
+                "kit_garden.py",
+                "        return self.hex if self.part == name else default",
+                "        return self.hex if self.part else default",
+                "tests/test_retail_garden_203.py -k a_decoy_title_names_a_color_only_when_the_drawing_shows_it",
+                "the named color is on the named part and nothing else",
+            ),
+            (
+                "a short title's color is drawn in another color",
+                "garden_rows.py",
+                '        return (("part", kit_garden.PARTS[shape][0]), ("part_color", m.group(1).lower()))',
+                '        return (("part", kit_garden.PARTS[shape][0]), ("part_color", "red"))',
+                "tests/test_retail_garden_203.py -k a_decoy_title_names_a_color_only_when_the_drawing_shows_it",
+                "a title's color is drawn on its part",
+            ),
+            (
+                "a secondary title draws no part",
+                "garden_rows.py",
+                '        return (("part", m.group(2).lower().replace(" ", "-")), ("part_color", m.group(1).lower()))',
+                "        return ()",
+                "tests/test_retail_garden_203.py -k a_decoy_title_names_a_color_only_when_the_drawing_shows_it",
+                "a title's color is drawn on its part",
+            ),
+            (
+                "a short-title decoy loses its color word",
+                "garden_rows.py",
+                '"Black Pearl Robot Mower", "ROBWIR", "white"',
+                '"Violet Pearl Robot Mower", "ROBWIR", "white"',
+                "tests/test_retail_garden_203.py -k decoys_that_name_a_color",
+                "twelve secondary and eight short-title decoys name a color",
+            ),
+        ]
+    ),
 ]
 
 

@@ -25,9 +25,17 @@ carries the misleading word. Each is exempt from the text check and left out of 
 |---|---|---|
 | type | "Vintage Lawn Mower Cushion", "BBQ Master Apron", "Robot Mower Chef Apron" | a sibling product holds the type word |
 | absent | "Petrol Free Electric Lawn Mower", "Charcoal BBQ, Not Gas", "GPS Free Robot Mower for Terraces" | a real product of the type names a power source or fuel it lacks |
-| incidental | "Freshly Mown Lawn Candle" (a scent), "Red Kite Lawn Mower" (a black mower), "Blue Moon BBQ" | a word of the query sits in a short title or a scent, not in the product's color |
-| secondary | "Green Lawn Mower with Red Wheels", "Red Portable BBQ with Black Legs" | the title names a part's color beside the product's own, so "red lawn mower" matches a green one |
+| incidental | "Freshly Mown Lawn Candle" (a scent), "Red Kite Lawn Mower" (a black mower with red handle), "Blue Moon BBQ" | a word of the query sits in a short title or a scent, not in the product's color |
+| secondary | "Green Lawn Mower with Red Wheels", "Red Portable BBQ with Black Legs", "Blue Gas BBQ with White Shelves" | the title names a part's color beside the product's own, so "red lawn mower" matches a green one |
 | shade | "Light Corded Lawn Mower" (a blue mower with "a bright red start switch"), "Family Kettle BBQ" | the description alone names another main color |
+
+A decoy title names a color only when its drawing shows it (the #311 ruling). The twelve
+secondary decoys and the eight short-title incidental decoys on a real product name one: the row
+passes `part` and `part_color` to its shape (`kit_garden.PARTS` lists the parts), and the shape draws
+that part, and only that part, in the color, each element marked `data-part`. A secondary title
+names its part ("with Red Wheels", "with White Engine"); a short title ("Red Kite Lawn Mower") colors
+the shape's first part (a handle, a bumper, a handle, the legs). A test reads each rendered drawing:
+the named color on the marked part and on nothing else of it.
 
 ## Units
 
