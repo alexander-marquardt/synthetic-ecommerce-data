@@ -108,7 +108,7 @@ PILLOW_PROTECTORS = tuple(
 # --------------------------------------------------------------------------
 
 _BARREL_CUTS = ("Mid Rise", "High Rise", "Low Rise", "Cropped", "Stretch", "Raw Hem",
-                "Washed", "Wide", "Loose", "Slouchy", "Rigid", "Vintage")  # fmt: skip
+                "Distressed", "Wide", "Loose", "Slouchy", "Rigid", "Vintage")  # fmt: skip
 _WASHES = (("Mid Wash", MID), ("Light Wash", LIGHT), ("Black", BLACK), ("Indigo", DENIM))
 #: Bestselling barrel-leg jeans; their text calls the leg "balloon-shaped" or "balloon".
 BARRELS = tuple(

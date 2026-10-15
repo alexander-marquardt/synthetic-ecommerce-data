@@ -109,9 +109,39 @@ def plain(name: str) -> str:
 HALF_WORDS = frozenset({"Duck", "Egg", "Quartz", "Off"})
 
 
+#: The pattern words an authored shade may carry after, or in place of, its color (gen#188).
+#: They are a ``pattern`` value, never part of the ``color`` a shopper filters on.
+PATTERN_WORDS = (
+    "Polka Dot", "Gingham", "Stripe", "Check", "Spot", "Print", "Leopard", "Marl", "Lace",
+)
+_PATTERN = re.compile(r"\b(" + "|".join(PATTERN_WORDS) + r")\b")
+#: A denim wash: "Light Wash", "Mid Wash", "Bleach Wash", "Grey Wash", "Rinse" or a "Washed" tone.
+_WASH = re.compile(r"\b((?:Light|Mid|Bleach|Grey) Wash|Rinse|Washed)\b")
+#: The color of a wash with no color word of its own: denim is blue ("Grey Wash" is grey).
+DENIM_BASE = "Blue"
+
+
 def split(name: str) -> tuple[str, str | None]:
-    """An authored shade -> (plain color, pattern or None). Stub."""
-    return (name, None)
+    """An authored shade -> (plain color, pattern or None).
+
+    "Navy Stripe" is ``("Navy", "Stripe")``; "Light Wash" is ``("Blue", "Light Wash")`` (the
+    base color of denim); "Washed Black" is ``("Black", "Washed")``; "Navy" is ``("Navy", None)``.
+    The title and the swatch keep the authored words; only the color facet and the pattern facet
+    read this.
+    """
+    wash = _WASH.search(name)
+    hit = wash or _PATTERN.search(name)
+    if hit is None:
+        return name, None
+    pattern = hit.group(1)
+    rest = " ".join((name[: hit.start()] + " " + name[hit.end() :]).split())
+    if pattern == "Grey Wash":
+        return "Grey", pattern
+    if not rest:
+        return (DENIM_BASE if wash else "Multi"), pattern
+    if rest.startswith("/"):
+        return f"{DENIM_BASE} {rest}", pattern
+    return rest, pattern
 
 
 def is_plain(value: str) -> bool:
