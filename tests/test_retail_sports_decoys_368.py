@@ -34,6 +34,10 @@ SECOND_INCREMENT = (
     "Baseball Bat", "Baseball Glove", "Baseball", "Batting Helmet", "Swim Goggles", "Swim Cap",
     "Kickboard", "Swim Armbands", "Football", "Tennis Racket", "Badminton Set",
 )  # fmt: skip
+#: The seven first-increment types that carry no decoys yet (gen#375 adds them).
+FIRST_INCREMENT = {
+    "Tent", "Sleeping Bag", "Camping Chair", "Yoga Mat", "Dumbbell", "Kettlebell", "Foam Roller",
+}
 COLOR_WORDS = {c.lower() for c in dpw.COLORS}
 
 
@@ -66,6 +70,20 @@ def test_every_sports_type_is_planned_or_exempt(ceiling: list[dict]) -> None:
     assert live - set(dpw.SPORTS_EXEMPT) == planned, (live - set(dpw.SPORTS_EXEMPT)) ^ planned
     assert set(dpw.SPORTS_EXEMPT) <= live
     assert all("#" in reason for reason in dpw.SPORTS_EXEMPT.values())
+
+
+def test_the_exempt_set_is_the_seven_first_increment_types() -> None:
+    """The hatch is pinned: a later type cannot delete its decoys and add its name to the exempt
+    dict. Adding a name reds here, so its author edits this set on purpose (gen#375 empties it)."""
+    assert set(dpw.SPORTS_EXEMPT) == FIRST_INCREMENT, set(dpw.SPORTS_EXEMPT) ^ FIRST_INCREMENT
+    assert set(dpw.SPORTS_EXEMPT.values()) == {"decoys are tracked in #375"}
+
+
+def test_every_live_non_exempt_sports_type_has_at_least_two_decoys(ceiling: list[dict]) -> None:
+    """The two-decoy floor comes from the live catalog, not from the hand-written tuple."""
+    live = {r["product_type"] for r in ceiling if r["category_path"][0] == ROOT_NAME}
+    short = {t: len(_rows(t)) for t in live - set(dpw.SPORTS_EXEMPT) if len(_rows(t)) < 2}
+    assert not short, short
 
 
 @pytest.mark.parametrize("ptype", SECOND_INCREMENT)
