@@ -7,8 +7,10 @@ root with two families, Camping (tents, sleeping bags, camping chairs) and Yoga 
 its own axis: a tent's berth, a sleeping bag's length in centimetres, a mat's thickness, a weight's kilograms,
 a roller's length.
 
-The tree takes its shape from the large sports retailers' departments (department, then sport,
-then equipment, with the filters each leaf carries), and every name here is invented.
+The tree follows the shape the maintainer's guidance asked for (department, then sport, then
+equipment, with the filters each leaf carries), and every name here is invented. No leaf was
+checked against a retailer's tree: ``docs/retail-sports-tree.md`` lists the filters per leaf, says
+so, and gives each type not built an issue or a reason (gen#290).
 
 Every type offers the six main colors across its styles (gen#275). A measured axis (``berth``,
 ``thickness_mm``, ``weight_kg``, ``length_cm``) is on the SKUs alone, which the export states
