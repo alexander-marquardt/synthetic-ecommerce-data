@@ -69,31 +69,32 @@ def test_discount_pct_is_derived_from_price_and_was_price_on_sale_docs_only() ->
     for d in CLASS_DOCS:
         if "was_price" in d:
             assert d["discount_pct"] == round(100 * (d["was_price"] - d["price"]) / d["was_price"])
-            assert d["offer"] is True and 0 < d["discount_pct"] < 100
+            assert "On sale" in d["promotion"] and 0 < d["discount_pct"] < 100
         else:
             assert "discount_pct" not in d, d["product_id"]
+            assert "promotion" not in d, d["product_id"]
 
 
-def test_every_class_doc_carries_the_offer_online_only_and_badge_flags() -> None:
+def test_every_class_doc_carries_the_online_only_and_badge_flags() -> None:
     for d in CLASS_DOCS:
-        assert isinstance(d["offer"], bool) and isinstance(d["online_only"], bool)
+        assert "offer" not in d and isinstance(d["online_only"], bool)
         assert isinstance(d["trending"], bool)
         assert d["brand_owner"] in rc.BRAND_OWNERS, d["brand"]
     assert sum(d["online_only"] for d in CLASS_DOCS) == 4
     assert sum(d["trending"] for d in CLASS_DOCS) == 3
-    # An offer with no was-price: a multi-buy, shown in Offers with no % off.
-    assert [d["product_id"] for d in CLASS_DOCS if d["offer"] and "was_price" not in d] == [
-        "PLT-BRTROP"
-    ]
+    # A multi-buy has no was-price, so no promotion: it becomes its own field later (gen#189).
+    assert "promotion" not in next(d for d in CLASS_DOCS if d["product_id"] == "PLT-BRTROP")
 
 
-def test_third_party_brands_are_over_represented_in_offers() -> None:
+def test_third_party_brands_are_over_represented_in_sales() -> None:
     def share(docs: list[dict]) -> float:
         return sum(d["brand_owner"] == "third_party" for d in docs) / len(docs)
 
-    offers = [d for d in CLASS_DOCS if d["offer"]]
-    assert len(offers) == 11
-    assert share(offers) >= 2 * share(CLASS_DOCS)
+    sales = [d for d in CLASS_DOCS if "promotion" in d]
+    assert len(sales) == 10
+    # The multi-buy (a third-party brand) left the group with ``offer`` (gen#189): 4 of the 10
+    # reduced docs against 9 of 41, 1.8 times the share, where it was 2.1 times.
+    assert share(sales) >= 1.5 * share(CLASS_DOCS)
     edit = [d for d in CLASS_DOCS if d.get("sub_collection")]
     assert {d["sub_collection"] for d in edit} == {"The Active Edit", "The Weekend Edit"}
     assert all(d["brand_owner"] == "third_party" for d in edit)

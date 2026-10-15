@@ -114,13 +114,17 @@ def test_sku_options_are_variant_attributes(retail):
     }
 
 
-def test_options_offers_and_ratings_are_product_attributes(retail):
+def test_options_promotions_and_ratings_are_product_attributes(retail):
     keys = {e["key"] for d in retail for e in d["attributes"]}
-    assert {"color", "size_uk", "offer", "rating", "review_count"} <= keys
+    assert {"color", "size_uk", "promotion", "rating", "review_count"} <= keys
+    assert "offer" not in keys  # replaced by the keyword ``promotion`` (gen#189)
     assert "department" not in keys  # the department is the top level of category_path (gen#281)
     dress = next(d for d in retail if d["product_id"] == "PLT-LEMDRS")
     entries = {(e["key"], e["value"]) for e in dress["attributes"]}
-    assert {("offer", "no"), ("rating", "4.1")} <= entries
+    assert ("rating", "4.1") in entries
+    assert "promotion" not in {key for key, _ in entries}  # not reduced: no key, never a "no"
+    sale = next(d for d in retail if d["product_id"] == "PLT-PETDRS")
+    assert ("promotion", "On sale") in {(e["key"], e["value"]) for e in sale["attributes"]}
 
 
 def test_an_image_id_is_the_drawing_specs_and_stable(retail):

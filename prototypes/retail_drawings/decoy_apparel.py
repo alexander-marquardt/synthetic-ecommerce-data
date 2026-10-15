@@ -261,7 +261,7 @@ def _clone(
 
     keep = {k: v for k, v in copy.deepcopy(ex).items()
             if k not in ("product_id", "price", "sku_count", "skus", "color_options",
-                         "size_options", "was_price", "discount_pct", "pattern",
+                         "size_options", "was_price", "discount_pct", "promotion", "pattern",
                          "sub_collection", "product_line", "leg_style")}  # fmt: skip
     first = ex["skus"][0]["color"]
     color_tuple = cw(color, hexv)
@@ -276,7 +276,7 @@ def _clone(
     if ex.get("leg_style") and _fit(ex):  # the style is dropped above; its fit stays an attribute
         keep["attributes"].append(attr("leg_fit", "Leg fit", _fit(ex)))
     keep |= {"title": title, "description": desc, "sold_last_5_days": sold,
-             "review_count": 900 + sold, "offer": False, "trending": False,
+             "review_count": 900 + sold, "trending": False,
              "price_min": min(prices), "price_max": max(prices)}  # fmt: skip
     if brand is not None:
         keep |= {"brand": brand, "brand_owner": BRAND_OWNER[brand]}
