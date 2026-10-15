@@ -216,7 +216,7 @@ fixers, which leave `golden-catalog/` alone.
 Run the test suite with `uv run pytest`. The whole suite takes about 27
 minutes serially, or about 22 on two workers with `uv run pytest -n 2`
 (`pytest-xdist` is a dev dependency; it needs about 4.3 GB at peak), so for a change run the modules that name what you changed, and leave the whole
-suite to CI. Only some product types have a `tests/test_type_<type_key>.py` (for example `test_type_o_rings.py`, `test_type_shackles.py`); the rest are covered by shared modules such as `test_type_facts.py` and `test_type_registration.py` and by tests named for the feature. The grep finds the tests that name a type or module:
+suite to CI. `merge_pr.sh --local-ci` runs it on several workers, with the count capped by cores and memory ([docs/adding-a-type.md](docs/adding-a-type.md#merging-every-type-pr-goes-through-merge_prsh)); never use `-n auto` by hand on a many-core machine (16 workers took 38 GB in three minutes on the agent VM). Only some product types have a `tests/test_type_<type_key>.py` (for example `test_type_o_rings.py`, `test_type_shackles.py`); the rest are covered by shared modules such as `test_type_facts.py` and `test_type_registration.py` and by tests named for the feature. The grep finds the tests that name a type or module:
 
 ```sh
 uv run pytest $(grep -l '<changed module or type key>' tests/test_*.py)
