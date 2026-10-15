@@ -8,6 +8,7 @@ hand-kept copy that drifts.
 
     local_ci_jobs.py [--workflows DIR] --list
     local_ci_jobs.py [--workflows DIR] --emit JOB --base SHA --head SHA
+    local_ci_jobs.py --pytest-options
 
 ``--list`` prints one job id per line, in workflow-file then job order.
 ``--emit`` prints the job's ``run:`` steps as one shell script, to be run with
@@ -22,11 +23,22 @@ request's base and head shas is an error, never a silent skip. The ``if:`` of
 a job is ignored: a pull request's local run executes every job, the
 push-only ``main-merged-tree`` included, since it is the same check on the
 same tree.
+
+Every emitted step runs with ``PYTEST_ADDOPTS`` carrying ``-n <workers> --dist loadgroup``
+(#348): the suite took 47 to 54 minutes on one core and merges are serial, so the suite's
+wall time was the rate pull requests landed. ``LOCAL_CI_WORKERS`` replaces the worker
+count (default ``auto``, one per core; ``0`` is one process). The workflow file is not
+where this lives: the token that pushes it cannot change ``.github/workflows`` and the
+hosted run is billing-blocked, so the local run is the CI that merges.
+``tests/test_ci_tests_job_parallel_348.py`` runs the emitted script of the real tests job
+and fails if pytest in it gets one worker. ``--pytest-options`` prints the same options
+for ``scripts/merge_pr.sh``'s own check step.
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import shlex
 import sys
@@ -38,6 +50,18 @@ import yaml
 SETUP_ACTIONS = ("actions/checkout", "astral-sh/setup-uv", "actions/setup-python")
 
 _EXPR = re.compile(r"\$\{\{\s*(.*?)\s*\}\}")
+
+#: pytest-xdist options added to every emitted step through ``PYTEST_ADDOPTS`` (#348).
+#: ``loadgroup`` keeps a module's tests on one worker (tests/xdist_groups.py).
+WORKERS_ENV = "LOCAL_CI_WORKERS"
+DEFAULT_WORKERS = "auto"
+DIST = "loadgroup"
+
+
+def pytest_options(environ: dict[str, str] | None = None) -> str:
+    """The options as a string, with the worker count from ``LOCAL_CI_WORKERS``."""
+    workers = (os.environ if environ is None else environ).get(WORKERS_ENV) or DEFAULT_WORKERS
+    return f"-n {workers} --dist {DIST}"
 
 
 class NoLocalEquivalent(Exception):
@@ -85,6 +109,11 @@ def emit(job_id: str, job: dict, base: str, head: str) -> str:
         if key in job:
             raise NoLocalEquivalent(f"{job_id}: job key {key!r} is not reproduced locally")
     lines = [f"echo {shlex.quote('== job ' + job_id + ' ==')}"]
+    # Shell-expanded when the script runs, so the machine that runs it picks the count.
+    lines.append(
+        'export PYTEST_ADDOPTS="${PYTEST_ADDOPTS:+$PYTEST_ADDOPTS }'
+        f'-n ${{{WORKERS_ENV}:-{DEFAULT_WORKERS}}} --dist {DIST}"'
+    )
     ran = 0
     for number, step in enumerate(job.get("steps", []), 1):
         where = f"{job_id} step {number}"
@@ -124,9 +153,13 @@ def main(argv: list[str] | None = None) -> int:
     action = parser.add_mutually_exclusive_group(required=True)
     action.add_argument("--list", action="store_true")
     action.add_argument("--emit", metavar="JOB")
+    action.add_argument("--pytest-options", action="store_true")
     parser.add_argument("--base", default="")
     parser.add_argument("--head", default="")
     args = parser.parse_args(argv)
+    if args.pytest_options:
+        print(pytest_options())
+        return 0
     try:
         jobs = load_jobs(args.workflows)
         if not jobs:

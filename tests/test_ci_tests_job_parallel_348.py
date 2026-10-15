@@ -130,3 +130,42 @@ def test_a_module_s_tests_share_a_group_unless_the_module_asks_to_spread() -> No
     spread = SimpleNamespace(__name__="test_merge_pr", XDIST_SPREAD=True)
     assert group_for(plain) == "test_price"
     assert group_for(spread) is None
+
+
+def test_the_worker_count_is_one_per_core_unless_the_machine_sets_it() -> None:
+    assert local_ci_jobs.pytest_options({}) == "-n auto --dist loadgroup"
+    assert local_ci_jobs.pytest_options({"LOCAL_CI_WORKERS": "6"}) == "-n 6 --dist loadgroup"
+    assert local_ci_jobs.pytest_options({"LOCAL_CI_WORKERS": ""}) == "-n auto --dist loadgroup"
+
+
+def test_the_emitted_script_takes_the_worker_count_from_the_machine_that_runs_it(
+    tmp_path: Path,
+) -> None:
+    jobs = local_ci_jobs.load_jobs(WORKFLOWS)
+    script = local_ci_jobs.emit("tests", jobs["tests"], "BASE", "HEAD")
+    probe = f'{script}\necho "ADDOPTS=$PYTEST_ADDOPTS"\n'.replace("uv run", "true uv run")
+    env = {k: v for k, v in os.environ.items() if k != "PYTEST_ADDOPTS"}
+    for workers, expected in (("3", "-n 3 --dist loadgroup"), (None, "-n auto --dist loadgroup")):
+        env.pop("LOCAL_CI_WORKERS", None)
+        if workers:
+            env["LOCAL_CI_WORKERS"] = workers
+        done = subprocess.run(
+            ["bash", "--noprofile", "--norc", "-eo", "pipefail", "-c", probe],
+            cwd=tmp_path, env=env, capture_output=True, text=True, check=False,
+        )  # fmt: skip
+        assert f"ADDOPTS={expected}" in done.stdout.splitlines(), done.stdout + done.stderr
+
+
+def test_merge_pr_checks_step_runs_on_the_same_workers() -> None:
+    cli = subprocess.run(
+        [sys.executable, str(REPO / "scripts" / "local_ci_jobs.py"), "--pytest-options"],
+        capture_output=True,
+        text=True,
+        check=False,
+        env={k: v for k, v in os.environ.items() if k != "LOCAL_CI_WORKERS"},
+    )
+    assert cli.stdout.strip() == "-n auto --dist loadgroup", cli.stderr
+    script = (REPO / "scripts" / "merge_pr.sh").read_text(encoding="utf-8")
+    (step,) = [line for line in script.splitlines() if "no:cacheprovider" in line]
+    assert '"${parallel[@]}"' in step, step
+    assert "--pytest-options" in script
