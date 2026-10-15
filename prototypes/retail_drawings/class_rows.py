@@ -486,7 +486,7 @@ NOT_BEER = (
            volumes=((330.0, 1.0), (500.0, 1.4), (1500.0, 2.6)), colorless=True),
      _ROUTE_BEER),
     (Style("BBHADD", "Beer Battered Haddock Fillets", "Saltmarsh", FOOD,
-           ("Food & Drink", "Fish & Seafood", "Battered Fish"), 4.5,
+           ("Food & Drink", "Frozen", "Battered Fish"), 4.5,
            "Two haddock fillets in a crisp beer batter. Oven bake from frozen.",
            "Battered Fish", "box", pack("#d8a548", 600), unit=(280.0, "g"), colorless=True),
      _ROUTE_BEER),
@@ -507,7 +507,7 @@ NOT_BEER = (
 # and a color in clothing and flowers; one true hit has no "orange" in it
 # --------------------------------------------------------------------------
 
-CITRUS = ("Food & Drink", "Fresh Produce", "Fruit", "Citrus")
+CITRUS = ("Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Citrus Fruit")
 ORANGES = (
     Style("ORBLOD", "Blood Oranges", "Goldfield Farms", FOOD, (*CITRUS, "Oranges"), 2.0,
           "Ruby fleshed blood oranges, sweet with a berry note. A short season.",
@@ -537,7 +537,7 @@ NOT_ORANGES = (
            "Cookies", "box", pack("#6b3a20", 560), unit=(200.0, "g"), colorless=True),
      _ROUTE_ORANGE),
     (Style("HCORNG", "Orange Hot Chocolate", "Pantry Mill", FOOD,
-           (*DRINKS, "Hot Drinks", "Hot Chocolate"), 3.5,
+           (*DRINKS, "Hot Chocolate"), 3.5,
            "A rich hot chocolate flavoured with orange.",
            "Hot Chocolate", "tub", pack("#5a3020", 480), unit=(250.0, "g"),
            colorless=True), _ROUTE_ORANGE),
@@ -868,7 +868,7 @@ OFFERS = (
 
 #: Not a query row: the food sense of a word that is also a lipstick shade.
 HONEY = Style("HONBLS", "Clear Blossom Honey", "Copper Hill Preserves", FOOD,
-              ("Food & Drink", "Food Cupboard", "Honey & Spreads", "Honey"), 4.0,
+              ("Food & Drink", "Food Cupboard", "Honey"), 4.0,
               "A clear, mild blossom honey for tea and toast.",
               "Honey", "jar", pack("#e0a030", 120), unit=(340.0, "g"),
               colorless=True)  # fmt: skip

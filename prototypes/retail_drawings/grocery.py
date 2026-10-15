@@ -117,8 +117,8 @@ PILE_PACK = {"Single": "loose", "4 pack": "net", "1kg": "bag", "150g": "bag", "2
 UNIONED = frozenset({"contains", "may_contain"})
 #: Entries that are an allergen warning or a pack claim: facets, but never search text.
 WARNINGS = frozenset({"contains", "may_contain", "dietary"})
-#: A flavor whose pack label differs from its family's: the honey jar reads Honey, not Jam.
-LABELS = {("JAM", "Clear Honey"): "Honey", ("JAM", "Set Honey"): "Honey"}
+#: A flavor whose pack label differs from its family's: the honey jar reads Honey, not Clear Honey.
+LABELS = {("HON", "Clear Honey"): "Honey", ("HON", "Set Honey"): "Honey"}
 #: A flavor whose pack is not its family's: butter is a foil-wrapped block, a spread a tub.
 SHAPES = {
     ("BUT", "Salted Butter"): "butter_block",
