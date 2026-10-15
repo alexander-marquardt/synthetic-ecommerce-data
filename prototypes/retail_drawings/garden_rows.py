@@ -31,8 +31,9 @@ from variants import cw
 from synthetic_ecommerce_data.core.entry import canonical
 
 DEPARTMENT = "Garden"
-_V, _M, _E = "Verdane", "Mowbray & Reeve", "Embergrove"
+_V, _M = "Thistle & Wren", "Fenwold Nursery"
 _W, _H, _L = "Wrenfield", "Harbour & Pine", "Larkmoor"
+_E = _W
 _LAWN = (DEPARTMENT, "Lawn Care")
 _MOW = (*_LAWN, "Lawn Mowers")
 _TRIM = (*_LAWN, "Grass Trimmers")
