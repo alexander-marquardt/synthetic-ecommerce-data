@@ -127,6 +127,10 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "berth": ("berth", "Berth", "C62"),
     "thickness_mm": ("thickness", "Thickness", "MMT"),
     "weight_kg": ("weight", "Weight", "KGM"),
+    # A wallpaper's roll length and a greeting card's design (decor_rows.py, gen#217); a clock's
+    # dial, a tray's size and a stem's height reuse diameter_cm, length_cm and height_cm.
+    "roll_length_m": ("roll_length", "Roll length", "MTR"),
+    "design": ("design", "Design", None),
 }
 #: The SKU fields that are columns of the variant, not options.
 SKU_COLUMNS = frozenset({"sku", "price", "in_stock", "ingredients"})

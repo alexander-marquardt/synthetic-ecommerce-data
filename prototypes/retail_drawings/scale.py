@@ -106,6 +106,7 @@ import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
+import decor_rows  # noqa: E402
 import decoy_apparel  # noqa: E402
 import decoy_rows  # noqa: E402
 import distractor_rows  # noqa: E402
@@ -228,6 +229,9 @@ ACCESSORY_IDS = frozenset(f"BRD-{r.code}" for r in accessory_rows.ROWS)
 #: The camping and fitness styles (:mod:`sports_rows`, gen#265), left out of the derivation as
 #: the accessories are: the Sports & Outdoors department grows by authored rows.
 SPORTS_IDS = frozenset(f"BRD-{r.code}" for r in sports_rows.ROWS)
+#: The home accessories and decor styles and their decoys (:mod:`decor_rows`, gen#217):
+#: templates only, left out of the derivation as the sports styles are.
+DECOR_IDS = frozenset(f"BRD-{r.code}" for r in decor_rows.ROWS)
 #: The underwear and nightwear styles (:mod:`underwear_rows`, gen#208), left out of the
 #: derivation as the shirts are.
 UNDERWEAR_IDS = frozenset(f"BRD-{r.code}" for r in underwear_rows.ROWS)
@@ -256,7 +260,7 @@ MENS_DEPTH_IDS = mens_depth_rows.product_ids()
 
 # Text-match decoys (gen#294, gen#311) are exempt from the output standard's text check: they
 # exist to confuse a plain text search (the maintainer ruling on #311).
-DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS
+DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | decor_rows.decoy_ids()
 
 
 def templates(baseline: bool = True) -> list[dict]:
@@ -283,7 +287,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
         *decoy_rows.docs(),
         *shirt_rows.docs(), *accessory_rows.docs(), *sports_rows.docs(), *sofa_rows.docs(),
-        *household_rows.docs(),
+        *household_rows.docs(), *decor_rows.docs(),
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
         *colorgroup_rows.docs(), *mens_depth_rows.docs(),
@@ -292,7 +296,8 @@ def templates(baseline: bool = True) -> list[dict]:
     if baseline:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
-    return main_colors.complete(tpls, mens_depth_rows.decoy_ids()) if baseline else tpls
+    kept = mens_depth_rows.decoy_ids() | decor_rows.decoy_ids()
+    return main_colors.complete(tpls, kept) if baseline else tpls
 
 
 def derivable(tpls: list[dict]) -> list[dict]:
