@@ -1061,7 +1061,6 @@ FOOD = (
 # Beauty: the hair type and the ingredient vary; the hand wash's fragrance varies.
 # --------------------------------------------------------------------------
 
-_SHAMPOO = ("Beauty", "Hair Care", "Shampoo")
 _CONDIT = ("Beauty", "Hair Care", "Conditioner")
 _HANDWASH = ("Beauty", "Bath & Body", "Hand Wash")
 
@@ -1071,16 +1070,6 @@ def _hair(hair: str, ingredient: str) -> tuple[tuple[str, str, str], ...]:
 
 
 BEAUTY = (
-    Row("SHPARG", "Argan Oil Shampoo for Dry Hair", "Mirefield Naturals", "Beauty", _SHAMPOO,
-        "Shampoo", 6.0, "bottle",
-        "A sulfate-free daily wash in a pump bottle, made without silicones.",
-        (cw("Amber", "#c98a2e", "solid", "#ffffff"),), _hair("Dry", "Argan Oil"),
-        (("250ml", 6.0), ("500ml", 10.0)), "Shampoo", colorless=True),
-    Row("SHPROS", "Rosemary Shampoo for Curly Hair", "Hollin Hair", "Beauty", _SHAMPOO,
-        "Shampoo", 8.0, "bottle",
-        "A low-lather wash that cleans the scalp and leaves the lengths soft.",
-        (cw("Sage", "#9bb08f", "solid", "#2a2a2e"),), _hair("Curly", "Rosemary"),
-        label="Shampoo", colorless=True),
     Row("CNDARG", "Argan Oil Conditioner for Dry Hair", "Mirefield Naturals", "Beauty",
         _CONDIT, "Conditioner", 6.0, "bottle",
         "A rinse-out cream for the mid-lengths and ends. Leave on for one minute.",

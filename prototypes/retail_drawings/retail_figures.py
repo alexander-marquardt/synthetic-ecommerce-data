@@ -49,6 +49,7 @@ import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
 import sports_rows  # noqa: E402
 import toys_rows  # noqa: E402
+import type_registry  # noqa: E402
 import underwear_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 
@@ -127,6 +128,7 @@ def measure() -> dict[str, Any]:
         "seasonal_rows": seasonal_rows.docs(),
         "colorgroup_rows": colorgroup_rows.docs(),
         "mens_depth_rows": mens_depth_rows.docs(),
+        "type_specs": type_registry.docs(),
         "decoy_apparel": [r for r in scale.templates(baseline=False)
                           if r["product_id"] in decoy_apparel.IDS],
         "plain_rows": [r for r in main_colors.author_plain(scale.templates(baseline=False))
