@@ -3394,6 +3394,19 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- the red-commit proof judges the commits that declare (#11680) ------
+    # Every name starts "red_commit_proof:", so `--only "red_commit_proof:"` re-runs it.
+    Mutation(
+        "red_commit_proof: a merge commit's trailer is judged",
+        "scripts/red_commit_proof.py",
+        '"rev-list", "--reverse", "--no-merges", args.spec',
+        '"rev-list", "--reverse", args.spec',
+        "tests/test_red_commit_proof_11680.py::"
+        "test_a_merge_commit_is_never_judged_whatever_its_message_declares",
+        "",
+        "only the branch's own commits are judged, not a merge of main",
+        root=".",
+    ),
     # ---- pack: bolts and socket screws publish the census pack (#65) ------
     *(
         Mutation(

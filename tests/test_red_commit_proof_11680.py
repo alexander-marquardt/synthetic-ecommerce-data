@@ -236,6 +236,24 @@ def test_a_none_reason_that_wraps_onto_a_second_line_is_still_none(repo: Path) -
     assert "REFUSED" not in done.stdout
 
 
+def test_a_merge_commit_is_never_judged_whatever_its_message_declares(repo: Path) -> None:
+    _commit(repo, GREEN, "green test\n\nRefs #1")
+    base = _base(repo)
+    _git(repo, "switch", "-q", "-c", "side")
+    (repo / "side.txt").write_text("side\n", encoding="utf-8")
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-q", "-m", "side")
+    _git(repo, "switch", "-q", "main")
+    (repo / "main.txt").write_text("main\n", encoding="utf-8")
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-q", "-m", "main")
+    merge = "merge\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_green"
+    _git(repo, "merge", "-q", "--no-ff", "side", "-m", merge)
+    done = _prove(repo, base)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "REFUSED" not in done.stdout and "PROVEN" not in done.stdout
+
+
 def test_the_fix_after_the_red_commit_is_not_judged(repo: Path) -> None:
     base = _base(repo)
     _commit(repo, RED, "red\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_red")
