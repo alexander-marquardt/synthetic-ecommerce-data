@@ -112,12 +112,12 @@ _TICK = _a("silent_movement", "Silent movement", "No")
 
 CLOCK_ROWS = (
     _row("CLKWBR", "Brushed Brass Wall Clock", _BM, WALL, "Clock", 24.0, "clock",
-         "A round wall clock in a brushed brass frame with a sweep movement that makes no ticking sound.",
+         "A round wall clock in a brushed brass frame with a sweep movement that does not tick.",
          (GOLD, BLACK, WHITE),
          (_a("clock_type", "Clock type", "Wall"), _a("finish", "Finish", "Brushed Brass"), _SIL),
          _axis((30, 24.0), (40, 32.0), (50, 44.0)), "diameter_cm", (("type", "wall"),)),
     _row("CLKWWN", "Walnut Wall Clock", _LN, WALL, "Clock", 29.0, "clock",
-         "A wall clock in a walnut frame with a plain white dial and a quiet quartz sweep movement.",
+         "A wall clock in a walnut frame with a plain dial and a quiet quartz sweep movement.",
          (BROWN, RED, BLUE),
          (_a("clock_type", "Clock type", "Wall"), _a("finish", "Finish", "Walnut"), _SIL),
          _axis((30, 29.0), (40, 38.0)), "diameter_cm", (("type", "wall"),)),
@@ -237,7 +237,7 @@ TRAY_ROWS = (
     _row("TRYMRT", "Mirrored Rectangular Decorative Tray", _BM, TRAYS, "Decorative Tray", 26.0, "trinket_tray",
          "A rectangular tray with a mirrored base and a metal rim, for perfume and candles.",
          (SILVER, BLACK, GREEN),
-         (_a("material", "Material", "Glass and Metal"), _a("tray_shape", "Tray shape", "Rectangular")),
+         (_a("material", "Material", "Metal"), _a("tray_shape", "Tray shape", "Rectangular")),
          _axis((25, 26.0), (35, 34.0)), "length_cm", (("outline", "rectangular"),)),
 )
 
