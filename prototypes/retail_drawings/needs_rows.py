@@ -40,6 +40,7 @@ KINDS = {
         borrow=("shirt", "blazer", "jumper"),
         absent=("Elasticated Cuff", "Elasticated Hem", "Elasticated Ankle"),
         path=("Mens", "Trousers", "Cargo Trousers"),
+        spread=(("Mens", "Trousers", "Elasticated Waist Trousers"),),
         decoy_attrs=(m._a("waist_type", "Waist type", "Elastic"),),
         decoy_params=(("waist", "elasticated"),),
         absent_noun="Cargo Trousers",
