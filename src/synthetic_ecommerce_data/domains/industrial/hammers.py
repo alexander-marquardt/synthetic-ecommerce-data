@@ -54,6 +54,11 @@ KIND_NOUN: dict[str, str] = {
 ABSENT_HANDLES: tuple[str, ...] = ("Hickory", "Ash", "Fiberglass")
 PLACES: tuple[str, ...] = ("Creek", "Ridge", "Lane", "Hollow")
 
+
+def is_incidental_decoy_title(title: str) -> bool:
+    """Whether ``title`` is a class-4 decoy title (the item and the word alone)."""
+    return False
+
 #: Text-match decoys (gen#294): three lines in every ``DECOY_PERIOD`` of a kind carry a
 #: title word that misleads a text search while its attributes stay true. The position in the period
 #: names the class: 0 a category word (another kind's noun as a range name: "Claw Hammer,
