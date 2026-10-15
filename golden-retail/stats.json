@@ -9,13 +9,13 @@
    "skus": 12416,
    "styles": 4518
   },
-  "images": 17661,
+  "images": 17735,
   "non_grocery": {
    "skus": 91901,
    "styles": 5592
   },
-  "skus": 130131,
-  "styles": 12457,
+  "skus": 130283,
+  "styles": 12485,
   "top_levels": {
    "Beauty": {
     "skus": 893,
@@ -30,16 +30,16 @@
     "styles": 4237
    },
    "Garden": {
-    "skus": 260,
-    "styles": 220
+    "skus": 400,
+    "styles": 240
    },
    "Gifts": {
-    "skus": 490,
-    "styles": 332
+    "skus": 494,
+    "styles": 336
    },
    "Home": {
-    "skus": 5803,
-    "styles": 1841
+    "skus": 5811,
+    "styles": 1845
    },
    "Kids": {
     "skus": 4291,
@@ -527,8 +527,8 @@
    "styles": 53
   },
   "all": {
-   "skus": 69479,
-   "styles": 7923
+   "skus": 69631,
+   "styles": 7951
   },
   "appliance_rows": {
    "skus": 124,
@@ -540,8 +540,8 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 57063,
-   "styles": 3405
+   "skus": 57215,
+   "styles": 3433
   },
   "breadth_rows": {
    "skus": 684,
@@ -562,6 +562,10 @@
   "distractor_rows": {
    "skus": 3684,
    "styles": 289
+  },
+  "garden_rows": {
+   "skus": 152,
+   "styles": 28
   },
   "grocery": {
    "skus": 12416,
