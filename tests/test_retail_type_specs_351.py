@@ -521,3 +521,20 @@ def test_the_scaffold_takes_the_code_it_is_given(tmp_path: Path) -> None:
     )  # fmt: skip
     assert run.returncode == 0, run.stdout + run.stderr
     assert 'code="ABCXYZ"' in (out / "sample_c.py").read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize(
+    ("code", "why"), [("abcxyz", "capitals"), ("AB", "too short"), ("TSTMFL", "in use")]
+)
+def test_the_scaffold_refuses_a_code_that_is_malformed_or_in_use(
+    tmp_path: Path, code: str, why: str
+) -> None:
+    out = tmp_path / "refused"
+    out.mkdir()
+    run = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "new_type.py"), "sample_d", "--kind", "beauty",
+         "--product-type", "Sample D", "--code", code, "--out", str(out)],
+        capture_output=True, text=True, check=False, cwd=ROOT,
+    )  # fmt: skip
+    assert run.returncode == 2 and "new_type:" in run.stdout, (why, run.stdout + run.stderr)
+    assert not list(out.iterdir()), "the scaffold wrote a file for a refused code"

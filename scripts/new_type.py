@@ -19,6 +19,7 @@ from pathlib import Path
 
 SPECS = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings" / "type_specs"
 KEY = re.compile(r"[a-z][a-z0-9_]*")
+CODE = re.compile(r"[A-Z][A-Z0-9]{2,5}")
 
 #: What a kind fills in: the department, the example row's leaf and drawing shape, its sizes and
 #: the attributes a shopper filters the type on. The example uses a shape the kit already draws.
@@ -90,13 +91,35 @@ SPEC = TypeSpec(
 '''
 
 
-def render(key: str, kind: str, ptype: str) -> str:
+def pick_code(key: str, taken: set[str]) -> str:
+    """The row code of the example row: the key cut to six letters, or that with a digit at the
+    end when a registered spec already builds ``BRD-<code>``. Two keys that share their first
+    six letters (``specimen_kaftan``, ``specimen_serum``) would otherwise build one id."""
+    base = key.replace("_", "").upper()[:6] or "EXMPLE"
+    code, n = base, 1
+    while f"BRD-{code}" in taken and n < 100:
+        n += 1
+        code = base[: 6 - len(str(n))] + str(n)
+    return code
+
+
+def _taken() -> set[str]:
+    """Every product id the registered specs build (the rows still outside the registry are
+    checked by the build, which names the clash)."""
+    root = Path(__file__).resolve().parent.parent
+    sys.path[:0] = [str(root / "prototypes" / "retail_drawings"), str(root / "src")]
+    import type_registry
+
+    return {i for s in type_registry.specs().values() for i in type_registry.ids_of(s)}
+
+
+def render(key: str, kind: str, ptype: str, code: str | None = None) -> str:
     spec = KINDS[kind]
     leaf = ptype + ("es" if ptype.endswith("s") else "s")
     return TEMPLATE.format(
         title=f"Example {ptype}", key=key, ptype=ptype, lower=ptype.lower(), row=spec["row"],
         department=spec["department"], path=spec["path"].format(leaf=leaf),
-        code=key.replace("_", "").upper()[:6] or "EXMPLE", brand=spec["brand"],
+        code=code or pick_code(key, set()), brand=spec["brand"],
         shape=spec["shape"], colors=spec["colors"], attrs=spec["attrs"], sizes=spec["sizes"],
         imports=spec["imports"], apparel=spec["apparel"],
         colorless=spec["colorless"], extra=spec["extra"],
@@ -110,6 +133,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--kind", choices=sorted(KINDS), required=True)
     ap.add_argument("--product-type", required=True, help='the shopper-facing type, "Tracksuit"')
     ap.add_argument("--out", type=Path, default=SPECS, help="the directory to write into")
+    ap.add_argument("--code", help="the example row's code (3-6 capitals); default: from the key")
     args = ap.parse_args(argv)
     if not KEY.fullmatch(args.key):
         print(f"new_type: {args.key!r} is not lower-case words joined by underscores")
@@ -118,7 +142,15 @@ def main(argv: list[str] | None = None) -> int:
     if path.exists():
         print(f"new_type: {path} exists; edit it, the scaffold never overwrites a spec")
         return 2
-    path.write_text(render(args.key, args.kind, args.product_type), encoding="utf-8")
+    taken = _taken()
+    if args.code and not CODE.fullmatch(args.code):
+        print(f"new_type: --code {args.code!r} is not 3 to 6 capitals and digits, capital first")
+        return 2
+    if args.code and f"BRD-{args.code}" in taken:
+        print(f"new_type: BRD-{args.code} is built by a registered spec; pick another code")
+        return 2
+    code = args.code or pick_code(args.key, taken)
+    path.write_text(render(args.key, args.kind, args.product_type, code), encoding="utf-8")
     print(f"wrote {path}\nnext: edit it, then see docs/new-type-quick-path.md")
     return 0
 

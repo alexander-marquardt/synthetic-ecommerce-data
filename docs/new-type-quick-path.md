@@ -8,6 +8,10 @@ only when this page does not cover what you need.
    `uv run python scripts/new_type.py <key> --kind clothing|beauty --product-type "<Type>"`
    It writes `prototypes/retail_drawings/type_specs/<key>.py`: one `SPEC = TypeSpec(...)` with a
    working example row. `<key>` is lower-case words joined by underscores and is the file name.
+   The row code is the key cut to six letters, with a digit at the end when a registered spec
+   already builds that id (two keys that start `specimen_` would build one `BRD-SPECIM`);
+   `--code ABCXYZ` sets it. A code a row still outside the registry uses is refused by the
+   build, which names the id: give the new row another code.
 2. Edit that file. Replace the example with the type's real rows:
    * a style is a `Row` (or an `LRow`, which adds a third SKU axis such as `sold_as`): its
      colors times its sizes are its SKUs; `path` is the category leaf, `shape` an existing
@@ -26,7 +30,7 @@ only when this page does not cover what you need.
    `type_specs/shampoo.py` (beauty, a derivable breadth type).
 3. Check it: `uv run pytest tests/test_retail_type_specs_351.py` (every spec is held to the same
    checks: key equals file name, rows match the type and department, brands have an owner, codes
-   are unique, the documents meet the output standard).
+   are unique, also across specs, the documents meet the output standard).
 4. Rebuild the figures (the build writes them; never edit by hand):
    `uv run python prototypes/retail_drawings/retail_figures.py`. It writes
    `golden-retail/stats.json` and `docs/retail-apparel-decoys.md` (the table of the apparel

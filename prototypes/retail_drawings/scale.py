@@ -296,6 +296,7 @@ def templates(baseline: bool = True) -> list[dict]:
     if baseline:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
+    type_registry.check_unique_ids(tpls)
     skip = mens_depth_rows.decoy_ids() | type_registry.decoy_ids()
     return main_colors.complete(tpls, skip) if baseline else tpls
 
