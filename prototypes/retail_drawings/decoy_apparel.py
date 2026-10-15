@@ -10,7 +10,9 @@ A decoy is a clone of one real style of its type (the exemplar: its category lea
 attributes and drawing), in one main color, with a new title, description and, for class 7, brand.
 The classes (the numbers follow the issue):
 
-1. **part**: the color word names a strap, a sole, a stripe ("White Bra, Red Straps").
+1. **part**: the color word names a strap, a sole, a waistband ("Bra with Red Straps": the title
+   names the misleading color only, the structured color is the true one and the drawing shows
+   the named part in the named color, :mod:`details`).
 2. **type**: another category's noun as a modifier ("Navy Jumper Dress", "Cream Trouser Socks").
 3. **audience**: an audience word of a sibling version ("Black Mens-Style Jeans", a women's style).
 4. **absent**: a material or feature named but absent ("Black Leather-Look Jacket").
@@ -20,7 +22,7 @@ The classes (the numbers follow the issue):
 
 Every type gets :attr:`Spec.per_class` decoys per class (three, more for Bra and Jeans, which
 are large, so a type holds at least a tenth of its size), one more of class 6 on a category word,
-and at most eight of class 7 (one per brand). Titles of classes 6 and 7 are six words or fewer, so
+and at most eight of class 7 (one per brand). Titles of classes 6 and 7 are five words or fewer, so
 the word sits where the text score weights it most. A type missing from the catalog, or one the
 catalog gains, reds ``tests/test_retail_apparel_decoys_311.py`` until it is planned or exempt.
 Names are invented. :data:`IDS` is what :mod:`scale` leaves out of its derivation and
@@ -35,6 +37,7 @@ import re
 import zlib
 from dataclasses import dataclass
 
+import details
 import facet_leaves
 from class_model import SHADE_FAMILY
 from decoy_rows import COLORS
@@ -48,7 +51,7 @@ BRANDS = (("Red Plover", "red"), ("Blue Otter", "blue"), ("Green Stoat", "green"
 #: The main colors a decoy is sold in, with the swatch hex of :mod:`decoy_rows`.
 PRODUCT_COLORS = ("Black", "White", "Navy", "Cream", "Grey", "Brown", "Pink", "Red", "Blue",
                   "Green")  # fmt: skip
-DETAIL_HEX = COLORS | {"Yellow": "#f2d14b"}  # the hex a named detail color is drawn in
+DETAIL_HEX = COLORS | {"Yellow": "#f2d14b"}  # the hex a named part's color is drawn in
 DROPPED_KEYS = ("line", "pattern", "print", "color", "motif")  # a clone is plain, one color
 MAIN_WORDS = ("red", "blue", "green", "yellow", "black", "white")
 CLASSES = {
@@ -122,12 +125,6 @@ IDS = frozenset(
 )  # fmt: skip
 
 # -- the words ------------------------------------------------------------------------------------
-PARTS = {"a": ("Stripes", "Piping", "Buttons", "Collar", "Cuffs", "Lining", "Pocket", "Stitching",
-               "Trim", "Zip"),
-         "b": ("Straps", "Bow", "Stitching", "Trim", "Hooks", "Lining"),
-         "u": ("Waistband", "Bow", "Stitching", "Trim", "Piping", "Cuffs"),
-         "s": ("Sole", "Eyelets", "Heel", "Lining", "Stitching", "Trim"),
-         "k": ("Stripes", "Heel", "Toe", "Cuff", "Trim", "Stitching")}  # fmt: skip
 MODS = {
     "a": (
         "Shirt",
@@ -251,7 +248,7 @@ def _clone(
     hexv: str,
     family: str,
     brand: str | None = None,
-    detail: str | None = None,
+    detail: tuple[str, str] | None = None,
 ) -> dict:
     """``ex`` re-run through :func:`variants.product` in one color with a new title, description
     and (class 7) brand; its popularity is above the typical so the text score competes."""
@@ -262,8 +259,7 @@ def _clone(
                          "size_options", "was_price", "discount_pct", "pattern",
                          "sub_collection", "product_line", "leg_style")}  # fmt: skip
     first = ex["skus"][0]["color"]
-    # A named detail color (classes 1, 6, 7) is drawn: a stripe in it, so the title is true.
-    color_tuple = cw(color, hexv, "stripe", DETAIL_HEX[detail]) if detail else cw(color, hexv)
+    color_tuple = cw(color, hexv)
     skus = [{**{k: v for k, v in s.items() if k != "sku"}, "color": color_tuple[0]}
             for s in ex["skus"] if s["color"] == first]  # fmt: skip
     if not any(s["in_stock"] for s in skus):
@@ -280,9 +276,10 @@ def _clone(
     if brand is not None:
         keep |= {"brand": brand, "brand_owner": BRAND_OWNER[brand]}
     keep["drawing"] = {k: v for k, v in keep["drawing"].items() if k != "accents"} | {
-        "pattern": "stripe" if detail else "solid", "base": hexv,
-        "accent": DETAIL_HEX[detail] if detail else "#333333",
+        "pattern": "solid", "base": hexv, "accent": "#333333",
         "motif": None, "placement": None}  # fmt: skip
+    if detail:  # a named part (classes 1, 6, 7) is drawn in the named color: the title is true
+        keep["drawing"]["detail"] = {"part": detail[0], "color": detail[1]}
     return product(f"PLT-D{code}", skus, {color_tuple[0]: swatch(color_tuple, family)}, **keep)
 
 
@@ -294,17 +291,18 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
     path_has = lambda w: _in_path(w, ex)  # noqa: E731
     out = []
     if cls == 1:
-        for part in PARTS[fam]:
+        for part in details.parts_of(ex["drawing"]["shape"]):
             for sec in MAIN_WORDS:
                 for c in PRODUCT_COLORS:
                     if c.lower() != sec:
                         out.append(
                             dict(
-                                title=f"{c} {noun}, {sec.title()} {part}",
+                                title=f"{noun} with {sec.title()} {part.title()}",
                                 word=sec,
-                                desc=f"{c} {n} with {sec} {part.lower()}.",
+                                desc=f"{c} {n} with {sec} {part}.",
                                 color=c,
                                 query=f"{sec} {n}",
+                                part=part,
                             )
                         )
     elif cls == 2:
@@ -404,6 +402,15 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
     return out
 
 
+def _detail(ex: dict, cls: int, o: dict) -> tuple[str, str] | None:
+    """The part a decoy draws in its title's color: the part a class 1 title names, the type's
+    first part for a class 6 or 7 color word (its title names none), else ``None``."""
+    if cls not in (1, 6, 7) or o["word"] not in MAIN_WORDS:
+        return None
+    part = o.get("part") or details.parts_of(ex["drawing"]["shape"])[0]
+    return part, DETAIL_HEX[o["word"].title()]
+
+
 def _wanted(cls: int, i: int, n: int, kind: str | None) -> bool:
     """Class 6: the last row of a type is the category-word one, the others a color word."""
     return cls != 6 or (kind == "category") == (i == n - 1)
@@ -477,7 +484,7 @@ def build(body: list[dict]) -> list[Row]:
                     hexv,
                     family,
                     o.get("brand"),
-                    o["word"].title() if cls in (1, 6, 7) and o["word"] in MAIN_WORDS else None,
+                    _detail(ex, cls, o),
                 )
                 words.add((cls, o["word"]))
                 used.add((o["title"], ex["category_path"][0]))
@@ -528,8 +535,11 @@ named but absent; 5 the shade is in the description only; 6 a short range name h
 
 Each type holds at least three decoys per class (nine and twelve for bras and jeans, so a type
 holds a tenth of its size), one more of class 6 on a category word, and one class 7 decoy per brand.
-Classes 6 and 7 have titles of six words or fewer. The Policy column is `generic` where the
-color, category or audience policy separates the decoy, and `special: <name>` where it needs its own
+Classes 6 and 7 have titles of five words or fewer. A title names the misleading color only
+(never the real one); the drawing shows the named part (class 1) or the type's first part
+(classes 6 and 7) in that color, and nothing else of it (`details.py`). The Policy column is
+`generic` where the color, category or audience policy separates the decoy, and
+`special: <name>` where it needs its own
 (a material claim: no field says the product is not leather). The exempt types are in
 `decoy_apparel.EXEMPT`. The table is generated
 (`python3 prototypes/retail_drawings/decoy_apparel.py`) and
