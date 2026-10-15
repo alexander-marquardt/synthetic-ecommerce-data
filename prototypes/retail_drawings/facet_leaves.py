@@ -19,7 +19,9 @@ so :func:`export.standard_document` collapses those leaves here:
   Elastane") becomes the fibre a shopper names (Nylon) and its blend a detail.
 - on every other type, ``fabric`` is the fibre or weave a shopper names (Cotton, Linen,
   Denim, Oxford); a grade or blend becomes the document's ``fibre_content``, a detail and
-  no facet (:data:`FABRIC_MOVES`, gen#187).
+  no facet (:data:`FABRIC_MOVES`, gen#187). A garment that states a ``material`` and no
+  ``fabric`` ("Wool blend", "Brushed Cotton") also carries the fibre it names
+  (:data:`MATERIAL_FABRICS`).
 
 Only the document changes. The build record, its drawing and so its image id keep the old
 leaf, so the seeded derivation and every image id are what they were. Titles keep their
@@ -152,8 +154,23 @@ FABRIC_MOVES: dict[str, tuple[str, str | None]] = {
     "Recycled Polyester, Elastane": ("Polyester", "Recycled Polyester, Elastane"),
 }
 
-#: A garment's free-text ``material`` -> the shopper fibres it names (gen#187). Stub.
-MATERIAL_FABRICS: dict[str, tuple[str, ...]] = {}
+#: A garment's free-text ``material`` -> the shopper fibres it names (gen#187). The Mens and
+#: knitwear rows state a ``material`` ("Wool Cashmere blend", "Merino wool", "Brushed Cotton")
+#: and no ``fabric``; the fibre a shopper types ("wool coat", "cashmere") is also the document's
+#: ``fabric``, so the fabric marker reads it. Each row is explicit and exact: no value is read
+#: for a word it holds, and only fibres the coverage review named (wool, cashmere, brushed
+#: cotton) are listed. The ``material`` itself stays, as the detail the product states.
+MATERIAL_FABRICS: dict[str, tuple[str, ...]] = {
+    "Brushed Cotton": ("Brushed Cotton",),
+    "Heavy Wool": ("Wool",),
+    "Lambswool": ("Wool",),
+    "Melton Wool": ("Wool",),
+    "Merino blend": ("Wool",),
+    "Merino wool": ("Wool",),
+    "Pure Wool": ("Wool",),
+    "Wool blend": ("Wool",),
+    "Wool Cashmere blend": ("Wool", "Cashmere"),
+}
 
 
 def _vocabulary() -> dict[str, set[str]]:
@@ -248,4 +265,8 @@ def leaf_facets(
         moved, _ = _fabric_facets(have)
         out += [m for m in moved if (m[0], m[2]) not in implied]
         return out, {"bra_style", "fabric"}
-    return _fabric_facets(have)
+    moved, keys = _fabric_facets(have)
+    if not moved and "fabric" not in have:
+        fibres = MATERIAL_FABRICS.get(have.get("material", ""), ())
+        moved = [("fabric", "Fabric", fibre) for fibre in fibres]
+    return moved, keys

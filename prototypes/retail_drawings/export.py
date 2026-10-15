@@ -316,7 +316,7 @@ def standard_document(rec: dict) -> dict[str, Any]:
     attributes = _product_attributes(rec)
     blend = facet_leaves.fibre_content(attributes)
     added, replaced = facet_leaves.leaf_facets(rec, attributes)
-    if replaced:
+    if replaced or added:
         path = facet_leaves.collapsed_path(path, rec["product_type"])
         attributes = [e for e in attributes if e["key"] not in replaced]
         attributes += [_entry(key, name, None, value) for key, name, value in added]
