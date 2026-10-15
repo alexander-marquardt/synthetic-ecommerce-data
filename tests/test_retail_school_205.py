@@ -221,6 +221,9 @@ def test_a_skirt_draws_the_folds_its_style_has() -> None:
         want = _attr(row, "skirt_style").lower().replace("-", "_")
         assert dict(row.params)["style"] == want, row.code
         assert _count(_svg(row), "waistband") == 1, row.code
+        length = _attr(row, "skirt_length").lower()
+        assert dict(row.params)["length"] == length, row.code
+        assert f'<g class="hem-{length}"' in _svg(row), row.code
 
 
 def test_a_pinafore_draws_a_bib_and_straps_a_jumper_dress_a_scoop_neck() -> None:
@@ -229,6 +232,15 @@ def test_a_pinafore_draws_a_bib_and_straps_a_jumper_dress_a_scoop_neck() -> None
     assert _count(pina, "strap") == 2 and _count(pina, "bib") == 1 and _count(pina, "blouse") == 1
     assert _count(jump, "strap") == 0 and _count(jump, "scoop") == 1
     assert _count(pina, "pleat") >= 8
+
+
+def test_a_pinafore_row_draws_the_style_and_the_straps_it_states() -> None:
+    rows = [r for r in ROWS if r.product_type == "School Pinafore"]
+    assert rows
+    for row in rows:
+        style = _attr(row, "pinafore_style").lower().replace(" ", "_")
+        assert dict(row.params)["style"] == style, row.code
+        assert _count(_svg(row), "strap") == (2 if style == "pinafore" else 0), row.code
 
 
 def test_a_shirt_draws_a_collar_buttons_and_the_sleeve_and_pack_it_states() -> None:
