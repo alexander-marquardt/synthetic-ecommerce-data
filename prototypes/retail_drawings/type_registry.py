@@ -11,7 +11,9 @@ already state. :func:`specs` finds the modules by walking the package, so the sc
 ``scripts/new_type.py <key> --kind clothing|beauty`` writes a spec that already validates.
 ``tests/test_retail_type_specs_351.py`` holds every spec to :func:`validate` and fails a type that
 is registered anywhere but a spec file or the :func:`legacy_types` list, which only shrinks (a
-type moves from the list into a spec; nothing is added to it).
+type moves from the list into a spec; nothing is added to it): :func:`registration_problems` holds
+the list to :data:`LEGACY_CEILING`. A clothing, footwear or lingerie spec also carries its
+apparel decoy plan (:class:`ApparelPlan`) or an exemption, and :mod:`decoy_apparel` reads it here.
 
 A type that needs a drawing shape the kit lacks defines it in the spec module with
 ``kit.register`` (see ``docs/new-type-quick-path.md``); the common case reuses a shape.
@@ -44,6 +46,14 @@ KEY = re.compile(r"[a-z][a-z0-9_]*")
 #: The text-match decoy classes of gen#294 (``decoy_rows``): a color part, a category word, an
 #: audience word, an absent feature, a shade in the description, an incidental word, a brand.
 DECOY_CLASSES = range(1, 8)
+#: The departments whose Womens, Mens and Kids types carry the apparel decoys of gen#311
+#: (:mod:`decoy_apparel`), and the word families a plan may name there.
+APPAREL_DEPARTMENTS = ("Clothing", "Footwear", "Lingerie & Nightwear")
+APPAREL_FAMILIES = "abusk"
+#: The most types the legacy list may hold. A migration lowers it by the types it moves, so the
+#: list is exact: an appended line (a type registered the old way) is over it, and a shorter list
+#: leaves room to append the difference.
+LEGACY_CEILING = 299
 
 
 class SpecError(ValueError):
@@ -76,6 +86,9 @@ class TypeSpec:
     ``derivable`` True lets the scaled build draw derived styles from ``rows`` (a breadth type
     that grows with the build); False keeps them as templates only. A decoy is never derived.
     ``owners`` states ``brand -> "own" | "third_party"`` for a brand no other module has stated.
+    A clothing, footwear or lingerie type carries ``apparel`` (its :class:`ApparelPlan` of
+    text-match decoys, gen#311) or ``apparel_exempt`` (the reason it carries none); a type of any
+    other department carries neither. :mod:`decoy_apparel` reads the plan from the registry.
     """
 
     key: str
@@ -149,6 +162,21 @@ def validate(spec: TypeSpec) -> None:
     for d in spec.decoys:
         if d.cls not in DECOY_CLASSES:
             raise SpecError(f"{spec.key}: {d.row.code} has decoy class {d.cls}, not 1 to 7")
+    _validate_apparel(spec)
+
+
+def _validate_apparel(spec: TypeSpec) -> None:
+    plan = spec.apparel
+    if plan is None and not spec.apparel_exempt:
+        return
+    if spec.department not in APPAREL_DEPARTMENTS:
+        raise SpecError(f"{spec.key}: apparel decoys are for {', '.join(APPAREL_DEPARTMENTS)}")
+    if plan is not None and spec.apparel_exempt:
+        raise SpecError(f"{spec.key}: it has an apparel plan and an apparel exemption: pick one")
+    if plan is not None and plan.family not in APPAREL_FAMILIES:
+        raise SpecError(f"{spec.key}: apparel family {plan.family!r} is not one of a, b, u, s, k")
+    if plan is not None and plan.per_class < 3:
+        raise SpecError(f"{spec.key}: an apparel plan holds at least 3 decoys per class")
 
 
 @functools.cache
@@ -200,4 +228,22 @@ def legacy_types() -> frozenset[tuple[str, str]]:
 
 
 def registration_problems(built: set[tuple[str, str]]) -> list[str]:
-    return []
+    """What is wrong with how the ``(department, product type)`` pairs of ``built`` are registered:
+    a type in no spec file and not on the legacy list, a type on both, a legacy type no longer
+    built, and a legacy list that is not exactly :data:`LEGACY_CEILING` long."""
+    through = {(s.department, s.product_type) for s in specs().values()}
+    legacy = legacy_types()
+    out = []
+    if elsewhere := sorted(built - through - legacy):
+        out.append(f"registered outside a spec file (use scripts/new_type.py): {elsewhere}")
+    if both := sorted(legacy & through):
+        out.append(f"migrated but still on the legacy list (on both): {both}")
+    if stale := sorted(legacy - built):
+        out.append(f"on the legacy list but no longer built: {stale}")
+    if len(legacy) > LEGACY_CEILING:
+        out.append(f"the legacy list holds {len(legacy)} types, over the ceiling {LEGACY_CEILING}")
+    if len(legacy) < LEGACY_CEILING:
+        out.append(f"lower LEGACY_CEILING to {len(legacy)}: a migration shortened the list")
+    if not through <= built:
+        out.append(f"a spec type is not built: {sorted(through - built)}")
+    return out

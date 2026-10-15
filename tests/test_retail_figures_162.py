@@ -49,9 +49,7 @@ QUOTING = (
 
 #: Constants that tune the build, not totals it measures: a small total that happens to equal
 #: one (gen#200's 40 household styles and ``ATTEMPTS = 40``) is a collision, not a quotation.
-#: ``DEPARTMENTS`` is the count of the closed department list (an invariant), which the ten styles
-#: of the type specs (gen#351) happen to equal.
-TUNING = ("ATTEMPTS", "DEPARTMENTS")
+TUNING = ("ATTEMPTS",)
 
 
 #: Sections of a quoting file that report the INDUSTRIAL build. Their figures (a bearing count of
@@ -100,8 +98,11 @@ def _quotations(stats: dict) -> dict[str, str]:
     """
     patterns: dict[str, str] = {}
     for name, value in _numbers(stats).items():
-        if name.startswith(("departments.", "grocery_families.")):
-            continue  # read at run time; never typed (see test_the_per_family_counts_add_up)
+        if name.startswith(("departments.", "grocery_families.", "templates.type_specs.")):
+            # Read at run time, never typed (see test_the_per_family_counts_add_up). The type
+            # specs' own total (gen#351) moves with every type added, so a prose number that
+            # happens to equal it is a collision, not a quotation.
+            continue
         if isinstance(value, float):
             for places in (1, 2):
                 text = f"{value * 100:.{places}f}"

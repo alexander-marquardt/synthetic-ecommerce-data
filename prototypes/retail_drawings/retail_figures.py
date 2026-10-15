@@ -192,6 +192,7 @@ def main() -> int:
     STATS.parent.mkdir(exist_ok=True)
     STATS.write_text(render(measure()), encoding="utf-8")
     print(f"wrote {STATS}")
+    print(f"wrote {decoy_apparel.write_doc()}")  # the apparel decoys of the types added since
     return 0
 
 

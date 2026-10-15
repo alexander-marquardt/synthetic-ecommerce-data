@@ -29,11 +29,13 @@ KINDS = {
         "shape": "top",
         "brand": "Larkmoor",
         "row": "LRow",
-        "extra": '        facts=(("size_range", ["regular"]), ("pattern", "plain")),\n',
+        "extra": '            facts=(("size_range", ["regular"]), ("pattern", "plain")),\n',
         "sizes": 'sizes(20.0, ("XS", "S", "M", "L", "XL"))',
         "colors": '(cw("Navy", "#26365c"), cw("Black", "#2f2f35"))',
         "attrs": '(a("fabric", "Fabric", "Cotton"), a("fit", "Fit", "Regular"))',
         "colorless": "",
+        "apparel": "    apparel=ApparelPlan(),\n",
+        "imports": "ApparelPlan, LRow, TypeSpec, a, cw, sizes",
     },
     "beauty": {
         "department": "Beauty",
@@ -45,7 +47,9 @@ KINDS = {
         "sizes": '(("250ml", 6.0), ("500ml", 10.0))',
         "colors": '(cw("Amber", "#c98a2e", "solid", "#ffffff"),)',
         "attrs": '(a("ingredient", "Ingredient", "Argan Oil"),)',
-        "colorless": "        colorless=True,\n",
+        "colorless": "            colorless=True,\n",
+        "apparel": "",
+        "imports": "Row, TypeSpec, a, cw",
     },
 }
 
@@ -59,21 +63,30 @@ a shape the kit lacks is defined in this module and added with ``kit.register``.
 
 from __future__ import annotations
 
-from type_registry import {row}, TypeSpec, a, cw{sizes_import}
+from type_registry import {imports}
 
 SPEC = TypeSpec(
     key="{key}",
     department="{department}",
     product_type="{ptype}",
     derivable={derivable},
-    rows=(
+{apparel}    rows=(
         {row}(
-            "{code}", "{title}", "{brand}", "{department}", {path},
-            "{ptype}", 20.0, "{shape}", "A {lower} for the example row: replace this text.",
-            {colors}, {attrs}, {sizes},
+            code="{code}",
+            title="{title}",
+            brand="{brand}",
+            department="{department}",
+            path={path},
+            product_type="{ptype}",
+            price=20.0,
+            shape="{shape}",
+            description="A {lower} for the example row: replace this text.",
+            colors={colors},
+            attrs={attrs},
+            sizes={sizes},
 {colorless}{extra}        ),
     ),
-)  # fmt: skip
+)
 '''
 
 
@@ -85,7 +98,7 @@ def render(key: str, kind: str, ptype: str) -> str:
         department=spec["department"], path=spec["path"].format(leaf=leaf),
         code=key.replace("_", "").upper()[:6] or "EXMPLE", brand=spec["brand"],
         shape=spec["shape"], colors=spec["colors"], attrs=spec["attrs"], sizes=spec["sizes"],
-        sizes_import=", sizes" if spec["sizes"].startswith("sizes") else "",
+        imports=spec["imports"], apparel=spec["apparel"],
         colorless=spec["colorless"], extra=spec["extra"],
         derivable="True" if kind == "beauty" else "False",
     )  # fmt: skip
