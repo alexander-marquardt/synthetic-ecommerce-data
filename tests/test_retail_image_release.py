@@ -54,7 +54,9 @@ def files() -> list[tuple[str, bytes]]:
 
 
 def _color(variant: dict[str, Any]) -> str | None:
-    return next((a["value"] for a in variant["attributes"] if a["key"] == "color"), None)
+    """The colourway: the colour with its pattern, as a wash is a pattern of Blue (#188)."""
+    pair = [a["value"] for a in variant["attributes"] if a["key"] in ("color", "pattern")]
+    return "/".join(pair) or None
 
 
 def test_one_image_per_style_and_colorway_never_per_sku(documents, files):
