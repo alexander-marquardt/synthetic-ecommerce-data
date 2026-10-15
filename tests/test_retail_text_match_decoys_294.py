@@ -32,7 +32,7 @@ INTENT = {
     "red bra": ("Red", {"Bra"}, None, None),
     "blue shirt": ("Blue", {"Shirt"}, None, None),
     "black trainers": ("Black", {"Trainers"}, None, None),
-    "mens puffer jacket": (None, {"Puffer Jacket"}, "Men", None),
+    "mens puffer jacket": (None, {"Puffer Jacket"}, "Mens", None),
     "boys grey socks": ("Grey", {"Socks"}, "Kids", None),
     "face cream": (None, {"Face Cream"}, None, None),
     "gold top": ("Gold", {"Top", "Tee"}, None, None),
