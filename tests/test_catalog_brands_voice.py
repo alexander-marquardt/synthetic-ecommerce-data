@@ -43,7 +43,7 @@ from synthetic_ecommerce_data.core.config import HUNDRED_K_LINES, GeneratorConfi
 from synthetic_ecommerce_data.core.dimensions import parse_length
 from synthetic_ecommerce_data.domains.industrial import tabletype
 from synthetic_ecommerce_data.domains.industrial.generate import generate
-from synthetic_ecommerce_data.domains.industrial.hammers import ABSENT_HANDLES, PLACES
+from synthetic_ecommerce_data.domains.industrial.hammers import is_incidental_decoy_title
 from synthetic_ecommerce_data.domains.industrial.muststock import MUST_STOCK
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
@@ -437,11 +437,6 @@ def _about(sentence: str, facts: str) -> bool:
     )
 
 
-INCIDENTAL_DECOY_TITLE = re.compile(
-    rf"^[A-Z][A-Za-z ]+, (?:{'|'.join(ABSENT_HANDLES)}) (?:{'|'.join(PLACES)})$"
-)
-
-
 def voice_deviations(docs: list[dict]) -> list[tuple]:
     """(brand, type) groups whose titles or descriptions break one template.
 
@@ -455,7 +450,7 @@ def voice_deviations(docs: list[dict]) -> list[tuple]:
         key = (doc["brand"], doc["product_type"])
         # A text-match decoy's title is the item and its misleading word alone, in no
         # brand's voice (gen#320); its description still follows the template.
-        if not INCIDENTAL_DECOY_TITLE.match(doc["title"]):
+        if not is_incidental_decoy_title(doc["title"]):
             openings[key].add(_opening(doc))
         marker = f"{doc['brand']} {doc['series']}. "
         description = without_compatibility(doc["description"])

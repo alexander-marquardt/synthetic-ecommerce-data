@@ -15,6 +15,7 @@ The price is GENERATED, not measured: the price census has no hammers.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -55,9 +56,19 @@ ABSENT_HANDLES: tuple[str, ...] = ("Hickory", "Ash", "Fiberglass")
 PLACES: tuple[str, ...] = ("Creek", "Ridge", "Lane", "Hollow")
 
 
+#: The misleading phrase of a class-4 decoy: ``word`` is the handle material it names.
+INCIDENTAL_PHRASE = re.compile(
+    rf"\b(?P<word>{'|'.join(ABSENT_HANDLES)}) (?:{'|'.join(PLACES)})\b"
+)
+_INCIDENTAL_TITLE = re.compile(rf"^[A-Z][A-Za-z ]+, {INCIDENTAL_PHRASE.pattern}$")
+
+
 def is_incidental_decoy_title(title: str) -> bool:
-    """Whether ``title`` is a class-4 decoy title (the item and the word alone)."""
-    return False
+    """Whether ``title`` is a class-4 decoy title (the item and the word alone).
+
+    The one predicate the decoy table's guards and the facts and voice gates share.
+    """
+    return _INCIDENTAL_TITLE.match(title) is not None
 
 #: Text-match decoys (gen#294): three lines in every ``DECOY_PERIOD`` of a kind carry a
 #: title word that misleads a text search while its attributes stay true. The position in the period
