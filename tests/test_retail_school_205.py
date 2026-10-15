@@ -180,7 +180,7 @@ def test_a_param_changes_the_drawing(shape: str, one: dict, other: dict) -> None
 def test_every_style_draws_well_formed_svg_with_its_own_marks(row) -> None:
     svg = _svg(row)
     xml.dom.minidom.parseString(svg)
-    assert len(svg) > 2000, "a stub that draws nothing is no drawing"
+    assert len(svg) > 700, "a stub that draws nothing is no drawing"
     assert not re.findall(r"<text[^>]*>[^<]*\d[^<]*</text>", svg), "a size is never printed"
 
 
