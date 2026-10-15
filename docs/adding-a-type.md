@@ -646,6 +646,19 @@ id (`hammer_claw`), never a display name (`Claw Hammer`);
 `tests/test_hammers_305.py` refuses a hammer that is not under the node and a leaf whose
 products mix the two formats.
 
+Every kind carries text-match decoys (the standing rule of gen#294): three lines in six
+(`hammers.DECOY_PERIOD`) say a misleading word AFTER the item, so a brand's title template
+stays one per type, and their attributes stay true. The class names the word:
+
+| Class | Title says | Truth |
+|---|---|---|
+| category word (special: an `Item`/`product_type` policy, not a category policy) | `Claw Hammer, Sledge Series`: another kind's noun | a claw hammer, not a sledge; all 7 kinds share the one `Hand Tools > Hammers` node, so no category policy can tell them apart |
+| material named but absent (generic) | `Claw Hammer, Hickory-Look` | the handle is steel or fiberglass |
+| incidental word, short title (generic) | `Claw Hammer, Hickory Creek` (5 words or fewer from the item on) | the creek is a place name |
+
+`tests/test_hammers_305.py` pins at least three of each class per kind and that the
+handle never is the named material. The color classes do not apply: a hammer has no color.
+
 ## The commands
 
 ```sh
