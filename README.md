@@ -190,7 +190,7 @@ To add a product type, or move one into its own module, see
 Merge every pull request with `scripts/merge_pr.sh <PR number>`, not the
 GitHub button: this repository has no branch protection, so a green from an
 older `main` can merge and turn `main` red. The script merges current `main`
-in, rebuilds `golden-catalog/` and merges only when the drift, golden and seam
+in, rebuilds `golden-catalog/` and `golden-retail/stats.json` and merges only when the drift, golden and seam
 tests pass on that tree.
 `tests/test_merge_pr.py` builds its planted worlds with `UV_OFFLINE=1` and name
 resolution blocked, so it needs uv's cache (warm once `uv sync` has run in this
@@ -1150,8 +1150,8 @@ SKU. `size_range` is a list; for legwear it is derived from the in-stock lengths
 (Extra Short and Short/Petite give `petite`), never declared, so the flat
 `size_range` filter of class 6 means "has an in-stock petite SKU".
 
-Every class doc also carries the tile signals: `offer` (a was-price, or a
-multi-buy with none), `discount_pct` (derived, sale docs only),
+Every class doc also carries the tile signals: `promotion` (a was-price gives
+"On sale"; see below), `discount_pct` (derived, sale docs only),
 `trending`, `online_only`, a `brand_owner` (own or third party; third-party
 brands lead the offers, some with a `sub_collection` label such as "The
 Active Edit"), and `badges` in one order (Bestseller for the top 15,
@@ -1260,7 +1260,7 @@ dietary claims).
 `prototypes/retail_drawings/export.py` turns the 328-style build into that
 standard: `skus` become `variants`, each SKU option a variant-level attribute
 entry (a measurement split into `value`, `unit_code` and `value_canonical`);
-color and size options, the offer flags, rating and the other
+color and size options, the `promotion` and other flags, rating and the other
 retail-only fields become product-level entries (no `department`: see below); `image_id` is
 `<product type>/<product id>/<drawing spec digest>`, one per style and
 colorway, served under `/images/retail` from the image release
@@ -1270,6 +1270,18 @@ and planted single-SKU records gained theirs in the record builders). A
 percent (ABV, discount) is a plain number with `(%)` in its name: prism
 spells no percent unit, so `P1` is not a unit code here and the validator
 refuses it.
+
+**`promotion`, label "Sale" (gen#189).** It replaced the boolean `offer`
+("Offer: yes / no"). It is a multi-valued keyword, so a new campaign is a new
+value and needs no remapping. Every product with a `was_price` carries "On sale";
+a product in the seeded campaign (one reduced product in three, "Christmas
+promotion") also carries the campaign's name, which never replaces "On sale".
+A product with no `was_price` has no `promotion` entry at all, so the facet
+never shows a "Not on sale" row. `was_price` and `discount_pct` stay. Multi-buy
+is out of scope and becomes its own field later. The values and the rule are in
+`prototypes/retail_drawings/promotion.py`; `tests/test_retail_promotion_189.py`
+checks every layer. A loader that read `offer` (a facet config, a field map)
+reads `promotion` instead; the catalog is reloaded once with #186 to #189.
 
 The retail build also writes industrial's **flat** shape, one document per
 SKU, which is what elastic/prism-industrial-products loads (as its
