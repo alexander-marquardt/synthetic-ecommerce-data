@@ -32,6 +32,7 @@ import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
+import decoy_rows  # noqa: E402
 import distractor_rows  # noqa: E402
 import export  # noqa: E402
 import grocery  # noqa: E402
@@ -110,6 +111,7 @@ def measure() -> dict[str, Any]:
         "scale_rows": scale_rows.docs(),
         "breadth_rows": breadth_rows.docs(),
         "distractor_rows": distractor_rows.docs(),
+        "decoy_rows": decoy_rows.docs(),
         "shirt_rows": shirt_rows.docs(),
         "accessory_rows": accessory_rows.docs(),
         "sports_rows": sports_rows.docs(),

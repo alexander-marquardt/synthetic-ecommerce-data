@@ -55,6 +55,7 @@ SCALE_ROWS = FIGURES["templates"]["scale_rows"]["styles"]
 AUTHORED = FIGURES["templates"]["authored"]["styles"]
 BREADTH_ROWS = FIGURES["templates"]["breadth_rows"]["styles"]
 DISTRACTOR_ROWS = FIGURES["templates"]["distractor_rows"]["styles"]
+DECOY_ROWS = FIGURES["templates"]["decoy_rows"]["styles"]
 SHIRT_ROWS = FIGURES["templates"]["shirt_rows"]["styles"]
 ACCESSORY_ROWS = FIGURES["templates"]["accessory_rows"]["styles"]
 SPORTS_ROWS = FIGURES["templates"]["sports_rows"]["styles"]
@@ -74,6 +75,7 @@ TEMPLATES = (
     + SCALE_ROWS
     + BREADTH_ROWS
     + DISTRACTOR_ROWS
+    + DECOY_ROWS
     + SHIRT_ROWS
     + ACCESSORY_ROWS
     + SPORTS_ROWS
