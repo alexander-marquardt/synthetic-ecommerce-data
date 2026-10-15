@@ -77,7 +77,7 @@ GUIDANCE_EXAMPLES = {
 
 
 def _verdict_accepted(verdict: str) -> bool:
-    return True
+    return verdict == "none" or VERDICT_FORM.fullmatch(verdict) is not None
 
 
 @pytest.mark.parametrize(
@@ -140,7 +140,25 @@ EXPECTED_NOT_BUILT = frozenset(
 
 
 def _not_built_problems(rows: list[list[str]]) -> list[str]:
-    return []
+    """What is wrong with the Not built rows: the set must equal EXPECTED_NOT_BUILT exactly."""
+    problems = []
+    names = [r[0] for r in rows]
+    for name in sorted(EXPECTED_NOT_BUILT - set(names)):
+        problems.append(f"{name}: no row")
+    for name in sorted(set(names) - EXPECTED_NOT_BUILT):
+        problems.append(f"{name}: not an expected type")
+    for name in sorted({n for n in names if names.count(n) > 1}):
+        problems.append(f"{name}: listed twice")
+    for cells in rows:
+        if len(cells) != 3 or not all(cells):
+            problems.append(f"{cells[0]}: a row needs a type, a family and a disposition")
+            continue
+        disposition = cells[2]
+        if "not reached" in disposition.lower():
+            problems.append(f"{cells[0]}: 'not reached' is scope, not a reason")
+        elif not (re.fullmatch(r"#\d+", disposition) or len(disposition) >= 20):
+            problems.append(f"{cells[0]}: neither an issue nor a reason")
+    return problems
 
 
 def test_every_type_not_built_has_an_open_issue_or_a_reason() -> None:
