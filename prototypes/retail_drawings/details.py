@@ -10,6 +10,7 @@ parts it can show and where each one sits:
   band follows the cut and leaves the outline alone.
 * ``free``: strokes over a part the kit draws as a bare line (a bra's or a dress's straps).
 * ``shapes``: filled shapes (a bow).
+* ``marked``: a part the kit draws as its own path (a shoe's sole), drawn again in the color.
 
 Every element drawn here carries ``data-part="<part>"`` and the part's color as its fill or
 stroke, which ``tests/test_retail_apparel_decoys_311.py`` reads. A shape with no entry in
@@ -38,6 +39,12 @@ def shapes(*paths: str) -> dict:
     return {"kind": "shapes", "paths": paths}
 
 
+def marked(cls: str) -> dict:
+    """A part the kit draws as its own path and marks ``class="<cls>"``: it is drawn again in the
+    part's color, on the very same outline, so the color sits where the kit puts the part."""
+    return {"kind": "marked", "cls": cls}
+
+
 def sock_part(name: str) -> dict:
     """A part of each sock of a pack, the kit's own path in the sock's own group (``kit_more``
     draws a pack's socks rotated and scaled, so a box of the whole drawing would miss)."""
@@ -46,6 +53,8 @@ def sock_part(name: str) -> dict:
 
 WAIST = band((0.0, 0.0, 1.0, 0.13))
 HEM = band((0.0, 0.89, 1.0, 1.0))
+#: A hem is the torso's: a sleeve's cuff reaches the same bottom and is its own part.
+TORSO_HEM = band((0.0, 0.89, 1.0, 1.0), "torso")
 COLLAR = band((0.33, 0.0, 0.67, 0.1))
 STRAPS_TOP = band((0.0, 0.0, 1.0, 0.17))
 
@@ -63,14 +72,14 @@ PARTS: dict[str, dict[str, dict]] = {
     "vest": {"straps": STRAPS_TOP},
     "slip": {"straps": STRAPS_TOP},
     "shapewear": {"straps": STRAPS_TOP},
-    "blouse": {"hem": HEM},
-    "tshirt": {"hem": HEM, "collar": COLLAR},
-    "top": {"hem": HEM, "collar": COLLAR},
-    "sweatshirt": {"hem": HEM, "collar": COLLAR},
-    "cardigan": {"hem": HEM},
-    "coat": {"hem": HEM},
-    "bodysuit": {"hem": HEM},
-    "dressing_gown": {"hem": HEM},
+    "blouse": {"hem": TORSO_HEM},
+    "tshirt": {"hem": TORSO_HEM, "collar": COLLAR},
+    "top": {"hem": TORSO_HEM, "collar": COLLAR},
+    "sweatshirt": {"hem": TORSO_HEM, "collar": COLLAR},
+    "cardigan": {"hem": TORSO_HEM},
+    "coat": {"hem": TORSO_HEM},
+    "bodysuit": {"hem": TORSO_HEM},
+    "dressing_gown": {"hem": TORSO_HEM},
     "pyjamas": {"cuffs": HEM},
     "trousers": {"waistband": WAIST, "cuffs": HEM},
     "joggers": {"waistband": WAIST, "cuffs": HEM},
@@ -89,7 +98,7 @@ PARTS: dict[str, dict[str, dict]] = {
         "toe": band((0.72, 0.78, 1.0, 1.0), "all"),
         "heel": band((0.0, 0.78, 0.34, 1.0), "all"),
     },
-    "shoe": {"sole": band((0.0, 0.62, 1.0, 0.92), "all")},
+    "shoe": {"sole": marked("sole")},
 }
 
 
@@ -153,9 +162,13 @@ def _body(drawn: list[str], paint: str, mode: str) -> list[Placed]:
         fill = re.search(r' fill="([^"]*)"', placed[3])
         if fill is None or fill.group(1) in ("none", "#000000"):  # a shading wash is no body
             continue
-        if mode == "paint" and fill.group(1) != paint:
+        if mode in ("paint", "torso") and fill.group(1) != paint:
             continue
         out.append(placed)
+    if mode == "torso" and out:  # the pieces that cross the garment's middle, not its sleeves
+        x0, _, x1, _ = _bbox(out) or (0.0, 0.0, 0.0, 0.0)
+        mid = (x0 + x1) / 2
+        out = [p for p in out if (b := _bbox([p])) and b[0] <= mid <= b[2]]
     return out
 
 
@@ -209,6 +222,17 @@ def overlay(shape: str, fill: Fill, drawn: list[str], paint: str, uid: str) -> s
             for d, w in spec["strokes"]
         )
         return under + over
+    if spec["kind"] == "marked":
+        out = []
+        for tx, ty, sc, el in _flat(drawn):
+            if f' class="{spec["cls"]}"' not in el:
+                continue
+            el = re.sub(r' fill="[^"]*"', f' fill="{color}"', el, count=1)
+            el = el.replace(f' class="{spec["cls"]}"', mark)
+            out.append(f'<g transform="translate({tx:g} {ty:g}) scale({sc:g})">{el}</g>')
+        if not out:
+            raise ValueError(f"{shape!r}: the kit draws no element marked {spec['cls']!r}")
+        return "".join(out)
     if spec["kind"] == "sock":
         import kit_more  # deferred: it registers the sock shape
 
