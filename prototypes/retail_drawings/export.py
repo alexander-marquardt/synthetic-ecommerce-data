@@ -47,9 +47,10 @@ from synthetic_ecommerce_data.core.variant_axes import profile, variant_axes
 IMAGE_ROOT = "retail"
 IMAGE_BASE_URL = f"/images/{IMAGE_ROOT}"
 
-#: Product-level keys written in Title Case whatever the authored row spelled ("plain" and
-#: "Plain" were two buckets of one facet).
-TITLE_CASED = frozenset({"pattern", "rise"})
+#: The one casing of a key's values whatever the authored row spelled ("plain" and "Plain"
+#: were two buckets of one facet, gen#255): the casing the catalogue repo reads, ``pattern``
+#: lower case and ``rise`` High/Mid/Low.
+VALUE_CASE = {"pattern": str.lower, "rise": str.title}
 
 #: Authored product types that are one concept with another, written as the second: "Tee" is a
 #: "T-Shirt", the name of its category node. Only the document's ``product_type`` is folded;
@@ -237,11 +238,11 @@ def _product_attributes(rec: dict) -> list[dict[str, Any]]:
         if (e["key"], e["value"]) not in have:
             have.add((e["key"], e["value"]))
             out.append(e)
-    return _title_cased(out)
+    return _one_case(out)
 
 
-def _title_cased(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """``entries`` with the :data:`TITLE_CASED` keys in Title Case, a repeat dropped.
+def _one_case(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """``entries`` with each :data:`VALUE_CASE` key's value in its one casing, a repeat dropped.
 
     The authored rows spell ``pattern`` and ``rise`` both ways ("plain", "Plain"), which split
     one facet's bucket in two; every other facet already has one spelling
@@ -249,8 +250,8 @@ def _title_cased(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     seen: set[tuple[str, Any]] = set()
     for e in entries:
-        if e["key"] in TITLE_CASED and isinstance(e["value"], str):
-            e = e | {"value": e["value"].title()}
+        if e["key"] in VALUE_CASE and isinstance(e["value"], str):
+            e = e | {"value": VALUE_CASE[e["key"]](e["value"])}
         if (e["key"], e["value"]) not in seen:
             seen.add((e["key"], e["value"]))
             out.append(e)
