@@ -1,0 +1,114 @@
+#!/usr/bin/env python3
+"""Write the spec file of a new retail product type (gen#351).
+
+    uv run python scripts/new_type.py <key> --kind clothing|beauty --product-type "Tracksuit"
+
+writes ``prototypes/retail_drawings/type_specs/<key>.py``: one ``SPEC = TypeSpec(...)`` with a
+working example row. Edit that file and nothing else: the registry finds it, the scaled build
+and the figures read the registry, and ``tests/test_retail_type_specs_351.py`` holds every spec
+to the same checks. Then regenerate the figures (``docs/new-type-quick-path.md``). The command
+refuses a key whose file exists, and a key that is not lower-case words joined by underscores.
+"""
+
+from __future__ import annotations
+
+import argparse
+import re
+import sys
+from pathlib import Path
+
+SPECS = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings" / "type_specs"
+KEY = re.compile(r"[a-z][a-z0-9_]*")
+
+#: What a kind fills in: the department, the example row's leaf and drawing shape, its sizes and
+#: the attributes a shopper filters the type on. The example uses a shape the kit already draws.
+KINDS = {
+    "clothing": {
+        "department": "Clothing",
+        "path": '("Womens", "Tops", "Jersey Tops")',
+        "shape": "top",
+        "brand": "Larkmoor",
+        "row": "LRow",
+        "extra": '        facts=(("size_range", ["regular"]), ("pattern", "plain")),\n',
+        "sizes": 'sizes(20.0, ("XS", "S", "M", "L", "XL"))',
+        "colors": '(cw("Navy", "#26365c"), cw("Black", "#2f2f35"))',
+        "attrs": '(a("fabric", "Fabric", "Cotton"), a("fit", "Fit", "Regular"))',
+        "colorless": "",
+    },
+    "beauty": {
+        "department": "Beauty",
+        "path": '("Beauty", "Hair Care", "{leaf}")',
+        "shape": "bottle",
+        "brand": "Mirefield Naturals",
+        "row": "Row",
+        "extra": "",
+        "sizes": '(("250ml", 6.0), ("500ml", 10.0))',
+        "colors": '(cw("Amber", "#c98a2e", "solid", "#ffffff"),)',
+        "attrs": '(a("ingredient", "Ingredient", "Argan Oil"),)',
+        "colorless": "        colorless=True,\n",
+    },
+}
+
+TEMPLATE = '''"""{title} (gen#351 scaffold): edit this file only.
+
+Replace the example row with the type's real rows (a style is its colors times its sizes), then
+set ``derivable`` True only if the scaled build should draw more styles from them. The leaf
+(``path``), the drawing ``shape`` and the attribute keys must be ones the catalog already uses;
+a shape the kit lacks is defined in this module and added with ``kit.register``.
+"""
+
+from __future__ import annotations
+
+from type_registry import {row}, TypeSpec, a, cw{sizes_import}
+
+SPEC = TypeSpec(
+    key="{key}",
+    department="{department}",
+    product_type="{ptype}",
+    derivable={derivable},
+    rows=(
+        {row}(
+            "{code}", "{title}", "{brand}", "{department}", {path},
+            "{ptype}", 20.0, "{shape}", "A {lower} for the example row: replace this text.",
+            {colors}, {attrs}, {sizes},
+{colorless}{extra}        ),
+    ),
+)  # fmt: skip
+'''
+
+
+def render(key: str, kind: str, ptype: str) -> str:
+    spec = KINDS[kind]
+    leaf = ptype + ("es" if ptype.endswith("s") else "s")
+    return TEMPLATE.format(
+        title=f"Example {ptype}", key=key, ptype=ptype, lower=ptype.lower(), row=spec["row"],
+        department=spec["department"], path=spec["path"].format(leaf=leaf),
+        code=key.replace("_", "").upper()[:6] or "EXMPLE", brand=spec["brand"],
+        shape=spec["shape"], colors=spec["colors"], attrs=spec["attrs"], sizes=spec["sizes"],
+        sizes_import=", sizes" if spec["sizes"].startswith("sizes") else "",
+        colorless=spec["colorless"], extra=spec["extra"],
+        derivable="True" if kind == "beauty" else "False",
+    )  # fmt: skip
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("key", help="lower-case words joined by underscores; the file is <key>.py")
+    ap.add_argument("--kind", choices=sorted(KINDS), required=True)
+    ap.add_argument("--product-type", required=True, help='the shopper-facing type, "Tracksuit"')
+    ap.add_argument("--out", type=Path, default=SPECS, help="the directory to write into")
+    args = ap.parse_args(argv)
+    if not KEY.fullmatch(args.key):
+        print(f"new_type: {args.key!r} is not lower-case words joined by underscores")
+        return 2
+    path = args.out / f"{args.key}.py"
+    if path.exists():
+        print(f"new_type: {path} exists; edit it, the scaffold never overwrites a spec")
+        return 2
+    path.write_text(render(args.key, args.kind, args.product_type), encoding="utf-8")
+    print(f"wrote {path}\nnext: edit it, then see docs/new-type-quick-path.md")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

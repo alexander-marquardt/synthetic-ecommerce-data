@@ -94,6 +94,7 @@ def test_a_spec_type_has_no_row_outside_its_spec_file() -> None:
             r["product_id"] for r in scale.templates(baseline=False)
             if (r["department"][0], r["product_type"]) == (spec.department, spec.product_type)
             and r["product_id"] not in own
+            and r["product_id"] not in scale.DECOY_IDS  # gen#311 clones every apparel type
         ]  # fmt: skip
         assert not stray, f"{spec.key}: rows registered outside its spec: {stray}"
 

@@ -1,5 +1,8 @@
 # How to add a product type
 
+A retail type is one spec file: see [new-type-quick-path.md](new-type-quick-path.md) first.
+This page is the reference for the industrial catalog.
+
 A product type is one leaf of the category tree, such as `screw_socket_head` or
 `ball_stock_precision`. Each type is declared in a module of its own under
 `src/synthetic_ecommerce_data/domains/industrial/product_types/`. A breadth type is one new

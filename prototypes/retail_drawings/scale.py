@@ -122,6 +122,7 @@ import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
 import sports_rows  # noqa: E402
 import toys_rows  # noqa: E402
+import type_registry  # noqa: E402
 import underwear_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from export import drawing_spec, image_id, standard_document  # noqa: E402
@@ -252,6 +253,9 @@ COLORGROUP_IDS = colorgroup_rows.product_ids()
 LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 #: The Mens clothing depth (:mod:`mens_depth_rows`, gen#310): templates only.
 MENS_DEPTH_IDS = mens_depth_rows.product_ids()
+#: The ids the type specs (:mod:`type_registry`, gen#351) keep out of the derivation: a spec that
+#: is not ``derivable`` and every spec decoy. No type edits this line: the registry finds them.
+SPEC_IDS = type_registry.left_out_ids()
 
 
 # Text-match decoys (gen#294, gen#311) are exempt from the output standard's text check: they
@@ -286,13 +290,14 @@ def templates(baseline: bool = True) -> list[dict]:
         *household_rows.docs(),
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
-        *colorgroup_rows.docs(), *mens_depth_rows.docs(),
+        *colorgroup_rows.docs(), *mens_depth_rows.docs(), *type_registry.docs(),
     ]  # fmt: skip
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
     if baseline:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
-    return main_colors.complete(tpls, mens_depth_rows.decoy_ids()) if baseline else tpls
+    skip = mens_depth_rows.decoy_ids() | type_registry.decoy_ids()
+    return main_colors.complete(tpls, skip) if baseline else tpls
 
 
 def derivable(tpls: list[dict]) -> list[dict]:
@@ -307,7 +312,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
     the no-policy baseline the neckline, so it stays a template."""
     left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
                 | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
-                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | decoy_rows.IDS
+                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | SPEC_IDS | decoy_rows.IDS
                 | decoy_apparel.IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out

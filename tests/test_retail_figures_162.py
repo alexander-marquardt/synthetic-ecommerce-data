@@ -49,7 +49,9 @@ QUOTING = (
 
 #: Constants that tune the build, not totals it measures: a small total that happens to equal
 #: one (gen#200's 40 household styles and ``ATTEMPTS = 40``) is a collision, not a quotation.
-TUNING = ("ATTEMPTS",)
+#: ``DEPARTMENTS`` is the count of the closed department list (an invariant), which the ten styles
+#: of the type specs (gen#351) happen to equal.
+TUNING = ("ATTEMPTS", "DEPARTMENTS")
 
 
 #: Sections of a quoting file that report the INDUSTRIAL build. Their figures (a bearing count of
