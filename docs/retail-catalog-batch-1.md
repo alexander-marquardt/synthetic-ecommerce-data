@@ -95,6 +95,12 @@ description carry the misleading word. Titles are short and sales and reviews ab
 ids are left out of `scale.derivable()` and out of the color completion of `main_colors`, so a
 copy or a completion never gives a decoy the query's color.
 
+Every clothing, footwear and lingerie type carries decoys of its own (gen#311): a secondary color, a
+category word, an audience word, an absent material, a description-only shade, a short color or
+category range name and a brand holding a color word. The generated table is
+[retail-apparel-decoys.md](retail-apparel-decoys.md); the rows are built in
+`prototypes/retail_drawings/decoy_apparel.py`.
+
 Queries covered by rows: red sofa, blue sofa, red bra, blue shirt, black trainers, mens puffer
 jacket (with two true men's puffer jackets, the leaf is new), boys grey socks, face cream, gold
 top and red wine; guard rows for green tea, black pepper, red velvet cake and pink lady apples;

@@ -136,7 +136,9 @@ def test_class_6_and_7_name_a_short_title_and_class_7_names_a_brand(
     for r in rows:
         doc = by_id[r.pid]
         if r.cls in (6, 7):
-            assert len(doc["title"].split()) <= 5, (r.pid, doc["title"])
+            # a range or brand name (two words), a fit word, the type, the real color after a comma
+            assert len(doc["title"].split()) <= 4 + len(doc["product_type"].split()), (
+                r.pid, doc["title"])
         if r.cls == 7:
             brands.add(doc["brand"])
             assert doc["brand"].lower() in doc["title"].lower(), (r.pid, doc["title"])
