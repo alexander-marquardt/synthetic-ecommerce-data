@@ -21,7 +21,13 @@ from synthetic_ecommerce_data.core.dimensions import (
     parse_thread,
 )
 from synthetic_ecommerce_data.core.model import Attribute, Catalog
-from synthetic_ecommerce_data.domains.industrial import breadth, newtypes, price_report, tabletype
+from synthetic_ecommerce_data.domains.industrial import (
+    breadth,
+    hammers,
+    newtypes,
+    price_report,
+    tabletype,
+)
 from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
 from synthetic_ecommerce_data.domains.industrial.measure import measure
 from synthetic_ecommerce_data.domains.industrial.price_report import (
@@ -246,7 +252,7 @@ def test_a_pin_reason_quotes_the_figures_the_pin_records():
     retyped (it read 6.8 once the figure was 3.24)."""
     name = BRAND_ROW.format("wheel_depressed_center")
     quoted = re.findall(r"(\d+(?:\.\d+)?)x apart", price.PINNED_SHORTFALLS[name])
-    assert quoted == [f"{f:.2f}" for f in _recorded(name)] == ["3.53", "3.09"]
+    assert quoted == [f"{f:.2f}" for f in _recorded(name)] == ["4.30", "2.84"]
 
 
 def _recorded(name: str) -> tuple[float, float]:
@@ -276,7 +282,7 @@ def test_a_pin_may_land_no_further_out_than_its_figure_for_that_build(price_rows
 
 def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
     """The wheel's group noise 10% louder spreads one spec's brands from
-    3.53x to 3.91x apart: further above the band but still on its side, so
+    4.38x to 4.90x apart: further above the band but still on its side, so
     only the recorded figure can catch it."""
     name = BRAND_ROW.format("wheel_depressed_center")
     model = price.MODELS["wheel_depressed_center"]
@@ -287,7 +293,7 @@ def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
         for row in price_report.price_comparisons(generate(GeneratorConfig()))
         if row.name == name
     ]
-    assert round(row.achieved, 2) == 3.91
+    assert round(row.achieved, 2) == 4.83
     assert row.achieved > row.band[1]
     assert not price_report.pin_holds(row, 0)
 
@@ -434,14 +440,25 @@ def test_dropping_the_99_endings_breaks_the_99_row(scored):
     _below(_newly_out(scored, prices), ["price ending .99"])
 
 
+#: Order rows the default build scores on fewer than 20 pairs, each pinned to
+#: its exact count so that it cannot fall to none unseen. The bolt's: a census
+#: cell holds one pack (``price.HELD_NUMBERS``), and the bolt's pack falls as
+#: its size grows (``price.pack_quantity``), so two sizes share a cell only
+#: where they draw one pack. 30 pairs before #65, 8 after; issue #86 rules on
+#: the pack model that would give them back.
+THIN_ORDER_ROWS = {"price larger size costs more: bolt_hex": 8}
+
+
 def test_every_monotonicity_row_counts_pairs(price_rows):
     """A share over no pairs is 0.0 whatever the generator does."""
-    empty = [
-        row.name
+    counted = {
+        row.name: row.denominator
         for row in price_rows
-        if ("costs more" in row.name or "costs 2x+" in row.name) and row.denominator < 20
-    ]
+        if "costs more" in row.name or "costs 2x+" in row.name
+    }
+    empty = [name for name, n in counted.items() if n < 20 and name not in THIN_ORDER_ROWS]
     assert not empty, empty
+    assert {name: counted.get(name) for name in THIN_ORDER_ROWS} == THIN_ORDER_ROWS
 
 
 @pytest.mark.parametrize("type_key", sorted(price.ENDINGS))
@@ -916,11 +933,12 @@ def test_tying_every_pair_breaks_the_equal_price_row(scored):
 
 #: The types whose placeholder model keeps the level the catalog had,
 #: declared ``measured=False``: the ball-pein hammer's archived pages are
-#: script shells. The price census has no key stock at all, so its model is
+#: script shells, and the other hammer kinds (#305) have no census row either.
+#: The price census has no key stock at all, so its model is
 #: hand-set from surveyed listings (#108). Every table type (#101) joins them,
 #: read from the registry and not listed: its price is a declared ladder
 #: nobody measured. No row scores any of them.
-NOT_MEASURED = frozenset({"hammer_ball_pein", "key_stock", *tabletype.tables()})
+NOT_MEASURED = frozenset({*hammers.KINDS, "key_stock", *tabletype.tables()})
 
 
 def test_the_rows_score_every_priced_type_but_the_declared_exceptions(scored):

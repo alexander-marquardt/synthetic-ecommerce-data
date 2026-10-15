@@ -617,7 +617,14 @@ def build_bearing(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
 
 #: (diameter in, maximum rpm) -- stocked sizes and their rated speeds.
 _WHEELS = ((4.0, 15200), (4.5, 13300), (5.0, 12200), (6.0, 10200), (7.0, 8600), (9.0, 6600))
-_GRITS = (24, 36, 46, 60, 80, 120)
+#: A wheel's grade is its grit band, and the band is the PRODUCT's (gen#63): a product
+#: is one grade, and its variants are the grits inside it. Mixing a coarse and a fine
+#: wheel under one product made the grade a size.
+_GRADE_GRITS: tuple[tuple[str, tuple[int, ...]], ...] = (
+    ("Coarse", (16, 20, 24, 30, 36)),
+    ("Medium", (40, 46, 60)),
+    ("Fine", (80, 120)),
+)
 
 
 def build_wheel(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineDraft:
@@ -643,6 +650,7 @@ def build_wheel(gen: Generator, type_key: str, category: tuple[str, ...]) -> Lin
         ),
     )
     item = "Depressed-Center Wheel"
+    grade, grits = _GRADE_GRITS[gen._rotate(f"wheel:grade:{dia}", len(_GRADE_GRITS))]
     draft = LineDraft(
         item=item,
         brand=brand,
@@ -662,13 +670,14 @@ def build_wheel(gen: Generator, type_key: str, category: tuple[str, ...]) -> Lin
         numeric_attribute("Max. RPM", f"{rpm:,}", float(rpm)),
         keyword_attribute("Application", "Cutting & Grinding" if cutting else "Grinding"),
         numeric_attribute("Package Quantity", str(qty := rng.choice((10, 25))), float(qty)),
+        keyword_attribute("Grade", grade),
     ]
     draft.descriptors = [("Abrasive Material", abrasive)]
-    for grit in sorted(_window(gen, f"wheel:grit:{dia}", list(_GRITS), gen._variant_count())):
+    offered = _window(gen, f"wheel:grit:{dia}:{grade}", list(grits), gen._variant_count())
+    for grit in sorted(offered):
         child = ChildDraft(system="in")
         child.primary = numeric_attribute("Grit", str(grit), float(grit))
-        grade = "Coarse" if grit <= 36 else ("Medium" if grit <= 60 else "Fine")
-        child.attrs = [child.primary, keyword_attribute("Grade", grade)]
+        child.attrs = [child.primary]
         draft.children.append(child)
     return draft
 

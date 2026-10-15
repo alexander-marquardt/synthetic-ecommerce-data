@@ -317,6 +317,20 @@ Run the same command on the `--lines 39000` build's `stats.json` for the
 large figures. A much lower fill means the module models too little of the
 spec space: add series or combinations; never raise the share to hide it.
 
+### Product-constant and variant attributes
+
+A product is what search groups by (a screw of one type, maker and material); its SKUs
+are the versions that differ by size. The split is the `scope` of each attribute in the
+type's vocabulary (`vocab.py`): `line` is product-constant (brand-level properties:
+material, finish, grade, head or point style), `sku` is the variant (the size ladder
+and pack quantity). The measurement system, under all three spellings (so `dimension_type`
+too), is product-constant in every type: a product is metric or inch, never both.
+`product_constant_names(type_key)` and `variant_names(type_key)` read the declaration.
+Builders put a `line`-scope attribute on the line, and a draw that makes it per SKU
+splits the product: `tests/test_product_constant.py` holds the default build to it,
+and `ecom-generate build` refuses a catalog that breaks it or leaves
+`variants_per_product` (the report prints the SKUs per product by type).
+
 ### SKU floor
 
 `DEFAULT_SKU_FLOOR` in the type's gate file is two thirds of the type's
@@ -518,9 +532,11 @@ that fixes it:
   that size (a dollar p50 to the cent, a ratio to three places), so a record
   is never loosened by hand, nor left loose after the row improves. The fit
   flags a stale one "re-record" with the figures to write.
-* **A slope cut**, where the census slope alone spreads the shown price
-  wider than the census p90/p10: its reason in `SLOPE_CUTS`. The fit refuses
-  to lower any other type's slope.
+* **A slope cut**, where the census slope alone (with the pack term, for a
+  pack-sold type) spreads the shown price wider than the census p90/p10: its
+  reason in `SLOPE_CUTS`. The fit refuses to lower any other type's slope. A
+  pack-sold type whose shown price climbs slower than its per-piece slope
+  publishes its pack instead (`price.pack_quantity`), as the hex bolt does.
 * **A size noise**, where one spec's brands must sit close while its size
   pairs invert: its reason in `SIZE_NOISE`.
 
@@ -614,6 +630,34 @@ command, never by hand arithmetic:
 
 #62 renames the large build and generates its figures; until it lands, its
 table gets a row for each deepened type.
+
+## Several kinds under one node (the hammers, #305)
+
+A leaf is normally one type's own two-word plural. The exception is a node a shopper
+names as one thing and then narrows by kind: `Hand Tools > Hammers` holds seven kinds
+(`hammer_ball_pein`, `hammer_claw`, `hammer_framing`, `hammer_club`, `hammer_sledge`,
+`hammer_rubber_mallet`, `hammer_dead_blow`), each its own `product_type` with the same
+attributes (head weight, handle material, face diameter, overall length). To add a kind:
+add a `HammerKind` to `domains/industrial/hammers.py` and a three-line module under
+`product_types/hand_tools/` named for the key (`SPEC = hammers.spec(hammers.<KIND>)`).
+A node that holds several types is declared in `taxonomy.SHARED_LEAVES`, which relaxes the
+one-type-per-leaf and two-word rules for that node alone. A `product_type` is a snake_case
+id (`hammer_claw`), never a display name (`Claw Hammer`);
+`tests/test_hammers_305.py` refuses a hammer that is not under the node and a leaf whose
+products mix the two formats.
+
+Every kind carries text-match decoys (the standing rule of gen#294): three lines in six
+(`hammers.DECOY_PERIOD`) say a misleading word AFTER the item, so a brand's title template
+stays one per type, and their attributes stay true. The class names the word:
+
+| Class | Title says | Truth |
+|---|---|---|
+| category word (special: an `Item`/`product_type` policy, not a category policy) | `Claw Hammer, Sledge Series`: another kind's noun | a claw hammer, not a sledge; all 7 kinds share the one `Hand Tools > Hammers` node, so no category policy can tell them apart |
+| material named but absent (generic) | `Claw Hammer, Hickory-Look` | the handle is steel or fiberglass |
+| incidental word, short title (generic) | `Claw Hammer, Hickory Creek` (the whole indexed title: 5 words or fewer, no brand, qualifier or size; one SKU, gen#320) | the creek is a place name |
+
+`tests/test_hammers_305.py` pins at least three of each class per kind and that the
+handle never is the named material. Only the flat `title` is short: `parent_title` and the nested title keep the brand form. One predicate, `hammers.is_incidental_decoy_title`, tells the class-4 title to the gates that read titles (the voice and the key-dimension gate exempt it). The color classes do not apply: a hammer has no color.
 
 ## The commands
 

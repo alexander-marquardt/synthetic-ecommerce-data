@@ -1,5 +1,18 @@
 # synthetic-ecommerce-data
 
+Write-up: [Generating a synthetic industrial product catalog for search demos](https://alexmarquardt.com/data-generation/synthetic-industrial-product-catalog/).
+
+![Four search results for "car" in a demo search UI: a checked car coat, a car boot organiser, and a wooden racing car in red and in blue. Every picture is a generated drawing.](docs/images/search-car-cards.png)
+
+**The pictures are drawn by code.** Each is written straight to SVG, from the
+SKU's own attributes, by a small writer in this repository: no image model and
+no photographs. A drawing is deterministic and costs nothing per variant, and it
+is parameterised by product type, brand house style and attributes (color,
+pattern, size). Measured on an Apple M3 Pro laptop, `draw_product` drew every
+SKU of `golden-catalog/` at roughly 7,000 drawings a
+second (0.14 ms each, one core; three runs, 6,900 to 7,400 per second).
+That times the industrial drawing step only, with the records already loaded.
+
 A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
 extraction in search: modelled depth types plus
@@ -189,8 +202,7 @@ GitHub Actions is billing-blocked here, so run CI locally: `scripts/merge_pr.sh
 `.github/workflows/*.yml` on that merged tree, prints each job's verdict and
 log path, and refuses the merge unless all pass; no GitHub check is read.
 
-Install both hook types once per clone: `pre-commit install` (the config sets
-`default_install_hook_types: [pre-commit, commit-msg]`). The commit-msg hook
+Install the hook types once per clone: `pre-commit install` (the config sets `default_install_hook_types: [pre-commit, commit-msg, pre-push]`; the pre-push gate runs the cheap CI jobs before review, [docs/pre-push-gate.md](docs/pre-push-gate.md)). The commit-msg hook
 (`scripts/check_commit_msg.py`) refuses a message that credits an AI tool or a
 bot. Its patterns are the core repository's AI-attribution family, vendored
 with the commit it came from, plus this repository's additions. CI runs the
@@ -292,7 +304,7 @@ type from `skus_by_type` in its `stats.json`:
 The mix is not the one a proportional scale would give, and that is the
 uniqueness rule at work: a type whose spec space is small (ISO 7089 fixes a
 washer's nine sizes; a hammer is its head weight and handle) runs out of
-SKUs its makers have not already made, so it grows less. It was 28,300
+SKUs its makers have not already made, so it grows less. It was about 28 thousand
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
 **122,324 SKUs over 70,776 products** (`skus` and `lines` in `stats.json`),
@@ -1026,7 +1038,7 @@ The flat file exposes four food facts as facets, because a hard filter can only
 target a facet: `facets.ingredients` (the SKU's label list), `facets.contains` (the
 allergens its ingredients name), `facets.may_contain` (factory traces) and
 `facets.dietary` (pack claims: Vegan, Vegetarian, Gluten Free, Nut Free, Organic),
-each a keyword list. `contains`, `may_contain` and `dietary` are warnings and claims,
+each a keyword list (`facets.ingredient_base` is the normalised head of each: [docs/retail-catalog-batch-1.md](docs/retail-catalog-batch-1.md)). `contains`, `may_contain` and `dietary` are warnings and claims,
 not description, so they stay out of the flat `text`: a "peanut" query cannot match a
 product only through an allergen warning
 (`tests/test_grocery_ingredients_154.py`). Open Food Facts (ODbL) inspired only the shape: the category
@@ -1139,10 +1151,10 @@ SKU. `size_range` is a list; for legwear it is derived from the in-stock lengths
 `size_range` filter of class 6 means "has an in-stock petite SKU".
 
 Every class doc also carries the tile signals: `offer` (a was-price, or a
-multi-buy with none), `discount_pct` (derived, sale docs only), `new_in`,
+multi-buy with none), `discount_pct` (derived, sale docs only),
 `trending`, `online_only`, a `brand_owner` (own or third party; third-party
 brands lead the offers, some with a `sub_collection` label such as "The
-Active Edit"), and `badges` in one order (New In, Bestseller for the top 15,
+Active Edit"), and `badges` in one order (Bestseller for the top 15,
 Trending, Online Only). Every doc has a full `category_path` of clean shopper
 terms (at least three levels, no merchandising bucket such as Sale or Petite,
 no leaf that is also a parent, one depth per node name) and its
@@ -1194,9 +1206,9 @@ policy top 3 is all targets, and that this table is the proof's.
 | 6 | Size range and sale state not extracted | *petite sale* | 1. Tapered Trousers `PLT-TAPTRS`<br>2. Wide Leg Trousers `PLT-WIDTRS`<br>3. Straight Leg Jeans `PLT-STRJNS`<br>4. Slim Jeans `PLT-SLMJNS`<br>5. **Petite Straight Jeans `PLT-PETJNS`** | 1. **Petite Straight Jeans `PLT-PETJNS`**<br>2. **Petite Wrap Midi Dress `PLT-PETDRS`**<br>3. **Petite Wide Leg Trousers `PLT-PETTRS`** | filter size_range = petite; filter on sale (price < was_price) |
 | 7 | Sale word ignored | *womens sale dresses* | 1. Womens Linen Midi Dress `PLT-FPLINN`<br>2. Womens Smocked Mini Dress `PLT-FPSMOK`<br>3. Womens Jersey T-Shirt Dress `PLT-FPTEES`<br>4. Womens Satin Slip Dress `PLT-FPSLIP`<br>5. Womens High Neck Ribbed Top `PLT-HNRIBT` | 1. **Womens Wrap Dress `PLT-SDWRAP`**<br>2. **Womens Tiered Maxi Dress `PLT-SDMAXI`**<br>3. **Womens Shirt Dress `PLT-SDSHRT`**<br>4. **Petite Wrap Midi Dress `PLT-PETDRS`** | filter product_type = Dress; filter audience = adult; filter on sale (price < was_price) |
 | 9 | Pack count only in title spellings | *5 pack socks* | 1. Cotton Rich Socks 7 Pack `PLT-SK7PKC`<br>2. Striped Socks 3 Pack `PLT-SK3PKS`<br>3. Kids' School Socks 5 Pack (6-16 Yrs) `PLT-SK5KID`<br>4. **Bamboo Socks, Pack of 5 `PLT-SK5BMB`**<br>5. Wool Walking Socks `PLT-SK1WAL` | 1. **Bamboo Socks, Pack of 5 `PLT-SK5BMB`**<br>2. **Sports Trainer Socks 5 Pack `PLT-SK5SPT`**<br>3. **Cotton Rich Ankle Socks 5pk `PLT-SK5PKC`** | filter units_per_pack = 5; filter audience = adult |
-| 10 | A food word inside compounds and modifiers | *beer* | 1. Fiery Ginger Beer `PLT-GNGBER`<br>2. Cloudy Root Beer `PLT-RTBEER`<br>3. Beer Battered Haddock Fillets `PLT-BBHADD`<br>4. Malted Beer Bread `PLT-BRBRED`<br>5. Beer Battered Chunky Chips `PLT-BBCHIP` | 1. **Golden Table Beer `PLT-BRTABL`**<br>2. **4.8% Tropical Pineapple Sour Beer `PLT-BRTROP`**<br>3. **5.5% Hazy Wheat Beer `PLT-BRWHET`**<br>4. Fiery Ginger Beer `PLT-GNGBER`<br>5. Cloudy Root Beer `PLT-RTBEER` | route to Food/Drinks/Beer & Cider/Beer (recalled, boosted) |
-| 11 | A fruit plural read as a flavour and a color | *oranges* | 1. Cranberry & Orange Panettone `PLT-PANCRO`<br>2. Chocolate & Orange Cookies `PLT-CKCORA`<br>3. Orange Hot Chocolate `PLT-HCORNG`<br>4. Orange Rose Bouquet `PLT-BQORNG`<br>5. Orange Graphic Tee `PLT-TEEW-ORANGE` | 1. **Blood Oranges `PLT-ORBLOD`**<br>2. **Navel Oranges `PLT-ORNAVL`**<br>3. **Seedless Easy Peelers `PLT-OREASY`**<br>4. **Valencia Oranges, Pack of 5 `PLT-ORANGS`**<br>5. Cranberry & Orange Panettone `PLT-PANCRO` | route to Food/Fresh Produce/Fruit/Citrus/Oranges (recalled, boosted) |
-| 12 | A type word that is also a color and a line name | *face cream* | 1. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>2. Nourishing Face Oil `PLT-FCEOIL`<br>3. Loose Face Powder `PLT-PWDLSE`<br>4. Tinted Face Gel `PLT-TNTGEL`<br>5. Velvetmere Cream Body Oil Spray `PLT-VLCOIL` | 1. **Daily Hydrating Face Cream `PLT-FCDAYC`**<br>2. **Calming Face Cream `PLT-FCCALM`**<br>3. **Rich Night Cream `PLT-FCNGHT`**<br>4. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>5. Nourishing Face Oil `PLT-FCEOIL` | route to Beauty/Skincare/Face Creams (recalled, boosted) |
+| 10 | A food word inside compounds and modifiers | *beer* | 1. Fiery Ginger Beer `PLT-GNGBER`<br>2. Cloudy Root Beer `PLT-RTBEER`<br>3. Beer Battered Haddock Fillets `PLT-BBHADD`<br>4. Malted Beer Bread `PLT-BRBRED`<br>5. Beer Battered Chunky Chips `PLT-BBCHIP` | 1. **Golden Table Beer `PLT-BRTABL`**<br>2. **4.8% Tropical Pineapple Sour Beer `PLT-BRTROP`**<br>3. **5.5% Hazy Wheat Beer `PLT-BRWHET`**<br>4. Fiery Ginger Beer `PLT-GNGBER`<br>5. Cloudy Root Beer `PLT-RTBEER` | route to Food & Drink/Beer, Wine & Spirits/Beer (recalled, boosted) |
+| 11 | A fruit plural read as a flavour and a color | *oranges* | 1. Cranberry & Orange Panettone `PLT-PANCRO`<br>2. Chocolate & Orange Cookies `PLT-CKCORA`<br>3. Orange Hot Chocolate `PLT-HCORNG`<br>4. Orange Rose Bouquet `PLT-BQORNG`<br>5. Orange Graphic Tee `PLT-TEEW-ORANGE` | 1. **Blood Oranges `PLT-ORBLOD`**<br>2. **Navel Oranges `PLT-ORNAVL`**<br>3. **Seedless Easy Peelers `PLT-OREASY`**<br>4. **Valencia Oranges, Pack of 5 `PLT-ORANGS`**<br>5. Cranberry & Orange Panettone `PLT-PANCRO` | route to Food & Drink/Fresh Produce/Fruit/Citrus/Oranges (recalled, boosted) |
+| 12 | A type word that is also a color and a line name | *face cream* | 1. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>2. Nourishing Face Oil `PLT-FCEOIL`<br>3. Loose Face Powder `PLT-PWDLSE`<br>4. Tinted Face Gel `PLT-TNTGEL`<br>5. Velvetmere Cream Body Oil Spray `PLT-VLCOIL` | 1. **Daily Hydrating Face Cream `PLT-FCDAYC`**<br>2. **Calming Face Cream `PLT-FCCALM`**<br>3. **Rich Night Cream `PLT-FCNGHT`**<br>4. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>5. Nourishing Face Oil `PLT-FCEOIL` | route to Beauty/Skincare/Creams/Face Creams (recalled, boosted) |
 | 13 | A size word not applied (mild) | *single bed* | 1. Single Cube Chairbed `PLT-CHRCUB`<br>2. Ottoman Storage Bed `PLT-BDOTTO`<br>3. Upholstered Sleigh Bed `PLT-BDSLGH`<br>4. Panelled Wooden Bed `PLT-BDPANL`<br>5. Two Seater Sofa Bed `PLT-SOFBED` | 1. **Metal Spindle Bed `PLT-BDMETL`**<br>2. **Shaker Wooden Bed Frame `PLT-BDSHKR`**<br>3. **Upholstered Bed Frame `PLT-BDUPHL`**<br>4. Single Cube Chairbed `PLT-CHRCUB`<br>5. Memory Foam Mattress Topper `PLT-MTTMEM` | filter an in-stock SKU with bed_size = Single (3 ft); product_type = Bed x10 |
 | 14 | A two-word color split into words | *rose gold* | 1. Blush Rose & Gold Eucalyptus Bouquet `PLT-BQBLSH`<br>2. White Rose Bouquet with Gold Foliage `PLT-BQWHGF`<br>3. Gold Plated Rose Quartz Hoop Earrings `PLT-RQHOOP`<br>4. Classic Red Rose Bouquet `PLT-BQREDR`<br>5. Orange Rose Bouquet `PLT-BQORNG` | 1. **Cubic Zirconia Stud Earrings `PLT-RGSTUD`**<br>2. **Slim Mesh Strap Watch `PLT-RGMESH`**<br>3. **Wireless Charging Pad `PLT-RGCHRG`**<br>4. **Glow Powder Highlighter `PLT-RGHLIT`**<br>5. **Touch Dimmable Table Lamp `PLT-RGLAMP`** | filter an in-stock SKU with color = Rose Gold |
 | 15 | One word, a sense in two departments | *cups* | 1. **Espresso Cup `PLT-MUG7`**<br>2. Moulded Cup T-Shirt Bra `PLT-CUPMLD`<br>3. Lace Demi Cup Bra A-E `PLT-CUPDEM`<br>4. Smooth Full Cup Bra B-G `PLT-CUPFUL`<br>5. **Leakproof Travel Cup `PLT-DRKTRV`** | 1. **Espresso Cup `PLT-MUG7`**<br>2. **Leakproof Travel Cup `PLT-DRKTRV`**<br>3. **Set of 4 Espresso Cups `PLT-DRKSET`**<br>4. **Fine Bone China Cup and Saucer `PLT-DRKSAU`**<br>5. **Apple Graphic Mug `PLT-MUG-APPLE`** | route to Home/Kitchen & Dining/Drinkware (recalled, boosted); off when the query says bra, demi, balcony or a cup size |
@@ -1248,8 +1260,8 @@ dietary claims).
 `prototypes/retail_drawings/export.py` turns the 328-style build into that
 standard: `skus` become `variants`, each SKU option a variant-level attribute
 entry (a measurement split into `value`, `unit_code` and `value_canonical`);
-department, color and size options, the offer flags, rating and the other
-retail-only fields become product-level entries; `image_id` is
+color and size options, the offer flags, rating and the other
+retail-only fields become product-level entries (no `department`: see below); `image_id` is
 `<product type>/<product id>/<drawing spec digest>`, one per style and
 colorway, served under `/images/retail` from the image release
 ([The retail image release](#the-retail-image-release)). Every record states
@@ -1272,6 +1284,14 @@ retail has `price`, `currency` and `in_stock` where industrial has
 (`tests/test_output_standard.py` pins that list). To write both files:
 
     uv run python prototypes/retail_drawings/export.py OUTDIR   # nested.jsonl, flat.jsonl
+
+**The Combined loader takes every SKU of it.** The loader projects the flat export before it
+writes (`combined_catalog.py` in elastic/prism-industrial-products) and refuses a SKU whose
+`size` is in no size system, or whose bare `length` or `width` would be renamed onto a
+`garment_length` or `fit_width` the SKU already writes (gen#279: a handbag's `Mini`, and a
+skirt's Petite/Regular/Long axis, now `fit_length`). `tests/test_retail_combined_loader_279.py`
+runs both checks over every authored SKU. A new size shape or a new rename in the projection is a
+row added to its mirror there; a key a SKU axis shares with a style attribute is named apart.
 
 ### The merchandising score
 
@@ -1312,24 +1332,69 @@ combinations the product's SKUs offer.
 
 ### The retail catalog at a size: `scale.py --skus N`
 
-**The audience facet and the spelling of a facet**. The tree keeps its Women, Men
+**The audience facet and the spelling of a facet**. The tree keeps its Womens, Mens
 and Kids roots, and every SKU of a worn department (Clothing, Footwear, Lingerie & Nightwear),
-or under a Women, Men, Kids or Baby root, also carries exactly one `audience`: `Womens`, `Mens`,
+or under a Womens, Mens or Kids root, also carries exactly one `audience`: `Womens`, `Mens`,
 `Girls`, `Boys`, `Baby` or `Unisex` (`audience.py`; a template's own value wins, `Kids/Girls`
-is Girls, `Kids/Boys` is Boys, the rest of Kids is Unisex). A product type has one name:
+is Girls, `Kids/Boys` is Boys, `Kids/Baby` is Baby, the rest of Kids is Unisex). A product type has one name:
 "Tee" is written "T-Shirt" (`export.PRODUCT_TYPE_FOLDS`; the image ids keep the authored type,
 so none is re-rendered), and `pattern` and `rise` are written in Title Case.
 `tests/test_retail_audience.py` refuses a facet with two values that differ only in case.
+The roots are `Mens`, `Womens` and `Kids`, spelled as shoppers say them (gen#304; they were `Men` and
+`Women`): the department, read from the top level, moves with them, and
+`tests/test_retail_mens_womens_roots_304.py` fails if a whole node `Men` or `Women` returns at any layer.
+The generator derives no spelling variants of a node (mens, men's, men): the catalogue repo's
+vocabularies own those.
 "Cleaning & Janitorial" is a department, not a root: its kitchen cleaners sit under `Cleaning`.
+
+**There is no top-level `Accessories` root** (gen#248). Every accessory leaf sits under a
+department as `<Department> > Accessories > <leaf>`: `Mens > Accessories > Belts`,
+`Beauty > Accessories > Wash Bags`, and the bags, purses and umbrellas under `Womens > Accessories`
+(`Bags > Handbags`, `Bags > Backpacks`, `Bags > Tote Bags`, `Purses & Wallets > Purses`,
+`Umbrellas`). A root would show as a separate department in the store's department filter. The
+unisex goods (backpack, tote, umbrella) stay one product in one place, under the department whose
+shoppers the generator targets for bags; the `audience` facet says `Unisex`, the path does not.
+`tests/test_retail_accessories_under_departments_248.py` guards it.
+
+**The store's department is the top level of `category_path`, and no document states one**
+(gen#281). The retail tree has exactly eleven roots: Womens, Mens, Kids, Food & Drink, Home,
+Beauty, Cleaning, Toys, Gifts, Garden and Sports & Outdoors (gen#265). Food sits under Food & Drink, Baby
+under Kids (`Kids > Baby > ...`) and Electricals under Home (`Home > Electricals > ...`), each
+with its subtree intact; a product still sits in one place. The documents carry no
+`department` attribute or flat column (its values mixed audience, Clothing, with product kind,
+Footwear): the one fact it held that no other attribute does, the safety boot's Workwear & PPE,
+is carried by its `safety_rating` and `toe_cap`. A consumer reads the department from
+`category_path[0]`. The build records keep a `department` of their own (`departments.py`'s
+closed list), an internal classification the ceiling build's brand pools, floors and share
+read; `export.DROPPED` keeps it out of every document.
+
+**A type sits under its generic category** (gen#283). `Sofas` holds `Corner Sofas`, `Recliner Sofas`,
+`Modular Sofas`, `Chaise Sofas` and `Sofa Beds`, so a filter on `Home/Furniture/Sofas` takes every sofa
+and "corner sofa" can still narrow to its own child. The same holds for `Tables` (coffee, dining, side),
+`Lighting > Lamps` and `Lighting > Lights`, `Fans`, `Drills`, `Tool Sets`, `Skincare > Creams`,
+`Kitchen & Surfaces > Cleaners`, `Milk > Plant Milk`, `Biscuits & Snacks > Crisps`, `Bedding > Kids' Bedding`
+and `Beer, Wine & Spirits > Beer`. `prototypes/retail_drawings/tree_guard.py` states three rules and
+`tests/test_retail_tree_nesting_283.py` runs them over the shipped documents, not the build
+records: (a) no node has a sibling whose label is a word-suffix of another's (`Sofas` beside `Corner Sofas`,
+`Skinny Jeans` beside `Super Skinny Jeans`); (b) three or more siblings that share a head noun sit under a parent that names it, or are listed in the guard's `EXCEPTIONS` with a reason; (c) a product whose
+title names a more specific node of its own department sits in that node. Two siblings (`Bath Towels`,
+`Beach Towels`) need no parent. A product still sits in exactly one place.
+`tests/test_retail_departments_281.py` holds the root list at every layer, and
+`golden-retail/stats.json` records the ceiling's styles and SKUs per top level
+(`ceiling.top_levels`).
 
 **A fit or a bra style is a filter, not a leaf**. A jean sits at `<Root>/Jeans` and a pair of
 trousers at `<Root>/Trousers`, its fit in `leg_fit` alone (the failure-class rows' `leg_style`
-is folded into it). A bra sits at `Women/Lingerie/Bras`, unless it is a Sports, Nursing, Sleep
+is folded into it). A bra sits at `Womens/Lingerie/Bras`, unless it is a Sports, Nursing, Sleep
 or Post-Surgery bra, whose node stays; its old style leaf is split into `bra_shape`,
-`padding`, `back_style` and `fabric` (`facet_leaves.BRA_LEAVES`), and the fibre content a bra's
-`fabric` held moves to `composition`. On every other type `fabric` keeps only a fabric or weave
-(Denim, Linen, Velvet, Oxford); fibre content ("98% Cotton, 2% Elastane", Bamboo, Organic
-Cotton) moves to `composition` (`facet_leaves.FABRIC_MOVES`). Only the document changes (`export.standard_document`):
+`padding`, `back_style` and `fabric` (`facet_leaves.BRA_LEAVES`). `fabric` is the fibre or weave a
+shopper names (Cotton, Linen, Denim, Oxford, Silk, Nylon), from one closed list. A grade or blend
+("98% Cotton, 2% Elastane") leaves its fibre as the fabric and becomes the document's
+`fibre_content`, a detail in no facet (`facet_leaves.FABRIC_MOVES`, gen#187; no `composition`). A blend names fibres:
+"Cotton Blend" leaves Cotton as the fabric and "Cotton Jersey" leaves Jersey (gen#258). A fabric has
+one name (Faux Leather, not also Leather-Look), and a use, a pocket style or a fit is never a
+fabric: sports leggings are Knitted with a Compression `leg_fit`, cargo joggers are Twill with
+cargo pockets, and cycling shorts carry the Compression `leg_fit` and no fabric. Only the document changes (`export.standard_document`):
 the build record keeps its leaf, so the derivation and every image id are what they were, and a
 title keeps its words ("Skinny Jeans"). `tests/test_retail_facet_leaves.py` refuses a node
 under Jeans, Trousers or Bras that names one of those values, a `fabric` holding a percentage,
@@ -1357,7 +1422,7 @@ three failure classes need (`distractor_rows.py`; `baseline_rank.py` ranks a bui
 without a policy, and `tests/test_retail_distractors.py` holds the result): mattress
 protectors, mattresses and pillow protectors that out-sell the toppers; bestselling
 barrel-leg jeans whose text says balloon; 150 petite styles with a minority on sale,
-and 60 sale styles that never say petite, then the shirts (`shirt_rows.py`: Oxford,
+and 60 sale styles that never say petite, and the steak class (gen#264: seven steak-knife styles, a steak plate, board and cast-iron weight that lead `steak`, with the beef steaks and tinned tuna steaks the grocery build adds as families `SKS` to `SKW` and `TUS`), then the shirts (`shirt_rows.py`: Oxford,
 Flannel, Linen and Denim, for Mens and Womens, under `Tops/Shirts`, typed `Shirt`;
 no derived style copies one), then the living-room seating (`sofa_rows.py`, gen#196:
 sofas sold as 2, 2.5, 3 and 4 seaters, left- and right-hand corner and chaise sofas,
@@ -1367,12 +1432,18 @@ shape in `kit_seating.py`; no derived style copies one, and
 saucepans, frying pans, casserole dishes, kitchen bins, storage boxes, laundry baskets,
 clothes airers and mops, each drawn by `kit_household.py` with the count its record states
 (pans in a set, bin lids, basket compartments, airer tiers); no derived style copies one,
-and `tests/test_retail_household_200.py` holds them), then the small appliances (`appliance_rows.py`, gen#202:
+and `tests/test_retail_household_200.py` holds them), then the lower-body styles (`lowerbody_rows.py`,
+gen#206: leggings, joggers, shorts, cycling shorts, tracksuits and skirts, each drawn by `kit_lowerbody.py`
+with the marks its record states (pockets, cargo pockets, belt loops, pieces, tiers, a pad); no derived
+style copies one, and `tests/test_retail_lowerbody_206.py` holds them), then the small appliances (`appliance_rows.py`, gen#202:
 desk, pedestal, tower, ceiling and handheld fans, heaters, kettles
 and toasters, each drawn by `kit_appliances.py`; none is derived from), then the underwear and nightwear (`underwear_rows.py`, gen#208: knickers,
 tights, vests, slips, shapewear, dressing gowns and boxers with a pack axis,
-drawn by `kit_underwear.py`; none is derived), then the grocery styles (below, `grocery.py`,
-gen#154). Further styles are
+drawn by `kit_underwear.py`; none is derived), then the toys (`toys_rows.py`, gen#201: building sets, jigsaws, board games, dolls, wooden toys, role play toys, arts and crafts kits and ride-ons, drawn by `kit_toys.py`; every style carries an `age_range` and most a `toy_type`, four invented character ranges (`line`) each span several kinds, and a counted mark in the drawing equals the count the record states, `tests/test_retail_toys_201.py`; a toy vehicle or ride-on whose paint is a free choice is sold in ten colors, one SKU and drawing each, a bike or trike in wheel sizes (the `wheel_size` axis, drawn to scale), and a style whose color is its identity (a police car, a taxi, a fire engine, bare wood) keeps one and says why in its `fixed_color`, `tests/test_retail_toy_vehicle_colors_271.py`; no derived style copies one), then the lighting (`lighting_rows.py`, gen#197: floor,
+table, desk, ceiling and wall lights and lampshades under `Home/Lighting` (`Lamps`, `Lights`), each typed by
+its name; a SKU is a color times a finish, a shade color or a diameter, and its image draws
+that SKU's own value), then the bags, umbrellas and jewelry (`accessory_rows.py`,
+gen#207; likewise copied by no derived style), then the Sports & Outdoors styles (`sports_rows.py`, gen#265, first increment: tents, sleeping bags and camping chairs under `Camping`, yoga mats, dumbbells, kettlebells and foam rollers under `Yoga & Fitness`; drawn by `kit_sports.py`, a SKU axis in its unit (`berth`, `thickness`, `weight`, `item_length`), the six main colors on every type, copied by no derived style, `tests/test_retail_sports_265.py`), then the near-white apparel and main-color bras (`colorgroup_rows.py`, gen#302, [docs/retail-color-group.md](docs/retail-color-group.md); copied by no derived style), then the grocery styles (below, `grocery.py`, gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
 also differs from its template and from every sibling in a value its title shows
@@ -1695,6 +1766,8 @@ source file. After a refresh that changes the block, rebuild and rerun the
 suite: the contract test reads the new sizes.
 
 ## Images
+
+The picture and the drawing speed are at the [top of this page](#synthetic-ecommerce-data).
 
 **One drawing per SKU, drawn from that SKU's own values, with no text in it but
 its brand's name.** The rulings are on elastic/prism-industrial-products#103

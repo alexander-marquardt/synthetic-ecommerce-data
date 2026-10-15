@@ -332,6 +332,18 @@ MUTATIONS: list[Mutation] = [
         "",
         "a decimal is written to the precision asked for",
     ),
+    # ---- hammers: the incidental-word decoy's indexed title (gen#320) ------
+    # The ranking and word-count tests read the COMMITTED golden, so a source defect reds
+    # them only through the golden's drift test; this row proves that link holds.
+    Mutation(
+        "hammer decoy: an incidental-word decoy keeps its brand and size in the title",
+        "domains/industrial/hammers.py",
+        "            bare_title=bare,\n",
+        "            bare_title=False,\n",
+        "tests/test_catalog_golden.py",
+        "A",
+        "the short indexed title of the incidental-word decoy",
+    ),
     # ---- vocab: disjointness, both directions ----------------------------
     Mutation(
         "leak a hammer attribute into the screw vocabulary",
@@ -345,8 +357,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "remove the one name a screw and a hammer legitimately share",
         "domains/industrial/vocab.py",
-        '_HAMMER = (\n    _spec("Item", "line"),',
-        '_HAMMER = (\n    _spec("Item ", "line"),',
+        'HAMMER_VOCAB = (\n    _spec("Item", "line"),',
+        'HAMMER_VOCAB = (\n    _spec("Item ", "line"),',
         "tests/test_catalog_vocab.py",
         "B",
         "unrelated product types share no vocabulary",
@@ -2927,8 +2939,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the kit p90/p10 pin's 100K record is loosened by hand",
                 "core/price.py",
-                "    _KIT_SPREAD_ROW: (4.015, 3.901),",
-                "    _KIT_SPREAD_ROW: (4.015, 3.5),",
+                "    _KIT_SPREAD_ROW: (4.032, 3.917),",
+                "    _KIT_SPREAD_ROW: (4.032, 3.5),",
                 "figure_its_build_produces",
                 "a record is the build's figure",
             ),
@@ -2969,8 +2981,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the wheel pin's 100K record is loosened by hand",
                 "core/price.py",
-                "    _WHEEL_SPREAD_ROW: (3.534, 3.09),",
-                "    _WHEEL_SPREAD_ROW: (3.534, 3.45),",
+                "    _WHEEL_SPREAD_ROW: (4.303, 2.842),",
+                "    _WHEEL_SPREAD_ROW: (4.303, 3.25),",
                 "figure_its_build_produces",
                 "a record is the build's figure",
             ),
@@ -3010,8 +3022,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the wheel pin quotes a tier figure no build measures",
                 "core/price.py",
-                "the brand tiers alone give 1.85 on the default",
-                "the brand tiers alone give 1.75 on the default",
+                "the brand tiers alone give 1.49 on the default",
+                "the brand tiers alone give 1.39 on the default",
                 "tiers_alone_give",
                 "a pin's stated cause is measured",
             ),
@@ -3254,12 +3266,12 @@ MUTATIONS: list[Mutation] = [
                 "bra_style is gone",
             ),
             (
-                "a bra's fibre content is dropped",
-                "facet_leaves.py",
-                "            out.append((*COMPOSITION, have[\"fabric\"]))\n",
-                "            pass\n",
-                "tests/test_retail_facet_leaves.py -k fibre_content_moves_to_composition",
-                "the fibre content moves to composition",
+                "the fibre-content detail is dropped",
+                "export.py",
+                "        doc[\"fibre_content\"] = blend\n",
+                "        pass\n",
+                "tests/test_retail_facet_leaves.py -k blend_is_a_detail",
+                "the blend is a detail",
             ),
             (
                 "one bra spells Lightly Lined with a hyphen",
@@ -3284,6 +3296,141 @@ MUTATIONS: list[Mutation] = [
                 "            pass\n",
                 "tests/test_retail_facet_leaves.py -k text_says_cropped",
                 "a jean whose text says cropped is cropped",
+            ),
+        ]
+    ),
+    # ---- retail: the Combined loader takes every authored SKU (gen#279) ----
+    # Every name starts "combined loader:", so `--only "combined loader:"` re-runs them.
+    *(
+        Mutation(f"combined loader: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a crossbody bag is sold in a Mini size, which is no size system",
+                "accessory_rows.py",
+                '_sizes(("Small", 28.0), ("Medium", 34.0))',
+                '_sizes(("Mini", 28.0), ("Small", 34.0))',
+                "tests/test_retail_combined_loader_279.py -k has_a_size_the_combined_loader_refuses",
+                "every size is in a size system the loader declares",
+            ),
+            (
+                "a skirt's fit axis is the bare length the loader renames onto garment_length",
+                "lowerbody_rows.py",
+                'axis_key="fit_length", axis=_legs()',
+                'axis_key="length", axis=_legs()',
+                "tests/test_retail_combined_loader_279.py -k writes_a_renamed_key_twice",
+                "no SKU writes a renamed key twice",
+            ),
+        ]
+    ),
+    # ---- retail: text-match decoys (gen#294) ----
+    *(
+        Mutation(f"text-match decoys: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a decoy is color-completed",
+                "main_colors.py",
+                ' and r["product_id"] not in decoy_rows.IDS',
+                "",
+                "tests/test_retail_text_match_decoys_294.py -k never_copied_or_color_completed",
+                "no color completion gives a decoy the query's color",
+            ),
+            (
+                "a decoy is copied by the derivation",
+                "scale.py",
+                "| MENS_DEPTH_IDS | decoy_rows.IDS)",
+                "| MENS_DEPTH_IDS)",
+                "tests/test_retail_text_match_decoys_294.py -k never_copied_or_color_completed",
+                "a decoy stays a template",
+            ),
+            (
+                "a decoy sells nothing, so it cannot compete",
+                "decoy_rows.py",
+                "one(color, self.sold)",
+                "one(color, 1)",
+                "tests/test_retail_text_match_decoys_294.py -k decoys_lead_the_top_10",
+                "the decoys reach the baseline top 10",
+            ),
+            (
+                "a class 7 decoy loses its ingredients",
+                "decoy_rows.py",
+                "        if row.ingredients:\n",
+                "        if False:\n",
+                "tests/test_retail_text_match_decoys_294.py -k hold_the_word_only_in_the_ingredients",
+                "the word is on the label",
+            ),
+            (
+                "a part decoy gets the query's color in its color field",
+                "decoy_rows.py",
+                '"A blue velvet sofa finished with red piping along the seams.", "Blue", 1',
+                '"A blue velvet sofa finished with red piping along the seams.", "Red", 1',
+                "tests/test_retail_text_match_decoys_294.py -k decoy_is_a_hit",
+                "a decoy's fields tell the truth",
+            ),
+            (
+                "the docs table is not the generated one",
+                "decoy_rows.py",
+                '"true hit" if d.true_hit else "decoy"',
+                '"decoy" if d.true_hit else "true hit"',
+                "tests/test_retail_text_match_decoys_294.py -k docs_table_is_generated",
+                "the docs table is generated",
+            ),
+            (
+                "a guard loses its color word",
+                "decoy_rows.py",
+                '"Green Tea, 40 Bags"',
+                '"Tea, 40 Bags"',
+                "tests/test_retail_text_match_decoys_294.py -k guard_holds_every_word",
+                "a guard holds its query's words and ranks first",
+            ),
+            (
+                "a decoy's ingredient has no base row",
+                "grocery_ingredients.py",
+                "lentils: lentil\n",
+                "",
+                "tests/test_grocery_ingredient_base_295.py -k scale_build_with_the_decoys",
+                "every label of the scale build has a base row",
+            ),
+        ]
+    ),
+    # ---- pack: bolts and socket screws publish the census pack (#65) ------
+    *(
+        Mutation(
+            f"pack: {name}", file, old, new, f"tests/test_pack_quantity.py -k {test}", "A", prop
+        )
+        for name, file, old, new, test, prop in [
+            (
+                "the pack grows with the size",
+                "core/price.py",
+                "    quantile = 1.0 - (rank + u) / sizes",
+                "    quantile = (rank + u) / sizes",
+                "never_grows_with_the_size",
+                "the pack falls as the size grows",
+            ),
+            (
+                "every line of a size takes one pack",
+                "core/price.py",
+                "    quantile = 1.0 - (rank + u) / sizes",
+                "    quantile = 1.0 - (rank + 0.5) / sizes",
+                "even_spread_over_the_sizes",
+                "the build publishes the census counts",
+            ),
+            (
+                "the bolt's pack does not enter its price",
+                "core/price.py",
+                '            pack_slope=PACK_SLOPES["bolt_hex"],',
+                "            pack_slope=0.0,",
+                "prices_its_pack_on_the_census_slope",
+                "the price is the pack's",
+            ),
+            (
+                "a census pack count drifts",
+                "core/price.py",
+                "        100: 76,",
+                "        100: 77,",
+                "each_pack_count_is_the_census_count",
+                "the counts are the census's",
             ),
         ]
     ),

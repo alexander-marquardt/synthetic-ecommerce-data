@@ -29,6 +29,7 @@ from kit import (
     register,
 )
 from kit_garments import _dark, _f, _lerp, _poly
+from kit_lighting import styled_table_lamp
 
 METAL = "#cfd5da"
 GOLD = "#d6b56a"
@@ -294,13 +295,27 @@ def cutlery_set(paint: str, fill: Fill, label: str | None) -> list[str]:
     return out
 
 
-def table_lamp(paint: str, fill: Fill, label: str | None, shade: str | None = None) -> list[str]:
+def table_lamp(
+    paint: str,
+    fill: Fill,
+    label: str | None,
+    shade: str | None = None,
+    style: str | None = None,
+    shade_color: str = "white",
+    power: str = "plug-in",
+) -> list[str]:
     """A tapered shade on a gourd base.
 
     With ``shade`` (a ``#rrggbb`` the record names), the base takes the record's own color
     and pattern and the shade takes ``shade``. Without it the shade is the painted surface
     and the base the accent color, as the ceramic lamp's record reads.
+
+    With ``style`` (gen#197: bedside, ceramic, touch, mushroom) the lighting rows' lamp is
+    drawn instead (:func:`kit_lighting.styled_table_lamp`): the base in the record's fill, the
+    shade in the SKU's ``shade_color``, a cable or a battery by ``power``.
     """
+    if style is not None:
+        return styled_table_lamp(paint, fill, style, shade_color, power)
     base = "M200,206 C150,206 140,262 156,296 C166,318 176,326 172,338 L228,338 C224,326 234,318 244,296 C260,262 250,206 200,206 Z"
     base_paint, shade_paint = (paint, shade) if shade else (fill.accent, paint)
     plinth = _shade(fill.base if shade else fill.accent, 0.2)

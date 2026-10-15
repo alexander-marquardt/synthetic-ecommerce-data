@@ -11,7 +11,7 @@ emits, and :func:`synthetic_ecommerce_data.core.standard.check_catalog` passes i
   :func:`~synthetic_ecommerce_data.core.entry.split`;
 - ``price`` stays the GBP amount, ``currency`` says GBP; ``in_stock`` stays the
   yes/no (the build models no stock count, so no ``stock`` is written);
-- the retail-only top-level facts (department, color and size options, offer
+- the retail-only top-level facts (color and size options, offer
   flags, rating, ...) become product-level attribute entries (:data:`FACTS`);
 - ``image_id`` is ``<product type>/<product id>/<drawing spec digest>``: one
   image per distinct drawing (a SKU's drawing is its product's with the SKU's
@@ -65,6 +65,9 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "size_us": ("size_us", "Size (US)", None),
     "length": ("length", "Length", None),
     "inside_leg": ("inside_leg", "Inside leg", None),
+    # A skirt's Petite/Regular/Long fit; not ``length``, which the Combined projection renames to
+    # the style's ``garment_length`` (gen#279).
+    "fit_length": ("fit_length", "Fit length", None),
     "inside_leg_in": ("inside_leg_length", "Inside leg length", "INH"),
     "waist": ("waist", "Waist", None),
     "bed_size": ("bed_size", "Bed size", None),
@@ -81,6 +84,15 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     # A mirror's glass and a bookcase's height (furniture_rows.py, gen#199).
     "height_cm": ("item_height", "Item height", "CMT"),
     "blade_length_cm": ("blade_length", "Blade length", "CMT"),
+    # Bags, umbrellas and jewelry (accessory_rows.py, gen#207): a backpack's capacity, an
+    # umbrella's canopy, a necklace's length (item_length), a jewelry SKU's metal.
+    "canopy_cm": ("canopy_diameter", "Canopy diameter", "CMT"),
+    "metal": ("metal", "Metal", None),
+    # A building set's sizes, a board game's editions and a craft kit's themes
+    # (toys_rows.py, gen#201).
+    "piece_count": ("piece_count", "Piece count", "C62"),
+    "edition": ("edition", "Edition", None),
+    "theme": ("theme", "Theme", None),
     # The grocery build's flavor x pack SKUs (grocery.py, gen#154); a list option
     # (an allergen list, the dietary labels) is one entry per value.
     "flavor": ("flavor", "Flavor", None),
@@ -88,8 +100,12 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "variety": ("variety", "Variety", None),
     "skin_concern": ("skin_concern", "Skin concern", None),
     "pack_size": ("pack_size", "Pack size", None),
+    # A table lamp's shade color; a lampshade's diameter is the household pan's (gen#197).
+    "shade_color": ("shade_color", "Shade color", None),
     # A recliner sofa's manual or power recline (sofa_rows.py, gen#196).
     "recline": ("recline", "Recline", None),
+    # How a tracksuit is sold: the set or either piece (lowerbody_rows.py, gen#206).
+    "sold_as": ("sold_as", "Sold as", None),
     "units_per_pack": ("units_per_pack", "Units per pack", "C62"),
     "net_weight_g": ("net_weight", "Net weight", "GRM"),
     "net_volume_ml": ("net_volume", "Net volume", "MLT"),
@@ -103,13 +119,20 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "wattage": ("wattage", "Wattage (W)", None),
     "fin_count": ("fin_count", "Fin count", "C62"),
     "slots": ("slots", "Slots", "C62"),
+    # A balance bike's and a trike's wheel size (toys_rows.py, gen#271): its own attribute,
+    # never the garment ``size``, whose S/M/L is another kind of value.
+    "wheel_size_in": ("wheel_size", "Wheel size", "INH"),
+    # A tent's berth, a mat's thickness and a dumbbell's or kettlebell's weight
+    # (sports_rows.py, gen#265).
+    "berth": ("berth", "Berth", "C62"),
+    "thickness_mm": ("thickness", "Thickness", "MMT"),
+    "weight_kg": ("weight", "Weight", "KGM"),
 }
 #: The SKU fields that are columns of the variant, not options.
 SKU_COLUMNS = frozenset({"sku", "price", "in_stock", "ingredients"})
 
 #: Top-level retail fact -> (key, name, unit): product-level entries, one per value.
 FACTS: dict[str, tuple[str, str, str | None]] = {
-    "department": ("department", "Department", None),
     "collections": ("collection", "Collection", None),
     "sub_collection": ("sub_collection", "Sub-collection", None),
     "audience": ("age_group", "Age group", None),
@@ -122,7 +145,6 @@ FACTS: dict[str, tuple[str, str, str | None]] = {
     "units_per_pack": ("units_per_pack", "Units per pack", "C62"),
     "offer": ("offer", "Offer", None),
     "online_only": ("online_only", "Online only", None),
-    "new_in": ("new_in", "New in", None),
     "trending": ("trending", "Trending", None),
     "badges": ("badge", "Badge", None),
     "rating": ("rating", "Rating", None),
@@ -146,8 +168,11 @@ COLUMNS = frozenset({"product_id", "product_type", "title", "brand", "category_p
                      "unit_measure", "ingredients"})  # fmt: skip
 #: Fields left out: the standard derives them from the variants, (the drawing)
 #: they are the render's input, reached through ``image_id``, or (``abv``) the
-#: record's own ``attributes`` already carry them as an entry.
-DROPPED = frozenset({"price", "price_min", "price_max", "sku_count", "drawing", "abv"})
+#: record's own ``attributes`` already carry them as an entry, or (``department``, gen#281) the
+#: store's department is the top level of ``category_path``, which the downstream reads.
+DROPPED = frozenset(
+    {"price", "price_min", "price_max", "sku_count", "drawing", "abv", "department"}
+)
 
 
 def _spelling(value: Any) -> str:
@@ -289,6 +314,7 @@ def standard_document(rec: dict) -> dict[str, Any]:
     variants = [_variant(rec, sku) for sku in rec["skus"]]
     path = list(rec["category_path"])
     attributes = _product_attributes(rec)
+    blend = facet_leaves.fibre_content(attributes)
     added, replaced = facet_leaves.leaf_facets(rec, attributes)
     if replaced:
         path = facet_leaves.collapsed_path(path, rec["product_type"])
@@ -302,6 +328,8 @@ def standard_document(rec: dict) -> dict[str, Any]:
     }
     if "product_line" in rec:
         doc["series"] = rec["product_line"]
+    if blend:
+        doc["fibre_content"] = blend
     return doc | {
         "category_path": path,
         "category_leaf": path[-1],

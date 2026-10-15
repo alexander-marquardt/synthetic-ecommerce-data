@@ -239,8 +239,9 @@ def test_every_sprocket_names_the_chain_number_and_tooth_count_of_its_row(large_
 def test_one_sprocket_publishes_exactly_its_row(large_docs):
     doc = next(d for d in large_docs if table_gates.row(d, COLUMNS)[0] == 67.361)
     published = {a["name"]: a["value"] for a in doc["attributes"]}
-    # A line may or may not state its finish and its standard.
-    for sparse in ("Finish", "Standards"):
+    # A line may or may not state its finish, its standard and its measurement
+    # system (the product's one draw, gen#63).
+    for sparse in ("Finish", "Standards", "Dimension Type"):
         published.pop(sparse, None)
     assert published == {
         "Item": "Roller Chain Sprocket",

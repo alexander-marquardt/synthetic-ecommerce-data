@@ -1,0 +1,23 @@
+TESTS = ["tests/test_retail_tree_nesting_283.py"]
+PYTEST_ARGS = ["--noconftest", "-q", "-p", "no:cacheprovider", "-x"]
+R = "prototypes/retail_drawings/"
+MUTANTS = [
+    (R + "sofa_rows.py", 'CORNER = (*SOFAS, "Corner Sofas")', 'CORNER = (*_FURN, "Corner Sofas")', "corner beside sofas"),
+    (R + "sofa_rows.py", 'SOFA_BEDS = (*SOFAS, "Sofa Beds")', 'SOFA_BEDS = (*_FURN, "Sofa Beds")', "sofa beds beside beds"),
+    (R + "sofa_rows.py", 'RECLINER = (*SOFAS, "Recliner Sofas")', 'RECLINER = (*_FURN, "Recliner Sofas")', "recliner beside sofas"),
+    (R + "lighting_rows.py", 'TABLE = (*_LAMPS, "Table Lamps")', 'TABLE = (*_LIGHT, "Table Lamps")', "table lamps beside lamps"),
+    (R + "lighting_rows.py", 'WALL = (*_LIGHTS, "Wall Lights")', 'WALL = (*_LIGHT, "Wall Lights")', "wall lights beside lights"),
+    (R + "appliance_rows.py", '_CF = (*_FANS, "Ceiling Fans")', '_CF = (*_HC, "Ceiling Fans")', "ceiling fans beside fans"),
+    (R + "furniture_rows.py", 'SIDE_TABLES = (*TABLES, "Side Tables")', 'SIDE_TABLES = (*_FURN, "Side Tables")', "side tables beside tables"),
+    (R + "grocery_rows.py", '("Dairy & Alternatives", "Milk", "Plant Milk")', '("Dairy & Alternatives", "Plant Milk")', "plant milk beside milk"),
+    (R + "grocery_rows.py", '("Beauty", "Skincare", "Creams", "Eye Creams")', '("Beauty", "Skincare", "Eye Creams")', "eye creams out of creams"),
+    (R + "grocery_rows.py", '("Cleaning", "Kitchen & Surfaces", "Cleaners", "Glass Cleaners")', '("Cleaning", "Kitchen & Surfaces", "Glass Cleaners")', "glass cleaners out of cleaners"),
+    (R + "class_rows.py", '(*BEER_NODE, "Sour Beer")', 'BEER_NODE', "sour beer in the beer node"),
+    (R + "class_rows.py", '("Home", "Furniture", "Sofas", "Corner Sofas"), 2795.0', '("Home", "Furniture", "Sofas"), 2795.0', "corner sofa title in sofas"),
+    (R + "tree_guard.py", "GROUP_SIZE = 3", "GROUP_SIZE = 4", "group size 4"),
+    (R + "tree_guard.py", "if other != kid and words(other[-1]) == [noun]:", "if False:", "rule a off"),
+    (R + "tree_guard.py", "named = bool(parent) and noun in words(parent[-1])", "named = bool(parent)", "rule b any parent names it"),
+    (R + "tree_guard.py", "if len(labels) >= GROUP_SIZE and not named", "if len(labels) > GROUP_SIZE and not named", "rule b strict size"),
+    (R + "tree_guard.py", "if len(named) <= len(own_words) or named[-len(own_words) :] != own_words:", "if len(named) < len(own_words) or named[-len(own_words) :] != own_words:", "rule c same-length node"),
+    (R + "tree_guard.py", "for node in by_root[own[0]]:", "for node in tree:", "rule c across departments"),
+]

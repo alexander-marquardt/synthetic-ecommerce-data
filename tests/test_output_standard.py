@@ -114,12 +114,13 @@ def test_sku_options_are_variant_attributes(retail):
     }
 
 
-def test_department_options_offers_and_ratings_are_product_attributes(retail):
+def test_options_offers_and_ratings_are_product_attributes(retail):
     keys = {e["key"] for d in retail for e in d["attributes"]}
-    assert {"department", "color", "size_uk", "offer", "rating", "review_count"} <= keys
+    assert {"color", "size_uk", "offer", "rating", "review_count"} <= keys
+    assert "department" not in keys  # the department is the top level of category_path (gen#281)
     dress = next(d for d in retail if d["product_id"] == "PLT-LEMDRS")
     entries = {(e["key"], e["value"]) for e in dress["attributes"]}
-    assert {("department", "Clothing"), ("offer", "no"), ("rating", "4.1")} <= entries
+    assert {("offer", "no"), ("rating", "4.1")} <= entries
 
 
 def test_an_image_id_is_the_drawing_specs_and_stable(retail):
@@ -404,8 +405,8 @@ GOLDEN_FLAT = ROOT / "golden-catalog" / "flat.jsonl"
 #: retail states ``price`` in ``currency`` and only knows whether a SKU is in stock.
 INDUSTRIAL_ONLY_FLAT = frozenset({"price_usd", "stock", "dimension_provenance", "spec_quality"})
 RETAIL_ONLY_FLAT = {"price": float, "currency": str, "in_stock": bool}
-#: Present only on a style with a product line (6 of 328).
-RETAIL_OPTIONAL_FLAT = frozenset({"series"})
+#: Present only on a style with a product line (6 of 328), or with a blend (gen#187).
+RETAIL_OPTIONAL_FLAT = frozenset({"series", "fibre_content"})
 
 
 def _shape(value: Any) -> Any:
@@ -421,10 +422,18 @@ def _shapes(rows: list[dict[str, Any]]) -> dict[str, set[str]]:
     out: dict[str, set[str]] = {}
     for row in rows:
         for key, value in row.items():
-            shape = _shape(value)
-            # an empty list or object has no member types to compare
-            if shape not in (("list", []), ("dict", [])):
-                out.setdefault(key, set()).add(repr(shape))
+            # A list is compared member by member, so a document whose list holds one kind of
+            # member (a plant with only a measured height, once the department entry went:
+            # gen#281) is not a shape of its own.
+            shapes = (
+                [("list", [repr(_shape(v))]) for v in value]
+                if isinstance(value, list)
+                else [_shape(value)]
+            )
+            for shape in shapes:
+                # an empty list or object has no member types to compare
+                if shape not in (("list", []), ("dict", [])):
+                    out.setdefault(key, set()).add(repr(shape))
     return out
 
 
