@@ -17,6 +17,8 @@ from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data.domains.industrial.hammers import is_incidental_decoy_title
+
 ROOT = Path(__file__).resolve().parent.parent
 RETAIL = ROOT / "prototypes" / "retail_drawings"
 if str(RETAIL) not in sys.path:
@@ -231,3 +233,13 @@ def test_an_incidental_word_decoy_is_in_the_top_three_for_each_of_its_queries(to
             ranked = _bm25_ranking(tools, _tokens(query))
             assert {d["sku"] for d in ranked[:3]} & wanted, (
                 query, [d["title"] for d in ranked[:3]])
+
+
+@pytest.mark.parametrize("kind", sorted(KINDS))
+def test_the_one_decoy_title_predicate_names_exactly_the_incidental_decoys(tools, kind) -> None:
+    """gen#320: the predicate the facts and voice gates share accepts every incidental-word
+    decoy title and no other title of the kind."""
+    docs = _lines(tools, kind).values()
+    named = {d["sku"] for d in docs if INCIDENTAL.search(d["title"]) and " -- " not in d["title"]}
+    assert named
+    assert {d["sku"] for d in docs if is_incidental_decoy_title(d["title"])} == named
