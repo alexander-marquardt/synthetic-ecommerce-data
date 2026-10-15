@@ -416,7 +416,7 @@ def test_a_pile_is_the_same_on_every_build_and_differs_between_products() -> Non
     assert jitter("PLT-ORNAVL", 0) != jitter("PLT-ORBLOD", 0)
     assert set(FRUIT) == {
         "orange", "clementine", "lemon", "apple", "lime", "strawberry", "blackberry",
-        "blueberry", "grapefruit", "mandarin", "raspberry", "satsuma",
+        "blueberry", "grapefruit", "mandarin", "raspberry", "satsuma", "grape",
     }
 
 
