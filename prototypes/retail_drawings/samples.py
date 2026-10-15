@@ -512,7 +512,7 @@ FOOD = [
         "brand": "Goldfield Farms",
         "department": ["food"],
         "collections": ["summer"],
-        "category_path": ["Food & Drink", "Fresh Produce", "Fruit", "Berries"],
+        "category_path": ["Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Berries", "Strawberries"],
         "price": 2.50,
         "attributes": food_attrs(400, "GRM", "Chilled", ["Vegan", "Gluten Free"], [], "Strawberry"),
         "drawing": drawing("punnet", "solid", "#2f6b3c", label="Strawberries"),
@@ -562,7 +562,7 @@ FOOD = [
         "brand": "Goldfield Farms",
         "department": ["food"],
         "collections": ["christmas"],
-        "category_path": ["Food & Drink", "Fresh Produce", "Fruit", "Citrus"],
+        "category_path": ["Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Citrus Fruit", "Clementines"],
         "price": 1.80,
         "attributes": food_attrs(
             CLEMENTINE_GRAMS, "GRM", "Fresh", ["Vegan", "Gluten Free"], [], "Sweet Citrus"
