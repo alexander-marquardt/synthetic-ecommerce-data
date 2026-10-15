@@ -55,7 +55,7 @@ Each new real type carries a floor of three ordinary products, listed in `FLOOR`
 | blue sofa | sofa | PLT-DY34 | Blue Sofa Cover | Sofa Covers | category |
 | blue sofa | sofa | PLT-DY35 | Sofa Cushion, Blue Trim | Cushion | category |
 | blue sofa | sofa | PLT-DY36 | Blue Sofa Throw | Throws | category |
-| black pumps | pump | PLT-DY37 | Black Bike Pump | Bike Pumps | department |
+| black pumps | pump | PLT-DY37 | Black Bike Pump | Bike Pump | department |
 | black pumps | pump | PLT-DY38 | Black Foot Pump | Foot Pumps | department |
 | black shoes | shoe | PLT-DY39 | Black Shoe String Pasta | Pasta | department |
 | blue trainers | brand | PLT-DY40 | Blue Bull Trainers | Trainers | color |
