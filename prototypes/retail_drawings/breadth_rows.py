@@ -866,10 +866,10 @@ CLEANING = (
 # Food & Drink: the tea's blend or the coffee's origin varies; the pack is drawn.
 # --------------------------------------------------------------------------
 
-_TEA = ("Food & Drink", "Tea & Coffee", "Tea")
-_COFFEE = ("Food & Drink", "Tea & Coffee", "Coffee")
-_JAM = ("Food & Drink", "Pantry", "Jam")
-_CHUTNEY = ("Food & Drink", "Pantry", "Chutney")
+_TEA = ("Food & Drink", "Drinks", "Tea")
+_COFFEE = ("Food & Drink", "Drinks", "Coffee")
+_JAM = ("Food & Drink", "Food Cupboard", "Jam")
+_CHUTNEY = ("Food & Drink", "Food Cupboard", "Chutney")
 _FD = "Food & Drink"
 
 
@@ -894,8 +894,8 @@ def _shape(v: str) -> tuple[tuple[str, str, str], ...]:
 
 
 _CRISPS = ("Food & Drink", "Biscuits & Snacks", "Crisps")
-_OIL = ("Food & Drink", "Pantry", "Olive Oil")
-_PASTA = ("Food & Drink", "Pantry", "Pasta")
+_OIL = ("Food & Drink", "Food Cupboard", "Olive Oil")
+_PASTA = ("Food & Drink", "Food Cupboard", "Pasta")
 
 
 FOOD = (

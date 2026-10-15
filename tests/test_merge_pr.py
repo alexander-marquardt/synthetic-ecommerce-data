@@ -137,6 +137,10 @@ exec "$REAL_UV" "$@"
 """
 )
 
+#: Each case builds its own throwaway origin (30 to 80 s) and shares no fixture, so the
+#: cases spread over the xdist workers instead of sharing one (tests/xdist_groups.py).
+XDIST_SPREAD = True
+
 pytestmark = pytest.mark.skipif(shutil.which("uv") is None, reason="the script runs uv")
 
 
@@ -210,6 +214,8 @@ def world(tmp_path: Path) -> dict:
         MERGE_PR_CI_TIMEOUT="0",
         MERGE_PR_CI_POLL="0",
         MERGE_PR_RETRY_SLEEP="0",
+        # The narrowed checks are one test: two workers, not one per core (#348).
+        LOCAL_CI_WORKERS="2",
         MERGE_PR_LOG_DIR=str(tmp_path),
         # The planted worlds run with name resolution blocked: a red here is
         # the script's, never the network's (#178).
