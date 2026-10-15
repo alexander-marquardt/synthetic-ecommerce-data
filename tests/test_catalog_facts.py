@@ -28,6 +28,7 @@ from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
 from synthetic_ecommerce_data.domains.industrial import newtypes
 from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
+from synthetic_ecommerce_data.domains.industrial.hammers import is_incidental_decoy_title
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 LBF_PER_KN = 224.809
@@ -586,6 +587,9 @@ def untitled_keys(docs: list[dict]) -> list[tuple[str, str, str, str]]:
     keys = type_facts.title_key()
     missing = []
     for doc in docs:
+        # An incidental-word decoy title is the item and the word alone (gen#320).
+        if is_incidental_decoy_title(doc["title"]):
+            continue
         v = _values(doc)
         for name in keys[doc["product_type"]]:
             if name in v and not _in_title(v[name], doc["title"]):
