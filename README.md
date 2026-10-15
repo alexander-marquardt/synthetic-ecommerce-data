@@ -1144,7 +1144,7 @@ and popularity are the style's: `sold_last_5_days` is the sales of every
 color, summed. Legwear SKUs are color x waist x `inside_leg` with `in_stock`
 per SKU, and jeans and trousers carry `rise`. Bedding SKUs are bed sizes whose
 label carries the dimension ("Double (4 ft 6)"), each with its own price.
-Beauty shades are the SKU colors of one product with `unit_size` in g or ml.
+Beauty shades are the SKU colors of one product with `unit_size` in g or ml ([net volumes](docs/retail-net-volume.md)).
 `price_min` and `price_max` come from the SKUs, and `price` is the cheapest
 SKU. `size_range` is a list; for legwear it is derived from the in-stock lengths
 (Extra Short and Short/Petite give `petite`), never declared, so the flat
