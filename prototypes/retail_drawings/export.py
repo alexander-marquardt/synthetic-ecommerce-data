@@ -31,6 +31,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+import colorwords
 import facet_leaves
 from audience import audience_of
 from build_preview4 import samples
@@ -218,6 +219,18 @@ def _url(image: str) -> str:
     return f"{IMAGE_BASE_URL}/{image}.svg"
 
 
+def _color_entries(authored: str) -> list[dict[str, Any]]:
+    """The ``color`` entry of an authored shade, and its ``pattern`` entry when it has one.
+
+    "Navy Stripe" is color Navy and pattern Stripe (gen#188): the color facet holds colors only,
+    so a "navy" filter finds the striped shirt and a "stripe" filter finds it too."""
+    color, pattern = colorwords.split(authored)
+    out = [_entry("color", "Color", None, color)]
+    if pattern is not None:
+        out.append(_entry(*FACTS["pattern"], pattern))
+    return out
+
+
 def _product_attributes(rec: dict) -> list[dict[str, Any]]:
     out = list(rec["attributes"])
     have = {(e["key"], e["value"]) for e in out}
@@ -225,7 +238,8 @@ def _product_attributes(rec: dict) -> list[dict[str, Any]]:
         if field not in FACTS and field not in COLUMNS and field not in DROPPED:
             raise KeyError(f"{rec['product_id']}: no standard home for {field!r}")
     facts = [e for f, spec in FACTS.items() if f in rec for e in _entries(spec, rec[f])]
-    facts += [_entry("color", "Color", None, c["color"]) for c in rec.get("color_options", ())]
+    for c in rec.get("color_options", ()):
+        facts += _color_entries(c["color"])
     for option, values in rec.get("size_options", {}).items():
         facts += _entries(OPTIONS[option], values)
     if "unit_size" in rec:
@@ -271,7 +285,11 @@ def _variant(rec: dict, sku: dict) -> dict[str, Any]:
         "image_url": _url(image),
         "image_detail_url": _url(image),
         **({"ingredients": sku["ingredients"]} if "ingredients" in sku else {}),
-        "attributes": [e for k in options for e in _entries(OPTIONS[k], sku[k])],
+        "attributes": [
+            e
+            for k in options
+            for e in (_color_entries(sku[k]) if k == "color" else _entries(OPTIONS[k], sku[k]))
+        ],
     }
 
 
