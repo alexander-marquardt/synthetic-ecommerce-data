@@ -478,7 +478,10 @@ KIDS_STYLES = (
                   INFANT_JUNIOR, "Hook & Loop", "Rubber", junior_price=18.0),
 )  # fmt: skip
 
-FOOTWEAR: tuple[FootwearStyle, ...] = (*WOMENS, *MENS, *KIDS_STYLES)
+#: The gen#216 styles: plimsolls, clogs, wedges, espadrilles, platform trainers, mules, jelly and barefoot shoes.
+NEW_STYLES: tuple[FootwearStyle, ...] = ()
+
+FOOTWEAR: tuple[FootwearStyle, ...] = (*WOMENS, *MENS, *KIDS_STYLES, *NEW_STYLES)
 
 
 def docs() -> list[dict]:
