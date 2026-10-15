@@ -46,7 +46,7 @@ DEPARTMENTS = frozenset(
 )
 #: The roots the build once had -> the first two nodes their subtree now starts with.
 FOLDED_ROOTS = {
-    "Food": ["Food & Drink", "Fresh Produce"],
+    "Food": ["Food & Drink", "Fruit & Vegetables"],
     "Baby": ["Kids", "Baby"],
     "Electricals": ["Home", "Electricals"],
 }
