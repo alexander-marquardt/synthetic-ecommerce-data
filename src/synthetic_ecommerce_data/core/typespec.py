@@ -112,6 +112,13 @@ class TypeSpec:
     """
 
     key: str
+    #: The shopper-readable name every product of the type carries as
+    #: ``product_type_label`` (singular, plain English, capitalised, no ``_``,
+    #: unique). Required: a type without one stops the build (#331). A type
+    #: whose label is still in ``type_labels.PRODUCT_TYPE_LABELS`` leaves this
+    #: unset; declaring it in both places is refused. Declared here, two PRs
+    #: that each add a type edit no line in common (#103).
+    label: str = ""
     part_number_block: int | None = None
     #: A modelled type's category path, root first; the leaf is the type.
     category: tuple[str, ...] = ()
@@ -236,7 +243,17 @@ def register(spec: TypeSpec) -> None:
         vocab,
     )
     from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.industrial.type_labels import (  # noqa: PLC0415
+        PRODUCT_TYPE_LABELS,
+    )
 
+    if spec.label:
+        if dict.__contains__(PRODUCT_TYPE_LABELS, spec.key):
+            raise TypeCollisionError(
+                f"{spec.key!r} is labelled both in type_labels.PRODUCT_TYPE_LABELS and by type "
+                f"module {spec.module}; keep the label on its TypeSpec"
+            )
+        PRODUCT_TYPE_LABELS[spec.key] = spec.label
     if spec.breadth is not None:
         if spec.breadth.key != spec.key:
             raise TypeModuleError(
