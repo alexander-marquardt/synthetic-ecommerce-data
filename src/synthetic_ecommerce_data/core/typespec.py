@@ -253,7 +253,7 @@ def register(spec: TypeSpec) -> None:
                 f"{spec.key!r} is labelled both in type_labels.PRODUCT_TYPE_LABELS and by type "
                 f"module {spec.module}; keep the label on its TypeSpec"
             )
-        PRODUCT_TYPE_LABELS[spec.key] = spec.label
+        pass
     if spec.breadth is not None:
         if spec.breadth.key != spec.key:
             raise TypeModuleError(

@@ -539,6 +539,38 @@ MUTATIONS: list[Mutation] = [
         "",
         "two types on one block are refused, naming both",
     ),
+    # ---- labels on the type's own spec: two type PRs share no line (#103) ----
+    Mutation(
+        "labels: a label in the table and on the spec is accepted",
+        "core/typespec.py",
+        "        if dict.__contains__(PRODUCT_TYPE_LABELS, spec.key):",
+        "        if False:",
+        "tests/test_type_registration.py::test_a_label_in_the_table_and_on_the_spec_is_refused",
+        "",
+        "a label is declared once",
+    ),
+    Mutation(
+        "labels: register drops the label a spec declares",
+        "core/typespec.py",
+        "        PRODUCT_TYPE_LABELS[spec.key] = spec.label",
+        "        pass",
+        (
+            "tests/test_type_registration.py::test_a_label_on_the_spec_joins_the_label_table",
+            "tests/test_merge_pr.py::test_two_prs_that_each_add_a_type_merge_one_after_the_other_by_the_script",
+        ),
+        "",
+        "a type's label on its spec reaches every product and no shared line is edited",
+    ),
+    Mutation(
+        "labels: the steps of a new type are a numbered list again",
+        "docs/adding-a-type.md",
+        "- **Module.** Write the module.",
+        "1. Write the module.",
+        "tests/test_adding_a_type_doc_103.py::test_the_steps_of_a_new_type_are_named_items",
+        "",
+        "an inserted step renumbers no neighbour",
+        root=".",
+    ),
     # ---- roller chain: the strand count moves the price (#36) ----
     Mutation(
         "roller chain: a double strand chain prices as a single strand one",
