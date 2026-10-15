@@ -62,6 +62,11 @@ TAGS = ("none", "outline", "rect", "flag", "plain", "underline", "stamp", "tab")
 CASES = ("title", "caps", "smallcaps", "lower")
 
 
+#: A real brand (:mod:`real_brands`, gen#341) draws no logo: its style row carries this mark,
+#: so the name is text in the title and the ``brand`` field and the drawing shows no mark.
+NO_MARK = "none"
+
+
 @dataclass(frozen=True)
 class HouseStyle:
     """One brand's look. See the module docstring for what each field does."""
@@ -89,7 +94,7 @@ class HouseStyle:
             ("texture", TEXTURES),
             ("frame", FRAMES),
             ("joins", ("round", "sharp")),
-            ("mark", tuple(MARKS)),
+            ("mark", (*MARKS, NO_MARK)),
             ("layout", LAYOUTS),
             ("place", PLACES),
             ("tag", TAGS),
@@ -883,6 +888,8 @@ def tag_place(style: HouseStyle) -> str:
 
 
 def logo(style: HouseStyle, brand: str) -> list[str]:
+    if style.mark == NO_MARK:  # a real brand: text only, never a logo, wordmark or trade dress
+        return []
     if style.layout != "mark_only":
         return _lockup(style, brand)
     v, h = style.place.split("_")
@@ -1077,6 +1084,8 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     "Black Lapwing":        H("#f1f1f1", "none",     "none",    "#222222", "#111111", 1.3,  False, "sharp", "ladder",            "mark_right",  "top_right",     "none",     "sans",     700, "caps",      3.0),
     "White Dormouse":       H("#ffffff", "hatch",    "ticks",   "#8a8a8a", "#2e2e2e", 0.9,  True,  "round", "steps",             "badge",       "bottom_centre", "none",     "serif",    400, "title",     0.0),
     "Jumper Jay":           H("#f7eefa", "lines",    "thin",    "#8a3fa0", "#341a3e", 1.0,  False, "round", "puddle",            "band_bottom", "bottom_centre",      "none",     "humanist", 700, "title",     1.0),
+    # A real brand (real_brands.ALLOWED, gen#341): text only, so the drawing carries no logo.
+    "Nike":                 H("#f6f6f6", "none",     "rounded", "#111111", "#111111", 1.0,  False, "round", "none",              "mark_left",   "bottom_left",   "none",     "sans",     400, "lower",     0.5),
     "Coat Crake":           H("#f3efe8", "dots",     "double",  "#7a5a3a", "#30241a", 1.1,  False, "sharp", "comb",              "mark_only",   "bottom_left",   "stamp",    "mono",     700, "lower",     2.0),
 }
 # fmt: on
