@@ -657,7 +657,7 @@ stays one per type, and their attributes stay true. The class names the word:
 | incidental word, short title (generic) | `Claw Hammer, Hickory Creek Range` | the range is a place name |
 
 `tests/test_hammers_305.py` pins at least three of each class per kind and that the
-handle never is the named material. The colour classes do not apply: a hammer has no colour.
+handle never is the named material. The color classes do not apply: a hammer has no color.
 
 ## The commands
 
