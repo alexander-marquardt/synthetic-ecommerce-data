@@ -62,6 +62,62 @@ class Mutation:
 
 
 MUTATIONS: list[Mutation] = [
+    # ---- every product carries a readable product_type_label (gen#331) ----
+    Mutation(
+        "label: the hammer kind loses its label",
+        "domains/industrial/type_labels.py",
+        '    "hammer_claw": "Claw Hammer",\n',
+        "",
+        "tests/test_product_type_label_331.py -k every_emitted_type_has_a_label",
+        "",
+        "every emitted type has a label",
+    ),
+    Mutation(
+        "label: a label keeps its id's underscore",
+        "domains/industrial/type_labels.py",
+        '"nut_hex": "Hex Nut"',
+        '"nut_hex": "Hex_Nut"',
+        "tests/test_product_type_label_331.py -k no_label_is_an_id",
+        "",
+        "no label reads as a field name",
+    ),
+    Mutation(
+        "label: two types share one label",
+        "domains/industrial/type_labels.py",
+        '"hammer_club": "Club Hammer"',
+        '"hammer_club": "Claw Hammer"',
+        "tests/test_product_type_label_331.py -k a_label_names_one_type",
+        "",
+        "a label names one type",
+    ),
+    Mutation(
+        "label: the flat document drops the label",
+        "core/emit.py",
+        '            "product_type_label": label_for(line.type_key),\n            "title": child.title,',
+        '            "title": child.title,',
+        "tests/test_product_type_label_331.py -k documents_carry_the_label",
+        "",
+        "an industrial document carries its label",
+    ),
+    Mutation(
+        "label: a retail label drifts from its type",
+        "prototypes/retail_drawings/export.py",
+        '        "product_type_label": product_type,',
+        '        "product_type_label": product_type.lower(),',
+        "tests/test_product_type_label_331.py -k retail_product_is_labelled",
+        "",
+        "a retail label is its type",
+        root=".",
+    ),
+    Mutation(
+        "label: the standard stops requiring the label",
+        "core/standard.py",
+        '    "product_type_label": (_STR, True),',
+        '    "product_type_label": (_STR, False),',
+        "tests/test_product_type_label_331.py -k standard_requires_the_label",
+        "",
+        "a product without a label is refused",
+    ),
     # ---- the generic images carry no dimension, both directions ----------
     Mutation(
         "put a diameter callout on a generic drawing",
