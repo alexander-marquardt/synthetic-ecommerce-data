@@ -302,6 +302,28 @@ def m_zigzag_dots(c: str) -> list[str]:
     return [_stroke(d, 0.12, c, "miter"), *[_dot(x, y, 0.15, c) for x, y in pts]]
 
 
+def m_stacked_bars(c: str) -> list[str]:
+    return [
+        f'<path d="M-.9,-.55 L.9,-.55 L.9,-.3 L-.9,-.3 Z M-.6,-.12 L.6,-.12 L.6,.13 L-.6,.13 Z '
+        f'M-.3,.31 L.3,.31 L.3,.56 L-.3,.56 Z" fill="{c}"/>'
+    ]
+
+
+def m_half_disc(c: str) -> list[str]:
+    return [
+        f'<path d="M-.8,.25 A.8,.8 0 0 1 .8,.25 Z" fill="{c}"/>',
+        _stroke("M-.8,.5 L.8,.5", 0.11, c),
+        _stroke("M-.5,.75 L.5,.75", 0.11, c),
+    ]
+
+
+def m_slanted_blades(c: str) -> list[str]:
+    return [
+        f'<path d="M-.9,.6 L-.35,-.6 L-.05,-.6 L-.6,.6 Z" fill="{c}"/>',
+        f'<path d="M-.1,.6 L.45,-.6 L.75,-.6 L.2,.6 Z" fill="{c}" fill-opacity=".7"/>',
+    ]
+
+
 def m_rainbow(c: str) -> list[str]:
     return [
         _stroke(f"M{_n(-r)},.5 A{_n(r)},{_n(r)} 0 0 1 {_n(r)},.5", 0.16, c) for r in (0.9, 0.6, 0.3)
@@ -1043,6 +1065,10 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     "Puddlecombe Toys":     H("#eaf4fb", "dots",     "ticks",   "#2a86c4", "#16344a", 1.25, False, "round", "puddle",            "mark_only",   "bottom_right",  "plain",    "sans",     700, "smallcaps", 2.0, True),
     "Freshfold":            H("#f4f8fb", "hatch",    "rounded", "#4a90a8", "#1e3a44", 0.9,  True,  "sharp", "fold",              "mark_only",   "bottom_left",   "underline", "serif",   700, "caps",      1.5),
     "Soapwell":             H("#f2f0fa", "none",     "double",  "#6a5ac0", "#26204a", 1.15, True,  "round", "bubbles",           "mark_only",   "top_left",      "rect",     "sans",     400, "title",     2.5),
+    # Invented brands of the Mens clothing depth (gen#310): a color or category word in the name.
+    "Black Curlew":         H("#f2f2f0", "diagonal", "thin",    "#1a1a1a", "#262626", 1.2,  False, "sharp", "stacked_bars",      "mark_left",   "bottom_left",   "none",     "sans",     700, "smallcaps", 1.5),
+    "Yellow Plover":        H("#fffbe6", "lines",    "ticks",   "#d9a400", "#3a3000", 0.85, True,  "round", "half_disc",         "badge",       "bottom_centre", "none",     "humanist", 400, "caps",      0.5, True),
+    "Jacket Wren":          H("#eef3ee", "grid",     "double",  "#3f6b4f", "#1e3327", 1.05, False, "round", "slanted_blades",    "mark_only",   "top_right",     "stamp",    "mono",     400, "title",     1.0),
 }
 # fmt: on
 

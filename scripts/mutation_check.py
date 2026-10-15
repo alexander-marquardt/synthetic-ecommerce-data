@@ -332,6 +332,18 @@ MUTATIONS: list[Mutation] = [
         "",
         "a decimal is written to the precision asked for",
     ),
+    # ---- hammers: the incidental-word decoy's indexed title (gen#320) ------
+    # The ranking and word-count tests read the COMMITTED golden, so a source defect reds
+    # them only through the golden's drift test; this row proves that link holds.
+    Mutation(
+        "hammer decoy: an incidental-word decoy keeps its brand and size in the title",
+        "domains/industrial/hammers.py",
+        "            bare_title=bare,\n",
+        "            bare_title=False,\n",
+        "tests/test_catalog_golden.py",
+        "A",
+        "the short indexed title of the incidental-word decoy",
+    ),
     # ---- vocab: disjointness, both directions ----------------------------
     Mutation(
         "leak a hammer attribute into the screw vocabulary",
@@ -3254,12 +3266,12 @@ MUTATIONS: list[Mutation] = [
                 "bra_style is gone",
             ),
             (
-                "a bra's fibre content is dropped",
-                "facet_leaves.py",
-                "            out.append((*COMPOSITION, have[\"fabric\"]))\n",
-                "            pass\n",
-                "tests/test_retail_facet_leaves.py -k fibre_content_moves_to_composition",
-                "the fibre content moves to composition",
+                "the fibre-content detail is dropped",
+                "export.py",
+                "        doc[\"fibre_content\"] = blend\n",
+                "        pass\n",
+                "tests/test_retail_facet_leaves.py -k blend_is_a_detail",
+                "the blend is a detail",
             ),
             (
                 "one bra spells Lightly Lined with a hyphen",
@@ -3308,6 +3320,77 @@ MUTATIONS: list[Mutation] = [
                 'axis_key="length", axis=_legs()',
                 "tests/test_retail_combined_loader_279.py -k writes_a_renamed_key_twice",
                 "no SKU writes a renamed key twice",
+            ),
+        ]
+    ),
+    # ---- retail: text-match decoys (gen#294) ----
+    *(
+        Mutation(f"text-match decoys: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a decoy is color-completed",
+                "main_colors.py",
+                ' and r["product_id"] not in decoy_rows.IDS',
+                "",
+                "tests/test_retail_text_match_decoys_294.py -k never_copied_or_color_completed",
+                "no color completion gives a decoy the query's color",
+            ),
+            (
+                "a decoy is copied by the derivation",
+                "scale.py",
+                "| MENS_DEPTH_IDS | decoy_rows.IDS)",
+                "| MENS_DEPTH_IDS)",
+                "tests/test_retail_text_match_decoys_294.py -k never_copied_or_color_completed",
+                "a decoy stays a template",
+            ),
+            (
+                "a decoy sells nothing, so it cannot compete",
+                "decoy_rows.py",
+                "one(color, self.sold)",
+                "one(color, 1)",
+                "tests/test_retail_text_match_decoys_294.py -k decoys_lead_the_top_10",
+                "the decoys reach the baseline top 10",
+            ),
+            (
+                "a class 7 decoy loses its ingredients",
+                "decoy_rows.py",
+                "        if row.ingredients:\n",
+                "        if False:\n",
+                "tests/test_retail_text_match_decoys_294.py -k hold_the_word_only_in_the_ingredients",
+                "the word is on the label",
+            ),
+            (
+                "a part decoy gets the query's color in its color field",
+                "decoy_rows.py",
+                '"A blue velvet sofa finished with red piping along the seams.", "Blue", 1',
+                '"A blue velvet sofa finished with red piping along the seams.", "Red", 1',
+                "tests/test_retail_text_match_decoys_294.py -k decoy_is_a_hit",
+                "a decoy's fields tell the truth",
+            ),
+            (
+                "the docs table is not the generated one",
+                "decoy_rows.py",
+                '"true hit" if d.true_hit else "decoy"',
+                '"decoy" if d.true_hit else "true hit"',
+                "tests/test_retail_text_match_decoys_294.py -k docs_table_is_generated",
+                "the docs table is generated",
+            ),
+            (
+                "a guard loses its color word",
+                "decoy_rows.py",
+                '"Green Tea, 40 Bags"',
+                '"Tea, 40 Bags"',
+                "tests/test_retail_text_match_decoys_294.py -k guard_holds_every_word",
+                "a guard holds its query's words and ranks first",
+            ),
+            (
+                "a decoy's ingredient has no base row",
+                "grocery_ingredients.py",
+                "lentils: lentil\n",
+                "",
+                "tests/test_grocery_ingredient_base_295.py -k scale_build_with_the_decoys",
+                "every label of the scale build has a base row",
             ),
         ]
     ),
@@ -3363,6 +3446,15 @@ MUTATIONS: list[Mutation] = [
                 '_in("#2a2a2e", "#e8741e", "Black"),\n        (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18)),',
                 "tests/test_color_word_brands_312.py -k test_no_attribute_states_the_color_word",
                 "the color attribute differs from the color word",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "the completer is not told to skip the decoys",
+                "scale.py",
+                "main_colors.complete(tpls, mens_depth_rows.decoy_ids() | COLORWORD_IDS)",
+                "main_colors.complete(tpls, mens_depth_rows.decoy_ids())",
+                "tests/test_color_word_brands_312.py -k test_a_built_decoy_offers_exactly_its_one_true_color",
+                "a decoy offers more than its one true color",
                 "prototypes/retail_drawings",
             ),
             (

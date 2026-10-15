@@ -19,6 +19,8 @@ from __future__ import annotations
 import copy
 import re
 
+import decoy_rows
+
 #: The baseline: plain color -> swatch hex (the color word is also the swatch family).
 MAIN_COLORS = {
     "Red": "#c8322b", "Blue": "#2f6db5", "Green": "#3c8d4f", "Yellow": "#f2c230",
@@ -140,7 +142,7 @@ def groups(tpls: list[dict]) -> dict[tuple[str, str], list[dict]]:
     sold to men and to women is two groups: "red shirt" has to find one for each."""
     out: dict[tuple[str, str], list[dict]] = {}
     for r in tpls:
-        if r.get("color_options"):
+        if r.get("color_options") and r["product_id"] not in decoy_rows.IDS:
             out.setdefault((r["product_type"], audience(r)), []).append(r)
     return out
 
@@ -245,8 +247,10 @@ def _add(rec: dict, colors: list[str]) -> dict:
     return out
 
 
-def complete(tpls: list[dict]) -> list[dict]:
-    """``tpls`` with every missing main color added, in the same order."""
+def complete(tpls: list[dict], skip: frozenset[str] = frozenset()) -> list[dict]:
+    """``tpls`` with every missing main color added, in the same order. A style whose
+    product_id is in ``skip`` (a text-match decoy, whose color field is its one true color)
+    never takes a color, whatever its text names."""
     by_id = {r["product_id"]: r for r in tpls}
     for (ptype, aud), lacks in missing(tpls).items():
         # A printed drawing takes no solid fill, so it never gets a color. Of the rest, the
@@ -255,7 +259,8 @@ def complete(tpls: list[dict]) -> list[dict]:
         # that color itself, or the text-agrees gate reads the word as naming a value the
         # style lacks once the type offers it.
         styles = sorted(
-            (r for r in groups(tpls)[(ptype, aud)] if not _printed(r)),
+            (r for r in groups(tpls)[(ptype, aud)]
+             if not _printed(r) and r["product_id"] not in skip),
             key=lambda r: r["product_id"],
         )
         if not styles:

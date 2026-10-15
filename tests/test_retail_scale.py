@@ -55,6 +55,7 @@ SCALE_ROWS = FIGURES["templates"]["scale_rows"]["styles"]
 AUTHORED = FIGURES["templates"]["authored"]["styles"]
 BREADTH_ROWS = FIGURES["templates"]["breadth_rows"]["styles"]
 DISTRACTOR_ROWS = FIGURES["templates"]["distractor_rows"]["styles"]
+DECOY_ROWS = FIGURES["templates"]["decoy_rows"]["styles"]
 SHIRT_ROWS = FIGURES["templates"]["shirt_rows"]["styles"]
 ACCESSORY_ROWS = FIGURES["templates"]["accessory_rows"]["styles"]
 SPORTS_ROWS = FIGURES["templates"]["sports_rows"]["styles"]
@@ -65,6 +66,7 @@ APPLIANCE_ROWS = FIGURES["templates"]["appliance_rows"]["styles"]
 TOYS_ROWS = FIGURES["templates"]["toys_rows"]["styles"]
 SEASONAL_ROWS = FIGURES["templates"]["seasonal_rows"]["styles"]
 COLORGROUP_ROWS = FIGURES["templates"]["colorgroup_rows"]["styles"]
+MENS_DEPTH_ROWS = FIGURES["templates"]["mens_depth_rows"]["styles"]
 COLORWORD_ROWS = FIGURES["templates"]["color_word_brand_rows"]["styles"]
 LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
 PLAIN_ROWS = FIGURES["templates"]["plain_rows"]["styles"]
@@ -75,6 +77,7 @@ TEMPLATES = (
     + SCALE_ROWS
     + BREADTH_ROWS
     + DISTRACTOR_ROWS
+    + DECOY_ROWS
     + SHIRT_ROWS
     + ACCESSORY_ROWS
     + SPORTS_ROWS
@@ -87,6 +90,7 @@ TEMPLATES = (
     + LIGHTING_ROWS
     + SEASONAL_ROWS
     + COLORGROUP_ROWS
+    + MENS_DEPTH_ROWS
     + COLORWORD_ROWS
     + PLAIN_ROWS
     + GROCERY_ROWS

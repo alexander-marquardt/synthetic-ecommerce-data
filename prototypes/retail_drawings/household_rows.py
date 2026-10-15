@@ -105,8 +105,9 @@ _SET5 = Contents((1, "14 cm milk pan"), (1, "16 cm saucepan"), (1, "18 cm saucep
                  (1, "20 cm saucepan"), (1, "24 cm stockpot"))  # fmt: skip
 
 
-def _sp(material: str, lid: str, hobs: tuple, kind: str = "Single") -> tuple:
-    return (_a("material", "Material", material), _a("lid", "Lid", lid), *hobs,
+def _sp(material: str, coating: str, lid: str, hobs: tuple, kind: str = "Single") -> tuple:
+    return (_a("material", "Material", material), _a("coating", "Coating", coating),
+            _a("lid_material", "Lid material", lid), *hobs,
             _a("set_or_single", "Set or single", kind))  # fmt: skip
 
 
@@ -114,7 +115,7 @@ SAUCEPANS = (
     HRow("SPNTRI", "Tri-Ply Stainless Steel Saucepan with Glass Lid", _H, _HW, _SP, "Saucepan",
          22.0, "saucepan", "A straight-sided pan with a tri-ply base that heats evenly on every "
          "hob, induction included, and a vented glass lid. Dishwasher safe.",
-         (SILVER,), (*_sp("Stainless Steel", "Glass", ALL_HOBS), *_oven(220)),
+         (SILVER,), (*_sp("Stainless Steel", "Uncoated", "Glass", ALL_HOBS), *_oven(220)),
          _cm((16, 22.0), (18, 26.0), (20, 30.0)), params=(("count", "1"), ("lid", "glass")),
          size_key="diameter_cm", extra=_pan_caps((16, 1.5), (18, 2.0), (20, 2.8))),
     HRow("SPNNST", "Non-Stick Aluminum Saucepan with Glass Lid", _L, _HW, _SP, "Saucepan", 14.0,
@@ -122,13 +123,13 @@ SAUCEPANS = (
          "and rice. For gas, electric and ceramic hobs.",
          (BLACK, cw("Red", "#c8312e", "solid", "#2f2f35"),
           cw("Teal", "#1c7c7d", "solid", "#2f2f35")),
-         (*_sp("Non-Stick Aluminum", "Glass", NO_INDUCTION), *_oven(180)),
+         (*_sp("Aluminum", "Non-Stick", "Glass", NO_INDUCTION), *_oven(180)),
          _cm((16, 14.0), (18, 16.0), (20, 19.0)), params=(("count", "1"), ("lid", "glass")),
          size_key="diameter_cm", extra=_pan_caps((16, 1.4), (18, 1.9), (20, 2.6))),
     HRow("SPNCOP", "Copper Saucepan with Stainless Steel Lid", _C, _HW, _SP, "Saucepan", 79.0,
          "saucepan", "A hammered copper pan lined with stainless steel, quick to heat and to "
          "cool, with a cast handle. For gas, electric and ceramic hobs.",
-         (COPPER,), (*_sp("Copper", "Stainless Steel", NO_INDUCTION), *_oven(260)),
+         (COPPER,), (*_sp("Copper", "Uncoated", "Stainless Steel", NO_INDUCTION), *_oven(260)),
          _cm((16, 79.0), (18, 95.0)), params=(("count", "1"), ("lid", "steel")),
          size_key="diameter_cm", extra=_pan_caps((16, 1.5), (18, 2.1))),
     HRow("SPNCST", "Enameled Cast Iron Saucepan", _C, _HW, _SP, "Saucepan", 85.0, "saucepan",
@@ -136,18 +137,19 @@ SAUCEPANS = (
          "induction included. Enameled inside and out, with a cast iron lid.",
          (cw("Red", "#b8322b", "solid", "#2f2f35"), cw("Navy", "#26365c", "solid", "#2f2f35"),
           cw("Cream", "#efe8d8", "solid", "#2f2f35")),
-         (*_sp("Cast Iron", "Cast Iron", ALL_HOBS), *_oven(250)),
+         (*_sp("Cast Iron", "Enamel", "Cast Iron", ALL_HOBS), *_oven(250)),
          _cm((16, 85.0), (18, 99.0), (20, 115.0)), params=(("count", "1"), ("lid", "steel")),
          size_key="diameter_cm", extra=_pan_caps((16, 1.4), (18, 1.8), (20, 2.4))),
     Row("SPNST3", _SET3.title("Stainless Steel Saucepan Set"), _H, _HW, _SP, "Saucepan", 60.0,
         "saucepan", _SET3.text("Each pan has a glass lid and an encapsulated base for every hob, "
         "induction included. Dishwasher safe."),
-        (SILVER,), (*_sp("Stainless Steel", "Glass", ALL_HOBS, "Set"), *_oven(220), *_SET3.attrs),
+        (SILVER,), (*_sp("Stainless Steel", "Uncoated", "Glass", ALL_HOBS, "Set"), *_oven(220),
+                        *_SET3.attrs),
         params=(("count", "3"), ("lid", "glass"))),
     Row("SPNST5", _SET5.title("Non-Stick Aluminum Saucepan Set"), _L, _HW, _SP, "Saucepan", 75.0,
         "saucepan", _SET5.text("Each pan has a glass lid and a hard-wearing non-stick coating. "
         "For gas, electric and ceramic hobs."),
-        (BLACK, GREY), (*_sp("Non-Stick Aluminum", "Glass", NO_INDUCTION, "Set"), *_oven(180),
+        (BLACK, GREY), (*_sp("Aluminum", "Non-Stick", "Glass", NO_INDUCTION, "Set"), *_oven(180),
                         *_SET5.attrs),
         params=(("count", "5"), ("lid", "glass"))),
 )  # fmt: skip
@@ -159,10 +161,9 @@ SAUCEPANS = (
 _FP = (*_KD, "Frying Pans")
 
 
-def _fp(kind: str, material: str, coating: str, induction: str, temp: int | None) -> tuple:
+def _fp(kind: str, material: str, coating: str, hobs: tuple, temp: int | None) -> tuple:
     return (_a("pan_type", "Pan type", kind), _a("material", "Material", material),
-            _a("coating", "Coating", coating), _a("induction_safe", "Induction safe", induction),
-            *_oven(temp))  # fmt: skip
+            _a("coating", "Coating", coating), *hobs, *_oven(temp))  # fmt: skip
 
 
 def _fpp(kind: str, coating: str) -> tuple[tuple[str, str], ...]:
@@ -174,35 +175,35 @@ FRYING_PANS = (
         "A light everyday pan with a three-layer non-stick coating and an induction base. Oven "
         "safe to 180 degrees.",
         (BLACK, GREY, cw("Blue", "#3f6fb5", "solid", "#2f2f35")),
-        _fp("Frying Pan", "Non-Stick Aluminum", "Non-Stick", YES, 180),
+        _fp("Frying Pan", "Aluminum", "Non-Stick", ALL_HOBS, 180),
         _cm((20, 16.0), (24, 20.0), (28, 24.0)), params=_fpp("frying", "non-stick"),
         size_key="diameter_cm"),
     Row("FRYCST", "Pre-Seasoned Cast Iron Skillet", _C, _HW, _FP, "Frying Pan", 28.0,
         "frying_pan", "A heavy skillet with two pouring lips and a helper handle, seasoned "
         "with oil and ready to sear, bake or go on a campfire.",
-        (BLACK,), _fp("Skillet", "Cast Iron", "Pre-Seasoned", YES, 260),
+        (BLACK,), _fp("Skillet", "Cast Iron", "Pre-Seasoned", ALL_HOBS, 260),
         _cm((20, 28.0), (26, 38.0)), params=_fpp("skillet", "pre-seasoned"),
         size_key="diameter_cm"),
     Row("FRYENS", "Enameled Cast Iron Skillet", _H, _HW, _FP, "Frying Pan", 45.0, "frying_pan",
         "A cast iron skillet with a colored enamel outside and a matte enamel inside, "
         "on every hob, induction included.",
         (cw("Red", "#b8322b", "solid", "#2f2f35"), cw("Green", "#3f6b4a", "solid", "#2f2f35")),
-        _fp("Skillet", "Cast Iron", "Enamel", YES, 250), _cm((20, 45.0), (26, 59.0)),
+        _fp("Skillet", "Cast Iron", "Enamel", ALL_HOBS, 250), _cm((20, 45.0), (26, 59.0)),
         params=_fpp("skillet", "enamel"), size_key="diameter_cm"),
     Row("FRYWOK", "Carbon Steel Wok with Wooden Handle", _H, _HW, _FP, "Frying Pan", 24.0,
         "frying_pan", "A deep, thin wok that heats fast for stir-frying, with a flat base for "
         "an induction hob and a helper loop. Season before first use.",
-        (BLACK,), _fp("Wok", "Carbon Steel", "Uncoated", YES, None),
+        (BLACK,), _fp("Wok", "Carbon Steel", "Uncoated", ALL_HOBS, None),
         _cm((30, 24.0), (36, 30.0)), params=_fpp("wok", "uncoated"), size_key="diameter_cm"),
     Row("FRYGRD", "Ceramic Non-Stick Griddle Pan", _L, _HW, _FP, "Frying Pan", 26.0,
         "frying_pan", "A round griddle pan with deep ridges that sear stripes and drain fat, "
         "in a ceramic non-stick coating. For gas and electric hobs.",
-        (GREY, cw("Teal", "#1c7c7d")), _fp("Griddle", "Aluminum", "Ceramic", NO, 200),
+        (GREY, cw("Teal", "#1c7c7d")), _fp("Griddle", "Aluminum", "Ceramic", NO_INDUCTION, 200),
         _cm((24, 26.0), (28, 30.0)), params=_fpp("griddle", "ceramic"), size_key="diameter_cm"),
     Row("FRYCRP", "Non-Stick Crepe Pan", _C, _HW, _FP, "Frying Pan", 18.0, "frying_pan",
         "A flat pan with a low rim, so a pancake slides off in one turn. Induction base.",
         (BLACK, cw("Red", "#c8312e", "solid", "#2f2f35")),
-        _fp("Crepe Pan", "Aluminum", "Non-Stick", YES, 180), _cm((24, 18.0), (28, 22.0)),
+        _fp("Crepe Pan", "Aluminum", "Non-Stick", ALL_HOBS, 180), _cm((24, 18.0), (28, 22.0)),
         params=_fpp("crepe", "non-stick"), size_key="diameter_cm"),
 )  # fmt: skip
 
@@ -213,9 +214,11 @@ FRYING_PANS = (
 _CS = (*_KD, "Casserole Dishes")
 
 
-def _cs(material: str, shape: str, temp: int, hob: str) -> tuple:
-    return (_a("material", "Material", material), _a("shape", "Shape", shape), *_oven(temp),
-            _a("hob_safe", "Hob safe", hob))  # fmt: skip
+def _cs(material: str, shape: str, temp: int, hobs: tuple, coating: str | None = None) -> tuple:
+    """An oven-only dish passes no hobs, so it states no ``hob_type``."""
+    coat = (_a("coating", "Coating", coating),) if coating else ()
+    return (_a("material", "Material", material), *coat, _a("shape", "Shape", shape),
+            *_oven(temp), *hobs)  # fmt: skip
 
 
 CASSEROLES = (
@@ -224,27 +227,29 @@ CASSEROLES = (
         "hob to the oven to the table. Enameled inside and out.",
         (cw("Red", "#b8322b", "solid", "#2f2f35"), cw("Navy", "#26365c", "solid", "#2f2f35"),
          cw("Green", "#3f6b4a", "solid", "#2f2f35"), cw("Cream", "#efe8d8", "solid", "#2f2f35")),
-        _cs("Cast Iron", "Round", 250, YES), _litres((2.4, 89.0), (4.2, 119.0), (6.7, 149.0)),
+        _cs("Cast Iron", "Round", 250, ALL_HOBS, "Enamel"),
+        _litres((2.4, 89.0), (4.2, 119.0), (6.7, 149.0)),
         params=(("form", "round"), ("material", "cast iron")), size_key="capacity_l"),
     Row("CASOVL", "Cast Iron Oval Casserole", _H, _HW, _CS, "Casserole Dish", 69.0, "casserole",
         "A long oval casserole that takes a whole chicken or a joint, on any hob and in the "
         "oven, with a smooth glazed inside.",
-        (BLACK, GREY), _cs("Cast Iron", "Oval", 250, YES), _litres((4.7, 69.0), (6.3, 85.0)),
+        (BLACK, GREY), _cs("Cast Iron", "Oval", 250, ALL_HOBS), _litres((4.7, 69.0), (6.3, 85.0)),
         params=(("form", "oval"), ("material", "cast iron")), size_key="capacity_l"),
     Row("CASSTO", "Stoneware Oval Casserole Dish with Lid", _L, _HW, _CS, "Casserole Dish", 28.0,
         "casserole", "A glazed stoneware dish for the oven and the table. Not for the hob. "
         "Dishwasher safe.",
-        (WHITE, cw("Blue", "#3f6fb5")), _cs("Stoneware", "Oval", 240, NO),
+        (WHITE, cw("Blue", "#3f6fb5")), _cs("Stoneware", "Oval", 240, ()),
         _litres((1.5, 28.0), (2.5, 36.0)), params=(("form", "oval"), ("material", "stoneware")),
         size_key="capacity_l"),
     Row("CASGLS", "Glass Round Casserole Dish with Lid", _H, _HW, _CS, "Casserole Dish", 12.0,
         "casserole", "A clear dish that shows how a bake is browning, from the freezer to the "
         "oven. Not for the hob. Dishwasher safe.",
-        (CLEAR,), _cs("Glass", "Round", 300, NO), _litres((1.5, 12.0), (2.5, 16.0), (3.5, 20.0)),
+        (CLEAR,), _cs("Glass", "Round", 300, ()), _litres((1.5, 12.0), (2.5, 16.0), (3.5, 20.0)),
         params=(("form", "round"), ("material", "glass")), size_key="capacity_l"),
     Row("CASENA", "Enamel Round Casserole", _L, _HW, _CS, "Casserole Dish", 34.0, "casserole",
         "A light enamel-on-steel pot for soups and stews, on every hob and in the oven.",
-        (WHITE, cw("Yellow", "#e8b931", "solid", "#2f2f35")), _cs("Enamel", "Round", 250, YES),
+        (WHITE, cw("Yellow", "#e8b931", "solid", "#2f2f35")),
+        _cs("Steel", "Round", 250, ALL_HOBS, "Enamel"),
         _litres((2.5, 34.0), (4, 42.0)), params=(("form", "round"), ("material", "enamel")),
         size_key="capacity_l"),
 )  # fmt: skip
@@ -298,7 +303,7 @@ _SB = ("Home", "Storage", "Storage Boxes")
 
 
 def _sb(material: str, lid: str, stackable: str, clear: str, storage: str = "Storage Box") -> tuple:
-    return (_a("material", "Material", material), _a("lid", "Lid", lid),
+    return (_a("material", "Material", material), _a("lid_type", "Lid type", lid),
             _a("stackable", "Stackable", stackable), _a("transparent", "Transparent", clear),
             _a("storage_type", "Storage type", storage))  # fmt: skip
 
@@ -412,8 +417,11 @@ CLOTHES_AIRERS = (
 _MB = ("Cleaning", "Cleaning Tools", "Mops & Buckets")
 
 
-def _mb(kind: str, heads: int, litres: float | None = None) -> tuple:
-    out = (_a("mop_type", "Mop type", kind), _count("refill_heads", "Refill heads", heads))
+def _mb(kind: str, heads: int | None, litres: float | None = None) -> tuple:
+    """``heads`` is None for a bucket with no mop: it has nothing to refill."""
+    out = (_a("mop_type", "Mop type", kind),)
+    if heads is not None:
+        out += (_count("refill_heads", "Refill heads", heads),)
     return (*out, _l(litres)) if litres else out
 
 
@@ -436,7 +444,7 @@ MOPS = (
         39.0, "mop", "A 20 l bucket on four castors with a press wringer, for kitchens, "
         "halls and shop floors. Color-coded to keep areas apart.",
         (cw("Yellow", "#e8b931"), cw("Blue", "#3f6fb5"), cw("Red", "#c8312e")),
-        _mb("Mop Bucket", 0, 20), params=(("kind", "bucket"),)),
+        _mb("Mop Bucket", None, 20), params=(("kind", "bucket"),)),
 )  # fmt: skip
 
 ROWS = (*SAUCEPANS, *FRYING_PANS, *CASSEROLES, *KITCHEN_BINS, *STORAGE_BOXES, *LAUNDRY_BASKETS,

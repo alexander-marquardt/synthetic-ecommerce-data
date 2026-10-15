@@ -243,3 +243,15 @@ def test_a_title_naming_another_departments_node_is_not_misplaced() -> None:
         ("W-1", "Barrel Jeans", ("Womens", "Jeans", "Barrel Jeans")),
     ]
     assert tree_guard.misplaced_title_findings(rows) == []
+
+
+def test_every_product_titled_corner_sofa_shares_the_corner_sofa_leaf_and_type(
+    records: list[dict],
+) -> None:
+    """gen#224: the class row PLT-SOFCRN sat in the Corner Sofas leaf but was typed ``Sofa``, so a
+    filter on the ``Corner Sofa`` type left out a product whose title says corner sofa."""
+    corner = [r for r in records if "Corner Sofa" in r["title"]]
+    assert corner, "no corner sofa was built"
+    assert {(r["product_type"], r["category_leaf"]) for r in corner} == {
+        ("Corner Sofa", "Corner Sofas")
+    }
