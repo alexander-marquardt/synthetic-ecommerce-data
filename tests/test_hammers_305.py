@@ -161,3 +161,27 @@ def test_each_kind_carries_three_decoys_of_each_class_and_their_attributes_stay_
     # The category word is ANOTHER kind's noun, never the kind's own.
     assert OWN_NOUN[kind] not in category
     assert set(category) <= set(OWN_NOUN.values())
+
+
+ITEM = {
+    "hammer_ball_pein": "Ball Pein Hammer", "hammer_claw": "Claw Hammer",
+    "hammer_framing": "Framing Hammer", "hammer_club": "Club Hammer",
+    "hammer_sledge": "Sledge Hammer", "hammer_rubber_mallet": "Rubber Mallet",
+    "hammer_dead_blow": "Dead Blow Hammer",
+}
+
+
+@pytest.mark.parametrize("kind", sorted(KINDS))
+def test_every_incidental_word_decoy_title_is_five_words_or_fewer(tools, kind) -> None:
+    """gen#294: the incidental word sits in a SHORT title, 5 words or fewer.
+
+    Counted from the kind's item to the end: a brand's voice may put a qualifier before
+    the item (``Workshop``, ``General Purpose``), which is the brand's, not the decoy's.
+    """
+    counts = []
+    for line in _lines(tools, kind).values():
+        item = line["title"].split(" -- ")[-1]
+        if INCIDENTAL.search(item):
+            counts.append(len(item[item.index(ITEM[kind]):].split()))
+    assert len(counts) >= 3
+    assert max(counts) <= 5, (kind, counts)
