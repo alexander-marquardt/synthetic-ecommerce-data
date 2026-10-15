@@ -523,6 +523,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
     # copy that kept it would let a no-policy baseline satisfy "petite sale", the pair only a
     # policy may honour (gen#125, gen#275).
     rec.pop("was_price", None)
+    rec.pop("promotion", None)  # it follows the was_price (promotion.py, gen#189)
     if "badges" in rec:
         rec["badges"] = [b for b in rec["badges"] if b != "Bestseller"]
     old_line = _line(tpl)
