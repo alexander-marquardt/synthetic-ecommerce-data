@@ -122,7 +122,6 @@ Food & Drink|Honey
 Food & Drink|Hot Chocolate
 Food & Drink|Ice Cream
 Food & Drink|Jam
-Food & Drink|Jam & Honey
 Food & Drink|Juice
 Food & Drink|Lemons
 Food & Drink|Letterbox Gift
