@@ -120,6 +120,12 @@ def _quotations(stats: dict) -> dict[str, str]:
     return patterns
 
 
+def test_the_per_type_spec_aggregate_is_not_a_quoted_total(stats: dict) -> None:
+    """``templates.type_specs`` moves with every type added (gen#351), so a prose number that
+    happens to equal it is a collision. It is read at run time, never typed."""
+    assert not [n for n in _quotations(stats) if n.startswith("templates.type_specs")]
+
+
 def test_the_committed_figures_are_what_the_build_measures(stats: dict) -> None:
     fresh = retail_figures.render(retail_figures.measure())
     assert retail_figures.STATS.read_text("utf-8") == fresh, (

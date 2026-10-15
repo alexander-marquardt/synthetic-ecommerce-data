@@ -38,12 +38,12 @@ def _types(records: list[dict]) -> set[tuple[str, str]]:
     return {(str(r["department"][0]), str(r["product_type"])) for r in records}
 
 
-def _scaffold(tmp_path: Path, kind: str, key: str):
+def _scaffold(tmp_path: Path, kind: str, key: str, ptype: str = "Sample Thing"):
     out = tmp_path / kind
     out.mkdir()
     run = subprocess.run(
         [sys.executable, str(ROOT / "scripts" / "new_type.py"), key, "--kind", kind,
-         "--product-type", "Sample Thing", "--out", str(out)],
+         "--product-type", ptype, "--out", str(out)],
         capture_output=True, text=True, check=False, cwd=ROOT,
     )  # fmt: skip
     assert run.returncode == 0, run.stdout + run.stderr
@@ -250,3 +250,187 @@ def test_a_derivable_spec_leaves_only_its_decoys_out_of_the_derivation(
     assert type_registry.left_out_ids() == {"BRD-DCYSHP"}
     assert type_registry.decoy_ids() == {"BRD-DCYSHP"}
     assert type_registry.left_out_ids() == type_registry.decoy_ids_of(spec)
+
+
+# -- a real type enters the live registry (the review of #358, blocking 1) -----------------------
+
+
+def _census():
+    """The gen#311 census tests, loaded by path: their functions are called on a patched build."""
+    path = ROOT / "tests" / "test_retail_apparel_decoys_311.py"
+    mod_spec = importlib.util.spec_from_file_location("census_311", path)
+    mod = importlib.util.module_from_spec(mod_spec)
+    mod_spec.loader.exec_module(mod)
+    return mod
+
+
+def _real_types(tmp_path: Path) -> dict[str, type_registry.TypeSpec]:
+    """A scaffolded clothing type (a Kaftan, in a leaf of its own) and a scaffolded beauty type,
+    as the quick path writes them and a writer edits only the leaf."""
+    _, kaftan = _scaffold(tmp_path, "clothing", "kaftan", "Kaftan")
+    row = replace(kaftan.rows[0], path=("Womens", "Tops", "Kaftans"))
+    kaftan = replace(kaftan, rows=(row,))
+    _, beauty = _scaffold(tmp_path, "beauty", "hair_serum", "Hair Serum")
+    return {"kaftan": kaftan, "hair_serum": beauty}
+
+
+def _register(monkeypatch: pytest.MonkeyPatch, added: dict[str, type_registry.TypeSpec]) -> None:
+    """Put ``added`` into the live registry: the specs of the tree plus these."""
+    live = type_registry.specs()
+    monkeypatch.setattr(type_registry, "specs", lambda: dict(sorted({**live, **added}.items())))
+
+
+def test_a_real_scaffolded_clothing_and_beauty_type_pass_the_apparel_census(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The done-when of gen#351: a clothing type is ONE file. The type enters the live registry
+    (a patched ``specs()``) and the census of gen#311 runs on the build that results."""
+    census = _census()
+    added = _real_types(tmp_path)
+    _register(monkeypatch, added)
+    import decoy_apparel as da
+
+    plain = scale.templates(baseline=False)
+    full = scale.templates()
+    census.test_every_clothing_footwear_and_lingerie_type_is_planned(plain)
+    rows = da.build([d for d in plain if d["product_id"] not in da.IDS])
+    by_id = {d["product_id"]: d for d in plain}
+    census.test_every_type_has_three_decoys_per_class_in_the_built_catalog(rows, by_id)
+    census.test_each_decoys_fields_contradict_its_misleading_word(rows, by_id)
+    mine = {r.pid for r in rows if r.product_type == "Kaftan"}
+    assert len(mine) >= 21 and mine <= da.IDS
+    assert not any(r.product_type == "Hair Serum" for r in rows)
+    table = da.table_markdown(rows)
+    assert all(pid in table for pid in mine)
+    now = {d["product_id"]: d for d in full}
+    assert all(now[i] == by_id[i] for i in da.IDS), "a decoy was color-completed"
+    ids = [d["product_id"] for d in full]
+    assert len(ids) == len(set(ids))
+
+
+def test_a_clothing_spec_with_no_apparel_plan_or_exemption_is_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import decoy_apparel as da
+
+    _, kaftan = _scaffold(tmp_path, "clothing", "kaftan", "Kaftan")
+    bare = replace(kaftan, apparel=None, apparel_exempt="")
+    _register(monkeypatch, {"kaftan": bare})
+    with pytest.raises(type_registry.SpecError, match="apparel"):
+        _ = da.TYPES
+
+
+def test_an_exempt_clothing_spec_carries_a_reason_and_no_decoys(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import decoy_apparel as da
+
+    _, kaftan = _scaffold(tmp_path, "clothing", "kaftan", "Kaftan")
+    exempt = replace(kaftan, apparel=None, apparel_exempt="a costume, not a garment")
+    _register(monkeypatch, {"kaftan": exempt})
+    assert da.EXEMPT.get("Kaftan") == "a costume, not a garment"
+    assert "Kaftan" not in {t.product_type for t in da.TYPES}
+
+
+def test_adding_a_spec_type_moves_no_other_decoy_id(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A spec type is numbered by its key, never by its place in the plan: adding one moves no
+    other decoy id."""
+    import decoy_apparel as da
+
+    before = da.IDS
+    added = _real_types(tmp_path)
+    _register(monkeypatch, added)
+    assert before < da.IDS
+
+
+@pytest.mark.parametrize("kind", ["clothing", "beauty"])
+def test_the_scaffold_output_passes_ruff(tmp_path: Path, kind: str) -> None:
+    path, _ = _scaffold(tmp_path, kind, f"sample_{kind}")
+    run = subprocess.run(
+        [sys.executable, "-m", "ruff", "check", "--config", str(ROOT / "pyproject.toml"),
+         str(path)],
+        capture_output=True, text=True, check=False, cwd=ROOT,
+    )  # fmt: skip
+    assert run.returncode == 0, run.stdout + run.stderr
+
+
+_PLAN = type_registry.ApparelPlan
+_APPAREL_BAD = {  # name -> (the department of the base spec, the fields it declares)
+    "a plan and an exemption": ("Clothing", dict(apparel=_PLAN(), apparel_exempt="a costume")),
+    "a plan on a beauty type": ("Beauty", dict(apparel=_PLAN())),
+    "an exemption on a beauty type": ("Beauty", dict(apparel_exempt="why")),
+    "fewer than three decoys per class": ("Clothing", dict(apparel=_PLAN(per_class=2))),
+    "an unknown word family": ("Clothing", dict(apparel=_PLAN(family="z"))),
+}
+
+
+def _base(department: str) -> type_registry.TypeSpec:
+    good = _good()
+    if department == "Beauty":
+        return good
+    row = replace(
+        good.rows[0], department="Clothing", product_type="Kaftan", brand="Larkmoor",
+        path=("Womens", "Tops", "Kaftans"),
+    )  # fmt: skip
+    return replace(good, department="Clothing", product_type="Kaftan", rows=(row,))
+
+
+@pytest.mark.parametrize("name", sorted(_APPAREL_BAD))
+def test_validate_refuses_a_malformed_apparel_declaration(name: str) -> None:
+    department, fields = _APPAREL_BAD[name]
+    with pytest.raises(type_registry.SpecError, match="apparel"):
+        type_registry.validate(replace(_base(department), **fields))
+
+
+# -- the guard is pinned (the review of #358, blocking 3) ----------------------------------------
+
+
+def test_the_live_tree_has_no_registration_problem() -> None:
+    built = _types(scale.templates(baseline=False))
+    assert type_registry.registration_problems(built) == []
+
+
+def test_a_type_registered_outside_a_spec_file_is_a_problem(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    built = _types(scale.templates(baseline=False)) | {("Beauty", "Hair Serum")}
+    problems = type_registry.registration_problems(built)
+    assert len(problems) == 1 and "Hair Serum" in problems[0], problems
+
+
+def test_a_legacy_line_appended_for_a_new_type_is_a_problem(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The bypass of the review: the type is built and its line is appended to the legacy list."""
+    built = _types(scale.templates(baseline=False)) | {("Beauty", "Hair Serum")}
+    legacy = type_registry.legacy_types() | {("Beauty", "Hair Serum")}
+    monkeypatch.setattr(type_registry, "legacy_types", lambda: legacy)
+    problems = type_registry.registration_problems(built)
+    assert len(problems) == 1 and "ceiling" in problems[0], problems
+
+
+def test_a_migrated_type_left_on_the_legacy_list_is_a_problem(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    built = _types(scale.templates(baseline=False))
+    legacy = type_registry.legacy_types() | {("Beauty", "Shampoo")}
+    monkeypatch.setattr(type_registry, "legacy_types", lambda: legacy)
+    problems = type_registry.registration_problems(built)
+    assert any("Shampoo" in p and "both" in p for p in problems), problems
+
+
+def test_a_legacy_type_no_longer_built_is_a_problem() -> None:
+    built = _types(scale.templates(baseline=False)) - {sorted(type_registry.legacy_types())[0]}
+    problems = type_registry.registration_problems(built)
+    assert any("no longer built" in p for p in problems), problems
+
+
+def test_a_migration_lowers_the_ceiling(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The ceiling is exact: a list shorter than it leaves room to append the difference."""
+    built = _types(scale.templates(baseline=False))
+    legacy = type_registry.legacy_types() - {sorted(type_registry.legacy_types())[0]}
+    monkeypatch.setattr(type_registry, "legacy_types", lambda: legacy)
+    problems = type_registry.registration_problems(built)
+    assert any("lower LEGACY_CEILING" in p for p in problems), problems

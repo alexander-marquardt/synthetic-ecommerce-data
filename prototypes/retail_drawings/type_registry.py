@@ -34,8 +34,9 @@ from lowerbody_rows import LRow
 from variants import cw
 
 __all__ = [
-    "BRAND_OWNER", "Decoy", "LRow", "Row", "SpecError", "TypeSpec", "a", "count", "cw",
-    "decoy_ids", "docs", "left_out_ids", "legacy_types", "sizes", "specs", "validate",
+    "ApparelPlan", "BRAND_OWNER", "Decoy", "LRow", "Row", "SpecError", "TypeSpec", "a", "count",
+    "cw", "decoy_ids", "docs", "left_out_ids", "legacy_types", "registration_problems", "sizes",
+    "specs", "validate",
 ]  # fmt: skip
 
 LEGACY_FILE = Path(__file__).resolve().parent / "type_specs" / "legacy_types.txt"
@@ -61,6 +62,14 @@ class Decoy:
 
 
 @dataclass(frozen=True)
+class ApparelPlan:
+    """How many text-match decoys a clothing, footwear or lingerie type carries (gen#311)."""
+
+    family: str = "a"
+    per_class: int = 3
+
+
+@dataclass(frozen=True)
 class TypeSpec:
     """Everything one product type declares.
 
@@ -76,6 +85,8 @@ class TypeSpec:
     decoys: tuple[Decoy, ...] = ()
     derivable: bool = False
     owners: tuple[tuple[str, str], ...] = ()
+    apparel: ApparelPlan | None = None
+    apparel_exempt: str = ""
 
     def docs(self) -> list[dict]:
         """The catalog documents: the rows, then the decoys."""
@@ -186,3 +197,7 @@ def legacy_types() -> frozenset[tuple[str, str]]:
         (dept, ptype)
         for dept, ptype in (ln.split("|", 1) for ln in lines if ln and not ln.startswith("#"))
     )
+
+
+def registration_problems(built: set[tuple[str, str]]) -> list[str]:
+    return []
