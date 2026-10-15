@@ -63,12 +63,52 @@ def test_every_leaf_line_states_filters_a_guidance_example_and_a_tree_verdict() 
         assert all(cells), leaf
 
 
+# A leaf says "none" until someone compares it; a comparison is recorded in a form a reviewer can
+# check: the tree's name, the page compared and the date, so "matches the <retailer> tree" alone
+# is refused (r369: the old rule only refused short text).
+VERDICT_FORM = re.compile(r"compared with [^()]+ \(https?://\S+, \d{4}-\d{2}-\d{2}\)")
+GUIDANCE_EXAMPLES = {
+    "none",
+    "tent capacity, season rating",
+    "season rating",
+    "mat thickness",
+    "dumbbell weight",
+}
+
+
+def _verdict_accepted(verdict: str) -> bool:
+    return True
+
+
+@pytest.mark.parametrize(
+    ("verdict", "accepted"),
+    [
+        ("none", True),
+        ("compared with Decathlon (https://www.decathlon.es/es/tents, 2026-10-16)", True),
+        ("matches the Decathlon tree", False),
+        ("matches", False),
+        ("yes", False),
+        ("see the issue tracker later", False),
+        ("compared with Decathlon", False),
+        ("None", False),
+    ],
+)
+def test_the_retailer_tree_verdict_has_a_checkable_form(verdict: str, accepted: bool) -> None:
+    assert _verdict_accepted(verdict) is accepted
+
+
 def test_a_leaf_never_claims_a_retailer_tree_that_was_not_compared() -> None:
-    # The only verdicts are "none" or a named tree; a bare "yes"/"matches" says nothing a
-    # reviewer can check (gen#290: say which leaves have no mapping).
     for leaf, cells in _leaf_rows().items():
-        verdict = cells[3].lower()
-        assert verdict == "none" or len(verdict) > 12, (leaf, cells[3])
+        assert _verdict_accepted(cells[3]), (leaf, cells[3])
+
+
+def test_a_guidance_example_is_one_the_guidance_names_and_sits_on_its_own_leaf() -> None:
+    rows = _leaf_rows()
+    for leaf, cells in rows.items():
+        assert cells[2] in GUIDANCE_EXAMPLES, (leaf, cells[2])
+    assert [name for name, c in rows.items() if c[2] == "dumbbell weight"] == [
+        "Sports & Outdoors > Yoga & Fitness > Weights > Dumbbells"
+    ]
 
 
 def test_the_filters_named_for_a_leaf_are_keys_the_rows_export() -> None:
@@ -85,14 +125,39 @@ def test_the_filters_named_for_a_leaf_are_keys_the_rows_export() -> None:
         assert named <= by_leaf.get(leaf, set()), (leaf, named - by_leaf.get(leaf, set()))
 
 
+# Every type gen#265 lists and the first increment did not ship (kayaks, scooters and skateboards
+# are scheduled in #352 with the bike types). Building one moves its name to the
+# Leaves table, which test_a_type_the_rows_build_is_not_listed_as_not_built forces.
+EXPECTED_NOT_BUILT = frozenset(
+    {
+        "Bicycles", "Bike helmets", "Bike lights", "Bike locks", "Bike pumps", "Camping stoves",
+        "Lanterns", "Roll mats", "Yoga blocks", "Yoga straps", "Resistance bands", "Bats",
+        "Gloves", "Balls", "Batting helmets", "Swimming goggles", "Swim caps", "Kickboards",
+        "Armbands", "Footballs", "Tennis rackets", "Badminton sets", "Kayaks", "Kick scooters",
+        "Skateboards", "Swimsuits and trunks", "Balance bikes",
+    }
+)  # fmt: skip
+
+
+def _not_built_problems(rows: list[list[str]]) -> list[str]:
+    return []
+
+
 def test_every_type_not_built_has_an_open_issue_or_a_reason() -> None:
+    assert _not_built_problems(_table("Not built")) == []
+
+
+@pytest.mark.parametrize("dropped", ["Bike pumps", "Footballs", "Balance bikes"])
+def test_a_dropped_not_built_row_is_seen(dropped: str) -> None:
+    rows = [r for r in _table("Not built") if r[0] != dropped]
+    assert any(dropped in p for p in _not_built_problems(rows))
+
+
+def test_an_added_or_dispositionless_not_built_row_is_seen() -> None:
     rows = _table("Not built")
-    assert len(rows) >= 20
-    for cells in rows:
-        assert len(cells) == 3 and all(cells), cells
-        disposition = cells[2]
-        assert "not reached" not in disposition.lower(), cells
-        assert re.fullmatch(r"#\d+", disposition) or len(disposition) >= 20, cells
+    assert _not_built_problems([*rows, ["Hockey sticks", "Team", "#368"]])
+    assert _not_built_problems([*rows[:-1], [rows[-1][0], rows[-1][1], "not reached"]])
+    assert _not_built_problems([*rows[:-1], [rows[-1][0], rows[-1][1], "later"]])
 
 
 def test_a_type_the_rows_build_is_not_listed_as_not_built() -> None:
