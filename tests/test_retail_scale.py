@@ -56,6 +56,7 @@ AUTHORED = FIGURES["templates"]["authored"]["styles"]
 BREADTH_ROWS = FIGURES["templates"]["breadth_rows"]["styles"]
 DISTRACTOR_ROWS = FIGURES["templates"]["distractor_rows"]["styles"]
 DECOY_ROWS = FIGURES["templates"]["decoy_rows"]["styles"]
+PRODUCT_WORD_ROWS = FIGURES["templates"]["decoy_product_words"]["styles"]
 SHIRT_ROWS = FIGURES["templates"]["shirt_rows"]["styles"]
 ACCESSORY_ROWS = FIGURES["templates"]["accessory_rows"]["styles"]
 SPORTS_ROWS = FIGURES["templates"]["sports_rows"]["styles"]
@@ -78,6 +79,7 @@ TEMPLATES = (
     + BREADTH_ROWS
     + DISTRACTOR_ROWS
     + DECOY_ROWS
+    + PRODUCT_WORD_ROWS
     + SHIRT_ROWS
     + ACCESSORY_ROWS
     + SPORTS_ROWS
@@ -181,7 +183,7 @@ def test_the_build_is_deterministic_by_seed():
 
 
 def test_the_20k_build_meets_the_output_standard(built):
-    assert check_catalog(scale.documents(built), text_exempt=scale.DECOY_IDS) == []
+    assert check_catalog(scale.documents(built), text_exempt=scale.TEXT_EXEMPT) == []
 
 
 def test_a_derived_style_adds_no_duplicate_title_and_no_twin(built, pairs):
