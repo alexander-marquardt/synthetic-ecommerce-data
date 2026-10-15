@@ -227,6 +227,21 @@ def discover(package: str = TYPES_PACKAGE) -> dict[str, TypeSpec]:
     return specs
 
 
+#: Per-spec hooks :func:`register` calls first, each filled by the domain module
+#: that owns the table it writes (:func:`on_register`), so core imports no domain.
+_SPEC_HOOKS: list[Callable[[TypeSpec], None]] = []
+
+
+def on_register(hook: Callable[[TypeSpec], None]) -> None:
+    """Have :func:`register` call ``hook(spec)`` on every spec, before it writes its tables.
+
+    Adding a hook twice leaves one. A hook that reads a spec's field a table does not take
+    (the label, #103) is how a domain table fills without core naming the domain.
+    """
+    if hook not in _SPEC_HOOKS:
+        _SPEC_HOOKS.append(hook)
+
+
 def register(spec: TypeSpec) -> None:
     """Write ``spec`` into the shared, type-keyed tables every reader uses.
 
@@ -243,17 +258,9 @@ def register(spec: TypeSpec) -> None:
         vocab,
     )
     from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES  # noqa: PLC0415
-    from synthetic_ecommerce_data.domains.industrial.type_labels import (  # noqa: PLC0415
-        PRODUCT_TYPE_LABELS,
-    )
 
-    if spec.label:
-        if dict.__contains__(PRODUCT_TYPE_LABELS, spec.key):
-            raise TypeCollisionError(
-                f"{spec.key!r} is labelled both in type_labels.PRODUCT_TYPE_LABELS and by type "
-                f"module {spec.module}; keep the label on its TypeSpec"
-            )
-        PRODUCT_TYPE_LABELS[spec.key] = spec.label
+    for hook in _SPEC_HOOKS:
+        hook(spec)
     if spec.breadth is not None:
         if spec.breadth.key != spec.key:
             raise TypeModuleError(
