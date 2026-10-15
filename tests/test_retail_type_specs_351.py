@@ -452,3 +452,72 @@ def test_a_migration_lowers_the_ceiling(monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setattr(type_registry, "legacy_types", lambda: legacy)
     problems = type_registry.registration_problems(built)
     assert any("lower LEGACY_CEILING" in p for p in problems), problems
+
+
+# -- one product id belongs to one spec (the beauty half of the review of #358, blocking 1) ------
+
+
+def _new_type_module():
+    mod_spec = importlib.util.spec_from_file_location("new_type", ROOT / "scripts" / "new_type.py")
+    mod = importlib.util.module_from_spec(mod_spec)
+    mod_spec.loader.exec_module(mod)
+    return mod
+
+
+def test_the_registry_refuses_two_specs_that_build_one_product_id(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Scaffolds of specimen_kaftan and specimen_serum both cut their code to SPECIM: the build
+    then held two BRD-SPECIM styles and failed far away, in main_colors, on a missing key."""
+    files = {
+        "specimen_kaftan": _scaffold_source("specimen_kaftan", "Specimen Kaftan"),
+        "specimen_serum": _scaffold_source("specimen_serum", "Specimen Serum"),
+    }
+    match = "specimen_kaftan and specimen_serum both build BRD-SPECIM"
+    with pytest.raises(type_registry.SpecError, match=match):
+        _discover(tmp_path, monkeypatch, files)
+
+
+def test_the_build_refuses_a_spec_id_that_a_legacy_row_already_uses(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A spec cannot see the rows still outside the registry: the build names the clash."""
+    mine = {s.product_type for s in type_registry.specs().values()}
+    taken = next(
+        d["product_id"]
+        for d in scale.templates(baseline=False)
+        if d["product_type"] not in mine and d["product_id"].startswith("BRD-")
+    )
+    _, beauty = _scaffold(tmp_path, "beauty", "specimen_serum", "Specimen Serum")
+    beauty = replace(beauty, rows=(replace(beauty.rows[0], code=taken.removeprefix("BRD-")),))
+    _register(monkeypatch, {"specimen_serum": beauty})
+    with pytest.raises(type_registry.SpecError, match=taken):
+        scale.templates()
+
+
+def test_the_scaffold_picks_a_code_no_registered_spec_uses() -> None:
+    new_type = _new_type_module()
+    taken = {"BRD-SAMPLE", "BRD-SAMPL2"}
+    code = new_type.pick_code("sample_b", taken)
+    assert f"BRD-{code}" not in taken and len(code) <= 6 and code.startswith("SAMPL"), code
+    assert new_type.pick_code("sample_b", set()) == "SAMPLE"
+
+
+def test_the_scaffold_of_a_key_that_cuts_to_a_live_code_writes_another(tmp_path: Path) -> None:
+    live = sorted(type_registry.ids_of(type_registry.specs()["tracksuit"]))[0].removeprefix("BRD-")
+    _, spec = _scaffold(tmp_path, "clothing", live.lower() + "_two", "Tracksuit Two")
+    code = spec.rows[0].code
+    used = {i for s in type_registry.specs().values() for i in type_registry.ids_of(s)}
+    assert code != live and f"BRD-{code}" not in used, code
+
+
+def test_the_scaffold_takes_the_code_it_is_given(tmp_path: Path) -> None:
+    out = tmp_path / "coded"
+    out.mkdir()
+    run = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "new_type.py"), "sample_c", "--kind", "beauty",
+         "--product-type", "Sample C", "--code", "ABCXYZ", "--out", str(out)],
+        capture_output=True, text=True, check=False, cwd=ROOT,
+    )  # fmt: skip
+    assert run.returncode == 0, run.stdout + run.stderr
+    assert 'code="ABCXYZ"' in (out / "sample_c.py").read_text(encoding="utf-8")
