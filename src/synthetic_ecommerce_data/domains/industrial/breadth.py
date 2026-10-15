@@ -62,6 +62,7 @@ from synthetic_ecommerce_data.core.voice import product_name
 from synthetic_ecommerce_data.domains.industrial import taxonomy
 from synthetic_ecommerce_data.domains.industrial.drawing.breadth_shapes import BREADTH_SHAPES
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
+from synthetic_ecommerce_data.domains.industrial.type_labels import label_for
 from synthetic_ecommerce_data.domains.industrial.vocab import STANDARDS_FAMILY, VOCAB, AttrSpec
 
 if TYPE_CHECKING:
@@ -370,4 +371,5 @@ def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
         spec_quality=SPEC_QUALITY,
         image_id=children[0].image_id,
         drawing=taxonomy.drawing_for(row.key),
+        type_label=label_for(row.key),
     )

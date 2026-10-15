@@ -36,6 +36,11 @@ def test_no_label_is_an_id():
     assert [k for k, v in PRODUCT_TYPE_LABELS.items() if "_" in v or v == k] == []
 
 
+def test_every_label_starts_with_a_capital_letter():
+    assert PRODUCT_TYPE_LABELS, "the table is empty"
+    assert [k for k, v in PRODUCT_TYPE_LABELS.items() if not v[:1].isupper()] == []
+
+
 def test_a_label_names_one_type():
     assert PRODUCT_TYPE_LABELS, "the table is empty"
     labels = list(PRODUCT_TYPE_LABELS.values())
