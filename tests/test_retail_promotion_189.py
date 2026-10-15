@@ -25,6 +25,7 @@ RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
 if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
+import decoy_apparel  # noqa: E402 -- the prototype's own directory is its import root
 import export  # noqa: E402 -- the prototype's own directory is its import root
 import real_classes as rc  # noqa: E402
 import scale  # noqa: E402
@@ -137,4 +138,13 @@ def test_the_class_docs_and_their_mapping_follow(authored: list[dict[str, Any]])
             assert "promotion" not in d, d["product_id"]
     props = rc.index_body()["mappings"]["properties"]
     assert "offer" not in props
-    assert props["promotion"] == {"type": "keyword"}
+    assert props.get("promotion") == {"type": "keyword"}
+
+
+def test_a_decoy_clone_of_a_reduced_style_is_not_reduced() -> None:
+    """A decoy is re-priced and drops the was-price, so it drops the promotion that follows it."""
+    reduced = next(d for d in rc.class_docs() if "was_price" in d)
+    assert "promotion" in reduced
+    clone = decoy_apparel._clone(reduced, "ZZ", "Title", "Text", "Red", "#ff0000", "red")
+    assert "was_price" not in clone
+    assert "promotion" not in clone
