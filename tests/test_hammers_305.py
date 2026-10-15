@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import collections
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -171,17 +172,61 @@ ITEM = {
 }
 
 
-@pytest.mark.parametrize("kind", sorted(KINDS))
-def test_every_incidental_word_decoy_title_is_five_words_or_fewer(tools, kind) -> None:
-    """gen#294: the incidental word sits in a SHORT title, 5 words or fewer.
+def _incidental_docs(tools: list[dict], kind: str) -> list[dict]:
+    return [
+        d for d in tools if d["product_type"] == kind and INCIDENTAL.search(d["title"])
+    ]
 
-    Counted from the kind's item to the end: a brand's voice may put a qualifier before
-    the item (``Workshop``, ``General Purpose``), which is the brand's, not the decoy's.
+
+@pytest.mark.parametrize("kind", sorted(KINDS))
+def test_every_incidental_word_decoy_indexed_title_is_five_words_or_fewer(tools, kind) -> None:
+    """gen#320: the INDEXED ``title`` (brand, qualifier and size included) is 5 words or fewer.
+
+    The rule of gen#294 (c6178459887) puts the incidental word in a short title so text
+    search ranks the decoy above real hits; the SKU title is what is indexed.
     """
-    counts = []
-    for line in _lines(tools, kind).values():
-        item = line["title"].split(" -- ")[-1]
-        if INCIDENTAL.search(item):
-            counts.append(len(item[item.index(ITEM[kind]):].split()))
-    assert len(counts) >= 3
-    assert max(counts) <= 5, (kind, counts)
+    docs = _incidental_docs(tools, kind)
+    assert len(docs) >= 3
+    counts = {d["title"]: len(d["title"].split()) for d in docs}
+    assert max(counts.values()) <= 5, (kind, counts)
+    # gen#311: the decoy title names only the misleading word.
+    assert all(ITEM[kind] in t for t in counts), counts
+
+
+def _tokens(text: str) -> list[str]:
+    return re.findall(r"\w+", text.lower())
+
+
+def _bm25_ranking(docs: list[dict], query: list[str]) -> list[dict]:
+    """A no-policy BM25 (k1=1.2, b=0.75) over the ``title`` field, best first."""
+    tokenised = [_tokens(d["title"]) for d in docs]
+    avg = sum(map(len, tokenised)) / len(tokenised)
+    n = len(docs)
+    df = {q: sum(q in t for t in tokenised) for q in query}
+    scored = []
+    for d, toks in zip(docs, tokenised, strict=True):
+        score = 0.0
+        for q in query:
+            tf = toks.count(q)
+            if tf:
+                idf = math.log(1 + (n - df[q] + 0.5) / (df[q] + 0.5))
+                score += idf * tf * 2.2 / (tf + 1.2 * (0.25 + 0.75 * len(toks) / avg))
+        scored.append((score, d))
+    # Ties break by title length, then by title: a stable, policy-free order.
+    scored.sort(key=lambda p: (-p[0], len(p[1]["title"]), p[1]["title"]))
+    return [d for score, d in scored if score > 0]
+
+
+@pytest.mark.parametrize("kind", sorted(KINDS))
+def test_an_incidental_word_decoy_is_in_the_top_three_for_each_of_its_queries(tools, kind) -> None:
+    """gen#320: in the no-policy proxy a decoy outranks the real hits, for the bare word and
+    for the word with the kind's item."""
+    by_word: dict[str, set[str]] = collections.defaultdict(set)
+    for d in _incidental_docs(tools, kind):
+        by_word[INCIDENTAL.search(d["title"])["word"]].add(d["sku"])
+    assert by_word
+    for word, skus in by_word.items():
+        for query in (word, f"{word} {ITEM[kind]}"):
+            ranked = _bm25_ranking(tools, _tokens(query))
+            assert {d["sku"] for d in ranked[:3]} & skus, (
+                query, [d["title"] for d in ranked[:3]])
