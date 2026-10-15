@@ -529,26 +529,26 @@ def test_a_generated_file_the_rebuild_left_conflicted_is_refused(world: dict) ->
 # -- two type PRs, one after the other (#103) ---------------------------------
 
 _BALL_MODULE = Path("src/synthetic_ecommerce_data/domains/industrial/product_types/raw_materials")
-_LABELS = Path("src/synthetic_ecommerce_data/domains/industrial/type_labels.py")
-_AFTER = '    "ball_stock_precision": "Precision Ball",\n'
 
 
 def _add_a_type(world: dict, branch: str, key: str, label: str) -> str:
     """A PR branch off main that adds the breadth type ``key`` the way
-    docs/adding-a-type.md says: a module, its label, and the rebuilt golden.
+    docs/adding-a-type.md says: a module declaring its own label, and the
+    rebuilt golden.
 
-    The module is the precision-ball one under a new key. Both types' labels
-    sort straight after ``ball_stock_precision``, so the two branches edit the
-    same lines of the label table: the worst case two sibling types make."""
+    The module is the precision-ball one under a new key. Both keys sort
+    straight after ``ball_stock_precision``, so were the label a line of a
+    shared table, the two branches would edit the same lines of it."""
     checkout = world["checkout"]
     _git(checkout, "switch", "-q", "-c", branch, "main")
     module = (checkout / _BALL_MODULE / "ball_stock_precision.py").read_text()
+    module = module.replace(
+        '    "ball_stock_precision",\n', f'    "{key}",\n    label="{label}",\n'
+    )
+    assert f'label="{label}"' in module
     (checkout / _BALL_MODULE / f"{key}.py").write_text(
         module.replace("ball_stock_precision", key).replace("Precision Balls", label + "s")
     )
-    labels = (checkout / _LABELS).read_text()
-    assert _AFTER in labels
-    (checkout / _LABELS).write_text(labels.replace(_AFTER, _AFTER + f'    "{key}": "{label}",\n'))
     built = subprocess.run(
         ["uv", "run", "--locked", "ecom-generate", "build", "--out", "golden-catalog"],
         cwd=checkout,
