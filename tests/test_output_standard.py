@@ -410,8 +410,8 @@ GOLDEN_FLAT = ROOT / "golden-catalog" / "flat.jsonl"
 #: retail states ``price`` in ``currency`` and only knows whether a SKU is in stock.
 INDUSTRIAL_ONLY_FLAT = frozenset({"price_usd", "stock", "dimension_provenance", "spec_quality"})
 RETAIL_ONLY_FLAT = {"price": float, "currency": str, "in_stock": bool}
-#: Present only on a style with a product line (6 of 328).
-RETAIL_OPTIONAL_FLAT = frozenset({"series"})
+#: Present only on a style with a product line (6 of 328), or with a blend (gen#187).
+RETAIL_OPTIONAL_FLAT = frozenset({"series", "fibre_content"})
 
 
 def _shape(value: Any) -> Any:

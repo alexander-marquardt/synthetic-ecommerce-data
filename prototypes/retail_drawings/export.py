@@ -358,6 +358,7 @@ def standard_document(rec: dict) -> dict[str, Any]:
         attributes = [
             e for e in attributes if e["key"] != "pattern" or e["value"] in stated
         ]
+    blend = facet_leaves.fibre_content(attributes)
     added, replaced = facet_leaves.leaf_facets(rec, attributes)
     if replaced:
         path = facet_leaves.collapsed_path(path, rec["product_type"])
@@ -371,6 +372,8 @@ def standard_document(rec: dict) -> dict[str, Any]:
     }
     if "product_line" in rec:
         doc["series"] = rec["product_line"]
+    if blend:
+        doc["fibre_content"] = blend
     return doc | {
         "category_path": path,
         "category_leaf": path[-1],
