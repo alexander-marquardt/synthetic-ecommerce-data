@@ -152,6 +152,9 @@ FABRIC_MOVES: dict[str, tuple[str, str | None]] = {
     "Recycled Polyester, Elastane": ("Polyester", "Recycled Polyester, Elastane"),
 }
 
+#: A garment's free-text ``material`` -> the shopper fibres it names (gen#187). Stub.
+MATERIAL_FABRICS: dict[str, tuple[str, ...]] = {}
+
 
 def _vocabulary() -> dict[str, set[str]]:
     """Every value of each :data:`BRA_KEYS` key that some leaf implies."""
