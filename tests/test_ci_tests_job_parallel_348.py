@@ -130,3 +130,90 @@ def test_a_module_s_tests_share_a_group_unless_the_module_asks_to_spread() -> No
     spread = SimpleNamespace(__name__="test_merge_pr", XDIST_SPREAD=True)
     assert group_for(plain) == "test_price"
     assert group_for(spread) is None
+
+
+@pytest.mark.parametrize(
+    ("cores", "available_mb", "workers"),
+    [
+        (48, 60_000, 10),  # the agent VM with other agents running: memory is the limit
+        (48, 78_000, 13),  # the same VM idle
+        (48, 400_000, 48),  # a machine with memory to spare: one per core
+        (8, 400_000, 8),
+        (10, 16_000, 2),  # a laptop short of memory
+        (48, 3_000, 2),  # memory for less than two: the floor, not the serial run
+        (1, 400_000, 2),  # one core: still two workers, one worker is the serial run
+    ],
+)
+def test_the_worker_count_is_the_cores_or_what_the_memory_allows(
+    cores: int, available_mb: int, workers: int
+) -> None:
+    assert local_ci_jobs.default_workers(cores, available_mb) == workers
+    assert local_ci_jobs.pytest_options({}, cores, available_mb) == f"-n {workers} --dist loadgroup"
+
+
+def test_memory_that_cannot_be_read_gives_the_floor_not_every_core(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(local_ci_jobs, "memory_available_mb", lambda: None)
+    assert local_ci_jobs.default_workers(48) == 2
+
+
+def test_the_budget_per_worker_is_above_the_largest_worker_measured() -> None:
+    """4,311 MB: the largest of eight workers over the whole suite (#348, the PR body)."""
+    assert local_ci_jobs.WORKER_MB >= 4311
+
+
+def test_the_machine_sets_the_worker_count_with_an_environment_variable() -> None:
+    assert local_ci_jobs.pytest_options({"LOCAL_CI_WORKERS": "6"}) == "-n 6 --dist loadgroup"
+    assert local_ci_jobs.pytest_options({"LOCAL_CI_WORKERS": "0"}) == "-n 0 --dist loadgroup"
+    assert local_ci_jobs.pytest_options({"LOCAL_CI_WORKERS": ""}, 8, 400_000).startswith("-n 8 ")
+
+
+def test_the_emitted_script_takes_the_worker_count_from_the_machine_that_runs_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(local_ci_jobs.os, "cpu_count", lambda: 48)
+    monkeypatch.setattr(local_ci_jobs, "memory_available_mb", lambda: 60_000)
+    jobs = local_ci_jobs.load_jobs(WORKFLOWS)
+    script = local_ci_jobs.emit("tests", jobs["tests"], "BASE", "HEAD")
+    probe = f'{script}\necho "ADDOPTS=$PYTEST_ADDOPTS"\n'.replace("uv run", "true uv run")
+    env = {k: v for k, v in os.environ.items() if k != "PYTEST_ADDOPTS"}
+    for workers, expected in (("3", "-n 3 --dist loadgroup"), (None, "-n 10 --dist loadgroup")):
+        env.pop("LOCAL_CI_WORKERS", None)
+        if workers:
+            env["LOCAL_CI_WORKERS"] = workers
+        done = subprocess.run(
+            ["bash", "--noprofile", "--norc", "-eo", "pipefail", "-c", probe],
+            cwd=tmp_path, env=env, capture_output=True, text=True, check=False,
+        )  # fmt: skip
+        assert f"ADDOPTS={expected}" in done.stdout.splitlines(), done.stdout + done.stderr
+
+
+def test_merge_pr_checks_step_runs_on_the_same_workers() -> None:
+    cli = subprocess.run(
+        [sys.executable, str(REPO / "scripts" / "local_ci_jobs.py"), "--pytest-options"],
+        capture_output=True,
+        text=True,
+        check=False,
+        env={k: v for k, v in os.environ.items() if k != "LOCAL_CI_WORKERS"},
+    )
+    workers, _, dist = cli.stdout.strip().removeprefix("-n ").partition(" --dist ")
+    assert workers.isdigit() and int(workers) >= 2 and dist == "loadgroup", cli.stderr
+    script = (REPO / "scripts" / "merge_pr.sh").read_text(encoding="utf-8")
+    (step,) = [line for line in script.splitlines() if "no:cacheprovider" in line]
+    assert '"${parallel[@]}"' in step, step
+    assert "--pytest-options" in script
+
+
+def test_the_collection_hook_marks_each_test_with_its_module_s_group() -> None:
+    """The conftest hook is what puts ``xdist_group`` on a test: ``loadgroup`` reads the mark."""
+    from conftest import pytest_collection_modifyitems
+
+    marks: list[object] = []
+    plain = SimpleNamespace(module=SimpleNamespace(__name__="test_price"), add_marker=marks.append)
+    spread = SimpleNamespace(
+        module=SimpleNamespace(__name__="test_merge_pr", XDIST_SPREAD=True),
+        add_marker=marks.append,
+    )
+    pytest_collection_modifyitems([plain, spread])
+    assert [(m.name, m.args) for m in marks] == [("xdist_group", ("test_price",))]  # type: ignore[attr-defined]
