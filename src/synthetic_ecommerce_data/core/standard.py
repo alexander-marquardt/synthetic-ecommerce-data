@@ -221,7 +221,8 @@ def text_contradictions(
     for e in attrs:
         own.setdefault(str(e.get("key")), set()).add(str(e.get("value")))
     every = sorted({v for vs in own.values() for v in vs}, key=len, reverse=True)
-    texts = [str(doc.get("title") or "")]
+    # A brand is a name, not a claim: "Red Linnet" on a green cushion names the brand (gen#312).
+    texts = [str(doc.get("title") or "").replace(str(doc.get("brand") or "\0"), " ")]
     texts += [str(v.get("description")) for v in doc.get("variants") or () if v.get("description")]
     out = []
     for key, mine in own.items():

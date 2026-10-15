@@ -167,15 +167,21 @@ def _material_skus(rec: dict) -> bool:
     return any("upper_material" in s for s in rec["skus"])
 
 
+def _text(rec: dict) -> str:
+    """The title and description, lower case, without the brand name: a color word in a brand
+    ("Red Linnet", gen#312) names the brand, never a color the style must carry."""
+    return f"{rec['title'].replace(rec['brand'], '')} {rec['description']}".lower()
+
+
 def _names_main_color(rec: dict) -> bool:
     """Whether the text names a main color: once the type offers it, the text-agrees gate
     reads that word as naming a value this style lacks."""
-    text = f"{rec['title']} {rec['description']}".lower()
+    text = f"{rec['title']} {rec['description']}".lower()  # brand counts: gen#312
     return any(re.search(rf"\b{c.lower()}\b", text) for c in MAIN_COLORS)
 
 
 def _names(rec: dict, color: str) -> bool:
-    return bool(re.search(rf"\b{color.lower()}\b", f"{rec['title']} {rec['description']}".lower()))
+    return bool(re.search(rf"\b{color.lower()}\b", _text(rec)))
 
 
 PATTERN_WORDS = re.compile(
