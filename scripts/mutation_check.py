@@ -3459,6 +3459,17 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- the Leather Look guard reads both spellings (gen#291) ----
+    Mutation(
+        "the Leather Look guard reads only the hyphen",
+        "tests/test_retail_facet_leaves.py",
+        'LEATHER_LOOK = re.compile(r"leather[\\s-]*look", re.IGNORECASE)',
+        'LEATHER_LOOK = re.compile(r"leather-look", re.IGNORECASE)',
+        "tests/test_retail_facet_leaves.py -k leather_look_guard_reads_both_spellings",
+        "",
+        "both spellings are read",
+        root=".",
+    ),
     # ---- retail: a jean's fit and a bra's style are facets, not leaves ----
     *(
         Mutation(f"facet leaves: {name}", file, old, new, test, "", prop,
@@ -3519,6 +3530,31 @@ MUTATIONS: list[Mutation] = [
                 "        pass\n",
                 "tests/test_retail_facet_leaves.py -k blend_is_a_detail",
                 "the blend is a detail",
+            ),
+            (
+                "a fabric move ignores the product type",
+                "facet_leaves.py",
+                "    return TYPED_FABRIC_MOVES.get((product_type, value)) or FABRIC_MOVES.get(value)",
+                "    return next((m for (_, v), m in TYPED_FABRIC_MOVES.items() if v == value), None)"
+                " or FABRIC_MOVES.get(value)",
+                "tests/test_retail_facet_leaves.py -k fabric_move_is_keyed_by_product_type",
+                "a typed move reads the type",
+            ),
+            (
+                "the laptop backpack is titled Leather Look again",
+                "accessory_rows.py",
+                '"Faux Leather Laptop Backpack"',
+                '"Leather Look Laptop Backpack"',
+                "tests/test_retail_facet_leaves.py -k never_titled_leather_look",
+                "a fabric has one name in a title",
+            ),
+            (
+                "a retail message spells center the British way",
+                "house_styles.py",
+                'raise ValueError("a band sits at the top or bottom center")',
+                'raise ValueError("a band sits at the top or bottom centre")',
+                "tests/test_us_spelling.py -k retail_source_spells_center",
+                "center is spelt one way",
             ),
             (
                 "one bra spells Lightly Lined with a hyphen",

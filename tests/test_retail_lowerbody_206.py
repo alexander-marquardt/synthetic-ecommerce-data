@@ -211,7 +211,7 @@ def test_the_maternity_and_lined_leggings_state_it() -> None:
 
 #: Words the lower-body rows once put in ``fabric`` that a shopper does not name as a fabric
 #: (a use, a fit, a pocket style) or that spell another fabric's name again (gen#258).
-NOT_FABRICS = {"Sports", "Compression", "Cargo", "Leather-Look"}
+NOT_FABRICS = {"Sports", "Compression", "Cargo", "Leather-Look", "Leather Look"}
 
 
 def test_no_lower_body_fabric_is_a_use_a_fit_or_another_name_for_a_fabric() -> None:
@@ -233,13 +233,6 @@ def test_a_cycling_short_is_compression_fit_not_a_compression_fabric() -> None:
     for row in shorts:
         assert _attr(row, "leg_fit") == ["Compression"], row.code
         assert _attr(row, "fabric") == [], row.code
-
-
-def test_the_lower_body_modules_spell_center_the_us_way() -> None:
-    """The spelling test reads only the color word; a docstring said "centre" (gen#258)."""
-    british = re.compile("cent" + "re", re.IGNORECASE)
-    for name in ("kit_lowerbody.py", "lowerbody_rows.py"):
-        assert british.findall((RETAIL / name).read_text()) == [], name
 
 
 @pytest.mark.parametrize("row", ROWS, ids=lambda r: r.code)

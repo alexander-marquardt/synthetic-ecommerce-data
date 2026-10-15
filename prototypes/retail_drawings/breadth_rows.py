@@ -1138,7 +1138,7 @@ HOME = (
         (cw("Ochre", "#c9873a"), cw("Forest", "#2f5a3a"), cw("Dove Grey", "#b5b5b0")),
         _fab("Chenille")),
     Row("CSHCRD", "Corduroy Pleated Cushion", "Lanternby", "Home", _CUSH, "Cushion", 24.0,
-        "cushion", "A round cushion pleated to a covered button at its centre.",
+        "cushion", "A round cushion pleated to a covered button at its center.",
         (cw("Terracotta", "#c46a4a"), cw("Olive", "#6b6b3a"), cw("Ivory", "#f3ecd9")),
         _fab("Corduroy")),
     Row("TWLORG", "Organic Cotton Bath Towel", "Hearth & Table", "Home", _TOWEL, "Towel", 8.0,
