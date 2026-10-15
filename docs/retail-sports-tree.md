@@ -1,7 +1,8 @@
 # Sports & Outdoors: the tree, its filters and what is not built (gen#290)
 
 The department is built by `prototypes/retail_drawings/sports_rows.py` (gen#265, first increment,
-PR #288). This note records, per leaf, what a shopper filters on and whether a reference
+PR #288; the remainder, gen#368, adds seventeen types: yoga blocks, straps and bands, lanterns,
+roll mats, bike pumps, baseball, swimming, team and racket sports). This note records, per leaf, what a shopper filters on and whether a reference
 retailer's tree was compared; and, per type not yet built, where it is scheduled.
 `tests/test_retail_sports_tree_note_290.py` keeps both tables equal to the rows: a new leaf
 without a line here, or a line for a leaf that is gone, fails it.
@@ -28,16 +29,32 @@ no guidance example says `none` there too.
 | Sports & Outdoors > Yoga & Fitness > Weights > Dumbbells | weight, head_shape, sold_as, material, color | dumbbell weight | none |
 | Sports & Outdoors > Yoga & Fitness > Weights > Kettlebells | weight, material, color | none | none |
 | Sports & Outdoors > Yoga & Fitness > Foam Rollers | item_length, surface, material, color | none | none |
+| Sports & Outdoors > Camping > Lanterns | power, brightness, material, color | none | none |
+| Sports & Outdoors > Camping > Roll Mats | thickness, fold, material, color | none | none |
+| Sports & Outdoors > Yoga & Fitness > Yoga > Yoga Blocks | item_height, sold_as, material, color | none | none |
+| Sports & Outdoors > Yoga & Fitness > Yoga > Yoga Straps | item_length, closure, material, color | none | none |
+| Sports & Outdoors > Yoga & Fitness > Resistance Bands | resistance_level, band_type, material, color | none | none |
+| Sports & Outdoors > Cycling > Bike Pumps | pump_type, valve_type, max_pressure, color | none | none |
+| Sports & Outdoors > Baseball > Baseball Bats | item_length, material, barrel_diameter, color | none | none |
+| Sports & Outdoors > Baseball > Baseball Gloves | glove_size, position, material, color | none | none |
+| Sports & Outdoors > Baseball > Baseballs | cover, level, sold_as, color | none | none |
+| Sports & Outdoors > Baseball > Batting Helmets | head_circumference, ear_flaps, material, color | none | none |
+| Sports & Outdoors > Swimming > Swimming Goggles | lens, anti_fog, strap_material, color | none | none |
+| Sports & Outdoors > Swimming > Swim Caps | material, latex_free, color | none | none |
+| Sports & Outdoors > Swimming > Kickboards | item_length, grips, material, color | none | none |
+| Sports & Outdoors > Swimming > Swim Armbands | max_load_kg, chambers, material, color | none | none |
+| Sports & Outdoors > Team & Racket Sports > Footballs | ball_size, cover, construction, color | none | none |
+| Sports & Outdoors > Team & Racket Sports > Tennis Rackets | grip_size, head_size, material, color | none | none |
+| Sports & Outdoors > Team & Racket Sports > Badminton Sets | players, net_included, material, color | none | none |
 
-Leaf depth is mixed on purpose for now: Dome Tents, Tunnel Tents, Yoga Mats, Dumbbells and
-Kettlebells sit under a group (four levels), Sleeping Bags, Camping Chairs and Foam Rollers sit
-directly under their family (three). The Yoga group has one leaf until yoga blocks and straps
-arrive (below), and a group with one leaf is kept rather than flattened so those leaves land
-beside it. The tree guard's rules hold on the subtree either way.
+Leaf depth is mixed on purpose for now: Dome Tents, Tunnel Tents, Yoga Mats, Yoga Blocks, Yoga
+Straps, Dumbbells, Kettlebells sit under a group (four levels); the other leaves sit directly under
+their family (three). The Yoga group now holds three leaves (mats, blocks and straps). The tree
+guard's rules hold on the subtree either way.
 
 ## Not built
 
-Every type the issue listed that the first increment did not ship has a disposition. "Not
+Every type the issue listed that neither increment has shipped has a disposition. "Not
 reached" is not one: it is scope, not a reason. A type is either scheduled in an open issue or
 carries a reason.
 
@@ -47,24 +64,7 @@ carries a reason.
 | Bike helmets | Cycling | #352 |
 | Bike lights | Cycling | #352 |
 | Bike locks | Cycling | #352 |
-| Bike pumps | Cycling | #368 |
 | Camping stoves | Camping | #352 |
-| Lanterns | Camping | #368 |
-| Roll mats | Camping | #368 |
-| Yoga blocks | Yoga & Fitness | #368 |
-| Yoga straps | Yoga & Fitness | #368 |
-| Resistance bands | Yoga & Fitness | #368 |
-| Bats | Baseball | #368 |
-| Gloves | Baseball | #368 |
-| Balls | Baseball | #368 |
-| Batting helmets | Baseball | #368 |
-| Swimming goggles | Swimming | #368 |
-| Swim caps | Swimming | #368 |
-| Kickboards | Swimming | #368 |
-| Armbands | Swimming | #368 |
-| Footballs | Team and racket sports | #368 |
-| Tennis rackets | Team and racket sports | #368 |
-| Badminton sets | Team and racket sports | #368 |
 | Kayaks | Water sports | #352 |
 | Kick scooters | Wheeled sports | #352 |
 | Skateboards | Wheeled sports | #352 |
