@@ -307,6 +307,16 @@ MOVED = {
 TYPED_MOVED = {("Shorts", "Polyester Blend"): ("Suiting", "Polyester Blend")}
 
 
+#: "Leather-Look" and "Leather Look" are one phrase; a guard reads both spellings (gen#291).
+LEATHER_LOOK = re.compile(r"leather[\s-]*look", re.IGNORECASE)
+
+
+def test_the_leather_look_guard_reads_both_spellings():
+    """A guard that reads only the hyphen stays green over the space spelling, because the
+    hyphenated class-4 decoys keep it non-empty (gen#291)."""
+    assert all(LEATHER_LOOK.search(t) for t in ("Leather Look Bag", "Leather-Look Bag"))
+
+
 def test_the_blend_is_a_detail_not_a_facet(built, docs):
     """A non-bra record's fabric is the fibre or weave a shopper names, and the blend or grade
     it held is the document's ``fibre_content``: a field, in no attribute and no facet."""
@@ -346,10 +356,6 @@ def test_no_fabric_is_a_blend_or_a_use_word(docs):
                       "Compression"} == set()
     assert {f for f in fabrics if LEATHER_LOOK.search(f)} == set()
     assert {"Faux Leather", "Jersey", "Twill", "Knitted", "Suiting"} <= fabrics
-
-
-#: "Leather-Look" and "Leather Look" are one phrase; a guard reads both spellings (gen#291).
-LEATHER_LOOK = re.compile(r"leather[\s-]*look", re.IGNORECASE)
 
 
 def test_a_faux_leather_product_is_never_titled_leather_look(built):

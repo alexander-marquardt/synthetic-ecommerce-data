@@ -3397,6 +3397,17 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- the Leather Look guard reads both spellings (gen#291) ----
+    Mutation(
+        "the Leather Look guard reads only the hyphen",
+        "tests/test_retail_facet_leaves.py",
+        'LEATHER_LOOK = re.compile(r"leather[\\s-]*look", re.IGNORECASE)',
+        'LEATHER_LOOK = re.compile(r"leather-look", re.IGNORECASE)',
+        "tests/test_retail_facet_leaves.py -k leather_look_guard_reads_both_spellings",
+        "",
+        "both spellings are read",
+        root=".",
+    ),
     # ---- retail: a jean's fit and a bra's style are facets, not leaves ----
     *(
         Mutation(f"facet leaves: {name}", file, old, new, test, "", prop,
