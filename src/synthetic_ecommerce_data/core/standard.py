@@ -52,6 +52,8 @@ PRODUCT_FIELDS: dict[str, tuple[str, bool]] = {
     "image_url": (_STR, True),
     "image_detail_url": (_STR, True),
     "ingredients": (_LIST, False),
+    #: The exact blend or grade ("98% Cotton, 2% Elastane"): a detail, never a facet.
+    "fibre_content": (_STR, False),
     #: The retailer's own 0-100 ranking preference (:mod:`.merchandising`).
     "merchandising_score": (_INT, False),
     #: The attribute keys a shopper selects on the product page, coarsest first
@@ -341,6 +343,7 @@ def flat_documents(
         if "merchandising_score" in doc:
             numeric["merchandising_score"] = float(doc["merchandising_score"])
         words = [variant["title"], doc["brand"], doc.get("series"), *doc["category_path"]]
+        words.append(doc.get("fibre_content"))
         out.append(
             {"sku": variant["sku"], "product_id": doc["product_id"]}
             | {"product_type": doc["product_type"], "title": variant["title"]}
@@ -373,6 +376,7 @@ _FLAT_PRODUCT_FIELDS = (
     "spec_quality",
     "variant_axes",
     "ingredients",
+    "fibre_content",
 )
 #: The variant columns a flat document carries, in industrial's order.
 _FLAT_VARIANT_FIELDS = (
