@@ -17,10 +17,6 @@
   "skus": 116100,
   "styles": 11125,
   "top_levels": {
-   "Accessories": {
-    "skus": 164,
-    "styles": 37
-   },
    "Beauty": {
     "skus": 893,
     "styles": 483
@@ -62,8 +58,8 @@
     "styles": 439
    },
    "Womens": {
-    "skus": 73243,
-    "styles": 1849
+    "skus": 73407,
+    "styles": 1886
    }
   }
  },

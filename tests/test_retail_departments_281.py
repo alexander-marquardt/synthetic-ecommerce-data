@@ -40,7 +40,6 @@ DEPARTMENTS = frozenset(
         "Toys",
         "Gifts",
         "Garden",
-        "Accessories",
         "Sports & Outdoors",
     }
 )
