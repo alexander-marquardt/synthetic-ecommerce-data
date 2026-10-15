@@ -20,6 +20,9 @@
    "product_type": {
     "type": "keyword"
    },
+   "product_type_label": {
+    "type": "keyword"
+   },
    "title": {
     "type": "text"
    },
