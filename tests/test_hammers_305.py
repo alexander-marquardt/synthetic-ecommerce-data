@@ -117,11 +117,12 @@ def test_no_product_concept_is_spelled_in_both_formats(tools, retail) -> None:
 # -- text-match decoys (gen#294 rule): every hammer kind carries them, attributes stay true ----
 
 #: What each decoy class puts in the title (the item), by its shape.
-CATEGORY_WORD = re.compile(r"^(?P<noun>[A-Z][A-Za-z ]+?) Series (?P<item>.+)$")
-MATERIAL_LOOK = re.compile(r"^(?P<word>Hickory|Ash|Fiberglass)-Look (?P<item>.+)$")
-INCIDENTAL = re.compile(
-    r"^(?P<word>Hickory|Ash|Fiberglass) (?:Creek|Ridge|Lane|Hollow) (?P<item>.+)$"
+#: (A brand's voice may put a qualifier before the item, so each shape is searched for.)
+CATEGORY_WORD = re.compile(
+    r"\b(?P<noun>Ball Pein|Claw|Framing|Club|Sledge|Mallet|Dead Blow) Series\b"
 )
+MATERIAL_LOOK = re.compile(r"\b(?P<word>Hickory|Ash|Fiberglass)-Look\b")
+INCIDENTAL = re.compile(r"\b(?P<word>Hickory|Ash|Fiberglass) (?:Creek|Ridge|Lane|Hollow)\b")
 OWN_NOUN = {
     "hammer_ball_pein": "Ball Pein", "hammer_claw": "Claw", "hammer_framing": "Framing",
     "hammer_club": "Club", "hammer_sledge": "Sledge", "hammer_rubber_mallet": "Mallet",
@@ -147,12 +148,12 @@ def test_each_kind_carries_three_decoys_of_each_class_and_their_attributes_stay_
     category, material, incidental = [], [], []
     for line in lines.values():
         item = line["title"].split(" -- ")[-1]
-        if (m := CATEGORY_WORD.match(item)) is not None:
+        if (m := CATEGORY_WORD.search(item)) is not None:
             category.append(m["noun"])
-        elif (m := MATERIAL_LOOK.match(item)) is not None:
+        elif (m := MATERIAL_LOOK.search(item)) is not None:
             material.append(m["word"])
             assert m["word"] != line["handle"], line
-        elif (m := INCIDENTAL.match(item)) is not None:
+        elif (m := INCIDENTAL.search(item)) is not None:
             incidental.append(m["word"])
             assert m["word"] != line["handle"], line
     assert len(category) >= 3 and len(material) >= 3 and len(incidental) >= 3, (
