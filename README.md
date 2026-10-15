@@ -1358,9 +1358,9 @@ shoppers the generator targets for bags; the `audience` facet says `Unisex`, the
 
 **The store's department is the top level of `category_path`, and no document states one**
 (gen#281). The retail tree has exactly eleven roots: Womens, Mens, Kids, Food & Drink, Home,
-Beauty, Cleaning, Toys, Gifts, Garden and Sports & Outdoors (gen#265). Food sits under Food & Drink, Baby
-under Kids (`Kids > Baby > ...`) and Electricals under Home (`Home > Electricals > ...`), each
-with its subtree intact; a product still sits in one place. The documents carry no
+Beauty, Cleaning, Toys, Gifts, Garden and Sports & Outdoors (gen#265). Food sits under Food &
+Drink, Baby under Kids (`Kids > Baby > ...`) and Electricals under Home (`Home > Electricals >
+...`), each with its subtree intact; a product still sits in one place. The documents carry no
 `department` attribute or flat column (its values mixed audience, Clothing, with product kind,
 Footwear): the one fact it held that no other attribute does, the safety boot's Workwear & PPE,
 is carried by its `safety_rating` and `toe_cap`. A consumer reads the department from
@@ -1443,7 +1443,7 @@ drawn by `kit_underwear.py`; none is derived), then the toys (`toys_rows.py`, ge
 table, desk, ceiling and wall lights and lampshades under `Home/Lighting` (`Lamps`, `Lights`), each typed by
 its name; a SKU is a color times a finish, a shade color or a diameter, and its image draws
 that SKU's own value), then the bags, umbrellas and jewelry (`accessory_rows.py`,
-gen#207; likewise copied by no derived style), then the Sports & Outdoors styles (`sports_rows.py`, gen#265, first increment: tents, sleeping bags and camping chairs under `Camping`, yoga mats, dumbbells, kettlebells and foam rollers under `Yoga & Fitness`; drawn by `kit_sports.py`, a SKU axis in its unit (`berth`, `thickness`, `weight`, `item_length`), the six main colors on every type, copied by no derived style, `tests/test_retail_sports_265.py`), then the near-white apparel and main-color bras (`colorgroup_rows.py`, gen#302, [docs/retail-color-group.md](docs/retail-color-group.md); copied by no derived style), then the grocery styles (below, `grocery.py`, gen#154). Further styles are
+gen#207; likewise copied by no derived style), then the Sports & Outdoors styles (`sports_rows.py`, gen#265: camping and yoga & fitness, drawn by `kit_sports.py`, copied by no derived style; leaves, filters and types not built in [docs/retail-sports-tree.md](docs/retail-sports-tree.md), `tests/test_retail_sports_265.py`), then the near-white apparel and main-color bras (`colorgroup_rows.py`, gen#302, [docs/retail-color-group.md](docs/retail-color-group.md); copied by no derived style), then the grocery styles (below, `grocery.py`, gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
 also differs from its template and from every sibling in a value its title shows
