@@ -18,6 +18,11 @@ bbq             a charcoal kettle, barrel, kamado egg or    kind (kettle, barrel
                 each)
 ==============  ==========================================  ==========================
 
+A decoy's title may name a part in a color the product lacks ("Red Wheels", "White Shelves"): its
+row passes ``part`` (one of :data:`PARTS`) and ``part_color`` (a main color), and the shape draws
+that part, and only that part, in the color, marking each element ``data-part="<part>"``
+(:class:`_Part`). ``tests/test_retail_garden_203.py`` reads the rendered drawing for it.
+
 A drawing never prints a width, an area or a diameter: a style's SKUs share one image per
 colorway. Every param is a string with a default, so each shape also draws bare. The mower's power
 source is drawn as what feeds it (a battery pack, a fuel cap and pull cord, or a cable), which
@@ -28,7 +33,7 @@ source is drawn as what feeds it (a battery pack, a fuel cap and pull cord, or a
 
 from __future__ import annotations
 
-from kit import Fill, _highlight, _line, _path, _shade, _tint, register
+from kit import INK, Fill, _highlight, _line, _path, _shade, _tint, register
 from kit_sports import POLE, _ell, _label, _rect
 
 #: The knob classes a drawing marks: one group each, so a test counts them against the record.
@@ -42,27 +47,64 @@ FUEL_CLASS = "fuel-cap"
 CABLE_CLASS = "cable"
 GREASE = "#4a4f57"
 
+#: The swatch of each main color: the rows' own (:mod:`garden_rows`) and a named part's.
+ACCENT_HEX = {
+    "red": "#c8312e",
+    "blue": "#3f6fb5",
+    "green": "#4f8a3a",
+    "yellow": "#f2c230",
+    "black": "#2d2d33",
+    "white": "#f4f1ea",
+}
+#: shape -> the parts a decoy can name, the first being the one a short-title decoy draws in its color.
+PARTS = {
+    "lawn_mower": ("handle", "wheels", "grass-box"),
+    "robot_mower": ("bumper", "wheels", "button"),
+    "grass_trimmer": ("handle", "shaft", "engine"),
+    "bbq": ("legs", "lid-handle", "shelves"),
+}
 
-def _wheel(cx: float, cy: float, r: float) -> str:
-    return _ell(cx, cy, r, r, GREASE) + _ell(cx, cy, r * 0.4, r * 0.4, POLE, 1.6)
+
+class _Part:
+    """The part a decoy names, drawn in the named color: ``fill`` gives the color to that part's
+    element (or its own default), ``mark`` tags it ``data-part``. With no part, neither changes
+    anything, so a bare drawing is the product's own."""
+
+    def __init__(self, shape: str, part: str, color: str) -> None:
+        self.part = part.lower()
+        if self.part and self.part not in PARTS[shape]:
+            raise ValueError(f"{shape!r} shows no part named {part!r}; it shows {PARTS[shape]}")
+        self.hex = ACCENT_HEX[color.lower()] if self.part else ""
+
+    def fill(self, name: str, default: str) -> str:
+        return self.hex if self.part == name else default
+
+    def mark(self, name: str, el: str) -> str:
+        return el.replace("/>", f' data-part="{name}"/>', 1) if self.part == name else el
 
 
-def lawn_mower(paint: str, fill: Fill, label: str | None, power: str = "cordless", drive: str = "push") -> list[str]:
+def _wheel(cx: float, cy: float, r: float, pt: _Part) -> str:
+    return pt.mark("wheels", _ell(cx, cy, r, r, pt.fill("wheels", GREASE))) + _ell(cx, cy, r * 0.4, r * 0.4, POLE, 1.6)
+
+
+def lawn_mower(paint: str, fill: Fill, label: str | None, power: str = "cordless", drive: str = "push",
+               part: str = "", part_color: str = "") -> list[str]:  # fmt: skip
     """A lawn mower: a deck, a grass bag and a push handle. ``power`` adds a battery pack
     (cordless), a fuel cap with a pull cord (petrol) or a trailing cable (electric); ``self``
     drive adds a drive lever on the handle and a drive arrow on the deck."""
     power, drive = power.lower(), drive.lower()
-    bag = _tint(fill.base, 0.5)
+    pt = _Part("lawn_mower", part, part_color)
+    bag = pt.fill("grass-box", _tint(fill.base, 0.5))
     out = [
         _line("M20,334 L380,334", 4),
-        _path("M300,232 L384,232 L384,298 L300,298 Z", bag),
+        pt.mark("grass-box", _path("M300,232 L384,232 L384,298 L300,298 Z", bag)),
         _line("M318,236 L318,296 M342,236 L342,296 M366,236 L366,296", 1.6, ' stroke-opacity=".4"'),
         _line("M296,230 L352,96 L384,106", 6),
-        _line("M296,230 L352,96 L384,106", 3, stroke=POLE),
+        pt.mark("handle", _line("M296,230 L352,96 L384,106", 3, stroke=pt.fill("handle", POLE))),
         _path("M64,296 Q64,236 128,230 L282,230 Q338,236 338,296 Z", paint),
         _highlight("M92,254 Q104,240 140,238", 4, 0.5),
-        _wheel(112, 306, 26),
-        _wheel(284, 302, 36 if drive == "self" else 28),
+        _wheel(112, 306, 26, pt),
+        _wheel(284, 302, 36 if drive == "self" else 28, pt),
     ]
     if drive == "self":
         out += [
@@ -88,9 +130,11 @@ def lawn_mower(paint: str, fill: Fill, label: str | None, power: str = "cordless
     return _label(out, label)
 
 
-def robot_mower(paint: str, fill: Fill, label: str | None, boundary: str = "wire") -> list[str]:
+def robot_mower(paint: str, fill: Fill, label: str | None, boundary: str = "wire",
+                part: str = "", part_color: str = "") -> list[str]:  # fmt: skip
     """A robot mower: a low dome on two wheels with a stop button. ``wire`` shows the boundary
     wire pegged out in the grass in front of it; ``gps`` puts a satellite dome on its back."""
+    pt = _Part("robot_mower", part, part_color)
     dark = _shade(fill.base, 0.35)
     out = [_line("M20,334 L380,334", 4)]
     if boundary.lower() == "gps":
@@ -99,23 +143,25 @@ def robot_mower(paint: str, fill: Fill, label: str | None, boundary: str = "wire
         out += [_line("M20,352 L380,352", 3.2, ' stroke-dasharray="10 8"', stroke="#e07a1f")]
     out += [
         _path("M56,312 Q52,196 200,182 Q348,196 344,312 Z", paint),
-        _path("M56,312 L344,312 L344,326 Q200,338 56,326 Z", dark, 2.4),
-        _rect(170, 214, 60, 22, dark, 8, 2.4),
+        pt.mark("bumper", _path("M56,312 L344,312 L344,326 Q200,338 56,326 Z", pt.fill("bumper", dark), 2.4)),
+        pt.mark("button", _rect(170, 214, 60, 22, pt.fill("button", dark), 8, 2.4)),
         _line("M176,248 L224,248", 3, ' stroke-opacity=".5"'),
-        _wheel(96, 322, 22),
-        _wheel(304, 322, 22),
+        _wheel(96, 322, 22, pt),
+        _wheel(304, 322, 22, pt),
         _highlight("M84,262 Q104,214 160,200", 4, 0.5),
     ]
     return _label(out, label)
 
 
-def grass_trimmer(paint: str, fill: Fill, label: str | None, head: str = "line", power: str = "cordless") -> list[str]:
+def grass_trimmer(paint: str, fill: Fill, label: str | None, head: str = "line", power: str = "cordless",
+                  part: str = "", part_color: str = "") -> list[str]:  # fmt: skip
     """A grass trimmer: a long shaft from a cutting head to a handle. ``head`` draws a nylon-line
     spool with two whiskers (line) or a toothed blade under a guard (blade); ``power`` puts a
     battery pack (cordless), an engine with a fuel cap (petrol) or a cable (electric) at the top."""
     head, power = head.lower(), power.lower()
+    pt = _Part("grass_trimmer", part, part_color)
     dark = _shade(fill.base, 0.35)
-    out = [_line("M96,330 L296,92", 9), _line("M96,330 L296,92", 5, stroke=POLE)]
+    out = [_line("M96,330 L296,92", 9), pt.mark("shaft", _line("M96,330 L296,92", 5, stroke=pt.fill("shaft", POLE)))]
     if head == "blade":
         out += [
             _path("M40,332 L100,310 L156,324 L150,350 L60,356 Z", GREASE, 2.4),
@@ -128,7 +174,7 @@ def grass_trimmer(paint: str, fill: Fill, label: str | None, head: str = "line",
             _line("M66,336 L24,330 M134,336 L176,346", 2.2),
         ]
     out += [
-        _path("M262,132 Q320,112 340,70 Q348,52 330,50 L300,60 Q300,86 262,104 Z", paint),
+        pt.mark("handle", _path("M262,132 Q320,112 340,70 Q348,52 330,50 L300,60 Q300,86 262,104 Z", pt.fill("handle", paint))),
         _line("M232,160 L270,184", 7),
         _line("M232,160 L270,184", 3.4, stroke=POLE),
     ]
@@ -136,7 +182,7 @@ def grass_trimmer(paint: str, fill: Fill, label: str | None, head: str = "line",
         out += [f'<g class="{BATTERY_CLASS}">{_rect(264, 46, 70, 40, dark, 6)}{_line("M276,66 L322,66", 2.4, stroke="#ffffff")}</g>']
     elif power == "petrol":
         out += [
-            _rect(256, 52, 76, 36, dark, 8),
+            pt.mark("engine", _rect(256, 52, 76, 36, pt.fill("engine", dark), 8)),
             f'<g class="{FUEL_CLASS}">{_ell(294, 46, 12, 7, POLE, 2.4)}</g>',
         ]
     else:
@@ -144,8 +190,9 @@ def grass_trimmer(paint: str, fill: Fill, label: str | None, head: str = "line",
     return _label(out, label)
 
 
-def _legs(*xs: float, top: float = 272, bottom: float = 340) -> str:
-    return _line(" ".join(f"M{x:g},{top:g} L{x + (x - 200) * 0.12:g},{bottom:g}" for x in xs), 6)
+def _legs(*xs: float, pt: _Part, top: float = 272, bottom: float = 340) -> str:
+    d = " ".join(f"M{x:g},{top:g} L{x + (x - 200) * 0.12:g},{bottom:g}" for x in xs)
+    return pt.mark("legs", _line(d, 6, stroke=pt.fill("legs", INK)))
 
 
 def _knobs(count: int, y: float, x0: float, x1: float) -> list[str]:
@@ -154,18 +201,19 @@ def _knobs(count: int, y: float, x0: float, x1: float) -> list[str]:
 
 
 def bbq(paint: str, fill: Fill, label: str | None, kind: str = "kettle", burners: str = "3",
-        side_burner: str = "no") -> list[str]:  # fmt: skip
+        side_burner: str = "no", part: str = "", part_color: str = "") -> list[str]:  # fmt: skip
     """A barbecue. ``kettle`` is a dome on a bowl and three legs, ``barrel`` a horizontal drum on a
     stand with a chimney, ``kamado`` an egg on a cradle, ``portable`` a low bowl on short legs with a
     carry handle, and ``gas`` a cabinet under a hood with side shelves and one knob per burner, and a
     hob on the right shelf when ``side_burner`` is ``yes``."""
     kind = kind.lower()
     side_burner = side_burner.lower() == "yes"
+    pt = _Part("bbq", part, part_color)
     dark = _shade(fill.base, 0.35)
     out = [_line("M20,346 L380,346", 4)]
     if kind == "barrel":
         out += [
-            _line("M120,262 L96,346 M280,262 L304,346", 6),
+            pt.mark("legs", _line("M120,262 L96,346 M280,262 L304,346", 6, stroke=pt.fill("legs", INK))),
             _path("M70,150 L330,150 Q352,150 352,206 Q352,262 330,262 L70,262 Q48,262 48,206 Q48,150 70,150 Z", paint),
             _line("M70,150 L70,262 M330,150 L330,262", 2.4, ' stroke-opacity=".5"'),
             _path("M96,150 L96,110 L128,110 L128,150", dark, 2.4),
@@ -186,7 +234,7 @@ def bbq(paint: str, fill: Fill, label: str | None, kind: str = "kettle", burners
         out += [
             _path("M80,226 Q80,160 200,160 Q320,160 320,226 Z", paint),
             _path("M70,226 L330,226 Q320,276 200,282 Q80,276 70,226 Z", dark),
-            _line("M100,282 L72,346 M300,282 L328,346", 6),
+            pt.mark("legs", _line("M100,282 L72,346 M300,282 L328,346", 6, stroke=pt.fill("legs", INK))),
             _line("M120,176 Q200,126 280,176", 6, stroke=POLE),
             _line("M320,214 L368,214", 6, stroke=POLE),
         ]
@@ -196,24 +244,24 @@ def bbq(paint: str, fill: Fill, label: str | None, kind: str = "kettle", burners
         except ValueError:
             count = 3
         out += [
-            _legs(110, 290, top=276),
+            _legs(110, 290, pt=pt, top=276),
             _ell(110, 346, 12, 12, GREASE, 2.4),
             _ell(290, 346, 12, 12, GREASE, 2.4),
             _path("M96,150 Q96,98 200,98 Q304,98 304,150 L304,168 L96,168 Z", paint),
             _line("M170,120 L230,120", 6, stroke=POLE),
             _path("M92,168 L308,168 L308,276 L92,276 Z", dark),
-            f'<g class="{SHELF_CLASS}">{_path("M30,184 L92,184 L92,198 L30,198 Z", paint, 2.4)}</g>',
-            f'<g class="{SHELF_CLASS}">{_path("M308,184 L370,184 L370,198 L308,198 Z", paint, 2.4)}</g>',
+            f'<g class="{SHELF_CLASS}">{pt.mark("shelves", _path("M30,184 L92,184 L92,198 L30,198 Z", pt.fill("shelves", paint), 2.4))}</g>',
+            f'<g class="{SHELF_CLASS}">{pt.mark("shelves", _path("M308,184 L370,184 L370,198 L308,198 Z", pt.fill("shelves", paint), 2.4))}</g>',
             *_knobs(count, 188, 136, 264),
             *([f'<g class="{SIDE_BURNER_CLASS}">{_ell(339, 176, 22, 7, GREASE, 2.4)}</g>'] if side_burner else []),
             _line("M100,218 L300,218 M100,246 L300,246", 1.6, ' stroke-opacity=".4"'),
         ]
     else:
         out += [
-            _line("M150,240 L120,346 M250,240 L280,346 M200,250 L200,346", 6),
+            pt.mark("legs", _line("M150,240 L120,346 M250,240 L280,346 M200,250 L200,346", 6, stroke=pt.fill("legs", INK))),
             _path("M70,208 Q70,262 200,266 Q330,262 330,208 Z", dark),
             _path("M80,208 Q80,96 200,96 Q320,96 320,208 Z", paint),
-            _ell(200, 84, 10, 10, POLE, 2.4),
+            pt.mark("lid-handle", _ell(200, 84, 10, 10, pt.fill("lid-handle", POLE), 2.4)),
             _line("M150,150 L150,150 M200,140 L200,140 M250,150 L250,150", 7),
             _highlight("M100,170 Q104,124 150,106", 4, 0.5),
         ]

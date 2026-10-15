@@ -26,9 +26,10 @@ department grows by authored rows.
 
 from __future__ import annotations
 
+import re
 from dataclasses import replace
 
-import kit_garden  # noqa: F401 -- registers lawn_mower, robot_mower, grass_trimmer, bbq
+import kit_garden  # registers lawn_mower, robot_mower, grass_trimmer, bbq
 from breadth_rows import Row
 from variants import cw
 
@@ -43,12 +44,13 @@ _MOW = (*_LAWN, "Lawn Mowers")
 _TRIM = (*_LAWN, "Grass Trimmers")
 _BBQ = (DEPARTMENT, "Barbecues & Grills")
 
-RED = cw("Red", "#c8312e")
-BLUE = cw("Blue", "#3f6fb5")
-GREEN = cw("Green", "#4f8a3a")
-YELLOW = cw("Yellow", "#f2c230")
-BLACK = cw("Black", "#2d2d33")
-WHITE = cw("White", "#f4f1ea", "solid", "#9a9ca0")
+_HEX = kit_garden.ACCENT_HEX
+RED = cw("Red", _HEX["red"])
+BLUE = cw("Blue", _HEX["blue"])
+GREEN = cw("Green", _HEX["green"])
+YELLOW = cw("Yellow", _HEX["yellow"])
+BLACK = cw("Black", _HEX["black"])
+WHITE = cw("White", _HEX["white"], "solid", "#9a9ca0")
 
 
 def _a(key: str, name: str, v: str) -> tuple[str, str, str]:
@@ -298,11 +300,31 @@ _QUERY = {"Lawn Mower": "lawn mower", "Robot Mower": "robot mower", "Grass Trimm
 _ABSENT = {"Lawn Mower": "petrol", "Robot Mower": "gps", "Grass Trimmer": "cordless", "BBQ": "gas"}
 
 
-def _copy(code: str, title: str, base: str, color: str, desc: str) -> Row:
+_NAMED_PART = re.compile(r"\bwith (\w+) ([\w ]+)$")
+_FIRST_WORD = re.compile(r"^(red|blue|green|yellow|black|white)\b", re.I)
+
+
+def _named(cls: str, title: str, shape: str) -> tuple[tuple[str, str], ...]:
+    """The part a decoy's title names and its color, as the drawing's params (a ``secondary``
+    title ends "with Red Wheels"; an ``incidental`` short title starts with the color word and
+    colors the shape's first part), so the picture shows what the title says."""
+    if cls == "secondary":
+        m = _NAMED_PART.search(title)
+        assert m, title
+        return (("part", m.group(2).lower().replace(" ", "-")), ("part_color", m.group(1).lower()))
+    if cls == "incidental":
+        m = _FIRST_WORD.match(title)
+        assert m, title
+        return (("part", kit_garden.PARTS[shape][0]), ("part_color", m.group(1).lower()))
+    return ()
+
+
+def _copy(code: str, cls: str, title: str, base: str, color: str, desc: str) -> Row:
     b = _BASE[base]
     sizes = b.sizes[:1]
     return replace(b, code=code, title=title, description=desc, colors=(_COLOR[color],), sizes=sizes,
-                   price=sizes[0][1] if sizes else b.price)  # fmt: skip
+                   price=sizes[0][1] if sizes else b.price,
+                   params=(*b.params, *_named(cls, title, b.shape)))  # fmt: skip
 
 
 #: (code, class, title, base style, own main color, description) for each added real product,
@@ -325,9 +347,9 @@ _REAL = {
         ("DCRA02", "absent", "GPS Free Robot Mower for Terraces", "ROBCMP", "black", "A small wire-guided robot for a narrow terraced lawn."),
         ("DCRI01", "incidental", "Black Pearl Robot Mower", "ROBWIR", "white", "A wire-guided robot that mows by night, named for the color of its range."),
         ("DCRI02", "incidental", "Blue Moon Robot Mower", "ROBCMP", "yellow", "A small robot for a town lawn, with a dial on its back."),
-        ("DCRS01", "secondary", "White Robot Mower with Red Dome", "ROBWIR", "white", "A wire-guided robot with a domed cover and a rain sensor."),
+        ("DCRS01", "secondary", "White Robot Mower with Red Bumper", "ROBWIR", "white", "A wire-guided robot with a domed cover and a rain sensor."),
         ("DCRS02", "secondary", "Yellow Robot Mower with Black Wheels", "ROBCMP", "yellow", "A compact robot that returns to its dock by itself."),
-        ("DCRS03", "secondary", "Green Robot Mower with White Cover", "ROBWIR", "green", "A wire-guided robot for a medium lawn, set from its dial."),
+        ("DCRS03", "secondary", "Green Robot Mower with White Button", "ROBWIR", "green", "A wire-guided robot for a medium lawn, set from its dial."),
         ("DCRH01", "shade", "Quiet Robot Mower for Small Lawns", "ROBCMP", "white", "A small robot with a red stop button on its top and a boundary wire."),
         ("DCRH02", "shade", "Rain Sensing Robot Mower", "ROBWIR", "black", "A robot with a bright yellow charging dock that sends it home in a shower."),
         ("DCRH03", "shade", "Night Time Robot Mower", "ROBCMP", "green", "A robot that mows after dark, with a blue status light on its cover."),
@@ -338,8 +360,8 @@ _REAL = {
         ("DCTI01", "incidental", "Red Kite Grass Trimmer", "TRMELC", "black", "A mains trimmer with a pivoting head, from the Kite range."),
         ("DCTI02", "incidental", "Blue Moon Grass Trimmer", "TRMCRD", "yellow", "A battery trimmer with a line head that feeds as you tap it."),
         ("DCTS01", "secondary", "Green Cordless Grass Trimmer with Black Handle", "TRMCRD", "green", "A battery trimmer for edging a lawn and tidying round beds."),
-        ("DCTS02", "secondary", "Yellow Grass Trimmer with Red Guard", "TRMELC", "yellow", "A mains trimmer for trimming along walls and borders."),
-        ("DCTS03", "secondary", "Blue Petrol Grass Trimmer with White Strap", "TRMPET", "blue", "A two-stroke trimmer for brambles and rough ground."),
+        ("DCTS02", "secondary", "Yellow Grass Trimmer with Red Shaft", "TRMELC", "yellow", "A mains trimmer for trimming along walls and borders."),
+        ("DCTS03", "secondary", "Blue Petrol Grass Trimmer with White Engine", "TRMPET", "blue", "A two-stroke trimmer for brambles and rough ground."),
         ("DCTH01", "shade", "Light Edging Grass Trimmer", "TRMCRD", "black", "A battery trimmer with a red trigger and a line head."),
         ("DCTH02", "shade", "Heavy Duty Grass Trimmer", "TRMPET", "white", "A trimmer with a bright yellow shoulder strap and a metal blade."),
         ("DCTH03", "shade", "Telescopic Border Grass Trimmer", "TRMELC", "red", "A mains trimmer with a green guard and a pivoting head."),
@@ -349,7 +371,7 @@ _REAL = {
         ("DCBA02", "absent", "Kamado BBQ, No Gas Needed", "BBQKAM", "green", "A ceramic cooker that holds its heat on charcoal alone."),
         ("DCBI01", "incidental", "Red Kite BBQ", "BBQKET", "black", "A charcoal kettle from the Kite range, with a vented lid."),
         ("DCBI02", "incidental", "Blue Moon BBQ", "BBQPRT", "white", "A small bowl grill with a carry handle and folding legs."),
-        ("DCBS01", "secondary", "Black Kettle BBQ with Red Wheels", "BBQKET", "black", "A charcoal kettle with a vented lid, on three legs."),
+        ("DCBS01", "secondary", "Black Kettle BBQ with Red Lid Handle", "BBQKET", "black", "A charcoal kettle with a vented lid, on three legs."),
         ("DCBS02", "secondary", "Red Portable BBQ with Black Legs", "BBQPRT", "red", "A small bowl grill for a picnic or a camping trip."),
         ("DCBS03", "secondary", "Blue Gas BBQ with White Shelves", "BBQGAS", "blue", "A cabinet barbecue with a hooded lid and a shelf each side."),
         ("DCBH01", "shade", "Family Kettle BBQ", "BBQKET", "white", "A charcoal kettle with a red vent dial and a thermometer in the lid."),
@@ -367,17 +389,26 @@ _SIBLINGS = (
     ("DCBT01", "BBQ", _cushion, "BBQ Night Cushion", "A cotton cushion printed with a grill and a string of lights."),
     ("DCBT02", "BBQ", _apron, "BBQ Grill Pro Apron", "A cotton apron with a pocket and a bottle opener loop."),
 )
-_CLASS_QUERY = {"type": "{q}", "absent": "{a} {q}", "incidental": "red {q}", "secondary": "red {q}", "shade": "red {q}"}
+_CLASS_QUERY = {"type": "{q}", "absent": "{a} {q}", "incidental": "{c} {q}", "secondary": "{c} {q}", "shade": "{c} {q}"}
+_COLOR_WORD = re.compile(r"\b(red|blue|green|yellow|black|white)\b", re.I)
+
+
+def _query_color(cls: str, title: str, desc: str, own: str) -> str:
+    """The color a decoy's text names that its own is not: the query it answers."""
+    words = [w.lower() for w in _COLOR_WORD.findall(desc if cls == "shade" else title)]
+    return next((w for w in words if w != own), "")
+
 
 for _ptype, _items in _REAL.items():
-    for _code, _cls, *_ in _items:
-        DECOY_TABLE[_code] = (_cls, _CLASS_QUERY[_cls].format(q=_QUERY[_ptype], a=_ABSENT[_ptype]), _ptype)
+    for _code, _cls, _title, _base, _own, _desc in _items:
+        _query = _CLASS_QUERY[_cls].format(q=_QUERY[_ptype], a=_ABSENT[_ptype], c=_query_color(_cls, _title, _desc, _own))
+        DECOY_TABLE[_code] = (_cls, _query, _ptype)
 for _code, _ptype, *_ in _SIBLINGS:
     DECOY_TABLE[_code] = ("type", _QUERY[_ptype], _ptype)
 
 DECOYS = (
     *DECOYS,
-    *(_copy(c, t, b, col, d) for items in _REAL.values() for c, _k, t, b, col, d in items),
+    *(_copy(c, k, t, b, col, d) for items in _REAL.values() for c, k, t, b, col, d in items),
     *(make(c, t, d) for c, _p, make, t, d in _SIBLINGS),
 )
 
