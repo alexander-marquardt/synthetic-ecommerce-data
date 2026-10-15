@@ -11,8 +11,11 @@ named but absent; 5 the shade is in the description only; 6 a short range name h
 
 Each type holds at least three decoys per class (nine and twelve for bras and jeans, so a type
 holds a tenth of its size), one more of class 6 on a category word, and one class 7 decoy per brand.
-Classes 6 and 7 have titles of six words or fewer. The Policy column is `generic` where the
-color, category or audience policy separates the decoy, and `special: <name>` where it needs its own
+Classes 6 and 7 have titles of five words or fewer. A title names the misleading color only
+(never the real one); the drawing shows the named part (class 1) or the type's first part
+(classes 6 and 7) in that color, and nothing else of it (`details.py`). The Policy column is
+`generic` where the color, category or audience policy separates the decoy, and
+`special: <name>` where it needs its own
 (a material claim: no field says the product is not leather). The exempt types are in
 `decoy_apparel.EXEMPT`. The table is generated
 (`python3 prototypes/retail_drawings/decoy_apparel.py`) and
@@ -20,9 +23,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 
 | Product id | Type | Class | Title | Word | Query | Policy |
 |---|---|---|---|---|---|---|
-| PLT-DA00100 | Blouse | 1 color names a part | Grey Blouse, Red Collar | red | red blouse | generic |
-| PLT-DA00101 | Blouse | 1 color names a part | Pink Blouse, Red Buttons | red | red blouse | generic |
-| PLT-DA00102 | Blouse | 1 color names a part | Cream Blouse, Blue Buttons | blue | blue blouse | generic |
+| PLT-DA00100 | Blouse | 1 color names a part | Blouse with Blue Hem | blue | blue blouse | generic |
+| PLT-DA00101 | Blouse | 1 color names a part | Blouse with White Hem | white | white blouse | generic |
+| PLT-DA00102 | Blouse | 1 color names a part | Blouse with Red Hem | red | red blouse | generic |
 | PLT-DA00200 | Blouse | 2 another category's noun as a modifier | Brown Trouser Blouse | trouser | trouser | generic |
 | PLT-DA00201 | Blouse | 2 another category's noun as a modifier | Brown Tunic Blouse | tunic | tunic | generic |
 | PLT-DA00202 | Blouse | 2 another category's noun as a modifier | Navy Tunic Blouse | tunic | tunic | generic |
@@ -42,9 +45,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA00700 | Blouse | 7 invented brand holding a color or category word | Blue Otter Blouse | blue | blue blouse | generic |
 | PLT-DA00701 | Blouse | 7 invented brand holding a color or category word | White Dormouse Blouse | white | white blouse | generic |
 | PLT-DA00702 | Blouse | 7 invented brand holding a color or category word | Green Stoat Blouse | green | green blouse | generic |
-| PLT-DA01100 | Bodysuit | 1 color names a part | Pink Bodysuit, Yellow Lining | yellow | yellow bodysuit | generic |
-| PLT-DA01101 | Bodysuit | 1 color names a part | Cream Bodysuit, Red Stitching | red | red bodysuit | generic |
-| PLT-DA01102 | Bodysuit | 1 color names a part | Red Bodysuit, Yellow Collar | yellow | yellow bodysuit | generic |
+| PLT-DA01100 | Bodysuit | 1 color names a part | Bodysuit with Green Hem | green | green bodysuit | generic |
+| PLT-DA01101 | Bodysuit | 1 color names a part | Bodysuit with Black Hem | black | black bodysuit | generic |
+| PLT-DA01102 | Bodysuit | 1 color names a part | Bodysuit with Yellow Hem | yellow | yellow bodysuit | generic |
 | PLT-DA01200 | Bodysuit | 2 another category's noun as a modifier | Pink Gilet Bodysuit | gilet | gilet | generic |
 | PLT-DA01201 | Bodysuit | 2 another category's noun as a modifier | Black Vest Bodysuit | vest | vest | generic |
 | PLT-DA01202 | Bodysuit | 2 another category's noun as a modifier | Black Skirt Bodysuit | skirt | skirt | generic |
@@ -64,9 +67,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA01700 | Bodysuit | 7 invented brand holding a color or category word | Coat Crake Bodysuit | coat | coat bodysuit | generic |
 | PLT-DA01701 | Bodysuit | 7 invented brand holding a color or category word | Green Stoat Bodysuit | green | green bodysuit | generic |
 | PLT-DA01702 | Bodysuit | 7 invented brand holding a color or category word | Black Lapwing Bodysuit | black | black bodysuit | generic |
-| PLT-DA02100 | Bomber Jacket | 1 color names a part | Green Bomber Jacket, Red Collar | red | red bomber jacket | generic |
-| PLT-DA02101 | Bomber Jacket | 1 color names a part | Red Bomber Jacket, Green Zip | green | green bomber jacket | generic |
-| PLT-DA02102 | Bomber Jacket | 1 color names a part | Brown Bomber Jacket, Blue Trim | blue | blue bomber jacket | generic |
+| PLT-DA02100 | Bomber Jacket | 1 color names a part | Bomber Jacket with Blue Hem | blue | blue bomber jacket | generic |
+| PLT-DA02101 | Bomber Jacket | 1 color names a part | Bomber Jacket with Yellow Hem | yellow | yellow bomber jacket | generic |
+| PLT-DA02102 | Bomber Jacket | 1 color names a part | Bomber Jacket with Black Hem | black | black bomber jacket | generic |
 | PLT-DA02200 | Bomber Jacket | 2 another category's noun as a modifier | Cream Cardigan Bomber Jacket | cardigan | cardigan | generic |
 | PLT-DA02201 | Bomber Jacket | 2 another category's noun as a modifier | Grey Jumper Bomber Jacket | jumper | jumper | generic |
 | PLT-DA02202 | Bomber Jacket | 2 another category's noun as a modifier | Pink Dress Bomber Jacket | dress | dress | generic |
@@ -86,9 +89,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA02700 | Bomber Jacket | 7 invented brand holding a color or category word | White Dormouse Bomber Jacket | white | white bomber jacket | generic |
 | PLT-DA02701 | Bomber Jacket | 7 invented brand holding a color or category word | Yellow Wagtail Bomber Jacket | yellow | yellow bomber jacket | generic |
 | PLT-DA02702 | Bomber Jacket | 7 invented brand holding a color or category word | Red Plover Bomber Jacket | red | red bomber jacket | generic |
-| PLT-DA03100 | Cardigan | 1 color names a part | Grey Cardigan, Yellow Stripes | yellow | yellow cardigan | generic |
-| PLT-DA03101 | Cardigan | 1 color names a part | Green Cardigan, White Trim | white | white cardigan | generic |
-| PLT-DA03102 | Cardigan | 1 color names a part | Red Cardigan, Yellow Trim | yellow | yellow cardigan | generic |
+| PLT-DA03100 | Cardigan | 1 color names a part | Cardigan with Red Hem | red | red cardigan | generic |
+| PLT-DA03101 | Cardigan | 1 color names a part | Cardigan with Black Hem | black | black cardigan | generic |
+| PLT-DA03102 | Cardigan | 1 color names a part | Cardigan with White Hem | white | white cardigan | generic |
 | PLT-DA03200 | Cardigan | 2 another category's noun as a modifier | Navy Poncho Cardigan | poncho | poncho | generic |
 | PLT-DA03201 | Cardigan | 2 another category's noun as a modifier | Blue Skirt Cardigan | skirt | skirt | generic |
 | PLT-DA03202 | Cardigan | 2 another category's noun as a modifier | White Shirt Cardigan | shirt | shirt | generic |
@@ -108,9 +111,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA03700 | Cardigan | 7 invented brand holding a color or category word | Red Plover Cardigan | red | red cardigan | generic |
 | PLT-DA03701 | Cardigan | 7 invented brand holding a color or category word | Blue Otter Cardigan | blue | blue cardigan | generic |
 | PLT-DA03702 | Cardigan | 7 invented brand holding a color or category word | Yellow Wagtail Cardigan | yellow | yellow cardigan | generic |
-| PLT-DA04100 | Coat | 1 color names a part | Brown Coat, Blue Buttons | blue | blue coat | generic |
-| PLT-DA04101 | Coat | 1 color names a part | Brown Coat, White Stripes | white | white coat | generic |
-| PLT-DA04102 | Coat | 1 color names a part | Blue Coat, White Cuffs | white | white coat | generic |
+| PLT-DA04100 | Coat | 1 color names a part | Coat with Red Hem | red | red coat | generic |
+| PLT-DA04101 | Coat | 1 color names a part | Coat with Blue Hem | blue | blue coat | generic |
+| PLT-DA04102 | Coat | 1 color names a part | Coat with Yellow Hem | yellow | yellow coat | generic |
 | PLT-DA04200 | Coat | 2 another category's noun as a modifier | Grey Blazer Coat | blazer | blazer | generic |
 | PLT-DA04201 | Coat | 2 another category's noun as a modifier | Green Tunic Coat | tunic | tunic | generic |
 | PLT-DA04202 | Coat | 2 another category's noun as a modifier | Brown Tunic Coat | tunic | tunic | generic |
@@ -130,9 +133,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA04700 | Coat | 7 invented brand holding a color or category word | Green Stoat Coat | green | green coat | generic |
 | PLT-DA04701 | Coat | 7 invented brand holding a color or category word | Yellow Wagtail Coat | yellow | yellow coat | generic |
 | PLT-DA04702 | Coat | 7 invented brand holding a color or category word | Red Plover Coat | red | red coat | generic |
-| PLT-DA05100 | Co-ord Set | 1 color names a part | Navy Co-ord Set, Black Trim | black | black co-ord set | generic |
-| PLT-DA05101 | Co-ord Set | 1 color names a part | Grey Co-ord Set, White Lining | white | white co-ord set | generic |
-| PLT-DA05102 | Co-ord Set | 1 color names a part | Navy Co-ord Set, Green Stitching | green | green co-ord set | generic |
+| PLT-DA05100 | Co-ord Set | 1 color names a part | Co-ord Set with Yellow Waistband | yellow | yellow co-ord set | generic |
+| PLT-DA05101 | Co-ord Set | 1 color names a part | Co-ord Set with Green Waistband | green | green co-ord set | generic |
+| PLT-DA05102 | Co-ord Set | 1 color names a part | Co-ord Set with Black Waistband | black | black co-ord set | generic |
 | PLT-DA05200 | Co-ord Set | 2 another category's noun as a modifier | Pink Shirt Co-ord Set | shirt | shirt | generic |
 | PLT-DA05201 | Co-ord Set | 2 another category's noun as a modifier | Brown Poncho Co-ord Set | poncho | poncho | generic |
 | PLT-DA05202 | Co-ord Set | 2 another category's noun as a modifier | Brown Tunic Co-ord Set | tunic | tunic | generic |
@@ -152,9 +155,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA05700 | Co-ord Set | 7 invented brand holding a color or category word | Blue Otter Co-ord Set | blue | blue co-ord set | generic |
 | PLT-DA05701 | Co-ord Set | 7 invented brand holding a color or category word | Yellow Wagtail Co-ord Set | yellow | yellow co-ord set | generic |
 | PLT-DA05702 | Co-ord Set | 7 invented brand holding a color or category word | White Dormouse Co-ord Set | white | white co-ord set | generic |
-| PLT-DA06100 | Cycling Shorts | 1 color names a part | Green Compression Cycling Shorts, Yellow Buttons | yellow | yellow cycling shorts | generic |
-| PLT-DA06101 | Cycling Shorts | 1 color names a part | Brown Compression Cycling Shorts, Black Lining | black | black cycling shorts | generic |
-| PLT-DA06102 | Cycling Shorts | 1 color names a part | Pink Compression Cycling Shorts, Black Buttons | black | black cycling shorts | generic |
+| PLT-DA06100 | Cycling Shorts | 1 color names a part | Compression Cycling Shorts with Green Waistband | green | green cycling shorts | generic |
+| PLT-DA06101 | Cycling Shorts | 1 color names a part | Compression Cycling Shorts with White Waistband | white | white cycling shorts | generic |
+| PLT-DA06102 | Cycling Shorts | 1 color names a part | Compression Cycling Shorts with White Cuffs | white | white cycling shorts | generic |
 | PLT-DA06200 | Cycling Shorts | 2 another category's noun as a modifier | White Tunic Compression Cycling Shorts | tunic | tunic | generic |
 | PLT-DA06201 | Cycling Shorts | 2 another category's noun as a modifier | Brown Blazer Compression Cycling Shorts | blazer | blazer | generic |
 | PLT-DA06202 | Cycling Shorts | 2 another category's noun as a modifier | Green Jumper Compression Cycling Shorts | jumper | jumper | generic |
@@ -174,9 +177,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA06700 | Cycling Shorts | 7 invented brand holding a color or category word | Red Plover Compression Cycling Shorts | red | red cycling shorts | generic |
 | PLT-DA06701 | Cycling Shorts | 7 invented brand holding a color or category word | Yellow Wagtail Compression Cycling Shorts | yellow | yellow cycling shorts | generic |
 | PLT-DA06702 | Cycling Shorts | 7 invented brand holding a color or category word | Coat Crake Compression Cycling Shorts | coat | coat cycling shorts | generic |
-| PLT-DA07100 | Denim Jacket | 1 color names a part | Pink Denim Jacket, Red Piping | red | red denim jacket | generic |
-| PLT-DA07101 | Denim Jacket | 1 color names a part | Brown Denim Jacket, White Collar | white | white denim jacket | generic |
-| PLT-DA07102 | Denim Jacket | 1 color names a part | Pink Denim Jacket, Yellow Lining | yellow | yellow denim jacket | generic |
+| PLT-DA07100 | Denim Jacket | 1 color names a part | Denim Jacket with White Hem | white | white denim jacket | generic |
+| PLT-DA07101 | Denim Jacket | 1 color names a part | Denim Jacket with Red Hem | red | red denim jacket | generic |
+| PLT-DA07102 | Denim Jacket | 1 color names a part | Denim Jacket with Green Hem | green | green denim jacket | generic |
 | PLT-DA07200 | Denim Jacket | 2 another category's noun as a modifier | Red Vest Denim Jacket | vest | vest | generic |
 | PLT-DA07201 | Denim Jacket | 2 another category's noun as a modifier | Blue Blazer Denim Jacket | blazer | blazer | generic |
 | PLT-DA07202 | Denim Jacket | 2 another category's noun as a modifier | Cream Hoodie Denim Jacket | hoodie | hoodie | generic |
@@ -196,9 +199,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA07700 | Denim Jacket | 7 invented brand holding a color or category word | White Dormouse Denim Jacket | white | white denim jacket | generic |
 | PLT-DA07701 | Denim Jacket | 7 invented brand holding a color or category word | Red Plover Denim Jacket | red | red denim jacket | generic |
 | PLT-DA07702 | Denim Jacket | 7 invented brand holding a color or category word | Jumper Jay Denim Jacket | jumper | jumper denim jacket | generic |
-| PLT-DA08100 | Dress | 1 color names a part | Cream Dress, Red Buttons | red | red dress | generic |
-| PLT-DA08101 | Dress | 1 color names a part | Brown Dress, White Trim | white | white dress | generic |
-| PLT-DA08102 | Dress | 1 color names a part | Blue Dress, White Collar | white | white dress | generic |
+| PLT-DA08100 | Dress | 1 color names a part | Dress with Red Straps | red | red dress | generic |
+| PLT-DA08101 | Dress | 1 color names a part | Dress with Black Straps | black | black dress | generic |
+| PLT-DA08102 | Dress | 1 color names a part | Dress with Green Straps | green | green dress | generic |
 | PLT-DA08200 | Dress | 2 another category's noun as a modifier | Pink Blazer Dress | blazer | blazer | generic |
 | PLT-DA08201 | Dress | 2 another category's noun as a modifier | Cream Coat Dress | coat | coat | generic |
 | PLT-DA08202 | Dress | 2 another category's noun as a modifier | Blue Vest Dress | vest | vest | generic |
@@ -218,9 +221,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA08700 | Dress | 7 invented brand holding a color or category word | Red Plover Dress | red | red dress | generic |
 | PLT-DA08701 | Dress | 7 invented brand holding a color or category word | White Dormouse Dress | white | white dress | generic |
 | PLT-DA08702 | Dress | 7 invented brand holding a color or category word | Blue Otter Dress | blue | blue dress | generic |
-| PLT-DA09100 | Joggers | 1 color names a part | Green Regular Joggers, White Trim | white | white joggers | generic |
-| PLT-DA09101 | Joggers | 1 color names a part | Brown Oversized Joggers, White Pocket | white | white joggers | generic |
-| PLT-DA09102 | Joggers | 1 color names a part | Red Regular Joggers, Blue Cuffs | blue | blue joggers | generic |
+| PLT-DA09100 | Joggers | 1 color names a part | Regular Joggers with Red Cuffs | red | red joggers | generic |
+| PLT-DA09101 | Joggers | 1 color names a part | Oversized Joggers with Blue Cuffs | blue | blue joggers | generic |
+| PLT-DA09102 | Joggers | 1 color names a part | Regular Joggers with Yellow Cuffs | yellow | yellow joggers | generic |
 | PLT-DA09200 | Joggers | 2 another category's noun as a modifier | Cream Tunic Relaxed Joggers | tunic | tunic | generic |
 | PLT-DA09201 | Joggers | 2 another category's noun as a modifier | Grey Blazer Slim Joggers | blazer | blazer | generic |
 | PLT-DA09202 | Joggers | 2 another category's noun as a modifier | Black Hoodie Relaxed Joggers | hoodie | hoodie | generic |
@@ -240,9 +243,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA09700 | Joggers | 7 invented brand holding a color or category word | Jumper Jay Oversized Joggers | jumper | jumper joggers | generic |
 | PLT-DA09701 | Joggers | 7 invented brand holding a color or category word | White Dormouse Regular Joggers | white | white joggers | generic |
 | PLT-DA09702 | Joggers | 7 invented brand holding a color or category word | Coat Crake Relaxed Joggers | coat | coat joggers | generic |
-| PLT-DA10100 | Jumper | 1 color names a part | Black Jumper, White Piping | white | white jumper | generic |
-| PLT-DA10101 | Jumper | 1 color names a part | Navy Jumper, Yellow Lining | yellow | yellow jumper | generic |
-| PLT-DA10102 | Jumper | 1 color names a part | Navy Jumper, White Lining | white | white jumper | generic |
+| PLT-DA10100 | Jumper | 1 color names a part | Jumper with Blue Hem | blue | blue jumper | generic |
+| PLT-DA10101 | Jumper | 1 color names a part | Jumper with White Hem | white | white jumper | generic |
+| PLT-DA10102 | Jumper | 1 color names a part | Jumper with Red Collar | red | red jumper | generic |
 | PLT-DA10200 | Jumper | 2 another category's noun as a modifier | Navy Skirt Jumper | skirt | skirt | generic |
 | PLT-DA10201 | Jumper | 2 another category's noun as a modifier | Pink Tunic Jumper | tunic | tunic | generic |
 | PLT-DA10202 | Jumper | 2 another category's noun as a modifier | Cream Skirt Jumper | skirt | skirt | generic |
@@ -262,9 +265,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA10700 | Jumper | 7 invented brand holding a color or category word | Blue Otter Jumper | blue | blue jumper | generic |
 | PLT-DA10701 | Jumper | 7 invented brand holding a color or category word | Black Lapwing Jumper | black | black jumper | generic |
 | PLT-DA10702 | Jumper | 7 invented brand holding a color or category word | White Dormouse Jumper | white | white jumper | generic |
-| PLT-DA11100 | Leggings | 1 color names a part | Blue Compression Leggings, White Stitching | white | white leggings | generic |
-| PLT-DA11101 | Leggings | 1 color names a part | Cream Regular Leggings, Green Pocket | green | green leggings | generic |
-| PLT-DA11102 | Leggings | 1 color names a part | Pink Regular Leggings, Red Lining | red | red leggings | generic |
+| PLT-DA11100 | Leggings | 1 color names a part | Compression Leggings with White Waistband | white | white leggings | generic |
+| PLT-DA11101 | Leggings | 1 color names a part | Regular Leggings with Black Waistband | black | black leggings | generic |
+| PLT-DA11102 | Leggings | 1 color names a part | Regular Leggings with White Cuffs | white | white leggings | generic |
 | PLT-DA11200 | Leggings | 2 another category's noun as a modifier | Green Gilet Regular Leggings | gilet | gilet | generic |
 | PLT-DA11201 | Leggings | 2 another category's noun as a modifier | Blue Hoodie Regular Leggings | hoodie | hoodie | generic |
 | PLT-DA11202 | Leggings | 2 another category's noun as a modifier | Cream Cardigan Regular Leggings | cardigan | cardigan | generic |
@@ -284,9 +287,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA11700 | Leggings | 7 invented brand holding a color or category word | Red Plover Regular Leggings | red | red leggings | generic |
 | PLT-DA11701 | Leggings | 7 invented brand holding a color or category word | Green Stoat Compression Leggings | green | green leggings | generic |
 | PLT-DA11702 | Leggings | 7 invented brand holding a color or category word | Black Lapwing Compression Leggings | black | black leggings | generic |
-| PLT-DA12100 | Outfit Set | 1 color names a part | Black Outfit Set, Green Stitching | green | green outfit set | generic |
-| PLT-DA12101 | Outfit Set | 1 color names a part | Grey Outfit Set, Yellow Piping | yellow | yellow outfit set | generic |
-| PLT-DA12102 | Outfit Set | 1 color names a part | Green Outfit Set, White Stripes | white | white outfit set | generic |
+| PLT-DA12100 | Outfit Set | 1 color names a part | Outfit Set with Green Waistband | green | green outfit set | generic |
+| PLT-DA12101 | Outfit Set | 1 color names a part | Outfit Set with White Waistband | white | white outfit set | generic |
+| PLT-DA12102 | Outfit Set | 1 color names a part | Outfit Set with Red Waistband | red | red outfit set | generic |
 | PLT-DA12200 | Outfit Set | 2 another category's noun as a modifier | Navy Tunic Outfit Set | tunic | tunic | generic |
 | PLT-DA12201 | Outfit Set | 2 another category's noun as a modifier | Navy Blazer Outfit Set | blazer | blazer | generic |
 | PLT-DA12202 | Outfit Set | 2 another category's noun as a modifier | White Gilet Outfit Set | gilet | gilet | generic |
@@ -306,9 +309,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA12700 | Outfit Set | 7 invented brand holding a color or category word | Blue Otter Outfit Set | blue | blue outfit set | generic |
 | PLT-DA12701 | Outfit Set | 7 invented brand holding a color or category word | Black Lapwing Outfit Set | black | black outfit set | generic |
 | PLT-DA12702 | Outfit Set | 7 invented brand holding a color or category word | Yellow Wagtail Outfit Set | yellow | yellow outfit set | generic |
-| PLT-DA13100 | Puffer Jacket | 1 color names a part | Black Puffer Jacket, Yellow Lining | yellow | yellow puffer jacket | generic |
-| PLT-DA13101 | Puffer Jacket | 1 color names a part | Blue Puffer Jacket, Yellow Buttons | yellow | yellow puffer jacket | generic |
-| PLT-DA13102 | Puffer Jacket | 1 color names a part | White Puffer Jacket, Blue Pocket | blue | blue puffer jacket | generic |
+| PLT-DA13100 | Puffer Jacket | 1 color names a part | Puffer Jacket with Green Hem | green | green puffer jacket | generic |
+| PLT-DA13101 | Puffer Jacket | 1 color names a part | Puffer Jacket with Blue Hem | blue | blue puffer jacket | generic |
+| PLT-DA13102 | Puffer Jacket | 1 color names a part | Puffer Jacket with Green Hem | green | green puffer jacket | generic |
 | PLT-DA13200 | Puffer Jacket | 2 another category's noun as a modifier | Pink Hoodie Puffer Jacket | hoodie | hoodie | generic |
 | PLT-DA13201 | Puffer Jacket | 2 another category's noun as a modifier | Red Skirt Puffer Jacket | skirt | skirt | generic |
 | PLT-DA13202 | Puffer Jacket | 2 another category's noun as a modifier | Navy Hoodie Puffer Jacket | hoodie | hoodie | generic |
@@ -328,9 +331,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA13700 | Puffer Jacket | 7 invented brand holding a color or category word | Red Plover Puffer Jacket | red | red puffer jacket | generic |
 | PLT-DA13701 | Puffer Jacket | 7 invented brand holding a color or category word | Black Lapwing Puffer Jacket | black | black puffer jacket | generic |
 | PLT-DA13702 | Puffer Jacket | 7 invented brand holding a color or category word | Yellow Wagtail Puffer Jacket | yellow | yellow puffer jacket | generic |
-| PLT-DA14100 | Shirt | 1 color names a part | Brown Shirt, Black Lining | black | black shirt | generic |
-| PLT-DA14101 | Shirt | 1 color names a part | White Shirt, Green Stripes | green | green shirt | generic |
-| PLT-DA14102 | Shirt | 1 color names a part | Cream Shirt, Red Pocket | red | red shirt | generic |
+| PLT-DA14100 | Shirt | 1 color names a part | Shirt with Green Hem | green | green shirt | generic |
+| PLT-DA14101 | Shirt | 1 color names a part | Shirt with Red Hem | red | red shirt | generic |
+| PLT-DA14102 | Shirt | 1 color names a part | Shirt with Black Hem | black | black shirt | generic |
 | PLT-DA14200 | Shirt | 2 another category's noun as a modifier | Pink Cardigan Shirt | cardigan | cardigan | generic |
 | PLT-DA14201 | Shirt | 2 another category's noun as a modifier | Black Vest Shirt | vest | vest | generic |
 | PLT-DA14202 | Shirt | 2 another category's noun as a modifier | Red Blazer Shirt | blazer | blazer | generic |
@@ -350,9 +353,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA14700 | Shirt | 7 invented brand holding a color or category word | Coat Crake Shirt | coat | coat shirt | generic |
 | PLT-DA14701 | Shirt | 7 invented brand holding a color or category word | Green Stoat Shirt | green | green shirt | generic |
 | PLT-DA14702 | Shirt | 7 invented brand holding a color or category word | Blue Otter Shirt | blue | blue shirt | generic |
-| PLT-DA15100 | Shorts | 1 color names a part | Pink Shorts, Yellow Cuffs | yellow | yellow shorts | generic |
-| PLT-DA15101 | Shorts | 1 color names a part | Grey Shorts, Blue Stripes | blue | blue shorts | generic |
-| PLT-DA15102 | Shorts | 1 color names a part | Green Shorts, White Trim | white | white shorts | generic |
+| PLT-DA15100 | Shorts | 1 color names a part | Shorts with White Waistband | white | white shorts | generic |
+| PLT-DA15101 | Shorts | 1 color names a part | Shorts with Blue Waistband | blue | blue shorts | generic |
+| PLT-DA15102 | Shorts | 1 color names a part | Shorts with Red Waistband | red | red shorts | generic |
 | PLT-DA15200 | Shorts | 2 another category's noun as a modifier | Brown Blazer Shorts | blazer | blazer | generic |
 | PLT-DA15201 | Shorts | 2 another category's noun as a modifier | Brown Poncho Shorts | poncho | poncho | generic |
 | PLT-DA15202 | Shorts | 2 another category's noun as a modifier | Green Gilet Shorts | gilet | gilet | generic |
@@ -372,9 +375,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA15700 | Shorts | 7 invented brand holding a color or category word | Black Lapwing Shorts | black | black shorts | generic |
 | PLT-DA15701 | Shorts | 7 invented brand holding a color or category word | White Dormouse Shorts | white | white shorts | generic |
 | PLT-DA15702 | Shorts | 7 invented brand holding a color or category word | White Dormouse Shorts | white | white shorts | generic |
-| PLT-DA16100 | Skirt | 1 color names a part | Red Skirt, Blue Lining | blue | blue skirt | generic |
-| PLT-DA16101 | Skirt | 1 color names a part | Blue Skirt, Yellow Pocket | yellow | yellow skirt | generic |
-| PLT-DA16102 | Skirt | 1 color names a part | White Skirt, Blue Stitching | blue | blue skirt | generic |
+| PLT-DA16100 | Skirt | 1 color names a part | Skirt with Green Waistband | green | green skirt | generic |
+| PLT-DA16101 | Skirt | 1 color names a part | Skirt with Yellow Waistband | yellow | yellow skirt | generic |
+| PLT-DA16102 | Skirt | 1 color names a part | Skirt with White Waistband | white | white skirt | generic |
 | PLT-DA16200 | Skirt | 2 another category's noun as a modifier | Brown Gilet Skirt | gilet | gilet | generic |
 | PLT-DA16201 | Skirt | 2 another category's noun as a modifier | Navy Jacket Skirt | jacket | jacket | generic |
 | PLT-DA16202 | Skirt | 2 another category's noun as a modifier | Red Gilet Skirt | gilet | gilet | generic |
@@ -394,9 +397,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA16700 | Skirt | 7 invented brand holding a color or category word | Red Plover Skirt | red | red skirt | generic |
 | PLT-DA16701 | Skirt | 7 invented brand holding a color or category word | Coat Crake Skirt | coat | coat skirt | generic |
 | PLT-DA16702 | Skirt | 7 invented brand holding a color or category word | Jumper Jay Skirt | jumper | jumper skirt | generic |
-| PLT-DA17100 | Suit Jacket | 1 color names a part | Pink Suit Jacket, Blue Trim | blue | blue suit jacket | generic |
-| PLT-DA17101 | Suit Jacket | 1 color names a part | Cream Suit Jacket, Yellow Zip | yellow | yellow suit jacket | generic |
-| PLT-DA17102 | Suit Jacket | 1 color names a part | Navy Suit Jacket, Green Piping | green | green suit jacket | generic |
+| PLT-DA17100 | Suit Jacket | 1 color names a part | Suit Jacket with Yellow Hem | yellow | yellow suit jacket | generic |
+| PLT-DA17101 | Suit Jacket | 1 color names a part | Suit Jacket with Black Hem | black | black suit jacket | generic |
+| PLT-DA17102 | Suit Jacket | 1 color names a part | Suit Jacket with Red Hem | red | red suit jacket | generic |
 | PLT-DA17200 | Suit Jacket | 2 another category's noun as a modifier | Pink Poncho Suit Jacket | poncho | poncho | generic |
 | PLT-DA17201 | Suit Jacket | 2 another category's noun as a modifier | Navy Vest Suit Jacket | vest | vest | generic |
 | PLT-DA17202 | Suit Jacket | 2 another category's noun as a modifier | Red Vest Suit Jacket | vest | vest | generic |
@@ -416,9 +419,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA17700 | Suit Jacket | 7 invented brand holding a color or category word | Green Stoat Suit Jacket | green | green suit jacket | generic |
 | PLT-DA17701 | Suit Jacket | 7 invented brand holding a color or category word | Black Lapwing Suit Jacket | black | black suit jacket | generic |
 | PLT-DA17702 | Suit Jacket | 7 invented brand holding a color or category word | Red Plover Suit Jacket | red | red suit jacket | generic |
-| PLT-DA18100 | Sweatshirt | 1 color names a part | Cream Sweatshirt, Yellow Lining | yellow | yellow sweatshirt | generic |
-| PLT-DA18101 | Sweatshirt | 1 color names a part | Red Sweatshirt, White Buttons | white | white sweatshirt | generic |
-| PLT-DA18102 | Sweatshirt | 1 color names a part | Green Sweatshirt, Black Cuffs | black | black sweatshirt | generic |
+| PLT-DA18100 | Sweatshirt | 1 color names a part | Sweatshirt with Black Hem | black | black sweatshirt | generic |
+| PLT-DA18101 | Sweatshirt | 1 color names a part | Sweatshirt with Black Collar | black | black sweatshirt | generic |
+| PLT-DA18102 | Sweatshirt | 1 color names a part | Sweatshirt with Green Hem | green | green sweatshirt | generic |
 | PLT-DA18200 | Sweatshirt | 2 another category's noun as a modifier | Blue Poncho Sweatshirt | poncho | poncho | generic |
 | PLT-DA18201 | Sweatshirt | 2 another category's noun as a modifier | White Skirt Sweatshirt | skirt | skirt | generic |
 | PLT-DA18202 | Sweatshirt | 2 another category's noun as a modifier | Grey Trouser Sweatshirt | trouser | trouser | generic |
@@ -438,9 +441,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA18700 | Sweatshirt | 7 invented brand holding a color or category word | Red Plover Sweatshirt | red | red sweatshirt | generic |
 | PLT-DA18701 | Sweatshirt | 7 invented brand holding a color or category word | White Dormouse Sweatshirt | white | white sweatshirt | generic |
 | PLT-DA18702 | Sweatshirt | 7 invented brand holding a color or category word | Coat Crake Sweatshirt | coat | coat sweatshirt | generic |
-| PLT-DA19100 | T-Shirt | 1 color names a part | White T-Shirt, Yellow Zip | yellow | yellow t-shirt | generic |
-| PLT-DA19101 | T-Shirt | 1 color names a part | Blue T-Shirt, Yellow Stripes | yellow | yellow t-shirt | generic |
-| PLT-DA19102 | T-Shirt | 1 color names a part | Green T-Shirt, White Stitching | white | white t-shirt | generic |
+| PLT-DA19100 | T-Shirt | 1 color names a part | T-Shirt with Blue Collar | blue | blue t-shirt | generic |
+| PLT-DA19101 | T-Shirt | 1 color names a part | T-Shirt with Red Hem | red | red t-shirt | generic |
+| PLT-DA19102 | T-Shirt | 1 color names a part | T-Shirt with White Hem | white | white t-shirt | generic |
 | PLT-DA19200 | T-Shirt | 2 another category's noun as a modifier | Red Poncho T-Shirt | poncho | poncho | generic |
 | PLT-DA19201 | T-Shirt | 2 another category's noun as a modifier | Pink Coat T-Shirt | coat | coat | generic |
 | PLT-DA19202 | T-Shirt | 2 another category's noun as a modifier | Blue Coat T-Shirt | coat | coat | generic |
@@ -460,9 +463,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA19700 | T-Shirt | 7 invented brand holding a color or category word | Red Plover T-Shirt | red | red t-shirt | generic |
 | PLT-DA19701 | T-Shirt | 7 invented brand holding a color or category word | Blue Otter T-Shirt | blue | blue t-shirt | generic |
 | PLT-DA19702 | T-Shirt | 7 invented brand holding a color or category word | Black Lapwing T-Shirt | black | black t-shirt | generic |
-| PLT-DA20100 | Tea Dress | 1 color names a part | Blue Tea Dress, Red Piping | red | red tea dress | generic |
-| PLT-DA20101 | Tea Dress | 1 color names a part | Navy Tea Dress, Black Piping | black | black tea dress | generic |
-| PLT-DA20102 | Tea Dress | 1 color names a part | Brown Tea Dress, Yellow Trim | yellow | yellow tea dress | generic |
+| PLT-DA20100 | Tea Dress | 1 color names a part | Tea Dress with Red Straps | red | red tea dress | generic |
+| PLT-DA20101 | Tea Dress | 1 color names a part | Tea Dress with Black Straps | black | black tea dress | generic |
+| PLT-DA20102 | Tea Dress | 1 color names a part | Tea Dress with Blue Straps | blue | blue tea dress | generic |
 | PLT-DA20200 | Tea Dress | 2 another category's noun as a modifier | Blue Skirt Tea Dress | skirt | skirt | generic |
 | PLT-DA20201 | Tea Dress | 2 another category's noun as a modifier | Red Jacket Tea Dress | jacket | jacket | generic |
 | PLT-DA20202 | Tea Dress | 2 another category's noun as a modifier | Black Cardigan Tea Dress | cardigan | cardigan | generic |
@@ -482,9 +485,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA20700 | Tea Dress | 7 invented brand holding a color or category word | Red Plover Tea Dress | red | red tea dress | generic |
 | PLT-DA20701 | Tea Dress | 7 invented brand holding a color or category word | Green Stoat Tea Dress | green | green tea dress | generic |
 | PLT-DA20702 | Tea Dress | 7 invented brand holding a color or category word | Blue Otter Tea Dress | blue | blue tea dress | generic |
-| PLT-DA21100 | Tee | 1 color names a part | Green Tee, Black Zip | black | black tee | generic |
-| PLT-DA21101 | Tee | 1 color names a part | Grey Tee, Red Collar | red | red tee | generic |
-| PLT-DA21102 | Tee | 1 color names a part | Grey Tee, Black Zip | black | black tee | generic |
+| PLT-DA21100 | Tee | 1 color names a part | Tee with Green Collar | green | green tee | generic |
+| PLT-DA21101 | Tee | 1 color names a part | Tee with Black Collar | black | black tee | generic |
+| PLT-DA21102 | Tee | 1 color names a part | Tee with White Collar | white | white tee | generic |
 | PLT-DA21200 | Tee | 2 another category's noun as a modifier | Red Skirt Tee | skirt | skirt | generic |
 | PLT-DA21201 | Tee | 2 another category's noun as a modifier | Navy Gilet Tee | gilet | gilet | generic |
 | PLT-DA21202 | Tee | 2 another category's noun as a modifier | Cream Coat Tee | coat | coat | generic |
@@ -504,9 +507,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA21700 | Tee | 7 invented brand holding a color or category word | Red Plover Tee | red | red tee | generic |
 | PLT-DA21701 | Tee | 7 invented brand holding a color or category word | White Dormouse Tee | white | white tee | generic |
 | PLT-DA21702 | Tee | 7 invented brand holding a color or category word | Black Lapwing Tee | black | black tee | generic |
-| PLT-DA22100 | Top | 1 color names a part | Grey Top, Red Buttons | red | red top | generic |
-| PLT-DA22101 | Top | 1 color names a part | Navy Top, Green Trim | green | green top | generic |
-| PLT-DA22102 | Top | 1 color names a part | Pink Top, White Lining | white | white top | generic |
+| PLT-DA22100 | Top | 1 color names a part | Top with Blue Hem | blue | blue top | generic |
+| PLT-DA22101 | Top | 1 color names a part | Top with Blue Collar | blue | blue top | generic |
+| PLT-DA22102 | Top | 1 color names a part | Top with White Hem | white | white top | generic |
 | PLT-DA22200 | Top | 2 another category's noun as a modifier | Grey Jacket Top | jacket | jacket | generic |
 | PLT-DA22201 | Top | 2 another category's noun as a modifier | Red Skirt Top | skirt | skirt | generic |
 | PLT-DA22202 | Top | 2 another category's noun as a modifier | Pink Jacket Top | jacket | jacket | generic |
@@ -526,9 +529,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA22700 | Top | 7 invented brand holding a color or category word | Blue Otter Top | blue | blue top | generic |
 | PLT-DA22701 | Top | 7 invented brand holding a color or category word | Green Stoat Top | green | green top | generic |
 | PLT-DA22702 | Top | 7 invented brand holding a color or category word | Red Plover Top | red | red top | generic |
-| PLT-DA23100 | Tracksuit | 1 color names a part | Grey Regular Tracksuit, Green Stripes | green | green tracksuit | generic |
-| PLT-DA23101 | Tracksuit | 1 color names a part | Green Regular Tracksuit, Red Zip | red | red tracksuit | generic |
-| PLT-DA23102 | Tracksuit | 1 color names a part | Red Regular Tracksuit, White Stitching | white | white tracksuit | generic |
+| PLT-DA23100 | Tracksuit | 1 color names a part | Regular Tracksuit with Red Cuffs | red | red tracksuit | generic |
+| PLT-DA23101 | Tracksuit | 1 color names a part | Regular Tracksuit with White Cuffs | white | white tracksuit | generic |
+| PLT-DA23102 | Tracksuit | 1 color names a part | Regular Tracksuit with White Cuffs | white | white tracksuit | generic |
 | PLT-DA23200 | Tracksuit | 2 another category's noun as a modifier | Brown Poncho Slim Tracksuit | poncho | poncho | generic |
 | PLT-DA23201 | Tracksuit | 2 another category's noun as a modifier | Grey Jumper Relaxed Tracksuit | jumper | jumper | generic |
 | PLT-DA23202 | Tracksuit | 2 another category's noun as a modifier | Grey Poncho Regular Tracksuit | poncho | poncho | generic |
@@ -548,9 +551,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA23700 | Tracksuit | 7 invented brand holding a color or category word | Yellow Wagtail Slim Tracksuit | yellow | yellow tracksuit | generic |
 | PLT-DA23701 | Tracksuit | 7 invented brand holding a color or category word | Black Lapwing Relaxed Tracksuit | black | black tracksuit | generic |
 | PLT-DA23702 | Tracksuit | 7 invented brand holding a color or category word | White Dormouse Regular Tracksuit | white | white tracksuit | generic |
-| PLT-DA24100 | Trousers | 1 color names a part | Pink Barrel Trousers, Green Stitching | green | green trousers | generic |
-| PLT-DA24101 | Trousers | 1 color names a part | Cream Barrel Trousers, Black Stripes | black | black trousers | generic |
-| PLT-DA24102 | Trousers | 1 color names a part | Navy Barrel Trousers, Red Zip | red | red trousers | generic |
+| PLT-DA24100 | Trousers | 1 color names a part | Barrel Trousers with Green Cuffs | green | green trousers | generic |
+| PLT-DA24101 | Trousers | 1 color names a part | Barrel Trousers with White Waistband | white | white trousers | generic |
+| PLT-DA24102 | Trousers | 1 color names a part | Barrel Trousers with Red Waistband | red | red trousers | generic |
 | PLT-DA24200 | Trousers | 2 another category's noun as a modifier | Navy Cardigan Barrel Trousers | cardigan | cardigan | generic |
 | PLT-DA24201 | Trousers | 2 another category's noun as a modifier | Black Jacket Wide Leg Trousers | jacket | jacket | generic |
 | PLT-DA24202 | Trousers | 2 another category's noun as a modifier | Brown Tunic Tapered Trousers | tunic | tunic | generic |
@@ -570,18 +573,18 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA24700 | Trousers | 7 invented brand holding a color or category word | Yellow Wagtail Slim Trousers | yellow | yellow trousers | generic |
 | PLT-DA24701 | Trousers | 7 invented brand holding a color or category word | Green Stoat Wide Leg Trousers | green | green trousers | generic |
 | PLT-DA24702 | Trousers | 7 invented brand holding a color or category word | White Dormouse Tapered Trousers | white | white trousers | generic |
-| PLT-DA25100 | Jeans | 1 color names a part | Green Jegging Jeans, Black Stitching | black | black jeans | generic |
-| PLT-DA25101 | Jeans | 1 color names a part | White Skinny Jeans, Green Trim | green | green jeans | generic |
-| PLT-DA25102 | Jeans | 1 color names a part | Cream Bootcut Jeans, Blue Pocket | blue | blue jeans | generic |
-| PLT-DA25103 | Jeans | 1 color names a part | Cream Kick Flare Jeans, White Stripes | white | white jeans | generic |
-| PLT-DA25104 | Jeans | 1 color names a part | Black Tapered Jeans, Red Lining | red | red jeans | generic |
-| PLT-DA25105 | Jeans | 1 color names a part | Red Straight Jeans, Black Stripes | black | black jeans | generic |
-| PLT-DA25106 | Jeans | 1 color names a part | Green Cigarette Jeans, Black Pocket | black | black jeans | generic |
-| PLT-DA25107 | Jeans | 1 color names a part | Pink Baggy Jeans, White Stripes | white | white jeans | generic |
-| PLT-DA25108 | Jeans | 1 color names a part | Red Super Skinny Jeans, Blue Trim | blue | blue jeans | generic |
-| PLT-DA25109 | Jeans | 1 color names a part | Navy Cropped Jeans, Red Buttons | red | red jeans | generic |
-| PLT-DA25110 | Jeans | 1 color names a part | Green Wide Leg Jeans, Red Buttons | red | red jeans | generic |
-| PLT-DA25111 | Jeans | 1 color names a part | White Wide Leg Jeans, Green Piping | green | green jeans | generic |
+| PLT-DA25100 | Jeans | 1 color names a part | Jegging Jeans with White Waistband | white | white jeans | generic |
+| PLT-DA25101 | Jeans | 1 color names a part | Skinny Jeans with Red Cuffs | red | red jeans | generic |
+| PLT-DA25102 | Jeans | 1 color names a part | Bootcut Jeans with Black Waistband | black | black jeans | generic |
+| PLT-DA25103 | Jeans | 1 color names a part | Kick Flare Jeans with Red Waistband | red | red jeans | generic |
+| PLT-DA25104 | Jeans | 1 color names a part | Tapered Jeans with Yellow Waistband | yellow | yellow jeans | generic |
+| PLT-DA25105 | Jeans | 1 color names a part | Straight Jeans with Blue Waistband | blue | blue jeans | generic |
+| PLT-DA25106 | Jeans | 1 color names a part | Cigarette Jeans with Yellow Cuffs | yellow | yellow jeans | generic |
+| PLT-DA25107 | Jeans | 1 color names a part | Baggy Jeans with Red Waistband | red | red jeans | generic |
+| PLT-DA25108 | Jeans | 1 color names a part | Super Skinny Jeans with White Cuffs | white | white jeans | generic |
+| PLT-DA25109 | Jeans | 1 color names a part | Cropped Jeans with Green Waistband | green | green jeans | generic |
+| PLT-DA25110 | Jeans | 1 color names a part | Wide Leg Jeans with Yellow Waistband | yellow | yellow jeans | generic |
+| PLT-DA25111 | Jeans | 1 color names a part | Wide Leg Jeans with Red Cuffs | red | red jeans | generic |
 | PLT-DA25200 | Jeans | 2 another category's noun as a modifier | Red Tunic Tapered Jeans | tunic | tunic | generic |
 | PLT-DA25201 | Jeans | 2 another category's noun as a modifier | Cream Jumper Athletic Jeans | jumper | jumper | generic |
 | PLT-DA25202 | Jeans | 2 another category's noun as a modifier | Navy Jacket Culotte Jeans | jacket | jacket | generic |
@@ -651,9 +654,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA25705 | Jeans | 7 invented brand holding a color or category word | White Dormouse Barrel Jeans | white | white jeans | generic |
 | PLT-DA25706 | Jeans | 7 invented brand holding a color or category word | Blue Otter Straight Jeans | blue | blue jeans | generic |
 | PLT-DA25707 | Jeans | 7 invented brand holding a color or category word | Green Stoat Slim Jeans | green | green jeans | generic |
-| PLT-DA26100 | Socks | 1 color names a part | Green Socks, Blue Cuff | blue | blue socks | generic |
-| PLT-DA26101 | Socks | 1 color names a part | Blue Socks, White Trim | white | white socks | generic |
-| PLT-DA26102 | Socks | 1 color names a part | White Socks, Yellow Cuff | yellow | yellow socks | generic |
+| PLT-DA26100 | Socks | 1 color names a part | Socks with Black Heel | black | black socks | generic |
+| PLT-DA26101 | Socks | 1 color names a part | Socks with Green Toe | green | green socks | generic |
+| PLT-DA26102 | Socks | 1 color names a part | Socks with Red Toe | red | red socks | generic |
 | PLT-DA26200 | Socks | 2 another category's noun as a modifier | Green Trainer Socks | trainer | trainer | generic |
 | PLT-DA26201 | Socks | 2 another category's noun as a modifier | Brown Slipper Socks | slipper | slipper | generic |
 | PLT-DA26202 | Socks | 2 another category's noun as a modifier | Black Boot Socks | boot | boot | generic |
@@ -673,9 +676,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA26700 | Socks | 7 invented brand holding a color or category word | Green Stoat Socks | green | green socks | generic |
 | PLT-DA26701 | Socks | 7 invented brand holding a color or category word | White Dormouse Socks | white | white socks | generic |
 | PLT-DA26702 | Socks | 7 invented brand holding a color or category word | Blue Otter Socks | blue | blue socks | generic |
-| PLT-DA27100 | Boot Socks | 1 color names a part | Brown Boot Socks, Yellow Heel | yellow | yellow boot socks | generic |
-| PLT-DA27101 | Boot Socks | 1 color names a part | Red Boot Socks, Yellow Trim | yellow | yellow boot socks | generic |
-| PLT-DA27102 | Boot Socks | 1 color names a part | Grey Boot Socks, Yellow Cuff | yellow | yellow boot socks | generic |
+| PLT-DA27100 | Boot Socks | 1 color names a part | Boot Socks with Black Cuff | black | black boot socks | generic |
+| PLT-DA27101 | Boot Socks | 1 color names a part | Boot Socks with Green Heel | green | green boot socks | generic |
+| PLT-DA27102 | Boot Socks | 1 color names a part | Boot Socks with White Toe | white | white boot socks | generic |
 | PLT-DA27200 | Boot Socks | 2 another category's noun as a modifier | Green Shoe Boot Socks | shoe | shoe | generic |
 | PLT-DA27201 | Boot Socks | 2 another category's noun as a modifier | Grey Trouser Boot Socks | trouser | trouser | generic |
 | PLT-DA27202 | Boot Socks | 2 another category's noun as a modifier | Grey Trainer Boot Socks | trainer | trainer | generic |
@@ -695,9 +698,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA27700 | Boot Socks | 7 invented brand holding a color or category word | Blue Otter Boot Socks | blue | blue boot socks | generic |
 | PLT-DA27701 | Boot Socks | 7 invented brand holding a color or category word | Red Plover Boot Socks | red | red boot socks | generic |
 | PLT-DA27702 | Boot Socks | 7 invented brand holding a color or category word | White Dormouse Boot Socks | white | white boot socks | generic |
-| PLT-DA28100 | Ankle Boots | 1 color names a part | Brown Ankle Boots, Black Trim | black | black ankle boots | generic |
-| PLT-DA28101 | Ankle Boots | 1 color names a part | Navy Ankle Boots, Green Heel | green | green ankle boots | generic |
-| PLT-DA28102 | Ankle Boots | 1 color names a part | Green Ankle Boots, Yellow Heel | yellow | yellow ankle boots | generic |
+| PLT-DA28100 | Ankle Boots | 1 color names a part | Ankle Boots with Black Sole | black | black ankle boots | generic |
+| PLT-DA28101 | Ankle Boots | 1 color names a part | Ankle Boots with White Sole | white | white ankle boots | generic |
+| PLT-DA28102 | Ankle Boots | 1 color names a part | Ankle Boots with Blue Sole | blue | blue ankle boots | generic |
 | PLT-DA28200 | Ankle Boots | 2 another category's noun as a modifier | Grey Sandal Ankle Boots | sandal | sandal | generic |
 | PLT-DA28201 | Ankle Boots | 2 another category's noun as a modifier | White Sandal Ankle Boots | sandal | sandal | generic |
 | PLT-DA28202 | Ankle Boots | 2 another category's noun as a modifier | Navy Slipper Ankle Boots | slipper | slipper | generic |
@@ -717,9 +720,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA28700 | Ankle Boots | 7 invented brand holding a color or category word | Blue Otter Ankle Boots | blue | blue ankle boots | generic |
 | PLT-DA28701 | Ankle Boots | 7 invented brand holding a color or category word | Coat Crake Ankle Boots | coat | coat ankle boots | generic |
 | PLT-DA28702 | Ankle Boots | 7 invented brand holding a color or category word | Yellow Wagtail Ankle Boots | yellow | yellow ankle boots | generic |
-| PLT-DA29100 | Ballet Pumps | 1 color names a part | Red Ballet Pumps, Blue Heel | blue | blue ballet pumps | generic |
-| PLT-DA29101 | Ballet Pumps | 1 color names a part | Red Ballet Pumps, Blue Eyelets | blue | blue ballet pumps | generic |
-| PLT-DA29102 | Ballet Pumps | 1 color names a part | Black Ballet Pumps, Blue Stitching | blue | blue ballet pumps | generic |
+| PLT-DA29100 | Ballet Pumps | 1 color names a part | Ballet Pumps with Blue Sole | blue | blue ballet pumps | generic |
+| PLT-DA29101 | Ballet Pumps | 1 color names a part | Ballet Pumps with Red Sole | red | red ballet pumps | generic |
+| PLT-DA29102 | Ballet Pumps | 1 color names a part | Ballet Pumps with White Sole | white | white ballet pumps | generic |
 | PLT-DA29200 | Ballet Pumps | 2 another category's noun as a modifier | Red Sock Ballet Pumps | sock | sock | generic |
 | PLT-DA29201 | Ballet Pumps | 2 another category's noun as a modifier | Red Sandal Ballet Pumps | sandal | sandal | generic |
 | PLT-DA29202 | Ballet Pumps | 2 another category's noun as a modifier | Green Boot Ballet Pumps | boot | boot | generic |
@@ -739,9 +742,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA29700 | Ballet Pumps | 7 invented brand holding a color or category word | Black Lapwing Ballet Pumps | black | black ballet pumps | generic |
 | PLT-DA29701 | Ballet Pumps | 7 invented brand holding a color or category word | White Dormouse Ballet Pumps | white | white ballet pumps | generic |
 | PLT-DA29702 | Ballet Pumps | 7 invented brand holding a color or category word | Jumper Jay Ballet Pumps | jumper | jumper ballet pumps | generic |
-| PLT-DA30100 | Block Heels | 1 color names a part | Brown Block Heels, Blue Heel | blue | blue block heels | generic |
-| PLT-DA30101 | Block Heels | 1 color names a part | Pink Block Heels, Black Heel | black | black block heels | generic |
-| PLT-DA30102 | Block Heels | 1 color names a part | Red Block Heels, Yellow Heel | yellow | yellow block heels | generic |
+| PLT-DA30100 | Block Heels | 1 color names a part | Block Heels with Blue Sole | blue | blue block heels | generic |
+| PLT-DA30101 | Block Heels | 1 color names a part | Block Heels with Yellow Sole | yellow | yellow block heels | generic |
+| PLT-DA30102 | Block Heels | 1 color names a part | Block Heels with Green Sole | green | green block heels | generic |
 | PLT-DA30200 | Block Heels | 2 another category's noun as a modifier | Brown Sneaker Block Heels | sneaker | sneaker | generic |
 | PLT-DA30201 | Block Heels | 2 another category's noun as a modifier | Cream Sneaker Block Heels | sneaker | sneaker | generic |
 | PLT-DA30202 | Block Heels | 2 another category's noun as a modifier | Pink Slipper Block Heels | slipper | slipper | generic |
@@ -761,9 +764,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA30700 | Block Heels | 7 invented brand holding a color or category word | Red Plover Block Heels | red | red block heels | generic |
 | PLT-DA30701 | Block Heels | 7 invented brand holding a color or category word | Coat Crake Block Heels | coat | coat block heels | generic |
 | PLT-DA30702 | Block Heels | 7 invented brand holding a color or category word | Green Stoat Block Heels | green | green block heels | generic |
-| PLT-DA31100 | Brogues | 1 color names a part | Black Brogues, White Lining | white | white brogues | generic |
-| PLT-DA31101 | Brogues | 1 color names a part | Cream Brogues, Blue Trim | blue | blue brogues | generic |
-| PLT-DA31102 | Brogues | 1 color names a part | Blue Brogues, White Eyelets | white | white brogues | generic |
+| PLT-DA31100 | Brogues | 1 color names a part | Brogues with Green Sole | green | green brogues | generic |
+| PLT-DA31101 | Brogues | 1 color names a part | Brogues with Yellow Sole | yellow | yellow brogues | generic |
+| PLT-DA31102 | Brogues | 1 color names a part | Brogues with Blue Sole | blue | blue brogues | generic |
 | PLT-DA31200 | Brogues | 2 another category's noun as a modifier | Brown Loafer Brogues | loafer | loafer | generic |
 | PLT-DA31201 | Brogues | 2 another category's noun as a modifier | Navy Sandal Brogues | sandal | sandal | generic |
 | PLT-DA31202 | Brogues | 2 another category's noun as a modifier | Grey Mule Brogues | mule | mule | generic |
@@ -783,9 +786,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA31700 | Brogues | 7 invented brand holding a color or category word | Yellow Wagtail Brogues | yellow | yellow brogues | generic |
 | PLT-DA31701 | Brogues | 7 invented brand holding a color or category word | Yellow Wagtail Brogues | yellow | yellow brogues | generic |
 | PLT-DA31702 | Brogues | 7 invented brand holding a color or category word | Red Plover Brogues | red | red brogues | generic |
-| PLT-DA32100 | Chelsea Boots | 1 color names a part | Grey Chelsea Boots, White Stitching | white | white chelsea boots | generic |
-| PLT-DA32101 | Chelsea Boots | 1 color names a part | Grey Chelsea Boots, Yellow Sole | yellow | yellow chelsea boots | generic |
-| PLT-DA32102 | Chelsea Boots | 1 color names a part | Green Chelsea Boots, White Heel | white | white chelsea boots | generic |
+| PLT-DA32100 | Chelsea Boots | 1 color names a part | Chelsea Boots with Black Sole | black | black chelsea boots | generic |
+| PLT-DA32101 | Chelsea Boots | 1 color names a part | Chelsea Boots with Yellow Sole | yellow | yellow chelsea boots | generic |
+| PLT-DA32102 | Chelsea Boots | 1 color names a part | Chelsea Boots with Red Sole | red | red chelsea boots | generic |
 | PLT-DA32200 | Chelsea Boots | 2 another category's noun as a modifier | Cream Loafer Chelsea Boots | loafer | loafer | generic |
 | PLT-DA32201 | Chelsea Boots | 2 another category's noun as a modifier | Pink Slipper Chelsea Boots | slipper | slipper | generic |
 | PLT-DA32202 | Chelsea Boots | 2 another category's noun as a modifier | Green Heel Chelsea Boots | heel | heel | generic |
@@ -805,9 +808,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA32700 | Chelsea Boots | 7 invented brand holding a color or category word | Black Lapwing Chelsea Boots | black | black chelsea boots | generic |
 | PLT-DA32701 | Chelsea Boots | 7 invented brand holding a color or category word | Black Lapwing Chelsea Boots | black | black chelsea boots | generic |
 | PLT-DA32702 | Chelsea Boots | 7 invented brand holding a color or category word | Yellow Wagtail Chelsea Boots | yellow | yellow chelsea boots | generic |
-| PLT-DA33100 | Chukka Boots | 1 color names a part | Navy Chukka Boots, Red Stitching | red | red chukka boots | generic |
-| PLT-DA33101 | Chukka Boots | 1 color names a part | Green Chukka Boots, Yellow Sole | yellow | yellow chukka boots | generic |
-| PLT-DA33102 | Chukka Boots | 1 color names a part | Grey Chukka Boots, Green Trim | green | green chukka boots | generic |
+| PLT-DA33100 | Chukka Boots | 1 color names a part | Chukka Boots with White Sole | white | white chukka boots | generic |
+| PLT-DA33101 | Chukka Boots | 1 color names a part | Chukka Boots with Yellow Sole | yellow | yellow chukka boots | generic |
+| PLT-DA33102 | Chukka Boots | 1 color names a part | Chukka Boots with Red Sole | red | red chukka boots | generic |
 | PLT-DA33200 | Chukka Boots | 2 another category's noun as a modifier | White Pump Chukka Boots | pump | pump | generic |
 | PLT-DA33201 | Chukka Boots | 2 another category's noun as a modifier | Navy Sneaker Chukka Boots | sneaker | sneaker | generic |
 | PLT-DA33202 | Chukka Boots | 2 another category's noun as a modifier | Navy Trainer Chukka Boots | trainer | trainer | generic |
@@ -827,9 +830,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA33700 | Chukka Boots | 7 invented brand holding a color or category word | White Dormouse Chukka Boots | white | white chukka boots | generic |
 | PLT-DA33701 | Chukka Boots | 7 invented brand holding a color or category word | Green Stoat Chukka Boots | green | green chukka boots | generic |
 | PLT-DA33702 | Chukka Boots | 7 invented brand holding a color or category word | Jumper Jay Chukka Boots | jumper | jumper chukka boots | generic |
-| PLT-DA34100 | Court Shoes | 1 color names a part | White Court Shoes, Red Heel | red | red court shoes | generic |
-| PLT-DA34101 | Court Shoes | 1 color names a part | Navy Court Shoes, Red Eyelets | red | red court shoes | generic |
-| PLT-DA34102 | Court Shoes | 1 color names a part | Green Court Shoes, Yellow Sole | yellow | yellow court shoes | generic |
+| PLT-DA34100 | Court Shoes | 1 color names a part | Court Shoes with Blue Sole | blue | blue court shoes | generic |
+| PLT-DA34101 | Court Shoes | 1 color names a part | Court Shoes with Red Sole | red | red court shoes | generic |
+| PLT-DA34102 | Court Shoes | 1 color names a part | Court Shoes with Green Sole | green | green court shoes | generic |
 | PLT-DA34200 | Court Shoes | 2 another category's noun as a modifier | Green Sock Court Shoes | sock | sock | generic |
 | PLT-DA34201 | Court Shoes | 2 another category's noun as a modifier | Black Slipper Court Shoes | slipper | slipper | generic |
 | PLT-DA34202 | Court Shoes | 2 another category's noun as a modifier | Blue Sneaker Court Shoes | sneaker | sneaker | generic |
@@ -849,9 +852,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA34700 | Court Shoes | 7 invented brand holding a color or category word | Yellow Wagtail Court Shoes | yellow | yellow court shoes | generic |
 | PLT-DA34701 | Court Shoes | 7 invented brand holding a color or category word | Blue Otter Court Shoes | blue | blue court shoes | generic |
 | PLT-DA34702 | Court Shoes | 7 invented brand holding a color or category word | Jumper Jay Court Shoes | jumper | jumper court shoes | generic |
-| PLT-DA35100 | Kitten Heels | 1 color names a part | White Kitten Heels, Blue Eyelets | blue | blue kitten heels | generic |
-| PLT-DA35101 | Kitten Heels | 1 color names a part | Pink Kitten Heels, Green Heel | green | green kitten heels | generic |
-| PLT-DA35102 | Kitten Heels | 1 color names a part | Grey Kitten Heels, Yellow Trim | yellow | yellow kitten heels | generic |
+| PLT-DA35100 | Kitten Heels | 1 color names a part | Kitten Heels with Red Sole | red | red kitten heels | generic |
+| PLT-DA35101 | Kitten Heels | 1 color names a part | Kitten Heels with Green Sole | green | green kitten heels | generic |
+| PLT-DA35102 | Kitten Heels | 1 color names a part | Kitten Heels with White Sole | white | white kitten heels | generic |
 | PLT-DA35200 | Kitten Heels | 2 another category's noun as a modifier | Pink Pump Kitten Heels | pump | pump | generic |
 | PLT-DA35201 | Kitten Heels | 2 another category's noun as a modifier | Black Sneaker Kitten Heels | sneaker | sneaker | generic |
 | PLT-DA35202 | Kitten Heels | 2 another category's noun as a modifier | Grey Loafer Kitten Heels | loafer | loafer | generic |
@@ -871,9 +874,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA35700 | Kitten Heels | 7 invented brand holding a color or category word | Jumper Jay Kitten Heels | jumper | jumper kitten heels | generic |
 | PLT-DA35701 | Kitten Heels | 7 invented brand holding a color or category word | Yellow Wagtail Kitten Heels | yellow | yellow kitten heels | generic |
 | PLT-DA35702 | Kitten Heels | 7 invented brand holding a color or category word | Red Plover Kitten Heels | red | red kitten heels | generic |
-| PLT-DA36100 | Knee High Boots | 1 color names a part | Pink Knee High Boots, Yellow Lining | yellow | yellow knee high boots | generic |
-| PLT-DA36101 | Knee High Boots | 1 color names a part | Pink Knee High Boots, White Eyelets | white | white knee high boots | generic |
-| PLT-DA36102 | Knee High Boots | 1 color names a part | Red Knee High Boots, Black Heel | black | black knee high boots | generic |
+| PLT-DA36100 | Knee High Boots | 1 color names a part | Knee High Boots with Green Sole | green | green knee high boots | generic |
+| PLT-DA36101 | Knee High Boots | 1 color names a part | Knee High Boots with Blue Sole | blue | blue knee high boots | generic |
+| PLT-DA36102 | Knee High Boots | 1 color names a part | Knee High Boots with Black Sole | black | black knee high boots | generic |
 | PLT-DA36200 | Knee High Boots | 2 another category's noun as a modifier | Black Trainer Knee High Boots | trainer | trainer | generic |
 | PLT-DA36201 | Knee High Boots | 2 another category's noun as a modifier | Red Trainer Knee High Boots | trainer | trainer | generic |
 | PLT-DA36202 | Knee High Boots | 2 another category's noun as a modifier | White Loafer Knee High Boots | loafer | loafer | generic |
@@ -893,9 +896,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA36700 | Knee High Boots | 7 invented brand holding a color or category word | White Dormouse Knee High Boots | white | white knee high boots | generic |
 | PLT-DA36701 | Knee High Boots | 7 invented brand holding a color or category word | Coat Crake Knee High Boots | coat | coat knee high boots | generic |
 | PLT-DA36702 | Knee High Boots | 7 invented brand holding a color or category word | Red Plover Knee High Boots | red | red knee high boots | generic |
-| PLT-DA37100 | Loafers | 1 color names a part | White Loafers, Yellow Lining | yellow | yellow loafers | generic |
-| PLT-DA37101 | Loafers | 1 color names a part | Blue Loafers, Green Eyelets | green | green loafers | generic |
-| PLT-DA37102 | Loafers | 1 color names a part | Navy Loafers, Black Trim | black | black loafers | generic |
+| PLT-DA37100 | Loafers | 1 color names a part | Loafers with Green Sole | green | green loafers | generic |
+| PLT-DA37101 | Loafers | 1 color names a part | Loafers with White Sole | white | white loafers | generic |
+| PLT-DA37102 | Loafers | 1 color names a part | Loafers with Blue Sole | blue | blue loafers | generic |
 | PLT-DA37200 | Loafers | 2 another category's noun as a modifier | Pink Pump Loafers | pump | pump | generic |
 | PLT-DA37201 | Loafers | 2 another category's noun as a modifier | Navy Heel Loafers | heel | heel | generic |
 | PLT-DA37202 | Loafers | 2 another category's noun as a modifier | Green Heel Loafers | heel | heel | generic |
@@ -915,9 +918,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA37700 | Loafers | 7 invented brand holding a color or category word | Black Lapwing Loafers | black | black loafers | generic |
 | PLT-DA37701 | Loafers | 7 invented brand holding a color or category word | Yellow Wagtail Loafers | yellow | yellow loafers | generic |
 | PLT-DA37702 | Loafers | 7 invented brand holding a color or category word | Jumper Jay Loafers | jumper | jumper loafers | generic |
-| PLT-DA38100 | Running Shoes | 1 color names a part | Brown Running Shoes, Red Sole | red | red running shoes | generic |
-| PLT-DA38101 | Running Shoes | 1 color names a part | Blue Running Shoes, Yellow Heel | yellow | yellow running shoes | generic |
-| PLT-DA38102 | Running Shoes | 1 color names a part | Red Running Shoes, Black Heel | black | black running shoes | generic |
+| PLT-DA38100 | Running Shoes | 1 color names a part | Running Shoes with White Sole | white | white running shoes | generic |
+| PLT-DA38101 | Running Shoes | 1 color names a part | Running Shoes with Red Sole | red | red running shoes | generic |
+| PLT-DA38102 | Running Shoes | 1 color names a part | Running Shoes with Green Sole | green | green running shoes | generic |
 | PLT-DA38200 | Running Shoes | 2 another category's noun as a modifier | Grey Slipper Running Shoes | slipper | slipper | generic |
 | PLT-DA38201 | Running Shoes | 2 another category's noun as a modifier | Navy Trainer Running Shoes | trainer | trainer | generic |
 | PLT-DA38202 | Running Shoes | 2 another category's noun as a modifier | White Loafer Running Shoes | loafer | loafer | generic |
@@ -937,9 +940,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA38700 | Running Shoes | 7 invented brand holding a color or category word | Red Plover Running Shoes | red | red running shoes | generic |
 | PLT-DA38701 | Running Shoes | 7 invented brand holding a color or category word | Coat Crake Running Shoes | coat | coat running shoes | generic |
 | PLT-DA38702 | Running Shoes | 7 invented brand holding a color or category word | Black Lapwing Running Shoes | black | black running shoes | generic |
-| PLT-DA39100 | Safety Boots | 1 color names a part | Red Safety Boots, White Lining | white | white safety boots | generic |
-| PLT-DA39101 | Safety Boots | 1 color names a part | White Safety Boots, Red Heel | red | red safety boots | generic |
-| PLT-DA39102 | Safety Boots | 1 color names a part | Red Safety Boots, Yellow Heel | yellow | yellow safety boots | generic |
+| PLT-DA39100 | Safety Boots | 1 color names a part | Safety Boots with Black Sole | black | black safety boots | generic |
+| PLT-DA39101 | Safety Boots | 1 color names a part | Safety Boots with Yellow Sole | yellow | yellow safety boots | generic |
+| PLT-DA39102 | Safety Boots | 1 color names a part | Safety Boots with Blue Sole | blue | blue safety boots | generic |
 | PLT-DA39200 | Safety Boots | 2 another category's noun as a modifier | Cream Sandal Safety Boots | sandal | sandal | generic |
 | PLT-DA39201 | Safety Boots | 2 another category's noun as a modifier | Brown Trainer Safety Boots | trainer | trainer | generic |
 | PLT-DA39202 | Safety Boots | 2 another category's noun as a modifier | White Sandal Safety Boots | sandal | sandal | generic |
@@ -959,9 +962,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA39700 | Safety Boots | 7 invented brand holding a color or category word | Coat Crake Safety Boots | coat | coat safety boots | generic |
 | PLT-DA39701 | Safety Boots | 7 invented brand holding a color or category word | Blue Otter Safety Boots | blue | blue safety boots | generic |
 | PLT-DA39702 | Safety Boots | 7 invented brand holding a color or category word | Yellow Wagtail Safety Boots | yellow | yellow safety boots | generic |
-| PLT-DA40100 | Sandals | 1 color names a part | Grey Sandals, White Heel | white | white sandals | generic |
-| PLT-DA40101 | Sandals | 1 color names a part | Cream Sandals, Yellow Eyelets | yellow | yellow sandals | generic |
-| PLT-DA40102 | Sandals | 1 color names a part | Red Sandals, Black Sole | black | black sandals | generic |
+| PLT-DA40100 | Sandals | 1 color names a part | Sandals with Green Sole | green | green sandals | generic |
+| PLT-DA40101 | Sandals | 1 color names a part | Sandals with Black Sole | black | black sandals | generic |
+| PLT-DA40102 | Sandals | 1 color names a part | Sandals with Blue Sole | blue | blue sandals | generic |
 | PLT-DA40200 | Sandals | 2 another category's noun as a modifier | Navy Heel Sandals | heel | heel | generic |
 | PLT-DA40201 | Sandals | 2 another category's noun as a modifier | Red Pump Sandals | pump | pump | generic |
 | PLT-DA40202 | Sandals | 2 another category's noun as a modifier | Grey Slipper Sandals | slipper | slipper | generic |
@@ -981,9 +984,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA40700 | Sandals | 7 invented brand holding a color or category word | Yellow Wagtail Sandals | yellow | yellow sandals | generic |
 | PLT-DA40701 | Sandals | 7 invented brand holding a color or category word | White Dormouse Sandals | white | white sandals | generic |
 | PLT-DA40702 | Sandals | 7 invented brand holding a color or category word | White Dormouse Sandals | white | white sandals | generic |
-| PLT-DA41100 | School Shoes | 1 color names a part | Blue School Shoes, Green Heel | green | green school shoes | generic |
-| PLT-DA41101 | School Shoes | 1 color names a part | Grey School Shoes, Green Eyelets | green | green school shoes | generic |
-| PLT-DA41102 | School Shoes | 1 color names a part | Black School Shoes, White Eyelets | white | white school shoes | generic |
+| PLT-DA41100 | School Shoes | 1 color names a part | School Shoes with Blue Sole | blue | blue school shoes | generic |
+| PLT-DA41101 | School Shoes | 1 color names a part | School Shoes with Green Sole | green | green school shoes | generic |
+| PLT-DA41102 | School Shoes | 1 color names a part | School Shoes with Yellow Sole | yellow | yellow school shoes | generic |
 | PLT-DA41200 | School Shoes | 2 another category's noun as a modifier | Pink Mule School Shoes | mule | mule | generic |
 | PLT-DA41201 | School Shoes | 2 another category's noun as a modifier | White Pump School Shoes | pump | pump | generic |
 | PLT-DA41202 | School Shoes | 2 another category's noun as a modifier | Navy Boot School Shoes | boot | boot | generic |
@@ -1003,9 +1006,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA41700 | School Shoes | 7 invented brand holding a color or category word | Jumper Jay School Shoes | jumper | jumper school shoes | generic |
 | PLT-DA41701 | School Shoes | 7 invented brand holding a color or category word | Red Plover School Shoes | red | red school shoes | generic |
 | PLT-DA41702 | School Shoes | 7 invented brand holding a color or category word | White Dormouse School Shoes | white | white school shoes | generic |
-| PLT-DA42100 | Slippers | 1 color names a part | Navy Slippers, White Eyelets | white | white slippers | generic |
-| PLT-DA42101 | Slippers | 1 color names a part | Black Slippers, White Eyelets | white | white slippers | generic |
-| PLT-DA42102 | Slippers | 1 color names a part | Red Slippers, Green Stitching | green | green slippers | generic |
+| PLT-DA42100 | Slippers | 1 color names a part | Slippers with White Sole | white | white slippers | generic |
+| PLT-DA42101 | Slippers | 1 color names a part | Slippers with Blue Sole | blue | blue slippers | generic |
+| PLT-DA42102 | Slippers | 1 color names a part | Slippers with Green Sole | green | green slippers | generic |
 | PLT-DA42200 | Slippers | 2 another category's noun as a modifier | Brown Heel Slippers | heel | heel | generic |
 | PLT-DA42201 | Slippers | 2 another category's noun as a modifier | Brown Heel Slippers | heel | heel | generic |
 | PLT-DA42202 | Slippers | 2 another category's noun as a modifier | White Trainer Slippers | trainer | trainer | generic |
@@ -1025,9 +1028,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA42700 | Slippers | 7 invented brand holding a color or category word | Blue Otter Slippers | blue | blue slippers | generic |
 | PLT-DA42701 | Slippers | 7 invented brand holding a color or category word | Jumper Jay Slippers | jumper | jumper slippers | generic |
 | PLT-DA42702 | Slippers | 7 invented brand holding a color or category word | Yellow Wagtail Slippers | yellow | yellow slippers | generic |
-| PLT-DA43100 | Trainers | 1 color names a part | Green Trainers, White Lining | white | white trainers | generic |
-| PLT-DA43101 | Trainers | 1 color names a part | Navy Trainers, Black Heel | black | black trainers | generic |
-| PLT-DA43102 | Trainers | 1 color names a part | Grey Trainers, Yellow Heel | yellow | yellow trainers | generic |
+| PLT-DA43100 | Trainers | 1 color names a part | Trainers with Yellow Sole | yellow | yellow trainers | generic |
+| PLT-DA43101 | Trainers | 1 color names a part | Trainers with White Sole | white | white trainers | generic |
+| PLT-DA43102 | Trainers | 1 color names a part | Trainers with Black Sole | black | black trainers | generic |
 | PLT-DA43200 | Trainers | 2 another category's noun as a modifier | Navy Loafer Trainers | loafer | loafer | generic |
 | PLT-DA43201 | Trainers | 2 another category's noun as a modifier | Red Heel Trainers | heel | heel | generic |
 | PLT-DA43202 | Trainers | 2 another category's noun as a modifier | Pink Sneaker Trainers | sneaker | sneaker | generic |
@@ -1047,9 +1050,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA43700 | Trainers | 7 invented brand holding a color or category word | Yellow Wagtail Trainers | yellow | yellow trainers | generic |
 | PLT-DA43701 | Trainers | 7 invented brand holding a color or category word | Jumper Jay Trainers | jumper | jumper trainers | generic |
 | PLT-DA43702 | Trainers | 7 invented brand holding a color or category word | Yellow Wagtail Trainers | yellow | yellow trainers | generic |
-| PLT-DA44100 | Walking Boots | 1 color names a part | White Walking Boots, Blue Eyelets | blue | blue walking boots | generic |
-| PLT-DA44101 | Walking Boots | 1 color names a part | Navy Walking Boots, White Heel | white | white walking boots | generic |
-| PLT-DA44102 | Walking Boots | 1 color names a part | Grey Walking Boots, Yellow Eyelets | yellow | yellow walking boots | generic |
+| PLT-DA44100 | Walking Boots | 1 color names a part | Walking Boots with Red Sole | red | red walking boots | generic |
+| PLT-DA44101 | Walking Boots | 1 color names a part | Walking Boots with Black Sole | black | black walking boots | generic |
+| PLT-DA44102 | Walking Boots | 1 color names a part | Walking Boots with Green Sole | green | green walking boots | generic |
 | PLT-DA44200 | Walking Boots | 2 another category's noun as a modifier | Brown Sock Walking Boots | sock | sock | generic |
 | PLT-DA44201 | Walking Boots | 2 another category's noun as a modifier | Pink Slipper Walking Boots | slipper | slipper | generic |
 | PLT-DA44202 | Walking Boots | 2 another category's noun as a modifier | Black Sock Walking Boots | sock | sock | generic |
@@ -1069,9 +1072,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA44700 | Walking Boots | 7 invented brand holding a color or category word | Black Lapwing Walking Boots | black | black walking boots | generic |
 | PLT-DA44701 | Walking Boots | 7 invented brand holding a color or category word | Jumper Jay Walking Boots | jumper | jumper walking boots | generic |
 | PLT-DA44702 | Walking Boots | 7 invented brand holding a color or category word | Jumper Jay Walking Boots | jumper | jumper walking boots | generic |
-| PLT-DA45100 | Wellies | 1 color names a part | Pink Wellies, Green Sole | green | green wellies | generic |
-| PLT-DA45101 | Wellies | 1 color names a part | Cream Wellies, Black Sole | black | black wellies | generic |
-| PLT-DA45102 | Wellies | 1 color names a part | Cream Wellies, Yellow Heel | yellow | yellow wellies | generic |
+| PLT-DA45100 | Wellies | 1 color names a part | Wellies with Red Sole | red | red wellies | generic |
+| PLT-DA45101 | Wellies | 1 color names a part | Wellies with White Sole | white | white wellies | generic |
+| PLT-DA45102 | Wellies | 1 color names a part | Wellies with Red Sole | red | red wellies | generic |
 | PLT-DA45200 | Wellies | 2 another category's noun as a modifier | Black Heel Wellies | heel | heel | generic |
 | PLT-DA45201 | Wellies | 2 another category's noun as a modifier | Cream Loafer Wellies | loafer | loafer | generic |
 | PLT-DA45202 | Wellies | 2 another category's noun as a modifier | White Sandal Wellies | sandal | sandal | generic |
@@ -1091,15 +1094,15 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA45700 | Wellies | 7 invented brand holding a color or category word | Yellow Wagtail Wellies | yellow | yellow wellies | generic |
 | PLT-DA45701 | Wellies | 7 invented brand holding a color or category word | Black Lapwing Wellies | black | black wellies | generic |
 | PLT-DA45702 | Wellies | 7 invented brand holding a color or category word | Jumper Jay Wellies | jumper | jumper wellies | generic |
-| PLT-DA46100 | Bra | 1 color names a part | Pink Bra, White Straps | white | white bra | generic |
-| PLT-DA46101 | Bra | 1 color names a part | Brown Bra, Blue Hooks | blue | blue bra | generic |
-| PLT-DA46102 | Bra | 1 color names a part | Black Bra, Yellow Trim | yellow | yellow bra | generic |
-| PLT-DA46103 | Bra | 1 color names a part | Red Bra, Blue Hooks | blue | blue bra | generic |
-| PLT-DA46104 | Bra | 1 color names a part | White Bra, Red Bow | red | red bra | generic |
-| PLT-DA46105 | Bra | 1 color names a part | Grey Bra, Red Trim | red | red bra | generic |
-| PLT-DA46106 | Bra | 1 color names a part | Navy Bra, Yellow Hooks | yellow | yellow bra | generic |
-| PLT-DA46107 | Bra | 1 color names a part | Pink Bra, Black Trim | black | black bra | generic |
-| PLT-DA46108 | Bra | 1 color names a part | Brown Bra, White Bow | white | white bra | generic |
+| PLT-DA46100 | Bra | 1 color names a part | Bra with Blue Straps | blue | blue bra | generic |
+| PLT-DA46101 | Bra | 1 color names a part | Bra with Black Bow | black | black bra | generic |
+| PLT-DA46102 | Bra | 1 color names a part | Bra with Blue Bow | blue | blue bra | generic |
+| PLT-DA46103 | Bra | 1 color names a part | Bra with Red Bow | red | red bra | generic |
+| PLT-DA46104 | Bra | 1 color names a part | Bra with Yellow Bow | yellow | yellow bra | generic |
+| PLT-DA46105 | Bra | 1 color names a part | Bra with Green Straps | green | green bra | generic |
+| PLT-DA46106 | Bra | 1 color names a part | Bra with White Bow | white | white bra | generic |
+| PLT-DA46107 | Bra | 1 color names a part | Bra with Black Straps | black | black bra | generic |
+| PLT-DA46108 | Bra | 1 color names a part | Bra with Green Bow | green | green bra | generic |
 | PLT-DA46200 | Bra | 2 another category's noun as a modifier | White Dress Bra | dress | dress | generic |
 | PLT-DA46201 | Bra | 2 another category's noun as a modifier | Green Jumper Bra | jumper | jumper | generic |
 | PLT-DA46202 | Bra | 2 another category's noun as a modifier | Brown Bodysuit Bra | bodysuit | bodysuit | generic |
@@ -1154,9 +1157,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA46705 | Bra | 7 invented brand holding a color or category word | Yellow Wagtail Bra | yellow | yellow bra | generic |
 | PLT-DA46706 | Bra | 7 invented brand holding a color or category word | Black Lapwing Bra | black | black bra | generic |
 | PLT-DA46707 | Bra | 7 invented brand holding a color or category word | Jumper Jay Bra | jumper | jumper bra | generic |
-| PLT-DA47100 | Boxers | 1 color names a part | Grey Boxers, White Trim | white | white boxers | generic |
-| PLT-DA47101 | Boxers | 1 color names a part | Brown Boxers, Black Waistband | black | black boxers | generic |
-| PLT-DA47102 | Boxers | 1 color names a part | Pink Boxers, White Waistband | white | white boxers | generic |
+| PLT-DA47100 | Boxers | 1 color names a part | Boxers with Green Waistband | green | green boxers | generic |
+| PLT-DA47101 | Boxers | 1 color names a part | Boxers with White Waistband | white | white boxers | generic |
+| PLT-DA47102 | Boxers | 1 color names a part | Boxers with Red Waistband | red | red boxers | generic |
 | PLT-DA47200 | Boxers | 2 another category's noun as a modifier | White Trouser Boxers | trouser | trouser | generic |
 | PLT-DA47201 | Boxers | 2 another category's noun as a modifier | Grey Shirt Boxers | shirt | shirt | generic |
 | PLT-DA47202 | Boxers | 2 another category's noun as a modifier | Green Short Boxers | short | short | generic |
@@ -1176,9 +1179,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA47700 | Boxers | 7 invented brand holding a color or category word | Coat Crake Boxers | coat | coat boxers | generic |
 | PLT-DA47701 | Boxers | 7 invented brand holding a color or category word | Blue Otter Boxers | blue | blue boxers | generic |
 | PLT-DA47702 | Boxers | 7 invented brand holding a color or category word | Black Lapwing Boxers | black | black boxers | generic |
-| PLT-DA48100 | Dressing Gown | 1 color names a part | Pink Dressing Gown, White Waistband | white | white dressing gown | generic |
-| PLT-DA48101 | Dressing Gown | 1 color names a part | Red Dressing Gown, Blue Piping | blue | blue dressing gown | generic |
-| PLT-DA48102 | Dressing Gown | 1 color names a part | Brown Dressing Gown, White Cuffs | white | white dressing gown | generic |
+| PLT-DA48100 | Dressing Gown | 1 color names a part | Dressing Gown with Red Hem | red | red dressing gown | generic |
+| PLT-DA48101 | Dressing Gown | 1 color names a part | Dressing Gown with Yellow Hem | yellow | yellow dressing gown | generic |
+| PLT-DA48102 | Dressing Gown | 1 color names a part | Dressing Gown with Black Hem | black | black dressing gown | generic |
 | PLT-DA48200 | Dressing Gown | 2 another category's noun as a modifier | Cream Top Dressing Gown | top | top | generic |
 | PLT-DA48201 | Dressing Gown | 2 another category's noun as a modifier | White Top Dressing Gown | top | top | generic |
 | PLT-DA48202 | Dressing Gown | 2 another category's noun as a modifier | Green Vest Dressing Gown | vest | vest | generic |
@@ -1198,9 +1201,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA48700 | Dressing Gown | 7 invented brand holding a color or category word | Black Lapwing Dressing Gown | black | black dressing gown | generic |
 | PLT-DA48701 | Dressing Gown | 7 invented brand holding a color or category word | Green Stoat Dressing Gown | green | green dressing gown | generic |
 | PLT-DA48702 | Dressing Gown | 7 invented brand holding a color or category word | Coat Crake Dressing Gown | coat | coat dressing gown | generic |
-| PLT-DA49100 | Knickers | 1 color names a part | White Knickers, Yellow Piping | yellow | yellow knickers | generic |
-| PLT-DA49101 | Knickers | 1 color names a part | Grey Knickers, Yellow Piping | yellow | yellow knickers | generic |
-| PLT-DA49102 | Knickers | 1 color names a part | Grey Knickers, Red Trim | red | red knickers | generic |
+| PLT-DA49100 | Knickers | 1 color names a part | Knickers with Yellow Waistband | yellow | yellow knickers | generic |
+| PLT-DA49101 | Knickers | 1 color names a part | Knickers with Black Waistband | black | black knickers | generic |
+| PLT-DA49102 | Knickers | 1 color names a part | Knickers with Green Waistband | green | green knickers | generic |
 | PLT-DA49200 | Knickers | 2 another category's noun as a modifier | Brown Top Knickers | top | top | generic |
 | PLT-DA49201 | Knickers | 2 another category's noun as a modifier | Blue Bra Knickers | bra | bra | generic |
 | PLT-DA49202 | Knickers | 2 another category's noun as a modifier | Blue Trouser Knickers | trouser | trouser | generic |
@@ -1220,9 +1223,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA49700 | Knickers | 7 invented brand holding a color or category word | Yellow Wagtail Knickers | yellow | yellow knickers | generic |
 | PLT-DA49701 | Knickers | 7 invented brand holding a color or category word | Red Plover Knickers | red | red knickers | generic |
 | PLT-DA49702 | Knickers | 7 invented brand holding a color or category word | Blue Otter Knickers | blue | blue knickers | generic |
-| PLT-DA50100 | Pyjama Shorts | 1 color names a part | Pink Pyjama Shorts, White Piping | white | white pyjama shorts | generic |
-| PLT-DA50101 | Pyjama Shorts | 1 color names a part | Brown Pyjama Shorts, Green Waistband | green | green pyjama shorts | generic |
-| PLT-DA50102 | Pyjama Shorts | 1 color names a part | Navy Pyjama Shorts, White Cuffs | white | white pyjama shorts | generic |
+| PLT-DA50100 | Pyjama Shorts | 1 color names a part | Pyjama Shorts with Yellow Waistband | yellow | yellow pyjama shorts | generic |
+| PLT-DA50101 | Pyjama Shorts | 1 color names a part | Pyjama Shorts with Red Waistband | red | red pyjama shorts | generic |
+| PLT-DA50102 | Pyjama Shorts | 1 color names a part | Pyjama Shorts with Blue Waistband | blue | blue pyjama shorts | generic |
 | PLT-DA50200 | Pyjama Shorts | 2 another category's noun as a modifier | Black Vest Pyjama Shorts | vest | vest | generic |
 | PLT-DA50201 | Pyjama Shorts | 2 another category's noun as a modifier | Pink Shirt Pyjama Shorts | shirt | shirt | generic |
 | PLT-DA50202 | Pyjama Shorts | 2 another category's noun as a modifier | Black Top Pyjama Shorts | top | top | generic |
@@ -1242,9 +1245,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA50700 | Pyjama Shorts | 7 invented brand holding a color or category word | Green Stoat Pyjama Shorts | green | green pyjama shorts | generic |
 | PLT-DA50701 | Pyjama Shorts | 7 invented brand holding a color or category word | Jumper Jay Pyjama Shorts | jumper | jumper pyjama shorts | generic |
 | PLT-DA50702 | Pyjama Shorts | 7 invented brand holding a color or category word | White Dormouse Pyjama Shorts | white | white pyjama shorts | generic |
-| PLT-DA51100 | Pyjamas | 1 color names a part | Pink Pyjamas, White Cuffs | white | white pyjamas | generic |
-| PLT-DA51101 | Pyjamas | 1 color names a part | White Pyjamas, Blue Trim | blue | blue pyjamas | generic |
-| PLT-DA51102 | Pyjamas | 1 color names a part | Black Pyjamas, Red Piping | red | red pyjamas | generic |
+| PLT-DA51100 | Pyjamas | 1 color names a part | Pyjamas with White Cuffs | white | white pyjamas | generic |
+| PLT-DA51101 | Pyjamas | 1 color names a part | Pyjamas with Black Cuffs | black | black pyjamas | generic |
+| PLT-DA51102 | Pyjamas | 1 color names a part | Pyjamas with Green Cuffs | green | green pyjamas | generic |
 | PLT-DA51200 | Pyjamas | 2 another category's noun as a modifier | Red Dress Pyjamas | dress | dress | generic |
 | PLT-DA51201 | Pyjamas | 2 another category's noun as a modifier | Pink Skirt Pyjamas | skirt | skirt | generic |
 | PLT-DA51202 | Pyjamas | 2 another category's noun as a modifier | Brown Skirt Pyjamas | skirt | skirt | generic |
@@ -1264,9 +1267,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA51700 | Pyjamas | 7 invented brand holding a color or category word | Coat Crake Pyjamas | coat | coat pyjamas | generic |
 | PLT-DA51701 | Pyjamas | 7 invented brand holding a color or category word | Red Plover Pyjamas | red | red pyjamas | generic |
 | PLT-DA51702 | Pyjamas | 7 invented brand holding a color or category word | Green Stoat Pyjamas | green | green pyjamas | generic |
-| PLT-DA52100 | Shapewear | 1 color names a part | Cream Shapewear, Green Cuffs | green | green shapewear | generic |
-| PLT-DA52101 | Shapewear | 1 color names a part | Green Shapewear, Blue Piping | blue | blue shapewear | generic |
-| PLT-DA52102 | Shapewear | 1 color names a part | Pink Shapewear, Green Bow | green | green shapewear | generic |
+| PLT-DA52100 | Shapewear | 1 color names a part | Shapewear with Black Straps | black | black shapewear | generic |
+| PLT-DA52101 | Shapewear | 1 color names a part | Shapewear with Yellow Straps | yellow | yellow shapewear | generic |
+| PLT-DA52102 | Shapewear | 1 color names a part | Shapewear with Blue Straps | blue | blue shapewear | generic |
 | PLT-DA52200 | Shapewear | 2 another category's noun as a modifier | Grey Short Shapewear | short | short | generic |
 | PLT-DA52201 | Shapewear | 2 another category's noun as a modifier | Navy Cami Shapewear | cami | cami | generic |
 | PLT-DA52202 | Shapewear | 2 another category's noun as a modifier | Brown Top Shapewear | top | top | generic |
@@ -1286,9 +1289,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA52700 | Shapewear | 7 invented brand holding a color or category word | Red Plover Shapewear | red | red shapewear | generic |
 | PLT-DA52701 | Shapewear | 7 invented brand holding a color or category word | Coat Crake Shapewear | coat | coat shapewear | generic |
 | PLT-DA52702 | Shapewear | 7 invented brand holding a color or category word | Black Lapwing Shapewear | black | black shapewear | generic |
-| PLT-DA53100 | Slip | 1 color names a part | Grey Slip, Red Waistband | red | red slip | generic |
-| PLT-DA53101 | Slip | 1 color names a part | Blue Slip, Yellow Trim | yellow | yellow slip | generic |
-| PLT-DA53102 | Slip | 1 color names a part | White Slip, Black Piping | black | black slip | generic |
+| PLT-DA53100 | Slip | 1 color names a part | Slip with Red Straps | red | red slip | generic |
+| PLT-DA53101 | Slip | 1 color names a part | Slip with Yellow Straps | yellow | yellow slip | generic |
+| PLT-DA53102 | Slip | 1 color names a part | Slip with White Straps | white | white slip | generic |
 | PLT-DA53200 | Slip | 2 another category's noun as a modifier | Black Bra Slip | bra | bra | generic |
 | PLT-DA53201 | Slip | 2 another category's noun as a modifier | Green Trouser Slip | trouser | trouser | generic |
 | PLT-DA53202 | Slip | 2 another category's noun as a modifier | Blue Shirt Slip | shirt | shirt | generic |
@@ -1308,9 +1311,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA53700 | Slip | 7 invented brand holding a color or category word | Jumper Jay Slip | jumper | jumper slip | generic |
 | PLT-DA53701 | Slip | 7 invented brand holding a color or category word | Blue Otter Slip | blue | blue slip | generic |
 | PLT-DA53702 | Slip | 7 invented brand holding a color or category word | Green Stoat Slip | green | green slip | generic |
-| PLT-DA54100 | Tights | 1 color names a part | Cream Tights, Yellow Cuffs | yellow | yellow tights | generic |
-| PLT-DA54101 | Tights | 1 color names a part | Blue Tights, Green Piping | green | green tights | generic |
-| PLT-DA54102 | Tights | 1 color names a part | Navy Tights, Blue Stitching | blue | blue tights | generic |
+| PLT-DA54100 | Tights | 1 color names a part | Tights with Black Waistband | black | black tights | generic |
+| PLT-DA54101 | Tights | 1 color names a part | Tights with White Waistband | white | white tights | generic |
+| PLT-DA54102 | Tights | 1 color names a part | Tights with Yellow Waistband | yellow | yellow tights | generic |
 | PLT-DA54200 | Tights | 2 another category's noun as a modifier | Green Skirt Tights | skirt | skirt | generic |
 | PLT-DA54201 | Tights | 2 another category's noun as a modifier | Grey Short Tights | short | short | generic |
 | PLT-DA54202 | Tights | 2 another category's noun as a modifier | Blue Dress Tights | dress | dress | generic |
@@ -1330,9 +1333,9 @@ color, category or audience policy separates the decoy, and `special: <name>` wh
 | PLT-DA54700 | Tights | 7 invented brand holding a color or category word | Jumper Jay Tights | jumper | jumper tights | generic |
 | PLT-DA54701 | Tights | 7 invented brand holding a color or category word | Red Plover Tights | red | red tights | generic |
 | PLT-DA54702 | Tights | 7 invented brand holding a color or category word | Coat Crake Tights | coat | coat tights | generic |
-| PLT-DA55100 | Vest | 1 color names a part | Brown Vest, Blue Waistband | blue | blue vest | generic |
-| PLT-DA55101 | Vest | 1 color names a part | Pink Vest, Green Cuffs | green | green vest | generic |
-| PLT-DA55102 | Vest | 1 color names a part | Brown Vest, Green Cuffs | green | green vest | generic |
+| PLT-DA55100 | Vest | 1 color names a part | Vest with Red Straps | red | red vest | generic |
+| PLT-DA55101 | Vest | 1 color names a part | Vest with White Straps | white | white vest | generic |
+| PLT-DA55102 | Vest | 1 color names a part | Vest with Yellow Straps | yellow | yellow vest | generic |
 | PLT-DA55200 | Vest | 2 another category's noun as a modifier | Grey Cami Vest | cami | cami | generic |
 | PLT-DA55201 | Vest | 2 another category's noun as a modifier | Green Trouser Vest | trouser | trouser | generic |
 | PLT-DA55202 | Vest | 2 another category's noun as a modifier | Black Skirt Vest | skirt | skirt | generic |
