@@ -67,6 +67,7 @@ TOYS_ROWS = FIGURES["templates"]["toys_rows"]["styles"]
 SEASONAL_ROWS = FIGURES["templates"]["seasonal_rows"]["styles"]
 COLORGROUP_ROWS = FIGURES["templates"]["colorgroup_rows"]["styles"]
 MENS_DEPTH_ROWS = FIGURES["templates"]["mens_depth_rows"]["styles"]
+NIKE_ROWS = FIGURES["templates"]["nike_rows"]["styles"]
 LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
 PLAIN_ROWS = FIGURES["templates"]["plain_rows"]["styles"]
 GROCERY_ROWS = FIGURES["templates"]["grocery"]["styles"]
@@ -91,6 +92,7 @@ TEMPLATES = (
     + SEASONAL_ROWS
     + COLORGROUP_ROWS
     + MENS_DEPTH_ROWS
+    + NIKE_ROWS
     + DECOY_APPAREL_ROWS
     + PLAIN_ROWS
     + GROCERY_ROWS
