@@ -258,13 +258,13 @@ def _census():
 
 
 def _real_types(tmp_path: Path) -> dict[str, type_registry.TypeSpec]:
-    """A scaffolded clothing type (a Kaftan, in a leaf of its own) and a scaffolded beauty type,
-    as the quick path writes them and a writer edits only the leaf."""
-    _, kaftan = _scaffold(tmp_path, "clothing", "kaftan", "Kaftan")
-    row = replace(kaftan.rows[0], path=("Womens", "Tops", "Kaftans"))
+    """A scaffolded clothing type (a specimen Kaftan, in a leaf of its own) and a scaffolded
+    beauty type, as the quick path writes them and a writer edits only the leaf."""
+    _, kaftan = _scaffold(tmp_path, "clothing", "specimen_kaftan", "Specimen Kaftan")
+    row = replace(kaftan.rows[0], path=("Womens", "Tops", "Specimen Kaftans"))
     kaftan = replace(kaftan, rows=(row,))
     _, beauty = _scaffold(tmp_path, "beauty", "hair_serum", "Hair Serum")
-    return {"kaftan": kaftan, "hair_serum": beauty}
+    return {"specimen_kaftan": kaftan, "hair_serum": beauty}
 
 
 def _register(monkeypatch: pytest.MonkeyPatch, added: dict[str, type_registry.TypeSpec]) -> None:
@@ -290,7 +290,7 @@ def test_a_real_scaffolded_clothing_and_beauty_type_pass_the_apparel_census(
     by_id = {d["product_id"]: d for d in plain}
     census.test_every_type_has_three_decoys_per_class_in_the_built_catalog(rows, by_id)
     census.test_each_decoys_fields_contradict_its_misleading_word(rows, by_id)
-    mine = {r.pid for r in rows if r.product_type == "Kaftan"}
+    mine = {r.pid for r in rows if r.product_type == "Specimen Kaftan"}
     assert len(mine) >= 21 and mine <= da.IDS
     assert not any(r.product_type == "Hair Serum" for r in rows)
     table = da.table_markdown(rows)
@@ -306,9 +306,9 @@ def test_a_clothing_spec_with_no_apparel_plan_or_exemption_is_refused(
 ) -> None:
     import decoy_apparel as da
 
-    _, kaftan = _scaffold(tmp_path, "clothing", "kaftan", "Kaftan")
+    _, kaftan = _scaffold(tmp_path, "clothing", "specimen_kaftan", "Specimen Kaftan")
     bare = replace(kaftan, apparel=None, apparel_exempt="")
-    _register(monkeypatch, {"kaftan": bare})
+    _register(monkeypatch, {"specimen_kaftan": bare})
     with pytest.raises(type_registry.SpecError, match="apparel"):
         _ = da.TYPES
 
@@ -318,11 +318,11 @@ def test_an_exempt_clothing_spec_carries_a_reason_and_no_decoys(
 ) -> None:
     import decoy_apparel as da
 
-    _, kaftan = _scaffold(tmp_path, "clothing", "kaftan", "Kaftan")
+    _, kaftan = _scaffold(tmp_path, "clothing", "specimen_kaftan", "Specimen Kaftan")
     exempt = replace(kaftan, apparel=None, apparel_exempt="a costume, not a garment")
-    _register(monkeypatch, {"kaftan": exempt})
-    assert da.EXEMPT.get("Kaftan") == "a costume, not a garment"
-    assert "Kaftan" not in {t.product_type for t in da.TYPES}
+    _register(monkeypatch, {"specimen_kaftan": exempt})
+    assert da.EXEMPT.get("Specimen Kaftan") == "a costume, not a garment"
+    assert "Specimen Kaftan" not in {t.product_type for t in da.TYPES}
 
 
 def test_adding_a_spec_type_moves_no_other_decoy_id(
@@ -337,9 +337,14 @@ def test_adding_a_spec_type_moves_no_other_decoy_id(
     _register(monkeypatch, added)
     with_kaftan = da.IDS
     assert before < with_kaftan
-    _, anorak = _scaffold(tmp_path, "clothing", "anorak", "Anorak")
-    _register(monkeypatch, {"anorak": anorak})
+    by_key = "PLT-DSSPECIMEN_KAFTAN"
+    assert any(i.startswith(by_key) for i in with_kaftan), "a spec type is numbered by its key"
+    _, anorak = _scaffold(tmp_path, "clothing", "specimen_anorak", "Specimen Anorak")
+    _register(monkeypatch, {"specimen_anorak": anorak})
     assert with_kaftan < da.IDS, "adding a type that sorts first moved a decoy id"
+    assert {i for i in da.IDS if i.startswith(by_key)} == {
+        i for i in with_kaftan if i.startswith(by_key)
+    }
 
 
 def test_a_type_planned_twice_is_refused(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -389,10 +394,10 @@ def _base(department: str) -> type_registry.TypeSpec:
     if department == "Beauty":
         return good
     row = replace(
-        good.rows[0], department="Clothing", product_type="Kaftan", brand="Larkmoor",
-        path=("Womens", "Tops", "Kaftans"),
+        good.rows[0], department="Clothing", product_type="Specimen Kaftan", brand="Larkmoor",
+        path=("Womens", "Tops", "Specimen Kaftans"),
     )  # fmt: skip
-    return replace(good, department="Clothing", product_type="Kaftan", rows=(row,))
+    return replace(good, department="Clothing", product_type="Specimen Kaftan", rows=(row,))
 
 
 @pytest.mark.parametrize("name", sorted(_APPAREL_BAD))
