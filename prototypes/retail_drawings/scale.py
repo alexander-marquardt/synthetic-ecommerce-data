@@ -115,6 +115,7 @@ import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
 import mens_depth_rows  # noqa: E402
+import needs_rows  # noqa: E402
 import scale_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
@@ -251,6 +252,8 @@ COLORGROUP_IDS = colorgroup_rows.product_ids()
 LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 #: The Mens clothing depth (:mod:`mens_depth_rows`, gen#310): templates only.
 MENS_DEPTH_IDS = mens_depth_rows.product_ids()
+#: The types the failure classes need (:mod:`needs_rows`, gen#329): templates only.
+NEEDS_IDS = needs_rows.product_ids()
 
 
 def templates(baseline: bool = True) -> list[dict]:
