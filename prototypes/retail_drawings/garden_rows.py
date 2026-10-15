@@ -10,11 +10,13 @@ a robot mower's lawn area, a kettle's diameter, a gas barbecue's burners.
 Every type offers the six main colors across its styles (gen#275). Not done yet (gen#203): hedge
 trimmers, garden furniture sets and parasols; garden hoses are gen#292's.
 
-**Text-match decoys (gen#294).** Each type carries three: a sibling product whose title holds the
-type word (a cushion, an apron), a real product of the type whose title names a power source or
-fuel it does not use ("Electric Lawn Mower, Petrol Free"), and a candle whose scent holds an
-incidental word ("Freshly Mown Lawn"). Their fields tell the truth. :func:`decoy_ids` is what
-:func:`scale.derivable` and :mod:`main_colors` leave alone.
+**Text-match decoys (gen#294).** Each type carries at least three of each of five classes: a sibling
+product whose title holds the type word (a cushion, an apron), a real product of the type whose
+title names a power source or fuel it does not use ("Electric Lawn Mower, Petrol Free"), a short
+title or a scent with an incidental word ("Red Kite Lawn Mower", "Freshly Mown Lawn"), a title that
+names a part's color beside the product's own, and a description that names another color. Their
+fields tell the truth. :func:`decoy_ids` is what :func:`scale.derivable` and :mod:`main_colors`
+leave alone.
 
 All names are invented. Rows are templates only: :func:`scale.derivable` leaves them out, so the
 department grows by authored rows.
@@ -23,6 +25,8 @@ department grows by authored rows.
 # ruff: noqa: E501 -- data rows read better whole than wrapped (prototype only).
 
 from __future__ import annotations
+
+from dataclasses import replace
 
 import kit_garden  # noqa: F401 -- registers lawn_mower, robot_mower, grass_trimmer, bbq
 from breadth_rows import Row
@@ -192,7 +196,7 @@ BBQS = (
     _row("BBQBRL", "Barrel Charcoal BBQ with Chimney", _E, (*_BBQ, "Charcoal Barbecues"), "BBQ", 129.0,
          "bbq", "A horizontal drum with a side firebox and a tall chimney, for smoking joints "
          "low and slow.",
-         (BLACK, BLUE, YELLOW), _bbq("Charcoal", "Barrel", True, True),
+         (BLACK, BLUE, YELLOW), _bbq("Charcoal", "Barrel", True, False),
          _axis((90, 129.0), (110, 179.0)), "length_cm", (("kind", "barrel"),)),
     _row("BBQKAM", "Ceramic Kamado Charcoal BBQ", _H, (*_BBQ, "Charcoal Barbecues"), "BBQ", 349.0,
          "bbq", "An egg-shaped ceramic cooker that holds its heat for hours, for baking, "
@@ -212,7 +216,7 @@ BBQS = (
          "A cabinet with a separate side burner for a pan, a warming rack and a thermometer "
          "in the lid.",
          (BLACK, GREEN, RED), _bbq("Gas", "Gas", True, True, _u("burners", "Burners", 4, "C62"), _a("side_burner", "Side burner", "Yes")),
-         params=(("kind", "gas"), ("burners", "4"))),
+         params=(("kind", "gas"), ("burners", "4"), ("side_burner", "yes"))),
 )
 
 # --------------------------------------------------------------------------
@@ -245,7 +249,8 @@ def _candle(code: str, title: str, desc: str, scent: str) -> Row:
 
 #: code -> (the class, the query it targets, the type word it misleads on). The classes: ``type``
 #: (a sibling product holds the type word), ``absent`` (a real product names a fuel or power
-#: source it lacks) and ``incidental`` (a scent holds a word of the query).
+#: source it lacks), ``incidental`` (a scent or a short title holds a word of the query),
+#: ``secondary`` (the title names a part's color) and ``shade`` (only the description names a color).
 DECOY_TABLE = {
     "DCMCSH": ("type", "lawn mower", "Lawn Mower"), "DCMELC": ("absent", "petrol lawn mower", "Lawn Mower"),
     "DCMCND": ("incidental", "lawn mower", "Lawn Mower"),
@@ -268,18 +273,112 @@ DECOYS = (
     _row("DCRWIR", "Wire Robot Mower, No GPS", _H, (*_MOW, "Robot Mowers"), "Robot Mower", 299.0, "robot_mower",
          "A wire-guided robot that needs no satellite signal or subscription.",
          (WHITE,), _robot("wire", False, 30), _axis((250, 299.0),), "lawn_area_m2", (("boundary", "wire"),)),
-    _candle("DCRCND", "Garden Robot Moss Candle", "A mossy green scent in a glass jar, for a shelf by the garden door.", "Moss"),
+    _candle("DCRCND", "Garden Robot Moss Candle", "A mossy scent in a glass jar, for a shelf by the garden door.", "Moss"),
     _apron("DCTAPR", "Grass Trimmer Dad Apron", "A cotton apron with a pocket, printed with a grass trimmer and a joke about the lawn."),
     _row("DCTELC", "Corded Grass Trimmer, Not Cordless", _W, (*_TRIM, "Electric Grass Trimmers"), "Grass Trimmer",
          29.0, "grass_trimmer", "A mains trimmer on a long cable, with no battery to charge.",
          (YELLOW,), _trimmer("electric", "line", False), _axis((26, 29.0),), "cutting_width_cm",
          (("head", "line"), ("power", "electric"))),
-    _candle("DCTCND", "Fresh Cut Grass Candle", "A green, grassy scent in a glass jar, as a trimmer leaves the verge.", "Cut Grass"),
+    _candle("DCTCND", "Fresh Cut Grass Candle", "A cut-grass scent in a glass jar, as a trimmer leaves the verge.", "Cut Grass"),
     _apron("DCBAPR", "BBQ Master Apron", "A cotton apron with a pocket and a bottle opener loop, for the one who mans the grill."),
     _row("DCBCHR", "Charcoal BBQ, Not Gas", _L, (*_BBQ, "Charcoal Barbecues"), "BBQ", 39.0, "bbq",
          "A bowl grill that burns charcoal, with no gas bottle or hose to fit.",
          (BLACK,), _bbq("Charcoal", "Portable", True, False), _axis((38, 39.0),), "diameter_cm", (("kind", "portable"),)),
     _candle("DCBCND", "Smoky Garden BBQ Candle", "A smoky wood scent in a glass jar, as the barbecue dies down.", "Wood Smoke"),
+)
+
+
+# The decoys added for the gen#294 minimum (three of each class per type): real products of the
+# type are copies of one of its styles with one main color, a title or a description that
+# misleads, and the first size only.
+_MAIN = ("red", "blue", "green", "yellow", "black", "white")
+_BASE = {r.code: r for r in (*LAWN_MOWERS, *ROBOT_MOWERS, *GRASS_TRIMMERS, *BBQS)}
+_COLOR = {c[0].lower(): c for c in (RED, BLUE, GREEN, YELLOW, BLACK, WHITE)}
+_QUERY = {"Lawn Mower": "lawn mower", "Robot Mower": "robot mower", "Grass Trimmer": "grass trimmer", "BBQ": "bbq"}
+_ABSENT = {"Lawn Mower": "petrol", "Robot Mower": "gps", "Grass Trimmer": "cordless", "BBQ": "gas"}
+
+
+def _copy(code: str, title: str, base: str, color: str, desc: str) -> Row:
+    b = _BASE[base]
+    sizes = b.sizes[:1]
+    return replace(b, code=code, title=title, description=desc, colors=(_COLOR[color],), sizes=sizes,
+                   price=sizes[0][1] if sizes else b.price)  # fmt: skip
+
+
+#: (code, class, title, base style, own main color, description) for each added real product,
+#: and (code, class, title, description) for each added sibling product (a cushion or an apron).
+_REAL = {
+    "Lawn Mower": (
+        ("DCMA01", "absent", "Petrol Free Cordless Lawn Mower", "MWRCLP", "blue", "A battery mower with no fuel mix to buy and no pull cord, ready after a charge."),
+        ("DCMA02", "absent", "Corded Lawn Mower, Not Petrol", "MWRELC", "yellow", "A mains mower on a long cable, quiet and light, with nothing to refuel."),
+        ("DCMI01", "incidental", "Red Kite Lawn Mower", "MWRELC", "black", "A mains mower with a rear grass bag, named for the kites over the lawn."),
+        ("DCMI02", "incidental", "Blue Moon Lawn Mower", "MWRPET", "green", "A four-stroke mower with a driven rear axle, for long grass."),
+        ("DCMS01", "secondary", "Green Lawn Mower with Red Wheels", "MWRELC", "green", "A mains mower with a ten metre cable and a rear grass bag."),
+        ("DCMS02", "secondary", "Yellow Cordless Lawn Mower with Black Handle", "MWRCLP", "yellow", "A battery mower with a folding handle and a rear grass bag."),
+        ("DCMS03", "secondary", "Red Petrol Lawn Mower with White Grass Box", "MWRPET", "red", "A pull-start mower with a driven rear axle, for large lawns."),
+        ("DCMH01", "shade", "Light Corded Lawn Mower", "MWRELC", "blue", "A mains mower with a bright red start switch and a rear grass bag."),
+        ("DCMH02", "shade", "Folding Cordless Lawn Mower", "MWRCLP", "black", "A battery mower with a lime yellow grass bag that folds flat for the shed."),
+        ("DCMH03", "shade", "Heavy Duty Petrol Lawn Mower", "MWRPET", "blue", "A four-stroke mower with a white pull cord handle and a wide deck."),
+    ),
+    "Robot Mower": (
+        ("DCRA01", "absent", "Robot Mower, No GPS Needed", "ROBWIR", "yellow", "A robot that follows a boundary wire, with no satellite signal to lose under trees."),
+        ("DCRA02", "absent", "GPS Free Robot Mower for Terraces", "ROBCMP", "black", "A small wire-guided robot for a narrow terraced lawn."),
+        ("DCRI01", "incidental", "Black Pearl Robot Mower", "ROBWIR", "white", "A wire-guided robot that mows by night, named for the colour of its range."),
+        ("DCRI02", "incidental", "Blue Moon Robot Mower", "ROBCMP", "yellow", "A small robot for a town lawn, with a dial on its back."),
+        ("DCRS01", "secondary", "White Robot Mower with Red Dome", "ROBWIR", "white", "A wire-guided robot with a domed cover and a rain sensor."),
+        ("DCRS02", "secondary", "Yellow Robot Mower with Black Wheels", "ROBCMP", "yellow", "A compact robot that returns to its dock by itself."),
+        ("DCRS03", "secondary", "Green Robot Mower with White Cover", "ROBWIR", "green", "A wire-guided robot for a medium lawn, set from its dial."),
+        ("DCRH01", "shade", "Quiet Robot Mower for Small Lawns", "ROBCMP", "white", "A small robot with a red stop button on its top and a boundary wire."),
+        ("DCRH02", "shade", "Rain Sensing Robot Mower", "ROBWIR", "black", "A robot with a bright yellow charging dock that sends it home in a shower."),
+        ("DCRH03", "shade", "Night Time Robot Mower", "ROBCMP", "green", "A robot that mows after dark, with a blue status light on its cover."),
+    ),
+    "Grass Trimmer": (
+        ("DCTA01", "absent", "Not Cordless: Petrol Grass Trimmer", "TRMPET", "yellow", "A two-stroke trimmer with a metal blade, which starts on a pull cord."),
+        ("DCTA02", "absent", "Mains Grass Trimmer, Never Cordless", "TRMELC", "red", "A trimmer on a long cable, with a telescopic shaft."),
+        ("DCTI01", "incidental", "Red Kite Grass Trimmer", "TRMELC", "black", "A mains trimmer with a pivoting head, from the Kite range."),
+        ("DCTI02", "incidental", "Blue Moon Grass Trimmer", "TRMCRD", "yellow", "A battery trimmer with a line head that feeds as you tap it."),
+        ("DCTS01", "secondary", "Green Cordless Grass Trimmer with Black Handle", "TRMCRD", "green", "A battery trimmer for edging a lawn and tidying round beds."),
+        ("DCTS02", "secondary", "Yellow Grass Trimmer with Red Guard", "TRMELC", "yellow", "A mains trimmer for trimming along walls and borders."),
+        ("DCTS03", "secondary", "Blue Petrol Grass Trimmer with White Strap", "TRMPET", "blue", "A two-stroke trimmer for brambles and rough ground."),
+        ("DCTH01", "shade", "Light Edging Grass Trimmer", "TRMCRD", "black", "A battery trimmer with a red trigger and a line head."),
+        ("DCTH02", "shade", "Heavy Duty Grass Trimmer", "TRMPET", "white", "A trimmer with a bright yellow shoulder strap and a metal blade."),
+        ("DCTH03", "shade", "Telescopic Border Grass Trimmer", "TRMELC", "red", "A mains trimmer with a green guard and a pivoting head."),
+    ),
+    "BBQ": (
+        ("DCBA01", "absent", "Gas Free Kettle BBQ", "BBQKET", "red", "A charcoal kettle with a vented lid, with no bottle or hose to fit."),
+        ("DCBA02", "absent", "Kamado BBQ, No Gas Needed", "BBQKAM", "green", "A ceramic cooker that holds its heat on charcoal alone."),
+        ("DCBI01", "incidental", "Red Kite BBQ", "BBQKET", "black", "A charcoal kettle from the Kite range, with a vented lid."),
+        ("DCBI02", "incidental", "Blue Moon BBQ", "BBQPRT", "white", "A small bowl grill with a carry handle and folding legs."),
+        ("DCBS01", "secondary", "Black Kettle BBQ with Red Wheels", "BBQKET", "black", "A charcoal kettle with a vented lid, on three legs."),
+        ("DCBS02", "secondary", "Red Portable BBQ with Black Legs", "BBQPRT", "red", "A small bowl grill for a picnic or a camping trip."),
+        ("DCBS03", "secondary", "Blue Gas BBQ with White Shelves", "BBQGAS", "blue", "A cabinet barbecue with a hooded lid and a shelf each side."),
+        ("DCBH01", "shade", "Family Kettle BBQ", "BBQKET", "white", "A charcoal kettle with a red vent dial and a thermometer in the lid."),
+        ("DCBH02", "shade", "Folding Portable BBQ", "BBQPRT", "blue", "A bowl grill with a yellow carry strap and folding legs."),
+        ("DCBH03", "shade", "Smoker Kamado BBQ", "BBQKAM", "yellow", "A ceramic cooker with a green felt seal and a heavy lid."),
+    ),
+}
+_SIBLINGS = (
+    ("DCMT01", "Lawn Mower", _apron, "Lawn Mower Racing Apron", "A cotton apron printed with a mower and a joke about stripes."),
+    ("DCMT02", "Lawn Mower", _cushion, "Striped Lawn Mower Cushion", "A cotton cushion printed with a mower on a striped lawn."),
+    ("DCRT01", "Robot Mower", _apron, "Robot Mower Chef Apron", "A cotton apron with a pocket, printed with a little round robot mower."),
+    ("DCRT02", "Robot Mower", _cushion, "Robot Mower Garden Cushion", "A cotton cushion with a robot mower on a green lawn."),
+    ("DCTT01", "Grass Trimmer", _cushion, "Grass Trimmer Joke Cushion", "A cotton cushion printed with a trimmer and a joke about hedges."),
+    ("DCTT02", "Grass Trimmer", _apron, "Grass Trimmer Workshop Apron", "A cotton apron with two pockets, printed with a trimmer."),
+    ("DCBT01", "BBQ", _cushion, "BBQ Night Cushion", "A cotton cushion printed with a grill and a string of lights."),
+    ("DCBT02", "BBQ", _apron, "BBQ Grill Pro Apron", "A cotton apron with a pocket and a bottle opener loop."),
+)
+_CLASS_QUERY = {"type": "{q}", "absent": "{a} {q}", "incidental": "red {q}", "secondary": "red {q}", "shade": "red {q}"}
+
+for _ptype, _items in _REAL.items():
+    for _code, _cls, *_ in _items:
+        DECOY_TABLE[_code] = (_cls, _CLASS_QUERY[_cls].format(q=_QUERY[_ptype], a=_ABSENT[_ptype]), _ptype)
+for _code, _ptype, *_ in _SIBLINGS:
+    DECOY_TABLE[_code] = ("type", _QUERY[_ptype], _ptype)
+
+DECOYS = (
+    *DECOYS,
+    *(_copy(c, t, b, col, d) for items in _REAL.values() for c, _k, t, b, col, d in items),
+    *(make(c, t, d) for c, _p, make, t, d in _SIBLINGS),
 )
 
 ROWS = (*LAWN_MOWERS, *ROBOT_MOWERS, *GRASS_TRIMMERS, *BBQS, *DECOYS)
