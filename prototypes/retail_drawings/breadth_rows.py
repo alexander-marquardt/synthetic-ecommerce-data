@@ -44,6 +44,8 @@ OWNERS = {
     "Pipwick Toys": "third_party",
     # The seasonal rows (seasonal_rows.py, gen#195) sell a make-up brand.
     "Kestlewood Cosmetics": "third_party",
+    # The garden machine rows (garden_rows.py, gen#203).
+    "Verdane": "third_party", "Mowbray & Reeve": "third_party", "Embergrove": "third_party",
 }  # fmt: skip
 
 

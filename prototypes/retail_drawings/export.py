@@ -127,6 +127,10 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "berth": ("berth", "Berth", "C62"),
     "thickness_mm": ("thickness", "Thickness", "MMT"),
     "weight_kg": ("weight", "Weight", "KGM"),
+    # A mower's or trimmer's cutting width and a robot mower's lawn area (garden_rows.py,
+    # gen#203); the area is a plain number named in square metres, as a wattage is in watts.
+    "cutting_width_cm": ("cutting_width", "Cutting width", "CMT"),
+    "lawn_area_m2": ("lawn_area", "Lawn area (sq m)", None),
 }
 #: The SKU fields that are columns of the variant, not options.
 SKU_COLUMNS = frozenset({"sku", "price", "in_stock", "ingredients"})

@@ -36,6 +36,7 @@ import decoy_apparel  # noqa: E402
 import decoy_rows  # noqa: E402
 import distractor_rows  # noqa: E402
 import export  # noqa: E402
+import garden_rows  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
 import lighting_rows  # noqa: E402
@@ -117,6 +118,7 @@ def measure() -> dict[str, Any]:
         "shirt_rows": shirt_rows.docs(),
         "accessory_rows": accessory_rows.docs(),
         "sports_rows": sports_rows.docs(),
+        "garden_rows": garden_rows.docs(),
         "household_rows": household_rows.docs(),
         "lowerbody_rows": lowerbody_rows.docs(),
         "lighting_rows": lighting_rows.docs(),
