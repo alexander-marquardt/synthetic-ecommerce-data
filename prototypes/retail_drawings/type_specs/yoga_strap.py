@@ -21,7 +21,7 @@ SPEC = TypeSpec(
              _PRIMARY, (_a("material", "Material", "Cotton"), _a("closure", "Closure", "D-Ring")),
              _axis((183, 6.0), (244, 8.0)), "length_cm", (("buckle", "ring"),)),
         _row("YGSCLP", "Nylon Yoga Strap with Quick Clip", _H, (*_YOGA, "Yoga Straps"), "Yoga Strap", 9.0,
-             "yoga_strap", "A soft nylon strap with a quick-release clip that snaps shut in one move and holds under tension.",
+             "yoga_strap", "A soft nylon strap with a quick-release clip that closes in one move and holds under tension.",
              _NEUTRAL, (_a("material", "Material", "Nylon"), _a("closure", "Closure", "Clip")),
              _axis((183, 9.0), (244, 11.0)), "length_cm", (("buckle", "clip"),)),
     ),
