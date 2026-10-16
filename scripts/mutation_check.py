@@ -26,6 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import mutation_rows_customer_names  # noqa: E402  (#393 rows, kept in their own file)
 import mutation_rows_type_specs  # noqa: E402  (gen#351 rows, kept in their own file)
 
 REPO = Path(__file__).resolve().parent.parent
@@ -3821,6 +3822,11 @@ MUTATIONS: list[Mutation] = [
     *(
         Mutation(f"type specs: {name}", file, old, new, test, "", prop, root=root)
         for name, file, old, new, test, prop, root in mutation_rows_type_specs.ROWS
+    ),
+    # ---- the customer-name check (#393); the rows are in their own file ----
+    *(
+        Mutation(f"customer names: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in mutation_rows_customer_names.ROWS
     ),
     # ---- retail: product-word decoys (gen#326) ----
     *(
