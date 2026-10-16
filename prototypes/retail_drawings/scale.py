@@ -119,6 +119,7 @@ import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
 import mens_depth_rows  # noqa: E402
 import net_volume  # noqa: E402
+import nike_rows  # noqa: E402
 import scale_rows  # noqa: E402
 import school_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
@@ -262,6 +263,8 @@ COLORGROUP_IDS = colorgroup_rows.product_ids()
 LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 #: The Mens clothing depth (:mod:`mens_depth_rows`, gen#310): templates only.
 MENS_DEPTH_IDS = mens_depth_rows.product_ids()
+#: The Nike styles and the decoys that name Nike (:mod:`nike_rows`, gen#341): templates only.
+NIKE_IDS = nike_rows.product_ids()
 #: The ids the type specs (:mod:`type_registry`, gen#351) keep out of the derivation: a spec that
 #: is not ``derivable`` and every spec decoy. No type edits this line: the registry finds them.
 SPEC_IDS = type_registry.left_out_ids()
@@ -303,7 +306,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
         *garden_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
-        *type_registry.docs(),
+        *nike_rows.docs(), *type_registry.docs(),
     ]  # fmt: skip
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
     body = net_volume.state_title_volumes(body)  # gen#347: a volume the title states is the field
@@ -311,7 +314,8 @@ def templates(baseline: bool = True) -> list[dict]:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
     type_registry.check_unique_ids(tpls)
-    skip = mens_depth_rows.decoy_ids() | garden_rows.decoy_ids() | type_registry.decoy_ids()
+    skip = (mens_depth_rows.decoy_ids() | garden_rows.decoy_ids() | NIKE_IDS
+            | type_registry.decoy_ids())
     return main_colors.complete(tpls, skip) if baseline else tpls
 
 
@@ -327,7 +331,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
     the no-policy baseline the neckline, so it stays a template."""
     left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
                 | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS | SCHOOL_IDS
-                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | GARDEN_IDS
+                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | GARDEN_IDS | NIKE_IDS
                 | SPEC_IDS | decoy_rows.IDS
                 | decoy_apparel.IDS | decoy_product_words.IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)

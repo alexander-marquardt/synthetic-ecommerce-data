@@ -112,6 +112,13 @@ class TypeSpec:
     """
 
     key: str
+    #: The shopper-readable name every product of the type carries as
+    #: ``product_type_label`` (singular, plain English, capitalised, no ``_``,
+    #: unique). Required: a type without one stops the build (#331). A type
+    #: whose label is still in ``type_labels.PRODUCT_TYPE_LABELS`` leaves this
+    #: unset; declaring it in both places is refused. Declared here, two PRs
+    #: that each add a type edit no line in common (#103).
+    label: str = ""
     part_number_block: int | None = None
     #: A modelled type's category path, root first; the leaf is the type.
     category: tuple[str, ...] = ()
@@ -220,6 +227,21 @@ def discover(package: str = TYPES_PACKAGE) -> dict[str, TypeSpec]:
     return specs
 
 
+#: Per-spec hooks :func:`register` calls first, each filled by the domain module
+#: that owns the table it writes (:func:`on_register`), so core imports no domain.
+_SPEC_HOOKS: list[Callable[[TypeSpec], None]] = []
+
+
+def on_register(hook: Callable[[TypeSpec], None]) -> None:
+    """Have :func:`register` call ``hook(spec)`` on every spec, before it writes its tables.
+
+    Adding a hook twice leaves one. A hook that reads a spec's field a table does not take
+    (the label, #103) is how a domain table fills without core naming the domain.
+    """
+    if hook not in _SPEC_HOOKS:
+        _SPEC_HOOKS.append(hook)
+
+
 def register(spec: TypeSpec) -> None:
     """Write ``spec`` into the shared, type-keyed tables every reader uses.
 
@@ -237,6 +259,8 @@ def register(spec: TypeSpec) -> None:
     )
     from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES  # noqa: PLC0415
 
+    for hook in _SPEC_HOOKS:
+        hook(spec)
     if spec.breadth is not None:
         if spec.breadth.key != spec.key:
             raise TypeModuleError(
