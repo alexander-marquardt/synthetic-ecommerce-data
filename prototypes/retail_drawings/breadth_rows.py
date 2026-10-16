@@ -515,7 +515,7 @@ def _charm(v: str) -> tuple[tuple[str, str, str], ...]:
 
 
 def _scent(v: str) -> tuple[tuple[str, str, str], ...]:
-    return (("fragrance", "Fragrance", v),)
+    return (("scent", "Scent", v),)
 
 
 _SILVER, _OAK = cw("Silver", "#c0c0c0"), cw("Oak", "#b08a5a")
