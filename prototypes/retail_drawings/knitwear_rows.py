@@ -351,7 +351,11 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
 
 _DECOY_ROWS, _TABLE = _decoys()
 _FLOOR_ROWS = _floor_rows()
-ROWS: tuple[LRow, ...] = (*_FLOOR_ROWS, *_DECOY_ROWS)
+_ALL_ROWS: tuple[LRow, ...] = (*_FLOOR_ROWS, *_DECOY_ROWS)
+#: Knitted Top is a type of its own with a spec file (``type_specs/knitted_top.py``, gen#351): the
+#: registry builds its rows, so :data:`ROWS` holds the jumpers and cardigans only.
+TOP_ROWS: tuple[LRow, ...] = tuple(r for r in _ALL_ROWS if r.product_type == _TOP)
+ROWS: tuple[LRow, ...] = tuple(r for r in _ALL_ROWS if r.product_type != _TOP)
 #: Every decoy, with its class, word, query and policy: the docs table is generated from it.
 TABLE: tuple[Decoy, ...] = tuple(_TABLE)
 
