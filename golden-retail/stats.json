@@ -11,10 +11,10 @@
   },
   "images": 18780,
   "non_grocery": {
-   "skus": 91868,
+   "skus": 93642,
    "styles": 5530
   },
-  "skus": 134027,
+  "skus": 135976,
   "styles": 13029,
   "top_levels": {
    "Beauty": {
@@ -58,7 +58,7 @@
     "styles": 443
    },
    "Womens": {
-    "skus": 83254,
+    "skus": 85203,
     "styles": 2749
    }
   }
@@ -531,7 +531,7 @@
    "styles": 53
   },
   "all": {
-   "skus": 72999,
+   "skus": 73803,
    "styles": 8554
   },
   "appliance_rows": {
@@ -544,7 +544,7 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 60590,
+   "skus": 61394,
    "styles": 4038
   },
   "breadth_rows": {
@@ -556,7 +556,7 @@
    "styles": 24
   },
   "decoy_apparel": {
-   "skus": 14151,
+   "skus": 14326,
    "styles": 1420
   },
   "decoy_product_words": {
