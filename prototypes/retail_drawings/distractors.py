@@ -458,7 +458,7 @@ GIFT_TAIL = (
         ("Garden", "Plants", "Gift Plants"), 30.0,
         "A young olive tree, about 60 cm tall, potted and wrapped in hessian for giving.",
         drawing("potted_tree", cw("Hessian", "#b89b6e", "solid", "#6b5a3a"), "Olive"),
-        (("height", "Height", "60", "CMT"),),
+        (("item_height", "Item height", "60", "CMT"),),
     ), _BOOST + "Gift Plants"),
     Distractor(product(
         "GTKEYR", "Gift Boxed Brass Keyring", "Calderby & Lune", "Gifts",
