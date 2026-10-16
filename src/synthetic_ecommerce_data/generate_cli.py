@@ -6,7 +6,8 @@
     ecom-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz
     ecom-generate block shim_stock_precision
 
-``build`` writes:
+``build`` runs its image, product and non-copying audits first and writes nothing
+if one refuses (exit 1, ``--out`` untouched: gen#253). When all pass it writes:
 
 ``nested.jsonl``
     parent documents with nested SKUs and nested key-value attributes
@@ -324,12 +325,8 @@ def main(argv: list[str] | None = None) -> int:
 
     out = args.out
     base_url = args.image_base_url
-    nested = emit.write_jsonl(emit.iter_nested(catalog, base_url), out / "nested.jsonl")
-    flat = emit.write_jsonl(emit.iter_flat(catalog, base_url), out / "flat.jsonl")
-    images = emit.write_jsonl(emit.iter_image_manifest(catalog, base_url), out / "images.jsonl")
-
     # Every SKU points at its own drawing and every product at one of its
-    # SKUs'. Both directions are asserted before the catalog is written.
+    # SKUs'. Both directions are asserted before anything is written.
     referenced = emit.referenced_image_ids(catalog)
     problems = _check_images(catalog, referenced)
     if problems:
@@ -348,14 +345,20 @@ def main(argv: list[str] | None = None) -> int:
         for problem in split_problems:
             print(f"product audit FAILED: {problem}", file=sys.stderr)
         return 1
-    # render.jsonl is every SKU in the shape ``ecom-render batch`` reads.
-    render = emit.write_jsonl(emit.render_records(catalog), out / "render.jsonl")
-
     audit = noncopy.audit(catalog)
     if audit["full_tuple_collisions"] or audit["sku_collisions"]:
         # Refuse to write a catalog that breaks the repository's own promise.
         print("non-copying audit FAILED:", json.dumps(audit), file=sys.stderr)
         return 1
+
+    # Every audit has passed: only now is anything written (gen#253). A refused build leaves
+    # ``--out`` as it was, so ``--out golden-catalog`` never replaces the tracked files with a
+    # catalog an audit just refused.
+    nested = emit.write_jsonl(emit.iter_nested(catalog, base_url), out / "nested.jsonl")
+    flat = emit.write_jsonl(emit.iter_flat(catalog, base_url), out / "flat.jsonl")
+    images = emit.write_jsonl(emit.iter_image_manifest(catalog, base_url), out / "images.jsonl")
+    # render.jsonl is every SKU in the shape ``ecom-render batch`` reads.
+    render = emit.write_jsonl(emit.render_records(catalog), out / "render.jsonl")
 
     payload = _serialisable(stats)
     payload["noncopy_audit"] = audit
