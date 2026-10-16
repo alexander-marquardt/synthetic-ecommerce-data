@@ -298,7 +298,7 @@ STEAK_WARE = (
           "steak, with a groove round the edge that catches the juices. Hand wash.",
           "Chopping Board", "chopping_board", one(WOODEN, 50),
           extra=(("material", "Material", "Wood"),),
-          params=(("material", "wood"),)),
+          params=(("material", "wood"), ("groove", "juice"))),
     Style("DSK10", "Cast Iron Steak Weight", "Calderby & Lune", "Home", (*KD, "Kitchen Utensils"),
           14.0, "A ribbed cast-iron grill press that keeps a steak flat in the pan so it sears "
           "evenly, with a wooden handle that stays cool. Hand wash and oil after use.",
