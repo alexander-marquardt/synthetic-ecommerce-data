@@ -19,8 +19,11 @@ second standard.
 
 Matching runs over the message folded the way the core scan folds it: NFKC,
 zero-width characters removed, case-insensitive. The agent-instructions file
-name is masked first, as the core scan masks it (:func:`mask_file_name`): a
-commit that edits that file may say so.
+name is masked as the core scan masks it (:func:`mask_file_name`), and, as in
+the core scan, only for the vendor-name row (core masks only the
+``AI_MENTION_TIER_LABELS``): a commit that edits that file may say so. Every
+shape row (a co-author trailer, "generated with", "made with") reads the
+unmasked line, so ``Co-Authored-By: CLAUDE.md`` still fails.
 """
 
 from __future__ import annotations
@@ -108,11 +111,26 @@ def fold(text: str) -> str:
 #: not masked, so ``Claude wrote CLAUDE.md`` still fails on ``Claude``.
 _AGENT_FILE = re.compile(r"(?<![\w.-])CLAUDE\.md(?![\w-])")
 _MASK = "<file>"
+#: The one row that reads the masked text.
+_MASKED_LABEL = "ai-vendor-name"
 
 
 def mask_file_name(text: str) -> str:
     """``text`` with every agent-instructions file name masked."""
     return _AGENT_FILE.sub(_MASK, text)
+
+
+def _first_match(text: str) -> str | None:
+    """The label of the first rule ``text`` trips, or None.
+
+    The vendor-name row reads the text with the file name masked; every other
+    row reads it as written, so a shape row still sees the file name.
+    """
+    masked = mask_file_name(text)
+    for label, pattern in FAMILY:
+        if pattern.search(masked if label == _MASKED_LABEL else text):
+            return label
+    return None
 
 
 def problems(message: str, skip_comment_lines: bool = True) -> list[str]:
@@ -125,21 +143,19 @@ def problems(message: str, skip_comment_lines: bool = True) -> list[str]:
     nothing is skipped. A phrase wrapped across two lines is also caught: the
     message is checked once more with its lines joined.
     """
-    lines = mask_file_name(fold(message)).splitlines()
+    lines = fold(message).splitlines()
     if skip_comment_lines:
         lines = [line for line in lines if not line.startswith("#")]
     found = []
     for line in lines:
-        for label, pattern in FAMILY:
-            if pattern.search(line):
-                found.append(f"{label}: {line.strip()}")
-                break
+        label = _first_match(line)
+        if label:
+            found.append(f"{label}: {line.strip()}")
     if not found:
         joined = " ".join(line.strip() for line in lines)
-        for label, pattern in FAMILY:
-            if pattern.search(joined):
-                found.append(f"{label} (across lines): {joined[:80]}")
-                break
+        label = _first_match(joined)
+        if label:
+            found.append(f"{label} (across lines): {joined[:80]}")
     return found
 
 
