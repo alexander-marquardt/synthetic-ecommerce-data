@@ -46,6 +46,7 @@ TOUCHED = (
     "tests/test_retail_type_specs_351.py",
     "tests/test_retail_main_colors_275.py",
     "tests/test_retail_tree_nesting_283.py",
+    "tests/test_retail_sports_265.py",
     "tests/test_retail_sports_decoys_368.py",
     "tests/test_retail_figures_162.py",
     "golden-retail/stats.json",
@@ -123,5 +124,10 @@ def test_the_section_says_a_retail_type_has_no_part_number_block() -> None:
     section = _section()
     assert "There is no part-number block" in section
     assert "BRD-" in section and "ecom-generate block" in section
-    readers = [p.name for p in RETAIL.glob("*.py") if "block_of" in p.read_text("utf-8")]
+    # rglob: type_specs/ holds most retail modules, and a glob of the top level never saw it
+    readers = [
+        str(p.relative_to(RETAIL))
+        for p in RETAIL.rglob("*.py")
+        if "block_of" in p.read_text("utf-8")
+    ]
     assert not readers, f"a retail module reads a part-number block: {readers}"
