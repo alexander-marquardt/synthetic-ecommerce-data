@@ -31,6 +31,7 @@ import kit_garden  # noqa: E402
 import main_colors  # noqa: E402
 import scale  # noqa: E402
 import tree_guard  # noqa: E402
+import type_registry  # noqa: E402
 
 from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 
@@ -271,11 +272,44 @@ def _own(row) -> set[str]:
     return {c[0].lower() for c in row.colors}
 
 
-@pytest.mark.parametrize("ptype", sorted(KEYS))
+#: Every product type the registry lists for the Garden department: the types in a spec file and the
+#: ones still on the legacy list. A type new to the department is here at once, so it cannot skip
+#: the decoys of gen#294 unless it is exempt below with the reason.
+GARDEN_TYPES = sorted(
+    {s.product_type for s in type_registry.specs().values() if s.department == "Garden"}
+    | {t for d, t in type_registry.legacy_types() if d == "Garden"}
+)
+#: A Garden type that carries no decoys, and why. An entry is wrong as soon as its type holds a
+#: decoy (see ``test_an_exempt_garden_type_holds_no_decoy_and_states_its_reason``).
+EXEMPT = {
+    t: "a plant or growing kit, bought by variety: gen#203 left the nursery types as they were"
+    for t in (
+        "Bedding Plant",
+        "Bouquet",
+        "Bulbs",
+        "Christmas Tree",
+        "Growing Kit",
+        "Plant",
+        "Seeds",
+    )
+}
+DECOY_TYPES = [t for t in GARDEN_TYPES if t not in EXEMPT]
+
+
+@pytest.mark.parametrize("ptype", DECOY_TYPES)
 def test_each_type_carries_at_least_three_decoys_of_each_class(ptype: str) -> None:
     got = _decoys(ptype)
     assert set(got) <= set(CLASSES)
     assert {k: len(got[k]) for k in CLASSES if len(got[k]) < 3} == {}
+
+
+def test_an_exempt_garden_type_holds_no_decoy_and_states_its_reason() -> None:
+    """The exemption list is exact: each entry names a Garden type, gives a reason, and holds no
+    decoy (a type that gained decoys leaves the list), and the machines are never on it."""
+    assert set(EXEMPT) <= set(GARDEN_TYPES), "an exempt type the registry does not list"
+    assert {t: r for t, r in EXEMPT.items() if len(r.split()) < 4} == {}
+    assert {t for t in EXEMPT if _decoys(t)} == set()
+    assert set(KEYS) <= set(DECOY_TYPES)
 
 
 @pytest.mark.parametrize("ptype", sorted(KEYS))
