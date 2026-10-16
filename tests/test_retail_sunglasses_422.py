@@ -146,14 +146,35 @@ def test_the_issue_query_returns_the_type_first(index: br.Index, query: str) -> 
     assert top and top[0]["product_type"] == PTYPE, [d["title"] for d in top]
 
 
+#: Every decoy of the type by code: its gen#311 class (4 absent feature, 5 shade in the description,
+#: 6 incidental word in a range name, 7 brand). Adding or dropping one is a decision this test shows.
+DECOY_CLASSES = {"DCSGL1": 4, "DCSGL2": 5, "DCSGL4": 6, "DCSGL5": 6, "DCSGL3": 7}
+_MAIN_COLORS = {"black", "red", "blue", "green", "yellow", "white"}
+
+
 def test_the_type_carries_text_match_decoys_whose_structured_fields_deny_their_text() -> None:
-    assert len(SPEC.decoys) >= 3
-    assert {d.cls for d in SPEC.decoys} >= {4, 5, 7}
+    assert {d.row.code: d.cls for d in SPEC.decoys} == DECOY_CLASSES
     for d in SPEC.decoys:
-        assert d.row.product_type == PTYPE
-        text = f"{d.row.title} {d.row.description}".lower()
+        code = d.row.code
+        assert d.row.product_type == PTYPE, code
+        title, desc = d.row.title.lower(), d.row.description.lower()
+        text = f"{title} {desc}"
+        colors = [color[0].lower() for color in d.row.colors]
+        word = d.query.split()[0]
+        assert word in text, code
         if d.cls == 4:
-            assert "uv400" in text and _attr(d.row, "uv400") == "No", d.row.code
+            assert "uv400" in text and _attr(d.row, "uv400") == "No", code
+        if d.cls == 5:  # the shade is in the description only, and the structured color is another
+            assert word == "blue" and "blue" in desc and "blue" not in title, code
+            assert "blue" not in colors, code
+        if d.cls == 6:  # a range name that leads the title holds the word; the fields do not
+            assert title.split()[0] == word and word not in desc, code
+            assert word not in colors, code
+            assert word not in {str(v).lower() for _, _, v, *_ in d.row.attrs}, code
+        if d.cls == 7:
+            assert "pellbrook" in text and d.row.brand != "Pellbrook", code
+    six = {d.query.split()[0] for d in SPEC.decoys if d.cls == 6}
+    assert six & _MAIN_COLORS and six - _MAIN_COLORS  # one color word and one category noun
 
 
 @pytest.mark.timeout(300)
@@ -162,4 +183,4 @@ def test_every_style_and_decoy_reaches_the_100k_build_and_meets_the_standard() -
     docs = scale.documents(scale.build(100_000))
     mine = [d for d in docs if d["product_id"] in every]
     assert {d["product_id"] for d in mine} == every
-    assert check_catalog(mine, one_class_per_key=True) == []
+    assert check_catalog(mine, one_class_per_key=True, text_exempt=scale.TEXT_EXEMPT) == []

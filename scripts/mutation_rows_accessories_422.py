@@ -222,7 +222,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "gloves: the size axis is the garment size",
         "type_specs/gloves.py",
-        'size_key="glove_size"',
+        'size_key="glove_size_letter"',
         'size_key="size"',
         'tests/test_retail_gloves_422.py -k "sku_axis_is_the_glove_size"',
         "a glove has its own size scale",

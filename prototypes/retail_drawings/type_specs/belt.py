@@ -10,7 +10,7 @@ Not derivable: the department grows by authored rows. Every name here is invente
 
 The decoys are same-type belts whose text claims what their structured entries deny (gen#294): a
 pin-buckle belt that names the automatic buckle (class 4), a blue lining in the description of a
-black belt (class 5) and another brand's name in the description (class 7). The text-match for
+black belt (class 5), a color word or another category's noun in a range name (two of class 6: "Green Park Belt" is black) and another brand's name in the description (class 7). The text-match for
 the word itself is the ranker's: a sander belt in Tools never outranks a leather belt.
 """
 
@@ -175,6 +175,14 @@ SPEC = TypeSpec(
         Decoy(5, "blue belt", "color facet: blue means the belt color, not a word in the text",
               _row("DCBLT2", "Lined Dress Belt", _P, 12.0, "Leather", "Pin", "3",
                    "A black leather belt with a blue lining stitched along its inner edge, with a pin buckle.",
+                   (BLACK,))),
+        Decoy(6, "green belt", "color facet: a color word in a range name is not the belt color",
+              _row("DCBLT4", "Green Park Belt", _P, 10.0, "Leather", "Pin", "3",
+                   "A black leather belt from the Park range, with a pin buckle and five fixed holes.",
+                   (BLACK,))),
+        Decoy(6, "boot belt", "type facet: another category's noun in a range name does not make the belt that category",
+              _row("DCBLT5", "Boot Hill Belt", _W, 9.0, "Canvas", "Plate", "3.2",
+                   "A black canvas belt from the Hill range, with a plate buckle.",
                    (BLACK,))),
         Decoy(7, "pellbrook belt", "brand facet: a brand named in the text is not the product's brand",
               _row("DCBLT3", "Everyday Casual Belt", _W, 7.0, "Canvas", "Plate", "3.2",
