@@ -20,7 +20,7 @@ The pre-existing records (:func:`distractors.corpus`) are unchanged and carry
 none of these fields. The proof is Elasticsearch (:mod:`es_proof`): the
 baseline is BM25 times a popularity boost (it mimics the live site); the
 policy adds filters and boosts. Its result is committed in
-``real_classes_proof.json`` and rendered into the README by :func:`markdown`.
+``real_classes_proof.json`` and rendered into docs/retail-prototype.md by :func:`markdown`.
 Standard library only.
 
 Where things live: the vocabularies and the record model (:class:`Style`,
@@ -314,7 +314,7 @@ def color_body(text: str, color: str, size: int = 5) -> dict:
 
 
 # ==========================================================================
-# The recorded proof, rendered for the README
+# The recorded proof, rendered for docs/retail-prototype.md
 # ==========================================================================
 
 
@@ -359,7 +359,7 @@ def verdicts(proof: dict, catalog: list[dict]) -> list[str]:
 
 
 def markdown(proof: dict, catalog: list[dict]) -> str:
-    """The README's before and after table; a target is in bold."""
+    """The retail page's before and after table; a target is in bold."""
     by_id = {d["product_id"]: d for d in catalog}
     got = {r["query"]: r for r in proof["rows"]}
 

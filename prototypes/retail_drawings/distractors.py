@@ -476,7 +476,7 @@ DUPLICATE_PATH = ("Gifts", "Gifts for Her", "Beauty Gifts")
 #: when its products are in that corpus; a row over another catalog (the boots
 #: row, :data:`footwear_rows.BOOTS`, over ``footwear_rows.catalog()``) stays in
 #: its own module and is added by hand to ``build_preview4._planted()`` and
-#: ``_score_table()``. Either way, add its line to the README's class table.
+#: ``_score_table()``. Either way, add its line to the class table in docs/retail-prototype.md.
 TABLE = (
     Row("Print, flavour and scent words", "lemon", "fresh lemons",
         lambda d: d["category_path"][:3] == ["Food & Drink", "Fruit & Vegetables", "Fresh Fruit"]
