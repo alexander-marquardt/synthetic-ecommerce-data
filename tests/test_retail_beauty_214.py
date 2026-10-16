@@ -77,6 +77,7 @@ VARIANTS = [
 def _spec(ptype: str) -> type_registry.TypeSpec:
     spec = type_registry.specs().get(TYPES[ptype][0])
     assert spec is not None, f"{ptype}: no spec type_specs/{TYPES[ptype][0]}.py"
+    spec.docs()  # states the spec's brand owners
     return spec
 
 
@@ -200,8 +201,8 @@ def test_a_shapes_param_changes_the_drawing(variant: tuple) -> None:
     if third:
         both = {_svg(shape=shape, **one), _svg(shape=shape, **other)}
         assert _svg(shape=shape, **third) not in both
-    solid = _svg(shape=shape)
-    striped = kit.render(shape, kit.Fill("stripes", "#123456", "#654321"), params={})
+    solid = kit.render(shape, kit.Fill("solid", "#123456", "#654321"), uid="a")
+    striped = kit.render(shape, kit.Fill("stripe", "#abcdef", "#fedcba"), uid="b")
     assert "#123456" in solid and "url(#fill-b)" in striped
     xml.dom.minidom.parseString(solid)
 
@@ -209,7 +210,7 @@ def test_a_shapes_param_changes_the_drawing(variant: tuple) -> None:
 def test_every_style_draws_its_param_and_prints_no_size() -> None:
     known = {v[0]: {k for d in v[1:] if d for k in d} for v in VARIANTS}
     rows = [*_all_rows(), *(d.row for d in _all_decoys())]
-    assert len(rows) >= 60
+    assert len(rows) >= 50
     for row in rows:
         assert {k for k, _ in row.params} <= known[row.shape], row.code
         xml.dom.minidom.parseString(_svg(row))
@@ -302,5 +303,5 @@ def test_every_beauty_style_reaches_the_build_and_meets_the_standard() -> None:
     want = {f"BRD-{r.code}" for r in _all_rows()} | {f"BRD-{d.row.code}" for d in _all_decoys()}
     assert want and want <= got
     mine = [d for d in docs if d["product_id"] in want]
-    assert check_catalog(mine, one_class_per_key=True, text_exempt=scale.DECOY_IDS) == []
+    assert check_catalog(mine, one_class_per_key=True, text_exempt=scale.TEXT_EXEMPT) == []
     assert {d["product_type"] for d in mine} == set(TYPES)

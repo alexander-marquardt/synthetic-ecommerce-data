@@ -133,7 +133,9 @@ def test_a_spec_file_is_named_for_its_key_and_its_documents_meet_the_standard(ke
     assert (RETAIL / "type_specs" / f"{key}.py").is_file()
     docs = spec.docs()
     assert len(docs) == len(spec.rows) + len(spec.decoys)
-    assert check_catalog([export.standard_document(d) for d in docs], one_class_per_key=True) == []
+    exempt = type_registry.decoy_ids_of(spec)  # a decoy names a value of its own filter
+    standard = [export.standard_document(d) for d in docs]
+    assert check_catalog(standard, one_class_per_key=True, text_exempt=exempt) == []
 
 
 def _good() -> type_registry.TypeSpec:
@@ -202,7 +204,9 @@ def test_the_scaffold_writes_a_spec_that_validates_and_builds(tmp_path: Path, ki
     type_registry.validate(spec)
     docs = spec.docs()
     assert docs
-    assert check_catalog([export.standard_document(d) for d in docs], one_class_per_key=True) == []
+    exempt = type_registry.decoy_ids_of(spec)  # a decoy names a value of its own filter
+    standard = [export.standard_document(d) for d in docs]
+    assert check_catalog(standard, one_class_per_key=True, text_exempt=exempt) == []
     again = subprocess.run(
         [sys.executable, str(ROOT / "scripts" / "new_type.py"), spec.key, "--kind", kind,
          "--product-type", "Sample Thing", "--out", str(path.parent)],
