@@ -19,9 +19,9 @@ the products that win a query without a policy:
 - **"steak"** (gen#264). A food noun used as the modifier of a tool or serving item: the
   steak knives (:data:`STEAK_KNIVES`), a steak plate, a steak board and a cast-iron steak
   weight (:data:`STEAK_WARE`) win the text match, and a tin of tuna steaks shares the word. The
-  true answers are beef steaks in the grocery build (``grocery_rows``, families ``STK`` and
-  ``TUS``): their titles name the cut and run to five words or more, the knives' lead with
-  "Steak Knife" and two are two or four words long, so BM25's length norm puts a knife first.
+  true answers are beef steaks in the grocery build (``grocery_rows``, families ``SKS`` to
+  ``SKW`` and ``TUS``): their titles name the cut and run to five words or more, the knives' lead
+  with "Steak Knife" and two are two or four words long, so BM25's length norm puts a knife first.
   Their sales are modest (a knife sells somewhat more than a typical steak): the short title
   decides, nothing is stuffed.
 
@@ -36,7 +36,7 @@ from class_model import LEGS3, Style, one
 from variants import cw
 
 BED = ("Home", "Bedding")
-WJEANS = ("Women", "Jeans")
+WJEANS = ("Womens", "Jeans")
 DENIM, MID, LIGHT, BLACK, NAVY = "#4a6a94", "#5b7aa6", "#9fb4cf", "#2a2a2e", "#26365c"
 WHITE, STONE, OLIVE = "#ffffff", "#d9d3c7", "#6b6b3a"
 
@@ -134,7 +134,7 @@ KIDS_BARRELS = tuple(
 )
 BARREL_TROUSERS = tuple(
     Style(f"DBT{n:02d}", f"{fab} Barrel Leg Trousers", "Larkmoor", "Clothing",
-          ("Women", "Trousers", "Barrel Trousers"), _price(n, 24.0, 12),
+          ("Womens", "Trousers", "Barrel Trousers"), _price(n, 24.0, 12),
           f"{fab} barrel leg trousers with a balloon-shaped leg and a pressed crease.",
           "Trousers", "trousers", ((cw(*(("Khaki", OLIVE), ("Black", BLACK), ("Stone", STONE))[n]),
                                     1100 - n * 120),),
@@ -166,16 +166,17 @@ _FABRICS = ("Stretch", "Linen Blend", "Cotton Twill", "Pleated", "Pull-On", "Bel
 #: (noun, path, leg style, fit) of the petite-length legwear.
 _LEGWEAR = (("Straight Jeans", (*WJEANS, "Straight Jeans"), "straight", "straight"),
             ("Slim Jeans", (*WJEANS, "Slim Jeans"), "slim", "slim"),
-            ("Wide Leg Trousers", ("Women", "Trousers", "Wide Leg Trousers"), "wide", "wide_leg"),
-            ("Tapered Trousers", ("Women", "Trousers", "Tapered Trousers"), "tapered", "slim"),
-            ("Straight Trousers", ("Women", "Trousers", "Straight Trousers"), "straight",
-             "straight"), ("Slim Trousers", ("Women", "Trousers", "Slim Trousers"), "slim", "slim"))
+            ("Wide Leg Trousers", ("Womens", "Trousers", "Wide Leg Trousers"), "wide", "wide_leg"),
+            ("Tapered Trousers", ("Womens", "Trousers", "Tapered Trousers"), "tapered", "slim"),
+            ("Straight Trousers", ("Womens", "Trousers", "Straight Trousers"), "straight",
+             "straight"),
+            ("Slim Trousers", ("Womens", "Trousers", "Slim Trousers"), "slim", "slim"))
 #: (noun, path, shape) of the petite garments sized by number.
-_GARMENTS = (("Wrap Midi Dress", ("Women", "Dresses", "Wrap Dresses"), "dress"),
-             ("Shirt Dress", ("Women", "Dresses", "Shirt Dresses"), "dress"),
-             ("Maxi Dress", ("Women", "Dresses", "Maxi Dresses"), "dress"),
-             ("Jersey Top", ("Women", "Tops", "Jersey Tops"), "top"),
-             ("Long Sleeve Top", ("Women", "Tops", "Long Sleeve Tops"), "top"))
+_GARMENTS = (("Wrap Midi Dress", ("Womens", "Dresses", "Wrap Dresses"), "dress"),
+             ("Shirt Dress", ("Womens", "Dresses", "Shirt Dresses"), "dress"),
+             ("Maxi Dress", ("Womens", "Dresses", "Maxi Dresses"), "dress"),
+             ("Jersey Top", ("Womens", "Tops", "Jersey Tops"), "top"),
+             ("Long Sleeve Top", ("Womens", "Tops", "Long Sleeve Tops"), "top"))
 UK_SIZES = ("6", "8", "10", "12", "14", "16")
 
 
@@ -310,4 +311,3 @@ STYLES = (*MORE_TOPPERS, *PROTECTORS, *MATTRESSES, *PILLOW_PROTECTORS, *BARRELS,
 def docs() -> list[dict]:
     """Every row's catalog document, in the order of :data:`STYLES`."""
     return [s.doc() for s in STYLES]
-

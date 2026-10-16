@@ -225,7 +225,7 @@ KIDS_TEE = "A soft cotton tee for kids, with a tag-free neck."
 
 LINES: tuple[Line, ...] = (
     Line("TEEW", "tops", "women", "core", "tshirt", "Tee", "Larkmoor", "Clothing",
-         ("Women", "Tops", "T-Shirts"), 14.0, (
+         ("Womens", "Tops", "T-Shirts"), 14.0, (
              ("Cotton Crew Neck Tee", cw("White", WHITE), TEE),
              ("Relaxed Boxy Tee", cw("Black", BLACK), "A dropped-shoulder boxy tee in heavy cotton."),
              ("Slim Fit Ribbed Tee", cw("Navy", NAVY), "A close-fitting rib tee that layers well."),
@@ -241,7 +241,7 @@ LINES: tuple[Line, ...] = (
                    description="A large lemon graphic on a navy tee."),
          ), ADULT_SIZES),
     Line("TEEM", "tops", "men", "novelty", "tshirt", "Tee", "Wrenfield", "Clothing",
-         ("Men", "Tops", "T-Shirts"), 16.0, (
+         ("Mens", "Tops", "T-Shirts"), 16.0, (
              ("Essential Crew Neck Tee", cw("White", WHITE), TEE),
              ("Heavyweight Tee", cw("Black", BLACK), "A thick cotton tee that keeps its shape."),
              ("Pocket Tee", cw("Grey", GREY), "A crew neck tee with a chest pocket."),
@@ -265,14 +265,14 @@ LINES: tuple[Line, ...] = (
              Print("drill", "placement", ORANGE, (("Black", BLACK),),
                    description="A large cordless drill graphic on a black tee."),
              Print("wrench", "placement", STEEL, (("Navy", NAVY),),
-                   description="One big spanner graphic on a navy tee: the wrench, front and centre."),
+                   description="One big spanner graphic on a navy tee: the wrench, front and center."),
              Print("screw", "placement", STEEL, (("White", WHITE),),
                    description="A single oversized screw graphic on a white tee."),
              Print("screwdriver", "placement", ORANGE, (("Grey", GREY),),
                    description="A large screwdriver graphic on a grey tee."),
          ), ADULT_SIZES),
     Line("TEEMP", "tops", "men", "novelty", "tshirt", "Tee", "Wrenfield", "Clothing",
-         ("Men", "Tops", "T-Shirts"), 18.0, _plains(
+         ("Mens", "Tops", "T-Shirts"), 18.0, _plains(
              ("Washed Pocket Tee", "Khaki", KHAKI, "A washed tee with a chest pocket."),
              ("Tipped Tee", "Navy", NAVY, "A tee with tipped sleeve cuffs."),
              ("Breton Stripe Tee", "White", WHITE, "A striped tee in heavy cotton."),
@@ -286,7 +286,7 @@ LINES: tuple[Line, ...] = (
                       description="Screws scattered on a black tee: a screws print for the workshop."),
          ), ADULT_SIZES),
     Line("SWM", "sweatshirts", "men", "novelty", "sweatshirt", "Sweatshirt", "Wrenfield", "Clothing",
-         ("Men", "Tops", "Sweatshirts"), 30.0, _plains(
+         ("Mens", "Tops", "Sweatshirts"), 30.0, _plains(
              ("Loopback Sweatshirt", "Grey", GREY, "A loopback cotton sweatshirt."),
              ("Raglan Sweatshirt", "Navy", NAVY, "A raglan sweatshirt with ribbed cuffs."),
              ("Brushed Fleece Sweatshirt", "Charcoal", "#4a4d52", "A brushed-back fleece sweatshirt."),
@@ -332,7 +332,7 @@ LINES: tuple[Line, ...] = (
                    description="A dinosaur sweatshirt with one big dinosaur on the front."),
          ), KIDS_SIZES),
     Line("DRS", "dresses", "women", "core", "dress", "Tea Dress", "Larkmoor", "Clothing",
-         ("Women", "Dresses", "Tea Dresses"), 38.0, (
+         ("Womens", "Dresses", "Tea Dresses"), 38.0, (
              ("Plain Tea Dress", cw("Navy", NAVY), "A floaty tea dress with a tie waist."),
              ("Midi Tea Dress", cw("Sage", SAGE), "A midi tea dress with flutter sleeves."),
              ("Button Front Tea Dress", cw("Cream", CREAM), "A button front tea dress in crepe."),

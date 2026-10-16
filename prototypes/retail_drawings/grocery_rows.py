@@ -13,7 +13,8 @@ most grade E. No name, brand or ingredient list comes from it. Every brand is a
 
 One category path per product. A family's ``path`` is the retailer's breadcrumb
 (``Food & Drink > Fruit & Vegetables > Fresh Fruit > Citrus Fruit > Oranges``) and every
-product of the family sits under that one path, never under several. Open Food Facts
+product of the family sits under that one path, never under several, and no other family or row
+reaches the same leaf label by another path (gen#330, ``tests/test_one_path_per_leaf_330.py``). Open Food Facts
 tags a product with many categories at once: that is a classification, not a store
 tree, so only its node NAMES and depth guide the tree here and no multi-valued tag is
 copied. The leaf of a bare-noun family (Oranges, Lemons, Apples, Beer's Lager) is what a
@@ -32,6 +33,9 @@ may-contain codes: the factory's traces.
 from __future__ import annotations
 
 from dataclasses import dataclass
+
+#: The dietary labels a SKU may carry: one closed list (gen#296).
+DIETARY: tuple[str, ...] = ("Vegan", "Vegetarian", "Gluten Free", "Dairy Free", "Nut Free", "Organic")
 
 ALLERGENS = {"P": "Peanuts", "T": "Tree Nuts", "M": "Milk", "G": "Gluten", "S": "Soy", "E": "Egg", "F": "Fish"}
 
@@ -127,6 +131,7 @@ def _p(*parts: str) -> tuple[str, ...]:
 
 
 _FRUIT = _p("Fruit & Vegetables", "Fresh Fruit")
+_STEAK = _p("Meat & Fish", "Fresh Meat", "Steak")
 _BEER = _p("Beer, Wine & Spirits", "Beer")
 _WINE = _p("Beer, Wine & Spirits", "Wine")
 _CIDER = _p("Beer, Wine & Spirits", "Cider")
@@ -167,12 +172,14 @@ _BODY_BRANDS = ("Brightwater Botanics", "Velling Apothecary", "Orrin Skin")
 #: it cooks, so the six cuts do not share one template (gen#269). Words the SKUs do not carry
 #: (a weight, a price) stay out.
 CUT_NOTES = {
-    ("STK", "Sirloin Steak"): "A lean cut from the back with a thin edge of fat, best seared hot and left to rest.",
-    ("STK", "Ribeye Steak"): "A well marbled cut from the rib that stays juicy, cooked quickly in a hot pan or on the grill.",
-    ("STK", "Fillet Steak"): "The most tender cut, from the tenderloin, with a mild flavour; cook it briefly and rare to medium.",
-    ("STK", "Rump Steak"): "A full flavoured cut from the hindquarter with a firm bite, good marinated and sliced across the grain.",
-    ("STK", "Striploin Steak"): "A cut from the loin with a firm texture and a strip of fat along one side that crisps as it cooks.",
-    ("STK", "Minute Steaks"): "Thin cuts of topside that cook through in a minute or two a side, for a quick supper or a sandwich.",
+    ("SKS", "Sirloin Steak"): "A lean cut from the back with a thin edge of fat, best seared hot and left to rest.",
+    ("SKR", "Ribeye Steak"): "A well marbled cut from the rib that stays juicy, cooked quickly in a hot pan or on the grill.",
+    ("SKF", "Fillet Steak"): "The most tender cut, from the tenderloin, with a mild flavour; cook it briefly and rare to medium.",
+    ("SKU", "Rump Steak"): "A full flavoured cut from the hindquarter with a firm bite, good marinated and sliced across the grain.",
+    ("SKC", "Chuck Steak"): "A richly flavoured cut from the shoulder with connective tissue, best braised slowly or cooked low and long.",
+    ("SKT", "T-Bone Steak"): "A cut across the loin with the bone between a strip and a small fillet, grilled hot for a crust.",
+    ("SKL", "Flank Steak"): "A lean, long-grained cut from the belly muscle, marinated, seared quickly and sliced thinly across the grain.",
+    ("SKW", "Skirt Steak"): "A thin, beefy cut from the diaphragm with a loose grain, cooked fast over a high heat for fajitas.",
 }
 
 FAMILIES: tuple[Family, ...] = (
@@ -247,7 +254,7 @@ FAMILIES: tuple[Family, ...] = (
             F("Lactose Free", "#5a4a8a", "M")),
            _DAIRY, 0.03),
     Family("PLM", _p("Dairy & Alternatives", "Milk", "Plant Milk"), "{line} {flavor} Drink", "Plant Milk", "carton",
-           "Plant Milk", _A, "AB", 1.5, ("1L", "6 x 1L"),
+           "Plant Milk", _A, "AB", 1.5, ("1L", "500ml", "2L"),
            (F("Oat", "#d8c9a8", "G"), F("Almond", "#c9a96e", "T"), F("Soya", "#efe8d8", "S"), F("Coconut", "#f4f0e6"),
             F("Barista Oat", "#a8784a", "G")),
            _DAIRY, 0.025),
@@ -278,7 +285,7 @@ FAMILIES: tuple[Family, ...] = (
             F("Four Cheese", "#f2c14b", "GM"), F("Ham & Pineapple", "#d9a441", "GMx")),
            _MEAL, 0.02, per_style=(2, 4)),
     Family("ICE", _p("Frozen", "Ice Cream"), "{line} Ice Cream", "Ice Cream", "lidded_tub", "Ice Cream", _Z, "DE",
-           3.0, ("500ml", "900ml"),
+           3.0, ("500ml", "900ml", "150ml"),
            (F("Vanilla", "#f2e6c8", "ME"), F("Mint Choc Chip", "#9bd3b0", "MS"), F("Honeycomb", "#d9a441", "Mh"),
             F("Lemon Sorbet", "#f2d14b"), F("Coconut Dairy Free", "#efe8d8"), F("Salted Caramel", "#c48a3a", "M")),
            _MEAL, 0.025, may=((2, ""), (2, "PT")), per_style=(2, 5)),
@@ -304,15 +311,21 @@ FAMILIES: tuple[Family, ...] = (
             F("Coconut Jasmine Rice", "#f2ece0"), F("Quinoa", "#d8c9a8"), F("Couscous", "#efd9a8", "G")),
            _CUP, 0.025),
     Family("SAU", _p("Food Cupboard", "Sauces & Condiments"), "{line} {flavor}", "Sauce", "bottle", "Sauce", _A,
-           "CD", 1.4, ("250ml", "500ml"),
+           "CD", 1.4, ("250ml", "500ml", "1L"),
            (F("Tomato Ketchup", "#c8312e"), F("Mayonnaise", "#f4f0e6", "E"), F("Brown Sauce", "#5a3a26", "G"),
             F("Sweet Chilli Sauce", "#d9822b"), F("Mint Sauce", "#3a8f6a"), F("Honey & Mustard Dressing", "#d9a441", "h")),
            _CUP, 0.035),
-    Family("JAM", _p("Food Cupboard", "Jam & Honey"), "{line} {flavor}", "Jam & Honey", "jar", "Jam", _A, "D", 2.0,
+    # Honey is its own leaf (gen#330): a "honey" category route reaches every jar, and the
+    # one hand-authored honey (``class_rows.HONEY``) sits on the same path.
+    Family("JAM", _p("Food Cupboard", "Jam"), "{line} {flavor}", "Jam", "jar", "Jam", _A, "D", 2.0,
            ("340g", "454g"),
-           (F("Clear Honey", "#e0a030", "h"), F("Set Honey", "#d9a441", "h"), F("Strawberry Jam", "#b8322f"),
-            F("Lemon Curd", "#f2d14b", "ME"), F("Seville Orange Marmalade", "#d9822b"), F("Raspberry Jam", "#a3214a")),
-           _CUP, 0.03),
+           (F("Strawberry Jam", "#b8322f"), F("Lemon Curd", "#f2d14b", "ME"),
+            F("Seville Orange Marmalade", "#d9822b"), F("Raspberry Jam", "#a3214a")),
+           _CUP, 0.02),
+    Family("HON", _p("Food Cupboard", "Honey"), "{line} {flavor}", "Honey", "jar", "Honey", _A, "D", 3.5,
+           ("340g", "454g"),
+           (F("Clear Honey", "#e0a030", "h"), F("Set Honey", "#d9a441", "h")),
+           _CUP, 0.01),
     Family("SPR", _p("Food Cupboard", "Nut Butters & Spreads"), "{line} {flavor}", "Spread", "jar", "Spread", _A,
            "CE", 2.2, ("340g", "1kg"),
            (F("Smooth Peanut Butter", "#b07a3c", "P"), F("Crunchy Peanut Butter", "#a06a30", "P"),
@@ -341,7 +354,7 @@ FAMILIES: tuple[Family, ...] = (
             F("Ginger Beer", "#d9b97a"), F("Elderflower Presse", "#e8f0d8"), F("Sparkling Mint Water", "#bfe3d0")),
            _DRINK, 0.035, per_style=(2, 5)),
     Family("JUI", _p("Drinks", "Juice"), "{line} {flavor} Juice", "Juice", "carton", "Juice", _C, "C", 1.8,
-           ("1L", "1.75L"),
+           ("1L", "1.75L", "330ml"),
            (F("Smooth Orange", "#f2a14b"), F("Orange with Bits", "#e8902b"), F("Apple", "#d9c84b"),
             F("Pineapple", "#f2d14b"), F("Coconut Water", "#efe8d8")),
            _DRINK, 0.025),
@@ -410,7 +423,7 @@ FAMILIES: tuple[Family, ...] = (
             F("Cherry Sour Beer", "#a3214a", "G", 5.2), F("Lemon & Lime Sour Beer", "#cfe05a", "G", 4.0)),
            _BREW, 0.008),
     Family("BFR", _BEER + ("Fruit Beer",), "{line} {flavor}{abv}", "Beer", "bottle", "Fruit Beer", _A, "CD", 2.2,
-           ("330ml", "500ml"),
+           ("330ml", "500ml", "440ml"),
            (F("Raspberry Fruit Beer", "#a3214a", "G", 2.5), F("Cherry Fruit Beer", "#8c1f35", "G", 4.0),
             F("Blood Orange Fruit Beer", "#c8432e", "G", 3.6), F("Peach Fruit Beer", "#f2a07b", "G", 3.2),
             F("Strawberry Fruit Beer", "#d9364a", "G", 2.8), F("Apricot Fruit Beer", "#f2b05a", "G", 3.4),
@@ -441,7 +454,7 @@ FAMILIES: tuple[Family, ...] = (
             F("Crispy Battered Haddock", "#d8a548", "GxF")),
            ("Barrowby Kitchen", "Goldfield Farms"), 0.008),
     Family("VIN", _p("Food Cupboard", "Vinegar"), "{line} {flavor}", "Vinegar", "bottle", "Vinegar", _A, "A", 1.2,
-           ("250ml", "500ml"),
+           ("250ml", "500ml", "1L"),
            (F("Cider Vinegar", "#d9b97a"), F("Raw Cider Vinegar", "#c8a050"), F("Balsamic Vinegar", "#3b2416"),
             F("White Wine Vinegar", "#f2e6c8")),
            _CUP, 0.004),
@@ -472,11 +485,11 @@ FAMILIES: tuple[Family, ...] = (
            ("Pantry Mill", "Hearth & Table", "Brewhollow Roasters"), 0.004),
     # Overlaps: the words a food shares with a scent
     Family("CLN", ("Cleaning", "Kitchen & Surfaces", "Cleaners", "Kitchen Cleaners"), "{line} {flavor} Multi-Surface Cleaner",
-           "Kitchen Cleaner", "bottle", "Cleaner", _A, "", 1.5, ("500ml", "750ml"),
+           "Kitchen Cleaner", "bottle", "Cleaner", _A, "", 1.5, ("500ml", "750ml", "1L"),
            (F("Lemon", "#f2d14b"), F("Orange", "#f2a14b"), F("Mint", "#3a8f6a"), F("Lavender", "#9a7ab6")),
            ("Clearbrook Household", "Soapwell"), 0.004, axis="scent", department="Cleaning & Janitorial"),
     Family("BOD", ("Beauty", "Body Care", "Body Lotion"), "{line} {flavor} Body Milk", "Body Lotion", "bottle",
-           "Body Milk", _A, "", 4.0, ("250ml", "400ml"),
+           "Body Milk", _A, "", 4.0, ("250ml", "400ml", "100ml"),
            (F("Honey", "#e0a030"), F("Coconut", "#efe8d8"), F("Shea", "#e8dcc0"), F("Almond", "#c9a96e")),
            ("Brightwater Botanics", "Velling Apothecary", "Orrin Skin"), 0.004, axis="scent", department="Beauty"),
     # Scent depth (gen#154): the demo word "lemon" is a scent in dozens of household SKUs, as it
@@ -484,30 +497,30 @@ FAMILIES: tuple[Family, ...] = (
     # leaf with its own scent list and the same ``scent`` attribute the Kitchen Cleaner uses,
     # so one policy routes on the attribute and the product type. Drawn from their own stream.
     Family("DSH", ("Cleaning", "Kitchen & Surfaces", "Dish Soap"), "{line} {flavor} Dish Soap", "Dish Soap", "bottle",
-           "Dish Soap", _A, "", 1.2, ("500ml", "1L"), _HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",
+           "Dish Soap", _A, "", 1.2, ("500ml", "1L", "750ml"), _HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",
            department="Cleaning & Janitorial", noun="washing-up liquid that cuts through grease", depth=True),
     Family("GLS", ("Cleaning", "Kitchen & Surfaces", "Cleaners", "Glass Cleaners"), "{line} {flavor} Glass Cleaner", "Glass Cleaner",
-           "bottle", "Glass Cleaner", _A, "", 1.6, ("500ml", "750ml"), _HOME_SCENTS, _HOME_BRANDS, 0.01,
+           "bottle", "Glass Cleaner", _A, "", 1.6, ("500ml", "750ml", "1L"), _HOME_SCENTS, _HOME_BRANDS, 0.01,
            axis="scent", department="Cleaning & Janitorial", noun="streak-free spray for windows and mirrors", depth=True),
     Family("FLR", ("Cleaning", "Floor Care", "Floor Cleaners"), "{line} {flavor} Floor Cleaner", "Floor Cleaner",
-           "bottle", "Floor Cleaner", _A, "", 2.0, ("1L", "2L"), _HOME_SCENTS, _HOME_BRANDS, 0.016, axis="scent",
+           "bottle", "Floor Cleaner", _A, "", 2.0, ("1L", "2L", "750ml"), _HOME_SCENTS, _HOME_BRANDS, 0.016, axis="scent",
            department="Cleaning & Janitorial", noun="concentrated cleaner for sealed floors", depth=True),
     Family("BTH", ("Cleaning", "Bathroom", "Bathroom Cleaners"), "{line} {flavor} Bathroom Cleaner", "Bathroom Cleaner",
-           "bottle", "Bathroom Cleaner", _A, "", 1.8, ("500ml", "750ml"), _HOME_SCENTS, _HOME_BRANDS, 0.01,
+           "bottle", "Bathroom Cleaner", _A, "", 1.8, ("500ml", "750ml", "1L"), _HOME_SCENTS, _HOME_BRANDS, 0.01,
            axis="scent", department="Cleaning & Janitorial", noun="spray that removes limescale and soap scum", depth=True),
     Family("LDY", ("Cleaning", "Laundry", "Laundry Detergent"), "{line} {flavor} Laundry Liquid", "Laundry Detergent",
-           "bottle", "Laundry Liquid", _A, "", 4.0, ("1.5L", "3L"), _HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",
+           "bottle", "Laundry Liquid", _A, "", 4.0, ("1.5L", "3L", "4.5L"), _HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",
            department="Cleaning & Janitorial", noun="liquid detergent for every wash", depth=True),
     Family("HWS", ("Beauty", "Bath & Body", "Hand Wash"), "{line} {flavor} Hand Wash", "Hand Wash", "bottle",
-           "Hand Wash", _A, "", 1.8, ("250ml", "500ml"), _BODY_SCENTS, _BODY_BRANDS, 0.016, axis="scent",
+           "Hand Wash", _A, "", 1.8, ("250ml", "500ml", "1L"), _BODY_SCENTS, _BODY_BRANDS, 0.016, axis="scent",
            department="Beauty", noun="gentle liquid hand wash", depth=True),
     Family("SGL", ("Beauty", "Bath & Body", "Shower Gel"), "{line} {flavor} Shower Gel", "Shower Gel", "bottle",
-           "Shower Gel", _A, "", 2.5, ("250ml", "500ml"), _BODY_SCENTS, _BODY_BRANDS, 0.016, axis="scent",
+           "Shower Gel", _A, "", 2.5, ("250ml", "500ml", "750ml"), _BODY_SCENTS, _BODY_BRANDS, 0.016, axis="scent",
            department="Beauty", noun="creamy shower gel", depth=True),
     # Everyday drinks and skincare the demo asks for by name (gen#176). Depth families: drawn
     # from their own stream, so the core families' ids and draws do not move.
     Family("WRD", _WINE + ("Red Wine",), "{line} {flavor}{abv}", "Wine", "bottle", "Red Wine", _A, "CD", 6.5,
-           ("750ml", "1.5L"),
+           ("750ml", "1.5L", "375ml"),
            (_w("Malbec Red Wine", "#6a1f3a", 13.5, "Malbec", "Argentina", "Red"),
             _w("Merlot Red Wine", "#7a2a3a", 13.0, "Merlot", "Chile", "Red"),
             _w("Rioja Tempranillo Red Wine", "#5a1a2a", 13.5, "Tempranillo", "Spain", "Red"),
@@ -517,7 +530,7 @@ FAMILIES: tuple[Family, ...] = (
             _w("Chianti Sangiovese Red Wine", "#7a2a2a", 13.0, "Sangiovese", "Italy", "Red")),
            _CELLAR, 0.012, depth=True),
     Family("WWH", _WINE + ("White Wine",), "{line} {flavor}{abv}", "Wine", "bottle", "White Wine", _A, "CD", 6.0,
-           ("750ml", "1.5L"),
+           ("750ml", "1.5L", "375ml"),
            (_w("Sauvignon Blanc White Wine", "#d8d878", 12.5, "Sauvignon Blanc", "New Zealand", "White"),
             _w("Chardonnay White Wine", "#e0c868", 13.0, "Chardonnay", "France", "White"),
             _w("Pinot Grigio White Wine", "#e8e098", 12.0, "Pinot Grigio", "Italy", "White"),
@@ -526,14 +539,14 @@ FAMILIES: tuple[Family, ...] = (
             _w("Chenin Blanc White Wine", "#e0c070", 13.0, "Chenin Blanc", "South Africa", "White")),
            _CELLAR, 0.012, depth=True),
     Family("WRS", _WINE + ("Rosé Wine",), "{line} {flavor}{abv}", "Wine", "bottle", "Rosé Wine", _A, "CD", 6.0,
-           ("750ml", "1.5L"),
+           ("750ml", "1.5L", "375ml"),
            (_w("Provence Style Rosé Wine", "#f0b0b0", 12.5, "Grenache", "France", "Rosé"),
             _w("Zinfandel Blush Rosé Wine", "#e88aa0", 10.5, "Zinfandel", "United States", "Rosé"),
             _w("Pinot Grigio Blush Rosé Wine", "#f2b8a0", 11.5, "Pinot Grigio", "Italy", "Rosé"),
             _w("Garnacha Rosé Wine", "#e8788a", 13.0, "Garnacha", "Spain", "Rosé")),
            _CELLAR, 0.005, depth=True),
     Family("WSP", _WINE + ("Sparkling Wine",), "{line} {flavor}{abv}", "Wine", "bottle", "Sparkling Wine", _A, "CD", 8.0,
-           ("750ml",),
+           ("750ml", "200ml", "1.5L"),
            (_w("Prosecco Sparkling Wine", "#e8e098", 11.0, "Glera", "Italy", "Sparkling"),
             _w("Cava Brut Sparkling Wine", "#e0d890", 11.5, "Macabeo", "Spain", "Sparkling"),
             _w("Sparkling Rosé Wine", "#f0a0a8", 11.0, "Pinot Noir", "Italy", "Sparkling"),
@@ -541,7 +554,7 @@ FAMILIES: tuple[Family, ...] = (
             _w("Crémant Sparkling Wine", "#ece0a2", 12.0, "Chenin Blanc", "France", "Sparkling")),
            _CELLAR, 0.006, depth=True),
     Family("WCH", _WINE + ("Champagne",), "{line} {flavor}{abv}", "Champagne", "bottle", "Champagne", _A, "CD", 24.0,
-           ("750ml", "1.5L"),
+           ("750ml", "1.5L", "375ml"),
            (_w("Brut Champagne", "#e8d88a", 12.0, "Chardonnay", "France", "Sparkling"),
             _w("Rosé Champagne", "#f0a8a8", 12.0, "Pinot Noir", "France", "Sparkling"),
             _w("Blanc de Blancs Champagne", "#f0e090", 12.0, "Chardonnay", "France", "Sparkling"),
@@ -558,13 +571,13 @@ FAMILIES: tuple[Family, ...] = (
             F("Alcohol Free Cider", "#d8b04a", "", 0.0, (("cider_style", "Cider style", "Alcohol Free"),))),
            ("Orchardgate Cider Co.", "Vine & Valley", "Freshfold"), 0.010, depth=True),
     Family("HCR", ("Beauty", "Skincare", "Creams", "Hand Creams"), "{line} Hand Cream for {flavor}", "Hand Cream",
-           "moisturiser_jar", "Hand Cream", _A, "", 3.5, ("50ml", "100ml"),
+           "moisturiser_jar", "Hand Cream", _A, "", 3.5, ("50ml", "100ml", "30ml"),
            (F("Dry Skin", "#f4efe6"), F("Cracked Skin", "#efe4d6"), F("Sensitive Skin", "#eef1ea"),
             F("Everyday Care", "#f2ecdf")),
            _SKIN_BRANDS, 0.008, axis="skin_concern", axis_name="Skin concern", department="Beauty",
            noun="nourishing hand cream", fits="Made for {x}.", depth=True),
     Family("ECR", ("Beauty", "Skincare", "Creams", "Eye Creams"), "{line} Eye Cream for {flavor}", "Eye Cream",
-           "moisturiser_jar", "Eye Cream", _A, "", 9.0, ("15ml", "30ml"),
+           "moisturiser_jar", "Eye Cream", _A, "", 9.0, ("15ml", "30ml", "50ml"),
            (F("Dark Circles", "#efe8dc"), F("Puffiness", "#eaf0ee"), F("Fine Lines", "#f2ebe0"),
             F("Dry Skin", "#f4efe6")),
            _SKIN_BRANDS, 0.005, axis="skin_concern", axis_name="Skin concern", department="Beauty",
@@ -582,55 +595,55 @@ FAMILIES: tuple[Family, ...] = (
     # Sibling families (gen#177): spirits, fortified wine, perry and mead, the other citrus and
     # berries, foot and body cream. Depth families, so the core families' draws do not move.
     Family("SWH", _SPIRITS + ("Whisky",), "{line} {flavor}{abv}", "Whisky", "bottle", "Whisky", _A, "CD", 18.0,
-           ("700ml", "1L"),
+           ("700ml", "1L", "1.5L"),
            (_s("Blended Scotch Whisky", "#b8741f", 40.0, "Scotland", "Blended"),
             _s("Single Malt Scotch Whisky", "#a8641a", 40.0, "Scotland", "Single Malt"),
             _s("Bourbon Whiskey", "#a85a1a", 40.0, "United States", "Bourbon"),
             _s("Irish Whiskey", "#c88a2a", 40.0, "Ireland", "Blended")),
            _CELLAR, 0.005, depth=True),
     Family("SGN", _SPIRITS + ("Gin",), "{line} {flavor}{abv}", "Gin", "bottle", "Gin", _A, "CD", 16.0,
-           ("700ml", "1L"),
+           ("700ml", "1L", "1.5L"),
            (_s("London Dry Gin", "#d6e6ee", 40.0, "United Kingdom", "London Dry"),
             _s("Pink Gin", "#f0b8c0", 37.5, "United Kingdom", "Flavoured"),
             _s("Sloe Gin", "#7a2a4a", 26.0, "United Kingdom", "Liqueur"),
             _s("Navy Strength Gin", "#cfe0ea", 57.0, "United Kingdom", "Navy Strength")),
            _CELLAR, 0.005, depth=True),
     Family("SVD", _SPIRITS + ("Vodka",), "{line} {flavor}{abv}", "Vodka", "bottle", "Vodka", _A, "CD", 14.0,
-           ("700ml", "1L"),
+           ("700ml", "1L", "1.5L"),
            (_s("Premium Vodka", "#dfe9ee", 40.0, "Poland", "Plain"),
             _s("Triple Distilled Vodka", "#e3edf0", 40.0, "Sweden", "Plain"),
             _s("Lemon Vodka", "#f0e68a", 37.5, "Poland", "Flavoured"),
             _s("Vanilla Vodka", "#efe3c0", 37.5, "Sweden", "Flavoured")),
            _CELLAR, 0.004, depth=True),
     Family("SRM", _SPIRITS + ("Rum",), "{line} {flavor}{abv}", "Rum", "bottle", "Rum", _A, "CD", 17.0,
-           ("700ml", "1L"),
+           ("700ml", "1L", "1.5L"),
            (_s("White Rum", "#e6eaea", 37.5, "Barbados", "White"),
             _s("Gold Rum", "#c8902a", 40.0, "Jamaica", "Gold"),
             _s("Dark Rum", "#5a2e1a", 40.0, "Guyana", "Dark"),
             _s("Spiced Rum", "#8a4a22", 35.0, "Caribbean", "Spiced")),
            _CELLAR, 0.004, depth=True),
     Family("STQ", _SPIRITS + ("Tequila",), "{line} {flavor}{abv}", "Tequila", "bottle", "Tequila", _A, "CD", 21.0,
-           ("700ml", "1L"),
+           ("700ml", "1L", "1.5L"),
            (_s("Blanco Tequila", "#e2eceb", 38.0, "Mexico", "Blanco"),
             _s("Reposado Tequila", "#d8b45a", 38.0, "Mexico", "Reposado"),
             _s("Anejo Tequila", "#b8782a", 40.0, "Mexico", "Anejo")),
            _CELLAR, 0.003, depth=True),
     Family("FPT", _FORTIFIED + ("Port",), "{line} {flavor}{abv}", "Fortified Wine", "bottle", "Port", _A, "CD", 10.0,
-           ("750ml", "1.5L"),
+           ("750ml", "1.5L", "500ml"),
            (_w("Ruby Port", "#6a1a2e", 19.5, "Touriga Nacional", "Portugal", "Fortified"),
             _w("Tawny Port", "#9a4a2a", 20.0, "Touriga Franca", "Portugal", "Fortified"),
             _w("Late Bottled Vintage Port", "#5a1a2a", 20.0, "Tinta Roriz", "Portugal", "Fortified"),
             _w("White Port", "#e0c868", 19.0, "Malvasia Fina", "Portugal", "Fortified")),
            _CELLAR, 0.004, depth=True),
     Family("FSY", _FORTIFIED + ("Sherry",), "{line} {flavor}{abv}", "Fortified Wine", "bottle", "Sherry", _A, "CD", 7.5,
-           ("750ml", "1.5L"),
+           ("750ml", "1.5L", "500ml"),
            (_w("Fino Sherry", "#e8d88a", 15.0, "Palomino", "Spain", "Fortified"),
             _w("Medium Sherry", "#c8903a", 17.5, "Palomino", "Spain", "Fortified"),
             _w("Cream Sherry", "#8a4a22", 17.5, "Pedro Ximenez", "Spain", "Fortified"),
             _w("Amontillado Sherry", "#b87a2a", 18.0, "Palomino", "Spain", "Fortified")),
            _CELLAR, 0.004, depth=True),
     Family("FVM", _FORTIFIED + ("Vermouth",), "{line} {flavor}{abv}", "Fortified Wine", "bottle", "Vermouth", _A, "CD", 7.0,
-           ("750ml", "1L"),
+           ("750ml", "1L", "500ml"),
            (_w("Rosso Vermouth", "#7a2a1a", 15.0, "Trebbiano", "Italy", "Fortified"),
             _w("Bianco Vermouth", "#e8dc9a", 15.0, "Trebbiano", "Italy", "Fortified"),
             _w("Extra Dry Vermouth", "#e6e2b0", 18.0, "Ugni Blanc", "France", "Fortified")),
@@ -643,7 +656,7 @@ FAMILIES: tuple[Family, ...] = (
             F("Elderflower Perry", "#e8e4aa", "", 4.0, (("cider_style", "Cider style", "Fruit"),))),
            ("Orchardgate Cider Co.", "Vine & Valley", "Freshfold"), 0.004, depth=True),
     Family("MED", _p("Beer, Wine & Spirits", "Mead"), "{line} {flavor}{abv}", "Mead", "bottle", "Mead", _A, "CD", 9.0,
-           ("500ml", "750ml"),
+           ("500ml", "750ml", "375ml"),
            (_s("Traditional Mead", "#d8a830", 12.5, "United Kingdom", "Traditional", "h"),
             _s("Sweet Honey Mead", "#e0b040", 14.0, "United Kingdom", "Sweet", "h"),
             _s("Spiced Mead", "#b87a2a", 12.0, "United Kingdom", "Spiced", "h"),
@@ -685,32 +698,104 @@ FAMILIES: tuple[Family, ...] = (
             _o("Large Blackberries", "#321e3e", "Serbia")),
            _FRESH, 0.003, axis="variety", depth=True),
     Family("FTC", ("Beauty", "Skincare", "Creams", "Foot Creams"), "{line} Foot Cream for {flavor}", "Foot Cream",
-           "moisturiser_jar", "Foot Cream", _A, "", 3.5, ("75ml", "150ml"),
+           "moisturiser_jar", "Foot Cream", _A, "", 3.5, ("75ml", "150ml", "200ml"),
            (F("Dry Skin", "#f4efe6"), F("Cracked Heels", "#efe4d6"), F("Tired Feet", "#e6f0ea"),
             F("Everyday Care", "#f2ecdf")),
            _SKIN_BRANDS, 0.005, axis="skin_concern", axis_name="Skin concern", department="Beauty",
            noun="softening foot cream", fits="Made for {x}.", depth=True),
     Family("BCR", ("Beauty", "Body Care", "Body Creams"), "{line} {flavor} Body Cream", "Body Cream",
-           "moisturiser_jar", "Body Cream", _A, "", 4.5, ("250ml", "400ml"),
+           "moisturiser_jar", "Body Cream", _A, "", 4.5, ("250ml", "400ml", "500ml"),
            (F("Shea", "#e8dcc0"), F("Cocoa Butter", "#d8c4a0"), F("Almond", "#c9a96e"), F("Oat", "#ece3cf")),
            _SKIN_BRANDS, 0.005, axis="scent", department="Beauty",
            noun="rich body cream for dry skin", depth=True),
-    # The "steak" class (gen#264): the true answers, and a tin that shares only the word.
-    # Depth families, last in the list, so no earlier family's draw moves. A steak is a
-    # packaged cut under the existing Packaged Meat node (no Beef leaf is needed: a policy
-    # that routes "steak" to food routes it to Meat & Fish); its title names the cut, says
-    # "steak" once and runs to five words or more ("Ashcombe British Beef Ribeye Steak"), as a
-    # butcher's title does: the text match then favors the short "Steak Knife" titles.
-    Family("STK", _p("Meat & Fish", "Packaged Meat"), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
-           ("227g", "2 x 225g"),
-           (F("Sirloin Steak", "#a8322e", "x"), F("Ribeye Steak", "#9c2a2a", "x"), F("Fillet Steak", "#b8403a", "x"),
-            F("Rump Steak", "#a63a30", "x"), F("Striploin Steak", "#a02e2c", "x"), F("Minute Steaks", "#c04a42", "x")),
-           ("Barrowby Kitchen", "Goldfield Farms"), 0.004, depth=True),
+    # The "steak" class (gen#264, gen#296): a fresh-meat Steak PARENT with one child per cut, so a
+    # shopper's "steak" names the parent and "sirloin steak" its child. Each label names the
+    # product on its own ("Skirt Steak", never "Skirt", which is also a garment). The cuts are
+    # depth families, last in the list, so no earlier family's draw moves; a style's title names
+    # the cut, says "steak" once and runs to five words or more ("Ashcombe British Beef Ribeye
+    # Steak"), as a butcher's title does: the text match then favors the short "Steak Knife"
+    # titles. Steak knives, sauce and seasoning stay in their own categories as the decoys.
+    Family("SKS", _STEAK + ("Sirloin Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Sirloin Steak", "#a8322e", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKR", _STEAK + ("Ribeye Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Ribeye Steak", "#9c2a2a", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKU", _STEAK + ("Rump Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Rump Steak", "#a63a30", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKF", _STEAK + ("Fillet Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Fillet Steak", "#b8403a", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKC", _STEAK + ("Chuck Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Chuck Steak", "#8e2a28", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKT", _STEAK + ("T-Bone Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("T-Bone Steak", "#a02e2c", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKL", _STEAK + ("Flank Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Flank Steak", "#b0382f", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    Family("SKW", _STEAK + ("Skirt Steak",), "{line} British Beef {flavor}", "Meat", "steak_tray", "Steak", _C, "BC", 4.8,
+           ("227g", "2 x 225g"), (F("Skirt Steak", "#9a2c32", "x"),),
+           ("Barrowby Kitchen", "Goldfield Farms"), 0.0013, depth=True),
+    # Decoys for "steak" in the grocery tree: a sauce and a seasoning (gen#296).
+    Family("SSA", _p("Food Cupboard", "Sauces & Condiments"), "{line} {flavor}", "Sauce", "bottle", "Sauce", _A, "CD", 1.9,
+           ("250ml", "500ml", "350ml"), (F("Steak Sauce", "#5a3a26", "G"), F("Peppercorn Steak Sauce", "#4a3020", "G")),
+           _CUP, 0.0015, depth=True),
+    Family("SSN", _p("Food Cupboard", "Herbs & Spices"), "{line} {flavor}", "Seasoning", "jar", "Seasoning", _A, "A", 1.6,
+           ("50g", "100g"), (F("Steak Seasoning", "#7a4a2a"), F("Smoky Steak Rub", "#6a3a22")),
+           _CUP, 0.0015, depth=True),
+    # Fresh grapes (gen#296): one bare-noun leaf under Fresh Fruit, so a query that names it can
+    # be routed; the grape juice and grape sweets below share only the word.
+    Family("GRP", _FRUIT + ("Grapes",), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 2.2, ("250g", "500g", "1kg"),
+           (_o("Red Seedless Grapes", "#a3243b", "South Africa"), _o("Green Seedless Grapes", "#a8c84a", "Spain"),
+            _o("Black Seedless Grapes", "#3a1f4a", "Chile"), _o("Sweet Red Grapes", "#b02a44", "Peru"),
+            _o("Crisp Green Grapes", "#b4d254", "Egypt"), _o("Midnight Black Grapes", "#2e1a40", "South Africa")),
+           _FRESH, 0.008, axis="variety", depth=True),
+    Family("GJU", _p("Drinks", "Juice"), "{line} {flavor}", "Juice", "carton", "Juice", _C, "C", 1.9,
+           ("1L", "1.75L", "2L"), (F("Red Grape Juice", "#6a1a3a"), F("White Grape Juice", "#d9d27a")),
+           _DRINK, 0.002, depth=True),
+    Family("GCH", _p("Chocolate & Sweets", "Sweets"), "{line} {flavor}", "Sweets", "bag", "Sweets", _A, "E", 1.2,
+           ("150g", "300g"), (F("Grape Fruit Chews", "#6a2a7a", "h"), F("Grape Jellies", "#7a3a8a")),
+           _SNACK, 0.001, depth=True),
     Family("TUS", _p("Food Cupboard", "Tinned"), "{line} {flavor}", "Tinned Food", "tin", "Tinned", _A, "AB", 1.6,
            ("145g", "3 x 145g"),
            (F("Tuna Steaks in Brine", "#3b6fb6", "xF"), F("Tuna Steaks in Sunflower Oil", "#d9a441", "xF")),
            _CUP, 0.002, depth=True),
+    # The "chocolate without peanuts" class (gen#294): text search ignores "without", so a chocolate
+    # that holds the word "peanut" wins, and so does one that says "peanut-free". Planted by
+    # ``DECOY_ANCHORS`` only (a depth family's budget is spent by them); the ingredient fields
+    # (``facets.ingredient_base``, ``contains``, ``may_contain``) are the truth the policy reads.
+    Family("PNT", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} {flavor}", "Chocolate Bar",
+           "bar", "Chocolate", _A, "DE", 1.8, ("100g", "200g"),
+           (F("Chocolate Peanut Butter Cups", "#a06a30", "MP"), F("Milk Chocolate with Crunchy Peanuts", "#8a5a3c", "MP"),
+            F("Chocolate Coated Peanuts", "#7a4a2a", "MP"), F("Peanut Caramel Chocolate Bar", "#b07a3c", "MP"),
+            F("Dark Chocolate Peanut Clusters", "#3b2416", "P"), F("Chocolate Peanut Brittle", "#c48a3a", "MP")),
+           _CHOC, 0.001, base="S", depth=True),
+    Family("PNH", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} {flavor}", "Chocolate Bar",
+           "bar", "Chocolate", _A, "DE", 1.6, ("100g", "200g"),
+           (F("Milk Chocolate Praline Bar", "#9a6a44", "MP"), F("Triple Chocolate Biscuit Bar", "#6a3a22", "GMP"),
+            F("Dark Chocolate Crunch Bar", "#3b2416", "P")),
+           _CHOC, 0.001, base="S", depth=True),
+    Family("PNF", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} {flavor}", "Chocolate Bar",
+           "bar", "Chocolate", _A, "DE", 1.7, ("100g", "200g"),
+           (F("Peanut-Free Milk Chocolate Bar", "#8a5a3c", "M"), F("Peanut-Free Dark Chocolate Bar", "#3b2416"),
+            F("No Peanuts Hazelnut Milk Chocolate Bar", "#9a6a44", "MT"), F("No Peanuts Orange Dark Chocolate Bar", "#d9822b"),
+            F("Peanut-Free Salted Caramel Chocolate Bar", "#c48a3a", "M")),
+           _CHOC, 0.001, base="S", depth=True),
 )  # fmt: skip
+
+#: A family that stocks more sizes across its range than any one style sells (gen#347): the
+#: packs a style carries. Each style takes this many of the family's packs, the window moving
+#: one pack per style, so a shop's range spans every size and each style stays what it was
+#: (its SKU count, so the family's styles, flavors and draws). Sparkling wine sells one size
+#: per style: a piccolo, a bottle or a magnum.
+PACKS_PER_STYLE: dict[str, int] = {
+    **dict.fromkeys(("PLM", "ICE", "SAU", "JUI", "DSH", "GLS", "LDY", "HWS", "SSA", "GJU", "BFR", "VIN", "CLN", "BOD", "FLR", "BTH", "SGL", "WRD", "WWH", "WRS", "WCH", "HCR", "ECR", "SWH", "SGN", "SVD", "SRM", "STQ", "FPT", "FSY", "FVM", "MED", "FTC", "BCR"), 2),
+    "WSP": 1,
+}
 
 #: The styles every build plants first, so each demo case exists at any size:
 #: (family, the flavors it carries, its may-contain codes).
@@ -738,7 +823,7 @@ ANCHORS: tuple[tuple[str, tuple[str, ...], str], ...] = (
     ("ORB", ("Orange Shortbread",), ""),
     ("ORB", ("Chocolate & Orange Cookies",), ""),
     ("HOT", ("Orange Drinking Chocolate",), ""),
-    ("JAM", ("Clear Honey",), ""),
+    ("HON", ("Clear Honey",), ""),
     ("JAM", ("Lemon Curd",), ""),
     ("JUI", ("Smooth Orange",), ""),
     ("TIN", ("Coconut Milk",), ""),
@@ -748,4 +833,17 @@ ANCHORS: tuple[tuple[str, tuple[str, ...], str], ...] = (
     ("CLN", ("Mint",), ""),
     ("BOD", ("Honey",), ""),
     ("BOD", ("Coconut",), ""),
+)
+
+
+#: The text-match decoys of the grocery build (gen#294), planted after :data:`ANCHORS` from the
+#: depth stream (so no core family's draw moves): (family, its flavors, may-contain codes, the
+#: range-name offset). Two ranges per peanut-in-title flavor, so a title and a brand repeat nowhere.
+DECOY_ANCHORS: tuple[tuple[str, tuple[str, ...], str, int], ...] = (
+    *(("PNT", (f.name,), "", 60 + 7 * k + j) for j in range(2) for k, f in enumerate(
+        next(f for f in FAMILIES if f.code == "PNT").flavors)),
+    *(("PNH", (f.name,), "", 90 + 5 * k + j) for j in range(2) for k, f in enumerate(
+        next(f for f in FAMILIES if f.code == "PNH").flavors)),
+    *(("PNF", (f.name,), "", 120 + 5 * k) for k, f in enumerate(
+        next(f for f in FAMILIES if f.code == "PNF").flavors)),
 )

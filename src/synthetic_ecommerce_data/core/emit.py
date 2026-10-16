@@ -253,6 +253,7 @@ def nested_document(
     return {
         "product_id": line.product_id,
         "product_type": line.type_key,
+        "product_type_label": line.type_label,
         "title": line.title,
         "brand": line.brand,
         "series": line.series,
@@ -310,6 +311,7 @@ def flat_documents(
             "sku": child.sku,
             "product_id": line.product_id,
             "product_type": line.type_key,
+            "product_type_label": line.type_label,
             "title": child.title,
             # The SKU's own copy, and the LINE's title beside it. They are two
             # different things and the description used to be the second: a
@@ -394,6 +396,7 @@ NESTED_MAPPING: dict[str, Any] = {
         "properties": {
             "product_id": {"type": "keyword"},
             "product_type": {"type": "keyword"},
+            "product_type_label": {"type": "keyword"},
             "title": {"type": "text"},
             "brand": {"type": "keyword"},
             "series": {"type": "keyword"},
@@ -406,6 +409,7 @@ NESTED_MAPPING: dict[str, Any] = {
             "image_url": {"type": "keyword"},
             "image_detail_url": {"type": "keyword"},
             "ingredients": {"type": "text"},
+            "fibre_content": {"type": "text"},
             "merchandising_score": {"type": "integer"},
             "variant_axes": {"type": "keyword"},
             "variant_count": {"type": "integer"},
@@ -472,6 +476,7 @@ FLAT_MAPPING: dict[str, Any] = {
             "sku": {"type": "keyword"},
             "product_id": {"type": "keyword"},
             "product_type": {"type": "keyword"},
+            "product_type_label": {"type": "keyword"},
             "title": {"type": "text"},
             "description": {"type": "text"},
             "parent_title": {"type": "text"},
@@ -488,6 +493,7 @@ FLAT_MAPPING: dict[str, Any] = {
             "image_url": {"type": "keyword"},
             "image_detail_url": {"type": "keyword"},
             "ingredients": {"type": "text"},
+            "fibre_content": {"type": "text"},
             "attribute_names": {"type": "keyword"},
             "attributes": {
                 "type": "object",

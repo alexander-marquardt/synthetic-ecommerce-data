@@ -1,6 +1,6 @@
 """Who a garment, shoe, lingerie or accessory is for: ``facets.audience`` on every such SKU.
 
-The category tree keeps its Women / Men / Kids roots (Baby is a node under Kids), and the
+The category tree keeps its Womens / Mens / Kids roots (Baby is a node under Kids), and the
 audience is an attribute beside it: ``Womens``, ``Mens``, ``Girls``, ``Boys``, ``Baby`` or
 ``Unisex``. A search for "mens jeans" then filters ``audience`` and ``product_type`` rather than
 leaning on the path, and a kids' style is no longer the one kind of garment with no audience value.
@@ -8,7 +8,8 @@ leaning on the path, and a kids' style is no longer the one kind of garment with
 Most styles name their audience in a template attribute (the jeans, the bras). The rest are
 filled in here, from the category path, by :func:`export.standard_document`:
 
-- ``Women/...`` is Womens and ``Men/...`` is Mens;
+- ``Womens/...`` is Womens and ``Mens/...`` is Mens, except the unisex backpacks, totes and
+  umbrellas under ``Womens/Accessories`` (gen#248), whose template states Unisex;
 - ``Kids/Girls/...`` is Girls and ``Kids/Boys/...`` is Boys; every other ``Kids/...`` node
   (shoes, tops, nightwear, school uniform) is sold to both, so it is Unisex, unless the
   style's own age group is baby, which is Baby;
@@ -25,7 +26,7 @@ WOMENS, MENS, GIRLS, BOYS, BABY, UNISEX = "Womens", "Mens", "Girls", "Boys", "Ba
 #: Every value of ``facets.audience``.
 AUDIENCES = (WOMENS, MENS, GIRLS, BOYS, BABY, UNISEX)
 #: The roots of the category tree that sell to a person: each SKU under one has an audience.
-PEOPLE_ROOTS = ("Women", "Men", "Kids")
+PEOPLE_ROOTS = ("Womens", "Mens", "Kids")
 #: The departments whose SKUs are worn: each has an audience, wherever its path sits.
 WORN_DEPARTMENTS = ("Clothing", "Footwear", "Lingerie & Nightwear")
 
@@ -33,9 +34,9 @@ WORN_DEPARTMENTS = ("Clothing", "Footwear", "Lingerie & Nightwear")
 def audience_of_path(path: list[str] | tuple[str, ...], age_group: str = "adult") -> str | None:
     """The audience a category path implies, or None when its root is not a people root."""
     root = path[0]
-    if root == "Women":
+    if root == "Womens":
         return WOMENS
-    if root == "Men":
+    if root == "Mens":
         return MENS
     if root == "Kids":
         if age_group == "baby":

@@ -2,8 +2,8 @@
 
 The catalog had earrings, a watch, a belt and a keyring in accessories and nothing for bags,
 umbrellas or other jewelry, so a search for a handbag, a backpack, an umbrella or a necklace
-found a make-up bag or nothing. Each type here is a leaf under ``Accessories`` with its own
-drawing (:mod:`kit_accessories`), its shopper attributes as structured entries, and SKUs over
+found a make-up bag or nothing. Each type here is a leaf under ``Womens > Accessories``, with its
+own drawing (:mod:`kit_accessories`), its shopper attributes as structured entries, and SKUs over
 the color or metal and the type's own axis: a bag's size, a backpack's capacity, an umbrella's
 canopy, a necklace's length, a bracelet's size, a ring's size.
 
@@ -35,11 +35,12 @@ for _brand, _owner in {"Marrowgate": "third_party", "Pellbrook": "third_party",
 _CL = "Clothing"
 _M, _P, _O, _T, _W, _H = ("Marrowgate", "Pellbrook", "Osier & Vane", "Tallow Street", "Wrenfield",
                           "Harbour & Pine")  # fmt: skip
-#: A bag, purse or umbrella sits under no people root, so its audience is declared here, the way
-#: every worn SKU has one (:mod:`audience`).
+#: A bag, purse or umbrella sits under ``Womens > Accessories`` (gen#248), one product in one place.
+#: The path is the department, not the audience: a backpack, a tote and an umbrella are unisex, and
+#: say so in ``facets.audience``, declared here the way every worn SKU has one (:mod:`audience`).
 WOMENS, UNISEX = audience.WOMENS, audience.UNISEX
-_BAGS = ("Accessories", "Bags")
-_JEW = ("Women", "Jewellery")
+_BAGS = ("Womens", "Accessories", "Bags")
+_JEW = ("Womens", "Jewellery")
 
 
 @dataclass(frozen=True)
@@ -224,7 +225,7 @@ BACKPACKS = (
           "port and a hidden back pocket.",
           (BLACK, GREY, NAVY),
           _bp("Laptop", "Polyester", 2, True, 15.6), _num((18, 38.0), (24, 44.0)), "laptop", 2),
-    _brow("BPKLPL", "Leather Look Laptop Backpack", _O, 52.0,
+    _brow("BPKLPL", "Faux Leather Laptop Backpack", _O, 52.0,
           "A smart faux leather backpack for work, with a padded 14 inch laptop sleeve and "
           "a zipped front pocket.",
           (BLACK, TAN),
@@ -291,7 +292,7 @@ TOTES = (
 # Purses: the type, the closure and the card slots are drawn.
 # --------------------------------------------------------------------------
 
-_PU = ("Accessories", "Purses & Wallets", "Purses")
+_PU = ("Womens", "Accessories", "Purses & Wallets", "Purses")
 
 
 def _pu(kind: str, material: str, rfid: bool, closure: str, slots: int = 0) -> tuple:
@@ -344,7 +345,7 @@ PURSES = (
 # Umbrellas: the state, the handle and the ribs are drawn; the canopy is the SKU.
 # --------------------------------------------------------------------------
 
-_UM = ("Accessories", "Umbrellas")
+_UM = ("Womens", "Accessories", "Umbrellas")
 
 
 def _um(kind: str, auto: bool, windproof: bool, uv: bool, ribs: int, *more: tuple) -> tuple:

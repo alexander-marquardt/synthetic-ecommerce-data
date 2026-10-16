@@ -27,14 +27,24 @@ if str(RETAIL) not in sys.path:
 import export  # noqa: E402
 import grocery  # noqa: E402
 import kit  # noqa: E402
-from grocery_ingredients import facet_value  # noqa: E402
-from grocery_rows import ALLERGENS  # noqa: E402
+from grocery_ingredients import allergen_value, facet_value  # noqa: E402
+from grocery_rows import ALLERGENS, DIETARY  # noqa: E402
 from retail_figures import committed  # noqa: E402
 
 #: The measured totals (``golden-retail/stats.json``, gen#162): never typed here.
 STYLES = committed()["templates"]["grocery"]["styles"]
 SKUS = committed()["templates"]["grocery"]["skus"]
 ALL = set(ALLERGENS.values())
+
+
+def canon(names) -> set[str]:  # noqa: ANN001
+    """The canonical facet values of allergen names (gen#294)."""
+    return {allergen_value(n) for n in names}
+
+
+def canon1(value: str, name: str) -> str:
+    """One attribute value as its facet holds it: an allergen in its canonical form."""
+    return allergen_value(value) if name in ("contains", "may_contain") else value
 
 
 @cache
@@ -60,7 +70,9 @@ def test_every_document_meets_the_output_standard() -> None:
 
 def test_the_flat_file_is_one_document_per_sku_with_the_retail_flat_keys() -> None:
     rows = grocery.flat(list(docs()))
-    retail_keys = set(export.flat_documents()[0])
+    # fibre_content is a fabric detail (gen#187): food never carries a blend, and the
+    # first retail document (a garment) does, so it is not a key every row shares.
+    retail_keys = set(export.flat_documents()[0]) - {"fibre_content"}
     assert len(rows) == SKUS
     assert {k for r in rows for k in r} == retail_keys | {"ingredients"}
 
@@ -95,7 +107,8 @@ def test_no_flat_sku_contains_what_another_flavor_of_its_style_contains() -> Non
         if row["category_path"][0] != "Food & Drink":
             continue
         for key in ("contains", "may_contain"):
-            if set(row["facets"].get(key, [])) != values(nested[row["sku"]]["attributes"], key):
+            stated = values(nested[row["sku"]]["attributes"], key)
+            if set(row["facets"].get(key, [])) != canon(stated):
                 bad.append((row["sku"], key))
     assert bad == []
 
@@ -106,8 +119,9 @@ def test_a_flat_sku_states_its_own_variants_allergens() -> None:
     nested = {v["sku"]: v for d in docs() for v in d["variants"]}
     for sku, row in rows.items():
         for key in ("contains", "may_contain"):
-            assert set(row["facets"].get(key, [])) == values(nested[sku]["attributes"], key), sku
-    assert "Milk" not in rows["GRC-SWT-0002-001"]["facets"].get("contains", [])
+            stated = values(nested[sku]["attributes"], key)
+            assert set(row["facets"].get(key, [])) == canon(stated), sku
+    assert "milk" not in rows["GRC-SWT-0002-001"]["facets"].get("contains", [])
 
 
 def test_an_allergen_warning_is_a_facet_only_never_a_flat_attribute() -> None:
@@ -139,7 +153,7 @@ def test_every_food_fact_is_a_flat_facet_equal_to_what_the_sku_states() -> None:
             want = (
                 list(dict.fromkeys(facet_value(i) for i in own.get("ingredients", [])))
                 if name == "ingredients"
-                else [e["value"] for e in own["attributes"] if e["key"] == name]
+                else [canon1(e["value"], name) for e in own["attributes"] if e["key"] == name]
             )
             assert row["facets"].get(name, []) == want, (row["sku"], name)
             seen[name] += bool(want)
@@ -149,9 +163,9 @@ def test_every_food_fact_is_a_flat_facet_equal_to_what_the_sku_states() -> None:
 def test_the_facet_values_are_the_closed_vocabularies() -> None:
     rows = grocery.flat(list(docs()))
     pool = lambda name: {v for r in rows for v in r["facets"].get(name, [])}  # noqa: E731
-    assert pool("contains") == ALL
-    assert pool("may_contain") <= ALL
-    assert pool("dietary") == {"Vegan", "Vegetarian", "Gluten Free", "Nut Free", "Organic"}
+    assert pool("contains") == canon(ALL)
+    assert pool("may_contain") <= canon(ALL)
+    assert pool("dietary") == set(DIETARY)
     assert len(pool("ingredients")) > 100
 
 
@@ -258,10 +272,10 @@ def test_nut_free_and_vegan_chocolate() -> None:
     ("food_leaf", "food_want", "other_leaf", "other_want"),
     [
         ("Lemons", {"variety": "Unwaxed Lemons"}, "Kitchen Cleaners", {"scent": "Lemon"}),
-        ("Jam & Honey", {"flavor": "Lemon Curd"}, "Kitchen Cleaners", {"scent": "Lemon"}),
+        ("Jam", {"flavor": "Lemon Curd"}, "Kitchen Cleaners", {"scent": "Lemon"}),
         ("Oranges", {"variety": "Oranges"}, "Kitchen Cleaners", {"scent": "Orange"}),
         ("Juice", {"flavor": "Smooth Orange"}, "Kitchen Cleaners", {"scent": "Orange"}),
-        ("Jam & Honey", {"flavor": "Clear Honey"}, "Body Lotion", {"scent": "Honey"}),
+        ("Honey", {"flavor": "Clear Honey"}, "Body Lotion", {"scent": "Honey"}),
         ("Tinned", {"flavor": "Coconut Milk"}, "Body Lotion", {"scent": "Coconut"}),
         ("Chocolate Bars", {"flavor": "Mint Dark"}, "Kitchen Cleaners", {"scent": "Mint"}),
         ("Milk", {"flavor": "Whole"}, "Body Lotion", {"scent": "Coconut"}),
@@ -287,7 +301,7 @@ def test_pizza_is_chilled_with_a_vegan_and_a_cheese_style() -> None:
 
 
 def test_a_honey_jar_is_labelled_honey() -> None:
-    honey = [d for d in grocery.build(2000) if d["category_leaf"] == "Jam & Honey"]
+    honey = [d for d in grocery.build(2000) if d["category_leaf"] == "Honey"]
     labels = {r["drawing"]["label"]: r["skus"][0]["flavor"] for r in honey}
     assert {lab for lab, flavor in labels.items() if "Honey" in flavor} == {"Honey"}
 

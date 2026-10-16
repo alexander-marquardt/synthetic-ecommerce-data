@@ -30,8 +30,8 @@ import scale  # noqa: E402
 #: The store's departments, and the only values the top level of a retail ``category_path`` takes.
 DEPARTMENTS = frozenset(
     {
-        "Women",
-        "Men",
+        "Womens",
+        "Mens",
         "Kids",
         "Food & Drink",
         "Home",
@@ -40,13 +40,12 @@ DEPARTMENTS = frozenset(
         "Toys",
         "Gifts",
         "Garden",
-        "Accessories",
         "Sports & Outdoors",
     }
 )
 #: The roots the build once had -> the first two nodes their subtree now starts with.
 FOLDED_ROOTS = {
-    "Food": ["Food & Drink", "Fresh Produce"],
+    "Food": ["Food & Drink", "Fruit & Vegetables"],
     "Baby": ["Kids", "Baby"],
     "Electricals": ["Home", "Electricals"],
 }
