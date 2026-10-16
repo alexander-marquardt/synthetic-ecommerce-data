@@ -117,6 +117,7 @@ import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
 import mens_depth_rows  # noqa: E402
+import net_volume  # noqa: E402
 import scale_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
@@ -293,6 +294,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *colorgroup_rows.docs(), *mens_depth_rows.docs(),
     ]  # fmt: skip
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
+    body = net_volume.state_title_volumes(body)  # gen#347: a volume the title states is the field
     if baseline:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
