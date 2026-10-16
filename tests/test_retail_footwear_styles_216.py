@@ -54,10 +54,11 @@ def test_a_type_names_itself_and_sits_in_the_shoes_category(ptype: str) -> None:
     docs = _of(ptype)
     assert docs, ptype
     for d in docs:
-        # a platform trainer nests under Trainers: a sibling is beside its head noun (gen#283)
-        want = ["Shoes", "Trainers", ptype] if ptype == "Platform Trainers" else ["Shoes", ptype]
-        assert d["category_path"][1:] == want, d["product_id"]
-        assert d["category_leaf"] == ptype
+        # the leaf of a platform trainer is Platform Shoes: Platform Trainers beside Trainers
+        # breaks the head-noun rule (gen#283) and nested under it the leaf-is-never-a-parent rule
+        leaf = "Platform Shoes" if ptype == "Platform Trainers" else ptype
+        assert d["category_path"][1:] == ["Shoes", leaf], d["product_id"]
+        assert d["category_leaf"] == leaf
         assert d["department"][0] == "Footwear"
         assert fw.TYPES[next(k for k, v in fw.TYPES.items() if v[0] == ptype)][3] == TYPES[ptype][0]
 

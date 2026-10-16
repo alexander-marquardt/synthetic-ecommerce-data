@@ -130,7 +130,7 @@ TYPES: dict[str, tuple[str, tuple[str, ...], int, str]] = {
     "clog": ("Clogs", ("Shoes", "Clogs"), 30, "clog"),
     "wedge": ("Wedges", ("Shoes", "Wedges"), 60, "wedge"),
     "espadrille": ("Espadrilles", ("Shoes", "Espadrilles"), 10, "espadrille"),
-    "platform_trainer": ("Platform Trainers", ("Shoes", "Trainers", "Platform Trainers"), 45, "platform_trainer"),
+    "platform_trainer": ("Platform Trainers", ("Shoes", "Platform Shoes"), 45, "platform_trainer"),
     "mule": ("Mules", ("Shoes", "Mules"), 5, "mule"),
     "jelly": ("Jelly Shoes", ("Shoes", "Jelly Shoes"), 10, "jelly"),
     "barefoot": ("Barefoot Shoes", ("Shoes", "Barefoot Shoes"), 0, "barefoot"),
