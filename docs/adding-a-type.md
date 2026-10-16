@@ -548,7 +548,12 @@ that fixes it:
   pack-sold type) spreads the shown price wider than the census p90/p10: its
   reason in `SLOPE_CUTS`. The fit refuses to lower any other type's slope. A
   pack-sold type whose shown price climbs slower than its per-piece slope
-  publishes its pack instead (`price.pack_quantity`), as the hex bolt does.
+  publishes its pack instead: ranked by size (`price.pack_quantity`), as the
+  socket screw does, or drawn per group page and priced within a size
+  (`price.page_pack`, `price.PACK_ELASTICITY`), as the hex bolt does since
+  #86. Where the census's p90/p10 would leave a cut type no size slope, the
+  fit aims at `price.SLOPE_CUT_AIMS` instead, inside the row's band, and the
+  reason in `SLOPE_CUTS` says so.
 * **A size noise**, where one spec's brands must sit close while its size
   pairs invert: its reason in `SIZE_NOISE`.
 

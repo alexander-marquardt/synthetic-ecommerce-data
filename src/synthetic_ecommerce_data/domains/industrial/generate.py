@@ -401,6 +401,23 @@ class Generator:
         )
         return numeric_attribute("Package Quantity", str(quantity), float(quantity))
 
+    def _page_pack(self, type_key: str, brand: str, line_attributes: list[Attribute]) -> Attribute:
+        """A line's ``Package Quantity`` when the pack belongs to its group
+        page (:func:`.price.page_pack`): drawn from the brand and the line
+        attributes every line of the type publishes and a census cell holds
+        equal, as :func:`.price.group_draw` reads them, so every size of a
+        page shares one pack and no size ranks it."""
+        always = self._always_published(type_key)
+        held = [
+            (a.name, a.value)
+            for a in line_attributes
+            if a.name in always and price.holds_equal(type_key, a)
+        ]
+        quantity = price.page_pack(
+            type_key, price.page_pack_draw(self.config.seed, type_key, brand, held)
+        )
+        return numeric_attribute("Package Quantity", str(quantity), float(quantity))
+
     def _new_sku(self) -> str:
         """The type's next part number: its block, then a scrambled sequence.
 
@@ -1038,16 +1055,6 @@ class Generator:
             keyword_attribute(
                 "Thread Type", "UNC" if standard.startswith("ASME") else "Metric Coarse"
             ),
-            self._pack(
-                type_key,
-                f"{standard}:{size}:{brand}:{draft.series}",
-                head.major_dia_in,
-                (
-                    standards.hex_bolt(bolt_standard, offered_size).major_dia_in
-                    for bolt_standard in dict.fromkeys(HEX_BOLT_STANDARDS)
-                    for offered_size in standards.available_sizes(bolt_standard)
-                ),
-            ),
         ]
         draft.descriptors = [("Grade", grade)]
         # Near-miss threads, as on the socket screws. A fine-pitch hex bolt
@@ -1061,6 +1068,8 @@ class Generator:
         if fine:
             _retype(draft, "Metric Fine" if metric else "UNF")
             draft.provenance = FINE_PITCH_BOLT_STANDARD[standard]
+        # After the thread's retyping, so the page is read as the cell holds it.
+        draft.line_attrs.append(self._page_pack(type_key, brand, draft.line_attrs))
 
         lengths = list(standards.offered_lengths_in(standard, size)) or [0.5, 0.75, 1.0, 1.5, 2.0]
         count = min(self._variant_count(), len(lengths))
