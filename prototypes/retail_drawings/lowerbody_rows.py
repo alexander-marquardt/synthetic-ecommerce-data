@@ -268,7 +268,7 @@ SHORTS = (
     LRow("SHTBRM", "Bermuda Shorts with Turned-Up Hem", "Wrenfield", CL_, _MS, "Shorts", 30.0,
          "shorts", "Knee length bermudas in a cotton twill, with a cuffed hem and belt loops.",
          (NAVY, KHAKI, GREEN_CHECK), _sh("Bermuda", "Knee Length", "Cotton", _waist("Belted")),
-         _sizes(30.0), params=_shp("mini", "bermuda"), facts=_facts("Mid", "plain")),
+         _sizes(30.0), params=_shp("knee", "bermuda"), facts=_facts("Mid", "plain")),
     LRow("SHTSWW", "Sweat Shorts with Drawstring", HK, CL_, _WS, "Shorts", 16.0, "shorts",
          "Mini jersey shorts with an elastic waist and a drawstring.", (GREY_MARL, PINK, BLACK),
          _sh("Sweat", "Mini", "Cotton Jersey", _waist("Elastic", "Drawstring")), _sizes(16.0),
@@ -301,12 +301,12 @@ CYCLING = (
     LRow("CYSWPD", "Padded Cycling Shorts", SW, CL_, _WC, "Cycling Shorts", 30.0,
          "cycling_shorts", "High rise cycling shorts with a padded chamois and flat seams, for "
          "long rides.", (BLACK, NAVY), _cy("Mid Length", "Padded", NO),
-         _sizes(30.0), params=_cyp("mid", "mid", "yes", "no"), facts=_facts("High", "plain")),
+         _sizes(30.0), params=_cyp("mid", "high", "yes", "no"), facts=_facts("High", "plain")),
     LRow("CYSWCP", "Compression Cycling Shorts", SW, CL_, _WC, "Cycling Shorts", 22.0,
          "cycling_shorts", "Close fitting compression shorts with a silicone gripper at each "
          "hem, for spin class and training.", (BLACK, PURPLE, TEAL),
          _cy("Mini", "Unpadded", NO), _sizes(22.0),
-         params=_cyp("knee", "high", "no", "no"), facts=_facts("High", "plain")),
+         params=_cyp("mini", "high", "no", "no"), facts=_facts("High", "plain")),
     LRow("CYSWPK", "Padded Cycling Shorts with Pockets", "Saltmarsh", CL_, _WC,
          "Cycling Shorts", 38.0, "cycling_shorts", "Knee length padded shorts with a mid rise "
          "and a pocket on each leg for a phone or keys.", (BLACK, GREY),
