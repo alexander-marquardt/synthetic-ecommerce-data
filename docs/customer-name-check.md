@@ -26,12 +26,21 @@ Exit status: 0 clean, 1 a hit, 2 a usage error, 3 could not judge (a `gh` that
 did not answer, a range git cannot resolve). A run that could not judge is never
 a pass. A hit is a hard block with no justification line.
 
+Surfaces not scanned: the branch name, the commit author and committer fields,
+and PR and issue comments. A path hit prints the path, which holds the name, so
+the log of that run carries it.
+
+Known limit: the list matches visible text. An invisible character, a homoglyph
+or a split inside a name defeats it. Core's tracked-file invisible-character gate
+is not vendored here.
+
 ## One list, core's
 
 The names are `CUSTOMER_NAME_SPECS` in elastic/prism's
 `.github/scripts/audit_grep_diff.py`. This repository's CI cannot read the private
 core repository, so the file sits under `vendor/prism/` byte for byte, with the
-module it imports (`scripts/invisible_characters.py`), at the commit
+module it imports (`scripts/invisible_characters.py`, which the list's module
+needs to import; this check does not use it for invisible characters), at the commit
 `vendor/prism/PIN.txt` names. That is the same commit and the same two files
 elastic/prism-industrial-products vendors, so there is one list.
 `tests/test_vendored_core_pin_11683.py` refuses a copy that differs from the pin,
@@ -63,6 +72,7 @@ is not a row of core's list today.
   yet), and over the draft body when `--pr-body-file` is given. Without a body it
   says so: the PR text was not judged.
 - Locally: `uv run python scripts/check_customer_names.py` scans the tree.
-- Not a required check of `merge_pr.sh` (`REQUIRED_CI`), which names the checks a
-  pull request must carry green on GitHub; `--local-ci` runs every job of the
-  workflow, this one included.
+- A required check of `merge_pr.sh` (`REQUIRED_CI`): a merge waits for the
+  `customer-name-check` job and refuses on a red one; `--local-ci` runs it too.
+  The job runs on opened, synchronize and reopened only, so a PR body edited
+  after the green run is read on the next push or by `--local-ci`.
