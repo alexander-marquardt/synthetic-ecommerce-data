@@ -93,6 +93,7 @@ catalog (`docs/adding-a-type.md`); a retail product id is `BRD-<row code>`, one 
 | `tests/test_retail_main_colors_275.py` | Run, do not edit: it lists every color-bearing type that lacks a main color without an exception. |
 | `tests/test_retail_tree_nesting_283.py` | Run, do not edit: it runs the rules of `tree_guard.py` over the built tree. |
 | `tests/test_retail_figures_162.py` | Run, do not edit: it holds `golden-retail/stats.json` to a fresh measurement. |
+| `tests/test_retail_sports_265.py` | Run, do not edit: the Sports department's checks (every type has its range, draws its own shape, carries the six main colors, reaches the scaled build). |
 | `tests/test_retail_sports_decoys_368.py` | The decoy census of Sports & Outdoors: a type with fewer than two decoys and no `SPORTS_EXEMPT` entry reds. Garden's is `tests/test_retail_garden_203.py` (`-k at_least_three_decoys`). |
 | `scripts/mutation_rows_<topic>.py` | New file: one row per planted defect in the decoys, the drawing or the rule, each naming the test that must go red; import it where `scripts/mutation_check.py` imports its siblings. |
 
