@@ -134,6 +134,8 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "berth": ("berth", "Berth", "C62"),
     "thickness_mm": ("thickness", "Thickness", "MMT"),
     "weight_kg": ("weight", "Weight", "KGM"),
+    # A garden hose's length (garden_rows.py, gen#292): the hose is cut and sold in metres.
+    "length_m": ("item_length", "Item length", "MTR"),
     # The second increment (sports_rows.py, gen#368): a block's height (item_height) and a strap's,
     # bat's and kickboard's length (item_length) reuse the keys above; the rest are new.
     "glove_size_in": ("glove_size", "Glove size", "INH"),

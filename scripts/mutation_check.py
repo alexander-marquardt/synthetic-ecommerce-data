@@ -30,10 +30,10 @@ import mutation_rows_appliance_colors  # noqa: E402  (gen#243 rows)
 import mutation_rows_attribute_text  # noqa: E402  (gen#250 rows, kept in their own file)
 import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
 import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their own file)
+import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
 import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
 import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
-import mutation_rows_type_specs  # noqa: E402  (gen#351 rows, kept in their own file)
 
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "src" / "synthetic_ecommerce_data"
@@ -4007,10 +4007,10 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
-    # ---- retail: one declarative spec per type (gen#351); the rows are in their own file ----
+    # ---- retail: type specs (gen#351) and the garden hose decoys (gen#292); rows in their own files ----
     *(
-        Mutation(f"type specs: {name}", file, old, new, test, "", prop, root=root)
-        for name, file, old, new, test, prop, root in mutation_rows_type_specs.ROWS
+        Mutation(f"{prefix}: {name}", file, old, new, test, "", prop, root=root)
+        for prefix, name, file, old, new, test, prop, root in mutation_rows_garden_hose.ALL
     ),
     # ---- retail: derived ceiling-light forms (gen#237); the rows are in their own file ----
     *(
