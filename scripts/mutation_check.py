@@ -3820,8 +3820,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a decoy is copied by the derivation",
                 "scale.py",
-                "| SPEC_IDS | decoy_rows.IDS\n",
-                "| SPEC_IDS\n",
+                "| SPEC_IDS | decoy_rows.IDS | COLORWORD_IDS\n",
+                "| SPEC_IDS | COLORWORD_IDS\n",
                 "tests/test_retail_text_match_decoys_294.py -k never_copied_or_color_completed",
                 "a decoy stays a template",
             ),
