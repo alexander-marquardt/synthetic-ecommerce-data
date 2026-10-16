@@ -204,3 +204,80 @@ def test_disagreements_names_the_row():
         "T-1: closure Zip but the text names ['magnetic']",
         "T-2: pattern Striped but the drawing is solid",
     ]
+
+
+# ---- the vocabulary, the case folding and the word boundary ---------------------------------
+
+#: One text per family and per listed spelling, in lower, capitalized, upper and hyphenated forms.
+CLOSURE_SPELLINGS = (
+    [("zip", s) for s in ("zip", "Zips", "zipped", "ZIPPED", "zipper", "Zippers", "zip-up")]
+    + [("magnetic", s) for s in ("magnet", "magnets", "Magnetic", "MAGNETIC")]
+    + [
+        ("snap", s)
+        for s in (
+            "snap",
+            "Snaps",
+            "snapped",
+            "press-stud",
+            "Press-Studs",
+            "press stud",
+            "popper",
+            "Poppers",
+        )
+    ]
+    + [("drawstring", s) for s in ("drawstring", "Drawstrings")]
+    + [("clasp", s) for s in ("clasp", "Clasps")]
+    + [("buckle", s) for s in ("buckle", "Buckles", "buckled")]
+)
+
+
+@pytest.mark.parametrize(("family", "spelling"), CLOSURE_SPELLINGS)
+def test_closure_spelling_over_another_family_disagrees(family, spelling):
+    """Every listed spelling of every family is read, whatever its case."""
+    other = "Magnetic" if family == "zip" else "Zip"
+    rec = _rec(description=f"A bag with a {spelling} fastening.", closure=other)
+    assert attribute_text.closure_lines(rec) == [f"closure {other} but the text names ['{family}']"]
+
+
+def test_every_family_has_a_spelling_row():
+    assert {f for f, _ in CLOSURE_SPELLINGS} == set(attribute_text.FAMILIES)
+
+
+@pytest.mark.parametrize("word", ["snapshot", "zipline", "unzipped", "magnetism", "buckleberry"])
+def test_a_closure_word_inside_another_word_is_not_a_closure_word(word):
+    rec = _rec(description=f"A bag with a {word} look.", closure="Zip")
+    assert attribute_text.closure_lines(rec) == []
+
+
+#: One text per pattern word, over a Plain style.
+PATTERN_SPELLINGS = (
+    [("stripe", s) for s in ("stripe", "Stripes", "striped", "pinstripe", "Pinstriped")]
+    + [("polka", s) for s in ("polka", "Polka Dot", "polka dots", "spotted", "Spotted")]
+    + [("check", s) for s in ("check", "Checks", "checked", "plaid", "Plaid", "tartan", "TARTAN")]
+    + [("gingham", s) for s in ("gingham", "Gingham")]
+    + [("leopard", s) for s in ("leopard", "Leopard")]
+)
+
+
+@pytest.mark.parametrize(("kind", "spelling"), PATTERN_SPELLINGS)
+def test_pattern_spelling_over_plain_disagrees(kind, spelling):
+    rec = _rec(description=f"A {spelling} umbrella.", pattern="Plain", sold=("solid",))
+    assert attribute_text.pattern_lines(rec) == [f"pattern Plain but the text names ['{kind}']"]
+
+
+def test_every_pattern_word_has_a_spelling_row():
+    assert {k for k, _ in PATTERN_SPELLINGS} == set(attribute_text.PATTERN_WORDS)
+
+
+def test_a_pattern_word_inside_another_word_is_not_a_pattern_word():
+    rec = _rec(description="A checkout-ready, spottedness-free umbrella.", pattern="Plain")
+    assert attribute_text.pattern_lines(rec) == []
+
+
+def test_a_color_option_without_a_pattern_key_is_reported_not_a_crash():
+    rec = _rec(pattern="Plain", sold=("solid",))
+    rec["color_options"].append({"color": "Blue", "hex": "#0000ff"})
+    rec["color_options"].append({"color": "Red", "hex": "#b3202e", "pattern": "gingham"})
+    assert attribute_text.pattern_lines(rec) == [
+        "pattern Plain but color options sell ['None', 'gingham']"
+    ]
