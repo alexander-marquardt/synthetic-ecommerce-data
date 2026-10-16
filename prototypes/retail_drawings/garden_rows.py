@@ -1,4 +1,4 @@
-"""Lawn mower, robot mower, grass trimmer and barbecue templates for the scaled catalog (gen#203): data only.
+"""Lawn mower, robot mower, grass trimmer and barbecue templates for the scaled catalog (gen#203), and the garden hose's decoys.
 
 The Garden department sold plants and growing kits only. This is the garden machines' first
 increment: **Garden > Lawn Care** (lawn mowers with cordless, petrol and electric kinds, robot
@@ -8,7 +8,9 @@ structured entries, and SKUs over its color and its own axis: a mower's or trimm
 a robot mower's lawn area, a kettle's diameter, a gas barbecue's burners.
 
 Every type offers the six main colors across its styles (gen#275). Not done yet (gen#203): hedge
-trimmers, garden furniture sets and parasols; garden hoses are gen#292's.
+trimmers, garden furniture sets and parasols. The garden hoses are a type spec
+(``type_specs/garden_hose.py``, gen#292); their decoys are here, with the machines', copied from
+the spec's two styles.
 
 **Text-match decoys (gen#294).** Each type carries at least three of each of five classes: a sibling
 product whose title holds the type word (a cushion, an apron), a real product of the type whose
@@ -31,6 +33,7 @@ from dataclasses import replace
 
 import kit_garden  # registers lawn_mower, robot_mower, grass_trimmer, bbq
 from breadth_rows import Row
+from type_specs import garden_hose
 from variants import cw
 
 from synthetic_ecommerce_data.core.entry import canonical
@@ -262,6 +265,7 @@ DECOY_TABLE = {
     "DCTCND": ("incidental", "grass trimmer", "Grass Trimmer"),
     "DCBAPR": ("type", "bbq", "BBQ"), "DCBCHR": ("absent", "gas bbq", "BBQ"),
     "DCBCND": ("incidental", "bbq", "BBQ"),
+    "DCHCSH": ("type", "garden hose", "Garden Hose"), "DCHCND": ("incidental", "garden hose", "Garden Hose"),
 }  # fmt: skip
 
 DECOYS = (
@@ -287,6 +291,8 @@ DECOYS = (
          "A bowl grill that burns charcoal, with no gas bottle or hose to fit.",
          (BLACK,), _bbq("Charcoal", "Portable", True, False), _axis((38, 39.0),), "diameter_cm", (("kind", "portable"),)),
     _candle("DCBCND", "Smoky Garden BBQ Candle", "A smoky wood scent in a glass jar, as the barbecue dies down.", "Wood Smoke"),
+    _cushion("DCHCSH", "Garden Hose Print Cushion", "A cotton cushion printed with a coiled garden hose on a striped lawn."),
+    _candle("DCHCND", "Garden Rain Mist Candle", "A damp paving scent in a glass jar, as the hose is turned off after dusk.", "Rain on Stone"),
 )
 
 
@@ -294,10 +300,10 @@ DECOYS = (
 # type are copies of one of its styles with one main color, a title or a description that
 # misleads, and the first size only.
 _MAIN = ("red", "blue", "green", "yellow", "black", "white")
-_BASE = {r.code: r for r in (*LAWN_MOWERS, *ROBOT_MOWERS, *GRASS_TRIMMERS, *BBQS)}
+_BASE = {r.code: r for r in (*LAWN_MOWERS, *ROBOT_MOWERS, *GRASS_TRIMMERS, *BBQS, *garden_hose.SPEC.rows)}
 _COLOR = {c[0].lower(): c for c in (RED, BLUE, GREEN, YELLOW, BLACK, WHITE)}
-_QUERY = {"Lawn Mower": "lawn mower", "Robot Mower": "robot mower", "Grass Trimmer": "grass trimmer", "BBQ": "bbq"}
-_ABSENT = {"Lawn Mower": "petrol", "Robot Mower": "gps", "Grass Trimmer": "cordless", "BBQ": "gas"}
+_QUERY = {"Lawn Mower": "lawn mower", "Robot Mower": "robot mower", "Grass Trimmer": "grass trimmer", "BBQ": "bbq", "Garden Hose": "garden hose"}
+_ABSENT = {"Lawn Mower": "petrol", "Robot Mower": "gps", "Grass Trimmer": "cordless", "BBQ": "gas", "Garden Hose": "latex"}
 
 
 _NAMED_PART = re.compile(r"\bwith (\w+) ([\w ]+)$")
@@ -378,7 +384,24 @@ _REAL = {
         ("DCBH02", "shade", "Folding Portable BBQ", "BBQPRT", "blue", "A bowl grill with a yellow carry strap and folding legs."),
         ("DCBH03", "shade", "Smoker Kamado BBQ", "BBQKAM", "yellow", "A ceramic cooker with a green felt seal and a heavy lid."),
     ),
+    "Garden Hose": (
+        ("DCHA01", "absent", "Latex Free Garden Hose", "GHSREIN", "blue", "A four-layer PVC hose with no latex tube to perish in the sun, fitted to a standard outdoor tap."),
+        ("DCHA02", "absent", "Garden Hose, Not Latex", "GHSREIN", "black", "A PVC hose that stays flexible in the cold, with nothing to stretch or shrink."),
+        ("DCHA03", "absent", "Latex Free Reinforced Garden Hose", "GHSREIN", "green", "A reinforced PVC hose for a standard outdoor tap, with no latex to smell or split."),
+        ("DCHI01", "incidental", "Red Kite Garden Hose", "GHSREIN", "black", "A reinforced hose from the Kite range, coiled for storage."),
+        ("DCHI02", "incidental", "Blue Moon Garden Hose", "GHSEXPN", "yellow", "A light hose that shrinks to store, named for the moon over the lawn."),
+        ("DCHS01", "secondary", "Black Garden Hose with Green Connectors", "GHSREIN", "black", "A four-layer hose that resists kinks, coiled for storage."),
+        ("DCHS02", "secondary", "Red Expandable Garden Hose with Yellow Connectors", "GHSEXPN", "red", "A light hose that grows under water pressure and shrinks back to store."),
+        ("DCHS03", "secondary", "Green Garden Hose with White Connectors", "GHSREIN", "green", "A reinforced hose for a standard outdoor tap, coiled for storage."),
+        ("DCHH01", "shade", "Heavy Duty Garden Hose", "GHSREIN", "blue", "A four-layer hose, with a red hanging strap in the box and a standard tap fitting."),
+        ("DCHH02", "shade", "Lightweight Garden Hose", "GHSEXPN", "green", "A light hose that grows under water pressure, supplied with a yellow spray gun."),
+        ("DCHH03", "shade", "Compact Garden Hose", "GHSEXPN", "white", "A hose that shrinks back to store in a small space, sold in a bag with a black carry handle."),
+    ),
 }
+def _hose_candle(code: str, title: str, desc: str) -> Row:
+    return _candle(code, title, desc, "Fresh Grass")
+
+
 _SIBLINGS = (
     ("DCMT01", "Lawn Mower", _apron, "Lawn Mower Racing Apron", "A cotton apron printed with a mower and a joke about stripes."),
     ("DCMT02", "Lawn Mower", _cushion, "Striped Lawn Mower Cushion", "A cotton cushion printed with a mower on a striped lawn."),
@@ -388,6 +411,8 @@ _SIBLINGS = (
     ("DCTT02", "Grass Trimmer", _apron, "Grass Trimmer Workshop Apron", "A cotton apron with two pockets, printed with a trimmer."),
     ("DCBT01", "BBQ", _cushion, "BBQ Night Cushion", "A cotton cushion printed with a grill and a string of lights."),
     ("DCBT02", "BBQ", _apron, "BBQ Grill Pro Apron", "A cotton apron with a pocket and a bottle opener loop."),
+    ("DCHT01", "Garden Hose", _apron, "Garden Hose Pro Apron", "A cotton apron with a pocket, printed with a coiled hose and a joke about the lawn."),
+    ("DCHT02", "Garden Hose", _hose_candle, "Garden Hose Fresh Candle", "A fresh-cut grass scent in a glass jar, for a shelf by the garden door."),
 )
 _CLASS_QUERY = {"type": "{q}", "absent": "{a} {q}", "incidental": "{c} {q}", "secondary": "{c} {q}", "shade": "{c} {q}"}
 _COLOR_WORD = re.compile(r"\b(red|blue|green|yellow|black|white)\b", re.I)
