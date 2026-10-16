@@ -95,6 +95,8 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     # umbrella's canopy, a necklace's length (item_length), a jewelry SKU's metal.
     "canopy_cm": ("canopy_diameter", "Canopy diameter", "CMT"),
     "metal": ("metal", "Metal", None),
+    # A watch's or fitness band's case, in millimetres (jewellery_rows.py, gen#423).
+    "case_mm": ("case_diameter", "Case diameter", "MMT"),
     # A building set's sizes, a board game's editions and a craft kit's themes
     # (toys_rows.py, gen#201).
     "piece_count": ("piece_count", "Piece count", "C62"),

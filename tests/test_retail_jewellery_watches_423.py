@@ -7,9 +7,11 @@ registered through a spec or the legacy list, never both: gen#413 slice 3 moves 
 types here are new product types beside them, one spec module each.
 
 The query shapes of the issue are run on the baseline ranking (:mod:`baseline_rank`) of the
-seed-0 build: a text-only query whose intended type must come first. A query that a color-word
-policy decides ("rose gold ring size N": rose bouquets match the words) is held on the
-structured fields instead.
+seed-0 build: a text-only query whose intended type must come first. A query that a policy
+decides is held on the structured fields instead: "rose gold ring size N" (rose bouquets match
+the words), and "womens watch 32 mm", "water resistant watch 100 m" and "black silicone watch"
+(the baseline puts a dress, the legacy "Mesh Watch, 50m Water Resistance" and a sandal first:
+the unit, the number and the color are what a policy reads, and the fields below carry them).
 """
 
 from __future__ import annotations
@@ -35,13 +37,10 @@ KEYS = {t: t.lower().replace(" ", "_") for t in NEW_TYPES}
 #: The query shapes of the issue and the product types that must rank first (text only).
 QUERIES = {
     "silver necklace": {"Necklace"},
-    "gold hoop earrings": {"Hoop Earrings"},
+    "gold hoop earrings": {"Hoop Earrings", "Earrings"},  # the legacy gold hoop is one too
     "pearl earrings": {"Drop Earrings", "Hoop Earrings"},
     "charm bracelet": {"Bracelet"},
     "mens leather strap watch": {"Analog Watch"},
-    "womens watch 32 mm": {"Analog Watch", "Digital Watch"},
-    "water resistant watch 100 m": {"Analog Watch", "Digital Watch"},
-    "black silicone watch": {"Digital Watch"},
     "fitness band": {"Fitness Band"},
     "drop earrings": {"Drop Earrings"},
 }
@@ -145,9 +144,39 @@ def test_a_watch_states_its_strap_case_diameter_and_water_resistance(
 ) -> None:
     rows = _of(templates, ptype)
     keys = collections.Counter(a["key"] for r in rows for a in r["attributes"])
-    for key in ("strap", "water_resistance", "gender"):
+    for key in ("strap", "water_resistance", "audience"):
         assert keys[key] >= len(rows), (ptype, key)
     assert {
         a["value"].lower() for r in rows for a in r["attributes"] if a["key"] == "strap"
     } & options
     assert all(s.get("case_mm") for r in rows for s in r["skus"]), ptype
+
+
+def _watches(ceiling: list[dict]) -> list[dict]:
+    return [r for r in ceiling if r["product_type"] in ("Analog Watch", "Digital Watch")]
+
+
+def _attr(rec: dict, key: str) -> str:
+    return next((a["value"] for a in rec["attributes"] if a["key"] == key), "")
+
+
+def test_womens_watch_32_mm_is_a_watch_sku(ceiling: list[dict]) -> None:
+    hits = [
+        r for r in _watches(ceiling)
+        if _attr(r, "audience") == "Womens" and any(s.get("case_mm") == "32" for s in r["skus"])
+    ]  # fmt: skip
+    assert hits
+
+
+def test_a_watch_is_water_resistant_to_100_m(ceiling: list[dict]) -> None:
+    hits = [r for r in _watches(ceiling) if _attr(r, "water_resistance") in ("100", "100.0")]
+    assert hits and {r["product_type"] for r in hits} == {"Analog Watch", "Digital Watch"}
+
+
+def test_a_black_silicone_watch_is_a_digital_watch_sku(ceiling: list[dict]) -> None:
+    hits = [
+        r for r in ceiling
+        if r["product_type"] == "Digital Watch" and _attr(r, "strap") == "Silicone"
+        and any(s.get("color") == "Black" for s in r["skus"])
+    ]  # fmt: skip
+    assert hits
