@@ -1413,9 +1413,9 @@ BREADTH_34 = (
 #: The fewest derivable styles any department holds at the ceiling build (gen#220). It is a
 #: count of the department's own, not a share of the total: a batch that grows one department
 #: (the Home types of gen#196-#217) moves no other department's standing, so it needs no
-#: filler rows elsewhere. The smallest department at the ceiling holds 180 (Food & Drink);
+#: filler rows elsewhere. The smallest department at the ceiling holds 212 (Beauty);
 #: dropping half of any thin department's rows here leaves it with 64 to 116.
-DEPARTMENT_FLOOR = 0
+DEPARTMENT_FLOOR = 150
 
 
 #: Every breadth row, by department.
