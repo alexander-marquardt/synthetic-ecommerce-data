@@ -4061,6 +4061,35 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # Every name starts "variant bounds doc:", so `--only "variant bounds doc:"`
+    # re-runs the rows that hold docs/adding-a-type.md to the build's bounds (#252).
+    Mutation(
+        "variant bounds doc: the knob's maximum moves off the doc's",
+        "domains/industrial/product_split.py",
+        "    ceiling = table[-1][0]\n",
+        "    ceiling = table[-1][0] + 1\n",
+        "tests/test_variant_bounds_doc_252.py::test_the_doc_states_the_maximum_skus_per_product",
+        "",
+        "the doc states the most SKUs a product may have",
+    ),
+    Mutation(
+        "variant bounds doc: the median bound moves off the doc's",
+        "domains/industrial/product_split.py",
+        "        if running >= 0.75:\n",
+        "        if running >= 0.9:\n",
+        "tests/test_variant_bounds_doc_252.py::test_the_doc_states_the_median_bound",
+        "",
+        "the doc states the largest median of a deep type",
+    ),
+    Mutation(
+        "variant bounds doc: the product floor moves off the doc's",
+        "domains/industrial/product_split.py",
+        "MEDIAN_MIN_PRODUCTS = 20\n",
+        "MEDIAN_MIN_PRODUCTS = 25\n",
+        "tests/test_variant_bounds_doc_252.py::test_the_doc_states_the_product_floor_of_the_median_check",
+        "",
+        "the doc states the product floor of the median check",
+    ),
 ]
 
 
