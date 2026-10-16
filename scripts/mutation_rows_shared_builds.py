@@ -24,8 +24,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "a process that waited for the lock builds anyway",
         "shared_builds.py",
-        "        value = build()\n        gc.collect()",
-        "        found = None\n        value = build()\n        gc.collect()",
+        "    with _one_build_at_a_time(directory):\n        found = _read(path)",
+        "    with _one_build_at_a_time(directory):\n        found = None",
         f"{GUARD} -k test_two_processes_asking_at_once_build_once",
         "a process that waited for the lock reads what the first one wrote",
         "tests",
