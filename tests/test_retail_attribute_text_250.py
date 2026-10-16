@@ -279,5 +279,5 @@ def test_a_color_option_without_a_pattern_key_is_reported_not_a_crash():
     rec["color_options"].append({"color": "Blue", "hex": "#0000ff"})
     rec["color_options"].append({"color": "Red", "hex": "#b3202e", "pattern": "gingham"})
     assert attribute_text.pattern_lines(rec) == [
-        "pattern Plain but color options sell ['None', 'gingham']"
+        "pattern Plain but color options sell [None, 'gingham']"
     ]

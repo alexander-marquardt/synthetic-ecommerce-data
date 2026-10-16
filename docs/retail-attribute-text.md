@@ -15,6 +15,19 @@ and on the ceiling build, and holds the check itself against hand-made rows.
 A zipped pocket, compartment or lining is not a closure (`NOT_A_CLOSURE`). A text that names no
 closure word agrees with any closure.
 
+A second closure family is allowed once the row's own closure family is named: a Zip style whose
+text says "zip" and also "magnetic flap" agrees, because the text names its own closure. The check
+only refuses a text that names closure words and leaves out the row's own (or, for any other
+closure, names one `ALSO` does not list).
+
+Closure values with no family are out of scope for the own-closure rule: Hook & Loop, Lace-Up,
+button, toggle and the rest. They are checked only through `ALSO`, so their text may name no
+closure word at all unless a reason is listed.
+
+This check and `standard.text_contradictions` are complementary. `text_contradictions` compares a
+text with the values its leaf's pool holds; the closure pool of the leaf holds neither Snap nor
+Magnetic, so a "snap flap" over a Clasp purse, or "magnetic fastening" over Zip, is invisible to it.
+
 A new closure value that its text names, or a new `pattern` value, needs its row in `ALSO` or
 `PATTERN_KIND`; an unmapped pattern is reported, not skipped. `test_every_allowance_is_used_by_a_real_row`
 fails when an `ALSO` entry no row uses any more.
