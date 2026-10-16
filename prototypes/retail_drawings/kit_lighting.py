@@ -99,14 +99,16 @@ def _circle(cx: float, cy: float, r: float, fill: str, width: float = LW_DETAIL)
     return f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r:.1f}" fill="{fill}" stroke="{INK}" stroke-width="{width}"/>'
 
 
+def _held(text: str) -> str:
+    """``text`` as written when it is on the sheet, else the sheet's edge it is past."""
+    held = min(max(float(text), 0), SIZE)
+    return text if held == float(text) else f"{held:g}"
+
+
 def _glow(d: str) -> str:
     """A pool of light: the polygon ``d`` (M, L and Z only), its corners held to the sheet, where
     the light stops (gen#242)."""
-    d = re.sub(
-        r"(-?[\d.]+),(-?[\d.]+)",
-        lambda m: f"{min(max(float(m[1]), 0), SIZE):g},{min(max(float(m[2]), 0), SIZE):g}",
-        d,
-    )
+    d = re.sub(r"-?[\d.]+", lambda m: _held(m[0]), d)
     return _path(d, GLOW, 1.0, ' fill-opacity=".7" stroke-opacity="0"')
 
 
