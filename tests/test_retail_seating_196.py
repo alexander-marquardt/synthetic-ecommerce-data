@@ -115,7 +115,7 @@ def test_the_corner_and_chaise_drawings_are_both_handed(monkeypatch: pytest.Monk
 
 
 def test_a_sofa_drawn_by_seat_count_draws_the_seats_its_record_states() -> None:
-    drawn = [r for r in ROWS if "seats" in dict(r.params) and r.shape != "corner_sofa"]
+    drawn = [r for r in ROWS if "seats" in dict(r.params)]
     assert drawn
     assert {
         r.code: (dict(r.params)["seats"], _attr(r, "seat_count"))
