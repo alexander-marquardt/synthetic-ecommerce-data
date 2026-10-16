@@ -36,3 +36,11 @@ black), class 4 (a feature named and absent: a "Dewy Gold Cap Face Primer" is ma
 incidental word in a short range name) and class 7 (an invented brand that holds the word). A
 decoy names a value of its own filter on purpose, so `scale.TEXT_EXEMPT` includes the registry's
 decoys, by id, as it does the other decoy tables.
+
+## House styles
+
+The 14 invented brands each have a `house_styles.HOUSE_STYLES` entry and a mark of their own: 14
+beauty marks (`m_lash_fan` to `m_rose_bud`) joined the table so none reuses a mark another brand
+holds, and no two brands share a logo arrangement with the same wordmark.
+`test_each_invented_beauty_brand_has_a_house_style_of_its_own` holds both for these brands. The
+eight mark pairs already on main are #362's.
