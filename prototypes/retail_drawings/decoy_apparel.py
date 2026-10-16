@@ -99,6 +99,7 @@ TYPES: tuple[Spec, ...] = (
     Spec("Bra", "b", 9),
     *_plan("u", "Boxers", "Dressing Gown", "Knickers", "Pyjama Shorts", "Pyjamas", "Shapewear",
            "Slip", "Tights", "Vest"),
+    *_plan("a", "School Trousers", "School Skirt", "School Pinafore", "School Shirt"),  # gen#205
 )  # fmt: skip
 #: Types of the three departments that carry no decoys, each with its reason.
 EXEMPT = {

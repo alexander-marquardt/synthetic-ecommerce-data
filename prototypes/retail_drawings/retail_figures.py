@@ -45,6 +45,7 @@ import main_colors  # noqa: E402
 import mens_depth_rows  # noqa: E402
 import scale  # noqa: E402
 import scale_rows  # noqa: E402
+import school_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
@@ -119,6 +120,7 @@ def measure() -> dict[str, Any]:
         "shirt_rows": shirt_rows.docs(),
         "accessory_rows": accessory_rows.docs(),
         "sports_rows": sports_rows.docs(),
+        "school_rows": school_rows.docs(),
         "household_rows": household_rows.docs(),
         "lowerbody_rows": lowerbody_rows.docs(),
         "lighting_rows": lighting_rows.docs(),
