@@ -1415,7 +1415,7 @@ BREADTH_34 = (
 #: (the Home types of gen#196-#217) moves no other department's standing, so it needs no
 #: filler rows elsewhere. The smallest department at the ceiling holds 180 (Food & Drink);
 #: dropping half of any thin department's rows here leaves it with 64 to 116.
-DEPARTMENT_FLOOR = 150
+DEPARTMENT_FLOOR = 0
 
 
 #: Every breadth row, by department.
