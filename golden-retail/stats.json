@@ -9,13 +9,13 @@
    "skus": 12409,
    "styles": 4516
   },
-  "images": 17772,
+  "images": 17921,
   "non_grocery": {
    "skus": 91901,
    "styles": 5592
   },
-  "skus": 129929,
-  "styles": 12568,
+  "skus": 130355,
+  "styles": 12589,
   "top_levels": {
    "Beauty": {
     "skus": 894,
@@ -38,8 +38,8 @@
     "styles": 332
    },
    "Home": {
-    "skus": 5864,
-    "styles": 1902
+    "skus": 6290,
+    "styles": 1923
    },
    "Kids": {
     "skus": 4283,
@@ -531,8 +531,8 @@
    "styles": 53
   },
   "all": {
-   "skus": 69277,
-   "styles": 8034
+   "skus": 69703,
+   "styles": 8055
   },
   "appliance_rows": {
    "skus": 124,
@@ -544,8 +544,8 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 56868,
-   "styles": 3518
+   "skus": 57294,
+   "styles": 3539
   },
   "breadth_rows": {
    "skus": 684,
@@ -614,6 +614,10 @@
   "sofa_rows": {
    "skus": 157,
    "styles": 48
+  },
+  "softfurn_rows": {
+   "skus": 426,
+   "styles": 21
   },
   "sports_rows": {
    "skus": 156,
