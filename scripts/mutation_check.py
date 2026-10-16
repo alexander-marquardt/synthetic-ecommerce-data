@@ -25,6 +25,9 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import mutation_rows_type_specs  # noqa: E402  (gen#351 rows, kept in their own file)
+
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "src" / "synthetic_ecommerce_data"
 
@@ -3622,8 +3625,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a decoy is copied by the derivation",
                 "scale.py",
-                "| MENS_DEPTH_IDS | GARDEN_IDS | decoy_rows.IDS\n",
-                "| MENS_DEPTH_IDS | GARDEN_IDS\n",
+                "| SPEC_IDS | decoy_rows.IDS\n",
+                "| SPEC_IDS\n",
                 "tests/test_retail_text_match_decoys_294.py -k never_copied_or_color_completed",
                 "a decoy stays a template",
             ),
@@ -3784,6 +3787,11 @@ MUTATIONS: list[Mutation] = [
                 "a sleeve's cuff is not part of the hem",
             ),
         ]
+    ),
+    # ---- retail: one declarative spec per type (gen#351); the rows are in their own file ----
+    *(
+        Mutation(f"type specs: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in mutation_rows_type_specs.ROWS
     ),
     # ---- retail: product-word decoys (gen#326) ----
     *(

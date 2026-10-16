@@ -4,7 +4,8 @@ gen#294's rule (:mod:`decoy_rows`): a decoy's words mislead a plain text search 
 fields tell the truth, so the color, category and audience policies, which read the fields, are
 right. :mod:`decoy_rows` plants them for the demo queries; this module plants them on EVERY type
 of the Womens, Mens and Kids clothing, footwear and lingerie, generated from the plan below
-(:data:`TYPES`), never written row by row.
+(:func:`types`), never written row by row. A type of the registry (``type_specs/``, gen#351)
+carries its own plan in its spec, so a new clothing type edits no file but its spec.
 
 A decoy is a clone of one real style of its type (the exemplar: its category leaf, sizes,
 attributes and drawing), in one main color, with a new title, description and, for class 7, brand.
@@ -25,26 +26,28 @@ are large, so a type holds at least a tenth of its size), one more of class 6 on
 and at most eight of class 7 (one per brand). Titles of classes 6 and 7 are five words or fewer, so
 the word sits where the text score weights it most. A type missing from the catalog, or one the
 catalog gains, reds ``tests/test_retail_apparel_decoys_311.py`` until it is planned or exempt.
-Names are invented. :data:`IDS` is what :mod:`scale` leaves out of its derivation and
+Names are invented. :func:`ids` (``IDS``) is what :mod:`scale` leaves out of its derivation and
 :mod:`main_colors` out of its color completion.
 """
 
 from __future__ import annotations
 
 import copy
+import functools
 import random
 import re
 import zlib
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import details
 import facet_leaves
+import type_registry
 from class_model import SHADE_FAMILY
 from decoy_rows import COLORS
 from variants import attr, cw, product, swatch
 
 ROOTS = ("Womens", "Mens", "Kids")
-DEPARTMENTS = ("Clothing", "Footwear", "Lingerie & Nightwear")
+DEPARTMENTS = type_registry.APPAREL_DEPARTMENTS
 BRANDS = (("Red Plover", "red"), ("Blue Otter", "blue"), ("Green Stoat", "green"),
           ("Yellow Wagtail", "yellow"), ("Black Lapwing", "black"), ("White Dormouse", "white"),
           ("Jumper Jay", "jumper"), ("Coat Crake", "coat"))  # fmt: skip
@@ -74,6 +77,7 @@ class Spec:
     product_type: str
     family: str = "a"
     per_class: int = 3
+    prefix: str = ""  # what a decoy id of the type starts with after ``PLT-D``
 
     @property
     def classes(self) -> dict[int, int]:
@@ -85,7 +89,7 @@ def _plan(family: str, *names: str) -> tuple[Spec, ...]:
     return tuple(Spec(n, family) for n in names)
 
 
-TYPES: tuple[Spec, ...] = (
+_PLANNED: tuple[Spec, ...] = (
     *_plan("a", "Blouse", "Bodysuit", "Bomber Jacket", "Cardigan", "Coat", "Co-ord Set",
            "Cycling Shorts", "Denim Jacket", "Dress", "Joggers", "Jumper", "Leggings",
            "Outfit Set", "Puffer Jacket", "Shirt", "Shorts", "Skirt", "Suit Jacket", "Sweatshirt",
@@ -101,8 +105,15 @@ TYPES: tuple[Spec, ...] = (
            "Slip", "Tights", "Vest"),
     *_plan("a", "School Trousers", "School Skirt", "School Pinafore", "School Shirt"),  # gen#205
 )  # fmt: skip
+#: The types planned here, numbered by their place in the plan: ``A00`` for the first. A type of
+#: the registry is numbered by its key instead (``S`` and the key), so adding one moves no id. A
+#: type of this plan moves into its spec only with its ids renumbered, so none has yet (Tracksuit,
+#: a spec, keeps its plan here).
+BASE_TYPES: tuple[Spec, ...] = tuple(
+    replace(s, prefix=f"A{ti:02d}") for ti, s in enumerate(_PLANNED)
+)
 #: Types of the three departments that carry no decoys, each with its reason.
-EXEMPT = {
+BASE_EXEMPT = {
     "Belt": "an accessory, not a garment: its text words are those of the accessories batch",
     "Bracelet": "jewellery: the color is the metal finish, not a printed or dyed color",
     "Earrings": "jewellery: the color is the metal finish, not a printed or dyed color",
@@ -124,14 +135,66 @@ EXEMPT = {
 }
 
 
-def _code(ti: int, cls: int, i: int) -> str:
-    return f"A{ti:02d}{cls}{i:02d}"
+def _code(spec: Spec, cls: int, i: int) -> str:
+    return f"{spec.prefix}{cls}{i:02d}"
 
 
-IDS = frozenset(
-    f"PLT-D{_code(ti, cls, i)}"
-    for ti, s in enumerate(TYPES) for cls, n in s.classes.items() for i in range(n)
-)  # fmt: skip
+def _registered() -> tuple:
+    """What the registry says of each spec, as a hashable key for :func:`_merged`."""
+    return tuple(
+        (key, sp.product_type, sp.apparel, sp.apparel_exempt,
+         sp.department in DEPARTMENTS and any(r.path[0] in ROOTS for r in sp.rows))
+        for key, sp in type_registry.specs().items()
+    )  # fmt: skip
+
+
+@functools.cache
+def _merged_for(registered: tuple) -> tuple[tuple[Spec, ...], dict[str, str], frozenset[str]]:
+    types = list(BASE_TYPES)
+    exempt = dict(BASE_EXEMPT)
+    seen = {t.product_type for t in BASE_TYPES} | set(BASE_EXEMPT)
+    for key, ptype, plan, why, in_scope in registered:
+        if (plan or why) and ptype in seen:
+            raise type_registry.SpecError(f"{key}: {ptype} is already planned (apparel) here")
+        if plan:
+            types.append(Spec(ptype, plan.family, plan.per_class, f"S{key.upper()}"))
+        elif why:
+            exempt[ptype] = why
+        elif in_scope and ptype not in seen:
+            raise type_registry.SpecError(
+                f"{key}: a {ptype} is clothing, footwear or lingerie: give its spec "
+                "apparel=ApparelPlan() (or apparel_exempt=<reason>) for the apparel decoys"
+            )
+    ids = frozenset(
+        f"PLT-D{_code(s, cls, i)}"
+        for s in types for cls, n in s.classes.items() for i in range(n)
+    )  # fmt: skip
+    return tuple(types), exempt, ids
+
+
+def _merged() -> tuple[tuple[Spec, ...], dict[str, str], frozenset[str]]:
+    return _merged_for(_registered())
+
+
+def types() -> tuple[Spec, ...]:
+    """Every planned type: this plan, then the registry's, in key order."""
+    return _merged()[0]
+
+
+def ids() -> frozenset[str]:
+    """Every decoy id of :func:`types`."""
+    return _merged()[2]
+
+
+def __getattr__(name: str):  # PEP 562: ``TYPES``, ``EXEMPT`` and ``IDS`` follow the registry
+    if name == "TYPES":
+        return types()
+    if name == "EXEMPT":
+        return _merged()[1]
+    if name == "IDS":
+        return ids()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 # -- the words ------------------------------------------------------------------------------------
 MODS = {
@@ -456,11 +519,11 @@ def build(body: list[dict]) -> list[Row]:
             d["category_path"][0] in ROOTS
             and d["department"][0] in DEPARTMENTS
             and d.get("color_options")
-            and d["product_id"] not in IDS
+            and d["product_id"] not in ids()
         ):
             pool.setdefault(d["product_type"], []).append(d)
     rows = []
-    for ti, spec in enumerate(TYPES):
+    for spec in types():
         exemplars = pool[spec.product_type]
         used: set[tuple[str, str]] = set()
         words: set[tuple[int, str]] = set()
@@ -479,7 +542,7 @@ def build(body: list[dict]) -> list[Row]:
                 if cls in (4, 5):  # the common words first: leather, suede, cashmere; ivory
                     first = opts[0]["word"]
                     opts = [o for o in opts if o["word"] == first]
-                code = _code(ti, cls, i)
+                code = _code(spec, cls, i)
                 o = rnd.choice(opts)
                 color = o["color"]
                 hexv = o.get("hex") or COLORS[color]
@@ -561,11 +624,17 @@ def render_doc(rows: list[Row]) -> str:
     return DOC_HEAD + table_markdown(rows) + "\n"
 
 
-if __name__ == "__main__":
+def write_doc() -> str:
+    """Write the docs table of :data:`DOC` from the registry; return its path."""
     import pathlib
 
     import scale
 
     root = pathlib.Path(__file__).resolve().parents[2]
-    base = [d for d in scale.templates(baseline=False) if d["product_id"] not in IDS]
+    base = [d for d in scale.templates(baseline=False) if d["product_id"] not in ids()]
     (root / DOC).write_text(render_doc(build(base)), "utf-8")
+    return str(root / DOC)
+
+
+if __name__ == "__main__":
+    print(f"wrote {write_doc()}")
