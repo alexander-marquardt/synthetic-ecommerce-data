@@ -23,7 +23,8 @@
 #      for step 2; any other conflict is refused, for the builder to resolve.
 #   2. rebuilds the committed catalog (ecom-generate build --out golden-catalog)
 #      and the retail totals (prototypes/retail_drawings/retail_figures.py,
-#      golden-retail/stats.json, gen#343), and commits only GENERATED. A file
+#      golden-retail/stats.json, gen#343) and the pinned price figures and the
+#      100K build's sizes (measured_builds.py, gen#85), and commits only GENERATED. A file
 #      still conflicted, or any other change in the tree, is refused. uv runs
 #      --locked, so a stale uv.lock is refused rather than re-locked into the
 #      commit.
@@ -82,6 +83,7 @@ GENERATED=(
   golden-catalog/render.jsonl
   golden-catalog/stats.json
   golden-retail/stats.json
+  src/synthetic_ecommerce_data/core/data/measured_builds.json
   src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml
 )
 
@@ -89,6 +91,12 @@ GENERATED=(
 #: is the one retail_figures.py names as REBUILD, which tests/test_merge_pr.py
 #: pins. The retail build is the slower half, about 40 s.
 RETAIL_REBUILD=(python prototypes/retail_drawings/retail_figures.py)
+
+#: The command that rewrites the pinned price figures and the 100K build's sizes
+#: (gen#85), the one measured_builds.py names as REBUILD, which
+#: tests/test_merge_pr.py pins. It builds the default and the 100K catalog,
+#: about a minute.
+BUILDS_REBUILD=(python -m synthetic_ecommerce_data.domains.industrial.measured_builds)
 
 #: The jobs of .github/workflows/ci.yaml, by the check-run name GitHub gives
 #: them. A pull request's commit must carry each REQUIRED_CI check, green; a
@@ -220,6 +228,14 @@ uv run -q --locked --directory "$work" "${RETAIL_REBUILD[@]}" \
 cat "$build_log" >&2
 [ "$retail_rc" -eq 0 ] ||
   die "the retail rebuild refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
+# The pinned price figures and the 100K build's sizes move with every type PR too
+# (gen#85): rebuild them on the same merged tree.
+builds_rc=0
+uv run -q --locked --directory "$work" "${BUILDS_REBUILD[@]}" \
+  >/dev/null 2>"$build_log" || builds_rc=$?
+cat "$build_log" >&2
+[ "$builds_rc" -eq 0 ] ||
+  die "the measured-builds rebuild refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
 if [ -n "$conflicted" ]; then
   while IFS= read -r path; do
     if grep -q '^<<<<<<< ' "$work/$path"; then

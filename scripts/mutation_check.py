@@ -37,6 +37,7 @@ import mutation_rows_department_floor  # noqa: E402  (gen#234 rows)
 import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
 import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
 import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their own file)
+import mutation_rows_measured_builds_85  # noqa: E402  (gen#85 rows, kept in their own file)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
 import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
 import mutation_rows_sheet_extent  # noqa: E402  (gen#242 rows, kept in their own file)
@@ -3381,14 +3382,6 @@ MUTATIONS: list[Mutation] = [
                 "twice_band_floor",
                 "the 2x band bites",
             ),
-            (
-                "the kit p90/p10 pin's 100K record is loosened by hand",
-                "core/price.py",
-                "    _KIT_SPREAD_ROW: (4.032, 3.917),",
-                "    _KIT_SPREAD_ROW: (4.032, 3.5),",
-                "figure_its_build_produces",
-                "a record is the build's figure",
-            ),
             # ---- kit: a kit is priced from what it holds (#71) ----
             # Every name also starts "price: kit:", so `--only "kit:"` re-runs these.
             (
@@ -3422,14 +3415,6 @@ MUTATIONS: list[Mutation] = [
                 "    return total / len(values) * each / shown",
                 "holding_more_of_the_same_sizes",
                 "a kit holding more of the same sizes costs more",
-            ),
-            (
-                "the wheel pin's 100K record is loosened by hand",
-                "core/price.py",
-                "    _WHEEL_SPREAD_ROW: (4.303, 2.842),",
-                "    _WHEEL_SPREAD_ROW: (4.303, 3.25),",
-                "figure_its_build_produces",
-                "a record is the build's figure",
             ),
             (
                 "a pin reads its default figure at 100K",
@@ -4068,6 +4053,8 @@ MUTATIONS: list[Mutation] = [
     # ---- retail: the department floor is pinned (gen#234); the rows are in their own file ----
     *(Mutation(f"department floor: {n}", f, o, nw, t, "", p, root=r) for n, f, o, nw, t, p, r in mutation_rows_department_floor.ROWS),
     *(Mutation(f"cutlery pack count: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_cutlery_pack_count.ROWS),
+    # ---- the pinned figures and the 100K sizes are generated (gen#85); the rows are in their own file ----
+    *(Mutation(f"measured builds: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_measured_builds_85.ROWS),
     # ---- retail: no drawing extends past its sheet (gen#242); the rows are in their own file ----
     *(
         Mutation(f"sheet extent: {name}", file, old, new, test, "", prop, root=root)

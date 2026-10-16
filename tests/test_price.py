@@ -1244,7 +1244,7 @@ def test_the_pinned_figures_are_the_committed_files_not_typed_in_price_py():
     default, hundred_k = figures["default"]["price_pins"], figures["hundred_k"]["price_pins"]
     assert sorted(default) == sorted(hundred_k) == sorted(price.PINNED_SHORTFALLS)
     assert {name: (default[name], hundred_k[name]) for name in default} == price.PINNED_FIGURES
-    assert "_KIT_SPREAD_ROW: (" not in Path(price.__file__).read_text("utf-8")
+    assert not re.search(r"PINNED_FIGURES[^=\n]*=\s*\{", Path(price.__file__).read_text("utf-8"))
 
 
 def test_the_measured_builds_file_is_what_the_rebuild_writes(catalog, hundred_k):
@@ -1256,12 +1256,13 @@ def test_the_measured_builds_file_is_what_the_rebuild_writes(catalog, hundred_k)
 
 
 def test_a_moved_figure_makes_the_rebuilt_file_differ_from_the_committed_one(
-    catalog, hundred_k, monkeypatch
+    hundred_k, monkeypatch
 ):
     assert price.BUILDS_FILE.is_file(), f"{price.BUILDS_FILE} is missing; run {REBUILD_BUILDS}"
     committed = price.BUILDS_FILE.read_text("utf-8")
     model = price.MODELS["wheel_depressed_center"]
     louder = replace(model, group_sigma=model.group_sigma * 1.1)
     monkeypatch.setitem(price.MODELS, "wheel_depressed_center", louder)
-    moved = measured_builds.render(measured_builds.figures(catalog, hundred_k[0]))
+    rebuilt = measured_builds.figures(generate(GeneratorConfig()), hundred_k[0])
+    moved = measured_builds.render(rebuilt)
     assert moved != committed
