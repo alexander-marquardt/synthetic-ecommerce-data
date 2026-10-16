@@ -225,7 +225,7 @@ BACKPACKS = (
           "port and a hidden back pocket.",
           (BLACK, GREY, NAVY),
           _bp("Laptop", "Polyester", 2, True, 15.6), _num((18, 38.0), (24, 44.0)), "laptop", 2),
-    _brow("BPKLPL", "Leather Look Laptop Backpack", _O, 52.0,
+    _brow("BPKLPL", "Faux Leather Laptop Backpack", _O, 52.0,
           "A smart faux leather backpack for work, with a padded 14 inch laptop sleeve and "
           "a zipped front pocket.",
           (BLACK, TAN),

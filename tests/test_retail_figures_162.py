@@ -98,8 +98,11 @@ def _quotations(stats: dict) -> dict[str, str]:
     """
     patterns: dict[str, str] = {}
     for name, value in _numbers(stats).items():
-        if name.startswith(("departments.", "grocery_families.")):
-            continue  # read at run time; never typed (see test_the_per_family_counts_add_up)
+        if name.startswith(("departments.", "grocery_families.", "templates.type_specs.")):
+            # Read at run time, never typed (see test_the_per_family_counts_add_up). The type
+            # specs' own total (gen#351) moves with every type added, so a prose number that
+            # happens to equal it is a collision, not a quotation.
+            continue
         if isinstance(value, float):
             for places in (1, 2):
                 text = f"{value * 100:.{places}f}"
@@ -116,6 +119,12 @@ def _quotations(stats: dict) -> dict[str, str]:
                 rf"|(?<![\d.,_]){value}\s+{noun}"
             )
     return patterns
+
+
+def test_the_per_type_spec_aggregate_is_not_a_quoted_total(stats: dict) -> None:
+    """``templates.type_specs`` moves with every type added (gen#351), so a prose number that
+    happens to equal it is a collision. It is read at run time, never typed."""
+    assert not [n for n in _quotations(stats) if n.startswith("templates.type_specs")]
 
 
 def test_the_committed_figures_are_what_the_build_measures(stats: dict) -> None:

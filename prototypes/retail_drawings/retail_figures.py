@@ -37,6 +37,7 @@ import decoy_product_words  # noqa: E402
 import decoy_rows  # noqa: E402
 import distractor_rows  # noqa: E402
 import export  # noqa: E402
+import garden_rows  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
 import lighting_rows  # noqa: E402
@@ -45,11 +46,13 @@ import main_colors  # noqa: E402
 import mens_depth_rows  # noqa: E402
 import scale  # noqa: E402
 import scale_rows  # noqa: E402
+import school_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
 import sports_rows  # noqa: E402
 import toys_rows  # noqa: E402
+import type_registry  # noqa: E402
 import underwear_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 
@@ -119,6 +122,8 @@ def measure() -> dict[str, Any]:
         "shirt_rows": shirt_rows.docs(),
         "accessory_rows": accessory_rows.docs(),
         "sports_rows": sports_rows.docs(),
+        "garden_rows": garden_rows.docs(),
+        "school_rows": school_rows.docs(),
         "household_rows": household_rows.docs(),
         "lowerbody_rows": lowerbody_rows.docs(),
         "lighting_rows": lighting_rows.docs(),
@@ -129,6 +134,7 @@ def measure() -> dict[str, Any]:
         "seasonal_rows": seasonal_rows.docs(),
         "colorgroup_rows": colorgroup_rows.docs(),
         "mens_depth_rows": mens_depth_rows.docs(),
+        "type_specs": type_registry.docs(),
         "decoy_apparel": [r for r in scale.templates(baseline=False)
                           if r["product_id"] in decoy_apparel.IDS],
         "plain_rows": [r for r in main_colors.author_plain(scale.templates(baseline=False))
@@ -192,6 +198,7 @@ def main() -> int:
     STATS.parent.mkdir(exist_ok=True)
     STATS.write_text(render(measure()), encoding="utf-8")
     print(f"wrote {STATS}")
+    print(f"wrote {decoy_apparel.write_doc()}")  # the apparel decoys of the types added since
     return 0
 
 

@@ -186,7 +186,7 @@ ABV_BANDS = {
 
 #: family -> the bottle or pack volumes in ml a shelf holds (a 4 x 440ml pack is 1760ml).
 VOLUMES = {
-    **dict.fromkeys(("whisky", "gin", "vodka", "rum", "tequila"), {"350", "500", "700", "1000"}),
+    **dict.fromkeys(("whisky", "gin", "vodka", "rum", "tequila"), {"350", "500", "700", "1000", "1500"}),
     **dict.fromkeys(("port", "sherry", "vermouth"), {"500", "750", "1000", "1500"}),
     "perry": {"330", "440", "500", "750", "1760", "2000"},
     "mead": {"375", "500", "750"},
