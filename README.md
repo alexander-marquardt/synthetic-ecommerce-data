@@ -1481,6 +1481,13 @@ food SKU). `tests/test_retail_scale.py` holds it at the templates' SKUs plus 4,5
 `TARGET`, pinned to the template total so new templates never empty the
 derived-style sample), and holds the ceiling's grid clones at 15% or under too.
 
+**One `pack_size` vocabulary for a count** (gen#246). A pack of identical or different items is
+`Single` or `N pack` (`2 pack`, `4 pack`, `10 pack`) in every department: underwear, school,
+home (dining chairs, tableware), grocery and the planted distractors alike, so the `pack_size`
+facet lists one spelling. A title keeps natural wording ("Set of 4 Espresso Cups"); the value
+does not. A net weight or volume (`400g`, `4 x 35g`, `2 pint`, `12 inch`) is a measure and
+stays. `tests/test_pack_size_values_246.py` reads every `pack_size` of the authored build.
+
 **Each department has a floor of its own** (gen#220). At the ceiling, every department holds
 at least `breadth_rows.DEPARTMENT_FLOOR` derivable styles (150; the smallest today is Food &
 Drink at 180). It is a count per department, not a share of the total, so a batch PR that adds

@@ -402,7 +402,7 @@ def test_a_style_passes_its_weight_into_the_pile_once() -> None:
 def test_the_lemons_and_the_clementines_draw_their_pack() -> None:
     lemons = dz.LEMONS
     pack = {a["key"]: a["value"] for a in lemons["attributes"]}.get("pack_size")
-    assert pack is None or pack == "4"
+    assert pack is None or pack == "4 pack"
     assert lemons["drawing"]["shape"] == "produce_pile"
     assert lemons["drawing"]["params"]["count"] == 4
     clem = next(r for r in samples.FOOD if r["title"] == "Easy Peeler Clementines 600g")
