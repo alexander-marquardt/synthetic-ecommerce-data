@@ -1,17 +1,21 @@
 # elastic/prism files vendored under vendor/prism/, byte for byte (elastic/prism#11683, #11680).
 #
-# scripts/file_size_gate.py runs core's file-size gate on this tree. This
-# repository's CI cannot read the private core repository, so the gate and its
-# import closure are copied here rather than fetched, at the commit below.
+# scripts/file_size_gate.py runs core's file-size gate on this tree, and
+# scripts/check_customer_names.py reads core's customer-name list from
+# .github/scripts/audit_grep_diff.py (alexander-marquardt/synthetic-ecommerce-data#393).
+# This repository's CI cannot read the private core repository, so the gate,
+# the list's module and their import closure are copied here rather than
+# fetched, at the commit below.
 # scripts/mutant_run.py, bounded_process.py and mutant_run_plugin.py are core's
 # changed-line mutant runner, which scripts/red_commit_proof.py also reuses
 # (docs/red-commit-and-mutants.md).
 # Every line after it is `git ls-tree <commit> -- <paths>` run in core,
-# verbatim: tests/test_file_size_gate_11683.py refuses a vendored file whose
+# verbatim: tests/test_vendored_core_pin_11683.py refuses a vendored file whose
 # git blob id is not the one listed, and a file under vendor/prism/ that is
 # not listed. Never edit a vendored file here: change it in core, then
 # resync (docs/file-size-budget.md -> "Resync the vendored gate").
-commit df5e77a7aade4e667a0c240e3555d9fa36f78e34
+commit c317c5573dd0ed929619d81050454dd56894932b
+100755 blob ce2bb5a3664a852391bfd1c25e55dc0982aed99e	.github/scripts/audit_grep_diff.py
 100755 blob fd3fd4a69fa7933ad9e70dceedd8926394d0237b	.github/scripts/check_closing_keywords.py
 100644 blob 1db6c4e69d51ab3a6a30a0cab79ad96cc5c24a13	.github/scripts/check_docs_impact.py
 100644 blob 5a163fa98ae8146cf2724ef851a2f4eb19e14d9a	.github/scripts/check_review_verdict.py
@@ -20,6 +24,7 @@ commit df5e77a7aade4e667a0c240e3555d9fa36f78e34
 100644 blob fd10e9ea2444de58a786538e37c3c9f4afcb10bf	scripts/bounded_process.py
 100755 blob a2d0171ae9ff67715dd62e0f6adc5b70658b60d0	scripts/check_file_size.py
 100644 blob 35fe9bb9977da6a7f523ff2b31468ccc795196e1	scripts/generated_paths.py
+100644 blob 6873dde35b1c9dd4073b61f9f1893e3f3018d6a9	scripts/invisible_characters.py
 100644 blob 1216afa735471c632796902294ec3f7f86754506	scripts/mutant_run.py
 100644 blob 13ca7844a6273645601f31780d358ee2089ec768	scripts/mutant_run_plugin.py
 100644 blob f42baf49469759b8e341fc4cafaf1c2656f2c5dc	scripts/pr_body_draft.py

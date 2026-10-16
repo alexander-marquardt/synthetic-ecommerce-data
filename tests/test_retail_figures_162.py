@@ -33,6 +33,7 @@ REBUILD = retail_figures.REBUILD
 #: total may be named, and they name none.
 QUOTING = (
     "README.md",
+    "docs/retail-prototype.md",
     "prototypes/retail_drawings/scale.py",
     "prototypes/retail_drawings/grocery.py",
     "tests/test_grocery_154.py",

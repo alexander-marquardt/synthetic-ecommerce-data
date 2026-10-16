@@ -136,6 +136,40 @@ jobs:
           uv run --locked python scripts/red_commit_proof.py
           --range "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
 
+  customer-name-check:
+    # NO CUSTOMER NAME COMES BACK (#393, the generator half of
+    # elastic/prism-industrial-products#88). Nothing but a reviewer's grep kept
+    # a customer-derived token out of this repository, and a reviewer's grep
+    # once called a surviving lockfile entry a false positive. The script
+    # scans every tracked or unignored file (content and path), the commit
+    # messages of the PR's range and the PR's live title and body, for the
+    # names in elastic/prism's CUSTOMER_NAME_SPECS, which is vendored here
+    # (vendor/prism/PIN.txt), so there is one list. docs/customer-name-check.md.
+    #
+    # The PR is named by its head branch, as the file-size job does: the local
+    # run (scripts/merge_pr.sh --local-ci) takes only the base and head shas
+    # from the event. GH_TOKEN is the job's own read-only token here; the
+    # local run exports it empty, so the signed-in gh answers.
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: No customer name in the tree, the commit messages or the PR title and body
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          python3 scripts/check_customer_names.py
+          --range "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          --pr "${GITHUB_HEAD_REF:-$(git rev-parse --abbrev-ref HEAD)}"
+
   # The published-assets job is gone with the asset host it checked: the
   # drawings are rebuilt from the committed catalog into a pinned bundle
   # (ecom-generate images), never hosted from here, and

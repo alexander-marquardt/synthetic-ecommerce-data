@@ -37,8 +37,22 @@ module's palettes (:data:`SHADE_COLORS`) serve. Every params value is a string, 
 from __future__ import annotations
 
 import math
+import re
 
-from kit import INK, LW, LW_DETAIL, Fill, _highlight, _line, _path, _shade, _tint, _word, register
+from kit import (
+    INK,
+    LW,
+    LW_DETAIL,
+    SIZE,
+    Fill,
+    _highlight,
+    _line,
+    _path,
+    _shade,
+    _tint,
+    _word,
+    register,
+)
 
 #: A finish (a SKU's ``finish``, lowercased) -> the color its frame is drawn in.
 FINISHES = {
@@ -85,7 +99,16 @@ def _circle(cx: float, cy: float, r: float, fill: str, width: float = LW_DETAIL)
     return f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r:.1f}" fill="{fill}" stroke="{INK}" stroke-width="{width}"/>'
 
 
+def _held(text: str) -> str:
+    """``text`` as written when it is on the sheet, else the sheet's edge it is past."""
+    held = min(max(float(text), 0), SIZE)
+    return text if held == float(text) else f"{held:g}"
+
+
 def _glow(d: str) -> str:
+    """A pool of light: the polygon ``d`` (M, L and Z only), its corners held to the sheet, where
+    the light stops (gen#242)."""
+    d = re.sub(r"-?[\d.]+", lambda m: _held(m[0]), d)
     return _path(d, GLOW, 1.0, ' fill-opacity=".7" stroke-opacity="0"')
 
 
