@@ -134,6 +134,16 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "berth": ("berth", "Berth", "C62"),
     "thickness_mm": ("thickness", "Thickness", "MMT"),
     "weight_kg": ("weight", "Weight", "KGM"),
+    # The second increment (sports_rows.py, gen#368): a block's height (item_height) and a strap's,
+    # bat's and kickboard's length (item_length) reuse the keys above; the rest are new.
+    "glove_size_in": ("glove_size", "Glove size", "INH"),
+    "head_cm": ("head_circumference", "Head circumference", "CMT"),
+    "max_load_kg": ("max_load_kg", "Maximum load", "KGM"),
+    "ball_size": ("ball_size", "Ball size", "C62"),
+    "players": ("players", "Players", "C62"),
+    "resistance": ("resistance_level", "Resistance level", None),
+    "brightness_lm": ("brightness", "Brightness (lm)", None),
+    "grip": ("grip_size", "Grip size", None),
     # A mower's or trimmer's cutting width and a robot mower's lawn area (garden_rows.py,
     # gen#203); the area is a plain number named in square metres, as a wattage is in watts.
     "cutting_width_cm": ("cutting_width", "Cutting width", "CMT"),
