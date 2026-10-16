@@ -24,11 +24,14 @@ def title_volume_ml(title: str) -> float | None:
 
 
 def state_title_volumes(recs: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """``recs``, each one whose title states a volume and which carries none given its
-    ``unit_size`` in ml (the records are changed in place)."""
+    """``recs``, each one whose title states a volume and which carries none replaced by a copy
+    that has its ``unit_size`` in ml. A record is never changed in place: ``samples()`` hands
+    the same dicts to :func:`export.documents`, so a change here would show in the export only
+    after ``scale.templates()`` had run (the export's identity test failed on that order)."""
+    out = []
     for rec in recs:
-        if "unit_size" in rec or any("net_volume_ml" in s for s in rec.get("skus", ())):
-            continue
-        if (ml := title_volume_ml(rec["title"])) is not None:
-            rec["unit_size"], rec["unit_measure"] = ml, "ml"
-    return recs
+        carries = "unit_size" in rec or any("net_volume_ml" in s for s in rec.get("skus", ()))
+        if not carries and (ml := title_volume_ml(rec["title"])) is not None:
+            rec = {**rec, "unit_size": ml, "unit_measure": "ml"}
+        out.append(rec)
+    return out
