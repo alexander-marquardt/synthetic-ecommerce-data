@@ -53,7 +53,7 @@ APPAREL_FAMILIES = "abusk"
 #: The most types the legacy list may hold. A migration lowers it by the types it moves, so the
 #: list is exact: an appended line (a type registered the old way) is over it, and a shorter list
 #: leaves room to append the difference.
-LEGACY_CEILING = 328
+LEGACY_CEILING = 327
 
 
 class SpecError(ValueError):
