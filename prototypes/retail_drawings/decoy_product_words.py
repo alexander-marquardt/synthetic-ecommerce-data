@@ -302,7 +302,9 @@ _SPORTS_KINDS = {
     "s_duvet_set": Kind("Home", ("Home", "Bedding", "Bedding Sets"), "Duvet Set", "duvet",
                         "Brackenmere Home", 32.0),
     "s_duvet": Kind("Home", ("Home", "Bedding", "Duvets"), "Duvet", "duvet", "Quillon Sleep", 35.0),
-    "s_towel": Kind("Home", ("Home", "Bathroom", "Beach Towels"), "Beach Towel", "beach_towel",
+    # a bath towel leaf, not the Beach Towels breadth leaf (test_retail_breadth_34): the swim
+    # towel is a decoy of the existing Towel type, as the face cloth is
+    "s_towel": Kind("Home", ("Home", "Bathroom", "Bath Towels"), "Towel", "bath_towel",
                     "Calderby & Lune", 14.0),
 }
 NEW_KINDS.update(_SPORTS_KINDS)

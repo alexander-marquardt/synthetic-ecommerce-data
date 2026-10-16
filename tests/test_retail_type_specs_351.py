@@ -22,6 +22,7 @@ RETAIL = ROOT / "prototypes" / "retail_drawings"
 if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
+import decoy_product_words  # noqa: E402
 import export  # noqa: E402
 import scale  # noqa: E402
 import type_registry  # noqa: E402
@@ -96,6 +97,9 @@ def test_a_spec_type_has_no_row_outside_its_spec_file() -> None:
             if (r["department"][0], r["product_type"]) == (spec.department, spec.product_type)
             and r["product_id"] not in own
             and r["product_id"] not in scale.DECOY_IDS  # gen#311 clones every apparel type
+            # a class-8 product-word decoy (gen#326) is another type's title on purpose,
+            # e.g. the black bike pump that stands in for "black pumps" (gen#368)
+            and r["product_id"] not in decoy_product_words.IDS
         ]  # fmt: skip
         assert not stray, f"{spec.key}: rows registered outside its spec: {stray}"
 

@@ -1886,7 +1886,7 @@ MUTATIONS: list[Mutation] = [
     # ---- the Sports & Outdoors second increment (gen#368) ----
     Mutation(
         "sports rows: a football style loses its yellow and its white",
-        "prototypes/retail_drawings/sports_rows.py",
+        "prototypes/retail_drawings/type_specs/football.py",
         '_PRIMARY, (_a("cover", "Cover", "Polyurethane")',
         '(RED, BLUE, GREEN, GREEN), (_a("cover", "Cover", "Polyurethane")',
         "tests/test_retail_sports_265.py::test_every_type_offers_the_six_main_colors_with_no_exception[Football]",
