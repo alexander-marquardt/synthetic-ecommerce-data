@@ -104,3 +104,17 @@ def test_the_stainless_steel_material_has_rows_in_every_tableware_type_that_sell
         if a["key"] == "material" and a["value"] == "Stainless Steel"
     }
     assert rows >= {"Cutlery", "Kitchen Utensil", "Colander"}
+
+
+def _all_named(phrase: str) -> list[dict]:
+    """Every authored template whose title names ``phrase``, wherever its rows live."""
+    return [t for t in scale.templates() if phrase in t["title"].lower()]
+
+
+def test_every_template_that_names_a_juice_groove_draws_one() -> None:
+    """Review of gen#415: the scan above reads only ``tableware_rows``, so the steak serving
+    board in ``distractor_rows`` drew no groove. Scan every template by its shape."""
+    named = _all_named("juice groove")
+    assert {t["product_id"] for t in named} >= {"BRD-BRDBAM", "PLT-DSK09"}  # not vacuous
+    missing = [t["product_id"] for t in named if NAMED_FEATURES["groove"] not in _svg(t)]
+    assert missing == []
