@@ -3,7 +3,7 @@
 Rings were sold under ``size_uk`` as a letter (J, L, N, P, R) and ``size_us`` as a number, the
 two keys clothing and footwear hold as numbers: one key then carried two kinds of value, which
 the deployment-wide naming rule forbids (a key is shared only when its values are the same
-kind: colour yes, thread size against garment size no). A UK ring letter and a US ring number
+kind: color yes, thread size against garment size no). A UK ring letter and a US ring number
 are a third and a fourth kind, so a ring states ``ring_size_uk`` and ``ring_size_us``.
 """
 
