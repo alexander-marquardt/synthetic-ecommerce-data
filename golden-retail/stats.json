@@ -9,13 +9,13 @@
    "skus": 12409,
    "styles": 4516
   },
-  "images": 18434,
+  "images": 18780,
   "non_grocery": {
    "skus": 91868,
    "styles": 5530
   },
-  "skus": 132483,
-  "styles": 12839,
+  "skus": 134027,
+  "styles": 13029,
   "top_levels": {
    "Beauty": {
     "skus": 914,
@@ -46,8 +46,8 @@
     "styles": 416
    },
    "Mens": {
-    "skus": 22506,
-    "styles": 1402
+    "skus": 24050,
+    "styles": 1592
    },
    "Sports & Outdoors": {
     "skus": 430,
@@ -531,8 +531,8 @@
    "styles": 53
   },
   "all": {
-   "skus": 71455,
-   "styles": 8364
+   "skus": 72999,
+   "styles": 8554
   },
   "appliance_rows": {
    "skus": 124,
@@ -544,8 +544,8 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 59046,
-   "styles": 3848
+   "skus": 60590,
+   "styles": 4038
   },
   "breadth_rows": {
    "skus": 687,
@@ -596,8 +596,8 @@
    "styles": 103
   },
   "mens_depth_rows": {
-   "skus": 4702,
-   "styles": 494
+   "skus": 4825,
+   "styles": 504
   },
   "needs_rows": {
    "skus": 270,
@@ -640,8 +640,8 @@
    "styles": 49
   },
   "type_specs": {
-   "skus": 626,
-   "styles": 46
+   "skus": 2047,
+   "styles": 226
   },
   "underwear_rows": {
    "skus": 1389,
