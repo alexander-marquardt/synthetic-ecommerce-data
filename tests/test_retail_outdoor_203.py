@@ -221,6 +221,14 @@ def test_a_parasol_draws_its_tilt_and_base_exactly_when_its_record_says_yes() ->
             assert (f'class="{cls}"' in _svg(row)) == (_attr(row, key) == "Yes"), (row.code, key)
 
 
+def test_a_parasol_draws_a_side_arm_exactly_when_its_record_says_cantilever() -> None:
+    rows = _rows("Parasol")
+    assert {_attr(r, "parasol_kind") for r in rows} == {"Center Pole", "Cantilever"}
+    for row in rows:
+        drawn = 'class="arm"' in _svg(row)
+        assert drawn == (_attr(row, "parasol_kind") == "Cantilever"), row.code
+
+
 @pytest.mark.parametrize("ptype", sorted(TYPES))
 def test_no_outdoor_drawing_prints_a_size(ptype: str) -> None:
     for row in _rows(ptype):

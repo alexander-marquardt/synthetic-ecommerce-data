@@ -21,7 +21,7 @@ A drawing never prints a size: a hedge trimmer's blade length and a parasol's di
 axes that share one image per colorway. A furniture set's ``seats`` is both a drawing param and
 a SKU axis, so each SKU's image draws its own seat count (:func:`export.drawing_spec`). What the
 record states is drawn: the power source as a battery pack, a fuel cap or a cable, the tilt as a
-``tilt`` group, the base as a ``base`` group, the cushions as ``cushion`` groups.
+``tilt`` group, the base as a ``base`` group, the cushions as ``cushion`` groups, a cantilever's side arm as an ``arm`` group.
 A decoy title that names a part's color passes ``part`` and ``part_color`` (:data:`kit_garden.PARTS`).
 """
 
@@ -39,6 +39,7 @@ SEAT_CLASS = "seat"
 CUSHION_CLASS = "cushion"
 TILT_CLASS = "tilt"
 BASE_CLASS = "base"
+ARM_CLASS = "arm"
 
 
 def hedge_trimmer(paint: str, fill: Fill, label: str | None, power: str = "cordless",
@@ -234,7 +235,7 @@ def parasol(paint: str, fill: Fill, label: str | None, kind: str = "center", til
     if kind == "cantilever":
         out = [
             pt.mark("pole", _line("M330,334 L330,120", 9, stroke=pole)),
-            pt.mark("pole", _line("M330,120 Q300,84 200,100", 7, stroke=pole)),
+            f'<g class="{ARM_CLASS}">{pt.mark("pole", _line("M330,120 Q300,84 200,100", 7, stroke=pole))}</g>',
             *_canopy(160, 30, 290, 70, 150, paint, fill, pt),
         ]
         joint = (300, 96)
