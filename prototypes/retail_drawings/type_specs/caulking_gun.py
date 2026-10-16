@@ -1,13 +1,13 @@
 """Caulking Gun (gen#424): the ordinary type behind the toy-word decoys of "gun".
 
-One authored product; the decoy rows of :mod:`decoy_product_words` hold the shopper's word.
+One authored product; the class-8 decoys (gen#326) hold the shopper's word.
 Not derivable.
 """
 
 from __future__ import annotations
 
 from type_registry import TypeSpec, a
-from word_decoy_types import HOME, plain
+from word_decoy_types import HOME, plain, word_decoy
 
 SPEC = TypeSpec(
     key="caulking_gun",
@@ -28,6 +28,14 @@ SPEC = TypeSpec(
                 a("material", "Material", "Steel"),
                 a("cartridge", "Cartridge", "Standard"),
             ),
+        ),
+    ),
+    decoys=(
+        word_decoy(
+            6, "Caulking Gun",
+            "A frame gun that squeezes sealant from a cartridge along a joint.",
+            "Grey", HOME, "Home", ("Home", "DIY & Car", "Caulking Guns"),
+            "Caulking Gun", "caulking_gun", 12.0, "gun",
         ),
     ),
 )

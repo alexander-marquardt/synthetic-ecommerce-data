@@ -20,8 +20,10 @@ style's sizes share one image.
 ## Cross-department decoys (class 8 of gen#326)
 
 A shopper's "toy kitchen", "card game" and "water gun" also match ordinary products of other
-departments. `decoy_product_words.py` plants them (codes `DT01` to `DT06`, drawn by
-`kit_toy_word_decoys.py`; a kitchen roll reuses the wrapping paper shape):
+departments. Each is the `decoys=` of the spec of its own type (`type_specs/kitchen_roll.py` and
+its five neighbours, codes `DT01` to `DT07`, class 8 of gen#326, made by
+`word_decoy_types.word_decoy`; drawn by `kit_toy_word_decoys.py`, and a kitchen roll reuses the
+wrapping paper shape):
 
 | Query word | Decoy | Department |
 |---|---|---|
@@ -30,4 +32,4 @@ departments. `decoy_product_words.py` plants them (codes `DT01` to `DT06`, drawn
 | gun | Hot Glue Gun, Caulking Gun | Home |
 
 The department policy of the All Departments persona drops them. The checks are
-`tests/test_retail_toys_depth_424.py` and `tests/test_retail_product_word_decoys_326.py`.
+`tests/test_retail_toys_depth_424.py`.
