@@ -164,7 +164,7 @@ LEMONS = product(
     "Fresh unwaxed lemons for zesting, juicing and baking, grown in sunny groves.",
     drawing("produce_pile", cw("Lemon", YELLOW), "Lemons",
             **pile_params("lemon", "PLT-LEMONS", "bag", count=LEMON_PACK)),
-    (("color", "Color", "Yellow"), ("pack_size", "Pack size", str(LEMON_PACK))),
+    (("color", "Color", "Yellow"), ("pack_size", "Pack size", f"{LEMON_PACK} pack")),
 )  # fmt: skip
 ORANGES = product(
     "ORANGS", f"Valencia Oranges, Pack of {ORANGE_PACK}", "Goldfield Farms", "Food & Drink",
@@ -172,7 +172,7 @@ ORANGES = product(
     "Juicy Valencia oranges for squeezing at breakfast, picked ripe and full of juice.",
     drawing("produce_pile", cw("Orange", ORANGE), "Oranges",
             **pile_params("orange", "PLT-ORANGS", "net", count=ORANGE_PACK)),
-    (("color", "Color", "Orange"), ("pack_size", "Pack size", str(ORANGE_PACK))),
+    (("color", "Color", "Orange"), ("pack_size", "Pack size", f"{ORANGE_PACK} pack")),
 )  # fmt: skip
 DINOSAUR_TOY = product(
     "DINTOY", "Dinosaur Figure", "Little Fernby", "Toys",
@@ -252,7 +252,7 @@ JEANS = (
         ("Home", "Storage", "Hangers"), 8.0,
         "Clip hangers that hold jeans by the waistband, so jeans hang straight without creases.",
         drawing("hanger", cw("Black", "#2a2a2e")),
-        (("color", "Color", "Black"), ("pack_size", "Pack size", "5")),
+        (("color", "Color", "Black"), ("pack_size", "Pack size", "5 pack")),
     ), "category intent: Jeans (a Home item never answers a clothing word)"),
     Distractor(product(
         "JNSSET", "Kids' Jeans & Tee Set", "Little Fernby", "Clothing",
