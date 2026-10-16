@@ -38,7 +38,7 @@ from variants import cw
 __all__ = [
     "ApparelPlan", "BRAND_OWNER", "Decoy", "LRow", "Row", "SpecError", "TypeSpec", "a",
     "check_unique_ids", "count", "cw", "decoy_ids", "docs", "left_out_ids", "legacy_types",
-    "registration_problems", "sizes", "specs", "validate",
+    "registration_problems", "sizes", "specs", "text_match_decoy_ids", "validate",
 ]  # fmt: skip
 
 LEGACY_FILE = Path(__file__).resolve().parent / "type_specs" / "legacy_types.txt"
@@ -239,6 +239,20 @@ def left_out_ids() -> frozenset[str]:
 def decoy_ids() -> frozenset[str]:
     """Every spec decoy's id."""
     return frozenset(i for spec in specs().values() for i in decoy_ids_of(spec))
+
+
+def text_match_decoy_ids(department: str) -> frozenset[str]:
+    """The ids of one department's spec decoys of classes 1 to 7: they name a color or a feature
+    their structured fields lack on purpose, so the output standard's text check leaves them
+    out (the class-8 decoys of gen#326 are checked like any product)."""
+    return frozenset(
+        i
+        for spec in specs().values()
+        if spec.department == department
+        for d in spec.decoys
+        if d.cls != 8
+        for i in _ids([d.row])
+    )
 
 
 def legacy_types() -> frozenset[tuple[str, str]]:
