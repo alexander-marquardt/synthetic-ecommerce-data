@@ -280,3 +280,84 @@ def test_a_toy_word_decoy_is_a_class_8_row_of_its_spec_outside_the_toys_departme
         assert leaf not in d.row.path, d.row.path
         assert (d.row.department, d.row.product_type) == (spec.department, spec.product_type)
         assert d.row.code.startswith("DT"), d.row.code
+
+
+#: spec key -> {decoy code: (class, the query it targets)}: the text-match decoys of gen#294 that
+#: each toy type carries. A class 4 names a material or feature the product lacks, a class 6 holds
+#: a color word or another toy's word as a range name, a class 7 holds another toy's word in its
+#: brand. Every toy type carries all three, as the gen#311 rule asks of every type.
+DECOY_PINS = {
+    "kite": {
+        "DT08": (6, "red kite"), "DT09": (6, "card game"), "DT10": (4, "silk kite"),
+        "DT11": (7, "marble run")},
+    "play_kitchen": {
+        "DT12": (6, "green play kitchen"), "DT13": (6, "water gun"),
+        "DT14": (4, "wooden play kitchen"), "DT15": (7, "card game")},
+    "dolls_house": {
+        "DT16": (6, "yellow dolls house"), "DT17": (6, "kite"),
+        "DT18": (4, "wooden dolls house"), "DT19": (7, "kite")},
+    "card_game": {
+        "DT20": (6, "black card game"), "DT21": (6, "marble run"),
+        "DT22": (4, "foil card game"), "DT23": (7, "water gun")},
+    "marble_run": {
+        "DT24": (6, "white marble run"), "DT25": (6, "dolls house"),
+        "DT26": (4, "wooden marble run"), "DT27": (7, "play kitchen")},
+    "water_gun": {
+        "DT28": (6, "blue water gun"), "DT29": (6, "play kitchen"),
+        "DT30": (4, "neon water gun"), "DT31": (7, "dolls house")},
+}
+PINNED = [(k, c) for k, pins in DECOY_PINS.items() for c in pins]
+MATERIAL_CLAIM = "special: material claim"
+
+
+def _decoy(key: str, code: str):
+    found = {d.row.code: d for d in _spec(key).decoys}
+    assert code in found, f"{key} has no decoy {code}: it holds {sorted(found)}"
+    return found[code]
+
+
+@pytest.mark.parametrize("key", KEYS)
+def test_every_toy_spec_carries_its_pinned_decoys_and_all_three_classes(key) -> None:
+    """Each toy type declares exactly the pinned decoys, a class 4, 6 and 7 among them and at
+    least two of class 6, as the gen#311 rule asks of every type."""
+    got = {d.row.code: (d.cls, d.query) for d in _spec(key).decoys if d.cls != 8}
+    assert got == DECOY_PINS[key], got
+    classes = [c for c, _ in got.values()]
+    assert {4, 6, 7} <= set(classes) and classes.count(6) >= 2, classes
+
+
+@pytest.mark.parametrize(("key", "code"), PINNED)
+def test_a_toy_decoy_is_a_row_of_its_type_in_the_toys_leaf_that_holds_its_word(key, code) -> None:
+    """The decoy is a Toys row of its own type and leaf, so the department policy keeps it and
+    only the type policy repairs it. Its short title holds the query's words (class 6 and 7) or
+    names a material or feature its structured entries lack (class 4)."""
+    spec, d = _spec(key), _decoy(key, code)
+    row, title = d.row, set(re.findall(r"[a-z]+", d.row.title.lower()))
+    assert (row.department, row.product_type) == (spec.department, spec.product_type)
+    assert row.path == TYPES[key]["path"] and row.code.startswith("DT"), row.path
+    assert d.policy, code
+    words = d.query.split()
+    if d.cls == 4:
+        assert d.policy == MATERIAL_CLAIM, d.policy
+        assert "-" in row.title and words[0] in title, row.title
+        facts = " ".join(str(v).lower() for _, _, v, *_ in row.attrs)
+        assert words[0] not in facts, (words[0], facts)
+    else:
+        assert set(words) <= title and len(row.title.split()) <= 5, (row.title, d.query)
+    if d.cls == 6 and words[0] in ("red", "green", "yellow", "black", "white", "blue"):
+        assert row.colors[0][0].lower() != words[0], "the color word names a range, not the color"
+    if d.cls == 7:
+        assert row.brand in row.title and set(words) <= set(row.brand.lower().split()), row.brand
+        assert dict(spec.owners).get(row.brand) == "own", spec.owners
+
+
+@pytest.mark.timeout(300)
+@pytest.mark.parametrize(("key", "code"), PINNED)
+def test_an_unfiltered_ranking_puts_each_toy_decoy_among_the_hits_of_its_query(
+    key, code, index
+) -> None:
+    """The decoy is in the build and the ranking finds it for the query it targets (the first 50
+    hits), so the policy that repairs it has something to repair."""
+    d = _decoy(key, code)
+    ids = [h["product_id"] for h in br.rank(index, d.query, 50)]
+    assert f"BRD-{code}" in ids, (d.query, ids[:10])
