@@ -3,10 +3,12 @@
 The Womens UK size charts stopped at 16 (some at 18 or 20), so a query for "dress size 22" read
 the size, filtered the dresses and found no dress that carried it. :func:`extend` runs over the
 templates (:func:`scale.templates`), so a derived style inherits the longer run: a digest-chosen
-:data:`SHARE` of the Womens dresses, tops, trousers, jeans and knitwear whose SKUs carry a UK
-size gain every size up to :data:`TOP` in the same UK/EU/US chart as the shorter run
-(``samples.WOMENS``: EU = UK + 28, US = UK - 4). Each new SKU copies the largest-size SKU of its
-color (same price, stock and other options); the new SKUs are appended, so no existing SKU id
+:data:`SHARE` of the Womens styles in :data:`LEAVES` whose SKUs carry a numeric UK size gain
+every size up to :data:`TOP` in the same chart as the shorter run (``samples.WOMENS``: EU = UK + 28,
+US = UK - 4, written only where the SKU stores them: jeans). Today that is the jeans, dresses and
+tops; trousers measure by ``waist`` and knitwear is letter-sized, so neither is changed. Each new
+SKU copies the largest-size SKU of its color (same price, stock and other options); the new SKUs
+are appended, so no existing SKU id
 moves. A record that is a decoy, or whose largest UK size is already :data:`TOP`, is left alone.
 """
 
@@ -64,7 +66,7 @@ def extend(rec: dict) -> dict:
         for uk in range(top + 2, TOP + 1, 2):
             sizes = {key: str(uk)}
             if key == "size_uk":
-                sizes |= {"size_eu": str(uk + 27), "size_us": str(uk - 3)}
+                sizes |= {"size_eu": str(uk + 28), "size_us": str(uk - 4)}
             added.append({**{k: v for k, v in base.items() if k != "sku"}, **sizes})
     rows = [*skus, *({"sku": f"{pid}-{n:03d}", **s} for n, s in enumerate(added, len(skus) + 1))]
     options = dict(rec.get("size_options", {}))
