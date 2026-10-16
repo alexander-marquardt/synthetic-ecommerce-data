@@ -14,6 +14,11 @@ _TEST = (
     "-k test_every_brand_has_exactly_one_owner_across_the_templates_and_the_ceiling"
 )
 _PROP = "a brand holds one owner across the templates and the ceiling build"
+_TABLES = "tests/test_retail_scale.py -k test_no_two_owner_tables_give_one_brand_two_owners"
+_SALES = (
+    "prototypes/retail_drawings/test_signals_and_paths.py "
+    "-k test_third_party_brands_are_over_represented_in_sales"
+)
 
 ROWS: list[tuple[str, str, str, str, str, str]] = [
     (
@@ -35,5 +40,21 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         'owners = {r["brand"]: r["brand_owner"] for r in base if "brand_owner" in r}',
         _TEST,
         _PROP,
+    ),
+    (
+        "the grocery table calls a brand own that no row carries, the class table third party",
+        "grocery_rows.py",
+        '"Meadowgate Dairy": "third_party"',
+        '"Meadowgate Dairy": "own"',
+        _TABLES,
+        "the owner tables agree on every brand they share, also one no row carries",
+    ),
+    (
+        "a sale row's third-party brand is an own-label one again",
+        "class_rows.py",
+        'Style("OFRTEE", "Active Training Tee", "Stridewell"',
+        'Style("OFRTEE", "Active Training Tee", "Larkmoor"',
+        _SALES,
+        "at least four of the ten sale rows are third-party brands",
     ),
 ]
