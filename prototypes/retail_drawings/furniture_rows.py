@@ -125,7 +125,8 @@ def _table(code, title, brand, shape, seats, extending, top, colors, sizes, text
          ("extending", "Extending", _yes(extending)), ("top_material", "Top material", top),
          _room("Dining Room")),
         sizes, size_key="size",
-        params=(("outline", shape), ("seats", str(seats)), ("extending", _yes(extending))),
+        params=(("outline", shape), ("seats", str(seats)), ("extending", _yes(extending)),
+                ("top", top.lower().replace("-", "_"))),
     )  # fmt: skip
 
 
