@@ -24,7 +24,7 @@ from jewellery_rows import (
 )
 from type_registry import Decoy, TypeSpec
 
-LEAF, PTYPE = "Drop Earrings", "Drop Earrings"
+LEAF, PTYPE = ("Earrings", "Drop Earrings"), "Drop Earrings"
 STYLE = a("earring_style", "Earring style", "Drop")
 
 

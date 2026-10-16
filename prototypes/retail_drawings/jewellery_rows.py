@@ -51,7 +51,7 @@ def metres(key: str, name: str, m: int) -> tuple[str, str, str, str, float]:
 
 
 def earrings_row(
-    code: str, title: str, brand: str, price: float, desc: str, shape: str, leaf: str, ptype: str,
+    code: str, title: str, brand: str, price: float, desc: str, shape: str, leaf: tuple[str, ...], ptype: str,
     style_attr: tuple, params: tuple, colors: tuple = ALL_METALS, steel: bool = False,
     stone: str | None = None, hypoallergenic: bool = True, label: str | None = None,
 ) -> ARow:  # fmt: skip
@@ -64,7 +64,7 @@ def earrings_row(
         a("audience", "Audience", WOMENS),
     )  # fmt: skip
     return ARow(
-        code, title, brand, CLOTHING, ("Womens", "Jewellery", leaf), ptype, price, shape, desc,
+        code, title, brand, CLOTHING, ("Womens", "Jewellery", *leaf), ptype, price, shape, desc,
         colors, attrs, params=params, metals=tuple(table[c[0]] for c in colors), label=label,
     )  # fmt: skip
 
