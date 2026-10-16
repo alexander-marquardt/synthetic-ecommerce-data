@@ -70,7 +70,7 @@ EXEMPTIONS = {
         "grade",
         ["Class 8.8", "Class 10.9", "Class 8"],
         "Class 10.9",
-        "Higher strength than Class 8.8. Tightened with a wrench.",
+        "Higher strength than 8.8, like Class 8 bolts. Tightened with a wrench.",
         "A Class 8 nut.",
         "Class 8",
     ),
