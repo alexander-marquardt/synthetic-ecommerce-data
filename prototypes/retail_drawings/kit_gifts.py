@@ -1,5 +1,5 @@
 """Gift shapes for the retail drawing kit (gen#425): a mug, a greeting card, a notebook, a money box
-and a pamper hamper, each drawn as its own product (not a recoloured neighbour).
+and a pamper hamper, each drawn as its own product (not a recolored neighbour).
 
 ==============  ==========================================  ==============================
 shape           draws                                       params
@@ -75,7 +75,7 @@ def gift_mug(
 
 
 def _motif(occasion: str) -> list[str]:
-    """The occasion's motif, centred near (200, 190) in white."""
+    """The occasion's motif, centered near (200, 190) in white."""
     w = PAPER2
     if occasion == "anniversary":
         return [_path("M200,236 C140,196 160,150 200,176 C240,150 260,196 200,236 Z", w, 2.4)]
