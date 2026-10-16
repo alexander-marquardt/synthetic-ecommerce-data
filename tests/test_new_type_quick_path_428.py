@@ -120,6 +120,8 @@ def test_the_worked_example_is_drawn_by_the_kit_module_the_section_names() -> No
 
 def test_the_section_says_a_retail_type_has_no_part_number_block() -> None:
     """``ecom-generate block`` is the industrial catalog's: a retail id is ``BRD-<row code>``."""
-    assert "BRD-" in _section() and "ecom-generate block" in _section()
+    section = _section()
+    assert "There is no part-number block" in section
+    assert "BRD-" in section and "ecom-generate block" in section
     readers = [p.name for p in RETAIL.glob("*.py") if "block_of" in p.read_text("utf-8")]
     assert not readers, f"a retail module reads a part-number block: {readers}"
