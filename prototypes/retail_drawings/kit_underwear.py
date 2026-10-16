@@ -38,10 +38,10 @@ from kit import INK, LW_DETAIL, Fill, _highlight, _line, _path, _shade, _tint, r
 from kit_garments import _dark
 
 #: Tights: the share of the drawing's ink and paint kept, by denier (a 10 denier is near sheer).
-DENIER_OPACITY = {"10": 0.6, "15": 0.6, "20": 0.6, "40": 0.6, "60": 0.6, "100": 0.6}
+DENIER_OPACITY = {"10": 0.42, "15": 0.5, "20": 0.6, "40": 0.78, "60": 0.9, "100": 1.0}
 #: Dressing gown and slip lengths: where the hem falls on the sheet.
 GOWN_HEM = {"short": 262, "knee": 308, "full": 356}
-SLIP_HEM = {"mini": 322, "midi": 322, "full": 322}
+SLIP_HEM = {"mini": 284, "midi": 322, "full": 358}
 
 
 def _g(cls: str, parts: list[str]) -> str:
