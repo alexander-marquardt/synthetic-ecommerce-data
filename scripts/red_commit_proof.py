@@ -119,6 +119,9 @@ def run_named(
     report = scratch / "outcomes.jsonl"
     env = dict(os.environ)
     env[runner.REPORT_ENV] = str(report)
+    # The caller's pytest options (the local CI sets ``-n N --dist loadgroup``) must not
+    # reach this run: under xdist a name that selects nothing exits 5, not 4, with no outcomes.
+    env.pop("PYTEST_ADDOPTS", None)
     # The tree's own packages first: the editable install points at the checkout
     # that started this script, not at the commit being judged.
     path = [str(scratch)]
