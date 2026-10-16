@@ -34,7 +34,8 @@ ROWS = accessory_rows.ROWS
 #: Each type and the key attributes every one of its styles states (the issue's table; the
 #: ones only some styles have are in ``CONDITIONAL``). A key is an attribute of the style or
 #: of its SKUs: the size keys (``size``, ``capacity_l``/``capacity``, ``canopy_diameter``,
-#: ``item_length``, ``size_uk``/``size_us``) are pinned as well as the descriptive ones.
+#: ``item_length``, ``ring_size_uk``/``ring_size_us``) are pinned as well as the descriptive
+#: ones.
 KEYS = {
     "Handbag": {"bag_style", "material", "closure", "color"},
     "Backpack": {"use", "capacity", "material", "pocket_count", "waterproof", "color"},
@@ -44,7 +45,7 @@ KEYS = {
                  "uv_protection", "ribs", "color"},
     "Necklace": {"necklace_type", "metal", "item_length", "color"},
     "Bracelet": {"bracelet_type", "metal", "size", "color"},
-    "Ring": {"ring_type", "metal", "size_uk", "size_us", "color"},
+    "Ring": {"ring_type", "metal", "ring_size_uk", "ring_size_us", "color"},
 }  # fmt: skip
 
 
@@ -129,7 +130,7 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> 
 def test_the_size_keys_are_on_the_skus_not_only_the_style() -> None:
     """Each type's size axis is a value every SKU states, so a size filter can narrow it."""
     axis = {"Backpack": "capacity_l", "Umbrella": "canopy_cm", "Necklace": "length_cm",
-            "Bracelet": "size", "Ring": "size_uk"}  # fmt: skip
+            "Bracelet": "size", "Ring": "ring_size_uk"}  # fmt: skip
     bad = {}
     for row in ROWS:
         key = axis.get(row.product_type)
