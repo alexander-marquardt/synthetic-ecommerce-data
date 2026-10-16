@@ -101,6 +101,16 @@ def test_each_frame_and_each_lens_draws_differently() -> None:
     assert len(set(lenses.values())) == len(LENSES)
 
 
+def test_each_lens_is_painted_in_its_own_tint() -> None:
+    """The lens fill, not only a mark on it, tells them apart: dark, a fade, pale."""
+    names = ("Polarised", "Gradient", "Mirrored")
+    polarised, gradient, mirrored = (_svg(frame="Round", lens=m) for m in names)
+    assert 'fill="url(#sunglasses-lens-gradient)"' in gradient
+    assert 'fill="url(#sunglasses-lens-gradient)"' not in polarised + mirrored
+    assert 'fill="#2b333c"' in polarised and 'fill="#2b333c"' not in mirrored
+    assert 'fill="#9db4c6"' in mirrored and 'fill="#9db4c6"' not in polarised + gradient
+
+
 @pytest.mark.parametrize("row", ROWS, ids=lambda r: r.code)
 def test_every_style_draws_well_formed_svg_that_prints_no_text(row) -> None:
     svg = kit.render(row.shape, kit.Fill("solid", "#123456", "#654321"), params=dict(row.params))
@@ -143,7 +153,7 @@ def test_the_type_carries_text_match_decoys_whose_structured_fields_deny_their_t
         assert d.row.product_type == PTYPE
         text = f"{d.row.title} {d.row.description}".lower()
         if d.cls == 4:
-            assert "polarised" in text and _attr(d.row, "lens_type") != "Polarised", d.row.code
+            assert "uv400" in text and _attr(d.row, "uv400") == "No", d.row.code
 
 
 @pytest.mark.timeout(300)

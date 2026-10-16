@@ -431,6 +431,13 @@ unisex goods (backpack, tote, umbrella) stay one product in one place, under the
 shoppers the generator targets for bags; the `audience` facet says `Unisex`, the path does not.
 `tests/test_retail_accessories_under_departments_248.py` guards it.
 
+**Worn accessories (gen#422)**: the issue lists belts, hats and caps, scarves, gloves, sunglasses
+and wallets under `Accessories > ...`; with no root they sit under `Womens > Accessories` (a belt
+or a wallet for men under `Mens > Accessories`), each a spec under `type_specs/` with its own
+drawing shape registered in the spec module. Done: sunglasses (`type_specs/sunglasses.py`: five
+frames, three lenses, UV400, the six main colors; its decoys are a UV400 name on a pair with no
+UV protection, a blue tint in the text of a black frame and another brand's name in the text).
+
 **The store's department is the top level of `category_path`, and no document states one**
 (gen#281). The retail tree has exactly eleven roots: Womens, Mens, Kids, Food & Drink, Home,
 Beauty, Cleaning, Toys, Gifts, Garden and Sports & Outdoors (gen#265). Food sits under Food &

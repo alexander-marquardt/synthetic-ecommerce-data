@@ -10,6 +10,7 @@ prefix, so ``mutation_check.py`` reads one list.
 
 from __future__ import annotations
 
+import mutation_rows_accessories_422
 import mutation_rows_suits_215
 import mutation_rows_type_specs
 
@@ -88,4 +89,5 @@ ALL: list[tuple[str, ...]] = [
     *(("type specs", *row) for row in mutation_rows_type_specs.ROWS),
     *(("garden hose", *row) for row in ROWS),
     *(("suits", *row) for row in mutation_rows_suits_215.ROWS),
+    *(("accessories", *row) for row in mutation_rows_accessories_422.ROWS),
 ]
