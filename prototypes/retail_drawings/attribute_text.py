@@ -24,7 +24,7 @@ title and description name no other pattern.
 Material words are not read: 71 of the template rows hold a material word that is not
 the style's material (a leather-look decoy, a wooden handle on a steel knife, a ceramic
 coating on an aluminum pan), and none of those is a defect. The reason is in
-``README.md``.
+``docs/retail-attribute-text.md``.
 """
 
 from __future__ import annotations
@@ -117,9 +117,9 @@ def pattern_lines(rec: dict[str, Any]) -> list[str]:
         if kind is None:
             out.append(f"pattern {value} is not in PATTERN_KIND")
             continue
-        sold = {c["pattern"] for c in rec.get("color_options", ())}
+        sold = {c.get("pattern") for c in rec.get("color_options", ())}
         if sold - {kind}:
-            out.append(f"pattern {value} but color options sell {sorted(sold - {kind})}")
+            out.append(f"pattern {value} but color options sell {sorted(sold - {kind}, key=str)}")
         drawn = rec.get("drawing", {}).get("pattern")
         if drawn is not None and drawn != kind:
             out.append(f"pattern {value} but the drawing is {drawn}")
