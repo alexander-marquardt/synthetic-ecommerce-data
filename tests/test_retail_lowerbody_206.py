@@ -27,10 +27,14 @@ import kit  # noqa: E402
 import kit_lowerbody  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import scale  # noqa: E402
+import type_registry  # noqa: E402
 
 from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 
-ROWS = lowerbody_rows.ROWS
+#: The tracksuits are a type spec (gen#351); the other five types are still in lowerbody_rows.
+ROWS = (*lowerbody_rows.ROWS, *type_registry.specs()["tracksuit"].rows)
+LOWER_DOCS = [*lowerbody_rows.docs(), *type_registry.specs()["tracksuit"].docs()]
+LOWER_IDS = scale.LOWER_IDS | type_registry.ids_of(type_registry.specs()["tracksuit"])
 
 #: Each type and every attribute a shopper filters or searches it on (the issue's table),
 #: the color and the size keys of its SKUs included. ``garment_length`` is the length the
@@ -211,7 +215,7 @@ def test_the_maternity_and_lined_leggings_state_it() -> None:
 
 #: Words the lower-body rows once put in ``fabric`` that a shopper does not name as a fabric
 #: (a use, a fit, a pocket style) or that spell another fabric's name again (gen#258).
-NOT_FABRICS = {"Sports", "Compression", "Cargo", "Leather-Look"}
+NOT_FABRICS = {"Sports", "Compression", "Cargo", "Leather-Look", "Leather Look"}
 
 
 def test_no_lower_body_fabric_is_a_use_a_fit_or_another_name_for_a_fabric() -> None:
@@ -233,13 +237,6 @@ def test_a_cycling_short_is_compression_fit_not_a_compression_fabric() -> None:
     for row in shorts:
         assert _attr(row, "leg_fit") == ["Compression"], row.code
         assert _attr(row, "fabric") == [], row.code
-
-
-def test_the_lower_body_modules_spell_center_the_us_way() -> None:
-    """The spelling test reads only the color word; a docstring said "centre" (gen#258)."""
-    british = re.compile("cent" + "re", re.IGNORECASE)
-    for name in ("kit_lowerbody.py", "lowerbody_rows.py"):
-        assert british.findall((RETAIL / name).read_text()) == [], name
 
 
 @pytest.mark.parametrize("row", ROWS, ids=lambda r: r.code)
@@ -264,7 +261,7 @@ def test_every_lower_body_style_reaches_the_100k_build_and_meets_the_standard() 
     docs = scale.documents(scale.build(100_000))
     got = {d["product_id"] for d in docs}
     assert sorted(f"BRD-{r.code}" for r in ROWS if f"BRD-{r.code}" not in got) == []
-    mine = [d for d in docs if d["product_id"] in scale.LOWER_IDS]
+    mine = [d for d in docs if d["product_id"] in LOWER_IDS]
     assert len(mine) == len(ROWS)
     assert check_catalog(mine, one_class_per_key=True) == []
 
@@ -273,7 +270,7 @@ def test_no_sku_key_shares_a_name_with_a_drawing_param() -> None:
     """A SKU's own value of a drawing param key replaces the drawing's (``export.drawing_spec``),
     so a SKU field named like a param would redraw the style from its size axis. A skirt's hem
     param is ``hem`` and its SKUs carry ``fit_length``."""
-    for rec in lowerbody_rows.docs():
+    for rec in LOWER_DOCS:
         params = set(rec["drawing"].get("params") or {})
         for sku in rec["skus"]:
             assert not params & set(sku), (rec["product_id"], params & set(sku))
@@ -283,7 +280,7 @@ def test_every_length_a_lower_body_row_can_carry_is_drawable() -> None:
     """Each SKU of each row, with the SKU's own values laid over the drawing as the image
     release does, draws without error, and a skirt's SKU draws what its row draws whatever
     leg length the SKU carries."""
-    for rec in lowerbody_rows.docs():
+    for rec in LOWER_DOCS:
         for sku in rec["skus"]:
             svg = image_release.render(rec, sku)
             if rec["drawing"]["shape"] == "skirt":

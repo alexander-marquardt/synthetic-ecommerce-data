@@ -951,7 +951,7 @@ that win a query's top results on text alone, so a demo can show what a policy
 fixes. `distractors.py` holds the table; `distractors.check()` refuses a
 distractor that cannot outrank the best intended product (BM25 over title plus
 description). A class's *tail* is further products the query matches that need
-not outrank. Every name is invented.
+not outrank. Every name is invented but Nike (text only, no logo; gen#341, [docs/retail-nike.md](docs/retail-nike.md)).
 
 Every product is drawn as its own kind: a bouquet as roses in a paper cone,
 socks as socks, a bed as a bed. A generic shape (`box`, `box_wide`,
@@ -1144,7 +1144,7 @@ and popularity are the style's: `sold_last_5_days` is the sales of every
 color, summed. Legwear SKUs are color x waist x `inside_leg` with `in_stock`
 per SKU, and jeans and trousers carry `rise`. Bedding SKUs are bed sizes whose
 label carries the dimension ("Double (4 ft 6)"), each with its own price.
-Beauty shades are the SKU colors of one product with `unit_size` in g or ml.
+Beauty shades are the SKU colors of one product with `unit_size` in g or ml ([net volumes](docs/retail-net-volume.md)).
 `price_min` and `price_max` come from the SKUs, and `price` is the cheapest
 SKU. `size_range` is a list; for legwear it is derived from the in-stock lengths
 (Extra Short and Short/Petite give `petite`), never declared, so the flat
@@ -1403,8 +1403,7 @@ or Post-Surgery bra, whose node stays; its old style leaf is split into `bra_sha
 shopper names (Cotton, Linen, Denim, Oxford, Silk, Nylon), from one closed list. A grade or blend
 ("98% Cotton, 2% Elastane") leaves its fibre as the fabric and becomes the document's
 `fibre_content`, a detail in no facet (`facet_leaves.FABRIC_MOVES`, gen#187; no `composition`). A blend names fibres:
-"Cotton Blend" leaves Cotton as the fabric and "Cotton Jersey" leaves Jersey (gen#258). A fabric has
-one name (Faux Leather, not also Leather-Look), and a use, a pocket style or a fit is never a
+"Cotton Blend" leaves Cotton as the fabric and "Cotton Jersey" leaves Jersey (gen#258); the tailored shorts' "Polyester Blend" is Suiting by their text, a move keyed by (product type, value) in `facet_leaves.TYPED_FABRIC_MOVES` (gen#291). A fabric has one name (Faux Leather, not also Leather-Look or Leather Look), and a use, a pocket style or a fit is never a
 fabric: sports leggings are Knitted with a Compression `leg_fit`, cargo joggers are Twill with
 cargo pockets, and cycling shorts carry the Compression `leg_fit` and no fabric. Only the document changes (`export.standard_document`):
 the build record keeps its leaf, so the derivation and every image id are what they were, and a
@@ -1455,7 +1454,7 @@ drawn by `kit_underwear.py`; none is derived), then the toys (`toys_rows.py`, ge
 table, desk, ceiling and wall lights and lampshades under `Home/Lighting` (`Lamps`, `Lights`), each typed by
 its name; a SKU is a color times a finish, a shade color or a diameter, and its image draws
 that SKU's own value), then the bags, umbrellas and jewelry (`accessory_rows.py`,
-gen#207; likewise copied by no derived style), then the Sports & Outdoors styles (`sports_rows.py`, gen#265 and gen#368: camping, yoga & fitness, cycling pumps, baseball, swimming, team and racket sports, drawn by `kit_sports.py`, copied by no derived style; leaves, filters and types not built in [docs/retail-sports-tree.md](docs/retail-sports-tree.md), `tests/test_retail_sports_265.py`), then the near-white apparel and main-color bras (`colorgroup_rows.py`, gen#302, [docs/retail-color-group.md](docs/retail-color-group.md); copied by no derived style), then the grocery styles (below, `grocery.py`, gen#154). Further styles are
+gen#207; likewise copied by no derived style), then the Sports & Outdoors styles (`sports_rows.py`, gen#265 and gen#368: camping, yoga & fitness, cycling pumps, baseball, swimming, team and racket sports, drawn by `kit_sports.py`, copied by no derived style; leaves, filters and types not built in [docs/retail-sports-tree.md](docs/retail-sports-tree.md), `tests/test_retail_sports_265.py`), then the school uniform styles (`school_rows.py`, gen#205, first increment: school trousers, skirts, pinafores and shirts under `Kids/School Uniform`; drawn by `kit_school.py`, school-age sizes `3-4 Yrs` to `15-16 Yrs`, fit, adjustable waist, style, sleeve and pack as structured attributes, decoys from `decoy_apparel.py`, copied by no derived style, `tests/test_retail_school_205.py`), then the garden machines (`garden_rows.py`, gen#203, first increment: lawn mowers, robot mowers, grass trimmers and barbecues under `Garden`, drawn by `kit_garden.py`, with text-match decoys, [docs/retail-garden.md](docs/retail-garden.md); copied by no derived style), then the near-white apparel and main-color bras (`colorgroup_rows.py`, gen#302, [docs/retail-color-group.md](docs/retail-color-group.md); copied by no derived style), then the grocery styles (below, `grocery.py`, gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
 also differs from its template and from every sibling in a value its title shows
