@@ -5,12 +5,12 @@ found nothing or a baseball glove. This is **Womens > Accessories > Gloves** (ge
 top-level Accessories root; a pair is unisex, which the ``audience`` entry says and the path does
 not). The kind is the drawing's shape (``kind``), equal to the row's structured ``glove_style``
 entry; the lining is a second entry. The SKU axes are the six main colors (gen#275) and the size
-(``glove_size``, S to XL). Not derivable: the department grows by authored rows. Every name here
+(``glove_size_letter``, S to XL; the baseball glove keeps ``glove_size`` in inches). Not derivable: the department grows by authored rows. Every name here
 is invented.
 
 The decoys are same-type pairs whose text claims what their structured entries deny (gen#294): a
 knitted pair that names touchscreen fingertips (class 4), a blue lining in the description of a
-black pair (class 5) and another brand's name in the description (class 7).
+black pair (class 5), a color word or another category's noun in a range name (two of class 6: "Red Tor Gloves" is black) and another brand's name in the description (class 7).
 """
 
 # ruff: noqa: E501 -- data rows and SVG path literals read better whole than wrapped (prototype only).
@@ -102,7 +102,7 @@ def _attrs(kind: str, lining: str) -> tuple[tuple[str, str, str], ...]:
 
 def _row(code, title, brand, price, kind, lining, desc, colors=_SIX) -> Row:
     return Row(code, title, brand, "Clothing", _PATH, "Gloves", price, "gloves", desc, colors,
-               _attrs(kind, lining), tuple((s, price) for s in _SIZES), size_key="glove_size",
+               _attrs(kind, lining), tuple((s, price) for s in _SIZES), size_key="glove_size_letter",
                params=(("kind", kind),))  # fmt: skip
 
 
@@ -134,6 +134,14 @@ SPEC = TypeSpec(
         Decoy(5, "blue gloves", "color facet: blue means the glove color, not a word in the text",
               _row("DCGLV2", "Lined Leather Gloves", _P, 13.0, "Leather", "Fleece",
                    "Black leather gloves with a blue fleece lining that shows at the wrist.",
+                   (BLACK,))),
+        Decoy(6, "red gloves", "color facet: a color word in a range name is not the glove color",
+              _row("DCGLV4", "Red Tor Gloves", _P, 7.0, "Knitted", "Unlined",
+                   "Black knitted gloves from the Tor range, in a plain ribbed knit.",
+                   (BLACK,))),
+        Decoy(6, "sock gloves", "type facet: another category's noun in a range name does not make the gloves that category",
+              _row("DCGLV5", "Sock Point Gloves", _W, 8.0, "Leather", "Wool",
+                   "Black leather gloves from the Point range, with a wool lining.",
                    (BLACK,))),
         Decoy(7, "pellbrook gloves", "brand facet: a brand named in the text is not the product's brand",
               _row("DCGLV3", "Everyday Knitted Gloves", _W, 5.0, "Knitted", "Unlined",

@@ -29,6 +29,7 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import breadth_rows  # noqa: E402
+import lighting_rows  # noqa: E402
 import scale  # noqa: E402
 from retail_figures import (  # noqa: E402
     GROCERY_INTERSECTION_KEYS,
@@ -554,6 +555,16 @@ def test_the_cli_refuses_a_target_below_one():
     assert "--skus must be at least 1" in done.stderr
 
 
+def _fitted_out(r: dict[str, Any], t: dict[str, Any]) -> set[str]:
+    """The one key a derived style may lose: a pendant derived into a form that does not hang
+    has no ``drop_length`` (``lighting_rows.fit_ceiling_form``, gen#237). Nothing else goes, and
+    a hanging form keeps it, so the exception is exactly the documented one."""
+    if t["product_type"] != "Ceiling Light":
+        return set()
+    form = next((a["value"] for a in r["attributes"] if a["key"] == "fixture_type"), None)
+    return set() if form in lighting_rows.HANGING_FORMS else {"drop_length"}
+
+
 def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):
     for r, t in pairs:
         assert [r[k] for k in ("category_path", "category_leaf", "product_type", "department")] == [
@@ -567,7 +578,9 @@ def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):
             if a["key"] in frozen or scale._has_word(names, str(a["value"]))
         }
         assert kept <= {(a["key"], str(a["value"])) for a in r["attributes"]}, r["product_id"]
-        assert [a["key"] for a in r["attributes"]] == [a["key"] for a in t["attributes"]]
+        assert [a["key"] for a in r["attributes"]] == [
+            a["key"] for a in t["attributes"] if a["key"] not in _fitted_out(r, t)
+        ], r["product_id"]
 
 
 def test_only_a_value_free_of_the_leaf_the_unit_and_a_longer_word_may_vary():
@@ -598,6 +611,9 @@ def test_a_changed_value_is_rewritten_in_the_title(pairs):
         new = {a["key"]: str(a["value"]) for a in r["attributes"]}
         for a in t["attributes"]:
             old = str(a["value"])
+            if a["key"] in _fitted_out(r, t):  # a flush light has no drop to rewrite
+                assert a["key"] not in new, r["product_id"]
+                continue
             if a["key"] == "line" or new[a["key"]] == old or not scale._has_word(t["title"], old):
                 continue
             assert scale._has_word(r["title"], new[a["key"]]), (
