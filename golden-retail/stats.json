@@ -2,20 +2,20 @@
  "ceiling": {
   "derived_styles": 4478,
   "food_and_drink": {
-   "skus": 11652,
-   "styles": 4248
+   "skus": 11654,
+   "styles": 4250
   },
   "grocery": {
    "skus": 12409,
    "styles": 4516
   },
-  "images": 18813,
+  "images": 19115,
   "non_grocery": {
    "skus": 90929,
    "styles": 5533
   },
-  "skus": 133253,
-  "styles": 13067,
+  "skus": 133589,
+  "styles": 13163,
   "top_levels": {
    "Beauty": {
     "skus": 917,
@@ -26,20 +26,20 @@
     "styles": 491
    },
    "Food & Drink": {
-    "skus": 11652,
-    "styles": 4248
+    "skus": 11654,
+    "styles": 4250
    },
    "Garden": {
-    "skus": 472,
-    "styles": 293
+    "skus": 597,
+    "styles": 337
    },
    "Gifts": {
-    "skus": 499,
-    "styles": 338
+    "skus": 683,
+    "styles": 372
    },
    "Home": {
-    "skus": 6005,
-    "styles": 1923
+    "skus": 6027,
+    "styles": 1936
    },
    "Kids": {
     "skus": 5230,
@@ -58,8 +58,8 @@
     "styles": 443
    },
    "Womens": {
-    "skus": 83318,
-    "styles": 2773
+    "skus": 83321,
+    "styles": 2776
    }
   }
  },
@@ -531,8 +531,8 @@
    "styles": 53
   },
   "all": {
-   "skus": 73164,
-   "styles": 8589
+   "skus": 73500,
+   "styles": 8685
   },
   "appliance_rows": {
    "skus": 124,
@@ -544,8 +544,8 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 60755,
-   "styles": 4073
+   "skus": 61091,
+   "styles": 4169
   },
   "breadth_rows": {
    "skus": 687,
@@ -560,8 +560,8 @@
    "styles": 1420
   },
   "decoy_product_words": {
-   "skus": 179,
-   "styles": 144
+   "skus": 189,
+   "styles": 154
   },
   "decoy_rows": {
    "skus": 111,
@@ -572,8 +572,8 @@
    "styles": 289
   },
   "garden_rows": {
-   "skus": 225,
-   "styles": 91
+   "skus": 279,
+   "styles": 136
   },
   "grocery": {
    "skus": 12409,
@@ -592,8 +592,8 @@
    "styles": 35
   },
   "main_food": {
-   "skus": 118,
-   "styles": 103
+   "skus": 120,
+   "styles": 105
   },
   "mens_depth_rows": {
    "skus": 4825,
@@ -640,8 +640,8 @@
    "styles": 49
   },
   "type_specs": {
-   "skus": 2212,
-   "styles": 261
+   "skus": 2484,
+   "styles": 302
   },
   "underwear_rows": {
    "skus": 1389,

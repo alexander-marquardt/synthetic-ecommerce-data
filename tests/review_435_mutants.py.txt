@@ -1,0 +1,21 @@
+TESTS = [
+    "tests/test_retail_gifts_425.py",
+    "tests/test_retail_product_word_decoys_326.py",
+    "tests/test_retail_type_specs_351.py",
+]
+PYTEST_ARGS = ["--noconftest", "-q", "-p", "no:cacheprovider", "-x"]
+R = "prototypes/retail_drawings/"
+MUTANTS = [
+    (R + "type_specs/gift_mug.py", '"MLT", float(n))', '"C62", float(n))', "mug capacity unit not millilitres"),
+    (R + "type_specs/greeting_card.py", 'a("occasion", "Occasion", occasion), a("recipient", "Recipient", recipient),', 'a("occasion", "Occasion", occasion),', "card drops its recipient entry"),
+    (R + "gifts_rows.py", '    cw("Yellow", "#f2c230"),\n', "", "a Gifts type loses yellow"),
+    (R + "type_specs/money_box.py", 'params=(("form", form), ("material", material))', 'params=(("form", "pig"), ("material", material))', "every money box drawn as a pig"),
+    (R + "gifts_rows.py", 'NOTEBOOK_PATH = (DEPARTMENT, "Stationery", "Notebooks")', 'NOTEBOOK_PATH = (DEPARTMENT, "Notebooks")', "notebook out of Stationery"),
+    (R + "type_specs/gift_mug.py", '"A 350 ml ceramic mug printed', '"A 300 ml ceramic mug printed', "mug description states another capacity"),
+    (R + "decoy_product_words.py", '"Wall Mug Rack, Five Hooks"', '"Wall Rack, Five Hooks"', "mug decoy loses its noun"),
+    (R + "decoy_product_words.py", '"Microwave Mug Cake"', '"Red Microwave Mug Cake"', "mug decoy names a color its drawing lacks"),
+    (R + "decoy_product_words.py", '"Greeting Card", policy="category"),', '"Greeting Card"),', "card decoy loses its category policy"),
+    (R + "type_specs/notebook.py", '"A5 Dotted Hardback Notebook"', '"A5 Hardback Notebook"', "notebook title loses dotted"),
+    (R + "type_specs/greeting_card.py", '_card("GCDDAD", "Birthday Card for Dad", CALDERBY, "Birthday", "Dad",', '_card("GCDDAD", "Birthday Card for Dad", CALDERBY, "Birthday", "Mum",', "dad card recipient says Mum"),
+    (R + "type_specs/gift_hamper.py", '"bath_body", 4,', '"bath_body", 40,', "mini hamper item count 40"),
+]
