@@ -58,8 +58,9 @@ no longer holds (:func:`.price_report.pin_holds`) at either: back in band
 where :data:`.price.PINNED_FIGURES` records a figure, out of band where it
 records ``None`` (a build that lands in band), on the other side, or further
 out than it records for that build. A pinned row whose recorded figures are not the ones it built
-is flagged "re-record" with the figures to write by hand, at both builds:
-``tests/test_price.py`` holds each record equal to its build's figure.
+is flagged "re-record" with the command that rewrites them (generated into
+:data:`.price.BUILDS_FILE`, never typed), at both builds: ``tests/test_price.py``
+holds the file equal to its builds' figures.
 
 **Slope cuts need a recorded reason.** Where the slope terms ALONE (the key
 term and the length term, with the pack term that rides on them: a pack
@@ -95,6 +96,7 @@ import numpy as np
 from synthetic_ecommerce_data.core import brands, price
 from synthetic_ecommerce_data.core.config import HUNDRED_K_LINES, GeneratorConfig
 from synthetic_ecommerce_data.core.model import Catalog
+from synthetic_ecommerce_data.domains.industrial import measured_builds
 from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
 from synthetic_ecommerce_data.domains.industrial.price_report import (
     BRAND_ROW,
@@ -117,6 +119,7 @@ from synthetic_ecommerce_data.domains.industrial.price_report import (
 )
 
 REPO = Path(__file__).resolve().parent.parent
+REBUILD_BUILDS = measured_builds.REBUILD
 PRICE_PY = REPO / "src" / "synthetic_ecommerce_data" / "core" / "price.py"
 _FASTENERS = (
     REPO
@@ -758,7 +761,7 @@ def main() -> int:
                 for row in rows
             )
             if built != recorded:
-                flags.append(f"re-record {built}")
+                flags.append(f"re-record {built}: {REBUILD_BUILDS}")
         if row_name in unreachable:
             flags.append("cannot reach")
         if row_name in price.PINNED_SHORTFALLS:

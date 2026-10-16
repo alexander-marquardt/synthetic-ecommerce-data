@@ -126,7 +126,7 @@ its published attributes. `set_screws_hex_socket` does both.
    It prints the block the key derives and, when another type already uses it,
    the first free block. In that case set `part_number_block=<block>` on the
    new type's `TypeSpec` (not on its `BreadthRow`): about one new type in 135
-   collides at today's 68 types. Another open pull request can take the same
+   collides at the catalog's current type count (`figures.catalog` in `golden-catalog/stats.json`). Another open pull request can take the same
    block; `scripts/merge_pr.sh` re-checks it on the merged tree.
 - **Names.** If the leaf's head noun is new, add it to `PRODUCT_NOUNS` in
    `domains/industrial/names.py`. Also give the type its shopper-readable
@@ -297,10 +297,11 @@ Use a table type (`domains/industrial/tabletype.py`, #101) when a type does not 
 * `tests/data/golden_slices/<key>.jsonl` (new, written by the test module)
 * `src/synthetic_ecommerce_data/domains/industrial/data/breadth_categories/<key>.yaml` (deleted, when the type had a breadth row)
 
-Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog` and, for the retail totals, `python3 prototypes/retail_drawings/retail_figures.py`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
+Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog`, for the retail totals `python3 prototypes/retail_drawings/retail_figures.py`, and for the measured builds the command beside the last item below; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
 
 * `golden-catalog/*`
 * `golden-retail/stats.json` (the retail totals, gen#162; gen#343)
+* `src/synthetic_ecommerce_data/core/data/measured_builds.json` (the pinned price figures and the 100K build's sizes, gen#85; `uv run python -m synthetic_ecommerce_data.domains.industrial.measured_builds`, about 40 s)
 * `src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml`
 
 Shared files, edited by hand:
@@ -552,8 +553,9 @@ cause, then declare it in `core/price.py` with that cause and the issue
 that fixes it:
 
 * **A pin**, for a row the cause holds on one side of its band: its reason in
-  `PINNED_SHORTFALLS` and its figures at both sizes, as the fit prints
-  them, in `PINNED_FIGURES`. At each size the row may then move no further
+  `PINNED_SHORTFALLS`; its figures at both sizes are not typed: run
+  `uv run python -m synthetic_ecommerce_data.domains.industrial.measured_builds`
+  and they appear in `PINNED_FIGURES`, read from the generated file. At each size the row may then move no further
   out than that size's figure, within `PIN_TOLERANCE`, and must stay on its
   side (the wheel brand spread at 100K, #66; the kit
   p90/p10, #76). A size a pin records `None` for is one the row lands in
@@ -572,7 +574,7 @@ that fixes it:
   `PINNED_FIGURES` entry equal to its row's figure at
   that size (a dollar p50 to the cent, a ratio to three places), so a record
   is never loosened by hand, nor left loose after the row improves. The fit
-  flags a stale one "re-record" with the figures to write.
+  flags a stale one "re-record"; the module above rewrites the file.
 * **A slope cut**, where the census slope alone (with the pack term, for a
   pack-sold type) spreads the shown price wider than the census p90/p10: its
   reason in `SLOPE_CUTS`. The fit refuses to lower any other type's slope. A
@@ -587,8 +589,8 @@ that fixes it:
   pairs invert: its reason in `SIZE_NOISE`.
 
 The fit exits 1, before it writes, on an undeclared row out of band or a pin
-that no longer holds. A pin that moves further out is re-recorded by hand,
-with its cause re-read. Put
+that no longer holds. A pin that moves further out is re-recorded by the
+module, with its cause re-read. Put
 the type's rows (census, default, 100K, band) in the pull request body,
 from the fit's output.
 
@@ -667,15 +669,13 @@ The default build's figures are not restated: the README and
 does not measure (the lensed SKUs, the archive size), and
 `tests/test_measured_figures.py` refuses a doc that quotes one (#103).
 
-What a type still restates by hand is the large build's figures, from its
-command, never by hand arithmetic:
-
-| Figure | Where | Command |
-|---|---|---|
-| The large build's per-type table and totals | README "The 100K catalog" | `uv run ecom-generate build --lines 39000 --out /tmp/c39k`, then the `skus_by_type`, `skus` and `lines` of its `stats.json` |
-
-#62 renames the large build and generates its figures; until it lands, its
-table gets a row for each deepened type.
+The large build's figures are not restated either: its `skus`, `lines` and
+`skus_by_type`, and each pinned price row's figure at both sizes, are in
+`src/synthetic_ecommerce_data/core/data/measured_builds.json`, which the
+build module `domains/industrial/measured_builds.py` writes and
+`scripts/merge_pr.sh` rebuilds at merge. The README points at it; a type
+that moves them runs the module and commits the file (`tests/test_price.py`
+is red until it does), and a conflict in it is never merged by hand.
 
 ## Several kinds under one node (the hammers, #305)
 
@@ -830,7 +830,7 @@ into it. A conflict in a file the rebuild rewrites (`scripts/merge_pr.sh
 --print-generated` lists them) is left for the rebuild; any other
 conflict, `names.py` or a file under `golden-catalog/` that the build does not
 write, is handed back to you. It then rebuilds `golden-catalog/` and
-`golden-retail/stats.json` (about 40 s more) with
+`golden-retail/stats.json` and `core/data/measured_builds.json` (about 80 s more) with
 `uv run --locked` (a stale `uv.lock` is refused, not re-locked), commits only
 the generated files, and runs the drift, golden and seam tests
 (`--print-checks` lists them), refusing a run in which no test passed. It
