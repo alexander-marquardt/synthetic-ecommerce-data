@@ -433,7 +433,7 @@ def board_game(
             )
         ]
         return [*out, *_badge(character)]
-    # family: a track of squares round the board, a centre panel, dice and pawns
+    # family: a track of squares round the board, a center panel, dice and pawns
     out += [_rect(36, 56, 328, 290, _tint(fill.base, 0.85), 6), _rect(36, 56, 328, 290, "none", 6)]
     n, s = 9, 328 / 9
     squares = (
