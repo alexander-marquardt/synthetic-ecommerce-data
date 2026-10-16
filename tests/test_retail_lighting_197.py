@@ -368,3 +368,13 @@ def test_a_desk_lamp_has_one_temperature_or_a_min_and_max_range_and_both_kinds_e
         "BRD-LTDGNK": frozenset({"color_temperature"}),
         "BRD-LTDCLP": frozenset({"color_temperature"}),
     }
+
+
+def test_the_preview_shows_a_kelvin_entry_with_its_unit() -> None:
+    """The unit is not in the stored value, so the page that shows the attribute adds it."""
+    import build_preview
+
+    desk = [d for d in DOCS if d["product_type"] == "Desk Lamp"]
+    shown = {d["product_id"]: build_preview._attr_rows(d) for d in desk}
+    assert "<td>3000 K</td>" in shown["BRD-LTDGNK"]
+    assert "<td>2700 K</td>" in shown["BRD-LTDADJ"] and "<td>6500 K</td>" in shown["BRD-LTDADJ"]
