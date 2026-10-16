@@ -259,8 +259,8 @@ def test_the_duplicate_listing_option_adds_exactly_one_record() -> None:
     assert f'"product_id": "{dz.DUPLICATED}"' in extra[0]
 
 
-def test_the_readme_class_table_names_every_class() -> None:
-    readme = (HERE.parents[1] / "README.md").read_text(encoding="utf-8")
+def test_the_retail_page_class_table_names_every_class() -> None:
+    readme = (HERE.parents[1] / "docs" / "retail-prototype.md").read_text(encoding="utf-8")
     for row in dz.TABLE:
         assert f"| {row.cls} | *{row.query}*" in readme, row.cls
 
