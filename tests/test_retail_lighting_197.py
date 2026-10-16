@@ -282,19 +282,38 @@ def test_a_description_its_attributes_support_passes() -> None:
     assert _contradictions(rec) == []
 
 
-def _highest_joint(style: str) -> float:
-    """The smallest ``cy`` of the joints a floor lamp of ``style`` draws: its head's height."""
+def _task_lamp_svg(style: str) -> str:
     import kit_lighting
 
-    svg = "".join(kit_lighting.floor_lamp("#2f2f33", None, None, style=style))
+    return "".join(kit_lighting.floor_lamp("#2f2f33", None, None, style=style))
+
+
+def _highest_joint(style: str) -> float:
+    """The smallest ``cy`` of the joints a floor lamp of ``style`` draws: its head's height."""
+    svg = _task_lamp_svg(style)
     return min(float(y) for y in re.findall(r'<circle cx="[\d.]+" cy="([\d.]+)"', svg))
+
+
+def _highest_pole_point(style: str) -> float:
+    """The smallest y any pole, arm or cord path (an unfilled ``<path>``) of ``style`` reaches."""
+    svg = _task_lamp_svg(style)
+    ds = re.findall(r'<path d="([^"]+)" fill="none"', svg)
+    return min(float(y) for d in ds for y in re.findall(r"[\d.]+,([\d.]+)", d))
 
 
 def test_a_task_floor_lamp_reaches_as_high_as_an_arc_one_not_a_desk_lamp() -> None:
     """The task lamp's head sat at y 118, a desk lamp's height, so its thumbnail read as one
     in a floor-lamp grid. Guard: its head must sit above y 100 of the 400 px sheet (a desk
-    lamp's sits near 150)."""
+    lamp's sits near 150), and so must the top of its pole (gen#238): a change that moved
+    only the pole path left the joints at the new height and passed a joints-only check."""
     assert _highest_joint("task") < 100
+    assert _highest_pole_point("task") < 100
+
+
+def test_a_task_floor_lamp_pole_ends_at_its_head_joint() -> None:
+    """The pole's top and the head joint are one point: a pole that stops short, or runs past
+    the joint, leaves a gap or a stub in the thumbnail (gen#238)."""
+    assert _highest_pole_point("task") == _highest_joint("task")
 
 
 def test_a_picture_light_offers_only_the_finishes_its_brass_hood_can_show() -> None:

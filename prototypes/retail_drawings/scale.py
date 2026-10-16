@@ -239,6 +239,10 @@ SPORTS_IDS = frozenset(f"BRD-{r.code}" for r in sports_rows.ROWS)
 GARDEN_IDS = frozenset(f"BRD-{r.code}" for r in garden_rows.ROWS)
 #: The school uniform styles (:mod:`school_rows`, gen#205): templates only, as the sports rows are.
 SCHOOL_IDS = frozenset(f"BRD-{r.code}" for r in school_rows.ROWS)
+#: The steak plate, board and weight (:mod:`distractor_rows`, gen#268). Each carries a material, so
+#: a derived copy would re-draw it ("Porcelain Steak Plate", "Nylon Steak Weight") and add steak
+#: rows the failure class does not count: they stay templates.
+STEAK_WARE_IDS = frozenset(f"PLT-{s.code}" for s in distractor_rows.STEAK_WARE)
 #: The underwear and nightwear styles (:mod:`underwear_rows`, gen#208), left out of the
 #: derivation as the shirts are.
 UNDERWEAR_IDS = frozenset(f"BRD-{r.code}" for r in underwear_rows.ROWS)
@@ -333,7 +337,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
                 | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS | SCHOOL_IDS
                 | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | GARDEN_IDS | NIKE_IDS
                 | SPEC_IDS | decoy_rows.IDS
-                | decoy_apparel.IDS | decoy_product_words.IDS)
+                | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out
             and r.get("neckline") not in ("boat", "slash")]  # fmt: skip
@@ -576,6 +580,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
                 rec["drawing"]["label"] = _swap(rec["drawing"]["label"], old, new)
             if a["key"] == "motif" and "motif" in rec["drawing"]:
                 _redraw_motif(rec, old, new)
+    lighting_rows.fit_ceiling_form(rec)  # a flush light has no drop (gen#237)
     if colors:  # "Shown in cream" names the color the picture shows: the hero
         names = "|".join(re.escape(c["color"]) for c in tpl.get("color_options", ()))
         rec["description"] = re.sub(
