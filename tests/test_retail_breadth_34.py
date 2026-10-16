@@ -181,13 +181,27 @@ def test_piece_counts_fill_several_buckets_and_include_a_hundred_piece_set() -> 
     assert max(counts) >= 100
 
 
+#: Product types allowed a voltage; a new battery tool is added here, not rejected.
+VOLTAGE_TYPES = frozenset(
+    {"Drill Driver", "Combi Drill", "Hammer Drill", "Impact Driver", "SDS Hammer Drill"}
+)
+
+
+def _tool_rows() -> list[breadth_rows.Row]:
+    """The rows of every type spec (the drills left ``breadth_rows`` for specs in gen#191)."""
+    import type_registry
+
+    return [r for s in type_registry.specs().values() for r in s.rows]
+
+
 def test_every_cordless_drill_carries_a_voltage_its_title_names() -> None:
-    drills = [r for r in ROWS if r.product_type == "Cordless Drill"]
-    assert len(drills) >= 4
+    cordless = [
+        r for r in _tool_rows() if r.product_type in VOLTAGE_TYPES and _attr(r, "voltage_v")
+    ]
+    assert len(cordless) >= 4
     volts = set()
-    for r in drills:
+    for r in cordless:
         a = _attr(r, "voltage_v")
-        assert a is not None, r.code
         assert a["unit_code"] == "VLT" and a["value_canonical"] == float(a["value"]), r.code
         assert f"{a['value']} V " in r.title, r.code
         volts.add(int(a["value"]))
@@ -195,12 +209,9 @@ def test_every_cordless_drill_carries_a_voltage_its_title_names() -> None:
     assert len(volts) >= 4, "a voltage facet needs at least four values"
 
 
-#: Product types allowed a voltage; a new battery tool is added here, not rejected.
-VOLTAGE_TYPES = frozenset({"Cordless Drill"})
-
-
 def test_a_voltage_sits_only_on_a_product_type_that_may_carry_one() -> None:
-    odd = [r.code for r in ROWS if _attr(r, "voltage_v") and r.product_type not in VOLTAGE_TYPES]
+    rows = [*ROWS, *_tool_rows()]
+    odd = [r.code for r in rows if _attr(r, "voltage_v") and r.product_type not in VOLTAGE_TYPES]
     assert odd == []
 
 

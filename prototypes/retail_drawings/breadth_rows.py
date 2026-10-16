@@ -1185,11 +1185,6 @@ def _a1(key: str, name: str, v: str) -> tuple[tuple[str, str, str], ...]:
     return ((key, name, v),)
 
 
-def _volts(v: int) -> tuple[tuple[str, str, str, str, float], ...]:
-    """A tool's battery voltage: the unit is in the key (``_v``), the canonical value in volts."""
-    return (("voltage_v", "Voltage", str(v), "VLT", float(v)),)
-
-
 def _pieces(n: int) -> tuple[tuple[str, str, str, str], ...]:
     """How many pieces a set holds: a count (unit code C62), so a facet can range over it."""
     return (("piece_count", "Piece count", str(n), "C62"),)
@@ -1306,26 +1301,6 @@ BREADTH_34 = (
         _SCR6.text("Magnetic tips and a soft grip handle, in a roll-up pouch."),
         _in("#c8312e", "#2a2a2e", "Red"),
         (*_a1("tip_type", "Tip type", "Slotted and Phillips"), *_SCR6.attrs)),
-    Row("DRLCRD", "18 V Cordless Drill Driver with Two Batteries", "Calderby & Lune", _HW,
-        (*_DIY, "Drills", "Cordless Drills"), "Cordless Drill", 59.0, "drill",
-        "A two-speed drill driver with a keyless chuck, a work light and a fast charger.",
-        _in("#2f6f4f", "#2a2a2e", "Green"),
-        (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18))),
-    Row("DRLCMP", "12 V Compact Cordless Drill Driver", "Calderby & Lune", _HW,
-        (*_DIY, "Drills", "Cordless Drills"), "Cordless Drill", 39.0, "drill",
-        "A light one-hand drill driver with a keyless chuck, a work light and a one-hour charger.",
-        _in("#2a5f9e", "#2a2a2e", "Blue"),
-        (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(12))),
-    Row("DRLCMB", "20 V Cordless Combi Drill Driver with Hammer Action", "Calderby & Lune", _HW,
-        (*_DIY, "Drills", "Combi Drills"), "Cordless Drill", 79.0, "drill",
-        "A three-mode drill driver with a hammer setting, a keyless chuck and a fast charger.",
-        _in("#c8312e", "#2a2a2e", "Red"),
-        (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(20))),
-    Row("DRLHMR", "40 V Cordless Brushless Hammer Drill", "Calderby & Lune", _HW,
-        (*_DIY, "Drills", "Hammer Drills"), "Cordless Drill", 129.0, "drill",
-        "A brushless hammer drill with a side handle, a depth rod and a rapid charger.",
-        _in("#2a2a2e", "#c8312e", "Black"),
-        (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(40))),
     Row("BITSML", _BIT32.title("Screwdriver Bit Set"), "Calderby & Lune", _HW,
         (*_DIY, "Tool Sets", "Bit Sets"), "Bit Set", 9.0, "screwdriver",
         _BIT32.text("A magnetic holder, in a snap-shut case."),
