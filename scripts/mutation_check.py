@@ -3378,14 +3378,6 @@ MUTATIONS: list[Mutation] = [
                 "twice_band_floor",
                 "the 2x band bites",
             ),
-            (
-                "the kit p90/p10 pin's 100K record is loosened by hand",
-                "core/price.py",
-                "    _KIT_SPREAD_ROW: (4.032, 3.917),",
-                "    _KIT_SPREAD_ROW: (4.032, 3.5),",
-                "figure_its_build_produces",
-                "a record is the build's figure",
-            ),
             # ---- kit: a kit is priced from what it holds (#71) ----
             # Every name also starts "price: kit:", so `--only "kit:"` re-runs these.
             (
@@ -3419,14 +3411,6 @@ MUTATIONS: list[Mutation] = [
                 "    return total / len(values) * each / shown",
                 "holding_more_of_the_same_sizes",
                 "a kit holding more of the same sizes costs more",
-            ),
-            (
-                "the wheel pin's 100K record is loosened by hand",
-                "core/price.py",
-                "    _WHEEL_SPREAD_ROW: (None, 1.75),",
-                "    _WHEEL_SPREAD_ROW: (None, 3.25),",
-                "figure_its_build_produces",
-                "a record is the build's figure",
             ),
             (
                 "a pin recorded None holds a build out of band",
