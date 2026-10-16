@@ -878,6 +878,7 @@ PREMIUM = {
     "linen": 1.15, "organic": 1.1, "canvas": 0.9, "faux": 0.85, "rubber": 0.85,
     "nylon": 0.85, "microfibre": 0.85, "synthetic": 0.8, "polyester": 0.8,
     "acrylic": 0.8, "hollowfibre": 0.8, "plastic": 0.8,
+    "bone": 1.6, "porcelain": 1.2, "enamel": 0.8, "melamine": 0.6,
 }  # fmt: skip
 
 

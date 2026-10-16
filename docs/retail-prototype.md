@@ -532,7 +532,7 @@ colorway alone. A changed value its SKUs also carry (a shoe's `upper_material`)
 is rewritten on every SKU, and the style lists only the values its kept SKUs
 hold. Its price is
 re-drawn inside its leaf's band, as a function of the values it changed (a
-premium material costs more). A draw whose title or description contradicts an
+premium material costs more; a plate's material is not drawn, so its price, bone china above porcelain above stoneware above enamel above melamine, is what keeps two plates of one finish off one grid tile, gen#229, `PLATES_GRID_CLONES`). A draw whose title or description contradicts an
 attribute is refused, and `check_catalog` refuses such text too. The module
 docstring has the rules. A description's closure and a style's pattern are held to its attributes ([gen#250](retail-attribute-text.md)). Today's templates run out at `ceiling` in
 `golden-retail/stats.json` (with and without the grocery styles), and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
