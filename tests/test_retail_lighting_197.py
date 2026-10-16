@@ -338,7 +338,9 @@ def test_every_lighting_color_temperature_entry_is_kelvin_and_none_holds_a_unit_
 
     assert "KEL" in CANONICAL_PER_UNIT
     seen = 0
-    for doc in (export.standard_document(d) for d in DOCS):
+    standard = [export.standard_document(d) for d in DOCS]
+    assert check_catalog(standard) == []
+    for doc in standard:
         for entry in _temperature_entries(doc).values():
             seen += 1
             assert entry["unit_code"] == "KEL", (doc["product_id"], entry)
