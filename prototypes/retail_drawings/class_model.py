@@ -392,7 +392,7 @@ _THIRD_PARTY = ("Kestlewood Cosmetics", "Stridewell", "Calderby & Lune", "Brambl
                 "Crunchworth", "Olivar Grove", "Pewley Table",
                 # Independent makers by name; grocery_rows.OWNERS says the same (gen#236).
                 "Goldfield Farms", "Crofter's Bakehouse", "Copper Hill Preserves",
-                "Velling Apothecary",
+                "Velling Apothecary", "Meadowgate Dairy",
                 # Invented names that hold a color or category word (gen#311, class 7).
                 "Red Plover", "Blue Otter", "Green Stoat", "Yellow Wagtail", "Black Lapwing",
                 "White Dormouse", "Jumper Jay", "Coat Crake",
@@ -400,6 +400,6 @@ _THIRD_PARTY = ("Kestlewood Cosmetics", "Stridewell", "Calderby & Lune", "Brambl
                 "Nike")  # fmt: skip
 _OWN = ("Harbour & Pine", "Larkmoor", "Wrenfield", "Little Fernby", "Quillon Sleep",
         "Ottery Denim", "Ferrowick Denim",
-        "Pantry Mill", "Hearth & Table", "Brackenmere Home", "Meadowgate Dairy",
+        "Pantry Mill", "Hearth & Table", "Brackenmere Home",
         "Saltmarsh")  # fmt: skip
 BRAND_OWNER = {**dict.fromkeys(_OWN, "own"), **dict.fromkeys(_THIRD_PARTY, "third_party")}
