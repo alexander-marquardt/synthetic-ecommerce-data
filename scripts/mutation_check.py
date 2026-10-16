@@ -26,6 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import mutation_rows_attribute_text  # noqa: E402  (gen#250 rows, kept in their own file)
 import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
 import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
 import mutation_rows_type_specs  # noqa: E402  (gen#351 rows, kept in their own file)
@@ -4255,6 +4256,19 @@ MUTATIONS: list[Mutation] = [
                 "promotion is a keyword",
             ),
         ]
+    ),
+    # ---- retail: a description's closure and a style's pattern agree with its attributes (gen#250) ----
+    *(
+        Mutation(
+            f"attribute text: {name}",
+            "attribute_text.py",
+            old,
+            new,
+            f"tests/test_retail_attribute_text_250.py -k {test}",
+            prop,
+            root="prototypes/retail_drawings",
+        )
+        for name, old, new, test, prop in mutation_rows_attribute_text.ROWS
     ),
     # ---- retail: a drawing param may be named shape (gen#259) ----
     *(

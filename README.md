@@ -1473,7 +1473,7 @@ hold. Its price is
 re-drawn inside its leaf's band, as a function of the values it changed (a
 premium material costs more). A draw whose title or description contradicts an
 attribute is refused, and `check_catalog` refuses such text too. The module
-docstring has the rules. Today's templates run out at `ceiling` in
+docstring has the rules. A description's closure and a style's pattern are held to its attributes ([gen#250](docs/retail-attribute-text.md)). Today's templates run out at `ceiling` in
 `golden-retail/stats.json` (with and without the grocery styles), and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
 values per leaf, more colorways, and more templates.
 `--flat PATH` also writes the flat file (one document per SKU, `ingredients` top-level on a

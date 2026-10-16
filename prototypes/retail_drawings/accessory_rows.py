@@ -335,7 +335,7 @@ PURSES = (
           (BLACK, BURGUNDY, CAMEL), _pu("Zip Around Wallet", "Leather", True, "Zip", 5), "wallet",
           "zip", 5),
     _prow("PRSFLP", "Flap Over Purse", _H, 15.0,
-          "A long purse with a snap flap, three card slots, a coin pocket and a note "
+          "A long purse with a clasp flap, three card slots, a coin pocket and a note "
           "compartment.",
           (PINK, NAVY, GREEN), _pu("Wallet", "Faux Leather", False, "Clasp", 3), "wallet", "clasp",
           3),
