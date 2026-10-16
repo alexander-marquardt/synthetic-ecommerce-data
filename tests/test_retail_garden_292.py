@@ -65,6 +65,14 @@ def test_the_garden_department_has_a_product_titled_garden_hose_in_green() -> No
     assert found, "no Garden product whose title holds 'garden hose' offers Green"
 
 
+def test_each_hose_style_is_titled_garden_hose_and_offers_green() -> None:
+    """Per style, not per type: the replay test needs only one."""
+    assert ROWS
+    for row in ROWS:
+        assert re.search(r"\bgarden hose\b", row.title, re.IGNORECASE), row.code
+        assert "Green" in {c[0] for c in row.colors}, row.code
+
+
 def test_the_hoses_are_garden_templates_of_their_own() -> None:
     assert ROWS
     assert {r.path[0] for r in ROWS} == {ROOT}

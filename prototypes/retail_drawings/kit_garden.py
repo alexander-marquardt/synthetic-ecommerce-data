@@ -65,6 +65,7 @@ PARTS = {
     "robot_mower": ("bumper", "wheels", "button"),
     "grass_trimmer": ("handle", "shaft", "engine"),
     "bbq": ("legs", "lid-handle", "shelves"),
+    "garden_hose": ("connectors",),
 }
 
 
@@ -282,11 +283,15 @@ def _tube(d: str, paint: str, width: float) -> str:
     return ink + _line(d, width, stroke=paint)
 
 
-def _fitting(x: float, y: float, w: float, h: float) -> str:
-    """A brass connector: a block with a ridge, centered on ``x, y``."""
-    return (
+def _fitting(x: float, y: float, w: float, h: float, pt: _Part) -> str:
+    """A connector, brass unless a decoy names its color: a block with a ridge, centered on
+    ``x, y``, marked ``data-part="connectors"`` when it is the named part."""
+    block = (
         f'<rect x="{x - w / 2:.1f}" y="{y - h / 2:.1f}" width="{w:.1f}" height="{h:.1f}" rx="3" '
-        f'fill="{BRASS}" stroke="{INK}" stroke-width="2.4"/>'
+        f'fill="{pt.fill("connectors", BRASS)}" stroke="{INK}" stroke-width="2.4"/>'
+    )
+    return (
+        pt.mark("connectors", block)
         + _line(f"M{x:.1f},{y - h / 2:.1f} L{x:.1f},{y + h / 2:.1f}", 2, ' stroke-opacity=".6"')
     )
 
@@ -298,16 +303,20 @@ def _ellipse_d(cx: float, cy: float, rx: float, ry: float) -> str:
     )
 
 
-def garden_hose(paint: str, fill: Fill, label: str | None, style: str = "coiled") -> list[str]:
+def garden_hose(paint: str, fill: Fill, label: str | None, style: str = "coiled",
+                part: str = "", part_color: str = "") -> list[str]:  # fmt: skip
     """A garden hose: ``coiled`` (three loops of a plain hose, one free end with a brass
-    connector) or ``expandable`` (a thin ribbed hose laid in an S with a connector at each end)."""
+    connector) or ``expandable`` (a thin ribbed hose laid in an S with a connector at each end).
+    A decoy that names the connectors' color ("with Green Connectors") passes ``part``
+    ``connectors`` and ``part_color``: every connector is drawn in it and the hose is not."""
+    pt = _Part("garden_hose", part, part_color)
     if style.lower() == "expandable":
         run = "M70,310 C70,230 330,260 330,190 C330,130 120,150 120,100"
         out = [
             _tube(run, paint, 14),
             _line(run, 14, ' stroke-dasharray="2 9" stroke-opacity=".55"', _shade(fill.base, 0.4)),
-            _fitting(70, 322, 30, 26),
-            _fitting(120, 88, 26, 24),
+            _fitting(70, 322, 30, 26, pt),
+            _fitting(120, 88, 26, 24, pt),
             _highlight("M334,200 C340,150 250,150 200,146", 3, 0.5),
         ]
     else:
@@ -316,7 +325,7 @@ def garden_hose(paint: str, fill: Fill, label: str | None, style: str = "coiled"
             out.append(_tube(_ellipse_d(190, 190, rx, ry), paint, 20))
         out += [
             _tube("M62,190 C40,250 70,320 150,330 L300,336", paint, 20),
-            _fitting(318, 336, 28, 30),
+            _fitting(318, 336, 28, 30, pt),
             _line("M334,326 L366,318 M334,346 L366,354", 3),
             _highlight("M80,160 C100,110 150,92 190,98", 4, 0.5),
             _line(_ellipse_d(190, 190, 28, 18), 2, ' stroke-opacity=".4"', _tint(fill.base, 0.2)),

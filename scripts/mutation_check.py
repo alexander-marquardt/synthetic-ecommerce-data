@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import mutation_rows_type_specs  # noqa: E402  (gen#351 rows, kept in their own file)
+import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
 
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "src" / "synthetic_ecommerce_data"
@@ -3878,10 +3878,10 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
-    # ---- retail: one declarative spec per type (gen#351); the rows are in their own file ----
+    # ---- retail: type specs (gen#351) and the garden hose decoys (gen#292); rows in their own files ----
     *(
-        Mutation(f"type specs: {name}", file, old, new, test, "", prop, root=root)
-        for name, file, old, new, test, prop, root in mutation_rows_type_specs.ROWS
+        Mutation(f"{prefix}: {name}", file, old, new, test, "", prop, root=root)
+        for prefix, name, file, old, new, test, prop, root in mutation_rows_garden_hose.ALL
     ),
     # ---- retail: product-word decoys (gen#326) ----
     *(
