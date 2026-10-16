@@ -94,6 +94,10 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     # Bags, umbrellas and jewelry (accessory_rows.py, gen#207): a backpack's capacity, an
     # umbrella's canopy, a necklace's length (item_length), a jewelry SKU's metal.
     "canopy_cm": ("canopy_diameter", "Canopy diameter", "CMT"),
+    # A parasol's canopy is sold in metres, an umbrella's in centimetres: one key, one kind of
+    # value, the unit says which (garden_outdoor specs, gen#203). A furniture set's seats.
+    "canopy_m": ("canopy_diameter", "Canopy diameter", "MTR"),
+    "seats": ("seats", "Seats", "C62"),
     "metal": ("metal", "Metal", None),
     # A building set's sizes, a board game's editions and a craft kit's themes
     # (toys_rows.py, gen#201).

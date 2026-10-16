@@ -4,7 +4,7 @@
 shape               what it draws                               params
 ==================  ==========================================  ======
 kitchen_scales      a flat platform on a body with a dial       none
-greeting_card       a folded card standing open, a heart on it  none
+greeting_card_open  a folded card standing open, a heart on it  none
 gift_card           a flat card with a strip and a ribbon bow   none
 glue_gun            a pistol with a nozzle and a glue stick     none
 caulking_gun        a frame with a cartridge, rod and trigger   none
@@ -34,7 +34,7 @@ def kitchen_scales(paint: str, fill: Fill, label: str | None) -> list[str]:
     return _label(out, label)
 
 
-def greeting_card(paint: str, fill: Fill, label: str | None) -> list[str]:
+def greeting_card_open(paint: str, fill: Fill, label: str | None) -> list[str]:
     """A greeting card standing open on its fold, a heart on the front."""
     dark = _shade(fill.base, 0.3)
     out = [
@@ -92,7 +92,7 @@ def caulking_gun(paint: str, fill: Fill, label: str | None) -> list[str]:
 
 SHAPES = {
     "kitchen_scales": kitchen_scales,
-    "greeting_card": greeting_card,
+    "greeting_card_open": greeting_card_open,
     "gift_card": gift_card,
     "glue_gun": glue_gun,
     "caulking_gun": caulking_gun,
