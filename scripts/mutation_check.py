@@ -26,6 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import mutation_rows_appliance_colors  # noqa: E402  (gen#243 rows)
 import mutation_rows_attribute_text  # noqa: E402  (gen#250 rows, kept in their own file)
 import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
@@ -3917,6 +3918,12 @@ MUTATIONS: list[Mutation] = [
     *(
         Mutation(f"type specs: {name}", file, old, new, test, "", prop, root=root)
         for name, file, old, new, test, prop, root in mutation_rows_type_specs.ROWS
+    ),
+    # ---- retail: appliance colors (gen#243); the rows are in their own file ----
+    *(
+        Mutation(f"appliance colors: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in mutation_rows_appliance_colors.ROWS
     ),
     # ---- retail: one pack_size vocabulary for a count (gen#246); the rows are in their own file ----
     *(
