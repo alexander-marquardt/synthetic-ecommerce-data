@@ -331,6 +331,7 @@ class Row:
     brand: str | None = None
     sibling: str = ""  # a special policy is proved on this sibling query
     target: str = ""  # the Sports & Outdoors product type whose word the title holds (gen#368)
+    gift_type: str = ""  # the Gifts product type whose word the title holds (gen#425)
     sold: int = 2000
 
     @property
@@ -918,6 +919,54 @@ _SPORTS = (
        "Badminton Set"),
 )
 TABLE = (*TABLE, *_SPORTS)
+
+
+def _g(n, kind, title, desc, color, noun, gift_type, query=None, policy="department") -> Row:
+    """A Gifts decoy: another type's product holding the Gifts word (gen#425, the rule of #294)."""
+    cross = KINDS[kind].path[0] not in _CLOTHES
+    return _d(
+        n, kind, title, desc, color, query or noun, noun, policy, cross=cross, gift_type=gift_type
+    )
+
+
+_GIFTS = (
+    # -- mug: a rack for mugs, a cake cooked in one
+    _g(77, "hooks", "Wall Mug Rack, Five Hooks",
+       "A wall rack with five hooks to hang mugs and keep the worktop clear.", "Grey", "mug",
+       "Mug"),
+    _g(78, "cake", "Microwave Mug Cake",
+       "A ready-to-bake sponge in a box, cooked in a mug in ninety seconds.", "Brown", "mug",
+       "Mug"),
+    # -- card: a holder for bank cards, paper for making cards
+    _g(79, "case", "Travel Card Holder Case",
+       "A slim zip case with slots that hold bank cards and travel passes.", "Black", "card",
+       "Greeting Card"),
+    _g(80, "s_wrap", "Card Making Craft Paper",
+       "Sheets of folded paper for making cards and decorations.", "Red", "card",
+       "Greeting Card", policy="category"),
+    # -- notebook: a sleeve and a bag for a notebook computer
+    _g(81, "case", "Notebook Computer Sleeve",
+       "A padded zip sleeve for a notebook computer up to fourteen inches.", "Black", "notebook",
+       "Notebook"),
+    _g(82, "s_tote", "Notebook Carry Tote Bag",
+       "A canvas tote with a padded pocket sized for a notebook computer.", "Grey", "notebook",
+       "Notebook"),
+    # -- money box: a lockable storage box, chocolate coins in a box
+    _g(83, "hat_box", "Lockable Storage Box",
+       "A strong lockable box that keeps money, keys and papers safe.", "Grey", "box",
+       "Money Box", "money box"),
+    _g(84, "biscuit", "Chocolate Money Box",
+       "Milk chocolate coins in shiny foil, packed in a small box.", "Brown", "box",
+       "Money Box", "money box"),
+    # -- hamper: a laundry hamper, a wicker storage hamper
+    _g(85, "wash_bag", "Folding Laundry Hamper",
+       "A collapsible mesh hamper for dirty washing, with two handles.", "White", "hamper",
+       "Gift Hamper"),
+    _g(86, "hat_box", "Wicker Storage Hamper",
+       "A lidded wicker hamper for blankets, toys and spare bedding.", "Brown", "hamper",
+       "Gift Hamper"),
+)  # fmt: skip
+TABLE = (*TABLE, *_GIFTS)
 
 #: kind -> the ordinary products of the type: (title, color, description).
 _F = {
