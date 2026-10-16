@@ -40,6 +40,7 @@ import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their o
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
 import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
 import mutation_rows_sheet_extent  # noqa: E402  (gen#242 rows, kept in their own file)
+import mutation_rows_sofa_bed_223  # noqa: E402  (gen#223 rows, kept in their own file)
 import mutation_rows_underwear_245  # noqa: E402  (gen#245 rows, kept in their own file)
 
 REPO = Path(__file__).resolve().parent.parent
@@ -4040,6 +4041,11 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"pack size: {name}", file, old, new, test, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, test, prop in mutation_rows_pack_size.ROWS
+    ),
+    *(
+        Mutation(f"sofa bed: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in mutation_rows_sofa_bed_223.ROWS
     ),
     *(
         Mutation(f"ring sizes: {name}", file, old, new, tests, "", prop,
