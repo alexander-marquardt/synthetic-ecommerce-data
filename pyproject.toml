@@ -68,7 +68,10 @@ packages = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
+# ``--dist loadgroup`` keeps a module's tests on one worker (``tests/conftest.py`` marks the
+# group): a plain ``-n 2`` would scatter a module over both workers, and each would load the
+# module's fixture (#140). Without ``-n`` it does nothing.
+addopts = "-q --dist loadgroup"
 # Per-test limit in seconds (pytest-timeout), fixture setup included. The
 # slowest test measured runs 46 s locally and the 100k-catalog fixture builds
 # in 31 s, so 300 s leaves room for a slower CI runner and still stops a hang

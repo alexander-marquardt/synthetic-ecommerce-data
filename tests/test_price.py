@@ -13,8 +13,9 @@ from pathlib import Path
 
 import pytest
 
+from shared_builds import KIT, KitSku, hundred_k_prices, recorded_build
 from synthetic_ecommerce_data.core import brands, price
-from synthetic_ecommerce_data.core.config import HUNDRED_K_LINES, GeneratorConfig
+from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import (
     DimensionParseError,
     parse_length,
@@ -28,7 +29,7 @@ from synthetic_ecommerce_data.domains.industrial import (
     price_report,
     tabletype,
 )
-from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
+from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.measure import measure
 from synthetic_ecommerce_data.domains.industrial.price_report import (
     BRAND_ROW,
@@ -48,39 +49,9 @@ def census() -> dict:
     return json.loads(CENSUS_FILE.read_text())
 
 
-KIT = "kit_assortment"
-
-#: One kit SKU as its price was drawn: its shown price, the facts it was
-#: drawn from, and its brand.
-KitSku = tuple[float, dict[str, Attribute], str]
-
-
-def _recorded_build(config: GeneratorConfig) -> tuple[Catalog, list[KitSku]]:
-    """A build, and each kit SKU with the facts its price was drawn from.
-    Those are read as the draw reads them, not off the published record:
-    sparsity may drop a kit's ``Material`` or ``Sizes Included``, and never
-    moves its price."""
-    drawn: dict[str, tuple[dict[str, Attribute], str]] = {}
-    original = Generator._price_draw
-
-    def recording(self, type_key, brand, attributes, line_attributes, sku, sku_u):
-        if type_key == KIT:
-            drawn[sku] = ({a.name: a for a in attributes}, brand)
-        return original(self, type_key, brand, attributes, line_attributes, sku, sku_u)
-
-    Generator._price_draw = recording  # type: ignore[method-assign]
-    try:
-        catalog = generate(config)
-    finally:
-        Generator._price_draw = original  # type: ignore[method-assign]
-    shown = {child.sku: child.price_usd for _, child in catalog.all_skus()}
-    kits = [(shown[sku], *drawn[sku]) for sku in sorted(drawn) if sku in shown]
-    return catalog, kits
-
-
 @pytest.fixture(scope="module")
 def recorded() -> tuple[Catalog, list[KitSku]]:
-    return _recorded_build(GeneratorConfig())
+    return recorded_build(GeneratorConfig())
 
 
 @pytest.fixture(scope="module")
@@ -190,9 +161,7 @@ def test_every_price_row_is_within_its_band_or_pinned_at_the_default_size(price_
         + 2 * len(price.DEEPENED_CENSUS)
     )
     assert len(price_rows) == expected == 72
-    out = [
-        row for row in price_rows if not row.within and row.name not in price.PINNED_SHORTFALLS
-    ]
+    out = [row for row in price_rows if not row.within and row.name not in price.PINNED_SHORTFALLS]
     assert not out, "\n".join(f"{row.name}: {row.achieved:.4f} outside {row.band}" for row in out)
 
 
@@ -555,11 +524,15 @@ def test_the_hex_nut_takes_the_drills_tiers_though_the_census_measures_its_sprea
 def test_only_the_size_noise_types_draw_a_size_noise():
     """A size noise is fitted only for a type SIZE_NOISE gives a reason for."""
     sized = {t for t in price.CENSUS if price.model_for(t).size_sigma}
-    assert sized == set(price.SIZE_NOISE) == {
-        "screw_socket_head",
-        "set_screws_hex_socket",
-        "tap_spiral_point",
-    }
+    assert (
+        sized
+        == set(price.SIZE_NOISE)
+        == {
+            "screw_socket_head",
+            "set_screws_hex_socket",
+            "tap_spiral_point",
+        }
+    )
 
 
 def test_each_familys_tiers_price_in_order(scored):
@@ -1141,15 +1114,16 @@ ROW_NAMES = sorted(
 
 
 @pytest.fixture(scope="module")
-def hundred_k() -> tuple[Catalog, list[KitSku]]:
-    """The 100K build and its kits (about 35 s)."""
-    return _recorded_build(GeneratorConfig(lines=HUNDRED_K_LINES))
+def hundred_k() -> tuple[dict, list[KitSku]]:
+    """The 100K build's price rows by name, and its kits: read from the file every worker
+    shares, so the 1.9 GB catalog is built once and never held here (#140)."""
+    return hundred_k_prices()
 
 
 @pytest.fixture(scope="module")
 def hundred_k_rows(hundred_k) -> dict:
     """Every price row of the 100K build, by name."""
-    return {row.name: row for row in price_report.price_comparisons(hundred_k[0])}
+    return hundred_k[0]
 
 
 def test_the_row_names_are_the_rows_the_default_build_scores(price_rows):
