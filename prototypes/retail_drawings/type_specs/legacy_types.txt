@@ -310,7 +310,6 @@ Lingerie & Nightwear|Shapewear
 Lingerie & Nightwear|Slip
 Lingerie & Nightwear|Tights
 Lingerie & Nightwear|Vest
-Sports & Outdoors|Bike Pumps
 Sports & Outdoors|Camping Chair
 Sports & Outdoors|Dumbbell
 Sports & Outdoors|Foam Roller

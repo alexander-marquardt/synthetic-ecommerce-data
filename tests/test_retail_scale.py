@@ -71,6 +71,7 @@ TOYS_ROWS = FIGURES["templates"]["toys_rows"]["styles"]
 SEASONAL_ROWS = FIGURES["templates"]["seasonal_rows"]["styles"]
 COLORGROUP_ROWS = FIGURES["templates"]["colorgroup_rows"]["styles"]
 MENS_DEPTH_ROWS = FIGURES["templates"]["mens_depth_rows"]["styles"]
+NEEDS_ROWS = FIGURES["templates"]["needs_rows"]["styles"]
 NIKE_ROWS = FIGURES["templates"]["nike_rows"]["styles"]
 TYPE_SPEC_ROWS = FIGURES["templates"]["type_specs"]["styles"]
 LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
@@ -100,6 +101,7 @@ TEMPLATES = (
     + SEASONAL_ROWS
     + COLORGROUP_ROWS
     + MENS_DEPTH_ROWS
+    + NEEDS_ROWS
     + NIKE_ROWS
     + TYPE_SPEC_ROWS
     + DECOY_APPAREL_ROWS
@@ -158,7 +160,9 @@ def ceiling() -> scale.Scaled:
 def ceiling_pairs(ceiling) -> list[tuple[dict[str, Any], dict[str, Any]]]:
     """(derived style, its template) for every derived style of the ceiling build."""
     by_id = {t["product_id"]: t for t in scale.templates()}
-    return [(r, by_id[ceiling.template_of[r["product_id"]]]) for r in ceiling.records[TEMPLATES:]]
+    return [
+        (r, by_id[ceiling.template_of[r["product_id"]]]) for r in ceiling.records[TEMPLATES:]
+    ]
 
 
 def test_the_size_parameter_reaches_the_target_sku_count(built):
@@ -359,10 +363,11 @@ def test_a_swap_reads_the_and_spelling_of_an_ampersand():
 
 def _changed(r: dict[str, Any], t: dict[str, Any]) -> dict[str, tuple[str, str]]:
     new = {a["key"]: str(a["value"]) for a in r["attributes"]}
+    # A derived style may drop an attribute its new form lacks (a flush light's drop, gen#237).
     return {
         a["key"]: (str(a["value"]), new[a["key"]])
         for a in t["attributes"]
-        if a["key"] != "line" and new[a["key"]] != str(a["value"])
+        if a["key"] != "line" and a["key"] in new and new[a["key"]] != str(a["value"])
     }
 
 
@@ -774,6 +779,19 @@ def starved(styles: collections.Counter[str]) -> dict[str, int]:
     return {d: n for d, n in sorted(styles.items()) if n < breadth_rows.DEPARTMENT_FLOOR}
 
 
+#: The lowest value ``breadth_rows.DEPARTMENT_FLOOR`` may take (gen#234). The floor is the only
+#: thing that says how thin a department may get, and the tests below hold departments to
+#: whatever it is, so lowering it (to 0, say) would pass them all. Lowering this number is a
+#: reviewed decision in the diff, not a one-line edit nothing notices.
+MIN_DEPARTMENT_FLOOR = 150
+
+
+def test_the_department_floor_is_not_lowered():
+    """Guard: ``DEPARTMENT_FLOOR`` stays at or above :data:`MIN_DEPARTMENT_FLOOR`."""
+    floor = breadth_rows.DEPARTMENT_FLOOR
+    assert floor >= MIN_DEPARTMENT_FLOOR, f"floor {floor} is under the pinned minimum"
+
+
 def test_every_department_holds_its_floor_of_styles(ceiling):
     """A general retailer sells in every department: at the ceiling, each holds at least
     ``breadth_rows.DEPARTMENT_FLOOR`` styles (``breadth_rows`` keeps it there).
@@ -837,9 +855,9 @@ def test_every_scale_only_row_opens_a_leaf_or_a_title_value_its_leaf_lacked():
                      if a["key"] in ("rise", "wiring")}  # fmt: skip
         assert len(title) == 1, r["product_id"]
         ((key, value),) = title
-        assert r["category_leaf"] not in leaves or (r["category_leaf"], key, value) not in have, r[
-            "product_id"
-        ]
+        assert r["category_leaf"] not in leaves or (r["category_leaf"], key, value) not in have, (
+            r["product_id"]
+        )
         assert (r["category_leaf"], value) not in seen, r["product_id"]
         seen.add((r["category_leaf"], value))
 
@@ -1089,7 +1107,7 @@ ARTICLE_EXCEPTIONS = {
 
 @pytest.mark.parametrize("build", ["built", "ceiling"])
 def test_no_title_or_description_counts_one_of_a_plural(build, request):
-    """ "1 leg lengths": a template with a single length printed a plural after the 1."""
+    """"1 leg lengths": a template with a single length printed a plural after the 1."""
     pattern = re.compile(rf"\b(?:1|one)\s+(?:\w+\s+)?(?:{'|'.join(SINGULAR_PLURALS)})\b", re.I)
     hits = [
         (r["product_id"], m.group(0))
@@ -1101,7 +1119,7 @@ def test_no_title_or_description_counts_one_of_a_plural(build, request):
 
 @pytest.mark.parametrize("build", ["built", "ceiling"])
 def test_every_article_agrees_with_the_word_after_it(build, request):
-    """ "an pointed toe", "a almond toe": a swapped value left its old article behind."""
+    """"an pointed toe", "a almond toe": a swapped value left its old article behind."""
     pattern = re.compile(r"\b(an?)\s+([a-z]+)", re.I)
     wrong = []
     for r in request.getfixturevalue(build).records:

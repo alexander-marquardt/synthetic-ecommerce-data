@@ -1,4 +1,8 @@
-"""Bolts and socket screws publish the pack their shown price is for (#65)."""
+"""Bolts and socket screws publish the pack their shown price is for (#65).
+
+The socket screw's pack is ranked by size; the bolt's is its page's (#86,
+``tests/test_bolt_page_pack.py``).
+"""
 
 from __future__ import annotations
 
@@ -26,6 +30,20 @@ PACKED = {
     "screw_button_head": "screw_socket_head",
     "screw_flat_head": "screw_socket_head",
     "screw_low_head": "screw_socket_head",
+}
+
+
+#: The types whose pack falls as the size grows (:func:`price.pack_quantity`).
+RANKED = ["screw_socket_head"]
+
+
+#: How many SKUs of each packed type the default build publishes a pack on.
+PUBLISHED = {
+    "bolt_hex": 451,
+    "screw_socket_head": 598,
+    "screw_button_head": 263,
+    "screw_flat_head": 327,
+    "screw_low_head": 189,
 }
 
 
@@ -73,19 +91,21 @@ def test_the_drawn_packs_are_the_bolts_and_the_socket_screws():
 @pytest.mark.parametrize("type_key", sorted(PACKED))
 def test_each_packed_type_prices_its_pack_on_the_census_slope(type_key):
     model = price.model_for(type_key)
+    census_type = PACKED[type_key]
     assert model.pack_attribute == "Package Quantity"
-    assert model.pack_slope == price.PACK_SLOPES[PACKED[type_key]]
+    slopes = price.PACK_ELASTICITY if census_type == "bolt_hex" else price.PACK_SLOPES
+    assert model.pack_slope == slopes[census_type]
 
 
 @pytest.mark.parametrize("type_key", sorted(PACKED))
 def test_every_packed_sku_publishes_a_census_pack(packs, type_key):
     census_packs = set(price.PACK_COUNTS[PACKED[type_key]])
     published = [pack for _, pack in packs[type_key]]
-    assert len(published) > 0
+    assert len(published) == PUBLISHED[type_key]
     assert [p for p in published if p is None or int(p) not in census_packs] == []
 
 
-@pytest.mark.parametrize("type_key", sorted(price.PACK_COUNTS))
+@pytest.mark.parametrize("type_key", RANKED)
 def test_the_pack_never_grows_with_the_size(type_key):
     for sizes in (6, 9, 15):
         for u in (0.0, 0.3, 0.7, 0.999):
@@ -93,7 +113,7 @@ def test_the_pack_never_grows_with_the_size(type_key):
             assert drawn == sorted(drawn, reverse=True), (sizes, u, drawn)
 
 
-@pytest.mark.parametrize("type_key", sorted(price.PACK_COUNTS))
+@pytest.mark.parametrize("type_key", RANKED)
 def test_an_even_spread_over_the_sizes_publishes_the_census_counts(type_key):
     """Every size's slice, sampled evenly, gives back each census share to
     within one step of the grid."""
@@ -116,25 +136,22 @@ def test_the_builds_median_pack_is_the_census_median(packs, type_key, census_med
     assert statistics.median_low(published) == census_median
 
 
-def test_the_builds_bolt_pack_falls_as_the_diameter_grows(packs):
-    rows = sorted((key, pack) for key, pack in packs["bolt_hex"] if pack is not None)
-    assert len(rows) == len(packs["bolt_hex"])
+def test_the_builds_socket_screw_pack_falls_as_the_diameter_grows(packs):
+    rows = sorted((key, pack) for key, pack in packs["screw_socket_head"] if pack is not None)
+    assert len(rows) == len(packs["screw_socket_head"])
     third = len(rows) // 3
     small = statistics.median(pack for _, pack in rows[:third])
     large = statistics.median(pack for _, pack in rows[-third:])
-    assert small >= 4 * large, (small, large)
+    assert (small, large) == (100.0, 50.0)
 
 
-#: The bolt's key and length slope as the fit cut them before the pack was
-#: modelled (#58), when the cut stood in for the whole pack.
-PACKLESS_BOLT_CUT = (0.987, 0.347)
-
-
-def test_the_pack_leaves_the_bolt_slopes_cut_less():
-    """The pack carries part of what the cut stood in for, so the fit cuts
-    the census slopes by less than it did with no pack."""
+def test_the_page_pack_leaves_the_bolt_slopes_cut_by_the_aim():
+    """The pack is a page's and adds its own spread, so the fit cuts the
+    census slopes to the aim in ``price.SLOPE_CUT_AIMS`` and no further."""
     model = price.MODELS["bolt_hex"]
-    assert model.slope > PACKLESS_BOLT_CUT[0]
-    assert model.length_slope > PACKLESS_BOLT_CUT[1]
+    assert (model.slope, model.length_slope) == (0.365, 0.128)
     assert model.slope < price.CENSUS["bolt_hex"].slope
-    assert "pack" in price.SLOPE_CUTS["bolt_hex"]
+    assert model.length_slope < price.LENGTH_CENSUS["bolt_hex"].slope
+    assert price.SLOPE_CUT_AIMS == {"bolt_hex": 10.0}
+    assert set(price.SLOPE_CUT_AIMS) <= set(price.SLOPE_CUTS)
+    assert "SLOPE_CUT_AIMS" in price.SLOPE_CUTS["bolt_hex"]
