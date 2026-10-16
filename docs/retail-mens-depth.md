@@ -47,6 +47,13 @@ a brand such as "Black Curlew" is not read as naming a color.
 
 The kit draws three cuts (slim, tailored, regular), so a record of fit `Relaxed` is drawn regular.
 
+Suit Trousers, Waistcoat, Dinner Suit and Formal Accessories are registered through spec files
+(`type_specs/suit_trousers.py`, `waistcoat.py`, `dinner_suit.py`, `formal_accessories.py`, gen#351),
+which read their generated rows and decoys back with `mens_depth_rows.spec_rows` and
+`spec_decoys`; `mens_depth_rows.docs()` leaves them out. Suit Jacket is not yet a spec. A
+one-size accessory states no `size` (the accessory convention, gen#207), so a Formal Accessories
+SKU carries none.
+
 A matching set is a jacket, trousers and waistcoat sharing one `suit_set` name, one brand, one
 cloth (`material`), one fit and the same colors (`mens_depth_rows.SETS`, ten sets). Not yet here:
 the women's trouser suit and the boys' suit (age sizes, two or three pieces), which need the
