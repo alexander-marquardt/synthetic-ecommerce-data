@@ -22,9 +22,11 @@
 #      into it. A conflict in a file the rebuild rewrites (GENERATED) is left
 #      for step 2; any other conflict is refused, for the builder to resolve.
 #   2. rebuilds the committed catalog (ecom-generate build --out golden-catalog)
-#      and commits only GENERATED. A file still conflicted, or any other change
-#      in the tree, is refused. uv runs --locked, so a stale uv.lock is
-#      refused rather than re-locked into the commit.
+#      and the retail totals (prototypes/retail_drawings/retail_figures.py,
+#      golden-retail/stats.json, gen#343), and commits only GENERATED. A file
+#      still conflicted, or any other change in the tree, is refused. uv runs
+#      --locked, so a stale uv.lock is refused rather than re-locked into the
+#      commit.
 #   3. runs the drift, golden and seam tests (CHECKS) on that tree, on several
 #      pytest workers (local_ci_jobs.py --pytest-options, #348), and
 #      refuses a run in which no test passed (pytest exits 0 on all-skipped).
@@ -67,10 +69,10 @@ if [ -n "${MERGE_PR_CHECKS:-}" ]; then
   read -r -a CHECKS <<<"$MERGE_PR_CHECKS"
 fi
 
-#: Exactly the files `ecom-generate build --out golden-catalog` rewrites, so a
-#: conflict in one is resolved by the rebuild. Any other conflict, under
-#: golden-catalog/ or not, goes back to the builder. Pinned to the build by
-#: tests/test_merge_pr.py.
+#: Exactly the files `ecom-generate build --out golden-catalog` and the retail
+#: rebuild (RETAIL_REBUILD) rewrite, so a conflict in one is resolved by a
+#: rebuild. Any other conflict, under golden-catalog/ or not, goes back to the
+#: builder. Pinned to the builds by tests/test_merge_pr.py.
 GENERATED=(
   golden-catalog/flat.jsonl
   golden-catalog/images.jsonl
@@ -79,8 +81,14 @@ GENERATED=(
   golden-catalog/nested.jsonl
   golden-catalog/render.jsonl
   golden-catalog/stats.json
+  golden-retail/stats.json
   src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml
 )
+
+#: The command that rewrites golden-retail/stats.json (gen#162, gen#343). It
+#: is the one retail_figures.py names as REBUILD, which tests/test_merge_pr.py
+#: pins. The retail build is the slower half, about 40 s.
+RETAIL_REBUILD=(python prototypes/retail_drawings/retail_figures.py)
 
 #: The jobs of .github/workflows/ci.yaml, by the check-run name GitHub gives
 #: them. A pull request's commit must carry each REQUIRED_CI check, green; a
@@ -204,6 +212,14 @@ if [ "$build_rc" -ne 0 ]; then
   fi
   die "the build refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
 fi
+# The retail totals (golden-retail/stats.json) move with every retail PR as the
+# catalog's do, and conflict the same way; rebuild them on the same merged tree.
+retail_rc=0
+uv run -q --locked --directory "$work" "${RETAIL_REBUILD[@]}" \
+  >/dev/null 2>"$build_log" || retail_rc=$?
+cat "$build_log" >&2
+[ "$retail_rc" -eq 0 ] ||
+  die "the retail rebuild refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
 if [ -n "$conflicted" ]; then
   while IFS= read -r path; do
     if grep -q '^<<<<<<< ' "$work/$path"; then
