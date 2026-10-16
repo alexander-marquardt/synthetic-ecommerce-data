@@ -4203,6 +4203,62 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: the product types the failure classes need (gen#329) ----
+    # Every name starts "needs rows:", so `--only "needs rows:"` re-runs them.
+    *(
+        Mutation(f"needs rows: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "the derivation copies the needs rows as styles",
+                "scale.py",
+                "| NIKE_IDS | NEEDS_IDS\n",
+                "| NIKE_IDS\n",
+                "tests/test_retail_elasticated_waist_329.py -k every_row_is_a_template",
+                "the needs rows stay templates",
+            ),
+            (
+                "the elastic-waist decoys are filed under cargo trousers",
+                "needs_rows.py",
+                'spread=(("Mens", "Trousers", "Elasticated Waist Trousers"),),',
+                "spread=(),",
+                "tests/test_retail_elasticated_waist_329.py -k decoy_is_a_mens_trouser_true_in_its_fields",
+                "a decoy sits in the leaf its title and fields name",
+            ),
+            (
+                "a product of the leaf states a drawstring waist, not an elastic one",
+                "needs_rows.py",
+                'waist="Elastic", extra_price=2.0)',
+                'waist="Drawstring", extra_price=2.0)',
+                "tests/test_retail_elasticated_waist_329.py -k every_product_in_the_leaf_states_an_elastic_waist",
+                "the attribute says what the title says",
+            ),
+            (
+                "the leaf is drawn with a plain waistband",
+                "mens_depth_rows.py",
+                'params += (("waist", "elasticated"),)',
+                "params += ()",
+                "tests/test_retail_elasticated_waist_329.py -k drawn_with_an_elasticated_waist",
+                "the picture shows the gathered band",
+            ),
+            (
+                "a class 4 decoy states an elastic waist, so it is no near miss",
+                "needs_rows.py",
+                'absent_attrs=(m._a("waist_type", "Waist type", "Belted"),)',
+                'absent_attrs=(m._a("waist_type", "Waist type", "Elastic"),)',
+                "tests/test_retail_elasticated_waist_329.py -k class_4_names_an_elastic",
+                "the word elasticated on a product whose waist is not elastic",
+            ),
+            (
+                "a decoy class is cut to two decoys",
+                "mens_depth_rows.py",
+                "        for i in range(3):\n            w = _MAIN_WORDS",
+                "        for i in range(2):\n            w = _MAIN_WORDS",
+                "tests/test_retail_elasticated_waist_329.py -k three_decoys_of_each_class",
+                "three decoys of each of the seven classes",
+            ),
+        ]
+    ),
     # ---- retail: Nike is a real brand, text only (gen#341) ----
     *(
         Mutation(f"nike: {name}", file, old, new, test, "", prop,

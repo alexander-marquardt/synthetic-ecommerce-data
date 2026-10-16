@@ -9,13 +9,13 @@
    "skus": 12409,
    "styles": 4516
   },
-  "images": 18380,
+  "images": 18434,
   "non_grocery": {
    "skus": 91868,
    "styles": 5530
   },
-  "skus": 132213,
-  "styles": 12804,
+  "skus": 132483,
+  "styles": 12839,
   "top_levels": {
    "Beauty": {
     "skus": 914,
@@ -46,8 +46,8 @@
     "styles": 416
    },
    "Mens": {
-    "skus": 22236,
-    "styles": 1367
+    "skus": 22506,
+    "styles": 1402
    },
    "Sports & Outdoors": {
     "skus": 430,
@@ -531,8 +531,8 @@
    "styles": 53
   },
   "all": {
-   "skus": 71185,
-   "styles": 8329
+   "skus": 71455,
+   "styles": 8364
   },
   "appliance_rows": {
    "skus": 124,
@@ -544,8 +544,8 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 58776,
-   "styles": 3813
+   "skus": 59046,
+   "styles": 3848
   },
   "breadth_rows": {
    "skus": 687,
@@ -598,6 +598,10 @@
   "mens_depth_rows": {
    "skus": 4702,
    "styles": 494
+  },
+  "needs_rows": {
+   "skus": 270,
+   "styles": 35
   },
   "nike_rows": {
    "skus": 916,
