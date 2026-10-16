@@ -1861,6 +1861,26 @@ MUTATIONS: list[Mutation] = [
         'an exemption names its issue',
         root=".",
     ),
+    Mutation(
+        'sports decoys: a later type is added to the exempt set',
+        'prototypes/retail_drawings/decoy_product_words.py',
+        '"Dumbbell", "Kettlebell",\n              "Foam Roller")',
+        '"Dumbbell", "Kettlebell",\n              "Foam Roller", "Kickboard")',
+        'tests/test_retail_sports_decoys_368.py::test_the_exempt_set_is_the_seven_first_increment_types',
+        "",
+        'the exempt set is the seven first-increment types, nothing else',
+        root=".",
+    ),
+    Mutation(
+        'sports decoys: a live type outside the hand-written tuple has one decoy',
+        'prototypes/retail_drawings/decoy_product_words.py',
+        '    _s(68, "s_scooter3", "Kickboard Scooter, Three Wheels",\n       "A kids\' scooter with three wheels and a wide kickboard deck.", "Blue", "kickboard",\n       "Kickboard"),\n',
+        '',
+        'tests/test_retail_sports_decoys_368.py::test_every_live_non_exempt_sports_type_has_at_least_two_decoys',
+        "",
+        'every live non-exempt sports type carries two decoys',
+        root=".",
+    ),
     # ---- the Sports & Outdoors tree note (gen#290) ----
     Mutation(
         "sports note: a Not built row is deleted",

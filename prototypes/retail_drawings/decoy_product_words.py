@@ -887,8 +887,13 @@ _SPORTS = (
     _s(65, "s_dress", "Cap Sleeve Wrap Dress",
        "A midi dress with short cap sleeves and a wrap front.", "Pink", "cap", "Swim Cap"),
     _s(66, "brogue", "Cap Toe Leather Brogues",
-       "Leather brogues with a classic cap toe and a lace-up front.", "Brown", "cap",
-       "Swim Goggles"),
+       "Leather brogues with a classic cap toe and a lace-up front.", "Brown", "cap", "Swim Cap"),
+    _s(67, "s_scooter2", "Kickboard Scooter, Two Wheels",
+       "A folding kids' scooter with a wide kickboard deck and a T-bar.", "Red", "kickboard",
+       "Kickboard"),
+    _s(68, "s_scooter3", "Kickboard Scooter, Three Wheels",
+       "A kids' scooter with three wheels and a wide kickboard deck.", "Blue", "kickboard",
+       "Kickboard"),
     _s(69, "waist", "Running Armband Phone Pouch",
        "A stretch pouch that straps to the upper arm and holds a phone.", "Black", "armband",
        "Swim Armbands"),
@@ -1047,7 +1052,7 @@ IDS = frozenset(f"PLT-{s.code}" for s in STYLES)
 SPORTS_EXEMPT = {
     t: "decoys are tracked in #375"
     for t in ("Tent", "Sleeping Bag", "Camping Chair", "Yoga Mat", "Dumbbell", "Kettlebell",
-              "Foam Roller", "Kickboard")
+              "Foam Roller")
 }  # fmt: skip
 #: product id -> its row (decoy or floor).
 BY_ID = {f"PLT-{r.code}": r for r in ROWS}
