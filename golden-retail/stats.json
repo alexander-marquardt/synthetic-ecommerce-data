@@ -9,16 +9,16 @@
    "skus": 12409,
    "styles": 4516
   },
-  "images": 18012,
+  "images": 18189,
   "non_grocery": {
-   "skus": 90513,
+   "skus": 91868,
    "styles": 5530
   },
-  "skus": 130670,
+  "skus": 132025,
   "styles": 12722,
   "top_levels": {
    "Beauty": {
-    "skus": 928,
+    "skus": 913,
     "styles": 485
    },
    "Cleaning": {
@@ -34,19 +34,19 @@
     "styles": 280
    },
    "Gifts": {
-    "skus": 492,
-    "styles": 336
+    "skus": 493,
+    "styles": 334
    },
    "Home": {
-    "skus": 5854,
-    "styles": 1910
+    "skus": 6025,
+    "styles": 1912
    },
    "Kids": {
-    "skus": 5231,
+    "skus": 5251,
     "styles": 420
    },
    "Mens": {
-    "skus": 21763,
+    "skus": 22282,
     "styles": 1367
    },
    "Sports & Outdoors": {
@@ -54,11 +54,11 @@
     "styles": 22
    },
    "Toys": {
-    "skus": 708,
+    "skus": 712,
     "styles": 440
    },
    "Womens": {
-    "skus": 82658,
+    "skus": 83313,
     "styles": 2723
    }
   }
@@ -70,8 +70,8 @@
   "Food & Drink": 229,
   "Footwear": 453,
   "Garden": 219,
-  "Gifts": 323,
-  "Home": 1659,
+  "Gifts": 321,
+  "Home": 1661,
   "Lingerie & Nightwear": 611,
   "Toys": 384
  },
@@ -523,7 +523,7 @@
   "grocery": 0.0323,
   "grocery_grid_clones": 4,
   "non_grocery": 0.0175,
-  "non_grocery_grid_clone_rate": 0.13
+  "non_grocery_grid_clone_rate": 0.1354
  },
  "templates": {
   "accessory_rows": {
