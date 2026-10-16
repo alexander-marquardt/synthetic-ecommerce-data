@@ -380,6 +380,7 @@ def test_no_record_points_at_an_image_of_a_different_kind_of_product(catalog):
 def test_the_two_measured_image_rates_are_recorded_even_though_neither_is_reproduced():
     """A deviation that is not written down is indistinguishable from a bug."""
     assert SMALL.measured_image_missing == 0.1089
+    assert SMALL.measured_angle_carries_length_unit == 0.0469
     assert SMALL.measured_image_sku_diverges == 0.7353
 
 
