@@ -13,7 +13,13 @@ elastic/prism's (`contributing/file-size-budget.md` there), run on this tree
   per-file size is checked in: the merge base records each one. On the day the
   gate landed three files were over it: `scripts/mutation_check.py` (3,468
   lines), `src/synthetic_ecommerce_data/domains/industrial/generate.py` (2,295)
-  and `README.md` (2,095).
+  and `README.md` (2,095). `generate.py` is no longer one of them: it was
+  split by concern (#266) into `generate.py` (the builders and the build loop,
+  about 1,260 lines), `finishing.py` (line finishing and attribute assembly),
+  `defects.py` (defect injection), `titles.py` (titles and descriptions) and
+  `drafts.py` (the draft shapes and the tables they share). `Generator`
+  inherits one mixin from each of the first three, so every method keeps its
+  name and every importer keeps `from ...industrial.generate import ...`.
 
 Why: an agent looking for one spot in a big file reads a large part of it, and
 what it reads stays in its context for every later step.
@@ -58,6 +64,9 @@ fetched at run time. It sits under `vendor/prism/` with the core modules it
 imports, byte for byte, at the commit `vendor/prism/PIN.txt` names.
 `tests/test_vendored_core_pin_11683.py` refuses a vendored file whose git blob
 id differs from the pinned one, so the copy cannot drift from core in place.
+The same directory holds the customer-name list the
+[customer-name check](customer-name-check.md) reads
+(`.github/scripts/audit_grep_diff.py` and `scripts/invisible_characters.py`).
 `.ignore` hides `vendor/` from search.
 
 ## Resync the vendored gate

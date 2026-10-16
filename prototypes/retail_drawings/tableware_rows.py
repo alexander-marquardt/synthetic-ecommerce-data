@@ -54,7 +54,7 @@ MICROWAVE = _a("microwave_safe", "Microwave safe", "Yes")
 
 
 def _packs(*pairs: tuple[int, float]) -> tuple[tuple[str, float], ...]:
-    return tuple(("Single" if n == 1 else f"Set of {n}", p) for n, p in pairs)
+    return tuple(("Single" if n == 1 else f"{n} pack", p) for n, p in pairs)
 
 
 def _tw(code, title, brand, leaf, ptype, shape, desc, colors, attrs, sizes=(), params=(),

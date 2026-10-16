@@ -22,6 +22,7 @@ RETAIL = ROOT / "prototypes" / "retail_drawings"
 if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
+import decoy_product_words  # noqa: E402
 import export  # noqa: E402
 import scale  # noqa: E402
 import type_registry  # noqa: E402
@@ -88,16 +89,41 @@ def test_every_type_is_registered_through_a_spec_or_the_legacy_list() -> None:
     assert type_registry.registration_problems(built) == []
 
 
-def test_a_spec_type_has_no_row_outside_its_spec_file() -> None:
+def _outside_spec(templates: list[dict]) -> tuple[dict[str, list[str]], set[str]]:
+    """Per spec key the rows registered outside it, and the decoy rows that sit outside one."""
+    decoys = {f"PLT-{r.code}" for r in decoy_product_words.TABLE}  # the decoy rows, not the floor
+    stray: dict[str, list[str]] = {}
+    out_of_spec: set[str] = set()
     for spec in type_registry.specs().values():
         own = type_registry.ids_of(spec)
-        stray = [
-            r["product_id"] for r in scale.templates(baseline=False)
+        mine = [
+            r["product_id"] for r in templates
             if (r["department"][0], r["product_type"]) == (spec.department, spec.product_type)
             and r["product_id"] not in own
             and r["product_id"] not in scale.DECOY_IDS  # gen#311 clones every apparel type
         ]  # fmt: skip
-        assert not stray, f"{spec.key}: rows registered outside its spec: {stray}"
+        # a class-8 product-word decoy (gen#326) is another type's title on purpose,
+        # e.g. the black bike pump that stands in for "black pumps" (gen#368)
+        out_of_spec |= {i for i in mine if i in decoys}
+        stray[spec.key] = [i for i in mine if i not in decoys]
+    return stray, out_of_spec
+
+
+def test_a_spec_type_has_no_row_outside_its_spec_file() -> None:
+    stray, out_of_spec = _outside_spec(scale.templates(baseline=False))
+    assert not any(stray.values()), f"rows registered outside their spec: {stray}"
+    # the one decoy that shares a spec type's name: the black bike pump stands in for "black pumps"
+    assert out_of_spec == {"PLT-DY37"}, out_of_spec
+
+
+def test_a_floor_row_added_to_a_spec_type_is_a_stray_row() -> None:
+    """The exemption is the decoy rows alone: an ordinary floor product is not one."""
+    templates = scale.templates(baseline=False)
+    pump = next(r for r in templates if r["product_id"] == "PLT-DY37")
+    floor = next(r for r in decoy_product_words.FLOOR)
+    planted = {**pump, "product_id": f"PLT-{floor.code}"}
+    stray, _ = _outside_spec([*templates, planted])
+    assert planted["product_id"] in sum(stray.values(), [])
 
 
 @pytest.mark.parametrize("key", sorted(type_registry.specs()))
