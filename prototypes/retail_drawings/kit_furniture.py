@@ -52,7 +52,7 @@ def _knob(cx: float, cy: float, r: float = 4.5) -> str:
 def _grain(x: float, y: float, w: float, h: float, base: str) -> str:
     """Faint wood-grain strokes across a panel, in a shade of its own finish."""
     rows = " ".join(f"M{x + 6:.1f},{y + h * t:.1f} Q{x + w / 2:.1f},{y + h * t + 3:.1f} {x + w - 6:.1f},{y + h * t:.1f}" for t in (0.3, 0.55, 0.8))
-    return _line(rows, 0.9, ' stroke-opacity=".25"', _shade(base, 0.35))
+    return _line(rows, 0.9, ' class="grain" stroke-opacity=".25"', _shade(base, 0.35))
 
 
 def _legs(xs: list[float], top: float, bottom: float, paint: str, w: float = 10) -> list[str]:
@@ -71,7 +71,7 @@ def _chair_back(x: float, y: float, w: float, h: float, paint: str) -> list[str]
     return [_rect(x, y, w, h, paint, LW_DETAIL, rx=6), _line(f"M{x + 6:.1f},{y + h * 0.5:.1f} L{x + w - 6:.1f},{y + h * 0.5:.1f}", 1.0, ' stroke-opacity=".5"')]
 
 
-def dining_table(paint: str, fill: Fill, label: str | None, outline: str = "rectangular", seats: str = "4", extending: str = "no") -> list[str]:
+def dining_table(paint: str, fill: Fill, label: str | None, outline: str = "rectangular", seats: str = "4", extending: str = "no", top: str = "oak") -> list[str]:
     """A dining table and its ``seats`` chair backs: half behind the top, the rest at its ends.
 
     ``outline`` sets the top's outline (round and oval are ellipses, rectangular a slab); an
