@@ -396,8 +396,8 @@ def test_the_committed_color_search_preselects_the_navy_skus_and_counts_products
     ]
 
 
-def test_the_readme_table_is_the_committed_proofs() -> None:
-    readme = (HERE.parents[1] / "README.md").read_text(encoding="utf-8")
+def test_the_retail_page_table_is_the_committed_proofs() -> None:
+    readme = (HERE.parents[1] / "docs" / "retail-prototype.md").read_text(encoding="utf-8")
     assert rc.markdown(PROOF, CORPUS) in readme
 
 

@@ -1,7 +1,7 @@
 # Retail catalog batch 1: ingredient base, text-match decoys, grocery nodes
 
-The README is over the file-size cap and may not grow, so the facts this batch adds
-to the retail prototype are here. Each section names the issue, the data and the test
+The retail prototype's own reference is [retail-prototype.md](retail-prototype.md); the
+facts this batch adds to it are here. Each section names the issue, the data and the test
 that pins it.
 
 ## Base ingredients (gen#295)
@@ -197,3 +197,14 @@ oranges re-tune on the loaded catalogue (flavour decoys, variety titles on the f
 A decoy can appear on the page of a neighbouring query: "black pepper" ranks trainers and a shirt
 with black parts at 2 to 4, "pink lady apples" has a pink bra at 2 and "green tea" has Thai Green
 Curry at 6. These are true text matches, left in on purpose.
+
+## Text-match decoys on every clothing, footwear and lingerie type (gen#311)
+
+The #294 decoys cover the demo queries. `prototypes/retail_drawings/decoy_apparel.py` plants the
+same kind of decoy on every product type of the Womens, Mens and Kids clothing, footwear and
+lingerie, in seven classes (a color word naming a part, another category's noun as a modifier, an
+audience word of a sibling version, a material the product does not hold, a shade only in the
+description, a range name holding a color or category word, an invented brand holding one). The
+structured fields stay true, so a plain text search is misled and the color, category and audience
+policies, which read the fields, are right. The generated table of every row, with its policy, is
+[retail-apparel-decoys.md](retail-apparel-decoys.md).

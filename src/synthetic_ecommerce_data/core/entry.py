@@ -34,6 +34,7 @@ STRUCTURAL_NAMES = frozenset(
         "sku",
         "product_id",
         "product_type",
+        "product_type_label",
         "title",
         "description",
         "parent_title",
