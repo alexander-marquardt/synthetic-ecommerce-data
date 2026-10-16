@@ -36,7 +36,7 @@ SPEC = TypeSpec(
     product_type="Body Mist",
     rows=ROWS,
     decoys=(
-        Decoy(4, "vanilla body mist", "vocabulary", decoy("BMD1", "Vanilla Cap Floral Body Mist", "A floral mist in a bottle with a vanilla-coloured cap.", ROWS[0])),
+        Decoy(4, "vanilla body mist", "vocabulary", decoy("BMD1", "Vanilla Cap Floral Body Mist", "A floral mist in a bottle with a vanilla-colored cap.", ROWS[0])),
         Decoy(6, "vanilla body mist", "generic", decoy("BMD2", "Vanilla Bay Floral Body Mist", "From the Vanilla Bay range: a floral mist.", ROWS[0])),
         Decoy(7, "vanilla body mist", "generic", decoy("BMD3", "Floral Body Mist", "A light floral mist.", ROWS[0], brand="Vanilla Wren")),
     ),
