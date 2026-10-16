@@ -17,6 +17,7 @@ RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawing
 if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
+import decoy_rows  # noqa: E402
 import export  # noqa: E402
 import kit  # noqa: E402
 import kit_seating  # noqa: E402
@@ -29,6 +30,10 @@ SHAPES = ("sofa_seats", "corner_sofa", "chaise_sofa")
 
 def _boxes(row: sofa_rows.Row, monkeypatch: pytest.MonkeyPatch) -> list[kit_seating.Box]:
     """The blocks a style's drawing is made of, as :func:`kit_seating._draw` receives them."""
+    return _boxes_of(row.shape, dict(row.params), monkeypatch)
+
+
+def _boxes_of(shape: str, params: dict, monkeypatch: pytest.MonkeyPatch) -> list[kit_seating.Box]:
     seen: list[list[kit_seating.Box]] = []
     real = kit_seating._draw
 
@@ -37,7 +42,7 @@ def _boxes(row: sofa_rows.Row, monkeypatch: pytest.MonkeyPatch) -> list[kit_seat
         return real(boxes, paint, fill, extra)
 
     monkeypatch.setattr(kit_seating, "_draw", spy)
-    kit.render(row.shape, kit.Fill("solid", "#123456", "#654321"), params=dict(row.params))
+    kit.render(shape, kit.Fill("solid", "#123456", "#654321"), params=params)
     return seen[-1]
 
 
@@ -66,6 +71,28 @@ def test_the_chaise_docs_describe_the_back_the_drawing_gives_it() -> None:
     assert drawn  # it draws at all
     for text in (kit_seating.__doc__, kit_seating.chaise_sofa.__doc__):
         assert "no back" not in " ".join(text.split())
+
+
+@pytest.mark.parametrize("side", ["left", "right"])
+def test_the_chaise_has_its_back_along_the_whole_rear(
+    side: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    boxes = _boxes_of("chaise_sofa", {"seats": "3", "side": side}, monkeypatch)
+    ks = kit_seating
+    frame = [b for b in boxes if (b.y0, b.y1, b.z1) == (ks.BASE, ks.BACK - 6, ks.DEPTH)]
+    backs = [b for b in boxes if (b.y1, b.z1) == (kit_seating.BACK, kit_seating.DEPTH - 14)]
+    assert len(frame) == 1
+    assert (min(b.x0 for b in frame), max(b.x1 for b in frame)) in ((0.0, 180.0), (-180.0, 0.0))
+    assert len(backs) == 3  # a back cushion per seat, the chaise end's too
+    assert max(b.x1 for b in backs) - min(b.x0 for b in backs) > 175.0
+
+
+@pytest.mark.parametrize("kind", [k for k in decoy_rows.KINDS.values() if k.shape == "corner_sofa"])
+def test_every_corner_sofa_decoy_draws_a_run_beside_its_corner_and_return(
+    kind: decoy_rows.Kind, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    boxes = _boxes_of(kind.shape, dict(kind.params), monkeypatch)
+    assert _seat_cushions(boxes) > 3  # a bare corner seat and a two-seat return is no corner sofa
 
 
 def _depth(entries: list[dict]) -> list[dict]:
