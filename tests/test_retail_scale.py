@@ -235,6 +235,27 @@ def test_few_styles_share_a_results_grid_tile_at_the_ceiling(ceiling):
     assert rate <= CEILING_GRID_CLONES, f"{shared} of {len(main)} styles ({rate:.1%})"
 
 
+#: The Plates leaf's own grid-clone share the ceiling build may reach (gen#229). A derived
+#: plate keeps its kind and diameter and varies in a material the picture does not show, so a
+#: template with one colorway drew the same tile at the same price: a "white dinner plate"
+#: grid showed identical tiles, a third of the leaf. The leaf has its own cap so the
+#: catalog-wide :data:`CEILING_GRID_CLONES` headroom is not spent on it again.
+PLATES_GRID_CLONES = 0.15
+
+
+def test_plates_mostly_draw_a_tile_of_their_own(ceiling):
+    """A results grid of plates shows the leaf, the hero picture and the price; a style that
+    shares all three with another plate reads as a clone whatever its material.
+
+    Guard: this test. Metric: the Plates leaf's grid-clone share, in the failure message."""
+    plates = [r for r in scale.derivable(ceiling.records) if r["category_leaf"] == "Plates"]
+    assert plates, "the ceiling build holds no Plates styles"
+    tiles = collections.Counter(scale.grid_tile(r) for r in plates)
+    shared = sum(n for n in tiles.values() if n > 1)
+    rate = shared / len(plates)
+    assert rate <= PLATES_GRID_CLONES, f"{shared} of {len(plates)} plates ({rate:.1%})"
+
+
 #: The grocery grid-clone share the ceiling build may reach, with a 2-point margin over the
 #: measured count in the figures; it was 96.6% (gen#154).
 GROCERY_GRID_CLONES = 0.02
