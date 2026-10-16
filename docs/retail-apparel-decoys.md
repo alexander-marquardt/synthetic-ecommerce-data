@@ -1443,3 +1443,25 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA59700 | School Shirt | 7 invented brand holding a color or category word | Yellow Wagtail School Shirt | yellow | yellow school shirt | generic |
 | PLT-DA59701 | School Shirt | 7 invented brand holding a color or category word | White Dormouse School Shirt | white | white school shirt | generic |
 | PLT-DA59702 | School Shirt | 7 invented brand holding a color or category word | Green Stoat School Shirt | green | green school shirt | generic |
+| PLT-DSKNITTED_TOP100 | Knitted Top | 1 color names a part | Knitted Top with White Hem | white | white knitted top | generic |
+| PLT-DSKNITTED_TOP101 | Knitted Top | 1 color names a part | Knitted Top with Red Hem | red | red knitted top | generic |
+| PLT-DSKNITTED_TOP102 | Knitted Top | 1 color names a part | Knitted Top with Yellow Hem | yellow | yellow knitted top | generic |
+| PLT-DSKNITTED_TOP200 | Knitted Top | 2 another category's noun as a modifier | Black Blazer Knitted Top | blazer | blazer | generic |
+| PLT-DSKNITTED_TOP201 | Knitted Top | 2 another category's noun as a modifier | Black Trouser Knitted Top | trouser | trouser | generic |
+| PLT-DSKNITTED_TOP202 | Knitted Top | 2 another category's noun as a modifier | Blue Gilet Knitted Top | gilet | gilet | generic |
+| PLT-DSKNITTED_TOP300 | Knitted Top | 3 audience word of a sibling version | Brown Womens Fit Knitted Top | womens | womens knitted top | generic |
+| PLT-DSKNITTED_TOP301 | Knitted Top | 3 audience word of a sibling version | Cream Girls Fit Knitted Top | girls | girls knitted top | generic |
+| PLT-DSKNITTED_TOP302 | Knitted Top | 3 audience word of a sibling version | Pink Girls Fit Knitted Top | girls | girls knitted top | generic |
+| PLT-DSKNITTED_TOP400 | Knitted Top | 4 material or feature named but absent | Cream Leather-Look Knitted Top | leather | leather knitted top | special: material claim |
+| PLT-DSKNITTED_TOP401 | Knitted Top | 4 material or feature named but absent | Green Suede-Look Knitted Top | suede | suede knitted top | special: material claim |
+| PLT-DSKNITTED_TOP402 | Knitted Top | 4 material or feature named but absent | White Cashmere-Feel Knitted Top | cashmere | cashmere knitted top | special: material claim |
+| PLT-DSKNITTED_TOP500 | Knitted Top | 5 shade spelled in the description only | Moonbeam Knitted Top | ivory | ivory knitted top | generic |
+| PLT-DSKNITTED_TOP501 | Knitted Top | 5 shade spelled in the description only | Driftwood Knitted Top | taupe | taupe knitted top | generic |
+| PLT-DSKNITTED_TOP502 | Knitted Top | 5 shade spelled in the description only | Dune Knitted Top | beige | beige knitted top | generic |
+| PLT-DSKNITTED_TOP600 | Knitted Top | 6 incidental word in a range name | Green Hollow Knitted Top | green | green knitted top | generic |
+| PLT-DSKNITTED_TOP601 | Knitted Top | 6 incidental word in a range name | White Cliff Knitted Top | white | white knitted top | generic |
+| PLT-DSKNITTED_TOP602 | Knitted Top | 6 incidental word in a range name | Blue Cove Knitted Top | blue | blue knitted top | generic |
+| PLT-DSKNITTED_TOP603 | Knitted Top | 6 incidental word in a range name | Jacket Quay Knitted Top | jacket | jacket | generic |
+| PLT-DSKNITTED_TOP700 | Knitted Top | 7 invented brand holding a color or category word | Coat Crake Knitted Top | coat | coat knitted top | generic |
+| PLT-DSKNITTED_TOP701 | Knitted Top | 7 invented brand holding a color or category word | Green Stoat Knitted Top | green | green knitted top | generic |
+| PLT-DSKNITTED_TOP702 | Knitted Top | 7 invented brand holding a color or category word | Coat Crake Knitted Top | coat | coat knitted top | generic |
