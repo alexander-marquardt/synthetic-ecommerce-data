@@ -113,6 +113,16 @@ MUTATIONS: list[Mutation] = [
         "only the exact file name is masked",
         root=".",
     ),
+    Mutation(
+        "commit msg: the mask is applied to every row, not the vendor-name row alone",
+        "scripts/check_commit_msg.py",
+        "pattern.search(masked if label == _MASKED_LABEL else text)",
+        "pattern.search(masked)",
+        "tests/test_commit_msg_check.py -k names-file",
+        "B",
+        "a shape row still reads the file name as the tool named",
+        root=".",
+    ),
     # ---- the local CI runs the suite on several workers, bounded by memory (gen#348) ----
     Mutation(
         "ci workers: the emitted steps stop carrying the xdist options",
