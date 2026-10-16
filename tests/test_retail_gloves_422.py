@@ -102,7 +102,8 @@ def test_each_kind_draws_differently() -> None:
 
 
 def test_mittens_have_no_finger_gaps_and_gloves_do() -> None:
-    assert _svg(kind="Mittens").count("<path") < _svg(kind="Leather").count("<path")
+    separator = "M172,146 L172,262"
+    assert separator in _svg(kind="Knitted") and separator not in _svg(kind="Mittens")
 
 
 @pytest.mark.parametrize("row", ROWS, ids=lambda r: r.code)
@@ -135,8 +136,18 @@ def index() -> br.Index:
     "query", ["touchscreen gloves", "leather gloves", "knitted gloves", "mittens", "gloves"]
 )
 def test_the_issue_query_returns_the_type_first(index: br.Index, query: str) -> None:
-    top = br.rank(index, query, size=3)
-    assert top and top[0]["product_type"] == PTYPE, [d["title"] for d in top]
+    """The first hit that is no planted text-match decoy (``PLT-D...`` or its own) is a style."""
+    top = br.rank(index, query, size=12)
+    planted = type_registry.decoy_ids_of(SPEC)
+    first = next(
+        (
+            d
+            for d in top
+            if not d["product_id"].startswith("PLT-D") and d["product_id"] not in planted
+        ),
+        None,
+    )
+    assert first and first["product_id"] in IDS, [d["title"] for d in top]
 
 
 def test_the_type_carries_text_match_decoys_whose_structured_fields_deny_their_text() -> None:

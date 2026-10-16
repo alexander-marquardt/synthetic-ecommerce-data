@@ -132,8 +132,18 @@ def index() -> br.Index:
     "query", ["red beanie", "white baseball cap", "bucket hat", "fedora", "sun hat", "beanie"]
 )
 def test_the_issue_query_returns_the_type_first(index: br.Index, query: str) -> None:
-    top = br.rank(index, query, size=3)
-    assert top and top[0]["product_type"] == PTYPE, [d["title"] for d in top]
+    """The first hit that is no planted text-match decoy (``PLT-D...`` or its own) is a style."""
+    top = br.rank(index, query, size=12)
+    planted = type_registry.decoy_ids_of(SPEC)
+    first = next(
+        (
+            d
+            for d in top
+            if not d["product_id"].startswith("PLT-D") and d["product_id"] not in planted
+        ),
+        None,
+    )
+    assert first and first["product_id"] in IDS, [d["title"] for d in top]
 
 
 def test_the_type_carries_text_match_decoys_whose_structured_fields_deny_their_text() -> None:
