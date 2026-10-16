@@ -617,6 +617,20 @@ def pack_draw(seed: int, type_key: str, line: str) -> float:
     return random.Random(f"{seed}:pack:{type_key}:{line}").random()
 
 
+#: Stub (red commit): the elasticity the bolt prices a within-size pack on.
+PACK_ELASTICITY: dict[str, float] = {"bolt_hex": PACK_SLOPES["bolt_hex"]}
+
+
+def page_pack(type_key: str, u: float) -> int:
+    """Stub (red commit)."""
+    return 100
+
+
+def page_pack_draw(seed: int, type_key: str, brand: str, held: Iterable[tuple[str, str]]) -> float:
+    """Stub (red commit)."""
+    return 0.5
+
+
 #: A breadth category the census measured that is now a modelled type: its
 #: census n and shown-price (p10, p50, p90), the same
 #: ``breadth_categories.<key>`` figures. Its own fitted model is scored on the
