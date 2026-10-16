@@ -47,7 +47,8 @@ FIGURES = committed()
 #: the toys (``toys_rows``, gen#201), then the lower-body styles (``lowerbody_rows``, gen#206), then
 #: the lighting rows (``lighting_rows``, gen#197), then the seasonal, color and character rows
 #: (``seasonal_rows``, gen#195), then the near-white apparel and main-color bras
-#: (``colorgroup_rows``, gen#302), then the grocery styles (``grocery.build()``, gen#154), last: no
+#: (``colorgroup_rows``, gen#302), then the type specs (``type_specs/``, gen#351), then the
+#: grocery styles (``grocery.build()``, gen#154), last: no
 #: style derives from a shirt, a seating style, a household style, an appliance, an underwear style,
 #: a toy, a lower-body style, a lighting style, a seasonal style or a grocery style. The plain
 #: styles of ``main_colors`` (gen#275) sit between the seasonal rows and the grocery styles.
@@ -60,6 +61,8 @@ PRODUCT_WORD_ROWS = FIGURES["templates"]["decoy_product_words"]["styles"]
 SHIRT_ROWS = FIGURES["templates"]["shirt_rows"]["styles"]
 ACCESSORY_ROWS = FIGURES["templates"]["accessory_rows"]["styles"]
 SPORTS_ROWS = FIGURES["templates"]["sports_rows"]["styles"]
+GARDEN_ROWS = FIGURES["templates"]["garden_rows"]["styles"]
+SCHOOL_ROWS = FIGURES["templates"]["school_rows"]["styles"]
 SOFA_ROWS = FIGURES["templates"]["sofa_rows"]["styles"]
 HOUSEHOLD_ROWS = FIGURES["templates"]["household_rows"]["styles"]
 LOWERBODY_ROWS = FIGURES["templates"]["lowerbody_rows"]["styles"]
@@ -68,6 +71,8 @@ TOYS_ROWS = FIGURES["templates"]["toys_rows"]["styles"]
 SEASONAL_ROWS = FIGURES["templates"]["seasonal_rows"]["styles"]
 COLORGROUP_ROWS = FIGURES["templates"]["colorgroup_rows"]["styles"]
 MENS_DEPTH_ROWS = FIGURES["templates"]["mens_depth_rows"]["styles"]
+NIKE_ROWS = FIGURES["templates"]["nike_rows"]["styles"]
+TYPE_SPEC_ROWS = FIGURES["templates"]["type_specs"]["styles"]
 LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
 PLAIN_ROWS = FIGURES["templates"]["plain_rows"]["styles"]
 GROCERY_ROWS = FIGURES["templates"]["grocery"]["styles"]
@@ -83,6 +88,8 @@ TEMPLATES = (
     + SHIRT_ROWS
     + ACCESSORY_ROWS
     + SPORTS_ROWS
+    + GARDEN_ROWS
+    + SCHOOL_ROWS
     + SOFA_ROWS
     + HOUSEHOLD_ROWS
     + APPLIANCE_ROWS
@@ -93,6 +100,8 @@ TEMPLATES = (
     + SEASONAL_ROWS
     + COLORGROUP_ROWS
     + MENS_DEPTH_ROWS
+    + NIKE_ROWS
+    + TYPE_SPEC_ROWS
     + DECOY_APPAREL_ROWS
     + PLAIN_ROWS
     + GROCERY_ROWS
