@@ -3677,6 +3677,27 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: school uniform, the record names the drawing it draws (gen#205) ----
+    *(
+        Mutation(f"school uniform: {name}", "school_rows.py", old, new_, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, old, new_, test, prop in [
+            (
+                "every skirt is drawn at knee length",
+                '("length", length.lower())))  # fmt: skip',
+                '("length", "knee")))  # fmt: skip',
+                "tests/test_retail_school_205.py -k a_skirt_draws_the_folds",
+                "a skirt's drawing carries the length its record states",
+            ),
+            (
+                "every pinafore is drawn as a pinafore",
+                '(("style", style.lower().replace(" ", "_")),))  # fmt: skip',
+                '(("style", "pinafore"),))  # fmt: skip',
+                "tests/test_retail_school_205.py -k a_pinafore_row_draws",
+                "a pinafore's drawing carries the style its record states",
+            ),
+        ]
+    ),
     # ---- retail: text-match decoys on every clothing type (gen#311) ----
     *(
         Mutation(f"apparel decoys: {name}", file, old, new, test, "", prop,
