@@ -112,3 +112,4 @@ dumbbells, kettlebells, foam rollers) are exempt until #375. The prototype's plu
 | card | card | PLT-DT04 | Plastic Gift Card | Gift Card | department |
 | gun | gun | PLT-DT05 | Hot Glue Gun | Glue Gun | department |
 | gun | gun | PLT-DT06 | Caulking Gun | Caulking Gun | department |
+| card | card | PLT-DT07 | Christmas Gift Card | Gift Card | department |

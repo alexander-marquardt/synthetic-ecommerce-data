@@ -10,7 +10,7 @@ draws them and `toys_play_common.py` holds the shared helpers. None is derived: 
 | Play Kitchen | Toys > Pretend Play > Play Kitchens | sink, oven door | color (eight) | height (cm), material, sink, oven door, lights and sounds |
 | Dolls' House | Toys > Dolls & Accessories > Dolls' Houses | wood or plastic, rooms, floors | style (four finishes) | rooms, floors, furniture included, material |
 | Card Game | Toys > Games > Card Games | family, party, strategy | edition (standard, travel, deluxe) | minimum and maximum players, play time (minutes) |
-| Marble Run | Toys > Construction > Marble Runs | wood or plastic, tiers | piece count | material, age range |
+| Marble Run | Toys > Building & Construction > Marble Runs | wood or plastic, tiers | piece count | material, age range |
 | Water Gun | Toys > Outdoor Toys > Water Toys | pistol, blaster, backpack | color (eight) | tank capacity (ml), range (m) |
 
 The six together build 150 or more SKUs. A kite, a play kitchen and a water gun offer the six
