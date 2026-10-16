@@ -54,7 +54,9 @@ def test_a_type_names_itself_and_sits_in_the_shoes_category(ptype: str) -> None:
     docs = _of(ptype)
     assert docs, ptype
     for d in docs:
-        assert d["category_path"][1:] == ["Shoes", ptype], d["product_id"]
+        # a platform trainer nests under Trainers: a sibling is beside its head noun (gen#283)
+        want = ["Shoes", "Trainers", ptype] if ptype == "Platform Trainers" else ["Shoes", ptype]
+        assert d["category_path"][1:] == want, d["product_id"]
         assert d["category_leaf"] == ptype
         assert d["department"][0] == "Footwear"
         assert fw.TYPES[next(k for k, v in fw.TYPES.items() if v[0] == ptype)][3] == TYPES[ptype][0]
@@ -102,6 +104,8 @@ def _svg(**params: str) -> str:
         ("clog", "strap", ("back", "none")),
         ("clog", "body", ("wood", "eva")),
         ("mule", "heel", ("flat", "block")),
+        ("mule", "heel", ("kitten", "block")),
+        ("mule", "heel", ("flat", "kitten")),
         ("mule", "toe", ("open", "closed")),
         ("espadrille", "heel", ("flat", "wedge")),
         ("jelly", "style", ("sandal", "ballet")),
@@ -135,6 +139,14 @@ def test_a_drawing_param_agrees_with_the_attribute_it_draws() -> None:
             assert p["heel"] == attrs["heel_type"].lower(), d["product_id"]
         if d["product_type"] == "Clogs":
             assert (p["strap"] == "back") == (attrs["strap"] == "Back strap"), d["product_id"]
+            assert p["body"] == attrs["material"].lower(), d["product_id"]
+        if d["product_type"] == "Espadrilles":
+            assert p["heel"] == attrs["heel_type"].lower(), d["product_id"]
+        if d["product_type"] == "Jelly Shoes":
+            want = (attrs["jelly_style"].lower(), attrs["glitter"].lower())
+            assert (p["style"], p["glitter"]) == want, d["product_id"]
+        if d["product_type"] == "Barefoot Shoes":
+            assert float(p["sole"]) == float(attrs["sole_thickness"]), d["product_id"]
 
 
 def test_the_new_types_are_counted_with_the_rest_of_the_footwear() -> None:
