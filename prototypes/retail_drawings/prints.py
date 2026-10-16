@@ -265,7 +265,7 @@ LINES: tuple[Line, ...] = (
              Print("drill", "placement", ORANGE, (("Black", BLACK),),
                    description="A large cordless drill graphic on a black tee."),
              Print("wrench", "placement", STEEL, (("Navy", NAVY),),
-                   description="One big spanner graphic on a navy tee: the wrench, front and centre."),
+                   description="One big spanner graphic on a navy tee: the wrench, front and center."),
              Print("screw", "placement", STEEL, (("White", WHITE),),
                    description="A single oversized screw graphic on a white tee."),
              Print("screwdriver", "placement", ORANGE, (("Grey", GREY),),
