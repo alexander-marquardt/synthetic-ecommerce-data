@@ -83,7 +83,7 @@ catalog (`docs/adding-a-type.md`); a retail product id is `BRD-<row code>`, one 
 | `prototypes/retail_drawings/main_colors.py` | `EXCEPTIONS`: one line with a reason, only when the color IS the material (cut flowers, steel cutlery); `complete()` otherwise adds a missing main color as copied SKUs. |
 | `prototypes/retail_drawings/tree_guard.py` | Read only: the rules the category path must meet (the type nests under its generic node; no sibling whose label is a word-suffix of another). |
 | `prototypes/retail_drawings/decoy_product_words.py` | Class 8 (gen#326): a product of another department whose title holds the shopper's word, one `_s(...)` row per decoy and a `KINDS` entry when its product is not there yet. |
-| `prototypes/retail_drawings/garden_rows.py` | Where the Garden department keeps its decoys (gen#294); another department keeps them in its own `*_rows.py`. |
+| `prototypes/retail_drawings/garden_rows.py` | Where the Garden department keeps its decoys (gen#294): add the new type's `_QUERY` and `_ABSENT` entries (its query words and the absent word its decoys carry); another department keeps them in its own `*_rows.py`. |
 | `prototypes/retail_drawings/retail_figures.py` | Run it, never edit it: it rewrites the two generated files below. |
 | `golden-retail/stats.json` | The measured figures of the build; generated, goes in the commit. |
 | `docs/retail-apparel-decoys.md` | The apparel decoy table; generated, goes in the commit even when your type is not apparel. |
@@ -93,7 +93,7 @@ catalog (`docs/adding-a-type.md`); a retail product id is `BRD-<row code>`, one 
 | `tests/test_retail_main_colors_275.py` | Run, do not edit: it lists every color-bearing type that lacks a main color without an exception. |
 | `tests/test_retail_tree_nesting_283.py` | Run, do not edit: it runs the rules of `tree_guard.py` over the built tree. |
 | `tests/test_retail_figures_162.py` | Run, do not edit: it holds `golden-retail/stats.json` to a fresh measurement. |
-| `tests/test_retail_sports_265.py` | Run, do not edit: the Sports department's checks (every type has its range, draws its own shape, carries the six main colors, reaches the scaled build). |
+| `tests/test_retail_sports_265.py` | Add the new type to `KEYS` and `AXES` in this file (a copied type reds two ids until it is there): the Sports department's checks (every type has its range, draws its own shape, carries the six main colors, reaches the scaled build). |
 | `tests/test_retail_sports_decoys_368.py` | The decoy census of Sports & Outdoors: a type with fewer than two decoys and no `SPORTS_EXEMPT` entry reds. Garden's is `tests/test_retail_garden_203.py` (`-k at_least_three_decoys`). |
 | `scripts/mutation_rows_<topic>.py` | New file: one row per planted defect in the decoys, the drawing or the rule, each naming the test that must go red; import it where `scripts/mutation_check.py` imports its siblings. |
 
@@ -144,7 +144,8 @@ module and feeds the scaled build; nothing is added to the legacy list.
 
 `tests/test_retail_type_specs_351.py tests/test_retail_main_colors_275.py
 tests/test_retail_tree_nesting_283.py tests/test_retail_figures_162.py
-tests/test_retail_drawing_honesty.py tests/test_retail_product_word_decoys_326.py`, your own test
+tests/test_retail_drawing_honesty.py tests/test_retail_product_word_decoys_326.py
+tests/test_retail_sports_265.py`, your own test
 file, and the department's census (`tests/test_retail_sports_decoys_368.py` or
 `tests/test_retail_garden_292.py`). `tests/test_new_type_quick_path_428.py` fails when a file named
 on this page is renamed or removed: fix the page in the same pull request.
