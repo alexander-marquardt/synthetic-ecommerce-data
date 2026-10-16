@@ -345,7 +345,7 @@ BASEBALL_GLOVES = (
 
 BASEBALLS = (
     _row("BBLLTH", "Leather Match Baseball", _W, (*_BASEBALL, "Baseballs"), "Baseball", 6.0, "baseball",
-         "A cork-centred ball in a stitched leather cover, for match play and hard batting practice.",
+         "A cork-centered ball in a stitched leather cover, for match play and hard batting practice.",
          _NEUTRAL, (_a("cover", "Cover", "Leather"), _a("level", "Level", "Match"), _a("sold_as", "Sold as", "Single")),
          (), "size", (("cover", "leather"),)),
     _row("BBLPRC", "Soft Synthetic Practice Baseballs", _L, (*_BASEBALL, "Baseballs"), "Baseball", 14.0, "baseball",
