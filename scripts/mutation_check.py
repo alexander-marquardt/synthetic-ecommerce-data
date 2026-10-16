@@ -4214,6 +4214,44 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: a jigsaw's finished size is two CMT entries (gen#261) ----
+    *(
+        Mutation(f"jigsaw size: {name}", "toys_rows.py", old, new,
+                 "tests/test_retail_toys_201.py -k jigsaws_finished_size", "", prop,
+                 root="prototypes/retail_drawings")
+        for name, old, new, prop in [
+            (
+                "the length is no longer in centimeters",
+                'return (key, name, str(v), "CMT", float(v * 10))  # canonical length is millimeters\n\n\ndef _jig',
+                'return (key, name, str(v), "MMT", float(v * 10))  # canonical length is millimeters\n\n\ndef _jig',
+                "a size carries its unit code",
+            ),
+            (
+                "the canonical value is not in millimeters",
+                'return (key, name, str(v), "CMT", float(v * 10))  # canonical length is millimeters\n\n\ndef _jig',
+                'return (key, name, str(v), "CMT", float(v))  # canonical length is millimeters\n\n\ndef _jig',
+                "a size carries its canonical value",
+            ),
+            (
+                "the width entry is dropped",
+                '_cm("item_length", "Item length", length), _cm("item_width", "Item width", width),',
+                '_cm("item_length", "Item length", length),',
+                "length and width are both entries",
+            ),
+            (
+                "the width entry repeats the length",
+                '_cm("item_width", "Item width", width),',
+                '_cm("item_width", "Item width", length),',
+                "the width entry is the width",
+            ),
+            (
+                "the text says another size than the entries",
+                'f"{length} x {width} cm"',
+                'f"{width} x {width} cm"',
+                "the text and the entries state one size",
+            ),
+        ]
+    ),
 ]
 
 

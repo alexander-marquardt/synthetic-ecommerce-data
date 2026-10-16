@@ -178,9 +178,19 @@ BUILDING_SETS = (
 _JIG = (_T, "Puzzles", "Jigsaw Puzzles")
 
 
-def _jig(n: int, theme: str, age: str, size: str, line: str | None = None, brand: str = _P):
+def _cm(key: str, name: str, v: int) -> tuple[str, str, str, str, float]:
+    return (key, name, str(v), "CMT", float(v * 10))  # canonical length is millimeters
+
+
+def _jig(n: int, theme: str, age: str, size: tuple[int, int], line: str | None = None,
+         brand: str = _P):  # fmt: skip
+    """A jigsaw's finished size is its length and width, two ``CMT`` entries a filter or a
+    sort can use (gen#261), and the text a shopper reads ("49 x 36 cm"), from the same two."""
+    length, width = size
     return (_count("piece_count", "Piece count", n), _a("theme", "Theme", theme), _age(age),
-            _a("finished_size", "Finished size", size), *(_line(line, brand) if line else ()))  # fmt: skip
+            _a("finished_size", "Finished size", f"{length} x {width} cm"),
+            _cm("item_length", "Item length", length), _cm("item_width", "Item width", width),
+            *(_line(line, brand) if line else ()))  # fmt: skip
 
 
 def _jp(n: int, theme: str, line: str | None = None) -> tuple[tuple[str, str], ...]:
@@ -191,37 +201,37 @@ JIGSAWS = (
     TRow("JIG024", "Driftwhistle Bay 24 Piece Floor Puzzle", _K, _T, _JIG, "Jigsaw Puzzle",
          10.0, "jigsaw", "Big, thick pieces that make a harbour scene with the Driftwhistle "
          "Bay whale, sized for the floor. For ages 3 and up.",
-         (TEAL,), _jig(24, "Seaside", "3+ years", "60 x 40 cm", "Driftwhistle Bay", _K),
+         (TEAL,), _jig(24, "Seaside", "3+ years", (60, 40), "Driftwhistle Bay", _K),
          audience=KIDS, colorless=True, params=_jp(24, "seaside", "Driftwhistle Bay")),
     TRow("JIG035", "Rumblesaur Ridge 35 Piece Jigsaw Puzzle", _P, _T, _JIG, "Jigsaw Puzzle",
          8.0, "jigsaw", "The Rumblesaur Ridge gang by their volcano, in sturdy card pieces. "
          "For ages 4 and up.",
-         (GREEN,), _jig(35, "Dinosaurs", "4+ years", "40 x 28 cm", "Rumblesaur Ridge"),
+         (GREEN,), _jig(35, "Dinosaurs", "4+ years", (40, 28), "Rumblesaur Ridge"),
          audience=KIDS, colorless=True, params=_jp(35, "dinosaurs", "Rumblesaur Ridge")),
     TRow("JIG048", "Moonmoth Rangers 48 Piece Jigsaw Puzzle", _P, _T, _JIG, "Jigsaw Puzzle",
          9.0, "jigsaw", "The Rangers' rocket over a cratered moon, with a poster of the "
          "finished picture in the box. For ages 5 and up.",
-         (NAVY,), _jig(48, "Space", "5+ years", "48 x 34 cm", "Moonmoth Rangers"),
+         (NAVY,), _jig(48, "Space", "5+ years", (48, 34), "Moonmoth Rangers"),
          audience=KIDS, colorless=True, params=_jp(48, "space", "Moonmoth Rangers")),
     TRow("JIG100", "World Map 100 Piece Jigsaw Puzzle", _L, _T, _JIG, "Jigsaw Puzzle", 11.0,
          "jigsaw", "A bright map of the continents and oceans with the animals that live "
          "there. For ages 6 and up.",
-         (BLUE,), _jig(100, "Maps", "6+ years", "49 x 36 cm"), audience=KIDS, colorless=True,
+         (BLUE,), _jig(100, "Maps", "6+ years", (49, 36)), audience=KIDS, colorless=True,
          params=_jp(100, "maps")),
     TRow("JIG500", "Harbour Village 500 Piece Jigsaw Puzzle", _K, _T, _JIG, "Jigsaw Puzzle",
          14.0, "jigsaw", "Painted cottages around a busy harbour at sunset, cut in a classic "
          "grid. For ages 10 and up.",
-         (ORANGE,), _jig(500, "Landscapes", "10+ years", "49 x 36 cm"), audience=KIDS,
+         (ORANGE,), _jig(500, "Landscapes", "10+ years", (49, 36)), audience=KIDS,
          colorless=True, params=_jp(500, "landscapes")),
     TRow("JIG1KA", "Alpine Lake 1000 Piece Jigsaw Puzzle", _P, _T, _JIG, "Jigsaw Puzzle",
          16.0, "jigsaw", "Snowy peaks reflected in a still lake, on thick blue-backed board "
          "with a linen finish. For ages 12 and up.",
-         (BLUE,), _jig(1000, "Landscapes", "12+ years", "68 x 49 cm"), audience=ADULT,
+         (BLUE,), _jig(1000, "Landscapes", "12+ years", (68, 49)), audience=ADULT,
          colorless=True, params=_jp(1000, "landscapes")),
     TRow("JIG1KB", "Night Sky 1000 Piece Jigsaw Puzzle", _L, _T, _JIG, "Jigsaw Puzzle", 16.0,
          "jigsaw", "Stars, planets and a crescent moon on a deep blue sky, a slow, absorbing "
          "puzzle. For ages 12 and up.",
-         (NAVY,), _jig(1000, "Space", "12+ years", "68 x 49 cm"), audience=ADULT,
+         (NAVY,), _jig(1000, "Space", "12+ years", (68, 49)), audience=ADULT,
          colorless=True, params=_jp(1000, "space")),
 )  # fmt: skip
 
