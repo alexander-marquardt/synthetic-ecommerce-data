@@ -10,7 +10,6 @@ from __future__ import annotations
 
 _R = "prototypes/retail_drawings"
 _T = "tests/test_retail_toys_depth_424.py"
-_D = "tests/test_retail_product_word_decoys_326.py"
 
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
@@ -60,20 +59,38 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "the glue gun's title drops the word gun",
-        "decoy_product_words.py",
-        '_t(5, "t_glue", "Hot Glue Gun",',
-        '_t(5, "t_glue", "Hot Glue Tool",',
-        f"{_D} -k every_title_is_short_and_holds_the_noun",
+        "type_specs/glue_gun.py",
+        '5, "Hot Glue Gun",',
+        '5, "Hot Glue Tool",',
+        f"{_T} -k toy_word_decoy and glue_gun",
         "a class-8 decoy holds the shopper's noun",
         _R,
     ),
     (
         "the kitchen scales sit in the play kitchen's leaf",
-        "decoy_product_words.py",
-        '"t_scales": Kind("Home", ("Home", "Kitchen & Dining", "Kitchen Scales")',
-        '"t_scales": Kind("Home", ("Home", "Kitchen & Dining", "Play Kitchens")',
-        f"{_D} -k fields_say_the_product_is_not_what_the_noun_names",
+        "type_specs/kitchen_scales.py",
+        '("Home", "Kitchen & Dining", "Kitchen Scales"), "Kitchen Scales"',
+        '("Home", "Kitchen & Dining", "Play Kitchens"), "Kitchen Scales"',
+        f"{_T} -k toy_word_decoy and kitchen_scales",
         "a class-8 decoy never sits in the node of the product its noun names",
+        _R,
+    ),
+    (
+        "a gift card decoy is moved into the Toys department",
+        "type_specs/gift_card.py",
+        '"Red", GIFTS, "Gifts", ("Gifts", "Cards", "Gift Cards")',
+        '"Red", GIFTS, "Toys", ("Toys", "Cards", "Gift Cards")',
+        f"{_T} -k toy_word_decoy and gift_card",
+        "a class-8 decoy sits outside the Toys department",
+        _R,
+    ),
+    (
+        "the registry refuses a class-8 decoy",
+        "type_registry.py",
+        "DECOY_CLASSES = range(1, 9)",
+        "DECOY_CLASSES = range(1, 8)",
+        f"{_T} -k toy_word_decoy and greeting_card",
+        "a spec may carry a class-8 decoy",
         _R,
     ),
 ]

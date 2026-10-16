@@ -157,7 +157,7 @@ def _bad_specs() -> dict[str, type_registry.TypeSpec]:
         "duplicate row code": replace(good, rows=(row, row)),
         "brand with no owner": replace(good, rows=(replace(row, brand="Nobody & Sons"),)),
         "decoy of an unknown class": replace(
-            good, decoys=(type_registry.Decoy(8, "q", "p", replace(row, code="DCYZZ")),)),
+            good, decoys=(type_registry.Decoy(9, "q", "p", replace(row, code="DCYZZ")),)),
         "decoy sharing a row code": replace(
             good, decoys=(type_registry.Decoy(1, "q", "p", row),)),
     }  # fmt: skip

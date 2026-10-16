@@ -84,6 +84,15 @@ DECOYS = {
     "card game": {"Greeting Card", "Gift Card"},
     "water gun": {"Glue Gun", "Caulking Gun"},
 }
+#: spec key -> (the toy word its class-8 decoys hold, the Toys leaf that word names).
+DECOY_SPECS = {
+    "kitchen_roll": ("kitchen", "Play Kitchens"),
+    "kitchen_scales": ("kitchen", "Play Kitchens"),
+    "greeting_card": ("card", "Card Games"),
+    "gift_card": ("card", "Card Games"),
+    "glue_gun": ("gun", "Water Toys"),
+    "caulking_gun": ("gun", "Water Toys"),
+}
 SPECS = type_registry.specs()
 
 
@@ -255,3 +264,19 @@ def test_the_toys_department_answers_the_query_with_the_intended_type(query, ind
 def test_an_unfiltered_ranking_puts_a_decoy_beside_the_answer(query, index) -> None:
     got = {h["product_type"] for h in br.rank(index, query, 10)}
     assert got & DECOYS[query], got
+
+
+@pytest.mark.parametrize("key", DECOY_SPECS)
+def test_a_toy_word_decoy_is_a_class_8_row_of_its_spec_outside_the_toys_department(key) -> None:
+    """The decoy is the spec's own row (gen#351), titled with the toy word and sold in a leaf that
+    is not the Toys leaf the word names, so the department policy drops it."""
+    word, leaf = DECOY_SPECS[key]
+    spec = _spec(key)
+    assert spec.decoys, key
+    for d in spec.decoys:
+        assert d.cls == 8 and d.query == word, (d.row.code, d.cls, d.query)
+        assert word in re.findall(r"[a-z]+", d.row.title.lower()), d.row.title
+        assert d.row.path[0] == d.row.department != ROOT, d.row.path
+        assert leaf not in d.row.path, d.row.path
+        assert (d.row.department, d.row.product_type) == (spec.department, spec.product_type)
+        assert d.row.code.startswith("DT"), d.row.code

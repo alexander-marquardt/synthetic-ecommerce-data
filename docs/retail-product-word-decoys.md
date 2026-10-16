@@ -106,10 +106,3 @@ dumbbells, kettlebells, foam rollers) are exempt until #375. The prototype's plu
 | tennis | tenni | PLT-DY74 | Crystal Tennis Bracelet | Bracelet | department |
 | badminton | badminton | PLT-DY75 | Badminton Club T-Shirt | Tee | department |
 | badminton | badminton | PLT-DY76 | Badminton Club Tote Bag | Tote Bag | department |
-| kitchen | kitchen | PLT-DT01 | Kitchen Roll, Pack of 6 | Kitchen Roll | department |
-| kitchen | kitchen | PLT-DT02 | Digital Kitchen Scales | Kitchen Scales | department |
-| card | card | PLT-DT03 | Birthday Greeting Card | Greeting Card | department |
-| card | card | PLT-DT04 | Plastic Gift Card | Gift Card | department |
-| gun | gun | PLT-DT05 | Hot Glue Gun | Glue Gun | department |
-| gun | gun | PLT-DT06 | Caulking Gun | Caulking Gun | department |
-| card | card | PLT-DT07 | Christmas Gift Card | Gift Card | department |

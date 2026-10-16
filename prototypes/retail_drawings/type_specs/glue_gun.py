@@ -1,13 +1,13 @@
 """Glue Gun (gen#424): the ordinary type behind the toy-word decoys of "gun".
 
-One authored product; the decoy rows of :mod:`decoy_product_words` hold the shopper's word.
+One authored product; the class-8 decoys (gen#326) hold the shopper's word.
 Not derivable.
 """
 
 from __future__ import annotations
 
 from type_registry import TypeSpec, a
-from word_decoy_types import HOME, plain
+from word_decoy_types import HOME, plain, word_decoy
 
 SPEC = TypeSpec(
     key="glue_gun",
@@ -28,6 +28,14 @@ SPEC = TypeSpec(
                 a("power_source", "Power source", "Mains"),
                 a("material", "Material", "Plastic"),
             ),
+        ),
+    ),
+    decoys=(
+        word_decoy(
+            5, "Hot Glue Gun",
+            "A trigger fed gun that melts glue sticks for crafts and repairs.",
+            "Grey", HOME, "Home", ("Home", "DIY & Car", "Glue Guns"),
+            "Glue Gun", "glue_gun", 14.0, "gun",
         ),
     ),
 )
