@@ -22,12 +22,7 @@ import re
 import decoy_apparel
 import decoy_product_words
 import decoy_rows
-
-#: The baseline: plain color -> swatch hex (the color word is also the swatch family).
-MAIN_COLORS = {
-    "Red": "#c8322b", "Blue": "#2f6db5", "Green": "#3c8d4f", "Yellow": "#f2c230",
-    "Black": "#2a2a2e", "White": "#ffffff",
-}  # fmt: skip
+from main_color_hex import MAIN_COLORS
 
 #: product_type -> why its color is its material or natural finish (the only way out).
 EXCEPTIONS = {
