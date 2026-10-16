@@ -1,6 +1,6 @@
 """Marble run (gen#424): wooden and plastic marble runs, sold by piece count.
 
-**Toys > Construction > Marble Runs**: five styles from three invented brands, drawn by
+**Toys > Building & Construction > Marble Runs**: five styles from three invented brands, drawn by
 :func:`kit_toys_play.marble_run`. The material and the age range are structured entries; the
 SKUs are the piece count (``piece_count``, a counted entry on every SKU) on one shared box
 drawing that prints no count. A marble run has no color selector. Not derivable.
@@ -12,7 +12,7 @@ import kit_toys_play  # noqa: F401 -- registers marble_run
 from toys_play_common import EIGHT, FERNBY, PIPWICK, PUDDLE, age, kind, sizes, style
 from type_registry import Row, TypeSpec, a
 
-_PATH = ("Toys", "Construction", "Marble Runs")
+_PATH = ("Toys", "Building & Construction", "Marble Runs")
 
 
 def _run(code: str, title: str, brand: str, material: str, tiers: int, years: str, desc: str,

@@ -956,6 +956,8 @@ _TOYS = (
        "A trigger fed gun that melts glue sticks for crafts and repairs.", "Grey", "gun"),
     _t(6, "t_caulk", "Caulking Gun",
        "A frame gun that squeezes sealant from a cartridge along a joint.", "Grey", "gun"),
+    _t(7, "t_giftcard", "Christmas Gift Card",
+       "A festive card that holds a balance to spend in the shop.", "Red", "card"),
 )
 TABLE = (*TABLE, *_TOYS)
 

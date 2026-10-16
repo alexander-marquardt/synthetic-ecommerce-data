@@ -54,7 +54,8 @@ TYPES = {
                  "play_time": None, "age_range": None},
         turn=("kind", "family", "party"), colored=False),
     "marble_run": dict(
-        path=("Toys", "Construction", "Marble Runs"), ptype="Marble Run", axis="piece_count",
+        path=("Toys", "Building & Construction", "Marble Runs"), ptype="Marble Run",
+        axis="piece_count",
         entries={"toy_type": None, "material": None, "age_range": None},
         turn=("tiers", "3", "4"), colored=False),
     "water_gun": dict(
