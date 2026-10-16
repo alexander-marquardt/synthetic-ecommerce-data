@@ -290,18 +290,21 @@ STEAK_WARE = (
           (*KD, "Plates"), 16.0, "A cast-iron plate that keeps a steak sizzling at the table, "
           "on a wooden stand. Heat it first, then season it with oil after washing by hand.",
           "Plate", "plate", one(CAST, 60),
-          extra=(("plate_type", "Plate type", "Serving Platter"),),
+          extra=(("plate_type", "Plate type", "Serving Platter"),
+                 ("material", "Material", "Cast Iron")),
           params=(("kind", "serving platter"), ("diameter", "30"), ("finish", "cast iron"))),
     Style("DSK09", "Steak Serving Board with Juice Groove", "Lanternby", "Home",
           (*KD, "Chopping Boards"), 19.0, "An acacia wood board for carving and serving a "
           "steak, with a groove round the edge that catches the juices. Hand wash.",
           "Chopping Board", "chopping_board", one(WOODEN, 50),
+          extra=(("material", "Material", "Wood"),),
           params=(("material", "wood"),)),
     Style("DSK10", "Cast Iron Steak Weight", "Calderby & Lune", "Home", (*KD, "Kitchen Utensils"),
           14.0, "A ribbed cast-iron grill press that keeps a steak flat in the pan so it sears "
           "evenly, with a wooden handle that stays cool. Hand wash and oil after use.",
           "Kitchen Utensil", "grill_press", one(CAST, 40),
-          extra=(("utensil_type", "Utensil type", "Grill Press"),)),
+          extra=(("utensil_type", "Utensil type", "Grill Press"),
+                 ("material", "Material", "Cast Iron"))),
 )
 
 STYLES = (*MORE_TOPPERS, *PROTECTORS, *MATTRESSES, *PILLOW_PROTECTORS, *BARRELS,
