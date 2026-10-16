@@ -50,10 +50,15 @@ def attr(key: str, name: str, value, unit_code: str | None = None, canonical=Non
     return a
 
 
-def drawing(shape: str, color: Color, label: str | None = None, **params) -> dict:
+def drawing(shape_name: str, color: Color, label: str | None = None, **params) -> dict:
+    """A drawing document: the shape it draws, its color and label, and the shape's ``params``.
+
+    The first parameter is ``shape_name``, not ``shape``, so a param of the shape named
+    ``shape`` (a skirt's A-line, pleated, ...) passes through ``params`` (gen#259).
+    """
     _, pattern, base, accent = color
     out = {
-        "shape": shape,
+        "shape": shape_name,
         "pattern": pattern,
         "base": base,
         "accent": accent,
@@ -66,8 +71,8 @@ def drawing(shape: str, color: Color, label: str | None = None, **params) -> dic
 
 
 #: The SKU fields that are a size, one per size system, in selector order.
-SIZE_KEYS = ("size", "size_uk", "size_eu", "size_us", "length", "inside_leg", "waist",
-             "bed_size", "width", "height")  # fmt: skip
+SIZE_KEYS = ("size", "size_uk", "size_eu", "size_us", "ring_size_uk", "ring_size_us", "length",
+             "inside_leg", "waist", "bed_size", "width", "height")  # fmt: skip
 
 
 def swatch(color: Color, family: str | None = None) -> dict:
@@ -528,7 +533,8 @@ BEDDING = (
                _PLAIN, BEDS, (("thread_count", "Thread Count", "200"),)),
     ShallowRow("COVPRT", "Bedding", "Printed Cotton Duvet Cover", "Brackenmere Home",
                ("Home", "Bedding", "Duvet Covers"), 34.0, "duvet",
-               "Soft washed cotton in a woven print, with a button closure.",
+               "Soft washed cotton in woven stripe, gingham and spot designs, with a button "
+               "closure.",
                (cw("Ticking Stripe", "#ffffff", "stripe", "#26365c"),
                 cw("Red Gingham", "#ffffff", "gingham", "#c8312e"),
                 cw("Navy Spot", "#26365c", "polka", "#ffffff")),
