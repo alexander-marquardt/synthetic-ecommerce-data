@@ -24,6 +24,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -134,6 +135,10 @@ MSG
     done
   fi
   if [ -n "${FAKE_UV_SKIP_BUILD:-}" ]; then exit 0; fi
+  if [ -n "${FAKE_UV_SKIP_BUILD_ONCE:-}" ] && [ ! -e "$FAKE_GH_LOG.skipped" ]; then
+    touch "$FAKE_GH_LOG.skipped"
+    exit 0
+  fi
 fi
 if [[ " $* " == *retail_figures.py* ]]; then
   # The retail rebuild takes about 40 s: only a case about it runs the real one.
@@ -878,6 +883,182 @@ def test_without_the_flag_or_the_variable_github_is_still_what_is_waited_for(wor
     assert done.returncode == 0, done.stderr
     assert "local CI" not in done.stdout
     assert _ci_reads(world)
+
+
+# -- a local CI red that is only a stale golden is regenerated, not handed back (#440) --
+
+_FRESH = "tests/test_catalog_golden.py::test_committed_file_matches_a_fresh_build"
+_EXACTLY_FRESH = (
+    "tests/test_catalog_golden.py::test_golden_directory_holds_exactly_the_build_output"
+)
+_RETAIL_FRESH = (
+    "tests/test_retail_figures_162.py::test_the_committed_figures_are_what_the_build_measures"
+)
+
+#: A ``tests`` job that is red the way the golden freshness test is: it prints the
+#: pytest summary line of that test unless golden-catalog/stats.json is main's.
+_STALE_UNLESS_MAINS = (
+    "git show origin/main:golden-catalog/stats.json | cmp -s - golden-catalog/stats.json"
+    f' || {{ echo "FAILED {_FRESH}[stats.json] - differs"; exit 1; }}'
+)
+_OTHER_JOBS = {
+    "commit-messages": "true",
+    "file-size": "true",
+    "red-commit-proof": "true",
+    "customer-name-check": "true",
+}
+
+
+def _stale_golden_pr(world: dict, tests_job: str) -> str:
+    """A PR whose golden is stale and whose first rebuild on the merged tree does
+    nothing (``FAKE_UV_SKIP_BUILD_ONCE``): the red the local CI sees is the
+    freshness test's, after step 2 had its chance."""
+    stats = world["checkout"] / _STATS
+    stale = stats.read_text().replace('"lines": ', '"lines": 1', 1)
+    plant = {**_GREEN, _STATS: stale, **_workflow(tests=tests_job, **_OTHER_JOBS)}
+    return _open_pr(world, plant)
+
+
+def _subject(world: dict, rev: str) -> str:
+    return _git(world["origin"], "log", "-1", "--format=%s", rev)
+
+
+def test_a_local_ci_red_that_is_only_the_golden_freshness_test_is_regenerated_and_merged(
+    world: dict,
+) -> None:
+    head = _stale_golden_pr(world, _STALE_UNLESS_MAINS)
+    done = _run(
+        world, head, _GREEN_CHECK, "--local-ci", "--label", "lbl", FAKE_UV_SKIP_BUILD_ONCE="1"
+    )
+    assert done.returncode == 0, done.stdout + done.stderr
+    pushed = _branch(world)
+    assert _subject(world, pushed) == "regenerate golden on main"
+    changed = _git(world["origin"], "show", "--stat", "--format=", "--name-only", pushed).split()
+    assert changed == [_STATS], changed
+    assert _git(world["origin"], "show", f"{pushed}:{_STATS}") == _git(
+        world["origin"], "show", f"main:{_STATS}"
+    )
+    assert done.stdout.count("local CI tests: FAIL") == 1
+    assert done.stdout.count("local CI tests: PASS") == 1
+    # The merge is of the regenerated commit, and the first run's log is kept.
+    assert world["log"].read_text().split()[-1] == pushed
+    assert "FAILED" in (world["log"].parent / "lbl-tests.log.before-regenerate").read_text()
+    assert _ci_reads(world) == []
+
+
+def test_a_local_ci_red_on_the_golden_freshness_and_another_test_is_not_regenerated(
+    world: dict,
+) -> None:
+    tests_job = _STALE_UNLESS_MAINS.replace(
+        "exit 1", "echo FAILED tests/test_other.py::test_x; exit 1"
+    )
+    head = _stale_golden_pr(world, tests_job)
+    done = _run(world, head, _GREEN_CHECK, "--local-ci", FAKE_UV_SKIP_BUILD_ONCE="1")
+    assert done.returncode != 0
+    assert "local CI is red" in done.stderr
+    assert done.stdout.count("local CI tests:") == 1, "the suite was run a second time"
+    assert _subject(world, _branch(world)) != "regenerate golden on main"
+    assert not _merged(world)
+
+
+def test_a_local_ci_red_on_another_test_alone_is_not_regenerated(world: dict) -> None:
+    head = _stale_golden_pr(world, 'echo "FAILED tests/test_other.py::test_x - boom"; exit 1')
+    done = _run(world, head, _GREEN_CHECK, "--local-ci", FAKE_UV_SKIP_BUILD_ONCE="1")
+    assert done.returncode != 0
+    assert done.stdout.count("local CI tests:") == 1
+    assert _subject(world, _branch(world)) != "regenerate golden on main"
+    assert not _merged(world)
+
+
+def test_a_red_with_no_pytest_failure_line_is_not_taken_for_a_stale_golden(world: dict) -> None:
+    head = _stale_golden_pr(world, "exit 1")
+    done = _run(world, head, _GREEN_CHECK, "--local-ci", FAKE_UV_SKIP_BUILD_ONCE="1")
+    assert done.returncode != 0
+    assert done.stdout.count("local CI tests:") == 1
+    assert not _merged(world)
+
+
+def test_a_freshness_red_beside_a_red_job_that_is_not_pytest_is_not_regenerated(
+    world: dict,
+) -> None:
+    stats = world["checkout"] / _STATS
+    stale = stats.read_text().replace('"lines": ', '"lines": 1', 1)
+    jobs = {**_OTHER_JOBS, "file-size": "echo too big; exit 1"}
+    plant = {**_GREEN, _STATS: stale, **_workflow(tests=_STALE_UNLESS_MAINS, **jobs)}
+    head = _open_pr(world, plant)
+    done = _run(world, head, _GREEN_CHECK, "--local-ci", FAKE_UV_SKIP_BUILD_ONCE="1")
+    assert done.returncode != 0
+    assert "local CI file-size: FAIL" in done.stdout
+    assert _subject(world, _branch(world)) != "regenerate golden on main"
+    assert not _merged(world)
+
+
+def test_a_golden_that_is_still_red_after_the_regeneration_is_regenerated_once_only(
+    world: dict,
+) -> None:
+    always = f'echo "FAILED {_FRESH}[stats.json] - differs"; exit 1'
+    head = _stale_golden_pr(world, always)
+    done = _run(world, head, _GREEN_CHECK, "--local-ci", FAKE_UV_SKIP_BUILD_ONCE="1")
+    assert done.returncode != 0
+    assert "after the golden regeneration" in done.stderr
+    assert done.stdout.count("local CI tests: FAIL") == 2
+    assert not _merged(world)
+    assert _subject(world, _branch(world)) != "regenerate golden on main", (
+        "a regenerated tree that is still red was pushed"
+    )
+
+
+def test_a_freshness_red_a_rebuild_does_not_change_is_not_merged(world: dict) -> None:
+    """The generator is nondeterministic, or the test is red for another reason."""
+    always = f'echo "FAILED {_FRESH}[stats.json] - differs"; exit 1'
+    head = _stale_golden_pr(world, always)
+    done = _run(world, head, _GREEN_CHECK, "--local-ci", FAKE_UV_SKIP_BUILD="1")
+    assert done.returncode != 0
+    assert "a rebuild changes nothing" in done.stderr
+    assert not _merged(world)
+
+
+def test_a_dry_run_regenerates_the_golden_but_pushes_and_merges_nothing(world: dict) -> None:
+    head = _stale_golden_pr(world, _STALE_UNLESS_MAINS)
+    done = _run(world, head, _GREEN_CHECK, "--dry-run", "--local-ci", FAKE_UV_SKIP_BUILD_ONCE="1")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert done.stdout.count("local CI tests: PASS") == 1
+    assert "dry run: would push" in done.stdout
+    assert _branch(world) == head
+    assert not _merged(world)
+
+
+def test_the_freshness_tests_are_real_tests_of_the_golden_files() -> None:
+    """A renamed freshness test would silently turn the regeneration off."""
+    printed = subprocess.run(
+        [str(SCRIPT), "--print-freshness"], capture_output=True, text=True, check=False
+    )
+    assert printed.returncode == 0, printed.stderr
+    named = printed.stdout.splitlines()
+    assert sorted(named) == sorted([_FRESH, _EXACTLY_FRESH, _RETAIL_FRESH]), named
+    collected = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            "--collect-only",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "-n",
+            "0",
+            *named,
+        ],
+        cwd=REPO,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert collected.returncode == 0, collected.stdout + collected.stderr
+    for node in named:
+        assert node in collected.stdout or f"{node}[" in collected.stdout, (
+            f"{node} is not collected"
+        )
 
 
 # -- the one parser: every workflow job has a local equivalent ---------------
