@@ -31,6 +31,8 @@ style that changes the value redraws it (:func:`scale.derive`). ``usb_port``, ``
 
 from __future__ import annotations
 
+import re
+
 import kit_lighting  # noqa: F401 -- registers the lighting shapes
 from breadth_rows import Row
 from variants import Color, cw
@@ -389,3 +391,27 @@ ROWS = (*FLOOR_LAMPS, *TABLE_LAMPS, *DESK_LAMPS, *CEILING_LIGHTS, *WALL_LIGHTS, 
 def docs() -> list[dict]:
     """Every lighting row's catalog document."""
     return [r.doc() for r in ROWS]
+
+
+#: The forms that hang, and the only ones with a ``drop_length`` (gen#237).
+HANGING_FORMS = frozenset({"Pendant", "Chandelier"})
+
+#: Title words that belong to the pendant template's own form (a dome shade, a cluster of lights).
+_PENDANT_QUALIFIERS = re.compile(r"\s+(?:Dome|Cluster)\b")
+
+
+def fit_ceiling_form(rec: dict) -> None:
+    """Make a derived ceiling light's attributes and title fit the form it ended up with.
+
+    :func:`scale.derive` copies a template's attributes and swaps only the values that changed,
+    so a pendant derived to a flush fitting kept its ``drop_length`` and its "Dome" beside the
+    new form word. A form that does not hang loses ``drop_length``; a form other than a pendant
+    loses the pendant's qualifier words.
+    """
+    if rec["product_type"] != "Ceiling Light":
+        return
+    form = next((a["value"] for a in rec["attributes"] if a["key"] == "fixture_type"), None)
+    if form not in HANGING_FORMS:
+        rec["attributes"] = [a for a in rec["attributes"] if a["key"] != "drop_length"]
+    if form != "Pendant":
+        rec["title"] = _PENDANT_QUALIFIERS.sub("", rec["title"])
