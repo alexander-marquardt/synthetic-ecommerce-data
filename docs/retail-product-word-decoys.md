@@ -29,6 +29,15 @@ its follow-up issue. The seven first-increment types (tents, sleeping bags, camp
 dumbbells, kettlebells, foam rollers) are exempt until #375. The prototype's plural strip reads
 "tennis" as "tenni", so the noun of those two rows is `tenni`.
 
+**Gifts (gen#425).** The five Gifts types of the mug, greeting card, notebook, money box and pamper
+hamper issue carry two decoys each: a wall mug rack and a microwave mug cake for "mug", a card holder
+case and card-making paper for "card", a notebook computer sleeve and tote for "notebook", a lockable
+storage box and chocolate coins in a box for "money box", a laundry hamper and a wicker storage hamper
+for "hamper". A row names its Gifts type in `gift_type`, holds no color word in its title or
+description, and is fixed by the department policy (the paper row sits in Gifts, so the category
+policy fixes it). `tests/test_retail_gifts_425.py` holds the census. Memory cards and gift cards
+(the issue's other "card" examples) need a type this build lacks and are not planted; gen#437 files them.
+
 | Query | Noun | Product id | Title | True type | Fixing policy |
 |---|---|---|---|---|---|
 | red dress | dress | PLT-DY01 | Dress for Success, Red Laces | Brogues | category |
@@ -106,3 +115,13 @@ dumbbells, kettlebells, foam rollers) are exempt until #375. The prototype's plu
 | tennis | tenni | PLT-DY74 | Crystal Tennis Bracelet | Bracelet | department |
 | badminton | badminton | PLT-DY75 | Badminton Club T-Shirt | Tee | department |
 | badminton | badminton | PLT-DY76 | Badminton Club Tote Bag | Tote Bag | department |
+| mug | mug | PLT-DY77 | Wall Mug Rack, Five Hooks | Wall Hooks | department |
+| mug | mug | PLT-DY78 | Microwave Mug Cake | Cake | department |
+| card | card | PLT-DY79 | Travel Card Holder Case | Travel Cases | department |
+| card | card | PLT-DY80 | Card Making Craft Paper | Wrapping Paper | category |
+| notebook | notebook | PLT-DY81 | Notebook Computer Sleeve | Travel Cases | department |
+| notebook | notebook | PLT-DY82 | Notebook Carry Tote Bag | Tote Bag | department |
+| money box | box | PLT-DY83 | Lockable Storage Box | Storage Boxes | department |
+| money box | box | PLT-DY84 | Chocolate Money Box | Biscuit | department |
+| hamper | hamper | PLT-DY85 | Folding Laundry Hamper | Wash Bags | department |
+| hamper | hamper | PLT-DY86 | Wicker Storage Hamper | Storage Boxes | department |
