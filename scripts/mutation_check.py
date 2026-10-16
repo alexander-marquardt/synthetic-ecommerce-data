@@ -29,6 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mutation_rows_appliance_colors  # noqa: E402  (gen#243 rows)
 import mutation_rows_attribute_text  # noqa: E402  (gen#250 rows, kept in their own file)
 import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
+import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their own file)
 import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
 import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
@@ -4010,6 +4011,11 @@ MUTATIONS: list[Mutation] = [
     *(
         Mutation(f"type specs: {name}", file, old, new, test, "", prop, root=root)
         for name, file, old, new, test, prop, root in mutation_rows_type_specs.ROWS
+    ),
+    # ---- retail: derived ceiling-light forms (gen#237); the rows are in their own file ----
+    *(
+        Mutation(f"ceiling forms: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in mutation_rows_ceiling_forms.ROWS
     ),
     *(
         Mutation(f"lighting drawings: {name}", file, old, new, test, "", prop,

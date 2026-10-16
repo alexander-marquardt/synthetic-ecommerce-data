@@ -361,10 +361,11 @@ def test_a_swap_reads_the_and_spelling_of_an_ampersand():
 
 def _changed(r: dict[str, Any], t: dict[str, Any]) -> dict[str, tuple[str, str]]:
     new = {a["key"]: str(a["value"]) for a in r["attributes"]}
+    # A derived style may drop an attribute its new form lacks (a flush light's drop, gen#237).
     return {
         a["key"]: (str(a["value"]), new[a["key"]])
         for a in t["attributes"]
-        if a["key"] != "line" and new[a["key"]] != str(a["value"])
+        if a["key"] != "line" and a["key"] in new and new[a["key"]] != str(a["value"])
     }
 
 
