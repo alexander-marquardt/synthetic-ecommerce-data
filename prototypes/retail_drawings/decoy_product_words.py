@@ -36,6 +36,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import kit_goods  # noqa: F401 -- registers the shapes below
+import kit_toy_word_decoys  # noqa: F401 -- registers the toy-word decoys' shapes (gen#424)
 from breadth_rows import OWNERS
 from class_model import BRAND_OWNER, Style, one
 from decoy_rows import COLORS, UK, Kind
@@ -308,6 +309,23 @@ _SPORTS_KINDS = {
                     "Calderby & Lune", 14.0),
 }
 NEW_KINDS.update(_SPORTS_KINDS)
+# The Toys words of gen#424: another department's product whose name holds "kitchen", "card" or
+# "gun". Each sits in a leaf of its own, in Home or Gifts, so the department policy drops it.
+_TOY_WORD_KINDS = {
+    "t_kitchen_roll": Kind("Home", ("Home", "Kitchen & Dining", "Kitchen Rolls"), "Kitchen Roll",
+                           "wrapping_paper", "Brackenmere Home", 6.0),
+    "t_scales": Kind("Home", ("Home", "Kitchen & Dining", "Kitchen Scales"), "Kitchen Scales",
+                     "kitchen_scales", "Brackenmere Home", 16.0),
+    "t_greeting": Kind("Gifts", ("Gifts", "Cards", "Greeting Cards"), "Greeting Card",
+                       "greeting_card", "Lanternby", 3.0),
+    "t_giftcard": Kind("Gifts", ("Gifts", "Cards", "Gift Cards"), "Gift Card", "gift_card",
+                       "Lanternby", 25.0),
+    "t_glue": Kind("Home", ("Home", "DIY & Car", "Glue Guns"), "Glue Gun", "glue_gun",
+                   "Brackenmere Home", 14.0),
+    "t_caulk": Kind("Home", ("Home", "DIY & Car", "Caulking Guns"), "Caulking Gun",
+                    "caulking_gun", "Brackenmere Home", 12.0),
+}
+NEW_KINDS.update(_TOY_WORD_KINDS)
 KINDS = {**BASE_KINDS, **NEW_KINDS}
 #: The product types this module adds: each carries a floor of ordinary products (:data:`FLOOR`).
 
@@ -918,6 +936,28 @@ _SPORTS = (
        "Badminton Set"),
 )
 TABLE = (*TABLE, *_SPORTS)
+
+
+def _t(n, kind, title, desc, color, noun) -> Row:
+    """A Toys-word decoy (gen#424): codes DT01..., no sports type to name (``target`` empty)."""
+    return Row(f"DT{n:02d}", kind, title, desc, color, noun, noun, "department", cross=True)
+
+
+_TOYS = (
+    _t(1, "t_kitchen_roll", "Kitchen Roll, Pack of 6",
+       "Absorbent two ply paper rolls for wiping up in the kitchen.", "White", "kitchen"),
+    _t(2, "t_scales", "Digital Kitchen Scales",
+       "Flat scales that weigh ingredients in the kitchen to the gram.", "Grey", "kitchen"),
+    _t(3, "t_greeting", "Birthday Greeting Card",
+       "A folded card with a message inside, sent with a present.", "Cream", "card"),
+    _t(4, "t_giftcard", "Plastic Gift Card",
+       "A card that holds a balance to spend in the shop, in a sleeve.", "Gold", "card"),
+    _t(5, "t_glue", "Hot Glue Gun",
+       "A trigger fed gun that melts glue sticks for crafts and repairs.", "Grey", "gun"),
+    _t(6, "t_caulk", "Caulking Gun",
+       "A frame gun that squeezes sealant from a cartridge along a joint.", "Grey", "gun"),
+)
+TABLE = (*TABLE, *_TOYS)
 
 #: kind -> the ordinary products of the type: (title, color, description).
 _F = {

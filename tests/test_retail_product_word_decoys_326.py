@@ -48,7 +48,11 @@ TRUE_NODE = {"dress": "Dresses", "shoe": "Shoes", "boot": "Boots", "coat": "Coat
              "bat": "Baseball Bats", "baseball": "Baseballs", "glove": "Baseball Gloves",
              "batting": "Batting Helmets", "swim": "Swim Caps", "kickboard": "Kickboards",
              "armband": "Swim Armbands", "football": "Footballs", "tenni": "Tennis Rackets",
-             "badminton": "Badminton Sets"}
+             "badminton": "Badminton Sets",
+             # the Toys nouns of the #424 rows
+             "kitchen": "Play Kitchens",
+             "card": "Card Games",
+             "gun": "Water Toys"}
 POLICIES = ("category", "department", "color")
 
 
