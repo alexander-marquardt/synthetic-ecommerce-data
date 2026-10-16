@@ -26,6 +26,7 @@ import distractor_rows as dr  # noqa: E402
 import kit  # noqa: E402
 import kit_tableware  # noqa: E402
 import scale  # noqa: E402
+import tableware_rows  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -140,6 +141,34 @@ def test_the_steak_rows_are_the_distractors_and_the_true_answers(ceiling) -> Non
     tuna = [d for d in ceiling if "tuna steak" in d["title"].lower()]
     assert tuna and all(d["category_path"][:3] == ["Food & Drink", "Food Cupboard", "Tinned"]
                         for d in tuna)  # fmt: skip
+
+
+def _material(doc: dict) -> list[str]:
+    return [a["value"] for a in doc["attributes"] if a["key"] == "material"]
+
+
+def test_the_steak_plate_board_and_weight_carry_a_material_like_their_siblings() -> None:
+    """gen#268: the other plates, boards and utensils carry a material; these three did not."""
+    docs = {d["product_id"]: d for d in dr.docs()}
+    wood = [d for d in tableware_rows.docs() if d["product_id"] == "BRD-BRDWOD"]
+    assert len(wood) == 1 and _material(wood[0]) == ["Wood"]
+    assert {pid: _material(docs[pid]) for pid in ("PLT-DSK08", "PLT-DSK09", "PLT-DSK10")} == {
+        "PLT-DSK08": ["Cast Iron"], "PLT-DSK09": _material(wood[0]), "PLT-DSK10": ["Cast Iron"],
+    }  # fmt: skip
+    # The drawn material follows the attribute (the board already drew "wood").
+    assert dict(dr.STEAK_WARE[1].params)["material"] == _material(docs["PLT-DSK09"])[0].lower()
+
+
+def test_the_steak_ware_is_never_derived(ceiling) -> None:
+    """gen#268: with a material each of the three would otherwise derive ("Porcelain Steak
+    Plate Sizzler", "Nylon Steak Weight"), nine more steak rows on the 10**6 build."""
+    ids = {"PLT-DSK08", "PLT-DSK09", "PLT-DSK10"}
+    assert ids == scale.STEAK_WARE_IDS
+    assert not ids & {d["product_id"] for d in scale.derivable(scale.templates())}
+    ware = {"Plate", "Chopping Board", "Kitchen Utensil"}
+    steak = {d["product_id"] for d in ceiling
+             if d["product_type"] in ware and "steak" in d["title"].lower()}  # fmt: skip
+    assert steak == ids
 
 
 def test_a_steak_search_without_a_policy_leads_with_knives(index) -> None:

@@ -3771,6 +3771,37 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: the steak plate, board and weight carry a material, never derived (gen#268) ----
+    *(
+        Mutation(f"steak ware: {name}", file, old, new_, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new_, test, prop in [
+            (
+                "the steak weight loses its material",
+                "distractor_rows.py",
+                '                 ("material", "Material", "Cast Iron"))),',
+                "                 )),",
+                "tests/test_retail_distractors.py -k carry_a_material_like_their_siblings",
+                "the steak weight carries a material like the other utensils",
+            ),
+            (
+                "the steak board loses its material",
+                "distractor_rows.py",
+                '          extra=(("material", "Material", "Wood"),),\n',
+                "",
+                "tests/test_retail_distractors.py -k carry_a_material_like_their_siblings",
+                "the steak board carries the material of the other boards",
+            ),
+            (
+                "the steak ware is copied by the derivation",
+                "scale.py",
+                " | STEAK_WARE_IDS)",
+                ")",
+                "tests/test_retail_distractors.py -k steak_ware_is_never_derived",
+                "the steak plate, board and weight stay templates",
+            ),
+        ]
+    ),
     # ---- retail: school uniform, the record names the drawing it draws (gen#205) ----
     *(
         Mutation(f"school uniform: {name}", "school_rows.py", old, new_, test, "", prop,
@@ -3808,8 +3839,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "an apparel decoy is copied by the derivation",
                 "scale.py",
-                "                | decoy_apparel.IDS | decoy_product_words.IDS)",
-                "                | decoy_product_words.IDS)",
+                "                | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)",
+                "                | decoy_product_words.IDS | STEAK_WARE_IDS)",
                 "tests/test_retail_apparel_decoys_311.py -k never_copied_or_color_completed",
                 "an apparel decoy stays a template",
             ),
@@ -3904,8 +3935,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a class-8 decoy is copied by the derivation",
                 "scale.py",
-                "| decoy_apparel.IDS | decoy_product_words.IDS)",
-                "| decoy_apparel.IDS)",
+                "| decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)",
+                "| decoy_apparel.IDS | STEAK_WARE_IDS)",
                 "tests/test_retail_product_word_decoys_326.py -k templates_no_derived",
                 "a decoy stays a template",
             ),
@@ -4237,6 +4268,35 @@ MUTATIONS: list[Mutation] = [
                 "a param named shape reaches the drawing's params",
             ),
         ]
+    ),
+    # Every name starts "variant bounds doc:", so `--only "variant bounds doc:"`
+    # re-runs the rows that hold docs/adding-a-type.md to the build's bounds (#252).
+    Mutation(
+        "variant bounds doc: the knob's maximum moves off the doc's",
+        "domains/industrial/product_split.py",
+        "    ceiling = table[-1][0]\n",
+        "    ceiling = table[-1][0] + 1\n",
+        "tests/test_variant_bounds_doc_252.py::test_the_doc_states_the_maximum_skus_per_product",
+        "",
+        "the doc states the most SKUs a product may have",
+    ),
+    Mutation(
+        "variant bounds doc: the median bound moves off the doc's",
+        "domains/industrial/product_split.py",
+        "        if running >= 0.75:\n",
+        "        if running >= 0.9:\n",
+        "tests/test_variant_bounds_doc_252.py::test_the_doc_states_the_median_bound",
+        "",
+        "the doc states the largest median of a deep type",
+    ),
+    Mutation(
+        "variant bounds doc: the product floor moves off the doc's",
+        "domains/industrial/product_split.py",
+        "MEDIAN_MIN_PRODUCTS = 20\n",
+        "MEDIAN_MIN_PRODUCTS = 25\n",
+        "tests/test_variant_bounds_doc_252.py::test_the_doc_states_the_product_floor_of_the_median_check",
+        "",
+        "the doc states the product floor of the median check",
     ),
     # ---- retail: a jigsaw's finished size is two CMT entries (gen#261) ----
     *(
