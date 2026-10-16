@@ -21,7 +21,7 @@ word "elasticated" on a product whose waist is NOT elastic: "Elasticated Cuff Ca
 belted waist, so the "garment attribute treated as keyword" class has the near miss it needs.
 
 Chinos, lamp shades and the post-surgery and nursing bras already exist; what the issue still
-lists (plimsolls, mastectomy and period-wear lingerie, women's elasticated trousers) stays open
+lists (mastectomy and period-wear lingerie, women's elasticated trousers) stays open
 on gen#329.
 
 The rows are templates only: :func:`scale.derivable` leaves them out (``scale.NEEDS_IDS``).

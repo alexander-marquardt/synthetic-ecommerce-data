@@ -57,19 +57,25 @@ unless it collapses on `product_id`.
 
 ### Footwear
 
-`footwear_rows.py` holds thirty-one shoe styles (sixteen women's, ten men's,
-five kids'), one document per style with its color x width x size SKUs
+`footwear_rows.py` holds fifty-five shoe styles (thirty-three women's, fourteen men's,
+eight kids'), one document per style with its color x width x size SKUs
 nested. A size is three fields, `size_uk`, `size_eu` and `size_us`, read from
 one chart row of the audience, so they never disagree; half sizes exist only
 where a shoe is cut in them, and a wide fit only in the sizes it names. A ring's UK
 letter and US number are other kinds of value, so they sit under `ring_size_uk` and
 `ring_size_us` (gen#249), never these keys. Each
 color names its upper material, which both the `upper_material` facet and the
-drawing read. `kit_footwear.py` draws the shoe from the side in seventeen
+drawing read. `kit_footwear.py` draws the shoe from the side in twenty-five
 kinds (court, kitten and block heels, ballet pumps, loafers, brogues,
 trainers, running shoes, slippers, sandals, ankle, Chelsea, chukka, knee-high,
-walking and safety boots, wellies), with the material's texture and the
-closure. The boots row above is checked over the round 4 corpus plus
+walking and safety boots, wellies, and since gen#216 plimsolls, clogs, wedges,
+espadrilles, platform trainers, mules, jelly shoes and barefoot shoes), with the
+material's texture and the closure. Each of the eight newer kinds has variant
+axes that are drawing params read from the attribute they draw (`kit_footwear.AXES`:
+a wedge's `heel` in mm, a platform trainer's `platform`, a clog's `strap` and
+`body`, a mule's `heel` and `toe`, an espadrille's `heel`, a jelly shoe's `style`
+and `glitter`, a barefoot shoe's `sole`), so two styles that differ on one draw
+differently. The boots row above is checked over the round 4 corpus plus
 footwear (`footwear_rows.catalog()`). Footwear is not in the Elasticsearch
 proof corpus.
 
@@ -320,7 +326,7 @@ may keep an entry out of the flat `text` while it stays a facet
 (`standard.flat_documents(..., text_skip=...)`; the grocery's allergen warnings and
 dietary claims).
 
-`prototypes/retail_drawings/export.py` turns the 328-style build into that
+`prototypes/retail_drawings/export.py` turns the 352-style build into that
 standard: `skus` become `variants`, each SKU option a variant-level attribute
 entry (a measurement split into `value`, `unit_code` and `value_canonical`);
 color and size options, the `promotion` and other flags, rating and the other
