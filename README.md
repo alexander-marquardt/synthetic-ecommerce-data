@@ -210,7 +210,7 @@ same check over every commit a pull request adds, so a clone without hooks
 cannot skip it. Git's `#` help lines are skipped only by the hook, because a recorded
 message keeps any `#` line it was given. Messages are folded before matching:
 look-alike letters, invisible and bidirectional characters, and a phrase
-wrapped across two lines are all caught. The pre-commit hooks run `ruff check` and the whitespace
+wrapped across two lines are all caught. The capitalised agent-instructions file name, alone or in a path, is masked first so a commit that edits it may name it; a vendor name beside it still fails. The pre-commit hooks run `ruff check` and the whitespace
 fixers, which leave `golden-catalog/` alone.
 
 Run the test suite with `uv run pytest`. The whole suite takes about 27
@@ -951,7 +951,7 @@ that win a query's top results on text alone, so a demo can show what a policy
 fixes. `distractors.py` holds the table; `distractors.check()` refuses a
 distractor that cannot outrank the best intended product (BM25 over title plus
 description). A class's *tail* is further products the query matches that need
-not outrank. Every name is invented.
+not outrank. Every name is invented but Nike (text only, no logo; gen#341, [docs/retail-nike.md](docs/retail-nike.md)).
 
 Every product is drawn as its own kind: a bouquet as roses in a paper cone,
 socks as socks, a bed as a bed. A generic shape (`box`, `box_wide`,
