@@ -4250,6 +4250,25 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: a drawing param may be named shape (gen#259) ----
+    *(
+        Mutation(f"drawing params: {name}", "variants.py", old, new, tests, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, old, new, tests, prop in [
+            (
+                "the drawing's first parameter is named shape again",
+                "def drawing(shape_name: str, color: Color, label: str | None = None, **params)"
+                " -> dict:",
+                "def drawing(shape: str, color: Color, label: str | None = None, **params)"
+                " -> dict:\n    shape_name = shape",
+                (
+                    "tests/test_retail_lowerbody_206.py -k takes_a_param_named_shape",
+                    "tests/test_retail_lowerbody_206.py -k without_stripping_its_shape_param",
+                ),
+                "a param named shape reaches the drawing's params",
+            ),
+        ]
+    ),
     # Every name starts "variant bounds doc:", so `--only "variant bounds doc:"`
     # re-runs the rows that hold docs/adding-a-type.md to the build's bounds (#252).
     Mutation(
