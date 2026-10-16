@@ -4,7 +4,8 @@ The catalog held trousers and jeans but no leggings, joggers, shorts, cycling sh
 tracksuits or skirts, so a search for any of them found trousers or a dress. Each type here
 is a leaf with its own drawing (:mod:`kit_lowerbody`), its shopper attributes as structured
 entries, and SKUs over the color, the size and, where the type varies on it, a third axis:
-a leg or skirt length (``inside_leg``, ``fit_length``) or how a tracksuit is sold (``sold_as``).
+a leg or skirt length (``inside_leg``, ``fit_length``). The tracksuits moved to the spec
+``type_specs/tracksuit.py`` (gen#351), which also draws with :mod:`kit_lowerbody`.
 
 What a drawing shows is what the record states: ``pockets`` Yes draws two ``pocket`` groups,
 ``cargo_pockets`` Yes (or the Cargo shorts style) two ``cargo-pocket`` groups, a Belted
@@ -16,11 +17,11 @@ what it was.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 
 import kit_lowerbody  # noqa: F401 -- registers leggings, joggers, shorts, ...
 from breadth_rows import OWNERS, Row
-from class_model import BRAND_OWNER, KIDS_WAISTS, LEGS3, LENGTH_RANGE, SIZE_RANGES
+from class_model import BRAND_OWNER, LEGS3, LENGTH_RANGE, SIZE_RANGES
 from variants import cw
 
 #: The brands these rows sell, owned as the rest of the clothing tree already states.
@@ -50,10 +51,7 @@ class LRow(Row):
                 for s in base for v, f in self.axis]  # fmt: skip
 
     def doc(self) -> dict:
-        # ``drawing()`` takes the shape's name as ``shape``, so the skirt's own ``shape`` param
-        # (A-line, pleated, ...) is set on the drawing after it is built.
-        out = Row.doc(replace(self, params=tuple(p for p in self.params if p[0] != "shape")))
-        out["drawing"]["params"] = dict(self.params)
+        out = super().doc()
         out.update(dict(self.facts))
         if self.axis_key in ("inside_leg", "fit_length"):
             served = {LENGTH_RANGE[v] for v, _ in self.axis}
@@ -331,64 +329,6 @@ CYCLING = (
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
-# Tracksuits: a matching set, sold as the set or as either piece (``sold_as``).
-# --------------------------------------------------------------------------
-
-_SOLD = (("Set", 1.0), ("Jacket Only", 0.58), ("Bottoms Only", 0.5))
-
-
-def _ts(top: str, fit: str, fabric: str, pieces: int) -> tuple:
-    return (_a("top_style", "Top style", top), _a("leg_fit", "Leg fit", fit),
-            _a("fabric", "Fabric", fabric), _count("piece_count", "Piece count", pieces),
-            *_waist("Drawstring"))  # fmt: skip
-
-
-def _tsp(top: str, pieces: int, fit: str) -> tuple[tuple[str, str], ...]:
-    return (("top", top), ("pieces", str(pieces)), ("fit", fit))
-
-
-def _trow(code, title, brand, path, price, desc, colors, attrs, params, sizes=None) -> LRow:
-    return LRow(code, title, brand, CL_, path, "Tracksuit", price, "tracksuit", desc, colors,
-                attrs, sizes or _sizes(price), params=params, axis_key="sold_as", axis=_SOLD,
-                facts=_facts(None, "plain"))  # fmt: skip
-
-
-_WT, _MT = ("Womens", "Tracksuits"), ("Mens", "Tracksuits")
-_BT, _GT = ("Kids", "Boys", "Tracksuits"), ("Kids", "Girls", "Tracksuits")
-TRACKSUITS = (
-    _trow("TSTMFL", "Hooded Fleece Tracksuit", SW, _MT, 48.0,
-          "A two-piece fleece set: a hooded zip jacket and cuffed joggers.",
-          (GREY_MARL, NAVY, BLACK), _ts("Hooded", "Regular", "Fleece", 2),
-          _tsp("hooded", 2, "regular")),
-    _trow("TSTMSH", "Shell Suit Tracksuit with Zip Jacket", SW, _MT, 55.0,
-          "A lightweight shell tracksuit with a full zip jacket and elasticated bottoms.",
-          (NAVY, BLACK, RED), _ts("Zip", "Relaxed", "Shell", 2), _tsp("zip", 2, "relaxed")),
-    _trow("TSTMHZ", "Half-Zip Cotton Tracksuit", "Harbour & Pine", _MT, 52.0,
-          "A cotton jersey set with a half-zip sweat top and slim joggers.",
-          (GREY_MARL, BLACK), _ts("Half-Zip", "Slim", "Cotton", 2), _tsp("half_zip", 2, "slim")),
-    _trow("TSTWFL", "Women's Hooded Fleece Tracksuit", HK, _WT, 46.0,
-          "A soft two-piece fleece set: a hooded zip jacket and relaxed joggers.",
-          (GREY_MARL, PINK, BLACK), _ts("Hooded", "Relaxed", "Fleece", 2),
-          _tsp("hooded", 2, "relaxed")),
-    _trow("TSTWVL", "Velour Tracksuit with Zip Jacket", "Wrenfield", _WT, 58.0,
-          "A velour set in a soft pile, with a zip jacket and slim joggers.",
-          (BURGUNDY, BLACK, NAVY),
-          _ts("Zip", "Slim", "Velour", 2), _tsp("zip", 2, "slim")),
-    _trow("TSTW3P", "3 Piece Half-Zip Tracksuit Set with Tee", "Larkmoor", _WT, 62.0,
-          "Three matching pieces: a half-zip top, joggers and a fitted tee.",
-          (GREY_MARL, LILAC), _ts("Half-Zip", "Regular", "Fleece", 3),
-          _tsp("half_zip", 3, "regular")),
-    _trow("TSTBHD", "Boys Hooded Fleece Tracksuit", "Harbour & Pine", _BT, 30.0,
-          "A hooded zip jacket and joggers in warm fleece, for school mornings and weekends.",
-          (NAVY, GREY_MARL, GREEN), _ts("Hooded", "Regular", "Fleece", 2),
-          _tsp("hooded", 2, "regular"), tuple((n, 30.0) for n in KIDS_WAISTS)),
-    _trow("TSTG3P", "Girls 3 Piece Velour Tracksuit Set", "Wrenfield", _GT, 34.0,
-          "A zip velour jacket, joggers and a matching tee.",
-          (PINK, LILAC), _ts("Zip", "Regular", "Velour", 3), _tsp("zip", 3, "regular"),
-          tuple((n, 34.0) for n in KIDS_WAISTS)),
-)  # fmt: skip
-
-# --------------------------------------------------------------------------
 # Skirts: the shape and the length are drawn; a tiered skirt states and draws three tiers.
 # --------------------------------------------------------------------------
 
@@ -446,7 +386,7 @@ SKIRTS = (
            "pleated", "maxi"),
 )  # fmt: skip
 
-ROWS = (*LEGGINGS, *JOGGERS, *SHORTS, *CYCLING, *TRACKSUITS, *SKIRTS)
+ROWS = (*LEGGINGS, *JOGGERS, *SHORTS, *CYCLING, *SKIRTS)
 
 
 def docs() -> list[dict]:

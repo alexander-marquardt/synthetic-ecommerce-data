@@ -52,7 +52,7 @@ _FAKE_GH = (
     + r"""
 case "$1 $2" in
   "pr view")
-    printf 'OPEN\tfalse\tpr-branch\t%s\tmain\n' "$FAKE_GH_HEAD"
+    printf 'OPEN\tfalse\t%s\t%s\tmain\n' "${FAKE_GH_BRANCH:-pr-branch}" "$FAKE_GH_HEAD"
     if [ -n "${FAKE_GH_MOVE_ON_VIEW:-}" ]; then move "$FAKE_GH_MOVE_ON_VIEW"; fi
     ;;
   "api "*)
@@ -74,6 +74,7 @@ case "$1 $2" in
     esac
     printf 'commit-messages\tcompleted\tsuccess\n'
     printf 'file-size\tcompleted\tsuccess\n'
+    printf 'customer-name-check\tcompleted\tsuccess\n'
     printf 'main-merged-tree\tcompleted\tskipped\n'
     ;;
   "pr merge")
@@ -88,11 +89,18 @@ case "$1 $2" in
       if [ "$prev" = --match-head-commit ]; then want=$arg; fi
       prev=$arg
     done
-    if [ "$want" != "$(git -C "$FAKE_ORIGIN" rev-parse refs/heads/pr-branch)" ]; then
-      echo "fake gh: the head of pr-branch is not $want" >&2
+    branch=${FAKE_GH_BRANCH:-pr-branch}
+    if [ "$want" != "$(git -C "$FAKE_ORIGIN" rev-parse "refs/heads/$branch")" ]; then
+      echo "fake gh: the head of $branch is not $want" >&2
       exit 1
     fi
     echo "$*" >>"$FAKE_GH_LOG"
+    if [ -n "${FAKE_GH_LAND:-}" ]; then
+      # A squash merge: the PR's tree, one commit on main (which the script
+      # has already merged into the branch, so the tree is main plus the PR).
+      new=$(git -C "$FAKE_ORIGIN" commit-tree "$branch^{tree}" -p refs/heads/main -m "squash")
+      git -C "$FAKE_ORIGIN" update-ref refs/heads/main "$new"
+    fi
     ;;
   *) echo "fake gh: unexpected $*" >&2; exit 2 ;;
 esac
@@ -126,9 +134,18 @@ MSG
   fi
   if [ -n "${FAKE_UV_SKIP_BUILD:-}" ]; then exit 0; fi
 fi
+if [[ " $* " == *retail_figures.py* ]]; then
+  # The retail rebuild takes about 40 s: only a case about it runs the real one.
+  if [ -n "${FAKE_UV_RETAIL_FAIL:-}" ]; then echo "retail build: boom" >&2; exit 3; fi
+  if [ -z "${FAKE_UV_RETAIL:-}" ]; then exit 0; fi
+fi
 exec "$REAL_UV" "$@"
 """
 )
+
+#: Each case builds its own throwaway origin (30 to 80 s) and shares no fixture, so the
+#: cases spread over the xdist workers instead of sharing one (tests/xdist_groups.py).
+XDIST_SPREAD = True
 
 pytestmark = pytest.mark.skipif(shutil.which("uv") is None, reason="the script runs uv")
 
@@ -141,6 +158,7 @@ _IDENTITY = {
 }
 
 _STATS = "golden-catalog/stats.json"
+_RETAIL_STATS = "golden-retail/stats.json"
 
 #: Name resolution that fails, as a dropped lookup does (#178). The stand-in uv
 #: stops a build that is not offline with the error uv printed then
@@ -203,6 +221,8 @@ def world(tmp_path: Path) -> dict:
         MERGE_PR_CI_TIMEOUT="0",
         MERGE_PR_CI_POLL="0",
         MERGE_PR_RETRY_SLEEP="0",
+        # The narrowed checks are one test: two workers, not one per core (#348).
+        LOCAL_CI_WORKERS="2",
         MERGE_PR_LOG_DIR=str(tmp_path),
         # The planted worlds run with name resolution blocked: a red here is
         # the script's, never the network's (#178).
@@ -327,6 +347,63 @@ def test_a_merge_github_refuses_once_is_retried(world: dict) -> None:
     assert _merged(world)
 
 
+def _conflicting_retail_stats(world: dict) -> tuple[str, str]:
+    """A PR and main that edit one total of the retail stats two ways; and the true file."""
+    true = (world["checkout"] / _RETAIL_STATS).read_text()
+    assert '"images": 1' in true
+    head = _open_pr(
+        world,
+        {**_GREEN, _RETAIL_STATS: true.replace('"images": 1', '"images": 21', 1)},
+        on_main={_RETAIL_STATS: true.replace('"images": 1', '"images": 31', 1)},
+    )
+    return head, true
+
+
+def test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild(world: dict) -> None:
+    """gen#343: gen#323, #328 and #335 each stopped here and needed a hand merge."""
+    head, true = _conflicting_retail_stats(world)
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_RETAIL="1")
+    assert result.returncode == 0, result.stdout + result.stderr
+    pushed = _branch(world)
+    assert _git(world["origin"], "merge-base", "--is-ancestor", "main", pushed) == ""
+    # Neither side's total: the retail rebuild's.
+    assert _git(world["origin"], "show", f"{pushed}:{_RETAIL_STATS}") + "\n" == true
+    assert _merged(world)
+
+
+def test_a_stale_retail_stats_is_rebuilt_on_the_merged_tree_and_pushed(world: dict) -> None:
+    """No conflict, wrong totals: the auto-merge the script exists to catch, for retail."""
+    true = (world["checkout"] / _RETAIL_STATS).read_text()
+    head = _open_pr(
+        world, {**_GREEN, _RETAIL_STATS: true.replace('"images": 1', '"images": 21', 1)}
+    )
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_RETAIL="1")
+    assert result.returncode == 0, result.stdout + result.stderr
+    pushed = _branch(world)
+    assert pushed != head, "the merged and rebuilt tree was not pushed"
+    assert _git(world["origin"], "show", f"{pushed}:{_RETAIL_STATS}") + "\n" == true
+    assert _merged(world)
+
+
+def test_a_retail_stats_the_rebuild_left_conflicted_is_refused(world: dict) -> None:
+    head, _ = _conflicting_retail_stats(world)
+    result = _run(world, head, _GREEN_CHECK)
+    assert result.returncode != 0
+    assert "still holds conflict markers" in result.stderr, result.stderr[-800:]
+    assert _RETAIL_STATS in result.stderr
+    assert _branch(world) == head
+    assert not _merged(world)
+
+
+def test_a_retail_rebuild_that_fails_refuses_the_merge(world: dict) -> None:
+    head = _open_pr(world, _GREEN)
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_RETAIL_FAIL="1")
+    assert result.returncode != 0
+    assert "the retail rebuild refuses the merged tree" in result.stderr, result.stderr[-800:]
+    assert _branch(world) == head
+    assert not _merged(world)
+
+
 # -- a check run that is not a green run ------------------------------------
 
 
@@ -358,7 +435,7 @@ def test_a_check_run_in_which_no_test_passed_is_not_green(world: dict) -> None:
         ("missing", "missing: tests"),
         ("pending", "still running: tests"),
         # CI ran on the PR head, never on the merge the script pushed.
-        ("head-only", "missing: tests commit-messages file-size"),
+        ("head-only", "missing: tests commit-messages file-size customer-name-check"),
     ],
     ids=["red", "skipped", "missing", "pending", "head-only"],
 )
@@ -519,6 +596,71 @@ def test_a_generated_file_the_rebuild_left_conflicted_is_refused(world: dict) ->
     assert not _merged(world)
 
 
+# -- two type PRs, one after the other (#103) ---------------------------------
+
+_BALL_MODULE = Path("src/synthetic_ecommerce_data/domains/industrial/product_types/raw_materials")
+
+
+def _add_a_type(world: dict, branch: str, key: str, label: str) -> str:
+    """A PR branch off main that adds the breadth type ``key`` the way
+    docs/adding-a-type.md says: a module declaring its own label, and the
+    rebuilt golden.
+
+    The module is the precision-ball one under a new key. Both keys sort
+    straight after ``ball_stock_precision``, so were the label a line of a
+    shared table, the two branches would edit the same lines of it."""
+    checkout = world["checkout"]
+    _git(checkout, "switch", "-q", "-c", branch, "main")
+    module = (checkout / _BALL_MODULE / "ball_stock_precision.py").read_text()
+    module = module.replace(
+        '    "ball_stock_precision",\n', f'    "{key}",\n    label="{label}",\n'
+    )
+    assert f'label="{label}"' in module
+    (checkout / _BALL_MODULE / f"{key}.py").write_text(
+        module.replace("ball_stock_precision", key).replace("Precision Balls", label + "s")
+    )
+    built = subprocess.run(
+        ["uv", "run", "--locked", "ecom-generate", "build", "--out", "golden-catalog"],
+        cwd=checkout,
+        env=world["env"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert built.returncode == 0, built.stdout + built.stderr
+    _git(checkout, "add", "-A")
+    _git(checkout, "commit", "-q", "-m", f"adds {key}")
+    _git(checkout, "push", "-q", "origin", branch)
+    head = _git(checkout, "rev-parse", "HEAD")
+    _git(checkout, "switch", "-q", "main")
+    return head
+
+
+def test_two_prs_that_each_add_a_type_merge_one_after_the_other_by_the_script(
+    world: dict,
+) -> None:
+    """The done-when of #103: no hand merge for the second PR."""
+    heads = {
+        "pr-a": _add_a_type(world, "pr-a", "ball_stock_ptfe", "Ptfe Ball"),
+        "pr-b": _add_a_type(world, "pr-b", "ball_stock_quartz", "Quartz Ball"),
+    }
+    for branch, head in heads.items():
+        result = _run(
+            world,
+            head,
+            "tests/test_catalog_golden.py tests/test_product_type_label_331.py",
+            FAKE_GH_BRANCH=branch,
+            FAKE_GH_LAND="1",
+        )
+        assert result.returncode == 0, f"{branch}: {result.stdout}{result.stderr}"
+    # The second one met a main that held the first: it was merged and rebuilt.
+    assert "conflicts only in generated files" in result.stdout, result.stdout
+    flat = _git(world["origin"], "show", "main:golden-catalog/flat.jsonl")
+    for key in ("ball_stock_ptfe", "ball_stock_quartz"):
+        assert key in flat, key
+    assert len(world["log"].read_text().splitlines()) == 2
+
+
 # -- what the rebuild commits ------------------------------------------------
 
 
@@ -556,8 +698,17 @@ def _printed(flag: str) -> list[str]:
 def test_the_generated_files_are_exactly_what_the_build_writes() -> None:
     """Only a file the rebuild rewrites may have a conflict resolved by it."""
     golden = _git(REPO, "ls-files", "golden-catalog").splitlines()
+    retail = _git(REPO, "ls-files", "golden-retail").splitlines()
     field_map = cli.field_map_target().relative_to(REPO).as_posix()
-    assert sorted(_printed("--print-generated")) == sorted([*golden, field_map])
+    assert sorted(_printed("--print-generated")) == sorted([*golden, *retail, field_map])
+
+
+def test_the_retail_rebuild_is_the_command_the_retail_figures_name() -> None:
+    """One command writes golden-retail/stats.json; the script runs that file, not a copy."""
+    figures = (REPO / "prototypes" / "retail_drawings" / "retail_figures.py").read_text()
+    named = re.search(r'^REBUILD = "python3 (\S+)"$', figures, re.MULTILINE)
+    assert named, "retail_figures.py no longer names its rebuild command"
+    assert named.group(1) in SCRIPT.read_text()
 
 
 def test_the_ci_checks_a_merge_waits_for_are_the_workflows_jobs() -> None:
@@ -623,7 +774,12 @@ def _workflow(**commands: str) -> dict[str, str]:
 
 _ALL_GREEN = _workflow(
     tests="echo suite",
-    **{"commit-messages": "echo msgs", "file-size": "echo size", "main-merged-tree": "echo drift"},
+    **{
+        "commit-messages": "echo msgs",
+        "file-size": "echo size",
+        "customer-name-check": "echo names",
+        "main-merged-tree": "echo drift",
+    },
 )
 
 
@@ -631,7 +787,7 @@ def test_local_ci_runs_every_job_logs_each_and_merges_without_asking_github(worl
     head = _open_pr(world, {**_GREEN, **_ALL_GREEN})
     done = _run(world, head, _GREEN_CHECK, "--local-ci", "--label", "lbl")
     assert done.returncode == 0, done.stderr
-    for job in ("tests", "commit-messages", "file-size", "main-merged-tree"):
+    for job in ("tests", "commit-messages", "file-size", "customer-name-check", "main-merged-tree"):
         assert f"local CI {job}: PASS" in done.stdout
         assert (world["log"].parent / f"lbl-{job}.log").is_file()
     assert "suite" in (world["log"].parent / "lbl-tests.log").read_text()
@@ -641,7 +797,12 @@ def test_local_ci_runs_every_job_logs_each_and_merges_without_asking_github(worl
 
 def test_a_failing_local_job_refuses_the_merge_but_the_others_still_run(world: dict) -> None:
     plant = _workflow(
-        tests="echo suite", **{"commit-messages": "echo bad >&2; exit 3", "file-size": "true"}
+        tests="echo suite",
+        **{
+            "commit-messages": "echo bad >&2; exit 3",
+            "file-size": "true",
+            "customer-name-check": "true",
+        },
     )
     head = _open_pr(world, {**_GREEN, **plant})
     done = _run(world, head, _GREEN_CHECK, "--local-ci", "--label", "lbl")
@@ -654,7 +815,10 @@ def test_a_failing_local_job_refuses_the_merge_but_the_others_still_run(world: d
 
 
 def test_a_failing_local_job_fails_a_dry_run_too(world: dict) -> None:
-    plant = _workflow(tests="exit 1", **{"commit-messages": "true", "file-size": "true"})
+    plant = _workflow(
+        tests="exit 1",
+        **{"commit-messages": "true", "file-size": "true", "customer-name-check": "true"},
+    )
     head = _open_pr(world, {**_GREEN, **plant})
     done = _run(world, head, _GREEN_CHECK, "--dry-run", "--local-ci")
     assert done.returncode != 0

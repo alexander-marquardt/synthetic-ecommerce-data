@@ -34,7 +34,7 @@ FRUIT = {
 MIN_FRUIT, MAX_FRUIT = 3, 7
 PACKS = ("loose", "net", "bag")
 
-#: Count -> the fruits' centres, back row first, so nearer fruits overlap farther ones.
+#: Count -> the fruits' centers, back row first, so nearer fruits overlap farther ones.
 PILES = {
     3: ((200, 196), (150, 270), (250, 270)),
     4: ((160, 200), (240, 200), (140, 274), (260, 274)),
