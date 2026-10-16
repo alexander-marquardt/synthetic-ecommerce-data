@@ -64,6 +64,9 @@ fetched at run time. It sits under `vendor/prism/` with the core modules it
 imports, byte for byte, at the commit `vendor/prism/PIN.txt` names.
 `tests/test_vendored_core_pin_11683.py` refuses a vendored file whose git blob
 id differs from the pinned one, so the copy cannot drift from core in place.
+The same directory holds the customer-name list the
+[customer-name check](customer-name-check.md) reads
+(`.github/scripts/audit_grep_diff.py` and `scripts/invisible_characters.py`).
 `.ignore` hides `vendor/` from search.
 
 ## Resync the vendored gate

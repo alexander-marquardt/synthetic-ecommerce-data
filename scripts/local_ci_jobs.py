@@ -153,6 +153,9 @@ def emit(job_id: str, job: dict, base: str, head: str) -> str:
     values = {
         "github.event.pull_request.base.sha": base,
         "github.event.pull_request.head.sha": head,
+        # Empty: gh treats an empty GH_TOKEN as none, so the local run reads with the
+        # signed-in gh (the customer-name-check job's live PR text, #393).
+        "github.token": "",
     }
     if "strategy" in job or "container" in job or "services" in job:
         raise NoLocalEquivalent(f"{job_id}: a matrix, container or service has no local equivalent")

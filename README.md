@@ -1456,7 +1456,7 @@ drawn by `kit_underwear.py`; none is derived), then the toys (`toys_rows.py`, ge
 table, desk, ceiling and wall lights and lampshades under `Home/Lighting` (`Lamps`, `Lights`), each typed by
 its name; a SKU is a color times a finish, a shade color or a diameter, and its image draws
 that SKU's own value), then the bags, umbrellas and jewelry (`accessory_rows.py`,
-gen#207; likewise copied by no derived style), then the Sports & Outdoors styles (`sports_rows.py`, gen#265: camping and yoga & fitness, drawn by `kit_sports.py`, copied by no derived style; leaves, filters and types not built in [docs/retail-sports-tree.md](docs/retail-sports-tree.md), `tests/test_retail_sports_265.py`), then the school uniform styles (`school_rows.py`, gen#205, first increment: school trousers, skirts, pinafores and shirts under `Kids/School Uniform`; drawn by `kit_school.py`, school-age sizes `3-4 Yrs` to `15-16 Yrs`, fit, adjustable waist, style, sleeve and pack as structured attributes, decoys from `decoy_apparel.py`, copied by no derived style, `tests/test_retail_school_205.py`), then the garden machines (`garden_rows.py`, gen#203, first increment: lawn mowers, robot mowers, grass trimmers and barbecues under `Garden`, drawn by `kit_garden.py`, with text-match decoys, [docs/retail-garden.md](docs/retail-garden.md); copied by no derived style), then the near-white apparel and main-color bras (`colorgroup_rows.py`, gen#302, [docs/retail-color-group.md](docs/retail-color-group.md); copied by no derived style), then the grocery styles (below, `grocery.py`, gen#154). Further styles are
+gen#207; likewise copied by no derived style), then the Sports & Outdoors styles (`sports_rows.py`, gen#265 and gen#368: camping, yoga & fitness, cycling pumps, baseball, swimming, team and racket sports, drawn by `kit_sports.py`, copied by no derived style; leaves, filters and types not built in [docs/retail-sports-tree.md](docs/retail-sports-tree.md), `tests/test_retail_sports_265.py`), then the school uniform styles (`school_rows.py`, gen#205, first increment: school trousers, skirts, pinafores and shirts under `Kids/School Uniform`; drawn by `kit_school.py`, school-age sizes `3-4 Yrs` to `15-16 Yrs`, fit, adjustable waist, style, sleeve and pack as structured attributes, decoys from `decoy_apparel.py`, copied by no derived style, `tests/test_retail_school_205.py`), then the garden machines (`garden_rows.py`, gen#203, first increment: lawn mowers, robot mowers, grass trimmers and barbecues under `Garden`, drawn by `kit_garden.py`, with text-match decoys, [docs/retail-garden.md](docs/retail-garden.md); copied by no derived style), then the garden hoses (`type_specs/garden_hose.py`, gen#292: a reinforced and an expandable hose under `Garden/Watering/Garden Hoses`, drawn by `kit_garden.py`, a SKU axis in metres (`item_length`) and the six main colors, with 15 text-match decoys in `garden_rows.py`, copied by no derived style, `tests/test_retail_garden_292.py`), then the near-white apparel and main-color bras (`colorgroup_rows.py`, gen#302, [docs/retail-color-group.md](docs/retail-color-group.md); copied by no derived style), then the grocery styles (below, `grocery.py`, gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 Each derived style gets a new range name and a brand from its type's pool. It
 also differs from its template and from every sibling in a value its title shows
@@ -1489,15 +1489,15 @@ does not. A net weight or volume (`400g`, `4 x 35g`, `2 pint`, `12 inch`) is a m
 stays. `tests/test_pack_size_values_246.py` reads every `pack_size` of the authored build.
 
 **Each department has a floor of its own** (gen#220). At the ceiling, every department holds
-at least `breadth_rows.DEPARTMENT_FLOOR` derivable styles (150; the smallest today is Food &
-Drink at 180). It is a count per department, not a share of the total, so a batch PR that adds
+at least `breadth_rows.DEPARTMENT_FLOOR` derivable styles (150; the smallest today is Beauty
+at 212). It is a count per department, not a share of the total, so a batch PR that adds
 types to one department (the Home, Clothing and other type batches, gen#196-#217) never lowers
 another department's standing: do not add rows to an unrelated department to pass it.
-`test_every_department_holds_its_floor_of_styles` holds the floor, and
+`test_every_department_holds_its_floor_of_styles` holds the floor,
+`test_the_department_floor_is_not_lowered` holds the floor itself at or above 150 (gen#234), and
 `test_growing_one_department_never_starves_another` builds the ceiling with 200 more Home
 templates and holds every other department at its floor. A batch that removes or narrows a
-department's own rows below the floor still fails: raise that department with rows of its
-own.
+department's own rows below the floor still fails: raise that department with rows of its own.
 
 ## The built catalog is committed, in `golden-catalog/`
 
