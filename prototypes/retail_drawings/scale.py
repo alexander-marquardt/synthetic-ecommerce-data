@@ -107,6 +107,7 @@ import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
 import decoy_apparel  # noqa: E402
+import decoy_product_words  # noqa: E402
 import decoy_rows  # noqa: E402
 import distractor_rows  # noqa: E402
 import furniture_rows  # noqa: E402
@@ -116,6 +117,7 @@ import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
 import mens_depth_rows  # noqa: E402
+import net_volume  # noqa: E402
 import scale_rows  # noqa: E402
 import school_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
@@ -260,6 +262,9 @@ MENS_DEPTH_IDS = mens_depth_rows.product_ids()
 # Text-match decoys (gen#294, gen#311) are exempt from the output standard's text check: they
 # exist to confuse a plain text search (the maintainer ruling on #311).
 DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS
+# The class-8 product-word decoys (gen#326) name a detail color on purpose in some rows only:
+# those rows join the exemption, by id, and the rest of the class is checked like any product.
+TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT
 
 
 def templates(baseline: bool = True) -> list[dict]:
@@ -284,7 +289,7 @@ def templates(baseline: bool = True) -> list[dict]:
     authored = (r for recs in samples().values() for r in recs)
     body = [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
-        *decoy_rows.docs(),
+        *decoy_rows.docs(), *decoy_product_words.docs(),
         *shirt_rows.docs(), *accessory_rows.docs(), *sports_rows.docs(),
         *school_rows.docs(), *sofa_rows.docs(), *household_rows.docs(),
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
@@ -292,6 +297,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *colorgroup_rows.docs(), *mens_depth_rows.docs(),
     ]  # fmt: skip
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
+    body = net_volume.state_title_volumes(body)  # gen#347: a volume the title states is the field
     if baseline:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
@@ -311,7 +317,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
     left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
                 | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS | SCHOOL_IDS
                 | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | decoy_rows.IDS
-                | decoy_apparel.IDS)
+                | decoy_apparel.IDS | decoy_product_words.IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out
             and r.get("neckline") not in ("boat", "slash")]  # fmt: skip
@@ -526,6 +532,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
     # copy that kept it would let a no-policy baseline satisfy "petite sale", the pair only a
     # policy may honour (gen#125, gen#275).
     rec.pop("was_price", None)
+    rec.pop("promotion", None)  # it follows the was_price (promotion.py, gen#189)
     if "badges" in rec:
         rec["badges"] = [b for b in rec["badges"] if b != "Bestseller"]
     old_line = _line(tpl)
@@ -995,7 +1002,7 @@ def main(argv: list[str] | None = None) -> int:
     scaled = build(args.skus, args.seed)
     docs = documents(scaled)
     built = time.perf_counter() - start
-    problems = check_catalog(docs, one_class_per_key=True, text_exempt=DECOY_IDS)
+    problems = check_catalog(docs, one_class_per_key=True, text_exempt=TEXT_EXEMPT)
     if args.out:
         with args.out.open("w", encoding="utf-8") as handle:
             for d in docs:

@@ -136,7 +136,7 @@ def _highlight(d: str, width: float, opacity: float) -> str:
 
 
 def _mirror(d: str) -> str:
-    """The path ``d`` reflected about the sheet's vertical centre line.
+    """The path ``d`` reflected about the sheet's vertical center line.
 
     Paths here are written as absolute commands with ``x,y`` pairs, so the
     reflection maps every pair's x to ``SIZE - x``.
@@ -158,7 +158,7 @@ def _both(d: str, fill: str, width: float = LW) -> list[str]:
 
 
 def _word(text: str, cx: float, cy: float, width: float, max_size: float, color: str = INK) -> str:
-    """``text`` centred on (cx, cy), as large as fits ``width``."""
+    """``text`` centered on (cx, cy), as large as fits ``width``."""
     size = min(max_size, width / (0.62 * max(len(text), 1)))
     return (
         f'<text x="{cx:g}" y="{cy + size * 0.35:.1f}" font-family="{FONT}" '
@@ -679,7 +679,7 @@ SHAPES = {
 }
 
 
-#: Shapes drawn off the sheet's centre, moved down (+) or up (-) to sit on it.
+#: Shapes drawn off the sheet's center, moved down (+) or up (-) to sit on it.
 OFFSET_Y = {"bra": 50, "trainer": -24}
 
 
