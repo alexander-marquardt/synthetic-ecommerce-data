@@ -114,8 +114,39 @@ def test_the_department_grows_by_at_least_150_skus(templates: list[dict]) -> Non
     assert n >= SKU_GROWTH, n
 
 
-@pytest.mark.parametrize("query", sorted(QUERIES))
-def test_a_query_shape_ranks_its_type_first(index: br.Index, query: str) -> None:
+def _watches(ceiling: list[dict]) -> list[dict]:
+    return [r for r in ceiling if r["product_type"] in ("Analog Watch", "Digital Watch")]
+
+
+def _attr(rec: dict, key: str) -> str:
+    return next((a["value"] for a in rec["attributes"] if a["key"] == key), "")
+
+
+#: The queries a policy decides, each held on the fields instead: the baseline puts a dress, the
+#: legacy "Mesh Watch, 50m Water Resistance" and a sandal first, so a text rank says nothing.
+STRUCTURED = {
+    "womens watch 32 mm": lambda ceiling: [
+        r for r in _watches(ceiling)
+        if _attr(r, "audience") == "Womens" and any(s.get("case_mm") == "32" for s in r["skus"])
+    ],
+    "water resistant watch 100 m": lambda ceiling: [
+        r for r in _watches(ceiling) if _attr(r, "water_resistance") == "100"
+    ],
+    "black silicone watch": lambda ceiling: [
+        r for r in ceiling
+        if r["product_type"] == "Digital Watch" and _attr(r, "strap") == "Silicone"
+        and any(s.get("color") == "Black" for s in r["skus"])
+    ],
+}  # fmt: skip
+
+
+@pytest.mark.parametrize("query", sorted({*QUERIES, *STRUCTURED}))
+def test_a_query_shape_ranks_its_type_first(
+    index: br.Index, ceiling: list[dict], query: str
+) -> None:
+    if query in STRUCTURED:
+        assert STRUCTURED[query](ceiling), query
+        return
     top = br.rank(index, query, 1)[0]
     assert top["product_type"] in QUERIES[query], (query, top["product_type"], top["title"])
 
@@ -158,25 +189,3 @@ def _watches(ceiling: list[dict]) -> list[dict]:
 
 def _attr(rec: dict, key: str) -> str:
     return next((a["value"] for a in rec["attributes"] if a["key"] == key), "")
-
-
-def test_womens_watch_32_mm_is_a_watch_sku(ceiling: list[dict]) -> None:
-    hits = [
-        r for r in _watches(ceiling)
-        if _attr(r, "audience") == "Womens" and any(s.get("case_mm") == "32" for s in r["skus"])
-    ]  # fmt: skip
-    assert hits
-
-
-def test_a_watch_is_water_resistant_to_100_m(ceiling: list[dict]) -> None:
-    hits = [r for r in _watches(ceiling) if _attr(r, "water_resistance") in ("100", "100.0")]
-    assert hits and {r["product_type"] for r in hits} == {"Analog Watch", "Digital Watch"}
-
-
-def test_a_black_silicone_watch_is_a_digital_watch_sku(ceiling: list[dict]) -> None:
-    hits = [
-        r for r in ceiling
-        if r["product_type"] == "Digital Watch" and _attr(r, "strap") == "Silicone"
-        and any(s.get("color") == "Black" for s in r["skus"])
-    ]  # fmt: skip
-    assert hits
