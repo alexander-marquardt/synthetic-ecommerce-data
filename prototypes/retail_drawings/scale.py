@@ -124,6 +124,7 @@ import neckline_rows  # noqa: E402
 import needs_rows  # noqa: E402
 import net_volume  # noqa: E402
 import nike_rows  # noqa: E402
+import plus_sizes  # noqa: E402
 import scale_rows  # noqa: E402
 import school_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
@@ -352,6 +353,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(), *needs_rows.docs(),
         *color_word_brand_rows.docs(), *neckline_rows.docs(),
     ]  # fmt: skip
+    body = plus_sizes.extend_all(body, decoy_rows.IDS | decoy_product_words.IDS)  # gen#434
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
     body = neckline_rows.complete(body)  # gen#181: every top, dress and knit states its neckline
     body = net_volume.state_title_volumes(body)  # gen#347: a volume the title states is the field
