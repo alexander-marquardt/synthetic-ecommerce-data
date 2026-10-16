@@ -155,6 +155,32 @@ def test_a_mug_states_its_capacity_in_millilitres() -> None:
         assert f"{entries[0]['value_canonical']:g} ml" in row.description, row.code
 
 
+def test_a_card_for_a_person_names_that_person_in_title_and_description() -> None:
+    """The recipient entry, the title and the description say one fact, three times."""
+    rows = _spec_rows("greeting_card")
+    assert rows
+    named = 0
+    for row in rows:
+        recipient = {e[0]: e[2] for e in row.attrs}["recipient"]
+        if recipient == "Any":
+            continue
+        named += 1
+        assert recipient.lower() in row.title.lower(), row.code
+        assert recipient.lower() in row.description.lower(), row.code
+    assert named >= 3
+
+
+#: hamper code -> the number of items its description lists (a bundle counts as written).
+HAMPER_ITEMS = {"GHPBATL": 7, "GHPBATM": 4, "GHPCAND": 3, "GHPSOCK": 4}
+
+
+def test_a_hamper_item_count_matches_the_items_its_description_lists() -> None:
+    rows = _spec_rows("gift_hamper")
+    assert {r.code for r in rows} == set(HAMPER_ITEMS)
+    for row in rows:
+        assert int({e[0]: e[2] for e in row.attrs}["items"]) == HAMPER_ITEMS[row.code], row.code
+
+
 @pytest.mark.parametrize("key", TYPES)
 def test_each_type_draws_as_its_own_gifts_shape(key: str) -> None:
     rows = _spec_rows(key)
