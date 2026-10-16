@@ -83,7 +83,7 @@ KINDS = {
     "shirt_dress": Kind("Clothing", ("Womens", "Dresses", "Shirt Dresses"), "Dress", "dress",
                         "Harbour & Pine", 28.0, sizes=UK, size_range="regular"),
     "hanger": Kind("Home", ("Home", "Storage", "Hangers"), "Hanger", "hanger",
-                   "Brackenmere Home", 7.0, extra=(("pack_size", "Pack size", "10"),)),
+                   "Brackenmere Home", 7.0, extra=(("pack_size", "Pack size", "10 pack"),)),
     "trainers": Kind("Footwear", ("Mens", "Shoes", "Trainers"), "Trainers", "shoe", "Stridewell",
                      38.0, params=(("kind", "trainer"), ("material", "canvas"),
                                    ("closure", "Lace-Up"))),
