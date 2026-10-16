@@ -106,7 +106,7 @@ def test_a_navy_stripe_sku_is_navy_with_pattern_stripe(
             if v["sku"] in skus:
                 seen += 1
                 assert _values(v["attributes"], "color") == ["Navy"]
-                assert _values(v["attributes"], "pattern") == ["Stripe"]
+                assert _values(v["attributes"], "pattern") == ["stripe"]
     assert seen == len(skus)
 
 
@@ -114,7 +114,7 @@ def test_every_split_sku_carries_its_pattern(
     built: scale.Scaled, nested: list[dict[str, Any]]
 ) -> None:
     want = {
-        s["sku"]: colorwords.split(s["color"])[1]
+        s["sku"]: colorwords.split(s["color"])[1].lower()
         for r in built.records
         for s in r["skus"]
         if "color" in s and PATTERN_WORD.search(s["color"])
@@ -140,7 +140,7 @@ def test_a_style_lists_each_split_pattern_on_the_product(
         } - {None}
         for p in patterns:
             checked += 1
-            assert p.title() in _values(by_id[r["product_id"]]["attributes"], "pattern")
+            assert p.lower() in _values(by_id[r["product_id"]]["attributes"], "pattern")
     assert checked > 100
 
 
@@ -165,9 +165,9 @@ def test_the_authored_export_splits_too() -> None:
 
 
 def _drawn(record: dict[str, Any]) -> list[str]:
-    """The style's own drawn pattern as the document spells it, or Plain."""
+    """The style's own drawn pattern as the document spells it, or plain."""
     drawn = record.get("pattern", "Plain")
-    return [str(v).title() for v in (drawn if isinstance(drawn, list) else [drawn])]
+    return [str(v).lower() for v in (drawn if isinstance(drawn, list) else [drawn])]
 
 
 def test_a_flat_sku_states_its_own_pattern_and_never_a_siblings(
@@ -188,7 +188,7 @@ def test_a_flat_sku_states_its_own_pattern_and_never_a_siblings(
         styles += 1
         for row in standard.flat_documents(doc, export.NUMERIC_FACTS):
             split_pattern = colorwords.split(authored[row["sku"]] or "")[1]
-            want = [split_pattern.title()] if split_pattern else _drawn(record)
+            want = [split_pattern.lower()] if split_pattern else _drawn(record)
             if row["facets"].get("pattern") != want:
                 wrong[row["sku"]] = (row["facets"].get("pattern"), want)
     assert styles > 100
@@ -204,7 +204,7 @@ def test_a_style_whose_every_sku_splits_lists_no_plain(
         splits = [colorwords.split(s["color"])[1] for s in r["skus"] if "color" in s]
         if splits and all(splits):
             checked += 1
-            assert "Plain" not in _values(by_id[r["product_id"]]["attributes"], "pattern")
+            assert "plain" not in _values(by_id[r["product_id"]]["attributes"], "pattern")
     assert checked > 20
 
 

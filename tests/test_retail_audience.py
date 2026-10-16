@@ -160,7 +160,7 @@ def test_the_cleaning_root_is_one_and_every_build_department_is_on_the_list(docs
     assert "Cleaning" in roots
     for r in built.records:
         departments.check(r["department"], r["product_id"])
-    assert not standard.check_catalog(docs)
+    assert not standard.check_catalog(docs, text_exempt=scale.TEXT_EXEMPT)
 
 
 def test_the_document_json_round_trips_with_one_audience_entry_per_style(docs):

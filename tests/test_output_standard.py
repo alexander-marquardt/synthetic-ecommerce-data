@@ -104,7 +104,7 @@ def test_sku_options_are_variant_attributes(retail):
     jeans = next(d for d in retail if d["product_id"] == "JEA-HARROW")
     first = {e["key"]: e for e in jeans["variants"][0]["attributes"]}
     # a denim wash is a pattern of Blue, not a color of its own (#188)
-    assert (first["color"]["value"], first["pattern"]["value"]) == ("Blue", "Rinse")
+    assert (first["color"]["value"], first["pattern"]["value"]) == ("Blue", "rinse")
     assert first["size_uk"]["value"] == "4"
     assert first["inside_leg_length"] == {
         "key": "inside_leg_length",
@@ -115,13 +115,17 @@ def test_sku_options_are_variant_attributes(retail):
     }
 
 
-def test_options_offers_and_ratings_are_product_attributes(retail):
+def test_options_promotions_and_ratings_are_product_attributes(retail):
     keys = {e["key"] for d in retail for e in d["attributes"]}
-    assert {"color", "size_uk", "offer", "rating", "review_count"} <= keys
+    assert {"color", "size_uk", "promotion", "rating", "review_count"} <= keys
+    assert "offer" not in keys  # replaced by the keyword ``promotion`` (gen#189)
     assert "department" not in keys  # the department is the top level of category_path (gen#281)
     dress = next(d for d in retail if d["product_id"] == "PLT-LEMDRS")
     entries = {(e["key"], e["value"]) for e in dress["attributes"]}
-    assert {("offer", "no"), ("rating", "4.1")} <= entries
+    assert ("rating", "4.1") in entries
+    assert "promotion" not in {key for key, _ in entries}  # not reduced: no key, never a "no"
+    sale = next(d for d in retail if d["product_id"] == "PLT-PETDRS")
+    assert ("promotion", "On sale") in {(e["key"], e["value"]) for e in sale["attributes"]}
 
 
 def test_an_image_id_is_the_drawing_specs_and_stable(retail):
@@ -508,8 +512,8 @@ def test_a_flat_document_is_its_variant_under_its_product(retail, retail_flat):
     )
     assert flat["attribute_names"] == sorted({e["name"] for e in flat["attributes"]})
     assert flat["facets"]["color"] == ["Blue"]
-    assert flat["facets"]["pattern"] == ["Rinse"]
-    assert "Rinse" in flat["text"].split() and "Jeans" in flat["text"].split()
+    assert flat["facets"]["pattern"] == ["rinse"]
+    assert "rinse" in flat["text"].split() and "Jeans" in flat["text"].split()
 
 
 def test_the_export_writes_the_nested_and_the_flat_file(tmp_path, retail, retail_flat):
