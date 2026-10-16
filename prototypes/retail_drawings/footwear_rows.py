@@ -130,6 +130,10 @@ TYPES: dict[str, tuple[str, tuple[str, ...], int, str]] = {
     "clog": ("Clogs", ("Shoes", "Clogs"), 30, "clog"),
     "wedge": ("Wedges", ("Shoes", "Wedges"), 60, "wedge"),
     "espadrille": ("Espadrilles", ("Shoes", "Espadrilles"), 10, "espadrille"),
+    # The product type is "Platform Trainers" but the category leaf is "Platform Shoes" on
+    # purpose: beside "Trainers" the leaf fails the head-noun rule (test_retail_tree_nesting_283),
+    # and nested under "Trainers" it would be a parent, which a leaf never is
+    # (real_classes.check_category_paths). "Shoes" siblings School/Jelly/Barefoot Shoes fit.
     "platform_trainer": ("Platform Trainers", ("Shoes", "Platform Shoes"), 45, "platform_trainer"),
     "mule": ("Mules", ("Shoes", "Mules"), 5, "mule"),
     "jelly": ("Jelly Shoes", ("Shoes", "Jelly Shoes"), 10, "jelly"),
