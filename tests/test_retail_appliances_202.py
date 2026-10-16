@@ -87,6 +87,25 @@ def test_every_type_has_three_styles_from_three_brands() -> None:
     assert {t: n for t, n in thin.items() if min(n) < 3} == {}
 
 
+#: Colors that name another metal: a row whose words say stainless steel does not sell them.
+OTHER_METALS = ("copper", "brass", "bronze", "gold")
+
+
+def test_no_stainless_steel_row_is_sold_in_the_color_of_another_metal() -> None:
+    """"Brushed Stainless Steel Toaster" in Copper: the title and the description say stainless
+    steel, the color says copper, and a shopper who asks for either finds a contradiction."""
+    clash = {}
+    for row in ROWS:
+        words = f"{row.title} {row.description} {' '.join(_attr(row, 'material'))}".lower()
+        if "stainless steel" not in words:
+            continue
+        bad = sorted({s["color"] for s in row.skus() if any(m in s["color"].lower()
+                                                            for m in OTHER_METALS)})
+        if bad:
+            clash[row.code] = bad
+    assert clash == {}
+
+
 def test_every_style_draws_as_its_own_appliance_shape() -> None:
     assert {r.code: r.shape for r in ROWS if r.shape not in kit_appliances.SHAPES} == {}
 
