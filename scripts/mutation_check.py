@@ -34,6 +34,7 @@ import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their o
 import mutation_rows_customer_names  # noqa: E402  (#393 rows, kept in their own file)
 import mutation_rows_cutlery_pack_count  # noqa: E402  (gen#228 rows)
 import mutation_rows_department_floor  # noqa: E402  (gen#234 rows)
+import mutation_rows_furniture_226  # noqa: E402  (gen#226 rows, kept in their own file)
 import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
 import mutation_rows_jewellery_423  # noqa: E402  (gen#423 rows)
 import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
@@ -3877,6 +3878,19 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- the red-commit proof judges the commits that declare (#11680) ------
+    # Every name starts "red_commit_proof:", so `--only "red_commit_proof:"` re-runs it.
+    Mutation(
+        "red_commit_proof: a merge commit's trailer is judged",
+        "scripts/red_commit_proof.py",
+        '"rev-list", "--reverse", "--no-merges", args.spec',
+        '"rev-list", "--reverse", args.spec',
+        "tests/test_red_commit_proof_11680.py::"
+        "test_a_merge_commit_is_never_judged_whatever_its_message_declares",
+        "",
+        "only the branch's own commits are judged, not a merge of main",
+        root=".",
+    ),
     # ---- retail: the steak plate, board and weight carry a material, never derived (gen#268) ----
     *(
         Mutation(f"steak ware: {name}", file, old, new_, test, "", prop,
@@ -4063,6 +4077,11 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"underwear drawn values: {name}", file, old, new, tests, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, tests, prop in mutation_rows_underwear_245.ROWS
+    ),
+    *(
+        Mutation(f"furniture drawings: {name}", file, old, new, tests, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, tests, prop in mutation_rows_furniture_226.ROWS
     ),
     *(
         Mutation(f"audit order: {n}", "generate_cli.py", o, w, t, "", pr)
