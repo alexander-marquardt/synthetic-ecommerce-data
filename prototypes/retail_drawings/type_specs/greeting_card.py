@@ -54,7 +54,7 @@ SPEC = TypeSpec(
             3, "Birthday Greeting Card",
             "A folded card with a message inside, sent with a present.",
             "Cream", GIFTS, "Gifts", ("Gifts", "Cards", "Greeting Cards"),
-            "Greeting Card", "greeting_card_open", 3.0, "card",
+            "Greeting Card", "greeting_card", 3.0, "card",
         ),
     ),
 )  # fmt: skip
