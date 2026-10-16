@@ -77,10 +77,10 @@ hs.MARKS.update(NEW_MARKS)
 STYLES = {
     "Green Harrow":  H("#f1f6ea", "lines",    "thin",    "#3f7a3a", "#23361f", 1.0,  False, "round", "harrow",  "mark_left",  "top_left",      "none", "humanist", 700, "title",     0.5),
     "Yellow Skerry": H("#fffbe9", "none",     "double",  "#d9a521", "#4a3b12", 0.9,  False, "sharp", "skerry",  "badge",      "bottom_right",  "none", "serif",    400, "smallcaps", 1.5, True),
-    "Black Larch":   H("#eceded", "grid",     "heavy",   "#232326", "#151517", 1.4,  False, "sharp", "larch",   "band_top",   "top_centre",    "none", "sans",     700, "title",     1.5),
+    "Black Larch":   H("#eceded", "grid",     "heavy",   "#232326", "#151517", 1.4,  False, "sharp", "larch",   "band_top",   "top_center",    "none", "sans",     700, "title",     1.5),
     "Silver Sedge":  H("#f5f6f7", "dots",     "rounded", "#8a929a", "#2c3238", 0.8,  True,  "round", "sedge",   "mark_above", "bottom_left",   "none", "mono",     400, "title",     0.0),
     "Blue Heddon":   H("#eef3fb", "diagonal", "ticks",   "#2f5fa5", "#1b2c4a", 1.2,  False, "round", "heddle",  "pill",       "top_right",     "none", "serif",    700, "smallcaps", 0.5),
-    "Red Linnet":    H("#fdf1ee", "hatch",    "none",    "#c8312e", "#3a1f1c", 1.1,  False, "round", "linnet",  "mark_right", "bottom_centre", "none", "sans",     400, "title",     1.0),
+    "Red Linnet":    H("#fdf1ee", "hatch",    "none",    "#c8312e", "#3a1f1c", 1.1,  False, "round", "linnet",  "mark_right", "bottom_center", "none", "sans",     400, "title",     1.0),
 }
 # fmt: on
 hs.HOUSE_STYLES.update(STYLES)
