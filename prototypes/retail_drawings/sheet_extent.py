@@ -5,11 +5,13 @@ every ``translate``, ``rotate`` and ``scale`` of the groups around them, and ret
 they cover.
 A curve is measured at its true extremes, not at its control points, so a curve that bows
 inside the sheet is not flagged for a control point outside it. Stroke width is not counted:
-the guard is about the geometry a drawing places, as the issue words it.
+the guard is about the geometry a drawing places, as the issue words it. ``<text>`` is not
+measured either: a label is skipped, not read.
 
-Anything outside this vocabulary (another element that paints, a path command or a transform
-this module does not read) raises ``ValueError`` instead of being skipped, so a drawing that
-starts to use one is not measured as a smaller box than it has.
+Anything else outside this vocabulary (another element that paints, a path command, a transform,
+a nested ``<svg>``, a ``style`` transform, a ``<clipPath>`` transform or ``clipPathUnits``)
+raises ``ValueError`` instead of being skipped, so a drawing that starts to use one is not
+measured as a smaller box than it has.
 """
 
 from __future__ import annotations
@@ -209,6 +211,8 @@ def _num(el: ET.Element, name: str, default: float = 0.0) -> float:
 
 def _boxes(el: ET.Element, m: Matrix, clips: dict[str, ET.Element]) -> Iterator[Box]:
     tag = el.tag.removeprefix(NS)
+    if "transform" in el.get("style", ""):
+        raise ValueError(f"<{tag}> style transform is not read by sheet_extent")
     here = _mul(m, _transform(el.get("transform")))
     if tag in _DEFINITIONS:
         return  # a definition paints nothing until something uses it
@@ -256,7 +260,12 @@ def _clipped(box: Box, el: ET.Element, m: Matrix, clips: dict[str, ET.Element]) 
 def reach(svg: str | bytes) -> Box | None:
     """``(x0, y0, x1, y1)``: the box the SVG's drawn elements cover, or ``None`` when none is."""
     root = ET.fromstring(svg)
+    if any(el is not root for el in root.iter(f"{NS}svg")):
+        raise ValueError("a nested <svg> (its x, y and viewBox) is not read by sheet_extent")
     clips = {el.get("id", ""): el for el in root.iter(f"{NS}clipPath")}
+    for clip in clips.values():
+        if clip.get("transform") or clip.get("clipPathUnits"):
+            raise ValueError("a <clipPath> transform or clipPathUnits is not read by sheet_extent")
     boxes = list(_boxes(root, IDENTITY, clips))
     if not boxes:
         return None

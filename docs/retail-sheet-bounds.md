@@ -22,10 +22,14 @@ rows.
 | `translate`, `rotate`, `scale`, `matrix` on any group or element | Composed down the tree |
 | A `clip-path` | The element's box is cut to the clip path's box |
 | `<defs>`, `<pattern>`, `<mask>`, `<clipPath>`, gradients | Not drawn: their children are definitions |
+| `<text>` | Not measured: a label is skipped, not read (no row overruns by an estimate of its width today) |
 
-Stroke width is not counted: the guard is about the geometry a drawing places. A painting
+Stroke width is not counted: the guard is about the geometry a drawing places. Counting half
+the stroke would add 2 rows (BRD-MRSUN by 2.8, BRD-DTMB8 by 0.8), a possible follow-up. A painting
 element, path command or transform it does not read raises `ValueError` instead of being
-skipped, so a drawing that starts to use one is not measured as a smaller box.
+skipped, so a drawing that starts to use one is not measured as a smaller box. That covers a
+nested `<svg>`, a `style` holding `transform`, and a `<clipPath>` with `transform` or
+`clipPathUnits`; `<text>` is the one family that is skipped, as the table says.
 
 When a shape fails: move or shorten the part the failure names. A pool of glow from a light is
 a polygon whose corners `kit_lighting._glow` holds to the sheet. Do not widen the check or add
