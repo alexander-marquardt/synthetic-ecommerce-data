@@ -24,6 +24,7 @@ from synthetic_ecommerce_data.core.model import Attribute, Catalog
 from synthetic_ecommerce_data.domains.industrial import (
     breadth,
     hammers,
+    measured_builds,
     newtypes,
     price_report,
     tabletype,
@@ -1220,3 +1221,47 @@ def test_a_measured_breadth_skus_tier_scales_its_price_by_the_tier_factor(tier):
             row, size, "standard", 0.5, 0.0
         )
         assert abs(ratio / price.TIER_FACTORS[tier] - 1) < 0.01, (key, ratio)
+
+
+# --- the measured builds are generated, not typed (#85, #103) ----------------
+
+REBUILD_BUILDS = "uv run python -m synthetic_ecommerce_data.domains.industrial.measured_builds"
+
+
+def test_the_measured_builds_file_is_committed():
+    """The pinned figures and the 100K build's sizes are build output: one
+    committed file that ``scripts/merge_pr.sh`` rebuilds, so two type PRs that
+    move them never meet on a typed line."""
+    assert price.BUILDS_FILE.is_file(), f"{price.BUILDS_FILE} is missing; run {REBUILD_BUILDS}"
+    figures = json.loads(price.BUILDS_FILE.read_text("utf-8"))
+    assert sorted(figures) == ["default", "hundred_k"]
+    assert sorted(figures["hundred_k"]) == ["lines", "price_pins", "skus", "skus_by_type"]
+
+
+def test_the_pinned_figures_are_the_committed_files_not_typed_in_price_py():
+    assert price.BUILDS_FILE.is_file(), f"{price.BUILDS_FILE} is missing; run {REBUILD_BUILDS}"
+    figures = json.loads(price.BUILDS_FILE.read_text("utf-8"))
+    default, hundred_k = figures["default"]["price_pins"], figures["hundred_k"]["price_pins"]
+    assert sorted(default) == sorted(hundred_k) == sorted(price.PINNED_SHORTFALLS)
+    assert {name: (default[name], hundred_k[name]) for name in default} == price.PINNED_FIGURES
+    assert "_KIT_SPREAD_ROW: (" not in Path(price.__file__).read_text("utf-8")
+
+
+def test_the_measured_builds_file_is_what_the_rebuild_writes(catalog, hundred_k):
+    """A figure that moves unexpectedly reds here, naming the rebuild: the
+    file is compared with the two builds the suite already holds."""
+    assert price.BUILDS_FILE.is_file(), f"{price.BUILDS_FILE} is missing; run {REBUILD_BUILDS}"
+    built = measured_builds.render(measured_builds.figures(catalog, hundred_k[0]))
+    assert price.BUILDS_FILE.read_text("utf-8") == built, f"stale; run {REBUILD_BUILDS}"
+
+
+def test_a_moved_figure_makes_the_rebuilt_file_differ_from_the_committed_one(
+    catalog, hundred_k, monkeypatch
+):
+    assert price.BUILDS_FILE.is_file(), f"{price.BUILDS_FILE} is missing; run {REBUILD_BUILDS}"
+    committed = price.BUILDS_FILE.read_text("utf-8")
+    model = price.MODELS["wheel_depressed_center"]
+    louder = replace(model, group_sigma=model.group_sigma * 1.1)
+    monkeypatch.setitem(price.MODELS, "wheel_depressed_center", louder)
+    moved = measured_builds.render(measured_builds.figures(catalog, hundred_k[0]))
+    assert moved != committed

@@ -24,11 +24,13 @@ from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data.core import price
 from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys
 
 ROOT = Path(__file__).resolve().parents[1]
 GOLDEN = ROOT / "golden-catalog"
 REBUILD = "uv run ecom-generate build --out golden-catalog"
+BUILDS_FILE = price.BUILDS_FILE
 
 #: Where the figures used to be typed. A file that quotes one again conflicts
 #: with every type PR again.
@@ -94,7 +96,7 @@ def _quotations(stats: dict) -> dict[str, str]:
     if catalog:
         patterns["catalog.modelled_types"] = rf"\b{catalog['modelled_types']}\s+depth\s+types"
         patterns["catalog.breadth_categories"] = (
-            rf"\b{catalog['breadth_categories']}\s+\[?breadth\s+categor"
+            rf"\b{catalog['breadth_categories']}\s+\[?breadth\s+(?:categor|types)"
         )
         patterns["catalog.brands"] = rf"\b{catalog['brands']}\s+invented\s+brands"
     if drawings:
@@ -102,6 +104,13 @@ def _quotations(stats: dict) -> dict[str, str]:
         patterns["drawings.largest_bytes"] = rf"\b{drawings['largest_bytes']:,}\s+bytes"
         for rung, count in drawings["geometry"].items():
             patterns[f"drawings.geometry.{rung}"] = rf"\b{count:,}\s+`{rung}`"
+    if BUILDS_FILE.is_file():
+        hundred_k = json.loads(BUILDS_FILE.read_text("utf-8"))["hundred_k"]
+        patterns["hundred_k.skus"] = rf"\b{hundred_k['skus']:,}\b"
+        patterns["hundred_k.lines"] = rf"\b{hundred_k['lines']:,}\b"
+        for type_key, count in hundred_k["skus_by_type"].items():
+            if count >= 1000:  # a smaller count is too common a number to name the figure
+                patterns[f"hundred_k.skus_by_type.{type_key}"] = rf"\b{count:,}\b"
     for key, value in figures.get("dispersion", {}).items():
         # Four-place ratios only: a two-place share such as 0.28 is also a
         # census share elsewhere in the README.
@@ -143,3 +152,12 @@ def test_no_per_type_size_is_typed_by_hand() -> None:
         if path.name != Path(__file__).name and pattern.search(path.read_text("utf-8"))
     )
     assert offenders == [], f"typed-by-hand per-type sizes in {offenders}; read stats.json"
+
+
+def test_no_doc_counts_the_types_by_hand() -> None:
+    """``today's 68 types`` was typed once and was stale the next merge (#85)."""
+    pattern = re.compile(r"\btoday's\s+\d+\s+types\b")
+    offenders = sorted(
+        path for path in QUOTING if pattern.search((ROOT / path).read_text("utf-8"))
+    )
+    assert offenders == [], f"a type count typed by hand in {offenders}; read figures.catalog"

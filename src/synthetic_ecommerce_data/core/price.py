@@ -72,6 +72,7 @@ import math
 import random
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
+from pathlib import Path
 from statistics import NormalDist
 from typing import TYPE_CHECKING, Literal
 
@@ -943,6 +944,7 @@ SIZE_NOISE: dict[str, str] = {
 #: tap); 3 is the median the default build's drill specs hold, so on most of
 #: its specs the sample is a true sample and not every brand there is.
 BRAND_SAMPLE_CAP = 3
+BUILDS_FILE = Path(__file__).parent / "data" / "measured_builds.json"
 _WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
 _KIT_SPREAD_ROW = "price p90/p10: kit_assortment"
 PINNED_FIGURES: dict[str, tuple[float, float]] = {
