@@ -54,7 +54,7 @@ class Row:
     A ``colorless`` row's SKUs carry no color (a plant, a cleaner); its drawing still
     takes ``colors[0]``. A size is ``(name, price)``: a bigger size costs more. It is
     stored under ``size_key``: a measured one (``5 ft``, which the core classes as a length)
-    goes under its own key (``height``), so ``size`` never mixes classed and unclassed values.
+    goes under its own key (``item_height``), so ``size`` never mixes classed and unclassed values.
     """
 
     code: str

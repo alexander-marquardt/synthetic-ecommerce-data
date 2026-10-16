@@ -478,7 +478,7 @@ HOME = [
             "Ochre / Linen",
             "Plain",
             "Ceramic, Linen Shade",
-            attr("height", "Height", 46, "CMT"),
+            attr("item_height", "Item height", 46, "CMT", 460.0),
         ),
         drawing("table_lamp", "solid", "#ece3cf", "#c9873a"),
     ),

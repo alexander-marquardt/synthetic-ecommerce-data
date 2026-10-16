@@ -380,7 +380,7 @@ def _stool(code: str, title: str, brand: str, mat: str, form: str, storage: bool
     return Row(
         code, title, brand, "Home", FOOTSTOOLS, "Footstool", price, "footstool", text, colors,
         (("material", "Material", mat), ("shape", "Shape", form.title()),
-         ("storage_compartment", "Storage compartment", _yes(storage)),
+         ("storage_feature", "Storage feature", "Lift-Top" if storage else "None"),
          ("leg_finish", "Leg finish", LEGS[legs]), *_dims(*dims)),
         params=(("form", form), ("storage", _yes(storage)), ("legs", legs)),
     )  # fmt: skip
