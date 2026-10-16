@@ -310,7 +310,15 @@ defects. One attribute key has one class: `check_catalog(..., one_class_per_key=
 (on for retail, in `scale.py` and the test) refuses a key that carries a `unit_code` on
 some entries and none on others, which the Engine refuses to start on. A measured value
 (`5 ft`, which the core reads as a length) goes under its own key (a tree's `height`),
-never under `size`. A variant's `price` is in its `currency` (ISO 4217), never converted:
+never under `size`. The text agreement check (`text_contradictions`, on by default) runs
+on industrial too (gen#139). It reads a title or description as contradicting a value only when
+the text names another value of the key's leaf pool and none of the document's own, and it
+leaves out: a pool value whose words sit inside one of the document's own values ("Steel" on
+18-8 Stainless Steel), a comparison or an equivalence to the end of its sentence ("Higher
+strength than Grade 5.", "Equivalent to DIN 912 / ISO 4762.") and a parenthesised tolerance
+class ("(ISO 492 Normal class)"). Industrial's hammer text-match decoys (gen#294) name a handle
+or kind their attributes do not hold, by design: `hammers.decoy_ids(docs)` is their
+`text_exempt`, by id, never a looser rule. A variant's `price` is in its `currency` (ISO 4217), never converted:
 industrial writes `USD` and keeps `price_usd` beside it for its loader, retail
 writes `GBP`. Availability is the `in_stock` yes/no; `stock`, the count, is
 written only by a domain that models one (industrial). A field marked optional
