@@ -41,7 +41,14 @@ QUERIES = ("red dress", "black dress", "blue sofa", "black boots", "white traine
 TRUE_NODE = {"dress": "Dresses", "shoe": "Shoes", "boot": "Boots", "coat": "Coats & Jackets",
              "jacket": "Coats & Jackets", "jumper": "Jumpers", "skirt": "Skirts",
              "suit": "Suits & Tailoring", "bra": "Bras", "trainer": "Trainers", "hat": "Hats",
-             "belt": "Belts", "tie": "Ties", "sofa": "Sofas", "pump": "Pumps", "cap": "Caps"}
+             "belt": "Belts", "tie": "Ties", "sofa": "Sofas", "pump": "Pumps", "cap": "Caps",
+             # the Sports & Outdoors nouns of the #368 rows: the node of the sports product
+             "block": "Yoga Blocks", "strap": "Yoga Straps", "band": "Resistance Bands",
+             "resistance": "Resistance Bands", "lantern": "Lanterns", "roll": "Roll Mats",
+             "bat": "Baseball Bats", "baseball": "Baseballs", "glove": "Baseball Gloves",
+             "batting": "Batting Helmets", "swim": "Swim Caps", "kickboard": "Kickboards",
+             "armband": "Swim Armbands", "football": "Footballs", "tenni": "Tennis Rackets",
+             "badminton": "Badminton Sets"}
 POLICIES = ("category", "department", "color")
 
 

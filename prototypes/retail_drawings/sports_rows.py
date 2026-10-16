@@ -2,7 +2,11 @@
 
 The catalog had no sports department. This is its first increment: the **Sports & Outdoors**
 root with two families, Camping (tents, sleeping bags, camping chairs) and Yoga & Fitness
-(yoga mats, dumbbells, kettlebells, foam rollers). Each type is a leaf with its own drawing
+(yoga mats, dumbbells, kettlebells, foam rollers). The second increment (gen#368) adds yoga blocks
+and straps, resistance bands, lanterns, roll mats, bike pumps (Cycling), the Baseball family (bats,
+gloves, balls, batting helmets), Swimming (goggles, caps, kickboards, armbands) and Team & Racket
+Sports (footballs, tennis rackets, badminton sets); those 17 types are one spec file each in
+``type_specs/`` (gen#351), built from :mod:`sports_helpers`, and :data:`ROWS` lists them too. Each type is a leaf with its own drawing
 (:mod:`kit_sports`), its shopper attributes as structured entries, and SKUs over its color and
 its own axis: a tent's berth, a sleeping bag's length in centimetres, a mat's thickness, a weight's kilograms,
 a roller's length.
@@ -24,58 +28,32 @@ authored rows.
 from __future__ import annotations
 
 import kit_sports  # noqa: F401 -- registers tent, sleeping_bag, camp_chair, yoga_mat, ...
-from breadth_rows import Row
-from variants import cw
-
-from synthetic_ecommerce_data.core.entry import canonical
-
-DEPARTMENT = "Sports & Outdoors"
-_W, _H, _L = "Wrenfield", "Harbour & Pine", "Larkmoor"
-_SO = DEPARTMENT
-_TENTS = (_SO, "Camping", "Tents")
-_CAMP = (_SO, "Camping")
-_YOGA = (_SO, "Yoga & Fitness", "Yoga")
-_WEIGHTS = (_SO, "Yoga & Fitness", "Weights")
-_FIT = (_SO, "Yoga & Fitness")
-
-RED = cw("Red", "#c8312e")
-BLUE = cw("Blue", "#3f6fb5")
-GREEN = cw("Green", "#4f8a3a")
-YELLOW = cw("Yellow", "#f2c230")
-BLACK = cw("Black", "#2d2d33")
-WHITE = cw("White", "#f4f1ea", "solid", "#9a9ca0")
-ORANGE = cw("Orange", "#e07a1f")
-GREY = cw("Grey", "#9a9ca0")
-
-
-def _a(key: str, name: str, v: str) -> tuple[str, str, str]:
-    return (key, name, v)
-
-
-def _kg(key: str, name: str, kg: int) -> tuple[str, str, str, str, float]:
-    """A weight in kilograms: the canonical value is in grams, as the core's ``KGM`` says."""
-    return (key, name, str(kg), "KGM", float(canonical(str(kg), "KGM")))
-
-
-def _mm(key: str, name: str, mm: int) -> tuple[str, str, str, str, float]:
-    return (key, name, str(mm), "MMT", float(mm))
-
-
-def _season(n: int) -> tuple[str, str, str]:
-    return _a("season_rating", "Season rating", f"{n} Season")
-
-
-def _axis(*pairs: tuple[float, float]) -> tuple[tuple[str, float], ...]:
-    """SKU values of a measured axis and the price at each."""
-    return tuple((f"{v:g}", p) for v, p in pairs)
-
-
-def _row(code: str, title: str, brand: str, path: tuple[str, ...], ptype: str, price: float,
-         shape: str, description: str, colors: tuple, attrs: tuple, sizes: tuple = (),
-         size_key: str = "size", params: tuple = ()) -> Row:  # fmt: skip
-    return Row(code, title, brand, DEPARTMENT, path, ptype, price, shape, description, colors,
-               attrs, sizes, size_key=size_key, params=params)  # fmt: skip
-
+import type_registry
+from sports_helpers import (
+    _CAMP,
+    _FIT,
+    _H,
+    _L,
+    _TENTS,
+    _W,
+    _WEIGHTS,
+    _YOGA,
+    BLACK,
+    BLUE,
+    DEPARTMENT,
+    GREEN,
+    GREY,
+    ORANGE,
+    RED,
+    WHITE,
+    YELLOW,
+    _a,
+    _axis,
+    _kg,
+    _mm,
+    _row,
+    _season,
+)
 
 # --------------------------------------------------------------------------
 # Camping: the shell, bag or chair is drawn; berth, length and color are SKUs.
@@ -227,9 +205,25 @@ FOAM_ROLLERS = (
          _axis((33, 18.0), (45, 22.0)), "length_cm", (("texture", "grid"),)),
 )
 
-ROWS = (*TENTS, *SLEEPING_BAGS, *CHAIRS, *YOGA_MATS, *DUMBBELLS, *KETTLEBELLS, *FOAM_ROLLERS)
+
+# --------------------------------------------------------------------------
+# Second increment (gen#368): the remainder of gen#265. Every type has two styles from two
+# brands; the two styles' colors together cover the six main colors.
+# --------------------------------------------------------------------------
+
+#: The first-increment styles (gen#265): their types are still on the legacy list.
+LEGACY_ROWS = (*TENTS, *SLEEPING_BAGS, *CHAIRS, *YOGA_MATS, *DUMBBELLS, *KETTLEBELLS, *FOAM_ROLLERS)
+
+#: The second increment (gen#368) is one spec file per type in ``type_specs/``; every Sports &
+#: Outdoors row of the registry, in key order, so the checks over :data:`ROWS` read them too.
+SPEC_ROWS = tuple(
+    row for _, spec in sorted(type_registry.specs().items()) if spec.department == DEPARTMENT
+    for row in spec.rows
+)  # fmt: skip
+
+ROWS = (*LEGACY_ROWS, *SPEC_ROWS)
 
 
 def docs() -> list[dict]:
-    """Every row's catalog document."""
-    return [r.doc() for r in ROWS]
+    """The legacy rows' catalog documents; the spec rows reach the build through the registry."""
+    return [r.doc() for r in LEGACY_ROWS]
