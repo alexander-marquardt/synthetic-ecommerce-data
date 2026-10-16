@@ -1488,7 +1488,7 @@ another department's standing: do not add rows to an unrelated department to pas
 `test_growing_one_department_never_starves_another` builds the ceiling with 200 more Home
 templates and holds every other department at its floor. A batch that removes or narrows a
 department's own rows below the floor still fails: raise that department with rows of its
-own.
+own. A description's closure and a style's pattern are held to its attributes ([gen#250](docs/retail-attribute-text.md)).
 
 ## The built catalog is committed, in `golden-catalog/`
 
