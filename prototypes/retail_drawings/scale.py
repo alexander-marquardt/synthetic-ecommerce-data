@@ -282,7 +282,9 @@ SPEC_IDS = type_registry.left_out_ids()
 DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()
 # The class-8 product-word decoys (gen#326) name a detail color on purpose in some rows only:
 # those rows join the exemption, by id, and the rest of the class is checked like any product.
-TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT
+# A spec decoy (gen#351) names a value of its own filter on purpose too ("dewy" on a matte primer,
+# gen#214), so the registry's decoys join it.
+TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT | type_registry.decoy_ids()
 
 
 def templates(baseline: bool = True) -> list[dict]:
@@ -321,8 +323,13 @@ def templates(baseline: bool = True) -> list[dict]:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
     type_registry.check_unique_ids(tpls)
-    skip = (mens_depth_rows.decoy_ids() | garden_rows.decoy_ids() | NIKE_IDS
-            | type_registry.decoy_ids() | needs_rows.decoy_ids())
+    skip = (
+        mens_depth_rows.decoy_ids()
+        | garden_rows.decoy_ids()
+        | NIKE_IDS
+        | type_registry.decoy_ids()
+        | needs_rows.decoy_ids()
+    )
     return main_colors.complete(tpls, skip) if baseline else tpls
 
 
@@ -336,11 +343,30 @@ def derivable(tpls: list[dict]) -> list[dict]:
     style (:mod:`lowerbody_rows`), left out so the seeded derivation is what it was. A boat
     or slash neck top is a failure-class row too (gen#125): a derived copy of it would hand
     the no-policy baseline the neckline, so it stays a template."""
-    left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
-                | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS | SCHOOL_IDS
-                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | GARDEN_IDS | NIKE_IDS | NEEDS_IDS
-                | SPEC_IDS | decoy_rows.IDS
-                | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)
+    left_out = (
+        SHIRT_IDS
+        | SOFA_IDS
+        | FURNITURE_IDS
+        | HOUSEHOLD_IDS
+        | APPLIANCE_IDS
+        | UNDERWEAR_IDS
+        | TOY_IDS
+        | LOWER_IDS
+        | ACCESSORY_IDS
+        | SPORTS_IDS
+        | SCHOOL_IDS
+        | SEASONAL_IDS
+        | COLORGROUP_IDS
+        | MENS_DEPTH_IDS
+        | GARDEN_IDS
+        | NIKE_IDS
+        | NEEDS_IDS
+        | SPEC_IDS
+        | decoy_rows.IDS
+        | decoy_apparel.IDS
+        | decoy_product_words.IDS
+        | STEAK_WARE_IDS
+    )
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out
             and r.get("neckline") not in ("boat", "slash")]  # fmt: skip

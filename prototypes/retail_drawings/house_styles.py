@@ -1099,6 +1099,21 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     # A real brand (real_brands.ALLOWED, gen#341): text only, so the drawing carries no logo.
     "Nike":                 H("#f6f6f6", "none",     "rounded", "#111111", "#111111", 1.0,  False, "round", "none",              "mark_left",   "bottom_left",   "none",     "sans",     400, "lower",     0.5),
     "Coat Crake":           H("#f3efe8", "dots",     "double",  "#7a5a3a", "#30241a", 1.1,  False, "sharp", "comb",              "mark_only",   "bottom_left",   "stamp",    "mono",     700, "lower",     2.0),
+    # The beauty depth brands (type_specs, gen#214): invented, text only.
+    "Aldermist":           H("#fbf1f1", "dots", "double", "#b0486a", "#3a1a28", 0.85, False, "sharp", "three_stars", "mark_only", "top_left", "outline", "humanist", 700, "caps", 1.0),
+    "Citrus Heron":        H("#f1f5f8", "lines", "rounded", "#4a8a52", "#1e3a22", 0.90, False, "round", "sunburst", "mark_only", "top_right", "flag", "serif", 400, "smallcaps", 1.5),
+    "Clay Wren":           H("#f4f1fa", "grid", "heavy", "#9a3a78", "#38183a", 0.95, False, "sharp", "spokes", "mark_only", "bottom_left", "underline", "humanist", 400, "lower", 2.0),
+    "Cloth Wren":          H("#f2f7ef", "diagonal", "ticks", "#6a4fa0", "#2a1c3e", 1.00, False, "round", "three_drops", "mark_only", "bottom_right", "tab", "serif", 700, "title", 2.5),
+    "Dewy Finch":          H("#faf3e6", "hatch", "none", "#2f7f7a", "#123a38", 1.05, False, "sharp", "slanted_blades", "mark_only", "top_left", "rect", "humanist", 400, "caps", 1.0),
+    "Fenmere":             H("#eef3f3", "none", "thin", "#3a6f8f", "#16303e", 0.85, True, "round", "plus_four", "mark_only", "top_right", "plain", "serif", 400, "smallcaps", 1.5),
+    "Pearlbrook":          H("#f8f0f6", "dots", "double", "#b9803a", "#3e2a12", 0.90, False, "sharp", "bar_trio", "mark_only", "bottom_left", "stamp", "humanist", 700, "lower", 2.0),
+    "Red Kestrel":         H("#fbf1f1", "lines", "rounded", "#b0486a", "#3a1a28", 0.95, False, "round", "ladder", "mark_only", "bottom_right", "outline", "serif", 400, "title", 2.5),
+    "Rose Kestrel":        H("#f1f5f8", "grid", "heavy", "#4a8a52", "#1e3a22", 1.00, False, "sharp", "diamond_dot", "mark_only", "top_left", "flag", "humanist", 400, "caps", 1.0),
+    "Sorrel & Salt":       H("#f4f1fa", "diagonal", "ticks", "#9a3a78", "#38183a", 1.05, False, "round", "hourglass", "mark_only", "top_right", "underline", "serif", 700, "smallcaps", 1.5),
+    "Thornlea Skin":       H("#f2f7ef", "hatch", "none", "#6a4fa0", "#2a1c3e", 0.85, False, "sharp", "cask", "mark_only", "bottom_left", "tab", "humanist", 400, "lower", 2.0),
+    "Vanilla Wren":        H("#faf3e6", "none", "thin", "#2f7f7a", "#123a38", 0.90, True, "round", "fold", "mark_only", "bottom_right", "rect", "serif", 400, "title", 2.5),
+    "Veilmoor":            H("#eef3f3", "dots", "double", "#3a6f8f", "#16303e", 0.95, False, "sharp", "bubbles", "mark_only", "top_left", "plain", "humanist", 700, "caps", 1.0),
+    "Vitamin C Orchard":   H("#f8f0f6", "lines", "rounded", "#b9803a", "#3e2a12", 1.00, False, "round", "dot_triangle", "mark_only", "top_right", "stamp", "serif", 400, "smallcaps", 1.5),
 }
 # fmt: on
 
