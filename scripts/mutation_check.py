@@ -26,6 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their own file)
 import mutation_rows_type_specs  # noqa: E402  (gen#351 rows, kept in their own file)
 
 REPO = Path(__file__).resolve().parent.parent
@@ -3882,6 +3883,11 @@ MUTATIONS: list[Mutation] = [
     *(
         Mutation(f"type specs: {name}", file, old, new, test, "", prop, root=root)
         for name, file, old, new, test, prop, root in mutation_rows_type_specs.ROWS
+    ),
+    # ---- retail: derived ceiling-light forms (gen#237); the rows are in their own file ----
+    *(
+        Mutation(f"ceiling forms: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in mutation_rows_ceiling_forms.ROWS
     ),
     # ---- retail: product-word decoys (gen#326) ----
     *(
