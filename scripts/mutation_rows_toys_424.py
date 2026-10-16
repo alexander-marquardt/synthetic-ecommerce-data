@@ -69,8 +69,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the kitchen scales sit in the play kitchen's leaf",
         "type_specs/kitchen_scales.py",
-        '("Home", "Kitchen & Dining", "Kitchen Scales"), "Kitchen Scales"',
-        '("Home", "Kitchen & Dining", "Play Kitchens"), "Kitchen Scales"',
+        '"Grey", HOME, "Home", ("Home", "Kitchen & Dining", "Kitchen Scales")',
+        '"Grey", HOME, "Home", ("Home", "Kitchen & Dining", "Play Kitchens")',
         f'{_T} -k "toy_word_decoy and kitchen_scales"',
         "a class-8 decoy never sits in the node of the product its noun names",
         _R,
