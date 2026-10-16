@@ -65,6 +65,67 @@ class Mutation:
 
 
 MUTATIONS: list[Mutation] = [
+    # ---- the commit-message check masks the agent-instructions file name (gen#117) ----
+    Mutation(
+        "commit msg: the file name is no longer masked before matching",
+        "scripts/check_commit_msg.py",
+        "    return _AGENT_FILE.sub(_MASK, text)",
+        "    return text",
+        "tests/test_commit_msg_check.py -k test_the_agent_file_name_passes",
+        "A",
+        "the agent-instructions file name passes",
+        root=".",
+    ),
+    Mutation(
+        "commit msg: the mask swallows the whole line, vendor prose with it",
+        "scripts/check_commit_msg.py",
+        '_AGENT_FILE = re.compile(r"(?<![\\w.-])CLAUDE\\.md(?![\\w-])")',
+        '_AGENT_FILE = re.compile(r"^.*(?<![\\w.-])CLAUDE\\.md(?![\\w-]).*$", re.MULTILINE)',
+        "tests/test_commit_msg_check.py -k prose-before-name",
+        "B",
+        "a vendor name beside the file name still fails",
+        root=".",
+    ),
+    Mutation(
+        "commit msg: a glued prefix counts as the file name",
+        "scripts/check_commit_msg.py",
+        '_AGENT_FILE = re.compile(r"(?<![\\w.-])CLAUDE',
+        '_AGENT_FILE = re.compile(r"CLAUDE',
+        "tests/test_commit_msg_check.py -k glued-prefix",
+        "B",
+        "only the exact file name is masked",
+        root=".",
+    ),
+    Mutation(
+        "commit msg: a longer extension counts as the file name",
+        "scripts/check_commit_msg.py",
+        '\\.md(?![\\w-])")',
+        '\\.md")',
+        "tests/test_commit_msg_check.py -k longer-extension",
+        "B",
+        "only the exact file name is masked",
+        root=".",
+    ),
+    Mutation(
+        "commit msg: the mask is matched case-blind, so a lower-case name is masked",
+        "scripts/check_commit_msg.py",
+        "    return _AGENT_FILE.sub(_MASK, text)",
+        "    return re.sub(_AGENT_FILE.pattern, _MASK, text, flags=re.IGNORECASE)",
+        "tests/test_commit_msg_check.py -k lowercase-name",
+        "B",
+        "only the exact file name is masked",
+        root=".",
+    ),
+    Mutation(
+        "commit msg: the mask is applied to every row, not the vendor-name row alone",
+        "scripts/check_commit_msg.py",
+        "pattern.search(masked if label == _MASKED_LABEL else text)",
+        "pattern.search(masked)",
+        "tests/test_commit_msg_check.py -k names-file",
+        "B",
+        "a shape row still reads the file name as the tool named",
+        root=".",
+    ),
     # ---- the local CI runs the suite on several workers, bounded by memory (gen#348) ----
     Mutation(
         "ci workers: the emitted steps stop carrying the xdist options",
@@ -652,6 +713,35 @@ MUTATIONS: list[Mutation] = [
         "tests/test_type_seam.py",
         "",
         "two types on one block are refused, naming both",
+    ),
+    # ---- labels on the type's own spec: two type PRs share no line (#103) ----
+    Mutation(
+        "labels: a label in the table and on the spec is accepted",
+        "domains/industrial/type_labels.py",
+        "    if dict.__contains__(PRODUCT_TYPE_LABELS, spec.key):",
+        "    if False:",
+        "tests/test_type_registration.py::test_a_label_in_the_table_and_on_the_spec_is_refused",
+        "",
+        "a label is declared once",
+    ),
+    Mutation(
+        "labels: register drops the label a spec declares",
+        "domains/industrial/type_labels.py",
+        "    PRODUCT_TYPE_LABELS[spec.key] = spec.label",
+        "    pass",
+        "tests/test_type_registration.py::test_a_label_on_the_spec_joins_the_label_table",
+        "",
+        "a type's label on its spec reaches every product",
+    ),
+    Mutation(
+        "labels: the steps of a new type are a numbered list again",
+        "docs/adding-a-type.md",
+        "- **Module.** Write the module.",
+        "1. Write the module.",
+        "tests/test_adding_a_type_doc_103.py::test_the_steps_of_a_new_type_are_named_items",
+        "",
+        "an inserted step renumbers no neighbour",
+        root=".",
     ),
     # ---- roller chain: the strand count moves the price (#36) ----
     Mutation(
@@ -3915,6 +4005,69 @@ MUTATIONS: list[Mutation] = [
                 "        100: 77,",
                 "each_pack_count_is_the_census_count",
                 "the counts are the census's",
+            ),
+        ]
+    ),
+    # ---- retail: Nike is a real brand, text only (gen#341) ----
+    *(
+        Mutation(f"nike: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a real brand draws its logo",
+                "house_styles.py",
+                "    if style.mark == NO_MARK:  # a real brand",
+                "    if False:  # a real brand",
+                "tests/test_retail_nike_341.py -k carries_no_logo_mark_or_name",
+                "a real brand is text only: no drawing carries its logo",
+            ),
+            (
+                "Nike leaves the allow-list",
+                "real_brands.py",
+                'ALLOWED: tuple[str, ...] = ("Nike",)',
+                "ALLOWED: tuple[str, ...] = ()",
+                "tests/test_retail_nike_341.py -k guard_allows_nike",
+                "the guard allows the ruled-in brand",
+            ),
+            (
+                "the guard stops refusing Puma",
+                "real_brands.py",
+                '"Adidas", "Puma", ',
+                '"Adidas", ',
+                "tests/test_retail_nike_341.py -k refuses_any_other_real_brand",
+                "the guard refuses every other real brand",
+            ),
+            (
+                "the guard refuses Nike too",
+                "real_brands.py",
+                '"Adidas", "Puma", ',
+                '"Nike", "Adidas", "Puma", ',
+                "tests/test_retail_nike_341.py -k allow_list_and_the_refused_list",
+                "the allow-list and the refused list do not overlap",
+            ),
+            (
+                "an apparel decoy may clone a Nike style",
+                "decoy_apparel.py",
+                '            and d["brand"] not in real_brands.ALLOWED',
+                "            and True",
+                "tests/test_retail_nike_341.py -k every_nike_title_names_it",
+                "a real brand is never cloned into a decoy that hides its name",
+            ),
+            (
+                "a Nike style enters the seeded derivation",
+                "scale.py",
+                "| GARDEN_IDS | NIKE_IDS",
+                "| GARDEN_IDS",
+                "tests/test_retail_nike_341.py -k leave_the_derivation",
+                "the Nike rows are templates only",
+            ),
+            (
+                "Nike leaves the owner table",
+                "class_model.py",
+                '"Nike")  # fmt: skip',
+                '"Coat Crake")  # fmt: skip',
+                "tests/test_retail_nike_341.py -k third_party_brand",
+                "Nike is another house's make",
             ),
         ]
     ),
