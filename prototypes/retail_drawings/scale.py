@@ -576,6 +576,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
                 rec["drawing"]["label"] = _swap(rec["drawing"]["label"], old, new)
             if a["key"] == "motif" and "motif" in rec["drawing"]:
                 _redraw_motif(rec, old, new)
+    lighting_rows.fit_ceiling_form(rec)  # a flush light has no drop (gen#237)
     if colors:  # "Shown in cream" names the color the picture shows: the hero
         names = "|".join(re.escape(c["color"]) for c in tpl.get("color_options", ()))
         rec["description"] = re.sub(
