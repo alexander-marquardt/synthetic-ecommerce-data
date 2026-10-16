@@ -526,8 +526,10 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
     the trimming rule is the old one.
     """
     from synthetic_ecommerce_data.domains.industrial import generate as generate_module
+    from synthetic_ecommerce_data.domains.industrial import titles as titles_module
 
-    real = generate_module.build_title
+    # ``build_title`` is called from ``titles`` (split out of ``generate``, #266).
+    real = titles_module.build_title
     assembled: dict[str, tuple[str, int]] = {}
 
     def spy(item, segments, *, cap=100, tight_delimiter_at=None):
@@ -539,11 +541,11 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         assembled.setdefault(title.text, ("".join(pieces), cap))
         return title
 
-    generate_module.build_title = spy
+    titles_module.build_title = spy
     try:
         catalog = generate_module.generate()
     finally:
-        generate_module.build_title = real
+        titles_module.build_title = real
 
     # The breadth categories (:mod:`.catalog.breadth`,
     # alexander-marquardt/synthetic-ecommerce-data#34) build their titles
