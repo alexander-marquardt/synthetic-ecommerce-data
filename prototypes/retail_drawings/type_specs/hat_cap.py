@@ -9,7 +9,7 @@ Not derivable: the department grows by authored rows. Every name here is invente
 
 The decoys are same-type hats whose text claims what their structured entries deny (gen#294): an
 acrylic beanie that names wool (class 4), a blue label in the description of a black beanie
-(class 5) and another brand's name in the description (class 7). A bottle cap or a pen cap is a
+(class 5), a color word or another category's noun in a range name (two of class 6: "Yellow Marsh Beanie" is black) and another brand's name in the description (class 7). A bottle cap or a pen cap is a
 product of another type, which the ranker's category intent keeps below a cap here.
 """
 
@@ -199,6 +199,14 @@ SPEC = TypeSpec(
         Decoy(5, "blue beanie", "color facet: blue means the hat color, not a word in the text",
               _row("DCHAT2", "Labelled Knit Beanie", _P, 9.0, "Beanie", "Acrylic", _ONE,
                    "A black knit beanie with a small blue label sewn on the cuff.",
+                   (BLACK,))),
+        Decoy(6, "yellow beanie", "color facet: a color word in a range name is not the hat color",
+              _row("DCHAT4", "Yellow Marsh Beanie", _P, 8.0, "Beanie", "Acrylic", _ONE,
+                   "A black acrylic beanie from the Marsh range, with a plain cuff.",
+                   (BLACK,))),
+        Decoy(6, "scarf cap", "type facet: another category's noun in a range name does not make the cap that category",
+              _row("DCHAT5", "Scarf Lane Cap", _W, 7.0, "Baseball Cap", "Cotton", _ADJ,
+                   "A black cotton twill cap from the Lane range, with a curved peak.",
                    (BLACK,))),
         Decoy(7, "pellbrook cap", "brand facet: a brand named in the text is not the product's brand",
               _row("DCHAT3", "Everyday Cotton Cap", _W, 7.0, "Baseball Cap", "Cotton", _ADJ,

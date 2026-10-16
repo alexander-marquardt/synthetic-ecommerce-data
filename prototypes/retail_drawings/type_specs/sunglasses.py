@@ -10,7 +10,7 @@ Not derivable: the department grows by authored rows. Every name here is invente
 
 The decoys are same-type pairs whose text claims what their structured entries deny (gen#294):
 a pair that names UV400 and has no UV protection (class 4), a blue tint in the description of a
-black frame (class 5) and another brand's name in the description (class 7).
+black frame (class 5), a color word or another category's noun in a range name (two of class 6: "White Marsh Sunglasses" is black) and another brand's name in the description (class 7).
 """
 
 # ruff: noqa: E501 -- data rows and SVG path literals read better whole than wrapped (prototype only).
@@ -132,6 +132,14 @@ SPEC = TypeSpec(
         Decoy(5, "blue sunglasses", "color facet: blue means the frame color, not a word in the text",
               _row("DCSGL2", "Tinted Lens Sunglasses", _P, 11.0, "Round", "Mirrored", "Metal",
                    "A black metal frame with lenses that flash a blue tint in the sun, with UV400 protection.",
+                   (BLACK,))),
+        Decoy(6, "white sunglasses", "color facet: a color word in a range name is not the frame color",
+              _row("DCSGL4", "White Marsh Sunglasses", _P, 9.0, "Round", "Gradient", "Metal",
+                   "A black metal frame from the Marsh range, with a gradient lens and UV400 protection.",
+                   (BLACK,))),
+        Decoy(6, "watch sunglasses", "type facet: another category's noun in a range name does not make the sunglasses that category",
+              _row("DCSGL5", "Watch Point Sunglasses", _W, 8.0, "Wayfarer", "Polarised", "Plastic",
+                   "A black plastic frame from the Point range, with a polarised lens.",
                    (BLACK,))),
         Decoy(7, "pellbrook sunglasses", "brand facet: a brand named in the text is not the product's brand",
               _row("DCSGL3", "Everyday Wayfarer Sunglasses", _W, 8.0, "Wayfarer", "Polarised", "Plastic",

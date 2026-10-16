@@ -71,12 +71,21 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export() -> None:
         doc = export.standard_document(row.doc())
         keys = {e["key"] for e in doc["attributes"]}
         keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
-        assert {"glove_style", "lining", "glove_size", "color"} <= keys, row.code
+        assert {"glove_style", "lining", "glove_size_letter", "color"} <= keys, row.code
+
+
+def test_the_glove_size_letter_has_an_output_key_no_other_option_shares() -> None:
+    """The baseball glove's ``glove_size_in`` states ``glove_size`` in inches; two options with
+    one output key and one unit between them fail the standard once the whole catalogue is built
+    (``one_class_per_key``), which a check over this type's documents alone never shows."""
+    key = export.OPTIONS["glove_size_letter"][0]
+    assert [o for o, (k, _, _) in export.OPTIONS.items() if k == key] == ["glove_size_letter"]
+    assert export.OPTIONS["glove_size_in"][0] == "glove_size" != key
 
 
 def test_the_sku_axis_is_the_glove_size() -> None:
     for row in ROWS:
-        assert row.size_key == "glove_size", row.code
+        assert row.size_key == "glove_size_letter", row.code
         assert [s for s, _ in row.sizes] == ["S", "M", "L", "XL"], row.code
 
 
@@ -150,18 +159,35 @@ def test_the_issue_query_returns_the_type_first(index: br.Index, query: str) -> 
     assert first and first["product_id"] in IDS, [d["title"] for d in top]
 
 
+#: Every decoy of the type by code: its gen#311 class (4 absent feature, 5 shade in the description,
+#: 6 incidental word in a range name, 7 brand). Adding or dropping one shows in this test.
+DECOY_CLASSES = {"DCGLV1": 4, "DCGLV2": 5, "DCGLV4": 6, "DCGLV5": 6, "DCGLV3": 7}
+_MAIN_COLORS = {"black", "red", "blue", "green", "yellow", "white"}
+
+
 def test_the_type_carries_text_match_decoys_whose_structured_fields_deny_their_text() -> None:
-    assert len(SPEC.decoys) >= 3
-    assert {d.cls for d in SPEC.decoys} >= {4, 5, 7}
+    assert {d.row.code: d.cls for d in SPEC.decoys} == DECOY_CLASSES
     for d in SPEC.decoys:
-        assert d.row.product_type == PTYPE
-        text = f"{d.row.title} {d.row.description}".lower()
+        code = d.row.code
+        assert d.row.product_type == PTYPE, code
+        title, desc = d.row.title.lower(), d.row.description.lower()
+        text = f"{title} {desc}"
+        colors = [color[0].lower() for color in d.row.colors]
+        word = d.query.split()[0]
+        assert word in text, code
         if d.cls == 4:
-            assert "touchscreen" in text and _attr(d.row, "glove_style") != "Touchscreen", (
-                d.row.code
-            )
+            assert "touchscreen" in text and _attr(d.row, "glove_style") != "Touchscreen", code
+        if d.cls == 5:  # the shade is in the description only, and the structured color is another
+            assert word == "blue" and "blue" in desc and "blue" not in title, code
+            assert "blue" not in colors, code
+        if d.cls == 6:  # a range name that leads the title holds the word; the fields do not
+            assert title.split()[0] == word and word not in desc, code
+            assert word not in colors, code
+            assert word not in {str(v).lower() for _, _, v, *_ in d.row.attrs}, code
         if d.cls == 7:
-            assert "pellbrook" in text and d.row.brand != "Pellbrook", d.row.code
+            assert "pellbrook" in text and d.row.brand != "Pellbrook", code
+    six = {d.query.split()[0] for d in SPEC.decoys if d.cls == 6}
+    assert six & _MAIN_COLORS and six - _MAIN_COLORS  # one color word and one category noun
 
 
 @pytest.mark.timeout(300)
@@ -170,4 +196,4 @@ def test_every_style_and_decoy_reaches_the_100k_build_and_meets_the_standard() -
     docs = scale.documents(scale.build(100_000))
     mine = [d for d in docs if d["product_id"] in every]
     assert {d["product_id"] for d in mine} == every
-    assert check_catalog(mine, one_class_per_key=True) == []
+    assert check_catalog(mine, one_class_per_key=True, text_exempt=scale.TEXT_EXEMPT) == []
