@@ -343,6 +343,21 @@ splits the product: `tests/test_product_constant.py` holds the default build to 
 and `ecom-generate build` refuses a catalog that breaks it or leaves
 `variants_per_product` (the report prints the SKUs per product by type).
 
+The two refusals on `variants_per_product`, with the default knob (`core/config.py`):
+
+- A product has at most 5 SKUs, the knob's largest count. This holds for every type.
+- A type of 20 or more products has a median of at most 2 SKUs per product: 2 is the
+  count where the knob's cumulative weight first reaches 75%. A type of fewer
+  products is not checked: a median over so few says nothing about the distribution.
+
+`distribution_problems` in `domains/industrial/product_split.py` derives both from
+the knob, so a changed knob moves them; the floor of 20 is the fixed constant
+`MEDIAN_MIN_PRODUCTS` in the same file. The refusal names the type and the count
+(`<type>: a product has N SKUs, the knob's maximum is M`; `<type>: median N SKUs per
+product, the knob allows M`). A product draws its count from the knob
+(`domains/industrial/generate.py`), and a pool smaller than the draw lowers it.
+`tests/test_variant_bounds_doc_252.py` holds these numbers to the code's.
+
 ### SKU floor
 
 `DEFAULT_SKU_FLOOR` in the type's gate file is two thirds of the type's
@@ -548,7 +563,12 @@ that fixes it:
   pack-sold type) spreads the shown price wider than the census p90/p10: its
   reason in `SLOPE_CUTS`. The fit refuses to lower any other type's slope. A
   pack-sold type whose shown price climbs slower than its per-piece slope
-  publishes its pack instead (`price.pack_quantity`), as the hex bolt does.
+  publishes its pack instead: ranked by size (`price.pack_quantity`), as the
+  socket screw does, or drawn per group page and priced within a size
+  (`price.page_pack`, `price.PACK_ELASTICITY`), as the hex bolt does since
+  #86. Where the census's p90/p10 would leave a cut type no size slope, the
+  fit aims at `price.SLOPE_CUT_AIMS` instead, inside the row's band, and the
+  reason in `SLOPE_CUTS` says so.
 * **A size noise**, where one spec's brands must sit close while its size
   pairs invert: its reason in `SIZE_NOISE`.
 

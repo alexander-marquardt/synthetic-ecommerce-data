@@ -44,6 +44,7 @@ import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
 import mens_depth_rows  # noqa: E402
+import needs_rows  # noqa: E402
 import nike_rows  # noqa: E402
 import scale  # noqa: E402
 import scale_rows  # noqa: E402
@@ -135,6 +136,7 @@ def measure() -> dict[str, Any]:
         "seasonal_rows": seasonal_rows.docs(),
         "colorgroup_rows": colorgroup_rows.docs(),
         "mens_depth_rows": mens_depth_rows.docs(),
+        "needs_rows": needs_rows.docs(),
         "nike_rows": nike_rows.docs(),
         "type_specs": type_registry.docs(),
         "decoy_apparel": [r for r in scale.templates(baseline=False)
