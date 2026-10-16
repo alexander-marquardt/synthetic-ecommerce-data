@@ -142,12 +142,16 @@ def test_a_tub_is_only_a_tub_of_something(records):
     assert wrong == []
 
 
+#: The home mug and the Gifts mug (gen#425: a tapered body with a design on its side).
+MUG_SHAPES = {"mug", "gift_mug"}
+
+
 def test_a_drinking_vessel_is_drawn_as_a_mug(records):
     wrong = [
         f"{r['title']!r}: {r['drawing']['shape']}"
         for r in records
         if r["product_type"] in {"Mug", "Tumbler", "Cup", "Travel Cup", "Cup Set"}
-        and r["drawing"]["shape"] != "mug"
+        and r["drawing"]["shape"] not in MUG_SHAPES
     ]
     assert wrong == []
 
