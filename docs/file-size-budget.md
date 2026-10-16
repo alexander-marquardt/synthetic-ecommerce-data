@@ -20,6 +20,9 @@ elastic/prism's (`contributing/file-size-budget.md` there), run on this tree
   `drafts.py` (the draft shapes and the tables they share). `Generator`
   inherits one mixin from each of the first three, so every method keeps its
   name and every importer keeps `from ...industrial.generate import ...`.
+  `README.md` is now under the cap: its retail
+  prototype reference moved to [`retail-prototype.md`](retail-prototype.md) (#240),
+  where a retail type batch adds its listing line.
 
 Why: an agent looking for one spot in a big file reads a large part of it, and
 what it reads stays in its context for every later step.

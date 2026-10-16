@@ -71,6 +71,7 @@ TOYS_ROWS = FIGURES["templates"]["toys_rows"]["styles"]
 SEASONAL_ROWS = FIGURES["templates"]["seasonal_rows"]["styles"]
 COLORGROUP_ROWS = FIGURES["templates"]["colorgroup_rows"]["styles"]
 MENS_DEPTH_ROWS = FIGURES["templates"]["mens_depth_rows"]["styles"]
+NEEDS_ROWS = FIGURES["templates"]["needs_rows"]["styles"]
 NIKE_ROWS = FIGURES["templates"]["nike_rows"]["styles"]
 TYPE_SPEC_ROWS = FIGURES["templates"]["type_specs"]["styles"]
 LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
@@ -100,6 +101,7 @@ TEMPLATES = (
     + SEASONAL_ROWS
     + COLORGROUP_ROWS
     + MENS_DEPTH_ROWS
+    + NEEDS_ROWS
     + NIKE_ROWS
     + TYPE_SPEC_ROWS
     + DECOY_APPAREL_ROWS
@@ -1149,10 +1151,10 @@ def test_jeggings_are_drawn_apart_from_skinny_jeans():
     assert FITS["jegging"] != FITS["skinny"]
 
 
-def test_the_readme_states_the_derived_sku_pin():
-    readme = (ROOT / "README.md").read_text()
+def test_the_retail_page_states_the_derived_sku_pin():
+    readme = (ROOT / "docs" / "retail-prototype.md").read_text()
     m = re.search(r"plus\s+([\d,]+)\s+\(its", readme)
-    assert m, "README no longer states the derived-SKU pin next to test_retail_scale.py"
+    assert m, "docs/retail-prototype.md no longer states the derived-SKU pin"
     assert int(m.group(1).replace(",", "")) == DERIVED_SKUS
 
 
