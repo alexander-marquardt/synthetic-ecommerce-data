@@ -1170,15 +1170,6 @@ def test_no_drawn_style_reads_as_another_of_its_leaf(ceiling):
         seen[r["category_leaf"]].append(words)
 
 
-#: Grocery brands that already hold two owners on main (a derived non-grocery style takes
-#: the default third party; Goldfield Farms is own on its shirts). Not the lighting rows'
-#: doing; the list only shrinks.
-GROCERY_OWNER_SPLITS = frozenset({
-    "Barrowby Kitchen", "Copper Hill Preserves", "Crofter's Bakehouse", "Goldfield Farms",
-    "Velling Apothecary",
-})  # fmt: skip
-
-
 def test_every_brand_has_exactly_one_owner_across_the_templates_and_the_ceiling(ceiling):
     """A brand is own-label or it is not: two ``brand_owner`` values on one brand split it in
     the own-brand facet (``breadth_rows.OWNERS`` said "Harbour & Pine" was third party while
@@ -1192,5 +1183,4 @@ def test_every_brand_has_exactly_one_owner_across_the_templates_and_the_ceiling(
         if "brand_owner" in rec:
             owners[rec["brand"]].add(rec["brand_owner"])
     split = {b: sorted(o) for b, o in owners.items() if len(o) > 1}
-    assert {b: o for b, o in split.items() if b not in GROCERY_OWNER_SPLITS} == {}
-    assert set(split) <= GROCERY_OWNER_SPLITS  # a brand that is fixed leaves the list
+    assert split == {}
