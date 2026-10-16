@@ -69,6 +69,7 @@ from grocery_rows import (  # noqa: E402
     FAMILIES,
     LINES,
     OWNERS,
+    PACKS_PER_STYLE,
     F,
     Family,
 )
@@ -152,6 +153,16 @@ def parse_pack(label: str) -> dict[str, Any]:
     if label in ("Single", "10 inch", "12 inch"):
         return {"pack_size": label, "units_per_pack": 1}
     raise ValueError(f"unknown pack {label!r}")
+
+
+def stocked(fam: Family, packs: list[str], index: int) -> list[str]:
+    """The packs style number ``index`` of ``fam`` sells: all of them, or the window of
+    :data:`PACKS_PER_STYLE` packs that starts at ``index`` and wraps (kept in the family's
+    order), so the family's styles together span every pack (gen#347)."""
+    n = PACKS_PER_STYLE.get(fam.code, len(packs))
+    if n >= len(packs):
+        return packs
+    return [packs[i] for i in sorted((index + k) % len(packs) for k in range(n))]
 
 
 def _size(pack: dict[str, Any], item_g: float = 0.0) -> float:
@@ -357,6 +368,7 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
     def add(fam: Family, line: str, brand: str, flavors: list[F], packs: list[str], may: str,
             organic: bool) -> bool:  # fmt: skip
         grade = rng.choice(fam.grades) if fam.grades else ""
+        packs = stocked(fam, packs, held[fam.code + "#"])
         rec = style(fam, f"GRC-{fam.code}-{held[fam.code + '#'] + 1:04d}", line, brand, flavors,
                     packs, may, organic, grade)  # fmt: skip
         # A depth family's twin is the same title bar the strength suffix: one drawing, two ids.
