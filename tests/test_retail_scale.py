@@ -240,7 +240,7 @@ def test_few_styles_share_a_results_grid_tile_at_the_ceiling(ceiling):
 #: template with one colorway drew the same tile at the same price: a "white dinner plate"
 #: grid showed identical tiles, a third of the leaf. The leaf has its own cap so the
 #: catalog-wide :data:`CEILING_GRID_CLONES` headroom is not spent on it again.
-PLATES_GRID_CLONES = 0.15
+PLATES_GRID_CLONES = 0.10
 
 
 def test_plates_mostly_draw_a_tile_of_their_own(ceiling):
@@ -337,6 +337,16 @@ def test_a_premium_value_costs_more_and_a_cheaper_one_less():
     assert down < 1.0 < up
     assert scale.price_factor({}) == 1.0
     assert scale.price_factor({"wash": ("Rinse", "Stone")}) == 1.0
+
+
+def test_a_plate_material_has_its_own_price_so_plates_of_one_finish_draw_apart():
+    """The picture shows a plate's finish and color but not its material, so the material
+    alone tells two plates apart on a grid through their price (gen#229): bone china costs
+    most, then porcelain, stoneware, enamel and melamine."""
+    order = ["Bone China", "Porcelain", "Stoneware", "Enamel", "Melamine"]
+    factors = [scale.price_factor({"material": ("Stoneware", m)}) for m in order]
+    assert factors == sorted(factors, reverse=True)
+    assert len(set(factors)) == len(order)
 
 
 def test_a_price_point_is_a_retail_one():
