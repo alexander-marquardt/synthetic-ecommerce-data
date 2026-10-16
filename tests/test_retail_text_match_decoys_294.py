@@ -21,6 +21,7 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import baseline_rank as br  # noqa: E402
+import decoy_apparel as da  # noqa: E402
 import decoy_rows as dr  # noqa: E402
 import main_colors  # noqa: E402
 import scale  # noqa: E402
@@ -87,7 +88,8 @@ def test_every_guard_query_has_a_real_product_holding_its_words() -> None:
 @pytest.mark.parametrize("query", sorted(INTENT))
 def test_without_interpretation_decoys_lead_the_top_10(index: br.Index, query: str) -> None:
     top = [d["product_id"] for d in br.rank(index, query, 10)]
-    planted = [i for i in top if i in dr.BY_ID and not dr.BY_ID[i].true_hit]
+    # gen#311: the apparel decoys are decoys of the same kind, and crowd the #294 ones.
+    planted = [i for i in top if (i in dr.BY_ID and not dr.BY_ID[i].true_hit) or i in da.IDS]
     assert len(planted) >= 3, (query, top)
     assert any(i in planted for i in top[:3]), (query, top[:3])
 

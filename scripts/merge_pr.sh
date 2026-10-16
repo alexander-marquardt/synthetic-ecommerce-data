@@ -22,10 +22,13 @@
 #      into it. A conflict in a file the rebuild rewrites (GENERATED) is left
 #      for step 2; any other conflict is refused, for the builder to resolve.
 #   2. rebuilds the committed catalog (ecom-generate build --out golden-catalog)
-#      and commits only GENERATED. A file still conflicted, or any other change
-#      in the tree, is refused. uv runs --locked, so a stale uv.lock is
-#      refused rather than re-locked into the commit.
-#   3. runs the drift, golden and seam tests (CHECKS) on that tree, and
+#      and the retail totals (prototypes/retail_drawings/retail_figures.py,
+#      golden-retail/stats.json, gen#343), and commits only GENERATED. A file
+#      still conflicted, or any other change in the tree, is refused. uv runs
+#      --locked, so a stale uv.lock is refused rather than re-locked into the
+#      commit.
+#   3. runs the drift, golden and seam tests (CHECKS) on that tree, on several
+#      pytest workers (local_ci_jobs.py --pytest-options, #348), and
 #      refuses a run in which no test passed (pytest exits 0 on all-skipped).
 #   4. pushes the merged and rebuilt tree to the PR branch, if it differs from
 #      the PR head. Not forced: a head that moved refuses the push.
@@ -41,7 +44,10 @@
 #      each one's verdict, duration and log (outside the clone, named
 #      <label>-<job>.log in $MERGE_PR_LOG_DIR, default /tmp; --label sets the
 #      label, default the checkout's directory name) is printed; the merge is
-#      refused unless every job passed. No GitHub check is read.
+#      refused unless every job passed. No GitHub check is read. Each job's
+#      pytest runs on several workers, grouped by file (local_ci_jobs.py adds
+#      -n and --dist loadgroup; LOCAL_CI_WORKERS sets the count): the suite
+#      took 47 to 54 minutes on one core, and merges are serial (#348).
 #   6. squash-merges, re-checking before EVERY attempt that main has not moved
 #      since step 1 and that the PR head is still the checked commit.
 #
@@ -63,10 +69,10 @@ if [ -n "${MERGE_PR_CHECKS:-}" ]; then
   read -r -a CHECKS <<<"$MERGE_PR_CHECKS"
 fi
 
-#: Exactly the files `ecom-generate build --out golden-catalog` rewrites, so a
-#: conflict in one is resolved by the rebuild. Any other conflict, under
-#: golden-catalog/ or not, goes back to the builder. Pinned to the build by
-#: tests/test_merge_pr.py.
+#: Exactly the files `ecom-generate build --out golden-catalog` and the retail
+#: rebuild (RETAIL_REBUILD) rewrite, so a conflict in one is resolved by a
+#: rebuild. Any other conflict, under golden-catalog/ or not, goes back to the
+#: builder. Pinned to the builds by tests/test_merge_pr.py.
 GENERATED=(
   golden-catalog/flat.jsonl
   golden-catalog/images.jsonl
@@ -75,8 +81,14 @@ GENERATED=(
   golden-catalog/nested.jsonl
   golden-catalog/render.jsonl
   golden-catalog/stats.json
+  golden-retail/stats.json
   src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml
 )
+
+#: The command that rewrites golden-retail/stats.json (gen#162, gen#343). It
+#: is the one retail_figures.py names as REBUILD, which tests/test_merge_pr.py
+#: pins. The retail build is the slower half, about 40 s.
+RETAIL_REBUILD=(python prototypes/retail_drawings/retail_figures.py)
 
 #: The jobs of .github/workflows/ci.yaml, by the check-run name GitHub gives
 #: them. A pull request's commit must carry each REQUIRED_CI check, green; a
@@ -200,6 +212,14 @@ if [ "$build_rc" -ne 0 ]; then
   fi
   die "the build refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
 fi
+# The retail totals (golden-retail/stats.json) move with every retail PR as the
+# catalog's do, and conflict the same way; rebuild them on the same merged tree.
+retail_rc=0
+uv run -q --locked --directory "$work" "${RETAIL_REBUILD[@]}" \
+  >/dev/null 2>"$build_log" || retail_rc=$?
+cat "$build_log" >&2
+[ "$retail_rc" -eq 0 ] ||
+  die "the retail rebuild refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
 if [ -n "$conflicted" ]; then
   while IFS= read -r path; do
     if grep -q '^<<<<<<< ' "$work/$path"; then
@@ -224,7 +244,11 @@ fi
 
 # 3. The checks, on exactly the tree that would be pushed. Pytest exits 0
 #    when every test is skipped, so a run must also have passed something.
-if ! uv run -q --locked --directory "$work" pytest -q -p no:cacheprovider \
+# On several workers (#348), with the options the local CI jobs get: one source.
+read -r -a parallel <<<"$(uv run -q --locked --directory "$here" python \
+  "$here/scripts/local_ci_jobs.py" --pytest-options)"
+[ "${#parallel[@]}" -gt 0 ] || die "scripts/local_ci_jobs.py --pytest-options printed nothing"
+if ! uv run -q --locked --directory "$work" pytest -q -p no:cacheprovider "${parallel[@]}" \
   --junitxml="$checks_log" "${CHECKS[@]}"; then
   die "#$pr is red on the merged tree; NOT pushed, NOT merged"
 fi

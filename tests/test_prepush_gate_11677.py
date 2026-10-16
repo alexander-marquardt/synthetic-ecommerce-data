@@ -96,6 +96,12 @@ def repo(tmp_path: Path) -> Path:
     _lines(root, "docs/big.md", BIG)
     (root / "src").mkdir()
     (root / "src" / "ok.py").write_text("VALUE = 1\n", encoding="utf-8")
+    # test_us_spelling.py also scans the retail source and asserts the scope is not empty
+    # (gen#291): the toy repository carries stand-in modules so that scan has a scope.
+    retail = root / "prototypes" / "retail_drawings"
+    retail.mkdir(parents=True)
+    for i in range(21):
+        (retail / f"stand_in_{i}.py").write_text(f"VALUE = {i}\n", encoding="utf-8")
     base = _commit(root, "base")
     _git(root, "update-ref", "refs/remotes/origin/main", base)
     _git(root, "switch", "-q", "-c", "issue-1")
