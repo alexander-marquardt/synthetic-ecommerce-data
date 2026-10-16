@@ -3879,23 +3879,23 @@ MUTATIONS: list[Mutation] = [
             (
                 "the pack grows with the size",
                 "core/price.py",
-                "    quantile = 1.0 - (rank + u) / sizes",
-                "    quantile = (rank + u) / sizes",
+                "    return _pack_at(type_key, 1.0 - (rank + u) / sizes)",
+                "    return _pack_at(type_key, (rank + u) / sizes)",
                 "never_grows_with_the_size",
                 "the pack falls as the size grows",
             ),
             (
                 "every line of a size takes one pack",
                 "core/price.py",
-                "    quantile = 1.0 - (rank + u) / sizes",
-                "    quantile = 1.0 - (rank + 0.5) / sizes",
+                "    return _pack_at(type_key, 1.0 - (rank + u) / sizes)",
+                "    return _pack_at(type_key, 1.0 - (rank + 0.5) / sizes)",
                 "even_spread_over_the_sizes",
                 "the build publishes the census counts",
             ),
             (
                 "the bolt's pack does not enter its price",
                 "core/price.py",
-                '            pack_slope=PACK_SLOPES["bolt_hex"],',
+                '            pack_slope=PACK_ELASTICITY["bolt_hex"],',
                 "            pack_slope=0.0,",
                 "prices_its_pack_on_the_census_slope",
                 "the price is the pack's",
@@ -3909,6 +3909,46 @@ MUTATIONS: list[Mutation] = [
                 "the counts are the census's",
             ),
         ]
+    ),
+    # ---- pack: the bolt's pack is a page's and is priced within a size (#86) ------
+    *(
+        Mutation(f"bolt page pack: {name}", file, old, new, test, "A", prop)
+        for name, file, old, new, test, prop in [
+            (
+                "a page's lines draw a pack each",
+                "core/price.py",
+                'random.Random(f"{seed}:pack-page:{type_key}:{brand}:{sorted(held)}")',
+                'random.Random(f"{seed}:pack-page:{type_key}:{brand}:{random.random()}")',
+                "tests/test_bolt_page_pack.py -k every_line_of_a_page_shares_one_pack",
+                "every size of a page shares one pack",
+            ),
+            (
+                "the page pack ignores the census counts",
+                "core/price.py",
+                "    return _pack_at(type_key, u)",
+                "    return 100",
+                "tests/test_bolt_page_pack.py -k page_pack_follows_the_census_counts",
+                "the page pack follows the census counts",
+            ),
+            (
+                "the pack elasticity drifts from the census ratio",
+                "core/price.py",
+                '{"bolt_hex": 0.659}',
+                '{"bolt_hex": 0.223}',
+                "tests/test_bolt_page_pack.py -k elasticity_is_the_census_ratio",
+                "the elasticity is the census ratio's",
+            ),
+        ]
+    ),
+    Mutation(
+        "bolt page pack: the fit's slope-only spread leaves the pack out",
+        "fit_price_model.py",
+        "ls * b.log_length + b.pack)",
+        "ls * b.log_length)",
+        "tests/test_fit_price_model.py -k page_pack_spread",
+        "A",
+        "the fit's spread counts the pack",
+        root="scripts",
     ),
     # ---- retail: a garden decoy title names a color only when its drawing shows it (gen#203, the #311 ruling) ----
     # Every name starts "garden decoy color:", so `--only "garden decoy color:"` re-runs them.

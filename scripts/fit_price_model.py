@@ -61,10 +61,12 @@ is flagged "re-record" with the figures to write by hand, at both builds:
 **Slope cuts need a recorded reason.** Where the slope terms ALONE (the key
 term and the length term, with the pack term that rides on them: a pack
 that falls as the size grows narrows them as it does on the census's pages,
-:func:`.price.pack_quantity`) spread the shown price wider than the census
+:func:`.price.pack_quantity`; one drawn per page adds its own spread,
+:func:`.price.page_pack`) spread the shown price wider than the census
 p90/p10, the census slope cannot be the shown-price slope. The fit then
 lowers it, both slopes by one factor, until the whole model with no group
-noise lands on the census p90/p10, at whichever build the slopes alone spread
+noise lands on the census p90/p10 (or on the aim :data:`.price.SLOPE_CUT_AIMS`
+names), at whichever build the slopes alone spread
 wider, but only for a type :data:`.price.SLOPE_CUTS` gives a reason for: any
 other type that would need a cut, or a listed type that no longer does, stops
 the fit.
@@ -112,8 +114,16 @@ from synthetic_ecommerce_data.domains.industrial.price_report import (
 )
 
 REPO = Path(__file__).resolve().parent.parent
-PRICE_PY = REPO / "src" / "synthetic_ecommerce_data" / "catalog" / "price.py"
-_FASTENERS = REPO / "src" / "synthetic_ecommerce_data" / "product_types" / "fasteners"
+PRICE_PY = REPO / "src" / "synthetic_ecommerce_data" / "core" / "price.py"
+_FASTENERS = (
+    REPO
+    / "src"
+    / "synthetic_ecommerce_data"
+    / "domains"
+    / "industrial"
+    / "product_types"
+    / "fasteners"
+)
 #: The types whose model their own module declares, between its fit markers.
 MODULE_PY = {
     "screw_socket_head": _FASTENERS / "screw_socket_head.py",
@@ -400,6 +410,15 @@ def _brand_spread(lp: np.ndarray, b: TypeBuild) -> float:
     return float(np.median(high / low))
 
 
+def alone(b: TypeBuild, slope: float, ls: float) -> float:
+    """The shown price's p90/p10 from the slope terms and the pack term alone.
+    The pack rides with the slopes: a pack that falls as the size grows (the
+    socket screw's) is the census's own reason the shown price climbs slower
+    than the per-piece slope, and a pack drawn per page (the bolt's,
+    :func:`.price.page_pack`) adds its own spread."""
+    return _p90_p10(slope * b.log_key + ls * b.log_length + b.pack)
+
+
 def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
     """``type_key``'s fitted model figures (see the module docstring)."""
     census = price.CENSUS[type_key]
@@ -452,12 +471,6 @@ def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
 
         return _argmin(miss, 0.0, MAX_SIGMA)
 
-    def alone(b: TypeBuild, slope: float, ls: float) -> float:
-        # The pack term rides with the slopes: a pack that falls as the size
-        # grows is the census's own reason the shown price climbs slower than
-        # the per-piece slope.
-        return _p90_p10(slope * b.log_key + ls * b.log_length + b.pack)
-
     slope, ls = price.model_slope(type_key), length.slope if length else 0.0
     wide = max(builds, key=lambda b: alone(b, slope, ls))
     widest = alone(wide, slope, ls)
@@ -478,7 +491,11 @@ def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
             return _p90_p10(log_p(wide, s, lsk, 0.0, sku_for(s, lsk, 0.0, 0.0, 0.0), 0.0, 0.0))
 
         factor = _bisect(
-            lambda k: spread(slope * k, ls * k), target_spread, 0.0, 1.0, increasing=True
+            lambda k: spread(slope * k, ls * k),
+            price.SLOPE_CUT_AIMS.get(type_key, target_spread),
+            0.0,
+            1.0,
+            increasing=True,
         )
         slope, ls = slope * factor, ls * factor
 
@@ -609,9 +626,10 @@ def _literal(type_key: str, model: price.PriceModel) -> str:
     if model.size_sigma:
         args.append(f"size_sigma={model.size_sigma!r}")
     if model.pack_attribute is not None:
+        pack_table = "PACK_ELASTICITY" if type_key in price.PACK_ELASTICITY else "PACK_SLOPES"
         args += [
             f'pack_attribute="{model.pack_attribute}"',
-            f'pack_slope=PACK_SLOPES["{type_key}"]',
+            f'pack_slope={pack_table}["{type_key}"]',
             f"pack_ref={model.pack_ref!r}",
         ]
     one_line = f'        "{type_key}": _model("{type_key}", {", ".join(args)}),'
