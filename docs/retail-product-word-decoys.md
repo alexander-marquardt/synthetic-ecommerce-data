@@ -36,7 +36,7 @@ storage box and chocolate coins in a box for "money box", a laundry hamper and a
 for "hamper". A row names its Gifts type in `gift_type`, holds no color word in its title or
 description, and is fixed by the department policy (the paper row sits in Gifts, so the category
 policy fixes it). `tests/test_retail_gifts_425.py` holds the census. Memory cards and gift cards
-(the issue's other "card" examples) need a type this build lacks and are not planted.
+(the issue's other "card" examples) need a type this build lacks and are not planted; gen#437 files them.
 
 | Query | Noun | Product id | Title | True type | Fixing policy |
 |---|---|---|---|---|---|
