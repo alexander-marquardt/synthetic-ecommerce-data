@@ -127,9 +127,18 @@ MSG
   fi
   if [ -n "${FAKE_UV_SKIP_BUILD:-}" ]; then exit 0; fi
 fi
+if [[ " $* " == *retail_figures.py* ]]; then
+  # The retail rebuild takes about 40 s: only a case about it runs the real one.
+  if [ -n "${FAKE_UV_RETAIL_FAIL:-}" ]; then echo "retail build: boom" >&2; exit 3; fi
+  if [ -z "${FAKE_UV_RETAIL:-}" ]; then exit 0; fi
+fi
 exec "$REAL_UV" "$@"
 """
 )
+
+#: Each case builds its own throwaway origin (30 to 80 s) and shares no fixture, so the
+#: cases spread over the xdist workers instead of sharing one (tests/xdist_groups.py).
+XDIST_SPREAD = True
 
 pytestmark = pytest.mark.skipif(shutil.which("uv") is None, reason="the script runs uv")
 
@@ -142,6 +151,7 @@ _IDENTITY = {
 }
 
 _STATS = "golden-catalog/stats.json"
+_RETAIL_STATS = "golden-retail/stats.json"
 
 #: Name resolution that fails, as a dropped lookup does (#178). The stand-in uv
 #: stops a build that is not offline with the error uv printed then
@@ -204,6 +214,8 @@ def world(tmp_path: Path) -> dict:
         MERGE_PR_CI_TIMEOUT="0",
         MERGE_PR_CI_POLL="0",
         MERGE_PR_RETRY_SLEEP="0",
+        # The narrowed checks are one test: two workers, not one per core (#348).
+        LOCAL_CI_WORKERS="2",
         MERGE_PR_LOG_DIR=str(tmp_path),
         # The planted worlds run with name resolution blocked: a red here is
         # the script's, never the network's (#178).
@@ -326,6 +338,63 @@ def test_a_merge_github_refuses_once_is_retried(world: dict) -> None:
     result = _run(world, head, _GREEN_CHECK, FAKE_GH_REFUSE_FIRST_MERGE="1")
     assert result.returncode == 0, result.stdout + result.stderr
     assert _merged(world)
+
+
+def _conflicting_retail_stats(world: dict) -> tuple[str, str]:
+    """A PR and main that edit one total of the retail stats two ways; and the true file."""
+    true = (world["checkout"] / _RETAIL_STATS).read_text()
+    assert '"images": 1' in true
+    head = _open_pr(
+        world,
+        {**_GREEN, _RETAIL_STATS: true.replace('"images": 1', '"images": 21', 1)},
+        on_main={_RETAIL_STATS: true.replace('"images": 1', '"images": 31', 1)},
+    )
+    return head, true
+
+
+def test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild(world: dict) -> None:
+    """gen#343: gen#323, #328 and #335 each stopped here and needed a hand merge."""
+    head, true = _conflicting_retail_stats(world)
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_RETAIL="1")
+    assert result.returncode == 0, result.stdout + result.stderr
+    pushed = _branch(world)
+    assert _git(world["origin"], "merge-base", "--is-ancestor", "main", pushed) == ""
+    # Neither side's total: the retail rebuild's.
+    assert _git(world["origin"], "show", f"{pushed}:{_RETAIL_STATS}") + "\n" == true
+    assert _merged(world)
+
+
+def test_a_stale_retail_stats_is_rebuilt_on_the_merged_tree_and_pushed(world: dict) -> None:
+    """No conflict, wrong totals: the auto-merge the script exists to catch, for retail."""
+    true = (world["checkout"] / _RETAIL_STATS).read_text()
+    head = _open_pr(
+        world, {**_GREEN, _RETAIL_STATS: true.replace('"images": 1', '"images": 21', 1)}
+    )
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_RETAIL="1")
+    assert result.returncode == 0, result.stdout + result.stderr
+    pushed = _branch(world)
+    assert pushed != head, "the merged and rebuilt tree was not pushed"
+    assert _git(world["origin"], "show", f"{pushed}:{_RETAIL_STATS}") + "\n" == true
+    assert _merged(world)
+
+
+def test_a_retail_stats_the_rebuild_left_conflicted_is_refused(world: dict) -> None:
+    head, _ = _conflicting_retail_stats(world)
+    result = _run(world, head, _GREEN_CHECK)
+    assert result.returncode != 0
+    assert "still holds conflict markers" in result.stderr, result.stderr[-800:]
+    assert _RETAIL_STATS in result.stderr
+    assert _branch(world) == head
+    assert not _merged(world)
+
+
+def test_a_retail_rebuild_that_fails_refuses_the_merge(world: dict) -> None:
+    head = _open_pr(world, _GREEN)
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_RETAIL_FAIL="1")
+    assert result.returncode != 0
+    assert "the retail rebuild refuses the merged tree" in result.stderr, result.stderr[-800:]
+    assert _branch(world) == head
+    assert not _merged(world)
 
 
 # -- a check run that is not a green run ------------------------------------
@@ -557,8 +626,17 @@ def _printed(flag: str) -> list[str]:
 def test_the_generated_files_are_exactly_what_the_build_writes() -> None:
     """Only a file the rebuild rewrites may have a conflict resolved by it."""
     golden = _git(REPO, "ls-files", "golden-catalog").splitlines()
+    retail = _git(REPO, "ls-files", "golden-retail").splitlines()
     field_map = cli.field_map_target().relative_to(REPO).as_posix()
-    assert sorted(_printed("--print-generated")) == sorted([*golden, field_map])
+    assert sorted(_printed("--print-generated")) == sorted([*golden, *retail, field_map])
+
+
+def test_the_retail_rebuild_is_the_command_the_retail_figures_name() -> None:
+    """One command writes golden-retail/stats.json; the script runs that file, not a copy."""
+    figures = (REPO / "prototypes" / "retail_drawings" / "retail_figures.py").read_text()
+    named = re.search(r'^REBUILD = "python3 (\S+)"$', figures, re.MULTILINE)
+    assert named, "retail_figures.py no longer names its rebuild command"
+    assert named.group(1) in SCRIPT.read_text()
 
 
 def test_the_ci_checks_a_merge_waits_for_are_the_workflows_jobs() -> None:

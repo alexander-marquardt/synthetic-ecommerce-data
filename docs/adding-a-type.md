@@ -1,5 +1,8 @@
 # How to add a product type
 
+A retail type is one spec file: see [new-type-quick-path.md](new-type-quick-path.md) first.
+This page is the reference for the industrial catalog.
+
 A product type is one leaf of the category tree, such as `screw_socket_head` or
 `ball_stock_precision`. Each type is declared in a module of its own under
 `src/synthetic_ecommerce_data/domains/industrial/product_types/`. A breadth type is one new
@@ -126,7 +129,12 @@ its published attributes. `set_screws_hex_socket` does both.
    collides at today's 68 types. Another open pull request can take the same
    block; `scripts/merge_pr.sh` re-checks it on the merged tree.
 3. If the leaf's head noun is new, add it to `PRODUCT_NOUNS` in
-   `domains/industrial/names.py`.
+   `domains/industrial/names.py`. Also add the type's shopper-readable name
+   to `PRODUCT_TYPE_LABELS` in `domains/industrial/type_labels.py` (singular, except a
+   pair sold as a pair such as Safety Glasses; plain English, capitalised, no
+   `_`, unique): every product carries it as
+   `product_type_label` beside the unchanged id, and a type without one stops
+   the build (#331).
 4. Build the catalog and regenerate the committed one:
    `uv run ecom-generate build --out golden-catalog`. Only the new type's
    records, the totals in `stats.json` and the field-weights YAML should
@@ -274,9 +282,10 @@ Use a table type (`domains/industrial/tabletype.py`, #101) when a type does not 
 * `tests/data/golden_slices/<key>.jsonl` (new, written by the test module)
 * `src/synthetic_ecommerce_data/domains/industrial/data/breadth_categories/<key>.yaml` (deleted, when the type had a breadth row)
 
-Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
+Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog` and, for the retail totals, `python3 prototypes/retail_drawings/retail_figures.py`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
 
 * `golden-catalog/*`
+* `golden-retail/stats.json` (the retail totals, gen#162; gen#343)
 * `src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml`
 
 Shared files, edited by hand:
@@ -741,9 +750,10 @@ scripts/merge_pr.sh <PR number>
 
 It clones the PR head into a temporary directory and merges current `main`
 into it. A conflict in a file the rebuild rewrites (`scripts/merge_pr.sh
---print-generated` lists the eight) is left for the rebuild; any other
+--print-generated` lists them) is left for the rebuild; any other
 conflict, `names.py` or a file under `golden-catalog/` that the build does not
-write, is handed back to you. It then rebuilds `golden-catalog/` with
+write, is handed back to you. It then rebuilds `golden-catalog/` and
+`golden-retail/stats.json` (about 40 s more) with
 `uv run --locked` (a stale `uv.lock` is refused, not re-locked), commits only
 the generated files, and runs the drift, golden and seam tests
 (`--print-checks` lists them), refusing a run in which no test passed. It
@@ -768,6 +778,20 @@ sets the label, default the checkout's directory name; `MERGE_PR_LOG_DIR`
 moves the directory). The merge is refused unless every job passed. Step 6
 needs no GitHub check. `GEN_LOCAL_CI=1` in the environment makes `--local-ci`
 the default; `--dry-run` runs the local jobs too.
+
+**The suite runs on several workers (#348).** The whole suite took 47 to 54
+minutes on one core, and merges are serial (each changes `main` and the
+generated files), so that time was the rate pull requests landed. Every
+emitted step now runs pytest with `-n <workers> --dist loadgroup`
+(`scripts/local_ci_jobs.py --pytest-options` prints it), and a module's tests
+share one worker so its module-scoped catalog is built once
+(`tests/xdist_groups.py`; a module of independent tests sets
+`XDIST_SPREAD = True`). The worker count is one per core, or fewer when the
+memory available allows fewer at 4,500 MB a worker, and never below two;
+`LOCAL_CI_WORKERS=<n>` sets it (`0` is one process). The count is capped by
+memory: measured on the 48-core agent VM, 16 workers had taken 38 GB within three
+minutes, and an uncapped `-n auto` run took the host down. Run the merge chain on the agent VM, which has
+the cores and the memory, so it does not compete with a laptop's other work.
 
 That re-read narrows the race with another merge but cannot close it: GitHub
 has no compare-and-swap on the base. The `main-merged-tree` CI job runs the
