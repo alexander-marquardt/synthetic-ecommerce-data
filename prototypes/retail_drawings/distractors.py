@@ -160,19 +160,19 @@ LEMON_PACK, ORANGE_PACK = 4, 5
 #: Intended products that are not part of a variant family.
 LEMONS = product(
     "LEMONS", f"Unwaxed Lemons, Pack of {LEMON_PACK}", "Goldfield Farms", "Food & Drink",
-    ("Food & Drink", "Fresh Produce", "Fruit", "Citrus", "Lemons"), 1.25,
+    ("Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Citrus Fruit", "Lemons"), 1.25,
     "Fresh unwaxed lemons for zesting, juicing and baking, grown in sunny groves.",
     drawing("produce_pile", cw("Lemon", YELLOW), "Lemons",
             **pile_params("lemon", "PLT-LEMONS", "bag", count=LEMON_PACK)),
-    (("color", "Color", "Yellow"), ("pack_size", "Pack size", str(LEMON_PACK))),
+    (("color", "Color", "Yellow"), ("pack_size", "Pack size", f"{LEMON_PACK} pack")),
 )  # fmt: skip
 ORANGES = product(
     "ORANGS", f"Valencia Oranges, Pack of {ORANGE_PACK}", "Goldfield Farms", "Food & Drink",
-    ("Food & Drink", "Fresh Produce", "Fruit", "Citrus", "Oranges"), 1.6,
+    ("Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Citrus Fruit", "Oranges"), 1.6,
     "Juicy Valencia oranges for squeezing at breakfast, picked ripe and full of juice.",
     drawing("produce_pile", cw("Orange", ORANGE), "Oranges",
             **pile_params("orange", "PLT-ORANGS", "net", count=ORANGE_PACK)),
-    (("color", "Color", "Orange"), ("pack_size", "Pack size", str(ORANGE_PACK))),
+    (("color", "Color", "Orange"), ("pack_size", "Pack size", f"{ORANGE_PACK} pack")),
 )  # fmt: skip
 DINOSAUR_TOY = product(
     "DINTOY", "Dinosaur Figure", "Little Fernby", "Toys",
@@ -192,7 +192,7 @@ LEMON = (
         "A lemon sponge soaked in lemon syrup and topped with lemon icing. Serves 8.",
         drawing("cake", cw("Lemon", "#f6e08a"), "Lemon"),
         (("flavour", "Flavour", "Lemon"),),
-    ), "category intent: Fresh Produce above Bakery"),
+    ), "category intent: Fresh Fruit above Bakery"),
     Distractor(product(
         "LEMGEL", "Lemon & Bergamot Shower Gel 250ml", "Velling Apothecary", "Beauty",
         ("Beauty", "Bath & Body", "Shower Gel"), 6.0,
@@ -252,7 +252,7 @@ JEANS = (
         ("Home", "Storage", "Hangers"), 8.0,
         "Clip hangers that hold jeans by the waistband, so jeans hang straight without creases.",
         drawing("hanger", cw("Black", "#2a2a2e")),
-        (("color", "Color", "Black"), ("pack_size", "Pack size", "5")),
+        (("color", "Color", "Black"), ("pack_size", "Pack size", "5 pack")),
     ), "category intent: Jeans (a Home item never answers a clothing word)"),
     Distractor(product(
         "JNSSET", "Kids' Jeans & Tee Set", "Little Fernby", "Clothing",
@@ -479,11 +479,11 @@ DUPLICATE_PATH = ("Gifts", "Gifts for Her", "Beauty Gifts")
 #: ``_score_table()``. Either way, add its line to the README's class table.
 TABLE = (
     Row("Print, flavour and scent words", "lemon", "fresh lemons",
-        lambda d: d["category_path"][:2] == ["Food & Drink", "Fresh Produce"]
+        lambda d: d["category_path"][:3] == ["Food & Drink", "Fruit & Vegetables", "Fresh Fruit"]
         and "lemon" in tokens(d["title"]),
         "department or persona boost", LEMON),
     Row("Fruit words as prints and colors", "oranges", "fresh oranges",
-        lambda d: d["category_path"][:2] == ["Food & Drink", "Fresh Produce"]
+        lambda d: d["category_path"][:3] == ["Food & Drink", "Fruit & Vegetables", "Fresh Fruit"]
         and "orange" in tokens(d["title"]),
         "department or persona boost", ORANGE_WORD),
     Row("Complements and accessories", "jeans", "a pair of jeans",
