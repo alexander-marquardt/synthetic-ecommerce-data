@@ -197,7 +197,10 @@ def test_an_unmapped_pattern_value_is_reported_not_skipped():
 
 
 def test_disagreements_names_the_row():
-    rec = _rec(description="A bag with a magnetic flap.", closure="Zip")
-    assert attribute_text.disagreements([copy.deepcopy(rec)]) == [
-        "T-1: closure Zip but the text names ['magnetic']"
+    closure = _rec(description="A bag with a magnetic flap.", closure="Zip")
+    pattern = _rec(pattern="Striped", sold=("stripe",), drawn="solid")
+    pattern["product_id"] = "T-2"
+    assert attribute_text.disagreements([copy.deepcopy(closure), pattern]) == [
+        "T-1: closure Zip but the text names ['magnetic']",
+        "T-2: pattern Striped but the drawing is solid",
     ]
