@@ -1355,3 +1355,91 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA55700 | Vest | 7 invented brand holding a color or category word | Coat Crake Vest | coat | coat vest | generic |
 | PLT-DA55701 | Vest | 7 invented brand holding a color or category word | Yellow Wagtail Vest | yellow | yellow vest | generic |
 | PLT-DA55702 | Vest | 7 invented brand holding a color or category word | Red Plover Vest | red | red vest | generic |
+| PLT-DA56100 | School Trousers | 1 color names a part | School Trousers with White Cuffs | white | white school trousers | generic |
+| PLT-DA56101 | School Trousers | 1 color names a part | School Trousers with Black Waistband | black | black school trousers | generic |
+| PLT-DA56102 | School Trousers | 1 color names a part | School Trousers with Red Waistband | red | red school trousers | generic |
+| PLT-DA56200 | School Trousers | 2 another category's noun as a modifier | Black Jumper School Trousers | jumper | jumper | generic |
+| PLT-DA56201 | School Trousers | 2 another category's noun as a modifier | Red Vest School Trousers | vest | vest | generic |
+| PLT-DA56202 | School Trousers | 2 another category's noun as a modifier | Grey Jumper School Trousers | jumper | jumper | generic |
+| PLT-DA56300 | School Trousers | 3 audience word of a sibling version | Cream Mens-Style School Trousers | mens | mens school trousers | generic |
+| PLT-DA56301 | School Trousers | 3 audience word of a sibling version | Brown Mini-Me Womens School Trousers | womens | womens school trousers | generic |
+| PLT-DA56302 | School Trousers | 3 audience word of a sibling version | Navy Mini-Me Mens School Trousers | mens | mens school trousers | generic |
+| PLT-DA56400 | School Trousers | 4 material or feature named but absent | Blue Leather-Look School Trousers | leather | leather school trousers | special: material claim |
+| PLT-DA56401 | School Trousers | 4 material or feature named but absent | Pink Suede-Look School Trousers | suede | suede school trousers | special: material claim |
+| PLT-DA56402 | School Trousers | 4 material or feature named but absent | Pink Cashmere-Feel School Trousers | cashmere | cashmere school trousers | special: material claim |
+| PLT-DA56500 | School Trousers | 5 shade spelled in the description only | Moonbeam School Trousers | ivory | ivory school trousers | generic |
+| PLT-DA56501 | School Trousers | 5 shade spelled in the description only | Driftwood School Trousers | taupe | taupe school trousers | generic |
+| PLT-DA56502 | School Trousers | 5 shade spelled in the description only | Dune School Trousers | beige | beige school trousers | generic |
+| PLT-DA56600 | School Trousers | 6 incidental word in a range name | Green Park School Trousers | green | green school trousers | generic |
+| PLT-DA56601 | School Trousers | 6 incidental word in a range name | Yellow Marsh School Trousers | yellow | yellow school trousers | generic |
+| PLT-DA56602 | School Trousers | 6 incidental word in a range name | Red Harbour School Trousers | red | red school trousers | generic |
+| PLT-DA56603 | School Trousers | 6 incidental word in a range name | Coat Hook School Trousers | coat | coat | generic |
+| PLT-DA56700 | School Trousers | 7 invented brand holding a color or category word | Yellow Wagtail School Trousers | yellow | yellow school trousers | generic |
+| PLT-DA56701 | School Trousers | 7 invented brand holding a color or category word | Black Lapwing School Trousers | black | black school trousers | generic |
+| PLT-DA56702 | School Trousers | 7 invented brand holding a color or category word | Green Stoat School Trousers | green | green school trousers | generic |
+| PLT-DA57100 | School Skirt | 1 color names a part | School Skirt with White Waistband | white | white school skirt | generic |
+| PLT-DA57101 | School Skirt | 1 color names a part | School Skirt with Red Waistband | red | red school skirt | generic |
+| PLT-DA57102 | School Skirt | 1 color names a part | School Skirt with Black Waistband | black | black school skirt | generic |
+| PLT-DA57200 | School Skirt | 2 another category's noun as a modifier | White Coat School Skirt | coat | coat | generic |
+| PLT-DA57201 | School Skirt | 2 another category's noun as a modifier | Blue Jacket School Skirt | jacket | jacket | generic |
+| PLT-DA57202 | School Skirt | 2 another category's noun as a modifier | White Jacket School Skirt | jacket | jacket | generic |
+| PLT-DA57300 | School Skirt | 3 audience word of a sibling version | White Mini-Me Mens School Skirt | mens | mens school skirt | generic |
+| PLT-DA57301 | School Skirt | 3 audience word of a sibling version | Red Mini-Me Womens School Skirt | womens | womens school skirt | generic |
+| PLT-DA57302 | School Skirt | 3 audience word of a sibling version | Cream Mini-Me Womens School Skirt | womens | womens school skirt | generic |
+| PLT-DA57400 | School Skirt | 4 material or feature named but absent | Grey Leather-Look School Skirt | leather | leather school skirt | special: material claim |
+| PLT-DA57401 | School Skirt | 4 material or feature named but absent | Black Suede-Look School Skirt | suede | suede school skirt | special: material claim |
+| PLT-DA57402 | School Skirt | 4 material or feature named but absent | Red Cashmere-Feel School Skirt | cashmere | cashmere school skirt | special: material claim |
+| PLT-DA57500 | School Skirt | 5 shade spelled in the description only | Moonbeam School Skirt | ivory | ivory school skirt | generic |
+| PLT-DA57501 | School Skirt | 5 shade spelled in the description only | Driftwood School Skirt | taupe | taupe school skirt | generic |
+| PLT-DA57502 | School Skirt | 5 shade spelled in the description only | Dune School Skirt | beige | beige school skirt | generic |
+| PLT-DA57600 | School Skirt | 6 incidental word in a range name | Green Hollow School Skirt | green | green school skirt | generic |
+| PLT-DA57601 | School Skirt | 6 incidental word in a range name | Yellow Marsh School Skirt | yellow | yellow school skirt | generic |
+| PLT-DA57602 | School Skirt | 6 incidental word in a range name | Green Park School Skirt | green | green school skirt | generic |
+| PLT-DA57603 | School Skirt | 6 incidental word in a range name | Dress Circle School Skirt | dress | dress | generic |
+| PLT-DA57700 | School Skirt | 7 invented brand holding a color or category word | White Dormouse School Skirt | white | white school skirt | generic |
+| PLT-DA57701 | School Skirt | 7 invented brand holding a color or category word | Yellow Wagtail School Skirt | yellow | yellow school skirt | generic |
+| PLT-DA57702 | School Skirt | 7 invented brand holding a color or category word | Black Lapwing School Skirt | black | black school skirt | generic |
+| PLT-DA58100 | School Pinafore | 1 color names a part | School Pinafore with Yellow Straps | yellow | yellow school pinafore | generic |
+| PLT-DA58101 | School Pinafore | 1 color names a part | School Pinafore with Blue Straps | blue | blue school pinafore | generic |
+| PLT-DA58102 | School Pinafore | 1 color names a part | School Pinafore with Green Straps | green | green school pinafore | generic |
+| PLT-DA58200 | School Pinafore | 2 another category's noun as a modifier | Brown Hoodie School Pinafore | hoodie | hoodie | generic |
+| PLT-DA58201 | School Pinafore | 2 another category's noun as a modifier | Grey Jacket School Pinafore | jacket | jacket | generic |
+| PLT-DA58202 | School Pinafore | 2 another category's noun as a modifier | Grey Cardigan School Pinafore | cardigan | cardigan | generic |
+| PLT-DA58300 | School Pinafore | 3 audience word of a sibling version | Navy Mini-Me Womens School Pinafore | womens | womens school pinafore | generic |
+| PLT-DA58301 | School Pinafore | 3 audience word of a sibling version | Grey Mini-Me Mens School Pinafore | mens | mens school pinafore | generic |
+| PLT-DA58302 | School Pinafore | 3 audience word of a sibling version | Blue Mens-Style School Pinafore | mens | mens school pinafore | generic |
+| PLT-DA58400 | School Pinafore | 4 material or feature named but absent | Cream Leather-Look School Pinafore | leather | leather school pinafore | special: material claim |
+| PLT-DA58401 | School Pinafore | 4 material or feature named but absent | Brown Suede-Look School Pinafore | suede | suede school pinafore | special: material claim |
+| PLT-DA58402 | School Pinafore | 4 material or feature named but absent | White Cashmere-Feel School Pinafore | cashmere | cashmere school pinafore | special: material claim |
+| PLT-DA58500 | School Pinafore | 5 shade spelled in the description only | Moonbeam School Pinafore | ivory | ivory school pinafore | generic |
+| PLT-DA58501 | School Pinafore | 5 shade spelled in the description only | Driftwood School Pinafore | taupe | taupe school pinafore | generic |
+| PLT-DA58502 | School Pinafore | 5 shade spelled in the description only | Dune School Pinafore | beige | beige school pinafore | generic |
+| PLT-DA58600 | School Pinafore | 6 incidental word in a range name | Yellow Marsh School Pinafore | yellow | yellow school pinafore | generic |
+| PLT-DA58601 | School Pinafore | 6 incidental word in a range name | Yellow Brook School Pinafore | yellow | yellow school pinafore | generic |
+| PLT-DA58602 | School Pinafore | 6 incidental word in a range name | Green Hollow School Pinafore | green | green school pinafore | generic |
+| PLT-DA58603 | School Pinafore | 6 incidental word in a range name | Coat Hook School Pinafore | coat | coat | generic |
+| PLT-DA58700 | School Pinafore | 7 invented brand holding a color or category word | Jumper Jay School Pinafore | jumper | jumper school pinafore | generic |
+| PLT-DA58701 | School Pinafore | 7 invented brand holding a color or category word | White Dormouse School Pinafore | white | white school pinafore | generic |
+| PLT-DA58702 | School Pinafore | 7 invented brand holding a color or category word | Coat Crake School Pinafore | coat | coat school pinafore | generic |
+| PLT-DA59100 | School Shirt | 1 color names a part | School Shirt with Black Collar | black | black school shirt | generic |
+| PLT-DA59101 | School Shirt | 1 color names a part | School Shirt with Black Hem | black | black school shirt | generic |
+| PLT-DA59102 | School Shirt | 1 color names a part | School Shirt with Green Hem | green | green school shirt | generic |
+| PLT-DA59200 | School Shirt | 2 another category's noun as a modifier | Navy Jacket School Shirt | jacket | jacket | generic |
+| PLT-DA59201 | School Shirt | 2 another category's noun as a modifier | Cream Dress School Shirt | dress | dress | generic |
+| PLT-DA59202 | School Shirt | 2 another category's noun as a modifier | Blue Vest School Shirt | vest | vest | generic |
+| PLT-DA59300 | School Shirt | 3 audience word of a sibling version | Blue Mens-Style School Shirt | mens | mens school shirt | generic |
+| PLT-DA59301 | School Shirt | 3 audience word of a sibling version | Brown Mini-Me Womens School Shirt | womens | womens school shirt | generic |
+| PLT-DA59302 | School Shirt | 3 audience word of a sibling version | Brown Mini-Me Mens School Shirt | mens | mens school shirt | generic |
+| PLT-DA59400 | School Shirt | 4 material or feature named but absent | Cream Leather-Look School Shirt | leather | leather school shirt | special: material claim |
+| PLT-DA59401 | School Shirt | 4 material or feature named but absent | Green Suede-Look School Shirt | suede | suede school shirt | special: material claim |
+| PLT-DA59402 | School Shirt | 4 material or feature named but absent | Brown Cashmere-Feel School Shirt | cashmere | cashmere school shirt | special: material claim |
+| PLT-DA59500 | School Shirt | 5 shade spelled in the description only | Moonbeam School Shirt | ivory | ivory school shirt | generic |
+| PLT-DA59501 | School Shirt | 5 shade spelled in the description only | Driftwood School Shirt | taupe | taupe school shirt | generic |
+| PLT-DA59502 | School Shirt | 5 shade spelled in the description only | Dune School Shirt | beige | beige school shirt | generic |
+| PLT-DA59600 | School Shirt | 6 incidental word in a range name | Green Park School Shirt | green | green school shirt | generic |
+| PLT-DA59601 | School Shirt | 6 incidental word in a range name | Red Fern School Shirt | red | red school shirt | generic |
+| PLT-DA59602 | School Shirt | 6 incidental word in a range name | Green Hollow School Shirt | green | green school shirt | generic |
+| PLT-DA59603 | School Shirt | 6 incidental word in a range name | Jumper Lane School Shirt | jumper | jumper | generic |
+| PLT-DA59700 | School Shirt | 7 invented brand holding a color or category word | Yellow Wagtail School Shirt | yellow | yellow school shirt | generic |
+| PLT-DA59701 | School Shirt | 7 invented brand holding a color or category word | White Dormouse School Shirt | white | white school shirt | generic |
+| PLT-DA59702 | School Shirt | 7 invented brand holding a color or category word | Green Stoat School Shirt | green | green school shirt | generic |
