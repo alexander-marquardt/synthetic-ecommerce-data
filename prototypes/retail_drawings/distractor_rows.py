@@ -249,7 +249,7 @@ def _cutlery(code: str, title: str, count: int, handle: str, edge: str, color, s
                  (*KD, "Cutlery"), price, desc, "Cutlery", "cutlery_piece", one(color, sold),
                  units_per_pack=count, colorless=False,
                  extra=(("cutlery_type", "Cutlery type", kind),
-                        ("material", "Material", "Stainless Steel 18/10"),
+                        ("material", "Material", "Stainless Steel"),
                         ("handle", "Handle", handle.title()), ("edge", "Edge", edge.title())),
                  params=(("piece", piece), ("handle", handle), ("count", str(count)),
                          ("edge", edge)))  # fmt: skip
