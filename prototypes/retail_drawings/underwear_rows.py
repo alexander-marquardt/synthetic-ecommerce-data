@@ -127,7 +127,7 @@ LEOPARD = cw("Brown Leopard", "#d6a76b", "leopard", "#5a3a22")
 
 CUTS = {
     "Briefs": "brief", "Full Briefs": "brief", "High-Waisted": "high_waisted",
-    "High-Leg": "high_leg", "Thong": "thong", "Shorts": "shorts", "Bikini": "bikini",
+    "High-Leg": "high_leg", "Thong": "brief", "Shorts": "shorts", "Bikini": "bikini",
 }  # fmt: skip
 
 
