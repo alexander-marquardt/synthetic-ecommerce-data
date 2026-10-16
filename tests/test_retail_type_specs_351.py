@@ -136,7 +136,14 @@ def test_a_spec_file_is_named_for_its_key_and_its_documents_meet_the_standard(ke
     assert (RETAIL / "type_specs" / f"{key}.py").is_file()
     docs = spec.docs()
     assert len(docs) == len(spec.rows) + len(spec.decoys)
-    assert check_catalog([export.standard_document(d) for d in docs], one_class_per_key=True) == []
+    assert (
+        check_catalog(
+            [export.standard_document(d) for d in docs],
+            one_class_per_key=True,
+            text_exempt=scale.TEXT_EXEMPT,
+        )
+        == []
+    )
 
 
 def _good() -> type_registry.TypeSpec:
