@@ -38,12 +38,12 @@ SPEC = TypeSpec(
             (("kind", "center"), ("tilt", "no"), ("base", "no"))),
         row("PRSTLT", "Tilting Center Pole Parasol with Base", V, (*_ROOT, "Center Pole Parasols"), _PT, 79.0,
             "parasol", "A crank-lift parasol whose canopy tilts to follow the sun, sold with a "
-            "filled base that needs no fixing to the ground.",
+            "filled base that stays put without being fixed to the ground.",
             (BLUE, RED, BLACK, GREEN), _attrs("Center Pole", True, True),
             axis((2.5, 79.0), (3, 99.0)), "canopy_m",
             (("kind", "center"), ("tilt", "yes"), ("base", "yes"))),
         row("PRSCNT", "Cantilever Parasol with Cross Base", H, (*_ROOT, "Cantilever Parasols"), _PT, 199.0,
-            "parasol", "A side-arm parasol that shades a whole table with no pole in the way, "
+            "parasol", "A side-arm parasol that shades a whole table with the pole out of the way, "
             "with a tilting canopy and a cross base for paving slabs.",
             (BLACK, WHITE, RED, BLUE), _attrs("Cantilever", True, True),
             axis((3, 199.0), (3.5, 249.0)), "canopy_m",
