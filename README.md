@@ -951,7 +951,7 @@ that win a query's top results on text alone, so a demo can show what a policy
 fixes. `distractors.py` holds the table; `distractors.check()` refuses a
 distractor that cannot outrank the best intended product (BM25 over title plus
 description). A class's *tail* is further products the query matches that need
-not outrank. Every name is invented.
+not outrank. Every name is invented but Nike (text only, no logo; gen#341, [docs/retail-nike.md](docs/retail-nike.md)).
 
 Every product is drawn as its own kind: a bouquet as roses in a paper cone,
 socks as socks, a bed as a bed. A generic shape (`box`, `box_wide`,
