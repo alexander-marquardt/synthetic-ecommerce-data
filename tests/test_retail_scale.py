@@ -774,6 +774,19 @@ def starved(styles: collections.Counter[str]) -> dict[str, int]:
     return {d: n for d, n in sorted(styles.items()) if n < breadth_rows.DEPARTMENT_FLOOR}
 
 
+#: The lowest value ``breadth_rows.DEPARTMENT_FLOOR`` may take (gen#234). The floor is the only
+#: thing that says how thin a department may get, and the tests below hold departments to
+#: whatever it is, so lowering it (to 0, say) would pass them all. Lowering this number is a
+#: reviewed decision in the diff, not a one-line edit nothing notices.
+MIN_DEPARTMENT_FLOOR = 150
+
+
+def test_the_department_floor_is_not_lowered():
+    """Guard: ``DEPARTMENT_FLOOR`` stays at or above :data:`MIN_DEPARTMENT_FLOOR`."""
+    floor = breadth_rows.DEPARTMENT_FLOOR
+    assert floor >= MIN_DEPARTMENT_FLOOR, f"floor {floor} is under the pinned minimum"
+
+
 def test_every_department_holds_its_floor_of_styles(ceiling):
     """A general retailer sells in every department: at the ceiling, each holds at least
     ``breadth_rows.DEPARTMENT_FLOOR`` styles (``breadth_rows`` keeps it there).
