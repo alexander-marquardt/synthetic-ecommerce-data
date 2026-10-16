@@ -259,8 +259,8 @@ def test_the_duplicate_listing_option_adds_exactly_one_record() -> None:
     assert f'"product_id": "{dz.DUPLICATED}"' in extra[0]
 
 
-def test_the_readme_class_table_names_every_class() -> None:
-    readme = (HERE.parents[1] / "README.md").read_text(encoding="utf-8")
+def test_the_retail_page_class_table_names_every_class() -> None:
+    readme = (HERE.parents[1] / "docs" / "retail-prototype.md").read_text(encoding="utf-8")
     for row in dz.TABLE:
         assert f"| {row.cls} | *{row.query}*" in readme, row.cls
 
@@ -305,7 +305,9 @@ def test_every_doc_has_a_department_from_the_closed_list() -> None:
     for d in CORPUS:
         assert d["department"], d["title"]
         assert set(d["department"]) <= set(DEPARTMENTS), d["title"]
-    assert len(DEPARTMENTS) == 21
+    # The list is the single source: a new department adds to it and no test pins a count.
+    assert len(set(DEPARTMENTS)) == len(DEPARTMENTS)
+    assert "Sports & Outdoors" in DEPARTMENTS
 
 
 def test_an_unknown_or_missing_department_is_refused() -> None:

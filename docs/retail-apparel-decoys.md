@@ -73,9 +73,9 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA02200 | Bomber Jacket | 2 another category's noun as a modifier | Cream Cardigan Bomber Jacket | cardigan | cardigan | generic |
 | PLT-DA02201 | Bomber Jacket | 2 another category's noun as a modifier | Grey Jumper Bomber Jacket | jumper | jumper | generic |
 | PLT-DA02202 | Bomber Jacket | 2 another category's noun as a modifier | Pink Dress Bomber Jacket | dress | dress | generic |
-| PLT-DA02300 | Bomber Jacket | 3 audience word of a sibling version | Grey Mini-Me Mens Bomber Jacket | mens | mens bomber jacket | generic |
-| PLT-DA02301 | Bomber Jacket | 3 audience word of a sibling version | Brown Mini-Me Mens Bomber Jacket | mens | mens bomber jacket | generic |
-| PLT-DA02302 | Bomber Jacket | 3 audience word of a sibling version | Grey Mens Fit Bomber Jacket | mens | mens bomber jacket | generic |
+| PLT-DA02300 | Bomber Jacket | 3 audience word of a sibling version | Grey Mens-Style Bomber Jacket | mens | mens bomber jacket | generic |
+| PLT-DA02301 | Bomber Jacket | 3 audience word of a sibling version | Grey Mini-Me Mens Bomber Jacket | mens | mens bomber jacket | generic |
+| PLT-DA02302 | Bomber Jacket | 3 audience word of a sibling version | Brown Mini-Me Womens Bomber Jacket | womens | womens bomber jacket | generic |
 | PLT-DA02400 | Bomber Jacket | 4 material or feature named but absent | Black Leather-Look Bomber Jacket | leather | leather bomber jacket | special: material claim |
 | PLT-DA02401 | Bomber Jacket | 4 material or feature named but absent | White Suede-Look Bomber Jacket | suede | suede bomber jacket | special: material claim |
 | PLT-DA02402 | Bomber Jacket | 4 material or feature named but absent | Grey Cashmere-Feel Bomber Jacket | cashmere | cashmere bomber jacket | special: material claim |
@@ -84,11 +84,11 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA02502 | Bomber Jacket | 5 shade spelled in the description only | Dune Bomber Jacket | beige | beige bomber jacket | generic |
 | PLT-DA02600 | Bomber Jacket | 6 incidental word in a range name | Red Harbour Bomber Jacket | red | red bomber jacket | generic |
 | PLT-DA02601 | Bomber Jacket | 6 incidental word in a range name | Black Mill Bomber Jacket | black | black bomber jacket | generic |
-| PLT-DA02602 | Bomber Jacket | 6 incidental word in a range name | Blue Meadow Bomber Jacket | blue | blue bomber jacket | generic |
+| PLT-DA02602 | Bomber Jacket | 6 incidental word in a range name | Red Fern Bomber Jacket | red | red bomber jacket | generic |
 | PLT-DA02603 | Bomber Jacket | 6 incidental word in a range name | Jumper Lane Bomber Jacket | jumper | jumper | generic |
 | PLT-DA02700 | Bomber Jacket | 7 invented brand holding a color or category word | White Dormouse Bomber Jacket | white | white bomber jacket | generic |
-| PLT-DA02701 | Bomber Jacket | 7 invented brand holding a color or category word | Yellow Wagtail Bomber Jacket | yellow | yellow bomber jacket | generic |
-| PLT-DA02702 | Bomber Jacket | 7 invented brand holding a color or category word | Red Plover Bomber Jacket | red | red bomber jacket | generic |
+| PLT-DA02701 | Bomber Jacket | 7 invented brand holding a color or category word | Jumper Jay Bomber Jacket | jumper | jumper bomber jacket | generic |
+| PLT-DA02702 | Bomber Jacket | 7 invented brand holding a color or category word | Blue Otter Bomber Jacket | blue | blue bomber jacket | generic |
 | PLT-DA03100 | Cardigan | 1 color names a part | Cardigan with Red Hem | red | red cardigan | generic |
 | PLT-DA03101 | Cardigan | 1 color names a part | Cardigan with Black Hem | black | black cardigan | generic |
 | PLT-DA03102 | Cardigan | 1 color names a part | Cardigan with White Hem | white | white cardigan | generic |
@@ -487,9 +487,9 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA20702 | Tea Dress | 7 invented brand holding a color or category word | Blue Otter Tea Dress | blue | blue tea dress | generic |
 | PLT-DA21100 | Tee | 1 color names a part | Tee with Green Collar | green | green tee | generic |
 | PLT-DA21101 | Tee | 1 color names a part | Tee with Black Collar | black | black tee | generic |
-| PLT-DA21102 | Tee | 1 color names a part | Tee with White Collar | white | white tee | generic |
+| PLT-DA21102 | Tee | 1 color names a part | Tee with Yellow Collar | yellow | yellow tee | generic |
 | PLT-DA21200 | Tee | 2 another category's noun as a modifier | Red Skirt Tee | skirt | skirt | generic |
-| PLT-DA21201 | Tee | 2 another category's noun as a modifier | Navy Gilet Tee | gilet | gilet | generic |
+| PLT-DA21201 | Tee | 2 another category's noun as a modifier | Cream Gilet Tee | gilet | gilet | generic |
 | PLT-DA21202 | Tee | 2 another category's noun as a modifier | Cream Coat Tee | coat | coat | generic |
 | PLT-DA21300 | Tee | 3 audience word of a sibling version | Green Womens Fit Tee | womens | womens tee | generic |
 | PLT-DA21301 | Tee | 3 audience word of a sibling version | Grey Womens Fit Tee | womens | womens tee | generic |
@@ -731,7 +731,7 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA29302 | Ballet Pumps | 3 audience word of a sibling version | Red Mens Fit Ballet Pumps | mens | mens ballet pumps | generic |
 | PLT-DA29400 | Ballet Pumps | 4 material or feature named but absent | Black Cashmere-Feel Ballet Pumps | cashmere | cashmere ballet pumps | special: material claim |
 | PLT-DA29401 | Ballet Pumps | 4 material or feature named but absent | Blue Wool-Free Ballet Pumps | wool | wool ballet pumps | special: material claim |
-| PLT-DA29402 | Ballet Pumps | 4 material or feature named but absent | Pink Silk-Free Ballet Pumps | silk | silk ballet pumps | special: material claim |
+| PLT-DA29402 | Ballet Pumps | 4 material or feature named but absent | Blue Leather-Look Ballet Pumps | leather | leather ballet pumps | special: material claim |
 | PLT-DA29500 | Ballet Pumps | 5 shade spelled in the description only | Moonbeam Ballet Pumps | ivory | ivory ballet pumps | generic |
 | PLT-DA29501 | Ballet Pumps | 5 shade spelled in the description only | Driftwood Ballet Pumps | taupe | taupe ballet pumps | generic |
 | PLT-DA29502 | Ballet Pumps | 5 shade spelled in the description only | Dune Ballet Pumps | beige | beige ballet pumps | generic |
@@ -753,7 +753,7 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA30302 | Block Heels | 3 audience word of a sibling version | White Mens Fit Block Heels | mens | mens block heels | generic |
 | PLT-DA30400 | Block Heels | 4 material or feature named but absent | Pink Cashmere-Feel Block Heels | cashmere | cashmere block heels | special: material claim |
 | PLT-DA30401 | Block Heels | 4 material or feature named but absent | Red Wool-Free Block Heels | wool | wool block heels | special: material claim |
-| PLT-DA30402 | Block Heels | 4 material or feature named but absent | Red Silk-Feel Block Heels | silk | silk block heels | special: material claim |
+| PLT-DA30402 | Block Heels | 4 material or feature named but absent | Cream Leather-Look Block Heels | leather | leather block heels | special: material claim |
 | PLT-DA30500 | Block Heels | 5 shade spelled in the description only | Moonbeam Block Heels | ivory | ivory block heels | generic |
 | PLT-DA30501 | Block Heels | 5 shade spelled in the description only | Driftwood Block Heels | taupe | taupe block heels | generic |
 | PLT-DA30502 | Block Heels | 5 shade spelled in the description only | Dune Block Heels | beige | beige block heels | generic |
@@ -769,13 +769,13 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA31102 | Brogues | 1 color names a part | Brogues with Blue Sole | blue | blue brogues | generic |
 | PLT-DA31200 | Brogues | 2 another category's noun as a modifier | Brown Loafer Brogues | loafer | loafer | generic |
 | PLT-DA31201 | Brogues | 2 another category's noun as a modifier | Navy Sandal Brogues | sandal | sandal | generic |
-| PLT-DA31202 | Brogues | 2 another category's noun as a modifier | Grey Mule Brogues | mule | mule | generic |
-| PLT-DA31300 | Brogues | 3 audience word of a sibling version | Brown Womens Fit Brogues | womens | womens brogues | generic |
-| PLT-DA31301 | Brogues | 3 audience word of a sibling version | Grey Mens-Style Brogues | mens | mens brogues | generic |
+| PLT-DA31202 | Brogues | 2 another category's noun as a modifier | Brown Mule Brogues | mule | mule | generic |
+| PLT-DA31300 | Brogues | 3 audience word of a sibling version | Brown Mens Fit Brogues | mens | mens brogues | generic |
+| PLT-DA31301 | Brogues | 3 audience word of a sibling version | Grey Womens-Style Brogues | womens | womens brogues | generic |
 | PLT-DA31302 | Brogues | 3 audience word of a sibling version | Red Girls Fit Brogues | girls | girls brogues | generic |
-| PLT-DA31400 | Brogues | 4 material or feature named but absent | White Suede-Look Brogues | suede | suede brogues | special: material claim |
-| PLT-DA31401 | Brogues | 4 material or feature named but absent | Red Cashmere-Feel Brogues | cashmere | cashmere brogues | special: material claim |
-| PLT-DA31402 | Brogues | 4 material or feature named but absent | Green Wool-Free Brogues | wool | wool brogues | special: material claim |
+| PLT-DA31400 | Brogues | 4 material or feature named but absent | White Leather-Look Brogues | leather | leather brogues | special: material claim |
+| PLT-DA31401 | Brogues | 4 material or feature named but absent | Red Suede-Look Brogues | suede | suede brogues | special: material claim |
+| PLT-DA31402 | Brogues | 4 material or feature named but absent | Green Cashmere-Feel Brogues | cashmere | cashmere brogues | special: material claim |
 | PLT-DA31500 | Brogues | 5 shade spelled in the description only | Moonbeam Brogues | ivory | ivory brogues | generic |
 | PLT-DA31501 | Brogues | 5 shade spelled in the description only | Driftwood Brogues | taupe | taupe brogues | generic |
 | PLT-DA31502 | Brogues | 5 shade spelled in the description only | Dune Brogues | beige | beige brogues | generic |
@@ -784,7 +784,7 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA31602 | Brogues | 6 incidental word in a range name | Red Fern Brogues | red | red brogues | generic |
 | PLT-DA31603 | Brogues | 6 incidental word in a range name | Shirt Row Brogues | shirt | shirt | generic |
 | PLT-DA31700 | Brogues | 7 invented brand holding a color or category word | Yellow Wagtail Brogues | yellow | yellow brogues | generic |
-| PLT-DA31701 | Brogues | 7 invented brand holding a color or category word | Yellow Wagtail Brogues | yellow | yellow brogues | generic |
+| PLT-DA31701 | Brogues | 7 invented brand holding a color or category word | Black Lapwing Brogues | black | black brogues | generic |
 | PLT-DA31702 | Brogues | 7 invented brand holding a color or category word | Red Plover Brogues | red | red brogues | generic |
 | PLT-DA32100 | Chelsea Boots | 1 color names a part | Chelsea Boots with Black Sole | black | black chelsea boots | generic |
 | PLT-DA32101 | Chelsea Boots | 1 color names a part | Chelsea Boots with Yellow Sole | yellow | yellow chelsea boots | generic |
@@ -795,8 +795,8 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA32300 | Chelsea Boots | 3 audience word of a sibling version | Black Womens-Style Chelsea Boots | womens | womens chelsea boots | generic |
 | PLT-DA32301 | Chelsea Boots | 3 audience word of a sibling version | Brown Boys Fit Chelsea Boots | boys | boys chelsea boots | generic |
 | PLT-DA32302 | Chelsea Boots | 3 audience word of a sibling version | Red Girls Fit Chelsea Boots | girls | girls chelsea boots | generic |
-| PLT-DA32400 | Chelsea Boots | 4 material or feature named but absent | Cream Suede-Look Chelsea Boots | suede | suede chelsea boots | special: material claim |
-| PLT-DA32401 | Chelsea Boots | 4 material or feature named but absent | Red Leather-Look Chelsea Boots | leather | leather chelsea boots | special: material claim |
+| PLT-DA32400 | Chelsea Boots | 4 material or feature named but absent | Cream Leather-Look Chelsea Boots | leather | leather chelsea boots | special: material claim |
+| PLT-DA32401 | Chelsea Boots | 4 material or feature named but absent | Red Suede-Look Chelsea Boots | suede | suede chelsea boots | special: material claim |
 | PLT-DA32402 | Chelsea Boots | 4 material or feature named but absent | Red Cashmere-Feel Chelsea Boots | cashmere | cashmere chelsea boots | special: material claim |
 | PLT-DA32500 | Chelsea Boots | 5 shade spelled in the description only | Moonbeam Chelsea Boots | ivory | ivory chelsea boots | generic |
 | PLT-DA32501 | Chelsea Boots | 5 shade spelled in the description only | Driftwood Chelsea Boots | taupe | taupe chelsea boots | generic |
@@ -841,7 +841,7 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA34302 | Court Shoes | 3 audience word of a sibling version | Brown Boys Fit Court Shoes | boys | boys court shoes | generic |
 | PLT-DA34400 | Court Shoes | 4 material or feature named but absent | Blue Cashmere-Feel Court Shoes | cashmere | cashmere court shoes | special: material claim |
 | PLT-DA34401 | Court Shoes | 4 material or feature named but absent | Brown Wool-Free Court Shoes | wool | wool court shoes | special: material claim |
-| PLT-DA34402 | Court Shoes | 4 material or feature named but absent | Brown Silk-Free Court Shoes | silk | silk court shoes | special: material claim |
+| PLT-DA34402 | Court Shoes | 4 material or feature named but absent | Red Leather-Look Court Shoes | leather | leather court shoes | special: material claim |
 | PLT-DA34500 | Court Shoes | 5 shade spelled in the description only | Moonbeam Court Shoes | ivory | ivory court shoes | generic |
 | PLT-DA34501 | Court Shoes | 5 shade spelled in the description only | Driftwood Court Shoes | taupe | taupe court shoes | generic |
 | PLT-DA34502 | Court Shoes | 5 shade spelled in the description only | Dune Court Shoes | beige | beige court shoes | generic |
@@ -902,12 +902,12 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA37200 | Loafers | 2 another category's noun as a modifier | Pink Pump Loafers | pump | pump | generic |
 | PLT-DA37201 | Loafers | 2 another category's noun as a modifier | Navy Heel Loafers | heel | heel | generic |
 | PLT-DA37202 | Loafers | 2 another category's noun as a modifier | Green Heel Loafers | heel | heel | generic |
-| PLT-DA37300 | Loafers | 3 audience word of a sibling version | Navy Womens Fit Loafers | womens | womens loafers | generic |
+| PLT-DA37300 | Loafers | 3 audience word of a sibling version | Navy Mens Fit Loafers | mens | mens loafers | generic |
 | PLT-DA37301 | Loafers | 3 audience word of a sibling version | Black Mens-Style Loafers | mens | mens loafers | generic |
-| PLT-DA37302 | Loafers | 3 audience word of a sibling version | Pink Boys Fit Loafers | boys | boys loafers | generic |
+| PLT-DA37302 | Loafers | 3 audience word of a sibling version | Brown Girls Fit Loafers | girls | girls loafers | generic |
 | PLT-DA37400 | Loafers | 4 material or feature named but absent | Brown Suede-Look Loafers | suede | suede loafers | special: material claim |
 | PLT-DA37401 | Loafers | 4 material or feature named but absent | Brown Cashmere-Feel Loafers | cashmere | cashmere loafers | special: material claim |
-| PLT-DA37402 | Loafers | 4 material or feature named but absent | Black Wool-Free Loafers | wool | wool loafers | special: material claim |
+| PLT-DA37402 | Loafers | 4 material or feature named but absent | Black Leather-Look Loafers | leather | leather loafers | special: material claim |
 | PLT-DA37500 | Loafers | 5 shade spelled in the description only | Moonbeam Loafers | ivory | ivory loafers | generic |
 | PLT-DA37501 | Loafers | 5 shade spelled in the description only | Driftwood Loafers | taupe | taupe loafers | generic |
 | PLT-DA37502 | Loafers | 5 shade spelled in the description only | Dune Loafers | beige | beige loafers | generic |
@@ -917,7 +917,7 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA37603 | Loafers | 6 incidental word in a range name | Coat Hook Loafers | coat | coat | generic |
 | PLT-DA37700 | Loafers | 7 invented brand holding a color or category word | Black Lapwing Loafers | black | black loafers | generic |
 | PLT-DA37701 | Loafers | 7 invented brand holding a color or category word | Yellow Wagtail Loafers | yellow | yellow loafers | generic |
-| PLT-DA37702 | Loafers | 7 invented brand holding a color or category word | Jumper Jay Loafers | jumper | jumper loafers | generic |
+| PLT-DA37702 | Loafers | 7 invented brand holding a color or category word | Coat Crake Loafers | coat | coat loafers | generic |
 | PLT-DA38100 | Running Shoes | 1 color names a part | Running Shoes with White Sole | white | white running shoes | generic |
 | PLT-DA38101 | Running Shoes | 1 color names a part | Running Shoes with Red Sole | red | red running shoes | generic |
 | PLT-DA38102 | Running Shoes | 1 color names a part | Running Shoes with Green Sole | green | green running shoes | generic |
@@ -968,9 +968,9 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA40200 | Sandals | 2 another category's noun as a modifier | Navy Heel Sandals | heel | heel | generic |
 | PLT-DA40201 | Sandals | 2 another category's noun as a modifier | Red Pump Sandals | pump | pump | generic |
 | PLT-DA40202 | Sandals | 2 another category's noun as a modifier | Grey Slipper Sandals | slipper | slipper | generic |
-| PLT-DA40300 | Sandals | 3 audience word of a sibling version | Green Mini-Me Mens Sandals | mens | mens sandals | generic |
+| PLT-DA40300 | Sandals | 3 audience word of a sibling version | Green Mens-Style Sandals | mens | mens sandals | generic |
 | PLT-DA40301 | Sandals | 3 audience word of a sibling version | Red Mens-Style Sandals | mens | mens sandals | generic |
-| PLT-DA40302 | Sandals | 3 audience word of a sibling version | Cream Mens-Style Sandals | mens | mens sandals | generic |
+| PLT-DA40302 | Sandals | 3 audience word of a sibling version | Cream Mini-Me Mens Sandals | mens | mens sandals | generic |
 | PLT-DA40400 | Sandals | 4 material or feature named but absent | Red Leather-Look Sandals | leather | leather sandals | special: material claim |
 | PLT-DA40401 | Sandals | 4 material or feature named but absent | Brown Suede-Look Sandals | suede | suede sandals | special: material claim |
 | PLT-DA40402 | Sandals | 4 material or feature named but absent | Green Cashmere-Feel Sandals | cashmere | cashmere sandals | special: material claim |
@@ -982,8 +982,8 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA40602 | Sandals | 6 incidental word in a range name | White Moor Sandals | white | white sandals | generic |
 | PLT-DA40603 | Sandals | 6 incidental word in a range name | Jumper Lane Sandals | jumper | jumper | generic |
 | PLT-DA40700 | Sandals | 7 invented brand holding a color or category word | Yellow Wagtail Sandals | yellow | yellow sandals | generic |
-| PLT-DA40701 | Sandals | 7 invented brand holding a color or category word | White Dormouse Sandals | white | white sandals | generic |
-| PLT-DA40702 | Sandals | 7 invented brand holding a color or category word | White Dormouse Sandals | white | white sandals | generic |
+| PLT-DA40701 | Sandals | 7 invented brand holding a color or category word | Black Lapwing Sandals | black | black sandals | generic |
+| PLT-DA40702 | Sandals | 7 invented brand holding a color or category word | Jumper Jay Sandals | jumper | jumper sandals | generic |
 | PLT-DA41100 | School Shoes | 1 color names a part | School Shoes with Blue Sole | blue | blue school shoes | generic |
 | PLT-DA41101 | School Shoes | 1 color names a part | School Shoes with Green Sole | green | green school shoes | generic |
 | PLT-DA41102 | School Shoes | 1 color names a part | School Shoes with Yellow Sole | yellow | yellow school shoes | generic |
@@ -1035,7 +1035,7 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA43201 | Trainers | 2 another category's noun as a modifier | Red Heel Trainers | heel | heel | generic |
 | PLT-DA43202 | Trainers | 2 another category's noun as a modifier | Pink Sneaker Trainers | sneaker | sneaker | generic |
 | PLT-DA43300 | Trainers | 3 audience word of a sibling version | Green Womens Fit Trainers | womens | womens trainers | generic |
-| PLT-DA43301 | Trainers | 3 audience word of a sibling version | Cream Mens-Style Trainers | mens | mens trainers | generic |
+| PLT-DA43301 | Trainers | 3 audience word of a sibling version | Grey Girls Fit Trainers | girls | girls trainers | generic |
 | PLT-DA43302 | Trainers | 3 audience word of a sibling version | Brown Womens Fit Trainers | womens | womens trainers | generic |
 | PLT-DA43400 | Trainers | 4 material or feature named but absent | Cream Leather-Look Trainers | leather | leather trainers | special: material claim |
 | PLT-DA43401 | Trainers | 4 material or feature named but absent | Pink Suede-Look Trainers | suede | suede trainers | special: material claim |
@@ -1045,10 +1045,10 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA43502 | Trainers | 5 shade spelled in the description only | Dune Trainers | beige | beige trainers | generic |
 | PLT-DA43600 | Trainers | 6 incidental word in a range name | Yellow Brook Trainers | yellow | yellow trainers | generic |
 | PLT-DA43601 | Trainers | 6 incidental word in a range name | Red Harbour Trainers | red | red trainers | generic |
-| PLT-DA43602 | Trainers | 6 incidental word in a range name | Black Tor Trainers | black | black trainers | generic |
+| PLT-DA43602 | Trainers | 6 incidental word in a range name | White Cliff Trainers | white | white trainers | generic |
 | PLT-DA43603 | Trainers | 6 incidental word in a range name | Boot Hill Trainers | boot | boot | generic |
 | PLT-DA43700 | Trainers | 7 invented brand holding a color or category word | Yellow Wagtail Trainers | yellow | yellow trainers | generic |
-| PLT-DA43701 | Trainers | 7 invented brand holding a color or category word | Jumper Jay Trainers | jumper | jumper trainers | generic |
+| PLT-DA43701 | Trainers | 7 invented brand holding a color or category word | White Dormouse Trainers | white | white trainers | generic |
 | PLT-DA43702 | Trainers | 7 invented brand holding a color or category word | Yellow Wagtail Trainers | yellow | yellow trainers | generic |
 | PLT-DA44100 | Walking Boots | 1 color names a part | Walking Boots with Red Sole | red | red walking boots | generic |
 | PLT-DA44101 | Walking Boots | 1 color names a part | Walking Boots with Black Sole | black | black walking boots | generic |
@@ -1355,3 +1355,91 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA55700 | Vest | 7 invented brand holding a color or category word | Coat Crake Vest | coat | coat vest | generic |
 | PLT-DA55701 | Vest | 7 invented brand holding a color or category word | Yellow Wagtail Vest | yellow | yellow vest | generic |
 | PLT-DA55702 | Vest | 7 invented brand holding a color or category word | Red Plover Vest | red | red vest | generic |
+| PLT-DA56100 | School Trousers | 1 color names a part | School Trousers with White Cuffs | white | white school trousers | generic |
+| PLT-DA56101 | School Trousers | 1 color names a part | School Trousers with Black Waistband | black | black school trousers | generic |
+| PLT-DA56102 | School Trousers | 1 color names a part | School Trousers with Red Waistband | red | red school trousers | generic |
+| PLT-DA56200 | School Trousers | 2 another category's noun as a modifier | Black Jumper School Trousers | jumper | jumper | generic |
+| PLT-DA56201 | School Trousers | 2 another category's noun as a modifier | Red Vest School Trousers | vest | vest | generic |
+| PLT-DA56202 | School Trousers | 2 another category's noun as a modifier | Grey Jumper School Trousers | jumper | jumper | generic |
+| PLT-DA56300 | School Trousers | 3 audience word of a sibling version | Cream Mens-Style School Trousers | mens | mens school trousers | generic |
+| PLT-DA56301 | School Trousers | 3 audience word of a sibling version | Brown Mini-Me Womens School Trousers | womens | womens school trousers | generic |
+| PLT-DA56302 | School Trousers | 3 audience word of a sibling version | Navy Mini-Me Mens School Trousers | mens | mens school trousers | generic |
+| PLT-DA56400 | School Trousers | 4 material or feature named but absent | Blue Leather-Look School Trousers | leather | leather school trousers | special: material claim |
+| PLT-DA56401 | School Trousers | 4 material or feature named but absent | Pink Suede-Look School Trousers | suede | suede school trousers | special: material claim |
+| PLT-DA56402 | School Trousers | 4 material or feature named but absent | Pink Cashmere-Feel School Trousers | cashmere | cashmere school trousers | special: material claim |
+| PLT-DA56500 | School Trousers | 5 shade spelled in the description only | Moonbeam School Trousers | ivory | ivory school trousers | generic |
+| PLT-DA56501 | School Trousers | 5 shade spelled in the description only | Driftwood School Trousers | taupe | taupe school trousers | generic |
+| PLT-DA56502 | School Trousers | 5 shade spelled in the description only | Dune School Trousers | beige | beige school trousers | generic |
+| PLT-DA56600 | School Trousers | 6 incidental word in a range name | Green Park School Trousers | green | green school trousers | generic |
+| PLT-DA56601 | School Trousers | 6 incidental word in a range name | Yellow Marsh School Trousers | yellow | yellow school trousers | generic |
+| PLT-DA56602 | School Trousers | 6 incidental word in a range name | Red Harbour School Trousers | red | red school trousers | generic |
+| PLT-DA56603 | School Trousers | 6 incidental word in a range name | Coat Hook School Trousers | coat | coat | generic |
+| PLT-DA56700 | School Trousers | 7 invented brand holding a color or category word | Yellow Wagtail School Trousers | yellow | yellow school trousers | generic |
+| PLT-DA56701 | School Trousers | 7 invented brand holding a color or category word | Black Lapwing School Trousers | black | black school trousers | generic |
+| PLT-DA56702 | School Trousers | 7 invented brand holding a color or category word | Green Stoat School Trousers | green | green school trousers | generic |
+| PLT-DA57100 | School Skirt | 1 color names a part | School Skirt with White Waistband | white | white school skirt | generic |
+| PLT-DA57101 | School Skirt | 1 color names a part | School Skirt with Red Waistband | red | red school skirt | generic |
+| PLT-DA57102 | School Skirt | 1 color names a part | School Skirt with Black Waistband | black | black school skirt | generic |
+| PLT-DA57200 | School Skirt | 2 another category's noun as a modifier | White Coat School Skirt | coat | coat | generic |
+| PLT-DA57201 | School Skirt | 2 another category's noun as a modifier | Blue Jacket School Skirt | jacket | jacket | generic |
+| PLT-DA57202 | School Skirt | 2 another category's noun as a modifier | White Jacket School Skirt | jacket | jacket | generic |
+| PLT-DA57300 | School Skirt | 3 audience word of a sibling version | White Mini-Me Mens School Skirt | mens | mens school skirt | generic |
+| PLT-DA57301 | School Skirt | 3 audience word of a sibling version | Red Mini-Me Womens School Skirt | womens | womens school skirt | generic |
+| PLT-DA57302 | School Skirt | 3 audience word of a sibling version | Cream Mini-Me Womens School Skirt | womens | womens school skirt | generic |
+| PLT-DA57400 | School Skirt | 4 material or feature named but absent | Grey Leather-Look School Skirt | leather | leather school skirt | special: material claim |
+| PLT-DA57401 | School Skirt | 4 material or feature named but absent | Black Suede-Look School Skirt | suede | suede school skirt | special: material claim |
+| PLT-DA57402 | School Skirt | 4 material or feature named but absent | Red Cashmere-Feel School Skirt | cashmere | cashmere school skirt | special: material claim |
+| PLT-DA57500 | School Skirt | 5 shade spelled in the description only | Moonbeam School Skirt | ivory | ivory school skirt | generic |
+| PLT-DA57501 | School Skirt | 5 shade spelled in the description only | Driftwood School Skirt | taupe | taupe school skirt | generic |
+| PLT-DA57502 | School Skirt | 5 shade spelled in the description only | Dune School Skirt | beige | beige school skirt | generic |
+| PLT-DA57600 | School Skirt | 6 incidental word in a range name | Green Hollow School Skirt | green | green school skirt | generic |
+| PLT-DA57601 | School Skirt | 6 incidental word in a range name | Yellow Marsh School Skirt | yellow | yellow school skirt | generic |
+| PLT-DA57602 | School Skirt | 6 incidental word in a range name | Green Park School Skirt | green | green school skirt | generic |
+| PLT-DA57603 | School Skirt | 6 incidental word in a range name | Dress Circle School Skirt | dress | dress | generic |
+| PLT-DA57700 | School Skirt | 7 invented brand holding a color or category word | White Dormouse School Skirt | white | white school skirt | generic |
+| PLT-DA57701 | School Skirt | 7 invented brand holding a color or category word | Yellow Wagtail School Skirt | yellow | yellow school skirt | generic |
+| PLT-DA57702 | School Skirt | 7 invented brand holding a color or category word | Black Lapwing School Skirt | black | black school skirt | generic |
+| PLT-DA58100 | School Pinafore | 1 color names a part | School Pinafore with Yellow Straps | yellow | yellow school pinafore | generic |
+| PLT-DA58101 | School Pinafore | 1 color names a part | School Pinafore with Blue Straps | blue | blue school pinafore | generic |
+| PLT-DA58102 | School Pinafore | 1 color names a part | School Pinafore with Green Straps | green | green school pinafore | generic |
+| PLT-DA58200 | School Pinafore | 2 another category's noun as a modifier | Brown Hoodie School Pinafore | hoodie | hoodie | generic |
+| PLT-DA58201 | School Pinafore | 2 another category's noun as a modifier | Grey Jacket School Pinafore | jacket | jacket | generic |
+| PLT-DA58202 | School Pinafore | 2 another category's noun as a modifier | Grey Cardigan School Pinafore | cardigan | cardigan | generic |
+| PLT-DA58300 | School Pinafore | 3 audience word of a sibling version | Navy Mini-Me Womens School Pinafore | womens | womens school pinafore | generic |
+| PLT-DA58301 | School Pinafore | 3 audience word of a sibling version | Grey Mini-Me Mens School Pinafore | mens | mens school pinafore | generic |
+| PLT-DA58302 | School Pinafore | 3 audience word of a sibling version | Blue Mens-Style School Pinafore | mens | mens school pinafore | generic |
+| PLT-DA58400 | School Pinafore | 4 material or feature named but absent | Cream Leather-Look School Pinafore | leather | leather school pinafore | special: material claim |
+| PLT-DA58401 | School Pinafore | 4 material or feature named but absent | Brown Suede-Look School Pinafore | suede | suede school pinafore | special: material claim |
+| PLT-DA58402 | School Pinafore | 4 material or feature named but absent | White Cashmere-Feel School Pinafore | cashmere | cashmere school pinafore | special: material claim |
+| PLT-DA58500 | School Pinafore | 5 shade spelled in the description only | Moonbeam School Pinafore | ivory | ivory school pinafore | generic |
+| PLT-DA58501 | School Pinafore | 5 shade spelled in the description only | Driftwood School Pinafore | taupe | taupe school pinafore | generic |
+| PLT-DA58502 | School Pinafore | 5 shade spelled in the description only | Dune School Pinafore | beige | beige school pinafore | generic |
+| PLT-DA58600 | School Pinafore | 6 incidental word in a range name | Yellow Marsh School Pinafore | yellow | yellow school pinafore | generic |
+| PLT-DA58601 | School Pinafore | 6 incidental word in a range name | Yellow Brook School Pinafore | yellow | yellow school pinafore | generic |
+| PLT-DA58602 | School Pinafore | 6 incidental word in a range name | Green Hollow School Pinafore | green | green school pinafore | generic |
+| PLT-DA58603 | School Pinafore | 6 incidental word in a range name | Coat Hook School Pinafore | coat | coat | generic |
+| PLT-DA58700 | School Pinafore | 7 invented brand holding a color or category word | Jumper Jay School Pinafore | jumper | jumper school pinafore | generic |
+| PLT-DA58701 | School Pinafore | 7 invented brand holding a color or category word | White Dormouse School Pinafore | white | white school pinafore | generic |
+| PLT-DA58702 | School Pinafore | 7 invented brand holding a color or category word | Coat Crake School Pinafore | coat | coat school pinafore | generic |
+| PLT-DA59100 | School Shirt | 1 color names a part | School Shirt with Black Collar | black | black school shirt | generic |
+| PLT-DA59101 | School Shirt | 1 color names a part | School Shirt with Black Hem | black | black school shirt | generic |
+| PLT-DA59102 | School Shirt | 1 color names a part | School Shirt with Green Hem | green | green school shirt | generic |
+| PLT-DA59200 | School Shirt | 2 another category's noun as a modifier | Navy Jacket School Shirt | jacket | jacket | generic |
+| PLT-DA59201 | School Shirt | 2 another category's noun as a modifier | Cream Dress School Shirt | dress | dress | generic |
+| PLT-DA59202 | School Shirt | 2 another category's noun as a modifier | Blue Vest School Shirt | vest | vest | generic |
+| PLT-DA59300 | School Shirt | 3 audience word of a sibling version | Blue Mens-Style School Shirt | mens | mens school shirt | generic |
+| PLT-DA59301 | School Shirt | 3 audience word of a sibling version | Brown Mini-Me Womens School Shirt | womens | womens school shirt | generic |
+| PLT-DA59302 | School Shirt | 3 audience word of a sibling version | Brown Mini-Me Mens School Shirt | mens | mens school shirt | generic |
+| PLT-DA59400 | School Shirt | 4 material or feature named but absent | Cream Leather-Look School Shirt | leather | leather school shirt | special: material claim |
+| PLT-DA59401 | School Shirt | 4 material or feature named but absent | Green Suede-Look School Shirt | suede | suede school shirt | special: material claim |
+| PLT-DA59402 | School Shirt | 4 material or feature named but absent | Brown Cashmere-Feel School Shirt | cashmere | cashmere school shirt | special: material claim |
+| PLT-DA59500 | School Shirt | 5 shade spelled in the description only | Moonbeam School Shirt | ivory | ivory school shirt | generic |
+| PLT-DA59501 | School Shirt | 5 shade spelled in the description only | Driftwood School Shirt | taupe | taupe school shirt | generic |
+| PLT-DA59502 | School Shirt | 5 shade spelled in the description only | Dune School Shirt | beige | beige school shirt | generic |
+| PLT-DA59600 | School Shirt | 6 incidental word in a range name | Green Park School Shirt | green | green school shirt | generic |
+| PLT-DA59601 | School Shirt | 6 incidental word in a range name | Red Fern School Shirt | red | red school shirt | generic |
+| PLT-DA59602 | School Shirt | 6 incidental word in a range name | Green Hollow School Shirt | green | green school shirt | generic |
+| PLT-DA59603 | School Shirt | 6 incidental word in a range name | Jumper Lane School Shirt | jumper | jumper | generic |
+| PLT-DA59700 | School Shirt | 7 invented brand holding a color or category word | Yellow Wagtail School Shirt | yellow | yellow school shirt | generic |
+| PLT-DA59701 | School Shirt | 7 invented brand holding a color or category word | White Dormouse School Shirt | white | white school shirt | generic |
+| PLT-DA59702 | School Shirt | 7 invented brand holding a color or category word | Green Stoat School Shirt | green | green school shirt | generic |

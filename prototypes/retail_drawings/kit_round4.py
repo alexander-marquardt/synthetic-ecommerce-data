@@ -29,8 +29,8 @@ def _bezier(p0, p1, p2, p3, t: float) -> tuple[float, float]:
 def belt(paint: str, fill: Fill, label: str | None) -> list[str]:
     """A belt laid in a shallow S: roller buckle and keeper on the left, holes and tip on the right."""
     strap = "M84,190 C164,150 252,240 326,196 L358,212 L326,230 C252,274 164,184 84,224 Z"
-    centre = ((84, 207), (164, 167), (252, 257), (326, 213))
-    holes = [_bezier(*centre, t) for t in (0.66, 0.72, 0.78, 0.84, 0.90)]
+    center = ((84, 207), (164, 167), (252, 257), (326, 213))
+    holes = [_bezier(*center, t) for t in (0.66, 0.72, 0.78, 0.84, 0.90)]
     return [
         _path(strap, paint),
         _line(

@@ -56,10 +56,15 @@ LAYOUTS = (
     "band_top",
     "band_bottom",
 )
-PLACES = ("top_left", "top_centre", "top_right", "bottom_left", "bottom_centre", "bottom_right")
+PLACES = ("top_left", "top_center", "top_right", "bottom_left", "bottom_center", "bottom_right")
 CORNERS = ("top_left", "top_right", "bottom_left", "bottom_right")
 TAGS = ("none", "outline", "rect", "flag", "plain", "underline", "stamp", "tab")
 CASES = ("title", "caps", "smallcaps", "lower")
+
+
+#: A real brand (:mod:`real_brands`, gen#341) draws no logo: its style row carries this mark,
+#: so the name is text in the title and the ``brand`` field and the drawing shows no mark.
+NO_MARK = "none"
 
 
 @dataclass(frozen=True)
@@ -89,7 +94,7 @@ class HouseStyle:
             ("texture", TEXTURES),
             ("frame", FRAMES),
             ("joins", ("round", "sharp")),
-            ("mark", tuple(MARKS)),
+            ("mark", (*MARKS, NO_MARK)),
             ("layout", LAYOUTS),
             ("place", PLACES),
             ("tag", TAGS),
@@ -108,9 +113,9 @@ class HouseStyle:
         elif self.tag != "none":
             raise ValueError("a lockup already carries the name; tag must be 'none'")
         if self.layout.startswith("band_") and self.place != (
-            "top_centre" if self.layout == "band_top" else "bottom_centre"
+            "top_center" if self.layout == "band_top" else "bottom_center"
         ):
-            raise ValueError("a band sits at the top or bottom centre")
+            raise ValueError("a band sits at the top or bottom center")
 
     @property
     def top_logo(self) -> bool:
@@ -603,6 +608,17 @@ def m_bubbles(c: str) -> list[str]:
     ]
 
 
+def m_bull_horns(c: str) -> list[str]:
+    """A bull's head: a round muzzle between two upswept horns (Blue Bull, gen#326)."""
+    horns = "M-0.35,-0.1 C-0.95,-0.1 -0.95,-0.7 -0.6,-0.85 M0.35,-0.1 C0.95,-0.1 0.95,-0.7 0.6,-0.85"
+    return [
+        f'<path d="{horns}" fill="none" stroke="{c}" stroke-width=".16" stroke-linecap="round"/>',
+        _dot(0, 0.15, 0.5, c),
+        _dot(-0.2, 0.3, 0.08, "#ffffff"),
+        _dot(0.2, 0.3, 0.08, "#ffffff"),
+    ]
+
+
 #: Mark name -> drawing in unit space (-1..1), painted in the brand color.
 MARKS = {
     name[2:]: fn for name, fn in list(globals().items()) if name.startswith("m_") and callable(fn)
@@ -610,7 +626,7 @@ MARKS = {
 
 
 def mark_svg(name: str, cx: float, cy: float, size: float, color: str) -> str:
-    """The composite mark ``name``, ``size`` px across, centred on (cx, cy)."""
+    """The composite mark ``name``, ``size`` px across, centered on (cx, cy)."""
     body = "".join(MARKS[name](color))
     return (
         f'<g class="mark" transform="translate({_n(cx)} {_n(cy)}) scale({_n(size / 2)})">{body}</g>'
@@ -883,6 +899,8 @@ def tag_place(style: HouseStyle) -> str:
 
 
 def logo(style: HouseStyle, brand: str) -> list[str]:
+    if style.mark == NO_MARK:  # a real brand: text only, never a logo, wordmark or trade dress
+        return []
     if style.layout != "mark_only":
         return _lockup(style, brand)
     v, h = style.place.split("_")
@@ -1004,19 +1022,19 @@ def H(
 HOUSE_STYLES: dict[str, HouseStyle] = {
     # Lockups: mark + wordmark.
     "Harbour & Pine":       H("#f1f5f9", "none",     "double",  "#1f4e79", "#1f3550", 1.0,  False, "round", "chevron_stack",     "mark_left",   "top_left",      "none",     "sans",     700, "caps",      1.5),
-    "Larkmoor":             H("#fbf0f1", "none",     "rounded", "#b0476a", "#4a2537", 0.75, False, "round", "interlocking_rings", "mark_above", "top_centre",    "none",     "serif",    400, "title",     3.0, True),
-    "Ottery Denim":         H("#edf0f3", "grid",     "none",    "#c26b2a", "#1d2a3a", 1.35, False, "sharp", "diamond_grid",      "band_top",    "top_centre",    "none",     "mono",     700, "caps",      2.0),
-    "Little Fernby":        H("#fff6dc", "dots",     "ticks",   "#e0683f", "#2f4a6b", 1.1,  True,  "round", "petals",            "pill",        "bottom_centre", "none",     "humanist", 700, "lower",     0.0),
+    "Larkmoor":             H("#fbf0f1", "none",     "rounded", "#b0476a", "#4a2537", 0.75, False, "round", "interlocking_rings", "mark_above", "top_center",    "none",     "serif",    400, "title",     3.0, True),
+    "Ottery Denim":         H("#edf0f3", "grid",     "none",    "#c26b2a", "#1d2a3a", 1.35, False, "sharp", "diamond_grid",      "band_top",    "top_center",    "none",     "mono",     700, "caps",      2.0),
+    "Little Fernby":        H("#fff6dc", "dots",     "ticks",   "#e0683f", "#2f4a6b", 1.1,  True,  "round", "petals",            "pill",        "bottom_center", "none",     "humanist", 700, "lower",     0.0),
     "Stridewell":           H("#ffffff", "none",     "none",    "#e23b2e", "#111111", 1.35, False, "sharp", "circles_line",      "mark_right",  "top_left",      "none",     "sans",     700, "caps",      0.0, True),
-    "Saltmarsh":            H("#eef6f6", "lines",    "none",    "#1c7c7d", "#1d3b40", 1.0,  False, "round", "wave_arcs",         "band_bottom", "bottom_centre", "none",     "humanist", 400, "lower",     1.0),
-    "Calderby & Lune":      H("#f3f3f1", "none",     "heavy",   "#2b2b2b", "#1b1b1b", 0.9,  False, "sharp", "lozenge_chain",     "badge",       "top_centre",    "none",     "serif",    400, "caps",      2.5),
+    "Saltmarsh":            H("#eef6f6", "lines",    "none",    "#1c7c7d", "#1d3b40", 1.0,  False, "round", "wave_arcs",         "band_bottom", "bottom_center", "none",     "humanist", 400, "lower",     1.0),
+    "Calderby & Lune":      H("#f3f3f1", "none",     "heavy",   "#2b2b2b", "#1b1b1b", 0.9,  False, "sharp", "lozenge_chain",     "badge",       "top_center",    "none",     "serif",    400, "caps",      2.5),
     "Hollinwray Knits":     H("#f7f1ea", "hatch",    "rounded", "#a0522d", "#4b3426", 1.1,  True,  "round", "checker",           "mark_left",   "bottom_left",   "none",     "serif",    700, "lower",     0.0),
     "Goldfield Farms":      H("#fff8e6", "none",     "ticks",   "#c8870f", "#3d3115", 1.1,  False, "round", "sunburst",          "mark_above",  "top_right",     "none",     "sans",     700, "caps",      1.0),
     "Crunchworth":          H("#fff1ea", "dots",     "none",    "#e0542d", "#2a2a2a", 1.35, False, "sharp", "zigzag_dots",       "pill",        "top_left",      "none",     "sans",     700, "caps",      0.5),
-    "Lanternby":            H("#f9f5ec", "none",     "thin",    "#b8801f", "#3b3122", 1.0,  False, "round", "three_stars",       "mark_right",  "bottom_centre", "none",     "serif",    400, "smallcaps", 1.0),
+    "Lanternby":            H("#f9f5ec", "none",     "thin",    "#b8801f", "#3b3122", 1.0,  False, "round", "three_stars",       "mark_right",  "bottom_center", "none",     "serif",    400, "smallcaps", 1.0),
     "Quillon Sleep":        H("#f1f3fa", "none",     "rounded", "#5b6bb5", "#2c3354", 0.75, False, "round", "crescent_dot",      "mark_left",   "top_right",     "none",     "humanist", 400, "title",     0.5),
-    "Velling Apothecary":   H("#f4f1f6", "none",     "double",  "#5e4b6e", "#2f2638", 0.8,  False, "round", "plus_four",         "mark_above",  "bottom_centre", "none",     "serif",    400, "caps",      4.0),
-    "Kestlewood Cosmetics": H("#fdf0f3", "none",     "none",    "#c2185b", "#1a1a1a", 1.0,  False, "sharp", "orbit",             "badge",       "bottom_centre", "none",     "sans",     400, "lower",     2.0),
+    "Velling Apothecary":   H("#f4f1f6", "none",     "double",  "#5e4b6e", "#2f2638", 0.8,  False, "round", "plus_four",         "mark_above",  "bottom_center", "none",     "serif",    400, "caps",      4.0),
+    "Kestlewood Cosmetics": H("#fdf0f3", "none",     "none",    "#c2185b", "#1a1a1a", 1.0,  False, "sharp", "orbit",             "badge",       "bottom_center", "none",     "sans",     400, "lower",     2.0),
     # Mark alone in a corner, plus a small text tag.
     "Wrenfield":            H("#f6f1e6", "lines",    "thin",    "#6b1f2a", "#3a2a22", 1.0,  False, "sharp", "nested",            "mark_only",   "top_left",      "plain",    "serif",    400, "title",     0.0, True),
     "Thistle & Wren":       H("#f3f6f0", "diagonal", "thin",    "#2f5d3a", "#233324", 1.0,  False, "round", "leaf_pair",         "mark_only",   "top_right",     "tab",      "serif",    700, "caps",      1.0),
@@ -1036,12 +1054,12 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     "Pewley Table":         H("#ffffff", "grid",     "thin",    "#2f5e8c", "#22344a", 0.9,  False, "round", "target",            "mark_only",   "top_left",      "stamp",    "sans",     400, "caps",      2.0),
     # The brands the scaled build adds (scale.EXTRA_BRANDS): lockups, then marks alone.
     "Marrowgate":           H("#f4f2ee", "dots",     "heavy",   "#3d4f7a", "#1e2638", 1.2,  False, "sharp", "arch",              "mark_right",  "top_right",     "none",     "serif",    700, "caps",      2.0),
-    "Pellbrook":            H("#eef4f0", "none",     "thin",    "#2e7d5b", "#1f3a2e", 0.9,  True,  "round", "ring_pair",         "band_bottom", "bottom_centre", "none",     "sans",     400, "caps",      3.0),
+    "Pellbrook":            H("#eef4f0", "none",     "thin",    "#2e7d5b", "#1f3a2e", 0.9,  True,  "round", "ring_pair",         "band_bottom", "bottom_center", "none",     "sans",     400, "caps",      3.0),
     "Osier & Vane":         H("#f6f0e8", "grid",     "rounded", "#8a4b2f", "#3a2418", 1.0,  False, "round", "fan",               "mark_above",  "top_left",      "none",     "humanist", 700, "smallcaps", 1.0),
     "Tallow Street":        H("#f2f2f2", "diagonal", "none",    "#444444", "#141414", 1.35, False, "sharp", "bar_trio",          "badge",       "top_left",      "none",     "mono",     400, "caps",      1.0),
-    "Dovecote Lane":        H("#fbf3f6", "none",     "double",  "#a05a7a", "#40263a", 0.75, True,  "round", "half_moons",        "pill",        "top_centre",    "none",     "serif",    400, "title",     1.0, True),
+    "Dovecote Lane":        H("#fbf3f6", "none",     "double",  "#a05a7a", "#40263a", 0.75, True,  "round", "half_moons",        "pill",        "top_center",    "none",     "serif",    400, "title",     1.0, True),
     "Larchwood Living":     H("#f1efe6", "lines",    "heavy",   "#5a6b3a", "#2c331d", 1.1,  False, "round", "triangle_pair",     "mark_left",   "bottom_right",  "none",     "sans",     400, "title",     0.0),
-    "Brightwater Botanics": H("#eef7f5", "dots",     "double",  "#2a8c82", "#1b3f3b", 0.9,  False, "round", "dot_ring",          "band_top",    "top_centre",    "none",     "humanist", 400, "caps",      2.5),
+    "Brightwater Botanics": H("#eef7f5", "dots",     "double",  "#2a8c82", "#1b3f3b", 0.9,  False, "round", "dot_ring",          "band_top",    "top_center",    "none",     "humanist", 400, "caps",      2.5),
     "Mossgill Dairy":       H("#f3f8ee", "none",     "ticks",   "#4f8a3a", "#25401c", 1.2,  True,  "sharp", "wheat_ear",         "mark_right",  "bottom_left",   "none",     "humanist", 700, "lower",     0.5),
     "Cobbleway":            H("#f5efe8", "hatch",    "thin",    "#7a4a2a", "#33241a", 1.35, False, "sharp", "steps",             "mark_above",  "bottom_left",   "none",     "mono",     700, "title",     0.0),
     "Pipwick Toys":         H("#fff4e0", "dots",     "rounded", "#e06a1f", "#2b3a5a", 1.2,  True,  "round", "pinwheel",          "pill",        "bottom_left",   "none",     "sans",     700, "lower",     1.5),
@@ -1058,7 +1076,7 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     # The brands of the breadth and scale-only templates (breadth_rows, scale_rows).
     "Calderwick Denim":     H("#eef1f6", "diagonal", "ticks",   "#2c4a7a", "#17243a", 1.25, True,  "sharp", "rivet_pair",        "badge",       "bottom_right",  "none",     "mono",     700, "lower",     2.5),
     "Kettleby Tea Co.":     H("#f7f3e8", "lines",    "rounded", "#5e7a3a", "#2a3519", 0.85, False, "round", "teapot",            "mark_above",  "top_right",     "none",     "serif",    700, "smallcaps", 1.5, True),
-    "Brewhollow Roasters":  H("#f3ece4", "grid",     "none",    "#6b3f24", "#2e1a10", 1.3,  True,  "round", "bean",              "band_bottom", "bottom_centre", "none",     "humanist", 400, "caps",      3.0),
+    "Brewhollow Roasters":  H("#f3ece4", "grid",     "none",    "#6b3f24", "#2e1a10", 1.3,  True,  "round", "bean",              "band_bottom", "bottom_center", "none",     "humanist", 400, "caps",      3.0),
     "Fenwold Nursery":      H("#eff6ea", "hatch",    "double",  "#4a7d2c", "#203616", 1.05, False, "sharp", "sprout",            "pill",        "top_right",     "none",     "serif",    400, "lower",     0.5),
     "Hollin Hair":          H("#f8eff4", "lines",    "none",    "#8a3f6e", "#3a1a2e", 0.8,  True,  "round", "comb",              "mark_only",   "top_left",      "stamp",    "humanist", 400, "caps",      2.5, True),
     "Mirefield Naturals":   H("#f0f6f1", "diagonal", "thin",    "#3a8a6a", "#183a2c", 0.95, False, "sharp", "droplet_leaf",      "mark_only",   "top_right",     "flag",     "mono",     400, "title",     1.5),
@@ -1067,16 +1085,19 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     "Soapwell":             H("#f2f0fa", "none",     "double",  "#6a5ac0", "#26204a", 1.15, True,  "round", "bubbles",           "mark_only",   "top_left",      "rect",     "sans",     400, "title",     2.5),
     # Invented brands of the Mens clothing depth (gen#310): a color or category word in the name.
     "Black Curlew":         H("#f2f2f0", "diagonal", "thin",    "#1a1a1a", "#262626", 1.2,  False, "sharp", "stacked_bars",      "mark_left",   "bottom_left",   "none",     "sans",     700, "smallcaps", 1.5),
-    "Yellow Plover":        H("#fffbe6", "lines",    "ticks",   "#d9a400", "#3a3000", 0.85, True,  "round", "half_disc",         "badge",       "bottom_centre", "none",     "humanist", 400, "caps",      0.5, True),
+    "Yellow Plover":        H("#fffbe6", "lines",    "ticks",   "#d9a400", "#3a3000", 0.85, True,  "round", "half_disc",         "badge",       "bottom_center", "none",     "humanist", 400, "caps",      0.5, True),
+    "Blue Bull":            H("#eef2f8", "hatch",    "double",  "#1f4e9c", "#14284a", 1.1,  False, "round", "bull_horns",        "mark_right",  "top_right",     "none",     "serif",    700, "caps",      1.2),
     "Jacket Wren":          H("#eef3ee", "grid",     "double",  "#3f6b4f", "#1e3327", 1.05, False, "round", "slanted_blades",    "mark_only",   "top_right",     "stamp",    "mono",     400, "title",     1.0),
     # The invented brands of the apparel decoys (decoy_apparel, gen#311, class 7).
     "Red Plover":           H("#fbf1ee", "lines",    "thin",    "#b5382c", "#3a1a16", 1.0,  False, "round", "bell",              "mark_left",   "bottom_left",   "none",     "serif",    400, "title",     1.0),
     "Blue Otter":           H("#eef3fa", "dots",     "double",  "#2f5d9a", "#182b48", 1.1,  False, "sharp", "fold",              "mark_above",  "top_left",      "none",     "sans",     700, "caps",      2.0),
-    "Green Stoat":          H("#eff6ee", "diagonal", "rounded", "#3f7d3a", "#1d3a1b", 1.2,  True,  "round", "sprout",            "band_top",    "top_centre",     "none",     "humanist", 400, "lower",     0.5),
-    "Yellow Wagtail":       H("#fcf7e3", "grid",     "heavy",   "#c49a1c", "#41330a", 1.0,  False, "sharp", "bubbles",           "pill",        "top_centre",    "none",     "mono",     400, "smallcaps", 1.5),
+    "Green Stoat":          H("#eff6ee", "diagonal", "rounded", "#3f7d3a", "#1d3a1b", 1.2,  True,  "round", "sprout",            "band_top",    "top_center",     "none",     "humanist", 400, "lower",     0.5),
+    "Yellow Wagtail":       H("#fcf7e3", "grid",     "heavy",   "#c49a1c", "#41330a", 1.0,  False, "sharp", "bubbles",           "pill",        "top_center",    "none",     "mono",     400, "smallcaps", 1.5),
     "Black Lapwing":        H("#f1f1f1", "none",     "none",    "#222222", "#111111", 1.3,  False, "sharp", "ladder",            "mark_right",  "top_right",     "none",     "sans",     700, "caps",      3.0),
-    "White Dormouse":       H("#ffffff", "hatch",    "ticks",   "#8a8a8a", "#2e2e2e", 0.9,  True,  "round", "steps",             "badge",       "bottom_centre", "none",     "serif",    400, "title",     0.0),
-    "Jumper Jay":           H("#f7eefa", "lines",    "thin",    "#8a3fa0", "#341a3e", 1.0,  False, "round", "puddle",            "band_bottom", "bottom_centre",      "none",     "humanist", 700, "title",     1.0),
+    "White Dormouse":       H("#ffffff", "hatch",    "ticks",   "#8a8a8a", "#2e2e2e", 0.9,  True,  "round", "steps",             "badge",       "bottom_center", "none",     "serif",    400, "title",     0.0),
+    "Jumper Jay":           H("#f7eefa", "lines",    "thin",    "#8a3fa0", "#341a3e", 1.0,  False, "round", "puddle",            "band_bottom", "bottom_center",      "none",     "humanist", 700, "title",     1.0),
+    # A real brand (real_brands.ALLOWED, gen#341): text only, so the drawing carries no logo.
+    "Nike":                 H("#f6f6f6", "none",     "rounded", "#111111", "#111111", 1.0,  False, "round", "none",              "mark_left",   "bottom_left",   "none",     "sans",     400, "lower",     0.5),
     "Coat Crake":           H("#f3efe8", "dots",     "double",  "#7a5a3a", "#30241a", 1.1,  False, "sharp", "comb",              "mark_only",   "bottom_left",   "stamp",    "mono",     700, "lower",     2.0),
 }
 # fmt: on

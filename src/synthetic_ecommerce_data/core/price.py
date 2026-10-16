@@ -41,15 +41,19 @@ WITHIN one, so the noise that spreads them is shared by a page.
 pack-sold type's pack shrinks as its size grows (a bolt census: per-piece
 p90/p10 28, shown 8.2), so its shown price climbs slower across pages. The
 bolts, the nuts and the socket screws publish a ``Package Quantity`` and
-price it on their census pack slope (:data:`PACK_SLOPES`); the bolt's and
-the socket screw's pack is drawn from the census counts so that it falls as
-the size grows (:func:`pack_quantity`), which narrows their shown price.
+price it on their census pack slope (:data:`PACK_SLOPES`); the socket
+screw's pack is drawn from the census counts so that it falls as the size
+grows (:func:`pack_quantity`), which narrows its shown price. The bolt's is a
+group page's (:func:`page_pack`), independent of its size, so a size comes in
+several packs, and is priced within a size on the elasticity the census's
+same-spec larger-pack ratio gives (:data:`PACK_ELASTICITY`, #86).
 
 **Where the fit lowers a slope.** A type whose sizes span further than the
-census's (the end mills, from 11 and 18 pairs; the bolts, even with their
-pack) spreads further on the census slope alone. Where the census slopes,
+census's (the end mills, from 11 and 18 pairs; the bolts) spreads further on
+the census slope alone. Where the census slopes,
 with the pack term, spread the shown price wider than the census p90/p10,
-the fit lowers them until they do not, and the model's literal names the
+the fit lowers them until they do not (to the census's p90/p10, or to a
+type's aim in :data:`SLOPE_CUT_AIMS`), and the model's literal names the
 slope it used (bolts and both end mills: :data:`SLOPE_CUTS`, which
 :func:`slope_cut_mismatch` holds the literals to).
 
@@ -555,8 +559,10 @@ ENDINGS: dict[str, dict[str, float]] = {
 #: Each pack-sold type's pooled log-log slope of its shown pack price on its
 #: pack quantity (``deep_types.<type>.pack_vs_each.pooled_loglog_slope_price_on_pack_qty``):
 #: a pack of 100 costs more than a pack of 25, but far less than four times.
+#: The hex bolt has none: its pack is drawn per page and priced within a size
+#: (:data:`PACK_ELASTICITY`), because the pooled slope (0.223) mixes the
+#: bolts' sizes with their packs.
 PACK_SLOPES: dict[str, float] = {
-    "bolt_hex": 0.223,
     "nut_hex": 0.234,
     "screw_socket_head": 0.051,
 }
@@ -600,8 +606,13 @@ def pack_quantity(type_key: str, rank: int, sizes: int, u: float) -> int:
     bolt's per-piece p90/p10 is 28 against 8.2 shown) but not how the two
     pair, so this pairing is generated, not measured.
     """
+    return _pack_at(type_key, 1.0 - (rank + u) / sizes)
+
+
+def _pack_at(type_key: str, quantile: float) -> int:
+    """The census pack at ``quantile`` of its type's counts, the packs taken
+    smallest first."""
     counts = PACK_COUNTS[type_key]
-    quantile = 1.0 - (rank + u) / sizes
     target = quantile * sum(counts.values())
     seen = 0
     for qty in sorted(counts):
@@ -615,6 +626,37 @@ def pack_draw(seed: int, type_key: str, line: str) -> float:
     """The quantile a line's pack is placed at in its size's slice
     (:func:`pack_quantity`): its own stream, so no other draw moves."""
     return random.Random(f"{seed}:pack:{type_key}:{line}").random()
+
+
+#: The log-log slope of a hex bolt's shown price on its pack WITHIN one size
+#: (#86), from the census's ``same_spec_larger_pack_per_piece_ratio`` (p50
+#: 0.5778, 41 pairs): the larger of two packs of one spec costs 0.5778 of the
+#: smaller's per-piece price. The median pair of different census packs
+#: (``PACK_COUNTS``, each pair weighed by the SKUs selling in both) is 5x, so
+#: the shown price climbs ``5 ** e`` where the per-piece price falls to 0.5778:
+#: ``e = 1 + ln(0.5778) / ln(5) = 0.659``. The pooled slope (0.223,
+#: ``PACK_SLOPES`` of the other types) is across sizes, where the bolts that
+#: come in the largest packs are the smallest, so it is not this one.
+#: ``tests/test_bolt_page_pack.py`` derives it from the census file.
+PACK_ELASTICITY: dict[str, float] = {"bolt_hex": 0.659}
+
+
+def page_pack(type_key: str, u: float) -> int:
+    """A group page's pack quantity: the census pack at quantile ``u`` of its
+    type's counts (:data:`PACK_COUNTS`), smallest packs first. The pack is the
+    page's, drawn independent of the size (:func:`page_pack_draw`), so a size
+    comes in as many packs as it has pages, and it is NOT ranked by size
+    (:func:`pack_quantity`)."""
+    return _pack_at(type_key, u)
+
+
+def page_pack_draw(seed: int, type_key: str, brand: str, held: Iterable[tuple[str, str]]) -> float:
+    """The quantile a group page's pack is drawn at: its own stream, so no
+    other draw moves. A page is one brand and every line attribute a census
+    cell holds equal (``held``, as :func:`group_draw` reads them), so every
+    line of a page, whatever its size, publishes one pack and a census cell
+    holds the same size pairs it held before the pack was published."""
+    return random.Random(f"{seed}:pack-page:{type_key}:{brand}:{sorted(held)}").random()
 
 
 #: A breadth category the census measured that is now a modelled type: its
@@ -811,18 +853,20 @@ def _model(
 #: spread the shown price across the catalog wider than the census p90/p10,
 #: the fit lowers them until they do not. ``scripts/fit_price_model.py``
 #: refuses to lower any other type's slope: a cut needs a reason recorded
-#: here. A pack-sold type's pack term (:func:`pack_quantity`) is counted
-#: before any cut, so a cut is only what the pack leaves.
+#: here. A pack-sold type's pack term (:func:`pack_quantity`,
+#: :func:`page_pack`) is counted before any cut, so a cut is only what the
+#: pack leaves.
 SLOPE_CUTS: dict[str, str] = {
     "bolt_hex": (
-        "the census pack does not close the gap on its own: with the pack published and "
-        "falling as the size grows (its log correlates -0.96 with the key's on the default "
-        "build), the census slopes and the census pack slope (0.223) still spread the shown "
-        "price 11.25x on the default build and 11.58x at 100K, against the census's 8.21, "
-        "because the catalog's sizes and lengths span further (key 3.97x, length 7.5x) than "
-        "the census pages, which report no span; the key and the length slope are scaled by "
-        "one factor (#65; follow-up #86: narrow the size span or fit a within-size pack "
-        "elasticity)"
+        "the bolt's pack is a page's, independent of its size (#86: the census prices a pack "
+        "within one spec, 0.5778 per piece for the larger of two, an elasticity of 0.659 on a "
+        "5x pair), so the pack alone spreads the shown price 7.2x on the default build and, "
+        "with the census slopes (key 1.602, length 0.564), 30x against the census's 8.21: "
+        "the catalog's sizes and lengths span further (key 3.97x, length 7.5x) than the "
+        "census pages, which report no span, and the census pairs a big pack with a small "
+        "bolt (#65) where this build does not. The key and the length slope are scaled by "
+        "one factor to the aim in SLOPE_CUT_AIMS (10.0, inside the row's band) rather than "
+        "to 8.21, which would leave a bolt's price no size slope at all"
     ),
     "lock_nuts_nylon_insert": (
         "a stand-in for the pack the catalog does not model: 74% of census nylon-insert nuts "
@@ -846,6 +890,16 @@ SLOPE_CUTS: dict[str, str] = {
         "1 mm to 1-1/2 in span spreads further than the census's, which it reports no span for"
     ),
 }
+
+#: The shown p90/p10 the fit lowers a cut type's slopes to, where it is not the
+#: census's. The bolt's pack is a page's and independent of its size
+#: (:func:`page_pack`), so the pack alone spreads the shown price 7.2x and the
+#: census's 8.21 leaves the size slopes no room: lowered to it, they come to
+#: about a fifteenth of the census's and a bolt's price no longer follows its
+#: size. The aim is the top of the row's band instead (8.21 x 1.33, 10.9, less
+#: a margin for the 100K build). Each aim is recorded here and in
+#: :data:`SLOPE_CUTS`.
+SLOPE_CUT_AIMS: dict[str, float] = {"bolt_hex": 10.0}
 
 #: The types whose sizes draw a noise every brand shares (:func:`size_draw`),
 #: and why. ``scripts/fit_price_model.py`` fits ``size_sigma`` only for these.
@@ -958,14 +1012,14 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
         "bearing_radial_ball": _model("bearing_radial_ball", 10.47, 0.5, 0.006, 0.306),
         "bolt_hex": _model(
             "bolt_hex",
-            23.01,
+            51.48,
             0.375,
-            0.068,
-            0.198,
-            slope=1.357,
-            length_slope=0.478,
+            0.014,
+            0.058,
+            slope=0.365,
+            length_slope=0.128,
             pack_attribute="Package Quantity",
-            pack_slope=PACK_SLOPES["bolt_hex"],
+            pack_slope=PACK_ELASTICITY["bolt_hex"],
             pack_ref=100.0,
         ),
         "drill_jobber": _model("drill_jobber", 4.435, 0.25, 0.634, 0.182),

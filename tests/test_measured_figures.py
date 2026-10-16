@@ -34,6 +34,7 @@ REBUILD = "uv run ecom-generate build --out golden-catalog"
 #: with every type PR again.
 QUOTING = (
     "README.md",
+    "docs/retail-prototype.md",
     "docs/drawings.md",
     "docs/adding-a-type.md",
     "src/synthetic_ecommerce_data/prism/derive.py",
