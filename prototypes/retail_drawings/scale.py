@@ -323,13 +323,8 @@ def templates(baseline: bool = True) -> list[dict]:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
     type_registry.check_unique_ids(tpls)
-    skip = (
-        mens_depth_rows.decoy_ids()
-        | garden_rows.decoy_ids()
-        | NIKE_IDS
-        | type_registry.decoy_ids()
-        | needs_rows.decoy_ids()
-    )
+    skip = (mens_depth_rows.decoy_ids() | garden_rows.decoy_ids() | NIKE_IDS
+            | type_registry.decoy_ids() | needs_rows.decoy_ids())
     return main_colors.complete(tpls, skip) if baseline else tpls
 
 
@@ -343,30 +338,11 @@ def derivable(tpls: list[dict]) -> list[dict]:
     style (:mod:`lowerbody_rows`), left out so the seeded derivation is what it was. A boat
     or slash neck top is a failure-class row too (gen#125): a derived copy of it would hand
     the no-policy baseline the neckline, so it stays a template."""
-    left_out = (
-        SHIRT_IDS
-        | SOFA_IDS
-        | FURNITURE_IDS
-        | HOUSEHOLD_IDS
-        | APPLIANCE_IDS
-        | UNDERWEAR_IDS
-        | TOY_IDS
-        | LOWER_IDS
-        | ACCESSORY_IDS
-        | SPORTS_IDS
-        | SCHOOL_IDS
-        | SEASONAL_IDS
-        | COLORGROUP_IDS
-        | MENS_DEPTH_IDS
-        | GARDEN_IDS
-        | NIKE_IDS
-        | NEEDS_IDS
-        | SPEC_IDS
-        | decoy_rows.IDS
-        | decoy_apparel.IDS
-        | decoy_product_words.IDS
-        | STEAK_WARE_IDS
-    )
+    left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
+                | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS | SCHOOL_IDS
+                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | GARDEN_IDS | NIKE_IDS | NEEDS_IDS
+                | SPEC_IDS | decoy_rows.IDS
+                | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out
             and r.get("neckline") not in ("boat", "slash")]  # fmt: skip

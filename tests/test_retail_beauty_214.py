@@ -22,6 +22,7 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import export  # noqa: E402
+import house_styles  # noqa: E402
 import kit  # noqa: E402
 import main_colors  # noqa: E402
 import scale  # noqa: E402
@@ -305,3 +306,16 @@ def test_every_beauty_style_reaches_the_build_and_meets_the_standard() -> None:
     mine = [d for d in docs if d["product_id"] in want]
     assert check_catalog(mine, one_class_per_key=True, text_exempt=scale.TEXT_EXEMPT) == []
     assert {d["product_type"] for d in mine} == set(TYPES)
+
+
+def test_each_invented_beauty_brand_has_a_house_style_of_its_own() -> None:
+    """A brand's mark and its logo arrangement with wordmark belong to it alone (house_styles)."""
+    styles = house_styles.HOUSE_STYLES
+    brands = {r.brand for r in _all_rows()} | {d.row.brand for d in _all_decoys()}
+    assert brands and brands <= set(styles)
+    for brand in sorted(brands):
+        others = [s for b, s in styles.items() if b != brand]
+        assert styles[brand].mark not in {s.mark for s in others}, brand
+        assert house_styles.lockup_key(styles[brand]) not in {
+            house_styles.lockup_key(s) for s in others
+        }, brand
