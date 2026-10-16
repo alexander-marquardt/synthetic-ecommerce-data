@@ -179,3 +179,23 @@ def test_every_toy_style_reaches_the_100k_build_and_meets_the_standard() -> None
     mine = [d for d in docs if d["product_id"] in scale.TOY_IDS]
     assert len(mine) == len(ROWS)
     assert check_catalog(mine, one_class_per_key=True) == []
+
+
+def test_a_jigsaws_finished_size_is_two_centimeter_entries_beside_its_text() -> None:
+    """gen#261: the finished size read "49 x 36 cm" and nothing else, so a size filter or
+    a sort found no number. Its length and width are two ``CMT`` entries (the canonical
+    value in millimeters); the text stays as the display value and says the same numbers."""
+    jigsaws = [r for r in ROWS if r.product_type == "Jigsaw Puzzle"]
+    assert jigsaws
+    for row in jigsaws:
+        attrs = export.standard_document(row.doc())["attributes"]
+        by_key = {e["key"]: e for e in attrs}
+        text = by_key["finished_size"]["value"]
+        length, width = (float(n) for n in re.fullmatch(r"(\d+) x (\d+) cm", text).groups())
+        for key, cm in (("item_length", length), ("item_width", width)):
+            entry = by_key.get(key)
+            assert entry is not None, (row.code, key)
+            assert entry["unit_code"] == "CMT", row.code
+            assert entry["value"] == str(int(cm)), row.code
+            assert entry["value_canonical"] == cm * 10, row.code
+        assert length >= width, row.code

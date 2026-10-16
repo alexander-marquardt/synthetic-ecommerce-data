@@ -65,6 +65,10 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "size_uk": ("size_uk", "Size (UK)", None),
     "size_eu": ("size_eu", "Size (EU)", None),
     "size_us": ("size_us", "Size (US)", None),
+    # A ring's UK letter and US number are not the garment and footwear sizes, which are
+    # numbers of their own scales: a key is shared only when its values are one kind (gen#249).
+    "ring_size_uk": ("ring_size_uk", "Ring size (UK)", None),
+    "ring_size_us": ("ring_size_us", "Ring size (US)", None),
     "length": ("length", "Length", None),
     "inside_leg": ("inside_leg", "Inside leg", None),
     # A skirt's Petite/Regular/Long fit; not ``length``, which the Combined projection renames to

@@ -36,7 +36,7 @@ A module declares one `SPEC = TypeSpec(...)`, of one of two kinds:
   `domains/industrial/product_types/raw_materials/ball_stock_precision.py`.
 * **Modelled type.** `category`, `standards_family`, `vocab`, `figure` and
   `extent`, `make`, `share`, `price` and `key_attributes`, the facts the tests
-  hold it to (step 5 below), and optionally `use_lines`. `make` is the
+  hold it to (the Facts item below), and optionally `use_lines`. `make` is the
   builder: `make(gen, type_key, category)` drafts one line. A module must
   never import `domains/industrial/generate.py` at module level (that is an import
   cycle); a builder that needs `LineDraft`, `ChildDraft` or `BRANDS` imports
@@ -47,7 +47,7 @@ A module declares one `SPEC = TypeSpec(...)`, of one of two kinds:
   `Generator`).
 
 `part_number_block` is left unset unless `ecom-generate block` says otherwise
-(step 2 below).
+(the Block item below).
 
 The types in `domains/industrial/newtypes.py` (`NEW_TYPES`) are a third kind that no
 module can declare yet. They stay where they are for now.
@@ -120,26 +120,28 @@ its published attributes. `set_screws_hex_socket` does both.
 
 ### A new type
 
-1. Write the module. Copy the example of the matching kind and change every
+- **Module.** Write the module. Copy the example of the matching kind and change every
    field.
-2. Check the type's part-number block: `uv run ecom-generate block <type_key>`.
+- **Block.** Check the type's part-number block: `uv run ecom-generate block <type_key>`.
    It prints the block the key derives and, when another type already uses it,
    the first free block. In that case set `part_number_block=<block>` on the
    new type's `TypeSpec` (not on its `BreadthRow`): about one new type in 135
    collides at today's 68 types. Another open pull request can take the same
    block; `scripts/merge_pr.sh` re-checks it on the merged tree.
-3. If the leaf's head noun is new, add it to `PRODUCT_NOUNS` in
-   `domains/industrial/names.py`. Also add the type's shopper-readable name
-   to `PRODUCT_TYPE_LABELS` in `domains/industrial/type_labels.py` (singular, except a
-   pair sold as a pair such as Safety Glasses; plain English, capitalised, no
-   `_`, unique): every product carries it as
-   `product_type_label` beside the unchanged id, and a type without one stops
-   the build (#331).
-4. Build the catalog and regenerate the committed one:
+- **Names.** If the leaf's head noun is new, add it to `PRODUCT_NOUNS` in
+   `domains/industrial/names.py`. Also give the type its shopper-readable
+   name as `label="..."` on its `TypeSpec` (singular, except a pair sold as a
+   pair such as Safety Glasses; plain English, capitalised, no `_`, unique):
+   every product carries it as `product_type_label` beside the unchanged id,
+   and a type without one stops the build (#331). Do not add the type to
+   `PRODUCT_TYPE_LABELS` in `domains/industrial/type_labels.py`: that table
+   keeps the labels of the older types, `register` refuses a key in both, and
+   a line added to it conflicts with the next type's (#103).
+- **Golden.** Build the catalog and regenerate the committed one:
    `uv run ecom-generate build --out golden-catalog`. Only the new type's
    records, the totals in `stats.json` and the field-weights YAML should
    change. The independence tests below enforce this.
-5. A modelled type only: declare the type's size and facts on its
+- **Facts.** A modelled type only: declare the type's size and facts on its
    `TypeSpec` (#61). The tests read them from there, so no test file and no
    shared table is edited. `register` writes each one into its table and
    refuses a key that a table also lists:
@@ -171,24 +173,24 @@ its published attributes. `set_screws_hex_socket` does both.
    (`test_the_catalog_is_the_size_it_was_asked_for`) sums every modelled
    share, so a total above 1.0 is expected. A breadth type edits no pinned
    count: the breadth part of the catalog's size is read from the rows.
-6. A modelled type only: copy `tests/test_type_lock_nuts_nylon_insert.py` to
+- **Gate test.** A modelled type only: copy `tests/test_type_lock_nuts_nylon_insert.py` to
    `tests/test_type_<type_key>.py` and change `KEY` and `DEFAULT_SKU_FLOOR`
    ([SKU floor](#sku-floor)). It is the per-type gate template: uniqueness,
    census names, determinism, a committed golden slice, and independence from
    every other type. Write the slice with
    `uv run python tests/test_type_<type_key>.py`.
-7. Declare a price model (`price=` on the `TypeSpec`; `register` refuses a
-   modelled type without one). It is keyed on `key_attributes` (step 5). A
+- **Price.** Declare a price model (`price=` on the `TypeSpec`; `register` refuses a
+   modelled type without one). It is keyed on `key_attributes` (the Facts item). A
    type that publishes its material under another name than `Material` names
    it in `MATERIAL_ATTRIBUTES` in `core/price.py` (a wheel's is its
    `Abrasive Material`), since the census spec is the key in one material. A
    type the census has no prices
    for declares `measured=False`; one it has prices for restates its census
    rows and is fitted ([Price](#price)).
-8. Restate the published figures the type moves
+- **Figures.** Restate the published figures the type moves
    ([Figures to restate](#figures-to-restate)).
-9. Run the checks.
-10. Merge with `scripts/merge_pr.sh <PR number>`, never with the GitHub button
+- **Checks.** Run the checks.
+- **Merge.** Merge with `scripts/merge_pr.sh <PR number>`, never with the GitHub button
    or `gh pr merge` (see [Merging](#merging-every-type-pr-goes-through-merge_prsh)).
 
 ### Deepening an existing breadth type
@@ -218,10 +220,11 @@ rule it follows; the rules are in
    derived part-number block, so `ecom-generate block <type_key>` says to leave
    `part_number_block` unset.
 4. Declare `claims`, `may_claim`, `key_attributes` and the family sentences
-   it qualifies for on the `TypeSpec` (step 5 of [A new type](#a-new-type));
+   it qualifies for on the `TypeSpec` (the Facts item of [A new type](#a-new-type));
    `key_attributes` is the breadth row's `size_attr`. Then add the type to the
    family builder tables it needs ([What is still shared](#what-is-still-shared)).
-5. Do steps 3 to 9 of [A new type](#a-new-type).
+5. Do the Names, Golden, Facts, Gate test, Price, Figures and Checks items of
+   [A new type](#a-new-type).
 6. Check that every other type is byte-identical, at both sizes, with the
    command in [Comparing the other types](#comparing-the-other-types). Only
    the deepened key may differ.
@@ -246,7 +249,7 @@ The output must stay byte-identical.
    `noise.UNIT_PRIMARY`, and a row in each table of `tests/type_facts.py`
    (`SHARED_MAY_CLAIM`, `SHARED_TITLE_KEY`). These become
    `claims`, `key_attributes`, `threaded`, `fastener`, `unit_primary`,
-   and `may_claim` (step 5 of
+   and `may_claim` (the Facts item of
    [A new type](#a-new-type)). For a breadth type, the entry is its row file
    `data/breadth_categories/<type_key>.yaml`.
 2. Move each entry into the module's `SPEC`, and delete it from the shared
@@ -339,6 +342,21 @@ Builders put a `line`-scope attribute on the line, and a draw that makes it per 
 splits the product: `tests/test_product_constant.py` holds the default build to it,
 and `ecom-generate build` refuses a catalog that breaks it or leaves
 `variants_per_product` (the report prints the SKUs per product by type).
+
+The two refusals on `variants_per_product`, with the default knob (`core/config.py`):
+
+- A product has at most 5 SKUs, the knob's largest count. This holds for every type.
+- A type of 20 or more products has a median of at most 2 SKUs per product: 2 is the
+  count where the knob's cumulative weight first reaches 75%. A type of fewer
+  products is not checked: a median over so few says nothing about the distribution.
+
+`distribution_problems` in `domains/industrial/product_split.py` derives both from
+the knob, so a changed knob moves them; the floor of 20 is the fixed constant
+`MEDIAN_MIN_PRODUCTS` in the same file. The refusal names the type and the count
+(`<type>: a product has N SKUs, the knob's maximum is M`; `<type>: median N SKUs per
+product, the knob allows M`). A product draws its count from the knob
+(`domains/industrial/generate.py`), and a pool smaller than the draw lowers it.
+`tests/test_variant_bounds_doc_252.py` holds these numbers to the code's.
 
 ### SKU floor
 
