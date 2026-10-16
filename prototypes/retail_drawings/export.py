@@ -11,7 +11,7 @@ emits, and :func:`synthetic_ecommerce_data.core.standard.check_catalog` passes i
   :func:`~synthetic_ecommerce_data.core.entry.split`;
 - ``price`` stays the GBP amount, ``currency`` says GBP; ``in_stock`` stays the
   yes/no (the build models no stock count, so no ``stock`` is written);
-- the retail-only top-level facts (color and size options, offer
+- the retail-only top-level facts (color and size options, the ``promotion`` and other
   flags, rating, ...) become product-level attribute entries (:data:`FACTS`);
 - ``image_id`` is ``<product type>/<product id>/<drawing spec digest>``: one
   image per distinct drawing (a SKU's drawing is its product's with the SKU's
@@ -31,9 +31,11 @@ import re
 from pathlib import Path
 from typing import Any
 
+import colorwords
 import facet_leaves
 from audience import audience_of
 from build_preview4 import samples
+from promotion import CAMPAIGN  # noqa: F401 -- the seeded campaign, read through this module
 
 from synthetic_ecommerce_data.core import standard
 from synthetic_ecommerce_data.core.emit import write_jsonl
@@ -47,9 +49,10 @@ from synthetic_ecommerce_data.core.variant_axes import profile, variant_axes
 IMAGE_ROOT = "retail"
 IMAGE_BASE_URL = f"/images/{IMAGE_ROOT}"
 
-#: Product-level keys written in Title Case whatever the authored row spelled ("plain" and
-#: "Plain" were two buckets of one facet).
-TITLE_CASED = frozenset({"pattern", "rise"})
+#: The one casing of a key's values whatever the authored row spelled ("plain" and "Plain"
+#: were two buckets of one facet, gen#255): the casing the catalogue repo reads, ``pattern``
+#: lower case and ``rise`` High/Mid/Low.
+VALUE_CASE = {"pattern": str.lower, "rise": str.title}
 
 #: Authored product types that are one concept with another, written as the second: "Tee" is a
 #: "T-Shirt", the name of its category node. Only the document's ``product_type`` is folded;
@@ -63,6 +66,10 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "size_uk": ("size_uk", "Size (UK)", None),
     "size_eu": ("size_eu", "Size (EU)", None),
     "size_us": ("size_us", "Size (US)", None),
+    # A ring's UK letter and US number are not the garment and footwear sizes, which are
+    # numbers of their own scales: a key is shared only when its values are one kind (gen#249).
+    "ring_size_uk": ("ring_size_uk", "Ring size (UK)", None),
+    "ring_size_us": ("ring_size_us", "Ring size (US)", None),
     "length": ("length", "Length", None),
     "inside_leg": ("inside_leg", "Inside leg", None),
     # A skirt's Petite/Regular/Long fit; not ``length``, which the Combined projection renames to
@@ -127,6 +134,22 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "berth": ("berth", "Berth", "C62"),
     "thickness_mm": ("thickness", "Thickness", "MMT"),
     "weight_kg": ("weight", "Weight", "KGM"),
+    # A garden hose's length (garden_rows.py, gen#292): the hose is cut and sold in metres.
+    "length_m": ("item_length", "Item length", "MTR"),
+    # The second increment (sports_rows.py, gen#368): a block's height (item_height) and a strap's,
+    # bat's and kickboard's length (item_length) reuse the keys above; the rest are new.
+    "glove_size_in": ("glove_size", "Glove size", "INH"),
+    "head_cm": ("head_circumference", "Head circumference", "CMT"),
+    "max_load_kg": ("max_load_kg", "Maximum load", "KGM"),
+    "ball_size": ("ball_size", "Ball size", "C62"),
+    "players": ("players", "Players", "C62"),
+    "resistance": ("resistance_level", "Resistance level", None),
+    "brightness_lm": ("brightness", "Brightness (lm)", None),
+    "grip": ("grip_size", "Grip size", None),
+    # A mower's or trimmer's cutting width and a robot mower's lawn area (garden_rows.py,
+    # gen#203); the area is a plain number named in square metres, as a wattage is in watts.
+    "cutting_width_cm": ("cutting_width", "Cutting width", "CMT"),
+    "lawn_area_m2": ("lawn_area", "Lawn area (sq m)", None),
 }
 #: The SKU fields that are columns of the variant, not options.
 SKU_COLUMNS = frozenset({"sku", "price", "in_stock", "ingredients"})
@@ -143,7 +166,8 @@ FACTS: dict[str, tuple[str, str, str | None]] = {
     "rise": ("rise", "Rise", None),
     "pattern": ("pattern", "Pattern", None),
     "units_per_pack": ("units_per_pack", "Units per pack", "C62"),
-    "offer": ("offer", "Offer", None),
+    # Every reduced product: "On sale", plus a campaign name (promotion.py, gen#189).
+    "promotion": ("promotion", "Sale", None),
     "online_only": ("online_only", "Online only", None),
     "trending": ("trending", "Trending", None),
     "badges": ("badge", "Badge", None),
@@ -162,9 +186,9 @@ NUMERIC_FACTS = frozenset({"rating", "bestseller_rank", "was_price", "abv", "dis
 #: ``unit_size`` in ``unit_measure``: a pack's net content, keyed by its kind.
 NET_CONTENT = {"ml": ("net_volume", "Net volume", "MLT"), "g": ("net_weight", "Net weight", "GRM")}
 #: Top-level fields that become standard columns rather than entries.
-COLUMNS = frozenset({"product_id", "product_type", "title", "brand", "category_path",
-                     "category_leaf", "description", "attributes", "currency", "skus",
-                     "product_line", "color_options", "size_options", "unit_size",
+COLUMNS = frozenset({"product_id", "product_type", "product_type_label", "title", "brand",
+                     "category_path", "category_leaf", "description", "attributes", "currency",
+                     "skus", "product_line", "color_options", "size_options", "unit_size",
                      "unit_measure", "ingredients"})  # fmt: skip
 #: Fields left out: the standard derives them from the variants, (the drawing)
 #: they are the render's input, reached through ``image_id``, or (``abv``) the
@@ -218,6 +242,18 @@ def _url(image: str) -> str:
     return f"{IMAGE_BASE_URL}/{image}.svg"
 
 
+def _color_entries(authored: str) -> list[dict[str, Any]]:
+    """The ``color`` entry of an authored shade, and its ``pattern`` entry when it has one.
+
+    "Navy Stripe" is color Navy and pattern Stripe (gen#188): the color facet holds colors only,
+    so a "navy" filter finds the striped shirt and a "stripe" filter finds it too."""
+    color, pattern = colorwords.split(authored)
+    out = [_entry("color", "Color", None, color)]
+    if pattern is not None:
+        out.append(_entry(*FACTS["pattern"], pattern))
+    return out
+
+
 def _product_attributes(rec: dict) -> list[dict[str, Any]]:
     out = list(rec["attributes"])
     have = {(e["key"], e["value"]) for e in out}
@@ -225,7 +261,8 @@ def _product_attributes(rec: dict) -> list[dict[str, Any]]:
         if field not in FACTS and field not in COLUMNS and field not in DROPPED:
             raise KeyError(f"{rec['product_id']}: no standard home for {field!r}")
     facts = [e for f, spec in FACTS.items() if f in rec for e in _entries(spec, rec[f])]
-    facts += [_entry("color", "Color", None, c["color"]) for c in rec.get("color_options", ())]
+    for c in rec.get("color_options", ()):
+        facts += _color_entries(c["color"])
     for option, values in rec.get("size_options", {}).items():
         facts += _entries(OPTIONS[option], values)
     if "unit_size" in rec:
@@ -237,11 +274,11 @@ def _product_attributes(rec: dict) -> list[dict[str, Any]]:
         if (e["key"], e["value"]) not in have:
             have.add((e["key"], e["value"]))
             out.append(e)
-    return _title_cased(out)
+    return _one_case(out)
 
 
-def _title_cased(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """``entries`` with the :data:`TITLE_CASED` keys in Title Case, a repeat dropped.
+def _one_case(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """``entries`` with each :data:`VALUE_CASE` key's value in its one casing, a repeat dropped.
 
     The authored rows spell ``pattern`` and ``rise`` both ways ("plain", "Plain"), which split
     one facet's bucket in two; every other facet already has one spelling
@@ -249,17 +286,34 @@ def _title_cased(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     seen: set[tuple[str, Any]] = set()
     for e in entries:
-        if e["key"] in TITLE_CASED and isinstance(e["value"], str):
-            e = e | {"value": e["value"].title()}
+        if e["key"] in VALUE_CASE and isinstance(e["value"], str):
+            e = e | {"value": VALUE_CASE[e["key"]](e["value"])}
         if (e["key"], e["value"]) not in seen:
             seen.add((e["key"], e["value"]))
             out.append(e)
     return out
 
 
+def _splits(rec: dict) -> bool:
+    """Whether any SKU of the style has a pattern split out of its authored color."""
+    return any(colorwords.split(s["color"])[1] for s in rec["skus"] if "color" in s)
+
+
+def _own_pattern(rec: dict, sku: dict) -> list[dict[str, Any]]:
+    """A SKU's pattern entry in a style where any SKU splits: its split pattern, else the
+    style's drawn pattern, else Plain. Every variant states its own, so a SKU never reads a
+    sibling's pattern off the style's list, and pattern joins ``variant_axes`` where it varies."""
+    pattern = colorwords.split(sku["color"])[1] if "color" in sku else None
+    if pattern is not None:
+        return [_entry(*FACTS["pattern"], pattern)]
+    drawn = rec.get("pattern", "Plain")
+    return _entries(FACTS["pattern"], drawn)
+
+
 def _variant(rec: dict, sku: dict) -> dict[str, Any]:
     image = image_id(rec, sku)
     options = [k for k in sku if k not in SKU_COLUMNS]
+    own = _own_pattern(rec, sku) if _splits(rec) else []
     return {
         "sku": sku["sku"],
         "title": rec["title"],
@@ -271,7 +325,13 @@ def _variant(rec: dict, sku: dict) -> dict[str, Any]:
         "image_url": _url(image),
         "image_detail_url": _url(image),
         **({"ingredients": sku["ingredients"]} if "ingredients" in sku else {}),
-        "attributes": [e for k in options for e in _entries(OPTIONS[k], sku[k])],
+        "attributes": [
+            e
+            for k in options
+            for e in (_color_entries(sku[k]) if k == "color" else _entries(OPTIONS[k], sku[k]))
+            if not (own and e["key"] == "pattern")
+        ]
+        + _one_case(own),
     }
 
 
@@ -314,19 +374,32 @@ def standard_document(rec: dict) -> dict[str, Any]:
     variants = [_variant(rec, sku) for sku in rec["skus"]]
     path = list(rec["category_path"])
     attributes = _product_attributes(rec)
+    if _splits(rec) and all(colorwords.split(s["color"])[1] for s in rec["skus"]):
+        # Every SKU states its own split pattern: the style lists the union of those, and a
+        # drawn pattern no SKU states (the "Plain" default, a "Striped" drawing) describes none.
+        stated = {e["value"] for v in variants for e in v["attributes"] if e["key"] == "pattern"}
+        attributes = [
+            e for e in attributes if e["key"] != "pattern" or e["value"] in stated
+        ]
+    blend = facet_leaves.fibre_content(attributes, rec["product_type"])
     added, replaced = facet_leaves.leaf_facets(rec, attributes)
     if replaced:
         path = facet_leaves.collapsed_path(path, rec["product_type"])
         attributes = [e for e in attributes if e["key"] not in replaced]
         attributes += [_entry(key, name, None, value) for key, name, value in added]
+    product_type = PRODUCT_TYPE_FOLDS.get(rec["product_type"], rec["product_type"])
     doc: dict[str, Any] = {
         "product_id": rec["product_id"],
-        "product_type": PRODUCT_TYPE_FOLDS.get(rec["product_type"], rec["product_type"]),
+        "product_type": product_type,
+        # A retail type is already a display name, so its label is that name (gen#331).
+        "product_type_label": product_type,
         "title": rec["title"],
         "brand": rec["brand"],
     }
     if "product_line" in rec:
         doc["series"] = rec["product_line"]
+    if blend:
+        doc["fibre_content"] = blend
     return doc | {
         "category_path": path,
         "category_leaf": path[-1],

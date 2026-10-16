@@ -79,6 +79,7 @@ def repo(tmp_path: Path) -> Path:
         "prepush.sh",
         "prepush.py",
         "check_commit_msg.py",
+        "check_customer_names.py",
         "file_size_gate.py",
         "local_ci_jobs.py",
     ):
@@ -96,6 +97,12 @@ def repo(tmp_path: Path) -> Path:
     _lines(root, "docs/big.md", BIG)
     (root / "src").mkdir()
     (root / "src" / "ok.py").write_text("VALUE = 1\n", encoding="utf-8")
+    # test_us_spelling.py also scans the retail source and asserts the scope is not empty
+    # (gen#291): the toy repository carries stand-in modules so that scan has a scope.
+    retail = root / "prototypes" / "retail_drawings"
+    retail.mkdir(parents=True)
+    for i in range(21):
+        (retail / f"stand_in_{i}.py").write_text(f"VALUE = {i}\n", encoding="utf-8")
     base = _commit(root, "base")
     _git(root, "update-ref", "refs/remotes/origin/main", base)
     _git(root, "switch", "-q", "-c", "issue-1")
@@ -161,7 +168,7 @@ def test_a_clean_branch_passes_every_row_and_prints_a_review_packet(repo: Path) 
     done = _gate(repo)
     out = _out(done)
     assert done.returncode == 0, out
-    for name in ("lint", "commit-messages", "file-size", "tree-scans"):
+    for name in ("lint", "commit-messages", "customer-names", "file-size", "tree-scans"):
         assert _row(out, "PASS", name), out
     assert "REVIEW PACKET" in out
     assert out.rstrip().splitlines()[-1].startswith("PREPUSH rc=0 failed=none log="), out
@@ -197,6 +204,47 @@ def test_an_ai_trailer_in_a_commit_message_fails_the_commit_message_row(repo: Pa
     assert done.returncode == 1, out
     assert _row(out, "FAIL", "commit-messages"), out
     assert _row(out, "PASS", "lint"), out
+
+
+# Spelled from parts: this file is itself a tracked file the customer-name check reads.
+CUSTOMER = "Mus" + "grave"
+
+
+def test_a_customer_name_in_a_file_fails_the_customer_names_row_without_naming_it(
+    repo: Path,
+) -> None:
+    (repo / "src" / "new.py").write_text(f"# the {CUSTOMER} layout\n", encoding="utf-8")
+    _commit(repo, "feat: a change")
+    done = _gate(repo)
+    out = _out(done)
+    assert done.returncode == 1, out
+    assert _row(out, "FAIL", "customer-names"), out
+    assert "src/new.py:1" in out
+    assert CUSTOMER.lower() not in out.lower()
+    assert _row(out, "PASS", "lint"), out
+
+
+def test_a_customer_name_in_a_commit_message_fails_the_customer_names_row(repo: Path) -> None:
+    (repo / "src" / "new.py").write_text("VALUE = 2\n", encoding="utf-8")
+    _commit(repo, f"feat: match the {CUSTOMER} layout")
+    done = _gate(repo, "--only", "customer-names")
+    out = _out(done)
+    assert done.returncode == 1, out
+    assert _row(out, "FAIL", "customer-names"), out
+
+
+def test_a_customer_name_in_the_draft_pr_body_fails_the_customer_names_row(
+    repo: Path, tmp_path: Path
+) -> None:
+    (repo / "src" / "new.py").write_text("VALUE = 2\n", encoding="utf-8")
+    _commit(repo, "feat: a change")
+    body = tmp_path / "body.md"
+    body.write_text(f"Seen at {CUSTOMER}.\n", encoding="utf-8")
+    done = _gate(repo, "--only", "customer-names", "--pr-body-file", str(body))
+    out = _out(done)
+    assert done.returncode == 1, out
+    assert _row(out, "FAIL", "customer-names"), out
+    assert "body.md:1" in out
 
 
 def test_a_scan_over_tracked_files_fails_the_tree_scans_row(repo: Path) -> None:
@@ -473,6 +521,7 @@ def test_every_row_runs_the_command_its_ci_job_runs() -> None:
     rows = [line.split("\t") for line in done.stdout.splitlines() if line.strip()]
     assert [row[0] for row in rows] == [
         "commit-messages",
+        "customer-names",
         "lint",
         "file-size",
         "tree-scans",

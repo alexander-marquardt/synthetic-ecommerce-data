@@ -391,7 +391,7 @@ def test_the_fresh_oranges_draw_as_many_fruits_as_their_weight_holds() -> None:
 def test_a_style_passes_its_weight_into_the_pile_once() -> None:
     def doc(grams: float) -> dict:
         return Style("PILE", "Navel Oranges", "Goldfield Farms", "Food & Drink",
-                     ("Food & Drink", "Fresh Produce"), 1.0, "Oranges.", "Oranges", "produce_pile",
+                     ("Food & Drink", "Fruit & Vegetables"), 1.0, "Oranges.", "Oranges", "produce_pile",
                      ((cw("Pack", "#f08a24"), 1),), params=(("fruit", "orange"),),
                      unit=(grams, "g"), colorless=True).doc()  # fmt: skip
 
@@ -402,7 +402,7 @@ def test_a_style_passes_its_weight_into_the_pile_once() -> None:
 def test_the_lemons_and_the_clementines_draw_their_pack() -> None:
     lemons = dz.LEMONS
     pack = {a["key"]: a["value"] for a in lemons["attributes"]}.get("pack_size")
-    assert pack is None or pack == "4"
+    assert pack is None or pack == "4 pack"
     assert lemons["drawing"]["shape"] == "produce_pile"
     assert lemons["drawing"]["params"]["count"] == 4
     clem = next(r for r in samples.FOOD if r["title"] == "Easy Peeler Clementines 600g")
