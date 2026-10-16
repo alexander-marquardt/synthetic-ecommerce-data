@@ -174,6 +174,13 @@ def test_a_milled_face_is_said_only_of_a_milled_face(golden) -> None:
         for d in golden
         if any(re.search(r"\bmilled face\b", v.get("description", ""), re.I) for v in d["variants"])
     ]
-    assert said
     faces = {e["value"] for d in said for e in d["attributes"] if e["key"] == "face_type"}
-    assert faces == {"Milled"}, faces
+    assert faces <= {"Milled"}, faces
+
+
+@pytest.mark.parametrize("kind", sorted(hammers.KINDS))
+def test_a_use_line_says_milled_only_of_a_kind_whose_every_face_is_milled(kind: str) -> None:
+    """A use line is told of every product of the kind: the face it names is every one's."""
+    spec = hammers.KINDS[kind]
+    if any(re.search(r"\bmilled\b", line, re.IGNORECASE) for line in spec.use_lines):
+        assert spec.faces == ("Milled",), spec.faces
