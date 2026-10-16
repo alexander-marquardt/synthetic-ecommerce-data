@@ -170,6 +170,40 @@ def test_a_jogger_states_the_cuff_and_the_fit_it_draws() -> None:
     }
 
 
+#: The length a shorts or cycling-shorts record states for the ``length`` param it draws.
+SHORT_LENGTHS = {"mini": "Mini", "mid": "Mid Length", "knee": "Knee Length"}
+
+
+def test_a_shorts_states_the_length_and_the_style_it_draws() -> None:
+    shorts = [r for r in ROWS if r.product_type == "Shorts"]
+    for row in shorts:
+        p = dict(row.params)
+        assert _attr(row, "garment_length") == [SHORT_LENGTHS[p["length"]]], row.code
+        assert _attr(row, "shorts_style") == [p["style"].title()], row.code
+    assert {dict(r.params)["length"] for r in shorts} == set(SHORT_LENGTHS)
+    assert {dict(r.params)["style"] for r in shorts} == set(kit_lowerbody.SHORT_STYLES)
+
+
+def test_a_cycling_shorts_states_the_length_and_the_rise_it_draws() -> None:
+    cycling = [r for r in ROWS if r.product_type == "Cycling Shorts"]
+    for row in cycling:
+        p = dict(row.params)
+        assert _attr(row, "garment_length") == [SHORT_LENGTHS[p["length"]]], row.code
+        assert dict(row.facts)["rise"].lower() == p["rise"], row.code
+    assert {dict(r.params)["length"] for r in cycling} == set(SHORT_LENGTHS)
+    assert {dict(r.params)["rise"] for r in cycling} == {"mid", "high"}
+
+
+def test_a_tracksuit_states_the_top_and_the_fit_it_draws() -> None:
+    tracksuits = [r for r in ROWS if r.product_type == "Tracksuit"]
+    for row in tracksuits:
+        p = dict(row.params)
+        assert _attr(row, "top_style") == [p["top"].replace("_", "-").title()], row.code
+        assert _attr(row, "leg_fit") == [p["fit"].title()], row.code
+    assert {dict(r.params)["top"] for r in tracksuits} == {"hooded", "zip", "half_zip"}
+    assert {dict(r.params)["fit"] for r in tracksuits} == {"slim", "regular", "relaxed"}
+
+
 def test_a_skirt_states_the_shape_and_the_length_it_draws() -> None:
     skirts = [r for r in ROWS if r.product_type == "Skirt"]
     for row in skirts:
