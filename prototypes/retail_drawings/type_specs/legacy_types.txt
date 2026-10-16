@@ -7,6 +7,7 @@ Beauty|Body Cream
 Beauty|Body Lotion
 Beauty|Body Oil
 Beauty|Conditioner
+Beauty|Eau de Parfum
 Beauty|Eye Cream
 Beauty|Eyeliner
 Beauty|Face Cream
@@ -62,6 +63,7 @@ Clothing|Jacket
 Clothing|Jeans
 Clothing|Joggers
 Clothing|Jumper
+Clothing|Key Clips
 Clothing|Leggings
 Clothing|Mens Trousers
 Clothing|Necklace
@@ -70,6 +72,10 @@ Clothing|Polo Shirt
 Clothing|Puffer Jacket
 Clothing|Purse
 Clothing|Ring
+Clothing|School Pinafore
+Clothing|School Shirt
+Clothing|School Skirt
+Clothing|School Trousers
 Clothing|Shirt
 Clothing|Shorts
 Clothing|Skirt
@@ -81,8 +87,10 @@ Clothing|Tea Dress
 Clothing|Tee
 Clothing|Top
 Clothing|Tote Bag
+Clothing|Travel Cases
 Clothing|Trousers
 Clothing|Umbrella
+Clothing|Waist Bags
 Clothing|Watch
 Food & Drink|Baby Food
 Food & Drink|Battered Fish
@@ -137,6 +145,7 @@ Food & Drink|Perry
 Food & Drink|Pizza
 Food & Drink|Plant Milk
 Food & Drink|Porridge
+Food & Drink|Potatoes
 Food & Drink|Ready Meal
 Food & Drink|Rice & Grains
 Food & Drink|Root Beer
@@ -175,12 +184,16 @@ Footwear|Slippers
 Footwear|Trainers
 Footwear|Walking Boots
 Footwear|Wellies
+Garden|BBQ
 Garden|Bedding Plant
 Garden|Bouquet
 Garden|Bulbs
 Garden|Christmas Tree
+Garden|Grass Trimmer
 Garden|Growing Kit
+Garden|Lawn Mower
 Garden|Plant
+Garden|Robot Mower
 Garden|Seeds
 Gifts|Christmas Decoration
 Gifts|Gift Bag
@@ -192,11 +205,13 @@ Gifts|Trophy
 Gifts|Wrapping Paper
 Home|Apron
 Home|Armchair
+Home|Baby Beakers
 Home|Beach Towel
 Home|Bed
 Home|Bit Set
 Home|Bookcase
 Home|Bowl
+Home|Cable Ties
 Home|Car Boot Organiser
 Home|Casserole Dish
 Home|Ceiling Fan
@@ -206,6 +221,7 @@ Home|Chaise Sofa
 Home|Chest of Drawers
 Home|Chopping Board
 Home|Clothes Airer
+Home|Clothes Hangers
 Home|Coffee Table
 Home|Colander
 Home|Cordless Drill
@@ -222,16 +238,21 @@ Home|Desk Lamp
 Home|Dining Chair
 Home|Dining Table
 Home|Dinner Set
+Home|Drying Racks
 Home|Duvet
 Home|Duvet Cover
 Home|Duvet Set
 Home|Floor Lamp
+Home|Foot Pumps
 Home|Footstool
 Home|Frying Pan
+Home|Garment Bags
 Home|Glassware
+Home|Hallway Stands
 Home|Handheld Fan
 Home|Hanger
 Home|Heater
+Home|Jump Leads
 Home|Kettle
 Home|Kitchen Bin
 Home|Kitchen Knife
@@ -245,6 +266,7 @@ Home|Mattress Topper
 Home|Mirror
 Home|Modular Sofa
 Home|Mug
+Home|Paint
 Home|Pedestal Fan
 Home|Pillow
 Home|Pillow Protector
@@ -253,22 +275,30 @@ Home|Plate
 Home|Recliner Sofa
 Home|Saucepan
 Home|Screwdriver Set
+Home|Shoe Laces
+Home|Shoe Polish
 Home|Side Table
 Home|Socket Set
 Home|Sofa
 Home|Sofa Bed
+Home|Sofa Covers
 Home|Storage Basket
 Home|Storage Box
+Home|Storage Boxes
 Home|Storage Jar
 Home|Table Lamp
 Home|Tea Towels
+Home|Throws
 Home|Toaster
 Home|Towel
 Home|Tower Fan
 Home|Travel Cup
 Home|Tumbler
+Home|Valances
+Home|Wall Hooks
 Home|Wall Light
 Home|Wardrobe
+Home|Wash Bags
 Home|Wireless Charger
 Lingerie & Nightwear|Boxers
 Lingerie & Nightwear|Bra
@@ -280,6 +310,7 @@ Lingerie & Nightwear|Shapewear
 Lingerie & Nightwear|Slip
 Lingerie & Nightwear|Tights
 Lingerie & Nightwear|Vest
+Sports & Outdoors|Bike Pumps
 Sports & Outdoors|Camping Chair
 Sports & Outdoors|Dumbbell
 Sports & Outdoors|Foam Roller

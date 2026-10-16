@@ -28,6 +28,7 @@ import decoy_apparel as da  # noqa: E402
 import decoy_rows  # noqa: E402
 import details  # noqa: E402
 import export  # noqa: E402
+import garden_rows  # noqa: E402
 import image_release  # noqa: E402
 import main_colors  # noqa: E402
 import mens_depth_rows  # noqa: E402
@@ -302,11 +303,11 @@ def test_decoy_ids_are_the_two_tables_and_no_real_product_is_in_them(
 ) -> None:
     """The exemption is keyed on the decoy tables: a real catalog id is outside it. Membership
     is read with ``in``, the way ``check_catalog`` reads it."""
-    assert scale.DECOY_IDS == decoy_rows.IDS | da.IDS
+    assert decoy_rows.IDS | da.IDS | garden_rows.decoy_ids() == scale.DECOY_IDS
     real = [r["product_id"] for r in ceiling if r["product_id"] not in scale.DECOY_IDS]
     assert len(real) > 5 * len(scale.DECOY_IDS)
     assert not [i for i in real if i in scale.DECOY_IDS]
-    assert all(i in scale.DECOY_IDS for i in decoy_rows.IDS | da.IDS)
+    assert all(i in scale.DECOY_IDS for i in decoy_rows.IDS | da.IDS | garden_rows.decoy_ids())
 
 
 def test_the_mens_types_the_census_exempts_hold_their_own_decoys() -> None:

@@ -787,10 +787,11 @@ CLEANING = (
         "Thin sheets that dissolve in the drum, one per load, in a plastic-free sleeve. "
         "Scented with sandalwood.",
         _spray("Cream", "#7a5a3a"), _scent("Sandalwood"), label="Sheets", colorless=True),
-    Row("SFTVAN", "Vanilla Musk Fabric Conditioner 1.2L", "Freshfold", _CJ, _SOFTEN,
+    Row("SFTVAN", "Vanilla Musk Fabric Conditioner", "Freshfold", _CJ, _SOFTEN,
         "Fabric Softener", 3.0, "bottle",
         "A thick conditioner for the drawer, enough for 40 loads. Scented with vanilla musk.",
-        _spray("Cream", "#2a2a2e"), _scent("Vanilla Musk"), label="Softener", colorless=True),
+        _spray("Cream", "#2a2a2e"), _scent("Vanilla Musk"), label="Softener", colorless=True,
+        sizes=((850.0, 2.4), (1200.0, 3.0), (2000.0, 4.6)), size_key="net_volume_ml"),
     Row("SFTBED", "Cotton Flower Scent Booster Beads", "Pantry Mill", _CJ, _SOFTEN,
         "Fabric Softener", 5.5, "tub",
         "Beads that go in the drum with the washing and last for weeks in the wardrobe. "
@@ -801,8 +802,8 @@ CLEANING = (
         "Hang-on rim blocks that clean and freshen with every flush. Scented with lemon.",
         _spray("Yellow", "#ffffff"), _scent("Lemon"), label="Rim Block",
         colorless=True, params=(("units", "2"),)),
-    Row("LOOBLE", "Lavender Toilet Bleach 750ml", "Freshfold", _CJ, _LOO, "Toilet Cleaner",
-        1.5, "angled_bottle",
+    Row("LOOBLE", "Lavender Toilet Bleach 1L", "Freshfold", _CJ, _LOO, "Toilet Cleaner",
+        2.0, "angled_bottle",
         "A thick bleach for under the rim that kills germs in five minutes. "
         "Scented with lavender.",
         _spray("Lilac", "#ffffff"), _scent("Lavender"), label="Bleach", colorless=True),
@@ -842,8 +843,8 @@ CLEANING = (
         "A light conditioner that softens towels and cuts creasing, for 33 loads. "
         "Scented with jasmine.",
         _spray("White", "#b9a3d0"), _scent("Jasmine"), label="Softener", colorless=True),
-    Row("LOOTGL", "Pine Thick Toilet Gel 750ml", "Freshfold", _CJ, _LOO, "Toilet Cleaner",
-        1.8, "angled_bottle",
+    Row("LOOTGL", "Pine Thick Toilet Gel 500ml", "Freshfold", _CJ, _LOO, "Toilet Cleaner",
+        1.3, "angled_bottle",
         "An angled-neck gel that clings under the rim and lifts limescale overnight. "
         "Scented with pine.",
         _spray("Green", "#ffffff"), _scent("Pine"), label="Gel", colorless=True),
@@ -856,7 +857,7 @@ CLEANING = (
         8.0, "jar", "A glass bottle with eight rattan reeds; turn the reeds weekly. "
         "Scented with sea salt.",
         _spray("Aqua", "#b08a5a"), _scent("Sea Salt"), label="Reeds", colorless=True),
-    Row("AIRBRG", "Bergamot Room Spray 300ml", "Freshfold", _CJ, _AIR, "Air Freshener", 4.0,
+    Row("AIRBRG", "Bergamot Room Spray 500ml", "Freshfold", _CJ, _AIR, "Air Freshener", 6.0,
         "bottle", "A fine mist for a hallway or a living room that lasts for hours. "
         "Scented with bergamot.",
         _spray("Lilac", "#2a2a2e"), _scent("Bergamot"), label="Room Spray", colorless=True),
@@ -1127,7 +1128,7 @@ HOME = (
         (cw("Ochre", "#c9873a"), cw("Forest", "#2f5a3a"), cw("Dove Grey", "#b5b5b0")),
         _fab("Chenille")),
     Row("CSHCRD", "Corduroy Pleated Cushion", "Lanternby", "Home", _CUSH, "Cushion", 24.0,
-        "cushion", "A round cushion pleated to a covered button at its centre.",
+        "cushion", "A round cushion pleated to a covered button at its center.",
         (cw("Terracotta", "#c46a4a"), cw("Olive", "#6b6b3a"), cw("Ivory", "#f3ecd9")),
         _fab("Corduroy")),
     Row("TWLORG", "Organic Cotton Bath Towel", "Hearth & Table", "Home", _TOWEL, "Towel", 8.0,
@@ -1394,16 +1395,18 @@ BREADTH_34 = (
         "Sweet, juicy strawberries picked at the height of summer, packed in a recyclable punnet.",
         (cw("Red", "#c8312e", "solid", "#4f7a3a"),), _a1("variety", "Variety", "Elsanta"),
         (("400 g", 2.5), ("800 g", 4.5)), colorless=True),
-    Row("OVNSPR", "Heavy Duty Oven Cleaner Spray 500ml", "Pantry Mill", _CJ,
+    Row("OVNSPR", "Heavy Duty Oven Cleaner Spray", "Pantry Mill", _CJ,
         ("Cleaning", "Kitchen & Surfaces", "Cleaners", "Oven Cleaners"), "Oven Cleaner", 3.5,
         "trigger_spray",
         "A foaming spray that loosens baked-on grease from oven walls, racks and hobs.",
-        _spray("Yellow"), _a1("form", "Form", "Foam Spray"), colorless=True),
-    Row("LMSSPR", "Limescale Remover Spray 500ml", "Freshfold", _CJ,
+        _spray("Yellow"), _a1("form", "Form", "Foam Spray"), colorless=True,
+        sizes=((300.0, 2.5), (500.0, 3.5), (750.0, 4.8)), size_key="net_volume_ml"),
+    Row("LMSSPR", "Limescale Remover Spray", "Freshfold", _CJ,
         ("Cleaning", "Bathroom", "Limescale Removers"), "Limescale Remover", 3.0,
         "trigger_spray",
         "A fast spray for kettles, taps and shower heads: leave a few minutes, then rinse.",
-        _spray("Aqua"), _a1("form", "Form", "Spray"), colorless=True),
+        _spray("Aqua"), _a1("form", "Form", "Spray"), colorless=True,
+        sizes=((250.0, 2.0), (500.0, 3.0), (750.0, 4.0)), size_key="net_volume_ml"),
 )  # fmt: skip
 
 
