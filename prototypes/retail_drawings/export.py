@@ -129,6 +129,9 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "berth": ("berth", "Berth", "C62"),
     "thickness_mm": ("thickness", "Thickness", "MMT"),
     "weight_kg": ("weight", "Weight", "KGM"),
+    # A curtain's, blind's or shower curtain's drop (softfurn_rows.py, gen#204); its width is
+    # ``width_cm`` and a rug's, throw's or bath mat's length is ``length_cm``.
+    "drop_cm": ("drop_length", "Drop length", "CMT"),
 }
 #: The SKU fields that are columns of the variant, not options.
 SKU_COLUMNS = frozenset({"sku", "price", "in_stock", "ingredients"})
