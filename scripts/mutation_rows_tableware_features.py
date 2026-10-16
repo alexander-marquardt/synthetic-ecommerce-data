@@ -74,4 +74,13 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "one metal is one material value in the facet",
         _ROOT,
     ),
+    (
+        "the steak serving board names a juice groove and its row stops asking for it",
+        "distractor_rows.py",
+        '          params=(("material", "wood"), ("groove", "juice"))),',
+        '          params=(("material", "wood"),)),',
+        f'{_TEST} -k "every_template_that_names_a_juice_groove"',
+        "a template of any file whose title names a juice groove draws one",
+        _ROOT,
+    ),
 ]
