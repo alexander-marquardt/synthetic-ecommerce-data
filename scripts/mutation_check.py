@@ -26,6 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
 import mutation_rows_type_specs  # noqa: E402  (gen#351 rows, kept in their own file)
 
 REPO = Path(__file__).resolve().parent.parent
@@ -3770,6 +3771,37 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: the steak plate, board and weight carry a material, never derived (gen#268) ----
+    *(
+        Mutation(f"steak ware: {name}", file, old, new_, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new_, test, prop in [
+            (
+                "the steak weight loses its material",
+                "distractor_rows.py",
+                '                 ("material", "Material", "Cast Iron"))),',
+                "                 )),",
+                "tests/test_retail_distractors.py -k carry_a_material_like_their_siblings",
+                "the steak weight carries a material like the other utensils",
+            ),
+            (
+                "the steak board loses its material",
+                "distractor_rows.py",
+                '          extra=(("material", "Material", "Wood"),),\n',
+                "",
+                "tests/test_retail_distractors.py -k carry_a_material_like_their_siblings",
+                "the steak board carries the material of the other boards",
+            ),
+            (
+                "the steak ware is copied by the derivation",
+                "scale.py",
+                " | STEAK_WARE_IDS)",
+                ")",
+                "tests/test_retail_distractors.py -k steak_ware_is_never_derived",
+                "the steak plate, board and weight stay templates",
+            ),
+        ]
+    ),
     # ---- retail: school uniform, the record names the drawing it draws (gen#205) ----
     *(
         Mutation(f"school uniform: {name}", "school_rows.py", old, new_, test, "", prop,
@@ -3807,8 +3839,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "an apparel decoy is copied by the derivation",
                 "scale.py",
-                "                | decoy_apparel.IDS | decoy_product_words.IDS)",
-                "                | decoy_product_words.IDS)",
+                "                | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)",
+                "                | decoy_product_words.IDS | STEAK_WARE_IDS)",
                 "tests/test_retail_apparel_decoys_311.py -k never_copied_or_color_completed",
                 "an apparel decoy stays a template",
             ),
@@ -3883,6 +3915,10 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"type specs: {name}", file, old, new, test, "", prop, root=root)
         for name, file, old, new, test, prop, root in mutation_rows_type_specs.ROWS
     ),
+    *(
+        Mutation(f"audit order: {n}", "generate_cli.py", o, w, t, "", pr)
+        for n, o, w, t, pr in mutation_rows_audit_order.ROWS
+    ),
     # ---- retail: product-word decoys (gen#326) ----
     *(
         Mutation(f"product-word decoys: {name}", file, old, new, test, "", prop,
@@ -3899,8 +3935,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a class-8 decoy is copied by the derivation",
                 "scale.py",
-                "| decoy_apparel.IDS | decoy_product_words.IDS)",
-                "| decoy_apparel.IDS)",
+                "| decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)",
+                "| decoy_apparel.IDS | STEAK_WARE_IDS)",
                 "tests/test_retail_product_word_decoys_326.py -k templates_no_derived",
                 "a decoy stays a template",
             ),
