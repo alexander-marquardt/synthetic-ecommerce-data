@@ -32,6 +32,7 @@ import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
 import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
 import mutation_rows_type_specs  # noqa: E402  (gen#351 rows, kept in their own file)
+import mutation_rows_underwear_245  # noqa: E402  (gen#245 rows, kept in their own file)
 
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "src" / "synthetic_ecommerce_data"
@@ -3935,6 +3936,11 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"ring sizes: {name}", file, old, new, tests, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, tests, prop in mutation_rows_ring_sizes_249.ROWS
+    ),
+    *(
+        Mutation(f"underwear drawn values: {name}", file, old, new, tests, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, tests, prop in mutation_rows_underwear_245.ROWS
     ),
     *(
         Mutation(f"audit order: {n}", "generate_cli.py", o, w, t, "", pr)
