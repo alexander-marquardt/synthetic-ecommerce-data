@@ -27,6 +27,10 @@ Each drawing param that a style attribute names (``style``, ``fixture_type`` as 
 style that changes the value redraws it (:func:`scale.derive`). ``usb_port``, ``dimmable`` and
 ``wireless_charging`` are only ever "Yes", so a derived style never flips one; a wall light's
 ``ip_rating`` and a shade's ``fitting`` are in :data:`scale.FROZEN_KEYS`.
+
+A desk lamp's color temperature is a measured entry (gen#232): ``color_temperature`` holds the
+kelvin count with unit code ``KEL``, and a tunable lamp holds ``color_temperature_min`` and
+``color_temperature_max`` instead, so a facet ranges over it and no value holds a unit.
 """
 
 from __future__ import annotations
@@ -54,6 +58,21 @@ def _a(key: str, name: str, value: str) -> tuple[str, str, str]:
 def _cm(key: str, name: str, cm: int) -> tuple[str, str, str, str, float]:
     """A length in centimetres (unit code CMT; the canonical value is in millimetres)."""
     return (key, name, str(cm), "CMT", cm * 10.0)
+
+
+def _kelvin(key: str, name: str, kelvin: int) -> tuple[str, str, str, str, float]:
+    """A light's color temperature in kelvin (unit code KEL; the canonical value is the count)."""
+    return (key, name, str(kelvin), "KEL", float(kelvin))
+
+
+def _temp(kelvin: int) -> tuple[str, str, str, str, float]:
+    return _kelvin("color_temperature", "Color temperature", kelvin)
+
+
+def _temp_range(low: int, high: int) -> tuple[tuple[str, str, str, str, float], ...]:
+    """A tunable lamp's range: two entries, so a filter ranges over each end."""
+    return (_kelvin("color_temperature_min", "Minimum color temperature", low),
+            _kelvin("color_temperature_max", "Maximum color temperature", high))  # fmt: skip
 
 
 def _lights(n: int) -> tuple[str, str, str, str]:
@@ -202,20 +221,20 @@ DESK_LAMPS = (
         "An adjustable desk lamp with a 2700-6500K LED light and a USB port that charges a "
         "phone.",
         (BLACK, WHITE, SAGE),
-        (_a("arm", "Arm", "Adjustable"), _a("color_temperature", "Color temperature", "2700-6500K"),
+        (_a("arm", "Arm", "Adjustable"), *_temp_range(2700, 6500),
          _yes("dimmable", "Dimmable"), ("usb_port", "USB port", "yes")),
         params=_p(arm="adjustable", base="round")),
     Row("LTDGNK", "Gooseneck LED Desk Lamp", "Lanternby", "Home", DESK,
         "Desk Lamp", 25.0, "desk_lamp",
         "A gooseneck desk lamp with a 3000K LED light.",
         (BLACK, SILVER, NAVY),
-        (_a("arm", "Arm", "Gooseneck"), _a("color_temperature", "Color temperature", "3000K")),
+        (_a("arm", "Arm", "Gooseneck"), _temp(3000)),
         params=_p(arm="gooseneck", base="round")),
     Row("LTDCLP", "Clamp-On LED Desk Lamp", "Calderby & Lune", "Home", DESK,
         "Desk Lamp", 29.0, "desk_lamp",
         "A clamp-on desk lamp with a 5000K LED light.",
         (WHITE, BLACK, MUSTARD),
-        (_a("arm", "Arm", "Clamp-On"), _a("color_temperature", "Color temperature", "5000K"),
+        (_a("arm", "Arm", "Clamp-On"), _temp(5000),
          _yes("dimmable", "Dimmable")),
         params=_p(arm="clamp-on", base="round")),
     Row("LTDWCP", "LED Desk Lamp with Wireless Charging Pad", "Harbour & Pine", "Home", DESK,
@@ -223,7 +242,7 @@ DESK_LAMPS = (
         "A desk lamp whose wide base is a wireless charging pad for a phone, with a USB port "
         "beside it and a 2700-6500K LED light.",
         (BLACK, WHITE),
-        (_a("arm", "Arm", "Adjustable"), _a("color_temperature", "Color temperature", "2700-6500K"),
+        (_a("arm", "Arm", "Adjustable"), *_temp_range(2700, 6500),
          _yes("dimmable", "Dimmable"), ("usb_port", "USB port", "yes"),
          _yes("wireless_charging", "Wireless charging")),
         params=_p(arm="adjustable", base="pad")),
