@@ -351,7 +351,7 @@ report`), with the default catalog beside it:
 |---|--:|--:|
 | shank == cutting diameter | 0.6489 | 0.6895 |
 | length of cut > overall length | 0.0829 | 0.0829 |
-| angle carries a length unit | 0.0469 | 0.0451 |
+| angle carries a length unit | 0.0469 | **0.0000, deliberately** (#404) |
 | declared system contradicts units | 0.0323 | 0.0331 |
 | unit mixing within one record | 0.0222 | 0.0185 |
 | title dimension token unlabelled | 0.4667 | 0.4598 |
@@ -762,21 +762,16 @@ of elastic/prism#9935:
 The split is **read back out of** the published string, never computed from
 the generator's magnitude, so the two can never disagree: `3/8"` has no exact
 two-decimal millimetre spelling, and a number computed from the original
-magnitude would quietly differ from the string actually published. A defective
-spelling never changes what an attribute measures: `Helix Angle = 42"`, the
-modelled defect of an inch mark keyed for a degree mark, becomes `42` `DD`
-(`catalog.entry.UNIT_FOR_NAME`). The flat facet keeps the messy `42"`; the
-entry keeps the magnitude and drops the bad mark (elastic/prism#9284, #79). The
-flat `facets_num` carries that same number, taken from the same rule
-(`entry.split`), so the two numeric shapes agree (#120). Read
-as an inch, it put a length under an angle key. The same defect also writes
-`1"`, `1-1/4"`, `2"` and `1-5/8"`: lengths keyed into an angle field, a
-unit-type error rather than a mis-keyed degree mark. An attribute fixed to `DD`
-therefore parses only when its number lies within the angles its generator
-draws (`catalog.entry.SPAN_FOR_NAME`, read from `catalog.series`), and a
-fraction never parses as an angle; anything else stays text, with no
-`unit_code` and no `value_canonical`. In the default build that leaves 8 of the
-78 defect rows as angles (`Helix Angle = 42"`) and 70 as text. An attribute that
+magnitude would quietly differ from the string actually published. The mark
+decides the unit and nothing repairs it, so a value of the wrong kind for its
+key would show: the generator writes none (#404). It used to write inch lengths
+(`2"`, `1-5/8"`, `42"`) under `point_angle` and `helix_angle`, 963 rows on one
+load, where a facet offered them beside `118` and `135`; a real retailer would
+fix that row, so the step is gone and `tests/test_no_wrong_kind_values_404.py`
+holds every angle key to angles, in the flat spelling and in the nested entry,
+over a sample of every product type at the measured defect rates and at their
+ceiling. The flat `facets_num` carries the same number as the nested entry,
+taken from the same rule (`entry.split`) (#120). An attribute that
 is not a measurement omits `unit_code` and `value_canonical` rather than
 carrying nulls.
 
@@ -2037,7 +2032,7 @@ than asserted.
 |---|---|---|
 | shank diameter == cutting diameter | 0.6489 | 0.6992 |
 | length of cut > overall length | 0.0829 | 0.0805 |
-| an angle attribute carrying a length unit | 0.0469 | 0.0448 |
+| an angle attribute carrying a length unit | 0.0469 | **0.0000, deliberately** (#404) |
 | declared measurement system contradicts the value's units | 0.0323 | 0.0289 |
 | unit mixing within one record | 0.0222 | 0.0166 |
 | title dimension token carries no label | 0.4667 | 0.4648 |
@@ -2050,12 +2045,10 @@ than asserted.
 Measured on `95a9ed0` with `uv run ecom-generate build` (the default catalog,
 identical to `golden-catalog/`).
 
-Two notes on reading that table honestly. The angle defect is **clustered**:
-the attribute is line-constant, so one bad row reaches every SKU under that
-line — which is how these arrive in a real catalog, and is visible in the
-source corpus too, where the same wrong value repeats across a whole series.
-Its per-record rate therefore swings much more between seeds than the others.
-And attributes per record sits about 6% below its target because the
+Two notes on reading that table honestly. The angle row is **deliberately zero**:
+the corpus measures 0.0469, and the generator declines to write a length under an
+angle key (#404; `GeneratorConfig.measured_angle_carries_length_unit` keeps the
+measurement). And attributes per record sits about 6% below its target because the
 reference mean is over a different mixture of product families than this
 catalog contains; the per-family shape is reproduced, the mixture is not the
 same one. It moved when the newer types arrived (hex nuts and hex keys publish

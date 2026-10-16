@@ -215,7 +215,6 @@ def test_both_the_role_ambiguity_cases_occur(stats):
     "metric,low,high",
     [
         ("length of cut > overall length", 0.03, 0.16),
-        ("angle attribute carries a length unit", 0.005, 0.14),
         ("declared system contradicts value units", 0.005, 0.08),
         ("unit mixing within one record", 0.005, 0.05),
         ("title dimension token unlabelled", 0.38, 0.55),
@@ -228,6 +227,20 @@ def test_each_measured_rate_is_reproduced(stats, metric, low, high):
     row = next(c for c in stats["comparisons"] if c.name == metric)
     assert row.denominator > 0, f"{metric} has an empty denominator"
     assert low <= row.achieved <= high, row
+
+
+def test_no_angle_attribute_carries_a_length_unit(stats):
+    """0, exactly: the generator writes no value of the wrong kind for its key (#404).
+
+    The corpus measures 0.0469 (kept on
+    ``GeneratorConfig.measured_angle_carries_length_unit``); reproducing it put
+    inch lengths under ``point_angle`` and ``helix_angle``. The denominator is
+    asserted non-empty first, so "no wrong angles" is not "no angles examined".
+    """
+    row = next(c for c in stats["comparisons"] if c.name == "angle attribute carries a length unit")
+    assert row.denominator > 0, "no angle-carrying records were examined, so a zero proves nothing"
+    assert row.numerator == 0, row
+    assert row.target == 0.0, row
 
 
 def test_no_title_label_is_truncated(stats):
