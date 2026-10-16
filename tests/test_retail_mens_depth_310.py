@@ -48,7 +48,8 @@ SLEEVE_TYPES = ("Shirt", "Polo Shirt", "Coat", "Jacket", "Suit Jacket")
 MATERIAL_WORDS = ("wool", "linen", "leather", "silk", "cashmere", "down", "fur", "suede",
                   "denim", "flannel", "cotton")
 #: The product types that carry decoys, and the five-plus-two classes each carries.
-TYPES = ("Mens Trousers", "Shirt", "Polo Shirt", "Coat", "Jacket", "Suit Jacket", "Boxers", "Socks")
+TYPES = ("Mens Trousers", "Shirt", "Polo Shirt", "Coat", "Jacket", "Suit Jacket", "Boxers", "Socks",
+         "Suit Trousers", "Waistcoat", "Dinner Suit", "Formal Accessories")
 CLASSES = (1, 2, 3, 4, 5, 6, 7)
 MAIN = ("Red", "Blue", "Green", "Yellow", "Black", "White")
 #: The invented brands of class 7: each holds a color or category word.
@@ -181,7 +182,9 @@ def test_class_6_sits_in_a_short_title_and_names_its_range(decoys):
 
 def test_class_2_borrows_another_categorys_noun_and_class_3_an_audience_word(decoys):
     own = {"Mens Trousers": "chinos", "Shirt": "shirt", "Polo Shirt": "polo", "Coat": "coat",
-           "Jacket": "jacket", "Suit Jacket": "blazer", "Boxers": "boxers", "Socks": "socks"}
+           "Jacket": "jacket", "Suit Jacket": "blazer", "Boxers": "boxers", "Socks": "socks",
+           "Suit Trousers": "suit trousers", "Waistcoat": "waistcoat", "Dinner Suit": "dinner suit",
+           "Formal Accessories": "tie"}
     for d, rec in decoys:
         t = rec["title"].lower()
         if d.klass == 2:
