@@ -3839,8 +3839,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "an apparel decoy is copied by the derivation",
                 "scale.py",
-                "                | decoy_apparel.IDS | decoy_product_words.IDS)",
-                "                | decoy_product_words.IDS)",
+                "                | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)",
+                "                | decoy_product_words.IDS | STEAK_WARE_IDS)",
                 "tests/test_retail_apparel_decoys_311.py -k never_copied_or_color_completed",
                 "an apparel decoy stays a template",
             ),
@@ -3935,8 +3935,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a class-8 decoy is copied by the derivation",
                 "scale.py",
-                "| decoy_apparel.IDS | decoy_product_words.IDS)",
-                "| decoy_apparel.IDS)",
+                "| decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)",
+                "| decoy_apparel.IDS | STEAK_WARE_IDS)",
                 "tests/test_retail_product_word_decoys_326.py -k templates_no_derived",
                 "a decoy stays a template",
             ),
