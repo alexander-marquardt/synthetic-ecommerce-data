@@ -199,7 +199,7 @@ CLOTHING = [
         "brand": "Harbour & Pine",
         "department": ["clothing"],
         "collections": ["summer", "new"],
-        "category_path": ["Women", "Tops", "T-Shirts"],
+        "category_path": ["Womens", "Tops", "T-Shirts"],
         "price": 14.00,
         **sizes(WOMENS, "6", "20"),
         "attributes": clothing_attrs(
@@ -218,7 +218,7 @@ CLOTHING = [
         "brand": "Wrenfield",
         "department": ["clothing"],
         "collections": [],
-        "category_path": ["Men", "Tops", "T-Shirts"],
+        "category_path": ["Mens", "Tops", "T-Shirts"],
         "price": 9.50,
         **sizes(LETTER, "S", "XXL"),
         "attributes": clothing_attrs(
@@ -237,7 +237,7 @@ CLOTHING = [
         "brand": "Larkmoor",
         "department": ["clothing"],
         "collections": [],
-        "category_path": ["Women", "Tops", "Blouses & Shirts"],
+        "category_path": ["Womens", "Tops", "Blouses & Shirts"],
         "price": 26.00,
         **sizes(WOMENS, "8", "18"),
         "attributes": clothing_attrs(
@@ -256,7 +256,7 @@ CLOTHING = [
         "brand": "Larkmoor",
         "department": ["clothing"],
         "collections": ["summer"],
-        "category_path": ["Women", "Dresses", "Sundresses"],
+        "category_path": ["Womens", "Dresses", "Sundresses"],
         "price": 35.00,
         **sizes(WOMENS, "6", "20"),
         "attributes": clothing_attrs(
@@ -277,7 +277,7 @@ CLOTHING = [
         "brand": "Harbour & Pine",
         "department": ["clothing"],
         "collections": ["summer", "sale"],
-        "category_path": ["Women", "Shorts"],
+        "category_path": ["Womens", "Shorts"],
         "price": 16.00,
         **sizes(WOMENS, "6", "18"),
         "attributes": clothing_attrs(
@@ -296,7 +296,7 @@ CLOTHING = [
         "brand": "Ottery Denim",
         "department": ["clothing"],
         "collections": [],
-        "category_path": ["Women", "Jeans", "Bootcut Jeans"],
+        "category_path": ["Womens", "Jeans", "Bootcut Jeans"],
         "price": 30.00,
         **sizes(WOMENS, "6", "20"),
         "attributes": clothing_attrs(
@@ -317,7 +317,7 @@ CLOTHING = [
         "brand": "Ottery Denim",
         "department": ["clothing"],
         "collections": ["new"],
-        "category_path": ["Women", "Jeans", "Straight Jeans"],
+        "category_path": ["Womens", "Jeans", "Straight Jeans"],
         "price": 30.00,
         **sizes(WOMENS, "6", "18"),
         "attributes": clothing_attrs(
@@ -338,7 +338,7 @@ CLOTHING = [
         "brand": "Thistle & Wren",
         "department": ["clothing"],
         "collections": ["christmas"],
-        "category_path": ["Women", "Skirts", "Mini Skirts"],
+        "category_path": ["Womens", "Skirts", "Mini Skirts"],
         "price": 22.00,
         **sizes(WOMENS, "6", "16"),
         "attributes": clothing_attrs(
@@ -351,7 +351,7 @@ CLOTHING = [
         "brand": "Wrenfield",
         "department": ["clothing"],
         "collections": [],
-        "category_path": ["Women", "Coats & Jackets", "Trench Coats"],
+        "category_path": ["Womens", "Coats & Jackets", "Trench Coats"],
         "price": 79.00,
         **sizes(WOMENS, "6", "20"),
         "attributes": clothing_attrs(
@@ -371,7 +371,7 @@ CLOTHING = [
         "brand": "Stridewell",
         "department": ["footwear"],
         "collections": ["new"],
-        "category_path": ["Women", "Shoes", "Trainers"],
+        "category_path": ["Womens", "Shoes", "Trainers"],
         "price": 45.00,
         **sizes(SHOES, "3", "8"),
         "attributes": clothing_attrs(
@@ -389,7 +389,7 @@ CLOTHING = [
         "brand": "Saltmarsh",
         "department": ["footwear"],
         "collections": ["summer"],
-        "category_path": ["Women", "Shoes", "Sandals"],
+        "category_path": ["Womens", "Shoes", "Sandals"],
         "price": 24.00,
         **sizes(SHOES, "3", "8"),
         "attributes": clothing_attrs("Tan", "Plain", "Wide Fit", "Womens", "Leather Upper"),
@@ -400,7 +400,7 @@ CLOTHING = [
         "brand": "Bramblewood",
         "department": ["lingerie"],
         "collections": [],
-        "category_path": ["Women", "Lingerie", "Bras"],
+        "category_path": ["Womens", "Lingerie", "Bras"],
         "price": 18.00,
         **sizes(
             BRA, "32A", "36E", only={f"{b}{c}" for b in (32, 34, 36) for c in ("B", "C", "D", "DD")}
@@ -512,7 +512,9 @@ FOOD = [
         "brand": "Goldfield Farms",
         "department": ["food"],
         "collections": ["summer"],
-        "category_path": ["Food & Drink", "Fresh Produce", "Fruit", "Berries"],
+        "category_path": [
+            "Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Berries", "Strawberries"
+        ],
         "price": 2.50,
         "attributes": food_attrs(400, "GRM", "Chilled", ["Vegan", "Gluten Free"], [], "Strawberry"),
         "drawing": drawing("punnet", "solid", "#2f6b3c", label="Strawberries"),
@@ -562,7 +564,9 @@ FOOD = [
         "brand": "Goldfield Farms",
         "department": ["food"],
         "collections": ["christmas"],
-        "category_path": ["Food & Drink", "Fresh Produce", "Fruit", "Citrus"],
+        "category_path": [
+            "Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Citrus Fruit", "Clementines"
+        ],
         "price": 1.80,
         "attributes": food_attrs(
             CLEMENTINE_GRAMS, "GRM", "Fresh", ["Vegan", "Gluten Free"], [], "Sweet Citrus"

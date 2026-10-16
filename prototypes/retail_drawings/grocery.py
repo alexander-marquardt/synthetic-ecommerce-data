@@ -53,14 +53,23 @@ if str(HERE) not in sys.path:
 import kit_grocery  # noqa: E402,F401 -- registers bar and bag
 from departments import check as check_departments  # noqa: E402
 from export import NUMERIC_FACTS, standard_document  # noqa: E402
-from grocery_ingredients import facet_value, ingredients, shared  # noqa: E402
+from grocery_ingredients import (  # noqa: E402
+    allergen_value,
+    base_value,
+    facet_value,
+    ingredients,
+    shared,
+    unmapped,
+)
 from grocery_rows import (  # noqa: E402
     ALLERGENS,
     ANCHORS,
     CUT_NOTES,
+    DECOY_ANCHORS,
     FAMILIES,
     LINES,
     OWNERS,
+    PACKS_PER_STYLE,
     F,
     Family,
 )
@@ -96,17 +105,20 @@ FRUIT = {"Unwaxed Lemons": "lemon", "Lemons": "lemon", "Meyer Lemons": "lemon",
          "Large Raspberries": "raspberry", "Plump Blueberries": "blueberry",
          "Sweet Blueberries": "blueberry", "Large Blueberries": "blueberry",
          "Juicy Blackberries": "blackberry", "Sweet Blackberries": "blackberry",
-         "Large Blackberries": "blackberry"}  # fmt: skip
+         "Large Blackberries": "blackberry",
+         "Red Seedless Grapes": "grape", "Green Seedless Grapes": "grape",
+         "Black Seedless Grapes": "grape", "Sweet Red Grapes": "grape",
+         "Crisp Green Grapes": "grape", "Midnight Black Grapes": "grape"}  # fmt: skip
 #: A pack word -> how a fruit pile shows it.
-PILE_PACK = {"Single": "loose", "4 pack": "net", "1kg": "bag",
-             "150g": "bag", "250g": "bag", "300g": "bag", "400g": "bag", "800g": "bag"}  # fmt: skip
+PILE_PACK = {"Single": "loose", "4 pack": "net", "1kg": "bag", "150g": "bag", "250g": "bag",
+             "300g": "bag", "400g": "bag", "500g": "bag", "800g": "bag"}  # fmt: skip
 
 #: Product entries that are a union over the flavors, so a flat SKU must not inherit them.
 UNIONED = frozenset({"contains", "may_contain"})
 #: Entries that are an allergen warning or a pack claim: facets, but never search text.
 WARNINGS = frozenset({"contains", "may_contain", "dietary"})
-#: A flavor whose pack label differs from its family's: the honey jar reads Honey, not Jam.
-LABELS = {("JAM", "Clear Honey"): "Honey", ("JAM", "Set Honey"): "Honey"}
+#: A flavor whose pack label differs from its family's: the honey jar reads Honey, not Clear Honey.
+LABELS = {("HON", "Clear Honey"): "Honey", ("HON", "Set Honey"): "Honey"}
 #: A flavor whose pack is not its family's: butter is a foil-wrapped block, a spread a tub.
 SHAPES = {
     ("BUT", "Salted Butter"): "butter_block",
@@ -141,6 +153,16 @@ def parse_pack(label: str) -> dict[str, Any]:
     if label in ("Single", "10 inch", "12 inch"):
         return {"pack_size": label, "units_per_pack": 1}
     raise ValueError(f"unknown pack {label!r}")
+
+
+def stocked(fam: Family, packs: list[str], index: int) -> list[str]:
+    """The packs style number ``index`` of ``fam`` sells: all of them, or the window of
+    :data:`PACKS_PER_STYLE` packs that starts at ``index`` and wraps (kept in the family's
+    order), so the family's styles together span every pack (gen#347)."""
+    n = PACKS_PER_STYLE.get(fam.code, len(packs))
+    if n >= len(packs):
+        return packs
+    return [packs[i] for i in sorted((index + k) % len(packs) for k in range(n))]
 
 
 def _size(pack: dict[str, Any], item_g: float = 0.0) -> float:
@@ -182,6 +204,8 @@ def dietary(flavor: F, facts: dict[str, list[str]], organic: bool) -> list[str]:
         out.append("Vegetarian")
     if "Gluten" not in traced:
         out.append("Gluten Free")
+    if "Milk" not in traced:
+        out.append("Dairy Free")
     if not {"Peanuts", "Tree Nuts"} & traced:
         out.append("Nut Free")
     if organic:
@@ -344,6 +368,7 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
     def add(fam: Family, line: str, brand: str, flavors: list[F], packs: list[str], may: str,
             organic: bool) -> bool:  # fmt: skip
         grade = rng.choice(fam.grades) if fam.grades else ""
+        packs = stocked(fam, packs, held[fam.code + "#"])
         rec = style(fam, f"GRC-{fam.code}-{held[fam.code + '#'] + 1:04d}", line, brand, flavors,
                     packs, may, organic, grade)  # fmt: skip
         # A depth family's twin is the same title bar the strength suffix: one drawing, two ids.
@@ -362,6 +387,16 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
         packs = list(fam.packs)
         add(fam, LINES[n % len(LINES)], fam.brands[n % len(fam.brands)], flavors, packs, may, False)
 
+    # The text-match decoys (gen#294) draw from a stream of their own, so no other draw moves.
+    core_rng, rng = rng, random.Random(f"grocery-decoys:{seed}")
+    for code, names, may, offset in DECOY_ANCHORS:
+        if code not in fams:  # a build without this (depth) family plants no decoy for it
+            continue
+        fam = fams[code]
+        flavors = [next(f for f in fam.flavors if f.name == name) for name in names]
+        add(fam, LINES[offset % len(LINES)], fam.brands[offset % len(fam.brands)],
+            flavors, list(fam.packs), may, False)
+    rng = core_rng
     depth_rng = random.Random(f"grocery-depth:{seed}")
     for fam in sorted(FAMILIES, key=lambda f: f.depth):
         misses = 0
@@ -399,7 +434,9 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
     The four food facts are facets, because only a facet can be a hard filter:
     ``facets.ingredients`` (the SKU's label list as ``facet_value`` forms; the
-    top-level ``ingredients`` keeps the label text), ``facets.contains``,
+    top-level ``ingredients`` keeps the label text), ``facets.ingredient_base`` (the
+    base ingredient of each of those, from the committed table
+    ``grocery_ingredients.BASE``, gen#295), ``facets.contains``,
     ``facets.may_contain`` and ``facets.dietary``, each a keyword list.
     ``contains``, ``may_contain`` and ``dietary`` are warnings and claims, not description
     (:data:`WARNINGS`): they stay out of ``text``, so a "peanut"
@@ -422,6 +459,12 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
                     row["facets"]["ingredients"] = list(
                         dict.fromkeys(facet_value(i) for i in row["ingredients"])
                     )
+                    row["facets"]["ingredient_base"] = list(
+                        dict.fromkeys(base_value(v) for v in row["facets"]["ingredients"])
+                    )
+                for key in UNIONED:
+                    if key in row["facets"]:
+                        row["facets"][key] = [allergen_value(v) for v in row["facets"][key]]
                 out.append(row)
     return out
 
@@ -444,6 +487,27 @@ def report(recs: list[dict]) -> dict[str, Any]:
     }
 
 
+def coverage_report(recs: list[dict]) -> dict[str, Any]:
+    """The share of the food rows (one per SKU) with ``facets.contains`` filled (gen#296)."""
+    rows = [r for r in flat(documents(recs)) if r["category_path"][0] == "Food & Drink"]
+    filled = sum(bool(r["facets"].get("contains")) for r in rows)
+    return {"food_rows": len(rows), "contains_filled": filled,
+            "contains_share": round(filled / len(rows), 4) if rows else 0.0}
+
+
+def ingredient_report(recs: list[dict]) -> dict[str, Any]:
+    """The distinct label values and base ingredients of ``recs`` (gen#295), and the label
+    values the base table has no row for: the build prints them, it never guesses a base."""
+    rows = flat(documents(recs))
+    labels = {v for r in rows for v in r["facets"].get("ingredients", ())}
+    bases = {v for r in rows for v in r["facets"].get("ingredient_base", ())}
+    return {
+        "ingredients_distinct": len(labels),
+        "ingredient_base_distinct": len(bases),
+        "ingredients_unmapped": unmapped(labels),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--skus", type=int, default=TARGET)
@@ -453,7 +517,8 @@ def main(argv: list[str] | None = None) -> int:
     recs = build(args.skus, args.seed)
     docs = documents(recs)
     problems = standard.check_catalog(docs)
-    print(json.dumps({**report(recs), "standard_problems": len(problems)}, indent=1))
+    print(json.dumps({**report(recs), **ingredient_report(recs),
+                      **coverage_report(recs), "standard_problems": len(problems)}, indent=1))
     if args.out:
         args.out.mkdir(parents=True, exist_ok=True)
         write_jsonl(iter(docs), args.out / "nested.jsonl")

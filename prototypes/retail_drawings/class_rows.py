@@ -91,7 +91,7 @@ MATTRESS = (
 # bestseller boost
 # --------------------------------------------------------------------------
 
-WJEANS = ("Women", "Jeans")
+WJEANS = ("Womens", "Jeans")
 BALLOON = (
     Style("BLNLEG", "Balloon Leg Jeans", "Ferrowick Denim", "Clothing",
           (*WJEANS, "Balloon Jeans"), 45.0,
@@ -136,7 +136,7 @@ BARREL = (
            leg_style="barrel", pattern="plain", lengths=("Regular",),
            params=(("fit", "barrel"), ("rise", "mid"))), _EXACT),
     (Style("BRLTRS", "Barrel Leg Trousers", "Larkmoor", "Clothing",
-           ("Women", "Trousers", "Barrel Trousers"), 32.0,
+           ("Womens", "Trousers", "Barrel Trousers"), 32.0,
            "Twill barrel trousers that wear like jeans, with a pressed crease.",
            "Trousers", "trousers", one(cw("Khaki", OLIVE), 480),
            leg_style="barrel", pattern="plain", lengths=LEGS3,
@@ -147,7 +147,7 @@ BARREL = (
 # 4. "womens boat neck top": the word "neck" matched as a keyword
 # --------------------------------------------------------------------------
 
-TOPS = ("Women", "Tops")
+TOPS = ("Womens", "Tops")
 BOAT = (
     Style("BNTSTR", "Striped Boat Neck Top", "Harbour & Pine", "Clothing",
           (*TOPS, "Long Sleeve Tops"), 24.0,
@@ -202,7 +202,7 @@ NECK = (
            neckline="square", pattern="plain", size_range="regular",
            params=(("neckline", "square"), ("sleeve", "sleeveless"))), "type = Top"),
     (Style("NTSETS", "Womens Tie Neck Top and Trousers Set", "Wrenfield", "Clothing",
-           ("Women", "Co-ords", "Sets"), 48.0,
+           ("Womens", "Co-ords", "Sets"), 48.0,
            "A womens co-ord: a tie neck top and matching wide trousers.",
            "Co-ord Set", "outfit_set", one(cw("Sage", "#9bb08f"), 430),
            pattern="plain", size_range="regular", params=(("tee", "#9bb08f"),)), "type = Top"),
@@ -213,7 +213,7 @@ NECK = (
 # audience not defaulted
 # --------------------------------------------------------------------------
 
-COATS = ("Women", "Coats & Jackets")
+COATS = ("Womens", "Coats & Jackets")
 CHECK = (
     Style("CKBCON", "Check Bomber Jacket with Contrast Collar", "Calderby & Lune", "Clothing",
           (*COATS, "Bomber Jackets"), 69.0,
@@ -272,12 +272,12 @@ BOMBER = (
 
 PETITE = (
     Style("PETDRS", "Petite Wrap Midi Dress", "Larkmoor", "Clothing",
-          ("Women", "Dresses", "Wrap Dresses"), 28.0,
+          ("Womens", "Dresses", "Wrap Dresses"), 28.0,
           "A wrap midi dress cut shorter in the body and hem for petite frames.",
           "Dress", "dress", one(cw("Navy Print", NAVY, "polka", WHITE), 4), was_price=40.0,
           size_range="petite", pattern="print"),
     Style("PETTRS", "Petite Wide Leg Trousers", "Wrenfield", "Clothing",
-          ("Women", "Trousers", "Wide Leg Trousers"), 22.0,
+          ("Womens", "Trousers", "Wide Leg Trousers"), 22.0,
           "Wide leg trousers with a shorter inside leg for petite heights.",
           "Trousers", "trousers", one(cw("Black", BLACK), 3), was_price=32.0,
           lengths=("Extra Short", "Short/Petite"), pattern="plain", leg_style="wide",
@@ -293,7 +293,7 @@ PETITE = (
 _SALE = "size range petite and on sale, as filters"
 BESTSELLERS = (
     (Style("TAPTRS", "Tapered Trousers", "Wrenfield", "Clothing",
-           ("Women", "Trousers", "Tapered Trousers"), 30.0,
+           ("Womens", "Trousers", "Tapered Trousers"), 30.0,
            "Our bestselling tapered trousers. Also cut in petite and tall.",
            "Trousers", "trousers", one(cw("Navy", NAVY), 960),
            lengths=LEGS3, pattern="plain", leg_style="tapered",
@@ -305,7 +305,7 @@ BESTSELLERS = (
            lengths=LEGS3, pattern="plain", leg_style="straight",
            params=(("fit", "straight"), ("rise", "high"))), _SALE),
     (Style("WIDTRS", "Wide Leg Trousers", "Larkmoor", "Clothing",
-           ("Women", "Trousers", "Wide Leg Trousers"), 34.0,
+           ("Womens", "Trousers", "Wide Leg Trousers"), 34.0,
            "Fluid wide leg trousers with a pressed crease. Also cut in petite.",
            "Trousers", "trousers", one(cw("Black", BLACK), 800),
            lengths=("Short/Petite", "Regular"), pattern="plain", leg_style="wide",
@@ -323,7 +323,7 @@ BESTSELLERS = (
 # 7. "womens sale dresses": "sale" ignored, so the full-price bestsellers win
 # --------------------------------------------------------------------------
 
-DRESSES = ("Women", "Dresses")
+DRESSES = ("Womens", "Dresses")
 SALE_DRESSES = (
     Style("SDWRAP", "Womens Wrap Dress", "Larkmoor", "Clothing",
           (*DRESSES, "Wrap Dresses"), 27.0,
@@ -378,7 +378,7 @@ FULL_PRICE = (
 # bestselling 7 pack and a single pair win
 # --------------------------------------------------------------------------
 
-SOCKS = ("Men", "Socks")
+SOCKS = ("Mens", "Socks")
 FIVE_PACKS = (
     Style("SK5PKC", "Cotton Rich Ankle Socks 5pk", "Harbour & Pine", "Clothing",
           (*SOCKS, "Ankle Socks"), 10.0, "Cushioned ankle socks in soft cotton rich yarn.",
@@ -437,7 +437,8 @@ BEAUTY = (
           "A light, buildable foundation with a natural finish.",
           "Foundation", "bottle",
           ((cw("Porcelain", "#f1dcc8"), 1), (cw("Caramel", "#c48a5c"), 2),
-           (cw("Toffee", "#9a6440"), 1), (cw("Espresso", "#5a3a28"), 1)), unit=(30.0, "ml")),
+           (cw("Toffee", "#9a6440"), 1), (cw("Espresso", "#5a3a28"), 1)),
+          volumes=((15.0, 20.0), (30.0, 32.0), (50.0, 46.0))),
 )  # fmt: skip
 
 
@@ -466,7 +467,8 @@ BEERS = (
           "Beer", "tin", pack("#d9a441", 25), unit=(330.0, "ml"), abv=2.8, colorless=True),
     Style("BRWHET", "5.5% Hazy Wheat Beer", "Lanternby", FOOD, (*BEER_NODE, "Wheat Beer"), 2.8,
           "An unfiltered wheat beer with notes of banana and clove.",
-          "Beer", "bottle", pack("#e8b04a", 20), unit=(500.0, "ml"), abv=5.5, colorless=True),
+          "Beer", "bottle", pack("#e8b04a", 20),
+          volumes=((500.0, 2.8), (330.0, 2.1), (750.0, 3.9)), abv=5.5, colorless=True),
 )  # fmt: skip
 
 _ROUTE_BEER = "route: Beer node boosted; a soft drink or a battered food is outside it"
@@ -474,15 +476,17 @@ NOT_BEER = (
     (Style("GNGBER", "Fiery Ginger Beer", "Pantry Mill", FOOD,
            (*DRINKS, "Soft Drinks", "Mixers"), 1.1,
            "An alcohol-free ginger beer brewed with root ginger and a little chilli.",
-           "Ginger Beer", "bottle", pack("#c98b2b", 640), unit=(330.0, "ml"), trending=True,
+           "Ginger Beer", "bottle", pack("#c98b2b", 640),
+           volumes=((330.0, 1.1), (200.0, 0.8), (1000.0, 2.2)), trending=True,
            colorless=True), _ROUTE_BEER),
     (Style("RTBEER", "Cloudy Root Beer", "Pantry Mill", FOOD,
            (*DRINKS, "Soft Drinks", "Fizzy Drinks"), 1.0,
            "An old fashioned root beer with vanilla and sarsaparilla.",
-           "Root Beer", "tin", pack("#5a3020", 420), unit=(330.0, "ml"), colorless=True),
+           "Root Beer", "tin", pack("#5a3020", 420),
+           volumes=((330.0, 1.0), (500.0, 1.4), (1500.0, 2.6)), colorless=True),
      _ROUTE_BEER),
     (Style("BBHADD", "Beer Battered Haddock Fillets", "Saltmarsh", FOOD,
-           ("Food & Drink", "Fish & Seafood", "Battered Fish"), 4.5,
+           ("Food & Drink", "Frozen", "Battered Fish"), 4.5,
            "Two haddock fillets in a crisp beer batter. Oven bake from frozen.",
            "Battered Fish", "box", pack("#d8a548", 600), unit=(280.0, "g"), colorless=True),
      _ROUTE_BEER),
@@ -503,7 +507,7 @@ NOT_BEER = (
 # and a color in clothing and flowers; one true hit has no "orange" in it
 # --------------------------------------------------------------------------
 
-CITRUS = ("Food & Drink", "Fresh Produce", "Fruit", "Citrus")
+CITRUS = ("Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Citrus Fruit")
 ORANGES = (
     Style("ORBLOD", "Blood Oranges", "Goldfield Farms", FOOD, (*CITRUS, "Oranges"), 2.0,
           "Ruby fleshed blood oranges, sweet with a berry note. A short season.",
@@ -533,7 +537,7 @@ NOT_ORANGES = (
            "Cookies", "box", pack("#6b3a20", 560), unit=(200.0, "g"), colorless=True),
      _ROUTE_ORANGE),
     (Style("HCORNG", "Orange Hot Chocolate", "Pantry Mill", FOOD,
-           (*DRINKS, "Hot Drinks", "Hot Chocolate"), 3.5,
+           (*DRINKS, "Hot Chocolate"), 3.5,
            "A rich hot chocolate flavoured with orange.",
            "Hot Chocolate", "tub", pack("#5a3020", 480), unit=(250.0, "g"),
            colorless=True), _ROUTE_ORANGE),
@@ -543,7 +547,7 @@ NOT_ORANGES = (
            "Christmas Pudding", "pudding", pack("#5a2a1a", 450), unit=(800.0, "g"),
            colorless=True), _ROUTE_ORANGE),
     (Style("JMPCBL", "Chunky Cable Knit Jumper", "Harbour & Pine", "Clothing",
-           ("Women", "Knitwear", "Jumpers"), 45.0,
+           ("Womens", "Knitwear", "Jumpers"), 45.0,
            "A chunky cable knit jumper in a burnt orange wool blend.",
            "Jumper", "top", one(cw("Burnt Orange", "#c4622d"), 690), pattern="plain",
            params=(("neckline", "crew"), ("sleeve", "long"), ("kind", "jumper"))), _ROUTE_ORANGE),
@@ -564,7 +568,8 @@ FACE_CREAMS = (
     Style("FCDAYC", "Daily Hydrating Face Cream", "Velling Apothecary", "Beauty",
           (*CREAMS, "Face Creams"), 18.0,
           "A light daily face cream that hydrates without shine.",
-          "Face Cream", "moisturiser_jar", pack("#f4efe6", 5), unit=(50.0, "ml"), colorless=True),
+          "Face Cream", "moisturiser_jar", pack("#f4efe6", 5),
+          volumes=((50.0, 18.0), (30.0, 12.0), (100.0, 28.0)), colorless=True),
     Style("FCNGHT", "Rich Night Cream", "Velling Apothecary", "Beauty",
           (*CREAMS, "Face Creams"), 22.0,
           "A rich overnight face cream for dry skin.",
@@ -582,7 +587,7 @@ NOT_FACE_CREAM = (
            ("Home", "Furniture", "Sofas", "Corner Sofas"), 2795.0,
            "A deep corner sofa in a soft boucle weave. Shown in cream.",
            # Popularity is summed per style: 680 keeps it out of the bestseller top 15.
-           "Sofa", "sofa", ((cw("Cream", "#efe6d2"), 420), (cw("Sage", "#9bb08f"), 260))),
+           "Corner Sofa", "sofa", ((cw("Cream", "#efe6d2"), 420), (cw("Sage", "#9bb08f"), 260))),
      _DEPT),
     (Style("PWDLSE", "Loose Face Powder", "Kestlewood Cosmetics", "Beauty",
            ("Beauty", "Make-Up", "Face", "Face Powder"), 24.0,
@@ -592,22 +597,25 @@ NOT_FACE_CREAM = (
     (Style("TNTGEL", "Tinted Face Gel", "Kestlewood Cosmetics", "Beauty",
            ("Beauty", "Make-Up", "Face", "Skin Tints"), 21.0,
            "A sheer tinted gel that wears like a light cream.",
-           "Skin Tint", "bottle", pack("#d9b08c", 560), unit=(30.0, "ml"),
-           colorless=True), _ROUTE_FACE),
+           "Skin Tint", "bottle", pack("#d9b08c", 560),
+           volumes=((30.0, 21.0), (15.0, 14.0), (50.0, 30.0)), colorless=True), _ROUTE_FACE),
     (Style("FCEOIL", "Nourishing Face Oil", "Velling Apothecary", "Beauty",
            (*SKINCARE, "Face Oils"), 26.0,
            "A lightweight face oil to wear under your cream.",
-           "Face Oil", "bottle", pack("#e3b448", 500), unit=(30.0, "ml"), trending=True,
+           "Face Oil", "bottle", pack("#e3b448", 500),
+           volumes=((30.0, 26.0), (15.0, 17.0), (50.0, 38.0)), trending=True,
            colorless=True), _ROUTE_FACE),
     (Style("SPFFCE", "SPF 50 Face Sun Cream", "Velling Apothecary", "Beauty",
            ("Beauty", "Suncare", "Face Sun Cream"), 15.0,
            "A high protection sun cream for the face, with no white cast.",
-           "Sun Cream", "bottle", pack("#f6f1e4", 470), unit=(50.0, "ml"), colorless=True),
+           "Sun Cream", "bottle", pack("#f6f1e4", 470),
+           volumes=((50.0, 15.0), (100.0, 22.0), (200.0, 34.0)), colorless=True),
      _ROUTE_FACE),
     (Style("VLCOIL", "Velvetmere Cream Body Oil Spray", "Kestlewood Cosmetics", "Beauty",
            ("Beauty", "Bath & Body", "Body Oils"), 30.0,
            "An all over dry oil spray from our Velvetmere Cream line.",
-           "Body Oil", "fragrance", pack("#f3e3c3", 540), unit=(100.0, "ml"),
+           "Body Oil", "fragrance", pack("#f3e3c3", 540),
+           volumes=((100.0, 30.0), (50.0, 19.0), (200.0, 48.0)),
            product_line="Velvetmere Cream", colorless=True), _ROUTE_FACE),
     (Style("DCSATN", "400 Thread Count Sateen Duvet Cover", "Quillon Sleep", "Home",
            (*BED, "Duvet Covers"), 45.0,
@@ -615,7 +623,7 @@ NOT_FACE_CREAM = (
            "Duvet Cover", "duvet", ((cw("White", WHITE), 300), (cw("Cream", "#efe6d2"), 260)),
            bed_sized=True, extra=(("thread_count", "Thread Count", "400"),)), _DEPT),
     (Style("CRDRIB", "Ribbed Cardigan", "Larkmoor", "Clothing",
-           ("Women", "Knitwear", "Cardigans"), 32.0,
+           ("Womens", "Knitwear", "Cardigans"), 32.0,
            "A soft ribbed cardigan in cream or oat, with horn effect buttons.",
            "Cardigan", "cardigan",
            ((cw("Cream", "#efe6d2"), 420), (cw("Oat", "#d8cbb2"), 200)), pattern="plain",
@@ -681,7 +689,7 @@ NOT_SINGLE = (
 # --------------------------------------------------------------------------
 
 ROSE_GOLD = "Rose Gold"
-JEWELLERY = ("Women", "Jewellery", "Earrings")
+JEWELLERY = ("Womens", "Jewellery", "Earrings")
 BOUQUETS = ("Garden", "Flowers", "Bouquets")
 ROSE_GOLDS = (
     Style("RGSTUD", "Cubic Zirconia Stud Earrings", "Wrenfield", "Clothing", JEWELLERY, 18.0,
@@ -689,7 +697,7 @@ ROSE_GOLDS = (
           "Earrings", "earrings", one(cw(ROSE_GOLD, "#d8a28f"), 40), metal=True,
           params=(("kind", "stud"),)),
     Style("RGMESH", "Slim Mesh Strap Watch", "Calderby & Lune", "Clothing",
-          ("Women", "Watches", "Bracelet Watches"), 69.0,
+          ("Womens", "Watches", "Bracelet Watches"), 69.0,
           "A slim watch with a fine mesh strap and a rose gold tone case.",
           "Watch", "watch", one(cw(ROSE_GOLD, "#d8a28f"), 30), metal=True,
           params=(("strap", "mesh"),)),
@@ -733,7 +741,7 @@ NOT_ROSE_GOLD = (
            extra=(("stone", "Stone", "rose quartz"),)), _COLOR),
     # The other finishes of a metal good: the color filter keeps them out.
     (Style("LKWTCH", "Link Bracelet Watch", "Larkmoor", "Clothing",
-           ("Women", "Watches", "Bracelet Watches"), 79.0,
+           ("Womens", "Watches", "Bracelet Watches"), 79.0,
            "A link bracelet watch with a sunray dial, in yellow gold, white gold or silver tone.",
            "Watch", "watch",
            ((cw("Yellow Gold", "#d4af37"), 90), (cw("White Gold", "#e5e4e2"), 60),
@@ -748,7 +756,7 @@ NOT_ROSE_GOLD = (
 # --------------------------------------------------------------------------
 
 DRINKWARE = ("Home", "Kitchen & Dining", "Drinkware")
-BRAS = ("Women", "Lingerie", "Bras")
+BRAS = ("Womens", "Lingerie", "Bras")
 LINGERIE = "Lingerie & Nightwear"
 
 
@@ -835,24 +843,24 @@ def _is_bra(d: dict) -> bool:
 
 OFFERS = (
     Style("OFRTEE", "Active Training Tee", "Stridewell", "Clothing",
-          ("Women", "Sportswear", "Sports Tees"), 15.0,
+          ("Womens", "Sportswear", "Sports Tees"), 15.0,
           "A quick drying training tee with mesh panels.",
           "T-Shirt", "tshirt", one(cw("Black", BLACK), 210), was_price=25.0,
           size_range="regular", pattern="plain", online_only=True,
           sub_collection="The Active Edit"),
     Style("OFRBLS", "Pleated Crepe Blouse", "Calderby & Lune", "Clothing",
-          ("Women", "Shirts & Blouses", "Blouses"), 41.0,
+          ("Womens", "Shirts & Blouses", "Blouses"), 41.0,
           "A fluid crepe blouse with a pleated yoke.",
           "Blouse", "blouse", one(cw("Ecru", ECRU), 160), was_price=59.0,
           size_range="regular", pattern="plain", online_only=True,
           sub_collection="The Weekend Edit"),
     Style("OFRBRA", "Seamless Smoothing Bra", "Thistle & Wren", "Lingerie & Nightwear",
-          ("Women", "Lingerie", "Bras", "T-Shirt Bras"), 15.0,
+          ("Womens", "Lingerie", "Bras", "T-Shirt Bras"), 15.0,
           "A seamless non wired bra with smooth moulded cups.",
           "Bra", "bra", one(cw("Black", BLACK), 140), was_price=22.0, pattern="plain",
           online_only=True),
     Style("OFRPJS", "Cotton Pyjama Shorts", "Thistle & Wren", "Lingerie & Nightwear",
-          ("Women", "Nightwear", "Pyjama Bottoms"), 12.0,
+          ("Womens", "Nightwear", "Pyjama Bottoms"), 12.0,
           "Soft cotton jersey pyjama shorts with a drawstring waist.",
           "Pyjama Shorts", "shorts", one(cw("Pink", "#f3c6cf"), 120), was_price=18.0,
           pattern="plain", online_only=True),
@@ -860,7 +868,7 @@ OFFERS = (
 
 #: Not a query row: the food sense of a word that is also a lipstick shade.
 HONEY = Style("HONBLS", "Clear Blossom Honey", "Copper Hill Preserves", FOOD,
-              ("Food & Drink", "Food Cupboard", "Honey & Spreads", "Honey"), 4.0,
+              ("Food & Drink", "Food Cupboard", "Honey"), 4.0,
               "A clear, mild blossom honey for tea and toast.",
               "Honey", "jar", pack("#e0a030", 120), unit=(340.0, "g"),
               colorless=True)  # fmt: skip
@@ -869,7 +877,7 @@ HONEY = Style("HONBLS", "Clear Blossom Honey", "Copper Hill Preserves", FOOD,
 #: 11 SKUs (navy and white in S-XL, heather grey in S-L). The color query of
 #: :mod:`es_proof` ("navy tee") measures a nested color filter on it.
 CREW_TEE = Style("CRWTEE", "Mens Crew Neck Cotton Tee", "Harbour & Pine", "Clothing",
-                 ("Men", "Tops", "T-Shirts"), 14.0,
+                 ("Mens", "Tops", "T-Shirts"), 14.0,
                  "A regular fit tee in soft combed cotton jersey, with a ribbed collar.",
                  "T-Shirt", "top",
                  ((cw("Navy", NAVY), 12), (cw("White", WHITE), 9),

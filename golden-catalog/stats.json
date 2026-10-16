@@ -1,6 +1,6 @@
 {
- "lines": 6336,
- "skus": 11577,
+ "lines": 6502,
+ "skus": 11800,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "ball_stock_precision": 1,
@@ -34,7 +34,13 @@
   "flange_nuts": 1,
   "flat_gaskets": 1,
   "foam_ear_plugs": 1,
-  "hammer_ball_pein": 98,
+  "hammer_ball_pein": 92,
+  "hammer_claw": 30,
+  "hammer_club": 25,
+  "hammer_dead_blow": 31,
+  "hammer_framing": 28,
+  "hammer_rubber_mallet": 29,
+  "hammer_sledge": 28,
   "hand_files": 1,
   "hex_bit_sockets": 1,
   "hex_key": 630,
@@ -56,9 +62,9 @@
   "roller_chain_sprockets": 54,
   "safety_glasses": 1,
   "screw_button_head": 130,
-  "screw_flat_head": 180,
-  "screw_low_head": 104,
-  "screw_socket_head": 309,
+  "screw_flat_head": 181,
+  "screw_low_head": 103,
+  "screw_socket_head": 310,
   "set_screws_hex_socket": 260,
   "shackles": 74,
   "shaft_collars": 1,
@@ -87,7 +93,7 @@
   "bearing_radial_ball": 1182,
   "bench_vises": 1,
   "blind_rivets": 2,
-  "bolt_hex": 487,
+  "bolt_hex": 450,
   "bronze_sleeve_bushings": 2,
   "c_clamps": 2,
   "cap_nuts_acorn": 1,
@@ -109,7 +115,13 @@
   "flange_nuts": 1,
   "flat_gaskets": 1,
   "foam_ear_plugs": 1,
-  "hammer_ball_pein": 184,
+  "hammer_ball_pein": 162,
+  "hammer_claw": 42,
+  "hammer_club": 38,
+  "hammer_dead_blow": 44,
+  "hammer_framing": 50,
+  "hammer_rubber_mallet": 41,
+  "hammer_sledge": 47,
   "hand_files": 2,
   "hex_bit_sockets": 2,
   "hex_key": 1120,
@@ -130,10 +142,10 @@
   "roller_chain_links": 94,
   "roller_chain_sprockets": 102,
   "safety_glasses": 1,
-  "screw_button_head": 251,
-  "screw_flat_head": 337,
-  "screw_low_head": 190,
-  "screw_socket_head": 579,
+  "screw_button_head": 263,
+  "screw_flat_head": 327,
+  "screw_low_head": 189,
+  "screw_socket_head": 598,
   "set_screws_hex_socket": 485,
   "shackles": 132,
   "shaft_collars": 2,
@@ -240,14 +252,14 @@
   },
   "bolt_hex": {
    "products": 235,
-   "median": 2,
+   "median": 1,
    "max": 5,
    "histogram": {
-    "1": 100,
-    "2": 67,
-    "3": 30,
-    "4": 27,
-    "5": 11
+    "1": 121,
+    "2": 48,
+    "3": 40,
+    "4": 17,
+    "5": 9
    }
   },
   "bronze_sleeve_bushings": {
@@ -438,15 +450,79 @@
    }
   },
   "hammer_ball_pein": {
-   "products": 98,
-   "median": 2.0,
+   "products": 92,
+   "median": 1.0,
    "max": 5,
    "histogram": {
-    "1": 47,
-    "2": 31,
-    "3": 10,
+    "1": 55,
+    "2": 17,
+    "3": 11,
     "4": 5,
-    "5": 5
+    "5": 4
+   }
+  },
+  "hammer_claw": {
+   "products": 30,
+   "median": 1.0,
+   "max": 4,
+   "histogram": {
+    "1": 22,
+    "2": 5,
+    "3": 2,
+    "4": 1
+   }
+  },
+  "hammer_club": {
+   "products": 25,
+   "median": 1,
+   "max": 4,
+   "histogram": {
+    "1": 17,
+    "2": 4,
+    "3": 3,
+    "4": 1
+   }
+  },
+  "hammer_dead_blow": {
+   "products": 31,
+   "median": 1,
+   "max": 3,
+   "histogram": {
+    "1": 20,
+    "2": 9,
+    "3": 2
+   }
+  },
+  "hammer_framing": {
+   "products": 28,
+   "median": 1.0,
+   "max": 4,
+   "histogram": {
+    "1": 16,
+    "2": 6,
+    "3": 2,
+    "4": 4
+   }
+  },
+  "hammer_rubber_mallet": {
+   "products": 29,
+   "median": 1,
+   "max": 4,
+   "histogram": {
+    "1": 21,
+    "2": 6,
+    "4": 2
+   }
+  },
+  "hammer_sledge": {
+   "products": 28,
+   "median": 1.0,
+   "max": 4,
+   "histogram": {
+    "1": 16,
+    "2": 6,
+    "3": 5,
+    "4": 1
    }
   },
   "hand_files": {
@@ -651,47 +727,47 @@
    "median": 2.0,
    "max": 5,
    "histogram": {
-    "1": 64,
-    "2": 32,
-    "3": 21,
-    "4": 5,
-    "5": 8
+    "1": 55,
+    "2": 35,
+    "3": 29,
+    "4": 4,
+    "5": 7
    }
   },
   "screw_flat_head": {
-   "products": 180,
-   "median": 1.0,
+   "products": 181,
+   "median": 1,
    "max": 5,
    "histogram": {
-    "1": 98,
-    "2": 33,
-    "3": 31,
+    "1": 100,
+    "2": 36,
+    "3": 30,
     "4": 10,
-    "5": 8
-   }
-  },
-  "screw_low_head": {
-   "products": 104,
-   "median": 1.0,
-   "max": 5,
-   "histogram": {
-    "1": 53,
-    "2": 30,
-    "3": 12,
-    "4": 4,
     "5": 5
    }
   },
-  "screw_socket_head": {
-   "products": 309,
-   "median": 2,
+  "screw_low_head": {
+   "products": 103,
+   "median": 1,
    "max": 5,
    "histogram": {
-    "1": 149,
+    "1": 55,
+    "2": 25,
+    "3": 12,
+    "4": 7,
+    "5": 4
+   }
+  },
+  "screw_socket_head": {
+   "products": 310,
+   "median": 2.0,
+   "max": 5,
+   "histogram": {
+    "1": 153,
     "2": 83,
-    "3": 53,
-    "4": 15,
-    "5": 9
+    "3": 34,
+    "4": 23,
+    "5": 17
    }
   },
   "set_screws_hex_socket": {
@@ -948,6 +1024,7 @@
    "Length under Head",
    "Material",
    "Measurement System",
+   "Package Quantity",
    "Standards",
    "System of Measurement",
    "Thread Direction",
@@ -1165,6 +1242,88 @@
    "Measurement System",
    "Overall Length",
    "Standards",
+   "System of Measurement"
+  ],
+  "hammer_claw": [
+   "Dimension Type",
+   "Face Dia.",
+   "Face Type",
+   "Handle Grip Material",
+   "Handle Length",
+   "Handle Material",
+   "Head Weight",
+   "Item",
+   "Material",
+   "Measurement System",
+   "Overall Length",
+   "System of Measurement"
+  ],
+  "hammer_club": [
+   "Dimension Type",
+   "Face Dia.",
+   "Face Type",
+   "Handle Grip Material",
+   "Handle Length",
+   "Handle Material",
+   "Head Weight",
+   "Item",
+   "Material",
+   "Overall Length",
+   "System of Measurement"
+  ],
+  "hammer_dead_blow": [
+   "Dimension Type",
+   "Face Dia.",
+   "Face Type",
+   "Handle Grip Material",
+   "Handle Length",
+   "Handle Material",
+   "Head Weight",
+   "Item",
+   "Material",
+   "Measurement System",
+   "Overall Length",
+   "System of Measurement"
+  ],
+  "hammer_framing": [
+   "Dimension Type",
+   "Face Dia.",
+   "Face Type",
+   "Handle Grip Material",
+   "Handle Length",
+   "Handle Material",
+   "Head Weight",
+   "Item",
+   "Material",
+   "Measurement System",
+   "Overall Length",
+   "System of Measurement"
+  ],
+  "hammer_rubber_mallet": [
+   "Dimension Type",
+   "Face Dia.",
+   "Face Type",
+   "Handle Grip Material",
+   "Handle Length",
+   "Handle Material",
+   "Head Weight",
+   "Item",
+   "Material",
+   "Measurement System",
+   "Overall Length"
+  ],
+  "hammer_sledge": [
+   "Dimension Type",
+   "Face Dia.",
+   "Face Type",
+   "Handle Grip Material",
+   "Handle Length",
+   "Handle Material",
+   "Head Weight",
+   "Item",
+   "Material",
+   "Measurement System",
+   "Overall Length",
    "System of Measurement"
   ],
   "hand_files": [
@@ -1402,6 +1561,7 @@
    "Material",
    "Measurement System",
    "Meets/Exceeds",
+   "Package Quantity",
    "Rockwell Hardness",
    "Standards",
    "System of Measurement",
@@ -1424,6 +1584,7 @@
    "Material",
    "Measurement System",
    "Meets/Exceeds",
+   "Package Quantity",
    "Rockwell Hardness",
    "Standards",
    "System of Measurement",
@@ -1447,6 +1608,7 @@
    "Material",
    "Measurement System",
    "Meets/Exceeds",
+   "Package Quantity",
    "Rockwell Hardness",
    "Standards",
    "System of Measurement",
@@ -1470,6 +1632,7 @@
    "Material",
    "Measurement System",
    "Meets/Exceeds",
+   "Package Quantity",
    "Rockwell Hardness",
    "Standards",
    "System of Measurement",
@@ -1643,7 +1806,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 140009,
+ "total_attribute_entries": 143388,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -1675,36 +1838,36 @@
   {
    "name": "declared system contradicts value units",
    "target": 0.0323,
-   "achieved": 0.0294545,
-   "numerator": 142,
-   "denominator": 4821,
+   "achieved": 0.0282555,
+   "numerator": 138,
+   "denominator": 4884,
    "note": "over records carrying both",
    "band": null
   },
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.0166159,
-   "numerator": 191,
-   "denominator": 11495,
+   "achieved": 0.0159624,
+   "numerator": 187,
+   "denominator": 11715,
    "note": "over records with a readable dimension",
    "band": null
   },
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.472946,
-   "numerator": 6302,
-   "denominator": 13325,
+   "achieved": 0.472365,
+   "numerator": 8384,
+   "denominator": 17749,
    "note": "over title dimension tokens",
    "band": null
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.108293,
-   "numerator": 1443,
-   "denominator": 13325,
+   "achieved": 0.126035,
+   "numerator": 2237,
+   "denominator": 17749,
    "note": "over title dimension tokens",
    "band": null
   },
@@ -1713,7 +1876,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 11577,
+   "denominator": 11800,
    "note": "over titles",
    "band": null
   },
@@ -1722,7 +1885,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 11577,
+   "denominator": 11800,
    "note": "deliberate: the corpus measures 0.1089",
    "band": null
   },
@@ -1731,23 +1894,23 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 11577,
+   "denominator": 11800,
    "note": "deliberate: the corpus measures 0.7353",
    "band": null
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 12.0937,
-   "numerator": 140009,
-   "denominator": 11577,
+   "achieved": 12.1515,
+   "numerator": 143388,
+   "denominator": 11800,
    "note": "count, not a rate",
    "band": null
   },
   {
    "name": "price p50 (USD): abrasive_flap_disc",
    "target": 8.68,
-   "achieved": 8.565,
+   "achieved": 8.585,
    "numerator": 232,
    "denominator": 135,
    "note": "shown price; denom is the census n",
@@ -1759,7 +1922,7 @@
   {
    "name": "price p90/p10: abrasive_flap_disc",
    "target": 3.51064,
-   "achieved": 3.46533,
+   "achieved": 3.47606,
    "numerator": 232,
    "denominator": 135,
    "note": "shown price; denom is the census n",
@@ -1771,8 +1934,8 @@
   {
    "name": "price larger size costs more: abrasive_flap_disc",
    "target": 0.949,
-   "achieved": 0.939668,
-   "numerator": 623,
+   "achieved": 0.93816,
+   "numerator": 622,
    "denominator": 663,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -1819,8 +1982,8 @@
   {
    "name": "price p50 (USD): bolt_hex",
    "target": 20.91,
-   "achieved": 18.96,
-   "numerator": 487,
+   "achieved": 18.04,
+   "numerator": 450,
    "denominator": 347,
    "note": "shown price; denom is the census n",
    "band": [
@@ -1831,8 +1994,8 @@
   {
    "name": "price p90/p10: bolt_hex",
    "target": 8.20548,
-   "achieved": 9.14884,
-   "numerator": 487,
+   "achieved": 7.61574,
+   "numerator": 450,
    "denominator": 347,
    "note": "shown price; denom is the census n",
    "band": [
@@ -1843,9 +2006,9 @@
   {
    "name": "price larger size costs more: bolt_hex",
    "target": 0.937,
-   "achieved": 0.933333,
-   "numerator": 28,
-   "denominator": 30,
+   "achieved": 0.875,
+   "numerator": 7,
+   "denominator": 8,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.857,
@@ -2011,7 +2174,7 @@
   {
    "name": "price p90/p10: kit_assortment",
    "target": 114.26,
-   "achieved": 4.01502,
+   "achieved": 4.03158,
    "numerator": 59,
    "denominator": 46,
    "note": "shown price; denom is the census n; PINNED SHORTFALL, below band: a kit is priced from its contents, and the catalog's kit kinds hold between about $36 and $130 of parts, so with material and tier its prices span 4.0x on the default build and 3.9x at 100K against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629. Group noise loud enough to make up the rest (about 2.2) spreads a kit's price about 79x on its own, so the price would follow the noise, not the contents, and a kit draws none (widen the kit range: #76)",
@@ -2108,7 +2271,7 @@
    "name": "price p50 (USD): screw_socket_head",
    "target": 21.535,
    "achieved": 21.0,
-   "numerator": 579,
+   "numerator": 598,
    "denominator": 308,
    "note": "shown price; denom is the census n",
    "band": [
@@ -2119,8 +2282,8 @@
   {
    "name": "price p90/p10: screw_socket_head",
    "target": 6.86643,
-   "achieved": 6.06154,
-   "numerator": 579,
+   "achieved": 6.13388,
+   "numerator": 598,
    "denominator": 308,
    "note": "shown price; denom is the census n",
    "band": [
@@ -2131,9 +2294,9 @@
   {
    "name": "price larger size costs more: screw_socket_head",
    "target": 0.575,
-   "achieved": 0.684932,
-   "numerator": 50,
-   "denominator": 73,
+   "achieved": 0.617021,
+   "numerator": 29,
+   "denominator": 47,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.340513,
@@ -2251,7 +2414,7 @@
   {
    "name": "price p50 (USD): wheel_depressed_center",
    "target": 9.51,
-   "achieved": 8.85,
+   "achieved": 9.34,
    "numerator": 1175,
    "denominator": 217,
    "note": "shown price; denom is the census n",
@@ -2263,7 +2426,7 @@
   {
    "name": "price p90/p10: wheel_depressed_center",
    "target": 9.99656,
-   "achieved": 10.8629,
+   "achieved": 10.6184,
    "numerator": 1175,
    "denominator": 217,
    "note": "shown price; denom is the census n",
@@ -2275,8 +2438,8 @@
   {
    "name": "price larger size costs more: wheel_depressed_center",
    "target": 0.808,
-   "achieved": 0.8079,
-   "numerator": 9715,
+   "achieved": 0.807318,
+   "numerator": 9708,
    "denominator": 12025,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -2311,9 +2474,9 @@
   {
    "name": "price longer costs more: bolt_hex",
    "target": 0.691,
-   "achieved": 0.653307,
-   "numerator": 326,
-   "denominator": 499,
+   "achieved": 0.635955,
+   "numerator": 283,
+   "denominator": 445,
    "note": "pairs of one brand and line cell, key dimension equal, length differs",
    "band": [
     0.611,
@@ -2323,9 +2486,9 @@
   {
    "name": "price longer costs more: screw_socket_head",
    "target": 0.662,
-   "achieved": 0.622764,
-   "numerator": 383,
-   "denominator": 615,
+   "achieved": 0.628111,
+   "numerator": 429,
+   "denominator": 683,
    "note": "pairs of one brand and line cell, key dimension equal, length differs",
    "band": [
     0.582,
@@ -2358,14 +2521,14 @@
   },
   {
    "name": "price smaller costs 2x+, same product: bolt_hex",
-   "target": 4.99274e-05,
-   "achieved": 0.002331,
-   "numerator": 1,
-   "denominator": 429,
+   "target": 3.79732e-05,
+   "achieved": 0.00833333,
+   "numerator": 3,
+   "denominator": 360,
    "note": "pairs of one product, length at an equal key differs; target IMPLIED by the census slope and larger-costs-less share, not measured",
    "band": [
     0.0,
-    0.0200499
+    0.020038
    ]
   },
   {
@@ -2418,10 +2581,10 @@
   },
   {
    "name": "price smaller costs 2x+, same product: screw_socket_head",
-   "target": 8.82749e-10,
-   "achieved": 0.00744879,
-   "numerator": 8,
-   "denominator": 1074,
+   "target": 1.05075e-09,
+   "achieved": 0.00797166,
+   "numerator": 9,
+   "denominator": 1129,
    "note": "pairs of one product, length at an equal key differs; target IMPLIED by the census slope and larger-costs-less share, not measured",
    "band": [
     0.0,
@@ -2515,7 +2678,7 @@
   {
    "name": "price brand spread, same spec (median max/min): screw_socket_head",
    "target": 1.3372,
-   "achieved": 1.2385,
+   "achieved": 1.31936,
    "numerator": 54,
    "denominator": 7,
    "note": "over specs (key dimension, material) two or more brands make; 2 brands sampled per spec",
@@ -2539,10 +2702,10 @@
   {
    "name": "price brand spread, same spec (median max/min): wheel_depressed_center",
    "target": 1.2838,
-   "achieved": 4.38059,
+   "achieved": 4.3032,
    "numerator": 24,
    "denominator": 12,
-   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec; PINNED SHORTFALL, above band: with every noise off, the brand tiers alone give 1.49 on the default build, inside the band top of 1.71, so the excess is the group noise; the tiers still reach for it because 3 of the 12 wheel brands are economy (0.54 of the rest) and the row's 3 sampled brands take one on 12 of its 24 specs (a spec is a diameter in one abrasive), where the census measures its house label on 4 of its 12. The group noise that makes up the p90/p10 is drawn per brand and spreads the sampled brands of one spec further, to 4.38x apart on the default build and 2.90x apart at 100K (#66)",
+   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec; PINNED SHORTFALL, above band: with every noise off, the brand tiers alone give 1.49 on the default build, inside the band top of 1.71, so the excess is the group noise; the tiers still reach for it because 3 of the 12 wheel brands are economy (0.54 of the rest) and the row's 3 sampled brands take one on 12 of its 24 specs (a spec is a diameter in one abrasive), where the census measures its house label on 4 of its 12. The group noise that makes up the p90/p10 is drawn per brand and spreads the sampled brands of one spec further, to 4.30x apart on the default build and 2.84x apart at 100K (#66)",
    "band": [
     0.96285,
     1.70745
@@ -2562,77 +2725,77 @@
   },
   {
    "name": "price ending .99",
-   "target": 0.00606462,
-   "achieved": 0.00547731,
-   "numerator": 63,
-   "denominator": 11502,
+   "target": 0.00605719,
+   "achieved": 0.00571429,
+   "numerator": 67,
+   "denominator": 11725,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.00211048,
-    0.0100188
+    0.0021812,
+    0.00993318
    ]
   },
   {
    "name": "price ending .00",
-   "target": 0.0849938,
-   "achieved": 0.0812033,
-   "numerator": 934,
-   "denominator": 11502,
+   "target": 0.0848551,
+   "achieved": 0.081194,
+   "numerator": 952,
+   "denominator": 11725,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.067857,
-    0.102131
+    0.0680332,
+    0.101677
    ]
   },
   {
    "name": "price ending .50",
-   "target": 0.0570488,
-   "achieved": 0.0543384,
-   "numerator": 625,
-   "denominator": 11502,
+   "target": 0.0567434,
+   "achieved": 0.0540725,
+   "numerator": 634,
+   "denominator": 11725,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0410688,
-    0.0730288
+    0.0410704,
+    0.0724163
    ]
   },
   {
    "name": "price ending other .x5",
-   "target": 0.217986,
-   "achieved": 0.213615,
-   "numerator": 2457,
-   "denominator": 11502,
+   "target": 0.218224,
+   "achieved": 0.214499,
+   "numerator": 2515,
+   "denominator": 11725,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.196555,
-    0.239417
+    0.197206,
+    0.239243
    ]
   }
  ],
  "measurement_system_names": {
-  "Measurement System": 1047,
-  "Dimension Type": 3293,
-  "System of Measurement": 481
+  "Measurement System": 1081,
+  "Dimension Type": 3313,
+  "System of Measurement": 490
  },
  "measurement_system_values": {
-  "Fractional Inch": 2568,
-  "Inch": 242,
-  "Metric": 1940,
-  "Decimal Inch": 71
+  "Fractional Inch": 2669,
+  "Inch": 255,
+  "Metric": 1890,
+  "Decimal Inch": 70
  },
  "unit_suffix_distribution": {
-  "in": 23340,
-  "mm": 15414
+  "in": 23830,
+  "mm": 15373
  },
- "standards_present": 6062,
- "standards_multivalued": 1579,
- "standards_total_values": 7914,
+ "standards_present": 6026,
+ "standards_multivalued": 1557,
+ "standards_total_values": 7864,
  "multivalued_attribute_names": {
-  "Standards": 1579,
+  "Standards": 1557,
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 11577,
+  "n_skus_checked": 11800,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
@@ -2765,17 +2928,17 @@
  },
  "figures": {
   "catalog": {
-   "modelled_types": 30,
+   "modelled_types": 36,
    "breadth_categories": 43,
    "brands": 45
   },
   "drawings": {
-   "count": 11577,
-   "bytes": 29818220,
+   "count": 11800,
+   "bytes": 30150489,
    "geometry": {
     "nominal": 75,
-    "partial": 2328,
-    "record": 9174
+    "partial": 2475,
+    "record": 9250
    },
    "largest_bytes": 7789,
    "largest_product_type": "bearing_radial_ball"
@@ -2789,7 +2952,7 @@
    "smallest_faceted": "Dowel Dia. (mm)",
    "smallest_faceted_products": 18,
    "drive_size_cardinality": 41,
-   "drive_size_present": 1842,
+   "drive_size_present": 1862,
    "held_by_floor": [
     "Dash Number"
    ],

@@ -43,6 +43,7 @@ from synthetic_ecommerce_data.core.config import HUNDRED_K_LINES, GeneratorConfi
 from synthetic_ecommerce_data.core.dimensions import parse_length
 from synthetic_ecommerce_data.domains.industrial import tabletype
 from synthetic_ecommerce_data.domains.industrial.generate import generate
+from synthetic_ecommerce_data.domains.industrial.hammers import is_incidental_decoy_title
 from synthetic_ecommerce_data.domains.industrial.muststock import MUST_STOCK
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
@@ -189,6 +190,15 @@ DISTINCT_SPEC_FLOOR = {
     "washer_flat": 0.15,
     "roller_chain": 0.30,
     "hammer_ball_pein": 0.70,
+    # The six kinds added by #305, measured at 100K: claw 0.81, framing 0.78, ball pein 0.74,
+    # dead blow 0.74, sledge 0.73, rubber mallet 0.70, club 0.69. A hammer is a handle, a
+    # grip, a face and a few weights, so makers overlap more than for a fastener.
+    "hammer_claw": 0.65,
+    "hammer_framing": 0.65,
+    "hammer_club": 0.65,
+    "hammer_sledge": 0.65,
+    "hammer_rubber_mallet": 0.65,
+    "hammer_dead_blow": 0.65,
     "bolt_hex": 0.75,
     "abrasive_flap_disc": 0.75,
     "kit_assortment": 0.80,
@@ -438,7 +448,10 @@ def voice_deviations(docs: list[dict]) -> list[tuple]:
     tails = collections.defaultdict(list)
     for doc in docs:
         key = (doc["brand"], doc["product_type"])
-        openings[key].add(_opening(doc))
+        # A text-match decoy's title is the item and its misleading word alone, in no
+        # brand's voice (gen#320); its description still follows the template.
+        if not is_incidental_decoy_title(doc["title"]):
+            openings[key].add(_opening(doc))
         marker = f"{doc['brand']} {doc['series']}. "
         description = without_compatibility(doc["description"])
         tail = description.split(marker, 1)[1] if marker in description else ""

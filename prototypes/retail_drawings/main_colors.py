@@ -19,6 +19,10 @@ from __future__ import annotations
 import copy
 import re
 
+import decoy_apparel
+import decoy_product_words
+import decoy_rows
+
 #: The baseline: plain color -> swatch hex (the color word is also the swatch family).
 MAIN_COLORS = {
     "Red": "#c8322b", "Blue": "#2f6db5", "Green": "#3c8d4f", "Yellow": "#f2c230",
@@ -41,7 +45,6 @@ EXCEPTIONS = {
     "Earrings": "precious metal: the color is the metal",
     "Cutlery": "stainless steel and plated metal: the color is the metal",
     "Cutlery Set": "stainless steel: the color is the metal",
-    "Claw Hammer": "forged steel tool: the color is the raw metal",
     "Socket Set": "chrome vanadium steel: the color is the raw metal",
     "Bit Set": "hardened steel bits: the color is the metal finish",
     "Trophy": "cast metal: the color is the plating",
@@ -127,7 +130,7 @@ def offered(styles: list[dict]) -> set[str]:
 
 
 def audience(rec: dict) -> str:
-    """Who the style is sold to: the first category_path step (Men, Women, Kids...), except that
+    """Who the style is sold to: the first category_path step (Mens, Womens, Kids...), except that
     Baby, a node under Kids since gen#281, is still an audience of its own: its colors are
     counted apart from the children's, as they were when it was a root."""
     path = rec["category_path"]
@@ -135,13 +138,15 @@ def audience(rec: dict) -> str:
         return path
     return "Baby" if path[:2] == ["Kids", "Baby"] else path[0]
 
+_PLANTED = decoy_rows.IDS | decoy_apparel.IDS | decoy_product_words.IDS
+
 
 def groups(tpls: list[dict]) -> dict[tuple[str, str], list[dict]]:
     """(product_type, audience) -> its styles, for every type with a color selector. A type
     sold to men and to women is two groups: "red shirt" has to find one for each."""
     out: dict[tuple[str, str], list[dict]] = {}
     for r in tpls:
-        if r.get("color_options"):
+        if r.get("color_options") and r["product_id"] not in _PLANTED:
             out.setdefault((r["product_type"], audience(r)), []).append(r)
     return out
 
@@ -240,8 +245,10 @@ def _add(rec: dict, colors: list[str]) -> dict:
     return out
 
 
-def complete(tpls: list[dict]) -> list[dict]:
-    """``tpls`` with every missing main color added, in the same order."""
+def complete(tpls: list[dict], skip: frozenset[str] = frozenset()) -> list[dict]:
+    """``tpls`` with every missing main color added, in the same order. A style whose
+    product_id is in ``skip`` (a text-match decoy, whose color field is its one true color)
+    never takes a color, whatever its text names."""
     by_id = {r["product_id"]: r for r in tpls}
     for (ptype, aud), lacks in missing(tpls).items():
         # A printed drawing takes no solid fill, so it never gets a color. Of the rest, the
@@ -250,7 +257,8 @@ def complete(tpls: list[dict]) -> list[dict]:
         # that color itself, or the text-agrees gate reads the word as naming a value the
         # style lacks once the type offers it.
         styles = sorted(
-            (r for r in groups(tpls)[(ptype, aud)] if not _printed(r)),
+            (r for r in groups(tpls)[(ptype, aud)]
+             if not _printed(r) and r["product_id"] not in skip),
             key=lambda r: r["product_id"],
         )
         if not styles:

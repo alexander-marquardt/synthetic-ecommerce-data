@@ -5,6 +5,17 @@ from pathlib import Path
 
 import pytest
 
+from xdist_groups import group_for
+
+
+def pytest_collection_modifyitems(items):
+    """Keep a module's tests on one worker under ``--dist loadgroup`` (#348); inert otherwise."""
+    for item in items:
+        module = getattr(item, "module", None)
+        group = group_for(module) if module is not None else None
+        if group is not None:
+            item.add_marker(pytest.mark.xdist_group(group))
+
 
 @pytest.fixture
 def png_size():

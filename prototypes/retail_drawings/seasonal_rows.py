@@ -103,8 +103,8 @@ def _mat(v: str) -> tuple[tuple[str, str, str], ...]:
     return (_a("material", "Material", v),)
 
 
-_SLIP, _MIDI = ("Women", "Dresses", "Slip Dresses"), ("Women", "Dresses", "Midi Dresses")
-_JUMP, _CARDI, _EAR = ("Women", "Knitwear", "Jumpers"), ("Women", "Knitwear", "Cardigans"), ("Women", "Jewellery", "Earrings")
+_SLIP, _MIDI = ("Womens", "Dresses", "Slip Dresses"), ("Womens", "Dresses", "Midi Dresses")
+_JUMP, _CARDI, _EAR = ("Womens", "Knitwear", "Jumpers"), ("Womens", "Knitwear", "Cardigans"), ("Womens", "Jewellery", "Earrings")
 _CANDLE = ("Gifts", "Home Fragrance", "Scented Candles")
 _FRAME = ("Gifts", "Keepsakes", "Photo Frames")
 _WRAPPAPER = ("Gifts", "Gift Wrap", "Wrapping Paper")

@@ -391,7 +391,7 @@ def test_the_fresh_oranges_draw_as_many_fruits_as_their_weight_holds() -> None:
 def test_a_style_passes_its_weight_into_the_pile_once() -> None:
     def doc(grams: float) -> dict:
         return Style("PILE", "Navel Oranges", "Goldfield Farms", "Food & Drink",
-                     ("Food & Drink", "Fresh Produce"), 1.0, "Oranges.", "Oranges", "produce_pile",
+                     ("Food & Drink", "Fruit & Vegetables"), 1.0, "Oranges.", "Oranges", "produce_pile",
                      ((cw("Pack", "#f08a24"), 1),), params=(("fruit", "orange"),),
                      unit=(grams, "g"), colorless=True).doc()  # fmt: skip
 
@@ -416,7 +416,7 @@ def test_a_pile_is_the_same_on_every_build_and_differs_between_products() -> Non
     assert jitter("PLT-ORNAVL", 0) != jitter("PLT-ORBLOD", 0)
     assert set(FRUIT) == {
         "orange", "clementine", "lemon", "apple", "lime", "strawberry", "blackberry",
-        "blueberry", "grapefruit", "mandarin", "raspberry", "satsuma",
+        "blueberry", "grapefruit", "mandarin", "raspberry", "satsuma", "grape",
     }
 
 

@@ -42,3 +42,23 @@ def test_no_tracked_file_spells_color_the_british_way() -> None:
         if n:
             hits.append(f"{name}: {n}")
     assert hits == []
+
+
+#: The retail catalogue's source: every module whose strings become a title, a description or a
+#: drawing label, and whose docstrings and comments the same maintainers read. One spelling,
+#: "center", in all of it (gen#291). The industrial engine's drawing code uses the engineering
+#: "centre" for a bolt circle or a shaft axis and writes no catalogue text, so it is outside
+#: this scope by name, not by omission.
+RETAIL_SOURCE = ROOT / "prototypes" / "retail_drawings"
+BRITISH_CENTER = re.compile("(?<![a-z])cent" + "(?:re|res|red|ring)(?![a-z])", re.IGNORECASE)
+
+
+def test_no_retail_source_spells_center_the_british_way() -> None:
+    files = sorted(RETAIL_SOURCE.glob("*.py"))
+    assert len(files) > 20, "the scope glob found no retail modules"
+    hits = []
+    for path in files:
+        n = len(BRITISH_CENTER.findall(path.read_text()))
+        if n:
+            hits.append(f"{path.name}: {n}")
+    assert hits == []

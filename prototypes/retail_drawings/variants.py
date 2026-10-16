@@ -222,7 +222,7 @@ class JeanStyle:
         ]  # fmt: skip
 
     def doc(self) -> dict:
-        who = "Women" if self.audience == "Womens" else "Men"
+        who = "Womens" if self.audience == "Womens" else "Mens"
         return {
             "title": self.title,
             "brand": self.brand,
@@ -382,7 +382,7 @@ class BraStyle:
             "brand": self.brand,
             "department": list(self.department),
             "product_type": "Bra",
-            "category_path": ["Women", "Lingerie", "Bras", f"{self.kind} Bras"],
+            "category_path": ["Womens", "Lingerie", "Bras", f"{self.kind} Bras"],
             "category_leaf": f"{self.kind} Bras",
             "description": (
                 f"The {self.line} {self.kind.lower()} bra: {wire}, with adjustable straps and a "
@@ -612,8 +612,8 @@ BEAUTY = (
                "A lightweight medium-coverage foundation with a natural satin finish.",
                _tones(_TONES), label="Foundation",
                extra=(("coverage", "Coverage", "Medium"),)),
-    ShallowRow("FNDSRM", "Beauty", "Skin Serum Foundation 30ml", "Velling Apothecary",
-               ("Beauty", "Make-Up", "Face", "Foundation"), 32.0, "bottle",
+    ShallowRow("FNDSRM", "Beauty", "Skin Serum Foundation 50ml", "Velling Apothecary",
+               ("Beauty", "Make-Up", "Face", "Foundation"), 42.0, "bottle",
                "A serum-light foundation with hyaluronic acid for a dewy, sheer finish.",
                _tones("1N 1W 2C 2N 3N 3W 4C 4N 5N 5W 6C 6N 7N 7W 8N 9N 10N 11W 12N 13N"),
                label="Serum", extra=(("coverage", "Coverage", "Sheer"),)),

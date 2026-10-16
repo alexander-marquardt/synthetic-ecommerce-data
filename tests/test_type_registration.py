@@ -27,6 +27,7 @@ from synthetic_ecommerce_data.core import noise, price, typespec, voice
 from synthetic_ecommerce_data.domains.industrial import breadth, conformance, taxonomy, vocab
 from synthetic_ecommerce_data.domains.industrial.drawing.breadth_shapes import cylinder
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
+from synthetic_ecommerce_data.domains.industrial.type_labels import PRODUCT_TYPE_LABELS
 from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
 
 REPO = Path(__file__).resolve().parent.parent
@@ -96,6 +97,7 @@ def _unregister(key: str) -> None:
         FIGURES,
         price.MODELS,
         typespec.DECLARED_BLOCKS,
+        PRODUCT_TYPE_LABELS,
         *(table() for table in TABLES.values()),
     ]
     for table in tables:
@@ -200,6 +202,30 @@ def test_a_key_in_a_shared_table_and_in_its_spec_is_refused(
     finally:
         _unregister(TOY)
     assert refused is not None and table in refused and TOY in refused
+
+
+def test_a_label_on_the_spec_joins_the_label_table() -> None:
+    """The label is on the type's own module, so a new type edits no shared table (#103)."""
+    typespec.ensure_registered()
+    try:
+        typespec.register(_toy_spec(label="Toy Widget"))
+        assert PRODUCT_TYPE_LABELS[TOY] == "Toy Widget"
+    finally:
+        _unregister(TOY)
+
+
+def test_a_label_in_the_table_and_on_the_spec_is_refused(monkeypatch) -> None:
+    """Two declarations of one label: which wins would depend on registration order."""
+    typespec.ensure_registered()
+    monkeypatch.setitem(PRODUCT_TYPE_LABELS, TOY, "Toy Widget")
+    refused = None
+    try:
+        typespec.register(_toy_spec(label="Toy Widget"))
+    except typespec.TypeCollisionError as error:
+        refused = str(error)
+    finally:
+        _unregister(TOY)
+    assert refused is not None and "PRODUCT_TYPE_LABELS" in refused and TOY in refused
 
 
 def test_a_modelled_type_without_a_key_dimension_is_refused() -> None:

@@ -201,6 +201,11 @@ _SOCKET_SCREW = (
     _spec("Thread Type", "line", 0.70),
     _spec("Rockwell Hardness", "line", 0.48),
     _spec("Meets/Exceeds", "line", 0.40),
+    # Unconditional, as on the hex bolt: the shown price is a pack's (every
+    # census socket screw is pack-sold, ``price.PACK_COUNTS``), so a record
+    # that left the pack unstated would show a price for a quantity it does
+    # not name (#65).
+    _spec("Package Quantity", "line", kind="count"),
     _spec("Dia./Thread Size", "sku"),
     _spec("Length", "sku", kind="length"),
     _spec("Length under Head", "sku", kind="length"),
@@ -251,6 +256,10 @@ _HEX_BOLT = (
     _spec("Grade", "line"),
     _spec("Thread Direction", "line", 0.60),
     _spec("Thread Type", "line", 0.66),
+    # Unconditional: the shown price is a pack's (98.8% of census bolts are
+    # pack-sold, ``price.PACK_COUNTS``), so every record states the pack it
+    # prices (#65).
+    _spec("Package Quantity", "line", kind="count"),
     _spec("Dia./Thread Size", "sku"),
     _spec("Length", "sku", kind="length"),
     _spec("Length under Head", "sku", kind="length"),
@@ -273,8 +282,8 @@ _WASHER = (
     _spec("Thickness", "sku", kind="length"),
 )
 
-#: Ball pein hammers. Deliberately the most distant vocabulary in the catalog.
-_HAMMER = (
+#: Every hammer kind (hammers.py). Deliberately the most distant vocabulary in the catalog.
+HAMMER_VOCAB = (
     _spec("Item", "line"),
     _spec("Material", "line"),
     _spec("Handle Material", "line"),
@@ -393,7 +402,7 @@ _VOCAB: dict[str, tuple[AttrSpec, ...]] = {
     "screw_low_head": _SOCKET_SCREW,
     "bolt_hex": _HEX_BOLT,
     "washer_flat": _WASHER,
-    "hammer_ball_pein": _HAMMER,
+    "hammer_ball_pein": HAMMER_VOCAB,
     "abrasive_flap_disc": _FLAP_DISC,
     "nut_hex": _NUT,
     "bearing_radial_ball": _BEARING,

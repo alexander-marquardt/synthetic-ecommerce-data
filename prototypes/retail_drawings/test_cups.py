@@ -112,7 +112,7 @@ def test_cup_is_in_the_collisions_table_with_both_meanings_and_their_personas() 
     assert len(rows) == 1
     cup = rows[0]
     assert cup["query"] == "cups"
-    assert cup["senses"] == [DRINKWARE, "Women/Lingerie/Bras"]
+    assert cup["senses"] == [DRINKWARE, "Womens/Lingerie/Bras"]
     assert set(cup["meanings"]) == {"Home", "Lingerie & Nightwear"}
     assert set(cup["personas"].values()) == {"Home", "Lingerie & Nightwear"}
 

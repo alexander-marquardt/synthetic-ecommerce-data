@@ -80,7 +80,11 @@ def test_the_barrels_out_sell_the_balloon_jeans_and_say_balloon() -> None:
 
 def test_a_balloon_jeans_search_without_a_policy_returns_barrels_first(index) -> None:
     top = br.rank(index, "balloon jeans", 10)
-    assert [d["leg_style"] for d in top].count("barrel") == 10
+    # a planted decoy (gen#311: a "Balloon Jeans" range or brand on a jeans) is meant to match the
+    # words; the real products among the first ten are all barrels
+    real = [d for d in top if d["product_id"] not in scale.DECOY_IDS]
+    assert len(real) >= 5
+    assert [d["leg_style"] for d in real].count("barrel") == len(real)
 
 
 def test_petite_is_a_substantial_set_with_a_minority_on_sale(ceiling) -> None:
@@ -119,9 +123,9 @@ def test_the_steak_rows_are_the_distractors_and_the_true_answers(ceiling) -> Non
     assert sum(len(d["title"].split()) <= 5 for d in knives) >= 2
     assert all(d["description"].lower().count("steak") >= 1 for d in knives)
     steaks = _beef_steaks(ceiling)
-    cuts = {c for c in ("sirloin", "ribeye", "fillet", "rump", "striploin", "minute")
+    cuts = {c for c in ("sirloin", "ribeye", "fillet", "rump", "chuck", "t-bone", "flank", "skirt")
             if any(c in d["title"].lower() for d in steaks)}  # fmt: skip
-    assert len(cuts) == 6, cuts
+    assert len(cuts) == 8, cuts
     assert len(steaks) >= 6
     # Honest text: a steak title runs to four words or more and says "steak" once.
     assert all(len(d["title"].split()) >= 4 and d["title"].lower().count("steak") == 1
@@ -226,11 +230,11 @@ def test_the_steak_knife_rows_state_what_they_draw() -> None:
 
 
 def test_each_beef_cut_has_its_own_description(ceiling) -> None:
-    cuts = ("Sirloin", "Ribeye", "Fillet", "Rump", "Striploin", "Minute")
+    cuts = ("Sirloin", "Ribeye", "Fillet", "Rump", "Chuck", "T-Bone", "Flank", "Skirt")
     by_cut: dict[str, set[str]] = {}
     for d in _beef_steaks(ceiling):
         cut = next(c for c in cuts if c in d["title"])
         by_cut.setdefault(cut, set()).add(d["description"].split(". ")[1])
     assert set(by_cut) == set(cuts)
     assert all(len(v) == 1 for v in by_cut.values()), by_cut
-    assert len({next(iter(v)) for v in by_cut.values()}) == 6
+    assert len({next(iter(v)) for v in by_cut.values()}) == 8

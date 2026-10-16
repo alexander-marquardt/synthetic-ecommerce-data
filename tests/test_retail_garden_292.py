@@ -2,8 +2,9 @@
 
 The demo replay ``green garden hose`` filters to Garden and Green; the department held 260
 products and none whose title holds "garden hose", so the best tier was empty and the next
-tier ranked frozen vegetables first. :mod:`garden_rows` holds the hoses and :mod:`kit_garden`
-draws them. These checks hold what the issue asked for: a Garden product whose title holds
+tier ranked frozen vegetables first. :mod:`type_specs.garden_hose` holds the hoses and
+:mod:`kit_garden` draws them. These checks hold what the issue asked for: a Garden product
+whose title holds
 "garden hose" and offers green, the six main colors across the type (gen#275), a measured
 length on the SKUs with its unit, two styles from two brands, a drawing of its own, a place in
 the tree under the tree guard's rules, and no derived copies.
@@ -12,7 +13,6 @@ the tree under the tree guard's rules, and no derived copies.
 from __future__ import annotations
 
 import collections
-import json
 import re
 import sys
 import xml.dom.minidom
@@ -25,21 +25,22 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import export  # noqa: E402
-import garden_rows  # noqa: E402
 import kit  # noqa: E402
 import kit_garden  # noqa: E402
 import main_colors  # noqa: E402
 import scale  # noqa: E402
 import tree_guard  # noqa: E402
+import type_registry  # noqa: E402
 
 from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 
-ROWS = garden_rows.ROWS
+SPEC = type_registry.specs()["garden_hose"]
+ROWS = SPEC.rows
+HOSE_IDS = frozenset(f"BRD-{r.code}" for r in ROWS)
 ROOT = "Garden"
 PTYPE = "Garden Hose"
 #: What every hose states as a structured entry (the length is the SKU axis, ``item_length``).
 KEYS = {"material", "diameter", "item_length", "color"}
-STATS = Path(__file__).resolve().parent.parent / "golden-retail" / "stats.json"
 
 
 def _svg(row=None, **kw) -> str:
@@ -49,7 +50,7 @@ def _svg(row=None, **kw) -> str:
 
 
 def _docs() -> list[dict]:
-    return [d for d in scale.templates() if d["product_id"] in scale.GARDEN_IDS]
+    return [d for d in scale.templates() if d["product_id"] in HOSE_IDS]
 
 
 def test_the_garden_department_has_a_product_titled_garden_hose_in_green() -> None:
@@ -167,17 +168,15 @@ def test_the_hose_sits_in_the_tree_under_the_guards_rules() -> None:
 
 def test_the_hose_styles_are_left_out_of_the_derivation() -> None:
     kept = {r["product_id"] for r in scale.derivable(scale.templates())}
-    assert scale.GARDEN_IDS and not (scale.GARDEN_IDS & kept)
+    assert not SPEC.derivable
+    assert HOSE_IDS and not (HOSE_IDS & kept)
 
 
-def test_the_committed_figures_count_the_hose_styles() -> None:
-    """The golden figures (``retail_figures.py``) state the hose rows: a row added or dropped
-    without regenerating them reds here, as it does in ``test_retail_scale``."""
-    assert ROWS
-    templates = json.loads(STATS.read_text())["templates"]
-    figures = templates.get("garden_rows", {"styles": 0, "skus": 0})
-    assert figures["styles"] == len(ROWS)
-    assert figures["skus"] == sum(len(r.skus()) for r in ROWS)
+def test_the_hoses_are_in_the_scaled_templates_once() -> None:
+    """The golden figures count them with the other type specs (``test_retail_scale`` holds the
+    committed total); here the build holds each hose row once."""
+    ids = [d["product_id"] for d in scale.templates() if d["product_id"] in HOSE_IDS]
+    assert sorted(ids) == sorted(HOSE_IDS)
 
 
 @pytest.mark.timeout(300)
@@ -185,7 +184,7 @@ def test_every_hose_style_reaches_the_100k_build_and_meets_the_standard() -> Non
     docs = scale.documents(scale.build(100_000))
     got = {d["product_id"] for d in docs}
     assert sorted(f"BRD-{r.code}" for r in ROWS if f"BRD-{r.code}" not in got) == []
-    mine = [d for d in docs if d["product_id"] in scale.GARDEN_IDS]
+    mine = [d for d in docs if d["product_id"] in HOSE_IDS]
     assert len(mine) == len(ROWS)
     assert check_catalog(mine, one_class_per_key=True) == []
     assert {d["category_path"][0] for d in mine} == {ROOT}

@@ -44,7 +44,7 @@ def test_no_two_brands_share_a_style_row() -> None:
 
 
 def test_no_two_brands_share_a_mark() -> None:
-    marks = Counter(s.mark for s in hs.HOUSE_STYLES.values())
+    marks = Counter(s.mark for s in hs.HOUSE_STYLES.values() if s.mark != hs.NO_MARK)
     assert {m: n for m, n in marks.items() if n > 1} == {}
 
 
@@ -64,8 +64,11 @@ def test_any_two_brands_differ_in_at_least_five_levers() -> None:
 
 def test_about_half_the_brands_use_a_full_lockup() -> None:
     lockups = sum(s.layout != "mark_only" for s in hs.HOUSE_STYLES.values())
-    assert lockups == 28
-    assert len(hs.HOUSE_STYLES) == 59
+    # Floors, not exact counts: each sibling slice adds brands, so an exact match reds whichever
+    # merges second. The live-tree comparison is the share itself.
+    assert lockups >= 30
+    assert len(hs.HOUSE_STYLES) >= 62
+    assert 0.4 <= lockups / len(hs.HOUSE_STYLES) <= 0.6
 
 
 def test_marks_are_large_enough_to_see_and_within_the_cap() -> None:
@@ -75,6 +78,8 @@ def test_marks_are_large_enough_to_see_and_within_the_cap() -> None:
 
 def test_every_mark_in_the_table_exists_and_draws() -> None:
     for s in hs.HOUSE_STYLES.values():
+        if s.mark == hs.NO_MARK:  # a real brand draws none (gen#341)
+            continue
         svg = hs.mark_svg(s.mark, 0, 0, 50, s.color)
         ET.fromstring(svg)
         assert s.color in svg
