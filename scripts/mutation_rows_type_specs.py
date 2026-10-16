@@ -350,4 +350,13 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "--code cannot take an id in use",
         ".",
     ),
+    (
+        "the stray-row exemption widens to every product-word row",
+        "tests/test_retail_type_specs_351.py",
+        '    decoys = {f"PLT-{r.code}" for r in decoy_product_words.TABLE}',
+        "    decoys = set(decoy_product_words.IDS)",
+        "tests/test_retail_type_specs_351.py -k floor_row_added_to_a_spec_type",
+        "only a decoy row may sit outside its spec type, never a floor row",
+        ".",
+    ),
 ]
