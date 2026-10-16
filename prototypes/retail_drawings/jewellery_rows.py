@@ -46,8 +46,8 @@ def a(key: str, name: str, value: str) -> tuple[str, str, str]:
 
 
 def metres(key: str, name: str, m: int) -> tuple[str, str, str, str, float]:
-    """A length in metres: the canonical value is in metres, as the core's ``MTR`` says."""
-    return (key, name, str(m), "MTR", float(m))
+    """A length in metres: the canonical value is in millimetres, as the core's ``MTR`` says."""
+    return (key, name, str(m), "MTR", float(m * 1000))
 
 
 def earrings_row(
