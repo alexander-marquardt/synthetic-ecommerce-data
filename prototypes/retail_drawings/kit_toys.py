@@ -433,7 +433,7 @@ def board_game(
             )
         ]
         return [*out, *_badge(character)]
-    # family: a track of squares round the board, a centre panel, dice and pawns
+    # family: a track of squares round the board, a center panel, dice and pawns
     out += [_rect(36, 56, 328, 290, _tint(fill.base, 0.85), 6), _rect(36, 56, 328, 290, "none", 6)]
     n, s = 9, 328 / 9
     squares = (
@@ -847,10 +847,13 @@ def role_play(
         out += [_ell(x, 324, 10, 4, "#e6c46a", 1) for x in (80, 110, 280, 300)]
     else:  # tea_set
         pots, cups, saucers, jugs = (_counts(counts, (1, 4, 4, 1)) + [0, 0, 0])[:4]
+        if jugs or pots:
+            # One shelf under the jug and the pot: both stand on its top edge, y = 230.
+            out.append(_rect(40, 230, 320, 8, WOOD, 2, LW_DETAIL, ' class="shelf"'))
         if jugs:
-            out.append(_group("piece", [_path("M58,206 Q42,200 50,184 L62,180 Z", paint, 1.4),
-                                        _path("M60,180 L104,180 Q110,230 82,236 Q56,230 60,180 Z", paint),
-                                        _path("M104,190 Q124,200 104,220", "none", 3)]))  # fmt: skip
+            out.append(_group("piece", [_path("M60,178 L46,170 L58,194 Z", paint, 1.4),
+                                        _path("M60,176 L108,176 Q114,206 110,230 L58,230 Q54,206 60,176 Z", paint),
+                                        _path("M108,184 Q130,194 110,216", "none", 3)]))  # fmt: skip
         if pots:
             out.append(_teapot(220, 240, paint))
         xs = [60 + i * (280 / max(max(cups, saucers) - 1, 1)) for i in range(max(cups, saucers))]
