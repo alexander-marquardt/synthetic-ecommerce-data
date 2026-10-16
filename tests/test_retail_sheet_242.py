@@ -145,11 +145,28 @@ def test_groups_move_and_scale_what_they_hold() -> None:
 
 
 def test_a_rotated_rect_is_measured_by_its_turned_corners() -> None:
-    turned = _svg('<g transform="rotate(90 200 200)">'
-                  '<rect x="150" y="190" width="100" height="20"/></g>')  # fmt: skip
-    box = sheet_extent.reach(turned)
-    assert box is not None
-    assert box == pytest.approx((190, 150, 210, 250))
+    # A quarter turn clockwise about (200, 200) takes a bar to the right of it to below it.
+    turned = _svg(
+        '<g transform="rotate(90 200 200)"><rect x="250" y="190" width="100" height="20"/></g>'
+    )
+    assert sheet_extent.reach(turned) == pytest.approx((190, 250, 210, 350))
+
+
+def test_an_ellipse_is_measured_through_a_turn() -> None:
+    turned = _svg(
+        '<g transform="rotate(90 200 200)"><ellipse cx="200" cy="200" rx="30" ry="10"/></g>'
+    )
+    assert sheet_extent.reach(turned) == pytest.approx((190, 170, 210, 230))
+    moved = _svg('<g transform="translate(5 7)"><ellipse cx="50" cy="60" rx="30" ry="10"/></g>')
+    assert sheet_extent.reach(moved) == pytest.approx((25, 57, 85, 77))
+
+
+def test_a_large_arc_is_measured_around_its_own_center() -> None:
+    # From (100, 200) to (200, 100) the long way round a circle centered on (100, 100).
+    long_way = sheet_extent.reach(_svg('<path d="M100,200 A100,100 0 1 1 200,100"/>'))
+    assert long_way == pytest.approx((0, 0, 200, 200), abs=0.1)
+    short_way = sheet_extent.reach(_svg('<path d="M100,200 A100,100 0 0 1 200,100"/>'))
+    assert short_way == pytest.approx((100, 100, 200, 200), abs=0.1)
 
 
 def test_a_clipped_path_is_cut_to_its_clip() -> None:
