@@ -73,9 +73,10 @@ def colorway_drawing(rec: dict, sku: dict) -> dict:
     return drawing | {"base": swatch["hex"], "pattern": swatch["pattern"], "accent": accent}
 
 
-def render(rec: dict, sku: dict) -> bytes:
-    """The SVG bytes of one SKU's image: its colorway's drawing, in its brand's house style."""
-    return drawing_svg(rec | {"drawing": colorway_drawing(rec, sku)}).encode()
+def render(rec: dict, sku: dict, styled: bool = True) -> bytes:
+    """The SVG bytes of one SKU's image: its colorway's drawing, in its brand's house style
+    (``styled=False``: on the plain sheet the shape is drawn on, as ``build_preview`` has it)."""
+    return drawing_svg(rec | {"drawing": colorway_drawing(rec, sku)}, styled).encode()
 
 
 def records(skus: int | None = None) -> list[dict]:
