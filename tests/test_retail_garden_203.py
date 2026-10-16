@@ -31,6 +31,7 @@ import kit_garden  # noqa: E402
 import main_colors  # noqa: E402
 import scale  # noqa: E402
 import tree_guard  # noqa: E402
+import type_registry  # noqa: E402
 
 from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 
@@ -248,6 +249,7 @@ TARGETS = {
     "Robot Mower": "robot mower",
     "Grass Trimmer": "grass trimmer",
     "BBQ": "bbq",
+    "Garden Hose": "garden hose",
 }
 
 
@@ -271,14 +273,54 @@ def _own(row) -> set[str]:
     return {c[0].lower() for c in row.colors}
 
 
-@pytest.mark.parametrize("ptype", sorted(KEYS))
+#: Every product type the registry lists for the Garden department: the types in a spec file and the
+#: ones still on the legacy list. A type new to the department is here at once, so it cannot skip
+#: the decoys of gen#294 unless it is exempt below with the reason.
+GARDEN_TYPES = sorted(
+    {s.product_type for s in type_registry.specs().values() if s.department == "Garden"}
+    | {t for d, t in type_registry.legacy_types() if d == "Garden"}
+)
+#: A Garden type that carries no decoys, and why. An entry is wrong as soon as its type holds a
+#: decoy (see ``test_an_exempt_garden_type_holds_no_decoy_and_states_its_reason``).
+EXEMPT = {
+    t: "a plant or growing kit, bought by variety: gen#203 left the nursery types as they were"
+    for t in (
+        "Bedding Plant",
+        "Bouquet",
+        "Bulbs",
+        "Christmas Tree",
+        "Growing Kit",
+        "Plant",
+        "Seeds",
+    )
+}
+DECOY_TYPES = [t for t in GARDEN_TYPES if t not in EXEMPT]
+
+
+@pytest.mark.parametrize("ptype", DECOY_TYPES)
 def test_each_type_carries_at_least_three_decoys_of_each_class(ptype: str) -> None:
     got = _decoys(ptype)
     assert set(got) <= set(CLASSES)
     assert {k: len(got[k]) for k in CLASSES if len(got[k]) < 3} == {}
 
 
-@pytest.mark.parametrize("ptype", sorted(KEYS))
+def test_the_registry_lists_exactly_the_product_types_the_garden_department_builds() -> None:
+    """The guard's list of Garden types is the build's own: a type the registry misses would
+    skip the decoys, and a registry type nothing builds would be a phantom."""
+    built = {d["product_type"] for d in scale.templates() if d["department"] == ["Garden"]}
+    assert built == set(GARDEN_TYPES)
+
+
+def test_an_exempt_garden_type_holds_no_decoy_and_states_its_reason() -> None:
+    """The exemption list is exact: each entry names a Garden type, gives a reason, and holds no
+    decoy (a type that gained decoys leaves the list), and the machines are never on it."""
+    assert set(EXEMPT) <= set(GARDEN_TYPES), "an exempt type the registry does not list"
+    assert {t: r for t, r in EXEMPT.items() if len(r.split()) < 4} == {}
+    assert {t for t in EXEMPT if _decoys(t)} == set()
+    assert set(KEYS) <= set(DECOY_TYPES)
+
+
+@pytest.mark.parametrize("ptype", DECOY_TYPES)
 def test_a_sibling_or_incidental_decoy_is_not_the_type_and_its_title_holds_the_words(
     ptype: str,
 ) -> None:
@@ -296,13 +338,14 @@ def test_a_sibling_or_incidental_decoy_is_not_the_type_and_its_title_holds_the_w
     assert any(r.product_type != ptype for r in got["incidental"])
 
 
-@pytest.mark.parametrize("ptype", sorted(KEYS))
+@pytest.mark.parametrize("ptype", DECOY_TYPES)
 def test_an_absent_decoy_names_a_power_source_it_lacks_and_is_the_type(ptype: str) -> None:
     word = {
         "Lawn Mower": "petrol",
         "Robot Mower": "gps",
         "Grass Trimmer": "cordless",
         "BBQ": "gas",
+        "Garden Hose": "latex",
     }[ptype]
     for row in _decoys(ptype)["absent"]:
         assert row.product_type == ptype
@@ -313,7 +356,7 @@ def test_an_absent_decoy_names_a_power_source_it_lacks_and_is_the_type(ptype: st
         assert word not in stated
 
 
-@pytest.mark.parametrize("ptype", sorted(KEYS))
+@pytest.mark.parametrize("ptype", DECOY_TYPES)
 def test_a_secondary_color_decoy_names_a_part_color_and_keeps_its_own_main_color(
     ptype: str,
 ) -> None:
@@ -324,7 +367,7 @@ def test_a_secondary_color_decoy_names_a_part_color_and_keeps_its_own_main_color
         assert " with " in row.title.lower(), "the other color names a part"
 
 
-@pytest.mark.parametrize("ptype", sorted(KEYS))
+@pytest.mark.parametrize("ptype", DECOY_TYPES)
 def test_a_shade_decoy_names_a_color_only_in_its_description(ptype: str) -> None:
     for row in _decoys(ptype)["shade"]:
         assert row.product_type == ptype and len(row.colors) == 1
@@ -334,7 +377,7 @@ def test_a_shade_decoy_names_a_color_only_in_its_description(ptype: str) -> None
 
 def test_the_decoys_are_exempt_from_the_text_check_and_left_out_of_the_derivation() -> None:
     assert garden_rows.decoy_ids() <= scale.DECOY_IDS
-    assert len(garden_rows.decoy_ids()) == len(DECOY_CODES) >= 3 * len(CLASSES) * len(KEYS)
+    assert len(garden_rows.decoy_ids()) == len(DECOY_CODES) >= 3 * len(CLASSES) * len(DECOY_TYPES)
     kept = {r["product_id"] for r in scale.derivable(scale.templates())}
     assert {f"BRD-{r.code}" for r in ALL} == scale.GARDEN_IDS and not (scale.GARDEN_IDS & kept)
 
@@ -431,11 +474,11 @@ def _holds(el: ET.Element, hexv: str) -> bool:
 
 
 def test_the_decoys_that_name_a_color_are_the_secondary_and_the_real_incidental_ones() -> None:
-    """Twelve secondary decoys (three per type) and eight short-title incidental ones on a real
+    """Fifteen secondary decoys (three per type) and ten short-title incidental ones on a real
     product (two per type) name a color beside the product's own; the shade decoys, the scented
     candles and the sibling products name none in a title."""
     kinds = collections.Counter(garden_rows.DECOY_TABLE[c][0] for c in NAMED)
-    assert kinds == {"secondary": 12, "incidental": 8}
+    assert kinds == {"secondary": 15, "incidental": 10}
 
 
 @pytest.mark.parametrize("code", NAMED)

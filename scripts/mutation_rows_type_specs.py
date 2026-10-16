@@ -182,8 +182,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the ceiling is raised above the list",
         "type_registry.py",
-        "LEGACY_CEILING = 329",
-        "LEGACY_CEILING = 429",
+        "LEGACY_CEILING = 328",
+        "LEGACY_CEILING = 428",
         "tests/test_retail_type_specs_351.py -k registered_through_a_spec_or_the_legacy_list",
         "the ceiling is the exact length of the list",
         "prototypes/retail_drawings",
@@ -348,6 +348,15 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "    if False:",
         "tests/test_retail_type_specs_351.py -k refuses_a_code",
         "--code cannot take an id in use",
+        ".",
+    ),
+    (
+        "the stray-row exemption widens to every product-word row",
+        "tests/test_retail_type_specs_351.py",
+        '    decoys = {f"PLT-{r.code}" for r in decoy_product_words.TABLE}',
+        "    decoys = set(decoy_product_words.IDS)",
+        "tests/test_retail_type_specs_351.py -k floor_row_added_to_a_spec_type",
+        "only a decoy row may sit outside its spec type, never a floor row",
         ".",
     ),
 ]
