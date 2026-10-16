@@ -298,28 +298,12 @@ uv run ecom-generate images --catalog out/catalog-100k --out out/images-100k --a
 
 `--lines 39000` (`config.HUNDRED_K_LINES`) is the value that lands at about
 100,000 SKUs. Each deepened type adds its own share on top, so the build
-grows with every one; #62 renames it by what it holds and generates these
-figures. Measured with the first command above (about 45 s wall time), per
-type from `skus_by_type` in its `stats.json`:
-
-| type | SKUs | | type | SKUs |
-|---|--:|---|---|--:|
-| end_mill_square | 13,852 | | washer_flat | 978 |
-| end_mill_ball | 8,110 | | hammer_ball_pein | 861 |
-| drill_jobber | 7,307 | | abrasive_flap_disc | 2,460 |
-| tap_spiral_point | 3,512 | | nut_hex | 12,044 |
-| screw_socket_head | 7,727 | | bearing_radial_ball | 11,340 |
-| screw_flat_head | 4,752 | | wheel_depressed_center | 11,495 |
-| screw_button_head | 3,439 | | hex_key | 6,466 |
-| screw_low_head | 2,692 | | bolt_hex | 5,934 |
-| kit_assortment | 695 | | lock_nuts_nylon_insert | 4,513 |
-| set_screws_hex_socket | 7,061 | | dowel_pins | 1,004 |
-| cotter_pins | 803 | | retaining_rings_external | 694 |
-| roller_chain | 509 | | turnbuckles | 385 |
-| shackles | 373 | | pillow_block_bearings | 269 |
-| roller_chain_sprockets | 200 | | roller_chain_links | 769 |
-| o_rings | 1,040 | | key_stock | 965 |
-| the breadth categories | 75 (1-3 each) | | | |
+grows with every one. Its measured size -- `lines`, `skus` and `skus_by_type`
+for every type -- is not typed here: it is `hundred_k` in
+`src/synthetic_ecommerce_data/core/data/measured_builds.json`, which
+`uv run python -m synthetic_ecommerce_data.domains.industrial.measured_builds`
+rewrites from the build (about 40 s) and `scripts/merge_pr.sh` rebuilds at
+merge, so adding a type never edits this section (gen#85).
 
 The mix is not the one a proportional scale would give, and that is the
 uniqueness rule at work: a type whose spec space is small (ISO 7089 fixes a
@@ -327,36 +311,15 @@ washer's nine sizes; a hammer is its head weight and handle) runs out of
 SKUs its makers have not already made, so it grows less. It was about 28 thousand
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
-**122,324 SKUs over 70,776 products** (`skus` and `lines` in `stats.json`),
-4,513 of them lock nuts over 2,714 products, 7,061 set screws over 3,786,
-1,004 dowel pins over 535, 509 roller chains over 328, 803 cotter pins over
-463 and 694 external retaining rings over 413 (the last two are the first
-table types, #101). The next five table types add 1,996 SKUs over 1,237
-products and moved no other type: 385 turnbuckles over 244, 373 shackles over
-246, 269 pillow block bearings over 168, 200 roller chain sprockets over 129
-and 769 roller chain links over 450. O-rings are 1,040 over 565:
-`o_rings` was a breadth category of 2 SKUs; deepened from the AS568 table
-(#53), it took no SKU from any other type. Key stock is 965 bars over 560
-(#108, a new type with its own share), and moved none either. Bearings widened from 27 numbers to 75 (#64), so fewer bearing
-lines repeat a number a maker already sells: 11,340 bearings where there were
-7,516, and no other type moved. `lock_nuts_nylon_insert`,
-`set_screws_hex_socket`, `dowel_pins` and `roller_chain` became deep types
-(#53), each with its own share of `--lines`, as each table type has, and took
-none from the others (the dowel pins', the roller chain's and the two table
-types' breadth rows and their SKUs left the breadth set), so every
-other type's SKU count but the bearings' is the one measured on `95a9ed0` (the set screws' small
-sockets add a true sentence to some hex key copy, not a SKU), when
-the build gave 99,929 SKUs over 57,985 products. On `95a9ed0`: SKUs that are
-not different (the rule below): 0. Every bearing number is a real table entry
-with its own bore, OD and width. Product names: 0 clashes catalog-wide.
-Every must-stock example is stocked. (Those four are the 100K tests in
-`tests/test_catalog_brands_voice.py`.) Since key stock,
-`scripts/check_determinism.py --lines 39000`: all 7 emitted files
+At this size no SKU is the same as another (the rule below), every bearing
+number is a real table entry with its own bore, OD and width, product names
+do not clash catalog-wide, and every must-stock example is stocked (those
+four are the 100K tests in `tests/test_catalog_brands_voice.py`).
+`scripts/check_determinism.py --lines 39000` finds all emitted files
 byte-identical across two builds. The drawings, built with the second command
-above: 122,324 drawings, 261.3 MB unpacked, a 28.2 MB `images.tar.gz`, every
-sha256 matching `images.jsonl` (the counts the command prints). The 100K
-catalog is still not published while the spec is iterated at the default
-size.
+above, are one per SKU, every sha256 matching `images.jsonl` (the counts the
+command prints). The 100K catalog is still not published while the spec is
+iterated at the default size.
 
 The files are far too large to commit uncompressed (`flat.jsonl` is ~330 MB).
 This repository commits the default-size catalog only; the industrial demo
