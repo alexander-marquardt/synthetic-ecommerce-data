@@ -145,6 +145,19 @@ def test_a_name_that_matches_no_test_is_refused(repo: Path) -> None:
     assert "tests/test_x.py::test_rde" in done.stdout and "no test" in done.stdout
 
 
+def test_the_callers_pytest_options_do_not_reach_the_judged_run(
+    repo: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # The local CI runs the suite with PYTEST_ADDOPTS="-n N --dist loadgroup"; under xdist a
+    # name that selects nothing exits 5 with no outcomes, which read as NOT JUDGED, not REFUSED.
+    monkeypatch.setenv("PYTEST_ADDOPTS", "-n 2 --dist loadgroup")
+    base = _base(repo)
+    _commit(repo, RED, "typo\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_rde")
+    done = _prove(repo, base)
+    assert done.returncode == 1, done.stdout + done.stderr
+    assert "tests/test_x.py::test_rde" in done.stdout and "no test" in done.stdout
+
+
 def test_prose_in_the_trailer_is_refused(repo: Path) -> None:
     base = _base(repo)
     _commit(repo, RED, "prose\n\nRefs #1\n\nRed-Test: the new test")
