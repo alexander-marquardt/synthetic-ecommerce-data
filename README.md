@@ -1000,7 +1000,9 @@ unless it collapses on `product_id`.
 five kids'), one document per style with its color x width x size SKUs
 nested. A size is three fields, `size_uk`, `size_eu` and `size_us`, read from
 one chart row of the audience, so they never disagree; half sizes exist only
-where a shoe is cut in them, and a wide fit only in the sizes it names. Each
+where a shoe is cut in them, and a wide fit only in the sizes it names. A ring's UK
+letter and US number are other kinds of value, so they sit under `ring_size_uk` and
+`ring_size_us` (gen#249), never these keys. Each
 color names its upper material, which both the `upper_material` facet and the
 drawing read. `kit_footwear.py` draws the shoe from the side in seventeen
 kinds (court, kitten and block heels, ballet pumps, loafers, brogues,
