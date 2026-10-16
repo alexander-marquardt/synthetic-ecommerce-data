@@ -194,8 +194,38 @@ def test_a_drawing_with_nothing_drawn_reaches_nowhere() -> None:
         '<polygon points="0,0 500,0 500,9"/>',
         '<path d="M0,0 R5,5"/>',
         '<g transform="skewX(20)"><rect width="9" height="9"/></g>',
+        '<line x1="10" y1="10" x2="450" y2="10"/>',
+        '<polyline points="0,0 500,0"/>',
+        '<use href="#a"/>',
+        '<image href="a.png" width="9" height="9"/>',
+        '<svg x="380" y="0" width="100" height="100"><rect width="50" height="50"/></svg>',
+        '<rect width="50" height="50" style="fill:red;transform:translate(500px,0)"/>',
+        '<clipPath id="c" transform="translate(400 0)"><rect width="400" height="400"/></clipPath>'
+        '<rect width="50" height="50" clip-path="url(#c)"/>',
+        '<clipPath id="c" clipPathUnits="objectBoundingBox"><rect width="1" height="1"/></clipPath>'
+        '<rect width="50" height="50" clip-path="url(#c)"/>',
     ],
 )
 def test_what_the_measure_cannot_read_is_refused_not_skipped(body: str) -> None:
     with pytest.raises(ValueError, match="not read"):
         sheet_extent.reach(_svg(body))
+
+
+def test_a_clip_bigger_than_the_sheet_still_flags_what_it_lets_through() -> None:
+    wide = _svg('<clipPath id="c"><rect x="-100" y="0" width="900" height="400"/></clipPath>'
+                '<rect x="300" y="0" width="300" height="50" clip-path="url(#c)"/>')  # fmt: skip
+    assert sheet_extent.overrun(wide) == pytest.approx(200)
+
+
+def test_text_is_not_measured() -> None:
+    # Documented: a label is not geometry a shape places, so it is skipped, not measured.
+    assert sheet_extent.reach(_svg('<text x="500" y="20">hi</text>')) is None
+
+
+def test_a_glow_keeps_the_text_of_every_number_inside_the_sheet() -> None:
+    import kit_lighting
+
+    inside = "M246.0,216.0 L346.0,216.0 L300.5,399.5 Z"
+    assert f'd="{inside}"' in kit_lighting._glow(inside)
+    held = kit_lighting._glow("M246.0,216.0 L451.5,216.0 L-3,410 Z")
+    assert 'd="M246.0,216.0 L400,216.0 L0,400 Z"' in held
