@@ -157,7 +157,33 @@ def test_no_per_type_size_is_typed_by_hand() -> None:
 def test_no_doc_counts_the_types_by_hand() -> None:
     """``today's 68 types`` was typed once and was stale the next merge (#85)."""
     pattern = re.compile(r"\btoday's\s+\d+\s+types\b")
-    offenders = sorted(
-        path for path in QUOTING if pattern.search((ROOT / path).read_text("utf-8"))
-    )
+    offenders = sorted(path for path in QUOTING if pattern.search((ROOT / path).read_text("utf-8")))
     assert offenders == [], f"a type count typed by hand in {offenders}; read figures.catalog"
+
+
+def test_a_planted_restatement_of_each_kind_of_figure_is_refused(stats: dict) -> None:
+    """The patterns above are the guard, so each is shown to match the prose
+    that used to carry the figure: a doc that types it again is refused."""
+    catalog = stats["figures"]["catalog"]
+    hundred_k = json.loads(BUILDS_FILE.read_text("utf-8"))["hundred_k"]
+    biggest = max(hundred_k["skus_by_type"].values())
+    planted = {
+        "catalog.breadth_categories": f"The {catalog['breadth_categories']} breadth types",
+        "catalog.modelled_types": f"The {catalog['modelled_types']} depth types",
+        "catalog.brands": f"{catalog['brands']} invented brands",
+        "skus": f"{stats['skus']:,} SKUs",
+        "hundred_k.skus": f"**{hundred_k['skus']:,} SKUs**",
+        "hundred_k.lines": f"over {hundred_k['lines']:,} products",
+        "hundred_k.skus_by_type": f"| bolt_hex | {biggest:,} |",
+    }
+    patterns = _quotations(stats)
+    unrefused = sorted(
+        key
+        for key, text in planted.items()
+        if not any(
+            re.search(pattern, text)
+            for name, pattern in patterns.items()
+            if name == key or name.startswith(key + ".")
+        )
+    )
+    assert unrefused == [], f"a restated figure no pattern refuses: {unrefused}"
