@@ -45,12 +45,43 @@ def test_each_leaf_carries_each_larger_size(ceiling: list[dict], leaf: str, uk: 
     assert _carrying(_womens(ceiling, leaf), uk), f"no Womens/{leaf} style carries UK {uk}"
 
 
+#: The Womens chart rows above UK 16 as literals (``samples.WOMENS``: EU = UK + 28, US = UK - 4),
+#: so an offset moved in ``plus_sizes.py`` cannot move the expectation with it.
+CHART = {"18": ("46", "14"), "20": ("48", "16"), "22": ("50", "18"), "24": ("52", "20")}
+
+
 def test_a_larger_size_is_a_row_of_the_womens_chart(ceiling: list[dict]) -> None:
-    for r in _womens(ceiling, "Dresses"):
+    """Jeans store the three size systems; every UK 18-24 SKU of a Womens leaf is a chart row."""
+    seen = 0
+    for r in ceiling:
+        if r["category_path"][0] != "Womens":
+            continue
         for s in r["skus"]:
-            if "size_uk" in s:
-                uk = int(s["size_uk"])
-                assert (s["size_eu"], s["size_us"]) == (str(uk + 28), str(uk - 4)), r["product_id"]
+            if s.get("size_uk") in CHART:
+                seen += 1
+                assert (s["size_eu"], s["size_us"]) == CHART[s["size_uk"]], r["product_id"]
+    assert seen, "no Womens SKU carries a size_uk above 16, so the chart is not pinned"
+
+
+@pytest.mark.parametrize("leaf", ["Dresses", "Tops"])
+def test_a_bare_size_leaf_carries_the_uk_size_alone(ceiling: list[dict], leaf: str) -> None:
+    """Dresses and tops store only ``size`` (read as UK): a new SKU adds no EU or US field."""
+    new = [s for r in _womens(ceiling, leaf) for s in r["skus"] if s.get("size") in CHART]
+    assert new, f"no Womens/{leaf} SKU carries a size above 16"
+    assert all(not {"size_uk", "size_eu", "size_us"} & set(s) for s in new)
+
+
+@pytest.mark.parametrize("leaf", ["Dresses", "Jeans"])
+def test_extend_writes_the_literal_eu_and_us_of_each_new_size(leaf: str) -> None:
+    skus = [{"sku": "X-3-001", "color": "Red", "size_uk": "16", "size_eu": "44", "size_us": "12",
+             "price": 20.0, "in_stock": True}]
+    rec = {"product_id": "X-3", "category_path": ["Womens", leaf], "sku_count": 1, "skus": skus,
+           "size_options": {"size_uk": ["16"]}}
+    out = plus_sizes.extend(rec)
+    assert [(s["size_uk"], s["size_eu"], s["size_us"]) for s in out["skus"][1:]] == [
+        (uk, *CHART[uk]) for uk in CHART]
+    assert out["size_options"]["size_eu"] == [c[0] for c in CHART.values()]
+    assert out["size_options"]["size_us"] == [c[1] for c in CHART.values()]
 
 
 def test_the_options_and_the_sku_count_follow_the_larger_skus(ceiling: list[dict]) -> None:
