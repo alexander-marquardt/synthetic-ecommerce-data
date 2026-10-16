@@ -31,6 +31,7 @@ import mutation_rows_attribute_text  # noqa: E402  (gen#250 rows, kept in their 
 import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
 import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their own file)
 import mutation_rows_customer_names  # noqa: E402  (#393 rows, kept in their own file)
+import mutation_rows_department_floor  # noqa: E402  (gen#234 rows)
 import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
 import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
@@ -4049,6 +4050,8 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"customer names: {name}", file, old, new, test, "", prop, root=root)
         for name, file, old, new, test, prop, root in mutation_rows_customer_names.ROWS
     ),
+    # ---- retail: the department floor is pinned (gen#234); the rows are in their own file ----
+    *(Mutation(f"department floor: {n}", f, o, nw, t, "", p, root=r) for n, f, o, nw, t, p, r in mutation_rows_department_floor.ROWS),
     # ---- retail: product-word decoys (gen#326) ----
     *(
         Mutation(f"product-word decoys: {name}", file, old, new, test, "", prop,
