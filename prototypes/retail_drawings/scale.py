@@ -237,6 +237,10 @@ SPORTS_IDS = frozenset(f"BRD-{r.code}" for r in sports_rows.ROWS)
 GARDEN_IDS = frozenset(f"BRD-{r.code}" for r in garden_rows.ROWS)
 #: The school uniform styles (:mod:`school_rows`, gen#205): templates only, as the sports rows are.
 SCHOOL_IDS = frozenset(f"BRD-{r.code}" for r in school_rows.ROWS)
+#: The steak plate, board and weight (:mod:`distractor_rows`, gen#268). Each carries a material, so
+#: a derived copy would re-draw it ("Porcelain Steak Plate", "Nylon Steak Weight") and add steak
+#: rows the failure class does not count: they stay templates.
+STEAK_WARE_IDS = frozenset(f"PLT-{s.code}" for s in distractor_rows.STEAK_WARE)
 #: The underwear and nightwear styles (:mod:`underwear_rows`, gen#208), left out of the
 #: derivation as the shirts are.
 UNDERWEAR_IDS = frozenset(f"BRD-{r.code}" for r in underwear_rows.ROWS)
