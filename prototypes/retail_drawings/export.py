@@ -99,6 +99,8 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     # (toys_rows.py, gen#201).
     "piece_count": ("piece_count", "Piece count", "C62"),
     "edition": ("edition", "Edition", None),
+    # A dolls' house is sold in three styles (type_specs/dolls_house.py, gen#424).
+    "house_style": ("style", "Style", None),
     "theme": ("theme", "Theme", None),
     # The grocery build's flavor x pack SKUs (grocery.py, gen#154); a list option
     # (an allergen list, the dietary labels) is one entry per value.
