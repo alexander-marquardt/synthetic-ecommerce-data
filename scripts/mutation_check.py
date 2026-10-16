@@ -30,6 +30,7 @@ import mutation_rows_appliance_colors  # noqa: E402  (gen#243 rows)
 import mutation_rows_attribute_text  # noqa: E402  (gen#250 rows, kept in their own file)
 import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
 import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their own file)
+import mutation_rows_customer_names  # noqa: E402  (#393 rows, kept in their own file)
 import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
 import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
@@ -4042,6 +4043,11 @@ MUTATIONS: list[Mutation] = [
     *(
         Mutation(f"audit order: {n}", "generate_cli.py", o, w, t, "", pr)
         for n, o, w, t, pr in mutation_rows_audit_order.ROWS
+    ),
+    # ---- the customer-name check (#393); the rows are in their own file ----
+    *(
+        Mutation(f"customer names: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in mutation_rows_customer_names.ROWS
     ),
     # ---- retail: product-word decoys (gen#326) ----
     *(
