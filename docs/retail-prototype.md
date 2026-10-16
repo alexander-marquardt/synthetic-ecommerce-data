@@ -320,7 +320,7 @@ may keep an entry out of the flat `text` while it stays a facet
 (`standard.flat_documents(..., text_skip=...)`; the grocery's allergen warnings and
 dietary claims).
 
-`prototypes/retail_drawings/export.py` turns the 328-style build into that
+`prototypes/retail_drawings/export.py` turns the 352-style build into that
 standard: `skus` become `variants`, each SKU option a variant-level attribute
 entry (a measurement split into `value`, `unit_code` and `value_canonical`);
 color and size options, the `promotion` and other flags, rating and the other
