@@ -10,6 +10,7 @@ lead, beef steaks follow), so growing the catalog cannot undo them.
 
 from __future__ import annotations
 
+import statistics
 import sys
 from pathlib import Path
 
@@ -127,6 +128,10 @@ def test_the_steak_rows_are_the_distractors_and_the_true_answers(ceiling) -> Non
             if any(c in d["title"].lower() for d in steaks)}  # fmt: skip
     assert len(cuts) == 8, cuts
     assert len(steaks) >= 6
+    # The sales bound that is true: every knife sells more than the median beef steak, not more
+    # than every steak (a few steaks sell as many), so the short title, not popularity, leads.
+    median_steak = statistics.median(d["sold_last_5_days"] for d in steaks)
+    assert min(d["sold_last_5_days"] for d in knives) > median_steak
     # Honest text: a steak title runs to four words or more and says "steak" once.
     assert all(len(d["title"].split()) >= 4 and d["title"].lower().count("steak") == 1
                for d in steaks)  # fmt: skip
