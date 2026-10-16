@@ -144,13 +144,15 @@ def test_a_mug_states_its_capacity_in_millilitres() -> None:
     rows = _spec_rows("gift_mug")
     assert rows
     for row in rows:
-        entries = [e for e in export.standard_document(row.doc())["attributes"]
-                   if e["key"] == "capacity"]
+        entries = [
+            e for e in export.standard_document(row.doc())["attributes"] if e["key"] == "capacity"
+        ]
         assert [e["unit_code"] for e in entries] == ["MLT"], row.code
         assert [e["value_canonical"] for e in entries] and all(
-            isinstance(e["value_canonical"], float) and e["value_canonical"] >= 250
-            for e in entries
+            isinstance(e["value_canonical"], float) and e["value_canonical"] >= 250 for e in entries
         ), row.code
+        # the description states the same capacity as the entry (one fact, said twice)
+        assert f"{entries[0]['value_canonical']:g} ml" in row.description, row.code
 
 
 @pytest.mark.parametrize("key", TYPES)
@@ -173,6 +175,35 @@ def test_every_param_value_changes_the_drawing(key: str) -> None:
             assert dict(row.params)[param] in values, (row.code, param)
             drawn = {v: _svg(row, **{param: v}) for v in values}
             assert len(set(drawn.values())) == len(values), (row.code, param)
+
+
+#: spec key -> (attribute key, drawing param, attribute value -> param value).
+PARAM_OF_ATTR = {
+    "gift_mug": (("design", "design"), ("material", "material")),
+    "greeting_card": (("occasion", "occasion"),),
+    "notebook": (("ruling", "ruling"), ("cover", "cover")),
+    "money_box": (("shape", "form"), ("material", "material")),
+    "gift_hamper": (("contents_kind", "contents"),),
+}
+SPELLED = {
+    "leather-effect": "leather",
+    "bath and body": "bath_body",
+    "candle and diffuser": "candle_diffuser",
+    "sock and slipper": "sock_slipper",
+}
+
+
+@pytest.mark.parametrize("key", TYPES)
+def test_the_drawing_params_state_the_same_facts_as_the_attributes(key: str) -> None:
+    """A drawing shows what the row says: a wooden rocket is drawn as wood, not as tin."""
+    rows = _spec_rows(key)
+    assert rows, key
+    for row in rows:
+        attrs = {e[0]: e[2] for e in row.attrs}
+        for attr_key, param in PARAM_OF_ATTR[key]:
+            said = attrs[attr_key].lower()
+            drawn = SPELLED.get(said, said.replace(" ", "_"))
+            assert dict(row.params)[param] == drawn, (row.code, attr_key, said)
 
 
 def test_the_money_box_draws_one_coin_slot_in_every_form() -> None:
@@ -214,20 +245,32 @@ def test_the_department_grows_by_at_least_150_skus() -> None:
     assert sum(len(r.skus()) for r in ALL_ROWS) >= 150
 
 
-def test_the_styles_reach_the_build_once_and_meet_the_standard() -> None:
+@pytest.mark.timeout(300)
+def test_the_styles_reach_the_100k_build_once_and_meet_the_standard() -> None:
     assert ALL_ROWS
-    docs = [d for d in scale.templates() if d["product_id"] in IDS]
+    docs = [d for d in scale.documents(scale.build(100_000)) if d["product_id"] in IDS]
     assert sorted(d["product_id"] for d in docs) == sorted(IDS)
     assert check_catalog(docs, one_class_per_key=True) == []
     assert {d["category_path"][0] for d in docs} == {ROOT}
 
 
+def _shopper_view(index: br.Index, query: str) -> list[dict]:
+    """The results after the policies that fix the class-8 decoys: the department policy keeps
+    Gifts, the category policy drops the decoy that sits in Gifts (:data:`dpw.BY_ID`)."""
+    return [
+        d
+        for d in br.rank(index, query, 1000)
+        if d["category_path"][0] == ROOT and d["product_id"] not in dpw.BY_ID
+    ]
+
+
 @pytest.mark.parametrize("query", QUERIES)
 def test_each_query_shape_ranks_the_intended_type_first(index: br.Index, query: str) -> None:
-    top = br.rank(index, query, 5)
+    top = _shopper_view(index, query)[:5]
     assert top, query
     assert top[0]["product_id"] in {f"BRD-{c}" for c in QUERIES[query]}, (
-        query, [(d["product_id"], d["title"]) for d in top],
+        query,
+        [(d["product_id"], d["title"]) for d in top],
     )
 
 
@@ -260,6 +303,9 @@ def test_each_decoy_holds_the_shoppers_word_and_is_another_product(
         assert doc["product_type"] != ptype, row.code
         assert path[-1] not in doc["category_path"], row.code
         assert len(doc["title"].split()) <= 5, doc["title"]
+        # the department policy drops a decoy of another department; the one that sits in Gifts
+        # is fixed by the category policy
+        assert (doc["category_path"][0] == ROOT) == (row.policy == "category"), row.code
 
 
 @pytest.mark.parametrize("key", TYPES)
