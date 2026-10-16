@@ -125,16 +125,13 @@ def test_the_filters_named_for_a_leaf_are_keys_the_rows_export() -> None:
         assert named <= by_leaf.get(leaf, set()), (leaf, named - by_leaf.get(leaf, set()))
 
 
-# Every type gen#265 lists and the first increment did not ship (kayaks, scooters and skateboards
-# are scheduled in #352 with the bike types). Building one moves its name to the
-# Leaves table, which test_a_type_the_rows_build_is_not_listed_as_not_built forces.
+# Every type gen#265 lists that neither increment shipped (the second, gen#368, built seventeen;
+# kayaks, scooters, skateboards and the bike types are scheduled in #352). Building one moves
+# its name to the Leaves table, which test_a_type_the_rows_build_is_not_listed_as_not_built forces.
 EXPECTED_NOT_BUILT = frozenset(
     {
-        "Bicycles", "Bike helmets", "Bike lights", "Bike locks", "Bike pumps", "Camping stoves",
-        "Lanterns", "Roll mats", "Yoga blocks", "Yoga straps", "Resistance bands", "Bats",
-        "Gloves", "Balls", "Batting helmets", "Swimming goggles", "Swim caps", "Kickboards",
-        "Armbands", "Footballs", "Tennis rackets", "Badminton sets", "Kayaks", "Kick scooters",
-        "Skateboards", "Swimsuits and trunks", "Balance bikes",
+        "Bicycles", "Bike helmets", "Bike lights", "Bike locks", "Camping stoves", "Kayaks",
+        "Kick scooters", "Skateboards", "Swimsuits and trunks", "Balance bikes",
     }
 )  # fmt: skip
 
@@ -165,7 +162,7 @@ def test_every_type_not_built_has_an_open_issue_or_a_reason() -> None:
     assert _not_built_problems(_table("Not built")) == []
 
 
-@pytest.mark.parametrize("dropped", ["Bike pumps", "Footballs", "Balance bikes"])
+@pytest.mark.parametrize("dropped", ["Bicycles", "Camping stoves", "Balance bikes"])
 def test_a_dropped_not_built_row_is_seen(dropped: str) -> None:
     rows = [r for r in _table("Not built") if r[0] != dropped]
     assert any(dropped in p for p in _not_built_problems(rows))
