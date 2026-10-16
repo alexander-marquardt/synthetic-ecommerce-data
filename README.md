@@ -2108,7 +2108,8 @@ figure against the file.
 | slope on the key dimension (a bore, a diameter, a thread size), and on length for hex bolts and socket screws | census, cut only for a reason `price.SLOPE_CUTS` records |
 | material | **not measured**: general-knowledge ratios in `price.MATERIAL_FACTORS`, since the census holds material equal on a page |
 | brand tier (economy, standard, premium) | census: the bearing, jobber drill, ball end mill, socket head screw, spiral point tap and depressed-center wheel use their own figures (`price.TYPE_TIER_CENSUS`); every other type uses the jobber drill's. That includes the hex nut, though the census measures its same-spec brand spread: on its 6 shared specs the house label is the dearer brand (5.58x the others, p50), so it gives no economy figure |
-| pack quantity (hex nuts) | census pack slope |
+| pack quantity (hex nuts, socket screws) | census pooled pack slope (`price.PACK_SLOPES`); the socket screw's pack falls as its size grows (`price.pack_quantity`) |
+| pack quantity (hex bolts) | a group page's pack, independent of the size, so a size comes in several packs (`price.page_pack`); priced within a size on the elasticity the census's same-spec larger-pack ratio gives (`price.PACK_ELASTICITY`, 0.659: a 5x pack costs 0.5778 per piece). Because the pack adds its own spread, the bolt's slopes are cut to `price.SLOPE_CUT_AIMS` (shown p90/p10 10.0, inside the row's band) rather than to the census's 8.21, which would leave no size slope. Prices exist to show range filters, sorting and facets, not to match the census exactly (#86) |
 | group noise, one draw per census-style page (one brand, the line attributes a page holds equal) | fitted sigma |
 | SKU noise, one draw per SKU | fitted sigma |
 | size noise, one draw per spec that every brand shares (taps, socket screws and set screws only, `price.SIZE_NOISE`, each with its reason) | fitted sigma |

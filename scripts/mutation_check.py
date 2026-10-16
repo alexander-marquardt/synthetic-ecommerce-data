@@ -29,6 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mutation_rows_appliance_colors  # noqa: E402  (gen#243 rows)
 import mutation_rows_attribute_text  # noqa: E402  (gen#250 rows, kept in their own file)
 import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
+import mutation_rows_bolt_pack  # noqa: E402  (gen#86 rows, kept in their own file)
 import mutation_rows_brand_owner_236  # noqa: E402  (gen#236 rows, kept in their own file)
 import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their own file)
 import mutation_rows_customer_names  # noqa: E402  (#393 rows, kept in their own file)
@@ -4078,6 +4079,11 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"sheet extent: {name}", file, old, new, test, "", prop, root=root)
         for name, file, old, new, test, prop, root in mutation_rows_sheet_extent.ROWS
     ),
+    # ---- pack: the bolt's pack is a page's and is priced within a size (gen#86); the rows are in their own file ----
+    *(
+        Mutation(f"bolt page pack: {name}", file, old, new, test, direction, prop, root=root)
+        for name, file, old, new, test, direction, prop, root in mutation_rows_bolt_pack.ROWS
+    ),
     # ---- retail: product-word decoys (gen#326) ----
     *(
         Mutation(f"product-word decoys: {name}", file, old, new, test, "", prop,
@@ -4172,23 +4178,23 @@ MUTATIONS: list[Mutation] = [
             (
                 "the pack grows with the size",
                 "core/price.py",
-                "    quantile = 1.0 - (rank + u) / sizes",
-                "    quantile = (rank + u) / sizes",
+                "    return _pack_at(type_key, 1.0 - (rank + u) / sizes)",
+                "    return _pack_at(type_key, (rank + u) / sizes)",
                 "never_grows_with_the_size",
                 "the pack falls as the size grows",
             ),
             (
                 "every line of a size takes one pack",
                 "core/price.py",
-                "    quantile = 1.0 - (rank + u) / sizes",
-                "    quantile = 1.0 - (rank + 0.5) / sizes",
+                "    return _pack_at(type_key, 1.0 - (rank + u) / sizes)",
+                "    return _pack_at(type_key, 1.0 - (rank + 0.5) / sizes)",
                 "even_spread_over_the_sizes",
                 "the build publishes the census counts",
             ),
             (
                 "the bolt's pack does not enter its price",
                 "core/price.py",
-                '            pack_slope=PACK_SLOPES["bolt_hex"],',
+                '            pack_slope=PACK_ELASTICITY["bolt_hex"],',
                 "            pack_slope=0.0,",
                 "prices_its_pack_on_the_census_slope",
                 "the price is the pack's",
