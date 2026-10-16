@@ -3947,6 +3947,69 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: Nike is a real brand, text only (gen#341) ----
+    *(
+        Mutation(f"nike: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a real brand draws its logo",
+                "house_styles.py",
+                "    if style.mark == NO_MARK:  # a real brand",
+                "    if False:  # a real brand",
+                "tests/test_retail_nike_341.py -k carries_no_logo_mark_or_name",
+                "a real brand is text only: no drawing carries its logo",
+            ),
+            (
+                "Nike leaves the allow-list",
+                "real_brands.py",
+                'ALLOWED: tuple[str, ...] = ("Nike",)',
+                "ALLOWED: tuple[str, ...] = ()",
+                "tests/test_retail_nike_341.py -k guard_allows_nike",
+                "the guard allows the ruled-in brand",
+            ),
+            (
+                "the guard stops refusing Puma",
+                "real_brands.py",
+                '"Adidas", "Puma", ',
+                '"Adidas", ',
+                "tests/test_retail_nike_341.py -k refuses_any_other_real_brand",
+                "the guard refuses every other real brand",
+            ),
+            (
+                "the guard refuses Nike too",
+                "real_brands.py",
+                '"Adidas", "Puma", ',
+                '"Nike", "Adidas", "Puma", ',
+                "tests/test_retail_nike_341.py -k allow_list_and_the_refused_list",
+                "the allow-list and the refused list do not overlap",
+            ),
+            (
+                "an apparel decoy may clone a Nike style",
+                "decoy_apparel.py",
+                '            and d["brand"] not in real_brands.ALLOWED',
+                "            and True",
+                "tests/test_retail_nike_341.py -k every_nike_title_names_it",
+                "a real brand is never cloned into a decoy that hides its name",
+            ),
+            (
+                "a Nike style enters the seeded derivation",
+                "scale.py",
+                "| GARDEN_IDS | NIKE_IDS",
+                "| GARDEN_IDS",
+                "tests/test_retail_nike_341.py -k leave_the_derivation",
+                "the Nike rows are templates only",
+            ),
+            (
+                "Nike leaves the owner table",
+                "class_model.py",
+                '"Nike")  # fmt: skip',
+                '"Coat Crake")  # fmt: skip',
+                "tests/test_retail_nike_341.py -k third_party_brand",
+                "Nike is another house's make",
+            ),
+        ]
+    ),
     # ---- retail: a garden decoy title names a color only when its drawing shows it (gen#203, the #311 ruling) ----
     # Every name starts "garden decoy color:", so `--only "garden decoy color:"` re-runs them.
     *(
