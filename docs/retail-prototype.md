@@ -437,6 +437,11 @@ or a wallet for men under `Mens > Accessories`), each a spec under `type_specs/`
 drawing shape registered in the spec module. Done: sunglasses (`type_specs/sunglasses.py`: five
 frames, three lenses, UV400, the six main colors; its decoys are a UV400 name on a pair with no
 UV protection, a blue tint in the text of a black frame and another brand's name in the text).
+Belts (`type_specs/belt.py`, shape `belt_buckled`: four materials, three buckles, the waist in
+inches as a measured SKU axis), hats and caps (`type_specs/hat_cap.py`: five kinds in one size,
+S/M and L/XL) and gloves (`type_specs/gloves.py`: four kinds, a lining, S to XL) follow the same
+way, each with the six main colors, two brands and decoys of classes 4, 5 and 7. Belt left the
+legacy type list, so `LEGACY_CEILING` is one lower. Scarf and wallet are still to do.
 
 **The store's department is the top level of `category_path`, and no document states one**
 (gen#281). The retail tree has exactly eleven roots: Womens, Mens, Kids, Food & Drink, Home,
