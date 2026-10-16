@@ -13,7 +13,9 @@ elastic/prism's (`contributing/file-size-budget.md` there), run on this tree
   per-file size is checked in: the merge base records each one. On the day the
   gate landed three files were over it: `scripts/mutation_check.py` (3,468
   lines), `src/synthetic_ecommerce_data/domains/industrial/generate.py` (2,295)
-  and `README.md` (2,095).
+  and `README.md` (2,095). `README.md` is now under the cap: its retail
+  prototype reference moved to [`retail-prototype.md`](retail-prototype.md) (#240),
+  where a retail type batch adds its listing line.
 
 Why: an agent looking for one spot in a big file reads a large part of it, and
 what it reads stays in its context for every later step.

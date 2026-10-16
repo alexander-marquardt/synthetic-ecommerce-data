@@ -1,6 +1,6 @@
 One line per directive; the detail is behind each pointer. This file loads on every agent call, so add a pointer, not a paragraph.
 
-- README.md is about 95 KB and docs/adding-a-type.md about 49 KB: `grep -n '^## '` for the section you need and read only that range.
+- README.md is about 100 KB, docs/adding-a-type.md about 53 KB and docs/retail-prototype.md (the retail prototype reference, split out of the README in #240; a retail type batch adds its listing line there, never to the README) about 50 KB: `grep -n '^## '` for the section you need and read only that range.
 - Run the tests your change touches, not the whole suite (about 27 minutes serially; CI runs it): [README → Contributing](README.md#contributing).
 - A test that outlives the per-test timeout fails rather than growing; raise it for that test alone with `@pytest.mark.timeout(<s>)` (README → Contributing).
 - US spelling (`color`, `colorway`); `tests/test_us_spelling.py` refuses the British spelling in any tracked file.
