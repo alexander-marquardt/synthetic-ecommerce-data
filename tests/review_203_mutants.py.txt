@@ -1,0 +1,22 @@
+TESTS = ["tests/test_retail_outdoor_203.py", "tests/test_retail_garden_203.py"]
+KO = "prototypes/retail_drawings/kit_outdoor.py"
+SP = "prototypes/retail_drawings/type_specs/"
+MUTANTS = [
+    (KO, 'if power == "cordless":', 'if power == "petrol":', "hedge_cordless_draws_petrol_branch"),
+    (KO, 'elif power == "petrol":', 'elif power == "electric":', "hedge_petrol_draws_cable_branch"),
+    (KO, 'tilt.lower() == "yes"', 'tilt.lower() != "yes"', "parasol_tilt_inverted"),
+    (KO, 'base.lower() == "yes"', 'base.lower() != "yes"', "parasol_base_inverted"),
+    (KO, 'cushions.lower() == "yes"', 'cushions.lower() != "yes"', "furniture_cushions_inverted"),
+    (KO, "main = max(1, n - 2)", "main = max(1, n - 1)", "corner_one_seat_too_many"),
+    (KO, "for i in range(n):\n        dy = i * 36", "for i in range(n + 1):\n        dy = i * 36", "lounger_extra_seat"),
+    (KO, "n, cushion = int(seats), ", "n, cushion = int(seats) + 1, ", "furniture_seats_off_by_one"),
+    (KO, '<g class="{ARM_CLASS}">', '<g class="x{ARM_CLASS}">', "parasol_arm_group_renamed"),
+    (KO, 'if kind == "cantilever":', 'if kind == "center":', "parasol_kind_swapped"),
+    (KO, 'pt.fill("blade", POLE)', 'pt.fill("guard", POLE)', "hedge_blade_fill_wrong_part"),
+    ("prototypes/retail_drawings/export.py", '"MTR"),\n    "seats"', '"CMT"),\n    "seats"', "canopy_unit_centimetres"),
+    ("prototypes/retail_drawings/export.py", '("seats", "Seats", "C62")', '("seats", "Seats", "MTR")', "seats_unit_metres"),
+    ("prototypes/retail_drawings/garden_rows.py", '"DCGCSH": ("type", "hedge trimmer"', '"DCGCSH": ("absent", "hedge trimmer"', "hedge_type_decoy_reclassed"),
+    (SP + "parasol.py", '_attrs("Cantilever", True, True)', '_attrs("Cantilever", True, False)', "cantilever_record_drops_base"),
+    (SP + "hedge_trimmer.py", 'u("battery_voltage", "Battery voltage", 18, "VLT")', 'u("battery_voltage", "Battery voltage", 18, "C62")', "battery_voltage_unit"),
+    (SP + "garden_furniture_set.py", '("seats", "4"), ("cushions", "no")', '("seats", "4"), ("cushions", "yes")', "wooden_dining_draws_cushions"),
+]
