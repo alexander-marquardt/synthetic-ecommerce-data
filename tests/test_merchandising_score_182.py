@@ -187,7 +187,8 @@ def retail():
 def test_retail_every_product_carries_it_in_range_and_it_passes_the_standard(retail):
     records, docs = retail
     assert len(docs) > 1000
-    assert check_catalog(docs, one_class_per_key=True, text_exempt=scale.DECOY_IDS) == []
+    # the class-8 decoys that name a detail color on purpose are exempt by id (gen#326)
+    assert check_catalog(docs, one_class_per_key=True, text_exempt=scale.TEXT_EXEMPT) == []
     assert all(type(d["merchandising_score"]) is int for d in docs)
     assert all(0 <= d["merchandising_score"] <= 100 for d in docs)
 
