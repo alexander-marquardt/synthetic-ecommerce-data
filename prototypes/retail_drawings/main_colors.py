@@ -19,6 +19,8 @@ from __future__ import annotations
 import copy
 import re
 
+import decoy_apparel
+import decoy_product_words
 import decoy_rows
 
 #: The baseline: plain color -> swatch hex (the color word is also the swatch family).
@@ -136,13 +138,15 @@ def audience(rec: dict) -> str:
         return path
     return "Baby" if path[:2] == ["Kids", "Baby"] else path[0]
 
+_PLANTED = decoy_rows.IDS | decoy_apparel.IDS | decoy_product_words.IDS
+
 
 def groups(tpls: list[dict]) -> dict[tuple[str, str], list[dict]]:
     """(product_type, audience) -> its styles, for every type with a color selector. A type
     sold to men and to women is two groups: "red shirt" has to find one for each."""
     out: dict[tuple[str, str], list[dict]] = {}
     for r in tpls:
-        if r.get("color_options") and r["product_id"] not in decoy_rows.IDS:
+        if r.get("color_options") and r["product_id"] not in _PLANTED:
             out.setdefault((r["product_type"], audience(r)), []).append(r)
     return out
 

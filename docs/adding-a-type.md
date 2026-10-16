@@ -1,5 +1,8 @@
 # How to add a product type
 
+A retail type is one spec file: see [new-type-quick-path.md](new-type-quick-path.md) first.
+This page is the reference for the industrial catalog.
+
 A product type is one leaf of the category tree, such as `screw_socket_head` or
 `ball_stock_precision`. Each type is declared in a module of its own under
 `src/synthetic_ecommerce_data/domains/industrial/product_types/`. A breadth type is one new
@@ -33,7 +36,7 @@ A module declares one `SPEC = TypeSpec(...)`, of one of two kinds:
   `domains/industrial/product_types/raw_materials/ball_stock_precision.py`.
 * **Modelled type.** `category`, `standards_family`, `vocab`, `figure` and
   `extent`, `make`, `share`, `price` and `key_attributes`, the facts the tests
-  hold it to (step 5 below), and optionally `use_lines`. `make` is the
+  hold it to (the Facts item below), and optionally `use_lines`. `make` is the
   builder: `make(gen, type_key, category)` drafts one line. A module must
   never import `domains/industrial/generate.py` at module level (that is an import
   cycle); a builder that needs `LineDraft`, `ChildDraft` or `BRANDS` imports
@@ -44,7 +47,7 @@ A module declares one `SPEC = TypeSpec(...)`, of one of two kinds:
   `Generator`).
 
 `part_number_block` is left unset unless `ecom-generate block` says otherwise
-(step 2 below).
+(the Block item below).
 
 The types in `domains/industrial/newtypes.py` (`NEW_TYPES`) are a third kind that no
 module can declare yet. They stay where they are for now.
@@ -117,21 +120,28 @@ its published attributes. `set_screws_hex_socket` does both.
 
 ### A new type
 
-1. Write the module. Copy the example of the matching kind and change every
+- **Module.** Write the module. Copy the example of the matching kind and change every
    field.
-2. Check the type's part-number block: `uv run ecom-generate block <type_key>`.
+- **Block.** Check the type's part-number block: `uv run ecom-generate block <type_key>`.
    It prints the block the key derives and, when another type already uses it,
    the first free block. In that case set `part_number_block=<block>` on the
    new type's `TypeSpec` (not on its `BreadthRow`): about one new type in 135
    collides at today's 68 types. Another open pull request can take the same
    block; `scripts/merge_pr.sh` re-checks it on the merged tree.
-3. If the leaf's head noun is new, add it to `PRODUCT_NOUNS` in
-   `domains/industrial/names.py`.
-4. Build the catalog and regenerate the committed one:
+- **Names.** If the leaf's head noun is new, add it to `PRODUCT_NOUNS` in
+   `domains/industrial/names.py`. Also give the type its shopper-readable
+   name as `label="..."` on its `TypeSpec` (singular, except a pair sold as a
+   pair such as Safety Glasses; plain English, capitalised, no `_`, unique):
+   every product carries it as `product_type_label` beside the unchanged id,
+   and a type without one stops the build (#331). Do not add the type to
+   `PRODUCT_TYPE_LABELS` in `domains/industrial/type_labels.py`: that table
+   keeps the labels of the older types, `register` refuses a key in both, and
+   a line added to it conflicts with the next type's (#103).
+- **Golden.** Build the catalog and regenerate the committed one:
    `uv run ecom-generate build --out golden-catalog`. Only the new type's
    records, the totals in `stats.json` and the field-weights YAML should
    change. The independence tests below enforce this.
-5. A modelled type only: declare the type's size and facts on its
+- **Facts.** A modelled type only: declare the type's size and facts on its
    `TypeSpec` (#61). The tests read them from there, so no test file and no
    shared table is edited. `register` writes each one into its table and
    refuses a key that a table also lists:
@@ -163,24 +173,24 @@ its published attributes. `set_screws_hex_socket` does both.
    (`test_the_catalog_is_the_size_it_was_asked_for`) sums every modelled
    share, so a total above 1.0 is expected. A breadth type edits no pinned
    count: the breadth part of the catalog's size is read from the rows.
-6. A modelled type only: copy `tests/test_type_lock_nuts_nylon_insert.py` to
+- **Gate test.** A modelled type only: copy `tests/test_type_lock_nuts_nylon_insert.py` to
    `tests/test_type_<type_key>.py` and change `KEY` and `DEFAULT_SKU_FLOOR`
    ([SKU floor](#sku-floor)). It is the per-type gate template: uniqueness,
    census names, determinism, a committed golden slice, and independence from
    every other type. Write the slice with
    `uv run python tests/test_type_<type_key>.py`.
-7. Declare a price model (`price=` on the `TypeSpec`; `register` refuses a
-   modelled type without one). It is keyed on `key_attributes` (step 5). A
+- **Price.** Declare a price model (`price=` on the `TypeSpec`; `register` refuses a
+   modelled type without one). It is keyed on `key_attributes` (the Facts item). A
    type that publishes its material under another name than `Material` names
    it in `MATERIAL_ATTRIBUTES` in `core/price.py` (a wheel's is its
    `Abrasive Material`), since the census spec is the key in one material. A
    type the census has no prices
    for declares `measured=False`; one it has prices for restates its census
    rows and is fitted ([Price](#price)).
-8. Restate the published figures the type moves
+- **Figures.** Restate the published figures the type moves
    ([Figures to restate](#figures-to-restate)).
-9. Run the checks.
-10. Merge with `scripts/merge_pr.sh <PR number>`, never with the GitHub button
+- **Checks.** Run the checks.
+- **Merge.** Merge with `scripts/merge_pr.sh <PR number>`, never with the GitHub button
    or `gh pr merge` (see [Merging](#merging-every-type-pr-goes-through-merge_prsh)).
 
 ### Deepening an existing breadth type
@@ -210,10 +220,11 @@ rule it follows; the rules are in
    derived part-number block, so `ecom-generate block <type_key>` says to leave
    `part_number_block` unset.
 4. Declare `claims`, `may_claim`, `key_attributes` and the family sentences
-   it qualifies for on the `TypeSpec` (step 5 of [A new type](#a-new-type));
+   it qualifies for on the `TypeSpec` (the Facts item of [A new type](#a-new-type));
    `key_attributes` is the breadth row's `size_attr`. Then add the type to the
    family builder tables it needs ([What is still shared](#what-is-still-shared)).
-5. Do steps 3 to 9 of [A new type](#a-new-type).
+5. Do the Names, Golden, Facts, Gate test, Price, Figures and Checks items of
+   [A new type](#a-new-type).
 6. Check that every other type is byte-identical, at both sizes, with the
    command in [Comparing the other types](#comparing-the-other-types). Only
    the deepened key may differ.
@@ -238,7 +249,7 @@ The output must stay byte-identical.
    `noise.UNIT_PRIMARY`, and a row in each table of `tests/type_facts.py`
    (`SHARED_MAY_CLAIM`, `SHARED_TITLE_KEY`). These become
    `claims`, `key_attributes`, `threaded`, `fastener`, `unit_primary`,
-   and `may_claim` (step 5 of
+   and `may_claim` (the Facts item of
    [A new type](#a-new-type)). For a breadth type, the entry is its row file
    `data/breadth_categories/<type_key>.yaml`.
 2. Move each entry into the module's `SPEC`, and delete it from the shared
@@ -274,9 +285,10 @@ Use a table type (`domains/industrial/tabletype.py`, #101) when a type does not 
 * `tests/data/golden_slices/<key>.jsonl` (new, written by the test module)
 * `src/synthetic_ecommerce_data/domains/industrial/data/breadth_categories/<key>.yaml` (deleted, when the type had a breadth row)
 
-Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
+Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog` and, for the retail totals, `python3 prototypes/retail_drawings/retail_figures.py`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
 
 * `golden-catalog/*`
+* `golden-retail/stats.json` (the retail totals, gen#162; gen#343)
 * `src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml`
 
 Shared files, edited by hand:
@@ -741,9 +753,10 @@ scripts/merge_pr.sh <PR number>
 
 It clones the PR head into a temporary directory and merges current `main`
 into it. A conflict in a file the rebuild rewrites (`scripts/merge_pr.sh
---print-generated` lists the eight) is left for the rebuild; any other
+--print-generated` lists them) is left for the rebuild; any other
 conflict, `names.py` or a file under `golden-catalog/` that the build does not
-write, is handed back to you. It then rebuilds `golden-catalog/` with
+write, is handed back to you. It then rebuilds `golden-catalog/` and
+`golden-retail/stats.json` (about 40 s more) with
 `uv run --locked` (a stale `uv.lock` is refused, not re-locked), commits only
 the generated files, and runs the drift, golden and seam tests
 (`--print-checks` lists them), refusing a run in which no test passed. It
@@ -768,6 +781,20 @@ sets the label, default the checkout's directory name; `MERGE_PR_LOG_DIR`
 moves the directory). The merge is refused unless every job passed. Step 6
 needs no GitHub check. `GEN_LOCAL_CI=1` in the environment makes `--local-ci`
 the default; `--dry-run` runs the local jobs too.
+
+**The suite runs on several workers (#348).** The whole suite took 47 to 54
+minutes on one core, and merges are serial (each changes `main` and the
+generated files), so that time was the rate pull requests landed. Every
+emitted step now runs pytest with `-n <workers> --dist loadgroup`
+(`scripts/local_ci_jobs.py --pytest-options` prints it), and a module's tests
+share one worker so its module-scoped catalog is built once
+(`tests/xdist_groups.py`; a module of independent tests sets
+`XDIST_SPREAD = True`). The worker count is one per core, or fewer when the
+memory available allows fewer at 4,500 MB a worker, and never below two;
+`LOCAL_CI_WORKERS=<n>` sets it (`0` is one process). The count is capped by
+memory: measured on the 48-core agent VM, 16 workers had taken 38 GB within three
+minutes, and an uncapped `-n auto` run took the host down. Run the merge chain on the agent VM, which has
+the cores and the memory, so it does not compete with a laptop's other work.
 
 That re-read narrows the race with another merge but cannot close it: GitHub
 has no compare-and-swap on the base. The `main-merged-tree` CI job runs the
