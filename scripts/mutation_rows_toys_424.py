@@ -6,6 +6,7 @@ named ``toys depth: ...`` (``--only "toys depth:"`` re-runs them). A row is
 ``(name, file, old, new, test, property, root)``.
 """
 
+# ruff: noqa: E501  (a removal row quotes the whole decoy call it takes out)
 from __future__ import annotations
 
 _R = "prototypes/retail_drawings"
@@ -91,6 +92,78 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "DECOY_CLASSES = range(1, 8)",
         f'{_T} -k "toy_word_decoy and greeting_card"',
         "a spec may carry a class-8 decoy",
+        _R,
+    ),
+    (
+        "the dolls' house drops its wood-look class-4 decoy",
+        "type_specs/dolls_house.py",
+        '        toy_decoy(4, "wooden dolls house", MATERIAL_CLAIM, _ROWS[2], 18, "Wooden-Look Dolls House",\n                  "A plastic house moulded and printed to look like wood; there is no wood in "\n                  "it.", color=RED),\n',
+        "",
+        f'{_T} -k "carries_its_pinned and dolls_house"',
+        "a toy spec carries a class 4 decoy",
+        _R,
+    ),
+    (
+        "the marble run drops its class-7 brand decoy",
+        "type_specs/marble_run.py",
+        '        toy_decoy(7, "play kitchen", "generic", _ROWS[3], 27, "Play Kitchen Co Marble Run",\n                  "A marble run from Play Kitchen Co; the name is the maker\'s, not a "\n                  "kitchen.", brand=_BRAND, color=BLUE),\n',
+        "",
+        f'{_T} -k "carries_its_pinned and marble_run"',
+        "a toy spec carries a class 7 decoy",
+        _R,
+    ),
+    (
+        "the kite drops its class-6 toy-word decoy",
+        "type_specs/kite.py",
+        '        toy_decoy(6, "card game", "generic", _ROWS[1], 9, "Card Game Ridge Kite",\n                  "From the Card Game Ridge range, named after a hill path; it is a delta kite, "\n                  "not a game of cards.", color=GREEN),\n',
+        "",
+        f'{_T} -k "carries_its_pinned and kite"',
+        "a toy spec carries two class 6 decoys",
+        _R,
+    ),
+    (
+        "the kite's class-6 color decoy loses its range word",
+        "type_specs/kite.py",
+        '"Red Tarn Kite"',
+        '"Tarn Kite"',
+        f'{_T} -k "toy_decoy_is_a_row and kite-DT08"',
+        "a class-6 decoy holds the words of its query",
+        _R,
+    ),
+    (
+        "the play kitchen's toy-word decoy loses its range word",
+        "type_specs/play_kitchen.py",
+        '"Water Gun Bay Play Kitchen"',
+        '"Bay Play Kitchen"',
+        f'{_T} -k "toy_decoy_is_a_row and play_kitchen-DT13"',
+        "a class-6 decoy holds the toy word of its query",
+        _R,
+    ),
+    (
+        "the water gun's class-4 decoy is repaired by the generic policy",
+        "type_specs/water_gun.py",
+        "MATERIAL_CLAIM, _ROWS[2], 30",
+        '"generic", _ROWS[2], 30',
+        f'{_T} -k "toy_decoy_is_a_row and water_gun-DT30"',
+        "a class-4 decoy is repaired by the material-claim policy",
+        _R,
+    ),
+    (
+        "a class-7 toy decoy keeps the style's own brand",
+        "toys_play_common.py",
+        "brand=brand or row.brand",
+        "brand=row.brand",
+        f'{_T} -k "toy_decoy_is_a_row and card_game-DT23"',
+        "a class-7 decoy holds a brand that carries the toy word",
+        _R,
+    ),
+    (
+        "a toy decoy is coded outside the DT range",
+        "toys_play_common.py",
+        'code=f"DT{n:02d}"',
+        'code=f"DX{n:02d}"',
+        f'{_T} -k "hits_of_its_query and kite-DT08"',
+        "a toy decoy is in the build under its pinned id",
         _R,
     ),
 ]

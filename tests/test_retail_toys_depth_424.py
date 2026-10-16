@@ -262,7 +262,8 @@ def test_the_toys_department_answers_the_query_with_the_intended_type(query, ind
 @pytest.mark.timeout(300)
 @pytest.mark.parametrize("query", DECOYS)
 def test_an_unfiltered_ranking_puts_a_decoy_beside_the_answer(query, index) -> None:
-    got = {h["product_type"] for h in br.rank(index, query, 10)}
+    """The window is the first 20 hits: the toys' own decoys (DECOY_PINS) share the top ten."""
+    got = {h["product_type"] for h in br.rank(index, query, 20)}
     assert got & DECOYS[query], got
 
 
