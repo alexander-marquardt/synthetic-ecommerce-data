@@ -548,8 +548,8 @@
    "styles": 3700
   },
   "breadth_rows": {
-   "skus": 690,
-   "styles": 308
+   "skus": 687,
+   "styles": 306
   },
   "colorgroup_rows": {
    "skus": 1800,
@@ -588,8 +588,8 @@
    "styles": 28
   },
   "lowerbody_rows": {
-   "skus": 1180,
-   "styles": 43
+   "skus": 850,
+   "styles": 35
   },
   "main_food": {
    "skus": 118,
@@ -630,6 +630,10 @@
   "toys_rows": {
    "skus": 155,
    "styles": 49
+  },
+  "type_specs": {
+   "skus": 333,
+   "styles": 10
   },
   "underwear_rows": {
    "skus": 1389,
