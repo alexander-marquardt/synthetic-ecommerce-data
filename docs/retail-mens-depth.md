@@ -30,3 +30,32 @@ product floors count decoys; the tests also hold a floor without them.
 The three class 7 brands each have a house style whose lockup text is the brand name. The text
 agreement check (`standard.text_contradictions`) treats the document's brand as its own value, so
 a brand such as "Black Curlew" is not read as naming a color.
+
+## Suits and tailoring (gen#215)
+
+`Mens/Suits & Tailoring` holds five product types, each drawn as its own shape by
+`prototypes/retail_drawings/kit_suits.py` (`suit_jacket`, `suit_trousers`, `waistcoat`,
+`dinner_suit`, `formal_accessory`), and each carrying its own decoys (the same seven classes):
+
+| Type (`product_type`) | Leaf | Key attributes (structured) | Shape params |
+|---|---|---|---|
+| Suit Jacket | Suit Jackets, Blazers | `fit`, `material`, `lapel`, `buttons`, `occasion` | `fit`, `lapel`, `buttons` (two or three) |
+| Suit Trousers | Suit Trousers | `fit`, `material`, `leg_length` | `fit`, `leg` |
+| Waistcoat | Waistcoats | `fit`, `material`, `buttons` | `fit`, `buttons` |
+| Dinner Suit | Dinner Suits | `fit`, `material`, `lapel` | `fit`, `lapel` |
+| Formal Accessories | Formal Accessories | `material`, `accessory_type` (tie, bow tie, braces, cummerbund, pocket square) | `item` |
+
+The kit draws three cuts (slim, tailored, regular), so a record of fit `Relaxed` is drawn regular.
+
+Suit Trousers, Waistcoat, Dinner Suit and Formal Accessories are registered through spec files
+(`type_specs/suit_trousers.py`, `waistcoat.py`, `dinner_suit.py`, `formal_accessories.py`, gen#351),
+which read their generated rows and decoys back with `mens_depth_rows.spec_rows` and
+`spec_decoys`; `mens_depth_rows.docs()` leaves them out. Suit Jacket is not yet a spec. A
+one-size accessory states no `size` (the accessory convention, gen#207), so a Formal Accessories
+SKU carries none.
+
+A matching set is a jacket, trousers and waistcoat sharing one `suit_set` name, one brand, one
+cloth (`material`), one fit and the same colors (`mens_depth_rows.SETS`, ten sets). Not yet here:
+the women's trouser suit and the boys' suit (age sizes, two or three pieces), which need the
+Womens and Kids roots and their own decoy plan (`decoy_apparel.TYPES`), and the jacket length and
+trouser leg as SKU axes (the leg length is a style attribute for now).
