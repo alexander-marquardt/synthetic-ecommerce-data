@@ -1,10 +1,9 @@
-"""Drawings of five ordinary products whose names hold a Toys word (gen#424, class 8 of #326).
+"""Drawings of four ordinary products whose names hold a Toys word (gen#424, class 8 of #326).
 
 ==================  ==========================================  ======
 shape               what it draws                               params
 ==================  ==========================================  ======
 kitchen_scales      a flat platform on a body with a dial       none
-greeting_card_open  a folded card standing open, a heart on it  none
 gift_card           a flat card with a strip and a ribbon bow   none
 glue_gun            a pistol with a nozzle and a glue stick     none
 caulking_gun        a frame with a cartridge, rod and trigger   none
@@ -31,21 +30,6 @@ def kitchen_scales(paint: str, fill: Fill, label: str | None) -> list[str]:
         _line("M200,183 L200,195 M148,235 L160,235 M240,235 L252,235", 3),
     ]
     out.append(_highlight("M96,160 L112,300", 6, 0.35))
-    return _label(out, label)
-
-
-def greeting_card_open(paint: str, fill: Fill, label: str | None) -> list[str]:
-    """A greeting card standing open on its fold, a heart on the front."""
-    dark = _shade(fill.base, 0.3)
-    out = [
-        _path("M60,120 L200,100 L200,330 L60,350 Z", _tint(fill.base, 0.5)),
-        _path("M200,100 L340,120 L340,350 L200,330 Z", paint),
-        _path(
-            "M200,240 C170,205 140,235 160,262 L200,296 L240,262 C260,235 230,205 200,240 Z",
-            dark,
-            2.6,
-        ),
-    ]
     return _label(out, label)
 
 
@@ -92,7 +76,6 @@ def caulking_gun(paint: str, fill: Fill, label: str | None) -> list[str]:
 
 SHAPES = {
     "kitchen_scales": kitchen_scales,
-    "greeting_card_open": greeting_card_open,
     "gift_card": gift_card,
     "glue_gun": glue_gun,
     "caulking_gun": caulking_gun,
