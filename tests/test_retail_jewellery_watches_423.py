@@ -189,3 +189,11 @@ def _watches(ceiling: list[dict]) -> list[dict]:
 
 def _attr(rec: dict, key: str) -> str:
     return next((a["value"] for a in rec["attributes"] if a["key"] == key), "")
+
+
+@pytest.mark.parametrize("ptype", ["Hoop Earrings", "Drop Earrings"])
+def test_an_earring_color_is_always_a_metal(templates: list[dict], ptype: str) -> None:
+    """The color of jewellery is its metal: the main-color completion (gen#275) must not give a
+    pair of earrings a red or a blue, so each earring type is an excepted type."""
+    colors = {c["color"] for r in _of(templates, ptype) for c in r["color_options"]}
+    assert colors <= {"Gold", "Silver", "Rose Gold"}, (ptype, colors)
