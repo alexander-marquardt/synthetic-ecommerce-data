@@ -4220,8 +4220,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the completer is not told to skip the decoys",
                 "scale.py",
-                "skip = mens_depth_rows.decoy_ids() | COLORWORD_IDS",
-                "skip = mens_depth_rows.decoy_ids()",
+                "| COLORWORD_IDS | garden_rows.decoy_ids()",
+                "| garden_rows.decoy_ids()",
                 "tests/test_color_word_brands_312.py -k test_a_built_decoy_offers_exactly_its_one_true_color",
                 "a decoy offers more than its one true color",
                 "prototypes/retail_drawings",
@@ -4261,10 +4261,10 @@ MUTATIONS: list[Mutation] = [
                 "tests/test_color_word_brands_312.py -k test_the_standard_reads_a_brand_as_a_name",
                 "a brand is a name, not a claim",
                 "src/synthetic_ecommerce_data",
-    # ---- retail: the product types the failure classes need (gen#329) ----
             ),
         ]
     ),
+    # ---- retail: the product types the failure classes need (gen#329) ----
     # Every name starts "needs rows:", so `--only "needs rows:"` re-runs them.
     *(
         Mutation(f"needs rows: {name}", file, old, new, test, "", prop,
