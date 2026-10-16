@@ -501,7 +501,10 @@ Flannel, Linen and Denim, for Mens and Womens, under `Tops/Shirts`, typed `Shirt
 no derived style copies one), then the living-room seating (`sofa_rows.py`, gen#196:
 sofas sold as 2, 2.5, 3 and 4 seaters, left- and right-hand corner and chaise sofas,
 modular, recliner and sofa-bed sofas, armchairs and footstools, each drawn by its own
-shape in `kit_seating.py`; no derived style copies one, and
+shape in `kit_seating.py`; a sofa, corner sofa and chaise sofa is drawn with exactly the seat
+cushions its `seat_count` states (a corner sofa's return and corner seats are counted in it), a chaise has its
+back along the whole rear, and a sofa bed's and a topper's `depth` is a bare number in `CMT` with a millimeter
+canonical value (gen#225, `tests/test_retail_seating_225.py`); no derived style copies one, and
 `tests/test_retail_seating_196.py` holds the range), then the household styles (`household_rows.py`, gen#200:
 saucepans, frying pans, casserole dishes, kitchen bins, storage boxes, laundry baskets,
 clothes airers and mops, each drawn by `kit_household.py` with the count its record states
