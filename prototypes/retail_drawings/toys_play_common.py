@@ -5,12 +5,16 @@ A module beside the specs, so the registry walk does not meet it.
 
 from __future__ import annotations
 
-from type_registry import Row, a
+from dataclasses import replace
+
+from type_registry import Decoy, Row, a
 from variants import cw
 
 from synthetic_ecommerce_data.core.entry import canonical
 
 PIPWICK, FERNBY, PUDDLE = "Pipwick Toys", "Little Fernby", "Puddlecombe Toys"
+#: The policy a class 4 decoy (a material or feature named but absent) is repaired by (gen#311).
+MATERIAL_CLAIM = "special: material claim"
 
 RED = cw("Red", "#c8312e", "solid", "#f4f1ea")
 BLUE = cw("Blue", "#3f6fb5", "solid", "#f4f1ea")
@@ -73,3 +77,18 @@ def style(code: str, title: str, brand: str, path: tuple[str, ...], ptype: str, 
         params=params,
         size_key=size_key,
     )
+
+
+def toy_decoy(cls: int, query: str, policy: str, row: Row, n: int, title: str, desc: str,
+              *, brand: str = "", color=None) -> Decoy:  # fmt: skip
+    """A text-match decoy of gen#294 for a toy type: a clone of one of its styles, coded ``DT<n>``.
+
+    It keeps the style's leaf, structured entries and shape, takes a new short title and
+    description (and, for class 7, a new brand) and is sold in the one ``color``, which a
+    colorless type only draws. A decoy is never derived; its structured fields tell the truth.
+    """
+    clone = replace(
+        row, code=f"DT{n:02d}", title=title, description=desc, brand=brand or row.brand,
+        colors=(color or row.colors[0],),
+    )  # fmt: skip
+    return Decoy(cls, query, policy, clone)

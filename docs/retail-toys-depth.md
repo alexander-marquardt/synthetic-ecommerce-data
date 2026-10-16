@@ -33,3 +33,23 @@ wrapping paper shape):
 
 The department policy of the All Departments persona drops them. The checks are
 `tests/test_retail_toys_depth_424.py`.
+
+## Text-match decoys of the toy types (classes 4, 6 and 7 of gen#294)
+
+The standing rule of gen#294 and gen#311 is that every type carries text-match decoys, the subtle
+incidental-word ones included. Each toy spec declares four in its own `decoys=`, made by
+`toys_play_common.toy_decoy` (a clone of one of its styles, in one color, coded `DT08` to
+`DT31`; the table of codes, classes and queries is `DECOY_PINS` in the test file):
+
+| Class | What the title holds | Example (kite) | Policy |
+|---|---|---|---|
+| 6, a color word | a range name with a color the product lacks | Red Tarn Kite, sold in blue (query "red kite") | generic |
+| 6, a toy word | another toy's word as a range name | Card Game Ridge Kite (query "card game") | generic |
+| 4, absent | a material or look the product does not have | Silk-Look Kite, ripstop nylon (query "silk kite") | special: material claim |
+| 7, brand | another toy's word in an invented brand | Marble Run Co Stunt Kite (query "marble run") | generic |
+
+All of them stay in the Toys department and in their own leaf, so the department policy keeps
+them and the type policy has them to repair. Classes 1, 2, 3 and 5 (a trim names a color, a
+garment noun as a modifier, an audience cut of a sibling, a shade written in the description
+only) are the garment classes of gen#311 and are not authored for the toys. The test file
+holds each decoy by code, class and query, and ranks each for its query.
