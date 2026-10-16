@@ -22,8 +22,8 @@ the products that win a query without a policy:
   true answers are beef steaks in the grocery build (``grocery_rows``, families ``SKS`` to
   ``SKW`` and ``TUS``): their titles name the cut and run to five words or more, the knives' lead
   with "Steak Knife" and two are two or four words long, so BM25's length norm puts a knife first.
-  Their sales are modest (a knife sells somewhat more than a typical steak): the short title
-  decides, nothing is stuffed.
+  Their sales are modest (every knife sells more than the median beef steak, not more than
+  every steak): the short title decides, nothing is stuffed.
 
 Every row is a :class:`class_model.Style`, ``reviews`` pinned where a row must out-sell
 another. Names and codes are invented; a row's numbers come from its position, never from
@@ -256,8 +256,9 @@ def _cutlery(code: str, title: str, count: int, handle: str, edge: str, color, s
 
 
 #: The steak knives. Two titles are short ("Steak Knife", "Steak Knife Set of 6"), the rest
-#: longer. Sales are modest (a knife sells 60 to 120 in five days; a grocery steak 5 to 94, so
-#: a knife sells somewhat more), so the title's length, not popularity, decides.
+#: longer. Sales are modest: a knife sells 60 to 120 in five days, a beef steak 6 to 89 with a
+#: median of 46, so a knife out-sells the typical steak but not every steak (the test pins the
+#: median bound). The title's length, not popularity, decides.
 STEAK_KNIVES = (
     _cutlery("DSK01", "Steak Knife", 1, "wooden", "serrated", STEEL, 90, 5.5,
              "A single steak knife with a pointed serrated blade and a riveted wooden handle, "
