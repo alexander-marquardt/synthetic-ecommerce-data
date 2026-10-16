@@ -2,7 +2,8 @@
 
 The UK ladder stopped at 16 (some styles at 18 or 20), so "dress size 22" read the size,
 filtered the dresses and found none that carried it. A share of the Womens dresses, tops,
-trousers, jeans and knitwear now runs on to UK 24, in the chart's own EU and US sizes
+trousers, jeans and knitwear that carries a numeric UK size runs on to UK 24 (today the jeans,
+dresses and tops: trousers and knitwear carry none), in the chart's own EU and US sizes
 (:mod:`plus_sizes`).
 """
 
