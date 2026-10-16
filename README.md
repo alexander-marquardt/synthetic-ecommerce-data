@@ -1480,15 +1480,15 @@ food SKU). `tests/test_retail_scale.py` holds it at the templates' SKUs plus 4,5
 derived-style sample), and holds the ceiling's grid clones at 15% or under too.
 
 **Each department has a floor of its own** (gen#220). At the ceiling, every department holds
-at least `breadth_rows.DEPARTMENT_FLOOR` derivable styles (150; the smallest today is Food &
-Drink at 180). It is a count per department, not a share of the total, so a batch PR that adds
+at least `breadth_rows.DEPARTMENT_FLOOR` derivable styles (150; the smallest today is Beauty
+at 212). It is a count per department, not a share of the total, so a batch PR that adds
 types to one department (the Home, Clothing and other type batches, gen#196-#217) never lowers
 another department's standing: do not add rows to an unrelated department to pass it.
-`test_every_department_holds_its_floor_of_styles` holds the floor, and
+`test_every_department_holds_its_floor_of_styles` holds the floor,
+`test_the_department_floor_is_not_lowered` holds the floor itself at or above 150 (gen#234), and
 `test_growing_one_department_never_starves_another` builds the ceiling with 200 more Home
 templates and holds every other department at its floor. A batch that removes or narrows a
-department's own rows below the floor still fails: raise that department with rows of its
-own.
+department's own rows below the floor still fails: raise that department with rows of its own.
 
 ## The built catalog is committed, in `golden-catalog/`
 
