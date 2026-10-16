@@ -249,7 +249,7 @@ def _cutlery(code: str, title: str, count: int, handle: str, edge: str, color, s
                  (*KD, "Cutlery"), price, desc, "Cutlery", "cutlery_piece", one(color, sold),
                  units_per_pack=count, colorless=False,
                  extra=(("cutlery_type", "Cutlery type", kind),
-                        ("material", "Material", "Stainless Steel 18/10"),
+                        ("material", "Material", "Stainless Steel"),
                         ("handle", "Handle", handle.title()), ("edge", "Edge", edge.title())),
                  params=(("piece", piece), ("handle", handle), ("count", str(count)),
                          ("edge", edge)))  # fmt: skip
@@ -298,7 +298,7 @@ STEAK_WARE = (
           "steak, with a groove round the edge that catches the juices. Hand wash.",
           "Chopping Board", "chopping_board", one(WOODEN, 50),
           extra=(("material", "Material", "Wood"),),
-          params=(("material", "wood"),)),
+          params=(("material", "wood"), ("groove", "juice"))),
     Style("DSK10", "Cast Iron Steak Weight", "Calderby & Lune", "Home", (*KD, "Kitchen Utensils"),
           14.0, "A ribbed cast-iron grill press that keeps a steak flat in the pan so it sears "
           "evenly, with a wooden handle that stays cool. Hand wash and oil after use.",
