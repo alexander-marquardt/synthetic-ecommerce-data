@@ -60,6 +60,8 @@ def test_a_shelf_lies_under_the_jug_and_the_pot_at_that_line() -> None:
     jug, pot = _jug_and_pot()
     shelves = re.findall(r'<rect [^>]*class="shelf"[^>]*>', _svg())
     assert len(shelves) == 1, "one shelf for the pot and the jug"
-    x, y, w = (float(re.search(rf' {k}="([\d.]+)"', shelves[0]).group(1)) for k in "xyw")
+    x, y, w = (
+        float(re.search(rf' {k}="([\d.]+)"', shelves[0]).group(1)) for k in ("x", "y", "width")
+    )
     assert y == pot[2], "the pieces stand on the shelf's top edge"
     assert x <= jug[0] and x + w >= pot[1], "the shelf runs from the jug to the pot"
