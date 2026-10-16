@@ -619,6 +619,128 @@ def m_bull_horns(c: str) -> list[str]:
     ]
 
 
+# The beauty depth marks (gen#214): one per invented beauty brand, so no two brands share one.
+
+
+def m_lash_fan(c: str) -> list[str]:
+    lashes = " ".join(
+        f"M{_n(0.5 * math.sin(math.radians(a)))},.7 "
+        f"L{_n(0.95 * math.sin(math.radians(a)))},{_n(0.7 - 1.5 * math.cos(math.radians(a)))}"
+        for a in (-50, -25, 0, 25, 50)
+    )
+    return [
+        _stroke(lashes, 0.1, c),
+        f'<rect x="-.4" y=".65" width=".8" height=".2" rx=".08" fill="{c}"/>',
+    ]
+
+
+def m_dropper(c: str) -> list[str]:
+    return [
+        f'<path d="M-.22,-.3 L.22,-.3 L.22,.1 Q.22,.2 0,.2 Q-.22,.2 -.22,.1 Z" fill="{c}"/>',
+        f'<ellipse cx="0" cy="-.62" rx=".26" ry=".3" fill="{c}"/>',
+        f'<path d="M0,.35 Q.28,.7 0,.9 Q-.28,.7 0,.35 Z" fill="{c}"/>',
+    ]
+
+
+def m_compact(c: str) -> list[str]:
+    return [
+        _ring(0, 0, 0.8, 0.14, c),
+        f'<path d="M-.8,.05 L.8,.05" stroke="{c}" stroke-width=".1"/>',
+        _dot(0, -0.35, 0.18, c),
+        _dot(0, 0.45, 0.18, c),
+    ]
+
+
+def m_jar(c: str) -> list[str]:
+    return [
+        f'<rect x="-.55" y="-.75" width="1.1" height=".3" rx=".08" fill="{c}"/>',
+        f'<rect x="-.7" y="-.35" width="1.4" height="1.1" rx=".25" fill="{c}"/>',
+        _stroke("M-.35,.0 L-.35,.5", 0.1, "#ffffff"),
+    ]
+
+
+def m_tube(c: str) -> list[str]:
+    return [
+        f'<path d="M-.3,-.3 L.3,-.3 L.4,.8 L-.4,.8 Z" fill="{c}"/>',
+        f'<rect x="-.18" y="-.8" width=".36" height=".45" rx=".06" fill="{c}"/>',
+        _stroke("M-.4,.75 L.4,.75", 0.12, "#ffffff"),
+    ]
+
+
+def m_mist_cloud(c: str) -> list[str]:
+    return [
+        f'<path d="M-.7,.2 Q-.7,-.2 -.3,-.2 Q-.2,-.65 .25,-.5 Q.7,-.5 .65,.2 Z" fill="{c}"/>',
+        _dot(-0.45, 0.55, 0.08, c),
+        _dot(0, 0.6, 0.08, c),
+        _dot(0.45, 0.55, 0.08, c),
+        _dot(-0.2, 0.85, 0.06, c),
+        _dot(0.25, 0.85, 0.06, c),
+    ]
+
+
+def m_sparkle(c: str) -> list[str]:
+    four = "M0,-.9 Q.1,-.1 .9,0 Q.1,.1 0,.9 Q-.1,.1 -.9,0 Q-.1,-.1 0,-.9 Z"
+    return [f'<path d="{four}" fill="{c}"/>', _dot(0.6, -0.6, 0.12, c), _dot(-0.6, 0.6, 0.09, c)]
+
+
+def m_feather(c: str) -> list[str]:
+    veins = " ".join(
+        f"M{_n(x)},{_n(y)} L{_n(x + 0.3)},{_n(y - 0.1)}"
+        for x, y in ((-0.3, 0.45), (-0.1, 0.15), (0.1, -0.15))
+    )
+    return [
+        f'<path d="M-.5,.8 Q-.9,-.4 .6,-.8 Q.9,.3 -.5,.8 Z" fill="{c}"/>',
+        _stroke("M-.6,.9 L.5,-.7", 0.08, "#ffffff"),
+        _stroke(veins, 0.06, "#ffffff"),
+    ]
+
+
+def m_shell(c: str) -> list[str]:
+    ribs = " ".join(f"M0,.7 L{_n(x)},-.5" for x in (-0.5, -0.17, 0.17, 0.5))
+    return [
+        f'<path d="M-.85,.2 Q-.85,-.85 0,-.85 Q.85,-.85 .85,.2 Z" fill="{c}"/>',
+        _stroke(ribs, 0.07, "#ffffff"),
+        f'<rect x="-.3" y=".3" width=".6" height=".3" rx=".1" fill="{c}"/>',
+    ]
+
+
+def m_lip_swipe(c: str) -> list[str]:
+    return [
+        f'<path d="M-.35,.8 L-.35,.0 L.35,.0 L.35,.8 Z" fill="{c}"/>',
+        f'<path d="M-.3,-.05 L-.3,-.5 L.3,-.9 L.3,-.05 Z" fill="{c}"/>',
+        _stroke("M-.35,.4 L.35,.4", 0.1, "#ffffff"),
+    ]
+
+
+def m_flask(c: str) -> list[str]:
+    return [
+        f'<path d="M-.2,-.85 L.2,-.85 L.2,-.3 L.75,.7 Q.8,.85 .6,.85 L-.6,.85 Q-.8,.85 -.75,.7 L-.2,-.3 Z" fill="{c}"/>',
+        _stroke("M-.4,.5 L.4,.5", 0.1, "#ffffff"),
+    ]
+
+
+def m_moon_stars(c: str) -> list[str]:
+    return [
+        f'<path d="M.3,-.8 A.85,.85 0 1 0 .3,.8 A.65,.65 0 1 1 .3,-.8 Z" fill="{c}"/>',
+        _star(0.5, -0.1, 0.28, c),
+    ]
+
+
+def m_pearl_row(c: str) -> list[str]:
+    return [
+        _dot(x, y, r, c)
+        for x, y, r in ((-0.6, 0.2, 0.28), (0, -0.1, 0.34), (0.6, 0.2, 0.28), (0, 0.6, 0.2))
+    ]
+
+
+def m_rose_bud(c: str) -> list[str]:
+    return [
+        f'<path d="M0,-.8 Q.7,-.6 .55,.05 Q.35,.45 0,.45 Q-.35,.45 -.55,.05 Q-.7,-.6 0,-.8 Z" fill="{c}"/>',
+        _stroke("M0,-.5 Q.25,-.3 0,-.05 Q-.2,-.3 0,-.5", 0.07, "#ffffff"),
+        _stroke("M0,.45 L0,.9", 0.1, c),
+    ]
+
+
 #: Mark name -> drawing in unit space (-1..1), painted in the brand color.
 MARKS = {
     name[2:]: fn for name, fn in list(globals().items()) if name.startswith("m_") and callable(fn)
@@ -1100,20 +1222,20 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     "Nike":                 H("#f6f6f6", "none",     "rounded", "#111111", "#111111", 1.0,  False, "round", "none",              "mark_left",   "bottom_left",   "none",     "sans",     400, "lower",     0.5),
     "Coat Crake":           H("#f3efe8", "dots",     "double",  "#7a5a3a", "#30241a", 1.1,  False, "sharp", "comb",              "mark_only",   "bottom_left",   "stamp",    "mono",     700, "lower",     2.0),
     # The beauty depth brands (type_specs, gen#214): invented, text only.
-    "Aldermist":           H("#fbf1f1", "dots", "double", "#b0486a", "#3a1a28", 0.85, False, "sharp", "three_stars", "mark_only", "top_left", "outline", "humanist", 700, "caps", 1.0),
-    "Citrus Heron":        H("#f1f5f8", "lines", "rounded", "#4a8a52", "#1e3a22", 0.90, False, "round", "sunburst", "mark_only", "top_right", "flag", "serif", 400, "smallcaps", 1.5),
-    "Clay Wren":           H("#f4f1fa", "grid", "heavy", "#9a3a78", "#38183a", 0.95, False, "sharp", "spokes", "mark_only", "bottom_left", "underline", "humanist", 400, "lower", 2.0),
-    "Cloth Wren":          H("#f2f7ef", "diagonal", "ticks", "#6a4fa0", "#2a1c3e", 1.00, False, "round", "three_drops", "mark_only", "bottom_right", "tab", "serif", 700, "title", 2.5),
-    "Dewy Finch":          H("#faf3e6", "hatch", "none", "#2f7f7a", "#123a38", 1.05, False, "sharp", "slanted_blades", "mark_only", "top_left", "rect", "humanist", 400, "caps", 1.0),
-    "Fenmere":             H("#eef3f3", "none", "thin", "#3a6f8f", "#16303e", 0.85, True, "round", "plus_four", "mark_only", "top_right", "plain", "serif", 400, "smallcaps", 1.5),
-    "Pearlbrook":          H("#f8f0f6", "dots", "double", "#b9803a", "#3e2a12", 0.90, False, "sharp", "bar_trio", "mark_only", "bottom_left", "stamp", "humanist", 700, "lower", 2.0),
-    "Red Kestrel":         H("#fbf1f1", "lines", "rounded", "#b0486a", "#3a1a28", 0.95, False, "round", "ladder", "mark_only", "bottom_right", "outline", "serif", 400, "title", 2.5),
-    "Rose Kestrel":        H("#f1f5f8", "grid", "heavy", "#4a8a52", "#1e3a22", 1.00, False, "sharp", "diamond_dot", "mark_only", "top_left", "flag", "humanist", 400, "caps", 1.0),
-    "Sorrel & Salt":       H("#f4f1fa", "diagonal", "ticks", "#9a3a78", "#38183a", 1.05, False, "round", "hourglass", "mark_only", "top_right", "underline", "serif", 700, "smallcaps", 1.5),
-    "Thornlea Skin":       H("#f2f7ef", "hatch", "none", "#6a4fa0", "#2a1c3e", 0.85, False, "sharp", "cask", "mark_only", "bottom_left", "tab", "humanist", 400, "lower", 2.0),
-    "Vanilla Wren":        H("#faf3e6", "none", "thin", "#2f7f7a", "#123a38", 0.90, True, "round", "fold", "mark_only", "bottom_right", "rect", "serif", 400, "title", 2.5),
-    "Veilmoor":            H("#eef3f3", "dots", "double", "#3a6f8f", "#16303e", 0.95, False, "sharp", "bubbles", "mark_only", "top_left", "plain", "humanist", 700, "caps", 1.0),
-    "Vitamin C Orchard":   H("#f8f0f6", "lines", "rounded", "#b9803a", "#3e2a12", 1.00, False, "round", "dot_triangle", "mark_only", "top_right", "stamp", "serif", 400, "smallcaps", 1.5),
+    "Aldermist":           H("#fbf1f1", "dots", "double", "#b0486a", "#3a1a28", 0.85, False, "sharp", "mist_cloud", "mark_only", "top_left", "outline", "humanist", 700, "caps", 1.0),
+    "Citrus Heron":        H("#f1f5f8", "lines", "rounded", "#4a8a52", "#1e3a22", 0.90, False, "round", "sparkle", "mark_only", "top_right", "flag", "serif", 400, "smallcaps", 1.5),
+    "Clay Wren":           H("#f4f1fa", "grid", "heavy", "#9a3a78", "#38183a", 0.95, False, "sharp", "jar", "mark_only", "bottom_left", "underline", "humanist", 400, "lower", 2.0),
+    "Cloth Wren":          H("#f2f7ef", "diagonal", "ticks", "#6a4fa0", "#2a1c3e", 1.00, False, "round", "feather", "mark_only", "bottom_right", "tab", "serif", 700, "title", 2.5),
+    "Dewy Finch":          H("#faf3e6", "hatch", "none", "#2f7f7a", "#123a38", 1.05, False, "sharp", "dropper", "mark_only", "top_left", "rect", "humanist", 400, "caps", 1.0),
+    "Fenmere":             H("#eef3f3", "none", "thin", "#3a6f8f", "#16303e", 0.85, True, "round", "flask", "mark_only", "top_right", "plain", "serif", 400, "smallcaps", 1.5),
+    "Pearlbrook":          H("#f8f0f6", "dots", "double", "#b9803a", "#3e2a12", 0.90, False, "sharp", "pearl_row", "mark_only", "bottom_left", "stamp", "humanist", 700, "lower", 2.0),
+    "Red Kestrel":         H("#fbf1f1", "lines", "rounded", "#b0486a", "#3a1a28", 0.95, False, "round", "lip_swipe", "mark_only", "bottom_right", "outline", "serif", 400, "title", 2.5),
+    "Rose Kestrel":        H("#f1f5f8", "grid", "heavy", "#4a8a52", "#1e3a22", 1.00, False, "sharp", "rose_bud", "mark_only", "top_left", "flag", "humanist", 400, "caps", 1.0),
+    "Sorrel & Salt":       H("#f4f1fa", "diagonal", "ticks", "#9a3a78", "#38183a", 1.05, False, "round", "shell", "mark_only", "top_right", "underline", "serif", 700, "smallcaps", 1.5),
+    "Thornlea Skin":       H("#f2f7ef", "hatch", "none", "#6a4fa0", "#2a1c3e", 0.85, False, "sharp", "tube", "mark_only", "bottom_left", "tab", "serif", 400, "lower", 2.0),
+    "Vanilla Wren":        H("#faf3e6", "none", "thin", "#2f7f7a", "#123a38", 0.90, True, "round", "compact", "mark_only", "bottom_right", "rect", "serif", 400, "title", 2.5),
+    "Veilmoor":            H("#eef3f3", "dots", "double", "#3a6f8f", "#16303e", 0.95, False, "sharp", "moon_stars", "mark_only", "top_left", "plain", "humanist", 700, "caps", 1.0),
+    "Vitamin C Orchard":   H("#f8f0f6", "lines", "rounded", "#b9803a", "#3e2a12", 1.00, False, "round", "lash_fan", "mark_only", "top_right", "stamp", "serif", 400, "smallcaps", 1.5),
 }
 # fmt: on
 
