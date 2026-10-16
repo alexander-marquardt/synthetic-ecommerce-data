@@ -26,7 +26,21 @@ from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import mutation_rows_type_specs  # noqa: E402  (gen#351 rows, kept in their own file)
+import mutation_rows_appliance_colors  # noqa: E402  (gen#243 rows)
+import mutation_rows_attribute_text  # noqa: E402  (gen#250 rows, kept in their own file)
+import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
+import mutation_rows_bolt_pack  # noqa: E402  (gen#86 rows, kept in their own file)
+import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their own file)
+import mutation_rows_customer_names  # noqa: E402  (#393 rows, kept in their own file)
+import mutation_rows_cutlery_pack_count  # noqa: E402  (gen#228 rows)
+import mutation_rows_department_floor  # noqa: E402  (gen#234 rows)
+import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
+import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
+import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their own file)
+import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
+import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
+import mutation_rows_sheet_extent  # noqa: E402  (gen#242 rows, kept in their own file)
+import mutation_rows_underwear_245  # noqa: E402  (gen#245 rows, kept in their own file)
 
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "src" / "synthetic_ecommerce_data"
@@ -65,6 +79,67 @@ class Mutation:
 
 
 MUTATIONS: list[Mutation] = [
+    # ---- the commit-message check masks the agent-instructions file name (gen#117) ----
+    Mutation(
+        "commit msg: the file name is no longer masked before matching",
+        "scripts/check_commit_msg.py",
+        "    return _AGENT_FILE.sub(_MASK, text)",
+        "    return text",
+        "tests/test_commit_msg_check.py -k test_the_agent_file_name_passes",
+        "A",
+        "the agent-instructions file name passes",
+        root=".",
+    ),
+    Mutation(
+        "commit msg: the mask swallows the whole line, vendor prose with it",
+        "scripts/check_commit_msg.py",
+        '_AGENT_FILE = re.compile(r"(?<![\\w.-])CLAUDE\\.md(?![\\w-])")',
+        '_AGENT_FILE = re.compile(r"^.*(?<![\\w.-])CLAUDE\\.md(?![\\w-]).*$", re.MULTILINE)',
+        "tests/test_commit_msg_check.py -k prose-before-name",
+        "B",
+        "a vendor name beside the file name still fails",
+        root=".",
+    ),
+    Mutation(
+        "commit msg: a glued prefix counts as the file name",
+        "scripts/check_commit_msg.py",
+        '_AGENT_FILE = re.compile(r"(?<![\\w.-])CLAUDE',
+        '_AGENT_FILE = re.compile(r"CLAUDE',
+        "tests/test_commit_msg_check.py -k glued-prefix",
+        "B",
+        "only the exact file name is masked",
+        root=".",
+    ),
+    Mutation(
+        "commit msg: a longer extension counts as the file name",
+        "scripts/check_commit_msg.py",
+        '\\.md(?![\\w-])")',
+        '\\.md")',
+        "tests/test_commit_msg_check.py -k longer-extension",
+        "B",
+        "only the exact file name is masked",
+        root=".",
+    ),
+    Mutation(
+        "commit msg: the mask is matched case-blind, so a lower-case name is masked",
+        "scripts/check_commit_msg.py",
+        "    return _AGENT_FILE.sub(_MASK, text)",
+        "    return re.sub(_AGENT_FILE.pattern, _MASK, text, flags=re.IGNORECASE)",
+        "tests/test_commit_msg_check.py -k lowercase-name",
+        "B",
+        "only the exact file name is masked",
+        root=".",
+    ),
+    Mutation(
+        "commit msg: the mask is applied to every row, not the vendor-name row alone",
+        "scripts/check_commit_msg.py",
+        "pattern.search(masked if label == _MASKED_LABEL else text)",
+        "pattern.search(masked)",
+        "tests/test_commit_msg_check.py -k names-file",
+        "B",
+        "a shape row still reads the file name as the tool named",
+        root=".",
+    ),
     # ---- the local CI runs the suite on several workers, bounded by memory (gen#348) ----
     Mutation(
         "ci workers: the emitted steps stop carrying the xdist options",
@@ -215,7 +290,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "label: the industrial generator builds a line with no label",
-        "domains/industrial/generate.py",
+        "domains/industrial/finishing.py",
         "            type_label=label_for(type_key),\n",
         "",
         "tests/test_product_type_label_331.py -k documents_carry_the_label",
@@ -430,7 +505,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let a brand stock the same spec twice",
-        "domains/industrial/generate.py",
+        "domains/industrial/finishing.py",
         "            if key in self._drawn_specs or self._differs_only_by_a_drop(",
         "            if False and self._differs_only_by_a_drop(",
         "tests/test_catalog_brands_voice.py -k same_product",
@@ -448,7 +523,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let the series walk rewrite any value equal to the series",
-        "domains/industrial/generate.py",
+        "domains/industrial/finishing.py",
         "                if attribute.name in self.IDENTIFIER_ATTRIBUTES and attribute.value == old:",
         "                if attribute.value == old:",
         "tests/test_catalog_brands_voice.py -k series_walk",
@@ -457,7 +532,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "leave a product line without an image",
-        "domains/industrial/generate.py",
+        "domains/industrial/finishing.py",
         "            image_id=children[0].image_id,\n            drawing=drawing_for(type_key),\n            type_label=label_for(type_key),\n        )",
         '            image_id="",\n            drawing=drawing_for(type_key),\n            type_label=label_for(type_key),\n        )',
         "tests/test_catalog_generate.py tests/test_catalog_emit.py",
@@ -652,6 +727,35 @@ MUTATIONS: list[Mutation] = [
         "tests/test_type_seam.py",
         "",
         "two types on one block are refused, naming both",
+    ),
+    # ---- labels on the type's own spec: two type PRs share no line (#103) ----
+    Mutation(
+        "labels: a label in the table and on the spec is accepted",
+        "domains/industrial/type_labels.py",
+        "    if dict.__contains__(PRODUCT_TYPE_LABELS, spec.key):",
+        "    if False:",
+        "tests/test_type_registration.py::test_a_label_in_the_table_and_on_the_spec_is_refused",
+        "",
+        "a label is declared once",
+    ),
+    Mutation(
+        "labels: register drops the label a spec declares",
+        "domains/industrial/type_labels.py",
+        "    PRODUCT_TYPE_LABELS[spec.key] = spec.label",
+        "    pass",
+        "tests/test_type_registration.py::test_a_label_on_the_spec_joins_the_label_table",
+        "",
+        "a type's label on its spec reaches every product",
+    ),
+    Mutation(
+        "labels: the steps of a new type are a numbered list again",
+        "docs/adding-a-type.md",
+        "- **Module.** Write the module.",
+        "1. Write the module.",
+        "tests/test_adding_a_type_doc_103.py::test_the_steps_of_a_new_type_are_named_items",
+        "",
+        "an inserted step renumbers no neighbour",
+        root=".",
     ),
     # ---- roller chain: the strand count moves the price (#36) ----
     Mutation(
@@ -1240,7 +1344,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "stop injecting the angle-carries-a-length-unit defect",
-        "domains/industrial/generate.py",
+        "domains/industrial/defects.py",
         "        if self.rng.random() >= self.config.scaled_defect(\n            self.config.defect_angle_carries_length_unit\n        ):\n            return line_attrs",
         "        if True:\n            return line_attrs",
         "tests/test_catalog_generate.py",
@@ -1249,7 +1353,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "inject the angle defect into every line",
-        "domains/industrial/generate.py",
+        "domains/industrial/defects.py",
         "        if self.rng.random() >= self.config.scaled_defect(\n            self.config.defect_angle_carries_length_unit\n        ):\n            return line_attrs",
         "        if False:\n            return line_attrs",
         "tests/test_catalog_generate.py",
@@ -1341,7 +1445,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "never leave a title dimension token unlabelled",
-        "domains/industrial/generate.py",
+        "domains/industrial/titles.py",
         "                if middle < cfg.title_token_unlabelled:",
         "                if False:",
         "tests/test_catalog_generate.py",
@@ -1350,7 +1454,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "always leave a title dimension token unlabelled",
-        "domains/industrial/generate.py",
+        "domains/industrial/titles.py",
         "                if middle < cfg.title_token_unlabelled:",
         "                if True:",
         "tests/test_catalog_generate.py",
@@ -1359,7 +1463,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "use one spelling of the measurement-system attribute everywhere",
-        "domains/industrial/generate.py",
+        "domains/industrial/finishing.py",
         "        system_name = str(_weighted(rng, MEASUREMENT_SYSTEM_NAMES))",
         '        system_name = "Dimension Type"',
         "tests/test_catalog_generate.py",
@@ -1793,11 +1897,102 @@ MUTATIONS: list[Mutation] = [
         "no doc restates a measured figure",
         root=".",
     ),
+    # ---- the Sports & Outdoors second increment (gen#368) ----
+    Mutation(
+        "sports rows: a football style loses its yellow and its white",
+        "prototypes/retail_drawings/type_specs/football.py",
+        '_PRIMARY, (_a("cover", "Cover", "Polyurethane")',
+        '(RED, BLUE, GREEN, GREEN), (_a("cover", "Cover", "Polyurethane")',
+        "tests/test_retail_sports_265.py::test_every_type_offers_the_six_main_colors_with_no_exception[Football]",
+        "",
+        "yellow is offered by one football style",
+        root=".",
+    ),
+    Mutation(
+        "sports rows: a football's ball size is stored without its unit",
+        "prototypes/retail_drawings/export.py",
+        '"ball_size": ("ball_size", "Ball size", "C62"),',
+        '"ball_size": ("ball_size", "Ball size", None),',
+        "tests/test_retail_sports_265.py::test_a_measured_axis_is_on_every_sku_with_its_unit[Football]",
+        "",
+        "the ball size carries its unit",
+        root=".",
+    ),
+    Mutation(
+        "sports drawing: a ringed yoga strap draws as a clipped one",
+        "prototypes/retail_drawings/kit_sports.py",
+        'if buckle.lower() == "clip":',
+        'if True:',
+        "tests/test_retail_sports_265.py::test_a_param_changes_the_drawing[yoga_strap]",
+        "",
+        "the buckle param changes the strap",
+        root=".",
+    ),
+    Mutation(
+        'sports decoys: a type loses one of its two decoys',
+        'prototypes/retail_drawings/decoy_product_words.py',
+        '    _s(44, "s_blocks", "Building Blocks Set",\n       "A set of chunky building blocks for toddlers to stack, with a loose brick to start.",\n       "Blue", "block", "Yoga Block"),\n',
+        '',
+        'tests/test_retail_sports_decoys_368.py::test_a_second_increment_type_has_at_least_two_decoys',
+        "",
+        'every second-increment type carries two decoys',
+        root=".",
+    ),
+    Mutation(
+        "sports decoys: a decoy's target points at another type",
+        'prototypes/retail_drawings/decoy_product_words.py',
+        '"badminton", "Badminton Set"),\n    _s(76',
+        '"badminton", "Tennis Racket"),\n    _s(76',
+        'tests/test_retail_sports_decoys_368.py::test_a_second_increment_type_has_at_least_two_decoys',
+        "",
+        'a decoy misleads the type its target names',
+        root=".",
+    ),
+    Mutation(
+        'sports decoys: a live type is exempted with no decoys',
+        'prototypes/retail_drawings/decoy_product_words.py',
+        '"Dumbbell", "Kettlebell",\n              "Foam Roller")',
+        '"Dumbbell", "Kettlebell",\n              "Foam Roller", "Football")',
+        'tests/test_retail_sports_decoys_368.py::test_every_sports_type_is_planned_or_exempt',
+        "",
+        'a sports type is planned or exempt, never silently both',
+        root=".",
+    ),
+    Mutation(
+        'sports decoys: an exemption names no follow-up issue',
+        'prototypes/retail_drawings/decoy_product_words.py',
+        '"decoys are tracked in #375"',
+        '"decoys are tracked later"',
+        'tests/test_retail_sports_decoys_368.py::test_every_sports_type_is_planned_or_exempt',
+        "",
+        'an exemption names its issue',
+        root=".",
+    ),
+    Mutation(
+        'sports decoys: a later type is added to the exempt set',
+        'prototypes/retail_drawings/decoy_product_words.py',
+        '"Dumbbell", "Kettlebell",\n              "Foam Roller")',
+        '"Dumbbell", "Kettlebell",\n              "Foam Roller", "Kickboard")',
+        'tests/test_retail_sports_decoys_368.py::test_the_exempt_set_is_the_seven_first_increment_types',
+        "",
+        'the exempt set is the seven first-increment types, nothing else',
+        root=".",
+    ),
+    Mutation(
+        'sports decoys: a live type outside the hand-written tuple has one decoy',
+        'prototypes/retail_drawings/decoy_product_words.py',
+        '    _s(68, "s_scooter3", "Kickboard Scooter, Three Wheels",\n       "A kids\' scooter with three wheels and a wide kickboard deck.", "Blue", "kickboard",\n       "Kickboard"),\n',
+        '',
+        'tests/test_retail_sports_decoys_368.py::test_every_live_non_exempt_sports_type_has_at_least_two_decoys',
+        "",
+        'every live non-exempt sports type carries two decoys',
+        root=".",
+    ),
     # ---- the Sports & Outdoors tree note (gen#290) ----
     Mutation(
         "sports note: a Not built row is deleted",
         "docs/retail-sports-tree.md",
-        "| Bike pumps | Cycling | #368 |\n",
+        "| Camping stoves | Camping | #352 |\n",
         "",
         "tests/test_retail_sports_tree_note_290.py::test_every_type_not_built_has_an_open_issue_or_a_reason",
         "",
@@ -2230,7 +2425,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "re-draw the title style per SKU",
-        "domains/industrial/generate.py",
+        "domains/industrial/titles.py",
         "        return style\n\n    def _dimension_segments",
         "        return self.TITLE_STYLES[int(self.rng.random() * 3)]\n\n    def _dimension_segments",
         "tests/test_catalog_facts.py -k titles_a_type_one_way",
@@ -2239,7 +2434,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "drop the key dimension from secondary-style titles",
-        "domains/industrial/generate.py",
+        "domains/industrial/titles.py",
         '        if style == "secondary":\n            # The pair\'s secondary dimension',
         '        if style == "secondary":\n            segments = []\n            # The pair\'s secondary dimension',
         "tests/test_catalog_facts.py -k names_its_key_dimension",
@@ -2248,7 +2443,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "count the measurement-system spelling as a difference again",
-        "domains/industrial/generate.py",
+        "domains/industrial/finishing.py",
         "    NOT_SUBSTANCE = IDENTIFIER_ATTRIBUTES | METADATA_ATTRIBUTES",
         "    NOT_SUBSTANCE = IDENTIFIER_ATTRIBUTES",
         "tests/test_catalog_brands_voice.py -k no_two_skus_of_the_100k_catalog",
@@ -2296,7 +2491,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "title every end mill Sq End, ball nose included",
-        "domains/industrial/generate.py",
+        "domains/industrial/titles.py",
         '                        value=f"{abbreviate_value(end.value)} {END_SHAPE_WORD[shape]} End",',
         '                        value=f"{abbreviate_value(end.value)} Sq End",',
         "tests/test_catalog_facts.py -k mills_own_end_shape",
@@ -2350,7 +2545,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "stop writing a glued size's parts in the spec clause",
-        "domains/industrial/generate.py",
+        "domains/industrial/titles.py",
         "        details.extend(thread_parts(f\"{title.text} {', '.join(details)}\"))\n",
         "",
         "tests/test_glued_thread_sizes.py -k also_written_in_parts",
@@ -2386,7 +2581,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "choose labelled or secondary per SKU inside a labelled-or-secondary pair",
-        "domains/industrial/generate.py",
+        "domains/industrial/titles.py",
         '        if style == "secondary":\n            # The pair\'s secondary dimension',
         '        if style != "unlabelled" and self.rng.random() < 0.5:\n'
         "            # The pair's secondary dimension",
@@ -2396,7 +2591,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "drop a secondary pair's secondary on some SKUs that publish it",
-        "domains/industrial/generate.py",
+        "domains/industrial/titles.py",
         '            if attribute is not None:\n                self._bump("title_token_not_primary")',
         "            if attribute is not None and self.rng.random() < 0.7:\n"
         '                self._bump("title_token_not_primary")',
@@ -2434,7 +2629,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "let the noise into the title",
-        "domains/industrial/generate.py",
+        "domains/industrial/finishing.py",
         "                    title=title.text,\n                    description=self._build_description(draft, title, attrs, extra),",
         '                    title=title.text + (" " + noise_text if noise_text else ""),\n                    description=self._build_description(draft, title, attrs, extra),',
         "tests/test_noise_text.py -k never_moves_an_attribute",
@@ -2627,7 +2822,7 @@ MUTATIONS: list[Mutation] = [
     # ---- no two SKUs of a line share a title, both directions -------------
     Mutation(
         "stop repairing the titles that tell a shopper nothing",
-        "domains/industrial/generate.py",
+        "domains/industrial/titles.py",
         "        if identifying is None or len(published) < 2:\n            return titles",
         "        return titles",
         "tests/test_catalog_titles.py",
@@ -2636,7 +2831,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "repair only exact duplicates, the way the first version did",
-        "domains/industrial/generate.py",
+        "domains/industrial/titles.py",
         "            alone = [\n                value\n                for name, value in mine.items()",
         "            alone = [\n                value\n                for name, value in [*mine.items(), (None, title.text)]",
         "tests/test_catalog_titles.py",
@@ -2646,7 +2841,7 @@ MUTATIONS: list[Mutation] = [
     # ---- the description is a tier of its own, both directions ------------
     Mutation(
         "put the line title back in the description field",
-        "domains/industrial/generate.py",
+        "domains/industrial/titles.py",
         "        return f\"{title.text} - {', '.join(details)}. {middle}{tail}\"",
         '        return f"{draft.brand} {draft.series} -- {draft.item}"',
         "tests/test_catalog_titles.py",
@@ -2655,7 +2850,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "leave the SKU's own attributes out of the description",
-        "domains/industrial/generate.py",
+        "domains/industrial/titles.py",
         "        named = title.attribute_names()\n        details: list[str] = []",
         "        named = {a.name for a in attributes}\n        details: list[str] = []",
         "tests/test_catalog_titles.py",
@@ -3068,7 +3263,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "group noise is drawn per SKU, not per group page",
-                "domains/industrial/generate.py",
+                "domains/industrial/finishing.py",
                 "            seed, type_key, brand, (a for a in line_attributes if a.name in always)",
                 "            seed, type_key, brand + sku, (a for a in line_attributes if a.name in always)",
                 "within_its_band_or_pinned_at_the_default_size",
@@ -3693,6 +3888,37 @@ MUTATIONS: list[Mutation] = [
         "only the branch's own commits are judged, not a merge of main",
         root=".",
     ),
+    # ---- retail: the steak plate, board and weight carry a material, never derived (gen#268) ----
+    *(
+        Mutation(f"steak ware: {name}", file, old, new_, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new_, test, prop in [
+            (
+                "the steak weight loses its material",
+                "distractor_rows.py",
+                '                 ("material", "Material", "Cast Iron"))),',
+                "                 )),",
+                "tests/test_retail_distractors.py -k carry_a_material_like_their_siblings",
+                "the steak weight carries a material like the other utensils",
+            ),
+            (
+                "the steak board loses its material",
+                "distractor_rows.py",
+                '          extra=(("material", "Material", "Wood"),),\n',
+                "",
+                "tests/test_retail_distractors.py -k carry_a_material_like_their_siblings",
+                "the steak board carries the material of the other boards",
+            ),
+            (
+                "the steak ware is copied by the derivation",
+                "scale.py",
+                " | STEAK_WARE_IDS)",
+                ")",
+                "tests/test_retail_distractors.py -k steak_ware_is_never_derived",
+                "the steak plate, board and weight stay templates",
+            ),
+        ]
+    ),
     # ---- retail: school uniform, the record names the drawing it draws (gen#205) ----
     *(
         Mutation(f"school uniform: {name}", "school_rows.py", old, new_, test, "", prop,
@@ -3730,8 +3956,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "an apparel decoy is copied by the derivation",
                 "scale.py",
-                "                | decoy_apparel.IDS | decoy_product_words.IDS)",
-                "                | decoy_product_words.IDS)",
+                "                | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)",
+                "                | decoy_product_words.IDS | STEAK_WARE_IDS)",
                 "tests/test_retail_apparel_decoys_311.py -k never_copied_or_color_completed",
                 "an apparel decoy stays a template",
             ),
@@ -3801,10 +4027,69 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
-    # ---- retail: one declarative spec per type (gen#351); the rows are in their own file ----
+    # ---- retail: type specs (gen#351) and the garden hose decoys (gen#292); rows in their own files ----
     *(
-        Mutation(f"type specs: {name}", file, old, new, test, "", prop, root=root)
-        for name, file, old, new, test, prop, root in mutation_rows_type_specs.ROWS
+        Mutation(f"{prefix}: {name}", file, old, new, test, "", prop, root=root)
+        for prefix, name, file, old, new, test, prop, root in mutation_rows_garden_hose.ALL
+    ),
+    # ---- retail: derived ceiling-light forms (gen#237); the rows are in their own file ----
+    *(
+        Mutation(f"ceiling forms: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in mutation_rows_ceiling_forms.ROWS
+    ),
+    *(
+        Mutation(f"lighting drawings: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in mutation_rows_lighting.ROWS
+    ),
+    # ---- retail: appliance colors (gen#243); the rows are in their own file ----
+    *(
+        Mutation(f"appliance colors: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in mutation_rows_appliance_colors.ROWS
+    ),
+    # ---- retail: one pack_size vocabulary for a count (gen#246); the rows are in their own file ----
+    *(
+        Mutation(f"pack size: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in mutation_rows_pack_size.ROWS
+    ),
+    *(
+        Mutation(f"ring sizes: {name}", file, old, new, tests, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, tests, prop in mutation_rows_ring_sizes_249.ROWS
+    ),
+    *(
+        Mutation(f"lower-body params: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in mutation_rows_lowerbody_257.ROWS
+    ),
+    *(
+        Mutation(f"underwear drawn values: {name}", file, old, new, tests, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, tests, prop in mutation_rows_underwear_245.ROWS
+    ),
+    *(
+        Mutation(f"audit order: {n}", "generate_cli.py", o, w, t, "", pr)
+        for n, o, w, t, pr in mutation_rows_audit_order.ROWS
+    ),
+    # ---- the customer-name check (#393); the rows are in their own file ----
+    *(
+        Mutation(f"customer names: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in mutation_rows_customer_names.ROWS
+    ),
+    # ---- retail: the department floor is pinned (gen#234); the rows are in their own file ----
+    *(Mutation(f"department floor: {n}", f, o, nw, t, "", p, root=r) for n, f, o, nw, t, p, r in mutation_rows_department_floor.ROWS),
+    *(Mutation(f"cutlery pack count: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_cutlery_pack_count.ROWS),
+    # ---- retail: no drawing extends past its sheet (gen#242); the rows are in their own file ----
+    *(
+        Mutation(f"sheet extent: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in mutation_rows_sheet_extent.ROWS
+    ),
+    # ---- pack: the bolt's pack is a page's and is priced within a size (gen#86); the rows are in their own file ----
+    *(
+        Mutation(f"bolt page pack: {name}", file, old, new, test, direction, prop, root=root)
+        for name, file, old, new, test, direction, prop, root in mutation_rows_bolt_pack.ROWS
     ),
     # ---- retail: product-word decoys (gen#326) ----
     *(
@@ -3822,8 +4107,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a class-8 decoy is copied by the derivation",
                 "scale.py",
-                "| decoy_apparel.IDS | decoy_product_words.IDS)",
-                "| decoy_apparel.IDS)",
+                "| decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)",
+                "| decoy_apparel.IDS | STEAK_WARE_IDS)",
                 "tests/test_retail_product_word_decoys_326.py -k templates_no_derived",
                 "a decoy stays a template",
             ),
@@ -3900,23 +4185,23 @@ MUTATIONS: list[Mutation] = [
             (
                 "the pack grows with the size",
                 "core/price.py",
-                "    quantile = 1.0 - (rank + u) / sizes",
-                "    quantile = (rank + u) / sizes",
+                "    return _pack_at(type_key, 1.0 - (rank + u) / sizes)",
+                "    return _pack_at(type_key, (rank + u) / sizes)",
                 "never_grows_with_the_size",
                 "the pack falls as the size grows",
             ),
             (
                 "every line of a size takes one pack",
                 "core/price.py",
-                "    quantile = 1.0 - (rank + u) / sizes",
-                "    quantile = 1.0 - (rank + 0.5) / sizes",
+                "    return _pack_at(type_key, 1.0 - (rank + u) / sizes)",
+                "    return _pack_at(type_key, 1.0 - (rank + 0.5) / sizes)",
                 "even_spread_over_the_sizes",
                 "the build publishes the census counts",
             ),
             (
                 "the bolt's pack does not enter its price",
                 "core/price.py",
-                '            pack_slope=PACK_SLOPES["bolt_hex"],',
+                '            pack_slope=PACK_ELASTICITY["bolt_hex"],',
                 "            pack_slope=0.0,",
                 "prices_its_pack_on_the_census_slope",
                 "the price is the pack's",
@@ -3928,6 +4213,125 @@ MUTATIONS: list[Mutation] = [
                 "        100: 77,",
                 "each_pack_count_is_the_census_count",
                 "the counts are the census's",
+            ),
+        ]
+    ),
+    # ---- retail: the product types the failure classes need (gen#329) ----
+    # Every name starts "needs rows:", so `--only "needs rows:"` re-runs them.
+    *(
+        Mutation(f"needs rows: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "the derivation copies the needs rows as styles",
+                "scale.py",
+                "| NIKE_IDS | NEEDS_IDS\n",
+                "| NIKE_IDS\n",
+                "tests/test_retail_elasticated_waist_329.py -k every_row_is_a_template",
+                "the needs rows stay templates",
+            ),
+            (
+                "the elastic-waist decoys are filed under cargo trousers",
+                "needs_rows.py",
+                'spread=(("Mens", "Trousers", "Elasticated Waist Trousers"),),',
+                "spread=(),",
+                "tests/test_retail_elasticated_waist_329.py -k decoy_is_a_mens_trouser_true_in_its_fields",
+                "a decoy sits in the leaf its title and fields name",
+            ),
+            (
+                "a product of the leaf states a drawstring waist, not an elastic one",
+                "needs_rows.py",
+                'waist="Elastic", extra_price=2.0)',
+                'waist="Drawstring", extra_price=2.0)',
+                "tests/test_retail_elasticated_waist_329.py -k every_product_in_the_leaf_states_an_elastic_waist",
+                "the attribute says what the title says",
+            ),
+            (
+                "the leaf is drawn with a plain waistband",
+                "mens_depth_rows.py",
+                'params += (("waist", "elasticated"),)',
+                "params += ()",
+                "tests/test_retail_elasticated_waist_329.py -k drawn_with_an_elasticated_waist",
+                "the picture shows the gathered band",
+            ),
+            (
+                "a class 4 decoy states an elastic waist, so it is no near miss",
+                "needs_rows.py",
+                'absent_attrs=(m._a("waist_type", "Waist type", "Belted"),)',
+                'absent_attrs=(m._a("waist_type", "Waist type", "Elastic"),)',
+                "tests/test_retail_elasticated_waist_329.py -k class_4_names_an_elastic",
+                "the word elasticated on a product whose waist is not elastic",
+            ),
+            (
+                "a decoy class is cut to two decoys",
+                "mens_depth_rows.py",
+                "        for i in range(3):\n            w = _MAIN_WORDS",
+                "        for i in range(2):\n            w = _MAIN_WORDS",
+                "tests/test_retail_elasticated_waist_329.py -k three_decoys_of_each_class",
+                "three decoys of each of the seven classes",
+            ),
+        ]
+    ),
+    # ---- retail: Nike is a real brand, text only (gen#341) ----
+    *(
+        Mutation(f"nike: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a real brand draws its logo",
+                "house_styles.py",
+                "    if style.mark == NO_MARK:  # a real brand",
+                "    if False:  # a real brand",
+                "tests/test_retail_nike_341.py -k carries_no_logo_mark_or_name",
+                "a real brand is text only: no drawing carries its logo",
+            ),
+            (
+                "Nike leaves the allow-list",
+                "real_brands.py",
+                'ALLOWED: tuple[str, ...] = ("Nike",)',
+                "ALLOWED: tuple[str, ...] = ()",
+                "tests/test_retail_nike_341.py -k guard_allows_nike",
+                "the guard allows the ruled-in brand",
+            ),
+            (
+                "the guard stops refusing Puma",
+                "real_brands.py",
+                '"Adidas", "Puma", ',
+                '"Adidas", ',
+                "tests/test_retail_nike_341.py -k refuses_any_other_real_brand",
+                "the guard refuses every other real brand",
+            ),
+            (
+                "the guard refuses Nike too",
+                "real_brands.py",
+                '"Adidas", "Puma", ',
+                '"Nike", "Adidas", "Puma", ',
+                "tests/test_retail_nike_341.py -k allow_list_and_the_refused_list",
+                "the allow-list and the refused list do not overlap",
+            ),
+            (
+                "an apparel decoy may clone a Nike style",
+                "decoy_apparel.py",
+                '            and d["brand"] not in real_brands.ALLOWED',
+                "            and True",
+                "tests/test_retail_nike_341.py -k every_nike_title_names_it",
+                "a real brand is never cloned into a decoy that hides its name",
+            ),
+            (
+                "a Nike style enters the seeded derivation",
+                "scale.py",
+                "| GARDEN_IDS | NIKE_IDS",
+                "| GARDEN_IDS",
+                "tests/test_retail_nike_341.py -k leave_the_derivation",
+                "the Nike rows are templates only",
+            ),
+            (
+                "Nike leaves the owner table",
+                "class_model.py",
+                '"Nike")  # fmt: skip',
+                '"Coat Crake")  # fmt: skip',
+                "tests/test_retail_nike_341.py -k third_party_brand",
+                "Nike is another house's make",
             ),
         ]
     ),
@@ -4071,6 +4475,105 @@ MUTATIONS: list[Mutation] = [
                 '"category_path_joined"',
                 "tests/test_retail_promotion_189.py -k class_docs_and_their_mapping",
                 "promotion is a keyword",
+            ),
+        ]
+    ),
+    # ---- retail: a description's closure and a style's pattern agree with its attributes (gen#250) ----
+    *(
+        Mutation(
+            f"attribute text: {name}",
+            "attribute_text.py",
+            old,
+            new,
+            f"tests/test_retail_attribute_text_250.py -k {test}",
+            prop,
+            root="prototypes/retail_drawings",
+        )
+        for name, old, new, test, prop in mutation_rows_attribute_text.ROWS
+    ),
+    # ---- retail: a drawing param may be named shape (gen#259) ----
+    *(
+        Mutation(f"drawing params: {name}", "variants.py", old, new, tests, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, old, new, tests, prop in [
+            (
+                "the drawing's first parameter is named shape again",
+                "def drawing(shape_name: str, color: Color, label: str | None = None, **params)"
+                " -> dict:",
+                "def drawing(shape: str, color: Color, label: str | None = None, **params)"
+                " -> dict:\n    shape_name = shape",
+                (
+                    "tests/test_retail_lowerbody_206.py -k takes_a_param_named_shape",
+                    "tests/test_retail_lowerbody_206.py -k without_stripping_its_shape_param",
+                ),
+                "a param named shape reaches the drawing's params",
+            ),
+        ]
+    ),
+    # Every name starts "variant bounds doc:", so `--only "variant bounds doc:"`
+    # re-runs the rows that hold docs/adding-a-type.md to the build's bounds (#252).
+    Mutation(
+        "variant bounds doc: the knob's maximum moves off the doc's",
+        "domains/industrial/product_split.py",
+        "    ceiling = table[-1][0]\n",
+        "    ceiling = table[-1][0] + 1\n",
+        "tests/test_variant_bounds_doc_252.py::test_the_doc_states_the_maximum_skus_per_product",
+        "",
+        "the doc states the most SKUs a product may have",
+    ),
+    Mutation(
+        "variant bounds doc: the median bound moves off the doc's",
+        "domains/industrial/product_split.py",
+        "        if running >= 0.75:\n",
+        "        if running >= 0.9:\n",
+        "tests/test_variant_bounds_doc_252.py::test_the_doc_states_the_median_bound",
+        "",
+        "the doc states the largest median of a deep type",
+    ),
+    Mutation(
+        "variant bounds doc: the product floor moves off the doc's",
+        "domains/industrial/product_split.py",
+        "MEDIAN_MIN_PRODUCTS = 20\n",
+        "MEDIAN_MIN_PRODUCTS = 25\n",
+        "tests/test_variant_bounds_doc_252.py::test_the_doc_states_the_product_floor_of_the_median_check",
+        "",
+        "the doc states the product floor of the median check",
+    ),
+    # ---- retail: a jigsaw's finished size is two CMT entries (gen#261) ----
+    *(
+        Mutation(f"jigsaw size: {name}", "toys_rows.py", old, new,
+                 "tests/test_retail_toys_201.py -k jigsaws_finished_size", "", prop,
+                 root="prototypes/retail_drawings")
+        for name, old, new, prop in [
+            (
+                "the length is no longer in centimeters",
+                'return (key, name, str(v), "CMT", float(v * 10))  # canonical length is millimeters\n\n\ndef _jig',
+                'return (key, name, str(v), "MMT", float(v * 10))  # canonical length is millimeters\n\n\ndef _jig',
+                "a size carries its unit code",
+            ),
+            (
+                "the canonical value is not in millimeters",
+                'return (key, name, str(v), "CMT", float(v * 10))  # canonical length is millimeters\n\n\ndef _jig',
+                'return (key, name, str(v), "CMT", float(v))  # canonical length is millimeters\n\n\ndef _jig',
+                "a size carries its canonical value",
+            ),
+            (
+                "the width entry is dropped",
+                '_cm("item_length", "Item length", length), _cm("item_width", "Item width", width),',
+                '_cm("item_length", "Item length", length),',
+                "length and width are both entries",
+            ),
+            (
+                "the width entry repeats the length",
+                '_cm("item_width", "Item width", width),',
+                '_cm("item_width", "Item width", length),',
+                "the width entry is the width",
+            ),
+            (
+                "the text says another size than the entries",
+                'f"{length} x {width} cm"',
+                'f"{width} x {width} cm"',
+                "the text and the entries state one size",
             ),
         ]
     ),
