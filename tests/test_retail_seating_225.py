@@ -116,5 +116,6 @@ def test_a_toppers_depth_is_a_measured_centimeter_entry_in_both_samples() -> Non
     shallow = next(r for r in variants.BEDDING if r.code == "TOPMEM")
     (entry,) = _depth(shallow.doc()["attributes"])
     _assert_cm_depth(entry)
-    (entry,) = _depth(samples_round2.HOME[0]["attributes"])
+    topper = next(i for i in samples_round2.HOME if "Mattress Topper" in i["title"])
+    (entry,) = _depth(topper["attributes"])
     _assert_cm_depth(entry)

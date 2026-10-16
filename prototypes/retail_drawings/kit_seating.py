@@ -292,7 +292,8 @@ def corner_sofa(paint: str, fill: Fill, label: str | None, seats: str = "5", sid
     The return has its own back along its outer edge and its own seat cushions; a corner seat
     joins the two, and an arm closes any end with no return. Every return takes its two seats and
     its corner seat from ``seats``, and the run is the rest (``seats`` less three per return), so
-    the drawing shows the seat count its record states.
+    the drawing shows the seat count its record states. Below the floor (3 for a return, 6 for
+    ``u``) it draws the floor: a corner seat and the return, no run.
     """
     returns = 2 if side == "u" else 1
     n = max(0, int(float(seats)) - 3 * returns)  # run seats other than the corner seats
