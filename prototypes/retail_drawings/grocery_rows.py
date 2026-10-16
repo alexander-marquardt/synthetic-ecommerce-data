@@ -159,12 +159,14 @@ def _o(name: str, hex_: str, origin: str) -> F:
 
 _HOME_SCENTS = (
     F("Lemon", "#f2d14b"), F("Orange", "#f2a14b"), F("Pine", "#3f7a4a"), F("Lavender", "#9a7ab6"),
-    F("Fresh Linen", "#cfe3ee"),
+    F("Fresh Linen", "#cfe3ee"), F("Mint", "#3a8f6a"), F("Lime", "#9acd32"), F("Vanilla", "#f3e5ab"),
+    F("Cherry Blossom", "#f4b6c8"),
 )
 _HOME_BRANDS = ("Clearbrook Household", "Soapwell", "Pantry Mill", "Freshfold")
 _BODY_SCENTS = (
     F("Honey", "#e0a030"), F("Lemon", "#f2d14b"), F("Coconut", "#efe8d8"), F("Almond", "#c9a96e"),
-    F("Lavender", "#9a7ab6"),
+    F("Lavender", "#9a7ab6"), F("Mint", "#3a8f6a"), F("Lime", "#9acd32"), F("Vanilla", "#f3e5ab"),
+    F("Cherry Blossom", "#f4b6c8"),
 )
 _BODY_BRANDS = ("Brightwater Botanics", "Velling Apothecary", "Orrin Skin")
 
@@ -512,10 +514,10 @@ FAMILIES: tuple[Family, ...] = (
            "bottle", "Laundry Liquid", _A, "", 4.0, ("1.5L", "3L"), _HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",
            department="Cleaning & Janitorial", noun="liquid detergent for every wash", depth=True),
     Family("HWS", ("Beauty", "Bath & Body", "Hand Wash"), "{line} {flavor} Hand Wash", "Hand Wash", "bottle",
-           "Hand Wash", _A, "", 1.8, ("250ml", "500ml"), _BODY_SCENTS, _BODY_BRANDS, 0.016, axis="scent",
+           "Hand Wash", _A, "", 1.8, ("250ml", "500ml"), _BODY_SCENTS, _BODY_BRANDS, 0.032, axis="scent",
            department="Beauty", noun="gentle liquid hand wash", depth=True),
     Family("SGL", ("Beauty", "Bath & Body", "Shower Gel"), "{line} {flavor} Shower Gel", "Shower Gel", "bottle",
-           "Shower Gel", _A, "", 2.5, ("250ml", "500ml"), _BODY_SCENTS, _BODY_BRANDS, 0.016, axis="scent",
+           "Shower Gel", _A, "", 2.5, ("250ml", "500ml"), _BODY_SCENTS, _BODY_BRANDS, 0.032, axis="scent",
            department="Beauty", noun="creamy shower gel", depth=True),
     # Everyday drinks and skincare the demo asks for by name (gen#176). Depth families: drawn
     # from their own stream, so the core families' ids and draws do not move.
@@ -586,7 +588,7 @@ FAMILIES: tuple[Family, ...] = (
            _C, "A", 0.6, ("Single", "4 pack", "1kg"),
            (_o("Limes", "#7ab63a", "Brazil"), _o("Unwaxed Limes", "#8cc24a", "Mexico"),
             _o("Key Limes", "#a8c84a", "Peru")),
-           _FRESH, 0.003, item_g=70, axis="variety", depth=True),
+           _FRESH, 0.010, item_g=70, axis="variety", depth=True),
     Family("STR", _FRUIT + ("Berries", "Strawberries"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
            _C, "A", 2.2, ("250g", "400g", "800g"),
            (_o("Ripe Strawberries", "#c8312e", "United Kingdom"), _o("Large Strawberries", "#c8312e", "United Kingdom"),
