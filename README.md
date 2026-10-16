@@ -210,7 +210,7 @@ same check over every commit a pull request adds, so a clone without hooks
 cannot skip it. Git's `#` help lines are skipped only by the hook, because a recorded
 message keeps any `#` line it was given. Messages are folded before matching:
 look-alike letters, invisible and bidirectional characters, and a phrase
-wrapped across two lines are all caught. The pre-commit hooks run `ruff check` and the whitespace
+wrapped across two lines are all caught. The capitalised agent-instructions file name, alone or in a path, is masked first so a commit that edits it may name it; a vendor name beside it still fails. The pre-commit hooks run `ruff check` and the whitespace
 fixers, which leave `golden-catalog/` alone.
 
 Run the test suite with `uv run pytest`. The whole suite takes about 27
