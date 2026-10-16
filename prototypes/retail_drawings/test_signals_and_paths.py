@@ -92,9 +92,11 @@ def test_third_party_brands_are_over_represented_in_sales() -> None:
 
     sales = [d for d in CLASS_DOCS if "promotion" in d]
     assert len(sales) == 10
-    # The multi-buy (a third-party brand) left the group with ``offer`` (gen#189): 4 of the 10
-    # reduced docs against 9 of 41, 1.8 times the share, where it was 2.1 times.
-    assert share(sales) >= 1.5 * share(CLASS_DOCS)
+    # 4 of the 10 reduced docs against 44 of 123, 1.1 times the share. It was 1.8 times (27 of
+    # 123) until gen#236 gave the four brands that held two owners the third-party owner their
+    # names read as: 17 docs moved from own to third party, and the sale rows (each pinned to
+    # its own query) did not move with them.
+    assert share(sales) > share(CLASS_DOCS)
     edit = [d for d in CLASS_DOCS if d.get("sub_collection")]
     assert {d["sub_collection"] for d in edit} == {"The Active Edit", "The Weekend Edit"}
     assert all(d["brand_owner"] == "third_party" for d in edit)
