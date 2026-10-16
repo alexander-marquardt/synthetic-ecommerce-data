@@ -25,6 +25,9 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import mutation_rows_type_specs  # noqa: E402  (gen#351 rows, kept in their own file)
+
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "src" / "synthetic_ecommerce_data"
 
@@ -1164,6 +1167,37 @@ MUTATIONS: list[Mutation] = [
                 "tests/test_merge_pr.py::"
                 "test_a_change_the_rebuild_makes_outside_the_generated_files_is_refused",
                 "the rebuild commits only the generated files",
+            ),
+            (
+                "merge_pr: the retail totals are not rebuilt",
+                "RETAIL_REBUILD=(python prototypes/retail_drawings/retail_figures.py)",
+                "RETAIL_REBUILD=(true)",
+                (
+                    "tests/test_merge_pr.py::"
+                    "test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild",
+                    "tests/test_merge_pr.py::"
+                    "test_a_stale_retail_stats_is_rebuilt_on_the_merged_tree_and_pushed",
+                ),
+                "the retail totals are rebuilt on the merged tree (gen#343)",
+            ),
+            (
+                "merge_pr: a failed retail rebuild is ignored",
+                '[ "$retail_rc" -eq 0 ] ||',
+                "true ||",
+                "tests/test_merge_pr.py::test_a_retail_rebuild_that_fails_refuses_the_merge",
+                "the retail totals are rebuilt on the merged tree (gen#343)",
+            ),
+            (
+                "merge_pr: the retail stats are not generated",
+                "  golden-retail/stats.json\n",
+                "",
+                (
+                    "tests/test_merge_pr.py::"
+                    "test_the_generated_files_are_exactly_what_the_build_writes",
+                    "tests/test_merge_pr.py::"
+                    "test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild",
+                ),
+                "a conflict only in the retail totals is resolved by the rebuild (gen#343)",
             ),
             (
                 "merge_pr: a check run in which no test passed is green",
@@ -3457,6 +3491,17 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- the Leather Look guard reads both spellings (gen#291) ----
+    Mutation(
+        "the Leather Look guard reads only the hyphen",
+        "tests/test_retail_facet_leaves.py",
+        'LEATHER_LOOK = re.compile(r"leather[\\s-]*look", re.IGNORECASE)',
+        'LEATHER_LOOK = re.compile(r"leather-look", re.IGNORECASE)',
+        "tests/test_retail_facet_leaves.py -k leather_look_guard_reads_both_spellings",
+        "",
+        "both spellings are read",
+        root=".",
+    ),
     # ---- retail: a jean's fit and a bra's style are facets, not leaves ----
     *(
         Mutation(f"facet leaves: {name}", file, old, new, test, "", prop,
@@ -3517,6 +3562,31 @@ MUTATIONS: list[Mutation] = [
                 "        pass\n",
                 "tests/test_retail_facet_leaves.py -k blend_is_a_detail",
                 "the blend is a detail",
+            ),
+            (
+                "a fabric move ignores the product type",
+                "facet_leaves.py",
+                "    return TYPED_FABRIC_MOVES.get((product_type, value)) or FABRIC_MOVES.get(value)",
+                "    return next((m for (_, v), m in TYPED_FABRIC_MOVES.items() if v == value), None)"
+                " or FABRIC_MOVES.get(value)",
+                "tests/test_retail_facet_leaves.py -k fabric_move_is_keyed_by_product_type",
+                "a typed move reads the type",
+            ),
+            (
+                "the laptop backpack is titled Leather Look again",
+                "accessory_rows.py",
+                '"Faux Leather Laptop Backpack"',
+                '"Leather Look Laptop Backpack"',
+                "tests/test_retail_facet_leaves.py -k never_titled_leather_look",
+                "a fabric has one name in a title",
+            ),
+            (
+                "a retail message spells center the British way",
+                "house_styles.py",
+                'raise ValueError("a band sits at the top or bottom center")',
+                'raise ValueError("a band sits at the top or bottom centre")',
+                "tests/test_us_spelling.py -k retail_source_spells_center",
+                "center is spelt one way",
             ),
             (
                 "one bra spells Lightly Lined with a hyphen",
@@ -3584,8 +3654,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a decoy is copied by the derivation",
                 "scale.py",
-                "| MENS_DEPTH_IDS | decoy_rows.IDS\n",
-                "| MENS_DEPTH_IDS\n",
+                "| SPEC_IDS | decoy_rows.IDS\n",
+                "| SPEC_IDS\n",
                 "tests/test_retail_text_match_decoys_294.py -k never_copied_or_color_completed",
                 "a decoy stays a template",
             ),
@@ -3639,6 +3709,27 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: school uniform, the record names the drawing it draws (gen#205) ----
+    *(
+        Mutation(f"school uniform: {name}", "school_rows.py", old, new_, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, old, new_, test, prop in [
+            (
+                "every skirt is drawn at knee length",
+                '("length", length.lower())))  # fmt: skip',
+                '("length", "knee")))  # fmt: skip',
+                "tests/test_retail_school_205.py -k a_skirt_draws_the_folds",
+                "a skirt's drawing carries the length its record states",
+            ),
+            (
+                "every pinafore is drawn as a pinafore",
+                '(("style", style.lower().replace(" ", "_")),))  # fmt: skip',
+                '(("style", "pinafore"),))  # fmt: skip',
+                "tests/test_retail_school_205.py -k a_pinafore_row_draws",
+                "a pinafore's drawing carries the style its record states",
+            ),
+        ]
+    ),
     # ---- retail: text-match decoys on every clothing type (gen#311) ----
     *(
         Mutation(f"apparel decoys: {name}", file, old, new, test, "", prop,
@@ -3679,7 +3770,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "the decoy exemption from the text check is removed",
                 "scale.py",
-                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS\n",
+                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()\n",
                 "DECOY_IDS = frozenset()\n",
                 "tests/test_retail_apparel_decoys_311.py -k misleading_color",
                 "a decoy naming only another color passes the standard by its id",
@@ -3687,7 +3778,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "the decoy exemption widens to every id",
                 "scale.py",
-                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS\n",
+                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()\n",
                 'DECOY_IDS = type("All", (frozenset,), {"__contains__": lambda self, x: True})()\n',
                 "tests/test_retail_apparel_decoys_311.py -k two_tables",
                 "no real product is exempt from the text check",
@@ -3725,6 +3816,11 @@ MUTATIONS: list[Mutation] = [
                 "a sleeve's cuff is not part of the hem",
             ),
         ]
+    ),
+    # ---- retail: one declarative spec per type (gen#351); the rows are in their own file ----
+    *(
+        Mutation(f"type specs: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in mutation_rows_type_specs.ROWS
     ),
     # ---- retail: product-word decoys (gen#326) ----
     *(
@@ -3848,6 +3944,62 @@ MUTATIONS: list[Mutation] = [
                 "        100: 77,",
                 "each_pack_count_is_the_census_count",
                 "the counts are the census's",
+            ),
+        ]
+    ),
+    # ---- retail: a garden decoy title names a color only when its drawing shows it (gen#203, the #311 ruling) ----
+    # Every name starts "garden decoy color:", so `--only "garden decoy color:"` re-runs them.
+    *(
+        Mutation(f"garden decoy color: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in [
+            (
+                "a named part is drawn in its default color",
+                "kit_garden.py",
+                "        return self.hex if self.part == name else default",
+                "        return default",
+                "tests/test_retail_garden_203.py -k a_decoy_title_names_a_color_only_when_the_drawing_shows_it",
+                "a title's color is drawn on its part",
+            ),
+            (
+                "a named part is not marked",
+                "kit_garden.py",
+                '        return el.replace("/>", f\' data-part="{name}"/>\', 1) if self.part == name else el',
+                "        return el",
+                "tests/test_retail_garden_203.py -k a_decoy_title_names_a_color_only_when_the_drawing_shows_it",
+                "a title's color is drawn on its part",
+            ),
+            (
+                "every part takes the color, not only the named one",
+                "kit_garden.py",
+                "        return self.hex if self.part == name else default",
+                "        return self.hex if self.part else default",
+                "tests/test_retail_garden_203.py -k a_decoy_title_names_a_color_only_when_the_drawing_shows_it",
+                "the named color is on the named part and nothing else",
+            ),
+            (
+                "a short title's color is drawn in another color",
+                "garden_rows.py",
+                '        return (("part", kit_garden.PARTS[shape][0]), ("part_color", m.group(1).lower()))',
+                '        return (("part", kit_garden.PARTS[shape][0]), ("part_color", "red"))',
+                "tests/test_retail_garden_203.py -k a_decoy_title_names_a_color_only_when_the_drawing_shows_it",
+                "a title's color is drawn on its part",
+            ),
+            (
+                "a secondary title draws no part",
+                "garden_rows.py",
+                '        return (("part", m.group(2).lower().replace(" ", "-")), ("part_color", m.group(1).lower()))',
+                "        return ()",
+                "tests/test_retail_garden_203.py -k a_decoy_title_names_a_color_only_when_the_drawing_shows_it",
+                "a title's color is drawn on its part",
+            ),
+            (
+                "a short-title decoy loses its color word",
+                "garden_rows.py",
+                '"Black Pearl Robot Mower", "ROBWIR", "white"',
+                '"Violet Pearl Robot Mower", "ROBWIR", "white"',
+                "tests/test_retail_garden_203.py -k decoys_that_name_a_color",
+                "twelve secondary and eight short-title decoys name a color",
             ),
         ]
     ),

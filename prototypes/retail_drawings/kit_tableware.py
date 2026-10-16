@@ -222,7 +222,7 @@ PIECES = {
 
 
 def _cutlery_head(head: str, top: float, s: float, metal: str, edge: str = "serrated") -> list[str]:
-    """The working end of one piece, its tip at ``top``, centred on x = 0."""
+    """The working end of one piece, its tip at ``top``, centered on x = 0."""
     if head == "fork":
         w, tine = 19 * s, 56 * s
         d = f"M{-w:.1f},{top + 6:.1f}"
@@ -282,7 +282,7 @@ def _cutlery_head(head: str, top: float, s: float, metal: str, edge: str = "serr
 
 
 def _cutlery_handle(handle: str, y0: float, y1: float, paint: str, fill: Fill) -> list[str]:
-    """The handle from the neck (``y0``) to the end (``y1``), centred on x = 0."""
+    """The handle from the neck (``y0``) to the end (``y1``), centered on x = 0."""
     d = f"M-6,{y0:.1f} L-13,{y1 - 14:.1f} Q-13,{y1:.1f} 0,{y1:.1f} Q13,{y1:.1f} 13,{y1 - 14:.1f} L6,{y0:.1f} Z"
     if handle == "wooden":
         return [
