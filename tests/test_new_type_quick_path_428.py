@@ -131,3 +131,26 @@ def test_the_section_says_a_retail_type_has_no_part_number_block() -> None:
         if "block_of" in p.read_text("utf-8")
     ]
     assert not readers, f"a retail module reads a part-number block: {readers}"
+
+
+def _row(path: str) -> str:
+    rows = [r for r in _section().splitlines() if r.startswith(f"| `{path}`")]
+    assert len(rows) == 1, (path, rows)
+    return rows[0]
+
+
+def test_the_sports_test_row_says_a_new_type_is_added_to_keys_and_axes() -> None:
+    """A copied type reds two ids in the sports test until it is in KEYS and AXES there."""
+    row = _row("tests/test_retail_sports_265.py")
+    assert "KEYS" in row and "AXES" in row, row
+    assert "do not edit" not in row, row
+
+
+def test_the_garden_rows_row_names_the_query_and_absent_entries() -> None:
+    row = _row("prototypes/retail_drawings/garden_rows.py")
+    assert "_QUERY" in row and "_ABSENT" in row, row
+
+
+def test_the_sports_test_is_in_the_tests_to_run_list() -> None:
+    run = _section().split("### Tests to run", 1)[1]
+    assert "tests/test_retail_sports_265.py" in run
