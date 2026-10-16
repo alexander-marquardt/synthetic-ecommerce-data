@@ -64,7 +64,7 @@ def extend(rec: dict) -> dict:
         for uk in range(top + 2, TOP + 1, 2):
             sizes = {key: str(uk)}
             if key == "size_uk":
-                sizes |= {"size_eu": str(uk + 28), "size_us": str(uk - 4)}
+                sizes |= {"size_eu": str(uk + 27), "size_us": str(uk - 3)}
             added.append({**{k: v for k, v in base.items() if k != "sku"}, **sizes})
     rows = [*skus, *({"sku": f"{pid}-{n:03d}", **s} for n, s in enumerate(added, len(skus) + 1))]
     options = dict(rec.get("size_options", {}))
