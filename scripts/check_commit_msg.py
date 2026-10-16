@@ -18,7 +18,9 @@ model names). They are candidates to upstream into the core family, not a
 second standard.
 
 Matching runs over the message folded the way the core scan folds it: NFKC,
-zero-width characters removed, case-insensitive.
+zero-width characters removed, case-insensitive. The agent-instructions file
+name is masked first, as the core scan masks it (:func:`mask_file_name`): a
+commit that edits that file may say so.
 """
 
 from __future__ import annotations
@@ -98,6 +100,21 @@ def fold(text: str) -> str:
     return unicodedata.normalize("NFKC", text).translate(_INVISIBLE).translate(_HOMOGLYPHS)
 
 
+#: The agent-instructions file name, in a path with or without a directory:
+#: ``CLAUDE.md``, ``docs/CLAUDE.md``, ``./CLAUDE.md``. Only the file name is
+#: masked, in capitals and exactly: the directories stay in the text and are
+#: matched like any other words, a glued prefix (``notCLAUDE.md``) or a longer
+#: extension (``CLAUDE.mdx``) is not the file, and a vendor name beside it is
+#: not masked, so ``Claude wrote CLAUDE.md`` still fails on ``Claude``.
+_AGENT_FILE = re.compile(r"(?<![\w.-])CLAUDE\.md(?![\w-])")
+_MASK = "<file>"
+
+
+def mask_file_name(text: str) -> str:
+    """``text`` with every agent-instructions file name masked."""
+    return _AGENT_FILE.sub(_MASK, text)
+
+
 def problems(message: str, skip_comment_lines: bool = True) -> list[str]:
     """``label: text`` for every attribution found.
 
@@ -108,7 +125,7 @@ def problems(message: str, skip_comment_lines: bool = True) -> list[str]:
     nothing is skipped. A phrase wrapped across two lines is also caught: the
     message is checked once more with its lines joined.
     """
-    lines = fold(message).splitlines()
+    lines = mask_file_name(fold(message)).splitlines()
     if skip_comment_lines:
         lines = [line for line in lines if not line.startswith("#")]
     found = []

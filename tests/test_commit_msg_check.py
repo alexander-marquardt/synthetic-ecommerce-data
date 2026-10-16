@@ -129,6 +129,7 @@ def test_the_agent_file_name_passes(message):
         pytest.param("Claude wrote CLAUDE.md\n", id="prose-before-name"),
         pytest.param("Subject\n\nCLAUDE.md edits by Claude\n", id="prose-after-name"),
         pytest.param("Subject\n\nAsk Claude about docs/CLAUDE.md\n", id="prose-before-path"),
+        pytest.param("Subject\n\nMoves Claude/CLAUDE.md\n", id="vendor-directory"),
         pytest.param("Subject\n\nOpus edited CLAUDE.md\n", id="model-name-before-name"),
         pytest.param(
             "Subject\n\nCo-Authored-By: Claude <noreply@anthropic.com>\n\nEdits CLAUDE.md\n",
@@ -138,6 +139,7 @@ def test_the_agent_file_name_passes(message):
         # Only the exact file name is masked: a longer name or a glued prefix is not it.
         pytest.param("Subject\n\nCLAUDE.mdx notes\n", id="longer-extension"),
         pytest.param("Subject\n\nnotCLAUDE.md\n", id="glued-prefix"),
+        pytest.param("Subject\n\nclaude.md notes\n", id="lowercase-name"),
         pytest.param("Subject\n\nClaude\nwrote CLAUDE.md\n", id="prose-on-the-line-above"),
     ],
 )

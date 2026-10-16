@@ -62,6 +62,57 @@ class Mutation:
 
 
 MUTATIONS: list[Mutation] = [
+    # ---- the commit-message check masks the agent-instructions file name (gen#117) ----
+    Mutation(
+        "commit msg: the file name is no longer masked before matching",
+        "scripts/check_commit_msg.py",
+        "    return _AGENT_FILE.sub(_MASK, text)",
+        "    return text",
+        "tests/test_commit_msg_check.py -k test_the_agent_file_name_passes",
+        "A",
+        "the agent-instructions file name passes",
+        root=".",
+    ),
+    Mutation(
+        "commit msg: the mask swallows the whole line, vendor prose with it",
+        "scripts/check_commit_msg.py",
+        '_AGENT_FILE = re.compile(r"(?<![\\w.-])CLAUDE\\.md(?![\\w-])")',
+        '_AGENT_FILE = re.compile(r"^.*(?<![\\w.-])CLAUDE\\.md(?![\\w-]).*$", re.MULTILINE)',
+        "tests/test_commit_msg_check.py -k prose-before-name",
+        "B",
+        "a vendor name beside the file name still fails",
+        root=".",
+    ),
+    Mutation(
+        "commit msg: a glued prefix counts as the file name",
+        "scripts/check_commit_msg.py",
+        '_AGENT_FILE = re.compile(r"(?<![\\w.-])CLAUDE',
+        '_AGENT_FILE = re.compile(r"CLAUDE',
+        "tests/test_commit_msg_check.py -k glued-prefix",
+        "B",
+        "only the exact file name is masked",
+        root=".",
+    ),
+    Mutation(
+        "commit msg: a longer extension counts as the file name",
+        "scripts/check_commit_msg.py",
+        '\\.md(?![\\w-])")',
+        '\\.md")',
+        "tests/test_commit_msg_check.py -k longer-extension",
+        "B",
+        "only the exact file name is masked",
+        root=".",
+    ),
+    Mutation(
+        "commit msg: the mask is matched case-blind, so a lower-case name is masked",
+        "scripts/check_commit_msg.py",
+        "    return _AGENT_FILE.sub(_MASK, text)",
+        "    return re.sub(_AGENT_FILE.pattern, _MASK, text, flags=re.IGNORECASE)",
+        "tests/test_commit_msg_check.py -k lowercase-name",
+        "B",
+        "only the exact file name is masked",
+        root=".",
+    ),
     # ---- the local CI runs the suite on several workers, bounded by memory (gen#348) ----
     Mutation(
         "ci workers: the emitted steps stop carrying the xdist options",
