@@ -15,9 +15,9 @@ what to draw (:mod:`footwear_rows` puts all three in ``drawing.params``):
 * ``closure`` is the record's closure attribute: laces, a zip, a buckle strap,
   hook-and-loop straps, an ankle strap, a slingback or a pull tab.
 
-A heel block carries ``class="heel"`` (a flat or a sole unit has none), and
+The sole path carries ``class="sole"`` (``details`` redraws it for a named sole). A heel block carries ``class="heel"`` (a flat or a sole unit has none), and
 :func:`top` is the y of the collar's back top edge before the drawing is
-centred, so a test can tell a shoe from an ankle boot from a knee boot
+centered, so a test can tell a shoe from an ankle boot from a knee boot
 without parsing paths. Nothing is painted in the paper's color: a house style
 changes the paper, so a gap is left as a gap.
 
@@ -247,7 +247,7 @@ def _leather_sole(k: Kind, base: str) -> list[str]:
     x, t = _tip(k)
     edge = "#3b2f27" if _dark(base) else "#6e4a30"
     d = f"M{_pt(x + 1, t)} {_under(k)} L{_pt(XB - 1, _sy(k)[1] + k.sole)} {_reverse_under(k, k.sole)} Z"
-    return [_path(d, edge, LW_DETAIL + 0.4)]
+    return [_path(d, edge, LW_DETAIL + 0.4, ' class="sole"')]
 
 
 def _reverse_under(k: Kind, dy: float) -> str:
@@ -281,7 +281,7 @@ def _unit_sole(k: Kind, base: str) -> list[str]:
         f"L{_pt(XB - 5, by - w)} L{_pt(XB - 5, G - 6)} Q{_pt(XB - 4, G)} {_pt(XB + 8, G)} "
         f"L{_pt(x - 80, G)} C{_pt(x - 30, G)} {_pt(x + 10, t + 6)} {_pt(x + 4, t - w)} Z"
     )
-    out = [_path(d, color, LW)]
+    out = [_path(d, color, LW, ' class="sole"')]
     s = k.sole_style
     if s == "cup":
         out += [
@@ -417,8 +417,14 @@ def _texture(material: str, area: str, base: str, k: Kind, uid: str) -> list[str
 # --------------------------------------------------------------------------
 
 
+#: The lace color a record names (its ``lace`` drawing param), set while one shoe is drawn
+#: (gen#326: "Dress for Success Oxford, red laces" shows red laces on a black shoe).
+_LACE_OVERRIDE: list[str] = [""]
+
+
 def _laces(eyelets: list[tuple[float, float]], lace: str, reach: tuple[float, float] = (10, -9)) -> list[str]:
     """Eyelets and the lace bars that cross from each one to the far side."""
+    lace = _LACE_OVERRIDE[0] or lace
     dx, dy = reach
     bars = " ".join(f"M{_pt(x, y)} L{_pt(x + dx, y + dy)}" for x, y in eyelets)
     holes = "".join(f'<circle cx="{_f(x)}" cy="{_f(y)}" r="3" fill="{METAL}" stroke="{INK}" stroke-width="1"/>' for x, y in eyelets)
@@ -426,6 +432,7 @@ def _laces(eyelets: list[tuple[float, float]], lace: str, reach: tuple[float, fl
 
 
 def _bow(x: float, y: float, lace: str) -> list[str]:
+    lace = _LACE_OVERRIDE[0] or lace
     d = f"M{_pt(x, y)} C{_pt(x - 14, y - 16)} {_pt(x - 24, y - 2)} {_pt(x, y)} C{_pt(x + 12, y - 20)} {_pt(x + 24, y - 6)} {_pt(x, y)} M{_pt(x, y)} Q{_pt(x - 10, y + 10)} {_pt(x - 6, y + 22)} M{_pt(x, y)} Q{_pt(x + 8, y + 12)} {_pt(x + 8, y + 22)}"
     return [_line(d, 5), _line(d, 2.6, "", lace)]
 
@@ -765,7 +772,7 @@ KINDS: dict[str, Kind] = {
 }
 
 
-def shoe(paint: str, fill: Fill, label: str | None, kind: str = "trainer", material: str = "leather", closure: str = "") -> list[str]:
+def shoe(paint: str, fill: Fill, label: str | None, kind: str = "trainer", material: str = "leather", closure: str = "", lace: str = "") -> list[str]:
     """One shoe from its outer side, toe right: see the module docstring.
 
     ``kind`` defaults to a real kind because a shape is also drawn with no
@@ -773,7 +780,7 @@ def shoe(paint: str, fill: Fill, label: str | None, kind: str = "trainer", mater
     """
     k = KINDS[kind]
     base = fill.base
-    uid = hashlib.sha1(f"{paint}|{base}|{kind}|{material}|{closure}".encode()).hexdigest()[:10]
+    uid = hashlib.sha1(f"{paint}|{base}|{kind}|{material}|{closure}|{lace}".encode()).hexdigest()[:10]
     dy = 200 - (min(k.top, k.top - 30 if closure == "Ankle Strap" else k.top) + G) / 2
     shadow = f'<ellipse cx="{_f((XB + XT) / 2)}" cy="{_f(G + 3)}" rx="{_f((XT - XB) / 2 + 12)}" ry="7" fill="{INK}" opacity=".12"/>'
     body = [shadow]
@@ -791,7 +798,11 @@ def shoe(paint: str, fill: Fill, label: str | None, kind: str = "trainer", mater
         elif kind != "slipper":
             body.append(_lining(k, k.instep))
         body += [_path(outline, paint, LW), *_texture(material, outline, base, k, uid)]
-        body += MARKS.get(kind, lambda *a: [])(k, outline, paint, base, closure)
+        _LACE_OVERRIDE[0] = lace
+        try:
+            body += MARKS.get(kind, lambda *a: [])(k, outline, paint, base, closure)
+        finally:
+            _LACE_OVERRIDE[0] = ""
         body += [*_sole(k, base), *_heel(k, paint, base)]
     return [f'<g class="shoe-{kind}" transform="translate(0 {_f(dy)})">', *body, "</g>"]
 
