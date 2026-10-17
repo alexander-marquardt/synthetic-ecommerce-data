@@ -34,13 +34,13 @@ WEIGHTS = REPO / "scripts" / "ci_shard_weights.json"
 #: Seconds of work assumed for a test file with no measured weight.
 DEFAULT_SECONDS = 20.0
 #: Files too heavy for one shard: listed in every shard, their test ids dealt out by
-#: ``keeps`` (tests/conftest.py).
-SPLIT_FILES: frozenset[str] = frozenset()
+#: ``keeps`` (tests/ci_shard_split.py).
+SPLIT_FILES: frozenset[str] = frozenset({"tests/test_merge_pr.py"})
 
 
 def keeps(index: int, shard: int, count: int) -> bool:
     """Whether the split file's test at position ``index`` runs in shard ``shard`` (1..count)."""
-    return True
+    return index % count == shard - 1
 
 
 def collected_test_files(root: Path = REPO) -> list[str]:
@@ -62,13 +62,20 @@ def deal(
     weights: dict[str, float],
     split: frozenset[str] | None = None,
 ) -> list[list[str]]:
-    """Split ``files`` into ``count`` shards: heaviest file first, each to the lightest shard."""
+    """Split ``files`` into ``count`` shards: heaviest file first, each to the lightest shard.
+
+    A split file (``SPLIT_FILES``) is in every shard and weighs a ``count``-th of its seconds
+    in each; with one shard it is just a file.
+    """
     if count < 1:
         raise ValueError("a run needs at least one shard")
+    split = SPLIT_FILES if split is None else split
+    whole = [name for name in files if name not in split] if count > 1 else list(files)
+    divided = [name for name in files if name in split] if count > 1 else []
     weight = {name: weights.get(name, DEFAULT_SECONDS) for name in files}
-    shards: list[list[str]] = [[] for _ in range(count)]
-    load = [0.0] * count
-    for name in sorted(files, key=lambda f: (-weight[f], f)):
+    shards: list[list[str]] = [list(divided) for _ in range(count)]
+    load = [sum(weight[name] for name in divided) / count] * count
+    for name in sorted(whole, key=lambda f: (-weight[f], f)):
         lightest = min(range(count), key=lambda i: (load[i], i))
         shards[lightest].append(name)
         load[lightest] += weight[name]
@@ -83,9 +90,13 @@ def shard_loads(
 ) -> list[float]:
     """The seconds of work each shard holds by the weights."""
     weights = load_weights() if weights is None else weights
+    split = SPLIT_FILES if split is None else split
     return [
-        sum(weights.get(name, DEFAULT_SECONDS) for name in shard)
-        for shard in deal(collected_test_files(root), count, weights)
+        sum(
+            weights.get(name, DEFAULT_SECONDS) / (count if name in split and count > 1 else 1)
+            for name in shard
+        )
+        for shard in deal(collected_test_files(root), count, weights, split)
     ]
 
 
