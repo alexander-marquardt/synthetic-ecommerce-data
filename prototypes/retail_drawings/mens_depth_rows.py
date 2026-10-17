@@ -53,9 +53,11 @@ from dataclasses import dataclass
 from itertools import product as _product
 
 import kit_suits  # noqa: F401 -- registers suit_jacket, suit_trousers, waistcoat, dinner_suit, formal_accessory
+import named_parts
 import type_registry
 from breadth_rows import OWNERS
 from class_model import BRAND_OWNER
+from decoy_apparel import DETAIL_HEX
 from lowerbody_rows import LRow
 from main_color_hex import MAIN_COLORS
 from variants import cw
@@ -437,8 +439,11 @@ def _floor_rows(leaves=None, kinds=None, tails=None, prefix: str = "MF") -> list
             brand = _BRANDS[(i + len(leaf.abbr)) % len(_BRANDS)]
             price = round(kind.base_price + leaf.extra_price + 2.0 * (i % 7), 2)
             colors = _colors(i, leaf.palette)
-            if leaf.pattern == "check":
+            checked = leaf.pattern == "check" or fabric == "Checked"  # gen#447: the title is drawn
+            if checked:
                 colors = tuple(cw(f"{c[0]} Check", c[2], "gingham", "#2a2a2e") for c in colors)
+            elif detail == "Striped":  # a "Striped Polo Shirt" is drawn striped, not plain
+                colors = tuple(cw(f"{c[0]} Stripe", c[2], "stripe", "#f4f1ea") for c in colors)
             fit_an = _an(fit or "regular")
             noun = detail.lower() if kind.item else kind.noun.lower()
             cut = f" cut to {fit_an} fit" if kind.fitted else ""
@@ -472,8 +477,9 @@ def _floor_rows(leaves=None, kinds=None, tails=None, prefix: str = "MF") -> list
             if suit_params:
                 params = suit_params
             facts = list(kind.facts)
-            if leaf.pattern != "plain":
-                facts.append(("pattern", leaf.pattern))
+            pattern = "check" if checked else "stripe" if detail == "Striped" else leaf.pattern
+            if pattern != "plain":
+                facts.append(("pattern", pattern))
             out.append(_row(f"{prefix}{leaf.abbr}{i:03d}", title, brand, kind, leaf.path, desc, colors,
                             tuple(attrs), price=price, params=params, facts=tuple(facts)))
     return out
@@ -544,7 +550,6 @@ class Decoy:
     policy: str  # which kind of policy repairs it
 
 
-_TRIMS = ("Stripes", "Piping", "Contrast Stitching")
 _MAIN_WORDS = ("Red", "Blue", "Green", "Yellow", "Black", "White")
 _TRUE = ("White", "Black", "Navy", "Grey", "Stone", "Khaki")
 _FANCY = ("Moonbeam", "Candlelight", "Moss Lantern", "Morning Mist", "Sandcastle", "Soft Dune")
@@ -565,7 +570,7 @@ def _decoys(kinds=None, tails=None, prefix: str = "MD") -> tuple[list[LRow], lis
         tag = "".join(w[0] for w in ptype.split()) + str(k)
 
         def add(klass, i, title, desc, true, word, query, policy="generic", kind=kind, tag=tag,
-                ptype=ptype, material=None, extra=()):  # noqa: PLR0913
+                ptype=ptype, material=None, extra=(), colors=None):  # noqa: PLR0913
             code = f"{prefix}{tag}{klass}{i}"
             brand = word if klass == 7 else _BRANDS[(i + klass) % len(_BRANDS)]
             attrs = ()
@@ -583,7 +588,7 @@ def _decoys(kinds=None, tails=None, prefix: str = "MD") -> tuple[list[LRow], lis
                 attrs += (_a("sleeve_length", "Sleeve length", _SLEEVE[path]),)
             if ptype == "Polo Shirt":
                 attrs += (_a("collar", "Collar", "Polo"),)
-            rows.append(_row(code, title, brand, kind, path, desc, (_col(true),), attrs,
+            rows.append(_row(code, title, brand, kind, path, desc, colors or (_col(true),), attrs,
                              price=round(kind.base_price + 1.5 * i + klass, 2),
                              params=kind.params + (() if klass == 4 else kind.decoy_params)))
             table.append(Decoy(code, ptype, klass, word, true, query, policy))
@@ -594,9 +599,14 @@ def _decoys(kinds=None, tails=None, prefix: str = "MD") -> tuple[list[LRow], lis
             if true == w:
                 true = "Navy"
             # 1: a trim, a stripe or a print names the other color.
-            add(1, i, f"Mens {true} {noun} with {w} {_TRIMS[i]}",
+            # gen#447: the trim is a part the shape draws (a tie's is its stripes), never piping.
+            trim, stripes = ("Stripes", True) if kind.shape == "formal_accessory" else (
+                named_parts.trim_part(kind.shape, i), False)  # fmt: skip
+            add(1, i, f"Mens {true} {noun} with {w} {trim}",
                 f"A {true.lower()} {noun.lower()} {tails[ptype]}, finished with {w.lower()} "
-                f"{_TRIMS[i].lower()}.", true, w, f"{w.lower()} {noun.lower()}")  # fmt: skip
+                f"{trim.lower()}.", true, w, f"{w.lower()} {noun.lower()}",
+                colors=(cw(f"{true} Stripe", _col(true)[2], "stripe", DETAIL_HEX[w]),)
+                if stripes else None)  # fmt: skip
             # 2: another category's noun used as a modifier.
             b = kind.borrow[i]
             mod = {"shirt": "Shirt Collar", "blazer": "Blazer Style", "jumper": "Jumper Soft",
