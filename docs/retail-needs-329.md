@@ -13,7 +13,7 @@ are pinned by `tests/test_retail_elasticated_waist_329.py`.
 | elasticated waist | done: leaf `Mens/Trousers/Elasticated Waist Trousers` |
 | lamp shades as a leaf | the leaf `Home/Lighting/Lampshades` exists; depth and decoys open |
 | post-surgery, nursing and period-wear lingerie | one post-surgery and one nursing bra exist; the word "mastectomy" does not; open |
-| plimsolls | open: needs a `kit_footwear` kind and `footwear_rows.TYPES` entry |
+| plimsolls | done in gen#216: kind `plimsoll`, leaf `Shoes/Plimsolls` |
 | Womens elasticated trousers | open |
 
 ## Elasticated waist trousers
