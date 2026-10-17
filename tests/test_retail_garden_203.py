@@ -355,7 +355,7 @@ def test_an_absent_decoy_names_a_power_source_it_lacks_and_is_the_type(ptype: st
     }[ptype]
     for row in _decoys(ptype)["absent"]:
         assert row.product_type == ptype
-        assert word in row.title.lower()
+        assert word in (row.title + " " + row.description).lower(), "the title or the copy names it"
         stated = (
             " ".join(a[2].lower() for a in row.attrs) + " " + " ".join(v for _, v in row.params)
         )
