@@ -247,10 +247,11 @@ def test_a_bra_carries_every_value_its_title_names(pairs, values):
 
 #: The closed list a ``fabric`` value comes from: the fibre or weave a shopper names (gen#187).
 SHOPPER_FABRICS = {
-    "Bamboo", "Boucle", "Chenille", "Corduroy", "Cotton", "Denim", "Faux Fur", "Faux Leather",
-    "Flannel", "Fleece", "Jersey", "Knitted", "Lace", "Lace Trim", "Linen", "Mesh", "Microfiber",
-    "Modal", "Nylon", "Oxford", "Plush", "Polyester", "Satin", "Seamless", "Shell", "Silk",
-    "Suiting", "Towelling", "Tricot", "Twill", "Velour", "Velvet", "Waffle",
+    "Bamboo", "Boucle", "Brushed Cotton", "Cashmere", "Chenille", "Corduroy", "Cotton", "Crochet",
+    "Denim", "Faux Fur", "Faux Leather", "Faux Suede", "Flannel", "Fleece", "Jersey", "Knitted",
+    "Lace", "Lace Trim", "Leather", "Linen", "Mesh", "Microfiber", "Modal", "Muslin", "Nylon",
+    "Oxford", "Plush", "Polyester", "Satin", "Seamless", "Shell", "Silk", "Suede", "Suiting",
+    "Towelling", "Tricot", "Twill", "Velour", "Velvet", "Voile", "Waffle", "Wool",
 }  # fmt: skip
 #: A bra's old ``fabric`` (its fibre content) -> the fibre a shopper names.
 BRA_FIBRES = {
@@ -356,6 +357,85 @@ def test_no_fabric_is_a_blend_or_a_use_word(docs):
                       "Compression"} == set()
     assert {f for f in fabrics if LEATHER_LOOK.search(f)} == set()
     assert {"Faux Leather", "Jersey", "Twill", "Knitted", "Suiting"} <= fabrics
+
+
+#: The 2026-10-13 coverage review's shopper-named fibres and materials (gen#187): the facet key
+#: and a product type that carries each. A garment's fibre is a ``fabric``; a homeware type's
+#: material stays the type's own ``material`` facet.
+COVERAGE = {
+    "Silk": ("fabric", "Skirt"),
+    "Leather": ("fabric", "Skirt"),
+    "Faux Leather": ("fabric", "Skirt"),
+    "Suede": ("fabric", "Skirt"),
+    "Faux Suede": ("fabric", "Skirt"),
+    "Cashmere": ("fabric", "Coat"),
+    "Jersey": ("fabric", "Shorts"),
+    "Wool": ("fabric", "Coat"),
+    "Crochet": ("fabric", "Skirt"),
+    "Muslin": ("fabric", "Skirt"),
+    "Voile": ("fabric", "Skirt"),
+    "Waffle": ("fabric", "Dressing Gown"),
+    "Brushed Cotton": ("fabric", "Shirt"),
+    "Seagrass": ("material", "Storage Basket"),
+    "Bone China": ("material", "Plate"),
+    "Melamine": ("material", "Plate"),
+    "Stainless Steel": ("material", "Saucepan"),
+    "Cast Iron": ("material", "Frying Pan"),
+}
+#: The coverage values that were not ``fabric`` values before gen#187's second part.
+NEW_FABRICS = {"Brushed Cotton", "Cashmere", "Crochet", "Faux Suede", "Leather", "Muslin",
+               "Suede", "Voile", "Wool"}  # fmt: skip
+
+
+def test_every_coverage_review_value_is_a_facet_value_on_a_type_that_uses_it(rows):
+    for value, (key, ptype) in COVERAGE.items():
+        held = [r for r in rows if r["product_type"] == ptype and value in r["facets"].get(key, ())]
+        assert held, (value, key, ptype)
+
+
+def test_every_fibre_the_coverage_review_names_is_on_the_closed_list():
+    assert {v for v, (key, _) in COVERAGE.items() if key == "fabric"} <= SHOPPER_FABRICS
+    assert NEW_FABRICS <= SHOPPER_FABRICS
+
+
+def test_a_material_that_names_wool_cashmere_or_brushed_cotton_is_also_that_fabric(built, docs):
+    """A coat's "Wool Cashmere blend", a jumper's "Merino wool" and a shirt's "Brushed Cotton"
+    are ``material`` entries of the Mens and knitwear rows; the fibre a shopper names is also
+    the document's ``fabric``, so "wool coat" finds them without reading a free-text material."""
+    seen = collections.defaultdict(set)
+    for rec, doc in zip(built.records, docs, strict=True):
+        if any(a["key"] == "fabric" for a in rec["attributes"]):
+            continue
+        for a in rec["attributes"]:
+            if a["key"] == "material" and a["value"] in facet_leaves.MATERIAL_FABRICS:
+                want = facet_leaves.MATERIAL_FABRICS[a["value"]]
+                assert sorted(_values(doc, "fabric")) == sorted(want), rec["product_id"]
+                seen[a["value"]].add(rec["product_type"])
+    assert seen["Wool Cashmere blend"] == {"Coat"}
+    assert seen["Brushed Cotton"] == {"Shirt", "Mens Trousers"}
+    assert {"Jumper", "Cardigan", "Suit Jacket"} <= seen["Wool blend"]
+
+
+def test_the_closed_material_table_names_only_new_fabrics():
+    named = {f for fabrics in facet_leaves.MATERIAL_FABRICS.values() for f in fabrics}
+    assert named <= NEW_FABRICS
+
+
+def test_each_new_fabric_has_a_text_match_decoy_and_a_product_that_carries_it(built, docs):
+    """gen#294: a shopper who types "suede" is also shown the cotton skirt with a suede trim,
+    whose structured fabric says it is not suede. Each new value is carried by a product and
+    named in the title or description of another that does not carry it."""
+    carries, decoys = collections.defaultdict(list), collections.defaultdict(list)
+    for rec, doc in zip(built.records, docs, strict=True):
+        have = set(_values(doc, "fabric"))
+        text = words(f"{rec['title']} {rec.get('description', '')}")
+        for value in NEW_FABRICS:
+            if value in have:
+                carries[value].append(rec["product_id"])
+            elif f" {words(value).strip()} " in text:
+                decoys[value].append(rec["product_id"])
+    assert {v for v in NEW_FABRICS if not carries[v]} == set()
+    assert {v for v in NEW_FABRICS if not decoys[v]} == set()
 
 
 def test_a_faux_leather_product_is_never_titled_leather_look(built):

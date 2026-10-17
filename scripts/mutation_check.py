@@ -3806,6 +3806,22 @@ MUTATIONS: list[Mutation] = [
                 "the blend is a detail",
             ),
             (
+                "a wool material is not also the wool fabric",
+                "facet_leaves.py",
+                "    if not moved and \"fabric\" not in have:",
+                "    if False:",
+                "tests/test_retail_facet_leaves.py -k material_that_names_wool",
+                "a named fibre is a fabric",
+            ),
+            (
+                "a leather skirt is faux leather",
+                "lowerbody_rows.py",
+                '_sk("Pencil", "Mini", "Leather", "Zip", "Polyester")',
+                '_sk("Pencil", "Mini", "Faux Leather", "Zip", "Polyester")',
+                "tests/test_retail_facet_leaves.py -k coverage_review_value",
+                "leather is a fabric value",
+            ),
+            (
                 "a fabric move ignores the product type",
                 "facet_leaves.py",
                 "    return TYPED_FABRIC_MOVES.get((product_type, value)) or FABRIC_MOVES.get(value)",
