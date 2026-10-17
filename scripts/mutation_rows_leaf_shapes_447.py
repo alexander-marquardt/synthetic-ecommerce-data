@@ -46,7 +46,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _LS,
         '{"cargo": "yes", "style": "chino"}',
         '{"style": "chino"}',
-        f'{_T} -k "a_listed_leaf_is_drawn_as_its_rule and cargo"',
+        f'{_T} -k "a_reported_product_is_drawn_as_its_title and BRD-NXMET041"',
         "cargo trousers are drawn with flapped pockets",
         _R,
     ),
