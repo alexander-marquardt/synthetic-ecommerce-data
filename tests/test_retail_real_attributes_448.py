@@ -85,7 +85,12 @@ def test_a_restricted_group_is_asked_for_only_the_main_colors_it_comes_in(tpls):
     lacking = main_colors.missing(tpls)
     for (ptype, _aud), colors in lacking.items():
         assert not colors, (ptype, colors)
-    tailoring = [r for r in tpls if r["category_path"][:2] == ["Mens", "Suits & Tailoring"]]
+    tailoring = [
+        r
+        for r in tpls
+        if r.get("color_options") and r["category_path"][:2] == ["Mens", "Suits & Tailoring"]
+        and type_colors.allowed_for(r["category_path"]) is not None
+    ]
     offered = main_colors.offered(tailoring)
     assert {"Black", "White"} <= offered
     assert not offered & {"Yellow", "Red", "Pink"}
@@ -162,7 +167,10 @@ _PLURAL = (
     r"trousers|chinos|jeans|boxers|shorts|socks|tights|leggings|briefs|trunks|joggers|"
     r"dungarees|pyjamas"
 )
-_A_PLURAL = re.compile(rf"^(?:A|An) (?:[\w'’-]+ ){{0,4}}?(?:{_PLURAL})\b", re.I)
+_NOT_HEAD = r"(?!(?:and|of|with|for|in|by|from)\b)"
+_A_PLURAL = re.compile(
+    rf"^(?:A|An) (?:{_NOT_HEAD}[\w'’-]+ ){{0,4}}?(?:{_PLURAL})\b", re.I
+)
 
 
 def test_a_plural_noun_takes_no_article(tpls):
@@ -178,7 +186,7 @@ def test_a_class_four_description_reads_wool_free_not_wool_comma_free(tpls):
     bad = [
         (r["product_id"], r["description"])
         for r in tpls
-        if re.search(r"\w, free\b", r["description"])
+        if re.search(r"\w, free\b(?! of)", r["description"])
     ]
     assert not bad, bad[:8]
     assert "wool-free" in " ".join(

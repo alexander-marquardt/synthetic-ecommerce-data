@@ -22,6 +22,7 @@ import re
 import decoy_apparel
 import decoy_product_words
 import decoy_rows
+import type_colors
 from main_color_hex import MAIN_COLORS
 
 #: product_type -> why its color is its material or natural finish (the only way out).
@@ -123,7 +124,8 @@ def colored_types(tpls: list[dict]) -> dict[str, list[dict]]:
 
 
 def offered(styles: list[dict]) -> set[str]:
-    return {c["color"] for r in styles for c in r["color_options"]}
+    """The colors the styles offer: "Black Leather" is the color Black (gen#448)."""
+    return {type_colors.base_color(c["color"]) for r in styles for c in r["color_options"]}
 
 
 def audience(rec: dict) -> str:
@@ -150,10 +152,13 @@ def groups(tpls: list[dict]) -> dict[tuple[str, str], list[dict]]:
 
 
 def missing(tpls: list[dict]) -> dict[tuple[str, str], list[str]]:
-    """(product_type, audience) -> the main colors it lacks (an excepted type is left out)."""
+    """(product_type, audience) -> the main colors it lacks (an excepted type is left out). A
+    main color no style of the group comes in (``type_colors``) is not asked for."""
     out = {}
     for (ptype, aud), styles in groups(tpls).items():
-        lacks = [c for c in MAIN_COLORS if c not in offered(styles)]
+        have = offered(styles)
+        lacks = [c for c in MAIN_COLORS if c not in have
+                 and any(type_colors.permits(r["category_path"], c) for r in styles)]
         if lacks and ptype not in EXCEPTIONS:
             out[(ptype, aud)] = lacks
     return out
@@ -262,10 +267,12 @@ def complete(tpls: list[dict], skip: frozenset[str] = frozenset()) -> list[dict]
         if not styles:
             raise ValueError(f"{ptype} ({aud}): no style takes a plain color; author one")
         tier = lambda r: (_material_skus(r), _names_main_color(r), _names_own_color(r))  # noqa: E731
-        best = [r for r in styles if tier(r) == min(tier(x) for x in styles)]
         picks: dict[str, list[str]] = {}
         for i, color in enumerate(lacks):
-            naming = [r for r in styles if _names(r, color)]
+            # only a style whose type comes in the color takes it (type_colors, gen#448)
+            fit = [r for r in styles if type_colors.permits(r["category_path"], color)]
+            best = [r for r in fit if tier(r) == min(tier(x) for x in fit)]
+            naming = [r for r in fit if _names(r, color)]
             pick = naming[0] if naming else best[i % len(best)]
             picks.setdefault(pick["product_id"], []).append(color)
         for pid, colors in picks.items():
