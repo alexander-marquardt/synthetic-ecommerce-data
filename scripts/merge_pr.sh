@@ -100,6 +100,8 @@ FRESHNESS_TESTS=(
   tests/test_catalog_golden.py::test_committed_file_matches_a_fresh_build
   tests/test_catalog_golden.py::test_golden_directory_holds_exactly_the_build_output
   tests/test_retail_figures_162.py::test_the_committed_figures_are_what_the_build_measures
+  tests/test_prism_field_map_drift.py::test_committed_field_map_matches_a_fresh_derivation
+  tests/test_catalog_golden.py::test_stats_reports_the_catalog_that_was_committed
 )
 
 #: The command that rewrites golden-retail/stats.json (gen#162, gen#343). It
