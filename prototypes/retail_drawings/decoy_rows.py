@@ -69,7 +69,7 @@ KINDS = {
                  extra=(("material", "Material", "Velvet"),)),
     "corner": Kind("Home", (*_SOFAS, "Corner Sofas"), "Corner Sofa", "corner_sofa",
                    "Brackenmere Home", 899.0, extra=(("material", "Material", "Velvet"),),
-                   params=(("seats", "3"), ("side", "left"), ("arms", "track"),
+                   params=(("seats", "5"), ("side", "left"), ("arms", "track"),
                            ("legs", "black_metal"))),
     "cushion": Kind("Home", ("Home", "Soft Furnishings", "Cushions"), "Cushion", "cushion",
                     "Hearth & Table", 12.0, extra=(("fabric", "Fabric", "Velvet"),)),
