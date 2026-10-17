@@ -23,6 +23,7 @@ if str(RETAIL) not in sys.path:
 import export  # noqa: E402
 import kit  # noqa: E402
 import mens_depth_rows  # noqa: E402
+import type_colors  # noqa: E402
 
 #: type -> (its own shape, the key attributes each of its styles states as structured entries).
 TYPES = {
@@ -160,13 +161,11 @@ def test_styles_of_a_type_differ_on_what_a_shopper_filters(ptype: str) -> None:
 def test_a_type_offers_the_six_main_colors(ptype: str) -> None:
     import scale
 
-    offered = {
-        c["color"]
-        for r in scale.templates()
-        if r["product_type"] == ptype
-        for c in r["color_options"]
-    }
-    assert offered >= MAIN
+    styles = [r for r in scale.templates() if r["product_type"] == ptype]
+    offered = {type_colors.base_color(c["color"]) for c in (c for r in styles for c in r["color_options"])}
+    # tailoring comes in suiting colors (type_colors, gen#448): asked for those it comes in
+    comes_in = {c for c in MAIN if any(type_colors.permits(r["category_path"], c) for r in styles)}
+    assert offered >= comes_in
 
 
 def test_a_set_is_a_jacket_trousers_and_waistcoat_of_one_cloth() -> None:
