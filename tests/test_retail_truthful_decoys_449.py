@@ -143,7 +143,7 @@ def test_the_corded_trimmers_and_the_tilting_parasol_read_as_listings(
     assert by_id["BRD-DCTA02"]["title"] == "Corded Grass Trimmer, 10 m Cable"
     assert by_id["BRD-DCGA02"]["title"] == "Corded Hedge Trimmer, 10 m Cable"
     assert by_id["BRD-DCPA02"]["title"] == "Center Pole Parasol with Tilt"
-    assert by_id["PLT-DY62"]["title"] == "Quilted Throw with Wadding"
+    assert by_id["PLT-DY62"]["title"] == "Quilted Throw with Batting"
 
 
 FIELD_DUMP = re.compile(r", in \d|\. In \d|^[^.]*, in [0-9]")
@@ -174,3 +174,18 @@ def test_a_named_dish_or_pasta_is_a_variety_not_a_flavor(by_id: dict[str, dict])
     assert _attr(penne, "variety") == ["Gluten Free Penne"]
     juice = by_id["GRC-JUI-0048"]
     assert _attr(juice, "flavor") == ["Pineapple"], "a juice has a flavor"
+
+
+def test_every_food_product_type_has_a_sentence_of_its_own() -> None:
+    """A new grocery family cannot reach the catalogue without the copy that says what it is."""
+    import grocery_rows as gr  # noqa: PLC0415
+
+    food = [f for f in gr.FAMILIES if f.food]
+    assert {f.product_type for f in food} <= set(gr.INTRO)
+    by_code = {f.code: f for f in food}
+    several = {f.product_type for f in food if f.per_style[1] > 1}
+    several |= {by_code[a[0]].product_type for a in (*gr.ANCHORS, *gr.DECOY_ANCHORS)
+                if a[0] in by_code and len(a[1]) > 1}
+    assert several <= set(gr.INTRO_MULTI), several - set(gr.INTRO_MULTI)
+    assert all("{name}" in text for text in gr.INTRO.values())
+    assert not any("{name}" in text for text in gr.INTRO_MULTI.values())

@@ -882,7 +882,7 @@ _SPORTS = (
        "A duvet cover and pillowcase set for a fan's bedroom.", "Blue", "baseball", "Baseball"),
     _s(61, "s_duvet", "Soft Batting Duvet", "A warm duvet filled with soft polyester batting.",
        "White", "batting", "Batting Helmet"),
-    _s(62, "throw", "Quilted Throw with Wadding",
+    _s(62, "throw", "Quilted Throw with Batting",
        "A light quilted throw with a soft batting layer.",
        "Grey", "batting", "Batting Helmet"),
     _s(63, "s_towel", "Quick-Dry Swim Towel",
