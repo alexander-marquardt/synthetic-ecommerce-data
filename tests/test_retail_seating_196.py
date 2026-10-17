@@ -39,7 +39,7 @@ KEYS = {
     "Recliner Sofa": {"seat_count", "recline", "usb_port", "headrest", "material"},
     "Sofa Bed": {"seat_count", "mechanism", "bed_size", "mattress_type", "material"},
     "Armchair": {"style", "material", "leg_finish"},
-    "Footstool": {"shape", "storage_compartment", "material"},
+    "Footstool": {"shape", "storage_feature", "material"},
 }  # fmt: skip
 
 

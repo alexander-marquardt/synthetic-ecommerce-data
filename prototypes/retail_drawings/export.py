@@ -79,7 +79,9 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "waist": ("waist", "Waist", None),
     "bed_size": ("bed_size", "Bed size", None),
     "width": ("width", "Width", None),
-    "height": ("height", "Height", None),
+    # A tree's height in feet (``5 ft``, which the core reads as a length) is the one key every
+    # measured height has, ``item_height`` (key_guard.py, gen#227).
+    "height": ("item_height", "Item height", None),
     "upper_material": ("upper_material", "Upper material", None),
     "finish": ("finish", "Finish", None),
     "dimensions": ("dimensions", "Dimensions", None),

@@ -105,6 +105,7 @@ if str(HERE) not in sys.path:
 import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
+import color_word_brand_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
 import decoy_apparel  # noqa: E402
 import decoy_product_words  # noqa: E402
@@ -265,6 +266,8 @@ TOY_IDS = frozenset(f"BRD-{r.code}" for r in toys_rows.ROWS)
 SEASONAL_IDS = frozenset(f"BRD-{r.code}" for r in seasonal_rows.ROWS)
 #: The near-white apparel and main-color bras (:mod:`colorgroup_rows`, gen#302): templates only.
 COLORGROUP_IDS = colorgroup_rows.product_ids()
+#: The color-word brand rows (:mod:`color_word_brand_rows`, gen#312): templates only.
+COLORWORD_IDS = color_word_brand_rows.product_ids()
 #: The lower-body styles (:mod:`lowerbody_rows`, gen#206), left out the same way.
 LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 #: The Mens clothing depth (:mod:`mens_depth_rows`, gen#310): templates only.
@@ -326,6 +329,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
         *garden_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
         *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(), *needs_rows.docs(),
+        *color_word_brand_rows.docs(),
     ]  # fmt: skip
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
     body = net_volume.state_title_volumes(body)  # gen#347: a volume the title states is the field
@@ -333,7 +337,7 @@ def templates(baseline: bool = True) -> list[dict]:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
     type_registry.check_unique_ids(tpls)
-    skip = (mens_depth_rows.decoy_ids() | garden_rows.decoy_ids() | NIKE_IDS
+    skip = (mens_depth_rows.decoy_ids() | COLORWORD_IDS | garden_rows.decoy_ids() | NIKE_IDS
             | type_registry.decoy_ids() | needs_rows.decoy_ids()
             | knitwear_rows.decoy_ids())
     return main_colors.complete(tpls, skip) if baseline else tpls
@@ -352,7 +356,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
     left_out = (KNITWEAR_IDS | SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
                 | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS | SCHOOL_IDS
                 | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | GARDEN_IDS | NIKE_IDS | NEEDS_IDS
-                | SPEC_IDS | decoy_rows.IDS
+                | SPEC_IDS | decoy_rows.IDS | COLORWORD_IDS
                 | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out
