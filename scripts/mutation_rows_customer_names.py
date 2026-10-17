@@ -189,7 +189,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the CI job stops reading the PR's live text",
         "ci.yaml",
-        '          --pr "${GITHUB_HEAD_REF:-$(git rev-parse --abbrev-ref HEAD)}"\n',
+        '          --pr "${PR_REF:-${GITHUB_HEAD_REF:-$(git rev-parse --abbrev-ref HEAD)}}"\n',
         "",
         TEST,
         "the CI job scans the PR title and body",
