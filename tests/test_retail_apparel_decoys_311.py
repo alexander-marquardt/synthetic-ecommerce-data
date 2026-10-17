@@ -147,8 +147,7 @@ def test_class_6_and_7_name_a_short_title_and_class_7_names_a_brand(
     brands = set()
     for ptype, rs in _by_type(rows).items():
         six = [r for r in rs if r.cls == 6]
-        assert sum(r.word in MAIN for r in six) >= 3, ptype
-        assert any(r.word not in MAIN for r in six), ptype
+        assert len(six) >= 3 and not any(r.word in MAIN for r in six), ptype  # #444
     for r in rows:
         doc = by_id[r.pid]
         if r.cls in (6, 7):
@@ -157,7 +156,190 @@ def test_class_6_and_7_name_a_short_title_and_class_7_names_a_brand(
             brands.add(doc["brand"])
             assert doc["brand"].lower() in doc["title"].lower(), (r.pid, doc["title"])
     assert 6 <= len(brands) <= 8, brands
-    assert {w for r in rows if r.cls == 6 for w in [r.word]} >= MAIN
+    assert {r.word for r in rows if r.cls == 7} >= MAIN
+
+
+#: Every color word a title can hold: the main six and the shades a decoy is sold in.
+COLOR_WORDS = MAIN | {"navy", "cream", "grey", "brown", "pink"}
+
+
+def _color_words(title: str) -> set[str]:
+    return {w for w in COLOR_WORDS if re.search(rf"\b{w}\b", title.lower())}
+
+
+def test_a_range_name_never_holds_a_color_and_a_brand_color_is_the_brand_field(
+    rows: list[da.Row], by_id: dict[str, dict]
+) -> None:
+    """#444: "Red Harbour Dress" read as a red dress with a strange brand. A class 6 title holds
+    no color word (a range name is a place, never a color) and its drawing colors nothing. A
+    class 7 title holds a color word only as the invented brand, which is the product's brand
+    field, and its drawing shows no part in that color: "Yellow Wagtail Co-ord Set" is a blue
+    co-ord set with no yellow waistband (#444 F1)."""
+    for r in (r for r in rows if r.cls in (6, 7)):
+        doc = by_id[r.pid]
+        named = _color_words(doc["title"]) - {_real_color(doc)}
+        assert "detail" not in doc["drawing"], (r.pid, doc["title"], doc["drawing"].get("detail"))
+        if r.cls == 6:
+            assert not named, (r.pid, doc["title"], named)
+        else:
+            assert named <= {w for w in named if re.search(rf"\b{w}\b", doc["brand"].lower())}, (
+                r.pid, doc["title"], doc["brand"])
+    sevens = [r for r in rows if r.cls == 7]
+    assert any(r.word in MAIN for r in sevens)
+    for r in (r for r in sevens if r.word in MAIN):
+        assert re.search(rf"\b{r.word}\b", by_id[r.pid]["brand"].lower()), r
+
+
+#: The REVIEWED list of real retail terms (#444), written by hand and not a mirror of
+#: ``decoy_apparel.COMPOUNDS``: each phrase was checked as a name a shopper meets at a mainstream
+#: retailer (when in doubt it is left out). The generator's table must be a subset of it, and a
+#: new compound is added here only after the same review, never copied across.
+REAL_COMPOUNDS = frozenset({
+    "Dress Blouse", "Shirt Blouse", "Tunic Blouse",
+    "Shirt Bodysuit", "Corset Bodysuit", "Cami Bodysuit", "Bodysuit Top",
+    "Shirt Jacket", "Blazer Jacket", "Biker Jacket", "Bomber Jacket", "Dress Jacket",
+    "Denim Shirt Jacket", "Denim Bomber Jacket", "Denim Biker Jacket", "Shacket",
+    "Kimono Cardigan", "Duster Cardigan", "Bomber Cardigan",
+    "Dress Coat", "Puffer Coat", "Duffle Coat",
+    "Skirt Co-ord Set", "Trouser Co-ord Set", "Shirt Co-ord Set", "Short Co-ord Set",
+    "Dress Shorts", "Cargo Shorts", "Tailored Shorts", "Jean Shorts", "Chino Shorts",
+    "Pyjama Shorts", "Bermuda Shorts", "Cycling Shorts", "Boxer Shorts",
+    "Shirt Dress", "Jumper Dress", "Blazer Dress", "Hoodie Dress", "Tunic Dress", "Coat Dress",
+    "Sweatshirt Dress", "Slip Dress",
+    "Chino Joggers", "Cargo Joggers", "Denim Joggers",
+    "Tunic Jumper", "Polo Jumper",
+    "Cargo Leggings", "Denim Leggings", "Cycling Leggings",
+    "Skirt Set", "Trouser Set", "Short Set", "Blazer Set", "Trouser Suit", "Skort",
+    "Dress Shirt", "Polo Shirt", "Tunic Shirt",
+    "Jean Skirt", "Slip Skirt", "Cargo Skirt",
+    "Polo Sweatshirt", "Hoodie Sweatshirt", "Tunic Sweatshirt",
+    "Polo T-Shirt", "Tunic T-Shirt",
+    "Polo Tee", "Tunic Tee",
+    "Vest Top", "Cami Top", "Polo Top", "Tunic Top",
+    "Knitted Vest Top", "Knitted Cami Top", "Knitted Polo Top", "Knitted Tunic Top",
+    "Hoodie Tracksuit", "Short Tracksuit", "Jogger Tracksuit",
+    "Cargo Trousers", "Chino Trousers", "Jogger Trousers", "Dress Trousers",
+    "Cargo Jeans", "Jogger Jeans",
+    "Chino School Trousers", "Jogger School Trousers", "Cargo School Trousers",
+    "Pinafore School Skirt", "School Pinafore Dress",
+    "School Polo Shirt", "Oxford School Shirt",
+    "Boot Socks", "Trouser Socks", "Slipper Socks", "Trainer Socks", "Sneaker Socks",
+    "Welly Boot Socks", "Wellington Boot Socks", "Walking Boot Socks",
+    "Sandal Boots", "Sneaker Boots", "Loafer Boots", "Shoe Boots", "Slipper Boots", "Biker Boots",
+    "Sock Boots", "Wellington Safety Boots", "Chelsea Safety Boots", "Hiker Safety Boots",
+    "Chukka Walking Boots",
+    "Mule Heels", "Loafer Heels", "Sandal Heels",
+    "Ballet Slippers", "Ballet Sandals", "Ballet Pumps",
+    "Dress Brogues", "Derby Brogues", "Oxford Brogues",
+    "Dress Shoes", "Court Shoes", "Walking Shoes", "Tennis Shoes", "Training Shoes",
+    "Loafer School Shoes", "Brogue School Shoes",
+    "Mule Loafers", "Brogue Loafers",
+    "Loafer Sandals", "Mule Sandals", "Espadrille Sandals",
+    "Boot Slippers", "Sock Slippers", "Loafer Slippers", "Mule Slippers",
+    "Sneaker Plimsolls", "Mule Clogs", "Sneaker Wedges", "Sneaker Espadrilles",
+    "Sock Platform Trainers", "Loafer Mules", "Slipper Mules", "Sandal Mules",
+    "Mary Jane Jelly Shoes", "Sandal Barefoot Shoes",
+    "Sock Trainers", "Running Trainers", "Walking Trainers", "Chelsea Wellies",
+    "Cami Bra", "Corset Bra",
+    "Boxer Briefs", "Boxer Trunks",
+    "Hoodie Dressing Gown", "Kimono Dressing Gown", "Dressing Gown",
+    "Short Knickers", "Cami Knickers", "Bikini Knickers",
+    "Short Pyjamas", "Cami Pyjamas",
+    "Bodysuit Shapewear", "Cami Shapewear", "Slip Shapewear",
+    "Dress Slip", "Skirt Slip", "Cami Slip",
+    "Running Tights", "Cycling Tights",
+    "Cami Vest", "Dress Vest", "Sweater Vest",
+})  # fmt: skip
+
+
+def test_no_class_2_title_is_outside_the_real_compounds(
+    rows: list[da.Row], by_id: dict[str, dict]
+) -> None:
+    """#444: "Red Dress Pyjamas" is not a retail term. A class 2 title is the product's color,
+    an optional fit, then a compound of :data:`REAL_COMPOUNDS`."""
+    twos = [r for r in rows if r.cls == 2]
+    assert len(twos) >= 3 * len(da.TYPES)
+    phrases = set()
+    for r in twos:
+        doc = by_id[r.pid]
+        color = doc["color_options"][0]["color"]
+        assert doc["title"].startswith(color + " "), (r.pid, doc["title"])
+        rest = doc["title"][len(color) + 1 :]
+        hit = [p for p in REAL_COMPOUNDS if rest == p or rest.endswith(" " + p)]
+        assert hit, (r.pid, doc["title"])
+        assert r.word in doc["title"].lower(), (r.pid, r.word, doc["title"])
+        phrases.add(max(hit, key=len))
+    assert len(phrases) >= 60, len(phrases)  # the table is varied, not three words reused
+
+
+#: The class 2 phrases the reviewer named as invented (#444): no shopper meets them as a product.
+INVENTED_COMPOUNDS = frozenset({
+    "Dress Pyjamas", "Trouser Blouse", "Poncho Dressing Gown", "Dress Tights", "Legging Tights",
+    "Sweatshirt Tracksuit", "Dress Trainers", "Ballet Sneakers", "Sneaker Loafers",
+    "Trainer School Shoes", "Sock Shoes", "Pump Heels", "Trouser Shorts", "Pyjama Boxers",
+    # #444 review: each names a class the product itself belongs to, not another product's noun
+    "Ballet Flats", "Henley Tee", "Henley T-Shirt", "Slider Sandals", "T-Shirt Bra",
+    # the live "Wedge Sandals" in another word order (15 of 51 live Wedges)
+    "Sandal Wedges",
+})
+
+
+def test_no_invented_compound_is_planned_or_titled() -> None:
+    """#444: the reviewed list is a list of real retail terms, not a mirror of the generator's
+    table, so an invented phrase is named here and found in neither."""
+    planned = {p for t in da.TYPES for _, p in (t.compounds or da.COMPOUNDS[t.product_type])}
+    assert not planned & INVENTED_COMPOUNDS, planned & INVENTED_COMPOUNDS
+    assert planned <= REAL_COMPOUNDS, sorted(planned - REAL_COMPOUNDS)
+    assert not REAL_COMPOUNDS & INVENTED_COMPOUNDS
+
+
+def _stems(text: str) -> list[str]:
+    words = re.findall(r"[a-z]+", text.lower())
+    return [w[:-1] if w.endswith("s") and len(w) > 3 else w for w in words]
+
+
+def test_no_class_2_phrase_is_a_live_title_reworded(ceiling: list[dict]) -> None:
+    """#444: a class 2 decoy is not the live product in another word order ("Sandal Wedges" is
+    the live "Wedge Sandals"), so "Not a sandal" would be false of it. Live = every non-decoy
+    title. Only the reversed order is guarded: the wider "incidental word is in a live title"
+    reading reds on about fifteen reviewed phrases (Mule Slippers, Boxer Shorts), a design call."""
+    live: dict[str, list[list[str]]] = {}
+    for rec in ceiling:
+        if rec["product_id"] not in da.IDS and not rec["product_id"].startswith("PLT-D"):
+            live.setdefault(rec["product_type"], []).append(_stems(rec["title"]))
+    bad = []
+    for spec in da.TYPES:
+        titles = live.get(spec.product_type, [])
+        for _, phrase in spec.compounds or da.COMPOUNDS[spec.product_type]:
+            rev = _stems(phrase)[::-1]
+            for t in titles:
+                if any(t[i : i + len(rev)] == rev for i in range(len(t))):
+                    bad.append((spec.product_type, phrase, " ".join(t)))
+                    break
+    assert not bad, bad
+
+
+def test_every_type_has_three_real_compounds_or_a_declared_reason() -> None:
+    """#444: a type with fewer than three real compounds is a declared exception, with its
+    reason, and the generator text of the docs says so; an exception that no longer applies reds.
+    Only a phrase some exemplar of the type can carry counts: ``_in_path`` blocks Shirt Blouse,
+    Shoe Boots and Ballet Flats on every path of their types, and a planned phrase never built
+    is no phrase."""
+    body = [d for d in scale.templates(baseline=False) if d["product_id"] not in da.IDS]
+    built: dict[str, set[str]] = {t.product_type: set() for t in da.TYPES}
+    for ex in body:
+        for spec in da.TYPES:
+            if ex["product_type"] == spec.product_type and ex.get("color_options"):
+                built[spec.product_type] |= {o["phrase"] for o in da._options(2, spec, ex)}
+    short = {
+        t.product_type
+        for t in da.TYPES
+        if len(built[t.product_type]) < 3
+    }
+    assert short == set(da.SHORT_COMPOUNDS), short ^ set(da.SHORT_COMPOUNDS)
+    assert all(len(reason.split()) >= 4 for reason in da.SHORT_COMPOUNDS.values())
+    for ptype in short:
+        assert ptype in TABLE_DOC.read_text(), ptype
 
 
 def test_large_types_carry_ten_percent_decoys(rows: list[da.Row], ceiling: list[dict]) -> None:
@@ -208,7 +390,7 @@ def test_a_decoy_may_name_only_the_misleading_color_and_only_when_it_is_drawn(
     """The maintainer ruling on #311: the output standard's refusal of a text naming only another
     color stays for ordinary products; a decoy row is exempt by id, and its drawing shows the
     named color on the named part, so the title is true of the picture."""
-    named = [r for r in rows if r.cls in (1, 6, 7) and r.word in MAIN]
+    named = [r for r in rows if r.cls in (1, 7) and r.word in MAIN]
     assert len(named) >= 3 * len(da.TYPES)
     docs = [export.standard_document(by_id[r.pid]) for r in named]
     assert check_catalog(docs, text_exempt=scale.DECOY_IDS) == []
@@ -223,6 +405,9 @@ def test_a_decoy_may_name_only_the_misleading_color_and_only_when_it_is_drawn(
     for r in named:
         doc = by_id[r.pid]
         drawing = image_release.colorway_drawing(doc, doc["skus"][0])
+        if r.cls == 7:  # the brand holds the color word; the drawing colors no part (#444)
+            assert "detail" not in drawing, r.pid
+            continue
         assert drawing["detail"]["color"].lower() == da.DETAIL_HEX[r.word.title()].lower(), r.pid
         assert drawing.get("pattern") != "stripe", r.pid
         assert doc["color_options"][0]["color"] != r.word.title(), r.pid
@@ -237,7 +422,7 @@ def test_a_decoy_title_names_only_the_misleading_color(
 ) -> None:
     """The maintainer ruling: "Bra with Red Straps" on a white bra, with no "White" in the title.
     It holds for class 1 (a part), 6 (a range name) and 7 (a brand) alike."""
-    named = [r for r in rows if r.cls in (1, 6, 7) and r.word in MAIN]
+    named = [r for r in rows if r.cls in (1, 7) and r.word in MAIN]
     assert len(named) >= 3 * len(da.TYPES)
     for r in named:
         real = _real_color(by_id[r.pid])
@@ -273,18 +458,17 @@ def _svg_parts(doc: dict, bare: bool = False) -> tuple[list[ET.Element], list[ET
 def test_the_named_part_is_drawn_in_the_named_color_and_nothing_else_is(
     rows: list[da.Row], by_id: dict[str, dict]
 ) -> None:
-    """The picture shows what the title says: the part the title names (class 1), or the type's
-    first part (classes 6 and 7, whose title names none), carries the named color, and no other
-    element of the drawing does: a stripe across the whole garment is not a named part."""
-    named = [r for r in rows if r.cls in (1, 6, 7) and r.word in MAIN]
+    """The picture shows what the title says: the part the title names (class 1) carries the named
+    color, and no other element of the drawing does: a stripe across the whole garment is not a
+    named part. A class 7 brand names no part and colors none (#444)."""
+    named = [r for r in rows if r.cls == 1 and r.word in MAIN]
     for r in named:
         doc = by_id[r.pid]
         hexv = da.DETAIL_HEX[r.word.title()].lower()
         marked, plain = _svg_parts(doc)
         assert marked, (r.pid, doc["title"], "no element is marked as the named part")
-        if r.cls == 1:
-            part = doc["title"].split()[-1].lower()
-            assert {e.get("data-part") for e in marked} == {part}, (r.pid, doc["title"])
+        part = doc["title"].split()[-1].lower()
+        assert {e.get("data-part") for e in marked} == {part}, (r.pid, doc["title"])
         for e in marked:
             assert hexv in (e.get("fill", "").lower(), e.get("stroke", "").lower()), (
                 r.pid,
@@ -394,6 +578,12 @@ def test_the_named_part_sits_where_the_part_sits_on_the_garment(
                 assert re.search(r' d="([^"]*)"', el).group(1) in {a or b for a, b in own}, r.pid
             seen.add(part)
     assert seen == set(ZONE), set(ZONE) - seen
+
+
+def test_a_relative_path_command_is_not_read_as_a_page_point() -> None:
+    """#444: a lace trim writes relative scallops (``l``, ``q``); read as absolute, their small
+    offsets pulled a part's box to the corner of the page. A relative command adds no point."""
+    assert details._coords("M10 20 L30 40 l3 4 q1 2 3 4 Z") == [(10.0, 20.0), (30.0, 40.0)]
 
 
 def test_a_hem_is_the_torsos_and_does_not_color_the_sleeve_cuffs(
