@@ -5,7 +5,13 @@ from pathlib import Path
 
 import pytest
 
+import ci_shard_split
 from xdist_groups import group_for
+
+
+def pytest_configure(config):
+    """A CI shard's share of a split file (#348); a conftest cannot name plugins here."""
+    config.pluginmanager.register(ci_shard_split, "ci_shard_split")
 
 
 def pytest_collection_modifyitems(items):

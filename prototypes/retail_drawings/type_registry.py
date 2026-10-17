@@ -53,8 +53,10 @@ APPAREL_DEPARTMENTS = ("Clothing", "Footwear", "Lingerie & Nightwear")
 APPAREL_FAMILIES = "abusk"
 #: The most types the legacy list may hold. A migration lowers it by the types it moves, so the
 #: list is exact: an appended line (a type registered the old way) is over it, and a shorter list
-#: leaves room to append the difference.
-LEGACY_CEILING = 328
+#: leaves room to append the difference. Eight footwear styles (gen#216) are the one rise: a
+#: shoe is a ``FootwearStyle`` (size charts, an upper per color), which a spec's ``Row`` cannot
+#: carry; the footwear types leave the list when footwear moves to specs (gen#427).
+LEGACY_CEILING = 336
 
 
 class SpecError(ValueError):
@@ -78,6 +80,10 @@ class ApparelPlan:
 
     family: str = "a"
     per_class: int = 3
+    #: Class 2 (#444): the type's real compounds as (the word it targets, the phrase), such as
+    #: ("vest", "Knitted Vest Top"): the phrase keeps the head noun and holds the word. An
+    #: invented compound is a decoy no shopper reads as a product.
+    compounds: tuple[tuple[str, str], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -178,6 +184,11 @@ def _validate_apparel(spec: TypeSpec) -> None:
         raise SpecError(f"{spec.key}: apparel family {plan.family!r} is not one of a, b, u, s, k")
     if plan is not None and plan.per_class < 3:
         raise SpecError(f"{spec.key}: an apparel plan holds at least 3 decoys per class")
+    if plan is not None and not plan.compounds:
+        raise SpecError(f"{spec.key}: an apparel plan names its class 2 compounds (#444)")
+    for word, phrase in plan.compounds if plan is not None else ():
+        if not word or word.lower() not in phrase.lower():
+            raise SpecError(f"{spec.key}: apparel compound word {word!r} is not in {phrase!r}")
 
 
 @functools.cache

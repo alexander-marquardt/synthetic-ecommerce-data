@@ -628,9 +628,17 @@ EXTREME_ENLARGEMENT = 2.05
 #: screws' ``Package Quantity`` row takes a presence draw from their stream,
 #: so ``2334468134`` is drawn under the handled glass now and the screw is
 #: ``2334249296``.
-PINNED_HANDLE_LESS = ("2334249296", "3818077553")
+#: Re-picked for alexander-marquardt/synthetic-ecommerce-data#404 (the
+#: inch-length-under-an-angle-key corruption is removed, so one draw fewer per
+#: record moved the random stream and renumbered the drills): ``3818077553`` is
+#: now a 10.65-unit-wide drill under the handled glass; the first 5/64" jobber
+#: in catalog order drawn handle-less is ``3818060916`` and the first 1/16"
+#: jobber (a 1.42-unit-wide hairline) is ``3818542871`` (both measured over the
+#: golden catalog with ``sheet.magnifier``). The screw kept its sku and is still
+#: the first socket head drawn handle-less.
+PINNED_HANDLE_LESS = ("2334249296", "3818060916")
 #: A hairline drill (a 1/16" jobber), by name, for the stroke test below.
-HAIRLINE_DRILL = "3818559508"
+HAIRLINE_DRILL = "3818542871"
 
 
 def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only_when_it_must_be():
