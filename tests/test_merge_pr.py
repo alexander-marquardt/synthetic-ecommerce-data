@@ -67,12 +67,13 @@ case "$1 $2" in
       mode=green
     fi
     case "$mode" in
-      green) printf 'tests\tcompleted\tsuccess\n' ;;
-      red) printf 'tests\tcompleted\tfailure\n' ;;
-      skipped) printf 'tests\tcompleted\tskipped\n' ;;
-      pending) printf 'tests\tin_progress\t\n' ;;
+      green) printf 'tests (1)\tcompleted\tsuccess\ntests (2)\tcompleted\tsuccess\n' ;;
+      red) printf 'tests (1)\tcompleted\tsuccess\ntests (2)\tcompleted\tfailure\n' ;;
+      skipped) printf 'tests (1)\tcompleted\tskipped\n' ;;
+      pending) printf 'tests (1)\tin_progress\t\n' ;;
       missing) ;;
     esac
+    printf 'lint\tcompleted\tsuccess\n'
     printf 'commit-messages\tcompleted\tsuccess\n'
     printf 'file-size\tcompleted\tsuccess\n'
     printf 'red-commit-proof\tcompleted\tsuccess\n'
@@ -204,10 +205,16 @@ def world(tmp_path: Path) -> dict:
     subprocess.run(["git", "init", "-q", "--bare", str(origin)], check=True)
     # This checkout's HEAD as the origin's main; CI checks out full history so
     # the fetch never starts from a shallow repository.
-    _git(origin, "fetch", "-q", str(REPO), "HEAD:refs/heads/main")
+    quiet = ["-c", "gc.auto=0", "-c", "maintenance.auto=false"]
+    quiet += ["-c", "fetch.writeCommitGraph=false"]
+    _git(origin, *quiet, "fetch", "-q", str(REPO), "HEAD:refs/heads/main")
     _git(origin, "symbolic-ref", "HEAD", "refs/heads/main")
     checkout = tmp_path / "checkout"
-    subprocess.run(["git", "clone", "-q", str(origin), str(checkout)], check=True)
+    # --no-local: the objects are transferred, not hardlinked or copied from the origin's
+    # directory; on a hosted runner the copy raced with git's own commit-graph writes
+    # ("hardlink different from source", "failed to copy file ... commit-graph-chain.lock").
+    clone = ["git", *quiet, "clone", "-q", "--no-local", str(origin), str(checkout)]
+    subprocess.run(clone, check=True)
     # The script under test is this tree's, not the HEAD commit's.
     shutil.copy2(SCRIPT, checkout / "scripts" / "merge_pr.sh")
     shutil.copy2(JOBS_SCRIPT, checkout / "scripts" / "local_ci_jobs.py")
@@ -444,14 +451,14 @@ def test_a_check_run_in_which_no_test_passed_is_not_green(world: dict) -> None:
     "ci, refusal",
     [
         # A test outside the script's checks is red in the PR's own CI.
-        ("red", "check tests on {sha} is failure"),
-        ("skipped", "check tests on {sha} was skipped"),
+        ("red", "check tests (2) on {sha} is failure"),
+        ("skipped", "check tests (1) on {sha} was skipped"),
         ("missing", "missing: tests"),
         ("pending", "still running: tests"),
         # CI ran on the PR head, never on the merge the script pushed.
         (
             "head-only",
-            "missing: tests commit-messages file-size red-commit-proof customer-name-check",
+            "missing: lint tests commit-messages file-size red-commit-proof customer-name-check",
         ),
     ],
     ids=["red", "skipped", "missing", "pending", "head-only"],
@@ -489,7 +496,10 @@ def test_with_nothing_to_push_the_heads_own_ci_gates_the_merge(world: dict) -> N
     head = _open_pr(world, _GREEN, main_moves=False)
     result = _run(world, head, _GREEN_CHECK, FAKE_GH_CI="red")
     assert result.returncode != 0
-    assert f"check tests on {head} is failure" in result.stderr, result.stderr[-800:]
+    # The check is a shard of the sharded tests job (`tests (2)`), or plain `tests`.
+    assert re.search(rf"check tests( \(\d+\))? on {head} is failure", result.stderr), (
+        result.stderr[-800:]
+    )
     assert not _merged(world)
 
 
@@ -686,6 +696,11 @@ def test_a_stale_lock_is_refused_not_relocked_and_committed(world: dict) -> None
     pyproject = (world["checkout"] / "pyproject.toml").read_text()
     stale_lock = pyproject.replace('"numpy>=1.26",', '"numpy>=1.26",\n    "pyyaml>=6.0.3",', 1)
     head = _open_pr(world, {"pyproject.toml": stale_lock})
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        # Deciding that the lock is stale re-resolves it, which needs the index; a hosted
+        # runner has the network and a cold cache, a developer's machine the warm cache.
+        for name in ("UV_OFFLINE", "FAKE_UV_DNS_DOWN", *_NO_NAME_RESOLUTION):
+            world["env"].pop(name, None)
     result = _run(world, head, _GREEN_CHECK)
     assert result.returncode != 0
     assert "--locked" in result.stderr, result.stderr[-800:]
@@ -791,6 +806,7 @@ def _workflow(**commands: str) -> dict[str, str]:
 
 _ALL_GREEN = _workflow(
     tests="echo suite",
+    lint="echo lint",
     **{
         "commit-messages": "echo msgs",
         "file-size": "echo size",
@@ -824,6 +840,7 @@ def test_a_failing_local_job_refuses_the_merge_but_the_others_still_run(world: d
     plant = _workflow(
         tests="echo suite",
         **{
+            "lint": "true",
             "commit-messages": "echo bad >&2; exit 3",
             "file-size": "true",
             "red-commit-proof": "true",
@@ -844,6 +861,7 @@ def test_a_failing_local_job_fails_a_dry_run_too(world: dict) -> None:
     plant = _workflow(
         tests="exit 1",
         **{
+            "lint": "true",
             "commit-messages": "true",
             "file-size": "true",
             "red-commit-proof": "true",
@@ -858,7 +876,7 @@ def test_a_failing_local_job_fails_a_dry_run_too(world: dict) -> None:
 
 
 def test_a_required_check_missing_from_the_workflows_refuses(world: dict) -> None:
-    head = _open_pr(world, {**_GREEN, **_workflow(tests="true")})
+    head = _open_pr(world, {**_GREEN, **_workflow(tests="true", lint="true")})
     done = _run(world, head, _GREEN_CHECK, "--local-ci")
     assert done.returncode != 0
     assert "commit-messages is not a job" in done.stderr
@@ -915,6 +933,7 @@ _STALE_UNLESS_MAINS = (
     f' || {{ echo "FAILED {_FRESH}[stats.json] - differs"; exit 1; }}'
 )
 _OTHER_JOBS = {
+    "lint": "true",
     "commit-messages": "true",
     "file-size": "true",
     "red-commit-proof": "true",

@@ -115,12 +115,14 @@ def parts_of(shape: str) -> tuple[str, ...]:
 
 
 def _coords(d: str) -> list[tuple[float, float]]:
-    """The absolute points of a path ``d`` (the kit writes absolute commands only)."""
+    """The absolute points of a path ``d``. The kit writes absolute commands, bar the lace trim's
+    relative scallops and dots: a relative command has no absolute point here and is skipped (read
+    as absolute, its small offsets pulled a lace knicker's box to the corner, #444)."""
     pts: list[tuple[float, float]] = []
     cmd, nums = "", []
     for tok in _NUM.findall(d) + ["Z"]:
         if tok.isalpha():
-            if cmd in "MLCQT" and cmd:
+            if cmd in "MLCQT" and cmd:  # a relative (lower-case) command matches no branch
                 pts += list(zip(nums[0::2], nums[1::2], strict=False))
             elif cmd == "A":
                 pts += [(nums[i + 5], nums[i + 6]) for i in range(0, len(nums) - 6, 7)]
@@ -128,7 +130,7 @@ def _coords(d: str) -> list[tuple[float, float]]:
                 pts += [(x, pts[-1][1] if pts else 0.0) for x in nums]
             elif cmd == "V":
                 pts += [(pts[-1][0] if pts else 0.0, y) for y in nums]
-            cmd, nums = tok.upper(), []
+            cmd, nums = tok, []
         else:
             nums.append(float(tok))
     return pts

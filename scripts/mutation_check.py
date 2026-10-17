@@ -1222,8 +1222,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: the push is forced",
-                'push -q origin "HEAD:refs/heads/$head_ref" ||\n    die "the push of $final_sha',
-                'push -q -f origin "HEAD:refs/heads/$head_ref" ||\n    die "the push of $final_sha',
+                'push -q origin "HEAD:refs/heads/$head_ref" ||\n      die "the push of $final_sha',
+                'push -q -f origin "HEAD:refs/heads/$head_ref" ||\n      die "the push of $final_sha',
                 "tests/test_merge_pr.py::"
                 "test_a_head_that_moves_during_the_checks_is_neither_overwritten_nor_merged",
                 "the head is the commit that was checked, at every merge attempt",
@@ -1266,8 +1266,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: a second red does not stop the merge",
-                'run_local_ci ||\n    die "local CI is red on $final_sha after the golden regeneration',
-                'run_local_ci ||\n    echo "local CI is red on $final_sha after the golden regeneration',
+                '$run_ci ||\n    die "$ci_name is red on $final_sha after the golden regeneration',
+                '$run_ci ||\n    echo "$ci_name is red on $final_sha after the golden regeneration',
                 'tests/test_merge_pr.py::test_a_golden_that_is_still_red_after_the_regeneration_is_regenerated_once_only',
                 'a stale golden is regenerated once, on a green second run (#440)',
             ),
@@ -1301,8 +1301,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: a dry run does not regenerate",
-                '    run_local_ci_regenerating\n    echo "5. every local CI job is green on $final_sha"\n  fi\n  keep_work=0',
-                '    run_local_ci\n    echo "5. every local CI job is green on $final_sha"\n  fi\n  keep_work=0',
+                '    run_local_ci_regenerating\n    echo "5. every local CI job is green on $final_sha"\n  elif',
+                '    run_local_ci\n    echo "5. every local CI job is green on $final_sha"\n  elif',
                 'tests/test_merge_pr.py::test_a_dry_run_regenerates_the_golden_but_pushes_and_merges_nothing',
                 'a stale golden is regenerated once, on a green second run (#440)',
             ),
@@ -1420,7 +1420,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: any skipped check is green",
-                'listed "$name" "${SKIPPED_BY_DESIGN_CI[@]}" ||',
+                'listed "${name%% (*}" "${SKIPPED_BY_DESIGN_CI[@]}" ||',
                 "true ||",
                 "tests/test_merge_pr.py::"
                 "test_a_merge_waits_for_every_check_on_the_pushed_tree[skipped]",
@@ -1428,8 +1428,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: a missing required check is not waited for",
-                'listed "$name" ${seen[@]+"${seen[@]}"} || missing+=',
-                "true || missing+=",
+                'listed "$name" ${seen[@]+"${seen[@]}"} || listed',
+                "true || listed",
                 "tests/test_merge_pr.py::"
                 "test_a_merge_waits_for_every_check_on_the_pushed_tree[missing]",
                 "every CI check on the commit that merges is green",
