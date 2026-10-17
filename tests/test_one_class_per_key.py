@@ -4,7 +4,8 @@ The Engine refuses to start on a key whose rows are unit-classed on some documen
 not on others (``AmbiguousClassKeyError``). The retail build's Christmas trees were sized
 under ``size`` as ``5 ft``, which the core's ``split`` reads as a length (``unit_code``
 ``FOT``), while a garment's ``size`` is text: 35 classed rows among 2,214 unclassed ones in
-the loaded catalog. A tree's height is not a size system, so it is named ``height``.
+the loaded catalog. A tree's height is not a size system, so it is named ``item_height``, the
+one key every measured height shares (gen#227).
 """
 
 from __future__ import annotations
@@ -57,11 +58,11 @@ def test_the_validator_refuses_a_key_that_mixes_classed_and_unclassed_entries():
     assert standard.check_catalog(docs) == [], "the check is opt-in: industrial keys mix today"
 
 
-def test_a_christmas_trees_height_is_a_height_not_a_size():
+def test_a_christmas_trees_height_is_an_item_height_not_a_size():
     docs = [d for d in _template_documents() if d["category_leaf"] == "Real Christmas Trees"]
     assert docs
     keys = {
         d["product_id"]: {e["key"] for v in d["variants"] for e in v["attributes"]} for d in docs
     }
     assert all("size" not in ks for ks in keys.values()), keys
-    assert {"height"} in keys.values(), keys
+    assert {"item_height"} in keys.values(), keys
