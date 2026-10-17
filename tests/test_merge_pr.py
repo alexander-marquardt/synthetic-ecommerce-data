@@ -208,7 +208,11 @@ def world(tmp_path: Path) -> dict:
     _git(origin, "fetch", "-q", str(REPO), "HEAD:refs/heads/main")
     _git(origin, "symbolic-ref", "HEAD", "refs/heads/main")
     checkout = tmp_path / "checkout"
-    subprocess.run(["git", "clone", "-q", str(origin), str(checkout)], check=True)
+    # No background maintenance or commit-graph write while the clone hardlinks the origin's
+    # objects: on a hosted runner that race failed a setup with "hardlink different from source".
+    quiet = ["-c", "gc.auto=0", "-c", "maintenance.auto=false", "-c", "core.commitGraph=false"]
+    quiet += ["-c", "fetch.writeCommitGraph=false"]
+    subprocess.run(["git", *quiet, "clone", "-q", str(origin), str(checkout)], check=True)
     # The script under test is this tree's, not the HEAD commit's.
     shutil.copy2(SCRIPT, checkout / "scripts" / "merge_pr.sh")
     shutil.copy2(JOBS_SCRIPT, checkout / "scripts" / "local_ci_jobs.py")
@@ -490,7 +494,10 @@ def test_with_nothing_to_push_the_heads_own_ci_gates_the_merge(world: dict) -> N
     head = _open_pr(world, _GREEN, main_moves=False)
     result = _run(world, head, _GREEN_CHECK, FAKE_GH_CI="red")
     assert result.returncode != 0
-    assert f"check tests on {head} is failure" in result.stderr, result.stderr[-800:]
+    # The check is a shard of the sharded tests job (`tests (2)`), or plain `tests`.
+    assert re.search(rf"check tests( \(\d+\))? on {head} is failure", result.stderr), (
+        result.stderr[-800:]
+    )
     assert not _merged(world)
 
 

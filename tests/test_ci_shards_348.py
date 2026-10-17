@@ -12,9 +12,10 @@ this guard reads the real workflow and the real tests directory:
   the job's ``env``) carry ``-n`` and ``--dist loadgroup``, and a pytest line with no file
   list belongs only to a job that runs a named handful of checks;
 * the shards stay balanced by the committed weights;
-* a file too heavy for one shard (``SPLIT_FILES``: ``tests/test_merge_pr.py``, an hour of
-  independent tests) is listed in every shard, and ``tests/ci_shard_split.py`` deals its test
-  ids out modulo the shard, so each node id runs in exactly one shard;
+* a file too heavy for one shard (``SPLIT_FILES``: ``tests/test_merge_pr.py`` and its
+  ``--github-ci`` sibling, 75 minutes of independent tests) is listed in every shard, and
+  ``tests/ci_shard_split.py`` deals its test ids out modulo the shard, so each node id runs
+  in exactly one shard;
 * no job-level ``env`` reads the ``runner`` context, which GitHub rejects there (the
   whole workflow then fails in 0 s with no check run).
 

@@ -16,14 +16,15 @@ a file with no entry weighs 20 s, so a new test file needs no edit anywhere.
 |---|---|
 | more or fewer shards | the matrix list in `ci.yaml` (nothing else: `--of` is `strategy.job-total`) |
 | refresh the weights | download the `junit-*` artifacts of a green run, then `python3 scripts/ci_shards.py --refresh junit-*.xml` |
-| run one shard here | `python3 scripts/ci_shards.py --shard 3 --of 12` prints its files |
+| run one shard here | `python3 scripts/ci_shards.py --shard 3 --of 16` prints its files |
 
 A file too heavy for one shard is split: `SPLIT_FILES` in `scripts/ci_shards.py` (now
-`tests/test_merge_pr.py`, about an hour of independent tests) is printed for every shard,
+`tests/test_merge_pr.py` and `tests/test_merge_pr_github_ci_348.py`, about 75 minutes of
+independent tests) is printed for every shard,
 weighs a N-th of its seconds in each, and `tests/ci_shard_split.py` keeps only the tests whose
 position in the file's collection order is the shard's (`CI_SHARD`/`CI_SHARDS`, set by the
 workflow's tests step; unset or `CI_SHARDS=1` keeps all). Each test id runs in exactly one
-shard. The junit path is given on the pytest command line from `$RUNNER_TEMP`: the `runner`
+shard. The junit path is added to `PYTEST_ADDOPTS` in the Tests step's own `env`: the `runner`
 context is not available in a job-level `env`.
 
 `tests/test_ci_shards_348.py` is the guard: every collected test file is in exactly one
