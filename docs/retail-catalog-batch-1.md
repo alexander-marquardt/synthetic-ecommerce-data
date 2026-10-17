@@ -159,7 +159,7 @@ with-persona run, is the ingest batch's check, not this PR's.
 | red wine | 2 type names an accessory or a toy | PLT-DXW01 | Red Wine Glasses, Set of 4 | decoy |
 | red wine | 4 color word is also a product or a shade | PLT-DXW02 | Red Wine Scented Candle | decoy |
 | red wine | 2 type names an accessory or a toy | PLT-DXW03 | Red Wine Stain Remover | decoy |
-| red wine | 2 type names an accessory or a toy | PLT-DXW04 | Glass Wine Carafe, 1L | decoy |
+| red wine | 2 type names an accessory or a toy | PLT-DXW04 | Glass Wine Carafe | decoy |
 | green tea | 5 guard: a real product whose name holds a color word | PLT-DXU01 | Green Tea, 40 Bags | true hit |
 | black pepper | 5 guard: a real product whose name holds a color word | PLT-DXU02 | Black Pepper, Whole Peppercorns | true hit |
 | red velvet cake | 5 guard: a real product whose name holds a color word | PLT-DXU03 | Red Velvet Cake | true hit |

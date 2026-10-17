@@ -301,7 +301,7 @@ TABLE = (
        "A candle scented like red wine.", "Red", 4, "red wine", 880),
     _d("XW03", "cleaner", "Red Wine Stain Remover",
        "A spray that lifts red wine from a carpet.", "Red", 2, "red wine", 840),
-    _d("XW04", "carafe", "Glass Wine Carafe, 1L",
+    _d("XW04", "carafe", "Glass Wine Carafe",
        "A clear glass carafe for red wine, with a narrow neck for pouring.", "Clear", 2,
        "red wine", 800),
     # -- guards: a real product whose name holds a color word (5)

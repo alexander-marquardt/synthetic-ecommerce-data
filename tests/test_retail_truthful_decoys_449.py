@@ -40,7 +40,7 @@ def _attr(rec: dict[str, Any], key: str) -> list[str]:
 
 def test_a_wine_carafe_is_clear_glass_with_no_color_field(by_id: dict[str, dict]) -> None:
     rec = by_id["PLT-DXW04"]
-    assert rec["title"] == "Glass Wine Carafe, 1L"
+    assert rec["title"] == "Glass Wine Carafe"
     assert not rec.get("color_options"), "a carafe is clear glass: it carries no color"
     assert rec["drawing"]["shape"] == "drinking_glass"
     assert rec["drawing"]["params"]["kind"] == "carafe"
@@ -127,7 +127,8 @@ NEGATION = re.compile(r"\b(never|not|no|free|without)\b", re.I)
 
 @pytest.mark.parametrize(
     "pid",
-    ["BRD-DCTA02", "BRD-DCGA02", "BRD-DCPA02", "PLT-DY62", "BRD-KDM232", "BRD-KDW232"],
+    ["BRD-DCTA02", "BRD-DCGA02", "BRD-DCPA02", "PLT-DY62", "BRD-KDM232", "BRD-KDW232",
+     "BRD-MDST632", "BRD-MDW732", "BRD-NXMET032"],
 )
 def test_a_title_states_what_the_product_is_never_what_it_is_not(
     by_id: dict[str, dict], pid: str
