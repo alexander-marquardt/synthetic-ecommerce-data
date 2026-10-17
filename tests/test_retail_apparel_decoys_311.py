@@ -236,7 +236,7 @@ REAL_COMPOUNDS = frozenset({
     "Mule Loafers", "Brogue Loafers",
     "Loafer Sandals", "Mule Sandals", "Espadrille Sandals",
     "Boot Slippers", "Sock Slippers", "Loafer Slippers", "Mule Slippers",
-    "Sneaker Plimsolls", "Mule Clogs", "Sneaker Wedges", "Sandal Wedges", "Sneaker Espadrilles",
+    "Sneaker Plimsolls", "Mule Clogs", "Sneaker Wedges", "Sneaker Espadrilles",
     "Sock Platform Trainers", "Loafer Mules", "Slipper Mules", "Sandal Mules",
     "Mary Jane Jelly Shoes", "Sandal Barefoot Shoes",
     "Sock Trainers", "Running Trainers", "Walking Trainers", "Chelsea Wellies",
@@ -279,6 +279,8 @@ INVENTED_COMPOUNDS = frozenset({
     "Trainer School Shoes", "Sock Shoes", "Pump Heels", "Trouser Shorts", "Pyjama Boxers",
     # #444 review: each names a class the product itself belongs to, not another product's noun
     "Ballet Flats", "Henley Tee", "Henley T-Shirt", "Slider Sandals", "T-Shirt Bra",
+    # the live "Wedge Sandals" in another word order (15 of 51 live Wedges)
+    "Sandal Wedges",
 })
 
 

@@ -261,6 +261,15 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "prototypes/retail_drawings",
     ),
     (
+        "a class 2 table re-adds a live title reworded",
+        "decoy_apparel.py",
+        '"Wedges": (("sneaker", "Sneaker Wedges"),),',
+        '"Wedges": (("sneaker", "Sneaker Wedges"), ("sandal", "Sandal Wedges")),',
+        "tests/test_retail_apparel_decoys_311.py -k live_title_reworded",
+        "no class 2 phrase is a live title in another word order (#444)",
+        "prototypes/retail_drawings",
+    ),
+    (
         "a type with two compounds is not declared short",
         "decoy_apparel.py",
         '    "Tights": "only running tights and cycling tights are names a shopper meets",\n',
