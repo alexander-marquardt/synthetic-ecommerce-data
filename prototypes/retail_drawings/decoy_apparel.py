@@ -242,10 +242,9 @@ COMPOUNDS = {
                     ("shirt", "Shirt Jacket")),
     "Sweatshirt": (("polo", "Polo Sweatshirt"), ("hoodie", "Hoodie Sweatshirt"),
                    ("tunic", "Tunic Sweatshirt")),
-    "T-Shirt": (("polo", "Polo T-Shirt"), ("tunic", "Tunic T-Shirt"),
-                ("henley", "Henley T-Shirt")),
+    "T-Shirt": (("polo", "Polo T-Shirt"), ("tunic", "Tunic T-Shirt")),
     "Tea Dress": (("shirt", "Shirt Dress"), ("tunic", "Tunic Dress"), ("jumper", "Jumper Dress")),
-    "Tee": (("polo", "Polo Tee"), ("tunic", "Tunic Tee"), ("henley", "Henley Tee")),
+    "Tee": (("polo", "Polo Tee"), ("tunic", "Tunic Tee")),
     "Top": (("vest", "Vest Top"), ("cami", "Cami Top"), ("polo", "Polo Top"),
             ("tunic", "Tunic Top"), ("bodysuit", "Bodysuit Top")),
     "Tracksuit": (("hoodie", "Hoodie Tracksuit"), ("short", "Short Tracksuit"),
@@ -264,8 +263,7 @@ COMPOUNDS = {
                    ("walking", "Walking Boot Socks")),
     "Ankle Boots": (("sandal", "Sandal Boots"), ("sneaker", "Sneaker Boots"),
                     ("loafer", "Loafer Boots"), ("shoe", "Shoe Boots")),
-    "Ballet Pumps": (("slipper", "Ballet Slippers"), ("sandal", "Ballet Sandals"),
-                     ("flat", "Ballet Flats")),
+    "Ballet Pumps": (("slipper", "Ballet Slippers"), ("sandal", "Ballet Sandals")),
     "Block Heels": (("mule", "Mule Heels"), ("loafer", "Loafer Heels"), ("sandal", "Sandal Heels")),
     "Brogues": (("dress", "Dress Brogues"), ("derby", "Derby Brogues"),
                 ("oxford", "Oxford Brogues")),
@@ -284,7 +282,7 @@ COMPOUNDS = {
     "Safety Boots": (("wellington", "Wellington Safety Boots"),
                      ("chelsea", "Chelsea Safety Boots"), ("hiker", "Hiker Safety Boots")),
     "Sandals": (("loafer", "Loafer Sandals"), ("mule", "Mule Sandals"),
-                ("slider", "Slider Sandals")),
+                ("espadrille", "Espadrille Sandals")),
     "School Shoes": (("dress", "Dress Shoes"), ("loafer", "Loafer School Shoes"),
                      ("brogue", "Brogue School Shoes")),
     "Slippers": (("boot", "Boot Slippers"), ("sock", "Sock Slippers"),
@@ -311,6 +309,11 @@ COMPOUNDS = {
 #: added only when a shopper meets it as a product name, so these types hold fewer, not an
 #: invented third.
 SHORT_COMPOUNDS: dict[str, str] = {
+    "Blouse": "only the dress blouse and the tunic blouse are names a shopper meets",
+    "Ballet Pumps": "only ballet slippers and ballet sandals pair another noun with a ballet pump",
+    "Chukka Boots": "only sneaker boots and loafer boots are names; a shoe boot is not one",
+    "Tee": "only the polo tee and the tunic tee name another category; a henley is a tee",
+    "T-Shirt": "only the polo and tunic t-shirt name another category; a henley is a t-shirt",
     "Jumper": "only the tunic jumper and the polo jumper are names a shopper meets",
     "Jeans": "only cargo jeans and jogger jeans are names a shopper meets",
     "School Skirt": "only the pinafore school skirt is a name a shopper meets",
@@ -441,7 +444,7 @@ def _clone(
     keep["drawing"] = {k: v for k, v in keep["drawing"].items() if k != "accents"} | {
         "pattern": "solid", "base": hexv, "accent": "#333333",
         "motif": None, "placement": None}  # fmt: skip
-    if detail:  # a named part (classes 1, 6, 7) is drawn in the named color: the title is true
+    if detail:  # a named part (class 1) is drawn in the named color: the title is true
         keep["drawing"]["detail"] = {"part": detail[0], "color": detail[1]}
     return product(f"PLT-D{code}", skus, {color_tuple[0]: swatch(color_tuple, family)}, **keep)
 
