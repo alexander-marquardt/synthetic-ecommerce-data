@@ -33,6 +33,14 @@ REPO = Path(__file__).resolve().parent.parent
 WEIGHTS = REPO / "scripts" / "ci_shard_weights.json"
 #: Seconds of work assumed for a test file with no measured weight.
 DEFAULT_SECONDS = 20.0
+#: Files too heavy for one shard: listed in every shard, their test ids dealt out by
+#: ``keeps`` (tests/conftest.py).
+SPLIT_FILES: frozenset[str] = frozenset()
+
+
+def keeps(index: int, shard: int, count: int) -> bool:
+    """Whether the split file's test at position ``index`` runs in shard ``shard`` (1..count)."""
+    return True
 
 
 def collected_test_files(root: Path = REPO) -> list[str]:
@@ -48,7 +56,12 @@ def load_weights(path: Path = WEIGHTS) -> dict[str, float]:
     return {name: float(seconds) for name, seconds in json.loads(path.read_text()).items()}
 
 
-def deal(files: list[str], count: int, weights: dict[str, float]) -> list[list[str]]:
+def deal(
+    files: list[str],
+    count: int,
+    weights: dict[str, float],
+    split: frozenset[str] | None = None,
+) -> list[list[str]]:
     """Split ``files`` into ``count`` shards: heaviest file first, each to the lightest shard."""
     if count < 1:
         raise ValueError("a run needs at least one shard")
@@ -63,7 +76,10 @@ def deal(files: list[str], count: int, weights: dict[str, float]) -> list[list[s
 
 
 def shard_loads(
-    count: int, root: Path = REPO, weights: dict[str, float] | None = None
+    count: int,
+    root: Path = REPO,
+    weights: dict[str, float] | None = None,
+    split: frozenset[str] | None = None,
 ) -> list[float]:
     """The seconds of work each shard holds by the weights."""
     weights = load_weights() if weights is None else weights
