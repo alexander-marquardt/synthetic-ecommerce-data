@@ -367,8 +367,10 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
       removed by the ruling on elastic/prism#9284;
     * ``build_title`` cut the assembled string at the 100-character cap,
       which lands mid-word. Reconstructed on this catalog by
-      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **69
-      of 10,548** titles (25 of 9,611 before the socket screws published a
+      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **76
+      of 10,548** titles (69 of 10,548 before the angle-key corruption was
+      removed, alexander-marquardt/synthetic-ecommerce-data#404, which moved
+      the shared stream; 25 of 9,611 before the socket screws published a
       pack, alexander-marquardt/synthetic-ecommerce-data#65; 43 of 9,576
       before every product type drew from its
       own stream, alexander-marquardt/synthetic-ecommerce-data#48; 49 of
@@ -517,7 +519,10 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
     the cap) once the bolts and socket screws publish a ``Package Quantity``
     (alexander-marquardt/synthetic-ecommerce-data#65): the pack segment
     comes last, so a socket screw title the cap used to fit now runs over by
-    that segment alone, which the segment rule sheds whole. Stating it as a test rather
+    that segment alone, which the segment rule sheds whole -- and 76 of
+    10,548 (126 over the cap) once the inch lengths under angle keys are no
+    longer drawn (alexander-marquardt/synthetic-ecommerce-data#404), which
+    moves the shared stream. Stating it as a test rather
     than as prose is what stops the next regeneration inheriting a number
     nobody can re-derive.
 
@@ -526,8 +531,10 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
     the trimming rule is the old one.
     """
     from synthetic_ecommerce_data.domains.industrial import generate as generate_module
+    from synthetic_ecommerce_data.domains.industrial import titles as titles_module
 
-    real = generate_module.build_title
+    # ``build_title`` is called from ``titles`` (split out of ``generate``, #266).
+    real = titles_module.build_title
     assembled: dict[str, tuple[str, int]] = {}
 
     def spy(item, segments, *, cap=100, tight_delimiter_at=None):
@@ -539,11 +546,11 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         assembled.setdefault(title.text, ("".join(pieces), cap))
         return title
 
-    generate_module.build_title = spy
+    titles_module.build_title = spy
     try:
         catalog = generate_module.generate()
     finally:
-        generate_module.build_title = real
+        titles_module.build_title = real
 
     # The breadth categories (:mod:`.catalog.breadth`,
     # alexander-marquardt/synthetic-ecommerce-data#34) build their titles
@@ -571,9 +578,9 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         if full[cap - 1] in word and full[cap] in word:
             mid_word += 1
 
-    assert over_cap == 116, f"{over_cap} titles exceed the cap, not 116"
-    assert mid_word == 69, (
-        f"the cap cut would land inside a word on {mid_word} titles, not 69. "
+    assert over_cap == 126, f"{over_cap} titles exceed the cap, not 126"
+    assert mid_word == 76, (
+        f"the cap cut would land inside a word on {mid_word} titles, not 76. "
         "If the catalog moved, restate the figure in build_title's docstring "
         "and in test_no_title_is_cut_mid_word with it."
     )

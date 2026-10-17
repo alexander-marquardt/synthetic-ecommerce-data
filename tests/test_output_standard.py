@@ -19,11 +19,13 @@ import pytest
 
 from synthetic_ecommerce_data.core import emit, standard
 from synthetic_ecommerce_data.core.config import SMALL
+from synthetic_ecommerce_data.domains.industrial import hammers
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 ROOT = Path(__file__).resolve().parents[1]
 RETAIL = ROOT / "prototypes" / "retail_drawings"
 GOLDEN_NESTED = ROOT / "golden-catalog" / "nested.jsonl"
+
 
 def _retail_figures() -> dict[str, Any]:
     if str(RETAIL) not in sys.path:
@@ -71,8 +73,12 @@ def retail() -> list[dict[str, Any]]:
 @pytest.mark.parametrize("source", sorted(SOURCES))
 def test_every_domain_meets_the_standard(source):
     retail = source.startswith("retail")
+    docs = SOURCES[source]()
+    # an industrial hammer decoy names a handle it lacks by design (gen#294): exempt by id
     problems = standard.check_catalog(
-        SOURCES[source](), text_agrees=retail, one_class_per_key=retail
+        docs,
+        one_class_per_key=retail,
+        text_exempt=() if retail else hammers.decoy_ids(docs),
     )
     assert problems == [], f"{len(problems)} problems, e.g. {problems[:8]}"
 
@@ -103,7 +109,8 @@ def test_industrial_states_usd_beside_its_price_usd():
 def test_sku_options_are_variant_attributes(retail):
     jeans = next(d for d in retail if d["product_id"] == "JEA-HARROW")
     first = {e["key"]: e for e in jeans["variants"][0]["attributes"]}
-    assert first["color"]["value"] == "Rinse"
+    # a denim wash is a pattern of Blue, not a color of its own (#188)
+    assert (first["color"]["value"], first["pattern"]["value"]) == ("Blue", "rinse")
     assert first["size_uk"]["value"] == "4"
     assert first["inside_leg_length"] == {
         "key": "inside_leg_length",
@@ -114,13 +121,17 @@ def test_sku_options_are_variant_attributes(retail):
     }
 
 
-def test_options_offers_and_ratings_are_product_attributes(retail):
+def test_options_promotions_and_ratings_are_product_attributes(retail):
     keys = {e["key"] for d in retail for e in d["attributes"]}
-    assert {"color", "size_uk", "offer", "rating", "review_count"} <= keys
+    assert {"color", "size_uk", "promotion", "rating", "review_count"} <= keys
+    assert "offer" not in keys  # replaced by the keyword ``promotion`` (gen#189)
     assert "department" not in keys  # the department is the top level of category_path (gen#281)
     dress = next(d for d in retail if d["product_id"] == "PLT-LEMDRS")
     entries = {(e["key"], e["value"]) for e in dress["attributes"]}
-    assert {("offer", "no"), ("rating", "4.1")} <= entries
+    assert ("rating", "4.1") in entries
+    assert "promotion" not in {key for key, _ in entries}  # not reduced: no key, never a "no"
+    sale = next(d for d in retail if d["product_id"] == "PLT-PETDRS")
+    assert ("promotion", "On sale") in {(e["key"], e["value"]) for e in sale["attributes"]}
 
 
 def test_an_image_id_is_the_drawing_specs_and_stable(retail):
@@ -128,8 +139,12 @@ def test_an_image_id_is_the_drawing_specs_and_stable(retail):
     assert [d["image_id"] for d in again] == [d["image_id"] for d in retail]
     jeans = next(d for d in retail if d["product_id"] == "JEA-HARROW")
     ids = {v["image_id"] for v in jeans["variants"]}
-    # one drawing per wash: a size changes no picture
-    assert len(ids) == len({e["value"] for e in jeans["attributes"] if e["key"] == "color"})
+    # one drawing per color-and-wash pair: a size changes no picture
+    washes = {
+        tuple(e["value"] for e in v["attributes"] if e["key"] in ("color", "pattern"))
+        for v in jeans["variants"]
+    }
+    assert len(ids) == len(washes)
     assert jeans["image_id"].startswith("jeans/JEA-HARROW/")
     assert jeans["image_url"] == f"/images/retail/{jeans['image_id']}.svg"
 
@@ -328,14 +343,6 @@ def _values(doc: dict[str, Any], key: str) -> list[str]:
     return [e["value"] for e in doc["attributes"] if e["key"] == key]
 
 
-def test_industrial_text_is_exempt_from_the_contradiction_check():
-    """Its descriptions name a second standard or grade by design (a Grade 8 nut for a
-    Grade 5 bolt); the check guards the retail build's derived text."""
-    docs = _industrial()
-    assert standard.check_catalog(docs, text_agrees=False) == []
-    assert standard.check_catalog(docs) != []
-
-
 def test_a_repeated_sku_and_a_key_with_two_names_are_refused(retail):
     one, two = deepcopy(retail[0]), deepcopy(retail[1])
     two["variants"][0]["sku"] = one["variants"][0]["sku"]
@@ -490,8 +497,9 @@ def test_a_flat_document_is_its_variant_under_its_product(retail, retail_flat):
     variant = jeans["variants"][0]
     flat = _first(retail_flat, "sku", variant["sku"])
     own = {e["key"] for e in variant["attributes"]}
-    # the SKU's own color and sizes replace the style's lists of them
-    assert own == {"color", "length", "inside_leg_length", "size_uk", "size_eu", "size_us"}
+    # the SKU's own color, pattern and sizes replace the style's lists of them
+    sizes = {"length", "inside_leg_length", "size_uk", "size_eu", "size_us"}
+    assert own == {"color", "pattern"} | sizes
     kept = [e for e in jeans["attributes"] if e["key"] not in own]
     assert flat["attributes"] == kept + variant["attributes"]
     assert (flat["title"], flat["parent_title"], flat["price"], flat["image_id"]) == (
@@ -501,8 +509,9 @@ def test_a_flat_document_is_its_variant_under_its_product(retail, retail_flat):
         variant["image_id"],
     )
     assert flat["attribute_names"] == sorted({e["name"] for e in flat["attributes"]})
-    assert flat["facets"]["color"] == ["Rinse"]
-    assert "Rinse" in flat["text"].split() and "Jeans" in flat["text"].split()
+    assert flat["facets"]["color"] == ["Blue"]
+    assert flat["facets"]["pattern"] == ["rinse"]
+    assert "rinse" in flat["text"].split() and "Jeans" in flat["text"].split()
 
 
 def test_the_export_writes_the_nested_and_the_flat_file(tmp_path, retail, retail_flat):

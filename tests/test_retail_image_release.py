@@ -54,7 +54,9 @@ def files() -> list[tuple[str, bytes]]:
 
 
 def _color(variant: dict[str, Any]) -> str | None:
-    return next((a["value"] for a in variant["attributes"] if a["key"] == "color"), None)
+    """The colorway: the color with its pattern, as a wash is a pattern of Blue (#188)."""
+    pair = [a["value"] for a in variant["attributes"] if a["key"] in ("color", "pattern")]
+    return "/".join(pair) or None
 
 
 def test_one_image_per_style_and_colorway_never_per_sku(documents, files):
@@ -125,17 +127,18 @@ def test_the_scaled_release_ships_an_image_for_every_image_id_its_export_names()
 
 
 def test_the_command_takes_a_sku_target(tmp_path):
-    recs = image_release.records(7_000)
+    target = RETAIL_SKUS + 1_000  # above the authored range, so it grows with it
+    recs = image_release.records(target)
     skus = sum(len(r["skus"]) for r in recs)
     images = len(image_release.image_files(recs))
     run = subprocess.run(
-        [sys.executable, str(RETAIL / "image_release.py"), "--skus", "7000",
+        [sys.executable, str(RETAIL / "image_release.py"), "--skus", str(target),
          "--out", str(tmp_path / "out")],
         capture_output=True, text=True, check=False, cwd=ROOT,
     )  # fmt: skip
     assert run.returncode == 0, run.stderr
     assert f"{images} images for {skus} SKUs" in run.stdout
-    assert skus >= 7_000 > RETAIL_SKUS
+    assert skus >= target > RETAIL_SKUS
 
 
 def test_the_command_writes_the_industrial_package_shape(tmp_path, files):

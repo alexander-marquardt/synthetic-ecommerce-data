@@ -10,6 +10,7 @@ lead, beef steaks follow), so growing the catalog cannot undo them.
 
 from __future__ import annotations
 
+import statistics
 import sys
 from pathlib import Path
 
@@ -25,6 +26,7 @@ import distractor_rows as dr  # noqa: E402
 import kit  # noqa: E402
 import kit_tableware  # noqa: E402
 import scale  # noqa: E402
+import tableware_rows  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -80,7 +82,11 @@ def test_the_barrels_out_sell_the_balloon_jeans_and_say_balloon() -> None:
 
 def test_a_balloon_jeans_search_without_a_policy_returns_barrels_first(index) -> None:
     top = br.rank(index, "balloon jeans", 10)
-    assert [d["leg_style"] for d in top].count("barrel") == 10
+    # a planted decoy (gen#311: a "Balloon Jeans" range or brand on a jeans) is meant to match the
+    # words; the real products among the first ten are all barrels
+    real = [d for d in top if d["product_id"] not in scale.DECOY_IDS]
+    assert len(real) >= 5
+    assert [d["leg_style"] for d in real].count("barrel") == len(real)
 
 
 def test_petite_is_a_substantial_set_with_a_minority_on_sale(ceiling) -> None:
@@ -123,6 +129,10 @@ def test_the_steak_rows_are_the_distractors_and_the_true_answers(ceiling) -> Non
             if any(c in d["title"].lower() for d in steaks)}  # fmt: skip
     assert len(cuts) == 8, cuts
     assert len(steaks) >= 6
+    # The sales bound that is true: every knife sells more than the median beef steak, not more
+    # than every steak (a few steaks sell as many), so the short title, not popularity, leads.
+    median_steak = statistics.median(d["sold_last_5_days"] for d in steaks)
+    assert min(d["sold_last_5_days"] for d in knives) > median_steak
     # Honest text: a steak title runs to four words or more and says "steak" once.
     assert all(len(d["title"].split()) >= 4 and d["title"].lower().count("steak") == 1
                for d in steaks)  # fmt: skip
@@ -131,6 +141,34 @@ def test_the_steak_rows_are_the_distractors_and_the_true_answers(ceiling) -> Non
     tuna = [d for d in ceiling if "tuna steak" in d["title"].lower()]
     assert tuna and all(d["category_path"][:3] == ["Food & Drink", "Food Cupboard", "Tinned"]
                         for d in tuna)  # fmt: skip
+
+
+def _material(doc: dict) -> list[str]:
+    return [a["value"] for a in doc["attributes"] if a["key"] == "material"]
+
+
+def test_the_steak_plate_board_and_weight_carry_a_material_like_their_siblings() -> None:
+    """gen#268: the other plates, boards and utensils carry a material; these three did not."""
+    docs = {d["product_id"]: d for d in dr.docs()}
+    wood = [d for d in tableware_rows.docs() if d["product_id"] == "BRD-BRDWOD"]
+    assert len(wood) == 1 and _material(wood[0]) == ["Wood"]
+    assert {pid: _material(docs[pid]) for pid in ("PLT-DSK08", "PLT-DSK09", "PLT-DSK10")} == {
+        "PLT-DSK08": ["Cast Iron"], "PLT-DSK09": _material(wood[0]), "PLT-DSK10": ["Cast Iron"],
+    }  # fmt: skip
+    # The drawn material follows the attribute (the board already drew "wood").
+    assert dict(dr.STEAK_WARE[1].params)["material"] == _material(docs["PLT-DSK09"])[0].lower()
+
+
+def test_the_steak_ware_is_never_derived(ceiling) -> None:
+    """gen#268: with a material each of the three would otherwise derive ("Porcelain Steak
+    Plate Sizzler", "Nylon Steak Weight"), nine more steak rows on the 10**6 build."""
+    ids = {"PLT-DSK08", "PLT-DSK09", "PLT-DSK10"}
+    assert ids == scale.STEAK_WARE_IDS
+    assert not ids & {d["product_id"] for d in scale.derivable(scale.templates())}
+    ware = {"Plate", "Chopping Board", "Kitchen Utensil"}
+    steak = {d["product_id"] for d in ceiling
+             if d["product_type"] in ware and "steak" in d["title"].lower()}  # fmt: skip
+    assert steak == ids
 
 
 def test_a_steak_search_without_a_policy_leads_with_knives(index) -> None:
@@ -168,9 +206,9 @@ def test_the_classes_that_already_failed_still_fail_without_a_policy(index) -> N
     bomber = br.rank(index, "check contrast bomber jacket", 3)
     assert not [d for d in bomber if d["product_type"] == "Bomber Jacket"
                 and d.get("pattern") == "check"]  # fmt: skip
-    cups = br.rank(index, "cups", 3)
-    # Asserts only: a Bra is still in the top 3, so the class still fails (the grocery fold
-    # put a Mug first, so the exact list is not pinned).
+    cups = br.rank(index, "cups", 6)
+    # Asserts only: a Bra is still in the top 6, so the class still fails (the grocery fold
+    # put a Mug first and gen#216's styles moved a Bra from 3rd to 4th: the list is not pinned).
     assert "Bra" in [d["product_type"] for d in cups]
     steak = br.rank(index, "steak", 1)
     assert steak[0]["category_path"][0] != "Food & Drink"

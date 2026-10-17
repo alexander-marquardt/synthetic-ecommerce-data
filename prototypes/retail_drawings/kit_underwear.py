@@ -28,6 +28,11 @@ as that many marked groups, which ``tests/test_retail_underwear_208.py`` counts 
 ``strap`` and ``sleeve`` (vests), ``strap`` and ``lace-trim`` (slips), ``strap``,
 ``seam-panel`` and ``control-band`` (shapewear), ``sleeve``, ``hood`` and ``belt``
 (dressing gowns), ``leg`` and ``fly`` (boxers).
+
+What a param changes in the outline or the opacity rather than a count (a knicker cut, a vest
+style, a slip or gown length, a denier, a boxer fit) is held by
+``tests/test_retail_underwear_drawn_values_245.py``: each distinct value of the attribute must
+draw differently, and a longer garment must hang lower.
 """
 
 # ruff: noqa: E501 -- SVG path literals read better whole than wrapped (prototype only).

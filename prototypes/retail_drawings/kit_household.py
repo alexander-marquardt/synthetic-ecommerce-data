@@ -179,7 +179,7 @@ def frying_pan(
     if kind == "wok":
         out.append(
             _path(
-                f"M{cx + rx - 4},{cy - 4} L{cx + rx + 110},{cy - 44} L{cx + rx + 116},{cy - 30} L{cx + rx},{cy + 14} Z",
+                f"M{cx + rx - 4},{cy - 4} L{cx + rx + 84},{cy - 44} L{cx + rx + 90},{cy - 30} L{cx + rx},{cy + 14} Z",
                 WOOD,
             )
         )
@@ -201,7 +201,7 @@ def frying_pan(
             _ell(cx, cy + 6, rx * 0.55, ry * 0.5, _shade(surface, 0.15), LW_DETAIL),
         ]
         return out
-    out.append(_path(f"M{cx + rx - 6},{cy - 6} L{cx + rx + 118},{cy - 34} Q{cx + rx + 130},{cy - 26} {cx + rx + 120},{cy - 16} L{cx + rx - 2},{cy + 14} Z",
+    out.append(_path(f"M{cx + rx - 6},{cy - 6} L{cx + rx + 92},{cy - 34} Q{cx + rx + 104},{cy - 26} {cx + rx + 94},{cy - 16} L{cx + rx - 2},{cy + 14} Z",
                      BLACK if kind != "skillet" else paint))  # fmt: skip
     if kind == "skillet":
         out.append(
@@ -340,7 +340,7 @@ def kitchen_bin(
     if recycling:
         x0, x1 = 200 - 52 * n - 30, 200 + 52 * n + 30
     out = [
-        _shadow(200, base + 4, (x1 - x0) * 0.6),
+        _shadow(200, base + 4, min((x1 - x0) * 0.6, 190)),  # a 3-bin shadow stays on the sheet
         _path(
             f"M{x0},{top} L{x0 + 6},{base - 8} Q{x0 + 6},{base} {x0 + 14},{base} L{x1 - 14},{base} Q{x1 - 6},{base} {x1 - 6},{base - 8} L{x1},{top} Z",
             paint,

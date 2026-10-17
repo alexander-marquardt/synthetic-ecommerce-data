@@ -437,7 +437,8 @@ BEAUTY = (
           "A light, buildable foundation with a natural finish.",
           "Foundation", "bottle",
           ((cw("Porcelain", "#f1dcc8"), 1), (cw("Caramel", "#c48a5c"), 2),
-           (cw("Toffee", "#9a6440"), 1), (cw("Espresso", "#5a3a28"), 1)), unit=(30.0, "ml")),
+           (cw("Toffee", "#9a6440"), 1), (cw("Espresso", "#5a3a28"), 1)),
+          volumes=((15.0, 20.0), (30.0, 32.0), (50.0, 46.0))),
 )  # fmt: skip
 
 
@@ -466,7 +467,8 @@ BEERS = (
           "Beer", "tin", pack("#d9a441", 25), unit=(330.0, "ml"), abv=2.8, colorless=True),
     Style("BRWHET", "5.5% Hazy Wheat Beer", "Lanternby", FOOD, (*BEER_NODE, "Wheat Beer"), 2.8,
           "An unfiltered wheat beer with notes of banana and clove.",
-          "Beer", "bottle", pack("#e8b04a", 20), unit=(500.0, "ml"), abv=5.5, colorless=True),
+          "Beer", "bottle", pack("#e8b04a", 20),
+          volumes=((500.0, 2.8), (330.0, 2.1), (750.0, 3.9)), abv=5.5, colorless=True),
 )  # fmt: skip
 
 _ROUTE_BEER = "route: Beer node boosted; a soft drink or a battered food is outside it"
@@ -474,15 +476,17 @@ NOT_BEER = (
     (Style("GNGBER", "Fiery Ginger Beer", "Pantry Mill", FOOD,
            (*DRINKS, "Soft Drinks", "Mixers"), 1.1,
            "An alcohol-free ginger beer brewed with root ginger and a little chilli.",
-           "Ginger Beer", "bottle", pack("#c98b2b", 640), unit=(330.0, "ml"), trending=True,
+           "Ginger Beer", "bottle", pack("#c98b2b", 640),
+           volumes=((330.0, 1.1), (200.0, 0.8), (1000.0, 2.2)), trending=True,
            colorless=True), _ROUTE_BEER),
     (Style("RTBEER", "Cloudy Root Beer", "Pantry Mill", FOOD,
            (*DRINKS, "Soft Drinks", "Fizzy Drinks"), 1.0,
            "An old fashioned root beer with vanilla and sarsaparilla.",
-           "Root Beer", "tin", pack("#5a3020", 420), unit=(330.0, "ml"), colorless=True),
+           "Root Beer", "tin", pack("#5a3020", 420),
+           volumes=((330.0, 1.0), (500.0, 1.4), (1500.0, 2.6)), colorless=True),
      _ROUTE_BEER),
     (Style("BBHADD", "Beer Battered Haddock Fillets", "Saltmarsh", FOOD,
-           ("Food & Drink", "Fish & Seafood", "Battered Fish"), 4.5,
+           ("Food & Drink", "Frozen", "Battered Fish"), 4.5,
            "Two haddock fillets in a crisp beer batter. Oven bake from frozen.",
            "Battered Fish", "box", pack("#d8a548", 600), unit=(280.0, "g"), colorless=True),
      _ROUTE_BEER),
@@ -503,7 +507,7 @@ NOT_BEER = (
 # and a color in clothing and flowers; one true hit has no "orange" in it
 # --------------------------------------------------------------------------
 
-CITRUS = ("Food & Drink", "Fresh Produce", "Fruit", "Citrus")
+CITRUS = ("Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Citrus Fruit")
 ORANGES = (
     Style("ORBLOD", "Blood Oranges", "Goldfield Farms", FOOD, (*CITRUS, "Oranges"), 2.0,
           "Ruby fleshed blood oranges, sweet with a berry note. A short season.",
@@ -533,7 +537,7 @@ NOT_ORANGES = (
            "Cookies", "box", pack("#6b3a20", 560), unit=(200.0, "g"), colorless=True),
      _ROUTE_ORANGE),
     (Style("HCORNG", "Orange Hot Chocolate", "Pantry Mill", FOOD,
-           (*DRINKS, "Hot Drinks", "Hot Chocolate"), 3.5,
+           (*DRINKS, "Hot Chocolate"), 3.5,
            "A rich hot chocolate flavoured with orange.",
            "Hot Chocolate", "tub", pack("#5a3020", 480), unit=(250.0, "g"),
            colorless=True), _ROUTE_ORANGE),
@@ -564,7 +568,8 @@ FACE_CREAMS = (
     Style("FCDAYC", "Daily Hydrating Face Cream", "Velling Apothecary", "Beauty",
           (*CREAMS, "Face Creams"), 18.0,
           "A light daily face cream that hydrates without shine.",
-          "Face Cream", "moisturiser_jar", pack("#f4efe6", 5), unit=(50.0, "ml"), colorless=True),
+          "Face Cream", "moisturiser_jar", pack("#f4efe6", 5),
+          volumes=((50.0, 18.0), (30.0, 12.0), (100.0, 28.0)), colorless=True),
     Style("FCNGHT", "Rich Night Cream", "Velling Apothecary", "Beauty",
           (*CREAMS, "Face Creams"), 22.0,
           "A rich overnight face cream for dry skin.",
@@ -592,22 +597,25 @@ NOT_FACE_CREAM = (
     (Style("TNTGEL", "Tinted Face Gel", "Kestlewood Cosmetics", "Beauty",
            ("Beauty", "Make-Up", "Face", "Skin Tints"), 21.0,
            "A sheer tinted gel that wears like a light cream.",
-           "Skin Tint", "bottle", pack("#d9b08c", 560), unit=(30.0, "ml"),
-           colorless=True), _ROUTE_FACE),
+           "Skin Tint", "bottle", pack("#d9b08c", 560),
+           volumes=((30.0, 21.0), (15.0, 14.0), (50.0, 30.0)), colorless=True), _ROUTE_FACE),
     (Style("FCEOIL", "Nourishing Face Oil", "Velling Apothecary", "Beauty",
            (*SKINCARE, "Face Oils"), 26.0,
            "A lightweight face oil to wear under your cream.",
-           "Face Oil", "bottle", pack("#e3b448", 500), unit=(30.0, "ml"), trending=True,
+           "Face Oil", "bottle", pack("#e3b448", 500),
+           volumes=((30.0, 26.0), (15.0, 17.0), (50.0, 38.0)), trending=True,
            colorless=True), _ROUTE_FACE),
     (Style("SPFFCE", "SPF 50 Face Sun Cream", "Velling Apothecary", "Beauty",
            ("Beauty", "Suncare", "Face Sun Cream"), 15.0,
            "A high protection sun cream for the face, with no white cast.",
-           "Sun Cream", "bottle", pack("#f6f1e4", 470), unit=(50.0, "ml"), colorless=True),
+           "Sun Cream", "bottle", pack("#f6f1e4", 470),
+           volumes=((50.0, 15.0), (100.0, 22.0), (200.0, 34.0)), colorless=True),
      _ROUTE_FACE),
     (Style("VLCOIL", "Velvetmere Cream Body Oil Spray", "Kestlewood Cosmetics", "Beauty",
            ("Beauty", "Bath & Body", "Body Oils"), 30.0,
            "An all over dry oil spray from our Velvetmere Cream line.",
-           "Body Oil", "fragrance", pack("#f3e3c3", 540), unit=(100.0, "ml"),
+           "Body Oil", "fragrance", pack("#f3e3c3", 540),
+           volumes=((100.0, 30.0), (50.0, 19.0), (200.0, 48.0)),
            product_line="Velvetmere Cream", colorless=True), _ROUTE_FACE),
     (Style("DCSATN", "400 Thread Count Sateen Duvet Cover", "Quillon Sleep", "Home",
            (*BED, "Duvet Covers"), 45.0,
@@ -726,7 +734,7 @@ NOT_ROSE_GOLD = (
            "Bouquet", "bouquet", one(cw("White", WHITE), 410),
            params=(("foliage", GOLD_LEAF),)), _COLOR),
     (Style("RQHOOP", "Gold Plated Rose Quartz Hoop Earrings", "Wrenfield", "Clothing",
-           JEWELLERY, 24.0,
+           (*JEWELLERY, "Hoop Earrings"), 24.0,  # its title names the node (gen#423, gen#283)
            "Rose quartz drops on gold plated hoops.",
            "Earrings", "earrings", one(cw("Yellow Gold", "#d4af37"), 300), metal=True,
            params=(("kind", "hoop"), ("stone", "#f3c6cf")),
@@ -860,7 +868,7 @@ OFFERS = (
 
 #: Not a query row: the food sense of a word that is also a lipstick shade.
 HONEY = Style("HONBLS", "Clear Blossom Honey", "Copper Hill Preserves", FOOD,
-              ("Food & Drink", "Food Cupboard", "Honey & Spreads", "Honey"), 4.0,
+              ("Food & Drink", "Food Cupboard", "Honey"), 4.0,
               "A clear, mild blossom honey for tea and toast.",
               "Honey", "jar", pack("#e0a030", 120), unit=(340.0, "g"),
               colorless=True)  # fmt: skip

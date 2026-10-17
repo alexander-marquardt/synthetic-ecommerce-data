@@ -5,6 +5,23 @@ from pathlib import Path
 
 import pytest
 
+import ci_shard_split
+from xdist_groups import group_for
+
+
+def pytest_configure(config):
+    """A CI shard's share of a split file (#348); a conftest cannot name plugins here."""
+    config.pluginmanager.register(ci_shard_split, "ci_shard_split")
+
+
+def pytest_collection_modifyitems(items):
+    """Keep a module's tests on one worker under ``--dist loadgroup`` (#348); inert otherwise."""
+    for item in items:
+        module = getattr(item, "module", None)
+        group = group_for(module) if module is not None else None
+        if group is not None:
+            item.add_marker(pytest.mark.xdist_group(group))
+
 
 @pytest.fixture
 def png_size():
