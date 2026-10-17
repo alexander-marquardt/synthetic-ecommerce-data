@@ -4,12 +4,14 @@ They are kept out of ``mutation_check.py``. Each row plants one defect in the ho
 drawing or the guard that owes them, and names the test that must go red. ``mutation_check.py``
 turns them into ``Mutation`` rows named ``garden hose: ...`` (``--only "garden hose:"`` re-runs
 them). A row is ``(name, file, old, new, test, property, root)``; :data:`ALL` holds these, the
-type-spec rows and the Mens suits rows (``mutation_rows_suits_215``, gen#215), each with its
+type-spec rows, the Mens suits rows (``mutation_rows_suits_215``, gen#215) and the gen#448 rows
+(``mutation_rows_real_attributes_448``), each with its
 prefix, so ``mutation_check.py`` reads one list.
 """
 
 from __future__ import annotations
 
+import mutation_rows_real_attributes_448
 import mutation_rows_suits_215
 import mutation_rows_toys_424
 import mutation_rows_type_specs
@@ -90,4 +92,5 @@ ALL: list[tuple[str, ...]] = [
     *(("garden hose", *row) for row in ROWS),
     *(("suits", *row) for row in mutation_rows_suits_215.ROWS),
     *(("toys depth", *row) for row in mutation_rows_toys_424.ROWS),
+    *(("real attributes 448", *row, _R) for row in mutation_rows_real_attributes_448.ROWS),
 ]
