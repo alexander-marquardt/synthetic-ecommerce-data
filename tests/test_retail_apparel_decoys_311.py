@@ -163,7 +163,7 @@ def test_class_6_and_7_name_a_short_title_and_class_7_names_a_brand(
 COLOR_WORDS = MAIN | {"navy", "cream", "grey", "brown", "pink"}
 
 
-def _colour_words(title: str) -> set[str]:
+def _color_words(title: str) -> set[str]:
     return {w for w in COLOR_WORDS if re.search(rf"\b{w}\b", title.lower())}
 
 
@@ -171,12 +171,12 @@ def test_a_range_name_never_holds_a_color_and_a_brand_color_is_the_brand_field(
     rows: list[da.Row], by_id: dict[str, dict]
 ) -> None:
     """#444: "Red Harbour Dress" read as a red dress with a strange brand. A class 6 title holds
-    no color word (a range name is a place, never a colour); a class 7 title holds one only as
+    no color word (a range name is a place, never a color); a class 7 title holds one only as
     the invented brand, which is the product's brand field. In both, a color word of the title is
-    the brand field or a part the drawing colours, never neither."""
+    the brand field or a part the drawing colors, never neither."""
     for r in (r for r in rows if r.cls in (6, 7)):
         doc = by_id[r.pid]
-        named = _colour_words(doc["title"]) - {_real_color(doc)}
+        named = _color_words(doc["title"]) - {_real_color(doc)}
         if r.cls == 6:
             assert not named, (r.pid, doc["title"], named)
         for w in named:
@@ -255,9 +255,9 @@ def test_no_class_2_title_is_outside_the_real_compounds(
     phrases = set()
     for r in twos:
         doc = by_id[r.pid]
-        colour = doc["color_options"][0]["color"]
-        assert doc["title"].startswith(colour + " "), (r.pid, doc["title"])
-        rest = doc["title"][len(colour) + 1 :]
+        color = doc["color_options"][0]["color"]
+        assert doc["title"].startswith(color + " "), (r.pid, doc["title"])
+        rest = doc["title"][len(color) + 1 :]
         hit = [p for p in REAL_COMPOUNDS if rest == p or rest.endswith(" " + p)]
         assert hit, (r.pid, doc["title"])
         assert r.word in doc["title"].lower(), (r.pid, r.word, doc["title"])
