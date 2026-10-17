@@ -942,7 +942,9 @@ def test_a_local_ci_red_that_is_only_the_golden_freshness_test_is_regenerated_an
     assert done.stdout.count("local CI tests: PASS") == 1
     # The merge is of the regenerated commit, and the first run's log is kept.
     assert world["log"].read_text().split()[-1] == pushed
-    assert "FAILED" in (world["log"].parent / "lbl-tests.log.before-regenerate").read_text()
+    before = world["log"].parent / "lbl-tests.log.before-regenerate"
+    assert before.is_file(), "the first run's log was not kept"
+    assert "FAILED" in before.read_text()
     assert _ci_reads(world) == []
 
 
