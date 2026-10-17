@@ -4321,8 +4321,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "product-word decoys: the detail-color rows lose their exemption",
         "scale.py",
-        "TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT",
-        "TEXT_EXEMPT = DECOY_IDS",
+        "    | decoy_product_words.TEXT_EXEMPT",
+        "",
         "tests/test_retail_scale.py -k 20k_build_meets_the_output_standard",
         "A",
         "a class-8 row that names a detail color on purpose passes the text check by its id",
@@ -4331,8 +4331,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "product-word decoys: the standard's retail catalog test loses the exempt ids",
         "scale.py",
-        "TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT",
-        "TEXT_EXEMPT = DECOY_IDS",
+        "    | decoy_product_words.TEXT_EXEMPT",
+        "",
         "tests/test_merchandising_score_182.py -k retail_every_product_carries_it",
         "A",
         "the full retail catalog passes the standard with the class-8 detail-color ids exempt",
