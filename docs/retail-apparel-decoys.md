@@ -90,14 +90,14 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA02701 | Bomber Jacket | 7 invented brand holding a color or category word | Jumper Jay Bomber Jacket | jumper | jumper bomber jacket | generic |
 | PLT-DA02702 | Bomber Jacket | 7 invented brand holding a color or category word | Blue Otter Bomber Jacket | blue | blue bomber jacket | generic |
 | PLT-DA03100 | Cardigan | 1 color names a part | Cardigan with Red Hem | red | red cardigan | generic |
-| PLT-DA03101 | Cardigan | 1 color names a part | Cardigan with Black Hem | black | black cardigan | generic |
-| PLT-DA03102 | Cardigan | 1 color names a part | Cardigan with White Hem | white | white cardigan | generic |
+| PLT-DA03101 | Cardigan | 1 color names a part | Cardigan with White Collar | white | white cardigan | generic |
+| PLT-DA03102 | Cardigan | 1 color names a part | Cardigan with Red Collar | red | red cardigan | generic |
 | PLT-DA03200 | Cardigan | 2 another category's noun as a modifier | Navy Poncho Cardigan | poncho | poncho | generic |
 | PLT-DA03201 | Cardigan | 2 another category's noun as a modifier | Blue Skirt Cardigan | skirt | skirt | generic |
 | PLT-DA03202 | Cardigan | 2 another category's noun as a modifier | White Shirt Cardigan | shirt | shirt | generic |
-| PLT-DA03300 | Cardigan | 3 audience word of a sibling version | Red Boys Fit Cardigan | boys | boys cardigan | generic |
-| PLT-DA03301 | Cardigan | 3 audience word of a sibling version | Brown Mens Fit Cardigan | mens | mens cardigan | generic |
-| PLT-DA03302 | Cardigan | 3 audience word of a sibling version | White Boys Fit Cardigan | boys | boys cardigan | generic |
+| PLT-DA03300 | Cardigan | 3 audience word of a sibling version | Red Girls Fit Cardigan | girls | girls cardigan | generic |
+| PLT-DA03301 | Cardigan | 3 audience word of a sibling version | Brown Womens Fit Cardigan | womens | womens cardigan | generic |
+| PLT-DA03302 | Cardigan | 3 audience word of a sibling version | White Girls Fit Cardigan | girls | girls cardigan | generic |
 | PLT-DA03400 | Cardigan | 4 material or feature named but absent | Pink Leather-Look Cardigan | leather | leather cardigan | special: material claim |
 | PLT-DA03401 | Cardigan | 4 material or feature named but absent | Blue Suede-Look Cardigan | suede | suede cardigan | special: material claim |
 | PLT-DA03402 | Cardigan | 4 material or feature named but absent | Black Cashmere-Feel Cardigan | cashmere | cashmere cardigan | special: material claim |
@@ -245,13 +245,13 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA09702 | Joggers | 7 invented brand holding a color or category word | Coat Crake Relaxed Joggers | coat | coat joggers | generic |
 | PLT-DA10100 | Jumper | 1 color names a part | Jumper with Blue Hem | blue | blue jumper | generic |
 | PLT-DA10101 | Jumper | 1 color names a part | Jumper with White Hem | white | white jumper | generic |
-| PLT-DA10102 | Jumper | 1 color names a part | Jumper with Red Collar | red | red jumper | generic |
+| PLT-DA10102 | Jumper | 1 color names a part | Jumper with Black Hem | black | black jumper | generic |
 | PLT-DA10200 | Jumper | 2 another category's noun as a modifier | Navy Skirt Jumper | skirt | skirt | generic |
 | PLT-DA10201 | Jumper | 2 another category's noun as a modifier | Pink Tunic Jumper | tunic | tunic | generic |
 | PLT-DA10202 | Jumper | 2 another category's noun as a modifier | Cream Skirt Jumper | skirt | skirt | generic |
-| PLT-DA10300 | Jumper | 3 audience word of a sibling version | Red Boys Fit Jumper | boys | boys jumper | generic |
-| PLT-DA10301 | Jumper | 3 audience word of a sibling version | Cream Mens Fit Jumper | mens | mens jumper | generic |
-| PLT-DA10302 | Jumper | 3 audience word of a sibling version | Pink Boys Fit Jumper | boys | boys jumper | generic |
+| PLT-DA10300 | Jumper | 3 audience word of a sibling version | Red Girls Fit Jumper | girls | girls jumper | generic |
+| PLT-DA10301 | Jumper | 3 audience word of a sibling version | Cream Womens Fit Jumper | womens | womens jumper | generic |
+| PLT-DA10302 | Jumper | 3 audience word of a sibling version | Pink Girls Fit Jumper | girls | girls jumper | generic |
 | PLT-DA10400 | Jumper | 4 material or feature named but absent | Red Leather-Look Jumper | leather | leather jumper | special: material claim |
 | PLT-DA10401 | Jumper | 4 material or feature named but absent | Green Suede-Look Jumper | suede | suede jumper | special: material claim |
 | PLT-DA10402 | Jumper | 4 material or feature named but absent | White Cashmere-Feel Jumper | cashmere | cashmere jumper | special: material claim |
@@ -1619,3 +1619,25 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 | PLT-DA67700 | Barefoot Shoes | 7 invented brand holding a color or category word | White Dormouse Barefoot Shoes | white | white barefoot shoes | generic |
 | PLT-DA67701 | Barefoot Shoes | 7 invented brand holding a color or category word | White Dormouse Barefoot Shoes | white | white barefoot shoes | generic |
 | PLT-DA67702 | Barefoot Shoes | 7 invented brand holding a color or category word | Yellow Wagtail Barefoot Shoes | yellow | yellow barefoot shoes | generic |
+| PLT-DSKNITTED_TOP100 | Knitted Top | 1 color names a part | Knitted Top with White Hem | white | white knitted top | generic |
+| PLT-DSKNITTED_TOP101 | Knitted Top | 1 color names a part | Knitted Top with Red Hem | red | red knitted top | generic |
+| PLT-DSKNITTED_TOP102 | Knitted Top | 1 color names a part | Knitted Top with Yellow Hem | yellow | yellow knitted top | generic |
+| PLT-DSKNITTED_TOP200 | Knitted Top | 2 another category's noun as a modifier | Black Blazer Knitted Top | blazer | blazer | generic |
+| PLT-DSKNITTED_TOP201 | Knitted Top | 2 another category's noun as a modifier | Black Trouser Knitted Top | trouser | trouser | generic |
+| PLT-DSKNITTED_TOP202 | Knitted Top | 2 another category's noun as a modifier | Blue Gilet Knitted Top | gilet | gilet | generic |
+| PLT-DSKNITTED_TOP300 | Knitted Top | 3 audience word of a sibling version | Brown Womens Fit Knitted Top | womens | womens knitted top | generic |
+| PLT-DSKNITTED_TOP301 | Knitted Top | 3 audience word of a sibling version | Cream Girls Fit Knitted Top | girls | girls knitted top | generic |
+| PLT-DSKNITTED_TOP302 | Knitted Top | 3 audience word of a sibling version | Pink Girls Fit Knitted Top | girls | girls knitted top | generic |
+| PLT-DSKNITTED_TOP400 | Knitted Top | 4 material or feature named but absent | Cream Leather-Look Knitted Top | leather | leather knitted top | special: material claim |
+| PLT-DSKNITTED_TOP401 | Knitted Top | 4 material or feature named but absent | Green Suede-Look Knitted Top | suede | suede knitted top | special: material claim |
+| PLT-DSKNITTED_TOP402 | Knitted Top | 4 material or feature named but absent | White Cashmere-Feel Knitted Top | cashmere | cashmere knitted top | special: material claim |
+| PLT-DSKNITTED_TOP500 | Knitted Top | 5 shade spelled in the description only | Moonbeam Knitted Top | ivory | ivory knitted top | generic |
+| PLT-DSKNITTED_TOP501 | Knitted Top | 5 shade spelled in the description only | Driftwood Knitted Top | taupe | taupe knitted top | generic |
+| PLT-DSKNITTED_TOP502 | Knitted Top | 5 shade spelled in the description only | Dune Knitted Top | beige | beige knitted top | generic |
+| PLT-DSKNITTED_TOP600 | Knitted Top | 6 incidental word in a range name | Green Hollow Knitted Top | green | green knitted top | generic |
+| PLT-DSKNITTED_TOP601 | Knitted Top | 6 incidental word in a range name | White Cliff Knitted Top | white | white knitted top | generic |
+| PLT-DSKNITTED_TOP602 | Knitted Top | 6 incidental word in a range name | Blue Cove Knitted Top | blue | blue knitted top | generic |
+| PLT-DSKNITTED_TOP603 | Knitted Top | 6 incidental word in a range name | Jacket Quay Knitted Top | jacket | jacket | generic |
+| PLT-DSKNITTED_TOP700 | Knitted Top | 7 invented brand holding a color or category word | Coat Crake Knitted Top | coat | coat knitted top | generic |
+| PLT-DSKNITTED_TOP701 | Knitted Top | 7 invented brand holding a color or category word | Green Stoat Knitted Top | green | green knitted top | generic |
+| PLT-DSKNITTED_TOP702 | Knitted Top | 7 invented brand holding a color or category word | Coat Crake Knitted Top | coat | coat knitted top | generic |
