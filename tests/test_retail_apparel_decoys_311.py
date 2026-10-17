@@ -538,6 +538,12 @@ def test_the_named_part_sits_where_the_part_sits_on_the_garment(
     assert seen == set(ZONE), set(ZONE) - seen
 
 
+def test_a_relative_path_command_is_not_read_as_a_page_point() -> None:
+    """#444: a lace trim writes relative scallops (``l``, ``q``); read as absolute, their small
+    offsets pulled a part's box to the corner of the page. A relative command adds no point."""
+    assert details._coords("M10 20 L30 40 l3 4 q1 2 3 4 Z") == [(10.0, 20.0), (30.0, 40.0)]
+
+
 def test_a_hem_is_the_torsos_and_does_not_color_the_sleeve_cuffs(
     rows: list[da.Row], by_id: dict[str, dict]
 ) -> None:
