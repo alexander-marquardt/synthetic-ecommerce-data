@@ -168,7 +168,7 @@ def test_ingredient_decoys_hold_the_word_only_in_the_ingredients(
     are in its top 10; the live search reads the ingredients too (the ingest batch's check)."""
     word = INGREDIENT_QUERIES[query]
     by_id = {r["product_id"]: r for r in ceiling}
-    rows = {pid: d for pid, d in dr.BY_ID.items() if d.query == query}
+    rows = {pid: d for pid, d in dr.BY_ID.items() if d.query == query and d.cls == 7}
     assert len(rows) >= 3 and all(d.cls == 7 for d in rows.values()), query
     for pid, row in rows.items():
         doc = by_id[pid]

@@ -113,7 +113,8 @@ needed.
 
 The fresh products compete only if their titles are as long. Six plurals had no fresh leaf of their
 own, so the grocery build has depth families `TOM`, `ONI`, `POT`, `CAR`, `BAN` and `CHY` (leaves
-Fresh Vegetables > Tomatoes, Onions, Potatoes, Carrots and Fresh Fruit > Bananas, Cherries), each
+Fresh Vegetables > Tomatoes, Onions, Carrots; Fruit & Vegetables > Potatoes, the leaf of the class 8
+potato rows; Fresh Fruit > Bananas and Stone Fruit > Cherries, the leaf of the breadth row), each
 variety named with a grade, a variety or a pack word ("Vine Ripened Tomatoes", "Maris Piper
 Potatoes"). They are appended after the existing depth families, so no earlier draw moves, and the
 `VEG` family no longer carries a tomato or a carrot (sweet peppers and baby spinach take their
