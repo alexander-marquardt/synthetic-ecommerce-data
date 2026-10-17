@@ -8,7 +8,7 @@ must go red. ``mutation_check.py`` turns them into ``Mutation`` rows named
 
 from __future__ import annotations
 
-_OLD = '"bone": 1.6, "porcelain": 1.2, "enamel": 0.8, "melamine": 0.6,'
+_OLD = '"bone": 2.0, "porcelain": 1.4, "enamel": 0.75, "melamine": 0.5,'
 _PLATES = "tests/test_retail_scale.py -k test_plates_mostly_draw_a_tile_of_their_own"
 _ORDER = "tests/test_retail_scale.py -k test_a_plate_material_has_its_own_price"
 _PROP = "plates of one finish and color draw apart through their material's price"
@@ -35,7 +35,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "melamine costs more than stoneware",
         "scale.py",
-        '"melamine": 0.6,',
+        '"melamine": 0.5,',
         '"melamine": 1.4,',
         _ORDER,
         _PROP,
@@ -44,7 +44,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "bone china costs less than stoneware",
         "scale.py",
-        '"bone": 1.6,',
+        '"bone": 2.0,',
         '"bone": 0.9,',
         _ORDER,
         _PROP,
