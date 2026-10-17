@@ -37,6 +37,7 @@ import mutation_rows_department_floor  # noqa: E402  (gen#234 rows)
 import mutation_rows_furniture_226  # noqa: E402  (gen#226 rows, kept in their own file)
 import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
 import mutation_rows_jewellery_423  # noqa: E402  (gen#423 rows)
+import mutation_rows_kelvin_232  # noqa: E402  (gen#232 rows, kept in their own file)
 import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
 import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their own file)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
@@ -4201,6 +4202,11 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"lighting drawings: {name}", file, old, new, test, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, test, prop in mutation_rows_lighting.ROWS
+    ),
+    # ---- retail: a color temperature as a kelvin entry (gen#232); the rows are in their own file ----
+    *(
+        Mutation(f"kelvin entry: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in mutation_rows_kelvin_232.ROWS
     ),
     # ---- retail: appliance colors (gen#243); the rows are in their own file ----
     *(
