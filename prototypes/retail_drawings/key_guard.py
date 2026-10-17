@@ -45,6 +45,7 @@ CONCEPTS: dict[str, Concept] = {
         "item_height",
         {
             "heel_height": "the heel of a shoe, a part of it and not the item",
+            "platform_height": "the sole platform of a shoe, a part of it and not the item",
             "min_height": "the low end of an adjustable range (a pedestal fan), not one height",
             "max_height": "the high end of an adjustable range (a pedestal fan), not one height",
         },
