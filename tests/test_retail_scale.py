@@ -565,6 +565,12 @@ def _fitted_out(r: dict[str, Any], t: dict[str, Any]) -> set[str]:
     return set() if form in lighting_rows.HANGING_FORMS else {"drop_length"}
 
 
+def _template_attributes(r: dict[str, Any], t: dict[str, Any]) -> list[dict[str, Any]]:
+    """The template's attributes a derived style is expected to carry (less the fitted-out key)."""
+    gone = _fitted_out(r, t)
+    return [a for a in t["attributes"] if a["key"] not in gone]
+
+
 def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):
     for r, t in pairs:
         assert [r[k] for k in ("category_path", "category_leaf", "product_type", "department")] == [
@@ -578,9 +584,7 @@ def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):
             if a["key"] in frozen or scale._has_word(names, str(a["value"]))
         }
         assert kept <= {(a["key"], str(a["value"])) for a in r["attributes"]}, r["product_id"]
-        assert [a["key"] for a in r["attributes"]] == [
-            a["key"] for a in t["attributes"] if a["key"] not in _fitted_out(r, t)
-        ], r["product_id"]
+        assert [a["key"] for a in r["attributes"]] == [a["key"] for a in _template_attributes(r, t)]
 
 
 def test_only_a_value_free_of_the_leaf_the_unit_and_a_longer_word_may_vary():
@@ -609,11 +613,8 @@ def test_a_changed_value_is_rewritten_in_the_title(pairs):
     rewritten = 0
     for r, t in pairs:
         new = {a["key"]: str(a["value"]) for a in r["attributes"]}
-        for a in t["attributes"]:
+        for a in _template_attributes(r, t):
             old = str(a["value"])
-            if a["key"] in _fitted_out(r, t):  # a flush light has no drop to rewrite
-                assert a["key"] not in new, r["product_id"]
-                continue
             if a["key"] == "line" or new[a["key"]] == old or not scale._has_word(t["title"], old):
                 continue
             assert scale._has_word(r["title"], new[a["key"]]), (
