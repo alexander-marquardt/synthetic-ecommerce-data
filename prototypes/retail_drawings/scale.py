@@ -285,7 +285,9 @@ SPEC_IDS = type_registry.left_out_ids()
 DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()
 # The class-8 product-word decoys (gen#326) name a detail color on purpose in some rows only:
 # those rows join the exemption, by id, and the rest of the class is checked like any product.
-TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT
+# PLT-RQHOOP (a rose gold decoy) sits in the Hoop Earrings node since gen#423: its metals are
+# its text pool, and "Gold Plated" names the plating while its color is Yellow Gold.
+TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT | {"PLT-RQHOOP"}
 
 
 def templates(baseline: bool = True) -> list[dict]:

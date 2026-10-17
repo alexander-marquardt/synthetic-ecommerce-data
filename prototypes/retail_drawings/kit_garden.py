@@ -66,6 +66,9 @@ PARTS = {
     "grass_trimmer": ("handle", "shaft", "engine"),
     "bbq": ("legs", "lid-handle", "shelves"),
     "garden_hose": ("connectors",),
+    "hedge_trimmer": ("handle", "guard", "blade"),
+    "garden_furniture": ("legs", "cushions"),
+    "parasol": ("pole", "base", "valance"),
 }
 
 

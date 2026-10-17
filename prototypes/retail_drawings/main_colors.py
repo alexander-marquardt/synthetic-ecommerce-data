@@ -38,6 +38,8 @@ EXCEPTIONS = {
     "Perfume": "cosmetic: the color is the fragrance liquid's tint",
     "Watch": "metal case and strap finish: gold, silver, rose gold",
     "Earrings": "precious metal: the color is the metal",
+    "Hoop Earrings": "precious metal: the color is the metal",
+    "Drop Earrings": "precious metal: the color is the metal",
     "Cutlery": "stainless steel and plated metal: the color is the metal",
     "Cutlery Set": "stainless steel: the color is the metal",
     "Socket Set": "chrome vanadium steel: the color is the raw metal",

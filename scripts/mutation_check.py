@@ -34,12 +34,16 @@ import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their o
 import mutation_rows_customer_names  # noqa: E402  (#393 rows, kept in their own file)
 import mutation_rows_cutlery_pack_count  # noqa: E402  (gen#228 rows)
 import mutation_rows_department_floor  # noqa: E402  (gen#234 rows)
+import mutation_rows_furniture_226  # noqa: E402  (gen#226 rows, kept in their own file)
 import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
+import mutation_rows_jewellery_423  # noqa: E402  (gen#423 rows)
 import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
 import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their own file)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
 import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
 import mutation_rows_sheet_extent  # noqa: E402  (gen#242 rows, kept in their own file)
+import mutation_rows_sofa_bed_223  # noqa: E402  (gen#223 rows, kept in their own file)
+import mutation_rows_tableware_features  # noqa: E402  (gen#230 rows)
 import mutation_rows_underwear_245  # noqa: E402  (gen#245 rows, kept in their own file)
 
 REPO = Path(__file__).resolve().parent.parent
@@ -3875,6 +3879,19 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- the red-commit proof judges the commits that declare (#11680) ------
+    # Every name starts "red_commit_proof:", so `--only "red_commit_proof:"` re-runs it.
+    Mutation(
+        "red_commit_proof: a merge commit's trailer is judged",
+        "scripts/red_commit_proof.py",
+        '"rev-list", "--reverse", "--no-merges", args.spec',
+        '"rev-list", "--reverse", args.spec',
+        "tests/test_red_commit_proof_11680.py::"
+        "test_a_merge_commit_is_never_judged_whatever_its_message_declares",
+        "",
+        "only the branch's own commits are judged, not a merge of main",
+        root=".",
+    ),
     # ---- retail: the steak plate, board and weight carry a material, never derived (gen#268) ----
     *(
         Mutation(f"steak ware: {name}", file, old, new_, test, "", prop,
@@ -4019,6 +4036,12 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"{prefix}: {name}", file, old, new, test, "", prop, root=root)
         for prefix, name, file, old, new, test, prop, root in mutation_rows_garden_hose.ALL
     ),
+    # ---- retail: jewellery and watches (gen#423); the rows are in their own file ----
+    *(
+        Mutation(f"jewellery 423: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in mutation_rows_jewellery_423.ROWS
+    ),
     # ---- retail: derived ceiling-light forms (gen#237); the rows are in their own file ----
     *(
         Mutation(f"ceiling forms: {name}", file, old, new, test, "", prop, root=root)
@@ -4042,6 +4065,11 @@ MUTATIONS: list[Mutation] = [
         for name, file, old, new, test, prop in mutation_rows_pack_size.ROWS
     ),
     *(
+        Mutation(f"sofa bed: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in mutation_rows_sofa_bed_223.ROWS
+    ),
+    *(
         Mutation(f"ring sizes: {name}", file, old, new, tests, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, tests, prop in mutation_rows_ring_sizes_249.ROWS
@@ -4057,6 +4085,11 @@ MUTATIONS: list[Mutation] = [
         for name, file, old, new, tests, prop in mutation_rows_underwear_245.ROWS
     ),
     *(
+        Mutation(f"furniture drawings: {name}", file, old, new, tests, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, tests, prop in mutation_rows_furniture_226.ROWS
+    ),
+    *(
         Mutation(f"audit order: {n}", "generate_cli.py", o, w, t, "", pr)
         for n, o, w, t, pr in mutation_rows_audit_order.ROWS
     ),
@@ -4068,6 +4101,7 @@ MUTATIONS: list[Mutation] = [
     # ---- retail: the department floor is pinned (gen#234); the rows are in their own file ----
     *(Mutation(f"department floor: {n}", f, o, nw, t, "", p, root=r) for n, f, o, nw, t, p, r in mutation_rows_department_floor.ROWS),
     *(Mutation(f"cutlery pack count: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_cutlery_pack_count.ROWS),
+    *(Mutation(f"tableware features: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_tableware_features.ROWS),
     # ---- retail: no drawing extends past its sheet (gen#242); the rows are in their own file ----
     *(
         Mutation(f"sheet extent: {name}", file, old, new, test, "", prop, root=root)
