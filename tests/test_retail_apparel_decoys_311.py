@@ -147,8 +147,7 @@ def test_class_6_and_7_name_a_short_title_and_class_7_names_a_brand(
     brands = set()
     for ptype, rs in _by_type(rows).items():
         six = [r for r in rs if r.cls == 6]
-        assert sum(r.word in MAIN for r in six) >= 3, ptype
-        assert any(r.word not in MAIN for r in six), ptype
+        assert len(six) >= 3 and not any(r.word in MAIN for r in six), ptype  # #444
     for r in rows:
         doc = by_id[r.pid]
         if r.cls in (6, 7):
@@ -157,7 +156,113 @@ def test_class_6_and_7_name_a_short_title_and_class_7_names_a_brand(
             brands.add(doc["brand"])
             assert doc["brand"].lower() in doc["title"].lower(), (r.pid, doc["title"])
     assert 6 <= len(brands) <= 8, brands
-    assert {w for r in rows if r.cls == 6 for w in [r.word]} >= MAIN
+    assert {r.word for r in rows if r.cls == 7} >= MAIN
+
+
+#: Every color word a title can hold: the main six and the shades a decoy is sold in.
+COLOR_WORDS = MAIN | {"navy", "cream", "grey", "brown", "pink"}
+
+
+def _colour_words(title: str) -> set[str]:
+    return {w for w in COLOR_WORDS if re.search(rf"\b{w}\b", title.lower())}
+
+
+def test_a_range_name_never_holds_a_color_and_a_brand_color_is_the_brand_field(
+    rows: list[da.Row], by_id: dict[str, dict]
+) -> None:
+    """#444: "Red Harbour Dress" read as a red dress with a strange brand. A class 6 title holds
+    no color word (a range name is a place, never a colour); a class 7 title holds one only as
+    the invented brand, which is the product's brand field. In both, a color word of the title is
+    the brand field or a part the drawing colours, never neither."""
+    for r in (r for r in rows if r.cls in (6, 7)):
+        doc = by_id[r.pid]
+        named = _colour_words(doc["title"]) - {_real_color(doc)}
+        if r.cls == 6:
+            assert not named, (r.pid, doc["title"], named)
+        for w in named:
+            drawn = doc["drawing"].get("detail", {}).get("color", "").lower()
+            in_brand = re.search(rf"\b{w}\b", doc["brand"].lower())
+            assert in_brand or drawn == da.DETAIL_HEX[w.title()].lower(), (r.pid, doc["title"])
+            if r.cls == 7:
+                assert in_brand, (r.pid, doc["title"], doc["brand"])
+
+
+#: The class 2 phrases a shopper reads as a real product name (dress shirt, shirt dress, slipper
+#: socks), written here apart from the generator's own table: a new phrase is a deliberate edit to
+#: both, and an invented one ("Dress Pyjamas", "Trouser Blouse") is in neither (#444).
+REAL_COMPOUNDS = frozenset({
+    "Dress Blouse", "Shirt Blouse", "Tunic Blouse",
+    "Shirt Bodysuit", "Vest Bodysuit", "Blazer Bodysuit",
+    "Shirt Jacket", "Blazer Jacket", "Hoodie Jacket", "Dress Jacket",
+    "Denim Shirt Jacket", "Denim Blazer Jacket",
+    "Tunic Cardigan", "Poncho Cardigan", "Hoodie Cardigan",
+    "Dress Coat", "Cardigan Coat", "Blazer Coat",
+    "Skirt Co-ord Set", "Trouser Co-ord Set", "Blazer Co-ord Set", "Shirt Co-ord Set",
+    "Dress Shorts", "Trouser Shorts", "Jean Shorts", "Chino Shorts", "Cargo Shorts",
+    "Shirt Dress", "Jumper Dress", "Blazer Dress", "Hoodie Dress", "Tunic Dress", "Coat Dress",
+    "Chino Joggers", "Cargo Joggers",
+    "Poncho Jumper", "Tunic Jumper", "Polo Jumper",
+    "Cargo Leggings", "Jogger Leggings",
+    "Skirt Set", "Trouser Set", "Short Set", "Blazer Set",
+    "Dress Shirt", "Polo Shirt", "Tunic Shirt",
+    "Jean Skirt", "Slip Skirt", "Cargo Skirt", "Dress Skirt",
+    "Polo Sweatshirt", "Hoodie Sweatshirt", "Tunic Sweatshirt",
+    "Polo T-Shirt", "Tunic T-Shirt", "Hoodie T-Shirt",
+    "Hoodie Tracksuit", "Short Tracksuit", "Sweatshirt Tracksuit",
+    "Cargo Trousers", "Chino Trousers", "Jogger Trousers", "Dress Trousers",
+    "Cargo Jeans", "Jogger Jeans", "Dress Jeans",
+    "Vest Top", "Cami Top", "Polo Top", "Tunic Top", "Hoodie Top",
+    "Vest Tee", "Polo Tee", "Hoodie Tee", "Tunic Tee",
+    "Knitted Vest Top", "Knitted Cami Top", "Knitted Polo Top", "Knitted Tunic Top",
+    "Boot Socks", "Trouser Socks", "Slipper Socks", "Trainer Socks", "Sneaker Socks",
+    "Welly Boot Socks", "Wellington Boot Socks", "Walking Boot Socks",
+    "Sandal Boots", "Sneaker Boots", "Loafer Boots", "Shoe Boots", "Slipper Boots", "Sock Boots",
+    "Wellington Safety Boots", "Chelsea Safety Boots",
+    "Chukka Walking Boots", "Chelsea Walking Boots",
+    "Mule Heels", "Loafer Heels", "Sandal Heels", "Pump Heels",
+    "Ballet Slippers", "Ballet Sandals", "Ballet Sneakers",
+    "Loafer Brogues", "Dress Brogues",
+    "Dress Shoes", "Sock Shoes",
+    "Slipper Loafers", "Sneaker Loafers", "Mule Loafers",
+    "Trainer Sandals", "Loafer Sandals", "Mule Sandals",
+    "Trainer School Shoes",
+    "Boot Slippers", "Sock Slippers", "Loafer Slippers", "Mule Slippers",
+    "Sock Trainers", "Dress Trainers", "Chelsea Wellies",
+    "T-Shirt Bra", "Cami Bra", "Corset Bra",
+    "Boxer Shorts", "Pyjama Boxers",
+    "Hoodie Dressing Gown", "Poncho Dressing Gown",
+    "Short Knickers", "Cami Knickers",
+    "Boxer Pyjama Shorts", "Jogger Pyjama Shorts",
+    "Short Pyjamas", "Vest Pyjamas", "Cami Pyjamas",
+    "Bodysuit Shapewear", "Cami Shapewear", "Slip Shapewear",
+    "Dress Slip", "Skirt Slip", "Cami Slip",
+    "Dress Tights", "Legging Tights",
+    "Cami Vest", "Dress Vest", "Jumper Vest",
+    "Chino School Trousers", "Jogger School Trousers", "Cargo School Trousers",
+    "Pinafore School Skirt", "Culotte School Skirt",
+    "School Pinafore Dress",
+    "School Polo Shirt", "Oxford School Shirt",
+})  # fmt: skip
+
+
+def test_no_class_2_title_is_outside_the_real_compounds(
+    rows: list[da.Row], by_id: dict[str, dict]
+) -> None:
+    """#444: "Red Dress Pyjamas" is not a retail term. A class 2 title is the product's color,
+    an optional fit, then a compound of :data:`REAL_COMPOUNDS`."""
+    twos = [r for r in rows if r.cls == 2]
+    assert len(twos) >= 3 * len(da.TYPES)
+    phrases = set()
+    for r in twos:
+        doc = by_id[r.pid]
+        colour = doc["color_options"][0]["color"]
+        assert doc["title"].startswith(colour + " "), (r.pid, doc["title"])
+        rest = doc["title"][len(colour) + 1 :]
+        hit = [p for p in REAL_COMPOUNDS if rest == p or rest.endswith(" " + p)]
+        assert hit, (r.pid, doc["title"])
+        assert r.word in doc["title"].lower(), (r.pid, r.word, doc["title"])
+        phrases.add(max(hit, key=len))
+    assert len(phrases) >= 60, len(phrases)  # the table is varied, not three words reused
 
 
 def test_large_types_carry_ten_percent_decoys(rows: list[da.Row], ceiling: list[dict]) -> None:
