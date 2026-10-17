@@ -1,10 +1,10 @@
-"""Colours and attributes a type really comes in (gen#448, the 2026-10-17 believability audit).
+"""Colors and attributes a type really comes in (gen#448, the 2026-10-17 believability audit).
 
-F9: a per-type colour allow-list (``type_colors``) is read by the colour completion, the row
+F9: a per-type color allow-list (``type_colors``) is read by the color completion, the row
 palettes and the decoy clone picker, so tailoring is never yellow, school trousers never pink and
 sheer tights never yellow. F10: ``Material`` holds a cloth, ``Finish`` and ``Pattern`` hold the
 rest, and the description reads as a sentence. F14: one department per category path, and
-"Black Leather" is the colour Black, not a second one.
+"Black Leather" is the color Black, not a second one.
 """
 
 from __future__ import annotations
@@ -43,9 +43,9 @@ def _attr(rec: dict, key: str) -> list[str]:
     return [a["value"] for a in rec["attributes"] if a["key"] == key]
 
 
-# ---- F9: a type is only sold in the colours it comes in ----------------------------------
+# ---- F9: a type is only sold in the colors it comes in ----------------------------------
 
-#: the audit's example ids and a colour each was wrongly given
+#: the audit's example ids and a color each was wrongly given
 F9_EXAMPLES = {
     "BRD-MFFT005": "Yellow",  # formal trousers
     "BRD-MFBL017": "Yellow",  # wedding blazer
@@ -57,7 +57,7 @@ F9_EXAMPLES = {
 
 
 @pytest.mark.parametrize("pid,wrong", sorted(F9_EXAMPLES.items()))
-def test_an_audited_style_is_not_sold_in_a_colour_its_type_never_comes_in(by_id, pid, wrong):
+def test_an_audited_style_is_not_sold_in_a_color_its_type_never_comes_in(by_id, pid, wrong):
     rec = by_id[pid]
     assert wrong not in _colors(rec), (pid, _colors(rec))
     assert type_colors.allowed_for(rec["category_path"]) is not None, pid
@@ -115,7 +115,7 @@ def test_the_decoy_clone_picker_reads_the_allow_list(tpls):
         assert not set(_colors(r)) & {"Pink", "Yellow"}, r["product_id"]
 
 
-def test_a_colour_with_a_material_is_that_colour(tpls):
+def test_a_color_with_a_material_is_that_color(tpls):
     """ "Black Leather" is Black: complete() must not add a second "Black" beside it."""
     assert type_colors.base_color("Black Leather") == "Black"
     assert type_colors.permits(["Womens", "Hosiery", "Tights"], "Navy Polka Dot")

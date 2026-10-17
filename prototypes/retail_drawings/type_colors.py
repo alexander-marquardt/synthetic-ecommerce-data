@@ -1,10 +1,10 @@
-"""The colours a product type really comes in, and the words that are not a cloth (gen#448).
+"""The colors a product type really comes in, and the words that are not a cloth (gen#448).
 
-gen#275 gives every colour-bearing type the six main colours. A type that is not sold in some of
-them declares it here, with the colours it does come in and why: the colour completion
+gen#275 gives every color-bearing type the six main colors. A type that is not sold in some of
+them declares it here, with the colors it does come in and why: the color completion
 (``main_colors.complete``), the row palettes (``mens_depth_rows``) and the decoy clone picker
 (``decoy_apparel``) all read this one table, and ``tests/test_retail_real_attributes_448.py``
-reds when a style of a restricted type carries a colour outside it. A restricted type is asked
+reds when a style of a restricted type carries a color outside it. A restricted type is asked
 for only the main colors it does come in ("black suit trousers", never "yellow").
 
 Other types are not restricted: "red shirt" must still find a shirt.
@@ -24,7 +24,7 @@ _WHY_TAILORED = "tailoring comes in dark suiting colors and white, not in bright
 _SCHOOL = ("Black", "Navy", "Grey", "Charcoal")
 _WHY_SCHOOL = "school uniform follows the dull dress code colors of a school"
 
-#: path prefix -> (the colours the type comes in, why): the longest prefix of a style's
+#: path prefix -> (the colors the type comes in, why): the longest prefix of a style's
 #: ``category_path`` wins.
 RESTRICTED: dict[tuple[str, ...], tuple[tuple[str, ...], str]] = {
     ("Mens", "Suits & Tailoring", "Blazers"): (_TAILORED, _WHY_TAILORED),
@@ -58,7 +58,7 @@ def _path(path) -> tuple[str, ...]:
 
 
 def allowed_for(path) -> tuple[str, ...] | None:
-    """The colours a style at ``path`` comes in, or None when it is not restricted."""
+    """The colors a style at ``path`` comes in, or None when it is not restricted."""
     p = _path(path)
     best = max((k for k in RESTRICTED if p[: len(k)] == k), key=len, default=None)
     return None if best is None else RESTRICTED[best][0]

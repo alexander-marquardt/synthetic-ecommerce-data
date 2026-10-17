@@ -48,7 +48,7 @@ OWNERS.update(dict.fromkeys(NEW_BRANDS, "third_party"))
 BRAND_OWNER.update(dict.fromkeys(NEW_BRANDS, "third_party"))
 
 _BR = (("kind", "brogue"), ("material", "leather"), ("closure", "Lace-Up"))
-_CARE = ("Mens", "Shoes", "Shoe Care")  # the node footwear_rows and nike_rows file it under
+_CARE = ("Mens", "Accessories", "Shoe Care")  # one node, one department: Footwear (gen#448)
 _STORE = ("Home", "Storage")
 _DIY = ("Home", "DIY & Car")
 _SOFT = ("Home", "Soft Furnishings")

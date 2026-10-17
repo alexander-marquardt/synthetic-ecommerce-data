@@ -470,11 +470,12 @@ def _floor_rows(leaves=None, kinds=None, tails=None, prefix: str = "MF") -> list
             brand = _BRANDS[(i + len(leaf.abbr)) % len(_BRANDS)]
             price = round(kind.base_price + leaf.extra_price + 2.0 * (i % 7), 2)
             colors = _colors(i, type_colors.palette(leaf.path, leaf.palette))
-            if leaf.pattern == "check":
+            lead, material, more = _fabric(fabric, leaf.base or kind.material)
+            # a check shirt, or a cloth the pool calls "Checked" (a pattern, gen#448): check colors
+            if leaf.pattern == "check" or any(m[0] == "pattern" for m in more):
                 colors = tuple(cw(f"{c[0]} Check", c[2], "gingham", "#2a2a2e") for c in colors)
             fit_an = _an(fit or "regular")
             noun = detail.lower() if kind.item else (leaf.noun or kind.noun).lower()
-            lead, material, more = _fabric(fabric, leaf.base or kind.material)
             if kind.ptype == "Boxers":  # the fit IS the garment: trunks, boxer shorts, briefs
                 noun, cut = fit.lower(), ""
             else:
