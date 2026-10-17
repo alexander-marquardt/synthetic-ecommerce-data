@@ -13,7 +13,7 @@ this guard reads the real workflow and the real tests directory:
   list belongs only to a job that runs a named handful of checks;
 * the shards stay balanced by the committed weights;
 * a file too heavy for one shard (``SPLIT_FILES``: ``tests/test_merge_pr.py``, an hour of
-  independent tests) is listed in every shard, and ``tests/conftest.py`` deals its test
+  independent tests) is listed in every shard, and ``tests/ci_shard_split.py`` deals its test
   ids out modulo the shard, so each node id runs in exactly one shard;
 * no job-level ``env`` reads the ``runner`` context, which GitHub rejects there (the
   whole workflow then fails in 0 s with no check run).
@@ -69,7 +69,7 @@ def test_every_test_file_is_in_exactly_one_shard(count: int) -> None:
     files = ci_shards.collected_test_files()
     shards = ci_shards.deal(files, count, ci_shards.load_weights())
     flat = Counter(name for shard in shards for name in shard)
-    # A split file is in every shard (its test ids are dealt out in conftest.py); any
+    # A split file is in every shard (its test ids are dealt out in ci_shard_split.py); any
     # other file is in exactly one.
     assert flat == {n: count if n in ci_shards.SPLIT_FILES else 1 for n in files}, (
         "a test file is in no shard, or in two"
@@ -208,7 +208,7 @@ def test_a_job_level_env_reads_no_runner_context() -> None:
             )
 
 
-def test_the_tests_step_tells_conftest_which_shard_it_is() -> None:
+def test_the_tests_step_tells_the_split_plugin_which_shard_it_is() -> None:
     (step,) = [s for s in _jobs()["tests"]["steps"] if "pytest" in s.get("run", "")]
     assert step.get("env", {}).get("CI_SHARD") == "${{ matrix.shard }}"
     assert step.get("env", {}).get("CI_SHARDS") == "${{ strategy.job-total }}"
@@ -225,7 +225,15 @@ def test_a_split_file_is_listed_in_every_shard_and_weighs_its_share_in_each(coun
         "tests/test_a.py": 1,
         "tests/test_b.py": 1,
     }
-    loads = ci_shards.shard_loads(count, weights=weights, split=frozenset({"tests/test_big.py"}))
+
+
+@pytest.mark.parametrize("count", [2, 3, 10])
+def test_the_loads_hold_a_split_file_s_share_in_every_shard(count: int, tmp_path: Path) -> None:
+    (tmp_path / "tests").mkdir()
+    for name in ("test_big.py", "test_a.py", "test_b.py"):
+        (tmp_path / "tests" / name).write_text("")
+    weights = {"tests/test_big.py": 900.0, "tests/test_a.py": 100.0, "tests/test_b.py": 100.0}
+    loads = ci_shards.shard_loads(count, tmp_path, weights, split=frozenset({"tests/test_big.py"}))
     assert sum(loads) == pytest.approx(1100.0)
     assert min(loads) >= 900 / count - 1e-6, "the split file's share is missing from a shard"
 
@@ -262,8 +270,7 @@ def test_each_test_id_of_a_split_file_runs_in_exactly_one_shard() -> None:
     whole = _collect(files, {})
     assert whole
     per_shard = [
-        _collect(files, {"CI_SHARD": str(k), "CI_SHARDS": str(count)})
-        for k in range(1, count + 1)
+        _collect(files, {"CI_SHARD": str(k), "CI_SHARDS": str(count)}) for k in range(1, count + 1)
     ]
     assert Counter(i for ids in per_shard for i in ids) == Counter(whole), (
         "a test id of a split file is in no shard, or in two"
