@@ -756,6 +756,16 @@ def m_rose_bud(c: str) -> list[str]:
     ]
 
 
+def m_coconut_palm(c: str) -> list[str]:
+    return [
+        _stroke("M0,.85 Q.12,.25 -.05,-.3", 0.14, c),
+        _stroke("M-.05,-.3 Q-.4,-.8 -.85,-.45", 0.1, c),
+        _stroke("M-.05,-.3 Q.35,-.85 .85,-.4", 0.1, c),
+        _stroke("M-.05,-.3 Q-.05,-.7 -.1,-.9", 0.1, c),
+        _dot(0.14, -0.12, 0.12, c),
+    ]
+
+
 #: Mark name -> drawing in unit space (-1..1), painted in the brand color.
 def m_toy_pair_dots(c: str) -> list[str]:
     return [_dot(-0.4, 0, 0.3, c), _dot(0.4, 0, 0.3, c)]
@@ -1277,6 +1287,7 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     "Rose Kestrel":        H("#f1f5f8", "grid", "heavy", "#4a8a52", "#1e3a22", 1.00, False, "sharp", "rose_bud", "mark_only", "top_left", "flag", "humanist", 400, "caps", 1.0),
     "Sorrel & Salt":       H("#f4f1fa", "diagonal", "ticks", "#9a3a78", "#38183a", 1.05, False, "round", "shell", "mark_only", "top_right", "underline", "serif", 700, "smallcaps", 1.5),
     "Thornlea Skin":       H("#f2f7ef", "hatch", "none", "#6a4fa0", "#2a1c3e", 0.85, False, "sharp", "tube", "mark_only", "bottom_left", "tab", "serif", 400, "lower", 2.0),
+    "Coconut Plover":      H("#fbf4e4", "dots", "thin", "#2f7f7a", "#123a38", 0.95, False, "round", "coconut_palm", "mark_only", "bottom_left", "rect", "humanist", 700, "title", 1.5),
     "Vanilla Wren":        H("#faf3e6", "none", "thin", "#2f7f7a", "#123a38", 0.90, True, "round", "compact", "mark_only", "bottom_right", "rect", "serif", 400, "title", 2.5),
     "Veilmoor":            H("#eef3f3", "dots", "double", "#3a6f8f", "#16303e", 0.95, False, "sharp", "moon_stars", "mark_only", "top_left", "plain", "humanist", 700, "caps", 1.0),
     "Vitamin C Orchard":   H("#f8f0f6", "lines", "rounded", "#b9803a", "#3e2a12", 1.00, False, "round", "lash_fan", "mark_only", "top_right", "stamp", "serif", 400, "smallcaps", 1.5),
