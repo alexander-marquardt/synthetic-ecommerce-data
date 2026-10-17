@@ -25,7 +25,8 @@ import zlib
 #: Families whose products are sold loose or whole, or are wine and cider (no label list), and carry no ingredients list.
 NO_LIST = frozenset({"ORA", "LEM", "APP", "VEG", "LIM", "STR", "WRD", "WWH", "WRS", "WSP", "WCH", "CDR",
                      "SWH", "SGN", "SVD", "SRM", "STQ", "FPT", "FSY", "FVM", "PRY", "MED",
-                     "GRF", "MAN", "CLM", "SAT", "RSP", "BLU", "BLK", "GRP"})
+                     "GRF", "MAN", "CLM", "SAT", "RSP", "BLU", "BLK", "GRP",
+                     "TOM", "ONI", "POT", "CAR", "BAN", "CHY"})
 
 _MARK = re.compile(r"\{(\d+)-(\d+)\}")
 _VAT = "vitamin d3, vitamin a, calcium, riboflavin"
