@@ -238,6 +238,6 @@ def test_the_preview_shows_footwear_and_its_planted_distractors() -> None:
     assert re.search(r"<i>boots</i> → a pair of boots", html)
 
 
-def test_the_readme_names_the_boots_row() -> None:
-    readme = (HERE.parents[1] / "README.md").read_text(encoding="utf-8")
+def test_the_retail_page_names_the_boots_row() -> None:
+    readme = (HERE.parents[1] / "docs" / "retail-prototype.md").read_text(encoding="utf-8")
     assert f"| {fw.BOOTS.cls} | *{fw.BOOTS.query}*" in readme
