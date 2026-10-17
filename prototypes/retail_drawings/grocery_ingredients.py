@@ -628,7 +628,6 @@ thiamin: thiamin
 iron: iron
 calcium: calcium; calcium carbonate
 caffeine: caffeine
-
 acidity regulator: acidity regulator
 goose fat: goose fat
 leeks: leek
