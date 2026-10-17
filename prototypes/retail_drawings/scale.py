@@ -107,21 +107,29 @@ import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
 import decoy_apparel  # noqa: E402
+import decoy_product_words  # noqa: E402
 import decoy_rows  # noqa: E402
 import distractor_rows  # noqa: E402
 import furniture_rows  # noqa: E402
+import garden_rows  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
+import knitwear_rows  # noqa: E402
 import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
 import mens_depth_rows  # noqa: E402
+import needs_rows  # noqa: E402
+import net_volume  # noqa: E402
+import nike_rows  # noqa: E402
 import scale_rows  # noqa: E402
+import school_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
 import sports_rows  # noqa: E402
 import toys_rows  # noqa: E402
+import type_registry  # noqa: E402
 import underwear_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from export import drawing_spec, image_id, standard_document  # noqa: E402
@@ -228,6 +236,15 @@ ACCESSORY_IDS = frozenset(f"BRD-{r.code}" for r in accessory_rows.ROWS)
 #: The camping and fitness styles (:mod:`sports_rows`, gen#265), left out of the derivation as
 #: the accessories are: the Sports & Outdoors department grows by authored rows.
 SPORTS_IDS = frozenset(f"BRD-{r.code}" for r in sports_rows.ROWS)
+#: The lawn mower, trimmer and barbecue styles and their decoys (:mod:`garden_rows`, gen#203),
+#: templates only: the Garden department grows by authored rows.
+GARDEN_IDS = frozenset(f"BRD-{r.code}" for r in garden_rows.ROWS)
+#: The school uniform styles (:mod:`school_rows`, gen#205): templates only, as the sports rows are.
+SCHOOL_IDS = frozenset(f"BRD-{r.code}" for r in school_rows.ROWS)
+#: The steak plate, board and weight (:mod:`distractor_rows`, gen#268). Each carries a material, so
+#: a derived copy would re-draw it ("Porcelain Steak Plate", "Nylon Steak Weight") and add steak
+#: rows the failure class does not count: they stay templates.
+STEAK_WARE_IDS = frozenset(f"PLT-{s.code}" for s in distractor_rows.STEAK_WARE)
 #: The underwear and nightwear styles (:mod:`underwear_rows`, gen#208), left out of the
 #: derivation as the shirts are.
 UNDERWEAR_IDS = frozenset(f"BRD-{r.code}" for r in underwear_rows.ROWS)
@@ -252,11 +269,31 @@ COLORGROUP_IDS = colorgroup_rows.product_ids()
 LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 #: The Mens clothing depth (:mod:`mens_depth_rows`, gen#310): templates only.
 MENS_DEPTH_IDS = mens_depth_rows.product_ids()
+#: The knitwear depth (:mod:`knitwear_rows`, gen#309): templates only.
+KNITWEAR_IDS = knitwear_rows.product_ids()
+#: The Nike styles and the decoys that name Nike (:mod:`nike_rows`, gen#341): templates only.
+NIKE_IDS = nike_rows.product_ids()
+#: The types the failure classes need (:mod:`needs_rows`, gen#329): templates only.
+NEEDS_IDS = needs_rows.product_ids()
+#: The ids the type specs (:mod:`type_registry`, gen#351) keep out of the derivation: a spec that
+#: is not ``derivable`` and every spec decoy. No type edits this line: the registry finds them.
+SPEC_IDS = type_registry.left_out_ids()
 
 
 # Text-match decoys (gen#294, gen#311) are exempt from the output standard's text check: they
 # exist to confuse a plain text search (the maintainer ruling on #311).
-DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS
+DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()
+# The class-8 product-word decoys (gen#326) name a detail color on purpose in some rows only:
+# those rows join the exemption, by id, and the rest of the class is checked like any product.
+# The Toys spec decoys of classes 4, 6 and 7 (gen#424) name a color or a feature they lack.
+# PLT-RQHOOP (a rose gold decoy) sits in the Hoop Earrings node since gen#423: its metals are
+# its text pool, and "Gold Plated" names the plating while its color is Yellow Gold.
+TEXT_EXEMPT = (
+    DECOY_IDS
+    | decoy_product_words.TEXT_EXEMPT
+    | type_registry.text_match_decoy_ids("Toys")
+    | {"PLT-RQHOOP"}
+)
 
 
 def templates(baseline: bool = True) -> list[dict]:
@@ -281,18 +318,24 @@ def templates(baseline: bool = True) -> list[dict]:
     authored = (r for recs in samples().values() for r in recs)
     body = [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
-        *decoy_rows.docs(),
-        *shirt_rows.docs(), *accessory_rows.docs(), *sports_rows.docs(), *sofa_rows.docs(),
-        *household_rows.docs(),
+        *decoy_rows.docs(), *decoy_product_words.docs(),
+        *shirt_rows.docs(), *accessory_rows.docs(), *sports_rows.docs(),
+        *school_rows.docs(), *sofa_rows.docs(), *household_rows.docs(),
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
-        *colorgroup_rows.docs(), *mens_depth_rows.docs(),
+        *garden_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
+        *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(), *needs_rows.docs(),
     ]  # fmt: skip
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
+    body = net_volume.state_title_volumes(body)  # gen#347: a volume the title states is the field
     if baseline:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
-    return main_colors.complete(tpls, mens_depth_rows.decoy_ids()) if baseline else tpls
+    type_registry.check_unique_ids(tpls)
+    skip = (mens_depth_rows.decoy_ids() | garden_rows.decoy_ids() | NIKE_IDS
+            | type_registry.decoy_ids() | needs_rows.decoy_ids()
+            | knitwear_rows.decoy_ids())
+    return main_colors.complete(tpls, skip) if baseline else tpls
 
 
 def derivable(tpls: list[dict]) -> list[dict]:
@@ -305,10 +348,11 @@ def derivable(tpls: list[dict]) -> list[dict]:
     style (:mod:`lowerbody_rows`), left out so the seeded derivation is what it was. A boat
     or slash neck top is a failure-class row too (gen#125): a derived copy of it would hand
     the no-policy baseline the neckline, so it stays a template."""
-    left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
-                | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
-                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | decoy_rows.IDS
-                | decoy_apparel.IDS)
+    left_out = (KNITWEAR_IDS | SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
+                | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS | SCHOOL_IDS
+                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | GARDEN_IDS | NIKE_IDS | NEEDS_IDS
+                | SPEC_IDS | decoy_rows.IDS
+                | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out
             and r.get("neckline") not in ("boat", "slash")]  # fmt: skip
@@ -523,6 +567,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
     # copy that kept it would let a no-policy baseline satisfy "petite sale", the pair only a
     # policy may honour (gen#125, gen#275).
     rec.pop("was_price", None)
+    rec.pop("promotion", None)  # it follows the was_price (promotion.py, gen#189)
     if "badges" in rec:
         rec["badges"] = [b for b in rec["badges"] if b != "Bestseller"]
     old_line = _line(tpl)
@@ -550,6 +595,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
                 rec["drawing"]["label"] = _swap(rec["drawing"]["label"], old, new)
             if a["key"] == "motif" and "motif" in rec["drawing"]:
                 _redraw_motif(rec, old, new)
+    lighting_rows.fit_ceiling_form(rec)  # a flush light has no drop (gen#237)
     if colors:  # "Shown in cream" names the color the picture shows: the hero
         names = "|".join(re.escape(c["color"]) for c in tpl.get("color_options", ()))
         rec["description"] = re.sub(
@@ -992,7 +1038,7 @@ def main(argv: list[str] | None = None) -> int:
     scaled = build(args.skus, args.seed)
     docs = documents(scaled)
     built = time.perf_counter() - start
-    problems = check_catalog(docs, one_class_per_key=True, text_exempt=DECOY_IDS)
+    problems = check_catalog(docs, one_class_per_key=True, text_exempt=TEXT_EXEMPT)
     if args.out:
         with args.out.open("w", encoding="utf-8") as handle:
             for d in docs:

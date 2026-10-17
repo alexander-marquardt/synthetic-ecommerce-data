@@ -20,13 +20,9 @@ import copy
 import re
 
 import decoy_apparel
+import decoy_product_words
 import decoy_rows
-
-#: The baseline: plain color -> swatch hex (the color word is also the swatch family).
-MAIN_COLORS = {
-    "Red": "#c8322b", "Blue": "#2f6db5", "Green": "#3c8d4f", "Yellow": "#f2c230",
-    "Black": "#2a2a2e", "White": "#ffffff",
-}  # fmt: skip
+from main_color_hex import MAIN_COLORS
 
 #: product_type -> why its color is its material or natural finish (the only way out).
 EXCEPTIONS = {
@@ -42,6 +38,8 @@ EXCEPTIONS = {
     "Perfume": "cosmetic: the color is the fragrance liquid's tint",
     "Watch": "metal case and strap finish: gold, silver, rose gold",
     "Earrings": "precious metal: the color is the metal",
+    "Hoop Earrings": "precious metal: the color is the metal",
+    "Drop Earrings": "precious metal: the color is the metal",
     "Cutlery": "stainless steel and plated metal: the color is the metal",
     "Cutlery Set": "stainless steel: the color is the metal",
     "Socket Set": "chrome vanadium steel: the color is the raw metal",
@@ -141,9 +139,12 @@ def audience(rec: dict) -> str:
 def groups(tpls: list[dict]) -> dict[tuple[str, str], list[dict]]:
     """(product_type, audience) -> its styles, for every type with a color selector. A type
     sold to men and to women is two groups: "red shirt" has to find one for each."""
+    # read here, not at import: a spec file (type_specs/knitted_top.py) imports knitwear_rows, which
+    # imports this module, and the registry the apparel ids come from loads the spec files
+    _PLANTED = decoy_rows.IDS | decoy_apparel.IDS | decoy_product_words.IDS
     out: dict[tuple[str, str], list[dict]] = {}
     for r in tpls:
-        if r.get("color_options") and r["product_id"] not in decoy_rows.IDS | decoy_apparel.IDS:
+        if r.get("color_options") and r["product_id"] not in _PLANTED:
             out.setdefault((r["product_type"], audience(r)), []).append(r)
     return out
 

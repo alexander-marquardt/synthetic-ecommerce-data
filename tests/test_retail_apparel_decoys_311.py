@@ -28,6 +28,7 @@ import decoy_apparel as da  # noqa: E402
 import decoy_rows  # noqa: E402
 import details  # noqa: E402
 import export  # noqa: E402
+import garden_rows  # noqa: E402
 import image_release  # noqa: E402
 import main_colors  # noqa: E402
 import mens_depth_rows  # noqa: E402
@@ -302,18 +303,19 @@ def test_decoy_ids_are_the_two_tables_and_no_real_product_is_in_them(
 ) -> None:
     """The exemption is keyed on the decoy tables: a real catalog id is outside it. Membership
     is read with ``in``, the way ``check_catalog`` reads it."""
-    assert scale.DECOY_IDS == decoy_rows.IDS | da.IDS
+    assert decoy_rows.IDS | da.IDS | garden_rows.decoy_ids() == scale.DECOY_IDS
     real = [r["product_id"] for r in ceiling if r["product_id"] not in scale.DECOY_IDS]
     assert len(real) > 5 * len(scale.DECOY_IDS)
     assert not [i for i in real if i in scale.DECOY_IDS]
-    assert all(i in scale.DECOY_IDS for i in decoy_rows.IDS | da.IDS)
+    assert all(i in scale.DECOY_IDS for i in decoy_rows.IDS | da.IDS | garden_rows.decoy_ids())
 
 
 def test_the_mens_types_the_census_exempts_hold_their_own_decoys() -> None:
-    """The exemption of Polo Shirt, Jacket and Mens Trousers is safe only while the Mens depth
-    table holds at least three decoys of each class 1 to 7 for each of them."""
+    """The exemption of Polo Shirt, Jacket, Mens Trousers and the tailoring types is safe only
+    while the Mens depth table holds at least three decoys of each class 1 to 7 for each of them."""
     mens = {t for t in da.EXEMPT if any(d.ptype == t for d in mens_depth_rows.TABLE)}
-    assert mens == {"Polo Shirt", "Jacket", "Mens Trousers"}
+    assert mens == {"Polo Shirt", "Jacket", "Mens Trousers", "Suit Trousers", "Waistcoat",
+                    "Dinner Suit", "Formal Accessories"}
     for ptype in mens:
         for klass in range(1, 8):
             n = sum(1 for d in mens_depth_rows.TABLE if d.ptype == ptype and d.klass == klass)

@@ -2,7 +2,7 @@
 
 Loads :func:`real_classes.corpus` into a run-named index, runs each row's
 baseline (BM25 x popularity) and its policy, writes the top 5 of each to
-``real_classes_proof.json``, prints the README table and deletes the index.
+``real_classes_proof.json``, prints the retail page table and deletes the index.
 Standard library only.
 
     python prototypes/retail_drawings/es_proof.py --host http://127.0.0.1:9201

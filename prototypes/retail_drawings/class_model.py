@@ -14,6 +14,7 @@ from dataclasses import dataclass
 
 from colorwords import plain
 from departments import check as check_departments
+from promotion import values as promotion_values
 from variants import Color, attr, drawing, product, swatch
 
 AUDIENCES = ("adult", "kids", "baby")
@@ -139,13 +140,17 @@ class Style:
     bed_sized: bool = False
     #: Beauty and food: (unit size, "g" or "ml") of every shade or product.
     unit: tuple[float, str] | None = None
+    #: Beauty and drinks sold in several sizes: (ml, price) of each, one SKU per color x size,
+    #: the volume a SKU option (gen#347). Not with :attr:`unit`, which is one size for all.
+    volumes: tuple[tuple[float, float], ...] = ()
     #: Furniture: the :data:`BED_SIZE_DIMS` sizes it is made in, one SKU each
     #: with its price and dimensions; a bed need not come in every size.
     bed_frame: tuple[str, ...] = ()
     #: Signals a tile shows as badges (see :func:`badges`).
     trending: bool = False
     online_only: bool = False
-    #: An offer with no was-price (a multi-buy); a was-price is always an offer.
+    #: A multi-buy with no was-price. Out of scope of ``promotion`` (gen#189): it becomes its own
+    #: field later, so today it marks the style and changes no document.
     multibuy: bool = False
     #: A merchandising label on the tile ("The Active Edit"), never a category.
     sub_collection: str | None = None
@@ -173,6 +178,8 @@ class Style:
     def __post_init__(self) -> None:
         if self.lengths and self.size_range is not None:
             raise ValueError(f"{self.code}: a legwear size_range is derived from its SKUs")
+        if self.volumes and self.unit is not None:
+            raise ValueError(f"{self.code}: a style states one unit or several volumes, not both")
         if self.bed_frame and not set(self.bed_frame) <= set(BED_SIZE_DIMS):
             raise ValueError(f"{self.code}: a bed size outside the shared vocabulary")
         if self.metal and not {c[0] for c, _ in self.colors} <= set(FINISHES):
@@ -200,6 +207,9 @@ class Style:
                  and _digest(self.code, color[0], w, leg) % 7 != 0}
                 for leg in self.lengths for w in waists
             ]  # fmt: skip
+        if self.volumes:
+            return [{"net_volume_ml": ml, "price": price, "in_stock": True}
+                    for ml, price in self.volumes]  # fmt: skip
         if self.bed_sized:
             step = round(self.price / 4)
             return [{"bed_size": b, "price": float(self.price + n * step), "in_stock": True}
@@ -269,7 +279,6 @@ class Style:
             "review_count": reviews,
             "price_min": min(prices),
             "price_max": max(prices),
-            "offer": self.was_price is not None or self.multibuy,
             "online_only": self.online_only,
             "trending": self.trending,
         }
@@ -286,6 +295,7 @@ class Style:
                 rec[key] = getattr(self, key)
         if self.was_price is not None:
             rec["discount_pct"] = round(100 * (self.was_price - min(prices)) / self.was_price)
+            rec["promotion"] = promotion_values(f"PLT-{self.code}")
         if self.units_per_pack is not None:
             # The count kind industrial uses for a package quantity (C62, one).
             rec["attributes"].append(
@@ -382,7 +392,9 @@ _THIRD_PARTY = ("Kestlewood Cosmetics", "Stridewell", "Calderby & Lune", "Brambl
                 "Crunchworth", "Olivar Grove", "Pewley Table",
                 # Invented names that hold a color or category word (gen#311, class 7).
                 "Red Plover", "Blue Otter", "Green Stoat", "Yellow Wagtail", "Black Lapwing",
-                "White Dormouse", "Jumper Jay", "Coat Crake")  # fmt: skip
+                "White Dormouse", "Jumper Jay", "Coat Crake",
+                # A real brand, text only (real_brands.ALLOWED, gen#341); another house's make.
+                "Nike")  # fmt: skip
 _OWN = ("Harbour & Pine", "Larkmoor", "Wrenfield", "Little Fernby", "Quillon Sleep",
         "Ottery Denim", "Ferrowick Denim", "Goldfield Farms", "Crofter's Bakehouse",
         "Pantry Mill", "Hearth & Table", "Brackenmere Home", "Meadowgate Dairy",

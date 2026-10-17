@@ -6,7 +6,8 @@
     ecom-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz
     ecom-generate block shim_stock_precision
 
-``build`` writes:
+``build`` runs its image, product and non-copying audits first and writes nothing
+if one refuses (exit 1, ``--out`` untouched: gen#253). When all pass it writes:
 
 ``nested.jsonl``
     parent documents with nested SKUs and nested key-value attributes
@@ -35,6 +36,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from collections import Counter
 from dataclasses import asdict
@@ -209,7 +211,14 @@ def _write_field_map(catalog, config: GeneratorConfig) -> str:
         )
     if not target.parent.exists():
         return f"{target}  NOT rewritten -- the customization package is not present"
-    target.write_text(render(emit.iter_flat(catalog)), encoding="utf-8")
+    # Replaced, not truncated and rewritten: a reader that has the file open (a test of
+    # another xdist worker, an editor) sees the old file whole or the new one whole (#440).
+    staged = target.with_name(f"{target.name}.{os.getpid()}.tmp")
+    try:
+        staged.write_text(render(emit.iter_flat(catalog)), encoding="utf-8")
+        os.replace(staged, target)
+    finally:
+        staged.unlink(missing_ok=True)
     return f"{target}  field map regenerated from this catalog"
 
 
@@ -324,12 +333,8 @@ def main(argv: list[str] | None = None) -> int:
 
     out = args.out
     base_url = args.image_base_url
-    nested = emit.write_jsonl(emit.iter_nested(catalog, base_url), out / "nested.jsonl")
-    flat = emit.write_jsonl(emit.iter_flat(catalog, base_url), out / "flat.jsonl")
-    images = emit.write_jsonl(emit.iter_image_manifest(catalog, base_url), out / "images.jsonl")
-
     # Every SKU points at its own drawing and every product at one of its
-    # SKUs'. Both directions are asserted before the catalog is written.
+    # SKUs'. Both directions are asserted before anything is written.
     referenced = emit.referenced_image_ids(catalog)
     problems = _check_images(catalog, referenced)
     if problems:
@@ -348,14 +353,20 @@ def main(argv: list[str] | None = None) -> int:
         for problem in split_problems:
             print(f"product audit FAILED: {problem}", file=sys.stderr)
         return 1
-    # render.jsonl is every SKU in the shape ``ecom-render batch`` reads.
-    render = emit.write_jsonl(emit.render_records(catalog), out / "render.jsonl")
-
     audit = noncopy.audit(catalog)
     if audit["full_tuple_collisions"] or audit["sku_collisions"]:
         # Refuse to write a catalog that breaks the repository's own promise.
         print("non-copying audit FAILED:", json.dumps(audit), file=sys.stderr)
         return 1
+
+    # Every audit has passed: only now is anything written (gen#253). A refused build leaves
+    # ``--out`` as it was, so ``--out golden-catalog`` never replaces the tracked files with a
+    # catalog an audit just refused.
+    nested = emit.write_jsonl(emit.iter_nested(catalog, base_url), out / "nested.jsonl")
+    flat = emit.write_jsonl(emit.iter_flat(catalog, base_url), out / "flat.jsonl")
+    images = emit.write_jsonl(emit.iter_image_manifest(catalog, base_url), out / "images.jsonl")
+    # render.jsonl is every SKU in the shape ``ecom-render batch`` reads.
+    render = emit.write_jsonl(emit.render_records(catalog), out / "render.jsonl")
 
     payload = _serialisable(stats)
     payload["noncopy_audit"] = audit
