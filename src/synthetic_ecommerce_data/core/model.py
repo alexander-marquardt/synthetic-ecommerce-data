@@ -23,12 +23,11 @@ makes that disagreement impossible by construction.
 
 An attribute that is not a measurement omits ``value_num`` entirely rather
 than carrying a null, and so does a measurement whose value is deliberately
-malformed: a record with ``Helix Angle = 42"`` publishes no degree mark to read
-an angle from, and inventing one would paper over the defect the flat document
-exists to exhibit. Its nested entry is still an angle (``42`` ``DD``): the entry
-takes an angle attribute's unit from its name, not its mark (#79). A value
-outside the angles the attribute's series offers, such as ``1-5/8"``, is a
-length in an angle field, and its entry stays text.
+malformed (a unit-mixing spelling the mark cannot read). The mark decides the
+unit: a value carrying a degree mark is an angle, one carrying an inch or
+millimetre mark is a length, and no unit is taken from the attribute's name.
+The generator writes no wrong-kind value (#404): an inch length is never
+written under an angle key, so there is no such value for an entry to repair.
 
 ``value_num`` is internal: generation and measurement read it, and the flat
 shape's ``facets_num`` publishes it. A nested ENTRY carries the split shape of
