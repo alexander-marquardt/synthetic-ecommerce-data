@@ -45,10 +45,21 @@ printf 'ADDOPTS=%s\\tARGS=%s\\n' "${PYTEST_ADDOPTS:-}" "$*" >> "$FAKE_UV_LOG"
 """
 
 
+def plant_shard_script(root: Path) -> None:
+    """The emitted tests job asks ``scripts/ci_shards.py`` for its files: give it a tiny tree."""
+    (root / "scripts").mkdir(exist_ok=True)
+    (root / "tests").mkdir(exist_ok=True)
+    (root / "scripts" / "ci_shards.py").write_text(
+        (REPO / "scripts" / "ci_shards.py").read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    (root / "tests" / "test_stub.py").write_text("", encoding="utf-8")
+
+
 def pytest_invocations(job_id: str, workflows: Path, tmp_path: Path) -> list[list[str]]:
     """Each pytest the job's emitted script runs: `PYTEST_ADDOPTS` tokens, then arguments."""
     jobs = local_ci_jobs.load_jobs(workflows)
     script = local_ci_jobs.emit(job_id, jobs[job_id], "BASE", "HEAD")
+    plant_shard_script(tmp_path)
     stub = tmp_path / "bin"
     stub.mkdir()
     (stub / "uv").write_text(_FAKE_UV, encoding="utf-8")
@@ -177,6 +188,7 @@ def test_the_emitted_script_takes_the_worker_count_from_the_machine_that_runs_it
     jobs = local_ci_jobs.load_jobs(WORKFLOWS)
     script = local_ci_jobs.emit("tests", jobs["tests"], "BASE", "HEAD")
     probe = f'{script}\necho "ADDOPTS=$PYTEST_ADDOPTS"\n'.replace("uv run", "true uv run")
+    plant_shard_script(tmp_path)
     env = {k: v for k, v in os.environ.items() if k != "PYTEST_ADDOPTS"}
     for workers, expected in (("3", "-n 3 --dist loadgroup"), (None, "-n 10 --dist loadgroup")):
         env.pop("LOCAL_CI_WORKERS", None)

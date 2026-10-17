@@ -423,12 +423,24 @@ def test_the_scaffold_output_is_formatted(tmp_path: Path, kind: str) -> None:
 
 
 _PLAN = type_registry.ApparelPlan
+_C = (("vest", "Vest Kaftan"),)  # a real-looking compound, so each case fails on one rule only
 _APPAREL_BAD = {  # name -> (the department of the base spec, the fields it declares)
-    "a plan and an exemption": ("Clothing", dict(apparel=_PLAN(), apparel_exempt="a costume")),
-    "a plan on a beauty type": ("Beauty", dict(apparel=_PLAN())),
+    "a plan and an exemption": (
+        "Clothing",
+        dict(apparel=_PLAN(compounds=_C), apparel_exempt="a costume"),
+    ),
+    "a plan on a beauty type": ("Beauty", dict(apparel=_PLAN(compounds=_C))),
     "an exemption on a beauty type": ("Beauty", dict(apparel_exempt="why")),
-    "fewer than three decoys per class": ("Clothing", dict(apparel=_PLAN(per_class=2))),
-    "an unknown word family": ("Clothing", dict(apparel=_PLAN(family="z"))),
+    "fewer than three decoys per class": (
+        "Clothing",
+        dict(apparel=_PLAN(per_class=2, compounds=_C)),
+    ),
+    "an unknown word family": ("Clothing", dict(apparel=_PLAN(family="z", compounds=_C))),
+    "no class 2 compound (#444)": ("Clothing", dict(apparel=_PLAN())),
+    "a compound word its phrase lacks (#444)": (
+        "Clothing",
+        dict(apparel=_PLAN(compounds=(("vest", "Cami Kaftan"),))),
+    ),
 }
 
 
