@@ -82,6 +82,7 @@ class Spec:
     family: str = "a"
     per_class: int = 3
     prefix: str = ""  # what a decoy id of the type starts with after ``PLT-D``
+    compounds: tuple[tuple[str, str], ...] = ()  # a registry type's own (word, phrase) pairs
 
     @property
     def classes(self) -> dict[int, int]:
@@ -161,7 +162,8 @@ def _merged_for(registered: tuple) -> tuple[tuple[Spec, ...], dict[str, str], fr
         if (plan or why) and ptype in seen:
             raise type_registry.SpecError(f"{key}: {ptype} is already planned (apparel) here")
         if plan:
-            types.append(Spec(ptype, plan.family, plan.per_class, f"S{key.upper()}"))
+            prefix = f"S{key.upper()}"
+            types.append(Spec(ptype, plan.family, plan.per_class, prefix, plan.compounds))
         elif why:
             exempt[ptype] = why
         elif in_scope and ptype not in seen:
@@ -246,8 +248,6 @@ COMPOUNDS = {
     "Trousers": (("cargo", "Cargo Trousers"), ("chino", "Chino Trousers"),
                  ("jogger", "Jogger Trousers"), ("dress", "Dress Trousers")),
     "Jeans": (("cargo", "Cargo Jeans"), ("jogger", "Jogger Jeans"), ("dress", "Dress Jeans")),
-    "Knitted Top": (("vest", "Knitted Vest Top"), ("cami", "Knitted Cami Top"),
-                    ("polo", "Knitted Polo Top"), ("tunic", "Knitted Tunic Top")),
     "School Trousers": (("chino", "Chino School Trousers"), ("jogger", "Jogger School Trousers"),
                         ("cargo", "Cargo School Trousers")),
     "School Skirt": (("pinafore", "Pinafore School Skirt"), ("culotte", "Culotte School Skirt")),
@@ -417,6 +417,11 @@ def _clone(
     return product(f"PLT-D{code}", skus, {color_tuple[0]: swatch(color_tuple, family)}, **keep)
 
 
+def _a(word: str) -> str:
+    """The article before ``word``: "an oxford", "a boot"."""
+    return "an" if word[:1].lower() in "aeiou" else "a"
+
+
 def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
     """Every decoy of class ``cls`` this exemplar can carry: title, description, word, query,
     color. Any option whose word the exemplar's own fields hold is left out."""
@@ -440,9 +445,10 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
                             )
                         )
     elif cls == 2:
-        if noun not in COMPOUNDS:
+        pairs = spec.compounds or COMPOUNDS.get(noun)
+        if not pairs:
             raise ValueError(f"{noun}: no real class 2 compound; add it to COMPOUNDS")
-        for word, phrase in (w for w in COMPOUNDS[noun] if not path_has(w[0])):
+        for word, phrase in (w for w in pairs if not path_has(w[0])):
             for c in PRODUCT_COLORS:
                 out.append(
                     dict(
@@ -450,8 +456,8 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
                         phrase=phrase,
                         word=word,
                         color=c,
-                        desc=f"{c} {n} with {word}-style detailing, sold as a {phrase.lower()}. "
-                        f"Not a {word}.",
+                        desc=f"{c} {n} with {word}-style detailing, sold as "
+                        f'"{phrase.lower()}". Not {_a(word)} {word}.',
                         query=word,
                     )
                 )

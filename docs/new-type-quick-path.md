@@ -23,9 +23,11 @@ only when this page does not cover what you need.
    * a hand-authored text-match decoy (gen#294) is a `Decoy(class 1-7, query, policy, row)` in
      `decoys=`; it is never derived and never takes a color completion;
    * a clothing, footwear or lingerie type (Womens, Mens or Kids) carries its apparel decoy plan
-     (gen#311) in the same file: the scaffold writes `apparel=ApparelPlan()` (three decoys per
-     class; `ApparelPlan(family, per_class)` picks the word family `a` garment, `b` bra,
-     `u` underwear, `s` shoe, `k` sock, and more per class). A type that should carry none says
+     (gen#311) in the same file: the scaffold writes `apparel=ApparelPlan(compounds=...)` with
+     one placeholder compound to edit (three decoys per class; `ApparelPlan(family, per_class,
+     compounds)` picks the word family `a` garment, `b` bra, `u` underwear, `s` shoe, `k` sock,
+     and more per class; `compounds` are the type's real class 2 names, each `(word, phrase)`
+     such as `("vest", "Knitted Vest Top")`, never an invented one). A type that should carry none says
      why: `apparel_exempt="<reason>"` in place of the plan. A beauty type carries neither.
    Worked examples: `type_specs/tracksuit.py` (clothing, an `LRow` with a SKU axis) and
    `type_specs/shampoo.py` (beauty, a derivable breadth type).
