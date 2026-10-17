@@ -79,9 +79,9 @@ def test_a_decoy_is_a_real_product_that_never_claims_to_be_fresh(plural: str) ->
 
 @pytest.mark.parametrize("plural", PLURALS)
 def test_the_fresh_products_are_as_long_as_the_decoys(plural: str) -> None:
-    leaf = plural.title()
+    leaf = plural.title()  # "Fresh Cherries" counts: the breadth leaf "Cherries" is taken
     fresh = [r for r in _fresh_records()
-             if r["category_path"][-1] == leaf and plural in _tokens(r["title"])]
+             if r["category_path"][-1].endswith(leaf) and plural in _tokens(r["title"])]
     assert len(fresh) >= 5 and len(_rows(plural)) >= 3, (plural, len(fresh))
     fresh_len = statistics.median(len(r["title"].split()) for r in fresh)
     decoy_len = statistics.median(len(d.title.split()) for d in _rows(plural))

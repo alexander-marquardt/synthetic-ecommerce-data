@@ -814,7 +814,7 @@ FAMILIES: tuple[Family, ...] = (
            (_o("Ripe Fairtrade Bananas", "#e8c83a", "Colombia"), _o("Large Ripe Bananas", "#ecd04a", "Costa Rica"),
             _o("Sweet Baby Bananas", "#e8d24a", "Dominican Republic"), _o("Loose Ripe Bananas", "#e4c23a", "Ecuador")),
            _FRESH, 0.005, item_g=120, axis="variety", depth=True),
-    Family("CHY", _FRUIT + ("Stone Fruit", "Cherries"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+    Family("CHY", _FRUIT + ("Stone Fruit", "Fresh Cherries"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
            _C, "A", 3.0, ("250g", "400g", "500g"),
            (_o("Sweet Red Cherries", "#a3182e", "Turkey"), _o("Large Dark Cherries", "#6a1226", "Spain"),
             _o("Ripe British Cherries", "#b02238", "United Kingdom"), _o("Juicy Morello Cherries", "#8a1a2e", "Chile")),
