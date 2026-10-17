@@ -39,13 +39,19 @@ Policy column is
 Types with fewer than three real class 2 compounds (a third is never invented; #444):
 
 - Ballet Pumps: only ballet slippers and ballet sandals pair another noun with a ballet pump.
+- Barefoot Shoes: only the sandal barefoot shoe is a name a shopper meets.
 - Blouse: only the dress blouse and the tunic blouse are names a shopper meets.
 - Chukka Boots: only sneaker boots and loafer boots are names; a shoe boot is not one.
+- Clogs: only the mule clog is a name a shopper meets.
 - Court Shoes: only dress shoes pairs another category's noun with a court shoe.
 - Dressing Gown: only hoodie and kimono dressing gowns are names a shopper meets.
+- Espadrilles: only the sneaker espadrille is a name; a wedge espadrille is an espadrille.
 - Jeans: only cargo jeans and jogger jeans are names a shopper meets.
+- Jelly Shoes: only the mary jane jelly shoe is a name a shopper meets.
 - Jumper: only the tunic jumper and the polo jumper are names a shopper meets.
 - Loafers: only mule loafers and brogue loafers are names a shopper meets.
+- Platform Trainers: only the sock platform trainer is a name a shopper meets.
+- Plimsolls: only the sneaker plimsoll is a name met; a pump or a trainer is a plimsoll.
 - Pyjamas: only short pyjamas and cami pyjamas are names a shopper meets.
 - School Pinafore: a school pinafore dress is the only compound name of it.
 - School Shirt: only the school polo shirt and the oxford school shirt are names met.
@@ -54,6 +60,7 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 - Tee: only the polo tee and the tunic tee name another category; a henley is a tee.
 - Tights: only running tights and cycling tights are names a shopper meets.
 - Walking Boots: only the chukka walking boot is a name a shopper meets.
+- Wedges: only sneaker wedges and sandal wedges are names; espadrille wedges are wedges.
 - Wellies: only the chelsea welly is a name a shopper meets.
 
 | Product id | Type | Class | Title | Word | Query | Policy |
@@ -1418,6 +1425,174 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA59700 | School Shirt | 7 invented brand holding a color or category word | Yellow Wagtail School Shirt | yellow | yellow school shirt | generic |
 | PLT-DA59701 | School Shirt | 7 invented brand holding a color or category word | White Dormouse School Shirt | white | white school shirt | generic |
 | PLT-DA59702 | School Shirt | 7 invented brand holding a color or category word | Green Stoat School Shirt | green | green school shirt | generic |
+| PLT-DA60100 | Plimsolls | 1 color names a part | Plimsolls with Yellow Sole | yellow | yellow plimsolls | generic |
+| PLT-DA60101 | Plimsolls | 1 color names a part | Plimsolls with Black Sole | black | black plimsolls | generic |
+| PLT-DA60102 | Plimsolls | 1 color names a part | Plimsolls with Blue Sole | blue | blue plimsolls | generic |
+| PLT-DA60200 | Plimsolls | 2 another category's noun as a modifier | Green Sneaker Plimsolls | sneaker | sneaker | generic |
+| PLT-DA60201 | Plimsolls | 2 another category's noun as a modifier | Grey Sneaker Plimsolls | sneaker | sneaker | generic |
+| PLT-DA60202 | Plimsolls | 2 another category's noun as a modifier | Black Sneaker Plimsolls | sneaker | sneaker | generic |
+| PLT-DA60300 | Plimsolls | 3 audience word of a sibling version | Red Mens-Style Plimsolls | mens | mens plimsolls | generic |
+| PLT-DA60301 | Plimsolls | 3 audience word of a sibling version | White Womens-Style Plimsolls | womens | womens plimsolls | generic |
+| PLT-DA60302 | Plimsolls | 3 audience word of a sibling version | Brown Boys Fit Plimsolls | boys | boys plimsolls | generic |
+| PLT-DA60400 | Plimsolls | 4 material or feature named but absent | Red Leather-Look Plimsolls | leather | leather plimsolls | special: material claim |
+| PLT-DA60401 | Plimsolls | 4 material or feature named but absent | Brown Suede-Look Plimsolls | suede | suede plimsolls | special: material claim |
+| PLT-DA60402 | Plimsolls | 4 material or feature named but absent | Blue Cashmere-Feel Plimsolls | cashmere | cashmere plimsolls | special: material claim |
+| PLT-DA60500 | Plimsolls | 5 shade spelled in the description only | Moonbeam Plimsolls | ivory | ivory plimsolls | generic |
+| PLT-DA60501 | Plimsolls | 5 shade spelled in the description only | Driftwood Plimsolls | taupe | taupe plimsolls | generic |
+| PLT-DA60502 | Plimsolls | 5 shade spelled in the description only | Dune Plimsolls | beige | beige plimsolls | generic |
+| PLT-DA60600 | Plimsolls | 6 incidental word in a range name | Slipper Brook Plimsolls | slipper | slipper | generic |
+| PLT-DA60601 | Plimsolls | 6 incidental word in a range name | Blazer Court Plimsolls | blazer | blazer | generic |
+| PLT-DA60602 | Plimsolls | 6 incidental word in a range name | Blazer Court Plimsolls | blazer | blazer | generic |
+| PLT-DA60700 | Plimsolls | 7 invented brand holding a color or category word | Red Plover Plimsolls | red | red plimsolls | generic |
+| PLT-DA60701 | Plimsolls | 7 invented brand holding a color or category word | Black Lapwing Plimsolls | black | black plimsolls | generic |
+| PLT-DA60702 | Plimsolls | 7 invented brand holding a color or category word | Coat Crake Plimsolls | coat | coat plimsolls | generic |
+| PLT-DA61100 | Clogs | 1 color names a part | Clogs with White Sole | white | white clogs | generic |
+| PLT-DA61101 | Clogs | 1 color names a part | Clogs with Blue Sole | blue | blue clogs | generic |
+| PLT-DA61102 | Clogs | 1 color names a part | Clogs with Green Sole | green | green clogs | generic |
+| PLT-DA61200 | Clogs | 2 another category's noun as a modifier | Pink Mule Clogs | mule | mule | generic |
+| PLT-DA61201 | Clogs | 2 another category's noun as a modifier | Pink Mule Clogs | mule | mule | generic |
+| PLT-DA61202 | Clogs | 2 another category's noun as a modifier | Brown Mule Clogs | mule | mule | generic |
+| PLT-DA61300 | Clogs | 3 audience word of a sibling version | Grey Womens-Style Clogs | womens | womens clogs | generic |
+| PLT-DA61301 | Clogs | 3 audience word of a sibling version | Pink Mens Fit Clogs | mens | mens clogs | generic |
+| PLT-DA61302 | Clogs | 3 audience word of a sibling version | Blue Mens Fit Clogs | mens | mens clogs | generic |
+| PLT-DA61400 | Clogs | 4 material or feature named but absent | Green Suede-Look Clogs | suede | suede clogs | special: material claim |
+| PLT-DA61401 | Clogs | 4 material or feature named but absent | Black Leather-Look Clogs | leather | leather clogs | special: material claim |
+| PLT-DA61402 | Clogs | 4 material or feature named but absent | Pink Cashmere-Feel Clogs | cashmere | cashmere clogs | special: material claim |
+| PLT-DA61500 | Clogs | 5 shade spelled in the description only | Moonbeam Clogs | ivory | ivory clogs | generic |
+| PLT-DA61501 | Clogs | 5 shade spelled in the description only | Driftwood Clogs | taupe | taupe clogs | generic |
+| PLT-DA61502 | Clogs | 5 shade spelled in the description only | Dune Clogs | beige | beige clogs | generic |
+| PLT-DA61600 | Clogs | 6 incidental word in a range name | Dress Circle Clogs | dress | dress | generic |
+| PLT-DA61601 | Clogs | 6 incidental word in a range name | Jacket Quay Clogs | jacket | jacket | generic |
+| PLT-DA61602 | Clogs | 6 incidental word in a range name | Sandal Wood Clogs | sandal | sandal | generic |
+| PLT-DA61700 | Clogs | 7 invented brand holding a color or category word | Jumper Jay Clogs | jumper | jumper clogs | generic |
+| PLT-DA61701 | Clogs | 7 invented brand holding a color or category word | Red Plover Clogs | red | red clogs | generic |
+| PLT-DA61702 | Clogs | 7 invented brand holding a color or category word | Jumper Jay Clogs | jumper | jumper clogs | generic |
+| PLT-DA62100 | Wedges | 1 color names a part | Wedges with Green Sole | green | green wedges | generic |
+| PLT-DA62101 | Wedges | 1 color names a part | Wedges with Blue Sole | blue | blue wedges | generic |
+| PLT-DA62102 | Wedges | 1 color names a part | Wedges with White Sole | white | white wedges | generic |
+| PLT-DA62200 | Wedges | 2 another category's noun as a modifier | Pink Sneaker Wedges | sneaker | sneaker | generic |
+| PLT-DA62201 | Wedges | 2 another category's noun as a modifier | Navy Sandal Wedges | sandal | sandal | generic |
+| PLT-DA62202 | Wedges | 2 another category's noun as a modifier | Cream Sandal Wedges | sandal | sandal | generic |
+| PLT-DA62300 | Wedges | 3 audience word of a sibling version | Pink Boys Fit Wedges | boys | boys wedges | generic |
+| PLT-DA62301 | Wedges | 3 audience word of a sibling version | Black Mens Fit Wedges | mens | mens wedges | generic |
+| PLT-DA62302 | Wedges | 3 audience word of a sibling version | Navy Mens-Style Wedges | mens | mens wedges | generic |
+| PLT-DA62400 | Wedges | 4 material or feature named but absent | Red Leather-Look Wedges | leather | leather wedges | special: material claim |
+| PLT-DA62401 | Wedges | 4 material or feature named but absent | Grey Suede-Look Wedges | suede | suede wedges | special: material claim |
+| PLT-DA62402 | Wedges | 4 material or feature named but absent | Black Cashmere-Feel Wedges | cashmere | cashmere wedges | special: material claim |
+| PLT-DA62500 | Wedges | 5 shade spelled in the description only | Moonbeam Wedges | ivory | ivory wedges | generic |
+| PLT-DA62501 | Wedges | 5 shade spelled in the description only | Driftwood Wedges | taupe | taupe wedges | generic |
+| PLT-DA62502 | Wedges | 5 shade spelled in the description only | Dune Wedges | beige | beige wedges | generic |
+| PLT-DA62600 | Wedges | 6 incidental word in a range name | Shirt Row Wedges | shirt | shirt | generic |
+| PLT-DA62601 | Wedges | 6 incidental word in a range name | Jacket Quay Wedges | jacket | jacket | generic |
+| PLT-DA62602 | Wedges | 6 incidental word in a range name | Slipper Brook Wedges | slipper | slipper | generic |
+| PLT-DA62700 | Wedges | 7 invented brand holding a color or category word | White Dormouse Wedges | white | white wedges | generic |
+| PLT-DA62701 | Wedges | 7 invented brand holding a color or category word | Blue Otter Wedges | blue | blue wedges | generic |
+| PLT-DA62702 | Wedges | 7 invented brand holding a color or category word | Jumper Jay Wedges | jumper | jumper wedges | generic |
+| PLT-DA63100 | Espadrilles | 1 color names a part | Espadrilles with Black Sole | black | black espadrilles | generic |
+| PLT-DA63101 | Espadrilles | 1 color names a part | Espadrilles with Red Sole | red | red espadrilles | generic |
+| PLT-DA63102 | Espadrilles | 1 color names a part | Espadrilles with Blue Sole | blue | blue espadrilles | generic |
+| PLT-DA63200 | Espadrilles | 2 another category's noun as a modifier | Green Sneaker Espadrilles | sneaker | sneaker | generic |
+| PLT-DA63201 | Espadrilles | 2 another category's noun as a modifier | Navy Sneaker Espadrilles | sneaker | sneaker | generic |
+| PLT-DA63202 | Espadrilles | 2 another category's noun as a modifier | Grey Sneaker Espadrilles | sneaker | sneaker | generic |
+| PLT-DA63300 | Espadrilles | 3 audience word of a sibling version | White Girls Fit Espadrilles | girls | girls espadrilles | generic |
+| PLT-DA63301 | Espadrilles | 3 audience word of a sibling version | White Boys Fit Espadrilles | boys | boys espadrilles | generic |
+| PLT-DA63302 | Espadrilles | 3 audience word of a sibling version | Green Mens-Style Espadrilles | mens | mens espadrilles | generic |
+| PLT-DA63400 | Espadrilles | 4 material or feature named but absent | Red Leather-Look Espadrilles | leather | leather espadrilles | special: material claim |
+| PLT-DA63401 | Espadrilles | 4 material or feature named but absent | Navy Suede-Look Espadrilles | suede | suede espadrilles | special: material claim |
+| PLT-DA63402 | Espadrilles | 4 material or feature named but absent | Blue Cashmere-Feel Espadrilles | cashmere | cashmere espadrilles | special: material claim |
+| PLT-DA63500 | Espadrilles | 5 shade spelled in the description only | Moonbeam Espadrilles | ivory | ivory espadrilles | generic |
+| PLT-DA63501 | Espadrilles | 5 shade spelled in the description only | Driftwood Espadrilles | taupe | taupe espadrilles | generic |
+| PLT-DA63502 | Espadrilles | 5 shade spelled in the description only | Dune Espadrilles | beige | beige espadrilles | generic |
+| PLT-DA63600 | Espadrilles | 6 incidental word in a range name | Cardigan Bay Espadrilles | cardigan | cardigan | generic |
+| PLT-DA63601 | Espadrilles | 6 incidental word in a range name | Slipper Brook Espadrilles | slipper | slipper | generic |
+| PLT-DA63602 | Espadrilles | 6 incidental word in a range name | Blazer Court Espadrilles | blazer | blazer | generic |
+| PLT-DA63700 | Espadrilles | 7 invented brand holding a color or category word | Jumper Jay Espadrilles | jumper | jumper espadrilles | generic |
+| PLT-DA63701 | Espadrilles | 7 invented brand holding a color or category word | Blue Otter Espadrilles | blue | blue espadrilles | generic |
+| PLT-DA63702 | Espadrilles | 7 invented brand holding a color or category word | Jumper Jay Espadrilles | jumper | jumper espadrilles | generic |
+| PLT-DA64100 | Platform Trainers | 1 color names a part | Platform Trainers with White Sole | white | white platform trainers | generic |
+| PLT-DA64101 | Platform Trainers | 1 color names a part | Platform Trainers with Green Sole | green | green platform trainers | generic |
+| PLT-DA64102 | Platform Trainers | 1 color names a part | Platform Trainers with Red Sole | red | red platform trainers | generic |
+| PLT-DA64200 | Platform Trainers | 2 another category's noun as a modifier | White Sock Platform Trainers | sock | sock | generic |
+| PLT-DA64201 | Platform Trainers | 2 another category's noun as a modifier | Navy Sock Platform Trainers | sock | sock | generic |
+| PLT-DA64202 | Platform Trainers | 2 another category's noun as a modifier | Black Sock Platform Trainers | sock | sock | generic |
+| PLT-DA64300 | Platform Trainers | 3 audience word of a sibling version | Cream Mens-Style Platform Trainers | mens | mens platform trainers | generic |
+| PLT-DA64301 | Platform Trainers | 3 audience word of a sibling version | Blue Mens-Style Platform Trainers | mens | mens platform trainers | generic |
+| PLT-DA64302 | Platform Trainers | 3 audience word of a sibling version | Navy Boys Fit Platform Trainers | boys | boys platform trainers | generic |
+| PLT-DA64400 | Platform Trainers | 4 material or feature named but absent | Pink Leather-Look Platform Trainers | leather | leather platform trainers | special: material claim |
+| PLT-DA64401 | Platform Trainers | 4 material or feature named but absent | Grey Suede-Look Platform Trainers | suede | suede platform trainers | special: material claim |
+| PLT-DA64402 | Platform Trainers | 4 material or feature named but absent | Green Cashmere-Feel Platform Trainers | cashmere | cashmere platform trainers | special: material claim |
+| PLT-DA64500 | Platform Trainers | 5 shade spelled in the description only | Moonbeam Platform Trainers | ivory | ivory platform trainers | generic |
+| PLT-DA64501 | Platform Trainers | 5 shade spelled in the description only | Driftwood Platform Trainers | taupe | taupe platform trainers | generic |
+| PLT-DA64502 | Platform Trainers | 5 shade spelled in the description only | Dune Platform Trainers | beige | beige platform trainers | generic |
+| PLT-DA64600 | Platform Trainers | 6 incidental word in a range name | Slip Road Platform Trainers | slip | slip | generic |
+| PLT-DA64601 | Platform Trainers | 6 incidental word in a range name | Cardigan Bay Platform Trainers | cardigan | cardigan | generic |
+| PLT-DA64602 | Platform Trainers | 6 incidental word in a range name | Boot Hill Platform Trainers | boot | boot | generic |
+| PLT-DA64700 | Platform Trainers | 7 invented brand holding a color or category word | Yellow Wagtail Platform Trainers | yellow | yellow platform trainers | generic |
+| PLT-DA64701 | Platform Trainers | 7 invented brand holding a color or category word | Blue Otter Platform Trainers | blue | blue platform trainers | generic |
+| PLT-DA64702 | Platform Trainers | 7 invented brand holding a color or category word | Red Plover Platform Trainers | red | red platform trainers | generic |
+| PLT-DA65100 | Mules | 1 color names a part | Mules with Yellow Sole | yellow | yellow mules | generic |
+| PLT-DA65101 | Mules | 1 color names a part | Mules with Black Sole | black | black mules | generic |
+| PLT-DA65102 | Mules | 1 color names a part | Mules with Green Sole | green | green mules | generic |
+| PLT-DA65200 | Mules | 2 another category's noun as a modifier | Green Loafer Mules | loafer | loafer | generic |
+| PLT-DA65201 | Mules | 2 another category's noun as a modifier | Pink Sandal Mules | sandal | sandal | generic |
+| PLT-DA65202 | Mules | 2 another category's noun as a modifier | Black Loafer Mules | loafer | loafer | generic |
+| PLT-DA65300 | Mules | 3 audience word of a sibling version | Black Mens-Style Mules | mens | mens mules | generic |
+| PLT-DA65301 | Mules | 3 audience word of a sibling version | Pink Mens Fit Mules | mens | mens mules | generic |
+| PLT-DA65302 | Mules | 3 audience word of a sibling version | Green Mens-Style Mules | mens | mens mules | generic |
+| PLT-DA65400 | Mules | 4 material or feature named but absent | Brown Cashmere-Feel Mules | cashmere | cashmere mules | special: material claim |
+| PLT-DA65401 | Mules | 4 material or feature named but absent | Red Suede-Look Mules | suede | suede mules | special: material claim |
+| PLT-DA65402 | Mules | 4 material or feature named but absent | Pink Wool-Free Mules | wool | wool mules | special: material claim |
+| PLT-DA65500 | Mules | 5 shade spelled in the description only | Moonbeam Mules | ivory | ivory mules | generic |
+| PLT-DA65501 | Mules | 5 shade spelled in the description only | Driftwood Mules | taupe | taupe mules | generic |
+| PLT-DA65502 | Mules | 5 shade spelled in the description only | Dune Mules | beige | beige mules | generic |
+| PLT-DA65600 | Mules | 6 incidental word in a range name | Shirt Row Mules | shirt | shirt | generic |
+| PLT-DA65601 | Mules | 6 incidental word in a range name | Coat Hook Mules | coat | coat | generic |
+| PLT-DA65602 | Mules | 6 incidental word in a range name | Sandal Wood Mules | sandal | sandal | generic |
+| PLT-DA65700 | Mules | 7 invented brand holding a color or category word | Black Lapwing Mules | black | black mules | generic |
+| PLT-DA65701 | Mules | 7 invented brand holding a color or category word | Coat Crake Mules | coat | coat mules | generic |
+| PLT-DA65702 | Mules | 7 invented brand holding a color or category word | Green Stoat Mules | green | green mules | generic |
+| PLT-DA66100 | Jelly Shoes | 1 color names a part | Jelly Shoes with White Sole | white | white jelly shoes | generic |
+| PLT-DA66101 | Jelly Shoes | 1 color names a part | Jelly Shoes with Green Sole | green | green jelly shoes | generic |
+| PLT-DA66102 | Jelly Shoes | 1 color names a part | Jelly Shoes with Yellow Sole | yellow | yellow jelly shoes | generic |
+| PLT-DA66200 | Jelly Shoes | 2 another category's noun as a modifier | Navy Mary Jane Jelly Shoes | mary jane | mary jane | generic |
+| PLT-DA66201 | Jelly Shoes | 2 another category's noun as a modifier | Pink Mary Jane Jelly Shoes | mary jane | mary jane | generic |
+| PLT-DA66202 | Jelly Shoes | 2 another category's noun as a modifier | Cream Mary Jane Jelly Shoes | mary jane | mary jane | generic |
+| PLT-DA66300 | Jelly Shoes | 3 audience word of a sibling version | Cream Mini-Me Womens Jelly Shoes | womens | womens jelly shoes | generic |
+| PLT-DA66301 | Jelly Shoes | 3 audience word of a sibling version | White Boys Fit Jelly Shoes | boys | boys jelly shoes | generic |
+| PLT-DA66302 | Jelly Shoes | 3 audience word of a sibling version | Red Mens Fit Jelly Shoes | mens | mens jelly shoes | generic |
+| PLT-DA66400 | Jelly Shoes | 4 material or feature named but absent | Blue Leather-Look Jelly Shoes | leather | leather jelly shoes | special: material claim |
+| PLT-DA66401 | Jelly Shoes | 4 material or feature named but absent | Pink Suede-Look Jelly Shoes | suede | suede jelly shoes | special: material claim |
+| PLT-DA66402 | Jelly Shoes | 4 material or feature named but absent | Black Cashmere-Feel Jelly Shoes | cashmere | cashmere jelly shoes | special: material claim |
+| PLT-DA66500 | Jelly Shoes | 5 shade spelled in the description only | Moonbeam Jelly Shoes | ivory | ivory jelly shoes | generic |
+| PLT-DA66501 | Jelly Shoes | 5 shade spelled in the description only | Driftwood Jelly Shoes | taupe | taupe jelly shoes | generic |
+| PLT-DA66502 | Jelly Shoes | 5 shade spelled in the description only | Dune Jelly Shoes | beige | beige jelly shoes | generic |
+| PLT-DA66600 | Jelly Shoes | 6 incidental word in a range name | Boot Hill Jelly Shoes | boot | boot | generic |
+| PLT-DA66601 | Jelly Shoes | 6 incidental word in a range name | Sandal Wood Jelly Shoes | sandal | sandal | generic |
+| PLT-DA66602 | Jelly Shoes | 6 incidental word in a range name | Jacket Quay Jelly Shoes | jacket | jacket | generic |
+| PLT-DA66700 | Jelly Shoes | 7 invented brand holding a color or category word | Red Plover Jelly Shoes | red | red jelly shoes | generic |
+| PLT-DA66701 | Jelly Shoes | 7 invented brand holding a color or category word | Coat Crake Jelly Shoes | coat | coat jelly shoes | generic |
+| PLT-DA66702 | Jelly Shoes | 7 invented brand holding a color or category word | Black Lapwing Jelly Shoes | black | black jelly shoes | generic |
+| PLT-DA67100 | Barefoot Shoes | 1 color names a part | Barefoot Shoes with Blue Sole | blue | blue barefoot shoes | generic |
+| PLT-DA67101 | Barefoot Shoes | 1 color names a part | Barefoot Shoes with Blue Sole | blue | blue barefoot shoes | generic |
+| PLT-DA67102 | Barefoot Shoes | 1 color names a part | Barefoot Shoes with Red Sole | red | red barefoot shoes | generic |
+| PLT-DA67200 | Barefoot Shoes | 2 another category's noun as a modifier | Cream Sandal Barefoot Shoes | sandal | sandal | generic |
+| PLT-DA67201 | Barefoot Shoes | 2 another category's noun as a modifier | Blue Sandal Barefoot Shoes | sandal | sandal | generic |
+| PLT-DA67202 | Barefoot Shoes | 2 another category's noun as a modifier | Red Sandal Barefoot Shoes | sandal | sandal | generic |
+| PLT-DA67300 | Barefoot Shoes | 3 audience word of a sibling version | White Mini-Me Mens Barefoot Shoes | mens | mens barefoot shoes | generic |
+| PLT-DA67301 | Barefoot Shoes | 3 audience word of a sibling version | Grey Girls Fit Barefoot Shoes | girls | girls barefoot shoes | generic |
+| PLT-DA67302 | Barefoot Shoes | 3 audience word of a sibling version | Grey Boys Fit Barefoot Shoes | boys | boys barefoot shoes | generic |
+| PLT-DA67400 | Barefoot Shoes | 4 material or feature named but absent | Pink Leather-Look Barefoot Shoes | leather | leather barefoot shoes | special: material claim |
+| PLT-DA67401 | Barefoot Shoes | 4 material or feature named but absent | Blue Suede-Look Barefoot Shoes | suede | suede barefoot shoes | special: material claim |
+| PLT-DA67402 | Barefoot Shoes | 4 material or feature named but absent | Red Cashmere-Feel Barefoot Shoes | cashmere | cashmere barefoot shoes | special: material claim |
+| PLT-DA67500 | Barefoot Shoes | 5 shade spelled in the description only | Moonbeam Barefoot Shoes | ivory | ivory barefoot shoes | generic |
+| PLT-DA67501 | Barefoot Shoes | 5 shade spelled in the description only | Driftwood Barefoot Shoes | taupe | taupe barefoot shoes | generic |
+| PLT-DA67502 | Barefoot Shoes | 5 shade spelled in the description only | Dune Barefoot Shoes | beige | beige barefoot shoes | generic |
+| PLT-DA67600 | Barefoot Shoes | 6 incidental word in a range name | Shirt Row Barefoot Shoes | shirt | shirt | generic |
+| PLT-DA67601 | Barefoot Shoes | 6 incidental word in a range name | Blazer Court Barefoot Shoes | blazer | blazer | generic |
+| PLT-DA67602 | Barefoot Shoes | 6 incidental word in a range name | Cardigan Bay Barefoot Shoes | cardigan | cardigan | generic |
+| PLT-DA67700 | Barefoot Shoes | 7 invented brand holding a color or category word | White Dormouse Barefoot Shoes | white | white barefoot shoes | generic |
+| PLT-DA67701 | Barefoot Shoes | 7 invented brand holding a color or category word | White Dormouse Barefoot Shoes | white | white barefoot shoes | generic |
+| PLT-DA67702 | Barefoot Shoes | 7 invented brand holding a color or category word | Yellow Wagtail Barefoot Shoes | yellow | yellow barefoot shoes | generic |
 | PLT-DSKNITTED_TOP100 | Knitted Top | 1 color names a part | Knitted Top with White Hem | white | white knitted top | generic |
 | PLT-DSKNITTED_TOP101 | Knitted Top | 1 color names a part | Knitted Top with Red Hem | red | red knitted top | generic |
 | PLT-DSKNITTED_TOP102 | Knitted Top | 1 color names a part | Knitted Top with Yellow Hem | yellow | yellow knitted top | generic |

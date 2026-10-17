@@ -109,6 +109,8 @@ _PLANNED: tuple[Spec, ...] = (
     *_plan("u", "Boxers", "Dressing Gown", "Knickers", "Pyjama Shorts", "Pyjamas", "Shapewear",
            "Slip", "Tights", "Vest"),
     *_plan("a", "School Trousers", "School Skirt", "School Pinafore", "School Shirt"),  # gen#205
+    *_plan("s", "Plimsolls", "Clogs", "Wedges", "Espadrilles", "Platform Trainers", "Mules",
+           "Jelly Shoes", "Barefoot Shoes"),  # gen#216
 )  # fmt: skip
 #: The types planned here, numbered by their place in the plan: ``A00`` for the first. A type of
 #: the registry is numbered by its key instead (``S`` and the key), so adding one moves no id. A
@@ -290,6 +292,14 @@ COMPOUNDS = {
     "Trainers": (("sock", "Sock Trainers"), ("running", "Running Trainers"),
                  ("walking", "Walking Trainers")),
     "Walking Boots": (("chukka", "Chukka Walking Boots"),),
+    "Plimsolls": (("sneaker", "Sneaker Plimsolls"),),
+    "Clogs": (("mule", "Mule Clogs"),),
+    "Wedges": (("sneaker", "Sneaker Wedges"), ("sandal", "Sandal Wedges")),
+    "Espadrilles": (("sneaker", "Sneaker Espadrilles"),),
+    "Platform Trainers": (("sock", "Sock Platform Trainers"),),
+    "Mules": (("loafer", "Loafer Mules"), ("slipper", "Slipper Mules"), ("sandal", "Sandal Mules")),
+    "Jelly Shoes": (("mary jane", "Mary Jane Jelly Shoes"),),
+    "Barefoot Shoes": (("sandal", "Sandal Barefoot Shoes"),),
     "Wellies": (("chelsea", "Chelsea Wellies"),),
     "Bra": (("t-shirt", "T-Shirt Bra"), ("cami", "Cami Bra"), ("corset", "Corset Bra")),
     "Boxers": (("short", "Boxer Shorts"), ("brief", "Boxer Briefs"), ("trunk", "Boxer Trunks")),
@@ -322,6 +332,13 @@ SHORT_COMPOUNDS: dict[str, str] = {
     "Court Shoes": "only dress shoes pairs another category's noun with a court shoe",
     "Loafers": "only mule loafers and brogue loafers are names a shopper meets",
     "Walking Boots": "only the chukka walking boot is a name a shopper meets",
+    "Plimsolls": "only the sneaker plimsoll is a name met; a pump or a trainer is a plimsoll",
+    "Clogs": "only the mule clog is a name a shopper meets",
+    "Wedges": "only sneaker wedges and sandal wedges are names; espadrille wedges are wedges",
+    "Espadrilles": "only the sneaker espadrille is a name; a wedge espadrille is an espadrille",
+    "Platform Trainers": "only the sock platform trainer is a name a shopper meets",
+    "Jelly Shoes": "only the mary jane jelly shoe is a name a shopper meets",
+    "Barefoot Shoes": "only the sandal barefoot shoe is a name a shopper meets",
     "Wellies": "only the chelsea welly is a name a shopper meets",
     "Dressing Gown": "only hoodie and kimono dressing gowns are names a shopper meets",
     "Tights": "only running tights and cycling tights are names a shopper meets",
