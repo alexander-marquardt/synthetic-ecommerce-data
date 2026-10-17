@@ -171,20 +171,23 @@ def test_a_range_name_never_holds_a_color_and_a_brand_color_is_the_brand_field(
     rows: list[da.Row], by_id: dict[str, dict]
 ) -> None:
     """#444: "Red Harbour Dress" read as a red dress with a strange brand. A class 6 title holds
-    no color word (a range name is a place, never a color); a class 7 title holds one only as
-    the invented brand, which is the product's brand field. In both, a color word of the title is
-    the brand field or a part the drawing colors, never neither."""
+    no color word (a range name is a place, never a color) and its drawing colors nothing. A
+    class 7 title holds a color word only as the invented brand, which is the product's brand
+    field, and its drawing shows no part in that color: "Yellow Wagtail Co-ord Set" is a blue
+    co-ord set with no yellow waistband (#444 F1)."""
     for r in (r for r in rows if r.cls in (6, 7)):
         doc = by_id[r.pid]
         named = _color_words(doc["title"]) - {_real_color(doc)}
+        assert "detail" not in doc["drawing"], (r.pid, doc["title"], doc["drawing"].get("detail"))
         if r.cls == 6:
             assert not named, (r.pid, doc["title"], named)
-        for w in named:
-            drawn = doc["drawing"].get("detail", {}).get("color", "").lower()
-            in_brand = re.search(rf"\b{w}\b", doc["brand"].lower())
-            assert in_brand or drawn == da.DETAIL_HEX[w.title()].lower(), (r.pid, doc["title"])
-            if r.cls == 7:
-                assert in_brand, (r.pid, doc["title"], doc["brand"])
+        else:
+            assert named <= {w for w in named if re.search(rf"\b{w}\b", doc["brand"].lower())}, (
+                r.pid, doc["title"], doc["brand"])
+    sevens = [r for r in rows if r.cls == 7]
+    assert any(r.word in MAIN for r in sevens)
+    for r in (r for r in sevens if r.word in MAIN):
+        assert re.search(rf"\b{r.word}\b", by_id[r.pid]["brand"].lower()), r
 
 
 #: The class 2 phrases a shopper reads as a real product name (dress shirt, shirt dress, slipper
@@ -263,6 +266,37 @@ def test_no_class_2_title_is_outside_the_real_compounds(
         assert r.word in doc["title"].lower(), (r.pid, r.word, doc["title"])
         phrases.add(max(hit, key=len))
     assert len(phrases) >= 60, len(phrases)  # the table is varied, not three words reused
+
+
+#: The class 2 phrases the reviewer named as invented (#444): no shopper meets them as a product.
+INVENTED_COMPOUNDS = frozenset({
+    "Dress Pyjamas", "Trouser Blouse", "Poncho Dressing Gown", "Dress Tights", "Legging Tights",
+    "Sweatshirt Tracksuit", "Dress Trainers", "Ballet Sneakers", "Sneaker Loafers",
+    "Trainer School Shoes", "Sock Shoes", "Pump Heels", "Trouser Shorts", "Pyjama Boxers",
+})
+
+
+def test_no_invented_compound_is_planned_or_titled() -> None:
+    """#444: the reviewed list is a list of real retail terms, not a mirror of the generator's
+    table, so an invented phrase is named here and found in neither."""
+    planned = {p for t in da.TYPES for _, p in (t.compounds or da.COMPOUNDS[t.product_type])}
+    assert not planned & INVENTED_COMPOUNDS, planned & INVENTED_COMPOUNDS
+    assert planned <= REAL_COMPOUNDS, sorted(planned - REAL_COMPOUNDS)
+    assert not REAL_COMPOUNDS & INVENTED_COMPOUNDS
+
+
+def test_every_type_has_three_real_compounds_or_a_declared_reason() -> None:
+    """#444: a type with fewer than three real compounds is a declared exception, with its
+    reason, and the generator text of the docs says so; an exception that no longer applies reds."""
+    short = {
+        t.product_type
+        for t in da.TYPES
+        if len({p for _, p in (t.compounds or da.COMPOUNDS[t.product_type])}) < 3
+    }
+    assert short == set(da.SHORT_COMPOUNDS), short ^ set(da.SHORT_COMPOUNDS)
+    assert all(len(reason.split()) >= 4 for reason in da.SHORT_COMPOUNDS.values())
+    for ptype in short:
+        assert ptype in TABLE_DOC.read_text(), ptype
 
 
 def test_large_types_carry_ten_percent_decoys(rows: list[da.Row], ceiling: list[dict]) -> None:
