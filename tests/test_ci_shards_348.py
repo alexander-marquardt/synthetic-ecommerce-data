@@ -11,7 +11,12 @@ this guard reads the real workflow and the real tests directory:
 * no CI job runs pytest on one worker: the hosted run's options (``PYTEST_ADDOPTS`` in
   the job's ``env``) carry ``-n`` and ``--dist loadgroup``, and a pytest line with no file
   list belongs only to a job that runs a named handful of checks;
-* the shards stay balanced by the committed weights.
+* the shards stay balanced by the committed weights;
+* a file too heavy for one shard (``SPLIT_FILES``: ``tests/test_merge_pr.py``, an hour of
+  independent tests) is listed in every shard, and ``tests/conftest.py`` deals its test
+  ids out modulo the shard, so each node id runs in exactly one shard;
+* no job-level ``env`` reads the ``runner`` context, which GitHub rejects there (the
+  whole workflow then fails in 0 s with no check run).
 
 It times nothing, which would be red or green by the machine it ran on.
 """
@@ -22,6 +27,7 @@ import importlib.util
 import os
 import subprocess
 import sys
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -62,8 +68,12 @@ def test_the_tests_job_is_a_matrix_of_shards_that_each_know_the_shard_count() ->
 def test_every_test_file_is_in_exactly_one_shard(count: int) -> None:
     files = ci_shards.collected_test_files()
     shards = ci_shards.deal(files, count, ci_shards.load_weights())
-    flat = [name for shard in shards for name in shard]
-    assert sorted(flat) == files, "a test file is in no shard, or in two"
+    flat = Counter(name for shard in shards for name in shard)
+    # A split file is in every shard (its test ids are dealt out in conftest.py); any
+    # other file is in exactly one.
+    assert flat == {n: count if n in ci_shards.SPLIT_FILES else 1 for n in files}, (
+        "a test file is in no shard, or in two"
+    )
     assert all(shards), f"a shard of {count} is empty: a runner with nothing to run"
 
 
@@ -80,7 +90,10 @@ def test_the_workflow_s_own_shard_count_covers_every_file_through_the_script() -
         )
         assert done.returncode == 0, done.stderr
         seen += done.stdout.split()
-    assert sorted(seen) == ci_shards.collected_test_files()
+    expected = {
+        n: count if n in ci_shards.SPLIT_FILES else 1 for n in ci_shards.collected_test_files()
+    }
+    assert Counter(seen) == expected
 
 
 def test_the_all_shard_is_every_file_for_a_run_that_is_not_sharded() -> None:
@@ -108,8 +121,8 @@ def test_the_files_the_script_deals_are_the_files_pytest_collects() -> None:
     """The glob in ci_shards.py is pytest's collection rule, not a guess at it."""
     env = {k: v for k, v in os.environ.items() if k != "PYTEST_ADDOPTS"}
     done = subprocess.run(
-        [sys.executable, "-m", "pytest", "--collect-only", "-q", "-p", "no:cacheprovider"]
-        + ["-n", "0", "tests"],
+        [sys.executable, "-m", "pytest", "--collect-only", "-q", "-o", "addopts=", "-p"]
+        + ["no:cacheprovider", "-n", "0", "tests"],
         cwd=REPO,
         env=env,
         capture_output=True,
@@ -182,3 +195,77 @@ def test_the_pytest_line_of_a_sharded_job_names_the_shard_files_not_the_whole_di
     (step,) = [s for s in tests["steps"] if "pytest" in s.get("run", "")]
     pytest_lines = [line for line in step["run"].splitlines() if "pytest" in line]
     assert pytest_lines and all('"${files[@]}"' in line for line in pytest_lines), pytest_lines
+
+
+def test_a_job_level_env_reads_no_runner_context() -> None:
+    """GitHub rejects the whole workflow (a run that fails in 0 s, no checks) when a job's
+    ``env`` holds ``${{ runner.* }}``: the context exists from step level only (#348)."""
+    for job_id, job in _jobs().items():
+        for key, value in (job.get("env") or {}).items():
+            assert "runner." not in str(value), (
+                f"job {job_id!r} env {key} reads the runner context, which is not available "
+                "at job level: use $RUNNER_TEMP in the run script"
+            )
+
+
+def test_the_tests_step_tells_conftest_which_shard_it_is() -> None:
+    (step,) = [s for s in _jobs()["tests"]["steps"] if "pytest" in s.get("run", "")]
+    assert step["env"]["CI_SHARD"] == "${{ matrix.shard }}"
+    assert step["env"]["CI_SHARDS"] == "${{ strategy.job-total }}"
+
+
+@pytest.mark.parametrize("count", [2, 3, 10])
+def test_a_split_file_is_listed_in_every_shard_and_weighs_its_share_in_each(count: int) -> None:
+    weights = {"tests/test_big.py": 900.0, "tests/test_a.py": 100.0, "tests/test_b.py": 100.0}
+    files = sorted(weights)
+    shards = ci_shards.deal(files, count, weights, split=frozenset({"tests/test_big.py"}))
+    assert all("tests/test_big.py" in shard for shard in shards)
+    # Every other file is dealt once, and the big file's share is already in each load.
+    assert Counter(n for shard in shards for n in shard if n != "tests/test_big.py") == {
+        "tests/test_a.py": 1,
+        "tests/test_b.py": 1,
+    }
+    loads = ci_shards.shard_loads(count, weights=weights, split=frozenset({"tests/test_big.py"}))
+    assert sum(loads) == pytest.approx(1100.0)
+    assert min(loads) >= 900 / count - 1e-6, "the split file's share is missing from a shard"
+
+
+@pytest.mark.parametrize("count", [1, 2, 3, 7])
+def test_the_split_index_deals_each_position_to_exactly_one_shard(count: int) -> None:
+    dealt = [[i for i in range(20) if ci_shards.keeps(i, k, count)] for k in range(1, count + 1)]
+    assert sorted(i for part in dealt for i in part) == list(range(20))
+    assert dealt[0] == list(range(0, 20, count))
+
+
+def _collect(files: list[str], extra_env: dict[str, str]) -> list[str]:
+    dropped = ("PYTEST_ADDOPTS", "CI_SHARD", "CI_SHARDS")
+    env = {k: v for k, v in os.environ.items() if k not in dropped}
+    done = subprocess.run(
+        [sys.executable, "-m", "pytest", "--collect-only", "-q", "-o", "addopts=", "-p"]
+        + ["no:cacheprovider", "-n", "0", *files],
+        cwd=REPO,
+        env={**env, **extra_env},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert done.returncode == 0, done.stdout[-600:] + done.stderr[-600:]
+    return [line for line in done.stdout.splitlines() if "::" in line]
+
+
+def test_each_test_id_of_a_split_file_runs_in_exactly_one_shard() -> None:
+    """The guard behind splitting ``tests/test_merge_pr.py``: collected under each shard's
+    own environment, its node ids are disjoint and together are the whole file's."""
+    count = _shard_count()
+    assert ci_shards.SPLIT_FILES, "no file is split, so the slowest shard is that one file"
+    files = sorted(ci_shards.SPLIT_FILES)
+    whole = _collect(files, {})
+    assert whole
+    per_shard = [
+        _collect(files, {"CI_SHARD": str(k), "CI_SHARDS": str(count)})
+        for k in range(1, count + 1)
+    ]
+    assert Counter(i for ids in per_shard for i in ids) == Counter(whole), (
+        "a test id of a split file is in no shard, or in two"
+    )
+    assert all(per_shard), "a shard holds none of the split file's tests"
