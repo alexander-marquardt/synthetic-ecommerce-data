@@ -57,7 +57,7 @@ class FurnitureRow(Row):
     """A breadth row whose sizes carry per-SKU fields: ``(name, price, ((field, value), ...))``.
 
     A table's ``160 x 90 cm`` carries ``width_cm`` 90 and ``length_cm`` 160, a chair set's
-    ``Set of 4`` its ``units_per_pack`` 4: :mod:`export` writes each as its own variant entry
+    ``4 pack`` its ``units_per_pack`` 4: :mod:`export` writes each as its own variant entry
     (``item_width``, ``units_per_pack``), so a size is a range filter, not only a label.
     """
 
@@ -99,7 +99,7 @@ def _table_size(w: int, length: int, price: float) -> Size:
 
 
 def _pack(n: int, price: float) -> Size:
-    return ("Single" if n == 1 else f"Set of {n}", price, (("units_per_pack", n),))
+    return ("Single" if n == 1 else f"{n} pack", price, (("units_per_pack", n),))
 
 
 def _height(h: int, price: float) -> Size:
@@ -125,7 +125,8 @@ def _table(code, title, brand, shape, seats, extending, top, colors, sizes, text
          ("extending", "Extending", _yes(extending)), ("top_material", "Top material", top),
          _room("Dining Room")),
         sizes, size_key="size",
-        params=(("outline", shape), ("seats", str(seats)), ("extending", _yes(extending))),
+        params=(("outline", shape), ("seats", str(seats)), ("extending", _yes(extending)),
+                ("top", top.lower().replace("-", "_"))),
     )  # fmt: skip
 
 

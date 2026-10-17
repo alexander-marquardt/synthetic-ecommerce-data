@@ -38,14 +38,15 @@ from variants import cw
 __all__ = [
     "ApparelPlan", "BRAND_OWNER", "Decoy", "LRow", "Row", "SpecError", "TypeSpec", "a",
     "check_unique_ids", "count", "cw", "decoy_ids", "docs", "left_out_ids", "legacy_types",
-    "registration_problems", "sizes", "specs", "validate",
+    "registration_problems", "sizes", "specs", "text_match_decoy_ids", "validate",
 ]  # fmt: skip
 
 LEGACY_FILE = Path(__file__).resolve().parent / "type_specs" / "legacy_types.txt"
 KEY = re.compile(r"[a-z][a-z0-9_]*")
 #: The text-match decoy classes of gen#294 (``decoy_rows``): a color part, a category word, an
-#: audience word, an absent feature, a shade in the description, an incidental word, a brand.
-DECOY_CLASSES = range(1, 8)
+#: audience word, an absent feature, a shade in the description, an incidental word, a brand, and
+#: class 8 (gen#326), a product word in the title of another type's product.
+DECOY_CLASSES = range(1, 9)
 #: The departments whose Womens, Mens and Kids types carry the apparel decoys of gen#311
 #: (:mod:`decoy_apparel`), and the word families a plan may name there.
 APPAREL_DEPARTMENTS = ("Clothing", "Footwear", "Lingerie & Nightwear")
@@ -53,7 +54,7 @@ APPAREL_FAMILIES = "abusk"
 #: The most types the legacy list may hold. A migration lowers it by the types it moves, so the
 #: list is exact: an appended line (a type registered the old way) is over it, and a shorter list
 #: leaves room to append the difference.
-LEGACY_CEILING = 329
+LEGACY_CEILING = 328
 
 
 class SpecError(ValueError):
@@ -161,7 +162,7 @@ def validate(spec: TypeSpec) -> None:
             raise SpecError(f"{spec.key}: {r.code} sells {r.brand!r}, a brand with no owner")
     for d in spec.decoys:
         if d.cls not in DECOY_CLASSES:
-            raise SpecError(f"{spec.key}: {d.row.code} has decoy class {d.cls}, not 1 to 7")
+            raise SpecError(f"{spec.key}: {d.row.code} has decoy class {d.cls}, not 1 to 8")
     _validate_apparel(spec)
 
 
@@ -238,6 +239,20 @@ def left_out_ids() -> frozenset[str]:
 def decoy_ids() -> frozenset[str]:
     """Every spec decoy's id."""
     return frozenset(i for spec in specs().values() for i in decoy_ids_of(spec))
+
+
+def text_match_decoy_ids(department: str) -> frozenset[str]:
+    """The ids of one department's spec decoys of classes 1 to 7: they name a color or a feature
+    their structured fields lack on purpose, so the output standard's text check leaves them
+    out (the class-8 decoys of gen#326 are checked like any product)."""
+    return frozenset(
+        i
+        for spec in specs().values()
+        if spec.department == department
+        for d in spec.decoys
+        if d.cls != 8
+        for i in _ids([d.row])
+    )
 
 
 def legacy_types() -> frozenset[tuple[str, str]]:

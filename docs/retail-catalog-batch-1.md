@@ -1,7 +1,7 @@
 # Retail catalog batch 1: ingredient base, text-match decoys, grocery nodes
 
-The README is over the file-size cap and may not grow, so the facts this batch adds
-to the retail prototype are here. Each section names the issue, the data and the test
+The retail prototype's own reference is [retail-prototype.md](retail-prototype.md); the
+facts this batch adds to it are here. Each section names the issue, the data and the test
 that pins it.
 
 ## Base ingredients (gen#295)

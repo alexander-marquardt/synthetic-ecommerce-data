@@ -160,7 +160,7 @@ def _handed(code: str, line: str, kind: str, brand: str, path: tuple[str, ...], 
             (("line", "Line", line), _seats(seats), *_dims(*dims), ("material", "Material", mat),
              ("orientation", "Orientation", hand), ("arm_style", "Arm style", ARMS[arms][0]),
              ("leg_finish", "Leg finish", LEGS[legs]), *extra),
-            params=(("seats", "3"), ("side", side), ("arms", arms), ("legs", legs)))
+            params=(("seats", str(seats)), ("side", side), ("arms", arms), ("legs", legs)))
         for side, hand in _HANDS
     )  # fmt: skip
 
@@ -188,7 +188,7 @@ CORNER_ROWS = (
          ("material", "Material", "Boucle"),
          ("shape", "Shape", "U-Shape"), ("arm_style", "Arm style", "Track"),
          ("leg_finish", "Leg finish", "Oak")),
-        params=(("seats", "3"), ("side", "u"), ("arms", "track"), ("legs", "oak"))),
+        params=(("seats", "6"), ("side", "u"), ("arms", "track"), ("legs", "oak"))),
 )  # fmt: skip
 
 
@@ -321,7 +321,8 @@ def _sofa_bed(code: str, line: str, brand: str, mat: str, seats: int, mech: str,
         price, "sofa_bed", text, colors,
         (("line", "Line", line), _seats(seats), *_dims(width, 92, 84),
          ("material", "Material", mat), ("mechanism", "Mechanism", _MECH[mech]),
-         ("mattress_type", "Mattress type", mattress), ("depth", "Depth", f"{depth} cm")),
+         ("mattress_type", "Mattress type", mattress),
+         _cm("mattress_depth", "Mattress depth", depth)),
         ((_BEDS[0], price), (_BEDS[1], price + 100.0)), size_key="bed_size",
         params=(("mechanism", mech), ("seats", str(seats))),
     )  # fmt: skip

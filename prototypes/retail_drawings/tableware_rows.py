@@ -54,7 +54,7 @@ MICROWAVE = _a("microwave_safe", "Microwave safe", "Yes")
 
 
 def _packs(*pairs: tuple[int, float]) -> tuple[tuple[str, float], ...]:
-    return tuple(("Single" if n == 1 else f"Set of {n}", p) for n, p in pairs)
+    return tuple(("Single" if n == 1 else f"{n} pack", p) for n, p in pairs)
 
 
 def _tw(code, title, brand, leaf, ptype, shape, desc, colors, attrs, sizes=(), params=(),
@@ -181,11 +181,14 @@ BOWLS = (
 
 def _cut(piece: str, handle: str) -> tuple:
     return (_a("cutlery_type", "Cutlery type", piece),
-            _a("material", "Material", "Stainless Steel 18/10"), _a("handle", "Handle", handle))
+            _a("material", "Material", "Stainless Steel"), _a("handle", "Handle", handle))
 
 
-def _cp(piece: str, handle: str, count: int) -> tuple[tuple[str, str], ...]:
-    return (("piece", piece.lower()), ("handle", handle.lower()), ("count", str(count)))
+def _cp(piece: str, handle: str) -> tuple[tuple[str, str], ...]:
+    """The drawn piece: one, with no ``count``. Image ids are one per product and color, so
+    every pack size of a style shares one picture, and a fanned count would be wrong for all
+    but one of them (gen#228)."""
+    return (("piece", piece.lower()), ("handle", handle.lower()))
 
 
 CUTLERY = (
@@ -193,31 +196,31 @@ CUTLERY = (
         "cutlery_piece", "Dinner knives with a rounded tip and a weighted plain handle, sold "
         "loose to add to a canteen. Dishwasher safe.",
         (SILVER, GOLD, BLACK), (*_cut("Dinner Knife", "Plain"), DISHWASHER),
-        _packs((4, 12.0), (6, 16.0), (8, 20.0)), _cp("Dinner Knife", "Plain", 4)),
+        _packs((4, 12.0), (6, 16.0), (8, 20.0)), _cp("Dinner Knife", "Plain")),
     _tw("CUTSTK", "Wooden Handle Steak Knives", "Lanternby", "Cutlery", "Cutlery",
         "cutlery_piece", "Steak knives with a pointed serrated blade and a riveted wooden "
         "handle. Hand wash.",
         (SILVER,), _cut("Steak Knife", "Wooden"), _packs((4, 18.0), (6, 25.0)),
-        _cp("Steak Knife", "Wooden", 4)),
+        _cp("Steak Knife", "Wooden")),
     _tw("CUTFRK", "Hammered Dinner Forks", "Calderby & Lune", "Cutlery", "Cutlery",
         "cutlery_piece", "Four-tine dinner forks with a hand-hammered handle that catches the "
         "light. Dishwasher safe.",
         (SILVER, GOLD), (*_cut("Dinner Fork", "Hammered"), DISHWASHER),
-        _packs((4, 14.0), (6, 19.0), (8, 24.0)), _cp("Dinner Fork", "Hammered", 4)),
+        _packs((4, 14.0), (6, 19.0), (8, 24.0)), _cp("Dinner Fork", "Hammered")),
     _tw("CUTTSP", "Satin Teaspoons", "Hearth & Table", "Cutlery", "Cutlery", "cutlery_piece",
         "Teaspoons with a slim plain handle, for tea, coffee and sugar. Dishwasher safe.",
         (GOLD, SILVER, BLACK), (*_cut("Teaspoon", "Plain"), DISHWASHER),
-        _packs((4, 8.0), (6, 11.0), (8, 14.0)), _cp("Teaspoon", "Plain", 4)),
+        _packs((4, 8.0), (6, 11.0), (8, 14.0)), _cp("Teaspoon", "Plain")),
     _tw("CUTDSP", "Matte Dessert Spoons", "Lanternby", "Cutlery", "Cutlery", "cutlery_piece",
         "Dessert spoons with a deep bowl and a plain handle, for puddings and cereal. "
         "Dishwasher safe.",
         (BLACK, SILVER), (*_cut("Dessert Spoon", "Plain"), DISHWASHER),
-        _packs((4, 10.0), (6, 14.0), (8, 18.0)), _cp("Dessert Spoon", "Plain", 4)),
+        _packs((4, 10.0), (6, 14.0), (8, 18.0)), _cp("Dessert Spoon", "Plain")),
     _tw("CUTSRV", "Hammered Serving Spoon", "Calderby & Lune", "Cutlery", "Cutlery",
         "cutlery_piece", "A long serving spoon with a deep bowl and a hand-hammered handle. "
         "Dishwasher safe.",
         (SILVER, GOLD), (*_cut("Serving Spoon", "Hammered"), DISHWASHER),
-        _packs((1, 9.0), (2, 16.0)), _cp("Serving Spoon", "Hammered", 1)),
+        _packs((1, 9.0), (2, 16.0)), _cp("Serving Spoon", "Hammered")),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
@@ -315,7 +318,7 @@ GLASSES = (
         "Tall ribbed highball glasses that hold 400 ml, for long drinks and juice. "
         "Dishwasher safe.",
         (CLEAR, cw("Smoke", "#9a9a9a"), cw("Amber", "#d9a05b")), _glass("Highball", 400, "Glass"),
-        _packs((4, 18.0), (6, 25.0)), (("kind", "highball"),)),
+        _packs((4, 18.0), (6, 25.0)), (("kind", "highball"), ("ribbed", "1"))),
     _tw("GLSTUM", "Plastic Outdoor Tumblers", "Hearth & Table", *_GLASSWARE,
         "Shatterproof tumblers that hold 300 ml, for the garden, the pool and picnics. "
         "Dishwasher safe.",
@@ -392,10 +395,11 @@ UTENSILS = (
 # --------------------------------------------------------------------------
 
 
-def _bd(code, title, brand, desc, colors, material, sizes, extra=()) -> Row:  # fmt: skip
+def _bd(code, title, brand, desc, colors, material, sizes, extra=(), drawn=()) -> Row:  # fmt: skip
     return _tw(code, title, brand, "Chopping Boards", "Chopping Board", "chopping_board", desc,
                colors, (_a("material", "Material", material), *extra), sizes,
-               (("material", material.lower()),), size_key="dimensions", axis_name="Dimensions")
+               (("material", material.lower()), *drawn), size_key="dimensions",
+               axis_name="Dimensions")
 
 
 _BOARDS3 = Contents((1, "small board"), (1, "medium board"), (1, "large board"))
@@ -407,7 +411,8 @@ BOARDS = (
     _bd("BRDBAM", "Bamboo Chopping Board with Juice Groove", "Hearth & Table",
         "A light board with a groove round the edge that catches juice from a roast. Hand wash.",
         (cw("Natural", "#d9b77e", "solid", "#7d5634"),), "Bamboo",
-        (("30 x 20 cm", 9.0), ("38 x 25 cm", 12.0), ("45 x 30 cm", 16.0))),
+        (("30 x 20 cm", 9.0), ("38 x 25 cm", 12.0), ("45 x 30 cm", 16.0)),
+        drawn=(("groove", "juice"),)),
     _bd("BRDPLA", "Color Coded Plastic Chopping Board", "Calderby & Lune",
         "A non-slip board in a color for each food, to keep raw meat apart. Dishwasher safe.",
         (cw("Green", "#4f7a3a"), cw("Red", "#c8312e"), cw("Blue", "#3f6fb5")), "Plastic",

@@ -405,7 +405,7 @@ KETTLES = (
     Row("KTLQUI", "Quiet Boil Stainless Steel Kettle", _C, _HW, _KT, "Kettle", 49.0, "kettle",
         "A quiet boil kettle in brushed stainless steel, with a soft-opening lid and a "
         "removable limescale filter.",
-        (SILVER, COPPER), _kt("Quiet Boil", "Stainless Steel", "Brushed", 3000),
+        (SILVER, GREY), _kt("Quiet Boil", "Stainless Steel", "Brushed", 3000),
         _sizes((1.5, 49.0), (1.7, 55.0)), params=_ktp("jug", "steel"), size_key="capacity_l"),
     Row("KTLDOM", "Retro Dome Kettle", _E, _HW, _KT, "Kettle", 59.0, "kettle",
         "A round stainless steel kettle with an arched handle, a matte enamel finish and "
@@ -453,7 +453,7 @@ TOASTERS = (
     Row("TSTSTL", "Brushed Stainless Steel Toaster", _C, _HW, _TS, "Toaster", 45.0, "toaster",
         "A 2 slice or 4 slice toaster in a brushed finish, with wide slots for bagels, 7 "
         "browning settings and a high-lift lever.",
-        (SILVER, COPPER), _ts(False, "Brushed", 7), _sizes((2, 45.0), (4, 59.0)),
+        (SILVER, GREY), _ts(False, "Brushed", 7), _sizes((2, 45.0), (4, 59.0)),
         params=(("slots", "2"),), size_key="slots"),
     Row("TSTRET", "Retro Toaster", _E, _HW, _TS, "Toaster", 49.0, "toaster",
         "A 2 slice or 4 slice toaster in a matte finish and a 1950s style, with 6 browning "

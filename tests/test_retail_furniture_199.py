@@ -107,7 +107,7 @@ def test_a_table_size_names_the_measurements_its_sku_carries() -> None:
                 assert sku["size"] == (f"{n} x {w} cm" if n != w else f"{w} cm"), row.code
             if "units_per_pack" in sku:
                 n = sku["units_per_pack"]
-                assert sku["pack_size"] == ("Single" if n == 1 else f"Set of {n}"), row.code
+                assert sku["pack_size"] == ("Single" if n == 1 else f"{n} pack"), row.code
 
 
 def test_a_set_of_n_in_the_title_is_the_pack_or_piece_count() -> None:
@@ -123,7 +123,8 @@ def test_a_set_of_n_in_the_title_is_the_pack_or_piece_count() -> None:
 
 #: drawing param -> the attribute it draws, and how the attribute's value is spelled there.
 DRAWN = {
-    "dining_table": {"outline": "shape", "seats": "seat_count", "extending": "extending"},
+    "dining_table": {"outline": "shape", "seats": "seat_count", "extending": "extending",
+                     "top": "top_material"},
     "dining_chair": {"style": "chair_style"},
     "coffee_table": {"outline": "shape", "pieces": "piece_count"},
     "side_table": {"drawers": "drawer_count"},

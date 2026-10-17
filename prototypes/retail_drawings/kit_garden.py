@@ -16,6 +16,9 @@ bbq             a charcoal kettle, barrel, kamado egg or    kind (kettle, barrel
                 portable bowl, or a gas cabinet with a      kamado, portable, gas),
                 knob per burner (one ``class="knob"``       burners
                 each)
+garden_hose     a coiled hose of three loops with a brass   style (coiled,
+                connector, or an expandable one laid in     expandable)
+                an S with a connector at each end
 ==============  ==========================================  ==========================
 
 A decoy's title may name a part in a color the product lacks ("Red Wheels", "White Shelves"): its
@@ -33,7 +36,7 @@ source is drawn as what feeds it (a battery pack, a fuel cap and pull cord, or a
 
 from __future__ import annotations
 
-from kit import INK, Fill, _highlight, _line, _path, _shade, _tint, register
+from kit import INK, Fill, _highlight, _line, _panel, _path, _shade, _tint, register
 from kit_sports import POLE, _ell, _label, _rect
 
 #: The knob classes a drawing marks: one group each, so a test counts them against the record.
@@ -62,6 +65,10 @@ PARTS = {
     "robot_mower": ("bumper", "wheels", "button"),
     "grass_trimmer": ("handle", "shaft", "engine"),
     "bbq": ("legs", "lid-handle", "shelves"),
+    "garden_hose": ("connectors",),
+    "hedge_trimmer": ("handle", "guard", "blade"),
+    "garden_furniture": ("legs", "cushions"),
+    "parasol": ("pole", "base", "valance"),
 }
 
 
@@ -268,5 +275,68 @@ def bbq(paint: str, fill: Fill, label: str | None, kind: str = "kettle", burners
     return _label(out, label)
 
 
-SHAPES = {"lawn_mower": lawn_mower, "robot_mower": robot_mower, "grass_trimmer": grass_trimmer, "bbq": bbq}
+BRASS = "#c9a24a"
+#: The three loops of a coiled hose, as (x radius, y radius); the widest is drawn first.
+COIL_LOOPS = ((128, 92), (98, 68), (68, 44))
+
+
+def _tube(d: str, paint: str, width: float) -> str:
+    """One run of hose: an ink stroke, then the style's color narrower on top."""
+    ink = _line(d, width + 5, stroke=INK)
+    return ink + _line(d, width, stroke=paint)
+
+
+def _fitting(x: float, y: float, w: float, h: float, pt: _Part) -> str:
+    """A connector, brass unless a decoy names its color: a block with a ridge, centered on
+    ``x, y``, marked ``data-part="connectors"`` when it is the named part."""
+    block = (
+        f'<rect x="{x - w / 2:.1f}" y="{y - h / 2:.1f}" width="{w:.1f}" height="{h:.1f}" rx="3" '
+        f'fill="{pt.fill("connectors", BRASS)}" stroke="{INK}" stroke-width="2.4"/>'
+    )
+    return (
+        pt.mark("connectors", block)
+        + _line(f"M{x:.1f},{y - h / 2:.1f} L{x:.1f},{y + h / 2:.1f}", 2, ' stroke-opacity=".6"')
+    )
+
+
+def _ellipse_d(cx: float, cy: float, rx: float, ry: float) -> str:
+    return (
+        f"M{cx - rx:.1f},{cy:.1f} A{rx:.1f},{ry:.1f} 0 1,1 {cx + rx:.1f},{cy:.1f} "
+        f"A{rx:.1f},{ry:.1f} 0 1,1 {cx - rx:.1f},{cy:.1f} Z"
+    )
+
+
+def garden_hose(paint: str, fill: Fill, label: str | None, style: str = "coiled",
+                part: str = "", part_color: str = "") -> list[str]:  # fmt: skip
+    """A garden hose: ``coiled`` (three loops of a plain hose, one free end with a brass
+    connector) or ``expandable`` (a thin ribbed hose laid in an S with a connector at each end).
+    A decoy that names the connectors' color ("with Green Connectors") passes ``part``
+    ``connectors`` and ``part_color``: every connector is drawn in it and the hose is not."""
+    pt = _Part("garden_hose", part, part_color)
+    if style.lower() == "expandable":
+        run = "M70,310 C70,230 330,260 330,190 C330,130 120,150 120,100"
+        out = [
+            _tube(run, paint, 14),
+            _line(run, 14, ' stroke-dasharray="2 9" stroke-opacity=".55"', _shade(fill.base, 0.4)),
+            _fitting(70, 322, 30, 26, pt),
+            _fitting(120, 88, 26, 24, pt),
+            _highlight("M334,200 C340,150 250,150 200,146", 3, 0.5),
+        ]
+    else:
+        out = []
+        for rx, ry in COIL_LOOPS:
+            out.append(_tube(_ellipse_d(190, 190, rx, ry), paint, 20))
+        out += [
+            _tube("M62,190 C40,250 70,320 150,330 L300,336", paint, 20),
+            _fitting(318, 336, 28, 30, pt),
+            _line("M334,326 L366,318 M334,346 L366,354", 3),
+            _highlight("M80,160 C100,110 150,92 190,98", 4, 0.5),
+            _line(_ellipse_d(190, 190, 28, 18), 2, ' stroke-opacity=".4"', _tint(fill.base, 0.2)),
+        ]
+    if label:
+        out += _panel(264, 350, 100, 28, label, 16)
+    return out
+
+
+SHAPES = {"garden_hose": garden_hose, "lawn_mower": lawn_mower, "robot_mower": robot_mower, "grass_trimmer": grass_trimmer, "bbq": bbq}
 register(SHAPES)
