@@ -70,7 +70,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     env:
       # -n always: one worker is the serial suite this job exists to avoid. The
       # local run (scripts/local_ci_jobs.py) takes its own, memory-capped count.
@@ -90,6 +90,11 @@ jobs:
       # rebuilds the catalog and compares every committed file by sha256, so a
       # generator change landed without its regeneration is red.
       - name: Tests
+        env:
+          # tests/ci_shard_split.py deals a split file's tests (scripts/ci_shards.py
+          # SPLIT_FILES: tests/test_merge_pr.py) out by these two.
+          CI_SHARD: ${{ matrix.shard }}
+          CI_SHARDS: ${{ strategy.job-total }}
         run: |
           mapfile -t files < <(python3 scripts/ci_shards.py --shard ${{ matrix.shard }} --of ${{ strategy.job-total }})
           [ "${#files[@]}" -gt 0 ]
