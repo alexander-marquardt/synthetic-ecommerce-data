@@ -42,6 +42,10 @@ GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
 #: The exact command a contributor runs to update it.
 REBUILD = "uv run ecom-generate build --out golden-catalog"
 
+#: The committed field map's identity and modification time when this module was
+#: imported: no test of it may write that file (``test_the_build_fixture_writes...``).
+FIELD_MAP_AT_IMPORT = (FIELD_MAP_PATH.stat().st_ino, FIELD_MAP_PATH.stat().st_mtime_ns)
+
 #: Everything ``build`` writes. Asserted as a set against the directory, so a
 #: new output file that nobody committed is red rather than invisible.
 GOLDEN_FILES = (
@@ -102,6 +106,19 @@ def fresh_build(tmp_path_factory: pytest.TempPathFactory) -> Path:
         f"rewrote it. Run `{REBUILD}` and commit the field map too."
     )
     return out
+
+
+def test_the_build_fixture_writes_nothing_in_the_source_tree(fresh_build: Path) -> None:
+    """Under ``--dist loadgroup`` every worker that gets a test of this module builds
+    its own ``fresh_build``; a build that rewrote the committed field map, even to put
+    the same bytes back, truncated a file another worker was reading (#440's red: the
+    drift test and the golden tests "not up to date" at once, on a tree that was)."""
+    now = FIELD_MAP_PATH.stat()
+    assert (now.st_ino, now.st_mtime_ns) == FIELD_MAP_AT_IMPORT, (
+        f"{FIELD_MAP_PATH} was written while the tests ran; the fixture must send the "
+        "build's field map to a temporary path"
+    )
+    assert fresh_build.is_dir()
 
 
 def test_golden_directory_holds_exactly_the_build_output(fresh_build: Path) -> None:
