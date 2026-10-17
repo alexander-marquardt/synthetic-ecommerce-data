@@ -1099,6 +1099,8 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     # A real brand (real_brands.ALLOWED, gen#341): text only, so the drawing carries no logo.
     "Nike":                 H("#f6f6f6", "none",     "rounded", "#111111", "#111111", 1.0,  False, "round", "none",              "mark_left",   "bottom_left",   "none",     "sans",     400, "lower",     0.5),
     "Coat Crake":           H("#f3efe8", "dots",     "double",  "#7a5a3a", "#30241a", 1.1,  False, "sharp", "comb",              "mark_only",   "bottom_left",   "stamp",    "mono",     700, "lower",     2.0),
+    "Tidewell":             H("#eef6f7", "none",     "thin",    "#1c7c7d", "#0f3b3c", 1.0,  False, "round", "wave_arcs",         "mark_left",   "bottom_right",  "none",     "sans",     400, "caps",      1.5),
+    "Skerry & Cole":        H("#f6f1ea", "dots",     "double",  "#7a2e3a", "#2b1a1d", 1.05, False, "sharp", "diamond_grid",      "badge",       "top_left",      "none",     "serif",    700, "smallcaps", 1.0),
 }
 # fmt: on
 
