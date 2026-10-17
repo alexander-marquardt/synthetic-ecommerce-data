@@ -213,8 +213,8 @@ REAL_COMPOUNDS = frozenset({
     "Dress Shirt", "Polo Shirt", "Tunic Shirt",
     "Jean Skirt", "Slip Skirt", "Cargo Skirt",
     "Polo Sweatshirt", "Hoodie Sweatshirt", "Tunic Sweatshirt",
-    "Polo T-Shirt", "Tunic T-Shirt", "Henley T-Shirt",
-    "Polo Tee", "Tunic Tee", "Henley Tee",
+    "Polo T-Shirt", "Tunic T-Shirt",
+    "Polo Tee", "Tunic Tee",
     "Vest Top", "Cami Top", "Polo Top", "Tunic Top",
     "Knitted Vest Top", "Knitted Cami Top", "Knitted Polo Top", "Knitted Tunic Top",
     "Hoodie Tracksuit", "Short Tracksuit", "Jogger Tracksuit",
@@ -229,12 +229,12 @@ REAL_COMPOUNDS = frozenset({
     "Sock Boots", "Wellington Safety Boots", "Chelsea Safety Boots", "Hiker Safety Boots",
     "Chukka Walking Boots",
     "Mule Heels", "Loafer Heels", "Sandal Heels",
-    "Ballet Slippers", "Ballet Sandals", "Ballet Flats", "Ballet Pumps",
+    "Ballet Slippers", "Ballet Sandals", "Ballet Pumps",
     "Dress Brogues", "Derby Brogues", "Oxford Brogues",
     "Dress Shoes", "Court Shoes", "Walking Shoes", "Tennis Shoes", "Training Shoes",
     "Loafer School Shoes", "Brogue School Shoes",
     "Mule Loafers", "Brogue Loafers",
-    "Loafer Sandals", "Mule Sandals", "Slider Sandals",
+    "Loafer Sandals", "Mule Sandals", "Espadrille Sandals",
     "Boot Slippers", "Sock Slippers", "Loafer Slippers", "Mule Slippers",
     "Sock Trainers", "Running Trainers", "Walking Trainers", "Chelsea Wellies",
     "T-Shirt Bra", "Cami Bra", "Corset Bra",
@@ -274,6 +274,8 @@ INVENTED_COMPOUNDS = frozenset({
     "Dress Pyjamas", "Trouser Blouse", "Poncho Dressing Gown", "Dress Tights", "Legging Tights",
     "Sweatshirt Tracksuit", "Dress Trainers", "Ballet Sneakers", "Sneaker Loafers",
     "Trainer School Shoes", "Sock Shoes", "Pump Heels", "Trouser Shorts", "Pyjama Boxers",
+    # #444 review: each names a class the product itself belongs to, not another product's noun
+    "Ballet Flats", "Henley Tee", "Henley T-Shirt", "Slider Sandals",
 })
 
 
@@ -288,11 +290,20 @@ def test_no_invented_compound_is_planned_or_titled() -> None:
 
 def test_every_type_has_three_real_compounds_or_a_declared_reason() -> None:
     """#444: a type with fewer than three real compounds is a declared exception, with its
-    reason, and the generator text of the docs says so; an exception that no longer applies reds."""
+    reason, and the generator text of the docs says so; an exception that no longer applies reds.
+    Only a phrase some exemplar of the type can carry counts: ``_in_path`` blocks Shirt Blouse,
+    Shoe Boots and Ballet Flats on every path of their types, and a planned phrase never built
+    is no phrase."""
+    body = [d for d in scale.templates(baseline=False) if d["product_id"] not in da.IDS]
+    built: dict[str, set[str]] = {t.product_type: set() for t in da.TYPES}
+    for ex in body:
+        for spec in da.TYPES:
+            if ex["product_type"] == spec.product_type and ex.get("color_options"):
+                built[spec.product_type] |= {o["phrase"] for o in da._options(2, spec, ex)}
     short = {
         t.product_type
         for t in da.TYPES
-        if len({p for _, p in (t.compounds or da.COMPOUNDS[t.product_type])}) < 3
+        if len(built[t.product_type]) < 3
     }
     assert short == set(da.SHORT_COMPOUNDS), short ^ set(da.SHORT_COMPOUNDS)
     assert all(len(reason.split()) >= 4 for reason in da.SHORT_COMPOUNDS.values())
