@@ -1,24 +1,24 @@
 {
  "ceiling": {
-  "derived_styles": 4469,
+  "derived_styles": 4475,
   "food_and_drink": {
-   "skus": 11652,
-   "styles": 4248
+   "skus": 11654,
+   "styles": 4250
   },
   "grocery": {
    "skus": 12409,
    "styles": 4516
   },
-  "images": 18357,
+  "images": 20115,
   "non_grocery": {
-   "skus": 91479,
-   "styles": 5524
+   "skus": 91345,
+   "styles": 5530
   },
-  "skus": 132094,
-  "styles": 12833,
+  "skus": 138975,
+  "styles": 13597,
   "top_levels": {
    "Beauty": {
-    "skus": 914,
+    "skus": 924,
     "styles": 486
    },
    "Cleaning": {
@@ -26,40 +26,40 @@
     "styles": 491
    },
    "Food & Drink": {
-    "skus": 11652,
-    "styles": 4248
+    "skus": 11654,
+    "styles": 4250
    },
    "Garden": {
-    "skus": 472,
-    "styles": 293
+    "skus": 597,
+    "styles": 337
    },
    "Gifts": {
-    "skus": 490,
-    "styles": 338
+    "skus": 684,
+    "styles": 376
    },
    "Home": {
-    "skus": 5981,
-    "styles": 1914
+    "skus": 5974,
+    "styles": 1941
    },
    "Kids": {
-    "skus": 5229,
+    "skus": 5207,
     "styles": 416
    },
    "Mens": {
-    "skus": 22569,
-    "styles": 1402
+    "skus": 25966,
+    "styles": 1823
    },
    "Sports & Outdoors": {
     "skus": 430,
     "styles": 53
    },
    "Toys": {
-    "skus": 716,
-    "styles": 443
+    "skus": 912,
+    "styles": 495
    },
    "Womens": {
-    "skus": 82858,
-    "styles": 2749
+    "skus": 85844,
+    "styles": 2929
    }
   }
  },
@@ -71,7 +71,7 @@
   "Footwear": 453,
   "Garden": 219,
   "Gifts": 321,
-  "Home": 1655,
+  "Home": 1661,
   "Lingerie & Nightwear": 611,
   "Toys": 384
  },
@@ -522,8 +522,8 @@
  "near_duplicates": {
   "grocery": 0.0323,
   "grocery_grid_clones": 4,
-  "non_grocery": 0.0176,
-  "non_grocery_grid_clone_rate": 0.13
+  "non_grocery": 0.0175,
+  "non_grocery_grid_clone_rate": 0.1412
  },
  "templates": {
   "accessory_rows": {
@@ -531,8 +531,8 @@
    "styles": 53
   },
   "all": {
-   "skus": 71455,
-   "styles": 8364
+   "skus": 78470,
+   "styles": 9122
   },
   "appliance_rows": {
    "skus": 124,
@@ -544,8 +544,8 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 59046,
-   "styles": 3848
+   "skus": 66061,
+   "styles": 4606
   },
   "breadth_rows": {
    "skus": 687,
@@ -556,12 +556,12 @@
    "styles": 24
   },
   "decoy_apparel": {
-   "skus": 14151,
-   "styles": 1420
+   "skus": 14293,
+   "styles": 1442
   },
   "decoy_product_words": {
-   "skus": 179,
-   "styles": 144
+   "skus": 189,
+   "styles": 154
   },
   "decoy_rows": {
    "skus": 111,
@@ -572,8 +572,8 @@
    "styles": 289
   },
   "garden_rows": {
-   "skus": 225,
-   "styles": 91
+   "skus": 279,
+   "styles": 136
   },
   "grocery": {
    "skus": 12409,
@@ -582,6 +582,10 @@
   "household_rows": {
    "skus": 147,
    "styles": 40
+  },
+  "knitwear_rows": {
+   "skus": 3827,
+   "styles": 277
   },
   "lighting_rows": {
    "skus": 169,
@@ -592,12 +596,12 @@
    "styles": 35
   },
   "main_food": {
-   "skus": 118,
-   "styles": 103
+   "skus": 120,
+   "styles": 105
   },
   "mens_depth_rows": {
-   "skus": 4702,
-   "styles": 494
+   "skus": 4825,
+   "styles": 504
   },
   "needs_rows": {
    "skus": 270,
@@ -640,8 +644,8 @@
    "styles": 49
   },
   "type_specs": {
-   "skus": 626,
-   "styles": 46
+   "skus": 3501,
+   "styles": 440
   },
   "underwear_rows": {
    "skus": 1389,
