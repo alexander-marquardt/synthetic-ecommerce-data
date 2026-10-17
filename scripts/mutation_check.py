@@ -3893,6 +3893,32 @@ MUTATIONS: list[Mutation] = [
         "only the branch's own commits are judged, not a merge of main",
         root=".",
     ),
+    Mutation(
+        "red_commit_proof: the grandfather test is turned round",
+        "scripts/red_commit_proof.py",
+        '"--is-ancestor", cutoff, sha, check=False).returncode == 1',
+        '"--is-ancestor", cutoff, sha, check=False).returncode == 0',
+        (
+            "tests/test_red_commit_proof_11680.py::"
+            "test_a_red_commit_before_the_cutoff_may_fail_on_anything[StopIteration]",
+            "tests/test_red_commit_proof_11680.py::"
+            "test_a_red_commit_after_the_cutoff_that_fails_on_stop_iteration_is_refused",
+        ),
+        "",
+        "a commit before the cutoff is grandfathered and one after it is not",
+        root=".",
+    ),
+    Mutation(
+        "red_commit_proof: a cutoff the clone lacks grandfathers",
+        "scripts/red_commit_proof.py",
+        "        return False\n    return _git(repo, \"merge-base\"",
+        "        return True\n    return _git(repo, \"merge-base\"",
+        "tests/test_red_commit_proof_11680.py::"
+        "test_an_exception_that_is_not_an_assertion_is_refused",
+        "",
+        "a cutoff that is not in the clone grandfathers nothing",
+        root=".",
+    ),
     # ---- retail: the steak plate, board and weight carry a material, never derived (gen#268) ----
     *(
         Mutation(f"steak ware: {name}", file, old, new_, test, "", prop,
