@@ -7,8 +7,8 @@ changes how the piece looks is a param, so two styles that differ on it draw dif
 =================  ==============================================  ==========================
 shape              draws                                           params
 =================  ==============================================  ==========================
-dining_table       a top in plan (its outline) over its legs,      outline, seats, extending
-                   one chair back per seat around it
+dining_table       a top in plan (its outline) over its legs,      outline, seats, extending,
+                   one chair back per seat around it               top (its material)
 dining_chair       one chair, or a set fanned under a count band   style, count
 coffee_table       a low table: top, legs, its storage             outline, storage, pieces
 side_table         side, bedside, console or a nest of tables      kind, drawers
@@ -17,6 +17,10 @@ wardrobe           a tall cabinet: its doors, mirrors, handles     doors, mirror
 chest_of_drawers   a chest with one front per drawer               drawers, form
 mirror             a mirror glass in the record's frame            outline, kind
 =================  ==============================================  ==========================
+
+A colorway's color drives the fill: a White piece reads white (no body is shaded far toward black),
+and a dining table's ``top`` follows ``top_material`` (a timber draws grain, a glass top is
+translucent over the record-colored legs, a marble-effect top carries veins), gen#226.
 
 Every params value is a string, as a style row's ``params`` carry it. A top's or a glass's
 outline is ``outline``, not ``shape``: :func:`variants.drawing` takes the shape name as ``shape``.
@@ -34,6 +38,8 @@ GLASS = "#dfeaf0"
 METAL = "#3b3f46"
 BOOKS = ("#b5502f", "#2f5b8a", "#d4a32a", "#4f7a3a", "#7a4a8a", "#c46a4a")
 SHAPES = ("round", "rectangular", "oval", "square")
+TIMBERS = ("oak", "walnut", "pine", "ash", "beech", "teak")
+TOPS = (*TIMBERS, "glass", "marble_effect")
 CHAIR_STYLES = ("upholstered", "spindle", "cantilever", "bench")
 SIDE_KINDS = ("side", "bedside", "console", "nest")
 MIRROR_SHAPES = ("round", "arched", "rectangular", "sunburst")
@@ -52,7 +58,20 @@ def _knob(cx: float, cy: float, r: float = 4.5) -> str:
 def _grain(x: float, y: float, w: float, h: float, base: str) -> str:
     """Faint wood-grain strokes across a panel, in a shade of its own finish."""
     rows = " ".join(f"M{x + 6:.1f},{y + h * t:.1f} Q{x + w / 2:.1f},{y + h * t + 3:.1f} {x + w - 6:.1f},{y + h * t:.1f}" for t in (0.3, 0.55, 0.8))
-    return _line(rows, 0.9, ' stroke-opacity=".25"', _shade(base, 0.35))
+    return _line(rows, 0.9, ' class="grain" stroke-opacity=".25"', _shade(base, 0.35))
+
+
+def _veins(cx: float, cy: float, rx: float, ry: float, base: str) -> list[str]:
+    """A few marble veins across a top, in a shade that shows on its own color."""
+    r, g, b = (int(base[i : i + 2], 16) for i in (1, 3, 5))
+    vein = _tint(base, 0.55) if 0.2126 * r + 0.7152 * g + 0.0722 * b < 110 else _shade(base, 0.4)
+    curves = (
+        (f"M{cx - 0.6 * rx:.1f},{cy + 0.55 * ry:.1f} C{cx - 0.3 * rx:.1f},{cy - 0.3 * ry:.1f} {cx + 0.1 * rx:.1f},{cy + 0.6 * ry:.1f} {cx + 0.6 * rx:.1f},{cy - 0.5 * ry:.1f}", 2.0),
+        (f"M{cx - 0.2 * rx:.1f},{cy + 0.7 * ry:.1f} C{cx - 0.1 * rx:.1f},{cy + 0.2 * ry:.1f} {cx + 0.2 * rx:.1f},{cy + 0.1 * ry:.1f} {cx + 0.3 * rx:.1f},{cy + 0.6 * ry:.1f}", 1.0),
+        (f"M{cx - 0.5 * rx:.1f},{cy - 0.2 * ry:.1f} C{cx - 0.3 * rx:.1f},{cy - 0.6 * ry:.1f} {cx - 0.1 * rx:.1f},{cy - 0.1 * ry:.1f} {cx + 0.05 * rx:.1f},{cy - 0.55 * ry:.1f}", 1.0),
+        (f"M{cx + 0.15 * rx:.1f},{cy + 0.1 * ry:.1f} C{cx + 0.3 * rx:.1f},{cy - 0.2 * ry:.1f} {cx + 0.45 * rx:.1f},{cy + 0.3 * ry:.1f} {cx + 0.65 * rx:.1f},{cy + 0.15 * ry:.1f}", 0.9),
+    )
+    return [_line(d, w, ' class="vein" stroke-opacity=".85"', vein) for d, w in curves]
 
 
 def _legs(xs: list[float], top: float, bottom: float, paint: str, w: float = 10) -> list[str]:
@@ -71,13 +90,18 @@ def _chair_back(x: float, y: float, w: float, h: float, paint: str) -> list[str]
     return [_rect(x, y, w, h, paint, LW_DETAIL, rx=6), _line(f"M{x + 6:.1f},{y + h * 0.5:.1f} L{x + w - 6:.1f},{y + h * 0.5:.1f}", 1.0, ' stroke-opacity=".5"')]
 
 
-def dining_table(paint: str, fill: Fill, label: str | None, outline: str = "rectangular", seats: str = "4", extending: str = "no") -> list[str]:
+def dining_table(paint: str, fill: Fill, label: str | None, outline: str = "rectangular", seats: str = "4", extending: str = "no", top: str = "oak") -> list[str]:
     """A dining table and its ``seats`` chair backs: half behind the top, the rest at its ends.
 
     ``outline`` sets the top's outline (round and oval are ellipses, rectangular a slab); an
-    ``extending`` table shows the seam of its extension leaf across the top."""
+    ``extending`` table shows the seam of its extension leaf across the top. ``top`` is the top's
+    material (the ``top_material`` attribute): a timber draws grain in the record's color, a
+    ``glass`` top is translucent glass over the record-colored legs, a ``marble_effect`` top
+    carries veins (``class="vein"``) in the record's color."""
     if outline not in SHAPES:
         raise ValueError(f"unknown table outline {outline!r}; one of {SHAPES}")
+    if top not in TOPS:
+        raise ValueError(f"unknown table top {top!r}; one of {TOPS}")
     n = int(seats)
     if n not in (2, 4, 6, 8):
         raise ValueError(f"a dining table seats 2, 4, 6 or 8, not {n}")
@@ -102,9 +126,20 @@ def dining_table(paint: str, fill: Fill, label: str | None, outline: str = "rect
         out += _legs(legs, cy + ry - 4, cy + 150, paint, 14)
         if outline == "oval":
             out += _legs([cx - rx * 0.45, cx + rx * 0.45], cy + ry - 2, cy + 146, _shade(paint, 0.15), 12)
-    top = _top_outline(outline, cx, cy, rx, ry)
-    out += [_path(f"M{cx - rx:.1f},{cy + (0 if outline in ('round', 'oval') else ry):.1f} L{cx - rx:.1f},{cy + (0 if outline in ('round', 'oval') else ry) + 14:.1f} L{cx + rx:.1f},{cy + (0 if outline in ('round', 'oval') else ry) + 14:.1f} L{cx + rx:.1f},{cy + (0 if outline in ('round', 'oval') else ry):.1f} Z", _shade(paint, 0.2), LW_DETAIL) if outline not in ("round", "oval") else f'<ellipse cx="{cx}" cy="{cy + 10}" rx="{rx}" ry="{ry}" fill="{_shade(paint, 0.2)}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>']
-    out += [_path(top, paint), _grain(cx - rx, cy - ry, 2 * rx, 2 * ry, fill.base)]
+    outline_d = _top_outline(outline, cx, cy, rx, ry)
+    flat = outline not in ("round", "oval")
+    edge = _shade(GLASS, 0.15) if top == "glass" else _shade(paint, 0.2)
+    if flat:
+        y0 = cy + ry
+        out.append(_path(f"M{cx - rx:.1f},{y0:.1f} L{cx - rx:.1f},{y0 + 14:.1f} L{cx + rx:.1f},{y0 + 14:.1f} L{cx + rx:.1f},{y0:.1f} Z", edge, LW_DETAIL))
+    else:
+        out.append(f'<ellipse cx="{cx}" cy="{cy + 10}" rx="{rx}" ry="{ry}" fill="{edge}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>')
+    if top == "glass":
+        out += [_path(outline_d, GLASS, LW, ' class="top" fill-opacity=".55"'), _highlight(f"M{cx - rx * 0.55:.1f},{cy + ry * 0.45:.1f} L{cx - rx * 0.3:.1f},{cy - ry * 0.45:.1f}", 4, 0.7)]
+    elif top == "marble_effect":
+        out += [_path(outline_d, paint, LW, ' class="top"'), *_veins(cx, cy, rx, ry, fill.base)]
+    else:
+        out += [_path(outline_d, paint, LW, ' class="top"'), _grain(cx - rx, cy - ry, 2 * rx, 2 * ry, fill.base)]
     if extending == "yes":
         out.append(_line(f"M{cx - 22},{cy - ry + 2} L{cx - 26},{cy + ry - 2} M{cx + 22},{cy - ry + 2} L{cx + 26},{cy + ry - 2}", 1.6, ' stroke-dasharray="5 3"'))
     for side in (-1, 1)[:ends]:
@@ -230,7 +265,7 @@ def side_table(paint: str, fill: Fill, label: str | None, kind: str = "side", dr
     if kind == "nest":
         out = []
         for k, (w, h, x0) in enumerate(((240, 210, 80), (190, 170, 105), (140, 130, 130))):
-            p = _shade(paint, 0.1 * (2 - k))
+            p = _shade(paint, 0.06 * (2 - k))
             out += ['<g class="nest">', _path(f"M{x0},{340 - h} L{x0 + w},{340 - h} L{x0 + w},{340 - h + 14} L{x0},{340 - h + 14} Z", p), *_legs([x0 + 8, x0 + w - 8], 340 - h + 14, 340, p, 9), "</g>"]
         return out
     raise ValueError(f"unknown side table kind {kind!r}; one of {SIDE_KINDS}")
@@ -269,7 +304,7 @@ def bookcase(paint: str, fill: Fill, label: str | None, shelves: str = "4", styl
             if i % 2 == 0:  # a fabric box fills most of the cell, a handle cut-out on its front
                 out += [_rect(x + 9, y + 24, cw - 18, ch - 32, "#d8c9a8", 1.4, rx=3), _rect(x + cw / 2 - 12, y + 36, 24, 8, "#8a7a5a", 1.0, rx=4)]
         return out
-    out = [_rect(110, 40, 180, 320, paint), _rect(122, 52, 156, 296, _shade(paint, 0.3), LW_DETAIL)]
+    out = [_rect(110, 40, 180, 320, paint), _rect(122, 52, 156, 296, _shade(paint, 0.1), LW_DETAIL)]
     gap = 296 / n
     for i in range(n):
         y = 52 + gap * (i + 1)
