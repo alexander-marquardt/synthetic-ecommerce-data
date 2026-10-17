@@ -94,7 +94,7 @@ RETAIL_REBUILD=(python prototypes/retail_drawings/retail_figures.py)
 #: them. A pull request's commit must carry each REQUIRED_CI check, green; a
 #: SKIPPED_BY_DESIGN_CI check (a push-only job) may also be skipped. Pinned to
 #: the workflow by tests/test_merge_pr.py.
-REQUIRED_CI=(tests commit-messages file-size customer-name-check)
+REQUIRED_CI=(tests commit-messages file-size red-commit-proof customer-name-check)
 SKIPPED_BY_DESIGN_CI=(main-merged-tree)
 
 die() {
