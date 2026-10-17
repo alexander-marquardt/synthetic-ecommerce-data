@@ -67,12 +67,13 @@ case "$1 $2" in
       mode=green
     fi
     case "$mode" in
-      green) printf 'tests\tcompleted\tsuccess\n' ;;
-      red) printf 'tests\tcompleted\tfailure\n' ;;
-      skipped) printf 'tests\tcompleted\tskipped\n' ;;
-      pending) printf 'tests\tin_progress\t\n' ;;
+      green) printf 'tests (1)\tcompleted\tsuccess\ntests (2)\tcompleted\tsuccess\n' ;;
+      red) printf 'tests (1)\tcompleted\tsuccess\ntests (2)\tcompleted\tfailure\n' ;;
+      skipped) printf 'tests (1)\tcompleted\tskipped\n' ;;
+      pending) printf 'tests (1)\tin_progress\t\n' ;;
       missing) ;;
     esac
+    printf 'lint\tcompleted\tsuccess\n'
     printf 'commit-messages\tcompleted\tsuccess\n'
     printf 'file-size\tcompleted\tsuccess\n'
     printf 'red-commit-proof\tcompleted\tsuccess\n'
@@ -444,14 +445,14 @@ def test_a_check_run_in_which_no_test_passed_is_not_green(world: dict) -> None:
     "ci, refusal",
     [
         # A test outside the script's checks is red in the PR's own CI.
-        ("red", "check tests on {sha} is failure"),
-        ("skipped", "check tests on {sha} was skipped"),
+        ("red", "check tests (2) on {sha} is failure"),
+        ("skipped", "check tests (1) on {sha} was skipped"),
         ("missing", "missing: tests"),
         ("pending", "still running: tests"),
         # CI ran on the PR head, never on the merge the script pushed.
         (
             "head-only",
-            "missing: tests commit-messages file-size red-commit-proof customer-name-check",
+            "missing: lint tests commit-messages file-size red-commit-proof customer-name-check",
         ),
     ],
     ids=["red", "skipped", "missing", "pending", "head-only"],
@@ -791,6 +792,7 @@ def _workflow(**commands: str) -> dict[str, str]:
 
 _ALL_GREEN = _workflow(
     tests="echo suite",
+    lint="echo lint",
     **{
         "commit-messages": "echo msgs",
         "file-size": "echo size",
@@ -824,6 +826,7 @@ def test_a_failing_local_job_refuses_the_merge_but_the_others_still_run(world: d
     plant = _workflow(
         tests="echo suite",
         **{
+            "lint": "true",
             "commit-messages": "echo bad >&2; exit 3",
             "file-size": "true",
             "red-commit-proof": "true",
@@ -844,6 +847,7 @@ def test_a_failing_local_job_fails_a_dry_run_too(world: dict) -> None:
     plant = _workflow(
         tests="exit 1",
         **{
+            "lint": "true",
             "commit-messages": "true",
             "file-size": "true",
             "red-commit-proof": "true",
@@ -858,7 +862,7 @@ def test_a_failing_local_job_fails_a_dry_run_too(world: dict) -> None:
 
 
 def test_a_required_check_missing_from_the_workflows_refuses(world: dict) -> None:
-    head = _open_pr(world, {**_GREEN, **_workflow(tests="true")})
+    head = _open_pr(world, {**_GREEN, **_workflow(tests="true", lint="true")})
     done = _run(world, head, _GREEN_CHECK, "--local-ci")
     assert done.returncode != 0
     assert "commit-messages is not a job" in done.stderr
@@ -915,6 +919,7 @@ _STALE_UNLESS_MAINS = (
     f' || {{ echo "FAILED {_FRESH}[stats.json] - differs"; exit 1; }}'
 )
 _OTHER_JOBS = {
+    "lint": "true",
     "commit-messages": "true",
     "file-size": "true",
     "red-commit-proof": "true",
