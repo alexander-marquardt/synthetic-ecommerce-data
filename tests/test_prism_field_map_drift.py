@@ -18,12 +18,16 @@ Both directions are proven by ``scripts/mutation_check.py``.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from prism_synthetic_industrial import FIELD_MAP_PATH
+from synthetic_ecommerce_data import generate_cli as cli
 from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial.generate import generate
+from synthetic_ecommerce_data.prism import field_map as field_map_module
 from synthetic_ecommerce_data.prism.field_map import STRUCTURAL_NAMES, render
 
 REBUILD = "uv run ecom-generate build --out out/catalog"
@@ -70,6 +74,27 @@ def test_committed_field_map_matches_a_fresh_derivation(flat_rows: list[dict]) -
         f"    {REBUILD}\n"
         f"If you edited the field map by hand, move the change into "
         f"synthetic_ecommerce_data/prism/field_map.py instead."
+    )
+
+
+def test_the_field_map_is_replaced_not_rewritten_in_place(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A reader that opened the committed field map before a build wrote it must not
+    see it cut short: ``_write_field_map`` truncated the file in place, and a test that
+    read it mid-write saw an empty YAML (#440's red, with the golden tests, at once)."""
+    target = tmp_path / "field_weights" / FIELD_MAP_PATH.name
+    target.parent.mkdir()
+    target.write_text("old\n", encoding="utf-8")
+    monkeypatch.setattr(cli, "field_map_target", lambda: target)
+    monkeypatch.setattr(cli.emit, "iter_flat", lambda catalog: [])
+    monkeypatch.setattr(field_map_module, "render", lambda rows: "new\n")
+    with target.open("rb") as reader:
+        cli._write_field_map(object(), GeneratorConfig())
+        assert reader.read() == b"old\n", "the file was written in place"
+    assert target.read_text(encoding="utf-8") == "new\n"
+    assert [path.name for path in target.parent.iterdir()] == [FIELD_MAP_PATH.name], (
+        "the write left a temporary file beside the field map"
     )
 
 

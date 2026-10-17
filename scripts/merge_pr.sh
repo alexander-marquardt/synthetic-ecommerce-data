@@ -5,6 +5,7 @@
 #     scripts/merge_pr.sh --dry-run <N>      # everything but the push, the CI wait and the merge
 #     scripts/merge_pr.sh --print-checks     # the tests it runs, for CI to reuse
 #     scripts/merge_pr.sh --print-generated  # the files a conflict is resolved in by rebuilding
+#     scripts/merge_pr.sh --print-freshness  # the tests whose red alone is regenerated (#440)
 #     scripts/merge_pr.sh --print-ci         # the CI checks a merge waits for
 #     scripts/merge_pr.sh --local-ci <N>     # step 5 runs the CI jobs here, not on GitHub
 #     scripts/merge_pr.sh --print-local-ci   # the jobs --local-ci runs (the workflows' jobs)
@@ -48,6 +49,13 @@
 #      pytest runs on several workers, grouped by file (local_ci_jobs.py adds
 #      -n and --dist loadgroup; LOCAL_CI_WORKERS sets the count): the suite
 #      took 47 to 54 minutes on one core, and merges are serial (#348).
+#      A local CI that is red only on the golden freshness tests (FRESHNESS_TESTS:
+#      every FAILED or ERROR line of every red job names one of them, and no
+#      other job is red) is not handed back for a fixer round (#440): the
+#      generated files are rebuilt on the same tree (the step-2 build), committed
+#      as "regenerate golden on main", every job runs again, and only a green
+#      second run is pushed and merged. Once: a second red stops. Any other red,
+#      or a freshness red the rebuild does not change, stops the merge as before.
 #   6. squash-merges, re-checking before EVERY attempt that main has not moved
 #      since step 1 and that the PR head is still the checked commit.
 #
@@ -83,6 +91,17 @@ GENERATED=(
   golden-catalog/stats.json
   golden-retail/stats.json
   src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml
+)
+
+#: The tests whose red means "a generated file is stale", as the test runner names
+#: them in its FAILED/ERROR summary lines (parameters dropped). A local CI that is
+#: red on these alone is regenerated (#440). Pinned to real tests by tests/test_merge_pr.py.
+FRESHNESS_TESTS=(
+  tests/test_catalog_golden.py::test_committed_file_matches_a_fresh_build
+  tests/test_catalog_golden.py::test_golden_directory_holds_exactly_the_build_output
+  tests/test_retail_figures_162.py::test_the_committed_figures_are_what_the_build_measures
+  tests/test_prism_field_map_drift.py::test_committed_field_map_matches_a_fresh_derivation
+  tests/test_catalog_golden.py::test_stats_reports_the_catalog_that_was_committed
 )
 
 #: The command that rewrites golden-retail/stats.json (gen#162, gen#343). It
@@ -122,6 +141,10 @@ case "${1:-}" in
     ;;
   --print-generated)
     printf '%s\n' "${GENERATED[@]}"
+    exit 0
+    ;;
+  --print-freshness)
+    printf '%s\n' "${FRESHNESS_TESTS[@]}"
     exit 0
     ;;
   --print-ci)
@@ -199,27 +222,31 @@ else
   printf '%s\n' "$conflicted" | sed 's/^/     /'
 fi
 
-# 2. Rebuild the committed catalog on the merged tree. Two types on one
-#    part-number block are refused here, naming both.
-build_rc=0
-uv run -q --locked --directory "$work" ecom-generate build --out golden-catalog \
-  >/dev/null 2>"$build_log" || build_rc=$?
-cat "$build_log" >&2
-if [ "$build_rc" -ne 0 ]; then
-  # A dropped lookup is not the tree's fault (#178): say so apart from the refusal.
-  if grep -qiE 'dns error|failed to (lookup|fetch)|error sending request|network connectivity' "$build_log"; then
-    echo "merge_pr.sh: the build failed on the network, not on the tree; retry when it is reachable (UV_OFFLINE=1 builds from uv's cache)" >&2
+# Rebuild every generated file on the tree at $work. Two types on one
+# part-number block are refused here, naming both.
+rebuild_generated() {
+  local build_rc=0 retail_rc=0
+  uv run -q --locked --directory "$work" ecom-generate build --out golden-catalog \
+    >/dev/null 2>"$build_log" || build_rc=$?
+  cat "$build_log" >&2
+  if [ "$build_rc" -ne 0 ]; then
+    # A dropped lookup is not the tree's fault (#178): say so apart from the refusal.
+    if grep -qiE 'dns error|failed to (lookup|fetch)|error sending request|network connectivity' "$build_log"; then
+      echo "merge_pr.sh: the build failed on the network, not on the tree; retry when it is reachable (UV_OFFLINE=1 builds from uv's cache)" >&2
+    fi
+    die "the build refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
   fi
-  die "the build refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
-fi
-# The retail totals (golden-retail/stats.json) move with every retail PR as the
-# catalog's do, and conflict the same way; rebuild them on the same merged tree.
-retail_rc=0
-uv run -q --locked --directory "$work" "${RETAIL_REBUILD[@]}" \
-  >/dev/null 2>"$build_log" || retail_rc=$?
-cat "$build_log" >&2
-[ "$retail_rc" -eq 0 ] ||
-  die "the retail rebuild refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
+  # The retail totals (golden-retail/stats.json) move with every retail PR as the
+  # catalog's do, and conflict the same way; rebuild them on the same merged tree.
+  uv run -q --locked --directory "$work" "${RETAIL_REBUILD[@]}" \
+    >/dev/null 2>"$build_log" || retail_rc=$?
+  cat "$build_log" >&2
+  [ "$retail_rc" -eq 0 ] ||
+    die "the retail rebuild refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
+}
+
+# 2. Rebuild the committed catalog on the merged tree.
+rebuild_generated
 if [ -n "$conflicted" ]; then
   while IFS= read -r path; do
     if grep -q '^<<<<<<< ' "$work/$path"; then
@@ -227,11 +254,16 @@ if [ -n "$conflicted" ]; then
     fi
   done <<<"$conflicted"
 fi
-git -C "$work" add -- "${GENERATED[@]}"
-stray=$(git -C "$work" status --porcelain | grep -v '^[MADRC] ' || true)
-[ -z "$stray" ] ||
-  die "the rebuild left changes outside the generated files; NOT pushed, NOT merged:
+# Stage the generated files; the rebuild may change nothing else.
+stage_generated() {
+  local stray
+  git -C "$work" add -- "${GENERATED[@]}"
+  stray=$(git -C "$work" status --porcelain | grep -v '^[MADRC] ' || true)
+  [ -z "$stray" ] ||
+    die "the rebuild left changes outside the generated files; NOT pushed, NOT merged:
 $stray"
+}
+stage_generated
 if [ -n "$conflicted" ]; then
   git -C "$work" commit -q -m "Merge $base_ref into $head_ref before merging #$pr; generated files rebuilt"
   echo "2. the merge commit holds the rebuilt generated files"
@@ -261,8 +293,10 @@ echo "3. drift, golden and seam tests green on the merged tree"
 
 # 5 (--local-ci). Every CI job of the workflows, on exactly the tree that
 #    would merge. All of them run; any red one refuses.
+# Sets local_ci_failed to the red jobs and returns 1 when there are any.
 run_local_ci() {
-  local jobs job script log started verdict failed="" required
+  local jobs job script log started verdict required
+  local_ci_failed=""
   jobs=$(uv run -q --locked --directory "$work" python "$here/scripts/local_ci_jobs.py" \
     --workflows "$work/.github/workflows" --list) ||
     die "a workflow job has no local equivalent (the reason is above); NOT merged"
@@ -273,24 +307,63 @@ run_local_ci() {
     script=$(uv run -q --locked --directory "$work" python "$here/scripts/local_ci_jobs.py" \
       --workflows "$work/.github/workflows" --emit "$job" --base "$base_sha" --head "$final_sha") ||
       die "job $job has no local equivalent (the reason is above); NOT merged"
-    log="${MERGE_PR_LOG_DIR:-/tmp}/$label-$job.log"
+    log=$(local_ci_log "$job")
     started=$SECONDS
     # GEN_LOCAL_CI is dropped so a test that runs this script does not recurse.
     if (cd "$work" && env -u GEN_LOCAL_CI bash --noprofile --norc -eo pipefail -c "$script") >"$log" 2>&1; then
       verdict=PASS
     else
       verdict=FAIL
-      failed+=" $job"
+      local_ci_failed+=" $job"
     fi
     echo "   local CI $job: $verdict ($((SECONDS - started))s) log $log"
   done
-  [ -z "$failed" ] || die "local CI is red on $final_sha (failed:$failed); NOT merged"
+  [ -z "$local_ci_failed" ]
+}
+
+local_ci_log() { echo "${MERGE_PR_LOG_DIR:-/tmp}/$label-$1.log"; }
+
+# True when every red job of the last run is red on freshness tests alone: it
+# printed at least one FAILED/ERROR summary line, and each names a FRESHNESS_TESTS
+# test. A red job that printed none (lint, a crash, a collection error) is not.
+only_stale_generated_files_red() {
+  local job id ids
+  for job in $local_ci_failed; do
+    ids=$(sed -nE 's/^(FAILED|ERROR) ([^][ ]+).*/\2/p' "$(local_ci_log "$job")" | sort -u)
+    [ -n "$ids" ] || return 1
+    for id in $ids; do
+      listed "$id" "${FRESHNESS_TESTS[@]}" || return 1
+    done
+  done
+}
+
+# The local CI, and, once, the regeneration of the generated files when its only
+# red is a stale one (#440). The second run is the whole of it again, on the
+# regenerated commit; its red stops the merge whatever it is.
+run_local_ci_regenerating() {
+  local job
+  run_local_ci && return 0
+  only_stale_generated_files_red ||
+    die "local CI is red on $final_sha (failed:$local_ci_failed); NOT merged"
+  echo "   the only red is a stale generated file; rebuilding it on the merged tree"
+  for job in $local_ci_failed; do mv -f "$(local_ci_log "$job")" "$(local_ci_log "$job").before-regenerate"; done
+  rebuild_generated
+  stage_generated
+  if git -C "$work" diff --cached --quiet; then
+    die "a golden freshness test is red but a rebuild changes nothing (a nondeterministic generator, or the test is red for another reason); NOT merged"
+  fi
+  git -C "$work" commit -q -m "regenerate golden on main"
+  final_sha=$(git -C "$work" rev-parse HEAD)
+  echo "5a. regenerated the golden files on the merged tree: $(git -C "$work" show --stat --format= HEAD | tail -1)"
+  run_local_ci ||
+    die "local CI is red on $final_sha after the golden regeneration (failed:$local_ci_failed); NOT merged"
 }
 
 final_sha=$(git -C "$work" rev-parse HEAD)
+pushed_sha=$head_sha
 if [ "$dry_run" -eq 1 ]; then
   if [ "$local_ci" -eq 1 ]; then
-    run_local_ci
+    run_local_ci_regenerating
     echo "5. every local CI job is green on $final_sha"
   fi
   keep_work=0
@@ -306,6 +379,7 @@ fi
 if [ "$final_sha" != "$head_sha" ]; then
   git -C "$work" push -q origin "HEAD:refs/heads/$head_ref" ||
     die "the push of $final_sha to $head_ref was refused (has the PR head moved?); NOT merged"
+  pushed_sha=$final_sha
   echo "4. pushed $final_sha to $head_ref"
 else
   echo "4. nothing to push"
@@ -313,7 +387,12 @@ fi
 
 # 5. The PR's own CI, on exactly the commit that will merge.
 if [ "$local_ci" -eq 1 ]; then
-  run_local_ci
+  run_local_ci_regenerating
+  if [ "$final_sha" != "$pushed_sha" ]; then
+    git -C "$work" push -q origin "HEAD:refs/heads/$head_ref" ||
+      die "the push of the regenerated $final_sha to $head_ref was refused (has the PR head moved?); NOT merged"
+    echo "5b. pushed the regenerated $final_sha to $head_ref"
+  fi
   echo "5. every local CI job is green on $final_sha"
 else
 ci_timeout=${MERGE_PR_CI_TIMEOUT:-3600}
