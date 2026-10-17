@@ -17,7 +17,7 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         "main_colors.py",
         'fit = [r for r in styles if type_colors.permits(r["category_path"], color)]',
         "fit = list(styles)",
-        f"{_T} -k an_audited_style_is_not_sold",
+        f"{_T} -k a_missing_color_only_to_a_style",
         "complete() adds only a color the type comes in",
     ),
     (
