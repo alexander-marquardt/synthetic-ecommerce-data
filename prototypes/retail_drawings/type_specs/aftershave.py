@@ -18,13 +18,13 @@ _row = partial(row, path=("Beauty", "Fragrance", "Aftershave"), ptype="Aftershav
 ROWS = (
     _row("ASHWDY", "Cedar Woods Aftershave", "Thornlea Skin", 14.0, "aftershave",
         "A calming splash of cedar and oak moss for freshly shaved skin.",
-        (a("fragrance_family", "Fragrance family", "Woody"), a("concentration", "Concentration", "Aftershave Splash")), (("50", 14.0), ("100", 22.0)), "net_volume_ml", (("cap", "stopper"),), (PACK_INK,)),
+        (a("fragrance_family", "Fragrance family", "Woody"), a("concentration", "Concentration", "Aftershave Splash")), (("30", 9.0), ("50", 14.0), ("100", 22.0)), "net_volume_ml", (("cap", "stopper"),), (PACK_INK,)),
     _row("ASHFRS", "Ocean Fresh Eau de Toilette for Men", "Aldermist", 24.0, "aftershave",
         "A clean, salty eau de toilette with sea notes and a crisp finish.",
-        (a("fragrance_family", "Fragrance family", "Aquatic"), a("concentration", "Concentration", "Eau de Toilette")), (("50", 24.0), ("100", 36.0)), "net_volume_ml", (("cap", "spray"),), (PACK_SKY,)),
+        (a("fragrance_family", "Fragrance family", "Aquatic"), a("concentration", "Concentration", "Eau de Toilette")), (("30", 16.0), ("50", 24.0), ("100", 36.0)), "net_volume_ml", (("cap", "spray"),), (PACK_SKY,)),
     _row("ASHSPC", "Black Pepper Eau de Cologne", "Pearlbrook", 18.0, "aftershave",
         "A warm, spicy cologne with pepper and amber for evenings out.",
-        (a("fragrance_family", "Fragrance family", "Spicy"), a("concentration", "Concentration", "Eau de Cologne")), (("50", 18.0), ("100", 28.0)), "net_volume_ml", (("cap", "stopper"),), (PACK_SAND,)),
+        (a("fragrance_family", "Fragrance family", "Spicy"), a("concentration", "Concentration", "Eau de Cologne")), (("30", 12.0), ("50", 18.0), ("100", 28.0)), "net_volume_ml", (("cap", "stopper"),), (PACK_SAND,)),
 )  # fmt: skip
 
 SPEC = TypeSpec(
