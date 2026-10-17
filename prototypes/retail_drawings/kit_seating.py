@@ -11,10 +11,10 @@ shape           draws                                            params
 ==============  ===============================================  ===============================
 sofa_seats      a straight sofa, one seat and back cushion       seats (2, 2.5, 3, 4), arms,
                 per seat (2.5 draws two wide ones)               legs
-corner_sofa     a sofa and its return, the return with its own   seats (main run), side (left,
+corner_sofa     a sofa and its return, the return with its own   seats (in all), side (left,
                 back and seats; ``u`` returns on both sides      right, u), arms, legs
 chaise_sofa     a sofa whose end seat runs forward as a chaise,  seats, side (left, right),
-                no back over the chaise                          arms, legs
+                its back along the whole rear, chaise included   arms, legs
 modular_sofa    separate modules with a gap between each,        pieces, layout (straight,
                 armless in the middle; an ottoman in front       corner), ottoman (yes, no)
 recliner_sofa   a sofa of separate padded seats, each with its   seats, legs
@@ -286,13 +286,19 @@ def sofa_seats(paint: str, fill: Fill, label: str | None, seats: str = "3", arms
     return _draw(_straight(seats, arms, legs), paint, fill)
 
 
-def corner_sofa(paint: str, fill: Fill, label: str | None, seats: str = "3", side: str = "left", arms: str = "track", legs: str = "black_metal") -> list[str]:
-    """A main run of ``seats`` and a two-seat return coming forward on ``side`` (both for ``u``).
+def corner_sofa(paint: str, fill: Fill, label: str | None, seats: str = "5", side: str = "left", arms: str = "track", legs: str = "black_metal") -> list[str]:
+    """``seats`` seats in all: a run, and a two-seat return coming forward on ``side`` (a return at
+    each end for ``u``).
 
-    The return has its own back along its outer edge and its own seat cushions; the corner seat
-    joins the two, and an arm closes any end with no return.
+    The return has its own back along its outer edge and its own seat cushions; a corner seat
+    joins the two, and an arm closes any end with no return. Every return takes its two seats and
+    its corner seat from ``seats``, and the run is the rest (``seats`` less three per return), so
+    the drawing shows the seat count its record states. Below the floor (3 for a return, 6 for
+    ``u``) it draws the floor: a corner seat and the return, no run.
     """
-    n, width = _seats(seats)
+    returns = 2 if side == "u" else 1
+    n = max(0, int(float(seats)) - 3 * returns)  # run seats other than the corner seats
+    width = SEAT * n
     aw = ARMS[arms][0]
     d, ret = DEPTH, 2 * SEAT
     left = side in ("left", "right", "u")  # a right-hand sofa is the left-hand one flipped
@@ -326,7 +332,11 @@ def corner_sofa(paint: str, fill: Fill, label: str | None, seats: str = "3", sid
 
 
 def chaise_sofa(paint: str, fill: Fill, label: str | None, seats: str = "3", side: str = "left", arms: str = "track", legs: str = "oak") -> list[str]:
-    """A straight sofa whose end seat on ``side`` runs forward as a chaise, with no back over it."""
+    """A straight sofa whose end seat on ``side`` runs forward as a chaise.
+
+    ``seats`` counts every seat, the chaise end included. The back runs along the whole rear, the
+    chaise end too (the chaise is the front of that last seat, not a seat without a back).
+    """
     n, width = _seats(seats)
     aw = ARMS[arms][0]
     reach = 70.0  # how far the chaise comes forward of the seats
