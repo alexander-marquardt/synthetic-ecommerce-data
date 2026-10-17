@@ -23,7 +23,7 @@ ROWS: tuple[tuple[str, str, str, str, str, str, int, tuple[str, ...]], ...] = (
     # -- lemons
     ("XQ05", "water", "Sparkling Water with Sicilian Lemons", "Sparkling spring water flavored with the juice of Sicilian lemons. No sugar.", "Yellow", "lemons", 950, ("carbonated spring water", "lemon juice (1%)", "natural flavoring")),
     ("XQ06", "pickle", "Preserved Lemons in Brine, 350g", "Whole lemons preserved in salt and brine, for tagines and dressings. A 350g jar.", "Yellow", "lemons", 920, ("lemons", "salt", "water")),
-    ("XQ07", "sweets", "Sherbet Lemons Boiled Sweets", "Boiled sweets with a fizzing sherbet centre, in a 200g bag.", "Yellow", "lemons", 900, ("sugar", "glucose syrup", "dried lemon juice", "citric acid")),
+    ("XQ07", "sweets", "Sherbet Lemons Boiled Sweets", "Boiled sweets with a fizzing sherbet center, in a 200g bag.", "Yellow", "lemons", 900, ("sugar", "glucose syrup", "dried lemon juice", "citric acid")),
     ("XQ08", "biscuit", "Lemons and Ginger Shortbread Biscuits", "All butter shortbread baked with lemon zest and stem ginger.", "Cream", "lemons", 870, ("wheat flour", "butter", "lemon zest", "stem ginger")),
     # -- limes
     ("XQ09", "water", "Sparkling Mineral Water with Limes", "Sparkling mineral water with a squeeze of limes. No sugar, no sweeteners.", "Green", "limes", 940, ("carbonated mineral water", "lime juice (1%)", "natural flavoring")),
