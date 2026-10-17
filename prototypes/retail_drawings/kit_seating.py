@@ -20,7 +20,8 @@ modular_sofa    separate modules with a gap between each,        pieces, layout 
 recliner_sofa   a sofa of separate padded seats, each with its   seats, legs
                 footrest raised in front
 sofa_bed        a sofa and the bed it makes: a pulled-out or     mechanism (pull_out,
-                folded-out mattress, or a click-clack laid flat  click_clack, fold_out), seats
+                folded-out mattress, or a click-clack sofa,      click_clack, fold_out), seats
+                its back upright over a hinge line
 armchair        one seat, by style: a slim accent chair, a       style (accent, wingback, tub,
                 winged back, a tub, a swivel pedestal, a high    swivel, nursing, recliner),
                 armless nursing chair, a recliner                legs
@@ -434,23 +435,29 @@ def recliner_sofa(paint: str, fill: Fill, label: str | None, seats: str = "3", l
 
 
 def sofa_bed(paint: str, fill: Fill, label: str | None, mechanism: str = "pull_out", seats: str = "3") -> list[str]:
-    """The bed a sofa bed makes: its mattress pulled or folded out in front, or a click-clack laid flat.
+    """A sofa bed: its mattress pulled or folded out in front, or a click-clack sofa with its hinge marked.
 
     ``pull_out`` slides one deep mattress out on a low base; ``fold_out`` unfolds a thinner
-    three-part mattress on a metal frame (two fold seams across it); ``click_clack`` has no arms,
-    its back lowered flat beside the seat into one sleeping surface with a hinge line.
+    three-part mattress on a metal frame (two fold seams across it); ``click_clack`` is drawn as the
+    sofa it is until the bed is made: no arms, a seat cushion and an upright back cushion per
+    seat on a metal frame, and the hinge line across the seat's rear edge, where the back
+    clicks down flat. It stays one sofa deep, so it reads as a sofa and not as a bed.
     """
     n, width = _seats(seats)
     if mechanism == "click_clack":
+        # The sofa position: a seat and an upright back per seat on a metal frame, no arms. The
+        # back folds flat about the line where it meets the seat, so that line is marked.
+        z_hinge = DEPTH - 32
         boxes = [
-            *_legs(0.0, width, 0.0, DEPTH * 2, "black_metal"),
-            Box(0.0, width, LEG, LEG + 8, 0.0, DEPTH * 2, FRAME),
-            Box(1.0, width - 1, LEG + 8, LEG + 26, DEPTH, DEPTH * 2, "fill"),
-            Box(1.0, width - 1, LEG + 8, LEG + 26, 0.0, DEPTH - 2, "fill"),
+            *_legs(0.0, width, 0.0, DEPTH, "black_metal"),
+            Box(0.0, width, LEG, BASE, 0.0, DEPTH, FRAME),
+            Box(0.0, width, BASE, BACK - 6, DEPTH - 14, DEPTH, "fill"),
+            *_cushions(0.0, width, n, CUSHION - 2, BACK, z_hinge, DEPTH - 14),
+            *_cushions(0.0, width, n, BASE, CUSHION, 0.0, z_hinge),
         ]
 
         def hinge(sheet: _Sheet) -> list[str]:
-            return [_path(f"M{sheet.p(1.0, LEG + 26, DEPTH - 1)} L{sheet.p(width - 1, LEG + 26, DEPTH - 1)}", "none", 2.2)]
+            return [_path(f"M{sheet.p(1.0, CUSHION, z_hinge)} L{sheet.p(width - 1, CUSHION, z_hinge)}", "none", 2.2)]
 
         return _draw(boxes, paint, fill, hinge)
     aw = ARMS["track"][0]

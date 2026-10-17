@@ -34,14 +34,18 @@ import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their o
 import mutation_rows_customer_names  # noqa: E402  (#393 rows, kept in their own file)
 import mutation_rows_cutlery_pack_count  # noqa: E402  (gen#228 rows)
 import mutation_rows_department_floor  # noqa: E402  (gen#234 rows)
+import mutation_rows_furniture_226  # noqa: E402  (gen#226 rows, kept in their own file)
 import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
+import mutation_rows_jewellery_423  # noqa: E402  (gen#423 rows)
 import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
 import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their own file)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
 import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
 import mutation_rows_seating_agreement  # noqa: E402  (gen#225 rows, kept in their own file)
 import mutation_rows_sheet_extent  # noqa: E402  (gen#242 rows, kept in their own file)
+import mutation_rows_sofa_bed_223  # noqa: E402  (gen#223 rows, kept in their own file)
 import mutation_rows_tableware_features  # noqa: E402  (gen#230 rows)
+import mutation_rows_text_agrees  # noqa: E402  (gen#139 rows, kept in their own file)
 import mutation_rows_underwear_245  # noqa: E402  (gen#245 rows, kept in their own file)
 
 REPO = Path(__file__).resolve().parent.parent
@@ -1216,11 +1220,124 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: the push is forced",
-                'push -q origin "HEAD:',
-                'push -q -f origin "HEAD:',
+                'push -q origin "HEAD:refs/heads/$head_ref" ||\n    die "the push of $final_sha',
+                'push -q -f origin "HEAD:refs/heads/$head_ref" ||\n    die "the push of $final_sha',
                 "tests/test_merge_pr.py::"
                 "test_a_head_that_moves_during_the_checks_is_neither_overwritten_nor_merged",
                 "the head is the commit that was checked, at every merge attempt",
+            ),
+            (
+                "merge_pr: the push of the regenerated commit is forced",
+                'push -q origin "HEAD:refs/heads/$head_ref" ||\n      die "the push of the regenerated',
+                'push -q -f origin "HEAD:refs/heads/$head_ref" ||\n      die "the push of the regenerated',
+                "tests/test_merge_pr.py::"
+                "test_a_head_that_moves_during_the_second_run_is_neither_overwritten_nor_merged",
+                "the head is the commit that was checked, at every merge attempt",
+            ),
+            (
+                "merge_pr: any failed id counts as freshness",
+                'listed "$id" "${FRESHNESS_TESTS[@]}" || return 1',
+                'true || return 1',
+                'tests/test_merge_pr.py::test_a_local_ci_red_on_another_test_alone_is_not_regenerated',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: a red with no FAILED line counts as freshness",
+                '[ -n "$ids" ] || return 1',
+                'true || return 1',
+                'tests/test_merge_pr.py::test_a_red_with_no_pytest_failure_line_is_not_taken_for_a_stale_golden',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: every red is regenerated",
+                'only_stale_generated_files_red ||\n    die',
+                'true ||\n    die',
+                ('tests/test_merge_pr.py::test_a_local_ci_red_on_another_test_alone_is_not_regenerated', 'tests/test_merge_pr.py::test_a_red_with_no_pytest_failure_line_is_not_taken_for_a_stale_golden'),
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: only the first red job is read",
+                '  for job in $local_ci_failed; do\n    ids=',
+                '  for job in $(set -- $local_ci_failed; echo $1); do\n    ids=',
+                'tests/test_merge_pr.py::test_a_freshness_red_beside_a_red_job_that_is_not_pytest_is_not_regenerated',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: a second red does not stop the merge",
+                'run_local_ci ||\n    die "local CI is red on $final_sha after the golden regeneration',
+                'run_local_ci ||\n    echo "local CI is red on $final_sha after the golden regeneration',
+                'tests/test_merge_pr.py::test_a_golden_that_is_still_red_after_the_regeneration_is_regenerated_once_only',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: an empty regeneration is committed",
+                'if git -C "$work" diff --cached --quiet; then\n    die "a golden freshness',
+                'if false; then\n    die "a golden freshness',
+                'tests/test_merge_pr.py::test_a_freshness_red_a_rebuild_does_not_change_is_not_merged',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: the regeneration commit message",
+                '-m "regenerate golden on main"',
+                '-m "wip"',
+                'tests/test_merge_pr.py::test_a_local_ci_red_that_is_only_the_golden_freshness_test_is_regenerated_and_merged',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: the checked sha is not moved to the regenerated commit",
+                '  final_sha=$(git -C "$work" rev-parse HEAD)\n  echo "5a.',
+                '  echo "5a.',
+                'tests/test_merge_pr.py::test_a_local_ci_red_that_is_only_the_golden_freshness_test_is_regenerated_and_merged',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: the regenerated commit is not pushed",
+                'if [ "$final_sha" != "$pushed_sha" ]; then',
+                'if false; then',
+                'tests/test_merge_pr.py::test_a_local_ci_red_that_is_only_the_golden_freshness_test_is_regenerated_and_merged',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: a dry run does not regenerate",
+                '    run_local_ci_regenerating\n    echo "5. every local CI job is green on $final_sha"\n  fi\n  keep_work=0',
+                '    run_local_ci\n    echo "5. every local CI job is green on $final_sha"\n  fi\n  keep_work=0',
+                'tests/test_merge_pr.py::test_a_dry_run_regenerates_the_golden_but_pushes_and_merges_nothing',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: the first run's log is not kept",
+                'mv -f "$(local_ci_log "$job")" "$(local_ci_log "$job").before-regenerate"',
+                'rm -f "$(local_ci_log "$job")"',
+                'tests/test_merge_pr.py::test_a_local_ci_red_that_is_only_the_golden_freshness_test_is_regenerated_and_merged',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: the retail figures test is not a freshness test",
+                '  tests/test_retail_figures_162.py::test_the_committed_figures_are_what_the_build_measures\n',
+                '',
+                'tests/test_merge_pr.py::test_the_freshness_tests_are_real_tests_of_the_golden_files',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: the drift test is not a freshness test",
+                '  tests/test_prism_field_map_drift.py::test_committed_field_map_matches_a_fresh_derivation\n',
+                '',
+                'tests/test_merge_pr.py::test_the_stale_yaml_signature_of_the_incident_is_regenerated',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: the stats test is not a freshness test",
+                '  tests/test_catalog_golden.py::test_stats_reports_the_catalog_that_was_committed\n',
+                '',
+                'tests/test_merge_pr.py::test_a_red_on_the_field_map_or_the_stats_freshness_test_is_regenerated',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: the regeneration stages nothing",
+                '  rebuild_generated\n  stage_generated\n  if git',
+                '  rebuild_generated\n  if git',
+                'tests/test_merge_pr.py::test_a_local_ci_red_that_is_only_the_golden_freshness_test_is_regenerated_and_merged',
+                'a stale golden is regenerated once, on a green second run (#440)',
             ),
             (
                 "merge_pr: the rebuild runs unlocked",
@@ -1654,6 +1771,15 @@ MUTATIONS: list[Mutation] = [
         "tests/test_prism_field_map_drift.py",
         "B",
         "the committed field map matches a fresh derivation",
+    ),
+    Mutation(
+        "write the committed field map in place, not by replacement (#440)",
+        "generate_cli.py",
+        '        staged.write_text(render(emit.iter_flat(catalog)), encoding="utf-8")\n        os.replace(staged, target)',
+        '        target.write_text(render(emit.iter_flat(catalog)), encoding="utf-8")',
+        "tests/test_prism_field_map_drift.py::test_the_field_map_is_replaced_not_rewritten_in_place",
+        "",
+        "a reader never sees the committed field map cut short",
     ),
     # ---- PRISM field map: numeric vs terms classification ----------------
     Mutation(
@@ -3877,6 +4003,45 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- the red-commit proof judges the commits that declare (#11680) ------
+    # Every name starts "red_commit_proof:", so `--only "red_commit_proof:"` re-runs it.
+    Mutation(
+        "red_commit_proof: a merge commit's trailer is judged",
+        "scripts/red_commit_proof.py",
+        '"rev-list", "--reverse", "--no-merges", args.spec',
+        '"rev-list", "--reverse", args.spec',
+        "tests/test_red_commit_proof_11680.py::"
+        "test_a_merge_commit_is_never_judged_whatever_its_message_declares",
+        "",
+        "only the branch's own commits are judged, not a merge of main",
+        root=".",
+    ),
+    Mutation(
+        "red_commit_proof: the grandfather test is turned round",
+        "scripts/red_commit_proof.py",
+        '"--is-ancestor", cutoff, sha, check=False).returncode == 1',
+        '"--is-ancestor", cutoff, sha, check=False).returncode == 0',
+        (
+            "tests/test_red_commit_proof_11680.py::"
+            "test_a_red_commit_before_the_cutoff_may_fail_on_anything[StopIteration]",
+            "tests/test_red_commit_proof_11680.py::"
+            "test_a_red_commit_after_the_cutoff_that_fails_on_stop_iteration_is_refused",
+        ),
+        "",
+        "a commit before the cutoff is grandfathered and one after it is not",
+        root=".",
+    ),
+    Mutation(
+        "red_commit_proof: a cutoff the clone lacks grandfathers",
+        "scripts/red_commit_proof.py",
+        "        return False\n    return _git(repo, \"merge-base\"",
+        "        return True\n    return _git(repo, \"merge-base\"",
+        "tests/test_red_commit_proof_11680.py::"
+        "test_an_exception_that_is_not_an_assertion_is_refused",
+        "",
+        "a cutoff that is not in the clone grandfathers nothing",
+        root=".",
+    ),
     # ---- retail: the steak plate, board and weight carry a material, never derived (gen#268) ----
     *(
         Mutation(f"steak ware: {name}", file, old, new_, test, "", prop,
@@ -4021,6 +4186,12 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"{prefix}: {name}", file, old, new, test, "", prop, root=root)
         for prefix, name, file, old, new, test, prop, root in mutation_rows_garden_hose.ALL
     ),
+    # ---- retail: jewellery and watches (gen#423); the rows are in their own file ----
+    *(
+        Mutation(f"jewellery 423: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in mutation_rows_jewellery_423.ROWS
+    ),
     # ---- retail: derived ceiling-light forms (gen#237); the rows are in their own file ----
     *(
         Mutation(f"ceiling forms: {name}", file, old, new, test, "", prop, root=root)
@@ -4044,6 +4215,11 @@ MUTATIONS: list[Mutation] = [
         for name, file, old, new, test, prop in mutation_rows_pack_size.ROWS
     ),
     *(
+        Mutation(f"sofa bed: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in mutation_rows_sofa_bed_223.ROWS
+    ),
+    *(
         Mutation(f"ring sizes: {name}", file, old, new, tests, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, tests, prop in mutation_rows_ring_sizes_249.ROWS
@@ -4059,9 +4235,15 @@ MUTATIONS: list[Mutation] = [
         for name, file, old, new, tests, prop in mutation_rows_underwear_245.ROWS
     ),
     *(
+        Mutation(f"furniture drawings: {name}", file, old, new, tests, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, tests, prop in mutation_rows_furniture_226.ROWS
+    ),
+    *(
         Mutation(f"audit order: {n}", "generate_cli.py", o, w, t, "", pr)
         for n, o, w, t, pr in mutation_rows_audit_order.ROWS
     ),
+    *(Mutation(f"text agrees: {n}", f, o, nw, t, "", p) for n, f, o, nw, t, p in mutation_rows_text_agrees.ROWS),
     # ---- the customer-name check (#393); the rows are in their own file ----
     *(
         Mutation(f"customer names: {name}", file, old, new, test, "", prop, root=root)
@@ -4141,8 +4323,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "product-word decoys: the detail-color rows lose their exemption",
         "scale.py",
-        "TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT",
-        "TEXT_EXEMPT = DECOY_IDS",
+        "    | decoy_product_words.TEXT_EXEMPT",
+        "",
         "tests/test_retail_scale.py -k 20k_build_meets_the_output_standard",
         "A",
         "a class-8 row that names a detail color on purpose passes the text check by its id",
@@ -4151,8 +4333,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "product-word decoys: the standard's retail catalog test loses the exempt ids",
         "scale.py",
-        "TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT",
-        "TEXT_EXEMPT = DECOY_IDS",
+        "    | decoy_product_words.TEXT_EXEMPT",
+        "",
         "tests/test_merchandising_score_182.py -k retail_every_product_carries_it",
         "A",
         "the full retail catalog passes the standard with the class-8 detail-color ids exempt",

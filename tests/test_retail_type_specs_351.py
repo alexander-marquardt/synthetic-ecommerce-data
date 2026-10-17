@@ -133,7 +133,11 @@ def test_a_spec_file_is_named_for_its_key_and_its_documents_meet_the_standard(ke
     assert (RETAIL / "type_specs" / f"{key}.py").is_file()
     docs = spec.docs()
     assert len(docs) == len(spec.rows) + len(spec.decoys)
-    assert check_catalog([export.standard_document(d) for d in docs], one_class_per_key=True) == []
+    exempt = type_registry.text_match_decoy_ids(spec.department)  # classes 1 to 7 lack on purpose
+    problems = check_catalog(
+        [export.standard_document(d) for d in docs], one_class_per_key=True, text_exempt=exempt
+    )
+    assert problems == []
 
 
 def _good() -> type_registry.TypeSpec:
@@ -157,7 +161,7 @@ def _bad_specs() -> dict[str, type_registry.TypeSpec]:
         "duplicate row code": replace(good, rows=(row, row)),
         "brand with no owner": replace(good, rows=(replace(row, brand="Nobody & Sons"),)),
         "decoy of an unknown class": replace(
-            good, decoys=(type_registry.Decoy(8, "q", "p", replace(row, code="DCYZZ")),)),
+            good, decoys=(type_registry.Decoy(9, "q", "p", replace(row, code="DCYZZ")),)),
         "decoy sharing a row code": replace(
             good, decoys=(type_registry.Decoy(1, "q", "p", row),)),
     }  # fmt: skip
