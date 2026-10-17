@@ -1,5 +1,5 @@
 """Retail beauty depth (gen#214): mascara, primer, setting spray, serum, face mask, eye patches,
-body mist, aftershave and talc.
+body mist, aftershave, talc and sun cream.
 
 Each type is its own spec under ``type_specs/`` (gen#351) and ``kit_beauty`` draws it. These checks
 hold what the issue asked for: every type has three styles from three invented brands, each style
@@ -42,6 +42,7 @@ TYPES = {
     "Body Mist": ("body_mist", "body_mist", {"fragrance_family", "fragrance", "net_volume"}),
     "Aftershave": ("aftershave", "aftershave", {"fragrance_family", "concentration", "net_volume"}),
     "Talc": ("talc", "talc", {"fragrance", "net_weight"}),
+    "Sun Cream": ("sun_cream", "sun_cream", {"area", "spf", "net_volume"}),
 }  # fmt: skip
 #: product type -> the SKU option keys it varies on and each one's unit code in the export.
 AXES = {
@@ -54,12 +55,13 @@ AXES = {
     "Body Mist": {"fragrance": None, "net_volume": "MLT"},
     "Aftershave": {"net_volume": "MLT"},
     "Talc": {"net_weight": "GRM"},
+    "Sun Cream": {"spf": None, "net_volume": "MLT"},
 }
 #: product type -> the misleading word its decoys carry (the head of the query they target).
 WORDS = {
     "Mascara": "", "Face Primer": "dewy", "Setting Spray": "dewy", "Serum": "vitamin c",
     "Face Mask": "clay", "Eye Patches": "cloth", "Body Mist": "vanilla", "Aftershave": "citrus",
-    "Talc": "rose",
+    "Talc": "rose", "Sun Cream": "coconut",
 }  # fmt: skip
 #: shape -> two param readings that must draw differently (the first is the default).
 VARIANTS = [
@@ -72,6 +74,7 @@ VARIANTS = [
     ("body_mist", {"cap": "dome"}, {"cap": "ring"}, None),
     ("aftershave", {"cap": "stopper"}, {"cap": "spray"}, None),
     ("talc", {"lid": "shaker"}, {"lid": "puff"}, None),
+    ("sun_cream", {"form": "tube"}, {"form": "pump"}, {"form": "spray"}),
 ]
 
 
@@ -119,7 +122,7 @@ def _seen(ptype: str, key: str) -> set[str]:
     return {str(e["value"]) for r in _rows(ptype) for e in _doc(r)["attributes"] if e["key"] == key}
 
 
-def test_the_nine_types_are_registered_each_as_its_own_spec() -> None:
+def test_the_ten_types_are_registered_each_as_its_own_spec() -> None:
     assert [_spec(p).key for p in TYPES] == [k for k, _, _ in TYPES.values()]
     assert {_spec(p).product_type for p in TYPES} == set(TYPES)
     assert not any(_spec(p).derivable for p in TYPES), "the range grows by authored rows"
@@ -186,6 +189,34 @@ def test_the_attribute_values_a_shopper_filters_on_are_all_stated() -> None:
     assert {"Sheet", "Clay", "Overnight"} <= _seen("Face Mask", "mask_type")
     assert "Hydrogel" in _seen("Eye Patches", "patch_type")
     assert len(_seen("Aftershave", "concentration")) >= 2
+    assert _seen("Sun Cream", "area") == {"Face", "Body"}
+
+
+def _sun_cream_spfs(area: str) -> set[str]:
+    """The SPF values of the SKUs of the sun creams stated for ``area`` (face or body)."""
+    out = set()
+    for row in _rows("Sun Cream"):
+        doc = _doc(row)
+        if {e["value"] for e in doc["attributes"] if e["key"] == "area"} == {area}:
+            out |= {e["value"] for v in doc["variants"] for e in v["attributes"] if e["key"] == "spf"}
+    return out
+
+
+def test_sun_cream_is_sold_in_spf_for_the_face_and_for_the_body() -> None:
+    """``SPF <N> <area> sun cream``: the SPF is a SKU option, the area an attribute and a leaf."""
+    for area in ("Face", "Body"):
+        assert {"15", "30", "50"} <= _sun_cream_spfs(area), area
+    leaves = {row.path[-1] for row in _rows("Sun Cream")}
+    assert leaves == {"Face Sun Cream", "Body Sun Cream"}
+    for row in _rows("Sun Cream"):
+        area = {e["value"] for e in _doc(row)["attributes"] if e["key"] == "area"}
+        assert area == {row.path[-1].split(" ")[0]}, row.code
+
+
+def test_sun_cream_left_the_legacy_list_and_the_ceiling_followed() -> None:
+    legacy = type_registry.legacy_types()
+    assert ("Beauty", "Sun Cream") not in legacy
+    assert type_registry.LEGACY_CEILING == len(legacy)
 
 
 # --------------------------------------------------------------------------
