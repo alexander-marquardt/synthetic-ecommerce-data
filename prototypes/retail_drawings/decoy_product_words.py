@@ -276,7 +276,7 @@ _SPORTS_KINDS = {
                      "Harbour & Pine", 45.0, **_UKW,
                      params=(("neckline", "crew"), ("sleeve", "long"), ("kind", "jumper"))),
     "s_bomber": Kind("Clothing", ("Womens", "Coats & Jackets", "Bomber Jackets"), "Bomber Jacket",
-                     "coat", "Calderby & Lune", 69.0, **_UKW),
+                     "bomber_jacket", "Calderby & Lune", 69.0, **_UKW),
     "s_tee": Kind("Clothing", ("Womens", "Tops", "T-Shirts"), "Tee", "tshirt", "Larkmoor", 14.0,
                   **_UKW),
     "s_tote": Kind("Clothing", ("Womens", "Accessories", "Bags", "Tote Bags"), "Tote Bag",
