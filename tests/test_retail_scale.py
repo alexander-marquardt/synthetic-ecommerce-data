@@ -119,7 +119,7 @@ MIN_DERIVED = 150
 #: The sample build: the templates, then derived styles to about 4.5K SKUs past them,
 #: under the ceiling (:data:`CAPACITY`). It moves with
 #: :data:`TEMPLATE_SKUS`, so new templates never empty it. Round 4's deep-SKU templates
-#: left 4K at 148 styles, so it went up by 500.
+#: left 4K too few styles, so it went up by 500.
 DERIVED_SKUS = 4_500
 TARGET = TEMPLATE_SKUS + DERIVED_SKUS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per

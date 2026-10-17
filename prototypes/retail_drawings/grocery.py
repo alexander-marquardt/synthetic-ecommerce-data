@@ -108,10 +108,22 @@ FRUIT = {"Unwaxed Lemons": "lemon", "Lemons": "lemon", "Meyer Lemons": "lemon",
          "Large Blackberries": "blackberry",
          "Red Seedless Grapes": "grape", "Green Seedless Grapes": "grape",
          "Black Seedless Grapes": "grape", "Sweet Red Grapes": "grape",
-         "Crisp Green Grapes": "grape", "Midnight Black Grapes": "grape"}  # fmt: skip
+         "Crisp Green Grapes": "grape", "Midnight Black Grapes": "grape",
+         "Vine Ripened Tomatoes": "tomato", "Baby Plum Tomatoes": "tomato",
+         "Large Beef Tomatoes": "tomato", "Sweet Salad Tomatoes": "tomato",
+         "Large Brown Onions": "onion", "Sweet Red Onions": "onion", "Crisp White Onions": "onion",
+         "Mild Spanish Onions": "onion", "Maris Piper Potatoes": "potato",
+         "Baby New Potatoes": "potato", "King Edward Potatoes": "potato",
+         "Large Baking Potatoes": "potato", "Large Loose Carrots": "carrot",
+         "Sweet Baby Carrots": "carrot", "Washed Chantenay Carrots": "carrot",
+         "Crunchy Rainbow Carrots": "carrot", "Ripe Fairtrade Bananas": "banana",
+         "Large Ripe Bananas": "banana", "Sweet Baby Bananas": "banana",
+         "Loose Ripe Bananas": "banana", "Sweet Red Cherries": "cherry",
+         "Large Dark Cherries": "cherry", "Ripe British Cherries": "cherry",
+         "Juicy Morello Cherries": "cherry"}  # fmt: skip
 #: A pack word -> how a fruit pile shows it.
 PILE_PACK = {"Single": "loose", "4 pack": "net", "1kg": "bag", "150g": "bag", "250g": "bag",
-             "300g": "bag", "400g": "bag", "500g": "bag", "800g": "bag"}  # fmt: skip
+             "300g": "bag", "400g": "bag", "500g": "bag", "800g": "bag", "2kg": "bag"}  # fmt: skip
 
 #: Product entries that are a union over the flavors, so a flat SKU must not inherit them.
 UNIONED = frozenset({"contains", "may_contain"})
