@@ -35,7 +35,7 @@ from __future__ import annotations
 import hashlib
 import re
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from kit import INK, LW, LW_DETAIL, Fill, _highlight, _line, _mix, _path, _shade, _tint, register
 
@@ -51,6 +51,9 @@ TREAD = "#5d6068"
 METAL = "#c9ccd1"
 BRASS = "#c9a24a"
 AMBER = "#e0a526"
+WOOD = "#b98a56"
+CORK = "#c9a77c"
+ROPE = "#d8c08a"
 
 
 def _f(x: float) -> str:
@@ -199,7 +202,7 @@ def _vamp(k: Kind) -> str:
     if k.toe == "point":
         return f"C{_pt(xi + 0.45 * span, yi + 0.18 * (t - yi))} {_pt(x - 34, t - 12)} {_pt(x + 10, t)}"
     # the toe box: how tall the toe stands, which the vamp slopes down to
-    box = t - {"almond": 30.0, "cap": 50.0}.get(k.toe, 40.0)
+    box = t - {"almond": 30.0, "cap": 50.0, "wide": 52.0}.get(k.toe, 40.0)
     sink = max(0.0, box - yi)
     if k.toe == "almond":
         return f"C{_pt(xi + 0.45 * span, yi + 0.5 * sink)} {_pt(x - 40, box)} {_pt(x - 12, box + 6)} C{_pt(x + 2, box + 10)} {_pt(x + 5, t - 6)} {_pt(x, t)}"
@@ -273,8 +276,15 @@ def _unit_sole(k: Kind, base: str) -> list[str]:
         "welly": _shade(base, 0.45) if not _dark(base) else RUBBER,
         "soft": "#6f6156",
         "footbed": "#3a3330",
+        "plim": FOAM,
+        "wood": WOOD,
+        "eva": _tint(base, 0.3) if _dark(base) else _shade(base, 0.22),
+        "cork": CORK,
+        "rope": ROPE,
+        "jelly": _tint(base, 0.55),
+        "thin": "#3a3330",
     }[k.sole_style]
-    w = {"cup": 9, "midsole": 6, "lug": 8, "welly": 6}.get(k.sole_style, 3)
+    w = {"cup": 9, "midsole": 6, "lug": 8, "welly": 6, "plim": 5, "wood": 4, "eva": 4, "cork": 4, "rope": 4, "jelly": 4}.get(k.sole_style, 3)
     d = (
         f"M{_pt(x + 4, t - w)} Q{_pt(x - 6, t - w + 4)} {_pt(x - 40, fy - w * 0.5)} "
         f"C{_pt(x - 110, fy - w * 0.4)} {_pt(XB + 150, by - w * 0.3)} {_pt(XB + 70, by - w)} "
@@ -315,6 +325,18 @@ def _unit_sole(k: Kind, base: str) -> list[str]:
         out.append(_line(specks, 2.2, "", "#a77a42"))
     elif s == "soft":
         out.append(_line(f"M{_pt(XB + 2, by - 1)} L{_pt(x - 40, fy - 1)}", 1.4, ' stroke-dasharray="4 3"', "#d8cfc4"))
+    elif s == "plim":
+        out += [_line(f"M{_pt(XB - 4, G - 8)} L{_pt(x - 70, G - 8)} Q{_pt(x - 24, G - 8)} {_pt(x + 4, t + 2)}", 1.3), _line(f"M{_pt(XB, by - w + 4)} C{_pt(XB + 150, by - w + 3)} {_pt(x - 110, fy - w + 3)} {_pt(x - 40, fy - w + 3)}", 1.2, ' stroke-dasharray="1.5 3.5"', "#8f8a80")]
+    elif s in ("wood", "eva", "cork", "rope"):
+        gap = 8 if s != "rope" else 7
+        for yy in range(int(G - 5), int(by), -gap):
+            ends = [e for e in _crossings(f"M{_pt(x + 1, t)} {_under(k)}", yy, 1) if e > XB + 20]
+            hi = max(ends) if ends else x - 84
+            out.append(_line(f"M{_pt(XB - 3, yy)} L{_pt(min(hi, x - 84), yy)}", 1.8 if s == "rope" else 1.3, ' stroke-dasharray="3 3"' if s == "rope" else "", _shade(color, 0.3)))
+    elif s == "jelly":
+        out.append(_highlight(f"M{_pt(XB + 6, by - 2)} C{_pt(XB + 90, by - 2)} {_pt(x - 110, fy - 2)} {_pt(x - 50, fy - 2)}", 3, 0.7))
+    elif s == "thin":
+        out.append(_line(f"M{_pt(XB + 4, G - 2)} L{_pt(x - 44, G - 2)}", 1.2, ' stroke-dasharray="2 3"', "#8a8178"))
     return out
 
 
@@ -382,6 +404,14 @@ def _texture(material: str, area: str, base: str, k: Kind, uid: str) -> list[str
             f'<pattern id="{pid}" width="4" height="4" patternUnits="userSpaceOnUse">'
             f'<path d="M0,1 L4,1" stroke="{dark}" stroke-width="1" opacity=".3"/>'
             f'<path d="M3,0 L3,4" stroke="{dark}" stroke-width="1" opacity=".25"/>'
+            "</pattern>"
+        )
+        body.append(f'<path d="{area}" fill="url(#{pid})" stroke="none"/>')
+    elif material == "jute":
+        defs = (
+            f'<pattern id="{pid}" width="6" height="6" patternUnits="userSpaceOnUse">'
+            f'<path d="M0,6 L6,0 M-1,1 L1,-1 M5,7 L7,5" stroke="{dark}" stroke-width="1.1" opacity=".4"/>'
+            f'<path d="M0,0 L6,6" stroke="{light}" stroke-width="0.8" opacity=".5"/>'
             "</pattern>"
         )
         body.append(f'<path d="{area}" fill="url(#{pid})" stroke="none"/>')
@@ -673,6 +703,74 @@ def _marks_welly(k: Kind, outline: str, paint: str, base: str, closure: str) -> 
     ]
 
 
+def _lace_closure(k: Kind, outline: str, base: str, closure: str, n: int = 3) -> list[str]:
+    """A low shoe's closure: n eyelets with laces, a V of elastic, or one hook-and-loop strap."""
+    xi, yi = k.instep
+    if closure == "Slip-On":
+        gus = f"M{_pt(xi - 38, _top_at(outline, xi - 38) + 1)} Q{_pt(xi - 20, yi + 26)} {_pt(xi - 6, yi + 40)} Q{_pt(xi + 8, yi + 26)} {_pt(xi + 26, _top_at(outline, xi + 26) + 1)} Z"
+        ribs = " ".join(f"M{_pt(xi - 32 + 6 * i, _top_at(outline, xi - 32 + 6 * i) + 4)} L{_pt(xi - 6 + (i - 4.5) * 1.4, yi + 26 + (4.5 - abs(i - 4.5)) * 2)}" for i in range(10))
+        return [_path(gus, "#4a4a50", LW_DETAIL), _line(ribs, 1.0, "", "#8d8d94")]
+    if closure == "Hook & Loop":
+        return _velcro(xi - 10, _top_at(outline, xi - 10) - 1, xi + 40, _top_at(outline, xi + 40) - 3, base)
+    eye = [(xi + 4 + 13 * i, _top_at(outline, xi + 4 + 13 * i) + 11) for i in range(n)]
+    return _laces(eye, "#ffffff" if _dark(base) else "#f1efe8", (10, -8))
+
+
+def _marks_plimsoll(k: Kind, outline: str, paint: str, base: str, closure: str) -> list[str]:
+    fy, _ = _sy(k)
+    cap = f"M{_pt(XT - 64, fy + 1)} C{_pt(XT - 64, fy - 26)} {_pt(XT - 26, fy - 34)} {_pt(XT + 3, fy - 18)} L{_pt(XT + 3, fy + 1)} Z"
+    return [
+        _path(cap, FOAM, LW_DETAIL),
+        _stitch(f"M{_pt(XB + 4, fy - 12)} C{_pt(140, fy - 12)} {_pt(220, fy - 8)} {_pt(XT - 64, fy - 8)}", base),
+        *_lace_closure(k, outline, base, closure),
+    ]
+
+
+def _marks_clog(k: Kind, outline: str, paint: str, base: str, closure: str) -> list[str]:
+    fy, _ = _sy(k)
+    holes = " ".join(f"M{_pt(px, _top_at(outline, px) + 20 + 5 * (i % 2))} l0.1,0" for i, px in enumerate(range(190, 300, 15)))
+    return [_line(holes, 4.4, "", _detail(base)), _stitch(f"M{_pt(XT - 100, fy - 8)} C{_pt(XT - 70, fy - 30)} {_pt(XT - 30, fy - 36)} {_pt(XT, fy - 22)}", base)]
+
+
+def _marks_wedge(k: Kind, outline: str, paint: str, base: str, closure: str) -> list[str]:
+    return _marks_pump(k, outline, paint, base, "Ankle Strap" if closure in ("Ankle Strap", "Buckle") else closure)
+
+
+def _marks_espadrille(k: Kind, outline: str, paint: str, base: str, closure: str) -> list[str]:
+    xi, yi = k.instep
+    fy, _ = _sy(k)
+    out = [_stitch(f"M{_pt(XT - 80, fy - 8)} C{_pt(XT - 64, fy - 32)} {_pt(XT - 30, fy - 38)} {_pt(XT - 6, fy - 22)}", base), _line(f"M{_pt(XB, fy - 3)} L{_pt(XT - 80, fy - 3)}", 2.4, ' stroke-dasharray="3 3"', ROPE)]
+    if closure == "Lace-Up":
+        tie = f"M{_pt(xi - 6, yi + 4)} C{_pt(xi - 40, yi - 30)} {_pt(XB + 80, k.top - 4)} {_pt(XB + 44, k.top - 22)} M{_pt(xi + 6, yi + 10)} C{_pt(xi - 30, yi - 24)} {_pt(XB + 70, k.top + 6)} {_pt(XB + 28, k.top - 14)}"
+        out += [_line(tie, 5), _line(tie, 3, "", "#e8e2d6" if _dark(base) else "#3b2f27")]
+    return out
+
+
+def _marks_platform_trainer(k: Kind, outline: str, paint: str, base: str, closure: str) -> list[str]:
+    ribs = " ".join(f"M{_pt(XB + 12 + 15 * i, G - k.sole + 5)} L{_pt(XB + 12 + 15 * i, G - 5)}" for i in range(14))
+    return [*_marks_sport(k, outline, paint, base, closure, running=False), _line(ribs, 1.6, "", "#b9b6ac"), _line(f"M{_pt(XB - 2, G - k.sole / 2)} L{_pt(XT - 84, G - k.sole / 2)}", 1.4, "", "#b9b6ac")]
+
+
+def _marks_mule(k: Kind, outline: str, paint: str, base: str, closure: str) -> list[str]:
+    xi, yi = k.instep
+    fy, _ = _sy(k)
+    return [_stitch(f"M{_pt(xi - 26, _top_at(outline, xi - 26) + 7)} C{_pt(xi + 20, yi + 10)} {_pt(XT - 70, fy - 30)} {_pt(XT - 24, fy - 12)}", base), _path(f"M{_pt(xi + 24, yi + 14)} l9,-7 l9,7 l-9,7 Z", _trim(base, 0.3), LW_DETAIL)]
+
+
+def _marks_jelly(k: Kind, outline: str, paint: str, base: str, closure: str) -> list[str]:
+    xi, yi = k.instep
+    fy, _ = _sy(k)
+    holes = " ".join(f"M{_pt(px, py)} l0.1,0" for px in range(int(XB) + 30, int(XT) - 30, 15) for py in (fy - 22, fy - 38) if _top_at(outline, px) < py - 10)
+    return [_line(holes, 4.6, "", _tint(base, 0.5)), _highlight(f"M{_pt(xi + 6, yi + 14)} Q{_pt(xi + 50, yi + 22)} {_pt(XT - 40, fy - 44)}", 3, 0.7)]
+
+
+
+def _marks_barefoot(k: Kind, outline: str, paint: str, base: str, closure: str) -> list[str]:
+    fy, _ = _sy(k)
+    toe = f"M{_pt(XT - 120, fy - 4)} C{_pt(XT - 124, fy - 40)} {_pt(XT - 80, fy - 62)} {_pt(XT - 20, fy - 54)}"
+    return [_stitch(toe, base), *_lace_closure(k, outline, base, closure, 3), _line(f"M{_pt(XB + 4, fy - 6)} L{_pt(XT - 20, fy - 6)}", 1.2, ' stroke-dasharray="1.5 3"', _detail(base))]
+
+
 #: kind -> its own marks (closures and seams). A kind not listed draws none.
 MARKS: dict[str, Callable[..., list[str]]] = {
     "court": _marks_pump,
@@ -691,6 +789,14 @@ MARKS: dict[str, Callable[..., list[str]]] = {
     "walking_boot": _marks_walking_boot,
     "safety_boot": _marks_safety_boot,
     "welly": _marks_welly,
+    "plimsoll": _marks_plimsoll,
+    "clog": _marks_clog,
+    "wedge": _marks_wedge,
+    "espadrille": _marks_espadrille,
+    "platform_trainer": _marks_platform_trainer,
+    "mule": _marks_mule,
+    "jelly": _marks_jelly,
+    "barefoot": _marks_barefoot,
 }
 
 
@@ -716,7 +822,7 @@ def _slingback(k: Kind) -> tuple[str, list[str]]:
     return vamp, [_path(_footbed(k, cx + 4), LINING, LW_DETAIL), _path(strap, "{paint}", LW_DETAIL), f'<rect x="{_f(XB + 36)}" y="{_f(by - 42)}" width="9" height="14" rx="2" fill="none" stroke="{BRASS}" stroke-width="2.4"/>']
 
 
-def _sandal(k: Kind, paint: str, base: str, closure: str, material: str, uid: str) -> list[str]:
+def _sandal(k: Kind, paint: str, base: str, closure: str, material: str, uid: str, collect: list[str] | None = None) -> list[str]:
     fy, by = _sy(k)
     bed = f"M{_pt(XB - 2, by - 10)} C{_pt(XB + 120, by - 12)} {_pt(XT - 120, fy - 12)} {_pt(XT - 8, fy - 12)} Q{_pt(XT + 8, fy - 9)} {_pt(XT + 2, fy + 1)} L{_pt(XB - 2, fy + 1)} Z"
     straps: list[str] = []
@@ -733,6 +839,8 @@ def _sandal(k: Kind, paint: str, base: str, closure: str, material: str, uid: st
             f"M{_pt(168, fy - 10)} C{_pt(172, fy - 60)} {_pt(196, ay + 34)} {_pt(202, ay + 26)} L{_pt(216, ay + 36)} C{_pt(208, fy - 54)} {_pt(196, fy - 32)} {_pt(196, fy - 10)} Z",
             f"M{_pt(244, fy - 11)} C{_pt(256, fy - 60)} {_pt(314, fy - 58)} {_pt(324, fy - 13)} L{_pt(300, fy - 13)} C{_pt(294, fy - 40)} {_pt(270, fy - 40)} {_pt(268, fy - 11)} Z",
         ]
+    if collect is not None:
+        collect.extend(straps)
     out = [_path(bed, "#c9a77c", LW_DETAIL), _line(f"M{_pt(XB + 4, by - 6)} C{_pt(XB + 120, by - 8)} {_pt(XT - 120, fy - 8)} {_pt(XT - 10, fy - 8)}", 1.0, ' stroke-opacity=".5"')]
     out += [_path(d, paint, LW) for d in straps]
     out += _texture(material, " ".join(straps), base, k, uid)
@@ -772,39 +880,157 @@ KINDS: dict[str, Kind] = {
 }
 
 
-def shoe(paint: str, fill: Fill, label: str | None, kind: str = "trainer", material: str = "leather", closure: str = "", lace: str = "") -> list[str]:
+def _fit(k: Kind, rise: float, inst: float, *, sole: float | None = None, heel: float | None = None) -> Kind:
+    """``k`` with its sole and heel set, and its collar and instep put back at the same height above the foot."""
+    sole = k.sole if sole is None else sole
+    heel = k.heel if heel is None else heel
+    fy = G - sole
+    return replace(k, sole=sole, heel=heel, top=fy - heel - rise, instep=(k.instep[0], fy - inst))
+
+
+#: The gen#216 kinds: each kind, with the height of its collar above the heel seat and of its instep above the ball.
+FIT = {"plimsoll": (60, 70), "clog": (46, 44), "wedge": (46, 44), "espadrille": (46, 44), "platform_trainer": (66, 86), "mule": (46, 44), "jelly": (46, 44), "barefoot": (66, 80)}
+KINDS |= {
+    "plimsoll": _fit(Kind(0, (168, 0), "lace", 3, "none", 11, "plim", "round", 4), *FIT["plimsoll"]),
+    "clog": _fit(Kind(0, (206, 0), "pump", 24, "none", 20, "wood", "round", 4), *FIT["clog"]),
+    "wedge": _fit(Kind(0, (204, 0), "pump", 60, "none", 10, "cork", "round", 3), *FIT["wedge"]),
+    "espadrille": _fit(Kind(0, (200, 0), "pump", 0, "none", 12, "rope", "round", 3), *FIT["espadrille"]),
+    "platform_trainer": _fit(Kind(0, (152, 0), "lace", 6, "none", 44, "cup", "round", 6), *FIT["platform_trainer"]),
+    "mule": _fit(Kind(0, (204, 0), "pump", 4, "none", 6, "leather", "round", 3), *FIT["mule"]),
+    "jelly": _fit(Kind(0, (210, 0), "pump", 6, "none", 12, "jelly", "round", 3), *FIT["jelly"]),
+    "barefoot": _fit(Kind(0, (190, 0), "lace", 0, "none", 5, "thin", "wide", 3), *FIT["barefoot"]),
+}
+
+#: kind -> the variant-axis params it takes, with the value a record that names none gets.
+AXES: dict[str, dict[str, str]] = {
+    "wedge": {"heel": "60"},
+    "espadrille": {"heel": "flat"},
+    "mule": {"heel": "flat", "toe": "closed"},
+    "platform_trainer": {"platform": "40"},
+    "clog": {"strap": "none", "body": "wood"},
+    "jelly": {"style": "sandal", "glitter": "no"},
+    "barefoot": {"sole": "5"},
+}
+MULE_HEELS = {"flat": (4, "none"), "kitten": (34, "kitten"), "block": (56, "block")}
+CHOICES = {"strap": ("back", "none"), "body": ("wood", "eva"), "style": ("sandal", "ballet"), "glitter": ("no", "yes"),
+           "toe": ("open", "closed")}  # fmt: skip
+
+
+def _px(mm: str) -> int:
+    """Millimetres of heel or platform as sheet pixels (a court shoe's 95 mm is 84 px)."""
+    return round(float(mm) * 0.9)
+
+
+def _variant(kind: str, k: Kind, given: dict[str, str]) -> tuple[Kind, dict[str, str]]:
+    """The kind's last with its variant axes applied, and the axes' values. An axis another kind owns is a ``ValueError``."""
+    own = AXES.get(kind, {})
+    stray = sorted(n for n, v in given.items() if v and n not in own)
+    if stray:
+        raise ValueError(f"shoe kind {kind!r} takes no {stray} param")
+    got = {n: given.get(n) or d for n, d in own.items()}
+    for n, v in got.items():
+        if n in CHOICES and v not in CHOICES[n]:
+            raise ValueError(f"shoe {kind!r} {n}={v!r} is not one of {CHOICES[n]}")
+    rise, inst = FIT.get(kind, (0, 0))
+    if kind == "wedge":
+        k = _fit(k, rise, inst, heel=_px(got["heel"]))
+    elif kind == "espadrille":
+        if got["heel"] not in ("flat", "wedge"):
+            raise ValueError(f"shoe 'espadrille' heel={got['heel']!r} is not flat or wedge")
+        k = _fit(k, rise, inst, heel=0 if got["heel"] == "flat" else 40)
+    elif kind == "mule":
+        if got["heel"] not in MULE_HEELS:
+            raise ValueError(f"shoe 'mule' heel={got['heel']!r} is not one of {tuple(MULE_HEELS)}")
+        heel, style = MULE_HEELS[got["heel"]]
+        k = replace(_fit(k, rise, inst, heel=heel), heel_style=style)
+    elif kind == "platform_trainer":
+        k = _fit(k, rise, inst, sole=_px(got["platform"]))
+    elif kind == "barefoot":
+        k = _fit(k, rise, inst, sole=max(3, round(float(got["sole"]))))
+    elif kind == "clog":
+        k = replace(k, sole_style="wood" if got["body"] == "wood" else "eva")
+    return k, got
+
+
+def _inside(d: str, x: float, y: float) -> bool:
+    """Whether (x, y) lies inside the outline ``d`` (an even-odd ray to the right)."""
+    pts = _points(d)
+    hit = False
+    for (x0, y0), (x1, y1) in zip(pts, pts[1:], strict=False):
+        if (y0 > y) != (y1 > y) and x < x0 + (y - y0) * (x1 - x0) / (y1 - y0):
+            hit = not hit
+    return hit
+
+
+def _glitter(paths: list[str]) -> list[str]:
+    """Sparkles over the parts ``paths`` draw: a staggered grid of dots, white and gold."""
+    dots = [(x + 5.5 * (j % 2), y) for j, y in enumerate(range(130, 330, 9)) for x in range(int(XB), int(XT), 11) if any(_inside(d, x + 5.5 * (j % 2), y) for d in paths)]
+    white = " ".join(f"M{_pt(x, y)} l0.1,0" for i, (x, y) in enumerate(dots) if i % 3)
+    gold = " ".join(f"M{_pt(x, y)} l0.1,0" for i, (x, y) in enumerate(dots) if not i % 3)
+    return [f'<g class="glitter">{_line(white, 2.6, "", "#ffffff")}{_line(gold, 3.2, "", "#f2d14b")}</g>']
+
+
+def _mule_open(k: Kind, paint: str, base: str, material: str, uid: str) -> tuple[list[str], str]:
+    """An open-toe mule: the footbed and one broad band across the instep."""
+    fy, by = _sy(k)
+    xi, yi = k.instep
+    top = f"M{_pt(XB - 2, by - 10)} C{_pt(XB + 120, by - 12)} {_pt(XT - 120, fy - 12)} {_pt(XT - 8, fy - 12)}"
+    x0, x1 = xi - 30, XT - 76
+    y0, y1 = min(_crossings(top, x0, 0)), min(_crossings(top, x1, 0))
+    band = f"M{_pt(x0, y0)} C{_pt(x0 + 6, y0 - 70)} {_pt(x1 - 50, y1 - 60)} {_pt(x1, y1 - 18)} Q{_pt(x1 + 8, y1 - 8)} {_pt(x1 + 4, y1)} C{_pt(x1 - 40, y1 - 34)} {_pt(x0 + 40, y0 - 40)} {_pt(x0 + 34, y0)} Z"
+    bed = f"M{_pt(XB - 2, by - 10)} C{_pt(XB + 120, by - 12)} {_pt(XT - 120, fy - 12)} {_pt(XT - 8, fy - 12)} Q{_pt(XT + 8, fy - 9)} {_pt(XT + 2, fy + 1)} L{_pt(XB - 2, fy + 1)} Z"
+    out = [_path(bed, CORK, LW_DETAIL), _path(band, paint, LW), *_texture(material, band, base, k, uid)]
+    return out, band
+
+
+def shoe(paint: str, fill: Fill, label: str | None, kind: str = "trainer", material: str = "leather", closure: str = "",
+         heel: str = "", platform: str = "", strap: str = "", toe: str = "", style: str = "", sole: str = "", body: str = "", glitter: str = "", lace: str = "") -> list[str]:
     """One shoe from its outer side, toe right: see the module docstring.
 
     ``kind`` defaults to a real kind because a shape is also drawn with no
     params at all (a motif, :func:`motifs.drawn_box`); an unknown kind raises.
+    The other params are a kind's variant axes (:data:`AXES`): ``heel`` and
+    ``platform`` in millimetres (a mule's heel is flat, kitten or block), ``strap``,
+    ``toe``, ``style``, ``sole`` (thickness in mm), ``body`` and ``glitter``. A param
+    another kind owns is a ``ValueError``.
     """
-    k = KINDS[kind]
+    k, axes = _variant(kind, KINDS[kind], {"heel": heel, "platform": platform, "strap": strap, "toe": toe, "style": style, "sole": sole, "body": body, "glitter": glitter})
     base = fill.base
-    uid = hashlib.sha1(f"{paint}|{base}|{kind}|{material}|{closure}|{lace}".encode()).hexdigest()[:10]
+    uid = hashlib.sha1(f"{paint}|{base}|{kind}|{material}|{closure}|{lace}|{sorted(axes.items())}".encode()).hexdigest()[:10]
     dy = 200 - (min(k.top, k.top - 30 if closure == "Ankle Strap" else k.top) + G) / 2
     shadow = f'<ellipse cx="{_f((XB + XT) / 2)}" cy="{_f(G + 3)}" rx="{_f((XT - XB) / 2 + 12)}" ry="7" fill="{INK}" opacity=".12"/>'
-    body = [shadow]
-    if kind == "sandal":
-        body += [*_unit_sole(k, base), *_sandal(k, paint, base, closure, material, uid)]
-    elif closure == "Slingback":
+    body_: list[str] = [shadow]
+    parts: list[str] = []  # the painted parts a glitter coat covers
+    if kind == "sandal" or (kind == "jelly" and axes["style"] == "sandal"):
+        body_ += [*_unit_sole(k, base), *_sandal(k, paint, base, closure, material, uid, parts)]
+    elif kind == "mule" and axes["toe"] == "open":
+        shown, _ = _mule_open(k, paint, base, material, uid)
+        body_ += [*shown, *_sole(k, base), *_heel(k, paint, base)]
+    elif closure == "Slingback" or kind == "clog" or kind == "mule":
         vamp, extra = _slingback(k)
-        body += [extra[0], _path(vamp, paint, LW), *_texture(material, vamp, base, k, uid)]
-        body += [e.replace("{paint}", paint) for e in extra[1:]]
-        body += [*_sole(k, base), *_heel(k, paint, base)]
+        parts.append(vamp)
+        body_ += [extra[0], _path(vamp, paint, LW), *_texture(material, vamp, base, k, uid)]
+        body_ += MARKS.get(kind, lambda *a: [])(k, vamp, paint, base, closure) if kind != "sandal" and closure != "Slingback" else []
+        if closure == "Slingback" or axes.get("strap") == "back":
+            body_ += [e.replace("{paint}", paint) for e in extra[1:]]
+        body_ += [*_sole(k, base), *_heel(k, paint, base)]
     else:
         outline = _outline(k)
+        parts.append(outline)
         if k.cut == "boot":
-            body.append(_lining(k, (k.front, k.top + 2), 10))
+            body_.append(_lining(k, (k.front, k.top + 2), 10))
         elif kind != "slipper":
-            body.append(_lining(k, k.instep))
-        body += [_path(outline, paint, LW), *_texture(material, outline, base, k, uid)]
+            body_.append(_lining(k, k.instep))
+        body_ += [_path(outline, paint, LW), *_texture(material, outline, base, k, uid)]
         _LACE_OVERRIDE[0] = lace
         try:
-            body += MARKS.get(kind, lambda *a: [])(k, outline, paint, base, closure)
+            body_ += MARKS.get(kind, lambda *a: [])(k, outline, paint, base, closure)
         finally:
             _LACE_OVERRIDE[0] = ""
-        body += [*_sole(k, base), *_heel(k, paint, base)]
-    return [f'<g class="shoe-{kind}" transform="translate(0 {_f(dy)})">', *body, "</g>"]
+        body_ += [*_sole(k, base), *_heel(k, paint, base)]
+    if axes.get("glitter") == "yes":
+        body_ += _glitter(parts)
+    return [f'<g class="shoe-{kind}" transform="translate(0 {_f(dy)})">', *body_, "</g>"]
 
 
 # --------------------------------------------------------------------------

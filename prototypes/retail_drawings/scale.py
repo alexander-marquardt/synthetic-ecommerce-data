@@ -295,6 +295,7 @@ TEXT_EXEMPT = (
     DECOY_IDS
     | decoy_product_words.TEXT_EXEMPT
     | type_registry.text_match_decoy_ids("Toys")
+    | type_registry.text_match_decoy_ids("Beauty")
     | {"PLT-RQHOOP"}
 )
 
