@@ -223,7 +223,10 @@ SKU. `size_range` is a list; for legwear it is derived from the in-stock lengths
 
 Every class doc also carries the tile signals: `promotion` (a was-price gives
 "On sale"; see below), `discount_pct` (derived, sale docs only),
-`trending`, `online_only`, a `brand_owner` (own or third party; third-party
+`trending`, `online_only`, a `brand_owner` (own or third party; a brand has one
+owner in every row, an own-label name `own` and an independent maker's name
+`third_party`, pinned by
+`test_every_brand_has_exactly_one_owner_across_the_templates_and_the_ceiling`; third-party
 brands lead the offers, some with a `sub_collection` label such as "The
 Active Edit"), and `badges` in one order (Bestseller for the top 15,
 Trending, Online Only). Every doc has a full `category_path` of clean shopper
