@@ -296,6 +296,14 @@ TEXT_EXEMPT = (
 )
 
 
+def text_exempt() -> frozenset[str]:
+    return TEXT_EXEMPT
+
+
+def exempt_problems() -> list[str]:
+    return []
+
+
 def templates(baseline: bool = True) -> list[dict]:
     """The authored styles, then :mod:`scale_rows`, :mod:`breadth_rows` and
     :mod:`distractor_rows`, :mod:`shirt_rows`, :mod:`sofa_rows`, :mod:`household_rows`,

@@ -243,7 +243,7 @@ def decoy_ids() -> frozenset[str]:
     return frozenset(i for spec in specs().values() for i in decoy_ids_of(spec))
 
 
-def text_match_decoy_ids(department: str) -> frozenset[str]:
+def text_match_decoy_ids(department: str | None = None) -> frozenset[str]:
     """The ids of one department's spec decoys of classes 1 to 7: they name a color or a feature
     their structured fields lack on purpose, so the output standard's text check leaves them
     out (the class-8 decoys of gen#326 are checked like any product)."""
@@ -255,6 +255,10 @@ def text_match_decoy_ids(department: str) -> frozenset[str]:
         if d.cls != 8
         for i in _ids([d.row])
     )
+
+
+#: Declared exemptions from the text check for ids no spec owns: id -> why.
+ONE_OFF_TEXT_EXEMPT: dict[str, str] = {}
 
 
 def legacy_types() -> frozenset[tuple[str, str]]:
