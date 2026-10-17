@@ -27,7 +27,7 @@ only when this page does not cover what you need.
      one placeholder compound to edit (three decoys per class; `ApparelPlan(family, per_class,
      compounds)` picks the word family `a` garment, `b` bra, `u` underwear, `s` shoe, `k` sock,
      and more per class; `compounds` are the type's real class 2 names, each `(word, phrase)`
-     such as `("vest", "Knitted Vest Top")`, never an invented one). A type that should carry none says
+     such as `("vest", "Knitted Vest Top")`, never an invented one; add each new phrase to `REAL_COMPOUNDS` in `tests/test_retail_apparel_decoys_311.py` after the same review, or the census reds). A type that should carry none says
      why: `apparel_exempt="<reason>"` in place of the plan. A beauty type carries neither.
    Worked examples: `type_specs/tracksuit.py` (clothing, an `LRow` with a SKU axis) and
    `type_specs/shampoo.py` (beauty, a derivable breadth type).

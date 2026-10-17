@@ -12,9 +12,9 @@ holds a category word; 7 an invented brand holds a color or category word.
 Each type holds at least three decoys per class (nine and twelve for bras and jeans, so a type
 holds a tenth of its size), and one class 7 decoy per brand (at most eight).
 Classes 6 and 7 have titles of five words or fewer. A title names the misleading color only
-(never the real one); the drawing shows the named part (class 1) or the type's first part
-(class 7, whose brand holds the color word) in that color, and nothing else of it
-(`details.py`).
+(never the real one); the drawing shows the named part (class 1) in that color, and nothing else
+of it (`details.py`). A class 7 brand holds its color word in the brand field only, and its
+drawing colors no part: "Yellow Wagtail Co-ord Set" is a blue co-ord set with no yellow part.
 
 A decoy must read as a real product and describe what it is (#444). A color word sits in the
 title only as an invented brand that is the product's brand field and is shown as the brand
@@ -26,14 +26,30 @@ word variant, a range named for a place ("Jumper Lane Dress"). Class 2 uses the 
 `decoy_apparel.COMPOUNDS` (dress shirt, shirt dress, slipper socks), each a real retail name,
 never an invented one ("Dress Pyjamas"); a compound drops a type's own modifier only where the
 shorter name still describes the product (Sandal Boots for Ankle Boots).
-`tests/test_retail_apparel_decoys_311.py` holds the compounds in a list of its own. The Policy
-column is
+`tests/test_retail_apparel_decoys_311.py` holds the reviewed list of real compounds apart from the
+generator's table, and a type holds at least three, except the declared exceptions below. The
+Policy column is
 `generic` where the color, category or audience policy separates the decoy, and
 `special: <name>` where it needs its own
 (a material claim: no field says the product is not leather). The exempt types are in
 `decoy_apparel.EXEMPT`. The table is generated
 (`python3 prototypes/retail_drawings/decoy_apparel.py`) and
 `tests/test_retail_apparel_decoys_311.py` holds it verbatim.
+
+Types with fewer than three real class 2 compounds (a third is never invented; #444):
+
+- Court Shoes: only dress shoes pairs another category's noun with a court shoe.
+- Dressing Gown: only hoodie and kimono dressing gowns are names a shopper meets.
+- Jeans: only cargo jeans and jogger jeans are names a shopper meets.
+- Jumper: only the tunic jumper and the polo jumper are names a shopper meets.
+- Loafers: only mule loafers and brogue loafers are names a shopper meets.
+- Pyjamas: only short pyjamas and cami pyjamas are names a shopper meets.
+- School Pinafore: a school pinafore dress is the only compound name of it.
+- School Shirt: only the school polo shirt and the oxford school shirt are names met.
+- School Skirt: only the pinafore school skirt is a name a shopper meets.
+- Tights: only running tights and cycling tights are names a shopper meets.
+- Walking Boots: only the chukka walking boot is a name a shopper meets.
+- Wellies: only the chelsea welly is a name a shopper meets.
 
 | Product id | Type | Class | Title | Word | Query | Policy |
 |---|---|---|---|---|---|---|
@@ -61,9 +77,9 @@ column is
 | PLT-DA01100 | Bodysuit | 1 color names a part | Bodysuit with Green Hem | green | green bodysuit | generic |
 | PLT-DA01101 | Bodysuit | 1 color names a part | Bodysuit with Black Hem | black | black bodysuit | generic |
 | PLT-DA01102 | Bodysuit | 1 color names a part | Bodysuit with Yellow Hem | yellow | yellow bodysuit | generic |
-| PLT-DA01200 | Bodysuit | 2 another category's noun as a modifier | Grey Vest Bodysuit | vest | vest | generic |
-| PLT-DA01201 | Bodysuit | 2 another category's noun as a modifier | White Vest Bodysuit | vest | vest | generic |
-| PLT-DA01202 | Bodysuit | 2 another category's noun as a modifier | Cream Blazer Bodysuit | blazer | blazer | generic |
+| PLT-DA01200 | Bodysuit | 2 another category's noun as a modifier | Grey Corset Bodysuit | corset | corset | generic |
+| PLT-DA01201 | Bodysuit | 2 another category's noun as a modifier | White Corset Bodysuit | corset | corset | generic |
+| PLT-DA01202 | Bodysuit | 2 another category's noun as a modifier | Cream Cami Bodysuit | cami | cami | generic |
 | PLT-DA01300 | Bodysuit | 3 audience word of a sibling version | Blue Mens Fit Bodysuit | mens | mens bodysuit | generic |
 | PLT-DA01301 | Bodysuit | 3 audience word of a sibling version | Black Boys Fit Bodysuit | boys | boys bodysuit | generic |
 | PLT-DA01302 | Bodysuit | 3 audience word of a sibling version | Brown Boys Fit Bodysuit | boys | boys bodysuit | generic |
@@ -103,9 +119,9 @@ column is
 | PLT-DA03100 | Cardigan | 1 color names a part | Cardigan with Red Hem | red | red cardigan | generic |
 | PLT-DA03101 | Cardigan | 1 color names a part | Cardigan with White Collar | white | white cardigan | generic |
 | PLT-DA03102 | Cardigan | 1 color names a part | Cardigan with Red Collar | red | red cardigan | generic |
-| PLT-DA03200 | Cardigan | 2 another category's noun as a modifier | Brown Poncho Cardigan | poncho | poncho | generic |
-| PLT-DA03201 | Cardigan | 2 another category's noun as a modifier | Red Tunic Cardigan | tunic | tunic | generic |
-| PLT-DA03202 | Cardigan | 2 another category's noun as a modifier | Black Tunic Cardigan | tunic | tunic | generic |
+| PLT-DA03200 | Cardigan | 2 another category's noun as a modifier | Brown Duster Cardigan | duster | duster | generic |
+| PLT-DA03201 | Cardigan | 2 another category's noun as a modifier | Red Kimono Cardigan | kimono | kimono | generic |
+| PLT-DA03202 | Cardigan | 2 another category's noun as a modifier | Black Kimono Cardigan | kimono | kimono | generic |
 | PLT-DA03300 | Cardigan | 3 audience word of a sibling version | Red Girls Fit Cardigan | girls | girls cardigan | generic |
 | PLT-DA03301 | Cardigan | 3 audience word of a sibling version | Brown Womens Fit Cardigan | womens | womens cardigan | generic |
 | PLT-DA03302 | Cardigan | 3 audience word of a sibling version | White Girls Fit Cardigan | girls | girls cardigan | generic |
@@ -124,9 +140,9 @@ column is
 | PLT-DA04100 | Coat | 1 color names a part | Coat with Red Hem | red | red coat | generic |
 | PLT-DA04101 | Coat | 1 color names a part | Coat with Blue Hem | blue | blue coat | generic |
 | PLT-DA04102 | Coat | 1 color names a part | Coat with Yellow Hem | yellow | yellow coat | generic |
-| PLT-DA04200 | Coat | 2 another category's noun as a modifier | White Cardigan Coat | cardigan | cardigan | generic |
-| PLT-DA04201 | Coat | 2 another category's noun as a modifier | Blue Blazer Coat | blazer | blazer | generic |
-| PLT-DA04202 | Coat | 2 another category's noun as a modifier | Red Blazer Coat | blazer | blazer | generic |
+| PLT-DA04200 | Coat | 2 another category's noun as a modifier | White Puffer Coat | puffer | puffer | generic |
+| PLT-DA04201 | Coat | 2 another category's noun as a modifier | Blue Duffle Coat | duffle | duffle | generic |
+| PLT-DA04202 | Coat | 2 another category's noun as a modifier | Red Duffle Coat | duffle | duffle | generic |
 | PLT-DA04300 | Coat | 3 audience word of a sibling version | Pink Womens-Style Coat | womens | womens coat | generic |
 | PLT-DA04301 | Coat | 3 audience word of a sibling version | White Girls Fit Coat | girls | girls coat | generic |
 | PLT-DA04302 | Coat | 3 audience word of a sibling version | Black Womens Fit Coat | womens | womens coat | generic |
@@ -145,9 +161,9 @@ column is
 | PLT-DA05100 | Co-ord Set | 1 color names a part | Co-ord Set with Yellow Waistband | yellow | yellow co-ord set | generic |
 | PLT-DA05101 | Co-ord Set | 1 color names a part | Co-ord Set with Green Waistband | green | green co-ord set | generic |
 | PLT-DA05102 | Co-ord Set | 1 color names a part | Co-ord Set with Black Waistband | black | black co-ord set | generic |
-| PLT-DA05200 | Co-ord Set | 2 another category's noun as a modifier | Red Shirt Co-ord Set | shirt | shirt | generic |
+| PLT-DA05200 | Co-ord Set | 2 another category's noun as a modifier | Red Short Co-ord Set | short | short | generic |
 | PLT-DA05201 | Co-ord Set | 2 another category's noun as a modifier | White Skirt Co-ord Set | skirt | skirt | generic |
-| PLT-DA05202 | Co-ord Set | 2 another category's noun as a modifier | Grey Shirt Co-ord Set | shirt | shirt | generic |
+| PLT-DA05202 | Co-ord Set | 2 another category's noun as a modifier | Grey Short Co-ord Set | short | short | generic |
 | PLT-DA05300 | Co-ord Set | 3 audience word of a sibling version | Navy Mens-Style Co-ord Set | mens | mens co-ord set | generic |
 | PLT-DA05301 | Co-ord Set | 3 audience word of a sibling version | White Mens-Style Co-ord Set | mens | mens co-ord set | generic |
 | PLT-DA05302 | Co-ord Set | 3 audience word of a sibling version | White Boys Fit Co-ord Set | boys | boys co-ord set | generic |
@@ -166,9 +182,9 @@ column is
 | PLT-DA06100 | Cycling Shorts | 1 color names a part | Compression Cycling Shorts with Green Waistband | green | green cycling shorts | generic |
 | PLT-DA06101 | Cycling Shorts | 1 color names a part | Compression Cycling Shorts with White Waistband | white | white cycling shorts | generic |
 | PLT-DA06102 | Cycling Shorts | 1 color names a part | Compression Cycling Shorts with White Cuffs | white | white cycling shorts | generic |
-| PLT-DA06200 | Cycling Shorts | 2 another category's noun as a modifier | Brown Trouser Shorts | trouser | trouser | generic |
-| PLT-DA06201 | Cycling Shorts | 2 another category's noun as a modifier | Blue Dress Shorts | dress | dress | generic |
-| PLT-DA06202 | Cycling Shorts | 2 another category's noun as a modifier | Navy Dress Shorts | dress | dress | generic |
+| PLT-DA06200 | Cycling Shorts | 2 another category's noun as a modifier | Blue Tailored Shorts | tailored | tailored | generic |
+| PLT-DA06201 | Cycling Shorts | 2 another category's noun as a modifier | Grey Tailored Shorts | tailored | tailored | generic |
+| PLT-DA06202 | Cycling Shorts | 2 another category's noun as a modifier | Brown Cargo Shorts | cargo | cargo | generic |
 | PLT-DA06300 | Cycling Shorts | 3 audience word of a sibling version | Pink Girls Fit Compression Cycling Shorts | girls | girls cycling shorts | generic |
 | PLT-DA06301 | Cycling Shorts | 3 audience word of a sibling version | Grey Girls Fit Compression Cycling Shorts | girls | girls cycling shorts | generic |
 | PLT-DA06302 | Cycling Shorts | 3 audience word of a sibling version | Navy Girls Fit Compression Cycling Shorts | girls | girls cycling shorts | generic |
@@ -187,9 +203,9 @@ column is
 | PLT-DA07100 | Denim Jacket | 1 color names a part | Denim Jacket with White Hem | white | white denim jacket | generic |
 | PLT-DA07101 | Denim Jacket | 1 color names a part | Denim Jacket with Red Hem | red | red denim jacket | generic |
 | PLT-DA07102 | Denim Jacket | 1 color names a part | Denim Jacket with Green Hem | green | green denim jacket | generic |
-| PLT-DA07200 | Denim Jacket | 2 another category's noun as a modifier | Green Denim Blazer Jacket | blazer | blazer | generic |
-| PLT-DA07201 | Denim Jacket | 2 another category's noun as a modifier | Navy Denim Blazer Jacket | blazer | blazer | generic |
-| PLT-DA07202 | Denim Jacket | 2 another category's noun as a modifier | Blue Denim Blazer Jacket | blazer | blazer | generic |
+| PLT-DA07200 | Denim Jacket | 2 another category's noun as a modifier | Green Denim Bomber Jacket | bomber | bomber | generic |
+| PLT-DA07201 | Denim Jacket | 2 another category's noun as a modifier | Navy Denim Bomber Jacket | bomber | bomber | generic |
+| PLT-DA07202 | Denim Jacket | 2 another category's noun as a modifier | Navy Denim Biker Jacket | biker | biker | generic |
 | PLT-DA07300 | Denim Jacket | 3 audience word of a sibling version | Navy Mens-Style Denim Jacket | mens | mens denim jacket | generic |
 | PLT-DA07301 | Denim Jacket | 3 audience word of a sibling version | Pink Mens Fit Denim Jacket | mens | mens denim jacket | generic |
 | PLT-DA07302 | Denim Jacket | 3 audience word of a sibling version | Black Mens-Style Denim Jacket | mens | mens denim jacket | generic |
@@ -231,7 +247,7 @@ column is
 | PLT-DA09102 | Joggers | 1 color names a part | Regular Joggers with Yellow Cuffs | yellow | yellow joggers | generic |
 | PLT-DA09200 | Joggers | 2 another category's noun as a modifier | Brown Relaxed Cargo Joggers | cargo | cargo | generic |
 | PLT-DA09201 | Joggers | 2 another category's noun as a modifier | Blue Slim Chino Joggers | chino | chino | generic |
-| PLT-DA09202 | Joggers | 2 another category's noun as a modifier | Navy Relaxed Cargo Joggers | cargo | cargo | generic |
+| PLT-DA09202 | Joggers | 2 another category's noun as a modifier | Grey Relaxed Denim Joggers | denim | denim | generic |
 | PLT-DA09300 | Joggers | 3 audience word of a sibling version | Pink Girls Fit Regular Joggers | girls | girls joggers | generic |
 | PLT-DA09301 | Joggers | 3 audience word of a sibling version | Green Mens-Style Oversized Joggers | mens | mens joggers | generic |
 | PLT-DA09302 | Joggers | 3 audience word of a sibling version | Red Girls Fit Regular Joggers | girls | girls joggers | generic |
@@ -250,9 +266,9 @@ column is
 | PLT-DA10100 | Jumper | 1 color names a part | Jumper with Blue Hem | blue | blue jumper | generic |
 | PLT-DA10101 | Jumper | 1 color names a part | Jumper with White Hem | white | white jumper | generic |
 | PLT-DA10102 | Jumper | 1 color names a part | Jumper with Black Hem | black | black jumper | generic |
-| PLT-DA10200 | Jumper | 2 another category's noun as a modifier | Brown Poncho Jumper | poncho | poncho | generic |
-| PLT-DA10201 | Jumper | 2 another category's noun as a modifier | Blue Polo Jumper | polo | polo | generic |
-| PLT-DA10202 | Jumper | 2 another category's noun as a modifier | Navy Polo Jumper | polo | polo | generic |
+| PLT-DA10200 | Jumper | 2 another category's noun as a modifier | Brown Tunic Jumper | tunic | tunic | generic |
+| PLT-DA10201 | Jumper | 2 another category's noun as a modifier | Brown Polo Jumper | polo | polo | generic |
+| PLT-DA10202 | Jumper | 2 another category's noun as a modifier | Blue Polo Jumper | polo | polo | generic |
 | PLT-DA10300 | Jumper | 3 audience word of a sibling version | Red Girls Fit Jumper | girls | girls jumper | generic |
 | PLT-DA10301 | Jumper | 3 audience word of a sibling version | Cream Womens Fit Jumper | womens | womens jumper | generic |
 | PLT-DA10302 | Jumper | 3 audience word of a sibling version | Pink Girls Fit Jumper | girls | girls jumper | generic |
@@ -271,9 +287,9 @@ column is
 | PLT-DA11100 | Leggings | 1 color names a part | Compression Leggings with White Waistband | white | white leggings | generic |
 | PLT-DA11101 | Leggings | 1 color names a part | Regular Leggings with Black Waistband | black | black leggings | generic |
 | PLT-DA11102 | Leggings | 1 color names a part | Regular Leggings with White Cuffs | white | white leggings | generic |
-| PLT-DA11200 | Leggings | 2 another category's noun as a modifier | Grey Regular Jogger Leggings | jogger | jogger | generic |
-| PLT-DA11201 | Leggings | 2 another category's noun as a modifier | Cream Regular Jogger Leggings | jogger | jogger | generic |
-| PLT-DA11202 | Leggings | 2 another category's noun as a modifier | Green Regular Cargo Leggings | cargo | cargo | generic |
+| PLT-DA11200 | Leggings | 2 another category's noun as a modifier | Green Regular Cycling Leggings | cycling | cycling | generic |
+| PLT-DA11201 | Leggings | 2 another category's noun as a modifier | Blue Regular Cycling Leggings | cycling | cycling | generic |
+| PLT-DA11202 | Leggings | 2 another category's noun as a modifier | Navy Regular Cycling Leggings | cycling | cycling | generic |
 | PLT-DA11300 | Leggings | 3 audience word of a sibling version | Red Boys Fit Compression Leggings | boys | boys leggings | generic |
 | PLT-DA11301 | Leggings | 3 audience word of a sibling version | Cream Mens-Style Compression Leggings | mens | mens leggings | generic |
 | PLT-DA11302 | Leggings | 3 audience word of a sibling version | Blue Boys Fit Regular Leggings | boys | boys leggings | generic |
@@ -313,9 +329,9 @@ column is
 | PLT-DA13100 | Puffer Jacket | 1 color names a part | Puffer Jacket with Green Hem | green | green puffer jacket | generic |
 | PLT-DA13101 | Puffer Jacket | 1 color names a part | Puffer Jacket with Blue Hem | blue | blue puffer jacket | generic |
 | PLT-DA13102 | Puffer Jacket | 1 color names a part | Puffer Jacket with Green Hem | green | green puffer jacket | generic |
-| PLT-DA13200 | Puffer Jacket | 2 another category's noun as a modifier | Green Shirt Jacket | shirt | shirt | generic |
-| PLT-DA13201 | Puffer Jacket | 2 another category's noun as a modifier | Black Hoodie Jacket | hoodie | hoodie | generic |
-| PLT-DA13202 | Puffer Jacket | 2 another category's noun as a modifier | Red Hoodie Jacket | hoodie | hoodie | generic |
+| PLT-DA13200 | Puffer Jacket | 2 another category's noun as a modifier | White Biker Jacket | biker | biker | generic |
+| PLT-DA13201 | Puffer Jacket | 2 another category's noun as a modifier | Green Shirt Jacket | shirt | shirt | generic |
+| PLT-DA13202 | Puffer Jacket | 2 another category's noun as a modifier | White Biker Jacket | biker | biker | generic |
 | PLT-DA13300 | Puffer Jacket | 3 audience word of a sibling version | Pink Womens-Style Puffer Jacket | womens | womens puffer jacket | generic |
 | PLT-DA13301 | Puffer Jacket | 3 audience word of a sibling version | Navy Womens Fit Puffer Jacket | womens | womens puffer jacket | generic |
 | PLT-DA13302 | Puffer Jacket | 3 audience word of a sibling version | Brown Mini-Me Mens Puffer Jacket | mens | mens puffer jacket | generic |
@@ -355,7 +371,7 @@ column is
 | PLT-DA15100 | Shorts | 1 color names a part | Shorts with White Waistband | white | white shorts | generic |
 | PLT-DA15101 | Shorts | 1 color names a part | Shorts with Blue Waistband | blue | blue shorts | generic |
 | PLT-DA15102 | Shorts | 1 color names a part | Shorts with Red Waistband | red | red shorts | generic |
-| PLT-DA15200 | Shorts | 2 another category's noun as a modifier | Pink Trouser Shorts | trouser | trouser | generic |
+| PLT-DA15200 | Shorts | 2 another category's noun as a modifier | Pink Tailored Shorts | tailored | tailored | generic |
 | PLT-DA15201 | Shorts | 2 another category's noun as a modifier | Grey Chino Shorts | chino | chino | generic |
 | PLT-DA15202 | Shorts | 2 another category's noun as a modifier | Green Jean Shorts | jean | jean | generic |
 | PLT-DA15300 | Shorts | 3 audience word of a sibling version | Brown Boys Fit Shorts | boys | boys shorts | generic |
@@ -376,9 +392,9 @@ column is
 | PLT-DA16100 | Skirt | 1 color names a part | Skirt with Green Waistband | green | green skirt | generic |
 | PLT-DA16101 | Skirt | 1 color names a part | Skirt with Yellow Waistband | yellow | yellow skirt | generic |
 | PLT-DA16102 | Skirt | 1 color names a part | Skirt with White Waistband | white | white skirt | generic |
-| PLT-DA16200 | Skirt | 2 another category's noun as a modifier | Pink Cargo Skirt | cargo | cargo | generic |
-| PLT-DA16201 | Skirt | 2 another category's noun as a modifier | Brown Jean Skirt | jean | jean | generic |
-| PLT-DA16202 | Skirt | 2 another category's noun as a modifier | Blue Cargo Skirt | cargo | cargo | generic |
+| PLT-DA16200 | Skirt | 2 another category's noun as a modifier | Cream Cargo Skirt | cargo | cargo | generic |
+| PLT-DA16201 | Skirt | 2 another category's noun as a modifier | Cream Slip Skirt | slip | slip | generic |
+| PLT-DA16202 | Skirt | 2 another category's noun as a modifier | Pink Cargo Skirt | cargo | cargo | generic |
 | PLT-DA16300 | Skirt | 3 audience word of a sibling version | Black Mens Fit Skirt | mens | mens skirt | generic |
 | PLT-DA16301 | Skirt | 3 audience word of a sibling version | White Mens Fit Skirt | mens | mens skirt | generic |
 | PLT-DA16302 | Skirt | 3 audience word of a sibling version | Navy Mens-Style Skirt | mens | mens skirt | generic |
@@ -397,9 +413,9 @@ column is
 | PLT-DA17100 | Suit Jacket | 1 color names a part | Suit Jacket with Yellow Hem | yellow | yellow suit jacket | generic |
 | PLT-DA17101 | Suit Jacket | 1 color names a part | Suit Jacket with Black Hem | black | black suit jacket | generic |
 | PLT-DA17102 | Suit Jacket | 1 color names a part | Suit Jacket with Red Hem | red | red suit jacket | generic |
-| PLT-DA17200 | Suit Jacket | 2 another category's noun as a modifier | Green Dress Jacket | dress | dress | generic |
-| PLT-DA17201 | Suit Jacket | 2 another category's noun as a modifier | Grey Dress Jacket | dress | dress | generic |
-| PLT-DA17202 | Suit Jacket | 2 another category's noun as a modifier | Red Dress Jacket | dress | dress | generic |
+| PLT-DA17200 | Suit Jacket | 2 another category's noun as a modifier | Blue Shirt Jacket | shirt | shirt | generic |
+| PLT-DA17201 | Suit Jacket | 2 another category's noun as a modifier | Green Shirt Jacket | shirt | shirt | generic |
+| PLT-DA17202 | Suit Jacket | 2 another category's noun as a modifier | Green Dress Jacket | dress | dress | generic |
 | PLT-DA17300 | Suit Jacket | 3 audience word of a sibling version | Grey Womens-Style Suit Jacket | womens | womens suit jacket | generic |
 | PLT-DA17301 | Suit Jacket | 3 audience word of a sibling version | Grey Girls Fit Suit Jacket | girls | girls suit jacket | generic |
 | PLT-DA17302 | Suit Jacket | 3 audience word of a sibling version | Pink Girls Fit Suit Jacket | girls | girls suit jacket | generic |
@@ -439,9 +455,9 @@ column is
 | PLT-DA19100 | T-Shirt | 1 color names a part | T-Shirt with Blue Collar | blue | blue t-shirt | generic |
 | PLT-DA19101 | T-Shirt | 1 color names a part | T-Shirt with Red Hem | red | red t-shirt | generic |
 | PLT-DA19102 | T-Shirt | 1 color names a part | T-Shirt with White Hem | white | white t-shirt | generic |
-| PLT-DA19200 | T-Shirt | 2 another category's noun as a modifier | Red Hoodie T-Shirt | hoodie | hoodie | generic |
+| PLT-DA19200 | T-Shirt | 2 another category's noun as a modifier | Red Henley T-Shirt | henley | henley | generic |
 | PLT-DA19201 | T-Shirt | 2 another category's noun as a modifier | Brown Tunic T-Shirt | tunic | tunic | generic |
-| PLT-DA19202 | T-Shirt | 2 another category's noun as a modifier | Grey Hoodie T-Shirt | hoodie | hoodie | generic |
+| PLT-DA19202 | T-Shirt | 2 another category's noun as a modifier | Grey Henley T-Shirt | henley | henley | generic |
 | PLT-DA19300 | T-Shirt | 3 audience word of a sibling version | Grey Girls Fit T-Shirt | girls | girls t-shirt | generic |
 | PLT-DA19301 | T-Shirt | 3 audience word of a sibling version | Brown Mens-Style T-Shirt | mens | mens t-shirt | generic |
 | PLT-DA19302 | T-Shirt | 3 audience word of a sibling version | Pink Womens Fit T-Shirt | womens | womens t-shirt | generic |
@@ -481,9 +497,9 @@ column is
 | PLT-DA21100 | Tee | 1 color names a part | Tee with Green Collar | green | green tee | generic |
 | PLT-DA21101 | Tee | 1 color names a part | Tee with Black Collar | black | black tee | generic |
 | PLT-DA21102 | Tee | 1 color names a part | Tee with Yellow Collar | yellow | yellow tee | generic |
-| PLT-DA21200 | Tee | 2 another category's noun as a modifier | Cream Tunic Tee | tunic | tunic | generic |
-| PLT-DA21201 | Tee | 2 another category's noun as a modifier | Brown Tunic Tee | tunic | tunic | generic |
-| PLT-DA21202 | Tee | 2 another category's noun as a modifier | Grey Tunic Tee | tunic | tunic | generic |
+| PLT-DA21200 | Tee | 2 another category's noun as a modifier | Pink Tunic Tee | tunic | tunic | generic |
+| PLT-DA21201 | Tee | 2 another category's noun as a modifier | Grey Henley Tee | henley | henley | generic |
+| PLT-DA21202 | Tee | 2 another category's noun as a modifier | Blue Tunic Tee | tunic | tunic | generic |
 | PLT-DA21300 | Tee | 3 audience word of a sibling version | Green Womens Fit Tee | womens | womens tee | generic |
 | PLT-DA21301 | Tee | 3 audience word of a sibling version | Grey Womens Fit Tee | womens | womens tee | generic |
 | PLT-DA21302 | Tee | 3 audience word of a sibling version | Green Womens-Style Tee | womens | womens tee | generic |
@@ -523,9 +539,9 @@ column is
 | PLT-DA23100 | Tracksuit | 1 color names a part | Regular Tracksuit with Red Cuffs | red | red tracksuit | generic |
 | PLT-DA23101 | Tracksuit | 1 color names a part | Regular Tracksuit with White Cuffs | white | white tracksuit | generic |
 | PLT-DA23102 | Tracksuit | 1 color names a part | Regular Tracksuit with White Cuffs | white | white tracksuit | generic |
-| PLT-DA23200 | Tracksuit | 2 another category's noun as a modifier | Green Slim Sweatshirt Tracksuit | sweatshirt | sweatshirt | generic |
-| PLT-DA23201 | Tracksuit | 2 another category's noun as a modifier | Navy Relaxed Sweatshirt Tracksuit | sweatshirt | sweatshirt | generic |
-| PLT-DA23202 | Tracksuit | 2 another category's noun as a modifier | Red Regular Sweatshirt Tracksuit | sweatshirt | sweatshirt | generic |
+| PLT-DA23200 | Tracksuit | 2 another category's noun as a modifier | Green Slim Jogger Tracksuit | jogger | jogger | generic |
+| PLT-DA23201 | Tracksuit | 2 another category's noun as a modifier | Navy Relaxed Jogger Tracksuit | jogger | jogger | generic |
+| PLT-DA23202 | Tracksuit | 2 another category's noun as a modifier | Red Regular Jogger Tracksuit | jogger | jogger | generic |
 | PLT-DA23300 | Tracksuit | 3 audience word of a sibling version | White Mens Fit Relaxed Tracksuit | mens | mens tracksuit | generic |
 | PLT-DA23301 | Tracksuit | 3 audience word of a sibling version | Red Mens-Style Slim Tracksuit | mens | mens tracksuit | generic |
 | PLT-DA23302 | Tracksuit | 3 audience word of a sibling version | Red Mini-Me Womens Regular Tracksuit | womens | womens tracksuit | generic |
@@ -577,15 +593,15 @@ column is
 | PLT-DA25200 | Jeans | 2 another category's noun as a modifier | Brown Tapered Jogger Jeans | jogger | jogger | generic |
 | PLT-DA25201 | Jeans | 2 another category's noun as a modifier | White Athletic Cargo Jeans | cargo | cargo | generic |
 | PLT-DA25202 | Jeans | 2 another category's noun as a modifier | Navy Culotte Cargo Jeans | cargo | cargo | generic |
-| PLT-DA25203 | Jeans | 2 another category's noun as a modifier | Red Wide Leg Dress Jeans | dress | dress | generic |
-| PLT-DA25204 | Jeans | 2 another category's noun as a modifier | Navy Bootcut Cargo Jeans | cargo | cargo | generic |
-| PLT-DA25205 | Jeans | 2 another category's noun as a modifier | Black Cropped Jogger Jeans | jogger | jogger | generic |
-| PLT-DA25206 | Jeans | 2 another category's noun as a modifier | Red Bootcut Jogger Jeans | jogger | jogger | generic |
-| PLT-DA25207 | Jeans | 2 another category's noun as a modifier | Red Relaxed Cargo Jeans | cargo | cargo | generic |
-| PLT-DA25208 | Jeans | 2 another category's noun as a modifier | Black Slim Cargo Jeans | cargo | cargo | generic |
-| PLT-DA25209 | Jeans | 2 another category's noun as a modifier | Blue Skinny Cargo Jeans | cargo | cargo | generic |
-| PLT-DA25210 | Jeans | 2 another category's noun as a modifier | Brown Mom Cargo Jeans | cargo | cargo | generic |
-| PLT-DA25211 | Jeans | 2 another category's noun as a modifier | Pink Straight Jogger Jeans | jogger | jogger | generic |
+| PLT-DA25203 | Jeans | 2 another category's noun as a modifier | White Wide Leg Cargo Jeans | cargo | cargo | generic |
+| PLT-DA25204 | Jeans | 2 another category's noun as a modifier | Black Bootcut Jogger Jeans | jogger | jogger | generic |
+| PLT-DA25205 | Jeans | 2 another category's noun as a modifier | Red Cropped Jogger Jeans | jogger | jogger | generic |
+| PLT-DA25206 | Jeans | 2 another category's noun as a modifier | Blue Bootcut Cargo Jeans | cargo | cargo | generic |
+| PLT-DA25207 | Jeans | 2 another category's noun as a modifier | Black Relaxed Cargo Jeans | cargo | cargo | generic |
+| PLT-DA25208 | Jeans | 2 another category's noun as a modifier | Red Slim Cargo Jeans | cargo | cargo | generic |
+| PLT-DA25209 | Jeans | 2 another category's noun as a modifier | Brown Skinny Cargo Jeans | cargo | cargo | generic |
+| PLT-DA25210 | Jeans | 2 another category's noun as a modifier | White Mom Jogger Jeans | jogger | jogger | generic |
+| PLT-DA25211 | Jeans | 2 another category's noun as a modifier | White Straight Jogger Jeans | jogger | jogger | generic |
 | PLT-DA25300 | Jeans | 3 audience word of a sibling version | Cream Womens Fit Baggy Jeans | womens | womens jeans | generic |
 | PLT-DA25301 | Jeans | 3 audience word of a sibling version | Navy Girls Fit Athletic Jeans | girls | girls jeans | generic |
 | PLT-DA25302 | Jeans | 3 audience word of a sibling version | Pink Boys Fit Tapered Jeans | boys | boys jeans | generic |
@@ -708,9 +724,9 @@ column is
 | PLT-DA29100 | Ballet Pumps | 1 color names a part | Ballet Pumps with Blue Sole | blue | blue ballet pumps | generic |
 | PLT-DA29101 | Ballet Pumps | 1 color names a part | Ballet Pumps with Red Sole | red | red ballet pumps | generic |
 | PLT-DA29102 | Ballet Pumps | 1 color names a part | Ballet Pumps with White Sole | white | white ballet pumps | generic |
-| PLT-DA29200 | Ballet Pumps | 2 another category's noun as a modifier | Red Ballet Sneakers | sneaker | sneaker | generic |
-| PLT-DA29201 | Ballet Pumps | 2 another category's noun as a modifier | Grey Ballet Slippers | slipper | slipper | generic |
-| PLT-DA29202 | Ballet Pumps | 2 another category's noun as a modifier | Grey Ballet Sneakers | sneaker | sneaker | generic |
+| PLT-DA29200 | Ballet Pumps | 2 another category's noun as a modifier | Grey Ballet Slippers | slipper | slipper | generic |
+| PLT-DA29201 | Ballet Pumps | 2 another category's noun as a modifier | Black Ballet Sandals | sandal | sandal | generic |
+| PLT-DA29202 | Ballet Pumps | 2 another category's noun as a modifier | Navy Ballet Slippers | slipper | slipper | generic |
 | PLT-DA29300 | Ballet Pumps | 3 audience word of a sibling version | Brown Mens-Style Ballet Pumps | mens | mens ballet pumps | generic |
 | PLT-DA29301 | Ballet Pumps | 3 audience word of a sibling version | Green Mens-Style Ballet Pumps | mens | mens ballet pumps | generic |
 | PLT-DA29302 | Ballet Pumps | 3 audience word of a sibling version | Red Mens Fit Ballet Pumps | mens | mens ballet pumps | generic |
@@ -750,9 +766,9 @@ column is
 | PLT-DA31100 | Brogues | 1 color names a part | Brogues with Green Sole | green | green brogues | generic |
 | PLT-DA31101 | Brogues | 1 color names a part | Brogues with Yellow Sole | yellow | yellow brogues | generic |
 | PLT-DA31102 | Brogues | 1 color names a part | Brogues with Blue Sole | blue | blue brogues | generic |
-| PLT-DA31200 | Brogues | 2 another category's noun as a modifier | Cream Dress Brogues | dress | dress | generic |
-| PLT-DA31201 | Brogues | 2 another category's noun as a modifier | Blue Loafer Brogues | loafer | loafer | generic |
-| PLT-DA31202 | Brogues | 2 another category's noun as a modifier | Navy Loafer Brogues | loafer | loafer | generic |
+| PLT-DA31200 | Brogues | 2 another category's noun as a modifier | Cream Derby Brogues | derby | derby | generic |
+| PLT-DA31201 | Brogues | 2 another category's noun as a modifier | Blue Dress Brogues | dress | dress | generic |
+| PLT-DA31202 | Brogues | 2 another category's noun as a modifier | Brown Oxford Brogues | oxford | oxford | generic |
 | PLT-DA31300 | Brogues | 3 audience word of a sibling version | Brown Mens Fit Brogues | mens | mens brogues | generic |
 | PLT-DA31301 | Brogues | 3 audience word of a sibling version | Grey Womens-Style Brogues | womens | womens brogues | generic |
 | PLT-DA31302 | Brogues | 3 audience word of a sibling version | Red Girls Fit Brogues | girls | girls brogues | generic |
@@ -834,8 +850,8 @@ column is
 | PLT-DA35100 | Kitten Heels | 1 color names a part | Kitten Heels with Red Sole | red | red kitten heels | generic |
 | PLT-DA35101 | Kitten Heels | 1 color names a part | Kitten Heels with Green Sole | green | green kitten heels | generic |
 | PLT-DA35102 | Kitten Heels | 1 color names a part | Kitten Heels with White Sole | white | white kitten heels | generic |
-| PLT-DA35200 | Kitten Heels | 2 another category's noun as a modifier | Green Pump Heels | pump | pump | generic |
-| PLT-DA35201 | Kitten Heels | 2 another category's noun as a modifier | Brown Pump Heels | pump | pump | generic |
+| PLT-DA35200 | Kitten Heels | 2 another category's noun as a modifier | Green Sandal Heels | sandal | sandal | generic |
+| PLT-DA35201 | Kitten Heels | 2 another category's noun as a modifier | Brown Sandal Heels | sandal | sandal | generic |
 | PLT-DA35202 | Kitten Heels | 2 another category's noun as a modifier | Grey Loafer Heels | loafer | loafer | generic |
 | PLT-DA35300 | Kitten Heels | 3 audience word of a sibling version | Brown Mens-Style Kitten Heels | mens | mens kitten heels | generic |
 | PLT-DA35301 | Kitten Heels | 3 audience word of a sibling version | Navy Mens Fit Kitten Heels | mens | mens kitten heels | generic |
@@ -876,9 +892,9 @@ column is
 | PLT-DA37100 | Loafers | 1 color names a part | Loafers with Green Sole | green | green loafers | generic |
 | PLT-DA37101 | Loafers | 1 color names a part | Loafers with White Sole | white | white loafers | generic |
 | PLT-DA37102 | Loafers | 1 color names a part | Loafers with Blue Sole | blue | blue loafers | generic |
-| PLT-DA37200 | Loafers | 2 another category's noun as a modifier | Pink Sneaker Loafers | sneaker | sneaker | generic |
-| PLT-DA37201 | Loafers | 2 another category's noun as a modifier | Blue Sneaker Loafers | sneaker | sneaker | generic |
-| PLT-DA37202 | Loafers | 2 another category's noun as a modifier | Black Mule Loafers | mule | mule | generic |
+| PLT-DA37200 | Loafers | 2 another category's noun as a modifier | Pink Brogue Loafers | brogue | brogue | generic |
+| PLT-DA37201 | Loafers | 2 another category's noun as a modifier | Blue Brogue Loafers | brogue | brogue | generic |
+| PLT-DA37202 | Loafers | 2 another category's noun as a modifier | Blue Brogue Loafers | brogue | brogue | generic |
 | PLT-DA37300 | Loafers | 3 audience word of a sibling version | Navy Mens Fit Loafers | mens | mens loafers | generic |
 | PLT-DA37301 | Loafers | 3 audience word of a sibling version | Black Mens-Style Loafers | mens | mens loafers | generic |
 | PLT-DA37302 | Loafers | 3 audience word of a sibling version | Brown Girls Fit Loafers | girls | girls loafers | generic |
@@ -897,9 +913,9 @@ column is
 | PLT-DA38100 | Running Shoes | 1 color names a part | Running Shoes with White Sole | white | white running shoes | generic |
 | PLT-DA38101 | Running Shoes | 1 color names a part | Running Shoes with Red Sole | red | red running shoes | generic |
 | PLT-DA38102 | Running Shoes | 1 color names a part | Running Shoes with Green Sole | green | green running shoes | generic |
-| PLT-DA38200 | Running Shoes | 2 another category's noun as a modifier | Cream Sock Shoes | sock | sock | generic |
-| PLT-DA38201 | Running Shoes | 2 another category's noun as a modifier | Brown Sock Shoes | sock | sock | generic |
-| PLT-DA38202 | Running Shoes | 2 another category's noun as a modifier | Pink Sock Shoes | sock | sock | generic |
+| PLT-DA38200 | Running Shoes | 2 another category's noun as a modifier | Pink Walking Shoes | walking | walking | generic |
+| PLT-DA38201 | Running Shoes | 2 another category's noun as a modifier | Black Tennis Shoes | tennis | tennis | generic |
+| PLT-DA38202 | Running Shoes | 2 another category's noun as a modifier | Navy Tennis Shoes | tennis | tennis | generic |
 | PLT-DA38300 | Running Shoes | 3 audience word of a sibling version | Cream Mini-Me Mens Running Shoes | mens | mens running shoes | generic |
 | PLT-DA38301 | Running Shoes | 3 audience word of a sibling version | Black Girls Fit Running Shoes | girls | girls running shoes | generic |
 | PLT-DA38302 | Running Shoes | 3 audience word of a sibling version | Grey Mens Fit Running Shoes | mens | mens running shoes | generic |
@@ -919,8 +935,8 @@ column is
 | PLT-DA39101 | Safety Boots | 1 color names a part | Safety Boots with Yellow Sole | yellow | yellow safety boots | generic |
 | PLT-DA39102 | Safety Boots | 1 color names a part | Safety Boots with Blue Sole | blue | blue safety boots | generic |
 | PLT-DA39200 | Safety Boots | 2 another category's noun as a modifier | Brown Wellington Safety Boots | wellington | wellington | generic |
-| PLT-DA39201 | Safety Boots | 2 another category's noun as a modifier | Green Wellington Safety Boots | wellington | wellington | generic |
-| PLT-DA39202 | Safety Boots | 2 another category's noun as a modifier | Pink Wellington Safety Boots | wellington | wellington | generic |
+| PLT-DA39201 | Safety Boots | 2 another category's noun as a modifier | Red Hiker Safety Boots | hiker | hiker | generic |
+| PLT-DA39202 | Safety Boots | 2 another category's noun as a modifier | Green Wellington Safety Boots | wellington | wellington | generic |
 | PLT-DA39300 | Safety Boots | 3 audience word of a sibling version | Cream Womens Fit Safety Boots | womens | womens safety boots | generic |
 | PLT-DA39301 | Safety Boots | 3 audience word of a sibling version | White Womens-Style Safety Boots | womens | womens safety boots | generic |
 | PLT-DA39302 | Safety Boots | 3 audience word of a sibling version | Blue Womens-Style Safety Boots | womens | womens safety boots | generic |
@@ -939,9 +955,9 @@ column is
 | PLT-DA40100 | Sandals | 1 color names a part | Sandals with Green Sole | green | green sandals | generic |
 | PLT-DA40101 | Sandals | 1 color names a part | Sandals with Black Sole | black | black sandals | generic |
 | PLT-DA40102 | Sandals | 1 color names a part | Sandals with Blue Sole | blue | blue sandals | generic |
-| PLT-DA40200 | Sandals | 2 another category's noun as a modifier | Blue Loafer Sandals | loafer | loafer | generic |
-| PLT-DA40201 | Sandals | 2 another category's noun as a modifier | Pink Loafer Sandals | loafer | loafer | generic |
-| PLT-DA40202 | Sandals | 2 another category's noun as a modifier | Green Mule Sandals | mule | mule | generic |
+| PLT-DA40200 | Sandals | 2 another category's noun as a modifier | Blue Mule Sandals | mule | mule | generic |
+| PLT-DA40201 | Sandals | 2 another category's noun as a modifier | Pink Mule Sandals | mule | mule | generic |
+| PLT-DA40202 | Sandals | 2 another category's noun as a modifier | Green Slider Sandals | slider | slider | generic |
 | PLT-DA40300 | Sandals | 3 audience word of a sibling version | Green Mens-Style Sandals | mens | mens sandals | generic |
 | PLT-DA40301 | Sandals | 3 audience word of a sibling version | Red Mens-Style Sandals | mens | mens sandals | generic |
 | PLT-DA40302 | Sandals | 3 audience word of a sibling version | Cream Mini-Me Mens Sandals | mens | mens sandals | generic |
@@ -960,9 +976,9 @@ column is
 | PLT-DA41100 | School Shoes | 1 color names a part | School Shoes with Blue Sole | blue | blue school shoes | generic |
 | PLT-DA41101 | School Shoes | 1 color names a part | School Shoes with Green Sole | green | green school shoes | generic |
 | PLT-DA41102 | School Shoes | 1 color names a part | School Shoes with Yellow Sole | yellow | yellow school shoes | generic |
-| PLT-DA41200 | School Shoes | 2 another category's noun as a modifier | Red Trainer School Shoes | trainer | trainer | generic |
-| PLT-DA41201 | School Shoes | 2 another category's noun as a modifier | Black Dress Shoes | dress | dress | generic |
-| PLT-DA41202 | School Shoes | 2 another category's noun as a modifier | Green Trainer School Shoes | trainer | trainer | generic |
+| PLT-DA41200 | School Shoes | 2 another category's noun as a modifier | Brown Brogue School Shoes | brogue | brogue | generic |
+| PLT-DA41201 | School Shoes | 2 another category's noun as a modifier | Grey Brogue School Shoes | brogue | brogue | generic |
+| PLT-DA41202 | School Shoes | 2 another category's noun as a modifier | Red Loafer School Shoes | loafer | loafer | generic |
 | PLT-DA41300 | School Shoes | 3 audience word of a sibling version | Red Mens-Style School Shoes | mens | mens school shoes | generic |
 | PLT-DA41301 | School Shoes | 3 audience word of a sibling version | Cream Mens-Style School Shoes | mens | mens school shoes | generic |
 | PLT-DA41302 | School Shoes | 3 audience word of a sibling version | Pink Mini-Me Mens School Shoes | mens | mens school shoes | generic |
@@ -1002,9 +1018,9 @@ column is
 | PLT-DA43100 | Trainers | 1 color names a part | Trainers with Yellow Sole | yellow | yellow trainers | generic |
 | PLT-DA43101 | Trainers | 1 color names a part | Trainers with White Sole | white | white trainers | generic |
 | PLT-DA43102 | Trainers | 1 color names a part | Trainers with Black Sole | black | black trainers | generic |
-| PLT-DA43200 | Trainers | 2 another category's noun as a modifier | Black Dress Trainers | dress | dress | generic |
-| PLT-DA43201 | Trainers | 2 another category's noun as a modifier | Green Dress Trainers | dress | dress | generic |
-| PLT-DA43202 | Trainers | 2 another category's noun as a modifier | Grey Dress Trainers | dress | dress | generic |
+| PLT-DA43200 | Trainers | 2 another category's noun as a modifier | Black Running Trainers | running | running | generic |
+| PLT-DA43201 | Trainers | 2 another category's noun as a modifier | Green Running Trainers | running | running | generic |
+| PLT-DA43202 | Trainers | 2 another category's noun as a modifier | Brown Walking Trainers | walking | walking | generic |
 | PLT-DA43300 | Trainers | 3 audience word of a sibling version | Green Womens Fit Trainers | womens | womens trainers | generic |
 | PLT-DA43301 | Trainers | 3 audience word of a sibling version | Grey Girls Fit Trainers | girls | girls trainers | generic |
 | PLT-DA43302 | Trainers | 3 audience word of a sibling version | Brown Womens Fit Trainers | womens | womens trainers | generic |
@@ -1023,8 +1039,8 @@ column is
 | PLT-DA44100 | Walking Boots | 1 color names a part | Walking Boots with Red Sole | red | red walking boots | generic |
 | PLT-DA44101 | Walking Boots | 1 color names a part | Walking Boots with Black Sole | black | black walking boots | generic |
 | PLT-DA44102 | Walking Boots | 1 color names a part | Walking Boots with Green Sole | green | green walking boots | generic |
-| PLT-DA44200 | Walking Boots | 2 another category's noun as a modifier | White Chukka Walking Boots | chukka | chukka | generic |
-| PLT-DA44201 | Walking Boots | 2 another category's noun as a modifier | Grey Chukka Walking Boots | chukka | chukka | generic |
+| PLT-DA44200 | Walking Boots | 2 another category's noun as a modifier | Black Chukka Walking Boots | chukka | chukka | generic |
+| PLT-DA44201 | Walking Boots | 2 another category's noun as a modifier | Navy Chukka Walking Boots | chukka | chukka | generic |
 | PLT-DA44202 | Walking Boots | 2 another category's noun as a modifier | Black Chukka Walking Boots | chukka | chukka | generic |
 | PLT-DA44300 | Walking Boots | 3 audience word of a sibling version | Pink Mens-Style Walking Boots | mens | mens walking boots | generic |
 | PLT-DA44301 | Walking Boots | 3 audience word of a sibling version | Black Girls Fit Walking Boots | girls | girls walking boots | generic |
@@ -1127,9 +1143,9 @@ column is
 | PLT-DA47100 | Boxers | 1 color names a part | Boxers with Green Waistband | green | green boxers | generic |
 | PLT-DA47101 | Boxers | 1 color names a part | Boxers with White Waistband | white | white boxers | generic |
 | PLT-DA47102 | Boxers | 1 color names a part | Boxers with Red Waistband | red | red boxers | generic |
-| PLT-DA47200 | Boxers | 2 another category's noun as a modifier | Brown Pyjama Boxers | pyjama | pyjama | generic |
-| PLT-DA47201 | Boxers | 2 another category's noun as a modifier | Cream Boxer Shorts | short | short | generic |
-| PLT-DA47202 | Boxers | 2 another category's noun as a modifier | Black Pyjama Boxers | pyjama | pyjama | generic |
+| PLT-DA47200 | Boxers | 2 another category's noun as a modifier | Brown Boxer Briefs | brief | brief | generic |
+| PLT-DA47201 | Boxers | 2 another category's noun as a modifier | Red Boxer Trunks | trunk | trunk | generic |
+| PLT-DA47202 | Boxers | 2 another category's noun as a modifier | Cream Boxer Shorts | short | short | generic |
 | PLT-DA47300 | Boxers | 3 audience word of a sibling version | Grey Womens Fit Boxers | womens | womens boxers | generic |
 | PLT-DA47301 | Boxers | 3 audience word of a sibling version | Grey Womens-Style Boxers | womens | womens boxers | generic |
 | PLT-DA47302 | Boxers | 3 audience word of a sibling version | Red Girls Fit Boxers | girls | girls boxers | generic |
@@ -1148,9 +1164,9 @@ column is
 | PLT-DA48100 | Dressing Gown | 1 color names a part | Dressing Gown with Red Hem | red | red dressing gown | generic |
 | PLT-DA48101 | Dressing Gown | 1 color names a part | Dressing Gown with Yellow Hem | yellow | yellow dressing gown | generic |
 | PLT-DA48102 | Dressing Gown | 1 color names a part | Dressing Gown with Black Hem | black | black dressing gown | generic |
-| PLT-DA48200 | Dressing Gown | 2 another category's noun as a modifier | Cream Poncho Dressing Gown | poncho | poncho | generic |
-| PLT-DA48201 | Dressing Gown | 2 another category's noun as a modifier | Navy Poncho Dressing Gown | poncho | poncho | generic |
-| PLT-DA48202 | Dressing Gown | 2 another category's noun as a modifier | Navy Poncho Dressing Gown | poncho | poncho | generic |
+| PLT-DA48200 | Dressing Gown | 2 another category's noun as a modifier | Cream Kimono Dressing Gown | kimono | kimono | generic |
+| PLT-DA48201 | Dressing Gown | 2 another category's noun as a modifier | Navy Kimono Dressing Gown | kimono | kimono | generic |
+| PLT-DA48202 | Dressing Gown | 2 another category's noun as a modifier | Navy Kimono Dressing Gown | kimono | kimono | generic |
 | PLT-DA48300 | Dressing Gown | 3 audience word of a sibling version | Cream Boys Fit Dressing Gown | boys | boys dressing gown | generic |
 | PLT-DA48301 | Dressing Gown | 3 audience word of a sibling version | Brown Mens Fit Dressing Gown | mens | mens dressing gown | generic |
 | PLT-DA48302 | Dressing Gown | 3 audience word of a sibling version | Pink Mini-Me Womens Dressing Gown | womens | womens dressing gown | generic |
@@ -1170,8 +1186,8 @@ column is
 | PLT-DA49101 | Knickers | 1 color names a part | Knickers with Black Waistband | black | black knickers | generic |
 | PLT-DA49102 | Knickers | 1 color names a part | Knickers with Green Waistband | green | green knickers | generic |
 | PLT-DA49200 | Knickers | 2 another category's noun as a modifier | Cream Cami Knickers | cami | cami | generic |
-| PLT-DA49201 | Knickers | 2 another category's noun as a modifier | Red Cami Knickers | cami | cami | generic |
-| PLT-DA49202 | Knickers | 2 another category's noun as a modifier | Blue Cami Knickers | cami | cami | generic |
+| PLT-DA49201 | Knickers | 2 another category's noun as a modifier | Black Bikini Knickers | bikini | bikini | generic |
+| PLT-DA49202 | Knickers | 2 another category's noun as a modifier | Red Cami Knickers | cami | cami | generic |
 | PLT-DA49300 | Knickers | 3 audience word of a sibling version | White Mens-Style Knickers | mens | mens knickers | generic |
 | PLT-DA49301 | Knickers | 3 audience word of a sibling version | Pink Boys Fit Knickers | boys | boys knickers | generic |
 | PLT-DA49302 | Knickers | 3 audience word of a sibling version | Cream Mens Fit Knickers | mens | mens knickers | generic |
@@ -1190,9 +1206,9 @@ column is
 | PLT-DA50100 | Pyjama Shorts | 1 color names a part | Pyjama Shorts with Yellow Waistband | yellow | yellow pyjama shorts | generic |
 | PLT-DA50101 | Pyjama Shorts | 1 color names a part | Pyjama Shorts with Red Waistband | red | red pyjama shorts | generic |
 | PLT-DA50102 | Pyjama Shorts | 1 color names a part | Pyjama Shorts with Blue Waistband | blue | blue pyjama shorts | generic |
-| PLT-DA50200 | Pyjama Shorts | 2 another category's noun as a modifier | Red Boxer Pyjama Shorts | boxer | boxer | generic |
-| PLT-DA50201 | Pyjama Shorts | 2 another category's noun as a modifier | Grey Boxer Pyjama Shorts | boxer | boxer | generic |
-| PLT-DA50202 | Pyjama Shorts | 2 another category's noun as a modifier | White Jogger Pyjama Shorts | jogger | jogger | generic |
+| PLT-DA50200 | Pyjama Shorts | 2 another category's noun as a modifier | Blue Bermuda Shorts | bermuda | bermuda | generic |
+| PLT-DA50201 | Pyjama Shorts | 2 another category's noun as a modifier | Red Bermuda Shorts | bermuda | bermuda | generic |
+| PLT-DA50202 | Pyjama Shorts | 2 another category's noun as a modifier | Red Boxer Shorts | boxer | boxer | generic |
 | PLT-DA50300 | Pyjama Shorts | 3 audience word of a sibling version | Cream Mens-Style Pyjama Shorts | mens | mens pyjama shorts | generic |
 | PLT-DA50301 | Pyjama Shorts | 3 audience word of a sibling version | Grey Boys Fit Pyjama Shorts | boys | boys pyjama shorts | generic |
 | PLT-DA50302 | Pyjama Shorts | 3 audience word of a sibling version | Red Boys Fit Pyjama Shorts | boys | boys pyjama shorts | generic |
@@ -1274,9 +1290,9 @@ column is
 | PLT-DA54100 | Tights | 1 color names a part | Tights with Black Waistband | black | black tights | generic |
 | PLT-DA54101 | Tights | 1 color names a part | Tights with White Waistband | white | white tights | generic |
 | PLT-DA54102 | Tights | 1 color names a part | Tights with Yellow Waistband | yellow | yellow tights | generic |
-| PLT-DA54200 | Tights | 2 another category's noun as a modifier | Red Dress Tights | dress | dress | generic |
-| PLT-DA54201 | Tights | 2 another category's noun as a modifier | Green Dress Tights | dress | dress | generic |
-| PLT-DA54202 | Tights | 2 another category's noun as a modifier | Navy Dress Tights | dress | dress | generic |
+| PLT-DA54200 | Tights | 2 another category's noun as a modifier | Red Running Tights | running | running | generic |
+| PLT-DA54201 | Tights | 2 another category's noun as a modifier | Green Running Tights | running | running | generic |
+| PLT-DA54202 | Tights | 2 another category's noun as a modifier | Navy Running Tights | running | running | generic |
 | PLT-DA54300 | Tights | 3 audience word of a sibling version | Pink Boys Fit Tights | boys | boys tights | generic |
 | PLT-DA54301 | Tights | 3 audience word of a sibling version | Green Mens-Style Tights | mens | mens tights | generic |
 | PLT-DA54302 | Tights | 3 audience word of a sibling version | Blue Mens Fit Tights | mens | mens tights | generic |
@@ -1337,9 +1353,9 @@ column is
 | PLT-DA57100 | School Skirt | 1 color names a part | School Skirt with White Waistband | white | white school skirt | generic |
 | PLT-DA57101 | School Skirt | 1 color names a part | School Skirt with Red Waistband | red | red school skirt | generic |
 | PLT-DA57102 | School Skirt | 1 color names a part | School Skirt with Black Waistband | black | black school skirt | generic |
-| PLT-DA57200 | School Skirt | 2 another category's noun as a modifier | Green Culotte School Skirt | culotte | culotte | generic |
-| PLT-DA57201 | School Skirt | 2 another category's noun as a modifier | Blue Culotte School Skirt | culotte | culotte | generic |
-| PLT-DA57202 | School Skirt | 2 another category's noun as a modifier | Cream Pinafore School Skirt | pinafore | pinafore | generic |
+| PLT-DA57200 | School Skirt | 2 another category's noun as a modifier | Green Pinafore School Skirt | pinafore | pinafore | generic |
+| PLT-DA57201 | School Skirt | 2 another category's noun as a modifier | White Pinafore School Skirt | pinafore | pinafore | generic |
+| PLT-DA57202 | School Skirt | 2 another category's noun as a modifier | Navy Pinafore School Skirt | pinafore | pinafore | generic |
 | PLT-DA57300 | School Skirt | 3 audience word of a sibling version | White Mini-Me Mens School Skirt | mens | mens school skirt | generic |
 | PLT-DA57301 | School Skirt | 3 audience word of a sibling version | Red Mini-Me Womens School Skirt | womens | womens school skirt | generic |
 | PLT-DA57302 | School Skirt | 3 audience word of a sibling version | Cream Mini-Me Womens School Skirt | womens | womens school skirt | generic |
