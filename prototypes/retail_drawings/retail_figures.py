@@ -53,7 +53,6 @@ import school_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
-import sports_rows  # noqa: E402
 import toys_rows  # noqa: E402
 import type_registry  # noqa: E402
 import underwear_rows  # noqa: E402
@@ -124,7 +123,6 @@ def measure() -> dict[str, Any]:
         "decoy_product_words": decoy_product_words.docs(),
         "shirt_rows": shirt_rows.docs(),
         "accessory_rows": accessory_rows.docs(),
-        "sports_rows": sports_rows.docs(),
         "garden_rows": garden_rows.docs(),
         "school_rows": school_rows.docs(),
         "household_rows": household_rows.docs(),

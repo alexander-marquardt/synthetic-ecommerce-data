@@ -70,5 +70,6 @@ def test_the_moved_styles_are_built_once_each_through_the_registry() -> None:
 
 
 def test_the_shared_sports_module_holds_no_rows_of_its_own() -> None:
-    assert sports_rows.docs() == []
+    assert not hasattr(sports_rows, "docs"), "the build reads these rows through the registry"
+    assert {r.department for r in sports_rows.ROWS} == {DEPARTMENT}
     assert {r.code for r in sports_rows.ROWS} >= {c for _, codes in MOVED.values() for c in codes}
