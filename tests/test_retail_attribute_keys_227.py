@@ -67,7 +67,9 @@ def test_a_second_storage_key_is_a_finding() -> None:
 
 
 def test_a_declared_exception_is_not_a_finding() -> None:
-    other = _doc("heel_height", "min_height", "max_height", "storage", "storage_type")
+    other = _doc(
+        "heel_height", "platform_height", "min_height", "max_height", "storage", "storage_type"
+    )
     assert key_guard.concept_findings([WHOLE, other]) == []
 
 
