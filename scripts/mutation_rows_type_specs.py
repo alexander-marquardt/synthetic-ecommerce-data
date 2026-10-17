@@ -274,7 +274,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "details.py",
         "            cmd, nums = tok, []\n",
         "            cmd, nums = tok.upper(), []\n",
-        "tests/test_retail_apparel_decoys_311.py -k sits_where_the_part_sits",
+        "tests/test_retail_apparel_decoys_311.py -k relative_path_command",
         "a lace trim's offsets never move the box a part is placed on (#444)",
         "prototypes/retail_drawings",
     ),
