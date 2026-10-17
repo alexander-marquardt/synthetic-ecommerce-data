@@ -4,9 +4,9 @@
 garment from their title. Each shape here is its own cut:
 
 * ``bomber_jacket``: a short body that ends in a ribbed hem band, ribbed cuffs and a ribbed stand
-  collar, a centre zip and two slanted pockets.
+  collar, a center zip and two slanted pockets.
 * ``puffer_jacket``: quilted horizontal baffles through the body and the sleeves, a high funnel
-  collar, a centre zip and elasticated cuffs.
+  collar, a center zip and elasticated cuffs.
 
 Both paint the body in the record's fill and keep the ribbed or quilted bands in it too, so the
 named part of a decoy (``hem``) is the band's own paint (:mod:`details`).

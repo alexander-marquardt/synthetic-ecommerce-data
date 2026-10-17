@@ -313,7 +313,7 @@ def _polo_collar(paint: str) -> list[str]:
 
 
 def _mirror_path(d: str) -> str:
-    """The absolute ``M/L ... Z`` path ``d`` reflected about the sheet's centre line."""
+    """The absolute ``M/L ... Z`` path ``d`` reflected about the sheet's center line."""
     pts = [tuple(map(float, p.strip("MLZ ").split(","))) for p in d.split() if "," in p]
     return _poly([(SIZE - x, y) for x, y in pts])
 
