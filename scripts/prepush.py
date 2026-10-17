@@ -11,7 +11,8 @@
 Why it exists. Every mechanical red CI would find cost a CI round and a fix round of
 an agent's context. The rows are the commands of the jobs in
 ``.github/workflows/ci.yaml`` that take seconds and need no network: ``commit-messages``,
-``lint`` and ``file-size``, and ``tree-scans``, the tests that read every tracked file.
+``customer-names``, ``lint`` and ``file-size``, and ``tree-scans``, the tests that read every
+tracked file.
 Each row's argv is read from the workflow (``scripts/local_ci_jobs.py``), never copied;
 ``tests/test_prepush_gate_11677.py`` fails on a workflow job or step that is neither a row
 nor in ``LEFT_TO_CI``. What stays with CI, by name: the whole suite (about 27
@@ -79,6 +80,7 @@ WORKFLOWS = ROOT / ".github" / "workflows"
 #: that line, so a stricter CI flag, or ``--locked``, reaches the gate with no edit here.
 CI_COMMANDS: dict[str, tuple[str, str]] = {
     "commit-messages": ("commit-messages", "check_commit_msg.py"),
+    "customer-names": ("customer-name-check", "check_customer_names.py"),
     "lint": ("tests", "ruff check"),
     "file-size": ("file-size", "--no-body-is-advisory"),
     "file-size-body": ("file-size", "--pr-body-file"),
@@ -90,6 +92,8 @@ CI_COMMANDS: dict[str, tuple[str, str]] = {
 #: cheap job cannot go unnoticed.
 LEFT_TO_CI: dict[str, str] = {
     "main-merged-tree": "the merged-tree checks; scripts/merge_pr.sh --local-ci runs them",
+    "red-commit-proof": "it runs each declared red test in a worktree of its commit, and its"
+    " range is the pull request's base and head, which a push does not have yet",
 }
 
 
@@ -242,6 +246,23 @@ def row_commit_messages(ctx: Context) -> Result:
     return Result("PASS" if rc == 0 else "FAIL", judged, out)
 
 
+def row_customer_names(ctx: Context) -> Result:
+    """CI's command on the branch's range; no PR exists yet, so the draft body stands in for it."""
+    argv = ctx.argv("customer-names")
+    if "--pr" in argv:
+        at = argv.index("--pr")
+        argv = argv[:at] + argv[at + 2 :]
+    if ctx.body_file:
+        argv = [*argv, "--text-file", ctx.body_file]
+    rc, out = run(argv, ctx.root)
+    judged = f"the tree and the commits {ctx.merge_base[:7]}..{ctx.head[:7]}"
+    if ctx.body_file:
+        judged += f", PR body {ctx.body_file}"
+    else:
+        judged += ", not the PR text (no --pr-body-file)"
+    return Result("PASS" if rc == 0 else "FAIL", judged, out)
+
+
 def row_lint(ctx: Context) -> Result:
     rc, out = run(ctx.argv("lint"), ctx.root)
     return Result("PASS" if rc == 0 else "FAIL", f"ruff check . on {ctx.head[:7]}", out)
@@ -280,6 +301,7 @@ def row_tree_scans(ctx: Context) -> Result:
 #: name, the ``CI_COMMANDS`` key whose command it runs, the row.
 ROWS: tuple[tuple[str, str, Row], ...] = (
     ("commit-messages", "commit-messages", row_commit_messages),
+    ("customer-names", "customer-names", row_customer_names),
     ("lint", "lint", row_lint),
     ("file-size", "file-size", row_file_size),
     ("tree-scans", "tree-scans", row_tree_scans),
