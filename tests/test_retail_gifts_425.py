@@ -73,7 +73,7 @@ QUERIES = {
     "pig money box": {"GMBPIGC", "GMBPIGT"},
     "pamper hamper": {"GHPBATL", "GHPBATM", "GHPCAND", "GHPSOCK"},
 }  # fmt: skip
-COLOR_WORDS = {c.lower() for c in dpw.COLORS}
+COLOR_WORDS = {c.lower() for c in dpw.COLORS} - {"clear"}  # glass is clear, not a colour
 
 
 def _spec_rows(key: str) -> tuple:

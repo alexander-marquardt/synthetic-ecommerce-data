@@ -61,6 +61,14 @@ ROWS: list[tuple[str, str, str, str, str | tuple[str, ...], str]] = [
         "a title states what the product is, never a bare audience label",
     ),
     (
+        "the mens mini-me rows are titled with the audience phrase again",
+        "mens_depth_rows.py",
+        'add(3, i, f"Mens Mini-Me {noun}, Kids\' Version Sold Separately",',
+        'add(3, i, f"Mens Mini-Me Kids\' Style {noun}",',
+        f"{_T}::test_a_title_states_what_the_product_is_never_what_it_is_not",
+        "a mens Mini-Me title says what it matches, never a bare audience label",
+    ),
+    (
         "a grocery description drops its pack line",
         "grocery.py",
         "    out.append(_available(packs))\n",
