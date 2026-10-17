@@ -36,9 +36,10 @@ from variants import cw
 RED, BLUE, BLACK, WHITE, GREY = ("#c8322b", "#2f6db5", "#2a2a2e", "#ffffff", "#8a8a8e")
 NAVY, CREAM, GOLD, GREEN, BROWN, PINK, NUDE = ("#26365c", "#efe8d8", "#c9a34a", "#3c8d4f",
                                                "#6b4a2e", "#e8b9b3", "#e3c1a5")  # fmt: skip
+YELLOW, PURPLE, CLEAR = "#f2d14b", "#7a5a9e", "#e3eef0"
 COLORS = {"Red": RED, "Blue": BLUE, "Black": BLACK, "White": WHITE, "Grey": GREY, "Navy": NAVY,
           "Cream": CREAM, "Gold": GOLD, "Green": GREEN, "Brown": BROWN, "Pink": PINK,
-          "Nude": NUDE}  # fmt: skip
+          "Nude": NUDE, "Yellow": YELLOW, "Purple": PURPLE, "Clear": CLEAR}  # fmt: skip
 
 
 @dataclass(frozen=True)
@@ -113,8 +114,14 @@ KINDS = {
                     "Larkmoor", 34.0, params=(("style", "shoulder"), ("flap", "flap"),
                                                 ("strap", "leather")),
                     extra=(("audience", "Audience", "Womens"),)),
-    "glassware": Kind("Home", ("Home", "Kitchen & Dining", "Glassware"), "Glassware", "bottle",
-                      "Lanternby", 14.0),
+    # Clear glass carries no color field (gen#449): a wine glass and a carafe are drawn in the
+    # tableware kit's tinted glass, never as a red bottle.
+    "glassware": Kind("Home", ("Home", "Kitchen & Dining", "Glassware"), "Glassware",
+                      "drinking_glass", "Lanternby", 14.0, params=(("kind", "wine"),),
+                      colorless=True),
+    "carafe": Kind("Home", ("Home", "Kitchen & Dining", "Glassware"), "Glassware",
+                   "drinking_glass", "Lanternby", 14.0, params=(("kind", "carafe"),),
+                   colorless=True),
     "candle": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"), "Scented Candle",
                    "jar", "Lanternby", 16.0, extra=(("fragrance", "Fragrance", "Wine"),)),
     "cleaner": Kind("Cleaning & Janitorial",
@@ -128,10 +135,12 @@ KINDS = {
                  "Crofter's Bakehouse", 4.5, colorless=True),
     "apples": Kind("Food & Drink", ("Food & Drink", "Fruit & Vegetables", "Fresh Fruit",
                                     "Apples & Pears", "Apples"), "Fruit", "produce_pile",
-                   "Pantry Mill", 2.2, params=(("fruit", "apple"),), colorless=True,
+                   "Pantry Mill", 2.2, params=(("fruit", "apple"), ("pack", "net")),
+                   colorless=True,
                    units_per_pack=4),
     "yoghurt": Kind("Food & Drink", ("Food & Drink", "Dairy & Alternatives", "Yogurt"), "Yogurt",
-                    "tub", "Pantry Mill", 2.0, colorless=True),
+                    "tub", "Pantry Mill", 2.0, params=(("count", "4"),), colorless=True,
+                    units_per_pack=4),
     "cereal_bar": Kind("Food & Drink", ("Food & Drink", "Biscuits & Snacks", "Snack Bars"),
                        "Snack Bar", "box", "Copper Hill Preserves", 2.6, colorless=True),
     "curry": Kind("Food & Drink", ("Food & Drink", "Chilled", "Ready Meals"), "Ready Meal",
@@ -172,7 +181,7 @@ class Decoy:
 
     def style(self) -> Style:
         k = KINDS[self.kind]
-        color = cw(self.color, COLORS.get(self.color, GREY))
+        color = cw(self.color, COLORS[self.color])
         # A review count above the typical (a digest of the code gives a few hundred).
         return Style(
             f"D{self.code}", self.title, self.brand or k.brand, k.department, k.path, k.price,
@@ -287,13 +296,14 @@ TABLE = (
        "A gold sequin top with a boat neckline.", "Gold", 0, "gold top", 130, true_hit=True),
     # -- red wine: the wine the color and the glass, the candle, the stain remover (2, 4)
     _d("XW01", "glassware", "Red Wine Glasses, Set of 4",
-       "Four glasses made for red wine.", "Red", 2, "red wine", 900),
+       "Four glasses made for red wine.", "Clear", 2, "red wine", 900),
     _d("XW02", "candle", "Red Wine Scented Candle",
        "A candle scented like red wine.", "Red", 4, "red wine", 880),
     _d("XW03", "cleaner", "Red Wine Stain Remover",
        "A spray that lifts red wine from a carpet.", "Red", 2, "red wine", 840),
-    _d("XW04", "glassware", "Red Wine Carafe",
-       "A glass carafe for red wine.", "Red", 2, "red wine", 800),
+    _d("XW04", "carafe", "Glass Wine Carafe, 1L",
+       "A clear glass carafe for red wine, with a narrow neck for pouring.", "Clear", 2,
+       "red wine", 800),
     # -- guards: a real product whose name holds a color word (5)
     _d("XU01", "tea", "Green Tea, 40 Bags", "Sencha green tea in round bags, 40 to a box.",
        "Green", 5, "green tea", 900, true_hit=True),
@@ -302,7 +312,7 @@ TABLE = (
     _d("XU03", "cake", "Red Velvet Cake", "A red velvet sponge with cream cheese icing. Serves 8.",
        "Red", 5, "red velvet cake", 90, true_hit=True),
     # -- pink lady apples: the guard holds the pink and the apple together (5)
-    _d("XU04", "apples", "Pink Lady Apples", "Crisp pink lady apples, sold loose by the kilo.",
+    _d("XU04", "apples", "Pink Lady Apples", "Crisp pink lady apples, four to a net.",
        "Red", 5, "pink lady apples", 90, true_hit=True),
     # -- class 7: the query word is only an ingredient (title names a different product)
     _d("XI01", "tea", "Earl Grey Tea, 40 Bags",
