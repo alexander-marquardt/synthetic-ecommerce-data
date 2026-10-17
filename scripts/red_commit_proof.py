@@ -29,6 +29,16 @@ same pytest plugin (``vendor/prism/scripts/mutant_run_plugin.py``, core's, byte
 for byte): it also refuses an assertion raised in the code under test or in a
 fixture, which is not the test noticing anything.
 
+A red commit made BEFORE this checker landed is grandfathered: when the commit is
+not a descendant of ``CUTOFF`` (the commit that introduced this script), a named
+test that fails on ANYTHING (``StopIteration``, ``KeyError``, an error at setup)
+is accepted as red, and the line says ``GRANDFATHERED``. A pull request opened
+before the checker landed could otherwise only be fixed by rewriting approved
+history (gen#432). The cutoff is ancestry, not an author date, because a rebase
+or a clock set wrong moves a date and never moves ancestry. A test that passes,
+or that matches no test that ran, is refused on either side of the cutoff, and a
+descendant of ``CUTOFF`` keeps the strict rule: red on an assertion.
+
 Exit: 0 every declared red commit is proven (or none is declared); 1 a refusal;
 2 a usage error (an empty or unresolvable range); 3 a commit could not be judged
 (pytest wrote no outcomes, or timed out) and none was refused.
@@ -53,6 +63,8 @@ VENDORED = REPO_ROOT / "vendor" / "prism" / "scripts"
 sys.path.insert(0, str(VENDORED))
 import mutant_run as runner  # noqa: E402  (the vendored path is set up just above)
 
+#: The commit that introduced this checker; a red commit not descending from it is grandfathered.
+CUTOFF = "e4813a393cfbc4cdd757adefac8258977f792990"
 #: How long one commit's named tests may run before the commit is "not judged".
 TIMEOUT_SECS = 900
 TEST_ID = re.compile(r"^[\w./-]+\.py::\S.*$")
@@ -151,14 +163,36 @@ def run_named(
     return done.returncode, _events(report), done.stdout + done.stderr
 
 
-def refusals(ids: list[str], events: list[dict[str, str]]) -> list[str]:
-    """One ``<id>: <why>`` per named test that is not red on an assertion."""
+def is_grandfathered(repo: Path, sha: str, cutoff: str) -> bool:
+    """True when ``sha`` was written before ``cutoff`` landed: it is not a descendant of it.
+
+    A cutoff this repository does not hold (a shallow clone, another repository) grandfathers
+    nothing: a commit is only called old when the cutoff is there to compare it with.
+    """
+    if _git(repo, "cat-file", "-e", f"{cutoff}^{{commit}}", check=False).returncode != 0:
+        return False
+    return _git(repo, "merge-base", "--is-ancestor", cutoff, sha, check=False).returncode == 1
+
+
+def refusals(
+    ids: list[str],
+    events: list[dict[str, str]],
+    grandfathered: list[str] | None = None,
+) -> list[str]:
+    """One ``<id>: <why>`` per named test that is not red on an assertion.
+
+    With ``grandfathered`` (a list the caller owns), a named test that fails on anything
+    is not refused: its ``<id>: <how it failed>`` is appended there instead.
+    """
     problems = []
     for name in ids:
         mine = [event for event in events if event["nodeid"] == name]
         if any(event["outcome"] == "error" for event in mine):
             detail = next(e["detail"] for e in mine if e["outcome"] == "error")
-            problems.append(f"{name}: fails, but not on an assertion ({detail})")
+            if grandfathered is not None:
+                grandfathered.append(f"{name}: {detail}")
+            else:
+                problems.append(f"{name}: fails, but not on an assertion ({detail})")
         elif any(event["outcome"] == "passed" for event in mine):
             problems.append(f"{name}: passes, so it is not red at this commit")
         elif not any(event["outcome"] == "assertion" for event in mine):
@@ -170,8 +204,10 @@ def refusals(ids: list[str], events: list[dict[str, str]]) -> list[str]:
     return problems
 
 
-def judge_commit(repo: Path, sha: str, ids: list[str]) -> tuple[str, list[str]]:
-    """``("proven" | "refused" | "not-judged", lines)`` for one declared red commit."""
+def judge_commit(
+    repo: Path, sha: str, ids: list[str], cutoff: str = CUTOFF
+) -> tuple[str, list[str]]:
+    """``("proven" | "grandfathered" | "refused" | "not-judged", lines)`` for one red commit."""
     prose = [name for name in ids if not TEST_ID.match(name)]
     if not ids or prose:
         shown = ", ".join(prose) or "no test id"
@@ -198,14 +234,23 @@ def judge_commit(repo: Path, sha: str, ids: list[str]) -> tuple[str, list[str]]:
         return "refused", [f"{line} (matches no test)" for line in missing]
     if not events:
         return "not-judged", [f"pytest exited {status} and wrote no outcomes"]
-    problems = refusals(ids, events)
-    return ("refused", problems) if problems else ("proven", [])
+    old = is_grandfathered(repo, sha, cutoff)
+    excused: list[str] = []
+    problems = refusals(ids, events, excused if old else None)
+    if problems:
+        return "refused", problems
+    return ("grandfathered", excused) if excused else ("proven", [])
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--range", required=True, dest="spec", help="<base>..<head>")
     parser.add_argument("--repo", type=Path, default=REPO_ROOT)
+    parser.add_argument(
+        "--cutoff",
+        default=CUTOFF,
+        help="a red commit that is not a descendant of this commit is grandfathered",
+    )
     args = parser.parse_args(argv)
     listed = _git(args.repo, "rev-list", "--reverse", "--no-merges", args.spec, check=False)
     shas = listed.stdout.split()
@@ -223,10 +268,14 @@ def main(argv: list[str] | None = None) -> int:
         if not values or (not ids and all(NONE_VALUE.match(v.strip()) for v in values)):
             continue
         declared += 1
-        verdict, lines = judge_commit(args.repo, sha, ids)
+        verdict, lines = judge_commit(args.repo, sha, ids, args.cutoff)
         label = sha[:9]
         if verdict == "proven":
             print(f"PROVEN   {label}: red on an assertion: {', '.join(ids)}")
+        elif verdict == "grandfathered":
+            print(f"GRANDFATHERED  {label}: red, made before the checker landed")
+            for line in lines:
+                print(f"    {line}")
         elif verdict == "refused":
             refused += 1
             print(f"REFUSED  {label}")
