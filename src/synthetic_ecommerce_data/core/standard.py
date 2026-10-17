@@ -199,6 +199,15 @@ def _names(padded: str, value: str) -> bool:
     return bool(phrase) and f" {phrase} " in padded
 
 
+#: A phrase that names a value without claiming it: a comparison ("Higher strength than Grade
+#: 5."), an equivalence ("Equivalent to DIN 912 / ISO 4762.") and a tolerance class in
+#: parentheses ("(ISO 492 Normal class)"). A comparison or an equivalence runs to the end of its
+#: sentence (a full stop before a digit is a decimal point: "Class 8.8").
+_REFERENCE = re.compile(
+    r"\b(?:than|equivalent to)\b(?:[^.;]|\.(?=\d))*|\([^()]*\bclass\)", re.IGNORECASE
+)
+
+
 def value_pools(docs: Iterable[Mapping[str, Any]]) -> dict[tuple[str, str], set[str]]:
     """(leaf, key) -> the worded values the leaf's product attributes carry: the values a
     title or description can contradict. A number or a measured value is never one."""
@@ -218,7 +227,10 @@ def text_contradictions(
 ) -> list[str]:
     """Each attribute the title or a description contradicts: the text names another value
     of the key's leaf pool and none of the document's own. A word inside another of the
-    document's values ("Leather" on a rubber-soled leather loafer) contradicts nothing."""
+    document's values ("Leather" on a rubber-soled leather loafer) contradicts nothing, and
+    neither does a pool value whose words sit inside one of the document's own values
+    ("Steel" on 18-8 Stainless Steel, "Grinding" on Cutting & Grinding), nor a value the text
+    only compares or refers to (:data:`_REFERENCE`)."""
     attrs = [e for e in doc.get("attributes") or () if isinstance(e, dict)]
     own: dict[str, set[str]] = {}
     for e in attrs:
@@ -228,13 +240,18 @@ def text_contradictions(
     if doc.get("brand"):
         values.add(str(doc["brand"]))
     every = sorted(values, key=len, reverse=True)
+    padded_own = [words(v) for v in values]
     texts = [str(doc.get("title") or "")]
     texts += [str(v.get("description")) for v in doc.get("variants") or () if v.get("description")]
     out = []
     for key, mine in own.items():
-        pool = pools.get((str(doc.get("category_leaf")), key), set()) - mine
+        pool = {
+            v
+            for v in pools.get((str(doc.get("category_leaf")), key), set()) - mine
+            if not any(_names(own_value, v) for own_value in padded_own)
+        }
         for text in dict.fromkeys(texts):
-            padded = words(text)
+            padded = words(_REFERENCE.sub(" | ", text))
             if not pool or any(_names(padded, v) for v in mine):
                 continue
             for v in every:
