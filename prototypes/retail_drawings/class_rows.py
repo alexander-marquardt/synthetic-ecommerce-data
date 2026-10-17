@@ -734,7 +734,7 @@ NOT_ROSE_GOLD = (
            "Bouquet", "bouquet", one(cw("White", WHITE), 410),
            params=(("foliage", GOLD_LEAF),)), _COLOR),
     (Style("RQHOOP", "Gold Plated Rose Quartz Hoop Earrings", "Wrenfield", "Clothing",
-           JEWELLERY, 24.0,
+           (*JEWELLERY, "Hoop Earrings"), 24.0,  # its title names the node (gen#423, gen#283)
            "Rose quartz drops on gold plated hoops.",
            "Earrings", "earrings", one(cw("Yellow Gold", "#d4af37"), 300), metal=True,
            params=(("kind", "hoop"), ("stone", "#f3c6cf")),
