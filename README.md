@@ -436,7 +436,7 @@ shared tables):
   distributor listings for the inch R series -- with a contact seal at 70% of
   the open speed. No jitter: two bearings of one number are rated alike,
   whoever makes them, and a rating never makes two SKUs different. (A formula
-  had put a 6000 at 3,110 lbf against a published 1,068.)
+  had put a 6000 at about three times its published rating.)
 * **Standards** are a truth table by what the line IS (`domains/industrial/conformance.py`):
   a socket head cap screw may claim ISO 4762 / DIN 912 / ASME B18.3 / ASTM
   A574, a flat washer ISO 7089 / DIN 125-A, a metric radial bearing ISO 15 /

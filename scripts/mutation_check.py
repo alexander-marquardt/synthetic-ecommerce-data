@@ -34,6 +34,7 @@ import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their o
 import mutation_rows_customer_names  # noqa: E402  (#393 rows, kept in their own file)
 import mutation_rows_cutlery_pack_count  # noqa: E402  (gen#228 rows)
 import mutation_rows_department_floor  # noqa: E402  (gen#234 rows)
+import mutation_rows_footwear_216  # noqa: E402  (gen#216 rows, kept in their own file)
 import mutation_rows_furniture_226  # noqa: E402  (gen#226 rows, kept in their own file)
 import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
 import mutation_rows_jewellery_423  # noqa: E402  (gen#423 rows)
@@ -4184,6 +4185,11 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"underwear drawn values: {name}", file, old, new, tests, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, tests, prop in mutation_rows_underwear_245.ROWS
+    ),
+    *(
+        Mutation(f"footwear styles: {name}", file, old, new, tests, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, tests, prop in mutation_rows_footwear_216.ROWS
     ),
     *(
         Mutation(f"furniture drawings: {name}", file, old, new, tests, "", prop,
