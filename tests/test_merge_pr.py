@@ -351,11 +351,11 @@ def test_a_merge_github_refuses_once_is_retried(world: dict) -> None:
 def _conflicting_retail_stats(world: dict) -> tuple[str, str]:
     """A PR and main that edit one total of the retail stats two ways; and the true file."""
     true = (world["checkout"] / _RETAIL_STATS).read_text()
-    assert '"images": 1' in true
+    assert '"images": ' in true
     head = _open_pr(
         world,
-        {**_GREEN, _RETAIL_STATS: true.replace('"images": 1', '"images": 21', 1)},
-        on_main={_RETAIL_STATS: true.replace('"images": 1', '"images": 31', 1)},
+        {**_GREEN, _RETAIL_STATS: true.replace('"images": ', '"images": 21', 1)},
+        on_main={_RETAIL_STATS: true.replace('"images": ', '"images": 31', 1)},
     )
     return head, true
 
@@ -376,7 +376,7 @@ def test_a_stale_retail_stats_is_rebuilt_on_the_merged_tree_and_pushed(world: di
     """No conflict, wrong totals: the auto-merge the script exists to catch, for retail."""
     true = (world["checkout"] / _RETAIL_STATS).read_text()
     head = _open_pr(
-        world, {**_GREEN, _RETAIL_STATS: true.replace('"images": 1', '"images": 21', 1)}
+        world, {**_GREEN, _RETAIL_STATS: true.replace('"images": ', '"images": 21', 1)}
     )
     result = _run(world, head, _GREEN_CHECK, FAKE_UV_RETAIL="1")
     assert result.returncode == 0, result.stdout + result.stderr
