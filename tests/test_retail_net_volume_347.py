@@ -93,3 +93,10 @@ def test_a_title_that_states_a_volume_carries_that_net_volume() -> None:
             if ml not in volumes(d):
                 wrong.append(f"{d['product_id']} {d['title']!r}: {sorted(volumes(d))}")
     assert not wrong, f"{len(wrong)} titles disagree with their net volume: {wrong[:8]}"
+
+
+def test_aftershave_and_body_mist_offer_the_common_small_size_too() -> None:
+    """Beauty depth (gen#214): aftershave is sold from 30 ml and a body mist from 50 ml."""
+    held = per_type()
+    assert 30.0 in held[("Beauty", "Fragrance", "Aftershave")]
+    assert 50.0 in held[("Beauty", "Fragrance", "Body Mists")]

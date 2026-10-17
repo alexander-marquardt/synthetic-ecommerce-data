@@ -34,11 +34,13 @@ import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their o
 import mutation_rows_customer_names  # noqa: E402  (#393 rows, kept in their own file)
 import mutation_rows_cutlery_pack_count  # noqa: E402  (gen#228 rows)
 import mutation_rows_department_floor  # noqa: E402  (gen#234 rows)
+import mutation_rows_footwear_216  # noqa: E402  (gen#216 rows, kept in their own file)
 import mutation_rows_furniture_226  # noqa: E402  (gen#226 rows, kept in their own file)
 import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
 import mutation_rows_jewellery_423  # noqa: E402  (gen#423 rows)
 import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
 import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their own file)
+import mutation_rows_no_wrong_kind  # noqa: E402  (gen#404 rows, kept in their own file)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
 import mutation_rows_plate_grid_clones  # noqa: E402  (gen#229 rows)
 import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
@@ -1221,8 +1223,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: the push is forced",
-                'push -q origin "HEAD:refs/heads/$head_ref" ||\n    die "the push of $final_sha',
-                'push -q -f origin "HEAD:refs/heads/$head_ref" ||\n    die "the push of $final_sha',
+                'push -q origin "HEAD:refs/heads/$head_ref" ||\n      die "the push of $final_sha',
+                'push -q -f origin "HEAD:refs/heads/$head_ref" ||\n      die "the push of $final_sha',
                 "tests/test_merge_pr.py::"
                 "test_a_head_that_moves_during_the_checks_is_neither_overwritten_nor_merged",
                 "the head is the commit that was checked, at every merge attempt",
@@ -1265,8 +1267,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: a second red does not stop the merge",
-                'run_local_ci ||\n    die "local CI is red on $final_sha after the golden regeneration',
-                'run_local_ci ||\n    echo "local CI is red on $final_sha after the golden regeneration',
+                '$run_ci ||\n    die "$ci_name is red on $final_sha after the golden regeneration',
+                '$run_ci ||\n    echo "$ci_name is red on $final_sha after the golden regeneration',
                 'tests/test_merge_pr.py::test_a_golden_that_is_still_red_after_the_regeneration_is_regenerated_once_only',
                 'a stale golden is regenerated once, on a green second run (#440)',
             ),
@@ -1300,8 +1302,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: a dry run does not regenerate",
-                '    run_local_ci_regenerating\n    echo "5. every local CI job is green on $final_sha"\n  fi\n  keep_work=0',
-                '    run_local_ci\n    echo "5. every local CI job is green on $final_sha"\n  fi\n  keep_work=0',
+                '    run_local_ci_regenerating\n    echo "5. every local CI job is green on $final_sha"\n  elif',
+                '    run_local_ci\n    echo "5. every local CI job is green on $final_sha"\n  elif',
                 'tests/test_merge_pr.py::test_a_dry_run_regenerates_the_golden_but_pushes_and_merges_nothing',
                 'a stale golden is regenerated once, on a green second run (#440)',
             ),
@@ -1419,7 +1421,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: any skipped check is green",
-                'listed "$name" "${SKIPPED_BY_DESIGN_CI[@]}" ||',
+                'listed "${name%% (*}" "${SKIPPED_BY_DESIGN_CI[@]}" ||',
                 "true ||",
                 "tests/test_merge_pr.py::"
                 "test_a_merge_waits_for_every_check_on_the_pushed_tree[skipped]",
@@ -1427,8 +1429,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: a missing required check is not waited for",
-                'listed "$name" ${seen[@]+"${seen[@]}"} || missing+=',
-                "true || missing+=",
+                'listed "$name" ${seen[@]+"${seen[@]}"} || listed',
+                "true || listed",
                 "tests/test_merge_pr.py::"
                 "test_a_merge_waits_for_every_check_on_the_pushed_tree[missing]",
                 "every CI check on the commit that merges is green",
@@ -1461,24 +1463,6 @@ MUTATIONS: list[Mutation] = [
         "tests/test_catalog_generate.py",
         "B",
         "the shank == cutting diameter rate is the measured one",
-    ),
-    Mutation(
-        "stop injecting the angle-carries-a-length-unit defect",
-        "domains/industrial/defects.py",
-        "        if self.rng.random() >= self.config.scaled_defect(\n            self.config.defect_angle_carries_length_unit\n        ):\n            return line_attrs",
-        "        if True:\n            return line_attrs",
-        "tests/test_catalog_generate.py",
-        "A",
-        "the angle defect occurs at its measured rate",
-    ),
-    Mutation(
-        "inject the angle defect into every line",
-        "domains/industrial/defects.py",
-        "        if self.rng.random() >= self.config.scaled_defect(\n            self.config.defect_angle_carries_length_unit\n        ):\n            return line_attrs",
-        "        if False:\n            return line_attrs",
-        "tests/test_catalog_generate.py",
-        "B",
-        "the angle defect occurs at its measured rate",
     ),
     # ---- no title label is truncated, both directions --------------------
     # The property inverted with the ruling on elastic/prism#9284: titles used
@@ -1659,42 +1643,6 @@ MUTATIONS: list[Mutation] = [
         ),
         "",
         "a TPI entry's canonical is the ruled reciprocal length",
-    ),
-    Mutation(
-        "read the angle defect's inch mark as an inch again",
-        "core/entry.py",
-        '        unit = UNIT_FOR_NAME.get(name) or UNIT_FOR_SUFFIX[match["suffix"]]',
-        '        unit = UNIT_FOR_SUFFIX[match["suffix"]]',
-        (
-            "tests/test_nested_entry_contract.py -k share_one_unit_dimension",
-            "tests/test_nested_entry_contract.py -k hand_worked",
-            "tests/test_nested_entry_contract.py -k published_spelling",
-        ),
-        "",
-        "an angle key's entries are angles however the value is spelled (#79)",
-    ),
-    Mutation(
-        "fix the inch-marked Helix Angle but leave Point Angle an inch",
-        "core/entry.py",
-        '    "Point Angle": "DD",\n',
-        "",
-        "tests/test_nested_entry_contract.py -k share_one_unit_dimension",
-        "",
-        "an angle key's entries are angles however the value is spelled (#79)",
-    ),
-    Mutation(
-        "read a length keyed into an angle field as degrees",
-        "core/entry.py",
-        '        if UNIT_FOR_NAME.get(name) == "DD" and not _within_span(name, match["number"]):\n'
-        '            return {"value": published}\n',
-        "",
-        (
-            "tests/test_nested_entry_contract.py -k canonical_lies_within",
-            "tests/test_nested_entry_contract.py -k hand_worked",
-            "tests/test_nested_entry_contract.py -k published_spelling",
-        ),
-        "",
-        "an angle key's canonical lies within the angles its series offers (#79)",
     ),
     Mutation(
         "collapse a multi-valued attribute to a single entry",
@@ -4182,6 +4130,10 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    *(
+        Mutation(f"no wrong kind: {name}", file, old, new, tests, "", prop)
+        for name, file, old, new, tests, prop in mutation_rows_no_wrong_kind.ROWS
+    ),
     # ---- retail: type specs (gen#351) and the garden hose decoys (gen#292); rows in their own files ----
     *(
         Mutation(f"{prefix}: {name}", file, old, new, test, "", prop, root=root)
@@ -4234,6 +4186,11 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"underwear drawn values: {name}", file, old, new, tests, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, tests, prop in mutation_rows_underwear_245.ROWS
+    ),
+    *(
+        Mutation(f"footwear styles: {name}", file, old, new, tests, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, tests, prop in mutation_rows_footwear_216.ROWS
     ),
     *(
         Mutation(f"furniture drawings: {name}", file, old, new, tests, "", prop,

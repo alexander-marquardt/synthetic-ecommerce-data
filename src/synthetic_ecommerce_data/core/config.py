@@ -124,7 +124,12 @@ class GeneratorConfig:
     #: 09_defect_rate.json, each against its own denominator -- the records
     #: that actually carry the attribute pair the class tests.
     defect_loc_exceeds_oal: float = 0.0829
-    defect_angle_carries_length_unit: float = 0.0469
+    #: 09_defect_rate.json measures 0.0469 of angle-carrying records with a
+    #: length keyed into the angle field (``Point Angle = 2"``). **Measured and
+    #: deliberately not reproduced**: the generator writes no value of the wrong
+    #: kind for its key, and a real retailer would fix that row (#404). The
+    #: reproduction is declined, the measurement stands.
+    measured_angle_carries_length_unit: float = 0.0469
     defect_system_contradicts_units: float = 0.0323
 
     #: 07_value_format_variation.json: 11 of 496 records mix imperial and
