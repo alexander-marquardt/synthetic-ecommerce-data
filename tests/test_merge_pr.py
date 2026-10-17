@@ -894,6 +894,11 @@ _EXACTLY_FRESH = (
 _RETAIL_FRESH = (
     "tests/test_retail_figures_162.py::test_the_committed_figures_are_what_the_build_measures"
 )
+_FIELD_MAP_FRESH = (
+    "tests/test_prism_field_map_drift.py::test_committed_field_map_matches_a_fresh_derivation"
+)
+_STATS_FRESH = "tests/test_catalog_golden.py::test_stats_reports_the_catalog_that_was_committed"
+_ALL_FRESH = [_FRESH, _EXACTLY_FRESH, _RETAIL_FRESH, _FIELD_MAP_FRESH, _STATS_FRESH]
 
 #: A ``tests`` job that is red the way the golden freshness test is: it prints the
 #: pytest summary line of that test unless golden-catalog/stats.json is main's.
@@ -948,6 +953,44 @@ def test_a_local_ci_red_that_is_only_the_golden_freshness_test_is_regenerated_an
     assert _ci_reads(world) == []
 
 
+def _red_on(*ids: str) -> str:
+    """A ``tests`` job that is red the way a test runner reports a stale generated file
+    (one ``FAILED`` or ``ERROR`` summary line per id) unless the golden is main's."""
+    lines = "; ".join(f'echo "{line}"' for line in ids)
+    return _STALE_UNLESS_MAINS.replace(
+        f'echo "FAILED {_FRESH}[stats.json] - differs"; exit 1', f"{lines}; exit 1"
+    )
+
+
+@pytest.mark.parametrize("node", [_FIELD_MAP_FRESH, _STATS_FRESH])
+def test_a_red_on_the_field_map_or_the_stats_freshness_test_is_regenerated(
+    world: dict, node: str
+) -> None:
+    """A stale field-weights YAML reds the drift test, and a stale stats.json the stats
+    test: #440 names both, and each is a test of a generated file (the PR review)."""
+    head = _stale_golden_pr(world, _red_on(f"FAILED {node}"))
+    done = _run(world, head, _GREEN_CHECK, "--local-ci", FAKE_UV_SKIP_BUILD_ONCE="1")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert _subject(world, _branch(world)) == "regenerate golden on main"
+    assert done.stdout.count("local CI tests: FAIL") == 1
+    assert _merged(world)
+
+
+def test_the_stale_yaml_signature_of_the_incident_is_regenerated(world: dict) -> None:
+    """The drift test FAILED beside the golden directory and file tests ERRORed, as the
+    runner printed them for a stale field-weights YAML on a merged tree."""
+    ids = [
+        f"FAILED {_FIELD_MAP_FRESH}",
+        f"ERROR {_EXACTLY_FRESH}",
+        *(f"ERROR {_FRESH}[{name}]" for name in ("flat.jsonl", "stats.json", "render.jsonl")),
+    ]
+    head = _stale_golden_pr(world, _red_on(*ids))
+    done = _run(world, head, _GREEN_CHECK, "--local-ci", FAKE_UV_SKIP_BUILD_ONCE="1")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert _subject(world, _branch(world)) == "regenerate golden on main"
+    assert _merged(world)
+
+
 def test_a_local_ci_red_on_the_golden_freshness_and_another_test_is_not_regenerated(
     world: dict,
 ) -> None:
@@ -991,6 +1034,7 @@ def test_a_freshness_red_beside_a_red_job_that_is_not_pytest_is_not_regenerated(
     done = _run(world, head, _GREEN_CHECK, "--local-ci", FAKE_UV_SKIP_BUILD_ONCE="1")
     assert done.returncode != 0
     assert "local CI file-size: FAIL" in done.stdout
+    assert done.stdout.count("local CI tests:") == 1, "the suite was run a second time"
     assert _subject(world, _branch(world)) != "regenerate golden on main"
     assert not _merged(world)
 
@@ -1020,6 +1064,30 @@ def test_a_freshness_red_a_rebuild_does_not_change_is_not_merged(world: dict) ->
     assert not _merged(world)
 
 
+#: A ``tests`` job that is red like the freshness test until the golden is main's and,
+#: on the second run, moves the PR branch on the origin as a builder's push does.
+_MOVES_THE_HEAD_ON_THE_SECOND_RUN = _STALE_UNLESS_MAINS.replace(
+    " || {",
+    " && { new=$(git -C $FAKE_ORIGIN commit-tree pr-branch^{tree} -p pr-branch -m moved);"
+    " git -C $FAKE_ORIGIN update-ref refs/heads/pr-branch $new; } || {",
+    1,
+)
+
+
+def test_a_head_that_moves_during_the_second_run_is_neither_overwritten_nor_merged(
+    world: dict,
+) -> None:
+    """The push of the regenerated commit is not forced, as the first push is not."""
+    head = _stale_golden_pr(world, _MOVES_THE_HEAD_ON_THE_SECOND_RUN)
+    done = _run(world, head, _GREEN_CHECK, "--local-ci", FAKE_UV_SKIP_BUILD_ONCE="1")
+    assert done.returncode != 0, done.stdout + done.stderr
+    assert "the push of the regenerated" in done.stderr and "refused" in done.stderr, done.stderr
+    moved = _branch(world)
+    assert moved != head
+    assert _subject(world, moved) == "moved", "the builder's push was overwritten"
+    assert not _merged(world)
+
+
 def test_a_dry_run_regenerates_the_golden_but_pushes_and_merges_nothing(world: dict) -> None:
     head = _stale_golden_pr(world, _STALE_UNLESS_MAINS)
     done = _run(world, head, _GREEN_CHECK, "--dry-run", "--local-ci", FAKE_UV_SKIP_BUILD_ONCE="1")
@@ -1037,7 +1105,7 @@ def test_the_freshness_tests_are_real_tests_of_the_golden_files() -> None:
     )
     assert printed.returncode == 0, printed.stderr
     named = printed.stdout.splitlines()
-    assert sorted(named) == sorted([_FRESH, _EXACTLY_FRESH, _RETAIL_FRESH]), named
+    assert sorted(named) == sorted(_ALL_FRESH), named
     collected = subprocess.run(
         [
             sys.executable,
