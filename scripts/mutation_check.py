@@ -42,6 +42,7 @@ import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own fi
 import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their own file)
 import mutation_rows_no_wrong_kind  # noqa: E402  (gen#404 rows, kept in their own file)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
+import mutation_rows_plus_sizes  # noqa: E402  (gen#434 rows, kept in their own file)
 import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
 import mutation_rows_seating_agreement  # noqa: E402  (gen#225 rows, kept in their own file)
 import mutation_rows_sheet_extent  # noqa: E402  (gen#242 rows, kept in their own file)
@@ -4215,6 +4216,10 @@ MUTATIONS: list[Mutation] = [
     *(
         Mutation(f"sheet extent: {name}", file, old, new, test, "", prop, root=root)
         for name, file, old, new, test, prop, root in mutation_rows_sheet_extent.ROWS
+    ),
+    *(
+        Mutation(f"plus sizes: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in mutation_rows_plus_sizes.ROWS
     ),
     # ---- pack: the bolt's pack is a page's and is priced within a size (gen#86); the rows are in their own file ----
     *(

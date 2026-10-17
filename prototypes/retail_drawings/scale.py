@@ -122,6 +122,7 @@ import mens_depth_rows  # noqa: E402
 import needs_rows  # noqa: E402
 import net_volume  # noqa: E402
 import nike_rows  # noqa: E402
+import plus_sizes  # noqa: E402
 import scale_rows  # noqa: E402
 import school_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
@@ -327,6 +328,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *garden_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
         *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(), *needs_rows.docs(),
     ]  # fmt: skip
+    body = plus_sizes.extend_all(body, decoy_rows.IDS | decoy_product_words.IDS)  # gen#434
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
     body = net_volume.state_title_volumes(body)  # gen#347: a volume the title states is the field
     if baseline:
