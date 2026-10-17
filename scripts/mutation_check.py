@@ -43,7 +43,9 @@ import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own f
 import mutation_rows_plate_grid_clones  # noqa: E402  (gen#229 rows)
 import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
 import mutation_rows_sheet_extent  # noqa: E402  (gen#242 rows, kept in their own file)
+import mutation_rows_sofa_bed_223  # noqa: E402  (gen#223 rows, kept in their own file)
 import mutation_rows_tableware_features  # noqa: E402  (gen#230 rows)
+import mutation_rows_text_agrees  # noqa: E402  (gen#139 rows, kept in their own file)
 import mutation_rows_underwear_245  # noqa: E402  (gen#245 rows, kept in their own file)
 
 REPO = Path(__file__).resolve().parent.parent
@@ -4065,6 +4067,11 @@ MUTATIONS: list[Mutation] = [
         for name, file, old, new, test, prop in mutation_rows_pack_size.ROWS
     ),
     *(
+        Mutation(f"sofa bed: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in mutation_rows_sofa_bed_223.ROWS
+    ),
+    *(
         Mutation(f"ring sizes: {name}", file, old, new, tests, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, tests, prop in mutation_rows_ring_sizes_249.ROWS
@@ -4088,6 +4095,7 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"audit order: {n}", "generate_cli.py", o, w, t, "", pr)
         for n, o, w, t, pr in mutation_rows_audit_order.ROWS
     ),
+    *(Mutation(f"text agrees: {n}", f, o, nw, t, "", p) for n, f, o, nw, t, p in mutation_rows_text_agrees.ROWS),
     # ---- the customer-name check (#393); the rows are in their own file ----
     *(
         Mutation(f"customer names: {name}", file, old, new, test, "", prop, root=root)
