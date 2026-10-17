@@ -14,6 +14,7 @@ from __future__ import annotations
 import kit_gifts  # noqa: F401 -- registers greeting_card
 from gifts_rows import CALDERBY, CARD_PATH, DEPARTMENT, LANTERNBY, SIX_COLORS, THISTLE
 from type_registry import Row, TypeSpec, a
+from word_decoy_types import GIFTS, word_decoy
 
 
 def _card(code, title, brand, occasion, recipient, shape_occasion, description) -> Row:
@@ -47,5 +48,13 @@ SPEC = TypeSpec(
               "A new baby card to welcome the little one, blank inside for your message."),
         _card("GCXMAS", "Christmas Card", LANTERNBY, "Christmas", "Any", "christmas",
               "A Christmas card with a festive motif on the front, blank inside for a seasonal greeting."),
+    ),
+    decoys=(
+        word_decoy(
+            3, "Birthday Greeting Card",
+            "A folded card with a message inside, sent with a present.",
+            "Cream", GIFTS, "Gifts", ("Gifts", "Cards", "Greeting Cards"),
+            "Greeting Card", "greeting_card", 3.0, "card",
+        ),
     ),
 )  # fmt: skip

@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from collections import Counter
 from dataclasses import asdict
@@ -210,7 +211,14 @@ def _write_field_map(catalog, config: GeneratorConfig) -> str:
         )
     if not target.parent.exists():
         return f"{target}  NOT rewritten -- the customization package is not present"
-    target.write_text(render(emit.iter_flat(catalog)), encoding="utf-8")
+    # Replaced, not truncated and rewritten: a reader that has the file open (a test of
+    # another xdist worker, an editor) sees the old file whole or the new one whole (#440).
+    staged = target.with_name(f"{target.name}.{os.getpid()}.tmp")
+    try:
+        staged.write_text(render(emit.iter_flat(catalog)), encoding="utf-8")
+        os.replace(staged, target)
+    finally:
+        staged.unlink(missing_ok=True)
     return f"{target}  field map regenerated from this catalog"
 
 

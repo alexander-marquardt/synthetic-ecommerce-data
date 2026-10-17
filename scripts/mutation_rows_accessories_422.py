@@ -548,9 +548,9 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "decoys: a spec decoy is held to the text check",
         "scale.py",
-        "decoy_product_words.TEXT_EXEMPT | type_registry.decoy_ids()",
-        "decoy_product_words.TEXT_EXEMPT",
-        'tests/test_retail_type_specs_351.py -k "named_for_its_key_and_its_documents_meet_the_standard and belt"',
+        '    | type_registry.text_match_decoy_ids("Clothing")\n',
+        "",
+        "tests/test_retail_scale.py -k 20k_build_meets_the_output_standard",
         "a class 6 decoy holds a color word its structured color denies, so the standard exempts it",
         _R,
     ),

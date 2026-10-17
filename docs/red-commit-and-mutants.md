@@ -46,6 +46,17 @@ Exit 0: every declared red commit is proven, or none is declared. 1: a
 refusal, with the id and why. 2: the range is empty or does not resolve. 3: a
 commit could not be judged (pytest wrote no outcomes, or ran past 900 s).
 
+A red commit made before the checker landed is grandfathered (gen#432). When
+the commit is not a descendant of `CUTOFF` in `scripts/red_commit_proof.py`
+(`e4813a393cfbc4cdd757adefac8258977f792990`, the commit that introduced the
+checker), a named test that fails on anything, such as `StopIteration`,
+`KeyError` or an error at setup, is accepted as red and the line says
+`GRANDFATHERED`. The cutoff is ancestry, not an author date: a rebase or a
+wrong clock moves a date and never moves ancestry. A test that passes or
+matches no test is refused on either side of the cutoff, and a descendant of
+the cutoff keeps the strict rule. A cutoff the clone does not hold grandfathers
+nothing. `--cutoff <sha>` names another commit, for a test's throwaway repository.
+
 The job does not _require_ a trailer: that a fix has a red commit is a review
 question, as in elastic/prism. It makes a trailer that is there true.
 
