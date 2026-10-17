@@ -301,7 +301,7 @@ COMPOUNDS = {
     "Jelly Shoes": (("mary jane", "Mary Jane Jelly Shoes"),),
     "Barefoot Shoes": (("sandal", "Sandal Barefoot Shoes"),),
     "Wellies": (("chelsea", "Chelsea Wellies"),),
-    "Bra": (("t-shirt", "T-Shirt Bra"), ("cami", "Cami Bra"), ("corset", "Corset Bra")),
+    "Bra": (("cami", "Cami Bra"), ("corset", "Corset Bra")),
     "Boxers": (("short", "Boxer Shorts"), ("brief", "Boxer Briefs"), ("trunk", "Boxer Trunks")),
     "Dressing Gown": (("hoodie", "Hoodie Dressing Gown"), ("kimono", "Kimono Dressing Gown")),
     "Knickers": (("short", "Short Knickers"), ("cami", "Cami Knickers"),
@@ -319,6 +319,7 @@ COMPOUNDS = {
 #: added only when a shopper meets it as a product name, so these types hold fewer, not an
 #: invented third.
 SHORT_COMPOUNDS: dict[str, str] = {
+    "Bra": "only the cami bra and the corset bra are names; a t-shirt bra is a bra shape",
     "Blouse": "only the dress blouse and the tunic blouse are names a shopper meets",
     "Ballet Pumps": "only ballet slippers and ballet sandals pair another noun with a ballet pump",
     "Chukka Boots": "only sneaker boots and loafer boots are names; a shoe boot is not one",
