@@ -35,7 +35,9 @@ WEIGHTS = REPO / "scripts" / "ci_shard_weights.json"
 DEFAULT_SECONDS = 20.0
 #: Files too heavy for one shard: listed in every shard, their test ids dealt out by
 #: ``keeps`` (tests/ci_shard_split.py).
-SPLIT_FILES: frozenset[str] = frozenset({"tests/test_merge_pr.py"})
+SPLIT_FILES: frozenset[str] = frozenset(
+    {"tests/test_merge_pr.py", "tests/test_merge_pr_github_ci_348.py"}
+)
 
 
 def keeps(index: int, shard: int, count: int) -> bool:
