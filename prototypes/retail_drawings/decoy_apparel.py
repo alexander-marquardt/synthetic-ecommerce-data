@@ -133,6 +133,8 @@ BASE_EXEMPT = {
     "Tote Bag": "an accessory, not a garment: its text words are those of the accessories batch",
     "Umbrella": "an accessory, not a garment: its text words are those of the accessories batch",
     "Shoe Care Kit": "a care product sold in the footwear department, not footwear",
+    "Shoe Polish": "a care product sold in the footwear department, not footwear",
+    "Shoe Laces": "a care product sold in the footwear department, not footwear",
     "Key Clips": "an accessory, not a garment: it carries its own decoys (gen#326)",
     "Travel Cases": "an accessory, not a garment: it carries its own decoys (gen#326)",
     "Waist Bags": "an accessory, not a garment: it carries its own decoys (gen#326)",
