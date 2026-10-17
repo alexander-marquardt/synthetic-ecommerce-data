@@ -291,6 +291,32 @@ def test_no_invented_compound_is_planned_or_titled() -> None:
     assert not REAL_COMPOUNDS & INVENTED_COMPOUNDS
 
 
+def _stems(text: str) -> list[str]:
+    words = re.findall(r"[a-z]+", text.lower())
+    return [w[:-1] if w.endswith("s") and len(w) > 3 else w for w in words]
+
+
+def test_no_class_2_phrase_is_a_live_title_reworded(ceiling: list[dict]) -> None:
+    """#444: a class 2 decoy is not the live product in another word order ("Sandal Wedges" is
+    the live "Wedge Sandals"), so "Not a sandal" would be false of it. Live = every non-decoy
+    title. Only the reversed order is guarded: the wider "incidental word is in a live title"
+    reading reds on about fifteen reviewed phrases (Mule Slippers, Boxer Shorts), a design call."""
+    live: dict[str, list[list[str]]] = {}
+    for rec in ceiling:
+        if rec["product_id"] not in da.IDS and not rec["product_id"].startswith("PLT-D"):
+            live.setdefault(rec["product_type"], []).append(_stems(rec["title"]))
+    bad = []
+    for spec in da.TYPES:
+        titles = live.get(spec.product_type, [])
+        for _, phrase in spec.compounds or da.COMPOUNDS[spec.product_type]:
+            rev = _stems(phrase)[::-1]
+            for t in titles:
+                if any(t[i : i + len(rev)] == rev for i in range(len(t))):
+                    bad.append((spec.product_type, phrase, " ".join(t)))
+                    break
+    assert not bad, bad
+
+
 def test_every_type_has_three_real_compounds_or_a_declared_reason() -> None:
     """#444: a type with fewer than three real compounds is a declared exception, with its
     reason, and the generator text of the docs says so; an exception that no longer applies reds.
