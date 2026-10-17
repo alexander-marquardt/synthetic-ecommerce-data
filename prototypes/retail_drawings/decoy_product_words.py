@@ -48,7 +48,7 @@ OWNERS.update(dict.fromkeys(NEW_BRANDS, "third_party"))
 BRAND_OWNER.update(dict.fromkeys(NEW_BRANDS, "third_party"))
 
 _BR = (("kind", "brogue"), ("material", "leather"), ("closure", "Lace-Up"))
-_CARE = ("Mens", "Accessories", "Shoe Care")
+_CARE = ("Mens", "Accessories", "Shoe Care")  # one node, one department: Footwear (gen#448)
 _STORE = ("Home", "Storage")
 _DIY = ("Home", "DIY & Car")
 _SOFT = ("Home", "Soft Furnishings")
@@ -60,7 +60,7 @@ NEW_KINDS = {
         "Footwear", ("Mens", "Shoes", "Brogues"), "Brogues", "shoe", "Stridewell", 54.0, params=_BR
     ),
     "polish": Kind(
-        "Home",
+        "Footwear",
         (*_CARE, "Shoe Polish"),
         "Shoe Polish",
         "tin",
@@ -69,7 +69,7 @@ NEW_KINDS = {
         colorless=True,
     ),
     "laces": Kind(
-        "Home", (*_CARE, "Shoe Laces"), "Shoe Laces", "shoe_laces", "Calderby & Lune", 2.5
+        "Footwear", (*_CARE, "Shoe Laces"), "Shoe Laces", "shoe_laces", "Calderby & Lune", 2.5
     ),
     "cover": Kind(
         "Home", (*_SOFT, "Sofa Covers"), "Sofa Covers", "sofa_cover", "Hearth & Table", 34.0

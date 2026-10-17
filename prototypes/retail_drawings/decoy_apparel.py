@@ -42,6 +42,7 @@ from dataclasses import dataclass, replace
 import details
 import facet_leaves
 import real_brands
+import type_colors
 import type_registry
 from class_model import SHADE_FAMILY
 from decoy_rows import COLORS
@@ -132,6 +133,8 @@ BASE_EXEMPT = {
     "Tote Bag": "an accessory, not a garment: its text words are those of the accessories batch",
     "Umbrella": "an accessory, not a garment: its text words are those of the accessories batch",
     "Shoe Care Kit": "a care product sold in the footwear department, not footwear",
+    "Shoe Polish": "a care product sold in the footwear department, not footwear",
+    "Shoe Laces": "a care product sold in the footwear department, not footwear",
     "Key Clips": "an accessory, not a garment: it carries its own decoys (gen#326)",
     "Travel Cases": "an accessory, not a garment: it carries its own decoys (gen#326)",
     "Waist Bags": "an accessory, not a garment: it carries its own decoys (gen#326)",
@@ -538,6 +541,7 @@ def build(body: list[dict]) -> list[Row]:
                 ex = exemplars[step % len(exemplars)]
                 step += 1
                 opts = [o for o in _options(cls, spec, ex) if _wanted(cls, i, n, o.get("kind"))
+                        and type_colors.permits(ex["category_path"], o["color"])  # gen#448
                         and (cls not in (6, 7) or len(_title(ex, spec, cls, o).split()) <= 5)
                         and (o["title"], ex["category_path"][0]) not in used
                         and (cls not in (4, 5) or (cls, o["word"]) not in words)]  # fmt: skip

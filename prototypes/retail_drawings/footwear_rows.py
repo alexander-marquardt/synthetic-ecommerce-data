@@ -683,7 +683,7 @@ BOOTS = dz.Row(
         ), "category intent: Boots (a Home item never answers a footwear word)"),
         dz.Distractor(dz.product(
             "BOOTPOL", "Boot Polish & Brush Kit", "Calderby & Lune", "Footwear",
-            ("Mens", "Shoes", "Shoe Care"), 12.0,
+            ("Mens", "Accessories", "Shoe Care"), 12.0,
             "Wax boot polish in black, brown and neutral with a horsehair brush. Feeds leather "
             "boots and keeps boots supple.",
             drawing("tin", cw("Black", "#2a2a2e", "solid", "#c9a24a"), "Polish"),

@@ -66,6 +66,7 @@ NOT_A_CLOSURE = re.compile(
 PATTERN_KIND: dict[str, str] = {
     "plain": "solid",
     "gingham": "gingham",
+    "check": "gingham",
     "striped": "stripe",
     "stripe": "stripe",
     "polka dot": "polka",
