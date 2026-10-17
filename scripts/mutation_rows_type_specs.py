@@ -59,7 +59,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if d.cls not in DECOY_CLASSES:",
         "if False:",
         'tests/test_retail_type_specs_351.py -k "malformed and unknown"',
-        "a decoy class is 1 to 7",
+        "a decoy class is 1 to 8",
         "prototypes/retail_drawings",
     ),
     (
