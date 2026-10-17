@@ -106,6 +106,8 @@ _PLANNED: tuple[Spec, ...] = (
     *_plan("u", "Boxers", "Dressing Gown", "Knickers", "Pyjama Shorts", "Pyjamas", "Shapewear",
            "Slip", "Tights", "Vest"),
     *_plan("a", "School Trousers", "School Skirt", "School Pinafore", "School Shirt"),  # gen#205
+    *_plan("s", "Plimsolls", "Clogs", "Wedges", "Espadrilles", "Platform Trainers", "Mules",
+           "Jelly Shoes", "Barefoot Shoes"),  # gen#216
 )  # fmt: skip
 #: The types planned here, numbered by their place in the plan: ``A00`` for the first. A type of
 #: the registry is numbered by its key instead (``S`` and the key), so adding one moves no id. A
