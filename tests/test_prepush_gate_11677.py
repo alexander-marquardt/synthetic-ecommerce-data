@@ -556,7 +556,7 @@ def test_a_new_step_in_a_job_a_row_mirrors_is_reported(tmp_path: Path) -> None:
             "      - name: Types\n        run: uv run --locked mypy .\n      - name: Lint\n",
         ),
     )
-    assert _prepush().unaccounted(workflows) == ["tests/Types"]
+    assert _prepush().unaccounted(workflows) == ["lint/Types"]
 
 
 def test_a_stricter_ci_lint_is_the_command_the_gate_runs(repo: Path) -> None:
