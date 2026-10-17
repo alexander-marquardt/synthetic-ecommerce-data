@@ -41,7 +41,7 @@ KEYS = {
     "Jigsaw Puzzle": {"piece_count", "age_range", "age_group", "theme", "finished_size"},
     "Board Game": {"min_players", "max_players", "age_range", "age_group", "play_time",
                    "toy_type", "edition"},
-    "Doll": {"toy_type", "height_cm", "accessory_count", "age_range", "age_group", "color"},
+    "Doll": {"toy_type", "item_height", "accessory_count", "age_range", "age_group", "color"},
     "Wooden Toy": {"toy_type", "age_range", "age_group", "fsc_certified", "finish", "material",
                    "color"},
     "Role Play Toy": {"toy_type", "age_range", "age_group", "material", "color"},
