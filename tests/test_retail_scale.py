@@ -29,6 +29,7 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import breadth_rows  # noqa: E402
+import lighting_rows  # noqa: E402
 import scale  # noqa: E402
 from retail_figures import (  # noqa: E402
     GROCERY_INTERSECTION_KEYS,
@@ -556,16 +557,20 @@ def test_the_cli_refuses_a_target_below_one():
     assert "--skus must be at least 1" in done.stderr
 
 
-def _template_attributes(r: dict[str, Any], t: dict[str, Any]) -> list[dict[str, Any]]:
-    """The template's attributes a derived style is expected to carry.
+def _fitted_out(r: dict[str, Any], t: dict[str, Any]) -> set[str]:
+    """The one key a derived style may lose: a pendant derived into a form that does not hang
+    has no ``drop_length`` (``lighting_rows.fit_ceiling_form``, gen#237). Nothing else goes, and
+    a hanging form keeps it, so the exception is exactly the documented one."""
+    if t["product_type"] != "Ceiling Light":
+        return set()
+    form = next((a["value"] for a in r["attributes"] if a["key"] == "fixture_type"), None)
+    return set() if form in lighting_rows.HANGING_FORMS else {"drop_length"}
 
-    A ceiling light derived to a form that does not hang loses ``drop_length`` by design
-    (``lighting_rows.fit_ceiling_form``, gen#237); any other difference stays a failure.
-    """
-    hangs = any(a["key"] == "drop_length" for a in r["attributes"])
-    if r["product_type"] == "Ceiling Light" and not hangs:
-        return [a for a in t["attributes"] if a["key"] != "drop_length"]
-    return t["attributes"]
+
+def _template_attributes(r: dict[str, Any], t: dict[str, Any]) -> list[dict[str, Any]]:
+    """The template's attributes a derived style is expected to carry (less the fitted-out key)."""
+    gone = _fitted_out(r, t)
+    return [a for a in t["attributes"] if a["key"] not in gone]
 
 
 def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):

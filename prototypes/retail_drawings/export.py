@@ -77,6 +77,10 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "fit_length": ("fit_length", "Fit length", None),
     "inside_leg_in": ("inside_leg_length", "Inside leg length", "INH"),
     "waist": ("waist", "Waist", None),
+    # Worn accessories (gen#422): a belt's waist in inches, a hat's and a glove's own size scale.
+    "waist_in": ("waist_size", "Waist size", "INH"),
+    "hat_size": ("hat_size", "Hat size", None),
+    "glove_size_letter": ("glove_size_letter", "Glove size (S to XL)", None),
     "bed_size": ("bed_size", "Bed size", None),
     "width": ("width", "Width", None),
     "height": ("height", "Height", None),

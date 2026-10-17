@@ -285,13 +285,16 @@ SPEC_IDS = type_registry.left_out_ids()
 DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()
 # The class-8 product-word decoys (gen#326) name a detail color on purpose in some rows only:
 # those rows join the exemption, by id, and the rest of the class is checked like any product.
-# The Toys spec decoys of classes 4, 6 and 7 (gen#424) name a color or a feature they lack.
+# The spec decoys of classes 1 to 7 name a color or a feature they lack on purpose: a class 6 decoy
+# holds a color word in its range name ("Green Park Belt") while its structured color is another
+# (gen#422, gen#311; Toys gen#424). The registry lists them by department.
 # PLT-RQHOOP (a rose gold decoy) sits in the Hoop Earrings node since gen#423: its metals are
 # its text pool, and "Gold Plated" names the plating while its color is Yellow Gold.
 TEXT_EXEMPT = (
     DECOY_IDS
     | decoy_product_words.TEXT_EXEMPT
     | type_registry.text_match_decoy_ids("Toys")
+    | type_registry.text_match_decoy_ids("Clothing")
     | type_registry.text_match_decoy_ids("Beauty")
     | {"PLT-RQHOOP"}
 )
