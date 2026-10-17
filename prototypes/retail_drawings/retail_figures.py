@@ -31,6 +31,7 @@ if str(HERE) not in sys.path:
 import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
+import color_word_brand_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
 import decoy_apparel  # noqa: E402
 import decoy_product_words  # noqa: E402
@@ -137,6 +138,7 @@ def measure() -> dict[str, Any]:
         "seasonal_rows": seasonal_rows.docs(),
         "colorgroup_rows": colorgroup_rows.docs(),
         "mens_depth_rows": mens_depth_rows.docs(),
+        "color_word_brand_rows": color_word_brand_rows.docs(),
         "knitwear_rows": knitwear_rows.docs(),
         "needs_rows": needs_rows.docs(),
         "nike_rows": nike_rows.docs(),
