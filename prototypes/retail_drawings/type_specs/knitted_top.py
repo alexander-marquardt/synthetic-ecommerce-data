@@ -22,7 +22,14 @@ SPEC = TypeSpec(
     department="Clothing",
     product_type="Knitted Top",
     derivable=False,
-    apparel=ApparelPlan(),
+    apparel=ApparelPlan(
+        compounds=(
+            ("vest", "Knitted Vest Top"),
+            ("cami", "Knitted Cami Top"),
+            ("polo", "Knitted Polo Top"),
+            ("tunic", "Knitted Tunic Top"),
+        )
+    ),
     rows=tuple(r for r in knitwear_rows.TOP_ROWS if r.code not in _DECOY_CODES),
     decoys=_DECOYS,
 )
