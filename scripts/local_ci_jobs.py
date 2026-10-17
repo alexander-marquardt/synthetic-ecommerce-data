@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Derive the local equivalent of every GitHub Actions job (scripts/merge_pr.sh --local-ci).
 
-GitHub Actions on this repository is billing-blocked, so CI is run locally on
-the merged tree instead. This is the one parser that turns the workflow files
-into what runs, so the list of local jobs is the workflows' job list and not a
-hand-kept copy that drifts.
+``--local-ci`` runs the workflow's jobs on this machine, on the merged tree, instead
+of on GitHub-hosted runners (``--github-ci``, the faster way since #348, runs the
+same workflow there). This is the one parser that turns the workflow files into what
+runs, so the list of local jobs is the workflows' job list and not a hand-kept copy
+that drifts.
 
     local_ci_jobs.py [--workflows DIR] --list
     local_ci_jobs.py [--workflows DIR] --emit JOB --base SHA --head SHA
@@ -16,24 +17,30 @@ hand-kept copy that drifts.
 and the working directory GitHub gives a ``run:`` step.
 
 A job has a local equivalent only if everything in it is understood: the
-``uses:`` steps that merely set the machine up (checkout, uv, python) are
-dropped because the merged tree and the tools are already here; any other
-action, a matrix, a custom shell, or an expression other than the pull
-request's base and head shas is an error, never a silent skip. The ``if:`` of
+``uses:`` steps that merely set the machine up or publish a report (checkout, uv,
+python, upload-artifact) are dropped because the merged tree and the tools are
+already here; any other action, a custom shell, or an expression other than the
+pull request's base and head shas is an error, never a silent skip. The ``if:`` of
 a job is ignored: a pull request's local run executes every job, the
 push-only ``main-merged-tree`` included, since it is the same check on the
 same tree.
 
+A matrix is understood in one shape: ``strategy: {matrix: {shard: [...]}}`` (with
+``fail-fast``), the CI test shards (``scripts/ci_shards.py``). Locally the job runs
+once with ``matrix.shard`` = ``all`` and ``strategy.job-total`` = 1, which is every test
+file in one run, since one machine has no use for N runners. An ``a || b`` expression
+takes the first non-empty value (the pull request's sha, else the dispatched run's input).
+
 Every emitted step runs with ``PYTEST_ADDOPTS`` carrying ``-n <workers> --dist loadgroup``
-(#348): the suite took 47 to 54 minutes on one core and merges are serial, so the suite's
-wall time was the rate pull requests landed. The worker count is the cores or, if fewer,
+(#348; a ``PYTEST_ADDOPTS`` in the workflow's ``env`` is the hosted run's own, ``-n auto``,
+and is not exported here: the count below is the one that fits this machine): the suite
+took 47 to 54 minutes on one core and merges are serial, so the suite's wall time was
+the rate pull requests landed. The worker count is the cores or, if fewer,
 what the memory available allows at ``WORKER_MB`` each (``default_workers``), and never
-fewer than two; ``LOCAL_CI_WORKERS`` replaces it (``0`` is one process). The workflow file is not
-where this lives: the token that pushes it cannot change ``.github/workflows`` and the
-hosted run is billing-blocked, so the local run is the CI that merges.
+fewer than two; ``LOCAL_CI_WORKERS`` replaces it (``0`` is one process).
 ``tests/test_ci_tests_job_parallel_348.py`` runs the emitted script of the real tests job
-and fails if pytest in it gets one worker. ``--pytest-options`` prints the same options
-for ``scripts/merge_pr.sh``'s own check step.
+and fails if pytest in it gets one worker, and reads the workflow itself for the same.
+``--pytest-options`` prints the same options for ``scripts/merge_pr.sh``'s own check step.
 """
 
 from __future__ import annotations
@@ -49,7 +56,12 @@ from pathlib import Path
 import yaml
 
 #: Actions that only prepare the runner; the local tree and tools stand in.
-SETUP_ACTIONS = ("actions/checkout", "astral-sh/setup-uv", "actions/setup-python")
+SETUP_ACTIONS = (
+    "actions/checkout",
+    "astral-sh/setup-uv",
+    "actions/setup-python",
+    "actions/upload-artifact",
+)
 
 _EXPR = re.compile(r"\$\{\{\s*(.*?)\s*\}\}")
 
@@ -141,9 +153,12 @@ def load_jobs(directory: Path) -> dict[str, dict]:
 def _substitute(text: str, values: dict[str, str], where: str) -> str:
     def one(match: re.Match) -> str:
         expression = match.group(1)
-        if expression not in values:
-            raise NoLocalEquivalent(f"{where}: no local value for ${{{{ {expression} }}}}")
-        return values[expression]
+        found = ""
+        for term in (t.strip() for t in expression.split("||")):
+            if term not in values:
+                raise NoLocalEquivalent(f"{where}: no local value for ${{{{ {expression} }}}}")
+            found = found or values[term]
+        return found
 
     return _EXPR.sub(one, text)
 
@@ -156,10 +171,24 @@ def emit(job_id: str, job: dict, base: str, head: str) -> str:
         # Empty: gh treats an empty GH_TOKEN as none, so the local run reads with the
         # signed-in gh (the customer-name-check job's live PR text, #393).
         "github.token": "",
+        # A dispatched run (merge_pr.sh --github-ci) names its range in inputs; this run
+        # has the pull request's own above.
+        "inputs.base": "",
+        "inputs.head": "",
+        "inputs.pr": "",
     }
-    if "strategy" in job or "container" in job or "services" in job:
-        raise NoLocalEquivalent(f"{job_id}: a matrix, container or service has no local equivalent")
-    for key in ("defaults", "continue-on-error", "needs", "timeout-minutes"):
+    if "container" in job or "services" in job:
+        raise NoLocalEquivalent(f"{job_id}: a container or service has no local equivalent")
+    if "strategy" in job:
+        strategy = job["strategy"]
+        matrix = strategy.get("matrix") or {}
+        if set(strategy) - {"matrix", "fail-fast"} or set(matrix) != {"shard"}:
+            raise NoLocalEquivalent(
+                f"{job_id}: only a strategy with a `shard` matrix has a local equivalent"
+            )
+        values["matrix.shard"] = "all"
+        values["strategy.job-total"] = "1"
+    for key in ("defaults", "continue-on-error", "needs"):
         if key in job:
             raise NoLocalEquivalent(f"{job_id}: job key {key!r} is not reproduced locally")
     lines = [f"echo {shlex.quote('== job ' + job_id + ' ==')}"]
@@ -172,13 +201,13 @@ def emit(job_id: str, job: dict, base: str, head: str) -> str:
     ran = 0
     for number, step in enumerate(job.get("steps", []), 1):
         where = f"{job_id} step {number}"
+        if "uses" in step and step["uses"].split("@")[0].startswith(SETUP_ACTIONS):
+            continue  # a setup or report step, whatever its `if:`
         for key in ("if", "continue-on-error", "timeout-minutes"):
             if key in step:
                 raise NoLocalEquivalent(f"{where}: step key {key!r} is not reproduced locally")
         if "uses" in step:
-            if not step["uses"].split("@")[0].startswith(SETUP_ACTIONS):
-                raise NoLocalEquivalent(f"{where}: action {step['uses']!r} has no local equivalent")
-            continue
+            raise NoLocalEquivalent(f"{where}: action {step['uses']!r} has no local equivalent")
         if "run" not in step:
             raise NoLocalEquivalent(f"{where}: neither run nor a known setup action")
         if step.get("shell", "bash") != "bash":
@@ -186,6 +215,7 @@ def emit(job_id: str, job: dict, base: str, head: str) -> str:
         if not isinstance(step["run"], str):
             raise NoLocalEquivalent(f"{where}: run is not a string (quote it)")
         env = {**job.get("env", {}), **step.get("env", {})}
+        env.pop("PYTEST_ADDOPTS", None)  # the hosted run's; this machine's was exported above
         body = _substitute(step["run"], values, where)
         prefix = "".join(
             f"export {key}={shlex.quote(_substitute(str(value), values, where))}\n"
