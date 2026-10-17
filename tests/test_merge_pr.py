@@ -687,6 +687,11 @@ def test_a_stale_lock_is_refused_not_relocked_and_committed(world: dict) -> None
     pyproject = (world["checkout"] / "pyproject.toml").read_text()
     stale_lock = pyproject.replace('"numpy>=1.26",', '"numpy>=1.26",\n    "pyyaml>=6.0.3",', 1)
     head = _open_pr(world, {"pyproject.toml": stale_lock})
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        # Deciding that the lock is stale re-resolves it, which needs the index; a hosted
+        # runner has the network and a cold cache, a developer's machine the warm cache.
+        for name in ("UV_OFFLINE", "FAKE_UV_DNS_DOWN", *_NO_NAME_RESOLUTION):
+            world["env"].pop(name, None)
     result = _run(world, head, _GREEN_CHECK)
     assert result.returncode != 0
     assert "--locked" in result.stderr, result.stderr[-800:]
