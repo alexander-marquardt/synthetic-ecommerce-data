@@ -72,6 +72,7 @@ TOYS_ROWS = FIGURES["templates"]["toys_rows"]["styles"]
 SEASONAL_ROWS = FIGURES["templates"]["seasonal_rows"]["styles"]
 COLORGROUP_ROWS = FIGURES["templates"]["colorgroup_rows"]["styles"]
 MENS_DEPTH_ROWS = FIGURES["templates"]["mens_depth_rows"]["styles"]
+KNITWEAR_ROWS = FIGURES["templates"]["knitwear_rows"]["styles"]
 NEEDS_ROWS = FIGURES["templates"]["needs_rows"]["styles"]
 NIKE_ROWS = FIGURES["templates"]["nike_rows"]["styles"]
 TYPE_SPEC_ROWS = FIGURES["templates"]["type_specs"]["styles"]
@@ -102,6 +103,7 @@ TEMPLATES = (
     + SEASONAL_ROWS
     + COLORGROUP_ROWS
     + MENS_DEPTH_ROWS
+    + KNITWEAR_ROWS
     + NEEDS_ROWS
     + NIKE_ROWS
     + TYPE_SPEC_ROWS
