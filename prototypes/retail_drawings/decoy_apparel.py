@@ -14,16 +14,19 @@ The classes (the numbers follow the issue):
 1. **part**: the color word names a strap, a sole, a waistband ("Bra with Red Straps": the title
    names the misleading color only, the structured color is the true one and the drawing shows
    the named part in the named color, :mod:`details`).
-2. **type**: another category's noun as a modifier ("Navy Jumper Dress", "Cream Trouser Socks").
+2. **type**: another category's noun in a real compound ("Navy Shirt Dress", "Cream Trouser Socks";
+   :data:`COMPOUNDS`, never an invented one such as "Dress Pyjamas").
 3. **audience**: an audience word of a sibling version ("Black Mens-Style Jeans", a women's style).
 4. **absent**: a material or feature named but absent ("Black Leather-Look Jacket").
 5. **shade**: the shade is spelled in the description only ("Moonbeam Dress", "in soft ivory").
-6. **incidental**: a range name holds a color or a category word ("Red Harbour Jumper", ivory).
-7. **brand**: an invented brand holds a color or a category word ("Red Plover Bra", blue).
+6. **incidental**: a range name, a place, holds a category word ("Jumper Lane Dress"). Never a
+   color word (#444: "Red Harbour Dress" read as a red dress by a strange brand).
+7. **brand**: an invented brand holds a color or a category word ("Red Plover Bra", blue); the
+   brand field holds the same words and the drawing colors no part (#444).
 
 Every type gets :attr:`Spec.per_class` decoys per class (three, more for Bra and Jeans, which
-are large, so a type holds at least a tenth of its size), one more of class 6 on a category word,
-and at most eight of class 7 (one per brand). Titles of classes 6 and 7 are five words or fewer, so
+are large, so a type holds at least a tenth of its size), and at most eight of class 7 (one per
+brand). Titles of classes 6 and 7 are five words or fewer, so
 the word sits where the text score weights it most. A type missing from the catalog, or one the
 catalog gains, reds ``tests/test_retail_apparel_decoys_311.py`` until it is planned or exempt.
 Names are invented. :func:`ids` (``IDS``) is what :mod:`scale` leaves out of its derivation and
@@ -79,11 +82,12 @@ class Spec:
     family: str = "a"
     per_class: int = 3
     prefix: str = ""  # what a decoy id of the type starts with after ``PLT-D``
+    compounds: tuple[tuple[str, str], ...] = ()  # a registry type's own (word, phrase) pairs
 
     @property
     def classes(self) -> dict[int, int]:
         n = self.per_class
-        return {1: n, 2: n, 3: n, 4: n, 5: n, 6: n + 1, 7: min(n, len(BRANDS))}
+        return {1: n, 2: n, 3: n, 4: n, 5: n, 6: n, 7: min(n, len(BRANDS))}
 
 
 def _plan(family: str, *names: str) -> tuple[Spec, ...]:
@@ -160,7 +164,8 @@ def _merged_for(registered: tuple) -> tuple[tuple[Spec, ...], dict[str, str], fr
         if (plan or why) and ptype in seen:
             raise type_registry.SpecError(f"{key}: {ptype} is already planned (apparel) here")
         if plan:
-            types.append(Spec(ptype, plan.family, plan.per_class, f"S{key.upper()}"))
+            prefix = f"S{key.upper()}"
+            types.append(Spec(ptype, plan.family, plan.per_class, prefix, plan.compounds))
         elif why:
             exempt[ptype] = why
         elif in_scope and ptype not in seen:
@@ -200,40 +205,146 @@ def __getattr__(name: str):  # PEP 562: ``TYPES``, ``EXEMPT`` and ``IDS`` follow
 
 
 # -- the words ------------------------------------------------------------------------------------
-MODS = {
-    "a": (
-        "Shirt",
-        "Jumper",
-        "Jacket",
-        "Coat",
-        "Dress",
-        "Skirt",
-        "Blazer",
-        "Cardigan",
-        "Trouser",
-        "Vest",
-        "Hoodie",
-        "Gilet",
-        "Tunic",
-        "Poncho",
-    ),
-    "b": ("Dress", "Vest", "Shirt", "Top", "Jumper", "Slip", "Bodysuit", "Cami", "Skirt"),
-    "u": ("Dress", "Shirt", "Skirt", "Short", "Vest", "Top", "Trouser", "Bra", "Cami"),
-    "s": (
-        "Boot",
-        "Sock",
-        "Slipper",
-        "Sandal",
-        "Trainer",
-        "Loafer",
-        "Sneaker",
-        "Pump",
-        "Shoe",
-        "Heel",
-        "Mule",
-    ),
-    "k": ("Boot", "Trouser", "Shoe", "Trainer", "Slipper", "Loafer", "Sandal", "Sneaker"),
-}  # noqa: E501
+#: Class 2: the compounds a shopper reads as a real product name (dress shirt, shirt dress, slipper
+#: socks), per type, each as (the word it targets, the phrase). A phrase keeps the type's head noun
+#: and puts another category's noun before it; it drops the type's own modifier only where the
+#: shorter name still describes the product (Sandal Boots for Ankle Boots). An invented compound
+#: ("Dress Pyjamas", "Trouser Blouse") is in no row (#444); the test file holds the list apart.
+COMPOUNDS = {
+    "Blouse": (("dress", "Dress Blouse"), ("shirt", "Shirt Blouse"), ("tunic", "Tunic Blouse")),
+    "Bodysuit": (("shirt", "Shirt Bodysuit"), ("corset", "Corset Bodysuit"),
+                 ("cami", "Cami Bodysuit")),
+    "Bomber Jacket": (("shirt", "Shirt Jacket"), ("blazer", "Blazer Jacket"),
+                      ("biker", "Biker Jacket")),
+    "Cardigan": (("kimono", "Kimono Cardigan"), ("duster", "Duster Cardigan"),
+                 ("bomber", "Bomber Cardigan")),
+    "Coat": (("dress", "Dress Coat"), ("puffer", "Puffer Coat"), ("duffle", "Duffle Coat")),
+    "Co-ord Set": (("skirt", "Skirt Co-ord Set"), ("trouser", "Trouser Co-ord Set"),
+                   ("shirt", "Shirt Co-ord Set"), ("short", "Short Co-ord Set")),
+    "Cycling Shorts": (("dress", "Dress Shorts"), ("cargo", "Cargo Shorts"),
+                       ("tailored", "Tailored Shorts")),
+    "Denim Jacket": (("shirt", "Denim Shirt Jacket"), ("bomber", "Denim Bomber Jacket"),
+                     ("biker", "Denim Biker Jacket")),
+    "Dress": (("shirt", "Shirt Dress"), ("jumper", "Jumper Dress"), ("blazer", "Blazer Dress"),
+              ("hoodie", "Hoodie Dress"), ("tunic", "Tunic Dress"), ("coat", "Coat Dress")),
+    "Joggers": (("chino", "Chino Joggers"), ("cargo", "Cargo Joggers"),
+                ("denim", "Denim Joggers")),
+    "Jumper": (("tunic", "Tunic Jumper"), ("polo", "Polo Jumper")),
+    "Leggings": (("cargo", "Cargo Leggings"), ("denim", "Denim Leggings"),
+                 ("cycling", "Cycling Leggings")),
+    "Outfit Set": (("skirt", "Skirt Set"), ("trouser", "Trouser Set"), ("short", "Short Set"),
+                   ("blazer", "Blazer Set")),
+    "Puffer Jacket": (("shirt", "Shirt Jacket"), ("bomber", "Bomber Jacket"),
+                      ("biker", "Biker Jacket")),
+    "Shirt": (("dress", "Dress Shirt"), ("polo", "Polo Shirt"), ("tunic", "Tunic Shirt")),
+    "Shorts": (("dress", "Dress Shorts"), ("tailored", "Tailored Shorts"),
+               ("jean", "Jean Shorts"), ("chino", "Chino Shorts"), ("cargo", "Cargo Shorts")),
+    "Skirt": (("jean", "Jean Skirt"), ("slip", "Slip Skirt"), ("cargo", "Cargo Skirt")),
+    "Suit Jacket": (("blazer", "Blazer Jacket"), ("dress", "Dress Jacket"),
+                    ("shirt", "Shirt Jacket")),
+    "Sweatshirt": (("polo", "Polo Sweatshirt"), ("hoodie", "Hoodie Sweatshirt"),
+                   ("tunic", "Tunic Sweatshirt")),
+    "T-Shirt": (("polo", "Polo T-Shirt"), ("tunic", "Tunic T-Shirt")),
+    "Tea Dress": (("shirt", "Shirt Dress"), ("tunic", "Tunic Dress"), ("jumper", "Jumper Dress")),
+    "Tee": (("polo", "Polo Tee"), ("tunic", "Tunic Tee")),
+    "Top": (("vest", "Vest Top"), ("cami", "Cami Top"), ("polo", "Polo Top"),
+            ("tunic", "Tunic Top"), ("bodysuit", "Bodysuit Top")),
+    "Tracksuit": (("hoodie", "Hoodie Tracksuit"), ("short", "Short Tracksuit"),
+                  ("jogger", "Jogger Tracksuit")),
+    "Trousers": (("cargo", "Cargo Trousers"), ("chino", "Chino Trousers"),
+                 ("jogger", "Jogger Trousers"), ("dress", "Dress Trousers")),
+    "Jeans": (("cargo", "Cargo Jeans"), ("jogger", "Jogger Jeans")),
+    "School Trousers": (("chino", "Chino School Trousers"), ("jogger", "Jogger School Trousers"),
+                        ("cargo", "Cargo School Trousers")),
+    "School Skirt": (("pinafore", "Pinafore School Skirt"),),
+    "School Pinafore": (("dress", "School Pinafore Dress"),),
+    "School Shirt": (("polo", "School Polo Shirt"), ("oxford", "Oxford School Shirt")),
+    "Socks": (("boot", "Boot Socks"), ("trouser", "Trouser Socks"), ("slipper", "Slipper Socks"),
+              ("trainer", "Trainer Socks"), ("sneaker", "Sneaker Socks")),
+    "Boot Socks": (("welly", "Welly Boot Socks"), ("wellington", "Wellington Boot Socks"),
+                   ("walking", "Walking Boot Socks")),
+    "Ankle Boots": (("sandal", "Sandal Boots"), ("sneaker", "Sneaker Boots"),
+                    ("loafer", "Loafer Boots"), ("shoe", "Shoe Boots")),
+    "Ballet Pumps": (("slipper", "Ballet Slippers"), ("sandal", "Ballet Sandals")),
+    "Block Heels": (("mule", "Mule Heels"), ("loafer", "Loafer Heels"), ("sandal", "Sandal Heels")),
+    "Brogues": (("dress", "Dress Brogues"), ("derby", "Derby Brogues"),
+                ("oxford", "Oxford Brogues")),
+    "Chelsea Boots": (("sneaker", "Sneaker Boots"), ("loafer", "Loafer Boots"),
+                      ("slipper", "Slipper Boots")),
+    "Chukka Boots": (("sneaker", "Sneaker Boots"), ("loafer", "Loafer Boots"),
+                     ("shoe", "Shoe Boots")),
+    "Court Shoes": (("dress", "Dress Shoes"),),
+    "Kitten Heels": (("mule", "Mule Heels"), ("sandal", "Sandal Heels"),
+                     ("loafer", "Loafer Heels")),
+    "Knee High Boots": (("sock", "Sock Boots"), ("sneaker", "Sneaker Boots"),
+                        ("biker", "Biker Boots")),
+    "Loafers": (("mule", "Mule Loafers"), ("brogue", "Brogue Loafers")),
+    "Running Shoes": (("walking", "Walking Shoes"), ("tennis", "Tennis Shoes"),
+                      ("training", "Training Shoes")),
+    "Safety Boots": (("wellington", "Wellington Safety Boots"),
+                     ("chelsea", "Chelsea Safety Boots"), ("hiker", "Hiker Safety Boots")),
+    "Sandals": (("loafer", "Loafer Sandals"), ("mule", "Mule Sandals"),
+                ("espadrille", "Espadrille Sandals")),
+    "School Shoes": (("dress", "Dress Shoes"), ("loafer", "Loafer School Shoes"),
+                     ("brogue", "Brogue School Shoes")),
+    "Slippers": (("boot", "Boot Slippers"), ("sock", "Sock Slippers"),
+                 ("loafer", "Loafer Slippers"), ("mule", "Mule Slippers")),
+    "Trainers": (("sock", "Sock Trainers"), ("running", "Running Trainers"),
+                 ("walking", "Walking Trainers")),
+    "Walking Boots": (("chukka", "Chukka Walking Boots"),),
+    "Plimsolls": (("sneaker", "Sneaker Plimsolls"),),
+    "Clogs": (("mule", "Mule Clogs"),),
+    "Wedges": (("sneaker", "Sneaker Wedges"),),
+    "Espadrilles": (("sneaker", "Sneaker Espadrilles"),),
+    "Platform Trainers": (("sock", "Sock Platform Trainers"),),
+    "Mules": (("loafer", "Loafer Mules"), ("slipper", "Slipper Mules"), ("sandal", "Sandal Mules")),
+    "Jelly Shoes": (("mary jane", "Mary Jane Jelly Shoes"),),
+    "Barefoot Shoes": (("sandal", "Sandal Barefoot Shoes"),),
+    "Wellies": (("chelsea", "Chelsea Wellies"),),
+    "Bra": (("cami", "Cami Bra"), ("corset", "Corset Bra")),
+    "Boxers": (("short", "Boxer Shorts"), ("brief", "Boxer Briefs"), ("trunk", "Boxer Trunks")),
+    "Dressing Gown": (("hoodie", "Hoodie Dressing Gown"), ("kimono", "Kimono Dressing Gown")),
+    "Knickers": (("short", "Short Knickers"), ("cami", "Cami Knickers"),
+                 ("bikini", "Bikini Knickers")),
+    "Pyjama Shorts": (("boxer", "Boxer Shorts"), ("cycling", "Cycling Shorts"),
+                      ("bermuda", "Bermuda Shorts")),
+    "Pyjamas": (("short", "Short Pyjamas"), ("cami", "Cami Pyjamas")),
+    "Shapewear": (("bodysuit", "Bodysuit Shapewear"), ("cami", "Cami Shapewear"),
+                  ("slip", "Slip Shapewear")),
+    "Slip": (("dress", "Dress Slip"), ("skirt", "Skirt Slip"), ("cami", "Cami Slip")),
+    "Tights": (("running", "Running Tights"), ("cycling", "Cycling Tights")),
+    "Vest": (("cami", "Cami Vest"), ("dress", "Dress Vest"), ("sweater", "Sweater Vest")),
+}
+#: Types with fewer than three real class 2 compounds, each with its reason (#444): a phrase is
+#: added only when a shopper meets it as a product name, so these types hold fewer, not an
+#: invented third.
+SHORT_COMPOUNDS: dict[str, str] = {
+    "Bra": "only the cami bra and the corset bra are names; a t-shirt bra is a bra shape",
+    "Blouse": "only the dress blouse and the tunic blouse are names a shopper meets",
+    "Ballet Pumps": "only ballet slippers and ballet sandals pair another noun with a ballet pump",
+    "Chukka Boots": "only sneaker boots and loafer boots are names; a shoe boot is not one",
+    "Tee": "only the polo tee and the tunic tee name another category; a henley is a tee",
+    "T-Shirt": "only the polo and tunic t-shirt name another category; a henley is a t-shirt",
+    "Jumper": "only the tunic jumper and the polo jumper are names a shopper meets",
+    "Jeans": "only cargo jeans and jogger jeans are names a shopper meets",
+    "School Skirt": "only the pinafore school skirt is a name a shopper meets",
+    "School Pinafore": "a school pinafore dress is the only compound name of it",
+    "School Shirt": "only the school polo shirt and the oxford school shirt are names met",
+    "Court Shoes": "only dress shoes pairs another category's noun with a court shoe",
+    "Loafers": "only mule loafers and brogue loafers are names a shopper meets",
+    "Walking Boots": "only the chukka walking boot is a name a shopper meets",
+    "Plimsolls": "only the sneaker plimsoll is a name met; a pump or a trainer is a plimsoll",
+    "Clogs": "only the mule clog is a name a shopper meets",
+    "Wedges": "only the sneaker wedge is a name; a sandal wedge is a wedge sandal",
+    "Espadrilles": "only the sneaker espadrille is a name; a wedge espadrille is an espadrille",
+    "Platform Trainers": "only the sock platform trainer is a name a shopper meets",
+    "Jelly Shoes": "only the mary jane jelly shoe is a name a shopper meets",
+    "Barefoot Shoes": "only the sandal barefoot shoe is a name a shopper meets",
+    "Wellies": "only the chelsea welly is a name a shopper meets",
+    "Dressing Gown": "only hoodie and kimono dressing gowns are names a shopper meets",
+    "Tights": "only running tights and cycling tights are names a shopper meets",
+    "Pyjamas": "only short pyjamas and cami pyjamas are names a shopper meets",
+}
 AUDIENCE = {"Womens": (("Mens-Style", "mens"), ("Mens Fit", "mens"), ("Boys Fit", "boys")),
             "Mens": (("Womens-Style", "womens"), ("Womens Fit", "womens"), ("Girls Fit", "girls")),
             "Kids": (("Mini-Me Mens", "mens"), ("Mini-Me Womens", "womens"),
@@ -263,19 +374,17 @@ SHADES = (("Moonbeam", "Ivory", "#f6f1e1", "cream"), ("Driftwood", "Taupe", "#8b
           ("Biscuit", "Champagne", "#f1e0c0", "cream"), ("Hearth", "Khaki", "#b5a57a", "green"),
           ("Cobble", "Camel", "#c19a6b", "brown"), ("Silt", "Stone", "#cfc6b8", "cream"),
           ("Tallow", "Oatmeal", "#d8cdb4", "cream"), ("Quill", "Aubergine", "#4b2a45", "brown"))  # fmt: skip  # noqa: E501
-RANGES = {  # color word -> (range name, what it is named for)
-    "red": (("Red Harbour", "a small fishing harbour"), ("Red Fern", "a fern of the hills")),
-    "blue": (("Blue Meadow", "a meadow of cornflowers"), ("Blue Cove", "a sheltered cove")),
-    "green": (("Green Park", "a city park"), ("Green Hollow", "a wooded hollow")),
-    "yellow": (("Yellow Brook", "a brook lined with buttercups"),
-               ("Yellow Marsh", "a salt marsh")),
-    "black": (("Black Mill", "a disused mill"), ("Black Tor", "a granite tor")),
-    "white": (("White Cliff", "a chalk cliff"), ("White Moor", "an upland moor")),
-}  # fmt: skip
+#: Class 6: a range name is a place, never a color (#444: "Red Harbour Dress" read as a red dress
+#: by a strange brand, and a title may not claim a color the product lacks), so the first word is a
+#: category word and the name is a place. At least twelve, for Jeans (twelve per class).
 CATEGORY_RANGES = (("Jumper Lane", "a village lane"), ("Coat Hook", "a headland"),
                    ("Shirt Row", "a terrace of cottages"), ("Dress Circle", "a theatre tier"),
                    ("Boot Hill", "a wooded hill"), ("Skirt Point", "a rocky point"),
-                   ("Jacket Quay", "a harbour quay"), ("Sock Hop", "a village dance"))  # fmt: skip
+                   ("Jacket Quay", "a harbour quay"), ("Sock Hop", "a village dance"),
+                   ("Shoe Lane", "a lane by the old market"), ("Cardigan Bay", "a wide bay"),
+                   ("Blazer Court", "a courtyard of flats"), ("Slipper Brook", "a slow brook"),
+                   ("Sandal Wood", "a stand of sandalwood"), ("Pump Lane", "a lane by a pump"),
+                   ("Slip Road", "a road onto the moor"))  # fmt: skip
 
 
 @dataclass(frozen=True)
@@ -353,15 +462,20 @@ def _clone(
     keep["drawing"] = {k: v for k, v in keep["drawing"].items() if k != "accents"} | {
         "pattern": "solid", "base": hexv, "accent": "#333333",
         "motif": None, "placement": None}  # fmt: skip
-    if detail:  # a named part (classes 1, 6, 7) is drawn in the named color: the title is true
+    if detail:  # a named part (class 1) is drawn in the named color: the title is true
         keep["drawing"]["detail"] = {"part": detail[0], "color": detail[1]}
     return product(f"PLT-D{code}", skus, {color_tuple[0]: swatch(color_tuple, family)}, **keep)
+
+
+def _a(word: str) -> str:
+    """The article before ``word``: "an oxford", "a boot"."""
+    return "an" if word[:1].lower() in "aeiou" else "a"
 
 
 def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
     """Every decoy of class ``cls`` this exemplar can carry: title, description, word, query,
     color. Any option whose word the exemplar's own fields hold is left out."""
-    fam, noun = spec.family, spec.product_type
+    noun = spec.product_type
     n = noun.lower()
     path_has = lambda w: _in_path(w, ex)  # noqa: E731
     out = []
@@ -381,15 +495,20 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
                             )
                         )
     elif cls == 2:
-        for mod in (m for m in MODS[fam] if not path_has(m.lower())):
+        pairs = spec.compounds or COMPOUNDS.get(noun)
+        if not pairs:
+            raise ValueError(f"{noun}: no real class 2 compound; add it to COMPOUNDS")
+        for word, phrase in (w for w in pairs if not path_has(w[0])):
             for c in PRODUCT_COLORS:
                 out.append(
                     dict(
-                        title=f"{c} {mod} {noun}",
-                        word=mod.lower(),
+                        title=f"{c} {phrase}",
+                        phrase=phrase,
+                        word=word,
                         color=c,
-                        desc=f"{c} {n} with {mod.lower()}-style detailing. Not a {mod.lower()}.",
-                        query=mod.lower(),
+                        desc=f"{c} {n} with {word}-style detailing, sold as "
+                        f'"{phrase.lower()}". Not {_a(word)} {word}.',
+                        query=word,
                     )
                 )
     elif cls == 3:
@@ -432,20 +551,6 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
                 )
             )
     elif cls == 6:
-        for word, ranges in RANGES.items():
-            for name, gloss in ranges:
-                for c in PRODUCT_COLORS:
-                    if c.lower() != word:
-                        out.append(
-                            dict(
-                                title=f"{name} {noun}",
-                                word=word,
-                                color=c,
-                                desc=f"{c} {n} from the {name} range, named for {gloss}.",
-                                query=f"{word} {n}",
-                                kind="color",
-                            )
-                        )
         for name, gloss in CATEGORY_RANGES:
             if not path_has(name.split()[0].lower()):
                 for c in PRODUCT_COLORS:
@@ -455,7 +560,6 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
                             word=name.split()[0].lower(),
                             color=c,
                             query=name.split()[0].lower(),
-                            kind="category",
                             desc=f"{c} {n} from the {name} range, named for {gloss}.",
                         )
                     )
@@ -478,17 +582,13 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
 
 
 def _detail(ex: dict, cls: int, o: dict) -> tuple[str, str] | None:
-    """The part a decoy draws in its title's color: the part a class 1 title names, the type's
-    first part for a class 6 or 7 color word (its title names none), else ``None``."""
-    if cls not in (1, 6, 7) or o["word"] not in MAIN_WORDS:
+    """The part a decoy draws in its title's color: the part a class 1 title names, else ``None``.
+    A class 7 brand holds its color word in the brand field only (#444): the drawing colors no
+    part, as no field says the product has one."""
+    if cls != 1 or o["word"] not in MAIN_WORDS:
         return None
     part = o.get("part") or details.parts_of(ex["drawing"]["shape"])[0]
     return part, DETAIL_HEX[o["word"].title()]
-
-
-def _wanted(cls: int, i: int, n: int, kind: str | None) -> bool:
-    """Class 6: the last row of a type is the category-word one, the others a color word."""
-    return cls != 6 or (kind == "category") == (i == n - 1)
 
 
 def _fit(ex: dict) -> str | None:
@@ -510,7 +610,9 @@ def _title(ex: dict, spec: Spec, cls: int, o: dict) -> str:
     title = o["title"]
     fit = _fit(ex)
     if fit and fit.lower() not in title.lower() and spec.product_type in title:
-        title = title.replace(spec.product_type, f"{fit} {spec.product_type}", 1)
+        # a class 2 compound takes the fit before it ("Slim Cargo Jeans"), never inside it
+        head = o["phrase"] if cls == 2 else spec.product_type
+        title = title.replace(head, f"{fit} {head}", 1)
     return title
 
 
@@ -537,8 +639,8 @@ def build(body: list[dict]) -> list[Row]:
             for i in range(n):
                 ex = exemplars[step % len(exemplars)]
                 step += 1
-                opts = [o for o in _options(cls, spec, ex) if _wanted(cls, i, n, o.get("kind"))
-                        and (cls not in (6, 7) or len(_title(ex, spec, cls, o).split()) <= 5)
+                opts = [o for o in _options(cls, spec, ex)
+                        if (cls not in (6, 7) or len(_title(ex, spec, cls, o).split()) <= 5)
                         and (o["title"], ex["category_path"][0]) not in used
                         and (cls not in (4, 5) or (cls, o["word"]) not in words)]  # fmt: skip
                 if not opts:
@@ -605,15 +707,30 @@ Kids clothing, footwear and lingerie, products whose words mislead a plain text 
 structured fields tell the truth (gen#294's rule; `decoy_rows.py` holds the demo-query rows). A
 decoy is a clone of one real style of its type in one main color. The color, category and audience
 policies read the fields and drop it. The classes: 1 a color word names a trim or strap; 2 another
-category's noun is a modifier; 3 an audience word of a sibling version; 4 a material or feature
-named but absent; 5 the shade is in the description only; 6 a short range name holds a color word
-(or a category word); 7 an invented brand holds a color or category word.
+category's noun in a real compound; 3 an audience word of a sibling version; 4 a material or
+feature named but absent; 5 the shade is in the description only; 6 a short range name, a place,
+holds a category word; 7 an invented brand holds a color or category word.
 
 Each type holds at least three decoys per class (nine and twelve for bras and jeans, so a type
-holds a tenth of its size), one more of class 6 on a category word, and one class 7 decoy per brand.
+holds a tenth of its size), and one class 7 decoy per brand (at most eight).
 Classes 6 and 7 have titles of five words or fewer. A title names the misleading color only
-(never the real one); the drawing shows the named part (class 1) or the type's first part
-(classes 6 and 7) in that color, and nothing else of it (`details.py`). The Policy column is
+(never the real one); the drawing shows the named part (class 1) in that color, and nothing else
+of it (`details.py`). A class 7 brand holds its color word in the brand field only, and its
+drawing colors no part: "Yellow Wagtail Co-ord Set" is a blue co-ord set with no yellow part.
+
+A decoy must read as a real product and describe what it is (#444). A color word sits in the
+title only as an invented brand that is the product's brand field and is shown as the brand
+(class 7: "Red Plover Bra"), or as a part that really is that color and the drawing shows
+(class 1: "Bra with Red Straps"). So class 6 has no color variant: a range name such as "Red
+Harbour" read as a red dress by a strange brand, with only the straps drawn red, and a range that
+is a visible line of the product's brand would only repeat class 7. Class 6 keeps its category
+word variant, a range named for a place ("Jumper Lane Dress"). Class 2 uses the compounds of
+`decoy_apparel.COMPOUNDS` (dress shirt, shirt dress, slipper socks), each a real retail name,
+never an invented one ("Dress Pyjamas"); a compound drops a type's own modifier only where the
+shorter name still describes the product (Sandal Boots for Ankle Boots).
+`tests/test_retail_apparel_decoys_311.py` holds the reviewed list of real compounds apart from the
+generator's table, and a type holds at least three, except the declared exceptions below. The
+Policy column is
 `generic` where the color, category or audience policy separates the decoy, and
 `special: <name>` where it needs its own
 (a material claim: no field says the product is not leather). The exempt types are in
@@ -624,8 +741,17 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 """
 
 
+def short_compounds_text() -> str:
+    """The docs paragraph naming each type with fewer than three real class 2 compounds."""
+    items = "\n".join(f"- {t}: {why}." for t, why in sorted(SHORT_COMPOUNDS.items()))
+    return (
+        "Types with fewer than three real class 2 compounds (a third is never invented; "
+        "#444):\n\n" + items + "\n\n"
+    )
+
+
 def render_doc(rows: list[Row]) -> str:
-    return DOC_HEAD + table_markdown(rows) + "\n"
+    return DOC_HEAD + short_compounds_text() + table_markdown(rows) + "\n"
 
 
 def write_doc() -> str:
