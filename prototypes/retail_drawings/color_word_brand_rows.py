@@ -66,11 +66,13 @@ class CRow(Row):
 
 
 _FD = "Food & Drink"
-_PANTRY = (_FD, "Pantry")
+_TINNED = (_FD, "Food Cupboard", "Tinned")
+_SUGAR = (_FD, "Food Cupboard", "Sugar")
+_OATS = (_FD, "Breakfast", "Porridge & Oats")
 _WINE = (_FD, "Beer, Wine & Spirits", "Wine", "Red Wine")
 _WHISKY = (_FD, "Beer, Wine & Spirits", "Spirits", "Whisky")
 _BEER = (_FD, "Beer, Wine & Spirits", "Beer", "Wheat Beer")
-_WATER = (_FD, "Soft Drinks", "Flavoured Water")
+_WATER = (_FD, "Drinks", "Soft Drinks")
 _CUSH = ("Home", "Soft Furnishings", "Cushions")
 _TOWEL = ("Home", "Bathroom", "Bath Towels")
 _DIY = ("Home", "DIY & Tools")
@@ -97,14 +99,14 @@ ROWS = (
         "Green Harrow Sweetcorn Kernels",
         "Green Harrow",
         _FD,
-        (*_PANTRY, "Tinned Vegetables"),
-        "Sweetcorn",
+        _TINNED,
+        "Tinned Food",
         1.2,
         "tin",
         "Golden kernels in lightly salted water, ready to heat or toss into a salad.",
         (cw("Yellow", "#f2c14b", "solid", "#efe8d8"),),
         _a1("vegetable", "Vegetable", "Sweetcorn"),
-        label="Sweetcorn",
+        label="Sweetcorn Kernels",
         colorless=True,
         color_word="Green",
         true_color="Yellow",
@@ -115,7 +117,7 @@ ROWS = (
         "Silver Sedge Caster Sugar",
         "Silver Sedge",
         _FD,
-        (*_PANTRY, "Sugar"),
+        _SUGAR,
         "Sugar",
         1.6,
         "box",
@@ -133,7 +135,7 @@ ROWS = (
         "Silver Sedge Demerara Sugar",
         "Silver Sedge",
         _FD,
-        (*_PANTRY, "Sugar"),
+        _SUGAR,
         "Sugar",
         1.9,
         "box",
@@ -152,7 +154,7 @@ ROWS = (
         "Blue Heddon",
         _FD,
         (_FD, "Biscuits & Snacks", "Nuts & Popcorn"),
-        "Nuts",
+        "Nuts & Popcorn",
         2.8,
         "pouch",
         "Whole almonds roasted in their skins, a brown snack by the handful. 200 g.",
@@ -169,8 +171,8 @@ ROWS = (
         "Red Linnet Porridge Oats",
         "Red Linnet",
         _FD,
-        (*_PANTRY, "Oats"),
-        "Oats",
+        _OATS,
+        "Porridge",
         1.5,
         "box",
         "Rolled oats for porridge and flapjacks, cooked in four minutes. 1 kg.",
@@ -189,7 +191,7 @@ ROWS = (
         "Yellow Skerry",
         _FD,
         _WINE,
-        "Red Wine",
+        "Wine",
         7.5,
         "bottle",
         "A soft, plummy red with ripe berries and a smooth finish.",
@@ -207,13 +209,13 @@ ROWS = (
         "Yellow Skerry",
         _FD,
         _WINE,
-        "Red Wine",
+        "Wine",
         11.0,
         "bottle",
         "An oak-aged red from old vines, with cherry, vanilla and a long finish.",
         (cw("Burgundy", "#5a1a2a", "solid", "#efe8d8"),),
         _w("Tempranillo", "Spain", 13.5),
-        label="Rioja",
+        label="Rioja Reserva",
         colorless=True,
         color_word="Yellow",
         true_color="Red",
@@ -282,7 +284,7 @@ ROWS = (
         "Vine & Valley",
         _FD,
         _WATER,
-        "Flavoured Water",
+        "Soft Drink",
         0.9,
         "bottle",
         "Clear sparkling water with a touch of cherry flavour. No sugar. 500 ml.",
@@ -301,7 +303,7 @@ ROWS = (
         "Vine & Valley",
         _FD,
         _BEER,
-        "Wheat Beer",
+        "Beer",
         1.9,
         "tin",
         "A cloudy orange-gold wheat beer brewed with coriander and orange peel. 4.8%.",
@@ -501,9 +503,19 @@ ROWS = (
 )
 
 
+#: The one type these rows introduce: it is registered through its spec file (gen#351), which
+#: takes its rows from here, so :func:`docs` leaves them out (the spec's documents carry them).
+SPEC_TYPES = frozenset({"Sugar"})
+
+
+def spec_rows(product_type: str) -> tuple[CRow, ...]:
+    """The rows of one spec-registered type, for its ``type_specs`` file."""
+    return tuple(r for r in ROWS if r.product_type == product_type)
+
+
 def docs() -> list[dict]:
-    """Every row's catalog document."""
-    return [r.doc() for r in ROWS]
+    """Every row's catalog document, but the rows of a spec-registered type."""
+    return [r.doc() for r in ROWS if r.product_type not in SPEC_TYPES]
 
 
 def product_ids() -> frozenset[str]:
