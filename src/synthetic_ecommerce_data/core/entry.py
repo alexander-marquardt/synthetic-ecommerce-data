@@ -21,8 +21,6 @@ from collections.abc import Mapping, Sequence
 from fractions import Fraction
 from typing import Any
 
-from synthetic_ecommerce_data.domains.industrial import series
-
 _NON_WORD = re.compile(r"[^a-z0-9]+")
 
 #: PRISM canonical names taken by the document's first-class columns. An attribute
@@ -80,29 +78,6 @@ UNIT_FOR_BARE_NAME: dict[str, str] = {
     "Number of Pieces": "C62",
     "Max. RPM": "RPM",
     "Decimal Equivalent": "INH",
-}
-
-#: Attributes whose unit is fixed by what they measure, whatever mark a published
-#: value is spelled with. The modelled defect ``Helix Angle = 42"``
-#: (``Generator._corrupt_angle``) is a supplier keying the inch mark for the degree
-#: mark: the facet keeps that messy spelling, but the entry is still an angle,
-#: because noise never changes what an attribute measures (#79). Read as an inch
-#: it put a length under an angle key, which no facet or range over the key can
-#: compare.
-UNIT_FOR_NAME: dict[str, str] = {
-    "Helix Angle": "DD",
-    "Point Angle": "DD",
-}
-
-#: The span of degrees each attribute fixed to ``DD`` can hold, read from the
-#: angles its generator draws (``series``). The same defect also writes ``1"``,
-#: ``2"`` and ``1-5/8"`` into these fields: lengths keyed into an angle field, a
-#: unit-type error (``09_defect_rate.json``), not a mis-keyed degree mark. Read
-#: as degrees they would claim angles no drill or end mill has, so a number
-#: outside its attribute's span, or any fraction, stays text (#79).
-SPAN_FOR_NAME: dict[str, tuple[Fraction, Fraction]] = {
-    "Helix Angle": (Fraction(min(series.HELIX_ANGLES)), Fraction(max(series.HELIX_ANGLES))),
-    "Point Angle": (Fraction(min(series.POINT_ANGLES)), Fraction(max(series.POINT_ANGLES))),
 }
 
 #: The size of one unit in its kind's canonical unit: millimetres, grams, degrees,
@@ -201,13 +176,6 @@ def _exact(magnitude: str) -> Fraction:
     return Fraction(magnitude)
 
 
-def _within_span(name: str, number: str) -> bool:
-    """Whether ``number`` is a degree count ``name`` can hold: no fraction, within its span."""
-    magnitude = _magnitude(number)
-    low, high = SPAN_FOR_NAME[name]
-    return "/" not in magnitude and low <= _exact(magnitude) <= high
-
-
 def split(name: str, published: str, bare_unit: str | None = None) -> dict[str, Any]:
     """The value parts of one entry: ``value``, and when measured the unit and canonical.
 
@@ -217,18 +185,15 @@ def split(name: str, published: str, bare_unit: str | None = None) -> dict[str, 
     in millimetres (``MMT``) and an inch tap's ``Threads per Inch`` is a thread
     count (``TPI``), whose canonical is the pitch length. Anything else stays text.
 
-    An attribute in :data:`UNIT_FOR_NAME` takes that unit whatever mark it is
-    spelled with, so the defective ``Helix Angle = 42"`` splits as 42 degrees:
-    the magnitude is kept and the bad mark is dropped (#9284, #79). One fixed to
-    ``DD`` parses only within its :data:`SPAN_FOR_NAME`, so
-    ``Point Angle = 1-5/8"``, a length in an angle field, stays text.
+    The mark decides the unit and nothing repairs it: an angle spelled with a
+    length mark (``Point Angle = 2"``) would split as a length, and the one-kind
+    guard (``tests/test_no_wrong_kind_values_404.py``) refuses it, because the
+    generator writes no such value (#404).
     """
     unit: str | None = None
     match = _WITH_UNIT.fullmatch(published)
     if match is not None:
-        unit = UNIT_FOR_NAME.get(name) or UNIT_FOR_SUFFIX[match["suffix"]]
-        if UNIT_FOR_NAME.get(name) == "DD" and not _within_span(name, match["number"]):
-            return {"value": published}
+        unit = UNIT_FOR_SUFFIX[match["suffix"]]
     else:
         match = _BARE.fullmatch(published)
         if match is not None:

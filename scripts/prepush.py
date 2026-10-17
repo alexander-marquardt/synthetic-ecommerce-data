@@ -81,7 +81,7 @@ WORKFLOWS = ROOT / ".github" / "workflows"
 CI_COMMANDS: dict[str, tuple[str, str]] = {
     "commit-messages": ("commit-messages", "check_commit_msg.py"),
     "customer-names": ("customer-name-check", "check_customer_names.py"),
-    "lint": ("tests", "ruff check"),
+    "lint": ("lint", "ruff check"),
     "file-size": ("file-size", "--no-body-is-advisory"),
     "file-size-body": ("file-size", "--pr-body-file"),
     "tree-scans": ("tests", "pytest"),
@@ -143,7 +143,8 @@ def ci_commands(workflows: Path = WORKFLOWS) -> dict[str, list[str]]:
         for step in _run_steps(jobs[job_id]):
             argv = _statement(step["run"], needle)
             if argv:
-                found[key] = argv
+                # The tests job's shard files (a bash array) are the gate's own list.
+                found[key] = [token for token in argv if not token.startswith('${files')]
                 break
         else:
             raise CannotJudge(f"{key}: no step of CI job {job_id!r} runs a line with {needle!r}")
@@ -173,13 +174,22 @@ def unaccounted(workflows: Path = WORKFLOWS) -> list[str]:
 _EXPRESSION = re.compile(r"\$\{\{\s*(.*?)\s*\}\}")
 
 
+def _first_value(expression: str, values: dict[str, str], whole: str) -> str:
+    """``a || b`` is the first term this run has a value for (a dispatched run's ``inputs.*``
+    have none here); an expression of one unknown term is left as written."""
+    terms = [term.strip() for term in expression.split("||")]
+    if len(terms) == 1:
+        return values.get(terms[0], whole)
+    return next((values[term] for term in terms if values.get(term)), "")
+
+
 def fill(argv: list[str], values: dict[str, str]) -> list[str]:
     """Replace the workflow's ``${{ }}`` expressions and ``$var`` words with this run's values."""
 
     def one(token: str) -> str:
         if token in values:
             return values[token]
-        return _EXPRESSION.sub(lambda m: values.get(m.group(1), m.group(0)), token)
+        return _EXPRESSION.sub(lambda m: _first_value(m.group(1), values, m.group(0)), token)
 
     return [one(token) for token in argv]
 
