@@ -21,6 +21,7 @@ from pathlib import Path
 
 import pytest
 
+import test_merge_pr
 from test_merge_pr import (
     _ALL_GREEN,
     _FRESH,
@@ -35,6 +36,10 @@ from test_merge_pr import (
     _run,
     _subject,
 )
+
+# The `actions` fixture below builds on test_merge_pr's `world` fixture: a name bound here
+# is what pytest finds (a fixture is not shared between modules by import alone).
+world = test_merge_pr.world
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -106,8 +111,15 @@ if [ "$1 $2" = "run view" ]; then
   esac
   exit 0
 fi
-if [ "$1" = api ] && [[ "$2" == */actions/jobs/*/logs ]]; then
-  job=${2#*/actions/jobs/}
+logs_path=""
+if [ "$1" = api ]; then
+  # merge_pr.sh passes `--allow-escape-sequences` before the path: take it wherever it is.
+  for arg in "$@"; do
+    case "$arg" in */actions/jobs/*/logs) logs_path=$arg ;; esac
+  done
+fi
+if [ -n "$logs_path" ]; then
+  job=${logs_path#*/actions/jobs/}
   job=${job%%/*}
   ts=2026-10-17T10:00:00.0000000Z
   echo "$ts ##[group]Run pytest"

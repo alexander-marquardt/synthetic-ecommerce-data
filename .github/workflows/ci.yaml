@@ -74,7 +74,9 @@ jobs:
     env:
       # -n always: one worker is the serial suite this job exists to avoid. The
       # local run (scripts/local_ci_jobs.py) takes its own, memory-capped count.
-      PYTEST_ADDOPTS: "-n auto --dist loadgroup -rfE --junitxml=${{ runner.temp }}/junit-${{ matrix.shard }}.xml"
+      # (The `runner` context is not available in a job-level `env`, so the junit
+      # path is given on the pytest command line below, from $RUNNER_TEMP.)
+      PYTEST_ADDOPTS: "-n auto --dist loadgroup -rfE"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -91,7 +93,7 @@ jobs:
         run: |
           mapfile -t files < <(python3 scripts/ci_shards.py --shard ${{ matrix.shard }} --of ${{ strategy.job-total }})
           [ "${#files[@]}" -gt 0 ]
-          uv run --locked pytest "${files[@]}"
+          uv run --locked pytest --junitxml="${RUNNER_TEMP:-/tmp}/junit-${{ matrix.shard }}.xml" "${files[@]}"
       # Each shard's per-test times: scripts/ci_shards.py --refresh reads them.
       - uses: actions/upload-artifact@v4
         if: always()
