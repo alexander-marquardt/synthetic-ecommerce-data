@@ -61,7 +61,7 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 - Tee: only the polo tee and the tunic tee name another category; a henley is a tee.
 - Tights: only running tights and cycling tights are names a shopper meets.
 - Walking Boots: only the chukka walking boot is a name a shopper meets.
-- Wedges: only sneaker wedges and sandal wedges are names; espadrille wedges are wedges.
+- Wedges: only the sneaker wedge is a name; a sandal wedge is a wedge sandal.
 - Wellies: only the chelsea welly is a name a shopper meets.
 
 | Product id | Type | Class | Title | Word | Query | Policy |
@@ -1471,9 +1471,9 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA62100 | Wedges | 1 color names a part | Wedges with Green Sole | green | green wedges | generic |
 | PLT-DA62101 | Wedges | 1 color names a part | Wedges with Blue Sole | blue | blue wedges | generic |
 | PLT-DA62102 | Wedges | 1 color names a part | Wedges with White Sole | white | white wedges | generic |
-| PLT-DA62200 | Wedges | 2 another category's noun as a modifier | Pink Sneaker Wedges | sneaker | sneaker | generic |
-| PLT-DA62201 | Wedges | 2 another category's noun as a modifier | Navy Sandal Wedges | sandal | sandal | generic |
-| PLT-DA62202 | Wedges | 2 another category's noun as a modifier | Cream Sandal Wedges | sandal | sandal | generic |
+| PLT-DA62200 | Wedges | 2 another category's noun as a modifier | Cream Sneaker Wedges | sneaker | sneaker | generic |
+| PLT-DA62201 | Wedges | 2 another category's noun as a modifier | Pink Sneaker Wedges | sneaker | sneaker | generic |
+| PLT-DA62202 | Wedges | 2 another category's noun as a modifier | Red Sneaker Wedges | sneaker | sneaker | generic |
 | PLT-DA62300 | Wedges | 3 audience word of a sibling version | Pink Boys Fit Wedges | boys | boys wedges | generic |
 | PLT-DA62301 | Wedges | 3 audience word of a sibling version | Black Mens Fit Wedges | mens | mens wedges | generic |
 | PLT-DA62302 | Wedges | 3 audience word of a sibling version | Navy Mens-Style Wedges | mens | mens wedges | generic |
