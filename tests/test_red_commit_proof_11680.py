@@ -367,7 +367,10 @@ def test_a_run_past_the_time_limit_is_not_judged(
 def test_the_workflow_runs_the_proof_over_the_pull_requests_commits() -> None:
     workflow = yaml.safe_load((ROOT / ".github" / "workflows" / "ci.yaml").read_text())
     job = workflow["jobs"]["red-commit-proof"]
-    assert job["if"] == "github.event_name == 'pull_request'"
+    assert job["if"] == (
+        "github.event_name == 'pull_request' ||"
+        " (github.event_name == 'workflow_dispatch' && inputs.head != '')"
+    )
     assert job["steps"][0]["with"] == {"fetch-depth": 0}, "the base must be reachable"
     command = " ".join(step["run"] for step in job["steps"] if "run" in step)
     assert "scripts/red_commit_proof.py" in command

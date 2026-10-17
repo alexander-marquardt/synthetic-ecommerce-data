@@ -174,13 +174,22 @@ def unaccounted(workflows: Path = WORKFLOWS) -> list[str]:
 _EXPRESSION = re.compile(r"\$\{\{\s*(.*?)\s*\}\}")
 
 
+def _first_value(expression: str, values: dict[str, str], whole: str) -> str:
+    """``a || b`` is the first term this run has a value for (a dispatched run's ``inputs.*``
+    have none here); an expression of one unknown term is left as written."""
+    terms = [term.strip() for term in expression.split("||")]
+    if len(terms) == 1:
+        return values.get(terms[0], whole)
+    return next((values[term] for term in terms if values.get(term)), "")
+
+
 def fill(argv: list[str], values: dict[str, str]) -> list[str]:
     """Replace the workflow's ``${{ }}`` expressions and ``$var`` words with this run's values."""
 
     def one(token: str) -> str:
         if token in values:
             return values[token]
-        return _EXPRESSION.sub(lambda m: values.get(m.group(1), m.group(0)), token)
+        return _EXPRESSION.sub(lambda m: _first_value(m.group(1), values, m.group(0)), token)
 
     return [one(token) for token in argv]
 

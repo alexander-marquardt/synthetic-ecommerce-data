@@ -408,8 +408,10 @@ run_github_ci() {
     fi
     safe=$(printf '%s' "$name" | tr -c 'A-Za-z0-9._-' '_')
     local_ci_failed+=" $safe"
-    gh api "repos/$slug/actions/jobs/$job_id/logs" 2>/dev/null |
-      sed -E 's/^[0-9T:.Z-]+ //' >"$(local_ci_log "$safe")" || true
+    # gh refuses a log with terminal escapes unless told; an older gh has no such flag.
+    { gh api --allow-escape-sequences "repos/$slug/actions/jobs/$job_id/logs" 2>/dev/null ||
+      gh api "repos/$slug/actions/jobs/$job_id/logs" 2>/dev/null || true; } |
+      sed -E 's/\x1b\[[0-9;]*[A-Za-z]//g; s/^[0-9T:.Z-]+ //' >"$(local_ci_log "$safe")"
     echo "   GitHub CI $name: $jconclusion $url"
     grep -E '^(FAILED|ERROR) ' "$(local_ci_log "$safe")" | head -40 | sed 's/^/     /' || true
   done <<<"$jobs_tsv"
