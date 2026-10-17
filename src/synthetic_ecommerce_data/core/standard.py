@@ -28,7 +28,7 @@ empty when it holds. ``tests/test_output_standard.py`` runs it over each domain.
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable, Mapping
+from collections.abc import Collection, Iterable, Mapping
 from typing import Any
 
 from synthetic_ecommerce_data.core.entry import CANONICAL_PER_UNIT, RECIPROCAL_PER_UNIT, canonical
@@ -40,6 +40,7 @@ _STR, _INT, _NUM, _BOOL, _LIST = "str", "int", "number", "bool", "list"
 PRODUCT_FIELDS: dict[str, tuple[str, bool]] = {
     "product_id": (_STR, True),
     "product_type": (_STR, True),
+    "product_type_label": (_STR, True),
     "title": (_STR, True),
     "brand": (_STR, True),
     "series": (_STR, False),
@@ -198,6 +199,15 @@ def _names(padded: str, value: str) -> bool:
     return bool(phrase) and f" {phrase} " in padded
 
 
+#: A phrase that names a value without claiming it: a comparison ("Higher strength than Grade
+#: 5."), an equivalence ("Equivalent to DIN 912 / ISO 4762.") and a tolerance class in
+#: parentheses ("(ISO 492 Normal class)"). A comparison or an equivalence runs to the end of its
+#: sentence (a full stop before a digit is a decimal point: "Class 8.8").
+_REFERENCE = re.compile(
+    r"\b(?:than|equivalent to)\b(?:[^.;]|\.(?=\d))*|\([^()]*\bclass\)", re.IGNORECASE
+)
+
+
 def value_pools(docs: Iterable[Mapping[str, Any]]) -> dict[tuple[str, str], set[str]]:
     """(leaf, key) -> the worded values the leaf's product attributes carry: the values a
     title or description can contradict. A number or a measured value is never one."""
@@ -217,7 +227,10 @@ def text_contradictions(
 ) -> list[str]:
     """Each attribute the title or a description contradicts: the text names another value
     of the key's leaf pool and none of the document's own. A word inside another of the
-    document's values ("Leather" on a rubber-soled leather loafer) contradicts nothing."""
+    document's values ("Leather" on a rubber-soled leather loafer) contradicts nothing, and
+    neither does a pool value whose words sit inside one of the document's own values
+    ("Steel" on 18-8 Stainless Steel, "Grinding" on Cutting & Grinding), nor a value the text
+    only compares or refers to (:data:`_REFERENCE`)."""
     attrs = [e for e in doc.get("attributes") or () if isinstance(e, dict)]
     own: dict[str, set[str]] = {}
     for e in attrs:
@@ -227,13 +240,18 @@ def text_contradictions(
     if doc.get("brand"):
         values.add(str(doc["brand"]))
     every = sorted(values, key=len, reverse=True)
+    padded_own = [words(v) for v in values]
     texts = [str(doc.get("title") or "")]
     texts += [str(v.get("description")) for v in doc.get("variants") or () if v.get("description")]
     out = []
     for key, mine in own.items():
-        pool = pools.get((str(doc.get("category_leaf")), key), set()) - mine
+        pool = {
+            v
+            for v in pools.get((str(doc.get("category_leaf")), key), set()) - mine
+            if not any(_names(own_value, v) for own_value in padded_own)
+        }
         for text in dict.fromkeys(texts):
-            padded = words(text)
+            padded = words(_REFERENCE.sub(" | ", text))
             if not pool or any(_names(padded, v) for v in mine):
                 continue
             for v in every:
@@ -265,14 +283,20 @@ def mixed_class_keys(docs: Iterable[Mapping[str, Any]]) -> list[str]:
 
 
 def check_catalog(
-    docs: Iterable[Mapping[str, Any]], *, text_agrees: bool = True, one_class_per_key: bool = False
+    docs: Iterable[Mapping[str, Any]],
+    *,
+    text_agrees: bool = True,
+    one_class_per_key: bool = False,
+    text_exempt: Collection[str] = (),
 ) -> list[str]:
     """Every way a catalog breaks the standard: each document's problems, then the ids
     that repeat and the keys that name two attributes or shadow a top-level field, and,
     with ``text_agrees``, every title or description that contradicts an attribute
     (:func:`text_contradictions`, against the catalog's own :func:`value_pools`), and,
     with ``one_class_per_key``, every key that mixes classed and unclassed entries
-    (:func:`mixed_class_keys`)."""
+    (:func:`mixed_class_keys`). ``text_exempt`` holds the ``product_id`` of documents whose
+    text may name a value their attributes do not hold: a text-match decoy, whose purpose is to
+    mislead a plain text search. The exemption is by id, never a looser rule."""
     docs = list(docs)
     out: list[str] = []
     ids: dict[str, int] = {}
@@ -296,7 +320,12 @@ def check_catalog(
         out += mixed_class_keys(docs)
     if text_agrees:
         pools = value_pools(docs)
-        out += [p for doc in docs for p in text_contradictions(doc, pools)]
+        out += [
+            p
+            for doc in docs
+            if doc.get("product_id") not in text_exempt
+            for p in text_contradictions(doc, pools)
+        ]
     return out
 
 
@@ -350,7 +379,8 @@ def flat_documents(
         words.append(doc.get("fibre_content"))
         out.append(
             {"sku": variant["sku"], "product_id": doc["product_id"]}
-            | {"product_type": doc["product_type"], "title": variant["title"]}
+            | {"product_type": doc["product_type"]}
+            | {"product_type_label": doc["product_type_label"], "title": variant["title"]}
             | {k: variant[k] for k in ("description",) if k in variant}
             | {"parent_title": doc["title"]}
             | product
