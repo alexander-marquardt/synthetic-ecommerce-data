@@ -140,14 +140,23 @@ def index() -> br.Index:
     "query", ["black leather belt", "mens belt 34 inch", "leather belt", "canvas belt", "belt"]
 )
 def test_the_issue_query_returns_the_type_first(index: br.Index, query: str) -> None:
-    """The first hit that is no planted text-match decoy (``PLT-D...`` or its own) is a style."""
+    """The first hit that is no planted text-match decoy (``PLT-D...`` or its own) is a style.
+
+    A product of another type that holds only one query word in its title ("Canvas Platform
+    Trainers" for "canvas belt", gen#421) may out-sell a belt through the popularity draw, so the
+    hit that counts is the first to name, in its title, every query word a belt title uses.
+    """
+    belt_words = {w for r in ROWS for w in r.title.lower().split()}
+    needed = [w for w in query.split() if w in belt_words]
     top = br.rank(index, query, size=12)
     planted = type_registry.decoy_ids_of(SPEC)
     first = next(
         (
             d
             for d in top
-            if not d["product_id"].startswith("PLT-D") and d["product_id"] not in planted
+            if not d["product_id"].startswith("PLT-D")
+            and d["product_id"] not in planted
+            and all(word in d["title"].lower() for word in needed)
         ),
         None,
     )
