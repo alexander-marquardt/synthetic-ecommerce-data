@@ -115,6 +115,7 @@ import garden_rows  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
 import knitwear_rows  # noqa: E402
+import leaf_shapes  # noqa: E402
 import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
@@ -327,6 +328,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *garden_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
         *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(), *needs_rows.docs(),
     ]  # fmt: skip
+    body = leaf_shapes.apply(body)  # gen#447: a bomber is drawn as a bomber, before decoys clone it
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
     body = net_volume.state_title_volumes(body)  # gen#347: a volume the title states is the field
     if baseline:

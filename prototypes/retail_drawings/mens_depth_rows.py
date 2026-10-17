@@ -437,8 +437,11 @@ def _floor_rows(leaves=None, kinds=None, tails=None, prefix: str = "MF") -> list
             brand = _BRANDS[(i + len(leaf.abbr)) % len(_BRANDS)]
             price = round(kind.base_price + leaf.extra_price + 2.0 * (i % 7), 2)
             colors = _colors(i, leaf.palette)
-            if leaf.pattern == "check":
+            checked = leaf.pattern == "check" or fabric == "Checked"  # gen#447: the title is drawn
+            if checked:
                 colors = tuple(cw(f"{c[0]} Check", c[2], "gingham", "#2a2a2e") for c in colors)
+            elif detail == "Striped":  # a "Striped Polo Shirt" is drawn striped, not plain
+                colors = tuple(cw(f"{c[0]} Stripe", c[2], "stripe", "#f4f1ea") for c in colors)
             fit_an = _an(fit or "regular")
             noun = detail.lower() if kind.item else kind.noun.lower()
             cut = f" cut to {fit_an} fit" if kind.fitted else ""
@@ -472,8 +475,9 @@ def _floor_rows(leaves=None, kinds=None, tails=None, prefix: str = "MF") -> list
             if suit_params:
                 params = suit_params
             facts = list(kind.facts)
-            if leaf.pattern != "plain":
-                facts.append(("pattern", leaf.pattern))
+            pattern = "check" if checked else "stripe" if detail == "Striped" else leaf.pattern
+            if pattern != "plain":
+                facts.append(("pattern", pattern))
             out.append(_row(f"{prefix}{leaf.abbr}{i:03d}", title, brand, kind, leaf.path, desc, colors,
                             tuple(attrs), price=price, params=params, facts=tuple(facts)))
     return out
