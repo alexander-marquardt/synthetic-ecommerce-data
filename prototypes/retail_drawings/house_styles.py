@@ -635,6 +635,30 @@ def m_bull_horns(c: str) -> list[str]:
 
 
 #: Mark name -> drawing in unit space (-1..1), painted in the brand color.
+def m_toy_pair_dots(c: str) -> list[str]:
+    return [_dot(-0.4, 0, 0.3, c), _dot(0.4, 0, 0.3, c)]
+
+
+def m_toy_ring_dot(c: str) -> list[str]:
+    return [_ring(0, 0, 0.5, 0.12, c), _dot(0, 0, 0.18, c)]
+
+
+def m_toy_star(c: str) -> list[str]:
+    return [_star(0, 0, 0.7, c)]
+
+
+def m_toy_three_rings(c: str) -> list[str]:
+    return [_ring(x, 0, 0.3, 0.09, c) for x in (-0.6, 0, 0.6)]
+
+
+def m_toy_diag_dots(c: str) -> list[str]:
+    return [_dot(-0.5, 0.5, 0.2, c), _dot(0, 0, 0.25, c), _dot(0.5, -0.5, 0.3, c)]
+
+
+def m_toy_stack_rings(c: str) -> list[str]:
+    return [_ring(0, y, 0.3, 0.09, c) for y in (-0.5, 0, 0.5)]
+
+
 MARKS = {
     name[2:]: fn for name, fn in list(globals().items()) if name.startswith("m_") and callable(fn)
 }
@@ -1119,6 +1143,13 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     # A real brand (real_brands.ALLOWED, gen#341): text only, so the drawing carries no logo.
     "Nike":                 H("#f6f6f6", "none",     "rounded", "#111111", "#111111", 1.0,  False, "round", "none",              "mark_left",   "bottom_left",   "none",     "sans",     400, "lower",     0.5),
     "Coat Crake":           H("#f3efe8", "dots",     "double",  "#7a5a3a", "#30241a", 1.1,  False, "sharp", "comb",              "mark_only",   "bottom_left",   "stamp",    "mono",     700, "lower",     2.0),
+    # Invented brands of the toy text-match decoys (gen#424): a toy type word in the name.
+    "Marble Run Co":        H("#f4f6fb", "dots",     "thin",    "#3b5bdb", "#1b2a5c", 1.0,  False, "round", "toy_pair_dots",     "mark_left",   "bottom_left",   "none",     "sans",     700, "caps",      1.5),
+    "Card Game Row":        H("#fbf3f3", "lines",    "double",  "#c0392b", "#4a1a16", 1.1,  False, "sharp", "toy_ring_dot",      "mark_only",   "top_left",      "underline", "serif",   400, "title",     2.0),
+    "Kite Lane Toys":       H("#f1f9f4", "none",     "rounded", "#2e8b57", "#16392a", 0.95, True,  "round", "toy_star",          "mark_right",  "top_right",     "none",     "humanist", 700, "smallcaps", 1.0),
+    "Water Gun Hill":       H("#eef7fb", "grid",     "ticks",   "#1c8ec7", "#12394f", 1.05, False, "round", "toy_three_rings",   "mark_above",  "bottom_center", "none",     "sans",     400, "caps",      2.5),
+    "Play Kitchen Co":      H("#fff7ea", "hatch",    "heavy",   "#d9822b", "#4a2e12", 1.2,  False, "sharp", "toy_diag_dots",     "mark_only",   "bottom_right",  "stamp",    "mono",     700, "title",     0.5),
+    "Dolls House Row":      H("#fbf1f7", "diagonal", "thin",    "#c2539a", "#4a1c3a", 0.9,  True,  "round", "toy_stack_rings",   "badge",       "bottom_left",   "none",     "serif",    400, "smallcaps", 1.5, True),
     "Tidewell":             H("#eef6f7", "none",     "thin",    "#1c7c7d", "#0f3b3c", 1.0,  False, "round", "wave_arcs",         "mark_left",   "bottom_right",  "none",     "sans",     400, "caps",      1.5),
     "Skerry & Cole":        H("#f6f1ea", "dots",     "double",  "#7a2e3a", "#2b1a1d", 1.05, False, "sharp", "diamond_grid",      "badge",       "top_left",      "none",     "serif",    700, "smallcaps", 1.0),
 }
