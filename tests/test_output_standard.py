@@ -19,11 +19,13 @@ import pytest
 
 from synthetic_ecommerce_data.core import emit, standard
 from synthetic_ecommerce_data.core.config import SMALL
+from synthetic_ecommerce_data.domains.industrial import hammers
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 ROOT = Path(__file__).resolve().parents[1]
 RETAIL = ROOT / "prototypes" / "retail_drawings"
 GOLDEN_NESTED = ROOT / "golden-catalog" / "nested.jsonl"
+
 
 def _retail_figures() -> dict[str, Any]:
     if str(RETAIL) not in sys.path:
@@ -71,8 +73,12 @@ def retail() -> list[dict[str, Any]]:
 @pytest.mark.parametrize("source", sorted(SOURCES))
 def test_every_domain_meets_the_standard(source):
     retail = source.startswith("retail")
+    docs = SOURCES[source]()
+    # an industrial hammer decoy names a handle it lacks by design (gen#294): exempt by id
     problems = standard.check_catalog(
-        SOURCES[source](), text_agrees=retail, one_class_per_key=retail
+        docs,
+        one_class_per_key=retail,
+        text_exempt=() if retail else hammers.decoy_ids(docs),
     )
     assert problems == [], f"{len(problems)} problems, e.g. {problems[:8]}"
 
@@ -335,14 +341,6 @@ def test_a_value_named_inside_another_attribute_or_beside_its_own_is_no_contradi
 
 def _values(doc: dict[str, Any], key: str) -> list[str]:
     return [e["value"] for e in doc["attributes"] if e["key"] == key]
-
-
-def test_industrial_text_is_exempt_from_the_contradiction_check():
-    """Its descriptions name a second standard or grade by design (a Grade 8 nut for a
-    Grade 5 bolt); the check guards the retail build's derived text."""
-    docs = _industrial()
-    assert standard.check_catalog(docs, text_agrees=False) == []
-    assert standard.check_catalog(docs) != []
 
 
 def test_a_repeated_sku_and_a_key_with_two_names_are_refused(retail):

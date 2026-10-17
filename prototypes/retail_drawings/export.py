@@ -94,11 +94,19 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     # Bags, umbrellas and jewelry (accessory_rows.py, gen#207): a backpack's capacity, an
     # umbrella's canopy, a necklace's length (item_length), a jewelry SKU's metal.
     "canopy_cm": ("canopy_diameter", "Canopy diameter", "CMT"),
+    # A parasol's canopy is sold in metres, an umbrella's in centimetres: one key, one kind of
+    # value, the unit says which (garden_outdoor specs, gen#203). A furniture set's seats.
+    "canopy_m": ("canopy_diameter", "Canopy diameter", "MTR"),
+    "seats": ("seats", "Seats", "C62"),
     "metal": ("metal", "Metal", None),
+    # A watch's or fitness band's case, in millimetres (jewellery_rows.py, gen#423).
+    "case_mm": ("case_diameter", "Case diameter", "MMT"),
     # A building set's sizes, a board game's editions and a craft kit's themes
     # (toys_rows.py, gen#201).
     "piece_count": ("piece_count", "Piece count", "C62"),
     "edition": ("edition", "Edition", None),
+    # A dolls' house is sold in three styles (type_specs/dolls_house.py, gen#424).
+    "house_style": ("style", "Style", None),
     "theme": ("theme", "Theme", None),
     # The grocery build's flavor x pack SKUs (grocery.py, gen#154); a list option
     # (an allergen list, the dietary labels) is one entry per value.
