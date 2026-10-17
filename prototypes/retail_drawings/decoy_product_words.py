@@ -295,6 +295,9 @@ _SPORTS_KINDS = {
                      "jar", "Lanternby", 18.0, extra=(("fragrance", "Fragrance", "Vanilla"),)),
     "s_wrap": Kind("Gifts", ("Gifts", "Gift Wrap", "Wrapping Paper"), "Wrapping Paper",
                    "wrapping_paper", "Lanternby", 4.0),
+    # A boxed mix is a food box, never the celebration cake the "cake" shape draws (gen#449).
+    "cake_mix": Kind("Food & Drink", ("Food & Drink", "Bakery", "Cakes"), "Cake", "box",
+                     "Crofter's Bakehouse", 4.5, colorless=True),
     "s_handwash": Kind("Beauty", ("Beauty", "Bath & Body", "Hand Wash"), "Hand Wash", "bottle",
                        "Velling Apothecary", 5.0, params=(("label", "Hand Wash"),), colorless=True),
     "s_organizer": Kind("Home", ("Home", "Storage", "Car Boot Organisers"), "Car Boot Organiser",
@@ -879,7 +882,8 @@ _SPORTS = (
        "A duvet cover and pillowcase set for a fan's bedroom.", "Blue", "baseball", "Baseball"),
     _s(61, "s_duvet", "Soft Batting Duvet", "A warm duvet filled with soft polyester batting.",
        "White", "batting", "Batting Helmet"),
-    _s(62, "throw", "Quilted Batting Throw", "A light quilted throw with a soft batting layer.",
+    _s(62, "throw", "Quilted Throw with Wadding",
+       "A light quilted throw with a soft batting layer.",
        "Grey", "batting", "Batting Helmet"),
     _s(63, "s_towel", "Quick-Dry Swim Towel",
        "A compact towel that dries fast, with a pocket for your goggles.", "Blue", "swim",
@@ -934,7 +938,7 @@ _GIFTS = (
     _g(77, "hooks", "Wall Mug Rack, Five Hooks",
        "A wall rack with five hooks to hang mugs and keep the worktop clear.", "Grey", "mug",
        "Mug"),
-    _g(78, "cake", "Microwave Mug Cake",
+    _g(78, "cake_mix", "Microwave Mug Cake",
        "A ready-to-bake sponge in a box, cooked in a mug in ninety seconds.", "Brown", "mug",
        "Mug"),
     # -- card: a holder for bank cards, paper for making cards

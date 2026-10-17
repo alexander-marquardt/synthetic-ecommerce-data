@@ -594,12 +594,29 @@ def punnet(paint: str, fill: Fill, label: str | None) -> list[str]:
     ]
 
 
-def tub(paint: str, fill: Fill, label: str | None) -> list[str]:
-    return [
-        _path("M112,118 L288,118 L262,356 Q200,366 138,356 Z", paint),
-        f'<ellipse cx="200" cy="114" rx="96" ry="18" fill="#e9edf0" stroke="{INK}" stroke-width="{LW}"/>',
-        *_panel(124, 190, 152, 96, label, 50),
-    ]
+def tub(paint: str, fill: Fill, label: str | None, count: str = "1") -> list[str]:
+    """One pot, or ``count`` pots (2 to 6) in a pack, two rows when there are more than three."""
+    n = int(count)
+    if n <= 1:
+        return [
+            _path("M112,118 L288,118 L262,356 Q200,366 138,356 Z", paint, extra=' class="pot"'),
+            f'<ellipse cx="200" cy="114" rx="96" ry="18" fill="#e9edf0" stroke="{INK}" stroke-width="{LW}"/>',
+            *_panel(124, 190, 152, 96, label, 50),
+        ]
+    per_row = 2 if n == 4 else min(n, 3)
+    rows = [list(range(i, min(i + per_row, n))) for i in range(0, n, per_row)]
+    w, h = 112, 118
+    out: list[str] = []
+    for r, row in enumerate(rows):
+        top = 120 + r * 120 if len(rows) > 1 else 190
+        for c, _ in enumerate(row):
+            cx = 200 + (c - (len(row) - 1) / 2) * (w + 14)
+            out += [
+                _path(f"M{cx - w / 2:g},{top} L{cx + w / 2:g},{top} L{cx + w / 2 - 14:g},{top + h} Q{cx:g},{top + h + 8} {cx - w / 2 + 14:g},{top + h} Z", paint, extra=' class="pot"'),
+                f'<ellipse cx="{cx:g}" cy="{top}" rx="{w / 2:g}" ry="12" fill="#e9edf0" stroke="{INK}" stroke-width="{LW}"/>',
+            ]
+    out += _panel(130, 160, 140, 64, label, 40)
+    return out
 
 
 def loaf(paint: str, fill: Fill, label: str | None) -> list[str]:
