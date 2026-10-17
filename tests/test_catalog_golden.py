@@ -86,22 +86,24 @@ def fresh_build(tmp_path_factory: pytest.TempPathFactory) -> Path:
     marked slow and not skipped by default -- a golden test that does not run
     reads as coverage while asserting nothing.
 
-    ``build`` also rewrites the committed PRISM field map in the SOURCE tree
-    (see ``catalog.cli._write_field_map``), which a test has no business
-    leaving behind. The bytes are snapshotted and put back unconditionally,
-    and then asserted unchanged: the build is supposed to be idempotent
-    against a checkout that is already up to date, and if it is not, that is
-    the same drift ``tests/test_prism_field_map_drift.py`` exists to catch.
+    ``build`` also writes the PRISM field map, by default into the SOURCE tree (see
+    ``catalog.cli._write_field_map``), which a test has no business touching: with
+    ``--dist loadgroup`` each worker that gets a test of this module builds its own
+    copy, and a build that truncated the committed file, even to put its bytes back,
+    raced the other workers' reads of it (#440). The build writes its field map to a
+    temporary path instead, and the bytes are asserted equal to the committed file's:
+    the build is supposed to be idempotent against a checkout that is already up to
+    date, and if it is not, that is the same drift
+    ``tests/test_prism_field_map_drift.py`` exists to catch.
     """
     out = tmp_path_factory.mktemp("golden")
-    before = FIELD_MAP_PATH.read_bytes()
-    try:
+    written = tmp_path_factory.mktemp("field_map") / FIELD_MAP_PATH.name
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(cli, "field_map_target", lambda: written)
         code = cli.main(["build", "--out", str(out)])
-    finally:
-        after = FIELD_MAP_PATH.read_bytes()
-        FIELD_MAP_PATH.write_bytes(before)
     assert code == 0, "ecom-generate build failed; its own audits print to stderr"
-    assert after == before, (
+    assert written.is_file(), "the default build did not write the field map"
+    assert written.read_bytes() == FIELD_MAP_PATH.read_bytes(), (
         f"{FIELD_MAP_PATH} is not up to date with the generator -- a build "
         f"rewrote it. Run `{REBUILD}` and commit the field map too."
     )

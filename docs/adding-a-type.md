@@ -806,13 +806,19 @@ the default; `--dry-run` runs the local jobs too.
 is red and the only red is a golden freshness test, the script does not send
 the PR back for a fixer round. "Only" means: every red job printed pytest
 `FAILED`/`ERROR` lines, every one of them names a test of `--print-freshness`
-(the golden-catalog and golden-retail freshness tests), and no other job is
-red. It then rebuilds the generated files on that tree (the step-2 build),
+(the golden-catalog, golden-retail, field-map and golden-stats freshness
+tests), and no other job is red. It then rebuilds the generated files on that tree (the step-2 build),
 commits them as `regenerate golden on main`, runs every job again, and pushes
 and merges only if that second run is green. It does this once. Any other red,
 a red job with no `FAILED` line (lint, a crash), a freshness red a rebuild does
 not change, or a second red stops the merge as before. The first run's log
-stays next to the new one as `<label>-<job>.log.before-regenerate`.
+stays next to the new one as `<label>-<job>.log.before-regenerate`. A test
+never writes a source-tree file: `ecom-generate build` writes the field map
+by replacement (a reader sees the old file or the new, never a cut-short one),
+and `tests/test_catalog_golden.py` sends the build's copy to a temporary path
+and compares it with the committed one (#440; the cause of a freshness red that
+no rebuild could change was a build in one test worker truncating the file
+another worker was reading).
 
 **The suite runs on several workers (#348).** The whole suite took 47 to 54
 minutes on one core, and merges are serial (each changes `main` and the
