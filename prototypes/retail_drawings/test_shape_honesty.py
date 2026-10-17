@@ -232,3 +232,37 @@ def test_a_title_that_says_checked_or_striped_is_drawn_so(tpls: list[dict]) -> N
     assert not bad, bad[:10]
     blazer = next(t for t in tpls if t["product_id"] == "BRD-MFBL017")
     assert {c["pattern"] for c in blazer["color_options"]} == {"gingham"}
+
+
+# --- gen#447: each new part is drawn by its kit function, against the same call without it ---
+
+import kit_garments  # noqa: E402
+import kit_outerwear  # noqa: E402
+
+
+def _svg(parts: list[str]) -> str:
+    return "".join(parts)
+
+
+def test_a_new_garment_part_is_drawn_by_its_kit_function() -> None:
+    """Fixed fill, no template build: polo collar, cargo pockets, puffer baffles, dress placket."""
+    fill = kit.Fill()
+    kw = {"neckline": "polo", "sleeve": "short"}
+    tee = _svg(kit_garments.top("#7a8fb5", fill, None, kind="tee", **kw))
+    polo = _svg(kit_garments.top("#7a8fb5", fill, None, kind="polo", **kw))
+    assert polo.count("<circle") == tee.count("<circle") + 2, "the placket buttons"
+    assert polo.count("<path") > tee.count("<path"), "the folded collar and placket"
+
+    plain = _svg(kit_garments.trousers("#7a8fb5", fill, None, style="chino", cargo=""))
+    cargo = _svg(kit_garments.trousers("#7a8fb5", fill, None, style="chino", cargo="yes"))
+    assert cargo.count("<path") > plain.count("<path"), "the two flapped pockets"
+    assert cargo.count("<circle") > plain.count("<circle"), "the pocket buttons"
+
+    baffle = "M126,112 Q200,124 274,112"
+    assert baffle in _svg(kit_outerwear.puffer_jacket("#7a8fb5", fill, None))
+    assert baffle not in _svg(kit_outerwear.bomber_jacket("#7a8fb5", fill, None))
+
+    dress = _svg(kit_garments.shirt_dress("#7a8fb5", fill, None))
+    assert dress.count("<circle") == 6, "six buttons"
+    assert "M200,100 L200,364" in dress, "the center placket"
+    assert "M200,100 L200,364" not in _svg(kit.SHAPES["dress"]("#7a8fb5", fill, None))
