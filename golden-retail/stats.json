@@ -9,13 +9,13 @@
    "skus": 12409,
    "styles": 4516
   },
-  "images": 20120,
+  "images": 20059,
   "non_grocery": {
    "skus": 90929,
    "styles": 5533
   },
-  "skus": 138559,
-  "styles": 13600,
+  "skus": 138074,
+  "styles": 13539,
   "top_levels": {
    "Beauty": {
     "skus": 917,
@@ -42,12 +42,12 @@
     "styles": 1944
    },
    "Kids": {
-    "skus": 5230,
-    "styles": 416
+    "skus": 5125,
+    "styles": 405
    },
    "Mens": {
-    "skus": 25352,
-    "styles": 1823
+    "skus": 25267,
+    "styles": 1808
    },
    "Sports & Outdoors": {
     "skus": 430,
@@ -58,8 +58,8 @@
     "styles": 495
    },
    "Womens": {
-    "skus": 85963,
-    "styles": 2929
+    "skus": 85668,
+    "styles": 2894
    }
   }
  },
@@ -531,8 +531,8 @@
    "styles": 53
   },
   "all": {
-   "skus": 78470,
-   "styles": 9122
+   "skus": 77985,
+   "styles": 9061
   },
   "appliance_rows": {
    "skus": 124,
@@ -544,8 +544,8 @@
   },
   "authored_images": 629,
   "before_grocery": {
-   "skus": 66061,
-   "styles": 4606
+   "skus": 65576,
+   "styles": 4545
   },
   "breadth_rows": {
    "skus": 687,
@@ -556,8 +556,8 @@
    "styles": 24
   },
   "decoy_apparel": {
-   "skus": 14293,
-   "styles": 1442
+   "skus": 13808,
+   "styles": 1381
   },
   "decoy_product_words": {
    "skus": 189,
