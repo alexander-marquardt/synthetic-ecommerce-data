@@ -514,6 +514,14 @@ def _title(ex: dict, spec: Spec, cls: int, o: dict) -> str:
     return title
 
 
+def _names_its_drawing(ex: dict) -> bool:
+    """A decoy's title names its type ("Boxers"), so its exemplar is drawn as that type: the
+    boxers leaf also holds briefs, and "Boxers with Green Waistband" drawn as briefs (gen#447)
+    is not a boxer."""
+    fit = (ex["drawing"].get("params") or {}).get("fit")
+    return not (ex["product_type"] == "Boxers" and fit == "brief")
+
+
 def build(body: list[dict]) -> list[Row]:
     """Every decoy row for ``body`` (the templates without the decoys), in plan order."""
     pool: dict[str, list[dict]] = {}
@@ -524,6 +532,7 @@ def build(body: list[dict]) -> list[Row]:
             and d.get("color_options")
             and d["product_id"] not in ids()
             and d["brand"] not in real_brands.ALLOWED  # a real brand is never cloned (gen#341)
+            and _names_its_drawing(d)
         ):
             pool.setdefault(d["product_type"], []).append(d)
     rows = []

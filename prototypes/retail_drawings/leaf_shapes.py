@@ -56,7 +56,14 @@ def rule_for(tpl: dict) -> Rule | None:
 
 def apply(tpls: list[dict]) -> list[dict]:
     """``tpls`` with the drawing of every listed leaf set to its rule's shape and parameters."""
-    # Red stub: the rules are listed but not yet applied.
+    for tpl in tpls:
+        rule = rule_for(tpl)
+        if rule is None:
+            continue
+        drawing = tpl["drawing"]
+        drawing["shape"] = rule.shape
+        if rule.params:
+            drawing["params"] = {**(drawing.get("params") or {}), **rule.params}
     return tpls
 
 
