@@ -67,12 +67,22 @@ PARTS: dict[str, dict[str, dict]] = {
             "M200,200 L224,186 L224,214 Z",
             "M194,194 L206,194 L206,206 L194,206 Z",
         ),
+        # The band under the cups: the two wings the kit draws at each side (gen#447).
+        "band": shapes(
+            "M112,176 L46,190 L50,228 L140,232 Z",
+            "M288,176 L354,190 L350,228 L260,232 Z",
+        ),
     },
     "dress": {"straps": free(("M164,114 L172,48 M236,114 L228,48", 5.0))},
     "vest": {"straps": STRAPS_TOP},
     "slip": {"straps": STRAPS_TOP},
     "shapewear": {"straps": STRAPS_TOP},
-    "blouse": {"hem": TORSO_HEM},
+    # The two collar flaps and the four buttons the kit draws (gen#447).
+    "blouse": {
+        "hem": TORSO_HEM,
+        "collar": shapes("M166,62 L200,118 L176,112 L152,74 Z", "M234,62 L200,118 L224,112 L248,74 Z"),
+        "buttons": shapes(*(f"M196,{y} a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 Z" for y in (150, 195, 240, 285))),
+    },
     "tshirt": {"hem": TORSO_HEM, "collar": COLLAR},
     "top": {"hem": TORSO_HEM, "collar": COLLAR},
     "sweatshirt": {"hem": TORSO_HEM, "collar": COLLAR},
@@ -82,6 +92,7 @@ PARTS: dict[str, dict[str, dict]] = {
     "puffer_jacket": {"hem": TORSO_HEM},
     "shirt_dress": {"collar": COLLAR, "hem": HEM},
     "suit_jacket": {"hem": TORSO_HEM},
+    "dinner_suit": {"bow": shapes("M200,84 L178,72 L178,96 Z", "M200,84 L222,72 L222,96 Z")},
     "waistcoat": {"hem": TORSO_HEM},
     "suit_trousers": {"waistband": WAIST, "cuffs": HEM},
     "bodysuit": {"hem": TORSO_HEM},
