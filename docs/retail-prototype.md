@@ -57,19 +57,27 @@ unless it collapses on `product_id`.
 
 ### Footwear
 
-`footwear_rows.py` holds thirty-one shoe styles (sixteen women's, ten men's,
-five kids'), one document per style with its color x width x size SKUs
+`footwear_rows.py` holds fifty-five shoe styles (thirty-three women's, fourteen men's,
+eight kids'), one document per style with its color x width x size SKUs
 nested. A size is three fields, `size_uk`, `size_eu` and `size_us`, read from
 one chart row of the audience, so they never disagree; half sizes exist only
 where a shoe is cut in them, and a wide fit only in the sizes it names. A ring's UK
 letter and US number are other kinds of value, so they sit under `ring_size_uk` and
 `ring_size_us` (gen#249), never these keys. Each
 color names its upper material, which both the `upper_material` facet and the
-drawing read. `kit_footwear.py` draws the shoe from the side in seventeen
+drawing read. `kit_footwear.py` draws the shoe from the side in twenty-five
 kinds (court, kitten and block heels, ballet pumps, loafers, brogues,
 trainers, running shoes, slippers, sandals, ankle, Chelsea, chukka, knee-high,
-walking and safety boots, wellies), with the material's texture and the
-closure. The boots row above is checked over the round 4 corpus plus
+walking and safety boots, wellies, and since gen#216 plimsolls, clogs, wedges,
+espadrilles, platform trainers, mules, jelly shoes and barefoot shoes), with the
+material's texture and the closure. Each of the eight newer kinds has variant
+axes that are drawing params read from the attribute they draw (`kit_footwear.AXES`:
+a wedge's `heel` in mm, a platform trainer's `platform`, a clog's `strap` and
+`body`, a mule's `heel` and `toe`, an espadrille's `heel`, a jelly shoe's `style`
+and `glitter`, a barefoot shoe's `sole`), so two styles that differ on one draw
+differently. The platform trainer's product type is `Platform Trainers` but its category
+leaf is `Platform Shoes`, on purpose: beside `Trainers` the leaf breaks the head-noun rule,
+and nested under `Trainers` it would make a leaf a parent. The boots row above is checked over the round 4 corpus plus
 footwear (`footwear_rows.catalog()`). Footwear is not in the Elasticsearch
 proof corpus.
 
@@ -328,7 +336,7 @@ may keep an entry out of the flat `text` while it stays a facet
 (`standard.flat_documents(..., text_skip=...)`; the grocery's allergen warnings and
 dietary claims).
 
-`prototypes/retail_drawings/export.py` turns the 328-style build into that
+`prototypes/retail_drawings/export.py` turns the 352-style build into that
 standard: `skus` become `variants`, each SKU option a variant-level attribute
 entry (a measurement split into `value`, `unit_code` and `value_canonical`);
 color and size options, the `promotion` and other flags, rating and the other
@@ -545,6 +553,7 @@ its name; a SKU is a color times a finish, a shade color or a diameter, and its 
 that SKU's own value), then the bags, umbrellas and jewelry (`accessory_rows.py`,
 gen#207; likewise copied by no derived style), then the Sports & Outdoors styles (`sports_rows.py`, gen#265 and gen#368: camping, yoga & fitness, cycling pumps, baseball, swimming, team and racket sports, drawn by `kit_sports.py`, copied by no derived style; leaves, filters and types not built in [docs/retail-sports-tree.md](retail-sports-tree.md), `tests/test_retail_sports_265.py`), then the school uniform styles (`school_rows.py`, gen#205, first increment: school trousers, skirts, pinafores and shirts under `Kids/School Uniform`; drawn by `kit_school.py`, school-age sizes `3-4 Yrs` to `15-16 Yrs`, fit, adjustable waist, style, sleeve and pack as structured attributes, decoys from `decoy_apparel.py`, copied by no derived style, `tests/test_retail_school_205.py`), then the garden machines (`garden_rows.py`, gen#203, first increment: lawn mowers, robot mowers, grass trimmers and barbecues under `Garden`, drawn by `kit_garden.py`, with text-match decoys, [docs/retail-garden.md](retail-garden.md); copied by no derived style), then the garden hoses (`type_specs/garden_hose.py`, gen#292: a reinforced and an expandable hose under `Garden/Watering/Garden Hoses`, drawn by `kit_garden.py`, a SKU axis in metres (`item_length`) and the six main colors, with 15 text-match decoys in `garden_rows.py`, copied by no derived style, `tests/test_retail_garden_292.py`), then the gifts (`gifts_rows.py` and `type_specs/gift_mug.py`, `greeting_card.py`, `notebook.py`, `money_box.py`, `gift_hamper.py`, gen#425: 26 styles and 180 SKUs of mugs, greeting cards, notebooks, money boxes and pamper hampers under `Gifts`, each drawn by its own shape in `kit_gifts.py`, the six main colors, ten text-match decoys in `decoy_product_words.py` ([docs/retail-product-word-decoys.md](retail-product-word-decoys.md)), copied by no derived style, `tests/test_retail_gifts_425.py`), then jewellery and watches (`type_specs/hoop_earrings.py`, `drop_earrings.py`, `analog_watch.py`, `digital_watch.py`, `fitness_band.py`, gen#423: five new types beside the legacy `Earrings` and `Watch`, drawn by `kit_jewellery.py`; earrings vary by metal, a watch or band by strap color times a case diameter in millimetres (`case_diameter`), with a strap, water resistance in metres and an audience as attributes, and two text-match decoys per type; copied by no derived style, `tests/test_retail_jewellery_watches_423.py`), then the near-white apparel and main-color bras (`colorgroup_rows.py`, gen#302, [docs/retail-color-group.md](retail-color-group.md); copied by no derived style), then the grocery styles (below, `grocery.py`, gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
+The nine beauty depth types (mascara to talc, gen#214) are specs under `type_specs/` and are not derived from; see [retail-beauty-depth.md](retail-beauty-depth.md).
 Each derived style gets a new range name and a brand from its type's pool. It
 also differs from its template and from every sibling in a value its title shows
 or in its hero color family: a rename alone is not a style. When only the hero
