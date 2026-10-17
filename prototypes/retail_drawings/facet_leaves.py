@@ -19,7 +19,8 @@ so :func:`export.standard_document` collapses those leaves here:
   Elastane") becomes the fibre a shopper names (Nylon) and its blend a detail.
 - on every other type, ``fabric`` is the fibre or weave a shopper names (Cotton, Linen,
   Denim, Oxford); a grade or blend becomes the document's ``fibre_content``, a detail and
-  no facet (:data:`FABRIC_MOVES`, gen#187). A garment that states a ``material`` and no
+  no facet (:data:`FABRIC_MOVES`, gen#187; :data:`TYPED_FABRIC_MOVES` for a move that
+  reads one type's text, gen#291). A garment that states a ``material`` and no
   ``fabric`` ("Wool blend", "Brushed Cotton") also carries the fibre it names
   (:data:`MATERIAL_FABRICS`).
 
@@ -130,7 +131,8 @@ BRA_LEAVES: dict[str, tuple[str, Facet, Facet, Facet]] = {
 #: content ("Recycled Polyamide, Elastane") is the fibre a shopper asks for (Nylon). The blend
 #: becomes the document's ``fibre_content`` (:func:`fibre_content`), a detail and no facet. A
 #: blend names fibres, so the fabric is the one the row states: a cotton blend is a cotton,
-#: the tailored shorts' polyester blend is the suiting their text names (gen#258).
+#: the tailored shorts' polyester blend is the suiting their text names (gen#258), which is a
+#: call on one product type's text and so lives in :data:`TYPED_FABRIC_MOVES`.
 #: Boucle, Chenille, Corduroy, Faux Fur, Knitted, Linen, Plush and Velvet are fabrics and stay.
 FABRIC_MOVES: dict[str, tuple[str, str | None]] = {
     "100% Cotton": ("Cotton", "100% Cotton"),
@@ -145,7 +147,6 @@ FABRIC_MOVES: dict[str, tuple[str, str | None]] = {
     "Mid Weight Denim": ("Denim", None),
     "Washed Linen": ("Linen", None),
     "Cotton Blend": ("Cotton", "Cotton Blend"),
-    "Polyester Blend": ("Suiting", "Polyester Blend"),
     "Cotton Jersey": ("Jersey", "Cotton"),
     "Silk Dupion": ("Silk", "Silk Dupion"),
     "Cotton, Elastane": ("Cotton", "Cotton, Elastane"),
@@ -172,6 +173,18 @@ MATERIAL_FABRICS: dict[str, tuple[str, ...]] = {
     "Wool Cashmere blend": ("Wool", "Cashmere"),
 }
 
+#: A move that reads one product type's text, not the value alone: (product type, fabric) ->
+#: (fabric, blend). A value here on another type is moved by no one and stays as it is, so the
+#: closed-list guard names it and the new row's author decides (gen#291).
+TYPED_FABRIC_MOVES: dict[tuple[str, str], tuple[str, str | None]] = {
+    ("Shorts", "Polyester Blend"): ("Suiting", "Polyester Blend"),
+}
+
+
+def fabric_move(product_type: str, value: str) -> tuple[str, str | None] | None:
+    """The (fabric, blend) a ``fabric`` value of a ``product_type`` becomes, or ``None`` when
+    it is already a shopper's fabric. The typed move wins over the value's own."""
+    return TYPED_FABRIC_MOVES.get((product_type, value)) or FABRIC_MOVES.get(value)
 
 def _vocabulary() -> dict[str, set[str]]:
     """Every value of each :data:`BRA_KEYS` key that some leaf implies."""
@@ -216,21 +229,23 @@ def _fit_of_leaf(leaf: str, node: str) -> str | None:
     return leaf[: -len(suffix)] if leaf.endswith(suffix) else None
 
 
-def fibre_content(entries: list[dict[str, Any]]) -> str | None:
+def fibre_content(entries: list[dict[str, Any]], product_type: str) -> str | None:
     """The blend or grade ``entries``' ``fabric`` held ("98% Cotton, 2% Elastane"), for the
     document's ``fibre_content`` detail; ``None`` when the fabric is already a shopper's."""
     for entry in entries:
-        if entry["key"] == "fabric" and entry["value"] in FABRIC_MOVES:
-            return FABRIC_MOVES[entry["value"]][1]
+        move = fabric_move(product_type, entry["value"]) if entry["key"] == "fabric" else None
+        if move:
+            return move[1]
     return None
 
 
-def _fabric_facets(have: dict[str, str]) -> tuple[list[tuple[str, str, str]], set[str]]:
+def _fabric_facets(
+    have: dict[str, str], product_type: str
+) -> tuple[list[tuple[str, str, str]], set[str]]:
     """The fabric a fibre-content ``fabric`` becomes, as (key, name, value), and the key it
     replaces. Neither for a value that is already a fabric."""
-    if have.get("fabric") not in FABRIC_MOVES:
-        return [], set()
-    return [("fabric", "Fabric", FABRIC_MOVES[have["fabric"]][0])], {"fabric"}
+    move = fabric_move(product_type, have["fabric"]) if "fabric" in have else None
+    return ([("fabric", "Fabric", move[0])], {"fabric"}) if move else ([], set())
 
 
 def leaf_facets(
@@ -248,7 +263,7 @@ def leaf_facets(
         text = words(f"{rec['title']} {rec.get('description', '')}")
         if fits and CROPPED not in fits and f" {CROPPED.lower()} " in text:
             fits.append(CROPPED)
-        moved, keys = _fabric_facets(have)
+        moved, keys = _fabric_facets(have, ptype)
         return [("leg_fit", "Leg fit", f) for f in fits] + moved, {"leg_fit", "leg_style"} | keys
     if ptype == "Bra":
         out = [
@@ -262,10 +277,10 @@ def leaf_facets(
             for key, value in stated_bra_facets(rec["title"])
             if (key, value) not in implied
         ]
-        moved, _ = _fabric_facets(have)
+        moved, _ = _fabric_facets(have, ptype)
         out += [m for m in moved if (m[0], m[2]) not in implied]
         return out, {"bra_style", "fabric"}
-    moved, keys = _fabric_facets(have)
+    moved, keys = _fabric_facets(have, ptype)
     if not moved and "fabric" not in have:
         fibres = MATERIAL_FABRICS.get(have.get("material", ""), ())
         moved = [("fabric", "Fabric", fibre) for fibre in fibres]

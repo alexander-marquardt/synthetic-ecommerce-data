@@ -16,6 +16,7 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import breadth_rows  # noqa: E402
+import garden_rows  # noqa: E402
 import kit  # noqa: E402
 import scale  # noqa: E402
 
@@ -41,6 +42,8 @@ def test_no_other_template_uses_a_breadth_leaf() -> None:
         tuple(d["category_path"])
         for d in scale.templates()
         if d["product_id"].removeprefix("BRD-") not in mine
+        # a garden decoy sits in a sibling's leaf on purpose (gen#203, gen#294)
+        and d["product_id"] not in garden_rows.decoy_ids()
     }
     assert sorted(set(_leaves()) & other) == []
 

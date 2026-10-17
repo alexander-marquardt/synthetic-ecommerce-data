@@ -225,7 +225,7 @@ BACKPACKS = (
           "port and a hidden back pocket.",
           (BLACK, GREY, NAVY),
           _bp("Laptop", "Polyester", 2, True, 15.6), _num((18, 38.0), (24, 44.0)), "laptop", 2),
-    _brow("BPKLPL", "Leather Look Laptop Backpack", _O, 52.0,
+    _brow("BPKLPL", "Faux Leather Laptop Backpack", _O, 52.0,
           "A smart faux leather backpack for work, with a padded 14 inch laptop sleeve and "
           "a zipped front pocket.",
           (BLACK, TAN),
@@ -335,7 +335,7 @@ PURSES = (
           (BLACK, BURGUNDY, CAMEL), _pu("Zip Around Wallet", "Leather", True, "Zip", 5), "wallet",
           "zip", 5),
     _prow("PRSFLP", "Flap Over Purse", _H, 15.0,
-          "A long purse with a snap flap, three card slots, a coin pocket and a note "
+          "A long purse with a clasp flap, three card slots, a coin pocket and a note "
           "compartment.",
           (PINK, NAVY, GREEN), _pu("Wallet", "Faux Leather", False, "Clasp", 3), "wallet", "clasp",
           3),
@@ -516,7 +516,9 @@ BRACELETS = (
           "Bracelet", "bracelet", (("kind", "beaded"),), _sizes(("Small", 9.0), ("Large", 10.0))),
 )
 
-#: UK ring size (a letter) -> US size, as the two are sold side by side.
+#: UK ring size (a letter) -> US size, as the two are sold side by side. Their keys are
+#: ``ring_size_uk`` and ``ring_size_us``, never the garment and footwear ``size_uk``/``size_us``
+#: (gen#249).
 _US = {"J": "5", "L": "6", "N": "7", "P": "8", "R": "9"}
 
 
@@ -525,7 +527,7 @@ def _rs(*letters: str, base: float) -> tuple[tuple[str, float], ...]:
 
 
 def _rx(*letters: str) -> tuple:
-    return tuple((s, (("size_us", _US[s]),)) for s in letters)
+    return tuple((s, (("ring_size_us", _US[s]),)) for s in letters)
 
 
 def _rk(kind: str) -> tuple:
@@ -538,38 +540,39 @@ RINGS = (
     _jrow("RNGBND", "Plain Band Ring", _P, 10.0,
           "A slim polished band, comfortable enough to wear every day.",
           _MT, _METALS, _j(_METALS, _MT, _rk("Band")), "Rings", "Ring", "ring",
-          (("kind", "band"),), _rs(*_L4, base=10.0), "size_uk", _rx(*_L4)),
+          (("kind", "band"),), _rs(*_L4, base=10.0), "ring_size_uk", _rx(*_L4)),
     _jrow("RNGSGN", "Oval Signet Ring", _O, 18.0,
           "A classic oval signet ring with a flat polished face, worn on the little finger.",
           (GOLD, SILVER), _METALS, _j(_METALS, (GOLD, SILVER), _rk("Signet")), "Rings", "Ring",
-          "ring", (("kind", "signet"),), _rs("L", "N", "P", "R", base=18.0), "size_uk",
+          "ring", (("kind", "signet"),), _rs("L", "N", "P", "R", base=18.0), "ring_size_uk",
           _rx("L", "N", "P", "R")),
     _jrow("RNGSTK", "Set of Three Stacking Rings", _M, 15.0,
           "Three slim rings to wear together or apart, with a polished finish.",
           (GOLD, SILVER, ROSE_GOLD), _METALS,
           _j(_METALS, _MT, _rk("Stacking"), _count("piece_count", "Piece count", 3)), "Rings",
           "Ring", "ring", (("kind", "stacking"), ("pieces", "3")), _rs(*_L4, base=15.0),
-          "size_uk", _rx(*_L4)),
+          "ring_size_uk", _rx(*_L4)),
     _jrow("RNGSOL", "Solitaire Cubic Zirconia Ring", _T, 20.0,
           "A solitaire ring with one cubic zirconia in a four prong setting on a slim band.",
           (GOLD, SILVER), _METALS,
           _j(_METALS, (GOLD, SILVER), _rk("Solitaire"), *_stone("Cubic Zirconia")), "Rings",
           "Ring", "ring", (("kind", "stone"), ("stone", "cubic zirconia")),
-          _rs("J", "L", "N", "P", "R", base=20.0), "size_uk", _rx("J", "L", "N", "P", "R")),
+          _rs("J", "L", "N", "P", "R", base=20.0), "ring_size_uk", _rx("J", "L", "N", "P", "R")),
     _jrow("RNGEMD", "Emerald Solitaire Ring", _H, 32.0,
           "A solitaire ring with a faceted emerald in a four prong setting. Emerald is the "
           "birthstone for May.",
           (GOLD, SILVER), _METALS,
           _j(_METALS, (GOLD, SILVER), _rk("Solitaire"), *_stone("Emerald"),
              _a("birthstone", "Birthstone", "May")), "Rings", "Ring", "ring",
-          (("kind", "stone"), ("stone", "emerald")), _rs(*_L4, base=32.0), "size_uk", _rx(*_L4)),
+          (("kind", "stone"), ("stone", "emerald")), _rs(*_L4, base=32.0), "ring_size_uk",
+          _rx(*_L4)),
     _jrow("RNGSTM", "Sapphire Halo Statement Ring", _W, 36.0,
           "A statement ring with a large sapphire ringed by small clear stones, for evenings "
           "and weddings.",
           (SILVER, ROSE_GOLD), _METALS,
           _j(_METALS, (SILVER, ROSE_GOLD), _rk("Statement"), *_stone("Sapphire")), "Rings",
           "Ring", "ring", (("kind", "statement"), ("stone", "sapphire")),
-          _rs("L", "N", "P", "R", base=36.0), "size_uk", _rx("L", "N", "P", "R")),
+          _rs("L", "N", "P", "R", base=36.0), "ring_size_uk", _rx("L", "N", "P", "R")),
 )
 
 ROWS = (*HANDBAGS, *BACKPACKS, *TOTES, *PURSES, *UMBRELLAS, *NECKLACES, *BRACELETS, *RINGS)
