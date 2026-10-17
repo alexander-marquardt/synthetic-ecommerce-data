@@ -11,16 +11,17 @@ shape           draws                                            params
 ==============  ===============================================  ===============================
 sofa_seats      a straight sofa, one seat and back cushion       seats (2, 2.5, 3, 4), arms,
                 per seat (2.5 draws two wide ones)               legs
-corner_sofa     a sofa and its return, the return with its own   seats (main run), side (left,
+corner_sofa     a sofa and its return, the return with its own   seats (in all), side (left,
                 back and seats; ``u`` returns on both sides      right, u), arms, legs
 chaise_sofa     a sofa whose end seat runs forward as a chaise,  seats, side (left, right),
-                no back over the chaise                          arms, legs
+                its back along the whole rear, chaise included   arms, legs
 modular_sofa    separate modules with a gap between each,        pieces, layout (straight,
                 armless in the middle; an ottoman in front       corner), ottoman (yes, no)
 recliner_sofa   a sofa of separate padded seats, each with its   seats, legs
                 footrest raised in front
 sofa_bed        a sofa and the bed it makes: a pulled-out or     mechanism (pull_out,
-                folded-out mattress, or a click-clack laid flat  click_clack, fold_out), seats
+                folded-out mattress, or a click-clack sofa,      click_clack, fold_out), seats
+                its back upright over a hinge line
 armchair        one seat, by style: a slim accent chair, a       style (accent, wingback, tub,
                 winged back, a tub, a swivel pedestal, a high    swivel, nursing, recliner),
                 armless nursing chair, a recliner                legs
@@ -285,13 +286,19 @@ def sofa_seats(paint: str, fill: Fill, label: str | None, seats: str = "3", arms
     return _draw(_straight(seats, arms, legs), paint, fill)
 
 
-def corner_sofa(paint: str, fill: Fill, label: str | None, seats: str = "3", side: str = "left", arms: str = "track", legs: str = "black_metal") -> list[str]:
-    """A main run of ``seats`` and a two-seat return coming forward on ``side`` (both for ``u``).
+def corner_sofa(paint: str, fill: Fill, label: str | None, seats: str = "5", side: str = "left", arms: str = "track", legs: str = "black_metal") -> list[str]:
+    """``seats`` seats in all: a run, and a two-seat return coming forward on ``side`` (a return at
+    each end for ``u``).
 
-    The return has its own back along its outer edge and its own seat cushions; the corner seat
-    joins the two, and an arm closes any end with no return.
+    The return has its own back along its outer edge and its own seat cushions; a corner seat
+    joins the two, and an arm closes any end with no return. Every return takes its two seats and
+    its corner seat from ``seats``, and the run is the rest (``seats`` less three per return), so
+    the drawing shows the seat count its record states. Below the floor (3 for a return, 6 for
+    ``u``) it draws the floor: a corner seat and the return, no run.
     """
-    n, width = _seats(seats)
+    returns = 2 if side == "u" else 1
+    n = max(0, int(float(seats)) - 3 * returns)  # run seats other than the corner seats
+    width = SEAT * n
     aw = ARMS[arms][0]
     d, ret = DEPTH, 2 * SEAT
     left = side in ("left", "right", "u")  # a right-hand sofa is the left-hand one flipped
@@ -325,7 +332,11 @@ def corner_sofa(paint: str, fill: Fill, label: str | None, seats: str = "3", sid
 
 
 def chaise_sofa(paint: str, fill: Fill, label: str | None, seats: str = "3", side: str = "left", arms: str = "track", legs: str = "oak") -> list[str]:
-    """A straight sofa whose end seat on ``side`` runs forward as a chaise, with no back over it."""
+    """A straight sofa whose end seat on ``side`` runs forward as a chaise.
+
+    ``seats`` counts every seat, the chaise end included. The back runs along the whole rear, the
+    chaise end too (the chaise is the front of that last seat, not a seat without a back).
+    """
     n, width = _seats(seats)
     aw = ARMS[arms][0]
     reach = 70.0  # how far the chaise comes forward of the seats
@@ -424,23 +435,29 @@ def recliner_sofa(paint: str, fill: Fill, label: str | None, seats: str = "3", l
 
 
 def sofa_bed(paint: str, fill: Fill, label: str | None, mechanism: str = "pull_out", seats: str = "3") -> list[str]:
-    """The bed a sofa bed makes: its mattress pulled or folded out in front, or a click-clack laid flat.
+    """A sofa bed: its mattress pulled or folded out in front, or a click-clack sofa with its hinge marked.
 
     ``pull_out`` slides one deep mattress out on a low base; ``fold_out`` unfolds a thinner
-    three-part mattress on a metal frame (two fold seams across it); ``click_clack`` has no arms,
-    its back lowered flat beside the seat into one sleeping surface with a hinge line.
+    three-part mattress on a metal frame (two fold seams across it); ``click_clack`` is drawn as the
+    sofa it is until the bed is made: no arms, a seat cushion and an upright back cushion per
+    seat on a metal frame, and the hinge line across the seat's rear edge, where the back
+    clicks down flat. It stays one sofa deep, so it reads as a sofa and not as a bed.
     """
     n, width = _seats(seats)
     if mechanism == "click_clack":
+        # The sofa position: a seat and an upright back per seat on a metal frame, no arms. The
+        # back folds flat about the line where it meets the seat, so that line is marked.
+        z_hinge = DEPTH - 32
         boxes = [
-            *_legs(0.0, width, 0.0, DEPTH * 2, "black_metal"),
-            Box(0.0, width, LEG, LEG + 8, 0.0, DEPTH * 2, FRAME),
-            Box(1.0, width - 1, LEG + 8, LEG + 26, DEPTH, DEPTH * 2, "fill"),
-            Box(1.0, width - 1, LEG + 8, LEG + 26, 0.0, DEPTH - 2, "fill"),
+            *_legs(0.0, width, 0.0, DEPTH, "black_metal"),
+            Box(0.0, width, LEG, BASE, 0.0, DEPTH, FRAME),
+            Box(0.0, width, BASE, BACK - 6, DEPTH - 14, DEPTH, "fill"),
+            *_cushions(0.0, width, n, CUSHION - 2, BACK, z_hinge, DEPTH - 14),
+            *_cushions(0.0, width, n, BASE, CUSHION, 0.0, z_hinge),
         ]
 
         def hinge(sheet: _Sheet) -> list[str]:
-            return [_path(f"M{sheet.p(1.0, LEG + 26, DEPTH - 1)} L{sheet.p(width - 1, LEG + 26, DEPTH - 1)}", "none", 2.2)]
+            return [_path(f"M{sheet.p(1.0, CUSHION, z_hinge)} L{sheet.p(width - 1, CUSHION, z_hinge)}", "none", 2.2)]
 
         return _draw(boxes, paint, fill, hinge)
     aw = ARMS["track"][0]

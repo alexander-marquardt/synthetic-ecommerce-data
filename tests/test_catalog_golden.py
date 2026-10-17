@@ -42,6 +42,10 @@ GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
 #: The exact command a contributor runs to update it.
 REBUILD = "uv run ecom-generate build --out golden-catalog"
 
+#: The committed field map's identity and modification time when this module was
+#: imported: no test of it may write that file (``test_the_build_fixture_writes...``).
+FIELD_MAP_AT_IMPORT = (FIELD_MAP_PATH.stat().st_ino, FIELD_MAP_PATH.stat().st_mtime_ns)
+
 #: Everything ``build`` writes. Asserted as a set against the directory, so a
 #: new output file that nobody committed is red rather than invisible.
 GOLDEN_FILES = (
@@ -82,26 +86,41 @@ def fresh_build(tmp_path_factory: pytest.TempPathFactory) -> Path:
     marked slow and not skipped by default -- a golden test that does not run
     reads as coverage while asserting nothing.
 
-    ``build`` also rewrites the committed PRISM field map in the SOURCE tree
-    (see ``catalog.cli._write_field_map``), which a test has no business
-    leaving behind. The bytes are snapshotted and put back unconditionally,
-    and then asserted unchanged: the build is supposed to be idempotent
-    against a checkout that is already up to date, and if it is not, that is
-    the same drift ``tests/test_prism_field_map_drift.py`` exists to catch.
+    ``build`` also writes the PRISM field map, by default into the SOURCE tree (see
+    ``catalog.cli._write_field_map``), which a test has no business touching: with
+    ``--dist loadgroup`` each worker that gets a test of this module builds its own
+    copy, and a build that truncated the committed file, even to put its bytes back,
+    raced the other workers' reads of it (#440). The build writes its field map to a
+    temporary path instead, and the bytes are asserted equal to the committed file's:
+    the build is supposed to be idempotent against a checkout that is already up to
+    date, and if it is not, that is the same drift
+    ``tests/test_prism_field_map_drift.py`` exists to catch.
     """
     out = tmp_path_factory.mktemp("golden")
-    before = FIELD_MAP_PATH.read_bytes()
-    try:
+    written = tmp_path_factory.mktemp("field_map") / FIELD_MAP_PATH.name
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(cli, "field_map_target", lambda: written)
         code = cli.main(["build", "--out", str(out)])
-    finally:
-        after = FIELD_MAP_PATH.read_bytes()
-        FIELD_MAP_PATH.write_bytes(before)
     assert code == 0, "ecom-generate build failed; its own audits print to stderr"
-    assert after == before, (
+    assert written.is_file(), "the default build did not write the field map"
+    assert written.read_bytes() == FIELD_MAP_PATH.read_bytes(), (
         f"{FIELD_MAP_PATH} is not up to date with the generator -- a build "
         f"rewrote it. Run `{REBUILD}` and commit the field map too."
     )
     return out
+
+
+def test_the_build_fixture_writes_nothing_in_the_source_tree(fresh_build: Path) -> None:
+    """Under ``--dist loadgroup`` every worker that gets a test of this module builds
+    its own ``fresh_build``; a build that rewrote the committed field map, even to put
+    the same bytes back, truncated a file another worker was reading (#440's red: the
+    drift test and the golden tests "not up to date" at once, on a tree that was)."""
+    now = FIELD_MAP_PATH.stat()
+    assert (now.st_ino, now.st_mtime_ns) == FIELD_MAP_AT_IMPORT, (
+        f"{FIELD_MAP_PATH} was written while the tests ran; the fixture must send the "
+        "build's field map to a temporary path"
+    )
+    assert fresh_build.is_dir()
 
 
 def test_golden_directory_holds_exactly_the_build_output(fresh_build: Path) -> None:
