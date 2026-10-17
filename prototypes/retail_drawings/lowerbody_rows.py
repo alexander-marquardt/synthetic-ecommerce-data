@@ -17,7 +17,7 @@ what it was.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 
 import kit_lowerbody  # noqa: F401 -- registers leggings, joggers, shorts, ...
 from breadth_rows import OWNERS, Row
@@ -51,10 +51,7 @@ class LRow(Row):
                 for s in base for v, f in self.axis]  # fmt: skip
 
     def doc(self) -> dict:
-        # ``drawing()`` takes the shape's name as ``shape``, so the skirt's own ``shape`` param
-        # (A-line, pleated, ...) is set on the drawing after it is built.
-        out = Row.doc(replace(self, params=tuple(p for p in self.params if p[0] != "shape")))
-        out["drawing"]["params"] = dict(self.params)
+        out = super().doc()
         out.update(dict(self.facts))
         if self.axis_key in ("inside_leg", "fit_length"):
             served = {LENGTH_RANGE[v] for v, _ in self.axis}

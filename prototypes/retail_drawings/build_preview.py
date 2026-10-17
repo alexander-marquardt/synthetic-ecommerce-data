@@ -54,7 +54,10 @@ UNIT = {"LTR": "L", "MLT": "ml", "GRM": "g", "KGM": "kg", "C62": "", "CMT": " cm
 GARMENT = {"audience", "leg_fit", "rise", "length", "waist", "neckline", "sleeve_length"}
 
 
-def drawing_svg(rec: dict) -> str:
+def drawing_svg(rec: dict, styled: bool = True) -> str:
+    """The product's drawing as an SVG: in its brand's house style, or with ``styled=False`` on
+    the plain 400 x 400 sheet the shape is drawn on, before the house style scales it into its
+    frame (the sheet ``tests/test_retail_sheet_242.py`` measures)."""
     d = rec["drawing"]
     # A motif print's fields (gen#125) ride on the drawing beside its colors.
     fill = Fill(d["pattern"], d["base"], d["accent"], d["third"], motif=d.get("motif"),
@@ -68,7 +71,7 @@ def drawing_svg(rec: dict) -> str:
         brand=rec["brand"],
         uid=rec["product_id"],
         params=d.get("params"),
-        style=HOUSE_STYLES[rec["brand"]],
+        style=HOUSE_STYLES[rec["brand"]] if styled else None,
     )
 
 

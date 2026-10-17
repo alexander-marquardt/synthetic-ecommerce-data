@@ -31,6 +31,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+import colorwords
 import facet_leaves
 from audience import audience_of
 from build_preview4 import samples
@@ -65,6 +66,10 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "size_uk": ("size_uk", "Size (UK)", None),
     "size_eu": ("size_eu", "Size (EU)", None),
     "size_us": ("size_us", "Size (US)", None),
+    # A ring's UK letter and US number are not the garment and footwear sizes, which are
+    # numbers of their own scales: a key is shared only when its values are one kind (gen#249).
+    "ring_size_uk": ("ring_size_uk", "Ring size (UK)", None),
+    "ring_size_us": ("ring_size_us", "Ring size (US)", None),
     "length": ("length", "Length", None),
     "inside_leg": ("inside_leg", "Inside leg", None),
     # A skirt's Petite/Regular/Long fit; not ``length``, which the Combined projection renames to
@@ -91,11 +96,19 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     # Bags, umbrellas and jewelry (accessory_rows.py, gen#207): a backpack's capacity, an
     # umbrella's canopy, a necklace's length (item_length), a jewelry SKU's metal.
     "canopy_cm": ("canopy_diameter", "Canopy diameter", "CMT"),
+    # A parasol's canopy is sold in metres, an umbrella's in centimetres: one key, one kind of
+    # value, the unit says which (garden_outdoor specs, gen#203). A furniture set's seats.
+    "canopy_m": ("canopy_diameter", "Canopy diameter", "MTR"),
+    "seats": ("seats", "Seats", "C62"),
     "metal": ("metal", "Metal", None),
+    # A watch's or fitness band's case, in millimetres (jewellery_rows.py, gen#423).
+    "case_mm": ("case_diameter", "Case diameter", "MMT"),
     # A building set's sizes, a board game's editions and a craft kit's themes
     # (toys_rows.py, gen#201).
     "piece_count": ("piece_count", "Piece count", "C62"),
     "edition": ("edition", "Edition", None),
+    # A dolls' house is sold in three styles (type_specs/dolls_house.py, gen#424).
+    "house_style": ("style", "Style", None),
     "theme": ("theme", "Theme", None),
     # The grocery build's flavor x pack SKUs (grocery.py, gen#154); a list option
     # (an allergen list, the dietary labels) is one entry per value.
@@ -131,6 +144,18 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "berth": ("berth", "Berth", "C62"),
     "thickness_mm": ("thickness", "Thickness", "MMT"),
     "weight_kg": ("weight", "Weight", "KGM"),
+    # A garden hose's length (garden_rows.py, gen#292): the hose is cut and sold in metres.
+    "length_m": ("item_length", "Item length", "MTR"),
+    # The second increment (sports_rows.py, gen#368): a block's height (item_height) and a strap's,
+    # bat's and kickboard's length (item_length) reuse the keys above; the rest are new.
+    "glove_size_in": ("glove_size", "Glove size", "INH"),
+    "head_cm": ("head_circumference", "Head circumference", "CMT"),
+    "max_load_kg": ("max_load_kg", "Maximum load", "KGM"),
+    "ball_size": ("ball_size", "Ball size", "C62"),
+    "players": ("players", "Players", "C62"),
+    "resistance": ("resistance_level", "Resistance level", None),
+    "brightness_lm": ("brightness", "Brightness (lm)", None),
+    "grip": ("grip_size", "Grip size", None),
     # A mower's or trimmer's cutting width and a robot mower's lawn area (garden_rows.py,
     # gen#203); the area is a plain number named in square metres, as a wattage is in watts.
     "cutting_width_cm": ("cutting_width", "Cutting width", "CMT"),
@@ -227,6 +252,18 @@ def _url(image: str) -> str:
     return f"{IMAGE_BASE_URL}/{image}.svg"
 
 
+def _color_entries(authored: str) -> list[dict[str, Any]]:
+    """The ``color`` entry of an authored shade, and its ``pattern`` entry when it has one.
+
+    "Navy Stripe" is color Navy and pattern Stripe (gen#188): the color facet holds colors only,
+    so a "navy" filter finds the striped shirt and a "stripe" filter finds it too."""
+    color, pattern = colorwords.split(authored)
+    out = [_entry("color", "Color", None, color)]
+    if pattern is not None:
+        out.append(_entry(*FACTS["pattern"], pattern))
+    return out
+
+
 def _product_attributes(rec: dict) -> list[dict[str, Any]]:
     out = list(rec["attributes"])
     have = {(e["key"], e["value"]) for e in out}
@@ -234,7 +271,8 @@ def _product_attributes(rec: dict) -> list[dict[str, Any]]:
         if field not in FACTS and field not in COLUMNS and field not in DROPPED:
             raise KeyError(f"{rec['product_id']}: no standard home for {field!r}")
     facts = [e for f, spec in FACTS.items() if f in rec for e in _entries(spec, rec[f])]
-    facts += [_entry("color", "Color", None, c["color"]) for c in rec.get("color_options", ())]
+    for c in rec.get("color_options", ()):
+        facts += _color_entries(c["color"])
     for option, values in rec.get("size_options", {}).items():
         facts += _entries(OPTIONS[option], values)
     if "unit_size" in rec:
@@ -266,9 +304,26 @@ def _one_case(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return out
 
 
+def _splits(rec: dict) -> bool:
+    """Whether any SKU of the style has a pattern split out of its authored color."""
+    return any(colorwords.split(s["color"])[1] for s in rec["skus"] if "color" in s)
+
+
+def _own_pattern(rec: dict, sku: dict) -> list[dict[str, Any]]:
+    """A SKU's pattern entry in a style where any SKU splits: its split pattern, else the
+    style's drawn pattern, else Plain. Every variant states its own, so a SKU never reads a
+    sibling's pattern off the style's list, and pattern joins ``variant_axes`` where it varies."""
+    pattern = colorwords.split(sku["color"])[1] if "color" in sku else None
+    if pattern is not None:
+        return [_entry(*FACTS["pattern"], pattern)]
+    drawn = rec.get("pattern", "Plain")
+    return _entries(FACTS["pattern"], drawn)
+
+
 def _variant(rec: dict, sku: dict) -> dict[str, Any]:
     image = image_id(rec, sku)
     options = [k for k in sku if k not in SKU_COLUMNS]
+    own = _own_pattern(rec, sku) if _splits(rec) else []
     return {
         "sku": sku["sku"],
         "title": rec["title"],
@@ -280,7 +335,13 @@ def _variant(rec: dict, sku: dict) -> dict[str, Any]:
         "image_url": _url(image),
         "image_detail_url": _url(image),
         **({"ingredients": sku["ingredients"]} if "ingredients" in sku else {}),
-        "attributes": [e for k in options for e in _entries(OPTIONS[k], sku[k])],
+        "attributes": [
+            e
+            for k in options
+            for e in (_color_entries(sku[k]) if k == "color" else _entries(OPTIONS[k], sku[k]))
+            if not (own and e["key"] == "pattern")
+        ]
+        + _one_case(own),
     }
 
 
@@ -323,6 +384,13 @@ def standard_document(rec: dict) -> dict[str, Any]:
     variants = [_variant(rec, sku) for sku in rec["skus"]]
     path = list(rec["category_path"])
     attributes = _product_attributes(rec)
+    if _splits(rec) and all(colorwords.split(s["color"])[1] for s in rec["skus"]):
+        # Every SKU states its own split pattern: the style lists the union of those, and a
+        # drawn pattern no SKU states (the "Plain" default, a "Striped" drawing) describes none.
+        stated = {e["value"] for v in variants for e in v["attributes"] if e["key"] == "pattern"}
+        attributes = [
+            e for e in attributes if e["key"] != "pattern" or e["value"] in stated
+        ]
     blend = facet_leaves.fibre_content(attributes, rec["product_type"])
     added, replaced = facet_leaves.leaf_facets(rec, attributes)
     if replaced:

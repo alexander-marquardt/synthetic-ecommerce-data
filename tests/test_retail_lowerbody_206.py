@@ -28,6 +28,7 @@ import kit_lowerbody  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import scale  # noqa: E402
 import type_registry  # noqa: E402
+import variants  # noqa: E402
 
 from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 
@@ -169,6 +170,40 @@ def test_a_jogger_states_the_cuff_and_the_fit_it_draws() -> None:
     }
 
 
+#: The length a shorts or cycling-shorts record states for the ``length`` param it draws.
+SHORT_LENGTHS = {"mini": "Mini", "mid": "Mid Length", "knee": "Knee Length"}
+
+
+def test_a_shorts_states_the_length_and_the_style_it_draws() -> None:
+    shorts = [r for r in ROWS if r.product_type == "Shorts"]
+    for row in shorts:
+        p = dict(row.params)
+        assert _attr(row, "garment_length") == [SHORT_LENGTHS[p["length"]]], row.code
+        assert _attr(row, "shorts_style") == [p["style"].title()], row.code
+    assert {dict(r.params)["length"] for r in shorts} == set(SHORT_LENGTHS)
+    assert {dict(r.params)["style"] for r in shorts} == set(kit_lowerbody.SHORT_STYLES)
+
+
+def test_a_cycling_shorts_states_the_length_and_the_rise_it_draws() -> None:
+    cycling = [r for r in ROWS if r.product_type == "Cycling Shorts"]
+    for row in cycling:
+        p = dict(row.params)
+        assert _attr(row, "garment_length") == [SHORT_LENGTHS[p["length"]]], row.code
+        assert dict(row.facts)["rise"].lower() == p["rise"], row.code
+    assert {dict(r.params)["length"] for r in cycling} == set(SHORT_LENGTHS)
+    assert {dict(r.params)["rise"] for r in cycling} == {"mid", "high"}
+
+
+def test_a_tracksuit_states_the_top_and_the_fit_it_draws() -> None:
+    tracksuits = [r for r in ROWS if r.product_type == "Tracksuit"]
+    for row in tracksuits:
+        p = dict(row.params)
+        assert _attr(row, "top_style") == [p["top"].replace("_", "-").title()], row.code
+        assert _attr(row, "leg_fit") == [p["fit"].title()], row.code
+    assert {dict(r.params)["top"] for r in tracksuits} == {"hooded", "zip", "half_zip"}
+    assert {dict(r.params)["fit"] for r in tracksuits} == {"slim", "regular", "relaxed"}
+
+
 def test_a_skirt_states_the_shape_and_the_length_it_draws() -> None:
     skirts = [r for r in ROWS if r.product_type == "Skirt"]
     for row in skirts:
@@ -177,6 +212,30 @@ def test_a_skirt_states_the_shape_and_the_length_it_draws() -> None:
         assert _attr(row, "garment_length") == [p["hem"].title()], row.code
     assert {dict(r.params)["shape"] for r in skirts} == set(kit_lowerbody.SKIRT_SHAPES)
     assert {_attr(r, "garment_length")[0] for r in skirts} == {"Mini", "Midi", "Maxi"}
+
+
+def _built(build):
+    """What ``build()`` returns, or the error it raises (so a collision fails on an assertion)."""
+    try:
+        return build()
+    except TypeError as err:
+        return {"collision": str(err)}
+
+
+def test_drawing_takes_a_param_named_shape_beside_the_shape_it_draws() -> None:
+    navy = variants.cw("Navy", "#1f2a44")
+    out = _built(lambda: variants.drawing("skirt", navy, None, shape="pleated", hem="midi"))
+    assert out.get("shape") == "skirt", out
+    assert out.get("params") == {"shape": "pleated", "hem": "midi"}, out
+
+
+def test_a_skirt_row_builds_its_document_without_stripping_its_shape_param() -> None:
+    from breadth_rows import Row
+
+    for row in (r for r in lowerbody_rows.ROWS if r.product_type == "Skirt"):
+        out = _built(lambda row=row: Row.doc(row))
+        assert out.get("drawing", {}).get("params") == dict(row.params), (row.code, out)
+        assert out["drawing"]["shape"] == "skirt", row.code
 
 
 def test_a_tracksuit_is_sold_as_a_set_or_either_piece_in_each_size() -> None:

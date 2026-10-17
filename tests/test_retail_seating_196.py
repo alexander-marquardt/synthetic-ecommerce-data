@@ -115,7 +115,7 @@ def test_the_corner_and_chaise_drawings_are_both_handed(monkeypatch: pytest.Monk
 
 
 def test_a_sofa_drawn_by_seat_count_draws_the_seats_its_record_states() -> None:
-    drawn = [r for r in ROWS if "seats" in dict(r.params) and r.shape != "corner_sofa"]
+    drawn = [r for r in ROWS if "seats" in dict(r.params)]
     assert drawn
     assert {
         r.code: (dict(r.params)["seats"], _attr(r, "seat_count"))
@@ -175,6 +175,63 @@ def test_an_armless_chair_stands_on_legs_under_its_seat(monkeypatch: pytest.Monk
     left, right = min(b.x0 for b in seat), max(b.x1 for b in seat)
     assert legs
     assert [(b.x0, b.x1) for b in legs if b.x0 < left or b.x1 > right] == []
+
+
+def _sofa_bed_drawing(
+    mechanism: str, seats: str, monkeypatch: pytest.MonkeyPatch
+) -> tuple[list[kit_seating.Box], list[str], kit_seating._Sheet]:
+    """A sofa bed's blocks, the marks its ``extra`` adds on the fitted sheet, and the sheet."""
+    seen: list[tuple[list[kit_seating.Box], object]] = []
+    real = kit_seating._draw
+
+    def spy(boxes, paint, fill, extra=None):
+        seen.append((boxes, extra))
+        return real(boxes, paint, fill, extra)
+
+    monkeypatch.setattr(kit_seating, "_draw", spy)
+    fill = kit.Fill("solid", "#123456", "#654321")
+    kit.render("sofa_bed", fill, params={"mechanism": mechanism, "seats": seats})
+    boxes, extra = seen[-1]
+    sheet = kit_seating._Sheet(boxes)
+    return boxes, (extra(sheet) if extra else []), sheet
+
+
+@pytest.mark.parametrize("seats", ["2", "3"])
+def test_a_click_clack_draws_a_sofa_with_a_seat_cushion_per_seat_and_a_back(
+    seats: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """gen#223: the click-clack was two flat slabs on a frame, so at thumbnail size it read as a
+    bed. It now shows the sofa: one seat cushion per seat, each with a back cushion upright
+    behind it, rising above the seat."""
+    boxes, _, _ = _sofa_bed_drawing("click_clack", seats, monkeypatch)
+    upholstery = [b for b in boxes if b.paint == "fill"]
+    seat = [b for b in upholstery if b.y1 == kit_seating.CUSHION]
+    back = [b for b in upholstery if b.y1 == kit_seating.BACK]
+    assert len(seat) == int(seats)
+    assert len(back) == int(seats)
+    assert min(b.z0 for b in back) >= max(b.z1 for b in seat)
+
+
+def test_a_click_clack_is_a_sofa_deep_with_a_hinge_line_where_the_back_meets_the_seat(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The click-clack's back folds down about the seat's rear edge, so the hinge is marked
+    there, across the seat's width; the piece is one sofa deep, not a double-depth bed."""
+    boxes, marks, sheet = _sofa_bed_drawing("click_clack", "2", monkeypatch)
+    assert max(b.z1 for b in boxes) == kit_seating.DEPTH
+    seat = [b for b in boxes if b.paint == "fill" and b.y1 == kit_seating.CUSHION]
+    x0, x1, z = min(b.x0 for b in seat), max(b.x1 for b in seat), max(b.z1 for b in seat)
+    hinge = f'd="M{sheet.p(x0, kit_seating.CUSHION, z)} L{sheet.p(x1, kit_seating.CUSHION, z)}"'
+    assert [m for m in marks if hinge in m]
+
+
+def test_the_three_sofa_bed_mechanisms_draw_three_different_pictures() -> None:
+    fill = kit.Fill("solid", "#123456", "#654321")
+    mechanisms = ("pull_out", "click_clack", "fold_out")
+    drawn = {
+        m: kit.render("sofa_bed", fill, params={"mechanism": m, "seats": "2"}) for m in mechanisms
+    }
+    assert len(set(drawn.values())) == 3
 
 
 @pytest.mark.timeout(300)

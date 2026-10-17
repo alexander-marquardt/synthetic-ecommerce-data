@@ -374,7 +374,11 @@ HOME = [
         ["Home", "Bedding", "Mattress Toppers"],
         65.00,
         home_attrs(
-            "White", "Plain", "Memory Foam, Polyester Cover", BED, attr("depth", "Depth", 5, "CMT")
+            "White",
+            "Plain",
+            "Memory Foam, Polyester Cover",
+            BED,
+            attr("mattress_depth", "Mattress depth", 5, "CMT", 50.0),
         ),
         drawing("mattress_topper", "solid", "#f4f2ec", depth="5 cm"),
     ),
