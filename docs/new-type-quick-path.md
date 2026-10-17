@@ -28,9 +28,11 @@ only when this page does not cover what you need.
      no spec owns is declared with its reason in `type_registry.ONE_OFF_TEXT_EXEMPT`;
      `tests/test_retail_text_exempt_452.py` fails a stale or redundant entry;
    * a clothing, footwear or lingerie type (Womens, Mens or Kids) carries its apparel decoy plan
-     (gen#311) in the same file: the scaffold writes `apparel=ApparelPlan()` (three decoys per
-     class; `ApparelPlan(family, per_class)` picks the word family `a` garment, `b` bra,
-     `u` underwear, `s` shoe, `k` sock, and more per class). A type that should carry none says
+     (gen#311) in the same file: the scaffold writes `apparel=ApparelPlan(compounds=...)` with
+     one placeholder compound to edit (three decoys per class; `ApparelPlan(family, per_class,
+     compounds)` picks the word family `a` garment, `b` bra, `u` underwear, `s` shoe, `k` sock,
+     and more per class; `compounds` are the type's real class 2 names, each `(word, phrase)`
+     such as `("vest", "Knitted Vest Top")`, never an invented one; add each new phrase to `REAL_COMPOUNDS` in `tests/test_retail_apparel_decoys_311.py` after the same review, or the census reds). A type that should carry none says
      why: `apparel_exempt="<reason>"` in place of the plan. A beauty type carries neither.
    Worked examples: `type_specs/tracksuit.py` (clothing, an `LRow` with a SKU axis) and
    `type_specs/shampoo.py` (beauty, a derivable breadth type).
