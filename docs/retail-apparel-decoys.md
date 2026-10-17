@@ -41,6 +41,7 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 - Ballet Pumps: only ballet slippers and ballet sandals pair another noun with a ballet pump.
 - Barefoot Shoes: only the sandal barefoot shoe is a name a shopper meets.
 - Blouse: only the dress blouse and the tunic blouse are names a shopper meets.
+- Bra: only the cami bra and the corset bra are names; a t-shirt bra is a bra shape.
 - Chukka Boots: only sneaker boots and loafer boots are names; a shoe boot is not one.
 - Clogs: only the mule clog is a name a shopper meets.
 - Court Shoes: only dress shoes pairs another category's noun with a court shoe.
@@ -1099,15 +1100,15 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA46106 | Bra | 1 color names a part | Bra with White Bow | white | white bra | generic |
 | PLT-DA46107 | Bra | 1 color names a part | Bra with Black Straps | black | black bra | generic |
 | PLT-DA46108 | Bra | 1 color names a part | Bra with Green Bow | green | green bra | generic |
-| PLT-DA46200 | Bra | 2 another category's noun as a modifier | Black T-Shirt Bra | t-shirt | t-shirt | generic |
-| PLT-DA46201 | Bra | 2 another category's noun as a modifier | Cream Cami Bra | cami | cami | generic |
-| PLT-DA46202 | Bra | 2 another category's noun as a modifier | Grey Corset Bra | corset | corset | generic |
-| PLT-DA46203 | Bra | 2 another category's noun as a modifier | White Corset Bra | corset | corset | generic |
-| PLT-DA46204 | Bra | 2 another category's noun as a modifier | Black Cami Bra | cami | cami | generic |
-| PLT-DA46205 | Bra | 2 another category's noun as a modifier | Blue Cami Bra | cami | cami | generic |
-| PLT-DA46206 | Bra | 2 another category's noun as a modifier | Brown Cami Bra | cami | cami | generic |
-| PLT-DA46207 | Bra | 2 another category's noun as a modifier | Green T-Shirt Bra | t-shirt | t-shirt | generic |
-| PLT-DA46208 | Bra | 2 another category's noun as a modifier | Navy Corset Bra | corset | corset | generic |
+| PLT-DA46200 | Bra | 2 another category's noun as a modifier | Black Cami Bra | cami | cami | generic |
+| PLT-DA46201 | Bra | 2 another category's noun as a modifier | Cream Corset Bra | corset | corset | generic |
+| PLT-DA46202 | Bra | 2 another category's noun as a modifier | Brown Corset Bra | corset | corset | generic |
+| PLT-DA46203 | Bra | 2 another category's noun as a modifier | Black Corset Bra | corset | corset | generic |
+| PLT-DA46204 | Bra | 2 another category's noun as a modifier | Green Corset Bra | corset | corset | generic |
+| PLT-DA46205 | Bra | 2 another category's noun as a modifier | Red Cami Bra | cami | cami | generic |
+| PLT-DA46206 | Bra | 2 another category's noun as a modifier | Pink Corset Bra | corset | corset | generic |
+| PLT-DA46207 | Bra | 2 another category's noun as a modifier | Brown Cami Bra | cami | cami | generic |
+| PLT-DA46208 | Bra | 2 another category's noun as a modifier | White Corset Bra | corset | corset | generic |
 | PLT-DA46300 | Bra | 3 audience word of a sibling version | Navy Boys Fit Bra | boys | boys bra | generic |
 | PLT-DA46301 | Bra | 3 audience word of a sibling version | Pink Mens Fit Bra | mens | mens bra | generic |
 | PLT-DA46302 | Bra | 3 audience word of a sibling version | Green Mens Fit Bra | mens | mens bra | generic |

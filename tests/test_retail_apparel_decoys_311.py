@@ -240,7 +240,7 @@ REAL_COMPOUNDS = frozenset({
     "Sock Platform Trainers", "Loafer Mules", "Slipper Mules", "Sandal Mules",
     "Mary Jane Jelly Shoes", "Sandal Barefoot Shoes",
     "Sock Trainers", "Running Trainers", "Walking Trainers", "Chelsea Wellies",
-    "T-Shirt Bra", "Cami Bra", "Corset Bra",
+    "Cami Bra", "Corset Bra",
     "Boxer Briefs", "Boxer Trunks",
     "Hoodie Dressing Gown", "Kimono Dressing Gown", "Dressing Gown",
     "Short Knickers", "Cami Knickers", "Bikini Knickers",
@@ -278,7 +278,7 @@ INVENTED_COMPOUNDS = frozenset({
     "Sweatshirt Tracksuit", "Dress Trainers", "Ballet Sneakers", "Sneaker Loafers",
     "Trainer School Shoes", "Sock Shoes", "Pump Heels", "Trouser Shorts", "Pyjama Boxers",
     # #444 review: each names a class the product itself belongs to, not another product's noun
-    "Ballet Flats", "Henley Tee", "Henley T-Shirt", "Slider Sandals",
+    "Ballet Flats", "Henley Tee", "Henley T-Shirt", "Slider Sandals", "T-Shirt Bra",
 })
 
 
