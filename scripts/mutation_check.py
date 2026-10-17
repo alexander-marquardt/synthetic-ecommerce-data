@@ -27,6 +27,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mutation_rows_appliance_colors  # noqa: E402  (gen#243 rows)
+import mutation_rows_attribute_keys  # noqa: E402  (gen#227 rows, kept in their own file)
 import mutation_rows_attribute_text  # noqa: E402  (gen#250 rows, kept in their own file)
 import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
 import mutation_rows_bolt_pack  # noqa: E402  (gen#86 rows, kept in their own file)
@@ -4196,6 +4197,9 @@ MUTATIONS: list[Mutation] = [
                  root="prototypes/retail_drawings")
         for name, file, old, new, tests, prop in mutation_rows_furniture_226.ROWS
     ),
+    # ---- retail: one attribute key per concept (gen#227); the rows are in their own file ----
+    *(Mutation(f"attribute keys: {r[0]}", *r[1:5], "", r[5], root=r[6])
+      for r in mutation_rows_attribute_keys.ROWS),
     *(
         Mutation(f"audit order: {n}", "generate_cli.py", o, w, t, "", pr)
         for n, o, w, t, pr in mutation_rows_audit_order.ROWS
