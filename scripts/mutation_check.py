@@ -40,6 +40,7 @@ import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in th
 import mutation_rows_jewellery_423  # noqa: E402  (gen#423 rows)
 import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
 import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their own file)
+import mutation_rows_no_wrong_kind  # noqa: E402  (gen#404 rows, kept in their own file)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
 import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
 import mutation_rows_seating_agreement  # noqa: E402  (gen#225 rows, kept in their own file)
@@ -1462,24 +1463,6 @@ MUTATIONS: list[Mutation] = [
         "B",
         "the shank == cutting diameter rate is the measured one",
     ),
-    Mutation(
-        "stop injecting the angle-carries-a-length-unit defect",
-        "domains/industrial/defects.py",
-        "        if self.rng.random() >= self.config.scaled_defect(\n            self.config.defect_angle_carries_length_unit\n        ):\n            return line_attrs",
-        "        if True:\n            return line_attrs",
-        "tests/test_catalog_generate.py",
-        "A",
-        "the angle defect occurs at its measured rate",
-    ),
-    Mutation(
-        "inject the angle defect into every line",
-        "domains/industrial/defects.py",
-        "        if self.rng.random() >= self.config.scaled_defect(\n            self.config.defect_angle_carries_length_unit\n        ):\n            return line_attrs",
-        "        if False:\n            return line_attrs",
-        "tests/test_catalog_generate.py",
-        "B",
-        "the angle defect occurs at its measured rate",
-    ),
     # ---- no title label is truncated, both directions --------------------
     # The property inverted with the ruling on elastic/prism#9284: titles used
     # to be truncated AT a measured rate and are now truncated at none. Only
@@ -1659,42 +1642,6 @@ MUTATIONS: list[Mutation] = [
         ),
         "",
         "a TPI entry's canonical is the ruled reciprocal length",
-    ),
-    Mutation(
-        "read the angle defect's inch mark as an inch again",
-        "core/entry.py",
-        '        unit = UNIT_FOR_NAME.get(name) or UNIT_FOR_SUFFIX[match["suffix"]]',
-        '        unit = UNIT_FOR_SUFFIX[match["suffix"]]',
-        (
-            "tests/test_nested_entry_contract.py -k share_one_unit_dimension",
-            "tests/test_nested_entry_contract.py -k hand_worked",
-            "tests/test_nested_entry_contract.py -k published_spelling",
-        ),
-        "",
-        "an angle key's entries are angles however the value is spelled (#79)",
-    ),
-    Mutation(
-        "fix the inch-marked Helix Angle but leave Point Angle an inch",
-        "core/entry.py",
-        '    "Point Angle": "DD",\n',
-        "",
-        "tests/test_nested_entry_contract.py -k share_one_unit_dimension",
-        "",
-        "an angle key's entries are angles however the value is spelled (#79)",
-    ),
-    Mutation(
-        "read a length keyed into an angle field as degrees",
-        "core/entry.py",
-        '        if UNIT_FOR_NAME.get(name) == "DD" and not _within_span(name, match["number"]):\n'
-        '            return {"value": published}\n',
-        "",
-        (
-            "tests/test_nested_entry_contract.py -k canonical_lies_within",
-            "tests/test_nested_entry_contract.py -k hand_worked",
-            "tests/test_nested_entry_contract.py -k published_spelling",
-        ),
-        "",
-        "an angle key's canonical lies within the angles its series offers (#79)",
     ),
     Mutation(
         "collapse a multi-valued attribute to a single entry",
@@ -4181,6 +4128,10 @@ MUTATIONS: list[Mutation] = [
                 "a sleeve's cuff is not part of the hem",
             ),
         ]
+    ),
+    *(
+        Mutation(f"no wrong kind: {name}", file, old, new, tests, "", prop)
+        for name, file, old, new, tests, prop in mutation_rows_no_wrong_kind.ROWS
     ),
     # ---- retail: type specs (gen#351) and the garden hose decoys (gen#292); rows in their own files ----
     *(
