@@ -380,3 +380,115 @@ def test_the_documented_commands_name_files_that_exist() -> None:
     for path in ("scripts/red_commit_proof.py", "vendor/prism/scripts/mutant_run.py"):
         assert path in doc
         assert (ROOT / path).is_file(), path
+
+
+# ---- red commits made before the checker landed are grandfathered (gen#432) ----
+#
+# The cutoff is ANCESTRY, not a date: a commit that is not a descendant of the
+# commit that introduced the checker (``CUTOFF``) was written before the rule
+# existed, so any failure of its named tests is red enough. Each case builds a
+# throwaway history and names its own cutoff with ``--cutoff``.
+
+STOPS = "def test_red():\n    next(iter([]))\n    assert 1 == 2\n"
+KEY = "def test_red():\n    {}['missing']\n    assert 1 == 2\n"
+SETUP = (
+    "import pytest\n\n\n@pytest.fixture\ndef broken():\n    raise RuntimeError('setup')\n\n\n"
+    "def test_red(broken):\n    assert 1 == 2\n"
+)
+RED_TRAILER = "red\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_red"
+
+
+def _cutoff(repo: Path) -> str:
+    return _commit(repo, None, "the commit that introduced the checker\n\nRefs #1")
+
+
+def _prove_with(repo: Path, base: str, cutoff: str) -> subprocess.CompletedProcess[str]:
+    env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
+    return subprocess.run(
+        [
+            sys.executable,
+            str(PROOF),
+            "--repo",
+            str(repo),
+            "--cutoff",
+            cutoff,
+            "--range",
+            f"{base}..HEAD",
+        ],
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=300,
+    )
+
+
+@pytest.mark.parametrize("source", [STOPS, KEY, SETUP], ids=["StopIteration", "KeyError", "setup"])
+def test_a_red_commit_before_the_cutoff_may_fail_on_anything(repo: Path, source: str) -> None:
+    base = _base(repo)
+    _commit(repo, source, RED_TRAILER)
+    cutoff = _cutoff(repo)
+    done = _prove_with(repo, base, cutoff)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "GRANDFATHERED" in done.stdout and "REFUSED" not in done.stdout
+
+
+def test_a_red_commit_after_the_cutoff_that_fails_on_stop_iteration_is_refused(
+    repo: Path,
+) -> None:
+    cutoff = _cutoff(repo)
+    base = _base(repo)
+    _commit(repo, STOPS, RED_TRAILER)
+    done = _prove_with(repo, base, cutoff)
+    assert done.returncode == 1, done.stdout + done.stderr
+    assert "REFUSED" in done.stdout and "GRANDFATHERED" not in done.stdout
+    assert "not on an assertion" in done.stdout
+
+
+def test_a_red_commit_after_the_cutoff_that_fails_on_an_assertion_is_proven(repo: Path) -> None:
+    cutoff = _cutoff(repo)
+    base = _base(repo)
+    _commit(repo, RED, RED_TRAILER)
+    done = _prove_with(repo, base, cutoff)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "PROVEN" in done.stdout and "GRANDFATHERED" not in done.stdout
+
+
+def test_one_range_judges_each_side_of_the_cutoff_by_its_own_rule(repo: Path) -> None:
+    base = _base(repo)
+    _commit(repo, STOPS, "before\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_red")
+    cutoff = _cutoff(repo)
+    _commit(repo, RED, "after\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_red")
+    done = _prove_with(repo, base, cutoff)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert done.stdout.count("GRANDFATHERED") == 1 and done.stdout.count("PROVEN") == 1
+    assert "before the checker landed" in done.stdout
+
+
+def test_the_cutoff_is_ancestry_so_a_late_author_date_does_not_hide_an_old_commit(
+    repo: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    base = _base(repo)
+    monkeypatch.setenv("GIT_AUTHOR_DATE", "2099-01-01T00:00:00+00:00")
+    _commit(repo, STOPS, RED_TRAILER)
+    monkeypatch.delenv("GIT_AUTHOR_DATE")
+    cutoff = _cutoff(repo)
+    done = _prove_with(repo, base, cutoff)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "GRANDFATHERED" in done.stdout
+
+
+def test_a_pre_cutoff_test_that_passes_or_matches_nothing_is_still_refused(repo: Path) -> None:
+    base = _base(repo)
+    _commit(repo, GREEN, "not red\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_green")
+    _commit(repo, GREEN, "typo\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_nothing")
+    cutoff = _cutoff(repo)
+    done = _prove_with(repo, base, cutoff)
+    assert done.returncode == 1, done.stdout + done.stderr
+    assert done.stdout.count("REFUSED") == 2 and "GRANDFATHERED" not in done.stdout
+
+
+def test_the_cutoff_constant_is_a_full_sha_and_the_docs_name_it() -> None:
+    cutoff = _proof().CUTOFF
+    assert len(cutoff) == 40 and set(cutoff) <= set("0123456789abcdef"), cutoff
+    doc = (ROOT / "docs" / "red-commit-and-mutants.md").read_text(encoding="utf-8")
+    assert cutoff in doc
