@@ -1041,6 +1041,8 @@ def test_the_freshness_tests_are_real_tests_of_the_golden_files() -> None:
             sys.executable,
             "-m",
             "pytest",
+            "-o",
+            "addopts=",
             "--collect-only",
             "-q",
             "-p",
