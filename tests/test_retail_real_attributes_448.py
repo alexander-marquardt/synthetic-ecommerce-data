@@ -9,6 +9,7 @@ rest, and the description reads as a sentence. F14: one department per category 
 
 from __future__ import annotations
 
+import copy
 import re
 import sys
 from collections import defaultdict
@@ -88,7 +89,8 @@ def test_a_restricted_group_is_asked_for_only_the_main_colors_it_comes_in(tpls):
     tailoring = [
         r
         for r in tpls
-        if r.get("color_options") and r["category_path"][:2] == ["Mens", "Suits & Tailoring"]
+        if r.get("color_options")
+        and r["category_path"][:2] == ["Mens", "Suits & Tailoring"]
         and type_colors.allowed_for(r["category_path"]) is not None
     ]
     offered = main_colors.offered(tailoring)
@@ -168,9 +170,7 @@ _PLURAL = (
     r"dungarees|pyjamas"
 )
 _NOT_HEAD = r"(?!(?:and|of|with|for|in|by|from)\b)"
-_A_PLURAL = re.compile(
-    rf"^(?:A|An) (?:{_NOT_HEAD}[\w'’-]+ ){{0,4}}?(?:{_PLURAL})\b", re.I
-)
+_A_PLURAL = re.compile(rf"^(?:A|An) (?:{_NOT_HEAD}[\w'’-]+ ){{0,4}}?(?:{_PLURAL})\b", re.I)
 
 
 def test_a_plural_noun_takes_no_article(tpls):
@@ -227,3 +227,16 @@ def test_shoe_care_is_one_node_with_one_department(tpls):
     assert len(all_deps) == 1, dict(deps)
     paths = {p for p in deps}
     assert len(paths) == 1, paths
+
+
+def test_complete_gives_a_missing_color_only_to_a_style_whose_type_comes_in_it(tpls):
+    """A group of a restricted and an unrestricted style (Mens Trousers: formal trousers and
+    chinos) is completed with the colors on the unrestricted style alone."""
+    formal = next(r for r in tpls if r["product_id"] == "BRD-MFFT000")
+    chinos = next(r for r in tpls if r["product_id"] == "BRD-MFCH000")
+    assert type_colors.allowed_for(formal["category_path"]) is not None
+    assert type_colors.allowed_for(chinos["category_path"]) is None
+    plain = main_colors.complete([copy.deepcopy(formal), copy.deepcopy(chinos)])
+    got = {r["product_id"]: set(_colors(r)) for r in plain}
+    assert all(type_colors.permits(formal["category_path"], c) for c in got["BRD-MFFT000"])
+    assert got["BRD-MFCH000"] >= {"Red", "Green", "Yellow"}
