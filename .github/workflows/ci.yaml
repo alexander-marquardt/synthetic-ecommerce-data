@@ -74,7 +74,7 @@ jobs:
     env:
       # -n always: one worker is the serial suite this job exists to avoid. The
       # local run (scripts/local_ci_jobs.py) takes its own, memory-capped count.
-      PYTEST_ADDOPTS: "-n auto --dist loadgroup -rfE --junitxml=junit-${{ matrix.shard }}.xml"
+      PYTEST_ADDOPTS: "-n auto --dist loadgroup -rfE --junitxml=${{ runner.temp }}/junit-${{ matrix.shard }}.xml"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -97,7 +97,7 @@ jobs:
         if: always()
         with:
           name: junit-${{ matrix.shard }}
-          path: junit-${{ matrix.shard }}.xml
+          path: ${{ runner.temp }}/junit-${{ matrix.shard }}.xml
           if-no-files-found: ignore
 
   main-merged-tree:
