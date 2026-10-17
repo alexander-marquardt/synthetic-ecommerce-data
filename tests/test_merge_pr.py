@@ -205,14 +205,16 @@ def world(tmp_path: Path) -> dict:
     subprocess.run(["git", "init", "-q", "--bare", str(origin)], check=True)
     # This checkout's HEAD as the origin's main; CI checks out full history so
     # the fetch never starts from a shallow repository.
-    _git(origin, "fetch", "-q", str(REPO), "HEAD:refs/heads/main")
+    quiet = ["-c", "gc.auto=0", "-c", "maintenance.auto=false"]
+    quiet += ["-c", "fetch.writeCommitGraph=false"]
+    _git(origin, *quiet, "fetch", "-q", str(REPO), "HEAD:refs/heads/main")
     _git(origin, "symbolic-ref", "HEAD", "refs/heads/main")
     checkout = tmp_path / "checkout"
-    # No background maintenance or commit-graph write while the clone hardlinks the origin's
-    # objects: on a hosted runner that race failed a setup with "hardlink different from source".
-    quiet = ["-c", "gc.auto=0", "-c", "maintenance.auto=false", "-c", "core.commitGraph=false"]
-    quiet += ["-c", "fetch.writeCommitGraph=false"]
-    subprocess.run(["git", *quiet, "clone", "-q", str(origin), str(checkout)], check=True)
+    # --no-local: the objects are transferred, not hardlinked or copied from the origin's
+    # directory; on a hosted runner the copy raced with git's own commit-graph writes
+    # ("hardlink different from source", "failed to copy file ... commit-graph-chain.lock").
+    clone = ["git", *quiet, "clone", "-q", "--no-local", str(origin), str(checkout)]
+    subprocess.run(clone, check=True)
     # The script under test is this tree's, not the HEAD commit's.
     shutil.copy2(SCRIPT, checkout / "scripts" / "merge_pr.sh")
     shutil.copy2(JOBS_SCRIPT, checkout / "scripts" / "local_ci_jobs.py")
