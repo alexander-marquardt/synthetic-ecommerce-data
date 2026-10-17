@@ -295,6 +295,8 @@ COMPOUNDS = {
     "Tights": (("dress", "Dress Tights"), ("legging", "Legging Tights")),
     "Vest": (("cami", "Cami Vest"), ("dress", "Dress Vest"), ("jumper", "Jumper Vest")),
 }
+#: Types with fewer than three real class 2 compounds, each with its reason (#444).
+SHORT_COMPOUNDS: dict[str, str] = {}
 AUDIENCE = {"Womens": (("Mens-Style", "mens"), ("Mens Fit", "mens"), ("Boys Fit", "boys")),
             "Mens": (("Womens-Style", "womens"), ("Womens Fit", "womens"), ("Girls Fit", "girls")),
             "Kids": (("Mini-Me Mens", "mens"), ("Mini-Me Womens", "womens"),
