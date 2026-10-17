@@ -227,7 +227,6 @@ class FinishMixin:
     def _finish_line(self, type_key: str, draft: LineDraft, index: int) -> ProductLine | None:
         rng = self.rng
         line_attrs = self._apply_sparsity(type_key, draft.line_attrs, "line")
-        line_attrs = self._corrupt_angle(line_attrs)
         # One spelling of the measurement-system attribute per line.
         system_name = str(_weighted(rng, MEASUREMENT_SYSTEM_NAMES))
         standards_attr = self._standards_attribute(type_key, draft)
