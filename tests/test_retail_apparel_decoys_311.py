@@ -190,61 +190,62 @@ def test_a_range_name_never_holds_a_color_and_a_brand_color_is_the_brand_field(
         assert re.search(rf"\b{r.word}\b", by_id[r.pid]["brand"].lower()), r
 
 
-#: The class 2 phrases a shopper reads as a real product name (dress shirt, shirt dress, slipper
-#: socks), written here apart from the generator's own table: a new phrase is a deliberate edit to
-#: both, and an invented one ("Dress Pyjamas", "Trouser Blouse") is in neither (#444).
+#: The REVIEWED list of real retail terms (#444), written by hand and not a mirror of
+#: ``decoy_apparel.COMPOUNDS``: each phrase was checked as a name a shopper meets at a mainstream
+#: retailer (when in doubt it is left out). The generator's table must be a subset of it, and a
+#: new compound is added here only after the same review, never copied across.
 REAL_COMPOUNDS = frozenset({
     "Dress Blouse", "Shirt Blouse", "Tunic Blouse",
-    "Shirt Bodysuit", "Vest Bodysuit", "Blazer Bodysuit",
-    "Shirt Jacket", "Blazer Jacket", "Hoodie Jacket", "Dress Jacket",
-    "Denim Shirt Jacket", "Denim Blazer Jacket",
-    "Tunic Cardigan", "Poncho Cardigan", "Hoodie Cardigan",
-    "Dress Coat", "Cardigan Coat", "Blazer Coat",
-    "Skirt Co-ord Set", "Trouser Co-ord Set", "Blazer Co-ord Set", "Shirt Co-ord Set",
-    "Dress Shorts", "Trouser Shorts", "Jean Shorts", "Chino Shorts", "Cargo Shorts",
+    "Shirt Bodysuit", "Corset Bodysuit", "Cami Bodysuit", "Bodysuit Top",
+    "Shirt Jacket", "Blazer Jacket", "Biker Jacket", "Bomber Jacket", "Dress Jacket",
+    "Denim Shirt Jacket", "Denim Bomber Jacket", "Denim Biker Jacket", "Shacket",
+    "Kimono Cardigan", "Duster Cardigan", "Bomber Cardigan",
+    "Dress Coat", "Puffer Coat", "Duffle Coat",
+    "Skirt Co-ord Set", "Trouser Co-ord Set", "Shirt Co-ord Set", "Short Co-ord Set",
+    "Dress Shorts", "Cargo Shorts", "Tailored Shorts", "Jean Shorts", "Chino Shorts",
+    "Pyjama Shorts", "Bermuda Shorts", "Cycling Shorts", "Boxer Shorts",
     "Shirt Dress", "Jumper Dress", "Blazer Dress", "Hoodie Dress", "Tunic Dress", "Coat Dress",
-    "Chino Joggers", "Cargo Joggers",
-    "Poncho Jumper", "Tunic Jumper", "Polo Jumper",
-    "Cargo Leggings", "Jogger Leggings",
-    "Skirt Set", "Trouser Set", "Short Set", "Blazer Set",
+    "Sweatshirt Dress", "Slip Dress",
+    "Chino Joggers", "Cargo Joggers", "Denim Joggers",
+    "Tunic Jumper", "Polo Jumper",
+    "Cargo Leggings", "Denim Leggings", "Cycling Leggings",
+    "Skirt Set", "Trouser Set", "Short Set", "Blazer Set", "Trouser Suit", "Skort",
     "Dress Shirt", "Polo Shirt", "Tunic Shirt",
-    "Jean Skirt", "Slip Skirt", "Cargo Skirt", "Dress Skirt",
+    "Jean Skirt", "Slip Skirt", "Cargo Skirt",
     "Polo Sweatshirt", "Hoodie Sweatshirt", "Tunic Sweatshirt",
-    "Polo T-Shirt", "Tunic T-Shirt", "Hoodie T-Shirt",
-    "Hoodie Tracksuit", "Short Tracksuit", "Sweatshirt Tracksuit",
-    "Cargo Trousers", "Chino Trousers", "Jogger Trousers", "Dress Trousers",
-    "Cargo Jeans", "Jogger Jeans", "Dress Jeans",
-    "Vest Top", "Cami Top", "Polo Top", "Tunic Top", "Hoodie Top",
-    "Vest Tee", "Polo Tee", "Hoodie Tee", "Tunic Tee",
+    "Polo T-Shirt", "Tunic T-Shirt", "Henley T-Shirt",
+    "Polo Tee", "Tunic Tee", "Henley Tee",
+    "Vest Top", "Cami Top", "Polo Top", "Tunic Top",
     "Knitted Vest Top", "Knitted Cami Top", "Knitted Polo Top", "Knitted Tunic Top",
+    "Hoodie Tracksuit", "Short Tracksuit", "Jogger Tracksuit",
+    "Cargo Trousers", "Chino Trousers", "Jogger Trousers", "Dress Trousers",
+    "Cargo Jeans", "Jogger Jeans",
+    "Chino School Trousers", "Jogger School Trousers", "Cargo School Trousers",
+    "Pinafore School Skirt", "School Pinafore Dress",
+    "School Polo Shirt", "Oxford School Shirt",
     "Boot Socks", "Trouser Socks", "Slipper Socks", "Trainer Socks", "Sneaker Socks",
     "Welly Boot Socks", "Wellington Boot Socks", "Walking Boot Socks",
-    "Sandal Boots", "Sneaker Boots", "Loafer Boots", "Shoe Boots", "Slipper Boots", "Sock Boots",
-    "Wellington Safety Boots", "Chelsea Safety Boots",
-    "Chukka Walking Boots", "Chelsea Walking Boots",
-    "Mule Heels", "Loafer Heels", "Sandal Heels", "Pump Heels",
-    "Ballet Slippers", "Ballet Sandals", "Ballet Sneakers",
-    "Loafer Brogues", "Dress Brogues",
-    "Dress Shoes", "Sock Shoes",
-    "Slipper Loafers", "Sneaker Loafers", "Mule Loafers",
-    "Trainer Sandals", "Loafer Sandals", "Mule Sandals",
-    "Trainer School Shoes",
+    "Sandal Boots", "Sneaker Boots", "Loafer Boots", "Shoe Boots", "Slipper Boots", "Biker Boots",
+    "Sock Boots", "Wellington Safety Boots", "Chelsea Safety Boots", "Hiker Safety Boots",
+    "Chukka Walking Boots",
+    "Mule Heels", "Loafer Heels", "Sandal Heels",
+    "Ballet Slippers", "Ballet Sandals", "Ballet Flats", "Ballet Pumps",
+    "Dress Brogues", "Derby Brogues", "Oxford Brogues",
+    "Dress Shoes", "Court Shoes", "Walking Shoes", "Tennis Shoes", "Training Shoes",
+    "Loafer School Shoes", "Brogue School Shoes",
+    "Mule Loafers", "Brogue Loafers",
+    "Loafer Sandals", "Mule Sandals", "Slider Sandals",
     "Boot Slippers", "Sock Slippers", "Loafer Slippers", "Mule Slippers",
-    "Sock Trainers", "Dress Trainers", "Chelsea Wellies",
+    "Sock Trainers", "Running Trainers", "Walking Trainers", "Chelsea Wellies",
     "T-Shirt Bra", "Cami Bra", "Corset Bra",
-    "Boxer Shorts", "Pyjama Boxers",
-    "Hoodie Dressing Gown", "Poncho Dressing Gown",
-    "Short Knickers", "Cami Knickers",
-    "Boxer Pyjama Shorts", "Jogger Pyjama Shorts",
-    "Short Pyjamas", "Vest Pyjamas", "Cami Pyjamas",
+    "Boxer Briefs", "Boxer Trunks",
+    "Hoodie Dressing Gown", "Kimono Dressing Gown", "Dressing Gown",
+    "Short Knickers", "Cami Knickers", "Bikini Knickers",
+    "Short Pyjamas", "Cami Pyjamas",
     "Bodysuit Shapewear", "Cami Shapewear", "Slip Shapewear",
     "Dress Slip", "Skirt Slip", "Cami Slip",
-    "Dress Tights", "Legging Tights",
-    "Cami Vest", "Dress Vest", "Jumper Vest",
-    "Chino School Trousers", "Jogger School Trousers", "Cargo School Trousers",
-    "Pinafore School Skirt", "Culotte School Skirt",
-    "School Pinafore Dress",
-    "School Polo Shirt", "Oxford School Shirt",
+    "Running Tights", "Cycling Tights",
+    "Cami Vest", "Dress Vest", "Sweater Vest",
 })  # fmt: skip
 
 
@@ -347,7 +348,7 @@ def test_a_decoy_may_name_only_the_misleading_color_and_only_when_it_is_drawn(
     """The maintainer ruling on #311: the output standard's refusal of a text naming only another
     color stays for ordinary products; a decoy row is exempt by id, and its drawing shows the
     named color on the named part, so the title is true of the picture."""
-    named = [r for r in rows if r.cls in (1, 6, 7) and r.word in MAIN]
+    named = [r for r in rows if r.cls in (1, 7) and r.word in MAIN]
     assert len(named) >= 3 * len(da.TYPES)
     docs = [export.standard_document(by_id[r.pid]) for r in named]
     assert check_catalog(docs, text_exempt=scale.DECOY_IDS) == []
@@ -362,6 +363,9 @@ def test_a_decoy_may_name_only_the_misleading_color_and_only_when_it_is_drawn(
     for r in named:
         doc = by_id[r.pid]
         drawing = image_release.colorway_drawing(doc, doc["skus"][0])
+        if r.cls == 7:  # the brand holds the color word; the drawing colors no part (#444)
+            assert "detail" not in drawing, r.pid
+            continue
         assert drawing["detail"]["color"].lower() == da.DETAIL_HEX[r.word.title()].lower(), r.pid
         assert drawing.get("pattern") != "stripe", r.pid
         assert doc["color_options"][0]["color"] != r.word.title(), r.pid
@@ -376,7 +380,7 @@ def test_a_decoy_title_names_only_the_misleading_color(
 ) -> None:
     """The maintainer ruling: "Bra with Red Straps" on a white bra, with no "White" in the title.
     It holds for class 1 (a part), 6 (a range name) and 7 (a brand) alike."""
-    named = [r for r in rows if r.cls in (1, 6, 7) and r.word in MAIN]
+    named = [r for r in rows if r.cls in (1, 7) and r.word in MAIN]
     assert len(named) >= 3 * len(da.TYPES)
     for r in named:
         real = _real_color(by_id[r.pid])
@@ -412,18 +416,17 @@ def _svg_parts(doc: dict, bare: bool = False) -> tuple[list[ET.Element], list[ET
 def test_the_named_part_is_drawn_in_the_named_color_and_nothing_else_is(
     rows: list[da.Row], by_id: dict[str, dict]
 ) -> None:
-    """The picture shows what the title says: the part the title names (class 1), or the type's
-    first part (classes 6 and 7, whose title names none), carries the named color, and no other
-    element of the drawing does: a stripe across the whole garment is not a named part."""
-    named = [r for r in rows if r.cls in (1, 6, 7) and r.word in MAIN]
+    """The picture shows what the title says: the part the title names (class 1) carries the named
+    color, and no other element of the drawing does: a stripe across the whole garment is not a
+    named part. A class 7 brand names no part and colors none (#444)."""
+    named = [r for r in rows if r.cls == 1 and r.word in MAIN]
     for r in named:
         doc = by_id[r.pid]
         hexv = da.DETAIL_HEX[r.word.title()].lower()
         marked, plain = _svg_parts(doc)
         assert marked, (r.pid, doc["title"], "no element is marked as the named part")
-        if r.cls == 1:
-            part = doc["title"].split()[-1].lower()
-            assert {e.get("data-part") for e in marked} == {part}, (r.pid, doc["title"])
+        part = doc["title"].split()[-1].lower()
+        assert {e.get("data-part") for e in marked} == {part}, (r.pid, doc["title"])
         for e in marked:
             assert hexv in (e.get("fill", "").lower(), e.get("stroke", "").lower()), (
                 r.pid,

@@ -22,7 +22,7 @@ The classes (the numbers follow the issue):
 6. **incidental**: a range name, a place, holds a category word ("Jumper Lane Dress"). Never a
    color word (#444: "Red Harbour Dress" read as a red dress by a strange brand).
 7. **brand**: an invented brand holds a color or a category word ("Red Plover Bra", blue); the
-   brand field holds the same words and the drawing colors the type's first part.
+   brand field holds the same words and the drawing colors no part (#444).
 
 Every type gets :attr:`Spec.per_class` decoys per class (three, more for Bra and Jeans, which
 are large, so a type holds at least a tenth of its size), and at most eight of class 7 (one per
@@ -210,47 +210,52 @@ def __getattr__(name: str):  # PEP 562: ``TYPES``, ``EXEMPT`` and ``IDS`` follow
 #: ("Dress Pyjamas", "Trouser Blouse") is in no row (#444); the test file holds the list apart.
 COMPOUNDS = {
     "Blouse": (("dress", "Dress Blouse"), ("shirt", "Shirt Blouse"), ("tunic", "Tunic Blouse")),
-    "Bodysuit": (("shirt", "Shirt Bodysuit"), ("vest", "Vest Bodysuit"),
-                 ("blazer", "Blazer Bodysuit")),
+    "Bodysuit": (("shirt", "Shirt Bodysuit"), ("corset", "Corset Bodysuit"),
+                 ("cami", "Cami Bodysuit")),
     "Bomber Jacket": (("shirt", "Shirt Jacket"), ("blazer", "Blazer Jacket"),
-                      ("hoodie", "Hoodie Jacket")),
-    "Cardigan": (("tunic", "Tunic Cardigan"), ("poncho", "Poncho Cardigan"),
-                 ("hoodie", "Hoodie Cardigan")),
-    "Coat": (("dress", "Dress Coat"), ("cardigan", "Cardigan Coat"), ("blazer", "Blazer Coat")),
+                      ("biker", "Biker Jacket")),
+    "Cardigan": (("kimono", "Kimono Cardigan"), ("duster", "Duster Cardigan"),
+                 ("bomber", "Bomber Cardigan")),
+    "Coat": (("dress", "Dress Coat"), ("puffer", "Puffer Coat"), ("duffle", "Duffle Coat")),
     "Co-ord Set": (("skirt", "Skirt Co-ord Set"), ("trouser", "Trouser Co-ord Set"),
-                   ("blazer", "Blazer Co-ord Set"), ("shirt", "Shirt Co-ord Set")),
-    "Cycling Shorts": (("dress", "Dress Shorts"), ("trouser", "Trouser Shorts")),
-    "Denim Jacket": (("shirt", "Denim Shirt Jacket"), ("blazer", "Denim Blazer Jacket")),
+                   ("shirt", "Shirt Co-ord Set"), ("short", "Short Co-ord Set")),
+    "Cycling Shorts": (("dress", "Dress Shorts"), ("cargo", "Cargo Shorts"),
+                       ("tailored", "Tailored Shorts")),
+    "Denim Jacket": (("shirt", "Denim Shirt Jacket"), ("bomber", "Denim Bomber Jacket"),
+                     ("biker", "Denim Biker Jacket")),
     "Dress": (("shirt", "Shirt Dress"), ("jumper", "Jumper Dress"), ("blazer", "Blazer Dress"),
               ("hoodie", "Hoodie Dress"), ("tunic", "Tunic Dress"), ("coat", "Coat Dress")),
-    "Joggers": (("chino", "Chino Joggers"), ("cargo", "Cargo Joggers")),
-    "Jumper": (("poncho", "Poncho Jumper"), ("tunic", "Tunic Jumper"), ("polo", "Polo Jumper")),
-    "Leggings": (("cargo", "Cargo Leggings"), ("jogger", "Jogger Leggings")),
+    "Joggers": (("chino", "Chino Joggers"), ("cargo", "Cargo Joggers"),
+                ("denim", "Denim Joggers")),
+    "Jumper": (("tunic", "Tunic Jumper"), ("polo", "Polo Jumper")),
+    "Leggings": (("cargo", "Cargo Leggings"), ("denim", "Denim Leggings"),
+                 ("cycling", "Cycling Leggings")),
     "Outfit Set": (("skirt", "Skirt Set"), ("trouser", "Trouser Set"), ("short", "Short Set"),
                    ("blazer", "Blazer Set")),
-    "Puffer Jacket": (("shirt", "Shirt Jacket"), ("hoodie", "Hoodie Jacket")),
+    "Puffer Jacket": (("shirt", "Shirt Jacket"), ("bomber", "Bomber Jacket"),
+                      ("biker", "Biker Jacket")),
     "Shirt": (("dress", "Dress Shirt"), ("polo", "Polo Shirt"), ("tunic", "Tunic Shirt")),
-    "Shorts": (("dress", "Dress Shorts"), ("trouser", "Trouser Shorts"), ("jean", "Jean Shorts"),
-               ("chino", "Chino Shorts"), ("cargo", "Cargo Shorts")),
-    "Skirt": (("jean", "Jean Skirt"), ("slip", "Slip Skirt"), ("cargo", "Cargo Skirt"),
-              ("dress", "Dress Skirt")),
-    "Suit Jacket": (("blazer", "Blazer Jacket"), ("dress", "Dress Jacket")),
+    "Shorts": (("dress", "Dress Shorts"), ("tailored", "Tailored Shorts"),
+               ("jean", "Jean Shorts"), ("chino", "Chino Shorts"), ("cargo", "Cargo Shorts")),
+    "Skirt": (("jean", "Jean Skirt"), ("slip", "Slip Skirt"), ("cargo", "Cargo Skirt")),
+    "Suit Jacket": (("blazer", "Blazer Jacket"), ("dress", "Dress Jacket"),
+                    ("shirt", "Shirt Jacket")),
     "Sweatshirt": (("polo", "Polo Sweatshirt"), ("hoodie", "Hoodie Sweatshirt"),
                    ("tunic", "Tunic Sweatshirt")),
-    "T-Shirt": (("polo", "Polo T-Shirt"), ("tunic", "Tunic T-Shirt"), ("hoodie", "Hoodie T-Shirt")),
+    "T-Shirt": (("polo", "Polo T-Shirt"), ("tunic", "Tunic T-Shirt"),
+                ("henley", "Henley T-Shirt")),
     "Tea Dress": (("shirt", "Shirt Dress"), ("tunic", "Tunic Dress"), ("jumper", "Jumper Dress")),
-    "Tee": (("vest", "Vest Tee"), ("polo", "Polo Tee"), ("hoodie", "Hoodie Tee"),
-            ("tunic", "Tunic Tee")),
+    "Tee": (("polo", "Polo Tee"), ("tunic", "Tunic Tee"), ("henley", "Henley Tee")),
     "Top": (("vest", "Vest Top"), ("cami", "Cami Top"), ("polo", "Polo Top"),
-            ("tunic", "Tunic Top"), ("hoodie", "Hoodie Top")),
+            ("tunic", "Tunic Top"), ("bodysuit", "Bodysuit Top")),
     "Tracksuit": (("hoodie", "Hoodie Tracksuit"), ("short", "Short Tracksuit"),
-                  ("sweatshirt", "Sweatshirt Tracksuit")),
+                  ("jogger", "Jogger Tracksuit")),
     "Trousers": (("cargo", "Cargo Trousers"), ("chino", "Chino Trousers"),
                  ("jogger", "Jogger Trousers"), ("dress", "Dress Trousers")),
-    "Jeans": (("cargo", "Cargo Jeans"), ("jogger", "Jogger Jeans"), ("dress", "Dress Jeans")),
+    "Jeans": (("cargo", "Cargo Jeans"), ("jogger", "Jogger Jeans")),
     "School Trousers": (("chino", "Chino School Trousers"), ("jogger", "Jogger School Trousers"),
                         ("cargo", "Cargo School Trousers")),
-    "School Skirt": (("pinafore", "Pinafore School Skirt"), ("culotte", "Culotte School Skirt")),
+    "School Skirt": (("pinafore", "Pinafore School Skirt"),),
     "School Pinafore": (("dress", "School Pinafore Dress"),),
     "School Shirt": (("polo", "School Polo Shirt"), ("oxford", "Oxford School Shirt")),
     "Socks": (("boot", "Boot Socks"), ("trouser", "Trouser Socks"), ("slipper", "Slipper Socks"),
@@ -260,43 +265,65 @@ COMPOUNDS = {
     "Ankle Boots": (("sandal", "Sandal Boots"), ("sneaker", "Sneaker Boots"),
                     ("loafer", "Loafer Boots"), ("shoe", "Shoe Boots")),
     "Ballet Pumps": (("slipper", "Ballet Slippers"), ("sandal", "Ballet Sandals"),
-                     ("sneaker", "Ballet Sneakers")),
+                     ("flat", "Ballet Flats")),
     "Block Heels": (("mule", "Mule Heels"), ("loafer", "Loafer Heels"), ("sandal", "Sandal Heels")),
-    "Brogues": (("loafer", "Loafer Brogues"), ("dress", "Dress Brogues")),
+    "Brogues": (("dress", "Dress Brogues"), ("derby", "Derby Brogues"),
+                ("oxford", "Oxford Brogues")),
     "Chelsea Boots": (("sneaker", "Sneaker Boots"), ("loafer", "Loafer Boots"),
                       ("slipper", "Slipper Boots")),
     "Chukka Boots": (("sneaker", "Sneaker Boots"), ("loafer", "Loafer Boots"),
                      ("shoe", "Shoe Boots")),
     "Court Shoes": (("dress", "Dress Shoes"),),
-    "Kitten Heels": (("mule", "Mule Heels"), ("pump", "Pump Heels"), ("loafer", "Loafer Heels")),
-    "Knee High Boots": (("sock", "Sock Boots"), ("sneaker", "Sneaker Boots")),
-    "Loafers": (("slipper", "Slipper Loafers"), ("sneaker", "Sneaker Loafers"),
-                ("mule", "Mule Loafers")),
-    "Running Shoes": (("sock", "Sock Shoes"),),
+    "Kitten Heels": (("mule", "Mule Heels"), ("sandal", "Sandal Heels"),
+                     ("loafer", "Loafer Heels")),
+    "Knee High Boots": (("sock", "Sock Boots"), ("sneaker", "Sneaker Boots"),
+                        ("biker", "Biker Boots")),
+    "Loafers": (("mule", "Mule Loafers"), ("brogue", "Brogue Loafers")),
+    "Running Shoes": (("walking", "Walking Shoes"), ("tennis", "Tennis Shoes"),
+                      ("training", "Training Shoes")),
     "Safety Boots": (("wellington", "Wellington Safety Boots"),
-                     ("chelsea", "Chelsea Safety Boots")),
-    "Sandals": (("trainer", "Trainer Sandals"), ("loafer", "Loafer Sandals"),
-                ("mule", "Mule Sandals")),
-    "School Shoes": (("dress", "Dress Shoes"), ("trainer", "Trainer School Shoes")),
+                     ("chelsea", "Chelsea Safety Boots"), ("hiker", "Hiker Safety Boots")),
+    "Sandals": (("loafer", "Loafer Sandals"), ("mule", "Mule Sandals"),
+                ("slider", "Slider Sandals")),
+    "School Shoes": (("dress", "Dress Shoes"), ("loafer", "Loafer School Shoes"),
+                     ("brogue", "Brogue School Shoes")),
     "Slippers": (("boot", "Boot Slippers"), ("sock", "Sock Slippers"),
                  ("loafer", "Loafer Slippers"), ("mule", "Mule Slippers")),
-    "Trainers": (("sock", "Sock Trainers"), ("dress", "Dress Trainers")),
-    "Walking Boots": (("chukka", "Chukka Walking Boots"), ("chelsea", "Chelsea Walking Boots")),
+    "Trainers": (("sock", "Sock Trainers"), ("running", "Running Trainers"),
+                 ("walking", "Walking Trainers")),
+    "Walking Boots": (("chukka", "Chukka Walking Boots"),),
     "Wellies": (("chelsea", "Chelsea Wellies"),),
     "Bra": (("t-shirt", "T-Shirt Bra"), ("cami", "Cami Bra"), ("corset", "Corset Bra")),
-    "Boxers": (("short", "Boxer Shorts"), ("pyjama", "Pyjama Boxers")),
-    "Dressing Gown": (("hoodie", "Hoodie Dressing Gown"), ("poncho", "Poncho Dressing Gown")),
-    "Knickers": (("short", "Short Knickers"), ("cami", "Cami Knickers")),
-    "Pyjama Shorts": (("boxer", "Boxer Pyjama Shorts"), ("jogger", "Jogger Pyjama Shorts")),
-    "Pyjamas": (("short", "Short Pyjamas"), ("vest", "Vest Pyjamas"), ("cami", "Cami Pyjamas")),
+    "Boxers": (("short", "Boxer Shorts"), ("brief", "Boxer Briefs"), ("trunk", "Boxer Trunks")),
+    "Dressing Gown": (("hoodie", "Hoodie Dressing Gown"), ("kimono", "Kimono Dressing Gown")),
+    "Knickers": (("short", "Short Knickers"), ("cami", "Cami Knickers"),
+                 ("bikini", "Bikini Knickers")),
+    "Pyjama Shorts": (("boxer", "Boxer Shorts"), ("cycling", "Cycling Shorts"),
+                      ("bermuda", "Bermuda Shorts")),
+    "Pyjamas": (("short", "Short Pyjamas"), ("cami", "Cami Pyjamas")),
     "Shapewear": (("bodysuit", "Bodysuit Shapewear"), ("cami", "Cami Shapewear"),
                   ("slip", "Slip Shapewear")),
     "Slip": (("dress", "Dress Slip"), ("skirt", "Skirt Slip"), ("cami", "Cami Slip")),
-    "Tights": (("dress", "Dress Tights"), ("legging", "Legging Tights")),
-    "Vest": (("cami", "Cami Vest"), ("dress", "Dress Vest"), ("jumper", "Jumper Vest")),
+    "Tights": (("running", "Running Tights"), ("cycling", "Cycling Tights")),
+    "Vest": (("cami", "Cami Vest"), ("dress", "Dress Vest"), ("sweater", "Sweater Vest")),
 }
-#: Types with fewer than three real class 2 compounds, each with its reason (#444).
-SHORT_COMPOUNDS: dict[str, str] = {}
+#: Types with fewer than three real class 2 compounds, each with its reason (#444): a phrase is
+#: added only when a shopper meets it as a product name, so these types hold fewer, not an
+#: invented third.
+SHORT_COMPOUNDS: dict[str, str] = {
+    "Jumper": "only the tunic jumper and the polo jumper are names a shopper meets",
+    "Jeans": "only cargo jeans and jogger jeans are names a shopper meets",
+    "School Skirt": "only the pinafore school skirt is a name a shopper meets",
+    "School Pinafore": "a school pinafore dress is the only compound name of it",
+    "School Shirt": "only the school polo shirt and the oxford school shirt are names met",
+    "Court Shoes": "only dress shoes pairs another category's noun with a court shoe",
+    "Loafers": "only mule loafers and brogue loafers are names a shopper meets",
+    "Walking Boots": "only the chukka walking boot is a name a shopper meets",
+    "Wellies": "only the chelsea welly is a name a shopper meets",
+    "Dressing Gown": "only hoodie and kimono dressing gowns are names a shopper meets",
+    "Tights": "only running tights and cycling tights are names a shopper meets",
+    "Pyjamas": "only short pyjamas and cami pyjamas are names a shopper meets",
+}
 AUDIENCE = {"Womens": (("Mens-Style", "mens"), ("Mens Fit", "mens"), ("Boys Fit", "boys")),
             "Mens": (("Womens-Style", "womens"), ("Womens Fit", "womens"), ("Girls Fit", "girls")),
             "Kids": (("Mini-Me Mens", "mens"), ("Mini-Me Womens", "womens"),
@@ -534,9 +561,10 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
 
 
 def _detail(ex: dict, cls: int, o: dict) -> tuple[str, str] | None:
-    """The part a decoy draws in its title's color: the part a class 1 title names, the type's
-    first part for a class 7 brand's color word (its title names none), else ``None``."""
-    if cls not in (1, 7) or o["word"] not in MAIN_WORDS:
+    """The part a decoy draws in its title's color: the part a class 1 title names, else ``None``.
+    A class 7 brand holds its color word in the brand field only (#444): the drawing colors no
+    part, as no field says the product has one."""
+    if cls != 1 or o["word"] not in MAIN_WORDS:
         return None
     part = o.get("part") or details.parts_of(ex["drawing"]["shape"])[0]
     return part, DETAIL_HEX[o["word"].title()]
@@ -665,9 +693,9 @@ holds a category word; 7 an invented brand holds a color or category word.
 Each type holds at least three decoys per class (nine and twelve for bras and jeans, so a type
 holds a tenth of its size), and one class 7 decoy per brand (at most eight).
 Classes 6 and 7 have titles of five words or fewer. A title names the misleading color only
-(never the real one); the drawing shows the named part (class 1) or the type's first part
-(class 7, whose brand holds the color word) in that color, and nothing else of it
-(`details.py`).
+(never the real one); the drawing shows the named part (class 1) in that color, and nothing else
+of it (`details.py`). A class 7 brand holds its color word in the brand field only, and its
+drawing colors no part: "Yellow Wagtail Co-ord Set" is a blue co-ord set with no yellow part.
 
 A decoy must read as a real product and describe what it is (#444). A color word sits in the
 title only as an invented brand that is the product's brand field and is shown as the brand
@@ -679,8 +707,9 @@ word variant, a range named for a place ("Jumper Lane Dress"). Class 2 uses the 
 `decoy_apparel.COMPOUNDS` (dress shirt, shirt dress, slipper socks), each a real retail name,
 never an invented one ("Dress Pyjamas"); a compound drops a type's own modifier only where the
 shorter name still describes the product (Sandal Boots for Ankle Boots).
-`tests/test_retail_apparel_decoys_311.py` holds the compounds in a list of its own. The Policy
-column is
+`tests/test_retail_apparel_decoys_311.py` holds the reviewed list of real compounds apart from the
+generator's table, and a type holds at least three, except the declared exceptions below. The
+Policy column is
 `generic` where the color, category or audience policy separates the decoy, and
 `special: <name>` where it needs its own
 (a material claim: no field says the product is not leather). The exempt types are in
@@ -691,8 +720,17 @@ column is
 """
 
 
+def short_compounds_text() -> str:
+    """The docs paragraph naming each type with fewer than three real class 2 compounds."""
+    items = "\n".join(f"- {t}: {why}." for t, why in sorted(SHORT_COMPOUNDS.items()))
+    return (
+        "Types with fewer than three real class 2 compounds (a third is never invented; "
+        "#444):\n\n" + items + "\n\n"
+    )
+
+
 def render_doc(rows: list[Row]) -> str:
-    return DOC_HEAD + table_markdown(rows) + "\n"
+    return DOC_HEAD + short_compounds_text() + table_markdown(rows) + "\n"
 
 
 def write_doc() -> str:
