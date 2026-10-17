@@ -114,6 +114,28 @@ jobs:
             --json body --jq .body > "$body"
           python3 scripts/file_size_gate.py --base "$base" --pr-body-file "$body"
 
+  red-commit-proof:
+    # A commit whose ``Red-Test:`` trailer names tests claims they fail at that
+    # commit, on an assertion (elastic/prism#11680, lever #10028). This checks
+    # the claim: scripts/red_commit_proof.py runs only the named tests, in a
+    # worktree of each declaring commit, and is red when one passes, errors
+    # instead of asserting, or matches no test. A commit with no trailer, or
+    # ``Red-Test: none - <reason>``, runs nothing, so a PR without a declared
+    # red commit costs this job a few seconds. docs/red-commit-and-mutants.md.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Every declared red commit is red on an assertion
+        run: >-
+          uv run --locked python scripts/red_commit_proof.py
+          --range "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+
   customer-name-check:
     # NO CUSTOMER NAME COMES BACK (#393, the generator half of
     # elastic/prism-industrial-products#88). Nothing but a reviewer's grep kept
