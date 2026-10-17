@@ -181,7 +181,7 @@ BOWLS = (
 
 def _cut(piece: str, handle: str) -> tuple:
     return (_a("cutlery_type", "Cutlery type", piece),
-            _a("material", "Material", "Stainless Steel 18/10"), _a("handle", "Handle", handle))
+            _a("material", "Material", "Stainless Steel"), _a("handle", "Handle", handle))
 
 
 def _cp(piece: str, handle: str) -> tuple[tuple[str, str], ...]:
@@ -318,7 +318,7 @@ GLASSES = (
         "Tall ribbed highball glasses that hold 400 ml, for long drinks and juice. "
         "Dishwasher safe.",
         (CLEAR, cw("Smoke", "#9a9a9a"), cw("Amber", "#d9a05b")), _glass("Highball", 400, "Glass"),
-        _packs((4, 18.0), (6, 25.0)), (("kind", "highball"),)),
+        _packs((4, 18.0), (6, 25.0)), (("kind", "highball"), ("ribbed", "1"))),
     _tw("GLSTUM", "Plastic Outdoor Tumblers", "Hearth & Table", *_GLASSWARE,
         "Shatterproof tumblers that hold 300 ml, for the garden, the pool and picnics. "
         "Dishwasher safe.",
@@ -395,10 +395,11 @@ UTENSILS = (
 # --------------------------------------------------------------------------
 
 
-def _bd(code, title, brand, desc, colors, material, sizes, extra=()) -> Row:  # fmt: skip
+def _bd(code, title, brand, desc, colors, material, sizes, extra=(), drawn=()) -> Row:  # fmt: skip
     return _tw(code, title, brand, "Chopping Boards", "Chopping Board", "chopping_board", desc,
                colors, (_a("material", "Material", material), *extra), sizes,
-               (("material", material.lower()),), size_key="dimensions", axis_name="Dimensions")
+               (("material", material.lower()), *drawn), size_key="dimensions",
+               axis_name="Dimensions")
 
 
 _BOARDS3 = Contents((1, "small board"), (1, "medium board"), (1, "large board"))
@@ -410,7 +411,8 @@ BOARDS = (
     _bd("BRDBAM", "Bamboo Chopping Board with Juice Groove", "Hearth & Table",
         "A light board with a groove round the edge that catches juice from a roast. Hand wash.",
         (cw("Natural", "#d9b77e", "solid", "#7d5634"),), "Bamboo",
-        (("30 x 20 cm", 9.0), ("38 x 25 cm", 12.0), ("45 x 30 cm", 16.0))),
+        (("30 x 20 cm", 9.0), ("38 x 25 cm", 12.0), ("45 x 30 cm", 16.0)),
+        drawn=(("groove", "juice"),)),
     _bd("BRDPLA", "Color Coded Plastic Chopping Board", "Calderby & Lune",
         "A non-slip board in a color for each food, to keep raw meat apart. Dishwasher safe.",
         (cw("Green", "#4f7a3a"), cw("Red", "#c8312e"), cw("Blue", "#3f6fb5")), "Plastic",

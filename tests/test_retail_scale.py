@@ -72,6 +72,7 @@ SEASONAL_ROWS = FIGURES["templates"]["seasonal_rows"]["styles"]
 COLORGROUP_ROWS = FIGURES["templates"]["colorgroup_rows"]["styles"]
 MENS_DEPTH_ROWS = FIGURES["templates"]["mens_depth_rows"]["styles"]
 COLORWORD_ROWS = FIGURES["templates"]["color_word_brand_rows"]["styles"]
+KNITWEAR_ROWS = FIGURES["templates"]["knitwear_rows"]["styles"]
 NEEDS_ROWS = FIGURES["templates"]["needs_rows"]["styles"]
 NIKE_ROWS = FIGURES["templates"]["nike_rows"]["styles"]
 TYPE_SPEC_ROWS = FIGURES["templates"]["type_specs"]["styles"]
@@ -102,6 +103,7 @@ TEMPLATES = (
     + SEASONAL_ROWS
     + COLORGROUP_ROWS
     + MENS_DEPTH_ROWS
+    + KNITWEAR_ROWS
     + NEEDS_ROWS
     + NIKE_ROWS
     + TYPE_SPEC_ROWS
@@ -556,6 +558,18 @@ def test_the_cli_refuses_a_target_below_one():
     assert "--skus must be at least 1" in done.stderr
 
 
+def _template_attributes(r: dict[str, Any], t: dict[str, Any]) -> list[dict[str, Any]]:
+    """The template's attributes a derived style is expected to carry.
+
+    A ceiling light derived to a form that does not hang loses ``drop_length`` by design
+    (``lighting_rows.fit_ceiling_form``, gen#237); any other difference stays a failure.
+    """
+    hangs = any(a["key"] == "drop_length" for a in r["attributes"])
+    if r["product_type"] == "Ceiling Light" and not hangs:
+        return [a for a in t["attributes"] if a["key"] != "drop_length"]
+    return t["attributes"]
+
+
 def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):
     for r, t in pairs:
         assert [r[k] for k in ("category_path", "category_leaf", "product_type", "department")] == [
@@ -569,7 +583,7 @@ def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):
             if a["key"] in frozen or scale._has_word(names, str(a["value"]))
         }
         assert kept <= {(a["key"], str(a["value"])) for a in r["attributes"]}, r["product_id"]
-        assert [a["key"] for a in r["attributes"]] == [a["key"] for a in t["attributes"]]
+        assert [a["key"] for a in r["attributes"]] == [a["key"] for a in _template_attributes(r, t)]
 
 
 def test_only_a_value_free_of_the_leaf_the_unit_and_a_longer_word_may_vary():
@@ -598,7 +612,7 @@ def test_a_changed_value_is_rewritten_in_the_title(pairs):
     rewritten = 0
     for r, t in pairs:
         new = {a["key"]: str(a["value"]) for a in r["attributes"]}
-        for a in t["attributes"]:
+        for a in _template_attributes(r, t):
             old = str(a["value"])
             if a["key"] == "line" or new[a["key"]] == old or not scale._has_word(t["title"], old):
                 continue

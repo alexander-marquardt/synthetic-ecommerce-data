@@ -115,6 +115,7 @@ import furniture_rows  # noqa: E402
 import garden_rows  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
+import knitwear_rows  # noqa: E402
 import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
@@ -271,6 +272,8 @@ COLORWORD_IDS = color_word_brand_rows.product_ids()
 LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 #: The Mens clothing depth (:mod:`mens_depth_rows`, gen#310): templates only.
 MENS_DEPTH_IDS = mens_depth_rows.product_ids()
+#: The knitwear depth (:mod:`knitwear_rows`, gen#309): templates only.
+KNITWEAR_IDS = knitwear_rows.product_ids()
 #: The Nike styles and the decoys that name Nike (:mod:`nike_rows`, gen#341): templates only.
 NIKE_IDS = nike_rows.product_ids()
 #: The types the failure classes need (:mod:`needs_rows`, gen#329): templates only.
@@ -285,7 +288,15 @@ SPEC_IDS = type_registry.left_out_ids()
 DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()
 # The class-8 product-word decoys (gen#326) name a detail color on purpose in some rows only:
 # those rows join the exemption, by id, and the rest of the class is checked like any product.
-TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT
+# The Toys spec decoys of classes 4, 6 and 7 (gen#424) name a color or a feature they lack.
+# PLT-RQHOOP (a rose gold decoy) sits in the Hoop Earrings node since gen#423: its metals are
+# its text pool, and "Gold Plated" names the plating while its color is Yellow Gold.
+TEXT_EXEMPT = (
+    DECOY_IDS
+    | decoy_product_words.TEXT_EXEMPT
+    | type_registry.text_match_decoy_ids("Toys")
+    | {"PLT-RQHOOP"}
+)
 
 
 def templates(baseline: bool = True) -> list[dict]:
@@ -316,7 +327,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
         *garden_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
-        *nike_rows.docs(), *type_registry.docs(), *needs_rows.docs(),
+        *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(), *needs_rows.docs(),
         *color_word_brand_rows.docs(),
     ]  # fmt: skip
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
@@ -326,7 +337,8 @@ def templates(baseline: bool = True) -> list[dict]:
     tpls = [*body, *grocery.build()]
     type_registry.check_unique_ids(tpls)
     skip = (mens_depth_rows.decoy_ids() | COLORWORD_IDS | garden_rows.decoy_ids() | NIKE_IDS
-            | type_registry.decoy_ids() | needs_rows.decoy_ids())
+            | type_registry.decoy_ids() | needs_rows.decoy_ids()
+            | knitwear_rows.decoy_ids())
     return main_colors.complete(tpls, skip) if baseline else tpls
 
 
@@ -340,7 +352,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
     style (:mod:`lowerbody_rows`), left out so the seeded derivation is what it was. A boat
     or slash neck top is a failure-class row too (gen#125): a derived copy of it would hand
     the no-policy baseline the neckline, so it stays a template."""
-    left_out = (SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
+    left_out = (KNITWEAR_IDS | SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
                 | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS | SCHOOL_IDS
                 | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | GARDEN_IDS | NIKE_IDS | NEEDS_IDS
                 | SPEC_IDS | decoy_rows.IDS | COLORWORD_IDS

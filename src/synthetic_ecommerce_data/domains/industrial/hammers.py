@@ -16,6 +16,7 @@ The price is GENERATED, not measured: the price census has no hammers.
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from typing import Any
 
@@ -57,9 +58,7 @@ PLACES: tuple[str, ...] = ("Creek", "Ridge", "Lane", "Hollow")
 
 
 #: The misleading phrase of a class-4 decoy: ``word`` is the handle material it names.
-INCIDENTAL_PHRASE = re.compile(
-    rf"\b(?P<word>{'|'.join(ABSENT_HANDLES)}) (?:{'|'.join(PLACES)})\b"
-)
+INCIDENTAL_PHRASE = re.compile(rf"\b(?P<word>{'|'.join(ABSENT_HANDLES)}) (?:{'|'.join(PLACES)})\b")
 _INCIDENTAL_TITLE = re.compile(rf"^[A-Z][A-Za-z ]+, {INCIDENTAL_PHRASE.pattern}$")
 
 
@@ -69,6 +68,35 @@ def is_incidental_decoy_title(title: str) -> bool:
     The one predicate the decoy table's guards and the facts and voice gates share.
     """
     return _INCIDENTAL_TITLE.match(title) is not None
+
+
+#: The misleading phrase of a class-0 decoy (another kind's noun as a range name) and of a
+#: class-2 decoy (a handle material the line does not have).
+_CATEGORY_WORD = re.compile(rf"\b(?:{'|'.join(KIND_NOUN.values())}) Series\b")
+_MATERIAL_LOOK = re.compile(rf"\b(?:{'|'.join(ABSENT_HANDLES)})-Look\b")
+
+
+def is_decoy_title(title: str) -> bool:
+    """Whether ``title`` carries the misleading phrase of a decoy of any class (0, 2 or 4).
+
+    A brand's voice may put words before the item, so each phrase is searched for.
+    """
+    return any(p.search(title) for p in (_CATEGORY_WORD, _MATERIAL_LOOK, INCIDENTAL_PHRASE))
+
+
+def decoy_ids(docs: Iterable[Mapping[str, Any]]) -> frozenset[str]:
+    """The ``product_id`` of each hammer document whose title is a decoy.
+
+    The ids a catalog check exempts from the title-against-attribute check
+    (``standard.check_catalog(text_exempt=...)``): a decoy names a material or kind its
+    attributes do not hold, by design.
+    """
+    return frozenset(
+        str(d["product_id"])
+        for d in docs
+        if d.get("category_leaf") == CATEGORY[-1] and is_decoy_title(str(d.get("title") or ""))
+    )
+
 
 #: Text-match decoys (gen#294): three lines in every ``DECOY_PERIOD`` of a kind carry a
 #: title word that misleads a text search while its attributes stay true. The position in the period
@@ -269,7 +297,7 @@ FRAMING = HammerKind(
     price=42.0,
     use_lines=(
         "A long, heavy hammer for driving framing nails in a few swings.",
-        "The milled face grips the nail head; the straight claw pries and pulls.",
+        "The face grips the nail head; the straight claw pries and pulls.",
     ),
     extent=(5.1, 18.0),
 )

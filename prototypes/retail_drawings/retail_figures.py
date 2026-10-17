@@ -41,6 +41,7 @@ import export  # noqa: E402
 import garden_rows  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
+import knitwear_rows  # noqa: E402
 import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
@@ -138,6 +139,7 @@ def measure() -> dict[str, Any]:
         "colorgroup_rows": colorgroup_rows.docs(),
         "mens_depth_rows": mens_depth_rows.docs(),
         "color_word_brand_rows": color_word_brand_rows.docs(),
+        "knitwear_rows": knitwear_rows.docs(),
         "needs_rows": needs_rows.docs(),
         "nike_rows": nike_rows.docs(),
         "type_specs": type_registry.docs(),
