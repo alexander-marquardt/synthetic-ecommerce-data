@@ -37,12 +37,12 @@ ROWS: list[tuple[str, str, str, str, str | tuple[str, ...], str]] = [
         "units_per_pack above one draws that many pots",
     ),
     (
-        "an unknown decoy color falls back to grey again",
+        "the lemon sponge's yellow is left out of the color table",
         "decoy_rows.py",
-        "color = cw(self.color, COLORS[self.color])",
-        "color = cw(self.color, COLORS.get(self.color, GREY))",
-        f"{_T}::test_a_lemon_sponge_cake_is_drawn_yellow",
-        "a color the table does not know is an error, never a grey product",
+        '"Nude": NUDE, "Yellow": YELLOW,',
+        '"Nude": NUDE,',
+        f"{_T}::test_no_text_match_decoy_is_drawn_in_the_grey_fallback",
+        "every decoy color is in the table: an unknown one is an error, never a grey product",
     ),
     (
         "the mug cake mix is drawn as a celebration cake",
