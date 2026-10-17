@@ -41,6 +41,7 @@ import mutation_rows_jewellery_423  # noqa: E402  (gen#423 rows)
 import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
 import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their own file)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
+import mutation_rows_real_attributes_448  # noqa: E402  (gen#448 rows)
 import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
 import mutation_rows_seating_agreement  # noqa: E402  (gen#225 rows, kept in their own file)
 import mutation_rows_sheet_extent  # noqa: E402  (gen#242 rows, kept in their own file)
@@ -4192,6 +4193,12 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"jewellery 423: {name}", file, old, new, test, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, test, prop in mutation_rows_jewellery_423.ROWS
+    ),
+    # ---- retail: per-type colors, Material vs Finish, grammar (gen#448); rows in their own file ----
+    *(
+        Mutation(f"real attributes 448: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in mutation_rows_real_attributes_448.ROWS
     ),
     # ---- retail: derived ceiling-light forms (gen#237); the rows are in their own file ----
     *(
