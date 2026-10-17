@@ -38,6 +38,9 @@ Policy column is
 
 Types with fewer than three real class 2 compounds (a third is never invented; #444):
 
+- Ballet Pumps: only ballet slippers and ballet sandals pair another noun with a ballet pump.
+- Blouse: only the dress blouse and the tunic blouse are names a shopper meets.
+- Chukka Boots: only sneaker boots and loafer boots are names; a shoe boot is not one.
 - Court Shoes: only dress shoes pairs another category's noun with a court shoe.
 - Dressing Gown: only hoodie and kimono dressing gowns are names a shopper meets.
 - Jeans: only cargo jeans and jogger jeans are names a shopper meets.
@@ -47,6 +50,8 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 - School Pinafore: a school pinafore dress is the only compound name of it.
 - School Shirt: only the school polo shirt and the oxford school shirt are names met.
 - School Skirt: only the pinafore school skirt is a name a shopper meets.
+- T-Shirt: only the polo and tunic t-shirt name another category; a henley is a t-shirt.
+- Tee: only the polo tee and the tunic tee name another category; a henley is a tee.
 - Tights: only running tights and cycling tights are names a shopper meets.
 - Walking Boots: only the chukka walking boot is a name a shopper meets.
 - Wellies: only the chelsea welly is a name a shopper meets.
@@ -455,9 +460,9 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA19100 | T-Shirt | 1 color names a part | T-Shirt with Blue Collar | blue | blue t-shirt | generic |
 | PLT-DA19101 | T-Shirt | 1 color names a part | T-Shirt with Red Hem | red | red t-shirt | generic |
 | PLT-DA19102 | T-Shirt | 1 color names a part | T-Shirt with White Hem | white | white t-shirt | generic |
-| PLT-DA19200 | T-Shirt | 2 another category's noun as a modifier | Red Henley T-Shirt | henley | henley | generic |
-| PLT-DA19201 | T-Shirt | 2 another category's noun as a modifier | Brown Tunic T-Shirt | tunic | tunic | generic |
-| PLT-DA19202 | T-Shirt | 2 another category's noun as a modifier | Grey Henley T-Shirt | henley | henley | generic |
+| PLT-DA19200 | T-Shirt | 2 another category's noun as a modifier | Brown Tunic T-Shirt | tunic | tunic | generic |
+| PLT-DA19201 | T-Shirt | 2 another category's noun as a modifier | Cream Polo T-Shirt | polo | polo | generic |
+| PLT-DA19202 | T-Shirt | 2 another category's noun as a modifier | Cream Polo T-Shirt | polo | polo | generic |
 | PLT-DA19300 | T-Shirt | 3 audience word of a sibling version | Grey Girls Fit T-Shirt | girls | girls t-shirt | generic |
 | PLT-DA19301 | T-Shirt | 3 audience word of a sibling version | Brown Mens-Style T-Shirt | mens | mens t-shirt | generic |
 | PLT-DA19302 | T-Shirt | 3 audience word of a sibling version | Pink Womens Fit T-Shirt | womens | womens t-shirt | generic |
@@ -498,8 +503,8 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA21101 | Tee | 1 color names a part | Tee with Black Collar | black | black tee | generic |
 | PLT-DA21102 | Tee | 1 color names a part | Tee with Yellow Collar | yellow | yellow tee | generic |
 | PLT-DA21200 | Tee | 2 another category's noun as a modifier | Pink Tunic Tee | tunic | tunic | generic |
-| PLT-DA21201 | Tee | 2 another category's noun as a modifier | Grey Henley Tee | henley | henley | generic |
-| PLT-DA21202 | Tee | 2 another category's noun as a modifier | Blue Tunic Tee | tunic | tunic | generic |
+| PLT-DA21201 | Tee | 2 another category's noun as a modifier | Blue Tunic Tee | tunic | tunic | generic |
+| PLT-DA21202 | Tee | 2 another category's noun as a modifier | Red Tunic Tee | tunic | tunic | generic |
 | PLT-DA21300 | Tee | 3 audience word of a sibling version | Green Womens Fit Tee | womens | womens tee | generic |
 | PLT-DA21301 | Tee | 3 audience word of a sibling version | Grey Womens Fit Tee | womens | womens tee | generic |
 | PLT-DA21302 | Tee | 3 audience word of a sibling version | Green Womens-Style Tee | womens | womens tee | generic |
@@ -957,7 +962,7 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA40102 | Sandals | 1 color names a part | Sandals with Blue Sole | blue | blue sandals | generic |
 | PLT-DA40200 | Sandals | 2 another category's noun as a modifier | Blue Mule Sandals | mule | mule | generic |
 | PLT-DA40201 | Sandals | 2 another category's noun as a modifier | Pink Mule Sandals | mule | mule | generic |
-| PLT-DA40202 | Sandals | 2 another category's noun as a modifier | Green Slider Sandals | slider | slider | generic |
+| PLT-DA40202 | Sandals | 2 another category's noun as a modifier | Green Espadrille Sandals | espadrille | espadrille | generic |
 | PLT-DA40300 | Sandals | 3 audience word of a sibling version | Green Mens-Style Sandals | mens | mens sandals | generic |
 | PLT-DA40301 | Sandals | 3 audience word of a sibling version | Red Mens-Style Sandals | mens | mens sandals | generic |
 | PLT-DA40302 | Sandals | 3 audience word of a sibling version | Cream Mini-Me Mens Sandals | mens | mens sandals | generic |

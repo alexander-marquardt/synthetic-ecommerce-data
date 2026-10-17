@@ -254,8 +254,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "a class 2 table holds an invented compound",
         "decoy_apparel.py",
-        '("flat", "Ballet Flats")',
-        '("sneaker", "Ballet Sneakers")',
+        '("sandal", "Ballet Sandals")),',
+        '("sandal", "Ballet Sandals"), ("sneaker", "Ballet Sneakers")),',
         "tests/test_retail_apparel_decoys_311.py -k no_invented_compound",
         "the generator's class 2 table holds no phrase the reviewer named invented (#444)",
         "prototypes/retail_drawings",
@@ -267,6 +267,15 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "",
         "tests/test_retail_apparel_decoys_311.py -k three_real_compounds_or_a_declared_reason",
         "a type with fewer than three real compounds is a declared exception (#444)",
+        "prototypes/retail_drawings",
+    ),
+    (
+        "a type with a path-blocked phrase is not declared short",
+        "decoy_apparel.py",
+        '    "Blouse": "only the dress blouse and the tunic blouse are names a shopper meets",\n',
+        "",
+        "tests/test_retail_apparel_decoys_311.py -k three_real_compounds_or_a_declared_reason",
+        "a phrase _in_path blocks on every path of its type is no compound (#444)",
         "prototypes/retail_drawings",
     ),
     (
