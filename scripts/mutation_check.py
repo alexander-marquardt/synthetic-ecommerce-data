@@ -3896,8 +3896,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a decoy is copied by the derivation",
                 "scale.py",
-                "| SPEC_IDS | decoy_rows.IDS\n",
-                "| SPEC_IDS\n",
+                "| SPEC_IDS | decoy_rows.IDS | COLORWORD_IDS\n",
+                "| SPEC_IDS | COLORWORD_IDS\n",
                 "tests/test_retail_text_match_decoys_294.py -k never_copied_or_color_completed",
                 "a decoy stays a template",
             ),
@@ -4343,6 +4343,67 @@ MUTATIONS: list[Mutation] = [
                 "        100: 77,",
                 "each_pack_count_is_the_census_count",
                 "the counts are the census's",
+            ),
+        ]
+    ),
+    # ---- retail: color-word brands beyond clothing (gen#312) ----
+    # Every name starts "color-word brands:", so `--only "color-word brands:"` re-runs them.
+    *(
+        Mutation(f"color-word brands: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in [
+            (
+                "the black-named drill is really black",
+                "color_word_brand_rows.py",
+                '_in("#e8741e", "#2a2a2e", "Orange"),\n        (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18)),',
+                '_in("#2a2a2e", "#e8741e", "Black"),\n        (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18)),',
+                "tests/test_color_word_brands_312.py -k test_no_attribute_states_the_color_word",
+                "the color attribute differs from the color word",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "the completer is not told to skip the decoys",
+                "scale.py",
+                "| COLORWORD_IDS | garden_rows.decoy_ids()",
+                "| garden_rows.decoy_ids()",
+                "tests/test_color_word_brands_312.py -k test_a_built_decoy_offers_exactly_its_one_true_color",
+                "a decoy offers more than its one true color",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "a brand's wordmark is set in capitals, not as the brand field",
+                "color_word_brand_styles.py",
+                '"humanist", 700, "title",     0.5)',
+                '"humanist", 700, "caps",      0.5)',
+                "tests/test_color_word_brands_312.py -k test_a_drawing_lockup_text_equals_the_brand_field",
+                "the lockup text equals the brand",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "a title runs past five words",
+                "color_word_brand_rows.py",
+                '"Green Harrow Sweetcorn Kernels"',
+                '"Green Harrow Golden Sweetcorn Kernels in Water"',
+                "tests/test_color_word_brands_312.py -k test_the_color_word_sits_in_a_short_title",
+                "the color word sits in a short title",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "the garden loses its bulbs",
+                "color_word_brand_rows.py",
+                '_TULIP = ("Garden", "Bulbs", "Tulip Bulbs")',
+                '_TULIP = ("Home", "Bulbs", "Tulip Bulbs")',
+                "tests/test_color_word_brands_312.py -k test_each_department_has_at_least_three_decoys",
+                "each department has three decoys",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "the standard reads the brand as a claim",
+                "core/standard.py",
+                'values.add(str(doc["brand"]))',
+                "pass",
+                "tests/test_color_word_brands_312.py -k test_the_standard_reads_a_brand_as_a_name",
+                "a brand is a name, not a claim",
+                "src/synthetic_ecommerce_data",
             ),
         ]
     ),
