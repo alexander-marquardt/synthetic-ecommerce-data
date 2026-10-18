@@ -171,10 +171,10 @@ def test_the_attribute_values_a_shopper_filters_on_are_all_stated() -> None:
                      ("Windbreaker", "zip_style"), ("Hoodie", "zip_style"),
                      ("Utility Jacket", "jacket_style")]
     }  # fmt: skip
-    assert {"Short", "Mid-Length", "Long"} <= seen["Trench Coat", "garment_length"]
+    assert {"Short", "Mid Length", "Long"} <= seen["Trench Coat", "garment_length"]
     assert seen["Trench Coat", "belted"] == {"Yes", "No"}
     assert seen["Trench Coat", "breasting"] == {"Double-Breasted", "Single-Breasted"}
-    assert {"Short", "Mid-Length", "Long"} <= seen["Raincoat", "garment_length"]
+    assert {"Short", "Mid Length", "Long"} <= seen["Raincoat", "garment_length"]
     assert {"Fixed", "Packaway"} <= seen["Raincoat", "hood_type"]
     assert {"Down", "Feather", "Synthetic"} <= seen["Puffer Jacket", "fill"]
     assert {"Cropped", "Regular", "Longline"} <= seen["Puffer Jacket", "garment_length"]
@@ -237,7 +237,7 @@ def test_a_belted_trench_coat_draws_its_belt_and_a_hooded_one_its_hood() -> None
         belted = _values(row, "belted") == ["Yes"]
         assert belted == ('class="belt"' in _svg(row)), row.code
     for row in _rows("Raincoat") + _rows("Parka"):
-        assert ('class="hood' in _svg(row)) == ("None" not in _values(row, "hood_type")), row.code
+        assert ('class="hood' in _svg(row)) == (_values(row, "hood") != ["No"]), row.code
 
 
 # --------------------------------------------------------------------------

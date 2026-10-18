@@ -56,7 +56,7 @@ APPAREL_FAMILIES = "abusk"
 #: leaves room to append the difference. Eight footwear styles (gen#216) are the one rise: a
 #: shoe is a ``FootwearStyle`` (size charts, an upper per color), which a spec's ``Row`` cannot
 #: carry; the footwear types leave the list when footwear moves to specs (gen#427).
-LEGACY_CEILING = 335
+LEGACY_CEILING = 334
 
 
 class SpecError(ValueError):

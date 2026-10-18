@@ -341,13 +341,13 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA12702 | Outfit Set | 7 invented brand holding a color or category word | Yellow Wagtail Outfit Set | yellow | yellow outfit set | generic |
 | PLT-DA13100 | Puffer Jacket | 1 color names a part | Puffer Jacket with Green Hem | green | green puffer jacket | generic |
 | PLT-DA13101 | Puffer Jacket | 1 color names a part | Puffer Jacket with Blue Hem | blue | blue puffer jacket | generic |
-| PLT-DA13102 | Puffer Jacket | 1 color names a part | Puffer Jacket with Green Hem | green | green puffer jacket | generic |
+| PLT-DA13102 | Puffer Jacket | 1 color names a part | Puffer Jacket with Black Hem | black | black puffer jacket | generic |
 | PLT-DA13200 | Puffer Jacket | 2 another category's noun as a modifier | White Biker Jacket | biker | biker | generic |
 | PLT-DA13201 | Puffer Jacket | 2 another category's noun as a modifier | Green Shirt Jacket | shirt | shirt | generic |
 | PLT-DA13202 | Puffer Jacket | 2 another category's noun as a modifier | White Biker Jacket | biker | biker | generic |
-| PLT-DA13300 | Puffer Jacket | 3 audience word of a sibling version | Pink Womens-Style Puffer Jacket | womens | womens puffer jacket | generic |
-| PLT-DA13301 | Puffer Jacket | 3 audience word of a sibling version | Navy Womens Fit Puffer Jacket | womens | womens puffer jacket | generic |
-| PLT-DA13302 | Puffer Jacket | 3 audience word of a sibling version | Brown Mini-Me Mens Puffer Jacket | mens | mens puffer jacket | generic |
+| PLT-DA13300 | Puffer Jacket | 3 audience word of a sibling version | Pink Mini-Me Mens Puffer Jacket | mens | mens puffer jacket | generic |
+| PLT-DA13301 | Puffer Jacket | 3 audience word of a sibling version | Navy Mini-Me Womens Puffer Jacket | womens | womens puffer jacket | generic |
+| PLT-DA13302 | Puffer Jacket | 3 audience word of a sibling version | Brown Mens-Style Puffer Jacket | mens | mens puffer jacket | generic |
 | PLT-DA13400 | Puffer Jacket | 4 material or feature named but absent | Pink Leather-Look Puffer Jacket | leather | leather puffer jacket | special: material claim |
 | PLT-DA13401 | Puffer Jacket | 4 material or feature named but absent | Brown Suede-Look Puffer Jacket | suede | suede puffer jacket | special: material claim |
 | PLT-DA13402 | Puffer Jacket | 4 material or feature named but absent | Green Cashmere-Feel Puffer Jacket | cashmere | cashmere puffer jacket | special: material claim |
@@ -359,7 +359,7 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA13602 | Puffer Jacket | 6 incidental word in a range name | Shoe Lane Puffer Jacket | shoe | shoe | generic |
 | PLT-DA13700 | Puffer Jacket | 7 invented brand holding a color or category word | Red Plover Puffer Jacket | red | red puffer jacket | generic |
 | PLT-DA13701 | Puffer Jacket | 7 invented brand holding a color or category word | Jumper Jay Puffer Jacket | jumper | jumper puffer jacket | generic |
-| PLT-DA13702 | Puffer Jacket | 7 invented brand holding a color or category word | Black Lapwing Puffer Jacket | black | black puffer jacket | generic |
+| PLT-DA13702 | Puffer Jacket | 7 invented brand holding a color or category word | Yellow Wagtail Puffer Jacket | yellow | yellow puffer jacket | generic |
 | PLT-DA14100 | Shirt | 1 color names a part | Shirt with Green Hem | green | green shirt | generic |
 | PLT-DA14101 | Shirt | 1 color names a part | Shirt with Red Hem | red | red shirt | generic |
 | PLT-DA14102 | Shirt | 1 color names a part | Shirt with Black Hem | black | black shirt | generic |
@@ -1594,6 +1594,69 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA67700 | Barefoot Shoes | 7 invented brand holding a color or category word | White Dormouse Barefoot Shoes | white | white barefoot shoes | generic |
 | PLT-DA67701 | Barefoot Shoes | 7 invented brand holding a color or category word | White Dormouse Barefoot Shoes | white | white barefoot shoes | generic |
 | PLT-DA67702 | Barefoot Shoes | 7 invented brand holding a color or category word | Yellow Wagtail Barefoot Shoes | yellow | yellow barefoot shoes | generic |
+| PLT-DSBOLERO100 | Bolero | 1 color names a part | Bolero with Black Hem | black | black bolero | generic |
+| PLT-DSBOLERO101 | Bolero | 1 color names a part | Bolero with Blue Hem | blue | blue bolero | generic |
+| PLT-DSBOLERO102 | Bolero | 1 color names a part | Bolero with Red Hem | red | red bolero | generic |
+| PLT-DSBOLERO200 | Bolero | 2 another category's noun as a modifier | Pink Cardigan Bolero | cardigan | cardigan | generic |
+| PLT-DSBOLERO201 | Bolero | 2 another category's noun as a modifier | Grey Cardigan Bolero | cardigan | cardigan | generic |
+| PLT-DSBOLERO202 | Bolero | 2 another category's noun as a modifier | Black Denim Bolero | denim | denim | generic |
+| PLT-DSBOLERO300 | Bolero | 3 audience word of a sibling version | Navy Mens Fit Bolero | mens | mens bolero | generic |
+| PLT-DSBOLERO301 | Bolero | 3 audience word of a sibling version | Blue Mens-Style Bolero | mens | mens bolero | generic |
+| PLT-DSBOLERO302 | Bolero | 3 audience word of a sibling version | White Mens Fit Bolero | mens | mens bolero | generic |
+| PLT-DSBOLERO400 | Bolero | 4 material or feature named but absent | Black Leather-Look Bolero | leather | leather bolero | special: material claim |
+| PLT-DSBOLERO401 | Bolero | 4 material or feature named but absent | Green Suede-Look Bolero | suede | suede bolero | special: material claim |
+| PLT-DSBOLERO402 | Bolero | 4 material or feature named but absent | Navy Cashmere-Feel Bolero | cashmere | cashmere bolero | special: material claim |
+| PLT-DSBOLERO500 | Bolero | 5 shade spelled in the description only | Moonbeam Bolero | ivory | ivory bolero | generic |
+| PLT-DSBOLERO501 | Bolero | 5 shade spelled in the description only | Driftwood Bolero | taupe | taupe bolero | generic |
+| PLT-DSBOLERO502 | Bolero | 5 shade spelled in the description only | Dune Bolero | beige | beige bolero | generic |
+| PLT-DSBOLERO600 | Bolero | 6 incidental word in a range name | Skirt Point Bolero | skirt | skirt | generic |
+| PLT-DSBOLERO601 | Bolero | 6 incidental word in a range name | Pump Lane Bolero | pump | pump | generic |
+| PLT-DSBOLERO602 | Bolero | 6 incidental word in a range name | Shoe Lane Bolero | shoe | shoe | generic |
+| PLT-DSBOLERO700 | Bolero | 7 invented brand holding a color or category word | Red Plover Bolero | red | red bolero | generic |
+| PLT-DSBOLERO701 | Bolero | 7 invented brand holding a color or category word | Black Lapwing Bolero | black | black bolero | generic |
+| PLT-DSBOLERO702 | Bolero | 7 invented brand holding a color or category word | Blue Otter Bolero | blue | blue bolero | generic |
+| PLT-DSGILET100 | Gilet | 1 color names a part | Gilet with Blue Hem | blue | blue gilet | generic |
+| PLT-DSGILET101 | Gilet | 1 color names a part | Gilet with Green Hem | green | green gilet | generic |
+| PLT-DSGILET102 | Gilet | 1 color names a part | Gilet with Red Hem | red | red gilet | generic |
+| PLT-DSGILET200 | Gilet | 2 another category's noun as a modifier | Grey Shirt Gilet | shirt | shirt | generic |
+| PLT-DSGILET201 | Gilet | 2 another category's noun as a modifier | Red Shirt Gilet | shirt | shirt | generic |
+| PLT-DSGILET202 | Gilet | 2 another category's noun as a modifier | Black Shirt Gilet | shirt | shirt | generic |
+| PLT-DSGILET300 | Gilet | 3 audience word of a sibling version | Brown Boys Fit Gilet | boys | boys gilet | generic |
+| PLT-DSGILET301 | Gilet | 3 audience word of a sibling version | Green Womens-Style Gilet | womens | womens gilet | generic |
+| PLT-DSGILET302 | Gilet | 3 audience word of a sibling version | Navy Womens Fit Gilet | womens | womens gilet | generic |
+| PLT-DSGILET400 | Gilet | 4 material or feature named but absent | Pink Leather-Look Gilet | leather | leather gilet | special: material claim |
+| PLT-DSGILET401 | Gilet | 4 material or feature named but absent | Grey Suede-Look Gilet | suede | suede gilet | special: material claim |
+| PLT-DSGILET402 | Gilet | 4 material or feature named but absent | Blue Cashmere-Feel Gilet | cashmere | cashmere gilet | special: material claim |
+| PLT-DSGILET500 | Gilet | 5 shade spelled in the description only | Moonbeam Gilet | ivory | ivory gilet | generic |
+| PLT-DSGILET501 | Gilet | 5 shade spelled in the description only | Driftwood Gilet | taupe | taupe gilet | generic |
+| PLT-DSGILET502 | Gilet | 5 shade spelled in the description only | Dune Gilet | beige | beige gilet | generic |
+| PLT-DSGILET600 | Gilet | 6 incidental word in a range name | Shirt Row Gilet | shirt | shirt | generic |
+| PLT-DSGILET601 | Gilet | 6 incidental word in a range name | Sandal Wood Gilet | sandal | sandal | generic |
+| PLT-DSGILET602 | Gilet | 6 incidental word in a range name | Slip Road Gilet | slip | slip | generic |
+| PLT-DSGILET700 | Gilet | 7 invented brand holding a color or category word | Black Lapwing Gilet | black | black gilet | generic |
+| PLT-DSGILET701 | Gilet | 7 invented brand holding a color or category word | Blue Otter Gilet | blue | blue gilet | generic |
+| PLT-DSGILET702 | Gilet | 7 invented brand holding a color or category word | Green Stoat Gilet | green | green gilet | generic |
+| PLT-DSHOODIE100 | Hoodie | 1 color names a part | Hoodie with Green Hem | green | green hoodie | generic |
+| PLT-DSHOODIE101 | Hoodie | 1 color names a part | Hoodie with Blue Hem | blue | blue hoodie | generic |
+| PLT-DSHOODIE102 | Hoodie | 1 color names a part | Hoodie with Black Hem | black | black hoodie | generic |
+| PLT-DSHOODIE200 | Hoodie | 2 another category's noun as a modifier | Brown Denim Hoodie | denim | denim | generic |
+| PLT-DSHOODIE201 | Hoodie | 2 another category's noun as a modifier | Green Poncho Hoodie | poncho | poncho | generic |
+| PLT-DSHOODIE202 | Hoodie | 2 another category's noun as a modifier | Red Denim Hoodie | denim | denim | generic |
+| PLT-DSHOODIE300 | Hoodie | 3 audience word of a sibling version | Green Mens Fit Hoodie | mens | mens hoodie | generic |
+| PLT-DSHOODIE301 | Hoodie | 3 audience word of a sibling version | Blue Mens-Style Hoodie | mens | mens hoodie | generic |
+| PLT-DSHOODIE302 | Hoodie | 3 audience word of a sibling version | Brown Mens Fit Hoodie | mens | mens hoodie | generic |
+| PLT-DSHOODIE400 | Hoodie | 4 material or feature named but absent | Blue Leather-Look Hoodie | leather | leather hoodie | special: material claim |
+| PLT-DSHOODIE401 | Hoodie | 4 material or feature named but absent | Red Suede-Look Hoodie | suede | suede hoodie | special: material claim |
+| PLT-DSHOODIE402 | Hoodie | 4 material or feature named but absent | Red Cashmere-Feel Hoodie | cashmere | cashmere hoodie | special: material claim |
+| PLT-DSHOODIE500 | Hoodie | 5 shade spelled in the description only | Moonbeam Hoodie | ivory | ivory hoodie | generic |
+| PLT-DSHOODIE501 | Hoodie | 5 shade spelled in the description only | Driftwood Hoodie | taupe | taupe hoodie | generic |
+| PLT-DSHOODIE502 | Hoodie | 5 shade spelled in the description only | Dune Hoodie | beige | beige hoodie | generic |
+| PLT-DSHOODIE600 | Hoodie | 6 incidental word in a range name | Slip Road Hoodie | slip | slip | generic |
+| PLT-DSHOODIE601 | Hoodie | 6 incidental word in a range name | Shirt Row Hoodie | shirt | shirt | generic |
+| PLT-DSHOODIE602 | Hoodie | 6 incidental word in a range name | Sandal Wood Hoodie | sandal | sandal | generic |
+| PLT-DSHOODIE700 | Hoodie | 7 invented brand holding a color or category word | Blue Otter Hoodie | blue | blue hoodie | generic |
+| PLT-DSHOODIE701 | Hoodie | 7 invented brand holding a color or category word | Yellow Wagtail Hoodie | yellow | yellow hoodie | generic |
+| PLT-DSHOODIE702 | Hoodie | 7 invented brand holding a color or category word | Green Stoat Hoodie | green | green hoodie | generic |
 | PLT-DSKNITTED_TOP100 | Knitted Top | 1 color names a part | Knitted Top with White Hem | white | white knitted top | generic |
 | PLT-DSKNITTED_TOP101 | Knitted Top | 1 color names a part | Knitted Top with Red Hem | red | red knitted top | generic |
 | PLT-DSKNITTED_TOP102 | Knitted Top | 1 color names a part | Knitted Top with Yellow Hem | yellow | yellow knitted top | generic |
@@ -1615,3 +1678,150 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DSKNITTED_TOP700 | Knitted Top | 7 invented brand holding a color or category word | Coat Crake Knitted Top | coat | coat knitted top | generic |
 | PLT-DSKNITTED_TOP701 | Knitted Top | 7 invented brand holding a color or category word | Green Stoat Knitted Top | green | green knitted top | generic |
 | PLT-DSKNITTED_TOP702 | Knitted Top | 7 invented brand holding a color or category word | Black Lapwing Knitted Top | black | black knitted top | generic |
+| PLT-DSPARKA100 | Parka | 1 color names a part | Parka with Green Hem | green | green parka | generic |
+| PLT-DSPARKA101 | Parka | 1 color names a part | Parka with Blue Hem | blue | blue parka | generic |
+| PLT-DSPARKA102 | Parka | 1 color names a part | Parka with White Hem | white | white parka | generic |
+| PLT-DSPARKA200 | Parka | 2 another category's noun as a modifier | White Fishtail Parka | fishtail | fishtail | generic |
+| PLT-DSPARKA201 | Parka | 2 another category's noun as a modifier | Red Fishtail Parka | fishtail | fishtail | generic |
+| PLT-DSPARKA202 | Parka | 2 another category's noun as a modifier | Navy Bomber Parka | bomber | bomber | generic |
+| PLT-DSPARKA300 | Parka | 3 audience word of a sibling version | Brown Boys Fit Parka | boys | boys parka | generic |
+| PLT-DSPARKA301 | Parka | 3 audience word of a sibling version | Green Mens Fit Parka | mens | mens parka | generic |
+| PLT-DSPARKA302 | Parka | 3 audience word of a sibling version | Cream Girls Fit Parka | girls | girls parka | generic |
+| PLT-DSPARKA400 | Parka | 4 material or feature named but absent | Red Leather-Look Parka | leather | leather parka | special: material claim |
+| PLT-DSPARKA401 | Parka | 4 material or feature named but absent | Green Suede-Look Parka | suede | suede parka | special: material claim |
+| PLT-DSPARKA402 | Parka | 4 material or feature named but absent | Grey Cashmere-Feel Parka | cashmere | cashmere parka | special: material claim |
+| PLT-DSPARKA500 | Parka | 5 shade spelled in the description only | Moonbeam Parka | ivory | ivory parka | generic |
+| PLT-DSPARKA501 | Parka | 5 shade spelled in the description only | Driftwood Parka | taupe | taupe parka | generic |
+| PLT-DSPARKA502 | Parka | 5 shade spelled in the description only | Dune Parka | beige | beige parka | generic |
+| PLT-DSPARKA600 | Parka | 6 incidental word in a range name | Slipper Brook Parka | slipper | slipper | generic |
+| PLT-DSPARKA601 | Parka | 6 incidental word in a range name | Dress Circle Parka | dress | dress | generic |
+| PLT-DSPARKA602 | Parka | 6 incidental word in a range name | Sandal Wood Parka | sandal | sandal | generic |
+| PLT-DSPARKA700 | Parka | 7 invented brand holding a color or category word | Jumper Jay Parka | jumper | jumper parka | generic |
+| PLT-DSPARKA701 | Parka | 7 invented brand holding a color or category word | Black Lapwing Parka | black | black parka | generic |
+| PLT-DSPARKA702 | Parka | 7 invented brand holding a color or category word | Blue Otter Parka | blue | blue parka | generic |
+| PLT-DSPEACOAT100 | Peacoat | 1 color names a part | Peacoat with Yellow Hem | yellow | yellow peacoat | generic |
+| PLT-DSPEACOAT101 | Peacoat | 1 color names a part | Peacoat with Red Hem | red | red peacoat | generic |
+| PLT-DSPEACOAT102 | Peacoat | 1 color names a part | Peacoat with Blue Hem | blue | blue peacoat | generic |
+| PLT-DSPEACOAT200 | Peacoat | 2 another category's noun as a modifier | Blue Bomber Peacoat | bomber | bomber | generic |
+| PLT-DSPEACOAT201 | Peacoat | 2 another category's noun as a modifier | Cream Cape Peacoat | cape | cape | generic |
+| PLT-DSPEACOAT202 | Peacoat | 2 another category's noun as a modifier | White Cape Peacoat | cape | cape | generic |
+| PLT-DSPEACOAT300 | Peacoat | 3 audience word of a sibling version | Blue Boys Fit Peacoat | boys | boys peacoat | generic |
+| PLT-DSPEACOAT301 | Peacoat | 3 audience word of a sibling version | Red Mens-Style Peacoat | mens | mens peacoat | generic |
+| PLT-DSPEACOAT302 | Peacoat | 3 audience word of a sibling version | White Mens Fit Peacoat | mens | mens peacoat | generic |
+| PLT-DSPEACOAT400 | Peacoat | 4 material or feature named but absent | Navy Leather-Look Peacoat | leather | leather peacoat | special: material claim |
+| PLT-DSPEACOAT401 | Peacoat | 4 material or feature named but absent | Navy Suede-Look Peacoat | suede | suede peacoat | special: material claim |
+| PLT-DSPEACOAT402 | Peacoat | 4 material or feature named but absent | Brown Cashmere-Feel Peacoat | cashmere | cashmere peacoat | special: material claim |
+| PLT-DSPEACOAT500 | Peacoat | 5 shade spelled in the description only | Moonbeam Peacoat | ivory | ivory peacoat | generic |
+| PLT-DSPEACOAT501 | Peacoat | 5 shade spelled in the description only | Driftwood Peacoat | taupe | taupe peacoat | generic |
+| PLT-DSPEACOAT502 | Peacoat | 5 shade spelled in the description only | Dune Peacoat | beige | beige peacoat | generic |
+| PLT-DSPEACOAT600 | Peacoat | 6 incidental word in a range name | Pump Lane Peacoat | pump | pump | generic |
+| PLT-DSPEACOAT601 | Peacoat | 6 incidental word in a range name | Skirt Point Peacoat | skirt | skirt | generic |
+| PLT-DSPEACOAT602 | Peacoat | 6 incidental word in a range name | Jumper Lane Peacoat | jumper | jumper | generic |
+| PLT-DSPEACOAT700 | Peacoat | 7 invented brand holding a color or category word | Red Plover Peacoat | red | red peacoat | generic |
+| PLT-DSPEACOAT701 | Peacoat | 7 invented brand holding a color or category word | Black Lapwing Peacoat | black | black peacoat | generic |
+| PLT-DSPEACOAT702 | Peacoat | 7 invented brand holding a color or category word | White Dormouse Peacoat | white | white peacoat | generic |
+| PLT-DSRAINCOAT100 | Raincoat | 1 color names a part | Raincoat with Red Hem | red | red raincoat | generic |
+| PLT-DSRAINCOAT101 | Raincoat | 1 color names a part | Raincoat with Green Hem | green | green raincoat | generic |
+| PLT-DSRAINCOAT102 | Raincoat | 1 color names a part | Raincoat with Blue Hem | blue | blue raincoat | generic |
+| PLT-DSRAINCOAT200 | Raincoat | 2 another category's noun as a modifier | Blue Bomber Raincoat | bomber | bomber | generic |
+| PLT-DSRAINCOAT201 | Raincoat | 2 another category's noun as a modifier | Navy Poncho Raincoat | poncho | poncho | generic |
+| PLT-DSRAINCOAT202 | Raincoat | 2 another category's noun as a modifier | Brown Cape Raincoat | cape | cape | generic |
+| PLT-DSRAINCOAT300 | Raincoat | 3 audience word of a sibling version | Red Boys Fit Raincoat | boys | boys raincoat | generic |
+| PLT-DSRAINCOAT301 | Raincoat | 3 audience word of a sibling version | White Mens-Style Raincoat | mens | mens raincoat | generic |
+| PLT-DSRAINCOAT302 | Raincoat | 3 audience word of a sibling version | Black Boys Fit Raincoat | boys | boys raincoat | generic |
+| PLT-DSRAINCOAT400 | Raincoat | 4 material or feature named but absent | Pink Leather-Look Raincoat | leather | leather raincoat | special: material claim |
+| PLT-DSRAINCOAT401 | Raincoat | 4 material or feature named but absent | Black Suede-Look Raincoat | suede | suede raincoat | special: material claim |
+| PLT-DSRAINCOAT402 | Raincoat | 4 material or feature named but absent | Green Cashmere-Feel Raincoat | cashmere | cashmere raincoat | special: material claim |
+| PLT-DSRAINCOAT500 | Raincoat | 5 shade spelled in the description only | Moonbeam Raincoat | ivory | ivory raincoat | generic |
+| PLT-DSRAINCOAT501 | Raincoat | 5 shade spelled in the description only | Driftwood Raincoat | taupe | taupe raincoat | generic |
+| PLT-DSRAINCOAT502 | Raincoat | 5 shade spelled in the description only | Dune Raincoat | beige | beige raincoat | generic |
+| PLT-DSRAINCOAT600 | Raincoat | 6 incidental word in a range name | Jumper Lane Raincoat | jumper | jumper | generic |
+| PLT-DSRAINCOAT601 | Raincoat | 6 incidental word in a range name | Shoe Lane Raincoat | shoe | shoe | generic |
+| PLT-DSRAINCOAT602 | Raincoat | 6 incidental word in a range name | Slipper Brook Raincoat | slipper | slipper | generic |
+| PLT-DSRAINCOAT700 | Raincoat | 7 invented brand holding a color or category word | White Dormouse Raincoat | white | white raincoat | generic |
+| PLT-DSRAINCOAT701 | Raincoat | 7 invented brand holding a color or category word | Yellow Wagtail Raincoat | yellow | yellow raincoat | generic |
+| PLT-DSRAINCOAT702 | Raincoat | 7 invented brand holding a color or category word | Red Plover Raincoat | red | red raincoat | generic |
+| PLT-DSSHACKET100 | Shacket | 1 color names a part | Shacket with Green Hem | green | green shacket | generic |
+| PLT-DSSHACKET101 | Shacket | 1 color names a part | Shacket with Red Hem | red | red shacket | generic |
+| PLT-DSSHACKET102 | Shacket | 1 color names a part | Shacket with Black Hem | black | black shacket | generic |
+| PLT-DSSHACKET200 | Shacket | 2 another category's noun as a modifier | Green Cardigan Shacket | cardigan | cardigan | generic |
+| PLT-DSSHACKET201 | Shacket | 2 another category's noun as a modifier | White Cardigan Shacket | cardigan | cardigan | generic |
+| PLT-DSSHACKET202 | Shacket | 2 another category's noun as a modifier | Black Blazer Shacket | blazer | blazer | generic |
+| PLT-DSSHACKET300 | Shacket | 3 audience word of a sibling version | Navy Mens-Style Shacket | mens | mens shacket | generic |
+| PLT-DSSHACKET301 | Shacket | 3 audience word of a sibling version | Grey Boys Fit Shacket | boys | boys shacket | generic |
+| PLT-DSSHACKET302 | Shacket | 3 audience word of a sibling version | Black Mens Fit Shacket | mens | mens shacket | generic |
+| PLT-DSSHACKET400 | Shacket | 4 material or feature named but absent | Green Leather-Look Shacket | leather | leather shacket | special: material claim |
+| PLT-DSSHACKET401 | Shacket | 4 material or feature named but absent | Grey Suede-Look Shacket | suede | suede shacket | special: material claim |
+| PLT-DSSHACKET402 | Shacket | 4 material or feature named but absent | Brown Cashmere-Feel Shacket | cashmere | cashmere shacket | special: material claim |
+| PLT-DSSHACKET500 | Shacket | 5 shade spelled in the description only | Moonbeam Shacket | ivory | ivory shacket | generic |
+| PLT-DSSHACKET501 | Shacket | 5 shade spelled in the description only | Driftwood Shacket | taupe | taupe shacket | generic |
+| PLT-DSSHACKET502 | Shacket | 5 shade spelled in the description only | Dune Shacket | beige | beige shacket | generic |
+| PLT-DSSHACKET600 | Shacket | 6 incidental word in a range name | Cardigan Bay Shacket | cardigan | cardigan | generic |
+| PLT-DSSHACKET601 | Shacket | 6 incidental word in a range name | Shoe Lane Shacket | shoe | shoe | generic |
+| PLT-DSSHACKET602 | Shacket | 6 incidental word in a range name | Boot Hill Shacket | boot | boot | generic |
+| PLT-DSSHACKET700 | Shacket | 7 invented brand holding a color or category word | Black Lapwing Shacket | black | black shacket | generic |
+| PLT-DSSHACKET701 | Shacket | 7 invented brand holding a color or category word | Yellow Wagtail Shacket | yellow | yellow shacket | generic |
+| PLT-DSSHACKET702 | Shacket | 7 invented brand holding a color or category word | Jumper Jay Shacket | jumper | jumper shacket | generic |
+| PLT-DSTRENCH_COAT100 | Trench Coat | 1 color names a part | Trench Coat with Black Hem | black | black trench coat | generic |
+| PLT-DSTRENCH_COAT101 | Trench Coat | 1 color names a part | Trench Coat with White Hem | white | white trench coat | generic |
+| PLT-DSTRENCH_COAT102 | Trench Coat | 1 color names a part | Trench Coat with Blue Hem | blue | blue trench coat | generic |
+| PLT-DSTRENCH_COAT200 | Trench Coat | 2 another category's noun as a modifier | Grey Blazer Trench Coat | blazer | blazer | generic |
+| PLT-DSTRENCH_COAT201 | Trench Coat | 2 another category's noun as a modifier | Red Blazer Trench Coat | blazer | blazer | generic |
+| PLT-DSTRENCH_COAT202 | Trench Coat | 2 another category's noun as a modifier | Pink Shirt Trench Coat | shirt | shirt | generic |
+| PLT-DSTRENCH_COAT300 | Trench Coat | 3 audience word of a sibling version | Navy Mens-Style Trench Coat | mens | mens trench coat | generic |
+| PLT-DSTRENCH_COAT301 | Trench Coat | 3 audience word of a sibling version | Cream Mens-Style Trench Coat | mens | mens trench coat | generic |
+| PLT-DSTRENCH_COAT302 | Trench Coat | 3 audience word of a sibling version | White Mens Fit Trench Coat | mens | mens trench coat | generic |
+| PLT-DSTRENCH_COAT400 | Trench Coat | 4 material or feature named but absent | Navy Leather-Look Trench Coat | leather | leather trench coat | special: material claim |
+| PLT-DSTRENCH_COAT401 | Trench Coat | 4 material or feature named but absent | Navy Suede-Look Trench Coat | suede | suede trench coat | special: material claim |
+| PLT-DSTRENCH_COAT402 | Trench Coat | 4 material or feature named but absent | Red Cashmere-Feel Trench Coat | cashmere | cashmere trench coat | special: material claim |
+| PLT-DSTRENCH_COAT500 | Trench Coat | 5 shade spelled in the description only | Moonbeam Trench Coat | ivory | ivory trench coat | generic |
+| PLT-DSTRENCH_COAT501 | Trench Coat | 5 shade spelled in the description only | Driftwood Trench Coat | taupe | taupe trench coat | generic |
+| PLT-DSTRENCH_COAT502 | Trench Coat | 5 shade spelled in the description only | Dune Trench Coat | beige | beige trench coat | generic |
+| PLT-DSTRENCH_COAT600 | Trench Coat | 6 incidental word in a range name | Slip Road Trench Coat | slip | slip | generic |
+| PLT-DSTRENCH_COAT601 | Trench Coat | 6 incidental word in a range name | Sandal Wood Trench Coat | sandal | sandal | generic |
+| PLT-DSTRENCH_COAT602 | Trench Coat | 6 incidental word in a range name | Blazer Court Trench Coat | blazer | blazer | generic |
+| PLT-DSTRENCH_COAT700 | Trench Coat | 7 invented brand holding a color or category word | Red Plover Trench Coat | red | red trench coat | generic |
+| PLT-DSTRENCH_COAT701 | Trench Coat | 7 invented brand holding a color or category word | Yellow Wagtail Trench Coat | yellow | yellow trench coat | generic |
+| PLT-DSTRENCH_COAT702 | Trench Coat | 7 invented brand holding a color or category word | Black Lapwing Trench Coat | black | black trench coat | generic |
+| PLT-DSUTILITY_JACKET100 | Utility Jacket | 1 color names a part | Utility Jacket with Black Hem | black | black utility jacket | generic |
+| PLT-DSUTILITY_JACKET101 | Utility Jacket | 1 color names a part | Utility Jacket with Blue Hem | blue | blue utility jacket | generic |
+| PLT-DSUTILITY_JACKET102 | Utility Jacket | 1 color names a part | Utility Jacket with Green Hem | green | green utility jacket | generic |
+| PLT-DSUTILITY_JACKET200 | Utility Jacket | 2 another category's noun as a modifier | Brown Gilet Utility Jacket | gilet | gilet | generic |
+| PLT-DSUTILITY_JACKET201 | Utility Jacket | 2 another category's noun as a modifier | Blue Parka Utility Jacket | parka | parka | generic |
+| PLT-DSUTILITY_JACKET202 | Utility Jacket | 2 another category's noun as a modifier | Red Gilet Utility Jacket | gilet | gilet | generic |
+| PLT-DSUTILITY_JACKET300 | Utility Jacket | 3 audience word of a sibling version | Pink Mens Fit Utility Jacket | mens | mens utility jacket | generic |
+| PLT-DSUTILITY_JACKET301 | Utility Jacket | 3 audience word of a sibling version | Green Mens Fit Utility Jacket | mens | mens utility jacket | generic |
+| PLT-DSUTILITY_JACKET302 | Utility Jacket | 3 audience word of a sibling version | Black Mens-Style Utility Jacket | mens | mens utility jacket | generic |
+| PLT-DSUTILITY_JACKET400 | Utility Jacket | 4 material or feature named but absent | Pink Leather-Look Utility Jacket | leather | leather utility jacket | special: material claim |
+| PLT-DSUTILITY_JACKET401 | Utility Jacket | 4 material or feature named but absent | Green Suede-Look Utility Jacket | suede | suede utility jacket | special: material claim |
+| PLT-DSUTILITY_JACKET402 | Utility Jacket | 4 material or feature named but absent | Brown Cashmere-Feel Utility Jacket | cashmere | cashmere utility jacket | special: material claim |
+| PLT-DSUTILITY_JACKET500 | Utility Jacket | 5 shade spelled in the description only | Moonbeam Utility Jacket | ivory | ivory utility jacket | generic |
+| PLT-DSUTILITY_JACKET501 | Utility Jacket | 5 shade spelled in the description only | Driftwood Utility Jacket | taupe | taupe utility jacket | generic |
+| PLT-DSUTILITY_JACKET502 | Utility Jacket | 5 shade spelled in the description only | Dune Utility Jacket | beige | beige utility jacket | generic |
+| PLT-DSUTILITY_JACKET600 | Utility Jacket | 6 incidental word in a range name | Sock Hop Utility Jacket | sock | sock | generic |
+| PLT-DSUTILITY_JACKET601 | Utility Jacket | 6 incidental word in a range name | Slip Road Utility Jacket | slip | slip | generic |
+| PLT-DSUTILITY_JACKET602 | Utility Jacket | 6 incidental word in a range name | Boot Hill Utility Jacket | boot | boot | generic |
+| PLT-DSUTILITY_JACKET700 | Utility Jacket | 7 invented brand holding a color or category word | Red Plover Utility Jacket | red | red utility jacket | generic |
+| PLT-DSUTILITY_JACKET701 | Utility Jacket | 7 invented brand holding a color or category word | Green Stoat Utility Jacket | green | green utility jacket | generic |
+| PLT-DSUTILITY_JACKET702 | Utility Jacket | 7 invented brand holding a color or category word | Jumper Jay Utility Jacket | jumper | jumper utility jacket | generic |
+| PLT-DSWINDBREAKER100 | Windbreaker | 1 color names a part | Windbreaker with Red Hem | red | red windbreaker | generic |
+| PLT-DSWINDBREAKER101 | Windbreaker | 1 color names a part | Windbreaker with Yellow Hem | yellow | yellow windbreaker | generic |
+| PLT-DSWINDBREAKER102 | Windbreaker | 1 color names a part | Windbreaker with Green Hem | green | green windbreaker | generic |
+| PLT-DSWINDBREAKER200 | Windbreaker | 2 another category's noun as a modifier | Cream Bomber Windbreaker | bomber | bomber | generic |
+| PLT-DSWINDBREAKER201 | Windbreaker | 2 another category's noun as a modifier | Black Poncho Windbreaker | poncho | poncho | generic |
+| PLT-DSWINDBREAKER202 | Windbreaker | 2 another category's noun as a modifier | Blue Track Windbreaker | track | track | generic |
+| PLT-DSWINDBREAKER300 | Windbreaker | 3 audience word of a sibling version | Grey Mens-Style Windbreaker | mens | mens windbreaker | generic |
+| PLT-DSWINDBREAKER301 | Windbreaker | 3 audience word of a sibling version | Navy Mens-Style Windbreaker | mens | mens windbreaker | generic |
+| PLT-DSWINDBREAKER302 | Windbreaker | 3 audience word of a sibling version | Blue Boys Fit Windbreaker | boys | boys windbreaker | generic |
+| PLT-DSWINDBREAKER400 | Windbreaker | 4 material or feature named but absent | Black Leather-Look Windbreaker | leather | leather windbreaker | special: material claim |
+| PLT-DSWINDBREAKER401 | Windbreaker | 4 material or feature named but absent | Brown Suede-Look Windbreaker | suede | suede windbreaker | special: material claim |
+| PLT-DSWINDBREAKER402 | Windbreaker | 4 material or feature named but absent | White Cashmere-Feel Windbreaker | cashmere | cashmere windbreaker | special: material claim |
+| PLT-DSWINDBREAKER500 | Windbreaker | 5 shade spelled in the description only | Moonbeam Windbreaker | ivory | ivory windbreaker | generic |
+| PLT-DSWINDBREAKER501 | Windbreaker | 5 shade spelled in the description only | Driftwood Windbreaker | taupe | taupe windbreaker | generic |
+| PLT-DSWINDBREAKER502 | Windbreaker | 5 shade spelled in the description only | Dune Windbreaker | beige | beige windbreaker | generic |
+| PLT-DSWINDBREAKER600 | Windbreaker | 6 incidental word in a range name | Blazer Court Windbreaker | blazer | blazer | generic |
+| PLT-DSWINDBREAKER601 | Windbreaker | 6 incidental word in a range name | Pump Lane Windbreaker | pump | pump | generic |
+| PLT-DSWINDBREAKER602 | Windbreaker | 6 incidental word in a range name | Dress Circle Windbreaker | dress | dress | generic |
+| PLT-DSWINDBREAKER700 | Windbreaker | 7 invented brand holding a color or category word | Green Stoat Windbreaker | green | green windbreaker | generic |
+| PLT-DSWINDBREAKER701 | Windbreaker | 7 invented brand holding a color or category word | Red Plover Windbreaker | red | red windbreaker | generic |
+| PLT-DSWINDBREAKER702 | Windbreaker | 7 invented brand holding a color or category word | Blue Otter Windbreaker | blue | blue windbreaker | generic |
