@@ -229,7 +229,7 @@ def product_ids() -> frozenset[str]:
 
 
 def decoy_ids() -> frozenset[str]:
-    """The decoys' product ids: a colour completion leaves them as authored."""
+    """The decoys' product ids: a color completion leaves them as authored."""
     return frozenset(f"BRD-{c}" for c in DECOY_CODES)
 
 
