@@ -324,6 +324,8 @@ COMPOUNDS = {
 #: added only when a shopper meets it as a product name, so these types hold fewer, not an
 #: invented third.
 SHORT_COMPOUNDS: dict[str, str] = {
+    "Swimsuit": "only the skirted swimsuit and the tank swimsuit pair another noun with a swimsuit",
+    "Kids Swimsuit": "only the skirted and the rash vest kids swimsuit are names a shopper meets",
     "Bra": "only the cami bra and the corset bra are names; a t-shirt bra is a bra shape",
     "Blouse": "only the dress blouse and the tunic blouse are names a shopper meets",
     "Ballet Pumps": "only ballet slippers and ballet sandals pair another noun with a ballet pump",

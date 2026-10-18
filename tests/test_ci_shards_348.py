@@ -61,7 +61,7 @@ def test_the_tests_job_is_a_matrix_of_shards_that_each_know_the_shard_count() ->
     assert job["strategy"]["fail-fast"] is False, "one red shard must not hide the others' reds"
     assert _shard_count() >= 2
     runs = " ".join(step.get("run", "") for step in job["steps"])
-    assert "scripts/ci_shards.py --shard ${{ matrix.shard }} --of ${{ strategy.job-total }}" in runs
+    assert "scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }}" in runs
     assert "pytest" in runs and '"${files[@]}"' in runs, "the shard's files must reach pytest"
 
 

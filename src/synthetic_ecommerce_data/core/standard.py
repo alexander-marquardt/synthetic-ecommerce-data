@@ -75,6 +75,10 @@ VARIANT_FIELDS: dict[str, tuple[str, bool]] = {
     "in_stock": (_BOOL, True),
     "price_usd": (_NUM, False),
     "stock": (_INT, False),
+    #: How the shown price is quoted and the multiple it is ordered in (gen#14): two plain
+    #: fields on every industrial SKU, never variants.
+    "pricing_unit": (_STR, False),
+    "order_multiple": (_INT, False),
     "image_id": (_STR, True),
     "image_url": (_STR, True),
     "image_detail_url": (_STR, True),
@@ -434,6 +438,8 @@ _FLAT_VARIANT_FIELDS = (
     "in_stock",
     "price_usd",
     "stock",
+    "pricing_unit",
+    "order_multiple",
     "image_id",
     "image_url",
     "image_detail_url",
