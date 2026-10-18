@@ -10,6 +10,7 @@ place in the 100k build.
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -207,3 +208,47 @@ def test_every_babywear_style_reaches_the_100k_build_and_meets_the_standard() ->
     mine = [d for d in docs if d["product_id"] in want]
     assert len(mine) == len(want)
     assert check_catalog(mine, one_class_per_key=True) == []
+
+
+#: Material and property words a title can claim (a decoy's trigger word is one of these).
+CLAIMS = (
+    "waterproof", "water-resistant", "wipe-clean", "wipeable", "leather", "suede", "cashmere",
+    "wooden", "wood", "cotton", "fleece", "quilted", "padded", "insulated", "organic", "cot bed",
+)  # fmt: skip
+_DENIAL = r"\b(?:not|no|isn't|never|without|non)[\s-]+(?:[\w']+[\s-]+){0,2}?"
+
+
+def _denied_claims(title: str, description: str) -> list[str]:
+    """The claims the title makes that its own description denies. A ``-Look``, ``-Feel``,
+    ``Look`` or ``Style`` claim is a claim about appearance, which the description may confirm."""
+    low, desc = title.lower(), description.lower()
+    out = []
+    for claim in CLAIMS:
+        at = re.search(rf"(?<![\w-]){re.escape(claim)}(?![\w])", low)
+        if at is None or re.match(r"[\s-]*(?:look|feel|style)\b", low[at.end():]):
+            continue
+        if re.search(_DENIAL + re.escape(claim) + r"(?![\w-])", desc):
+            out.append(claim)
+    return out
+
+
+@pytest.mark.parametrize("key", KEYS)
+def test_a_decoys_title_claim_is_never_denied_by_its_own_description(key: str) -> None:
+    """gen#404: no deliberately wrong data. A decoy's trigger word must be true of a real part
+    of the product (a waterproof pouch) or of the shown brand, so the description that follows
+    the title never says the title's claim is false."""
+    denied = {
+        d.row.code: (d.row.title, claims)
+        for d in _spec(key).decoys
+        if (claims := _denied_claims(d.row.title, d.row.description))
+    }
+    assert denied == {}
+
+
+def test_the_waterproof_decoys_name_a_waterproof_part_the_description_confirms() -> None:
+    by_code = {d.row.code: d.row for k in KEYS for d in _spec(k).decoys}
+    for code in ("DB06", "DB10"):
+        row = by_code[code]
+        assert " with " in row.title.lower(), row.title
+        assert "waterproof" in row.title.lower().split(" with ")[1], row.title
+        assert re.search(r"\bwaterproof\b", row.description.lower()), row.description
