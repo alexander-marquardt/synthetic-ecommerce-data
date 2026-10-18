@@ -162,15 +162,15 @@ def test_no_class_5_name_is_a_well_known_product():
     assert not any("oyster bay" in t for t in names)
 
 
-def test_class_1_and_6_name_a_main_color_that_is_not_the_products(decoys):
+def test_class_1_names_a_main_color_that_is_not_the_products(decoys):
+    """Class 6 no longer names a color (#446): a range name is a place, never a color."""
     for d, rec in decoys:
-        if d.klass in (1, 6):
+        if d.klass == 1:
             assert d.word in MAIN and d.word != d.color, d.code
             assert d.word.lower() in rec["title"].lower(), d.code
-        if d.klass == 1:
             assert d.color.lower() in rec["title"].lower(), d.code
         if d.klass == 6:
-            assert d.color.lower() not in rec["title"].lower(), d.code
+            assert d.word not in MAIN and d.word.lower() in rec["title"].lower(), d.code
 
 
 def test_class_6_sits_in_a_short_title_and_names_its_range(decoys):
