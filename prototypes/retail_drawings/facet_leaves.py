@@ -36,7 +36,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from synthetic_ecommerce_data.core.standard import words
+from synthetic_ecommerce_data.core.standard import UNHYPHENATED, words
 
 #: The kind nodes whose fit leaves collapse into them, by product type.
 FIT_NODES = {"Jeans": "Jeans", "Trousers": "Trousers"}
@@ -277,10 +277,8 @@ def is_textile(rec: dict[str, Any]) -> bool:
 #: A closed-list fibre in a text: whole words, the longest name first ("Brushed Cotton" before
 #: "Cotton", "Faux Leather" before "Leather"), and never before a hyphen: "Leather-Look",
 #: "Cashmere-Feel", "Wool-Free" and "Fleece-Lined" say what a garment is not made of.
-_FIBRE = re.compile(
-    r"\b(" + "|".join(sorted(map(re.escape, SHOPPER_FABRICS), key=len, reverse=True)) + r")\b(?!-)",
-    re.IGNORECASE,
-)
+_FIBRES = "|".join(sorted(map(re.escape, SHOPPER_FABRICS), key=len, reverse=True))
+_FIBRE = re.compile(rf"\b({_FIBRES})\b{UNHYPHENATED}", re.IGNORECASE)
 _FIBRE_NAMES = {name.lower(): name for name in SHOPPER_FABRICS}
 
 
