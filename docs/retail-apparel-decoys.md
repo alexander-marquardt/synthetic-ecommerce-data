@@ -239,24 +239,31 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA08100 | Dress | 1 color names a part | Dress with Red Straps | red | red dress | generic |
 | PLT-DA08101 | Dress | 1 color names a part | Dress with Black Straps | black | black dress | generic |
 | PLT-DA08102 | Dress | 1 color names a part | Dress with Green Straps | green | green dress | generic |
+| PLT-DA08103 | Dress | 1 color names a part | Dress with Yellow Straps | yellow | yellow dress | generic |
 | PLT-DA08200 | Dress | 2 another category's noun as a modifier | Grey Jumper Dress | jumper | jumper | generic |
 | PLT-DA08201 | Dress | 2 another category's noun as a modifier | Cream Coat Dress | coat | coat | generic |
 | PLT-DA08202 | Dress | 2 another category's noun as a modifier | Blue Shirt Dress | shirt | shirt | generic |
+| PLT-DA08203 | Dress | 2 another category's noun as a modifier | Red Coat Dress | coat | coat | generic |
 | PLT-DA08300 | Dress | 3 audience word of a sibling version | White Boys Fit Dress | boys | boys dress | generic |
 | PLT-DA08301 | Dress | 3 audience word of a sibling version | Grey Boys Fit Dress | boys | boys dress | generic |
 | PLT-DA08302 | Dress | 3 audience word of a sibling version | Black Mens Fit Dress | mens | mens dress | generic |
+| PLT-DA08303 | Dress | 3 audience word of a sibling version | Brown Mens-Style Dress | mens | mens dress | generic |
 | PLT-DA08400 | Dress | 4 material or feature named but absent | Black Leather-Look Dress | leather | leather dress | special: material claim |
 | PLT-DA08401 | Dress | 4 material or feature named but absent | Grey Suede-Look Dress | suede | suede dress | special: material claim |
 | PLT-DA08402 | Dress | 4 material or feature named but absent | Black Cashmere-Feel Dress | cashmere | cashmere dress | special: material claim |
+| PLT-DA08403 | Dress | 4 material or feature named but absent | Black Wool-Free Dress | wool | wool dress | special: material claim |
 | PLT-DA08500 | Dress | 5 shade spelled in the description only | Moonbeam Dress | ivory | ivory dress | generic |
 | PLT-DA08501 | Dress | 5 shade spelled in the description only | Driftwood Dress | taupe | taupe dress | generic |
 | PLT-DA08502 | Dress | 5 shade spelled in the description only | Dune Dress | beige | beige dress | generic |
+| PLT-DA08503 | Dress | 5 shade spelled in the description only | Ember Dress | burgundy | burgundy dress | generic |
 | PLT-DA08600 | Dress | 6 incidental word in a range name | Jumper Lane Dress | jumper | jumper | generic |
 | PLT-DA08601 | Dress | 6 incidental word in a range name | Boot Hill Dress | boot | boot | generic |
-| PLT-DA08602 | Dress | 6 incidental word in a range name | Pump Lane Dress | pump | pump | generic |
+| PLT-DA08602 | Dress | 6 incidental word in a range name | Sandal Wood Dress | sandal | sandal | generic |
+| PLT-DA08603 | Dress | 6 incidental word in a range name | Jacket Quay Dress | jacket | jacket | generic |
 | PLT-DA08700 | Dress | 7 invented brand holding a color or category word | Red Plover Dress | red | red dress | generic |
 | PLT-DA08701 | Dress | 7 invented brand holding a color or category word | White Dormouse Dress | white | white dress | generic |
 | PLT-DA08702 | Dress | 7 invented brand holding a color or category word | Blue Otter Dress | blue | blue dress | generic |
+| PLT-DA08703 | Dress | 7 invented brand holding a color or category word | Jumper Jay Dress | jumper | jumper dress | generic |
 | PLT-DA09100 | Joggers | 1 color names a part | Regular Joggers with Red Cuffs | red | red joggers | generic |
 | PLT-DA09101 | Joggers | 1 color names a part | Oversized Joggers with Blue Cuffs | blue | blue joggers | generic |
 | PLT-DA09102 | Joggers | 1 color names a part | Regular Joggers with Yellow Cuffs | yellow | yellow joggers | generic |
@@ -533,24 +540,45 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA22100 | Top | 1 color names a part | Top with Blue Hem | blue | blue top | generic |
 | PLT-DA22101 | Top | 1 color names a part | Top with Blue Collar | blue | blue top | generic |
 | PLT-DA22102 | Top | 1 color names a part | Top with White Hem | white | white top | generic |
+| PLT-DA22103 | Top | 1 color names a part | Top with Red Collar | red | red top | generic |
+| PLT-DA22104 | Top | 1 color names a part | Top with Black Collar | black | black top | generic |
+| PLT-DA22105 | Top | 1 color names a part | Top with White Collar | white | white top | generic |
 | PLT-DA22200 | Top | 2 another category's noun as a modifier | Pink Vest Top | vest | vest | generic |
 | PLT-DA22201 | Top | 2 another category's noun as a modifier | Navy Cami Top | cami | cami | generic |
 | PLT-DA22202 | Top | 2 another category's noun as a modifier | Red Vest Top | vest | vest | generic |
+| PLT-DA22203 | Top | 2 another category's noun as a modifier | Pink Bodysuit Top | bodysuit | bodysuit | generic |
+| PLT-DA22204 | Top | 2 another category's noun as a modifier | Pink Polo Top | polo | polo | generic |
+| PLT-DA22205 | Top | 2 another category's noun as a modifier | Cream Cami Top | cami | cami | generic |
 | PLT-DA22300 | Top | 3 audience word of a sibling version | Green Mens-Style Top | mens | mens top | generic |
 | PLT-DA22301 | Top | 3 audience word of a sibling version | Pink Boys Fit Top | boys | boys top | generic |
 | PLT-DA22302 | Top | 3 audience word of a sibling version | White Boys Fit Top | boys | boys top | generic |
+| PLT-DA22303 | Top | 3 audience word of a sibling version | Blue Mens Fit Top | mens | mens top | generic |
+| PLT-DA22304 | Top | 3 audience word of a sibling version | Grey Boys Fit Top | boys | boys top | generic |
+| PLT-DA22305 | Top | 3 audience word of a sibling version | Green Boys Fit Top | boys | boys top | generic |
 | PLT-DA22400 | Top | 4 material or feature named but absent | Cream Leather-Look Top | leather | leather top | special: material claim |
 | PLT-DA22401 | Top | 4 material or feature named but absent | Cream Suede-Look Top | suede | suede top | special: material claim |
 | PLT-DA22402 | Top | 4 material or feature named but absent | Red Cashmere-Feel Top | cashmere | cashmere top | special: material claim |
+| PLT-DA22403 | Top | 4 material or feature named but absent | Cream Wool-Free Top | wool | wool top | special: material claim |
+| PLT-DA22404 | Top | 4 material or feature named but absent | White Silk-Feel Top | silk | silk top | special: material claim |
+| PLT-DA22405 | Top | 4 material or feature named but absent | Cream Linen-Look Top | linen | linen top | special: material claim |
 | PLT-DA22500 | Top | 5 shade spelled in the description only | Moonbeam Top | ivory | ivory top | generic |
 | PLT-DA22501 | Top | 5 shade spelled in the description only | Driftwood Top | taupe | taupe top | generic |
 | PLT-DA22502 | Top | 5 shade spelled in the description only | Dune Top | beige | beige top | generic |
+| PLT-DA22503 | Top | 5 shade spelled in the description only | Ember Top | burgundy | burgundy top | generic |
+| PLT-DA22504 | Top | 5 shade spelled in the description only | Lagoon Top | teal | teal top | generic |
+| PLT-DA22505 | Top | 5 shade spelled in the description only | Willow Top | olive | olive top | generic |
 | PLT-DA22600 | Top | 6 incidental word in a range name | Dress Circle Top | dress | dress | generic |
 | PLT-DA22601 | Top | 6 incidental word in a range name | Shirt Row Top | shirt | shirt | generic |
 | PLT-DA22602 | Top | 6 incidental word in a range name | Slipper Brook Top | slipper | slipper | generic |
+| PLT-DA22603 | Top | 6 incidental word in a range name | Shoe Lane Top | shoe | shoe | generic |
+| PLT-DA22604 | Top | 6 incidental word in a range name | Sandal Wood Top | sandal | sandal | generic |
+| PLT-DA22605 | Top | 6 incidental word in a range name | Skirt Point Top | skirt | skirt | generic |
 | PLT-DA22700 | Top | 7 invented brand holding a color or category word | Blue Otter Top | blue | blue top | generic |
 | PLT-DA22701 | Top | 7 invented brand holding a color or category word | Green Stoat Top | green | green top | generic |
 | PLT-DA22702 | Top | 7 invented brand holding a color or category word | Red Plover Top | red | red top | generic |
+| PLT-DA22703 | Top | 7 invented brand holding a color or category word | Yellow Wagtail Top | yellow | yellow top | generic |
+| PLT-DA22704 | Top | 7 invented brand holding a color or category word | Black Lapwing Top | black | black top | generic |
+| PLT-DA22705 | Top | 7 invented brand holding a color or category word | White Dormouse Top | white | white top | generic |
 | PLT-DA23100 | Tracksuit | 1 color names a part | Regular Tracksuit with Red Cuffs | red | red tracksuit | generic |
 | PLT-DA23101 | Tracksuit | 1 color names a part | Regular Tracksuit with White Cuffs | white | white tracksuit | generic |
 | PLT-DA23102 | Tracksuit | 1 color names a part | Regular Tracksuit with White Cuffs | white | white tracksuit | generic |

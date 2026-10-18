@@ -8,7 +8,7 @@ on one core; this repository is public, so GitHub-hosted runners cost nothing.
 
 `.github/workflows/ci.yaml` job `tests` runs `shard: [1 .. N]` on `ubuntu-latest`. Each
 shard runs `pytest` with `PYTEST_ADDOPTS="-n auto --dist loadgroup"` over the files
-`scripts/ci_shards.py --shard K --of N` prints. That script deals the collected test files
+`scripts/ci_shards.py --plan K --of N` prints (a pull request's files are the selected ones, below). That script deals the collected test files
 longest-first, each to the lightest shard, by the seconds in `scripts/ci_shard_weights.json`;
 a file with no entry weighs 20 s, so a new test file needs no edit anywhere.
 
@@ -31,6 +31,41 @@ context is not available in a job-level `env`.
 shard (a split file's test ids are), the matrix is `1..N`, no CI job runs pytest on one worker, and the shards stay
 balanced by the weights. A module's tests stay on one worker (`--dist loadgroup`,
 `tests/xdist_groups.py`), so one module is the floor of a shard's time.
+
+## A pull request runs the tests its change reaches (#495)
+
+The runner cap is about 20 concurrent jobs and one full run of this workflow is 22 jobs, about
+93 job-minutes (mean of the 6 newest pull-request runs of 2026-10-18), so runs queued behind each other
+for 43 to 59 minutes on average and the merge train timed out waiting. A pull request, and a
+dispatched run (`merge_pr.sh --github-ci`), now runs only the test files its change reaches;
+a push to `main` runs every test file, so the whole suite still runs once after each merge.
+
+* `scripts/ci_select.py --base B --head H [--why]` prints the selected test files (and, with
+  `--why`, the changed path that reached each). `--changed PATH...` does the same for named
+  paths. It reads the import and mention graph of the checkout: a test is selected when a
+  changed Python file is in its import closure (an import, a script it runs by path, a console
+  script of `pyproject.toml`, every module of a directory whose code imports by computed name,
+  every module of a package a registry walks by dotted name), or when a changed data file is
+  named in the text of its closure or is a data file of a package one of its modules belongs to.
+  It over-selects on purpose: a missed test is a correctness bug, an extra test is minutes.
+* `FULL_RUN` in the script lists the changes that select every test: `.github/`, `pyproject.toml`,
+  `uv.lock`, `vendor/`, the files pytest loads before any test, and the selector and sharding
+  scripts themselves. An unreadable diff selects every test. `SMOKE` lists the guards of the
+  selection and of the sharding, which every pull request runs. `CONTENT_INSENSITIVE` lists the two
+  `test_merge_pr` files, which name the golden files as fixtures: a modified golden or docs path
+  does not select them (an added or deleted one does).
+* `python3 scripts/ci_shards.py --plan K --of N --base B --head H` prints `shards=<n>`, then shard
+  K's files. A selection is dealt to as few shards as keep each under `SCOPED_SHARD_SECONDS`
+  (1800 s of the weights); a shard past that count prints no file, and its job ends after the
+  checkout without installing anything. With no base and head, `--plan` is `--shard`: every file
+  on every shard. `--plan all` prints every file, for a local run. A full run deals 182 files to
+  9 shards of up to 1800 s of the weights each, against the job's `timeout-minutes: 25`.
+* The guard is `tests/test_ci_select_495.py`: each rule on a throwaway tree; every test that
+  imports a module is selected when it changes (an independent oracle); every file a mutation
+  row plants in selects `tests/test_mutation_bed.py`; the plan's shards are disjoint and add up
+  to the selection.
+
+To check what a change runs before pushing: `python3 scripts/ci_select.py --base origin/main --head HEAD --why`.
 
 ## `merge_pr.sh --github-ci <N>`
 
