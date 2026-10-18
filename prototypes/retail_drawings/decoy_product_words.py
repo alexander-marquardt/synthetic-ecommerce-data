@@ -359,6 +359,7 @@ class Row:
     target: str = ""  # the Sports & Outdoors product type whose word the title holds (gen#368)
     gift_type: str = ""  # the Gifts product type whose word the title holds (gen#425)
     seed: str = ""  # the two-word seed query the title holds whole (gen#461)
+    pack: str = ""  # the pack_size the title names, when it differs from the Kind's (gen#461)
     sold: int = 2000
 
     @property
@@ -368,6 +369,12 @@ class Row:
     @property
     def ptype(self) -> str:
         return KINDS[self.kind].product_type
+
+    def _extra(self, k: Kind) -> tuple[tuple[str, str, str], ...]:
+        """The Kind's extra attributes, with the row's own pack size where its title names one."""
+        if not self.pack:
+            return k.extra
+        return tuple((a, b, self.pack if a == "pack_size" else c) for a, b, c in k.extra)
 
     def style(self) -> Style:
         k = KINDS[self.kind]
@@ -386,7 +393,7 @@ class Row:
             one(color, self.sold),
             audience=k.audience,
             params=params,
-            extra=k.extra,
+            extra=self._extra(k),
             sizes=k.sizes,
             size_range=k.size_range,
             colorless=k.colorless,
@@ -997,9 +1004,9 @@ _GIFTS = (
 TABLE = (*TABLE, *_GIFTS)
 
 
-def _h(n, kind, seed, title, desc, color, policy) -> Row:
+def _h(n, kind, seed, title, desc, color, policy, **kw) -> Row:
     """A seed decoy (gen#461): a product of its own type whose title holds a whole seed phrase."""
-    return _d(n, kind, title, desc, color, seed, "", policy, cross=policy == _DEP, seed=seed)
+    return _d(n, kind, title, desc, color, seed, "", policy, cross=policy == _DEP, seed=seed, **kw)
 
 
 _SEEDS = (
@@ -1023,9 +1030,9 @@ _SEEDS = (
        _CAT),
     _h(92, "hanger", "tea towels", "Tea Towel Hanger, 4 Pack",
        "Grip hangers that clip tea towels to the oven door or a cupboard handle.", "White",
-       _CAT),
+       _CAT, pack="4 pack"),
     # -- lipstick: a pouch to carry one, a houseplant named for its flowers
-    _h(93, "makeup_bag", "lipstick", "Lipstick Make-Up Bag, Mini Zip",
+    _h(93, "makeup_bag", "lipstick", "Lipstick Case, Mini Zip",
        "A mini zip pouch with room for a lipstick and a compact mirror in a handbag.", "Pink",
        _CAT),
     _h(94, "house_plant", "lipstick", "Lipstick Plant, Trailing",
