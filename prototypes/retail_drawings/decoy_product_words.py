@@ -36,7 +36,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import kit_goods  # noqa: F401 -- registers the shapes below
-import kit_seed_decoys  # noqa: F401 -- registers the shapes of the seed decoys (gen#461)
 from breadth_rows import OWNERS
 from class_model import BRAND_OWNER, Style, one
 from decoy_rows import COLORS, UK, Kind
@@ -316,32 +315,16 @@ NEW_KINDS.update(_SPORTS_KINDS)
 #: The kinds of the seed decoys (gen#461): another type's product whose name holds a seed phrase.
 _KIDS_AUD = "kids"
 _SEED_KINDS = {
-    "apron": Kind("Home", ("Home", "Kitchen & Dining", "Aprons"), "Apron", "apron",
-                  "Hearth & Table", 14.0),
     "makeup_bag": Kind("Beauty", ("Beauty", "Accessories", "Make-Up Bags"), "Make-Up Bag", "pouch",
                        "Kestlewood Cosmetics", 7.0),
     "house_plant": Kind("Garden", ("Garden", "Plants", "House Plants"), "Plant", "potted_tree",
                         "Thistle & Wren", 9.0, colorless=True),
     "basket": Kind("Home", ("Home", "Storage", "Storage Baskets"), "Storage Basket", "storage_box",
                    "Lanternby", 16.0),
-    "fix_kit": Kind("Home", (*_DIY, "Fixing Kits"), "Fixing Kit", "screw", "Brackenmere Home", 6.0,
-                    colorless=True),
-    "bed_riser": Kind("Home", ("Home", "Furniture", "Bed Risers"), "Bed Risers", "bed_risers",
-                      "Brackenmere Home", 14.0),
-    "brush": Kind("Beauty", ("Beauty", "Accessories", "Make-Up Brushes"), "Make-Up Brush",
-                  "makeup_brush", "Kestlewood Cosmetics", 8.0),
-    "sponge": Kind("Beauty", ("Beauty", "Accessories", "Make-Up Sponges"), "Make-Up Sponge",
-                   "makeup_sponge", "Kestlewood Cosmetics", 5.0),
     "ld_candle": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"), "Scented Candle",
                       "jar", "Lanternby", 16.0, extra=(("fragrance", "Fragrance", "Lemon"),)),
     "olive_candle": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"), "Scented Candle",
                          "jar", "Lanternby", 16.0, extra=(("fragrance", "Fragrance", "Olive Leaf"),)),
-    "baking_mix": Kind("Food & Drink", ("Food & Drink", "Food Cupboard", "Baking Mixes"),
-                       "Baking Mix", "box", "Crofter's Bakehouse", 2.8, colorless=True),
-    "gift_box": Kind("Gifts", ("Gifts", "Gift Wrap", "Gift Boxes"), "Gift Box", "box_wide",
-                     "Lanternby", 6.0),
-    "planter": Kind("Garden", ("Garden", "Pots & Planters", "Planters"), "Planter", "tub",
-                    "Thistle & Wren", 18.0),
     "dino_soft": Kind("Toys", ("Toys", "Soft Toys", "Cuddly Animals"), "Soft Toy", "dinosaur",
                       "Little Fernby", 14.0, _KIDS_AUD),
     "dino_bath": Kind("Toys", ("Toys", "Baby & Toddler", "Bath Toys"), "Bath Toy", "dinosaur",
@@ -1026,19 +1009,19 @@ _SEEDS = (
     _h(88, "wash_bag", "duvet cover", "Duvet Cover Mesh Wash Bag",
        "A large zipped mesh bag that protects a duvet cover in the washing machine.", "White",
        _CAT),
-    # -- bed frame: the bolts that hold one, the blocks that lift one
-    _h(89, "fix_kit", "bed frame", "Bed Frame Fixing Kit",
-       "Bolts, barrel nuts and a hex key to tighten a bed frame that has worked loose.", "Grey",
+    # -- bed frame: the valance that hides the space under one, a cushion that props against one
+    _h(89, "valance", "bed frame", "Bed Frame Valance",
+       "A pleated valance that hides the legs and the storage boxes under a bed frame.", "Grey",
        _CAT),
-    _h(90, "bed_riser", "bed frame", "Bed Frame Risers, 4 Pack",
-       "Four sturdy blocks that lift a bed frame by eight centimetres to make room for boxes.",
-       "Brown", _CAT),
-    # -- tea towels: the rail that dries them, an apron cut like one
+    _h(90, "cushion", "bed frame", "Bed Frame Headboard Cushion",
+       "A padded cushion that props against a bed frame as a soft headboard for reading.",
+       "Grey", _CAT),
+    # -- tea towels: the rail that dries them, a hanger that holds them
     _h(91, "hooks", "tea towels", "Tea Towel Hook Rail",
        "A wall rail with five hooks where tea towels dry within reach of the cooker.", "Grey",
        _CAT),
-    _h(92, "apron", "tea towels", "Tea Towel Apron with Pocket",
-       "A soft cotton apron cut like a tea towel, with a front pocket and a neck loop.", "White",
+    _h(92, "hanger", "tea towels", "Tea Towel Hanger, 4 Pack",
+       "Grip hangers that clip tea towels to the oven door or a cupboard handle.", "White",
        _CAT),
     # -- lipstick: a pouch to carry one, a houseplant named for its flowers
     _h(93, "makeup_bag", "lipstick", "Lipstick Make-Up Bag, Mini Zip",
@@ -1047,30 +1030,34 @@ _SEEDS = (
     _h(94, "house_plant", "lipstick", "Lipstick Plant, Trailing",
        "A trailing houseplant (Aeschynanthus) with waxy leaves for a bright windowsill.",
        "Green", _DEP),
-    # -- foundation: the brush and the sponge that apply it
-    _h(95, "brush", "foundation", "Foundation Brush, Flat Top",
-       "A flat-topped brush with dense bristles that buffs liquid foundation evenly into skin.",
-       "Grey", _CAT),
-    _h(96, "sponge", "foundation", "Foundation Blending Sponge",
-       "A soft teardrop sponge that blends foundation and concealer; wet it before use.", "Pink",
+    # -- foundation: the cloth that wipes it off, the bag that carries its brushes
+    _h(95, "face_cloth", "foundation", "Foundation Remover Face Cloth",
+       "A soft microfibre cloth that wipes foundation and eye make-up off with water alone.",
+       "Pink", _CAT),
+    _h(96, "makeup_bag", "foundation", "Foundation Brush Make-Up Bag",
+       "A zip pouch with a brush roll inside, sized for foundation brushes and sponges.", "Pink",
        _CAT),
-    # -- lemon drizzle cake: a candle that smells of one, a packet mix to bake one
+    # -- lemon drizzle cake: a candle, a tea and a hand wash that smell of one
     _h(97, "ld_candle", "lemon drizzle cake", "Lemon Drizzle Cake Candle",
        "A candle in a glass jar that fills a room with the smell of a warm lemon drizzle cake.",
        "Cream", _DEP),
-    _h(98, "baking_mix", "lemon drizzle cake", "Lemon Drizzle Cake Mix",
-       "A packet of sponge mix and an icing sachet that makes a lemon drizzle cake in one bowl.",
-       "Cream", _CAT),
-    # -- gift hamper: the basket and the box that hold one
-    _h(99, "basket", "gift hamper", "Empty Gift Hamper Basket, Wicker",
+    _h(98, "tea", "lemon drizzle cake", "Lemon Drizzle Cake Flavour Tea",
+       "A tea scented with lemon peel and sweet icing, in a box of twenty bags; "
+       "it tastes of lemon drizzle cake.", "Yellow", _DEP),
+    _h(99, "s_handwash", "lemon drizzle cake", "Lemon Drizzle Cake Hand Wash",
+       "A pump bottle of hand wash that smells of a lemon drizzle cake fresh from the oven.",
+       "Yellow", _DEP),
+    # -- gift hamper: the basket that holds one, the wrap that covers one
+    _h(100, "basket", "gift hamper", "Empty Gift Hamper Basket, Wicker",
        "A lidded wicker basket, sold empty, to fill and give as a gift hamper.", "Brown", _DEP),
-    _h(100, "gift_box", "gift hamper", "Gift Hamper Box, Fold-Flat",
-       "A fold-flat card box with a lid for packing a gift hamper at home.", "Cream", _DEP),
-    # -- olive tree: the planter it grows in, a candle named for the grove
-    _h(101, "planter", "olive tree", "Olive Tree Planter, Large",
-       "A deep planter with drainage holes, sized for an olive tree on a patio.", "Grey", _CAT),
+    _h(101, "s_wrap", "gift hamper", "Gift Hamper Cellophane Wrap",
+       "A roll of cellophane that wraps a gift hamper, with a ribbon to tie it at the top.",
+       "Cream", _DEP),
+    # -- olive tree: a candle and a hand wash named for the grove
     _h(102, "olive_candle", "olive tree", "Olive Tree Scented Candle",
        "A candle in a glass jar with the fresh scent of an olive tree grove.", "Cream", _DEP),
+    _h(103, "s_handwash", "olive tree", "Olive Tree Hand Wash",
+       "A pump bottle of hand wash scented with an olive tree grove.", "Green", _DEP),
 )  # fmt: skip
 TABLE = (*TABLE, *_SEEDS)
 
@@ -1195,43 +1182,6 @@ _F = {
         ("Sea Salt Crisps", "Blue", "Sea salt crisps."),
     ),
 }
-_F.update({
-    "bed_riser": (
-        ("Plastic Bed Risers, Set of 4", "Grey", "Four stackable plastic blocks for a bed."),
-        ("Wooden Bed Risers", "Brown", "Solid wood blocks that lift a bed or sofa."),
-        ("Adjustable Furniture Risers", "Black", "Risers with a stepped, adjustable height."),
-    ),
-    "fix_kit": (
-        ("Flat Pack Furniture Fixing Kit", "Grey", "Cam locks, dowels and screws for flat pack."),
-        ("Wardrobe Fixing Kit", "Grey", "Brackets and screws that secure a wardrobe to a wall."),
-        ("Shelf Fixing Kit", "Grey", "Plugs, screws and brackets for a wall shelf."),
-    ),
-    "brush": (
-        ("Powder Brush", "Pink", "A large fluffy brush for loose and pressed powder."),
-        ("Eyeshadow Brush", "Grey", "A small flat brush for eyelids."),
-        ("Blusher Brush", "Pink", "An angled soft brush for cheeks."),
-    ),
-    "sponge": (
-        ("Make-Up Wedge Sponges, 8 Pack", "Cream", "Latex-free wedges for blending."),
-        ("Powder Puff", "Pink", "A velvet puff for setting powder."),
-        ("Concealer Sponge", "Cream", "A small sponge for under the eye."),
-    ),
-    "baking_mix": (
-        ("Victoria Sponge Mix", "Cream", "A packet mix for a classic sponge."),
-        ("Brownie Mix", "Brown", "A packet mix for fudgy brownies."),
-        ("Pancake Mix", "Cream", "Just add milk and an egg."),
-    ),
-    "gift_box": (
-        ("Magnetic Gift Box", "White", "A rigid box with a magnetic lid."),
-        ("Kraft Gift Box, Pack of 5", "Brown", "Plain card boxes with lids."),
-        ("Window Gift Box", "White", "A box with a clear window to see the gift."),
-    ),
-    "planter": (
-        ("Large Plastic Planter", "Grey", "A frost-proof planter with drainage holes."),
-        ("Terracotta Planter", "Brown", "A clay planter for herbs and shrubs."),
-        ("Window Box Planter", "Green", "A trough planter that fits a sill."),
-    ),
-})
 FLOOR = tuple(
     Row(f"FY{n:02d}{i}", kind, title, desc, color, decoy=False, sold=120)
     for n, (kind, rows) in enumerate(_F.items(), 1)
