@@ -223,7 +223,10 @@ SKU. `size_range` is a list; for legwear it is derived from the in-stock lengths
 
 Every class doc also carries the tile signals: `promotion` (a was-price gives
 "On sale"; see below), `discount_pct` (derived, sale docs only),
-`trending`, `online_only`, a `brand_owner` (own or third party; third-party
+`trending`, `online_only`, a `brand_owner` (own or third party; a brand has one
+owner in every row, an own-label name `own` and an independent maker's name
+`third_party`, pinned by
+`test_every_brand_has_exactly_one_owner_across_the_templates_and_the_ceiling`; third-party
 brands lead the offers, some with a `sub_collection` label such as "The
 Active Edit"), and `badges` in one order (Bestseller for the top 15,
 Trending, Online Only). Every doc has a full `category_path` of clean shopper
@@ -317,8 +320,15 @@ build, `golden-catalog/nested.jsonl` and the retail export, and over planted
 defects. One attribute key has one class: `check_catalog(..., one_class_per_key=True)`
 (on for retail, in `scale.py` and the test) refuses a key that carries a `unit_code` on
 some entries and none on others, which the Engine refuses to start on. A measured value
-(`5 ft`, which the core reads as a length) goes under its own key (a tree's `height`),
-never under `size`. The text agreement check (`text_contradictions`, on by default) runs
+(`5 ft`, which the core reads as a length) goes under its own key (a tree's `item_height`),
+never under `size`. One concept has one key (gen#227): a measured height is `item_height`
+(beside `item_width`, `item_depth` and `item_length`) on a sofa, a lamp, a doll, an olive tree and a
+Christmas tree alike, and a furniture piece's storage is `storage_feature` (`Lift-Top`, `Shelf`,
+`Drawer`, or `None` for no storage). `prototypes/retail_drawings/key_guard.py` names each concept, its
+winning key and the keys that are another concept by design (`heel_height`, a grocery's `storage`),
+and `tests/test_retail_attribute_keys_227.py` refuses a second key for a concept. The metric,
+`key_guard.keys_per_concept`, is 1 for every concept. A new concept that two types could name
+differently is added to `CONCEPTS`, with its winner and why. The text agreement check (`text_contradictions`, on by default) runs
 on industrial too (gen#139). It reads a title or description as contradicting a value only when
 the text names another value of the key's leaf pool and none of the document's own, and it
 leaves out: a pool value whose words sit inside one of the document's own values ("Steel" on

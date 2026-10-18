@@ -550,7 +550,7 @@ BEDDING = (
     ShallowRow("TOPMEM", "Bedding", "Memory Foam 5cm Mattress Topper", "Quillon Sleep",
                ("Home", "Bedding", "Mattress Toppers"), 65.0, "mattress_topper",
                "A 5 cm memory foam topper with elasticated corner straps.",
-               _WHITE, BEDS, (("depth", "Depth", "5", "CMT", 50.0),)),
+               _WHITE, BEDS, (("mattress_depth", "Mattress depth", "5", "CMT", 50.0),)),
     ShallowRow("PROQLT", "Bedding", "Quilted Waterproof Mattress Protector", "Quillon Sleep",
                ("Home", "Bedding", "Mattress Protectors"), 22.0, "mattress_protector",
                "A quilted protector with a waterproof backing and deep elasticated skirt.",

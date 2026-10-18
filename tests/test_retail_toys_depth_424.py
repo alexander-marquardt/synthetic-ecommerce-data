@@ -39,7 +39,7 @@ TYPES = {
         turn=("kind", "diamond", "delta"), colored=True),
     "play_kitchen": dict(
         path=("Toys", "Pretend Play", "Play Kitchens"), ptype="Play Kitchen", axis="color",
-        entries={"toy_type": None, "material": None, "height_cm": "CMT", "has_sink": None,
+        entries={"toy_type": None, "material": None, "item_height": "CMT", "has_sink": None,
                  "oven_door": None, "lights_and_sounds": None, "age_range": None},
         turn=("sink", "yes", "no"), colored=True),
     "dolls_house": dict(
