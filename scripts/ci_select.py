@@ -98,6 +98,9 @@ CONTENT_INSENSITIVE: dict[str, tuple[str, ...]] = {
 READS_WHOLE_TREE: tuple[str, ...] = (
     "tests/test_file_size_gate_11683.py",
     "tests/test_wheel_builds.py",
+    # Both read the repository's files by a walk the text scan cannot see (#495 review).
+    "tests/test_readme_split_240.py",
+    "tests/test_customer_name_check_393.py",
 )
 _SCANS = re.compile(r"\.r?glob\(|ls-files|os\.walk|\.iterdir\(")
 
@@ -121,9 +124,17 @@ _EXEC_CALLEES = frozenset(
         "check_call", "check_output", "Popen", "system", "execv", "execvp", "runpy",
     }
 )  # fmt: skip
+#: A file that calls one of these loads a script by a path it builds in a variable
+#: (``path = ROOT / "scripts" / "x.py"; spec_from_file_location(name, path)``): every ``.py``
+#: it names is executed, and its imports are followed.
+_LOADERS = frozenset({"spec_from_file_location", "run_path", "exec_module"})
 _DOTTED = re.compile(r"\b[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+\b")
 #: A Python file's text is searched for names only up to this size (a data table is not code).
 _TEXT_LIMIT = 2_000_000
+
+
+def _callee(node: ast.Call) -> str:
+    return node.func.attr if isinstance(node.func, ast.Attribute) else getattr(node.func, "id", "")
 
 
 def tracked_files(root: Path) -> list[str]:
@@ -276,14 +287,13 @@ class Tree:
     def _executed_names(self, module: ast.Module) -> set[str]:
         """The ``.py`` base names a file passes to a call that runs them."""
         found: set[str] = set()
-        for node in ast.walk(module):
-            if not isinstance(node, ast.Call):
-                continue
-            callee = (
-                node.func.attr
-                if isinstance(node.func, ast.Attribute)
-                else getattr(node.func, "id", "")
-            )
+        calls = [n for n in ast.walk(module) if isinstance(n, ast.Call)]
+        if any(_callee(n) in _LOADERS for n in calls):
+            for node in ast.walk(module):
+                if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                    found.update(Path(n).name for n in _PY_NAME.findall(node.value))
+        for node in calls:
+            callee = _callee(node)
             if callee not in _EXEC_CALLEES:
                 continue
             for arg in [*node.args, *(k.value for k in node.keywords)]:
