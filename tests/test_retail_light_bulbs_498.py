@@ -123,6 +123,25 @@ def test_lighting_adds_no_second_temperature_key_anywhere_in_the_catalog() -> No
     assert names == {KEY}, names
 
 
+def test_a_light_states_a_temperature_only_where_the_light_source_comes_with_it(
+    lighting: list[dict],
+) -> None:
+    """Maintainer rule (10-18): a bulb or an Integrated LED lamp carries color_temperature; a
+    fitting that takes a replaceable bulb (E27, E14, GU10, B22) does not."""
+    integrated = 0
+    for d in lighting:
+        has_temp = bool(_entries(d, KEY))
+        fitting = [e["value"] for e in _entries(d, "bulb_fitting")]
+        if d["product_type"] == "Light Bulb":
+            assert has_temp, d["product_id"]
+        elif fitting and fitting != ["Integrated LED"]:
+            assert not has_temp, (d["product_id"], fitting)
+        elif fitting:
+            integrated += 1
+            assert has_temp, d["product_id"]
+    assert integrated
+
+
 def _decoys(box: str) -> list:
     return [d for d in decoy_rows.TABLE if d.query == box.lower() and not d.true_hit]
 

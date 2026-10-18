@@ -209,6 +209,18 @@ with-persona run, is the ingest batch's check, not this PR's.
 | lavender | 7 word only in the ingredients | PLT-DXI14 | All Butter Shortbread | decoy |
 | lavender | 7 word only in the ingredients | PLT-DXI15 | Relaxing Bath Salts | decoy |
 | lavender | 7 word only in the ingredients | PLT-DXI16 | Soy Wax Candle | decoy |
+| soft white | 4 color word is also a product or a shade | PLT-DXL01 | Soft White Matt Emulsion Paint, 2.5L | decoy |
+| soft white | 4 color word is also a product or a shade | PLT-DXL02 | Soft White Gardenia Scented Candle | decoy |
+| soft white | 4 color word is also a product or a shade | PLT-DXL03 | Soft White Cotton Bath Towel | decoy |
+| warm white | 4 color word is also a product or a shade | PLT-DXL04 | Warm White Gloss Paint, 750ml | decoy |
+| warm white | 4 color word is also a product or a shade | PLT-DXL05 | Warm White Velvet Cushion | decoy |
+| warm white | 4 color word is also a product or a shade | PLT-DXL06 | Warm White Vanilla Scented Candle | decoy |
+| cool white | 4 color word is also a product or a shade | PLT-DXL07 | Cool White Ceiling Paint, 5L | decoy |
+| cool white | 4 color word is also a product or a shade | PLT-DXL08 | Cool White Cotton Shirt | decoy |
+| cool white | 4 color word is also a product or a shade | PLT-DXL09 | Cool White Cotton Face Cloths, Pack of 4 | decoy |
+| daylight | 4 color word is also a product or a shade | PLT-DXL10 | Daylight Face Cream SPF 30 | decoy |
+| daylight | 4 color word is also a product or a shade | PLT-DXL11 | Daylight Body Lotion SPF 15 | decoy |
+| daylight | 4 color word is also a product or a shade | PLT-DXL12 | Daylight Citrus Scented Candle | decoy |
 | oranges | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ01 | Juice Pressed from Oranges, 1L | decoy |
 | oranges | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ02 | Dark Chocolate with Candied Oranges | decoy |
 | oranges | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ03 | Mandarin Oranges in Juice, 298g | decoy |

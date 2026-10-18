@@ -33,7 +33,10 @@ kelvin count with unit code ``KEL``, so a facet ranges over it and no value hold
 has one key (gen#498): a tunable lamp holds the two ends of its range as two entries under that
 same key (2700 and 6500), so a filter for 2700-3300K finds it by its warm end and one for
 6000-6500K by its cool end, and no "Minimum color temperature" key exists. The bulbs that
-state a temperature are the Light Bulb type (``type_specs/light_bulb.py``).
+state a temperature are the Light Bulb type (``type_specs/light_bulb.py``). A light states a
+temperature only where the light source comes with the product: a bulb, or a lamp with an
+Integrated LED. A fitting that takes a replaceable bulb (E27, E14, GU10, B22) states none, as the
+colour depends on the bulb put in.
 """
 
 from __future__ import annotations
@@ -137,12 +140,12 @@ FLOOR_LAMPS = (
         params=_p(style="tripod", finish="oak"), size_key="finish"),
     Row("LTFUPL", "Dimmable Uplighter Floor Lamp", "Calderby & Lune", "Home", FLOOR,
         "Floor Lamp", 89.0, "floor_lamp",
-        "An uplighter with a glass bowl shade. It takes an integrated LED bulb and is "
+        "An uplighter with a glass bowl shade. It has an integrated 3000K LED light and is "
         "dimmable, with a dimmer switch on the cable.",
         (WHITE, CREAM),
         (_a("style", "Style", "Uplighter"), _cm("item_height", "Item height", 180),
          _a("shade_material", "Shade material", "Glass"), _a("switch", "Switch", "Dimmer"),
-         _a("bulb_fitting", "Bulb fitting", "Integrated LED"),
+         _a("bulb_fitting", "Bulb fitting", "Integrated LED"), _temp(3000),
          _yes("dimmable", "Dimmable")),
         _each(89.0, "Satin Nickel", "Antique Brass"),
         params=_p(style="uplighter", finish="satin nickel"), size_key="finish"),
