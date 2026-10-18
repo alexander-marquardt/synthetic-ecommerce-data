@@ -15,6 +15,24 @@ material and, where it applies, neckline and sleeve length. The floors are pinne
 | tops | Camisoles, Vest Tops, Tunics, Jersey, Long Sleeve, T-Shirts, Bodysuits | 80 |
 | nightwear and lingerie beyond bras | already met (about 140) | 60 |
 
+## How a title and a description are written
+
+A title is what a shop would write ("Womens Pure Linen Relaxed Fit Midi Dress"): the fit is a
+value of the `fit` facet (Boxy, Classic, Fitted, Oversized, Regular, Relaxed, Slim; the rows add
+none), written "Regular Fit" or, for Fitted, the one word "Fitted"; a feature such as Belted,
+Hooded or Double Breasted is a title word and a description phrase, never a fit. The neckline word
+"Collar" reads "Collared" before a sleeve. The description's last phrase follows the product, and
+is derived per kind and leaf in `womens_depth_rows.py`: a dress says "a fitted waist" only when it
+is Fitted (a shift hangs straight), a top says "stretchy" only for a fabric that stretches, and a
+skirt closes the way its shape does (a wrap ties, a pleated or tiered skirt has an elastic waist,
+an A-line or pencil skirt a zip) and states `waist_type` and `lining` as the older skirts do.
+
+## Floors count real products
+
+The per-leaf floors (`LEAF_FLOORS` in the test) and the real-product floors count products that
+are not text-match decoys, so a named leaf cannot pass on decoys alone. Puffer Jackets and Tea
+Dresses had none or few real products and now carry rows of their own.
+
 ## Text-match decoys (gen#294)
 
 The new rows add no decoys of their own. Their product types (Dress, Blouse, Shirt, Coat,
