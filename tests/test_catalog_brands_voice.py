@@ -50,16 +50,10 @@ GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 
 #: The fields that identify or price a SKU rather than describe it -- and the
 #: METADATA that does not make one part different from another: the
-#: measurement-system attribute under any of its three spellings, and the
-#: standards claimed (the review of the 100K catalog: two washers differing
-#: only by "Dimension Type" vs "System of Measurement" are one product).
-IDENTIFIER_ATTRIBUTES = {
-    "List Number",
-    "Standards",
-    "Dimension Type",
-    "Measurement System",
-    "System of Measurement",
-}
+#: measurement-system attribute, and the standards claimed (the review of the
+#: 100K catalog: two washers differing only by their unit-system word are one
+#: product; #497 made that attribute one name, ``Measurement System``).
+IDENTIFIER_ATTRIBUTES = {"List Number", "Standards", "Measurement System"}
 
 
 def _read(path: Path) -> list[dict]:
@@ -105,7 +99,6 @@ def _spec(doc: dict) -> frozenset:
 #: only differ by a dropped attribute if they agree on these (every one is
 #: published on every SKU of its type).
 _BUCKET = (
-    "Item",
     "Size",
     "Thread Size",
     "Dia./Thread Size",
@@ -412,11 +405,11 @@ def test_every_sampled_drawing_is_in_its_own_brands_house_style():
 
 
 def _opening(doc: dict) -> str:
-    """What a title says before its item: the brand, a qualifier, or nothing."""
-    values = {a["name"]: a["value"] for a in published_attributes(doc)}
-    # A kit's title names its KIND ("Hex Key Set"); ``Item`` is the one facet
-    # value every kit shares.
-    item = values["Type"] if doc["product_type"] == "kit_assortment" else values["Item"]
+    """What a title says before its item and qualifier: the brand, or nothing."""
+    # ``Item`` is no longer published (#497); the line's title still names it: its parent title is
+    # ``<brand> <series> -- <qualifier> <item>``, so what follows the dashes is what the
+    # variant's title says after its brand.
+    item = doc["parent_title"].split(" -- ", 1)[-1]
     title = doc["title"]
     return title[: title.index(item)] if item in title else "<no item>"
 
@@ -534,7 +527,6 @@ _PAIRS = (
     ("Flute Length", "Overall Length"),
     ("Thread Length", "Length"),
     ("Thread Length", "Overall Length"),
-    ("Thread Length", "Length under Head"),
 )
 
 
@@ -562,11 +554,7 @@ def _defect_signature(attributes: dict[str, str]) -> bool:
     inch = '"' in units or " in" in units
     metric = "mm" in units
     # Mixed units, or a declared system its values contradict (3.23%).
-    declared = " ".join(
-        v
-        for k, v in attributes.items()
-        if k in ("Dimension Type", "Measurement System", "System of Measurement")
-    )
+    declared = " ".join(v for k, v in attributes.items() if k == "Measurement System")
     return (inch and metric) or ("Inch" in declared and metric) or ("Metric" in declared and inch)
 
 
