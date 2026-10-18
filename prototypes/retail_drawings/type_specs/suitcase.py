@@ -69,7 +69,9 @@ _ROWS = (
 
 
 def _decoy(cls, query, policy, code, title, desc, color, shell, wheels, lock, brand=MARROWGATE):
-    row = _row(code, title, brand, 49.0, desc, (color,), shell, wheels, lock, "No", "Polypropylene", _HEAVY)
+    soft = shell == "soft"  # the material, sizes and weights are the shell's, as on SUTSFT
+    row = _row(code, title, brand, 49.0, desc, (color,), shell, wheels, lock, "No",
+               "Polyester" if soft else "Polypropylene", _SOFT if soft else _HEAVY)  # fmt: skip
     return Decoy(cls, query, policy, row)
 
 
