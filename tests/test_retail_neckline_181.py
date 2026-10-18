@@ -25,6 +25,7 @@ if str(RETAIL) not in sys.path:
 
 import kit  # noqa: E402
 import kit_garments  # noqa: E402
+import neckline_rows  # noqa: E402
 import scale  # noqa: E402
 
 #: The types the issue names: a top, a dress, a knit (and the near-miss types it lists).
@@ -67,19 +68,6 @@ PHRASES = {
     "cowl neck": "cowl", "roll neck": "high", "turtle neck": "high", "funnel neck": "high",
     "high neck": "high", "tie neck": "tie-neck",
 }  # fmt: skip
-#: A drawing key -> the values it may show: a slash neck is drawn as a boat, and the crew drawing
-#: stands for a round neck and for the collar of the shirts drawn beneath it (authored before this).
-SHOWS = {
-    "crew": {"crew", "round", "collared"},
-    "scoop": {"round"},
-    "v_neck": {"v-neck"},
-    "roll_neck": {"high"},
-    "square": {"square"},
-    "halter": {"halter"},
-    "cowl": {"cowl"},
-    "boat": {"boat", "slash"},
-    "collar": {"collared"},
-}
 
 
 @pytest.fixture(scope="module")
@@ -150,16 +138,15 @@ def test_a_title_that_names_a_neckline_states_that_neckline(carriers, templates)
 
 
 def test_the_picture_shows_the_stated_neckline(carriers):
-    wrong = []
-    for r in carriers:
-        key = ((r.get("drawing") or {}).get("params") or {}).get("neckline")
-        shape = r.get("drawing", {}).get("shape")
-        if (
-            key
-            and shape in ("top", "dress", "bodysuit", "cardigan")
-            and (r.get("neckline") not in SHOWS.get(key, set()))
-        ):
-            wrong.append((r["product_id"], key, r.get("neckline")))
+    """Every carrier whose shape draws a neckline (a tee, a sweatshirt and a cardigan draw their
+    shape's own when the record has no param) shows its stored one, or a declared pair."""
+    drawn = [r for r in carriers if neckline_rows.pictured(r) is not None]
+    assert len(drawn) > 1000, len(drawn)
+    wrong = [
+        (r["product_id"], r["drawing"]["shape"], r.get("neckline"), neckline_rows.pictured(r))
+        for r in drawn
+        if not neckline_rows.agrees(r)
+    ]
     assert not wrong, wrong[:20]
 
 

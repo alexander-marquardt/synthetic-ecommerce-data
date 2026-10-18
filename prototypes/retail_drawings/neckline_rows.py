@@ -263,6 +263,24 @@ def stated(rec: dict) -> str | None:
     return next((value for pat, value in words if re.search(pat, title)), None)
 
 
+#: (stated neckline, pictured neckline) pairs the drawing may differ by: the picture is the same
+#: garment. Every other difference is a contradiction (``tests/test_retail_neckline_181.py``).
+#: round/crew: a round neck is drawn as the crew (a scoop is drawn, but the crew stands for it);
+#: slash/boat: a slash neck is drawn as the boat; collared/crew: the crew drawing stands for the
+#: collar of the shirts drawn beneath it (authored before this); tie-neck/collared: a tie neck is
+#: drawn as the blouse's collar, with no drawing of its own; collared/v-neck: a shawl-collar
+#: cardigan is drawn open at the v, the cardigan having no collar to draw.
+SAME_PICTURE = frozenset({("round", "crew"), ("slash", "boat"), ("collared", "crew"),
+                          ("tie-neck", "collared"), ("collared", "v-neck")})  # fmt: skip
+
+
+def agrees(rec: dict) -> bool:
+    """True when the drawing shows the stored neckline (or a declared :data:`SAME_PICTURE`), or
+    its shape draws no neckline."""
+    shown = pictured(rec)
+    return shown is None or rec.get("neckline") == shown or (rec.get("neckline"), shown) in SAME_PICTURE
+
+
 def pictured(rec: dict) -> str | None:
     """The neckline a style's drawing shows, or None when its shape draws none."""
     d = rec.get("drawing") or {}
