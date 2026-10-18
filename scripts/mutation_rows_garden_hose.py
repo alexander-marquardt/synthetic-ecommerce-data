@@ -16,6 +16,7 @@ import mutation_rows_babywear_213
 import mutation_rows_decor_217
 import mutation_rows_industrial_seed_decoys_462
 import mutation_rows_leaf_shapes_447
+import mutation_rows_light_bulbs_498
 import mutation_rows_plural_445
 import mutation_rows_plural_nonfood_445
 import mutation_rows_real_attributes_448
@@ -114,4 +115,5 @@ ALL: list[tuple[str, ...]] = [
     ),
     *(("real attributes 448", *row, _R) for row in mutation_rows_real_attributes_448.ROWS),
     *(("babywear", *row) for row in mutation_rows_babywear_213.ROWS),
+    *(("light bulbs", *row) for row in mutation_rows_light_bulbs_498.ROWS),
 ]

@@ -352,24 +352,19 @@ def test_every_lighting_color_temperature_entry_is_kelvin_and_none_holds_a_unit_
     assert seen
 
 
-def test_a_desk_lamp_has_one_temperature_or_a_min_and_max_range_and_both_kinds_exist():
+def test_a_desk_lamp_has_one_temperature_or_a_two_ended_range_under_the_one_key():
+    """gen#498: one fact has one key, so a tunable lamp holds both ends under color_temperature."""
     shapes = {}
     for doc in (export.standard_document(d) for d in DOCS if d["product_type"] == "Desk Lamp"):
-        entries = _temperature_entries(doc)
-        keys = frozenset(entries)
-        assert keys in (
-            frozenset({"color_temperature"}),
-            frozenset({"color_temperature_min", "color_temperature_max"}),
-        ), (doc["product_id"], keys)
-        if len(keys) == 2:
-            lo, hi = (entries[k]["value_canonical"] for k in sorted(keys, reverse=True))
-            assert lo < hi, doc["product_id"]
-        shapes[doc["product_id"]] = keys
-    assert len(set(shapes.values())) == 2
+        entries = [e for e in doc["attributes"] if e["key"].startswith("color_temperature")]
+        assert {e["key"] for e in entries} == {"color_temperature"}, doc["product_id"]
+        shapes[doc["product_id"]] = sorted(int(e["value"]) for e in entries)
+    assert len({len(v) for v in shapes.values()}) == 2
     assert {k: shapes[k] for k in ("BRD-LTDGNK", "BRD-LTDCLP")} == {
-        "BRD-LTDGNK": frozenset({"color_temperature"}),
-        "BRD-LTDCLP": frozenset({"color_temperature"}),
+        "BRD-LTDGNK": [3000],
+        "BRD-LTDCLP": [5000],
     }
+    assert shapes["BRD-LTDADJ"] == shapes["BRD-LTDWCP"] == [2700, 6500]
 
 
 def test_the_preview_shows_a_kelvin_entry_with_its_unit() -> None:
@@ -379,4 +374,4 @@ def test_the_preview_shows_a_kelvin_entry_with_its_unit() -> None:
     desk = [d for d in DOCS if d["product_type"] == "Desk Lamp"]
     shown = {d["product_id"]: build_preview._attr_rows(d) for d in desk}
     assert "<td>3000 K</td>" in shown["BRD-LTDGNK"]
-    assert "<td>2700 K</td>" in shown["BRD-LTDADJ"] and "<td>6500 K</td>" in shown["BRD-LTDADJ"]
+    assert "<th>Color temperature</th><td>2700 K, 6500 K</td>" in shown["BRD-LTDADJ"]
