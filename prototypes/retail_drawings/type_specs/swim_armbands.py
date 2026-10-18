@@ -9,12 +9,13 @@ The styles are templates only (``derivable`` False): the department grows by aut
 from __future__ import annotations
 
 from sports_helpers import _H, _L, _NEUTRAL, _PRIMARY, _SWIM, _a, _axis, _row
-from type_registry import TypeSpec
+from type_registry import Option, TypeSpec
 
 SPEC = TypeSpec(
     key="swim_armbands",
     department="Sports & Outdoors",
     product_type="Swim Armbands",
+    options=(Option("max_load_kg", "max_load_kg", "Maximum load", "KGM"),),
     rows=(
         _row("ARMTWO", "Two Chamber Swimming Armbands", _L, (*_SWIM, "Swim Armbands"), "Swim Armbands", 4.0,
              "swim_armbands", "Inflatable armbands with two air chambers each, for children learning to float.",
