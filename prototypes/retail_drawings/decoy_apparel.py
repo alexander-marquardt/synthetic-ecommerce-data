@@ -121,7 +121,7 @@ _PLANNED: tuple[Spec, ...] = (
 #: More decoys for the two types the neckline depth grew (gen#181): a large type carries a tenth.
 #: The extra ids are the later ones of each class (``i`` 3 and up): no id is renamed, but an
 #: existing id can change content (PLT-DA08602 does), so a decoy is never pinned by its id.
-_MORE = {"Top": 6, "Dress": 4}
+_MORE = {"Top": 6, "Dress": 5}
 BASE_TYPES: tuple[Spec, ...] = tuple(
     replace(s, prefix=f"A{ti:02d}", per_class=_MORE.get(s.product_type, s.per_class))
     for ti, s in enumerate(_PLANNED)
