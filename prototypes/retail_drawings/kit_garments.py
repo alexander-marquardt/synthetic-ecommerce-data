@@ -157,12 +157,14 @@ def trousers(
     rise: str = "mid",
     style: str = "jeans",
     waist: str = "standard",
+    cargo: str = "",
 ) -> list[str]:
     """Jeans or tailored trousers in one of :data:`FITS`, at one of :data:`RISES`.
 
     ``style`` is ``jeans`` (rivets, coin pocket, J-stitch) or ``tailored``
     (slant pockets, pressed creases). ``waist="elasticated"`` swaps the fly and
-    button for a gathered band and a drawstring.
+    button for a gathered band and a drawstring. ``cargo="yes"`` adds a flapped
+    patch pocket on each outer thigh (gen#447: cargo trousers show their pockets).
     """
     bt, bb, wx = RISES[rise]
     if waist == "elasticated":
@@ -260,6 +262,8 @@ def trousers(
 
     # Fit cues: pleats (carrot), a pressed crease (tailored), a curved
     # front seam (barrel), drape folds (balloon).
+    if cargo == "yes":
+        out += _cargo_pockets(oL)
     if spec.get("pleats"):
         for x in (wx + 30, wx + 42):
             out.append(
@@ -281,6 +285,63 @@ def trousers(
             for pts in (fold, mirror(fold)):
                 out.append(_line(f"M{_f(pts[0])} {smooth(pts)}", 1.2, ' stroke-opacity=".5"'))
     return out
+
+
+def _cargo_pockets(outer: list[Pt]) -> list[str]:
+    """A flapped patch pocket on each outer thigh, the lower-body kit's own ``cargo-pocket``."""
+    from kit_lowerbody import _cargo_pocket  # deferred: kit_lowerbody imports this module
+
+    top = 214
+    return [_cargo_pocket(side, _x_at(outer, top), top, 34, 58) for side in (1, -1)]
+
+
+def _polo_collar(paint: str) -> list[str]:
+    """A polo's folded collar, its placket and its two buttons."""
+    flap = "M172,58 L202,104 L184,120 L150,84 Z"
+    placket = "M193,104 L207,104 L207,196 L193,196 Z"
+    return [
+        _path(placket, paint, LW_DETAIL),
+        _dark(placket, 0.1),
+        *[
+            f'<circle cx="200" cy="{y}" r="3.6" fill="#ffffff" stroke="{INK}" stroke-width="1.2"/>'
+            for y in (128, 160)
+        ],
+        *[_path(f, paint, LW_DETAIL) for f in (flap, _mirror_path(flap))],
+        _dark(flap, 0.12),
+        _dark(_mirror_path(flap), 0.12),
+    ]
+
+
+def _mirror_path(d: str) -> str:
+    """The absolute ``M/L ... Z`` path ``d`` reflected about the sheet's center line."""
+    pts = [tuple(map(float, p.strip("MLZ ").split(","))) for p in d.split() if "," in p]
+    return _poly([(SIZE - x, y) for x, y in pts])
+
+
+def shirt_dress(paint: str, fill: Fill, label: str | None) -> list[str]:
+    """A shirt dress: a pointed collar, short sleeves, a buttoned placket to the hem and a belt at
+    the waist (gen#447: it is not the strappy sundress ``dress`` draws)."""
+    sleeve = "M158,72 L116,98 L100,146 L136,160 L152,130 Z"
+    body = "M158,66 L242,66 L252,172 L306,358 Q200,376 94,358 L148,172 Z"
+    collar = "M170,52 L200,100 L182,112 L152,76 Z"
+    belt = "M150,172 L250,172 L252,192 L148,192 Z"
+    return [
+        _path(sleeve, paint),
+        _path(_mirror_path(sleeve), paint),
+        _path(body, paint),
+        _path(collar, paint, LW_DETAIL),
+        _path(_mirror_path(collar), paint, LW_DETAIL),
+        _dark(collar, 0.12),
+        _dark(_mirror_path(collar), 0.12),
+        _line("M200,100 L200,364"),
+        *[
+            f'<circle cx="200" cy="{y}" r="3.6" fill="#ffffff" stroke="{INK}" stroke-width="1.2"/>'
+            for y in (122, 150, 214, 250, 286, 322)
+        ],
+        _path(belt, _shade(fill.base, 0.2), LW_DETAIL),
+        f'<rect x="188" y="170" width="24" height="24" rx="3" fill="none" stroke="{INK}" stroke-width="2"/>',
+        _line("M96,350 Q200,370 304,350", 1.2, ' stroke-dasharray="4 3"'),
+    ]
 
 
 def _fit_alias(fit: str):
@@ -310,6 +371,8 @@ NECKLINES = {
     # A halter rises to a narrow neck over bare shoulders, a cowl drapes in two folds (gen#181).
     "halter": ((184, 58), "Q200,70 184,58", "M180,62 Q200,76 220,62"),
     "cowl": ((164, 72), "Q200,124 164,72", "M158,78 Q200,138 242,78 M168,92 Q200,130 232,92"),
+    # A polo's opening: a short placket slit under the collar.
+    "polo": ((176, 72), "L200,112 L176,72", "M170,76 L200,124 L230,76"),
 }
 #: Deeper cuts a cardigan opens to.
 CARDIGAN_NECKS = {
@@ -348,8 +411,8 @@ def top(
     """A tee, jumper or cardigan with a visible neckline and sleeve length.
 
     ``neckline`` is one of :data:`NECKLINES`; ``sleeve`` is ``sleeveless``,
-    ``short``, ``three_quarter`` or ``long``; ``kind`` is ``tee``, ``jumper``
-    or ``cardigan``.
+    ``short``, ``three_quarter`` or ``long``; ``kind`` is ``tee``, ``jumper``,
+    ``cardigan`` or ``polo`` (a folded collar over a two-button placket, gen#447).
     """
     necks = CARDIGAN_NECKS if kind == "cardigan" and neckline in CARDIGAN_NECKS else NECKLINES
     (nx, ny), cut, band = necks[neckline]
@@ -430,6 +493,9 @@ def top(
             ),
         ]
 
+    if kind == "polo":
+        out += _polo_collar(paint)
+
     # Hem: a stitched hem on a tee, a rib band on a knit.
     if knit:
         rib = f"M{hx + 1},{hy - 26} L{SIZE - hx - 1},{hy - 26} L{SIZE - hx},{hy} L{hx},{hy} Z"
@@ -468,8 +534,11 @@ register(
     {
         "trousers": trousers,
         "top": top,
+        "shirt_dress": shirt_dress,
         "jeans_straight": _fit_alias("straight"),
         "jeans_bootcut": _fit_alias("bootcut"),
     },
     {"top": 6},
 )
+
+import kit_outerwear  # noqa: E402,F401 -- registers bomber_jacket and puffer_jacket (gen#447)
