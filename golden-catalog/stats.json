@@ -2999,6 +2999,15 @@
    "band": null
   },
   {
+   "name": "parent repeats a (name, value) pair",
+   "target": 0.0085,
+   "achieved": 0.0081645,
+   "numerator": 27,
+   "denominator": 3307,
+   "note": "over parents carrying Standards; the shape reverse_nested exists for (#1)",
+   "band": null
+  },
+  {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
    "achieved": 0.467768,
@@ -3934,7 +3943,7 @@
  },
  "standards_present": 6089,
  "standards_multivalued": 1557,
- "standards_total_values": 7927,
+ "standards_total_values": 7973,
  "multivalued_attribute_names": {
   "Standards": 1557,
   "Sizes Included": 59

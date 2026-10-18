@@ -9,6 +9,8 @@ through ``self``.
 from __future__ import annotations
 
 import functools
+import random
+from dataclasses import replace
 
 from synthetic_ecommerce_data.core import brands, noise, price
 from synthetic_ecommerce_data.core.model import (
@@ -84,6 +86,31 @@ class FinishMixin:
             self._bump("standards_multivalued")
         self._bump("standards_values", len(values))
         return multi_attribute(STANDARDS_NAME, values)
+
+    def _repeat_a_pair(self, product_id: str, line_attrs: list[Attribute]) -> list[Attribute]:
+        """Publish one ``Standards`` value twice on a few parents (#1).
+
+        ``Standards = [ISO, ISO]`` is a repeated (name, value) PAIR on one
+        parent, the shape that makes a nested count over-report without
+        ``reverse_nested``; ``[ISO, DIN]`` is a repeated name only and every
+        bucket still agrees. The draw has its own stream, keyed by the product,
+        so no other value in the catalog moves, and it is made after the titles
+        and copy are composed, so none of them reads the repeat. Real catalogs
+        carry it (:attr:`~.GeneratorConfig.defect_repeated_pair`).
+        """
+        index = next((i for i, a in enumerate(line_attrs) if a.name == STANDARDS_NAME), None)
+        if index is None:
+            return line_attrs
+        draws = random.Random(f"{self.config.seed}:repeated-pair:{product_id}")
+        if draws.random() >= self.config.scaled_defect(self.config.defect_repeated_pair):
+            return line_attrs
+        attribute = line_attrs[index]
+        values = list(attribute.values or (attribute.value,))
+        at = draws.randrange(len(values))
+        values.insert(at, values[at])
+        repeated = replace(attribute, value=values[0], values=tuple(values))
+        self._bump("defect_repeated_pair")
+        return [*line_attrs[:index], repeated, *line_attrs[index + 1 :]]
 
     def _measurement_system(
         self, system: str, name: str, *, count: bool = True
@@ -359,6 +386,7 @@ class FinishMixin:
             )
             self._bump("skus")
 
+        line_attrs = self._repeat_a_pair(product_id, line_attrs)
         parent_title = product_name(
             draft.brand, draft.series, draft.item, STANDARDS_FAMILY[type_key]
         )
