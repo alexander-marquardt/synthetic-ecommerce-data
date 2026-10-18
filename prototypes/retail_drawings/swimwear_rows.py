@@ -71,7 +71,7 @@ UK = ("8", "10", "12", "14", "16", "18")
 LETTER_M = ("S", "M", "L", "XL", "XXL")
 LETTER = ("XS", "S", "M", "L", "XL")
 KIDS = ("3-4 Yrs", "5-6 Yrs", "7-8 Yrs", "9-10 Yrs")
-BABY = ("0-3 Mths", "3-6 Mths", "6-12 Mths", "12-18 Mths")
+BABY = ("0-1 Yrs", "1-2 Yrs", "2-3 Yrs")
 CUPS = ("B", "C", "D", "DD")
 
 BLACK = cw("Black", "#2f2f35", "solid", "#d8dce8")
@@ -141,11 +141,11 @@ def _bottoms(code, title, brand, rise, tie, price, desc, colors):
 
 
 BOTTOM_ROWS = (
-    _bottoms("BKBHIG", "High-Waisted Bikini Bottoms", _HW, "High-Waisted", "No", 10.0, "High-waisted bikini bottoms that sit above the navel.", (BLACK, RED, BLUE, GREEN, YELLOW, WHITE)),
-    _bottoms("BKBMID", "Mid-Rise Bikini Bottoms", _TW, "Mid-Rise", "No", 9.0, "Mid-rise bikini bottoms with a classic brief leg.", (BLACK, NAVY, RED, WHITE)),
-    _bottoms("BKBLOW", "Low-Rise Bikini Bottoms", _WF, "Low-Rise", "No", 9.0, "Low-rise bikini bottoms that sit below the hip.", (BLACK, BLUE, GREEN, YELLOW)),
-    _bottoms("BKBTIE", "Tie Side Bikini Bottoms", _LK, "Mid-Rise", "Yes", 11.0, "Mid-rise bikini bottoms with a tie at each hip.", (BLACK, RED, BLUE, WHITE)),
-    _bottoms("BKBHTI", "High-Waisted Tie Side Bikini Bottoms", _DL, "High-Waisted", "Yes", 12.0, "High-waisted bikini bottoms with a tie at each hip.", (BLACK, GREEN, YELLOW, WHITE)),
+    _bottoms("BKBHIG", "High-Waisted Bikini Bottoms", _HW, "High", "No", 10.0, "High-waisted bikini bottoms that sit above the navel.", (BLACK, RED, BLUE, GREEN, YELLOW, WHITE)),
+    _bottoms("BKBMID", "Mid-Rise Bikini Bottoms", _TW, "Mid", "No", 9.0, "Mid-rise bikini bottoms with a classic brief leg.", (BLACK, NAVY, RED, WHITE)),
+    _bottoms("BKBLOW", "Low-Rise Bikini Bottoms", _WF, "Low", "No", 9.0, "Low-rise bikini bottoms that sit below the hip.", (BLACK, BLUE, GREEN, YELLOW)),
+    _bottoms("BKBTIE", "Tie Side Bikini Bottoms", _LK, "Mid", "Yes", 11.0, "Mid-rise bikini bottoms with a tie at each hip.", (BLACK, RED, BLUE, WHITE)),
+    _bottoms("BKBHTI", "High-Waisted Tie Side Bikini Bottoms", _DL, "High", "Yes", 12.0, "High-waisted bikini bottoms with a tie at each hip.", (BLACK, GREEN, YELLOW, WHITE)),
 )
 
 # -- Tankini ---------------------------------------------------------------------------------------

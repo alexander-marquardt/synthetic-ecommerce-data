@@ -223,7 +223,7 @@ def test_the_range_states_each_value_the_issue_names() -> None:
 
     assert {"Scoop", "Plunge", "Halter", "One Shoulder"} <= seen("swimsuit", "cut")
     assert {"Triangle", "Bandeau", "Balcony", "Underwired"} <= seen("bikini_top", "top_shape")
-    assert {"High-Waisted", "Mid-Rise", "Low-Rise"} <= seen("bikini_bottoms", "rise")
+    assert {"High", "Mid", "Low"} <= seen("bikini_bottoms", "rise")
     assert {"Short", "Mid", "Long"} <= seen("swim_shorts", "length")
     assert {"Drawstring", "Elasticated"} <= seen("swim_shorts", "waist_type")
     assert {"Light", "Moderate"} <= seen("period_swimwear", "absorbency")
