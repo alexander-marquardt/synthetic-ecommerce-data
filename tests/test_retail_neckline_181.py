@@ -12,6 +12,7 @@ colors times its sizes are its SKUs), so a floor counts products, not SKUs.
 from __future__ import annotations
 
 import re
+import subprocess
 import sys
 from collections import Counter
 from pathlib import Path
@@ -153,3 +154,19 @@ def test_the_kit_draws_a_halter_and_a_cowl_and_a_dress_neckline():
     drawn = {n: kit.dress("#abc", None, None, neckline=n) for n in ("crew", "v_neck", "halter", "cowl")}
     assert all(d != plain for d in drawn.values())
     assert len({tuple(d) for d in drawn.values()}) == len(drawn)
+
+
+def test_building_the_templates_leaves_the_authored_samples_untouched():
+    """The completed necklines are copies: the authored samples are shared with the image release,
+    and a drawing edited in place there changed the images that release writes. A fresh interpreter,
+    so an earlier build in this process cannot have made the edit already."""
+    code = (
+        "import copy, scale\n"
+        "from build_preview4 import samples\n"
+        "before = copy.deepcopy(samples())\n"
+        "scale.templates()\n"
+        "assert samples() == before, 'an authored sample was edited in place'\n"
+    )
+    run = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,
+                         check=False, cwd=RETAIL)  # fmt: skip
+    assert run.returncode == 0, run.stderr[-600:]

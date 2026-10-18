@@ -164,7 +164,7 @@ def _dresses() -> list[LRow]:
             rows.append(_row(f"NK{ni}D{n:02d}", title, _BRANDS[(n + ni + 1) % 4], ("Womens", "Dresses", f"{length} Dresses"),
                              "Dress", "dress", desc, nk, price=round(26.0 + 3.0 * ((k + ni) % 9), 2),
                              params=(("neckline", nk.draw),),
-                             attrs=(("material", "Material", fab if fab != "Broderie" else "Cotton"),
+                             attrs=(("material", "Material", {"Broderie": "Cotton", "Linen Blend": "Linen blend"}.get(fab, fab)),
                                     ("length", "Length", length))))  # fmt: skip
     return rows
 
@@ -274,17 +274,24 @@ def pictured(rec: dict) -> str | None:
 
 def complete(tpls: list[dict]) -> list[dict]:
     """Give each top, dress, blouse and knit without a neckline one: the title's, else the
-    drawing's, else (a dress only) one drawn to match. Nothing already stated is changed."""
+    drawing's, else (a dress only) one drawn to match. Nothing already stated is changed.
+
+    The records are shared with the authored samples (``build_preview4.samples``), which the image
+    release draws too: a completed record is a copy, never the shared one edited in place."""
+    out = []
     for r in tpls:
         if r["product_type"] not in NECK_TYPES or r.get("neckline"):
+            out.append(r)
             continue
+        r = {**r}
         d = r.get("drawing") or {}
         if r["product_type"] in DRESS_TYPES and d.get("shape") == "dress":
             value = stated(r) or _DRESS_CHOICE[_digest(r["product_id"], "neck") % len(_DRESS_CHOICE)]
             key = next((k for k, v in DRAWN.items() if v == value), None)
             if key:  # the picture shows what the fact says (a tie neck has no drawing yet)
-                d["params"] = {**(d.get("params") or {}), "neckline": key}
+                r["drawing"] = {**d, "params": {**(d.get("params") or {}), "neckline": key}}
             r["neckline"] = value
         else:
             r["neckline"] = stated(r) or pictured(r) or "crew"
-    return tpls
+        out.append(r)
+    return out
