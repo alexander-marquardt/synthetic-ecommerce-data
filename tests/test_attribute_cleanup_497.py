@@ -14,6 +14,8 @@ from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data.core.config import GeneratorConfig
+
 GOLDEN = Path(__file__).resolve().parent.parent / "golden-catalog" / "nested.jsonl"
 
 #: Keys that restate the product type (the shopper reads the type in the title and
@@ -119,13 +121,17 @@ def test_a_type_value_never_restates_the_product_type(products):
 
 
 def test_a_standard_is_published_once_per_product(products):
-    repeated = [
-        product["product_id"]
+    """One value is never listed twice by the build's merge of ``Meets/Exceeds`` into
+    ``Standards`` (#497). The one exception is the stated defect of #1: at its rate a parent
+    publishes one ``Standards`` value a second time, a single extra copy."""
+    extra = {
+        product["product_id"]: len(values) - len(set(values))
         for product in products
         for values in [[e["value"] for e in product["attributes"] if e["key"] == "standards"]]
-        if len(values) != len(set(values))
-    ]
-    assert repeated == []
+    }
+    assert [pid for pid, copies in extra.items() if copies > 1] == []
+    repeating = sum(1 for copies in extra.values() if copies)
+    assert repeating <= 3 * GeneratorConfig().defect_repeated_pair * len(products)
 
 
 def test_grade_and_wheel_grade_are_two_kinds(products):
