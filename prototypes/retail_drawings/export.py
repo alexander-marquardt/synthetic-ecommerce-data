@@ -33,6 +33,7 @@ from typing import Any
 
 import colorwords
 import facet_leaves
+import type_registry
 from audience import audience_of
 from build_preview4 import samples
 from promotion import CAMPAIGN  # noqa: F401 -- the seeded campaign, read through this module
@@ -59,8 +60,11 @@ VALUE_CASE = {"pattern": str.lower, "rise": str.title}
 #: the image id keeps the authored type, so the 561 tees keep their ``tee/...`` image ids.
 PRODUCT_TYPE_FOLDS = {"Tee": "T-Shirt"}
 
-#: SKU option -> (key, name, unit): one variant-level entry each; a unit splits it.
-OPTIONS: dict[str, tuple[str, str, str | None]] = {
+#: SKU option -> (key, name, unit): one variant-level entry each; a unit splits it. The options
+#: that types not yet moved into spec files share. A type spec declares its own option
+#: (``TypeSpec.options``), so a new quantity edits no line here (gen#413); a key has one name,
+#: and a unit may split it (a hose's ``item_length`` is in metres, a knife's in centimetres).
+SHARED_OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "color": ("color", "Color", None),
     "size": ("size", "Size", None),
     "size_uk": ("size_uk", "Size (UK)", None),
@@ -96,19 +100,11 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     # Bags, umbrellas and jewelry (accessory_rows.py, gen#207): a backpack's capacity, an
     # umbrella's canopy, a necklace's length (item_length), a jewelry SKU's metal.
     "canopy_cm": ("canopy_diameter", "Canopy diameter", "CMT"),
-    # A parasol's canopy is sold in metres, an umbrella's in centimetres: one key, one kind of
-    # value, the unit says which (garden_outdoor specs, gen#203). A furniture set's seats.
-    "canopy_m": ("canopy_diameter", "Canopy diameter", "MTR"),
-    "seats": ("seats", "Seats", "C62"),
     "metal": ("metal", "Metal", None),
-    # A watch's or fitness band's case, in millimetres (jewellery_rows.py, gen#423).
-    "case_mm": ("case_diameter", "Case diameter", "MMT"),
     # A building set's sizes, a board game's editions and a craft kit's themes
     # (toys_rows.py, gen#201).
     "piece_count": ("piece_count", "Piece count", "C62"),
     "edition": ("edition", "Edition", None),
-    # A dolls' house is sold in three styles (type_specs/dolls_house.py, gen#424).
-    "house_style": ("style", "Style", None),
     "theme": ("theme", "Theme", None),
     # The grocery build's flavor x pack SKUs (grocery.py, gen#154); a list option
     # (an allergen list, the dietary labels) is one entry per value.
@@ -121,8 +117,6 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "shade_color": ("shade_color", "Shade color", None),
     # A recliner sofa's manual or power recline (sofa_rows.py, gen#196).
     "recline": ("recline", "Recline", None),
-    # How a tracksuit is sold: the set or either piece (lowerbody_rows.py, gen#206).
-    "sold_as": ("sold_as", "Sold as", None),
     "units_per_pack": ("units_per_pack", "Units per pack", "C62"),
     "net_weight_g": ("net_weight", "Net weight", "GRM"),
     "net_volume_ml": ("net_volume", "Net volume", "MLT"),
@@ -144,22 +138,6 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "berth": ("berth", "Berth", "C62"),
     "thickness_mm": ("thickness", "Thickness", "MMT"),
     "weight_kg": ("weight", "Weight", "KGM"),
-    # A body mist's fragrance, beside its size (beauty_depth.py, gen#214).
-    "fragrance": ("fragrance", "Fragrance", None),
-    # A sun cream's protection factor, beside its size (type_specs/sun_cream.py, gen#214).
-    "spf": ("spf", "SPF", None),
-    # A garden hose's length (garden_rows.py, gen#292): the hose is cut and sold in metres.
-    "length_m": ("item_length", "Item length", "MTR"),
-    # The second increment (sports_rows.py, gen#368): a block's height (item_height) and a strap's,
-    # bat's and kickboard's length (item_length) reuse the keys above; the rest are new.
-    "glove_size_in": ("glove_size", "Glove size", "INH"),
-    "head_cm": ("head_circumference", "Head circumference", "CMT"),
-    "max_load_kg": ("max_load_kg", "Maximum load", "KGM"),
-    "ball_size": ("ball_size", "Ball size", "C62"),
-    "players": ("players", "Players", "C62"),
-    "resistance": ("resistance_level", "Resistance level", None),
-    "brightness_lm": ("brightness", "Brightness (lm)", None),
-    "grip": ("grip_size", "Grip size", None),
     # A mower's or trimmer's cutting width and a robot mower's lawn area (garden_rows.py,
     # gen#203); the area is a plain number named in square metres, as a wattage is in watts.
     "cutting_width_cm": ("cutting_width", "Cutting width", "CMT"),
@@ -169,6 +147,9 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     # height_cm.
     "roll_length_m": ("roll_length", "Roll length", "MTR"),
 }
+#: Every SKU option: the shared ones above and the ones a type spec declares (``TypeSpec.options``,
+#: gen#413). A key declared with two meanings stops the build here and fails the registry's test.
+OPTIONS = type_registry.checked_options(SHARED_OPTIONS)
 #: The SKU fields that are columns of the variant, not options.
 SKU_COLUMNS = frozenset({"sku", "price", "in_stock", "ingredients"})
 

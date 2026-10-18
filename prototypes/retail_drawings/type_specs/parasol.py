@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import kit_outdoor  # noqa: F401 -- registers parasol
 from outdoor_helpers import BLACK, BLUE, GREEN, RED, WHITE, YELLOW, H, V, W, a, axis, row
-from type_registry import TypeSpec
+from type_registry import Option, TypeSpec
 
 _ROOT = ("Garden", "Garden Furniture")
 _PT = "Parasol"
@@ -29,6 +29,7 @@ SPEC = TypeSpec(
     key="parasol",
     department="Garden",
     product_type=_PT,
+    options=(Option("canopy_m", "canopy_diameter", "Canopy diameter", "MTR"),),
     rows=(
         row("PRSCTR", "Center Pole Parasol", W, (*_ROOT, "Center Pole Parasols"), _PT, 29.0, "parasol",
             "A polyester parasol on a center pole that pushes up with a slide, for a patio table "
