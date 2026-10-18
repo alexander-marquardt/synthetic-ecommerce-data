@@ -223,7 +223,7 @@ def _build_sku(
         image_id=taxonomy.image_id_for(row.key, product_id, sku),
         compatibility=compatibility,
         noise=noise_text,
-        pricing_unit=pricing_unit_for(merged.get("Package Quantity")),
+        pricing_unit=pricing_unit_for(merged.get("Units per Pack")),
     )
 
 
