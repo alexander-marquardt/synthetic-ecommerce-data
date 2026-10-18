@@ -149,6 +149,7 @@ FABRIC_MOVES: dict[str, tuple[str, str | None]] = {
     "Cotton Blend": ("Cotton", "Cotton Blend"),
     "Cotton Jersey": ("Jersey", "Cotton"),
     "Silk Dupion": ("Silk", "Silk Dupion"),
+    "Stretch Cotton": ("Cotton", "Stretch Cotton"),
     "Cotton, Elastane": ("Cotton", "Cotton, Elastane"),
     "Modal, Elastane": ("Modal", "Modal, Elastane"),
     "Recycled Polyamide, Elastane": ("Nylon", "Recycled Polyamide, Elastane"),

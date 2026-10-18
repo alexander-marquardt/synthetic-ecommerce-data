@@ -248,10 +248,11 @@ def test_a_bra_carries_every_value_its_title_names(pairs, values):
 #: The closed list a ``fabric`` value comes from: the fibre or weave a shopper names (gen#187).
 SHOPPER_FABRICS = {
     "Bamboo", "Boucle", "Brushed Cotton", "Cashmere", "Chenille", "Corduroy", "Cotton", "Crochet",
-    "Denim", "Faux Fur", "Faux Leather", "Faux Suede", "Flannel", "Fleece", "Jersey", "Knitted",
+    "Denim", "Faux Fur", "Faux Leather", "Faux Suede", "Felt", "Flannel", "Fleece", "Jersey",
+    "Knitted",
     "Lace", "Lace Trim", "Leather", "Linen", "Mesh", "Microfiber", "Modal", "Muslin", "Nylon",
     "Oxford", "Plush", "Polyester", "Satin", "Seamless", "Shell", "Silk", "Suede", "Suiting",
-    "Towelling", "Tricot", "Twill", "Velour", "Velvet", "Voile", "Waffle", "Wool",
+    "Teddy", "Towelling", "Tricot", "Twill", "Velour", "Velvet", "Voile", "Waffle", "Wool",
 }  # fmt: skip
 #: A bra's old ``fabric`` (its fibre content) -> the fibre a shopper names.
 BRA_FIBRES = {
@@ -300,6 +301,7 @@ MOVED = {
     "Cotton Blend": ("Cotton", "Cotton Blend"),
     "Cotton Jersey": ("Jersey", "Cotton"),
     "Silk Dupion": ("Silk", "Silk Dupion"),
+    "Stretch Cotton": ("Cotton", "Stretch Cotton"),
 }
 
 
@@ -336,7 +338,8 @@ def test_the_blend_is_a_detail_not_a_facet(built, docs):
             for v in [a["value"]] if r["product_type"] != "Bra"} >= (
         set(MOVED) | {value for _, value in TYPED_MOVED})
     assert {t for t, n in moved.items() if n} == {
-        "Jeans", "Shirt", "Towel", "Soft Toy", "Leggings", "Vest", "Shorts", "Boxers", "Lampshade"}
+        "Jeans", "Shirt", "Towel", "Soft Toy", "Leggings", "Vest", "Shorts", "Boxers", "Lampshade",
+        "Sleepsuit", "Baby Bodysuit"}
 
 
 def test_the_flat_document_carries_the_blend_and_never_facets_it(docs):

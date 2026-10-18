@@ -40,7 +40,7 @@ def _s(code, title, brand, price, desc, colors, kind, fabric):  # fmt: skip
 _ROWS = (
     _s("NYSBSK", "Fabric Nursery Storage Basket", FENWOLD, 12.0,
        "A soft sided basket with handle cut-outs, for toys, nappies and blankets.",
-       (BLUE, GREY, WHITE, YELLOW), "Basket", "Cotton Canvas"),
+       (BLUE, GREY, WHITE, YELLOW), "Basket", "Cotton"),
     _s("NYSCUB", "Nursery Storage Cube with Drawer", HUSHWELL, 18.0,
        "A fabric cube bin with a pull-out drawer, for a shelf unit or a cot-side shelf.",
        (GREEN, PINK, BLACK), "Cube", "Felt"),
@@ -49,7 +49,7 @@ _ROWS = (
        (RED, CREAM, SAGE), "Hanging Organizer", "Polyester"),
     _s("NYSBSL", "Large Nursery Storage Basket", DOVECOTE, 16.0,
        "A large fabric basket for the nursery floor, with two handles.",
-       (NAVY, WHITE, YELLOW), "Basket", "Cotton Canvas"),
+       (NAVY, WHITE, YELLOW), "Basket", "Cotton"),
 )  # fmt: skip
 
 SPEC = TypeSpec(

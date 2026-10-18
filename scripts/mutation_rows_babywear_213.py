@@ -1,0 +1,169 @@
+"""Mutation rows for the nine babywear and nursery types of gen#213, in their own file.
+
+Each row plants one defect in a spec, a drawing or a shared row builder of gen#213 and names the
+test that must go red. ``mutation_rows_garden_hose.ALL`` carries them to ``mutation_check.py`` as
+rows named ``babywear: ...`` (``--only "babywear:"`` re-runs them). A row is
+``(name, file, old, new, test, property, root)``.
+"""
+
+# ruff: noqa: E501  (a row quotes the whole line it breaks)
+from __future__ import annotations
+
+_R = "prototypes/retail_drawings"
+_T = "tests/test_retail_babywear_213.py"
+
+ROWS: list[tuple[str, str, str, str, str, str, str]] = [
+    (
+        "the sleepsuit draws long sleeves for short",
+        "kit_baby.py",
+        '        if sleeve == "long"\n',
+        '        if sleeve in ("long", "short")\n',
+        f'{_T} -k "param_changes_the_drawing and sleepsuit"',
+        "a sleepsuit's sleeve changes the drawing",
+        _R,
+    ),
+    (
+        "the snowsuit draws no hood",
+        "kit_baby.py",
+        '    out = [_shadow(376, 120)]\n    if hood == "yes":',
+        '    out = [_shadow(376, 120)]\n    if hood == "never":',
+        f'{_T} -k "param_changes_the_drawing and snowsuit"',
+        "a snowsuit's hood changes the drawing",
+        _R,
+    ),
+    (
+        "the all-in-one draws no hood",
+        "kit_baby.py",
+        '    out = [_shadow(376, 124)]\n    if hood == "yes":',
+        '    out = [_shadow(376, 124)]\n    if hood == "never":',
+        f'{_T} -k "param_changes_the_drawing and all_in_one"',
+        "an all-in-one's hood changes the drawing",
+        _R,
+    ),
+    (
+        "the puddlesuit draws no fleece edge",
+        "kit_baby.py",
+        '    if lining == "fleece":',
+        '    if lining == "never":',
+        f'{_T} -k "param_changes_the_drawing and puddlesuit"',
+        "a puddlesuit's lining changes the drawing",
+        _R,
+    ),
+    (
+        "the bodysuit has no envelope neck",
+        "kit_baby.py",
+        '    if neck == "envelope":',
+        '    if neck == "never":',
+        f'{_T} -k "param_changes_the_drawing and baby_bodysuit"',
+        "a bodysuit's neck changes the drawing",
+        _R,
+    ),
+    (
+        "a cot blanket is drawn pram sized",
+        "kit_baby.py",
+        '    hw, hh = BLANKET_SIZES.get(size, BLANKET_SIZES["pram"])',
+        '    hw, hh = BLANKET_SIZES["pram"]',
+        f'{_T} -k "param_changes_the_drawing and baby_blanket"',
+        "a blanket's size changes the drawing",
+        _R,
+    ),
+    (
+        "a wipe-clean mat is drawn quilted",
+        "kit_baby.py",
+        '    if wipe_clean == "yes":',
+        '    if wipe_clean == "never":',
+        f'{_T} -k "param_changes_the_drawing and changing_mat"',
+        "a changing mat's wipe-clean surface changes the drawing",
+        _R,
+    ),
+    (
+        "every nappy caddy has three sections",
+        "kit_baby.py",
+        "    n = max(2, int(compartments))",
+        "    n = 3",
+        f'{_T} -k "param_changes_the_drawing and nappy_caddy"',
+        "a caddy's compartments change the drawing",
+        _R,
+    ),
+    (
+        "a nursery cube is drawn as the basket",
+        "kit_baby.py",
+        '    if kind == "cube":',
+        '    if kind == "never":',
+        f'{_T} -k "param_changes_the_drawing and nursery_storage"',
+        "nursery storage's kind changes the drawing",
+        _R,
+    ),
+    (
+        "every sleepsuit is drawn footed",
+        "type_specs/sleepsuit.py",
+        '(("feet", feet.lower()),',
+        '(("feet", "footed"),',
+        f'{_T} -k "drawing_shows_what_the_record_states and sleepsuit"',
+        "the drawing shows the feet the record states",
+        _R,
+    ),
+    (
+        "a knitted blanket is drawn under a name the shape does not know",
+        "type_specs/baby_blanket.py",
+        '{"Knitted": "knit"}.get(kind, kind.lower())',
+        "kind.lower()",
+        f'{_T} -k "drawing_shows_what_the_record_states and baby_blanket"',
+        "the drawing shows the weave the record states",
+        _R,
+    ),
+    (
+        "the sleepsuit loses its fastening entry",
+        "type_specs/sleepsuit.py",
+        '         a("fastening", "Fastening", fastening), a("fabric", "Fabric", fabric),',
+        '         a("fabric", "Fabric", fabric),',
+        f'{_T} -k "structured_entry_in_the_export and sleepsuit"',
+        "a sleepsuit's fastening is a structured entry",
+        _R,
+    ),
+    (
+        "a sleepsuit pack of four is sold",
+        "type_specs/sleepsuit.py",
+        '"Poppers", "Cotton", "All Seasons",\n              (1, 2, 3)),',
+        '"Poppers", "Cotton", "All Seasons",\n              (1, 2, 4)),',
+        f"{_T} -k a_pack_states_its_unit_count",
+        "a sleepsuit comes in packs of one, two or three",
+        _R,
+    ),
+    (
+        "the sleepsuit is drawn as a plain box",
+        "babywear_rows.py",
+        "price=price, shape=shape, description=desc",
+        'price=price, shape="box", description=desc',
+        f'{_T} -k "draws_as_the_types_own_shape and sleepsuit"',
+        "a sleepsuit draws as its own shape",
+        _R,
+    ),
+    (
+        "nursery products leave the Nursery node",
+        "babywear_rows.py",
+        '("Home", "Nursery", leaf)',
+        '("Home", "Nurseries", leaf)',
+        f'{_T} -k "three_styles_from_three_brands and baby_blanket"',
+        "a nursery product sits under Home > Nursery",
+        _R,
+    ),
+    (
+        "the nursery decoys all fall in one class",
+        "babywear_rows.py",
+        'return Decoy(cls, query, "generic", clone)',
+        'return Decoy(1, query, "generic", clone)',
+        f'{_T} -k "text_match_decoys and baby_blanket"',
+        "a nursery type carries decoys of three classes",
+        _R,
+    ),
+    (
+        "the sleepsuit loses its compound words",
+        "type_specs/sleepsuit.py",
+        '        compounds=(("pyjama", "Pyjama Sleepsuit"), ("babygrow", "Babygrow Sleepsuit"),\n            ("romper", "Romper Sleepsuit"))',
+        "        compounds=()",
+        f'{_T} -k "text_match_decoys and sleepsuit"',
+        "a babywear type carries compound-word decoys",
+        _R,
+    ),
+]
