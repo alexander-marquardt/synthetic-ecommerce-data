@@ -70,7 +70,7 @@ class Attribute:
 
     @property
     def multivalued(self) -> bool:
-        return self.values is not None and len(self.values) > 1
+        return self.values is not None and len(set(self.values)) > 1
 
     def as_entries(self) -> tuple[dict[str, Any], ...]:
         """The nested entries this attribute becomes, each split by :func:`.entry.entry`.
