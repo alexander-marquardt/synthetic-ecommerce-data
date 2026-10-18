@@ -58,7 +58,8 @@ a push to `main` runs every test file, so the whole suite still runs once after 
   K's files. A selection is dealt to as few shards as keep each under `SCOPED_SHARD_SECONDS`
   (1800 s of the weights); a shard past that count prints no file, and its job ends after the
   checkout without installing anything. With no base and head, `--plan` is `--shard`: every file
-  on every shard. `--plan all` prints every file, for a local run.
+  on every shard. `--plan all` prints every file, for a local run. A full run deals 182 files to
+  9 shards of up to 1800 s of the weights each, against the job's `timeout-minutes: 25`.
 * The guard is `tests/test_ci_select_495.py`: each rule on a throwaway tree; every test that
   imports a module is selected when it changes (an independent oracle); every file a mutation
   row plants in selects `tests/test_mutation_bed.py`; the plan's shards are disjoint and add up

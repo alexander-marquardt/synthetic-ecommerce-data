@@ -709,3 +709,98 @@ def test_the_workflow_selects_from_the_range_and_a_push_to_main_has_none() -> No
         "a pull request runs the tests job"
     )
     assert "push" in (workflow.get("on") or workflow.get(True)), "main is run whole after a merge"
+
+
+# --- the review of the first head: a planner that crashes, and three tests the selection dropped
+
+
+def test_a_script_loaded_by_a_path_held_in_a_variable_is_followed_into_its_imports(
+    tmp_path: Path,
+) -> None:
+    tree = _tree(
+        tmp_path,
+        {
+            "scripts/tool.py": "import helper\n",
+            "scripts/helper.py": "H = 1\n",
+            "tests/test_loads.py": (
+                "import importlib.util\n"
+                "def load():\n"
+                '    path = ROOT / "scripts" / "tool.py"\n'
+                '    spec = importlib.util.spec_from_file_location("tool", path)\n'
+                "    return spec\n"
+            ),
+            "tests/test_other.py": "import json\n",
+        },
+    )
+    assert _picked(tree, "scripts/helper.py") == ["tests/test_loads.py"]
+
+
+def test_the_real_price_census_test_is_selected_by_a_module_its_script_imports(
+    real: ci_select.Tree,
+) -> None:
+    chosen = ci_select.select(["src/synthetic_ecommerce_data/core/price.py"], real)[0]
+    assert "tests/test_price_census_69.py" in chosen
+
+
+@pytest.mark.parametrize(
+    "name", ["tests/test_readme_split_240.py", "tests/test_customer_name_check_393.py"]
+)
+def test_a_test_that_reads_the_whole_tree_is_selected_by_any_change(
+    name: str, real: ci_select.Tree
+) -> None:
+    assert name in ci_select.READS_WHOLE_TREE
+    assert name in ci_select.select(["docs/ci-sharding.md"], real)[0]
+
+
+def _tests_job_step(step_id_or_name: str) -> str:
+    import yaml
+
+    workflow = yaml.safe_load(
+        (REPO / ".github" / "workflows" / "ci.yaml").read_text(encoding="utf-8")
+    )
+    for step in workflow["jobs"]["tests"]["steps"]:
+        if step.get("id") == step_id_or_name or step.get("name") == step_id_or_name:
+            return step["run"]
+    raise AssertionError(f"no step {step_id_or_name!r} in the tests job")
+
+
+def _run_step(tmp_path: Path, run: str, planner: str) -> tuple[int, str]:
+    """Run a workflow step's script with the expressions filled and ``planner`` as the
+    planner script; returns the exit status and what the step wrote to GITHUB_OUTPUT."""
+    import re
+
+    _write(tmp_path, {"scripts/ci_shards.py": planner})
+    output = tmp_path / "github_output"
+    output.write_text("", encoding="utf-8")
+    script = re.sub(r"\$\{\{.*?\}\}", "1", run)
+    done = subprocess.run(
+        ["bash", "-e", "-c", script],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+        env={**os.environ, "GITHUB_OUTPUT": str(output)},
+    )
+    return done.returncode, output.read_text(encoding="utf-8")
+
+
+CRASH = "import sys\nsys.stderr.write('boom')\nsys.exit(1)\n"
+GARBAGE = "print('Traceback')\n"
+NO_FILE = "print('shards=1')\n"
+ONE_FILE = "print('shards=1')\nprint('tests/test_a.py')\n"
+
+
+@pytest.mark.parametrize("step", ["select", "Tests"])
+@pytest.mark.parametrize("planner", [CRASH, GARBAGE])
+def test_a_planner_that_crashes_or_prints_no_plan_is_a_red_step(
+    tmp_path: Path, step: str, planner: str
+) -> None:
+    status, written = _run_step(tmp_path, _tests_job_step(step), planner)
+    assert status != 0, "a planner that fails must not read as no test to run"
+    assert "run=false" not in written
+
+
+def test_the_select_step_says_run_only_when_the_plan_holds_a_file(tmp_path: Path) -> None:
+    run = _tests_job_step("select")
+    assert _run_step(tmp_path, run, ONE_FILE) == (0, "run=true\n")
+    assert _run_step(tmp_path, run, NO_FILE) == (0, "run=false\n")

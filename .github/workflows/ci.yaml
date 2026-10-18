@@ -95,8 +95,13 @@ jobs:
       - name: Does this shard have a test file to run
         id: select
         run: |
-          mapfile -t plan < <(python3 scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }} --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}")
-          echo "${plan[0]}: ${#plan[@]} lines (the first is the shard count)"
+          # A planner that crashes is a red step, never an empty plan: a process
+          # substitution would hide its exit status and read as "no test to run".
+          plan_text=$(python3 scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }} --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}") || { echo "the planner failed"; exit 1; }
+          first="${plan_text%%$'\n'*}"
+          if ! [[ "$first" =~ ^shards=[0-9]+$ ]]; then echo "the plan's first line is not shards=N: $first"; exit 1; fi
+          mapfile -t plan <<< "$plan_text"
+          echo "$first: ${#plan[@]} lines (the first is the shard count)"
           if [ "${#plan[@]}" -gt 1 ]; then echo "run=true" >> "${GITHUB_OUTPUT:-/dev/null}"; else echo "run=false" >> "${GITHUB_OUTPUT:-/dev/null}"; fi
       - uses: astral-sh/setup-uv@v5
         if: steps.select.outputs.run == 'true'
@@ -115,7 +120,10 @@ jobs:
           # The junit path: `runner` is available in a step's env, not in the job's.
           PYTEST_ADDOPTS: ${{ env.PYTEST_ADDOPTS }} --junitxml=${{ runner.temp }}/junit-${{ matrix.shard }}.xml
         run: |
-          mapfile -t plan < <(python3 scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }} --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}")
+          plan_text=$(python3 scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }} --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}") || { echo "the planner failed"; exit 1; }
+          first="${plan_text%%$'\n'*}"
+          if ! [[ "$first" =~ ^shards=[0-9]+$ ]]; then echo "the plan's first line is not shards=N: $first"; exit 1; fi
+          mapfile -t plan <<< "$plan_text"
           files=("${plan[@]:1}")
           if [ "${#files[@]}" -eq 0 ]; then
             echo "this change's tests fit in ${plan[0]#shards=} shards; shard ${{ matrix.shard }} has nothing to run"
