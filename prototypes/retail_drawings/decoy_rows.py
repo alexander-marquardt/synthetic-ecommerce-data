@@ -17,6 +17,8 @@ The classes (the numbers follow the issue):
 4. **sense**: a color word that is also a product, a material or a shade (cream, gold, wine).
 5. **guard**: no decoy; a real product whose name holds a color word ("green tea"), so a color
    filter that wrongly fires shows as an empty or wrong page.
+9. **plural**: the title names a fresh plural as the ingredient or source of another product
+   ("Dark Chocolate with Candied Oranges", "Sun-Dried Tomatoes in Oil"; :mod:`decoy_plural_rows`).
 
 Every decoy's structured fields tell the truth: its color, category path and audience are its
 own, and only the title and description carry the misleading word. Titles are short and the
@@ -31,15 +33,17 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from class_model import Style, one
+from decoy_plural_rows import ROWS as PLURAL_ROWS
 from variants import cw
 
 RED, BLUE, BLACK, WHITE, GREY = ("#c8322b", "#2f6db5", "#2a2a2e", "#ffffff", "#8a8a8e")
 NAVY, CREAM, GOLD, GREEN, BROWN, PINK, NUDE = ("#26365c", "#efe8d8", "#c9a34a", "#3c8d4f",
                                                "#6b4a2e", "#e8b9b3", "#e3c1a5")  # fmt: skip
-YELLOW, PURPLE, CLEAR = "#f2d14b", "#7a5a9e", "#e3eef0"
+YELLOW, PURPLE, CLEAR, ORANGE = "#f2d14b", "#7a5a9e", "#e3eef0", "#e07a1f"
 COLORS = {"Red": RED, "Blue": BLUE, "Black": BLACK, "White": WHITE, "Grey": GREY, "Navy": NAVY,
           "Cream": CREAM, "Gold": GOLD, "Green": GREEN, "Brown": BROWN, "Pink": PINK,
-          "Nude": NUDE, "Yellow": YELLOW, "Purple": PURPLE, "Clear": CLEAR}  # fmt: skip
+          "Nude": NUDE, "Yellow": YELLOW, "Purple": PURPLE, "Clear": CLEAR,
+          "Orange": ORANGE}  # fmt: skip
 
 
 @dataclass(frozen=True)
@@ -60,6 +64,13 @@ class Kind:
     colorless: bool = False
     units_per_pack: int | None = None
     pattern: str | None = None
+
+
+
+def _food(path: tuple[str, ...], product_type: str, shape: str, brand: str, price: float) -> Kind:
+    """A Food & Drink kind sold without a color, in a leaf under the department."""
+    return Kind("Food & Drink", ("Food & Drink", *path), product_type, shape, brand, price,
+                colorless=True)
 
 
 _SOFAS = ("Home", "Furniture", "Sofas")
@@ -151,6 +162,35 @@ KINDS = {
                     "box", "Pantry Mill", 2.4, colorless=True),
     "sauce": Kind("Food & Drink", ("Food & Drink", "Food Cupboard", "Sauces & Condiments"),
                   "Sauce", "bottle", "Copper Hill Preserves", 2.1, colorless=True),
+    # The kinds of the class 9 plural decoys (gen#445), each in a leaf the grocery build has.
+    "juice": _food(("Drinks", "Juice"), "Juice", "carton",
+             "Vine & Valley", 2.1),
+    "water": _food(("Drinks", "Soft Drinks"), "Soft Drink", "bottle",
+             "Vine & Valley", 1.1),
+    "chocolate": _food(("Chocolate & Sweets", "Chocolate Bars"), "Chocolate Bar", "bar",
+                 "Pantry Mill", 2.2),
+    "chocolate_box": _food(("Chocolate & Sweets", "Chocolate Boxes"), "Chocolate Box", "box",
+                     "Hearth & Table", 4.5),
+    "sweets": _food(("Chocolate & Sweets", "Sweets"), "Sweets", "bag",
+              "Pantry Mill", 1.6),
+    "tinned": _food(("Food Cupboard", "Tinned"), "Tinned Food", "tin",
+              "Copper Hill Preserves", 1.2),
+    "jam": _food(("Food Cupboard", "Jam"), "Jam", "jar",
+           "Copper Hill Preserves", 2.4),
+    "pickle": _food(("Food Cupboard", "Sauces & Condiments"), "Pickle", "jar",
+              "Olivar Grove", 2.3),
+    "pasta_sauce": _food(("Food Cupboard", "Sauces & Condiments"), "Sauce", "jar",
+                   "Olivar Grove", 2.0),
+    "marinade": _food(("Food Cupboard", "Sauces & Condiments"), "Sauce", "bottle",
+                "Copper Hill Preserves", 2.2),
+    "ice_cream": _food(("Frozen", "Ice Cream"), "Ice Cream", "lidded_tub",
+                 "Hearth & Table", 3.5),
+    "cereal": _food(("Breakfast", "Cereals"), "Cereal", "box",
+              "Goldfield Farms", 3.2),
+    "spread": _food(("Dairy & Alternatives", "Butter & Spreads"), "Butter & Spreads", "jar",
+              "Hearth & Table", 1.8),
+    "frozen_veg": _food(("Frozen", "Frozen Vegetables"), "Frozen Vegetables", "bag",
+                  "Goldfield Farms", 2.5),
     "lav_candle": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"), "Scented Candle",
                        "jar", "Lanternby", 16.0, extra=(("fragrance", "Fragrance", "Lavender"),)),
     "lotion": Kind("Beauty", ("Beauty", "Body Care", "Body Lotion"), "Body Lotion", "bottle",
@@ -365,6 +405,9 @@ TABLE = (
     _d("XI16", "lav_candle", "Soy Wax Candle",
        "A soy wax candle poured with lavender essential oil, a calming lavender scent.", "Cream", 7,
        "lavender", 880, ingredients=("soy wax", "lavender essential oil")),
+    # -- class 9: the fresh plural is in the title as an ingredient or source (gen#445)
+    *(_d(code, kind, title, desc, color, 9, plural, sold, ingredients=ing)
+      for code, kind, title, desc, color, plural, sold, ing in PLURAL_ROWS),
 )
 
 STYLES = tuple(d.style() for d in TABLE)
@@ -393,6 +436,7 @@ CLASSES = {
     4: "color word is also a product or a shade",
     5: "guard: a real product whose name holds a color word",
     7: "word only in the ingredients",
+    9: "the fresh plural is in the title as an ingredient or source",
 }
 
 
