@@ -136,3 +136,11 @@ def test_every_command_the_page_shows_runs_files_that_exist() -> None:
         if re.search(r"\.(py|md)$", tok) and not _exists(tok)
     ]
     assert not missing, f"commands name files that do not exist: {missing}"
+
+
+def test_the_color_and_figures_sections_name_the_real_mechanism() -> None:
+    text = _text()
+    for needed in ("colorwords.PLAIN", "variants.cw", "docs/retail-apparel-decoys.md"):
+        assert needed in text, f"the page does not name {needed}"
+    assert "`Dark Brown`, `White`" not in text, "Dark Brown is a modifier plus a word"
+    assert "millimetres" not in text, "US spelling: millimeters"

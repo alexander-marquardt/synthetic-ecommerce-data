@@ -26,7 +26,8 @@ The scaled build derives further styles from a `derivable=True` type by swapping
 values (`scale.derivable`; a `derivable=False` type is left out by `type_registry.left_out_ids`).
 A key whose value the drawing or a measured SKU follows must never be swapped: a derived style
 would otherwise change Round to Rectangular and keep the drawn round table and its `160 x 90 cm`
-SKUs. Add the key to `scale.FROZEN_KEYS` (today a lamp's `ip_rating` and `fitting`, a plate's
+SKUs (a hypothetical: furniture is left out of `scale.derivable`). Most specs are not
+`derivable` (the default is `False`), so a new type can usually skip this section. Add the key to `scale.FROZEN_KEYS` (today a lamp's `ip_rating` and `fitting`, a plate's
 `plate_type`, a pattern's `motif_count`).
 A value with a unit, or one that names the leaf, is already never changed
 (`tests/test_retail_scale.py::test_only_a_value_free_of_the_leaf_the_unit_and_a_longer_word_may_vary`).
@@ -35,7 +36,7 @@ A value with a unit, or one that names the leaf, is already never changed
 
 * A measured value is published as the shopper reads it (`90`, in `cm`) with its unit code
   (`CMT`) and a `value_canonical` in the core's canonical unit, which for a length is
-  millimetres: 90 cm is 900.0. `furniture_rows._cm` writes the tuple
+  millimeters: 90 cm is 900.0. `furniture_rows._cm` writes the tuple
   `(key, name, "90", "CMT", 900.0)`; a SKU field goes through `export.OPTIONS` and
   `synthetic_ecommerce_data.core.entry.split` computes the pair for you.
 * `synthetic_ecommerce_data.core.standard.check_catalog` (run by `tests/test_output_standard.py`
@@ -55,9 +56,13 @@ the existing line when the concept already has one.
 
 ## 5. Color words
 
-A color value is a plain word from `colorwords.COLOR_WORDS` (`Natural`, `Dark Brown`, `White`),
-never a material or a fashion name: `tests/test_retail_color_words.py` refuses `Oak` and
-`Walnut`. The material goes in its own `material` attribute (`a("material", "Material", "Oak")`).
+A color value is a plain word from `colorwords.COLOR_WORDS` (`Natural`, `Brown`, `White`), with
+optional `colorwords.MODIFIERS` (`Dark` is a modifier, so `Dark Brown` is a modifier plus a color
+word, not a `COLOR_WORDS` member). `variants.cw` maps an authored shade through `colorwords.PLAIN`
+first: `cw("Oak", ...)` gives `Brown` and `cw("Walnut", ...)` gives `Dark Brown`, so authoring those
+does not red. A shade `PLAIN` does not map (`Hazelwood`) stays as written, is not plain, and
+`tests/test_retail_color_words.py::test_every_color_value_is_a_color_word_a_qualifier_or_a_shade_code`
+refuses it: add it to `colorwords.PLAIN` or use a plain word. The material goes in its own `material` attribute (`a("material", "Material", "Oak")`).
 Every color-bearing type also carries red, blue, green, yellow, black and white somewhere, or a
 reasoned line in `main_colors.EXCEPTIONS` (`tests/test_retail_main_colors_275.py`).
 
@@ -65,7 +70,7 @@ reasoned line in `main_colors.EXCEPTIONS` (`tests/test_retail_main_colors_275.py
 
 * Who owns a brand: `owners=(("Brand", "own"),)` in the spec when no module states it yet
   (`type_registry.TypeSpec`); an older module adds the brand to `breadth_rows.OWNERS`. A row
-  whose brand has no owner is a `KeyError` when its document is built.
+  whose brand has no owner is a `SpecError` from `type_registry.validate` for a spec row, and a `KeyError` when an older module's document is built.
 * Every brand also needs one row in `house_styles.HOUSE_STYLES` (the paper, frame, outline and
   its own mark), or its image cannot render:
   `tests/test_retail_scale.py::test_every_brand_in_the_build_has_a_house_style`.
@@ -95,7 +100,8 @@ that names two drawings.
 
 ## 9. Rebuild the figures and run the tests
 
-Rebuild `golden-retail/stats.json` (the build writes it; never edit it) and commit it:
+Rebuild `golden-retail/stats.json` and `docs/retail-apparel-decoys.md` (the script writes both;
+never edit them) and commit both:
 `uv run python prototypes/retail_drawings/retail_figures.py`
 
 Run, with your own test file: `tests/test_retail_type_specs_351.py`,
