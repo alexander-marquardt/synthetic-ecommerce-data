@@ -9,12 +9,13 @@ The styles are templates only (``derivable`` False): the department grows by aut
 from __future__ import annotations
 
 from sports_helpers import _H, _NEUTRAL, _PRIMARY, _TEAM, _W, _a, _row, _words
-from type_registry import TypeSpec
+from type_registry import Option, TypeSpec
 
 SPEC = TypeSpec(
     key="tennis_racket",
     department="Sports & Outdoors",
     product_type="Tennis Racket",
+    options=(Option("grip", "grip_size", "Grip size"),),
     rows=(
         _row("TRKOPN", "Graphite Tennis Racket with Open String Pattern", _H, (*_TEAM, "Tennis Rackets"), "Tennis Racket", 54.0,
              "tennis_racket", "A graphite racket with an open string pattern for spin and power, strung and ready to play.",
