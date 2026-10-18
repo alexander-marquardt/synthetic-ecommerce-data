@@ -288,16 +288,34 @@ SPEC_IDS = type_registry.left_out_ids()
 DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()
 # The class-8 product-word decoys (gen#326) name a detail color on purpose in some rows only:
 # those rows join the exemption, by id, and the rest of the class is checked like any product.
-# The Toys spec decoys of classes 4, 6 and 7 (gen#424) name a color or a feature they lack.
-# PLT-RQHOOP (a rose gold decoy) sits in the Hoop Earrings node since gen#423: its metals are
-# its text pool, and "Gold Plated" names the plating while its color is Yellow Gold.
-TEXT_EXEMPT = (
-    DECOY_IDS
-    | decoy_product_words.TEXT_EXEMPT
-    | type_registry.text_match_decoy_ids("Toys")
-    | type_registry.text_match_decoy_ids("Beauty")
-    | {"PLT-RQHOOP"}
-)
+# Every registered type's text-match decoys, of every department, join by registering
+# (:func:`type_registry.text_match_decoy_ids`, gen#452); an id no spec owns is declared with its
+# reason in :data:`type_registry.ONE_OFF_TEXT_EXEMPT`. :func:`exempt_problems` finds a stale one.
+def text_exempt() -> frozenset[str]:
+    """The ids the output standard's text check leaves out, computed from the registry."""
+    return (
+        DECOY_IDS
+        | decoy_product_words.TEXT_EXEMPT
+        | type_registry.text_match_decoy_ids()
+        | frozenset(type_registry.ONE_OFF_TEXT_EXEMPT)
+    )
+
+
+TEXT_EXEMPT = text_exempt()
+
+
+def exempt_problems() -> list[str]:
+    """What is wrong with the exemption: an id the catalog no longer builds, a declared one-off
+    with no reason, and a one-off the registry already knows."""
+    built = {d["product_id"] for d in templates(baseline=False)}
+    known = type_registry.text_match_decoy_ids()
+    out = [f"{i}: exempt but not in the catalog" for i in sorted(text_exempt() - built)]
+    for pid, reason in sorted(type_registry.ONE_OFF_TEXT_EXEMPT.items()):
+        if not reason.strip():
+            out.append(f"{pid}: a declared one-off with no reason")
+        if pid in known:
+            out.append(f"{pid}: a declared one-off the registry already knows as a decoy")
+    return out
 
 
 def templates(baseline: bool = True) -> list[dict]:
@@ -688,7 +706,9 @@ def build(skus: int, seed: int = 0) -> Scaled:
     rng = random.Random(seed)
     base = derivable(tpls)
     pools = value_pools(base)
-    owners = {r["brand"]: r["brand_owner"] for r in base if "brand_owner" in r}
+    # Every template, grocery too: a derived style that draws a grocery brand (EXTRA_BRANDS)
+    # keeps that brand's owner, not the third-party default (gen#236).
+    owners = {r["brand"]: r["brand_owner"] for r in tpls if "brand_owner" in r}
     brands = brand_pools(base)
     plan = _plan(base, rng)
     weights = _department_weights(plan)
