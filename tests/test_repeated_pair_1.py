@@ -74,6 +74,21 @@ def test_the_multivalued_attribute_stays_with_distinct_values(dialled_up):
     assert stats["multivalued_attribute_names"].get(STANDARDS_NAME, 0) > 0
 
 
+def test_a_repeated_value_is_not_counted_as_a_second_value(dialled_up):
+    """``[ISO, ISO]`` is one value published twice: not multi-valued in the report."""
+    catalog, stats = dialled_up
+    distinct = repeat_only = 0
+    for line, child in catalog.all_skus():
+        for a in catalog.merged_attributes(line, child):
+            if a.name != STANDARDS_NAME:
+                continue
+            values = a.values or (a.value,)
+            distinct += len(set(values)) > 1
+            repeat_only += len(set(values)) == 1 and len(values) > 1
+    assert repeat_only > 0, "no parent repeats a value of a one-value Standards"
+    assert stats["standards_multivalued"] == distinct
+
+
 def test_the_report_row_counts_what_the_documents_publish(dialled_up):
     catalog, stats = dialled_up
     row = next(c for c in stats["comparisons"] if c.name == ROW)
