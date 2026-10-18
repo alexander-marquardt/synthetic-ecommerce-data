@@ -107,7 +107,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "a Checked blazer is plain",
         "mens_depth_rows.py",
-        'checked = leaf.pattern == "check" or fabric == "Checked"',
+        'checked = leaf.pattern == "check" or any(m[0] == "pattern" for m in more)',
         'checked = leaf.pattern == "check"',
         f'{_T} -k "checked_or_striped"',
         "a Checked title carries a gingham swatch",
