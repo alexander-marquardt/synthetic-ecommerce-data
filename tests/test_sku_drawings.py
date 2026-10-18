@@ -343,7 +343,7 @@ def test_elongated_parts_are_drawn_to_their_published_length(type_key):
 NOT_DRAWN_BY_ANY_FIGURE = frozenset(
     {
         "Standards", "Dimension Type", "Measurement System", "System of Measurement",
-        "List Number", "Head Weight", "Package Quantity", "Max. RPM", "Grade",
+        "List Number", "Head Weight", "Units per Pack", "Max. RPM", "Grade",
         "Dynamic Load Capacity", "Static Load Capacity", "Decimal Equivalent", "Item",
     }
 )  # fmt: skip
@@ -625,7 +625,7 @@ EXTREME_ENLARGEMENT = 2.05
 #: handled glass too; the screw is now the first socket head still drawn
 #: handle-less (measured over the golden catalog with ``sheet.magnifier``).
 #: Re-picked for alexander-marquardt/synthetic-ecommerce-data#65: the socket
-#: screws' ``Package Quantity`` row takes a presence draw from their stream,
+#: screws' ``Units per Pack`` row takes a presence draw from their stream,
 #: so ``2334468134`` is drawn under the handled glass now and the screw is
 #: ``2334249296``.
 #: Re-picked for alexander-marquardt/synthetic-ecommerce-data#404 (the

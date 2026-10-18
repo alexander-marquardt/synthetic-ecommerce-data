@@ -494,7 +494,7 @@ the O-rings borrow the flat washer's model, keyed on the cross-section
 that the borrowed price is generated, not measured.
 
 **A type sold as a set of other types' parts: price it from its contents.**
-A kit's census key (`Number of Pieces`) says how many pieces it holds, not
+A kit's census key (`Piece Count`) says how many pieces it holds, not
 what they are, so its price is keyed on what they cost instead: list it in
 `price.CONTENTS_PRICED`, and `price.price_key` reads `price.kit_contents`,
 each piece priced on its own type's curve at that type's census per-piece

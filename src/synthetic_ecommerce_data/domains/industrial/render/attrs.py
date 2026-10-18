@@ -87,7 +87,7 @@ NOT_DRAWN: dict[str, str] = {
         "the supplier's own catalogue code for the line. An identifier, not a "
         "property of the object, and the drawing already carries the SKU"
     ),
-    "End Mill Application": (
+    "Application": (
         "what the tool is FOR -- roughing, finishing, or both. A use, not a "
         "form: two mills that differ only in this are the same drawing"
     ),
@@ -95,7 +95,7 @@ NOT_DRAWN: dict[str, str] = {
         "a performance grade -- general purpose against high performance. "
         "Nothing about it is visible in an outline"
     ),
-    "Package Quantity": (
+    "Units per Pack": (
         "how many pieces the line is sold in. A commercial quantity: a pack "
         "of 25 bolts and a pack of 100 hold the same bolt, and the figure "
         "draws one piece"

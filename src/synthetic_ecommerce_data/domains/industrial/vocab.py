@@ -108,7 +108,7 @@ _END_MILL = (
     _spec("Cutting Direction", "line", 0.90),
     _spec("Single End/Double End", "line", 0.74),
     _spec("Cutting Type", "line", 0.66),
-    _spec("End Mill Application", "line", 0.38),
+    _spec("Application", "line", 0.38),
     _spec("Material Grade - Machining", "line", 0.42),
     _spec("Coolant Fed", "line", 0.24),
     _spec("List Number", "line", 0.58),
@@ -167,43 +167,27 @@ _TAP = (
 #: Head Dia. and Head Height, so those are unconditional here: a record that
 #: cannot be drawn is a record whose image would have to be faked.
 #:
-#: ``Length Under Head`` is a THIRD length beside the other two, and the three
-#: are genuinely three measurements:
-#:
-#: * ``Length`` is the screw's nominal length, which a countersunk screw
-#:   measures OVER its head and every other style measures under it;
-#: * ``Thread Length`` is how much of the shank carries thread;
-#: * ``Length Under Head`` is the whole shank, head excluded.
-#:
-#: A shopper's ``5/16-18 x 3/4`` names the last of those on a socket, button
-#: or low head. Binding it to ``Thread Length`` would return confidently wrong
-#: results -- so the attribute exists rather than being approximated by a
-#: neighbour.
-#:
-#: The COUNTERSUNK line does not carry it (:data:`_FLAT_HEAD_SCREW`). A flat
-#: head is sold by its length OVER the head -- ISO 10642 and ASME B18.3 both
-#: measure it that way -- so its "x 3/4" is its ``Length``, and the shank under
-#: a toleranced cone is not a length any distributor lists. Publishing it as
-#: length-less-head-height put 12.56mm and 1.3910" in the facet beside the
-#: stocked lengths.
+#: ``Length`` is the screw's nominal length, which a countersunk screw measures
+#: OVER its head and every other style measures under it (ISO 10642, ASME
+#: B18.3), so a shopper's ``5/16-18 x 3/4`` names it. ``Thread Length`` is how
+#: much of the shank carries thread. There is no separate under-head length
+#: (#497): on every style but the countersunk one it would repeat ``Length``.
 _SOCKET_SCREW = (
-    _spec("Type", "line"),
     _spec("Head Type", "line"),
     _spec("Drive Type", "line"),
     _spec("Material", "line"),
     _spec("Finish", "line", 0.82),
     _spec("Thread Direction", "line", 0.64),
     _spec("Thread Type", "line", 0.70),
-    _spec("Rockwell Hardness", "line", 0.48),
-    _spec("Meets/Exceeds", "line", 0.40),
+    _spec("Hardness", "line", 0.48),
+    _spec("Standards", "line", 0.40),
     # Unconditional, as on the hex bolt: the shown price is a pack's (every
     # census socket screw is pack-sold, ``price.PACK_COUNTS``), so a record
     # that left the pack unstated would show a price for a quantity it does
     # not name (#65).
-    _spec("Package Quantity", "line", kind="count"),
+    _spec("Units per Pack", "line", kind="count"),
     _spec("Dia./Thread Size", "sku"),
     _spec("Length", "sku", kind="length"),
-    _spec("Length under Head", "sku", kind="length"),
     _spec("Thread Length", "sku", kind="length"),
     _spec("Head Dia.", "sku", kind="length"),
     _spec("Head Height", "sku", kind="length"),
@@ -221,9 +205,6 @@ _SOCKET_SCREW = (
     _spec("Drive Size", "sku", kind="length"),
 )
 
-#: The countersunk line: every socket-screw attribute but ``Length under Head``.
-_FLAT_HEAD_SCREW = tuple(spec for spec in _SOCKET_SCREW if spec.name != "Length under Head")
-
 #: Hex bolts. Shares Dia./Thread Size and Length with the socket screw -- they
 #: are both threaded fasteners and the corpus does share those -- but the head
 #: is described by width across flats, not a head diameter.
@@ -237,7 +218,7 @@ _FLAT_HEAD_SCREW = tuple(spec for spec in _SOCKET_SCREW if spec.name != "Length 
 #: one line that carried the grade and the finish the query names lost the
 #: finish to that roll, and the query resolved to nothing.
 #:
-#: This is the precedent issue #8 set for ``Length Under Head``: an attribute a
+#: This is the precedent issue #8 set: an attribute a
 #: reference query BINDS to is published rather than approximated by a
 #: neighbour or left to chance. It is also what the source does -- a
 #: distributor's hex cap screw listing states the grade and the finish on
@@ -253,10 +234,9 @@ _HEX_BOLT = (
     # Unconditional: the shown price is a pack's (98.8% of census bolts are
     # pack-sold, ``price.PACK_COUNTS``), so every record states the pack it
     # prices (#65).
-    _spec("Package Quantity", "line", kind="count"),
+    _spec("Units per Pack", "line", kind="count"),
     _spec("Dia./Thread Size", "sku"),
     _spec("Length", "sku", kind="length"),
-    _spec("Length under Head", "sku", kind="length"),
     _spec("Thread Length", "sku", kind="length"),
     _spec("Width Across Flats", "sku", kind="length"),
     _spec("Head Height", "sku", kind="length"),
@@ -309,7 +289,7 @@ _NUT = (
     _spec("Grade", "line", 0.9),
     _spec("Thread Type", "line", 0.8),
     _spec("Thread Direction", "line", 0.55),
-    _spec("Package Quantity", "line", 0.85, kind="count"),
+    _spec("Units per Pack", "line", 0.85, kind="count"),
     _spec("Thread Size", "sku"),
     _spec("Width Across Flats", "sku", kind="length"),
     _spec("Height", "sku", 0.9, kind="length"),
@@ -340,17 +320,17 @@ _BEARING = (
 #: unit (ruling 2026-09-25: one vocabulary per sizing system).
 _WHEEL = (
     _spec("Type", "line"),
-    _spec("Wheel Dia.", "line", kind="length"),
+    _spec("Diameter", "line", kind="length"),
     _spec("Thickness", "line", kind="length"),
     _spec("Arbor Hole", "line", 0.95, kind="length"),
-    _spec("Connector Type", "line", 0.6),
+    _spec("Mounting Type", "line", 0.6),
     _spec("Abrasive Material", "line"),
     _spec("Bond Type", "line", 0.7),
     _spec("Max. RPM", "line", 0.9, kind="count"),
     _spec("Application", "line", 0.6),
-    _spec("Package Quantity", "line", 0.8, kind="count"),
+    _spec("Units per Pack", "line", 0.8, kind="count"),
     _spec("Grit", "sku", kind="count"),
-    _spec("Grade", "line", 0.7),
+    _spec("Wheel Grade", "line", 0.7),
 )
 
 #: Hex keys. A product is one brand's arm length, tip and finish; its variants
@@ -374,7 +354,7 @@ _KIT = (
     _spec("Finish", "line", 0.8),
     _spec("Container Type", "line", 0.8),
     _spec("Tip Style", "line"),
-    _spec("Number of Pieces", "sku"),
+    _spec("Piece Count", "sku"),
     _spec("Sizes Included", "sku"),
 )
 
@@ -383,7 +363,7 @@ _VOCAB: dict[str, tuple[AttrSpec, ...]] = {
     "end_mill_ball": _END_MILL,
     "drill_jobber": _DRILL,
     "tap_spiral_point": _TAP,
-    "screw_flat_head": _FLAT_HEAD_SCREW,
+    "screw_flat_head": _SOCKET_SCREW,
     "screw_button_head": _SOCKET_SCREW,
     "screw_low_head": _SOCKET_SCREW,
     "bolt_hex": _HEX_BOLT,

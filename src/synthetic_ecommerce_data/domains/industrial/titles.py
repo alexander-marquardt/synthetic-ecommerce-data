@@ -243,11 +243,11 @@ class TitleMixin:
         # fixture (elastic/prism#9288) rather than by shipped catalog data.
 
         # The pack segment, last so the cap sheds it first -- and ONLY with the
-        # record's own Package Quantity; no quantity is ever stated unbacked.
-        quantity = self._line_facts.get("Package Quantity")
+        # record's own Units per Pack; no quantity is ever stated unbacked.
+        quantity = self._line_facts.get("Units per Pack")
         if quantity is not None and voice.pack_label is not None:
             segments.append(
-                Segment(value=quantity, label=voice.pack_label, attribute="Package Quantity")
+                Segment(value=quantity, label=voice.pack_label, attribute="Units per Pack")
             )
 
         tight = (

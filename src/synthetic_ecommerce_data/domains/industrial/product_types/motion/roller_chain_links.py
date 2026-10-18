@@ -218,7 +218,7 @@ def _make(base: Callable[..., Any]) -> Callable[..., Any]:
     def make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
         draft = base(gen, type_key, category)
         line = {attribute.name: attribute for attribute in draft.line_attrs}
-        material, pack = line["Material"].value, line["Package Quantity"].value
+        material, pack = line["Material"].value, line["Units per Pack"].value
         # Rotated within each material and pack, so both links are built in
         # every one of them: one rotation over all lines would keep step with
         # the table's own and pair each link with half the packs.

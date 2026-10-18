@@ -230,6 +230,17 @@ class FinishMixin:
         # One spelling of the measurement-system attribute per line.
         system_name = str(_weighted(rng, MEASUREMENT_SYSTEM_NAMES))
         standards_attr = self._standards_attribute(type_key, draft)
+        # A builder may state the standard its own table is (a socket screw's
+        # ASME B18.3): that is the SAME attribute as the conformance draw, so
+        # the two are one list of distinct values, never two entries (#497).
+        stated = [a for a in line_attrs if a.name == STANDARDS_NAME]
+        if stated:
+            line_attrs = [a for a in line_attrs if a.name != STANDARDS_NAME]
+            union = list(dict.fromkeys(
+                v for a in (*stated, *([standards_attr] if standards_attr else []))
+                for v in (a.values or (a.value,))
+            ))
+            standards_attr = multi_attribute(STANDARDS_NAME, tuple(union))
         if standards_attr is not None:
             line_attrs = [*line_attrs, standards_attr]
 

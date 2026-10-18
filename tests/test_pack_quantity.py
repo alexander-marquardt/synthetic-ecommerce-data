@@ -65,7 +65,7 @@ def packs() -> dict[str, list[tuple[float, float | None]]]:
             continue
         facts = {a.name: a for a in catalog.merged_attributes(line, child)}
         key = price.KEYS[PACKED[type_key]](facts)
-        pack = facts["Package Quantity"].value_num if "Package Quantity" in facts else None
+        pack = facts["Units per Pack"].value_num if "Units per Pack" in facts else None
         assert key is not None
         out[type_key].append((key, pack))
     return out
@@ -92,7 +92,7 @@ def test_the_drawn_packs_are_the_bolts_and_the_socket_screws():
 def test_each_packed_type_prices_its_pack_on_the_census_slope(type_key):
     model = price.model_for(type_key)
     census_type = PACKED[type_key]
-    assert model.pack_attribute == "Package Quantity"
+    assert model.pack_attribute == "Units per Pack"
     slopes = price.PACK_ELASTICITY if census_type == "bolt_hex" else price.PACK_SLOPES
     assert model.pack_slope == slopes[census_type]
 

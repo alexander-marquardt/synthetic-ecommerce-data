@@ -190,15 +190,14 @@ def _spec(name: str, scope: str, presence: float = 1.0, kind: str = "keyword") -
 
 
 VOCAB = (
-    _spec("Type", "line"),
     _spec("Point Type", "line"),
     _spec("Drive Type", "line"),
     _spec("Material", "line"),
     _spec("Finish", "line", 0.82),
     _spec("Thread Direction", "line", 0.64),
     _spec("Thread Type", "line", 0.70),
-    _spec("Rockwell Hardness", "line", 0.48),
-    _spec("Meets/Exceeds", "line", 0.40),
+    _spec("Hardness", "line", 0.48),
+    _spec("Standards", "line", 0.40),
     _spec("Dia./Thread Size", "sku"),
     _spec("Length", "sku", kind="length"),
     # Entailed by ``Drive Type`` (see the socket screw vocabulary), so unconditional.
@@ -246,15 +245,14 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
         standard=standard,
     )
     draft.line_attrs = [
-        keyword_attribute("Type", "Set Screw"),
         keyword_attribute("Point Type", point),
         keyword_attribute("Drive Type", "Hex Socket"),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),
         keyword_attribute("Thread Direction", "Right Hand"),
         keyword_attribute("Thread Type", thread_type),
-        *([keyword_attribute("Rockwell Hardness", hardness)] if hardness else []),
-        keyword_attribute("Meets/Exceeds", meets),
+        *([keyword_attribute("Hardness", hardness)] if hardness else []),
+        keyword_attribute("Standards", meets),
     ]
 
     count = min(gen._variant_count(), len(lengths))

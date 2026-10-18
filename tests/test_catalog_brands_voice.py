@@ -643,7 +643,7 @@ def test_a_pack_quantity_is_only_ever_the_records_own(golden):
     )
     for doc in golden:
         quantity = next(
-            (a["value"] for a in published_attributes(doc) if a["name"] == "Package Quantity"), None
+            (a["value"] for a in published_attributes(doc) if a["name"] == "Units per Pack"), None
         )
         for match in pack.finditer(doc["title"] + " " + doc["description"]):
             assert quantity is not None and quantity in match.groups(), (doc["sku"], match.group(0))

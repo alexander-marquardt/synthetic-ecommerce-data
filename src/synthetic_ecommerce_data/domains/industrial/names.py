@@ -117,12 +117,8 @@ PRODUCT_NOUNS: tuple[str, ...] = (
 
 #: Type-qualified names that ARE type-specific in the evidence, with it.
 TYPE_SPECIFIC: dict[str, str] = {
-    "End Mill Style": "census 132 of 496 records, 75% of census end mills",
-    "End Mill Application": "census 67 records, all end mills",
-    "Tap Style": "census 18 records, 17 of the 24 census taps",
     "Tap Chamfer": "census 3; a tap's chamfer class (Plug, Bottoming, Taper)",
     "Bearing Number": "reference spec table (ball bearings): the designation",
-    "Wheel Dia.": "label ruling 2026-10-07: a diameter is named by what it measures",
     "Pin Dia.": "label ruling 2026-10-07: a cotter pin diameter is named by what it measures",
 }
 
@@ -130,11 +126,9 @@ TYPE_SPECIFIC: dict[str, str] = {
 #: The census has no hammer and no abrasive family, so these are unknown there,
 #: not contradicted by it.
 NAME_EXCEPTIONS: dict[str, str] = {
-    "Wheel Dia.": "a grinding wheel face diameter; the census carries no abrasive family",
     "Pin Dia.": "a cotter pin diameter; the census carries no cotter pin family",
     # Not in TYPE_SPECIFIC: "Dowel" is not a qualifying noun, so only the census gate applies.
-    "Dowel Dia. (in)": "a dowel pin diameter, inch; the census carries no dowel pin family",
-    "Dowel Dia. (mm)": "a dowel pin diameter, metric; the census carries no dowel pin family",
+    "Dowel Dia.": "a dowel pin diameter, either unit; the census carries no dowel pin family",
     "Backing Material": "component material: a flap disc's backing plate",
     "Handle Grip Material": "component material: a hammer's grip, beside Handle Material",
     "Face Type": "hammer striking-face form; the census carries no hammer family",
@@ -173,10 +167,13 @@ NAME_EXCEPTIONS: dict[str, str] = {
     ),
     "Hub Diameter": "a sprocket's hub, beside its Outside Dia.; no sprocket hub in the census",
     "Length Through Bore": "a sprocket's width along the shaft; no sprocket hub in the census",
-    "Fit": (
+    "Stock Fit": (
         "key stock's oversized or undersized bar, the name distributors facet it"
         " by; the census carries no key stock, and its Class is another concept"
     ),
+    "Wheel Grade": "a wheel's or flap disc's abrasive coarseness (Fine, Medium, Coarse); the census carries no abrasive family, and Grade is a bolt's strength class",
+    "Units per Pack": "how many units one listing sells (#497); the census states it as Package Quantity",
+    "Piece Count": "how many pieces a kit holds (#497); the census states it as Number of Pieces",
 }
 
 

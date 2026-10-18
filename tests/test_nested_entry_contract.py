@@ -84,7 +84,7 @@ INCH_ANGLE_DEFECT = (
 )
 
 #: Attributes that are counts, so they carry ``C62`` with a bare value.
-COUNTS = ("Number of Flutes", "Grit", "Package Quantity", "Number of Pieces")
+COUNTS = ("Number of Flutes", "Grit", "Units per Pack", "Piece Count")
 
 #: Names a document already uses as a top-level column: a nested key equal to one
 #: collides with a declared field, which the Engine's boot census reports as a data

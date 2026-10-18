@@ -518,7 +518,7 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
     (alexander-marquardt/synthetic-ecommerce-data#48): the same item
     families run over the cap, ball-nose end mills and socket cap screws
     first, but fewer of their drawn variants do -- and 69 of 10,548 (116 over
-    the cap) once the bolts and socket screws publish a ``Package Quantity``
+    the cap) once the bolts and socket screws publish a ``Units per Pack``
     (alexander-marquardt/synthetic-ecommerce-data#65): the pack segment
     comes last, so a socket screw title the cap used to fit now runs over by
     that segment alone, which the segment rule sheds whole -- and 76 of
