@@ -15,7 +15,7 @@ SPEC = TypeSpec(
     owners=swimwear_rows.OWNED,
     apparel=ApparelPlan(
         compounds=(
-            ("bikini", "Bikini Period Swimwear"),
+            ("skirt", "Skirted Period Swimwear"),
             ("short", "Short Period Swimwear"),
             ("brief", "Brief Period Swimwear"),
         )

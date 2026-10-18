@@ -187,11 +187,27 @@ def test_every_param_axis_changes_the_drawing() -> None:
         ("period_swimwear", "cut", "bikini", "high_waisted"),
         ("cover_up", "length", "mini", "maxi"),
         ("changing_robe", "length", "hip", "full"),
+        ("changing_robe", "lining", "fleece", "towelling"),
+        ("kids_swimsuit", "sleeve", "short", "long"),
     ]  # fmt: skip
     fill = kit.Fill("solid", "#123456", "#654321")
     same = [p for p in pairs if kit.render(p[0], fill, params={p[1]: p[2]})
             == kit.render(p[0], fill, params={p[1]: p[3]})]  # fmt: skip
     assert same == []
+
+
+def test_a_short_sleeve_ends_high_and_a_long_one_runs_to_the_wrist() -> None:
+    """The sleeve the record states is the length drawn, on both arms."""
+    fill = kit.Fill("solid", "#123456", "#654321")
+
+    def ends(sleeve: str) -> list[int]:
+        svg = kit.render("kids_swimsuit", fill, params={"sleeve": sleeve})
+        paths = re.findall(r'<g class="sleeve"><path d="([^"]+)"', svg)
+        return [max(int(y) for y in re.findall(r",(\d+)", d)) for d in paths]
+
+    short, long_ = ends("short"), ends("long")
+    assert len(short) == len(long_) == 2
+    assert max(short) < 150 < 200 < min(long_)
 
 
 @pytest.mark.parametrize("key", sorted(TYPES))

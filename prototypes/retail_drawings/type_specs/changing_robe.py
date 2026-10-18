@@ -16,7 +16,7 @@ SPEC = TypeSpec(
     apparel=ApparelPlan(
         compounds=(
             ("poncho", "Poncho Changing Robe"),
-            ("towel", "Towel Changing Robe"),
+            ("parka", "Parka Changing Robe"),
             ("hoodie", "Hoodie Changing Robe"),
         )
     ),
