@@ -27,6 +27,10 @@ Each drawing param that a style attribute names (``style``, ``fixture_type`` as 
 style that changes the value redraws it (:func:`scale.derive`). ``usb_port``, ``dimmable`` and
 ``wireless_charging`` are only ever "Yes", so a derived style never flips one; a wall light's
 ``ip_rating`` and a shade's ``fitting`` are in :data:`scale.FROZEN_KEYS`.
+
+A desk lamp's color temperature is a measured entry (gen#232): ``color_temperature`` holds the
+kelvin count with unit code ``KEL``, and a tunable lamp holds ``color_temperature_min`` and
+``color_temperature_max`` instead, so a facet ranges over it and no value holds a unit.
 """
 
 from __future__ import annotations
@@ -54,6 +58,21 @@ def _a(key: str, name: str, value: str) -> tuple[str, str, str]:
 def _cm(key: str, name: str, cm: int) -> tuple[str, str, str, str, float]:
     """A length in centimetres (unit code CMT; the canonical value is in millimetres)."""
     return (key, name, str(cm), "CMT", cm * 10.0)
+
+
+def _kelvin(key: str, name: str, kelvin: int) -> tuple[str, str, str, str, float]:
+    """A light's color temperature in kelvin (unit code KEL; the canonical value is the count)."""
+    return (key, name, str(kelvin), "KEL", float(kelvin))
+
+
+def _temp(kelvin: int) -> tuple[str, str, str, str, float]:
+    return _kelvin("color_temperature", "Color temperature", kelvin)
+
+
+def _temp_range(low: int, high: int) -> tuple[tuple[str, str, str, str, float], ...]:
+    """A tunable lamp's range: two entries, so a filter ranges over each end."""
+    return (_kelvin("color_temperature_min", "Minimum color temperature", low),
+            _kelvin("color_temperature_max", "Maximum color temperature", high))  # fmt: skip
 
 
 def _lights(n: int) -> tuple[str, str, str, str]:
@@ -100,7 +119,7 @@ FLOOR_LAMPS = (
         "An arc floor lamp with a metal shade. It takes an E27 bulb and a foot switch turns "
         "it on.",
         (BLACK, WHITE, FOREST),
-        (_a("style", "Style", "Arc"), _cm("height", "Height", 190),
+        (_a("style", "Style", "Arc"), _cm("item_height", "Item height", 190),
          _a("shade_material", "Shade material", "Metal"), _a("switch", "Switch", "Foot"),
          _a("bulb_fitting", "Bulb fitting", "E27")),
         (("Brass", 149.0), ("Chrome", 149.0), ("Matte Black", 139.0)),
@@ -109,7 +128,7 @@ FLOOR_LAMPS = (
         "Floor Lamp", 99.0, "floor_lamp",
         "A tripod floor lamp with a linen drum shade and an inline switch on the cable.",
         (NATURAL, WHITE, GREY),
-        (_a("style", "Style", "Tripod"), _cm("height", "Height", 155),
+        (_a("style", "Style", "Tripod"), _cm("item_height", "Item height", 155),
          _a("shade_material", "Shade material", "Linen"), _a("switch", "Switch", "Inline"),
          _a("bulb_fitting", "Bulb fitting", "E27")),
         _each(99.0, "Oak", "Walnut", "Matte Black"),
@@ -119,7 +138,7 @@ FLOOR_LAMPS = (
         "An uplighter with a glass bowl shade. It takes an integrated LED bulb and is "
         "dimmable, with a dimmer switch on the cable.",
         (WHITE, CREAM),
-        (_a("style", "Style", "Uplighter"), _cm("height", "Height", 180),
+        (_a("style", "Style", "Uplighter"), _cm("item_height", "Item height", 180),
          _a("shade_material", "Shade material", "Glass"), _a("switch", "Switch", "Dimmer"),
          _a("bulb_fitting", "Bulb fitting", "Integrated LED"),
          _yes("dimmable", "Dimmable")),
@@ -130,7 +149,7 @@ FLOOR_LAMPS = (
         "A task floor lamp with a metal shade. An inline switch sits on the cable; it takes "
         "an E14 bulb.",
         (BLACK, WHITE, MUSTARD),
-        (_a("style", "Style", "Task"), _cm("height", "Height", 140),
+        (_a("style", "Style", "Task"), _cm("item_height", "Item height", 140),
          _a("shade_material", "Shade material", "Metal"), _a("switch", "Switch", "Inline"),
          _a("bulb_fitting", "Bulb fitting", "E14")),
         _each(69.0, "Chrome", "Matte Black"),
@@ -139,7 +158,7 @@ FLOOR_LAMPS = (
         "Floor Lamp", 119.0, "floor_lamp",
         "A mother-and-child floor lamp with glass shades and a foot switch.",
         (WHITE, BLACK),
-        (_a("style", "Style", "Mother-and-Child"), _cm("height", "Height", 178),
+        (_a("style", "Style", "Mother-and-Child"), _cm("item_height", "Item height", 178),
          _a("shade_material", "Shade material", "Glass"), _a("switch", "Switch", "Foot"),
          _a("bulb_fitting", "Bulb fitting", "E27")),
         (("Brass", 129.0), ("Copper", 129.0), ("Satin Nickel", 119.0)),
@@ -156,7 +175,7 @@ TABLE_LAMPS = (
         "A bedside table lamp on a metal base, with a drum shade that softens the bulb. It is "
         "plug-in.",
         (BRASS, BLACK, WHITE),
-        (_a("style", "Style", "Bedside"), _cm("height", "Height", 40),
+        (_a("style", "Style", "Bedside"), _cm("item_height", "Item height", 40),
          _a("base_material", "Base material", "Metal"), _a("power", "Power", "Plug-In")),
         _each(39.0, "White", "Natural", "Navy"),
         params=_p(style="bedside", shade_color="white", power="plug-in"),
@@ -165,7 +184,7 @@ TABLE_LAMPS = (
         "Table Lamp", 65.0, "table_lamp",
         "A table lamp with a linen drum shade. It is plug-in.",
         (SAGE, TEAL, CREAM),
-        (_a("style", "Style", "Ceramic"), _cm("height", "Height", 56),
+        (_a("style", "Style", "Ceramic"), _cm("item_height", "Item height", 56),
          _a("base_material", "Base material", "Ceramic"), _a("power", "Power", "Plug-In")),
         _each(65.0, "White", "Natural"),
         params=_p(style="ceramic", shade_color="white", power="plug-in"),
@@ -174,7 +193,7 @@ TABLE_LAMPS = (
         "Table Lamp", 45.0, "table_lamp",
         "A touch table lamp that dims. A USB port in the base charges a phone overnight.",
         (COPPER, BRASS, SILVER),
-        (_a("style", "Style", "Touch"), _cm("height", "Height", 38),
+        (_a("style", "Style", "Touch"), _cm("item_height", "Item height", 38),
          _a("base_material", "Base material", "Metal"), _a("power", "Power", "Plug-In"),
          _yes("dimmable", "Dimmable"), ("usb_port", "USB port", "yes")),
         _each(45.0, "White", "Grey", "Black"),
@@ -184,7 +203,7 @@ TABLE_LAMPS = (
         "Table Lamp", 49.0, "table_lamp",
         "A mushroom table lamp with a glass base. It is rechargeable. Dimmable.",
         (BLUSH, SAGE, AMBER, WHITE),
-        (_a("style", "Style", "Mushroom"), _cm("height", "Height", 30),
+        (_a("style", "Style", "Mushroom"), _cm("item_height", "Item height", 30),
          _a("base_material", "Base material", "Glass"), _a("power", "Power", "Rechargeable"),
          _yes("dimmable", "Dimmable")),
         _each(49.0, "White", "Cream"),
@@ -202,20 +221,20 @@ DESK_LAMPS = (
         "An adjustable desk lamp with a 2700-6500K LED light and a USB port that charges a "
         "phone.",
         (BLACK, WHITE, SAGE),
-        (_a("arm", "Arm", "Adjustable"), _a("color_temperature", "Color temperature", "2700-6500K"),
+        (_a("arm", "Arm", "Adjustable"), *_temp_range(2700, 6500),
          _yes("dimmable", "Dimmable"), ("usb_port", "USB port", "yes")),
         params=_p(arm="adjustable", base="round")),
     Row("LTDGNK", "Gooseneck LED Desk Lamp", "Lanternby", "Home", DESK,
         "Desk Lamp", 25.0, "desk_lamp",
         "A gooseneck desk lamp with a 3000K LED light.",
         (BLACK, SILVER, NAVY),
-        (_a("arm", "Arm", "Gooseneck"), _a("color_temperature", "Color temperature", "3000K")),
+        (_a("arm", "Arm", "Gooseneck"), _temp(3000)),
         params=_p(arm="gooseneck", base="round")),
     Row("LTDCLP", "Clamp-On LED Desk Lamp", "Calderby & Lune", "Home", DESK,
         "Desk Lamp", 29.0, "desk_lamp",
         "A clamp-on desk lamp with a 5000K LED light.",
         (WHITE, BLACK, MUSTARD),
-        (_a("arm", "Arm", "Clamp-On"), _a("color_temperature", "Color temperature", "5000K"),
+        (_a("arm", "Arm", "Clamp-On"), _temp(5000),
          _yes("dimmable", "Dimmable")),
         params=_p(arm="clamp-on", base="round")),
     Row("LTDWCP", "LED Desk Lamp with Wireless Charging Pad", "Harbour & Pine", "Home", DESK,
@@ -223,7 +242,7 @@ DESK_LAMPS = (
         "A desk lamp whose wide base is a wireless charging pad for a phone, with a USB port "
         "beside it and a 2700-6500K LED light.",
         (BLACK, WHITE),
-        (_a("arm", "Arm", "Adjustable"), _a("color_temperature", "Color temperature", "2700-6500K"),
+        (_a("arm", "Arm", "Adjustable"), *_temp_range(2700, 6500),
          _yes("dimmable", "Dimmable"), ("usb_port", "USB port", "yes"),
          _yes("wireless_charging", "Wireless charging")),
         params=_p(arm="adjustable", base="pad")),

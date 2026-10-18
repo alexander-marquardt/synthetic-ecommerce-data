@@ -200,7 +200,10 @@ refusing the tree; rerun it.
 GitHub Actions is billing-blocked here, so run CI locally: `scripts/merge_pr.sh
 --local-ci <PR number>` (the default when `GEN_LOCAL_CI=1`) runs every job of
 `.github/workflows/*.yml` on that merged tree, prints each job's verdict and
-log path, and refuses the merge unless all pass; no GitHub check is read.
+log path, and refuses the merge unless all pass; no GitHub check is read. A red job
+prints its FAILED/ERROR lines (up to 20) and its log is copied to
+`<the directory the script says it left>/.git/ci-logs/`, so the failing test is named
+without a re-run.
 
 Install the hook types once per clone: `pre-commit install` (the config sets `default_install_hook_types: [pre-commit, commit-msg, pre-push]`; the pre-push gate runs the cheap CI jobs before review, [docs/pre-push-gate.md](docs/pre-push-gate.md)). The commit-msg hook
 (`scripts/check_commit_msg.py`) refuses a message that credits an AI tool or a
@@ -351,7 +354,7 @@ report`), with the default catalog beside it:
 |---|--:|--:|
 | shank == cutting diameter | 0.6489 | 0.6895 |
 | length of cut > overall length | 0.0829 | 0.0829 |
-| angle carries a length unit | 0.0469 | 0.0451 |
+| angle carries a length unit | 0.0469 | **0.0000, deliberately** (#404) |
 | declared system contradicts units | 0.0323 | 0.0331 |
 | unit mixing within one record | 0.0222 | 0.0185 |
 | title dimension token unlabelled | 0.4667 | 0.4598 |
@@ -465,7 +468,11 @@ shared tables):
   source, so none is claimed.
 * **Finish and hardness follow material and grade**: an 18-8 stainless socket
   screw is plain at Rockwell B80, alloy steel is black oxide or zinc at C38
-  (12.9 at C39); a graded hex bolt's material follows its grade, and hot-dip
+  (12.9 at C39); the top strength grade is named on its own system's scale --
+  `Grade 12.9` (ISO 898-1) on a metric socket, flat, button or low head
+  screw, `Grade 8` (SAE J429, C36) on an inch one, never the reverse, which
+  a whole-catalog test over every published string of every document holds
+  (#17); a graded hex bolt's material follows its grade, and hot-dip
   galvanizing is kept off Grade 8 / Class 10.9 (ASTM F2329); nACo and AlTiN
   are carbide coatings, black oxide an HSS treatment.
 * **An end mill's shank is never thinner than its cutter, and never more than
@@ -762,21 +769,16 @@ of elastic/prism#9935:
 The split is **read back out of** the published string, never computed from
 the generator's magnitude, so the two can never disagree: `3/8"` has no exact
 two-decimal millimetre spelling, and a number computed from the original
-magnitude would quietly differ from the string actually published. A defective
-spelling never changes what an attribute measures: `Helix Angle = 42"`, the
-modelled defect of an inch mark keyed for a degree mark, becomes `42` `DD`
-(`catalog.entry.UNIT_FOR_NAME`). The flat facet keeps the messy `42"`; the
-entry keeps the magnitude and drops the bad mark (elastic/prism#9284, #79). The
-flat `facets_num` carries that same number, taken from the same rule
-(`entry.split`), so the two numeric shapes agree (#120). Read
-as an inch, it put a length under an angle key. The same defect also writes
-`1"`, `1-1/4"`, `2"` and `1-5/8"`: lengths keyed into an angle field, a
-unit-type error rather than a mis-keyed degree mark. An attribute fixed to `DD`
-therefore parses only when its number lies within the angles its generator
-draws (`catalog.entry.SPAN_FOR_NAME`, read from `catalog.series`), and a
-fraction never parses as an angle; anything else stays text, with no
-`unit_code` and no `value_canonical`. In the default build that leaves 8 of the
-78 defect rows as angles (`Helix Angle = 42"`) and 70 as text. An attribute that
+magnitude would quietly differ from the string actually published. The mark
+decides the unit and nothing repairs it, so a value of the wrong kind for its
+key would show: the generator writes none (#404). It used to write inch lengths
+(`2"`, `1-5/8"`, `42"`) under `point_angle` and `helix_angle`, 963 rows on one
+load, where a facet offered them beside `118` and `135`; a real retailer would
+fix that row, so the step is gone and `tests/test_no_wrong_kind_values_404.py`
+holds every angle key to angles, in the flat spelling and in the nested entry,
+over a sample of every product type at the measured defect rates and at their
+ceiling. The flat `facets_num` carries the same number as the nested entry,
+taken from the same rule (`entry.split`) (#120). An attribute that
 is not a measurement omits `unit_code` and `value_canonical` rather than
 carrying nulls.
 
@@ -1495,7 +1497,7 @@ than asserted.
 |---|---|---|
 | shank diameter == cutting diameter | 0.6489 | 0.6992 |
 | length of cut > overall length | 0.0829 | 0.0805 |
-| an angle attribute carrying a length unit | 0.0469 | 0.0448 |
+| an angle attribute carrying a length unit | 0.0469 | **0.0000, deliberately** (#404) |
 | declared measurement system contradicts the value's units | 0.0323 | 0.0289 |
 | unit mixing within one record | 0.0222 | 0.0166 |
 | title dimension token carries no label | 0.4667 | 0.4648 |
@@ -1508,12 +1510,10 @@ than asserted.
 Measured on `95a9ed0` with `uv run ecom-generate build` (the default catalog,
 identical to `golden-catalog/`).
 
-Two notes on reading that table honestly. The angle defect is **clustered**:
-the attribute is line-constant, so one bad row reaches every SKU under that
-line — which is how these arrive in a real catalog, and is visible in the
-source corpus too, where the same wrong value repeats across a whole series.
-Its per-record rate therefore swings much more between seeds than the others.
-And attributes per record sits about 6% below its target because the
+Two notes on reading that table honestly. The angle row is **deliberately zero**:
+the corpus measures 0.0469, and the generator declines to write a length under an
+angle key (#404; `GeneratorConfig.measured_angle_carries_length_unit` keeps the
+measurement). And attributes per record sits about 6% below its target because the
 reference mean is over a different mixture of product families than this
 catalog contains; the per-family shape is reproduced, the mixture is not the
 same one. It moved when the newer types arrived (hex nuts and hex keys publish
@@ -1558,7 +1558,7 @@ figure against the file.
 | pack quantity (hex bolts) | a group page's pack, independent of the size, so a size comes in several packs (`price.page_pack`); priced within a size on the elasticity the census's same-spec larger-pack ratio gives (`price.PACK_ELASTICITY`, 0.659: a 5x pack costs 0.5778 per piece). Because the pack adds its own spread, the bolt's slopes are cut to `price.SLOPE_CUT_AIMS` (shown p90/p10 10.0, inside the row's band) rather than to the census's 8.21, which would leave no size slope. Prices exist to show range filters, sorting and facets, not to match the census exactly (#86) |
 | group noise, one draw per census-style page (one brand, the line attributes a page holds equal) | fitted sigma |
 | SKU noise, one draw per SKU | fitted sigma |
-| size noise, one draw per spec that every brand shares (taps, socket screws and set screws only, `price.SIZE_NOISE`, each with its reason) | fitted sigma |
+| size noise, one draw per spec that every brand shares (taps, socket screws, set screws and depressed-center wheels only, `price.SIZE_NOISE`, each with its reason) | fitted sigma |
 
 **A kit is priced from what it holds** (`price.CONTENTS_PRICED`). Its key is
 not one dimension but its contents' price (`price.kit_contents`): each size
@@ -1652,7 +1652,7 @@ reason and the issue that fixes it, and stays bounded:
 
 | row | kind | why | bound |
 |---|---|---|---|
-| wheel brand spread | pin, above band | the brand tiers alone, every noise off, put it above band: 3 of the 12 wheel brands are economy, and the row's sampled brands take one on more than half its specs, where the census measures its house label on 4 of its 12; the per-brand group noise then spreads one spec's brands further (#66) | no further above than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
+| wheel brand spread | pin, above band at 100K only (the default build is in band, its record `None`) | the brand tiers alone, every noise off, put the 100K build above band: 3 of the 12 wheel brands are economy, and the row's sampled brands take one on more than half its specs, where the census measures its house label on 4 of its 12; the wheel's p90/p10 is carried by noise one spec shares across its brands (`size_sigma`), so no per-brand group noise adds to it (#66, #272) | at 100K no further above than the figure `price.PINNED_FIGURES` records, within `PIN_TOLERANCE`; on the default build in band |
 | kit p90/p10 | pin, below band | a kit is priced from its contents, and the catalog's kit kinds hold about $36 to $130 of parts, so with material and tier its prices span about 4x against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629; group noise loud enough to make up the rest would spread a kit's price about 79x on its own, so a kit draws none (widen the kit range: #76) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
 
 The full reasons are `price.PINNED_SHORTFALLS`, and `stats.json` carries

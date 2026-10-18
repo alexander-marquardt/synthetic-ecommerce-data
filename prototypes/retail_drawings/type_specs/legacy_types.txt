@@ -27,7 +27,6 @@ Beauty|Moisturiser
 Beauty|Perfume
 Beauty|Shower Gel
 Beauty|Skin Tint
-Beauty|Sun Cream
 Beauty|Travel Set
 Beauty|Wash Bag
 Cleaning & Janitorial|Air Freshener
