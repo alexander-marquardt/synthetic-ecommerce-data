@@ -31,6 +31,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+import attribute_cleanup
 import colorwords
 import facet_leaves
 import type_registry
@@ -53,7 +54,7 @@ IMAGE_BASE_URL = f"/images/{IMAGE_ROOT}"
 #: The one casing of a key's values whatever the authored row spelled ("plain" and "Plain"
 #: were two buckets of one facet, gen#255): the casing the catalogue repo reads, ``pattern``
 #: lower case and ``rise`` High/Mid/Low.
-VALUE_CASE = {"pattern": str.lower, "rise": str.title}
+VALUE_CASE = {"pattern": str.lower, "rise": str.title, "size_range": str.title}
 
 #: Authored product types that are one concept with another, written as the second: "Tee" is a
 #: "T-Shirt", the name of its category node. Only the document's ``product_type`` is folded;
@@ -269,7 +270,7 @@ def _product_attributes(rec: dict) -> list[dict[str, Any]]:
         if (e["key"], e["value"]) not in have:
             have.add((e["key"], e["value"]))
             out.append(e)
-    return _one_case(out)
+    return attribute_cleanup.clean(_one_case(out), rec["product_type"])
 
 
 def _one_case(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -320,13 +321,16 @@ def _variant(rec: dict, sku: dict) -> dict[str, Any]:
         "image_url": _url(image),
         "image_detail_url": _url(image),
         **({"ingredients": sku["ingredients"]} if "ingredients" in sku else {}),
-        "attributes": [
-            e
-            for k in options
-            for e in (_color_entries(sku[k]) if k == "color" else _entries(OPTIONS[k], sku[k]))
-            if not (own and e["key"] == "pattern")
-        ]
-        + _one_case(own),
+        "attributes": attribute_cleanup.clean(
+            [
+                e
+                for k in options
+                for e in (_color_entries(sku[k]) if k == "color" else _entries(OPTIONS[k], sku[k]))
+                if not (own and e["key"] == "pattern")
+            ]
+            + _one_case(own),
+            rec["product_type"],
+        ),
     }
 
 
@@ -395,6 +399,8 @@ def standard_document(rec: dict) -> dict[str, Any]:
         doc["series"] = rec["product_line"]
     if blend:
         doc["fibre_content"] = blend
+    if "brand_owner" in rec:  # the ranking signal; no retailer prints it as a product attribute
+        doc["brand_owner"] = rec["brand_owner"]
     return doc | {
         "category_path": path,
         "category_leaf": path[-1],

@@ -55,6 +55,9 @@ PRODUCT_FIELDS: dict[str, tuple[str, bool]] = {
     "ingredients": (_LIST, False),
     #: The exact blend or grade ("98% Cotton, 2% Elastane"): a detail, never a facet.
     "fibre_content": (_STR, False),
+    #: Whose brand it is (``own`` or ``third_party``): the ranking signal, not a product-page
+    #: attribute (gen#497; retail's boost reads it).
+    "brand_owner": (_STR, False),
     #: The retailer's own 0-100 ranking preference (:mod:`.merchandising`).
     "merchandising_score": (_INT, False),
     #: The attribute keys a shopper selects on the product page, coarsest first
@@ -411,6 +414,7 @@ _FLAT_PRODUCT_FIELDS = (
     "variant_axes",
     "ingredients",
     "fibre_content",
+    "brand_owner",
 )
 #: The variant columns a flat document carries, in industrial's order.
 _FLAT_VARIANT_FIELDS = (

@@ -81,8 +81,9 @@ _BERRY = ("Garden", "Grow Your Own", "Strawberry Plants")
 _PEG = ("Garden", "Grow Your Own", "Mushroom Kits")
 
 
-def _w(grape: str, country: str, abv: float):
-    return (("grape", "Grape", grape), ("country", "Country", country),
+def _w(grape: str, country: str, abv: float, region: str | None = None):
+    where = (("origin", "Origin", region),) if region else ()  # most specific first (gen#497)
+    return (("grape", "Grape", grape), *where, ("country", "Country", country),
             ("wine_style", "Wine style", "Red"), ("abv", "ABV (%)", f"{abv:g}"))  # fmt: skip
 
 
@@ -214,7 +215,7 @@ ROWS = (
         "bottle",
         "An oak-aged red from old vines, with cherry, vanilla and a long finish.",
         (cw("Burgundy", "#5a1a2a", "solid", "#efe8d8"),),
-        _w("Tempranillo", "Spain", 13.5),
+        _w("Tempranillo", "Spain", 13.5, "Rioja"),
         label="Rioja Reserva",
         colorless=True,
         color_word="Yellow",
