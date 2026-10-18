@@ -33,7 +33,7 @@ from jewellery_rows import (
     a,
     watch_row,
 )
-from type_registry import Decoy, TypeSpec
+from type_registry import Decoy, Option, TypeSpec
 
 PTYPE = "Analog Watch"
 WOMENS_MM = ((28, 0.0), (32, 3.0), (36, 6.0))
@@ -50,6 +50,9 @@ def _row(code, title, brand, who, price, desc, colors, strap, case, water, strap
 
 
 SPEC = TypeSpec(
+    options=(
+        Option("case_mm", "case_diameter", "Case diameter", "MMT"),
+    ),
     key="analog_watch",
     department="Clothing",
     product_type=PTYPE,

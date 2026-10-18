@@ -27,7 +27,7 @@ from jewellery_rows import (
     a,
     watch_row,
 )
-from type_registry import Decoy, TypeSpec
+from type_registry import Decoy, Option, TypeSpec
 
 PTYPE = "Fitness Band"
 MM = ((40, 0.0), (44, 3.0))
@@ -42,6 +42,9 @@ def _row(code, title, brand, who, price, desc, colors, screen, water=50, heart="
 
 
 SPEC = TypeSpec(
+    options=(
+        Option("case_mm", "case_diameter", "Case diameter", "MMT"),
+    ),
     key="fitness_band",
     department="Clothing",
     product_type=PTYPE,

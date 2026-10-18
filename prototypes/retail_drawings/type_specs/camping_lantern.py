@@ -9,9 +9,12 @@ The styles are templates only (``derivable`` False): the department grows by aut
 from __future__ import annotations
 
 from sports_helpers import _CAMP, _H, _NEUTRAL, _PRIMARY, _W, _a, _row, _words
-from type_registry import TypeSpec
+from type_registry import Option, TypeSpec
 
 SPEC = TypeSpec(
+    options=(
+        Option("brightness_lm", "brightness", "Brightness (lm)"),
+    ),
     key="camping_lantern",
     department="Sports & Outdoors",
     product_type="Camping Lantern",

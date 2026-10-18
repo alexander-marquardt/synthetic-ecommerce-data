@@ -27,7 +27,7 @@ from toys_play_common import (
     toy_decoy,
     yes,
 )
-from type_registry import Row, TypeSpec, a
+from type_registry import Option, Row, TypeSpec, a
 
 _PATH = ("Toys", "Dolls & Accessories", "Dolls' Houses")
 _STYLES = ("Classic", "Pastel", "Natural", "Bright")
@@ -77,6 +77,9 @@ _ROWS = (
 _BRAND = "Kite Lane Toys"
 
 SPEC = TypeSpec(
+    options=(
+        Option("house_style", "style", "Style"),
+    ),
     key="dolls_house",
     department="Toys",
     product_type="Dolls' House",
