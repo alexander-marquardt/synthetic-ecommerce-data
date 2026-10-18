@@ -21,7 +21,7 @@ from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 MM = 25.4
-PACK = "Package Quantity"
+PACK = "Units per Pack"
 
 
 def catalog(key: str, lines: int | None = None, defects: bool = False):

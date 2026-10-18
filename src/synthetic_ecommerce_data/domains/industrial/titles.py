@@ -26,6 +26,7 @@ from synthetic_ecommerce_data.core.naming import (
 )
 from synthetic_ecommerce_data.core.voice import description_tail
 from synthetic_ecommerce_data.domains.industrial.drafts import (
+    END_SHAPE_OF_TYPE,
     END_SHAPE_WORD,
     KEY_DIMENSIONS,
     ChildDraft,
@@ -218,10 +219,7 @@ class TitleMixin:
             # The end SHAPE is the mill's own style: "SGL Sq End" on a square
             # end mill, "SGL Ball End" on a ball nose one. It used to say
             # "Sq End" on every end mill, ball nose included.
-            shape = next(
-                (a.value for a in draft.line_attrs if a.name == "End Mill Style"),
-                None,
-            )
+            shape = END_SHAPE_OF_TYPE.get(draft.type_key)
             if end is not None and shape is not None:
                 segments.append(
                     Segment(
@@ -245,11 +243,11 @@ class TitleMixin:
         # fixture (elastic/prism#9288) rather than by shipped catalog data.
 
         # The pack segment, last so the cap sheds it first -- and ONLY with the
-        # record's own Package Quantity; no quantity is ever stated unbacked.
-        quantity = self._line_facts.get("Package Quantity")
+        # record's own Units per Pack; no quantity is ever stated unbacked.
+        quantity = self._line_facts.get("Units per Pack")
         if quantity is not None and voice.pack_label is not None:
             segments.append(
-                Segment(value=quantity, label=voice.pack_label, attribute="Package Quantity")
+                Segment(value=quantity, label=voice.pack_label, attribute="Units per Pack")
             )
 
         tight = (

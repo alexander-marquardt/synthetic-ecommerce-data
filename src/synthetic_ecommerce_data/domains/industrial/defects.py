@@ -29,7 +29,9 @@ from synthetic_ecommerce_data.domains.industrial.vocab import (
 class DefectMixin:
     """The post-pass defects, mixed into :class:`~.generate.Generator`."""
 
-    def _inject_defects(self, child: ChildDraft, attrs: list[Attribute]) -> list[Attribute]:
+    def _inject_defects(
+        self, child: ChildDraft, attrs: list[Attribute], retired: tuple[Attribute, ...] = ()
+    ) -> list[Attribute]:
         """Reproduce the measured internal contradictions.
 
         Each class is drawn against its own denominator: only a record that
@@ -95,10 +97,17 @@ class DefectMixin:
         dimension_indexes = [
             i for i, a in enumerate(out) if a.value_num is not None and a.name in length_names
         ]
+        # A retired length (#497) still stands in the pick, so the draw has the
+        # range it had and the random stream is stable; it is never restated.
+        dimension_indexes += [
+            len(out) + i for i, a in enumerate(retired) if a.value_num is not None
+        ]
         if len(dimension_indexes) >= 2:
             self._bump("eligible_unit_mixing")
             if rng.random() < cfg.scaled_defect(cfg.unit_mixing_within_record):
                 index = rng.choice(dimension_indexes)
+                if index >= len(out):
+                    return out
                 other = "mm" if child.system == "in" else "in"
                 # The OTHER system, in that system's one canonical spelling.
                 # The defect is that this row is in the wrong unit for its

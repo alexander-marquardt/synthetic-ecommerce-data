@@ -149,8 +149,7 @@ def register(new_rows: tuple[BreadthRow, ...] | None = None) -> None:
         STANDARDS_FAMILY[row.key] = row.family
         shape_fn, extent = BREADTH_SHAPES[row.shape]
         FIGURES[row.key] = (shape_fn, extent)
-        specs = [AttrSpec(name="Item", scope="line")]
-        specs.extend(AttrSpec(name=name, scope="line") for name in row.attributes)
+        specs = [AttrSpec(name=name, scope="line") for name in row.attributes]
         specs.append(AttrSpec(name=row.size_attr, scope="sku", kind="length"))
         VOCAB[row.key] = tuple(specs)
         if row.part_number_block is not None:
@@ -224,7 +223,7 @@ def _build_sku(
         image_id=taxonomy.image_id_for(row.key, product_id, sku),
         compatibility=compatibility,
         noise=noise_text,
-        pricing_unit=pricing_unit_for(merged.get("Package Quantity")),
+        pricing_unit=pricing_unit_for(merged.get("Units per Pack")),
     )
 
 
@@ -299,7 +298,7 @@ def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
         chosen[name] = row.featured_attrs.get(name) or rng.choice(values)
     _apply_finish_follows_material(chosen, row, rng)
 
-    line_attrs: list[Attribute] = [keyword_attribute("Item", row.item)]
+    line_attrs: list[Attribute] = []
     descriptor_value: str | None = None
     for name, value in chosen.items():
         line_attrs.append(keyword_attribute(name, value))

@@ -48,7 +48,7 @@ from synthetic_ecommerce_data.domains.industrial.newtypes import table_provenanc
 from synthetic_ecommerce_data.domains.industrial.tabletype import TableType, Variant, lengths, spec
 from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
 
-SIZE = "Thread Dia."
+SIZE = "Thread Size"
 TAKE_UP = "Take Up"
 CLOSED = "Closed Length"
 LOAD = "Load Capacity"

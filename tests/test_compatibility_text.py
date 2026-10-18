@@ -378,10 +378,12 @@ def test_a_fine_pitch_metric_screw_claims_no_coarse_thread_standard(docs):
 # --- lengths and drives are catalog values -------------------------------------
 
 
-def test_a_countersunk_screw_publishes_no_length_under_head(docs):
-    flat = [d for d in docs if d["product_type"] == "screw_flat_head"]
-    assert flat
-    assert all("Length under Head" not in _published(d) for d in flat)
+def test_no_screw_publishes_a_length_under_head(docs):
+    """Merged into ``Length`` (#497): the countersunk screw never had one, and on the
+    others it repeated the nominal length."""
+    screws = [d for d in docs if d["product_type"].startswith("screw_")]
+    assert screws
+    assert all("Length under Head" not in _published(d) for d in screws)
 
 
 def test_every_drive_size_is_a_nominal_key(docs):

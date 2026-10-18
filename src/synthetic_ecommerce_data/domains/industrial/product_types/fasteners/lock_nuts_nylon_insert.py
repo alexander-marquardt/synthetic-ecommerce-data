@@ -31,6 +31,7 @@ from typing import TYPE_CHECKING, Any
 from synthetic_ecommerce_data.core.model import keyword_attribute, length_attribute
 from synthetic_ecommerce_data.core.price import ENDINGS, PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import hex_nut
 from synthetic_ecommerce_data.domains.industrial.newtypes import (
     _NUT_UNC,
@@ -244,10 +245,7 @@ ITEM = "Nylon Insert Lock Nut"
 #: Generic names, as for the hex nut: ``Type`` for the style (``Nut Style``
 #: is refused by the own-noun rule) and ``Height`` for the height.
 VOCAB = (
-    AttrSpec("Item", "line"),
     AttrSpec("Type", "line"),
-    AttrSpec("Lock Type", "line", 0.8),
-    AttrSpec("Insert Material", "line", 0.7),
     AttrSpec("Material", "line"),
     AttrSpec("Finish", "line", 0.9),
     AttrSpec("Grade", "line", 0.9),
@@ -278,10 +276,12 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
         standard=series.standard,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", ITEM),
+        # Retired (#497), listed where they stood so their sparsity draws keep
+        # the random stream stable.
+        retired(keyword_attribute("Item", ITEM)),
         keyword_attribute("Type", series.style),
-        keyword_attribute("Lock Type", "Nylon Insert"),
-        keyword_attribute("Insert Material", "Nylon"),
+        retired(keyword_attribute("Lock Type", "Nylon Insert"), presence=0.8),
+        retired(keyword_attribute("Insert Material", "Nylon"), presence=0.7),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),
         keyword_attribute("Thread Type", series.thread_type),

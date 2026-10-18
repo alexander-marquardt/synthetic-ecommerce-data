@@ -216,10 +216,9 @@ def test_one_product_publishes_exactly_these_attributes():
     assert doc["title"] == 'Replacement Pillow Block Bearing, 3/4" Bore Dia.'
     assert doc["price_usd"] == 24.94
     assert {a["name"]: a["value"] for a in doc["attributes"]} == {
-        "Item": "Pillow Block Bearing",
         "Material": "Cast Iron",
         "Finish": "Painted",
-        "Package Quantity": "1",
+        "Units per Pack": "1",
         "Standards": "JIS B 1557",
         "Bore Dia.": "3/4",
         "Base to Center Height": "1-5/16",
