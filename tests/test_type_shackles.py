@@ -229,10 +229,6 @@ def test_each_body_is_built_at_its_own_tables_length(large_docs):
             wrong.append((doc["sku"], published["Type"]["value"]))
     assert wrong == []
     assert {table_gates.values(doc)["Type"]["value"] for doc in large_docs} == {"Anchor", "Chain"}
-    assert {table_gates.values(doc)["Item"]["value"] for doc in large_docs} == {
-        "Screw Pin Anchor Shackle",
-        "Screw Pin Chain Shackle",
-    }
 
 
 def test_each_size_carries_the_grade_a_working_load_limit(large_docs):
@@ -256,7 +252,6 @@ def test_one_product_publishes_exactly_these_attributes():
     """The first SKU of the default build: a 1/4 in anchor shackle."""
     doc = _default_docs()[0]
     assert {a["name"]: a["value"] for a in doc["attributes"]} == {
-        "Item": "Screw Pin Anchor Shackle",
         "Type": "Anchor",
         "Material": "Forged Steel",
         "Finish": "Hot Dip Galvanized",
@@ -266,7 +261,7 @@ def test_one_product_publishes_exactly_these_attributes():
         "Inside Width": "0.4690",
         "Inside Length": "1-1/8",
         "Load Capacity": "1000",
-        "Dimension Type": "Fractional Inch",
+        "Measurement System": "Fractional Inch",
     }
     assert doc["price_usd"] == 11.01
     assert doc["dimension_provenance"] == (
@@ -278,19 +273,16 @@ def test_no_dimension_the_census_cannot_name_is_published(large_docs):
     """The pin, body, bow and eye diameters are drawn, not published."""
     published = {a["name"] for doc in large_docs for a in doc["attributes"]}
     assert sorted(published) == [
-        "Dimension Type",
         "Finish",
         "Inside Length",
         "Inside Width",
-        "Item",
         "Load Capacity",
         "Material",
         "Measurement System",
-        "Units per Pack",
         "Size",
         "Standards",
-        "System of Measurement",
         "Type",
+        "Units per Pack",
     ]
 
 

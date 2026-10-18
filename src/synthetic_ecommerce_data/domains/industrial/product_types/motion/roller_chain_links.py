@@ -24,7 +24,7 @@ because no link listing was seen for them.
 **The two links.** A connecting link is a pin link whose cover plate comes
 off, so it joins two roller link ends. An offset link has cranked plates,
 narrow at one end and wide at the other, so it makes a chain an odd number
-of pitches long. Which one a line sells is its ``Item``.
+of pitches long. Which one a line sells is its ``Type``.
 
 Steel and 18-8 stainless, sold singly and in packs of 2 and 5: a
 distributor's offer, not a table.

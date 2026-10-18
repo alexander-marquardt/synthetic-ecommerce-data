@@ -158,16 +158,16 @@ each system, its own category leaf and its own drawing:
 | `screw_button_head` | `ISO 7380-1` | `ASME B18.3.3A` | shallow dome |
 | `screw_low_head` | `DIN 7984` | `ASME B18.3.1G` | squat cylinder |
 
-**The length.** A screw publishes three of them and they are three different
-measurements:
+**The length.** A screw publishes two of them and they are two different
+measurements (`Length under Head` was a third until #497: on every screw but a
+countersunk one it repeated `Length` to the digit, so it was folded into it):
 
 | attribute | what it measures |
 |---|---|
 | `Length` | the nominal length — measured **over** the head on a countersunk screw and under it on every other style |
-| `Length under Head` | the whole shank, head excluded (the census's casing) |
 | `Thread Length` | how much of that shank carries thread |
 
-`x 3/4` in the reference distributor's pattern is the second of those. Binding it to
+`x 3/4` in the reference distributor's pattern is the first of those. Binding it to
 `Thread Length` would return confidently wrong results — a 3/4" screw and a
 screw with 3/4" of thread on it are different products — and on a countersunk
 screw binding it to `Length` is wrong by a head height. So the attribute is
@@ -545,7 +545,7 @@ differently (`core/voice.py`).
   non-factual qualifier or the brand's name, and a trailing pack segment.
 * **Pack wording is allowed only where a pack field exists.** The maintainer's
   ruling: pack wording is fine when the record actually carries a pack field.
-  `Package Quantity` exists on hex nuts and depressed-center wheels, and every
+  `Units per Pack` (the census's `Package Quantity`) exists on hex nuts and depressed-center wheels, and every
   pack word in a title or description equals that field; no other type
   carries pack wording.
 * **Descriptions** keep the spec clause and add the brand's template: a use
@@ -655,7 +655,7 @@ mutation rows prove the checks bite.
 
 `kit_assortment` is a seventeenth product type: ONE SKU per kit, its
 contents a multi-valued field of its own (`Sizes Included`), its piece count
-a real number (`Number of Pieces`, so pack wording may name it), never
+a real number (`Piece Count`, the census's `Number of Pieces`, so pack wording may name it), never
 sharing a product id with the individual parts. The sets are the
 conventional ones -- ISO 2936 and ASME B18.3 hex key sets, fractional
 (29/21/13-piece) and metric jobber drill indexes, socket head cap screw
@@ -671,7 +671,7 @@ one fitted factor, its material and its tier ([Price](#price)).
 
 Two derivation artefacts went with it: the drive size is published as the
 nominal key (`10mm`), not the extracted socket's toleranced across-flats
-(`10.07mm`), and the countersunk screw publishes no `Length under Head` -- it
+(`10.07mm`), and the countersunk screw publishes no length under the head -- it
 is sold by its length over the head, and length-less-head-height put 12.56mm
 and 1.3910" beside the stocked lengths.
 
@@ -815,7 +815,7 @@ deliberately overlapping content:
 sku          7159421039
 title        Druvanholm Hex Head Bolt, 1/2-13 Dia./Thread Size, 1-1/4" L, Grade 5
 description  Druvanholm Hex Head Bolt, 1/2-13 Dia./Thread Size, 1-1/4" L, Grade 5
-             - 1-1/4" Length under Head, 1-1/4" Thread Length, 3/4" Width
+             - 1-1/4" Thread Length, 3/4" Width
              Across Flats, 11/32" Head Height, 3/4" Head Dia., Druvanholm
              ASMEB18.2.1-78. ...
 ```
@@ -853,7 +853,7 @@ why the distinction is worth a rule rather than a remark: on the first pass at
 this work the whole-string and substring counts had both reached zero while the
 standalone-token count was still **10**. One of the ten was
 `Button Head Socket Cap Screw, 1/4-20, Alloy Steel`, credited with naming a
-`Length under Head` of `1/4` — which is the first half of a thread designation
+length of `1/4` (then published as `Length under Head`) — which is the first half of a thread designation
 and says nothing about how long the screw is. On the committed catalog all
 three counts are zero.
 
@@ -1024,7 +1024,7 @@ carries a **must-stock list** (`domains/industrial/muststock.py`, maintainer rul
 elastic/prism-industrial-products#103): one entry per requirement example, naming
 the product type(s) it may be and the published values a SKU must carry --
 `Milling Dia.` `1/2"` with `Length of Cut` `1"`, a `bolt_hex` in `7/16-14`
-with `Length under Head` `1-3/4"`, `Grade 8` and `Zinc Plated`, and 22 more.
+with `Length` `1-3/4"`, `Grade 8` and `Zinc Plated`, and 22 more.
 
 It runs after the main generation and changes nothing the main generation
 drew. For each entry no SKU already satisfies, it builds lines with that
@@ -1198,7 +1198,7 @@ removed; a mutation that reds nothing is the point of running them.
 **The harness cannot find the defect the line drawings exist to prevent, and
 that is why the tests do not rely on it.** An attribute published on every
 record and read by nothing has no code path to plant a defect in, which is how
-`End Mill Style` drew 473 ball nose mills square through 39 mutations with no
+`End Mill Style` (removed in #497: the category leaf says it) drew 473 ball nose mills square through 39 mutations with no
 zeros. What the harness *can* plant is the other half — a channel that reads
 its attribute, validates it, and then draws something else — so every marking
 mutation is that shape, and the coverage question is answered from the data

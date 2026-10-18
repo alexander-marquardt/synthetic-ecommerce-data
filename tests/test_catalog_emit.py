@@ -119,12 +119,12 @@ def test_sanitize_produces_a_legal_field_name():
             assert key and not key.startswith("_")
 
 
-def test_the_three_measurement_system_spellings_stay_three_facet_keys():
-    """Folding them here would hide the problem a field map exists to solve."""
+def test_the_measurement_system_is_one_facet_key():
+    """#497 merged the three spellings into ``Measurement System``: one key, and no other."""
     keys = set()
     for doc in emit.iter_flat(CATALOG):
         keys |= {k for k in doc["facets"] if "measurement" in k or "dimension_type" in k}
-    assert len(keys) >= 2, keys
+    assert keys == {"measurement_system"}, keys
 
 
 def test_the_searchable_text_reaches_attribute_values():
