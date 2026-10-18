@@ -110,7 +110,7 @@ def test_a_seed_decoy_holds_every_seed_word_and_is_another_type(
         assert set(tokens(seed)) <= set(tokens(doc["title"])), (row.code, doc["title"])
         assert doc["category_path"][-1] not in SEEDS[seed], (row.code, doc["category_path"])
         assert row.query == seed and row.policy, row.code
-        assert len(doc["title"].split()) <= 6, doc["title"]
+        assert len(doc["title"].split()) <= 5, doc["title"]
 
 
 @pytest.mark.parametrize("seed", NEW_SEEDS, ids=_ID)
