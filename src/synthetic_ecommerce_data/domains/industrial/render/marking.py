@@ -168,6 +168,7 @@ MATERIAL_HATCH: dict[str, str] = {
     "Steel": "-",
     "Alloy Steel": "|",
     "Grade 12.9 Alloy Steel": "+",
+    "Grade 8 Alloy Steel": "x.",
     "18-8 Stainless Steel": "/.",
     "Nylon": "o",
     "316 Stainless Steel": "|.",

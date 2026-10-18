@@ -750,6 +750,7 @@ MATERIAL_FACTORS: dict[str, float] = {
     "Chrome Steel": 1.0,
     "Chrome Vanadium Steel": 1.0,
     "Grade 12.9 Alloy Steel": 1.15,
+    "Grade 8 Alloy Steel": 1.1,
     "S2 Tool Steel": 1.2,
     "18-8 Stainless Steel": 1.6,
     "440C Stainless Steel": 1.8,
