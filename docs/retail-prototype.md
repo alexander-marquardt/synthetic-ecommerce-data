@@ -469,6 +469,21 @@ unisex goods (backpack, tote, umbrella) stay one product in one place, under the
 shoppers the generator targets for bags; the `audience` facet says `Unisex`, the path does not.
 `tests/test_retail_accessories_under_departments_248.py` guards it.
 
+**Worn accessories (gen#422)**: the issue lists belts, hats and caps, scarves, gloves, sunglasses
+and wallets under `Accessories > ...`; with no root they sit under `Womens > Accessories` (a belt
+or a wallet for men under `Mens > Accessories`), each a spec under `type_specs/` with its own
+drawing shape registered in the spec module. Done: sunglasses (`type_specs/sunglasses.py`: five
+frames, three lenses, UV400, the six main colors; its decoys are a UV400 name on a pair with no
+UV protection, a blue tint in the text of a black frame, a color word and a category noun in a range name
+and another brand's name in the text).
+Belts (`type_specs/belt.py`, shape `belt_buckled`: four materials, three buckles, the waist in
+inches as a measured SKU axis), hats and caps (`type_specs/hat_cap.py`: five kinds in one size,
+S/M and L/XL) and gloves (`type_specs/gloves.py`: four kinds, a lining, S to XL, whose SKU axis is `glove_size_letter`: the baseball glove's `glove_size` is in inches) follow
+the same way, each with the six main colors, two brands and decoys of classes 4, 5, 6 (two: a color
+word and another category's noun in a range name) and 7. Every spec decoy is exempt from the output
+standard's text check (`scale.TEXT_EXEMPT`), as the other text-match decoys are. Belt left the
+legacy type list, so `LEGACY_CEILING` is one lower. Scarf and wallet are still to do.
+
 **The store's department is the top level of `category_path`, and no document states one**
 (gen#281). The retail tree has exactly eleven roots: Womens, Mens, Kids, Food & Drink, Home,
 Beauty, Cleaning, Toys, Gifts, Garden and Sports & Outdoors (gen#265). Food sits under Food &
