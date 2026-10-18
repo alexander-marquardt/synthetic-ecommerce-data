@@ -36,7 +36,7 @@ class Rule:
 
 RULES: tuple[Rule, ...] = (
     Rule("bomber", "bomber_jacket", ("Bomber Jackets",), ("Bomber Jacket",)),
-    Rule("puffer", "puffer_jacket", ("Puffer Jackets",), ("Puffer Jacket",)),
+    Rule("puffer", "puffer", ("Puffer Jackets",), ("Puffer Jacket",)),
     Rule("polo", "top", ("Polos",), ("Polo Shirt",),
          {"kind": "polo", "neckline": "polo", "sleeve": "short"}),
     Rule("long sleeve", "top", ("Long Sleeve Tops",), (), {"sleeve": "long"}),

@@ -30,6 +30,7 @@ import scale  # noqa: E402
 import tree_guard  # noqa: E402
 import type_registry  # noqa: E402
 
+from synthetic_ecommerce_data.core import letter_case  # noqa: E402
 from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 
 SIZE = {"color", "size"}
@@ -148,7 +149,7 @@ def test_the_type_is_named_and_filed_under_coats_and_jackets(ptype: str) -> None
     for row in _rows(ptype):
         assert row.department == "Clothing" and row.path[1] == "Coats & Jackets"
         assert _doc(row)["product_type"] == ptype
-        assert row.path[-1] == _doc(row)["category_leaf"]
+        assert letter_case.sentence_case(row.path[-1]) == _doc(row)["category_leaf"]
         roots.add(row.path[0])
     assert "Womens" in roots and roots <= {"Womens", "Mens"}
 
@@ -455,7 +456,7 @@ LEAF_OF = {
 def test_each_type_sits_in_its_named_leaf(ptype: str) -> None:
     for row in _rows(ptype):
         assert tuple(row.path[1:]) == ("Coats & Jackets", *LEAF_OF[ptype]), row.code
-        assert _doc(row)["category_leaf"] == LEAF_OF[ptype][-1], row.code
+        assert _doc(row)["category_leaf"] == letter_case.sentence_case(LEAF_OF[ptype][-1]), row.code
 
 
 # --------------------------------------------------------------------------
