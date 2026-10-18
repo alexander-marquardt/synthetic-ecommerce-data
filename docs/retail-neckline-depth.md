@@ -19,8 +19,11 @@ a style's neckline. It builds on #309 (knitwear, which carries its neckline alre
 
 `high` is the roll, turtle, funnel and half zip neck; `round` is the scoop neck; `slash` is drawn
 as a boat. The values are a stored fact (`neckline`) and the drawing shows it: the top kit draws
-`halter` and `cowl` now, and a dress takes a `neckline` param (`kit.DRESS_NECKS`). A test fails a
-style whose picture and fact differ.
+`halter` and `cowl` now, and a dress takes a `neckline` param (`kit.DRESS_NECKS`). For every
+top, dress, blouse and knit whose shape draws a neckline (a tee, blouse, cardigan and sweatshirt
+draw their shape's own when the record has no param), a test fails a style whose drawn neckline
+(`neckline_rows.pictured`) is not its stored one or a declared pair (`neckline_rows.SAME_PICTURE`):
+round drawn as crew, slash as boat, collared as the crew or the cardigan's v, tie-neck as a collar.
 
 ## Words and decoys
 
@@ -37,7 +40,11 @@ style whose picture and fact differ.
 `neckline_rows.complete` runs once over the templates: a style that states none takes the one its
 title names ("Wrap Dress" is v-neck, "Shirt Dress" collared, "Roll Neck Jumper" high), else the one
 its drawing shows, else (a dress) one chosen by its id and drawn to match. Nothing already stated
-is changed.
+is changed. The title is the shopper's truth: a top, jumper, cardigan or bodysuit whose drawing
+shows another neckline is drawn again with the title's (a `neckline` param; the sweatshirt shape
+takes one, which touched fewer files than moving the jumpers to the top shape). Where the kit has
+no drawing for the title's neckline (a cardigan's shawl collar, a tie neck) the pair is declared
+in `SAME_PICTURE`, as crew stands for round.
 
 ## Not in this slice
 
