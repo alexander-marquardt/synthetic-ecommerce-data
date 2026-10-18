@@ -1,0 +1,15 @@
+TESTS = ["tests/test_retail_luggage_209.py"]
+PYTEST_ARGS = ["--noconftest", "-q", "-p", "no:cacheprovider", "-x"]
+R = "prototypes/retail_drawings/"
+L = "tests/test_retail_luggage_209.py::"
+S = "tests/test_retail_scale.py::"
+MUTANTS = [
+    (R + "luggage_common.py", 'return (key, name, f"{n:g}", "LTR", n * 1000.0)', 'return (key, name, f"{n:g}", "LTR", n)', "a litre capacity whose canonical is litres", [L + "test_a_capacity_in_litres_carries_its_millilitres_as_the_canonical_value"]),
+    (R + "type_specs/cabin_case.py", '"soft", "no", SKERRY, 25),', '"soft", "no", SKERRY, 36),', "the under-seat decoy states a capacity its dimensions do not give", [L + "test_a_cabin_case_decoy_holds_the_capacity_its_dimensions_give"]),
+    (R + "type_specs/weekend_bag.py", 'NAVY, "Canvas", SKERRY, 35)', 'NAVY, "Canvas", SKERRY, 45)', "a canvas decoy states another capacity than the canvas bag", [L + "test_a_weekend_bag_decoy_holds_the_capacity_of_the_bag_in_its_material"]),
+    (R + "type_specs/weekend_bag.py", '"Faux Leather", WRENFIELD, 40)', '"Faux Leather", WRENFIELD, 38)', "the faux leather decoy states another capacity than the leather-look bag", [L + "test_a_weekend_bag_decoy_holds_the_capacity_of_the_bag_in_its_material"]),
+    (R + "type_specs/travel_organizer.py", "holds a plug adapter", "holds a universal adapter", "the article reads wrong before universal", [S + "test_every_article_agrees_with_the_word_after_it[built]"]),
+    (R + "house_styles.py", "\nimport luggage_brand_styles  # noqa", "\n# import luggage_brand_styles  # noqa", "the luggage brands lose their house styles", [L + "test_each_new_luggage_brand_has_a_house_style_and_a_mark_of_its_own", S + "test_every_brand_in_the_build_has_a_house_style"]),
+    (R + "luggage_brand_styles.py", '"bearing",     "badge"', '"trunk",       "badge"', "Skerry Travel shares Tarnwick's mark", [L + "test_each_new_luggage_brand_has_a_house_style_and_a_mark_of_its_own"]),
+    ("golden-retail/stats.json", '"skus": 81145,', '"skus": 81007,', "the figures lack the luggage templates", [S + "test_a_derived_price_is_redrawn_inside_its_leafs_band"]),
+]
