@@ -112,6 +112,16 @@ def multi_attribute(name: str, values: tuple[str, ...]) -> Attribute:
     return Attribute(name=name, value=values[0], values=tuple(values))
 
 
+def pricing_unit_for(quantity: str | None) -> str:
+    """How a SKU's price is quoted, from the ``Package Quantity`` it publishes (gen#14):
+    ``"Per Pack"`` for a pack above 1, ``"Each"`` for anything else (no pack, or a pack
+    of 1). A quantity that is not a number is no pack."""
+    try:
+        return "Per Pack" if quantity is not None and float(quantity) > 1 else "Each"
+    except ValueError:
+        return "Each"
+
+
 @dataclass(frozen=True)
 class Sku:
     """One purchasable item under a product line."""
@@ -136,6 +146,11 @@ class Sku:
     #: The copy's noise sentences (:mod:`.noise`): true, distracting, and in
     #: the description and the searchable text only -- never an attribute.
     noise: str = ""
+    #: How the shown price is quoted: ``"Each"``, or ``"Per Pack"`` when the SKU
+    #: publishes a ``Package Quantity`` above 1 (gen#14). A plain field, not a variant.
+    pricing_unit: str = "Each"
+    #: The multiple a SKU is ordered in, in its pricing unit (gen#14). A plain field.
+    order_multiple: int = 1
 
     def attribute_names(self) -> frozenset[str]:
         return frozenset(a.name for a in self.attributes)
