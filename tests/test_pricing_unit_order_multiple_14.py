@@ -35,7 +35,10 @@ def nested(catalog):
 
 
 def _pack(doc) -> float | None:
-    return doc["facets_num"].get("package_quantity")
+    """The pack the document's own attribute entry states, as a number."""
+    return next(
+        (a["value_canonical"] for a in doc["attributes"] if a["key"] == "package_quantity"), None
+    )
 
 
 @pytest.mark.parametrize("field", FIELDS)

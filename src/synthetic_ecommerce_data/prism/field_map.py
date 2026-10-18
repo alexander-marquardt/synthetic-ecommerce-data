@@ -237,6 +237,16 @@ def _structural_fields() -> list[str]:
     type: numeric
     source: stock
     facet: false
+  # How the shown price is quoted ("Each", "Per Pack") and the multiple a SKU is
+  # ordered in (gen#14): plain published fields on every SKU, not variants.
+  - name: pricing_unit
+    type: terms
+    source: pricing_unit
+    facet: false
+  - name: order_multiple
+    type: numeric
+    source: order_multiple
+    facet: false
 
   # --- attribute inventory --------------------------------------------------
   # Which attribute NAMES a document publishes, as a facet-free keyword list.

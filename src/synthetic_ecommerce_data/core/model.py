@@ -112,6 +112,16 @@ def multi_attribute(name: str, values: tuple[str, ...]) -> Attribute:
     return Attribute(name=name, value=values[0], values=tuple(values))
 
 
+def pricing_unit_for(quantity: str | None) -> str:
+    """How a SKU's price is quoted, from the ``Package Quantity`` it publishes (gen#14):
+    ``"Per Pack"`` for a pack above 1, ``"Each"`` for anything else (no pack, or a pack
+    of 1). A quantity that is not a number is no pack."""
+    try:
+        return "Per Pack" if quantity is not None and float(quantity) > 1 else "Each"
+    except ValueError:
+        return "Each"
+
+
 @dataclass(frozen=True)
 class Sku:
     """One purchasable item under a product line."""
