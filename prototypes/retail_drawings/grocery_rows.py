@@ -141,9 +141,19 @@ _CELLAR = ("Hollowbrook Cellars", "Stonepine Estate", "Vine & Valley")
 _SKIN_BRANDS = ("Velling Apothecary", "Orrin Skin", "Brightwater Botanics")
 
 
+#: A wine's region when its name states one: a place inside the country, which the document
+#: lists before the country (``origin``, most specific first: Rioja, Spain; gen#497).
+WINE_REGIONS = (("Rioja", "Rioja"), ("Chianti", "Chianti"), ("Champagne", "Champagne"),
+                ("Provence", "Provence"), (" Port", "Douro"), ("Sherry", "Jerez"))  # fmt: skip
+
+
 def _w(name: str, hex_: str, abv: float, grape: str, country: str, style: str) -> F:
-    """One wine: its grape, country and style (red, white, rosé, sparkling) are attributes."""
-    return F(name, hex_, "", abv, (("grape", "Grape", grape), ("country", "Country", country),
+    """One wine: its grape, country and style (red, white, rosé, sparkling) are attributes, and
+    its region (:data:`WINE_REGIONS`) is an ``origin`` beside the country."""
+    region = next((r for word, r in WINE_REGIONS if word in f" {name}"), None)
+    where = (("origin", "Origin", region),) if region else ()
+    return F(name, hex_, "", abv, (("grape", "Grape", grape), *where,
+                                   ("country", "Country", country),
                                    ("wine_style", "Wine style", style)))  # fmt: skip
 
 

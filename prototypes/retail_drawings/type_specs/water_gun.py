@@ -44,7 +44,7 @@ def _gun(code: str, title: str, brand: str, shape_kind: str, ml: float, metres: 
         (
             kind(f"{shape_kind.title()} Water Gun"),
             measured("tank_capacity", "Tank capacity", ml, "MLT"),
-            measured("water_range", "Range", metres, "MTR"),
+            measured("water_range", "Water range", metres, "MTR"),
             age(years),
         ),
         price,

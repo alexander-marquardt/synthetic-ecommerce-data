@@ -30,3 +30,20 @@ def shared_name_findings(docs: Iterable[dict[str, Any]]) -> list[str]:
             if len(held) > 1:
                 found.append(f"{doc.get('product_id')}: {name!r} names {sorted(held)}")
     return found
+
+
+def catalogue_name_findings(docs: Iterable[dict[str, Any]]) -> list[str]:
+    """One line per key with two display names, and per display name held by two keys, over the
+    whole catalogue (gen#497: the cross-type guard :func:`shared_name_findings` cannot be)."""
+    names: dict[str, set[str]] = {}
+    keys: dict[str, set[str]] = {}
+    for doc in docs:
+        entries = [*doc.get("attributes", ())]
+        for variant in doc.get("variants", ()):
+            entries.extend(variant.get("attributes", ()))
+        for entry in entries:
+            names.setdefault(entry["key"], set()).add(entry["name"])
+            keys.setdefault(entry["name"], set()).add(entry["key"])
+    found = [f"key {k!r} has names {sorted(v)}" for k, v in sorted(names.items()) if len(v) > 1]
+    found += [f"name {n!r} is held by keys {sorted(v)}" for n, v in sorted(keys.items()) if len(v) > 1]
+    return found
