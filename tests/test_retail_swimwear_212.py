@@ -228,7 +228,7 @@ def test_the_range_states_each_value_the_issue_names() -> None:
     assert {"Drawstring", "Elasticated"} <= seen("swim_shorts", "waist_type")
     assert {"Light", "Moderate"} <= seen("period_swimwear", "absorbency")
     assert {"Fleece", "Towelling"} <= seen("changing_robe", "lining")
-    assert {"Cotton", "Viscose"} <= seen("cover_up", "fabric")
+    assert {"Cotton", "Voile"} <= seen("cover_up", "fabric")
     assert {"Sleeveless", "Short", "Long"} <= seen("kids_swimsuit", "sleeve")
     assert {"Girls", "Boys", "Baby"} <= {r.path[1] for r in _rows("kids_swimsuit")}
 

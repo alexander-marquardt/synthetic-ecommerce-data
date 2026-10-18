@@ -236,8 +236,8 @@ def _cover(code, title, brand, length, fabric, price, desc, colors):
 
 COVER_ROWS = (
     _cover("CVRMNI", "Mini Beach Cover-Up", _HW, "Mini", "Cotton", 20.0, "A mini cotton beach cover-up with wide sleeves and a V neck.", (WHITE, BLACK, RED, BLUE, GREEN, YELLOW)),
-    _cover("CVRMDI", "Midi Kaftan", _TW, "Midi", "Viscose", 28.0, "A flowing viscose kaftan that falls to the calf.", (BLUE, GREEN, WHITE, BLACK, YELLOW)),
-    _cover("CVRMXI", "Maxi Kaftan", _WF, "Maxi", "Viscose", 34.0, "A full length viscose kaftan with wide sleeves.", (BLACK, RED, YELLOW, WHITE)),
+    _cover("CVRMDI", "Midi Kaftan", _TW, "Midi", "Voile", 28.0, "A flowing voile kaftan that falls to the calf.", (BLUE, GREEN, WHITE, BLACK, YELLOW)),
+    _cover("CVRMXI", "Maxi Kaftan", _WF, "Maxi", "Voile", 34.0, "A full length voile kaftan with wide sleeves.", (BLACK, RED, YELLOW, WHITE)),
     _cover("CVRCTM", "Cotton Midi Beach Kaftan", _DL, "Midi", "Cotton", 26.0, "A cotton beach kaftan to the calf, light enough to fold into a bag.", (WHITE, BLUE, GREEN, RED)),
 )
 
