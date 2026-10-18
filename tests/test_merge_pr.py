@@ -663,13 +663,34 @@ def _add_a_type(world: dict, branch: str, key: str, label: str) -> str:
     return head
 
 
+#: The keys the test below adds as new types. A key's block is derived from the key, so each
+#: of these takes a fixed block, and a real type that declares one of them collides with it.
+_ADDED_TYPES = ("ball_stock_ptfe", "ball_stock_quartz")
+
+
+def test_no_real_type_takes_a_block_the_merge_test_s_added_types_derive() -> None:
+    """The two-PR merge test adds keys whose derived blocks must stay free of real types.
+
+    chain_lubricants (#462) declared block 7423, the block ball_stock_quartz derives, and the
+    merge test's build stopped on the collision."""
+    from synthetic_ecommerce_data.core import typespec
+    from synthetic_ecommerce_data.domains.industrial import generate as industrial
+
+    real = {key: typespec.block_of(key) for key in industrial.all_type_keys()}
+    for key in _ADDED_TYPES:
+        owners = [k for k, block in real.items() if block == typespec.part_number_block(key)]
+        assert owners == [], (
+            f"{key} derives block {typespec.part_number_block(key)}, held by {owners}"
+        )
+
+
 def test_two_prs_that_each_add_a_type_merge_one_after_the_other_by_the_script(
     world: dict,
 ) -> None:
     """The done-when of #103: no hand merge for the second PR."""
     heads = {
-        "pr-a": _add_a_type(world, "pr-a", "ball_stock_ptfe", "Ptfe Ball"),
-        "pr-b": _add_a_type(world, "pr-b", "ball_stock_quartz", "Quartz Ball"),
+        "pr-a": _add_a_type(world, "pr-a", _ADDED_TYPES[0], "Ptfe Ball"),
+        "pr-b": _add_a_type(world, "pr-b", _ADDED_TYPES[1], "Quartz Ball"),
     }
     for branch, head in heads.items():
         result = _run(

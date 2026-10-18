@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import mutation_rows_accessories_422
 import mutation_rows_decor_217
+import mutation_rows_industrial_seed_decoys_462
 import mutation_rows_plural_445
 import mutation_rows_real_attributes_448
 import mutation_rows_suits_215
@@ -102,5 +103,9 @@ ALL: list[tuple[str, ...]] = [
     *(("swimwear", *row) for row in mutation_rows_swimwear_212.ROWS),
     *(("plural decoys", *row) for row in mutation_rows_plural_445.ROWS),
     *(("text exempt", *row) for row in mutation_rows_text_exempt_452.ROWS),
+    *(
+        ("industrial seed decoys", *row)
+        for row in mutation_rows_industrial_seed_decoys_462.ROWS
+    ),
     *(("real attributes 448", *row, _R) for row in mutation_rows_real_attributes_448.ROWS),
 ]
