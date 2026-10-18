@@ -47,6 +47,7 @@ import mutation_rows_no_wrong_kind  # noqa: E402  (gen#404 rows, kept in their o
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
 import mutation_rows_plate_grid_clones  # noqa: E402  (gen#229 rows)
 import mutation_rows_plus_sizes  # noqa: E402  (gen#434 rows, kept in their own file)
+import mutation_rows_red_wine_500  # noqa: E402  (gen#500 rows, kept in their own file)
 import mutation_rows_repeated_pair  # noqa: E402  (gen#1 rows)
 import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
 import mutation_rows_seating_agreement  # noqa: E402  (gen#225 rows, kept in their own file)
@@ -4244,6 +4245,11 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"truthful decoys: {name}", file, old, new, tests, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, tests, prop in mutation_rows_truthful_449.ROWS
+    ),
+    *(
+        Mutation(f"red wine decoys: {name}", file, old, new, tests, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, tests, prop in mutation_rows_red_wine_500.ROWS
     ),
     *(
         Mutation(f"furniture drawings: {name}", file, old, new, tests, "", prop,

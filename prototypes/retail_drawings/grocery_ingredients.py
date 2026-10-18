@@ -572,7 +572,7 @@ koji: koji
 rennet: vegetable rennet
 suet: vegetable suet
 vinegar: cider vinegar; unfiltered cider vinegar; spirit vinegar; white wine vinegar; white wine vinegar powder; wine vinegar; malt vinegar; vinegar
-wine: wine flavoring
+wine: wine flavoring; red wine; red wine powder
 cola: cola flavoring
 smoke: oak smoke; smoke flavoring
 natural flavoring: natural flavoring
