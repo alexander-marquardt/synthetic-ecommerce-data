@@ -422,7 +422,7 @@ def test_a_utility_description_states_the_pockets_and_collar_the_drawing_shows()
         assert f"{collar.lower()} collar" in row.description, row.code
 
 
-def test_a_check_flannel_shacket_is_offered_in_check_colourways_only() -> None:
+def test_a_check_flannel_shacket_is_offered_in_check_colorways_only() -> None:
     rows = [r for r in _rows("Shacket") if _one(r, "fabric") == "Flannel"]
     assert rows
     for row in rows:
