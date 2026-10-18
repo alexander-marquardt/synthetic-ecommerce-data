@@ -130,6 +130,10 @@ jobs:
             exit 0
           fi
           export CI_SHARDS="${plan[0]#shards=}"
+          # The golden stats files are rolled at the merge, not committed by a PR (gen#373): the
+          # tests read the figures of THIS tree's build. A push to main reads the committed
+          # files as they are, which is what holds them to a fresh build (main-merged-tree).
+          [ "${GITHUB_EVENT_NAME:-}" = push ] || uv run --locked python scripts/roll_stats.py
           uv run --locked pytest "${files[@]}"
       # Each shard's per-test times: scripts/ci_shards.py --refresh reads them.
       - uses: actions/upload-artifact@v4
@@ -181,6 +185,28 @@ jobs:
         run: >-
           python3 scripts/check_commit_msg.py
           --range "${{ github.event.pull_request.base.sha || inputs.base }}..${{ github.event.pull_request.head.sha || inputs.head }}"
+
+  stats-roll:
+    # A feature PR never commits golden-retail/stats.json or golden-catalog/stats.json
+    # (gen#373): on 2026-10-18, 16 of the 21 open PRs edited the first, so every merge
+    # conflicted the rest. CI rewrites both before the tests read them (the Tests step
+    # above), scripts/merge_pr.sh commits them when the PR merges, with a Rolled-By
+    # trailer, and this job refuses a PR whose range edits either without that trailer
+    # on its tip. It names the command that puts them back.
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: No rolled stats file edited by hand
+        run: >-
+          python3 scripts/check_no_stats_edit.py
+          --base "${{ github.event.pull_request.base.sha || inputs.base }}"
+          --head "${{ github.event.pull_request.head.sha || inputs.head }}"
 
   file-size:
     # The file-size budget (elastic/prism#11683; docs/file-size-budget.md): a
