@@ -135,3 +135,21 @@ def test_dinosaur_toys_titled_dinosaur_first_outrank_the_tees(index: br.Index) -
     toys = [d for d in top if d["category_path"][0] == "Toys" and d["title"].startswith("Dinosaur")]
     assert len(toys) >= 2, [d["title"] for d in top]
     assert all(top.index(t) < 3 for t in toys[:2]), [d["title"] for d in top]
+
+
+def test_a_seed_decoy_title_that_names_a_pack_count_matches_its_pack_size(
+    by_id: dict[str, dict],
+) -> None:
+    """No deliberately wrong data: "4 Pack" in a title is a pack_size of "4 pack"."""
+    named = 0
+    for row in dpw.TABLE:
+        if not row.seed:
+            continue
+        doc = by_id[f"PLT-{row.code}"]
+        m = re.search(r"\b(\d+)\s*pack\b", doc["title"], re.IGNORECASE)
+        if not m:
+            continue
+        named += 1
+        sizes = [a["value"] for a in doc["attributes"] if a["key"] == "pack_size"]
+        assert sizes == [f"{m[1]} pack"], (row.code, doc["title"], sizes)
+    assert named, "no seed decoy names a pack count: the check is vacuous"
