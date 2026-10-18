@@ -70,6 +70,8 @@ PATTERN_KIND: dict[str, str] = {
     "striped": "stripe",
     "stripe": "stripe",
     "polka dot": "polka",
+    "spotted": "polka",  # a spotted wallpaper (gen#217): the polka words list "spotted"
+    "checked": "gingham",  # a checked wallpaper drawn as gingham (PATTERN_ALSO lets it say check)
 }
 #: pattern kind -> the other pattern kinds whose words it may also carry (gingham is a check).
 PATTERN_ALSO: dict[str, set[str]] = {"gingham": {"check"}}

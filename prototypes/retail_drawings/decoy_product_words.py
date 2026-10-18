@@ -921,6 +921,13 @@ _SPORTS = (
     _s(76, "s_tote", "Badminton Club Tote Bag",
        "A canvas tote with a wide gusset, for the sports hall.", "Navy", "badminton",
        "Badminton Set"),
+    # the picnic blanket (gen#217): it sits in Camping, so it carries its two decoys here too
+    _s(87, "cushion", "Picnic Check Cushion",
+       "A soft cushion in the classic picnic check, a gingham weave, with a zip cover.", "Red",
+       "picnic", "Picnic Blanket"),
+    _s(88, "s_tote", "Insulated Picnic Tote Bag",
+       "An insulated tote bag with a zip lid, built to carry a picnic.", "Navy", "picnic",
+       "Picnic Blanket"),
 )
 TABLE = (*TABLE, *_SPORTS)
 
