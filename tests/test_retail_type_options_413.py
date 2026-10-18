@@ -10,6 +10,7 @@ generated: the byte-identical build diff of the pull request shows it.
 
 from __future__ import annotations
 
+import importlib
 import sys
 from dataclasses import replace
 from pathlib import Path
@@ -123,4 +124,21 @@ def test_the_build_table_is_refused_when_a_key_has_two_meanings() -> None:
     clash = _spec("kite", Option("size", "size", "Size"))
     with pytest.raises(SpecError, match="size"):
         type_registry.checked_options(export.SHARED_OPTIONS, [clash])
+    assert type_registry.checked_options(export.SHARED_OPTIONS) == export.OPTIONS
+
+
+def test_a_fresh_import_of_export_is_refused_on_a_clashing_spec(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The build reads the table at import: a clash stops that import itself."""
+    clash = _spec("kite", Option("size", "size", "Size"))
+    real = type_registry.specs()
+    with monkeypatch.context() as m:
+        m.setattr(type_registry, "specs", lambda: {**real, "kite": clash})
+        try:
+            with pytest.raises(SpecError, match="size"):
+                importlib.reload(export)
+        finally:
+            m.undo()
+            importlib.reload(export)
     assert type_registry.checked_options(export.SHARED_OPTIONS) == export.OPTIONS

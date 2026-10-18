@@ -51,8 +51,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "the dolls' house SKU axis is not exported",
-        "export.py",
-        '    "house_style": ("style", "Style", None),\n',
+        "type_specs/dolls_house.py",
+        '    options=(Option("house_style", "style", "Style"),),\n',
         "",
         f"{_T} -k sku_axis",
         "a dolls' house is sold by its style",

@@ -19,4 +19,6 @@ MUTANTS = [
      "a spec declares a label other than the one it had"),
     (R + "type_specs/garden_hose.py", 'Option("length_m", "item_length", "Item length", "MTR")', 'Option("length_m", "item_length", "Item length", "CMT")',
      "a spec declares a unit other than the one it had"),
+    (R + "export.py", "OPTIONS = type_registry.checked_options(SHARED_OPTIONS)", "OPTIONS = type_registry.option_table(SHARED_OPTIONS)[0]",
+     "the export builds its table without refusing a clash"),
 ]
