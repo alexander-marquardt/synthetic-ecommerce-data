@@ -50,6 +50,7 @@ import mutation_rows_sheet_extent  # noqa: E402  (gen#242 rows, kept in their ow
 import mutation_rows_sofa_bed_223  # noqa: E402  (gen#223 rows, kept in their own file)
 import mutation_rows_tableware_features  # noqa: E402  (gen#230 rows)
 import mutation_rows_text_agrees  # noqa: E402  (gen#139 rows, kept in their own file)
+import mutation_rows_truthful_449  # noqa: E402  (gen#449 rows, kept in their own file)
 import mutation_rows_underwear_245  # noqa: E402  (gen#245 rows, kept in their own file)
 
 REPO = Path(__file__).resolve().parent.parent
@@ -4197,6 +4198,11 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"footwear styles: {name}", file, old, new, tests, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, tests, prop in mutation_rows_footwear_216.ROWS
+    ),
+    *(
+        Mutation(f"truthful decoys: {name}", file, old, new, tests, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, tests, prop in mutation_rows_truthful_449.ROWS
     ),
     *(
         Mutation(f"furniture drawings: {name}", file, old, new, tests, "", prop,
