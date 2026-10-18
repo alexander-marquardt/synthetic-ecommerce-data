@@ -14,7 +14,7 @@ from __future__ import annotations
 from fractions import Fraction
 
 import kit_garden  # noqa: F401 -- registers garden_hose
-from type_registry import Row, TypeSpec, a, cw
+from type_registry import Option, Row, TypeSpec, a, cw
 
 _PATH = ("Garden", "Watering", "Garden Hoses")
 _W, _F = "Wrenfield", "Fenwold Nursery"
@@ -42,6 +42,7 @@ SPEC = TypeSpec(
     key="garden_hose",
     department="Garden",
     product_type="Garden Hose",
+    options=(Option("length_m", "item_length", "Item length", "MTR"),),
     rows=(
         Row("GHSREIN", "Reinforced Garden Hose", _W, "Garden", _PATH, "Garden Hose", 14.0,
             "garden_hose", "A four-layer reinforced garden hose that resists kinks and splits, "

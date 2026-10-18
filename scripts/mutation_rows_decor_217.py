@@ -47,8 +47,8 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     (
         "the decoys are no longer exempt from the text check",
         "scale.py",
-        "| garden_rows.decoy_ids()\n             | decor_rows.decoy_ids())",
-        "| garden_rows.decoy_ids())",
+        "| garden_rows.decoy_ids()\n             | decor_rows.decoy_ids() | neckline_rows.decoy_ids())",
+        "| garden_rows.decoy_ids() | neckline_rows.decoy_ids())",
         f"{_T} -k decoys_are_templates",
         "a decor decoy is exempt from the output standard's text check",
     ),
