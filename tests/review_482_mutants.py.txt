@@ -1,0 +1,18 @@
+TESTS = ["tests/test_core_ids_128.py", "tests/test_catalog_noncopy.py"]
+PYTEST_ARGS = ["-q", "-p", "no:cacheprovider", "--tb=line"]
+I = "src/synthetic_ecommerce_data/core/ids.py"
+G = "src/synthetic_ecommerce_data/domains/industrial/generate.py"
+MUTANTS = [
+    (I, 'r"[A-Z]{0,2}"', 'r"[A-Z]{0,3}"', "prefix up to three letters"),
+    (I, 'r"[A-Z]{0,2}"', 'r"[A-Za-z0-9]{0,2}"', "prefix may be a digit or lowercase"),
+    (I, "if PREFIXES.setdefault(domain, prefix) != prefix:", "if PREFIXES.setdefault(domain, prefix) is None:", "a domain may re-claim a different prefix"),
+    (I, "if held == prefix and other != domain:", "if False:", "claim_prefix never refuses a held prefix"),
+    (I, "if held == prefix and other != domain:", "if held == prefix:", "claim_prefix refuses the same domain again"),
+    (G, 'ids.claim_prefix("industrial", ID_PREFIX)', "pass", "industrial never claims its prefix"),
+    (G, 'ID_PREFIX = ""', 'ID_PREFIX = "Q"', "ID_PREFIX is Q"),
+    (I, 'lead = f"{self.prefix}-" if self.prefix else ""', 'lead = f"{self.prefix}" if self.prefix else ""', "product id drops the hyphen"),
+    (I, "sku = self.prefix + typespec.part_number(", "sku = typespec.part_number(", "SKU drops the prefix"),
+    (I, "self._sequence += 1\n", "self._sequence += 2\n", "sequence steps by two"),
+    (I, "self._index += 1\n", "self._index += 2\n", "index steps by two"),
+    (I, "{self.block:04d}-{index:04d}", "{self.block:04d}-{self.block:04d}", "product id repeats the block for the index"),
+]
