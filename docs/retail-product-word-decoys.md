@@ -183,3 +183,20 @@ prototype's baseline; the live number is read on the next loaded index.
 | large dresses | seed phrase | PLT-DY491 | Large Garment Bag for Dresses | Garment Bags | department |
 | large dresses | seed phrase | PLT-DY492 | Large Dresses Storage Box | Storage Boxes | department |
 | large dresses | seed phrase | PLT-DY493 | Large Dresses Padded Hangers | Clothes Hangers | department |
+| duvet cover | duvet cover | PLT-DY87 | Duvet Cover Storage Bag | Garment Bags | category |
+| duvet cover | duvet cover | PLT-DY88 | Duvet Cover Mesh Wash Bag | Wash Bags | category |
+| bed frame | bed frame | PLT-DY89 | Bed Frame Valance | Valances | category |
+| bed frame | bed frame | PLT-DY90 | Bed Frame Headboard Cushion | Cushion | category |
+| tea towels | tea towels | PLT-DY91 | Tea Towel Hook Rail | Wall Hooks | category |
+| tea towels | tea towels | PLT-DY92 | Tea Towel Hanger, 4 Pack | Hanger | category |
+| lipstick | lipstick | PLT-DY93 | Lipstick Case, Mini Zip | Make-Up Bag | category |
+| lipstick | lipstick | PLT-DY94 | Lipstick Plant, Trailing | Plant | department |
+| foundation | foundation | PLT-DY95 | Foundation Remover Face Cloth | Towel | category |
+| foundation | foundation | PLT-DY96 | Foundation Brush Make-Up Bag | Make-Up Bag | category |
+| lemon drizzle cake | lemon drizzle cake | PLT-DY97 | Lemon Drizzle Cake Candle | Scented Candle | department |
+| lemon drizzle cake | lemon drizzle cake | PLT-DY98 | Lemon Drizzle Cake Flavour Tea | Tea | department |
+| lemon drizzle cake | lemon drizzle cake | PLT-DY99 | Lemon Drizzle Cake Hand Wash | Hand Wash | department |
+| gift hamper | gift hamper | PLT-DY100 | Empty Gift Hamper Basket, Wicker | Storage Basket | department |
+| gift hamper | gift hamper | PLT-DY101 | Gift Hamper Cellophane Wrap | Wrapping Paper | department |
+| olive tree | olive tree | PLT-DY102 | Olive Tree Scented Candle | Scented Candle | department |
+| olive tree | olive tree | PLT-DY103 | Olive Tree Hand Wash | Hand Wash | department |

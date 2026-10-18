@@ -302,6 +302,7 @@ TOYS = (
 # --------------------------------------------------------------------------
 
 _TREES = ("Garden", "Plants", "Bay Trees")
+_OLIVES = ("Garden", "Plants", "Olive Trees")
 _TULIP = ("Garden", "Bulbs", "Tulip Bulbs")
 _BERRY = ("Garden", "Grow Your Own", "Strawberry Plants")
 _MUSH = ("Garden", "Grow Your Own", "Mushroom Kits")
@@ -334,6 +335,10 @@ GARDEN = (
         "Plant", 25.0, "potted_tree",
         "A clipped bay tree, hardy outdoors and handy in the kitchen. Water weekly in summer.",
         (_POT,), _form("Standard"), _HEIGHTS, "Bay", colorless=True),
+    Row("OLVSTD", "Olive Tree in Terracotta Pot", "Thistle & Wren", "Garden", _OLIVES, "Plant",
+        32.0, "potted_tree",
+        "A silver-leaved olive tree for a sunny patio, hardy in a sheltered spot. Water sparingly.",
+        (_POT,), _form("Standard"), _HEIGHTS, "Olive", colorless=True),
     Row("BAYZNC", "Pyramid Bay Tree in Zinc Planter", "Fenwold Nursery", "Garden", _TREES,
         "Plant", 30.0, "potted_tree",
         "A bay tree clipped to shape, in a galvanized planter with drainage holes.",
