@@ -34,6 +34,7 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
+from synthetic_ecommerce_data.core import letter_case
 from synthetic_ecommerce_data.core.dimensions import _METRIC_THREAD
 from synthetic_ecommerce_data.core.entry import (
     sanitize as sanitize,  # re-exported: tests and readers call emit.sanitize
@@ -192,7 +193,12 @@ def _searchable_text(line: ProductLine, child: Sku, attributes: tuple[Attribute,
     tokens it would add that are not already here are attribute NAMES, and
     those are published in ``attribute_names``.
     """
-    parts = [child.title, line.brand, line.series, *line.category]
+    parts = [
+        child.title,
+        line.brand,
+        line.series,
+        *(letter_case.sentence_case(node) for node in line.category),
+    ]
     for attribute in attributes:
         values = attribute.values or (attribute.value,)
         parts.extend(values)
@@ -250,6 +256,10 @@ def nested_document(
     line: ProductLine,
     base_url: str = DEFAULT_IMAGE_BASE_URL,
 ) -> dict[str, Any]:
+    return letter_case.apply(_nested_document(catalog, line, base_url))
+
+
+def _nested_document(catalog: Catalog, line: ProductLine, base_url: str) -> dict[str, Any]:
     return {
         "product_id": line.product_id,
         "product_type": line.type_key,
@@ -309,7 +319,7 @@ def flat_documents(
             if attribute.value_num is not None:
                 numeric.setdefault(key, attribute.value_num)
         numeric["merchandising_score"] = score
-        yield {
+        yield letter_case.apply({
             "sku": child.sku,
             "product_id": line.product_id,
             "product_type": line.type_key,
@@ -343,7 +353,7 @@ def flat_documents(
             "facets": facets,
             "facets_num": numeric,
             "text": _searchable_text(line, child, merged),
-        }
+        })
 
 
 def iter_nested(
@@ -519,6 +529,22 @@ FLAT_MAPPING: dict[str, Any] = {
         },
     }
 }
+
+
+def authored_name_map(catalog: Catalog) -> dict[str, dict[str, str]]:
+    """``{product_type: {published name: authored name}}`` for each attribute name whose
+    published sentence case differs from the name its type authored (gen#499): the bundle
+    rebuild reads the drawing input back through it (:func:`.letter_case.authored_names`)."""
+    names: dict[str, set[str]] = {}
+    for line in catalog.lines:
+        held = names.setdefault(line.type_key, set())
+        for child in line.children:
+            held.update(a.name for a in catalog.merged_attributes(line, child))
+    return {
+        type_key: mapped
+        for type_key, held in sorted(names.items())
+        if (mapped := letter_case.authored_names(held))
+    }
 
 
 def render_records(catalog: Catalog) -> Iterator[dict[str, Any]]:

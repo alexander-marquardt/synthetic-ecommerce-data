@@ -19,6 +19,7 @@ import dataclasses
 
 import pytest
 
+from published import authored_name
 from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.brands import BRAND_BOOK, FRAMES, INKS
 from synthetic_ecommerce_data.core.config import SMALL
@@ -54,7 +55,7 @@ def _published(names) -> set[str]:
         for line in LINES
         if line["product_type"] in TYPE_KIND
         for entry in line["attributes"]
-        if entry["name"] in wanted
+        if authored_name(line["product_type"], entry["name"]) in wanted
     }
 
 

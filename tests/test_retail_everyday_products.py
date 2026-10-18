@@ -20,12 +20,12 @@ if str(RETAIL) not in sys.path:
 
 import grocery  # noqa: E402
 
-DRINKS = ["Food & Drink", "Beer, Wine & Spirits"]
-FRUIT = ["Food & Drink", "Fruit & Vegetables", "Fresh Fruit"]
+DRINKS = ["Food & drink", "Beer, wine & spirits"]
+FRUIT = ["Food & drink", "Fruit & vegetables", "Fresh fruit"]
 SKIN = ["Beauty", "Skincare"]
 SPIRITS = [*DRINKS, "Spirits"]
-FORTIFIED = [*DRINKS, "Wine", "Fortified Wine"]
-CITRUS = [*FRUIT, "Citrus Fruit"]
+FORTIFIED = [*DRINKS, "Wine", "Fortified wine"]
+CITRUS = [*FRUIT, "Citrus fruit"]
 BERRIES = [*FRUIT, "Berries"]
 
 #: leaf path -> (the title word, the attribute keys every style of the leaf states)
@@ -36,29 +36,29 @@ TYPES = {
         ("grape", "country", "wine_style", "abv", "pack_size"),
     ),
     "red wine": (
-        DRINKS + ["Wine", "Red Wine"],
+        DRINKS + ["Wine", "Red wine"],
         "Wine",
         ("grape", "country", "wine_style", "abv", "pack_size"),
     ),
     "white wine": (
-        DRINKS + ["Wine", "White Wine"],
+        DRINKS + ["Wine", "White wine"],
         "Wine",
         ("grape", "country", "wine_style", "abv", "pack_size"),
     ),
     "rose wine": (
-        DRINKS + ["Wine", "Rosé Wine"],
+        DRINKS + ["Wine", "Rosé wine"],
         "Rosé",
         ("grape", "country", "wine_style", "abv", "pack_size"),
     ),
     "sparkling wine": (
-        DRINKS + ["Wine", "Sparkling Wine"],
+        DRINKS + ["Wine", "Sparkling wine"],
         "Sparkling",
         ("grape", "country", "wine_style", "abv", "pack_size"),
     ),
     "cider": (DRINKS + ["Cider"], "Cider", ("cider_style", "abv", "pack_size")),
-    "hand cream": (SKIN + ["Creams", "Hand Creams"], "Hand Cream", ("skin_concern", "pack_size")),
-    "eye cream": (SKIN + ["Creams", "Eye Creams"], "Eye Cream", ("skin_concern", "pack_size")),
-    "limes": (FRUIT + ["Citrus Fruit", "Limes"], "Lime", ("variety", "origin", "pack_size")),
+    "hand cream": (SKIN + ["Creams", "Hand creams"], "Hand Cream", ("skin_concern", "pack_size")),
+    "eye cream": (SKIN + ["Creams", "Eye creams"], "Eye Cream", ("skin_concern", "pack_size")),
+    "limes": (FRUIT + ["Citrus fruit", "Limes"], "Lime", ("variety", "origin", "pack_size")),
     "strawberries": (
         FRUIT + ["Berries", "Strawberries"],
         "Strawberr",
@@ -81,8 +81,8 @@ TYPES = {
     "raspberries": (BERRIES + ["Raspberries"], "Raspberr", ("variety", "origin", "pack_size")),
     "blueberries": (BERRIES + ["Blueberries"], "Blueberr", ("variety", "origin", "pack_size")),
     "blackberries": (BERRIES + ["Blackberries"], "Blackberr", ("variety", "origin", "pack_size")),
-    "foot cream": (SKIN + ["Creams", "Foot Creams"], "Foot Cream", ("skin_concern", "pack_size")),
-    "body cream": (["Beauty", "Body Care", "Body Creams"], "Body Cream", ("scent", "pack_size")),
+    "foot cream": (SKIN + ["Creams", "Foot creams"], "Foot Cream", ("skin_concern", "pack_size")),
+    "body cream": (["Beauty", "Body care", "Body creams"], "Body Cream", ("scent", "pack_size")),
 }
 
 

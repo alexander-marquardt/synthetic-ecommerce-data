@@ -25,7 +25,7 @@ import pytest
 
 import table_gates
 import type_gates
-from published import published_attributes
+from published import authored_attributes, authored_entries
 from synthetic_ecommerce_data.core import typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.drawing import svg_problems
@@ -143,7 +143,7 @@ def test_no_two_skus_of_one_brand_are_the_same_product():
 
 def test_every_published_name_passes_the_census_gate():
     (path,) = taxonomy.LEAVES[KEY]
-    emitted = {a["name"] for doc in _default_docs() for a in published_attributes(doc)}
+    emitted = {a["name"] for doc in _default_docs() for a in authored_attributes(doc)}
     assert set(COLUMNS) <= emitted
     assert names.name_problems(emitted, OBSERVED, CENSUS, names.own_nouns(path)) == []
 
@@ -206,7 +206,7 @@ def test_the_one_material_and_every_pack_is_built_and_nothing_else(large_docs):
 def test_no_load_capacity_is_published(large_docs):
     """A capacity is a force and the table states lengths: none is published,
     and one that appears must come with the source it was read from."""
-    published = {a["name"] for doc in large_docs for a in doc["attributes"]}
+    published = {a["name"] for doc in large_docs for a in authored_entries(doc)}
     assert sorted(name for name in published if "Load" in name) == []
 
 
@@ -215,7 +215,7 @@ def test_one_product_publishes_exactly_these_attributes():
     doc = _default_docs()[0]
     assert doc["title"] == 'Replacement Pillow Block Bearing, 3/4" Bore Dia.'
     assert doc["price_usd"] == 24.94
-    assert {a["name"]: a["value"] for a in doc["attributes"]} == {
+    assert {a["name"]: a["value"] for a in authored_entries(doc)} == {
         "Item": "Pillow Block Bearing",
         "Material": "Cast Iron",
         "Finish": "Painted",

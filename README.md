@@ -967,6 +967,7 @@ The retail prototype's reference (planted distractors, footwear, grocery, the fa
 | `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape; the nested one maps `attributes.value` with a `value.normalized` keyword sub-field (lowercase + asciifolding) for Prism's `value_normalized_field` (elastic/prism#10648) |
 | `images.jsonl` | 4.0 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
+| `authored_names.json` | 16 KB — per product type, each attribute's published sentence-case name beside the name its type authored; the image bundle rebuild reads it ([One letter case](#one-letter-case-for-names)) |
 | `stats.json` | the measured defect rates, and the config that produced them |
 
 About 45 MiB in the working tree. **Plain NDJSON — deliberately not gzipped
@@ -981,6 +982,27 @@ catalog](#the-100k-catalog) is built on demand.
 It also means the catalog is inspectable, and citable, without installing the
 generator: a reviewer reading a PR, or anyone asking what a record actually
 looks like, opens a file rather than running a build.
+
+### One letter case for names
+
+Every category node and every attribute display name is **sentence case**, industrial and
+retail alike (gen#499): `Handle material`, `Bore dia.`, `Hose, tube, fittings & valves > Seals &
+gaskets > O-ring seals`. One normaliser, `core/letter_case.py`, runs at export on the finished
+document (`emit.nested_document`, `emit.flat_documents`, retail's `export.standard_document`);
+the authored literals are not edited. A machine `key` is never touched, and neither is a value.
+
+A word keeps its capitals when it is an acronym (`ER`, `RPM`, `(UK)`), carries a digit
+(`AS568`), has a capital inside it (`iPhone`), is a lone capital letter (`T-slot`, `V-belts`),
+or is on the exception list, `letter_case.PROPER_NOUNS` (a trade name or a brand: `Torx`, `Nike`,
+`Apple`). Add a word there with its reason. `tests/test_letter_case_499.py` fails when a category
+node or a display name in either build or in `golden-catalog/` is not its own sentence-case
+form, or when one key carries two display names.
+
+The drawing code looks an attribute up by the name its type authored (`r["Milling Dia."]`), so
+`ecom-generate build` also writes `authored_names.json` and `core/bundle.py` reads the drawing
+input back through it: a drawing is the same bytes, and `images.jsonl` keeps its digests. A
+consumer that matches on a display name or a category path (a policy, a vocabulary seed) reads
+the sentence-case form.
 
 ### Regenerating it
 

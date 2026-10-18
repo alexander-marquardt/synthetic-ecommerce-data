@@ -80,6 +80,7 @@ from variants import attr, drawing, product  # noqa: E402
 
 from synthetic_ecommerce_data.core import standard  # noqa: E402
 from synthetic_ecommerce_data.core.emit import write_jsonl  # noqa: E402
+from synthetic_ecommerce_data.core.letter_case import sentence_case  # noqa: E402
 
 TARGET = 10_000
 ORGANIC_SHARE = 0.12
@@ -519,7 +520,8 @@ def report(recs: list[dict]) -> dict[str, Any]:
 
 def coverage_report(recs: list[dict]) -> dict[str, Any]:
     """The share of the food rows (one per SKU) with ``facets.contains`` filled (gen#296)."""
-    rows = [r for r in flat(documents(recs)) if r["category_path"][0] == "Food & Drink"]
+    food = sentence_case("Food & Drink")  # the published (sentence case) root, gen#499
+    rows = [r for r in flat(documents(recs)) if r["category_path"][0] == food]
     filled = sum(bool(r["facets"].get("contains")) for r in rows)
     return {"food_rows": len(rows), "contains_filled": filled,
             "contains_share": round(filled / len(rows), 4) if rows else 0.0}

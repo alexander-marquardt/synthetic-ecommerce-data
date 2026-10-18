@@ -17,6 +17,8 @@ from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data.core.letter_case import sentence_case
+
 RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
 if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
@@ -150,7 +152,7 @@ def test_the_type_is_named_and_filed_under_beauty(ptype: str) -> None:
     for row in _rows(ptype):
         assert row.department == "Beauty" and row.path[0] == "Beauty" and len(row.path) >= 3
         assert _doc(row)["product_type"] == ptype
-        assert row.path[-1] == _doc(row)["category_leaf"]
+        assert sentence_case(row.path[-1]) == _doc(row)["category_leaf"]
 
 
 @pytest.mark.parametrize("ptype", sorted(TYPES))

@@ -15,8 +15,8 @@ def test_dowel_pins_publish_each_unit_under_its_own_label_and_key():
             if a["key"].startswith("dowel_dia"):
                 units.setdefault((a["name"], a["key"]), set()).add(a["unit_code"])
     assert units == {
-        ("Dowel Dia. (in)", "dowel_dia_in"): {"INH"},
-        ("Dowel Dia. (mm)", "dowel_dia_mm"): {"MMT"},
+        ("Dowel dia. (in)", "dowel_dia_in"): {"INH"},
+        ("Dowel dia. (mm)", "dowel_dia_mm"): {"MMT"},
     }
 
 

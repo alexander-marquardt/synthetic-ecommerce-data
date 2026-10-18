@@ -16,7 +16,7 @@ from pathlib import Path
 import pytest
 
 from compat_text import NOISE, noise_sentences
-from published import published_attributes
+from published import authored_attributes
 from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import parse_length
@@ -74,11 +74,11 @@ def docs(request) -> list[dict]:
 # The PUBLISHED spelling, from flat ``facets``: the text under test is checked
 # against what was published, and a nested entry carries no spelling (#42).
 def _values(doc: dict) -> dict[str, str]:
-    return {a["name"]: a["value"] for a in published_attributes(doc)}
+    return {a["name"]: a["value"] for a in authored_attributes(doc)}
 
 
 def _all_values(doc: dict) -> set[str]:
-    return {a["value"] for a in published_attributes(doc)}
+    return {a["value"] for a in authored_attributes(doc)}
 
 
 def _inches(value: str) -> float:
@@ -280,7 +280,7 @@ def _kits(docs):
 
 
 def _contents(doc: dict) -> list[str]:
-    return [a["value"] for a in published_attributes(doc) if a["name"] == "Sizes Included"]
+    return [a["value"] for a in authored_attributes(doc) if a["name"] == "Sizes Included"]
 
 
 def test_a_kit_is_one_sku_of_its_own_product(docs):

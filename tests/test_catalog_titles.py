@@ -50,7 +50,7 @@ from pathlib import Path
 import pytest
 
 from catalog_size import DEPTH_SKUS
-from published import published_attributes
+from published import authored_attributes
 from synthetic_ecommerce_data.core.entry import published
 from synthetic_ecommerce_data.core.naming import DELIMITER, TIGHT_DELIMITER
 
@@ -271,7 +271,7 @@ def test_every_title_names_a_value_that_is_this_skus_alone_in_its_line(
         # this SKU's alone is the (attribute, value) PAIR.
         # The published spelling, from flat ``facets`` (#42): the title states
         # a value as published, so the pair it must own is the published one.
-        spelled = {doc["sku"]: published_attributes(doc) for doc in docs}
+        spelled = {doc["sku"]: authored_attributes(doc) for doc in docs}
         elsewhere: dict[str, set[str]] = {}
         for doc in docs:
             for entry in spelled[doc["sku"]]:
@@ -337,9 +337,10 @@ def test_the_description_is_derived_and_not_a_second_source_of_truth(
     """
     mismatched: list[tuple[str, str]] = []
     for doc in flat_docs:
-        published_values = {entry["value"] for entry in published_attributes(doc)}
+        published_values = {entry["value"] for entry in authored_attributes(doc)}
         tail = doc["description"][len(doc["title"]) + 3 :]
-        names = sorted({entry["name"] for entry in doc["attributes"]}, key=len, reverse=True)
+        # A description is prose built from the name each type authored.
+        names = sorted({entry["name"] for entry in authored_attributes(doc)}, key=len, reverse=True)
         for chunk in tail.split(", "):
             # LONGEST name first: "1/8 in Thread Length" ends with " Length"
             # as well as with " Thread Length", and taking the short one

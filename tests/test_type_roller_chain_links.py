@@ -31,7 +31,7 @@ import pytest
 
 import table_gates
 import type_gates
-from published import published_attributes
+from published import authored_attributes, authored_entries
 from synthetic_ecommerce_data.core import brands, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.drawing import FIGURES, draw_sku, svg_problems
@@ -161,7 +161,7 @@ def test_no_two_skus_of_one_brand_are_the_same_product():
 
 def test_every_published_name_passes_the_census_gate():
     (path,) = taxonomy.LEAVES[KEY]
-    emitted = {a["name"] for doc in _default_docs() for a in published_attributes(doc)}
+    emitted = {a["name"] for doc in _default_docs() for a in authored_attributes(doc)}
     assert emitted, f"{KEY} published no attribute"
     assert names.name_problems(emitted, OBSERVED, CENSUS, names.own_nouns(path)) == []
 
@@ -258,7 +258,7 @@ def test_one_link_publishes_exactly_these_attributes(large_docs):
     everything it shares with the chain is stated here."""
     doc = min((d for d in large_docs if _is_plain_40(d)), key=lambda d: d["sku"])
     pack = table_gates.values(doc)[table_gates.PACK]["value"]
-    assert [(a["key"], a["name"], a["value"]) for a in doc["attributes"]] == [
+    assert [(a["key"], a["name"], a["value"]) for a in authored_entries(doc)] == [
         ("item", "Item", _item(doc)),
         ("style", "Style", "Single Strand"),
         ("material", "Material", "Steel"),
@@ -271,9 +271,9 @@ def test_one_link_publishes_exactly_these_attributes(large_docs):
     ]
     assert (_item(doc) in (CONNECTING, OFFSET), int(pack) in PACKS) == (True, True)
     assert doc["category_path"] == [
-        "Motion Control & Fluid Power",
-        "Chain & Sprockets",
-        "Roller Chain Links",
+        "Motion control & fluid power",
+        "Chain & sprockets",
+        "Roller chain links",
     ]
 
 

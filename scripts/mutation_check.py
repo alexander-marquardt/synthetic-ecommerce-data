@@ -1696,8 +1696,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop attribute values out of the searchable text",
         "core/emit.py",
-        "    parts = [child.title, line.brand, line.series, *line.category]",
-        '    parts = [child.title, line.brand, line.series]\n    return " ".join(part for part in parts if part)\n    parts = []',
+        "        *(letter_case.sentence_case(node) for node in line.category),\n",
+        "",
         "tests/test_catalog_emit.py",
         "",
         "attribute values are reachable by full text",
@@ -1841,7 +1841,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "restate the identifier declaration instead of reading the generator's",
         "prism/derive.py",
-        "IDENTIFIER_ATTRIBUTES = Generator.IDENTIFIER_ATTRIBUTES",
+        "IDENTIFIER_ATTRIBUTES = frozenset(sentence_case(n) for n in Generator.IDENTIFIER_ATTRIBUTES)",
         'IDENTIFIER_ATTRIBUTES = frozenset({"List Number"})',
         "tests/test_facet_control_rule.py -k reads_the_generators",
         "",
