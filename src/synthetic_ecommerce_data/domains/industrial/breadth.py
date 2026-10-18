@@ -56,6 +56,7 @@ from synthetic_ecommerce_data.core.model import (
     Sku,
     keyword_attribute,
     length_attribute,
+    pricing_unit_for,
 )
 from synthetic_ecommerce_data.core.naming import Segment, build_title
 from synthetic_ecommerce_data.core.voice import product_name
@@ -222,6 +223,7 @@ def _build_sku(
         image_id=taxonomy.image_id_for(row.key, product_id, sku),
         compatibility=compatibility,
         noise=noise_text,
+        pricing_unit=pricing_unit_for(merged.get("Package Quantity")),
     )
 
 
