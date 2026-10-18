@@ -17,7 +17,7 @@ A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
 extraction in search: modelled depth types plus
 [breadth categories](#catalog-breadth), one product each, from invented
-brands -- and, with one flag, about 100,000 SKUs
+brands -- and, with one flag, about 100K SKUs
 ([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
 
 The default build's figures are build output, in `golden-catalog/stats.json`:
