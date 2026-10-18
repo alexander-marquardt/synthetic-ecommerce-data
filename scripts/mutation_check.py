@@ -3762,8 +3762,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a wool material is not also the wool fabric",
                 "facet_leaves.py",
-                "    if not moved and \"fabric\" not in have:",
-                "    if False:",
+                "    if \"fabric\" in have or not is_textile(rec):",
+                "    if True:",
                 "tests/test_retail_facet_leaves.py -k material_that_names_wool",
                 "a named fibre is a fabric",
             ),
@@ -4052,7 +4052,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "the decoy exemption from the text check is removed",
                 "scale.py",
-                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()\n",
+                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids() | neckline_rows.decoy_ids()\n",
                 "DECOY_IDS = frozenset()\n",
                 "tests/test_retail_apparel_decoys_311.py -k misleading_color",
                 "a decoy naming only another color passes the standard by its id",
@@ -4060,7 +4060,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "the decoy exemption widens to every id",
                 "scale.py",
-                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()\n",
+                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids() | neckline_rows.decoy_ids()\n",
                 'DECOY_IDS = type("All", (frozenset,), {"__contains__": lambda self, x: True})()\n',
                 "tests/test_retail_apparel_decoys_311.py -k two_tables",
                 "no real product is exempt from the text check",
