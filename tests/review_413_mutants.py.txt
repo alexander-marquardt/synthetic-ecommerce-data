@@ -1,0 +1,22 @@
+# Planted mutants for slice 1 of #413 (SKU options declared by the spec). Re-run:
+#   .venv/bin/python -u vendor/prism/scripts/mutant_run.py tests/review_413_mutants.py.txt
+TESTS = ["tests/test_retail_type_options_413.py"]
+R = "prototypes/retail_drawings/"
+MUTANTS = [
+    (R + "type_registry.py", "            if o.option in shared:\n", "            if False:\n",
+     "a spec may redeclare a shared option"),
+    (R + "type_registry.py", "            if first[1] != o:\n", "            if False:\n",
+     "two specs may declare one option differently"),
+    (R + "type_registry.py", "        if len(named) > 1:\n", "        if len(named) > 2:\n",
+     "a key may carry two names"),
+    (R + "type_registry.py", "named.count(n) > 1", "named.count(n) > 2",
+     "a spec may name an option twice"),
+    (R + "type_registry.py", "table[o.option] = (o.key, o.name, o.unit)", "table[o.option] = (o.key, o.name, None)",
+     "a declared unit is dropped from the table"),
+    (R + "type_registry.py", "    if problems:\n        raise SpecError(\"; \".join(problems))\n", "    if False:\n        raise SpecError(\"; \".join(problems))\n",
+     "the build runs on a conflicting table"),
+    (R + "type_specs/sun_cream.py", 'Option("spf", "spf", "SPF")', 'Option("spf", "spf", "Spf")',
+     "a spec declares a label other than the one it had"),
+    (R + "type_specs/garden_hose.py", 'Option("length_m", "item_length", "Item length", "MTR")', 'Option("length_m", "item_length", "Item length", "CMT")',
+     "a spec declares a unit other than the one it had"),
+]

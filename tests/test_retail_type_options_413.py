@@ -117,3 +117,10 @@ def test_a_spec_that_names_an_option_twice_is_refused() -> None:
     twice = _spec("kite", Option("spf", "spf", "SPF"), Option("spf", "spf", "SPF"))
     with pytest.raises(SpecError, match="spf"):
         type_registry.validate(twice)
+
+
+def test_the_build_table_is_refused_when_a_key_has_two_meanings() -> None:
+    clash = _spec("kite", Option("size", "size", "Size"))
+    with pytest.raises(SpecError, match="size"):
+        type_registry.checked_options(export.SHARED_OPTIONS, [clash])
+    assert type_registry.checked_options(export.SHARED_OPTIONS) == export.OPTIONS
