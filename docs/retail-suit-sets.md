@@ -10,6 +10,10 @@ the set by `prototypes/retail_drawings/kit_suit_sets.py`:
 | Trouser Suit | Womens / Suits & Tailoring / Trouser Suits | `jacket_style` (Single Breasted, Double Breasted, Collarless), `leg_fit` (Slim, Straight, Wide), `fabric`, `piece_count` (2), `occasion` | `jacket`, `fit` | 8, six brands, UK 8 to 18 |
 | Boys Suit | Kids / Boys / Suits | `piece_count` (2 or 3), `fit` (Slim, Regular), `fabric`, `occasion` | `pieces`, `fit` | 6, five brands, 3-4 to 13-14 Yrs |
 
+`fabric` is a plain fibre or weave from the closed shopper list (Wool, Linen, Cotton, Polyester,
+Suiting, Velvet), never a blend, and each style's `occasion` is set on the style so a
+description that names an occasion (a wedding suit, an evening jacket) agrees with it.
+
 A drawing states what the record states: the jacket style is the `jacket` param, the leg fit the
 `fit` param, and a three piece Boys Suit draws its waistcoat. `tests/test_retail_suit_sets_215.py`
 reads each choice back from the drawing (`class="jacket-double"`, `class="legfit-wide"`,

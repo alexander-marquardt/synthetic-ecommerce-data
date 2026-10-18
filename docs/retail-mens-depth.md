@@ -55,7 +55,7 @@ one-size accessory states no `size` (the accessory convention, gen#207), so a Fo
 SKU carries none.
 
 A matching set is a jacket, trousers and waistcoat sharing one `suit_set` name, one brand, one
-cloth (`material`), one fit and the same colors (`mens_depth_rows.SETS`, ten sets). Not yet here:
-the women's trouser suit and the boys' suit (age sizes, two or three pieces), which need the
-Womens and Kids roots and their own decoy plan (`decoy_apparel.TYPES`), and the jacket length and
-trouser leg as SKU axes (the leg length is a style attribute for now).
+cloth (`material`), one fit and the same colors (`mens_depth_rows.SETS`, ten sets). The women's
+trouser suit and the boys' suit (age sizes, two or three pieces) are in
+[retail-suit-sets.md](retail-suit-sets.md). The jacket length and trouser leg are not SKU axes:
+the leg length is a style attribute and a drawing param, because it changes the picture.

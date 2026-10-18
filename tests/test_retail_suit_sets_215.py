@@ -24,6 +24,8 @@ import class_rows  # noqa: E402
 import decoy_apparel  # noqa: E402
 import export  # noqa: E402
 import kit  # noqa: E402
+import kit_suit_sets  # noqa: E402,F401 -- registers trouser_suit and boys_suit
+import kit_suits  # noqa: E402
 import sheet_extent  # noqa: E402
 import type_registry  # noqa: E402
 
@@ -120,6 +122,20 @@ def test_a_param_changes_the_geometry_not_only_the_stamp(shape: str, param: str)
     values = PARAMS[shape][param]
     bare = {v: STAMP.sub("", _svg(shape, **{param: v})) for v in values}
     assert len(set(bare.values())) == len(values), "the stamp alone tells the values apart"
+
+
+def test_a_double_breasted_jacket_draws_a_second_column_of_buttons() -> None:
+    single = _svg("trouser_suit", jacket="single").count('class="button"')
+    double = _svg("trouser_suit", jacket="double").count('class="button"')
+    assert double == single + 2, (single, double)
+
+
+def test_a_collarless_jacket_draws_the_neck_facing_and_no_lapel() -> None:
+    svg = _svg("trouser_suit", jacket="collarless")
+    facing = kit_suits._lapel_paths("none")[0]
+    assert f'd="{facing}"' in svg, "the collarless jacket lacks its neck facing"
+    for lapel in ("notch", "peak", "shawl"):
+        assert f'd="{kit_suits._lapel_paths(lapel)[0]}"' not in svg, lapel
 
 
 @pytest.mark.parametrize("shape", PARAMS)

@@ -95,8 +95,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         'kit_suit_sets.py',
         'body += [_button(176, 202), _button(176, 250)]',
         'body += []',
-        'tests/test_retail_suit_sets_215.py -k geometry_not_only_the_stamp',
-        'the jacket style changes the drawing, not only the stamp',
+        'tests/test_retail_suit_sets_215.py -k second_column_of_buttons',
+        'a double breasted jacket draws its second column of buttons',
         'prototypes/retail_drawings',
     ),
     (
@@ -104,8 +104,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         'kit_suits.py',
         'if lapel == "none":',
         'if lapel == "never":',
-        'tests/test_retail_suit_sets_215.py -k geometry_not_only_the_stamp',
-        'a collarless jacket has no lapel',
+        'tests/test_retail_suit_sets_215.py -k neck_facing_and_no_lapel',
+        'a collarless jacket draws its neck facing and no lapel',
         'prototypes/retail_drawings',
     ),
     (
