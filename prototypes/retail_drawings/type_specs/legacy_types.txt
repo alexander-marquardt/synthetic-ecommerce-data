@@ -67,7 +67,6 @@ Clothing|Mens Trousers
 Clothing|Necklace
 Clothing|Outfit Set
 Clothing|Polo Shirt
-Clothing|Puffer Jacket
 Clothing|Purse
 Clothing|Ring
 Clothing|School Pinafore
