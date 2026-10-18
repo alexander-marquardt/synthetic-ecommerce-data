@@ -197,6 +197,13 @@ def test_a_range_name_never_holds_a_color_and_a_brand_color_is_the_brand_field(
 #: retailer (when in doubt it is left out). The generator's table must be a subset of it, and a
 #: new compound is added here only after the same review, never copied across.
 REAL_COMPOUNDS = frozenset({
+    "Skirted Swimsuit", "Tank Swimsuit", "Bralette Bikini Top", "Crop Bikini Top",
+    "Sports Bra Bikini Top", "Skirted Bikini Bottoms", "Boyshort Bikini Bottoms",
+    "Brief Bikini Bottoms", "Skirted Tankini", "Tunic Tankini", "Cami Tankini",
+    "Cargo Swim Shorts", "Chino Swim Shorts", "Tailored Swim Shorts", "Skirted Kids Swimsuit",
+    "Rash Vest Kids Swimsuit", "Skirted Period Swimwear", "Short Period Swimwear",
+    "Brief Period Swimwear", "Kimono Cover-Up", "Shirt Cover-Up", "Tunic Cover-Up",
+    "Dress Cover-Up", "Poncho Changing Robe", "Parka Changing Robe", "Hoodie Changing Robe",
     "Dress Blouse", "Shirt Blouse", "Tunic Blouse",
     "Shirt Bodysuit", "Corset Bodysuit", "Cami Bodysuit", "Bodysuit Top",
     "Shirt Jacket", "Blazer Jacket", "Biker Jacket", "Bomber Jacket", "Dress Jacket",
