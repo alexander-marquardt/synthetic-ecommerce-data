@@ -17,6 +17,7 @@ from synthetic_ecommerce_data.core.model import (
     Sku,
     keyword_attribute,
     multi_attribute,
+    pricing_unit_for,
 )
 from synthetic_ecommerce_data.core.naming import (
     Title,
@@ -351,6 +352,7 @@ class FinishMixin:
                     image_id=image_id_for(type_key, product_id, sku),
                     compatibility=compatibility,
                     noise=noise_text,
+                    pricing_unit=pricing_unit_for(values.get("Package Quantity")),
                 )
             )
             self._bump("skus")

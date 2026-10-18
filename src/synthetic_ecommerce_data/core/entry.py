@@ -47,6 +47,8 @@ STRUCTURAL_NAMES = frozenset(
         "spec_quality",
         "price",
         "stock",
+        "pricing_unit",
+        "order_multiple",
         "attribute_names",
         "fulltext",
     }
