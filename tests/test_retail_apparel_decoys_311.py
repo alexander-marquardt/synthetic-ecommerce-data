@@ -195,6 +195,8 @@ def test_a_range_name_never_holds_a_color_and_a_brand_color_is_the_brand_field(
 #: retailer (when in doubt it is left out). The generator's table must be a subset of it, and a
 #: new compound is added here only after the same review, never copied across.
 REAL_COMPOUNDS = frozenset({
+    "Tuxedo Trouser Suit", "Waistcoat Trouser Suit", "Culotte Trouser Suit",  # gen#215
+    "Sailor Suit", "Tuxedo Suit", "Page Boy Suit",  # gen#215
     "Dress Blouse", "Shirt Blouse", "Tunic Blouse",
     "Shirt Bodysuit", "Corset Bodysuit", "Cami Bodysuit", "Bodysuit Top",
     "Shirt Jacket", "Blazer Jacket", "Biker Jacket", "Bomber Jacket", "Dress Jacket",
