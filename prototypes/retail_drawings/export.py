@@ -60,7 +60,7 @@ VALUE_CASE = {"pattern": str.lower, "rise": str.title}
 PRODUCT_TYPE_FOLDS = {"Tee": "T-Shirt"}
 
 #: SKU option -> (key, name, unit): one variant-level entry each; a unit splits it.
-OPTIONS: dict[str, tuple[str, str, str | None]] = {
+SHARED_OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "color": ("color", "Color", None),
     "size": ("size", "Size", None),
     "size_uk": ("size_uk", "Size (UK)", None),
@@ -165,6 +165,7 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "cutting_width_cm": ("cutting_width", "Cutting width", "CMT"),
     "lawn_area_m2": ("lawn_area", "Lawn area (sq m)", None),
 }
+OPTIONS = SHARED_OPTIONS
 #: The SKU fields that are columns of the variant, not options.
 SKU_COLUMNS = frozenset({"sku", "price", "in_stock", "ingredients"})
 

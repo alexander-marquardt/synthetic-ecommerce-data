@@ -25,8 +25,10 @@ import functools
 import importlib
 import pkgutil
 import re
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from typing import NamedTuple
 
 import departments
 import type_specs
@@ -36,7 +38,7 @@ from lowerbody_rows import LRow
 from variants import cw
 
 __all__ = [
-    "ApparelPlan", "BRAND_OWNER", "Decoy", "LRow", "Row", "SpecError", "TypeSpec", "a",
+    "ApparelPlan", "BRAND_OWNER", "Decoy", "LRow", "Option", "Row", "SpecError", "TypeSpec", "a",
     "check_unique_ids", "count", "cw", "decoy_ids", "docs", "left_out_ids", "legacy_types",
     "registration_problems", "sizes", "specs", "text_match_decoy_ids", "validate",
 ]  # fmt: skip
@@ -86,6 +88,16 @@ class ApparelPlan:
     compounds: tuple[tuple[str, str], ...] = ()
 
 
+class Option(NamedTuple):
+    """One SKU option a type's rows carry, and the attribute entry it exports as (gen#413):
+    the ``option`` field of the SKU, the entry's ``key`` and ``name``, and its ``unit`` code."""
+
+    option: str
+    key: str
+    name: str
+    unit: str | None = None
+
+
 @dataclass(frozen=True)
 class TypeSpec:
     """Everything one product type declares.
@@ -107,11 +119,19 @@ class TypeSpec:
     owners: tuple[tuple[str, str], ...] = ()
     apparel: ApparelPlan | None = None
     apparel_exempt: str = ""
+    options: tuple[Option, ...] = ()
 
     def docs(self) -> list[dict]:
         """The catalog documents: the rows, then the decoys."""
         OWNERS.update({b: o for b, o in self.owners if b not in OWNERS})
         return [r.doc() for r in self.rows] + [d.row.doc() for d in self.decoys]
+
+
+def option_table(
+    shared: Mapping[str, tuple[str, str, str | None]], declared: Iterable[TypeSpec] | None = None
+) -> tuple[dict[str, tuple[str, str, str | None]], list[str]]:
+    """The export's option table (``option -> (key, name, unit)``) and what is wrong with it."""
+    return dict(shared), []
 
 
 def a(key: str, name: str, value: str) -> tuple[str, str, str]:
