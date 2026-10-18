@@ -146,7 +146,7 @@ the graphic tees. The guard is
 | bed frame | bed frame | PLT-DY90 | Bed Frame Headboard Cushion | Cushion | category |
 | tea towels | tea towels | PLT-DY91 | Tea Towel Hook Rail | Wall Hooks | category |
 | tea towels | tea towels | PLT-DY92 | Tea Towel Hanger, 4 Pack | Hanger | category |
-| lipstick | lipstick | PLT-DY93 | Lipstick Make-Up Bag, Mini Zip | Make-Up Bag | category |
+| lipstick | lipstick | PLT-DY93 | Lipstick Case, Mini Zip | Make-Up Bag | category |
 | lipstick | lipstick | PLT-DY94 | Lipstick Plant, Trailing | Plant | department |
 | foundation | foundation | PLT-DY95 | Foundation Remover Face Cloth | Towel | category |
 | foundation | foundation | PLT-DY96 | Foundation Brush Make-Up Bag | Make-Up Bag | category |
