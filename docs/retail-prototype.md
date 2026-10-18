@@ -274,6 +274,11 @@ Elasticsearch. A target is in bold. A test checks that the proof was taken
 over the current records, that no target is in a baseline top 3 (class 15 instead claims that a bra is: an espresso cup is a cup and may lead too), that the
 policy top 3 is all targets, and that this table is the proof's.
 
+The pre-merge run does not collect `prototypes/`, so `tests/test_real_classes_proof_fresh_479.py`
+holds the proof's fingerprint and its claim to the records the build makes now. A change to an
+indexed field of the corpus is red there until `es_proof.py` is run and the proof committed (the
+drawing is not indexed and does not count).
+
 | # | Class | Query | Baseline top 5 (BM25 x popularity) | With the policy: top 5 | Policy (raw ES) |
 |---|---|---|---|---|---|
 | 2 | Sibling types share a head word | *mattress topper* | 1. Quilted Mattress Protector `PLT-MTPQLT`<br>2. Waterproof Mattress Protector `PLT-MTPWTP`<br>3. Deep Fill Mattress Topper Protector `PLT-MTPTOP`<br>4. Cool Touch Mattress Protector `PLT-MTPCOL`<br>5. Pocket Sprung Mattress `PLT-MTRPKT` | 1. **Memory Foam Mattress Topper `PLT-MTTMEM`**<br>2. **Hollowfibre Mattress Topper `PLT-MTTFIB`**<br>3. **Wool Mattress Topper `PLT-MTTWOL`**<br>4. Memory Foam 5cm Mattress Topper `BED-TOPMEM`<br>5. Quilted Mattress Protector `PLT-MTPQLT` | product_type = Mattress Topper x10; product_type = Mattress Protector or Mattress or Pillow Protector x0.2 |
