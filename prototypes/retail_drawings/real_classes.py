@@ -178,6 +178,7 @@ SKUS = {
         "bed_size": {"type": "keyword"},
         "width_cm": {"type": "integer"},
         "length_cm": {"type": "integer"},
+        "net_volume_ml": {"type": "float"},
         "price": {"type": "float"},
     },
 }

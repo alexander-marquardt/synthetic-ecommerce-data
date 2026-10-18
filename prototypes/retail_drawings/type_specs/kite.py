@@ -72,9 +72,9 @@ SPEC = TypeSpec(
     product_type="Kite",
     rows=_ROWS,
     decoys=(
-        toy_decoy(6, "red kite", "generic", _ROWS[0], 8, "Red Tarn Kite",
-                  "From the Red Tarn range, named after a hill walk; the kite itself is blue.",
-                  color=BLUE),
+        toy_decoy(6, "water gun", "generic", _ROWS[0], 8, "Water Gun Point Kite",
+                  "From the Water Gun Point range, named after a rocky headland; it is a kite, "
+                  "not a water toy.", color=BLUE),
         toy_decoy(6, "card game", "generic", _ROWS[1], 9, "Card Game Ridge Kite",
                   "From the Card Game Ridge range, named after a hill path; it is a delta kite, "
                   "not a game of cards.", color=GREEN),

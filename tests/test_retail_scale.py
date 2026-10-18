@@ -63,6 +63,7 @@ SHIRT_ROWS = FIGURES["templates"]["shirt_rows"]["styles"]
 ACCESSORY_ROWS = FIGURES["templates"]["accessory_rows"]["styles"]
 SPORTS_ROWS = FIGURES["templates"]["sports_rows"]["styles"]
 GARDEN_ROWS = FIGURES["templates"]["garden_rows"]["styles"]
+DECOR_ROWS = FIGURES["templates"]["decor_rows"]["styles"]
 SCHOOL_ROWS = FIGURES["templates"]["school_rows"]["styles"]
 SOFA_ROWS = FIGURES["templates"]["sofa_rows"]["styles"]
 HOUSEHOLD_ROWS = FIGURES["templates"]["household_rows"]["styles"]
@@ -74,6 +75,7 @@ COLORGROUP_ROWS = FIGURES["templates"]["colorgroup_rows"]["styles"]
 MENS_DEPTH_ROWS = FIGURES["templates"]["mens_depth_rows"]["styles"]
 COLORWORD_ROWS = FIGURES["templates"]["color_word_brand_rows"]["styles"]
 KNITWEAR_ROWS = FIGURES["templates"]["knitwear_rows"]["styles"]
+NECKLINE_ROWS = FIGURES["templates"]["neckline_rows"]["styles"]
 NEEDS_ROWS = FIGURES["templates"]["needs_rows"]["styles"]
 NIKE_ROWS = FIGURES["templates"]["nike_rows"]["styles"]
 TYPE_SPEC_ROWS = FIGURES["templates"]["type_specs"]["styles"]
@@ -93,6 +95,7 @@ TEMPLATES = (
     + ACCESSORY_ROWS
     + SPORTS_ROWS
     + GARDEN_ROWS
+    + DECOR_ROWS
     + SCHOOL_ROWS
     + SOFA_ROWS
     + HOUSEHOLD_ROWS
@@ -105,6 +108,7 @@ TEMPLATES = (
     + COLORGROUP_ROWS
     + MENS_DEPTH_ROWS
     + KNITWEAR_ROWS
+    + NECKLINE_ROWS
     + NEEDS_ROWS
     + NIKE_ROWS
     + TYPE_SPEC_ROWS
@@ -240,6 +244,32 @@ def test_few_styles_share_a_results_grid_tile_at_the_ceiling(ceiling):
     assert rate <= CEILING_GRID_CLONES, f"{shared} of {len(main)} styles ({rate:.1%})"
 
 
+#: The Plates leaf's own grid-clone share the ceiling build may reach (gen#229). A derived
+#: plate keeps its kind and diameter and varies in a material the picture does not show, so a
+#: template with one colorway drew the same tile at the same price: a "white dinner plate"
+#: grid showed identical tiles, a third of the leaf. The leaf has its own cap so the
+#: catalog-wide :data:`CEILING_GRID_CLONES` headroom is not spent on it again.
+#: Measured on the seed-0 ceiling build of main d63322d: 8 of 145 (5.5%) with the
+#: ``PREMIUM`` plate weights of 2.0 / 1.4 / 1.0 / 0.75 / 0.5; the cap is 14 plates, a
+#: margin of 6. The weights were widened, not the cap, when new templates from main took
+#: the earlier 1.6 / 1.2 / 0.8 / 0.6 weights to 18 of 145 (12.4%) on this seed. Seeds 0 to
+#: 5 of the same build give 8, 4, 6, 0, 11 and 8 plates.
+PLATES_GRID_CLONES = 0.10
+
+
+def test_plates_mostly_draw_a_tile_of_their_own(ceiling):
+    """A results grid of plates shows the leaf, the hero picture and the price; a style that
+    shares all three with another plate reads as a clone whatever its material.
+
+    Guard: this test. Metric: the Plates leaf's grid-clone share, in the failure message."""
+    plates = [r for r in scale.derivable(ceiling.records) if r["category_leaf"] == "Plates"]
+    assert plates, "the ceiling build holds no Plates styles"
+    tiles = collections.Counter(scale.grid_tile(r) for r in plates)
+    shared = sum(n for n in tiles.values() if n > 1)
+    rate = shared / len(plates)
+    assert rate <= PLATES_GRID_CLONES, f"{shared} of {len(plates)} plates ({rate:.1%})"
+
+
 #: The grocery grid-clone share the ceiling build may reach, with a 2-point margin over the
 #: measured count in the figures; it was 96.6% (gen#154).
 GROCERY_GRID_CLONES = 0.02
@@ -323,6 +353,16 @@ def test_a_premium_value_costs_more_and_a_cheaper_one_less():
     assert scale.price_factor({"wash": ("Rinse", "Stone")}) == 1.0
 
 
+def test_a_plate_material_has_its_own_price_so_plates_of_one_finish_draw_apart():
+    """The picture shows a plate's finish and color but not its material, so the material
+    alone tells two plates apart on a grid through their price (gen#229): bone china costs
+    most, then porcelain, stoneware, enamel and melamine."""
+    order = ["Bone China", "Porcelain", "Stoneware", "Enamel", "Melamine"]
+    factors = [scale.price_factor({"material": ("Stoneware", m)}) for m in order]
+    assert factors == sorted(factors, reverse=True)
+    assert len(set(factors)) == len(order)
+
+
 def test_a_price_point_is_a_retail_one():
     assert [scale.price_point(p) for p in (1.13, 7.3, 18.2, 41.6, 263.0)] == [
         1.15,
@@ -368,11 +408,15 @@ def test_a_swap_reads_the_and_spelling_of_an_ampersand():
 
 def _changed(r: dict[str, Any], t: dict[str, Any]) -> dict[str, tuple[str, str]]:
     new = {a["key"]: str(a["value"]) for a in r["attributes"]}
+    many = {k for k, n in collections.Counter(a["key"] for a in t["attributes"]).items() if n > 1}
     # A derived style may drop an attribute its new form lacks (a flush light's drop, gen#237).
+    # A key the template lists in several entries (a shoe's materials, gen#472) is never swapped
+    # for another value: the style keeps the entries its SKUs hold.
     return {
         a["key"]: (str(a["value"]), new[a["key"]])
         for a in t["attributes"]
-        if a["key"] != "line" and a["key"] in new and new[a["key"]] != str(a["value"])
+        if a["key"] != "line" and a["key"] not in many
+        and a["key"] in new and new[a["key"]] != str(a["value"])
     }
 
 
@@ -572,7 +616,17 @@ def _fitted_out(r: dict[str, Any], t: dict[str, Any]) -> set[str]:
 def _template_attributes(r: dict[str, Any], t: dict[str, Any]) -> list[dict[str, Any]]:
     """The template's attributes a derived style is expected to carry (less the fitted-out key)."""
     gone = _fitted_out(r, t)
-    return [a for a in t["attributes"] if a["key"] not in gone]
+    attrs = [a for a in t["attributes"] if a["key"] not in gone]
+    # A key the template lists in several entries (a shoe's materials, gen#472) keeps one entry
+    # per value its SKUs still hold (``scale._sku_values``): at least one, never a new key.
+    held = collections.Counter(a["key"] for a in r["attributes"])
+    seen: collections.Counter[str] = collections.Counter()
+    out = []
+    for a in attrs:
+        seen[a["key"]] += 1
+        if seen[a["key"]] <= max(held[a["key"]], 1):
+            out.append(a)
+    return out
 
 
 def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):
@@ -617,9 +671,13 @@ def test_a_changed_value_is_rewritten_in_the_title(pairs):
     rewritten = 0
     for r, t in pairs:
         new = {a["key"]: str(a["value"]) for a in r["attributes"]}
+        counts = collections.Counter(a["key"] for a in t["attributes"])
+        many = {k for k, n in counts.items() if n > 1}
         for a in _template_attributes(r, t):
             old = str(a["value"])
-            if a["key"] == "line" or new[a["key"]] == old or not scale._has_word(t["title"], old):
+            if a["key"] == "line" or a["key"] in many:  # entries a style keeps or drops (gen#472)
+                continue
+            if new[a["key"]] == old or not scale._has_word(t["title"], old):
                 continue
             assert scale._has_word(r["title"], new[a["key"]]), (
                 r["product_id"],
@@ -1015,7 +1073,11 @@ def test_every_style_attribute_its_skus_carry_lists_exactly_their_values(ceiling
             if not sku_values:
                 continue
             checked += 1
-            style_values = {v.strip().lower() for v in str(a["value"]).split(",")}
+            style_values = {
+                v.strip().lower()
+                for b in r["attributes"] if b["key"] == a["key"]
+                for v in str(b["value"]).split(",")
+            }
             if style_values != sku_values:
                 wrong.append((r["product_id"], a["key"], a["value"], sorted(sku_values)))
     assert checked >= 240

@@ -50,6 +50,7 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 - Jeans: only cargo jeans and jogger jeans are names a shopper meets.
 - Jelly Shoes: only the mary jane jelly shoe is a name a shopper meets.
 - Jumper: only the tunic jumper and the polo jumper are names a shopper meets.
+- Kids Swimsuit: only the skirted and the rash vest kids swimsuit are names a shopper meets.
 - Loafers: only mule loafers and brogue loafers are names a shopper meets.
 - Platform Trainers: only the sock platform trainer is a name a shopper meets.
 - Plimsolls: only the sneaker plimsoll is a name met; a pump or a trainer is a plimsoll.
@@ -57,6 +58,7 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 - School Pinafore: a school pinafore dress is the only compound name of it.
 - School Shirt: only the school polo shirt and the oxford school shirt are names met.
 - School Skirt: only the pinafore school skirt is a name a shopper meets.
+- Swimsuit: only the skirted swimsuit and the tank swimsuit pair another noun with a swimsuit.
 - T-Shirt: only the polo and tunic t-shirt name another category; a henley is a t-shirt.
 - Tee: only the polo tee and the tunic tee name another category; a henley is a tee.
 - Tights: only running tights and cycling tights are names a shopper meets.
@@ -237,24 +239,31 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA08100 | Dress | 1 color names a part | Dress with Red Straps | red | red dress | generic |
 | PLT-DA08101 | Dress | 1 color names a part | Dress with Black Straps | black | black dress | generic |
 | PLT-DA08102 | Dress | 1 color names a part | Dress with Green Straps | green | green dress | generic |
+| PLT-DA08103 | Dress | 1 color names a part | Dress with Yellow Straps | yellow | yellow dress | generic |
 | PLT-DA08200 | Dress | 2 another category's noun as a modifier | Grey Jumper Dress | jumper | jumper | generic |
 | PLT-DA08201 | Dress | 2 another category's noun as a modifier | Cream Coat Dress | coat | coat | generic |
 | PLT-DA08202 | Dress | 2 another category's noun as a modifier | Blue Shirt Dress | shirt | shirt | generic |
+| PLT-DA08203 | Dress | 2 another category's noun as a modifier | Red Coat Dress | coat | coat | generic |
 | PLT-DA08300 | Dress | 3 audience word of a sibling version | White Boys Fit Dress | boys | boys dress | generic |
 | PLT-DA08301 | Dress | 3 audience word of a sibling version | Grey Boys Fit Dress | boys | boys dress | generic |
 | PLT-DA08302 | Dress | 3 audience word of a sibling version | Black Mens Fit Dress | mens | mens dress | generic |
+| PLT-DA08303 | Dress | 3 audience word of a sibling version | Brown Mens-Style Dress | mens | mens dress | generic |
 | PLT-DA08400 | Dress | 4 material or feature named but absent | Black Leather-Look Dress | leather | leather dress | special: material claim |
 | PLT-DA08401 | Dress | 4 material or feature named but absent | Grey Suede-Look Dress | suede | suede dress | special: material claim |
 | PLT-DA08402 | Dress | 4 material or feature named but absent | Black Cashmere-Feel Dress | cashmere | cashmere dress | special: material claim |
+| PLT-DA08403 | Dress | 4 material or feature named but absent | Black Wool-Free Dress | wool | wool dress | special: material claim |
 | PLT-DA08500 | Dress | 5 shade spelled in the description only | Moonbeam Dress | ivory | ivory dress | generic |
 | PLT-DA08501 | Dress | 5 shade spelled in the description only | Driftwood Dress | taupe | taupe dress | generic |
 | PLT-DA08502 | Dress | 5 shade spelled in the description only | Dune Dress | beige | beige dress | generic |
+| PLT-DA08503 | Dress | 5 shade spelled in the description only | Ember Dress | burgundy | burgundy dress | generic |
 | PLT-DA08600 | Dress | 6 incidental word in a range name | Jumper Lane Dress | jumper | jumper | generic |
 | PLT-DA08601 | Dress | 6 incidental word in a range name | Boot Hill Dress | boot | boot | generic |
-| PLT-DA08602 | Dress | 6 incidental word in a range name | Pump Lane Dress | pump | pump | generic |
+| PLT-DA08602 | Dress | 6 incidental word in a range name | Sandal Wood Dress | sandal | sandal | generic |
+| PLT-DA08603 | Dress | 6 incidental word in a range name | Jacket Quay Dress | jacket | jacket | generic |
 | PLT-DA08700 | Dress | 7 invented brand holding a color or category word | Red Plover Dress | red | red dress | generic |
 | PLT-DA08701 | Dress | 7 invented brand holding a color or category word | White Dormouse Dress | white | white dress | generic |
 | PLT-DA08702 | Dress | 7 invented brand holding a color or category word | Blue Otter Dress | blue | blue dress | generic |
+| PLT-DA08703 | Dress | 7 invented brand holding a color or category word | Jumper Jay Dress | jumper | jumper dress | generic |
 | PLT-DA09100 | Joggers | 1 color names a part | Regular Joggers with Red Cuffs | red | red joggers | generic |
 | PLT-DA09101 | Joggers | 1 color names a part | Oversized Joggers with Blue Cuffs | blue | blue joggers | generic |
 | PLT-DA09102 | Joggers | 1 color names a part | Regular Joggers with Yellow Cuffs | yellow | yellow joggers | generic |
@@ -531,24 +540,45 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA22100 | Top | 1 color names a part | Top with Blue Hem | blue | blue top | generic |
 | PLT-DA22101 | Top | 1 color names a part | Top with Blue Collar | blue | blue top | generic |
 | PLT-DA22102 | Top | 1 color names a part | Top with White Hem | white | white top | generic |
+| PLT-DA22103 | Top | 1 color names a part | Top with Red Collar | red | red top | generic |
+| PLT-DA22104 | Top | 1 color names a part | Top with Black Collar | black | black top | generic |
+| PLT-DA22105 | Top | 1 color names a part | Top with White Collar | white | white top | generic |
 | PLT-DA22200 | Top | 2 another category's noun as a modifier | Pink Vest Top | vest | vest | generic |
 | PLT-DA22201 | Top | 2 another category's noun as a modifier | Navy Cami Top | cami | cami | generic |
 | PLT-DA22202 | Top | 2 another category's noun as a modifier | Red Vest Top | vest | vest | generic |
+| PLT-DA22203 | Top | 2 another category's noun as a modifier | Pink Bodysuit Top | bodysuit | bodysuit | generic |
+| PLT-DA22204 | Top | 2 another category's noun as a modifier | Pink Polo Top | polo | polo | generic |
+| PLT-DA22205 | Top | 2 another category's noun as a modifier | Cream Cami Top | cami | cami | generic |
 | PLT-DA22300 | Top | 3 audience word of a sibling version | Green Mens-Style Top | mens | mens top | generic |
 | PLT-DA22301 | Top | 3 audience word of a sibling version | Pink Boys Fit Top | boys | boys top | generic |
 | PLT-DA22302 | Top | 3 audience word of a sibling version | White Boys Fit Top | boys | boys top | generic |
+| PLT-DA22303 | Top | 3 audience word of a sibling version | Blue Mens Fit Top | mens | mens top | generic |
+| PLT-DA22304 | Top | 3 audience word of a sibling version | Grey Boys Fit Top | boys | boys top | generic |
+| PLT-DA22305 | Top | 3 audience word of a sibling version | Green Boys Fit Top | boys | boys top | generic |
 | PLT-DA22400 | Top | 4 material or feature named but absent | Cream Leather-Look Top | leather | leather top | special: material claim |
 | PLT-DA22401 | Top | 4 material or feature named but absent | Cream Suede-Look Top | suede | suede top | special: material claim |
 | PLT-DA22402 | Top | 4 material or feature named but absent | Red Cashmere-Feel Top | cashmere | cashmere top | special: material claim |
+| PLT-DA22403 | Top | 4 material or feature named but absent | Cream Wool-Free Top | wool | wool top | special: material claim |
+| PLT-DA22404 | Top | 4 material or feature named but absent | White Silk-Feel Top | silk | silk top | special: material claim |
+| PLT-DA22405 | Top | 4 material or feature named but absent | Cream Linen-Look Top | linen | linen top | special: material claim |
 | PLT-DA22500 | Top | 5 shade spelled in the description only | Moonbeam Top | ivory | ivory top | generic |
 | PLT-DA22501 | Top | 5 shade spelled in the description only | Driftwood Top | taupe | taupe top | generic |
 | PLT-DA22502 | Top | 5 shade spelled in the description only | Dune Top | beige | beige top | generic |
+| PLT-DA22503 | Top | 5 shade spelled in the description only | Ember Top | burgundy | burgundy top | generic |
+| PLT-DA22504 | Top | 5 shade spelled in the description only | Lagoon Top | teal | teal top | generic |
+| PLT-DA22505 | Top | 5 shade spelled in the description only | Willow Top | olive | olive top | generic |
 | PLT-DA22600 | Top | 6 incidental word in a range name | Dress Circle Top | dress | dress | generic |
 | PLT-DA22601 | Top | 6 incidental word in a range name | Shirt Row Top | shirt | shirt | generic |
 | PLT-DA22602 | Top | 6 incidental word in a range name | Slipper Brook Top | slipper | slipper | generic |
+| PLT-DA22603 | Top | 6 incidental word in a range name | Shoe Lane Top | shoe | shoe | generic |
+| PLT-DA22604 | Top | 6 incidental word in a range name | Sandal Wood Top | sandal | sandal | generic |
+| PLT-DA22605 | Top | 6 incidental word in a range name | Skirt Point Top | skirt | skirt | generic |
 | PLT-DA22700 | Top | 7 invented brand holding a color or category word | Blue Otter Top | blue | blue top | generic |
 | PLT-DA22701 | Top | 7 invented brand holding a color or category word | Green Stoat Top | green | green top | generic |
 | PLT-DA22702 | Top | 7 invented brand holding a color or category word | Red Plover Top | red | red top | generic |
+| PLT-DA22703 | Top | 7 invented brand holding a color or category word | Yellow Wagtail Top | yellow | yellow top | generic |
+| PLT-DA22704 | Top | 7 invented brand holding a color or category word | Black Lapwing Top | black | black top | generic |
+| PLT-DA22705 | Top | 7 invented brand holding a color or category word | White Dormouse Top | white | white top | generic |
 | PLT-DA23100 | Tracksuit | 1 color names a part | Regular Tracksuit with Red Cuffs | red | red tracksuit | generic |
 | PLT-DA23101 | Tracksuit | 1 color names a part | Regular Tracksuit with White Cuffs | white | white tracksuit | generic |
 | PLT-DA23102 | Tracksuit | 1 color names a part | Regular Tracksuit with White Cuffs | white | white tracksuit | generic |
@@ -1594,6 +1624,111 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA67700 | Barefoot Shoes | 7 invented brand holding a color or category word | White Dormouse Barefoot Shoes | white | white barefoot shoes | generic |
 | PLT-DA67701 | Barefoot Shoes | 7 invented brand holding a color or category word | White Dormouse Barefoot Shoes | white | white barefoot shoes | generic |
 | PLT-DA67702 | Barefoot Shoes | 7 invented brand holding a color or category word | Yellow Wagtail Barefoot Shoes | yellow | yellow barefoot shoes | generic |
+| PLT-DSBIKINI_BOTTOMS100 | Bikini Bottoms | 1 color names a part | Bikini Bottoms with Green Waistband | green | green bikini bottoms | generic |
+| PLT-DSBIKINI_BOTTOMS101 | Bikini Bottoms | 1 color names a part | Bikini Bottoms with White Waistband | white | white bikini bottoms | generic |
+| PLT-DSBIKINI_BOTTOMS102 | Bikini Bottoms | 1 color names a part | Bikini Bottoms with Yellow Waistband | yellow | yellow bikini bottoms | generic |
+| PLT-DSBIKINI_BOTTOMS200 | Bikini Bottoms | 2 another category's noun as a modifier | Navy Brief Bikini Bottoms | brief | brief | generic |
+| PLT-DSBIKINI_BOTTOMS201 | Bikini Bottoms | 2 another category's noun as a modifier | White Brief Bikini Bottoms | brief | brief | generic |
+| PLT-DSBIKINI_BOTTOMS202 | Bikini Bottoms | 2 another category's noun as a modifier | Red Brief Bikini Bottoms | brief | brief | generic |
+| PLT-DSBIKINI_BOTTOMS300 | Bikini Bottoms | 3 audience word of a sibling version | Brown Mens Fit Bikini Bottoms | mens | mens bikini bottoms | generic |
+| PLT-DSBIKINI_BOTTOMS301 | Bikini Bottoms | 3 audience word of a sibling version | Brown Boys Fit Bikini Bottoms | boys | boys bikini bottoms | generic |
+| PLT-DSBIKINI_BOTTOMS302 | Bikini Bottoms | 3 audience word of a sibling version | Red Mens-Style Bikini Bottoms | mens | mens bikini bottoms | generic |
+| PLT-DSBIKINI_BOTTOMS400 | Bikini Bottoms | 4 material or feature named but absent | Black Leather-Look Bikini Bottoms | leather | leather bikini bottoms | special: material claim |
+| PLT-DSBIKINI_BOTTOMS401 | Bikini Bottoms | 4 material or feature named but absent | Brown Suede-Look Bikini Bottoms | suede | suede bikini bottoms | special: material claim |
+| PLT-DSBIKINI_BOTTOMS402 | Bikini Bottoms | 4 material or feature named but absent | Green Cashmere-Feel Bikini Bottoms | cashmere | cashmere bikini bottoms | special: material claim |
+| PLT-DSBIKINI_BOTTOMS500 | Bikini Bottoms | 5 shade spelled in the description only | Moonbeam Bikini Bottoms | ivory | ivory bikini bottoms | generic |
+| PLT-DSBIKINI_BOTTOMS501 | Bikini Bottoms | 5 shade spelled in the description only | Driftwood Bikini Bottoms | taupe | taupe bikini bottoms | generic |
+| PLT-DSBIKINI_BOTTOMS502 | Bikini Bottoms | 5 shade spelled in the description only | Dune Bikini Bottoms | beige | beige bikini bottoms | generic |
+| PLT-DSBIKINI_BOTTOMS600 | Bikini Bottoms | 6 incidental word in a range name | Sock Hop Bikini Bottoms | sock | sock | generic |
+| PLT-DSBIKINI_BOTTOMS601 | Bikini Bottoms | 6 incidental word in a range name | Blazer Court Bikini Bottoms | blazer | blazer | generic |
+| PLT-DSBIKINI_BOTTOMS602 | Bikini Bottoms | 6 incidental word in a range name | Shirt Row Bikini Bottoms | shirt | shirt | generic |
+| PLT-DSBIKINI_BOTTOMS700 | Bikini Bottoms | 7 invented brand holding a color or category word | Yellow Wagtail Bikini Bottoms | yellow | yellow bikini bottoms | generic |
+| PLT-DSBIKINI_BOTTOMS701 | Bikini Bottoms | 7 invented brand holding a color or category word | Coat Crake Bikini Bottoms | coat | coat bikini bottoms | generic |
+| PLT-DSBIKINI_BOTTOMS702 | Bikini Bottoms | 7 invented brand holding a color or category word | Green Stoat Bikini Bottoms | green | green bikini bottoms | generic |
+| PLT-DSBIKINI_TOP100 | Bikini Top | 1 color names a part | Bikini Top with White Straps | white | white bikini top | generic |
+| PLT-DSBIKINI_TOP101 | Bikini Top | 1 color names a part | Bikini Top with Yellow Straps | yellow | yellow bikini top | generic |
+| PLT-DSBIKINI_TOP102 | Bikini Top | 1 color names a part | Bikini Top with Red Straps | red | red bikini top | generic |
+| PLT-DSBIKINI_TOP200 | Bikini Top | 2 another category's noun as a modifier | White Sports Bra Bikini Top | sports bra | sports bra | generic |
+| PLT-DSBIKINI_TOP201 | Bikini Top | 2 another category's noun as a modifier | Brown Bralette Bikini Top | bralette | bralette | generic |
+| PLT-DSBIKINI_TOP202 | Bikini Top | 2 another category's noun as a modifier | Blue Sports Bra Bikini Top | sports bra | sports bra | generic |
+| PLT-DSBIKINI_TOP300 | Bikini Top | 3 audience word of a sibling version | Green Mens Fit Bikini Top | mens | mens bikini top | generic |
+| PLT-DSBIKINI_TOP301 | Bikini Top | 3 audience word of a sibling version | Blue Boys Fit Bikini Top | boys | boys bikini top | generic |
+| PLT-DSBIKINI_TOP302 | Bikini Top | 3 audience word of a sibling version | Blue Mens Fit Bikini Top | mens | mens bikini top | generic |
+| PLT-DSBIKINI_TOP400 | Bikini Top | 4 material or feature named but absent | Brown Leather-Look Bikini Top | leather | leather bikini top | special: material claim |
+| PLT-DSBIKINI_TOP401 | Bikini Top | 4 material or feature named but absent | Grey Suede-Look Bikini Top | suede | suede bikini top | special: material claim |
+| PLT-DSBIKINI_TOP402 | Bikini Top | 4 material or feature named but absent | Navy Cashmere-Feel Bikini Top | cashmere | cashmere bikini top | special: material claim |
+| PLT-DSBIKINI_TOP500 | Bikini Top | 5 shade spelled in the description only | Moonbeam Bikini Top | ivory | ivory bikini top | generic |
+| PLT-DSBIKINI_TOP501 | Bikini Top | 5 shade spelled in the description only | Driftwood Bikini Top | taupe | taupe bikini top | generic |
+| PLT-DSBIKINI_TOP502 | Bikini Top | 5 shade spelled in the description only | Dune Bikini Top | beige | beige bikini top | generic |
+| PLT-DSBIKINI_TOP600 | Bikini Top | 6 incidental word in a range name | Shirt Row Bikini Top | shirt | shirt | generic |
+| PLT-DSBIKINI_TOP601 | Bikini Top | 6 incidental word in a range name | Pump Lane Bikini Top | pump | pump | generic |
+| PLT-DSBIKINI_TOP602 | Bikini Top | 6 incidental word in a range name | Jumper Lane Bikini Top | jumper | jumper | generic |
+| PLT-DSBIKINI_TOP700 | Bikini Top | 7 invented brand holding a color or category word | Jumper Jay Bikini Top | jumper | jumper bikini top | generic |
+| PLT-DSBIKINI_TOP701 | Bikini Top | 7 invented brand holding a color or category word | Coat Crake Bikini Top | coat | coat bikini top | generic |
+| PLT-DSBIKINI_TOP702 | Bikini Top | 7 invented brand holding a color or category word | Black Lapwing Bikini Top | black | black bikini top | generic |
+| PLT-DSCHANGING_ROBE100 | Changing Robe | 1 color names a part | Changing Robe with White Hem | white | white changing robe | generic |
+| PLT-DSCHANGING_ROBE101 | Changing Robe | 1 color names a part | Changing Robe with White Hem | white | white changing robe | generic |
+| PLT-DSCHANGING_ROBE102 | Changing Robe | 1 color names a part | Changing Robe with Black Hem | black | black changing robe | generic |
+| PLT-DSCHANGING_ROBE200 | Changing Robe | 2 another category's noun as a modifier | White Poncho Changing Robe | poncho | poncho | generic |
+| PLT-DSCHANGING_ROBE201 | Changing Robe | 2 another category's noun as a modifier | White Hoodie Changing Robe | hoodie | hoodie | generic |
+| PLT-DSCHANGING_ROBE202 | Changing Robe | 2 another category's noun as a modifier | Pink Poncho Changing Robe | poncho | poncho | generic |
+| PLT-DSCHANGING_ROBE300 | Changing Robe | 3 audience word of a sibling version | Green Womens-Style Changing Robe | womens | womens changing robe | generic |
+| PLT-DSCHANGING_ROBE301 | Changing Robe | 3 audience word of a sibling version | White Mens-Style Changing Robe | mens | mens changing robe | generic |
+| PLT-DSCHANGING_ROBE302 | Changing Robe | 3 audience word of a sibling version | Black Womens Fit Changing Robe | womens | womens changing robe | generic |
+| PLT-DSCHANGING_ROBE400 | Changing Robe | 4 material or feature named but absent | Black Leather-Look Changing Robe | leather | leather changing robe | special: material claim |
+| PLT-DSCHANGING_ROBE401 | Changing Robe | 4 material or feature named but absent | Black Suede-Look Changing Robe | suede | suede changing robe | special: material claim |
+| PLT-DSCHANGING_ROBE402 | Changing Robe | 4 material or feature named but absent | Pink Cashmere-Feel Changing Robe | cashmere | cashmere changing robe | special: material claim |
+| PLT-DSCHANGING_ROBE500 | Changing Robe | 5 shade spelled in the description only | Moonbeam Changing Robe | ivory | ivory changing robe | generic |
+| PLT-DSCHANGING_ROBE501 | Changing Robe | 5 shade spelled in the description only | Driftwood Changing Robe | taupe | taupe changing robe | generic |
+| PLT-DSCHANGING_ROBE502 | Changing Robe | 5 shade spelled in the description only | Dune Changing Robe | beige | beige changing robe | generic |
+| PLT-DSCHANGING_ROBE600 | Changing Robe | 6 incidental word in a range name | Blazer Court Changing Robe | blazer | blazer | generic |
+| PLT-DSCHANGING_ROBE601 | Changing Robe | 6 incidental word in a range name | Coat Hook Changing Robe | coat | coat | generic |
+| PLT-DSCHANGING_ROBE602 | Changing Robe | 6 incidental word in a range name | Pump Lane Changing Robe | pump | pump | generic |
+| PLT-DSCHANGING_ROBE700 | Changing Robe | 7 invented brand holding a color or category word | Green Stoat Changing Robe | green | green changing robe | generic |
+| PLT-DSCHANGING_ROBE701 | Changing Robe | 7 invented brand holding a color or category word | Green Stoat Changing Robe | green | green changing robe | generic |
+| PLT-DSCHANGING_ROBE702 | Changing Robe | 7 invented brand holding a color or category word | Coat Crake Changing Robe | coat | coat changing robe | generic |
+| PLT-DSCOVER_UP100 | Cover-Up | 1 color names a part | Cover-Up with Red Hem | red | red cover-up | generic |
+| PLT-DSCOVER_UP101 | Cover-Up | 1 color names a part | Cover-Up with Black Hem | black | black cover-up | generic |
+| PLT-DSCOVER_UP102 | Cover-Up | 1 color names a part | Cover-Up with Yellow Hem | yellow | yellow cover-up | generic |
+| PLT-DSCOVER_UP200 | Cover-Up | 2 another category's noun as a modifier | Grey Dress Cover-Up | dress | dress | generic |
+| PLT-DSCOVER_UP201 | Cover-Up | 2 another category's noun as a modifier | White Kimono Cover-Up | kimono | kimono | generic |
+| PLT-DSCOVER_UP202 | Cover-Up | 2 another category's noun as a modifier | Red Tunic Cover-Up | tunic | tunic | generic |
+| PLT-DSCOVER_UP300 | Cover-Up | 3 audience word of a sibling version | Blue Boys Fit Cover-Up | boys | boys cover-up | generic |
+| PLT-DSCOVER_UP301 | Cover-Up | 3 audience word of a sibling version | Green Mens Fit Cover-Up | mens | mens cover-up | generic |
+| PLT-DSCOVER_UP302 | Cover-Up | 3 audience word of a sibling version | Cream Boys Fit Cover-Up | boys | boys cover-up | generic |
+| PLT-DSCOVER_UP400 | Cover-Up | 4 material or feature named but absent | Pink Leather-Look Cover-Up | leather | leather cover-up | special: material claim |
+| PLT-DSCOVER_UP401 | Cover-Up | 4 material or feature named but absent | Cream Suede-Look Cover-Up | suede | suede cover-up | special: material claim |
+| PLT-DSCOVER_UP402 | Cover-Up | 4 material or feature named but absent | Grey Cashmere-Feel Cover-Up | cashmere | cashmere cover-up | special: material claim |
+| PLT-DSCOVER_UP500 | Cover-Up | 5 shade spelled in the description only | Moonbeam Cover-Up | ivory | ivory cover-up | generic |
+| PLT-DSCOVER_UP501 | Cover-Up | 5 shade spelled in the description only | Driftwood Cover-Up | taupe | taupe cover-up | generic |
+| PLT-DSCOVER_UP502 | Cover-Up | 5 shade spelled in the description only | Dune Cover-Up | beige | beige cover-up | generic |
+| PLT-DSCOVER_UP600 | Cover-Up | 6 incidental word in a range name | Slip Road Cover-Up | slip | slip | generic |
+| PLT-DSCOVER_UP601 | Cover-Up | 6 incidental word in a range name | Shirt Row Cover-Up | shirt | shirt | generic |
+| PLT-DSCOVER_UP602 | Cover-Up | 6 incidental word in a range name | Shoe Lane Cover-Up | shoe | shoe | generic |
+| PLT-DSCOVER_UP700 | Cover-Up | 7 invented brand holding a color or category word | Black Lapwing Cover-Up | black | black cover-up | generic |
+| PLT-DSCOVER_UP701 | Cover-Up | 7 invented brand holding a color or category word | White Dormouse Cover-Up | white | white cover-up | generic |
+| PLT-DSCOVER_UP702 | Cover-Up | 7 invented brand holding a color or category word | Green Stoat Cover-Up | green | green cover-up | generic |
+| PLT-DSKIDS_SWIMSUIT100 | Kids Swimsuit | 1 color names a part | Kids Swimsuit with Green Hem | green | green kids swimsuit | generic |
+| PLT-DSKIDS_SWIMSUIT101 | Kids Swimsuit | 1 color names a part | Kids Swimsuit with Red Hem | red | red kids swimsuit | generic |
+| PLT-DSKIDS_SWIMSUIT102 | Kids Swimsuit | 1 color names a part | Kids Swimsuit with Black Hem | black | black kids swimsuit | generic |
+| PLT-DSKIDS_SWIMSUIT200 | Kids Swimsuit | 2 another category's noun as a modifier | White Rash Vest Kids Swimsuit | rash | rash | generic |
+| PLT-DSKIDS_SWIMSUIT201 | Kids Swimsuit | 2 another category's noun as a modifier | Pink Rash Vest Kids Swimsuit | rash | rash | generic |
+| PLT-DSKIDS_SWIMSUIT202 | Kids Swimsuit | 2 another category's noun as a modifier | Red Rash Vest Kids Swimsuit | rash | rash | generic |
+| PLT-DSKIDS_SWIMSUIT300 | Kids Swimsuit | 3 audience word of a sibling version | Grey Mens-Style Kids Swimsuit | mens | mens kids swimsuit | generic |
+| PLT-DSKIDS_SWIMSUIT301 | Kids Swimsuit | 3 audience word of a sibling version | Red Mens-Style Kids Swimsuit | mens | mens kids swimsuit | generic |
+| PLT-DSKIDS_SWIMSUIT302 | Kids Swimsuit | 3 audience word of a sibling version | Green Mini-Me Womens Kids Swimsuit | womens | womens kids swimsuit | generic |
+| PLT-DSKIDS_SWIMSUIT400 | Kids Swimsuit | 4 material or feature named but absent | Blue Leather-Look Kids Swimsuit | leather | leather kids swimsuit | special: material claim |
+| PLT-DSKIDS_SWIMSUIT401 | Kids Swimsuit | 4 material or feature named but absent | Navy Suede-Look Kids Swimsuit | suede | suede kids swimsuit | special: material claim |
+| PLT-DSKIDS_SWIMSUIT402 | Kids Swimsuit | 4 material or feature named but absent | Navy Cashmere-Feel Kids Swimsuit | cashmere | cashmere kids swimsuit | special: material claim |
+| PLT-DSKIDS_SWIMSUIT500 | Kids Swimsuit | 5 shade spelled in the description only | Moonbeam Kids Swimsuit | ivory | ivory kids swimsuit | generic |
+| PLT-DSKIDS_SWIMSUIT501 | Kids Swimsuit | 5 shade spelled in the description only | Driftwood Kids Swimsuit | taupe | taupe kids swimsuit | generic |
+| PLT-DSKIDS_SWIMSUIT502 | Kids Swimsuit | 5 shade spelled in the description only | Dune Kids Swimsuit | beige | beige kids swimsuit | generic |
+| PLT-DSKIDS_SWIMSUIT600 | Kids Swimsuit | 6 incidental word in a range name | Sock Hop Kids Swimsuit | sock | sock | generic |
+| PLT-DSKIDS_SWIMSUIT601 | Kids Swimsuit | 6 incidental word in a range name | Skirt Point Kids Swimsuit | skirt | skirt | generic |
+| PLT-DSKIDS_SWIMSUIT602 | Kids Swimsuit | 6 incidental word in a range name | Pump Lane Kids Swimsuit | pump | pump | generic |
+| PLT-DSKIDS_SWIMSUIT700 | Kids Swimsuit | 7 invented brand holding a color or category word | Red Plover Kids Swimsuit | red | red kids swimsuit | generic |
+| PLT-DSKIDS_SWIMSUIT701 | Kids Swimsuit | 7 invented brand holding a color or category word | Blue Otter Kids Swimsuit | blue | blue kids swimsuit | generic |
+| PLT-DSKIDS_SWIMSUIT702 | Kids Swimsuit | 7 invented brand holding a color or category word | Jumper Jay Kids Swimsuit | jumper | jumper kids swimsuit | generic |
 | PLT-DSKNITTED_TOP100 | Knitted Top | 1 color names a part | Knitted Top with White Hem | white | white knitted top | generic |
 | PLT-DSKNITTED_TOP101 | Knitted Top | 1 color names a part | Knitted Top with Red Hem | red | red knitted top | generic |
 | PLT-DSKNITTED_TOP102 | Knitted Top | 1 color names a part | Knitted Top with Yellow Hem | yellow | yellow knitted top | generic |
@@ -1615,3 +1750,87 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DSKNITTED_TOP700 | Knitted Top | 7 invented brand holding a color or category word | Coat Crake Knitted Top | coat | coat knitted top | generic |
 | PLT-DSKNITTED_TOP701 | Knitted Top | 7 invented brand holding a color or category word | Green Stoat Knitted Top | green | green knitted top | generic |
 | PLT-DSKNITTED_TOP702 | Knitted Top | 7 invented brand holding a color or category word | Black Lapwing Knitted Top | black | black knitted top | generic |
+| PLT-DSPERIOD_SWIMWEAR100 | Period Swimwear | 1 color names a part | Period Swimwear with Yellow Waistband | yellow | yellow period swimwear | generic |
+| PLT-DSPERIOD_SWIMWEAR101 | Period Swimwear | 1 color names a part | Period Swimwear with Blue Waistband | blue | blue period swimwear | generic |
+| PLT-DSPERIOD_SWIMWEAR102 | Period Swimwear | 1 color names a part | Period Swimwear with Black Waistband | black | black period swimwear | generic |
+| PLT-DSPERIOD_SWIMWEAR200 | Period Swimwear | 2 another category's noun as a modifier | Brown Short Period Swimwear | short | short | generic |
+| PLT-DSPERIOD_SWIMWEAR201 | Period Swimwear | 2 another category's noun as a modifier | Grey Brief Period Swimwear | brief | brief | generic |
+| PLT-DSPERIOD_SWIMWEAR202 | Period Swimwear | 2 another category's noun as a modifier | Pink Brief Period Swimwear | brief | brief | generic |
+| PLT-DSPERIOD_SWIMWEAR300 | Period Swimwear | 3 audience word of a sibling version | Red Mens-Style Period Swimwear | mens | mens period swimwear | generic |
+| PLT-DSPERIOD_SWIMWEAR301 | Period Swimwear | 3 audience word of a sibling version | White Boys Fit Period Swimwear | boys | boys period swimwear | generic |
+| PLT-DSPERIOD_SWIMWEAR302 | Period Swimwear | 3 audience word of a sibling version | Cream Mens Fit Period Swimwear | mens | mens period swimwear | generic |
+| PLT-DSPERIOD_SWIMWEAR400 | Period Swimwear | 4 material or feature named but absent | Navy Leather-Look Period Swimwear | leather | leather period swimwear | special: material claim |
+| PLT-DSPERIOD_SWIMWEAR401 | Period Swimwear | 4 material or feature named but absent | Pink Suede-Look Period Swimwear | suede | suede period swimwear | special: material claim |
+| PLT-DSPERIOD_SWIMWEAR402 | Period Swimwear | 4 material or feature named but absent | Navy Cashmere-Feel Period Swimwear | cashmere | cashmere period swimwear | special: material claim |
+| PLT-DSPERIOD_SWIMWEAR500 | Period Swimwear | 5 shade spelled in the description only | Moonbeam Period Swimwear | ivory | ivory period swimwear | generic |
+| PLT-DSPERIOD_SWIMWEAR501 | Period Swimwear | 5 shade spelled in the description only | Driftwood Period Swimwear | taupe | taupe period swimwear | generic |
+| PLT-DSPERIOD_SWIMWEAR502 | Period Swimwear | 5 shade spelled in the description only | Dune Period Swimwear | beige | beige period swimwear | generic |
+| PLT-DSPERIOD_SWIMWEAR600 | Period Swimwear | 6 incidental word in a range name | Sandal Wood Period Swimwear | sandal | sandal | generic |
+| PLT-DSPERIOD_SWIMWEAR601 | Period Swimwear | 6 incidental word in a range name | Sock Hop Period Swimwear | sock | sock | generic |
+| PLT-DSPERIOD_SWIMWEAR602 | Period Swimwear | 6 incidental word in a range name | Skirt Point Period Swimwear | skirt | skirt | generic |
+| PLT-DSPERIOD_SWIMWEAR700 | Period Swimwear | 7 invented brand holding a color or category word | Red Plover Period Swimwear | red | red period swimwear | generic |
+| PLT-DSPERIOD_SWIMWEAR701 | Period Swimwear | 7 invented brand holding a color or category word | White Dormouse Period Swimwear | white | white period swimwear | generic |
+| PLT-DSPERIOD_SWIMWEAR702 | Period Swimwear | 7 invented brand holding a color or category word | Yellow Wagtail Period Swimwear | yellow | yellow period swimwear | generic |
+| PLT-DSSWIM_SHORTS100 | Swim Shorts | 1 color names a part | Swim Shorts with White Waistband | white | white swim shorts | generic |
+| PLT-DSSWIM_SHORTS101 | Swim Shorts | 1 color names a part | Swim Shorts with Yellow Waistband | yellow | yellow swim shorts | generic |
+| PLT-DSSWIM_SHORTS102 | Swim Shorts | 1 color names a part | Swim Shorts with Black Waistband | black | black swim shorts | generic |
+| PLT-DSSWIM_SHORTS200 | Swim Shorts | 2 another category's noun as a modifier | Blue Chino Swim Shorts | chino | chino | generic |
+| PLT-DSSWIM_SHORTS201 | Swim Shorts | 2 another category's noun as a modifier | Pink Chino Swim Shorts | chino | chino | generic |
+| PLT-DSSWIM_SHORTS202 | Swim Shorts | 2 another category's noun as a modifier | Grey Cargo Swim Shorts | cargo | cargo | generic |
+| PLT-DSSWIM_SHORTS300 | Swim Shorts | 3 audience word of a sibling version | Black Girls Fit Swim Shorts | girls | girls swim shorts | generic |
+| PLT-DSSWIM_SHORTS301 | Swim Shorts | 3 audience word of a sibling version | Pink Womens Fit Swim Shorts | womens | womens swim shorts | generic |
+| PLT-DSSWIM_SHORTS302 | Swim Shorts | 3 audience word of a sibling version | Blue Womens-Style Swim Shorts | womens | womens swim shorts | generic |
+| PLT-DSSWIM_SHORTS400 | Swim Shorts | 4 material or feature named but absent | Green Leather-Look Swim Shorts | leather | leather swim shorts | special: material claim |
+| PLT-DSSWIM_SHORTS401 | Swim Shorts | 4 material or feature named but absent | Grey Suede-Look Swim Shorts | suede | suede swim shorts | special: material claim |
+| PLT-DSSWIM_SHORTS402 | Swim Shorts | 4 material or feature named but absent | Navy Cashmere-Feel Swim Shorts | cashmere | cashmere swim shorts | special: material claim |
+| PLT-DSSWIM_SHORTS500 | Swim Shorts | 5 shade spelled in the description only | Moonbeam Swim Shorts | ivory | ivory swim shorts | generic |
+| PLT-DSSWIM_SHORTS501 | Swim Shorts | 5 shade spelled in the description only | Driftwood Swim Shorts | taupe | taupe swim shorts | generic |
+| PLT-DSSWIM_SHORTS502 | Swim Shorts | 5 shade spelled in the description only | Dune Swim Shorts | beige | beige swim shorts | generic |
+| PLT-DSSWIM_SHORTS600 | Swim Shorts | 6 incidental word in a range name | Blazer Court Swim Shorts | blazer | blazer | generic |
+| PLT-DSSWIM_SHORTS601 | Swim Shorts | 6 incidental word in a range name | Cardigan Bay Swim Shorts | cardigan | cardigan | generic |
+| PLT-DSSWIM_SHORTS602 | Swim Shorts | 6 incidental word in a range name | Shoe Lane Swim Shorts | shoe | shoe | generic |
+| PLT-DSSWIM_SHORTS700 | Swim Shorts | 7 invented brand holding a color or category word | Black Lapwing Swim Shorts | black | black swim shorts | generic |
+| PLT-DSSWIM_SHORTS701 | Swim Shorts | 7 invented brand holding a color or category word | Yellow Wagtail Swim Shorts | yellow | yellow swim shorts | generic |
+| PLT-DSSWIM_SHORTS702 | Swim Shorts | 7 invented brand holding a color or category word | Blue Otter Swim Shorts | blue | blue swim shorts | generic |
+| PLT-DSSWIMSUIT100 | Swimsuit | 1 color names a part | Swimsuit with Black Hem | black | black swimsuit | generic |
+| PLT-DSSWIMSUIT101 | Swimsuit | 1 color names a part | Swimsuit with Blue Straps | blue | blue swimsuit | generic |
+| PLT-DSSWIMSUIT102 | Swimsuit | 1 color names a part | Swimsuit with Red Straps | red | red swimsuit | generic |
+| PLT-DSSWIMSUIT200 | Swimsuit | 2 another category's noun as a modifier | Pink Skirted Swimsuit | skirt | skirt | generic |
+| PLT-DSSWIMSUIT201 | Swimsuit | 2 another category's noun as a modifier | Navy Tank Swimsuit | tank | tank | generic |
+| PLT-DSSWIMSUIT202 | Swimsuit | 2 another category's noun as a modifier | Pink Tank Swimsuit | tank | tank | generic |
+| PLT-DSSWIMSUIT300 | Swimsuit | 3 audience word of a sibling version | White Boys Fit Swimsuit | boys | boys swimsuit | generic |
+| PLT-DSSWIMSUIT301 | Swimsuit | 3 audience word of a sibling version | Grey Mens Fit Swimsuit | mens | mens swimsuit | generic |
+| PLT-DSSWIMSUIT302 | Swimsuit | 3 audience word of a sibling version | Green Boys Fit Swimsuit | boys | boys swimsuit | generic |
+| PLT-DSSWIMSUIT400 | Swimsuit | 4 material or feature named but absent | Red Leather-Look Swimsuit | leather | leather swimsuit | special: material claim |
+| PLT-DSSWIMSUIT401 | Swimsuit | 4 material or feature named but absent | Cream Suede-Look Swimsuit | suede | suede swimsuit | special: material claim |
+| PLT-DSSWIMSUIT402 | Swimsuit | 4 material or feature named but absent | Red Cashmere-Feel Swimsuit | cashmere | cashmere swimsuit | special: material claim |
+| PLT-DSSWIMSUIT500 | Swimsuit | 5 shade spelled in the description only | Moonbeam Swimsuit | ivory | ivory swimsuit | generic |
+| PLT-DSSWIMSUIT501 | Swimsuit | 5 shade spelled in the description only | Driftwood Swimsuit | taupe | taupe swimsuit | generic |
+| PLT-DSSWIMSUIT502 | Swimsuit | 5 shade spelled in the description only | Dune Swimsuit | beige | beige swimsuit | generic |
+| PLT-DSSWIMSUIT600 | Swimsuit | 6 incidental word in a range name | Shirt Row Swimsuit | shirt | shirt | generic |
+| PLT-DSSWIMSUIT601 | Swimsuit | 6 incidental word in a range name | Coat Hook Swimsuit | coat | coat | generic |
+| PLT-DSSWIMSUIT602 | Swimsuit | 6 incidental word in a range name | Pump Lane Swimsuit | pump | pump | generic |
+| PLT-DSSWIMSUIT700 | Swimsuit | 7 invented brand holding a color or category word | Yellow Wagtail Swimsuit | yellow | yellow swimsuit | generic |
+| PLT-DSSWIMSUIT701 | Swimsuit | 7 invented brand holding a color or category word | Coat Crake Swimsuit | coat | coat swimsuit | generic |
+| PLT-DSSWIMSUIT702 | Swimsuit | 7 invented brand holding a color or category word | White Dormouse Swimsuit | white | white swimsuit | generic |
+| PLT-DSTANKINI100 | Tankini | 1 color names a part | Tankini with Yellow Hem | yellow | yellow tankini | generic |
+| PLT-DSTANKINI101 | Tankini | 1 color names a part | Tankini with White Straps | white | white tankini | generic |
+| PLT-DSTANKINI102 | Tankini | 1 color names a part | Tankini with Red Hem | red | red tankini | generic |
+| PLT-DSTANKINI200 | Tankini | 2 another category's noun as a modifier | Green Skirted Tankini | skirt | skirt | generic |
+| PLT-DSTANKINI201 | Tankini | 2 another category's noun as a modifier | Navy Cami Tankini | cami | cami | generic |
+| PLT-DSTANKINI202 | Tankini | 2 another category's noun as a modifier | Red Cami Tankini | cami | cami | generic |
+| PLT-DSTANKINI300 | Tankini | 3 audience word of a sibling version | Green Boys Fit Tankini | boys | boys tankini | generic |
+| PLT-DSTANKINI301 | Tankini | 3 audience word of a sibling version | Black Mens Fit Tankini | mens | mens tankini | generic |
+| PLT-DSTANKINI302 | Tankini | 3 audience word of a sibling version | Blue Mens Fit Tankini | mens | mens tankini | generic |
+| PLT-DSTANKINI400 | Tankini | 4 material or feature named but absent | White Leather-Look Tankini | leather | leather tankini | special: material claim |
+| PLT-DSTANKINI401 | Tankini | 4 material or feature named but absent | Black Suede-Look Tankini | suede | suede tankini | special: material claim |
+| PLT-DSTANKINI402 | Tankini | 4 material or feature named but absent | Grey Cashmere-Feel Tankini | cashmere | cashmere tankini | special: material claim |
+| PLT-DSTANKINI500 | Tankini | 5 shade spelled in the description only | Moonbeam Tankini | ivory | ivory tankini | generic |
+| PLT-DSTANKINI501 | Tankini | 5 shade spelled in the description only | Driftwood Tankini | taupe | taupe tankini | generic |
+| PLT-DSTANKINI502 | Tankini | 5 shade spelled in the description only | Dune Tankini | beige | beige tankini | generic |
+| PLT-DSTANKINI600 | Tankini | 6 incidental word in a range name | Jacket Quay Tankini | jacket | jacket | generic |
+| PLT-DSTANKINI601 | Tankini | 6 incidental word in a range name | Jumper Lane Tankini | jumper | jumper | generic |
+| PLT-DSTANKINI602 | Tankini | 6 incidental word in a range name | Pump Lane Tankini | pump | pump | generic |
+| PLT-DSTANKINI700 | Tankini | 7 invented brand holding a color or category word | Blue Otter Tankini | blue | blue tankini | generic |
+| PLT-DSTANKINI701 | Tankini | 7 invented brand holding a color or category word | White Dormouse Tankini | white | white tankini | generic |
+| PLT-DSTANKINI702 | Tankini | 7 invented brand holding a color or category word | Green Stoat Tankini | green | green tankini | generic |

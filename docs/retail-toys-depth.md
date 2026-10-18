@@ -43,8 +43,7 @@ incidental-word ones included. Each toy spec declares four in its own `decoys=`,
 
 | Class | What the title holds | Example (kite) | Policy |
 |---|---|---|---|
-| 6, a color word | a range name with a color the product lacks | Red Tarn Kite, sold in blue (query "red kite") | generic |
-| 6, a toy word | another toy's word as a range name | Card Game Ridge Kite (query "card game") | generic |
+| 6, a toy word | another toy's word as a range name, never a color (#446) | Water Gun Point Kite (query "water gun"), Card Game Ridge Kite (query "card game") | generic |
 | 4, absent | a material or look the product does not have | Silk-Look Kite, ripstop nylon (query "silk kite") | special: material claim |
 | 7, brand | another toy's word in an invented brand | Marble Run Co Stunt Kite (query "marble run") | generic |
 

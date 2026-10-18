@@ -107,6 +107,7 @@ import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import color_word_brand_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
+import decor_rows  # noqa: E402
 import decoy_apparel  # noqa: E402
 import decoy_product_words  # noqa: E402
 import decoy_rows  # noqa: E402
@@ -120,6 +121,7 @@ import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
 import mens_depth_rows  # noqa: E402
+import neckline_rows  # noqa: E402
 import needs_rows  # noqa: E402
 import net_volume  # noqa: E402
 import nike_rows  # noqa: E402
@@ -240,6 +242,9 @@ SPORTS_IDS = frozenset(f"BRD-{r.code}" for r in sports_rows.ROWS)
 #: The lawn mower, trimmer and barbecue styles and their decoys (:mod:`garden_rows`, gen#203),
 #: templates only: the Garden department grows by authored rows.
 GARDEN_IDS = frozenset(f"BRD-{r.code}" for r in garden_rows.ROWS)
+#: The text-match decoys of the decor types (:mod:`decor_rows`, gen#217): templates only. The
+#: types themselves are specs and the registry leaves them out of the derivation.
+DECOR_IDS = decor_rows.decoy_ids()
 #: The school uniform styles (:mod:`school_rows`, gen#205): templates only, as the sports rows are.
 SCHOOL_IDS = frozenset(f"BRD-{r.code}" for r in school_rows.ROWS)
 #: The steak plate, board and weight (:mod:`distractor_rows`, gen#268). Each carries a material, so
@@ -274,6 +279,8 @@ LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 MENS_DEPTH_IDS = mens_depth_rows.product_ids()
 #: The knitwear depth (:mod:`knitwear_rows`, gen#309): templates only.
 KNITWEAR_IDS = knitwear_rows.product_ids()
+#: The neckline depth (:mod:`neckline_rows`, gen#181): templates only.
+NECKLINE_IDS = neckline_rows.product_ids()
 #: The Nike styles and the decoys that name Nike (:mod:`nike_rows`, gen#341): templates only.
 NIKE_IDS = nike_rows.product_ids()
 #: The types the failure classes need (:mod:`needs_rows`, gen#329): templates only.
@@ -285,7 +292,8 @@ SPEC_IDS = type_registry.left_out_ids()
 
 # Text-match decoys (gen#294, gen#311) are exempt from the output standard's text check: they
 # exist to confuse a plain text search (the maintainer ruling on #311).
-DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()
+DECOY_IDS = (decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()
+             | decor_rows.decoy_ids() | neckline_rows.decoy_ids())
 # The class-8 product-word decoys (gen#326) name a detail color on purpose in some rows only:
 # those rows join the exemption, by id, and the rest of the class is checked like any product.
 # Every registered type's text-match decoys, of every department, join by registering
@@ -345,19 +353,20 @@ def templates(baseline: bool = True) -> list[dict]:
         *school_rows.docs(), *sofa_rows.docs(), *household_rows.docs(),
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
-        *garden_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
+        *garden_rows.docs(), *decor_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
         *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(), *needs_rows.docs(),
-        *color_word_brand_rows.docs(),
+        *color_word_brand_rows.docs(), *neckline_rows.docs(),
     ]  # fmt: skip
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
+    body = neckline_rows.complete(body)  # gen#181: every top, dress and knit states its neckline
     body = net_volume.state_title_volumes(body)  # gen#347: a volume the title states is the field
     if baseline:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
     type_registry.check_unique_ids(tpls)
-    skip = (mens_depth_rows.decoy_ids() | COLORWORD_IDS | garden_rows.decoy_ids() | NIKE_IDS
-            | type_registry.decoy_ids() | needs_rows.decoy_ids()
-            | knitwear_rows.decoy_ids())
+    skip = (mens_depth_rows.decoy_ids() | COLORWORD_IDS | garden_rows.decoy_ids()
+            | decor_rows.decoy_ids() | NIKE_IDS | type_registry.decoy_ids() | needs_rows.decoy_ids()
+            | knitwear_rows.decoy_ids() | neckline_rows.decoy_ids())
     return main_colors.complete(tpls, skip) if baseline else tpls
 
 
@@ -371,9 +380,11 @@ def derivable(tpls: list[dict]) -> list[dict]:
     style (:mod:`lowerbody_rows`), left out so the seeded derivation is what it was. A boat
     or slash neck top is a failure-class row too (gen#125): a derived copy of it would hand
     the no-policy baseline the neckline, so it stays a template."""
-    left_out = (KNITWEAR_IDS | SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
-                | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS | SCHOOL_IDS
-                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | GARDEN_IDS | NIKE_IDS | NEEDS_IDS
+    left_out = (KNITWEAR_IDS | NECKLINE_IDS | SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS
+                | APPLIANCE_IDS | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
+                | SCHOOL_IDS
+                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | GARDEN_IDS | DECOR_IDS | NIKE_IDS
+                | NEEDS_IDS
                 | SPEC_IDS | decoy_rows.IDS | COLORWORD_IDS
                 | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
@@ -464,15 +475,20 @@ def _sku_values(rec: dict, skus: list[dict], swaps: dict[str, dict[str, str]]) -
         for key, swap in swaps.items():
             if key in s:
                 s[key] = swap.get(str(s[key]).lower(), s[key])
-    for a in rec["attributes"]:
-        held = {str(s[a["key"]]).lower() for s in skus if a["key"] in s}
-        if held:
-            parts = _parts(str(a["value"]))
-            kept = [p for p in parts if p.lower() in held]
-            a["value"] = ", ".join(kept)
-            for dropped in (p for p in parts if kept and p.lower() not in held):
-                for field in ("title", "description"):
-                    rec[field] = _swap(rec[field], dropped, kept[0])
+    for key in dict.fromkeys(a["key"] for a in rec["attributes"]):
+        held = {str(s[key]).lower() for s in skus if key in s}
+        if not held:
+            continue
+        entries = [a for a in rec["attributes"] if a["key"] == key]
+        kept = [p for a in entries for p in _parts(str(a["value"])) if p.lower() in held]
+        dropped = [p for a in entries for p in _parts(str(a["value"])) if p.lower() not in held]
+        for a in entries:
+            a["value"] = ", ".join(p for p in _parts(str(a["value"])) if p.lower() in held)
+        if kept:  # an entry for a material no kept SKU holds goes (a style lists the ones it sells)
+            rec["attributes"] = [a for a in rec["attributes"] if a["key"] != key or a["value"]]
+        for part in dropped if kept else ():
+            for text in ("title", "description"):
+                rec[text] = _swap(rec[text], part, kept[0])
 
 
 def _swap(text: str, old: str, new: str) -> str:
@@ -915,6 +931,7 @@ PREMIUM = {
     "linen": 1.15, "organic": 1.1, "canvas": 0.9, "faux": 0.85, "rubber": 0.85,
     "nylon": 0.85, "microfibre": 0.85, "synthetic": 0.8, "polyester": 0.8,
     "acrylic": 0.8, "hollowfibre": 0.8, "plastic": 0.8,
+    "bone": 2.0, "porcelain": 1.4, "enamel": 0.75, "melamine": 0.5,
 }  # fmt: skip
 
 

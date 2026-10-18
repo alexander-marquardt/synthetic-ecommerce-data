@@ -116,8 +116,13 @@ _PLANNED: tuple[Spec, ...] = (
 #: the registry is numbered by its key instead (``S`` and the key), so adding one moves no id. A
 #: type of this plan moves into its spec only with its ids renumbered, so none has yet (Tracksuit,
 #: a spec, keeps its plan here).
+#: More decoys for the two types the neckline depth grew (gen#181): a large type carries a tenth.
+#: The extra ids are the later ones of each class (``i`` 3 and up): no id is renamed, but an
+#: existing id can change content (PLT-DA08602 does), so a decoy is never pinned by its id.
+_MORE = {"Top": 6, "Dress": 4}
 BASE_TYPES: tuple[Spec, ...] = tuple(
-    replace(s, prefix=f"A{ti:02d}") for ti, s in enumerate(_PLANNED)
+    replace(s, prefix=f"A{ti:02d}", per_class=_MORE.get(s.product_type, s.per_class))
+    for ti, s in enumerate(_PLANNED)
 )
 #: Types of the three departments that carry no decoys, each with its reason.
 BASE_EXEMPT = {
@@ -319,6 +324,8 @@ COMPOUNDS = {
 #: added only when a shopper meets it as a product name, so these types hold fewer, not an
 #: invented third.
 SHORT_COMPOUNDS: dict[str, str] = {
+    "Swimsuit": "only the skirted swimsuit and the tank swimsuit pair another noun with a swimsuit",
+    "Kids Swimsuit": "only the skirted and the rash vest kids swimsuit are names a shopper meets",
     "Bra": "only the cami bra and the corset bra are names; a t-shirt bra is a bra shape",
     "Blouse": "only the dress blouse and the tunic blouse are names a shopper meets",
     "Ballet Pumps": "only ballet slippers and ballet sandals pair another noun with a ballet pump",
