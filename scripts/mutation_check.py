@@ -27,9 +27,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mutation_rows_appliance_colors  # noqa: E402  (gen#243 rows)
+import mutation_rows_attribute_keys  # noqa: E402  (gen#227 rows, kept in their own file)
 import mutation_rows_attribute_text  # noqa: E402  (gen#250 rows, kept in their own file)
 import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
 import mutation_rows_bolt_pack  # noqa: E402  (gen#86 rows, kept in their own file)
+import mutation_rows_brand_owner_236  # noqa: E402  (gen#236 rows, kept in their own file)
 import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their own file)
 import mutation_rows_customer_names  # noqa: E402  (#393 rows, kept in their own file)
 import mutation_rows_cutlery_pack_count  # noqa: E402  (gen#228 rows)
@@ -3896,8 +3898,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a decoy is copied by the derivation",
                 "scale.py",
-                "| SPEC_IDS | decoy_rows.IDS\n",
-                "| SPEC_IDS\n",
+                "| SPEC_IDS | decoy_rows.IDS | COLORWORD_IDS\n",
+                "| SPEC_IDS | COLORWORD_IDS\n",
                 "tests/test_retail_text_match_decoys_294.py -k never_copied_or_color_completed",
                 "a decoy stays a template",
             ),
@@ -4182,6 +4184,11 @@ MUTATIONS: list[Mutation] = [
         for name, file, old, new, test, prop in mutation_rows_lowerbody_257.ROWS
     ),
     *(
+        Mutation(f"brand owner: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in mutation_rows_brand_owner_236.ROWS
+    ),
+    *(
         Mutation(f"underwear drawn values: {name}", file, old, new, tests, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, tests, prop in mutation_rows_underwear_245.ROWS
@@ -4196,6 +4203,9 @@ MUTATIONS: list[Mutation] = [
                  root="prototypes/retail_drawings")
         for name, file, old, new, tests, prop in mutation_rows_furniture_226.ROWS
     ),
+    # ---- retail: one attribute key per concept (gen#227); the rows are in their own file ----
+    *(Mutation(f"attribute keys: {r[0]}", *r[1:5], "", r[5], root=r[6])
+      for r in mutation_rows_attribute_keys.ROWS),
     *(
         Mutation(f"audit order: {n}", "generate_cli.py", o, w, t, "", pr)
         for n, o, w, t, pr in mutation_rows_audit_order.ROWS
@@ -4343,6 +4353,67 @@ MUTATIONS: list[Mutation] = [
                 "        100: 77,",
                 "each_pack_count_is_the_census_count",
                 "the counts are the census's",
+            ),
+        ]
+    ),
+    # ---- retail: color-word brands beyond clothing (gen#312) ----
+    # Every name starts "color-word brands:", so `--only "color-word brands:"` re-runs them.
+    *(
+        Mutation(f"color-word brands: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in [
+            (
+                "the black-named drill is really black",
+                "color_word_brand_rows.py",
+                '_in("#e8741e", "#2a2a2e", "Orange"),\n        (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18)),',
+                '_in("#2a2a2e", "#e8741e", "Black"),\n        (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18)),',
+                "tests/test_color_word_brands_312.py -k test_no_attribute_states_the_color_word",
+                "the color attribute differs from the color word",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "the completer is not told to skip the decoys",
+                "scale.py",
+                "| COLORWORD_IDS | garden_rows.decoy_ids()",
+                "| garden_rows.decoy_ids()",
+                "tests/test_color_word_brands_312.py -k test_a_built_decoy_offers_exactly_its_one_true_color",
+                "a decoy offers more than its one true color",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "a brand's wordmark is set in capitals, not as the brand field",
+                "color_word_brand_styles.py",
+                '"humanist", 700, "title",     0.5)',
+                '"humanist", 700, "caps",      0.5)',
+                "tests/test_color_word_brands_312.py -k test_a_drawing_lockup_text_equals_the_brand_field",
+                "the lockup text equals the brand",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "a title runs past five words",
+                "color_word_brand_rows.py",
+                '"Green Harrow Sweetcorn Kernels"',
+                '"Green Harrow Golden Sweetcorn Kernels in Water"',
+                "tests/test_color_word_brands_312.py -k test_the_color_word_sits_in_a_short_title",
+                "the color word sits in a short title",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "the garden loses its bulbs",
+                "color_word_brand_rows.py",
+                '_TULIP = ("Garden", "Bulbs", "Tulip Bulbs")',
+                '_TULIP = ("Home", "Bulbs", "Tulip Bulbs")',
+                "tests/test_color_word_brands_312.py -k test_each_department_has_at_least_three_decoys",
+                "each department has three decoys",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "the standard reads the brand as a claim",
+                "core/standard.py",
+                'values.add(str(doc["brand"]))',
+                "pass",
+                "tests/test_color_word_brands_312.py -k test_the_standard_reads_a_brand_as_a_name",
+                "a brand is a name, not a claim",
+                "src/synthetic_ecommerce_data",
             ),
         ]
     ),
