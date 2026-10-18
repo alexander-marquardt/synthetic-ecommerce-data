@@ -393,7 +393,7 @@ class FinishMixin:
                     image_id=image_id_for(type_key, product_id, sku),
                     compatibility=compatibility,
                     noise=noise_text,
-                    pricing_unit=pricing_unit_for(values.get("Package Quantity")),
+                    pricing_unit=pricing_unit_for(values.get("Units per Pack")),
                 )
             )
             self._bump("skus")
