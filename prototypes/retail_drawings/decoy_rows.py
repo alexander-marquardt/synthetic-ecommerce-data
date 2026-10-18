@@ -39,10 +39,11 @@ from variants import cw
 RED, BLUE, BLACK, WHITE, GREY = ("#c8322b", "#2f6db5", "#2a2a2e", "#ffffff", "#8a8a8e")
 NAVY, CREAM, GOLD, GREEN, BROWN, PINK, NUDE = ("#26365c", "#efe8d8", "#c9a34a", "#3c8d4f",
                                                "#6b4a2e", "#e8b9b3", "#e3c1a5")  # fmt: skip
-YELLOW, PURPLE, CLEAR = "#f2d14b", "#7a5a9e", "#e3eef0"
+YELLOW, PURPLE, CLEAR, ORANGE = "#f2d14b", "#7a5a9e", "#e3eef0", "#e07a1f"
 COLORS = {"Red": RED, "Blue": BLUE, "Black": BLACK, "White": WHITE, "Grey": GREY, "Navy": NAVY,
           "Cream": CREAM, "Gold": GOLD, "Green": GREEN, "Brown": BROWN, "Pink": PINK,
-          "Nude": NUDE, "Yellow": YELLOW, "Purple": PURPLE, "Clear": CLEAR}  # fmt: skip
+          "Nude": NUDE, "Yellow": YELLOW, "Purple": PURPLE, "Clear": CLEAR,
+          "Orange": ORANGE}  # fmt: skip
 
 
 @dataclass(frozen=True)

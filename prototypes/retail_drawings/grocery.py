@@ -142,7 +142,8 @@ SHAPES = {
 }
 #: What a punnet holds, by the VEG variety (``kit.PRODUCE``).
 PUNNET = {"Cherry Tomatoes": "tomato", "Baby Carrots": "carrot", "Mint": "herb",
-          "Button Mushrooms": "mushroom", "Green Beans": "bean"}
+          "Button Mushrooms": "mushroom", "Green Beans": "bean",
+          "Sweet Peppers": "pepper", "Baby Spinach": "herb"}
 #: Where a title's noun phrase ends (the honesty test's rule: "Tuna in Spring Water" is tuna).
 _CUT = re.compile(r",|\d| for | with | of | in | to ")
 LABEL_CHARS = 14
