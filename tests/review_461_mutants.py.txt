@@ -39,4 +39,11 @@ MUTANTS = [
      '"Make-Up Bag", "pouch"', '"Make-Up Pouch", "pouch"',
      "a decoy of a new product type, which has no spec file",
      [S + "test_every_type_is_registered_through_a_spec_or_the_legacy_list"]),
+    (R + "decoy_product_words.py",
+     '"Grip hangers that clip tea towels to the oven door or a cupboard handle.", "White",\n'
+     '       _CAT, pack="4 pack"),',
+     '"Grip hangers that clip tea towels to the oven door or a cupboard handle.", "White",\n'
+     '       _CAT),',
+     "the tea towel hanger titled 4 Pack carries the Kind's 10 pack",
+     [T + "test_a_seed_decoy_title_that_names_a_pack_count_matches_its_pack_size"]),
 ]
