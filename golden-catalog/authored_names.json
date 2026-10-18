@@ -107,7 +107,7 @@
   "Shank type": "Shank Type"
  },
  "driver_bit_sets": {
-  "Number of pieces": "Number of Pieces"
+  "Piece count": "Piece Count"
  },
  "end_mill_ball": {
   "Coolant fed": "Coolant Fed",
@@ -147,13 +147,13 @@
   "Thread size": "Thread Size"
  },
  "fastener_extractors": {
-  "Number of pieces": "Number of Pieces"
+  "Piece count": "Piece Count"
  },
  "flange_nuts": {
   "Thread size": "Thread Size"
  },
  "fluted_dowels": {
-  "Package quantity": "Package Quantity"
+  "Units per pack": "Units per Pack"
  },
  "foam_ear_plugs": {
   "Units per pack": "Units per Pack"
@@ -276,7 +276,7 @@
   "Maximum size": "Maximum Size"
  },
  "nylon_wall_anchors": {
-  "Package quantity": "Package Quantity"
+  "Units per pack": "Units per Pack"
  },
  "o_rings": {
   "Dash number": "Dash Number",
@@ -301,7 +301,7 @@
   "Maximum size": "Maximum Size"
  },
  "pin_punch_sets": {
-  "Number of pieces": "Number of Pieces"
+  "Piece count": "Piece Count"
  },
  "retaining_rings_external": {
   "For shaft diameter": "For Shaft Diameter",
@@ -389,7 +389,7 @@
   "Units per pack": "Units per Pack"
  },
  "seal_pick_sets": {
-  "Number of pieces": "Number of Pieces"
+  "Piece count": "Piece Count"
  },
  "sems_bolts": {
   "Head type": "Head Type",
@@ -428,7 +428,7 @@
   "Head type": "Head Type"
  },
  "sleeve_installation_kits": {
-  "Number of pieces": "Number of Pieces"
+  "Piece count": "Piece Count"
  },
  "snap_ring_pliers": {
   "Overall length": "Overall Length"
