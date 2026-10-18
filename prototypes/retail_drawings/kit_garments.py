@@ -307,6 +307,9 @@ NECKLINES = {
     "scoop": ((160, 72), "C240,166 160,166 160,72", "M152,76 C152,180 248,180 248,76"),
     "square": ((156, 72), "L244,130 L156,130 L156,72", "M146,74 L146,142 L254,142 L254,74"),
     "roll_neck": ((172, 76), "Q200,88 172,76", ""),
+    # A halter rises to a narrow neck over bare shoulders, a cowl drapes in two folds (gen#181).
+    "halter": ((184, 58), "Q200,70 184,58", "M180,62 Q200,76 220,62"),
+    "cowl": ((164, 72), "Q200,124 164,72", "M158,78 Q200,138 242,78 M168,92 Q200,130 232,92"),
 }
 #: Deeper cuts a cardigan opens to.
 CARDIGAN_NECKS = {
