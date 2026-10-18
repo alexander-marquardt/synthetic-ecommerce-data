@@ -1594,6 +1594,27 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA67700 | Barefoot Shoes | 7 invented brand holding a color or category word | White Dormouse Barefoot Shoes | white | white barefoot shoes | generic |
 | PLT-DA67701 | Barefoot Shoes | 7 invented brand holding a color or category word | White Dormouse Barefoot Shoes | white | white barefoot shoes | generic |
 | PLT-DA67702 | Barefoot Shoes | 7 invented brand holding a color or category word | Yellow Wagtail Barefoot Shoes | yellow | yellow barefoot shoes | generic |
+| PLT-DSBOYS_SUIT100 | Boys Suit | 1 color names a part | Boys Suit with Red Cuffs | red | red boys suit | generic |
+| PLT-DSBOYS_SUIT101 | Boys Suit | 1 color names a part | Boys Suit with Yellow Cuffs | yellow | yellow boys suit | generic |
+| PLT-DSBOYS_SUIT102 | Boys Suit | 1 color names a part | Boys Suit with White Cuffs | white | white boys suit | generic |
+| PLT-DSBOYS_SUIT200 | Boys Suit | 2 another category's noun as a modifier | Brown Page Boy Suit | page | page | generic |
+| PLT-DSBOYS_SUIT201 | Boys Suit | 2 another category's noun as a modifier | Green Page Boy Suit | page | page | generic |
+| PLT-DSBOYS_SUIT202 | Boys Suit | 2 another category's noun as a modifier | Grey Sailor Suit | sailor | sailor | generic |
+| PLT-DSBOYS_SUIT300 | Boys Suit | 3 audience word of a sibling version | Cream Mens-Style Boys Suit | mens | mens boys suit | generic |
+| PLT-DSBOYS_SUIT301 | Boys Suit | 3 audience word of a sibling version | Cream Mini-Me Womens Boys Suit | womens | womens boys suit | generic |
+| PLT-DSBOYS_SUIT302 | Boys Suit | 3 audience word of a sibling version | Navy Mini-Me Womens Boys Suit | womens | womens boys suit | generic |
+| PLT-DSBOYS_SUIT400 | Boys Suit | 4 material or feature named but absent | Black Leather-Look Boys Suit | leather | leather boys suit | special: material claim |
+| PLT-DSBOYS_SUIT401 | Boys Suit | 4 material or feature named but absent | Blue Suede-Look Boys Suit | suede | suede boys suit | special: material claim |
+| PLT-DSBOYS_SUIT402 | Boys Suit | 4 material or feature named but absent | Black Cashmere-Feel Boys Suit | cashmere | cashmere boys suit | special: material claim |
+| PLT-DSBOYS_SUIT500 | Boys Suit | 5 shade spelled in the description only | Moonbeam Boys Suit | ivory | ivory boys suit | generic |
+| PLT-DSBOYS_SUIT501 | Boys Suit | 5 shade spelled in the description only | Driftwood Boys Suit | taupe | taupe boys suit | generic |
+| PLT-DSBOYS_SUIT502 | Boys Suit | 5 shade spelled in the description only | Dune Boys Suit | beige | beige boys suit | generic |
+| PLT-DSBOYS_SUIT600 | Boys Suit | 6 incidental word in a range name | Coat Hook Boys Suit | coat | coat | generic |
+| PLT-DSBOYS_SUIT601 | Boys Suit | 6 incidental word in a range name | Boot Hill Boys Suit | boot | boot | generic |
+| PLT-DSBOYS_SUIT602 | Boys Suit | 6 incidental word in a range name | Slip Road Boys Suit | slip | slip | generic |
+| PLT-DSBOYS_SUIT700 | Boys Suit | 7 invented brand holding a color or category word | Green Stoat Boys Suit | green | green boys suit | generic |
+| PLT-DSBOYS_SUIT701 | Boys Suit | 7 invented brand holding a color or category word | Coat Crake Boys Suit | coat | coat boys suit | generic |
+| PLT-DSBOYS_SUIT702 | Boys Suit | 7 invented brand holding a color or category word | Jumper Jay Boys Suit | jumper | jumper boys suit | generic |
 | PLT-DSKNITTED_TOP100 | Knitted Top | 1 color names a part | Knitted Top with White Hem | white | white knitted top | generic |
 | PLT-DSKNITTED_TOP101 | Knitted Top | 1 color names a part | Knitted Top with Red Hem | red | red knitted top | generic |
 | PLT-DSKNITTED_TOP102 | Knitted Top | 1 color names a part | Knitted Top with Yellow Hem | yellow | yellow knitted top | generic |
@@ -1615,3 +1636,24 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DSKNITTED_TOP700 | Knitted Top | 7 invented brand holding a color or category word | Coat Crake Knitted Top | coat | coat knitted top | generic |
 | PLT-DSKNITTED_TOP701 | Knitted Top | 7 invented brand holding a color or category word | Green Stoat Knitted Top | green | green knitted top | generic |
 | PLT-DSKNITTED_TOP702 | Knitted Top | 7 invented brand holding a color or category word | Black Lapwing Knitted Top | black | black knitted top | generic |
+| PLT-DSTROUSER_SUIT100 | Trouser Suit | 1 color names a part | Straight Trouser Suit with Green Cuffs | green | green trouser suit | generic |
+| PLT-DSTROUSER_SUIT101 | Trouser Suit | 1 color names a part | Wide Trouser Suit with Black Cuffs | black | black trouser suit | generic |
+| PLT-DSTROUSER_SUIT102 | Trouser Suit | 1 color names a part | Slim Trouser Suit with Yellow Cuffs | yellow | yellow trouser suit | generic |
+| PLT-DSTROUSER_SUIT200 | Trouser Suit | 2 another category's noun as a modifier | Grey Wide Waistcoat Trouser Suit | waistcoat | waistcoat | generic |
+| PLT-DSTROUSER_SUIT201 | Trouser Suit | 2 another category's noun as a modifier | Red Straight Waistcoat Trouser Suit | waistcoat | waistcoat | generic |
+| PLT-DSTROUSER_SUIT202 | Trouser Suit | 2 another category's noun as a modifier | Brown Slim Waistcoat Trouser Suit | waistcoat | waistcoat | generic |
+| PLT-DSTROUSER_SUIT300 | Trouser Suit | 3 audience word of a sibling version | Cream Mens Fit Straight Trouser Suit | mens | mens trouser suit | generic |
+| PLT-DSTROUSER_SUIT301 | Trouser Suit | 3 audience word of a sibling version | Green Mens Fit Wide Trouser Suit | mens | mens trouser suit | generic |
+| PLT-DSTROUSER_SUIT302 | Trouser Suit | 3 audience word of a sibling version | White Mens Fit Straight Trouser Suit | mens | mens trouser suit | generic |
+| PLT-DSTROUSER_SUIT400 | Trouser Suit | 4 material or feature named but absent | White Leather-Look Wide Trouser Suit | leather | leather trouser suit | special: material claim |
+| PLT-DSTROUSER_SUIT401 | Trouser Suit | 4 material or feature named but absent | Blue Suede-Look Slim Trouser Suit | suede | suede trouser suit | special: material claim |
+| PLT-DSTROUSER_SUIT402 | Trouser Suit | 4 material or feature named but absent | Cream Cashmere-Feel Wide Trouser Suit | cashmere | cashmere trouser suit | special: material claim |
+| PLT-DSTROUSER_SUIT500 | Trouser Suit | 5 shade spelled in the description only | Moonbeam Straight Trouser Suit | ivory | ivory trouser suit | generic |
+| PLT-DSTROUSER_SUIT501 | Trouser Suit | 5 shade spelled in the description only | Driftwood Slim Trouser Suit | taupe | taupe trouser suit | generic |
+| PLT-DSTROUSER_SUIT502 | Trouser Suit | 5 shade spelled in the description only | Dune Straight Trouser Suit | beige | beige trouser suit | generic |
+| PLT-DSTROUSER_SUIT600 | Trouser Suit | 6 incidental word in a range name | Shoe Lane Wide Trouser Suit | shoe | shoe | generic |
+| PLT-DSTROUSER_SUIT601 | Trouser Suit | 6 incidental word in a range name | Pump Lane Straight Trouser Suit | pump | pump | generic |
+| PLT-DSTROUSER_SUIT602 | Trouser Suit | 6 incidental word in a range name | Coat Hook Wide Trouser Suit | coat | coat | generic |
+| PLT-DSTROUSER_SUIT700 | Trouser Suit | 7 invented brand holding a color or category word | Yellow Wagtail Slim Trouser Suit | yellow | yellow trouser suit | generic |
+| PLT-DSTROUSER_SUIT701 | Trouser Suit | 7 invented brand holding a color or category word | Coat Crake Wide Trouser Suit | coat | coat trouser suit | generic |
+| PLT-DSTROUSER_SUIT702 | Trouser Suit | 7 invented brand holding a color or category word | Blue Otter Straight Trouser Suit | blue | blue trouser suit | generic |
