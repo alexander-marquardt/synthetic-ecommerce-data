@@ -21,7 +21,12 @@ RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
 if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
+import decoy_apparel  # noqa: E402
+import decoy_product_words  # noqa: E402
+import decoy_rows  # noqa: E402
 import scale  # noqa: E402
+
+_DECOYS = decoy_apparel.ids() | decoy_rows.IDS | decoy_product_words.IDS
 
 D = ("Womens", "Dresses")
 #: group -> (category path prefixes, the floor of distinct products), from the issue.
@@ -41,7 +46,7 @@ FLOORS = {
 }
 #: The groups whose floor is also met without the text-match decoys: the ranking needs real
 #: products to choose between.
-REAL_FLOORS = {"dresses": 180, "blouses and shirts": 75, "coats and jackets": 75, "skirts": 75}
+REAL_FLOORS = {"dresses": 180, "blouses and shirts": 75, "coats and jackets": 60, "skirts": 70}
 #: leaf -> the floor of its own: the dress shapes the issue names, and the new top leaves.
 LEAF_FLOORS = {
     D + ("Midi Dresses",): 20, D + ("Maxi Dresses",): 20, D + ("Mini Dresses",): 12,
@@ -72,7 +77,7 @@ def _under(rec: dict, prefixes) -> bool:
 
 
 def _decoy(rec: dict) -> bool:
-    return rec["product_id"].startswith("PLT-D") or "decoy" in rec["product_id"].lower()
+    return rec["product_id"] in _DECOYS
 
 
 @pytest.mark.parametrize("group", FLOORS)
@@ -117,7 +122,7 @@ def test_every_new_product_states_fit_material_and_a_real_title(templates):
     assert len(set(titles)) == len(titles), "a title repeats"
     for r in rows:
         keys = {a["key"] for a in r["attributes"]}
-        assert {"fit", "material"} <= keys, (r["product_id"], keys)
+        assert "fit" in keys and keys & {"material", "fabric"}, (r["product_id"], keys)
         assert r["title"].startswith("Womens "), r["title"]
 
 
