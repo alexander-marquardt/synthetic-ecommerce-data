@@ -47,6 +47,7 @@ TOPICS = {
 
 PATH = re.compile(r"`([A-Za-z0-9_./<>*-]+\.(?:py|md|json|txt|sh))`")
 DOTTED = re.compile(r"`((?:[a-z_]+\.)+[A-Za-z_]+)(?:\(\))?`")
+NODE = re.compile(r"`([A-Za-z0-9_./-]+\.py)::(\w+)`")
 COMMAND = re.compile(r"`(uv run (?:python|pytest) [^`]+)`")
 
 
@@ -102,11 +103,27 @@ def _resolve(dotted: str) -> bool:
 def test_every_module_name_the_page_names_resolves() -> None:
     retail = {p.stem for p in RETAIL.glob("*.py")}
     names = sorted(
-        {n for n in DOTTED.findall(_text()) if n.split(".")[0] in retail or n.startswith("synth")}
+        {
+            n
+            for n in DOTTED.findall(_text())
+            if n.rsplit(".", 1)[1] not in {"py", "md", "json", "txt", "sh"}
+            and (n.split(".")[0] in retail or n.startswith("synth"))
+        }
     )
     assert len(names) >= 10, f"the page names only {len(names)} module attributes: {names}"
     missing = [n for n in names if not _resolve(n)]
     assert not missing, f"{DOC.name} names attributes that do not exist: {missing}"
+
+
+def test_every_test_the_page_names_is_defined() -> None:
+    nodes = NODE.findall(_text())
+    assert nodes, "the page names no test by node id"
+    missing = [
+        f"{f}::{name}"
+        for f, name in nodes
+        if not (ROOT / f).exists() or f"def {name}(" not in (ROOT / f).read_text("utf-8")
+    ]
+    assert not missing, f"the page names tests that are not defined: {missing}"
 
 
 def test_every_command_the_page_shows_runs_files_that_exist() -> None:
