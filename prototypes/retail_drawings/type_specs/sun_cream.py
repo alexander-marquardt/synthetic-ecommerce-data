@@ -42,7 +42,7 @@ SPEC = TypeSpec(
     options=(Option("spf", "spf", "SPF"),),
     rows=ROWS,
     decoys=(
-        Decoy(4, "coconut sun cream", "vocabulary", decoy("SND1", "Fragrance Free Mineral Face Sun Cream", "A mineral face sun cream with no perfume, free from coconut and nut oils.", ROWS[0])),
+        Decoy(4, "coconut sun cream", "vocabulary", decoy("SND1", "Fragrance Free Mineral Face Sun Cream", "A mineral face sun cream that has no perfume and is free from coconut and nut oils.", ROWS[0])),
         Decoy(6, "coconut sun cream", "generic", decoy("SND2", "Coconut Bay Face Sun Cream", "From the Coconut Bay range: a mineral face sun cream.", ROWS[0])),
         Decoy(7, "coconut sun cream", "generic", decoy("SND3", "Mineral Face Sun Cream", "A light mineral face sun cream.", ROWS[0], brand="Coconut Plover")),
     ),
