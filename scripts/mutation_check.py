@@ -1990,9 +1990,9 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "sports rows: a football's ball size is stored without its unit",
-        "prototypes/retail_drawings/export.py",
-        '"ball_size": ("ball_size", "Ball size", "C62"),',
-        '"ball_size": ("ball_size", "Ball size", None),',
+        "prototypes/retail_drawings/type_specs/football.py",
+        'Option("ball_size", "ball_size", "Ball size", "C62")',
+        'Option("ball_size", "ball_size", "Ball size", None)',
         "tests/test_retail_sports_265.py::test_a_measured_axis_is_on_every_sku_with_its_unit[Football]",
         "",
         "the ball size carries its unit",
