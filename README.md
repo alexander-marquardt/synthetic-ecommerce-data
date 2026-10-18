@@ -468,7 +468,11 @@ shared tables):
   source, so none is claimed.
 * **Finish and hardness follow material and grade**: an 18-8 stainless socket
   screw is plain at Rockwell B80, alloy steel is black oxide or zinc at C38
-  (12.9 at C39); a graded hex bolt's material follows its grade, and hot-dip
+  (12.9 at C39); the top strength grade is named on its own system's scale --
+  `Grade 12.9` (ISO 898-1) on a metric socket, flat, button or low head
+  screw, `Grade 8` (SAE J429, C36) on an inch one, never the reverse, which
+  a whole-catalog test over every published string of every document holds
+  (#17); a graded hex bolt's material follows its grade, and hot-dip
   galvanizing is kept off Grade 8 / Class 10.9 (ASTM F2329); nACo and AlTiN
   are carbide coatings, black oxide an HSS treatment.
 * **An end mill's shank is never thinner than its cutter, and never more than
