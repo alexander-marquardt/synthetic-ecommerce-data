@@ -232,6 +232,7 @@ REAL_COMPOUNDS = frozenset({
     "Chino School Trousers", "Jogger School Trousers", "Cargo School Trousers",
     "Pinafore School Skirt", "School Pinafore Dress",
     "School Polo Shirt", "Oxford School Shirt",
+    "Bikini Period Pants", "Boyshort Period Pants", "Thong Period Pants",
     "Boot Socks", "Trouser Socks", "Slipper Socks", "Trainer Socks", "Sneaker Socks",
     "Welly Boot Socks", "Wellington Boot Socks", "Walking Boot Socks",
     "Sandal Boots", "Sneaker Boots", "Loafer Boots", "Shoe Boots", "Slipper Boots", "Biker Boots",
