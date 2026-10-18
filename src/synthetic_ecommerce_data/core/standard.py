@@ -199,6 +199,19 @@ def _names(padded: str, value: str) -> bool:
     return bool(phrase) and f" {phrase} " in padded
 
 
+#: Ends a pattern that finds a value a text claims: a value before a hyphen says what a product
+#: is not made of or is only like ("Linen-Look", "Wool-Free", "fleece-back"), so it is no claim.
+#: One rule for the standard's text check and for ``facet_leaves.stated_fabrics`` (gen#187).
+UNHYPHENATED = r"(?!-)"
+
+
+def claims(text: str, value: str) -> bool:
+    """Whether ``text`` names ``value`` at least once not before a hyphen."""
+    phrase = r"[^a-z0-9]+".join(re.escape(w) for w in words(value).split())
+    pattern = rf"(?<![a-z0-9]){phrase}(?![a-z0-9]){UNHYPHENATED}"
+    return bool(phrase) and re.search(pattern, text.lower().replace("&", " and ")) is not None
+
+
 #: A phrase that names a value without claiming it: a comparison ("Higher strength than Grade
 #: 5."), an equivalence ("Equivalent to DIN 912 / ISO 4762.") and a tolerance class in
 #: parentheses ("(ISO 492 Normal class)"). A comparison or an equivalence runs to the end of its
@@ -230,7 +243,8 @@ def text_contradictions(
     document's values ("Leather" on a rubber-soled leather loafer) contradicts nothing, and
     neither does a pool value whose words sit inside one of the document's own values
     ("Steel" on 18-8 Stainless Steel, "Grinding" on Cutting & Grinding), nor a value the text
-    only compares or refers to (:data:`_REFERENCE`)."""
+    only compares or refers to (:data:`_REFERENCE`), nor one before a hyphen
+    (:data:`UNHYPHENATED`)."""
     attrs = [e for e in doc.get("attributes") or () if isinstance(e, dict)]
     own: dict[str, set[str]] = {}
     for e in attrs:
@@ -251,12 +265,13 @@ def text_contradictions(
             if not any(_names(own_value, v) for own_value in padded_own)
         }
         for text in dict.fromkeys(texts):
-            padded = words(_REFERENCE.sub(" | ", text))
+            claimed = _REFERENCE.sub(" | ", text)
+            padded = words(claimed)
             if not pool or any(_names(padded, v) for v in mine):
                 continue
             for v in every:
                 padded = padded.replace(words(v), " | ") if re.search(r"[A-Za-z]", v) else padded
-            named = sorted(v for v in pool if _names(padded, v))
+            named = sorted(v for v in pool if _names(padded, v) and claims(claimed, v))
             if named:
                 out.append(f"{doc.get('product_id')}: its text names {named[0]!r} but {key} is "
                            f"{sorted(mine)}: {text[:80]!r}")  # fmt: skip
