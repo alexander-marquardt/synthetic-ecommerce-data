@@ -65,7 +65,10 @@ where a shoe is cut in them, and a wide fit only in the sizes it names. A ring's
 letter and US number are other kinds of value, so they sit under `ring_size_uk` and
 `ring_size_us` (gen#249), never these keys. Each
 color names its upper material, which both the `upper_material` facet and the
-drawing read. `kit_footwear.py` draws the shoe from the side in twenty-five
+drawing read. The style lists each material once, in its own Title Case `upper_material`
+entry (`Leather`, `Suede`, `Patent`; gen#472), never one joined string, and each SKU names its
+own material in the same case. The key stays a shoe's own: it does not join the `fabric`
+facet, whose marker reads `fabric` only (gen#187). `kit_footwear.py` draws the shoe from the side in twenty-five
 kinds (court, kitten and block heels, ballet pumps, loafers, brogues,
 trainers, running shoes, slippers, sandals, ankle, Chelsea, chukka, knee-high,
 walking and safety boots, wellies, and since gen#216 plimsolls, clogs, wedges,
@@ -566,7 +569,7 @@ of the template's colorways and keeps the template's size run, and a count of
 colorways its text states ("in 12 washes") is its own: "in one wash" for a
 colorway alone. A changed value its SKUs also carry (a shoe's `upper_material`)
 is rewritten on every SKU, and the style lists only the values its kept SKUs
-hold. Its price is
+hold (a shoe drops the `upper_material` entry of a material no kept SKU holds). Its price is
 re-drawn inside its leaf's band, as a function of the values it changed (a
 premium material costs more). A draw whose title or description contradicts an
 attribute is refused, and `check_catalog` refuses such text too. The module
