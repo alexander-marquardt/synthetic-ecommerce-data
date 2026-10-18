@@ -50,7 +50,9 @@ only when this page does not cover what you need.
 4. Rebuild the figures (the build writes them; never edit by hand):
    `uv run python prototypes/retail_drawings/retail_figures.py`. It writes
    `golden-retail/stats.json` and `docs/retail-apparel-decoys.md` (the table of the apparel
-   decoys, which now lists the new type's), and both go in the commit.
+   decoys, which now lists the new type's). Commit neither: both are rolled by `scripts/merge_pr.sh`
+   when the PR merges (README; the `stats-roll` job refuses them), so put them back with
+   `git checkout origin/main -- golden-retail/stats.json docs/retail-apparel-decoys.md`.
 
 No edit to `scale.py`, `export.py`, `retail_figures.py`, `decoy_apparel.py`, the registry or any
 test is needed, for a beauty type or a clothing one: the registry (`type_registry.py`) finds the
@@ -100,8 +102,8 @@ catalog (`docs/adding-a-type.md`); a retail product id is `BRD-<row code>`, one 
 | `prototypes/retail_drawings/decoy_product_words.py` | Class 8 (gen#326): a product of another department whose title holds the shopper's word, one `_s(...)` row per decoy and a `KINDS` entry when its product is not there yet. |
 | `prototypes/retail_drawings/garden_rows.py` | Where the Garden department keeps its decoys (gen#294): add the new type's `_QUERY` and `_ABSENT` entries (its query words and the absent word its decoys carry); another department keeps them in its own `*_rows.py`. |
 | `prototypes/retail_drawings/retail_figures.py` | Run it, never edit it: it rewrites the two generated files below. |
-| `golden-retail/stats.json` | The measured figures of the build; generated, goes in the commit. |
-| `docs/retail-apparel-decoys.md` | The apparel decoy table; generated, goes in the commit even when your type is not apparel. |
+| `golden-retail/stats.json` | The measured figures of the build; generated, and NOT committed by a PR: `scripts/merge_pr.sh` rolls it at the merge and CI rewrites it before the tests (gen#373). |
+| `docs/retail-apparel-decoys.md` | The apparel decoy table; generated, and NOT committed by a PR: it is rolled at the merge and CI rewrites it before the tests (gen#373), whether or not your type is apparel. |
 | `docs/retail-product-word-decoys.md` | The class-8 table, pasted from `decoy_product_words.table_markdown()`; `tests/test_retail_product_word_decoys_326.py` holds it verbatim. |
 | `docs/retail-sports-tree.md` | The department's tree note (for Garden, `docs/retail-garden.md`); `tests/test_retail_sports_tree_note_290.py` holds that note to the leaves of the Sports rows. |
 | `tests/test_retail_type_specs_351.py` | Run, do not edit: every spec meets the same checks (key equals file name, rows match the type, brands have owners, ids are unique). |
