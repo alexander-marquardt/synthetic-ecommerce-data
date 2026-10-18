@@ -398,6 +398,20 @@ def test_every_title_names_the_fabric_or_fill_its_description_names() -> None:
         assert fill is None or fill.lower() in row.description.lower(), row.code
 
 
+@pytest.mark.parametrize("row", _all_rows(), ids=lambda r: r.code)
+def test_a_description_reads_as_shop_copy(row) -> None:
+    """No repeated clause, no dangling comma-clause, no adjective standing as a noun."""
+    d = row.description
+    assert d.endswith(".") and all(s[:1].isupper() for s in d.split(". ")), d
+    assert not re.search(r"\b(\w+) \1\b", d, re.IGNORECASE), f"a word twice: {d}"
+    assert not re.search(r",\s+(an?|the)\s+\w+(\s+\w+)?\.", d), f"a dangling clause: {d}"
+    parts = re.findall(r"\b(\w+ (?:pocket|hood|collar|belt|zip|lining|cut))\b", d.lower())
+    assert len(parts) == len(set(parts)), f"a part said twice: {d}"
+    assert "fill rated" not in d and not re.search(r"filled with synthetic(?! insulation)", d), d
+    assert not re.search(r"\bcut (regular|slim|oversized)\b", d), f"a fit as a noun: {d}"
+    assert not re.search(r"\bA regular\b", d), f"a fit as a noun: {d}"
+
+
 def test_mens_rows_carry_the_mens_size_run_and_womens_rows_the_womens_one() -> None:
     mens = [r for r in _all_rows() if r.path[0] == "Mens"]
     womens = [r for r in _all_rows() if r.path[0] == "Womens"]
