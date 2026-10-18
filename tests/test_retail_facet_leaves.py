@@ -586,5 +586,9 @@ def test_a_bag_a_belt_a_watch_a_shoe_and_homeware_get_no_fabric_from_their_text(
         assert set(_values(doc, "fabric")) <= own, (rec["product_id"], rec["title"])
         types.add(rec["product_type"])
     assert types >= facet_leaves.NON_TEXTILE_TYPES
-    belts = [d for r, d in zip(built.records, docs, strict=True) if r["product_type"] == "Belt"]
-    assert belts and all("Leather" in _values(d, "material") for d in belts)
+    pairs = zip(built.records, docs, strict=True)
+    belts = [(r, d) for r, d in pairs if r["product_type"] == "Belt"]
+    assert belts
+    for rec, doc in belts:
+        own = sorted(a["value"] for a in rec["attributes"] if a["key"] == "material")
+        assert own and sorted(_values(doc, "material")) == own, (rec["product_id"], rec["title"])

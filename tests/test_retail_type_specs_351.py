@@ -23,6 +23,7 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import decoy_product_words  # noqa: E402
+import distractors  # noqa: E402
 import export  # noqa: E402
 import scale  # noqa: E402
 import type_registry  # noqa: E402
@@ -99,6 +100,8 @@ PROOF_PINNED_CLASS_ROWS = {"PLT-SPFFCE"}
 def _outside_spec(templates: list[dict]) -> tuple[dict[str, list[str]], set[str]]:
     """Per spec key the rows registered outside it, and the decoy rows that sit outside one."""
     decoys = {f"PLT-{r.code}" for r in decoy_product_words.TABLE}  # the decoy rows, not the floor
+    # the jeans belt (gen#422): a distractor that is a Belt on purpose, beside the Belt spec
+    jeans = {d.doc["product_id"] for d in distractors.JEANS}
     stray: dict[str, list[str]] = {}
     out_of_spec: set[str] = set()
     for spec in type_registry.specs().values():
@@ -112,7 +115,9 @@ def _outside_spec(templates: list[dict]) -> tuple[dict[str, list[str]], set[str]
         # a class-8 product-word decoy (gen#326) is another type's title on purpose,
         # e.g. the black bike pump that stands in for "black pumps" (gen#368)
         out_of_spec |= {i for i in mine if i in decoys}
-        stray[spec.key] = [i for i in mine if i not in decoys | PROOF_PINNED_CLASS_ROWS]
+        stray[spec.key] = [
+            i for i in mine if i not in decoys | PROOF_PINNED_CLASS_ROWS and i not in jeans
+        ]
     return stray, out_of_spec
 
 
