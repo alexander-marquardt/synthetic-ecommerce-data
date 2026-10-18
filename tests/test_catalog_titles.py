@@ -367,8 +367,10 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
       removed by the ruling on elastic/prism#9284;
     * ``build_title`` cut the assembled string at the 100-character cap,
       which lands mid-word. Reconstructed on this catalog by
-      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **76
-      of 10,548** titles (69 of 10,548 before the angle-key corruption was
+      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **73
+      of 10,548** titles (76 of 10,548 before the inch socket screws were graded
+      on the SAE scale, alexander-marquardt/synthetic-ecommerce-data#17;
+      69 of 10,548 before the angle-key corruption was
       removed, alexander-marquardt/synthetic-ecommerce-data#404, which moved
       the shared stream; 25 of 9,611 before the socket screws published a
       pack, alexander-marquardt/synthetic-ecommerce-data#65; 43 of 9,576
@@ -578,9 +580,11 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         if full[cap - 1] in word and full[cap] in word:
             mid_word += 1
 
-    assert over_cap == 126, f"{over_cap} titles exceed the cap, not 126"
-    assert mid_word == 76, (
-        f"the cap cut would land inside a word on {mid_word} titles, not 76. "
+    # 126 -> 114 over the cap and 76 -> 73 mid-word with #17: twelve inch socket,
+    # flat, button and low head screws lost "Grade 12.9" for the shorter "Grade 8".
+    assert over_cap == 114, f"{over_cap} titles exceed the cap, not 114"
+    assert mid_word == 73, (
+        f"the cap cut would land inside a word on {mid_word} titles, not 73. "
         "If the catalog moved, restate the figure in build_title's docstring "
         "and in test_no_title_is_cut_mid_word with it."
     )

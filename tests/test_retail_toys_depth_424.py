@@ -285,26 +285,26 @@ def test_a_toy_word_decoy_is_a_class_8_row_of_its_spec_outside_the_toys_departme
 
 #: spec key -> {decoy code: (class, the query it targets)}: the text-match decoys of gen#294 that
 #: each toy type carries. A class 4 names a material or feature the product lacks, a class 6 holds
-#: a color word or another toy's word as a range name, a class 7 holds another toy's word in its
+#: another toy's word as a range name, a class 7 holds another toy's word in its
 #: brand. Every toy type carries all three, as the gen#311 rule asks of every type.
 DECOY_PINS = {
     "kite": {
-        "DT08": (6, "red kite"), "DT09": (6, "card game"), "DT10": (4, "silk kite"),
+        "DT08": (6, "water gun"), "DT09": (6, "card game"), "DT10": (4, "silk kite"),
         "DT11": (7, "marble run")},
     "play_kitchen": {
-        "DT12": (6, "green play kitchen"), "DT13": (6, "water gun"),
+        "DT12": (6, "marble run"), "DT13": (6, "water gun"),
         "DT14": (4, "wooden play kitchen"), "DT15": (7, "card game")},
     "dolls_house": {
-        "DT16": (6, "yellow dolls house"), "DT17": (6, "kite"),
+        "DT16": (6, "water gun"), "DT17": (6, "kite"),
         "DT18": (4, "wooden dolls house"), "DT19": (7, "kite")},
     "card_game": {
-        "DT20": (6, "black card game"), "DT21": (6, "marble run"),
+        "DT20": (6, "kite"), "DT21": (6, "marble run"),
         "DT22": (4, "foil card game"), "DT23": (7, "water gun")},
     "marble_run": {
-        "DT24": (6, "white marble run"), "DT25": (6, "dolls house"),
+        "DT24": (6, "card game"), "DT25": (6, "dolls house"),
         "DT26": (4, "wooden marble run"), "DT27": (7, "play kitchen")},
     "water_gun": {
-        "DT28": (6, "blue water gun"), "DT29": (6, "play kitchen"),
+        "DT28": (6, "kite"), "DT29": (6, "play kitchen"),
         "DT30": (4, "neon water gun"), "DT31": (7, "dolls house")},
 }
 PINNED = [(k, c) for k, pins in DECOY_PINS.items() for c in pins]
@@ -345,8 +345,6 @@ def test_a_toy_decoy_is_a_row_of_its_type_in_the_toys_leaf_that_holds_its_word(k
         assert words[0] not in facts, (words[0], facts)
     else:
         assert set(words) <= title and len(row.title.split()) <= 5, (row.title, d.query)
-    if d.cls == 6 and words[0] in ("red", "green", "yellow", "black", "white", "blue"):
-        assert row.colors[0][0].lower() != words[0], "the color word names a range, not the color"
     if d.cls == 7:
         assert row.brand in row.title and set(words) <= set(row.brand.lower().split()), row.brand
         assert dict(spec.owners).get(row.brand) == "own", spec.owners

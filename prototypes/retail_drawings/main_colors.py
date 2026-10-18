@@ -225,9 +225,9 @@ def _add(rec: dict, colors: list[str]) -> dict:
         swatches[color] = {"color": color, "hex": MAIN_COLORS[color], "pattern": "solid",
                            "family": color.lower()}
         skus += [{**s, "color": color} for s in seed]
-        # A style whose SKUs carry an upper material in more than one (a compound attribute
-        # such as "leather, patent"): the new color keeps them all, one per size in turn, so
-        # a derived style that keeps it does not drop a part of the attribute.
+        # A style whose SKUs carry an upper material in more than one (a style with an
+        # "upper_material" entry per material): the new color keeps them all, one per size in
+        # turn, so a derived style that keeps it does not drop an entry.
         mats = list(dict.fromkeys(s["upper_material"] for s in skus if "upper_material" in s))
         if len(mats) > 1:
             added = [s for s in skus if s["color"] == color]
