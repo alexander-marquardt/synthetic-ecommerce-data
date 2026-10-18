@@ -139,8 +139,11 @@ its published attributes. `set_screws_hex_socket` does both.
    a line added to it conflicts with the next type's (#103).
 - **Golden.** Build the catalog and regenerate the committed one:
    `uv run ecom-generate build --out golden-catalog`. Only the new type's
-   records, the totals in `stats.json` and the field-weights YAML should
-   change. The independence tests below enforce this.
+   records and the field-weights YAML should change; `golden-catalog/stats.json`
+   moves too but is never committed by a PR (`git checkout origin/main --
+   golden-catalog/stats.json`): `scripts/merge_pr.sh` rolls it when the PR merges
+   and CI rewrites it before the tests (README, Contributing, gen#373). The
+   independence tests below enforce this.
 - **Facts.** A modelled type only: declare the type's size and facts on its
    `TypeSpec` (#61). The tests read them from there, so no test file and no
    shared table is edited. `register` writes each one into its table and

@@ -528,6 +528,7 @@ def test_every_row_runs_the_command_its_ci_job_runs() -> None:
         "(left to CI)",
         "(left to CI)",
         "(left to CI)",
+        "(left to CI)",
     ]
     jobs = _ci()["jobs"]
     for name, job, command in rows[:4]:
