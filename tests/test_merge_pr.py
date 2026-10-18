@@ -779,7 +779,9 @@ def test_the_generated_files_are_exactly_what_the_build_writes() -> None:
     golden = _git(REPO, "ls-files", "golden-catalog").splitlines()
     retail = _git(REPO, "ls-files", "golden-retail").splitlines()
     field_map = cli.field_map_target().relative_to(REPO).as_posix()
-    assert sorted(_printed("--print-generated")) == sorted([*golden, *retail, field_map])
+    # retail_figures.py also writes the apparel decoy table (decoy_apparel.write_doc).
+    table = "docs/retail-apparel-decoys.md"
+    assert sorted(_printed("--print-generated")) == sorted([*golden, *retail, field_map, table])
 
 
 def test_the_retail_rebuild_is_the_command_the_retail_figures_name() -> None:
