@@ -1,7 +1,7 @@
 """Hex Nut Thread Plug Gage: a text-match decoy for the industrial seed queries (#462).
 
-A plug gage that checks the thread of a hex nut. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A plug gage that checks the thread of a hex nut. Its title holds the seed noun and its category
+path does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(18.0, 95.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): a plug gage that checks the thread of a hex nut",
+        reason=(
+            "decoy for the industrial seed queries (#462): a plug gage that checks the thread of "
+            "a hex nut"
+        ),
     ),
 )

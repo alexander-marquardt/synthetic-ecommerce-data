@@ -1,7 +1,7 @@
-"""Induction Bearing Heater for 6203 Bearings: a text-match decoy for the industrial seed queries (#462).
+"""Induction Bearing Heater for 6203 Bearings: text-match decoy for the industrial seeds (#462).
 
-An induction heater that expands a 6203 bearing for fitting. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+An induction heater that expands a 6203 bearing for fitting. Its title holds the seed noun and its
+category path does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(180.0, 520.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): an induction heater that expands a 6203 bearing for fitting",
+        reason=(
+            "decoy for the industrial seed queries (#462): an induction heater that expands a "
+            "6203 bearing for fitting"
+        ),
     ),
 )

@@ -1,7 +1,7 @@
 """Bar Stock Cutting Blade: a text-match decoy for the industrial seed queries (#462).
 
-A bi-metal band saw blade that cuts bar stock. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A bi-metal band saw blade that cuts bar stock. Its title holds the seed noun and its category path
+does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(14.0, 60.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): a bi-metal band saw blade that cuts bar stock",
+        reason=(
+            "decoy for the industrial seed queries (#462): a bi-metal band saw blade that cuts "
+            "bar stock"
+        ),
     ),
 )

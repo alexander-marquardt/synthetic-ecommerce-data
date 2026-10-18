@@ -1,7 +1,7 @@
 """Hammer Drill Bit, SDS-Plus: a text-match decoy for the industrial seed queries (#462).
 
-A masonry bit for a hammer drill. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A masonry bit for a hammer drill. Its title holds the seed noun and its category path does not, so
+it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 

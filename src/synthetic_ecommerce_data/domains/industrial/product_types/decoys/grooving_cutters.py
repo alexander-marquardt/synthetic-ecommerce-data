@@ -1,7 +1,7 @@
 """Retaining Ring Groove Cutter: a text-match decoy for the industrial seed queries (#462).
 
-A cutter that machines the groove a retaining ring sits in. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A cutter that machines the groove a retaining ring sits in. Its title holds the seed noun and its
+category path does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(28.0, 90.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): a cutter that machines the groove a retaining ring sits in",
+        reason=(
+            "decoy for the industrial seed queries (#462): a cutter that machines the groove a "
+            "retaining ring sits in"
+        ),
     ),
 )

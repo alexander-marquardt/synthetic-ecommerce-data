@@ -1,7 +1,7 @@
 """Shackle Pin, Screw Pin Replacement: a text-match decoy for the industrial seed queries (#462).
 
-A replacement screw pin for a shackle. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A replacement screw pin for a shackle. Its title holds the seed noun and its category path does
+not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,8 @@ SPEC = TypeSpec(
         price_range=(3.0, 14.0),
         skus=2,
         featured_sizes=("1/2 in",),
-        reason="decoy for the industrial seed queries (#462): a replacement screw pin for a shackle",
+        reason=(
+            "decoy for the industrial seed queries (#462): a replacement screw pin for a shackle"
+        ),
     ),
 )

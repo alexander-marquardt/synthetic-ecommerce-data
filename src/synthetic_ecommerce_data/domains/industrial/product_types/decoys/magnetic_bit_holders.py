@@ -1,7 +1,7 @@
 """Magnetic Screwdriver Bit Holder: a text-match decoy for the industrial seed queries (#462).
 
-A magnetic holder that seats a bit in a screwdriver handle. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A magnetic holder that seats a bit in a screwdriver handle. Its title holds the seed noun and its
+category path does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(3.0, 12.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): a magnetic holder that seats a bit in a screwdriver handle",
+        reason=(
+            "decoy for the industrial seed queries (#462): a magnetic holder that seats a bit in "
+            "a screwdriver handle"
+        ),
     ),
 )

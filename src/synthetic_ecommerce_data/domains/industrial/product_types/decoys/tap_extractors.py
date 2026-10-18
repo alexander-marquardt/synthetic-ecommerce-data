@@ -1,7 +1,7 @@
 """Spiral Flute Tap Extractor: a text-match decoy for the industrial seed queries (#462).
 
-An extractor that removes a broken spiral flute tap. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+An extractor that removes a broken spiral flute tap. Its title holds the seed noun and its category
+path does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(14.0, 55.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): an extractor that removes a broken spiral flute tap",
+        reason=(
+            "decoy for the industrial seed queries (#462): an extractor that removes a broken "
+            "spiral flute tap"
+        ),
     ),
 )

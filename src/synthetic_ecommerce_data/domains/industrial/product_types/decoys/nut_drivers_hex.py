@@ -1,7 +1,7 @@
 """Hex Nut Driver: a text-match decoy for the industrial seed queries (#462).
 
-A driver for hex nuts, sold in the Hand Tools department. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A driver for hex nuts, sold in the Hand Tools department. Its title holds the seed noun and its
+category path does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(6.0, 18.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): a driver for hex nuts, sold in the Hand Tools department",
+        reason=(
+            "decoy for the industrial seed queries (#462): a driver for hex nuts, sold in the "
+            "Hand Tools department"
+        ),
     ),
 )

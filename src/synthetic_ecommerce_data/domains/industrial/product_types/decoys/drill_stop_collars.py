@@ -1,7 +1,7 @@
 """Drill Bit Stop Collar: a text-match decoy for the industrial seed queries (#462).
 
-A stop collar that sets the depth of a 3/8 in drill bit. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A stop collar that sets the depth of a 3/8 in drill bit. Its title holds the seed noun and its
+category path does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(2.0, 9.0),
         skus=2,
         featured_sizes=("3/8 in",),
-        reason="decoy for the industrial seed queries (#462): a stop collar that sets the depth of a 3/8 in drill bit",
+        reason=(
+            "decoy for the industrial seed queries (#462): a stop collar that sets the depth of a "
+            "3/8 in drill bit"
+        ),
     ),
 )

@@ -1,7 +1,7 @@
-"""Thread Repair Insert Kit for 1/4-20 Screws: a text-match decoy for the industrial seed queries (#462).
+"""Thread Repair Insert Kit for 1/4-20 Screws: text-match decoy for the industrial seeds (#462).
 
-A threaded insert kit that repairs a stripped 1/4-20 screw hole. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A threaded insert kit that repairs a stripped 1/4-20 screw hole. Its title holds the seed noun and
+its category path does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(24.0, 75.0),
         skus=1,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): a threaded insert kit that repairs a stripped 1/4-20 screw hole",
+        reason=(
+            "decoy for the industrial seed queries (#462): a threaded insert kit that repairs a "
+            "stripped 1/4-20 screw hole"
+        ),
     ),
 )

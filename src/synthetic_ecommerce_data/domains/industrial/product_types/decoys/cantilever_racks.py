@@ -1,7 +1,7 @@
 """Bar Stock Cantilever Rack: a text-match decoy for the industrial seed queries (#462).
 
-A cantilever rack that stores bar stock. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A cantilever rack that stores bar stock. Its title holds the seed noun and its category path does
+not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,8 @@ SPEC = TypeSpec(
         price_range=(240.0, 980.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): a cantilever rack that stores bar stock",
+        reason=(
+            "decoy for the industrial seed queries (#462): a cantilever rack that stores bar stock"
+        ),
     ),
 )

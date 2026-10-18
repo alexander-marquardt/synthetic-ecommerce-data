@@ -1,7 +1,7 @@
-"""Anti-Seize Compound for Stainless Steel Hex Bolts: a text-match decoy for the industrial seed queries (#462).
+"""Anti-Seize Compound for Stainless Steel Hex Bolts: text-match decoy (#462).
 
-A nickel anti-seize paste for stainless bolts. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A nickel anti-seize paste for stainless bolts. Its title holds the seed noun and its category path
+does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -30,6 +30,9 @@ SPEC = TypeSpec(
         price_range=(8.0, 36.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): a nickel anti-seize paste for stainless bolts",
+        reason=(
+            "decoy for the industrial seed queries (#462): a nickel anti-seize paste for "
+            "stainless bolts"
+        ),
     ),
 )
